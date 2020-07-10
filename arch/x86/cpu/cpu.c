@@ -163,10 +163,10 @@ int default_print_cpuinfo(void)
 	       cpu_has_64bit() ? "x86_64" : "x86",
 	       cpu_vendor_name(gd->arch.x86_vendor), gd->arch.x86_device);
 
-#ifdef CONFIG_HAVE_ACPI_RESUME
-	debug("ACPI previous sleep state: %s\n",
-	      acpi_ss_string(gd->arch.prev_sleep_state));
-#endif
+	if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME)) {
+		debug("ACPI previous sleep state: %s\n",
+		      acpi_ss_string(gd->arch.prev_sleep_state));
+	}
 
 	return 0;
 }
@@ -191,12 +191,12 @@ int last_stage_init(void)
 
 	board_final_cleanup();
 
-#ifdef CONFIG_HAVE_ACPI_RESUME
-	fadt = acpi_find_fadt();
+	if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME)) {
+		fadt = acpi_find_fadt();
 
-	if (fadt && gd->arch.prev_sleep_state == ACPI_S3)
-		acpi_resume(fadt);
-#endif
+		if (fadt && gd->arch.prev_sleep_state == ACPI_S3)
+			acpi_resume(fadt);
+	}
 
 	write_tables();
 
@@ -277,17 +277,17 @@ int reserve_arch(void)
 	high_table_reserve();
 #endif
 
-#ifdef CONFIG_HAVE_ACPI_RESUME
-	acpi_s3_reserve();
+	if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME)) {
+		acpi_s3_reserve();
 
-#ifdef CONFIG_HAVE_FSP
-	/*
-	 * Save stack address to CMOS so that at next S3 boot,
-	 * we can use it as the stack address for fsp_contiue()
-	 */
-	fsp_save_s3_stack();
-#endif /* CONFIG_HAVE_FSP */
-#endif /* CONFIG_HAVE_ACPI_RESUME */
+		if (IS_ENABLED(CONFIG_HAVE_FSP)) {
+			/*
+			 * Save stack address to CMOS so that at next S3 boot,
+			 * we can use it as the stack address for fsp_contiue()
+			 */
+			fsp_save_s3_stack();
+		}
+	}
 
 	return 0;
 }

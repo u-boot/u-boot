@@ -60,7 +60,6 @@ void board_final_cleanup(void)
 		debug("OK\n");
 }
 
-#ifdef CONFIG_HAVE_ACPI_RESUME
 int fsp_save_s3_stack(void)
 {
 	struct udevice *dev;
@@ -84,4 +83,3 @@ int fsp_save_s3_stack(void)
 
 	return 0;
 }
-#endif

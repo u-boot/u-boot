@@ -192,16 +192,16 @@ int arch_fsps_preinit(void)
 
 int arch_fsp_init_r(void)
 {
-#ifdef CONFIG_HAVE_ACPI_RESUME
-	bool s3wake = gd->arch.prev_sleep_state == ACPI_S3;
-#else
-	bool s3wake = false;
-#endif
+	bool s3wake;
 	struct udevice *dev, *itss;
 	int ret;
 
 	if (!ll_boot_init())
 		return 0;
+
+	s3wake = IS_ENABLED(CONFIG_HAVE_ACPI_RESUME) &&
+		gd->arch.prev_sleep_state == ACPI_S3;
+
 	/*
 	 * This must be called before any devices are probed. Put any probing
 	 * into arch_fsps_preinit() above.

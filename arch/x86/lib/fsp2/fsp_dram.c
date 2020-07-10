@@ -27,11 +27,10 @@ int dram_init(void)
 		return 0;
 	}
 	if (spl_phase() == PHASE_SPL) {
-#ifdef CONFIG_HAVE_ACPI_RESUME
-		bool s3wake = gd->arch.prev_sleep_state == ACPI_S3;
-#else
 		bool s3wake = false;
-#endif
+
+		s3wake = IS_ENABLED(CONFIG_HAVE_ACPI_RESUME) &&
+			gd->arch.prev_sleep_state == ACPI_S3;
 
 		ret = fsp_memory_init(s3wake,
 			      IS_ENABLED(CONFIG_APL_BOOT_FROM_FAST_SPI_FLASH));

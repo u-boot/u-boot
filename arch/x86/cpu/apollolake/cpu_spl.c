@@ -247,12 +247,13 @@ static int arch_cpu_init_spl(void)
 	ret = pmc_init(pmc);
 	if (ret < 0)
 		return log_msg_ret("Could not init PMC", ret);
-#ifdef CONFIG_HAVE_ACPI_RESUME
-	ret = pmc_prev_sleep_state(pmc);
-	if (ret < 0)
-		return log_msg_ret("Could not get PMC sleep state", ret);
-	gd->arch.prev_sleep_state = ret;
-#endif
+	if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME)) {
+		ret = pmc_prev_sleep_state(pmc);
+		if (ret < 0)
+			return log_msg_ret("Could not get PMC sleep state",
+					   ret);
+		gd->arch.prev_sleep_state = ret;
+	}
 
 	return 0;
 }
