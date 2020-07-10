@@ -16,7 +16,8 @@ from io import StringIO
 
 use_concurrent = True
 try:
-    from concurrencytest import ConcurrentTestSuite, fork_for_tests
+    from concurrencytest.concurrencytest import ConcurrentTestSuite
+    from concurrencytest.concurrencytest import fork_for_tests
 except:
     use_concurrent = False
 
@@ -50,6 +51,7 @@ def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None,
         glob_list = []
     glob_list += exclude_list
     glob_list += ['*libfdt.py', '*site-packages*', '*dist-packages*']
+    glob_list += ['*concurrencytest*']
     test_cmd = 'test' if 'binman' in prog or 'patman' in prog else '-t'
     prefix = ''
     if build_dir:
