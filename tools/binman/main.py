@@ -113,6 +113,11 @@ def RunBinman(args):
     if not args.debug:
         sys.tracebacklimit = 0
 
+    # Provide a default toolpath in the hope of finding a mkimage built from
+    # current source
+    if not args.toolpath:
+        args.toolpath = ['./tools', 'build-sandbox/tools']
+
     if args.cmd == 'test':
         if args.test_coverage:
             RunTestCoverage(args.toolpath)
