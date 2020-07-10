@@ -180,6 +180,8 @@ void xhci_cleanup(struct xhci_ctrl *ctrl)
 	xhci_free_virt_devices(ctrl);
 	free(ctrl->erst.entries);
 	free(ctrl->dcbaa);
+	if (reset_valid(&ctrl->reset))
+		reset_free(&ctrl->reset);
 	memset(ctrl, '\0', sizeof(struct xhci_ctrl));
 }
 
@@ -394,6 +396,9 @@ static int xhci_scratchpad_alloc(struct xhci_ctrl *ctrl)
 		uintptr_t ptr = (uintptr_t)buf + i * page_size;
 		scratchpad->sp_array[i] = cpu_to_le64(ptr);
 	}
+
+	xhci_flush_cache((uintptr_t)scratchpad->sp_array,
+			 sizeof(u64) * num_sp);
 
 	return 0;
 
