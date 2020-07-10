@@ -19,3 +19,4 @@ class Entry_cros_ec_rw(Entry_blob_named_by_arg):
     """
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node, 'cros-ec-rw')
+        self.external = True

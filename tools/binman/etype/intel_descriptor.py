@@ -8,7 +8,7 @@
 import struct
 
 from binman.entry import Entry
-from binman.etype.blob import Entry_blob
+from binman.etype.blob_ext import Entry_blob_ext
 
 FD_SIGNATURE   = struct.pack('<L', 0x0ff0a55a)
 MAX_REGIONS    = 5
@@ -25,7 +25,7 @@ class Region:
         self.limit = ((val & 0x0fff0000) >> 4) | 0xfff
         self.size = self.limit - self.base + 1
 
-class Entry_intel_descriptor(Entry_blob):
+class Entry_intel_descriptor(Entry_blob_ext):
     """Intel flash descriptor block (4KB)
 
     Properties / Entry arguments:

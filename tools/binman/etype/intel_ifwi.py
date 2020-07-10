@@ -8,11 +8,11 @@
 from collections import OrderedDict
 
 from binman.entry import Entry
-from binman.etype.blob import Entry_blob
+from binman.etype.blob_ext import Entry_blob_ext
 from dtoc import fdt_util
 from patman import tools
 
-class Entry_intel_ifwi(Entry_blob):
+class Entry_intel_ifwi(Entry_blob_ext):
     """Entry containing an Intel Integrated Firmware Image (IFWI) file
 
     Properties / Entry arguments:

@@ -5,10 +5,9 @@
 # Entry-type module for Intel Memory Reference Code binary blob
 #
 
-from binman.entry import Entry
-from binman.etype.blob import Entry_blob
+from binman.etype.blob_ext import Entry_blob_ext
 
-class Entry_intel_mrc(Entry_blob):
+class Entry_intel_mrc(Entry_blob_ext):
     """Entry containing an Intel Memory Reference Code (MRC) file
 
     Properties / Entry arguments:

@@ -7,9 +7,9 @@
 
 import struct
 
-from binman.etype.blob import Entry_blob
+from binman.etype.blob_ext import Entry_blob_ext
 
-class Entry_intel_fit(Entry_blob):
+class Entry_intel_fit(Entry_blob_ext):
     """Intel Firmware Image Table (FIT)
 
     This entry contains a dummy FIT as required by recent Intel CPUs. The FIT
