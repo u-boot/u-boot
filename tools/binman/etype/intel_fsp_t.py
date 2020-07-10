@@ -5,10 +5,9 @@
 # Entry-type module for Intel Firmware Support Package binary blob (T section)
 #
 
-from binman.entry import Entry
-from binman.etype.blob import Entry_blob
+from binman.etype.blob_ext import Entry_blob_ext
 
-class Entry_intel_fsp_t(Entry_blob):
+class Entry_intel_fsp_t(Entry_blob_ext):
     """Entry containing Intel Firmware Support Package (FSP) temp ram init
 
     Properties / Entry arguments:

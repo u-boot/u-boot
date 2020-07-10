@@ -7,9 +7,9 @@
 
 import struct
 
-from binman.etype.blob import Entry_blob
+from binman.etype.blob_ext import Entry_blob_ext
 
-class Entry_intel_fit_ptr(Entry_blob):
+class Entry_intel_fit_ptr(Entry_blob_ext):
     """Intel Firmware Image Table (FIT) pointer
 
     This entry contains a pointer to the FIT. It is required to be at address
