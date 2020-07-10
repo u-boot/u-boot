@@ -16,7 +16,7 @@ class Entry_intel_fit_ptr(Entry_blob):
     0xffffffc0 in the image.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         if self.HasSibling('intel-fit') is False:
             self.Raise("'intel-fit-ptr' section must have an 'intel-fit' sibling")
 
@@ -38,4 +38,4 @@ class Entry_intel_fit_ptr(Entry_blob):
 
     def Pack(self, offset):
         """Special pack method to set the offset to the right place"""
-        return Entry_blob.Pack(self, 0xffffffc0)
+        return super().Pack(0xffffffc0)

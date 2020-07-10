@@ -33,7 +33,7 @@ class Entry_mkimage(Entry):
     binman.
     """
     def __init__(self, section, etype, node):
-        Entry.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self._args = fdt_util.GetString(self._node, 'args').split(' ')
         self._mkimage_entries = OrderedDict()
         self._ReadSubnodes()

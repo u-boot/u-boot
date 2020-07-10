@@ -32,7 +32,7 @@ class Entry_files(Entry_section):
         global state
         from binman import state
 
-        Entry_section.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self._pattern = fdt_util.GetString(self._node, 'pattern')
         if not self._pattern:
             self.Raise("Missing 'pattern' property")

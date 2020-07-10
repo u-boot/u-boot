@@ -43,7 +43,7 @@ class Entry_section(Entry):
     """
     def __init__(self, section, etype, node, test=False):
         if not test:
-            Entry.__init__(self, section, etype, node)
+            super().__init__(section, etype, node)
         self._entries = OrderedDict()
         self._pad_byte = 0
         self._sort = False
@@ -52,7 +52,7 @@ class Entry_section(Entry):
 
     def ReadNode(self):
         """Read properties from the image node"""
-        Entry.ReadNode(self)
+        super().ReadNode()
         self._pad_byte = fdt_util.GetInt(self._node, 'pad-byte', 0)
         self._sort = fdt_util.GetBool(self._node, 'sort-by-offset')
         self._end_4gb = fdt_util.GetBool(self._node, 'end-at-4gb')
@@ -126,13 +126,13 @@ class Entry_section(Entry):
         a section containing a list of files. Process these entries so that
         this information is added to the device tree.
         """
-        Entry.ExpandEntries(self)
+        super().ExpandEntries()
         for entry in self._entries.values():
             entry.ExpandEntries()
 
     def AddMissingProperties(self):
         """Add new properties to the device tree as needed for this entry"""
-        Entry.AddMissingProperties(self)
+        super().AddMissingProperties()
         for entry in self._entries.values():
             entry.AddMissingProperties()
 
@@ -168,14 +168,14 @@ class Entry_section(Entry):
 
     def ResetForPack(self):
         """Reset offset/size fields so that packing can be done again"""
-        Entry.ResetForPack(self)
+        super().ResetForPack()
         for entry in self._entries.values():
             entry.ResetForPack()
 
     def Pack(self, offset):
         """Pack all entries into the section"""
         self._PackEntries()
-        return Entry.Pack(self, offset)
+        return super().Pack(offset)
 
     def _PackEntries(self):
         """Pack all entries into the image"""
@@ -232,12 +232,12 @@ class Entry_section(Entry):
             entry.WriteSymbols(self)
 
     def SetCalculatedProperties(self):
-        Entry.SetCalculatedProperties(self)
+        super().SetCalculatedProperties()
         for entry in self._entries.values():
             entry.SetCalculatedProperties()
 
     def SetImagePos(self, image_pos):
-        Entry.SetImagePos(self, image_pos)
+        super().SetImagePos(image_pos)
         for entry in self._entries.values():
             entry.SetImagePos(image_pos + self.offset)
 

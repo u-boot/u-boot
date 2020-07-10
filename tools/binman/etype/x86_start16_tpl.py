@@ -26,7 +26,7 @@ class Entry_x86_start16_tpl(Entry_blob):
     may be used instead.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def GetDefaultFilename(self):
         return 'tpl/u-boot-x86-start16-tpl.bin'

@@ -85,7 +85,7 @@ class Entry_fdtmap(Entry):
         from binman import state
         from dtoc.fdt import Fdt
 
-        Entry.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def _GetFdtmap(self):
         """Build an FDT map from the entries in the current image

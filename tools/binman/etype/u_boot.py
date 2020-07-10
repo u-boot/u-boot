@@ -26,7 +26,7 @@ class Entry_u_boot(Entry_blob):
     in the binman README for more information.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def GetDefaultFilename(self):
         return 'u-boot.bin'

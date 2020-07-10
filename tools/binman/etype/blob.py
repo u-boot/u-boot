@@ -31,7 +31,7 @@ class Entry_blob(Entry):
     data.
     """
     def __init__(self, section, etype, node):
-        Entry.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self._filename = fdt_util.GetString(self._node, 'filename', self.etype)
         self.compress = fdt_util.GetString(self._node, 'compress', 'none')
 
