@@ -117,6 +117,7 @@
 			reg = <0x00000000 0 0 0 0>;
 			compatible = "intel,apl-hostbridge";
 			pciex-region-size = <0x10000000>;
+			fspm,training-delay = <21>;
 			/*
 			 * Parameters used by the FSP-S binary blob. This is
 			 * really unfortunate since these parameters mostly

@@ -57,7 +57,8 @@ int arch_fsps_preinit(void);
  *
  * @dev: Hostbridge device containing config
  * @upd: Config data to fill in
- * @return 0 if OK, -ve on error
+ * @return 0 if OK, -ENOENT if OK but no MRC-cache data was found, other -ve on
+ *	error
  */
 int fspm_update_config(struct udevice *dev, struct fspm_upd *upd);
 

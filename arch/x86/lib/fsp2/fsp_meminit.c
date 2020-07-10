@@ -9,6 +9,7 @@
 #include <common.h>
 #include <binman.h>
 #include <bootstage.h>
+#include <dm.h>
 #include <log.h>
 #include <asm/mrccache.h>
 #include <asm/fsp/fsp_infoheader.h>
@@ -63,8 +64,10 @@ int fsp_memory_init(bool s3wake, bool use_spi_flash)
 	struct fsp_header *hdr;
 	struct hob_header *hob;
 	struct udevice *dev;
+	int delay;
 	int ret;
 
+	log_debug("Locating FSP\n");
 	ret = fsp_locate_fsp(FSP_M, &entry, use_spi_flash, &dev, &hdr, NULL);
 	if (ret)
 		return log_msg_ret("locate FSP", ret);
@@ -76,21 +79,32 @@ int fsp_memory_init(bool s3wake, bool use_spi_flash)
 		return log_msg_ret("Bad UPD signature", -EPERM);
 	memcpy(&upd, fsp_upd, sizeof(upd));
 
+	delay = dev_read_u32_default(dev, "fspm,training-delay", 0);
 	ret = fspm_update_config(dev, &upd);
-	if (ret)
-		return log_msg_ret("Could not setup config", ret);
+	if (ret) {
+		if (ret != -ENOENT)
+			return log_msg_ret("Could not setup config", ret);
+	} else {
+		delay = 0;
+	}
 
-	debug("SDRAM init...");
+	if (delay)
+		printf("SDRAM training (%d seconds)...", delay);
+	else
+		log_debug("SDRAM init...");
 	bootstage_start(BOOTSTAGE_ID_ACCUM_FSP_M, "fsp-m");
 	func = (fsp_memory_init_func)(hdr->img_base + hdr->fsp_mem_init);
 	ret = func(&upd, &hob);
 	bootstage_accum(BOOTSTAGE_ID_ACCUM_FSP_M);
 	cpu_reinit_fpu();
+	if (delay)
+		printf("done\n");
+	else
+		log_debug("done\n");
 	if (ret)
 		return log_msg_ret("SDRAM init fail\n", ret);
 
 	gd->arch.hob_list = hob;
-	debug("done\n");
 
 	ret = fspm_done(dev);
 	if (ret)
