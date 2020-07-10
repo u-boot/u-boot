@@ -42,6 +42,16 @@ obtained from the list of available device-tree files, managed by the
 
 
 
+Entry: blob-ext: Entry containing an externally built binary blob
+-----------------------------------------------------------------
+
+Note: This should not be used by itself. It is normally used as a parent
+class by other entry types.
+
+See 'blob' for Properties / Entry arguments.
+
+
+
 Entry: blob-named-by-arg: A blob entry which gets its filename property from its subclass
 -----------------------------------------------------------------------------------------
 
