@@ -84,7 +84,7 @@ class Entry_intel_ifwi(Entry_blob_ext):
         return True
 
     def ObtainContents(self):
-        """Get the contects for the IFWI
+        """Get the contents for the IFWI
 
         Unfortunately we cannot create anything from scratch here, as Intel has
         tools which create precursor binaries with lots of data and settings,
@@ -97,13 +97,21 @@ class Entry_intel_ifwi(Entry_blob_ext):
         After that we delete the OBBP sub-partition and add each of the files
         that we want in the IFWI file, one for each sub-entry of the IWFI node.
         """
-        self._pathname = tools.GetInputFilename(self._filename)
+        self._pathname = tools.GetInputFilename(self._filename,
+                                                self.section.GetAllowMissing())
+        # Allow the file to be missing
+        if not self._pathname:
+            self.SetContents(b'')
+            self.missing = True
+            return True
         for entry in self._ifwi_entries.values():
             if not entry.ObtainContents():
                 return False
         return self._BuildIfwi()
 
     def ProcessContents(self):
+        if self.missing:
+            return True
         orig_data = self.data
         self._BuildIfwi()
         same = orig_data == self.data
@@ -121,5 +129,6 @@ class Entry_intel_ifwi(Entry_blob_ext):
 
     def WriteSymbols(self, section):
         """Write symbol values into binary files for access at run time"""
-        for entry in self._ifwi_entries.values():
-            entry.WriteSymbols(self)
+        if not self.missing:
+            for entry in self._ifwi_entries.values():
+                entry.WriteSymbols(self)

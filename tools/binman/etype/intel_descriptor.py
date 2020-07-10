@@ -55,6 +55,12 @@ class Entry_intel_descriptor(Entry_blob_ext):
         return super().Pack(offset)
 
     def GetOffsets(self):
+        info = {}
+        if self.missing:
+            # Return zero offsets so that these entries get placed somewhere
+            if self.HasSibling('intel-me'):
+                info['intel-me'] = [0, None]
+            return info
         offset = self.data.find(FD_SIGNATURE)
         if offset == -1:
             self.Raise('Cannot find Intel Flash Descriptor (FD) signature')
@@ -66,7 +72,6 @@ class Entry_intel_descriptor(Entry_blob_ext):
 
         # Set the offset for ME (Management Engine) and IFWI (Integrated
         # Firmware Image), for now, since the others are not used.
-        info = {}
         if self.HasSibling('intel-me'):
             info['intel-me'] = [self._regions[REGION_ME].base,
                                 self._regions[REGION_ME].size]
