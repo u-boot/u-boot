@@ -89,14 +89,18 @@ def GetEntryModules(include_testing=True):
                 for item in glob_list
                 if include_testing or '_testing' not in item])
 
-def RunTestCoverage():
+def RunTestCoverage(toolpath):
     """Run the tests and check that we get 100% coverage"""
     glob_list = GetEntryModules(False)
     all_set = set([os.path.splitext(os.path.basename(item))[0]
                    for item in glob_list if '_testing' not in item])
+    extra_args = ''
+    if toolpath:
+        for path in toolpath:
+            extra_args += ' --toolpath %s' % path
     test_util.RunTestCoverage('tools/binman/binman', None,
             ['*test*', '*main.py', 'tools/patman/*', 'tools/dtoc/*'],
-            args.build_dir, all_set)
+            args.build_dir, all_set, extra_args or None)
 
 def RunBinman(args):
     """Main entry point to binman once arguments are parsed
@@ -111,7 +115,7 @@ def RunBinman(args):
 
     if args.cmd == 'test':
         if args.test_coverage:
-            RunTestCoverage()
+            RunTestCoverage(args.toolpath)
         else:
             ret_code = RunTests(args.debug, args.verbosity, args.processes,
                                 args.test_preserve_dirs, args.tests,

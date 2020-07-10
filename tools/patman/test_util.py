@@ -21,7 +21,8 @@ except:
     use_concurrent = False
 
 
-def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None):
+def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None,
+                    extra_args=None):
     """Run tests and check that we get 100% coverage
 
     Args:
@@ -34,6 +35,8 @@ def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None):
             calculation
         build_dir: Build directory, used to locate libfdt.py
         required: List of modules which must be in the coverage report
+        extra_args (str): Extra arguments to pass to the tool before the -t/test
+            arg
 
     Raises:
         ValueError if the code coverage is not 100%
@@ -52,8 +55,8 @@ def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None):
     if build_dir:
         prefix = 'PYTHONPATH=$PYTHONPATH:%s/sandbox_spl/tools ' % build_dir
     cmd = ('%spython3-coverage run '
-           '--omit "%s" %s %s -P1' % (prefix, ','.join(glob_list),
-                                      prog, test_cmd))
+           '--omit "%s" %s %s %s -P1' % (prefix, ','.join(glob_list),
+                                         prog, extra_args or '', test_cmd))
     os.system(cmd)
     stdout = command.Output('python3-coverage', 'report')
     lines = stdout.splitlines()
