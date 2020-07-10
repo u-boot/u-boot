@@ -21,6 +21,7 @@ obj-$(CONFIG_PINCTRL_MESON)	+= meson/
 obj-$(CONFIG_PINCTRL_MTK)	+= mediatek/
 obj-$(CONFIG_PINCTRL_MSCC)	+= mscc/
 obj-$(CONFIG_ARCH_MVEBU)	+= mvebu/
+obj-$(CONFIG_ARCH_NEXELL)	+= nexell/
 obj-$(CONFIG_PINCTRL_SINGLE)	+= pinctrl-single.o
 obj-$(CONFIG_PINCTRL_STI)	+= pinctrl-sti.o
 obj-$(CONFIG_PINCTRL_STM32)	+= pinctrl_stm32.o
