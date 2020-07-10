@@ -6,10 +6,12 @@
 #
 #    python -m unittest func_test.TestFunctional.testHelp
 
+import collections
 import gzip
 import hashlib
 from optparse import OptionParser
 import os
+import re
 import shutil
 import struct
 import sys
@@ -3425,6 +3427,58 @@ class TestFunctional(unittest.TestCase):
         """Test that zero-size overlapping regions are ignored"""
         self._DoTestFile('160_pack_overlap_zero.dts')
 
+    def testSimpleFit(self):
+        """Test an image with a FIT inside"""
+        data = self._DoReadFile('161_fit.dts')
+        self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
+        self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
+        fit_data = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
+
+        # The data should be inside the FIT
+        dtb = fdt.Fdt.FromData(fit_data)
+        dtb.Scan()
+        fnode = dtb.GetNode('/images/kernel')
+        self.assertIn('data', fnode.props)
+
+        fname = os.path.join(self._indir, 'fit_data.fit')
+        tools.WriteFile(fname, fit_data)
+        out = tools.Run('dumpimage', '-l', fname)
+
+        # Check a few features to make sure the plumbing works. We don't need
+        # to test the operation of mkimage or dumpimage here. First convert the
+        # output into a dict where the keys are the fields printed by dumpimage
+        # and the values are a list of values for each field
+        lines = out.splitlines()
+
+        # Converts "Compression:  gzip compressed" into two groups:
+        # 'Compression' and 'gzip compressed'
+        re_line = re.compile(r'^ *([^:]*)(?:: *(.*))?$')
+        vals = collections.defaultdict(list)
+        for line in lines:
+            mat = re_line.match(line)
+            vals[mat.group(1)].append(mat.group(2))
+
+        self.assertEquals('FIT description: test-desc', lines[0])
+        self.assertIn('Created:', lines[1])
+        self.assertIn('Image 0 (kernel)', vals)
+        self.assertIn('Hash value', vals)
+        data_sizes = vals.get('Data Size')
+        self.assertIsNotNone(data_sizes)
+        self.assertEqual(2, len(data_sizes))
+        # Format is "4 Bytes = 0.00 KiB = 0.00 MiB" so take the first word
+        self.assertEqual(len(U_BOOT_DATA), int(data_sizes[0].split()[0]))
+        self.assertEqual(len(U_BOOT_SPL_DTB_DATA), int(data_sizes[1].split()[0]))
+
+    def testFitExternal(self):
+        """Test an image with an FIT"""
+        data = self._DoReadFile('162_fit_external.dts')
+        fit_data = data[len(U_BOOT_DATA):-2]  # _testing is 2 bytes
+
+        # The data should be outside the FIT
+        dtb = fdt.Fdt.FromData(fit_data)
+        dtb.Scan()
+        fnode = dtb.GetNode('/images/kernel')
+        self.assertNotIn('data', fnode.props)
 
 if __name__ == "__main__":
     unittest.main()
