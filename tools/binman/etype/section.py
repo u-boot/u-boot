@@ -442,8 +442,8 @@ class Entry_section(Entry):
         if not entry:
             self._Raise("Unable to set offset/size for unknown entry '%s'" %
                         name)
-        entry.SetOffsetSize(self._skip_at_start + offset if offset else None,
-                            size)
+        entry.SetOffsetSize(self._skip_at_start + offset if offset is not None
+                            else None, size)
 
     def GetEntryOffsets(self):
         """Handle entries that want to set the offset/size of other entries

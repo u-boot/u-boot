@@ -160,8 +160,7 @@ class TestFunctional(unittest.TestCase):
             tools.ReadFile(cls.ElfTestFile('u_boot_ucode_ptr')))
 
         # Intel flash descriptor file
-        with open(cls.TestFile('descriptor.bin'), 'rb') as fd:
-            TestFunctional._MakeInputFile('descriptor.bin', fd.read())
+        cls._SetupDescriptor()
 
         shutil.copytree(cls.TestFile('files'),
                         os.path.join(cls._indir, 'files'))
@@ -506,6 +505,11 @@ class TestFunctional(unittest.TestCase):
         """
         TestFunctional._MakeInputFile('tpl/u-boot-tpl',
             tools.ReadFile(cls.ElfTestFile(src_fname)))
+
+    @classmethod
+    def _SetupDescriptor(cls):
+        with open(cls.TestFile('descriptor.bin'), 'rb') as fd:
+            TestFunctional._MakeInputFile('descriptor.bin', fd.read())
 
     @classmethod
     def TestFile(cls, fname):
@@ -933,11 +937,14 @@ class TestFunctional(unittest.TestCase):
 
     def testPackX86RomMeNoDesc(self):
         """Test that an invalid Intel descriptor entry is detected"""
-        TestFunctional._MakeInputFile('descriptor.bin', b'')
-        with self.assertRaises(ValueError) as e:
-            self._DoTestFile('031_x86_rom_me.dts')
-        self.assertIn("Node '/binman/intel-descriptor': Cannot find Intel Flash Descriptor (FD) signature",
-                      str(e.exception))
+        try:
+            TestFunctional._MakeInputFile('descriptor.bin', b'')
+            with self.assertRaises(ValueError) as e:
+                self._DoTestFile('031_x86_rom_me.dts')
+            self.assertIn("Node '/binman/intel-descriptor': Cannot find Intel Flash Descriptor (FD) signature",
+                          str(e.exception))
+        finally:
+            self._SetupDescriptor()
 
     def testPackX86RomBadDesc(self):
         """Test that the Intel requires a descriptor entry"""
@@ -3393,6 +3400,26 @@ class TestFunctional(unittest.TestCase):
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'main-section'.*missing.*: "
                          "blob-ext blob-ext2")
+
+    def testPackX86RomMeMissingDesc(self):
+        """Test that an missing Intel descriptor entry is allowed"""
+        pathname = os.path.join(self._indir, 'descriptor.bin')
+        os.remove(pathname)
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('031_x86_rom_me.dts', allow_missing=True)
+        err = stderr.getvalue()
+        self.assertRegex(err,
+                         "Image 'main-section'.*missing.*: intel-descriptor")
+
+    def testPackX86RomMissingIfwi(self):
+        """Test that an x86 ROM with Integrated Firmware Image can be created"""
+        self._SetupIfwi('fitimage.bin')
+        pathname = os.path.join(self._indir, 'fitimage.bin')
+        os.remove(pathname)
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('111_x86_rom_ifwi.dts', allow_missing=True)
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'main-section'.*missing.*: intel-ifwi")
 
 
 if __name__ == "__main__":
