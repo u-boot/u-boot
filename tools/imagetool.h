@@ -81,6 +81,7 @@ struct image_tool_params {
 	unsigned int external_offset;	/* Add padding to external data */
 	int bl_len;		/* Block length in byte for external data */
 	const char *engine_id;	/* Engine to use for signing */
+	bool reset_timestamp;	/* Reset the timestamp on an existing image */
 };
 
 /*
