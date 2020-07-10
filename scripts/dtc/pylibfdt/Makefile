@@ -24,6 +24,9 @@ quiet_cmd_pymod = PYMOD   $@
 		$(PYTHON3) $< --quiet build_ext --inplace
 
 $(obj)/_libfdt.so: $(src)/setup.py $(PYLIBFDT_srcs) FORCE
+	@# Remove the library since otherwise Python doesn't seem to regenerate
+	@# the libfdt.py file if it is missing.
+	rm -f $(obj)/_libfdt*.so
 	$(call if_changed,pymod)
 
 always += _libfdt.so
