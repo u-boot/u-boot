@@ -207,7 +207,8 @@ class Prop:
             if auto_resize:
                 while fdt_obj.setprop(node.Offset(), self.name, self.bytes,
                                     (libfdt.NOSPACE,)) == -libfdt.NOSPACE:
-                    fdt_obj.resize(fdt_obj.totalsize() + 1024)
+                    fdt_obj.resize(fdt_obj.totalsize() + 1024 +
+                                   len(self.bytes))
                     fdt_obj.setprop(node.Offset(), self.name, self.bytes)
             else:
                 fdt_obj.setprop(node.Offset(), self.name, self.bytes)
@@ -410,6 +411,18 @@ class Node:
             val = val.encode('utf-8')
         self._CheckProp(prop_name).props[prop_name].SetData(val + b'\0')
 
+    def AddData(self, prop_name, val):
+        """Add a new property to a node
+
+        The device tree is marked dirty so that the value will be written to
+        the blob on the next sync.
+
+        Args:
+            prop_name: Name of property to add
+            val: Bytes value of property
+        """
+        self.props[prop_name] = Prop(self, None, prop_name, val)
+
     def AddString(self, prop_name, val):
         """Add a new string property to a node
 
@@ -422,7 +435,7 @@ class Node:
         """
         if sys.version_info[0] >= 3:  # pragma: no cover
             val = bytes(val, 'utf-8')
-        self.props[prop_name] = Prop(self, None, prop_name, val + b'\0')
+        self.AddData(prop_name, val + b'\0')
 
     def AddSubnode(self, name):
         """Add a new subnode to the node
