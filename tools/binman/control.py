@@ -387,7 +387,7 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
 
 
 def ProcessImage(image, update_fdt, write_map, get_contents=True,
-                 allow_resize=True):
+                 allow_resize=True, allow_missing=False):
     """Perform all steps for this image, including checking and # writing it.
 
     This means that errors found with a later image will be reported after
@@ -402,8 +402,10 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
             the contents is already present
         allow_resize: True to allow entries to change size (this does a re-pack
             of the entries), False to raise an exception
+        allow_missing: Allow blob_ext objects to be missing
     """
     if get_contents:
+        image.SetAllowMissing(allow_missing)
         image.GetEntryContents()
     image.GetEntryOffsets()
 
@@ -523,7 +525,8 @@ def Binman(args):
             images = PrepareImagesAndDtbs(dtb_fname, args.image,
                                           args.update_fdt)
             for image in images.values():
-                ProcessImage(image, args.update_fdt, args.map)
+                ProcessImage(image, args.update_fdt, args.map,
+                             allow_missing=args.allow_missing)
 
             # Write the updated FDTs to our output files
             for dtb_item in state.GetAllFdts():

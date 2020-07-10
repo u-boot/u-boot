@@ -794,3 +794,12 @@ features to produce new behaviours.
             elif self == entries[-1]:
                 return 'end'
         return 'middle'
+
+    def SetAllowMissing(self, allow_missing):
+        """Set whether a section allows missing external blobs
+
+        Args:
+            allow_missing: True if allowed, False if not allowed
+        """
+        # This is meaningless for anything other than sections
+        pass

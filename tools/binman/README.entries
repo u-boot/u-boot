@@ -48,6 +48,9 @@ Entry: blob-ext: Entry containing an externally built binary blob
 Note: This should not be used by itself. It is normally used as a parent
 class by other entry types.
 
+If the file providing this blob is missing, binman can optionally ignore it
+and produce a broken image with a warning.
+
 See 'blob' for Properties / Entry arguments.
 
 

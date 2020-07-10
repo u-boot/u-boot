@@ -34,6 +34,11 @@ class Entry_section(Entry):
         name-prefix: Adds a prefix to the name of every entry in the section
             when writing out the map
 
+    Properties:
+        _allow_missing: True if this section permits external blobs to be
+            missing their contents. The second will produce an image but of
+            course it will not work.
+
     Since a section is also an entry, it inherits all the properies of entries
     too.
 
@@ -49,6 +54,7 @@ class Entry_section(Entry):
         self._sort = False
         self._skip_at_start = None
         self._end_4gb = False
+        self._allow_missing = False
 
     def ReadNode(self):
         """Read properties from the image node"""
@@ -535,3 +541,21 @@ class Entry_section(Entry):
 
     def WriteChildData(self, child):
         return True
+
+    def SetAllowMissing(self, allow_missing):
+        """Set whether a section allows missing external blobs
+
+        Args:
+            allow_missing: True if allowed, False if not allowed
+        """
+        self._allow_missing = allow_missing
+        for entry in self._entries.values():
+            entry.SetAllowMissing(allow_missing)
+
+    def GetAllowMissing(self):
+        """Get whether a section allows missing external blobs
+
+        Returns:
+            True if allowed, False if not allowed
+        """
+        return self._allow_missing
