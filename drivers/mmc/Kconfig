@@ -263,6 +263,14 @@ config MMC_DW_SNPS
 	  This selects support for Synopsys DesignWare Memory Card Interface driver
 	  extensions used in various Synopsys ARC devboards.
 
+config NEXELL_DWMMC
+	bool "Nexell SD/MMC controller support"
+	depends on ARCH_NEXELL
+	depends on MMC_DW
+	depends on DM_MMC
+	depends on PINCTRL_NEXELL
+	default y
+
 config MMC_MESON_GX
 	bool "Meson GX EMMC controller support"
 	depends on DM_MMC && BLK && ARCH_MESON
