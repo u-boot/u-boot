@@ -148,6 +148,8 @@ static int denali_dt_probe(struct udevice *dev)
 	if (ret) {
 		dev_warn(dev, "Can't get reset: %d\n", ret);
 	} else {
+		reset_assert_bulk(&resets);
+		udelay(2);
 		reset_deassert_bulk(&resets);
 
 		/*
