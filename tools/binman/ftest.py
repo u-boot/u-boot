@@ -3364,6 +3364,18 @@ class TestFunctional(unittest.TestCase):
         # Just check that the data appears in the file somewhere
         self.assertIn(U_BOOT_SPL_DATA, data)
 
+    def testExtblob(self):
+        """Test an image with an external blob"""
+        data = self._DoReadFile('157_blob_ext.dts')
+        self.assertEqual(REFCODE_DATA, data)
+
+    def testExtblobMissing(self):
+        """Test an image with a missing external blob"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('158_blob_ext_missing.dts')
+        self.assertIn("Filename 'missing-file' not found in input path",
+                      str(e.exception))
+
 
 if __name__ == "__main__":
     unittest.main()
