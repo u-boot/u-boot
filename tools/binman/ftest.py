@@ -3421,6 +3421,10 @@ class TestFunctional(unittest.TestCase):
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'main-section'.*missing.*: intel-ifwi")
 
+    def testPackOverlap(self):
+        """Test that zero-size overlapping regions are ignored"""
+        self._DoTestFile('160_pack_overlap_zero.dts')
+
 
 if __name__ == "__main__":
     unittest.main()
