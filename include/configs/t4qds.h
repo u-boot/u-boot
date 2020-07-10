@@ -42,9 +42,6 @@
 
 #define CONFIG_ENABLE_36BIT_PHYS
 
-#define CONFIG_ADDR_MAP
-#define CONFIG_SYS_NUM_ADDR_MAP		64	/* number of TLB1 entries */
-
 /*
  *  Config the L3 Cache as L3 SRAM
  */

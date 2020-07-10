@@ -207,7 +207,7 @@ int __asm_invalidate_l3_icache(void);
 void __asm_switch_ttbr(u64 new_ttbr);
 
 /*
- * Switch from EL3 to EL2 for ARMv8
+ * armv8_switch_to_el2() - switch from EL3 to EL2 for ARMv8
  *
  * @args:        For loading 64-bit OS, fdt address.
  *               For loading 32-bit OS, zero.
@@ -222,7 +222,7 @@ void __asm_switch_ttbr(u64 new_ttbr);
 void __noreturn armv8_switch_to_el2(u64 args, u64 mach_nr, u64 fdt_addr,
 				    u64 arg4, u64 entry_point, u64 es_flag);
 /*
- * Switch from EL2 to EL1 for ARMv8
+ * armv8_switch_to_el1() - switch from EL2 to EL1 for ARMv8
  *
  * @args:        For loading 64-bit OS, fdt address.
  *               For loading 32-bit OS, zero.
@@ -248,11 +248,12 @@ void flush_l3_cache(void);
 void mmu_change_region_attr(phys_addr_t start, size_t size, u64 attrs);
 
 /*
- *Issue a secure monitor call in accordance with ARM "SMC Calling convention",
+ * smc_call() - issue a secure monitor call
+ *
+ * Issue a secure monitor call in accordance with ARM "SMC Calling convention",
  * DEN0028A
  *
  * @args: input and output arguments
- *
  */
 void smc_call(struct pt_regs *args);
 
@@ -521,10 +522,12 @@ enum {
 #endif
 
 /**
+ * mmu_page_table_flush() - register an update to page tables
+ *
  * Register an update to the page tables, and flush the TLB
  *
- * \param start		start address of update in page table
- * \param stop		stop address of update in page table
+ * @start:	start address of update in page table
+ * @stop:	stop address of update in page table
  */
 void mmu_page_table_flush(unsigned long start, unsigned long stop);
 
@@ -585,11 +588,26 @@ s32 psci_features(u32 function_id, u32 psci_fid);
 void save_boot_params_ret(void);
 
 /**
+ * mmu_set_region_dcache_behaviour_phys() - set virt/phys mapping
+ *
+ * Change the virt/phys mapping and cache settings for a region.
+ *
+ * @virt:	virtual start address of memory region to change
+ * @phys:	physical address for the memory region to set
+ * @size:	size of memory region to change
+ * @option:	dcache option to select
+ */
+void mmu_set_region_dcache_behaviour_phys(phys_addr_t virt, phys_addr_t phys,
+					size_t size, enum dcache_option option);
+
+/**
+ * mmu_set_region_dcache_behaviour() - set cache settings
+ *
  * Change the cache settings for a region.
  *
- * \param start		start address of memory region to change
- * \param size		size of memory region to change
- * \param option	dcache option to select
+ * @start:	start address of memory region to change
+ * @size:	size of memory region to change
+ * @option:	dcache option to select
  */
 void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 				     enum dcache_option option);
