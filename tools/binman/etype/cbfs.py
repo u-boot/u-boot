@@ -204,7 +204,7 @@ class Entry_cbfs(Entry):
         return True
 
     def _ReadSubnodes(self):
-        """Read the subnodes to find out what should go in this IFWI"""
+        """Read the subnodes to find out what should go in this CBFS"""
         for node in self._node.subnodes:
             entry = Entry.Create(self, node)
             entry.ReadNode()
