@@ -84,6 +84,7 @@ class Entry(object):
         self.image_pos = None
         self._expand_size = False
         self.compress = 'none'
+        self.missing = False
 
     @staticmethod
     def Lookup(node_path, etype):
@@ -803,3 +804,14 @@ features to produce new behaviours.
         """
         # This is meaningless for anything other than sections
         pass
+
+    def CheckMissing(self, missing_list):
+        """Check if any entries in this section have missing external blobs
+
+        If there are missing blobs, the entries are added to the list
+
+        Args:
+            missing_list: List of Entry objects to be added to
+        """
+        if self.missing:
+            missing_list.append(self)

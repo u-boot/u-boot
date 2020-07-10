@@ -3380,7 +3380,19 @@ class TestFunctional(unittest.TestCase):
 
     def testExtblobMissingOk(self):
         """Test an image with an missing external blob that is allowed"""
-        self._DoTestFile('158_blob_ext_missing.dts', allow_missing=True)
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('158_blob_ext_missing.dts', allow_missing=True)
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'main-section'.*missing.*: blob-ext")
+
+    def testExtblobMissingOkSect(self):
+        """Test an image with an missing external blob that is allowed"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('159_blob_ext_missing_sect.dts',
+                             allow_missing=True)
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'main-section'.*missing.*: "
+                         "blob-ext blob-ext2")
 
 
 if __name__ == "__main__":
