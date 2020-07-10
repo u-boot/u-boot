@@ -1030,18 +1030,18 @@ int fdtdec_decode_display_timing(const void *blob, int parent, int index,
 	return ret;
 }
 
-int fdtdec_setup_mem_size_base_fdt(const void *blob)
+int fdtdec_setup_mem_size_base(void)
 {
 	int ret, mem;
 	struct fdt_resource res;
 
-	mem = fdt_path_offset(blob, "/memory");
+	mem = fdt_path_offset(gd->fdt_blob, "/memory");
 	if (mem < 0) {
 		debug("%s: Missing /memory node\n", __func__);
 		return -EINVAL;
 	}
 
-	ret = fdt_get_resource(blob, mem, "reg", 0, &res);
+	ret = fdt_get_resource(gd->fdt_blob, mem, "reg", 0, &res);
 	if (ret != 0) {
 		debug("%s: Unable to decode first memory bank\n", __func__);
 		return -EINVAL;
@@ -1053,11 +1053,6 @@ int fdtdec_setup_mem_size_base_fdt(const void *blob)
 	      (unsigned long long)gd->ram_size);
 
 	return 0;
-}
-
-int fdtdec_setup_mem_size_base(void)
-{
-	return fdtdec_setup_mem_size_base_fdt(gd->fdt_blob);
 }
 
 #if defined(CONFIG_NR_DRAM_BANKS)
