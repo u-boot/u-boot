@@ -22,4 +22,4 @@ class Entry_intel_vga(Entry_blob):
     See README.x86 for information about Intel binary blobs.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)

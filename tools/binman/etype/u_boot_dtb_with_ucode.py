@@ -28,7 +28,7 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
         global state
         from binman import state
 
-        Entry_blob_dtb.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self.ucode_data = b''
         self.collate = False
         self.ucode_offset = None
@@ -78,7 +78,7 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
 
     def ObtainContents(self):
         # Call the base class just in case it does something important.
-        Entry_blob_dtb.ObtainContents(self)
+        super().ObtainContents()
         if self.ucode and not self.collate:
             for node in self.ucode.subnodes:
                 data_prop = node.props.get('data')

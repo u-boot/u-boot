@@ -22,7 +22,7 @@ class Entry_u_boot_spl_nodtb(Entry_blob):
     both SPL and the device tree).
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def GetDefaultFilename(self):
         return 'spl/u-boot-spl-nodtb.bin'

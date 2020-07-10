@@ -29,7 +29,7 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
     complicated. Otherwise it is the same as the u_boot entry.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self.elf_fname = 'u-boot'
         self.target_offset = None
 

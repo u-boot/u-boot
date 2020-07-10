@@ -45,13 +45,13 @@ class Entry_intel_ifwi(Entry_blob):
     See README.x86 for information about x86 binary blobs.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self._convert_fit = fdt_util.GetBool(self._node, 'convert-fit')
         self._ifwi_entries = OrderedDict()
 
     def ReadNode(self):
         self._ReadSubnodes()
-        Entry_blob.ReadNode(self)
+        super().ReadNode()
 
     def _BuildIfwi(self):
         """Build the contents of the IFWI and write it to the 'data' property"""

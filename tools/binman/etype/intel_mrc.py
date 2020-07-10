@@ -21,7 +21,7 @@ class Entry_intel_mrc(Entry_blob):
     See README.x86 for information about x86 binary blobs.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def GetDefaultFilename(self):
         return 'mrc.bin'

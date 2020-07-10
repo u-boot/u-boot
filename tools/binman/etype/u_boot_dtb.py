@@ -22,7 +22,7 @@ class Entry_u_boot_dtb(Entry_blob_dtb):
     binman to know which entries contain a device tree.
     """
     def __init__(self, section, etype, node):
-        Entry_blob_dtb.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def GetDefaultFilename(self):
         return 'u-boot.dtb'

@@ -25,7 +25,7 @@ class Entry_x86_start16(Entry_blob):
     For 64-bit U-Boot, the 'x86_start16_spl' entry type is used instead.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def GetDefaultFilename(self):
         return 'u-boot-x86-start16.bin'

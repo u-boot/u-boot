@@ -57,7 +57,7 @@ class Entry_text(Entry):
     by setting the size of the entry to something larger than the text.
     """
     def __init__(self, section, etype, node):
-        Entry.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         value = fdt_util.GetString(self._node, 'text')
         if value:
             value = tools.ToBytes(value)
