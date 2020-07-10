@@ -283,6 +283,13 @@ struct driver {
 	ll_entry_get(struct driver, __name, driver)
 
 /**
+ * Declare a macro to state a alias for a driver name. This macro will
+ * produce no code but its information will be parsed by tools like
+ * dtoc
+ */
+#define U_BOOT_DRIVER_ALIAS(__name, __alias)
+
+/**
  * dev_get_platdata() - Get the platform data for a device
  *
  * This checks that dev is not NULL, but no other checks for now
@@ -530,6 +537,21 @@ int device_find_global_by_ofnode(ofnode node, struct udevice **devp);
  * @return 0 if OK, -ve on error
  */
 int device_get_global_by_ofnode(ofnode node, struct udevice **devp);
+
+/**
+ * device_get_by_driver_info() - Get a device based on driver_info
+ *
+ * Locates a device by its struct driver_info, by using its reference which
+ * is updated during the bind process.
+ *
+ * The device is probed to activate it ready for use.
+ *
+ * @info: Struct driver_info
+ * @devp: Returns pointer to device if found, otherwise this is set to NULL
+ * @return 0 if OK, -ve on error
+ */
+int device_get_by_driver_info(const struct driver_info *info,
+			      struct udevice **devp);
 
 /**
  * device_find_first_child() - Find the first child of a device

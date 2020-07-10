@@ -122,7 +122,7 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	priv->minmax[0] = 400000;  /*  400 kHz */
 	priv->minmax[1] = dtplat->max_frequency;
 
-	ret = clk_get_by_index_platdata(dev, 0, dtplat->clocks, &priv->clk);
+	ret = clk_get_by_driver_info(dev, dtplat->clocks, &priv->clk);
 	if (ret < 0)
 		return ret;
 #else
@@ -168,7 +168,7 @@ static const struct udevice_id rockchip_dwmmc_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(rockchip_dwmmc_drv) = {
+U_BOOT_DRIVER(rockchip_rk3288_dw_mshc) = {
 	.name		= "rockchip_rk3288_dw_mshc",
 	.id		= UCLASS_MMC,
 	.of_match	= rockchip_dwmmc_ids,
@@ -179,6 +179,9 @@ U_BOOT_DRIVER(rockchip_dwmmc_drv) = {
 	.priv_auto_alloc_size = sizeof(struct rockchip_dwmmc_priv),
 	.platdata_auto_alloc_size = sizeof(struct rockchip_mmc_plat),
 };
+
+U_BOOT_DRIVER_ALIAS(rockchip_rk3288_dw_mshc, rockchip_rk3328_dw_mshc)
+U_BOOT_DRIVER_ALIAS(rockchip_rk3288_dw_mshc, rockchip_rk3368_dw_mshc)
 
 #ifdef CONFIG_PWRSEQ
 static int rockchip_dwmmc_pwrseq_set_power(struct udevice *dev, bool enable)

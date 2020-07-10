@@ -225,8 +225,8 @@ static const struct udevice_id cros_ec_kbd_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(cros_ec_kbd) = {
-	.name	= "cros_ec_kbd",
+U_BOOT_DRIVER(google_cros_ec_keyb) = {
+	.name	= "google_cros_ec_keyb",
 	.id	= UCLASS_KEYBOARD,
 	.of_match = cros_ec_kbd_ids,
 	.probe = cros_ec_kbd_probe,

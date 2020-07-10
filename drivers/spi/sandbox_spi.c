@@ -146,8 +146,8 @@ static const struct udevice_id sandbox_spi_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(spi_sandbox) = {
-	.name	= "spi_sandbox",
+U_BOOT_DRIVER(sandbox_spi) = {
+	.name	= "sandbox_spi",
 	.id	= UCLASS_SPI,
 	.of_match = sandbox_spi_ids,
 	.ops	= &sandbox_spi_ops,

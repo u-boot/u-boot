@@ -624,8 +624,8 @@ static const struct udevice_id at91_gpio_ids[] = {
 };
 #endif
 
-U_BOOT_DRIVER(gpio_at91) = {
-	.name	= "gpio_at91",
+U_BOOT_DRIVER(atmel_at91rm9200_gpio) = {
+	.name	= "atmel_at91rm9200_gpio",
 	.id	= UCLASS_GPIO,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match = at91_gpio_ids,

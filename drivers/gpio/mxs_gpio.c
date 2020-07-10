@@ -299,12 +299,8 @@ static const struct udevice_id mxs_gpio_ids[] = {
 };
 #endif
 
-U_BOOT_DRIVER(gpio_mxs) = {
-#ifdef CONFIG_MX28
-	.name = "fsl_imx28_gpio",
-#else /* CONFIG_MX23 */
+U_BOOT_DRIVER(fsl_imx23_gpio) = {
 	.name = "fsl_imx23_gpio",
-#endif
 	.id	= UCLASS_GPIO,
 	.ops	= &gpio_mxs_ops,
 	.probe	= mxs_gpio_probe,
@@ -315,4 +311,6 @@ U_BOOT_DRIVER(gpio_mxs) = {
 	.ofdata_to_platdata = mxs_ofdata_to_platdata,
 #endif
 };
+
+U_BOOT_DRIVER_ALIAS(fsl_imx23_gpio, fsl_imx28_gpio)
 #endif /* DM_GPIO */

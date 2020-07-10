@@ -26,7 +26,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const struct driver_info root_info = {
+static struct driver_info root_info = {
 	.name		= "root_driver",
 };
 
@@ -346,6 +346,10 @@ __weak int dm_scan_other(bool pre_reloc_only)
 int dm_init_and_scan(bool pre_reloc_only)
 {
 	int ret;
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	dm_populate_phandle_data();
+#endif
 
 	ret = dm_init(IS_ENABLED(CONFIG_OF_LIVE));
 	if (ret) {

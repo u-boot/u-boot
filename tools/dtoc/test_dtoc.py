@@ -12,6 +12,7 @@ tool.
 import collections
 import os
 import struct
+import sys
 import unittest
 
 from dtoc import dtb_platdata
@@ -47,6 +48,9 @@ C_HEADER = '''/*
 #include <dt-structs.h>
 '''
 
+C_EMPTY_POPULATE_PHANDLE_DATA = '''void dm_populate_phandle_data(void) {
+}
+'''
 
 
 def get_dtb_file(dts_fname, capture_stderr=False):
@@ -101,6 +105,10 @@ class TestDtoc(unittest.TestCase):
             print('Failures written to /tmp/binman.{expected,actual}')
         self.assertEquals(expected, actual)
 
+
+    def run_test(self, args, dtb_file, output):
+        dtb_platdata.run_steps(args, dtb_file, False, output, True)
+
     def test_name(self):
         """Test conversion of device tree names to C identifiers"""
         self.assertEqual('serial_at_0x12', conv_name_to_c('serial@0x12'))
@@ -154,21 +162,22 @@ class TestDtoc(unittest.TestCase):
         """Test output from a device tree file with no nodes"""
         dtb_file = get_dtb_file('dtoc_test_empty.dts')
         output = tools.GetOutputFilename('output')
-        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        self.run_test(['struct'], dtb_file, output)
         with open(output) as infile:
             lines = infile.read().splitlines()
         self.assertEqual(HEADER.splitlines(), lines)
 
-        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        self.run_test(['platdata'], dtb_file, output)
         with open(output) as infile:
             lines = infile.read().splitlines()
-        self.assertEqual(C_HEADER.splitlines() + [''], lines)
+        self.assertEqual(C_HEADER.splitlines() + [''] +
+                         C_EMPTY_POPULATE_PHANDLE_DATA.splitlines(), lines)
 
     def test_simple(self):
         """Test output from some simple nodes with various types of data"""
         dtb_file = get_dtb_file('dtoc_test_simple.dts')
         output = tools.GetOutputFilename('output')
-        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        self.run_test(['struct'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(HEADER + '''
@@ -193,11 +202,11 @@ struct dtd_sandbox_spl_test_2 {
 };
 ''', data)
 
-        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        self.run_test(['platdata'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
-static const struct dtd_sandbox_spl_test dtv_spl_test = {
+static struct dtd_sandbox_spl_test dtv_spl_test = {
 \t.boolval\t\t= true,
 \t.bytearray\t\t= {0x6, 0x0, 0x0},
 \t.byteval\t\t= 0x5,
@@ -215,7 +224,7 @@ U_BOOT_DEVICE(spl_test) = {
 \t.platdata_size\t= sizeof(dtv_spl_test),
 };
 
-static const struct dtd_sandbox_spl_test dtv_spl_test2 = {
+static struct dtd_sandbox_spl_test dtv_spl_test2 = {
 \t.bytearray\t\t= {0x1, 0x23, 0x34},
 \t.byteval\t\t= 0x8,
 \t.intarray\t\t= {0x5, 0x0, 0x0, 0x0},
@@ -231,7 +240,7 @@ U_BOOT_DEVICE(spl_test2) = {
 \t.platdata_size\t= sizeof(dtv_spl_test2),
 };
 
-static const struct dtd_sandbox_spl_test dtv_spl_test3 = {
+static struct dtd_sandbox_spl_test dtv_spl_test3 = {
 \t.stringarray\t\t= {"one", "", ""},
 };
 U_BOOT_DEVICE(spl_test3) = {
@@ -240,7 +249,7 @@ U_BOOT_DEVICE(spl_test3) = {
 \t.platdata_size\t= sizeof(dtv_spl_test3),
 };
 
-static const struct dtd_sandbox_spl_test_2 dtv_spl_test4 = {
+static struct dtd_sandbox_spl_test_2 dtv_spl_test4 = {
 };
 U_BOOT_DEVICE(spl_test4) = {
 \t.name\t\t= "sandbox_spl_test_2",
@@ -248,7 +257,7 @@ U_BOOT_DEVICE(spl_test4) = {
 \t.platdata_size\t= sizeof(dtv_spl_test4),
 };
 
-static const struct dtd_sandbox_i2c_test dtv_i2c_at_0 = {
+static struct dtd_sandbox_i2c_test dtv_i2c_at_0 = {
 };
 U_BOOT_DEVICE(i2c_at_0) = {
 \t.name\t\t= "sandbox_i2c_test",
@@ -256,7 +265,7 @@ U_BOOT_DEVICE(i2c_at_0) = {
 \t.platdata_size\t= sizeof(dtv_i2c_at_0),
 };
 
-static const struct dtd_sandbox_pmic_test dtv_pmic_at_9 = {
+static struct dtd_sandbox_pmic_test dtv_pmic_at_9 = {
 \t.low_power\t\t= true,
 \t.reg\t\t\t= {0x9, 0x0},
 };
@@ -266,13 +275,78 @@ U_BOOT_DEVICE(pmic_at_9) = {
 \t.platdata_size\t= sizeof(dtv_pmic_at_9),
 };
 
+''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
+
+    def test_driver_alias(self):
+        """Test output from a device tree file with a driver alias"""
+        dtb_file = get_dtb_file('dtoc_test_driver_alias.dts')
+        output = tools.GetOutputFilename('output')
+        self.run_test(['struct'], dtb_file, output)
+        with open(output) as infile:
+            data = infile.read()
+        self._CheckStrings(HEADER + '''
+struct dtd_sandbox_gpio {
+\tconst char *\tgpio_bank_name;
+\tbool\t\tgpio_controller;
+\tfdt32_t\t\tsandbox_gpio_count;
+};
+#define dtd_sandbox_gpio_alias dtd_sandbox_gpio
+''', data)
+
+        self.run_test(['platdata'], dtb_file, output)
+        with open(output) as infile:
+            data = infile.read()
+        self._CheckStrings(C_HEADER + '''
+static struct dtd_sandbox_gpio dtv_gpios_at_0 = {
+\t.gpio_bank_name\t\t= "a",
+\t.gpio_controller\t= true,
+\t.sandbox_gpio_count\t= 0x14,
+};
+U_BOOT_DEVICE(gpios_at_0) = {
+\t.name\t\t= "sandbox_gpio",
+\t.platdata\t= &dtv_gpios_at_0,
+\t.platdata_size\t= sizeof(dtv_gpios_at_0),
+};
+
+void dm_populate_phandle_data(void) {
+}
+''', data)
+
+    def test_invalid_driver(self):
+        """Test output from a device tree file with an invalid driver"""
+        dtb_file = get_dtb_file('dtoc_test_invalid_driver.dts')
+        output = tools.GetOutputFilename('output')
+        with test_util.capture_sys_output() as (stdout, stderr):
+            dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        with open(output) as infile:
+            data = infile.read()
+        self._CheckStrings(HEADER + '''
+struct dtd_invalid {
+};
+''', data)
+
+        with test_util.capture_sys_output() as (stdout, stderr):
+            dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        with open(output) as infile:
+            data = infile.read()
+        self._CheckStrings(C_HEADER + '''
+static struct dtd_invalid dtv_spl_test = {
+};
+U_BOOT_DEVICE(spl_test) = {
+\t.name\t\t= "invalid",
+\t.platdata\t= &dtv_spl_test,
+\t.platdata_size\t= sizeof(dtv_spl_test),
+};
+
+void dm_populate_phandle_data(void) {
+}
 ''', data)
 
     def test_phandle(self):
         """Test output from a node containing a phandle reference"""
         dtb_file = get_dtb_file('dtoc_test_phandle.dts')
         output = tools.GetOutputFilename('output')
-        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        self.run_test(['struct'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(HEADER + '''
@@ -284,11 +358,11 @@ struct dtd_target {
 };
 ''', data)
 
-        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        self.run_test(['platdata'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
-static const struct dtd_target dtv_phandle_target = {
+static struct dtd_target dtv_phandle_target = {
 \t.intval\t\t\t= 0x0,
 };
 U_BOOT_DEVICE(phandle_target) = {
@@ -297,7 +371,7 @@ U_BOOT_DEVICE(phandle_target) = {
 \t.platdata_size\t= sizeof(dtv_phandle_target),
 };
 
-static const struct dtd_target dtv_phandle2_target = {
+static struct dtd_target dtv_phandle2_target = {
 \t.intval\t\t\t= 0x1,
 };
 U_BOOT_DEVICE(phandle2_target) = {
@@ -306,7 +380,7 @@ U_BOOT_DEVICE(phandle2_target) = {
 \t.platdata_size\t= sizeof(dtv_phandle2_target),
 };
 
-static const struct dtd_target dtv_phandle3_target = {
+static struct dtd_target dtv_phandle3_target = {
 \t.intval\t\t\t= 0x2,
 };
 U_BOOT_DEVICE(phandle3_target) = {
@@ -315,12 +389,12 @@ U_BOOT_DEVICE(phandle3_target) = {
 \t.platdata_size\t= sizeof(dtv_phandle3_target),
 };
 
-static const struct dtd_source dtv_phandle_source = {
+static struct dtd_source dtv_phandle_source = {
 \t.clocks\t\t\t= {
-\t\t\t{&dtv_phandle_target, {}},
-\t\t\t{&dtv_phandle2_target, {11}},
-\t\t\t{&dtv_phandle3_target, {12, 13}},
-\t\t\t{&dtv_phandle_target, {}},},
+\t\t\t{NULL, {}},
+\t\t\t{NULL, {11}},
+\t\t\t{NULL, {12, 13}},
+\t\t\t{NULL, {}},},
 };
 U_BOOT_DEVICE(phandle_source) = {
 \t.name\t\t= "source",
@@ -328,9 +402,9 @@ U_BOOT_DEVICE(phandle_source) = {
 \t.platdata_size\t= sizeof(dtv_phandle_source),
 };
 
-static const struct dtd_source dtv_phandle_source2 = {
+static struct dtd_source dtv_phandle_source2 = {
 \t.clocks\t\t\t= {
-\t\t\t{&dtv_phandle_target, {}},},
+\t\t\t{NULL, {}},},
 };
 U_BOOT_DEVICE(phandle_source2) = {
 \t.name\t\t= "source",
@@ -338,13 +412,20 @@ U_BOOT_DEVICE(phandle_source2) = {
 \t.platdata_size\t= sizeof(dtv_phandle_source2),
 };
 
+void dm_populate_phandle_data(void) {
+\tdtv_phandle_source.clocks[0].node = DM_GET_DEVICE(phandle_target);
+\tdtv_phandle_source.clocks[1].node = DM_GET_DEVICE(phandle2_target);
+\tdtv_phandle_source.clocks[2].node = DM_GET_DEVICE(phandle3_target);
+\tdtv_phandle_source.clocks[3].node = DM_GET_DEVICE(phandle_target);
+\tdtv_phandle_source2.clocks[0].node = DM_GET_DEVICE(phandle_target);
+}
 ''', data)
 
     def test_phandle_single(self):
         """Test output from a node containing a phandle reference"""
         dtb_file = get_dtb_file('dtoc_test_phandle_single.dts')
         output = tools.GetOutputFilename('output')
-        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        self.run_test(['struct'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(HEADER + '''
@@ -360,11 +441,11 @@ struct dtd_target {
         """Test that phandle targets are generated before their references"""
         dtb_file = get_dtb_file('dtoc_test_phandle_reorder.dts')
         output = tools.GetOutputFilename('output')
-        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        self.run_test(['platdata'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
-static const struct dtd_target dtv_phandle_target = {
+static struct dtd_target dtv_phandle_target = {
 };
 U_BOOT_DEVICE(phandle_target) = {
 \t.name\t\t= "target",
@@ -372,9 +453,9 @@ U_BOOT_DEVICE(phandle_target) = {
 \t.platdata_size\t= sizeof(dtv_phandle_target),
 };
 
-static const struct dtd_source dtv_phandle_source2 = {
+static struct dtd_source dtv_phandle_source2 = {
 \t.clocks\t\t\t= {
-\t\t\t{&dtv_phandle_target, {}},},
+\t\t\t{NULL, {}},},
 };
 U_BOOT_DEVICE(phandle_source2) = {
 \t.name\t\t= "source",
@@ -382,6 +463,76 @@ U_BOOT_DEVICE(phandle_source2) = {
 \t.platdata_size\t= sizeof(dtv_phandle_source2),
 };
 
+void dm_populate_phandle_data(void) {
+\tdtv_phandle_source2.clocks[0].node = DM_GET_DEVICE(phandle_target);
+}
+''', data)
+
+    def test_phandle_cd_gpio(self):
+        """Test that phandle targets are generated when unsing cd-gpios"""
+        dtb_file = get_dtb_file('dtoc_test_phandle_cd_gpios.dts')
+        output = tools.GetOutputFilename('output')
+        dtb_platdata.run_steps(['platdata'], dtb_file, False, output, True)
+        with open(output) as infile:
+            data = infile.read()
+        self._CheckStrings(C_HEADER + '''
+static struct dtd_target dtv_phandle_target = {
+\t.intval\t\t\t= 0x0,
+};
+U_BOOT_DEVICE(phandle_target) = {
+\t.name\t\t= "target",
+\t.platdata\t= &dtv_phandle_target,
+\t.platdata_size\t= sizeof(dtv_phandle_target),
+};
+
+static struct dtd_target dtv_phandle2_target = {
+\t.intval\t\t\t= 0x1,
+};
+U_BOOT_DEVICE(phandle2_target) = {
+\t.name\t\t= "target",
+\t.platdata\t= &dtv_phandle2_target,
+\t.platdata_size\t= sizeof(dtv_phandle2_target),
+};
+
+static struct dtd_target dtv_phandle3_target = {
+\t.intval\t\t\t= 0x2,
+};
+U_BOOT_DEVICE(phandle3_target) = {
+\t.name\t\t= "target",
+\t.platdata\t= &dtv_phandle3_target,
+\t.platdata_size\t= sizeof(dtv_phandle3_target),
+};
+
+static struct dtd_source dtv_phandle_source = {
+\t.cd_gpios\t\t= {
+\t\t\t{NULL, {}},
+\t\t\t{NULL, {11}},
+\t\t\t{NULL, {12, 13}},
+\t\t\t{NULL, {}},},
+};
+U_BOOT_DEVICE(phandle_source) = {
+\t.name\t\t= "source",
+\t.platdata\t= &dtv_phandle_source,
+\t.platdata_size\t= sizeof(dtv_phandle_source),
+};
+
+static struct dtd_source dtv_phandle_source2 = {
+\t.cd_gpios\t\t= {
+\t\t\t{NULL, {}},},
+};
+U_BOOT_DEVICE(phandle_source2) = {
+\t.name\t\t= "source",
+\t.platdata\t= &dtv_phandle_source2,
+\t.platdata_size\t= sizeof(dtv_phandle_source2),
+};
+
+void dm_populate_phandle_data(void) {
+\tdtv_phandle_source.cd_gpios[0].node = DM_GET_DEVICE(phandle_target);
+\tdtv_phandle_source.cd_gpios[1].node = DM_GET_DEVICE(phandle2_target);
+\tdtv_phandle_source.cd_gpios[2].node = DM_GET_DEVICE(phandle3_target);
+\tdtv_phandle_source.cd_gpios[3].node = DM_GET_DEVICE(phandle_target);
+\tdtv_phandle_source2.cd_gpios[0].node = DM_GET_DEVICE(phandle_target);
+}
 ''', data)
 
     def test_phandle_bad(self):
@@ -390,7 +541,7 @@ U_BOOT_DEVICE(phandle_source2) = {
                                 capture_stderr=True)
         output = tools.GetOutputFilename('output')
         with self.assertRaises(ValueError) as e:
-            dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+            self.run_test(['struct'], dtb_file, output)
         self.assertIn("Cannot parse 'clocks' in node 'phandle-source'",
                       str(e.exception))
 
@@ -400,15 +551,15 @@ U_BOOT_DEVICE(phandle_source2) = {
                                 capture_stderr=True)
         output = tools.GetOutputFilename('output')
         with self.assertRaises(ValueError) as e:
-            dtb_platdata.run_steps(['struct'], dtb_file, False, output)
-        self.assertIn("Node 'phandle-target' has no '#clock-cells' property",
+            self.run_test(['struct'], dtb_file, output)
+        self.assertIn("Node 'phandle-target' has no cells property",
                       str(e.exception))
 
     def test_aliases(self):
         """Test output from a node with multiple compatible strings"""
         dtb_file = get_dtb_file('dtoc_test_aliases.dts')
         output = tools.GetOutputFilename('output')
-        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        self.run_test(['struct'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(HEADER + '''
@@ -419,11 +570,11 @@ struct dtd_compat1 {
 #define dtd_compat3 dtd_compat1
 ''', data)
 
-        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        self.run_test(['platdata'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
-static const struct dtd_compat1 dtv_spl_test = {
+static struct dtd_compat1 dtv_spl_test = {
 \t.intval\t\t\t= 0x1,
 };
 U_BOOT_DEVICE(spl_test) = {
@@ -432,13 +583,13 @@ U_BOOT_DEVICE(spl_test) = {
 \t.platdata_size\t= sizeof(dtv_spl_test),
 };
 
-''', data)
+''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
 
     def test_addresses64(self):
         """Test output from a node with a 'reg' property with na=2, ns=2"""
         dtb_file = get_dtb_file('dtoc_test_addr64.dts')
         output = tools.GetOutputFilename('output')
-        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        self.run_test(['struct'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(HEADER + '''
@@ -453,11 +604,11 @@ struct dtd_test3 {
 };
 ''', data)
 
-        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        self.run_test(['platdata'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
-static const struct dtd_test1 dtv_test1 = {
+static struct dtd_test1 dtv_test1 = {
 \t.reg\t\t\t= {0x1234, 0x5678},
 };
 U_BOOT_DEVICE(test1) = {
@@ -466,7 +617,7 @@ U_BOOT_DEVICE(test1) = {
 \t.platdata_size\t= sizeof(dtv_test1),
 };
 
-static const struct dtd_test2 dtv_test2 = {
+static struct dtd_test2 dtv_test2 = {
 \t.reg\t\t\t= {0x1234567890123456, 0x9876543210987654},
 };
 U_BOOT_DEVICE(test2) = {
@@ -475,7 +626,7 @@ U_BOOT_DEVICE(test2) = {
 \t.platdata_size\t= sizeof(dtv_test2),
 };
 
-static const struct dtd_test3 dtv_test3 = {
+static struct dtd_test3 dtv_test3 = {
 \t.reg\t\t\t= {0x1234567890123456, 0x9876543210987654, 0x2, 0x3},
 };
 U_BOOT_DEVICE(test3) = {
@@ -484,13 +635,13 @@ U_BOOT_DEVICE(test3) = {
 \t.platdata_size\t= sizeof(dtv_test3),
 };
 
-''', data)
+''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
 
     def test_addresses32(self):
         """Test output from a node with a 'reg' property with na=1, ns=1"""
         dtb_file = get_dtb_file('dtoc_test_addr32.dts')
         output = tools.GetOutputFilename('output')
-        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        self.run_test(['struct'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(HEADER + '''
@@ -502,11 +653,11 @@ struct dtd_test2 {
 };
 ''', data)
 
-        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        self.run_test(['platdata'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
-static const struct dtd_test1 dtv_test1 = {
+static struct dtd_test1 dtv_test1 = {
 \t.reg\t\t\t= {0x1234, 0x5678},
 };
 U_BOOT_DEVICE(test1) = {
@@ -515,7 +666,7 @@ U_BOOT_DEVICE(test1) = {
 \t.platdata_size\t= sizeof(dtv_test1),
 };
 
-static const struct dtd_test2 dtv_test2 = {
+static struct dtd_test2 dtv_test2 = {
 \t.reg\t\t\t= {0x12345678, 0x98765432, 0x2, 0x3},
 };
 U_BOOT_DEVICE(test2) = {
@@ -524,13 +675,13 @@ U_BOOT_DEVICE(test2) = {
 \t.platdata_size\t= sizeof(dtv_test2),
 };
 
-''', data)
+''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
 
     def test_addresses64_32(self):
         """Test output from a node with a 'reg' property with na=2, ns=1"""
         dtb_file = get_dtb_file('dtoc_test_addr64_32.dts')
         output = tools.GetOutputFilename('output')
-        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        self.run_test(['struct'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(HEADER + '''
@@ -545,11 +696,11 @@ struct dtd_test3 {
 };
 ''', data)
 
-        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        self.run_test(['platdata'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
-static const struct dtd_test1 dtv_test1 = {
+static struct dtd_test1 dtv_test1 = {
 \t.reg\t\t\t= {0x123400000000, 0x5678},
 };
 U_BOOT_DEVICE(test1) = {
@@ -558,7 +709,7 @@ U_BOOT_DEVICE(test1) = {
 \t.platdata_size\t= sizeof(dtv_test1),
 };
 
-static const struct dtd_test2 dtv_test2 = {
+static struct dtd_test2 dtv_test2 = {
 \t.reg\t\t\t= {0x1234567890123456, 0x98765432},
 };
 U_BOOT_DEVICE(test2) = {
@@ -567,7 +718,7 @@ U_BOOT_DEVICE(test2) = {
 \t.platdata_size\t= sizeof(dtv_test2),
 };
 
-static const struct dtd_test3 dtv_test3 = {
+static struct dtd_test3 dtv_test3 = {
 \t.reg\t\t\t= {0x1234567890123456, 0x98765432, 0x2, 0x3},
 };
 U_BOOT_DEVICE(test3) = {
@@ -576,13 +727,13 @@ U_BOOT_DEVICE(test3) = {
 \t.platdata_size\t= sizeof(dtv_test3),
 };
 
-''', data)
+''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
 
     def test_addresses32_64(self):
         """Test output from a node with a 'reg' property with na=1, ns=2"""
         dtb_file = get_dtb_file('dtoc_test_addr32_64.dts')
         output = tools.GetOutputFilename('output')
-        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        self.run_test(['struct'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(HEADER + '''
@@ -597,11 +748,11 @@ struct dtd_test3 {
 };
 ''', data)
 
-        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        self.run_test(['platdata'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
-static const struct dtd_test1 dtv_test1 = {
+static struct dtd_test1 dtv_test1 = {
 \t.reg\t\t\t= {0x1234, 0x567800000000},
 };
 U_BOOT_DEVICE(test1) = {
@@ -610,7 +761,7 @@ U_BOOT_DEVICE(test1) = {
 \t.platdata_size\t= sizeof(dtv_test1),
 };
 
-static const struct dtd_test2 dtv_test2 = {
+static struct dtd_test2 dtv_test2 = {
 \t.reg\t\t\t= {0x12345678, 0x9876543210987654},
 };
 U_BOOT_DEVICE(test2) = {
@@ -619,7 +770,7 @@ U_BOOT_DEVICE(test2) = {
 \t.platdata_size\t= sizeof(dtv_test2),
 };
 
-static const struct dtd_test3 dtv_test3 = {
+static struct dtd_test3 dtv_test3 = {
 \t.reg\t\t\t= {0x12345678, 0x9876543210987654, 0x2, 0x3},
 };
 U_BOOT_DEVICE(test3) = {
@@ -628,7 +779,7 @@ U_BOOT_DEVICE(test3) = {
 \t.platdata_size\t= sizeof(dtv_test3),
 };
 
-''', data)
+''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
 
     def test_bad_reg(self):
         """Test that a reg property with an invalid type generates an error"""
@@ -636,7 +787,7 @@ U_BOOT_DEVICE(test3) = {
         dtb_file = get_dtb_file('dtoc_test_bad_reg.dts', capture_stderr=True)
         output = tools.GetOutputFilename('output')
         with self.assertRaises(ValueError) as e:
-            dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+            self.run_test(['struct'], dtb_file, output)
         self.assertIn("Node 'spl-test' reg property is not an int",
                       str(e.exception))
 
@@ -646,7 +797,7 @@ U_BOOT_DEVICE(test3) = {
         dtb_file = get_dtb_file('dtoc_test_bad_reg2.dts', capture_stderr=True)
         output = tools.GetOutputFilename('output')
         with self.assertRaises(ValueError) as e:
-            dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+            self.run_test(['struct'], dtb_file, output)
         self.assertIn("Node 'spl-test' reg property has 3 cells which is not a multiple of na + ns = 1 + 1)",
                       str(e.exception))
 
@@ -654,7 +805,7 @@ U_BOOT_DEVICE(test3) = {
         """Test that a subequent node can add a new property to a struct"""
         dtb_file = get_dtb_file('dtoc_test_add_prop.dts')
         output = tools.GetOutputFilename('output')
-        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        self.run_test(['struct'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(HEADER + '''
@@ -664,11 +815,11 @@ struct dtd_sandbox_spl_test {
 };
 ''', data)
 
-        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        self.run_test(['platdata'], dtb_file, output)
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
-static const struct dtd_sandbox_spl_test dtv_spl_test = {
+static struct dtd_sandbox_spl_test dtv_spl_test = {
 \t.intval\t\t\t= 0x1,
 };
 U_BOOT_DEVICE(spl_test) = {
@@ -677,7 +828,7 @@ U_BOOT_DEVICE(spl_test) = {
 \t.platdata_size\t= sizeof(dtv_spl_test),
 };
 
-static const struct dtd_sandbox_spl_test dtv_spl_test2 = {
+static struct dtd_sandbox_spl_test dtv_spl_test2 = {
 \t.intarray\t\t= 0x5,
 };
 U_BOOT_DEVICE(spl_test2) = {
@@ -686,18 +837,18 @@ U_BOOT_DEVICE(spl_test2) = {
 \t.platdata_size\t= sizeof(dtv_spl_test2),
 };
 
-''', data)
+''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
 
     def testStdout(self):
         """Test output to stdout"""
         dtb_file = get_dtb_file('dtoc_test_simple.dts')
         with test_util.capture_sys_output() as (stdout, stderr):
-            dtb_platdata.run_steps(['struct'], dtb_file, False, '-')
+            self.run_test(['struct'], dtb_file, '-')
 
     def testNoCommand(self):
         """Test running dtoc without a command"""
         with self.assertRaises(ValueError) as e:
-            dtb_platdata.run_steps([], '', False, '')
+            self.run_test([], '', '')
         self.assertIn("Please specify a command: struct, platdata",
                       str(e.exception))
 
@@ -706,6 +857,6 @@ U_BOOT_DEVICE(spl_test2) = {
         dtb_file = get_dtb_file('dtoc_test_simple.dts')
         output = tools.GetOutputFilename('output')
         with self.assertRaises(ValueError) as e:
-            dtb_platdata.run_steps(['invalid-cmd'], dtb_file, False, output)
+            self.run_test(['invalid-cmd'], dtb_file, output)
         self.assertIn("Unknown command 'invalid-cmd': (use: struct, platdata)",
                       str(e.exception))

@@ -15,6 +15,16 @@ config SANDBOX64
 	select PHYS_64BIT
 	select HOST_64BIT
 
+config SANDBOX_RAM_SIZE_MB
+	int "RAM size in MiB"
+	default 128
+	range 64 4095 if !SANDBOX64
+	range 64 268435456 if SANDBOX64
+	help
+	  Memory size of the sandbox in MiB. The default value is 128 MiB.
+	  The minimum value is 64 MiB. The maximum value is 4095 MiB for the
+	  32bit sandbox.
+
 config SANDBOX_SPL
 	bool "Enable SPL for sandbox"
 	select SUPPORT_SPL

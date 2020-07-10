@@ -11,7 +11,6 @@ import os
 import re
 
 from patman import command
-from patman import gitutil
 from patman import tools
 
 """Default settings per-project.
@@ -185,7 +184,7 @@ def ReadGitAliases(fname):
 
     fd.close()
 
-def CreatePatmanConfigFile(config_fname):
+def CreatePatmanConfigFile(gitutil, config_fname):
     """Creates a config file under $(HOME)/.patman if it can't find one.
 
     Args:
@@ -301,7 +300,7 @@ def GetItems(config, section):
     except:
         raise
 
-def Setup(parser, project_name, config_fname=''):
+def Setup(gitutil, parser, project_name, config_fname=''):
     """Set up the settings module by reading config files.
 
     Args:
@@ -318,7 +317,7 @@ def Setup(parser, project_name, config_fname=''):
 
     if not os.path.exists(config_fname):
         print("No config file found ~/.patman\nCreating one...\n")
-        CreatePatmanConfigFile(config_fname)
+        CreatePatmanConfigFile(gitutil, config_fname)
 
     config.read(config_fname)
 

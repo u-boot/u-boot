@@ -183,8 +183,8 @@ static const struct udevice_id rk8xx_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(pmic_rk8xx) = {
-	.name = "rk8xx pmic",
+U_BOOT_DRIVER(rockchip_rk805) = {
+	.name = "rockchip_rk805",
 	.id = UCLASS_PMIC,
 	.of_match = rk8xx_ids,
 #if CONFIG_IS_ENABLED(PMIC_CHILDREN)
@@ -194,3 +194,5 @@ U_BOOT_DRIVER(pmic_rk8xx) = {
 	.probe = rk8xx_probe,
 	.ops = &rk8xx_ops,
 };
+
+U_BOOT_DRIVER_ALIAS(rockchip_rk805, rockchip_rk808)

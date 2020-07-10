@@ -945,7 +945,7 @@ static const struct udevice_id rk3188_dmc_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(dmc_rk3188) = {
+U_BOOT_DRIVER(rockchip_rk3188_dmc) = {
 	.name = "rockchip_rk3188_dmc",
 	.id = UCLASS_RAM,
 	.of_match = rk3188_dmc_ids,

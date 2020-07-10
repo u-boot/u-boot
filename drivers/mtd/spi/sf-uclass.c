@@ -68,7 +68,7 @@ int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
 	str = strdup(name);
 #endif
 	ret = spi_get_bus_and_cs(busnum, cs, max_hz, spi_mode,
-				  "spi_flash_std", str, &bus, &slave);
+				  "jedec_spi_nor", str, &bus, &slave);
 	if (ret)
 		return ret;
 

@@ -25,8 +25,8 @@ static const struct udevice_id at91_master_clk_match[] = {
 	{}
 };
 
-U_BOOT_DRIVER(at91_master_clk) = {
-	.name = "at91-master-clk",
+U_BOOT_DRIVER(atmel_at91rm9200_clk_master) = {
+	.name = "atmel_at91rm9200_clk_master",
 	.id = UCLASS_CLK,
 	.of_match = at91_master_clk_match,
 	.ops = &at91_master_clk_ops,

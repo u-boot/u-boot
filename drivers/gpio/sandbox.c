@@ -244,8 +244,8 @@ static const struct udevice_id sandbox_gpio_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(gpio_sandbox) = {
-	.name	= "gpio_sandbox",
+U_BOOT_DRIVER(sandbox_gpio) = {
+	.name	= "sandbox_gpio",
 	.id	= UCLASS_GPIO,
 	.of_match = sandbox_gpio_ids,
 	.ofdata_to_platdata = sandbox_gpio_ofdata_to_platdata,
@@ -253,6 +253,8 @@ U_BOOT_DRIVER(gpio_sandbox) = {
 	.remove	= gpio_sandbox_remove,
 	.ops	= &gpio_sandbox_ops,
 };
+
+U_BOOT_DRIVER_ALIAS(sandbox_gpio, sandbox_gpio_alias)
 
 /* pincontrol: used only to check GPIO pin configuration (pinmux command) */
 

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: GPL-2.0+
 #
+# Tests for U-Boot-specific checkpatch.pl features
+#
 # Copyright (c) 2011 The Chromium OS Authors.
 #
 
@@ -15,11 +17,76 @@ from patman import series
 from patman import commit
 
 
-class TestPatch(unittest.TestCase):
-    """Test this program
+class Line:
+    def __init__(self, fname, text):
+        self.fname = fname
+        self.text = text
 
-    TODO: Write tests for the rest of the functionality
-    """
+
+class PatchMaker:
+    def __init__(self):
+        self.lines = []
+
+    def add_line(self, fname, text):
+        self.lines.append(Line(fname, text))
+
+    def get_patch_text(self):
+        base = '''From 125b77450f4c66b8fd9654319520bbe795c9ef31 Mon Sep 17 00:00:00 2001
+From: Simon Glass <sjg@chromium.org>
+Date: Sun, 14 Jun 2020 09:45:14 -0600
+Subject: [PATCH] Test commit
+
+This is a test commit.
+
+Signed-off-by: Simon Glass <sjg@chromium.org>
+---
+
+'''
+        lines = base.splitlines()
+
+        # Create the diffstat
+        change = 0
+        insert = 0
+        for line in self.lines:
+            lines.append(' %s      | 1 +' % line.fname)
+            change += 1
+            insert += 1
+        lines.append(' %d files changed, %d insertions(+)' % (change, insert))
+        lines.append('')
+
+        # Create the patch info for each file
+        for line in self.lines:
+            lines.append('diff --git a/%s b/%s' % (line.fname, line.fname))
+            lines.append('index 7837d459f18..5ba7840f68e 100644')
+            lines.append('--- a/%s' % line.fname)
+            lines.append('+++ b/%s' % line.fname)
+            lines += ('''@@ -121,6 +121,7 @@ enum uclass_id {
+ 	UCLASS_W1,		/* Dallas 1-Wire bus */
+ 	UCLASS_W1_EEPROM,	/* one-wire EEPROMs */
+ 	UCLASS_WDT,		/* Watchdog Timer driver */
++%s
+
+ 	UCLASS_COUNT,
+ 	UCLASS_INVALID = -1,
+''' % line.text).splitlines()
+        lines.append('---')
+        lines.append('2.17.1')
+
+        return '\n'.join(lines)
+
+    def get_patch(self):
+        inhandle, inname = tempfile.mkstemp()
+        infd = os.fdopen(inhandle, 'w')
+        infd.write(self.get_patch_text())
+        infd.close()
+        return inname
+
+    def run_checkpatch(self):
+        return checkpatch.CheckPatch(self.get_patch(), show_types=True)
+
+
+class TestPatch(unittest.TestCase):
+    """Test the u_boot_line() function in checkpatch.pl"""
 
     def testBasic(self):
         """Test basic filter operation"""
@@ -280,6 +347,56 @@ index 0000000..2234c87
         self.assertEqual(result.checks, 1)
         self.assertEqual(result.lines, 62)
         os.remove(inf)
+
+    def checkSingleMessage(self, pm, msg, pmtype = 'warning'):
+        """Helper function to run checkpatch and check the result
+
+        Args:
+            pm: PatchMaker object to use
+            msg" Expected message (e.g. 'LIVETREE')
+            pmtype: Type of problem ('error', 'warning')
+        """
+        result = pm.run_checkpatch()
+        if pmtype == 'warning':
+            self.assertEqual(result.warnings, 1)
+        elif pmtype == 'error':
+            self.assertEqual(result.errors, 1)
+        if len(result.problems) != 1:
+            print(result.problems)
+        self.assertEqual(len(result.problems), 1)
+        self.assertIn(msg, result.problems[0]['cptype'])
+
+    def testUclass(self):
+        """Test for possible new uclass"""
+        pm = PatchMaker()
+        pm.add_line('include/dm/uclass-id.h', 'UCLASS_WIBBLE,')
+        self.checkSingleMessage(pm, 'NEW_UCLASS')
+
+    def testLivetree(self):
+        """Test for Use the livetree API"""
+        pm = PatchMaker()
+        pm.add_line('common/main.c', 'fdtdec_do_something()')
+        self.checkSingleMessage(pm, 'LIVETREE')
+
+    def testNewCommand(self):
+        """Test for Use the livetree API"""
+        pm = PatchMaker()
+        pm.add_line('common/main.c', 'do_wibble(struct cmd_tbl *cmd_tbl)')
+        self.checkSingleMessage(pm, 'CMD_TEST')
+
+    def testNewCommand(self):
+        """Test for Use the livetree API"""
+        pm = PatchMaker()
+        pm.add_line('common/main.c', '#ifdef CONFIG_YELLOW')
+        pm.add_line('common/init.h', '#ifdef CONFIG_YELLOW')
+        pm.add_line('fred.dtsi', '#ifdef CONFIG_YELLOW')
+        self.checkSingleMessage(pm, "PREFER_IF")
+
+    def testCommandUseDefconfig(self):
+        """Test for Use the livetree API"""
+        pm = PatchMaker()
+        pm.add_line('common/main.c', '#undef CONFIG_CMD_WHICH')
+        self.checkSingleMessage(pm, 'DEFINE_CONFIG_CMD', 'error')
 
 
 if __name__ == "__main__":

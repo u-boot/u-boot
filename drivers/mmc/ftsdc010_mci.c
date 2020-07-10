@@ -439,7 +439,7 @@ static int ftsdc010_mmc_probe(struct udevice *dev)
 	chip->priv = dev;
 	chip->dev_index = 1;
 	memcpy(priv->minmax, dtplat->clock_freq_min_max, sizeof(priv->minmax));
-	ret = clk_get_by_index_platdata(dev, 0, dtplat->clocks, &priv->clk);
+	ret = clk_get_by_driver_info(dev, dtplat->clocks, &priv->clk);
 	if (ret < 0)
 		return ret;
 #endif
