@@ -250,7 +250,7 @@ script:
      virtualenv -p /usr/bin/python3 /tmp/venv;
      . /tmp/venv/bin/activate;
      pip install -r test/py/requirements.txt;
-     ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID}
+     ./test/py/test.py -ra --bd ${TEST_PY_BD} ${TEST_PY_ID}
        ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"}
        --build-dir "$UBOOT_TRAVIS_BUILD_DIR" || exit;
      if [[ -n "${TEST_PY_TOOLS}" ]]; then
