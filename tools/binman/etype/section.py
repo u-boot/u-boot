@@ -226,7 +226,7 @@ class Entry_section(Entry):
                             "at %#x (%d)" %
                             (entry.offset, entry.offset, self._skip_at_start,
                              self._skip_at_start))
-            if entry.offset < offset:
+            if entry.offset < offset and entry.size:
                 entry.Raise("Offset %#x (%d) overlaps with previous entry '%s' "
                             "ending at %#x (%d)" %
                             (entry.offset, entry.offset, prev_name, offset, offset))
