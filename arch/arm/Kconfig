@@ -916,6 +916,11 @@ config ARCH_MX5
 	select CPU_V7A
 	imply MXC_GPIO
 
+config ARCH_NEXELL
+	bool "Nexell S5P4418/S5P6818 SoC"
+	select ENABLE_ARM_SOC_BOOT0_HOOK
+	select DM
+
 config ARCH_OWL
 	bool "Actions Semi OWL SoCs"
 	select DM
@@ -1891,6 +1896,8 @@ source "arch/arm/cpu/armv7/Kconfig"
 source "arch/arm/cpu/armv8/Kconfig"
 
 source "arch/arm/mach-imx/Kconfig"
+
+source "arch/arm/mach-nexell/Kconfig"
 
 source "board/bosch/shc/Kconfig"
 source "board/bosch/guardian/Kconfig"
