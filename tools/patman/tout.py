@@ -83,7 +83,10 @@ def _Output(level, msg, color=None):
         ClearProgress()
         if color:
             msg = _color.Color(color, msg)
-        print(msg)
+        if level < NOTICE:
+            print(msg, file=sys.stderr)
+        else:
+            print(msg)
 
 def DoOutput(level, msg):
     """Output a message to the terminal.

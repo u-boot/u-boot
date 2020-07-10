@@ -3232,7 +3232,7 @@ class TestFunctional(unittest.TestCase):
         with test_util.capture_sys_output() as (stdout, stderr):
             control.ReplaceEntries(updated_fname, None, outdir, [])
         self.assertIn("Skipping entry '/u-boot' from missing file",
-                      stdout.getvalue())
+                      stderr.getvalue())
 
     def testReplaceCmdMap(self):
         """Test replacing a file fron an image on the command line"""
