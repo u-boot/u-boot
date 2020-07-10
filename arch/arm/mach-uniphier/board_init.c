@@ -163,10 +163,6 @@ int board_init(void)
 	if (initdata->misc_init)
 		initdata->misc_init();
 
-	led_puts("U3");
-
-	uniphier_nand_reset_assert();
-
 	led_puts("Uboo");
 
 	return 0;
