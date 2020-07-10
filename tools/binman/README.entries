@@ -587,6 +587,29 @@ See README.x86 for information about Intel binary blobs.
 
 
 
+Entry: mkimage: Entry containing a binary produced by mkimage
+-------------------------------------------------------------
+
+Properties / Entry arguments:
+    - datafile: Filename for -d argument
+    - args: Other arguments to pass
+
+The data passed to mkimage is collected from subnodes of the mkimage node,
+e.g.:
+
+    mkimage {
+        args = "-n test -T imximage";
+
+        u-boot-spl {
+        };
+    };
+
+This calls mkimage to create an imximage with u-boot-spl.bin as the input
+file. The output from mkimage then becomes part of the image produced by
+binman.
+
+
+
 Entry: powerpc-mpc85xx-bootpg-resetvec: PowerPC mpc85xx bootpg + resetvec code for U-Boot
 -----------------------------------------------------------------------------------------
 

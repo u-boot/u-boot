@@ -3357,6 +3357,13 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('154_intel_fsp_t.dts')
         self.assertEqual(FSP_T_DATA, data[:len(FSP_T_DATA)])
 
+    def testMkimage(self):
+        """Test using mkimage to build an image"""
+        data = self._DoReadFile('156_mkimage.dts')
+
+        # Just check that the data appears in the file somewhere
+        self.assertIn(U_BOOT_SPL_DATA, data)
+
 
 if __name__ == "__main__":
     unittest.main()
