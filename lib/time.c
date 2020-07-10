@@ -152,6 +152,11 @@ uint64_t __weak get_timer_us(uint64_t base)
 	return tick_to_time_us(get_ticks()) - base;
 }
 
+unsigned long __weak get_timer_us_long(unsigned long base)
+{
+	return timer_get_us() - base;
+}
+
 unsigned long __weak notrace timer_get_us(void)
 {
 	return tick_to_time(get_ticks() * 1000);

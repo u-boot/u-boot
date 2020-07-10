@@ -17,6 +17,17 @@ unsigned long get_timer(unsigned long base);
 unsigned long timer_get_us(void);
 uint64_t get_timer_us(uint64_t base);
 
+/**
+ * get_timer_us_long() - Get the number of elapsed microseconds
+ *
+ * This uses 32-bit arithmetic on 32-bit machines, which is enough to handle
+ * delays of over an hour. For 64-bit machines it uses a 64-bit value.
+ *
+ *@base: Base time to consider
+ *@return elapsed time since @base
+ */
+unsigned long get_timer_us_long(unsigned long base);
+
 /*
  * timer_test_add_offset()
  *
