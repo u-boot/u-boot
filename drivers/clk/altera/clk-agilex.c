@@ -542,6 +542,11 @@ static ulong socfpga_clk_get_rate(struct clk *clk)
 	}
 }
 
+static int socfpga_clk_enable(struct clk *clk)
+{
+	return 0;
+}
+
 static int socfpga_clk_probe(struct udevice *dev)
 {
 	const struct cm_config *cm_default_cfg = cm_get_default_config();
@@ -565,6 +570,7 @@ static int socfpga_clk_ofdata_to_platdata(struct udevice *dev)
 }
 
 static struct clk_ops socfpga_clk_ops = {
+	.enable		= socfpga_clk_enable,
 	.get_rate	= socfpga_clk_get_rate,
 };
 
