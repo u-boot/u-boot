@@ -171,6 +171,16 @@ static void clk_basic_init(struct udevice *dev,
 	if (!cfg)
 		return;
 
+#ifdef CONFIG_SPL_BUILD
+	/* Always force clock manager into boot mode before any configuration */
+	clk_write_ctrl(plat,
+		       CM_REG_READL(plat, CLKMGR_CTRL) | CLKMGR_CTRL_BOOTMODE);
+#else
+	/* Skip clock configuration in SSBL if it's not in boot mode */
+	if (!(CM_REG_READL(plat, CLKMGR_CTRL) & CLKMGR_CTRL_BOOTMODE))
+		return;
+#endif
+
 	/* Put both PLLs in bypass */
 	clk_write_bypass_mainpll(plat, CLKMGR_BYPASS_MAINPLL_ALL);
 	clk_write_bypass_perpll(plat, CLKMGR_BYPASS_PERPLL_ALL);
