@@ -145,7 +145,7 @@ static void process_args(int argc, char **argv)
 	int opt;
 
 	while ((opt = getopt(argc, argv,
-			     "a:A:b:B:c:C:d:D:e:Ef:Fk:i:K:ln:N:p:O:rR:qsT:vVx")) != -1) {
+		   "a:A:b:B:c:C:d:D:e:Ef:Fk:i:K:ln:N:p:O:rR:qstT:vVx")) != -1) {
 		switch (opt) {
 		case 'a':
 			params.addr = strtoull(optarg, &ptr, 16);
@@ -268,6 +268,9 @@ static void process_args(int argc, char **argv)
 			break;
 		case 's':
 			params.skipcpy = 1;
+			break;
+		case 't':
+			params.reset_timestamp = 1;
 			break;
 		case 'T':
 			if (strcmp(optarg, "list") == 0) {
