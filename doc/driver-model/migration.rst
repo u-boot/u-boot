@@ -66,27 +66,14 @@ CONFIG_DM_SPI / CONFIG_DM_SPI_FLASH
 Board Maintainers should submit the patches for enabling DM_SPI and DM_SPI_FLASH
 to move the migration with in the deadline.
 
-No dm conversion yet::
-
-	drivers/spi/fsl_espi.c
-	drivers/spi/soft_spi_legacy.c
-
-* Status: In progress
-* Deadline: 2019.04
-
 Partially converted::
 
-	drivers/spi/davinci_spi.c
-	drivers/spi/fsl_dspi.c
-	drivers/spi/kirkwood_spi.c
+	drivers/spi/fsl_espi.c
 	drivers/spi/mxc_spi.c
-	drivers/spi/mxs_spi.c
-	drivers/spi/omap3_spi.c
 	drivers/spi/sh_qspi.c
 
 * Status: In progress
 * Deadline: 2019.07
-
 
 CONFIG_DM_PCI
 -------------

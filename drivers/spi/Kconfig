@@ -162,6 +162,12 @@ config ICH_SPI
 	  access the SPI NOR flash on platforms embedding this Intel
 	  ICH IP core.
 
+config KIRKWOOD_SPI
+	bool "Marvell Kirkwood SPI Driver"
+	help
+	  Enable support for SPI on various Marvell SoCs, such as
+	  Kirkwood and Armada 375.
+
 config MESON_SPIFC
 	bool "Amlogic Meson SPI Flash Controller driver"
 	depends on ARCH_MESON
@@ -225,6 +231,13 @@ config NXP_FSPI
 	help
 	  Enable the NXP FlexSPI (FSPI) driver. This driver can be used to
 	  access the SPI NOR flash on platforms embedding this NXP IP core.
+
+config OMAP3_SPI
+	bool "McSPI driver for OMAP"
+	help
+	  SPI master controller for OMAP24XX and later Multichannel SPI
+	  (McSPI). This driver be used to access SPI chips on platforms
+	  embedding this OMAP3 McSPI IP core.
 
 config PIC32_SPI
 	bool "Microchip PIC32 SPI driver"
@@ -417,23 +430,10 @@ config SH_QSPI
 	  Enable the Renesas Quad SPI controller driver. This driver can be
 	  used on Renesas SoCs.
 
-config KIRKWOOD_SPI
-	bool "Marvell Kirkwood SPI Driver"
-	help
-	  Enable support for SPI on various Marvell SoCs, such as
-	  Kirkwood and Armada 375.
-
 config MXC_SPI
 	bool "MXC SPI Driver"
 	help
 	  Enable the MXC SPI controller driver. This driver can be used
 	  on various i.MX SoCs such as i.MX31/35/51/6/7.
-
-config OMAP3_SPI
-	bool "McSPI driver for OMAP"
-	help
-	  SPI master controller for OMAP24XX and later Multichannel SPI
-	  (McSPI). This driver be used to access SPI chips on platforms
-	  embedding this OMAP3 McSPI IP core.
 
 endif # menu "SPI Support"

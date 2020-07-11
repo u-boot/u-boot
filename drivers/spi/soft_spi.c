@@ -61,10 +61,12 @@ static int soft_spi_sda(struct udevice *dev, int bit)
 static int soft_spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev_get_parent(dev);
+	struct soft_spi_priv *priv = dev_get_priv(bus);
 	struct soft_spi_platdata *plat = dev_get_platdata(bus);
+	int cidle = !!(priv->mode & SPI_CPOL);
 
 	dm_gpio_set_value(&plat->cs, 0);
-	dm_gpio_set_value(&plat->sclk, 0);
+	dm_gpio_set_value(&plat->sclk, cidle); /* to idle */
 	dm_gpio_set_value(&plat->cs, 1);
 
 	return 0;
@@ -82,11 +84,14 @@ static int soft_spi_cs_deactivate(struct udevice *dev)
 
 static int soft_spi_claim_bus(struct udevice *dev)
 {
+	struct udevice *bus = dev_get_parent(dev);
+	struct soft_spi_priv *priv = dev_get_priv(bus);
+	int cidle = !!(priv->mode & SPI_CPOL);
 	/*
 	 * Make sure the SPI clock is in idle state as defined for
 	 * this slave.
 	 */
-	return soft_spi_scl(dev, 0);
+	return soft_spi_scl(dev, cidle);
 }
 
 static int soft_spi_release_bus(struct udevice *dev)
@@ -117,7 +122,8 @@ static int soft_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	uchar		tmpdout = 0;
 	const u8	*txd = dout;
 	u8		*rxd = din;
-	int		cpha = priv->mode & SPI_CPHA;
+	int		cpha = !!(priv->mode & SPI_CPHA);
+	int		cidle = !!(priv->mode & SPI_CPOL);
 	unsigned int	j;
 
 	debug("spi_xfer: slave %s:%s dout %08X din %08X bitlen %u\n",
@@ -143,22 +149,42 @@ static int soft_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			tmpdin  = 0;
 		}
 
-		if (!cpha)
-			soft_spi_scl(dev, 0);
+		/*
+		 * CPOL 0: idle is low (0), active is high (1)
+		 * CPOL 1: idle is high (1), active is low (0)
+		 */
+
+		/*
+		 * drive bit
+		 *  CPHA 1: CLK from idle to active
+		 */
+		if (cpha)
+			soft_spi_scl(dev, !cidle);
 		if ((plat->flags & SPI_MASTER_NO_TX) == 0)
 			soft_spi_sda(dev, !!(tmpdout & 0x80));
 		udelay(plat->spi_delay_us);
-		if (cpha)
-			soft_spi_scl(dev, 0);
+
+		/*
+		 * sample bit
+		 *  CPHA 0: CLK from idle to active
+		 *  CPHA 1: CLK from active to idle
+		 */
+		if (!cpha)
+			soft_spi_scl(dev, !cidle);
 		else
-			soft_spi_scl(dev, 1);
+			soft_spi_scl(dev, cidle);
 		tmpdin	<<= 1;
 		if ((plat->flags & SPI_MASTER_NO_RX) == 0)
 			tmpdin	|= dm_gpio_get_value(&plat->miso);
 		tmpdout	<<= 1;
 		udelay(plat->spi_delay_us);
-		if (cpha)
-			soft_spi_scl(dev, 1);
+
+		/*
+		 * drive bit
+		 *  CPHA 0: CLK from active to idle
+		 */
+		if (!cpha)
+			soft_spi_scl(dev, cidle);
 	}
 	/*
 	 * If the number of bits isn't a multiple of 8, shift the last
@@ -179,7 +205,7 @@ static int soft_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int soft_spi_set_speed(struct udevice *dev, unsigned int speed)
 {
-	/* Accept any speed */
+	/* Ignore any speed settings. Speed is implemented via "spi-delay-us" */
 	return 0;
 }
 
