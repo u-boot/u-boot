@@ -138,7 +138,7 @@ reset:
 	and	t0, t0, (1 << 31)
 #else
 1:	mfc0	t0, CP0_EBASE
-	and	t0, t0, EBASE_CPUNUM
+	and	t0, t0, MIPS_EBASE_CPUNUM
 #endif
 
 	/* Hang if this isn't the first CPU in the system */

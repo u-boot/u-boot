@@ -110,7 +110,7 @@ void trap_init(ulong reloc_addr)
 
 	/* Set WG bit on Octeon to enable writing to bits 63:30 */
 	if (IS_ENABLED(CONFIG_ARCH_OCTEON))
-		ebase |= EBASE_WG;
+		ebase |= MIPS_EBASE_WG;
 
 	write_c0_ebase(ebase);
 	clear_c0_status(ST0_BEV);
