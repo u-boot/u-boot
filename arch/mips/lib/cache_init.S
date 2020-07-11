@@ -418,6 +418,12 @@ return:
 	jr	R_RETURN
 	END(mips_cache_reset)
 
+LEAF(mips_cache_disable)
+	move	R_RETURN, ra
+	change_k0_cca_kseg1 CONF_CM_UNCACHED
+	jr	R_RETURN
+	END(mips_cache_disable)
+
 LEAF(change_k0_cca)
 	mfc0		t0, CP0_CONFIG
 #if __mips_isa_rev >= 2
