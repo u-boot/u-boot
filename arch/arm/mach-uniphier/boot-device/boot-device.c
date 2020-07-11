@@ -14,10 +14,17 @@
 #include <linux/log2.h>
 
 #include "../init.h"
-#include "../sbc/sbc-regs.h"
 #include "../sg-regs.h"
 #include "../soc-info.h"
 #include "boot-device.h"
+
+#define SBBASE0			0x58c00100
+#define SBBASE_BANK_ENABLE		BIT(0)
+
+static int uniphier_sbc_boot_is_swapped(void)
+{
+	return !(readl(SBBASE0) & SBBASE_BANK_ENABLE);
+}
 
 struct uniphier_boot_device_info {
 	unsigned int soc_id;

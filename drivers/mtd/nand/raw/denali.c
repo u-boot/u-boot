@@ -1220,6 +1220,17 @@ static int denali_multidev_fixup(struct denali_nand_info *denali)
 	return 0;
 }
 
+int denali_wait_reset_complete(struct denali_nand_info *denali)
+{
+	u32 irq_status;
+
+	irq_status = denali_wait_for_irq(denali, INTR__RST_COMP);
+	if (!(irq_status & INTR__RST_COMP))
+		return -EIO;
+
+	return 0;
+}
+
 int denali_init(struct denali_nand_info *denali)
 {
 	struct nand_chip *chip = &denali->nand;

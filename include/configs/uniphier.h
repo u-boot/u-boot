@@ -41,32 +41,12 @@
 
 #define CONFIG_ARMV7_PSCI_1_0
 
-/*-----------------------------------------------------------------------
- * MMU and Cache Setting
- *----------------------------------------------------------------------*/
-
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
 #define CONFIG_TIMESTAMP
 
-/* FLASH related */
-
-#define CONFIG_SYS_MAX_FLASH_SECT	256
 #define CONFIG_SYS_MONITOR_BASE		0
-#define CONFIG_SYS_MONITOR_LEN		0x000d0000	/* 832KB */
-#define CONFIG_SYS_FLASH_BASE		0
-
-/*
- * flash_toggle does not work for our support card.
- * We need to use flash_status_poll.
- */
-#define CONFIG_SYS_CFI_FLASH_STATUS_POLL
-
-#define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
-
-#define CONFIG_SYS_MAX_FLASH_BANKS_DETECT 1
-
-/* serial console configuration */
+#define CONFIG_SYS_MONITOR_LEN		0x00200000	/* 2MB */
 
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 /* Boot Argument Buffer Size */
@@ -221,7 +201,7 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE)
 
 /* only for SPL */
-#define CONFIG_SPL_STACK		(0x00200000)
+#define CONFIG_SPL_STACK		(0x00100000)
 
 #define CONFIG_SYS_NAND_U_BOOT_OFFS		0x20000
 

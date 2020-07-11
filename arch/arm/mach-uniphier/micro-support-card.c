@@ -5,8 +5,7 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <config.h>
-#include <dm/of.h>
+#include <dm.h>
 #include <fdt_support.h>
 #include <linux/ctype.h>
 #include <linux/delay.h>
@@ -91,6 +90,17 @@ static int support_card_show_revision(void)
 
 void support_card_init(void)
 {
+	struct udevice *dev;
+	int ret;
+
+	/* The system bus must be initialized for access to the support card. */
+	ret = uclass_get_device_by_driver(UCLASS_SIMPLE_BUS,
+					  DM_GET_DRIVER(uniphier_system_bus_driver),
+					  &dev);
+	if (ret)
+		return;
+
+	/* Check DT to see if this board has the support card. */
 	support_card_detect();
 
 	if (!support_card_found)
@@ -105,102 +115,6 @@ void support_card_init(void)
 	support_card_reset_deassert();
 
 	support_card_show_revision();
-}
-
-#if defined(CONFIG_MTD_NOR_FLASH)
-
-#include <mtd/cfi_flash.h>
-
-struct memory_bank {
-	phys_addr_t base;
-	unsigned long size;
-};
-
-static int mem_is_flash(const struct memory_bank *mem)
-{
-	const int loop = 128;
-	u32 *scratch_addr;
-	u32 saved_value;
-	int ret = 1;
-	int i;
-
-	/* just in case, use the tail of the memory bank */
-	scratch_addr = map_physmem(mem->base + mem->size - sizeof(u32) * loop,
-				   sizeof(u32) * loop, MAP_NOCACHE);
-
-	for (i = 0; i < loop; i++, scratch_addr++) {
-		saved_value = readl(scratch_addr);
-		writel(~saved_value, scratch_addr);
-		if (readl(scratch_addr) != saved_value) {
-			/* We assume no memory or SRAM here. */
-			writel(saved_value, scratch_addr);
-			ret = 0;
-			break;
-		}
-	}
-
-	unmap_physmem(scratch_addr, MAP_NOCACHE);
-
-	return ret;
-}
-
-/* {address, size} */
-static const struct memory_bank memory_banks[] = {
-	{0x42000000, 0x01f00000},
-};
-
-static const struct memory_bank
-*flash_banks_list[CONFIG_SYS_MAX_FLASH_BANKS_DETECT];
-
-phys_addr_t cfi_flash_bank_addr(int i)
-{
-	return flash_banks_list[i]->base;
-}
-
-unsigned long cfi_flash_bank_size(int i)
-{
-	return flash_banks_list[i]->size;
-}
-
-static void detect_num_flash_banks(void)
-{
-	const struct memory_bank *memory_bank, *end;
-
-	cfi_flash_num_flash_banks = 0;
-
-	memory_bank = memory_banks;
-	end = memory_bank + ARRAY_SIZE(memory_banks);
-
-	for (; memory_bank < end; memory_bank++) {
-		if (cfi_flash_num_flash_banks >=
-		    CONFIG_SYS_MAX_FLASH_BANKS_DETECT)
-			break;
-
-		if (mem_is_flash(memory_bank)) {
-			flash_banks_list[cfi_flash_num_flash_banks] =
-								memory_bank;
-
-			debug("flash bank found: base = 0x%lx, size = 0x%lx\n",
-			      (unsigned long)memory_bank->base,
-			      (unsigned long)memory_bank->size);
-			cfi_flash_num_flash_banks++;
-		}
-	}
-
-	debug("number of flash banks: %d\n", cfi_flash_num_flash_banks);
-}
-#else /* CONFIG_MTD_NOR_FLASH */
-static void detect_num_flash_banks(void)
-{
-};
-#endif /* CONFIG_MTD_NOR_FLASH */
-
-void support_card_late_init(void)
-{
-	if (!support_card_found)
-		return;
-
-	detect_num_flash_banks();
 }
 
 static const u8 ledval_num[] = {

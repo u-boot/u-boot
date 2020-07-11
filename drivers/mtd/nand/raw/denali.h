@@ -321,6 +321,7 @@ struct denali_nand_info {
 #define DENALI_CAP_DMA_64BIT			BIT(1)
 
 int denali_calc_ecc_bytes(int step_size, int strength);
+int denali_wait_reset_complete(struct denali_nand_info *denali);
 int denali_init(struct denali_nand_info *denali);
 
 #endif /* __DENALI_H__ */
