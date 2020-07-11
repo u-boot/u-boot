@@ -17,19 +17,10 @@
 #endif
 
 #ifdef CONFIG_32BIT
-# define MIPS_RELOC	3
 # define STATUS_SET	0
 #endif
 
 #ifdef CONFIG_64BIT
-# ifdef CONFIG_SYS_LITTLE_ENDIAN
-#  define MIPS64_R_INFO(ssym, r_type3, r_type2, r_type) \
-	(((r_type) << 24) | ((r_type2) << 16) | ((r_type3) << 8) | (ssym))
-# else
-#  define MIPS64_R_INFO(ssym, r_type3, r_type2, r_type) \
-	((r_type) | ((r_type2) << 8) | ((r_type3) << 16) | (ssym) << 24)
-# endif
-# define MIPS_RELOC	MIPS64_R_INFO(0x00, 0x00, 0x12, 0x03)
 # define STATUS_SET	ST0_KX
 #endif
 
