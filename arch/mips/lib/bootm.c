@@ -51,7 +51,7 @@ void arch_lmb_reserve(struct lmb *lmb)
 static void linux_cmdline_init(void)
 {
 	linux_argc = 1;
-	linux_argv = (char **)UNCACHED_SDRAM(gd->bd->bi_boot_params);
+	linux_argv = (char **)CKSEG1ADDR(gd->bd->bi_boot_params);
 	linux_argv[0] = 0;
 	linux_argp = (char *)(linux_argv + LINUX_MAX_ARGS);
 }
@@ -186,7 +186,7 @@ static void linux_env_legacy(bootm_headers_t *images)
 		      (ulong)(gd->ram_size >> 20));
 	}
 
-	rd_start = UNCACHED_SDRAM(images->initrd_start);
+	rd_start = CKSEG1ADDR(images->initrd_start);
 	rd_size = images->initrd_end - images->initrd_start;
 
 	linux_env_init();

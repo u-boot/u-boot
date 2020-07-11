@@ -127,19 +127,6 @@
 					 (_CONST64_(cm) << 59) | (a))
 
 /*
- * Returns the uncached address of a sdram address
- */
-#ifndef __ASSEMBLY__
-#if defined(CONFIG_TB0229)
-/* We use a 36 bit physical address map here and
-   cannot access physical memory directly from core */
-#define UNCACHED_SDRAM(a) (((unsigned long)(a)) | 0x20000000)
-#else	/* !CONFIG_TB0229 */
-#define UNCACHED_SDRAM(a) CKSEG1ADDR(a)
-#endif	/* CONFIG_TB0229 */
-#endif	/* __ASSEMBLY__ */
-
-/*
  * The ultimate limited of the 64-bit MIPS architecture:  2 bits for selecting
  * the region, 3 bits for the CCA mode.  This leaves 59 bits of which the
  * R8000 implements most with its 48-bit physical address space.
