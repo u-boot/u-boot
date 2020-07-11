@@ -3,13 +3,6 @@
 # Disk image name
 EFI_SECBOOT_IMAGE_NAME = 'test_efi_secboot.img'
 
-# Size in MiB
-EFI_SECBOOT_IMAGE_SIZE = 16
-EFI_SECBOOT_PART_SIZE = 8
-
-# Partition file system type
-EFI_SECBOOT_FS_TYPE = 'vfat'
-
 # Owner guid
 GUID = '11111111-2222-3333-4444-123456789abc'
 

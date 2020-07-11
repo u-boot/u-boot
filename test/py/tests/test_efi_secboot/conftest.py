@@ -38,33 +38,14 @@ def efi_boot_env(request, u_boot_config):
 
     image_path = u_boot_config.persistent_data_dir
     image_path = image_path + '/' + EFI_SECBOOT_IMAGE_NAME
-    image_size = EFI_SECBOOT_IMAGE_SIZE
-    part_size = EFI_SECBOOT_PART_SIZE
-    fs_type = EFI_SECBOOT_FS_TYPE
 
     if HELLO_PATH == '':
         HELLO_PATH = u_boot_config.build_dir + '/lib/efi_loader/helloworld.efi'
 
     try:
-        mnt_point = u_boot_config.persistent_data_dir + '/mnt_efisecure'
+        mnt_point = u_boot_config.build_dir + '/mnt_efisecure'
+        check_call('rm -rf {}'.format(mnt_point), shell=True)
         check_call('mkdir -p {}'.format(mnt_point), shell=True)
-
-        # create a disk/partition
-        check_call('dd if=/dev/zero of=%s bs=1MiB count=%d'
-                   % (image_path, image_size), shell=True)
-        check_call('sgdisk %s -n 1:0:+%dMiB'
-                   % (image_path, part_size), shell=True)
-        # create a file system
-        check_call('dd if=/dev/zero of=%s.tmp bs=1MiB count=%d'
-                   % (image_path, part_size), shell=True)
-        check_call('mkfs -t %s %s.tmp' % (fs_type, image_path), shell=True)
-        check_call('dd if=%s.tmp of=%s bs=1MiB seek=1 count=%d conv=notrunc'
-                   % (image_path, image_path, 1), shell=True)
-        check_call('rm %s.tmp' % image_path, shell=True)
-        loop_dev = check_output('sudo losetup -o 1MiB --sizelimit %dMiB --show -f %s | tr -d "\n"'
-                                % (part_size, image_path), shell=True).decode()
-        check_output('sudo mount -t %s -o umask=000 %s %s'
-                     % (fs_type, loop_dev, mnt_point), shell=True)
 
         # suffix
         # *.key: RSA private key in PEM
@@ -145,8 +126,8 @@ def efi_boot_env(request, u_boot_config):
                    % (mnt_point, EFITOOLS_PATH),
                    shell=True)
 
-        check_call('sudo umount %s' % loop_dev, shell=True)
-        check_call('sudo losetup -d %s' % loop_dev, shell=True)
+        check_call('virt-make-fs --partition=gpt --size=+1M --type=vfat {} {}'.format(mnt_point, image_path), shell=True)
+        check_call('rm -rf {}'.format(mnt_point), shell=True)
 
     except CalledProcessError as exception:
         pytest.skip('Setup failed: %s' % exception.cmd)
