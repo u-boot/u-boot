@@ -270,6 +270,30 @@ config MIPS_CACHE_INDEX_BASE
 	  Normally this is CKSEG0. If the MIPS system needs to move this block
 	  to some SRAM or ScratchPad RAM, adapt this option accordingly.
 
+config MIPS_CACHE_SETUP
+	bool "Allow generic start code to initialize and setup caches"
+	default n if SKIP_LOWLEVEL_INIT
+	default y
+	help
+	  This allows the generic start code to invoke the generic initialization
+	  of the CPU caches. Disabling this can be useful for RAM boot scenarios
+	  (EJTAG, SPL payload) or for machines which don't need cache initialization
+	  or which want to provide their own cache implementation.
+
+	  If unsure, say yes.
+
+config MIPS_CACHE_DISABLE
+	bool "Allow generic start code to initially disable caches"
+	default n if SKIP_LOWLEVEL_INIT
+	default y
+	help
+	  This allows the generic start code to initially disable the CPU caches
+	  and run uncached until the caches are initialized and enabled. Disabling
+	  this can be useful on machines which don't need cache initialization or
+	  which want to provide their own cache implementation.
+
+	  If unsure, say yes.
+
 config MIPS_RELOCATION_TABLE_SIZE
 	hex "Relocation table size"
 	range 0x100 0x10000

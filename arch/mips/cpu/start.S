@@ -195,7 +195,7 @@ wr_done:
 	/* Clear timer interrupt (CP0_COUNT cleared on branch to 'reset') */
 	mtc0	zero, CP0_COMPARE
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#ifdef CONFIG_MIPS_CACHE_DISABLE
 	/* Disable caches */
 	PTR_LA	t9, mips_cache_disable
 	jalr	t9
@@ -234,12 +234,16 @@ wr_done:
 	jalr	t9
 	 nop
 # endif
+#endif
 
+#ifdef CONFIG_MIPS_CACHE_SETUP
 	/* Initialize caches... */
 	PTR_LA	t9, mips_cache_reset
 	jalr	t9
 	 nop
+#endif
 
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 # ifndef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
 	/* Initialize any external memory */
 	PTR_LA	t9, lowlevel_init
