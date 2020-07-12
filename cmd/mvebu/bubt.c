@@ -299,9 +299,6 @@ static int spi_burn_image(size_t image_size)
 		return -ENOMEDIUM;
 	}
 
-#ifdef CONFIG_SPI_FLASH_PROTECTION
-	spi_flash_protect(flash, 0);
-#endif
 	erase_bytes = image_size +
 		(flash->erase_size - image_size % flash->erase_size);
 	printf("Erasing %d bytes (%d blocks) at offset 0 ...",
@@ -319,10 +316,6 @@ static int spi_burn_image(size_t image_size)
 		printf("Error!\n");
 	else
 		printf("Done!\n");
-
-#ifdef CONFIG_SPI_FLASH_PROTECTION
-	spi_flash_protect(flash, 1);
-#endif
 
 	return ret;
 }
