@@ -35,10 +35,13 @@ obj-y += efi_root_node.o
 obj-y += efi_runtime.o
 obj-y += efi_setup.o
 obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL2) += efi_unicode_collation.o
+obj-y += efi_var_common.o
+obj-y += efi_var_mem.o
 ifeq ($(CONFIG_EFI_MM_COMM_TEE),y)
 obj-y += efi_variable_tee.o
 else
 obj-y += efi_variable.o
+obj-y += efi_var_file.o
 endif
 obj-y += efi_watchdog.o
 obj-$(CONFIG_LCD) += efi_gop.o

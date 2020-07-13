@@ -267,6 +267,8 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 
 	dos = (void *)efi;
 	nt = (void *)(efi + dos->e_lfanew);
+	authoff = 0;
+	authsz = 0;
 
 	/*
 	 * Count maximum number of regions to be digested.
@@ -305,25 +307,36 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 			efi_image_region_add(regs,
 					     &opt->DataDirectory[ctidx] + 1,
 					     efi + opt->SizeOfHeaders, 0);
+
+			authoff = opt->DataDirectory[ctidx].VirtualAddress;
+			authsz = opt->DataDirectory[ctidx].Size;
 		}
 
 		bytes_hashed = opt->SizeOfHeaders;
 		align = opt->FileAlignment;
-		authoff = opt->DataDirectory[ctidx].VirtualAddress;
-		authsz = opt->DataDirectory[ctidx].Size;
 	} else if (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
 		IMAGE_OPTIONAL_HEADER32 *opt = &nt->OptionalHeader;
 
+		/* Skip CheckSum */
 		efi_image_region_add(regs, efi, &opt->CheckSum, 0);
-		efi_image_region_add(regs, &opt->Subsystem,
-				     &opt->DataDirectory[ctidx], 0);
-		efi_image_region_add(regs, &opt->DataDirectory[ctidx] + 1,
-				     efi + opt->SizeOfHeaders, 0);
+		if (nt->OptionalHeader.NumberOfRvaAndSizes <= ctidx) {
+			efi_image_region_add(regs,
+					     &opt->Subsystem,
+					     efi + opt->SizeOfHeaders, 0);
+		} else {
+			/* Skip Certificates Table */
+			efi_image_region_add(regs, &opt->Subsystem,
+					     &opt->DataDirectory[ctidx], 0);
+			efi_image_region_add(regs,
+					     &opt->DataDirectory[ctidx] + 1,
+					     efi + opt->SizeOfHeaders, 0);
+
+			authoff = opt->DataDirectory[ctidx].VirtualAddress;
+			authsz = opt->DataDirectory[ctidx].Size;
+		}
 
 		bytes_hashed = opt->SizeOfHeaders;
 		align = opt->FileAlignment;
-		authoff = opt->DataDirectory[ctidx].VirtualAddress;
-		authsz = opt->DataDirectory[ctidx].Size;
 	} else {
 		EFI_PRINT("%s: Invalid optional header magic %x\n", __func__,
 			  nt->OptionalHeader.Magic);
@@ -369,7 +382,7 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 
 	/* 3. Extra data excluding Certificates Table */
 	if (bytes_hashed + authsz < len) {
-		EFI_PRINT("extra data for hash: %lu\n",
+		EFI_PRINT("extra data for hash: %zu\n",
 			  len - (bytes_hashed + authsz));
 		efi_image_region_add(regs, efi + bytes_hashed,
 				     efi + len - authsz, 0);
@@ -435,16 +448,16 @@ static bool efi_image_unsigned_authenticate(struct efi_image_regions *regs)
 	}
 
 	/* try black-list first */
-	if (efi_signature_verify_with_sigdb(regs, NULL, dbx, NULL)) {
-		EFI_PRINT("Image is not signed and rejected by \"dbx\"\n");
+	if (efi_signature_lookup_digest(regs, dbx)) {
+		EFI_PRINT("Image is not signed and its digest found in \"dbx\"\n");
 		goto out;
 	}
 
 	/* try white-list */
-	if (efi_signature_verify_with_sigdb(regs, NULL, db, NULL))
+	if (efi_signature_lookup_digest(regs, db))
 		ret = true;
 	else
-		EFI_PRINT("Image is not signed and not found in \"db\" or \"dbx\"\n");
+		EFI_PRINT("Image is not signed and its digest not found in \"db\" or \"dbx\"\n");
 
 out:
 	efi_sigstore_free(db);
@@ -481,10 +494,12 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	size_t wincerts_len;
 	struct pkcs7_message *msg = NULL;
 	struct efi_signature_store *db = NULL, *dbx = NULL;
-	struct x509_certificate *cert = NULL;
 	void *new_efi = NULL;
-	size_t new_efi_size;
+	u8 *auth, *wincerts_end;
+	size_t new_efi_size, auth_size;
 	bool ret = false;
+
+	debug("%s: Enter, %d\n", __func__, ret);
 
 	if (!efi_secure_boot_enabled())
 		return true;
@@ -531,61 +546,122 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 		goto err;
 	}
 
-	/* go through WIN_CERTIFICATE list */
-	for (wincert = wincerts;
-	     (void *)wincert < (void *)wincerts + wincerts_len;
-	     wincert = (void *)wincert + ALIGN(wincert->dwLength, 8)) {
-		if (wincert->dwLength < sizeof(*wincert)) {
-			EFI_PRINT("%s: dwLength too small: %u < %zu\n",
-				  __func__, wincert->dwLength,
-				  sizeof(*wincert));
-			goto err;
+	/*
+	 * go through WIN_CERTIFICATE list
+	 * NOTE:
+	 * We may have multiple signatures either as WIN_CERTIFICATE's
+	 * in PE header, or as pkcs7 SignerInfo's in SignedData.
+	 * So the verification policy here is:
+	 *   - Success if, at least, one of signatures is verified
+	 *   - unless
+	 *       any of signatures is rejected explicitly, or
+	 *       none of digest algorithms are supported
+	 */
+	for (wincert = wincerts, wincerts_end = (u8 *)wincerts + wincerts_len;
+	     (u8 *)wincert < wincerts_end;
+	     wincert = (WIN_CERTIFICATE *)
+			((u8 *)wincert + ALIGN(wincert->dwLength, 8))) {
+		if ((u8 *)wincert + sizeof(*wincert) >= wincerts_end)
+			break;
+
+		if (wincert->dwLength <= sizeof(*wincert)) {
+			EFI_PRINT("dwLength too small: %u < %zu\n",
+				  wincert->dwLength, sizeof(*wincert));
+			continue;
 		}
-		msg = pkcs7_parse_message((void *)wincert + sizeof(*wincert),
-					  wincert->dwLength - sizeof(*wincert));
+
+		EFI_PRINT("WIN_CERTIFICATE_TYPE: 0x%x\n",
+			  wincert->wCertificateType);
+
+		auth = (u8 *)wincert + sizeof(*wincert);
+		auth_size = wincert->dwLength - sizeof(*wincert);
+		if (wincert->wCertificateType == WIN_CERT_TYPE_EFI_GUID) {
+			if (auth + sizeof(efi_guid_t) >= wincerts_end)
+				break;
+
+			if (auth_size <= sizeof(efi_guid_t)) {
+				EFI_PRINT("dwLength too small: %u < %zu\n",
+					  wincert->dwLength, sizeof(*wincert));
+				continue;
+			}
+			if (guidcmp(auth, &efi_guid_cert_type_pkcs7)) {
+				EFI_PRINT("Certificate type not supported: %pUl\n",
+					  auth);
+				continue;
+			}
+
+			auth += sizeof(efi_guid_t);
+			auth_size -= sizeof(efi_guid_t);
+		} else if (wincert->wCertificateType
+				!= WIN_CERT_TYPE_PKCS_SIGNED_DATA) {
+			EFI_PRINT("Certificate type not supported\n");
+			continue;
+		}
+
+		msg = pkcs7_parse_message(auth, auth_size);
 		if (IS_ERR(msg)) {
 			EFI_PRINT("Parsing image's signature failed\n");
 			msg = NULL;
-			goto err;
+			continue;
 		}
 
+		/*
+		 * NOTE:
+		 * UEFI specification defines two signature types possible
+		 * in signature database:
+		 * a. x509 certificate, where a signature in image is
+		 *    a message digest encrypted by RSA public key
+		 *    (EFI_CERT_X509_GUID)
+		 * b. bare hash value of message digest
+		 *    (EFI_CERT_SHAxxx_GUID)
+		 *
+		 * efi_signature_verify() handles case (a), while
+		 * efi_signature_lookup_digest() handles case (b).
+		 *
+		 * There is a third type:
+		 * c. message digest of a certificate
+		 *    (EFI_CERT_X509_SHAAxxx_GUID)
+		 * This type of signature is used only in revocation list
+		 * (dbx) and handled as part of efi_signatgure_verify().
+		 */
 		/* try black-list first */
-		if (efi_signature_verify_with_sigdb(regs, msg, dbx, NULL)) {
+		if (efi_signature_verify_one(regs, msg, dbx)) {
 			EFI_PRINT("Signature was rejected by \"dbx\"\n");
 			goto err;
 		}
 
-		if (!efi_signature_verify_signers(msg, dbx)) {
-			EFI_PRINT("Signer was rejected by \"dbx\"\n");
+		if (!efi_signature_check_signers(msg, dbx)) {
+			EFI_PRINT("Signer(s) in \"dbx\"\n");
 			goto err;
-		} else {
-			ret = true;
+		}
+
+		if (efi_signature_lookup_digest(regs, dbx)) {
+			EFI_PRINT("Image's digest was found in \"dbx\"\n");
+			goto err;
 		}
 
 		/* try white-list */
-		if (!efi_signature_verify_with_sigdb(regs, msg, db, &cert)) {
-			EFI_PRINT("Verifying signature with \"db\" failed\n");
-			goto err;
-		} else {
-			ret = true;
-		}
+		if (efi_signature_verify_with_sigdb(regs, msg, db, dbx))
+			continue;
 
-		if (!efi_signature_verify_cert(cert, dbx)) {
-			EFI_PRINT("Certificate was rejected by \"dbx\"\n");
-			goto err;
-		} else {
-			ret = true;
-		}
+		debug("Signature was not verified by \"db\"\n");
+
+		if (efi_signature_lookup_digest(regs, db))
+			continue;
+
+		debug("Image's digest was not found in \"db\" or \"dbx\"\n");
+		goto err;
 	}
+	ret = true;
 
 err:
-	x509_free_certificate(cert);
 	efi_sigstore_free(db);
 	efi_sigstore_free(dbx);
 	pkcs7_free_message(msg);
 	free(regs);
 	free(new_efi);
 
+	debug("%s: Exit, %d\n", __func__, ret);
 	return ret;
 }
 #else

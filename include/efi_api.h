@@ -251,6 +251,8 @@ struct efi_rt_properties_table {
 	u32 runtime_services_supported;
 };
 
+#define EFI_OPTIONAL_PTR	0x00000001
+
 struct efi_runtime_services {
 	struct efi_table_hdr hdr;
 	efi_status_t (EFIAPI *get_time)(struct efi_time *time,

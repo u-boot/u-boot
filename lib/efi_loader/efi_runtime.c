@@ -121,6 +121,8 @@ efi_status_t efi_init_runtime_supported(void)
 	rt_table->version = EFI_RT_PROPERTIES_TABLE_VERSION;
 	rt_table->length = sizeof(struct efi_rt_properties_table);
 	rt_table->runtime_services_supported =
+				EFI_RT_SUPPORTED_GET_VARIABLE |
+				EFI_RT_SUPPORTED_GET_NEXT_VARIABLE_NAME |
 				EFI_RT_SUPPORTED_SET_VIRTUAL_ADDRESS_MAP |
 				EFI_RT_SUPPORTED_CONVERT_POINTER;
 
@@ -135,6 +137,25 @@ efi_status_t efi_init_runtime_supported(void)
 	ret = efi_install_configuration_table(&efi_rt_properties_table_guid,
 					      rt_table);
 	return ret;
+}
+
+/**
+ * efi_memcpy_runtime() - copy memory area
+ *
+ * At runtime memcpy() is not available.
+ *
+ * @dest:	destination buffer
+ * @src:	source buffer
+ * @n:		number of bytes to copy
+ * Return:	pointer to destination buffer
+ */
+void __efi_runtime efi_memcpy_runtime(void *dest, const void *src, size_t n)
+{
+	u8 *d = dest;
+	const u8 *s = src;
+
+	for (; n; --n)
+		*d++ = *s++;
 }
 
 /**
@@ -496,14 +517,12 @@ static __efi_runtime efi_status_t EFIAPI efi_convert_pointer_runtime(
  * @address:		pointer to be converted
  * Return:		status code
  */
-static __efi_runtime efi_status_t EFIAPI efi_convert_pointer(
-			efi_uintn_t debug_disposition, void **address)
+__efi_runtime efi_status_t EFIAPI
+efi_convert_pointer(efi_uintn_t debug_disposition, void **address)
 {
-	efi_physical_addr_t addr = (uintptr_t)*address;
+	efi_physical_addr_t addr;
 	efi_uintn_t i;
 	efi_status_t ret = EFI_NOT_FOUND;
-
-	EFI_ENTRY("%zu %p", debug_disposition, address);
 
 	if (!efi_virtmap) {
 		ret = EFI_UNSUPPORTED;
@@ -514,7 +533,14 @@ static __efi_runtime efi_status_t EFIAPI efi_convert_pointer(
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
+	if (!*address) {
+		if (debug_disposition & EFI_OPTIONAL_PTR)
+			return EFI_SUCCESS;
+		else
+			return EFI_INVALID_PARAMETER;
+	}
 
+	addr = (uintptr_t)*address;
 	for (i = 0; i < efi_descriptor_count; i++) {
 		struct efi_mem_desc *map = (void *)efi_virtmap +
 					   (efi_descriptor_size * i);
@@ -532,7 +558,7 @@ static __efi_runtime efi_status_t EFIAPI efi_convert_pointer(
 	}
 
 out:
-	return EFI_EXIT(ret);
+	return ret;
 }
 
 static __efi_runtime void efi_relocate_runtime_table(ulong offset)

@@ -12,6 +12,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <efi_loader.h>
+#include <efi_variable.h>
 #include <asm/unaligned.h>
 
 static const struct efi_boot_services *bs;
@@ -147,15 +148,14 @@ unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data)
 static void *get_var(u16 *name, const efi_guid_t *vendor,
 		     efi_uintn_t *size)
 {
-	efi_guid_t *v = (efi_guid_t *)vendor;
 	efi_status_t ret;
 	void *buf = NULL;
 
 	*size = 0;
-	EFI_CALL(ret = rs->get_variable(name, v, NULL, size, buf));
+	ret = efi_get_variable_int(name, vendor, NULL, size, buf, NULL);
 	if (ret == EFI_BUFFER_TOO_SMALL) {
 		buf = malloc(*size);
-		EFI_CALL(ret = rs->get_variable(name, v, NULL, size, buf));
+		ret = efi_get_variable_int(name, vendor, NULL, size, buf, NULL);
 	}
 
 	if (ret != EFI_SUCCESS) {
@@ -219,10 +219,9 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle)
 		attributes = EFI_VARIABLE_BOOTSERVICE_ACCESS |
 			     EFI_VARIABLE_RUNTIME_ACCESS;
 		size = sizeof(n);
-		ret = EFI_CALL(efi_set_variable(
-				L"BootCurrent",
-				(efi_guid_t *)&efi_global_variable_guid,
-				attributes, size, &n));
+		ret = efi_set_variable_int(L"BootCurrent",
+					   &efi_global_variable_guid,
+					   attributes, size, &n, false);
 		if (ret != EFI_SUCCESS) {
 			if (EFI_CALL(efi_unload_image(*handle))
 			    != EFI_SUCCESS)
@@ -262,22 +261,19 @@ efi_status_t efi_bootmgr_load(efi_handle_t *handle)
 	rs = systab.runtime;
 
 	/* BootNext */
-	bootnext = 0;
 	size = sizeof(bootnext);
-	ret = EFI_CALL(efi_get_variable(L"BootNext",
-					(efi_guid_t *)&efi_global_variable_guid,
-					NULL, &size, &bootnext));
+	ret = efi_get_variable_int(L"BootNext",
+				   &efi_global_variable_guid,
+				   NULL, &size, &bootnext, NULL);
 	if (ret == EFI_SUCCESS || ret == EFI_BUFFER_TOO_SMALL) {
 		/* BootNext does exist here */
 		if (ret == EFI_BUFFER_TOO_SMALL || size != sizeof(u16))
 			log_err("BootNext must be 16-bit integer\n");
 
 		/* delete BootNext */
-		ret = EFI_CALL(efi_set_variable(
-					L"BootNext",
-					(efi_guid_t *)&efi_global_variable_guid,
-					EFI_VARIABLE_NON_VOLATILE, 0,
-					&bootnext));
+		ret = efi_set_variable_int(L"BootNext",
+					   &efi_global_variable_guid,
+					   0, 0, NULL, false);
 
 		/* load BootNext */
 		if (ret == EFI_SUCCESS) {

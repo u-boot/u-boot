@@ -387,8 +387,8 @@ static int rsa_verify_key(struct image_sign_info *info,
  *
  * Return	0 if verified, -ve on error
  */
-static int rsa_verify_with_pkey(struct image_sign_info *info,
-				const void *hash, uint8_t *sig, uint sig_len)
+int rsa_verify_with_pkey(struct image_sign_info *info,
+			 const void *hash, uint8_t *sig, uint sig_len)
 {
 	struct key_prop *prop;
 	int ret;
@@ -408,8 +408,8 @@ static int rsa_verify_with_pkey(struct image_sign_info *info,
 	return ret;
 }
 #else
-static int rsa_verify_with_pkey(struct image_sign_info *info,
-				const void *hash, uint8_t *sig, uint sig_len)
+int rsa_verify_with_pkey(struct image_sign_info *info,
+			 const void *hash, uint8_t *sig, uint sig_len)
 {
 	return -EACCES;
 }

@@ -16,9 +16,7 @@
 
 static struct efi_boot_services *boottime;
 static struct efi_runtime_services *runtime;
-static const efi_guid_t guid_vendor0 =
-	EFI_GUID(0x67029eb5, 0x0af2, 0xf6b1,
-		 0xda, 0x53, 0xfc, 0xb5, 0x66, 0xdd, 0x1c, 0xe6);
+static const efi_guid_t guid_vendor0 = EFI_GLOBAL_VARIABLE_GUID;
 
 /*
  * Setup unit test.
@@ -68,17 +66,18 @@ static int execute(void)
 		efi_st_error("SetVariable failed\n");
 		return EFI_ST_FAILURE;
 	}
-	len = 3;
-	ret = runtime->get_variable(L"efi_st_var0", &guid_vendor0,
+	len = EFI_ST_MAX_DATA_SIZE;
+	ret = runtime->get_variable(L"PlatformLangCodes", &guid_vendor0,
 				    &attr, &len, data);
-	if (ret != EFI_UNSUPPORTED) {
+	if (ret != EFI_SUCCESS) {
 		efi_st_error("GetVariable failed\n");
 		return EFI_ST_FAILURE;
 	}
 	memset(&guid, 0, 16);
 	*varname = 0;
+	len = 2 * EFI_ST_MAX_VARNAME_SIZE;
 	ret = runtime->get_next_variable_name(&len, varname, &guid);
-	if (ret != EFI_UNSUPPORTED) {
+	if (ret != EFI_SUCCESS) {
 		efi_st_error("GetNextVariableName failed\n");
 		return EFI_ST_FAILURE;
 	}

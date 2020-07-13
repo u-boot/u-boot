@@ -397,6 +397,9 @@ efi_status_t efi_root_node_register(void);
 efi_status_t efi_initialize_system_table(void);
 /* efi_runtime_detach() - detach unimplemented runtime functions */
 void efi_runtime_detach(void);
+/* efi_convert_pointer() - convert pointer to virtual address */
+efi_status_t EFIAPI efi_convert_pointer(efi_uintn_t debug_disposition,
+					void **address);
 /* Called by bootefi to make console interface available */
 efi_status_t efi_console_register(void);
 /* Called by bootefi to make all disk storage accessible as EFI objects */
@@ -765,14 +768,17 @@ struct efi_signature_store {
 struct x509_certificate;
 struct pkcs7_message;
 
-bool efi_signature_verify_cert(struct x509_certificate *cert,
-			       struct efi_signature_store *dbx);
-bool efi_signature_verify_signers(struct pkcs7_message *msg,
-				  struct efi_signature_store *dbx);
+bool efi_signature_lookup_digest(struct efi_image_regions *regs,
+				 struct efi_signature_store *db);
+bool efi_signature_verify_one(struct efi_image_regions *regs,
+			      struct pkcs7_message *msg,
+			      struct efi_signature_store *db);
 bool efi_signature_verify_with_sigdb(struct efi_image_regions *regs,
 				     struct pkcs7_message *msg,
-				  struct efi_signature_store *db,
-				  struct x509_certificate **cert);
+				     struct efi_signature_store *db,
+				     struct efi_signature_store *dbx);
+bool efi_signature_check_signers(struct pkcs7_message *msg,
+				 struct efi_signature_store *dbx);
 
 efi_status_t efi_image_region_add(struct efi_image_regions *regs,
 				  const void *start, const void *end,
@@ -785,6 +791,9 @@ bool efi_secure_boot_enabled(void);
 
 bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 		     WIN_CERTIFICATE **auth, size_t *auth_len);
+
+/* runtime implementation of memcpy() */
+void efi_memcpy_runtime(void *dest, const void *src, size_t n);
 
 #else /* CONFIG_IS_ENABLED(EFI_LOADER) */
 
