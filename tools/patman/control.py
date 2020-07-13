@@ -166,6 +166,8 @@ def send(args):
     ok = check_patches(series, patch_files, args.check_patch,
                        args.verbose)
 
+    ok = ok and gitutil.CheckSuppressCCConfig()
+
     its_a_go = ok or args.ignore_errors
     if its_a_go:
         email_patches(
