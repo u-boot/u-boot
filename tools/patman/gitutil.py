@@ -344,6 +344,31 @@ def BuildEmailList(in_list, tag=None, alias=None, raise_on_error=True):
         return ['%s %s%s%s' % (tag, quote, email, quote) for email in result]
     return result
 
+def CheckSuppressCCConfig():
+    """Check if sendemail.suppresscc is configured correctly.
+
+    Returns:
+        True if the option is configured correctly, False otherwise.
+    """
+    suppresscc = command.OutputOneLine('git', 'config', 'sendemail.suppresscc',
+                                       raise_on_error=False)
+
+    # Other settings should be fine.
+    if suppresscc == 'all' or suppresscc == 'cccmd':
+        col = terminal.Color()
+
+        print((col.Color(col.RED, "error") +
+            ": git config sendemail.suppresscc set to %s\n"  % (suppresscc)) +
+            "  patman needs --cc-cmd to be run to set the cc list.\n" +
+            "  Please run:\n" +
+            "    git config --unset sendemail.suppresscc\n" +
+            "  Or read the man page:\n" +
+            "    git send-email --help\n" +
+            "  and set an option that runs --cc-cmd\n")
+        return False
+
+    return True
+
 def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
         self_only=False, alias=None, in_reply_to=None, thread=False,
         smtp_server=None):
