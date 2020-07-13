@@ -378,6 +378,7 @@ config CMD_BOOTEFI_HELLO_COMPILE
 config CMD_BOOTEFI_HELLO
 	bool "Allow booting a standard EFI hello world for testing"
 	depends on CMD_BOOTEFI_HELLO_COMPILE
+	default y if CMD_BOOTEFI_SELFTEST
 	help
 	  This adds a standard EFI hello world application to U-Boot so that
 	  it can be used with the 'bootefi hello' command. This is useful
