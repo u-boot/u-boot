@@ -48,8 +48,9 @@ def prepare_patches(col, branch, count, start, end, ignore_binary):
         count = (gitutil.CountCommitsToBranch(branch) - start)
 
     if not count:
-        sys.exit(col.Color(col.RED,
-                           'No commits found to process - please use -c flag'))
+        str = 'No commits found to process - please use -c flag, or run:\n' \
+              '  git branch --set-upstream-to remote/branch'
+        sys.exit(col.Color(col.RED, str))
 
     # Read the metadata from the commits
     to_do = count - end
