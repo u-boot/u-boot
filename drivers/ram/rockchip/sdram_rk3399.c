@@ -2875,31 +2875,6 @@ static unsigned char calculate_stride(struct rk3399_sdram_params *params)
 		if (stride == (-1))
 			goto error;
 	}
-	switch (stride) {
-	case 0xc:
-		printf("128B stride\n");
-		break;
-	case 5:
-	case 9:
-	case 0xd:
-	case 0x11:
-	case 0x19:
-		printf("256B stride\n");
-		break;
-	case 0xa:
-	case 0xe:
-	case 0x12:
-		printf("512B stride\n");
-		break;
-	case 0xf:
-		printf("4K stride\n");
-		break;
-	case 0x1f:
-		printf("32MB + 256B stride\n");
-		break;
-	default:
-		printf("no stride\n");
-	}
 
 	sdram_print_stride(stride);
 
