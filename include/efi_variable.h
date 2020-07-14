@@ -195,4 +195,11 @@ efi_status_t efi_var_mem_ins(u16 *variable_name,
  */
 u64 efi_var_mem_free(void);
 
+/**
+ * efi_init_secure_state - initialize secure boot state
+ *
+ * Return:	status code
+ */
+efi_status_t efi_init_secure_state(void);
+
 #endif

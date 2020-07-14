@@ -9,6 +9,16 @@
 #include <efi_loader.h>
 #include <efi_variable.h>
 
+enum efi_secure_mode {
+	EFI_MODE_SETUP,
+	EFI_MODE_USER,
+	EFI_MODE_AUDIT,
+	EFI_MODE_DEPLOYED,
+};
+
+static bool efi_secure_boot;
+static enum efi_secure_mode efi_secure_mode;
+
 /**
  * efi_efi_get_variable() - retrieve value of a UEFI variable
  *
@@ -137,4 +147,149 @@ efi_status_t EFIAPI efi_query_variable_info(
 					  maximum_variable_size);
 
 	return EFI_EXIT(ret);
+}
+
+/**
+ * efi_set_secure_state - modify secure boot state variables
+ * @secure_boot:	value of SecureBoot
+ * @setup_mode:		value of SetupMode
+ * @audit_mode:		value of AuditMode
+ * @deployed_mode:	value of DeployedMode
+ *
+ * Modify secure boot status related variables as indicated.
+ *
+ * Return:		status code
+ */
+static efi_status_t efi_set_secure_state(u8 secure_boot, u8 setup_mode,
+					 u8 audit_mode, u8 deployed_mode)
+{
+	efi_status_t ret;
+	const u32 attributes_ro = EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				  EFI_VARIABLE_RUNTIME_ACCESS |
+				  EFI_VARIABLE_READ_ONLY;
+	const u32 attributes_rw = EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				  EFI_VARIABLE_RUNTIME_ACCESS;
+
+	efi_secure_boot = secure_boot;
+
+	ret = efi_set_variable_int(L"SecureBoot", &efi_global_variable_guid,
+				   attributes_ro, sizeof(secure_boot),
+				   &secure_boot, false);
+	if (ret != EFI_SUCCESS)
+		goto err;
+
+	ret = efi_set_variable_int(L"SetupMode", &efi_global_variable_guid,
+				   attributes_ro, sizeof(setup_mode),
+				   &setup_mode, false);
+	if (ret != EFI_SUCCESS)
+		goto err;
+
+	ret = efi_set_variable_int(L"AuditMode", &efi_global_variable_guid,
+				   audit_mode || setup_mode ?
+				   attributes_ro : attributes_rw,
+				   sizeof(audit_mode), &audit_mode, false);
+	if (ret != EFI_SUCCESS)
+		goto err;
+
+	ret = efi_set_variable_int(L"DeployedMode",
+				   &efi_global_variable_guid,
+				   audit_mode || deployed_mode || setup_mode ?
+				   attributes_ro : attributes_rw,
+				   sizeof(deployed_mode), &deployed_mode,
+				   false);
+err:
+	return ret;
+}
+
+/**
+ * efi_transfer_secure_state - handle a secure boot state transition
+ * @mode:	new state
+ *
+ * Depending on @mode, secure boot related variables are updated.
+ * Those variables are *read-only* for users, efi_set_variable_int()
+ * is called here.
+ *
+ * Return:	status code
+ */
+static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
+{
+	efi_status_t ret;
+
+	EFI_PRINT("Switching secure state from %d to %d\n", efi_secure_mode,
+		  mode);
+
+	if (mode == EFI_MODE_DEPLOYED) {
+		ret = efi_set_secure_state(1, 0, 0, 1);
+		if (ret != EFI_SUCCESS)
+			goto err;
+	} else if (mode == EFI_MODE_AUDIT) {
+		ret = efi_set_variable_int(L"PK", &efi_global_variable_guid,
+					   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+					   EFI_VARIABLE_RUNTIME_ACCESS,
+					   0, NULL, false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+
+		ret = efi_set_secure_state(0, 1, 1, 0);
+		if (ret != EFI_SUCCESS)
+			goto err;
+	} else if (mode == EFI_MODE_USER) {
+		ret = efi_set_secure_state(1, 0, 0, 0);
+		if (ret != EFI_SUCCESS)
+			goto err;
+	} else if (mode == EFI_MODE_SETUP) {
+		ret = efi_set_secure_state(0, 1, 0, 0);
+		if (ret != EFI_SUCCESS)
+			goto err;
+	} else {
+		return EFI_INVALID_PARAMETER;
+	}
+
+	efi_secure_mode = mode;
+
+	return EFI_SUCCESS;
+
+err:
+	/* TODO: What action should be taken here? */
+	printf("ERROR: Secure state transition failed\n");
+	return ret;
+}
+
+efi_status_t efi_init_secure_state(void)
+{
+	enum efi_secure_mode mode = EFI_MODE_SETUP;
+	u8 efi_vendor_keys = 0;
+	efi_uintn_t size = 0;
+	efi_status_t ret;
+
+	ret = efi_get_variable_int(L"PK", &efi_global_variable_guid,
+				   NULL, &size, NULL, NULL);
+	if (ret == EFI_BUFFER_TOO_SMALL) {
+		if (IS_ENABLED(CONFIG_EFI_SECURE_BOOT))
+			mode = EFI_MODE_USER;
+	}
+
+	ret = efi_transfer_secure_state(mode);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	/* As we do not provide vendor keys this variable is always 0. */
+	ret = efi_set_variable_int(L"VendorKeys",
+				   &efi_global_variable_guid,
+				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				   EFI_VARIABLE_RUNTIME_ACCESS |
+				   EFI_VARIABLE_READ_ONLY,
+				   sizeof(efi_vendor_keys),
+				   &efi_vendor_keys, false);
+	return ret;
+}
+
+/**
+ * efi_secure_boot_enabled - return if secure boot is enabled or not
+ *
+ * Return:	true if enabled, false if disabled
+ */
+bool efi_secure_boot_enabled(void)
+{
+	return efi_secure_boot;
 }
