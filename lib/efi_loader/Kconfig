@@ -50,6 +50,29 @@ config EFI_MM_COMM_TEE
 
 endchoice
 
+config EFI_VARIABLES_PRESEED
+	bool "Initial values for UEFI variables"
+	depends on EFI_VARIABLE_FILE_STORE
+	help
+	  Include a file with the initial values for non-volatile UEFI variables
+	  into the U-Boot binary. If this configuration option is set, changes
+	  to authentication related variables (PK, KEK, db, dbx) are not
+	  allowed.
+
+if EFI_VARIABLES_PRESEED
+
+config EFI_VAR_SEED_FILE
+	string "File with initial values of non-volatile UEFI variables"
+	default ubootefi.var
+	help
+	  File with initial values of non-volatile UEFI variables. The file must
+	  be in the same format as the storage in the EFI system partition. The
+	  easiest way to create it is by setting the non-volatile variables in
+	  U-Boot. If a relative file path is used, it is relative to the source
+	  directory.
+
+endif
+
 config EFI_GET_TIME
 	bool "GetTime() runtime service"
 	depends on DM_RTC

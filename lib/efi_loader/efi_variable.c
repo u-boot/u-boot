@@ -5,12 +5,15 @@
  * Copyright (c) 2017 Rob Clark
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <common.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
 #include <env.h>
 #include <env_internal.h>
 #include <hexdump.h>
+#include <log.h>
 #include <malloc.h>
 #include <rtc.h>
 #include <search.h>
@@ -18,7 +21,7 @@
 #include <crypto/pkcs7_parser.h>
 #include <linux/compat.h>
 #include <u-boot/crc.h>
-
+#include <asm/sections.h>
 
 #ifdef CONFIG_EFI_SECURE_BOOT
 static u8 pkcs7_hdr[] = {
@@ -365,9 +368,15 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 	delete = !append && (!data_size || !attributes);
 
 	/* check attributes */
+	var_type = efi_auth_var_get_type(variable_name, vendor);
 	if (var) {
 		if (ro_check && (var->attr & EFI_VARIABLE_READ_ONLY))
 			return EFI_WRITE_PROTECTED;
+
+		if (IS_ENABLED(CONFIG_EFI_VARIABLES_PRESEED)) {
+			if (var_type != EFI_AUTH_VAR_NONE)
+				return EFI_WRITE_PROTECTED;
+		}
 
 		/* attributes won't be changed */
 		if (!delete &&
@@ -386,7 +395,6 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 			return EFI_NOT_FOUND;
 	}
 
-	var_type = efi_auth_var_get_type(variable_name, vendor);
 	if (var_type != EFI_AUTH_VAR_NONE) {
 		/* authentication is mandatory */
 		if (!(attributes &
@@ -588,6 +596,13 @@ efi_status_t efi_init_variables(void)
 	ret = efi_init_secure_state();
 	if (ret != EFI_SUCCESS)
 		return ret;
+
+	if (IS_ENABLED(CONFIG_EFI_VARIABLES_PRESEED)) {
+		ret = efi_var_restore((struct efi_var_file *)
+				      __efi_var_file_begin);
+		if (ret != EFI_SUCCESS)
+			log_err("Invalid EFI variable seed\n");
+	}
 
 	return efi_var_from_file();
 }

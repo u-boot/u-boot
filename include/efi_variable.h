@@ -139,6 +139,14 @@ struct efi_var_file {
 efi_status_t efi_var_to_file(void);
 
 /**
+ * efi_var_restore() - restore EFI variables from buffer
+ *
+ * @buf:	buffer
+ * Return:	status code
+ */
+efi_status_t efi_var_restore(struct efi_var_file *buf);
+
+/**
  * efi_var_from_file() - read variables from file
  *
  * File ubootefi.var is read from the EFI system partitions and the variables
