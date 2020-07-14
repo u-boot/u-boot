@@ -61,6 +61,9 @@
 #define AM65_CPSW_ALE_PN_CTL_REG_MODE_FORWARD	0x3
 #define AM65_CPSW_ALE_PN_CTL_REG_MAC_ONLY	BIT(11)
 
+#define AM65_CPSW_ALE_THREADMAPDEF_REG		0x134
+#define AM65_CPSW_ALE_DEFTHREAD_EN		BIT(15)
+
 #define AM65_CPSW_MACSL_CTL_REG			0x0
 #define AM65_CPSW_MACSL_CTL_REG_IFCTL_A		BIT(15)
 #define AM65_CPSW_MACSL_CTL_EXT_EN		BIT(18)
@@ -363,6 +366,9 @@ static int am65_cpsw_start(struct udevice *dev)
 	/* port 0 put into forward mode */
 	writel(AM65_CPSW_ALE_PN_CTL_REG_MODE_FORWARD,
 	       common->ale_base + AM65_CPSW_ALE_PN_CTL_REG(0));
+
+	writel(AM65_CPSW_ALE_DEFTHREAD_EN,
+	       common->ale_base + AM65_CPSW_ALE_THREADMAPDEF_REG);
 
 	/* PORT x configuration */
 
@@ -680,7 +686,7 @@ static int am65_cpsw_probe_cpsw(struct udevice *dev)
 				AM65_CPSW_CPSW_NU_ALE_BASE;
 	cpsw_common->mdio_base = cpsw_common->ss_base + AM65_CPSW_MDIO_BASE;
 
-	ports_np = dev_read_subnode(dev, "ports");
+	ports_np = dev_read_subnode(dev, "ethernet-ports");
 	if (!ofnode_valid(ports_np)) {
 		ret = -ENOENT;
 		goto out;
@@ -743,13 +749,6 @@ static int am65_cpsw_probe_cpsw(struct udevice *dev)
 	cpsw_common->gmii_sel = ofnode_get_addr(node);
 	if (cpsw_common->gmii_sel == FDT_ADDR_T_NONE) {
 		dev_err(dev, "failed to get gmii_sel base\n");
-		goto out;
-	}
-
-	node = dev_read_subnode(dev, "mdio");
-	if (!ofnode_valid(node)) {
-		dev_err(dev, "can't find mdio\n");
-		ret = -ENOENT;
 		goto out;
 	}
 

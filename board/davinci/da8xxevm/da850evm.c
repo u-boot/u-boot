@@ -205,7 +205,7 @@ int misc_init_r(void)
 }
 
 static const struct pinmux_config gpio_pins[] = {
-#ifdef CONFIG_USE_NOR
+#ifdef CONFIG_MTD_NOR_FLASH
 	/* GP0[11] is required for NOR to work on Rev 3 EVMs */
 	{ pinmux(0), 8, 4 },	/* GP0[11] */
 #endif
@@ -235,7 +235,7 @@ const struct pinmux_resource pinmuxes[] = {
 	PINMUX_ITEM(emifa_pins_cs3),
 	PINMUX_ITEM(emifa_pins_cs4),
 	PINMUX_ITEM(emifa_pins_nand),
-#elif defined(CONFIG_USE_NOR)
+#elif defined(CONFIG_MTD_NOR_FLASH)
 	PINMUX_ITEM(emifa_pins_cs2),
 	PINMUX_ITEM(emifa_pins_nor),
 #endif
@@ -341,7 +341,7 @@ int board_init(void)
 		 DAVINCI_SYSCFG_SUSPSRC_UART2),
 	       &davinci_syscfg_regs->suspsrc);
 
-#ifdef CONFIG_USE_NOR
+#ifdef CONFIG_MTD_NOR_FLASH
 	/* Set the GPIO direction as output */
 	clrbits_le32((u32 *)GPIO_BANK0_REG_DIR_ADDR, (0x01 << 11));
 

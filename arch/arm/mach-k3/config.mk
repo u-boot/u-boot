@@ -48,22 +48,23 @@ ALL-y	+= tiboot3.bin
 endif
 
 ifdef CONFIG_ARM64
+
 ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
 SPL_ITS := u-boot-spl-k3_HS.its
-$(SPL_ITS): FORCE
-	IS_HS=1 \
-	$(srctree)/tools/k3_fit_atf.sh \
-	$(patsubst %,$(obj)/dts/%.dtb,$(subst ",,$(CONFIG_SPL_OF_LIST))) > $@
-
+$(SPL_ITS): export IS_HS=1
 ALL-y	+= tispl.bin_HS
 else
 SPL_ITS := u-boot-spl-k3.its
-$(SPL_ITS): FORCE
+ALL-y	+= tispl.bin
+endif
+
+quiet_cmd_k3_mkits = MKITS   $@
+cmd_k3_mkits = \
 	$(srctree)/tools/k3_fit_atf.sh \
 	$(patsubst %,$(obj)/dts/%.dtb,$(subst ",,$(CONFIG_SPL_OF_LIST))) > $@
 
-ALL-y	+= tispl.bin
-endif
+$(SPL_ITS): FORCE
+	$(call cmd,k3_mkits)
 endif
 
 else

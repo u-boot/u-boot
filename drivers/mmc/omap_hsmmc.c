@@ -843,7 +843,7 @@ static int omap_hsmmc_init_setup(struct mmc *mmc)
 	omap_hsmmc_conf_bus_power(mmc, (reg_val & VS33_3V3SUP) ?
 			  MMC_SIGNAL_VOLTAGE_330 : MMC_SIGNAL_VOLTAGE_180);
 #else
-	writel(DTW_1_BITMODE | SDBP_PWROFF | SDVS_3V0, &mmc_base->hctl);
+	writel(DTW_1_BITMODE | SDBP_PWROFF | SDVS_3V3, &mmc_base->hctl);
 	writel(readl(&mmc_base->capa) | VS33_3V3SUP | VS18_1V8SUP,
 		&mmc_base->capa);
 #endif

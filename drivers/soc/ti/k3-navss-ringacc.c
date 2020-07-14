@@ -127,6 +127,22 @@ struct k3_nav_ring_ops {
 };
 
 /**
+ * struct k3_nav_ring_state - Internal state tracking structure
+ *
+ * @free: Number of free entries
+ * @occ: Occupancy
+ * @windex: Write index
+ * @rindex: Read index
+ */
+struct k3_nav_ring_state {
+	u32 free;
+	u32 occ;
+	u32 windex;
+	u32 rindex;
+	u32 tdown_complete:1;
+};
+
+/**
  * struct k3_nav_ring - RA Ring descriptor
  *
  * @rt - Ring control/status registers
@@ -139,10 +155,6 @@ struct k3_nav_ring_ops {
  * @elm_size - Size of the ring element
  * @mode - Ring mode
  * @flags - flags
- * @free - Number of free elements
- * @occ - Ring occupancy
- * @windex - Write index (only for @K3_NAV_RINGACC_RING_MODE_RING)
- * @rindex - Read index (only for @K3_NAV_RINGACC_RING_MODE_RING)
  * @ring_id - Ring Id
  * @parent - Pointer on struct @k3_nav_ringacc
  * @use_count - Use count for shared rings
@@ -161,14 +173,15 @@ struct k3_nav_ring {
 	u32		flags;
 #define KNAV_RING_FLAG_BUSY	BIT(1)
 #define K3_NAV_RING_FLAG_SHARED	BIT(2)
-	u32		free;
-	u32		occ;
-	u32		windex;
-	u32		rindex;
+	struct k3_nav_ring_state state;
 	u32		ring_id;
 	struct k3_nav_ringacc	*parent;
 	u32		use_count;
 	int		proxy_id;
+};
+
+struct k3_nav_ringacc_ops {
+	int (*init)(struct udevice *dev, struct k3_nav_ringacc *ringacc);
 };
 
 /**
@@ -186,6 +199,7 @@ struct k3_nav_ring {
  * @tisci - pointer ti-sci handle
  * @tisci_ring_ops - ti-sci rings ops
  * @tisci_dev_id - ti-sci device id
+ * @ops: SoC specific ringacc operation
  */
 struct k3_nav_ringacc {
 	struct udevice *dev;
@@ -204,6 +218,8 @@ struct k3_nav_ringacc {
 	const struct ti_sci_handle *tisci;
 	const struct ti_sci_rm_ringacc_ops *tisci_ring_ops;
 	u32  tisci_dev_id;
+
+	const struct k3_nav_ringacc_ops *ops;
 };
 
 static long k3_nav_ringacc_ring_get_fifo_pos(struct k3_nav_ring *ring)
@@ -312,6 +328,29 @@ error:
 	return NULL;
 }
 
+int k3_nav_ringacc_request_rings_pair(struct k3_nav_ringacc *ringacc,
+				      int fwd_id, int compl_id,
+				      struct k3_nav_ring **fwd_ring,
+				      struct k3_nav_ring **compl_ring)
+{
+	int ret = 0;
+
+	if (!fwd_ring || !compl_ring)
+		return -EINVAL;
+
+	*fwd_ring = k3_nav_ringacc_request_ring(ringacc, fwd_id, 0);
+	if (!(*fwd_ring))
+		return -ENODEV;
+
+	*compl_ring = k3_nav_ringacc_request_ring(ringacc, compl_id, 0);
+	if (!(*compl_ring)) {
+		k3_nav_ringacc_ring_free(*fwd_ring);
+		ret = -ENODEV;
+	}
+
+	return ret;
+}
+
 static void k3_ringacc_ring_reset_sci(struct k3_nav_ring *ring)
 {
 	struct k3_nav_ringacc *ringacc = ring->parent;
@@ -338,10 +377,7 @@ void k3_nav_ringacc_ring_reset(struct k3_nav_ring *ring)
 	if (!ring || !(ring->flags & KNAV_RING_FLAG_BUSY))
 		return;
 
-	ring->occ = 0;
-	ring->free = 0;
-	ring->rindex = 0;
-	ring->windex = 0;
+	memset(&ring->state, 0, sizeof(ring->state));
 
 	k3_ringacc_ring_reset_sci(ring);
 }
@@ -546,10 +582,7 @@ int k3_nav_ringacc_ring_cfg(struct k3_nav_ring *ring,
 	ring->size = cfg->size;
 	ring->elm_size = cfg->elm_size;
 	ring->mode = cfg->mode;
-	ring->occ = 0;
-	ring->free = 0;
-	ring->rindex = 0;
-	ring->windex = 0;
+	memset(&ring->state, 0, sizeof(ring->state));
 
 	if (ring->proxy_id != K3_RINGACC_PROXY_NOT_USED)
 		ring->proxy = ringacc->proxy_target_base +
@@ -625,10 +658,10 @@ u32 k3_nav_ringacc_ring_get_free(struct k3_nav_ring *ring)
 	if (!ring || !(ring->flags & KNAV_RING_FLAG_BUSY))
 		return -EINVAL;
 
-	if (!ring->free)
-		ring->free = ring->size - ringacc_readl(&ring->rt->occ);
+	if (!ring->state.free)
+		ring->state.free = ring->size - ringacc_readl(&ring->rt->occ);
 
-	return ring->free;
+	return ring->state.free;
 }
 
 u32 k3_nav_ringacc_ring_get_occ(struct k3_nav_ring *ring)
@@ -694,21 +727,21 @@ static int k3_nav_ringacc_ring_access_proxy(
 		pr_debug("proxy:memcpy_fromio(x): --> ptr(%p), mode:%d\n",
 			 ptr, access_mode);
 		memcpy_fromio(elem, ptr, (4 << ring->elm_size));
-		ring->occ--;
+		ring->state.occ--;
 		break;
 	case K3_RINGACC_ACCESS_MODE_PUSH_TAIL:
 	case K3_RINGACC_ACCESS_MODE_PUSH_HEAD:
 		pr_debug("proxy:memcpy_toio(x): --> ptr(%p), mode:%d\n",
 			 ptr, access_mode);
 		memcpy_toio(ptr, elem, (4 << ring->elm_size));
-		ring->free--;
+		ring->state.free--;
 		break;
 	default:
 		return -EINVAL;
 	}
 
 	pr_debug("proxy: free%d occ%d\n",
-		 ring->free, ring->occ);
+		 ring->state.free, ring->state.occ);
 	return 0;
 }
 
@@ -763,21 +796,21 @@ static int k3_nav_ringacc_ring_access_io(
 		pr_debug("memcpy_fromio(x): --> ptr(%p), mode:%d\n",
 			 ptr, access_mode);
 		memcpy_fromio(elem, ptr, (4 << ring->elm_size));
-		ring->occ--;
+		ring->state.occ--;
 		break;
 	case K3_RINGACC_ACCESS_MODE_PUSH_TAIL:
 	case K3_RINGACC_ACCESS_MODE_PUSH_HEAD:
 		pr_debug("memcpy_toio(x): --> ptr(%p), mode:%d\n",
 			 ptr, access_mode);
 		memcpy_toio(ptr, elem, (4 << ring->elm_size));
-		ring->free--;
+		ring->state.free--;
 		break;
 	default:
 		return -EINVAL;
 	}
 
 	pr_debug("free%d index%d occ%d index%d\n",
-		 ring->free, ring->windex, ring->occ, ring->rindex);
+		 ring->state.free, ring->state.windex, ring->state.occ, ring->state.rindex);
 	return 0;
 }
 
@@ -810,7 +843,7 @@ static int k3_nav_ringacc_ring_push_mem(struct k3_nav_ring *ring, void *elem)
 {
 	void *elem_ptr;
 
-	elem_ptr = k3_nav_ringacc_get_elm_addr(ring, ring->windex);
+	elem_ptr = k3_nav_ringacc_get_elm_addr(ring, ring->state.windex);
 
 	memcpy(elem_ptr, elem, (4 << ring->elm_size));
 
@@ -819,12 +852,12 @@ static int k3_nav_ringacc_ring_push_mem(struct k3_nav_ring *ring, void *elem)
 				 ring->size * (4 << ring->elm_size),
 				 ARCH_DMA_MINALIGN));
 
-	ring->windex = (ring->windex + 1) % ring->size;
-	ring->free--;
+	ring->state.windex = (ring->state.windex + 1) % ring->size;
+	ring->state.free--;
 	ringacc_writel(1, &ring->rt->db);
 
 	pr_debug("ring_push_mem: free%d index%d\n",
-		 ring->free, ring->windex);
+		 ring->state.free, ring->state.windex);
 
 	return 0;
 }
@@ -833,7 +866,7 @@ static int k3_nav_ringacc_ring_pop_mem(struct k3_nav_ring *ring, void *elem)
 {
 	void *elem_ptr;
 
-	elem_ptr = k3_nav_ringacc_get_elm_addr(ring, ring->rindex);
+	elem_ptr = k3_nav_ringacc_get_elm_addr(ring, ring->state.rindex);
 
 	invalidate_dcache_range((unsigned long)ring->ring_mem_virt,
 				ALIGN((unsigned long)ring->ring_mem_virt +
@@ -842,12 +875,12 @@ static int k3_nav_ringacc_ring_pop_mem(struct k3_nav_ring *ring, void *elem)
 
 	memcpy(elem, elem_ptr, (4 << ring->elm_size));
 
-	ring->rindex = (ring->rindex + 1) % ring->size;
-	ring->occ--;
+	ring->state.rindex = (ring->state.rindex + 1) % ring->size;
+	ring->state.occ--;
 	ringacc_writel(-1, &ring->rt->db);
 
 	pr_debug("ring_pop_mem: occ%d index%d pos_ptr%p\n",
-		 ring->occ, ring->rindex, elem_ptr);
+		 ring->state.occ, ring->state.rindex, elem_ptr);
 	return 0;
 }
 
@@ -859,7 +892,7 @@ int k3_nav_ringacc_ring_push(struct k3_nav_ring *ring, void *elem)
 		return -EINVAL;
 
 	pr_debug("ring_push%d: free%d index%d\n",
-		 ring->ring_id, ring->free, ring->windex);
+		 ring->ring_id, ring->state.free, ring->state.windex);
 
 	if (k3_nav_ringacc_ring_is_full(ring))
 		return -ENOMEM;
@@ -878,7 +911,7 @@ int k3_nav_ringacc_ring_push_head(struct k3_nav_ring *ring, void *elem)
 		return -EINVAL;
 
 	pr_debug("ring_push_head: free%d index%d\n",
-		 ring->free, ring->windex);
+		 ring->state.free, ring->state.windex);
 
 	if (k3_nav_ringacc_ring_is_full(ring))
 		return -ENOMEM;
@@ -896,13 +929,13 @@ int k3_nav_ringacc_ring_pop(struct k3_nav_ring *ring, void *elem)
 	if (!ring || !(ring->flags & KNAV_RING_FLAG_BUSY))
 		return -EINVAL;
 
-	if (!ring->occ)
-		ring->occ = k3_nav_ringacc_ring_get_occ(ring);
+	if (!ring->state.occ)
+		ring->state.occ = k3_nav_ringacc_ring_get_occ(ring);
 
 	pr_debug("ring_pop%d: occ%d index%d\n",
-		 ring->ring_id, ring->occ, ring->rindex);
+		 ring->ring_id, ring->state.occ, ring->state.rindex);
 
-	if (!ring->occ)
+	if (!ring->state.occ && !ring->state.tdown_complete)
 		return -ENODATA;
 
 	if (ring->ops && ring->ops->pop_head)
@@ -918,13 +951,13 @@ int k3_nav_ringacc_ring_pop_tail(struct k3_nav_ring *ring, void *elem)
 	if (!ring || !(ring->flags & KNAV_RING_FLAG_BUSY))
 		return -EINVAL;
 
-	if (!ring->occ)
-		ring->occ = k3_nav_ringacc_ring_get_occ(ring);
+	if (!ring->state.occ)
+		ring->state.occ = k3_nav_ringacc_ring_get_occ(ring);
 
 	pr_debug("ring_pop_tail: occ%d index%d\n",
-		 ring->occ, ring->rindex);
+		 ring->state.occ, ring->state.rindex);
 
-	if (!ring->occ)
+	if (!ring->state.occ)
 		return -ENODATA;
 
 	if (ring->ops && ring->ops->pop_tail)
@@ -982,17 +1015,10 @@ static int k3_nav_ringacc_probe_dt(struct k3_nav_ringacc *ringacc)
 	return 0;
 }
 
-static int k3_nav_ringacc_probe(struct udevice *dev)
+static int k3_nav_ringacc_init(struct udevice *dev, struct k3_nav_ringacc *ringacc)
 {
-	struct k3_nav_ringacc *ringacc;
 	void __iomem *base_fifo, *base_rt;
 	int ret, i;
-
-	ringacc = dev_get_priv(dev);
-	if (!ringacc)
-		return -ENOMEM;
-
-	ringacc->dev = dev;
 
 	ret = k3_nav_ringacc_probe_dt(ringacc);
 	if (ret)
@@ -1063,10 +1089,41 @@ static int k3_nav_ringacc_probe(struct udevice *dev)
 	return 0;
 }
 
+struct ringacc_match_data {
+	struct k3_nav_ringacc_ops ops;
+};
+
+static struct ringacc_match_data k3_nav_ringacc_data = {
+	.ops = {
+		.init = k3_nav_ringacc_init,
+	},
+};
+
 static const struct udevice_id knav_ringacc_ids[] = {
-	{ .compatible = "ti,am654-navss-ringacc" },
+	{ .compatible = "ti,am654-navss-ringacc", .data = (ulong)&k3_nav_ringacc_data, },
 	{},
 };
+
+static int k3_nav_ringacc_probe(struct udevice *dev)
+{
+	struct k3_nav_ringacc *ringacc;
+	int ret;
+	const struct ringacc_match_data *match_data;
+
+	match_data = (struct ringacc_match_data *)dev_get_driver_data(dev);
+
+	ringacc = dev_get_priv(dev);
+	if (!ringacc)
+		return -ENOMEM;
+
+	ringacc->dev = dev;
+	ringacc->ops = &match_data->ops;
+	ret = ringacc->ops->init(dev, ringacc);
+	if (ret)
+		return ret;
+
+	return 0;
+}
 
 U_BOOT_DRIVER(k3_navss_ringacc) = {
 	.name	= "k3-navss-ringacc",
