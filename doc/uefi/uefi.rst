@@ -188,6 +188,15 @@ on the sandbox
     cd <U-Boot source directory>
     pytest.py test/py/tests/test_efi_secboot/test_signed.py --bd sandbox
 
+UEFI binaries may be signed by Microsoft using the following certificates:
+
+* KEK: Microsoft Corporation KEK CA 2011
+  http://go.microsoft.com/fwlink/?LinkId=321185.
+* db: Microsoft Windows Production PCA 2011
+  http://go.microsoft.com/fwlink/p/?linkid=321192.
+* db: Microsoft Corporation UEFI CA 2011
+  http://go.microsoft.com/fwlink/p/?linkid=321194.
+
 Using OP-TEE for EFI variables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
