@@ -557,6 +557,12 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 		var_property.maxsize = var_acc->data_size;
 		ret = set_property_int(variable_name, name_size, vendor, &var_property);
 	}
+
+	if (alt_ret != EFI_SUCCESS)
+		goto out;
+
+	if (!u16_strcmp(variable_name, L"PK"))
+		alt_ret = efi_init_secure_state();
 out:
 	free(comm_buf);
 	return alt_ret == EFI_SUCCESS ? ret : alt_ret;
@@ -715,6 +721,10 @@ efi_status_t efi_init_variables(void)
 	max_buffer_size = MM_COMMUNICATE_HEADER_SIZE +
 			  MM_VARIABLE_COMMUNICATE_SIZE +
 			  max_payload_size;
+
+	ret = efi_init_secure_state();
+	if (ret != EFI_SUCCESS)
+		return ret;
 
 	return EFI_SUCCESS;
 }
