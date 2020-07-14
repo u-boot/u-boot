@@ -15,20 +15,94 @@
 	compatible = "fsl,ls1028a-qds", "fsl,ls1028a";
 	aliases {
 		spi0 = &fspi;
+		spi1 = &dspi0;
+		spi2 = &dspi1;
+		spi3 = &dspi2;
 	};
 
 };
 
 &dspi0 {
+	bus-num = <0>;
 	status = "okay";
+
+	dflash0: sst25wf040b {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <3000000>;
+		spi-cpol;
+		spi-cpha;
+		reg = <0>;
+	};
+
+	dflash1: en25s64 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <3000000>;
+		spi-cpol;
+		spi-cpha;
+		reg = <1>;
+	};
+	dflash2: n25q128a {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <3000000>;
+		spi-cpol;
+		spi-cpha;
+		reg = <2>;
+	};
 };
 
 &dspi1 {
+	bus-num = <0>;
 	status = "okay";
+
+	dflash3: sst25wf040b {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <3000000>;
+		spi-cpol;
+		spi-cpha;
+		reg = <0>;
+	};
+
+	dflash4: en25s64 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <3000000>;
+		spi-cpol;
+		spi-cpha;
+		reg = <1>;
+	};
+	dflash5: n25q128a {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <3000000>;
+		spi-cpol;
+		spi-cpha;
+		reg = <2>;
+	};
 };
 
 &dspi2 {
+	bus-num = <0>;
 	status = "okay";
+
+	dflash8: en25s64 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <3000000>;
+		spi-cpol;
+		spi-cpha;
+		reg = <0>;
+	};
 };
 
 &esdhc0 {
