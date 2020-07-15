@@ -1,0 +1,54 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for KV260 DP subsystem
+ *
+ * (C) Copyright 2021, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+/dts-v1/;
+/plugin/;
+
+/{
+	compatible = "xlnx,zynqmp-sk-kv260-revB",
+		     "xlnx,zynqmp-sk-kv260-revA",
+		     "xlnx,zynqmp-sk-kv260-revY",
+		     "xlnx,zynqmp-sk-kv260-revZ",
+		     "xlnx,zynqmp-sk-kv260", "xlnx,zynqmp";
+
+	fragment4 {
+		target = <&zynqmp_dpsub>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+
+	fragment5 {
+		target = <&zynqmp_dp_snd_pcm0>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+
+	fragment6 {
+		target = <&zynqmp_dp_snd_pcm1>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+
+	fragment7 {
+		target = <&zynqmp_dp_snd_card0>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+
+	fragment8 {
+		target = <&zynqmp_dp_snd_codec0>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+};

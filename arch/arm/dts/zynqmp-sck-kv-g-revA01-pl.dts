@@ -1,0 +1,45 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for KV260 revA Carrier Card - PL connection
+ *
+ * (C) Copyright 2020, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+/dts-v1/;
+/plugin/;
+
+/{
+	compatible = "xlnx,zynqmp-sk-kv260-revA", "xlnx,zynqmp-sk-kv260";
+
+	fragment@0 {
+		target = <&hda01>; /* d16/d17 */
+
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			i2c-mux@74 { /* u18 */
+				compatible = "nxp,pca9546";
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <0x74>;
+				i2c@0 { /* ISP - IAS0 connector - J7 */
+					#address-cells = <1>;
+					#size-cells = <0>;
+					reg = <0>;
+				};
+				i2c@1 { /* IAS1 connector - J8 */
+					#address-cells = <1>;
+					#size-cells = <0>;
+					reg = <1>;
+				};
+				i2c@2 { /* RPI connector - J9 */
+					#address-cells = <1>;
+					#size-cells = <0>;
+					reg = <2>;
+				};
+			};
+		};
+	};
+};
