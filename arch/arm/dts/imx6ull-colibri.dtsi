@@ -8,13 +8,6 @@
 #include "imx6ull.dtsi"
 
 / {
-	aliases {
-		u-boot,dm-pre-reloc;
-		mmc0 = &usdhc1;
-		usb0 = &usbotg1; /* required for ums */
-		display0 = &lcdif;
-	};
-
 	chosen {
 		stdout-path = &uart1;
 	};
@@ -148,42 +141,6 @@
 		adi,median-filter-size = /bits/ 8 <2>;
 		adi,averaging = /bits/ 8 <1>;
 		adi,conversion-interval = /bits/ 8 <255>;
-	};
-};
-
-&lcdif {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_lcdif_dat
-		     &pinctrl_lcdif_ctrl>;
-	status = "okay";
-	display = <&display0>;
-	u-boot,dm-pre-reloc;
-
-	display0: display0 {
-		bits-per-pixel = <18>;
-		bus-width = <24>;
-		status = "okay";
-
-		display-timings {
-			native-mode = <&timing_vga>;
-			timing_vga: 640x480 {
-				u-boot,dm-pre-reloc;
-				clock-frequency = <25175000>;
-				hactive = <640>;
-				vactive = <480>;
-				hback-porch = <48>;
-				hfront-porch = <16>;
-				vback-porch = <33>;
-				vfront-porch = <10>;
-				hsync-len = <96>;
-				vsync-len = <2>;
-
-				de-active = <1>;
-				hsync-active = <0>;
-				vsync-active = <0>;
-				pixelclk-active = <0>;
-			};
-		};
 	};
 };
 
