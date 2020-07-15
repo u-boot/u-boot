@@ -290,6 +290,483 @@
 			   "run bootcmd_usb || "\
 			   "run bootcmd_pxe"
 
+/* Flashing commands */
+#define TFTP_QSPI_PARAM \
+	"fip_qspi_addr=0x0\0"\
+	"fip_qspi_mirror_addr=0x200000\0"\
+	"loadaddr=0x90000000\0"\
+	"tftpblocksize=1468\0"\
+	"qspi_flash_fip=fip\0"\
+
+/* Flash fit_GPT partition to eMMC */
+#define MMC_FLASH_FIT_GPT \
+	"mmc_flash_gpt="\
+	"if mmc dev ${sd_device_number}; then "\
+	"else "\
+		"echo [mmc_flash_gpt] mmc dev ${sd_device_number} "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if gpt write mmc ${sd_device_number} ${fit_partitions}; then "\
+	"else "\
+		"echo [mmc_flash_gpt] gpt write ${fit_partitions} "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi \0"
+
+#define MMC_FLASH_IMAGE_RSA \
+	"mmc_flash_image_rsa="\
+	"if mmc dev ${sd_device_number}; then "\
+	"else "\
+		"echo [mmc_flash_image_rsa] mmc dev ${sd_device_number} "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if gpt setenv mmc ${sd_device_number} ${fit_image}; then "\
+	"else "\
+		"echo [mmc_flash_image_rsa] gpt setenv ${fit_image} "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if tftp ${loadaddr} ${tftp_dir}${fit_image}; then "\
+		"if test ${fit_image} = Image_rsa.img; then "\
+			"if setenv tftp_fit_image yes; then "\
+			"else "\
+				"echo [mmc_flash_image_rsa] "\
+				"setenv tftp_fit_image to yes"\
+				"** FAILED **;"\
+				"exit;"\
+			"fi;"\
+		"fi;"\
+	"else "\
+		"if test ${fit_image} = Image_rsa.img; then "\
+			"echo [mmc_flash_image_rsa] tftp "\
+			"${tftp_dir}${fit_image} ** FAILED **;"\
+		"else "\
+			"if test ${tftp_fit_image} = yes; then "\
+				"if mmc write ${loadaddr} "\
+				"${gpt_partition_addr} "\
+				"${fileblocks}; then "\
+				"else "\
+					"echo "\
+					"[mmc_flash_image_rsa] "\
+					"mmc write "\
+					"${gpt_partition_addr} "\
+					"** FAILED **;"\
+					"exit;"\
+				"fi;"\
+			"else "\
+				"echo [mmc_flash_image_rsa] tftp "\
+				"${tftp_dir}${fit_image} "\
+				"** FAILED **;"\
+			"fi;"\
+		"fi;"\
+		"exit;"\
+	"fi;"\
+	"if math add filesize filesize 1FF; then "\
+	"else "\
+		"echo [mmc_flash_image_rsa] math add command ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if math div fileblocks filesize 200; then "\
+	"else "\
+		"echo [mmc_flash_image_rsa] math div command ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if mmc write ${loadaddr} ${gpt_partition_addr} ${fileblocks}; then "\
+	"else "\
+		"echo [mmc_flash_image_rsa] mmc write ${gpt_partition_addr} "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if setenv image_sz_blk_cnt ${fileblocks}; then "\
+	"else "\
+		"echo [mmc_flash_image_rsa] setenv image_sz_blk_cnt ** "\
+		"FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if saveenv; then "\
+	"else "\
+		"echo [mmc_flash_image_rsa] saveenv command ** FAILED **;"\
+		"exit;"\
+	"fi \0"
+
+#define MMC_FLASH_RECOVERY \
+	"mmc_flash_recovery="\
+	"if mmc dev ${sd_device_number}; then "\
+	"else "\
+		"echo [mmc_flash_recovery] mmc dev ${sd_device_number} "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if gpt setenv mmc ${sd_device_number} recovery; then "\
+	"else "\
+		"echo [mmc_flash_recovery] gpt setenv recovery ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"setenv index 1;"\
+	"while tftp ${loadaddr} "\
+	"${tftp_dir}${gpt_partition_name}/chunk_00${index}; do "\
+		"if math add filesize filesize 1FF; then "\
+		"else "\
+			"echo [mmc_flash_recovery] math add command "\
+			"** FAILED **;"\
+			"exit;"\
+		"fi;"\
+		"if math div fileblocks filesize 200; then "\
+		"else "\
+			"echo [mmc_flash_recovery] math div command "\
+			"** FAILED **;"\
+			"exit;"\
+		"fi;"\
+		"if mmc write ${loadaddr} ${gpt_partition_addr} "\
+		"${fileblocks}; then "\
+		"else "\
+			"echo [mmc_flash_recovery] mmc write "\
+			"${gpt_partition_addr} ** FAILED **;"\
+			"exit;"\
+		"fi;"\
+		"if math add index index 1; then "\
+		"else "\
+			"echo [mmc_flash_recovery] math add command "\
+			"** FAILED **;"\
+			"exit;"\
+		"fi;"\
+		"if math add gpt_partition_addr gpt_partition_addr"\
+		" ${fileblocks}; then "\
+		"else "\
+			"echo [mmc_flash_recovery] math add command"\
+			" ** FAILED **;"\
+			"exit;"\
+		"fi;"\
+	"done;"\
+	"if itest ${index} -ne 1; then "\
+	"else "\
+		"echo [mmc_flash_recovery] "\
+		"${tftp_dir}${gpt_partition_name}/chunk_00${index} file "\
+		"not found ** FAILED **;"\
+		"exit;"\
+	"fi \0"
+
+#define MMC_FLASH_ROOTFS \
+	"mmc_flash_rootfs="\
+	"if mmc dev ${sd_device_number}; then "\
+	"else "\
+		"echo [mmc_flash_rootfs] mmc dev ${sd_device_number} "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if gpt setenv mmc ${sd_device_number} rootfs; then "\
+	"else "\
+		"echo [mmc_flash_rootfs] gpt setenv rootfs ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"setenv index 1;"\
+	"while tftp ${loadaddr} "\
+	"${tftp_dir}${gpt_partition_name}/chunk_00${index}; do "\
+		"if math add filesize filesize 1FF; then "\
+		"else "\
+			"echo [mmc_flash_rootfs] math add command "\
+			"** FAILED **;"\
+			"exit;"\
+		"fi;"\
+		"if math div fileblocks filesize 200; then "\
+		"else "\
+			"echo [mmc_flash_rootfs] math div command "\
+			"** FAILED **;"\
+			"exit;"\
+		"fi;"\
+		"if mmc write ${loadaddr} ${gpt_partition_addr} "\
+		"${fileblocks}; then "\
+		"else "\
+			"echo [mmc_flash_rootfs] mmc write "\
+			"${gpt_partition_addr} ** FAILED **;"\
+			"exit;"\
+		"fi;"\
+		"if math add index index 1; then "\
+		"else "\
+			"echo [mmc_flash_rootfs] math add command "\
+			"** FAILED **;"\
+			"exit;"\
+		"fi;"\
+		"if math add gpt_partition_addr gpt_partition_addr"\
+		" ${fileblocks}; then "\
+		"else "\
+			"echo [mmc_flash_rootfs] math add command"\
+			" ** FAILED **;"\
+			"exit;"\
+		"fi;"\
+	"done;"\
+	"if itest ${index} -ne 1; then "\
+	"else "\
+		"echo [mmc_flash_rootfs] "\
+		"${tftp_dir}${gpt_partition_name}/chunk_00${index} file "\
+		"not found ** FAILED **;"\
+		"exit;"\
+	"fi \0"
+
+/*
+ * For individual flash commands like mmc_flash_gpt, it is not
+ * necessary to check for errors.
+ * If any of its intermediate commands fails, then next commands
+ * will not execute. Script will exit from the failure command.
+ * For uniformity, checking for mmc_flash_gpt, mmc_flash_image_rsa
+ * mmc_flash_nitro and mmc_flash_rootfs
+ */
+#define MMC_FLASH \
+	"flash_mmc="\
+	"if run mmc_flash_gpt; then "\
+	"else "\
+		"echo [flash_mmc] run mmc_flash_gpt ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if setenv tftp_fit_image no; then "\
+	"else "\
+		"echo [flash_mmc] setenv tftp_fit_image to no "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if setenv fit_image Image_rsa.img; then "\
+	"else "\
+		"echo [flash_mmc] setenv fit_image to Image_rsa.img "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if run mmc_flash_image_rsa; then "\
+	"else "\
+		"echo [flash_mmc] run mmc_flash_image_rsa ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if setenv fit_image Image1_rsa.img; then "\
+	"else "\
+		"echo [flash_mmc] setenv fit_image to Image1_rsa.img "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if run mmc_flash_image_rsa; then "\
+	"else "\
+		"echo [flash_mmc] run mmc_flash_image_rsa "\
+		"for Image1_rsa.img ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if setenv fit_image Image2_rsa.img; then "\
+	"else "\
+		"echo [flash_mmc] setenv fit_image to Image2_rsa.img "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if run mmc_flash_image_rsa; then "\
+	"else "\
+		"echo [flash_mmc] run mmc_flash_image_rsa "\
+		"for Image2_rsa.img ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if run mmc_flash_recovery; then "\
+	"else "\
+		"echo [flash_mmc] run mmc_flash_recovery ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if run mmc_flash_rootfs; then "\
+	"else "\
+		"echo [flash_mmc] run mmc_flash_rootfs ** FAILED **;"\
+		"exit;"\
+	"fi \0"
+
+#define FUNC_ALIGN_QSPI_ERASE_BLOCK_SIZE \
+	"align_erase_blk_size=" \
+	"setenv fl_write_size 0;" \
+	"if math add fl_write_size filesize FFFF; then "\
+	"else "\
+		"echo ${errstr} math add command ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if math div fl_write_size fl_write_size 10000; then "\
+	"else "\
+		"echo ${errstr} math div command ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if math mul fl_write_size fl_write_size 10000; then "\
+	"else "\
+		"echo ${errstr} math mul command ** FAILED **;"\
+		"exit;"\
+	"fi \0"
+
+#define QSPI_FLASH_FIP \
+	"flash_fip="\
+	"if run qspi_access_en; then "\
+	"else "\
+		"echo [flash_fip] run qspi_access_en ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if tftp ${loadaddr} ${tftp_dir}fip.bin; then "\
+	"else "\
+		"echo [flash_fip] tftp ${tftp_dir}fip.bin "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if math add tmpsize filesize FFFF; then "\
+	"else "\
+		"echo [flash_fip] math add command ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if math div tmpsize tmpsize 10000; then "\
+	"else "\
+		"echo [flash_fip] math div command ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if math mul tmpsize tmpsize 10000; then "\
+	"else "\
+		"echo [flash_fip] math mul command ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if sf probe 0; then "\
+	"else "\
+		"echo [flash_fip] sf probe command ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if sf erase ${fip_qspi_addr} ${tmpsize}; then "\
+	"else "\
+		"echo [flash_fip] sf erase ${fip_qspi_addr} ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if sf write ${loadaddr} ${fip_qspi_addr} ${filesize}; then "\
+	"else "\
+		"echo [flash_fip] sf write ${fip_qspi_addr} ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	/* Flash mirror FIP image */ \
+	"if sf erase ${fip_qspi_mirror_addr} ${tmpsize}; then "\
+	"else "\
+		"echo [flash_fip] sf erase ${fip_qspi_mirror_addr} "\
+			"** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if sf write ${loadaddr} ${fip_qspi_mirror_addr} ${filesize}; then "\
+	"else "\
+		"echo [flash_fip] sf write ${fip_qspi_mirror_addr} "\
+			"** FAILED **;"\
+		"exit;"\
+	"fi \0"
+
+#define QSPI_FLASH_NITRO \
+	"flash_nitro="\
+	"run func_qspi_probe; "\
+	"if tftp ${loadaddr} ${tftp_dir}${nitro_bin}; then "\
+	"else "\
+		"echo [flash_nitro] tftp ${tftp_dir}${nitro_bin} "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"setenv errstr flash_nitro;" \
+	"run align_erase_blk_size;" \
+	/* Flash Nitro fw fit + configuration */ \
+	"if sf erase ${spi_nitro_img_bin_start} ${fl_write_size}; then "\
+	"else "\
+		"echo [flash_nitro] sf erase ${spi_nitro_img_bin_start} "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if sf write ${loadaddr} ${spi_nitro_img_bin_start}" \
+		     " ${fl_write_size}; then "\
+	"else "\
+		"echo [flash_nitro] sf write ${spi_nitro_bin_start} "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	/* Mirror of Flash Nitro fw fit + configuration */ \
+	"if sf erase ${spi_nitro_img_bin_mirror_start} ${fl_write_size}; then "\
+	"else "\
+		"echo [flash_nitro] sf erase "\
+		      "${spi_nitro_img_bin_mirror_start} "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if sf write ${loadaddr} ${spi_nitro_img_bin_mirror_start}" \
+		     " ${fl_write_size}; then "\
+	"else "\
+		"echo [flash_nitro] sf write "\
+		      "${spi_nitro_img_bin_mirror_start} "\
+		"** FAILED **;"\
+		"exit;"\
+	"fi \0"
+
+#define QSPI_FLASH_NITRO_BSPD_CONFIG \
+	"flash_nitro_bspd_config="\
+	"run func_qspi_probe; "\
+	/* Flash BSPD configuration */ \
+	"if tftp ${loadaddr} ${tftp_dir}${nitro_bspd_cfg}; then "\
+		"setenv bspd_cfg_avialable 1; "\
+		"setenv errstr flash_nitro_bspd_config; "\
+		"run align_erase_blk_size;" \
+		"if sf erase ${spi_nitro_bspd_cfg_start} "\
+			    "${fl_write_size}; then "\
+		"else "\
+			"echo [flash_nitro] sf erase "\
+				"${spi_nitro_bspd_cfg_start} "\
+				"** FAILED **;"\
+			"exit;"\
+		"fi;"\
+		"if sf write ${loadaddr} ${spi_nitro_bspd_cfg_start} "\
+			    "${fl_write_size}; then "\
+		"else "\
+			"echo [flash_nitro] sf write "\
+				"${spi_nitro_bspd_cfg_start} "\
+				"** FAILED **;"\
+			"exit;"\
+		"fi;" \
+		/* Flash BSPD mirror configuration */ \
+		"if sf erase ${spi_nitro_bspd_mirror_cfg_start} "\
+			    "${fl_write_size}; then "\
+		"else "\
+			"echo [flash_nitro] sf erase "\
+				"${spi_nitro_bspd_mirror_cfg_start} "\
+				"** FAILED **;"\
+			"exit;"\
+		"fi;"\
+		"if sf write ${loadaddr} ${spi_nitro_bspd_mirror_cfg_start} "\
+			"${fl_write_size}; then "\
+		"else "\
+			"echo [flash_nitro] sf write "\
+				"${spi_nitro_bspd_mirror_cfg_start} "\
+				"** FAILED **;"\
+			"exit;"\
+		"fi;" \
+	"else "\
+		"echo [flash_nitro] tftp ${tftp_dir}${nitro_bspd_cfg} "\
+		"** Skip flashing bspd config file **;"\
+	"fi \0"
+
+#define QSPI_FLASH \
+	"flash_qspi="\
+	"if run qspi_access_en; then "\
+	"else "\
+		"echo [flash_qspi] run qspi_access_en ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if run flash_fip; then "\
+	"else "\
+		"echo [flash_qspi] run flash_fip ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if run flash_nitro; then "\
+	"else "\
+		"echo [flash_qspi] run flash_nitro ** FAILED **;"\
+		"exit;"\
+	"fi \0"
+
+#define FLASH_IMAGES \
+	"flash_images=" \
+	"if run flash_qspi; then "\
+	"else "\
+		"echo [flash_images] run flash_qspi ** FAILED **;"\
+		"exit;"\
+	"fi;"\
+	"if run flash_mmc; then "\
+	"else "\
+		"echo [flash_images] run flash_mmc ** FAILED **;"\
+		"exit;"\
+	"fi \0"
+
 #define ARCH_ENV_SETTINGS \
 	CONSOLE_ARGS \
 	MAX_CPUS \
@@ -326,7 +803,19 @@
 	START_PCI \
 	BNXT_LOAD \
 	BOOTCMD_PXE \
-	FLASH_PENDING_RFS_IMGS
+	FLASH_PENDING_RFS_IMGS \
+	TFTP_QSPI_PARAM \
+	MMC_FLASH_FIT_GPT \
+	MMC_FLASH_IMAGE_RSA \
+	MMC_FLASH_RECOVERY \
+	MMC_FLASH_ROOTFS \
+	MMC_FLASH \
+	FUNC_ALIGN_QSPI_ERASE_BLOCK_SIZE \
+	QSPI_FLASH_FIP \
+	QSPI_FLASH_NITRO \
+	QSPI_FLASH_NITRO_BSPD_CONFIG \
+	QSPI_FLASH \
+	FLASH_IMAGES
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	ARCH_ENV_SETTINGS
