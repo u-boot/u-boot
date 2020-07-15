@@ -1,0 +1,24 @@
+// SPDX-License-Identifier:      GPL-2.0+
+/*
+ * Copyright (C) 2020 Broadcom
+ */
+
+/dts-v1/;
+
+#include "ns3.dtsi"
+
+/ {
+	model = "NS3 model";
+
+	aliases {
+		serial0 = &uart1;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+};
+
+&uart1 {
+	status = "okay";
+};

@@ -732,6 +732,15 @@ config TARGET_BCMNS2
 	  ARMv8 Cortex-A57 processors targeting a broad range of networking
 	  applications.
 
+config TARGET_BCMNS3
+	bool "Support Broadcom NS3"
+	select ARM64
+	select BOARD_LATE_INIT
+	help
+	  Support for Broadcom Northstar 3 SoCs. NS3 is a octo-core 64-bit
+	  ARMv8 Cortex-A72 processors targeting a broad range of networking
+	  applications.
+
 config ARCH_EXYNOS
 	bool "Samsung EXYNOS"
 	select DM
@@ -1916,6 +1925,7 @@ source "board/broadcom/bcm968580xref/Kconfig"
 source "board/broadcom/bcmcygnus/Kconfig"
 source "board/broadcom/bcmnsp/Kconfig"
 source "board/broadcom/bcmns2/Kconfig"
+source "board/broadcom/bcmns3/Kconfig"
 source "board/cavium/thunderx/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
 source "board/eets/pdu001/Kconfig"

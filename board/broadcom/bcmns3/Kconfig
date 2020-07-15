@@ -1,0 +1,15 @@
+if TARGET_BCMNS3
+
+config SYS_BOARD
+	default "bcmns3"
+
+config SYS_VENDOR
+	default "broadcom"
+
+config SYS_SOC
+	default "bcmns3"
+
+config SYS_CONFIG_NAME
+	default "bcm_ns3"
+
+endif
