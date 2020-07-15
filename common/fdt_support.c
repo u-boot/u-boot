@@ -816,8 +816,8 @@ static int fdt_del_partitions(void *blob, int parent_offset)
 	return 0;
 }
 
-int fdt_node_set_part_info(void *blob, int parent_offset,
-			   struct mtd_device *dev)
+static int fdt_node_set_part_info(void *blob, int parent_offset,
+				  struct mtd_device *dev)
 {
 	struct list_head *pentry;
 	struct part_info *part;
