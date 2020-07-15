@@ -5,14 +5,40 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
 #include <asm/io.h>
 #include <asm/gic-v3.h>
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
 #include <asm/arch-bcmns3/bl33_info.h>
+#include <dt-bindings/memory/bcm-ns3-mc.h>
 
 /* Default reset-level = 3 and strap-val = 0 */
 #define L3_RESET	30
+
+#define BANK_OFFSET(bank)      ((u64)BCM_NS3_DDR_INFO_BASE + 8 + ((bank) * 16))
+
+/*
+ * ns3_dram_bank - DDR bank details
+ *
+ * @start: DDR bank start address
+ * @len: DDR bank length
+ */
+struct ns3_dram_bank {
+	u64 start[BCM_NS3_MAX_NR_BANKS];
+	u64 len[BCM_NS3_MAX_NR_BANKS];
+};
+
+/*
+ * ns3_dram_hdr - DDR header info
+ *
+ * @sig: DDR info signature
+ * @bank: DDR bank details
+ */
+struct ns3_dram_hdr {
+	u32 sig;
+	struct ns3_dram_bank bank;
+};
 
 static struct mm_region ns3_mem_map[] = {
 	{
@@ -23,9 +49,15 @@ static struct mm_region ns3_mem_map[] = {
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	}, {
-		.virt = 0x80000000UL,
-		.phys = 0x80000000UL,
-		.size = 0x80000000UL,
+		.virt = BCM_NS3_MEM_START,
+		.phys = BCM_NS3_MEM_START,
+		.size = BCM_NS3_MEM_LEN,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = BCM_NS3_BANK_1_MEM_START,
+		.phys = BCM_NS3_BANK_1_MEM_START,
+		.size = BCM_NS3_BANK_1_MEM_LEN,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
@@ -43,6 +75,72 @@ DECLARE_GLOBAL_DATA_PTR;
  * when save_boot_params is invoked.
  */
 struct bl33_info *bl33_info __section(".data");
+
+/*
+ * Run modulo 256 checksum calculation and return the calculated checksum
+ */
+static u8 checksum_calc(u8 *p, unsigned int len)
+{
+	unsigned int i;
+	u8 chksum = 0;
+
+	for (i = 0; i < len; i++)
+		chksum += p[i];
+
+	return chksum;
+}
+
+/*
+ * This function parses the memory layout information from a reserved area in
+ * DDR, and then fix up the FDT before passing it to Linux.
+ *
+ * In the case of error, do nothing and the default memory layout in DT will
+ * be used
+ */
+static int mem_info_parse_fixup(void *fdt)
+{
+	struct ns3_dram_hdr hdr;
+	u32 *p32, i, nr_banks;
+	u64 *p64;
+
+	/* validate signature */
+	p32 = (u32 *)BCM_NS3_DDR_INFO_BASE;
+	hdr.sig = *p32;
+	if (hdr.sig != BCM_NS3_DDR_INFO_SIG) {
+		printf("DDR info signature 0x%x invalid\n", hdr.sig);
+		return -EINVAL;
+	}
+
+	/* run checksum test to validate data  */
+	if (checksum_calc((u8 *)p32, BCM_NS3_DDR_INFO_LEN) != 0) {
+		printf("Checksum on DDR info failed\n");
+		return -EINVAL;
+	}
+
+	/* parse information for each bank */
+	nr_banks = 0;
+	for (i = 0; i < BCM_NS3_MAX_NR_BANKS; i++) {
+		/* skip banks with a length of zero */
+		p64 = (u64 *)BANK_OFFSET(i);
+		if (*(p64 + 1) == 0)
+			continue;
+
+		hdr.bank.start[i] = *p64;
+		hdr.bank.len[i] = *(p64 + 1);
+
+		printf("mem[%u] 0x%llx - 0x%llx\n", i, hdr.bank.start[i],
+		       hdr.bank.start[i] + hdr.bank.len[i] - 1);
+		nr_banks++;
+	}
+
+	if (!nr_banks) {
+		printf("No DDR banks detected\n");
+		return -ENOMEM;
+	}
+
+	return fdt_fixup_memory_banks(fdt, hdr.bank.start, hdr.bank.len,
+				      nr_banks);
+}
 
 int board_init(void)
 {
@@ -98,6 +196,6 @@ int ft_board_setup(void *fdt, struct bd_info *bd)
 {
 	gic_lpi_tables_init();
 
-	return 0;
+	return mem_info_parse_fixup(fdt);
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
