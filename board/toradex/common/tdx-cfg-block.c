@@ -124,6 +124,18 @@ const char * const toradex_modules[] = {
 	[57] = "Verdin iMX8M Mini DualLite 1GB",
 };
 
+const char * const toradex_carrier_boards[] = {
+	[0] = "UNKNOWN CARRIER BOARD",
+	[155] = "Dahlia",
+	[156] = "Verdin Development Board",
+};
+
+const char * const toradex_display_adapters[] = {
+	[0] = "UNKNOWN DISPLAY ADAPTER",
+	[157] = "Verdin DSI to HDMI Adapter",
+	[159] = "Verdin DSI to LVDS Adapter",
+};
+
 #ifdef CONFIG_TDX_CFG_BLOCK_IS_IN_MMC
 static int tdx_cfg_block_mmc_storage(u8 *config_block, int write)
 {
