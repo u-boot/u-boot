@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
+#include <asm/arch-bcmns3/bl33_info.h>
 
 static struct mm_region ns3_mem_map[] = {
 	{
@@ -33,8 +34,17 @@ struct mm_region *mem_map = ns3_mem_map;
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * Force the bl33_info to the data-section, as .bss will not be valid
+ * when save_boot_params is invoked.
+ */
+struct bl33_info *bl33_info __section(".data");
+
 int board_init(void)
 {
+	if (bl33_info->version != BL33_INFO_VERSION)
+		printf("*** warning: ATF BL31 and U-Boot not in sync! ***\n");
+
 	return 0;
 }
 

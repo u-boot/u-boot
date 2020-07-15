@@ -87,3 +87,12 @@ ENTRY(__asm_flush_l3_dcache)
 	mov	lr, x29
 	ret
 ENDPROC(__asm_flush_l3_dcache)
+
+ENTRY(save_boot_params)
+/*
+ * void set_boot_params(uint64_t x0, uint64_t x1, uint64_t x2, uint64_t x3)
+ */
+	adr	x4, bl33_info
+	str	x0, [x4]
+	b	save_boot_params_ret
+ENDPROC(save_boot_params)
