@@ -10,6 +10,16 @@
 
 #define EFI_VARIABLE_READ_ONLY BIT(31)
 
+enum efi_auth_var_type {
+	EFI_AUTH_VAR_NONE = 0,
+	EFI_AUTH_VAR_PK,
+	EFI_AUTH_VAR_KEK,
+	EFI_AUTH_VAR_DB,
+	EFI_AUTH_VAR_DBX,
+	EFI_AUTH_VAR_DBT,
+	EFI_AUTH_VAR_DBR,
+};
+
 /**
  * efi_get_variable() - retrieve value of a UEFI variable
  *
@@ -201,5 +211,14 @@ u64 efi_var_mem_free(void);
  * Return:	status code
  */
 efi_status_t efi_init_secure_state(void);
+
+/**
+ * efi_auth_var_get_type() - convert variable name and guid to enum
+ *
+ * @name:	name of UEFI variable
+ * @guid:	guid of UEFI variable
+ * Return:	identifier for authentication related variables
+ */
+enum efi_auth_var_type efi_auth_var_get_type(u16 *name, const efi_guid_t *guid);
 
 #endif

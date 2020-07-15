@@ -133,6 +133,7 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 	struct efi_time timestamp;
 	struct rtc_time tm;
 	u64 new_time;
+	enum efi_auth_var_type var_type;
 	efi_status_t ret;
 
 	var_sig = NULL;
@@ -209,18 +210,20 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 	}
 
 	/* signature database used for authentication */
-	if (u16_strcmp(variable, L"PK") == 0 ||
-	    u16_strcmp(variable, L"KEK") == 0) {
+	var_type = efi_auth_var_get_type(variable, vendor);
+	switch (var_type) {
+	case EFI_AUTH_VAR_PK:
+	case EFI_AUTH_VAR_KEK:
 		/* with PK */
 		truststore = efi_sigstore_parse_sigdb(L"PK");
 		if (!truststore)
 			goto err;
-	} else if (u16_strcmp(variable, L"db") == 0 ||
-		   u16_strcmp(variable, L"dbx") == 0) {
+		break;
+	case EFI_AUTH_VAR_DB:
+	case EFI_AUTH_VAR_DBX:
 		/* with PK and KEK */
 		truststore = efi_sigstore_parse_sigdb(L"KEK");
 		truststore2 = efi_sigstore_parse_sigdb(L"PK");
-
 		if (!truststore) {
 			if (!truststore2)
 				goto err;
@@ -228,7 +231,8 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 			truststore = truststore2;
 			truststore2 = NULL;
 		}
-	} else {
+		break;
+	default:
 		/* TODO: support private authenticated variables */
 		goto err;
 	}
@@ -347,6 +351,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 	efi_uintn_t ret;
 	bool append, delete;
 	u64 time = 0;
+	enum efi_auth_var_type var_type;
 
 	if (!variable_name || !*variable_name || !vendor ||
 	    ((attributes & EFI_VARIABLE_RUNTIME_ACCESS) &&
@@ -381,12 +386,8 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 			return EFI_NOT_FOUND;
 	}
 
-	if (((!u16_strcmp(variable_name, L"PK") ||
-	      !u16_strcmp(variable_name, L"KEK")) &&
-		!guidcmp(vendor, &efi_global_variable_guid)) ||
-	    ((!u16_strcmp(variable_name, L"db") ||
-	      !u16_strcmp(variable_name, L"dbx")) &&
-		!guidcmp(vendor, &efi_guid_image_security_database))) {
+	var_type = efi_auth_var_get_type(variable_name, vendor);
+	if (var_type != EFI_AUTH_VAR_NONE) {
 		/* authentication is mandatory */
 		if (!(attributes &
 		      EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS)) {
@@ -445,7 +446,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 	if (ret != EFI_SUCCESS)
 		return ret;
 
-	if (!u16_strcmp(variable_name, L"PK"))
+	if (var_type == EFI_AUTH_VAR_PK)
 		ret = efi_init_secure_state();
 	else
 		ret = EFI_SUCCESS;

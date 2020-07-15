@@ -16,6 +16,23 @@ enum efi_secure_mode {
 	EFI_MODE_DEPLOYED,
 };
 
+struct efi_auth_var_name_type {
+	const u16 *name;
+	const efi_guid_t *guid;
+	const enum efi_auth_var_type type;
+};
+
+static const struct efi_auth_var_name_type name_type[] = {
+	{u"PK", &efi_global_variable_guid, EFI_AUTH_VAR_PK},
+	{u"KEK", &efi_global_variable_guid, EFI_AUTH_VAR_KEK},
+	{u"db",  &efi_guid_image_security_database, EFI_AUTH_VAR_DB},
+	{u"dbx",  &efi_guid_image_security_database, EFI_AUTH_VAR_DBX},
+	/* not used yet
+	{u"dbt",  &efi_guid_image_security_database, EFI_AUTH_VAR_DBT},
+	{u"dbr",  &efi_guid_image_security_database, EFI_AUTH_VAR_DBR},
+	*/
+};
+
 static bool efi_secure_boot;
 static enum efi_secure_mode efi_secure_mode;
 
@@ -292,4 +309,14 @@ efi_status_t efi_init_secure_state(void)
 bool efi_secure_boot_enabled(void)
 {
 	return efi_secure_boot;
+}
+
+enum efi_auth_var_type efi_auth_var_get_type(u16 *name, const efi_guid_t *guid)
+{
+	for (size_t i = 0; i < ARRAY_SIZE(name_type); ++i) {
+		if (!u16_strcmp(name, name_type[i].name) &&
+		    !guidcmp(guid, name_type[i].guid))
+			return name_type[i].type;
+	}
+	return EFI_AUTH_VAR_NONE;
 }
