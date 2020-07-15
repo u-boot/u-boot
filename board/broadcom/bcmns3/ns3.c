@@ -10,6 +10,9 @@
 #include <asm/armv8/mmu.h>
 #include <asm/arch-bcmns3/bl33_info.h>
 
+/* Default reset-level = 3 and strap-val = 0 */
+#define L3_RESET	30
+
 static struct mm_region ns3_mem_map[] = {
 	{
 		.virt = 0x0UL,
@@ -68,7 +71,23 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(ulong level)
 {
-	psci_system_reset();
+	u32 reset_level, strap_val;
+
+	/* Default reset type is L3 reset */
+	if (!level) {
+		/*
+		 * Encoding: U-Boot reset command expects decimal argument,
+		 * Boot strap val: Bits[3:0]
+		 * reset level: Bits[7:4]
+		 */
+		strap_val = L3_RESET % 10;
+		level = L3_RESET / 10;
+		reset_level = level % 10;
+		psci_system_reset2(reset_level, strap_val);
+	} else {
+		/* U-Boot cmd "reset" with any arg will trigger L1 reset */
+		psci_system_reset();
+	}
 }
