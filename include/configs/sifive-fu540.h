@@ -43,9 +43,11 @@
 #ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
+	func(SF, sf, 0) \
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
+#include <environment/distro/sf.h>
 
 #define TYPE_GUID_LOADER1	"5B193300-FC78-40CD-8002-E86C45580B47"
 #define TYPE_GUID_LOADER2	"2E54B353-1271-4842-806F-E436D6AF6985"
@@ -70,7 +72,8 @@
 	"type_guid_gpt_loader2=" TYPE_GUID_LOADER2 "\0" \
 	"type_guid_gpt_system=" TYPE_GUID_SYSTEM "\0" \
 	"partitions=" PARTS_DEFAULT "\0" \
-	BOOTENV
+	BOOTENV \
+	BOOTENV_SF
 
 #define CONFIG_PREBOOT \
 	"setenv fdt_addr ${fdtcontroladdr};" \
