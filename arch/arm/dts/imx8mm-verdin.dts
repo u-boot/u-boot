@@ -16,6 +16,12 @@
 		stdout-path = &uart1;
 	};
 
+	aliases {
+		eeprom0 = &eeprom_module;
+		eeprom1 = &eeprom_carrier_board;
+		eeprom2 = &eeprom_display_adapter;
+	};
+
 	/* fixed clock dedicated to SPI CAN controller */
 	clk20m: oscillator {
 		compatible = "fixed-clock";
@@ -321,8 +327,8 @@
 		vcc-supply = <&ldo5_reg>;
 	};
 
-	eeprom@50 {
-		compatible = "st,24c02";
+	eeprom_module: eeprom@50 {
+		compatible = "st,24c02", "atmel,24c02", "i2c-eeprom";
 		pagesize = <16>;
 		reg = <0x50>;
 	};
@@ -377,16 +383,16 @@
 		status = "okay";
 	};
 
-	/* EEPROM on MIPI-DSI to HDMI adapter */
-	eeprom_50: eeprom@50 {
-		compatible = "st,24c02";
+	/* EEPROM on display adapter (MIPI DSI Display Adapter) */
+	eeprom_display_adapter: eeprom@50 {
+		compatible = "st,24c02", "atmel,24c02", "i2c-eeprom";
 		pagesize = <16>;
 		reg = <0x50>;
 	};
 
-	/* EEPROM on Verdin Development board */
-	eeprom_57: eeprom@57 {
-		compatible = "st,24c02";
+	/* EEPROM on carrier board */
+	eeprom_carrier_board: eeprom@57 {
+		compatible = "st,24c02", "atmel,24c02", "i2c-eeprom";
 		pagesize = <16>;
 		reg = <0x57>;
 	};
