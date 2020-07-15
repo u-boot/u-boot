@@ -218,7 +218,7 @@ const struct rproc_att hostmap[] = {
 	{ 0x00940000, 0x00940000, 0x20000 }, /* OCRAM_PXP */
 	{ 0x20240000, 0x00940000, 0x20000 }, /* OCRAM_PXP */
 	{ 0x10000000, 0x80000000, 0x0fff0000 }, /* DDR Code alias */
-	{ 0x80000000, 0x80000000, 0xe0000000 }, /* DDRC */
+	{ 0x80000000, 0x80000000, 0x60000000 }, /* DDRC */
 	{ /* sentinel */ }
 };
 #endif
