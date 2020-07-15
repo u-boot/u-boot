@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/gic-v3.h>
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
 #include <asm/arch-bcmns3/bl33_info.h>
@@ -91,3 +92,12 @@ void reset_cpu(ulong level)
 		psci_system_reset();
 	}
 }
+
+#ifdef CONFIG_OF_BOARD_SETUP
+int ft_board_setup(void *fdt, struct bd_info *bd)
+{
+	gic_lpi_tables_init();
+
+	return 0;
+}
+#endif /* CONFIG_OF_BOARD_SETUP */
