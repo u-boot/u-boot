@@ -649,6 +649,84 @@ out:
 	return ret;
 }
 
+int check_pid8_sanity(char *pid8)
+{
+	char s_carrierid_verdin_dev[5];
+	char s_carrierid_dahlia[5];
+
+	sprintf(s_carrierid_verdin_dev, "0%d", VERDIN_DEVELOPMENT_BOARD);
+	sprintf(s_carrierid_dahlia, "0%d", DAHLIA);
+
+	/* sane value check, first 4 chars which represent carrier id */
+	if (!strncmp(pid8, s_carrierid_verdin_dev, 4))
+		return 0;
+
+	if (!strncmp(pid8, s_carrierid_dahlia, 4))
+		return 0;
+
+	return -EINVAL;
+}
+
+int try_migrate_tdx_cfg_block_carrier(void)
+{
+	char pid8[8];
+	int offset = 0;
+	int ret = CMD_RET_SUCCESS;
+	size_t size = TDX_CFG_BLOCK_EXTRA_MAX_SIZE;
+	u8 *config_block;
+
+	memset(pid8, 0x0, 8);
+	ret = read_tdx_eeprom_data(TDX_EEPROM_ID_CARRIER, 0x0, (u8 *)pid8, 8);
+	if (ret)
+		return ret;
+
+	if (check_pid8_sanity(pid8))
+		return -EINVAL;
+
+	/* Allocate RAM area for config block */
+	config_block = memalign(ARCH_DMA_MINALIGN, size);
+	if (!config_block) {
+		printf("Not enough malloc space available!\n");
+		return CMD_RET_FAILURE;
+	}
+
+	memset(config_block, 0xff, size);
+	/* we try parse PID8 concatenating zeroed serial number */
+	tdx_car_hw_tag.ver_major = pid8[4] - '0';
+	tdx_car_hw_tag.ver_minor = pid8[5] - '0';
+	tdx_car_hw_tag.ver_assembly = pid8[7] - '0';
+
+	pid8[4] = '\0';
+	tdx_car_hw_tag.prodid = simple_strtoul(pid8, NULL, 10);
+
+	/* Valid Tag */
+	write_tag(config_block, &offset, TAG_VALID, NULL, 0);
+
+	/* Product Tag */
+	write_tag(config_block, &offset, TAG_HW, (u8 *)&tdx_car_hw_tag,
+		  sizeof(tdx_car_hw_tag));
+
+	/* Serial Tag */
+	write_tag(config_block, &offset, TAG_CAR_SERIAL, (u8 *)&tdx_car_serial,
+		  sizeof(tdx_car_serial));
+
+	memset(config_block + offset, 0, 32 - offset);
+	ret = write_tdx_eeprom_data(TDX_EEPROM_ID_CARRIER, 0x0, config_block,
+				    size);
+	if (ret) {
+		printf("Failed to write Toradex Extra config block: %d\n",
+		       ret);
+		ret = CMD_RET_FAILURE;
+		goto out;
+	}
+
+	printf("Successfully migrated to Toradex Config Block from PID8\n");
+
+out:
+	free(config_block);
+	return ret;
+}
+
 static int get_cfgblock_carrier_interactive(void)
 {
 	char message[CONFIG_SYS_CBSIZE];

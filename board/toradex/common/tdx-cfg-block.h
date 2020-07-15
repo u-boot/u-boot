@@ -102,4 +102,6 @@ extern u32 tdx_car_serial;
 int read_tdx_cfg_block(void);
 int read_tdx_cfg_block_carrier(void);
 
+int try_migrate_tdx_cfg_block_carrier(void);
+
 #endif /* _TDX_CFG_BLOCK_H */
