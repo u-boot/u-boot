@@ -27,6 +27,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select SIFIVE_FU540
 	select SUPPORT_SPL
+	select ENV_IS_IN_SPI_FLASH
 	select RAM
 	select SPL_RAM if SPL
 	imply CMD_DHCP
