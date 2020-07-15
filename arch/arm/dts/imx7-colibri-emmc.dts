@@ -5,13 +5,13 @@
 
 /dts-v1/;
 #include "imx7-colibri.dtsi"
+#include "imx7-colibri-u-boot.dtsi"
 
 / {
 	model = "Toradex Colibri iMX7D 1GB (eMMC)";
 	compatible = "toradex,imx7d-colibri-emmc", "fsl,imx7d";
 
 	aliases {
-		u-boot,dm-pre-reloc;
 		mmc0 = &usdhc3;
 		mmc1 = &usdhc1;
 		display1 = &lcdif;
