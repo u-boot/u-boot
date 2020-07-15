@@ -9,6 +9,13 @@
 #include <init.h>
 #include <linux/libfdt.h>
 
+#ifdef CONFIG_DM_VIDEO
+#include <bmp_logo.h>
+#include <dm.h>
+#include <splash.h>
+#include <video.h>
+#endif
+
 #include "tdx-cfg-block.h"
 #include <asm/setup.h>
 #include "tdx-common.h"
@@ -196,3 +203,22 @@ int ft_common_board_setup(void *blob, struct bd_info *bd)
 }
 
 #endif /* CONFIG_TDX_CFG_BLOCK */
+
+#if defined(CONFIG_DM_VIDEO)
+int show_boot_logo(void)
+{
+	struct udevice *dev;
+	int ret;
+	int xpos, ypos;
+
+	splash_get_pos(&xpos, &ypos);
+
+	ret = uclass_get_device(UCLASS_VIDEO, 0, &dev);
+	if (ret)
+		return ret;
+
+	ret = video_bmp_display(dev, (ulong)bmp_logo_bitmap, xpos, ypos, true);
+
+	return ret;
+}
+#endif /* CONFIG_DM_VIDEO */

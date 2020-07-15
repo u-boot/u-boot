@@ -11,4 +11,8 @@
 
 int ft_common_board_setup(void *blob, struct bd_info *bd);
 
+#if defined(CONFIG_DM_VIDEO)
+int show_boot_logo(void);
+#endif
+
 #endif /* _TDX_COMMON_H */
