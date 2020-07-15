@@ -144,6 +144,11 @@ static int mem_info_parse_fixup(void *fdt)
 
 int board_init(void)
 {
+	/* Setup memory using "memory" node from DTB */
+	if (fdtdec_setup_mem_size_base() != 0)
+		return -EINVAL;
+	fdtdec_setup_memory_banksize();
+
 	if (bl33_info->version != BL33_INFO_VERSION)
 		printf("*** warning: ATF BL31 and U-Boot not in sync! ***\n");
 
@@ -157,17 +162,28 @@ int board_late_init(void)
 
 int dram_init(void)
 {
-	if (fdtdec_setup_mem_size_base() != 0)
-		return -EINVAL;
+	/*
+	 * Mark ram base as the last 16MB of 2GB DDR, which is 0xFF00_0000.
+	 * So that relocation happens with in the last 16MB memory.
+	 */
+	gd->ram_base = (phys_size_t)(BCM_NS3_MEM_END - SZ_16M);
+	gd->ram_size = (unsigned long)SZ_16M;
 
 	return 0;
 }
 
 int dram_init_banksize(void)
 {
-	fdtdec_setup_memory_banksize();
+	gd->bd->bi_dram[0].start = (BCM_NS3_MEM_END - SZ_16M);
+	gd->bd->bi_dram[0].size = SZ_16M;
 
 	return 0;
+}
+
+/* Limit RAM used by U-Boot to the DDR first bank End region */
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	return BCM_NS3_MEM_END;
 }
 
 void reset_cpu(ulong level)
