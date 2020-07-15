@@ -12,7 +12,13 @@ config SYS_CONFIG_NAME
 config TDX_CFG_BLOCK
 	default y
 
+config TDX_CFG_BLOCK_EXTRA
+	default y
+
 config TDX_HAVE_MMC
+	default y
+
+config TDX_HAVE_EEPROM_EXTRA
 	default y
 
 config TDX_CFG_BLOCK_DEV
