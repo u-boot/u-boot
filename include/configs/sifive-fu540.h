@@ -62,6 +62,8 @@
 	"kernel_addr_r=0x84000000\0" \
 	"fdt_addr_r=0x88000000\0" \
 	"scriptaddr=0x88100000\0" \
+	"script_offset_f=0x1fff000\0" \
+	"script_size_f=0x1000\0" \
 	"pxefile_addr_r=0x88200000\0" \
 	"ramdisk_addr_r=0x88300000\0" \
 	"type_guid_gpt_loader1=" TYPE_GUID_LOADER1 "\0" \
