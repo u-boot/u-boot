@@ -969,6 +969,21 @@ S:	Maintained
 F:	drivers/spmi/
 F:	include/spmi/
 
+TARGET_BCMNS3
+M:	Bharat Gooty <bharat.gooty@broadcom.com>
+M:	Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+S:	Maintained
+F:	board/broadcom/bcmns3/
+F:	doc/README.bcmns3
+F:	configs/bcm_ns3_defconfig
+F:	include/configs/bcm_ns3.h
+F:	include/dt-bindings/memory/bcm-ns3-mc.h
+F:	arch/arm/Kconfig
+F:	arch/arm/dts/ns3-board.dts
+F:	arch/arm/dts/ns3.dtsi
+F:	arch/arm/cpu/armv8/bcmns3
+F:	arch/arm/include/asm/arch-bcmns3/
+
 TDA19988 HDMI ENCODER
 M:	Liviu Dudau <liviu.dudau@foss.arm.com>
 S:	Maintained
