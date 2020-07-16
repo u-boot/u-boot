@@ -8,12 +8,6 @@
 
 #include <asm/armv7_mpu.h>
 
-#define AM65X	0xbb5a
-#define J721E	0xbb64
-
-#define REV_PG1_0	0
-#define REV_PG2_0	1
-
 struct fwl_data {
 	const char *name;
 	u16 fwl_id;
