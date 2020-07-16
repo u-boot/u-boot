@@ -211,3 +211,7 @@
 &mcu_fss0_ospi1_pins_default {
 	u-boot,dm-spl;
 };
+
+&chipid {
+	u-boot,dm-spl;
+};
