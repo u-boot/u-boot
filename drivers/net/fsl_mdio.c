@@ -213,7 +213,7 @@ static int tsec_mdio_probe(struct udevice *dev)
 		printf("dev_get_priv(dev %p) = NULL\n", dev);
 		return -1;
 	}
-	priv->regs = (void *)(uintptr_t)dev_read_addr(dev);
+	priv->regs = dev_remap_addr(dev);
 	debug("%s priv %p @ regs %p, pdata %p\n", __func__,
 	      priv, priv->regs, pdata);
 
