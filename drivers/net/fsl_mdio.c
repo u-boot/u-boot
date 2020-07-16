@@ -11,6 +11,7 @@
 #include <fsl_mdio.h>
 #include <asm/io.h>
 #include <linux/errno.h>
+#include <tsec.h>
 
 #ifdef CONFIG_DM_MDIO
 struct tsec_mdio_priv {
@@ -190,17 +191,30 @@ static const struct mdio_ops tsec_mdio_ops = {
 	.reset = tsec_mdio_reset,
 };
 
+static struct fsl_pq_mdio_data etsec2_data = {
+	.mdio_regs_off = TSEC_MDIO_REGS_OFFSET,
+};
+
+static struct fsl_pq_mdio_data gianfar_data = {
+	.mdio_regs_off = 0x0,
+};
+
+static struct fsl_pq_mdio_data fman_data = {
+	.mdio_regs_off = 0x0,
+};
+
 static const struct udevice_id tsec_mdio_ids[] = {
-	{ .compatible = "fsl,gianfar-tbi" },
-	{ .compatible = "fsl,gianfar-mdio" },
-	{ .compatible = "fsl,etsec2-tbi" },
-	{ .compatible = "fsl,etsec2-mdio" },
-	{ .compatible = "fsl,fman-mdio" },
+	{ .compatible = "fsl,gianfar-tbi", .data = (ulong)&gianfar_data },
+	{ .compatible = "fsl,gianfar-mdio", .data = (ulong)&gianfar_data },
+	{ .compatible = "fsl,etsec2-tbi", .data = (ulong)&etsec2_data },
+	{ .compatible = "fsl,etsec2-mdio", .data = (ulong)&etsec2_data },
+	{ .compatible = "fsl,fman-mdio", .data = (ulong)&fman_data },
 	{}
 };
 
 static int tsec_mdio_probe(struct udevice *dev)
 {
+	struct fsl_pq_mdio_data *data;
 	struct tsec_mdio_priv *priv = (dev) ? dev_get_priv(dev) : NULL;
 	struct mdio_perdev_priv *pdata = (dev) ? dev_get_uclass_priv(dev) :
 						 NULL;
@@ -213,7 +227,9 @@ static int tsec_mdio_probe(struct udevice *dev)
 		printf("dev_get_priv(dev %p) = NULL\n", dev);
 		return -1;
 	}
-	priv->regs = dev_remap_addr(dev);
+
+	data = (struct fsl_pq_mdio_data *)dev_get_driver_data(dev);
+	priv->regs = dev_remap_addr(dev) + data->mdio_regs_off;
 	debug("%s priv %p @ regs %p, pdata %p\n", __func__,
 	      priv, priv->regs, pdata);
 
