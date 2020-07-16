@@ -40,6 +40,33 @@ static void init_generic_timer(void)
 	setbits_le32(CNTCR_BASE, CNTCR_EN);
 }
 
+/* Distributor Registers */
+#define GICD_BASE	0xF1000000
+
+/* ReDistributor Registers for Control and Physical LPIs */
+#define GICR_LPI_BASE	0xF1060000
+#define GICR_WAKER	0x0014
+#define GICR_PWRR	0x0024
+#define GICR_LPI_WAKER	(GICR_LPI_BASE + GICR_WAKER)
+#define GICR_LPI_PWRR	(GICR_LPI_BASE + GICR_PWRR)
+
+/* ReDistributor Registers for SGIs and PPIs */
+#define GICR_SGI_BASE	0xF1070000
+#define GICR_IGROUPR0	0x0080
+
+static void init_gic_v3(void)
+{
+	 /* GIC v3 power on */
+	writel(0x00000002, (GICR_LPI_PWRR));
+
+	/* Wait till the WAKER_CA_BIT changes to 0 */
+	writel(readl(GICR_LPI_WAKER) & ~0x00000002, (GICR_LPI_WAKER));
+	while (readl(GICR_LPI_WAKER) & 0x00000004)
+		;
+
+	writel(0xffffffff, GICR_SGI_BASE + GICR_IGROUPR0);
+}
+
 void s_init(void)
 {
 	init_generic_timer();
@@ -58,6 +85,8 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
+
+	init_gic_v3();
 
 	return 0;
 }

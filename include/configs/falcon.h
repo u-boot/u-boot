@@ -11,6 +11,17 @@
 
 #include "rcar-gen3-common.h"
 
+/* Generic Interrupt Controller Definitions */
+#ifdef CONFIG_GICV2
+#undef CONFIG_GICV2
+#undef GICD_BASE
+#undef GICC_BASE
+#undef GICR_BASE
+#endif
+#define CONFIG_GICV3
+#define GICD_BASE	0xF1000000
+#define GICR_BASE	0xF1060000
+
 /* Ethernet RAVB */
 #define CONFIG_BITBANGMII
 #define CONFIG_BITBANGMII_MULTI
