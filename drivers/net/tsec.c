@@ -18,6 +18,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
+#include <miiphy.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 
@@ -681,8 +682,12 @@ static int init_phy(struct tsec_private *priv)
 	if (priv->interface == PHY_INTERFACE_MODE_SGMII)
 		tsec_configure_serdes(priv);
 
+#if defined(CONFIG_DM_ETH) && defined(CONFIG_DM_MDIO)
+	phydev = dm_eth_phy_connect(priv->dev);
+#else
 	phydev = phy_connect(priv->bus, priv->phyaddr, priv->dev,
 			     priv->interface);
+#endif
 	if (!phydev)
 		return 0;
 
@@ -793,10 +798,8 @@ int tsec_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct tsec_private *priv = dev_get_priv(dev);
-	struct tsec_mii_mng __iomem *ext_phyregs_mii;
 	struct ofnode_phandle_args phandle_args;
 	u32 tbiaddr = CONFIG_SYS_TBIPA_VALUE;
-	struct fsl_pq_mdio_info mdio_info;
 	const char *phy_mode;
 	fdt_addr_t reg;
 	ofnode parent;
@@ -804,31 +807,6 @@ int tsec_probe(struct udevice *dev)
 
 	pdata->iobase = (phys_addr_t)dev_read_addr(dev);
 	priv->regs = dev_remap_addr(dev);
-
-	if (dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
-				       &phandle_args)) {
-		printf("phy-handle does not exist under tsec %s\n", dev->name);
-		return -ENOENT;
-	} else {
-		int reg = ofnode_read_u32_default(phandle_args.node, "reg", 0);
-
-		priv->phyaddr = reg;
-	}
-
-	parent = ofnode_get_parent(phandle_args.node);
-	if (!ofnode_valid(parent)) {
-		printf("No parent node for PHY?\n");
-		return -ENOENT;
-	}
-
-	reg = ofnode_get_addr_index(parent, 0);
-	if (reg == FDT_ADDR_T_NONE) {
-		printf("No 'reg' property of MII for external PHY\n");
-		return -ENOENT;
-	}
-
-	ext_phyregs_mii = map_physmem(reg + TSEC_MDIO_REGS_OFFSET, 0,
-				      MAP_NOCACHE);
 
 	ret = dev_read_phandle_with_args(dev, "tbi-handle", NULL, 0, 0,
 					 &phandle_args);
@@ -866,12 +844,6 @@ int tsec_probe(struct udevice *dev)
 	priv->flags = TSEC_GIGABIT;
 	if (priv->interface == PHY_INTERFACE_MODE_SGMII)
 		priv->flags |= TSEC_SGMII;
-
-	mdio_info.regs = ext_phyregs_mii;
-	mdio_info.name = (char *)dev->name;
-	ret = fsl_pq_mdio_init(NULL, &mdio_info);
-	if (ret)
-		return ret;
 
 	/* Reset the MAC */
 	setbits_be32(&priv->regs->maccfg1, MACCFG1_SOFT_RESET);
