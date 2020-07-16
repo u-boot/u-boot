@@ -10,6 +10,16 @@
 
 #define EFI_VARIABLE_READ_ONLY BIT(31)
 
+enum efi_auth_var_type {
+	EFI_AUTH_VAR_NONE = 0,
+	EFI_AUTH_VAR_PK,
+	EFI_AUTH_VAR_KEK,
+	EFI_AUTH_VAR_DB,
+	EFI_AUTH_VAR_DBX,
+	EFI_AUTH_VAR_DBT,
+	EFI_AUTH_VAR_DBR,
+};
+
 /**
  * efi_get_variable() - retrieve value of a UEFI variable
  *
@@ -83,6 +93,10 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
 
 #define EFI_VAR_BUF_SIZE 0x4000
 
+/*
+ * This constant identifies the file format for storing UEFI variables in
+ * struct efi_var_file.
+ */
 #define EFI_VAR_FILE_MAGIC 0x0161566966456255 /* UbEfiVa, version 1 */
 
 /**
@@ -106,7 +120,7 @@ struct efi_var_entry {
  * struct efi_var_file - file for storing UEFI variables
  *
  * @reserved:	unused, may be overwritten by memory probing
- * @magic:	identifies file format
+ * @magic:	identifies file format, takes value %EFI_VAR_FILE_MAGIC
  * @length:	length including header
  * @crc32:	CRC32 without header
  * @var:	variables
@@ -127,6 +141,14 @@ struct efi_var_file {
  * Return:	status code
  */
 efi_status_t efi_var_to_file(void);
+
+/**
+ * efi_var_restore() - restore EFI variables from buffer
+ *
+ * @buf:	buffer
+ * Return:	status code
+ */
+efi_status_t efi_var_restore(struct efi_var_file *buf);
 
 /**
  * efi_var_from_file() - read variables from file
@@ -194,5 +216,21 @@ efi_status_t efi_var_mem_ins(u16 *variable_name,
  * Return:	maximum data size plus variable name size
  */
 u64 efi_var_mem_free(void);
+
+/**
+ * efi_init_secure_state - initialize secure boot state
+ *
+ * Return:	status code
+ */
+efi_status_t efi_init_secure_state(void);
+
+/**
+ * efi_auth_var_get_type() - convert variable name and guid to enum
+ *
+ * @name:	name of UEFI variable
+ * @guid:	guid of UEFI variable
+ * Return:	identifier for authentication related variables
+ */
+enum efi_auth_var_type efi_auth_var_get_type(u16 *name, const efi_guid_t *guid);
 
 #endif

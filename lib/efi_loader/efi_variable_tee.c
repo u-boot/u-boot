@@ -244,10 +244,92 @@ out:
 	return ret;
 }
 
+/*
+ * StMM can store internal attributes and properties for variables, i.e enabling
+ * R/O variables
+ */
+static efi_status_t set_property_int(u16 *variable_name, efi_uintn_t name_size,
+				     const efi_guid_t *vendor,
+				     struct var_check_property *var_property)
+{
+	struct smm_variable_var_check_property *smm_property;
+	efi_uintn_t payload_size;
+	u8 *comm_buf = NULL;
+	efi_status_t ret;
+
+	payload_size = sizeof(*smm_property) + name_size;
+	if (payload_size > max_payload_size) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	comm_buf = setup_mm_hdr((void **)&smm_property, payload_size,
+				SMM_VARIABLE_FUNCTION_VAR_CHECK_VARIABLE_PROPERTY_SET,
+				&ret);
+	if (!comm_buf)
+		goto out;
+
+	guidcpy(&smm_property->guid, vendor);
+	smm_property->name_size = name_size;
+	memcpy(&smm_property->property, var_property,
+	       sizeof(smm_property->property));
+	memcpy(smm_property->name, variable_name, name_size);
+
+	ret = mm_communicate(comm_buf, payload_size);
+
+out:
+	free(comm_buf);
+	return ret;
+}
+
+static efi_status_t get_property_int(u16 *variable_name, efi_uintn_t name_size,
+				     const efi_guid_t *vendor,
+				     struct var_check_property *var_property)
+{
+	struct smm_variable_var_check_property *smm_property;
+	efi_uintn_t payload_size;
+	u8 *comm_buf = NULL;
+	efi_status_t ret;
+
+	memset(var_property, 0, sizeof(*var_property));
+	payload_size = sizeof(*smm_property) + name_size;
+	if (payload_size > max_payload_size) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	comm_buf = setup_mm_hdr((void **)&smm_property, payload_size,
+				SMM_VARIABLE_FUNCTION_VAR_CHECK_VARIABLE_PROPERTY_GET,
+				&ret);
+	if (!comm_buf)
+		goto out;
+
+	guidcpy(&smm_property->guid, vendor);
+	smm_property->name_size = name_size;
+	memcpy(smm_property->name, variable_name, name_size);
+
+	ret = mm_communicate(comm_buf, payload_size);
+	/*
+	 * Currently only R/O property is supported in StMM.
+	 * Variables that are not set to R/O will not set the property in StMM
+	 * and the call will return EFI_NOT_FOUND. We are setting the
+	 * properties to 0x0 so checking against that is enough for the
+	 * EFI_NOT_FOUND case.
+	 */
+	if (ret == EFI_NOT_FOUND)
+		ret = EFI_SUCCESS;
+	if (ret != EFI_SUCCESS)
+		goto out;
+	memcpy(var_property, &smm_property->property, sizeof(*var_property));
+
+out:
+	free(comm_buf);
+	return ret;
+}
+
 efi_status_t efi_get_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 				  u32 *attributes, efi_uintn_t *data_size,
 				  void *data, u64 *timep)
 {
+	struct var_check_property var_property;
 	struct smm_variable_access *var_acc;
 	efi_uintn_t payload_size;
 	efi_uintn_t name_size;
@@ -299,8 +381,16 @@ efi_status_t efi_get_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	if (attributes)
+	ret = get_property_int(variable_name, name_size, vendor, &var_property);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	if (attributes) {
 		*attributes = var_acc->attr;
+		if (var_property.property & VAR_CHECK_VARIABLE_PROPERTY_READ_ONLY)
+			*attributes |= EFI_VARIABLE_READ_ONLY;
+	}
+
 	if (data)
 		memcpy(data, (u8 *)var_acc->name + var_acc->name_size,
 		       var_acc->data_size);
@@ -387,11 +477,13 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 				  u32 attributes, efi_uintn_t data_size,
 				  const void *data, bool ro_check)
 {
+	efi_status_t ret, alt_ret = EFI_SUCCESS;
+	struct var_check_property var_property;
 	struct smm_variable_access *var_acc;
 	efi_uintn_t payload_size;
 	efi_uintn_t name_size;
 	u8 *comm_buf = NULL;
-	efi_status_t ret;
+	bool ro;
 
 	if (!variable_name || variable_name[0] == 0 || !vendor) {
 		ret = EFI_INVALID_PARAMETER;
@@ -401,7 +493,6 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
-
 	/* Check payload size */
 	name_size = u16_strsize(variable_name);
 	payload_size = MM_VARIABLE_ACCESS_HEADER_SIZE + name_size + data_size;
@@ -410,11 +501,40 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 		goto out;
 	}
 
-	/* Get communication buffer and initialize header */
+	/*
+	 * Allocate the buffer early, before switching to RW (if needed)
+	 * so we won't need to account for any failures in reading/setting
+	 * the properties, if the allocation fails
+	 */
 	comm_buf = setup_mm_hdr((void **)&var_acc, payload_size,
 				SMM_VARIABLE_FUNCTION_SET_VARIABLE, &ret);
 	if (!comm_buf)
 		goto out;
+
+	ro = !!(attributes & EFI_VARIABLE_READ_ONLY);
+	attributes &= EFI_VARIABLE_MASK;
+
+	/*
+	 * The API has the ability to override RO flags. If no RO check was
+	 * requested switch the variable to RW for the duration of this call
+	 */
+	ret = get_property_int(variable_name, name_size, vendor,
+			       &var_property);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	if (var_property.property & VAR_CHECK_VARIABLE_PROPERTY_READ_ONLY) {
+		/* Bypass r/o check */
+		if (!ro_check) {
+			var_property.property &= ~VAR_CHECK_VARIABLE_PROPERTY_READ_ONLY;
+			ret = set_property_int(variable_name, name_size, vendor, &var_property);
+			if (ret != EFI_SUCCESS)
+				goto out;
+		} else {
+			ret = EFI_WRITE_PROTECTED;
+			goto out;
+		}
+	}
 
 	/* Fill in contents */
 	guidcpy(&var_acc->guid, vendor);
@@ -426,10 +546,26 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 
 	/* Communicate */
 	ret = mm_communicate(comm_buf, payload_size);
+	if (ret != EFI_SUCCESS)
+		alt_ret = ret;
 
+	if (ro && !(var_property.property & VAR_CHECK_VARIABLE_PROPERTY_READ_ONLY)) {
+		var_property.revision = VAR_CHECK_VARIABLE_PROPERTY_REVISION;
+		var_property.property |= VAR_CHECK_VARIABLE_PROPERTY_READ_ONLY;
+		var_property.attributes = attributes;
+		var_property.minsize = 1;
+		var_property.maxsize = var_acc->data_size;
+		ret = set_property_int(variable_name, name_size, vendor, &var_property);
+	}
+
+	if (alt_ret != EFI_SUCCESS)
+		goto out;
+
+	if (!u16_strcmp(variable_name, L"PK"))
+		alt_ret = efi_init_secure_state();
 out:
 	free(comm_buf);
-	return ret;
+	return alt_ret == EFI_SUCCESS ? ret : alt_ret;
 }
 
 efi_status_t efi_query_variable_info_int(u32 attributes,
@@ -585,6 +721,10 @@ efi_status_t efi_init_variables(void)
 	max_buffer_size = MM_COMMUNICATE_HEADER_SIZE +
 			  MM_VARIABLE_COMMUNICATE_SIZE +
 			  max_payload_size;
+
+	ret = efi_init_secure_state();
+	if (ret != EFI_SUCCESS)
+		return ret;
 
 	return EFI_SUCCESS;
 }

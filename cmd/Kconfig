@@ -378,6 +378,7 @@ config CMD_BOOTEFI_HELLO_COMPILE
 config CMD_BOOTEFI_HELLO
 	bool "Allow booting a standard EFI hello world for testing"
 	depends on CMD_BOOTEFI_HELLO_COMPILE
+	default y if CMD_BOOTEFI_SELFTEST
 	help
 	  This adds a standard EFI hello world application to U-Boot so that
 	  it can be used with the 'bootefi hello' command. This is useful
@@ -488,13 +489,6 @@ config CMD_SPL_WRITE_SIZE
 	  This provides the size of the command-line argument area in NAND
 	  flash used by Falcon-mode boot. See the documentation until CMD_SPL
 	  for detail.
-
-config CMD_FITUPD
-	bool "fitImage update command"
-	depends on UPDATE_TFTP
-	help
-	  Implements the 'fitupd' command, which allows to automatically
-	  store software updates present on a TFTP server in NOR Flash
 
 config CMD_THOR_DOWNLOAD
 	bool "thor - TIZEN 'thor' download"

@@ -5,12 +5,15 @@
  * Copyright (c) 2017 Rob Clark
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <common.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
 #include <env.h>
 #include <env_internal.h>
 #include <hexdump.h>
+#include <log.h>
 #include <malloc.h>
 #include <rtc.h>
 #include <search.h>
@@ -18,166 +21,7 @@
 #include <crypto/pkcs7_parser.h>
 #include <linux/compat.h>
 #include <u-boot/crc.h>
-
-enum efi_secure_mode {
-	EFI_MODE_SETUP,
-	EFI_MODE_USER,
-	EFI_MODE_AUDIT,
-	EFI_MODE_DEPLOYED,
-};
-
-static bool efi_secure_boot;
-static enum efi_secure_mode efi_secure_mode;
-static u8 efi_vendor_keys;
-
-/**
- * efi_set_secure_state - modify secure boot state variables
- * @secure_boot:	value of SecureBoot
- * @setup_mode:		value of SetupMode
- * @audit_mode:		value of AuditMode
- * @deployed_mode:	value of DeployedMode
- *
- * Modify secure boot status related variables as indicated.
- *
- * Return:		status code
- */
-static efi_status_t efi_set_secure_state(u8 secure_boot, u8 setup_mode,
-					 u8 audit_mode, u8 deployed_mode)
-{
-	efi_status_t ret;
-	const u32 attributes_ro = EFI_VARIABLE_BOOTSERVICE_ACCESS |
-				  EFI_VARIABLE_RUNTIME_ACCESS |
-				  EFI_VARIABLE_READ_ONLY;
-	const u32 attributes_rw = EFI_VARIABLE_BOOTSERVICE_ACCESS |
-				  EFI_VARIABLE_RUNTIME_ACCESS;
-
-	efi_secure_boot = secure_boot;
-
-	ret = efi_set_variable_int(L"SecureBoot", &efi_global_variable_guid,
-				   attributes_ro, sizeof(secure_boot),
-				   &secure_boot, false);
-	if (ret != EFI_SUCCESS)
-		goto err;
-
-	ret = efi_set_variable_int(L"SetupMode", &efi_global_variable_guid,
-				   attributes_ro, sizeof(setup_mode),
-				   &setup_mode, false);
-	if (ret != EFI_SUCCESS)
-		goto err;
-
-	ret = efi_set_variable_int(L"AuditMode", &efi_global_variable_guid,
-				   audit_mode || setup_mode ?
-				   attributes_ro : attributes_rw,
-				   sizeof(audit_mode), &audit_mode, false);
-	if (ret != EFI_SUCCESS)
-		goto err;
-
-	ret = efi_set_variable_int(L"DeployedMode",
-				   &efi_global_variable_guid,
-				   audit_mode || deployed_mode || setup_mode ?
-				   attributes_ro : attributes_rw,
-				   sizeof(deployed_mode), &deployed_mode,
-				   false);
-err:
-	return ret;
-}
-
-/**
- * efi_transfer_secure_state - handle a secure boot state transition
- * @mode:	new state
- *
- * Depending on @mode, secure boot related variables are updated.
- * Those variables are *read-only* for users, efi_set_variable_int()
- * is called here.
- *
- * Return:	status code
- */
-static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
-{
-	efi_status_t ret;
-
-	EFI_PRINT("Switching secure state from %d to %d\n", efi_secure_mode,
-		  mode);
-
-	if (mode == EFI_MODE_DEPLOYED) {
-		ret = efi_set_secure_state(1, 0, 0, 1);
-		if (ret != EFI_SUCCESS)
-			goto err;
-	} else if (mode == EFI_MODE_AUDIT) {
-		ret = efi_set_variable_int(L"PK", &efi_global_variable_guid,
-					   EFI_VARIABLE_BOOTSERVICE_ACCESS |
-					   EFI_VARIABLE_RUNTIME_ACCESS,
-					   0, NULL, false);
-		if (ret != EFI_SUCCESS)
-			goto err;
-
-		ret = efi_set_secure_state(0, 1, 1, 0);
-		if (ret != EFI_SUCCESS)
-			goto err;
-	} else if (mode == EFI_MODE_USER) {
-		ret = efi_set_secure_state(1, 0, 0, 0);
-		if (ret != EFI_SUCCESS)
-			goto err;
-	} else if (mode == EFI_MODE_SETUP) {
-		ret = efi_set_secure_state(0, 1, 0, 0);
-		if (ret != EFI_SUCCESS)
-			goto err;
-	} else {
-		return EFI_INVALID_PARAMETER;
-	}
-
-	efi_secure_mode = mode;
-
-	return EFI_SUCCESS;
-
-err:
-	/* TODO: What action should be taken here? */
-	printf("ERROR: Secure state transition failed\n");
-	return ret;
-}
-
-/**
- * efi_init_secure_state - initialize secure boot state
- *
- * Return:	status code
- */
-static efi_status_t efi_init_secure_state(void)
-{
-	enum efi_secure_mode mode = EFI_MODE_SETUP;
-	efi_uintn_t size = 0;
-	efi_status_t ret;
-
-	ret = efi_get_variable_int(L"PK", &efi_global_variable_guid,
-				   NULL, &size, NULL, NULL);
-	if (ret == EFI_BUFFER_TOO_SMALL) {
-		if (IS_ENABLED(CONFIG_EFI_SECURE_BOOT))
-			mode = EFI_MODE_USER;
-	}
-
-	ret = efi_transfer_secure_state(mode);
-	if (ret != EFI_SUCCESS)
-		return ret;
-
-	/* As we do not provide vendor keys this variable is always 0. */
-	ret = efi_set_variable_int(L"VendorKeys",
-				   &efi_global_variable_guid,
-				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
-				   EFI_VARIABLE_RUNTIME_ACCESS |
-				   EFI_VARIABLE_READ_ONLY,
-				   sizeof(efi_vendor_keys),
-				   &efi_vendor_keys, false);
-	return ret;
-}
-
-/**
- * efi_secure_boot_enabled - return if secure boot is enabled or not
- *
- * Return:	true if enabled, false if disabled
- */
-bool efi_secure_boot_enabled(void)
-{
-	return efi_secure_boot;
-}
+#include <asm/sections.h>
 
 #ifdef CONFIG_EFI_SECURE_BOOT
 static u8 pkcs7_hdr[] = {
@@ -292,6 +136,7 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 	struct efi_time timestamp;
 	struct rtc_time tm;
 	u64 new_time;
+	enum efi_auth_var_type var_type;
 	efi_status_t ret;
 
 	var_sig = NULL;
@@ -368,18 +213,20 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 	}
 
 	/* signature database used for authentication */
-	if (u16_strcmp(variable, L"PK") == 0 ||
-	    u16_strcmp(variable, L"KEK") == 0) {
+	var_type = efi_auth_var_get_type(variable, vendor);
+	switch (var_type) {
+	case EFI_AUTH_VAR_PK:
+	case EFI_AUTH_VAR_KEK:
 		/* with PK */
 		truststore = efi_sigstore_parse_sigdb(L"PK");
 		if (!truststore)
 			goto err;
-	} else if (u16_strcmp(variable, L"db") == 0 ||
-		   u16_strcmp(variable, L"dbx") == 0) {
+		break;
+	case EFI_AUTH_VAR_DB:
+	case EFI_AUTH_VAR_DBX:
 		/* with PK and KEK */
 		truststore = efi_sigstore_parse_sigdb(L"KEK");
 		truststore2 = efi_sigstore_parse_sigdb(L"PK");
-
 		if (!truststore) {
 			if (!truststore2)
 				goto err;
@@ -387,7 +234,8 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 			truststore = truststore2;
 			truststore2 = NULL;
 		}
-	} else {
+		break;
+	default:
 		/* TODO: support private authenticated variables */
 		goto err;
 	}
@@ -506,6 +354,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 	efi_uintn_t ret;
 	bool append, delete;
 	u64 time = 0;
+	enum efi_auth_var_type var_type;
 
 	if (!variable_name || !*variable_name || !vendor ||
 	    ((attributes & EFI_VARIABLE_RUNTIME_ACCESS) &&
@@ -519,9 +368,15 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 	delete = !append && (!data_size || !attributes);
 
 	/* check attributes */
+	var_type = efi_auth_var_get_type(variable_name, vendor);
 	if (var) {
 		if (ro_check && (var->attr & EFI_VARIABLE_READ_ONLY))
 			return EFI_WRITE_PROTECTED;
+
+		if (IS_ENABLED(CONFIG_EFI_VARIABLES_PRESEED)) {
+			if (var_type != EFI_AUTH_VAR_NONE)
+				return EFI_WRITE_PROTECTED;
+		}
 
 		/* attributes won't be changed */
 		if (!delete &&
@@ -540,12 +395,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 			return EFI_NOT_FOUND;
 	}
 
-	if (((!u16_strcmp(variable_name, L"PK") ||
-	      !u16_strcmp(variable_name, L"KEK")) &&
-		!guidcmp(vendor, &efi_global_variable_guid)) ||
-	    ((!u16_strcmp(variable_name, L"db") ||
-	      !u16_strcmp(variable_name, L"dbx")) &&
-		!guidcmp(vendor, &efi_guid_image_security_database))) {
+	if (var_type != EFI_AUTH_VAR_NONE) {
 		/* authentication is mandatory */
 		if (!(attributes &
 		      EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS)) {
@@ -604,7 +454,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 	if (ret != EFI_SUCCESS)
 		return ret;
 
-	if (!u16_strcmp(variable_name, L"PK"))
+	if (var_type == EFI_AUTH_VAR_PK)
 		ret = efi_init_secure_state();
 	else
 		ret = EFI_SUCCESS;
@@ -746,6 +596,13 @@ efi_status_t efi_init_variables(void)
 	ret = efi_init_secure_state();
 	if (ret != EFI_SUCCESS)
 		return ret;
+
+	if (IS_ENABLED(CONFIG_EFI_VARIABLES_PRESEED)) {
+		ret = efi_var_restore((struct efi_var_file *)
+				      __efi_var_file_begin);
+		if (ret != EFI_SUCCESS)
+			log_err("Invalid EFI variable seed\n");
+	}
 
 	return efi_var_from_file();
 }

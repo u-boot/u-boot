@@ -27,13 +27,51 @@ config EFI_LOADER
 
 if EFI_LOADER
 
+choice
+	prompt "Store for non-volatile UEFI variables"
+	default EFI_VARIABLE_FILE_STORE
+	help
+	  Select where non-volatile UEFI variables shall be stored.
+
 config EFI_VARIABLE_FILE_STORE
 	bool "Store non-volatile UEFI variables as file"
 	depends on FAT_WRITE
-	default y
 	help
-	  Select tis option if you want non-volatile UEFI variables to be stored
-	  as file /ubootefi.var on the EFI system partition.
+	  Select this option if you want non-volatile UEFI variables to be
+	  stored as file /ubootefi.var on the EFI system partition.
+
+config EFI_MM_COMM_TEE
+	bool "UEFI variables storage service via OP-TEE"
+	depends on OPTEE
+	help
+	  If OP-TEE is present and running StandAloneMM, dispatch all UEFI
+	  variable related operations to that. The application will verify,
+	  authenticate and store the variables on an RPMB.
+
+endchoice
+
+config EFI_VARIABLES_PRESEED
+	bool "Initial values for UEFI variables"
+	depends on EFI_VARIABLE_FILE_STORE
+	help
+	  Include a file with the initial values for non-volatile UEFI variables
+	  into the U-Boot binary. If this configuration option is set, changes
+	  to authentication related variables (PK, KEK, db, dbx) are not
+	  allowed.
+
+if EFI_VARIABLES_PRESEED
+
+config EFI_VAR_SEED_FILE
+	string "File with initial values of non-volatile UEFI variables"
+	default ubootefi.var
+	help
+	  File with initial values of non-volatile UEFI variables. The file must
+	  be in the same format as the storage in the EFI system partition. The
+	  easiest way to create it is by setting the non-volatile variables in
+	  U-Boot. If a relative file path is used, it is relative to the source
+	  directory.
+
+endif
 
 config EFI_GET_TIME
 	bool "GetTime() runtime service"
@@ -173,14 +211,5 @@ config EFI_SECURE_BOOT
 	  Once SecureBoot mode is enforced, any EFI binary can run only if
 	  it is signed with a trusted key. To do that, you need to install,
 	  at least, PK, KEK and db.
-
-config EFI_MM_COMM_TEE
-	bool "UEFI variables storage service via OP-TEE"
-	depends on OPTEE
-	default n
-	help
-	  If OP-TEE is present and running StandAloneMM, dispatch all UEFI variable
-	  related operations to that. The application will verify, authenticate and
-	  store the variables on an RPMB.
 
 endif

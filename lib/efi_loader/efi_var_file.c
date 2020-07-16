@@ -159,13 +159,7 @@ error:
 #endif
 }
 
-/**
- * efi_var_restore() - restore EFI variables from buffer
- *
- * @buf:	buffer
- * Return:	status code
- */
-static efi_status_t __maybe_unused efi_var_restore(struct efi_var_file *buf)
+efi_status_t efi_var_restore(struct efi_var_file *buf)
 {
 	struct efi_var_entry *var, *last_var;
 	efi_status_t ret;

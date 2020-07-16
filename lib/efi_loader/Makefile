@@ -6,7 +6,7 @@
 # This file only gets included with CONFIG_EFI_LOADER set, so all
 # object inclusion implicitly depends on it
 
-asflags-y += -DHOST_ARCH="$(HOST_ARCH)"
+asflags-y += -DHOST_ARCH="$(HOST_ARCH)" -I.
 ccflags-y += -DHOST_ARCH="$(HOST_ARCH)"
 
 CFLAGS_efi_boottime.o += \
@@ -42,6 +42,7 @@ obj-y += efi_variable_tee.o
 else
 obj-y += efi_variable.o
 obj-y += efi_var_file.o
+obj-$(CONFIG_EFI_VARIABLES_PRESEED) += efi_var_seed.o
 endif
 obj-y += efi_watchdog.o
 obj-$(CONFIG_LCD) += efi_gop.o
@@ -53,3 +54,6 @@ obj-$(CONFIG_GENERATE_SMBIOS_TABLE) += efi_smbios.o
 obj-$(CONFIG_EFI_RNG_PROTOCOL) += efi_rng.o
 obj-$(CONFIG_EFI_LOAD_FILE2_INITRD) += efi_load_initrd.o
 obj-y += efi_signature.o
+
+EFI_VAR_SEED_FILE := $(subst $\",,$(CONFIG_EFI_VAR_SEED_FILE))
+$(obj)/efi_var_seed.o: $(srctree)/$(EFI_VAR_SEED_FILE)

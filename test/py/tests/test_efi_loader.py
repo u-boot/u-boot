@@ -68,8 +68,8 @@ def test_efi_pre_commands(u_boot_console):
         u_boot_console.run_command('pci enum')
 
 @pytest.mark.buildconfigspec('cmd_dhcp')
-def test_efi_dhcp(u_boot_console):
-    """Test the dhcp command.
+def test_efi_setup_dhcp(u_boot_console):
+    """Set up the network using DHCP.
 
     The boardenv_* file may be used to enable/disable this test; see the
     comment at the beginning of this file.
@@ -77,7 +77,10 @@ def test_efi_dhcp(u_boot_console):
 
     test_dhcp = u_boot_console.config.env.get('env__net_dhcp_server', False)
     if not test_dhcp:
-        pytest.skip('No DHCP server available')
+        env_vars = u_boot_console.config.env.get('env__net_static_env_vars', None)
+        if not env_vars:
+            pytest.skip('No DHCP server available')
+        return None
 
     u_boot_console.run_command('setenv autoload no')
     output = u_boot_console.run_command('dhcp')
@@ -88,7 +91,7 @@ def test_efi_dhcp(u_boot_console):
 
 @pytest.mark.buildconfigspec('net')
 def test_efi_setup_static(u_boot_console):
-    """Set up a static IP configuration.
+    """Set up the network using a static IP configuration.
 
     The configuration is provided by the boardenv_* file; see the comment at
     the beginning of this file.
@@ -96,7 +99,10 @@ def test_efi_setup_static(u_boot_console):
 
     env_vars = u_boot_console.config.env.get('env__net_static_env_vars', None)
     if not env_vars:
-        pytest.skip('No static network configuration is defined')
+        test_dhcp = u_boot_console.config.env.get('env__net_dhcp_server', False)
+        if not test_dhcp:
+            pytest.skip('No static network configuration is defined')
+        return None
 
     for (var, val) in env_vars:
         u_boot_console.run_command('setenv %s %s' % (var, val))
