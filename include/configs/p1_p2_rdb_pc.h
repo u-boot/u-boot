@@ -451,6 +451,7 @@
 
 /* Vsc7385 switch */
 #ifdef CONFIG_VSC7385_ENET
+#define __VSCFW_ADDR			"vscfw_addr=ef000000"
 #define CONFIG_SYS_VSC7385_BASE		0xffb00000
 
 #ifdef CONFIG_PHYS_64BIT
@@ -809,6 +810,7 @@ i2c mw 18 3 __SW_BOOT_MASK 1; reset
 "ramdisk_size=120000\0"	\
 "map_lowernorbank=i2c dev 1; i2c mw 18 1 02 1; i2c mw 18 3 fd 1\0" \
 "map_uppernorbank=i2c dev 1; i2c mw 18 1 00 1; i2c mw 18 3 fd 1\0" \
+__stringify(__VSCFW_ADDR)"\0" \
 __stringify(__NOR_RST_CMD)"\0" \
 __stringify(__SPI_RST_CMD)"\0" \
 __stringify(__SD_RST_CMD)"\0" \
