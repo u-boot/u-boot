@@ -316,6 +316,10 @@ int board_early_init_r(void)
 {
 	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
 	int flash_esel = find_tlb_idx((void *)flashbase, 1);
+#ifdef CONFIG_VSC7385_ENET
+	unsigned int vscfw_addr;
+	char *tmp;
+#endif
 
 	/*
 	 * Remap Boot flash region to caching-inhibited
@@ -338,6 +342,20 @@ int board_early_init_r(void)
 	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS, /* tlb, epn, rpn */
 		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,/* perms, wimge */
 		0, flash_esel, BOOKE_PAGESZ_64M, 1);/* ts, esel, tsize, iprot */
+
+#ifdef CONFIG_VSC7385_ENET
+	/* If a VSC7385 microcode image is present, then upload it. */
+	tmp = env_get("vscfw_addr");
+	if (tmp) {
+		vscfw_addr = simple_strtoul(tmp, NULL, 16);
+		printf("uploading VSC7385 microcode from %x\n", vscfw_addr);
+		if (vsc7385_upload_firmware((void *)vscfw_addr,
+					    CONFIG_VSC7385_IMAGE_SIZE))
+			puts("Failure uploading VSC7385 microcode.\n");
+	} else {
+		puts("No address specified for VSC7385 microcode.\n");
+	}
+#endif
 	return 0;
 }
 
@@ -348,10 +366,6 @@ int board_eth_init(struct bd_info *bis)
 	ccsr_gur_t *gur __attribute__((unused)) =
 		(void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	int num = 0;
-#ifdef CONFIG_VSC7385_ENET
-	char *tmp;
-	unsigned int vscfw_addr;
-#endif
 
 #ifdef CONFIG_TSEC1
 	SET_STD_TSEC_INFO(tsec_info[num], 1);
@@ -374,19 +388,6 @@ int board_eth_init(struct bd_info *bis)
 		printf("No TSECs initialized\n");
 		return 0;
 	}
-
-#ifdef CONFIG_VSC7385_ENET
-	/* If a VSC7385 microcode image is present, then upload it. */
-	tmp = env_get("vscfw_addr");
-	if (tmp) {
-		vscfw_addr = simple_strtoul(tmp, NULL, 16);
-		printf("uploading VSC7385 microcode from %x\n", vscfw_addr);
-		if (vsc7385_upload_firmware((void *) vscfw_addr,
-					CONFIG_VSC7385_IMAGE_SIZE))
-			puts("Failure uploading VSC7385 microcode.\n");
-	} else
-		puts("No address specified for VSC7385 microcode.\n");
-#endif
 
 	mdio_info.regs = TSEC_GET_MDIO_REGS_BASE(1);
 	mdio_info.name = DEFAULT_MII_NAME;
