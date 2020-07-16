@@ -118,13 +118,6 @@ config DEFAULT_DEVICE_TREE
 	  It can be overridden from the command line:
 	  $ make DEVICE_TREE=<device-tree-name>
 
-config FDT_MEM_ALIGN_SIZE
-	hex "FDT memory alignment size"
-	default 0x1000
-	help
-	  This option is used to set the default alignment when reserving memory
-	  for fdt.
-
 config OF_LIST
 	string "List of device tree files to include for DT control"
 	depends on SPL_LOAD_FIT || MULTI_DTB_FIT

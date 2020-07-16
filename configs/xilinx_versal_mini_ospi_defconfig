@@ -45,7 +45,6 @@ CONFIG_SYS_PROMPT="Versal> "
 # CONFIG_CMD_MISC is not set
 # CONFIG_PARTITIONS is not set
 CONFIG_DEFAULT_DEVICE_TREE="versal-mini-ospi"
-CONFIG_FDT_MEM_ALIGN_SIZE=0x100
 # CONFIG_NET is not set
 # CONFIG_DM_WARN is not set
 # CONFIG_DM_DEVICE_REMOVE is not set
