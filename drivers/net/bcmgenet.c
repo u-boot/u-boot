@@ -457,7 +457,8 @@ static int bcmgenet_adjust_link(struct bcmgenet_eth_priv *priv)
 	clrsetbits_32(priv->mac_reg + EXT_RGMII_OOB_CTRL, OOB_DISABLE,
 			RGMII_LINK | RGMII_MODE_EN);
 
-	if (phy_dev->interface == PHY_INTERFACE_MODE_RGMII)
+	if (phy_dev->interface == PHY_INTERFACE_MODE_RGMII ||
+	    phy_dev->interface == PHY_INTERFACE_MODE_RGMII_RXID)
 		setbits_32(priv->mac_reg + EXT_RGMII_OOB_CTRL, ID_MODE_DIS);
 
 	writel(speed << CMD_SPEED_SHIFT, (priv->mac_reg + UMAC_CMD));
