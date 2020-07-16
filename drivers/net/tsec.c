@@ -803,10 +803,13 @@ int tsec_probe(struct udevice *dev)
 	struct tsec_private *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args phandle_args;
 	u32 tbiaddr = CONFIG_SYS_TBIPA_VALUE;
+	struct tsec_data *data;
 	const char *phy_mode;
 	fdt_addr_t reg;
 	ofnode parent;
 	int ret;
+
+	data = (struct tsec_data *)dev_get_driver_data(dev);
 
 	pdata->iobase = (phys_addr_t)dev_read_addr(dev);
 	priv->regs = dev_remap_addr(dev);
@@ -828,7 +831,7 @@ int tsec_probe(struct udevice *dev)
 			return -ENOENT;
 		}
 
-		priv->phyregs_sgmii = map_physmem(reg + TSEC_MDIO_REGS_OFFSET,
+		priv->phyregs_sgmii = map_physmem(reg + data->mdio_regs_off,
 						  0, MAP_NOCACHE);
 	}
 
@@ -880,8 +883,17 @@ static const struct eth_ops tsec_ops = {
 	.mcast = tsec_mcast_addr,
 };
 
+static struct tsec_data etsec2_data = {
+	.mdio_regs_off = TSEC_MDIO_REGS_OFFSET,
+};
+
+static struct tsec_data gianfar_data = {
+	.mdio_regs_off = 0x0,
+};
+
 static const struct udevice_id tsec_ids[] = {
-	{ .compatible = "fsl,etsec2" },
+	{ .compatible = "fsl,etsec2", .data = (ulong)&etsec2_data },
+	{ .compatible = "gianfar", .data = (ulong)&gianfar_data },
 	{ }
 };
 
