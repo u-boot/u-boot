@@ -158,7 +158,7 @@ static int dm_test_autobind_uclass_pdata_alloc(struct unit_test_state *uts)
 	for (uclass_find_first_device(UCLASS_TEST, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
-		ut_assert(dev);
+		ut_assertnonnull(dev);
 
 		uc_pdata = dev_get_uclass_platdata(dev);
 		ut_assert(uc_pdata);
@@ -181,7 +181,7 @@ static int dm_test_autobind_uclass_pdata_valid(struct unit_test_state *uts)
 	for (uclass_find_first_device(UCLASS_TEST, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
-		ut_assert(dev);
+		ut_assertnonnull(dev);
 
 		uc_pdata = dev_get_uclass_platdata(dev);
 		ut_assert(uc_pdata);
@@ -747,11 +747,11 @@ static int dm_test_uclass_devices_find(struct unit_test_state *uts)
 	     dev;
 	     ret = uclass_find_next_device(&dev)) {
 		ut_assert(!ret);
-		ut_assert(dev);
+		ut_assertnonnull(dev);
 	}
 
 	ut_assertok(uclass_find_first_device(UCLASS_TEST_DUMMY, &dev));
-	ut_assert(!dev);
+	ut_assertnull(dev);
 
 	return 0;
 }
@@ -778,7 +778,7 @@ static int dm_test_uclass_devices_find_by_name(struct unit_test_state *uts)
 	     testdev;
 	     ret = uclass_find_next_device(&testdev)) {
 		ut_assertok(ret);
-		ut_assert(testdev);
+		ut_assertnonnull(testdev);
 
 		findret = uclass_find_device_by_name(UCLASS_TEST_FDT,
 						     testdev->name,

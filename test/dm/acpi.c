@@ -190,7 +190,10 @@ DM_TEST(dm_test_acpi_get_table_revision,
 static int dm_test_acpi_create_dmar(struct unit_test_state *uts)
 {
 	struct acpi_dmar dmar;
+	struct udevice *cpu;
 
+	ut_assertok(uclass_first_device(UCLASS_CPU, &cpu));
+	ut_assertnonnull(cpu);
 	ut_assertok(acpi_create_dmar(&dmar, DMAR_INTR_REMAP));
 	ut_asserteq(DMAR_INTR_REMAP, dmar.flags);
 	ut_asserteq(32 - 1, dmar.host_address_width);
