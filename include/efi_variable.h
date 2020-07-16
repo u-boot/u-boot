@@ -93,6 +93,10 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
 
 #define EFI_VAR_BUF_SIZE 0x4000
 
+/*
+ * This constant identifies the file format for storing UEFI variables in
+ * struct efi_var_file.
+ */
 #define EFI_VAR_FILE_MAGIC 0x0161566966456255 /* UbEfiVa, version 1 */
 
 /**
@@ -116,7 +120,7 @@ struct efi_var_entry {
  * struct efi_var_file - file for storing UEFI variables
  *
  * @reserved:	unused, may be overwritten by memory probing
- * @magic:	identifies file format
+ * @magic:	identifies file format, takes value %EFI_VAR_FILE_MAGIC
  * @length:	length including header
  * @crc32:	CRC32 without header
  * @var:	variables
