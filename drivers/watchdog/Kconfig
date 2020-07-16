@@ -168,9 +168,10 @@ config XILINX_TB_WATCHDOG
 	   Select this to enable Xilinx Axi watchdog timer, which can be found on some
 	   Xilinx Microblaze Platforms.
 
-config WWDT_XILINX
+config WDT_XILINX
 	bool "Xilinx window watchdog timer support"
 	depends on WDT && ARCH_VERSAL
+	select REGMAP
 	imply WATCHDOG
 	help
 	  Select this to enable Xilinx window watchdog timer, which can be found on

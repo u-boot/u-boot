@@ -11,7 +11,9 @@
 #include <clk.h>
 #include <common.h>
 #include <dm.h>
+#include <regmap.h>
 #include <wdt.h>
+#include <linux/compat.h>
 #include <linux/io.h>
 
 /* Refresh Register Masks */
@@ -20,38 +22,29 @@
 /* Generic Control/Status Register Masks */
 #define XWT_WWCSR_GWEN_MASK	BIT(0) /* Enable Bit */
 
-struct wwdt_regs {
-	u32 reserved0[1024];
-	u32 refresh;		/* Refresh Register [0x1000] */
-	u32 reserved1[1023];
-	u32 csr;		/* Control/Status Register [0x2000] */
-	u32 reserved2;
-	u32 offset;		/* Offset Register [0x2008] */
-	u32 reserved3;
-	u32 cmp0;		/* Compare Value Register0 [0x2010] */
-	u32 cmp1;		/* Compare Value Register1 [0x2014] */
-	u32 reserved4[1006];
-	u32 warmrst;		/* Warm Reset Register [0x2FD0] */
-};
+/* Register offsets for the Wdt device */
+#define XWT_WWREF_OFFSET	0x1000 /* Refresh Register */
+#define XWT_WWCSR_OFFSET	0x2000 /* Control/Status Register */
+#define XWT_WWOFF_OFFSET	0x2008 /* Offset Register */
+#define XWT_WWCMP0_OFFSET	0x2010 /* Compare Value Register0 */
+#define XWT_WWCMP1_OFFSET	0x2014 /* Compare Value Register1 */
+#define XWT_WWWRST_OFFSET	0x2FD0 /* Warm Reset Register */
 
 struct xlnx_wwdt_priv {
 	bool enable_once;
-	struct wwdt_regs *regs;
+	struct regmap *regs;
 	struct clk clk;
 };
 
 struct xlnx_wwdt_platdata {
 	bool enable_once;
-	phys_addr_t iobase;
 };
 
 static int xlnx_wwdt_reset(struct udevice *dev)
 {
 	struct xlnx_wwdt_priv *wdt = dev_get_priv(dev);
 
-	dev_dbg(dev, "%s ", __func__);
-
-	writel(XWT_WWREF_GWRR_MASK, &wdt->regs->refresh);
+	regmap_write(wdt->regs, XWT_WWREF_OFFSET, XWT_WWREF_GWRR_MASK);
 
 	return 0;
 }
@@ -67,9 +60,9 @@ static int xlnx_wwdt_stop(struct udevice *dev)
 	}
 
 	/* Disable the generic watchdog timer */
-	csr = readl(&wdt->regs->csr);
+	regmap_read(wdt->regs, XWT_WWCSR_OFFSET, &csr);
 	csr &= ~(XWT_WWCSR_GWEN_MASK);
-	writel(csr, &wdt->regs->csr);
+	regmap_write(wdt->regs, XWT_WWCSR_OFFSET, csr);
 
 	clk_disable(&wdt->clk);
 
@@ -85,8 +78,6 @@ static int xlnx_wwdt_start(struct udevice *dev, u64 timeout, ulong flags)
 	u64 count;
 	unsigned long clock_f;
 	struct xlnx_wwdt_priv *wdt = dev_get_priv(dev);
-
-	dev_dbg(dev, "%s:\n", __func__);
 
 	clock_f = clk_get_rate(&wdt->clk);
 	if (IS_ERR_VALUE(clock_f)) {
@@ -114,19 +105,19 @@ static int xlnx_wwdt_start(struct udevice *dev, u64 timeout, ulong flags)
 	count = count >> 1;
 
 	/* Disable the generic watchdog timer */
-	csr = readl(&wdt->regs->csr);
+	regmap_read(wdt->regs, XWT_WWCSR_OFFSET, &csr);
 	csr &= ~(XWT_WWCSR_GWEN_MASK);
-	writel(csr, &wdt->regs->csr);
+	regmap_write(wdt->regs, XWT_WWCSR_OFFSET, csr);
 
 	/* Set compare and offset registers for generic watchdog timeout */
-	writel((u32)count, &wdt->regs->cmp0);
-	writel((u32)0, &wdt->regs->cmp1);
-	writel((u32)count, &wdt->regs->offset);
+	regmap_write(wdt->regs, XWT_WWCMP0_OFFSET, (u32)count);
+	regmap_write(wdt->regs, XWT_WWCMP1_OFFSET, 0);
+	regmap_write(wdt->regs, XWT_WWOFF_OFFSET, (u32)count);
 
 	/* Enable the generic watchdog timer */
-	csr = readl(&wdt->regs->csr);
+	regmap_read(wdt->regs, XWT_WWCSR_OFFSET, &csr);
 	csr |= (XWT_WWCSR_GWEN_MASK);
-	writel(csr, &wdt->regs->csr);
+	regmap_write(wdt->regs, XWT_WWCSR_OFFSET, csr);
 
 	return 0;
 }
@@ -139,8 +130,12 @@ static int xlnx_wwdt_probe(struct udevice *dev)
 
 	dev_dbg(dev, "%s: Probing wdt%u\n", __func__, dev->seq);
 
-	wdt->regs = (struct wwdt_regs *)ioremap(platdata->iobase,
-						sizeof(struct wwdt_regs));
+	ret = regmap_init_mem(dev_ofnode(dev), &wdt->regs);
+	if (ret) {
+		dev_dbg(dev, "failed to get regbase of wwdt\n");
+		return ret;
+	}
+
 	wdt->enable_once = platdata->enable_once;
 
 	ret = clk_get_by_index(dev, 0, &wdt->clk);
@@ -154,7 +149,6 @@ static int xlnx_wwdt_ofdata_to_platdata(struct udevice *dev)
 {
 	struct xlnx_wwdt_platdata *platdata = dev_get_platdata(dev);
 
-	platdata->iobase = dev_read_addr(dev);
 	platdata->enable_once = dev_read_u32_default(dev,
 						     "xlnx,wdt-enable-once", 0);
 	dev_dbg(dev, "wdt-enable-once %d\n", platdata->enable_once);
