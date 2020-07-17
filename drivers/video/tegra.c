@@ -346,7 +346,7 @@ static int tegra_lcd_ofdata_to_platdata(struct udevice *dev)
 	int rgb;
 	int ret;
 
-	priv->disp = (struct disp_ctlr *)devfdt_get_addr(dev);
+	priv->disp = dev_read_addr_ptr(dev);
 	if (!priv->disp) {
 		debug("%s: No display controller address\n", __func__);
 		return -EINVAL;

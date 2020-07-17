@@ -237,7 +237,7 @@ static int omap3_wdt_probe(struct udevice *dev)
 {
 	struct omap3_wdt_priv *priv = dev_get_priv(dev);
 
-	priv->regs = (struct wd_timer *)devfdt_get_addr(dev);
+	priv->regs = dev_read_addr_ptr(dev);
 	if (!priv->regs)
 		return -EINVAL;
 

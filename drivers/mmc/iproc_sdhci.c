@@ -188,7 +188,7 @@ static int iproc_sdhci_probe(struct udevice *dev)
 	iproc_host->shadow_blk = 0;
 
 	host->name = dev->name;
-	host->ioaddr = (void *)devfdt_get_addr(dev);
+	host->ioaddr = dev_read_addr_ptr(dev);
 	host->voltages = MMC_VDD_165_195 |
 			 MMC_VDD_32_33 | MMC_VDD_33_34;
 	host->quirks = SDHCI_QUIRK_BROKEN_VOLTAGE | SDHCI_QUIRK_BROKEN_R1B;

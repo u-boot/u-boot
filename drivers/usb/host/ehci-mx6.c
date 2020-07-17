@@ -473,7 +473,7 @@ static const struct ehci_ops mx6_ehci_ops = {
 static int ehci_usb_phy_mode(struct udevice *dev)
 {
 	struct usb_platdata *plat = dev_get_platdata(dev);
-	void *__iomem addr = (void *__iomem)devfdt_get_addr(dev);
+	void *__iomem addr = dev_read_addr_ptr(dev);
 	void *__iomem phy_ctrl, *__iomem phy_status;
 	const void *blob = gd->fdt_blob;
 	int offset = dev_of_offset(dev), phy_off;
@@ -580,7 +580,7 @@ static int ehci_usb_bind(struct udevice *dev)
 static int ehci_usb_probe(struct udevice *dev)
 {
 	struct usb_platdata *plat = dev_get_platdata(dev);
-	struct usb_ehci *ehci = (struct usb_ehci *)devfdt_get_addr(dev);
+	struct usb_ehci *ehci = dev_read_addr_ptr(dev);
 	struct ehci_mx6_priv_data *priv = dev_get_priv(dev);
 	enum usb_init_type type = plat->init_type;
 	struct ehci_hccr *hccr;

@@ -148,7 +148,7 @@ static int rcar_gpio_probe(struct udevice *dev)
 	int node = dev_of_offset(dev);
 	int ret;
 
-	priv->regs = (void __iomem *)devfdt_get_addr(dev);
+	priv->regs = dev_read_addr_ptr(dev);
 	uc_priv->bank_name = dev->name;
 
 	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, node, "gpio-ranges",
