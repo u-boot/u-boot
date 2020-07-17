@@ -444,12 +444,6 @@ static int mp_init_cpu(struct udevice *cpu, void *unused)
 {
 	struct cpu_platdata *plat = dev_get_parent_platdata(cpu);
 
-	/*
-	 * Multiple APs are brought up simultaneously and they may get the same
-	 * seq num in the uclass_resolve_seq() during device_probe(). To avoid
-	 * this, set req_seq to the reg number in the device tree in advance.
-	 */
-	cpu->req_seq = dev_read_u32_default(cpu, "reg", -1);
 	plat->ucode_version = microcode_read_rev();
 	plat->device_id = gd->arch.x86_device;
 
@@ -465,19 +459,22 @@ int mp_init(void)
 	int num_aps, num_cpus;
 	atomic_t *ap_count;
 	struct udevice *cpu;
-	int ret;
-
-	/* This will cause the CPUs devices to be bound */
 	struct uclass *uc;
-	ret = uclass_get(UCLASS_CPU, &uc);
-	if (ret)
-		return ret;
+	int ret;
 
 	if (IS_ENABLED(CONFIG_QFW)) {
 		ret = qemu_cpu_fixup();
 		if (ret)
 			return ret;
 	}
+
+	/*
+	 * Multiple APs are brought up simultaneously and they may get the same
+	 * seq num in the uclass_resolve_seq() during device_probe(). To avoid
+	 * this, set req_seq to the reg number in the device tree in advance.
+	 */
+	uclass_id_foreach_dev(UCLASS_CPU, cpu, uc)
+		cpu->req_seq = dev_read_u32_default(cpu, "reg", -1);
 
 	ret = init_bsp(&cpu);
 	if (ret) {
