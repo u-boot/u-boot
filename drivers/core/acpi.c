@@ -195,7 +195,7 @@ static int sort_acpi_item_type(struct acpi_ctx *ctx, void *start,
 					"u-boot,acpi-dsdt-order" :
 					"u-boot,acpi-ssdt-order", &size);
 	if (!order) {
-		log_warning("Failed to find ordering, leaving as is\n");
+		log_debug("Failed to find ordering, leaving as is\n");
 		return 0;
 	}
 
