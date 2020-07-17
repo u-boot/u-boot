@@ -106,19 +106,19 @@ static efi_status_t optee_mm_communicate(void *comm_buf, ulong dsize)
 	tee_close_session(conn.tee, conn.session);
 
 	switch (param[1].u.value.a) {
-	case ARM_SMC_MM_RET_SUCCESS:
+	case ARM_SVC_SPM_RET_SUCCESS:
 		ret = EFI_SUCCESS;
 		break;
 
-	case ARM_SMC_MM_RET_INVALID_PARAMS:
+	case ARM_SVC_SPM_RET_INVALID_PARAMS:
 		ret = EFI_INVALID_PARAMETER;
 		break;
 
-	case ARM_SMC_MM_RET_DENIED:
+	case ARM_SVC_SPM_RET_DENIED:
 		ret = EFI_ACCESS_DENIED;
 		break;
 
-	case ARM_SMC_MM_RET_NO_MEMORY:
+	case ARM_SVC_SPM_RET_NO_MEMORY:
 		ret = EFI_OUT_OF_RESOURCES;
 		break;
 
