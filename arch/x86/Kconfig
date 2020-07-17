@@ -603,6 +603,13 @@ config SMP
 	  only one CPU will be enabled regardless of the number of CPUs
 	  available.
 
+config SMP_AP_WORK
+	bool
+	depends on SMP
+	help
+	 Allow APs to do other work after initialisation instead of going
+	 to sleep.
+
 config MAX_CPUS
 	int "Maximum number of CPUs permitted"
 	depends on SMP

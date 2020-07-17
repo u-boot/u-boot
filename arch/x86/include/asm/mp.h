@@ -11,6 +11,17 @@
 #include <asm/atomic.h>
 #include <asm/cache.h>
 
+enum {
+	/* Indicates that the function should run on all CPUs */
+	MP_SELECT_ALL	= -1,
+
+	/* Run on boot CPUs */
+	MP_SELECT_BSP	= -2,
+
+	/* Run on non-boot CPUs */
+	MP_SELECT_APS	= -3,
+};
+
 typedef int (*mp_callback_t)(struct udevice *cpu, void *arg);
 
 /*

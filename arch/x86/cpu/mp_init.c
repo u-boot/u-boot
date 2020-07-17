@@ -15,6 +15,7 @@
 #include <asm/atomic.h>
 #include <asm/cpu.h>
 #include <asm/interrupt.h>
+#include <asm/io.h>
 #include <asm/lapic.h>
 #include <asm/microcode.h>
 #include <asm/mp.h>
@@ -43,13 +44,38 @@ struct mp_flight_plan {
 	struct mp_flight_record *records;
 };
 
+/**
+ * struct mp_callback - Callback information for APs
+ *
+ * @func: Function to run
+ * @arg: Argument to pass to the function
+ * @logical_cpu_number: Either a CPU number (i.e. dev->req_seq) or a special
+ *	value like MP_SELECT_BSP. It tells the AP whether it should process this
+ *	callback
+ */
+struct mp_callback {
+	/**
+	 * func() - Function to call on the AP
+	 *
+	 * @arg: Argument to pass
+	 */
+	void (*func)(void *arg);
+	void *arg;
+	int logical_cpu_number;
+};
+
 static struct mp_flight_plan mp_info;
 
-struct cpu_map {
-	struct udevice *dev;
-	int apic_id;
-	int err_code;
-};
+/*
+ * ap_callbacks - Callback mailbox array
+ *
+ * Array of callback, one entry for each available CPU, indexed by the CPU
+ * number, which is dev->req_seq. The entry for the main CPU is never used.
+ * When this is NULL, there is no pending work for the CPU to run. When
+ * non-NULL it points to the mp_callback structure. This is shared between all
+ * CPUs, so should only be written by the main CPU.
+ */
+static struct mp_callback **ap_callbacks;
 
 static inline void barrier_wait(atomic_t *b)
 {
@@ -147,11 +173,12 @@ static void ap_init(unsigned int cpu_index)
 	debug("AP: slot %d apic_id %x, dev %s\n", cpu_index, apic_id,
 	      dev ? dev->name : "(apic_id not found)");
 
-	/* Walk the flight plan */
+	/*
+	 * Walk the flight plan, which only returns if CONFIG_SMP_AP_WORK is not
+	 * enabled
+	 */
 	ap_do_flight_plan(dev);
 
-	/* Park the AP */
-	debug("parking\n");
 done:
 	stop_this_cpu();
 }
@@ -456,6 +483,81 @@ static int get_bsp(struct udevice **devp, int *cpu_countp)
 	return dev->req_seq >= 0 ? dev->req_seq : 0;
 }
 
+/**
+ * read_callback() - Read the pointer in a callback slot
+ *
+ * This is called by APs to read their callback slot to see if there is a
+ * pointer to new instructions
+ *
+ * @slot: Pointer to the AP's callback slot
+ * @return value of that pointer
+ */
+static struct mp_callback *read_callback(struct mp_callback **slot)
+{
+	dmb();
+
+	return *slot;
+}
+
+/**
+ * store_callback() - Store a pointer to the callback slot
+ *
+ * This is called by APs to write NULL into the callback slot when they have
+ * finished the work requested by the BSP.
+ *
+ * @slot: Pointer to the AP's callback slot
+ * @val: Value to write (e.g. NULL)
+ */
+static void store_callback(struct mp_callback **slot, struct mp_callback *val)
+{
+	*slot = val;
+	dmb();
+}
+
+/**
+ * ap_wait_for_instruction() - Wait for and process requests from the main CPU
+ *
+ * This is called by APs (here, everything other than the main boot CPU) to
+ * await instructions. They arrive in the form of a function call and argument,
+ * which is then called. This uses a simple mailbox with atomic read/set
+ *
+ * @cpu: CPU that is waiting
+ * @unused: Optional argument provided by struct mp_flight_record, not used here
+ * @return Does not return
+ */
+static int ap_wait_for_instruction(struct udevice *cpu, void *unused)
+{
+	struct mp_callback lcb;
+	struct mp_callback **per_cpu_slot;
+
+	if (!IS_ENABLED(CONFIG_SMP_AP_WORK))
+		return 0;
+
+	per_cpu_slot = &ap_callbacks[cpu->req_seq];
+
+	while (1) {
+		struct mp_callback *cb = read_callback(per_cpu_slot);
+
+		if (!cb) {
+			asm ("pause");
+			continue;
+		}
+
+		/* Copy to local variable before using the value */
+		memcpy(&lcb, cb, sizeof(lcb));
+		mfence();
+		if (lcb.logical_cpu_number == MP_SELECT_ALL ||
+		    lcb.logical_cpu_number == MP_SELECT_APS ||
+		    cpu->req_seq == lcb.logical_cpu_number)
+			lcb.func(lcb.arg);
+
+		/* Indicate we are finished */
+		store_callback(per_cpu_slot, NULL);
+	}
+
+	return 0;
+}
+
 static int mp_init_cpu(struct udevice *cpu, void *unused)
 {
 	struct cpu_platdata *plat = dev_get_parent_platdata(cpu);
@@ -468,6 +570,7 @@ static int mp_init_cpu(struct udevice *cpu, void *unused)
 
 static struct mp_flight_record mp_steps[] = {
 	MP_FR_BLOCK_APS(mp_init_cpu, NULL, mp_init_cpu, NULL),
+	MP_FR_BLOCK_APS(ap_wait_for_instruction, NULL, NULL, NULL),
 };
 
 int mp_init(void)
@@ -504,6 +607,10 @@ int mp_init(void)
 	ret = check_cpu_devices(num_cpus);
 	if (ret)
 		log_warning("Warning: Device tree does not describe all CPUs. Extra ones will not be started correctly\n");
+
+	ap_callbacks = calloc(num_cpus, sizeof(struct mp_callback *));
+	if (!ap_callbacks)
+		return -ENOMEM;
 
 	/* Copy needed parameters so that APs have a reference to the plan */
 	mp_info.num_records = ARRAY_SIZE(mp_steps);
