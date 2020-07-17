@@ -41,6 +41,9 @@ struct saved_msr {
 	uint32_t hi;
 } __packed;
 
+static struct mp_flight_record mp_steps[] = {
+	MP_FR_BLOCK_APS(mp_init_cpu, NULL, mp_init_cpu, NULL),
+};
 
 struct mp_flight_plan {
 	int num_records;
@@ -372,7 +375,7 @@ static int start_aps(int ap_count, atomic_t *num_aps)
 	return 0;
 }
 
-static int bsp_do_flight_plan(struct udevice *cpu, struct mp_params *mp_params)
+static int bsp_do_flight_plan(struct udevice *cpu, struct mp_flight_plan *plan)
 {
 	int i;
 	int ret = 0;
@@ -380,8 +383,8 @@ static int bsp_do_flight_plan(struct udevice *cpu, struct mp_params *mp_params)
 	const int step_us = 100;
 	int num_aps = num_cpus - 1;
 
-	for (i = 0; i < mp_params->num_records; i++) {
-		struct mp_flight_record *rec = &mp_params->flight_plan[i];
+	for (i = 0; i < plan->num_records; i++) {
+		struct mp_flight_record *rec = &plan->records[i];
 
 		/* Wait for APs if the record is not released */
 		if (atomic_read(&rec->barrier) == 0) {
@@ -420,7 +423,7 @@ static int init_bsp(struct udevice **devp)
 	return 0;
 }
 
-int mp_init(struct mp_params *p)
+int mp_init(void)
 {
 	int num_aps;
 	atomic_t *ap_count;
@@ -445,11 +448,6 @@ int mp_init(struct mp_params *p)
 		return ret;
 	}
 
-	if (p == NULL || p->flight_plan == NULL || p->num_records < 1) {
-		printf("Invalid MP parameters\n");
-		return -EINVAL;
-	}
-
 	num_cpus = cpu_get_count(cpu);
 	if (num_cpus < 0) {
 		debug("Cannot get number of CPUs: err=%d\n", num_cpus);
@@ -464,8 +462,8 @@ int mp_init(struct mp_params *p)
 		debug("Warning: Device tree does not describe all CPUs. Extra ones will not be started correctly\n");
 
 	/* Copy needed parameters so that APs have a reference to the plan */
-	mp_info.num_records = p->num_records;
-	mp_info.records = p->flight_plan;
+	mp_info.num_records = ARRAY_SIZE(mp_steps);
+	mp_info.records = mp_steps;
 
 	/* Load the SIPI vector */
 	ret = load_sipi_vector(&ap_count, num_cpus);
@@ -489,7 +487,7 @@ int mp_init(struct mp_params *p)
 	}
 
 	/* Walk the flight plan for the BSP */
-	ret = bsp_do_flight_plan(cpu, p);
+	ret = bsp_do_flight_plan(cpu, &mp_info);
 	if (ret) {
 		debug("CPU init failed: err=%d\n", ret);
 		return ret;

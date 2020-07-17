@@ -21,6 +21,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <init.h>
+#include <log.h>
 #include <malloc.h>
 #include <spl.h>
 #include <asm/control_regs.h>
@@ -631,29 +632,14 @@ int cpu_jump_to_64bit_uboot(ulong target)
 }
 
 #ifdef CONFIG_SMP
-static int enable_smis(struct udevice *cpu, void *unused)
-{
-	return 0;
-}
-
-static struct mp_flight_record mp_steps[] = {
-	MP_FR_BLOCK_APS(mp_init_cpu, NULL, mp_init_cpu, NULL),
-	/* Wait for APs to finish initialization before proceeding */
-	MP_FR_BLOCK_APS(NULL, NULL, enable_smis, NULL),
-};
-
 int x86_mp_init(void)
 {
-	struct mp_params mp_params;
+	int ret;
 
-	mp_params.parallel_microcode_load = 0,
-	mp_params.flight_plan = &mp_steps[0];
-	mp_params.num_records = ARRAY_SIZE(mp_steps);
-	mp_params.microcode_pointer = 0;
-
-	if (mp_init(&mp_params)) {
+	ret = mp_init();
+	if (ret) {
 		printf("Warning: MP init failure\n");
-		return -EIO;
+		return log_ret(ret);
 	}
 
 	return 0;

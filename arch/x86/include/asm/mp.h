@@ -52,21 +52,6 @@ struct mp_flight_record {
 	MP_FLIGHT_RECORD(1, ap_func, ap_arg, bsp_func, bsp_arg)
 
 /*
- * The mp_params structure provides the arguments to the mp subsystem
- * for bringing up APs.
- *
- * At present this is overkill for U-Boot, but it may make it easier to add
- * SMM support.
- */
-struct mp_params {
-	int parallel_microcode_load;
-	const void *microcode_pointer;
-	/* Flight plan  for APs and BSP */
-	struct mp_flight_record *flight_plan;
-	int num_records;
-};
-
-/*
  * mp_init() will set up the SIPI vector and bring up the APs according to
  * mp_params. Each flight record will be executed according to the plan. Note
  * that the MP infrastructure uses SMM default area without saving it. It's
@@ -85,7 +70,7 @@ struct mp_params {
  *
  * mp_init() returns < 0 on error, 0 on success.
  */
-int mp_init(struct mp_params *params);
+int mp_init(void);
 
 /* Probes the CPU device */
 int mp_init_cpu(struct udevice *cpu, void *unused);
