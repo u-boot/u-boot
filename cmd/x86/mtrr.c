@@ -59,14 +59,14 @@ static int do_mtrr_list(int cpu_select)
 	return 0;
 }
 
-static int do_mtrr_set(uint reg, int argc, char *const argv[])
+static int do_mtrr_set(int cpu_select, uint reg, int argc, char *const argv[])
 {
 	const char *typename = argv[0];
-	struct mtrr_state state;
 	uint32_t start, size;
 	uint64_t base, mask;
 	int i, type = -1;
 	bool valid;
+	int ret;
 
 	if (argc < 3)
 		return CMD_RET_USAGE;
@@ -88,27 +88,9 @@ static int do_mtrr_set(uint reg, int argc, char *const argv[])
 	if (valid)
 		mask |= MTRR_PHYS_MASK_VALID;
 
-	mtrr_open(&state, true);
-	wrmsrl(MTRR_PHYS_BASE_MSR(reg), base);
-	wrmsrl(MTRR_PHYS_MASK_MSR(reg), mask);
-	mtrr_close(&state, true);
-
-	return 0;
-}
-
-static int mtrr_set_valid_(int reg, bool valid)
-{
-	struct mtrr_state state;
-	uint64_t mask;
-
-	mtrr_open(&state, true);
-	mask = native_read_msr(MTRR_PHYS_MASK_MSR(reg));
-	if (valid)
-		mask |= MTRR_PHYS_MASK_VALID;
-	else
-		mask &= ~MTRR_PHYS_MASK_VALID;
-	wrmsrl(MTRR_PHYS_MASK_MSR(reg), mask);
-	mtrr_close(&state, true);
+	ret = mtrr_set(cpu_select, reg, base, mask);
+	if (ret)
+		return CMD_RET_FAILURE;
 
 	return 0;
 }
@@ -134,11 +116,11 @@ static int do_mtrr(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 	}
 	if (*cmd == 'e')
-		return mtrr_set_valid_(reg, true);
+		return mtrr_set_valid(cpu_select, reg, true);
 	else if (*cmd == 'd')
-		return mtrr_set_valid_(reg, false);
+		return mtrr_set_valid(cpu_select, reg, false);
 	else if (*cmd == 's')
-		return do_mtrr_set(reg, argc - 1, argv + 1);
+		return do_mtrr_set(cpu_select, reg, argc - 1, argv + 1);
 	else
 		return CMD_RET_USAGE;
 
