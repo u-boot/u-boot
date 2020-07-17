@@ -25,6 +25,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <init.h>
+#include <irq.h>
 #include <log.h>
 #include <malloc.h>
 #include <syscon.h>
@@ -269,9 +270,11 @@ int cpu_init_r(void)
 #ifndef CONFIG_EFI_STUB
 int reserve_arch(void)
 {
-#ifdef CONFIG_ENABLE_MRC_CACHE
-	mrccache_reserve();
-#endif
+	struct udevice *itss;
+	int ret;
+
+	if (IS_ENABLED(CONFIG_ENABLE_MRC_CACHE))
+		mrccache_reserve();
 
 #ifdef CONFIG_SEABIOS
 	high_table_reserve();
@@ -287,6 +290,15 @@ int reserve_arch(void)
 			 */
 			fsp_save_s3_stack();
 		}
+	}
+	ret = irq_first_device_type(X86_IRQT_ITSS, &itss);
+	if (!ret) {
+		/*
+		 * Snapshot the current GPIO IRQ polarities. FSP-S is about to
+		 * run and will set a default policy that doesn't honour boards'
+		 * requirements
+		 */
+		irq_snapshot_polarities(itss);
 	}
 
 	return 0;

@@ -121,6 +121,7 @@ struct arch_global_data {
 #ifdef CONFIG_FSP_VERSION2
 	struct fsp_header *fsp_s_hdr;	/* Pointer to FSP-S header */
 #endif
+	void *itss_priv;		/* Private ITSS data pointer */
 	ulong acpi_start;		/* Start address of ACPI tables */
 };
 

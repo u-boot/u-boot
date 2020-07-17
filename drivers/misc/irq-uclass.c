@@ -168,7 +168,7 @@ int irq_first_device_type(enum irq_dev_t type, struct udevice **devp)
 
 	ret = uclass_first_device_drvdata(UCLASS_IRQ, type, devp);
 	if (ret)
-		return log_msg_ret("find", ret);
+		return ret;
 
 	return 0;
 }

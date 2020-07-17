@@ -160,11 +160,6 @@ int arch_fsps_preinit(void)
 	ret = irq_first_device_type(X86_IRQT_ITSS, &itss);
 	if (ret)
 		return log_msg_ret("no itss", ret);
-	/*
-	 * Snapshot the current GPIO IRQ polarities. FSP is setting a default
-	 * policy that doesn't honour boards' requirements
-	 */
-	irq_snapshot_polarities(itss);
 
 	/*
 	 * Clear the GPI interrupt status and enable registers. These
@@ -203,7 +198,11 @@ int arch_fsp_init_r(void)
 	ret = irq_first_device_type(X86_IRQT_ITSS, &itss);
 	if (ret)
 		return log_msg_ret("no itss", ret);
-	/* Restore GPIO IRQ polarities back to previous settings */
+
+	/*
+	 * Restore GPIO IRQ polarities back to previous settings. This was
+	 * stored in reserve_arch() - see X86_IRQT_ITSS
+	 */
 	irq_restore_polarities(itss);
 
 	/* soc_init() */

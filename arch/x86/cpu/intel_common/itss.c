@@ -65,13 +65,22 @@ static int snapshot_polarities(struct udevice *dev)
 	int i;
 
 	reg_start = start / IRQS_PER_IPC;
-	reg_end = (end + IRQS_PER_IPC - 1) / IRQS_PER_IPC;
+	reg_end = DIV_ROUND_UP(end, IRQS_PER_IPC);
 
+	log_info("ITSS IRQ Polarities snapshot %p\n", priv->irq_snapshot);
 	for (i = reg_start; i < reg_end; i++) {
 		uint reg = PCR_ITSS_IPC0_CONF + sizeof(u32) * i;
 
 		priv->irq_snapshot[i] = pcr_read32(dev, reg);
+		log_debug("   - %d, reg %x: irq_snapshot[i] %x\n", i, reg,
+			  priv->irq_snapshot[i]);
 	}
+
+	/* Save the snapshot for use after relocation */
+	gd->start_addr_sp -= sizeof(*priv);
+	gd->start_addr_sp &= ~0xf;
+	gd->arch.itss_priv = (void *)gd->start_addr_sp;
+	memcpy(gd->arch.itss_priv, priv, sizeof(*priv));
 
 	return 0;
 }
@@ -91,16 +100,26 @@ static void show_polarities(struct udevice *dev, const char *msg)
 static int restore_polarities(struct udevice *dev)
 {
 	struct itss_priv *priv = dev_get_priv(dev);
+	struct itss_priv *old_priv;
 	const int start = GPIO_IRQ_START;
 	const int end = GPIO_IRQ_END;
 	int reg_start;
 	int reg_end;
 	int i;
 
+	/* Get the snapshot which was stored by the pre-reloc device */
+	old_priv = gd->arch.itss_priv;
+	if (!old_priv)
+		return log_msg_ret("priv", -EFAULT);
+	memcpy(priv->irq_snapshot, old_priv->irq_snapshot,
+	       sizeof(priv->irq_snapshot));
+
 	show_polarities(dev, "Before");
+	log_info("priv->irq_snapshot %p\n", priv->irq_snapshot);
 
 	reg_start = start / IRQS_PER_IPC;
-	reg_end = (end + IRQS_PER_IPC - 1) / IRQS_PER_IPC;
+	reg_end = DIV_ROUND_UP(end, IRQS_PER_IPC);
+
 
 	for (i = reg_start; i < reg_end; i++) {
 		u32 mask;
@@ -125,6 +144,8 @@ static int restore_polarities(struct udevice *dev)
 		mask &= ~((1U << irq_start) - 1);
 
 		reg = PCR_ITSS_IPC0_CONF + sizeof(u32) * i;
+		log_debug("   - %d, reg %x: mask %x, irq_snapshot[i] %x\n",
+			  i, reg, mask, priv->irq_snapshot[i]);
 		pcr_clrsetbits32(dev, reg, mask, mask & priv->irq_snapshot[i]);
 	}
 
