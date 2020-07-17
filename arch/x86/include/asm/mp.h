@@ -109,6 +109,15 @@ typedef void (*mp_run_func)(void *arg);
  * @return 0 on success, -ve on error
  */
 int mp_run_on_cpus(int cpu_select, mp_run_func func, void *arg);
+
+/**
+ * mp_park_aps() - Park the APs ready for the OS
+ *
+ * This halts all CPUs except the main one, ready for the OS to use them
+ *
+ * @return 0 if OK, -ve on error
+ */
+int mp_park_aps(void);
 #else
 static inline int mp_run_on_cpus(int cpu_select, mp_run_func func, void *arg)
 {
@@ -117,6 +126,14 @@ static inline int mp_run_on_cpus(int cpu_select, mp_run_func func, void *arg)
 
 	return 0;
 }
+
+static inline int mp_park_aps(void)
+{
+	/* No APs to park */
+
+	return 0;
+}
+
 #endif
 
 #endif /* _X86_MP_H_ */

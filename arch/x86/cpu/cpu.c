@@ -67,6 +67,11 @@ static const char *const x86_vendor_name[] = {
 
 int __weak x86_cleanup_before_linux(void)
 {
+	int ret;
+
+	ret = mp_park_aps();
+	if (ret)
+		return log_msg_ret("park", ret);
 	bootstage_stash((void *)CONFIG_BOOTSTAGE_STASH_ADDR,
 			CONFIG_BOOTSTAGE_STASH_SIZE);
 
