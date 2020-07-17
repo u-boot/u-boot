@@ -5,11 +5,14 @@
  *  Copyright (c) 2016 Alexander Graf
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <common.h>
 #include <blk.h>
 #include <dm.h>
 #include <efi_loader.h>
 #include <fs.h>
+#include <log.h>
 #include <part.h>
 #include <malloc.h>
 
@@ -490,7 +493,7 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 		ret = efi_disk_add_dev(parent, dp, if_typename, desc, diskid,
 				       info.start, part, NULL);
 		if (ret != EFI_SUCCESS) {
-			printf("Adding partition %s failed\n", pdevname);
+			log_err("Adding partition %s failed\n", pdevname);
 			continue;
 		}
 		disks++;
@@ -528,16 +531,16 @@ efi_status_t efi_disk_register(void)
 		const char *if_typename = blk_get_if_type_name(desc->if_type);
 
 		/* Add block device for the full device */
-		printf("Scanning disk %s...\n", dev->name);
+		log_info("Scanning disk %s...\n", dev->name);
 		ret = efi_disk_add_dev(NULL, NULL, if_typename,
 					desc, desc->devnum, 0, 0, &disk);
 		if (ret == EFI_NOT_READY) {
-			printf("Disk %s not ready\n", dev->name);
+			log_notice("Disk %s not ready\n", dev->name);
 			continue;
 		}
 		if (ret) {
-			printf("ERROR: failure to add disk device %s, r = %lu\n",
-			       dev->name, ret & ~EFI_ERROR_MASK);
+			log_err("ERROR: failure to add disk device %s, r = %lu\n",
+				dev->name, ret & ~EFI_ERROR_MASK);
 			return ret;
 		}
 		disks++;
@@ -560,7 +563,7 @@ efi_status_t efi_disk_register(void)
 			continue;
 
 		if_typename = cur_drvr->if_typename;
-		printf("Scanning disks on %s...\n", if_typename);
+		log_info("Scanning disks on %s...\n", if_typename);
 		for (i = 0; i < 4; i++) {
 			struct blk_desc *desc;
 			char devname[32] = { 0 }; /* dp->str is u16[32] long */
@@ -578,12 +581,12 @@ efi_status_t efi_disk_register(void)
 			ret = efi_disk_add_dev(NULL, NULL, if_typename, desc,
 					       i, 0, 0, &disk);
 			if (ret == EFI_NOT_READY) {
-				printf("Disk %s not ready\n", devname);
+				log_notice("Disk %s not ready\n", devname);
 				continue;
 			}
 			if (ret) {
-				printf("ERROR: failure to add disk device %s, r = %lu\n",
-				       devname, ret & ~EFI_ERROR_MASK);
+				log_err("ERROR: failure to add disk device %s, r = %lu\n",
+					devname, ret & ~EFI_ERROR_MASK);
 				return ret;
 			}
 			disks++;
@@ -595,7 +598,7 @@ efi_status_t efi_disk_register(void)
 		}
 	}
 #endif
-	printf("Found %d disks\n", disks);
+	log_info("Found %d disks\n", disks);
 
 	return EFI_SUCCESS;
 }
