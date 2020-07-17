@@ -24,7 +24,8 @@ int fspm_update_config(struct udevice *dev, struct fspm_upd *upd)
 	cache_ret = prepare_mrc_cache(upd);
 	if (cache_ret && cache_ret != -ENOENT)
 		return log_msg_ret("mrc", cache_ret);
-	arch->stack_base = (void *)0xfef96000;
+	arch->stack_base = (void *)(CONFIG_SYS_CAR_ADDR + CONFIG_SYS_CAR_SIZE -
+		 arch->stack_size);
 	arch->boot_loader_tolum_size = 0;
 	arch->boot_mode = cache_ret ? FSP_BOOT_WITH_FULL_CONFIGURATION :
 		FSP_BOOT_ASSUMING_NO_CONFIGURATION_CHANGES;
