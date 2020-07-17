@@ -159,6 +159,27 @@ int mtrr_set_next_var(uint type, uint64_t base, uint64_t size);
  */
 void mtrr_read_all(struct mtrr_info *info);
 
+/**
+ * mtrr_set_valid() - Set the valid flag for a selected MTRR and CPU(s)
+ *
+ * @cpu_select: Selected CPUs (either a CPU number or MP_SELECT_...)
+ * @reg: MTRR register to write (0-7)
+ * @valid: Valid flag to write
+ * @return 0 on success, -ve on error
+ */
+int mtrr_set_valid(int cpu_select, int reg, bool valid);
+
+/**
+ * mtrr_set() - Set the valid flag for a selected MTRR and CPU(s)
+ *
+ * @cpu_select: Selected CPUs (either a CPU number or MP_SELECT_...)
+ * @reg: MTRR register to write (0-7)
+ * @base: Base address and MTRR_BASE_TYPE_MASK
+ * @mask: Mask and MTRR_PHYS_MASK_VALID
+ * @return 0 on success, -ve on error
+ */
+int mtrr_set(int cpu_select, int reg, u64 base, u64 mask);
+
 #endif
 
 #if ((CONFIG_XIP_ROM_SIZE & (CONFIG_XIP_ROM_SIZE - 1)) != 0)

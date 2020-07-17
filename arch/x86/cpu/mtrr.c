@@ -221,3 +221,84 @@ int mtrr_set_next_var(uint type, uint64_t start, uint64_t size)
 
 	return 0;
 }
+
+/** enum mtrr_opcode - supported operations for mtrr_do_oper() */
+enum mtrr_opcode {
+	MTRR_OP_SET,
+	MTRR_OP_SET_VALID,
+};
+
+/**
+ * struct mtrr_oper - An MTRR operation to perform on a CPU
+ *
+ * @opcode: Indicates operation to perform
+ * @reg: MTRR reg number to select (0-7, -1 = all)
+ * @valid: Valid value to write for MTRR_OP_SET_VALID
+ * @base: Base value to write for MTRR_OP_SET
+ * @mask: Mask value to write for MTRR_OP_SET
+ */
+struct mtrr_oper {
+	enum mtrr_opcode opcode;
+	int reg;
+	bool valid;
+	u64 base;
+	u64 mask;
+};
+
+static void mtrr_do_oper(void *arg)
+{
+	struct mtrr_oper *oper = arg;
+	u64 mask;
+
+	switch (oper->opcode) {
+	case MTRR_OP_SET_VALID:
+		mask = native_read_msr(MTRR_PHYS_MASK_MSR(oper->reg));
+		if (oper->valid)
+			mask |= MTRR_PHYS_MASK_VALID;
+		else
+			mask &= ~MTRR_PHYS_MASK_VALID;
+		wrmsrl(MTRR_PHYS_MASK_MSR(oper->reg), mask);
+		break;
+	case MTRR_OP_SET:
+		wrmsrl(MTRR_PHYS_BASE_MSR(oper->reg), oper->base);
+		wrmsrl(MTRR_PHYS_MASK_MSR(oper->reg), oper->mask);
+		break;
+	}
+}
+
+static int mtrr_start_op(int cpu_select, struct mtrr_oper *oper)
+{
+	struct mtrr_state state;
+	int ret;
+
+	mtrr_open(&state, true);
+	ret = mp_run_on_cpus(cpu_select, mtrr_do_oper, oper);
+	mtrr_close(&state, true);
+	if (ret)
+		return log_msg_ret("run", ret);
+
+	return 0;
+}
+
+int mtrr_set_valid(int cpu_select, int reg, bool valid)
+{
+	struct mtrr_oper oper;
+
+	oper.opcode = MTRR_OP_SET_VALID;
+	oper.reg = reg;
+	oper.valid = valid;
+
+	return mtrr_start_op(cpu_select, &oper);
+}
+
+int mtrr_set(int cpu_select, int reg, u64 base, u64 mask)
+{
+	struct mtrr_oper oper;
+
+	oper.opcode = MTRR_OP_SET;
+	oper.reg = reg;
+	oper.base = base;
+	oper.mask = mask;
+
+	return mtrr_start_op(cpu_select, &oper);
+}

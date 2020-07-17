@@ -96,7 +96,7 @@ static int do_mtrr_set(uint reg, int argc, char *const argv[])
 	return 0;
 }
 
-static int mtrr_set_valid(int reg, bool valid)
+static int mtrr_set_valid_(int reg, bool valid)
 {
 	struct mtrr_state state;
 	uint64_t mask;
@@ -134,9 +134,9 @@ static int do_mtrr(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 	}
 	if (*cmd == 'e')
-		return mtrr_set_valid(reg, true);
+		return mtrr_set_valid_(reg, true);
 	else if (*cmd == 'd')
-		return mtrr_set_valid(reg, false);
+		return mtrr_set_valid_(reg, false);
 	else if (*cmd == 's')
 		return do_mtrr_set(reg, argc - 1, argv + 1);
 	else
