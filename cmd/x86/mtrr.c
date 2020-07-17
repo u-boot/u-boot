@@ -131,7 +131,27 @@ static int do_mtrr(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 	}
 	if (cmd == 'l') {
-		return do_mtrr_list(cpu_select);
+		bool first;
+		int i;
+
+		i = mp_first_cpu(cpu_select);
+		if (i < 0) {
+			printf("Invalid CPU (err=%d)\n", i);
+			return CMD_RET_FAILURE;
+		}
+		first = true;
+		for (; i >= 0; i = mp_next_cpu(cpu_select, i)) {
+			if (!first)
+				printf("\n");
+			printf("CPU %d:\n", i);
+			ret = do_mtrr_list(i);
+			if (ret) {
+				printf("Failed to read CPU %d (err=%d)\n", i,
+				       ret);
+				return CMD_RET_FAILURE;
+			}
+			first = false;
+		}
 	} else {
 		switch (cmd) {
 		case 'e':
