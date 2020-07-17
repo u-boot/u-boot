@@ -93,7 +93,7 @@ static int tegra20_sflash_ofdata_to_platdata(struct udevice *bus)
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
-	plat->base = devfdt_get_addr(bus);
+	plat->base = dev_read_addr(bus);
 	plat->periph_id = clock_decode_periph_id(bus);
 
 	if (plat->periph_id == PERIPH_ID_NONE) {

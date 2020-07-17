@@ -92,7 +92,7 @@ static int stm32mp_wdt_probe(struct udevice *dev)
 
 	debug("IWDG init\n");
 
-	priv->base = devfdt_get_addr(dev);
+	priv->base = dev_read_addr(dev);
 	if (priv->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

@@ -746,7 +746,7 @@ static int ave_ofdata_to_platdata(struct udevice *dev)
 	if (!priv->data)
 		return -EINVAL;
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	pdata->phy_interface = -1;
 	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
 			       NULL);

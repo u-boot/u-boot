@@ -422,7 +422,7 @@ int uniphier_pinctrl_probe(struct udevice *dev,
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
 
-	addr = devfdt_get_addr(dev->parent);
+	addr = dev_read_addr(dev->parent);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

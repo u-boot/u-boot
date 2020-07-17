@@ -461,7 +461,7 @@ static int ti_qspi_ofdata_to_platdata(struct udevice *bus)
 	fdt_addr_t mmap_size;
 
 	priv->ctrl_mod_mmap = map_syscon_chipselects(bus);
-	priv->base = map_physmem(devfdt_get_addr(bus),
+	priv->base = map_physmem(dev_read_addr(bus),
 				 sizeof(struct ti_qspi_regs), MAP_NOCACHE);
 	mmap_addr = devfdt_get_addr_size_index(bus, 1, &mmap_size);
 	priv->memory_map = map_physmem(mmap_addr, mmap_size, MAP_NOCACHE);

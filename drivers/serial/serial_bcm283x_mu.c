@@ -171,7 +171,7 @@ static int bcm283x_mu_serial_probe(struct udevice *dev)
 	 * since we need the soc simple-bus to be probed so that the 'ranges'
 	 * property is used.
 	 */
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

@@ -488,7 +488,7 @@ static int omap3_spi_probe(struct udevice *dev)
 	struct omap2_mcspi_platform_config* data =
 		(struct omap2_mcspi_platform_config*)dev_get_driver_data(dev);
 
-	priv->regs = (struct mcspi *)(devfdt_get_addr(dev) + data->regs_offset);
+	priv->regs = (struct mcspi *)(dev_read_addr(dev) + data->regs_offset);
 	if (fdtdec_get_bool(blob, node, "ti,pindir-d0-out-d1-in"))
 		priv->pin_dir = MCSPI_PINDIR_D0_OUT_D1_IN;
 	else

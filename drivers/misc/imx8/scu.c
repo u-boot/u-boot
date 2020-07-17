@@ -187,7 +187,7 @@ static int imx8_scu_probe(struct udevice *dev)
 
 	debug("%s(dev=%p) (plat=%p)\n", __func__, dev, plat);
 
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

@@ -1256,7 +1256,7 @@ static int ag7xxx_eth_ofdata_to_platdata(struct udevice *dev)
 	const char *phy_mode;
 	int ret;
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	pdata->phy_interface = -1;
 
 	/* Decoding of convoluted PHY wiring on Atheros MIPS. */
