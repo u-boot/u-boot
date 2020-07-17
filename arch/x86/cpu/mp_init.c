@@ -54,12 +54,7 @@ struct mp_flight_plan {
  *	callback
  */
 struct mp_callback {
-	/**
-	 * func() - Function to call on the AP
-	 *
-	 * @arg: Argument to pass
-	 */
-	void (*func)(void *arg);
+	mp_run_func func;
 	void *arg;
 	int logical_cpu_number;
 };
@@ -515,6 +510,70 @@ static void store_callback(struct mp_callback **slot, struct mp_callback *val)
 }
 
 /**
+ * run_ap_work() - Run a callback on selected APs
+ *
+ * This writes @callback to all APs and waits for them all to acknowledge it,
+ * Note that whether each AP actually calls the callback depends on the value
+ * of logical_cpu_number (see struct mp_callback). The logical CPU number is
+ * the CPU device's req->seq value.
+ *
+ * @callback: Callback information to pass to all APs
+ * @bsp: CPU device for the BSP
+ * @num_cpus: The number of CPUs in the system (= number of APs + 1)
+ * @expire_ms: Timeout to wait for all APs to finish, in milliseconds, or 0 for
+ *	no timeout
+ * @return 0 if OK, -ETIMEDOUT if one or more APs failed to respond in time
+ */
+static int run_ap_work(struct mp_callback *callback, struct udevice *bsp,
+		       int num_cpus, uint expire_ms)
+{
+	int cur_cpu = bsp->req_seq;
+	int num_aps = num_cpus - 1; /* number of non-BSPs to get this message */
+	int cpus_accepted;
+	ulong start;
+	int i;
+
+	if (!IS_ENABLED(CONFIG_SMP_AP_WORK)) {
+		printf("APs already parked. CONFIG_SMP_AP_WORK not enabled\n");
+		return -ENOTSUPP;
+	}
+
+	/* Signal to all the APs to run the func. */
+	for (i = 0; i < num_cpus; i++) {
+		if (cur_cpu != i)
+			store_callback(&ap_callbacks[i], callback);
+	}
+	mfence();
+
+	/* Wait for all the APs to signal back that call has been accepted. */
+	start = get_timer(0);
+
+	do {
+		mdelay(1);
+		cpus_accepted = 0;
+
+		for (i = 0; i < num_cpus; i++) {
+			if (cur_cpu == i)
+				continue;
+			if (!read_callback(&ap_callbacks[i]))
+				cpus_accepted++;
+		}
+
+		if (expire_ms && get_timer(start) >= expire_ms) {
+			log(UCLASS_CPU, LOGL_CRIT,
+			    "AP call expired; %d/%d CPUs accepted\n",
+			    cpus_accepted, num_aps);
+			return -ETIMEDOUT;
+		}
+	} while (cpus_accepted != num_aps);
+
+	/* Make sure we can see any data written by the APs */
+	mfence();
+
+	return 0;
+}
+
+/**
  * ap_wait_for_instruction() - Wait for and process requests from the main CPU
  *
  * This is called by APs (here, everything other than the main boot CPU) to
@@ -572,6 +631,42 @@ static struct mp_flight_record mp_steps[] = {
 	MP_FR_BLOCK_APS(mp_init_cpu, NULL, mp_init_cpu, NULL),
 	MP_FR_BLOCK_APS(ap_wait_for_instruction, NULL, NULL, NULL),
 };
+
+int mp_run_on_cpus(int cpu_select, mp_run_func func, void *arg)
+{
+	struct mp_callback lcb = {
+		.func = func,
+		.arg = arg,
+		.logical_cpu_number = cpu_select,
+	};
+	struct udevice *dev;
+	int num_cpus;
+	int ret;
+
+	ret = get_bsp(&dev, &num_cpus);
+	if (ret < 0)
+		return log_msg_ret("bsp", ret);
+	if (cpu_select == MP_SELECT_ALL || cpu_select == MP_SELECT_BSP ||
+	    cpu_select == ret) {
+		/* Run on BSP first */
+		func(arg);
+	}
+
+	if (!IS_ENABLED(CONFIG_SMP_AP_WORK) ||
+	    !(gd->flags & GD_FLG_SMP_READY)) {
+		/* Allow use of this function on the BSP only */
+		if (cpu_select == MP_SELECT_BSP || !cpu_select)
+			return 0;
+		return -ENOTSUPP;
+	}
+
+	/* Allow up to 1 second for all APs to finish */
+	ret = run_ap_work(&lcb, dev, num_cpus, 1000 /* ms */);
+	if (ret)
+		return log_msg_ret("aps", ret);
+
+	return 0;
+}
 
 int mp_init(void)
 {

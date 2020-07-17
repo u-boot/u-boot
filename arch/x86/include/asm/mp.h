@@ -86,4 +86,37 @@ int mp_init(void);
 /* Set up additional CPUs */
 int x86_mp_init(void);
 
+/**
+ * mp_run_func() - Function to call on the AP
+ *
+ * @arg: Argument to pass
+ */
+typedef void (*mp_run_func)(void *arg);
+
+#if defined(CONFIG_SMP) && !CONFIG_IS_ENABLED(X86_64)
+/**
+ * mp_run_on_cpus() - Run a function on one or all CPUs
+ *
+ * This does not return until all CPUs have completed the work
+ *
+ * Running on anything other than the boot CPU is only supported if
+ * CONFIG_SMP_AP_WORK is enabled
+ *
+ * @cpu_select: CPU to run on (its dev->req_seq value), or MP_SELECT_ALL for
+ *	all, or MP_SELECT_BSP for BSP
+ * @func: Function to run
+ * @arg: Argument to pass to the function
+ * @return 0 on success, -ve on error
+ */
+int mp_run_on_cpus(int cpu_select, mp_run_func func, void *arg);
+#else
+static inline int mp_run_on_cpus(int cpu_select, mp_run_func func, void *arg)
+{
+	/* There is only one CPU, so just call the function here */
+	func(arg);
+
+	return 0;
+}
+#endif
+
 #endif /* _X86_MP_H_ */
