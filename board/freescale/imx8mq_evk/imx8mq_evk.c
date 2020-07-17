@@ -53,17 +53,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-int dram_init(void)
-{
-	/* rom_pointer[1] contains the size of TEE occupies */
-	if (rom_pointer[1])
-		gd->ram_size = PHYS_SDRAM_SIZE - rom_pointer[1];
-	else
-		gd->ram_size = PHYS_SDRAM_SIZE;
-
-	return 0;
-}
-
 #ifdef CONFIG_FEC_MXC
 static int setup_fec(void)
 {

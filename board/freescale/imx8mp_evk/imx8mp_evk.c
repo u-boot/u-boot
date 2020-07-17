@@ -40,46 +40,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-int dram_init(void)
-{
-	/* rom_pointer[1] contains the size of TEE occupies */
-	if (rom_pointer[1])
-		gd->ram_size = PHYS_SDRAM_SIZE - rom_pointer[1];
-	else
-		gd->ram_size = PHYS_SDRAM_SIZE;
-
-#if CONFIG_NR_DRAM_BANKS > 1
-	gd->ram_size += PHYS_SDRAM_2_SIZE;
-#endif
-
-	return 0;
-}
-
-int dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = PHYS_SDRAM;
-	if (rom_pointer[1])
-
-		gd->bd->bi_dram[0].size = PHYS_SDRAM_SIZE - rom_pointer[1];
-	else
-		gd->bd->bi_dram[0].size = PHYS_SDRAM_SIZE;
-
-#if CONFIG_NR_DRAM_BANKS > 1
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
-#endif
-
-	return 0;
-}
-
-phys_size_t get_effective_memsize(void)
-{
-	if (rom_pointer[1])
-		return (PHYS_SDRAM_SIZE - rom_pointer[1]);
-	else
-		return PHYS_SDRAM_SIZE;
-}
-
 int board_init(void)
 {
 	return 0;

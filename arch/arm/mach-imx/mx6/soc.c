@@ -22,6 +22,7 @@
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
 #include <dm.h>
+#include <fsl_sec.h>
 #include <imx_thermal.h>
 #include <mmc.h>
 
@@ -691,6 +692,15 @@ void imx_setup_hdmi(void)
 }
 #endif
 
+#ifdef CONFIG_ARCH_MISC_INIT
+int arch_misc_init(void)
+{
+#ifdef CONFIG_FSL_CAAM
+	sec_init();
+#endif
+	return 0;
+}
+#endif
 
 /*
  * gpr_init() function is common for boards using MX6S, MX6DL, MX6D,

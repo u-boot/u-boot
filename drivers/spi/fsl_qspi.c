@@ -46,6 +46,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * read operation, so let's use the last entry (15).
  */
 #define	SEQID_LUT			15
+#define	SEQID_LUT_AHB		14
 
 /* Registers used by the driver */
 #define QUADSPI_MCR			0x00
@@ -122,6 +123,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define QUADSPI_LUT_REG(idx) \
 	(QUADSPI_LUT_BASE + QUADSPI_LUT_OFFSET + (idx) * 4)
 
+#define QUADSPI_AHB_LUT_OFFSET		(SEQID_LUT_AHB * 4 * 4)
+#define QUADSPI_AHB_LUT_REG(idx) \
+	(QUADSPI_LUT_BASE + QUADSPI_AHB_LUT_OFFSET + (idx) * 4)
+
 /* Instruction set for the LUT register */
 #define LUT_STOP		0
 #define LUT_CMD			1
@@ -189,6 +194,11 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 #define QUADSPI_QUIRK_USE_TDH_SETTING	BIT(5)
 
+/*
+ * Controller only has Two CS on flash A, no flash B port
+ */
+#define QUADSPI_QUIRK_SINGLE_BUS		BIT(6)
+
 struct fsl_qspi_devtype_data {
 	unsigned int rxfifo;
 	unsigned int txfifo;
@@ -231,6 +241,15 @@ static const struct fsl_qspi_devtype_data imx6ul_data = {
 	.little_endian = true,
 };
 
+static const struct fsl_qspi_devtype_data imx7ulp_data = {
+	.rxfifo = SZ_64,
+	.txfifo = SZ_64,
+	.ahb_buf_size = SZ_128,
+	.quirks = QUADSPI_QUIRK_TKT253890 | QUADSPI_QUIRK_4X_INT_CLK |
+		  QUADSPI_QUIRK_USE_TDH_SETTING | QUADSPI_QUIRK_SINGLE_BUS,
+	.little_endian = true,
+};
+
 static const struct fsl_qspi_devtype_data ls1021a_data = {
 	.rxfifo = SZ_128,
 	.txfifo = SZ_64,
@@ -260,6 +279,7 @@ struct fsl_qspi {
 	void __iomem *iobase;
 	void __iomem *ahb_addr;
 	u32 memmap_phy;
+	u32 memmap_size;
 	const struct fsl_qspi_devtype_data *devtype_data;
 	int selected;
 };
@@ -292,6 +312,11 @@ static inline int needs_amba_base_offset(struct fsl_qspi *q)
 static inline int needs_tdh_setting(struct fsl_qspi *q)
 {
 	return q->devtype_data->quirks & QUADSPI_QUIRK_USE_TDH_SETTING;
+}
+
+static inline int needs_single_bus(struct fsl_qspi *q)
+{
+	return q->devtype_data->quirks & QUADSPI_QUIRK_SINGLE_BUS;
 }
 
 /*
@@ -396,18 +421,27 @@ static void fsl_qspi_prepare_lut(struct fsl_qspi *q,
 	lutval[0] |= LUT_DEF(0, LUT_CMD, LUT_PAD(op->cmd.buswidth),
 			     op->cmd.opcode);
 
-	/*
-	 * For some unknown reason, using LUT_ADDR doesn't work in some
-	 * cases (at least with only one byte long addresses), so
-	 * let's use LUT_MODE to write the address bytes one by one
-	 */
-	for (i = 0; i < op->addr.nbytes; i++) {
-		u8 addrbyte = op->addr.val >> (8 * (op->addr.nbytes - i - 1));
+	if (IS_ENABLED(CONFIG_FSL_QSPI_AHB_FULL_MAP)) {
+		if (op->addr.nbytes) {
+			lutval[lutidx / 2] |= LUT_DEF(lutidx, LUT_ADDR,
+						      LUT_PAD(op->addr.buswidth),
+						      (op->addr.nbytes == 4) ? 0x20 : 0x18);
+			lutidx++;
+		}
+	} else {
+		/*
+		 * For some unknown reason, using LUT_ADDR doesn't work in some
+		 * cases (at least with only one byte long addresses), so
+		 * let's use LUT_MODE to write the address bytes one by one
+		 */
+		for (i = 0; i < op->addr.nbytes; i++) {
+			u8 addrbyte = op->addr.val >> (8 * (op->addr.nbytes - i - 1));
 
-		lutval[lutidx / 2] |= LUT_DEF(lutidx, LUT_MODE,
-					      LUT_PAD(op->addr.buswidth),
-					      addrbyte);
-		lutidx++;
+			lutval[lutidx / 2] |= LUT_DEF(lutidx, LUT_MODE,
+						      LUT_PAD(op->addr.buswidth),
+						      addrbyte);
+			lutidx++;
+		}
 	}
 
 	if (op->dummy.nbytes) {
@@ -439,6 +473,14 @@ static void fsl_qspi_prepare_lut(struct fsl_qspi *q,
 	/* fill LUT */
 	for (i = 0; i < ARRAY_SIZE(lutval); i++)
 		qspi_writel(q, lutval[i], base + QUADSPI_LUT_REG(i));
+
+	if (IS_ENABLED(CONFIG_FSL_QSPI_AHB_FULL_MAP)) {
+		if (op->data.nbytes && op->data.dir == SPI_MEM_DATA_IN &&
+		    op->addr.nbytes) {
+			for (i = 0; i < ARRAY_SIZE(lutval); i++)
+				qspi_writel(q, lutval[i], base + QUADSPI_AHB_LUT_REG(i));
+		}
+	}
 
 	/* lock LUT */
 	qspi_writel(q, QUADSPI_LUTKEY_VALUE, q->iobase + QUADSPI_LUTKEY);
@@ -482,10 +524,29 @@ static void fsl_qspi_select_mem(struct fsl_qspi *q, struct spi_slave *slave)
 	fsl_qspi_invalidate(q);
 }
 
+static u32 fsl_qspi_memsize_per_cs(struct fsl_qspi *q)
+{
+	if (IS_ENABLED(CONFIG_FSL_QSPI_AHB_FULL_MAP)) {
+		if (needs_single_bus(q))
+			return q->memmap_size / 2;
+		else
+			return q->memmap_size / 4;
+	} else {
+		return ALIGN(q->devtype_data->ahb_buf_size, 0x400);
+	}
+}
+
 static void fsl_qspi_read_ahb(struct fsl_qspi *q, const struct spi_mem_op *op)
 {
+	void __iomem *ahb_read_addr = q->ahb_addr;
+
+	if (IS_ENABLED(CONFIG_FSL_QSPI_AHB_FULL_MAP)) {
+		if (op->addr.nbytes)
+			ahb_read_addr += op->addr.val;
+	}
+
 	memcpy_fromio(op->data.buf.in,
-		      q->ahb_addr + q->selected * q->devtype_data->ahb_buf_size,
+		      ahb_read_addr + q->selected * fsl_qspi_memsize_per_cs(q),
 		      op->data.nbytes);
 }
 
@@ -588,8 +649,13 @@ static int fsl_qspi_exec_op(struct spi_slave *slave,
 	if (needs_amba_base_offset(q))
 		addr_offset = q->memmap_phy;
 
+	if (IS_ENABLED(CONFIG_FSL_QSPI_AHB_FULL_MAP)) {
+		if (op->addr.nbytes)
+			addr_offset += op->addr.val;
+	}
+
 	qspi_writel(q,
-		    q->selected * q->devtype_data->ahb_buf_size + addr_offset,
+		    q->selected * fsl_qspi_memsize_per_cs(q) + addr_offset,
 		    base + QUADSPI_SFAR);
 
 	qspi_writel(q, qspi_readl(q, base + QUADSPI_MCR) |
@@ -646,7 +712,7 @@ static int fsl_qspi_adjust_op_size(struct spi_slave *slave,
 static int fsl_qspi_default_setup(struct fsl_qspi *q)
 {
 	void __iomem *base = q->iobase;
-	u32 reg, addr_offset = 0;
+	u32 reg, addr_offset = 0, memsize_cs;
 
 	/* Reset the module */
 	qspi_writel(q, QUADSPI_MCR_SWRSTSD_MASK | QUADSPI_MCR_SWRSTHD_MASK,
@@ -678,8 +744,13 @@ static int fsl_qspi_default_setup(struct fsl_qspi *q)
 	qspi_writel(q, 0, base + QUADSPI_BUF1IND);
 	qspi_writel(q, 0, base + QUADSPI_BUF2IND);
 
-	qspi_writel(q, QUADSPI_BFGENCR_SEQID(SEQID_LUT),
-		    q->iobase + QUADSPI_BFGENCR);
+	if (IS_ENABLED(CONFIG_FSL_QSPI_AHB_FULL_MAP))
+		qspi_writel(q, QUADSPI_BFGENCR_SEQID(SEQID_LUT_AHB),
+			    q->iobase + QUADSPI_BFGENCR);
+	else
+		qspi_writel(q, QUADSPI_BFGENCR_SEQID(SEQID_LUT),
+			    q->iobase + QUADSPI_BFGENCR);
+
 	qspi_writel(q, QUADSPI_RBCT_WMRK_MASK, base + QUADSPI_RBCT);
 	qspi_writel(q, QUADSPI_BUF3CR_ALLMST_MASK |
 		    QUADSPI_BUF3CR_ADATSZ(q->devtype_data->ahb_buf_size / 8),
@@ -695,14 +766,17 @@ static int fsl_qspi_default_setup(struct fsl_qspi *q)
 	 * We use ahb_buf_size for each chip and set SFA1AD, SFA2AD, SFB1AD,
 	 * SFB2AD accordingly.
 	 */
-	qspi_writel(q, q->devtype_data->ahb_buf_size + addr_offset,
+	memsize_cs = fsl_qspi_memsize_per_cs(q);
+	qspi_writel(q, memsize_cs + addr_offset,
 		    base + QUADSPI_SFA1AD);
-	qspi_writel(q, q->devtype_data->ahb_buf_size * 2 + addr_offset,
+	qspi_writel(q, memsize_cs * 2 + addr_offset,
 		    base + QUADSPI_SFA2AD);
-	qspi_writel(q, q->devtype_data->ahb_buf_size * 3 + addr_offset,
-		    base + QUADSPI_SFB1AD);
-	qspi_writel(q, q->devtype_data->ahb_buf_size * 4 + addr_offset,
-		    base + QUADSPI_SFB2AD);
+	if (!needs_single_bus(q)) {
+		qspi_writel(q, memsize_cs * 3 + addr_offset,
+			    base + QUADSPI_SFB1AD);
+		qspi_writel(q, memsize_cs * 4 + addr_offset,
+			    base + QUADSPI_SFB2AD);
+	}
 
 	q->selected = -1;
 
@@ -750,6 +824,7 @@ static int fsl_qspi_probe(struct udevice *bus)
 
 	q->ahb_addr = map_physmem(res.start, res.end - res.start, MAP_NOCACHE);
 	q->memmap_phy = res.start;
+	q->memmap_size = res.end - res.start;
 
 	dm_bus->max_hz = fdtdec_get_int(blob, node, "spi-max-frequency",
 					66000000);
@@ -799,6 +874,7 @@ static const struct udevice_id fsl_qspi_ids[] = {
 	{ .compatible = "fsl,imx6sx-qspi", .data = (ulong)&imx6sx_data, },
 	{ .compatible = "fsl,imx6ul-qspi", .data = (ulong)&imx6ul_data, },
 	{ .compatible = "fsl,imx7d-qspi", .data = (ulong)&imx7d_data, },
+	{ .compatible = "fsl,imx7ulp-qspi", .data = (ulong)&imx7ulp_data, },
 	{ .compatible = "fsl,ls1021a-qspi", .data = (ulong)&ls1021a_data, },
 	{ .compatible = "fsl,ls1088a-qspi", .data = (ulong)&ls1088a_data, },
 	{ .compatible = "fsl,ls2080a-qspi", .data = (ulong)&ls2080a_data, },

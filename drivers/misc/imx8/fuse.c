@@ -9,6 +9,7 @@
 #include <fuse.h>
 #include <asm/arch/sci/sci.h>
 #include <asm/arch/sys_proto.h>
+#include <linux/arm-smccc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -36,22 +37,24 @@ int fuse_read(u32 bank, u32 word, u32 *val)
 
 int fuse_sense(u32 bank, u32 word, u32 *val)
 {
-	unsigned long ret = 0, value = 0;
+	struct arm_smccc_res res;
 
 	if (bank != 0) {
 		printf("Invalid bank argument, ONLY bank 0 is supported\n");
 		return -EINVAL;
 	}
 
-	ret = call_imx_sip_ret2(FSL_SIP_OTP_READ, (unsigned long)word, &value,
-				0, 0);
-	*val = (u32)value;
+	arm_smccc_smc(FSL_SIP_OTP_READ, (unsigned long)word, 0, 0,
+		      0, 0, 0, 0, &res);
+	*val = (u32)res.a1;
 
-	return ret;
+	return res.a0;
 }
 
 int fuse_prog(u32 bank, u32 word, u32 val)
 {
+	struct arm_smccc_res res;
+
 	if (bank != 0) {
 		printf("Invalid bank argument, ONLY bank 0 is supported\n");
 		return -EINVAL;
@@ -78,8 +81,10 @@ int fuse_prog(u32 bank, u32 word, u32 val)
 		}
 	}
 
-	return call_imx_sip(FSL_SIP_OTP_WRITE, (unsigned long)word,
-			    (unsigned long)val, 0, 0);
+	arm_smccc_smc(FSL_SIP_OTP_WRITE, (unsigned long)word,
+		      (unsigned long)val, 0, 0, 0, 0, 0, &res);
+
+	return res.a0;
 }
 
 int fuse_override(u32 bank, u32 word, u32 val)

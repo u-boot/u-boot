@@ -22,8 +22,8 @@ If the eMMC has already a U-Boot flashed with DFU support then
 the user can go to step 2 below in order to update U-Boot.
 
 Put pico board in USB download mode (refer to the document
-http://www.wandboard.org/images/hobbit/hobbitboard-imx6ul-reva1.pdf
-page 15).
+https://www.nxp.com/files-static/32bit/doc/quick_start_guide/PICO-IMX6UL-QSG.pdf
+Figure 6a at page 7).
 
 Connect a USB to serial adapter between the host PC and pico.
 

@@ -80,6 +80,10 @@ static const char *imx8mp_main_axi_sels[] = {"clock-osc-24m", "sys_pll2_333m", "
 					     "sys_pll2_250m", "sys_pll2_1000m", "audio_pll1_out",
 					     "video_pll1_out", "sys_pll1_100m",};
 
+static const char *imx8mp_enet_axi_sels[] = {"clock-osc-24m", "sys_pll1_266m", "sys_pll1_800m",
+					     "sys_pll2_250m", "sys_pll2_200m", "audio_pll1_out",
+					     "video_pll1_out", "sys_pll3_out", };
+
 static const char *imx8mp_nand_usdhc_sels[] = {"clock-osc-24m", "sys_pll1_266m", "sys_pll1_800m",
 					       "sys_pll2_200m", "sys_pll1_133m", "sys_pll3_out",
 					       "sys_pll2_250m", "audio_pll1_out", };
@@ -160,9 +164,25 @@ static const char *imx8mp_wdog_sels[] = {"clock-osc-24m", "sys_pll1_133m", "sys_
 					 "vpu_pll_out", "sys_pll2_125m", "sys_pll3_out",
 					 "sys_pll1_80m", "sys_pll2_166m" };
 
+static const char *imx8mp_qspi_sels[] = {"clock-osc-24m", "sys_pll1_400m", "sys_pll2_333m",
+					 "sys_pll2_500m", "audio_pll2_out", "sys_pll1_266m",
+					 "sys_pll3_out", "sys_pll1_100m", };
+
 static const char *imx8mp_usdhc3_sels[] = {"clock-osc-24m", "sys_pll1_400m", "sys_pll1_800m",
 					   "sys_pll2_500m", "sys_pll3_out", "sys_pll1_266m",
 					   "audio_pll2_out", "sys_pll1_100m", };
+
+static const char *imx8mp_enet_ref_sels[] = {"clock-osc-24m", "sys_pll2_125m", "sys_pll2_50m",
+					     "sys_pll2_100m", "sys_pll1_160m", "audio_pll1_out",
+					     "video_pll1_out", "clk_ext4", };
+
+static const char *imx8mp_enet_timer_sels[] = {"clock-osc-24m", "sys_pll2_100m", "audio_pll1_out",
+					       "clk_ext1", "clk_ext2", "clk_ext3",
+					       "clk_ext4", "video_pll1_out", };
+
+static const char *imx8mp_enet_phy_ref_sels[] = {"clock-osc-24m", "sys_pll2_50m", "sys_pll2_125m",
+						 "sys_pll2_200m", "sys_pll2_500m", "audio_pll1_out",
+						 "video_pll1_out", "audio_pll2_out", };
 
 static const char *imx8mp_dram_core_sels[] = {"dram_pll_out", "dram_alt_root", };
 
@@ -224,11 +244,34 @@ static int imx8mp_clk_enable(struct clk *clk)
 	return __imx8mp_clk_enable(clk, 1);
 }
 
+static int imx8mp_clk_set_parent(struct clk *clk, struct clk *parent)
+{
+	struct clk *c, *cp;
+	int ret;
+
+	debug("%s(#%lu), parent: %lu\n", __func__, clk->id, parent->id);
+
+	ret = clk_get_by_id(clk->id, &c);
+	if (ret)
+		return ret;
+
+	ret = clk_get_by_id(parent->id, &cp);
+	if (ret)
+		return ret;
+
+	ret = clk_set_parent(c, cp);
+
+	c->dev->parent = cp->dev;
+
+	return ret;
+}
+
 static struct clk_ops imx8mp_clk_ops = {
 	.set_rate = imx8mp_clk_set_rate,
 	.get_rate = imx8mp_clk_get_rate,
 	.enable = imx8mp_clk_enable,
 	.disable = imx8mp_clk_disable,
+	.set_parent = imx8mp_clk_set_parent,
 };
 
 static int imx8mp_clk_probe(struct udevice *dev)
@@ -290,6 +333,7 @@ static int imx8mp_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MP_CLK_A53_DIV, imx_clk_divider2("arm_a53_div", "arm_a53_cg", base + 0x8000, 0, 3));
 
 	clk_dm(IMX8MP_CLK_MAIN_AXI, imx8m_clk_composite_critical("main_axi", imx8mp_main_axi_sels, base + 0x8800));
+	clk_dm(IMX8MP_CLK_ENET_AXI, imx8m_clk_composite_critical("enet_axi", imx8mp_enet_axi_sels, base + 0x8880));
 	clk_dm(IMX8MP_CLK_NAND_USDHC_BUS, imx8m_clk_composite_critical("nand_usdhc_bus", imx8mp_nand_usdhc_sels, base + 0x8900));
 	clk_dm(IMX8MP_CLK_NOC, imx8m_clk_composite_critical("noc", imx8mp_noc_sels, base + 0x8d00));
 	clk_dm(IMX8MP_CLK_NOC_IO, imx8m_clk_composite_critical("noc_io", imx8mp_noc_io_sels, base + 0x8d80));
@@ -302,6 +346,10 @@ static int imx8mp_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MP_CLK_DRAM_APB, imx8m_clk_composite_critical("dram_apb", imx8mp_dram_apb_sels, base + 0xa080));
 	clk_dm(IMX8MP_CLK_I2C5, imx8m_clk_composite("i2c5", imx8mp_i2c5_sels, base + 0xa480));
 	clk_dm(IMX8MP_CLK_I2C6, imx8m_clk_composite("i2c6", imx8mp_i2c6_sels, base + 0xa500));
+	clk_dm(IMX8MP_CLK_ENET_REF, imx8m_clk_composite("enet_ref", imx8mp_enet_ref_sels, base + 0xa980));
+	clk_dm(IMX8MP_CLK_ENET_TIMER, imx8m_clk_composite("enet_timer", imx8mp_enet_timer_sels, base + 0xaa00));
+	clk_dm(IMX8MP_CLK_ENET_PHY_REF, imx8m_clk_composite("enet_phy_ref", imx8mp_enet_phy_ref_sels, base + 0xaa80));
+	clk_dm(IMX8MP_CLK_QSPI, imx8m_clk_composite("qspi", imx8mp_qspi_sels, base + 0xab80));
 	clk_dm(IMX8MP_CLK_USDHC1, imx8m_clk_composite("usdhc1", imx8mp_usdhc1_sels, base + 0xac00));
 	clk_dm(IMX8MP_CLK_USDHC2, imx8m_clk_composite("usdhc2", imx8mp_usdhc2_sels, base + 0xac80));
 	clk_dm(IMX8MP_CLK_I2C1, imx8m_clk_composite("i2c1", imx8mp_i2c1_sels, base + 0xad00));
@@ -322,6 +370,8 @@ static int imx8mp_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MP_CLK_DRAM_CORE, imx_clk_mux2_flags("dram_core_clk", base + 0x9800, 24, 1, imx8mp_dram_core_sels, ARRAY_SIZE(imx8mp_dram_core_sels), CLK_IS_CRITICAL));
 
 	clk_dm(IMX8MP_CLK_DRAM1_ROOT, imx_clk_gate4_flags("dram1_root_clk", "dram_core_clk", base + 0x4050, 0, CLK_IS_CRITICAL));
+
+	clk_dm(IMX8MP_CLK_ENET1_ROOT, imx_clk_gate4("enet1_root_clk", "enet_axi", base + 0x40a0, 0));
 	clk_dm(IMX8MP_CLK_GPIO1_ROOT, imx_clk_gate4("gpio1_root_clk", "ipg_root", base + 0x40b0, 0));
 	clk_dm(IMX8MP_CLK_GPIO2_ROOT, imx_clk_gate4("gpio2_root_clk", "ipg_root", base + 0x40c0, 0));
 	clk_dm(IMX8MP_CLK_GPIO3_ROOT, imx_clk_gate4("gpio3_root_clk", "ipg_root", base + 0x40d0, 0));
@@ -331,8 +381,10 @@ static int imx8mp_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MP_CLK_I2C2_ROOT, imx_clk_gate4("i2c2_root_clk", "i2c2", base + 0x4180, 0));
 	clk_dm(IMX8MP_CLK_I2C3_ROOT, imx_clk_gate4("i2c3_root_clk", "i2c3", base + 0x4190, 0));
 	clk_dm(IMX8MP_CLK_I2C4_ROOT, imx_clk_gate4("i2c4_root_clk", "i2c4", base + 0x41a0, 0));
+	clk_dm(IMX8MP_CLK_QSPI_ROOT, imx_clk_gate4("qspi_root_clk", "qspi", base + 0x42f0, 0));
 	clk_dm(IMX8MP_CLK_I2C5_ROOT, imx_clk_gate2("i2c5_root_clk", "i2c5", base + 0x4330, 0));
 	clk_dm(IMX8MP_CLK_I2C6_ROOT, imx_clk_gate2("i2c6_root_clk", "i2c6", base + 0x4340, 0));
+	clk_dm(IMX8MP_CLK_SIM_ENET_ROOT, imx_clk_gate4("sim_enet_root_clk", "enet_axi", base + 0x4400, 0));
 	clk_dm(IMX8MP_CLK_UART1_ROOT, imx_clk_gate4("uart1_root_clk", "uart1", base + 0x4490, 0));
 	clk_dm(IMX8MP_CLK_UART2_ROOT, imx_clk_gate4("uart2_root_clk", "uart2", base + 0x44a0, 0));
 	clk_dm(IMX8MP_CLK_UART3_ROOT, imx_clk_gate4("uart3_root_clk", "uart3", base + 0x44b0, 0));

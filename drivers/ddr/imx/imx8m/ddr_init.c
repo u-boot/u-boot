@@ -21,6 +21,76 @@ void ddr_cfg_umctl2(struct dram_cfg_param *ddrc_cfg, int num)
 	}
 }
 
+#ifdef CONFIG_IMX8M_DRAM_INLINE_ECC
+void ddrc_inline_ecc_scrub(unsigned int start_address,
+			   unsigned int range_address)
+{
+	unsigned int tmp;
+
+	/* Step1: Enable quasi-dynamic programming */
+	reg32_write(DDRC_SWCTL(0), 0x00000000);
+	/* Step2: Set ECCCFG1.ecc_parity_region_lock to 1 */
+	reg32setbit(DDRC_ECCCFG1(0), 0x4);
+	/* Step3: Block the AXI ports from taking the transaction */
+	reg32_write(DDRC_PCTRL_0(0), 0x0);
+	/* Step4: Set scrub start address */
+	reg32_write(DDRC_SBRSTART0(0), start_address);
+	/* Step5: Set scrub range address */
+	reg32_write(DDRC_SBRRANGE0(0), range_address);
+	/* Step6: Set scrub_mode to write */
+	reg32_write(DDRC_SBRCTL(0), 0x00000014);
+	/* Step7: Set the desired pattern through SBRWDATA0 registers */
+	reg32_write(DDRC_SBRWDATA0(0), 0x55aa55aa);
+	/* Step8: Enable the SBR by programming SBRCTL.scrub_en=1 */
+	reg32setbit(DDRC_SBRCTL(0), 0x0);
+	/* Step9: Poll SBRSTAT.scrub_done=1 */
+	tmp = reg32_read(DDRC_SBRSTAT(0));
+	while (tmp != 0x00000002)
+		tmp = reg32_read(DDRC_SBRSTAT(0)) & 0x2;
+	/* Step10: Poll SBRSTAT.scrub_busy=0 */
+	tmp = reg32_read(DDRC_SBRSTAT(0));
+	while (tmp != 0x0)
+		tmp = reg32_read(DDRC_SBRSTAT(0)) & 0x1;
+	/* Step11: Disable SBR by programming SBRCTL.scrub_en=0 */
+	clrbits_le32(DDRC_SBRCTL(0), 0x1);
+	/* Step12: Prepare for normal scrub operation(Read) and set scrub_interval*/
+	reg32_write(DDRC_SBRCTL(0), 0x100);
+	/* Step13: Enable the SBR by programming SBRCTL.scrub_en=1 */
+	reg32_write(DDRC_SBRCTL(0), 0x101);
+	/* Step14: Enable AXI ports by programming */
+	reg32_write(DDRC_PCTRL_0(0), 0x1);
+	/* Step15: Disable quasi-dynamic programming */
+	reg32_write(DDRC_SWCTL(0), 0x00000001);
+}
+
+void ddrc_inline_ecc_scrub_end(unsigned int start_address,
+			       unsigned int range_address)
+{
+	/* Step1: Enable quasi-dynamic programming */
+	reg32_write(DDRC_SWCTL(0), 0x00000000);
+	/* Step2: Block the AXI ports from taking the transaction */
+	reg32_write(DDRC_PCTRL_0(0), 0x0);
+	/* Step3: Set scrub start address */
+	reg32_write(DDRC_SBRSTART0(0), start_address);
+	/* Step4: Set scrub range address */
+	reg32_write(DDRC_SBRRANGE0(0), range_address);
+	/* Step5: Disable SBR by programming SBRCTL.scrub_en=0 */
+	clrbits_le32(DDRC_SBRCTL(0), 0x1);
+	/* Step6: Prepare for normal scrub operation(Read) and set scrub_interval */
+	reg32_write(DDRC_SBRCTL(0), 0x100);
+	/* Step7: Enable the SBR by programming SBRCTL.scrub_en=1 */
+	reg32_write(DDRC_SBRCTL(0), 0x101);
+	/* Step8: Enable AXI ports by programming */
+	reg32_write(DDRC_PCTRL_0(0), 0x1);
+	/* Step9: Disable quasi-dynamic programming */
+	reg32_write(DDRC_SWCTL(0), 0x00000001);
+}
+#endif
+
+void __weak board_dram_ecc_scrub(void)
+{
+}
+
 int ddr_init(struct dram_timing_info *dram_timing)
 {
 	unsigned int tmp, initial_drate, target_freq;
@@ -74,7 +144,7 @@ int ddr_init(struct dram_timing_info *dram_timing)
 
 	/* if ddr type is LPDDR4, do it */
 	tmp = reg32_read(DDRC_MSTR(0));
-	if (tmp & (0x1 << 5))
+	if (tmp & (0x1 << 5) && !is_imx8mn())
 		reg32_write(DDRC_DDR_SS_GPR0, 0x01); /* LPDDR4 mode */
 
 	/* determine the initial boot frequency */
@@ -120,6 +190,9 @@ int ddr_init(struct dram_timing_info *dram_timing)
 	/* Step15: Set SWCTL.sw_done to 0 */
 	reg32_write(DDRC_SWCTL(0), 0x00000000);
 
+	/* Apply rank-to-rank workaround */
+	update_umctl2_rank_space_setting(dram_timing->fsp_msg_num - 1);
+
 	/* Step16: Set DFIMISC.dfi_init_start to 1 */
 	setbits_le32(DDRC_DFIMISC(0), (0x1 << 5));
 
@@ -163,11 +236,13 @@ int ddr_init(struct dram_timing_info *dram_timing)
 	/* Step26: Set back register in Step4 to the original values if desired */
 	reg32_write(DDRC_RFSHCTL3(0), 0x0000000);
 	/* enable selfref_en by default */
-	setbits_le32(DDRC_PWRCTL(0), 0x1 << 3);
+	setbits_le32(DDRC_PWRCTL(0), 0x1);
 
 	/* enable port 0 */
 	reg32_write(DDRC_PCTRL_0(0), 0x00000001);
 	debug("DDRINFO: ddrmix config done\n");
+
+	board_dram_ecc_scrub();
 
 	/* save the dram timing config into memory */
 	dram_config_save(dram_timing, CONFIG_SAVED_DRAM_TIMING_BASE);

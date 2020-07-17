@@ -95,6 +95,9 @@ static const char *imx8mm_enet_phy_sels[] = {"clock-osc-24m", "sys_pll2_50m", "s
 static const char *imx8mm_nand_usdhc_sels[] = {"clock-osc-24m", "sys_pll1_266m", "sys_pll1_800m", "sys_pll2_200m",
 					       "sys_pll1_133m", "sys_pll3_out", "sys_pll2_250m", "audio_pll1_out", };
 
+static const char *imx8mm_usb_bus_sels[] = {"clock-osc-24m", "sys_pll2_500m", "sys_pll1_800m", "sys_pll2_100m",
+					    "sys_pll2_200m", "clk_ext2", "clk_ext4", "audio_pll2_out", };
+
 static const char *imx8mm_usdhc1_sels[] = {"clock-osc-24m", "sys_pll1_400m", "sys_pll1_800m", "sys_pll2_500m",
 					   "sys_pll3_out", "sys_pll1_266m", "audio_pll2_out", "sys_pll1_100m", };
 
@@ -118,6 +121,15 @@ static const char *imx8mm_wdog_sels[] = {"clock-osc-24m", "sys_pll1_133m", "sys_
 
 static const char *imx8mm_usdhc3_sels[] = {"clock-osc-24m", "sys_pll1_400m", "sys_pll1_800m", "sys_pll2_500m",
 					   "sys_pll3_out", "sys_pll1_266m", "audio_pll2_clk", "sys_pll1_100m", };
+
+static const char *imx8mm_qspi_sels[] = {"clock-osc-24m", "sys_pll1_400m", "sys_pll2_333m", "sys_pll2_500m",
+					   "audio_pll2_out", "sys_pll1_266m", "sys_pll3_out", "sys_pll1_100m", };
+
+static const char *imx8mm_usb_core_sels[] = {"clock-osc-24m", "sys_pll1_100m", "sys_pll1_40m", "sys_pll2_100m",
+					     "sys_pll2_200m", "clk_ext2", "clk_ext3", "audio_pll2_out", };
+
+static const char *imx8mm_usb_phy_sels[] = {"clock-osc-24m", "sys_pll1_100m", "sys_pll1_40m", "sys_pll2_100m",
+					     "sys_pll2_200m", "clk_ext2", "clk_ext3", "audio_pll2_out", };
 
 static ulong imx8mm_clk_get_rate(struct clk *clk)
 {
@@ -191,7 +203,10 @@ static int imx8mm_clk_set_parent(struct clk *clk, struct clk *parent)
 	if (ret)
 		return ret;
 
-	return clk_set_parent(c, cp);
+	ret = clk_set_parent(c, cp);
+	c->dev->parent = cp->dev;
+
+	return ret;
 }
 
 static struct clk_ops imx8mm_clk_ops = {
@@ -349,6 +364,8 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	       imx8m_clk_composite_critical("nand_usdhc_bus",
 					    imx8mm_nand_usdhc_sels,
 					    base + 0x8900));
+	clk_dm(IMX8MM_CLK_USB_BUS,
+		imx8m_clk_composite("usb_bus", imx8mm_usb_bus_sels, base + 0x8b80));
 
 	/* IP */
 	clk_dm(IMX8MM_CLK_USDHC1,
@@ -370,6 +387,12 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MM_CLK_USDHC3,
 	       imx8m_clk_composite("usdhc3", imx8mm_usdhc3_sels,
 				   base + 0xbc80));
+	clk_dm(IMX8MM_CLK_QSPI,
+	       imx8m_clk_composite("qspi", imx8mm_qspi_sels, base + 0xab80));
+	clk_dm(IMX8MM_CLK_USB_CORE_REF,
+		imx8m_clk_composite("usb_core_ref", imx8mm_usb_core_sels, base + 0xb100));
+	clk_dm(IMX8MM_CLK_USB_PHY_REF,
+		imx8m_clk_composite("usb_phy_ref", imx8mm_usb_phy_sels, base + 0xb180));
 
 	clk_dm(IMX8MM_CLK_I2C1_ROOT,
 	       imx_clk_gate4("i2c1_root_clk", "i2c1", base + 0x4170, 0));
@@ -393,6 +416,10 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	       imx_clk_gate4("wdog3_root_clk", "wdog", base + 0x4550, 0));
 	clk_dm(IMX8MM_CLK_USDHC3_ROOT,
 	       imx_clk_gate4("usdhc3_root_clk", "usdhc3", base + 0x45e0, 0));
+	clk_dm(IMX8MM_CLK_QSPI_ROOT,
+	       imx_clk_gate4("qspi_root_clk", "qspi", base + 0x42f0, 0));
+	clk_dm(IMX8MM_CLK_USB1_CTRL_ROOT,
+		imx_clk_gate4("usb1_ctrl_root_clk", "usb_bus", base + 0x44d0, 0));
 
 	/* clks not needed in SPL stage */
 #ifndef CONFIG_SPL_BUILD
@@ -408,40 +435,6 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MM_CLK_ENET1_ROOT,
 	       imx_clk_gate4("enet1_root_clk", "enet_axi",
 	       base + 0x40a0, 0));
-#endif
-
-#ifdef CONFIG_SPL_BUILD
-	struct clk *clkp, *clkp1;
-
-	clk_get_by_id(IMX8MM_CLK_WDOG1_ROOT, &clkp);
-	clk_enable(clkp);
-	clk_get_by_id(IMX8MM_CLK_WDOG2_ROOT, &clkp);
-	clk_enable(clkp);
-	clk_get_by_id(IMX8MM_CLK_WDOG3_ROOT, &clkp);
-	clk_enable(clkp);
-
-	/* Configure SYS_PLL3 to 750MHz */
-	clk_get_by_id(IMX8MM_SYS_PLL3, &clkp);
-	clk_set_rate(clkp, 750000000UL);
-	clk_enable(clkp);
-
-	/* Configure ARM to sys_pll2_500m */
-	clk_get_by_id(IMX8MM_CLK_A53_SRC, &clkp);
-	clk_get_by_id(IMX8MM_SYS_PLL2_OUT, &clkp1);
-	clk_enable(clkp1);
-	clk_get_by_id(IMX8MM_SYS_PLL2_500M, &clkp1);
-	clk_set_parent(clkp, clkp1);
-
-	/* Configure ARM PLL to 1.2GHz */
-	clk_get_by_id(IMX8MM_ARM_PLL, &clkp1);
-	clk_set_rate(clkp1, 1200000000UL);
-	clk_get_by_id(IMX8MM_ARM_PLL_OUT, &clkp1);
-	clk_enable(clkp1);
-	clk_set_parent(clkp, clkp1);
-
-	/* Configure DIV to 1.2GHz */
-	clk_get_by_id(IMX8MM_CLK_A53_DIV, &clkp1);
-	clk_set_rate(clkp1, 1200000000UL);
 #endif
 
 	return 0;
