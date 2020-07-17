@@ -130,7 +130,7 @@ static int imx_pwm_ofdata_to_platdata(struct udevice *dev)
 {
 	struct imx_pwm_priv *priv = dev_get_priv(dev);
 
-	priv->regs = (struct pwm_regs *)devfdt_get_addr(dev);
+	priv->regs = dev_read_addr_ptr(dev);
 
 	return 0;
 }

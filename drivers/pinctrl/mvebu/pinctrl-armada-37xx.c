@@ -592,7 +592,7 @@ int armada_37xx_pinctrl_probe(struct udevice *dev)
 	info->data = (struct armada_37xx_pin_data *)dev_get_driver_data(dev);
 	pin_data = info->data;
 
-	info->base = (void __iomem *)devfdt_get_addr(dev);
+	info->base = dev_read_addr_ptr(dev);
 	if (!info->base) {
 		pr_err("unable to find regmap\n");
 		return -ENODEV;
