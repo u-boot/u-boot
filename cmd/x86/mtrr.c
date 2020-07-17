@@ -98,31 +98,48 @@ static int do_mtrr_set(int cpu_select, uint reg, int argc, char *const argv[])
 static int do_mtrr(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])
 {
-	const char *cmd;
+	int cmd;
 	int cpu_select;
 	uint reg;
+	int ret;
 
 	cpu_select = MP_SELECT_BSP;
-	cmd = argv[1];
-	if (argc < 2 || *cmd == 'l')
-		return do_mtrr_list(cpu_select);
-	argc -= 2;
-	argv += 2;
-	if (argc <= 0)
-		return CMD_RET_USAGE;
-	reg = simple_strtoul(argv[0], NULL, 16);
-	if (reg >= MTRR_COUNT) {
-		printf("Invalid register number\n");
-		return CMD_RET_USAGE;
+	argc--;
+	argv++;
+	cmd = argv[0] ? *argv[0] : 0;
+	if (argc < 1 || !cmd) {
+		cmd = 'l';
+		reg = 0;
+	} else {
+		if (argc < 2)
+			return CMD_RET_USAGE;
+		reg = simple_strtoul(argv[1], NULL, 16);
+		if (reg >= MTRR_COUNT) {
+			printf("Invalid register number\n");
+			return CMD_RET_USAGE;
+		}
 	}
-	if (*cmd == 'e')
-		return mtrr_set_valid(cpu_select, reg, true);
-	else if (*cmd == 'd')
-		return mtrr_set_valid(cpu_select, reg, false);
-	else if (*cmd == 's')
-		return do_mtrr_set(cpu_select, reg, argc - 1, argv + 1);
-	else
-		return CMD_RET_USAGE;
+	if (cmd == 'l') {
+		return do_mtrr_list(cpu_select);
+	} else {
+		switch (cmd) {
+		case 'e':
+			ret = mtrr_set_valid(cpu_select, reg, true);
+			break;
+		case 'd':
+			ret = mtrr_set_valid(cpu_select, reg, false);
+			break;
+		case 's':
+			ret = do_mtrr_set(cpu_select, reg, argc - 2, argv + 2);
+			break;
+		default:
+			return CMD_RET_USAGE;
+		}
+		if (ret) {
+			printf("Operation failed (err=%d)\n", ret);
+			return CMD_RET_FAILURE;
+		}
+	}
 
 	return 0;
 }
