@@ -26,7 +26,8 @@ int fspm_update_config(struct udevice *dev, struct fspm_upd *upd)
 		return log_msg_ret("mrc", cache_ret);
 	arch->stack_base = (void *)0xfef96000;
 	arch->boot_loader_tolum_size = 0;
-	arch->boot_mode = FSP_BOOT_WITH_FULL_CONFIGURATION;
+	arch->boot_mode = cache_ret ? FSP_BOOT_WITH_FULL_CONFIGURATION :
+		FSP_BOOT_ASSUMING_NO_CONFIGURATION_CHANGES;
 
 	node = dev_ofnode(dev);
 	if (!ofnode_valid(node))
