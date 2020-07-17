@@ -47,7 +47,7 @@ int fsp_init_phase_pci(void)
 	return status ? -EPERM : 0;
 }
 
-void board_final_cleanup(void)
+void board_final_init(void)
 {
 	u32 status;
 

@@ -363,7 +363,7 @@ int arch_misc_init(void)
 	return 0;
 }
 
-void board_final_cleanup(void)
+void board_final_init(void)
 {
 	struct quark_rcba *rcba;
 	u32 base, val;
