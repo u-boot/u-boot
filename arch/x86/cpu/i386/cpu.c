@@ -631,7 +631,6 @@ int cpu_jump_to_64bit_uboot(ulong target)
 	return -EFAULT;
 }
 
-#ifdef CONFIG_SMP
 int x86_mp_init(void)
 {
 	int ret;
@@ -644,4 +643,3 @@ int x86_mp_init(void)
 
 	return 0;
 }
-#endif

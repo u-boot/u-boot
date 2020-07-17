@@ -67,10 +67,8 @@ static const char *const x86_vendor_name[] = {
 
 int __weak x86_cleanup_before_linux(void)
 {
-#ifdef CONFIG_BOOTSTAGE_STASH
 	bootstage_stash((void *)CONFIG_BOOTSTAGE_STASH_ADDR,
 			CONFIG_BOOTSTAGE_STASH_SIZE);
-#endif
 
 	return 0;
 }
@@ -201,18 +199,19 @@ int last_stage_init(void)
 
 	write_tables();
 
-#ifdef CONFIG_GENERATE_ACPI_TABLE
-	fadt = acpi_find_fadt();
+	if (IS_ENABLED(CONFIG_GENERATE_ACPI_TABLE)) {
+		fadt = acpi_find_fadt();
 
-	/* Don't touch ACPI hardware on HW reduced platforms */
-	if (fadt && !(fadt->flags & ACPI_FADT_HW_REDUCED_ACPI)) {
-		/*
-		 * Other than waiting for OSPM to request us to switch to ACPI
-		 * mode, do it by ourselves, since SMI will not be triggered.
-		 */
-		enter_acpi_mode(fadt->pm1a_cnt_blk);
+		/* Don't touch ACPI hardware on HW reduced platforms */
+		if (fadt && !(fadt->flags & ACPI_FADT_HW_REDUCED_ACPI)) {
+			/*
+			 * Other than waiting for OSPM to request us to switch
+			 * to ACPI * mode, do it by ourselves, since SMI will
+			 * not be triggered.
+			 */
+			enter_acpi_mode(fadt->pm1a_cnt_blk);
+		}
 	}
-#endif
 
 	return 0;
 }
@@ -220,19 +219,20 @@ int last_stage_init(void)
 
 static int x86_init_cpus(void)
 {
-#ifdef CONFIG_SMP
-	debug("Init additional CPUs\n");
-	x86_mp_init();
-#else
-	struct udevice *dev;
+	if (IS_ENABLED(CONFIG_SMP)) {
+		debug("Init additional CPUs\n");
+		x86_mp_init();
+	} else {
+		struct udevice *dev;
 
-	/*
-	 * This causes the cpu-x86 driver to be probed.
-	 * We don't check return value here as we want to allow boards
-	 * which have not been converted to use cpu uclass driver to boot.
-	 */
-	uclass_first_device(UCLASS_CPU, &dev);
-#endif
+		/*
+		 * This causes the cpu-x86 driver to be probed.
+		 * We don't check return value here as we want to allow boards
+		 * which have not been converted to use cpu uclass driver to
+		 * boot.
+		 */
+		uclass_first_device(UCLASS_CPU, &dev);
+	}
 
 	return 0;
 }
@@ -276,9 +276,8 @@ int reserve_arch(void)
 	if (IS_ENABLED(CONFIG_ENABLE_MRC_CACHE))
 		mrccache_reserve();
 
-#ifdef CONFIG_SEABIOS
-	high_table_reserve();
-#endif
+	if (IS_ENABLED(CONFIG_SEABIOS))
+		high_table_reserve();
 
 	if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME)) {
 		acpi_s3_reserve();
