@@ -25,7 +25,11 @@
 #define PSCI_METHOD_HVC 1
 #define PSCI_METHOD_SMC 2
 
+#if CONFIG_IS_ENABLED(EFI_LOADER)
 int __efi_runtime_data psci_method;
+#else
+int psci_method __attribute__ ((section(".data")));
+#endif
 
 unsigned long __efi_runtime invoke_psci_fn
 		(unsigned long function_id, unsigned long arg0,
