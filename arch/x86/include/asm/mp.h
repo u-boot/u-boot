@@ -72,9 +72,6 @@ struct mp_flight_record {
  */
 int mp_init(void);
 
-/* Probes the CPU device */
-int mp_init_cpu(struct udevice *cpu, void *unused);
-
 /* Set up additional CPUs */
 int x86_mp_init(void);
 

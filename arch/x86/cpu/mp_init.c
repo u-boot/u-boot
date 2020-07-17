@@ -41,10 +41,6 @@ struct saved_msr {
 	uint32_t hi;
 } __packed;
 
-static struct mp_flight_record mp_steps[] = {
-	MP_FR_BLOCK_APS(mp_init_cpu, NULL, mp_init_cpu, NULL),
-};
-
 struct mp_flight_plan {
 	int num_records;
 	struct mp_flight_record *records;
@@ -423,6 +419,26 @@ static int init_bsp(struct udevice **devp)
 	return 0;
 }
 
+static int mp_init_cpu(struct udevice *cpu, void *unused)
+{
+	struct cpu_platdata *plat = dev_get_parent_platdata(cpu);
+
+	/*
+	 * Multiple APs are brought up simultaneously and they may get the same
+	 * seq num in the uclass_resolve_seq() during device_probe(). To avoid
+	 * this, set req_seq to the reg number in the device tree in advance.
+	 */
+	cpu->req_seq = dev_read_u32_default(cpu, "reg", -1);
+	plat->ucode_version = microcode_read_rev();
+	plat->device_id = gd->arch.x86_device;
+
+	return device_probe(cpu);
+}
+
+static struct mp_flight_record mp_steps[] = {
+	MP_FR_BLOCK_APS(mp_init_cpu, NULL, mp_init_cpu, NULL),
+};
+
 int mp_init(void)
 {
 	int num_aps;
@@ -494,20 +510,4 @@ int mp_init(void)
 	}
 
 	return 0;
-}
-
-int mp_init_cpu(struct udevice *cpu, void *unused)
-{
-	struct cpu_platdata *plat = dev_get_parent_platdata(cpu);
-
-	/*
-	 * Multiple APs are brought up simultaneously and they may get the same
-	 * seq num in the uclass_resolve_seq() during device_probe(). To avoid
-	 * this, set req_seq to the reg number in the device tree in advance.
-	 */
-	cpu->req_seq = dev_read_u32_default(cpu, "reg", -1);
-	plat->ucode_version = microcode_read_rev();
-	plat->device_id = gd->arch.x86_device;
-
-	return device_probe(cpu);
 }
