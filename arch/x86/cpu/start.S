@@ -124,6 +124,7 @@ car_init_ret:
 #endif
 #else
 	/*
+	 * Instructions for FSP1, but not FSP2:
 	 * U-Boot enters here twice. For the first time it comes from
 	 * car_init_done() with esp points to a temporary stack and esi
 	 * set to zero. For the second time it comes from fsp_init_done()
