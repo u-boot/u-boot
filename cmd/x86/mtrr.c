@@ -104,6 +104,17 @@ static int do_mtrr(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret;
 
 	cpu_select = MP_SELECT_BSP;
+	if (argc >= 3 && !strcmp("-c", argv[1])) {
+		const char *cpustr;
+
+		cpustr = argv[2];
+		if (*cpustr == 'a')
+			cpu_select = MP_SELECT_ALL;
+		else
+			cpu_select = simple_strtol(cpustr, NULL, 16);
+		argc -= 2;
+		argv += 2;
+	}
 	argc--;
 	argv++;
 	cmd = argv[0] ? *argv[0] : 0;
@@ -145,11 +156,14 @@ static int do_mtrr(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 U_BOOT_CMD(
-	mtrr,	6,	1,	do_mtrr,
+	mtrr,	8,	1,	do_mtrr,
 	"Use x86 memory type range registers (32-bit only)",
 	"[list]        - list current registers\n"
 	"set <reg> <type> <start> <size>   - set a register\n"
 	"\t<type> is Uncacheable, Combine, Through, Protect, Back\n"
 	"disable <reg>      - disable a register\n"
-	"enable <reg>       - enable a register"
+	"enable <reg>       - enable a register\n"
+	"\n"
+	"Precede command with '-c <n>|all' to access a particular hex CPU, e.g.\n"
+	"   mtrr -c all list; mtrr -c 2e list"
 );
