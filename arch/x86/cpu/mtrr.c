@@ -74,10 +74,61 @@ void mtrr_read_all(struct mtrr_info *info)
 	}
 }
 
+void mtrr_write_all(struct mtrr_info *info)
+{
+	struct mtrr_state state;
+	int i;
+
+	for (i = 0; i < MTRR_COUNT; i++) {
+		mtrr_open(&state, true);
+		wrmsrl(MTRR_PHYS_BASE_MSR(i), info->mtrr[i].base);
+		wrmsrl(MTRR_PHYS_MASK_MSR(i), info->mtrr[i].mask);
+		mtrr_close(&state, true);
+	}
+}
+
+static void write_mtrrs(void *arg)
+{
+	struct mtrr_info *info = arg;
+
+	mtrr_write_all(info);
+}
+
+static void read_mtrrs(void *arg)
+{
+	struct mtrr_info *info = arg;
+
+	mtrr_read_all(info);
+}
+
+/**
+ * mtrr_copy_to_aps() - Copy the MTRRs from the boot CPU to other CPUs
+ *
+ * @return 0 on success, -ve on failure
+ */
+static int mtrr_copy_to_aps(void)
+{
+	struct mtrr_info info;
+	int ret;
+
+	ret = mp_run_on_cpus(MP_SELECT_BSP, read_mtrrs, &info);
+	if (ret == -ENXIO)
+		return 0;
+	else if (ret)
+		return log_msg_ret("bsp", ret);
+
+	ret = mp_run_on_cpus(MP_SELECT_APS, write_mtrrs, &info);
+	if (ret)
+		return log_msg_ret("bsp", ret);
+
+	return 0;
+}
+
 int mtrr_commit(bool do_caches)
 {
 	struct mtrr_request *req = gd->arch.mtrr_req;
 	struct mtrr_state state;
+	int ret;
 	int i;
 
 	debug("%s: enabled=%d, count=%d\n", __func__, gd->arch.has_mtrr,
@@ -98,6 +149,12 @@ int mtrr_commit(bool do_caches)
 	debug("close\n");
 	mtrr_close(&state, do_caches);
 	debug("mtrr done\n");
+
+	if (gd->flags & GD_FLG_RELOC) {
+		ret = mtrr_copy_to_aps();
+		if (ret)
+			return log_msg_ret("copy", ret);
+	}
 
 	return 0;
 }
