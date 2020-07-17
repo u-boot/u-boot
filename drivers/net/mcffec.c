@@ -589,7 +589,7 @@ static int mcffec_ofdata_to_platdata(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	const u32 *val;
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	/* Default to 10Mbit/s */
 	pdata->max_speed = 10;
 

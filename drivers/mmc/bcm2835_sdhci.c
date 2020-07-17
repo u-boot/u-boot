@@ -182,7 +182,7 @@ static int bcm2835_sdhci_probe(struct udevice *dev)
 	int ret;
 	int clock_id = (int)dev_get_driver_data(dev);
 
-	base = devfdt_get_addr(dev);
+	base = dev_read_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

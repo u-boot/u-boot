@@ -112,7 +112,7 @@ static int r7s72100_gpio_probe(struct udevice *dev)
 
 	uc_priv->bank_name = dev->name;
 	dev = dev_get_parent(dev);
-	addr_base = devfdt_get_addr(dev);
+	addr_base = dev_read_addr(dev);
 	if (addr_base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

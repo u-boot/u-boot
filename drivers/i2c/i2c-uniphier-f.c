@@ -94,7 +94,7 @@ static int uniphier_fi2c_probe(struct udevice *dev)
 	fdt_addr_t addr;
 	struct uniphier_fi2c_priv *priv = dev_get_priv(dev);
 
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

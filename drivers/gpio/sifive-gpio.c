@@ -159,7 +159,7 @@ static int sifive_gpio_ofdata_to_platdata(struct udevice *dev)
 	struct sifive_gpio_platdata *plat = dev_get_platdata(dev);
 	fdt_addr_t addr;
 
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

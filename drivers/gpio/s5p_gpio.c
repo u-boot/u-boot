@@ -339,7 +339,7 @@ static int gpio_exynos_bind(struct udevice *parent)
 
 		dev_set_of_offset(dev, node);
 
-		reg = devfdt_get_addr(dev);
+		reg = dev_read_addr(dev);
 		if (reg != FDT_ADDR_T_NONE)
 			bank = (struct s5p_gpio_bank *)((ulong)base + reg);
 

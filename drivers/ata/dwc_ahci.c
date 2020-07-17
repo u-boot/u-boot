@@ -34,7 +34,7 @@ static int dwc_ahci_ofdata_to_platdata(struct udevice *dev)
 	struct dwc_ahci_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
 
-	priv->base = map_physmem(devfdt_get_addr(dev), sizeof(void *),
+	priv->base = map_physmem(dev_read_addr(dev), sizeof(void *),
 				 MAP_NOCACHE);
 
 	addr = devfdt_get_addr_index(dev, 1);

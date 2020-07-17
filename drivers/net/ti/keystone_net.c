@@ -787,7 +787,7 @@ static int ks2_eth_ofdata_to_platdata(struct udevice *dev)
 
 	ks2_eth_parse_slave_interface(dev_of_offset(dev), gbe_0, priv, pdata);
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 
 	return 0;
 }
