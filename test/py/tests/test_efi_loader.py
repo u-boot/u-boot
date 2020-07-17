@@ -161,8 +161,8 @@ def test_efi_helloworld_net(u_boot_console):
     output = u_boot_console.run_command('bootefi %x' % addr)
     expected_text = 'Hello, world'
     assert expected_text in output
-    expected_text = '## Application terminated, r = 0'
-    assert expected_text in output
+    expected_text = '## Application failed'
+    assert expected_text not in output
 
 @pytest.mark.buildconfigspec('cmd_bootefi_hello')
 def test_efi_helloworld_builtin(u_boot_console):
@@ -198,8 +198,7 @@ def test_efi_grub_net(u_boot_console):
 
     # Then exit cleanly
     u_boot_console.wait_for('grub>')
-    output = u_boot_console.run_command('exit', wait_for_prompt=False, wait_for_echo=False)
-    u_boot_console.wait_for('r = 0')
-
+    u_boot_console.run_command('exit', wait_for_prompt=False, wait_for_echo=False)
+    u_boot_console.wait_for('=>')
     # And give us our U-Boot prompt back
     u_boot_console.run_command('')

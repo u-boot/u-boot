@@ -5,6 +5,8 @@
  *  Copyright (c) 2016 Alexander Graf
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <common.h>
 #include <charset.h>
 #include <command.h>
@@ -14,6 +16,7 @@
 #include <env.h>
 #include <errno.h>
 #include <image.h>
+#include <log.h>
 #include <malloc.h>
 #include <linux/libfdt.h>
 #include <linux/libfdt_env.h>
@@ -62,7 +65,7 @@ static efi_status_t set_load_options(efi_handle_t handle, const char *env_var,
 	size = utf8_utf16_strlen(env) + 1;
 	loaded_image_info->load_options = calloc(size, sizeof(u16));
 	if (!loaded_image_info->load_options) {
-		printf("ERROR: Out of memory\n");
+		log_err("ERROR: Out of memory\n");
 		EFI_CALL(systab.boottime->close_protocol(handle,
 							 &efi_guid_loaded_image,
 							 efi_root, NULL));
@@ -137,7 +140,7 @@ static efi_status_t copy_fdt(void **fdtp)
 					 EFI_ACPI_RECLAIM_MEMORY, fdt_pages,
 					 &new_fdt_addr);
 		if (ret != EFI_SUCCESS) {
-			printf("ERROR: Failed to reserve space for FDT\n");
+			log_err("ERROR: Failed to reserve space for FDT\n");
 			goto done;
 		}
 	}
@@ -156,8 +159,8 @@ static void efi_reserve_memory(u64 addr, u64 size)
 	addr = (uintptr_t)map_sysmem(addr, 0);
 	if (efi_add_memory_map(addr, size,
 			       EFI_RESERVED_MEMORY_TYPE) != EFI_SUCCESS)
-		printf("Reserved memory mapping failed addr %llx size %llx\n",
-		       addr, size);
+		log_err("Reserved memory mapping failed addr %llx size %llx\n",
+			addr, size);
 }
 
 /**
@@ -252,7 +255,7 @@ efi_status_t efi_install_fdt(void *fdt)
 	 */
 #if CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)
 	if (fdt) {
-		printf("ERROR: can't have ACPI table and device tree.\n");
+		log_err("ERROR: can't have ACPI table and device tree.\n");
 		return EFI_LOAD_ERROR;
 	}
 #else
@@ -272,13 +275,13 @@ efi_status_t efi_install_fdt(void *fdt)
 		if (!fdt_opt) {
 			fdt_opt = env_get("fdtcontroladdr");
 			if (!fdt_opt) {
-				printf("ERROR: need device tree\n");
+				log_err("ERROR: need device tree\n");
 				return EFI_NOT_FOUND;
 			}
 		}
 		fdt_addr = simple_strtoul(fdt_opt, NULL, 16);
 		if (!fdt_addr) {
-			printf("ERROR: invalid $fdt_addr or $fdtcontroladdr\n");
+			log_err("ERROR: invalid $fdt_addr or $fdtcontroladdr\n");
 			return EFI_LOAD_ERROR;
 		}
 		fdt = map_sysmem(fdt_addr, 0);
@@ -286,19 +289,19 @@ efi_status_t efi_install_fdt(void *fdt)
 
 	/* Install device tree */
 	if (fdt_check_header(fdt)) {
-		printf("ERROR: invalid device tree\n");
+		log_err("ERROR: invalid device tree\n");
 		return EFI_LOAD_ERROR;
 	}
 
 	/* Prepare device tree for payload */
 	ret = copy_fdt(&fdt);
 	if (ret) {
-		printf("ERROR: out of memory\n");
+		log_err("ERROR: out of memory\n");
 		return EFI_OUT_OF_RESOURCES;
 	}
 
 	if (image_setup_libfdt(&img, fdt, 0, NULL)) {
-		printf("ERROR: failed to process device tree\n");
+		log_err("ERROR: failed to process device tree\n");
 		return EFI_LOAD_ERROR;
 	}
 
@@ -308,7 +311,7 @@ efi_status_t efi_install_fdt(void *fdt)
 	/* Install device tree as UEFI table */
 	ret = efi_install_configuration_table(&efi_guid_fdt, fdt);
 	if (ret != EFI_SUCCESS) {
-		printf("ERROR: failed to install device tree\n");
+		log_err("ERROR: failed to install device tree\n");
 		return ret;
 	}
 #endif /* GENERATE_ACPI_TABLE */
@@ -339,10 +342,13 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle)
 
 	/* Call our payload! */
 	ret = EFI_CALL(efi_start_image(handle, &exit_data_size, &exit_data));
-	printf("## Application terminated, r = %lu\n", ret & ~EFI_ERROR_MASK);
-	if (ret && exit_data) {
-		printf("## %ls\n", exit_data);
-		efi_free_pool(exit_data);
+	if (ret != EFI_SUCCESS) {
+		log_err("## Application failed, r = %lu\n",
+			ret & ~EFI_ERROR_MASK);
+		if (exit_data) {
+			log_err("## %ls\n", exit_data);
+			efi_free_pool(exit_data);
+		}
 	}
 
 	efi_restore_gd();
@@ -364,7 +370,7 @@ static int do_efibootmgr(void)
 
 	ret = efi_bootmgr_load(&handle);
 	if (ret != EFI_SUCCESS) {
-		printf("EFI boot manager: Cannot load any image\n");
+		log_notice("EFI boot manager: Cannot load any image\n");
 		return CMD_RET_FAILURE;
 	}
 
@@ -611,8 +617,8 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 	/* Initialize EFI drivers */
 	ret = efi_init_obj_list();
 	if (ret != EFI_SUCCESS) {
-		printf("Error: Cannot initialize UEFI sub-system, r = %lu\n",
-		       ret & ~EFI_ERROR_MASK);
+		log_err("Error: Cannot initialize UEFI sub-system, r = %lu\n",
+			ret & ~EFI_ERROR_MASK);
 		return CMD_RET_FAILURE;
 	}
 
