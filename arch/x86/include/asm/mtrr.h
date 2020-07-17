@@ -71,6 +71,26 @@ struct mtrr_state {
 };
 
 /**
+ * struct mtrr - Information about a single MTRR
+ *
+ * @base: Base address and MTRR_BASE_TYPE_MASK
+ * @mask: Mask and MTRR_PHYS_MASK_VALID
+ */
+struct mtrr {
+	u64 base;
+	u64 mask;
+};
+
+/**
+ * struct mtrr_info - Information about all MTRRs
+ *
+ * @mtrr: Information about each mtrr
+ */
+struct mtrr_info {
+	struct mtrr mtrr[MTRR_COUNT];
+};
+
+/**
  * mtrr_open() - Prepare to adjust MTRRs
  *
  * Use mtrr_open() passing in a structure - this function will init it. Then
@@ -128,6 +148,16 @@ int mtrr_commit(bool do_caches);
  * @return 0 on success, -ENOSPC if there are no more MTRRs
  */
 int mtrr_set_next_var(uint type, uint64_t base, uint64_t size);
+
+/**
+ * mtrr_read_all() - Save all the MTRRs
+ *
+ * This reads all MTRRs from the boot CPU into a struct so they can be loaded
+ * onto other CPUs
+ *
+ * @info: Place to put the MTRR info
+ */
+void mtrr_read_all(struct mtrr_info *info);
 
 #endif
 

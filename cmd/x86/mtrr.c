@@ -5,7 +5,9 @@
 
 #include <common.h>
 #include <command.h>
+#include <log.h>
 #include <asm/msr.h>
+#include <asm/mp.h>
 #include <asm/mtrr.h>
 
 static const char *const mtrr_type_name[MTRR_TYPE_COUNT] = {
@@ -18,19 +20,32 @@ static const char *const mtrr_type_name[MTRR_TYPE_COUNT] = {
 	"Back",
 };
 
-static int do_mtrr_list(void)
+static void read_mtrrs(void *arg)
 {
+	struct mtrr_info *info = arg;
+
+	mtrr_read_all(info);
+}
+
+static int do_mtrr_list(int cpu_select)
+{
+	struct mtrr_info info;
+	int ret;
 	int i;
 
 	printf("Reg Valid Write-type   %-16s %-16s %-16s\n", "Base   ||",
 	       "Mask   ||", "Size   ||");
+	memset(&info, '\0', sizeof(info));
+	ret = mp_run_on_cpus(cpu_select, read_mtrrs, &info);
+	if (ret)
+		return log_msg_ret("run", ret);
 	for (i = 0; i < MTRR_COUNT; i++) {
 		const char *type = "Invalid";
 		uint64_t base, mask, size;
 		bool valid;
 
-		base = native_read_msr(MTRR_PHYS_BASE_MSR(i));
-		mask = native_read_msr(MTRR_PHYS_MASK_MSR(i));
+		base = info.mtrr[i].base;
+		mask = info.mtrr[i].mask;
 		size = ~mask & ((1ULL << CONFIG_CPU_ADDR_BITS) - 1);
 		size |= (1 << 12) - 1;
 		size += 1;
@@ -102,11 +117,13 @@ static int do_mtrr(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])
 {
 	const char *cmd;
+	int cpu_select;
 	uint reg;
 
+	cpu_select = MP_SELECT_BSP;
 	cmd = argv[1];
 	if (argc < 2 || *cmd == 'l')
-		return do_mtrr_list();
+		return do_mtrr_list(cpu_select);
 	argc -= 2;
 	argv += 2;
 	if (argc <= 0)

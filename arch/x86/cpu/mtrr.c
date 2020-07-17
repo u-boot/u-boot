@@ -21,6 +21,7 @@
 #include <log.h>
 #include <asm/cache.h>
 #include <asm/io.h>
+#include <asm/mp.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
 
@@ -61,6 +62,16 @@ static void set_var_mtrr(uint reg, uint type, uint64_t start, uint64_t size)
 	mask = ~(size - 1);
 	mask &= (1ULL << CONFIG_CPU_ADDR_BITS) - 1;
 	wrmsrl(MTRR_PHYS_MASK_MSR(reg), mask | MTRR_PHYS_MASK_VALID);
+}
+
+void mtrr_read_all(struct mtrr_info *info)
+{
+	int i;
+
+	for (i = 0; i < MTRR_COUNT; i++) {
+		info->mtrr[i].base = native_read_msr(MTRR_PHYS_BASE_MSR(i));
+		info->mtrr[i].mask = native_read_msr(MTRR_PHYS_MASK_MSR(i));
+	}
 }
 
 int mtrr_commit(bool do_caches)
