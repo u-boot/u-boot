@@ -155,7 +155,7 @@ static void acpi_create_madt(struct acpi_madt *madt)
 	/* Fill out header fields */
 	acpi_fill_header(header, "APIC");
 	header->length = sizeof(struct acpi_madt);
-	header->revision = 4;
+	header->revision = ACPI_MADT_REV_ACPI_3_0;
 
 	madt->lapic_addr = LAPIC_DEFAULT_BASE;
 	madt->flags = ACPI_MADT_PCAT_COMPAT;
