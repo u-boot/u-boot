@@ -60,7 +60,7 @@ ifndef CONFIG_SYS_COREBOOT
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += irq.o
 endif
 ifndef CONFIG_$(SPL_)X86_64
-obj-$(CONFIG_SMP) += mp_init.o
+obj-$(CONFIG_$(SPL_)SMP) += mp_init.o
 endif
 obj-y += mtrr.o
 obj-$(CONFIG_PCI) += pci.o
