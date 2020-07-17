@@ -31,9 +31,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Total CPUs include BSP */
-static int num_cpus;
-
 /* This also needs to match the sipi.S assembly code for saved MSR encoding */
 struct saved_msr {
 	uint32_t index;
@@ -384,13 +381,23 @@ static int start_aps(int num_aps, atomic_t *ap_count)
 	return 0;
 }
 
-static int bsp_do_flight_plan(struct udevice *cpu, struct mp_flight_plan *plan)
+/**
+ * bsp_do_flight_plan() - Do the flight plan on the BSP
+ *
+ * This runs the flight plan on the main CPU used to boot U-Boot
+ *
+ * @cpu: Device for the main CPU
+ * @plan: Flight plan to run
+ * @num_aps: Number of APs (CPUs other than the BSP)
+ * @returns 0 on success, -ETIMEDOUT if an AP failed to come up
+ */
+static int bsp_do_flight_plan(struct udevice *cpu, struct mp_flight_plan *plan,
+			      int num_aps)
 {
 	int i;
 	int ret = 0;
 	const int timeout_us = 100000;
 	const int step_us = 100;
-	int num_aps = num_cpus - 1;
 
 	for (i = 0; i < plan->num_records; i++) {
 		struct mp_flight_record *rec = &plan->records[i];
@@ -410,6 +417,7 @@ static int bsp_do_flight_plan(struct udevice *cpu, struct mp_flight_plan *plan)
 
 		release_barrier(&rec->barrier);
 	}
+
 	return ret;
 }
 
@@ -454,7 +462,7 @@ static struct mp_flight_record mp_steps[] = {
 
 int mp_init(void)
 {
-	int num_aps;
+	int num_aps, num_cpus;
 	atomic_t *ap_count;
 	struct udevice *cpu;
 	int ret;
@@ -516,7 +524,7 @@ int mp_init(void)
 	}
 
 	/* Walk the flight plan for the BSP */
-	ret = bsp_do_flight_plan(cpu, &mp_info);
+	ret = bsp_do_flight_plan(cpu, &mp_info, num_aps);
 	if (ret) {
 		debug("CPU init failed: err=%d\n", ret);
 		return ret;
