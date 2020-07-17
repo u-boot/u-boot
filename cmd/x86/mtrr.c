@@ -135,5 +135,5 @@ U_BOOT_CMD(
 	"set <reg> <type> <start> <size>   - set a register\n"
 	"\t<type> is Uncacheable, Combine, Through, Protect, Back\n"
 	"disable <reg>      - disable a register\n"
-	"ensable <reg>      - enable a register"
+	"enable <reg>       - enable a register"
 );
