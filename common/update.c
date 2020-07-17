@@ -309,8 +309,7 @@ got_update_file:
 		printf("\n");
 		if (update_fit_getparams(fit, noffset, &update_addr,
 					&update_fladdr, &update_size)) {
-			printf("Error: can't get update parameteres, "
-								"aborting\n");
+			printf("Error: can't get update parameters, aborting\n");
 			ret = 1;
 			goto next_node;
 		}
