@@ -684,6 +684,69 @@ int mp_park_aps(void)
 	return 0;
 }
 
+int mp_first_cpu(int cpu_select)
+{
+	struct udevice *dev;
+	int num_cpus;
+	int ret;
+
+	/*
+	 * This assumes that CPUs are numbered from 0. This function tries to
+	 * avoid assuming the CPU 0 is the boot CPU
+	 */
+	if (cpu_select == MP_SELECT_ALL)
+		return 0;   /* start with the first one */
+
+	ret = get_bsp(&dev, &num_cpus);
+	if (ret < 0)
+		return log_msg_ret("bsp", ret);
+
+	/* Return boot CPU if requested */
+	if (cpu_select == MP_SELECT_BSP)
+		return ret;
+
+	/* Return something other than the boot CPU, if APs requested */
+	if (cpu_select == MP_SELECT_APS && num_cpus > 1)
+		return ret == 0 ? 1 : 0;
+
+	/* Try to check for an invalid value */
+	if (cpu_select < 0 || cpu_select >= num_cpus)
+		return -EINVAL;
+
+	return cpu_select;  /* return the only selected one */
+}
+
+int mp_next_cpu(int cpu_select, int prev_cpu)
+{
+	struct udevice *dev;
+	int num_cpus;
+	int ret;
+	int bsp;
+
+	/* If we selected the BSP or a particular single CPU, we are done */
+	if (!IS_ENABLED(CONFIG_SMP_AP_WORK) || cpu_select == MP_SELECT_BSP ||
+	    cpu_select >= 0)
+		return -EFBIG;
+
+	/* Must be doing MP_SELECT_ALL or MP_SELECT_APS; return the next CPU */
+	ret = get_bsp(&dev, &num_cpus);
+	if (ret < 0)
+		return log_msg_ret("bsp", ret);
+	bsp = ret;
+
+	/* Move to the next CPU */
+	assert(prev_cpu >= 0);
+	ret = prev_cpu + 1;
+
+	/* Skip the BSP if needed */
+	if (cpu_select == MP_SELECT_APS && ret == bsp)
+		ret++;
+	if (ret >= num_cpus)
+		return -EFBIG;
+
+	return ret;
+}
+
 int mp_init(void)
 {
 	int num_aps, num_cpus;

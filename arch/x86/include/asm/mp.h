@@ -118,6 +118,33 @@ int mp_run_on_cpus(int cpu_select, mp_run_func func, void *arg);
  * @return 0 if OK, -ve on error
  */
 int mp_park_aps(void);
+
+/**
+ * mp_first_cpu() - Get the first CPU to process, from a selection
+ *
+ * This is used to iterate through selected CPUs. Call this function first, then
+ * call mp_next_cpu() repeatedly (with the same @cpu_select) until it returns
+ * -EFBIG.
+ *
+ * @cpu_select: Selected CPUs (either a CPU number or MP_SELECT_...)
+ * @return next CPU number to run on (e.g. 0)
+ */
+int mp_first_cpu(int cpu_select);
+
+/**
+ * mp_next_cpu() - Get the next CPU to process, from a selection
+ *
+ * This is used to iterate through selected CPUs. After first calling
+ * mp_first_cpu() once, call this function repeatedly until it returns -EFBIG.
+ *
+ * The value of @cpu_select must be the same for all calls and must match the
+ * value passed to mp_first_cpu(), otherwise the behaviour is undefined.
+ *
+ * @cpu_select: Selected CPUs (either a CPU number or MP_SELECT_...)
+ * @prev_cpu: Previous value returned by mp_first_cpu()/mp_next_cpu()
+ * @return next CPU number to run on (e.g. 0)
+ */
+int mp_next_cpu(int cpu_select, int prev_cpu);
 #else
 static inline int mp_run_on_cpus(int cpu_select, mp_run_func func, void *arg)
 {
@@ -132,6 +159,21 @@ static inline int mp_park_aps(void)
 	/* No APs to park */
 
 	return 0;
+}
+
+static inline int mp_first_cpu(int cpu_select)
+{
+	/* We cannot run on any APs, nor a selected CPU */
+	return cpu_select == MP_SELECT_APS ? -EFBIG : MP_SELECT_BSP;
+}
+
+static inline int mp_next_cpu(int cpu_select, int prev_cpu)
+{
+	/*
+	 * When MP is not enabled, there is only one CPU and we did it in
+	 * mp_first_cpu()
+	 */
+	return -EFBIG;
 }
 
 #endif
