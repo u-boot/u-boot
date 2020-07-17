@@ -32,13 +32,99 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * Setting up multiprocessing
+ *
+ * See https://www.intel.com/content/www/us/en/intelligent-systems/intel-boot-loader-development-kit/minimal-intel-architecture-boot-loader-paper.html
+ *
+ * Note that this file refers to the boot CPU (the one U-Boot is running on) as
+ * the BSP (BootStrap Processor) and the others as APs (Application Processors).
+ *
+ * This module works by loading some setup code into RAM at AP_DEFAULT_BASE and
+ * telling each AP to execute it. The code that each AP runs is in
+ * sipi_vector.S (see ap_start16) which includes a struct sipi_params at the
+ * end of it. Those parameters are set up by the C code.
+
+ * Setting up is handled by load_sipi_vector(). It inits the common block of
+ * parameters (sipi_params) which tell the APs what to do. This block includes
+ * microcode and the MTTRs (Memory-Type-Range Registers) from the main CPU.
+ * There is also an ap_count which each AP increments as it starts up, so the
+ * BSP can tell how many checked in.
+ *
+ * The APs are started with a SIPI (Startup Inter-Processor Interrupt) which
+ * tells an AP to start executing at a particular address, in this case
+ * AP_DEFAULT_BASE which contains the code copied from ap_start16. This protocol
+ * is handled by start_aps().
+ *
+ * After being started, each AP runs the code in ap_start16, switches to 32-bit
+ * mode, runs the code at ap_start, then jumps to c_handler which is ap_init().
+ * This runs a very simple 'flight plan' described in mp_steps(). This sets up
+ * the CPU and waits for further instructions by looking at its entry in
+ * ap_callbacks[]. Note that the flight plan is only actually run for each CPU
+ * in bsp_do_flight_plan(): once the BSP completes each flight record, it sets
+ * mp_flight_record->barrier to 1 to allow the APs to executed the record one
+ * by one.
+ *
+ * CPUS are numbered sequentially from 0 using the device tree:
+ *
+ *	cpus {
+ *		u-boot,dm-pre-reloc;
+ *		#address-cells = <1>;
+ *		#size-cells = <0>;
+ *
+ *		cpu@0 {
+ *			u-boot,dm-pre-reloc;
+ *			device_type = "cpu";
+ *			compatible = "intel,apl-cpu";
+ *			reg = <0>;
+ *			intel,apic-id = <0>;
+ *		};
+ *
+ *		cpu@1 {
+ *			device_type = "cpu";
+ *			compatible = "intel,apl-cpu";
+ *			reg = <1>;
+ *			intel,apic-id = <2>;
+ *		};
+ *
+ * Here the 'reg' property is the CPU number and then is placed in dev->req_seq
+ * so that we can index into ap_callbacks[] using that. The APIC ID is different
+ * and may not be sequential (it typically is if hyperthreading is supported).
+ *
+ * Once APs are inited they wait in ap_wait_for_instruction() for instructions.
+ * Instructions come in the form of a function to run. This logic is in
+ * mp_run_on_cpus() which supports running on any one AP, all APs, just the BSP
+ * or all CPUs. The BSP logic is handled directly in mp_run_on_cpus(), by
+ * calling the function. For the APs, callback information is stored in a
+ * single, common struct mp_callback and a pointer to this is written to each
+ * AP's slot in ap_callbacks[] by run_ap_work(). All APs get the message even
+ * if it is only for one of them. When an AP notices a message it checks whether
+ * it should call the function (see check in ap_wait_for_instruction()) and then
+ * does so if needed. After that it sets its slot to NULL to indicate it is
+ * done.
+ *
+ * While U-Boot is running it can use mp_run_on_cpus() to run code on the APs.
+ * An example of this is the 'mtrr' command which allows reading and changing
+ * the MTRRs on all CPUs.
+ *
+ * Before U-Boot exits it calls mp_park_aps() which tells all CPUs to halt by
+ * executing a 'hlt' instruction. That allows them to be used by Linux when it
+ * starts up.
+ */
+
 /* This also needs to match the sipi.S assembly code for saved MSR encoding */
-struct saved_msr {
+struct __packed saved_msr {
 	uint32_t index;
 	uint32_t lo;
 	uint32_t hi;
-} __packed;
+};
 
+/**
+ * struct mp_flight_plan - Holds the flight plan
+ *
+ * @num_records: Number of flight records
+ * @records: Pointer to each record
+ */
 struct mp_flight_plan {
 	int num_records;
 	struct mp_flight_record *records;
@@ -59,6 +145,7 @@ struct mp_callback {
 	int logical_cpu_number;
 };
 
+/* Stores the flight plan so that APs can find it */
 static struct mp_flight_plan mp_info;
 
 /*

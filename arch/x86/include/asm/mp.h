@@ -36,6 +36,14 @@ typedef int (*mp_callback_t)(struct udevice *cpu, void *arg);
  *
  * Note that ap_call() and bsp_call() can be NULL. In the NULL case the
  * callback will just not be called.
+ *
+ * @barrier: Ensures that the BSP and AP don't run the flight record at the same
+ *	time
+ * @cpus_entered: Counts the number of APs that have run this record
+ * @ap_call: Function for the APs to call
+ * @ap_arg: Argument to pass to @ap_call
+ * @bsp_call: Function for the BSP to call
+ * @bsp_arg: Argument to pass to @bsp_call
  */
 struct mp_flight_record {
 	atomic_t barrier;
@@ -83,7 +91,11 @@ struct mp_flight_record {
  */
 int mp_init(void);
 
-/* Set up additional CPUs */
+/**
+ * x86_mp_init() - Set up additional CPUs
+ *
+ * @returns < 0 on error, 0 on success.
+ */
 int x86_mp_init(void);
 
 /**
