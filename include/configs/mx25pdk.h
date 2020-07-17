@@ -43,7 +43,6 @@
 /* Memory Test */
 
 /* Serial Info */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* No NOR flash present */

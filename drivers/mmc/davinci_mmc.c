@@ -457,7 +457,7 @@ static const struct dm_mmc_ops davinci_mmc_ops = {
 /* Called from board_mmc_init during startup. Can be called multiple times
 * depending on the number of slots available on board and controller
 */
-int davinci_mmc_init(bd_t *bis, struct davinci_mmc *host)
+int davinci_mmc_init(struct bd_info *bis, struct davinci_mmc *host)
 {
 	host->cfg.name = "davinci";
 	host->cfg.ops = &dmmc_ops;

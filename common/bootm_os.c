@@ -61,7 +61,7 @@ static void copy_args(char *dest, int argc, char *const argv[], char delim)
 static int do_bootm_netbsd(int flag, int argc, char *const argv[],
 			   bootm_headers_t *images)
 {
-	void (*loader)(bd_t *, image_header_t *, char *, char *);
+	void (*loader)(struct bd_info *, image_header_t *, char *, char *);
 	image_header_t *os_hdr, *hdr;
 	ulong kernel_data, kernel_len;
 	char *cmdline;
@@ -109,7 +109,7 @@ static int do_bootm_netbsd(int flag, int argc, char *const argv[],
 			cmdline = "";
 	}
 
-	loader = (void (*)(bd_t *, image_header_t *, char *, char *))images->ep;
+	loader = (void (*)(struct bd_info *, image_header_t *, char *, char *))images->ep;
 
 	printf("## Transferring control to NetBSD stage-2 loader (at address %08lx) ...\n",
 	       (ulong)loader);
@@ -155,7 +155,7 @@ static int do_bootm_lynxkdi(int flag, int argc, char *const argv[],
 static int do_bootm_rtems(int flag, int argc, char *const argv[],
 			  bootm_headers_t *images)
 {
-	void (*entry_point)(bd_t *);
+	void (*entry_point)(struct bd_info *);
 
 	if (flag != BOOTM_STATE_OS_GO)
 		return 0;
@@ -167,7 +167,7 @@ static int do_bootm_rtems(int flag, int argc, char *const argv[],
 	}
 #endif
 
-	entry_point = (void (*)(bd_t *))images->ep;
+	entry_point = (void (*)(struct bd_info *))images->ep;
 
 	printf("## Transferring control to RTEMS (at address %08lx) ...\n",
 	       (ulong)entry_point);
@@ -495,7 +495,7 @@ static int do_bootm_tee(int flag, int argc, char *const argv[],
 		return ret;
 
 	/* Locate FDT etc */
-	ret = bootm_find_images(flag, argc, argv);
+	ret = bootm_find_images(flag, argc, argv, 0, 0);
 	if (ret)
 		return ret;
 
@@ -516,7 +516,7 @@ static int do_bootm_efi(int flag, int argc, char *const argv[],
 		return 0;
 
 	/* Locate FDT, if provided */
-	ret = bootm_find_images(flag, argc, argv);
+	ret = bootm_find_images(flag, argc, argv, 0, 0);
 	if (ret)
 		return ret;
 

@@ -246,7 +246,7 @@ void lcd_enable(void)
 }
 #endif /* CONFIG_LCD */
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	int nodeoffset;
 

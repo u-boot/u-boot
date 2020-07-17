@@ -498,7 +498,7 @@ static int asix_send_common(struct ueth_data *dev, void *packet, int length)
 /*
  * Asix callbacks
  */
-static int asix_init(struct eth_device *eth, bd_t *bd)
+static int asix_init(struct eth_device *eth, struct bd_info *bd)
 {
 	struct ueth_data *dev = (struct ueth_data *)eth->priv;
 

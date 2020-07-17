@@ -421,7 +421,7 @@ static void armdfec_init_rx_desc_ring(struct armdfec_device *darmdfec)
 	darmdfec->p_rxdesc_curr = darmdfec->p_rxdesc;
 }
 
-static int armdfec_init(struct eth_device *dev, bd_t *bd)
+static int armdfec_init(struct eth_device *dev, struct bd_info *bd)
 {
 	struct armdfec_device *darmdfec = to_darmdfec(dev);
 	struct armdfec_reg *regs = darmdfec->regs;

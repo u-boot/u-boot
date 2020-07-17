@@ -162,7 +162,8 @@ static const struct mmc_ops mxsmmc_ops = {
 	.init		= mxsmmc_init,
 };
 
-int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int), int (*cd)(int))
+int mxsmmc_initialize(struct bd_info *bis, int id, int (*wp)(int),
+		      int (*cd)(int))
 {
 	struct mmc *mmc = NULL;
 	struct mxsmmc_priv *priv = NULL;

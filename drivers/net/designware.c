@@ -512,7 +512,7 @@ static int dw_phy_init(struct dw_eth_dev *priv, void *dev)
 }
 
 #ifndef CONFIG_DM_ETH
-static int dw_eth_init(struct eth_device *dev, bd_t *bis)
+static int dw_eth_init(struct eth_device *dev, struct bd_info *bis)
 {
 	int ret;
 

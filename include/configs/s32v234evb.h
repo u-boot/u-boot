@@ -34,10 +34,6 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
-/* Config CACHE */
-
-#define CONFIG_SYS_FULL_VA
-
 /* Enable passing of ATAGs */
 #define CONFIG_CMDLINE_TAG
 

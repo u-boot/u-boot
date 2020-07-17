@@ -62,7 +62,7 @@ int get_aiop_apply_status(void);
 #endif
 u64 mc_get_dram_addr(void);
 unsigned long mc_get_dram_block_size(void);
-int fsl_mc_ldpaa_init(bd_t *bis);
-int fsl_mc_ldpaa_exit(bd_t *bd);
+int fsl_mc_ldpaa_init(struct bd_info *bis);
+int fsl_mc_ldpaa_exit(struct bd_info *bd);
 void mc_env_boot(void);
 #endif

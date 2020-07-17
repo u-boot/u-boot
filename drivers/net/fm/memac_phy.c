@@ -166,7 +166,7 @@ int memac_mdio_reset(struct mii_dev *bus)
 }
 
 #ifndef CONFIG_DM_ETH
-int fm_memac_mdio_init(bd_t *bis, struct memac_mdio_info *info)
+int fm_memac_mdio_init(struct bd_info *bis, struct memac_mdio_info *info)
 {
 	struct mii_dev *bus = mdio_alloc();
 

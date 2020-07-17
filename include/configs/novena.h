@@ -92,7 +92,6 @@
 #define CONFIG_LBA48
 
 /* UART */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART2_BASE
 
 /* USB Configs */

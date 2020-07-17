@@ -32,7 +32,7 @@ void led_set_state (unsigned short value)
 }
 
 #ifdef CONFIG_CMD_NET
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int rc = 0;
 #ifdef CONFIG_SMC91111

@@ -114,7 +114,7 @@
  . print a warning and set the environment and other globals with the default.
  . If an EEPROM is present it really should be consulted.
 */
-static int smc_get_ethaddr(bd_t *bd, struct eth_device *dev);
+static int smc_get_ethaddr(struct bd_info *bd, struct eth_device *dev);
 static int get_rom_mac(struct eth_device *dev, unsigned char *v_rom_mac);
 
 /* ------------------------------------------------------------
@@ -471,7 +471,7 @@ static int smc_send_packet(struct eth_device *dev, void *packet,
  * Set up everything, reset the card, etc ..
  *
  */
-static int smc_open(bd_t *bd, struct eth_device *dev)
+static int smc_open(struct bd_info *bd, struct eth_device *dev)
 {
 	int i, err;			/* used to set hw ethernet address */
 
@@ -674,7 +674,7 @@ static void print_packet(byte *buf, int length)
 }
 #endif /* SMC_DEBUG > 2 */
 
-static int  lan91c96_init(struct eth_device *dev, bd_t *bd)
+static int  lan91c96_init(struct eth_device *dev, struct bd_info *bd)
 {
 	return smc_open(bd, dev);
 }
@@ -701,7 +701,7 @@ static int lan91c96_send(struct eth_device *dev, void *packet,
  * found, the environment takes precedence.
  */
 
-static int smc_get_ethaddr(bd_t *bd, struct eth_device *dev)
+static int smc_get_ethaddr(struct bd_info *bd, struct eth_device *dev)
 {
 	uchar v_mac[6];
 

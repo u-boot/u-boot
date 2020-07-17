@@ -377,7 +377,7 @@ watchdog_reset(void)
  * Initializes on-chip MMC controllers.
  * to override, implement board_mmc_init()
  */
-int cpu_mmc_init(bd_t *bis)
+int cpu_mmc_init(struct bd_info *bis)
 {
 #ifdef CONFIG_FSL_ESDHC
 	return fsl_esdhc_mmc_init(bis);

@@ -830,7 +830,7 @@ const char *env_ext4_get_dev_part(void)
 #endif
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 #ifdef CONFIG_FDT_FIXUP_PARTITIONS
 	struct node_info nodes[] = {

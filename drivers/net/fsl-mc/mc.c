@@ -971,7 +971,7 @@ unsigned long mc_get_dram_block_size(void)
 	return dram_block_size;
 }
 
-int fsl_mc_ldpaa_init(bd_t *bis)
+int fsl_mc_ldpaa_init(struct bd_info *bis)
 {
 	int i;
 
@@ -1707,7 +1707,7 @@ err:
 	return err;
 }
 
-int fsl_mc_ldpaa_exit(bd_t *bd)
+int fsl_mc_ldpaa_exit(struct bd_info *bd)
 {
 	int err = 0;
 	bool is_dpl_apply_status = false;

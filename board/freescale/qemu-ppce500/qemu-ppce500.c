@@ -240,13 +240,13 @@ static uint64_t get_linear_ram_size(void)
 	panic("Couldn't determine RAM size");
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return pci_eth_init(bis);
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	FT_FSL_PCI_SETUP;
 

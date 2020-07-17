@@ -564,7 +564,7 @@ static int rtl8139_bcast_addr(struct eth_device *dev, const u8 *bcast_mac,
 	return 0;
 }
 
-static int rtl8139_init(struct eth_device *dev, bd_t *bis)
+static int rtl8139_init(struct eth_device *dev, struct bd_info *bis)
 {
 	struct rtl8139_priv *priv = container_of(dev, struct rtl8139_priv, dev);
 
@@ -601,7 +601,7 @@ static int rtl8139_recv(struct eth_device *dev)
 	return ret;
 }
 
-int rtl8139_initialize(bd_t *bis)
+int rtl8139_initialize(struct bd_info *bis)
 {
 	struct rtl8139_priv *priv;
 	struct eth_device *dev;

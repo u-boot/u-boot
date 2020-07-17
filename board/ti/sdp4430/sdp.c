@@ -35,7 +35,7 @@ int board_init(void)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return 0;
 }
@@ -76,7 +76,7 @@ void set_muxconf_regs(void)
 }
 
 #if defined(CONFIG_MMC)
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	omap_mmc_init(0, 0, 0, -1, -1);
 	omap_mmc_init(1, 0, 0, -1, -1);

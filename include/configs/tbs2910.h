@@ -33,7 +33,6 @@
 #define CONFIG_SYS_BOOTMAPSZ		0x10000000
 
 /* Serial console */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART1_BASE /* select UART1/UART2 */
 
 /* Framebuffer */

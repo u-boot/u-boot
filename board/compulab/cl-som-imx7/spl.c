@@ -23,7 +23,7 @@
 static struct fsl_esdhc_cfg cl_som_imx7_spl_usdhc_cfg = {
 	USDHC1_BASE_ADDR, 0, 4};
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	cl_som_imx7_usdhc1_pads_set();
 	cl_som_imx7_spl_usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);

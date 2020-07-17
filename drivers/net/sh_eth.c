@@ -577,7 +577,7 @@ static int sh_eth_recv_legacy(struct eth_device *dev)
 	return sh_eth_recv_common(eth);
 }
 
-static int sh_eth_init_legacy(struct eth_device *dev, bd_t *bd)
+static int sh_eth_init_legacy(struct eth_device *dev, struct bd_info *bd)
 {
 	struct sh_eth_dev *eth = dev->priv;
 	int ret;
@@ -611,7 +611,7 @@ void sh_eth_halt_legacy(struct eth_device *dev)
 	sh_eth_stop(eth);
 }
 
-int sh_eth_initialize(bd_t *bd)
+int sh_eth_initialize(struct bd_info *bd)
 {
 	int ret = 0;
 	struct sh_eth_dev *eth = NULL;

@@ -17,7 +17,6 @@
 #define CONFIG_IMX_THERMAL
 
 /* Serial */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	       UART4_BASE
 #define CONSOLE_DEV		"ttymxc3"
 

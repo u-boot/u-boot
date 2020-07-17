@@ -119,7 +119,7 @@ void pci_init_board(void)
 	fsl_pcie_init_board(0);
 }
 
-void pci_of_setup(void *blob, bd_t *bd)
+void pci_of_setup(void *blob, struct bd_info *bd)
 {
 	FT_FSL_PCI_SETUP;
 }

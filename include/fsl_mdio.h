@@ -59,6 +59,6 @@ struct fsl_pq_mdio_info {
 	struct tsec_mii_mng __iomem *regs;
 	char *name;
 };
-int fsl_pq_mdio_init(bd_t *bis, struct fsl_pq_mdio_info *info);
+int fsl_pq_mdio_init(struct bd_info *bis, struct fsl_pq_mdio_info *info);
 
 #endif /* __FSL_PHY_H__ */

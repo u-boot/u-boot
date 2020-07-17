@@ -700,7 +700,7 @@ static int remove_disabled_nodes(void *blob)
 	return 0;
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	int node, phandle, res;
 

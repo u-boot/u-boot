@@ -259,12 +259,12 @@ struct fsl_esdhc_cfg {
 #endif
 
 #ifdef CONFIG_FSL_ESDHC_IMX
-int fsl_esdhc_mmc_init(bd_t *bis);
-int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg);
-void fdt_fixup_esdhc(void *blob, bd_t *bd);
+int fsl_esdhc_mmc_init(struct bd_info *bis);
+int fsl_esdhc_initialize(struct bd_info *bis, struct fsl_esdhc_cfg *cfg);
+void fdt_fixup_esdhc(void *blob, struct bd_info *bd);
 #else
-static inline int fsl_esdhc_mmc_init(bd_t *bis) { return -ENOSYS; }
-static inline void fdt_fixup_esdhc(void *blob, bd_t *bd) {}
+static inline int fsl_esdhc_mmc_init(struct bd_info *bis) { return -ENOSYS; }
+static inline void fdt_fixup_esdhc(void *blob, struct bd_info *bd) {}
 #endif /* CONFIG_FSL_ESDHC_IMX */
 void __noreturn mmc_boot(void);
 void mmc_spl_load_image(uint32_t offs, unsigned int size, void *vdst);

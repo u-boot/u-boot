@@ -193,7 +193,7 @@ int board_early_init_r (void)
 #endif /* CONFIG_BOARD_EARLY_INIT_R */
 
 #ifdef CONFIG_OF_BOARD_SETUP
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	u32 val[12];
 	int rc, i = 0;

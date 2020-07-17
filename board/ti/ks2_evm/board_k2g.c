@@ -223,7 +223,7 @@ s16 divn_val[16] = {
 };
 
 #if defined(CONFIG_MMC)
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	if (psc_enable_module(KS2_LPSC_MMC)) {
 		printf("%s module enabled failed\n", __func__);

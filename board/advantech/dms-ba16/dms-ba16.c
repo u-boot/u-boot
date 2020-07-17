@@ -254,7 +254,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return ret;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	int ret;
 	int i;
@@ -452,7 +452,7 @@ int overwrite_console(void)
 	return 1;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	setup_iomux_enet();
 	setup_pcie();

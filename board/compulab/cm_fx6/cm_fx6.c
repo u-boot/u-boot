@@ -458,7 +458,7 @@ static int handle_mac_address(char *env_var, uint eeprom_bus)
 
 #define SB_FX6_I2C_EEPROM_BUS	0
 #define NO_MAC_ADDR		"No MAC address found for %s\n"
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int err;
 
@@ -537,7 +537,7 @@ static const struct node_info nodes[] = {
 	{ "jedec,spi-nor",	MTD_DEV_TYPE_NOR,	},
 };
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	u32 baseboard_rev;
 	int nodeoffset;

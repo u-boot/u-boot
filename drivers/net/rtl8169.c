@@ -901,7 +901,7 @@ static int rtl8169_eth_start(struct udevice *dev)
 /**************************************************************************
 RESET - Finish setting up the ethernet interface
 ***************************************************************************/
-static int rtl_reset(struct eth_device *dev, bd_t *bis)
+static int rtl_reset(struct eth_device *dev, struct bd_info *bis)
 {
 	rtl8169_common_start((pci_dev_t)(unsigned long)dev->priv,
 			     dev->enetaddr, dev->iobase);
@@ -1119,7 +1119,7 @@ static int rtl_init(unsigned long dev_ioaddr, const char *name,
 }
 
 #ifndef CONFIG_DM_ETH
-int rtl8169_initialize(bd_t *bis)
+int rtl8169_initialize(struct bd_info *bis)
 {
 	pci_dev_t devno;
 	int card_number = 0;

@@ -290,7 +290,7 @@ int arch_misc_init(void)
 #endif /* CONFIG_ARCH_MISC_INIT */
 
 #ifdef CONFIG_MVGBE
-int cpu_eth_init(bd_t *bis)
+int cpu_eth_init(struct bd_info *bis)
 {
 	mvgbe_initialize(bis);
 	return 0;

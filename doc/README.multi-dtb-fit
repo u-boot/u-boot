@@ -9,7 +9,7 @@ U-Boot flavor:
 Usually the DTB is selected by the SPL and passed down to U-Boot. But some
 platforms don't use the SPL. In this case MULTI_DTB_FIT can used to provide
 U-Boot with a choice of DTBs.
-The relevant DTBs are packed into a FIT (list provided by CONFIG__OF_LIST). The
+The relevant DTBs are packed into a FIT (list provided by CONFIG_OF_LIST). The
 FIT is automatically generated at the end of the compilation and appended to
 u-boot.bin so that U-Boot can locate it and select the correct DTB from inside
 the FIT.
@@ -27,7 +27,7 @@ can be used.
 The relevant DTBs are packed into a FIT. This FIT is automatically generated
 at the end of the compilation, compressed and appended to u-boot-spl.bin, so
 that SPL can locate it and select the correct DTB from inside the FIT.
-CONFIG_SPL__OF_LIST is used to list the relevant DTBs.
+CONFIG_SPL_OF_LIST is used to list the relevant DTBs.
 The compression stage is optional but reduces the impact on the size of the
 SPL. LZO and GZIP compressions are supported. By default, the area where the
 FIT is uncompressed is dynamicaly allocated but this behaviour can be changed

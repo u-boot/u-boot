@@ -120,7 +120,7 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 }
 #endif /* #ifdef CONFIG_FMAN_ENET */
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_FMAN_ENET
 	struct fsl_pq_mdio_info dtsec_mdio_info;

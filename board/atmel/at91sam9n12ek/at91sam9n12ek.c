@@ -207,7 +207,7 @@ int board_init(void)
 }
 
 #ifdef CONFIG_KS8851_MLL
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return ks8851_mll_initialize(0, CONFIG_KS8851_MLL_BASEADDR);
 }

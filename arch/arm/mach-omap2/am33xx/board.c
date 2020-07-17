@@ -160,7 +160,7 @@ const struct gpio_bank *const omap_gpio_bank = gpio_bank_am33xx;
 #endif
 
 #if defined(CONFIG_MMC_OMAP_HS)
-int cpu_mmc_init(bd_t *bis)
+int cpu_mmc_init(struct bd_info *bis)
 {
 	int ret;
 

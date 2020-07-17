@@ -712,7 +712,7 @@ struct vsc9953_info {
 	struct vsc9953_port_info	port[VSC9953_MAX_PORTS];
 };
 
-void vsc9953_init(bd_t *bis);
+void vsc9953_init(struct bd_info *bis);
 
 void vsc9953_port_info_set_mdio(int port_no, struct mii_dev *bus);
 void vsc9953_port_info_set_phy_address(int port_no, int address);

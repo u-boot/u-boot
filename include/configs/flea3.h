@@ -47,7 +47,6 @@
 /*
  * UART (console)
  */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART3_BASE
 
 /* allow to overwrite serial and ethaddr */

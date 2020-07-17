@@ -137,7 +137,7 @@ skip_pci:
 	mpc83xx_pcie_init(pex2 ? 1 : 2, pcie_reg);
 }
 
-void ft_pcie_fixup(void *blob, bd_t *bd)
+void ft_pcie_fixup(void *blob, struct bd_info *bd)
 {
 	const char *status = "disabled (PCIE1 is x2)";
 

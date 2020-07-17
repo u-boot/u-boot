@@ -100,7 +100,7 @@ unsigned long get_board_ddr_clk(ulong dummy)
 	return gd->mem_clk;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	ccsr_gur_t *gur = (ccsr_gur_t *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 	struct fsl_pq_mdio_info dtsec_mdio_info;
@@ -134,7 +134,7 @@ int board_eth_init(bd_t *bis)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;

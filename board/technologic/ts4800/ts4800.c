@@ -121,7 +121,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return ret;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	static const iomux_v3_cfg_t sd1_pads[] = {
 		NEW_PAD_CTRL(MX51_PAD_SD1_CMD__SD1_CMD, PAD_CTL_DSE_MAX |
@@ -191,7 +191,7 @@ static int fec_get_mac_from_register(uint32_t base_addr)
 }
 
 #define TS4800_GPIO_FEC_PHY_RES         IMX_GPIO_NR(2, 14)
-int board_eth_init(bd_t *bd)
+int board_eth_init(struct bd_info *bd)
 {
 	int dev_id = -1;
 	int phy_id = 0xFF;

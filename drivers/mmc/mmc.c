@@ -2979,13 +2979,13 @@ int mmc_set_dsr(struct mmc *mmc, u16 val)
 }
 
 /* CPU-specific MMC initializations */
-__weak int cpu_mmc_init(bd_t *bis)
+__weak int cpu_mmc_init(struct bd_info *bis)
 {
 	return -1;
 }
 
 /* board-specific MMC initializations. */
-__weak int board_mmc_init(bd_t *bis)
+__weak int board_mmc_init(struct bd_info *bis)
 {
 	return -1;
 }
@@ -2996,7 +2996,7 @@ void mmc_set_preinit(struct mmc *mmc, int preinit)
 }
 
 #if CONFIG_IS_ENABLED(DM_MMC)
-static int mmc_probe(bd_t *bis)
+static int mmc_probe(struct bd_info *bis)
 {
 	int ret, i;
 	struct uclass *uc;
@@ -3025,7 +3025,7 @@ static int mmc_probe(bd_t *bis)
 	return 0;
 }
 #else
-static int mmc_probe(bd_t *bis)
+static int mmc_probe(struct bd_info *bis)
 {
 	if (board_mmc_init(bis) < 0)
 		cpu_mmc_init(bis);
@@ -3034,7 +3034,7 @@ static int mmc_probe(bd_t *bis)
 }
 #endif
 
-int mmc_initialize(bd_t *bis)
+int mmc_initialize(struct bd_info *bis)
 {
 	static int initialized = 0;
 	int ret;

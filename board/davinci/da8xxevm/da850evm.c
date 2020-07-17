@@ -453,7 +453,7 @@ int rmii_hw_init(void)
 /*
  * Initializes on-board ethernet controllers.
  */
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
 	/* Select RMII fucntion through the expander */

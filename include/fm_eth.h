@@ -199,10 +199,10 @@ struct memac_mdio_info {
 	char *name;
 };
 
-int fm_tgec_mdio_init(bd_t *bis, struct tgec_mdio_info *info);
-int fm_memac_mdio_init(bd_t *bis, struct memac_mdio_info *info);
+int fm_tgec_mdio_init(struct bd_info *bis, struct tgec_mdio_info *info);
+int fm_memac_mdio_init(struct bd_info *bis, struct memac_mdio_info *info);
 
-int fm_standard_init(bd_t *bis);
+int fm_standard_init(struct bd_info *bis);
 void fman_enet_init(void);
 void fdt_fixup_fman_ethernet(void *fdt);
 phy_interface_t fm_info_get_enet_if(enum fm_port port);

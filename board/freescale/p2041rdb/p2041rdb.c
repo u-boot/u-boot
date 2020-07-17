@@ -20,7 +20,7 @@
 #include <asm/fsl_liodn.h>
 #include <fm_eth.h>
 
-extern void pci_of_setup(void *blob, bd_t *bd);
+extern void pci_of_setup(void *blob, struct bd_info *bd);
 
 #include "cpld.h"
 
@@ -215,7 +215,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;

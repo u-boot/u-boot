@@ -43,7 +43,6 @@
 #define CONFIG_IMX_THERMAL
 
 /* Serial */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 
 #if !defined(CONFIG_SPI_FLASH) && defined(CONFIG_SPL_NAND_SUPPORT)

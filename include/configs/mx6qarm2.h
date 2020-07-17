@@ -13,7 +13,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
 
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART4_BASE
 
 /* MMC Configs */

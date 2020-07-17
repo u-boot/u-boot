@@ -170,7 +170,7 @@ static void ft_carveout_setup(void *fdt)
 	}
 }
 
-int ft_board_setup(void *fdt, bd_t *bd)
+int ft_board_setup(void *fdt, struct bd_info *bd)
 {
 	ft_mac_address_setup(fdt);
 	ft_carveout_setup(fdt);

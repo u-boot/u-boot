@@ -38,7 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static ulong get_sp (void);
 extern void ft_fixup_num_cores(void *blob);
-static void set_clocks_in_mhz (bd_t *kbd);
+static void set_clocks_in_mhz (struct bd_info *kbd);
 
 #ifndef CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE
 #define CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE	(768*1024*1024)
@@ -46,13 +46,13 @@ static void set_clocks_in_mhz (bd_t *kbd);
 
 static void boot_jump_linux(bootm_headers_t *images)
 {
-	void	(*kernel)(bd_t *, ulong r4, ulong r5, ulong r6,
-			  ulong r7, ulong r8, ulong r9);
+	void	(*kernel)(struct bd_info *, ulong r4, ulong r5, ulong r6,
+			      ulong r7, ulong r8, ulong r9);
 #ifdef CONFIG_OF_LIBFDT
 	char *of_flat_tree = images->ft_addr;
 #endif
 
-	kernel = (void (*)(bd_t *, ulong, ulong, ulong,
+	kernel = (void (*)(struct bd_info *, ulong, ulong, ulong,
 			   ulong, ulong, ulong))images->ep;
 	debug("## Transferring control to Linux (at address %08lx) ...\n",
 	      (ulong)kernel);
@@ -84,7 +84,7 @@ static void boot_jump_linux(bootm_headers_t *images)
 		 */
 		debug("   Booting using OF flat tree...\n");
 		WATCHDOG_RESET ();
-		(*kernel) ((bd_t *)of_flat_tree, 0, 0, EPAPR_MAGIC,
+		(*kernel) ((struct bd_info *)of_flat_tree, 0, 0, EPAPR_MAGIC,
 			   env_get_bootm_mapsize(), 0, 0);
 		/* does not return */
 	} else
@@ -104,7 +104,7 @@ static void boot_jump_linux(bootm_headers_t *images)
 		ulong cmd_end = images->cmdline_end;
 		ulong initrd_start = images->initrd_start;
 		ulong initrd_end = images->initrd_end;
-		bd_t *kbd = images->kbd;
+		struct bd_info *kbd = images->kbd;
 
 		debug("   Booting using board info...\n");
 		WATCHDOG_RESET ();
@@ -200,7 +200,7 @@ static int boot_bd_t_linux(bootm_headers_t *images)
 {
 	ulong of_size = images->ft_len;
 	struct lmb *lmb = &images->lmb;
-	bd_t **kbd = &images->kbd;
+	struct bd_info **kbd = &images->kbd;
 
 	int ret = 0;
 
@@ -270,7 +270,7 @@ static ulong get_sp (void)
 	return sp;
 }
 
-static void set_clocks_in_mhz (bd_t *kbd)
+static void set_clocks_in_mhz (struct bd_info *kbd)
 {
 	char	*s;
 

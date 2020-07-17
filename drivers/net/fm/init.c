@@ -87,7 +87,7 @@ struct fm_eth_info fm_info[] = {
 #endif
 };
 
-int fm_standard_init(bd_t *bis)
+int fm_standard_init(struct bd_info *bis)
 {
 	int i;
 	struct ccsr_fman *reg;

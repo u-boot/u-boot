@@ -44,7 +44,7 @@ int dram_init_banksize(void)
 }
 
 #if CONFIG_IS_ENABLED(OF_BOARD_SETUP) && CONFIG_IS_ENABLED(PCI)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	struct udevice *dev;
 	struct uclass *uc;

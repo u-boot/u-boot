@@ -220,7 +220,7 @@ static int decode_sromc(const void *blob, struct fdt_sromc *config)
 }
 #endif
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_SMC911X
 	u32 smc_bw_conf, smc_bc_conf;

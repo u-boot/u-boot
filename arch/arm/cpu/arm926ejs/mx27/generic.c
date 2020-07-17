@@ -177,7 +177,7 @@ int print_cpuinfo (void)
 }
 #endif
 
-int cpu_eth_init(bd_t *bis)
+int cpu_eth_init(struct bd_info *bis)
 {
 #if defined(CONFIG_FEC_MXC)
 	struct pll_regs *pll = (struct pll_regs *)IMX_PLL_BASE;
@@ -195,7 +195,7 @@ int cpu_eth_init(bd_t *bis)
  * Initializes on-chip MMC controllers.
  * to override, implement board_mmc_init()
  */
-int cpu_mmc_init(bd_t *bis)
+int cpu_mmc_init(struct bd_info *bis)
 {
 #ifdef CONFIG_MMC_MXC
 	return mxc_mmc_init(bis);

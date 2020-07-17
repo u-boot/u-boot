@@ -756,7 +756,7 @@ U_BOOT_DRIVER(ethoc) = {
 
 #else
 
-static int ethoc_init(struct eth_device *dev, bd_t *bd)
+static int ethoc_init(struct eth_device *dev, struct bd_info *bd)
 {
 	struct ethoc *priv = (struct ethoc *)dev->priv;
 

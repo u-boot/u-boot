@@ -13,7 +13,7 @@
 #include <asm/arch/soc.h>
 #include "pcie_layerscape_fixup_common.h"
 
-void ft_pci_setup(void *blob, bd_t *bd)
+void ft_pci_setup(void *blob, struct bd_info *bd)
 {
 #if defined(CONFIG_PCIE_LAYERSCAPE_GEN4)
 	uint svr;

@@ -302,7 +302,7 @@ int mpc8308_get_fpga_done(uint fpga)
 }
 
 #ifdef CONFIG_FSL_ESDHC
-int board_mmc_init(bd_t *bd)
+int board_mmc_init(struct bd_info *bd)
 {
 	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	sysconf83xx_t *sysconf = &immr->sysconf;
@@ -359,7 +359,7 @@ ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 	fsl_fdt_fixup_dr_usb(blob, bd);

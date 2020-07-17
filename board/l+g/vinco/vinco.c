@@ -109,7 +109,7 @@ void vinco_mci0_hw_init(void)
 	at91_periph_clk_enable(ATMEL_ID_MCI0);
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	/* Enable power for MCI0 interface */
 	at91_set_pio_output(AT91_PIO_PORTE, 7, 1);
@@ -194,7 +194,7 @@ int dram_init(void)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int rc = 0;
 

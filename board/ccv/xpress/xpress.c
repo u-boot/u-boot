@@ -178,7 +178,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return 1;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	imx_iomux_v3_setup_multiple_pads(usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
 
@@ -249,7 +249,7 @@ static iomux_v3_cfg_t const fec1_pads[] = {
 
 #define ENET_PHY_RESET_GPIO IMX_GPIO_NR(4, 17)
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int ret;
 

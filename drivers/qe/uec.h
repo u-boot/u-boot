@@ -735,7 +735,7 @@ typedef struct uec_private {
 	int				oldlink;
 } uec_private_t;
 
-int uec_initialize(bd_t *bis, uec_info_t *uec_info);
-int uec_eth_init(bd_t *bis, uec_info_t *uecs, int num);
-int uec_standard_init(bd_t *bis);
+int uec_initialize(struct bd_info *bis, uec_info_t *uec_info);
+int uec_eth_init(struct bd_info *bis, uec_info_t *uecs, int num);
+int uec_standard_init(struct bd_info *bis);
 #endif /* __UEC_H__ */

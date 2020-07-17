@@ -37,7 +37,6 @@
 /*
  * Serial
  */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART2_BASE
 
 /*

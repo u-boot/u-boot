@@ -58,7 +58,7 @@ int board_init(void)
 	return 0;
 }
 
-int ft_board_setup(void *fdt, bd_t *bd)
+int ft_board_setup(void *fdt, struct bd_info *bd)
 {
 	/* Create an arbitrary reservation to allow testing OF_BOARD_SETUP.*/
 	return fdt_add_mem_rsv(fdt, 0x00d02000, 0x4000);

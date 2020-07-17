@@ -320,7 +320,7 @@ static int write_srom(struct eth_device *dev, u_long ioaddr, int index,
 	return 1;
 }
 
-static void update_srom(struct eth_device *dev, bd_t *bis)
+static void update_srom(struct eth_device *dev, struct bd_info *bis)
 {
 	static unsigned short eeprom[0x40] = {
 		0x140b, 0x6610, 0x0000, 0x0000,	/* 00 */
@@ -356,7 +356,7 @@ static void update_srom(struct eth_device *dev, bd_t *bis)
 }
 #endif /* UPDATE_SROM */
 
-static void send_setup_frame(struct eth_device *dev, bd_t *bis)
+static void send_setup_frame(struct eth_device *dev, struct bd_info *bis)
 {
 	char setup_frame[SETUP_FRAME_LEN];
 	char *pa = &setup_frame[0];
@@ -484,7 +484,7 @@ static int dc21x4x_recv(struct eth_device *dev)
 	return length;
 }
 
-static int dc21x4x_init(struct eth_device *dev, bd_t *bis)
+static int dc21x4x_init(struct eth_device *dev, struct bd_info *bis)
 {
 	int i;
 	int devbusfn = (int)dev->priv;
@@ -547,7 +547,7 @@ static void dc21x4x_halt(struct eth_device *dev)
 	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, SLEEP);
 }
 
-static void read_hw_addr(struct eth_device *dev, bd_t *bis)
+static void read_hw_addr(struct eth_device *dev, struct bd_info *bis)
 {
 	u_short tmp, *p = (u_short *)(&dev->enetaddr[0]);
 	int i, j = 0;
@@ -573,7 +573,7 @@ static struct pci_device_id supported[] = {
 	{ }
 };
 
-int dc21x4x_initialize(bd_t *bis)
+int dc21x4x_initialize(struct bd_info *bis)
 {
 	struct eth_device *dev;
 	unsigned short status;

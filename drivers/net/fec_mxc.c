@@ -588,7 +588,7 @@ static int fec_open(struct eth_device *edev)
 #ifdef CONFIG_DM_ETH
 static int fecmxc_init(struct udevice *dev)
 #else
-static int fec_init(struct eth_device *dev, bd_t *bd)
+static int fec_init(struct eth_device *dev, struct bd_info *bd)
 #endif
 {
 #ifdef CONFIG_DM_ETH
@@ -1102,10 +1102,10 @@ struct mii_dev *fec_get_miibus(ulong base_addr, int dev_id)
 
 #ifndef CONFIG_DM_ETH
 #ifdef CONFIG_PHYLIB
-int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
+int fec_probe(struct bd_info *bd, int dev_id, uint32_t base_addr,
 		struct mii_dev *bus, struct phy_device *phydev)
 #else
-static int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
+static int fec_probe(struct bd_info *bd, int dev_id, uint32_t base_addr,
 		struct mii_dev *bus, int phy_id)
 #endif
 {
@@ -1199,7 +1199,8 @@ err1:
 	return ret;
 }
 
-int fecmxc_initialize_multi(bd_t *bd, int dev_id, int phy_id, uint32_t addr)
+int fecmxc_initialize_multi(struct bd_info *bd, int dev_id, int phy_id,
+			    uint32_t addr)
 {
 	uint32_t base_mii;
 	struct mii_dev *bus = NULL;
@@ -1250,7 +1251,7 @@ int fecmxc_initialize_multi(bd_t *bd, int dev_id, int phy_id, uint32_t addr)
 }
 
 #ifdef CONFIG_FEC_MXC_PHYADDR
-int fecmxc_initialize(bd_t *bd)
+int fecmxc_initialize(struct bd_info *bd)
 {
 	return fecmxc_initialize_multi(bd, -1, CONFIG_FEC_MXC_PHYADDR,
 			IMX_FEC_BASE);

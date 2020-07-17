@@ -341,7 +341,7 @@ int arch_misc_init(void)
 }
 #endif
 
-int cpu_eth_init(bd_t *bis)
+int cpu_eth_init(struct bd_info *bis)
 {
 	int rc = -ENODEV;
 
@@ -353,7 +353,7 @@ int cpu_eth_init(bd_t *bis)
 }
 
 #ifdef CONFIG_FSL_ESDHC_IMX
-int cpu_mmc_init(bd_t *bis)
+int cpu_mmc_init(struct bd_info *bis)
 {
 	return fsl_esdhc_mmc_init(bis);
 }

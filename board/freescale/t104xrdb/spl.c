@@ -89,10 +89,10 @@ void board_init_f(ulong bootflag)
 
 void board_init_r(gd_t *gd, ulong dest_addr)
 {
-	bd_t *bd;
+	struct bd_info *bd;
 
-	bd = (bd_t *)(gd + sizeof(gd_t));
-	memset(bd, 0, sizeof(bd_t));
+	bd = (struct bd_info *)(gd + sizeof(gd_t));
+	memset(bd, 0, sizeof(struct bd_info));
 	gd->bd = bd;
 	bd->bi_memstart = CONFIG_SYS_INIT_L3_ADDR;
 	bd->bi_memsize = CONFIG_SYS_L3_SIZE;

@@ -80,7 +80,7 @@ static struct fsl_esdhc_cfg cl_som_imx7_usdhc_cfg[3] = {
 	{USDHC3_BASE_ADDR},
 };
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	int i, ret;
 	/*
@@ -199,7 +199,7 @@ static int cl_som_imx7_handle_mac_address(char *env_var, uint eeprom_bus)
 
 #define CL_SOM_IMX7_FEC_DEV_ID_PRI 0
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	/* set Ethernet MAC address environment */
 	cl_som_imx7_handle_mac_address("ethaddr", CONFIG_SYS_I2C_EEPROM_BUS);

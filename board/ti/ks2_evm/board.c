@@ -93,7 +93,7 @@ u32 spl_boot_device(void)
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	int lpae;
 	char *env;
@@ -145,7 +145,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 
-void ft_board_setup_ex(void *blob, bd_t *bd)
+void ft_board_setup_ex(void *blob, struct bd_info *bd)
 {
 	int lpae;
 	u64 size;

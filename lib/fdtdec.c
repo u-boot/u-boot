@@ -1582,7 +1582,8 @@ int fdtdec_resetup(int *rescan)
 
 #ifdef CONFIG_NR_DRAM_BANKS
 int fdtdec_decode_ram_size(const void *blob, const char *area, int board_id,
-			   phys_addr_t *basep, phys_size_t *sizep, bd_t *bd)
+			   phys_addr_t *basep, phys_size_t *sizep,
+			   struct bd_info *bd)
 {
 	int addr_cells, size_cells;
 	const u32 *cell, *end;

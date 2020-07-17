@@ -248,7 +248,7 @@ static void stm32_fdt_disable_optee(void *blob)
  * This function is called right before the kernel is booted. "blob" is the
  * device tree that will be passed to the kernel.
  */
-int ft_system_setup(void *blob, bd_t *bd)
+int ft_system_setup(void *blob, struct bd_info *bd)
 {
 	int ret = 0;
 	int soc;

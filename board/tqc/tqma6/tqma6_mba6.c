@@ -186,7 +186,7 @@ const char *tqma6_bb_get_boardname(void)
  * Device Tree Support
  */
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
-void tqma6_bb_ft_board_setup(void *blob, bd_t *bd)
+void tqma6_bb_ft_board_setup(void *blob, struct bd_info *bd)
 {
  /* TBD */
 }

@@ -74,7 +74,7 @@ int dram_init_banksize(void)
 }
 
 #ifdef CONFIG_MMC
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	int ret;
 	/* dwmmc initializattion for available channels */

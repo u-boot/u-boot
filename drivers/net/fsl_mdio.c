@@ -130,7 +130,7 @@ int tsec_phy_write(struct mii_dev *bus, int addr, int dev_addr, int regnum,
 }
 
 #ifndef CONFIG_DM_MDIO
-int fsl_pq_mdio_init(bd_t *bis, struct fsl_pq_mdio_info *info)
+int fsl_pq_mdio_init(struct bd_info *bis, struct fsl_pq_mdio_info *info)
 {
 	struct mii_dev *bus = mdio_alloc();
 

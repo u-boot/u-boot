@@ -1663,7 +1663,7 @@ void setup_pmic(void)
 #ifdef CONFIG_FSL_ESDHC_IMX
 static struct fsl_esdhc_cfg usdhc_cfg[2];
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	struct ventana_board_info ventana_info;
 	int board_type = read_eeprom(CONFIG_I2C_GSC, &ventana_info);

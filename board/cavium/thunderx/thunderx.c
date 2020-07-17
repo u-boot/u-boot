@@ -116,7 +116,7 @@ void reset_cpu(ulong addr)
 /*
  * Board specific ethernet initialization routine.
  */
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int rc = 0;
 

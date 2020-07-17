@@ -132,7 +132,7 @@ void sdram_clear_mem(phys_addr_t addr, phys_size_t size)
 	}
 }
 
-void sdram_init_ecc_bits(bd_t *bd)
+void sdram_init_ecc_bits(struct bd_info *bd)
 {
 	phys_size_t size, size_init;
 	phys_addr_t start_addr;
@@ -176,7 +176,7 @@ void sdram_init_ecc_bits(bd_t *bd)
 	       (unsigned int)get_timer(start));
 }
 
-void sdram_size_check(bd_t *bd)
+void sdram_size_check(struct bd_info *bd)
 {
 	phys_size_t total_ram_check = 0;
 	phys_size_t ram_check = 0;

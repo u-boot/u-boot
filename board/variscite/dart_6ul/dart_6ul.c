@@ -141,7 +141,7 @@ static void setup_iomux_fec(int fec_id)
 						 ARRAY_SIZE(fec2_pads));
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int ret = 0;
 

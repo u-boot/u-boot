@@ -132,7 +132,7 @@ static void setup_net_chip(void)
 	reset_net_chip(64);
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_SMC911X
 	return smc911x_initialize(0, CONFIG_SMC911X_BASE);
@@ -159,7 +159,7 @@ static int ft_enable_by_compatible(void *blob, char *compat, int enable)
 	return 0;
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 #ifdef CONFIG_FDT_FIXUP_PARTITIONS
 	static const struct node_info nodes[] = {

@@ -124,7 +124,7 @@ static void announce_and_cleanup(int fake)
 	cleanup_before_linux();
 }
 
-static void setup_start_tag (bd_t *bd)
+static void setup_start_tag (struct bd_info *bd)
 {
 	params = (struct tag *)bd->bi_boot_params;
 
@@ -138,7 +138,7 @@ static void setup_start_tag (bd_t *bd)
 	params = tag_next (params);
 }
 
-static void setup_memory_tags(bd_t *bd)
+static void setup_memory_tags(struct bd_info *bd)
 {
 	int i;
 
@@ -153,7 +153,7 @@ static void setup_memory_tags(bd_t *bd)
 	}
 }
 
-static void setup_commandline_tag(bd_t *bd, char *commandline)
+static void setup_commandline_tag(struct bd_info *bd, char *commandline)
 {
 	char *p;
 
@@ -178,7 +178,8 @@ static void setup_commandline_tag(bd_t *bd, char *commandline)
 	params = tag_next (params);
 }
 
-static void setup_initrd_tag(bd_t *bd, ulong initrd_start, ulong initrd_end)
+static void setup_initrd_tag(struct bd_info *bd, ulong initrd_start,
+			     ulong initrd_end)
 {
 	/* an ATAG_INITRD node tells the kernel where the compressed
 	 * ramdisk can be found. ATAG_RDIMG is a better name, actually.
@@ -217,7 +218,7 @@ static void setup_revision_tag(struct tag **in_params)
 	params = tag_next (params);
 }
 
-static void setup_end_tag(bd_t *bd)
+static void setup_end_tag(struct bd_info *bd)
 {
 	params->hdr.tag = ATAG_NONE;
 	params->hdr.size = 0;

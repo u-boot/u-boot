@@ -185,7 +185,7 @@ void mpc83xx_pcislave_unlock(int bus)
 #endif
 
 #if defined(CONFIG_OF_LIBFDT)
-void ft_pci_setup(void *blob, bd_t *bd)
+void ft_pci_setup(void *blob, struct bd_info *bd)
 {
 	int nodeoffset;
 	int tmp[2];

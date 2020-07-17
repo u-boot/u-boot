@@ -144,7 +144,7 @@ void i2c_init_board(void)
 #endif
 
 #if defined(CONFIG_KM_COMMON_ETH_INIT)
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	if (ethernet_present())
 		return cpu_eth_init(bis);

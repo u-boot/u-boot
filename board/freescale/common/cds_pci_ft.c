@@ -64,7 +64,7 @@ static void cds_pci_fixup(void *blob)
 }
 #endif
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 #if defined(CONFIG_PCI) && !defined(CONFIG_DM_PCI)

@@ -504,7 +504,7 @@ static struct mmc_config mxcmci_cfg = {
 	.b_max		= CONFIG_SYS_MMC_MAX_BLK_COUNT,
 };
 
-static int mxcmci_initialize(bd_t *bis)
+static int mxcmci_initialize(struct bd_info *bis)
 {
 	host->base = (struct mxcmci_regs *)CONFIG_MXC_MCI_REGS_BASE;
 
@@ -518,7 +518,7 @@ static int mxcmci_initialize(bd_t *bis)
 	return 0;
 }
 
-int mxc_mmc_init(bd_t *bis)
+int mxc_mmc_init(struct bd_info *bis)
 {
 	return mxcmci_initialize(bis);
 }

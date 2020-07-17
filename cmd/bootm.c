@@ -185,7 +185,7 @@ static char bootm_help_text[] =
 	"\tfdt     - relocate flat device tree\n"
 #endif
 	"\tcmdline - OS specific command line processing/setup\n"
-	"\tbdt     - OS specific bd_t processing\n"
+	"\tbdt     - OS specific bd_info processing\n"
 	"\tprep    - OS specific prep before relocation or go\n"
 #if defined(CONFIG_TRACE)
 	"\tfake    - OS specific fake start without go\n"

@@ -381,7 +381,7 @@ __weak int is_flash_available(void)
 static int initr_flash(void)
 {
 	ulong flash_size = 0;
-	bd_t *bd = gd->bd;
+	struct bd_info *bd = gd->bd;
 
 	if (!is_flash_available())
 		return 0;
@@ -533,7 +533,7 @@ static int initr_api(void)
 #ifdef CONFIG_CMD_NET
 static int initr_ethaddr(void)
 {
-	bd_t *bd = gd->bd;
+	struct bd_info *bd = gd->bd;
 
 	/* kept around for legacy kernels only ... ignore the next section */
 	eth_env_get_enetaddr("ethaddr", bd->bi_enetaddr);

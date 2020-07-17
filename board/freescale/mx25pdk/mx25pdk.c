@@ -163,7 +163,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return !gpio_get_value(CARD_DETECT);
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	static const iomux_v3_cfg_t sdhc1_pads[] = {
 		NEW_PAD_CTRL(MX25_PAD_SD1_CMD__SD1_CMD, NO_PAD_CTRL),

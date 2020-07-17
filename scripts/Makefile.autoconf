@@ -104,7 +104,6 @@ define filechk_config_h
 		| sed '/=/ {s/=/	/;q; } ; { s/$$/	1/; }'; \
 	done;								\
 	echo \#define CONFIG_BOARDDIR board/$(if $(VENDOR),$(VENDOR)/)$(BOARD);\
-	echo \#include \<config_defaults.h\>;				\
 	echo \#include \<config_uncmd_spl.h\>;				\
 	echo \#include \<configs/$(CONFIG_SYS_CONFIG_NAME).h\>;		\
 	echo \#include \<asm/config.h\>;				\

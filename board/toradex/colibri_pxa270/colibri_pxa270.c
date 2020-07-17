@@ -51,7 +51,7 @@ int checkboard(void)
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	return ft_common_board_setup(blob, bd);
 }
@@ -115,7 +115,7 @@ void usb_board_stop(void)
 #endif
 
 #ifdef CONFIG_DRIVER_DM9000
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return dm9000_initialize(bis);
 }
@@ -123,7 +123,7 @@ int board_eth_init(bd_t *bis)
 
 #ifdef	CONFIG_CMD_MMC
 #if !CONFIG_IS_ENABLED(DM_MMC)
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	pxa_mmc_register(0);
 	return 0;

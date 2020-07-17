@@ -39,7 +39,7 @@ static bool get_inphi_phy_id(struct mii_dev *bus, int addr, int devad)
 		return false;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #if defined(CONFIG_FSL_MC_ENET)
 	struct memac_mdio_info mdio_info;

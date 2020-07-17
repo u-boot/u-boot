@@ -289,7 +289,7 @@ pci_init_board(void)
 }
 #endif
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	tsec_standard_init(bis);
 	pci_eth_init(bis);
@@ -302,7 +302,7 @@ int last_stage_init(void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 

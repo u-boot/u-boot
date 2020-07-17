@@ -142,10 +142,4 @@
 	"mmc read ${kernel_addr_r} ${boot_mmc_start} ${boot_mmc_size} && " \
 	"bootm ${kernel_addr_r};"
 
-/*
- * Defaults
- */
-
-#include <config_defaults.h>
-
 #endif

@@ -2605,7 +2605,7 @@ static void vsc9953_vcap_init(void)
 		      __LINE__);
 }
 
-void vsc9953_init(bd_t *bis)
+void vsc9953_init(struct bd_info *bis)
 {
 	u32 i;
 	u32 hdx_cfg = 0;

@@ -15,7 +15,7 @@ void reset_cpu(ulong addr)
 	writel(0x1, (void *)CRM_SWRESET);
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	if (designware_initialize(ETH0_BASE_ADDRESS, 0) >= 0)
 		return 1;

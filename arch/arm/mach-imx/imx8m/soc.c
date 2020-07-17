@@ -785,7 +785,7 @@ static int disable_cpu_nodes(void *blob, u32 disabled_cores)
 	return 0;
 }
 
-int ft_system_setup(void *blob, bd_t *bd)
+int ft_system_setup(void *blob, struct bd_info *bd)
 {
 #ifdef CONFIG_IMX8MQ
 	int i = 0;

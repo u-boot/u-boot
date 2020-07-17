@@ -36,7 +36,7 @@ bool armv7_boot_nonsec_default(void)
 }
 
 #ifdef CONFIG_OF_BOARD_SETUP
-int ft_board_setup(void *fdt, bd_t *bd)
+int ft_board_setup(void *fdt, struct bd_info *bd)
 {
 	int offset, tmp, len;
 	const struct fdt_property *prop;

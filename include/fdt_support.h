@@ -22,9 +22,9 @@
  */
 int arch_fixup_fdt(void *blob);
 
-void ft_cpu_setup(void *blob, bd_t *bd);
+void ft_cpu_setup(void *blob, struct bd_info *bd);
 
-void ft_pci_setup(void *blob, bd_t *bd);
+void ft_pci_setup(void *blob, struct bd_info *bd);
 
 u32 fdt_getprop_u32_default_node(const void *fdt, int off, int cell,
 				const char *prop, const u32 dflt);
@@ -137,9 +137,9 @@ void fdt_fixup_qe_firmware(void *fdt);
 int fdt_fixup_display(void *blob, const char *path, const char *display);
 
 #if defined(CONFIG_USB_EHCI_FSL) || defined(CONFIG_USB_XHCI_FSL)
-void fsl_fdt_fixup_dr_usb(void *blob, bd_t *bd);
+void fsl_fdt_fixup_dr_usb(void *blob, struct bd_info *bd);
 #else
-static inline void fsl_fdt_fixup_dr_usb(void *blob, bd_t *bd) {}
+static inline void fsl_fdt_fixup_dr_usb(void *blob, struct bd_info *bd) {}
 #endif /* defined(CONFIG_USB_EHCI_FSL) || defined(CONFIG_USB_XHCI_FSL) */
 
 #if defined(CONFIG_SYS_FSL_SEC_COMPAT)
@@ -180,10 +180,10 @@ int fdt_find_or_add_subnode(void *fdt, int parentoffset, const char *name);
  * This function is called if CONFIG_OF_BOARD_SETUP is defined
  *
  * @param blob		FDT blob to update
- * @param bd_t		Pointer to board data
+ * @param bd		Pointer to board data
  * @return 0 if ok, or -FDT_ERR_... on error
  */
-int ft_board_setup(void *blob, bd_t *bd);
+int ft_board_setup(void *blob, struct bd_info *bd);
 
 /*
  * The keystone2 SOC requires all 32 bit aliased addresses to be converted
@@ -191,9 +191,9 @@ int ft_board_setup(void *blob, bd_t *bd);
  * are added or modified by the image_setup_libfdt(). The ft_board_setup_ex()
  * called at the end of the image_setup_libfdt() is to do that convertion.
  */
-void ft_board_setup_ex(void *blob, bd_t *bd);
-void ft_cpu_setup(void *blob, bd_t *bd);
-void ft_pci_setup(void *blob, bd_t *bd);
+void ft_board_setup_ex(void *blob, struct bd_info *bd);
+void ft_cpu_setup(void *blob, struct bd_info *bd);
+void ft_pci_setup(void *blob, struct bd_info *bd);
 
 /**
  * Add system-specific data to the FDT before booting the OS.
@@ -202,10 +202,10 @@ void ft_pci_setup(void *blob, bd_t *bd);
  * This function is called if CONFIG_OF_SYSTEM_SETUP is defined
  *
  * @param blob		FDT blob to update
- * @param bd_t		Pointer to board data
+ * @param bd		Pointer to board data
  * @return 0 if ok, or -FDT_ERR_... on error
  */
-int ft_system_setup(void *blob, bd_t *bd);
+int ft_system_setup(void *blob, struct bd_info *bd);
 
 void set_working_fdt_addr(ulong addr);
 

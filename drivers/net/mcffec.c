@@ -89,7 +89,7 @@ static void fec_reset(struct fec_info_s *info)
 
 static void set_fec_duplex_speed(volatile fec_t *fecp, int dup_spd)
 {
-	bd_t *bd = gd->bd;
+	struct bd_info *bd = gd->bd;
 
 	if ((dup_spd >> 16) == FULL) {
 		/* Set maximum frame length */

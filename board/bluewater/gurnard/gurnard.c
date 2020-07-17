@@ -236,7 +236,7 @@ void gurnard_usb_init(void)
 #endif
 
 #ifdef CONFIG_GENERIC_ATMEL_MCI
-int cpu_mmc_init(bd_t *bis)
+int cpu_mmc_init(struct bd_info *bis)
 {
 	return atmel_mci_init((void *)ATMEL_BASE_MCI0);
 }
@@ -399,7 +399,7 @@ int board_late_init(void)
 }
 
 #ifndef CONFIG_DM_ETH
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC, 0);
 }

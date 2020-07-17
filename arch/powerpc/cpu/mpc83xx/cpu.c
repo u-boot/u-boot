@@ -184,7 +184,7 @@ void watchdog_reset (void)
  * Initializes on-chip ethernet controllers.
  * to override, implement board_eth_init()
  */
-int cpu_eth_init(bd_t *bis)
+int cpu_eth_init(struct bd_info *bis)
 {
 #if defined(CONFIG_UEC_ETH)
 	uec_standard_init(bis);
@@ -201,7 +201,7 @@ int cpu_eth_init(bd_t *bis)
  * Initializes on-chip MMC controllers.
  * to override, implement board_mmc_init()
  */
-int cpu_mmc_init(bd_t *bis)
+int cpu_mmc_init(struct bd_info *bis)
 {
 #ifdef CONFIG_FSL_ESDHC
 	return fsl_esdhc_mmc_init(bis);

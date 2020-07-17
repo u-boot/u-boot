@@ -189,7 +189,7 @@ static int fdt_fixup_l2switch(void *blob)
 	return 0;
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	/*
 	 * i.MX28 L2 switch needs manual update (fixup) of eth MAC address

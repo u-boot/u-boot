@@ -472,7 +472,7 @@ int board_late_init(void)
 
 #if defined(CONFIG_USB_ETHER) && \
 	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_USB_ETHER))
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return usb_eth_initialize(bis);
 }

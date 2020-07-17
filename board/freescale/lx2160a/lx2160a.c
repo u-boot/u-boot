@@ -649,7 +649,7 @@ void board_quiesce_devices(void)
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	int i;
 	u16 mc_memory_bank = 0;

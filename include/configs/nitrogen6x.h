@@ -19,7 +19,6 @@
 #define CONFIG_USBD_HS
 #define CONFIG_NETCONSOLE
 
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 
 /* I2C Configs */

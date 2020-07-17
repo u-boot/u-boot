@@ -438,7 +438,7 @@ __weak void fdt_fixup_ecam(void *blob)
 }
 #endif
 
-void ft_cpu_setup(void *blob, bd_t *bd)
+void ft_cpu_setup(void *blob, struct bd_info *bd)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	unsigned int svr = gur_in32(&gur->svr);

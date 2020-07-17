@@ -18,7 +18,7 @@ void __weak board_detail(void)
 
 void arch_print_bdinfo(void)
 {
-	bd_t *bd = gd->bd;
+	struct bd_info *bd = gd->bd;
 
 #if defined(CONFIG_SYS_INIT_RAM_ADDR)
 	bdinfo_print_num("sramstart", (ulong)bd->bi_sramstart);

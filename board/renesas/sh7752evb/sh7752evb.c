@@ -164,7 +164,7 @@ int board_init(void)
 	return 0;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	struct gpio_regs *gpio = GPIO_BASE;
 

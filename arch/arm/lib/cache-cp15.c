@@ -104,7 +104,7 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 
 __weak void dram_bank_mmu_setup(int bank)
 {
-	bd_t *bd = gd->bd;
+	struct bd_info *bd = gd->bd;
 	int	i;
 
 	/* bd->bi_dram is available only after relocation */

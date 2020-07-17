@@ -117,7 +117,7 @@ int board_mmc_getwp(struct mmc *mmc)
 	return ret;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	imx_iomux_v3_setup_multiple_pads(tqma6_usdhc3_pads,
 					 ARRAY_SIZE(tqma6_usdhc3_pads));
@@ -286,7 +286,7 @@ int checkboard(void)
  */
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 #define MODELSTRLEN 32u
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	char modelstr[MODELSTRLEN];
 
