@@ -83,8 +83,6 @@ int default_print_cpuinfo(void);
 /* Set up a UART which can be used with printch(), printhex8(), etc. */
 int setup_internal_uart(int enable);
 
-void setup_pcat_compatibility(void);
-
 void isa_unmap_rom(u32 addr);
 u32 isa_map_rom(u32 bus_addr, int size);
 

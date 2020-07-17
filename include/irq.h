@@ -8,6 +8,9 @@
 #ifndef __irq_H
 #define __irq_H
 
+struct acpi_irq;
+struct ofnode_phandle_args;
+
 /*
  * Interrupt controller types available. You can find a particular one with
  * irq_first_device_type()
@@ -24,10 +27,12 @@ enum irq_dev_t {
  *
  * @dev: IRQ device that handles this irq
  * @id: ID to identify this irq with the device
+ * @flags: Flags associated with this interrupt (IRQ_TYPE_...)
  */
 struct irq {
 	struct udevice *dev;
 	ulong id;
+	ulong flags;
 };
 
 /**
@@ -119,9 +124,35 @@ struct irq_ops {
 	 * @return 0 if OK, or a negative error code.
 	 */
 	int (*free)(struct irq *irq);
+
+#if CONFIG_IS_ENABLED(ACPIGEN)
+	/**
+	 * get_acpi() - Get the ACPI info for an irq
+	 *
+	 * This converts a irq to an ACPI structure for adding to the ACPI
+	 * tables.
+	 *
+	 * @irq:	irq to convert
+	 * @acpi_irq:	Output ACPI interrupt information
+	 * @return ACPI pin number or -ve on error
+	 */
+	int (*get_acpi)(const struct irq *irq, struct acpi_irq *acpi_irq);
+#endif
 };
 
 #define irq_get_ops(dev)	((struct irq_ops *)(dev)->driver->ops)
+
+/**
+ * irq_is_valid() - Check if an IRQ is valid
+ *
+ * @irq:	IRQ description containing device and ID, e.g. previously
+ *		returned by irq_get_by_index()
+ * @return true if valid, false if not
+ */
+static inline bool irq_is_valid(const struct irq *irq)
+{
+	return irq->dev != NULL;
+}
 
 /**
  * irq_route_pmc_gpio_gpe() - Get the GPIO for an event
@@ -222,5 +253,17 @@ int irq_free(struct irq *irq);
  *	probe
  */
 int irq_first_device_type(enum irq_dev_t type, struct udevice **devp);
+
+/**
+ * irq_get_acpi() - Get the ACPI info for an irq
+ *
+ * This converts a irq to an ACPI structure for adding to the ACPI
+ * tables.
+ *
+ * @irq:	irq to convert
+ * @acpi_irq:	Output ACPI interrupt information
+ * @return ACPI pin number or -ve on error
+ */
+int irq_get_acpi(const struct irq *irq, struct acpi_irq *acpi_irq);
 
 #endif

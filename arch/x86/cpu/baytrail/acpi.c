@@ -139,7 +139,7 @@ void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 	header->checksum = table_compute_checksum(fadt, header->length);
 }
 
-void acpi_create_gnvs(struct acpi_global_nvs *gnvs)
+int acpi_create_gnvs(struct acpi_global_nvs *gnvs)
 {
 	struct udevice *dev;
 	int ret;
@@ -159,9 +159,10 @@ void acpi_create_gnvs(struct acpi_global_nvs *gnvs)
 		gnvs->iuart_en = 1;
 	else
 		gnvs->iuart_en = 0;
+
+	return 0;
 }
 
-#ifdef CONFIG_HAVE_ACPI_RESUME
 /*
  * The following two routines are called at a very early stage, even before
  * FSP 2nd phase API fsp_init() is called. Registers off ACPI_BASE_ADDRESS
@@ -204,4 +205,3 @@ void chipset_clear_sleep_state(void)
 	pm1_cnt = inl(ACPI_BASE_ADDRESS + PM1_CNT);
 	outl(pm1_cnt & ~(SLP_TYP), ACPI_BASE_ADDRESS + PM1_CNT);
 }
-#endif

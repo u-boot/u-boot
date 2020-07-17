@@ -339,3 +339,17 @@ static int dm_test_pci_addr_live(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_pci_addr_live, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT |
 		DM_TESTF_LIVE_TREE);
+
+/* Test device_is_on_pci_bus() */
+static int dm_test_pci_on_bus(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1f, 0), &dev));
+	ut_asserteq(true, device_is_on_pci_bus(dev));
+	ut_asserteq(false, device_is_on_pci_bus(dev_get_parent(dev)));
+	ut_asserteq(true, device_is_on_pci_bus(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_pci_on_bus, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <irq.h>
+#include <acpi/acpi_device.h>
 #include <asm/test.h>
 #include <dm/test.h>
 #include <test/ut.h>
@@ -75,3 +76,25 @@ static int dm_test_request(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_request, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test of irq_get_acpi() */
+static int dm_test_irq_get_acpi(struct unit_test_state *uts)
+{
+	struct acpi_irq airq;
+	struct udevice *dev;
+	struct irq irq;
+
+	ut_assertok(uclass_first_device_err(UCLASS_TEST_FDT, &dev));
+	ut_assertok(irq_get_by_index(dev, 0, &irq));
+
+	/* see sandbox_get_acpi() */
+	ut_assertok(irq_get_acpi(&irq, &airq));
+	ut_asserteq(3, airq.pin);
+	ut_asserteq(ACPI_IRQ_LEVEL_TRIGGERED, airq.mode);
+	ut_asserteq(ACPI_IRQ_ACTIVE_HIGH, airq.polarity);
+	ut_asserteq(ACPI_IRQ_SHARED, airq.shared);
+	ut_asserteq(ACPI_IRQ_WAKE, airq.wake);
+
+	return 0;
+}
+DM_TEST(dm_test_irq_get_acpi, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

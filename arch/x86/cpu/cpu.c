@@ -25,6 +25,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <init.h>
+#include <irq.h>
 #include <log.h>
 #include <malloc.h>
 #include <syscon.h>
@@ -163,10 +164,10 @@ int default_print_cpuinfo(void)
 	       cpu_has_64bit() ? "x86_64" : "x86",
 	       cpu_vendor_name(gd->arch.x86_vendor), gd->arch.x86_device);
 
-#ifdef CONFIG_HAVE_ACPI_RESUME
-	debug("ACPI previous sleep state: %s\n",
-	      acpi_ss_string(gd->arch.prev_sleep_state));
-#endif
+	if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME)) {
+		debug("ACPI previous sleep state: %s\n",
+		      acpi_ss_string(gd->arch.prev_sleep_state));
+	}
 
 	return 0;
 }
@@ -178,10 +179,10 @@ void show_boot_progress(int val)
 
 #if !defined(CONFIG_SYS_COREBOOT) && !defined(CONFIG_EFI_STUB)
 /*
- * Implement a weak default function for boards that optionally
- * need to clean up the system before jumping to the kernel.
+ * Implement a weak default function for boards that need to do some final init
+ * before the system is ready.
  */
-__weak void board_final_cleanup(void)
+__weak void board_final_init(void)
 {
 }
 
@@ -189,14 +190,14 @@ int last_stage_init(void)
 {
 	struct acpi_fadt __maybe_unused *fadt;
 
-	board_final_cleanup();
+	board_final_init();
 
-#ifdef CONFIG_HAVE_ACPI_RESUME
-	fadt = acpi_find_fadt();
+	if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME)) {
+		fadt = acpi_find_fadt();
 
-	if (fadt && gd->arch.prev_sleep_state == ACPI_S3)
-		acpi_resume(fadt);
-#endif
+		if (fadt && gd->arch.prev_sleep_state == ACPI_S3)
+			acpi_resume(fadt);
+	}
 
 	write_tables();
 
@@ -269,25 +270,36 @@ int cpu_init_r(void)
 #ifndef CONFIG_EFI_STUB
 int reserve_arch(void)
 {
-#ifdef CONFIG_ENABLE_MRC_CACHE
-	mrccache_reserve();
-#endif
+	struct udevice *itss;
+	int ret;
+
+	if (IS_ENABLED(CONFIG_ENABLE_MRC_CACHE))
+		mrccache_reserve();
 
 #ifdef CONFIG_SEABIOS
 	high_table_reserve();
 #endif
 
-#ifdef CONFIG_HAVE_ACPI_RESUME
-	acpi_s3_reserve();
+	if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME)) {
+		acpi_s3_reserve();
 
-#ifdef CONFIG_HAVE_FSP
-	/*
-	 * Save stack address to CMOS so that at next S3 boot,
-	 * we can use it as the stack address for fsp_contiue()
-	 */
-	fsp_save_s3_stack();
-#endif /* CONFIG_HAVE_FSP */
-#endif /* CONFIG_HAVE_ACPI_RESUME */
+		if (IS_ENABLED(CONFIG_HAVE_FSP)) {
+			/*
+			 * Save stack address to CMOS so that at next S3 boot,
+			 * we can use it as the stack address for fsp_contiue()
+			 */
+			fsp_save_s3_stack();
+		}
+	}
+	ret = irq_first_device_type(X86_IRQT_ITSS, &itss);
+	if (!ret) {
+		/*
+		 * Snapshot the current GPIO IRQ polarities. FSP-S is about to
+		 * run and will set a default policy that doesn't honour boards'
+		 * requirements
+		 */
+		irq_snapshot_polarities(itss);
+	}
 
 	return 0;
 }

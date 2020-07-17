@@ -21,11 +21,11 @@ int high_table_reserve(void)
 	gd->arch.high_table_ptr = gd->start_addr_sp;
 
 	/* clear the memory */
-#ifdef CONFIG_HAVE_ACPI_RESUME
-	if (gd->arch.prev_sleep_state != ACPI_S3)
-#endif
+	if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME) &&
+	    gd->arch.prev_sleep_state != ACPI_S3) {
 		memset((void *)gd->arch.high_table_ptr, 0,
 		       CONFIG_HIGH_TABLE_SIZE);
+	}
 
 	gd->start_addr_sp &= ~0xf;
 

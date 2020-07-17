@@ -243,10 +243,10 @@ config NUVOTON_NCT6102D
 	  in the Nuvoton Super IO chips on X86 platforms.
 
 config P2SB
-	bool "Intel Primary-to-Sideband Bus"
+	bool "Intel Primary to Sideband Bridge"
 	depends on X86 || SANDBOX
 	help
-	  This enables support for the Intel Primary-to-Sideband bus,
+	  This enables support for the Intel Primary to Sideband Bridge,
 	  abbreviated to P2SB. The P2SB is used to access various peripherals
 	  such as eSPI, GPIO, through memory-mapped I/O in a large chunk of PCI
 	  space. The space is segmented into different channels and peripherals
@@ -256,20 +256,20 @@ config P2SB
 	  devices - see pcr_readl(), etc.
 
 config SPL_P2SB
-	bool "Intel Primary-to-Sideband Bus in SPL"
+	bool "Intel Primary to Sideband Bridge in SPL"
 	depends on SPL && (X86 || SANDBOX)
 	help
-	  The Primary-to-Sideband bus is used to access various peripherals
+	  The Primary to Sideband Bridge is used to access various peripherals
 	  through memory-mapped I/O in a large chunk of PCI space. The space is
 	  segmented into different channels and peripherals are accessed by
 	  device-specific means within those channels. Devices should be added
 	  in the device tree as subnodes of the p2sb.
 
 config TPL_P2SB
-	bool "Intel Primary-to-Sideband Bus in TPL"
+	bool "Intel Primary to Sideband Bridge in TPL"
 	depends on TPL && (X86 || SANDBOX)
 	help
-	  The Primary-to-Sideband bus is used to access various peripherals
+	  The Primary to Sideband Bridge is used to access various peripherals
 	  through memory-mapped I/O in a large chunk of PCI space. The space is
 	  segmented into different channels and peripherals are accessed by
 	  device-specific means within those channels. Devices should be added

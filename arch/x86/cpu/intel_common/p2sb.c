@@ -16,6 +16,9 @@
 #include <asm/pci.h>
 #include <linux/bitops.h>
 
+#define PCH_P2SB_E0		0xe0
+#define HIDE_BIT		BIT(0)
+
 struct p2sb_platdata {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct dtd_intel_p2sb dtplat;
@@ -127,6 +130,40 @@ static int p2sb_probe(struct udevice *dev)
 	return 0;
 }
 
+static void p2sb_set_hide_bit(struct udevice *dev, bool hide)
+{
+	dm_pci_clrset_config8(dev, PCH_P2SB_E0 + 1, HIDE_BIT,
+			      hide ? HIDE_BIT : 0);
+}
+
+static int intel_p2sb_set_hide(struct udevice *dev, bool hide)
+{
+	u16 vendor;
+
+	if (!CONFIG_IS_ENABLED(PCI))
+		return -EPERM;
+	p2sb_set_hide_bit(dev, hide);
+
+	dm_pci_read_config16(dev, PCI_VENDOR_ID, &vendor);
+	if (hide && vendor != 0xffff)
+		return log_msg_ret("hide", -EEXIST);
+	else if (!hide && vendor != PCI_VENDOR_ID_INTEL)
+		return log_msg_ret("unhide", -ENOMEDIUM);
+
+	return 0;
+}
+
+static int p2sb_remove(struct udevice *dev)
+{
+	int ret;
+
+	ret = intel_p2sb_set_hide(dev, true);
+	if (ret)
+		return log_msg_ret("hide", ret);
+
+	return 0;
+}
+
 static int p2sb_child_post_bind(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
@@ -143,6 +180,10 @@ static int p2sb_child_post_bind(struct udevice *dev)
 	return 0;
 }
 
+struct p2sb_ops p2sb_ops = {
+	.set_hide	= intel_p2sb_set_hide,
+};
+
 static const struct udevice_id p2sb_ids[] = {
 	{ .compatible = "intel,p2sb" },
 	{ }
@@ -153,9 +194,12 @@ U_BOOT_DRIVER(p2sb_drv) = {
 	.id		= UCLASS_P2SB,
 	.of_match	= p2sb_ids,
 	.probe		= p2sb_probe,
+	.remove		= p2sb_remove,
+	.ops		= &p2sb_ops,
 	.ofdata_to_platdata = p2sb_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct p2sb_platdata),
 	.per_child_platdata_auto_alloc_size =
 		sizeof(struct p2sb_child_platdata),
 	.child_post_bind = p2sb_child_post_bind,
+	.flags		= DM_FLAG_OS_PREPARE,
 };

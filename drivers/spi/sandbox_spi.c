@@ -21,6 +21,7 @@
 #include <linux/errno.h>
 #include <asm/spi.h>
 #include <asm/state.h>
+#include <dm/acpi.h>
 #include <dm/device-internal.h>
 
 #ifndef CONFIG_SPI_IDLE_VAL

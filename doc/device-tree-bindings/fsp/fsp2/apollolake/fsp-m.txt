@@ -17,6 +17,10 @@ values of the FSP-M are used.
 [2] https://github.com/IntelFsp/FSP/tree/master/ApolloLakeFspBinPkg/Docs
 
 Optional properties:
+- fspm,training-delay: Time taken to train DDR memory if there is no cached MRC
+    data, in seconds. This is used to show a message if possible. For Chromebook
+    Coral this is typically 21 seconds. For an APL board with 1GB of RAM, it may
+    be only 6 seconds.
 - fspm,serial-debug-port-address: Debug Serial Port Base address
 - fspm,serial-debug-port-type: Debug Serial Port Type
   0: NONE

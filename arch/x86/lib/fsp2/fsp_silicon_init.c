@@ -32,6 +32,7 @@ int fsp_silicon_init(bool s3wake, bool use_spi_flash)
 			     &rom_offset);
 	if (ret)
 		return log_msg_ret("locate FSP", ret);
+	binman_set_rom_offset(rom_offset);
 	gd->arch.fsp_s_hdr = hdr;
 
 	/* Copy over the default config */

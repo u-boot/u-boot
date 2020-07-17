@@ -31,12 +31,35 @@ struct p2sb_uc_priv {
 };
 
 /**
- * struct p2sb_ops - Operations for the P2SB (none at present)
+ * struct p2sb_ops - Operations for the P2SB
  */
 struct p2sb_ops {
+	/**
+	 * set_hide() - Set/clear the 'hide' bit on the p2sb
+	 *
+	 * This device can be hidden from the PCI bus if needed. This method
+	 * can be called before the p2sb is probed.
+	 *
+	 * @dev: P2SB device
+	 * @hide: true to hide the device, false to show it
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*set_hide)(struct udevice *dev, bool hide);
 };
 
 #define p2sb_get_ops(dev)        ((struct p2sb_ops *)(dev)->driver->ops)
+
+/**
+ * p2sb_set_hide() - Set/clear the 'hide' bit on the p2sb
+ *
+ * This device can be hidden from the PCI bus if needed. This method
+ * can be called before the p2sb is probed.
+ *
+ * @dev: P2SB device
+ * @hide: true to hide the device, false to show it
+ * @return 0 if OK, -ve on error
+ */
+int p2sb_set_hide(struct udevice *dev, bool hide);
 
 /**
  * pcr_read32/16/8() - Read from a PCR device
@@ -131,5 +154,14 @@ int p2sb_set_port_id(struct udevice *dev, int portid);
  * @return Port ID of that child
  */
 int p2sb_get_port_id(struct udevice *dev);
+
+/**
+ * pcr_reg_address() Convert an offset in p2sb space to an absolute address
+ *
+ * @dev: Child device (whose parent is UCLASS_P2SB)
+ * @offset: Offset within that child's address space
+ * @return pointer to that offset within the child's address space
+ */
+void *pcr_reg_address(struct udevice *dev, uint offset);
 
 #endif

@@ -46,10 +46,12 @@ int arch_fsp_init(void)
 	void *nvs;
 	int stack = CONFIG_FSP_TEMP_RAM_ADDR;
 	int boot_mode = BOOT_FULL_CONFIG;
-#ifdef CONFIG_HAVE_ACPI_RESUME
-	int prev_sleep_state = chipset_prev_sleep_state();
-	gd->arch.prev_sleep_state = prev_sleep_state;
-#endif
+	int prev_sleep_state;
+
+	if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME)) {
+		prev_sleep_state = chipset_prev_sleep_state();
+		gd->arch.prev_sleep_state = prev_sleep_state;
+	}
 
 	if (!gd->arch.hob_list) {
 		if (IS_ENABLED(CONFIG_ENABLE_MRC_CACHE))
@@ -57,8 +59,8 @@ int arch_fsp_init(void)
 		else
 			nvs = NULL;
 
-#ifdef CONFIG_HAVE_ACPI_RESUME
-		if (prev_sleep_state == ACPI_S3) {
+		if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME) &&
+		    prev_sleep_state == ACPI_S3) {
 			if (nvs == NULL) {
 				/* If waking from S3 and no cache then */
 				debug("No MRC cache found in S3 resume path\n");
@@ -79,7 +81,7 @@ int arch_fsp_init(void)
 			stack = cmos_read32(CMOS_FSP_STACK_ADDR);
 			boot_mode = BOOT_ON_S3_RESUME;
 		}
-#endif
+
 		/*
 		 * The first time we enter here, call fsp_init().
 		 * Note the execution does not return to this function,

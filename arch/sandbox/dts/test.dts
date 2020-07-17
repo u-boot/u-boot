@@ -111,7 +111,9 @@
 		uint-value = <(-1234)>;
 		int64-value = /bits/ 64 <0x1111222233334444>;
 		int-array = <5678 9123 4567>;
+		str-value = "test string";
 		interrupts-extended = <&irq 3 0>;
+		acpi,name = "GHIJ";
 	};
 
 	junk {
@@ -253,12 +255,19 @@
 		compatible = "denx,u-boot-devres-test";
 	};
 
-	acpi-test {
+	acpi_test1: acpi-test {
 		compatible = "denx,u-boot-acpi-test";
+		acpi-ssdt-test-data = "ab";
+		acpi-dsdt-test-data = "hi";
+		child {
+			compatible = "denx,u-boot-acpi-test";
+		};
 	};
 
-	acpi-test2 {
+	acpi_test2: acpi-test2 {
 		compatible = "denx,u-boot-acpi-test";
+		acpi-ssdt-test-data = "cd";
+		acpi-dsdt-test-data = "jk";
 	};
 
 	clocks {
@@ -918,6 +927,7 @@
 		setting = "sunrise ohoka";
 		other-node = "/some-bus/c-test@5";
 		int-values = <0x1937 72993>;
+		u-boot,acpi-ssdt-order = <&acpi_test2 &acpi_test1>;
 		chosen-test {
 			compatible = "denx,u-boot-fdt-test";
 			reg = <9 1>;

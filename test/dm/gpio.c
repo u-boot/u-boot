@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
+#include <acpi/acpi_device.h>
 #include <dm/root.h>
 #include <dm/test.h>
 #include <dm/util.h>
@@ -417,3 +418,64 @@ static int dm_test_gpio_get_dir_flags(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_gpio_get_dir_flags, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test of gpio_get_acpi() */
+static int dm_test_gpio_get_acpi(struct unit_test_state *uts)
+{
+	struct acpi_gpio agpio;
+	struct udevice *dev;
+	struct gpio_desc desc;
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
+	ut_asserteq_str("a-test", dev->name);
+	ut_assertok(gpio_request_by_name(dev, "test-gpios", 1, &desc, 0));
+
+	/* See sb_gpio_get_acpi() */
+	ut_assertok(gpio_get_acpi(&desc, &agpio));
+	ut_asserteq(1, agpio.pin_count);
+	ut_asserteq(4, agpio.pins[0]);
+	ut_asserteq(ACPI_GPIO_TYPE_IO, agpio.type);
+	ut_asserteq(ACPI_GPIO_PULL_UP, agpio.pull);
+	ut_asserteq_str("\\_SB.PINC", agpio.resource);
+	ut_asserteq(0, agpio.interrupt_debounce_timeout);
+	ut_asserteq(0, agpio.irq.pin);
+	ut_asserteq(1234, agpio.output_drive_strength);
+	ut_asserteq(true, agpio.io_shared);
+	ut_asserteq(ACPI_GPIO_IO_RESTRICT_INPUT, agpio.io_restrict);
+	ut_asserteq(ACPI_GPIO_ACTIVE_HIGH, agpio.polarity);
+
+	return 0;
+}
+DM_TEST(dm_test_gpio_get_acpi, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test of gpio_get_acpi() with an interrupt GPIO */
+static int dm_test_gpio_get_acpi_irq(struct unit_test_state *uts)
+{
+	struct acpi_gpio agpio;
+	struct udevice *dev;
+	struct gpio_desc desc;
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
+	ut_asserteq_str("a-test", dev->name);
+	ut_assertok(gpio_request_by_name(dev, "test2-gpios", 2, &desc, 0));
+
+	/* See sb_gpio_get_acpi() */
+	ut_assertok(gpio_get_acpi(&desc, &agpio));
+	ut_asserteq(1, agpio.pin_count);
+	ut_asserteq(6, agpio.pins[0]);
+	ut_asserteq(ACPI_GPIO_TYPE_INTERRUPT, agpio.type);
+	ut_asserteq(ACPI_GPIO_PULL_DOWN, agpio.pull);
+	ut_asserteq_str("\\_SB.PINC", agpio.resource);
+	ut_asserteq(4321, agpio.interrupt_debounce_timeout);
+	ut_asserteq(6, agpio.irq.pin);
+	ut_asserteq(ACPI_IRQ_ACTIVE_BOTH, agpio.irq.polarity);
+	ut_asserteq(ACPI_IRQ_SHARED, agpio.irq.shared);
+	ut_asserteq(true, agpio.irq.wake);
+	ut_asserteq(0, agpio.output_drive_strength);
+	ut_asserteq(false, agpio.io_shared);
+	ut_asserteq(0, agpio.io_restrict);
+	ut_asserteq(ACPI_GPIO_ACTIVE_LOW, agpio.polarity);
+
+	return 0;
+}
+DM_TEST(dm_test_gpio_get_acpi_irq, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

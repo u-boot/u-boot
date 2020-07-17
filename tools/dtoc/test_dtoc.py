@@ -72,6 +72,7 @@ class TestDtoc(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         tools.PrepareOutputDir(None)
+        cls.maxDiff = None
 
     @classmethod
     def tearDownClass(cls):
@@ -188,6 +189,7 @@ struct dtd_sandbox_pmic_test {
 \tfdt64_t\t\treg[2];
 };
 struct dtd_sandbox_spl_test {
+\tconst char *	acpi_name;
 \tbool\t\tboolval;
 \tunsigned char\tbytearray[3];
 \tunsigned char\tbyteval;
@@ -225,6 +227,7 @@ U_BOOT_DEVICE(spl_test) = {
 };
 
 static struct dtd_sandbox_spl_test dtv_spl_test2 = {
+\t.acpi_name\t\t= "\\\\_SB.GPO0",
 \t.bytearray\t\t= {0x1, 0x23, 0x34},
 \t.byteval\t\t= 0x8,
 \t.intarray\t\t= {0x5, 0x0, 0x0, 0x0},

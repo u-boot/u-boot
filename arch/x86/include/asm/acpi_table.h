@@ -35,7 +35,15 @@ int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig, u32 base,
 			      u16 seg_nr, u8 start, u8 end);
 u32 acpi_fill_mcfg(u32 current);
 u32 acpi_fill_csrt(u32 current);
-void acpi_create_gnvs(struct acpi_global_nvs *gnvs);
+
+/**
+ * acpi_create_gnvs() - Create a GNVS (Global Non Volatile Storage) table
+ *
+ * @gnvs: Table to fill in
+ * @return 0 if OK, -ve on error
+ */
+int acpi_create_gnvs(struct acpi_global_nvs *gnvs);
+
 ulong write_acpi_tables(ulong start);
 
 /**

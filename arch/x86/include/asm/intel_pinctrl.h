@@ -99,7 +99,6 @@ struct pad_group {
  * groups exist inside a community
  *
  * @name: Community name
- * @acpi_path: ACPI path
  * @num_gpi_regs: number of gpi registers in community
  * @max_pads_per_group: number of pads in each group; number of pads bit-mapped
  *	in each GPI status/en and Host Own Reg
@@ -120,7 +119,6 @@ struct pad_group {
  */
 struct pad_community {
 	const char *name;
-	const char *acpi_path;
 	size_t num_gpi_regs;
 	size_t max_pads_per_group;
 	uint first_pad;
@@ -263,11 +261,23 @@ int pinctrl_read_pads(struct udevice *dev, ofnode node, const char *prop,
 int pinctrl_count_pads(struct udevice *dev, u32 *pads, int size);
 
 /**
- * intel_pinctrl_get_config_reg_addr() - Get address of the pin config registers
+ * intel_pinctrl_get_config_reg_offset() - Get offset of pin config registers
+ *
+ * This works out the register offset of a pin within the p2sb region.
  *
  * @dev: Pinctrl device
  * @offset: GPIO offset within this device
- * @return register offset within the GPIO p2sb region
+ * @return register offset of first register within the GPIO p2sb region
+ */
+u32 intel_pinctrl_get_config_reg_offset(struct udevice *dev, uint offset);
+
+/**
+ * intel_pinctrl_get_config_reg_addr() - Get address of pin config registers
+ *
+ * This works out the absolute address of the registers for a pin
+ * @dev: Pinctrl device
+ * @offset: GPIO offset within this device
+ * @return register address of first register within the GPIO p2sb region
  */
 u32 intel_pinctrl_get_config_reg_addr(struct udevice *dev, uint offset);
 
@@ -288,6 +298,7 @@ u32 intel_pinctrl_get_config_reg(struct udevice *dev, uint offset);
  * @pad: Pad to check
  * @devp: Returns pinctrl device containing that pad
  * @offsetp: Returns offset of pad within that pinctrl device
+ * @return 0 if OK, -ENOTBLK if pad number is invalid
  */
 int intel_pinctrl_get_pad(uint pad, struct udevice **devp, uint *offsetp);
 

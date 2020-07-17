@@ -717,6 +717,7 @@ config HAVE_ITSS
 
 config HAVE_P2SB
 	bool "Enable P2SB"
+	depends on P2SB
 	help
 	  Select this to include the driver for the Primary to
 	  Sideband Bridge (P2SB) which is found on several Intel

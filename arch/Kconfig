@@ -190,6 +190,7 @@ config X86
 	imply PCH
 	imply RTC_MC146818
 	imply IRQ
+	imply ACPIGEN if !QEMU
 
 	# Thing to enable for when SPL/TPL are enabled: SPL
 	imply SPL_DM

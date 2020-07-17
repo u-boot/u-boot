@@ -15,15 +15,6 @@
 #include <asm/io.h>
 #include <power/acpi_pmc.h>
 
-enum {
-	PM1_STS		= 0x00,
-	PM1_EN		= 0x02,
-	PM1_CNT		= 0x04,
-
-	GPE0_STS	= 0x20,
-	GPE0_EN		= 0x30,
-};
-
 struct tco_regs {
 	u32 tco_rld;
 	u32 tco_sts;

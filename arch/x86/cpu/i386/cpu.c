@@ -455,10 +455,15 @@ int x86_cpu_init_f(void)
 
 int x86_cpu_reinit_f(void)
 {
+	long addr;
+
 	setup_identity();
 	setup_pci_ram_top();
-	if (locate_coreboot_table() >= 0)
+	addr = locate_coreboot_table();
+	if (addr >= 0) {
+		gd->arch.coreboot_table = addr;
 		gd->flags |= GD_FLG_SKIP_LL_INIT;
+	}
 
 	return 0;
 }

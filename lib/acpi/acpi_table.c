@@ -237,6 +237,7 @@ static void acpi_write_xsdt(struct acpi_xsdt *xsdt)
 
 void acpi_setup_base_tables(struct acpi_ctx *ctx, void *start)
 {
+	ctx->base = start;
 	ctx->current = start;
 
 	/* Align ACPI tables to 16 byte */

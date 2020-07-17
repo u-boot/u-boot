@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <smbios.h>
 #include <acpi/acpi_table.h>
@@ -20,21 +21,32 @@
  */
 typedef ulong (*table_write)(ulong addr);
 
-static table_write table_write_funcs[] = {
+/**
+ * struct table_info - Information about each table to write
+ *
+ * @name: Name of table (for debugging)
+ * @write: Function to call to write this table
+ */
+struct table_info {
+	const char *name;
+	table_write write;
+};
+
+static struct table_info table_list[] = {
 #ifdef CONFIG_GENERATE_PIRQ_TABLE
-	write_pirq_routing_table,
+	{ "pirq", write_pirq_routing_table },
 #endif
 #ifdef CONFIG_GENERATE_SFI_TABLE
-	write_sfi_table,
+	{ "sfi", write_sfi_table, },
 #endif
 #ifdef CONFIG_GENERATE_MP_TABLE
-	write_mp_table,
+	{ "mp", write_mp_table, },
 #endif
 #ifdef CONFIG_GENERATE_ACPI_TABLE
-	write_acpi_tables,
+	{ "acpi", write_acpi_tables, },
 #endif
 #ifdef CONFIG_GENERATE_SMBIOS_TABLE
-	write_smbios_table,
+	{ "smbios", write_smbios_table, },
 #endif
 };
 
@@ -58,19 +70,22 @@ void write_tables(void)
 	u32 rom_table_end;
 #ifdef CONFIG_SEABIOS
 	u32 high_table, table_size;
-	struct memory_area cfg_tables[ARRAY_SIZE(table_write_funcs) + 1];
+	struct memory_area cfg_tables[ARRAY_SIZE(table_list) + 1];
 #endif
 	int i;
 
-	for (i = 0; i < ARRAY_SIZE(table_write_funcs); i++) {
-		rom_table_end = table_write_funcs[i](rom_table_start);
+	debug("Writing tables to %x:\n", rom_table_start);
+	for (i = 0; i < ARRAY_SIZE(table_list); i++) {
+		const struct table_info *table = &table_list[i];
+
+		rom_table_end = table->write(rom_table_start);
 		rom_table_end = ALIGN(rom_table_end, ROM_TABLE_ALIGN);
 
 #ifdef CONFIG_SEABIOS
 		table_size = rom_table_end - rom_table_start;
 		high_table = (u32)high_table_malloc(table_size);
 		if (high_table) {
-			table_write_funcs[i](high_table);
+			table->write(high_table);
 
 			cfg_tables[i].start = high_table;
 			cfg_tables[i].size = table_size;
@@ -79,6 +94,8 @@ void write_tables(void)
 		}
 #endif
 
+		debug("- wrote '%s' to %x, end %x\n", table->name,
+		      rom_table_start, rom_table_end);
 		rom_table_start = rom_table_end;
 	}
 
@@ -87,4 +104,5 @@ void write_tables(void)
 	cfg_tables[i].size = 0;
 	write_coreboot_table(CB_TABLE_ADDR, cfg_tables);
 #endif
+	debug("- done writing tables\n");
 }

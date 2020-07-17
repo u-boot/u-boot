@@ -14,6 +14,7 @@
 #include <mapmem.h>
 #include <serial.h>
 #include <version.h>
+#include <acpi/acpigen.h>
 #include <acpi/acpi_table.h>
 #include <asm/acpi/global_nvs.h>
 #include <asm/ioapic.h>
@@ -22,6 +23,7 @@
 #include <asm/tables.h>
 #include <asm/arch/global_nvs.h>
 #include <dm/acpi.h>
+#include <linux/err.h>
 
 /*
  * IASL compiles the dsdt entries and writes the hex values
@@ -153,7 +155,7 @@ static void acpi_create_madt(struct acpi_madt *madt)
 	/* Fill out header fields */
 	acpi_fill_header(header, "APIC");
 	header->length = sizeof(struct acpi_madt);
-	header->revision = 4;
+	header->revision = ACPI_MADT_REV_ACPI_3_0;
 
 	madt->lapic_addr = LAPIC_DEFAULT_BASE;
 	madt->flags = ACPI_MADT_PCAT_COMPAT;
@@ -210,13 +212,14 @@ static void acpi_create_mcfg(struct acpi_mcfg *mcfg)
 
 __weak u32 acpi_fill_csrt(u32 current)
 {
-	return current;
+	return 0;
 }
 
-static void acpi_create_csrt(struct acpi_csrt *csrt)
+static int acpi_create_csrt(struct acpi_csrt *csrt)
 {
 	struct acpi_table_header *header = &(csrt->header);
 	u32 current = (u32)csrt + sizeof(struct acpi_csrt);
+	uint ptr;
 
 	memset((void *)csrt, 0, sizeof(struct acpi_csrt));
 
@@ -225,11 +228,16 @@ static void acpi_create_csrt(struct acpi_csrt *csrt)
 	header->length = sizeof(struct acpi_csrt);
 	header->revision = 0;
 
-	current = acpi_fill_csrt(current);
+	ptr = acpi_fill_csrt(current);
+	if (!ptr)
+		return -ENOENT;
+	current = ptr;
 
 	/* (Re)calculate length and checksum */
 	header->length = current - (u32)csrt;
 	header->checksum = table_compute_checksum((void *)csrt, header->length);
+
+	return 0;
 }
 
 static void acpi_create_spcr(struct acpi_spcr *spcr)
@@ -354,6 +362,25 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 	header->checksum = table_compute_checksum((void *)spcr, header->length);
 }
 
+void acpi_create_ssdt(struct acpi_ctx *ctx, struct acpi_table_header *ssdt,
+		      const char *oem_table_id)
+{
+	memset((void *)ssdt, '\0', sizeof(struct acpi_table_header));
+
+	acpi_fill_header(ssdt, "SSDT");
+	ssdt->revision = acpi_get_table_revision(ACPITAB_SSDT);
+	ssdt->aslc_revision = 1;
+	ssdt->length = sizeof(struct acpi_table_header);
+
+	acpi_inc(ctx, sizeof(struct acpi_table_header));
+
+	acpi_fill_ssdt(ctx);
+
+	/* (Re)calculate length and checksum. */
+	ssdt->length = ctx->current - (void *)ssdt;
+	ssdt->checksum = table_compute_checksum((void *)ssdt, ssdt->length);
+}
+
 /*
  * QEMU's version of write_acpi_tables is defined in drivers/misc/qfw.c
  */
@@ -363,6 +390,7 @@ ulong write_acpi_tables(ulong start_addr)
 	struct acpi_facs *facs;
 	struct acpi_table_header *dsdt;
 	struct acpi_fadt *fadt;
+	struct acpi_table_header *ssdt;
 	struct acpi_mcfg *mcfg;
 	struct acpi_madt *madt;
 	struct acpi_csrt *csrt;
@@ -385,11 +413,20 @@ ulong write_acpi_tables(ulong start_addr)
 
 	debug("ACPI:    * DSDT\n");
 	dsdt = ctx->current;
+
+	/* Put the table header first */
 	memcpy(dsdt, &AmlCode, sizeof(struct acpi_table_header));
 	acpi_inc(ctx, sizeof(struct acpi_table_header));
+
+	/* If the table is not empty, allow devices to inject things */
+	if (dsdt->length >= sizeof(struct acpi_table_header))
+		acpi_inject_dsdt(ctx);
+
+	/* Copy in the AML code itself if any (after the header) */
 	memcpy(ctx->current,
 	       (char *)&AmlCode + sizeof(struct acpi_table_header),
 	       dsdt->length - sizeof(struct acpi_table_header));
+
 	acpi_inc_align(ctx, dsdt->length - sizeof(struct acpi_table_header));
 
 	/* Pack GNVS into the ACPI table area */
@@ -404,12 +441,23 @@ ulong write_acpi_tables(ulong start_addr)
 		}
 	}
 
-	/* Update DSDT checksum since we patched the GNVS address */
+	/*
+	 * Recalculate the length and update the DSDT checksum since we patched
+	 * the GNVS address. Set the checksum to zero since it is part of the
+	 * region being checksummed.
+	 */
+	dsdt->length = ctx->current - (void *)dsdt;
 	dsdt->checksum = 0;
 	dsdt->checksum = table_compute_checksum((void *)dsdt, dsdt->length);
 
-	/* Fill in platform-specific global NVS variables */
-	acpi_create_gnvs(ctx->current);
+	/*
+	 * Fill in platform-specific global NVS variables. If this fails we
+	 * cannot return the error but this should only happen while debugging.
+	 */
+	addr = acpi_create_gnvs(ctx->current);
+	if (IS_ERR_VALUE(addr))
+		printf("Error: Failed to create GNVS\n");
+
 	acpi_inc_align(ctx, sizeof(struct acpi_global_nvs));
 
 	debug("ACPI:    * FADT\n");
@@ -418,11 +466,13 @@ ulong write_acpi_tables(ulong start_addr)
 	acpi_create_fadt(fadt, facs, dsdt);
 	acpi_add_table(ctx, fadt);
 
-	debug("ACPI:    * MADT\n");
-	madt = ctx->current;
-	acpi_create_madt(madt);
-	acpi_inc_align(ctx, madt->header.length);
-	acpi_add_table(ctx, madt);
+	debug("ACPI:     * SSDT\n");
+	ssdt = (struct acpi_table_header *)ctx->current;
+	acpi_create_ssdt(ctx, ssdt, OEM_TABLE_ID);
+	if (ssdt->length > sizeof(struct acpi_table_header)) {
+		acpi_inc_align(ctx, ssdt->length);
+		acpi_add_table(ctx, ssdt);
+	}
 
 	debug("ACPI:    * MCFG\n");
 	mcfg = ctx->current;
@@ -430,11 +480,18 @@ ulong write_acpi_tables(ulong start_addr)
 	acpi_inc_align(ctx, mcfg->header.length);
 	acpi_add_table(ctx, mcfg);
 
+	debug("ACPI:    * MADT\n");
+	madt = ctx->current;
+	acpi_create_madt(madt);
+	acpi_inc_align(ctx, madt->header.length);
+	acpi_add_table(ctx, madt);
+
 	debug("ACPI:    * CSRT\n");
 	csrt = ctx->current;
-	acpi_create_csrt(csrt);
-	acpi_inc_align(ctx, csrt->header.length);
-	acpi_add_table(ctx, csrt);
+	if (!acpi_create_csrt(csrt)) {
+		acpi_inc_align(ctx, csrt->header.length);
+		acpi_add_table(ctx, csrt);
+	}
 
 	debug("ACPI:    * SPCR\n");
 	spcr = ctx->current;

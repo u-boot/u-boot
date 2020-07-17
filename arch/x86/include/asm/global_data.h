@@ -116,14 +116,14 @@ struct arch_global_data {
 	u32 high_table_ptr;
 	u32 high_table_limit;
 #endif
-#ifdef CONFIG_HAVE_ACPI_RESUME
 	int prev_sleep_state;		/* Previous sleep state ACPI_S0/1../5 */
 	ulong backup_mem;		/* Backup memory address for S3 */
-#endif
 #ifdef CONFIG_FSP_VERSION2
 	struct fsp_header *fsp_s_hdr;	/* Pointer to FSP-S header */
 #endif
+	void *itss_priv;		/* Private ITSS data pointer */
 	ulong acpi_start;		/* Start address of ACPI tables */
+	ulong coreboot_table;		/* Address of coreboot table */
 };
 
 #endif

@@ -16,19 +16,29 @@ int fspm_update_config(struct udevice *dev, struct fspm_upd *upd)
 {
 	struct fsp_m_config *cfg = &upd->config;
 	struct fspm_arch_upd *arch = &upd->arch;
+	int cache_ret = 0;
 	ofnode node;
+	int ret;
 
 	arch->nvs_buffer_ptr = NULL;
-	prepare_mrc_cache(upd);
-	arch->stack_base = (void *)0xfef96000;
+	cache_ret = prepare_mrc_cache(upd);
+	if (cache_ret && cache_ret != -ENOENT)
+		return log_msg_ret("mrc", cache_ret);
+	arch->stack_base = (void *)(CONFIG_SYS_CAR_ADDR + CONFIG_SYS_CAR_SIZE -
+		 arch->stack_size);
 	arch->boot_loader_tolum_size = 0;
-	arch->boot_mode = FSP_BOOT_WITH_FULL_CONFIGURATION;
+	arch->boot_mode = cache_ret ? FSP_BOOT_WITH_FULL_CONFIGURATION :
+		FSP_BOOT_ASSUMING_NO_CONFIGURATION_CHANGES;
 
 	node = dev_ofnode(dev);
 	if (!ofnode_valid(node))
 		return log_msg_ret("fsp-m settings", -ENOENT);
 
-	return fsp_m_update_config_from_dtb(node, cfg);
+	ret = fsp_m_update_config_from_dtb(node, cfg);
+	if (ret)
+		return log_msg_ret("dtb", cache_ret);
+
+	return cache_ret;
 }
 
 /*
