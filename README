@@ -3444,6 +3444,11 @@ List of environment variables (most likely not complete):
 		  downloads succeed with high packet loss rates, or with
 		  unreliable TFTP servers or client hardware.
 
+  tftpwindowsize	- if this is set, the value is used for TFTP's
+		  window size as described by RFC 7440.
+		  This means the count of blocks we can receive before
+		  sending ack to server.
+
   vlan		- When set to a value < 4095 the traffic over
 		  Ethernet is encapsulated/received over 802.1q
 		  VLAN tagged frames.
