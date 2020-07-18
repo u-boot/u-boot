@@ -10,6 +10,7 @@ obj-$(CONFIG_SANDBOX) += sysreset_sandbox.o
 obj-$(CONFIG_SYSRESET_GPIO) += sysreset_gpio.o
 obj-$(CONFIG_SYSRESET_MPC83XX) += sysreset_mpc83xx.o
 obj-$(CONFIG_SYSRESET_MICROBLAZE) += sysreset_microblaze.o
+obj-$(CONFIG_SYSRESET_OCTEON) += sysreset_octeon.o
 obj-$(CONFIG_SYSRESET_PSCI) += sysreset_psci.o
 obj-$(CONFIG_SYSRESET_SOCFPGA) += sysreset_socfpga.o
 obj-$(CONFIG_SYSRESET_SOCFPGA_S10) += sysreset_socfpga_s10.o

@@ -8,9 +8,7 @@
 #include <cpu_func.h>
 #include <asm/cache.h>
 #include <asm/cacheops.h>
-#ifdef CONFIG_MIPS_L2_CACHE
 #include <asm/cm.h>
-#endif
 #include <asm/io.h>
 #include <asm/mipsregs.h>
 #include <asm/system.h>
@@ -109,7 +107,7 @@ static inline unsigned long scache_line_size(void)
 	}								\
 } while (0)
 
-void flush_cache(ulong start_addr, ulong size)
+void __weak flush_cache(ulong start_addr, ulong size)
 {
 	unsigned long ilsize = icache_line_size();
 	unsigned long dlsize = dcache_line_size();
@@ -161,7 +159,7 @@ void __weak flush_dcache_range(ulong start_addr, ulong stop)
 	sync();
 }
 
-void invalidate_dcache_range(ulong start_addr, ulong stop)
+void __weak invalidate_dcache_range(ulong start_addr, ulong stop)
 {
 	unsigned long lsize = dcache_line_size();
 	unsigned long slsize = scache_line_size();

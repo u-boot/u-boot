@@ -770,6 +770,13 @@ M:	Ezequiel Garcia <ezequiel@collabora.com>
 S:	Maintained
 F:	arch/mips/mach-jz47xx/
 
+MIPS Octeon
+M:	Aaron Williams <awilliams@marvell.com>
+S:	Maintained
+F:	arch/mips/mach-octeon/
+F:	arch/mips/include/asm/arch-octeon/
+F:	arch/mips/dts/mrvl,cn73xx.dtsi
+
 MMC
 M:	Peng Fan <peng.fan@nxp.com>
 S:	Maintained

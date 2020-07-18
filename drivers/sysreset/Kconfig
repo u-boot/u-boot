@@ -57,6 +57,13 @@ config SYSRESET_MICROBLAZE
 	help
 	  This is soft reset on Microblaze which does jump to 0x0 address.
 
+config SYSRESET_OCTEON
+	bool "Enable support for Marvell Octeon SoC family"
+	depends on ARCH_OCTEON
+	help
+	  This enables the system reset driver support for Marvell Octeon
+	  SoCs.
+
 config SYSRESET_PSCI
 	bool "Enable support for PSCI System Reset"
 	depends on ARM_PSCI_FW
