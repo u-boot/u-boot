@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <blk.h>
+#include <dm.h>
 #include <dfu.h>
 #include <env.h>
 #include <memalign.h>

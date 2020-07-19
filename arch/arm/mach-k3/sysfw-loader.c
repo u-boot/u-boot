@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <image.h>
 #include <log.h>
 #include <spl.h>
