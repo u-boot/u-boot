@@ -4,12 +4,15 @@
  */
 
 #define LOG_CATEGORY UCLASS_CLK
-#include <kendryte/bypass.h>
 
+#include <common.h>
+#include <clk.h>
 #include <clk-uclass.h>
+#include <dm.h>
+#include <log.h>
+#include <kendryte/bypass.h>
 #include <linux/clk-provider.h>
 #include <linux/err.h>
-#include <log.h>
 
 #define CLK_K210_BYPASS "k210_clk_bypass"
 
