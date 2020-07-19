@@ -10,6 +10,8 @@
 #ifndef _PHY_INTERFACE_H
 #define _PHY_INTERFACE_H
 
+#include <string.h>
+
 typedef enum {
 	PHY_INTERFACE_MODE_MII,
 	PHY_INTERFACE_MODE_GMII,

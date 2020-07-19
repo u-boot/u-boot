@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <miiphy.h>
 
 typedef struct _MII_field_desc_t {
