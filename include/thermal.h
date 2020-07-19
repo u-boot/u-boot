@@ -7,7 +7,7 @@
 #ifndef _THERMAL_H_
 #define _THERMAL_H_
 
-#include <dm.h>
+struct udevice;
 
 int thermal_get_temp(struct udevice *dev, int *temp);
 
