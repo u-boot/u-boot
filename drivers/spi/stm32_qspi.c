@@ -9,8 +9,10 @@
 
 #include <common.h>
 #include <clk.h>
+#include <dm.h>
 #include <log.h>
 #include <reset.h>
+#include <spi.h>
 #include <spi-mem.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>

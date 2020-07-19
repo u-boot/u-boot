@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <malloc.h>
+#include <spi.h>
 #include <spi-mem.h>
 #include <wait_bit.h>
 #include <asm/io.h>
