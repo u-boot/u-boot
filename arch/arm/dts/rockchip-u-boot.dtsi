@@ -6,7 +6,13 @@
 #include <config.h>
 
 / {
-	binman {
+	binman: binman {
+		multiple-images;
+	};
+};
+
+&binman {
+	simple-bin {
 		filename = "u-boot-rockchip.bin";
 		pad-byte = <0xff>;
 
