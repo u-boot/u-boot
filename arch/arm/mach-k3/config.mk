@@ -44,7 +44,7 @@ tiboot3.bin: image_check FORCE
 	$(srctree)/tools/k3_gen_x509_cert.sh -c 16 -b $(obj)/u-boot-spl.bin \
 				-o $@ -l $(CONFIG_SPL_TEXT_BASE) -k $(KEY)
 
-ALL-y	+= tiboot3.bin
+INPUTS-y	+= tiboot3.bin
 endif
 
 ifdef CONFIG_ARM64
@@ -52,10 +52,10 @@ ifdef CONFIG_ARM64
 ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
 SPL_ITS := u-boot-spl-k3_HS.its
 $(SPL_ITS): export IS_HS=1
-ALL-y	+= tispl.bin_HS
+INPUTS-y	+= tispl.bin_HS
 else
 SPL_ITS := u-boot-spl-k3.its
-ALL-y	+= tispl.bin
+INPUTS-y	+= tispl.bin
 endif
 
 quiet_cmd_k3_mkits = MKITS   $@
@@ -70,9 +70,9 @@ endif
 else
 
 ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
-ALL-y	+= u-boot.img_HS
+INPUTS-y	+= u-boot.img_HS
 else
-ALL-y	+= u-boot.img
+INPUTS-y	+= u-boot.img
 endif
 endif
 

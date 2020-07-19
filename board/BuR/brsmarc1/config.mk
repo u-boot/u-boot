@@ -23,8 +23,8 @@ cmd_prodzip =					\
 	cp u-boot-dtb.img misc/ &&		\
 	zip -9 -r $@ misc/* >/dev/null $<
 
-ALL-y += $(hw-platform-y)_prog.bin
-ALL-y += $(hw-platform-y)_prod.zip
+INPUTS-y += $(hw-platform-y)_prog.bin
+INPUTS-y += $(hw-platform-y)_prod.zip
 
 $(hw-platform-y)_prog.bin: u-boot-dtb.img spl/u-boot-spl.bin
 	$(call if_changed,prodbin)

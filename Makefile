@@ -885,80 +885,80 @@ quiet_cmd_static_rela =
 cmd_static_rela =
 endif
 
-# Always append ALL so that arch config.mk's can add custom ones
-ALL-y += u-boot.srec u-boot.bin u-boot.sym System.map binary_size_check
+# Always append INPUTS so that arch config.mk's can add custom ones
+INPUTS-y += u-boot.srec u-boot.bin u-boot.sym System.map binary_size_check
 
-ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
+INPUTS-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
-ALL-$(CONFIG_RAMBOOT_PBL) += u-boot-with-spl-pbl.bin
+INPUTS-$(CONFIG_RAMBOOT_PBL) += u-boot-with-spl-pbl.bin
 else
 ifneq ($(CONFIG_NXP_ESBC), y)
 # For Secure Boot The Image needs to be signed and Header must also
 # be included. So The image has to be built explicitly
-ALL-$(CONFIG_RAMBOOT_PBL) += u-boot.pbl
+INPUTS-$(CONFIG_RAMBOOT_PBL) += u-boot.pbl
 endif
 endif
-ALL-$(CONFIG_SPL) += spl/u-boot-spl.bin
+INPUTS-$(CONFIG_SPL) += spl/u-boot-spl.bin
 ifeq ($(CONFIG_MX6)$(CONFIG_IMX_HAB), yy)
-ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot-ivt.img
+INPUTS-$(CONFIG_SPL_FRAMEWORK) += u-boot-ivt.img
 else
 ifeq ($(CONFIG_MX7)$(CONFIG_IMX_HAB), yy)
-ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot-ivt.img
+INPUTS-$(CONFIG_SPL_FRAMEWORK) += u-boot-ivt.img
 else
-ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot.img
+INPUTS-$(CONFIG_SPL_FRAMEWORK) += u-boot.img
 endif
 endif
-ALL-$(CONFIG_TPL) += tpl/u-boot-tpl.bin
-ALL-$(CONFIG_OF_SEPARATE) += u-boot.dtb
+INPUTS-$(CONFIG_TPL) += tpl/u-boot-tpl.bin
+INPUTS-$(CONFIG_OF_SEPARATE) += u-boot.dtb
 ifeq ($(CONFIG_SPL_FRAMEWORK),y)
-ALL-$(CONFIG_OF_SEPARATE) += u-boot-dtb.img
+INPUTS-$(CONFIG_OF_SEPARATE) += u-boot-dtb.img
 endif
-ALL-$(CONFIG_OF_HOSTFILE) += u-boot.dtb
+INPUTS-$(CONFIG_OF_HOSTFILE) += u-boot.dtb
 ifneq ($(CONFIG_SPL_TARGET),)
-ALL-$(CONFIG_SPL) += $(CONFIG_SPL_TARGET:"%"=%)
+INPUTS-$(CONFIG_SPL) += $(CONFIG_SPL_TARGET:"%"=%)
 endif
-ALL-$(CONFIG_REMAKE_ELF) += u-boot.elf
-ALL-$(CONFIG_EFI_APP) += u-boot-app.efi
-ALL-$(CONFIG_EFI_STUB) += u-boot-payload.efi
+INPUTS-$(CONFIG_REMAKE_ELF) += u-boot.elf
+INPUTS-$(CONFIG_EFI_APP) += u-boot-app.efi
+INPUTS-$(CONFIG_EFI_STUB) += u-boot-payload.efi
 
 ifneq ($(CONFIG_HAS_ROM),)
 ifneq ($(BUILD_ROM)$(CONFIG_BUILD_ROM),)
-ALL-y += u-boot.rom
+INPUTS-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
 endif
 endif
 
 ifeq ($(CONFIG_SYS_COREBOOT)$(CONFIG_SPL),yy)
-ALL-$(CONFIG_BINMAN) += u-boot-x86-with-spl.bin
+INPUTS-$(CONFIG_BINMAN) += u-boot-x86-with-spl.bin
 endif
 
 # Build a combined spl + u-boot image for sunxi
 ifeq ($(CONFIG_ARCH_SUNXI)$(CONFIG_SPL),yy)
-ALL-y += u-boot-sunxi-with-spl.bin
+INPUTS-y += u-boot-sunxi-with-spl.bin
 endif
 
 # enable combined SPL/u-boot/dtb rules for tegra
 ifeq ($(CONFIG_ARCH_TEGRA)$(CONFIG_SPL),yy)
-ALL-y += u-boot-tegra.bin u-boot-nodtb-tegra.bin
-ALL-$(CONFIG_OF_SEPARATE) += u-boot-dtb-tegra.bin
+INPUTS-y += u-boot-tegra.bin u-boot-nodtb-tegra.bin
+INPUTS-$(CONFIG_OF_SEPARATE) += u-boot-dtb-tegra.bin
 endif
 
-ALL-$(CONFIG_ARCH_MEDIATEK) += u-boot-mtk.bin
+INPUTS-$(CONFIG_ARCH_MEDIATEK) += u-boot-mtk.bin
 
 # Add optional build target if defined in board/cpu/soc headers
 ifneq ($(CONFIG_BUILD_TARGET),)
-ALL-y += $(CONFIG_BUILD_TARGET:"%"=%)
+INPUTS-y += $(CONFIG_BUILD_TARGET:"%"=%)
 endif
 
 ifeq ($(CONFIG_INIT_SP_RELATIVE)$(CONFIG_OF_SEPARATE),yy)
-ALL-y += init_sp_bss_offset_check
+INPUTS-y += init_sp_bss_offset_check
 endif
 
 ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
-ALL-y += u-boot-with-dtb.bin
+INPUTS-y += u-boot-with-dtb.bin
 endif
 
 ifeq ($(CONFIG_ARCH_ROCKCHIP)$(CONFIG_SPL),yy)
-ALL-y += u-boot-rockchip.bin
+INPUTS-y += u-boot-rockchip.bin
 endif
 
 LDFLAGS_u-boot += $(LDFLAGS_FINAL)
@@ -1015,7 +1015,11 @@ quiet_cmd_cfgcheck = CFGCHK  $2
 cmd_cfgcheck = $(srctree)/scripts/check-config.sh $2 \
 		$(srctree)/scripts/config_whitelist.txt $(srctree)
 
-all:		$(ALL-y)
+PHONY += inputs
+inputs: $(INPUTS-y)
+
+all: inputs
+
 ifeq ($(CONFIG_DEPRECATED),y)
 	$(warning "You have deprecated configuration options enabled in your .config! Please check your configuration.")
 ifeq ($(CONFIG_SPI),y)
