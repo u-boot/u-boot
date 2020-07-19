@@ -594,8 +594,13 @@ config HAVE_REFCODE
           Various peripherals may fail to work.
 
 config HAVE_MICROCODE
-	bool
+	bool "Board requires a microcode binary"
 	default y if !FSP_VERSION2
+	help
+	  Enable this if the board requires microcode to be loaded on boot.
+	  Typically this is handed by the FSP for modern boards, but for
+	  some older boards, it must be programmed by U-Boot, and that form
+	  part of the image.
 
 config SMP
 	bool "Enable Symmetric Multiprocessing"
