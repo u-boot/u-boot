@@ -1,5 +1,6 @@
 #include <common.h>
 #include <console.h>
+#include <dm.h>
 #include <malloc.h>
 #include <watchdog.h>
 #include <linux/delay.h>
@@ -452,3 +453,39 @@ struct musb *musb_register(struct musb_hdrc_platform_data *plat, void *bdata,
 
 	return *musbp;
 }
+
+#if CONFIG_IS_ENABLED(DM_USB)
+struct usb_device *usb_dev_get_parent(struct usb_device *udev)
+{
+	struct udevice *parent = udev->dev->parent;
+
+	/*
+	 * When called from usb-uclass.c: usb_scan_device() udev->dev points
+	 * to the parent udevice, not the actual udevice belonging to the
+	 * udev as the device is not instantiated yet.
+	 *
+	 * If dev is an usb-bus, then we are called from usb_scan_device() for
+	 * an usb-device plugged directly into the root port, return NULL.
+	 */
+	if (device_get_uclass_id(udev->dev) == UCLASS_USB)
+		return NULL;
+
+	/*
+	 * If these 2 are not the same we are being called from
+	 * usb_scan_device() and udev itself is the parent.
+	 */
+	if (dev_get_parent_priv(udev->dev) != udev)
+		return udev;
+
+	/* We are being called normally, use the parent pointer */
+	if (device_get_uclass_id(parent) == UCLASS_USB_HUB)
+		return dev_get_parent_priv(parent);
+
+	return NULL;
+}
+#else
+struct usb_device *usb_dev_get_parent(struct usb_device *udev)
+{
+	return udev->parent;
+}
+#endif
