@@ -1677,7 +1677,8 @@ class Builder:
             if duration.microseconds >= 500000:
                 duration = duration + timedelta(seconds=1)
             duration = duration - timedelta(microseconds=duration.microseconds)
-            msg += ', duration %s' % duration
+            rate = float(self.count) / duration.total_seconds()
+            msg += ', duration %s, rate %1.2f' % (duration, rate)
         Print(msg)
 
         return (self.fail, self.warned)

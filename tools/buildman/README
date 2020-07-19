@@ -1129,6 +1129,19 @@ The -y option is provided (for use with -s) to ignore the bountiful device-tree
 warnings. Similarly, -Y tells buildman to ignore the migration warnings.
 
 
+Build summary
+=============
+
+When buildman finishes it shows a summary, something like this:
+
+    Completed: 5 total built, duration 0:00:21, rate 0.24
+
+This shows that a total of 5 builds were done across all selected boards, it
+took 21 seconds and the builds happened at the rate of 0.24 per second. The
+latter number depends on the speed of your machine and the efficiency of the
+U-Boot build.
+
+
 How to change from MAKEALL
 ==========================
 
