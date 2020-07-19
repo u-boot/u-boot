@@ -7,9 +7,10 @@
 #include <common.h>
 #include <dm.h>
 #include <i2s.h>
-#include <dm/test.h>
-#include <test/ut.h>
 #include <asm/test.h>
+#include <dm/test.h>
+#include <test/test.h>
+#include <test/ut.h>
 
 /* Basic test of the i2s codec uclass */
 static int dm_test_i2s(struct unit_test_state *uts)

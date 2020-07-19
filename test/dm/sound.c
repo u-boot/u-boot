@@ -9,6 +9,7 @@
 #include <sound.h>
 #include <dm/test.h>
 #include <test/ut.h>
+#include <test/test.h>
 #include <asm/test.h>
 
 /* Basic test of the sound codec uclass */

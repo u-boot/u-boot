@@ -10,6 +10,7 @@
 #include <reset.h>
 #include <dm/test.h>
 #include <asm/reset.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 /* This must match the specifier for mbox-names="test" in the DT node */

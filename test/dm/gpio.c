@@ -9,10 +9,11 @@
 #include <log.h>
 #include <malloc.h>
 #include <acpi/acpi_device.h>
+#include <asm/gpio.h>
 #include <dm/root.h>
 #include <dm/test.h>
 #include <dm/util.h>
-#include <asm/gpio.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 /* Test that sandbox GPIOs work correctly */

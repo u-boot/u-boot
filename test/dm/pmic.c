@@ -10,16 +10,17 @@
 #include <errno.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <fsl_pmic.h>
 #include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/root.h>
-#include <dm/util.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
+#include <dm/util.h>
 #include <power/pmic.h>
 #include <power/sandbox_pmic.h>
+#include <test/test.h>
 #include <test/ut.h>
-#include <fsl_pmic.h>
 
 /* Test PMIC get method */
 

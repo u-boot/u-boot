@@ -8,6 +8,7 @@
 #include <malloc.h>
 #include <dm/test.h>
 #include <asm/power-domain.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 /* This must match the specifier for power-domains in the DT node */

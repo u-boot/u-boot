@@ -11,6 +11,7 @@
 #include <dm/test.h>
 #include <dm/uclass.h>
 #include <linux/err.h>
+#include <test/test.h>
 #include <test/ut.h>
 #include <sandbox-clk.h>
 

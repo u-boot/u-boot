@@ -9,6 +9,7 @@
 #include <generic-phy.h>
 #include <log.h>
 #include <dm/test.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 /* Base test of the phy uclass */

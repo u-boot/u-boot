@@ -6,9 +6,6 @@
 #ifndef __DM_TEST_H
 #define __DM_TEST_H
 
-#include <dm.h>
-#include <test/test.h>
-
 /**
  * struct dm_test_cdata - configuration data for test instance
  *
