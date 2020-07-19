@@ -922,7 +922,7 @@ INPUTS-$(CONFIG_EFI_APP) += u-boot-app.efi
 INPUTS-$(CONFIG_EFI_STUB) += u-boot-payload.efi
 
 # Build a combined spl + u-boot image for sunxi
-ifeq ($(CONFIG_ARCH_SUNXI)$(CONFIG_SPL),yy)
+ifeq ($(CONFIG_ARCH_SUNXI)$(CONFIG_ARM64)$(CONFIG_SPL),yyy)
 INPUTS-y += u-boot-sunxi-with-spl.bin
 endif
 
@@ -1606,10 +1606,7 @@ u-boot-x86-reset16.bin: u-boot FORCE
 endif # CONFIG_X86
 
 ifneq ($(CONFIG_ARCH_SUNXI),)
-ifeq ($(CONFIG_ARM64),)
-u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.img u-boot.dtb FORCE
-	$(call if_changed,binman)
-else
+ifeq ($(CONFIG_ARM64),y)
 u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.itb FORCE
 	$(call if_changed,cat)
 endif
