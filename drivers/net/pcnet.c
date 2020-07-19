@@ -10,7 +10,6 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <log.h>
-#include <dm.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <net.h>
