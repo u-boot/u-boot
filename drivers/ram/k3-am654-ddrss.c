@@ -13,7 +13,6 @@
 #include <ram.h>
 #include <asm/io.h>
 #include <power-domain.h>
-#include <dm.h>
 #include <asm/arch/sys_proto.h>
 #include <dm/device_compat.h>
 #include <power/regulator.h>
