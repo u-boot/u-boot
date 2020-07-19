@@ -4,11 +4,14 @@
  */
 #define USB_CLASS_HUB			9
 
+#include "rockchip-u-boot.dtsi"
+
 / {
 	aliases {
 		mmc0 = &sdhci;
 		mmc1 = &sdmmc;
 		pci0 = &pcie0;
+		spi1 = &spi1;
 	};
 
 	cic: syscon@ff620000 {
@@ -56,6 +59,30 @@
 	};
 
 };
+
+#ifdef CONFIG_ROCKCHIP_SPI_IMAGE
+&binman {
+	rom {
+		filename = "u-boot.rom";
+		size = <0x400000>;
+		pad-byte = <0xff>;
+
+		mkimage {
+			args = "-n rk3399 -T rkspi";
+			u-boot-spl {
+			};
+		};
+		u-boot-img {
+			offset = <0x40000>;
+		};
+		u-boot {
+			offset = <0x300000>;
+		};
+		fdtmap {
+		};
+	};
+};
+#endif
 
 &cru {
 	u-boot,dm-pre-reloc;

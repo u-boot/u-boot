@@ -5,6 +5,8 @@ choice
 
 config TARGET_CHROMEBOOK_BOB
 	bool "Asus Flip C101PA Chromebook (RK3399)"
+	select HAS_ROM
+	select ROCKCHIP_SPI_IMAGE
 	help
 	  Bob is a small RK3299-based device similar in apperance to Minnie.
 	  It has two USB 3.0 type-C ports, 4GB of SDRAM, WiFi and a 10.1",
