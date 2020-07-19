@@ -119,7 +119,7 @@ static int spi_flash_std_erase(struct udevice *dev, u32 offset, size_t len)
 	struct erase_info instr;
 
 	if (offset % mtd->erasesize || len % mtd->erasesize) {
-		printf("SF: Erase offset/length not multiple of erase size\n");
+		debug("SF: Erase offset/length not multiple of erase size\n");
 		return -EINVAL;
 	}
 
