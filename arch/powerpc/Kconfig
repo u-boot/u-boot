@@ -20,7 +20,7 @@ config MPC85xx
 	select CREATE_ARCH_SYMLINK
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
-	select BINMAN
+	select BINMAN if OF_SEPARATE
 	imply CMD_HASH
 	imply CMD_IRQ
 	imply USB_EHCI_HCD if USB
