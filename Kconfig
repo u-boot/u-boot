@@ -288,8 +288,11 @@ config ROM_NEEDS_BLOBS
 	depends on HAS_ROM
 	help
 	  Enable this if building the u-boot.rom target needs binary blobs, and
-	  so cannot be done normally. In this case, pass BUILD_ROM=1 to make
-	  to tell U-Boot to build the ROM.
+	  so cannot be done normally. In this case, U-Boot will only build the
+	  ROM if the required blobs exist. If not, you will see an warning like:
+
+	    Image 'main-section' is missing external blobs and is non-functional:
+	      intel-descriptor intel-me intel-refcode intel-vga intel-mrc
 
 config BUILD_ROM
 	bool "Build U-Boot as BIOS replacement"
