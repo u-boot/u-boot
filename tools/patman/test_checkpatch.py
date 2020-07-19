@@ -398,6 +398,13 @@ index 0000000..2234c87
         pm.add_line('common/main.c', '#undef CONFIG_CMD_WHICH')
         self.checkSingleMessage(pm, 'DEFINE_CONFIG_CMD', 'error')
 
+    def testBarredIncludeInHdr(self):
+        """Test for using a barred include in a header file"""
+        pm = PatchMaker()
+        #pm.add_line('include/myfile.h', '#include <common.h>')
+        pm.add_line('include/myfile.h', '#include <dm.h>')
+        self.checkSingleMessage(pm, 'BARRED_INCLUDE_IN_HDR', 'error')
+
 
 if __name__ == "__main__":
     unittest.main()
