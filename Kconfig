@@ -276,9 +276,25 @@ config PHYS_64BIT
 	  This can be used not only for 64bit SoCs, but also for
 	  large physical address extension on 32bit SoCs.
 
+config HAS_ROM
+	bool
+	select BINMAN
+	help
+	  Enables building of a u-boot.rom target. This collects U-Boot and
+	  any necessary binary blobs.
+
+config ROM_NEEDS_BLOBS
+	bool
+	depends on HAS_ROM
+	help
+	  Enable this if building the u-boot.rom target needs binary blobs, and
+	  so cannot be done normally. In this case, pass BUILD_ROM=1 to make
+	  to tell U-Boot to build the ROM.
+
 config BUILD_ROM
 	bool "Build U-Boot as BIOS replacement"
-	depends on X86
+	depends on HAS_ROM
+	default y if !ROM_NEEDS_BLOBS
 	help
 	  This option allows to build a ROM version of U-Boot.
 	  The build process generally requires several binary blobs

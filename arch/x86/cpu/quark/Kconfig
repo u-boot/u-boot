@@ -24,6 +24,7 @@ if INTEL_QUARK
 
 config HAVE_RMU
 	bool "Add a Remote Management Unit (RMU) binary"
+	select ROM_NEEDS_BLOBS
 	help
 	  Select this option to add a Remote Management Unit (RMU) binary
 	  to the resulting U-Boot image. It is a data block (up to 64K) of

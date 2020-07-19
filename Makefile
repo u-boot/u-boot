@@ -921,9 +921,12 @@ ALL-$(CONFIG_REMAKE_ELF) += u-boot.elf
 ALL-$(CONFIG_EFI_APP) += u-boot-app.efi
 ALL-$(CONFIG_EFI_STUB) += u-boot-payload.efi
 
+ifneq ($(CONFIG_HAS_ROM),)
 ifneq ($(BUILD_ROM)$(CONFIG_BUILD_ROM),)
-ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
+ALL-y += u-boot.rom
 endif
+endif
+
 ifeq ($(CONFIG_SYS_COREBOOT)$(CONFIG_SPL),yy)
 ALL-$(CONFIG_BINMAN) += u-boot-x86-with-spl.bin
 endif
@@ -1585,7 +1588,7 @@ endif
 # reset vector) at the top, Intel ME descriptor at the bottom, and U-Boot in
 # the middle. This is handled by binman based on an image description in the
 # board's device tree.
-ifneq ($(CONFIG_X86_RESET_VECTOR),)
+ifneq ($(CONFIG_HAS_ROM),)
 rom: u-boot.rom FORCE
 
 refcode.bin: $(srctree)/board/$(BOARDDIR)/refcode.bin FORCE
@@ -1595,11 +1598,12 @@ quiet_cmd_ldr = LD      $@
 cmd_ldr = $(LD) $(LDFLAGS_$(@F)) \
 	       $(filter-out FORCE,$^) -o $@
 
-u-boot.rom: u-boot-x86-start16.bin u-boot-x86-reset16.bin u-boot.bin \
+rom-deps := u-boot.bin
+ifdef CONFIG_X86
+rom-deps += u-boot-x86-start16.bin u-boot-x86-reset16.bin \
 		$(if $(CONFIG_SPL_X86_16BIT_INIT),spl/u-boot-spl.bin) \
 		$(if $(CONFIG_TPL_X86_16BIT_INIT),tpl/u-boot-tpl.bin) \
-		$(if $(CONFIG_HAVE_REFCODE),refcode.bin) FORCE
-	$(call if_changed,binman)
+		$(if $(CONFIG_HAVE_REFCODE),refcode.bin)
 
 OBJCOPYFLAGS_u-boot-x86-start16.bin := -O binary -j .start16
 u-boot-x86-start16.bin: u-boot FORCE
@@ -1608,6 +1612,10 @@ u-boot-x86-start16.bin: u-boot FORCE
 OBJCOPYFLAGS_u-boot-x86-reset16.bin := -O binary -j .resetvec
 u-boot-x86-reset16.bin: u-boot FORCE
 	$(call if_changed,objcopy)
+endif
+
+u-boot.rom: $(rom-deps) FORCE
+	$(call if_changed,binman)
 endif
 
 ifneq ($(CONFIG_ARCH_SUNXI),)
