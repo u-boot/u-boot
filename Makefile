@@ -921,16 +921,6 @@ INPUTS-$(CONFIG_REMAKE_ELF) += u-boot.elf
 INPUTS-$(CONFIG_EFI_APP) += u-boot-app.efi
 INPUTS-$(CONFIG_EFI_STUB) += u-boot-payload.efi
 
-ifneq ($(CONFIG_HAS_ROM),)
-ifneq ($(BUILD_ROM)$(CONFIG_BUILD_ROM),)
-INPUTS-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
-endif
-endif
-
-ifeq ($(CONFIG_SYS_COREBOOT)$(CONFIG_SPL),yy)
-INPUTS-$(CONFIG_BINMAN) += u-boot-x86-with-spl.bin
-endif
-
 # Build a combined spl + u-boot image for sunxi
 ifeq ($(CONFIG_ARCH_SUNXI)$(CONFIG_SPL),yy)
 INPUTS-y += u-boot-sunxi-with-spl.bin
@@ -960,6 +950,10 @@ endif
 ifeq ($(CONFIG_ARCH_ROCKCHIP)$(CONFIG_SPL),yy)
 INPUTS-y += u-boot-rockchip.bin
 endif
+
+INPUTS-$(CONFIG_X86) += u-boot-x86-start16.bin u-boot-x86-reset16.bin \
+	$(if $(CONFIG_SPL_X86_16BIT_INIT),spl/u-boot-spl.bin) \
+	$(if $(CONFIG_TPL_X86_16BIT_INIT),tpl/u-boot-tpl.bin)
 
 LDFLAGS_u-boot += $(LDFLAGS_FINAL)
 
@@ -1018,7 +1012,14 @@ cmd_cfgcheck = $(srctree)/scripts/check-config.sh $2 \
 PHONY += inputs
 inputs: $(INPUTS-y)
 
-all: inputs
+all: .binman_stamp inputs
+ifeq ($(CONFIG_BINMAN),y)
+	$(call if_changed,binman)
+endif
+
+# Timestamp file to make sure that binman always runs
+.binman_stamp: FORCE
+	@touch $@
 
 ifeq ($(CONFIG_DEPRECATED),y)
 	$(warning "You have deprecated configuration options enabled in your .config! Please check your configuration.")
@@ -1311,7 +1312,7 @@ quiet_cmd_binman = BINMAN  $@
 cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
                 --toolpath $(objtree)/tools \
 		$(if $(BINMAN_VERBOSE),-v$(BINMAN_VERBOSE)) \
-		build -u -d u-boot.dtb -O . -m \
+		build -u -d u-boot.dtb -O . -m --allow-missing \
 		-I . -I $(srctree) -I $(srctree)/board/$(BOARDDIR) \
 		$(BINMAN_$(@F))
 
@@ -1588,27 +1589,11 @@ u-boot-br.bin: u-boot FORCE
 endif
 endif
 
-# x86 uses a large ROM. We fill it with 0xff, put the 16-bit stuff (including
-# reset vector) at the top, Intel ME descriptor at the bottom, and U-Boot in
-# the middle. This is handled by binman based on an image description in the
-# board's device tree.
-ifneq ($(CONFIG_HAS_ROM),)
-rom: u-boot.rom FORCE
-
-refcode.bin: $(srctree)/board/$(BOARDDIR)/refcode.bin FORCE
-	$(call if_changed,copy)
-
 quiet_cmd_ldr = LD      $@
 cmd_ldr = $(LD) $(LDFLAGS_$(@F)) \
 	       $(filter-out FORCE,$^) -o $@
 
-rom-deps := u-boot.bin
 ifdef CONFIG_X86
-rom-deps += u-boot-x86-start16.bin u-boot-x86-reset16.bin \
-		$(if $(CONFIG_SPL_X86_16BIT_INIT),spl/u-boot-spl.bin) \
-		$(if $(CONFIG_TPL_X86_16BIT_INIT),tpl/u-boot-tpl.bin) \
-		$(if $(CONFIG_HAVE_REFCODE),refcode.bin)
-
 OBJCOPYFLAGS_u-boot-x86-start16.bin := -O binary -j .start16
 u-boot-x86-start16.bin: u-boot FORCE
 	$(call if_changed,objcopy)
@@ -1617,24 +1602,7 @@ OBJCOPYFLAGS_u-boot-x86-reset16.bin := -O binary -j .resetvec
 u-boot-x86-reset16.bin: u-boot FORCE
 	$(call if_changed,objcopy)
 
-else # !CONFIG_X86
-
-ifdef CONFIG_SPL
-rom-deps += spl/u-boot-spl.bin
-
-# We can rely on CONFIG_SPL_FRAMEWORK being set for boards that use binman
-rom-deps += u-boot.img
-endif
-
-ifdef CONFIG_TPL
-rom-deps += tpl/u-boot-tpl.bin
-endif
-
-endif
-
-u-boot.rom: $(rom-deps) FORCE
-	$(call if_changed,binman)
-endif
+endif # CONFIG_X86
 
 ifneq ($(CONFIG_ARCH_SUNXI),)
 ifeq ($(CONFIG_ARM64),)
@@ -1645,9 +1613,6 @@ u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.itb FORCE
 	$(call if_changed,cat)
 endif
 endif
-
-u-boot-x86-with-spl.bin: spl/u-boot-spl.bin u-boot.bin FORCE
-	$(call if_changed,binman)
 
 ifneq ($(CONFIG_ARCH_TEGRA),)
 # Makes u-boot-dtb-tegra.bin u-boot-tegra.bin u-boot-nodtb-tegra.bin
