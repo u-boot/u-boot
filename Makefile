@@ -1612,6 +1612,20 @@ u-boot-x86-start16.bin: u-boot FORCE
 OBJCOPYFLAGS_u-boot-x86-reset16.bin := -O binary -j .resetvec
 u-boot-x86-reset16.bin: u-boot FORCE
 	$(call if_changed,objcopy)
+
+else # !CONFIG_X86
+
+ifdef CONFIG_SPL
+rom-deps += spl/u-boot-spl.bin
+
+# We can rely on CONFIG_SPL_FRAMEWORK being set for boards that use binman
+rom-deps += u-boot.img
+endif
+
+ifdef CONFIG_TPL
+rom-deps += tpl/u-boot-tpl.bin
+endif
+
 endif
 
 u-boot.rom: $(rom-deps) FORCE
