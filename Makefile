@@ -1350,7 +1350,7 @@ U_BOOT_ITS := u-boot.its
 $(U_BOOT_ITS): $(subst ",,$(CONFIG_SPL_FIT_SOURCE))
 	$(call if_changed,copy)
 else
-ifneq ($(CONFIG_SPL_FIT_GENERATOR),"")
+ifneq ($(CONFIG_USE_SPL_FIT_GENERATOR),)
 U_BOOT_ITS := u-boot.its
 ifeq ($(CONFIG_SPL_FIT_GENERATOR),"arch/arm/mach-imx/mkimage_fit_atf.sh")
 U_BOOT_ITS_DEPS += u-boot-nodtb.bin
