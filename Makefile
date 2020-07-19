@@ -926,12 +926,6 @@ ifeq ($(CONFIG_ARCH_SUNXI)$(CONFIG_ARM64)$(CONFIG_SPL),yyy)
 INPUTS-y += u-boot-sunxi-with-spl.bin
 endif
 
-# enable combined SPL/u-boot/dtb rules for tegra
-ifeq ($(CONFIG_ARCH_TEGRA)$(CONFIG_SPL),yy)
-INPUTS-y += u-boot-tegra.bin u-boot-nodtb-tegra.bin
-INPUTS-$(CONFIG_OF_SEPARATE) += u-boot-dtb-tegra.bin
-endif
-
 INPUTS-$(CONFIG_ARCH_MEDIATEK) += u-boot-mtk.bin
 
 # Add optional build target if defined in board/cpu/soc headers
@@ -1610,12 +1604,6 @@ ifeq ($(CONFIG_ARM64),y)
 u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.itb FORCE
 	$(call if_changed,cat)
 endif
-endif
-
-ifneq ($(CONFIG_ARCH_TEGRA),)
-# Makes u-boot-dtb-tegra.bin u-boot-tegra.bin u-boot-nodtb-tegra.bin
-%-dtb-tegra.bin %-tegra.bin %-nodtb-tegra.bin: spl/%-spl %.bin FORCE
-	$(call if_changed,binman)
 endif
 
 OBJCOPYFLAGS_u-boot-app.efi := $(OBJCOPYFLAGS_EFI)
