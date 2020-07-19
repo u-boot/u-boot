@@ -1149,6 +1149,13 @@ ifneq ($(CONFIG_DM_ETH),y)
 	@echo >&2 "===================================================="
 endif
 endif
+ifneq ($(CONFIG_SPL_FIT_GENERATOR),)
+	@echo >&2 "===================== WARNING ======================"
+	@echo >&2 "This board uses CONFIG_SPL_FIT_GENERATOR. Please migrate"
+	@echo >&2 "to binman instead, to avoid the proliferation of"
+	@echo >&2 "arch-specific scripts with no tests."
+	@echo >&2 "===================================================="
+endif
 	@# Check that this build does not use CONFIG options that we do not
 	@# know about unless they are in Kconfig. All the existing CONFIG
 	@# options are whitelisted, so new ones should not be added.
@@ -1345,6 +1352,8 @@ endif
 
 # Boards with more complex image requirements can provide an .its source file
 # or a generator script
+# NOTE: Please do not use this. We are migrating away from Makefile rules to use
+# binman instead.
 ifneq ($(CONFIG_SPL_FIT_SOURCE),"")
 U_BOOT_ITS := u-boot.its
 $(U_BOOT_ITS): $(subst ",,$(CONFIG_SPL_FIT_SOURCE))
