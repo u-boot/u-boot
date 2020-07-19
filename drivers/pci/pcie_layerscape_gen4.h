@@ -9,7 +9,6 @@
 #ifndef _PCIE_LAYERSCAPE_GEN4_H_
 #define _PCIE_LAYERSCAPE_GEN4_H_
 #include <pci.h>
-#include <dm.h>
 #include <linux/bitops.h>
 
 #ifndef CONFIG_SYS_PCI_MEMORY_SIZE
