@@ -541,8 +541,7 @@ class TestBuild(unittest.TestCase):
         build.commits = self.commits
         build.commit_count = len(self.commits)
         subject = self.commits[1].subject.translate(builder.trans_valid_chars)
-        dirname ='/%02d_g%s_%s' % (2, build.commit_count, commits[1][0],
-                                           subject[:20])
+        dirname ='/%02d_g%s_%s' % (2, commits[1][0], subject[:20])
         self.CheckDirs(build, dirname)
 
     def testOutputDirCurrent(self):
