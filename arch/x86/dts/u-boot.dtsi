@@ -92,6 +92,8 @@
 	u-boot-dtb {
 	};
 #endif
+	fdtmap {
+	};
 #ifdef CONFIG_HAVE_X86_FIT
 	intel-fit {
 	};
@@ -139,8 +141,6 @@
 		filename = CONFIG_FSP_FILE_S;
 	};
 #endif
-	fdtmap {
-	};
 #ifdef CONFIG_HAVE_CMC
 	intel-cmc {
 		filename = CONFIG_CMC_FILE;
