@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2020 Google LLC
+ */
+
+#include <config.h>
+
+#if defined(CONFIG_HAS_ROM) && defined(CONFIG_FIT)
+&binman {
+	itb {
+		filename = "u-boot.itb";
+		fit {
+			fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
+			description = "FIT image with OP-TEE support";
+			#address-cells = <1>;
+
+			images {
+				uboot {
+					description = "U-Boot";
+					type = "standalone";
+					os = "U-Boot";
+					arch = "arm";
+					compression = "none";
+					load = <CONFIG_SYS_TEXT_BASE>;
+
+					u-boot-nodtb {
+					};
+				};
+				optee {
+					description = "OP-TEE";
+					type = "firmware";
+					arch = "arm";
+					os = "tee";
+					compression = "none";
+					load = <(CONFIG_SYS_SDRAM_BASE + 0x8400000)>;
+					entry = <(CONFIG_SYS_SDRAM_BASE + 0x8400000)>;
+
+					blob-ext {
+						filename = "tee.bin";
+					};
+				};
+				fdt {
+					description = CONFIG_SYS_BOARD;
+					type = "flat_dt";
+					compression = "none";
+
+					u-boot-dtb {
+					};
+				};
+			};
+
+			configurations {
+				default = "conf";
+				conf {
+					description = CONFIG_SYS_BOARD;
+					firmware = "optee";
+					loadables = "uboot";
+					fdt = "fdt";
+				};
+			};
+		};
+	};
+};
+#endif

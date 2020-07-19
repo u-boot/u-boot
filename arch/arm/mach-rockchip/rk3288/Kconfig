@@ -48,6 +48,7 @@ config TARGET_CHROMEBOOK_SPEEDY
 
 config TARGET_EVB_RK3288
 	bool "Evb-RK3288"
+	select HAS_ROM
 	select BOARD_LATE_INIT
 	select TPL
 	help

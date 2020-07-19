@@ -4,6 +4,7 @@
  */
 
 #include "rockchip-u-boot.dtsi"
+#include "rockchip-optee.dtsi"
 
 / {
 	chosen {
