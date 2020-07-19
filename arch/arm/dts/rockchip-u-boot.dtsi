@@ -11,6 +11,7 @@
 	};
 };
 
+#ifdef CONFIG_SPL
 &binman {
 	simple-bin {
 		filename = "u-boot-rockchip.bin";
@@ -25,3 +26,4 @@
 		};
 	};
 };
+#endif
