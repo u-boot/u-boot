@@ -185,10 +185,16 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         if not os.path.exists(options.output_dir):
             os.makedirs(options.output_dir)
         board_file = os.path.join(options.output_dir, 'boards.cfg')
-        genboardscfg = os.path.join(options.git, 'tools/genboardscfg.py')
+        our_path = os.path.dirname(os.path.realpath(__file__))
+        genboardscfg = os.path.join(our_path, '../genboardscfg.py')
+        if not os.path.exists(genboardscfg):
+            genboardscfg = os.path.join(options.git, 'tools/genboardscfg.py')
         status = subprocess.call([genboardscfg, '-q', '-o', board_file])
         if status != 0:
-            sys.exit("Failed to generate boards.cfg")
+            # Older versions don't support -q
+            status = subprocess.call([genboardscfg, '-o', board_file])
+            if status != 0:
+                sys.exit("Failed to generate boards.cfg")
 
         boards = board.Boards()
         boards.ReadBoards(board_file)
