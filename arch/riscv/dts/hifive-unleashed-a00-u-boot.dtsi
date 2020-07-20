@@ -20,6 +20,10 @@
 		u-boot,spl-payload-offset = <0x105000>; /* loader2 @1044KB */
 	};
 
+	memory@80000000 {
+		u-boot,dm-spl;
+	};
+
 	hfclk {
 		u-boot,dm-spl;
 	};
