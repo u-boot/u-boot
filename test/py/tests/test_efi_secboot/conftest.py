@@ -8,15 +8,6 @@ from subprocess import call, check_call, check_output, CalledProcessError
 import pytest
 from defs import *
 
-# from test/py/conftest.py
-
-
-def tool_is_in_path(tool):
-    for path in os.environ["PATH"].split(os.pathsep):
-        full_path = os.path.join(path, tool)
-        if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
-            return True
-    return False
 
 #
 # Fixture for UEFI secure boot test
