@@ -15,6 +15,7 @@ config INTEL_APOLLOLAKE
 	select TPL_PCH_SUPPORT
 	select PCH_SUPPORT
 	select P2SB
+	select SMP_AP_WORK
 	imply ENABLE_MRC_CACHE
 	imply AHCI_PCI
 	imply SCSI

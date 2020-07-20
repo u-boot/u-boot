@@ -167,5 +167,6 @@ typedef struct global_data {
 #define GD_FLG_LOG_READY	0x08000 /* Log system is ready for use	   */
 #define GD_FLG_WDT_READY	0x10000 /* Watchdog is ready for use	   */
 #define GD_FLG_SKIP_LL_INIT	0x20000	/* Don't perform low-level init	   */
+#define GD_FLG_SMP_READY	0x40000	/* SMP init is complete		   */
 
 #endif /* __ASM_GENERIC_GBL_DATA_H */
