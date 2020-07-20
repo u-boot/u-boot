@@ -114,25 +114,10 @@ struct sdram_base_params {
 #define SYS_REG_ENC_CS1_COL(n, ch)	(((n) - 9) << (0 + 2 * (ch)))
 #define SYS_REG_DEC_CS1_COL(n, ch)	(9 + (((n) >> (0 + 2 * (ch))) & 0x3))
 
-#if !defined(CONFIG_RAM_ROCKCHIP_DEBUG)
-inline void sdram_print_dram_type(unsigned char dramtype)
-{
-}
-
-inline void sdram_print_ddr_info(struct sdram_cap_info *cap_info,
-				 struct sdram_base_params *base)
-{
-}
-
-inline void sdram_print_stride(unsigned int stride)
-{
-}
-#else
 void sdram_print_dram_type(unsigned char dramtype);
 void sdram_print_ddr_info(struct sdram_cap_info *cap_info,
 			  struct sdram_base_params *base);
 void sdram_print_stride(unsigned int stride);
-#endif /* CONFIG_RAM_ROCKCHIP_DEBUG */
 
 void sdram_org_config(struct sdram_cap_info *cap_info,
 		      struct sdram_base_params *base,
