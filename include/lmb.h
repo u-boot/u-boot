@@ -49,6 +49,7 @@ extern int lmb_is_reserved(struct lmb *lmb, phys_addr_t addr);
 extern long lmb_free(struct lmb *lmb, phys_addr_t base, phys_size_t size);
 
 extern void lmb_dump_all(struct lmb *lmb);
+extern void lmb_dump_all_force(struct lmb *lmb);
 
 static inline phys_size_t
 lmb_size_bytes(struct lmb_region *type, unsigned long region_nr)

@@ -9,6 +9,7 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <lmb.h>
 #include <net.h>
 #include <vsprintf.h>
 #include <asm/cache.h>
@@ -96,6 +97,12 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 #if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
 	bdinfo_print_num("multi_dtb_fit", (ulong)gd->multi_dtb_fit);
 #endif
+	if (gd->fdt_blob) {
+		struct lmb lmb;
+
+		lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
+		lmb_dump_all_force(&lmb);
+	}
 
 	arch_print_bdinfo();
 
