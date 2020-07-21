@@ -641,7 +641,7 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 		}
 
 		/* try white-list */
-		if (efi_signature_verify_with_sigdb(regs, msg, db, dbx))
+		if (efi_signature_verify(regs, msg, db, dbx))
 			continue;
 
 		debug("Signature was not verified by \"db\"\n");

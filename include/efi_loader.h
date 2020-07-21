@@ -776,10 +776,10 @@ bool efi_signature_lookup_digest(struct efi_image_regions *regs,
 bool efi_signature_verify_one(struct efi_image_regions *regs,
 			      struct pkcs7_message *msg,
 			      struct efi_signature_store *db);
-bool efi_signature_verify_with_sigdb(struct efi_image_regions *regs,
-				     struct pkcs7_message *msg,
-				     struct efi_signature_store *db,
-				     struct efi_signature_store *dbx);
+bool efi_signature_verify(struct efi_image_regions *regs,
+			  struct pkcs7_message *msg,
+			  struct efi_signature_store *db,
+			  struct efi_signature_store *dbx);
 bool efi_signature_check_signers(struct pkcs7_message *msg,
 				 struct efi_signature_store *dbx);
 

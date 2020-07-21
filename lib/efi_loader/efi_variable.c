@@ -253,12 +253,11 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 	}
 
 	/* verify signature */
-	if (efi_signature_verify_with_sigdb(regs, var_sig, truststore, NULL)) {
+	if (efi_signature_verify(regs, var_sig, truststore, NULL)) {
 		EFI_PRINT("Verified\n");
 	} else {
 		if (truststore2 &&
-		    efi_signature_verify_with_sigdb(regs, var_sig,
-						    truststore2, NULL)) {
+		    efi_signature_verify(regs, var_sig, truststore2, NULL)) {
 			EFI_PRINT("Verified\n");
 		} else {
 			EFI_PRINT("Verifying variable's signature failed\n");
