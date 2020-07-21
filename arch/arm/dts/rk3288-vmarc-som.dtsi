@@ -7,34 +7,16 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/pinctrl/rockchip.h>
-#include <dt-bindings/pwm/pwm.h>
 
 / {
 	compatible = "vamrs,rk3288-vmarc-som", "rockchip,rk3288";
-
-	ext_gmac: external-gmac-clock {
-		compatible = "fixed-clock";
-		clock-frequency = <125000000>;
-		clock-output-names = "ext_gmac";
-		#clock-cells = <0>;
-	};
 
 	vccio_flash: vccio-flash-regulator {
 		compatible = "regulator-fixed";
 		regulator-name = "vccio_flash";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
-		startup-delay-us = <150>;
 		vin-supply = <&vcc_io>;
-	};
-
-	vcc_sys: vsys-regulator {
-		compatible = "regulator-fixed";
-		regulator-name = "vcc_sys";
-		regulator-min-microvolt = <5000000>;
-		regulator-max-microvolt = <5000000>;
-		regulator-always-on;
-		regulator-boot-on;
 	};
 };
 
@@ -45,23 +27,15 @@
 	non-removable;
 	pinctrl-names = "default";
 	pinctrl-0 = <&emmc_clk &emmc_cmd &emmc_pwr &emmc_bus8>;
+	vmmc-supply = <&vcc_io>;
+	vqmmc-supply = <&vccio_flash>;
 	status = "okay";
 };
 
 &gmac {
 	assigned-clocks = <&cru SCLK_MAC>;
-	assigned-clock-parents = <&ext_gmac>;
-	clock_in_out = "input";
-	phy-mode = "rgmii";
 	phy-supply = <&vcc_io>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&rgmii_pins>;
 	snps,reset-gpio = <&gpio4 RK_PA7 GPIO_ACTIVE_HIGH>;
-	snps,reset-active-low;
-	snps,reset-delays-us = <0 10000 50000>;
-	tx_delay = <0x30>;
-	rx_delay = <0x10>;
-	max-speed = <1000>;
 };
 
 &i2c0 {
@@ -80,37 +54,37 @@
 		#clock-cells = <1>;
 		clock-output-names = "rk808-clkout1", "rk808-clkout2";
 
-		vcc1-supply = <&vcc_sys>;
-		vcc2-supply = <&vcc_sys>;
-		vcc3-supply = <&vcc_sys>;
-		vcc4-supply = <&vcc_sys>;
-		vcc6-supply = <&vcc_sys>;
-		vcc7-supply = <&vcc_sys>;
+		vcc1-supply = <&vcc5v0_sys>;
+		vcc2-supply = <&vcc5v0_sys>;
+		vcc3-supply = <&vcc5v0_sys>;
+		vcc4-supply = <&vcc5v0_sys>;
+		vcc6-supply = <&vcc5v0_sys>;
+		vcc7-supply = <&vcc5v0_sys>;
 		vcc8-supply = <&vcc_io>;
 		vcc9-supply = <&vcc_io>;
-		vcc10-supply = <&vcc_sys>;
-		vcc11-supply = <&vcc_sys>;
+		vcc10-supply = <&vcc5v0_sys>;
+		vcc11-supply = <&vcc5v0_sys>;
 		vcc12-supply = <&vcc_io>;
 		vddio-supply = <&vcc_io>;
 
 		regulators {
 			vdd_cpu: DCDC_REG1 {
+				regulator-name = "vdd_arm";
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <750000>;
 				regulator-max-microvolt = <1400000>;
-				regulator-name = "vdd_arm";
 				regulator-state-mem {
 					regulator-off-in-suspend;
 				};
 			};
 
 			vdd_gpu: DCDC_REG2 {
+				regulator-name = "vdd_gpu";
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <850000>;
 				regulator-max-microvolt = <1250000>;
-				regulator-name = "vdd_gpu";
 				regulator-ramp-delay = <6000>;
 				regulator-state-mem {
 					regulator-off-in-suspend;
@@ -118,20 +92,20 @@
 			};
 
 			vcc_ddr: DCDC_REG3 {
+				regulator-name = "vcc_ddr";
 				regulator-always-on;
 				regulator-boot-on;
-				regulator-name = "vcc_ddr";
 				regulator-state-mem {
 					regulator-on-in-suspend;
 				};
 			};
 
 			vcc_io: DCDC_REG4 {
+				regulator-name = "vcc_io";
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <3300000>;
 				regulator-max-microvolt = <3300000>;
-				regulator-name = "vcc_io";
 				regulator-state-mem {
 					regulator-on-in-suspend;
 					regulator-suspend-microvolt = <3300000>;
@@ -139,22 +113,22 @@
 			};
 
 			vcc_tp: LDO_REG1 {
+				regulator-name = "vcc_tp";
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <3300000>;
 				regulator-max-microvolt = <3300000>;
-				regulator-name = "vcc_tp";
 				regulator-state-mem {
 					regulator-off-in-suspend;
 				};
 			};
 
 			vcca_codec: LDO_REG2 {
+				regulator-name = "vcca_codec";
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <3300000>;
 				regulator-max-microvolt = <3300000>;
-				regulator-name = "vcca_codec";
 				regulator-state-mem {
 					regulator-on-in-suspend;
 					regulator-suspend-microvolt = <3300000>;
@@ -162,11 +136,11 @@
 			};
 
 			vdd_10: LDO_REG3 {
+				regulator-name = "vdd_10";
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <1000000>;
 				regulator-max-microvolt = <1000000>;
-				regulator-name = "vdd_10";
 				regulator-state-mem {
 					regulator-on-in-suspend;
 					regulator-suspend-microvolt = <1000000>;
@@ -174,22 +148,22 @@
 			};
 
 			vcc_wl: LDO_REG4 {
+				regulator-name = "vcc_wl";
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
-				regulator-name = "vcc_wl";
 				regulator-state-mem {
 					regulator-on-in-suspend;
 				};
 			};
 
 			vccio_sd: LDO_REG5 {
+				regulator-name = "vccio_sd";
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <3300000>;
-				regulator-name = "vccio_sd";
 				regulator-state-mem {
 					regulator-on-in-suspend;
 					regulator-suspend-microvolt = <3300000>;
@@ -197,22 +171,22 @@
 			};
 
 			vdd10_lcd: LDO_REG6 {
+				regulator-name = "vdd10_lcd";
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <1000000>;
 				regulator-max-microvolt = <1000000>;
-				regulator-name = "vdd10_lcd";
 				regulator-state-mem {
 					regulator-off-in-suspend;
 				};
 			};
 
 			vcc_18: LDO_REG7 {
+				regulator-name = "vcc_18";
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
-				regulator-name = "vcc_18";
 				regulator-state-mem {
 					regulator-on-in-suspend;
 					regulator-suspend-microvolt = <1800000>;
@@ -220,29 +194,29 @@
 			};
 
 			vcc18_lcd: LDO_REG8 {
+				regulator-name = "vcc18_lcd";
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
-				regulator-name = "vcc18_lcd";
 				regulator-state-mem {
 					regulator-off-in-suspend;
 				};
 			};
 
 			vcc_sd: SWITCH_REG1 {
+				regulator-name = "vcc_sd";
 				regulator-always-on;
 				regulator-boot-on;
-				regulator-name = "vcc_sd";
 				regulator-state-mem {
 					regulator-off-in-suspend;
 				};
 			};
 
 			vcc_lcd: SWITCH_REG2 {
+				regulator-name = "vcc_lcd";
 				regulator-always-on;
 				regulator-boot-on;
-				regulator-name = "vcc_lcd";
 				regulator-state-mem {
 					regulator-off-in-suspend;
 				};
@@ -277,13 +251,11 @@
 		};
 
 		sdmmc_clk: sdmmc-clk {
-			rockchip,pins =
-				<6 RK_PC4 1 &pcfg_pull_none_drv_8ma>;
+			rockchip,pins = <6 RK_PC4 1 &pcfg_pull_none_drv_8ma>;
 		};
 
 		sdmmc_cmd: sdmmc-cmd {
-			rockchip,pins =
-				<6 RK_PC5 1 &pcfg_pull_up_drv_8ma>;
+			rockchip,pins = <6 RK_PC5 1 &pcfg_pull_up_drv_8ma>;
 		};
 	};
 };
