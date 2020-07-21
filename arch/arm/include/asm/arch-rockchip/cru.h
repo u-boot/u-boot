@@ -30,4 +30,6 @@ enum {
 
 #define MHz		1000000
 
+char *get_reset_cause(void);
+
 #endif /* _ROCKCHIP_CLOCK_H */
