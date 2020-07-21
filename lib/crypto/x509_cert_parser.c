@@ -142,12 +142,10 @@ struct x509_certificate *x509_cert_parse(const void *data, size_t datalen)
 	}
 	cert->id = kid;
 
-#ifndef __UBOOT__
 	/* Detect self-signed certificates */
 	ret = x509_check_for_self_signed(cert);
 	if (ret < 0)
 		goto error_decode;
-#endif
 
 	kfree(ctx);
 	return cert;
