@@ -410,7 +410,6 @@ efi_status_t efi_get_next_variable_name_int(efi_uintn_t *variable_name_size,
 	efi_uintn_t payload_size;
 	efi_uintn_t out_name_size;
 	efi_uintn_t in_name_size;
-	efi_uintn_t tmp_dsize;
 	u8 *comm_buf = NULL;
 	efi_status_t ret;
 
@@ -433,13 +432,8 @@ efi_status_t efi_get_next_variable_name_int(efi_uintn_t *variable_name_size,
 	}
 
 	/* Trim output buffer size */
-	tmp_dsize = *variable_name_size;
-	if (in_name_size + tmp_dsize >
-			max_payload_size - MM_VARIABLE_GET_NEXT_HEADER_SIZE) {
-		tmp_dsize = max_payload_size -
-				MM_VARIABLE_GET_NEXT_HEADER_SIZE -
-				in_name_size;
-	}
+	if (out_name_size > max_payload_size - MM_VARIABLE_GET_NEXT_HEADER_SIZE)
+		out_name_size = max_payload_size - MM_VARIABLE_GET_NEXT_HEADER_SIZE;
 
 	payload_size = MM_VARIABLE_GET_NEXT_HEADER_SIZE + out_name_size;
 	comm_buf = setup_mm_hdr((void **)&var_getnext, payload_size,
@@ -465,8 +459,7 @@ efi_status_t efi_get_next_variable_name_int(efi_uintn_t *variable_name_size,
 		goto out;
 
 	guidcpy(guid, &var_getnext->guid);
-	memcpy(variable_name, (u8 *)var_getnext->name,
-	       var_getnext->name_size);
+	memcpy(variable_name, var_getnext->name, var_getnext->name_size);
 
 out:
 	free(comm_buf);
