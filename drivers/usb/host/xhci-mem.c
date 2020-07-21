@@ -110,7 +110,7 @@ static void xhci_scratchpad_free(struct xhci_ctrl *ctrl)
 
 	ctrl->dcbaa->dev_context_ptrs[0] = 0;
 
-	free((void *)(uintptr_t)ctrl->scratchpad->sp_array[0]);
+	free((void *)(uintptr_t)le64_to_cpu(ctrl->scratchpad->sp_array[0]));
 	free(ctrl->scratchpad->sp_array);
 	free(ctrl->scratchpad);
 	ctrl->scratchpad = NULL;
@@ -227,7 +227,8 @@ static void xhci_link_segments(struct xhci_segment *prev,
 	prev->next = next;
 	if (link_trbs) {
 		val_64 = (uintptr_t)next->trbs;
-		prev->trbs[TRBS_PER_SEGMENT-1].link.segment_ptr = val_64;
+		prev->trbs[TRBS_PER_SEGMENT-1].link.segment_ptr =
+			cpu_to_le64(val_64);
 
 		/*
 		 * Set the last TRB in the segment to
@@ -491,7 +492,7 @@ int xhci_alloc_virt_device(struct xhci_ctrl *ctrl, unsigned int slot_id)
 	byte_64 = (uintptr_t)(virt_dev->out_ctx->bytes);
 
 	/* Point to output device context in dcbaa. */
-	ctrl->dcbaa->dev_context_ptrs[slot_id] = byte_64;
+	ctrl->dcbaa->dev_context_ptrs[slot_id] = cpu_to_le64(byte_64);
 
 	xhci_flush_cache((uintptr_t)&ctrl->dcbaa->dev_context_ptrs[slot_id],
 			 sizeof(__le64));
@@ -773,7 +774,7 @@ void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl,
 
 	debug("route string %x\n", route);
 #endif
-	slot_ctx->dev_info |= route;
+	slot_ctx->dev_info |= cpu_to_le32(route);
 
 	switch (speed) {
 	case USB_SPEED_SUPER:
