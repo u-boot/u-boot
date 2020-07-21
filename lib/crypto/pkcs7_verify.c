@@ -10,10 +10,12 @@
 
 #define pr_fmt(fmt) "PKCS7: "fmt
 #ifdef __UBOOT__
+#include <image.h>
 #include <string.h>
 #include <linux/bitops.h>
 #include <linux/compat.h>
 #include <linux/asn1.h>
+#include <u-boot/rsa-checksum.h>
 #include <crypto/public_key.h>
 #include <crypto/pkcs7_parser.h>
 #else
@@ -29,15 +31,99 @@
 #endif
 
 /*
- * Digest the relevant parts of the PKCS#7 data
+ * pkcs7_digest - Digest the relevant parts of the PKCS#7 data
+ * @pkcs7:	PKCS7 Signed Data
+ * @sinfo:	PKCS7 Signed Info
+ *
+ * Digest the relevant parts of the PKCS#7 data, @pkcs7, using signature
+ * information in @sinfo. But if there are authentication attributes,
+ * i.e. signed image case, the digest must be calculated against
+ * the authentication attributes.
+ *
+ * Return:	0 - on success, non-zero error code - otherwise
  */
 #ifdef __UBOOT__
 static int pkcs7_digest(struct pkcs7_message *pkcs7,
 			struct pkcs7_signed_info *sinfo)
 {
-	return 0;
+	struct public_key_signature *sig = sinfo->sig;
+	struct image_region regions[2];
+	int ret = 0;
+
+	/* The digest was calculated already. */
+	if (sig->digest)
+		return 0;
+
+	if (!sinfo->sig->hash_algo)
+		return -ENOPKG;
+	if (!strcmp(sinfo->sig->hash_algo, "sha256"))
+		sig->digest_size = SHA256_SUM_LEN;
+	else if (!strcmp(sinfo->sig->hash_algo, "sha1"))
+		sig->digest_size = SHA1_SUM_LEN;
+	else
+		return -ENOPKG;
+
+	sig->digest = calloc(1, sig->digest_size);
+	if (!sig->digest) {
+		pr_warn("Sig %u: Out of memory\n", sinfo->index);
+		return -ENOMEM;
+	}
+
+	regions[0].data = pkcs7->data;
+	regions[0].size = pkcs7->data_len;
+
+	/* Digest the message [RFC2315 9.3] */
+	hash_calculate(sinfo->sig->hash_algo, regions, 1, sig->digest);
+
+	/* However, if there are authenticated attributes, there must be a
+	 * message digest attribute amongst them which corresponds to the
+	 * digest we just calculated.
+	 */
+	if (sinfo->authattrs) {
+		u8 tag;
+
+		if (!sinfo->msgdigest) {
+			pr_warn("Sig %u: No messageDigest\n", sinfo->index);
+			ret = -EKEYREJECTED;
+			goto error;
+		}
+
+		if (sinfo->msgdigest_len != sig->digest_size) {
+			pr_debug("Sig %u: Invalid digest size (%u)\n",
+				 sinfo->index, sinfo->msgdigest_len);
+			ret = -EBADMSG;
+			goto error;
+		}
+
+		if (memcmp(sig->digest, sinfo->msgdigest,
+			   sinfo->msgdigest_len) != 0) {
+			pr_debug("Sig %u: Message digest doesn't match\n",
+				 sinfo->index);
+			ret = -EKEYREJECTED;
+			goto error;
+		}
+
+		/* We then calculate anew, using the authenticated attributes
+		 * as the contents of the digest instead.  Note that we need to
+		 * convert the attributes from a CONT.0 into a SET before we
+		 * hash it.
+		 */
+		memset(sig->digest, 0, sig->digest_size);
+
+		tag = 0x31;
+		regions[0].data = &tag;
+		regions[0].size = 1;
+		regions[1].data = sinfo->authattrs;
+		regions[1].size = sinfo->authattrs_len;
+
+		hash_calculate(sinfo->sig->hash_algo, regions, 2, sig->digest);
+
+		ret = 0;
+	}
+error:
+	return ret;
 }
-#else
+#else /* !__UBOOT__ */
 static int pkcs7_digest(struct pkcs7_message *pkcs7,
 			struct pkcs7_signed_info *sinfo)
 {
