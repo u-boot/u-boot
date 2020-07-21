@@ -1085,6 +1085,12 @@
 			#interrupt-cells = <2>;
 		};
 
+		hdmi {
+			hdmi_cec_c0: hdmi-cec-c0 {
+				rockchip,pins = <7 RK_PC0 2 &pcfg_pull_none>;
+			};
+		};
+
 		pcfg_pull_up: pcfg-pull-up {
 			bias-pull-up;
 		};
