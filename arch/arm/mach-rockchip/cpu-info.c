@@ -47,12 +47,6 @@ static char *get_reset_cause(void)
 	 */
 	env_set("reset_reason", cause);
 
-	/*
-	 * Clear glb_rst_st, so we can determine the last reset cause
-	 * for following resets.
-	 */
-	rk_clrreg(&cru->glb_rst_st, GLB_RST_ST_MASK);
-
 	return cause;
 }
 
