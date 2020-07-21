@@ -15,6 +15,12 @@
 #define CQSPI_DECODER_MAX_CS		16
 #define CQSPI_READ_CAPTURE_MAX_DELAY	16
 
+#define CQSPI_SINGLE_FLASH			0
+#define CQSPI_DUAL_STACKED_FLASH		1
+
+#define CQSPI_CS0				0
+#define CQSPI_CS1				1
+
 #define CQSPI_REG_POLL_US                       1 /* 1us */
 #define CQSPI_REG_RETRY                         10000
 #define CQSPI_POLL_IDLE_RETRY                   3
@@ -202,6 +208,7 @@ struct cadence_spi_platdata {
 	u32		tslch_ns;
 	bool		is_dma;
 	bool		stg_pgm;
+	int		is_dual;
 };
 
 struct cadence_spi_priv {
@@ -211,7 +218,9 @@ struct cadence_spi_priv {
 	u8		cmd_buf[32];
 	size_t		data_len;
 
+	int		is_dual;
 	int		qspi_is_init;
+	unsigned int    cs;
 	unsigned int	qspi_calibrated_hz;
 	unsigned int	qspi_calibrated_cs;
 	unsigned int	previous_hz;
