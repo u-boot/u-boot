@@ -27,7 +27,14 @@ extern int pkcs7_get_content_data(const struct pkcs7_message *pkcs7,
 				  const void **_data, size_t *_datalen,
 				  size_t *_headerlen);
 
-#ifndef __UBOOT__
+#ifdef __UBOOT__
+struct pkcs7_signed_info;
+struct x509_certificate;
+
+int pkcs7_verify_one(struct pkcs7_message *pkcs7,
+		     struct pkcs7_signed_info *sinfo,
+		     struct x509_certificate **signer);
+#else
 /*
  * pkcs7_trust.c
  */

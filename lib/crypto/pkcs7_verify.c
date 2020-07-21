@@ -301,10 +301,27 @@ static int pkcs7_find_key(struct pkcs7_message *pkcs7,
 }
 
 /*
- * Verify the internal certificate chain as best we can.
+ * pkcs7_verify_sig_chain - Verify the internal certificate chain as best
+ *                          as we can.
+ * @pkcs7:	PKCS7 Signed Data
+ * @sinfo:	PKCS7 Signed Info
+ * @signer:	Singer's certificate
+ *
+ * Build up and verify the internal certificate chain against a signature
+ * in @sinfo, using certificates contained in @pkcs7 as best as we can.
+ * If the chain reaches the end, the last certificate will be returned
+ * in @signer.
+ *
+ * Return:	0 - on success, non-zero error code - otherwise
  */
+#ifdef __UBOOT__
+static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
+				  struct pkcs7_signed_info *sinfo,
+				  struct x509_certificate **signer)
+#else
 static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
 				  struct pkcs7_signed_info *sinfo)
+#endif
 {
 	struct public_key_signature *sig;
 	struct x509_certificate *x509 = sinfo->signer, *p;
@@ -312,6 +329,8 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
 	int ret;
 
 	kenter("");
+
+	*signer = NULL;
 
 	for (p = pkcs7->certs; p; p = p->next)
 		p->seen = false;
@@ -330,6 +349,9 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
 			for (p = sinfo->signer; p != x509; p = p->signer)
 				p->blacklisted = true;
 			pr_debug("- blacklisted\n");
+#ifdef __UBOOT__
+			*signer = x509;
+#endif
 			return 0;
 		}
 
@@ -355,6 +377,9 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
 				goto unsupported_crypto_in_x509;
 			x509->signer = x509;
 			pr_debug("- self-signed\n");
+#ifdef __UBOOT__
+			*signer = x509;
+#endif
 			return 0;
 		}
 
@@ -385,6 +410,9 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
 
 		/* We didn't find the root of this chain */
 		pr_debug("- top\n");
+#ifdef __UBOOT__
+		*signer = x509;
+#endif
 		return 0;
 
 	found_issuer_check_skid:
@@ -402,6 +430,9 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
 		if (p->seen) {
 			pr_warn("Sig %u: X.509 chain contains loop\n",
 				sinfo->index);
+#ifdef __UBOOT__
+			*signer = p;
+#endif
 			return 0;
 		}
 		ret = public_key_verify_signature(p->pub, x509->sig);
@@ -410,6 +441,9 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
 		x509->signer = p;
 		if (x509 == p) {
 			pr_debug("- self-signed\n");
+#ifdef __UBOOT__
+			*signer = p;
+#endif
 			return 0;
 		}
 		x509 = p;
@@ -429,13 +463,26 @@ unsupported_crypto_in_x509:
 }
 
 /*
- * Verify one signed information block from a PKCS#7 message.
+ * pkcs7_verify_one - Verify one signed information block from a PKCS#7
+ *                    message.
+ * @pkcs7:	PKCS7 Signed Data
+ * @sinfo:	PKCS7 Signed Info
+ * @signer:	Signer's certificate
+ *
+ * Verify one signature in @sinfo and follow the certificate chain.
+ * If the chain reaches the end, the last certificate will be returned
+ * in @signer.
+ *
+ * Return:	0 - on success, non-zero error code - otherwise
  */
-#ifndef __UBOOT__
-static
-#endif
+#ifdef __UBOOT__
 int pkcs7_verify_one(struct pkcs7_message *pkcs7,
-		     struct pkcs7_signed_info *sinfo)
+		     struct pkcs7_signed_info *sinfo,
+		     struct x509_certificate **signer)
+#else
+static int pkcs7_verify_one(struct pkcs7_message *pkcs7,
+			    struct pkcs7_signed_info *sinfo)
+#endif
 {
 	int ret;
 
@@ -479,7 +526,7 @@ int pkcs7_verify_one(struct pkcs7_message *pkcs7,
 	pr_devel("Verified signature %u\n", sinfo->index);
 
 	/* Verify the internal certificate chain */
-	return pkcs7_verify_sig_chain(pkcs7, sinfo);
+	return pkcs7_verify_sig_chain(pkcs7, sinfo, signer);
 }
 
 #ifndef __UBOOT__
