@@ -25,13 +25,8 @@ def efi_boot_env(request, u_boot_config):
     Return:
         A path to disk image to be used for testing
     """
-    global HELLO_PATH
-
     image_path = u_boot_config.persistent_data_dir
-    image_path = image_path + '/' + EFI_SECBOOT_IMAGE_NAME
-
-    if HELLO_PATH == '':
-        HELLO_PATH = u_boot_config.build_dir + '/lib/efi_loader/helloworld.efi'
+    image_path = image_path + '/test_efi_secboot.img'
 
     try:
         mnt_point = u_boot_config.build_dir + '/mnt_efisecure'
@@ -98,7 +93,8 @@ def efi_boot_env(request, u_boot_config):
                    shell=True)
 
         # Copy image
-        check_call('cp %s %s' % (HELLO_PATH, mnt_point), shell=True)
+        check_call('cp %s/lib/efi_loader/helloworld.efi %s' %
+                   (u_boot_config.build_dir, mnt_point), shell=True)
 
         # Sign image
         check_call('cd %s; sbsign --key db.key --cert db.crt helloworld.efi'
