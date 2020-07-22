@@ -292,7 +292,7 @@ cmd_dt_S_dtb=						\
 $(obj)/%.dtb.S: $(obj)/%.dtb
 	$(call cmd,dt_S_dtb)
 
-ifeq ($(CONFIG_SPL_LOAD_FIT_APPLY_OVERLAY),y)
+ifeq ($(CONFIG_OF_LIBFDT_OVERLAY),y)
 DTC_FLAGS += -@
 endif
 
