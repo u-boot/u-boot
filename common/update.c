@@ -24,6 +24,7 @@
 #include <net.h>
 #include <net/tftp.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <dfu.h>
 #include <errno.h>
 #include <mtd/cfi_flash.h>
@@ -280,7 +281,7 @@ int update_tftp(ulong addr, char *interface, char *devstring)
 	}
 
 got_update_file:
-	fit = (void *)addr;
+	fit = map_sysmem(addr, 0);
 
 	if (!fit_check_format((void *)fit)) {
 		printf("Bad FIT format of the update file, aborting "
