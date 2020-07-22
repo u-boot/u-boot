@@ -2551,8 +2551,10 @@ static int lpddr4_set_rate(struct dram_info *dram,
 		lpddr4_set_ctl(dram, params, ctl_fn,
 			       dfs_cfgs_lpddr4[ctl_fn].base.ddr_freq);
 
-		printf("%s: change freq to %d mhz %d, %d\n", __func__,
-		       dfs_cfgs_lpddr4[ctl_fn].base.ddr_freq, ctl_fn, phy_fn);
+		if (IS_ENABLED(CONFIG_RAM_ROCKCHIP_DEBUG))
+			printf("%s: change freq to %d mhz %d, %d\n", __func__,
+			       dfs_cfgs_lpddr4[ctl_fn].base.ddr_freq,
+			       ctl_fn, phy_fn);
 	}
 
 	return 0;
@@ -2875,31 +2877,6 @@ static unsigned char calculate_stride(struct rk3399_sdram_params *params)
 		if (stride == (-1))
 			goto error;
 	}
-	switch (stride) {
-	case 0xc:
-		printf("128B stride\n");
-		break;
-	case 5:
-	case 9:
-	case 0xd:
-	case 0x11:
-	case 0x19:
-		printf("256B stride\n");
-		break;
-	case 0xa:
-	case 0xe:
-	case 0x12:
-		printf("512B stride\n");
-		break;
-	case 0xf:
-		printf("4K stride\n");
-		break;
-	case 0x1f:
-		printf("32MB + 256B stride\n");
-		break;
-	default:
-		printf("no stride\n");
-	}
 
 	sdram_print_stride(stride);
 
@@ -2991,8 +2968,10 @@ static int sdram_init(struct dram_info *dram,
 			params->base.num_channels++;
 		}
 
-		printf("Channel ");
-		printf(channel ? "1: " : "0: ");
+		if (IS_ENABLED(CONFIG_RAM_ROCKCHIP_DEBUG)) {
+			printf("Channel ");
+			printf(channel ? "1: " : "0: ");
+		}
 
 		if (channel == 0)
 			set_ddr_stride(dram->pmusgrf, 0x17);

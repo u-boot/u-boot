@@ -56,16 +56,14 @@ int dram_init_banksize(void)
 					- CONFIG_SYS_SDRAM_BASE;
 		gd->bd->bi_dram[1].start = tos_parameter->tee_mem.phy_addr +
 					tos_parameter->tee_mem.size;
-		gd->bd->bi_dram[1].size = gd->bd->bi_dram[0].start
-					+ top - gd->bd->bi_dram[1].start;
+		gd->bd->bi_dram[1].size = top - gd->bd->bi_dram[1].start;
 	} else {
 		gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 		gd->bd->bi_dram[0].size = 0x8400000;
 		/* Reserve 32M for OPTEE with TA */
 		gd->bd->bi_dram[1].start = CONFIG_SYS_SDRAM_BASE
 					+ gd->bd->bi_dram[0].size + 0x2000000;
-		gd->bd->bi_dram[1].size = gd->bd->bi_dram[0].start
-					+ top - gd->bd->bi_dram[1].start;
+		gd->bd->bi_dram[1].size = top - gd->bd->bi_dram[1].start;
 	}
 #else
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;

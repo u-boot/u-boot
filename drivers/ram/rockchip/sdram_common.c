@@ -117,6 +117,19 @@ void sdram_print_stride(unsigned int stride)
 		printf("no stride\n");
 	}
 }
+#else
+inline void sdram_print_dram_type(unsigned char dramtype)
+{
+}
+
+inline void sdram_print_ddr_info(struct sdram_cap_info *cap_info,
+				 struct sdram_base_params *base)
+{
+}
+
+inline void sdram_print_stride(unsigned int stride)
+{
+}
 #endif
 
 /*

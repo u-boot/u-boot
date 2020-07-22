@@ -7,8 +7,8 @@
 
 /dts-v1/;
 #include "rk3288.dtsi"
-#include "rk3288-vmarc-som.dtsi"
 #include <rockchip-radxa-dalang-carrier.dtsi>
+#include "rk3288-vmarc-som.dtsi"
 
 / {
 	model = "Radxa ROCK Pi N8";

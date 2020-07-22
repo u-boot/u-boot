@@ -3,6 +3,9 @@ if ROCKCHIP_PX30
 config TARGET_EVB_PX30
 	bool "EVB_PX30"
 
+config TARGET_ODROID_GO2
+	bool "ODROID_GO2"
+
 config ROCKCHIP_BOOT_MODE_REG
 	default 0xff010200
 
@@ -36,6 +39,7 @@ config DEBUG_UART_CHANNEL
 	  For using the UART for early debugging the route to use needs
 	  to be declared (0 or 1).
 
+source "board/hardkernel/odroid_go2/Kconfig"
 source "board/rockchip/evb_px30/Kconfig"
 
 endif

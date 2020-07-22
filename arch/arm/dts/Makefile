@@ -71,7 +71,8 @@ dtb-$(CONFIG_MACH_S700) += \
 
 dtb-$(CONFIG_ROCKCHIP_PX30) += \
 	px30-evb.dtb \
-	px30-firefly.dtb
+	px30-firefly.dtb \
+	rk3326-odroid-go2.dtb
 
 dtb-$(CONFIG_ROCKCHIP_RK3036) += \
 	rk3036-sdk.dtb
@@ -135,7 +136,9 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
 	rk3399-puma-haikou.dtb \
 	rk3399-roc-pc.dtb \
 	rk3399-roc-pc-mezzanine.dtb \
-	rk3399-rock-pi-4.dtb \
+	rk3399-rock-pi-4a.dtb \
+	rk3399-rock-pi-4b.dtb \
+	rk3399-rock-pi-4c.dtb \
 	rk3399-rock960.dtb \
 	rk3399-rockpro64.dtb \
 	rk3399pro-rock-pi-n10.dtb

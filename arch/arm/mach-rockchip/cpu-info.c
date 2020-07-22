@@ -13,7 +13,7 @@
 #include <asm/arch-rockchip/hardware.h>
 #include <linux/err.h>
 
-static char *get_reset_cause(void)
+char *get_reset_cause(void)
 {
 	struct rockchip_cru *cru = rockchip_get_cru();
 	char *cause = NULL;
@@ -41,27 +41,25 @@ static char *get_reset_cause(void)
 		cause = "unknown reset";
 	}
 
+	return cause;
+}
+
+#if CONFIG_IS_ENABLED(DISPLAY_CPUINFO)
+int print_cpuinfo(void)
+{
+	char *cause = get_reset_cause();
+
+	printf("SoC: Rockchip %s\n", CONFIG_SYS_SOC);
+	printf("Reset cause: %s\n", cause);
+
 	/**
 	 * reset_reason env is used by rk3288, due to special use case
 	 * to figure it the boot behavior. so keep this as it is.
 	 */
 	env_set("reset_reason", cause);
 
-	/*
-	 * Clear glb_rst_st, so we can determine the last reset cause
-	 * for following resets.
-	 */
-	rk_clrreg(&cru->glb_rst_st, GLB_RST_ST_MASK);
-
-	return cause;
-}
-
-int print_cpuinfo(void)
-{
-	printf("SoC: Rockchip %s\n", CONFIG_SYS_SOC);
-	printf("Reset cause: %s\n", get_reset_cause());
-
 	/* TODO print operating temparature and clock */
 
 	return 0;
 }
+#endif

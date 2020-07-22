@@ -7,6 +7,7 @@
 	aliases {
 		mmc0 = &emmc;
 		mmc1 = &sdmmc;
+		spi0 = &spi0;
 	};
 
 	chosen {
@@ -65,4 +66,8 @@
 
 &usb20_otg {
 	hnp-srp-disable;
+};
+
+&spi0 {
+	u-boot,dm-pre-reloc;
 };
