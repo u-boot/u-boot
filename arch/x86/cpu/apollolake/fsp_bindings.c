@@ -90,6 +90,28 @@ static void read_u32_prop(ofnode node, char *name, size_t count, u32 *dst)
 }
 
 /**
+ * read_u64_prop() - Read an u64 property from devicetree (scalar or array)
+ * @node:  Valid node reference to read property from
+ * @name:  Name of the property to read from
+ * @count: If the property is expected to be an array, this is the
+ *         number of expected elements
+ *         set to 0 if the property is expected to be a scalar
+ * @dst:   Pointer to destination of where to save the value(s) read
+ *         from devicetree
+ */
+static int read_u64_prop(ofnode node, char *name, size_t count, u64 *dst)
+{
+	if (count == 0) {
+		ofnode_read_u64(node, name, dst);
+	} else {
+		debug("ERROR: %s u64 arrays not supported!\n", __func__);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+/**
  * read_string_prop() - Read a string property from devicetree
  * @node:  Valid node reference to read property from
  * @name:  Name of the property to read from
@@ -205,6 +227,12 @@ static int fsp_update_config_from_dtb(ofnode node, u8 *cfg,
 		case FSP_UINT32:
 			read_u32_prop(node, fspb->propname, fspb->count,
 				      (u32 *)&cfg[fspb->offset]);
+		break;
+		case FSP_UINT64:
+			ret = read_u64_prop(node, fspb->propname, fspb->count,
+				      (u64 *)&cfg[fspb->offset]);
+			if (ret)
+				return ret;
 		break;
 		case FSP_STRING:
 			read_string_prop(node, fspb->propname, fspb->count,
