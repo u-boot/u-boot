@@ -262,7 +262,7 @@
 &sdhci1 {
 	status = "okay";
 	no-1-8-v;
-	xlnx,mio_bank = <1>;
+	xlnx,mio-bank = <1>;
 	disable-wp;
 };
 

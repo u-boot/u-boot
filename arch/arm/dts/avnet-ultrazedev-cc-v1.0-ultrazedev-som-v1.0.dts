@@ -51,7 +51,7 @@
 /* microSD card slot */
 &sdhci1 {
 	status = "okay";
-	xlnx,mio_bank = <1>;
+	xlnx,mio-bank = <1>;
 	clock-frequency = <199998000>;
 	max-frequency = <50000000>;
 	no-1-8-v;

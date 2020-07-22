@@ -148,7 +148,7 @@
 &sdhci0 {
 	status = "okay";
 	bus-width = <8>;
-	xlnx,mio_bank = <0>;
+	xlnx,mio-bank = <0>;
 };
 
 /* SD1 with level shifter */
@@ -158,7 +158,7 @@
 	 * This property should be removed for supporting UHS mode
 	 */
 	no-1-8-v;
-	xlnx,mio_bank = <1>;
+	xlnx,mio-bank = <1>;
 };
 
 &uart0 {
