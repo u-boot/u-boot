@@ -463,6 +463,12 @@ Optional properties:
 - fsps,port-usb20-i-usb-tx-emphasis-en: PerPort HS Transmitter Emphasis
 - fsps,port-usb20-per-port-rxi-set: PerPort HS Receiver Bias
 - fsps,port-usb20-hs-npre-drv-sel: Delay/skew's strength control for HS driver
+- fsps,os-selection: OS Selection
+  0: Windows
+  1: Android
+  3: Linux
+- fsps,dptf-enabled: DPTF
+- fsps,pwm-enabled: PWM Enabled
 
 Example:
 

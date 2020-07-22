@@ -633,6 +633,17 @@ const struct fsp_binding fsp_m_bindings[] = {
 	.offset = offsetof(struct fsp_m_config, variable_nvs_buffer_ptr),
 	.propname = "fspm,variable-nvs-buffer-ptr",
 	}, {
+	.type = FSP_UINT64,
+	.offset = offsetof(struct fsp_m_config, start_timer_ticker_of_pfet_assert),
+	.propname = "fspm,start-timer-ticker-of-pfet-assert",
+	}, {
+	.type = FSP_UINT8, .offset = offsetof(struct fsp_m_config, rt_en),
+	.propname = "fspm,rt-en",
+	}, {
+	.type = FSP_UINT8,
+	.offset = offsetof(struct fsp_m_config, skip_pcie_power_sequence),
+	.propname = "fspm,skip-pcie-power-sequence",
+	}, {
 	.propname = NULL
 	}
 };
@@ -1821,6 +1832,18 @@ const struct fsp_binding fsp_s_bindings[] = {
 	.propname = "fsps,port-usb20-hs-npre-drv-sel",
 	.count = ARRAY_SIZE_OF_MEMBER(struct fsp_s_config,
 				      port_usb20_hs_npre_drv_sel),
+	}, {
+	.type = FSP_UINT8,
+	.offset = offsetof(struct fsp_s_config, os_selection),
+	.propname = "fsps,os-selection",
+	}, {
+	.type = FSP_UINT8,
+	.offset = offsetof(struct fsp_s_config, dptf_enabled),
+	.propname = "fsps,dptf-enabled",
+	}, {
+	.type = FSP_UINT8,
+	.offset = offsetof(struct fsp_s_config, pwm_enabled),
+	.propname = "fsps,pwm-enabled",
 	}, {
 	.propname = NULL
 	}

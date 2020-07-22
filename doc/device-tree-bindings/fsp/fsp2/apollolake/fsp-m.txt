@@ -240,6 +240,9 @@ Optional properties:
 - fspm,enable-reset-system: Enable Reset System
 - fspm,enable-s3-heci2: Enable HECI2 in S3 resume path
 - fspm,variable-nvs-buffer-ptr:
+- fspm,start-timer-ticker-of-pfet-assert: PCIE SLOT Power Enable Assert Time - PFET
+- fspm,rt-en: Real Time Enabling
+- fspm,skip-pcie-power-sequence: Skip Pcie Power Sequence
 
 Example:
 
