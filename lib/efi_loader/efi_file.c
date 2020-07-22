@@ -349,6 +349,11 @@ static efi_status_t file_read(struct file_handle *fh, u64 *buffer_size,
 	efi_status_t ret;
 	loff_t file_size;
 
+	if (!buffer) {
+		ret = EFI_INVALID_PARAMETER;
+		return ret;
+	}
+
 	ret = efi_get_file_size(fh, &file_size);
 	if (ret != EFI_SUCCESS)
 		return ret;
@@ -414,6 +419,8 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 		fh->dent = dent;
 		return EFI_BUFFER_TOO_SMALL;
 	}
+	if (!buffer)
+		return EFI_INVALID_PARAMETER;
 	fh->dent = NULL;
 
 	*buffer_size = required_size;
@@ -443,7 +450,7 @@ static efi_status_t EFIAPI efi_file_read(struct efi_file_handle *file,
 
 	EFI_ENTRY("%p, %p, %p", file, buffer_size, buffer);
 
-	if (!buffer_size || !buffer) {
+	if (!buffer_size) {
 		ret = EFI_INVALID_PARAMETER;
 		goto error;
 	}
