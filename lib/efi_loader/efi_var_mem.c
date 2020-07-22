@@ -231,6 +231,7 @@ static void EFIAPI __efi_runtime
 efi_var_mem_notify_virtual_address_map(struct efi_event *event, void *context)
 {
 	efi_convert_pointer(0, (void **)&efi_var_buf);
+	efi_current_var = NULL;
 }
 
 efi_status_t efi_var_mem_init(void)
