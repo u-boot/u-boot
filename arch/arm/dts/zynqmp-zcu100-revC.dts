@@ -482,7 +482,7 @@
 	disable-wp;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_sdhci0_default>;
-	xlnx,mio_bank = <0>;
+	xlnx,mio-bank = <0>;
 };
 
 &sdhci1 {
@@ -490,7 +490,7 @@
 	bus-width = <0x4>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_sdhci1_default>;
-	xlnx,mio_bank = <0>;
+	xlnx,mio-bank = <0>;
 	non-removable;
 	disable-wp;
 	cap-power-off-card;
