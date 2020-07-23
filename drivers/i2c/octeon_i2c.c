@@ -3,11 +3,10 @@
  * Copyright (C) 2018 Marvell International Ltd.
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <i2c.h>
-#include <pci_ids.h>
+#include <time.h>
 #include <asm/io.h>
 #include <linux/bitfield.h>
 #include <linux/compat.h>
@@ -749,6 +748,27 @@ static int octeon_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 	return 0;
 }
 
+static const struct octeon_i2c_data i2c_octeon_data = {
+	.probe = PROBE_DT,
+	.reg_offs = 0x0000,
+	.thp = 3,
+	.clk_method = CLK_METHOD_OCTEON,
+};
+
+static const struct octeon_i2c_data i2c_octeontx_data = {
+	.probe = PROBE_PCI,
+	.reg_offs = 0x1000,
+	.thp = 24,
+	.clk_method = CLK_METHOD_OCTEON,
+};
+
+static const struct octeon_i2c_data i2c_octeontx2_data = {
+	.probe = PROBE_PCI,
+	.reg_offs = 0x1000,
+	.thp = 3,
+	.clk_method = CLK_METHOD_OCTEONTX2,
+};
+
 /**
  * Driver probe function
  *
@@ -760,6 +780,10 @@ static int octeon_i2c_probe(struct udevice *dev)
 	struct octeon_twsi *twsi = dev_get_priv(dev);
 	u32 i2c_slave_addr;
 	int ret;
+
+	/* Octeon TX2 needs a different data struct */
+	if (device_is_compatible(dev, "cavium,thunderx-i2c"))
+		dev->driver_data = (long)&i2c_octeontx2_data;
 
 	twsi->data = (const struct octeon_i2c_data *)dev_get_driver_data(dev);
 
@@ -798,34 +822,11 @@ static const struct dm_i2c_ops octeon_i2c_ops = {
 	.set_bus_speed	= octeon_i2c_set_bus_speed,
 };
 
-static const struct octeon_i2c_data i2c_octeon_data = {
-	.probe = PROBE_DT,
-	.reg_offs = 0x0000,
-	.thp = 3,
-	.clk_method = CLK_METHOD_OCTEON,
-};
-
-static const struct octeon_i2c_data i2c_octeontx_data = {
-	.probe = PROBE_PCI,
-	.reg_offs = 0x8000,
-	.thp = 3,
-	.clk_method = CLK_METHOD_OCTEON,
-};
-
-static const struct octeon_i2c_data i2c_octeontx2_data = {
-	.probe = PROBE_PCI,
-	.reg_offs = 0x8000,
-	.thp = 24,
-	.clk_method = CLK_METHOD_OCTEONTX2,
-};
-
 static const struct udevice_id octeon_i2c_ids[] = {
 	{ .compatible = "cavium,octeon-7890-twsi",
 	  .data = (ulong)&i2c_octeon_data },
 	{ .compatible = "cavium,thunder-8890-twsi",
 	  .data = (ulong)&i2c_octeontx_data },
-	{ .compatible = "cavium,thunder2-99xx-twsi",
-	  .data = (ulong)&i2c_octeontx2_data },
 	{ }
 };
 
@@ -837,11 +838,3 @@ U_BOOT_DRIVER(octeon_pci_twsi) = {
 	.priv_auto_alloc_size = sizeof(struct octeon_twsi),
 	.ops	= &octeon_i2c_ops,
 };
-
-static struct pci_device_id octeon_twsi_supported[] = {
-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_CAVIUM_TWSI),
-	  .driver_data = (ulong)&i2c_octeontx2_data },
-	{ },
-};
-
-U_BOOT_PCI_DEVICE(octeon_pci_twsi, octeon_twsi_supported);
