@@ -46,18 +46,8 @@ static efi_status_t __maybe_unused efi_set_blk_dev_to_system_partition(void)
 	return EFI_SUCCESS;
 }
 
-/**
- * efi_var_collect() - collect non-volatile variables in buffer
- *
- * A buffer is allocated and filled with all non-volatile variables in a
- * format ready to be written to disk.
- *
- * @bufp:	pointer to pointer of buffer with collected variables
- * @lenp:	pointer to length of buffer
- * Return:	status code
- */
-static efi_status_t __maybe_unused efi_var_collect(struct efi_var_file **bufp,
-						   loff_t *lenp)
+efi_status_t __maybe_unused efi_var_collect(struct efi_var_file **bufp, loff_t *lenp,
+					    u32 check_attr_mask)
 {
 	size_t len = EFI_VAR_BUF_SIZE;
 	struct efi_var_file *buf;
@@ -102,11 +92,10 @@ static efi_status_t __maybe_unused efi_var_collect(struct efi_var_file **bufp,
 			free(buf);
 			return ret;
 		}
-		if (!(var->attr & EFI_VARIABLE_NON_VOLATILE))
-			continue;
-		var->length = data_length;
-		var = (struct efi_var_entry *)
-		      ALIGN((uintptr_t)data + data_length, 8);
+		if ((var->attr & check_attr_mask) == check_attr_mask) {
+			var->length = data_length;
+			var = (struct efi_var_entry *)ALIGN((uintptr_t)data + data_length, 8);
+		}
 	}
 
 	buf->reserved = 0;
@@ -137,7 +126,7 @@ efi_status_t efi_var_to_file(void)
 	loff_t actlen;
 	int r;
 
-	ret = efi_var_collect(&buf, &len);
+	ret = efi_var_collect(&buf, &len, EFI_VARIABLE_NON_VOLATILE);
 	if (ret != EFI_SUCCESS)
 		goto error;
 

@@ -15,6 +15,8 @@
 #include <malloc.h>
 #include <mm_communication.h>
 
+#define OPTEE_PAGE_SIZE BIT(12)
+extern struct efi_var_file __efi_runtime_data *efi_var_buf;
 static efi_uintn_t max_buffer_size;	/* comm + var + func + data */
 static efi_uintn_t max_payload_size;	/* func + data */
 
@@ -237,8 +239,32 @@ efi_status_t EFIAPI get_max_payload(efi_uintn_t *size)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
+	/* Make sure the buffer is big enough for storing variables */
+	if (var_payload->size < MM_VARIABLE_ACCESS_HEADER_SIZE + 0x20) {
+		ret = EFI_DEVICE_ERROR;
+		goto out;
+	}
 	*size = var_payload->size;
-
+	/*
+	 * Although the max payload is configurable on StMM, we only share a
+	 * single page from OP-TEE for the non-secure buffer used to communicate
+	 * with StMM. Since OP-TEE will reject to map anything bigger than that,
+	 * make sure we are in bounds.
+	 */
+	if (*size > OPTEE_PAGE_SIZE)
+		*size = OPTEE_PAGE_SIZE - MM_COMMUNICATE_HEADER_SIZE  -
+			MM_VARIABLE_COMMUNICATE_SIZE;
+	/*
+	 * There seems to be a bug in EDK2 miscalculating the boundaries and
+	 * size checks, so deduct 2 more bytes to fulfill this requirement. Fix
+	 * it up here to ensure backwards compatibility with older versions
+	 * (cf. StandaloneMmPkg/Drivers/StandaloneMmCpu/AArch64/EventHandle.c.
+	 * sizeof (EFI_MM_COMMUNICATE_HEADER) instead the size minus the
+	 * flexible array member).
+	 *
+	 * size is guaranteed to be > 2 due to checks on the beginning.
+	 */
+	*size -= 2;
 out:
 	free(comm_buf);
 	return ret;
@@ -593,39 +619,6 @@ out:
 }
 
 /**
- * efi_get_variable_runtime() - runtime implementation of GetVariable()
- *
- * @variable_name:	name of the variable
- * @guid:		vendor GUID
- * @attributes:		attributes of the variable
- * @data_size:		size of the buffer to which the variable value is copied
- * @data:		buffer to which the variable value is copied
- * Return:		status code
- */
-static efi_status_t __efi_runtime EFIAPI
-efi_get_variable_runtime(u16 *variable_name, const efi_guid_t *guid,
-			 u32 *attributes, efi_uintn_t *data_size, void *data)
-{
-	return EFI_UNSUPPORTED;
-}
-
-/**
- * efi_get_next_variable_name_runtime() - runtime implementation of
- *					  GetNextVariable()
- *
- * @variable_name_size:	size of variable_name buffer in byte
- * @variable_name:	name of uefi variable's name in u16
- * @guid:		vendor's guid
- * Return:              status code
- */
-static efi_status_t __efi_runtime EFIAPI
-efi_get_next_variable_name_runtime(efi_uintn_t *variable_name_size,
-				   u16 *variable_name, efi_guid_t *guid)
-{
-	return EFI_UNSUPPORTED;
-}
-
-/**
  * efi_query_variable_info() - get information about EFI variables
  *
  * This function implements the QueryVariableInfo() runtime service.
@@ -674,8 +667,10 @@ efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *guid,
  */
 void efi_variables_boot_exit_notify(void)
 {
-	u8 *comm_buf;
 	efi_status_t ret;
+	u8 *comm_buf;
+	loff_t len;
+	struct efi_var_file *var_buf;
 
 	comm_buf = setup_mm_hdr(NULL, 0,
 				SMM_VARIABLE_FUNCTION_EXIT_BOOT_SERVICE, &ret);
@@ -687,6 +682,18 @@ void efi_variables_boot_exit_notify(void)
 	if (ret != EFI_SUCCESS)
 		log_err("Unable to notify StMM for ExitBootServices\n");
 	free(comm_buf);
+
+	/*
+	 * Populate the list for runtime variables.
+	 * asking EFI_VARIABLE_RUNTIME_ACCESS is redundant, since
+	 * efi_var_mem_notify_exit_boot_services will clean those, but that's fine
+	 */
+	ret = efi_var_collect(&var_buf, &len, EFI_VARIABLE_RUNTIME_ACCESS);
+	if (ret != EFI_SUCCESS)
+		log_err("Can't populate EFI variables. No runtime variables will be available\n");
+	else
+		memcpy(efi_var_buf, var_buf, len);
+	free(var_buf);
 
 	/* Update runtime service table */
 	efi_runtime_services.query_variable_info =
@@ -706,6 +713,11 @@ void efi_variables_boot_exit_notify(void)
 efi_status_t efi_init_variables(void)
 {
 	efi_status_t ret;
+
+	/* Create a cached copy of the variables that will be enabled on ExitBootServices() */
+	ret = efi_var_mem_init();
+	if (ret != EFI_SUCCESS)
+		return ret;
 
 	ret = get_max_payload(&max_payload_size);
 	if (ret != EFI_SUCCESS)

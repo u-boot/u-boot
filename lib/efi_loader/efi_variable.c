@@ -282,68 +282,14 @@ efi_get_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 		     u32 *attributes, efi_uintn_t *data_size, void *data,
 		     u64 *timep)
 {
-	efi_uintn_t old_size;
-	struct efi_var_entry *var;
-	u16 *pdata;
-
-	if (!variable_name || !vendor || !data_size)
-		return EFI_INVALID_PARAMETER;
-	var = efi_var_mem_find(vendor, variable_name, NULL);
-	if (!var)
-		return EFI_NOT_FOUND;
-
-	if (attributes)
-		*attributes = var->attr;
-	if (timep)
-		*timep = var->time;
-
-	old_size = *data_size;
-	*data_size = var->length;
-	if (old_size < var->length)
-		return EFI_BUFFER_TOO_SMALL;
-
-	if (!data)
-		return EFI_INVALID_PARAMETER;
-
-	for (pdata = var->name; *pdata; ++pdata)
-		;
-	++pdata;
-
-	efi_memcpy_runtime(data, pdata, var->length);
-
-	return EFI_SUCCESS;
+	return efi_get_variable_mem(variable_name, vendor, attributes, data_size, data, timep);
 }
 
 efi_status_t __efi_runtime
 efi_get_next_variable_name_int(efi_uintn_t *variable_name_size,
 			       u16 *variable_name, efi_guid_t *vendor)
 {
-	struct efi_var_entry *var;
-	efi_uintn_t old_size;
-	u16 *pdata;
-
-	if (!variable_name_size || !variable_name || !vendor)
-		return EFI_INVALID_PARAMETER;
-
-	efi_var_mem_find(vendor, variable_name, &var);
-
-	if (!var)
-		return EFI_NOT_FOUND;
-
-	for (pdata = var->name; *pdata; ++pdata)
-		;
-	++pdata;
-
-	old_size = *variable_name_size;
-	*variable_name_size = (uintptr_t)pdata - (uintptr_t)var->name;
-
-	if (old_size < *variable_name_size)
-		return EFI_BUFFER_TOO_SMALL;
-
-	efi_memcpy_runtime(variable_name, var->name, *variable_name_size);
-	efi_memcpy_runtime(vendor, &var->guid, sizeof(efi_guid_t));
-
-	return EFI_SUCCESS;
+	return efi_get_next_variable_name_mem(variable_name_size, variable_name, vendor);
 }
 
 efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
@@ -502,49 +448,6 @@ efi_status_t __efi_runtime EFIAPI efi_query_variable_info_runtime(
 			u64 *maximum_variable_size)
 {
 	return EFI_UNSUPPORTED;
-}
-
-/**
- * efi_get_variable_runtime() - runtime implementation of GetVariable()
- *
- * @variable_name:	name of the variable
- * @vendor:		vendor GUID
- * @attributes:		attributes of the variable
- * @data_size:		size of the buffer to which the variable value is copied
- * @data:		buffer to which the variable value is copied
- * Return:		status code
- */
-static efi_status_t __efi_runtime EFIAPI
-efi_get_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
-			 u32 *attributes, efi_uintn_t *data_size, void *data)
-{
-	efi_status_t ret;
-
-	ret = efi_get_variable_int(variable_name, vendor, attributes,
-				   data_size, data, NULL);
-
-	/* Remove EFI_VARIABLE_READ_ONLY flag */
-	if (attributes)
-		*attributes &= EFI_VARIABLE_MASK;
-
-	return ret;
-}
-
-/**
- * efi_get_next_variable_name_runtime() - runtime implementation of
- *					  GetNextVariable()
- *
- * @variable_name_size:	size of variable_name buffer in byte
- * @variable_name:	name of uefi variable's name in u16
- * @vendor:		vendor's guid
- * Return: status code
- */
-static efi_status_t __efi_runtime EFIAPI
-efi_get_next_variable_name_runtime(efi_uintn_t *variable_name_size,
-				   u16 *variable_name, efi_guid_t *vendor)
-{
-	return efi_get_next_variable_name_int(variable_name_size, variable_name,
-					      vendor);
 }
 
 /**
