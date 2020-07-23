@@ -95,16 +95,16 @@
 		m25p,fast-read;
 
 		partition@u-boot {
-			reg = <0x00000000 0x00080000>;
+			reg = <0x00000000 0x001f0000>;
 			label = "u-boot";
 		};
 		partition@u-boot-env {
-			reg = <0x00080000 0x00010000>;
+			reg = <0x001f0000 0x00010000>;
 			label = "u-boot-env";
 		};
-		partition@firmware {
-			reg = <0x00090000 0x00f70000>;
-			label = "firmware";
+		partition@ubi1 {
+			reg = <0x00200000 0x00e00000>;
+			label = "ubi1";
 		};
 
 	};
