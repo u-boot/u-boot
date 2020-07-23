@@ -9,6 +9,8 @@
 #ifndef _DM_READ_H
 #define _DM_READ_H
 
+#include <linux/errno.h>
+
 #include <dm/fdtaddr.h>
 #include <dm/ofnode.h>
 #include <dm/uclass.h>
