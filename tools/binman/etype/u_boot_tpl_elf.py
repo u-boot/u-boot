@@ -18,7 +18,7 @@ class Entry_u_boot_tpl_elf(Entry_blob):
     be relocated to any address for execution.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def GetDefaultFilename(self):
         return 'tpl/u-boot-tpl'

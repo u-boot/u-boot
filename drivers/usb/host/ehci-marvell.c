@@ -109,7 +109,7 @@ static int ehci_mvebu_probe(struct udevice *dev)
 	/*
 	 * Get the base address for EHCI controller from the device node
 	 */
-	priv->hcd_base = devfdt_get_addr(dev);
+	priv->hcd_base = dev_read_addr(dev);
 	if (priv->hcd_base == FDT_ADDR_T_NONE) {
 		debug("Can't get the EHCI register base address\n");
 		return -ENXIO;

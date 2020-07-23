@@ -919,7 +919,7 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 #endif
 	int ret;
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	if (pdata->iobase == FDT_ADDR_T_NONE) {
 		debug("%s: Cannot find MAC base address\n", __func__);
 		return -EINVAL;

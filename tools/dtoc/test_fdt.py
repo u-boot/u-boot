@@ -417,6 +417,10 @@ class TestProp(unittest.TestCase):
         self.node.SetData('empty', b'123')
         self.assertEqual(b'123', prop.bytes)
 
+        # Trying adding a lot of data at once
+        self.node.AddData('data', tools.GetBytes(65, 20000))
+        self.dtb.Sync(auto_resize=True)
+
     def testFromData(self):
         dtb2 = fdt.Fdt.FromData(self.dtb.GetContents())
         self.assertEqual(dtb2.GetContents(), self.dtb.GetContents())

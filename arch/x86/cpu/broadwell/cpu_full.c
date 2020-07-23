@@ -626,12 +626,12 @@ void cpu_set_power_limits(int power_limit_1_time)
 	}
 }
 
-static int broadwell_get_info(struct udevice *dev, struct cpu_info *info)
+static int broadwell_get_info(const struct udevice *dev, struct cpu_info *info)
 {
 	return cpu_intel_get_info(info, INTEL_BCLK_MHZ);
 }
 
-static int broadwell_get_count(struct udevice *dev)
+static int broadwell_get_count(const struct udevice *dev)
 {
 	return 4;
 }

@@ -26,6 +26,7 @@ from patman import test_util
 
 # Bring in the libfdt module
 sys.path.insert(2, 'scripts/dtc/pylibfdt')
+sys.path.insert(2, os.path.join(our_path, '../../scripts/dtc/pylibfdt'))
 sys.path.insert(2, os.path.join(our_path,
                 '../../build-sandbox_spl/scripts/dtc/pylibfdt'))
 
@@ -88,14 +89,18 @@ def GetEntryModules(include_testing=True):
                 for item in glob_list
                 if include_testing or '_testing' not in item])
 
-def RunTestCoverage():
+def RunTestCoverage(toolpath):
     """Run the tests and check that we get 100% coverage"""
     glob_list = GetEntryModules(False)
     all_set = set([os.path.splitext(os.path.basename(item))[0]
                    for item in glob_list if '_testing' not in item])
+    extra_args = ''
+    if toolpath:
+        for path in toolpath:
+            extra_args += ' --toolpath %s' % path
     test_util.RunTestCoverage('tools/binman/binman', None,
             ['*test*', '*main.py', 'tools/patman/*', 'tools/dtoc/*'],
-            args.build_dir, all_set)
+            args.build_dir, all_set, extra_args or None)
 
 def RunBinman(args):
     """Main entry point to binman once arguments are parsed
@@ -108,9 +113,14 @@ def RunBinman(args):
     if not args.debug:
         sys.tracebacklimit = 0
 
+    # Provide a default toolpath in the hope of finding a mkimage built from
+    # current source
+    if not args.toolpath:
+        args.toolpath = ['./tools', 'build-sandbox/tools']
+
     if args.cmd == 'test':
         if args.test_coverage:
-            RunTestCoverage()
+            RunTestCoverage(args.toolpath)
         else:
             ret_code = RunTests(args.debug, args.verbosity, args.processes,
                                 args.test_preserve_dirs, args.tests,
@@ -123,7 +133,7 @@ def RunBinman(args):
         try:
             ret_code = control.Binman(args)
         except Exception as e:
-            print('binman: %s' % e)
+            print('binman: %s' % e, file=sys.stderr)
             if args.debug:
                 print()
                 traceback.print_exc()

@@ -37,7 +37,7 @@ re_change_id = re.compile('^Change-Id: *(.*)')
 re_commit_tag = re.compile('^Commit-([a-z-]*): *(.*)')
 
 # Commit tags that we want to collect and keep
-re_tag = re.compile('^(Tested-by|Acked-by|Reviewed-by|Patch-cc): (.*)')
+re_tag = re.compile('^(Tested-by|Acked-by|Reviewed-by|Patch-cc|Fixes): (.*)')
 
 # The start of a new commit in the git log
 re_commit = re.compile('^commit ([0-9a-f]*)$')
@@ -111,6 +111,15 @@ class PatchStream:
         if name == 'notes':
             self.in_section = 'commit-' + name
             self.skip_blank = False
+
+    def AddCommitRtag(self, rtag_type, who):
+        """Add a response tag to the current commit
+
+        Args:
+            key: rtag type (e.g. 'Reviewed-by')
+            who: Person who gave that rtag, e.g. 'Fred Bloggs <fred@bloggs.org>'
+        """
+        self.commit.AddRtag(rtag_type, who)
 
     def CloseCommit(self):
         """Save the current commit into our commit list, and reset our state"""
@@ -260,6 +269,10 @@ class PatchStream:
             else:
                 self.section.append(line)
 
+        # If we are not in a section, it is an unexpected END
+        elif line == 'END':
+                raise ValueError("'END' wihout section")
+
         # Detect the commit subject
         elif not is_blank and self.state == STATE_PATCH_SUBJECT:
             self.commit.subject = line
@@ -338,6 +351,9 @@ class PatchStream:
             elif name == 'changes':
                 self.in_change = 'Commit'
                 self.change_version = self.ParseVersion(value, line)
+            else:
+                self.warn.append('Line %d: Ignoring Commit-%s' %
+                    (self.linenum, name))
 
         # Detect the start of a new commit
         elif commit_match:
@@ -346,12 +362,14 @@ class PatchStream:
 
         # Detect tags in the commit message
         elif tag_match:
+            rtag_type, who = tag_match.groups()
+            self.AddCommitRtag(rtag_type, who)
             # Remove Tested-by self, since few will take much notice
-            if (tag_match.group(1) == 'Tested-by' and
-                    tag_match.group(2).find(os.getenv('USER') + '@') != -1):
+            if (rtag_type == 'Tested-by' and
+                    who.find(os.getenv('USER') + '@') != -1):
                 self.warn.append("Ignoring %s" % line)
-            elif tag_match.group(1) == 'Patch-cc':
-                self.commit.AddCc(tag_match.group(2).split(','))
+            elif rtag_type == 'Patch-cc':
+                self.commit.AddCc(who.split(','))
             else:
                 out = [line]
 
@@ -512,17 +530,19 @@ def GetMetaDataForList(commit_range, git_dir=None, count=None,
     ps.Finalize()
     return series
 
-def GetMetaData(start, count):
+def GetMetaData(branch, start, count):
     """Reads out patch series metadata from the commits
 
     This does a 'git log' on the relevant commits and pulls out the tags we
     are interested in.
 
     Args:
-        start: Commit to start from: 0=HEAD, 1=next one, etc.
+        branch: Branch to use (None for current branch)
+        start: Commit to start from: 0=branch HEAD, 1=next one, etc.
         count: Number of commits to list
     """
-    return GetMetaDataForList('HEAD~%d' % start, None, count)
+    return GetMetaDataForList('%s~%d' % (branch if branch else 'HEAD', start),
+                              None, count)
 
 def GetMetaDataForTest(text):
     """Process metadata from a file containing a git log. Used for tests

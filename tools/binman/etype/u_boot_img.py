@@ -21,7 +21,7 @@ class Entry_u_boot_img(Entry_blob):
     applications.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def GetDefaultFilename(self):
         return 'u-boot.img'

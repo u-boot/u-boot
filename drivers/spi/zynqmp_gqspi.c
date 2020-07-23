@@ -181,10 +181,10 @@ static int zynqmp_qspi_ofdata_to_platdata(struct udevice *bus)
 
 	debug("%s\n", __func__);
 
-	plat->regs = (struct zynqmp_qspi_regs *)(devfdt_get_addr(bus) +
+	plat->regs = (struct zynqmp_qspi_regs *)(dev_read_addr(bus) +
 						 GQSPI_REG_OFFSET);
 	plat->dma_regs = (struct zynqmp_qspi_dma_regs *)
-			  (devfdt_get_addr(bus) + GQSPI_DMA_REG_OFFSET);
+			  (dev_read_addr(bus) + GQSPI_DMA_REG_OFFSET);
 
 	return 0;
 }

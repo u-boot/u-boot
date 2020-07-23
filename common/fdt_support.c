@@ -816,8 +816,8 @@ static int fdt_del_partitions(void *blob, int parent_offset)
 	return 0;
 }
 
-int fdt_node_set_part_info(void *blob, int parent_offset,
-			   struct mtd_device *dev)
+static int fdt_node_set_part_info(void *blob, int parent_offset,
+				  struct mtd_device *dev)
 {
 	struct list_head *pentry;
 	struct part_info *part;
@@ -951,27 +951,35 @@ void fdt_fixup_mtdparts(void *blob, const struct node_info *node_info,
 	struct mtd_device *dev;
 	int i, idx;
 	int noff;
-
-	if (mtdparts_init() != 0)
-		return;
+	bool inited = false;
 
 	for (i = 0; i < node_info_size; i++) {
 		idx = 0;
-		noff = fdt_node_offset_by_compatible(blob, -1,
-						     node_info[i].compat);
-		while (noff != -FDT_ERR_NOTFOUND) {
+		noff = -1;
+
+		while ((noff = fdt_node_offset_by_compatible(blob, noff,
+						node_info[i].compat)) >= 0) {
+			const char *prop;
+
+			prop = fdt_getprop(blob, noff, "status", NULL);
+			if (prop && !strcmp(prop, "disabled"))
+				continue;
+
 			debug("%s: %s, mtd dev type %d\n",
 				fdt_get_name(blob, noff, 0),
 				node_info[i].compat, node_info[i].type);
+
+			if (!inited) {
+				if (mtdparts_init() != 0)
+					return;
+				inited = true;
+			}
+
 			dev = device_find(node_info[i].type, idx++);
 			if (dev) {
 				if (fdt_node_set_part_info(blob, noff, dev))
 					return; /* return on error */
 			}
-
-			/* Jump to next flash node */
-			noff = fdt_node_offset_by_compatible(blob, noff,
-							     node_info[i].compat);
 		}
 	}
 }

@@ -351,7 +351,7 @@ static int atmel_spi_probe(struct udevice *bus)
 	if (ret)
 		return ret;
 
-	bus_plat->regs = (struct at91_spi *)devfdt_get_addr(bus);
+	bus_plat->regs = dev_read_addr_ptr(bus);
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	struct atmel_spi_priv *priv = dev_get_priv(bus);

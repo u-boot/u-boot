@@ -31,7 +31,7 @@ class Entry_u_boot_spl_bss_pad(Entry_blob):
     binman uses that to look up the BSS address.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def ObtainContents(self):
         fname = tools.GetInputFilename('spl/u-boot-spl')

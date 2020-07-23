@@ -8,11 +8,11 @@
 from collections import OrderedDict
 
 from binman.entry import Entry
-from binman.etype.blob import Entry_blob
+from binman.etype.blob_ext import Entry_blob_ext
 from dtoc import fdt_util
 from patman import tools
 
-class Entry_intel_ifwi(Entry_blob):
+class Entry_intel_ifwi(Entry_blob_ext):
     """Entry containing an Intel Integrated Firmware Image (IFWI) file
 
     Properties / Entry arguments:
@@ -45,13 +45,13 @@ class Entry_intel_ifwi(Entry_blob):
     See README.x86 for information about x86 binary blobs.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self._convert_fit = fdt_util.GetBool(self._node, 'convert-fit')
         self._ifwi_entries = OrderedDict()
 
     def ReadNode(self):
         self._ReadSubnodes()
-        Entry_blob.ReadNode(self)
+        super().ReadNode()
 
     def _BuildIfwi(self):
         """Build the contents of the IFWI and write it to the 'data' property"""
@@ -84,7 +84,7 @@ class Entry_intel_ifwi(Entry_blob):
         return True
 
     def ObtainContents(self):
-        """Get the contects for the IFWI
+        """Get the contents for the IFWI
 
         Unfortunately we cannot create anything from scratch here, as Intel has
         tools which create precursor binaries with lots of data and settings,
@@ -97,13 +97,21 @@ class Entry_intel_ifwi(Entry_blob):
         After that we delete the OBBP sub-partition and add each of the files
         that we want in the IFWI file, one for each sub-entry of the IWFI node.
         """
-        self._pathname = tools.GetInputFilename(self._filename)
+        self._pathname = tools.GetInputFilename(self._filename,
+                                                self.section.GetAllowMissing())
+        # Allow the file to be missing
+        if not self._pathname:
+            self.SetContents(b'')
+            self.missing = True
+            return True
         for entry in self._ifwi_entries.values():
             if not entry.ObtainContents():
                 return False
         return self._BuildIfwi()
 
     def ProcessContents(self):
+        if self.missing:
+            return True
         orig_data = self.data
         self._BuildIfwi()
         same = orig_data == self.data
@@ -121,5 +129,6 @@ class Entry_intel_ifwi(Entry_blob):
 
     def WriteSymbols(self, section):
         """Write symbol values into binary files for access at run time"""
-        for entry in self._ifwi_entries.values():
-            entry.WriteSymbols(self)
+        if not self.missing:
+            for entry in self._ifwi_entries.values():
+                entry.WriteSymbols(self)

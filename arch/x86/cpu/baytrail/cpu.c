@@ -150,7 +150,7 @@ static unsigned long tsc_freq(void)
 	return bclk * ((platform_info.lo >> 8) & 0xff);
 }
 
-static int baytrail_get_info(struct udevice *dev, struct cpu_info *info)
+static int baytrail_get_info(const struct udevice *dev, struct cpu_info *info)
 {
 	info->cpu_freq = tsc_freq();
 	info->features = 1 << CPU_FEAT_L1_CACHE | 1 << CPU_FEAT_MMU;
@@ -158,7 +158,7 @@ static int baytrail_get_info(struct udevice *dev, struct cpu_info *info)
 	return 0;
 }
 
-static int baytrail_get_count(struct udevice *dev)
+static int baytrail_get_count(const struct udevice *dev)
 {
 	int ecx = 0;
 

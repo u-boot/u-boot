@@ -54,7 +54,7 @@ class Entry_gbb(Entry):
     README.chromium for how to obtain the required keys and tools.
     """
     def __init__(self, section, etype, node):
-        Entry.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self.hardware_id, self.keydir, self.bmpblk = self.GetEntryArgsOrProps(
             [EntryArg('hardware-id', str),
              EntryArg('keydir', str),

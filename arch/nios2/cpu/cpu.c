@@ -79,7 +79,8 @@ int arch_cpu_init_dm(void)
 	return 0;
 }
 
-static int altera_nios2_get_desc(struct udevice *dev, char *buf, int size)
+static int altera_nios2_get_desc(const struct udevice *dev, char *buf,
+				 int size)
 {
 	const char *cpu_name = "Nios-II";
 
@@ -90,7 +91,8 @@ static int altera_nios2_get_desc(struct udevice *dev, char *buf, int size)
 	return 0;
 }
 
-static int altera_nios2_get_info(struct udevice *dev, struct cpu_info *info)
+static int altera_nios2_get_info(const struct udevice *dev,
+				 struct cpu_info *info)
 {
 	info->cpu_freq = gd->cpu_clk;
 	info->features = (1 << CPU_FEAT_L1_CACHE) |
@@ -99,7 +101,7 @@ static int altera_nios2_get_info(struct udevice *dev, struct cpu_info *info)
 	return 0;
 }
 
-static int altera_nios2_get_count(struct udevice *dev)
+static int altera_nios2_get_count(const struct udevice *dev)
 {
 	return 1;
 }

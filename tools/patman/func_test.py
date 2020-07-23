@@ -14,15 +14,23 @@ import unittest
 
 from io import StringIO
 
+from patman import control
 from patman import gitutil
 from patman import patchstream
 from patman import settings
+from patman import terminal
 from patman import tools
+from patman.test_util import capture_sys_output
+
+try:
+    import pygit2
+    HAVE_PYGIT2= True
+except ModuleNotFoundError:
+    HAVE_PYGIT2 = False
 
 
 @contextlib.contextmanager
 def capture():
-    import sys
     oldout,olderr = sys.stdout, sys.stderr
     try:
         out=[StringIO(), StringIO()]
@@ -37,6 +45,8 @@ def capture():
 class TestFunctional(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp(prefix='patman.')
+        self.gitdir = os.path.join(self.tmpdir, 'git')
+        self.repo = None
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
@@ -286,3 +296,160 @@ Changes in v2:
             if expected:
                 expected = expected.splitlines()
                 self.assertEqual(expected, lines[start:(start+len(expected))])
+
+    def make_commit_with_file(self, subject, body, fname, text):
+        """Create a file and add it to the git repo with a new commit
+
+        Args:
+            subject (str): Subject for the commit
+            body (str): Body text of the commit
+            fname (str): Filename of file to create
+            text (str): Text to put into the file
+        """
+        path = os.path.join(self.gitdir, fname)
+        tools.WriteFile(path, text, binary=False)
+        index = self.repo.index
+        index.add(fname)
+        author =  pygit2.Signature('Test user', 'test@email.com')
+        committer = author
+        tree = index.write_tree()
+        message = subject + '\n' + body
+        self.repo.create_commit('HEAD', author, committer, message, tree,
+                                [self.repo.head.target])
+
+    def make_git_tree(self):
+        """Make a simple git tree suitable for testing
+
+        It has three branches:
+            'base' has two commits: PCI, main
+            'first' has base as upstream and two more commits: I2C, SPI
+            'second' has base as upstream and three more: video, serial, bootm
+
+        Returns:
+            pygit2 repository
+        """
+        repo = pygit2.init_repository(self.gitdir)
+        self.repo = repo
+        new_tree = repo.TreeBuilder().write()
+
+        author = pygit2.Signature('Test user', 'test@email.com')
+        committer = author
+        commit = repo.create_commit('HEAD', author, committer,
+                                         'Created master', new_tree, [])
+
+        self.make_commit_with_file('Initial commit', '''
+Add a README
+
+''', 'README', '''This is the README file
+describing this project
+in very little detail''')
+
+        self.make_commit_with_file('pci: PCI implementation', '''
+Here is a basic PCI implementation
+
+''', 'pci.c', '''This is a file
+it has some contents
+and some more things''')
+        self.make_commit_with_file('main: Main program', '''
+Hello here is the second commit.
+''', 'main.c', '''This is the main file
+there is very little here
+but we can always add more later
+if we want to
+
+Series-to: u-boot
+Series-cc: Barry Crump <bcrump@whataroa.nz>
+''')
+        base_target = repo.revparse_single('HEAD')
+        self.make_commit_with_file('i2c: I2C things', '''
+This has some stuff to do with I2C
+''', 'i2c.c', '''And this is the file contents
+with some I2C-related things in it''')
+        self.make_commit_with_file('spi: SPI fixes', '''
+SPI needs some fixes
+and here they are
+''', 'spi.c', '''Some fixes for SPI in this
+file to make SPI work
+better than before''')
+        first_target = repo.revparse_single('HEAD')
+
+        target = repo.revparse_single('HEAD~2')
+        repo.reset(target.oid, pygit2.GIT_CHECKOUT_FORCE)
+        self.make_commit_with_file('video: Some video improvements', '''
+Fix up the video so that
+it looks more purple. Purple is
+a very nice colour.
+''', 'video.c', '''More purple here
+Purple and purple
+Even more purple
+Could not be any more purple''')
+        self.make_commit_with_file('serial: Add a serial driver', '''
+Here is the serial driver
+for my chip.
+
+Cover-letter:
+Series for my board
+This series implements support
+for my glorious board.
+END
+''', 'serial.c', '''The code for the
+serial driver is here''')
+        self.make_commit_with_file('bootm: Make it boot', '''
+This makes my board boot
+with a fix to the bootm
+command
+''', 'bootm.c', '''Fix up the bootm
+command to make the code as
+complicated as possible''')
+        second_target = repo.revparse_single('HEAD')
+
+        repo.branches.local.create('first', first_target)
+        repo.config.set_multivar('branch.first.remote', '', '.')
+        repo.config.set_multivar('branch.first.merge', '', 'refs/heads/base')
+
+        repo.branches.local.create('second', second_target)
+        repo.config.set_multivar('branch.second.remote', '', '.')
+        repo.config.set_multivar('branch.second.merge', '', 'refs/heads/base')
+
+        repo.branches.local.create('base', base_target)
+        return repo
+
+    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
+    def testBranch(self):
+        """Test creating patches from a branch"""
+        repo = self.make_git_tree()
+        target = repo.lookup_reference('refs/heads/first')
+        self.repo.checkout(target, strategy=pygit2.GIT_CHECKOUT_FORCE)
+        control.setup()
+        try:
+            orig_dir = os.getcwd()
+            os.chdir(self.gitdir)
+
+            # Check that it can detect the current branch
+            self.assertEqual(2, gitutil.CountCommitsToBranch(None))
+            col = terminal.Color()
+            with capture_sys_output() as _:
+                _, cover_fname, patch_files = control.prepare_patches(
+                    col, branch=None, count=-1, start=0, end=0,
+                    ignore_binary=False)
+            self.assertIsNone(cover_fname)
+            self.assertEqual(2, len(patch_files))
+
+            # Check that it can detect a different branch
+            self.assertEqual(3, gitutil.CountCommitsToBranch('second'))
+            with capture_sys_output() as _:
+                _, cover_fname, patch_files = control.prepare_patches(
+                    col, branch='second', count=-1, start=0, end=0,
+                    ignore_binary=False)
+            self.assertIsNotNone(cover_fname)
+            self.assertEqual(3, len(patch_files))
+
+            # Check that it can skip patches at the end
+            with capture_sys_output() as _:
+                _, cover_fname, patch_files = control.prepare_patches(
+                    col, branch='second', count=-1, start=0, end=1,
+                    ignore_binary=False)
+            self.assertIsNotNone(cover_fname)
+            self.assertEqual(2, len(patch_files))
+        finally:
+            os.chdir(orig_dir)

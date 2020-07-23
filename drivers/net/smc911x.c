@@ -612,7 +612,7 @@ static int smc911x_ofdata_to_platdata(struct udevice *dev)
 	struct smc911x_priv *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	priv->iobase = pdata->iobase;
 
 	return 0;

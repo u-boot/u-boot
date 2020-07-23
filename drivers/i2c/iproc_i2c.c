@@ -678,7 +678,7 @@ static int iproc_i2c_ofdata_to_platdata(struct udevice *bus)
 	int node = dev_of_offset(bus);
 	const void *blob = gd->fdt_blob;
 
-	bus_prvdata->base = map_physmem(devfdt_get_addr(bus),
+	bus_prvdata->base = map_physmem(dev_read_addr(bus),
 					sizeof(void *),
 					MAP_NOCACHE);
 

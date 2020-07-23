@@ -316,4 +316,9 @@
 			ti,cpts-periodic-outputs = <2>;
 		};
 	};
+
+	chipid: chipid@43000014 {
+		compatible = "ti,am654-chipid";
+		reg = <0x0 0x43000014 0x0 0x4>;
+	};
 };

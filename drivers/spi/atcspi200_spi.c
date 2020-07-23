@@ -378,7 +378,7 @@ static int atcspi200_ofdata_to_platadata(struct udevice *bus)
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
-	ns->regs = map_physmem(devfdt_get_addr(bus),
+	ns->regs = map_physmem(dev_read_addr(bus),
 				 sizeof(struct atcspi200_spi_regs),
 				 MAP_NOCACHE);
 	if (!ns->regs) {

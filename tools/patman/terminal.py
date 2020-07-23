@@ -122,7 +122,7 @@ def TrimAsciiLen(text, size):
     return out
 
 
-def Print(text='', newline=True, colour=None, limit_to_line=False):
+def Print(text='', newline=True, colour=None, limit_to_line=False, bright=True):
     """Handle a line of output to the terminal.
 
     In test mode this is recorded in a list. Otherwise it is output to the
@@ -140,7 +140,7 @@ def Print(text='', newline=True, colour=None, limit_to_line=False):
     else:
         if colour:
             col = Color()
-            text = col.Color(colour, text)
+            text = col.Color(colour, text, bright=bright)
         if newline:
             print(text)
             last_print_len = None

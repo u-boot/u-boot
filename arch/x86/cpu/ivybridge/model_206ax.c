@@ -410,14 +410,15 @@ static int model_206ax_init(struct udevice *dev)
 	return 0;
 }
 
-static int model_206ax_get_info(struct udevice *dev, struct cpu_info *info)
+static int model_206ax_get_info(const struct udevice *dev,
+				struct cpu_info *info)
 {
 	return cpu_intel_get_info(info, INTEL_BCLK_MHZ);
 
 	return 0;
 }
 
-static int model_206ax_get_count(struct udevice *dev)
+static int model_206ax_get_count(const struct udevice *dev)
 {
 	return 4;
 }

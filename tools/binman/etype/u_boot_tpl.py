@@ -32,7 +32,7 @@ class Entry_u_boot_tpl(Entry_blob):
     binman uses that to look up symbols to write into the TPL binary.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self.elf_fname = 'tpl/u-boot-tpl'
 
     def GetDefaultFilename(self):

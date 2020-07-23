@@ -722,7 +722,7 @@ int tmio_sd_probe(struct udevice *dev, u32 quirks)
 	ulong mclk;
 	int ret;
 
-	base = devfdt_get_addr(dev);
+	base = dev_read_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

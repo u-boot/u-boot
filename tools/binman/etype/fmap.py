@@ -32,7 +32,7 @@ class Entry_fmap(Entry):
     the sub-entries are ignored.
     """
     def __init__(self, section, etype, node):
-        Entry.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def _GetFmap(self):
         """Build an FMAP from the entries in the current image

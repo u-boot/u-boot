@@ -507,7 +507,7 @@ static int atmel_hlcdc_ofdata_to_platdata(struct udevice *dev)
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 
-	priv->regs = (struct atmel_hlcd_regs *)devfdt_get_addr(dev);
+	priv->regs = dev_read_addr_ptr(dev);
 	if (!priv->regs) {
 		debug("%s: No display controller address\n", __func__);
 		return -EINVAL;

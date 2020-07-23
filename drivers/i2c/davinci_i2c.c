@@ -471,7 +471,7 @@ static int davinci_i2c_probe(struct udevice *dev)
 	struct i2c_bus *i2c_bus = dev_get_priv(dev);
 
 	i2c_bus->id = dev->seq;
-	i2c_bus->regs = (struct i2c_regs *)devfdt_get_addr(dev);
+	i2c_bus->regs = dev_read_addr_ptr(dev);
 
 	i2c_bus->speed = 100000;
 	 _davinci_i2c_init(i2c_bus->regs, i2c_bus->speed, 0);

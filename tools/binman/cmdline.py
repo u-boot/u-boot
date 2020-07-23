@@ -53,6 +53,8 @@ controlled by a description in the board device tree.'''
             help='Add a path to the list of directories to use for input files')
     build_parser.add_argument('-m', '--map', action='store_true',
         default=False, help='Output a map file for each image')
+    build_parser.add_argument('-M', '--allow-missing', action='store_true',
+        default=False, help='Allow external blobs to be missing')
     build_parser.add_argument('-O', '--outdir', type=str,
         action='store', help='Path to directory to use for intermediate and '
         'output files')

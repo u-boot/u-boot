@@ -29,6 +29,6 @@ class Entry_blob_named_by_arg(Entry_blob):
     See cros_ec_rw for an example of this.
     """
     def __init__(self, section, etype, node, blob_fname):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self._filename, = self.GetEntryArgsOrProps(
             [EntryArg('%s-path' % blob_fname, str)])
