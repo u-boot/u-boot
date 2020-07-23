@@ -120,7 +120,8 @@ void __efi_runtime efi_var_mem_del(struct efi_var_entry *var)
 	       ALIGN((uintptr_t)data + var->length, 8);
 	efi_var_buf->length -= (uintptr_t)next - (uintptr_t)var;
 
-	memmove(var, next, (uintptr_t)last - (uintptr_t)next);
+	/* efi_memcpy_runtime() can be used because next >= var. */
+	efi_memcpy_runtime(var, next, (uintptr_t)last - (uintptr_t)next);
 	efi_var_buf->crc32 = crc32(0, (u8 *)efi_var_buf->var,
 				   efi_var_buf->length -
 				   sizeof(struct efi_var_file));
@@ -231,6 +232,7 @@ static void EFIAPI __efi_runtime
 efi_var_mem_notify_virtual_address_map(struct efi_event *event, void *context)
 {
 	efi_convert_pointer(0, (void **)&efi_var_buf);
+	efi_current_var = NULL;
 }
 
 efi_status_t efi_var_mem_init(void)

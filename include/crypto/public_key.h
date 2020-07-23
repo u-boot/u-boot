@@ -82,9 +82,9 @@ extern int decrypt_blob(struct kernel_pkey_params *, const void *, void *);
 extern int create_signature(struct kernel_pkey_params *, const void *, void *);
 extern int verify_signature(const struct key *,
 			    const struct public_key_signature *);
+#endif /* __UBOOT__ */
 
 int public_key_verify_signature(const struct public_key *pkey,
 				const struct public_key_signature *sig);
-#endif /* !__UBOOT__ */
 
 #endif /* _LINUX_PUBLIC_KEY_H */

@@ -542,15 +542,14 @@ static int do_bootm_efi(int flag, int argc, char *const argv[],
 	       images->ep);
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
+	/* We expect to return */
+	images->os.type = IH_TYPE_STANDALONE;
+
 	image_buf = map_sysmem(images->ep, images->os.image_len);
 
 	efi_ret = efi_run_image(image_buf, images->os.image_len);
-	if (efi_ret != EFI_SUCCESS) {
-		printf("## Failed to run EFI image: r = %lu\n",
-		       efi_ret & ~EFI_ERROR_MASK);
+	if (efi_ret != EFI_SUCCESS)
 		return 1;
-	}
-
 	return 0;
 }
 #endif

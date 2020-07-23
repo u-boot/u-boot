@@ -52,14 +52,14 @@ struct efi_mm_communicate_header {
 #define MM_COMMUNICATE_HEADER_SIZE \
 	(sizeof(struct efi_mm_communicate_header))
 
-/* Defined in EDK2 ArmPkg/Include/IndustryStandard/ArmStdSmc.h */
+/* Defined in EDK2 ArmPkg/Include/IndustryStandard/ArmMmSvc.h */
 
-/* MM return error codes */
-#define ARM_SMC_MM_RET_SUCCESS              0
-#define ARM_SMC_MM_RET_NOT_SUPPORTED       -1
-#define ARM_SMC_MM_RET_INVALID_PARAMS      -2
-#define ARM_SMC_MM_RET_DENIED              -3
-#define ARM_SMC_MM_RET_NO_MEMORY           -4
+/* SPM return error codes */
+#define ARM_SVC_SPM_RET_SUCCESS               0
+#define ARM_SVC_SPM_RET_NOT_SUPPORTED        -1
+#define ARM_SVC_SPM_RET_INVALID_PARAMS       -2
+#define ARM_SVC_SPM_RET_DENIED               -3
+#define ARM_SVC_SPM_RET_NO_MEMORY            -5
 
 /* Defined in EDK2 MdeModulePkg/Include/Guid/SmmVariableCommon.h */
 

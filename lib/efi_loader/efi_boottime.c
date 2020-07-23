@@ -104,7 +104,15 @@ int __efi_exit_check(void)
 	return ret;
 }
 
-/* Called from do_bootefi_exec() */
+/**
+ * efi_save_gd() - save global data register
+ *
+ * On the ARM architecture gd is mapped to a fixed register (r9 or x18).
+ * As this register may be overwritten by an EFI payload we save it here
+ * and restore it on every callback entered.
+ *
+ * This function is called after relocation from initr_reloc_global_data().
+ */
 void efi_save_gd(void)
 {
 #ifdef CONFIG_ARM
@@ -112,10 +120,12 @@ void efi_save_gd(void)
 #endif
 }
 
-/*
- * Special case handler for error/abort that just forces things back to u-boot
- * world so we can dump out an abort message, without any care about returning
- * back to UEFI world.
+/**
+ * efi_restore_gd() - restore global data register
+ *
+ * On the ARM architecture gd is mapped to a fixed register (r9 or x18).
+ * Restore it after returning from the UEFI world to the value saved via
+ * efi_save_gd().
  */
 void efi_restore_gd(void)
 {

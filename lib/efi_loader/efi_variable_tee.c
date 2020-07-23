@@ -100,25 +100,25 @@ static efi_status_t optee_mm_communicate(void *comm_buf, ulong dsize)
 	param[1].attr = TEE_PARAM_ATTR_TYPE_VALUE_OUTPUT;
 
 	rc = tee_invoke_func(conn.tee, &arg, 2, param);
-	if (rc)
-		return EFI_INVALID_PARAMETER;
 	tee_shm_free(shm);
 	tee_close_session(conn.tee, conn.session);
+	if (rc || arg.ret != TEE_SUCCESS)
+		return EFI_DEVICE_ERROR;
 
 	switch (param[1].u.value.a) {
-	case ARM_SMC_MM_RET_SUCCESS:
+	case ARM_SVC_SPM_RET_SUCCESS:
 		ret = EFI_SUCCESS;
 		break;
 
-	case ARM_SMC_MM_RET_INVALID_PARAMS:
+	case ARM_SVC_SPM_RET_INVALID_PARAMS:
 		ret = EFI_INVALID_PARAMETER;
 		break;
 
-	case ARM_SMC_MM_RET_DENIED:
+	case ARM_SVC_SPM_RET_DENIED:
 		ret = EFI_ACCESS_DENIED;
 		break;
 
-	case ARM_SMC_MM_RET_NO_MEMORY:
+	case ARM_SVC_SPM_RET_NO_MEMORY:
 		ret = EFI_OUT_OF_RESOURCES;
 		break;
 

@@ -144,6 +144,8 @@ efi_status_t efi_init_runtime_supported(void)
  *
  * At runtime memcpy() is not available.
  *
+ * Overlapping memory areas can be copied safely if src >= dest.
+ *
  * @dest:	destination buffer
  * @src:	source buffer
  * @n:		number of bytes to copy
