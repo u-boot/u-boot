@@ -590,8 +590,6 @@ extern void pci_cfgfunc_do_nothing(struct pci_controller* hose, pci_dev_t dev,
 extern void pci_cfgfunc_config_device(struct pci_controller* hose, pci_dev_t dev,
 				      struct pci_config_table *);
 
-#define MAX_PCI_REGIONS		7
-
 #define INDIRECT_TYPE_NO_PCIE_LINK	1
 
 /**
@@ -632,7 +630,7 @@ struct pci_controller {
 	 * for PCI controllers and a separate UCLASS (or perhaps
 	 * UCLASS_PCI_GENERIC) is used for bridges.
 	 */
-	struct pci_region regions[MAX_PCI_REGIONS];
+	struct pci_region *regions;
 	int region_count;
 
 	struct pci_config_table *config_table;

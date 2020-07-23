@@ -874,6 +874,7 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 	struct bd_info *bd = gd->bd;
 	int cells_per_record;
 	const u32 *prop;
+	int max_regions;
 	int len;
 	int i;
 
@@ -893,7 +894,13 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 	hose->region_count = 0;
 	debug("%s: len=%d, cells_per_record=%d\n", __func__, len,
 	      cells_per_record);
-	for (i = 0; i < MAX_PCI_REGIONS; i++, len -= cells_per_record) {
+
+	/* Dynamically allocate the regions array */
+	max_regions = len / cells_per_record + CONFIG_NR_DRAM_BANKS;
+	hose->regions = (struct pci_region *)
+		calloc(1, max_regions * sizeof(struct pci_region));
+
+	for (i = 0; i < max_regions; i++, len -= cells_per_record) {
 		u64 pci_addr, addr, size;
 		int space_code;
 		u32 flags;
@@ -943,11 +950,6 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 		return;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
-		if (hose->region_count == MAX_PCI_REGIONS) {
-			pr_err("maximum number of regions parsed, aborting\n");
-			break;
-		}
-
 		if (bd->bi_dram[i].size) {
 			pci_set_region(hose->regions + hose->region_count++,
 				       bd->bi_dram[i].start,
