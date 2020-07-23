@@ -1,5 +1,6 @@
 CRS3XX-98DX3236 BOARD
 M:	Luka Kovacic <luka.kovacic@sartura.hr>
+M:	Luka Perkov <luka.perkov@sartura.hr>
 S:	Maintained
 F:	board/mikrotik/crs3xx-98dx3236/
 F:	include/configs/crs3xx-98dx3236.h
