@@ -294,7 +294,6 @@ struct dtd_sandbox_gpio {
 \tbool\t\tgpio_controller;
 \tfdt32_t\t\tsandbox_gpio_count;
 };
-#define dtd_sandbox_gpio_alias dtd_sandbox_gpio
 ''', data)
 
         self.run_test(['platdata'], dtb_file, output)
@@ -558,48 +557,6 @@ void dm_populate_phandle_data(void) {
             self.run_test(['struct'], dtb_file, output)
         self.assertIn("Node 'phandle-target' has no cells property",
                       str(e.exception))
-
-    def test_aliases(self):
-        """Test output from a node with multiple compatible strings"""
-        dtb_file = get_dtb_file('dtoc_test_aliases.dts')
-        output = tools.GetOutputFilename('output')
-        self.run_test(['struct'], dtb_file, output)
-        with open(output) as infile:
-            data = infile.read()
-        self._CheckStrings(HEADER + '''
-struct dtd_compat1 {
-\tfdt32_t\t\tintval;
-};
-struct dtd_simple_bus {
-\tfdt32_t\t\tintval;
-};
-#define dtd_compat2_1_fred dtd_compat1
-#define dtd_compat3 dtd_compat1
-''', data)
-
-        self.run_test(['platdata'], dtb_file, output)
-        with open(output) as infile:
-            data = infile.read()
-        self._CheckStrings(C_HEADER + '''
-static struct dtd_compat1 dtv_spl_test = {
-\t.intval\t\t\t= 0x1,
-};
-U_BOOT_DEVICE(spl_test) = {
-\t.name\t\t= "compat1",
-\t.platdata\t= &dtv_spl_test,
-\t.platdata_size\t= sizeof(dtv_spl_test),
-};
-
-static struct dtd_simple_bus dtv_spl_test2 = {
-\t.intval\t\t\t= 0x1,
-};
-U_BOOT_DEVICE(spl_test2) = {
-\t.name\t\t= "simple_bus",
-\t.platdata\t= &dtv_spl_test2,
-\t.platdata_size\t= sizeof(dtv_spl_test2),
-};
-
-''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
 
     def test_addresses64(self):
         """Test output from a node with a 'reg' property with na=2, ns=2"""

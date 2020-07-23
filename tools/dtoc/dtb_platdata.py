@@ -141,9 +141,6 @@ class DtbPlatdata(object):
         _outfile: The current output file (sys.stdout or a real file)
         _warning_disabled: true to disable warnings about driver names not found
         _lines: Stashed list of output lines for outputting in the future
-        _aliases: Dict that hold aliases for compatible strings
-            key: First compatible string declared in a node
-            value: List of additional compatible strings declared in a node
         _drivers: List of valid driver names found in drivers/
         _driver_aliases: Dict that holds aliases for driver names
             key: Driver alias declared with
@@ -161,7 +158,6 @@ class DtbPlatdata(object):
         self._outfile = None
         self._warning_disabled = warning_disabled
         self._lines = []
-        self._aliases = {}
         self._drivers = []
         self._driver_aliases = {}
         self._links = []
@@ -496,10 +492,6 @@ class DtbPlatdata(object):
                     prop.Widen(struct[name])
             upto += 1
 
-            struct_name, aliases = self.get_normalized_compat_name(node)
-            for alias in aliases:
-                self._aliases[alias] = struct_name
-
         return structs
 
     def scan_phandles(self):
@@ -561,11 +553,6 @@ class DtbPlatdata(object):
                         self.out('[%d]' % len(prop.value))
                 self.out(';\n')
             self.out('};\n')
-
-        for alias, struct_name in self._aliases.items():
-            if alias not in sorted(structs):
-                self.out('#define %s%s %s%s\n'% (STRUCT_PREFIX, alias,
-                                                 STRUCT_PREFIX, struct_name))
 
     def output_node(self, node):
         """Output the C code for a node
