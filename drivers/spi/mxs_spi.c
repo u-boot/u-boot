@@ -41,15 +41,9 @@
 #define MXS_SSP_IMX23_CLKID_SSP0 33
 #define MXS_SSP_IMX28_CLKID_SSP0 46
 
-#ifdef CONFIG_MX28
-#define dtd_fsl_imx_spi dtd_fsl_imx28_spi
-#else /* CONFIG_MX23 */
-#define dtd_fsl_imx_spi dtd_fsl_imx23_spi
-#endif
-
 struct mxs_spi_platdata {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_fsl_imx_spi dtplat;
+	struct dtd_fsl_imx23_spi dtplat;
 #endif
 	s32 frequency;		/* Default clock frequency, -1 for none */
 	fdt_addr_t base;        /* SPI IP block base address */
@@ -324,7 +318,7 @@ static int mxs_spi_probe(struct udevice *bus)
 	debug("%s: probe\n", __func__);
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_fsl_imx_spi *dtplat = &plat->dtplat;
+	struct dtd_fsl_imx23_spi *dtplat = &plat->dtplat;
 	struct phandle_1_arg *p1a = &dtplat->clocks[0];
 
 	priv->regs = (struct mxs_ssp_regs *)dtplat->reg[0];

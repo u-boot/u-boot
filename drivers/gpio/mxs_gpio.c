@@ -138,12 +138,6 @@ int name_to_gpio(const char *name)
 #include <asm/arch/gpio.h>
 #define MXS_MAX_GPIO_PER_BANK		32
 
-#ifdef CONFIG_MX28
-#define dtd_fsl_imx_gpio dtd_fsl_imx28_gpio
-#else /* CONFIG_MX23 */
-#define dtd_fsl_imx_gpio dtd_fsl_imx23_gpio
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 /*
  * According to i.MX28 Reference Manual:
@@ -158,7 +152,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct mxs_gpio_platdata {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_fsl_imx_gpio dtplat;
+	struct dtd_fsl_imx23_gpio dtplat;
 #endif
 	unsigned int bank;
 	int gpio_ranges;
@@ -247,7 +241,7 @@ static int mxs_gpio_probe(struct udevice *dev)
 	char name[16], *str;
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_fsl_imx_gpio *dtplat = &plat->dtplat;
+	struct dtd_fsl_imx23_gpio *dtplat = &plat->dtplat;
 	priv->bank = (unsigned int)dtplat->reg[0];
 	uc_priv->gpio_count = dtplat->gpio_ranges[3];
 #else
