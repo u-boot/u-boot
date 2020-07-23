@@ -220,6 +220,8 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-8040-mcbin.dtb			\
 	armada-xp-crs305-1g-4s.dtb		\
 	armada-xp-crs305-1g-4s-bit.dtb		\
+	armada-xp-crs326-24g-2s.dtb		\
+	armada-xp-crs326-24g-2s-bit.dtb		\
 	armada-xp-db-xc3-24g4xg.dtb		\
 	armada-xp-gp.dtb			\
 	armada-xp-maxbcm.dtb			\
