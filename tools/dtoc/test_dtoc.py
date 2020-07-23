@@ -146,18 +146,18 @@ class TestDtoc(unittest.TestCase):
 
         prop = Prop(['rockchip,rk3399-sdhci-5.1', 'arasan,sdhci-5.1'])
         node = Node({'compatible': prop})
-        self.assertEqual(('rockchip_rk3399_sdhci_5_1', ['arasan_sdhci_5_1']),
+        self.assertEqual((['rockchip_rk3399_sdhci_5_1', 'arasan_sdhci_5_1']),
                          get_compat_name(node))
 
         prop = Prop(['rockchip,rk3399-sdhci-5.1'])
         node = Node({'compatible': prop})
-        self.assertEqual(('rockchip_rk3399_sdhci_5_1', []),
+        self.assertEqual((['rockchip_rk3399_sdhci_5_1']),
                          get_compat_name(node))
 
         prop = Prop(['rockchip,rk3399-sdhci-5.1', 'arasan,sdhci-5.1', 'third'])
         node = Node({'compatible': prop})
-        self.assertEqual(('rockchip_rk3399_sdhci_5_1',
-                          ['arasan_sdhci_5_1', 'third']),
+        self.assertEqual((['rockchip_rk3399_sdhci_5_1',
+                          'arasan_sdhci_5_1', 'third']),
                          get_compat_name(node))
 
     def test_empty_file(self):
@@ -570,6 +570,9 @@ void dm_populate_phandle_data(void) {
 struct dtd_compat1 {
 \tfdt32_t\t\tintval;
 };
+struct dtd_simple_bus {
+\tfdt32_t\t\tintval;
+};
 #define dtd_compat2_1_fred dtd_compat1
 #define dtd_compat3 dtd_compat1
 ''', data)
@@ -585,6 +588,15 @@ U_BOOT_DEVICE(spl_test) = {
 \t.name\t\t= "compat1",
 \t.platdata\t= &dtv_spl_test,
 \t.platdata_size\t= sizeof(dtv_spl_test),
+};
+
+static struct dtd_simple_bus dtv_spl_test2 = {
+\t.intval\t\t\t= 0x1,
+};
+U_BOOT_DEVICE(spl_test2) = {
+\t.name\t\t= "simple_bus",
+\t.platdata\t= &dtv_spl_test2,
+\t.platdata_size\t= sizeof(dtv_spl_test2),
 };
 
 ''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)

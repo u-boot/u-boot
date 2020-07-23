@@ -113,21 +113,17 @@ def get_value(ftype, value):
         return '%#x' % value
 
 def get_compat_name(node):
-    """Get a node's first compatible string as a C identifier
+    """Get the node's list of compatible string as a C identifiers
 
     Args:
         node: Node object to check
     Return:
-        Tuple:
-            C identifier for the first compatible string
-            List of C identifiers for all the other compatible strings
-                (possibly empty)
+        List of C identifiers for all the compatible strings
     """
     compat = node.props['compatible'].value
-    aliases = []
-    if isinstance(compat, list):
-        compat, aliases = compat[0], compat[1:]
-    return conv_name_to_c(compat), [conv_name_to_c(a) for a in aliases]
+    if not isinstance(compat, list):
+        compat = [compat]
+    return [conv_name_to_c(c) for c in compat]
 
 
 class DtbPlatdata(object):
@@ -174,7 +170,7 @@ class DtbPlatdata(object):
     def get_normalized_compat_name(self, node):
         """Get a node's normalized compat name
 
-        Returns a valid driver name by retrieving node's first compatible
+        Returns a valid driver name by retrieving node's list of compatible
         string as a C identifier and performing a check against _drivers
         and a lookup in driver_aliases printing a warning in case of failure.
 
@@ -188,19 +184,24 @@ class DtbPlatdata(object):
                 In case of no match found, the return will be the same as
                 get_compat_name()
         """
-        compat_c, aliases_c = get_compat_name(node)
-        if compat_c not in self._drivers:
-            compat_c_old = compat_c
-            compat_c = self._driver_aliases.get(compat_c)
-            if not compat_c:
-                if not self._warning_disabled:
-                    print('WARNING: the driver %s was not found in the driver list'
-                          % (compat_c_old))
-                compat_c = compat_c_old
-            else:
-                aliases_c = [compat_c_old] + aliases_c
+        compat_list_c = get_compat_name(node)
 
-        return compat_c, aliases_c
+        for compat_c in compat_list_c:
+            if not compat_c in self._drivers:
+                compat_c = self._driver_aliases.get(compat_c)
+                if not compat_c:
+                    continue
+
+            aliases_c = compat_list_c
+            if compat_c in aliases_c:
+                aliases_c.remove(compat_c)
+            return compat_c, aliases_c
+
+        if not self._warning_disabled:
+            print('WARNING: the driver %s was not found in the driver list'
+                  % (compat_list_c[0]))
+
+        return compat_list_c[0], compat_list_c[1:]
 
     def setup_output(self, fname):
         """Set up the output destination
