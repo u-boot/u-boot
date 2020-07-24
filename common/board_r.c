@@ -187,12 +187,6 @@ static int initr_reloc_global_data(void)
 	return 0;
 }
 
-static int initr_serial(void)
-{
-	serial_initialize();
-	return 0;
-}
-
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_MIPS)
 static int initr_trap(void)
 {
@@ -714,7 +708,7 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	initr_dm_devices,
 	stdio_init_tables,
-	initr_serial,
+	serial_initialize,
 	initr_announce,
 #if CONFIG_IS_ENABLED(WDT)
 	initr_watchdog,
