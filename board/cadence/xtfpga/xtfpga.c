@@ -51,9 +51,6 @@ int checkboard(void)
 
 int dram_init_banksize(void)
 {
-	gd->bd->bi_memstart = PHYSADDR(CONFIG_SYS_SDRAM_BASE);
-	gd->bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
-
 	return 0;
 }
 

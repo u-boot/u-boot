@@ -605,6 +605,11 @@ __weak int arch_setup_bdinfo(void)
 
 int setup_bdinfo(void)
 {
+	struct bd_info *bd = gd->bd;
+
+	bd->bi_memstart = gd->ram_base;  /* start of memory */
+	bd->bi_memsize = gd->ram_size;   /* size in bytes */
+
 	return arch_setup_bdinfo();
 }
 
@@ -613,12 +618,6 @@ int setup_bdinfo(void)
 static int setup_board_part1(void)
 {
 	struct bd_info *bd = gd->bd;
-
-	/*
-	 * Save local variables to board info struct
-	 */
-	bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;	/* start of memory */
-	bd->bi_memsize = gd->ram_size;			/* size in bytes */
 
 #ifdef CONFIG_SYS_SRAM_BASE
 	bd->bi_sramstart = CONFIG_SYS_SRAM_BASE;	/* start of SRAM */
