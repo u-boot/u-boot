@@ -9,4 +9,13 @@ config BUTTON
 	  can provide access to board-specific buttons. Use of the device tree
 	  for configuration is encouraged.
 
+config BUTTON_GPIO
+	bool "Button gpio"
+	depends on BUTTON
+	help
+	  Enable support for buttons which are connected to GPIO lines. These
+	  GPIOs may be on the SoC or some other device which provides GPIOs.
+	  The GPIO driver must used driver model. Buttons are configured using
+	  the device tree.
+
 endmenu
