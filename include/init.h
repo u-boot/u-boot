@@ -142,6 +142,18 @@ int arch_reserve_stacks(void);
 int arch_reserve_mmu(void);
 
 /**
+ * arch_setup_bdinfo() - Architecture dependent boardinfo setup
+ *
+ * Architecture-specific routine for populating various boardinfo fields of
+ * gd->bd. It is called during the generic board init sequence.
+ *
+ * If an implementation is not provided, it will just be a nop stub.
+ *
+ * Return: 0 if OK
+ */
+int arch_setup_bdinfo(void);
+
+/**
  * setup_bdinfo() - Generic boardinfo setup
  *
  * Routine for populating various generic boardinfo fields of

@@ -598,9 +598,14 @@ static int display_new_sp(void)
 	return 0;
 }
 
-int setup_bdinfo(void)
+__weak int arch_setup_bdinfo(void)
 {
 	return 0;
+}
+
+int setup_bdinfo(void)
+{
+	return arch_setup_bdinfo();
 }
 
 #if defined(CONFIG_M68K) || defined(CONFIG_MIPS) || defined(CONFIG_PPC) || \
