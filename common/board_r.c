@@ -714,6 +714,9 @@ static init_fnc_t init_sequence_r[] = {
 	initr_watchdog,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
+#if defined(CONFIG_NEEDS_MANUAL_RELOC) && defined(CONFIG_BLOCK_CACHE)
+	blkcache_init,
+#endif
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	initr_manual_reloc_cmdtable,
 #endif
@@ -847,9 +850,6 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 #if defined(CONFIG_PRAM)
 	initr_mem,
-#endif
-#if defined(CONFIG_NEEDS_MANUAL_RELOC) && defined(CONFIG_BLOCK_CACHE)
-	blkcache_init,
 #endif
 	run_main_loop,
 };
