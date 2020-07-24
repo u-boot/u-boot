@@ -53,5 +53,9 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply NVME
 	imply SPL_RAM_SUPPORT
 	imply SPL_RAM_DEVICE
+	imply SYSRESET
+	imply SYSRESET_SYSCON
+	imply CMD_POWEROFF
+	imply SYSRESET_CMD_POWEROFF
 
 endif

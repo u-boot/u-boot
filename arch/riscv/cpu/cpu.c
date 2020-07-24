@@ -107,7 +107,7 @@ int arch_cpu_init_dm(void)
 #endif
 	}
 
-#ifdef CONFIG_SMP
+#if CONFIG_IS_ENABLED(SMP)
 	ret = riscv_init_ipi();
 	if (ret)
 		return ret;

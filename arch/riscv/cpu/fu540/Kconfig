@@ -13,3 +13,16 @@ config SIFIVE_FU540
 	imply SPL_CPU_SUPPORT
 	imply SPL_OPENSBI
 	imply SPL_LOAD_FIT
+
+if ENV_IS_IN_SPI_FLASH
+
+config ENV_OFFSET
+	default 0x505000
+
+config ENV_SIZE
+	default 0x20000
+
+config ENV_SECT_SIZE
+	default 0x10000
+
+endif # ENV_IS_IN_SPI_FLASH

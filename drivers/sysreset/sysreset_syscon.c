@@ -19,6 +19,7 @@ struct syscon_reboot_priv {
 	struct regmap *regmap;
 	unsigned int offset;
 	unsigned int mask;
+	unsigned int value;
 };
 
 static int syscon_reboot_request(struct udevice *dev, enum sysreset_t type)
@@ -29,7 +30,7 @@ static int syscon_reboot_request(struct udevice *dev, enum sysreset_t type)
 	if (type != driver_data)
 		return -EPROTONOSUPPORT;
 
-	regmap_write(priv->regmap, priv->offset, priv->mask);
+	regmap_update_bits(priv->regmap, priv->offset, priv->mask, priv->value);
 
 	return -EINPROGRESS;
 }
@@ -41,6 +42,8 @@ static struct sysreset_ops syscon_reboot_ops = {
 int syscon_reboot_probe(struct udevice *dev)
 {
 	struct syscon_reboot_priv *priv = dev_get_priv(dev);
+	int err;
+	int mask_err, value_err;
 
 	priv->regmap = syscon_regmap_lookup_by_phandle(dev, "regmap");
 	if (IS_ERR(priv->regmap)) {
@@ -48,8 +51,27 @@ int syscon_reboot_probe(struct udevice *dev)
 		return -ENODEV;
 	}
 
-	priv->offset = dev_read_u32_default(dev, "offset", 0);
-	priv->mask = dev_read_u32_default(dev, "mask", 0);
+	err = dev_read_u32(dev, "offset", &priv->offset);
+	if (err) {
+		pr_err("unable to find offset\n");
+		return -ENOENT;
+	}
+
+	mask_err = dev_read_u32(dev, "mask", &priv->mask);
+	value_err = dev_read_u32(dev, "value", &priv->value);
+	if (mask_err && value_err) {
+		pr_err("unable to find mask and value\n");
+		return -EINVAL;
+	}
+
+	if (value_err) {
+		/* support old binding */
+		priv->value = priv->mask;
+		priv->mask = 0xffffffff;
+	} else if (mask_err) {
+		/* support value without mask*/
+		priv->mask = 0xffffffff;
+	}
 
 	return 0;
 }

@@ -533,3 +533,44 @@ Sample boot log from HiFive Unleashed board
 	type:   0fc63daf-8483-4772-8e79-3d69d8477de4
 	type:   linux
 	guid:   9faa81b6-39b1-4418-af5e-89c48f29c20d
+
+Booting from SPI
+----------------
+
+Use Building steps from "Booting from MMC using U-Boot SPL" section.
+
+Partition the SPI in Linux via mtdblock. (Require to boot the board in
+SD boot mode by enabling MTD block in Linux)
+
+Use prebuilt image from here [1], which support to partition the SPI flash.
+
+.. code-block:: none
+
+  # sgdisk --clear \
+  > --set-alignment=2 \
+  > --new=1:40:2087 --change-name=1:loader1 --typecode=1:5B193300-FC78-40CD-8002-E86C45580B47 \
+  > --new=2:2088:10279 --change-name=2:loader2 --typecode=2:2E54B353-1271-4842-806F-E436D6AF6985 \
+  > --new=3:10536:65494 --change-name=3:rootfs --typecode=3:0FC63DAF-8483-4772-8E79-3D69D8477DE4 \
+  > /dev/mtdblock0
+
+Program the SPI (Require to boot the board in SD boot mode)
+
+Execute below steps on U-Boot proper,
+
+.. code-block:: none
+
+  tftpboot $kernel_addr_r u-boot-spl.bin
+  sf erase 0x5000 $filesize
+  sf write $kernel_addr_r 0x5000 $filesize
+
+  tftpboot $kernel_addr_r u-boot.itb
+  sf erase 0x105000 $filesize
+  sf write $kernel_addr_r 0x105000 $filesize
+
+Power off the board
+
+Change DIP switches MSEL[3:0] are set to 0110
+
+Power up the board.
+
+[1] https://github.com/amarula/bsp-sifive

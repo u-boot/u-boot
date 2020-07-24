@@ -71,7 +71,8 @@ int smc_init(void)
 	if (node < 0)
 		return -FDT_ERR_NOTFOUND;
 
-	addr = fdtdec_get_addr(blob, node, "reg");
+	addr = fdtdec_get_addr_size_auto_noparent(blob, node,
+		"reg", 0, NULL, false);
 
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;

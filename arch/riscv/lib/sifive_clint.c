@@ -26,6 +26,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int riscv_get_time(u64 *time)
 {
+	/* ensure timer register base has a sane value */
+	riscv_init_ipi();
+
 	*time = readq((void __iomem *)MTIME_REG(gd->arch.clint));
 
 	return 0;
@@ -33,6 +36,9 @@ int riscv_get_time(u64 *time)
 
 int riscv_set_timecmp(int hart, u64 cmp)
 {
+	/* ensure timer register base has a sane value */
+	riscv_init_ipi();
+
 	writeq(cmp, (void __iomem *)MTIMECMP_REG(gd->arch.clint, hart));
 
 	return 0;
@@ -40,11 +46,13 @@ int riscv_set_timecmp(int hart, u64 cmp)
 
 int riscv_init_ipi(void)
 {
-	long *ret = syscon_get_first_range(RISCV_SYSCON_CLINT);
+	if (!gd->arch.clint) {
+		long *ret = syscon_get_first_range(RISCV_SYSCON_CLINT);
 
-	if (IS_ERR(ret))
-		return PTR_ERR(ret);
-	gd->arch.clint = ret;
+		if (IS_ERR(ret))
+			return PTR_ERR(ret);
+		gd->arch.clint = ret;
+	}
 
 	return 0;
 }

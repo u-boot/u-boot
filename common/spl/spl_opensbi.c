@@ -79,11 +79,6 @@ void spl_invoke_opensbi(struct spl_image_info *spl_image)
 	invalidate_icache_all();
 
 #ifdef CONFIG_SPL_SMP
-	/* Initialize the IPI before we use it */
-	ret = riscv_init_ipi();
-	if (ret)
-		hang();
-
 	/*
 	 * Start OpenSBI on all secondary harts and wait for acknowledgment.
 	 *
