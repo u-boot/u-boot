@@ -610,6 +610,11 @@ int setup_bdinfo(void)
 	bd->bi_memstart = gd->ram_base;  /* start of memory */
 	bd->bi_memsize = gd->ram_size;   /* size in bytes */
 
+	if (IS_ENABLED(CONFIG_SYS_HAS_SRAM)) {
+		bd->bi_sramstart = CONFIG_SYS_SRAM_BASE; /* start of SRAM */
+		bd->bi_sramsize = CONFIG_SYS_SRAM_SIZE;  /* size  of SRAM */
+	}
+
 	return arch_setup_bdinfo();
 }
 
@@ -618,11 +623,6 @@ int setup_bdinfo(void)
 static int setup_board_part1(void)
 {
 	struct bd_info *bd = gd->bd;
-
-#ifdef CONFIG_SYS_SRAM_BASE
-	bd->bi_sramstart = CONFIG_SYS_SRAM_BASE;	/* start of SRAM */
-	bd->bi_sramsize = CONFIG_SYS_SRAM_SIZE;		/* size  of SRAM */
-#endif
 
 #if defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 	bd->bi_immr_base = CONFIG_SYS_IMMR;	/* base  of IMMR register     */
