@@ -154,15 +154,20 @@ static void security_init(void)
  */
 static void dbgmcu_init(void)
 {
-	setbits_le32(RCC_DBGCFGR, RCC_DBGCFGR_DBGCKEN);
-
 	/*
 	 * Freeze IWDG2 if Cortex-A7 is in debug mode
 	 * done in TF-A for TRUSTED boot and
 	 * DBGMCU access is controlled by BSEC_DENABLE.DBGSWENABLE
 	*/
-	if (!IS_ENABLED(CONFIG_TFABOOT) && bsec_dbgswenable())
+	if (!IS_ENABLED(CONFIG_TFABOOT) && bsec_dbgswenable()) {
+		setbits_le32(RCC_DBGCFGR, RCC_DBGCFGR_DBGCKEN);
 		setbits_le32(DBGMCU_APB4FZ1, DBGMCU_APB4FZ1_IWDG2);
+	}
+}
+
+void spl_board_init(void)
+{
+	dbgmcu_init();
 }
 #endif /* !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD) */
 
@@ -241,7 +246,6 @@ int arch_cpu_init(void)
 	timer_init();
 
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
-	dbgmcu_init();
 #ifndef CONFIG_TFABOOT
 	security_init();
 	update_bootmode();
