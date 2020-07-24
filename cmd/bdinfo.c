@@ -77,6 +77,10 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	print_bi_dram(bd);
 	bdinfo_print_num("memstart", (ulong)bd->bi_memstart);
 	print_phys_addr("memsize", bd->bi_memsize);
+	if (IS_ENABLED(CONFIG_SYS_HAS_SRAM)) {
+		bdinfo_print_num("sramstart", (ulong)bd->bi_sramstart);
+		bdinfo_print_num("sramsize", (ulong)bd->bi_sramsize);
+	}
 	bdinfo_print_num("flashstart", (ulong)bd->bi_flashstart);
 	bdinfo_print_num("flashsize", (ulong)bd->bi_flashsize);
 	bdinfo_print_num("flashoffset", (ulong)bd->bi_flashoffset);

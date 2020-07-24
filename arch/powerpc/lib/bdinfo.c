@@ -20,10 +20,6 @@ void arch_print_bdinfo(void)
 {
 	struct bd_info *bd = gd->bd;
 
-#if defined(CONFIG_SYS_INIT_RAM_ADDR)
-	bdinfo_print_num("sramstart", (ulong)bd->bi_sramstart);
-	bdinfo_print_num("sramsize", (ulong)bd->bi_sramsize);
-#endif
 	bdinfo_print_mhz("busfreq", bd->bi_busfreq);
 #if defined(CONFIG_MPC8xx) || defined(CONFIG_E500)
 	bdinfo_print_num("immr_base", bd->bi_immr_base);
