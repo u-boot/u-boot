@@ -48,7 +48,7 @@ struct resource;
  *	is not a really a pointer to a node: it is an offset value. See above.
  */
 typedef union ofnode_union {
-	const struct device_node *np;	/* will be used for future live tree */
+	const struct device_node *np;
 	long of_offset;
 } ofnode;
 
