@@ -1,0 +1,12 @@
+menu "Button Support"
+
+config BUTTON
+	bool "Enable button support"
+	depends on DM
+	help
+	  Many boards have buttons which can be used to change behaviour (reset, ...).
+	  U-Boot provides a uclass API to implement this feature. Button drivers
+	  can provide access to board-specific buttons. Use of the device tree
+	  for configuration is encouraged.
+
+endmenu
