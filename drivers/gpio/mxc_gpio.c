@@ -300,7 +300,7 @@ static int mxc_gpio_ofdata_to_platdata(struct udevice *dev)
 	fdt_addr_t addr;
 	struct mxc_gpio_plat *plat = dev_get_platdata(dev);
 
-	addr = dev_read_addr(dev);
+	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

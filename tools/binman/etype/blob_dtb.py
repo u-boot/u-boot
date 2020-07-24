@@ -20,13 +20,13 @@ class Entry_blob_dtb(Entry_blob):
         global state
         from binman import state
 
-        super().__init__(section, etype, node)
+        Entry_blob.__init__(self, section, etype, node)
 
     def ObtainContents(self):
         """Get the device-tree from the list held by the 'state' module"""
         self._filename = self.GetDefaultFilename()
         self._pathname, _ = state.GetFdtContents(self.GetFdtEtype())
-        return super().ReadBlobContents()
+        return Entry_blob.ReadBlobContents(self)
 
     def ProcessContents(self):
         """Re-read the DTB contents so that we get any calculated properties"""
@@ -57,7 +57,7 @@ class Entry_blob_dtb(Entry_blob):
         return {self.GetFdtEtype(): [self, fname]}
 
     def WriteData(self, data, decomp=True):
-        ok = super().WriteData(data, decomp)
+        ok = Entry_blob.WriteData(self, data, decomp)
 
         # Update the state module, since it has the authoritative record of the
         # device trees used. If we don't do this, then state.GetFdtContents()

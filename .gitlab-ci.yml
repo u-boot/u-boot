@@ -169,7 +169,7 @@ Run binman, buildman, dtoc, Kconfig and patman testsuites:
       ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test;
       ./tools/buildman/buildman -t;
       ./tools/dtoc/dtoc -t;
-      ./tools/patman/patman test;
+      ./tools/patman/patman --test;
       make testconfig
 
 Run tests for Nokia RX-51 (aka N900):

@@ -5,9 +5,10 @@
 # Entry-type module for Intel Memory Reference Code binary blob
 #
 
-from binman.etype.blob_ext import Entry_blob_ext
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
-class Entry_intel_refcode(Entry_blob_ext):
+class Entry_intel_refcode(Entry_blob):
     """Entry containing an Intel Reference Code file
 
     Properties / Entry arguments:
@@ -20,7 +21,7 @@ class Entry_intel_refcode(Entry_blob_ext):
     See README.x86 for information about x86 binary blobs.
     """
     def __init__(self, section, etype, node):
-        super().__init__(section, etype, node)
+        Entry_blob.__init__(self, section, etype, node)
 
     def GetDefaultFilename(self):
         return 'refcode.bin'

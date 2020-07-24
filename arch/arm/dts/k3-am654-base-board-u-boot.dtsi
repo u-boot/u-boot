@@ -246,7 +246,3 @@
 		u-boot,dm-spl;
 	};
 };
-
-&chipid {
-	u-boot,dm-spl;
-};

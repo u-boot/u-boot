@@ -395,7 +395,7 @@ static int ftsdc010_mmc_ofdata_to_platdata(struct udevice *dev)
 	struct ftsdc_priv *priv = dev_get_priv(dev);
 	struct ftsdc010_chip *chip = &priv->chip;
 	chip->name = dev->name;
-	chip->ioaddr = dev_read_addr_ptr(dev);
+	chip->ioaddr = (void *)devfdt_get_addr(dev);
 	chip->buswidth = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					"bus-width", 4);
 	chip->priv = dev;

@@ -1911,7 +1911,7 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 	int node = dev_of_offset(dev);
 	int ret;
 
-	plat->base_addr = map_physmem(dev_read_addr(dev),
+	plat->base_addr = map_physmem(devfdt_get_addr(dev),
 				      sizeof(struct hsmmc *),
 				      MAP_NOCACHE);
 
@@ -1933,7 +1933,7 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 		plat->controller_flags |= of_data->controller_flags;
 
 #ifdef CONFIG_OMAP54XX
-	fixups = platform_fixups_mmc(dev_read_addr(dev));
+	fixups = platform_fixups_mmc(devfdt_get_addr(dev));
 	if (fixups) {
 		plat->hw_rev = fixups->hw_rev;
 		cfg->host_caps &= ~fixups->unsupported_caps;

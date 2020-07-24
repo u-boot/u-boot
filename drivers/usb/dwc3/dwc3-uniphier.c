@@ -70,7 +70,7 @@ static int uniphier_dwc3_probe(struct udevice *dev)
 	int (*init)(void __iomem *regs);
 	int ret;
 
-	base = dev_read_addr(dev);
+	base = devfdt_get_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

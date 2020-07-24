@@ -19,6 +19,5 @@ Driver Model
    pmic-framework
    remoteproc-framework
    serial-howto
-   soc-framework
    spi-howto
    usb-info

@@ -275,7 +275,7 @@ static int mxs_ofdata_to_platdata(struct udevice *dev)
 	int node = dev_of_offset(dev);
 	int ret;
 
-	plat->bank = dev_read_addr(dev);
+	plat->bank = devfdt_get_addr(dev);
 	if (plat->bank == FDT_ADDR_T_NONE) {
 		printf("%s: No 'reg' property defined!\n", __func__);
 		return -EINVAL;

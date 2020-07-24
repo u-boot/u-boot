@@ -359,7 +359,7 @@ int gen3_clk_probe(struct udevice *dev)
 	u32 cpg_mode;
 	int ret;
 
-	priv->base = dev_read_addr_ptr(dev);
+	priv->base = (struct gen3_base *)devfdt_get_addr(dev);
 	if (!priv->base)
 		return -EINVAL;
 

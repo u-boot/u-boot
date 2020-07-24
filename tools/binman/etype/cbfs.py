@@ -167,7 +167,7 @@ class Entry_cbfs(Entry):
         global state
         from binman import state
 
-        super().__init__(section, etype, node)
+        Entry.__init__(self, section, etype, node)
         self._cbfs_arg = fdt_util.GetString(node, 'cbfs-arch', 'x86')
         self._cbfs_entries = OrderedDict()
         self._ReadSubnodes()
@@ -204,7 +204,7 @@ class Entry_cbfs(Entry):
         return True
 
     def _ReadSubnodes(self):
-        """Read the subnodes to find out what should go in this CBFS"""
+        """Read the subnodes to find out what should go in this IFWI"""
         for node in self._node.subnodes:
             entry = Entry.Create(self, node)
             entry.ReadNode()
@@ -226,7 +226,7 @@ class Entry_cbfs(Entry):
         Args:
             image_pos: Position of this entry in the image
         """
-        super().SetImagePos(image_pos)
+        Entry.SetImagePos(self, image_pos)
 
         # Now update the entries with info from the CBFS entries
         for entry in self._cbfs_entries.values():
@@ -238,7 +238,7 @@ class Entry_cbfs(Entry):
                 entry.uncomp_size = cfile.memlen
 
     def AddMissingProperties(self):
-        super().AddMissingProperties()
+        Entry.AddMissingProperties(self)
         for entry in self._cbfs_entries.values():
             entry.AddMissingProperties()
             if entry._cbfs_compress:
@@ -250,7 +250,7 @@ class Entry_cbfs(Entry):
 
     def SetCalculatedProperties(self):
         """Set the value of device-tree properties calculated by binman"""
-        super().SetCalculatedProperties()
+        Entry.SetCalculatedProperties(self)
         for entry in self._cbfs_entries.values():
             state.SetInt(entry._node, 'offset', entry.offset)
             state.SetInt(entry._node, 'size', entry.size)
@@ -260,7 +260,7 @@ class Entry_cbfs(Entry):
 
     def ListEntries(self, entries, indent):
         """Override this method to list all files in the section"""
-        super().ListEntries(entries, indent)
+        Entry.ListEntries(self, entries, indent)
         for entry in self._cbfs_entries.values():
             entry.ListEntries(entries, indent + 1)
 
@@ -268,12 +268,12 @@ class Entry_cbfs(Entry):
         return self._cbfs_entries
 
     def ReadData(self, decomp=True):
-        data = super().ReadData(True)
+        data = Entry.ReadData(self, True)
         return data
 
     def ReadChildData(self, child, decomp=True):
         if not self.reader:
-            data = super().ReadData(True)
+            data = Entry.ReadData(self, True)
             self.reader = cbfs_util.CbfsReader(data)
         reader = self.reader
         cfile = reader.files.get(child.name)

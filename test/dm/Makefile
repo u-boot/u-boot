@@ -68,7 +68,6 @@ obj-$(CONFIG_AXI) += axi.o
 obj-$(CONFIG_MISC) += misc.o
 obj-$(CONFIG_DM_SERIAL) += serial.o
 obj-$(CONFIG_CPU) += cpu.o
-obj-$(CONFIG_SOC_DEVICE) += soc.o
 obj-$(CONFIG_SOUND) += sound.o
 obj-$(CONFIG_TEE) += tee.o
 obj-$(CONFIG_VIRTIO_SANDBOX) += virtio.o

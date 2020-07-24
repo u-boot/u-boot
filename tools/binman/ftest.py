@@ -6,12 +6,10 @@
 #
 #    python -m unittest func_test.TestFunctional.testHelp
 
-import collections
 import gzip
 import hashlib
 from optparse import OptionParser
 import os
-import re
 import shutil
 import struct
 import sys
@@ -162,7 +160,8 @@ class TestFunctional(unittest.TestCase):
             tools.ReadFile(cls.ElfTestFile('u_boot_ucode_ptr')))
 
         # Intel flash descriptor file
-        cls._SetupDescriptor()
+        with open(cls.TestFile('descriptor.bin'), 'rb') as fd:
+            TestFunctional._MakeInputFile('descriptor.bin', fd.read())
 
         shutil.copytree(cls.TestFile('files'),
                         os.path.join(cls._indir, 'files'))
@@ -286,7 +285,7 @@ class TestFunctional(unittest.TestCase):
 
     def _DoTestFile(self, fname, debug=False, map=False, update_dtb=False,
                     entry_args=None, images=None, use_real_dtb=False,
-                    verbosity=None, allow_missing=False):
+                    verbosity=None):
         """Run binman with a given test file
 
         Args:
@@ -320,8 +319,6 @@ class TestFunctional(unittest.TestCase):
         if entry_args:
             for arg, value in entry_args.items():
                 args.append('-a%s=%s' % (arg, value))
-        if allow_missing:
-            args.append('-M')
         if images:
             for image in images:
                 args += ['-i', image]
@@ -507,11 +504,6 @@ class TestFunctional(unittest.TestCase):
         """
         TestFunctional._MakeInputFile('tpl/u-boot-tpl',
             tools.ReadFile(cls.ElfTestFile(src_fname)))
-
-    @classmethod
-    def _SetupDescriptor(cls):
-        with open(cls.TestFile('descriptor.bin'), 'rb') as fd:
-            TestFunctional._MakeInputFile('descriptor.bin', fd.read())
 
     @classmethod
     def TestFile(cls, fname):
@@ -939,14 +931,11 @@ class TestFunctional(unittest.TestCase):
 
     def testPackX86RomMeNoDesc(self):
         """Test that an invalid Intel descriptor entry is detected"""
-        try:
-            TestFunctional._MakeInputFile('descriptor.bin', b'')
-            with self.assertRaises(ValueError) as e:
-                self._DoTestFile('031_x86_rom_me.dts')
-            self.assertIn("Node '/binman/intel-descriptor': Cannot find Intel Flash Descriptor (FD) signature",
-                          str(e.exception))
-        finally:
-            self._SetupDescriptor()
+        TestFunctional._MakeInputFile('descriptor.bin', b'')
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('031_x86_rom_me.dts')
+        self.assertIn("Node '/binman/intel-descriptor': Cannot find Intel Flash Descriptor (FD) signature",
+                      str(e.exception))
 
     def testPackX86RomBadDesc(self):
         """Test that the Intel requires a descriptor entry"""
@@ -3241,7 +3230,7 @@ class TestFunctional(unittest.TestCase):
         with test_util.capture_sys_output() as (stdout, stderr):
             control.ReplaceEntries(updated_fname, None, outdir, [])
         self.assertIn("Skipping entry '/u-boot' from missing file",
-                      stderr.getvalue())
+                      stdout.getvalue())
 
     def testReplaceCmdMap(self):
         """Test replacing a file fron an image on the command line"""
@@ -3368,117 +3357,6 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('154_intel_fsp_t.dts')
         self.assertEqual(FSP_T_DATA, data[:len(FSP_T_DATA)])
 
-    def testMkimage(self):
-        """Test using mkimage to build an image"""
-        data = self._DoReadFile('156_mkimage.dts')
-
-        # Just check that the data appears in the file somewhere
-        self.assertIn(U_BOOT_SPL_DATA, data)
-
-    def testExtblob(self):
-        """Test an image with an external blob"""
-        data = self._DoReadFile('157_blob_ext.dts')
-        self.assertEqual(REFCODE_DATA, data)
-
-    def testExtblobMissing(self):
-        """Test an image with a missing external blob"""
-        with self.assertRaises(ValueError) as e:
-            self._DoReadFile('158_blob_ext_missing.dts')
-        self.assertIn("Filename 'missing-file' not found in input path",
-                      str(e.exception))
-
-    def testExtblobMissingOk(self):
-        """Test an image with an missing external blob that is allowed"""
-        with test_util.capture_sys_output() as (stdout, stderr):
-            self._DoTestFile('158_blob_ext_missing.dts', allow_missing=True)
-        err = stderr.getvalue()
-        self.assertRegex(err, "Image 'main-section'.*missing.*: blob-ext")
-
-    def testExtblobMissingOkSect(self):
-        """Test an image with an missing external blob that is allowed"""
-        with test_util.capture_sys_output() as (stdout, stderr):
-            self._DoTestFile('159_blob_ext_missing_sect.dts',
-                             allow_missing=True)
-        err = stderr.getvalue()
-        self.assertRegex(err, "Image 'main-section'.*missing.*: "
-                         "blob-ext blob-ext2")
-
-    def testPackX86RomMeMissingDesc(self):
-        """Test that an missing Intel descriptor entry is allowed"""
-        pathname = os.path.join(self._indir, 'descriptor.bin')
-        os.remove(pathname)
-        with test_util.capture_sys_output() as (stdout, stderr):
-            self._DoTestFile('031_x86_rom_me.dts', allow_missing=True)
-        err = stderr.getvalue()
-        self.assertRegex(err,
-                         "Image 'main-section'.*missing.*: intel-descriptor")
-
-    def testPackX86RomMissingIfwi(self):
-        """Test that an x86 ROM with Integrated Firmware Image can be created"""
-        self._SetupIfwi('fitimage.bin')
-        pathname = os.path.join(self._indir, 'fitimage.bin')
-        os.remove(pathname)
-        with test_util.capture_sys_output() as (stdout, stderr):
-            self._DoTestFile('111_x86_rom_ifwi.dts', allow_missing=True)
-        err = stderr.getvalue()
-        self.assertRegex(err, "Image 'main-section'.*missing.*: intel-ifwi")
-
-    def testPackOverlap(self):
-        """Test that zero-size overlapping regions are ignored"""
-        self._DoTestFile('160_pack_overlap_zero.dts')
-
-    def testSimpleFit(self):
-        """Test an image with a FIT inside"""
-        data = self._DoReadFile('161_fit.dts')
-        self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
-        self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
-        fit_data = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
-
-        # The data should be inside the FIT
-        dtb = fdt.Fdt.FromData(fit_data)
-        dtb.Scan()
-        fnode = dtb.GetNode('/images/kernel')
-        self.assertIn('data', fnode.props)
-
-        fname = os.path.join(self._indir, 'fit_data.fit')
-        tools.WriteFile(fname, fit_data)
-        out = tools.Run('dumpimage', '-l', fname)
-
-        # Check a few features to make sure the plumbing works. We don't need
-        # to test the operation of mkimage or dumpimage here. First convert the
-        # output into a dict where the keys are the fields printed by dumpimage
-        # and the values are a list of values for each field
-        lines = out.splitlines()
-
-        # Converts "Compression:  gzip compressed" into two groups:
-        # 'Compression' and 'gzip compressed'
-        re_line = re.compile(r'^ *([^:]*)(?:: *(.*))?$')
-        vals = collections.defaultdict(list)
-        for line in lines:
-            mat = re_line.match(line)
-            vals[mat.group(1)].append(mat.group(2))
-
-        self.assertEquals('FIT description: test-desc', lines[0])
-        self.assertIn('Created:', lines[1])
-        self.assertIn('Image 0 (kernel)', vals)
-        self.assertIn('Hash value', vals)
-        data_sizes = vals.get('Data Size')
-        self.assertIsNotNone(data_sizes)
-        self.assertEqual(2, len(data_sizes))
-        # Format is "4 Bytes = 0.00 KiB = 0.00 MiB" so take the first word
-        self.assertEqual(len(U_BOOT_DATA), int(data_sizes[0].split()[0]))
-        self.assertEqual(len(U_BOOT_SPL_DTB_DATA), int(data_sizes[1].split()[0]))
-
-    def testFitExternal(self):
-        """Test an image with an FIT"""
-        data = self._DoReadFile('162_fit_external.dts')
-        fit_data = data[len(U_BOOT_DATA):-2]  # _testing is 2 bytes
-
-        # The data should be outside the FIT
-        dtb = fdt.Fdt.FromData(fit_data)
-        dtb.Scan()
-        fnode = dtb.GetNode('/images/kernel')
-        self.assertNotIn('data', fnode.props)
 
 if __name__ == "__main__":
     unittest.main()

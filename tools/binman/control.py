@@ -387,7 +387,7 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
 
 
 def ProcessImage(image, update_fdt, write_map, get_contents=True,
-                 allow_resize=True, allow_missing=False):
+                 allow_resize=True):
     """Perform all steps for this image, including checking and # writing it.
 
     This means that errors found with a later image will be reported after
@@ -402,13 +402,8 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
             the contents is already present
         allow_resize: True to allow entries to change size (this does a re-pack
             of the entries), False to raise an exception
-        allow_missing: Allow blob_ext objects to be missing
-
-    Returns:
-        True if one or more external blobs are missing, False if all are present
     """
     if get_contents:
-        image.SetAllowMissing(allow_missing)
         image.GetEntryContents()
     image.GetEntryOffsets()
 
@@ -453,12 +448,6 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     image.BuildImage()
     if write_map:
         image.WriteMap()
-    missing_list = []
-    image.CheckMissing(missing_list)
-    if missing_list:
-        tout.Warning("Image '%s' is missing external blobs and is non-functional: %s" %
-                     (image.name, ' '.join([e.name for e in missing_list])))
-    return bool(missing_list)
 
 
 def Binman(args):
@@ -533,17 +522,13 @@ def Binman(args):
 
             images = PrepareImagesAndDtbs(dtb_fname, args.image,
                                           args.update_fdt)
-            missing = False
             for image in images.values():
-                missing |= ProcessImage(image, args.update_fdt, args.map,
-                                        allow_missing=args.allow_missing)
+                ProcessImage(image, args.update_fdt, args.map)
 
             # Write the updated FDTs to our output files
             for dtb_item in state.GetAllFdts():
                 tools.WriteFile(dtb_item._fname, dtb_item.GetContents())
 
-            if missing:
-                tout.Warning("Some images are invalid")
         finally:
             tools.FinaliseOutputDir()
     finally:

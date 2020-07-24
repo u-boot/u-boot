@@ -642,7 +642,7 @@ static int ks8851_ofdata_to_platdata(struct udevice *dev)
 	struct ks_net *ks = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 
-	pdata->iobase = dev_read_addr(dev);
+	pdata->iobase = devfdt_get_addr(dev);
 	ks->iobase = pdata->iobase;
 
 	return 0;

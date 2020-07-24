@@ -33,12 +33,12 @@ int fdtdec_board_setup(const void *fdt_blob)
 
 int dram_init(void)
 {
-	return fdtdec_setup_mem_size_base();
+	return fdtdec_setup_mem_size_base_fdt(gd->fdt_blob);
 }
 
 int dram_init_banksize(void)
 {
-	fdtdec_setup_memory_banksize();
+	fdtdec_setup_memory_banksize_fdt(gd->fdt_blob);
 
 	return 0;
 }

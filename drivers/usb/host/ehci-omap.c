@@ -382,7 +382,7 @@ static int omap_ehci_probe(struct udevice *dev)
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
 
-	priv->ehci = dev_read_addr_ptr(dev);
+	priv->ehci = (struct omap_ehci *)devfdt_get_addr(dev);
 	priv->portnr = dev->seq;
 	priv->init_type = plat->init_type;
 

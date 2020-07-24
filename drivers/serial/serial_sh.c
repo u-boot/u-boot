@@ -211,7 +211,7 @@ static int sh_serial_ofdata_to_platdata(struct udevice *dev)
 	fdt_addr_t addr;
 	int ret;
 
-	addr = dev_read_addr(dev);
+	addr = devfdt_get_addr(dev);
 	if (!addr)
 		return -EINVAL;
 

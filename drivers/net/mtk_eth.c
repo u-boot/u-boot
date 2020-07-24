@@ -1418,7 +1418,7 @@ static int mtk_eth_ofdata_to_platdata(struct udevice *dev)
 
 	priv->soc = dev_get_driver_data(dev);
 
-	pdata->iobase = dev_read_addr(dev);
+	pdata->iobase = devfdt_get_addr(dev);
 
 	/* get corresponding ethsys phandle */
 	ret = dev_read_phandle_with_args(dev, "mediatek,ethsys", NULL, 0, 0,

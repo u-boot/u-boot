@@ -6,11 +6,10 @@
 
 """See README for more information"""
 
-from argparse import ArgumentParser
+from optparse import OptionParser
 import os
 import re
 import sys
-import traceback
 import unittest
 
 if __name__ == "__main__":
@@ -19,93 +18,76 @@ if __name__ == "__main__":
     sys.path.append(os.path.join(our_path, '..'))
 
 # Our modules
+from patman import checkpatch
 from patman import command
-from patman import control
 from patman import gitutil
+from patman import patchstream
 from patman import project
 from patman import settings
 from patman import terminal
-from patman import test_util
 from patman import test_checkpatch
 
-def AddCommonArgs(parser):
-    parser.add_argument('-b', '--branch', type=str,
-        help="Branch to process (by default, the current branch)")
-    parser.add_argument('-c', '--count', dest='count', type=int,
-        default=-1, help='Automatically create patches from top n commits')
-    parser.add_argument('-e', '--end', type=int, default=0,
-        help='Commits to skip at end of patch list')
-    parser.add_argument('-D', '--debug', action='store_true',
-        help='Enabling debugging (provides a full traceback on error)')
-    parser.add_argument('-s', '--start', dest='start', type=int,
-        default=0, help='Commit to start creating patches from (0 = HEAD)')
 
-epilog = '''Create patches from commits in a branch, check them and email them
-as specified by tags you place in the commits. Use -n to do a dry run first.'''
-
-parser = ArgumentParser(epilog=epilog)
-subparsers = parser.add_subparsers(dest='cmd')
-send = subparsers.add_parser('send')
-send.add_argument('-H', '--full-help', action='store_true', dest='full_help',
+parser = OptionParser()
+parser.add_option('-H', '--full-help', action='store_true', dest='full_help',
        default=False, help='Display the README file')
-send.add_argument('-i', '--ignore-errors', action='store_true',
+parser.add_option('-c', '--count', dest='count', type='int',
+       default=-1, help='Automatically create patches from top n commits')
+parser.add_option('-i', '--ignore-errors', action='store_true',
        dest='ignore_errors', default=False,
        help='Send patches email even if patch errors are found')
-send.add_argument('-l', '--limit-cc', dest='limit', type=int, default=None,
-       help='Limit the cc list to LIMIT entries [default: %(default)s]')
-send.add_argument('-m', '--no-maintainers', action='store_false',
+parser.add_option('-l', '--limit-cc', dest='limit', type='int',
+       default=None, help='Limit the cc list to LIMIT entries [default: %default]')
+parser.add_option('-m', '--no-maintainers', action='store_false',
        dest='add_maintainers', default=True,
        help="Don't cc the file maintainers automatically")
-send.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
+parser.add_option('-n', '--dry-run', action='store_true', dest='dry_run',
        default=False, help="Do a dry run (create but don't email patches)")
-send.add_argument('-p', '--project', default=project.DetectProject(),
+parser.add_option('-p', '--project', default=project.DetectProject(),
                   help="Project name; affects default option values and "
-                  "aliases [default: %(default)s]")
-send.add_argument('-r', '--in-reply-to', type=str, action='store',
+                  "aliases [default: %default]")
+parser.add_option('-r', '--in-reply-to', type='string', action='store',
                   help="Message ID that this series is in reply to")
-send.add_argument('-t', '--ignore-bad-tags', action='store_true',
+parser.add_option('-s', '--start', dest='start', type='int',
+       default=0, help='Commit to start creating patches from (0 = HEAD)')
+parser.add_option('-t', '--ignore-bad-tags', action='store_true',
                   default=False, help='Ignore bad tags / aliases')
-send.add_argument('-v', '--verbose', action='store_true', dest='verbose',
+parser.add_option('-v', '--verbose', action='store_true', dest='verbose',
        default=False, help='Verbose output of errors and warnings')
-send.add_argument('-T', '--thread', action='store_true', dest='thread',
+parser.add_option('-T', '--thread', action='store_true', dest='thread',
                   default=False, help='Create patches as a single thread')
-send.add_argument('--cc-cmd', dest='cc_cmd', type=str, action='store',
+parser.add_option('--cc-cmd', dest='cc_cmd', type='string', action='store',
        default=None, help='Output cc list for patch file (used by git)')
-send.add_argument('--no-binary', action='store_true', dest='ignore_binary',
+parser.add_option('--no-binary', action='store_true', dest='ignore_binary',
                   default=False,
                   help="Do not output contents of changes in binary files")
-send.add_argument('--no-check', action='store_false', dest='check_patch',
+parser.add_option('--no-check', action='store_false', dest='check_patch',
                   default=True,
                   help="Don't check for patch compliance")
-send.add_argument('--no-tags', action='store_false', dest='process_tags',
+parser.add_option('--no-tags', action='store_false', dest='process_tags',
                   default=True, help="Don't process subject tags as aliases")
-send.add_argument('--smtp-server', type=str,
+parser.add_option('--smtp-server', type='str',
                   help="Specify the SMTP server to 'git send-email'")
-AddCommonArgs(send)
+parser.add_option('--test', action='store_true', dest='test',
+                  default=False, help='run tests')
 
-send.add_argument('patchfiles', nargs='*')
+parser.usage += """
 
-test_parser = subparsers.add_parser('test', help='Run tests')
-AddCommonArgs(test_parser)
+Create patches from commits in a branch, check them and email them as
+specified by tags you place in the commits. Use -n to do a dry run first."""
+
 
 # Parse options twice: first to get the project and second to handle
 # defaults properly (which depends on project).
-argv = sys.argv[1:]
-if len(argv) < 1 or argv[0].startswith('-'):
-    argv = ['send'] + argv
-args = parser.parse_args(argv)
-if hasattr(args, 'project'):
-    settings.Setup(gitutil, send, args.project, '')
-    args = parser.parse_args(argv)
+(options, args) = parser.parse_args()
+settings.Setup(gitutil, parser, options.project, '')
+(options, args) = parser.parse_args()
 
 if __name__ != "__main__":
     pass
 
-if not args.debug:
-    sys.tracebacklimit = 0
-
 # Run our meagre tests
-if args.cmd == 'test':
+elif options.test:
     import doctest
     from patman import func_test
 
@@ -119,31 +101,87 @@ if args.cmd == 'test':
         suite = doctest.DocTestSuite(module)
         suite.run(result)
 
-    sys.exit(test_util.ReportResult('patman', None, result))
+    # TODO: Surely we can just 'print' result?
+    print(result)
+    for test, err in result.errors:
+        print(err)
+    for test, err in result.failures:
+        print(err)
+
+# Called from git with a patch filename as argument
+# Printout a list of additional CC recipients for this patch
+elif options.cc_cmd:
+    fd = open(options.cc_cmd, 'r')
+    re_line = re.compile('(\S*) (.*)')
+    for line in fd.readlines():
+        match = re_line.match(line)
+        if match and match.group(1) == args[0]:
+            for cc in match.group(2).split('\0'):
+                cc = cc.strip()
+                if cc:
+                    print(cc)
+    fd.close()
+
+elif options.full_help:
+    pager = os.getenv('PAGER')
+    if not pager:
+        pager = 'more'
+    fname = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
+                         'README')
+    command.Run(pager, fname)
 
 # Process commits, produce patches files, check them, email them
-elif args.cmd == 'send':
-    # Called from git with a patch filename as argument
-    # Printout a list of additional CC recipients for this patch
-    if args.cc_cmd:
-        fd = open(args.cc_cmd, 'r')
-        re_line = re.compile('(\S*) (.*)')
-        for line in fd.readlines():
-            match = re_line.match(line)
-            if match and match.group(1) == args.patchfiles[0]:
-                for cc in match.group(2).split('\0'):
-                    cc = cc.strip()
-                    if cc:
-                        print(cc)
-        fd.close()
+else:
+    gitutil.Setup()
 
-    elif args.full_help:
-        pager = os.getenv('PAGER')
-        if not pager:
-            pager = 'more'
-        fname = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
-                             'README')
-        command.Run(pager, fname)
+    if options.count == -1:
+        # Work out how many patches to send if we can
+        options.count = gitutil.CountCommitsToBranch() - options.start
 
+    col = terminal.Color()
+    if not options.count:
+        str = 'No commits found to process - please use -c flag'
+        sys.exit(col.Color(col.RED, str))
+
+    # Read the metadata from the commits
+    if options.count:
+        series = patchstream.GetMetaData(options.start, options.count)
+        cover_fname, args = gitutil.CreatePatches(options.start, options.count,
+                options.ignore_binary, series)
+
+    # Fix up the patch files to our liking, and insert the cover letter
+    patchstream.FixPatches(series, args)
+    if cover_fname and series.get('cover'):
+        patchstream.InsertCoverLetter(cover_fname, series, options.count)
+
+    # Do a few checks on the series
+    series.DoChecks()
+
+    # Check the patches, and run them through 'git am' just to be sure
+    if options.check_patch:
+        ok = checkpatch.CheckPatches(options.verbose, args)
     else:
-        control.send(args)
+        ok = True
+
+    cc_file = series.MakeCcFile(options.process_tags, cover_fname,
+                                not options.ignore_bad_tags,
+                                options.add_maintainers, options.limit)
+
+    # Email the patches out (giving the user time to check / cancel)
+    cmd = ''
+    its_a_go = ok or options.ignore_errors
+    if its_a_go:
+        cmd = gitutil.EmailPatches(series, cover_fname, args,
+                options.dry_run, not options.ignore_bad_tags, cc_file,
+                in_reply_to=options.in_reply_to, thread=options.thread,
+                smtp_server=options.smtp_server)
+    else:
+        print(col.Color(col.RED, "Not sending emails due to errors/warnings"))
+
+    # For a dry run, just show our actions as a sanity check
+    if options.dry_run:
+        series.ShowActions(args, cmd, options.process_tags)
+        if not its_a_go:
+            print(col.Color(col.RED, "Email would not be sent"))
+
+    os.remove(cc_file)

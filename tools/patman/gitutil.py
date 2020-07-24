@@ -49,24 +49,17 @@ def LogCmd(commit_range, git_dir=None, oneline=False, reverse=False,
     cmd.append('--')
     return cmd
 
-def CountCommitsToBranch(branch):
+def CountCommitsToBranch():
     """Returns number of commits between HEAD and the tracking branch.
 
     This looks back to the tracking branch and works out the number of commits
     since then.
 
-    Args:
-        branch: Branch to count from (None for current branch)
-
     Return:
         Number of patches that exist on top of the branch
     """
-    if branch:
-        us, msg = GetUpstream('.git', branch)
-        rev_range = '%s..%s' % (us, branch)
-    else:
-        rev_range = '@{upstream}..'
-    pipe = [LogCmd(rev_range, oneline=True), ['wc', '-l']]
+    pipe = [LogCmd('@{upstream}..', oneline=True),
+            ['wc', '-l']]
     stdout = command.RunPipe(pipe, capture=True, oneline=True).stdout
     patch_count = int(stdout)
     return patch_count
@@ -259,20 +252,17 @@ def Fetch(git_dir=None, work_tree=None):
     if result.return_code != 0:
         raise OSError('git fetch: %s' % result.stderr)
 
-def CreatePatches(branch, start, count, ignore_binary, series):
+def CreatePatches(start, count, ignore_binary, series):
     """Create a series of patches from the top of the current branch.
 
     The patch files are written to the current directory using
     git format-patch.
 
     Args:
-        branch: Branch to create patches from (None for current branch)
         start: Commit to start from: 0=HEAD, 1=next one, etc.
         count: number of commits to include
-        ignore_binary: Don't generate patches for binary files
-        series: Series object for this series (set of patches)
     Return:
-        Filename of cover letter (None if none)
+        Filename of cover letter
         List of filenames of patch files
     """
     if series.get('version'):
@@ -285,8 +275,7 @@ def CreatePatches(branch, start, count, ignore_binary, series):
     prefix = series.GetPatchPrefix()
     if prefix:
         cmd += ['--subject-prefix=%s' % prefix]
-    brname = branch or 'HEAD'
-    cmd += ['%s~%d..%s~%d' % (brname, start + count, brname, start)]
+    cmd += ['HEAD~%d..HEAD~%d' % (start + count, start)]
 
     stdout = command.RunList(cmd)
     files = stdout.splitlines()
@@ -343,31 +332,6 @@ def BuildEmailList(in_list, tag=None, alias=None, raise_on_error=True):
     if tag:
         return ['%s %s%s%s' % (tag, quote, email, quote) for email in result]
     return result
-
-def CheckSuppressCCConfig():
-    """Check if sendemail.suppresscc is configured correctly.
-
-    Returns:
-        True if the option is configured correctly, False otherwise.
-    """
-    suppresscc = command.OutputOneLine('git', 'config', 'sendemail.suppresscc',
-                                       raise_on_error=False)
-
-    # Other settings should be fine.
-    if suppresscc == 'all' or suppresscc == 'cccmd':
-        col = terminal.Color()
-
-        print((col.Color(col.RED, "error") +
-            ": git config sendemail.suppresscc set to %s\n"  % (suppresscc)) +
-            "  patman needs --cc-cmd to be run to set the cc list.\n" +
-            "  Please run:\n" +
-            "    git config --unset sendemail.suppresscc\n" +
-            "  Or read the man page:\n" +
-            "    git send-email --help\n" +
-            "  and set an option that runs --cc-cmd\n")
-        return False
-
-    return True
 
 def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
         self_only=False, alias=None, in_reply_to=None, thread=False,

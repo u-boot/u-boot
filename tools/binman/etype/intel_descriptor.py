@@ -8,7 +8,7 @@
 import struct
 
 from binman.entry import Entry
-from binman.etype.blob_ext import Entry_blob_ext
+from binman.etype.blob import Entry_blob
 
 FD_SIGNATURE   = struct.pack('<L', 0x0ff0a55a)
 MAX_REGIONS    = 5
@@ -25,7 +25,7 @@ class Region:
         self.limit = ((val & 0x0fff0000) >> 4) | 0xfff
         self.size = self.limit - self.base + 1
 
-class Entry_intel_descriptor(Entry_blob_ext):
+class Entry_intel_descriptor(Entry_blob):
     """Intel flash descriptor block (4KB)
 
     Properties / Entry arguments:
@@ -45,22 +45,16 @@ class Entry_intel_descriptor(Entry_blob_ext):
     See README.x86 for information about x86 binary blobs.
     """
     def __init__(self, section, etype, node):
-        super().__init__(section, etype, node)
+        Entry_blob.__init__(self, section, etype, node)
         self._regions = []
 
     def Pack(self, offset):
         """Put this entry at the start of the image"""
         if self.offset is None:
             offset = self.section.GetStartOffset()
-        return super().Pack(offset)
+        return Entry_blob.Pack(self, offset)
 
     def GetOffsets(self):
-        info = {}
-        if self.missing:
-            # Return zero offsets so that these entries get placed somewhere
-            if self.HasSibling('intel-me'):
-                info['intel-me'] = [0, None]
-            return info
         offset = self.data.find(FD_SIGNATURE)
         if offset == -1:
             self.Raise('Cannot find Intel Flash Descriptor (FD) signature')
@@ -72,6 +66,7 @@ class Entry_intel_descriptor(Entry_blob_ext):
 
         # Set the offset for ME (Management Engine) and IFWI (Integrated
         # Firmware Image), for now, since the others are not used.
+        info = {}
         if self.HasSibling('intel-me'):
             info['intel-me'] = [self._regions[REGION_ME].base,
                                 self._regions[REGION_ME].size]

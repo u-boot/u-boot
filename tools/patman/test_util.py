@@ -16,14 +16,12 @@ from io import StringIO
 
 use_concurrent = True
 try:
-    from concurrencytest.concurrencytest import ConcurrentTestSuite
-    from concurrencytest.concurrencytest import fork_for_tests
+    from concurrencytest import ConcurrentTestSuite, fork_for_tests
 except:
     use_concurrent = False
 
 
-def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None,
-                    extra_args=None):
+def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None):
     """Run tests and check that we get 100% coverage
 
     Args:
@@ -36,8 +34,6 @@ def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None,
             calculation
         build_dir: Build directory, used to locate libfdt.py
         required: List of modules which must be in the coverage report
-        extra_args (str): Extra arguments to pass to the tool before the -t/test
-            arg
 
     Raises:
         ValueError if the code coverage is not 100%
@@ -51,14 +47,13 @@ def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None,
         glob_list = []
     glob_list += exclude_list
     glob_list += ['*libfdt.py', '*site-packages*', '*dist-packages*']
-    glob_list += ['*concurrencytest*']
-    test_cmd = 'test' if 'binman' in prog or 'patman' in prog else '-t'
+    test_cmd = 'test' if 'binman' in prog else '-t'
     prefix = ''
     if build_dir:
         prefix = 'PYTHONPATH=$PYTHONPATH:%s/sandbox_spl/tools ' % build_dir
     cmd = ('%spython3-coverage run '
-           '--omit "%s" %s %s %s -P1' % (prefix, ','.join(glob_list),
-                                         prog, extra_args or '', test_cmd))
+           '--omit "%s" %s %s -P1' % (prefix, ','.join(glob_list),
+                                      prog, test_cmd))
     os.system(cmd)
     stdout = command.Output('python3-coverage', 'report')
     lines = stdout.splitlines()
@@ -128,12 +123,12 @@ def ReportResult(toolname:str, test_name: str, result: unittest.TestResult):
     for test, err in result.failures:
         print(err, result.failures)
     if result.skipped:
-        print('%d %s test%s SKIPPED:' % (len(result.skipped), toolname,
-            's' if len(result.skipped) > 1 else ''))
+        print('%d binman test%s SKIPPED:' %
+              (len(result.skipped), 's' if len(result.skipped) > 1 else ''))
         for skip_info in result.skipped:
             print('%s: %s' % (skip_info[0], skip_info[1]))
     if result.errors or result.failures:
-        print('%s tests FAILED' % toolname)
+        print('binman tests FAILED')
         return 1
     return 0
 

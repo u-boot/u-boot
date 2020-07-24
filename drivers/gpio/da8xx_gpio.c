@@ -545,7 +545,7 @@ static int davinci_gpio_ofdata_to_platdata(struct udevice *dev)
 	struct davinci_gpio_platdata *plat = dev_get_platdata(dev);
 	fdt_addr_t addr;
 
-	addr = dev_read_addr(dev);
+	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

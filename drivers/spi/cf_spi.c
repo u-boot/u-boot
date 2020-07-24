@@ -392,7 +392,7 @@ static int coldfire_dspi_ofdata_to_platdata(struct udevice *bus)
 	int node = dev_of_offset(bus);
 	int *ctar, len;
 
-	addr = dev_read_addr(bus);
+	addr = devfdt_get_addr(bus);
 	if (addr == FDT_ADDR_T_NONE)
 		return -ENOMEM;
 

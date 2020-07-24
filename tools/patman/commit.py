@@ -2,7 +2,6 @@
 # Copyright (c) 2011 The Chromium OS Authors.
 #
 
-import collections
 import re
 
 # Separates a tag: at the beginning of the subject from the rest of it
@@ -24,9 +23,6 @@ class Commit:
         notes: List of lines in the commit (not series) notes
         change_id: the Change-Id: tag that was stripped from this commit
             and can be used to generate the Message-Id.
-        rtags: Response tags (e.g. Reviewed-by) collected by the commit, dict:
-            key: rtag type (e.g. 'Reviewed-by')
-            value: Set of people who gave that rtag, each a name/email string
     """
     def __init__(self, hash):
         self.hash = hash
@@ -37,7 +33,6 @@ class Commit:
         self.signoff_set = set()
         self.notes = []
         self.change_id = None
-        self.rtags = collections.defaultdict(set)
 
     def AddChange(self, version, info):
         """Add a new change line to the change list for a version.
@@ -93,12 +88,3 @@ class Commit:
           return False
         self.signoff_set.add(signoff)
         return True
-
-    def AddRtag(self, rtag_type, who):
-        """Add a response tag to a commit
-
-        Args:
-            key: rtag type (e.g. 'Reviewed-by')
-            who: Person who gave that rtag, e.g. 'Fred Bloggs <fred@bloggs.org>'
-        """
-        self.rtags[rtag_type].add(who)

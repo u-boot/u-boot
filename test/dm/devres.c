@@ -153,7 +153,6 @@ static int dm_test_devres_phase(struct unit_test_state *uts)
 	 * allocation created in the bind() method.
 	 */
 	ut_assertok(uclass_find_first_device(UCLASS_TEST_DEVRES, &dev));
-	ut_assertnonnull(dev);
 	devres_get_stats(dev, &stats);
 	ut_asserteq(1, stats.allocs);
 	ut_asserteq(TEST_DEVRES_SIZE, stats.total_size);
