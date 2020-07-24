@@ -395,6 +395,13 @@ config SYS_SRAM_BASE
 	default 0x80000000 if TARGET_PIC32MZDASK
 	default 0x0
 
+config SYS_SRAM_SIZE
+	hex
+	default 0x00080000 if TARGET_PIC32MZDASK
+	default 0x10000 if TARGET_DEVKIT8000
+	default 0x10000 if TARGET_TRICORDER
+	default 0x0
+
 endmenu		# General setup
 
 menu "Boot images"

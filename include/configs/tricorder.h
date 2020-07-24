@@ -199,7 +199,6 @@
 
 /* SRAM config */
 #define CONFIG_SYS_SRAM_START		0x40200000
-#define CONFIG_SYS_SRAM_SIZE		0x10000
 
 /* Defines for SPL */
 
