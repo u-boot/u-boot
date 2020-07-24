@@ -176,16 +176,6 @@ static int mmc_burn_image(size_t image_size)
 		return err;
 	}
 
-#ifdef CONFIG_SYS_MMC_ENV_PART
-	if (mmc->part_num != CONFIG_SYS_MMC_ENV_PART) {
-		err = mmc_switch_part(mmc_dev_num, CONFIG_SYS_MMC_ENV_PART);
-		if (err) {
-			printf("MMC partition switch failed\n");
-			return err;
-		}
-	}
-#endif
-
 	/* SD reserves LBA-0 for MBR and boots from LBA-1,
 	 * MMC/eMMC boots from LBA-0
 	 */
@@ -216,11 +206,6 @@ static int mmc_burn_image(size_t image_size)
 		return -ENOSPC;
 	}
 	printf("Done!\n");
-
-#ifdef CONFIG_SYS_MMC_ENV_PART
-	if (mmc->part_num != CONFIG_SYS_MMC_ENV_PART)
-		mmc_switch_part(mmc_dev_num, mmc->part_num);
-#endif
 
 	return 0;
 }
