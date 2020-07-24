@@ -8,6 +8,4 @@
 
 #include <configs/rk3368_common.h>
 
-#define CONFIG_SYS_MMC_ENV_DEV 0
-
 #endif

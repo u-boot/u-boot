@@ -33,8 +33,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment configs */
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_SYS_MMC_ENV_PART		0
 
 /* USB configs */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET

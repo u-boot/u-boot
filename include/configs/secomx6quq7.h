@@ -75,7 +75,6 @@
 /* Environment organization */
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
-	#define CONFIG_SYS_MMC_ENV_DEV		0
 	#define CONFIG_DYNAMIC_MMC_DEVNO
 #endif
 

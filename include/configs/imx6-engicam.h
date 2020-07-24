@@ -136,9 +136,6 @@
 #endif
 
 /* MMC */
-#ifdef CONFIG_FSL_USDHC
-# define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
 
 /* NAND */
 #ifdef CONFIG_NAND_MXS

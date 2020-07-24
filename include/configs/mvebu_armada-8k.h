@@ -46,7 +46,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_TEXT_BASE + 0xFF0000)
 
 /* When runtime detection fails this is the default */
-#define CONFIG_SYS_MMC_ENV_DEV		0
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_MAX_CHIPS	1

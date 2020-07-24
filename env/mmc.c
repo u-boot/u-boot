@@ -24,10 +24,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CONFIG_SYS_MMC_ENV_DEV)
-#define CONFIG_SYS_MMC_ENV_DEV 0
-#endif
-
 __weak int mmc_get_env_dev(void)
 {
 	return CONFIG_SYS_MMC_ENV_DEV;

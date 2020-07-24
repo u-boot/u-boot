@@ -77,7 +77,6 @@
 #else /* CONFIG_CMD_NAND */
 
 /* Environment in MMC */
-#define CONFIG_SYS_MMC_ENV_DEV		0
 
 #endif /* CONFIG_CMD_NAND */
 

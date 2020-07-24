@@ -18,7 +18,5 @@
 #define COUNTER_FREQUENCY	0xFE502A	/* 16.66MHz from CPclk */
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */
-#define CONFIG_SYS_MMC_ENV_DEV		1
-#define CONFIG_SYS_MMC_ENV_PART		2
 
 #endif /* __SALVATOR_X_H */

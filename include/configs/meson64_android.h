@@ -9,9 +9,6 @@
 #ifndef __MESON64_ANDROID_CONFIG_H
 #define __MESON64_ANDROID_CONFIG_H
 
-#define CONFIG_SYS_MMC_ENV_DEV	2
-#define CONFIG_SYS_MMC_ENV_PART	1
-
 
 #define BOOTENV_DEV_FASTBOOT(devtypeu, devtypel, instance) \
 	"bootcmd_fastboot=" \

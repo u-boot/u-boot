@@ -52,7 +52,6 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	1
 
 /* Environment organization */
-#define CONFIG_SYS_MMC_ENV_DEV		0
 
 /* Default environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \

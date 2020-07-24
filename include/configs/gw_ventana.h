@@ -146,10 +146,6 @@
  */
 
 /* Persistent Environment Config */
-#if defined(CONFIG_ENV_IS_IN_MMC)
-  #define CONFIG_SYS_MMC_ENV_DEV         0
-  #define CONFIG_SYS_MMC_ENV_PART        1
-#endif
 
 /* Environment */
 #define CONFIG_IPADDR             192.168.1.1

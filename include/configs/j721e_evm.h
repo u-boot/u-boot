@@ -150,9 +150,5 @@
 #include <configs/ti_armv7_common.h>
 
 /* MMC ENV related defines */
-#ifdef CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_SYS_MMC_ENV_PART	1
-#endif
 
 #endif /* __CONFIG_J721E_EVM_H */

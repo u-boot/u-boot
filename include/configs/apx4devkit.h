@@ -21,13 +21,6 @@
 #define PHYS_SDRAM_1_SIZE		0x20000000	/* Max 512 MB RAM */
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
-/* Environment */
-
-/* Environment is in MMC */
-#if defined(CONFIG_CMD_MMC) && defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
-
 /* Environment is in NAND */
 #if defined(CONFIG_CMD_NAND) && defined(CONFIG_ENV_IS_IN_NAND)
 #define CONFIG_ENV_RANGE		(384 * 1024)

@@ -43,10 +43,6 @@
  */
 #define CONFIG_SYS_BOOTM_LEN		0x01800000
 
-/* Env configuration */
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_SYS_MMC_ENV_PART		0
-
 /* Access eMMC Boot_1 and Boot_2 partitions */
 #define CONFIG_SUPPORT_EMMC_BOOT
 

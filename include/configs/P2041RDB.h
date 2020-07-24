@@ -49,7 +49,6 @@
 #if defined(CONFIG_SPIFLASH)
 #elif defined(CONFIG_SDCARD)
 	#define CONFIG_FSL_FIXED_MMC_LOCATION
-	#define CONFIG_SYS_MMC_ENV_DEV          0
 #endif
 
 #ifndef __ASSEMBLY__

@@ -91,7 +91,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* environment organization */
-#define CONFIG_SYS_MMC_ENV_DEV 0
 
 /* Framebuffer and LCD */
 #define CONFIG_IMX_VIDEO_SKIP

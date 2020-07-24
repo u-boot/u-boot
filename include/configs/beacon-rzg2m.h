@@ -11,11 +11,6 @@
 /* Ethernet RAVB */
 #define CONFIG_BITBANGMII_MULTI
 
-/* Environment in eMMC, at the end of 2nd "boot sector" */
-/* #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE) */
-#define CONFIG_SYS_MMC_ENV_DEV		1
-#define CONFIG_SYS_MMC_ENV_PART		2
-
 #undef CONFIG_EXTRA_ENV_SETTINGS
 
 #define CONFIG_EXTRA_ENV_SETTINGS		\

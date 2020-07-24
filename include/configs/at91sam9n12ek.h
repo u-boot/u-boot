@@ -94,15 +94,6 @@
 
 #else /* CONFIG_SD_BOOT */
 
-/* bootstrap + u-boot + env + linux in mmc */
-
-#ifdef CONFIG_ENV_IS_IN_MMC
-/* Use raw reserved sectors to save environment */
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#else
-/* Use file in FAT file to save environment */
-#endif
-
 #define CONFIG_BOOTCOMMAND						\
 	"setenv bootargs ${console} ${mtdparts} ${bootargs_mmc};"	\
 	"fatload mmc 0:1 0x21000000 dtb;"				\

@@ -72,8 +72,6 @@
 
 #define CONFIG_SYS_MONITOR_BASE	0x00000000
 
-#define CONFIG_SYS_MMC_ENV_DEV		0
-
 #define CONFIG_SECURE_BL1_ONLY
 
 /* Secure FW size configuration */

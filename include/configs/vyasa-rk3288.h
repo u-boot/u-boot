@@ -20,8 +20,6 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 
-#define CONFIG_SYS_MMC_ENV_DEV 1
-
 #ifndef CONFIG_TPL_BUILD
 
 #define CONFIG_SPL_OS_BOOT

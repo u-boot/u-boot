@@ -70,9 +70,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_SCSI_MAX_LUN			1
 #define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 						CONFIG_SYS_SCSI_MAX_LUN)
-#ifdef CONFIG_TFABOOT
-#define CONFIG_SYS_MMC_ENV_DEV         0
-#endif
 
 #if !defined(CONFIG_FSL_QSPI) || defined(CONFIG_TFABOOT)
 

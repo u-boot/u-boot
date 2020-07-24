@@ -141,8 +141,5 @@
 #define CONFIG_IMX_THERMAL
 
 #define CONFIG_SYS_FSL_USDHC_NUM	2
-#if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_SYS_MMC_ENV_DEV		0  /*USDHC3*/
-#endif
 
 #endif				/* __CONFIG_H */

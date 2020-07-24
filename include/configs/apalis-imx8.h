@@ -81,10 +81,6 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x80200000
 
-/* Environment in eMMC, before config block at the end of 1st "boot sector" */
-#define CONFIG_SYS_MMC_ENV_DEV		0	/* USDHC1 eMMC */
-#define CONFIG_SYS_MMC_ENV_PART		1
-
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 /* On Apalis iMX8 USDHC1 is eMMC, USDHC2 is 8-bit and USDHC3 is 4-bit MMC/SD */

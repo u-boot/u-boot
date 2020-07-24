@@ -159,9 +159,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  */
 
 /* Environment for SDMMC boot */
-#if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_SYS_MMC_ENV_DEV		0 /* device 0 */
-#endif
 
 /* Environment for QSPI boot */
 

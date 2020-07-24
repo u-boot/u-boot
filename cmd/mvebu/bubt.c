@@ -27,10 +27,6 @@
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
 
-#ifndef CONFIG_SYS_MMC_ENV_DEV
-#define CONFIG_SYS_MMC_ENV_DEV	0
-#endif
-
 #if defined(CONFIG_ARMADA_8K)
 #define MAIN_HDR_MAGIC		0xB105B002
 

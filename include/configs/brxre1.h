@@ -64,7 +64,5 @@ BUR_COMMON_ENV \
 #define CONFIG_INITRD_TAG
 
 /* Environment */
-#define CONFIG_SYS_MMC_ENV_DEV		1
-#define CONFIG_SYS_MMC_ENV_PART		2
 
 #endif	/* __CONFIG_BRXRE1_H__ */

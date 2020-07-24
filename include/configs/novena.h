@@ -24,9 +24,6 @@
  * as recommended by GNU/fdisk. See below for details:
  * http://homepage.ntlworld.com./jonathan.deboynepollard/FGA/disc-partition-alignment.html
  */
-#ifdef CONFIG_CMD_MMC
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE			"fitImage"

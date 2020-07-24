@@ -129,7 +129,6 @@
 #else	/* CONFIG_SYS_USE_MMC */
 /* bootstrap + u-boot + env + linux in mmc */
 /* For FAT system, most cases it should be in the reserved sector */
-#define CONFIG_SYS_MMC_ENV_DEV		0
 
 #define CONFIG_BOOTCOMMAND						\
 	"fatload mmc 0:1 0x22000000 uImage; bootm"

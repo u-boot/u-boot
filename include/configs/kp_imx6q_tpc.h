@@ -27,8 +27,6 @@
 /* FEC ethernet */
 #define CONFIG_ARP_TIMEOUT		200UL
 
-#define CONFIG_SYS_MMC_ENV_DEV		1 /* 0 = SDHC2, 1 = SDHC4 (eMMC) */
-
 /* USB Configs */
 #ifdef CONFIG_CMD_USB
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET

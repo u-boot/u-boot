@@ -22,7 +22,6 @@
 
 /* Command definition */
 #define CONFIG_MXC_UART_BASE		UART1_BASE
-#define CONFIG_SYS_MMC_ENV_DEV		0  /*USDHC2*/
 
 /* Linux only */
 #define CONFIG_EXTRA_ENV_SETTINGS \

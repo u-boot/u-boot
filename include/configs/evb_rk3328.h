@@ -8,8 +8,6 @@
 
 #include <configs/rk3328_common.h>
 
-#define CONFIG_SYS_MMC_ENV_DEV 1
-
 #define SDRAM_BANK_SIZE			(2UL << 30)
 
 #endif

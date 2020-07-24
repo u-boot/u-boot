@@ -16,10 +16,6 @@
 
 #define CONFIG_IODELAY_RECALIBRATION
 
-/* MMC ENV related defines */
-#define CONFIG_SYS_MMC_ENV_DEV		1		/* eMMC */
-#define CONFIG_SYS_MMC_ENV_PART		0
-
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
 #define CONFIG_SYS_NS16550_COM1		UART1_BASE	/* Base EVM has UART0 */

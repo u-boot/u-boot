@@ -96,7 +96,6 @@
 /*
  * Environment
  */
-#define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_FSL_QSPI_BASE	0x40000000
 
 #ifndef CONFIG_SPL_BUILD
@@ -109,7 +108,6 @@
 
 /* FMan */
 #ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_FMAN_ENET
 
 #define QSGMII_PORT1_PHY_ADDR		0x1c
 #define QSGMII_PORT2_PHY_ADDR		0x1d

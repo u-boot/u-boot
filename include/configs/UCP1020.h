@@ -32,9 +32,6 @@
 #define FWENV_TYPE	FWENV_NOR_FLASH
 
 #if (FWENV_TYPE == FWENV_MMC)
-#ifndef CONFIG_SYS_MMC_ENV_DEV
-#define CONFIG_SYS_MMC_ENV_DEV 1
-#endif
 #define FWENV_ADDR1 -1
 #define FWENV_ADDR2 -1
 #define FWENV_ADDR3 -1
@@ -367,7 +364,6 @@
  */
 #if !defined(CONFIG_ENV_FIT_UCBOOT) && defined(CONFIG_RAMBOOT_SDCARD)
 #define CONFIG_FSL_FIXED_MMC_LOCATION
-#define CONFIG_SYS_MMC_ENV_DEV	0
 #endif
 
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */

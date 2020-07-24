@@ -26,8 +26,6 @@
 #define CONFIG_SYS_MALLOC_LEN			(128 * 1024 * 1024)
 
 /* Environment */
-#define CONFIG_SYS_MMC_ENV_DEV			0
-#define CONFIG_SYS_MMC_ENV_PART			0
 
 /* RTC */
 #define CONFIG_SYS_ISA_IO_BASE_ADDRESS	0

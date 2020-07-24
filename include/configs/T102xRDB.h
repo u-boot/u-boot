@@ -132,11 +132,6 @@
 #define CONFIG_RESET_VECTOR_ADDRESS 0xfffffffc
 #endif
 
-#if defined(CONFIG_SPIFLASH)
-#elif defined(CONFIG_SDCARD)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
-
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
 unsigned long get_board_ddr_clk(void);

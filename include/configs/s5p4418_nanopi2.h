@@ -102,11 +102,6 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-/*-----------------------------------------------------------------------
- * allow to overwrite serial and ethaddr
- */
-#define CONFIG_ENV_OVERWRITE
-
 #ifdef CONFIG_HUSH_PARSER
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #endif
@@ -149,26 +144,6 @@
 #define BACKLIGHT_DUTY		50
 #define BACKLIGHT_HZ		1000
 #endif
-#endif
-
-/*-----------------------------------------------------------------------
- * SD/MMC
- */
-#if defined(CONFIG_MMC)
-/* eMMC = 0, SD-card = 2 */
-#define CONFIG_SYS_MMC_DEV		2
-#define CONFIG_SYS_MMC_ENV_DEV		CONFIG_SYS_MMC_DEV
-#endif
-
-/*-----------------------------------------------------------------------
- * Default environment organization
- */
-#if !defined(CONFIG_ENV_IS_IN_MMC) && !defined(CONFIG_ENV_IS_IN_NAND) && \
-	!defined(CONFIG_ENV_IS_IN_FLASH) && !defined(CONFIG_ENV_IS_IN_EEPROM)
-	/* default: CONFIG_ENV_IS_NOWHERE */
-	#define CONFIG_ENV_IS_NOWHERE
-	#define CONFIG_ENV_OFFSET	1024
-	#define CONFIG_ENV_SIZE		(4 * 1024)	/* env size */
 #endif
 
 /*-----------------------------------------------------------------------

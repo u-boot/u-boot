@@ -268,7 +268,6 @@
 #if defined(CONFIG_TRAILBLAZER)
 #elif defined(CONFIG_RAMBOOT_SDCARD)
 #define CONFIG_FSL_FIXED_MMC_LOCATION
-#define CONFIG_SYS_MMC_ENV_DEV	0
 #endif
 
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */

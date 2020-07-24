@@ -59,8 +59,6 @@
 #endif
 
 /* Environment is stored in the eMMC boot partition */
-#define CONFIG_SYS_MMC_ENV_DEV          0
-#define CONFIG_SYS_MMC_ENV_PART         1
 
 #define CONFIG_ENV_VERSION	100
 #define CONFIG_BOARD_NAME	opos6ul

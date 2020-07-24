@@ -18,10 +18,6 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_APALIS_T30
 
-/* Environment in eMMC, before config block at the end of 1st "boot sector" */
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_SYS_MMC_ENV_PART		1
-
 /* PCI networking support */
 #define CONFIG_E1000_NO_NVM
 

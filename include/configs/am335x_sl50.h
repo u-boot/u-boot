@@ -75,11 +75,6 @@
 /* disable EFI partitions and partition UUID support */
 #endif
 
-#if defined(CONFIG_EMMC_BOOT)
-#define CONFIG_SYS_MMC_ENV_DEV		1
-#define CONFIG_SYS_MMC_ENV_PART		2
-#endif
-
 /* Network. */
 
 #endif	/* ! __CONFIG_AM335X_SL50_H */

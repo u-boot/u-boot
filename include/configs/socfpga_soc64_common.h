@@ -49,7 +49,6 @@
 /*
  * U-Boot environment configurations
  */
-#define CONFIG_SYS_MMC_ENV_DEV		0	/* device 0 */
 
 /*
  * QSPI support

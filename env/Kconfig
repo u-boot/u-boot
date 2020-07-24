@@ -577,6 +577,25 @@ config SYS_RELOC_GD_ENV_ADDR
 	  Relocate the early env_addr pointer so we know it is not inside
 	  the binary. Some systems need this and for the rest, it doesn't hurt.
 
+config SYS_MMC_ENV_DEV
+	int "mmc device number"
+	depends on ENV_IS_IN_MMC || ENV_IS_IN_FAT || SYS_LS_PPA_FW_IN_MMC || \
+		CMD_MVEBU_BUBT || FMAN_ENET || QE
+	default 0
+	help
+	  MMC device number on the platform where the environment is stored.
+
+config SYS_MMC_ENV_PART
+	int "mmc partition number"
+	depends on ENV_IS_IN_MMC || ENV_IS_IN_FAT
+	default 0
+	help
+	  MMC hardware partition device number on the platform where the
+	  environment is stored.  Note that this is not related to any software
+	  defined partition table but instead if we are in the user area, which is
+	  partition 0 or the first boot partition, which is 1 or some other defined
+	  partition.
+
 config USE_DEFAULT_ENV_FILE
 	bool "Create default environment from file"
 	help

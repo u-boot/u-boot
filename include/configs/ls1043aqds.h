@@ -395,15 +395,6 @@ unsigned long get_board_ddr_clk(void);
  * Environment
  */
 
-#ifdef CONFIG_TFABOOT
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#else
-#ifdef CONFIG_NAND_BOOT
-#elif defined(CONFIG_SD_BOOT)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
-#endif
-
 #define CONFIG_CMDLINE_TAG
 
 #include <asm/fsl_secure_boot.h>

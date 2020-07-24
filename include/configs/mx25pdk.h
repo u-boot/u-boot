@@ -46,7 +46,6 @@
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* No NOR flash present */
-#define CONFIG_SYS_MMC_ENV_DEV		0
 
 /* U-Boot general configuration */
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size  */

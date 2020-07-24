@@ -161,8 +161,6 @@
 
 #if defined(CONFIG_ENV_IS_IN_NAND)
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
-#else
-#define CONFIG_SYS_MMC_ENV_DEV		0
 #endif
 
 /* Network. */

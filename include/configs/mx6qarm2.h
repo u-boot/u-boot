@@ -115,7 +115,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment organization */
-#define CONFIG_SYS_MMC_ENV_DEV		1
 
 /* USB Configs */
 #ifdef CONFIG_CMD_USB

@@ -409,7 +409,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Environment
  */
-#define CONFIG_SYS_MMC_ENV_DEV		0
 
 #define CONFIG_CMDLINE_TAG
 

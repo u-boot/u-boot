@@ -177,18 +177,8 @@ NANDTGTS \
 #define CONFIG_NAND_OMAP_GPMC_WSCFG	1
 #endif /* CONFIG_MTD_RAW_NAND */
 
-#if defined(CONFIG_SPI)
-/* SPI Flash */
-/* Environment */
-#elif defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_SYS_MMC_ENV_DEV		1
-#define CONFIG_SYS_MMC_ENV_PART		2
-
-#elif defined(CONFIG_ENV_IS_IN_NAND)
-/* No NAND env support in SPL */
+#if defined(CONFIG_ENV_IS_IN_NAND)
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_ENV_SIZE
-#else
-#error "no storage for Environment defined!"
 #endif
 
 #endif	/* ! __CONFIG_BRPPT1_H__ */

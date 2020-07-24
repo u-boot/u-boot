@@ -28,8 +28,6 @@
 #define DMAMEM_BASE			(PHYS_SDRAM + PHYS_SDRAM_SIZE - \
 					 DMAMEM_SZ_ALL)
 
-#define CONFIG_SYS_MMC_ENV_DEV		0   /* USDHC1 */
-
 /*
  * Configuration of the external SDRAM memory
  */

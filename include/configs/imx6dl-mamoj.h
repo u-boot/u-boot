@@ -43,7 +43,6 @@
 #define CONFIG_MXC_UART_BASE		UART3_BASE
 
 /* MMC */
-#define CONFIG_SYS_MMC_ENV_DEV		2
 
 /* Ethernet */
 #define CONFIG_FEC_MXC_PHYADDR		1

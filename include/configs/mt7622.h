@@ -20,8 +20,6 @@
 #define CONFIG_SYS_MALLOC_LEN		SZ_4M
 #define CONFIG_SYS_NONCACHED_MEMORY	SZ_1M
 
-#define CONFIG_SYS_MMC_ENV_DEV 0
-
 /* Uboot definition */
 #define CONFIG_SYS_UBOOT_BASE                   CONFIG_SYS_TEXT_BASE
 

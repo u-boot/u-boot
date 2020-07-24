@@ -26,23 +26,6 @@
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-/*
- * in case of SD Card or Network boot we want to have a possibility to
- * debrick the shc, therefore do not read environment from eMMC
- */
-#if defined(CONFIG_SHC_SDBOOT) || defined(CONFIG_SHC_NETBOOT)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#else
-#define CONFIG_SYS_MMC_ENV_DEV		1
-#endif
-
-/*
- * Info when using boot partitions: As environment resides within first
- * 128 kB, MLO must start at 128 kB == 0x20000
- * ENV at MMC Boot0 Partition - 0/Undefined=user, 1=boot0, 2=boot1,
- * 4..7=general0..3
- */
-
 #define CONFIG_HSMMC2_8BIT
 
 #ifndef CONFIG_SHC_ICT

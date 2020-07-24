@@ -133,7 +133,6 @@
  * write the direct value here
  */
 #define CONFIG_BOARD_SIZE_LIMIT		715776
-#define CONFIG_SYS_MMC_ENV_DEV		0
 
 /* Ethernet Configuration */
 #define CONFIG_FEC_MXC

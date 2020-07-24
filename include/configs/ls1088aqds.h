@@ -15,14 +15,7 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #ifdef CONFIG_TFABOOT
-#define CONFIG_SYS_MMC_ENV_DEV		0
-
 #define CONFIG_MISC_INIT_R
-#else
-#if defined(CONFIG_QSPI_BOOT)
-#elif defined(CONFIG_SD_BOOT)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
 #endif
 
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)

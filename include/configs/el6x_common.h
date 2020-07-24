@@ -86,9 +86,4 @@
 
 /* environment organization */
 
-#if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_SYS_MMC_ENV_DEV		1
-#define CONFIG_SYS_MMC_ENV_PART		2
-#endif
-
 #endif                         /* __EL6Q_COMMON_CONFIG_H */

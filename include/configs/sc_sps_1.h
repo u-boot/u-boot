@@ -21,9 +21,6 @@
 /* Environment */
 
 /* Environment is in MMC */
-#if defined(CONFIG_CMD_MMC) && defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
 
 /* FEC Ethernet on SoC */
 #ifdef CONFIG_CMD_NET

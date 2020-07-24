@@ -30,7 +30,6 @@
 #define CONFIG_ENV_MIN_ENTRIES		128
 
 /* Environment in MMC */
-#define CONFIG_SYS_MMC_ENV_DEV		0
 /*
  * For SD - reserve 1 LBA for MBR + 1M for u-boot image. The MMC/eMMC
  * boot image starts @ LBA-0.

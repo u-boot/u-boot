@@ -153,7 +153,6 @@
 /*
  * Environment
  */
-#define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_FSL_QSPI_BASE        0x40000000
 
 #define AQR105_IRQ_MASK			0x80000000

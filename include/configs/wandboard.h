@@ -122,6 +122,4 @@
 
 /* Environment organization */
 
-#define CONFIG_SYS_MMC_ENV_DEV		0
-
 #endif			       /* __CONFIG_H * */

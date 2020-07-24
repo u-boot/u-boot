@@ -15,7 +15,6 @@
 #include <asm/arch/imx-regs.h>
 
 /* U-Boot environment */
-#define CONFIG_SYS_MMC_ENV_DEV	0
 
 /* U-Boot general configurations */
 #define CONFIG_SYS_CBSIZE	512

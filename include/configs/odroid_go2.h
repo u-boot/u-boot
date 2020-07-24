@@ -8,8 +8,6 @@
 
 #include <configs/px30_common.h>
 
-#define CONFIG_SYS_MMC_ENV_DEV 0
-
 #define ROCKCHIP_DEVICE_SETTINGS \
 		"stdout=serial,vidconsole\0" \
 		"stderr=serial,vidconsole\0"
