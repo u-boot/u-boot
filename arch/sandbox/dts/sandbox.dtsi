@@ -15,6 +15,20 @@
 		#sound-dai-cells = <1>;
 	};
 
+	buttons {
+		compatible = "gpio-keys";
+
+		summer {
+			gpios = <&gpio_a 3 0>;
+			label = "summer";
+		};
+
+		christmas {
+			gpios = <&gpio_a 4 0>;
+			label = "christmas";
+		};
+	};
+
 	gpio_a: gpios@0 {
 		u-boot,dm-pre-reloc;
 		gpio-controller;
