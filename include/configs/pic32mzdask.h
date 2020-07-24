@@ -19,7 +19,6 @@
 /*----------------------------------------------------------------------
  * Memory Layout
  */
-#define CONFIG_SYS_SRAM_BASE		0x80000000
 #define CONFIG_SYS_SRAM_SIZE		0x00080000 /* 512K */
 
 /* Initial RAM for temporary stack, global data */

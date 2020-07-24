@@ -390,6 +390,11 @@ config SYS_HAS_SRAM
 	  SRAM base address is controlled by CONFIG_SYS_SRAM_BASE.
 	  SRAM size is controlled by CONFIG_SYS_SRAM_SIZE.
 
+config SYS_SRAM_BASE
+	hex
+	default 0x80000000 if TARGET_PIC32MZDASK
+	default 0x0
+
 endmenu		# General setup
 
 menu "Boot images"
