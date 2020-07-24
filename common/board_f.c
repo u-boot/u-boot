@@ -598,6 +598,11 @@ static int display_new_sp(void)
 	return 0;
 }
 
+int setup_bdinfo(void)
+{
+	return 0;
+}
+
 #if defined(CONFIG_M68K) || defined(CONFIG_MIPS) || defined(CONFIG_PPC) || \
 	defined(CONFIG_SH)
 static int setup_board_part1(void)
@@ -975,6 +980,7 @@ static const init_fnc_t init_sequence_f[] = {
 	reserve_stacks,
 	dram_init_banksize,
 	show_dram_config,
+	setup_bdinfo,
 #if defined(CONFIG_M68K) || defined(CONFIG_MIPS) || defined(CONFIG_PPC) || \
 	defined(CONFIG_SH)
 	setup_board_part1,

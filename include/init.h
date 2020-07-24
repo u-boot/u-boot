@@ -142,6 +142,16 @@ int arch_reserve_stacks(void);
 int arch_reserve_mmu(void);
 
 /**
+ * setup_bdinfo() - Generic boardinfo setup
+ *
+ * Routine for populating various generic boardinfo fields of
+ * gd->bd. It is called during the generic board init sequence.
+ *
+ * Return: 0 if OK
+ */
+int setup_bdinfo(void);
+
+/**
  * init_cache_f_r() - Turn on the cache in preparation for relocation
  *
  * Return: 0 if OK, -ve on error
