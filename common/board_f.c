@@ -618,13 +618,6 @@ int setup_bdinfo(void)
 	return arch_setup_bdinfo();
 }
 
-#if defined(CONFIG_MIPS) || defined(CONFIG_SH)
-static int setup_board_part1(void)
-{
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_POST
 static int init_post(void)
 {
@@ -945,11 +938,8 @@ static const init_fnc_t init_sequence_f[] = {
 	reserve_stacks,
 	dram_init_banksize,
 	show_dram_config,
-	setup_bdinfo,
-#if defined(CONFIG_MIPS) || defined(CONFIG_SH)
-	setup_board_part1,
-#endif
 	INIT_FUNC_WATCHDOG_RESET
+	setup_bdinfo,
 	display_new_sp,
 #ifdef CONFIG_OF_BOARD_FIXUP
 	fix_fdt,
