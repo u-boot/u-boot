@@ -776,18 +776,26 @@ int ofnode_read_pci_vendev(ofnode node, u16 *vendor, u16 *device)
 
 int ofnode_read_addr_cells(ofnode node)
 {
-	if (ofnode_is_np(node))
+	if (ofnode_is_np(node)) {
 		return of_n_addr_cells(ofnode_to_np(node));
-	else  /* NOTE: this call should walk up the parent stack */
-		return fdt_address_cells(gd->fdt_blob, ofnode_to_offset(node));
+	} else {
+		int parent = fdt_parent_offset(gd->fdt_blob,
+					       ofnode_to_offset(node));
+
+		return fdt_address_cells(gd->fdt_blob, parent);
+	}
 }
 
 int ofnode_read_size_cells(ofnode node)
 {
-	if (ofnode_is_np(node))
+	if (ofnode_is_np(node)) {
 		return of_n_size_cells(ofnode_to_np(node));
-	else  /* NOTE: this call should walk up the parent stack */
-		return fdt_size_cells(gd->fdt_blob, ofnode_to_offset(node));
+	} else {
+		int parent = fdt_parent_offset(gd->fdt_blob,
+					       ofnode_to_offset(node));
+
+		return fdt_size_cells(gd->fdt_blob, parent);
+	}
 }
 
 int ofnode_read_simple_addr_cells(ofnode node)
