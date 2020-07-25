@@ -940,9 +940,9 @@ class TestFunctional(unittest.TestCase):
     def testPackX86RomMeNoDesc(self):
         """Test that an invalid Intel descriptor entry is detected"""
         try:
-            TestFunctional._MakeInputFile('descriptor.bin', b'')
+            TestFunctional._MakeInputFile('descriptor-empty.bin', b'')
             with self.assertRaises(ValueError) as e:
-                self._DoTestFile('031_x86_rom_me.dts')
+                self._DoTestFile('163_x86_rom_me_empty.dts')
             self.assertIn("Node '/binman/intel-descriptor': Cannot find Intel Flash Descriptor (FD) signature",
                           str(e.exception))
         finally:
@@ -3405,10 +3405,8 @@ class TestFunctional(unittest.TestCase):
 
     def testPackX86RomMeMissingDesc(self):
         """Test that an missing Intel descriptor entry is allowed"""
-        pathname = os.path.join(self._indir, 'descriptor.bin')
-        os.remove(pathname)
         with test_util.capture_sys_output() as (stdout, stderr):
-            self._DoTestFile('031_x86_rom_me.dts', allow_missing=True)
+            self._DoTestFile('164_x86_rom_me_missing.dts', allow_missing=True)
         err = stderr.getvalue()
         self.assertRegex(err,
                          "Image 'main-section'.*missing.*: intel-descriptor")
