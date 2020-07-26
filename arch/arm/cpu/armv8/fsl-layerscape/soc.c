@@ -41,37 +41,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 #ifdef CONFIG_GIC_V3_ITS
-#define PENDTABLE_MAX_SZ	ALIGN(BIT(ITS_MAX_LPI_NRBITS), SZ_64K)
-#define PROPTABLE_MAX_SZ	ALIGN(BIT(ITS_MAX_LPI_NRBITS) / 8, SZ_64K)
-#define GIC_LPI_SIZE		ALIGN(cpu_numcores() * PENDTABLE_MAX_SZ + \
-				PROPTABLE_MAX_SZ, SZ_1M)
-static int fdt_add_resv_mem_gic_rd_tables(void *blob, u64 base, size_t size)
-{
-	u32 phandle;
-	int err;
-	struct fdt_memory gic_rd_tables;
-
-	gic_rd_tables.start = base;
-	gic_rd_tables.end = base + size - 1;
-	err = fdtdec_add_reserved_memory(blob, "gic-rd-tables", &gic_rd_tables,
-					 &phandle);
-	if (err < 0)
-		debug("%s: failed to add reserved memory: %d\n", __func__, err);
-
-	return err;
-}
-
 int ls_gic_rd_tables_init(void *blob)
 {
-	u64 gic_lpi_base;
 	int ret;
 
-	gic_lpi_base = ALIGN(gd->arch.resv_ram - GIC_LPI_SIZE, SZ_64K);
-	ret = fdt_add_resv_mem_gic_rd_tables(blob, gic_lpi_base, GIC_LPI_SIZE);
-	if (ret)
-		return ret;
-
-	ret = gic_lpi_tables_init(gic_lpi_base, cpu_numcores());
+	ret = gic_lpi_tables_init();
 	if (ret)
 		debug("%s: failed to init gic-lpi-tables\n", __func__);
 
