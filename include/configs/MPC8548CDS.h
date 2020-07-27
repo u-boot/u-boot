@@ -374,7 +374,6 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 #if defined(CONFIG_PCI)
-#undef CONFIG_TULIP
 
 #if !defined(CONFIG_DM_PCI)
 #define CONFIG_FSL_PCI_INIT		1	/* Use common FSL init code */

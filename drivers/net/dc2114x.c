@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 
 #include <common.h>
-#include <env.h>
+#include <asm/io.h>
+#include <dm.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
@@ -10,8 +11,6 @@
 #include <linux/delay.h>
 
 #define SROM_DLEVEL	0
-
-#undef UPDATE_SROM
 
 /* PCI Registers. */
 #define PCI_CFDA_PSM	0x43
@@ -74,10 +73,12 @@
 
 #define POLL_DEMAND	1
 
-#if defined(CONFIG_E500)
-#define phys_to_bus(a) (a)
+#if defined(CONFIG_DM_ETH)
+#define phys_to_bus(dev, a)	dm_pci_phys_to_mem((dev), (a))
+#elif defined(CONFIG_E500)
+#define phys_to_bus(dev, a)	(a)
 #else
-#define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, a)
+#define phys_to_bus(dev, a)	pci_phys_to_mem((dev), (a))
 #endif
 
 #define NUM_RX_DESC PKTBUFSRX
@@ -95,87 +96,97 @@ struct de4x5_desc {
 	u32 next;
 };
 
+struct dc2114x_priv {
+	struct de4x5_desc rx_ring[NUM_RX_DESC] __aligned(32);
+	struct de4x5_desc tx_ring[NUM_TX_DESC] __aligned(32);
+	int rx_new;	/* RX descriptor ring pointer */
+	int tx_new;	/* TX descriptor ring pointer */
+	char rx_ring_size;
+	char tx_ring_size;
+#ifdef CONFIG_DM_ETH
+	struct udevice		*devno;
+#else
+	struct eth_device	dev;
+	pci_dev_t		devno;
+#endif
+	char			*name;
+	void __iomem		*iobase;
+	u8			*enetaddr;
+};
+
 /* RX and TX descriptor ring */
-static struct de4x5_desc rx_ring[NUM_RX_DESC] __aligned(32);
-static struct de4x5_desc tx_ring[NUM_TX_DESC] __aligned(32);
-static int rx_new;	/* RX descriptor ring pointer */
-static int tx_new;	/* TX descriptor ring pointer */
-
-static char rx_ring_size;
-static char tx_ring_size;
-
-static u32 dc2114x_inl(struct eth_device *dev, u32 addr)
+static u32 dc2114x_inl(struct dc2114x_priv *priv, u32 addr)
 {
-	return le32_to_cpu(*(volatile u32 *)(addr + dev->iobase));
+	return le32_to_cpu(readl(priv->iobase + addr));
 }
 
-static void dc2114x_outl(struct eth_device *dev, u32 command, u32 addr)
+static void dc2114x_outl(struct dc2114x_priv *priv, u32 command, u32 addr)
 {
-	*(volatile u32 *)(addr + dev->iobase) = cpu_to_le32(command);
+	writel(cpu_to_le32(command), priv->iobase + addr);
 }
 
-static void reset_de4x5(struct eth_device *dev)
+static void reset_de4x5(struct dc2114x_priv *priv)
 {
 	u32 i;
 
-	i = dc2114x_inl(dev, DE4X5_BMR);
+	i = dc2114x_inl(priv, DE4X5_BMR);
 	mdelay(1);
-	dc2114x_outl(dev, i | BMR_SWR, DE4X5_BMR);
+	dc2114x_outl(priv, i | BMR_SWR, DE4X5_BMR);
 	mdelay(1);
-	dc2114x_outl(dev, i, DE4X5_BMR);
+	dc2114x_outl(priv, i, DE4X5_BMR);
 	mdelay(1);
 
 	for (i = 0; i < 5; i++) {
-		dc2114x_inl(dev, DE4X5_BMR);
+		dc2114x_inl(priv, DE4X5_BMR);
 		mdelay(10);
 	}
 
 	mdelay(1);
 }
 
-static void start_de4x5(struct eth_device *dev)
+static void start_de4x5(struct dc2114x_priv *priv)
 {
 	u32 omr;
 
-	omr = dc2114x_inl(dev, DE4X5_OMR);
+	omr = dc2114x_inl(priv, DE4X5_OMR);
 	omr |= OMR_ST | OMR_SR;
-	dc2114x_outl(dev, omr, DE4X5_OMR);	/* Enable the TX and/or RX */
+	dc2114x_outl(priv, omr, DE4X5_OMR);	/* Enable the TX and/or RX */
 }
 
-static void stop_de4x5(struct eth_device *dev)
+static void stop_de4x5(struct dc2114x_priv *priv)
 {
 	u32 omr;
 
-	omr = dc2114x_inl(dev, DE4X5_OMR);
+	omr = dc2114x_inl(priv, DE4X5_OMR);
 	omr &= ~(OMR_ST | OMR_SR);
-	dc2114x_outl(dev, omr, DE4X5_OMR);	/* Disable the TX and/or RX */
+	dc2114x_outl(priv, omr, DE4X5_OMR);	/* Disable the TX and/or RX */
 }
 
 /* SROM Read and write routines. */
-static void sendto_srom(struct eth_device *dev, u_int command, u_long addr)
+static void sendto_srom(struct dc2114x_priv *priv, u_int command, u_long addr)
 {
-	dc2114x_outl(dev, command, addr);
+	dc2114x_outl(priv, command, addr);
 	udelay(1);
 }
 
-static int getfrom_srom(struct eth_device *dev, u_long addr)
+static int getfrom_srom(struct dc2114x_priv *priv, u_long addr)
 {
-	u32 tmp = dc2114x_inl(dev, addr);
+	u32 tmp = dc2114x_inl(priv, addr);
 
 	udelay(1);
 	return tmp;
 }
 
 /* Note: this routine returns extra data bits for size detection. */
-static int do_read_eeprom(struct eth_device *dev, u_long ioaddr, int location,
+static int do_read_eeprom(struct dc2114x_priv *priv, u_long ioaddr, int location,
 			  int addr_len)
 {
 	int read_cmd = location | (SROM_READ_CMD << addr_len);
 	unsigned int retval = 0;
 	int i;
 
-	sendto_srom(dev, SROM_RD | SROM_SR, ioaddr);
-	sendto_srom(dev, SROM_RD | SROM_SR | DT_CS, ioaddr);
+	sendto_srom(priv, SROM_RD | SROM_SR, ioaddr);
+	sendto_srom(priv, SROM_RD | SROM_SR | DT_CS, ioaddr);
 
 	debug_cond(SROM_DLEVEL >= 1, " EEPROM read at %d ", location);
 
@@ -183,35 +194,35 @@ static int do_read_eeprom(struct eth_device *dev, u_long ioaddr, int location,
 	for (i = 4 + addr_len; i >= 0; i--) {
 		short dataval = (read_cmd & (1 << i)) ? EE_DATA_WRITE : 0;
 
-		sendto_srom(dev, SROM_RD | SROM_SR | DT_CS | dataval,
+		sendto_srom(priv, SROM_RD | SROM_SR | DT_CS | dataval,
 			    ioaddr);
 		udelay(10);
-		sendto_srom(dev, SROM_RD | SROM_SR | DT_CS | dataval | DT_CLK,
+		sendto_srom(priv, SROM_RD | SROM_SR | DT_CS | dataval | DT_CLK,
 			    ioaddr);
 		udelay(10);
 		debug_cond(SROM_DLEVEL >= 2, "%X",
-			   getfrom_srom(dev, ioaddr) & 15);
+			   getfrom_srom(priv, ioaddr) & 15);
 		retval = (retval << 1) |
-			 !!(getfrom_srom(dev, ioaddr) & EE_DATA_READ);
+			 !!(getfrom_srom(priv, ioaddr) & EE_DATA_READ);
 	}
 
-	sendto_srom(dev, SROM_RD | SROM_SR | DT_CS, ioaddr);
+	sendto_srom(priv, SROM_RD | SROM_SR | DT_CS, ioaddr);
 
-	debug_cond(SROM_DLEVEL >= 2, " :%X:", getfrom_srom(dev, ioaddr) & 15);
+	debug_cond(SROM_DLEVEL >= 2, " :%X:", getfrom_srom(priv, ioaddr) & 15);
 
 	for (i = 16; i > 0; i--) {
-		sendto_srom(dev, SROM_RD | SROM_SR | DT_CS | DT_CLK, ioaddr);
+		sendto_srom(priv, SROM_RD | SROM_SR | DT_CS | DT_CLK, ioaddr);
 		udelay(10);
 		debug_cond(SROM_DLEVEL >= 2, "%X",
-			   getfrom_srom(dev, ioaddr) & 15);
+			   getfrom_srom(priv, ioaddr) & 15);
 		retval = (retval << 1) |
-			 !!(getfrom_srom(dev, ioaddr) & EE_DATA_READ);
-		sendto_srom(dev, SROM_RD | SROM_SR | DT_CS, ioaddr);
+			 !!(getfrom_srom(priv, ioaddr) & EE_DATA_READ);
+		sendto_srom(priv, SROM_RD | SROM_SR | DT_CS, ioaddr);
 		udelay(10);
 	}
 
 	/* Terminate the EEPROM access. */
-	sendto_srom(dev, SROM_RD | SROM_SR, ioaddr);
+	sendto_srom(priv, SROM_RD | SROM_SR, ioaddr);
 
 	debug_cond(SROM_DLEVEL >= 2, " EEPROM value at %d is %5.5x.\n",
 		   location, retval);
@@ -224,139 +235,53 @@ static int do_read_eeprom(struct eth_device *dev, u_long ioaddr, int location,
  * enable. It returns the data output from the EEPROM, and thus may
  * also be used for reads.
  */
-static int do_eeprom_cmd(struct eth_device *dev, u_long ioaddr, int cmd,
+static int do_eeprom_cmd(struct dc2114x_priv *priv, u_long ioaddr, int cmd,
 			 int cmd_len)
 {
 	unsigned int retval = 0;
 
 	debug_cond(SROM_DLEVEL >= 1, " EEPROM op 0x%x: ", cmd);
 
-	sendto_srom(dev, SROM_RD | SROM_SR | DT_CS | DT_CLK, ioaddr);
+	sendto_srom(priv, SROM_RD | SROM_SR | DT_CS | DT_CLK, ioaddr);
 
 	/* Shift the command bits out. */
 	do {
 		short dataval = (cmd & BIT(cmd_len)) ? EE_WRITE_1 : EE_WRITE_0;
 
-		sendto_srom(dev, dataval, ioaddr);
+		sendto_srom(priv, dataval, ioaddr);
 		udelay(10);
 
 		debug_cond(SROM_DLEVEL >= 2, "%X",
-			   getfrom_srom(dev, ioaddr) & 15);
+			   getfrom_srom(priv, ioaddr) & 15);
 
-		sendto_srom(dev, dataval | DT_CLK, ioaddr);
+		sendto_srom(priv, dataval | DT_CLK, ioaddr);
 		udelay(10);
 		retval = (retval << 1) |
-			 !!(getfrom_srom(dev, ioaddr) & EE_DATA_READ);
+			 !!(getfrom_srom(priv, ioaddr) & EE_DATA_READ);
 	} while (--cmd_len >= 0);
 
-	sendto_srom(dev, SROM_RD | SROM_SR | DT_CS, ioaddr);
+	sendto_srom(priv, SROM_RD | SROM_SR | DT_CS, ioaddr);
 
 	/* Terminate the EEPROM access. */
-	sendto_srom(dev, SROM_RD | SROM_SR, ioaddr);
+	sendto_srom(priv, SROM_RD | SROM_SR, ioaddr);
 
 	debug_cond(SROM_DLEVEL >= 1, " EEPROM result is 0x%5.5x.\n", retval);
 
 	return retval;
 }
 
-static int read_srom(struct eth_device *dev, u_long ioaddr, int index)
+static int read_srom(struct dc2114x_priv *priv, u_long ioaddr, int index)
 {
 	int ee_addr_size;
 
-	ee_addr_size = (do_read_eeprom(dev, ioaddr, 0xff, 8) & BIT(18)) ? 8 : 6;
+	ee_addr_size = (do_read_eeprom(priv, ioaddr, 0xff, 8) & BIT(18)) ? 8 : 6;
 
-	return do_eeprom_cmd(dev, ioaddr, 0xffff |
+	return do_eeprom_cmd(priv, ioaddr, 0xffff |
 			     (((SROM_READ_CMD << ee_addr_size) | index) << 16),
 			     3 + ee_addr_size + 16);
 }
 
-#ifdef UPDATE_SROM
-static int write_srom(struct eth_device *dev, u_long ioaddr, int index,
-		      int new_value)
-{
-	unsigned short newval;
-	int ee_addr_size;
-	int i;
-
-	ee_addr_size = (do_read_eeprom(dev, ioaddr, 0xff, 8) & BIT(18)) ? 8 : 6;
-
-	udelay(10 * 1000); /* test-only */
-
-	debug_cond(SROM_DLEVEL >= 1, "ee_addr_size=%d.\n", ee_addr_size);
-	debug_cond(SROM_DLEVEL >= 1,
-		   "Writing new entry 0x%4.4x to offset %d.\n",
-		   new_value, index);
-
-	/* Enable programming modes. */
-	do_eeprom_cmd(dev, ioaddr, 0x4f << (ee_addr_size - 4),
-		      3 + ee_addr_size);
-
-	/* Do the actual write. */
-	do_eeprom_cmd(dev, ioaddr, new_value |
-		      (((SROM_WRITE_CMD << ee_addr_size) | index) << 16),
-		      3 + ee_addr_size + 16);
-
-	/* Poll for write finished. */
-	sendto_srom(dev, SROM_RD | SROM_SR | DT_CS, ioaddr);
-	for (i = 0; i < 10000; i++) {	/* Typical 2000 ticks */
-		if (getfrom_srom(dev, ioaddr) & EE_DATA_READ)
-			break;
-	}
-
-	debug_cond(SROM_DLEVEL >= 1, " Write finished after %d ticks.\n", i);
-
-	/* Disable programming. */
-	do_eeprom_cmd(dev, ioaddr, (0x40 << (ee_addr_size - 4)),
-		      3 + ee_addr_size);
-
-	/* And read the result. */
-	newval = do_eeprom_cmd(dev, ioaddr,
-			       (((SROM_READ_CMD << ee_addr_size) | index) << 16)
-			       | 0xffff, 3 + ee_addr_size + 16);
-
-	debug_cond(SROM_DLEVEL >= 1, "  New value at offset %d is %4.4x.\n",
-		   index, newval);
-
-	return 1;
-}
-
-static void update_srom(struct eth_device *dev, struct bd_info *bis)
-{
-	static unsigned short eeprom[0x40] = {
-		0x140b, 0x6610, 0x0000, 0x0000,	/* 00 */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 04 */
-		0x00a3, 0x0103, 0x0000, 0x0000,	/* 08 */
-		0x0000, 0x1f00, 0x0000, 0x0000,	/* 0c */
-		0x0108, 0x038d, 0x0000, 0x0000,	/* 10 */
-		0xe078, 0x0001, 0x0040, 0x0018,	/* 14 */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 18 */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 1c */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 20 */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 24 */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 28 */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 2c */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 30 */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 34 */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 38 */
-		0x0000, 0x0000, 0x0000, 0x4e07,	/* 3c */
-	};
-	uchar enetaddr[6];
-	int i;
-
-	/* Ethernet Addr... */
-	if (!eth_env_get_enetaddr("ethaddr", enetaddr))
-		return;
-
-	eeprom[0x0a] = (enetaddr[1] << 8) | enetaddr[0];
-	eeprom[0x0b] = (enetaddr[3] << 8) | enetaddr[2];
-	eeprom[0x0c] = (enetaddr[5] << 8) | enetaddr[4];
-
-	for (i = 0; i < 0x40; i++)
-		write_srom(dev, DE4X5_APROM, i, eeprom[i]);
-}
-#endif /* UPDATE_SROM */
-
-static void send_setup_frame(struct eth_device *dev, struct bd_info *bis)
+static void send_setup_frame(struct dc2114x_priv *priv)
 {
 	char setup_frame[SETUP_FRAME_LEN];
 	char *pa = &setup_frame[0];
@@ -365,237 +290,273 @@ static void send_setup_frame(struct eth_device *dev, struct bd_info *bis)
 	memset(pa, 0xff, SETUP_FRAME_LEN);
 
 	for (i = 0; i < ETH_ALEN; i++) {
-		*(pa + (i & 1)) = dev->enetaddr[i];
+		*(pa + (i & 1)) = priv->enetaddr[i];
 		if (i & 0x01)
 			pa += 4;
 	}
 
-	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
+	for (i = 0; priv->tx_ring[priv->tx_new].status & cpu_to_le32(T_OWN); i++) {
 		if (i < TOUT_LOOP)
 			continue;
 
-		printf("%s: tx error buffer not ready\n", dev->name);
+		printf("%s: tx error buffer not ready\n", priv->name);
 		return;
 	}
 
-	tx_ring[tx_new].buf = cpu_to_le32(phys_to_bus((u32)&setup_frame[0]));
-	tx_ring[tx_new].des1 = cpu_to_le32(TD_TER | TD_SET | SETUP_FRAME_LEN);
-	tx_ring[tx_new].status = cpu_to_le32(T_OWN);
+	priv->tx_ring[priv->tx_new].buf = cpu_to_le32(phys_to_bus(priv->devno,
+						      (u32)&setup_frame[0]));
+	priv->tx_ring[priv->tx_new].des1 = cpu_to_le32(TD_TER | TD_SET | SETUP_FRAME_LEN);
+	priv->tx_ring[priv->tx_new].status = cpu_to_le32(T_OWN);
 
-	dc2114x_outl(dev, POLL_DEMAND, DE4X5_TPD);
+	dc2114x_outl(priv, POLL_DEMAND, DE4X5_TPD);
 
-	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
+	for (i = 0; priv->tx_ring[priv->tx_new].status & cpu_to_le32(T_OWN); i++) {
 		if (i < TOUT_LOOP)
 			continue;
 
-		printf("%s: tx buffer not ready\n", dev->name);
+		printf("%s: tx buffer not ready\n", priv->name);
 		return;
 	}
 
-	if (le32_to_cpu(tx_ring[tx_new].status) != 0x7FFFFFFF) {
+	if (le32_to_cpu(priv->tx_ring[priv->tx_new].status) != 0x7FFFFFFF) {
 		printf("TX error status2 = 0x%08X\n",
-		       le32_to_cpu(tx_ring[tx_new].status));
+		       le32_to_cpu(priv->tx_ring[priv->tx_new].status));
 	}
 
-	tx_new = (tx_new + 1) % NUM_TX_DESC;
+	priv->tx_new = (priv->tx_new + 1) % NUM_TX_DESC;
 }
 
-static int dc21x4x_send(struct eth_device *dev, void *packet, int length)
+static int dc21x4x_send_common(struct dc2114x_priv *priv, void *packet, int length)
 {
 	int status = -1;
 	int i;
 
 	if (length <= 0) {
-		printf("%s: bad packet size: %d\n", dev->name, length);
+		printf("%s: bad packet size: %d\n", priv->name, length);
 		goto done;
 	}
 
-	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
+	for (i = 0; priv->tx_ring[priv->tx_new].status & cpu_to_le32(T_OWN); i++) {
 		if (i < TOUT_LOOP)
 			continue;
 
-		printf("%s: tx error buffer not ready\n", dev->name);
+		printf("%s: tx error buffer not ready\n", priv->name);
 		goto done;
 	}
 
-	tx_ring[tx_new].buf = cpu_to_le32(phys_to_bus((u32)packet));
-	tx_ring[tx_new].des1 = cpu_to_le32(TD_TER | TD_LS | TD_FS | length);
-	tx_ring[tx_new].status = cpu_to_le32(T_OWN);
+	priv->tx_ring[priv->tx_new].buf = cpu_to_le32(phys_to_bus(priv->devno,
+						      (u32)packet));
+	priv->tx_ring[priv->tx_new].des1 = cpu_to_le32(TD_TER | TD_LS | TD_FS | length);
+	priv->tx_ring[priv->tx_new].status = cpu_to_le32(T_OWN);
 
-	dc2114x_outl(dev, POLL_DEMAND, DE4X5_TPD);
+	dc2114x_outl(priv, POLL_DEMAND, DE4X5_TPD);
 
-	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
+	for (i = 0; priv->tx_ring[priv->tx_new].status & cpu_to_le32(T_OWN); i++) {
 		if (i < TOUT_LOOP)
 			continue;
 
-		printf(".%s: tx buffer not ready\n", dev->name);
+		printf(".%s: tx buffer not ready\n", priv->name);
 		goto done;
 	}
 
-	if (le32_to_cpu(tx_ring[tx_new].status) & TD_ES) {
-		tx_ring[tx_new].status = 0x0;
+	if (le32_to_cpu(priv->tx_ring[priv->tx_new].status) & TD_ES) {
+		priv->tx_ring[priv->tx_new].status = 0x0;
 		goto done;
 	}
 
 	status = length;
 
 done:
-	tx_new = (tx_new + 1) % NUM_TX_DESC;
+	priv->tx_new = (priv->tx_new + 1) % NUM_TX_DESC;
 	return status;
 }
 
-static int dc21x4x_recv(struct eth_device *dev)
+static int dc21x4x_recv_check(struct dc2114x_priv *priv)
 {
 	int length = 0;
 	u32 status;
 
-	while (true) {
-		status = le32_to_cpu(rx_ring[rx_new].status);
+	status = le32_to_cpu(priv->rx_ring[priv->rx_new].status);
 
-		if (status & R_OWN)
-			break;
+	if (status & R_OWN)
+		return 0;
 
-		if (status & RD_LS) {
-			/* Valid frame status. */
-			if (status & RD_ES) {
-				/* There was an error. */
-				printf("RX error status = 0x%08X\n", status);
-			} else {
-				/* A valid frame received. */
-				length = (le32_to_cpu(rx_ring[rx_new].status)
-					  >> 16);
+	if (status & RD_LS) {
+		/* Valid frame status. */
+		if (status & RD_ES) {
+			/* There was an error. */
+			printf("RX error status = 0x%08X\n", status);
+			return -EINVAL;
+		} else {
+			/* A valid frame received. */
+			length = (le32_to_cpu(priv->rx_ring[priv->rx_new].status)
+				  >> 16);
 
-				/* Pass the packet up to the protocol layers */
-				net_process_received_packet
-					(net_rx_packets[rx_new], length - 4);
-			}
-
-			/*
-			 * Change buffer ownership for this frame,
-			 * back to the adapter.
-			 */
-			rx_ring[rx_new].status = cpu_to_le32(R_OWN);
+			return length;
 		}
-
-		/* Update entry information. */
-		rx_new = (rx_new + 1) % rx_ring_size;
 	}
 
-	return length;
+	return -EAGAIN;
 }
 
-static int dc21x4x_init(struct eth_device *dev, struct bd_info *bis)
+static int dc21x4x_init_common(struct dc2114x_priv *priv)
 {
 	int i;
-	int devbusfn = (int)dev->priv;
 
-	/* Ensure we're not sleeping. */
-	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, WAKEUP);
+	reset_de4x5(priv);
 
-	reset_de4x5(dev);
-
-	if (dc2114x_inl(dev, DE4X5_STS) & (STS_TS | STS_RS)) {
+	if (dc2114x_inl(priv, DE4X5_STS) & (STS_TS | STS_RS)) {
 		printf("Error: Cannot reset ethernet controller.\n");
 		return -1;
 	}
 
-	dc2114x_outl(dev, OMR_SDP | OMR_PS | OMR_PM, DE4X5_OMR);
+	dc2114x_outl(priv, OMR_SDP | OMR_PS | OMR_PM, DE4X5_OMR);
 
 	for (i = 0; i < NUM_RX_DESC; i++) {
-		rx_ring[i].status = cpu_to_le32(R_OWN);
-		rx_ring[i].des1 = cpu_to_le32(RX_BUFF_SZ);
-		rx_ring[i].buf =
-			cpu_to_le32(phys_to_bus((u32)net_rx_packets[i]));
-		rx_ring[i].next = 0;
+		priv->rx_ring[i].status = cpu_to_le32(R_OWN);
+		priv->rx_ring[i].des1 = cpu_to_le32(RX_BUFF_SZ);
+		priv->rx_ring[i].buf = cpu_to_le32(phys_to_bus(priv->devno,
+					     (u32)net_rx_packets[i]));
+		priv->rx_ring[i].next = 0;
 	}
 
 	for (i = 0; i < NUM_TX_DESC; i++) {
-		tx_ring[i].status = 0;
-		tx_ring[i].des1 = 0;
-		tx_ring[i].buf = 0;
-		tx_ring[i].next = 0;
+		priv->tx_ring[i].status = 0;
+		priv->tx_ring[i].des1 = 0;
+		priv->tx_ring[i].buf = 0;
+		priv->tx_ring[i].next = 0;
 	}
 
-	rx_ring_size = NUM_RX_DESC;
-	tx_ring_size = NUM_TX_DESC;
+	priv->rx_ring_size = NUM_RX_DESC;
+	priv->tx_ring_size = NUM_TX_DESC;
 
 	/* Write the end of list marker to the descriptor lists. */
-	rx_ring[rx_ring_size - 1].des1 |= cpu_to_le32(RD_RER);
-	tx_ring[tx_ring_size - 1].des1 |= cpu_to_le32(TD_TER);
+	priv->rx_ring[priv->rx_ring_size - 1].des1 |= cpu_to_le32(RD_RER);
+	priv->tx_ring[priv->tx_ring_size - 1].des1 |= cpu_to_le32(TD_TER);
 
 	/* Tell the adapter where the TX/RX rings are located. */
-	dc2114x_outl(dev, phys_to_bus((u32)&rx_ring), DE4X5_RRBA);
-	dc2114x_outl(dev, phys_to_bus((u32)&tx_ring), DE4X5_TRBA);
+	dc2114x_outl(priv, phys_to_bus(priv->devno, (u32)&priv->rx_ring),
+		     DE4X5_RRBA);
+	dc2114x_outl(priv, phys_to_bus(priv->devno, (u32)&priv->tx_ring),
+		     DE4X5_TRBA);
 
-	start_de4x5(dev);
+	start_de4x5(priv);
 
-	tx_new = 0;
-	rx_new = 0;
+	priv->tx_new = 0;
+	priv->rx_new = 0;
 
-	send_setup_frame(dev, bis);
+	send_setup_frame(priv);
 
 	return 0;
 }
 
-static void dc21x4x_halt(struct eth_device *dev)
+static void dc21x4x_halt_common(struct dc2114x_priv *priv)
 {
-	int devbusfn = (int)dev->priv;
-
-	stop_de4x5(dev);
-	dc2114x_outl(dev, 0, DE4X5_SICR);
-
-	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, SLEEP);
+	stop_de4x5(priv);
+	dc2114x_outl(priv, 0, DE4X5_SICR);
 }
 
-static void read_hw_addr(struct eth_device *dev, struct bd_info *bis)
+static void read_hw_addr(struct dc2114x_priv *priv)
 {
-	u_short tmp, *p = (u_short *)(&dev->enetaddr[0]);
+	u_short tmp, *p = (u_short *)(&priv->enetaddr[0]);
 	int i, j = 0;
 
 	for (i = 0; i < (ETH_ALEN >> 1); i++) {
-		tmp = read_srom(dev, DE4X5_APROM, (SROM_HWADD >> 1) + i);
+		tmp = read_srom(priv, DE4X5_APROM, (SROM_HWADD >> 1) + i);
 		*p = le16_to_cpu(tmp);
 		j += *p++;
 	}
 
 	if (!j || j == 0x2fffd) {
-		memset(dev->enetaddr, 0, ETH_ALEN);
+		memset(priv->enetaddr, 0, ETH_ALEN);
 		debug("Warning: can't read HW address from SROM.\n");
-#ifdef UPDATE_SROM
-		update_srom(dev, bis);
-#endif
 	}
 }
 
 static struct pci_device_id supported[] = {
-	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_TULIP_FAST },
-	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_21142 },
+	{ PCI_DEVICE(PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_TULIP_FAST) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_21142) },
 	{ }
 };
 
+#ifndef CONFIG_DM_ETH
+static int dc21x4x_init(struct eth_device *dev, struct bd_info *bis)
+{
+	struct dc2114x_priv *priv =
+		container_of(dev, struct dc2114x_priv, dev);
+
+	/* Ensure we're not sleeping. */
+	pci_write_config_byte(priv->devno, PCI_CFDA_PSM, WAKEUP);
+
+	return dc21x4x_init_common(priv);
+}
+
+static void dc21x4x_halt(struct eth_device *dev)
+{
+	struct dc2114x_priv *priv =
+		container_of(dev, struct dc2114x_priv, dev);
+
+	dc21x4x_halt_common(priv);
+
+	pci_write_config_byte(priv->devno, PCI_CFDA_PSM, SLEEP);
+}
+
+static int dc21x4x_send(struct eth_device *dev, void *packet, int length)
+{
+	struct dc2114x_priv *priv =
+		container_of(dev, struct dc2114x_priv, dev);
+
+	return dc21x4x_send_common(priv, packet, length);
+}
+
+static int dc21x4x_recv(struct eth_device *dev)
+{
+	struct dc2114x_priv *priv =
+		container_of(dev, struct dc2114x_priv, dev);
+	int length = 0;
+	int ret;
+
+	while (true) {
+		ret = dc21x4x_recv_check(priv);
+		if (!ret)
+			break;
+
+		if (ret > 0) {
+			length = ret;
+			/* Pass the packet up to the protocol layers */
+			net_process_received_packet
+				(net_rx_packets[priv->rx_new], length - 4);
+		}
+
+		/*
+		 * Change buffer ownership for this frame,
+		 * back to the adapter.
+		 */
+		if (ret != -EAGAIN)
+			priv->rx_ring[priv->rx_new].status = cpu_to_le32(R_OWN);
+
+		/* Update entry information. */
+		priv->rx_new = (priv->rx_new + 1) % priv->rx_ring_size;
+	}
+
+	return length;
+}
+
 int dc21x4x_initialize(struct bd_info *bis)
 {
+	struct dc2114x_priv *priv;
 	struct eth_device *dev;
 	unsigned short status;
 	unsigned char timer;
 	unsigned int iobase;
 	int card_number = 0;
 	pci_dev_t devbusfn;
-	unsigned int cfrv;
 	int idx = 0;
 
 	while (1) {
 		devbusfn = pci_find_devices(supported, idx++);
 		if (devbusfn == -1)
 			break;
-
-		/* Get the chip configuration revision register. */
-		pci_read_config_dword(devbusfn, PCI_REVISION_ID, &cfrv);
-
-		if ((cfrv & CFRV_RN) < DC2114x_BRK) {
-			printf("Error: The chip is not DC21143.\n");
-			continue;
-		}
 
 		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
 		status |= PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
@@ -625,15 +586,19 @@ int dc21x4x_initialize(struct bd_info *bis)
 		iobase &= PCI_BASE_ADDRESS_MEM_MASK;
 		debug("dc21x4x: DEC 21142 PCI Device @0x%x\n", iobase);
 
-		dev = (struct eth_device *)malloc(sizeof(*dev));
-		if (!dev) {
+		priv = memalign(32, sizeof(*priv));
+		if (!priv) {
 			printf("Can not allocalte memory of dc21x4x\n");
 			break;
 		}
+		memset(priv, 0, sizeof(*priv));
 
-		memset(dev, 0, sizeof(*dev));
+		dev = &priv->dev;
 
 		sprintf(dev->name, "dc21x4x#%d", card_number);
+		priv->devno = devbusfn;
+		priv->name = dev->name;
+		priv->enetaddr = dev->enetaddr;
 
 		dev->iobase = pci_mem_to_phys(devbusfn, iobase);
 		dev->priv = (void *)devbusfn;
@@ -647,7 +612,7 @@ int dc21x4x_initialize(struct bd_info *bis)
 
 		udelay(10 * 1000);
 
-		read_hw_addr(dev, bis);
+		read_hw_addr(priv);
 
 		eth_register(dev);
 
@@ -656,3 +621,139 @@ int dc21x4x_initialize(struct bd_info *bis)
 
 	return card_number;
 }
+
+#else	/* DM_ETH */
+static int dc2114x_start(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct dc2114x_priv *priv = dev_get_priv(dev);
+
+	memcpy(priv->enetaddr, plat->enetaddr, sizeof(plat->enetaddr));
+
+	/* Ensure we're not sleeping. */
+	dm_pci_write_config8(dev, PCI_CFDA_PSM, WAKEUP);
+
+	return dc21x4x_init_common(priv);
+}
+
+static void dc2114x_stop(struct udevice *dev)
+{
+	struct dc2114x_priv *priv = dev_get_priv(dev);
+
+	dc21x4x_halt_common(priv);
+
+	dm_pci_write_config8(dev, PCI_CFDA_PSM, SLEEP);
+}
+
+static int dc2114x_send(struct udevice *dev, void *packet, int length)
+{
+	struct dc2114x_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = dc21x4x_send_common(priv, packet, length);
+
+	return ret ? 0 : -ETIMEDOUT;
+}
+
+static int dc2114x_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct dc2114x_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = dc21x4x_recv_check(priv);
+
+	if (ret < 0) {
+		/* Update entry information. */
+		priv->rx_new = (priv->rx_new + 1) % priv->rx_ring_size;
+		ret = 0;
+	}
+
+	if (!ret)
+		return 0;
+
+	*packetp = net_rx_packets[priv->rx_new];
+
+	return ret - 4;
+}
+
+static int dc2114x_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	struct dc2114x_priv *priv = dev_get_priv(dev);
+
+	priv->rx_ring[priv->rx_new].status = cpu_to_le32(R_OWN);
+
+	/* Update entry information. */
+	priv->rx_new = (priv->rx_new + 1) % priv->rx_ring_size;
+
+	return 0;
+}
+
+static int dc2114x_read_rom_hwaddr(struct udevice *dev)
+{
+	struct dc2114x_priv *priv = dev_get_priv(dev);
+
+	read_hw_addr(priv);
+
+	return 0;
+}
+
+static int dc2114x_bind(struct udevice *dev)
+{
+	static int card_number;
+	char name[16];
+
+	sprintf(name, "dc2114x#%u", card_number++);
+
+	return device_set_name(dev, name);
+}
+
+static int dc2114x_probe(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct dc2114x_priv *priv = dev_get_priv(dev);
+	u16 command, status;
+	u32 iobase;
+
+	dm_pci_read_config32(dev, PCI_BASE_ADDRESS_1, &iobase);
+	iobase &= ~0xf;
+
+	debug("dc2114x: DEC 2114x PCI Device @0x%x\n", iobase);
+
+	priv->devno = dev;
+	priv->enetaddr = plat->enetaddr;
+	priv->iobase = (void __iomem *)dm_pci_mem_to_phys(dev, iobase);
+
+	command = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
+	dm_pci_write_config16(dev, PCI_COMMAND, command);
+	dm_pci_read_config16(dev, PCI_COMMAND, &status);
+	if ((status & command) != command) {
+		printf("dc2114x: Couldn't enable IO access or Bus Mastering\n");
+		return -EINVAL;
+	}
+
+	dm_pci_write_config8(dev, PCI_LATENCY_TIMER, 0x60);
+
+	return 0;
+}
+
+static const struct eth_ops dc2114x_ops = {
+	.start		= dc2114x_start,
+	.send		= dc2114x_send,
+	.recv		= dc2114x_recv,
+	.stop		= dc2114x_stop,
+	.free_pkt	= dc2114x_free_pkt,
+	.read_rom_hwaddr = dc2114x_read_rom_hwaddr,
+};
+
+U_BOOT_DRIVER(eth_dc2114x) = {
+	.name	= "eth_dc2114x",
+	.id	= UCLASS_ETH,
+	.bind	= dc2114x_bind,
+	.probe	= dc2114x_probe,
+	.ops	= &dc2114x_ops,
+	.priv_auto_alloc_size = sizeof(struct dc2114x_priv),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+};
+
+U_BOOT_PCI_DEVICE(eth_dc2114x, supported);
+#endif

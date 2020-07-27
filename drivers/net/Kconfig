@@ -491,6 +491,12 @@ config SH_ETHER
 
 source "drivers/net/ti/Kconfig"
 
+config TULIP
+	bool "DEC Tulip DC2114x Ethernet support"
+	depends on (DM_ETH && DM_PCI) || !DM_ETH
+	help
+	  This driver supports DEC DC2114x Fast ethernet chips.
+
 config XILINX_AXIEMAC
 	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
 	select PHYLIB

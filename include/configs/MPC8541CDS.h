@@ -280,7 +280,6 @@ extern unsigned long get_clock_freq(void);
 
 #define CONFIG_MPC85XX_PCI2
 
-#undef CONFIG_TULIP
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1057  /* Motorola */

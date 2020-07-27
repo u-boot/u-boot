@@ -871,9 +871,6 @@ The following options need to be configured:
 		Allow generic access to the SPI bus on the Intel 8257x, for
 		example with the "sspi" command.
 
-		CONFIG_TULIP
-		Support for Digital 2114x chips.
-
 		CONFIG_NATSEMI
 		Support for National dp83815 chips.
 

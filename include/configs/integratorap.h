@@ -34,7 +34,6 @@
  * PCI definitions
  */
 
-#define CONFIG_TULIP
 #define CONFIG_SYS_RX_ETH_BUFFER	8	/* use 8 rx buffer on eepro100	*/
 
 /*-----------------------------------------------------------------------
