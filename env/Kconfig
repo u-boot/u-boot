@@ -434,6 +434,10 @@ config ENV_FAT_DEVICE_AND_PART
 	                   If none, first valid partition in device D. If no
 	                   partition table then means device D.
 
+	  If ENV_FAT_INTERFACE is set to "mmc" then device 'D' can be omitted,
+	  leaving the string starting with a colon, and the boot device will
+	  be used.
+
 config ENV_FAT_FILE
 	string "Name of the FAT file to use for the environment"
 	depends on ENV_IS_IN_FAT
