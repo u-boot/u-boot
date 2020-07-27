@@ -57,7 +57,7 @@ class Entry_image_header(Entry):
     first/last in the entry list.
     """
     def __init__(self, section, etype, node):
-        Entry.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self.location = fdt_util.GetString(self._node, 'location')
 
     def _GetHeader(self):
@@ -101,7 +101,7 @@ class Entry_image_header(Entry):
                 else:
                     offset = image_size - IMAGE_HEADER_LEN
         offset += self.section.GetStartOffset()
-        return Entry.Pack(self, offset)
+        return super().Pack(offset)
 
     def ProcessContents(self):
         """Write an updated version of the FDT map to this entry

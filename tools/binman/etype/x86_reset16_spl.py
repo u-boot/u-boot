@@ -23,7 +23,7 @@ class Entry_x86_reset16_spl(Entry_blob):
     For 32-bit U-Boot, the 'x86_reset_spl' entry type is used instead.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def GetDefaultFilename(self):
         return 'spl/u-boot-x86-reset16-spl.bin'

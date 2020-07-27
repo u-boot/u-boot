@@ -255,7 +255,7 @@ static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
 	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
 	int ret;
 
-	plat->spireg = (struct spi_reg *)devfdt_get_addr(bus);
+	plat->spireg = dev_read_addr_ptr(bus);
 
 	ret = clk_get_by_index(bus, 0, &plat->clk);
 	if (ret) {

@@ -18,5 +18,5 @@ class Entry_cros_ec_rw(Entry_blob_named_by_arg):
     updating the EC on startup via software sync.
     """
     def __init__(self, section, etype, node):
-        Entry_blob_named_by_arg.__init__(self, section, etype, node,
-                                         'cros-ec-rw')
+        super().__init__(section, etype, node, 'cros-ec-rw')
+        self.external = True

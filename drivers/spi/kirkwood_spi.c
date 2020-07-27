@@ -236,7 +236,7 @@ static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
 	const struct mvebu_spi_dev *drvdata =
 		(struct mvebu_spi_dev *)dev_get_driver_data(bus);
 
-	plat->spireg = (struct kwspi_registers *)devfdt_get_addr(bus);
+	plat->spireg = dev_read_addr_ptr(bus);
 	plat->is_errata_50mhz_ac = drvdata->is_errata_50mhz_ac;
 
 	return 0;

@@ -153,7 +153,7 @@ static int tegra_hsp_probe(struct udevice *dev)
 
 	debug("%s(dev=%p)\n", __func__, dev);
 
-	thsp->regs = devfdt_get_addr(dev);
+	thsp->regs = dev_read_addr(dev);
 	if (thsp->regs == FDT_ADDR_T_NONE)
 		return -ENODEV;
 

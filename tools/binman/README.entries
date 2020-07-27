@@ -42,6 +42,19 @@ obtained from the list of available device-tree files, managed by the
 
 
 
+Entry: blob-ext: Entry containing an externally built binary blob
+-----------------------------------------------------------------
+
+Note: This should not be used by itself. It is normally used as a parent
+class by other entry types.
+
+If the file providing this blob is missing, binman can optionally ignore it
+and produce a broken image with a warning.
+
+See 'blob' for Properties / Entry arguments.
+
+
+
 Entry: blob-named-by-arg: A blob entry which gets its filename property from its subclass
 -----------------------------------------------------------------------------------------
 
@@ -295,6 +308,46 @@ You can often achieve the same effect using the pad-byte property of the
 overall image, in that the space between entries will then be padded with
 that byte. But this entry is sometimes useful for explicitly setting the
 byte value of a region.
+
+
+
+Entry: fit: Entry containing a FIT
+----------------------------------
+
+This calls mkimage to create a FIT (U-Boot Flat Image Tree) based on the
+input provided.
+
+Nodes for the FIT should be written out in the binman configuration just as
+they would be in a file passed to mkimage.
+
+For example, this creates an image containing a FIT with U-Boot SPL:
+
+    binman {
+        fit {
+            description = "Test FIT";
+
+            images {
+                kernel@1 {
+                    description = "SPL";
+                    os = "u-boot";
+                    type = "rkspi";
+                    arch = "arm";
+                    compression = "none";
+                    load = <0>;
+                    entry = <0>;
+
+                    u-boot-spl {
+                    };
+                };
+            };
+        };
+    };
+
+Properties:
+    fit,external-offset: Indicates that the contents of the FIT are external
+        and provides the external offset. This is passsed to mkimage via
+        the -E and -p flags.
+
 
 
 
@@ -584,6 +637,29 @@ some Intel SoCs. U-Boot executes this when the display is started up.
 This is similar to the VBT file but in a different format.
 
 See README.x86 for information about Intel binary blobs.
+
+
+
+Entry: mkimage: Entry containing a binary produced by mkimage
+-------------------------------------------------------------
+
+Properties / Entry arguments:
+    - datafile: Filename for -d argument
+    - args: Other arguments to pass
+
+The data passed to mkimage is collected from subnodes of the mkimage node,
+e.g.:
+
+    mkimage {
+        args = "-n test -T imximage";
+
+        u-boot-spl {
+        };
+    };
+
+This calls mkimage to create an imximage with u-boot-spl.bin as the input
+file. The output from mkimage then becomes part of the image produced by
+binman.
 
 
 

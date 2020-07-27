@@ -22,9 +22,11 @@ static int dm_test_virtio_base(struct unit_test_state *uts)
 
 	/* check probe success */
 	ut_assertok(uclass_first_device(UCLASS_VIRTIO, &bus));
+	ut_assertnonnull(bus);
 
 	/* check the child virtio-blk device is bound */
 	ut_assertok(device_find_first_child(bus, &dev));
+	ut_assertnonnull(dev);
 	ut_assertok(strcmp(dev->name, "virtio-blk#0"));
 
 	/* check driver status */
@@ -49,15 +51,18 @@ static int dm_test_virtio_all_ops(struct unit_test_state *uts)
 
 	/* check probe success */
 	ut_assertok(uclass_first_device(UCLASS_VIRTIO, &bus));
+	ut_assertnonnull(bus);
 
 	/* check the child virtio-blk device is bound */
 	ut_assertok(device_find_first_child(bus, &dev));
+	ut_assertnonnull(dev);
 
 	/*
 	 * fake the virtio device probe by filling in uc_priv->vdev
 	 * which is used by virtio_find_vqs/virtio_del_vqs.
 	 */
 	uc_priv = dev_get_uclass_priv(bus);
+	ut_assertnonnull(uc_priv);
 	uc_priv->vdev = dev;
 
 	/* test virtio_xxx APIs */
@@ -106,9 +111,11 @@ static int dm_test_virtio_remove(struct unit_test_state *uts)
 
 	/* check probe success */
 	ut_assertok(uclass_first_device(UCLASS_VIRTIO, &bus));
+	ut_assertnonnull(bus);
 
 	/* check the child virtio-blk device is bound */
 	ut_assertok(device_find_first_child(bus, &dev));
+	ut_assertnonnull(dev);
 
 	/* set driver status to VIRTIO_CONFIG_S_DRIVER_OK */
 	ut_assertok(virtio_set_status(dev, VIRTIO_CONFIG_S_DRIVER_OK));

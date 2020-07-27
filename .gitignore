@@ -92,3 +92,6 @@ GTAGS
 *.orig
 *~
 \#*#
+
+# Python cache
+__pycache__

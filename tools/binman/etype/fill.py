@@ -22,10 +22,10 @@ class Entry_fill(Entry):
     byte value of a region.
     """
     def __init__(self, section, etype, node):
-        Entry.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def ReadNode(self):
-        Entry.ReadNode(self)
+        super().ReadNode()
         if self.size is None:
             self.Raise("'fill' entry must have a size property")
         self.fill_value = fdt_util.GetByte(self._node, 'fill-byte', 0)

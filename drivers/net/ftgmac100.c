@@ -517,7 +517,7 @@ static int ftgmac100_ofdata_to_platdata(struct udevice *dev)
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 	const char *phy_mode;
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	pdata->phy_interface = -1;
 	phy_mode = dev_read_string(dev, "phy-mode");
 	if (phy_mode)

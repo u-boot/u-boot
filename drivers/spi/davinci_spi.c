@@ -396,7 +396,7 @@ static int davinci_ofdata_to_platadata(struct udevice *bus)
 	struct davinci_spi_platdata *plat = bus->platdata;
 	fdt_addr_t addr;
 
-	addr = devfdt_get_addr(bus);
+	addr = dev_read_addr(bus);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

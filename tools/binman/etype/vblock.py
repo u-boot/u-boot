@@ -36,7 +36,7 @@ class Entry_vblock(Entry):
     and kernel are genuine.
     """
     def __init__(self, section, etype, node):
-        Entry.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self.content = fdt_util.GetPhandleList(self._node, 'content')
         if not self.content:
             self.Raise("Vblock must have a 'content' property")

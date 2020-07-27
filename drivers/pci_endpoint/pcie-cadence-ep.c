@@ -144,7 +144,7 @@ static int cdns_pci_ep_probe(struct udevice *dev)
 {
 	struct cdns_pcie *pdata = dev_get_priv(dev);
 
-	pdata->reg_base = (void __iomem *)devfdt_get_addr(dev);
+	pdata->reg_base = dev_read_addr_ptr(dev);
 	if (!pdata->reg_base)
 		return -ENOMEM;
 

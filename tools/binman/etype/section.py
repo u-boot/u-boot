@@ -34,6 +34,11 @@ class Entry_section(Entry):
         name-prefix: Adds a prefix to the name of every entry in the section
             when writing out the map
 
+    Properties:
+        _allow_missing: True if this section permits external blobs to be
+            missing their contents. The second will produce an image but of
+            course it will not work.
+
     Since a section is also an entry, it inherits all the properies of entries
     too.
 
@@ -43,16 +48,18 @@ class Entry_section(Entry):
     """
     def __init__(self, section, etype, node, test=False):
         if not test:
-            Entry.__init__(self, section, etype, node)
+            super().__init__(section, etype, node)
         self._entries = OrderedDict()
         self._pad_byte = 0
         self._sort = False
         self._skip_at_start = None
         self._end_4gb = False
+        self._allow_missing = False
+        self.missing = False
 
     def ReadNode(self):
         """Read properties from the image node"""
-        Entry.ReadNode(self)
+        super().ReadNode()
         self._pad_byte = fdt_util.GetInt(self._node, 'pad-byte', 0)
         self._sort = fdt_util.GetBool(self._node, 'sort-by-offset')
         self._end_4gb = fdt_util.GetBool(self._node, 'end-at-4gb')
@@ -126,13 +133,13 @@ class Entry_section(Entry):
         a section containing a list of files. Process these entries so that
         this information is added to the device tree.
         """
-        Entry.ExpandEntries(self)
+        super().ExpandEntries()
         for entry in self._entries.values():
             entry.ExpandEntries()
 
     def AddMissingProperties(self):
         """Add new properties to the device tree as needed for this entry"""
-        Entry.AddMissingProperties(self)
+        super().AddMissingProperties()
         for entry in self._entries.values():
             entry.AddMissingProperties()
 
@@ -168,14 +175,14 @@ class Entry_section(Entry):
 
     def ResetForPack(self):
         """Reset offset/size fields so that packing can be done again"""
-        Entry.ResetForPack(self)
+        super().ResetForPack()
         for entry in self._entries.values():
             entry.ResetForPack()
 
     def Pack(self, offset):
         """Pack all entries into the section"""
         self._PackEntries()
-        return Entry.Pack(self, offset)
+        return super().Pack(offset)
 
     def _PackEntries(self):
         """Pack all entries into the image"""
@@ -219,7 +226,7 @@ class Entry_section(Entry):
                             "at %#x (%d)" %
                             (entry.offset, entry.offset, self._skip_at_start,
                              self._skip_at_start))
-            if entry.offset < offset:
+            if entry.offset < offset and entry.size:
                 entry.Raise("Offset %#x (%d) overlaps with previous entry '%s' "
                             "ending at %#x (%d)" %
                             (entry.offset, entry.offset, prev_name, offset, offset))
@@ -232,12 +239,12 @@ class Entry_section(Entry):
             entry.WriteSymbols(self)
 
     def SetCalculatedProperties(self):
-        Entry.SetCalculatedProperties(self)
+        super().SetCalculatedProperties()
         for entry in self._entries.values():
             entry.SetCalculatedProperties()
 
     def SetImagePos(self, image_pos):
-        Entry.SetImagePos(self, image_pos)
+        super().SetImagePos(image_pos)
         for entry in self._entries.values():
             entry.SetImagePos(image_pos + self.offset)
 
@@ -435,8 +442,8 @@ class Entry_section(Entry):
         if not entry:
             self._Raise("Unable to set offset/size for unknown entry '%s'" %
                         name)
-        entry.SetOffsetSize(self._skip_at_start + offset if offset else None,
-                            size)
+        entry.SetOffsetSize(self._skip_at_start + offset if offset is not None
+                            else None, size)
 
     def GetEntryOffsets(self):
         """Handle entries that want to set the offset/size of other entries
@@ -535,3 +542,32 @@ class Entry_section(Entry):
 
     def WriteChildData(self, child):
         return True
+
+    def SetAllowMissing(self, allow_missing):
+        """Set whether a section allows missing external blobs
+
+        Args:
+            allow_missing: True if allowed, False if not allowed
+        """
+        self._allow_missing = allow_missing
+        for entry in self._entries.values():
+            entry.SetAllowMissing(allow_missing)
+
+    def GetAllowMissing(self):
+        """Get whether a section allows missing external blobs
+
+        Returns:
+            True if allowed, False if not allowed
+        """
+        return self._allow_missing
+
+    def CheckMissing(self, missing_list):
+        """Check if any entries in this section have missing external blobs
+
+        If there are missing blobs, the entries are added to the list
+
+        Args:
+            missing_list: List of Entry objects to be added to
+        """
+        for entry in self._entries.values():
+            entry.CheckMissing(missing_list)

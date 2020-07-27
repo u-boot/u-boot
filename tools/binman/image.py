@@ -45,7 +45,7 @@ class Image(section.Entry_section):
             we create a section manually.
     """
     def __init__(self, name, node, copy_to_orig=True, test=False):
-        section.Entry_section.__init__(self, None, 'section', node, test=test)
+        super().__init__(None, 'section', node, test=test)
         self.copy_to_orig = copy_to_orig
         self.name = 'main-section'
         self.image_name = name
@@ -57,7 +57,7 @@ class Image(section.Entry_section):
             self.ReadNode()
 
     def ReadNode(self):
-        section.Entry_section.ReadNode(self)
+        super().ReadNode()
         filename = fdt_util.GetString(self._node, 'filename')
         if filename:
             self._filename = filename
@@ -116,11 +116,11 @@ class Image(section.Entry_section):
 
     def PackEntries(self):
         """Pack all entries into the image"""
-        section.Entry_section.Pack(self, 0)
+        super().Pack(0)
 
     def SetImagePos(self):
         # This first section in the image so it starts at 0
-        section.Entry_section.SetImagePos(self, 0)
+        super().SetImagePos(0)
 
     def ProcessEntryContents(self):
         """Call the ProcessContents() method for each entry
@@ -139,7 +139,7 @@ class Image(section.Entry_section):
 
     def WriteSymbols(self):
         """Write symbol values into binary files for access at run time"""
-        section.Entry_section.WriteSymbols(self, self)
+        super().WriteSymbols(self)
 
     def BuildImage(self):
         """Write the image to a file"""
@@ -161,7 +161,7 @@ class Image(section.Entry_section):
         with open(fname, 'w') as fd:
             print('%8s  %8s  %8s  %s' % ('ImagePos', 'Offset', 'Size', 'Name'),
                   file=fd)
-            section.Entry_section.WriteMap(self, fd, 0)
+            super().WriteMap(fd, 0)
         return fname
 
     def BuildEntryList(self):

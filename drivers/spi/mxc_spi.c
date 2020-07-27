@@ -537,7 +537,7 @@ static int mxc_spi_probe(struct udevice *bus)
 		}
 	}
 
-	mxcs->base = devfdt_get_addr(bus);
+	mxcs->base = dev_read_addr(bus);
 	if (mxcs->base == FDT_ADDR_T_NONE)
 		return -ENODEV;
 

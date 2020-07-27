@@ -257,7 +257,7 @@ script:
        export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
        export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
        ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test &&
-       ./tools/patman/patman --test &&
+       ./tools/patman/patman test &&
        ./tools/buildman/buildman -t &&
        ./tools/dtoc/dtoc -t &&
        make testconfig;

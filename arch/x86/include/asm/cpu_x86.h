@@ -28,7 +28,7 @@ int cpu_x86_bind(struct udevice *dev);
  * @size:	Size of string space
  * @return:	0 if OK, -ENOSPC if buffer is too small, other -ve on error
  */
-int cpu_x86_get_desc(struct udevice *dev, char *buf, int size);
+int cpu_x86_get_desc(const struct udevice *dev, char *buf, int size);
 
 /**
  * cpu_x86_get_count() - Get the number of cores for an x86 CPU
@@ -40,7 +40,7 @@ int cpu_x86_get_desc(struct udevice *dev, char *buf, int size);
  * @return:	Number of cores if successful,
  *		-ENOENT if not "/cpus" entry is found in the device tree
  */
-int cpu_x86_get_count(struct udevice *dev);
+int cpu_x86_get_count(const struct udevice *dev);
 
 /**
  * cpu_x86_get_vendor() - Get a vendor string for an x86 CPU
@@ -53,6 +53,6 @@ int cpu_x86_get_count(struct udevice *dev);
  * @size:	Size of string space
  * @return:	0 if OK, -ENOSPC if buffer is too small, other -ve on error
  */
-int cpu_x86_get_vendor(struct udevice *dev, char *buf, int size);
+int cpu_x86_get_vendor(const struct udevice *dev, char *buf, int size);
 
 #endif /* _ASM_CPU_X86_H */

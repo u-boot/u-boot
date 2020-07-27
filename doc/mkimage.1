@@ -167,6 +167,15 @@ Specifies that keys used to sign the FIT are required. This means that they
 must be verified for the image to boot. Without this option, the verification
 will be optional (useful for testing but not for release).
 
+.TP
+.BI "\-t
+Update the timestamp in the FIT.
+
+Normally the FIT timestamp is created the first time mkimage is run on a FIT,
+when converting the source .its to the binary .fit file. This corresponds to
+using the -f flag. But if the original input to mkimage is a binary file
+(already compiled) then the timestamp is assumed to have been set previously.
+
 .SH EXAMPLES
 
 List image information:

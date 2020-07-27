@@ -293,7 +293,7 @@ static int gpio_sunxi_bind(struct udevice *parent)
 	if (plat)
 		return 0;
 
-	ctlr = (struct sunxi_gpio_reg *)devfdt_get_addr(parent);
+	ctlr = dev_read_addr_ptr(parent);
 	for (bank = 0; bank < soc_data->no_banks; bank++) {
 		struct sunxi_gpio_platdata *plat;
 		struct udevice *dev;

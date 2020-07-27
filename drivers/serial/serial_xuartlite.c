@@ -85,7 +85,7 @@ static int uartlite_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	struct uartlite_platdata *plat = dev_get_platdata(dev);
 
-	plat->regs = (struct uartlite *)devfdt_get_addr(dev);
+	plat->regs = dev_read_addr_ptr(dev);
 
 	return 0;
 }

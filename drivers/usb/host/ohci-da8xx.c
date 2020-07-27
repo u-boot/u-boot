@@ -89,7 +89,7 @@ int usb_cpu_init_fail(void)
 #if CONFIG_IS_ENABLED(DM_USB)
 static int ohci_da8xx_probe(struct udevice *dev)
 {
-	struct ohci_regs *regs = (struct ohci_regs *)devfdt_get_addr(dev);
+	struct ohci_regs *regs = dev_read_addr_ptr(dev);
 	struct da8xx_ohci *priv = dev_get_priv(dev);
 	int i, err, ret, clock_nb;
 

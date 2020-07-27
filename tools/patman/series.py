@@ -244,7 +244,7 @@ class Series(dict):
             add_maintainers: Either:
                 True/False to call the get_maintainers to CC maintainers
                 List of maintainers to include (for testing)
-            limit: Limit the length of the Cc list
+            limit: Limit the length of the Cc list (None if no limit)
         Return:
             Filename of temp file created
         """

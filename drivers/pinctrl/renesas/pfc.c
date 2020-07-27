@@ -818,7 +818,7 @@ static int sh_pfc_pinctrl_probe(struct udevice *dev)
 	enum sh_pfc_model model = dev_get_driver_data(dev);
 	fdt_addr_t base;
 
-	base = devfdt_get_addr(dev);
+	base = dev_read_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

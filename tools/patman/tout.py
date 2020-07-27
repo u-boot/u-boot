@@ -83,7 +83,10 @@ def _Output(level, msg, color=None):
         ClearProgress()
         if color:
             msg = _color.Color(color, msg)
-        print(msg)
+        if level < NOTICE:
+            print(msg, file=sys.stderr)
+        else:
+            print(msg)
 
 def DoOutput(level, msg):
     """Output a message to the terminal.
@@ -168,6 +171,7 @@ def Init(_verbose=WARNING, stdout=sys.stdout):
 
     # TODO(sjg): Move this into Chromite libraries when we have them
     stdout_is_tty = hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
+    stderr_is_tty = hasattr(sys.stderr, 'isatty') and sys.stderr.isatty()
 
 def Uninit():
     ClearProgress()

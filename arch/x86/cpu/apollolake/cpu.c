@@ -9,7 +9,7 @@
 #include <asm/cpu_common.h>
 #include <asm/cpu_x86.h>
 
-static int apl_get_info(struct udevice *dev, struct cpu_info *info)
+static int apl_get_info(const struct udevice *dev, struct cpu_info *info)
 {
 	return cpu_intel_get_info(info, INTEL_BCLK_MHZ);
 }

@@ -114,14 +114,16 @@ def SetInputDirs(dirname):
     indir = dirname
     tout.Debug("Using input directories %s" % indir)
 
-def GetInputFilename(fname):
+def GetInputFilename(fname, allow_missing=False):
     """Return a filename for use as input.
 
     Args:
         fname: Filename to use for new file
+        allow_missing: True if the filename can be missing
 
     Returns:
-        The full path of the filename, within the input directory
+        The full path of the filename, within the input directory, or
+        None on error
     """
     if not indir or fname[:1] == '/':
         return fname
@@ -130,6 +132,8 @@ def GetInputFilename(fname):
         if os.path.exists(pathname):
             return pathname
 
+    if allow_missing:
+        return None
     raise ValueError("Filename '%s' not found in input path (%s) (cwd='%s')" %
                      (fname, ','.join(indir), os.getcwd()))
 
@@ -270,7 +274,7 @@ def ReadFile(fname, binary=True):
                    #(fname, len(data), len(data)))
     return data
 
-def WriteFile(fname, data):
+def WriteFile(fname, data, binary=True):
     """Write data into a file.
 
     Args:
@@ -279,7 +283,7 @@ def WriteFile(fname, data):
     """
     #self._out.Info("Write file '%s' size %d (%#0x)" %
                    #(fname, len(data), len(data)))
-    with open(Filename(fname), 'wb') as fd:
+    with open(Filename(fname), binary and 'wb' or 'w') as fd:
         fd.write(data)
 
 def GetBytes(byte, size):
