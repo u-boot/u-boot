@@ -4,6 +4,7 @@
  *
  * (c) 2007 Pengutronix, Sascha Hauer <s.hauer@pengutronix.de>
  * (c) 2011 Marek Vasut <marek.vasut@gmail.com>
+ * Copyright 2020 NXP
  *
  * Based on i2c-imx.c from linux kernel:
  *  Copyright (C) 2005 Torsten Koschorrek <koschorrek at synertronixx.de>
@@ -341,6 +342,57 @@ static int i2c_init_transfer_(struct mxc_i2c_bus *i2c_bus, u8 chip,
 	return 0;
 }
 
+#if !defined(I2C2_BASE_ADDR)
+#define I2C2_BASE_ADDR	0
+#endif
+
+#if !defined(I2C3_BASE_ADDR)
+#define I2C3_BASE_ADDR	0
+#endif
+
+#if !defined(I2C4_BASE_ADDR)
+#define I2C4_BASE_ADDR	0
+#endif
+
+#if !defined(I2C5_BASE_ADDR)
+#define I2C5_BASE_ADDR 0
+#endif
+
+#if !defined(I2C6_BASE_ADDR)
+#define I2C6_BASE_ADDR 0
+#endif
+
+#if !defined(I2C7_BASE_ADDR)
+#define I2C7_BASE_ADDR 0
+#endif
+
+#if !defined(I2C8_BASE_ADDR)
+#define I2C8_BASE_ADDR 0
+#endif
+
+static struct mxc_i2c_bus mxc_i2c_buses[] = {
+#if defined(CONFIG_ARCH_LS1021A) || defined(CONFIG_VF610) || \
+	defined(CONFIG_FSL_LAYERSCAPE)
+	{ 0, I2C1_BASE_ADDR, I2C_QUIRK_FLAG },
+	{ 1, I2C2_BASE_ADDR, I2C_QUIRK_FLAG },
+	{ 2, I2C3_BASE_ADDR, I2C_QUIRK_FLAG },
+	{ 3, I2C4_BASE_ADDR, I2C_QUIRK_FLAG },
+	{ 4, I2C5_BASE_ADDR, I2C_QUIRK_FLAG },
+	{ 5, I2C6_BASE_ADDR, I2C_QUIRK_FLAG },
+	{ 6, I2C7_BASE_ADDR, I2C_QUIRK_FLAG },
+	{ 7, I2C8_BASE_ADDR, I2C_QUIRK_FLAG },
+#else
+	{ 0, I2C1_BASE_ADDR, 0 },
+	{ 1, I2C2_BASE_ADDR, 0 },
+	{ 2, I2C3_BASE_ADDR, 0 },
+	{ 3, I2C4_BASE_ADDR, 0 },
+	{ 4, I2C5_BASE_ADDR, 0 },
+	{ 5, I2C6_BASE_ADDR, 0 },
+	{ 6, I2C7_BASE_ADDR, 0 },
+	{ 7, I2C8_BASE_ADDR, 0 },
+#endif
+};
+
 #ifndef CONFIG_DM_I2C
 int i2c_idle_bus(struct mxc_i2c_bus *i2c_bus)
 {
@@ -434,6 +486,24 @@ exit:
 	return ret;
 }
 #endif
+/*
+ * Early init I2C for prepare read the clk through I2C.
+ */
+void i2c_early_init_f(void)
+{
+	ulong base = mxc_i2c_buses[I2C_EARLY_INIT_INDEX].base;
+	bool quirk = mxc_i2c_buses[I2C_EARLY_INIT_INDEX].driver_data
+					& I2C_QUIRK_FLAG ? true : false;
+	int reg_shift = quirk ? VF610_I2C_REGSHIFT : IMX_I2C_REGSHIFT;
+
+	/* Set I2C divider value */
+	writeb(I2C_IFDR_DIV_CONSERVATIVE, base + (IFDR << reg_shift));
+	/* Reset module */
+	writeb(I2CR_IDIS, base + (I2CR << reg_shift));
+	writeb(0, base + (I2SR << reg_shift));
+	/* Enable I2C */
+	writeb(I2CR_IEN, base + (I2CR << reg_shift));
+}
 
 static int i2c_init_transfer(struct mxc_i2c_bus *i2c_bus, u8 chip,
 			     u32 addr, int alen)
@@ -662,57 +732,6 @@ static int bus_i2c_write(struct mxc_i2c_bus *i2c_bus, u8 chip, u32 addr,
 	return ret;
 }
 
-#if !defined(I2C2_BASE_ADDR)
-#define I2C2_BASE_ADDR	0
-#endif
-
-#if !defined(I2C3_BASE_ADDR)
-#define I2C3_BASE_ADDR	0
-#endif
-
-#if !defined(I2C4_BASE_ADDR)
-#define I2C4_BASE_ADDR	0
-#endif
-
-#if !defined(I2C5_BASE_ADDR)
-#define I2C5_BASE_ADDR 0
-#endif
-
-#if !defined(I2C6_BASE_ADDR)
-#define I2C6_BASE_ADDR 0
-#endif
-
-#if !defined(I2C7_BASE_ADDR)
-#define I2C7_BASE_ADDR 0
-#endif
-
-#if !defined(I2C8_BASE_ADDR)
-#define I2C8_BASE_ADDR 0
-#endif
-
-static struct mxc_i2c_bus mxc_i2c_buses[] = {
-#if defined(CONFIG_ARCH_LS1021A) || defined(CONFIG_VF610) || \
-	defined(CONFIG_FSL_LAYERSCAPE)
-	{ 0, I2C1_BASE_ADDR, I2C_QUIRK_FLAG },
-	{ 1, I2C2_BASE_ADDR, I2C_QUIRK_FLAG },
-	{ 2, I2C3_BASE_ADDR, I2C_QUIRK_FLAG },
-	{ 3, I2C4_BASE_ADDR, I2C_QUIRK_FLAG },
-	{ 4, I2C5_BASE_ADDR, I2C_QUIRK_FLAG },
-	{ 5, I2C6_BASE_ADDR, I2C_QUIRK_FLAG },
-	{ 6, I2C7_BASE_ADDR, I2C_QUIRK_FLAG },
-	{ 7, I2C8_BASE_ADDR, I2C_QUIRK_FLAG },
-#else
-	{ 0, I2C1_BASE_ADDR, 0 },
-	{ 1, I2C2_BASE_ADDR, 0 },
-	{ 2, I2C3_BASE_ADDR, 0 },
-	{ 3, I2C4_BASE_ADDR, 0 },
-	{ 4, I2C5_BASE_ADDR, 0 },
-	{ 5, I2C6_BASE_ADDR, 0 },
-	{ 6, I2C7_BASE_ADDR, 0 },
-	{ 7, I2C8_BASE_ADDR, 0 },
-#endif
-};
-
 struct mxc_i2c_bus *i2c_get_base(struct i2c_adapter *adap)
 {
 	return &mxc_i2c_buses[adap->hwadapnr];
@@ -778,24 +797,7 @@ void bus_i2c_init(int index, int speed, int unused,
 	bus_i2c_set_bus_speed(&mxc_i2c_buses[index], speed);
 }
 
-/*
- * Early init I2C for prepare read the clk through I2C.
- */
-void i2c_early_init_f(void)
-{
-	ulong base = mxc_i2c_buses[I2C_EARLY_INIT_INDEX].base;
-	bool quirk = mxc_i2c_buses[I2C_EARLY_INIT_INDEX].driver_data
-					& I2C_QUIRK_FLAG ? true : false;
-	int reg_shift = quirk ? VF610_I2C_REGSHIFT : IMX_I2C_REGSHIFT;
 
-	/* Set I2C divider value */
-	writeb(I2C_IFDR_DIV_CONSERVATIVE, base + (IFDR << reg_shift));
-	/* Reset module */
-	writeb(I2CR_IDIS, base + (I2CR << reg_shift));
-	writeb(0, base + (I2SR << reg_shift));
-	/* Enable I2C */
-	writeb(I2CR_IEN, base + (I2CR << reg_shift));
-}
 
 /*
  * Init I2C Bus

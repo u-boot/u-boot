@@ -42,7 +42,7 @@
 /*
  * SMP Definitinos
  */
-#define CPU_RELEASE_ADDR		secondary_boot_func
+#define CPU_RELEASE_ADDR		secondary_boot_addr
 
 #define CONFIG_SYS_FSL_OTHER_DDR_NUM_CTRLS
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR

@@ -128,12 +128,29 @@ config PCI_XILINX
 	  which can be used on some generations of Xilinx FPGAs.
 
 config PCIE_LAYERSCAPE
-	bool "Layerscape PCIe support"
+	bool
+	default n
+
+config PCIE_LAYERSCAPE_RC
+	bool "Layerscape PCIe Root Complex mode support"
 	depends on DM_PCI
+	select PCIE_LAYERSCAPE
 	help
-	  Support Layerscape PCIe. The Layerscape SoC may have one or several
-	  PCIe controllers. The PCIe may works in RC or EP mode according to
-	  RCW[HOST_AGT_PEX] setting.
+	  Enable Layerscape PCIe Root Complex mode driver support. The Layerscape
+	  SoC may have one or several PCIe controllers. Each controller can be
+	  configured to Root Complex mode by clearing the corresponding bit of
+	  RCW[HOST_AGT_PEX].
+
+config PCIE_LAYERSCAPE_EP
+	bool "Layerscape PCIe Endpoint mode support"
+	depends on DM_PCI
+	select PCIE_LAYERSCAPE
+	select PCI_ENDPOINT
+	help
+	  Enable Layerscape PCIe Endpoint mode driver support. The Layerscape
+	  SoC may have one or several PCIe controllers. Each controller can be
+	  configured to Endpoint mode by setting the corresponding bit of
+	  RCW[HOST_AGT_PEX].
 
 config PCIE_LAYERSCAPE_GEN4
 	bool "Layerscape Gen4 PCIe support"
@@ -145,7 +162,7 @@ config PCIE_LAYERSCAPE_GEN4
 
 config FSL_PCIE_COMPAT
 	string "PCIe compatible of Kernel DT"
-	depends on PCIE_LAYERSCAPE || PCIE_LAYERSCAPE_GEN4
+	depends on PCIE_LAYERSCAPE_RC || PCIE_LAYERSCAPE_GEN4
 	default "fsl,ls1012a-pcie" if ARCH_LS1012A
 	default "fsl,ls1028a-pcie" if ARCH_LS1028A
 	default "fsl,ls1043a-pcie" if ARCH_LS1043A
@@ -160,7 +177,7 @@ config FSL_PCIE_COMPAT
 
 config FSL_PCIE_EP_COMPAT
 	string "PCIe EP compatible of Kernel DT"
-	depends on PCIE_LAYERSCAPE || PCIE_LAYERSCAPE_GEN4
+	depends on PCIE_LAYERSCAPE_RC || PCIE_LAYERSCAPE_GEN4
 	default "fsl,lx2160a-pcie-ep" if ARCH_LX2160A
 	default "fsl,ls-pcie-ep"
 	help

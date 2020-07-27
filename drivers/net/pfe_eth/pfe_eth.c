@@ -33,7 +33,7 @@ struct gemac_s gem_info[] = {
 
 		/* phy iface */
 		.phy_address = CONFIG_PFE_EMAC2_PHY_ADDR,
-		.phy_mode = PHY_INTERFACE_MODE_RGMII_TXID,
+		.phy_mode = PHY_INTERFACE_MODE_RGMII_ID,
 	},
 };
 

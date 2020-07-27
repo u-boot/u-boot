@@ -7,7 +7,6 @@
 #define __L1028A_COMMON_H
 
 #define CONFIG_REMAKE_ELF
-#define CONFIG_FSL_LAYERSCAPE
 #define CONFIG_MP
 
 #include <asm/arch/stream_id_lsch3.h>
@@ -29,7 +28,7 @@
 /*
  * SMP Definitinos
  */
-#define CPU_RELEASE_ADDR		secondary_boot_func
+#define CPU_RELEASE_ADDR		secondary_boot_addr
 
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */

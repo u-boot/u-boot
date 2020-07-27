@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2016 Freescale Semiconductor, Inc.
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  */
 
 #include <common.h>
@@ -34,6 +34,10 @@
 #include "ls1046aqds_qixis.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_SYS_I2C_EARLY_INIT
+void i2c_early_init_f(void);
+#endif
 
 #ifdef CONFIG_TFABOOT
 struct ifc_regs ifc_cfg_nor_boot[CONFIG_SYS_FSL_IFC_BANK_COUNT] = {
@@ -323,6 +327,7 @@ int i2c_multiplexer_select_vid_channel(u8 channel)
 
 int board_early_init_f(void)
 {
+	u32 __iomem *cntcr = (u32 *)CONFIG_SYS_FSL_TIMER_ADDR;
 #ifdef CONFIG_HAS_FSL_XHCI_USB
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
 	u32 usb_pwrfault;
@@ -331,10 +336,13 @@ int board_early_init_f(void)
 	u8 uart;
 #endif
 
-#ifdef CONFIG_SYS_I2C
+	/*
+	 * Enable secure system counter for timer
+	 */
+	out_le32(cntcr, 0x1);
+
 #ifdef CONFIG_SYS_I2C_EARLY_INIT
 	i2c_early_init_f();
-#endif
 #endif
 	fsl_lsch2_early_init_f();
 

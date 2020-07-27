@@ -24,7 +24,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"verify=no\0"				\
 	"fdt_high=0xffffffffffffffff\0"		\
-	"initrd_high=0xffffffffffffffff\0"	\
 	"fdt_addr=0x00f00000\0"			\
 	"kernel_addr=0x01000000\0"		\
 	"scriptaddr=0x80000000\0"		\
@@ -34,6 +33,7 @@
 	"fdt_addr_r=0x90000000\0"		\
 	"load_addr=0x96000000\0"		\
 	"kernel_size=0x2800000\0"		\
+	"bootm_size=0x10000000\0"		\
 	"console=ttyS0,115200\0"		\
 	BOOTENV					\
 	"boot_scripts=ls1012afrdm_boot.scr\0"	\

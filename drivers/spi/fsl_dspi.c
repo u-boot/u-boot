@@ -9,6 +9,7 @@
  * Haikun Wang (B53464@freescale.com)
  */
 
+#include <linux/math64.h>
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
@@ -24,6 +25,9 @@
 #include <fsl_dspi.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
+
+/* linux/include/time.h */
+#define NSEC_PER_SEC	1000000000L
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -379,6 +383,40 @@ static int fsl_dspi_hz_to_spi_baud(int *pbr, int *br,
 	return -EINVAL;
 }
 
+static void ns_delay_scale(unsigned char *psc, unsigned char *sc, int delay_ns,
+			   unsigned long clkrate)
+{
+	int scale_needed, scale, minscale = INT_MAX;
+	int pscale_tbl[4] = {1, 3, 5, 7};
+	u32 remainder;
+	int i, j;
+
+	scale_needed = div_u64_rem((u64)delay_ns * clkrate, NSEC_PER_SEC,
+				   &remainder);
+	if (remainder)
+		scale_needed++;
+
+	for (i = 0; i < ARRAY_SIZE(pscale_tbl); i++)
+		for (j = 0; j <= DSPI_CTAR_SCALE_BITS; j++) {
+			scale = pscale_tbl[i] * (2 << j);
+			if (scale >= scale_needed) {
+				if (scale < minscale) {
+					minscale = scale;
+					*psc = i;
+					*sc = j;
+				}
+				break;
+			}
+		}
+
+	if (minscale == INT_MAX) {
+		pr_warn("Cannot find correct scale values for %dns delay at clkrate %ld, using max prescaler value",
+			delay_ns, clkrate);
+		*psc = ARRAY_SIZE(pscale_tbl) - 1;
+		*sc = DSPI_CTAR_SCALE_BITS;
+	}
+}
+
 static int fsl_dspi_cfg_speed(struct fsl_dspi_priv *priv, uint speed)
 {
 	int ret;
@@ -412,6 +450,9 @@ static int fsl_dspi_child_pre_probe(struct udevice *dev)
 {
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 	struct fsl_dspi_priv *priv = dev_get_priv(dev->parent);
+	u32 cs_sck_delay = 0, sck_cs_delay = 0;
+	unsigned char pcssck = 0, cssck = 0;
+	unsigned char pasc = 0, asc = 0;
 
 	if (slave_plat->cs >= priv->num_chipselect) {
 		debug("DSPI invalid chipselect number %d(max %d)!\n",
@@ -419,7 +460,18 @@ static int fsl_dspi_child_pre_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	priv->ctar_val[slave_plat->cs] = DSPI_CTAR_DEFAULT_VALUE;
+	ofnode_read_u32(dev->node, "fsl,spi-cs-sck-delay", &cs_sck_delay);
+	ofnode_read_u32(dev->node, "fsl,spi-sck-cs-delay", &sck_cs_delay);
+
+	/* Set PCS to SCK delay scale values */
+	ns_delay_scale(&pcssck, &cssck, cs_sck_delay, priv->bus_clk);
+
+	/* Set After SCK delay scale values */
+	ns_delay_scale(&pasc, &asc, sck_cs_delay, priv->bus_clk);
+
+	priv->ctar_val[slave_plat->cs] = DSPI_CTAR_DEFAULT_VALUE |
+					 DSPI_CTAR_PCSSCK(pcssck) |
+					 DSPI_CTAR_PASC(pasc);
 
 	debug("DSPI pre_probe slave device on CS %u, max_hz %u, mode 0x%x.\n",
 	      slave_plat->cs, slave_plat->max_hz, slave_plat->mode);

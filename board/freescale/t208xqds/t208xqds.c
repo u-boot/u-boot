@@ -345,6 +345,33 @@ int brd_mux_lane_to_slot(void)
 	return 0;
 }
 
+static void esdhc_adapter_card_ident(void)
+{
+	u8 card_id, value;
+
+	card_id = QIXIS_READ(present) & QIXIS_SDID_MASK;
+
+	switch (card_id) {
+	case QIXIS_ESDHC_ADAPTER_TYPE_EMMC45:
+		value = QIXIS_READ(brdcfg[5]);
+		value |= (QIXIS_DAT4 | QIXIS_DAT5_6_7);
+		QIXIS_WRITE(brdcfg[5], value);
+		break;
+	case QIXIS_ESDHC_ADAPTER_TYPE_SDMMC_LEGACY:
+		value = QIXIS_READ(pwr_ctl[1]);
+		value |= QIXIS_EVDD_BY_SDHC_VS;
+		QIXIS_WRITE(pwr_ctl[1], value);
+		break;
+	case QIXIS_ESDHC_ADAPTER_TYPE_EMMC44:
+		value = QIXIS_READ(brdcfg[5]);
+		value |= (QIXIS_SDCLKIN | QIXIS_SDCLKOUT);
+		QIXIS_WRITE(brdcfg[5], value);
+		break;
+	default:
+		break;
+	}
+}
+
 int board_early_init_r(void)
 {
 	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
@@ -384,7 +411,7 @@ int board_early_init_r(void)
 
 	brd_mux_lane_to_slot();
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, 0);
-
+	esdhc_adapter_card_ident();
 	return 0;
 }
 

@@ -689,6 +689,7 @@ M:	Priyanka Jain <priyanka.jain@nxp.com>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-fsl-qoriq.git
 F:	drivers/watchdog/sp805_wdt.c
+F:	drivers/watchdog/sbsa_gwdt.c
 
 I2C
 M:	Heiko Schocher <hs@denx.de>

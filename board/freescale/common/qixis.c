@@ -324,6 +324,19 @@ static int qixis_reset_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
 #else
 		printf("Not implemented\n");
 #endif
+	} else if (strcmp(argv[1], "xspi") == 0) {
+#ifdef QIXIS_LBMAP_XSPI
+		QIXIS_WRITE(rst_ctl, 0x30);
+		QIXIS_WRITE(rcfg_ctl, 0);
+		set_lbmap(QIXIS_LBMAP_XSPI);
+		set_rcw_src(QIXIS_RCW_SRC_XSPI);
+		qixis_write_i2c(offsetof(struct qixis, rcfg_ctl),
+				QIXIS_RCFG_CTL_RECONFIG_IDLE);
+		qixis_write_i2c(offsetof(struct qixis, rcfg_ctl),
+				QIXIS_RCFG_CTL_RECONFIG_START);
+#else
+		printf("Not implemented\n");
+#endif
 	} else if (strcmp(argv[1], "watchdog") == 0) {
 		static char *period[9] = {"2s", "4s", "8s", "16s", "32s",
 					  "1min", "2min", "4min", "8min"};
