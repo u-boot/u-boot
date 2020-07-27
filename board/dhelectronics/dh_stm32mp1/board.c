@@ -653,18 +653,6 @@ int board_interface_eth_init(struct udevice *dev,
 	return 0;
 }
 
-enum env_location env_get_location(enum env_operation op, int prio)
-{
-	if (prio)
-		return ENVL_UNKNOWN;
-
-#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
-	return ENVL_SPI_FLASH;
-#else
-	return ENVL_NOWHERE;
-#endif
-}
-
 #if defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
