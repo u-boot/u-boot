@@ -29,28 +29,28 @@ Using u-boot.bin as ROM (replaces Qemu monitor):
 
 .. code-block:: bash
 
-   make qemu_mips
+   make qemu_mips_defconfig
    qemu-system-mips -M mips -bios u-boot.bin -nographic
 
 32 bit, little endian
 
 .. code-block:: bash
 
-   make qemu_mipsel
+   make qemu_mipsel_defconfig
    qemu-system-mipsel -M mips -bios u-boot.bin -nographic
 
 64 bit, big endian
 
 .. code-block:: bash
 
-   make qemu_mips64
+   make qemu_mips64_defconfig
    qemu-system-mips64 -cpu MIPS64R2-generic -M mips -bios u-boot.bin -nographic
 
 64 bit, little endian
 
 .. code-block:: bash
 
-   make qemu_mips64el
+   make qemu_mips64el_defconfig
    qemu-system-mips64el -cpu MIPS64R2-generic -M mips -bios u-boot.bin -nographic
 
 or using u-boot.bin from emulated flash:
