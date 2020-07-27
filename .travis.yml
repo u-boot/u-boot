@@ -23,7 +23,6 @@ addons:
     - build-essential
     - libsdl2-dev
     - python
-    - python-pyelftools
     - python3-sphinx
     - python3-virtualenv
     - python3-pip
@@ -256,6 +255,7 @@ script:
      if [[ -n "${TEST_PY_TOOLS}" ]]; then
        export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
        export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
+       pip install pyelftools &&
        ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test &&
        ./tools/patman/patman test &&
        ./tools/buildman/buildman -t &&
