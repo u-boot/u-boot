@@ -475,6 +475,22 @@ def test_env_ext4(state_test_env):
         response = c.run_command('echo $?')
         assert response == "0"
 
+        response = c.run_command('env erase')
+        assert 'OK' in response
+
+        response = c.run_command('env load')
+        assert 'Loading Environment from EXT4... ' in response
+        assert 'bad CRC, using default environment' in response
+
+        response = c.run_command('env info')
+        assert 'env_valid = invalid' in response
+        assert 'env_ready = true' in response
+        assert 'env_use_default = true' in response
+
+        response = c.run_command('env info -p -d')
+        assert 'Default environment is used' in response
+        assert 'Environment can be persisted' in response
+
         # restore env location: NOWHERE (prio 0 in sandbox)
         response = c.run_command('env select nowhere')
         assert 'Select Environment on nowhere: OK' in response
