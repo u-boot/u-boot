@@ -207,6 +207,28 @@ static int dm_test_ofnode_read_chosen(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_read_chosen, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+static int dm_test_ofnode_read_aliases(struct unit_test_state *uts)
+{
+	const void *val;
+	ofnode node;
+	int size;
+
+	node = ofnode_get_aliases_node("eth3");
+	ut_assert(ofnode_valid(node));
+	ut_asserteq_str("sbe5", ofnode_get_name(node));
+
+	node = ofnode_get_aliases_node("unknown");
+	ut_assert(!ofnode_valid(node));
+
+	val = ofnode_read_aliases_prop("spi0", &size);
+	ut_assertnonnull(val);
+	ut_asserteq(7, size);
+	ut_asserteq_str("/spi@0", (const char *)val);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_read_aliases, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
 static int dm_test_ofnode_get_child_count(struct unit_test_state *uts)
 {
 	ofnode node, child_node;
