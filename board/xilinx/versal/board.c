@@ -114,6 +114,9 @@ int board_late_init(void)
 		return 0;
 	}
 
+	if (!CONFIG_IS_ENABLED(ENV_VARS_UBOOT_RUNTIME_CONFIG))
+		return 0;
+
 	bootmode = versal_get_bootmode();
 
 	puts("Bootmode: ");

@@ -1000,6 +1000,7 @@ config ARCH_VERSAL
 	select DM_SERIAL
 	select OF_CONTROL
 	imply BOARD_LATE_INIT
+	imply ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 config ARCH_VF610
 	bool "Freescale Vybrid"
@@ -1033,6 +1034,7 @@ config ARCH_ZYNQ
 	imply CMD_CLK
 	imply CMD_DM
 	imply CMD_SPL
+	imply ENV_VARS_UBOOT_RUNTIME_CONFIG
 	imply FAT_WRITE
 
 config ARCH_ZYNQMP_R5
@@ -1071,6 +1073,7 @@ config ARCH_ZYNQMP
 	select ZYNQMP_IPI
 	imply BOARD_LATE_INIT
 	imply CMD_DM
+	imply ENV_VARS_UBOOT_RUNTIME_CONFIG
 	imply FAT_WRITE
 	imply MP
 	imply DM_USB_GADGET
