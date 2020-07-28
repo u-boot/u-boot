@@ -1,8 +1,8 @@
 .. SPDX-License-Identifier: GPL-2.0+
 .. Copyright (C) 2020 Sean Anderson <seanga2@gmail.com>
 
-Maix Bit
-========
+MAIX
+====
 
 Several of the Sipeed Maix series of boards cotain the Kendryte K210 processor,
 a 64-bit RISC-V CPU. This processor contains several peripherals to accelerate
@@ -13,8 +13,10 @@ peripherals include 8M of SRAM (accessible with and without caching); remappable
 pins, including 40 GPIOs; AES, FFT, and SHA256 accelerators; a DMA controller;
 and I2C, I2S, and SPI controllers. Maix peripherals vary, but include spi flash;
 on-board usb-serial bridges; ports for cameras, displays, and sd cards; and
-ESP32 chips. Currently, only the Sipeed Maix Bit V2.0 (bitm) is supported, but
-the boards are fairly similar.
+ESP32 chips.
+
+Currently, only the Sipeed MAIX BiT V2.0 (bitm) and Sipeed MAIXDUINO are
+supported, but the boards are fairly similar.
 
 Documentation for Maix boards is available from
 `Sipeed's website <http://dl.sipeed.com/MAIX/HDK/>`_.
@@ -26,20 +28,42 @@ details are rather lacking, so most technical reference has been taken from the
 Build and boot steps
 --------------------
 
-To build u-boot, run
+To build U-Boot, run
 
 .. code-block:: none
 
-    make sipeed_maix_bitm_defconfig
+    make <defconfig>
     make CROSS_COMPILE=<your cross compile prefix>
 
-To flash u-boot to a maix bit, run
+To flash U-Boot, run
 
 .. code-block:: none
 
-    kflash -tp /dev/<your tty here> -B bit_mic u-boot-dtb.bin
+    kflash -tp /dev/<your tty here> -B <board_id> u-boot-dtb.bin
 
-Boot output should look like the following:
+The board provides two serial devices, e.g.
+
+* /dev/serial/by-id/usb-Kongou_Hikari_Sipeed-Debug_12345678AB-if00-port0
+* /dev/serial/by-id/usb-Kongou_Hikari_Sipeed-Debug_12345678AB-if01-port0
+
+Which one is used for flashing depends on the board.
+
+Currently only a small subset of the board features are supported. So we can
+use the same default configuration and device tree. In the long run we may need
+separate settings.
+
+======================== ========================== ========== ==========
+Board                    defconfig                  board_id   TTY device
+======================== ========================== ========== ==========
+Sipeed MAIX BiT          sipeed_maix_bitm_defconfig bit        first
+Sipeed MAIX BiT with Mic sipeed_maix_bitm_defconfig bit_mic    first
+Sipeed MAIXDUINO         sipeed_maix_bitm_defconfig maixduino  first
+Sipeed MAIX GO                                      goE        second
+Sipeed MAIX ONE DOCK                                goD        first
+======================== ========================== ========== ==========
+
+Flashing causes a reboot of the device. Parameter -t specifies that the serial
+console shall be opened immediately. Boot output should look like the following:
 
 .. code-block:: none
 
@@ -237,6 +261,39 @@ Boot Sequence
 7. The boot hart sends an IPI to the other hart telling it to jump to the next
    stage.
 8. The boot hart jumps to ``0x80000000``.
+
+Resetting the board
+^^^^^^^^^^^^^^^^^^^
+
+The MAIX boards can be reset using the DTR and RTS lines of the serial console.
+How the lines are used depends on the specific board. See the code of kflash.py
+for details.
+
+This is the reset sequence for the MAXDUINO and MAIX BiT with Mic:
+
+.. code-block:: python
+
+   def reset(self):
+        self.device.setDTR(False)
+        self.device.setRTS(False)
+        time.sleep(0.1)
+        self.device.setDTR(True)
+        time.sleep(0.1)
+        self.device.setDTR(False)
+        time.sleep(0.1)
+
+and this for the MAIX Bit:
+
+.. code-block:: python
+
+   def reset(self):
+        self.device.setDTR(False)
+        self.device.setRTS(False)
+        time.sleep(0.1)
+        self.device.setRTS(True)
+        time.sleep(0.1)
+        self.device.setRTS(False)
+        time.sleep(0.1)
 
 Memory Map
 ^^^^^^^^^^
