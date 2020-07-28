@@ -344,3 +344,45 @@ int env_init(void)
 
 	return ret;
 }
+
+int env_select(const char *name)
+{
+	struct env_driver *drv;
+	const int n_ents = ll_entry_count(struct env_driver, env_driver);
+	struct env_driver *entry;
+	int prio;
+	bool found = false;
+
+	printf("Select Environment on %s: ", name);
+
+	/* search ENV driver by name */
+	drv = ll_entry_start(struct env_driver, env_driver);
+	for (entry = drv; entry != drv + n_ents; entry++) {
+		if (!strcmp(entry->name, name)) {
+			found = true;
+			break;
+		}
+	}
+
+	if (!found) {
+		printf("driver not found\n");
+		return -ENODEV;
+	}
+
+	/* search priority by driver */
+	for (prio = 0; (drv = env_driver_lookup(ENVOP_INIT, prio)); prio++) {
+		if (entry->location == env_get_location(ENVOP_LOAD, prio)) {
+			/* when priority change, reset the ENV flags */
+			if (gd->env_load_prio != prio) {
+				gd->env_load_prio = prio;
+				gd->env_valid = ENV_INVALID;
+				gd->flags &= ~GD_FLG_ENV_DEFAULT;
+			}
+			printf("OK\n");
+			return 0;
+		}
+	}
+	printf("priority not found\n");
+
+	return -ENODEV;
+}

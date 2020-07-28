@@ -610,6 +610,11 @@ config CMD_NVEDIT_LOAD
 	  Load all environment variables from the compiled-in persistent
 	  storage.
 
+config CMD_NVEDIT_SELECT
+	bool "env select"
+	help
+	  Select the compiled-in persistent storage of environment variables.
+
 endmenu
 
 menu "Memory commands"

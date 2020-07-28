@@ -287,6 +287,13 @@ int env_save(void);
 int env_erase(void);
 
 /**
+ * env_select() - Select the environment storage
+ *
+ * @return 0 if OK, -ve on error
+ */
+int env_select(const char *name);
+
+/**
  * env_import() - Import from a binary representation into hash table
  *
  * This imports the environment from a buffer. The format for each variable is
@@ -349,5 +356,4 @@ int env_get_char(int index);
  * This is used for those unfortunate archs with crappy toolchains
  */
 void env_reloc(void);
-
 #endif
