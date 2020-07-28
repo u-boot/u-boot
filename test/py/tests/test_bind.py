@@ -25,9 +25,6 @@ def in_tree(response, name, uclass, drv, depth, last_child):
 @pytest.mark.buildconfigspec('cmd_bind')
 def test_bind_unbind_with_node(u_boot_console):
 
-	#bind /bind-test. Device should come up as well as its children
-	response = u_boot_console.run_command('bind  /bind-test simple_bus')
-	assert response == ''
 	tree = u_boot_console.run_command('dm tree')
 	assert in_tree(tree, 'bind-test', 'simple_bus', 'simple_bus', 0, True)
 	assert in_tree(tree, 'bind-test-child1', 'phy', 'phy_sandbox', 1, False)
