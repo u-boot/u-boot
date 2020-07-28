@@ -13,6 +13,7 @@ import collections
 import os
 import struct
 import sys
+import tempfile
 import unittest
 
 from dtoc import dtb_platdata
@@ -863,3 +864,28 @@ U_BOOT_DEVICE(spl_test2) = {
             self.run_test(['invalid-cmd'], dtb_file, output)
         self.assertIn("Unknown command 'invalid-cmd': (use: struct, platdata)",
                       str(e.exception))
+
+    def testScanDrivers(self):
+        """Test running dtoc with additional drivers to scan"""
+        dtb_file = get_dtb_file('dtoc_test_simple.dts')
+        output = tools.GetOutputFilename('output')
+        with test_util.capture_sys_output() as (stdout, stderr):
+            dtb_platdata.run_steps(['struct'], dtb_file, False, output, True,
+                               [None, '', 'tools/dtoc/dtoc_test_scan_drivers.cxx'])
+
+    def testUnicodeError(self):
+        """Test running dtoc with an invalid unicode file
+
+        To be able to perform this test without adding a weird text file which
+        would produce issues when using checkpatch.pl or patman, generate the
+        file at runtime and then process it.
+        """
+        dtb_file = get_dtb_file('dtoc_test_simple.dts')
+        output = tools.GetOutputFilename('output')
+        driver_fn = '/tmp/' + next(tempfile._get_candidate_names())
+        with open(driver_fn, 'wb+') as df:
+            df.write(b'\x81')
+
+        with test_util.capture_sys_output() as (stdout, stderr):
+            dtb_platdata.run_steps(['struct'], dtb_file, False, output, True,
+                               [driver_fn])

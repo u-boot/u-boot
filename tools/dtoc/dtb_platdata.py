@@ -154,8 +154,10 @@ class DtbPlatdata(object):
                 U_BOOT_DRIVER_ALIAS(driver_alias, driver_name)
             value: Driver name declared with U_BOOT_DRIVER(driver_name)
         _links: List of links to be included in dm_populate_phandle_data()
+        _drivers_additional: List of additional drivers to use during scanning
     """
-    def __init__(self, dtb_fname, include_disabled, warning_disabled):
+    def __init__(self, dtb_fname, include_disabled, warning_disabled,
+                 drivers_additional=[]):
         self._fdt = None
         self._dtb_fname = dtb_fname
         self._valid_nodes = None
@@ -167,6 +169,7 @@ class DtbPlatdata(object):
         self._drivers = []
         self._driver_aliases = {}
         self._links = []
+        self._drivers_additional = drivers_additional
 
     def get_normalized_compat_name(self, node):
         """Get a node's normalized compat name
@@ -342,6 +345,14 @@ class DtbPlatdata(object):
                 if not fn.endswith('.c'):
                     continue
                 self.scan_driver(dirpath + '/' + fn)
+
+        for fn in self._drivers_additional:
+            if not isinstance(fn, str) or len(fn) == 0:
+                continue
+            if fn[0] == '/':
+                self.scan_driver(fn)
+            else:
+                self.scan_driver(basedir + '/' + fn)
 
     def scan_dtb(self):
         """Scan the device tree to obtain a tree of nodes and properties
@@ -668,7 +679,8 @@ class DtbPlatdata(object):
 
         self.out(''.join(self.get_buf()))
 
-def run_steps(args, dtb_file, include_disabled, output, warning_disabled=False):
+def run_steps(args, dtb_file, include_disabled, output, warning_disabled=False,
+              drivers_additional=[]):
     """Run all the steps of the dtoc tool
 
     Args:
@@ -680,7 +692,7 @@ def run_steps(args, dtb_file, include_disabled, output, warning_disabled=False):
     if not args:
         raise ValueError('Please specify a command: struct, platdata')
 
-    plat = DtbPlatdata(dtb_file, include_disabled, warning_disabled)
+    plat = DtbPlatdata(dtb_file, include_disabled, warning_disabled, drivers_additional)
     plat.scan_drivers()
     plat.scan_dtb()
     plat.scan_tree()
