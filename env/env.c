@@ -187,9 +187,6 @@ int env_load(void)
 	for (prio = 0; (drv = env_driver_lookup(ENVOP_LOAD, prio)); prio++) {
 		int ret;
 
-		if (!drv->load)
-			continue;
-
 		if (!env_has_inited(drv->location))
 			continue;
 

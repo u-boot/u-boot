@@ -154,8 +154,7 @@ struct env_driver {
 	/**
 	 * load() - Load the environment from storage
 	 *
-	 * This method is optional. If not provided, no environment will be
-	 * loaded.
+	 * This method is required for loading environment
 	 *
 	 * @return 0 if OK, -ve on error
 	 */
