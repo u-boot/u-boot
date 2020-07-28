@@ -15,10 +15,11 @@ jobs:
     pool:
       vmImage: $(windows_vm)
     steps:
-      - script: |
-          git clone https://github.com/msys2/msys2-ci-base.git %CD:~0,2%\msys64
+      - powershell: |
+          (New-Object Net.WebClient).DownloadFile("https://github.com/msys2/msys2-installer/releases/download/2020-07-20/msys2-base-x86_64-20200720.sfx.exe", "sfx.exe")
         displayName: 'Install MSYS2'
       - script: |
+          sfx.exe -y -o%CD:~0,2%\
           %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm -Syyuu"
         displayName: 'Update MSYS2'
       - script: |
