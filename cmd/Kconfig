@@ -604,6 +604,12 @@ config CMD_NVEDIT_INFO
 	  [-q] : quiet output
 	  The result of multiple evaluations will be combined with AND.
 
+config CMD_NVEDIT_LOAD
+	bool "env load"
+	help
+	  Load all environment variables from the compiled-in persistent
+	  storage.
+
 endmenu
 
 menu "Memory commands"

@@ -266,6 +266,13 @@ int env_set_default_vars(int nvars, char *const vars[], int flags);
 int env_load(void);
 
 /**
+ * env_reload() - Re-Load the environment from current storage
+ *
+ * @return 0 if OK, -ve on error
+ */
+int env_reload(void);
+
+/**
  * env_save() - Save the environment to storage
  *
  * @return 0 if OK, -ve on error

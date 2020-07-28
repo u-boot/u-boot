@@ -230,6 +230,34 @@ int env_load(void)
 	return -ENODEV;
 }
 
+int env_reload(void)
+{
+	struct env_driver *drv;
+
+	drv = env_driver_lookup(ENVOP_LOAD, gd->env_load_prio);
+	if (drv) {
+		int ret;
+
+		printf("Loading Environment from %s... ", drv->name);
+
+		if (!env_has_inited(drv->location)) {
+			printf("not initialized\n");
+			return -ENODEV;
+		}
+
+		ret = drv->load();
+		if (ret)
+			printf("Failed (%d)\n", ret);
+		else
+			printf("OK\n");
+
+		if (!ret)
+			return 0;
+	}
+
+	return -ENODEV;
+}
+
 int env_save(void)
 {
 	struct env_driver *drv;
