@@ -4,6 +4,10 @@
 
 # Test operation of shell commands relating to environment variables.
 
+import os
+import os.path
+from subprocess import call, check_call, CalledProcessError
+
 import pytest
 import u_boot_utils
 
@@ -374,7 +378,6 @@ def test_env_info(state_test_env):
 @pytest.mark.buildconfigspec('cmd_nvedit_info')
 @pytest.mark.buildconfigspec('cmd_echo')
 def test_env_info_sandbox(state_test_env):
-
     """Test 'env info' command result with several options on sandbox
        with a known ENV configuration: ready & default & persistent
     """
@@ -399,3 +402,95 @@ def test_env_info_sandbox(state_test_env):
     response = c.run_command('env info -d -p -q')
     response = c.run_command('echo $?')
     assert response == "1"
+
+def mk_env_ext4(state_test_env):
+
+    """Create a empty ext4 file system volume."""
+    c = state_test_env.u_boot_console
+    filename = 'env.ext4.img'
+    persistent = c.config.persistent_data_dir + '/' + filename
+    fs_img = c.config.result_dir  + '/' + filename
+
+    if os.path.exists(persistent):
+        c.log.action('Disk image file ' + persistent + ' already exists')
+    else:
+        try:
+            u_boot_utils.run_and_log(c, 'dd if=/dev/zero of=%s bs=1M count=16' % persistent)
+            u_boot_utils.run_and_log(c, 'mkfs.ext4 -O ^metadata_csum %s' % persistent)
+        except CalledProcessError:
+            call('rm -f %s' % persistent, shell=True)
+            raise
+
+    u_boot_utils.run_and_log(c, ['cp',  '-f', persistent, fs_img])
+    return fs_img
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_echo')
+@pytest.mark.buildconfigspec('cmd_nvedit_info')
+@pytest.mark.buildconfigspec('cmd_nvedit_load')
+@pytest.mark.buildconfigspec('cmd_nvedit_select')
+@pytest.mark.buildconfigspec('env_is_in_ext4')
+def test_env_ext4(state_test_env):
+
+    """Test ENV in EXT4 on sandbox."""
+    c = state_test_env.u_boot_console
+    fs_img = ''
+    try:
+        fs_img = mk_env_ext4(state_test_env)
+
+        c.run_command('host bind 0  %s' % fs_img)
+
+        response = c.run_command('ext4ls host 0:0')
+        assert 'uboot.env' not in response
+
+        # force env location: EXT4 (prio 1 in sandbox)
+        response = c.run_command('env select EXT4')
+        assert 'Select Environment on EXT4: OK' in response
+
+        response = c.run_command('env save')
+        assert 'Saving Environment to EXT4' in response
+
+        response = c.run_command('env load')
+        assert 'Loading Environment from EXT4... OK' in response
+
+        response = c.run_command('ext4ls host 0:0')
+        assert '8192 uboot.env' in response
+
+        response = c.run_command('env info')
+        assert 'env_valid = valid' in response
+        assert 'env_ready = true' in response
+        assert 'env_use_default = false' in response
+
+        response = c.run_command('env info -p -d')
+        assert 'Environment was loaded from persistent storage' in response
+        assert 'Environment can be persisted' in response
+
+        response = c.run_command('env info -d -q')
+        assert response == ""
+        response = c.run_command('echo $?')
+        assert response == "1"
+
+        response = c.run_command('env info -p -q')
+        assert response == ""
+        response = c.run_command('echo $?')
+        assert response == "0"
+
+        # restore env location: NOWHERE (prio 0 in sandbox)
+        response = c.run_command('env select nowhere')
+        assert 'Select Environment on nowhere: OK' in response
+
+        response = c.run_command('env load')
+        assert 'Loading Environment from nowhere... OK' in response
+
+        response = c.run_command('env info')
+        assert 'env_valid = invalid' in response
+        assert 'env_ready = true' in response
+        assert 'env_use_default = true' in response
+
+        response = c.run_command('env info -p -d')
+        assert 'Default environment is used' in response
+        assert 'Environment cannot be persisted' in response
+
+    finally:
+        if fs_img:
+            call('rm -f %s' % fs_img, shell=True)
