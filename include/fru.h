@@ -76,6 +76,7 @@ int fru_display(int verbose);
 int fru_capture(unsigned long addr);
 int fru_generate(unsigned long addr, char *manufacturer, char *board_name,
 		 char *serial_no, char *part_no, char *revision);
+u8 fru_checksum(u8 *addr, u8 len);
 
 extern struct fru_table fru_data;
 
