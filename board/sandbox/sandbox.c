@@ -7,6 +7,7 @@
 #include <cpu_func.h>
 #include <cros_ec.h>
 #include <dm.h>
+#include <env_internal.h>
 #include <init.h>
 #include <led.h>
 #include <os.h>
@@ -43,6 +44,20 @@ unsigned long timer_read_counter(void)
 	return os_get_nsec() / 1000 + sandbox_timer_offset * 1000;
 }
 #endif
+
+/* specific order for sandbox: nowhere is the first value, used by default */
+static enum env_location env_locations[] = {
+	ENVL_NOWHERE,
+	ENVL_EXT4,
+};
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	if (prio >= ARRAY_SIZE(env_locations))
+		return ENVL_UNKNOWN;
+
+	return env_locations[prio];
+}
 
 int dram_init(void)
 {
