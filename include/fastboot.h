@@ -53,6 +53,15 @@ enum fastboot_reboot_reason {
 };
 
 /**
+ * BCB boot commands
+ */
+static const char * const fastboot_boot_cmds[] = {
+	[FASTBOOT_REBOOT_REASON_BOOTLOADER] = "bootonce-bootloader",
+	[FASTBOOT_REBOOT_REASON_FASTBOOTD] = "boot-fastboot",
+	[FASTBOOT_REBOOT_REASON_RECOVERY] = "boot-recovery"
+};
+
+/**
  * fastboot_response() - Writes a response of the form "$tag$reason".
  *
  * @tag: The first part of the response
