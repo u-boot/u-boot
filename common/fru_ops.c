@@ -29,7 +29,7 @@ static int fru_check_language(u8 code)
 		return -EINVAL;
 	}
 
-	return code;
+	return 0;
 }
 
 static u8 fru_checksum(u8 *addr, u8 len)
