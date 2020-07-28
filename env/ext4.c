@@ -99,6 +99,23 @@ static int env_ext4_save(void)
 	return 0;
 }
 
+static int env_ext4_erase(void)
+{
+	env_t env_new;
+	int err;
+
+	memset(&env_new, 0, sizeof(env_t));
+
+	err = env_ext4_save_buffer(&env_new);
+	if (err)
+		return err;
+
+	gd->env_valid = ENV_INVALID;
+	puts("done\n");
+
+	return 0;
+}
+
 static int env_ext4_load(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
@@ -156,4 +173,6 @@ U_BOOT_ENV_LOCATION(ext4) = {
 	ENV_NAME("EXT4")
 	.load		= env_ext4_load,
 	.save		= ENV_SAVE_PTR(env_ext4_save),
+	.erase		= CONFIG_IS_ENABLED(CMD_ERASEENV) ? env_ext4_erase :
+							    NULL,
 };
