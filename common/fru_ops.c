@@ -225,7 +225,7 @@ int fru_capture(unsigned long addr)
 	return 0;
 }
 
-static int fru_display_board(void)
+static int fru_display_board(struct fru_board_data *brd)
 {
 	u32 time = 0;
 	u8 type;
@@ -247,20 +247,20 @@ static int fru_display_board(void)
 	};
 
 	printf("*****BOARD INFO*****\n");
-	printf("Version:%d\n", fru_version(fru_data.brd.ver));
-	printf("Board Area Length:%d\n", fru_cal_area_len(fru_data.brd.len));
+	printf("Version:%d\n", fru_version(brd->ver));
+	printf("Board Area Length:%d\n", fru_cal_area_len(brd->len));
 
-	if (fru_check_language(fru_data.brd.lang_code))
+	if (fru_check_language(brd->lang_code))
 		return 0;
 
-	time = fru_data.brd.time[2] << 16 | fru_data.brd.time[1] << 8 |
-	       fru_data.brd.time[0];
+	time = brd->time[2] << 16 | brd->time[1] << 8 |
+	       brd->time[0];
 	printf("Time in Minutes from 0:00hrs 1/1/96 %d\n", time);
 
-	data = (u8 *)&fru_data.brd.manufacturer_type_len;
+	data = (u8 *)&brd->manufacturer_type_len;
 
 	for (u8 i = 0; ; i++) {
-		len = fru_check_type_len(*data++, fru_data.brd.lang_code,
+		len = fru_check_type_len(*data++, brd->lang_code,
 					 &type);
 		if (len == -EINVAL) {
 			printf("**** EOF for Board Area ****\n");
@@ -268,8 +268,8 @@ static int fru_display_board(void)
 		}
 
 		if (type <= FRU_TYPELEN_TYPE_ASCII8 &&
-		    (fru_data.brd.lang_code == FRU_LANG_CODE_ENGLISH ||
-		     fru_data.brd.lang_code == FRU_LANG_CODE_ENGLISH_1))
+		    (brd->lang_code == FRU_LANG_CODE_ENGLISH ||
+		     brd->lang_code == FRU_LANG_CODE_ENGLISH_1))
 			printf("Type code: %s\n", typecode[type]);
 		else
 			printf("Type code: %s\n", typecode[type + 1]);
@@ -291,10 +291,8 @@ static int fru_display_board(void)
 	return 0;
 }
 
-static void fru_display_common_hdr(void)
+static void fru_display_common_hdr(struct fru_common_hdr *hdr)
 {
-	struct fru_common_hdr *hdr = &fru_data.hdr;
-
 	printf("*****COMMON HEADER*****\n");
 	printf("Version:%d\n", fru_version(hdr->version));
 	if (hdr->off_internal)
@@ -335,8 +333,8 @@ int fru_display(void)
 		return -EINVAL;
 	}
 
-	fru_display_common_hdr();
-	fru_display_board();
+	fru_display_common_hdr(&fru_data.hdr);
+	fru_display_board(&fru_data.brd);
 
 	return 0;
 }
