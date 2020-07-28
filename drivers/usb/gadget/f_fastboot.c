@@ -455,6 +455,8 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 
 		case FASTBOOT_COMMAND_REBOOT:
 		case FASTBOOT_COMMAND_REBOOT_BOOTLOADER:
+		case FASTBOOT_COMMAND_REBOOT_FASTBOOTD:
+		case FASTBOOT_COMMAND_REBOOT_RECOVERY:
 			fastboot_func->in_req->complete = compl_do_reset;
 			break;
 		}
