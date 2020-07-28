@@ -12,6 +12,7 @@
 #include <common.h>
 #include <env.h>
 #include <fdt_support.h>
+#include <fastboot.h>
 #include <image.h>
 #include <init.h>
 #include <spl.h>
@@ -1050,8 +1051,11 @@ int board_fit_config_name_match(const char *name)
 #endif
 
 #if CONFIG_IS_ENABLED(FASTBOOT) && !CONFIG_IS_ENABLED(ENV_IS_NOWHERE)
-int fastboot_set_reboot_flag(void)
+int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 {
+	if (reason != FASTBOOT_REBOOT_REASON_BOOTLOADER)
+		return -ENOTSUPP;
+
 	printf("Setting reboot to fastboot flag ...\n");
 	env_set("dofastboot", "1");
 	env_save();

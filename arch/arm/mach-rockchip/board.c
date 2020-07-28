@@ -6,6 +6,7 @@
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <fastboot.h>
 #include <init.h>
 #include <log.h>
 #include <ram.h>
@@ -152,8 +153,11 @@ int board_usb_init(int index, enum usb_init_type init)
 #endif /* CONFIG_USB_GADGET */
 
 #if CONFIG_IS_ENABLED(FASTBOOT)
-int fastboot_set_reboot_flag(void)
+int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 {
+	if (reason != FASTBOOT_REBOOT_REASON_BOOTLOADER)
+		return -ENOTSUPP;
+
 	printf("Setting reboot to fastboot flag ...\n");
 	/* Set boot mode to fastboot */
 	writel(BOOT_FASTBOOT, CONFIG_ROCKCHIP_BOOT_MODE_REG);

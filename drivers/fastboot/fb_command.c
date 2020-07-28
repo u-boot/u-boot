@@ -307,7 +307,7 @@ static void erase(char *cmd_parameter, char *response)
  */
 static void reboot_bootloader(char *cmd_parameter, char *response)
 {
-	if (fastboot_set_reboot_flag())
+	if (fastboot_set_reboot_flag(FASTBOOT_REBOOT_REASON_BOOTLOADER))
 		fastboot_fail("Cannot set reboot flag", response);
 	else
 		fastboot_okay(NULL, response);

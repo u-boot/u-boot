@@ -8,6 +8,7 @@
 #include <config.h>
 #include <common.h>
 #include <env.h>
+#include <fastboot.h>
 #include <init.h>
 #include <linux/ctype.h>
 #include <linux/usb/musb.h>
@@ -163,8 +164,11 @@ void get_board_serial(struct tag_serialnr *serialnr)
 	omap_die_id_get_board_serial(serialnr);
 }
 
-int fastboot_set_reboot_flag(void)
+int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 {
+	if (reason != FASTBOOT_REBOOT_REASON_BOOTLOADER)
+		return -ENOTSUPP;
+
 	return omap_reboot_mode_store("b");
 }
 
