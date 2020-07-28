@@ -75,18 +75,23 @@ void *board_fdt_blob_setup(void)
 int board_late_init_xilinx(void)
 {
 	bd_t *bd = gd->bd;
+	int ret = 0;
 
 	if (bd->bi_dram[0].start) {
 		ulong scriptaddr;
 
 		scriptaddr = env_get_hex("scriptaddr", 0);
-		env_set_hex("scriptaddr", bd->bi_dram[0].start + scriptaddr);
+		ret |= env_set_hex("scriptaddr",
+				   bd->bi_dram[0].start + scriptaddr);
 	}
 
-	env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
+	ret |= env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
 
-	env_set_addr("bootm_low", (void *)gd->ram_base);
-	env_set_addr("bootm_size", (void *)gd->ram_size);
+	ret |= env_set_addr("bootm_low", (void *)gd->ram_base);
+	ret |= env_set_addr("bootm_size", (void *)gd->ram_size);
+
+	if (ret)
+		printf("%s: Saving run time variables FAILED\n", __func__);
 
 	return 0;
 }
