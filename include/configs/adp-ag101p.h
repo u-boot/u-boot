@@ -19,7 +19,6 @@
 
 #define CONFIG_ARCH_MAP_SYSMEM
 
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_BOOTP_SERVERIP
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
@@ -317,7 +316,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /* environments */
-#define CONFIG_ENV_OVERWRITE
 
 /*
  * For booting Linux, the board info and command line data

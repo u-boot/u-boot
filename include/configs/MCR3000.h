@@ -91,7 +91,6 @@
 /* Environment Configuration */
 
 /* environment is in FLASH */
-#define CONFIG_ENV_OVERWRITE	1
 
 /* Ethernet configuration part */
 #define CONFIG_SYS_DISCOVER_PHY		1

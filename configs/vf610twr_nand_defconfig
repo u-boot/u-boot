@@ -32,6 +32,7 @@ CONFIG_MTDIDS_DEFAULT="nand0=fsl_nfc"
 CONFIG_MTDPARTS_DEFAULT="mtdparts=fsl_nfc:128k(vf-bcb)ro,1408k(u-boot)ro,512k(u-boot-env),4m(kernel),512k(fdt),-(rootfs)"
 CONFIG_CMD_UBI=y
 CONFIG_OF_CONTROL=y
+CONFIG_ENV_OVERWRITE=y
 CONFIG_ENV_IS_IN_NAND=y
 CONFIG_SYS_RELOC_GD_ENV_ADDR=y
 CONFIG_DM=y

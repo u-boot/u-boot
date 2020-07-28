@@ -18,8 +18,6 @@
 #define USDHC2_BASE_ADDR		0x5b020000
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
 
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 /* Networking */

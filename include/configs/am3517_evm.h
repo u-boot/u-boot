@@ -18,9 +18,6 @@
 
 /* Hardware drivers */
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /*
  * USB configuration
  * Enable CONFIG_USB_MUSB_HOST for Host functionalities MSC, keyboard
@@ -35,9 +32,6 @@
 /* I2C */
 
 /* Ethernet */
-#define CONFIG_DRIVER_TI_EMAC_USE_RMII
-#define CONFIG_BOOTP_DEFAULT
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT		10
 
 /* Board NAND Info. */
@@ -175,11 +169,6 @@
 
 /* Defines for SPL */
 
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
-
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_ECC
 
 #endif /* __CONFIG_H */

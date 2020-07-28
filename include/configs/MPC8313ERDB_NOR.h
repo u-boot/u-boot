@@ -304,7 +304,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_NETDEV		"eth1"
 

@@ -38,6 +38,7 @@ CONFIG_MP=y
 CONFIG_OF_CONTROL=y
 CONFIG_OF_LIST="fsl-lx2160a-qds-3-x-x fsl-lx2160a-qds-7-x-x fsl-lx2160a-qds-19-x-x fsl-lx2160a-qds-20-x-x fsl-lx2160a-qds-3-11-x  fsl-lx2160a-qds-7-11-x fsl-lx2160a-qds-7-11-x fsl-lx2160a-qds-19-11-x fsl-lx2160a-qds-20-11-x"
 CONFIG_MULTI_DTB_FIT=y
+CONFIG_ENV_OVERWRITE=y
 CONFIG_ENV_IS_IN_MMC=y
 CONFIG_ENV_IS_IN_SPI_FLASH=y
 CONFIG_ENV_ADDR=0x20500000

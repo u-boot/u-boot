@@ -43,9 +43,6 @@
 /* UART */
 #define LPUART_BASE			LPUART4_RBASE
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* Physical Memory Map */
 
 #define PHYS_SDRAM			0x60000000

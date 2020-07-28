@@ -69,7 +69,6 @@
 #define SH7757LCR_PCIEBRG_SIZE		(96 * 1024)
 
 /* ENV setting */
-#define CONFIG_ENV_OVERWRITE	1
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 		"netboot=bootp; bootm\0"
 

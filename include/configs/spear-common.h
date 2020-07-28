@@ -88,7 +88,6 @@
 /*
  * Default Environment Varible definitions
  */
-#define CONFIG_ENV_OVERWRITE
 
 /*
  * U-Boot Environment placing definitions.

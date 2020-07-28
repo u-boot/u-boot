@@ -445,7 +445,6 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_OVERWRITE
 
 #if defined(CONFIG_SD_BOOT)
 #define CONFIG_SYS_MMC_ENV_DEV		0

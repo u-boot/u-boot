@@ -29,6 +29,4 @@
 
 /* ENV related config options */
 
-#define CONFIG_ENV_OVERWRITE
-
 #endif /* __CONFIG_PANDA_H */

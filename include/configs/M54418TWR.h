@@ -211,8 +211,6 @@
  * Environment is embedded in u-boot in the second sector of the flash
  */
 
-#undef CONFIG_ENV_OVERWRITE
-
 /* FLASH organization */
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_CS0_BASE
 

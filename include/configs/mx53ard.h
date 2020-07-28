@@ -45,9 +45,6 @@
 /* Eth Configs */
 #define CONFIG_HAS_ETH1
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* Command definition */
 
 #define CONFIG_ETHPRIME		"smc911x"

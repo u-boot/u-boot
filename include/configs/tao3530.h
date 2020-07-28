@@ -51,9 +51,6 @@
  */
 #define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* commands to include */
 
 #define CONFIG_SYS_I2C
@@ -186,12 +183,7 @@
 
 /* Defines for SPL */
 
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
-
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_ECC
 
 /* NAND boot config */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE

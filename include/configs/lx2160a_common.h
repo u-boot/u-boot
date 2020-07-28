@@ -172,9 +172,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_SYS_MMC_ENV_DEV          0
 
-/* Allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \

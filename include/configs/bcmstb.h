@@ -142,7 +142,6 @@ extern phys_addr_t prior_stage_fdt_address;
 /*
  * Environment configuration.
  */
-#define CONFIG_ENV_OVERWRITE
 
 /*
  * Save the prior stage provided DTB.

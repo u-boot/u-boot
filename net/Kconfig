@@ -8,6 +8,16 @@ menuconfig NET
 
 if NET
 
+config BOOTP_SEND_HOSTNAME
+	bool "Send hostname to DNS server"
+	help
+	  Some DHCP servers are capable to do a dynamic update of a
+	  DNS server. To do this, they need the hostname of the DHCP
+	  requester.
+	  If CONFIG_BOOTP_SEND_HOSTNAME is defined, the content
+          of the "hostname" environment variable is passed as
+          option 12 to the DHCP server.
+
 config NET_RANDOM_ETHADDR
 	bool "Random ethaddr if unset"
 	help

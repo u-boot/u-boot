@@ -56,7 +56,6 @@
 #define CONFIG_SH_MMCIF_CLK		48000000
 
 /* ENV setting */
-#define CONFIG_ENV_OVERWRITE	1
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 		"netboot=bootp; bootm\0"
 

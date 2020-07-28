@@ -229,7 +229,6 @@
  * We don't know which end has the small erase blocks so we use the penultimate
  * sector location for the environment
  */
-#define CONFIG_ENV_OVERWRITE		1
 
 /* Store environment at top of flash */
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */

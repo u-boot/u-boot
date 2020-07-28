@@ -55,7 +55,6 @@
 #define CONFIG_NET_RETRY_COUNT      20
 #define CONFIG_MACB_SEARCH_PHY
 #define CONFIG_ETHADDR              C0:EE:40:00:00:00
-#define CONFIG_ENV_OVERWRITE        1
 
 /* System */
 #define CONFIG_SYS_LOAD_ADDR        0x22000000	/* load address */
@@ -114,8 +113,6 @@
 #define CONFIG_SYS_MCKR             0x1301
 #define CONFIG_SYS_MCKR_CSS         0x1302
 
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_BASE
 #define CONFIG_SYS_NAND_U_BOOT_OFFS 0x20000
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_SIZE   0x800

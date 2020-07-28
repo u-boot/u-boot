@@ -20,8 +20,6 @@
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
 
-#define CONFIG_ENV_OVERWRITE
-
 /* support deep sleep */
 #ifdef CONFIG_ARCH_T1024
 #define CONFIG_DEEP_SLEEP

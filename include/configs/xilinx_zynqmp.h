@@ -227,12 +227,8 @@
 /* ATF is my kernel image */
 #define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"atf-uboot.ub"
 
-/* FIT load address for RAM boot */
-#define CONFIG_SPL_LOAD_FIT_ADDRESS	0x10000000
-
 /* MMC support */
 #ifdef CONFIG_MMC_SDHCI_ZYNQ
-# define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0 /* unused */
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0 /* unused */
 # define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0 /* unused */

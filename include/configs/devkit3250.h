@@ -154,9 +154,7 @@
 
 /* SPL loads an image from NAND */
 #define CONFIG_SPL_NAND_RAW_ONLY
-#define CONFIG_SPL_NAND_DRIVERS
 
-#define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_NAND_SOFTECC
 
 #define CONFIG_SPL_MAX_SIZE		0x20000

@@ -162,9 +162,6 @@ unsigned long long get_qixis_addr(void);
 /* #define CONFIG_DISPLAY_CPUINFO */
 
 #ifndef SPL_NO_ENV
-/* Allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\

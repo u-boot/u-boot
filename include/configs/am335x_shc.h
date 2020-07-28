@@ -239,8 +239,6 @@
 #undef CONFIG_TIMER
 #endif
 
-#define CONFIG_BOOTP_DEFAULT
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT         10
 
 /* I2C configuration */

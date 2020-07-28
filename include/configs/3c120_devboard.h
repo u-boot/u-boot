@@ -62,8 +62,6 @@
  * (which is common practice).
  */
 
-#define CONFIG_ENV_OVERWRITE		/* Serial change Ok	*/
-
 /*
  * MISC
  */

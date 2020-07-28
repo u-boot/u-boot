@@ -84,8 +84,6 @@
 
 /* Address and size of Primary Environment Sector */
 
-#define CONFIG_ENV_OVERWRITE	1
-
 #define MEM_SIZE		128
 
 #endif /* __CONFIG_H */

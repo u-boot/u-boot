@@ -47,7 +47,6 @@
 #define CONFIG_SYS_NS16550_COM1     0x48024000  /* Base EVM has UART2 */
 
 /* allow overwriting serial config and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 
 /*
@@ -88,7 +87,6 @@
 #define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
 					 CONFIG_SPL_TEXT_BASE)
 
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT	10
 
 /* Since SPL did pll and ddr initialization for us,

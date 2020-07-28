@@ -242,7 +242,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_HAS_ETH0		/* add support for "ethaddr" */
 #define CONFIG_HAS_ETH1		/* add support for "eth1addr" */
