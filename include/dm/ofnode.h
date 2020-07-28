@@ -538,6 +538,28 @@ const char *ofnode_read_chosen_string(const char *propname);
  */
 ofnode ofnode_get_chosen_node(const char *name);
 
+/**
+ * ofnode_read_aliases_prop() - get the value of a aliases property
+ *
+ * This looks for a property within the /aliases node and returns its value
+ *
+ * @propname: Property name to look for
+ * @sizep: Returns size of property, or FDT_ERR_... error code if function
+ *	returns NULL
+ * @return property value if found, else NULL
+ */
+const void *ofnode_read_aliases_prop(const char *propname, int *sizep);
+
+/**
+ * ofnode_get_aliases_node() - get a referenced node from the aliases node
+ *
+ * This looks up a named property in the aliases node and uses that as a path to
+ * look up a code.
+ *
+ * @return the referenced node if present, else ofnode_null()
+ */
+ofnode ofnode_get_aliases_node(const char *propname);
+
 struct display_timing;
 /**
  * ofnode_decode_display_timing() - decode display timings

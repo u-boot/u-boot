@@ -456,6 +456,28 @@ ofnode ofnode_get_chosen_node(const char *name)
 	return ofnode_path(prop);
 }
 
+const void *ofnode_read_aliases_prop(const char *propname, int *sizep)
+{
+	ofnode node;
+
+	node = ofnode_path("/aliases");
+
+	return ofnode_read_prop(node, propname, sizep);
+}
+
+ofnode ofnode_get_aliases_node(const char *name)
+{
+	const char *prop;
+
+	prop = ofnode_read_aliases_prop(name, NULL);
+	if (!prop)
+		return ofnode_null();
+
+	debug("%s: node_path: %s\n", __func__, prop);
+
+	return ofnode_path(prop);
+}
+
 static int decode_timing_property(ofnode node, const char *name,
 				  struct timing_entry *result)
 {
