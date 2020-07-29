@@ -58,6 +58,31 @@ int ut_check_console_line(struct unit_test_state *uts, const char *fmt, ...)
 			__attribute__ ((format (__printf__, 2, 3)));
 
 /**
+ * ut_check_console_linen() - Check part of the next console line
+ *
+ * This creates a string and then checks it against the next line of console
+ * output obtained with console_record_readline(). Only the length of the
+ * string is checked
+ *
+ * After the function returns, uts->expect_str holds the expected string and
+ * uts->actual_str holds the actual string read from the console.
+ *
+ * @uts: Test state
+ * @fmt: printf() format string for the error, followed by args
+ * @return 0 if OK, other value on error
+ */
+int ut_check_console_linen(struct unit_test_state *uts, const char *fmt, ...)
+			__attribute__ ((format (__printf__, 2, 3)));
+
+/**
+ * ut_check_skipline() - Check that the next console line exists and skip it
+ *
+ * @uts: Test state
+ * @return 0 if OK, other value on error
+ */
+int ut_check_skipline(struct unit_test_state *uts);
+
+/**
  * ut_check_console_end() - Check there is no more console output
  *
  * After the function returns, uts->actual_str holds the actual string read
@@ -131,6 +156,23 @@ int ut_check_console_dump(struct unit_test_state *uts, int total_bytes);
 		ut_failf(uts, __FILE__, __LINE__, __func__,		\
 			 #expr1 " = " #expr2,				\
 			 "Expected \"%s\", got \"%s\"", _val1, _val2);	\
+		return CMD_RET_FAILURE;					\
+	}								\
+}
+
+/*
+ * Assert that two string expressions are equal, up to length of the
+ * first
+ */
+#define ut_asserteq_strn(expr1, expr2) {				\
+	const char *_val1 = (expr1), *_val2 = (expr2);			\
+	int _len = strlen(_val1);					\
+									\
+	if (memcmp(_val1, _val2, _len)) {				\
+		ut_failf(uts, __FILE__, __LINE__, __func__,		\
+			 #expr1 " = " #expr2,				\
+			 "Expected \"%.*s\", got \"%.*s\"",		\
+			 _len, _val1, _len, _val2);			\
 		return CMD_RET_FAILURE;					\
 	}								\
 }
@@ -228,6 +270,23 @@ int ut_check_console_dump(struct unit_test_state *uts, int total_bytes);
 		ut_failf(uts, __FILE__, __LINE__, __func__,		\
 			 "console", "\nExpected '%s',\n     got '%s'",	\
 			 uts->expect_str, uts->actual_str);		\
+		return CMD_RET_FAILURE;					\
+	}								\
+
+/* Assert that the next console output line matches up to the length */
+#define ut_assert_nextlinen(fmt, args...)				\
+	if (ut_check_console_linen(uts, fmt, ##args)) {			\
+		ut_failf(uts, __FILE__, __LINE__, __func__,		\
+			 "console", "\nExpected '%s',\n     got '%s'",	\
+			 uts->expect_str, uts->actual_str);		\
+		return CMD_RET_FAILURE;					\
+	}								\
+
+/* Assert that there is a 'next' console output line, and skip it */
+#define ut_assert_skipline()						\
+	if (ut_check_skipline(uts)) {					\
+		ut_failf(uts, __FILE__, __LINE__, __func__,		\
+			 "console", "\nExpected a line, got end");	\
 		return CMD_RET_FAILURE;					\
 	}								\
 
