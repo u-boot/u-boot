@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
- * Copyright : STMicroelectronics 2018
+ * Copyright (C) 2020 Marcin Sloniewski <marcin.sloniewski@gmail.com>
  */
 
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
@@ -8,57 +8,20 @@
 #include "stm32mp15-ddr3-1x4Gb-1066-binG.dtsi"
 
 / {
-	aliases {
-		i2c3 = &i2c4;
-		mmc0 = &sdmmc1;
-		usb0 = &usbotg_hs;
-	};
 	config {
 		u-boot,boot-led = "heartbeat";
-		u-boot,error-led = "error";
-		u-boot,mmc-env-partition = "ssbl";
-		st,adc_usb_pd = <&adc1 18>, <&adc1 19>;
-		st,fastboot-gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
-		st,stm32prog-gpios = <&gpioa 14 GPIO_ACTIVE_LOW>;
 	};
-
-	firmware {
-		optee {
-			compatible = "linaro,optee-tz";
-			method = "smc";
-		};
-	};
-
-	reserved-memory {
-		optee@de000000 {
-			reg = <0xde000000 0x02000000>;
-			no-map;
-		};
-	};
-
-	led {
-		red {
-			label = "error";
-			gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
-			default-state = "off";
-			status = "okay";
-		};
-	};
-};
-
-&adc {
-	status = "okay";
 };
 
 &clk_hse {
 	st,digbypass;
 };
 
-&i2c4 {
+&i2c2 {
 	u-boot,dm-pre-reloc;
 };
 
-&i2c4_pins_a {
+&i2c2_pins_a {
 	u-boot,dm-pre-reloc;
 	pins {
 		u-boot,dm-pre-reloc;
@@ -159,38 +122,4 @@
 		cfg = < 3 98 5 7 7 PQR(1,1,1) >;
 		u-boot,dm-pre-reloc;
 	};
-};
-
-&sdmmc1 {
-	u-boot,dm-spl;
-};
-
-&sdmmc1_b4_pins_a {
-	u-boot,dm-spl;
-	pins1 {
-		u-boot,dm-spl;
-	};
-	pins2 {
-		u-boot,dm-spl;
-	};
-};
-
-&uart4 {
-	u-boot,dm-pre-reloc;
-};
-
-&uart4_pins_a {
-	u-boot,dm-pre-reloc;
-	pins1 {
-		u-boot,dm-pre-reloc;
-	};
-	pins2 {
-		u-boot,dm-pre-reloc;
-		/* pull-up on rx to avoid floating level */
-		bias-pull-up;
-	};
-};
-
-&usbotg_hs {
-	u-boot,force-b-session-valid;
 };

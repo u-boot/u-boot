@@ -263,7 +263,7 @@ static int stm32_usbphyc_phy_power_off(struct phy *phy)
 		return 0;
 
 	if (usbphyc_phy->vdd) {
-		ret = regulator_set_enable(usbphyc_phy->vdd, false);
+		ret = regulator_set_enable_if_allowed(usbphyc_phy->vdd, false);
 		if (ret)
 			return ret;
 	}
