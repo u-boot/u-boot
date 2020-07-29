@@ -74,6 +74,7 @@ static struct cmd_tbl cmd_ut_sub[] = {
 #ifdef CONFIG_UT_LOG
 	U_BOOT_CMD_MKENT(log, CONFIG_SYS_MAXARGS, 1, do_ut_log, "", ""),
 #endif
+	U_BOOT_CMD_MKENT(mem, CONFIG_SYS_MAXARGS, 1, do_ut_mem, "", ""),
 #ifdef CONFIG_UT_TIME
 	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
 #endif
@@ -145,6 +146,7 @@ static char ut_help_text[] =
 #ifdef CONFIG_UT_LOG
 	"ut log [test-name] - test logging functions\n"
 #endif
+	"ut mem [test-name] - test memory-related commands\n"
 #ifdef CONFIG_UT_OPTEE
 	"ut optee [test-name]\n"
 #endif

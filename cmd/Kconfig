@@ -724,7 +724,7 @@ config CMD_MEMORY
 	    base - print or set address offset
 	    loop - initialize loop on address range
 
-config MEM_SEARCH
+config CMD_MEM_SEARCH
 	bool "ms - Memory search"
 	help
 	  Memory-search command
