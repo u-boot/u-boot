@@ -748,9 +748,9 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 					    "sdhci-caps-mask", 0);
 	dt_caps = dev_read_u64_default(host->mmc->dev,
 				       "sdhci-caps", 0);
-	caps = ~(u32)dt_caps_mask &
+	caps = ~lower_32_bits(dt_caps_mask) &
 	       sdhci_readl(host, SDHCI_CAPABILITIES);
-	caps |= (u32)dt_caps;
+	caps |= lower_32_bits(dt_caps);
 #else
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
 #endif
@@ -793,9 +793,9 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 	/* Check whether the clock multiplier is supported or not */
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 #if CONFIG_IS_ENABLED(DM_MMC)
-		caps_1 = ~(u32)(dt_caps_mask >> 32) &
+		caps_1 = ~upper_32_bits(dt_caps_mask) &
 			 sdhci_readl(host, SDHCI_CAPABILITIES_1);
-		caps_1 |= (u32)(dt_caps >> 32);
+		caps_1 |= upper_32_bits(dt_caps);
 #else
 		caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
 #endif
