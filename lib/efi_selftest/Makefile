@@ -32,7 +32,6 @@ efi_selftest_memory.o \
 efi_selftest_open_protocol.o \
 efi_selftest_register_notify.o \
 efi_selftest_set_virtual_address_map.o \
-efi_selftest_snp.o \
 efi_selftest_textinput.o \
 efi_selftest_textinputex.o \
 efi_selftest_textoutput.o \
@@ -41,6 +40,8 @@ efi_selftest_util.o \
 efi_selftest_variables.o \
 efi_selftest_variables_runtime.o \
 efi_selftest_watchdog.o
+
+obj-$(CONFIG_NET) += efi_selftest_snp.o
 
 obj-$(CONFIG_EFI_DEVICE_PATH_TO_TEXT) += efi_selftest_devicepath.o
 obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL2) += \
