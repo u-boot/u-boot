@@ -1,7 +1,8 @@
 Qualcomm Snapdragon GPIO controller
 
 Required properties:
-- compatible : "qcom,msm8916-pinctrl" or "qcom,apq8016-pinctrl"
+- compatible : "qcom,msm8916-pinctrl", "qcom,apq8016-pinctrl" or
+				"qcom,ipq4019-pinctrl"
 - reg : Physical base address and length of the controller's registers.
 	This controller is called "Top Level Mode Multiplexing" in
 	Qualcomm documentation.

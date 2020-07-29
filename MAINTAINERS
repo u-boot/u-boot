@@ -218,6 +218,13 @@ F:	arch/arm/cpu/armv8/hisilicon
 F:	arch/arm/include/asm/arch-hi6220/
 F:	arch/arm/include/asm/arch-hi3660/
 
+ARM IPQ40XX
+M:	Robert Marko <robert.marko@sartura.hr>
+M:	Luka Kovacic <luka.kovacic@sartura.hr>
+M:	Luka Perkov <luka.perkov@sartura.hr>
+S:	Maintained
+F:	arch/arm/mach-ipq40xx/
+
 ARM MARVELL KIRKWOOD ARMADA-XP ARMADA-38X ARMADA-37XX ARMADA-7K/8K
 M:	Stefan Roese <sr@denx.de>
 S:	Maintained
@@ -272,6 +279,23 @@ T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-atmel.git
 F:	arch/arm/mach-at91/
 F:	board/atmel/
 F:	drivers/misc/microchip_flexcom.c
+
+ARM NEXELL S5P4418
+M:	Stefan Bosch <stefan_b@posteo.net>
+S:	Maintained
+F:	arch/arm/cpu/armv7/s5p4418/
+F:	arch/arm/dts/s5p4418*
+F:	arch/arm/mach-nexell/
+F:	board/friendlyarm/
+F:	configs/s5p4418_nanopi2_defconfig
+F:	doc/README.s5p4418
+F:	drivers/gpio/nx_gpio.c
+F:	drivers/i2c/nx_i2c.c
+F:	drivers/mmc/nexell_dw_mmc_dm.c
+F:	drivers/pinctrl/nexell/
+F:	drivers/video/nexell/
+F:	drivers/video/nexell_display.c
+F:	include/configs/s5p4418_nanopi2.h
 
 ARM OWL
 M:	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>

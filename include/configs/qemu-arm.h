@@ -53,5 +53,6 @@
 #define CONFIG_SYS_MAX_FLASH_BANKS	2
 #endif
 #define CONFIG_SYS_MAX_FLASH_SECT	256 /* Sector: 256K, Bank: 64M */
+#define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
 
 #endif /* __CONFIG_H */

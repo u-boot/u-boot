@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <init.h>
@@ -94,6 +95,12 @@ void *board_fdt_blob_setup(void)
 	return (void *)CONFIG_SYS_SDRAM_BASE;
 }
 
+void enable_caches(void)
+{
+	 icache_enable();
+	 dcache_enable();
+}
+
 #if defined(CONFIG_EFI_RNG_PROTOCOL)
 #include <efi_loader.h>
 #include <efi_rng.h>
@@ -135,3 +142,48 @@ efi_status_t platform_get_rng_device(struct udevice **dev)
 	return EFI_SUCCESS;
 }
 #endif /* CONFIG_EFI_RNG_PROTOCOL */
+
+#ifdef CONFIG_ARM64
+#define __W	"w"
+#else
+#define __W
+#endif
+
+u8 flash_read8(void *addr)
+{
+	u8 ret;
+
+	asm("ldrb %" __W "0, %1" : "=r"(ret) : "m"(*(u8 *)addr));
+	return ret;
+}
+
+u16 flash_read16(void *addr)
+{
+	u16 ret;
+
+	asm("ldrh %" __W "0, %1" : "=r"(ret) : "m"(*(u16 *)addr));
+	return ret;
+}
+
+u32 flash_read32(void *addr)
+{
+	u32 ret;
+
+	asm("ldr %" __W "0, %1" : "=r"(ret) : "m"(*(u32 *)addr));
+	return ret;
+}
+
+void flash_write8(u8 value, void *addr)
+{
+	asm("strb %" __W "1, %0" : "=m"(*(u8 *)addr) : "r"(value));
+}
+
+void flash_write16(u16 value, void *addr)
+{
+	asm("strh %" __W "1, %0" : "=m"(*(u16 *)addr) : "r"(value));
+}
+
+void flash_write32(u32 value, void *addr)
+{
+	asm("str %" __W "1, %0" : "=m"(*(u32 *)addr) : "r"(value));
+}

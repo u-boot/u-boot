@@ -644,6 +644,16 @@ source "drivers/video/bridge/Kconfig"
 
 source "drivers/video/imx/Kconfig"
 
+config VIDEO_NX
+	bool "Enable video support on Nexell SoC"
+	depends on ARCH_S5P6818 || ARCH_S5P4418
+	help
+	   Nexell SoC supports many video output options including eDP and
+	   HDMI. This option enables this support which can be used on devices
+	   which have an eDP display connected.
+
+source "drivers/video/nexell/Kconfig"
+
 config VIDEO
 	bool "Enable legacy video support"
 	depends on !DM_VIDEO

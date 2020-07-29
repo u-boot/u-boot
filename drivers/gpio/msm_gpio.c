@@ -118,6 +118,7 @@ static int msm_gpio_ofdata_to_platdata(struct udevice *dev)
 static const struct udevice_id msm_gpio_ids[] = {
 	{ .compatible = "qcom,msm8916-pinctrl" },
 	{ .compatible = "qcom,apq8016-pinctrl" },
+	{ .compatible = "qcom,ipq4019-pinctrl" },
 	{ }
 };
 

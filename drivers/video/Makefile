@@ -62,6 +62,7 @@ obj-${CONFIG_VIDEO_MIPI_DSI} += mipi_dsi.o
 obj-$(CONFIG_VIDEO_MVEBU) += mvebu_lcd.o
 obj-$(CONFIG_VIDEO_MX3) += mx3fb.o videomodes.o
 obj-$(CONFIG_VIDEO_MXS) += mxsfb.o videomodes.o
+obj-$(CONFIG_VIDEO_NX) += nexell_display.o videomodes.o nexell/
 obj-$(CONFIG_VIDEO_OMAP3) += omap3_dss.o
 obj-$(CONFIG_VIDEO_DSI_HOST_SANDBOX) += sandbox_dsi_host.o
 obj-$(CONFIG_VIDEO_SANDBOX_SDL) += sandbox_sdl.o

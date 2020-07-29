@@ -333,6 +333,15 @@ config SYS_MXC_I2C8_SLAVE
 	 MXC I2C8 Slave
 endif
 
+config SYS_I2C_NEXELL
+	bool "Nexell I2C driver"
+	depends on DM_I2C
+	help
+	  Add support for the Nexell I2C driver. This is used with various
+	  Nexell parts such as S5Pxx18 series SoCs. All chips
+	  have several I2C ports and all are provided, controlled by the
+	  device tree.
+
 config SYS_I2C_OMAP24XX
 	bool "TI OMAP2+ I2C driver"
 	depends on ARCH_OMAP2PLUS || ARCH_K3

@@ -1,0 +1,147 @@
+CONFIG_ARM=y
+CONFIG_ARCH_NEXELL=y
+CONFIG_ARCH_S5P4418=y
+CONFIG_TARGET_NANOPI2=y
+CONFIG_DEFAULT_DEVICE_TREE="s5p4418-nanopi2"
+CONFIG_FIT=y
+
+CONFIG_SYS_MEMTEST_START=0x71000000
+CONFIG_SYS_MEMTEST_END=0xb0000000
+
+CONFIG_CMD_MEMTEST=y
+# CONFIG_CMD_IMLS is not set
+# CONFIG_CMD_FLASH is not set
+CONFIG_CMD_I2C=y
+# CONFIG_CMD_FPGA is not set
+CONFIG_CMD_GPIO=y
+# CONFIG_CMD_SETEXPR is not set
+# CONFIG_CMD_NET is not set
+
+# Default is CONFIG_NET=y, in this case:
+#   Loading Environment from MMC... ## Warning: Unknown environment variable type 'm'
+#   OK
+# CONFIG_CMD_NET=y must be set to avoid this Warning. But then:
+#   Net:   Net Initialization Skipped
+#   No ethernet found.
+# If CONFIG_NET=n is set additionally warning at "make s5p4418_nanopi2_defconfig":
+#    arch/../configs/s5p4418_nanopi2_defconfig:24:warning: override: reassigning to symbol CMD_NET
+#
+# --> CONFIG_NET=n set only
+CONFIG_NET=n
+
+# CONFIG_CMD_NFS is not set
+CONFIG_CMD_FDISK=y
+CONFIG_CMD_EXT4_IMG_WRITE=y
+CONFIG_CMD_SD_RECOVERY=y
+CONFIG_CMD_PMIC=y
+CONFIG_CMD_REGULATOR=y
+
+CONFIG_PINCTRL=y
+CONFIG_DM_GPIO=y
+CONFIG_DM_I2C=y
+CONFIG_SYS_I2C_NEXELL=y
+CONFIG_DM_PMIC=y
+CONFIG_DM_PMIC_AXP228=y
+CONFIG_DM_REGULATOR=y
+CONFIG_DM_REGULATOR_AXP228=y
+CONFIG_DM_PWM=n
+
+CONFIG_DISPLAY=y
+CONFIG_DM_VIDEO=y
+CONFIG_SYS_CONSOLE_BG_COL=0xff
+CONFIG_SYS_CONSOLE_FG_COL=0x00
+CONFIG_VIDEO_NX=y
+CONFIG_VIDEO_NX_RGB=y
+CONFIG_VIDEO_NX_LVDS=y
+CONFIG_VIDEO_NX_HDMI=y
+CONFIG_CMD_BMP=y
+
+## LCD backlight control
+CONFIG_S5P4418_ONEWIRE=y
+CONFIG_PWM_NX is not set
+
+CONFIG_REGEX=y
+CONFIG_ERRNO_STR=y
+
+CONFIG_SYS_TEXT_BASE=0x74C00000
+CONFIG_NR_DRAM_BANKS=1
+CONFIG_SYS_CACHELINE_SIZE=64
+
+## System initialize options (board_init_f)
+# board_init_f->init_sequence, call board_early_init_f
+CONFIG_BOARD_LATE_INIT=y
+# board_init_f->init_sequence, call print_cpuinfo
+CONFIG_DISPLAY_CPUINFO=y
+# board_init_f->init_sequence, call show_board_info
+CONFIG_DISPLAY_BOARDINFO=y
+# board_init_f, CONFIG_SYS_ICACHE_OFF
+CONFIG_SYS_DCACHE_OFF=y
+# board_init_r, call arch_misc_init
+CONFIG_ARCH_MISC_INIT=y
+
+CONFIG_BOOTDELAY=1
+CONFIG_ZERO_BOOTDELAY_CHECK=y
+
+## U-Boot Environments
+## refer to common/env_common.c
+
+# CONFIG_ENV_IS_IN_MMC must be set here and not in s5p4418_nanopi2.h
+# otherwise CONFIG_ENV_IS_NOWHERE is set by env/Kconfig and environment
+# (bootargs) are not loaded
+CONFIG_ENV_IS_IN_MMC=y
+CONFIG_ENV_OFFSET=0x2E0200
+CONFIG_ENV_SIZE=0x4000
+CONFIG_CMD_SAVEENV=y
+
+## Etc Command definition
+# image info
+CONFIG_CMD_IMI=y
+# add command line history
+CONFIG_CMDLINE_EDITING=y
+CONFIG_CMDLINE_TAG=y
+CONFIG_INITRD_TAG=y
+CONFIG_SUPPORT_RAW_INITRD=y
+CONFIG_REVISION_TAG=y
+CONFIG_CMD_BOOTZ=y
+
+## serial console configuration
+CONFIG_CONS_INDEX=0
+CONFIG_BAUDRATE=115200
+
+## SD/MMC
+CONFIG_BOUNCE_BUFFER=y
+CONFIG_GENERIC_MMC=y
+CONFIG_MMC=y
+CONFIG_MMC_DW=y
+CONFIG_NEXELL_DWMMC=y
+CONFIG_CMD_MMC=y
+CONFIG_DM_MMC=y
+
+CONFIG_DOS_PARTITION=y
+CONFIG_CMD_FAT=y
+CONFIG_FS_FAT=y
+CONFIG_FAT_WRITE=y
+
+CONFIG_CMD_EXT4=y
+CONFIG_CMD_EXT4_WRITE=y
+CONFIG_FS_EXT4=y
+CONFIG_EXT4_WRITE=y
+
+## OF_CONTROL
+CONFIG_FIT_BEST_MATCH=y
+CONFIG_OF_LIBFDT=y
+CONFIG_OF_BOARD_SETUP=y
+
+## BOOTCOMMAND
+CONFIG_ROOT_DEV=1
+CONFIG_BOOT_PART=1
+CONFIG_ROOT_PART=2
+
+# necessary for if-cmd
+CONFIG_HUSH_PARSER=y
+
+# set to 'n' to save memory
+CONFIG_SYS_LONGHELP=y
+
+# For debugging (trace) of MMC-CMDs
+CONFIG_MMC_TRACE=n

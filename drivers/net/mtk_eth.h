@@ -46,6 +46,7 @@
 #define SGMII_PHYA_PWD			BIT(4)
 
 #define SGMSYS_GEN2_SPEED		0x2028
+#define SGMSYS_GEN2_SPEED_V2		0x128
 #define SGMSYS_SPEED_2500		BIT(2)
 
 /* Frame Engine Registers */

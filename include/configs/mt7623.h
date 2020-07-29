@@ -49,7 +49,7 @@
 	"fdt_high=" FDT_HIGH "\0"			\
 	"kernel_addr_r=0x84000000\0"			\
 	"fdt_addr_r=" FDT_HIGH "\0"			\
-	"fdtfile=mt7623n-bananapi-bpi-r2.dtb" "\0"
+	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0"
 
 /* Ethernet */
 #define CONFIG_IPADDR			192.168.1.1
