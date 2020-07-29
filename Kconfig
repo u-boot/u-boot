@@ -369,6 +369,16 @@ config PLATFORM_ELFENTRY
 	default "__start" if MIPS
 	default "_start"
 
+config STACK_SIZE
+	hex "Define max stack size that can be used by U-Boot"
+	default 0x4000000 if ARCH_VERSAL || ARCH_ZYNQMP
+	default 0x200000 if MICROBLAZE
+	default 0x1000000
+	help
+	  Define Max stack size that can be used by U-Boot. This value is used
+	  by the UEFI sub-system. On some boards initrd_high is calculated as
+	  base stack pointer minus this stack size.
+
 endmenu		# General setup
 
 menu "Boot images"
