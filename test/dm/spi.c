@@ -92,7 +92,7 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_spi_find, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_spi_find, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that sandbox SPI works correctly */
 static int dm_test_spi_xfer(struct unit_test_state *uts)
@@ -124,4 +124,4 @@ static int dm_test_spi_xfer(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_spi_xfer, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_spi_xfer, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

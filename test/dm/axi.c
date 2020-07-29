@@ -23,7 +23,7 @@ static int dm_test_axi_base(struct unit_test_state *uts)
 	return 0;
 }
 
-DM_TEST(dm_test_axi_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_axi_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that sandbox PCI bus numbering works correctly */
 static int dm_test_axi_busnum(struct unit_test_state *uts)
@@ -35,7 +35,7 @@ static int dm_test_axi_busnum(struct unit_test_state *uts)
 	return 0;
 }
 
-DM_TEST(dm_test_axi_busnum, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_axi_busnum, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that we can use the store device correctly */
 static int dm_test_axi_store(struct unit_test_state *uts)
@@ -76,4 +76,4 @@ static int dm_test_axi_store(struct unit_test_state *uts)
 	return 0;
 }
 
-DM_TEST(dm_test_axi_store, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_axi_store, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

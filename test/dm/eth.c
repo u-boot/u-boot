@@ -40,7 +40,7 @@ static int dm_test_eth(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_eth, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_eth, UT_TESTF_SCAN_FDT);
 
 static int dm_test_eth_alias(struct unit_test_state *uts)
 {
@@ -64,7 +64,7 @@ static int dm_test_eth_alias(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_eth_alias, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_eth_alias, UT_TESTF_SCAN_FDT);
 
 static int dm_test_eth_prime(struct unit_test_state *uts)
 {
@@ -84,7 +84,7 @@ static int dm_test_eth_prime(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_eth_prime, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_eth_prime, UT_TESTF_SCAN_FDT);
 
 /**
  * This test case is trying to test the following scenario:
@@ -145,7 +145,7 @@ static int dm_test_eth_act(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_eth_act, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_eth_act, UT_TESTF_SCAN_FDT);
 
 /* The asserts include a return on fail; cleanup in the caller */
 static int _dm_test_eth_rotate1(struct unit_test_state *uts)
@@ -217,7 +217,7 @@ static int dm_test_eth_rotate(struct unit_test_state *uts)
 
 	return retval;
 }
-DM_TEST(dm_test_eth_rotate, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_eth_rotate, UT_TESTF_SCAN_FDT);
 
 /* The asserts include a return on fail; cleanup in the caller */
 static int _dm_test_net_retry(struct unit_test_state *uts)
@@ -260,7 +260,7 @@ static int dm_test_net_retry(struct unit_test_state *uts)
 
 	return retval;
 }
-DM_TEST(dm_test_net_retry, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_net_retry, UT_TESTF_SCAN_FDT);
 
 static int sb_check_arp_reply(struct udevice *dev, void *packet,
 			      unsigned int len)
@@ -345,7 +345,7 @@ static int dm_test_eth_async_arp_reply(struct unit_test_state *uts)
 	return 0;
 }
 
-DM_TEST(dm_test_eth_async_arp_reply, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_eth_async_arp_reply, UT_TESTF_SCAN_FDT);
 
 static int sb_check_ping_reply(struct udevice *dev, void *packet,
 			       unsigned int len)
@@ -430,4 +430,4 @@ static int dm_test_eth_async_ping_reply(struct unit_test_state *uts)
 	return 0;
 }
 
-DM_TEST(dm_test_eth_async_ping_reply, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_eth_async_ping_reply, UT_TESTF_SCAN_FDT);

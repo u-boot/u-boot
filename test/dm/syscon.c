@@ -29,7 +29,7 @@ static int dm_test_syscon_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_syscon_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_syscon_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test system controller finding */
 static int dm_test_syscon_by_driver_data(struct unit_test_state *uts)
@@ -46,7 +46,7 @@ static int dm_test_syscon_by_driver_data(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_syscon_by_driver_data, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_syscon_by_driver_data, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test system controller by phandle */
 static int dm_test_syscon_by_phandle(struct unit_test_state *uts)
@@ -81,4 +81,4 @@ static int dm_test_syscon_by_phandle(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_syscon_by_phandle, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_syscon_by_phandle, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

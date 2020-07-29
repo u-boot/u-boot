@@ -89,11 +89,11 @@ static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 	ut_assertok(dm_test_init(uts, of_live));
 
 	uts->start = mallinfo();
-	if (test->flags & DM_TESTF_SCAN_PDATA)
+	if (test->flags & UT_TESTF_SCAN_PDATA)
 		ut_assertok(dm_scan_platdata(false));
-	if (test->flags & DM_TESTF_PROBE_TEST)
+	if (test->flags & UT_TESTF_PROBE_TEST)
 		ut_assertok(do_autoprobe(uts));
-	if (test->flags & DM_TESTF_SCAN_FDT)
+	if (test->flags & UT_TESTF_SCAN_FDT)
 		ut_assertok(dm_extended_scan_fdt(gd->fdt_blob, false));
 
 	/*
@@ -168,7 +168,7 @@ static int dm_test_main(const char *test_name)
 		/* Run with the live tree if possible */
 		runs = 0;
 		if (IS_ENABLED(CONFIG_OF_LIVE)) {
-			if (!(test->flags & DM_TESTF_FLAT_TREE)) {
+			if (!(test->flags & UT_TESTF_FLAT_TREE)) {
 				ut_assertok(dm_do_test(uts, test, true));
 				runs++;
 			}
@@ -178,7 +178,7 @@ static int dm_test_main(const char *test_name)
 		 * Run with the flat tree if we couldn't run it with live tree,
 		 * or it is a core test.
 		 */
-		if (!(test->flags & DM_TESTF_LIVE_TREE) &&
+		if (!(test->flags & UT_TESTF_LIVE_TREE) &&
 		    (!runs || dm_test_run_on_flattree(test))) {
 			ut_assertok(dm_do_test(uts, test, false));
 			runs++;

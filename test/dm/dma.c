@@ -35,7 +35,7 @@ static int dm_test_dma_m2m(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_dma_m2m, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_dma_m2m, UT_TESTF_SCAN_FDT);
 
 static int dm_test_dma(struct unit_test_state *uts)
 {
@@ -77,7 +77,7 @@ static int dm_test_dma(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_dma, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_dma, UT_TESTF_SCAN_FDT);
 
 static int dm_test_dma_rx(struct unit_test_state *uts)
 {
@@ -122,4 +122,4 @@ static int dm_test_dma_rx(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_dma_rx, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_dma_rx, UT_TESTF_SCAN_FDT);

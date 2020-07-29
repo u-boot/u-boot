@@ -96,4 +96,4 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	return 1;
 }
 
-DM_TEST(dm_test_clk_ccf, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_clk_ccf, UT_TESTF_SCAN_FDT);

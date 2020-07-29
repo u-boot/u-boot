@@ -17,7 +17,7 @@ static int dm_test_ofnode_compatible(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_compatible, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_ofnode_compatible, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 static int dm_test_ofnode_by_prop_value(struct unit_test_state *uts)
 {
@@ -44,7 +44,7 @@ static int dm_test_ofnode_by_prop_value(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_by_prop_value, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_ofnode_by_prop_value, UT_TESTF_SCAN_FDT);
 
 static int dm_test_ofnode_fmap(struct unit_test_state *uts)
 {
@@ -59,7 +59,7 @@ static int dm_test_ofnode_fmap(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_fmap, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_ofnode_fmap, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 static int dm_test_ofnode_read(struct unit_test_state *uts)
 {
@@ -85,7 +85,7 @@ static int dm_test_ofnode_read(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_read, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_ofnode_read, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 static int dm_test_ofnode_read_chosen(struct unit_test_state *uts)
 {
@@ -114,7 +114,7 @@ static int dm_test_ofnode_read_chosen(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_read_chosen, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_ofnode_read_chosen, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 static int dm_test_ofnode_get_child_count(struct unit_test_state *uts)
 {
@@ -135,4 +135,4 @@ static int dm_test_ofnode_get_child_count(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_get_child_count,
-	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
