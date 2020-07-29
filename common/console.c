@@ -635,10 +635,12 @@ void console_record_reset(void)
 	membuff_purge((struct membuff *)&gd->console_in);
 }
 
-void console_record_reset_enable(void)
+int console_record_reset_enable(void)
 {
 	console_record_reset();
 	gd->flags |= GD_FLG_RECORD;
+
+	return 0;
 }
 
 int console_record_readline(char *str, int maxlen)

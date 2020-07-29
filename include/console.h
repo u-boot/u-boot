@@ -8,6 +8,7 @@
 #define __CONSOLE_H
 
 #include <stdbool.h>
+#include <linux/errno.h>
 
 extern char console_buffer[];
 
@@ -21,11 +22,14 @@ void clear_ctrlc(void);	/* clear the Control-C condition */
 int disable_ctrlc(int);	/* 1 to disable, 0 to enable Control-C detect */
 int confirm_yesno(void);        /*  1 if input is "y", "Y", "yes" or "YES" */
 
+#ifdef CONFIG_CONSOLE_RECORD
 /**
  * console_record_init() - set up the console recording buffers
  *
  * This should be called as soon as malloc() is available so that the maximum
  * amount of console output can be recorded.
+ *
+ * @return 0 if OK, -ENOMEM if out of memory
  */
 int console_record_init(void);
 
@@ -40,8 +44,10 @@ void console_record_reset(void);
  * console_record_reset_enable() - reset and enable the console buffers
  *
  * This should be called to enable the console buffer.
+ *
+ * @return 0 (always)
  */
-void console_record_reset_enable(void);
+int console_record_reset_enable(void);
 
 /**
  * console_record_readline() - Read a line from the console output
@@ -61,6 +67,38 @@ int console_record_readline(char *str, int maxlen);
  * @return available bytes (0 if empty)
  */
 int console_record_avail(void);
+#else
+static inline int console_record_init(void)
+{
+	/* Always succeed, since it is not enabled */
+
+	return 0;
+}
+
+static inline void console_record_reset(void)
+{
+	/* Nothing to do here */
+}
+
+static inline int console_record_reset_enable(void)
+{
+	/* Cannot enable it as it is not supported */
+	return -ENOSYS;
+}
+
+static inline int console_record_readline(char *str, int maxlen)
+{
+	/* Nothing to read */
+	return 0;
+}
+
+static inline int console_record_avail(void)
+{
+	/* There is never anything available */
+	return 0;
+}
+
+#endif /* !CONFIG_CONSOLE_RECORD */
 
 /**
  * console_announce_r() - print a U-Boot console on non-serial consoles
