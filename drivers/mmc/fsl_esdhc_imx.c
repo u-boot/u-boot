@@ -1498,7 +1498,30 @@ static int fsl_esdhc_probe(struct udevice *dev)
 		priv->bus_width = 4;
 	else
 		priv->bus_width = 1;
-	priv->non_removable = 1;
+
+	if (dtplat->non_removable)
+		priv->non_removable = 1;
+	else
+		priv->non_removable = 0;
+
+	if (CONFIG_IS_ENABLED(DM_GPIO) && !priv->non_removable) {
+		struct udevice *gpiodev;
+		struct driver_info *info;
+
+		info = (struct driver_info *)dtplat->cd_gpios->node;
+
+		ret = device_get_by_driver_info(info, &gpiodev);
+
+		if (ret)
+			return ret;
+
+		ret = gpio_dev_request_index(gpiodev, gpiodev->name, "cd-gpios",
+					     dtplat->cd_gpios->arg[0], GPIOD_IS_IN,
+					     dtplat->cd_gpios->arg[1], &priv->cd_gpio);
+
+		if (ret)
+			return ret;
+	}
 #endif
 
 	if (data)
