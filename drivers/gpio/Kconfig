@@ -154,6 +154,17 @@ config IMX_RGPIO2P
 	help
 	  This driver supports i.MX7ULP Rapid GPIO2P controller.
 
+config IPROC_GPIO
+	bool "Broadcom iProc GPIO driver(without pinconf)"
+	default n
+	help
+	  The Broadcom iProc based SoCs- Cygnus, NS2, NS3, NSP and Stingray,
+	  use the same GPIO Controller IP hence this driver could be used
+	  for all.
+
+	  The Broadcom iProc based SoCs have multiple GPIO controllers and only
+	  the always-ON GPIO controller (CRMU/AON) is supported by this driver.
+
 config HSDK_CREG_GPIO
 	bool "HSDK CREG GPIO griver"
 	depends on DM_GPIO

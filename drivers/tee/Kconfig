@@ -29,6 +29,7 @@ config SANDBOX_TEE
 	  "avb" commands.
 
 source "drivers/tee/optee/Kconfig"
+source "drivers/tee/broadcom/Kconfig"
 
 endmenu
 

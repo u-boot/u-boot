@@ -127,9 +127,9 @@
 #define GIC_REDISTRIBUTOR_OFFSET 0x20000
 
 #ifdef CONFIG_GIC_V3_ITS
-int gic_lpi_tables_init(u64 base, u32 max_redist);
+int gic_lpi_tables_init(void);
 #else
-int gic_lpi_tables_init(u64 base, u32 max_redist)
+int gic_lpi_tables_init(void)
 {
 	return 0;
 }
