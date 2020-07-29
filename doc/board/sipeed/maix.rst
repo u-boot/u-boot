@@ -262,6 +262,16 @@ Boot Sequence
    stage.
 8. The boot hart jumps to ``0x80000000``.
 
+Debug UART
+^^^^^^^^^^
+
+The Debug UART is provided with the following settings::
+
+    CONFIG_DEBUG_UART=y
+    CONFIG_DEBUG_UART_SIFIVE=y
+    CONFIG_DEBUG_UART_BASE=0x38000000
+    CONFIG_DEBUG_UART_CLOCK=390000000
+
 Resetting the board
 ^^^^^^^^^^^^^^^^^^^
 
