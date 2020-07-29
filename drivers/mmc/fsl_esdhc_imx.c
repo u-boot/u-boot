@@ -1644,7 +1644,7 @@ static int fsl_esdhc_bind(struct udevice *dev)
 #endif
 
 U_BOOT_DRIVER(fsl_esdhc) = {
-	.name	= "fsl-esdhc-mmc",
+	.name	= "fsl_esdhc",
 	.id	= UCLASS_MMC,
 	.of_match = fsl_esdhc_ids,
 	.ops	= &fsl_esdhc_ops,
