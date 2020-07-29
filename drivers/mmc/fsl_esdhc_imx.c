@@ -33,6 +33,9 @@
 #include <dm.h>
 #include <asm-generic/gpio.h>
 #include <dm/pinctrl.h>
+#include <dt-structs.h>
+#include <mapmem.h>
+#include <dm/ofnode.h>
 
 #if !CONFIG_IS_ENABLED(BLK)
 #include "mmc_private.h"
@@ -102,6 +105,11 @@ struct fsl_esdhc {
 };
 
 struct fsl_esdhc_plat {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	/* Put this first since driver model will copy the data here */
+	struct dtd_fsl_esdhc dtplat;
+#endif
+
 	struct mmc_config cfg;
 	struct mmc mmc;
 };
@@ -1378,25 +1386,19 @@ __weak void init_clk_usdhc(u32 index)
 {
 }
 
-static int fsl_esdhc_probe(struct udevice *dev)
+static int fsl_esdhc_ofdata_to_platdata(struct udevice *dev)
 {
-	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
-	const void *fdt = gd->fdt_blob;
-	int node = dev_of_offset(dev);
-	struct esdhc_soc_data *data =
-		(struct esdhc_soc_data *)dev_get_driver_data(dev);
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
 	struct udevice *vqmmc_dev;
+	int ret;
 #endif
+	const void *fdt = gd->fdt_blob;
+	int node = dev_of_offset(dev);
+
 	fdt_addr_t addr;
 	unsigned int val;
-	struct mmc *mmc;
-#if !CONFIG_IS_ENABLED(BLK)
-	struct blk_desc *bdesc;
-#endif
-	int ret;
 
 	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
@@ -1404,8 +1406,6 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	priv->esdhc_regs = (struct fsl_esdhc *)addr;
 	priv->dev = dev;
 	priv->mode = -1;
-	if (data)
-		priv->flags = data->flags;
 
 	val = dev_read_u32_default(dev, "bus-width", -1);
 	if (val == 8)
@@ -1469,6 +1469,40 @@ static int fsl_esdhc_probe(struct udevice *dev)
 			priv->vs18_enable = 1;
 	}
 #endif
+#endif
+	return 0;
+}
+
+static int fsl_esdhc_probe(struct udevice *dev)
+{
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
+	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
+	struct esdhc_soc_data *data =
+		(struct esdhc_soc_data *)dev_get_driver_data(dev);
+	struct mmc *mmc;
+#if !CONFIG_IS_ENABLED(BLK)
+	struct blk_desc *bdesc;
+#endif
+	int ret;
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_fsl_esdhc *dtplat = &plat->dtplat;
+	unsigned int val;
+
+	priv->esdhc_regs = map_sysmem(dtplat->reg[0], dtplat->reg[1]);
+	val = plat->dtplat.bus_width;
+	if (val == 8)
+		priv->bus_width = 8;
+	else if (val == 4)
+		priv->bus_width = 4;
+	else
+		priv->bus_width = 1;
+	priv->non_removable = 1;
+#endif
+
+	if (data)
+		priv->flags = data->flags;
 
 	/*
 	 * TODO:
@@ -1520,9 +1554,11 @@ static int fsl_esdhc_probe(struct udevice *dev)
 		return ret;
 	}
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	ret = mmc_of_parse(dev, &plat->cfg);
 	if (ret)
 		return ret;
+#endif
 
 	mmc = &plat->mmc;
 	mmc->cfg = &plat->cfg;
@@ -1647,6 +1683,7 @@ U_BOOT_DRIVER(fsl_esdhc) = {
 	.name	= "fsl_esdhc",
 	.id	= UCLASS_MMC,
 	.of_match = fsl_esdhc_ids,
+	.ofdata_to_platdata = fsl_esdhc_ofdata_to_platdata,
 	.ops	= &fsl_esdhc_ops,
 #if CONFIG_IS_ENABLED(BLK)
 	.bind	= fsl_esdhc_bind,
@@ -1655,4 +1692,6 @@ U_BOOT_DRIVER(fsl_esdhc) = {
 	.platdata_auto_alloc_size = sizeof(struct fsl_esdhc_plat),
 	.priv_auto_alloc_size = sizeof(struct fsl_esdhc_priv),
 };
+
+U_BOOT_DRIVER_ALIAS(fsl_esdhc, fsl_imx6q_usdhc)
 #endif
