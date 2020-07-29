@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <console.h>
 #include <test/suites.h>
 #include <test/test.h>
 
@@ -33,6 +34,15 @@ int cmd_ut_category(const char *name, const char *prefix,
 		if (argc > 1 && strcmp(argv[1], test_name))
 			continue;
 		printf("Test: %s\n", test->name);
+
+		if (test->flags & UT_TESTF_CONSOLE_REC) {
+			int ret = console_record_reset_enable();
+
+			if (ret) {
+				printf("Skipping: Console recording disabled\n");
+				continue;
+			}
+		}
 
 		uts.start = mallinfo();
 
