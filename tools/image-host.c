@@ -399,23 +399,24 @@ int fit_image_write_cipher(void *fit, int image_noffset, int noffset,
 {
 	int ret = -1;
 
-	/* Remove unciphered data */
-	ret = fdt_delprop(fit, image_noffset, FIT_DATA_PROP);
-	if (ret) {
-		printf("Can't remove data (err = %d)\n", ret);
-		goto out;
-	}
-
-	/* Add ciphered data */
+	/* Replace data with ciphered data */
 	ret = fdt_setprop(fit, image_noffset, FIT_DATA_PROP,
 			  data_ciphered, data_ciphered_len);
+	if (ret == -FDT_ERR_NOSPACE) {
+		ret = -ENOSPC;
+		goto out;
+	}
 	if (ret) {
-		printf("Can't add ciphered data (err = %d)\n", ret);
+		printf("Can't replace data with ciphered data (err = %d)\n", ret);
 		goto out;
 	}
 
 	/* add non ciphered data size */
 	ret = fdt_setprop_u32(fit, image_noffset, "data-size-unciphered", size);
+	if (ret == -FDT_ERR_NOSPACE) {
+		ret = -ENOSPC;
+		goto out;
+	}
 	if (ret) {
 		printf("Can't add unciphered data size (err = %d)\n", ret);
 		goto out;
