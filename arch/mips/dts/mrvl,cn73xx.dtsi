@@ -116,5 +116,15 @@
 			clock-frequency = <100000>;
 			clocks = <&clk OCTEON_CLK_IO>;
 		};
+
+		spi: spi@1070000001000 {
+			compatible = "cavium,octeon-3010-spi";
+			reg = <0x10700 0x00001000 0x0 0x100>;
+			interrupts = <0x05001 1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			spi-max-frequency = <25000000>;
+			clocks = <&clk OCTEON_CLK_IO>;
+		};
 	};
 };
