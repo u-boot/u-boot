@@ -145,10 +145,10 @@ int fru_generate(unsigned long addr, char *manufacturer, char *board_name,
 	*member = 0; /* Clear before calculation */
 	*member = 0 - fru_checksum((u8 *)board_info, len);
 
-	debug("checksum %x(len %x)\n", *member, len);
+	debug("checksum %x(addr %x)\n", *member, len);
 
 	env_set_hex("fru_addr", addr);
-	env_set_hex("filesize", len);
+	env_set_hex("filesize", (unsigned long)member - addr + 1);
 
 	return 0;
 }
