@@ -59,6 +59,9 @@ static int fs_ls_generic(const char *dirname)
 		if (dent->type == FS_DT_DIR) {
 			printf("            %s/\n", dent->name);
 			ndirs++;
+		} else if (dent->type == FS_DT_LNK) {
+			printf("    <SYM>   %s\n", dent->name);
+			nfiles++;
 		} else {
 			printf(" %8lld   %s\n", dent->size, dent->name);
 			nfiles++;
