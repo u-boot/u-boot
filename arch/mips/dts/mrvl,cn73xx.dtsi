@@ -38,6 +38,32 @@
 			#size-cells = <1>;
 		};
 
+		gpio: gpio-controller@1070000000800 {
+			#gpio-cells = <2>;
+			compatible = "cavium,octeon-7890-gpio";
+			reg = <0x10700 0x00000800 0x0 0x100>;
+			gpio-controller;
+			nr-gpios = <32>;
+			/* Interrupts are specified by two parts:
+			 * 1) GPIO pin number (0..15)
+			 * 2) Triggering (1 - edge rising
+			 *		  2 - edge falling
+			 *		  4 - level active high
+			 *		  8 - level active low)
+			 */
+			interrupt-controller;
+			#interrupt-cells = <2>;
+			/* The GPIO pins connect to 16 consecutive CUI bits */
+			interrupts = <0x03000 4>, <0x03001 4>,
+				     <0x03002 4>, <0x03003 4>,
+				     <0x03004 4>, <0x03005 4>,
+				     <0x03006 4>, <0x03007 4>,
+				     <0x03008 4>, <0x03009 4>,
+				     <0x0300a 4>, <0x0300b 4>,
+				     <0x0300c 4>, <0x0300d 4>,
+				     <0x0300e 4>, <0x0300f 4>;
+		};
+
 		reset: reset@1180006001600 {
 			compatible = "mrvl,cn7xxx-rst";
 			reg = <0x11800 0x06001600 0x0 0x200>;
