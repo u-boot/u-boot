@@ -216,9 +216,13 @@ int board_early_init_f(void)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
-	char test[20];
+	const char *compat;
+	char test[128];
 
-	snprintf(test, sizeof(test), "somrev%d_boardrev%d", somcode, brdcode);
+	compat = fdt_getprop(gd->fdt_blob, 0, "compatible", NULL);
+
+	snprintf(test, sizeof(test), "%s_somrev%d_boardrev%d",
+		compat, somcode, brdcode);
 
 	if (!strcmp(name, test))
 		return 0;
