@@ -240,6 +240,14 @@ config NXP_FSPI
 	  Enable the NXP FlexSPI (FSPI) driver. This driver can be used to
 	  access the SPI NOR flash on platforms embedding this NXP IP core.
 
+config OCTEON_SPI
+	bool "Octeon SPI driver"
+	depends on DM_PCI && (ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2)
+	help
+	  Enable the Octeon SPI driver. This driver can be used to
+	  access the SPI NOR flash on Octeon II/III and OcteonTX/TX2
+	  SoC platforms.
+
 config OMAP3_SPI
 	bool "McSPI driver for OMAP"
 	help
