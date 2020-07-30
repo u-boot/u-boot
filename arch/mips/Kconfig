@@ -112,9 +112,11 @@ config ARCH_OCTEON
 	select DISPLAY_CPUINFO
 	select DMA_ADDR_T_64BIT
 	select DM
-	select DM_SERIAL
-	select DM_GPIO
 	select DM_ETH
+	select DM_GPIO
+	select DM_I2C
+	select DM_SERIAL
+	select DM_SPI
 	select MIPS_L2_CACHE
 	select MIPS_MACH_EARLY_INIT
 	select MIPS_TUNE_OCTEON3
