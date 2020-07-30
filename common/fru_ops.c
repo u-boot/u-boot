@@ -251,7 +251,7 @@ static int fru_display_board(struct fru_board_data *brd)
 	printf("Board Area Length:%d\n", fru_cal_area_len(brd->len));
 
 	if (fru_check_language(brd->lang_code))
-		return 0;
+		return -EINVAL;
 
 	time = brd->time[2] << 16 | brd->time[1] << 8 |
 	       brd->time[0];
@@ -276,7 +276,7 @@ static int fru_display_board(struct fru_board_data *brd)
 
 		if (type != FRU_TYPELEN_TYPE_ASCII8) {
 			printf("FRU_ERROR: Only ASCII8 type is supported\n");
-			return 0;
+			return -EINVAL;
 		}
 		if (!len) {
 			printf("%s not found\n", boardinfo[i]);
@@ -334,7 +334,6 @@ int fru_display(void)
 	}
 
 	fru_display_common_hdr(&fru_data.hdr);
-	fru_display_board(&fru_data.brd);
 
-	return 0;
+	return fru_display_board(&fru_data.brd);
 }
