@@ -29,16 +29,11 @@
 #undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_SD_BOOT
 /* u-boot env in sd/mmc card */
-#define FAT_ENV_INTERFACE	"mmc"
-#define FAT_ENV_DEVICE_AND_PART	"0"
-#define FAT_ENV_FILE		"uboot.env"
+
 /* bootstrap + u-boot + env in sd card */
-#define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x61000000 at91-sama7g5ek.dtb; " \
-				"fatload mmc 0:1 0x62000000 zImage; " \
+#define CONFIG_BOOTCOMMAND	"fatload mmc " CONFIG_ENV_FAT_DEVICE_AND_PART " 0x61000000 at91-sama7g5ek.dtb; " \
+				"fatload mmc " CONFIG_ENV_FAT_DEVICE_AND_PART " 0x62000000 zImage; " \
 				"bootz 0x62000000 - 0x61000000"
-#undef CONFIG_BOOTARGS
-#define CONFIG_BOOTARGS \
-	"console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait"
 #endif
 
 /* Size of malloc() pool */
