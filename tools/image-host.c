@@ -323,15 +323,15 @@ err:
 static int fit_image_setup_cipher(struct image_cipher_info *info,
 				  const char *keydir, void *fit,
 				  const char *image_name, int image_noffset,
-				  const char *node_name, int noffset)
+				  int noffset)
 {
 	char *algo_name;
 	char filename[128];
 	int ret = -1;
 
 	if (fit_image_cipher_get_algo(fit, noffset, &algo_name)) {
-		printf("Can't get algo name for cipher '%s' in image '%s'\n",
-		       node_name, image_name);
+		printf("Can't get algo name for cipher in image '%s'\n",
+		       image_name);
 		goto out;
 	}
 
@@ -340,16 +340,16 @@ static int fit_image_setup_cipher(struct image_cipher_info *info,
 	/* Read the key name */
 	info->keyname = fdt_getprop(fit, noffset, FIT_KEY_HINT, NULL);
 	if (!info->keyname) {
-		printf("Can't get key name for cipher '%s' in image '%s'\n",
-		       node_name, image_name);
+		printf("Can't get key name for cipher in image '%s'\n",
+		       image_name);
 		goto out;
 	}
 
 	/* Read the IV name */
 	info->ivname = fdt_getprop(fit, noffset, "iv-name-hint", NULL);
 	if (!info->ivname) {
-		printf("Can't get iv name for cipher '%s' in image '%s'\n",
-		       node_name, image_name);
+		printf("Can't get iv name for cipher in image '%s'\n",
+		       image_name);
 		goto out;
 	}
 
@@ -428,8 +428,7 @@ int fit_image_write_cipher(void *fit, int image_noffset, int noffset,
 static int
 fit_image_process_cipher(const char *keydir, void *keydest, void *fit,
 			 const char *image_name, int image_noffset,
-			 const char *node_name, int node_noffset,
-			 const void *data, size_t size,
+			 int node_noffset, const void *data, size_t size,
 			 const char *cmdname)
 {
 	struct image_cipher_info info;
@@ -440,7 +439,7 @@ fit_image_process_cipher(const char *keydir, void *keydest, void *fit,
 	memset(&info, 0, sizeof(info));
 
 	ret = fit_image_setup_cipher(&info, keydir, fit, image_name,
-				     image_noffset, node_name, node_noffset);
+				     image_noffset, node_noffset);
 	if (ret)
 		goto out;
 
@@ -482,7 +481,7 @@ int fit_image_cipher_data(const char *keydir, void *keydest,
 	const char *image_name;
 	const void *data;
 	size_t size;
-	int node_noffset;
+	int cipher_node_offset;
 
 	/* Get image name */
 	image_name = fit_get_name(fit, image_noffset, NULL);
@@ -497,32 +496,20 @@ int fit_image_cipher_data(const char *keydir, void *keydest,
 		return -1;
 	}
 
-	/* Process all hash subnodes of the component image node */
-	for (node_noffset = fdt_first_subnode(fit, image_noffset);
-	     node_noffset >= 0;
-	     node_noffset = fdt_next_subnode(fit, node_noffset)) {
-		const char *node_name;
-		int ret = 0;
 
-		node_name = fit_get_name(fit, node_noffset, NULL);
-		if (!node_name) {
-			printf("Can't get node name\n");
-			return -1;
-		}
-
-		if (IMAGE_ENABLE_ENCRYPT && keydir &&
-		    !strncmp(node_name, FIT_CIPHER_NODENAME,
-			     strlen(FIT_CIPHER_NODENAME)))
-			ret = fit_image_process_cipher(keydir, keydest,
-						       fit, image_name,
-						       image_noffset,
-						       node_name, node_noffset,
-						       data, size, cmdname);
-		if (ret)
-			return ret;
+	/* Process cipher node if present */
+	cipher_node_offset = fdt_subnode_offset(fit, image_noffset,
+						FIT_CIPHER_NODENAME);
+	if (cipher_node_offset == -FDT_ERR_NOTFOUND)
+		return 0;
+	if (cipher_node_offset < 0) {
+		printf("Failure getting cipher node\n");
+		return -1;
 	}
-
-	return 0;
+	if (!IMAGE_ENABLE_ENCRYPT || !keydir)
+		return 0;
+	return fit_image_process_cipher(keydir, keydest, fit, image_name,
+		image_noffset, cipher_node_offset, data, size, cmdname);
 }
 
 /**
