@@ -974,6 +974,7 @@ M:	Joao Marcos Costa <joaomarcos.costa@bootlin.com>
 S:	Maintained
 F:	fs/squashfs/
 F:	include/sqfs.h
+F:	cmd/sqfs.c
 
 TARGET_BCMNS3
 M:	Bharat Gooty <bharat.gooty@broadcom.com>

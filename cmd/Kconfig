@@ -2090,6 +2090,12 @@ config CMD_FAT
 	help
 	  Support for the FAT fs
 
+config CMD_SQUASHFS
+	bool "SquashFS command support"
+	select FS_SQUASHFS
+	help
+	  Enables SquashFS filesystem commands (e.g. load, ls).
+
 config CMD_FS_GENERIC
 	bool "filesystem commands"
 	help
