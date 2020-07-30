@@ -105,6 +105,12 @@ config CI_UDC
 	  Say Y here to enable device controller functionality of the
 	  ChipIdea driver.
 
+config USB_GADGET_MAX3420
+	bool "MAX3420 USB Over SPI"
+	depends on DM_SPI
+	help
+	  MAX3420, from MAXIM, implements USB-over-SPI Full-Speed device controller.
+
 config USB_GADGET_VBUS_DRAW
 	int "Maximum VBUS Power usage (2-500 mA)"
 	range 2 500
