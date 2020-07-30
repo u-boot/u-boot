@@ -13,6 +13,7 @@
 
 	aliases {
 		serial0 = &uart0;
+		spi0 = &spi;
 	};
 
 	chosen {
@@ -103,4 +104,12 @@
 &i2c1 {
 	u-boot,dm-pre-reloc;	/* Needed early for DDR SPD EEPROM */
 	clock-frequency = <100000>;
+};
+
+&spi {
+	flash@0 {
+		compatible = "micron,n25q128a11", "jedec,spi-nor";
+		spi-max-frequency = <2000000>;
+		reg = <0>;
+	};
 };
