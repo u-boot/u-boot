@@ -5,6 +5,8 @@
 
 /dts-v1/;
 
+#include <dt-bindings/clock/octeon-clock.h>
+
 / {
 	#address-cells = <2>;
 	#size-cells = <2>;
@@ -36,6 +38,12 @@
 			#address-cells = <2>;
 			/* The size of the chip select region */
 			#size-cells = <1>;
+		};
+
+		clk: clock {
+			compatible = "mrvl,octeon-clk";
+			#clock-cells = <1>;
+			u-boot,dm-pre-reloc;
 		};
 
 		gpio: gpio-controller@1070000000800 {
@@ -95,6 +103,7 @@
 			/* INT_ST, INT_TS, INT_CORE */
 			interrupts = <0x0b000 1>, <0x0b001 1>, <0x0b002 1>;
 			clock-frequency = <100000>;
+			clocks = <&clk OCTEON_CLK_IO>;
 		};
 
 		i2c1: i2c@1180000001200 {
@@ -105,6 +114,7 @@
 			/* INT_ST, INT_TS, INT_CORE */
 			interrupts = <0x0b100 1>, <0x0b101 1>, <0x0b102 1>;
 			clock-frequency = <100000>;
+			clocks = <&clk OCTEON_CLK_IO>;
 		};
 	};
 };

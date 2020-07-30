@@ -5,7 +5,7 @@
 
 /dts-v1/;
 
-/include/ "mrvl,cn73xx.dtsi"
+#include "mrvl,cn73xx.dtsi"
 
 / {
 	model = "cavium,ebb7304";
