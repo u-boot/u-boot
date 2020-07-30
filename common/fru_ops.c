@@ -77,7 +77,7 @@ static u8 fru_gen_type_len(u8 *addr, char *name)
 }
 
 int fru_generate(unsigned long addr, char *manufacturer, char *board_name,
-		 char *serial_no, char *part_no)
+		 char *serial_no, char *part_no, char *revision)
 {
 	struct fru_common_hdr *header = (struct fru_common_hdr *)addr;
 	struct fru_board_info_header *board_info;
@@ -122,6 +122,8 @@ int fru_generate(unsigned long addr, char *manufacturer, char *board_name,
 	len = fru_gen_type_len(member, part_no); /* Board part number */
 	member += len;
 	len = fru_gen_type_len(member, "U-Boot generator"); /* File ID */
+	member += len;
+	len = fru_gen_type_len(member, revision); /* Revision */
 	member += len;
 
 	*member++ = 0xc1; /* Indication of no more fields */
@@ -244,7 +246,9 @@ static int fru_display_board(struct fru_board_data *brd, int verbose)
 		"Product Name",
 		"Serial No",
 		"Part Number",
-		"File ID"
+		"File ID",
+		/* Xilinx spec */
+		"Revision Number",
 	};
 
 	if (verbose) {

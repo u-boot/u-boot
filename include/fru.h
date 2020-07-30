@@ -47,6 +47,9 @@ struct fru_board_data {
 	u8 part_number[FRU_BOARD_MAX_LEN];
 	u8 file_id_type_len;
 	u8 file_id[FRU_BOARD_MAX_LEN];
+	/* Xilinx custom fields */
+	u8 rev_type_len;
+	u8 rev[FRU_BOARD_MAX_LEN];
 };
 
 struct fru_table {
@@ -72,7 +75,7 @@ struct fru_table {
 int fru_display(int verbose);
 int fru_capture(unsigned long addr);
 int fru_generate(unsigned long addr, char *manufacturer, char *board_name,
-		 char *serial_no, char *part_no);
+		 char *serial_no, char *part_no, char *revision);
 
 extern struct fru_table fru_data;
 

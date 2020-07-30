@@ -41,13 +41,13 @@ static int do_fru_generate(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	addr = simple_strtoul(argv[2], NULL, 16);
 
-	return fru_generate(addr, argv[3], argv[4], argv[5], argv[6]);
+	return fru_generate(addr, argv[3], argv[4], argv[5], argv[6], argv[7]);
 }
 
 static cmd_tbl_t cmd_fru_sub[] = {
 	U_BOOT_CMD_MKENT(capture, 3, 0, do_fru_capture, "", ""),
 	U_BOOT_CMD_MKENT(display, 2, 0, do_fru_display, "", ""),
-	U_BOOT_CMD_MKENT(board_gen, 7, 0, do_fru_generate, "", ""),
+	U_BOOT_CMD_MKENT(board_gen, 8, 0, do_fru_generate, "", ""),
 };
 
 static int do_fru(cmd_tbl_t *cmdtp, int flag, int argc,
@@ -76,14 +76,14 @@ static char fru_help_text[] =
 	"fru display - Displays content of FRU table that was captured using\n"
 	"              fru capture command\n"
 	"fru board_gen <addr> <manufacturer> <board name> <serial number>\n"
-	"              <part number> - Generate FRU format with board info\n"
-	"              area filled based on parameters. <addr> is pointing\n"
-	"              to place where FRU is generated.\n"
+	"              <part number> <revision> - Generate FRU format with\n"
+	"              board info area filled based on parameters. <addr> is\n"
+	"              pointing to place where FRU is generated.\n"
 	;
 #endif
 
 U_BOOT_CMD(
-	fru, 7, 1, do_fru,
+	fru, 8, 1, do_fru,
 	"FRU table info",
 	fru_help_text
 )
