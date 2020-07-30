@@ -482,7 +482,7 @@ int fit_image_cipher_data(const char *keydir, void *keydest,
 	const char *image_name;
 	const void *data;
 	size_t size;
-	int cipher_node_offset;
+	int cipher_node_offset, len;
 
 	/* Get image name */
 	image_name = fit_get_name(fit, image_noffset, NULL);
@@ -497,6 +497,19 @@ int fit_image_cipher_data(const char *keydir, void *keydest,
 		return -1;
 	}
 
+	/*
+	 * Don't cipher ciphered data.
+	 *
+	 * If the data-size-unciphered property is present the data for this
+	 * image is already encrypted. This is important as 'mkimage -F' can be
+	 * run multiple times on a FIT image.
+	 */
+	if (fdt_getprop(fit, image_noffset, "data-size-unciphered", &len))
+		return 0;
+	if (len != -FDT_ERR_NOTFOUND) {
+		printf("Failure testing for data-size-unciphered\n");
+		return -1;
+	}
 
 	/* Process cipher node if present */
 	cipher_node_offset = fdt_subnode_offset(fit, image_noffset,
