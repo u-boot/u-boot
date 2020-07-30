@@ -18,6 +18,7 @@
 		mmc1 = &sdmmc2;
 		spi0 = &qspi;
 		usb0 = &usbotg_hs;
+		ethernet1 = &ksz8851;
 	};
 
 	config {
