@@ -96,6 +96,9 @@
 				reg = <0xe1208000 0x300>;
 				clocks = <&pmc PMC_TYPE_PERIPHERAL 81>, <&pmc PMC_TYPE_GCK 81>;
 				clock-names = "hclock", "multclk";
+				assigned-clocks = <&pmc PMC_TYPE_GCK 81>;
+				assigned-clock-rates = <200000000>;
+				assigned-clock-parents = <&pmc PMC_TYPE_CORE 10>; /* sys pll div. */
 				status = "disabled";
 			};
 
