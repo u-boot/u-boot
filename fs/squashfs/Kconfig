@@ -1,5 +1,6 @@
 config FS_SQUASHFS
 	bool "Enable SquashFS filesystem support"
+	select ZLIB_UNCOMPRESS
 	help
 	  This provides support for reading images from SquashFS filesystem.
 	  Squashfs is a compressed read-only filesystem for Linux.
