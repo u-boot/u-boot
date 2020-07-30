@@ -22,6 +22,7 @@
 #include <div64.h>
 #include <linux/math64.h>
 #include <efi_loader.h>
+#include <squashfs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -275,6 +276,20 @@ static struct fstype_info fstypes[] = {
 		.unlink = fs_unlink_unsupported,
 		.mkdir = fs_mkdir_unsupported,
 		.ln = fs_ln_unsupported,
+	},
+#endif
+#if IS_ENABLED(CONFIG_FS_SQUASHFS)
+	{
+		.fstype = FS_TYPE_SQUASHFS,
+		.name = "squashfs",
+		.probe = sqfs_probe,
+		.opendir = sqfs_opendir,
+		.readdir = sqfs_readdir,
+		.ls = fs_ls_generic,
+		.read = sqfs_read,
+		.size = sqfs_size,
+		.close = sqfs_close,
+		.closedir = sqfs_closedir,
 	},
 #endif
 	{

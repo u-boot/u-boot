@@ -577,6 +577,15 @@ config SPL_FS_EXT4
 	  filesystem from within SPL. Support for the underlying block
 	  device (e.g. MMC or USB) must be enabled separately.
 
+config SPL_FS_SQUASHFS
+	bool "Support SquashFS filesystems"
+	select FS_SQUASHFS
+	help
+	  Enable support for SquashFS filesystems with SPL. This permits
+	  U-Boot (or Linux in Falcon mode) to be loaded from a SquashFS
+	  filesystem from within SPL. Support for the underlying block
+	  device (e.g. MMC or USB) must be enabled separately.
+
 config SPL_FS_FAT
 	bool "Support FAT filesystems"
 	select FS_FAT

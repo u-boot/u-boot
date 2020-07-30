@@ -9,6 +9,7 @@ obj-$(CONFIG_FS_LOADER) += fs.o
 obj-$(CONFIG_SPL_FS_FAT) += fat/
 obj-$(CONFIG_SPL_FS_EXT4) += ext4/
 obj-$(CONFIG_SPL_FS_CBFS) += cbfs/
+obj-$(CONFIG_SPL_FS_SQUASHFS) += squashfs/
 else
 obj-y				+= fs.o
 
@@ -23,5 +24,6 @@ obj-$(CONFIG_SANDBOX) += sandbox/
 obj-$(CONFIG_CMD_UBIFS) += ubifs/
 obj-$(CONFIG_YAFFS2) += yaffs2/
 obj-$(CONFIG_CMD_ZFS) += zfs/
+obj-$(CONFIG_FS_SQUASHFS) += squashfs/
 endif
 obj-y += fs_internal.o
