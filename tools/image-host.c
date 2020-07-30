@@ -744,6 +744,23 @@ static int fit_config_get_hash_list(void *fit, int conf_noffset,
 			return -ENOMSG;
 		}
 
+		/* Add this image's cipher node if present */
+		noffset = fdt_subnode_offset(fit, image_noffset,
+					     FIT_CIPHER_NODENAME);
+		if (noffset != -FDT_ERR_NOTFOUND) {
+			if (noffset < 0) {
+				printf("Failed to get cipher node in configuration '%s/%s' image '%s': %s\n",
+				       conf_name, sig_name, iname,
+				       fdt_strerror(noffset));
+				return -EIO;
+			}
+			ret = fdt_get_path(fit, noffset, path, sizeof(path));
+			if (ret < 0)
+				goto err_path;
+			if (strlist_add(node_inc, path))
+				goto err_mem;
+		}
+
 		image_count++;
 	}
 
