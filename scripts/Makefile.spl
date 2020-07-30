@@ -213,42 +213,42 @@ spl/boot.bin: $(obj)/$(SPL_BIN)-align.bin FORCE
 	$(call if_changed,mkimage)
 endif
 
-ALL-y	+= $(obj)/$(SPL_BIN).bin
+INPUTS-y	+= $(obj)/$(SPL_BIN).bin
 
 ifdef CONFIG_SAMSUNG
-ALL-y	+= $(obj)/$(BOARD)-spl.bin
+INPUTS-y	+= $(obj)/$(BOARD)-spl.bin
 endif
 
 ifneq ($(CONFIG_TARGET_SOCFPGA_GEN5)$(CONFIG_TARGET_SOCFPGA_ARRIA10),)
-ALL-y	+= $(obj)/$(SPL_BIN).sfp
+INPUTS-y	+= $(obj)/$(SPL_BIN).sfp
 endif
 
 ifdef CONFIG_ARCH_SUNXI
-ALL-y	+= $(obj)/sunxi-spl.bin
+INPUTS-y	+= $(obj)/sunxi-spl.bin
 
 ifdef CONFIG_NAND_SUNXI
-ALL-y	+= $(obj)/sunxi-spl-with-ecc.bin
+INPUTS-y	+= $(obj)/sunxi-spl-with-ecc.bin
 endif
 endif
 
 ifeq ($(CONFIG_SYS_SOC),"at91")
-ALL-y	+= $(obj)/boot.bin
+INPUTS-y	+= $(obj)/boot.bin
 endif
 
 ifdef CONFIG_TPL_BUILD
-ALL-$(CONFIG_TPL_X86_16BIT_INIT) += $(obj)/u-boot-x86-start16-tpl.bin \
+INPUTS-$(CONFIG_TPL_X86_16BIT_INIT) += $(obj)/u-boot-x86-start16-tpl.bin \
 	$(obj)/u-boot-x86-reset16-tpl.bin
 else
-ALL-$(CONFIG_SPL_X86_16BIT_INIT) += $(obj)/u-boot-x86-start16-spl.bin \
+INPUTS-$(CONFIG_SPL_X86_16BIT_INIT) += $(obj)/u-boot-x86-start16-spl.bin \
 	$(obj)/u-boot-x86-reset16-spl.bin
 endif
 
-ALL-$(CONFIG_ARCH_ZYNQ)		+= $(obj)/boot.bin
-ALL-$(CONFIG_ARCH_ZYNQMP)	+= $(obj)/boot.bin
+INPUTS-$(CONFIG_ARCH_ZYNQ)		+= $(obj)/boot.bin
+INPUTS-$(CONFIG_ARCH_ZYNQMP)	+= $(obj)/boot.bin
 
-ALL-$(CONFIG_ARCH_MEDIATEK)	+= $(obj)/u-boot-spl-mtk.bin
+INPUTS-$(CONFIG_ARCH_MEDIATEK)	+= $(obj)/u-boot-spl-mtk.bin
 
-all:	$(ALL-y)
+all:	$(INPUTS-y)
 
 quiet_cmd_cat = CAT     $@
 cmd_cat = cat $(filter-out $(PHONY), $^) > $@

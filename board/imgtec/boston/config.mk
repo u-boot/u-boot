@@ -11,5 +11,5 @@ u-boot.mcs: u-boot.bin
 
 # if srec_cat is present build u-boot.mcs by default
 has_srec_cat = $(call try-run,srec_cat -VERSion,y,n)
-ALL-$(has_srec_cat) += u-boot.mcs
+INPUTS-$(has_srec_cat) += u-boot.mcs
 CLEAN_FILES += u-boot.mcs

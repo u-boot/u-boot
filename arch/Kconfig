@@ -160,6 +160,7 @@ config X86
 	select TIMER
 	select USE_PRIVATE_LIBGCC
 	select X86_TSC_TIMER
+	imply HAS_ROM if X86_RESET_VECTOR
 	imply BLK
 	imply CMD_DM
 	imply CMD_FPGA_LOADMK

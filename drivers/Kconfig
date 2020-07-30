@@ -16,6 +16,8 @@ source "drivers/block/Kconfig"
 
 source "drivers/bootcount/Kconfig"
 
+source "drivers/button/Kconfig"
+
 source "drivers/cache/Kconfig"
 
 source "drivers/clk/Kconfig"

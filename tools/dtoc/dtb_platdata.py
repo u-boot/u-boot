@@ -113,21 +113,17 @@ def get_value(ftype, value):
         return '%#x' % value
 
 def get_compat_name(node):
-    """Get a node's first compatible string as a C identifier
+    """Get the node's list of compatible string as a C identifiers
 
     Args:
         node: Node object to check
     Return:
-        Tuple:
-            C identifier for the first compatible string
-            List of C identifiers for all the other compatible strings
-                (possibly empty)
+        List of C identifiers for all the compatible strings
     """
     compat = node.props['compatible'].value
-    aliases = []
-    if isinstance(compat, list):
-        compat, aliases = compat[0], compat[1:]
-    return conv_name_to_c(compat), [conv_name_to_c(a) for a in aliases]
+    if not isinstance(compat, list):
+        compat = [compat]
+    return [conv_name_to_c(c) for c in compat]
 
 
 class DtbPlatdata(object):
@@ -145,17 +141,16 @@ class DtbPlatdata(object):
         _outfile: The current output file (sys.stdout or a real file)
         _warning_disabled: true to disable warnings about driver names not found
         _lines: Stashed list of output lines for outputting in the future
-        _aliases: Dict that hold aliases for compatible strings
-            key: First compatible string declared in a node
-            value: List of additional compatible strings declared in a node
         _drivers: List of valid driver names found in drivers/
         _driver_aliases: Dict that holds aliases for driver names
             key: Driver alias declared with
                 U_BOOT_DRIVER_ALIAS(driver_alias, driver_name)
             value: Driver name declared with U_BOOT_DRIVER(driver_name)
         _links: List of links to be included in dm_populate_phandle_data()
+        _drivers_additional: List of additional drivers to use during scanning
     """
-    def __init__(self, dtb_fname, include_disabled, warning_disabled):
+    def __init__(self, dtb_fname, include_disabled, warning_disabled,
+                 drivers_additional=[]):
         self._fdt = None
         self._dtb_fname = dtb_fname
         self._valid_nodes = None
@@ -163,15 +158,15 @@ class DtbPlatdata(object):
         self._outfile = None
         self._warning_disabled = warning_disabled
         self._lines = []
-        self._aliases = {}
         self._drivers = []
         self._driver_aliases = {}
         self._links = []
+        self._drivers_additional = drivers_additional
 
     def get_normalized_compat_name(self, node):
         """Get a node's normalized compat name
 
-        Returns a valid driver name by retrieving node's first compatible
+        Returns a valid driver name by retrieving node's list of compatible
         string as a C identifier and performing a check against _drivers
         and a lookup in driver_aliases printing a warning in case of failure.
 
@@ -185,19 +180,24 @@ class DtbPlatdata(object):
                 In case of no match found, the return will be the same as
                 get_compat_name()
         """
-        compat_c, aliases_c = get_compat_name(node)
-        if compat_c not in self._drivers:
-            compat_c_old = compat_c
-            compat_c = self._driver_aliases.get(compat_c)
-            if not compat_c:
-                if not self._warning_disabled:
-                    print('WARNING: the driver %s was not found in the driver list'
-                          % (compat_c_old))
-                compat_c = compat_c_old
-            else:
-                aliases_c = [compat_c_old] + aliases_c
+        compat_list_c = get_compat_name(node)
 
-        return compat_c, aliases_c
+        for compat_c in compat_list_c:
+            if not compat_c in self._drivers:
+                compat_c = self._driver_aliases.get(compat_c)
+                if not compat_c:
+                    continue
+
+            aliases_c = compat_list_c
+            if compat_c in aliases_c:
+                aliases_c.remove(compat_c)
+            return compat_c, aliases_c
+
+        if not self._warning_disabled:
+            print('WARNING: the driver %s was not found in the driver list'
+                  % (compat_list_c[0]))
+
+        return compat_list_c[0], compat_list_c[1:]
 
     def setup_output(self, fname):
         """Set up the output destination
@@ -343,6 +343,14 @@ class DtbPlatdata(object):
                     continue
                 self.scan_driver(dirpath + '/' + fn)
 
+        for fn in self._drivers_additional:
+            if not isinstance(fn, str) or len(fn) == 0:
+                continue
+            if fn[0] == '/':
+                self.scan_driver(fn)
+            else:
+                self.scan_driver(basedir + '/' + fn)
+
     def scan_dtb(self):
         """Scan the device tree to obtain a tree of nodes and properties
 
@@ -484,10 +492,6 @@ class DtbPlatdata(object):
                     prop.Widen(struct[name])
             upto += 1
 
-            struct_name, aliases = self.get_normalized_compat_name(node)
-            for alias in aliases:
-                self._aliases[alias] = struct_name
-
         return structs
 
     def scan_phandles(self):
@@ -549,11 +553,6 @@ class DtbPlatdata(object):
                         self.out('[%d]' % len(prop.value))
                 self.out(';\n')
             self.out('};\n')
-
-        for alias, struct_name in self._aliases.items():
-            if alias not in sorted(structs):
-                self.out('#define %s%s %s%s\n'% (STRUCT_PREFIX, alias,
-                                                 STRUCT_PREFIX, struct_name))
 
     def output_node(self, node):
         """Output the C code for a node
@@ -668,7 +667,8 @@ class DtbPlatdata(object):
 
         self.out(''.join(self.get_buf()))
 
-def run_steps(args, dtb_file, include_disabled, output, warning_disabled=False):
+def run_steps(args, dtb_file, include_disabled, output, warning_disabled=False,
+              drivers_additional=[]):
     """Run all the steps of the dtoc tool
 
     Args:
@@ -680,7 +680,7 @@ def run_steps(args, dtb_file, include_disabled, output, warning_disabled=False):
     if not args:
         raise ValueError('Please specify a command: struct, platdata')
 
-    plat = DtbPlatdata(dtb_file, include_disabled, warning_disabled)
+    plat = DtbPlatdata(dtb_file, include_disabled, warning_disabled, drivers_additional)
     plat.scan_drivers()
     plat.scan_dtb()
     plat.scan_tree()

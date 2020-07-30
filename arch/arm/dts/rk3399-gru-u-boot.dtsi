@@ -4,3 +4,7 @@
  */
 
 #include "rk3399-u-boot.dtsi"
+
+&spi_flash {
+	u-boot,dm-pre-reloc;
+};

@@ -1680,6 +1680,17 @@ config CMD_BLOCK_CACHE
 	  during development, but also allows the cache to be disabled when
 	  it might hurt performance (e.g. when using the ums command).
 
+config CMD_BUTTON
+	bool "button"
+	depends on BUTTON
+	default y if BUTTON
+	help
+	  Enable the 'button' command which allows to get the status of
+	  buttons supported by the board. The buttonss can be listed with
+	  'button list' and state can be known with 'button <label>'.
+	  Any button drivers can be controlled with this command, e.g.
+	  button_gpio.
+
 config CMD_CACHE
 	bool "icache or dcache"
 	help

@@ -13,6 +13,7 @@ import collections
 import os
 import struct
 import sys
+import tempfile
 import unittest
 
 from dtoc import dtb_platdata
@@ -145,18 +146,18 @@ class TestDtoc(unittest.TestCase):
 
         prop = Prop(['rockchip,rk3399-sdhci-5.1', 'arasan,sdhci-5.1'])
         node = Node({'compatible': prop})
-        self.assertEqual(('rockchip_rk3399_sdhci_5_1', ['arasan_sdhci_5_1']),
+        self.assertEqual((['rockchip_rk3399_sdhci_5_1', 'arasan_sdhci_5_1']),
                          get_compat_name(node))
 
         prop = Prop(['rockchip,rk3399-sdhci-5.1'])
         node = Node({'compatible': prop})
-        self.assertEqual(('rockchip_rk3399_sdhci_5_1', []),
+        self.assertEqual((['rockchip_rk3399_sdhci_5_1']),
                          get_compat_name(node))
 
         prop = Prop(['rockchip,rk3399-sdhci-5.1', 'arasan,sdhci-5.1', 'third'])
         node = Node({'compatible': prop})
-        self.assertEqual(('rockchip_rk3399_sdhci_5_1',
-                          ['arasan_sdhci_5_1', 'third']),
+        self.assertEqual((['rockchip_rk3399_sdhci_5_1',
+                          'arasan_sdhci_5_1', 'third']),
                          get_compat_name(node))
 
     def test_empty_file(self):
@@ -293,7 +294,6 @@ struct dtd_sandbox_gpio {
 \tbool\t\tgpio_controller;
 \tfdt32_t\t\tsandbox_gpio_count;
 };
-#define dtd_sandbox_gpio_alias dtd_sandbox_gpio
 ''', data)
 
         self.run_test(['platdata'], dtb_file, output)
@@ -557,36 +557,6 @@ void dm_populate_phandle_data(void) {
             self.run_test(['struct'], dtb_file, output)
         self.assertIn("Node 'phandle-target' has no cells property",
                       str(e.exception))
-
-    def test_aliases(self):
-        """Test output from a node with multiple compatible strings"""
-        dtb_file = get_dtb_file('dtoc_test_aliases.dts')
-        output = tools.GetOutputFilename('output')
-        self.run_test(['struct'], dtb_file, output)
-        with open(output) as infile:
-            data = infile.read()
-        self._CheckStrings(HEADER + '''
-struct dtd_compat1 {
-\tfdt32_t\t\tintval;
-};
-#define dtd_compat2_1_fred dtd_compat1
-#define dtd_compat3 dtd_compat1
-''', data)
-
-        self.run_test(['platdata'], dtb_file, output)
-        with open(output) as infile:
-            data = infile.read()
-        self._CheckStrings(C_HEADER + '''
-static struct dtd_compat1 dtv_spl_test = {
-\t.intval\t\t\t= 0x1,
-};
-U_BOOT_DEVICE(spl_test) = {
-\t.name\t\t= "compat1",
-\t.platdata\t= &dtv_spl_test,
-\t.platdata_size\t= sizeof(dtv_spl_test),
-};
-
-''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
 
     def test_addresses64(self):
         """Test output from a node with a 'reg' property with na=2, ns=2"""
@@ -863,3 +833,28 @@ U_BOOT_DEVICE(spl_test2) = {
             self.run_test(['invalid-cmd'], dtb_file, output)
         self.assertIn("Unknown command 'invalid-cmd': (use: struct, platdata)",
                       str(e.exception))
+
+    def testScanDrivers(self):
+        """Test running dtoc with additional drivers to scan"""
+        dtb_file = get_dtb_file('dtoc_test_simple.dts')
+        output = tools.GetOutputFilename('output')
+        with test_util.capture_sys_output() as (stdout, stderr):
+            dtb_platdata.run_steps(['struct'], dtb_file, False, output, True,
+                               [None, '', 'tools/dtoc/dtoc_test_scan_drivers.cxx'])
+
+    def testUnicodeError(self):
+        """Test running dtoc with an invalid unicode file
+
+        To be able to perform this test without adding a weird text file which
+        would produce issues when using checkpatch.pl or patman, generate the
+        file at runtime and then process it.
+        """
+        dtb_file = get_dtb_file('dtoc_test_simple.dts')
+        output = tools.GetOutputFilename('output')
+        driver_fn = '/tmp/' + next(tempfile._get_candidate_names())
+        with open(driver_fn, 'wb+') as df:
+            df.write(b'\x81')
+
+        with test_util.capture_sys_output() as (stdout, stderr):
+            dtb_platdata.run_steps(['struct'], dtb_file, False, output, True,
+                               [driver_fn])

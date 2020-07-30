@@ -24,8 +24,8 @@ cmd_prodzip =					\
 
 ifeq ($(hw-platform-y),brppt2)
 ifneq ($(CONFIG_SPL_BUILD),y)
-ALL-y += $(hw-platform-y)_prog.bin
-ALL-y += $(hw-platform-y)_prod.zip
+INPUTS-y += $(hw-platform-y)_prog.bin
+INPUTS-y += $(hw-platform-y)_prod.zip
 endif
 endif
 

@@ -220,7 +220,7 @@ u-boot-<your_suffix>.bin: <input_file_1> <input_file_2> checkbinman FORCE
 endif
 
 This assumes that u-boot-<your_suffix>.bin is a target, and is the final file
-that you need to produce. You can make it a target by adding it to ALL-y
+that you need to produce. You can make it a target by adding it to INPUTS-y
 either in the main Makefile or in a config.mk file in your arch subdirectory.
 
 Once binman is executed it will pick up its instructions from a device-tree

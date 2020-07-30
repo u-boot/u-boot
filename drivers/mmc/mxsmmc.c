@@ -52,15 +52,9 @@ struct mxsmmc_priv {
 #include <dm/read.h>
 #include <dt-structs.h>
 
-#ifdef CONFIG_MX28
-#define dtd_fsl_imx_mmc dtd_fsl_imx28_mmc
-#else /* CONFIG_MX23 */
-#define dtd_fsl_imx_mmc dtd_fsl_imx23_mmc
-#endif
-
 struct mxsmmc_platdata {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_fsl_imx_mmc dtplat;
+	struct dtd_fsl_imx23_mmc dtplat;
 #endif
 	struct mmc_config cfg;
 	struct mmc mmc;
@@ -582,7 +576,7 @@ static int mxsmmc_probe(struct udevice *dev)
 	debug("%s: probe\n", __func__);
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_fsl_imx_mmc *dtplat = &plat->dtplat;
+	struct dtd_fsl_imx23_mmc *dtplat = &plat->dtplat;
 	struct phandle_1_arg *p1a = &dtplat->clocks[0];
 
 	priv->buswidth = dtplat->bus_width;

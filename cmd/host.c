@@ -51,7 +51,7 @@ static int do_host_bind(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("** Bad device specification %s **\n", dev_str);
 		return CMD_RET_USAGE;
 	}
-	return host_dev_bind(dev, file);
+	return !!host_dev_bind(dev, file);
 }
 
 static int do_host_info(struct cmd_tbl *cmdtp, int flag, int argc,

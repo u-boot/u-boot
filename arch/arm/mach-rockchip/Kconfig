@@ -367,6 +367,15 @@ config TPL_ROCKCHIP_EARLYRETURN_TO_BROM
 config SPL_MMC_SUPPORT
 	default y if !SPL_ROCKCHIP_BACK_TO_BROM
 
+config ROCKCHIP_SPI_IMAGE
+	bool "Build a SPI image for rockchip"
+	depends on HAS_ROM
+	help
+	  Some Rockchip SoCs support booting from SPI flash. Enable this
+	  option to produce a 4MB SPI-flash image (called u-boot.rom)
+	  containing U-Boot. The image is built by binman. U-Boot sits near
+	  the start of the image.
+
 source "arch/arm/mach-rockchip/px30/Kconfig"
 source "arch/arm/mach-rockchip/rk3036/Kconfig"
 source "arch/arm/mach-rockchip/rk3128/Kconfig"

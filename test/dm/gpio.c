@@ -114,21 +114,21 @@ static int dm_test_gpio(struct unit_test_state *uts)
 	/* add gpio hog tests */
 	ut_assertok(gpio_hog_lookup_name("hog_input_active_low", &desc));
 	ut_asserteq(GPIOD_IS_IN | GPIOD_ACTIVE_LOW, desc->flags);
-	ut_asserteq(0, desc->offset);
+	ut_asserteq(10, desc->offset);
 	ut_asserteq(1, dm_gpio_get_value(desc));
 	ut_assertok(gpio_hog_lookup_name("hog_input_active_high", &desc));
 	ut_asserteq(GPIOD_IS_IN, desc->flags);
-	ut_asserteq(1, desc->offset);
+	ut_asserteq(11, desc->offset);
 	ut_asserteq(0, dm_gpio_get_value(desc));
 	ut_assertok(gpio_hog_lookup_name("hog_output_low", &desc));
 	ut_asserteq(GPIOD_IS_OUT, desc->flags);
-	ut_asserteq(2, desc->offset);
+	ut_asserteq(12, desc->offset);
 	ut_asserteq(0, dm_gpio_get_value(desc));
 	ut_assertok(dm_gpio_set_value(desc, 1));
 	ut_asserteq(1, dm_gpio_get_value(desc));
 	ut_assertok(gpio_hog_lookup_name("hog_output_high", &desc));
 	ut_asserteq(GPIOD_IS_OUT, desc->flags);
-	ut_asserteq(3, desc->offset);
+	ut_asserteq(13, desc->offset);
 	ut_asserteq(1, dm_gpio_get_value(desc));
 	ut_assertok(dm_gpio_set_value(desc, 0));
 	ut_asserteq(0, dm_gpio_get_value(desc));
@@ -137,8 +137,8 @@ static int dm_test_gpio(struct unit_test_state *uts)
 	ut_assertok(gpio_lookup_name("hog_input_active_low", &dev, &offset,
 				     &gpio));
 	ut_asserteq_str(dev->name, "base-gpios");
-	ut_asserteq(0, offset);
-	ut_asserteq(CONFIG_SANDBOX_GPIO_COUNT + 0, gpio);
+	ut_asserteq(10, offset);
+	ut_asserteq(CONFIG_SANDBOX_GPIO_COUNT + 10, gpio);
 	ut_assert(gpio_lookup_name("hog_not_exist", &dev, &offset,
 				   &gpio));
 

@@ -75,9 +75,13 @@
 	u-boot {
 		offset = <CONFIG_SYS_TEXT_BASE>;
 	};
-# else
+# elif defined(CONFIG_HAVE_MICROCODE)
 	/* If there is no SPL then we need to put microcode in U-Boot */
 	u-boot-with-ucode-ptr {
+		offset = <CONFIG_X86_OFFSET_U_BOOT>;
+	};
+# else
+	u-boot-nodtb {
 		offset = <CONFIG_X86_OFFSET_U_BOOT>;
 	};
 # endif
@@ -92,6 +96,8 @@
 	u-boot-dtb {
 	};
 #endif
+	fdtmap {
+	};
 #ifdef CONFIG_HAVE_X86_FIT
 	intel-fit {
 	};
@@ -139,8 +145,6 @@
 		filename = CONFIG_FSP_FILE_S;
 	};
 #endif
-	fdtmap {
-	};
 #ifdef CONFIG_HAVE_CMC
 	intel-cmc {
 		filename = CONFIG_CMC_FILE;

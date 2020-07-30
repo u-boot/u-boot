@@ -14,4 +14,9 @@
 		intval = <1>;
 	};
 
+	spl-test2 {
+		u-boot,dm-pre-reloc;
+		compatible = "compat1", "simple_bus";
+		intval = <1>;
+	};
 };

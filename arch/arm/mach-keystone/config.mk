@@ -9,9 +9,9 @@ include  $(srctree)/arch/arm/mach-omap2/config_secure.mk
 
 ifndef CONFIG_SPL_BUILD
 ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
-ALL-y += u-boot_HS_MLO
+INPUTS-y += u-boot_HS_MLO
 else
-ALL-y += MLO
+INPUTS-y += MLO
 endif
 endif
 

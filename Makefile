@@ -278,7 +278,7 @@ HOST_LFS_LIBS := $(shell getconf LFS_LIBS 2>/dev/null)
 HOSTCC       = cc
 HOSTCXX      = c++
 KBUILD_HOSTCFLAGS   := -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer \
-		$(if $(CONFIG_TOOLS_DEBUG),-g) $(HOST_LFS_CFLAGS) $(HOSTCFLAGS)
+		$(HOST_LFS_CFLAGS) $(HOSTCFLAGS)
 KBUILD_HOSTCXXFLAGS := -O2 $(HOST_LFS_CFLAGS) $(HOSTCXXFLAGS)
 KBUILD_HOSTLDFLAGS  := $(HOST_LFS_LDFLAGS) $(HOSTLDFLAGS)
 KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
@@ -735,6 +735,8 @@ KBUILD_CPPFLAGS += $(KCPPFLAGS)
 KBUILD_AFLAGS += $(KAFLAGS)
 KBUILD_CFLAGS += $(KCFLAGS)
 
+KBUILD_HOSTCFLAGS += $(if $(CONFIG_TOOLS_DEBUG),-g)
+
 # Use UBOOTINCLUDE when you must reference the include/ directory.
 # Needed to be compatible with the O= option
 UBOOTINCLUDE    := \
@@ -885,78 +887,83 @@ quiet_cmd_static_rela =
 cmd_static_rela =
 endif
 
-# Always append ALL so that arch config.mk's can add custom ones
-ALL-y += u-boot.srec u-boot.bin u-boot.sym System.map binary_size_check
+# Always append INPUTS so that arch config.mk's can add custom ones
+INPUTS-y += u-boot.srec u-boot.bin u-boot.sym System.map binary_size_check
 
-ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
+INPUTS-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
-ALL-$(CONFIG_RAMBOOT_PBL) += u-boot-with-spl-pbl.bin
+INPUTS-$(CONFIG_RAMBOOT_PBL) += u-boot-with-spl-pbl.bin
 else
 ifneq ($(CONFIG_NXP_ESBC), y)
 # For Secure Boot The Image needs to be signed and Header must also
 # be included. So The image has to be built explicitly
-ALL-$(CONFIG_RAMBOOT_PBL) += u-boot.pbl
+INPUTS-$(CONFIG_RAMBOOT_PBL) += u-boot.pbl
 endif
 endif
-ALL-$(CONFIG_SPL) += spl/u-boot-spl.bin
+INPUTS-$(CONFIG_SPL) += spl/u-boot-spl.bin
 ifeq ($(CONFIG_MX6)$(CONFIG_IMX_HAB), yy)
-ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot-ivt.img
+INPUTS-$(CONFIG_SPL_FRAMEWORK) += u-boot-ivt.img
 else
 ifeq ($(CONFIG_MX7)$(CONFIG_IMX_HAB), yy)
-ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot-ivt.img
+INPUTS-$(CONFIG_SPL_FRAMEWORK) += u-boot-ivt.img
 else
-ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot.img
+INPUTS-$(CONFIG_SPL_FRAMEWORK) += u-boot.img
 endif
 endif
-ALL-$(CONFIG_TPL) += tpl/u-boot-tpl.bin
-ALL-$(CONFIG_OF_SEPARATE) += u-boot.dtb
+INPUTS-$(CONFIG_TPL) += tpl/u-boot-tpl.bin
+INPUTS-$(CONFIG_OF_SEPARATE) += u-boot.dtb
 ifeq ($(CONFIG_SPL_FRAMEWORK),y)
-ALL-$(CONFIG_OF_SEPARATE) += u-boot-dtb.img
+INPUTS-$(CONFIG_OF_SEPARATE) += u-boot-dtb.img
 endif
-ALL-$(CONFIG_OF_HOSTFILE) += u-boot.dtb
+INPUTS-$(CONFIG_OF_HOSTFILE) += u-boot.dtb
 ifneq ($(CONFIG_SPL_TARGET),)
-ALL-$(CONFIG_SPL) += $(CONFIG_SPL_TARGET:"%"=%)
+INPUTS-$(CONFIG_SPL) += $(CONFIG_SPL_TARGET:"%"=%)
 endif
-ALL-$(CONFIG_REMAKE_ELF) += u-boot.elf
-ALL-$(CONFIG_EFI_APP) += u-boot-app.efi
-ALL-$(CONFIG_EFI_STUB) += u-boot-payload.efi
-
-ifneq ($(BUILD_ROM)$(CONFIG_BUILD_ROM),)
-ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
-endif
-ifeq ($(CONFIG_SYS_COREBOOT)$(CONFIG_SPL),yy)
-ALL-$(CONFIG_BINMAN) += u-boot-x86-with-spl.bin
-endif
+INPUTS-$(CONFIG_REMAKE_ELF) += u-boot.elf
+INPUTS-$(CONFIG_EFI_APP) += u-boot-app.efi
+INPUTS-$(CONFIG_EFI_STUB) += u-boot-payload.efi
 
 # Build a combined spl + u-boot image for sunxi
-ifeq ($(CONFIG_ARCH_SUNXI)$(CONFIG_SPL),yy)
-ALL-y += u-boot-sunxi-with-spl.bin
+ifeq ($(CONFIG_ARCH_SUNXI)$(CONFIG_ARM64)$(CONFIG_SPL),yyy)
+INPUTS-y += u-boot-sunxi-with-spl.bin
 endif
 
-# enable combined SPL/u-boot/dtb rules for tegra
-ifeq ($(CONFIG_ARCH_TEGRA)$(CONFIG_SPL),yy)
-ALL-y += u-boot-tegra.bin u-boot-nodtb-tegra.bin
-ALL-$(CONFIG_OF_SEPARATE) += u-boot-dtb-tegra.bin
+# Generate this input file for binman
+ifeq ($(CONFIG_SPL),)
+INPUTS-$(CONFIG_ARCH_MEDIATEK) += u-boot-mtk.bin
 endif
-
-ALL-$(CONFIG_ARCH_MEDIATEK) += u-boot-mtk.bin
 
 # Add optional build target if defined in board/cpu/soc headers
 ifneq ($(CONFIG_BUILD_TARGET),)
-ALL-y += $(CONFIG_BUILD_TARGET:"%"=%)
+INPUTS-y += $(CONFIG_BUILD_TARGET:"%"=%)
 endif
 
 ifeq ($(CONFIG_INIT_SP_RELATIVE)$(CONFIG_OF_SEPARATE),yy)
-ALL-y += init_sp_bss_offset_check
+INPUTS-y += init_sp_bss_offset_check
 endif
 
 ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
-ALL-y += u-boot-with-dtb.bin
+INPUTS-y += u-boot-with-dtb.bin
 endif
 
-ifeq ($(CONFIG_ARCH_ROCKCHIP)$(CONFIG_SPL),yy)
-ALL-y += u-boot-rockchip.bin
+ifeq ($(CONFIG_ARCH_ROCKCHIP),y)
+# On ARM64 this target is produced by binman so we don't need this dep
+ifeq ($(CONFIG_ARM64),y)
+ifeq ($(CONFIG_SPL),y)
+# TODO: Get binman to generate this too
+INPUTS-y += u-boot-rockchip.bin
 endif
+else
+ifeq ($(CONFIG_SPL),y)
+# Generate these inputs for binman which will create the output files
+INPUTS-y += idbloader.img u-boot.img
+endif
+endif
+endif
+
+INPUTS-$(CONFIG_X86) += u-boot-x86-start16.bin u-boot-x86-reset16.bin \
+	$(if $(CONFIG_SPL_X86_16BIT_INIT),spl/u-boot-spl.bin) \
+	$(if $(CONFIG_TPL_X86_16BIT_INIT),tpl/u-boot-tpl.bin)
 
 LDFLAGS_u-boot += $(LDFLAGS_FINAL)
 
@@ -992,7 +999,8 @@ cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
 	>$(MKIMAGEOUTPUT) $(if $(KBUILD_VERBOSE:0=), && cat $(MKIMAGEOUTPUT))
 
 quiet_cmd_mkfitimage = MKIMAGE $@
-cmd_mkfitimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -f $(U_BOOT_ITS) -p $(CONFIG_FIT_EXTERNAL_OFFSET) $@\
+cmd_mkfitimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) \
+	-f $(U_BOOT_ITS) -p $(CONFIG_FIT_EXTERNAL_OFFSET) $@ \
 	>$(MKIMAGEOUTPUT) $(if $(KBUILD_VERBOSE:0=), && cat $(MKIMAGEOUTPUT))
 
 quiet_cmd_cat = CAT     $@
@@ -1012,7 +1020,18 @@ quiet_cmd_cfgcheck = CFGCHK  $2
 cmd_cfgcheck = $(srctree)/scripts/check-config.sh $2 \
 		$(srctree)/scripts/config_whitelist.txt $(srctree)
 
-all:		$(ALL-y)
+PHONY += inputs
+inputs: $(INPUTS-y)
+
+all: .binman_stamp inputs
+ifeq ($(CONFIG_BINMAN),y)
+	$(call if_changed,binman)
+endif
+
+# Timestamp file to make sure that binman always runs
+.binman_stamp: FORCE
+	@touch $@
+
 ifeq ($(CONFIG_DEPRECATED),y)
 	$(warning "You have deprecated configuration options enabled in your .config! Please check your configuration.")
 ifeq ($(CONFIG_SPI),y)
@@ -1129,6 +1148,13 @@ ifneq ($(CONFIG_DM_ETH),y)
 	@echo >&2 "See doc/driver-model/migration.rst for more info."
 	@echo >&2 "===================================================="
 endif
+endif
+ifneq ($(CONFIG_SPL_FIT_GENERATOR),)
+	@echo >&2 "===================== WARNING ======================"
+	@echo >&2 "This board uses CONFIG_SPL_FIT_GENERATOR. Please migrate"
+	@echo >&2 "to binman instead, to avoid the proliferation of"
+	@echo >&2 "arch-specific scripts with no tests."
+	@echo >&2 "===================================================="
 endif
 	@# Check that this build does not use CONFIG options that we do not
 	@# know about unless they are in Kconfig. All the existing CONFIG
@@ -1304,7 +1330,8 @@ quiet_cmd_binman = BINMAN  $@
 cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
                 --toolpath $(objtree)/tools \
 		$(if $(BINMAN_VERBOSE),-v$(BINMAN_VERBOSE)) \
-		build -u -d u-boot.dtb -O . -m \
+		build -u -d u-boot.dtb -O . \
+		$(if $(BUILD_ROM),,-m --allow-missing) \
 		-I . -I $(srctree) -I $(srctree)/board/$(BOARDDIR) \
 		$(BINMAN_$(@F))
 
@@ -1325,12 +1352,14 @@ endif
 
 # Boards with more complex image requirements can provide an .its source file
 # or a generator script
+# NOTE: Please do not use this. We are migrating away from Makefile rules to use
+# binman instead.
 ifneq ($(CONFIG_SPL_FIT_SOURCE),"")
 U_BOOT_ITS := u-boot.its
 $(U_BOOT_ITS): $(subst ",,$(CONFIG_SPL_FIT_SOURCE))
 	$(call if_changed,copy)
 else
-ifneq ($(CONFIG_SPL_FIT_GENERATOR),"")
+ifneq ($(CONFIG_USE_SPL_FIT_GENERATOR),)
 U_BOOT_ITS := u-boot.its
 ifeq ($(CONFIG_SPL_FIT_GENERATOR),"arch/arm/mach-imx/mkimage_fit_atf.sh")
 U_BOOT_ITS_DEPS += u-boot-nodtb.bin
@@ -1456,10 +1485,7 @@ idbloader.img: spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 endif
 
-ifeq ($(CONFIG_ARM64),)
-u-boot-rockchip.bin: idbloader.img u-boot.img FORCE
-	$(call if_changed,binman)
-else
+ifeq ($(CONFIG_ARM64),y)
 OBJCOPYFLAGS_u-boot-rockchip.bin = -I binary -O binary \
 	--pad-to=$(CONFIG_SPL_PAD_TO) --gap-fill=0xff
 u-boot-rockchip.bin: idbloader.img u-boot.itb FORCE
@@ -1581,26 +1607,11 @@ u-boot-br.bin: u-boot FORCE
 endif
 endif
 
-# x86 uses a large ROM. We fill it with 0xff, put the 16-bit stuff (including
-# reset vector) at the top, Intel ME descriptor at the bottom, and U-Boot in
-# the middle. This is handled by binman based on an image description in the
-# board's device tree.
-ifneq ($(CONFIG_X86_RESET_VECTOR),)
-rom: u-boot.rom FORCE
-
-refcode.bin: $(srctree)/board/$(BOARDDIR)/refcode.bin FORCE
-	$(call if_changed,copy)
-
 quiet_cmd_ldr = LD      $@
 cmd_ldr = $(LD) $(LDFLAGS_$(@F)) \
 	       $(filter-out FORCE,$^) -o $@
 
-u-boot.rom: u-boot-x86-start16.bin u-boot-x86-reset16.bin u-boot.bin \
-		$(if $(CONFIG_SPL_X86_16BIT_INIT),spl/u-boot-spl.bin) \
-		$(if $(CONFIG_TPL_X86_16BIT_INIT),tpl/u-boot-tpl.bin) \
-		$(if $(CONFIG_HAVE_REFCODE),refcode.bin) FORCE
-	$(call if_changed,binman)
-
+ifdef CONFIG_X86
 OBJCOPYFLAGS_u-boot-x86-start16.bin := -O binary -j .start16
 u-boot-x86-start16.bin: u-boot FORCE
 	$(call if_changed,objcopy)
@@ -1608,39 +1619,14 @@ u-boot-x86-start16.bin: u-boot FORCE
 OBJCOPYFLAGS_u-boot-x86-reset16.bin := -O binary -j .resetvec
 u-boot-x86-reset16.bin: u-boot FORCE
 	$(call if_changed,objcopy)
-endif
+
+endif # CONFIG_X86
 
 ifneq ($(CONFIG_ARCH_SUNXI),)
-ifeq ($(CONFIG_ARM64),)
-u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.img u-boot.dtb FORCE
-	$(call if_changed,binman)
-else
+ifeq ($(CONFIG_ARM64),y)
 u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.itb FORCE
 	$(call if_changed,cat)
 endif
-endif
-
-u-boot-x86-with-spl.bin: spl/u-boot-spl.bin u-boot.bin FORCE
-	$(call if_changed,binman)
-
-ifneq ($(CONFIG_ARCH_TEGRA),)
-ifneq ($(CONFIG_BINMAN),)
-# Makes u-boot-dtb-tegra.bin u-boot-tegra.bin u-boot-nodtb-tegra.bin
-%-dtb-tegra.bin %-tegra.bin %-nodtb-tegra.bin: \
-		spl/%-spl %.bin FORCE
-	$(call if_changed,binman)
-else
-OBJCOPYFLAGS_u-boot-nodtb-tegra.bin = -O binary --pad-to=$(CONFIG_SYS_TEXT_BASE)
-u-boot-nodtb-tegra.bin: spl/u-boot-spl u-boot-nodtb.bin FORCE
-	$(call if_changed,pad_cat)
-
-OBJCOPYFLAGS_u-boot-tegra.bin = -O binary --pad-to=$(CONFIG_SYS_TEXT_BASE)
-u-boot-tegra.bin: spl/u-boot-spl u-boot.bin FORCE
-	$(call if_changed,pad_cat)
-
-u-boot-dtb-tegra.bin: u-boot-tegra.bin FORCE
-	$(call if_changed,copy)
-endif  # binman
 endif
 
 OBJCOPYFLAGS_u-boot-app.efi := $(OBJCOPYFLAGS_EFI)
@@ -1726,9 +1712,6 @@ u-boot-elf.lds: arch/u-boot-elf.lds prepare FORCE
 
 ifeq ($(CONFIG_SPL),y)
 spl/u-boot-spl-mtk.bin: spl/u-boot-spl
-
-u-boot-mtk.bin: u-boot.dtb u-boot.img spl/u-boot-spl-mtk.bin FORCE
-	$(call if_changed,binman)
 else
 MKIMAGEFLAGS_u-boot-mtk.bin = -T mtk_image \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) \
