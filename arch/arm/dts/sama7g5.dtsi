@@ -91,6 +91,17 @@
 				#clock-cells = <1>;
 			};
 
+			sdmmc0: sdio-host@e1204000 {
+				compatible = "microchip,sama7g5-sdhci";
+				reg = <0xe1204000 0x300>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 80>, <&pmc PMC_TYPE_GCK 80>;
+				clock-names = "hclock", "multclk";
+				assigned-clocks = <&pmc PMC_TYPE_GCK 80>;
+				assigned-clock-rates = <200000000>;
+				assigned-clock-parents = <&pmc PMC_TYPE_CORE 10>; /* sys pll div. */
+				status = "disabled";
+			};
+
 			sdmmc1: sdio-host@e1208000 {
 				compatible = "microchip,sama7g5-sdhci";
 				reg = <0xe1208000 0x300>;
