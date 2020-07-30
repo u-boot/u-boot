@@ -606,8 +606,8 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 			continue;
 		debug("Importing data size %x\n", len);
 
-		ret = fdt_setprop(fdt, node, "data", fdt + data_base + buf_ptr,
-				  len);
+		ret = fdt_setprop(fdt, node, "data",
+				  old_fdt + data_base + buf_ptr, len);
 		if (ret) {
 			debug("%s: Failed to write property: %s\n", __func__,
 			      fdt_strerror(ret));
