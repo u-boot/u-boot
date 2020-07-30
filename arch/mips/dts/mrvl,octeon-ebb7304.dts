@@ -94,3 +94,13 @@
 &uart0 {
 	clock-frequency = <1200000000>;
 };
+
+&i2c0 {
+	u-boot,dm-pre-reloc;	/* Needed early for DDR SPD EEPROM */
+	clock-frequency = <100000>;
+};
+
+&i2c1 {
+	u-boot,dm-pre-reloc;	/* Needed early for DDR SPD EEPROM */
+	clock-frequency = <100000>;
+};
