@@ -9,6 +9,7 @@
 #include <cpu_func.h>
 #include <debug_uart.h>
 #include <env.h>
+#include <env_internal.h>
 #include <init.h>
 #include <log.h>
 #include <net.h>
@@ -678,4 +679,38 @@ int checkboard(void)
 {
 	puts("Board: Xilinx ZynqMP\n");
 	return 0;
+}
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	u32 bootmode = zynqmp_get_bootmode();
+
+	if (prio)
+		return ENVL_UNKNOWN;
+
+	switch (bootmode) {
+	case EMMC_MODE:
+	case SD_MODE:
+	case SD1_LSHFT_MODE:
+	case SD_MODE1:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_FAT))
+			return ENVL_FAT;
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_EXT4))
+			return ENVL_EXT4;
+		return ENVL_UNKNOWN;
+	case NAND_MODE:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_NAND))
+			return ENVL_NAND;
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_UBI))
+			return ENVL_UBI;
+		return ENVL_UNKNOWN;
+	case QSPI_MODE_24BIT:
+	case QSPI_MODE_32BIT:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
+			return ENVL_SPI_FLASH;
+		return ENVL_UNKNOWN;
+	case JTAG_MODE:
+	default:
+		return ENVL_NOWHERE;
+	}
 }
