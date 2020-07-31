@@ -428,14 +428,11 @@ static int board_check_usb_power(void)
 
 static void sysconf_init(void)
 {
-#ifndef CONFIG_TFABOOT
 	u8 *syscfg;
-#ifdef CONFIG_DM_REGULATOR
 	struct udevice *pwr_dev;
 	struct udevice *pwr_reg;
 	struct udevice *dev;
 	u32 otp = 0;
-#endif
 	int ret;
 	u32 bootr, val;
 
@@ -453,7 +450,6 @@ static void sysconf_init(void)
 	bootr |= (bootr & SYSCFG_BOOTR_BOOT_MASK) << SYSCFG_BOOTR_BOOTPD_SHIFT;
 	writel(bootr, syscfg + SYSCFG_BOOTR);
 
-#ifdef CONFIG_DM_REGULATOR
 	/* High Speed Low Voltage Pad mode Enable for SPI, SDMMC, ETH, QSPI
 	 * and TRACE. Needed above ~50MHz and conditioned by AFMUX selection.
 	 * The customer will have to disable this for low frequencies
@@ -470,7 +466,7 @@ static void sysconf_init(void)
 	ret = uclass_get_device_by_driver(UCLASS_PMIC,
 					  DM_GET_DRIVER(stm32mp_pwr_pmic),
 					  &pwr_dev);
-	if (!ret) {
+	if (!ret && IS_ENABLED(CONFIG_DM_REGULATOR)) {
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
 						  DM_GET_DRIVER(stm32mp_bsec),
 						  &dev);
@@ -507,7 +503,6 @@ static void sysconf_init(void)
 			debug("VDD unknown");
 		}
 	}
-#endif
 
 	/* activate automatic I/O compensation
 	 * warning: need to ensure CSI enabled and ready in clock driver
@@ -524,7 +519,6 @@ static void sysconf_init(void)
 	}
 
 	clrbits_le32(syscfg + SYSCFG_CMPCR, SYSCFG_CMPCR_SW_CTRL);
-#endif
 }
 
 #ifdef CONFIG_DM_REGULATOR
@@ -647,7 +641,8 @@ int board_init(void)
 	regulators_enable_boot_on(_DEBUG);
 #endif
 
-	sysconf_init();
+	if (!IS_ENABLED(CONFIG_TFABOOT))
+		sysconf_init();
 
 	if (CONFIG_IS_ENABLED(LED))
 		led_default_state();
