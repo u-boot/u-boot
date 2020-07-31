@@ -288,7 +288,6 @@ static void __maybe_unused led_error_blink(u32 nb_blink)
 		hang();
 }
 
-#ifdef CONFIG_ADC
 static int board_check_usb_power(void)
 {
 	struct ofnode_phandle_args adc_args;
@@ -300,6 +299,10 @@ static int board_check_usb_power(void)
 	int ret, uV, adc_count;
 	u32 nb_blink;
 	u8 i;
+
+	if (!IS_ENABLED(CONFIG_ADC))
+		return -ENODEV;
+
 	node = ofnode_path("/config");
 	if (!ofnode_valid(node)) {
 		debug("%s: no /config node?\n", __func__);
@@ -422,7 +425,6 @@ static int board_check_usb_power(void)
 
 	return 0;
 }
-#endif /* CONFIG_ADC */
 
 static void sysconf_init(void)
 {
@@ -699,10 +701,8 @@ int board_late_init(void)
 	}
 #endif
 
-#ifdef CONFIG_ADC
 	/* for DK1/DK2 boards */
 	board_check_usb_power();
-#endif /* CONFIG_ADC */
 
 	return 0;
 }
