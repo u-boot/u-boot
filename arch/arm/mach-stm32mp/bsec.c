@@ -74,7 +74,6 @@ static bool bsec_read_lock(u32 address, u32 otp)
 	return !!(readl(address + bank) & bit);
 }
 
-#ifndef CONFIG_TFABOOT
 /**
  * bsec_check_error() - Check status of one otp
  * @base: base address of bsec IP
@@ -279,7 +278,6 @@ static int bsec_program_otp(long base, u32 val, u32 otp)
 
 	return ret;
 }
-#endif /* CONFIG_TFABOOT */
 
 /* BSEC MISC driver *******************************************************/
 struct stm32mp_bsec_platdata {
@@ -288,14 +286,16 @@ struct stm32mp_bsec_platdata {
 
 static int stm32mp_bsec_read_otp(struct udevice *dev, u32 *val, u32 otp)
 {
-#ifdef CONFIG_TFABOOT
-	return stm32_smc(STM32_SMC_BSEC,
-			 STM32_SMC_READ_OTP,
-			 otp, 0, val);
-#else
-	struct stm32mp_bsec_platdata *plat = dev_get_platdata(dev);
+	struct stm32mp_bsec_platdata *plat;
 	u32 tmp_data = 0;
 	int ret;
+
+	if (IS_ENABLED(CONFIG_TFABOOT))
+		return stm32_smc(STM32_SMC_BSEC,
+				 STM32_SMC_READ_OTP,
+				 otp, 0, val);
+
+	plat = dev_get_platdata(dev);
 
 	/* read current shadow value */
 	ret = bsec_read_shadow(plat->base, &tmp_data, otp);
@@ -313,21 +313,22 @@ static int stm32mp_bsec_read_otp(struct udevice *dev, u32 *val, u32 otp)
 
 	/* restore shadow value */
 	ret = bsec_write_shadow(plat->base, tmp_data, otp);
+
 	return ret;
-#endif
 }
 
 static int stm32mp_bsec_read_shadow(struct udevice *dev, u32 *val, u32 otp)
 {
-#ifdef CONFIG_TFABOOT
-	return stm32_smc(STM32_SMC_BSEC,
-			 STM32_SMC_READ_SHADOW,
-			 otp, 0, val);
-#else
-	struct stm32mp_bsec_platdata *plat = dev_get_platdata(dev);
+	struct stm32mp_bsec_platdata *plat;
+
+	if (IS_ENABLED(CONFIG_TFABOOT))
+		return stm32_smc(STM32_SMC_BSEC,
+				 STM32_SMC_READ_SHADOW,
+				 otp, 0, val);
+
+	plat = dev_get_platdata(dev);
 
 	return bsec_read_shadow(plat->base, val, otp);
-#endif
 }
 
 static int stm32mp_bsec_read_lock(struct udevice *dev, u32 *val, u32 otp)
@@ -342,33 +343,38 @@ static int stm32mp_bsec_read_lock(struct udevice *dev, u32 *val, u32 otp)
 
 static int stm32mp_bsec_write_otp(struct udevice *dev, u32 val, u32 otp)
 {
-#ifdef CONFIG_TFABOOT
-	return stm32_smc_exec(STM32_SMC_BSEC,
-			      STM32_SMC_PROG_OTP,
-			      otp, val);
-#else
-	struct stm32mp_bsec_platdata *plat = dev_get_platdata(dev);
+	struct stm32mp_bsec_platdata *plat;
+
+	if (IS_ENABLED(CONFIG_TFABOOT))
+		return stm32_smc_exec(STM32_SMC_BSEC,
+				      STM32_SMC_PROG_OTP,
+				      otp, val);
+
+	plat = dev_get_platdata(dev);
 
 	return bsec_program_otp(plat->base, val, otp);
-#endif
+
 }
 
 static int stm32mp_bsec_write_shadow(struct udevice *dev, u32 val, u32 otp)
 {
-#ifdef CONFIG_TFABOOT
-	return stm32_smc_exec(STM32_SMC_BSEC,
-			      STM32_SMC_WRITE_SHADOW,
-			      otp, val);
-#else
-	struct stm32mp_bsec_platdata *plat = dev_get_platdata(dev);
+	struct stm32mp_bsec_platdata *plat;
+
+	if (IS_ENABLED(CONFIG_TFABOOT))
+		return stm32_smc_exec(STM32_SMC_BSEC,
+				      STM32_SMC_WRITE_SHADOW,
+				      otp, val);
+
+	plat = dev_get_platdata(dev);
 
 	return bsec_write_shadow(plat->base, val, otp);
-#endif
 }
 
 static int stm32mp_bsec_write_lock(struct udevice *dev, u32 val, u32 otp)
 {
-#ifdef CONFIG_TFABOOT
+	if (!IS_ENABLED(CONFIG_TFABOOT))
+		return -ENOTSUPP;
+
 	if (val == 1)
 		return stm32_smc_exec(STM32_SMC_BSEC,
 				      STM32_SMC_WRLOCK_OTP,
@@ -377,9 +383,6 @@ static int stm32mp_bsec_write_lock(struct udevice *dev, u32 val, u32 otp)
 		return 0; /* nothing to do */
 
 	return -EINVAL;
-#else
-	return -ENOTSUPP;
-#endif
 }
 
 static int stm32mp_bsec_read(struct udevice *dev, int offset,
@@ -481,18 +484,21 @@ static int stm32mp_bsec_ofdata_to_platdata(struct udevice *dev)
 
 static int stm32mp_bsec_probe(struct udevice *dev)
 {
-#if !defined(CONFIG_TFABOOT) && !defined(CONFIG_SPL_BUILD)
 	int otp;
-	struct stm32mp_bsec_platdata *plat = dev_get_platdata(dev);
+	struct stm32mp_bsec_platdata *plat;
 
 	/*
 	 * update unlocked shadow for OTP cleared by the rom code
 	 * only executed in U-Boot proper when TF-A is not used
 	 */
-	for (otp = 57; otp <= BSEC_OTP_MAX_VALUE; otp++)
-		if (!bsec_read_SR_lock(plat->base, otp))
-			bsec_shadow_register(plat->base, otp);
-#endif
+
+	if (!IS_ENABLED(CONFIG_TFABOOT) && !IS_ENABLED(CONFIG_SPL_BUILD)) {
+		plat = dev_get_platdata(dev);
+
+		for (otp = 57; otp <= BSEC_OTP_MAX_VALUE; otp++)
+			if (!bsec_read_SR_lock(plat->base, otp))
+				bsec_shadow_register(plat->base, otp);
+	}
 
 	return 0;
 }
