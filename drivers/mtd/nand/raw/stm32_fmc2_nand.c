@@ -158,10 +158,10 @@ struct stm32_fmc2_nfc {
 	struct nand_hw_control base;
 	struct stm32_fmc2_nand nand;
 	struct nand_ecclayout ecclayout;
-	void __iomem *io_base;
-	void __iomem *data_base[FMC2_MAX_CE];
-	void __iomem *cmd_base[FMC2_MAX_CE];
-	void __iomem *addr_base[FMC2_MAX_CE];
+	fdt_addr_t io_base;
+	fdt_addr_t data_base[FMC2_MAX_CE];
+	fdt_addr_t cmd_base[FMC2_MAX_CE];
+	fdt_addr_t addr_base[FMC2_MAX_CE];
 	struct clk clk;
 
 	u8 cs_assigned;
@@ -241,8 +241,8 @@ static void stm32_fmc2_nfc_select_chip(struct mtd_info *mtd, int chipnr)
 		return;
 
 	nfc->cs_sel = nand->cs_used[chipnr];
-	chip->IO_ADDR_R = nfc->data_base[nfc->cs_sel];
-	chip->IO_ADDR_W = nfc->data_base[nfc->cs_sel];
+	chip->IO_ADDR_R = (void __iomem *)nfc->data_base[nfc->cs_sel];
+	chip->IO_ADDR_W = (void __iomem *)nfc->data_base[nfc->cs_sel];
 
 	stm32_fmc2_nfc_setup(chip);
 	stm32_fmc2_nfc_timings_init(chip);
@@ -548,7 +548,7 @@ static int stm32_fmc2_nfc_read_page(struct mtd_info *mtd,
 	return max_bitflips;
 }
 
-static void stm32_fmc2_nfc_init(struct stm32_fmc2_nfc *nfc)
+static void stm32_fmc2_nfc_init(struct stm32_fmc2_nfc *nfc, bool has_parent)
 {
 	u32 pcr = readl(nfc->io_base + FMC2_PCR);
 
@@ -581,7 +581,8 @@ static void stm32_fmc2_nfc_init(struct stm32_fmc2_nfc *nfc)
 	pcr |= FIELD_PREP(FMC2_PCR_TAR, FMC2_PCR_TAR_DEFAULT);
 
 	/* Enable FMC2 controller */
-	setbits_le32(nfc->io_base + FMC2_BCR1, FMC2_BCR1_FMC2EN);
+	if (!has_parent)
+		setbits_le32(nfc->io_base + FMC2_BCR1, FMC2_BCR1_FMC2EN);
 
 	writel(pcr, nfc->io_base + FMC2_PCR);
 	writel(FMC2_PMEM_DEFAULT, nfc->io_base + FMC2_PMEM);
@@ -854,6 +855,30 @@ static int stm32_fmc2_nfc_parse_dt(struct udevice *dev,
 	return 0;
 }
 
+static struct udevice *stm32_fmc2_nfc_get_cdev(struct udevice *dev)
+{
+	struct udevice *pdev = dev_get_parent(dev);
+	struct udevice *cdev = NULL;
+	bool ebi_found = false;
+
+	if (pdev && ofnode_device_is_compatible(dev_ofnode(pdev),
+						"st,stm32mp1-fmc2-ebi"))
+		ebi_found = true;
+
+	if (ofnode_device_is_compatible(dev_ofnode(dev),
+					"st,stm32mp1-fmc2-nfc")) {
+		if (ebi_found)
+			cdev = pdev;
+
+		return cdev;
+	}
+
+	if (!ebi_found)
+		cdev = dev;
+
+	return cdev;
+}
+
 static int stm32_fmc2_nfc_probe(struct udevice *dev)
 {
 	struct stm32_fmc2_nfc *nfc = dev_get_priv(dev);
@@ -861,58 +886,63 @@ static int stm32_fmc2_nfc_probe(struct udevice *dev)
 	struct nand_chip *chip = &nand->chip;
 	struct mtd_info *mtd = &chip->mtd;
 	struct nand_ecclayout *ecclayout;
-	struct resource resource;
+	struct udevice *cdev;
 	struct reset_ctl reset;
 	int oob_index, chip_cs, mem_region, ret;
 	unsigned int i;
+	int start_region = 0;
+	fdt_addr_t addr;
 
 	spin_lock_init(&nfc->controller.lock);
 	init_waitqueue_head(&nfc->controller.wq);
+
+	cdev = stm32_fmc2_nfc_get_cdev(dev);
+	if (!cdev)
+		return -EINVAL;
 
 	ret = stm32_fmc2_nfc_parse_dt(dev, nfc);
 	if (ret)
 		return ret;
 
-	/* Get resources */
-	ret = dev_read_resource(dev, 0, &resource);
-	if (ret) {
-		pr_err("Resource io_base not found");
-		return ret;
-	}
-	nfc->io_base = (void __iomem *)resource.start;
+	nfc->io_base = dev_read_addr(cdev);
+	if (nfc->io_base == FDT_ADDR_T_NONE)
+		return -EINVAL;
 
-	for (chip_cs = 0, mem_region = 1; chip_cs < FMC2_MAX_CE;
+	if (dev == cdev)
+		start_region = 1;
+
+	for (chip_cs = 0, mem_region = start_region; chip_cs < FMC2_MAX_CE;
 	     chip_cs++, mem_region += 3) {
 		if (!(nfc->cs_assigned & BIT(chip_cs)))
 			continue;
 
-		ret = dev_read_resource(dev, mem_region, &resource);
-		if (ret) {
+		addr = dev_read_addr_index(dev, mem_region);
+		if (addr == FDT_ADDR_T_NONE) {
 			pr_err("Resource data_base not found for cs%d",
 			       chip_cs);
 			return ret;
 		}
-		nfc->data_base[chip_cs] = (void __iomem *)resource.start;
+		nfc->data_base[chip_cs] = addr;
 
-		ret = dev_read_resource(dev, mem_region + 1, &resource);
-		if (ret) {
+		addr = dev_read_addr_index(dev, mem_region + 1);
+		if (addr == FDT_ADDR_T_NONE) {
 			pr_err("Resource cmd_base not found for cs%d",
 			       chip_cs);
 			return ret;
 		}
-		nfc->cmd_base[chip_cs] = (void __iomem *)resource.start;
+		nfc->cmd_base[chip_cs] = addr;
 
-		ret = dev_read_resource(dev, mem_region + 2, &resource);
-		if (ret) {
+		addr = dev_read_addr_index(dev, mem_region + 2);
+		if (addr == FDT_ADDR_T_NONE) {
 			pr_err("Resource addr_base not found for cs%d",
 			       chip_cs);
 			return ret;
 		}
-		nfc->addr_base[chip_cs] = (void __iomem *)resource.start;
+		nfc->addr_base[chip_cs] = addr;
 	}
 
 	/* Enable the clock */
-	ret = clk_get_by_index(dev, 0, &nfc->clk);
+	ret = clk_get_by_index(cdev, 0, &nfc->clk);
 	if (ret)
 		return ret;
 
@@ -928,7 +958,7 @@ static int stm32_fmc2_nfc_probe(struct udevice *dev)
 		reset_deassert(&reset);
 	}
 
-	stm32_fmc2_nfc_init(nfc);
+	stm32_fmc2_nfc_init(nfc, dev != cdev);
 
 	chip->controller = &nfc->base;
 	chip->select_chip = stm32_fmc2_nfc_select_chip;
@@ -994,6 +1024,7 @@ static int stm32_fmc2_nfc_probe(struct udevice *dev)
 
 static const struct udevice_id stm32_fmc2_nfc_match[] = {
 	{ .compatible = "st,stm32mp15-fmc2" },
+	{ .compatible = "st,stm32mp1-fmc2-nfc" },
 	{ /* Sentinel */ }
 };
 
