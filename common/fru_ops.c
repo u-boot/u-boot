@@ -257,7 +257,7 @@ static int fru_display_board(struct fru_board_data *brd, int verbose)
 
 	data = (u8 *)&brd->manufacturer_type_len;
 
-	for (u8 i = 0; ; i++) {
+	for (u8 i = 0; i < (sizeof(boardinfo)/sizeof(*boardinfo)); i++) {
 		len = fru_check_type_len(*data++, brd->lang_code,
 					 &type);
 		if (len == -EINVAL) {
