@@ -164,7 +164,6 @@ static int fru_parse_board(unsigned long addr)
 	data = (u8 *)&fru_data.brd.manufacturer_type_len;
 
 	for (i = 0; ; i++, data += FRU_BOARD_MAX_LEN) {
-		*data++ = *(u8 *)addr;
 		len = fru_check_type_len(*(u8 *)addr, fru_data.brd.lang_code,
 					 &type);
 		/*
@@ -173,9 +172,17 @@ static int fru_parse_board(unsigned long addr)
 		if (len == -EINVAL)
 			break;
 
+		/* This record type/len field */
+		*data++ = *(u8 *)addr;
+
+		/* Add offset to match data */
 		addr += 1;
+
+		/* If len is 0 it means empty field that's why skip writing */
 		if (!len)
 			continue;
+
+		/* Record data field */
 		memcpy(data, (u8 *)addr, len);
 		term = data + (u8)len;
 		*term = 0;
