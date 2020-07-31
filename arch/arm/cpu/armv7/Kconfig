@@ -44,6 +44,7 @@ config ARMV7_PSCI
 choice
 	prompt "Supported PSCI version"
 	depends on ARMV7_PSCI
+	default ARMV7_PSCI_0_1 if ARCH_SUNXI
 	default ARMV7_PSCI_1_0
 	help
 	  Select the supported PSCI version.
@@ -53,6 +54,9 @@ config ARMV7_PSCI_1_0
 
 config ARMV7_PSCI_0_2
 	bool "PSCI V0.2"
+
+config ARMV7_PSCI_0_1
+	bool "PSCI V0.1"
 endchoice
 
 config ARMV7_PSCI_NR_CPUS
