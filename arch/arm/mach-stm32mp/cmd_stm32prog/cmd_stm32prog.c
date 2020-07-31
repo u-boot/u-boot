@@ -14,7 +14,6 @@ struct stm32prog_data *stm32prog_data;
 
 static void enable_vidconsole(void)
 {
-#ifdef CONFIG_DM_VIDEO
 	char *stdname;
 	char buf[64];
 
@@ -35,7 +34,6 @@ static void enable_vidconsole(void)
 			snprintf(buf, sizeof(buf), "%s,vidconsole", stdname);
 		env_set("stderr", buf);
 	}
-#endif
 }
 
 static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -86,7 +84,8 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 						   "script@1");
 	}
 
-	enable_vidconsole();
+	if (IS_ENABLED(CONFIG_DM_VIDEO))
+		enable_vidconsole();
 
 	data = (struct stm32prog_data *)malloc(sizeof(*data));
 
