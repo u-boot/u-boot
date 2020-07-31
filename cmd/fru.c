@@ -54,16 +54,19 @@ static int do_fru(cmd_tbl_t *cmdtp, int flag, int argc,
 		  char *const argv[])
 {
 	cmd_tbl_t *c;
+	int ret;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
 	c = find_cmd_tbl(argv[1], &cmd_fru_sub[0],
 			 ARRAY_SIZE(cmd_fru_sub));
-	if (c)
-		return c->cmd(c, flag, argc, argv);
+	if (!c)
+		return CMD_RET_USAGE;
 
-	return CMD_RET_USAGE;
+	ret = c->cmd(c, flag, argc, argv);
+
+	return cmd_process_error(c, ret);
 }
 
 /***************************************************/
