@@ -188,7 +188,7 @@ static int env_eeprom_load(void)
 	eeprom_bus_read(CONFIG_SYS_DEF_EEPROM_ADDR,
 		off, (uchar *)buf_env, CONFIG_ENV_SIZE);
 
-	return env_import(buf_env, 1);
+	return env_import(buf_env, 1, H_EXTERNAL);
 }
 
 static int env_eeprom_save(void)

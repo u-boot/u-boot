@@ -112,5 +112,7 @@ int hwalk_r(struct hsearch_data *htab,
 #define H_MATCH_METHOD	(H_MATCH_IDENT | H_MATCH_SUBSTR | H_MATCH_REGEX)
 #define H_PROGRAMMATIC	(1 << 9) /* indicate that an import is from env_set() */
 #define H_ORIGIN_FLAGS	(H_INTERACTIVE | H_PROGRAMMATIC)
+#define H_DEFAULT	(1 << 10) /* indicate that an import is default env */
+#define H_EXTERNAL	(1 << 11) /* indicate that an import is external env */
 
 #endif /* _SEARCH_H_ */

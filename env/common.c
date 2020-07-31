@@ -81,6 +81,7 @@ void env_set_default(const char *s, int flags)
 		debug("Using default environment\n");
 	}
 
+	flags |= H_DEFAULT;
 	if (himport_r(&env_htab, (char *)default_environment,
 			sizeof(default_environment), '\0', flags, 0,
 			0, NULL) == 0)
@@ -99,7 +100,7 @@ int env_set_default_vars(int nvars, char * const vars[], int flags)
 	 * Special use-case: import from default environment
 	 * (and use \0 as a separator)
 	 */
-	flags |= H_NOCLEAR;
+	flags |= H_NOCLEAR | H_DEFAULT;
 	return himport_r(&env_htab, (const char *)default_environment,
 				sizeof(default_environment), '\0',
 				flags, 0, nvars, vars);
@@ -109,7 +110,7 @@ int env_set_default_vars(int nvars, char * const vars[], int flags)
  * Check if CRC is valid and (if yes) import the environment.
  * Note that "buf" may or may not be aligned.
  */
-int env_import(const char *buf, int check)
+int env_import(const char *buf, int check, int flags)
 {
 	env_t *ep = (env_t *)buf;
 
@@ -124,7 +125,7 @@ int env_import(const char *buf, int check)
 		}
 	}
 
-	if (himport_r(&env_htab, (char *)ep->data, ENV_SIZE, '\0', 0, 0,
+	if (himport_r(&env_htab, (char *)ep->data, ENV_SIZE, '\0', flags, 0,
 			0, NULL)) {
 		gd->flags |= GD_FLG_ENV_READY;
 		return 0;
@@ -141,7 +142,8 @@ int env_import(const char *buf, int check)
 static unsigned char env_flags;
 
 int env_import_redund(const char *buf1, int buf1_read_fail,
-		      const char *buf2, int buf2_read_fail)
+		      const char *buf2, int buf2_read_fail,
+		      int flags)
 {
 	int crc1_ok, crc2_ok;
 	env_t *ep, *tmp_env1, *tmp_env2;
@@ -161,10 +163,10 @@ int env_import_redund(const char *buf1, int buf1_read_fail,
 		return -EIO;
 	} else if (!buf1_read_fail && buf2_read_fail) {
 		gd->env_valid = ENV_VALID;
-		return env_import((char *)tmp_env1, 1);
+		return env_import((char *)tmp_env1, 1, flags);
 	} else if (buf1_read_fail && !buf2_read_fail) {
 		gd->env_valid = ENV_REDUND;
-		return env_import((char *)tmp_env2, 1);
+		return env_import((char *)tmp_env2, 1, flags);
 	}
 
 	crc1_ok = crc32(0, tmp_env1->data, ENV_SIZE) ==
@@ -199,7 +201,7 @@ int env_import_redund(const char *buf1, int buf1_read_fail,
 		ep = tmp_env2;
 
 	env_flags = ep->flags;
-	return env_import((char *)ep, 0);
+	return env_import((char *)ep, 0, flags);
 }
 #endif /* CONFIG_SYS_REDUNDAND_ENVIRONMENT */
 

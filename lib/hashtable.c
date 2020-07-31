@@ -826,6 +826,10 @@ int himport_r(struct hsearch_data *htab,
 	if (nvars)
 		memcpy(localvars, vars, sizeof(vars[0]) * nvars);
 
+#if CONFIG_IS_ENABLED(ENV_APPEND)
+	flag |= H_NOCLEAR;
+#endif
+
 	if ((flag & H_NOCLEAR) == 0 && !nvars) {
 		/* Destroy old hash table if one exists */
 		debug("Destroy Hash Table: %p table = %p\n", htab,
@@ -946,9 +950,12 @@ int himport_r(struct hsearch_data *htab,
 		e.data = value;
 
 		hsearch_r(e, ENV_ENTER, &rv, htab, flag);
-		if (rv == NULL)
+#if !CONFIG_IS_ENABLED(ENV_WRITEABLE_LIST)
+		if (rv == NULL) {
 			printf("himport_r: can't insert \"%s=%s\" into hash table\n",
 				name, value);
+		}
+#endif
 
 		debug("INSERT: table %p, filled %d/%d rv %p ==> name=\"%s\" value=\"%s\"\n",
 			htab, htab->filled, htab->size,

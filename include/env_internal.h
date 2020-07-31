@@ -154,8 +154,7 @@ struct env_driver {
 	/**
 	 * load() - Load the environment from storage
 	 *
-	 * This method is optional. If not provided, no environment will be
-	 * loaded.
+	 * This method is required for loading environment
 	 *
 	 * @return 0 if OK, -ve on error
 	 */
@@ -210,6 +209,26 @@ struct env_driver {
 #define ENV_SAVE_PTR(x) (CONFIG_IS_ENABLED(SAVEENV) ? (x) : NULL)
 
 extern struct hsearch_data env_htab;
+
+/**
+ * env_ext4_get_intf() - Provide the interface for env in EXT4
+ *
+ * It is a weak function allowing board to overidde the default interface for
+ * U-Boot env in EXT4: CONFIG_ENV_EXT4_INTERFACE
+ *
+ * @return string of interface, empty if not supported
+ */
+const char *env_ext4_get_intf(void);
+
+/**
+ * env_ext4_get_dev_part() - Provide the device and partition for env in EXT4
+ *
+ * It is a weak function allowing board to overidde the default device and
+ * partition used for U-Boot env in EXT4: CONFIG_ENV_EXT4_DEVICE_AND_PART
+ *
+ * @return string of device and partition
+ */
+const char *env_ext4_get_dev_part(void);
 
 /**
  * env_get_location()- Provide the best location for the U-Boot environment

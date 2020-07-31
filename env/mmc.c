@@ -338,7 +338,7 @@ static int env_mmc_load(void)
 	read2_fail = read_env(mmc, CONFIG_ENV_SIZE, offset2, tmp_env2);
 
 	ret = env_import_redund((char *)tmp_env1, read1_fail, (char *)tmp_env2,
-				read2_fail);
+				read2_fail, H_EXTERNAL);
 
 fini:
 	fini_mmc_for_env(mmc);
@@ -380,7 +380,7 @@ static int env_mmc_load(void)
 		goto fini;
 	}
 
-	ret = env_import(buf, 1);
+	ret = env_import(buf, 1, H_EXTERNAL);
 	if (!ret) {
 		ep = (env_t *)buf;
 		gd->env_addr = (ulong)&ep->data;

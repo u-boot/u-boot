@@ -28,8 +28,15 @@
 #define ENV_FLAGS_NET_VARTYPE_REPS ""
 #endif
 
+#ifdef CONFIG_ENV_WRITEABLE_LIST
+#define ENV_FLAGS_WRITEABLE_VARACCESS_REPS "w"
+#else
+#define ENV_FLAGS_WRITEABLE_VARACCESS_REPS ""
+#endif
+
 static const char env_flags_vartype_rep[] = "sdxb" ENV_FLAGS_NET_VARTYPE_REPS;
-static const char env_flags_varaccess_rep[] = "aroc";
+static const char env_flags_varaccess_rep[] =
+	"aroc" ENV_FLAGS_WRITEABLE_VARACCESS_REPS;
 static const int env_flags_varaccess_mask[] = {
 	0,
 	ENV_FLAGS_VARACCESS_PREVENT_DELETE |
@@ -38,7 +45,11 @@ static const int env_flags_varaccess_mask[] = {
 	ENV_FLAGS_VARACCESS_PREVENT_DELETE |
 		ENV_FLAGS_VARACCESS_PREVENT_OVERWR,
 	ENV_FLAGS_VARACCESS_PREVENT_DELETE |
-		ENV_FLAGS_VARACCESS_PREVENT_NONDEF_OVERWR};
+		ENV_FLAGS_VARACCESS_PREVENT_NONDEF_OVERWR,
+#ifdef CONFIG_ENV_WRITEABLE_LIST
+	ENV_FLAGS_VARACCESS_WRITEABLE,
+#endif
+	};
 
 #ifdef CONFIG_CMD_ENV_FLAGS
 static const char * const env_flags_vartype_names[] = {
@@ -56,6 +67,9 @@ static const char * const env_flags_varaccess_names[] = {
 	"read-only",
 	"write-once",
 	"change-default",
+#ifdef CONFIG_ENV_WRITEABLE_LIST
+	"writeable",
+#endif
 };
 
 /*
@@ -130,21 +144,25 @@ enum env_flags_vartype env_flags_parse_vartype(const char *flags)
  */
 enum env_flags_varaccess env_flags_parse_varaccess(const char *flags)
 {
+	enum env_flags_varaccess va_default = env_flags_varaccess_any;
+	enum env_flags_varaccess va;
 	char *access;
 
 	if (strlen(flags) <= ENV_FLAGS_VARACCESS_LOC)
-		return env_flags_varaccess_any;
+		return va_default;
 
 	access = strchr(env_flags_varaccess_rep,
 		flags[ENV_FLAGS_VARACCESS_LOC]);
 
-	if (access != NULL)
-		return (enum env_flags_varaccess)
+	if (access != NULL) {
+		va = (enum env_flags_varaccess)
 			(access - &env_flags_varaccess_rep[0]);
+		return va;
+	}
 
 	printf("## Warning: Unknown environment variable access method '%c'\n",
 		flags[ENV_FLAGS_VARACCESS_LOC]);
-	return env_flags_varaccess_any;
+	return va_default;
 }
 
 /*
@@ -152,17 +170,21 @@ enum env_flags_varaccess env_flags_parse_varaccess(const char *flags)
  */
 enum env_flags_varaccess env_flags_parse_varaccess_from_binflags(int binflags)
 {
+	enum env_flags_varaccess va_default = env_flags_varaccess_any;
+	enum env_flags_varaccess va;
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(env_flags_varaccess_mask); i++)
 		if (env_flags_varaccess_mask[i] ==
-		    (binflags & ENV_FLAGS_VARACCESS_BIN_MASK))
-			return (enum env_flags_varaccess)i;
+		    (binflags & ENV_FLAGS_VARACCESS_BIN_MASK)) {
+			va = (enum env_flags_varaccess)i;
+			return va;
+	}
 
 	printf("Warning: Non-standard access flags. (0x%x)\n",
 		binflags & ENV_FLAGS_VARACCESS_BIN_MASK);
 
-	return env_flags_varaccess_any;
+	return va_default;
 }
 
 static inline int is_hex_prefix(const char *value)
@@ -326,13 +348,14 @@ enum env_flags_vartype env_flags_get_type(const char *name)
 enum env_flags_varaccess env_flags_get_varaccess(const char *name)
 {
 	const char *flags_list = env_get(ENV_FLAGS_VAR);
+	enum env_flags_varaccess va_default = env_flags_varaccess_any;
 	char flags[ENV_FLAGS_ATTR_MAX_LEN + 1];
 
 	if (env_flags_lookup(flags_list, name, flags))
-		return env_flags_varaccess_any;
+		return va_default;
 
 	if (strlen(flags) <= ENV_FLAGS_VARACCESS_LOC)
-		return env_flags_varaccess_any;
+		return va_default;
 
 	return env_flags_parse_varaccess(flags);
 }
@@ -426,7 +449,11 @@ void env_flags_init(struct env_entry *var_entry)
 	int ret = 1;
 
 	if (first_call) {
+#ifdef CONFIG_ENV_WRITEABLE_LIST
+		flags_list = ENV_FLAGS_LIST_STATIC;
+#else
 		flags_list = env_get(ENV_FLAGS_VAR);
+#endif
 		first_call = 0;
 	}
 	/* look in the ".flags" and static for a reference to this variable */
@@ -523,9 +550,24 @@ int env_flags_validate(const struct env_entry *item, const char *newval,
 	}
 
 	/* check for access permission */
+#ifdef CONFIG_ENV_WRITEABLE_LIST
+	if (flag & H_DEFAULT)
+		return 0;	/* Default env is always OK */
+
+	/*
+	 * External writeable variables can be overwritten by external env,
+	 * anything else can not be overwritten by external env.
+	 */
+	if ((flag & H_EXTERNAL) &&
+	    !(item->flags & ENV_FLAGS_VARACCESS_WRITEABLE))
+		return 1;
+#endif
+
 #ifndef CONFIG_ENV_ACCESS_IGNORE_FORCE
-	if (flag & H_FORCE)
+	if (flag & H_FORCE) {
+		printf("## Error: Can't force access to \"%s\"\n", name);
 		return 0;
+	}
 #endif
 	switch (op) {
 	case env_op_delete:

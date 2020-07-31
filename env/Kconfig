@@ -479,7 +479,7 @@ config ENV_EXT4_DEVICE_AND_PART
 config ENV_EXT4_FILE
 	string "Name of the EXT4 file to use for the environment"
 	depends on ENV_IS_IN_EXT4
-	default "uboot.env"
+	default "/uboot.env"
 	help
 	  It's a string of the EXT4 file name. This file use to store the
 	  environment (explicit path to the file)
@@ -613,6 +613,23 @@ config DELAY_ENVIRONMENT
 	  that so that the environment is not available until explicitly loaded
 	  later by U-Boot code. With CONFIG_OF_CONTROL this is instead
 	  controlled by the value of /config/load-environment.
+
+config ENV_APPEND
+	bool "Always append the environment with new data"
+	default n
+	help
+	  If defined, the environment hash table is only ever appended with new
+	  data, but the existing hash table can never be dropped and reloaded
+	  with newly imported data. This may be used in combination with static
+	  flags to e.g. to protect variables which must not be modified.
+
+config ENV_WRITEABLE_LIST
+	bool "Permit write access only to listed variables"
+	default n
+	help
+	  If defined, only environment variables which explicitly set the 'w'
+	  writeable flag can be written and modified at runtime. No variables
+	  can be otherwise created, written or imported into the environment.
 
 config ENV_ACCESS_IGNORE_FORCE
 	bool "Block forced environment operations"

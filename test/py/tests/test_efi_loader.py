@@ -199,6 +199,6 @@ def test_efi_grub_net(u_boot_console):
     # Then exit cleanly
     u_boot_console.wait_for('grub>')
     u_boot_console.run_command('exit', wait_for_prompt=False, wait_for_echo=False)
-    u_boot_console.wait_for('=>')
+    u_boot_console.wait_for(u_boot_console.prompt)
     # And give us our U-Boot prompt back
     u_boot_console.run_command('')

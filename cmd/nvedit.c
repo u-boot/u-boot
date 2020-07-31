@@ -794,6 +794,23 @@ U_BOOT_CMD(
 );
 #endif
 #endif
+
+#if defined(CONFIG_CMD_NVEDIT_LOAD)
+static int do_env_load(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
+{
+	return env_reload() ? 1 : 0;
+}
+#endif
+
+#if defined(CONFIG_CMD_NVEDIT_SELECT)
+static int do_env_select(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
+{
+	return env_select(argv[1]) ? 1 : 0;
+}
+#endif
+
 #endif /* CONFIG_SPL_BUILD */
 
 int env_match(uchar *s1, int i2)
@@ -1347,6 +1364,9 @@ static struct cmd_tbl cmd_env_sub[] = {
 #if defined(CONFIG_CMD_NVEDIT_INFO)
 	U_BOOT_CMD_MKENT(info, 3, 0, do_env_info, "", ""),
 #endif
+#if defined(CONFIG_CMD_NVEDIT_LOAD)
+	U_BOOT_CMD_MKENT(load, 1, 0, do_env_load, "", ""),
+#endif
 	U_BOOT_CMD_MKENT(print, CONFIG_SYS_MAXARGS, 1, do_env_print, "", ""),
 #if defined(CONFIG_CMD_RUN)
 	U_BOOT_CMD_MKENT(run, CONFIG_SYS_MAXARGS, 1, do_run, "", ""),
@@ -1356,6 +1376,9 @@ static struct cmd_tbl cmd_env_sub[] = {
 #if defined(CONFIG_CMD_ERASEENV)
 	U_BOOT_CMD_MKENT(erase, 1, 0, do_env_erase, "", ""),
 #endif
+#endif
+#if defined(CONFIG_CMD_NVEDIT_SELECT)
+	U_BOOT_CMD_MKENT(select, 2, 0, do_env_select, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(set, CONFIG_SYS_MAXARGS, 0, do_env_set, "", ""),
 #if defined(CONFIG_CMD_ENV_EXISTS)
@@ -1441,6 +1464,12 @@ static char env_help_text[] =
 #if defined(CONFIG_CMD_ERASEENV)
 	"env erase - erase environment\n"
 #endif
+#endif
+#if defined(CONFIG_CMD_NVEDIT_LOAD)
+	"env load - load environment\n"
+#endif
+#if defined(CONFIG_CMD_NVEDIT_SELECT)
+	"env select [target] - select environment target\n"
 #endif
 #if defined(CONFIG_CMD_NVEDIT_EFI)
 	"env set -e [-nv][-bs][-rt][-at][-a][-i addr,size][-v] name [arg ...]\n"
