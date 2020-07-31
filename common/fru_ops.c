@@ -173,12 +173,6 @@ static int fru_parse_board(unsigned long addr)
 		if (len == -EINVAL)
 			break;
 
-		/*
-		 * Dont capture data if type is not ASCII8
-		 */
-		if (type != FRU_TYPELEN_TYPE_ASCII8)
-			return 0;
-
 		addr += 1;
 		if (!len)
 			continue;
@@ -274,17 +268,24 @@ static int fru_display_board(struct fru_board_data *brd)
 		else
 			printf("Type code: %s\n", typecode[type + 1]);
 
-		if (type != FRU_TYPELEN_TYPE_ASCII8) {
-			printf("FRU_ERROR: Only ASCII8 type is supported\n");
-			return -EINVAL;
-		}
 		if (!len) {
 			printf("%s not found\n", boardinfo[i]);
 			continue;
 		}
 
-		printf("Length: %d\n", len);
-		printf("%s: %s\n", boardinfo[i], data);
+		switch (type) {
+		case FRU_TYPELEN_TYPE_BINARY:
+			debug("Length: %d\n", len);
+			printf(" %s: 0x%x\n", boardinfo[i], *data);
+			break;
+		case FRU_TYPELEN_TYPE_ASCII8:
+			debug("Length: %d\n", len);
+			printf(" %s: %s\n", boardinfo[i], data);
+			break;
+		default:
+			debug("Unsupported type %x\n", type);
+		}
+
 		data += FRU_BOARD_MAX_LEN;
 	}
 

@@ -66,6 +66,7 @@ struct fru_table {
 /* This should be minimum of fields */
 #define FRU_BOARD_AREA_TOTAL_FIELDS	5
 #define FRU_TYPELEN_TYPE_SHIFT		6
+#define FRU_TYPELEN_TYPE_BINARY		0
 #define FRU_TYPELEN_TYPE_ASCII8		3
 
 int fru_display(void);
