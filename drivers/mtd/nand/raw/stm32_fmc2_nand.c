@@ -178,40 +178,37 @@ static void stm32_fmc2_nfc_timings_init(struct nand_chip *chip)
 	struct stm32_fmc2_nfc *nfc = to_stm32_nfc(chip->controller);
 	struct stm32_fmc2_nand *nand = to_fmc2_nand(chip);
 	struct stm32_fmc2_timings *timings = &nand->timings;
-	u32 pcr = readl(nfc->io_base + FMC2_PCR);
 	u32 pmem, patt;
 
 	/* Set tclr/tar timings */
-	pcr &= ~FMC2_PCR_TCLR;
-	pcr |= FIELD_PREP(FMC2_PCR_TCLR, timings->tclr);
-	pcr &= ~FMC2_PCR_TAR;
-	pcr |= FIELD_PREP(FMC2_PCR_TAR, timings->tar);
+	clrsetbits_le32(nfc->io_base + FMC2_PCR,
+			FMC2_PCR_TCLR | FMC2_PCR_TAR,
+			FIELD_PREP(FMC2_PCR_TCLR, timings->tclr) |
+			FIELD_PREP(FMC2_PCR_TAR, timings->tar));
 
 	/* Set tset/twait/thold/thiz timings in common bank */
 	pmem = FIELD_PREP(FMC2_PMEM_MEMSET, timings->tset_mem);
 	pmem |= FIELD_PREP(FMC2_PMEM_MEMWAIT, timings->twait);
 	pmem |= FIELD_PREP(FMC2_PMEM_MEMHOLD, timings->thold_mem);
 	pmem |= FIELD_PREP(FMC2_PMEM_MEMHIZ, timings->thiz);
+	writel(pmem, nfc->io_base + FMC2_PMEM);
 
 	/* Set tset/twait/thold/thiz timings in attribut bank */
 	patt = FIELD_PREP(FMC2_PATT_ATTSET, timings->tset_att);
 	patt |= FIELD_PREP(FMC2_PATT_ATTWAIT, timings->twait);
 	patt |= FIELD_PREP(FMC2_PATT_ATTHOLD, timings->thold_att);
 	patt |= FIELD_PREP(FMC2_PATT_ATTHIZ, timings->thiz);
-
-	writel(pcr, nfc->io_base + FMC2_PCR);
-	writel(pmem, nfc->io_base + FMC2_PMEM);
 	writel(patt, nfc->io_base + FMC2_PATT);
 }
 
 static void stm32_fmc2_nfc_setup(struct nand_chip *chip)
 {
 	struct stm32_fmc2_nfc *nfc = to_stm32_nfc(chip->controller);
-	u32 pcr = readl(nfc->io_base + FMC2_PCR);
+	u32 pcr = 0, pcr_mask;
 
 	/* Configure ECC algorithm (default configuration is Hamming) */
-	pcr &= ~FMC2_PCR_ECCALG;
-	pcr &= ~FMC2_PCR_BCHECC;
+	pcr_mask = FMC2_PCR_ECCALG;
+	pcr_mask |= FMC2_PCR_BCHECC;
 	if (chip->ecc.strength == FMC2_ECC_BCH8) {
 		pcr |= FMC2_PCR_ECCALG;
 		pcr |= FMC2_PCR_BCHECC;
@@ -220,15 +217,15 @@ static void stm32_fmc2_nfc_setup(struct nand_chip *chip)
 	}
 
 	/* Set buswidth */
-	pcr &= ~FMC2_PCR_PWID;
+	pcr_mask |= FMC2_PCR_PWID;
 	if (chip->options & NAND_BUSWIDTH_16)
 		pcr |= FIELD_PREP(FMC2_PCR_PWID, FMC2_PCR_PWID_BUSWIDTH_16);
 
 	/* Set ECC sector size */
-	pcr &= ~FMC2_PCR_ECCSS;
+	pcr_mask |= FMC2_PCR_ECCSS;
 	pcr |= FIELD_PREP(FMC2_PCR_ECCSS, FMC2_PCR_ECCSS_512);
 
-	writel(pcr, nfc->io_base + FMC2_PCR);
+	clrsetbits_le32(nfc->io_base + FMC2_PCR, pcr_mask, pcr);
 }
 
 static void stm32_fmc2_nfc_select_chip(struct mtd_info *mtd, int chipnr)
@@ -254,22 +251,18 @@ static void stm32_fmc2_nfc_select_chip(struct mtd_info *mtd, int chipnr)
 static void stm32_fmc2_nfc_set_buswidth_16(struct stm32_fmc2_nfc *nfc,
 					   bool set)
 {
-	u32 pcr = readl(nfc->io_base + FMC2_PCR);
+	u32 pcr;
 
-	pcr &= ~FMC2_PCR_PWID;
-	if (set)
-		pcr |= FIELD_PREP(FMC2_PCR_PWID, FMC2_PCR_PWID_BUSWIDTH_16);
-	writel(pcr, nfc->io_base + FMC2_PCR);
+	pcr = set ? FIELD_PREP(FMC2_PCR_PWID, FMC2_PCR_PWID_BUSWIDTH_16) :
+		    FIELD_PREP(FMC2_PCR_PWID, FMC2_PCR_PWID_BUSWIDTH_8);
+
+	clrsetbits_le32(nfc->io_base + FMC2_PCR, FMC2_PCR_PWID, pcr);
 }
 
 static void stm32_fmc2_nfc_set_ecc(struct stm32_fmc2_nfc *nfc, bool enable)
 {
-	u32 pcr = readl(nfc->io_base + FMC2_PCR);
-
-	pcr &= ~FMC2_PCR_ECCEN;
-	if (enable)
-		pcr |= FMC2_PCR_ECCEN;
-	writel(pcr, nfc->io_base + FMC2_PCR);
+	clrsetbits_le32(nfc->io_base + FMC2_PCR, FMC2_PCR_ECCEN,
+			enable ? FMC2_PCR_ECCEN : 0);
 }
 
 static void stm32_fmc2_nfc_clear_bch_irq(struct stm32_fmc2_nfc *nfc)
@@ -306,13 +299,8 @@ static void stm32_fmc2_nfc_hwctl(struct mtd_info *mtd, int mode)
 	stm32_fmc2_nfc_set_ecc(nfc, false);
 
 	if (chip->ecc.strength != FMC2_ECC_HAM) {
-		u32 pcr = readl(nfc->io_base + FMC2_PCR);
-
-		if (mode == NAND_ECC_WRITE)
-			pcr |= FMC2_PCR_WEN;
-		else
-			pcr &= ~FMC2_PCR_WEN;
-		writel(pcr, nfc->io_base + FMC2_PCR);
+		clrsetbits_le32(nfc->io_base + FMC2_PCR, FMC2_PCR_WEN,
+				mode == NAND_ECC_WRITE ? FMC2_PCR_WEN : 0);
 
 		stm32_fmc2_nfc_clear_bch_irq(nfc);
 	}
@@ -563,7 +551,6 @@ static int stm32_fmc2_nfc_read_page(struct mtd_info *mtd,
 static void stm32_fmc2_nfc_init(struct stm32_fmc2_nfc *nfc)
 {
 	u32 pcr = readl(nfc->io_base + FMC2_PCR);
-	u32 bcr1 = readl(nfc->io_base + FMC2_BCR1);
 
 	/* Set CS used to undefined */
 	nfc->cs_sel = -1;
@@ -594,9 +581,8 @@ static void stm32_fmc2_nfc_init(struct stm32_fmc2_nfc *nfc)
 	pcr |= FIELD_PREP(FMC2_PCR_TAR, FMC2_PCR_TAR_DEFAULT);
 
 	/* Enable FMC2 controller */
-	bcr1 |= FMC2_BCR1_FMC2EN;
+	setbits_le32(nfc->io_base + FMC2_BCR1, FMC2_BCR1_FMC2EN);
 
-	writel(bcr1, nfc->io_base + FMC2_BCR1);
 	writel(pcr, nfc->io_base + FMC2_PCR);
 	writel(FMC2_PMEM_DEFAULT, nfc->io_base + FMC2_PMEM);
 	writel(FMC2_PATT_DEFAULT, nfc->io_base + FMC2_PATT);
