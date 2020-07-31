@@ -131,6 +131,8 @@
 
 #define FMC2_NSEC_PER_SEC		1000000000L
 
+#define FMC2_TIMEOUT_5S			5000000
+
 enum stm32_fmc2_ecc {
 	FMC2_ECC_HAM = 1,
 	FMC2_ECC_BCH4 = 4,
@@ -339,7 +341,7 @@ static int stm32_fmc2_ham_calculate(struct mtd_info *mtd, const u8 *data,
 	int ret;
 
 	ret = readl_poll_timeout(fmc2->io_base + FMC2_SR, sr,
-				 sr & FMC2_SR_NWRF, 10000);
+				 sr & FMC2_SR_NWRF, FMC2_TIMEOUT_5S);
 	if (ret < 0) {
 		pr_err("Ham timeout\n");
 		return ret;
@@ -424,7 +426,7 @@ static int stm32_fmc2_bch_calculate(struct mtd_info *mtd, const u8 *data,
 
 	/* Wait until the BCH code is ready */
 	ret = readl_poll_timeout(fmc2->io_base + FMC2_BCHISR, bchisr,
-				 bchisr & FMC2_BCHISR_EPBRF, 10000);
+				 bchisr & FMC2_BCHISR_EPBRF, FMC2_TIMEOUT_5S);
 	if (ret < 0) {
 		pr_err("Bch timeout\n");
 		return ret;
@@ -472,7 +474,7 @@ static int stm32_fmc2_bch_correct(struct mtd_info *mtd, u8 *dat,
 
 	/* Wait until the decoding error is ready */
 	ret = readl_poll_timeout(fmc2->io_base + FMC2_BCHISR, bchisr,
-				 bchisr & FMC2_BCHISR_DERF, 10000);
+				 bchisr & FMC2_BCHISR_DERF, FMC2_TIMEOUT_5S);
 	if (ret < 0) {
 		pr_err("Bch timeout\n");
 		return ret;
