@@ -521,13 +521,15 @@ static void sysconf_init(void)
 	clrbits_le32(syscfg + SYSCFG_CMPCR, SYSCFG_CMPCR_SW_CTRL);
 }
 
-#ifdef CONFIG_DM_REGULATOR
 /* Fix to make I2C1 usable on DK2 for touchscreen usage in kernel */
 static int dk2_i2c1_fix(void)
 {
 	ofnode node;
 	struct gpio_desc hdmi, audio;
 	int ret = 0;
+
+	if (!IS_ENABLED(CONFIG_DM_REGULATOR))
+		return -ENODEV;
 
 	node = ofnode_path("/soc/i2c@40012000/hdmi-transmitter@39");
 	if (!ofnode_valid(node)) {
@@ -586,7 +588,6 @@ static bool board_is_dk2(void)
 
 	return false;
 }
-#endif
 
 static bool board_is_ev1(void)
 {
@@ -634,12 +635,11 @@ int board_init(void)
 	if (board_is_ev1())
 		board_ev1_init();
 
-#ifdef CONFIG_DM_REGULATOR
 	if (board_is_dk2())
 		dk2_i2c1_fix();
 
-	regulators_enable_boot_on(_DEBUG);
-#endif
+	if (IS_ENABLED(CONFIG_DM_REGULATOR))
+		regulators_enable_boot_on(_DEBUG);
 
 	if (!IS_ENABLED(CONFIG_TFABOOT))
 		sysconf_init();
