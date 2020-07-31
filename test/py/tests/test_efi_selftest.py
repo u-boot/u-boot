@@ -36,7 +36,7 @@ def test_efi_selftest_device_tree(u_boot_console):
     output = u_boot_console.run_command('bootefi selftest')
     assert '\'device tree\'' in output
     u_boot_console.run_command(cmd='setenv efi_selftest device tree')
-    u_boot_console.run_command(cmd='setenv -f serial# Testing DT')
+    u_boot_console.run_command(cmd='setenv serial# Testing DT')
     u_boot_console.run_command(cmd='bootefi selftest ${fdtcontroladdr}', wait_for_prompt=False)
     m = u_boot_console.p.expect(['serial-number: Testing DT', 'U-Boot'])
     if m != 0:
