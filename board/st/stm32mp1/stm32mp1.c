@@ -785,31 +785,33 @@ enum env_location env_get_location(enum env_operation op, int prio)
 		return ENVL_UNKNOWN;
 
 	switch (bootmode & TAMP_BOOT_DEVICE_MASK) {
-#if CONFIG_IS_ENABLED(ENV_IS_IN_MMC)
 	case BOOT_FLASH_SD:
 	case BOOT_FLASH_EMMC:
-		return ENVL_MMC;
-#endif
-#if CONFIG_IS_ENABLED(ENV_IS_IN_EXT4)
-	case BOOT_FLASH_SD:
-	case BOOT_FLASH_EMMC:
-		return ENVL_EXT4;
-#endif
-#if CONFIG_IS_ENABLED(ENV_IS_IN_UBI)
+		if (CONFIG_IS_ENABLED(ENV_IS_IN_MMC))
+			return ENVL_MMC;
+		else if (CONFIG_IS_ENABLED(ENV_IS_IN_EXT4))
+			return ENVL_EXT4;
+		else
+			return ENVL_NOWHERE;
+
 	case BOOT_FLASH_NAND:
 	case BOOT_FLASH_SPINAND:
-		return ENVL_UBI;
-#endif
-#if CONFIG_IS_ENABLED(ENV_IS_IN_SPI_FLASH)
+		if (CONFIG_IS_ENABLED(ENV_IS_IN_UBI))
+			return ENVL_UBI;
+		else
+			return ENVL_NOWHERE;
+
 	case BOOT_FLASH_NOR:
-		return ENVL_SPI_FLASH;
-#endif
+		if (CONFIG_IS_ENABLED(ENV_IS_IN_SPI_FLASH))
+			return ENVL_SPI_FLASH;
+		else
+			return ENVL_NOWHERE;
+
 	default:
 		return ENVL_NOWHERE;
 	}
 }
 
-#if defined(CONFIG_ENV_IS_IN_EXT4)
 const char *env_ext4_get_intf(void)
 {
 	u32 bootmode = get_bootmode();
@@ -830,16 +832,12 @@ const char *env_ext4_get_dev_part(void)
 
 	return dev_part[(bootmode & TAMP_BOOT_INSTANCE_MASK) - 1];
 }
-#endif
-
-#if defined(CONFIG_ENV_IS_IN_MMC)
 int mmc_get_env_dev(void)
 {
 	u32 bootmode = get_bootmode();
 
 	return (bootmode & TAMP_BOOT_INSTANCE_MASK) - 1;
 }
-#endif
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
