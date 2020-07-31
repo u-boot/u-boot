@@ -121,6 +121,24 @@
 				status = "okay";
 			};
 
+			flx1: flexcom@e181c000 {
+				compatible = "atmel,sama5d2-flexcom";
+				reg = <0xe181c000 0x200>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 39>;
+				#address-cells = <1>;
+				#size-cells = <1>;
+				ranges = <0x0 0xe181c000 0x800>;
+				status = "disabled";
+
+				i2c1: i2c@600 {
+					compatible = "atmel,sama5d2-i2c";
+					reg = <0x600 0x200>;
+					#address-cells = <1>;
+					#size-cells = <0>;
+					clocks = <&pmc PMC_TYPE_PERIPHERAL 39>;
+				};
+			};
+
 			uart0: serial@e1824200 {
 				compatible = "atmel,at91sam9260-usart";
 				reg = <0xe1824200 0x200>;
