@@ -846,7 +846,7 @@ static int stm32_fmc2_parse_child(struct stm32_fmc2_nfc *fmc2,
 	}
 
 	for (i = 0; i < nand->ncs; i++) {
-		if (cs[i] > FMC2_MAX_CE) {
+		if (cs[i] >= FMC2_MAX_CE) {
 			pr_err("Invalid reg value: %d\n",
 			       nand->cs_used[i]);
 			return -EINVAL;
