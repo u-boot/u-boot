@@ -654,47 +654,47 @@ int board_init(void)
 
 int board_late_init(void)
 {
-#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	const void *fdt_compat;
 	int fdt_compat_len;
 	int ret;
 	u32 otp;
 	struct udevice *dev;
 	char buf[10];
+	char dtb_name[256];
+	int buf_len;
 
-	fdt_compat = fdt_getprop(gd->fdt_blob, 0, "compatible",
-				 &fdt_compat_len);
-	if (fdt_compat && fdt_compat_len) {
-		if (strncmp(fdt_compat, "st,", 3) != 0) {
-			env_set("board_name", fdt_compat);
-		} else {
-			char dtb_name[256];
-			int buf_len = sizeof(dtb_name);
+	if (IS_ENABLED(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)) {
+		fdt_compat = fdt_getprop(gd->fdt_blob, 0, "compatible",
+					 &fdt_compat_len);
+		if (fdt_compat && fdt_compat_len) {
+			if (strncmp(fdt_compat, "st,", 3) != 0) {
+				env_set("board_name", fdt_compat);
+			} else {
+				env_set("board_name", fdt_compat + 3);
 
-			env_set("board_name", fdt_compat + 3);
+				buf_len = sizeof(dtb_name);
+				strncpy(dtb_name, fdt_compat + 3, buf_len);
+				buf_len -= strlen(fdt_compat + 3);
+				strncat(dtb_name, ".dtb", buf_len);
+				env_set("fdtfile", dtb_name);
+			}
+		}
+		ret = uclass_get_device_by_driver(UCLASS_MISC,
+						  DM_GET_DRIVER(stm32mp_bsec),
+						  &dev);
 
-			strncpy(dtb_name, fdt_compat + 3, buf_len);
-			buf_len -= strlen(fdt_compat + 3);
-			strncat(dtb_name, ".dtb", buf_len);
-			env_set("fdtfile", dtb_name);
+		if (!ret)
+			ret = misc_read(dev, STM32_BSEC_SHADOW(BSEC_OTP_BOARD),
+					&otp, sizeof(otp));
+		if (ret > 0 && otp) {
+			snprintf(buf, sizeof(buf), "0x%04x", otp >> 16);
+			env_set("board_id", buf);
+
+			snprintf(buf, sizeof(buf), "0x%04x",
+				 ((otp >> 8) & 0xF) - 1 + 0xA);
+			env_set("board_rev", buf);
 		}
 	}
-	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_GET_DRIVER(stm32mp_bsec),
-					  &dev);
-
-	if (!ret)
-		ret = misc_read(dev, STM32_BSEC_SHADOW(BSEC_OTP_BOARD),
-				&otp, sizeof(otp));
-	if (ret > 0 && otp) {
-		snprintf(buf, sizeof(buf), "0x%04x", otp >> 16);
-		env_set("board_id", buf);
-
-		snprintf(buf, sizeof(buf), "0x%04x",
-			 ((otp >> 8) & 0xF) - 1 + 0xA);
-		env_set("board_rev", buf);
-	}
-#endif
 
 	/* for DK1/DK2 boards */
 	board_check_usb_power();
