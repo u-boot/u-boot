@@ -219,7 +219,7 @@ int fru_capture(unsigned long addr)
 	return 0;
 }
 
-static int fru_display_board(struct fru_board_data *brd)
+static int fru_display_board(struct fru_board_data *brd, int verbose)
 {
 	u32 time = 0;
 	u8 type;
@@ -240,16 +240,20 @@ static int fru_display_board(struct fru_board_data *brd)
 		"File ID"
 	};
 
-	printf("*****BOARD INFO*****\n");
-	printf("Version:%d\n", fru_version(brd->ver));
-	printf("Board Area Length:%d\n", fru_cal_area_len(brd->len));
+	if (verbose) {
+		printf("*****BOARD INFO*****\n");
+		printf("Version:%d\n", fru_version(brd->ver));
+		printf("Board Area Length:%d\n", fru_cal_area_len(brd->len));
+	}
 
 	if (fru_check_language(brd->lang_code))
 		return -EINVAL;
 
 	time = brd->time[2] << 16 | brd->time[1] << 8 |
 	       brd->time[0];
-	printf("Time in Minutes from 0:00hrs 1/1/96 %d\n", time);
+
+	if (verbose)
+		printf("Time in Minutes from 0:00hrs 1/1/96: %d\n", time);
 
 	data = (u8 *)&brd->manufacturer_type_len;
 
@@ -264,12 +268,12 @@ static int fru_display_board(struct fru_board_data *brd)
 		if (type <= FRU_TYPELEN_TYPE_ASCII8 &&
 		    (brd->lang_code == FRU_LANG_CODE_ENGLISH ||
 		     brd->lang_code == FRU_LANG_CODE_ENGLISH_1))
-			printf("Type code: %s\n", typecode[type]);
+			debug("Type code: %s\n", typecode[type]);
 		else
-			printf("Type code: %s\n", typecode[type + 1]);
+			debug("Type code: %s\n", typecode[type + 1]);
 
 		if (!len) {
-			printf("%s not found\n", boardinfo[i]);
+			debug("%s not found\n", boardinfo[i]);
 			continue;
 		}
 
@@ -292,8 +296,11 @@ static int fru_display_board(struct fru_board_data *brd)
 	return 0;
 }
 
-static void fru_display_common_hdr(struct fru_common_hdr *hdr)
+static void fru_display_common_hdr(struct fru_common_hdr *hdr, int verbose)
 {
+	if (!verbose)
+		return;
+
 	printf("*****COMMON HEADER*****\n");
 	printf("Version:%d\n", fru_version(hdr->version));
 	if (hdr->off_internal)
@@ -327,14 +334,14 @@ static void fru_display_common_hdr(struct fru_common_hdr *hdr)
 		printf("*** No MultiRecord Area ***\n");
 }
 
-int fru_display(void)
+int fru_display(int verbose)
 {
 	if (!fru_data.captured) {
 		printf("FRU data not available please run fru parse\n");
 		return -EINVAL;
 	}
 
-	fru_display_common_hdr(&fru_data.hdr);
+	fru_display_common_hdr(&fru_data.hdr, verbose);
 
-	return fru_display_board(&fru_data.brd);
+	return fru_display_board(&fru_data.brd, verbose);
 }

@@ -27,7 +27,7 @@ static int do_fru_capture(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_fru_display(cmd_tbl_t *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
-	fru_display();
+	fru_display(1);
 	return CMD_RET_SUCCESS;
 }
 

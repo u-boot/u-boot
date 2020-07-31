@@ -69,7 +69,7 @@ struct fru_table {
 #define FRU_TYPELEN_TYPE_BINARY		0
 #define FRU_TYPELEN_TYPE_ASCII8		3
 
-int fru_display(void);
+int fru_display(int verbose);
 int fru_capture(unsigned long addr);
 int fru_generate(unsigned long addr, char *manufacturer, char *board_name,
 		 char *serial_no, char *part_no);
