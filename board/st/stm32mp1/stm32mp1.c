@@ -182,12 +182,13 @@ static void board_key_check(void)
 	}
 }
 
-#if defined(CONFIG_USB_GADGET) && defined(CONFIG_USB_GADGET_DWC2_OTG)
-#include <usb/dwc2_udc.h>
 int g_dnl_board_usb_cable_connected(void)
 {
 	struct udevice *dwc2_udc_otg;
 	int ret;
+
+	if (!IS_ENABLED(CONFIG_USB_GADGET_DWC2_OTG))
+		return -ENODEV;
 
 	/* if typec stusb160x is present, means DK1 or DK2 board */
 	ret = stusb160x_cable_connected();
@@ -203,14 +204,17 @@ int g_dnl_board_usb_cable_connected(void)
 	return dwc2_udc_B_session_valid(dwc2_udc_otg);
 }
 
+#ifdef CONFIG_USB_GADGET_DOWNLOAD
 #define STM32MP1_G_DNL_DFU_PRODUCT_NUM 0xdf11
 #define STM32MP1_G_DNL_FASTBOOT_PRODUCT_NUM 0x0afb
 
 int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 {
-	if (!strcmp(name, "usb_dnl_dfu"))
+	if (IS_ENABLED(CONFIG_DFU_OVER_USB) &&
+	    !strcmp(name, "usb_dnl_dfu"))
 		put_unaligned(STM32MP1_G_DNL_DFU_PRODUCT_NUM, &dev->idProduct);
-	else if (!strcmp(name, "usb_dnl_fastboot"))
+	else if (IS_ENABLED(CONFIG_FASTBOOT) &&
+		 !strcmp(name, "usb_dnl_fastboot"))
 		put_unaligned(STM32MP1_G_DNL_FASTBOOT_PRODUCT_NUM,
 			      &dev->idProduct);
 	else
@@ -218,8 +222,7 @@ int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 
 	return 0;
 }
-
-#endif /* CONFIG_USB_GADGET */
+#endif /* CONFIG_USB_GADGET_DOWNLOAD */
 
 static int get_led(struct udevice **dev, char *led_string)
 {
