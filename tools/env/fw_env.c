@@ -952,8 +952,8 @@ static int flash_read_buf(int dev, int fd, void *buf, size_t count,
 			return -1;
 		}
 		if (rc != readlen) {
-			fprintf(stderr, "Read error on %s: "
-				"Attempted to read %d bytes but got %d\n",
+			fprintf(stderr,
+				"Read error on %s: Attempted to read %zd bytes but got %d\n",
 				DEVNAME(dev), readlen, rc);
 			return -1;
 		}
