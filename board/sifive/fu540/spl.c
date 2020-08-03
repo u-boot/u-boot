@@ -17,7 +17,7 @@
 
 #define GEM_PHY_RESET	SIFIVE_GENERIC_GPIO_NR(0, 12)
 
-int init_clk_and_ddr(void)
+int spl_board_init_f(void)
 {
 	int ret;
 
@@ -54,21 +54,4 @@ int init_clk_and_ddr(void)
 	mdelay(15);
 
 	return 0;
-}
-
-void board_init_f(ulong dummy)
-{
-	int ret;
-
-	ret = spl_early_init();
-	if (ret)
-		panic("spl_early_init() failed: %d\n", ret);
-
-	arch_cpu_init_dm();
-
-	preloader_console_init();
-
-	ret = init_clk_and_ddr();
-	if (ret)
-		panic("init_clk_and_ddr() failed: %d\n", ret);
 }
