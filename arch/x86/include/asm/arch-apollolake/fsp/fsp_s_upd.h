@@ -351,7 +351,10 @@ struct __packed fsp_s_config {
 	u8	port_usb20_hs_npre_drv_sel[8];
 
 	/* 0x370 */
-	u8	reserved_fsps_upd[16];
+	u8	os_selection;
+	u8	dptf_enabled;
+	u8	pwm_enabled;
+	u8	reserved_fsps_upd[13];
 };
 
 /** struct fsps_upd - FSP-S Configuration */
@@ -562,5 +565,9 @@ struct __packed fsps_upd {
 
 #define PCIE_RP_SELECTABLE_DEEMPHASIS_6_DB 0
 #define PCIE_RP_SELECTABLE_DEEMPHASIS_3_5_DB 1
+
+#define OS_SELECTION_WINDOWS 0
+#define OS_SELECTION_ANDROID 1
+#define OS_SELECTION_LINUX 3
 
 #endif

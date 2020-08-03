@@ -90,6 +90,28 @@ static void read_u32_prop(ofnode node, char *name, size_t count, u32 *dst)
 }
 
 /**
+ * read_u64_prop() - Read an u64 property from devicetree (scalar or array)
+ * @node:  Valid node reference to read property from
+ * @name:  Name of the property to read from
+ * @count: If the property is expected to be an array, this is the
+ *         number of expected elements
+ *         set to 0 if the property is expected to be a scalar
+ * @dst:   Pointer to destination of where to save the value(s) read
+ *         from devicetree
+ */
+static int read_u64_prop(ofnode node, char *name, size_t count, u64 *dst)
+{
+	if (count == 0) {
+		ofnode_read_u64(node, name, dst);
+	} else {
+		debug("ERROR: %s u64 arrays not supported!\n", __func__);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+/**
  * read_string_prop() - Read a string property from devicetree
  * @node:  Valid node reference to read property from
  * @name:  Name of the property to read from
@@ -205,6 +227,12 @@ static int fsp_update_config_from_dtb(ofnode node, u8 *cfg,
 		case FSP_UINT32:
 			read_u32_prop(node, fspb->propname, fspb->count,
 				      (u32 *)&cfg[fspb->offset]);
+		break;
+		case FSP_UINT64:
+			ret = read_u64_prop(node, fspb->propname, fspb->count,
+				      (u64 *)&cfg[fspb->offset]);
+			if (ret)
+				return ret;
 		break;
 		case FSP_STRING:
 			read_string_prop(node, fspb->propname, fspb->count,
@@ -604,6 +632,17 @@ const struct fsp_binding fsp_m_bindings[] = {
 	.type = FSP_UINT32,
 	.offset = offsetof(struct fsp_m_config, variable_nvs_buffer_ptr),
 	.propname = "fspm,variable-nvs-buffer-ptr",
+	}, {
+	.type = FSP_UINT64,
+	.offset = offsetof(struct fsp_m_config, start_timer_ticker_of_pfet_assert),
+	.propname = "fspm,start-timer-ticker-of-pfet-assert",
+	}, {
+	.type = FSP_UINT8, .offset = offsetof(struct fsp_m_config, rt_en),
+	.propname = "fspm,rt-en",
+	}, {
+	.type = FSP_UINT8,
+	.offset = offsetof(struct fsp_m_config, skip_pcie_power_sequence),
+	.propname = "fspm,skip-pcie-power-sequence",
 	}, {
 	.propname = NULL
 	}
@@ -1793,6 +1832,18 @@ const struct fsp_binding fsp_s_bindings[] = {
 	.propname = "fsps,port-usb20-hs-npre-drv-sel",
 	.count = ARRAY_SIZE_OF_MEMBER(struct fsp_s_config,
 				      port_usb20_hs_npre_drv_sel),
+	}, {
+	.type = FSP_UINT8,
+	.offset = offsetof(struct fsp_s_config, os_selection),
+	.propname = "fsps,os-selection",
+	}, {
+	.type = FSP_UINT8,
+	.offset = offsetof(struct fsp_s_config, dptf_enabled),
+	.propname = "fsps,dptf-enabled",
+	}, {
+	.type = FSP_UINT8,
+	.offset = offsetof(struct fsp_s_config, pwm_enabled),
+	.propname = "fsps,pwm-enabled",
 	}, {
 	.propname = NULL
 	}

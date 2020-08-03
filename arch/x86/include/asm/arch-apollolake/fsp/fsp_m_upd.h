@@ -122,7 +122,10 @@ struct __packed fsp_m_config {
 
 	/* 0x150 */
 	void	*variable_nvs_buffer_ptr;
-	u8	reserved_fspm_upd[12];
+	u64	start_timer_ticker_of_pfet_assert;
+	u8	rt_en;
+	u8	skip_pcie_power_sequence;
+	u8	reserved_fspm_upd[2];
 };
 
 /** FSP-M UPD Configuration */
