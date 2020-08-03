@@ -142,6 +142,8 @@
 	EXTRA_ENV_RPROC_SETTINGS					\
 	EXTRA_ENV_DFUARGS
 
+#define CONFIG_SYS_USB_FAT_BOOT_PARTITION 1
+
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>
 
