@@ -93,8 +93,8 @@ static int ast_i2c_ofdata_to_platdata(struct udevice *dev)
 	int ret;
 
 	priv->regs = devfdt_get_addr_ptr(dev);
-	if (IS_ERR(priv->regs))
-		return PTR_ERR(priv->regs);
+	if (!priv->regs)
+		return -EINVAL;
 
 	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if (ret < 0) {

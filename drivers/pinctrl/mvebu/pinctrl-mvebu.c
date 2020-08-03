@@ -194,7 +194,7 @@ int mvebu_pinctl_probe(struct udevice *dev)
 	}
 
 	priv->base_reg = devfdt_get_addr_ptr(dev);
-	if (priv->base_reg == (void *)FDT_ADDR_T_NONE) {
+	if (!priv->base_reg) {
 		debug("%s: Failed to get base address\n", __func__);
 		return -EINVAL;
 	}
