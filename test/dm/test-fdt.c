@@ -619,6 +619,24 @@ static int dm_test_fdt_translation(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_fdt_translation, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+static int dm_test_fdt_get_addr_ptr_flat(struct unit_test_state *uts)
+{
+	struct udevice *gpio, *dev;
+	void *ptr;
+
+	/* Test for missing reg property */
+	ut_assertok(uclass_first_device_err(UCLASS_GPIO, &gpio));
+	ut_assertnull(devfdt_get_addr_ptr(gpio));
+
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, true, &dev));
+	ptr = devfdt_get_addr_ptr(dev);
+	ut_asserteq_ptr((void *)0x8000, ptr);
+
+	return 0;
+}
+DM_TEST(dm_test_fdt_get_addr_ptr_flat,
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_FLAT_TREE);
+
 static int dm_test_fdt_remap_addr_flat(struct unit_test_state *uts)
 {
 	struct udevice *dev;
