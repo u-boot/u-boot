@@ -9,4 +9,6 @@
 
 int board_late_init_xilinx(void);
 
+int xilinx_read_eeprom(void);
+
 #endif /* BOARD_XILINX_COMMON_BOARD_H */
