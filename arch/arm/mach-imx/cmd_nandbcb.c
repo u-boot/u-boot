@@ -563,7 +563,7 @@ static int write_fcb(struct boot_config *boot_cfg, struct fcb_block *fcb)
 {
 	struct mtd_info *mtd;
 	void *fcb_raw_page = NULL;
-	int i, ret;
+	int i, ret = 0;
 	loff_t off;
 	size_t size;
 
