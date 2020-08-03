@@ -275,7 +275,8 @@ static int nandbcb_set_boot_config(int argc, char * const argv[],
 			       boot_stream1_address);
 
 	if (boot_cfg->secondary_boot_stream_off_in_MB)
-		boot_stream2_address = boot_cfg->secondary_boot_stream_off_in_MB * 1024 * 1024;
+		boot_stream2_address =
+			(loff_t)boot_cfg->secondary_boot_stream_off_in_MB * 1024 * 1024;
 
 	max_boot_stream_size = boot_stream2_address - boot_stream1_address;
 
