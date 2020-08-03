@@ -18,8 +18,9 @@
 
 static int usb_stor_curr_dev = -1; /* current device */
 
-static int spl_usb_load_image(struct spl_image_info *spl_image,
-			      struct spl_boot_device *bootdev)
+int spl_usb_load(struct spl_image_info *spl_image,
+		 struct spl_boot_device *bootdev, int partition,
+		 const char *filename)
 {
 	int err;
 	struct blk_desc *stor_dev;
@@ -43,13 +44,10 @@ static int spl_usb_load_image(struct spl_image_info *spl_image,
 
 #ifdef CONFIG_SPL_OS_BOOT
 	if (spl_start_uboot() ||
-	    spl_load_image_fat_os(spl_image, stor_dev,
-				  CONFIG_SYS_USB_FAT_BOOT_PARTITION))
+	    spl_load_image_fat_os(spl_image, stor_dev, partition))
 #endif
 	{
-		err = spl_load_image_fat(spl_image, stor_dev,
-					CONFIG_SYS_USB_FAT_BOOT_PARTITION,
-					CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
+		err = spl_load_image_fat(spl_image, stor_dev, partition, filename);
 	}
 
 	if (err) {
@@ -58,5 +56,13 @@ static int spl_usb_load_image(struct spl_image_info *spl_image,
 	}
 
 	return 0;
+}
+
+static int spl_usb_load_image(struct spl_image_info *spl_image,
+			      struct spl_boot_device *bootdev)
+{
+	return spl_usb_load(spl_image, bootdev,
+			    CONFIG_SYS_USB_FAT_BOOT_PARTITION,
+			    CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
 }
 SPL_LOAD_IMAGE_METHOD("USB", 0, BOOT_DEVICE_USB, spl_usb_load_image);
