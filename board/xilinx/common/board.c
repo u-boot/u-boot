@@ -10,11 +10,10 @@
 #include <i2c.h>
 #include "board.h"
 
+#if defined(CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET)
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 {
 	int ret = -EINVAL;
-
-#if defined(CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET)
 	struct udevice *dev;
 	ofnode eeprom;
 
@@ -34,10 +33,10 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 		debug("%s: I2C EEPROM MAC address read failed\n", __func__);
 	else
 		debug("%s: I2C EEPROM MAC %pM\n", __func__, ethaddr);
-#endif
 
 	return ret;
 }
+#endif
 
 #if defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
 void *board_fdt_blob_setup(void)
