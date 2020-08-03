@@ -57,7 +57,8 @@ struct xilinx_board_description {
 	u8 mac_addr[EEPROM_HDR_NO_OF_MAC_ADDR][EEPROM_HDR_ETH_ALEN + 1];
 };
 
-static struct xilinx_board_description *board_info;
+static int highest_id = -1;
+static struct xilinx_board_description **board_info;
 
 #define XILINX_I2C_DETECTION_BITS	8
 
@@ -186,15 +187,16 @@ static int xilinx_read_eeprom_single(char *name,
 
 __maybe_unused int xilinx_read_eeprom(void)
 {
-	int id, highest_id;
+	int id, ret;
 	char name_buf[8]; /* 8 bytes should be enough for nvmem+number */
+	struct xilinx_board_description *desc;
 
 	highest_id = dev_read_alias_highest_id("nvmem");
 	/* No nvmem aliases present */
 	if (highest_id < 0)
 		return -EINVAL;
 
-	board_info = calloc(1, sizeof(*board_info));
+	board_info = calloc(1, sizeof(desc) * highest_id);
 	if (!board_info)
 		return -ENOMEM;
 
@@ -204,12 +206,28 @@ __maybe_unused int xilinx_read_eeprom(void)
 	for (id = 0; id <= highest_id; id++) {
 		snprintf(name_buf, sizeof(name_buf), "nvmem%d", id);
 
+		/* Alloc structure */
+		desc = board_info[id];
+		if (!desc) {
+			desc = calloc(1, sizeof(*desc));
+			if (!desc)
+				return -ENOMEM;
+
+			board_info[id] = desc;
+		}
+
 		/* Ignoring return value for supporting multiple chips */
-		xilinx_read_eeprom_single(name_buf, board_info);
+		ret = xilinx_read_eeprom_single(name_buf, desc);
+		if (ret) {
+			free(desc);
+			board_info[id] = NULL;
+		}
 	}
 
-	if (board_info->header != EEPROM_HEADER_MAGIC)
-		free(board_info);
+	/*
+	 * Consider to clean board_info structure when board/cards are not
+	 * detected.
+	 */
 
 	return 0;
 }
@@ -248,10 +266,23 @@ void *board_fdt_blob_setup(void)
 }
 #endif
 
+static int env_set_by_index(const char *name, int index, char *data)
+{
+	char var[32];
+
+	if (!index)
+		sprintf(var, "board_%s", name);
+	else
+		sprintf(var, "card%d_%s", index, name);
+
+	return env_set(var, data);
+}
+
 int board_late_init_xilinx(void)
 {
 	bd_t *bd = gd->bd;
-	int i, ret = 0;
+	int i, id, ret = 0, macid = 0;
+	struct xilinx_board_description *desc;
 
 	if (bd->bi_dram[0].start) {
 		ulong scriptaddr;
@@ -266,21 +297,27 @@ int board_late_init_xilinx(void)
 	ret |= env_set_addr("bootm_low", (void *)gd->ram_base);
 	ret |= env_set_addr("bootm_size", (void *)gd->ram_size);
 
-	if (board_info) {
-		if (board_info->name)
-			ret |= env_set("board_name", board_info->name);
-		if (board_info->revision)
-			ret |= env_set("board_rev", board_info->revision);
-		if (board_info->serial)
-			ret |= env_set("board_serial", board_info->serial);
+	for (id = 0; id <= highest_id; id++) {
+		desc = board_info[id];
+		if (desc && desc->header == EEPROM_HEADER_MAGIC) {
+			if (desc->name)
+				ret |= env_set_by_index("name", id,
+							desc->name);
+			if (desc->revision)
+				ret |= env_set_by_index("rev", id,
+							desc->revision);
+			if (desc->serial)
+				ret |= env_set_by_index("serial", id,
+							desc->serial);
 
-		for (i = 0; i < EEPROM_HDR_NO_OF_MAC_ADDR; i++) {
-			if (!board_info->mac_addr[i])
-				continue;
+			for (i = 0; i < EEPROM_HDR_NO_OF_MAC_ADDR; i++) {
+				if (!desc->mac_addr[i])
+					continue;
 
-			if (is_valid_ethaddr((const u8 *)board_info->mac_addr[i]))
-				ret |= eth_env_set_enetaddr_by_index("eth", i,
-						board_info->mac_addr[i]);
+				if (is_valid_ethaddr((const u8 *)desc->mac_addr[i]))
+					ret |= eth_env_set_enetaddr_by_index("eth",
+							macid++, desc->mac_addr[i]);
+			}
 		}
 	}
 
