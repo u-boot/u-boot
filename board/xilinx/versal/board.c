@@ -33,6 +33,9 @@ int board_init(void)
 	fpga_add(fpga_xilinx, &versalpl);
 #endif
 
+	if (CONFIG_IS_ENABLED(DM_I2C) && CONFIG_IS_ENABLED(I2C_EEPROM))
+		xilinx_read_eeprom();
+
 	return 0;
 }
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * (C) Copyright 2014 - 2019 Xilinx, Inc.
+ * (C) Copyright 2014 - 2020 Xilinx, Inc.
  * Michal Simek <michal.simek@xilinx.com>
  */
 
@@ -8,7 +8,11 @@
 #include <asm/sections.h>
 #include <dm/uclass.h>
 #include <i2c.h>
+#include <malloc.h>
 #include "board.h"
+#include <dm.h>
+#include <i2c_eeprom.h>
+#include <net.h>
 
 #if defined(CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET)
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
@@ -37,6 +41,178 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 	return ret;
 }
 #endif
+
+#define EEPROM_HEADER_MAGIC		0xdaaddeed
+#define EEPROM_HDR_NAME_LEN		16
+#define EEPROM_HDR_REV_LEN		8
+#define EEPROM_HDR_SERIAL_LEN		20
+#define EEPROM_HDR_NO_OF_MAC_ADDR	4
+#define EEPROM_HDR_ETH_ALEN		ETH_ALEN
+
+struct xilinx_board_description {
+	u32 header;
+	char name[EEPROM_HDR_NAME_LEN + 1];
+	char revision[EEPROM_HDR_REV_LEN + 1];
+	char serial[EEPROM_HDR_SERIAL_LEN + 1];
+	u8 mac_addr[EEPROM_HDR_NO_OF_MAC_ADDR][EEPROM_HDR_ETH_ALEN + 1];
+};
+
+static struct xilinx_board_description *board_info;
+
+#define XILINX_I2C_DETECTION_BITS	8
+
+/* Variable which stores pointer to array which stores eeprom content */
+struct xilinx_legacy_format {
+	char board_sn[18]; /* 0x0 */
+	char unused0[14]; /* 0x12 */
+	char eth_mac[6]; /* 0x20 */
+	char unused1[170]; /* 0x26 */
+	char board_name[11]; /* 0xd0 */
+	char unused2[5]; /* 0xdc */
+	char board_revision[3]; /* 0xe0 */
+	char unused3[29]; /* 0xe3 */
+};
+
+static void xilinx_eeprom_legacy_cleanup(char *eeprom, int size)
+{
+	int i;
+	char byte;
+
+	for (i = 0; i < size; i++) {
+		byte = eeprom[i];
+
+		/* Remove all ffs and spaces */
+		if (byte == 0xff || byte == ' ')
+			eeprom[i] = 0;
+
+		/* Convert strings to lower case */
+		if (byte >= 'A' && byte <= 'Z')
+			eeprom[i] = byte + 'a' - 'A';
+	}
+}
+
+static int xilinx_read_eeprom_legacy(struct udevice *dev, char *name,
+				     struct xilinx_board_description *desc)
+{
+	int ret, size;
+	struct xilinx_legacy_format *eeprom_content;
+	bool eth_valid = false;
+
+	size = sizeof(*eeprom_content);
+
+	eeprom_content = calloc(1, size);
+	if (!eeprom_content)
+		return -ENOMEM;
+
+	debug("%s: I2C EEPROM read pass data at %p\n", __func__,
+	      eeprom_content);
+
+	ret = dm_i2c_read(dev, 0, (uchar *)eeprom_content, size);
+	if (ret) {
+		debug("%s: I2C EEPROM read failed\n", __func__);
+		free(eeprom_content);
+		return ret;
+	}
+
+	xilinx_eeprom_legacy_cleanup((char *)eeprom_content, size);
+
+	printf("Xilinx I2C Legacy format at %s:\n", name);
+	printf(" Board name:\t%s\n", eeprom_content->board_name);
+	printf(" Board rev:\t%s\n", eeprom_content->board_revision);
+	printf(" Board SN:\t%s\n", eeprom_content->board_sn);
+
+	eth_valid = is_valid_ethaddr((const u8 *)eeprom_content->eth_mac);
+	if (eth_valid)
+		printf(" Ethernet mac:\t%pM\n", eeprom_content->eth_mac);
+
+	/* Terminating \0 chars ensure end of string */
+	strcpy(desc->name, eeprom_content->board_name);
+	strcpy(desc->revision, eeprom_content->board_revision);
+	strcpy(desc->serial, eeprom_content->board_sn);
+	if (eth_valid)
+		memcpy(desc->mac_addr[0], eeprom_content->eth_mac, ETH_ALEN);
+
+	desc->header = EEPROM_HEADER_MAGIC;
+
+	free(eeprom_content);
+
+	return ret;
+}
+
+static bool xilinx_detect_legacy(u8 *buffer)
+{
+	int i;
+	char c;
+
+	for (i = 0; i < XILINX_I2C_DETECTION_BITS; i++) {
+		c = buffer[i];
+
+		if (c < '0' || c > '9')
+			return false;
+	}
+
+	return true;
+}
+
+static int xilinx_read_eeprom_single(char *name,
+				     struct xilinx_board_description *desc)
+{
+	int ret;
+	struct udevice *dev;
+	ofnode eeprom;
+	u8 buffer[XILINX_I2C_DETECTION_BITS];
+
+	eeprom = ofnode_get_aliases_node(name);
+	if (!ofnode_valid(eeprom))
+		return -ENODEV;
+
+	ret = uclass_get_device_by_ofnode(UCLASS_I2C_EEPROM, eeprom, &dev);
+	if (ret)
+		return ret;
+
+	ret = dm_i2c_read(dev, 0, buffer, sizeof(buffer));
+	if (ret) {
+		debug("%s: I2C EEPROM read failed\n", __func__);
+		return ret;
+	}
+
+	debug("%s: i2c memory detected: %s\n", __func__, name);
+
+	if (xilinx_detect_legacy(buffer))
+		return xilinx_read_eeprom_legacy(dev, name, desc);
+
+	return -ENODEV;
+}
+
+__maybe_unused int xilinx_read_eeprom(void)
+{
+	int id, highest_id;
+	char name_buf[8]; /* 8 bytes should be enough for nvmem+number */
+
+	highest_id = dev_read_alias_highest_id("nvmem");
+	/* No nvmem aliases present */
+	if (highest_id < 0)
+		return -EINVAL;
+
+	board_info = calloc(1, sizeof(*board_info));
+	if (!board_info)
+		return -ENOMEM;
+
+	debug("%s: Highest ID %d, board_info %p\n", __func__,
+	      highest_id, board_info);
+
+	for (id = 0; id <= highest_id; id++) {
+		snprintf(name_buf, sizeof(name_buf), "nvmem%d", id);
+
+		/* Ignoring return value for supporting multiple chips */
+		xilinx_read_eeprom_single(name_buf, board_info);
+	}
+
+	if (board_info->header != EEPROM_HEADER_MAGIC)
+		free(board_info);
+
+	return 0;
+}
 
 #if defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
 void *board_fdt_blob_setup(void)
@@ -75,7 +251,7 @@ void *board_fdt_blob_setup(void)
 int board_late_init_xilinx(void)
 {
 	bd_t *bd = gd->bd;
-	int ret = 0;
+	int i, ret = 0;
 
 	if (bd->bi_dram[0].start) {
 		ulong scriptaddr;
@@ -89,6 +265,24 @@ int board_late_init_xilinx(void)
 
 	ret |= env_set_addr("bootm_low", (void *)gd->ram_base);
 	ret |= env_set_addr("bootm_size", (void *)gd->ram_size);
+
+	if (board_info) {
+		if (board_info->name)
+			ret |= env_set("board_name", board_info->name);
+		if (board_info->revision)
+			ret |= env_set("board_rev", board_info->revision);
+		if (board_info->serial)
+			ret |= env_set("board_serial", board_info->serial);
+
+		for (i = 0; i < EEPROM_HDR_NO_OF_MAC_ADDR; i++) {
+			if (!board_info->mac_addr[i])
+				continue;
+
+			if (is_valid_ethaddr((const u8 *)board_info->mac_addr[i]))
+				ret |= eth_env_set_enetaddr_by_index("eth", i,
+						board_info->mac_addr[i]);
+		}
+	}
 
 	if (ret)
 		printf("%s: Saving run time variables FAILED\n", __func__);
