@@ -90,7 +90,7 @@ static void store_boot_index_from_rom(void)
 	bootindex = *(u32 *)(CONFIG_SYS_K3_BOOT_PARAM_TABLE_INDEX);
 }
 
-#if defined(CONFIG_K3_LOAD_SYSFW)
+#if defined(CONFIG_K3_LOAD_SYSFW) && CONFIG_IS_ENABLED(DM_MMC)
 void k3_mmc_stop_clock(void)
 {
 	if (spl_boot_device() == BOOT_DEVICE_MMC1) {
@@ -115,6 +115,9 @@ void k3_mmc_restart_clock(void)
 		mmc_set_clock(mmc, mmc->saved_clock, false);
 	}
 }
+#else
+void k3_mmc_stop_clock(void) {}
+void k3_mmc_restart_clock(void) {}
 #endif
 
 void board_init_f(ulong dummy)
