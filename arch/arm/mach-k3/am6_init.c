@@ -333,6 +333,11 @@ static u32 __get_primary_bootmedia(u32 devstat)
 			    CTRLMMR_MAIN_DEVSTAT_EMMC_PORT_SHIFT;
 		if (port == 0x1)
 			bootmode = BOOT_DEVICE_MMC2;
+	} else if (bootmode == BOOT_DEVICE_DFU) {
+		u32 mode = (devstat & CTRLMMR_MAIN_DEVSTAT_USB_MODE_MASK) >>
+			    CTRLMMR_MAIN_DEVSTAT_USB_MODE_SHIFT;
+		if (mode == 0x2)
+			bootmode = BOOT_DEVICE_USB;
 	}
 
 	return bootmode;
