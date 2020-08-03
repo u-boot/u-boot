@@ -476,7 +476,7 @@ static int fill_dbbt_data(struct mtd_info *mtd, void *buf, int num_blocks)
 	u32 *n_bad_blocksp = buf + 0x4;
 
 	for (n = 0; n < num_blocks; n++) {
-		loff_t offset = n * mtd->erasesize;
+		loff_t offset = (loff_t)n * mtd->erasesize;
 			if (mtd_block_isbad(mtd, offset)) {
 				n_bad_blocks++;
 				*bb = n;
