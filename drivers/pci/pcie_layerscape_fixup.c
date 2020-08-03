@@ -188,6 +188,12 @@ static void fdt_fixup_pcie_ls(void *blob)
 	     pci_find_next_device(&dev)) {
 		for (bus = dev; device_is_on_pci_bus(bus);)
 			bus = bus->parent;
+
+		/* Only do the fixups for layerscape PCIe controllers */
+		if (!device_is_compatible(bus, "fsl,ls-pcie") &&
+		    !device_is_compatible(bus, CONFIG_FSL_PCIE_COMPAT))
+			continue;
+
 		pcie_rc = dev_get_priv(bus);
 
 		streamid = pcie_next_streamid(pcie_rc->stream_id_cur,
