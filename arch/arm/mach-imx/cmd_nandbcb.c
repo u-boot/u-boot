@@ -503,11 +503,16 @@ static int read_fcb(struct boot_config *boot_cfg, struct fcb_block *fcb,
 	int ret = 0;
 
 	mtd = boot_cfg->mtd;
-	fcb_raw_page = kzalloc(mtd->writesize + mtd->oobsize, GFP_KERNEL);
-
 	if (mtd_block_isbad(mtd, off)) {
 		printf("Block %d is bad, skipped\n", (int)CONV_TO_BLOCKS(off));
 		return 1;
+	}
+
+	fcb_raw_page = kzalloc(mtd->writesize + mtd->oobsize, GFP_KERNEL);
+	if (!fcb_raw_page) {
+		debug("failed to allocate fcb_raw_page\n");
+		ret = -ENOMEM;
+		return ret;
 	}
 
 	/*
