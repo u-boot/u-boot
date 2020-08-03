@@ -28,31 +28,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void lowlevel_init(void)
-{
-	/*
-	 * These two watchdogs need to be stopped as soon as possible,
-	 * otherwise the board might hang. By default they are set to
-	 * a very short timeout and even simple debug write to serial
-	 * console early in the init process might cause them to fire.
-	 */
-	struct ast_wdt *flash_addr_wdt =
-	    (struct ast_wdt *)(WDT_BASE +
-			       sizeof(struct ast_wdt) *
-			       AST_FLASH_ADDR_DETECT_WDT);
-
-	clrbits_le32(&flash_addr_wdt->ctrl, WDT_CTRL_EN);
-
-#ifndef CONFIG_FIRMWARE_2ND_BOOT
-	struct ast_wdt *sec_boot_wdt =
-	    (struct ast_wdt *)(WDT_BASE +
-			       sizeof(struct ast_wdt) *
-			       AST_2ND_BOOT_WDT);
-
-	clrbits_le32(&sec_boot_wdt->ctrl, WDT_CTRL_EN);
-#endif
-}
-
 int board_init(void)
 {
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
