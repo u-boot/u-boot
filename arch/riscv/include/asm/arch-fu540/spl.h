@@ -9,6 +9,6 @@
 #ifndef _SPL_SIFIVE_H
 #define _SPL_SIFIVE_H
 
-int soc_spl_init(void);
+int spl_soc_init(void);
 
 #endif /* _SPL_SIFIVE_H */
