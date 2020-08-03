@@ -47,8 +47,6 @@
  * Miscellaneous configurable options
  */
 
-#define CONFIG_BOOTCOMMAND		"bootm 20080000 20300000"
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"verify=yes\0"	\
 	"spi_dma=yes\0" \
