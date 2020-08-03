@@ -66,6 +66,7 @@ static void fb_videomode_to_var(struct fb_var_screeninfo *var,
  * Structure containing the MXC specific framebuffer information.
  */
 struct mxcfb_info {
+	struct udevice *udev;
 	int blank;
 	ipu_channel_t ipu_ch;
 	int ipu_di;
@@ -381,13 +382,16 @@ static int mxcfb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
 
 static int mxcfb_map_video_memory(struct fb_info *fbi)
 {
+	struct mxcfb_info *mxc_fbi = (struct mxcfb_info *)fbi->par;
+	struct video_uc_platdata *plat = dev_get_uclass_platdata(mxc_fbi->udev);
+
 	if (fbi->fix.smem_len < fbi->var.yres_virtual * fbi->fix.line_length) {
 		fbi->fix.smem_len = fbi->var.yres_virtual *
 				    fbi->fix.line_length;
 	}
 	fbi->fix.smem_len = roundup(fbi->fix.smem_len, ARCH_DMA_MINALIGN);
 
-	fbi->screen_base = (char *)gd->video_bottom;
+	fbi->screen_base = (char *)plat->base;
 
 	fbi->fix.smem_start = (unsigned long)fbi->screen_base;
 	if (fbi->screen_base == 0) {
@@ -477,8 +481,8 @@ extern struct clk *g_ipu_clk;
  *
  * @return      Appropriate error code to the kernel common code
  */
-static int mxcfb_probe(u32 interface_pix_fmt, uint8_t disp,
-			struct fb_videomode const *mode)
+static int mxcfb_probe(struct udevice *dev, u32 interface_pix_fmt,
+		       uint8_t disp, struct fb_videomode const *mode)
 {
 	struct fb_info *fbi;
 	struct mxcfb_info *mxcfbi;
@@ -501,6 +505,7 @@ static int mxcfb_probe(u32 interface_pix_fmt, uint8_t disp,
 	}
 
 	mxcfbi->ipu_di = disp;
+	mxcfbi->udev = dev;
 
 	if (!ipu_clk_enabled())
 		clk_enable(g_ipu_clk);
@@ -600,7 +605,7 @@ static int ipuv3_video_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
-	ret = mxcfb_probe(gpixfmt, gdisp, gmode);
+	ret = mxcfb_probe(dev, gpixfmt, gdisp, gmode);
 	if (ret < 0)
 		return ret;
 
