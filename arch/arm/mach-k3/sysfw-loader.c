@@ -300,6 +300,17 @@ void k3_sysfw_loader(void (*config_pm_pre_callback) (void),
 		ret = k3_sysfw_dfu_download(sysfw_load_address);
 		break;
 #endif
+#if CONFIG_IS_ENABLED(USB_STORAGE)
+	case BOOT_DEVICE_USB:
+		ret = spl_usb_load(&spl_image, &bootdev,
+				   CONFIG_SYS_USB_FAT_BOOT_PARTITION,
+#ifdef CONFIG_K3_SYSFW_IMAGE_NAME
+				   CONFIG_K3_SYSFW_IMAGE_NAME);
+#else
+				   NULL);
+#endif
+#endif
+		break;
 	default:
 		panic("Loading SYSFW image from device %u not supported!\n",
 		      bootdev.boot_device);
