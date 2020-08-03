@@ -41,7 +41,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply EFI_PARTITION
 	imply IP_DYN
 	imply ISO_PARTITION
-	imply NET_RANDOM_ETHADDR
 	imply PHY_LIB
 	imply PHY_MSCC
 	imply SPI_FLASH
