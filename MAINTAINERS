@@ -148,6 +148,18 @@ F:	include/configs/meson64_android.h
 F:	doc/board/amlogic/
 N:	meson
 
+ARM ASPEED
+M:	Ryan Chen <ryan_chen@aspeedtech.com>
+M:	Chia-Wei Wang <chiawei_wang@aspeedtech.com>
+R:	Aspeed BMC SW team <BMC-SW@aspeedtech.com>
+S:	Maintained
+F:	arch/arm/mach-aspeed/
+F:	arch/arm/include/asm/arch-aspeed/
+F:	board/aspeed/
+F:	drivers/clk/aspeed/
+F:	drivers/pinctrl/aspeed/
+N:	aspeed
+
 ARM BROADCOM BCM283X
 M:	Matthias Brugger <mbrugger@suse.com>
 S:	Maintained
