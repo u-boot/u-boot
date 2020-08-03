@@ -762,7 +762,7 @@ static void add_u_boot_and_runtime(void)
 	unsigned long runtime_start, runtime_end, runtime_pages;
 	unsigned long runtime_mask = EFI_PAGE_MASK;
 	unsigned long uboot_start, uboot_pages;
-	unsigned long uboot_stack_size = 16 * 1024 * 1024;
+	unsigned long uboot_stack_size = CONFIG_STACK_SIZE;
 
 	/* Add U-Boot */
 	uboot_start = ((uintptr_t)map_sysmem(gd->start_addr_sp, 0) -

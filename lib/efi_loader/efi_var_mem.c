@@ -10,7 +10,7 @@
 #include <efi_variable.h>
 #include <u-boot/crc.h>
 
-static struct efi_var_file __efi_runtime_data *efi_var_buf;
+struct efi_var_file __efi_runtime_data *efi_var_buf;
 static struct efi_var_entry __efi_runtime_data *efi_current_var;
 
 /**
@@ -265,4 +265,72 @@ efi_status_t efi_var_mem_init(void)
 	if (ret != EFI_SUCCESS)
 		return ret;
 	return ret;
+}
+
+efi_status_t __efi_runtime
+efi_get_variable_mem(u16 *variable_name, const efi_guid_t *vendor, u32 *attributes,
+		     efi_uintn_t *data_size, void *data, u64 *timep)
+{
+	efi_uintn_t old_size;
+	struct efi_var_entry *var;
+	u16 *pdata;
+
+	if (!variable_name || !vendor || !data_size)
+		return EFI_INVALID_PARAMETER;
+	var = efi_var_mem_find(vendor, variable_name, NULL);
+	if (!var)
+		return EFI_NOT_FOUND;
+
+	if (attributes)
+		*attributes = var->attr;
+	if (timep)
+		*timep = var->time;
+
+	old_size = *data_size;
+	*data_size = var->length;
+	if (old_size < var->length)
+		return EFI_BUFFER_TOO_SMALL;
+
+	if (!data)
+		return EFI_INVALID_PARAMETER;
+
+	for (pdata = var->name; *pdata; ++pdata)
+		;
+	++pdata;
+
+	efi_memcpy_runtime(data, pdata, var->length);
+
+	return EFI_SUCCESS;
+}
+
+efi_status_t __efi_runtime
+efi_get_next_variable_name_mem(efi_uintn_t *variable_name_size, u16 *variable_name,
+			       efi_guid_t *vendor)
+{
+	struct efi_var_entry *var;
+	efi_uintn_t old_size;
+	u16 *pdata;
+
+	if (!variable_name_size || !variable_name || !vendor)
+		return EFI_INVALID_PARAMETER;
+
+	efi_var_mem_find(vendor, variable_name, &var);
+
+	if (!var)
+		return EFI_NOT_FOUND;
+
+	for (pdata = var->name; *pdata; ++pdata)
+		;
+	++pdata;
+
+	old_size = *variable_name_size;
+	*variable_name_size = (uintptr_t)pdata - (uintptr_t)var->name;
+
+	if (old_size < *variable_name_size)
+		return EFI_BUFFER_TOO_SMALL;
+
+	efi_memcpy_runtime(variable_name, var->name, *variable_name_size);
+	efi_memcpy_runtime(vendor, &var->guid, sizeof(efi_guid_t));
+
+	return EFI_SUCCESS;
 }
