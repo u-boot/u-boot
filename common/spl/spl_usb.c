@@ -22,11 +22,16 @@ int spl_usb_load(struct spl_image_info *spl_image,
 		 struct spl_boot_device *bootdev, int partition,
 		 const char *filename)
 {
-	int err;
+	int err = 0;
 	struct blk_desc *stor_dev;
+	static bool usb_init_pending = true;
 
-	usb_stop();
-	err = usb_init();
+	if (usb_init_pending) {
+		usb_stop();
+		err = usb_init();
+		usb_init_pending = false;
+	}
+
 	if (err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("%s: usb init failed: err - %d\n", __func__, err);
