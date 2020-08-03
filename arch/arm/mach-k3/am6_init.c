@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
 #include <init.h>
 #include <asm/io.h>
 #include <spl.h>
@@ -21,6 +22,8 @@
 #include <log.h>
 #include <mmc.h>
 #include <stdlib.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_SPL_BUILD
 #ifdef CONFIG_K3_LOAD_SYSFW
@@ -119,7 +122,44 @@ void k3_mmc_restart_clock(void)
 void k3_mmc_stop_clock(void) {}
 void k3_mmc_restart_clock(void) {}
 #endif
+#if CONFIG_IS_ENABLED(DFU) || CONFIG_IS_ENABLED(USB_STORAGE)
+#define CTRLMMR_SERDES0_CTRL	0x00104080
+#define PCIE_LANE0		0x1
+static int fixup_usb_boot(void)
+{
+	int ret;
 
+	switch (spl_boot_device()) {
+	case BOOT_DEVICE_USB:
+		/*
+		 * If bootmode is Host bootmode, fixup the dr_mode to host
+		 * before the dwc3 bind takes place
+		 */
+		ret = fdt_find_and_setprop((void *)gd->fdt_blob,
+				"/interconnect@100000/dwc3@4000000/usb@10000",
+				"dr_mode", "host", 11, 0);
+		if (ret)
+			printf("%s: fdt_find_and_setprop() failed:%d\n", __func__,
+			       ret);
+		fallthrough;
+	case BOOT_DEVICE_DFU:
+		/*
+		 * The serdes mux between PCIe and USB3 needs to be set to PCIe for
+		 * accessing the interface at USB 2.0
+		 */
+		writel(PCIE_LANE0, CTRLMMR_SERDES0_CTRL);
+	default:
+		break;
+	}
+
+	return 0;
+}
+
+int fdtdec_board_setup(const void *fdt_blob)
+{
+	return fixup_usb_boot();
+}
+#endif
 void board_init_f(ulong dummy)
 {
 #if defined(CONFIG_K3_LOAD_SYSFW) || defined(CONFIG_K3_AM654_DDRSS)
