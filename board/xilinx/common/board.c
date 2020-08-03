@@ -11,6 +11,7 @@
 #include <malloc.h>
 #include "board.h"
 #include <dm.h>
+#include <fru.h>
 #include <i2c_eeprom.h>
 #include <net.h>
 
@@ -60,7 +61,7 @@ struct xilinx_board_description {
 static int highest_id = -1;
 static struct xilinx_board_description **board_info;
 
-#define XILINX_I2C_DETECTION_BITS	8
+#define XILINX_I2C_DETECTION_BITS	sizeof(struct fru_common_hdr)
 
 /* Variable which stores pointer to array which stores eeprom content */
 struct xilinx_legacy_format {
@@ -155,6 +156,80 @@ static bool xilinx_detect_legacy(u8 *buffer)
 	return true;
 }
 
+static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
+				  struct xilinx_board_description *desc)
+{
+	int ret, eeprom_size;
+	u8 *fru_content;
+
+	/* FIXME this is shortcut - if eeprom type is wrong it will fail */
+	eeprom_size = i2c_eeprom_size(dev);
+
+	fru_content = calloc(1, eeprom_size);
+	if (!fru_content)
+		return -ENOMEM;
+
+	debug("%s: I2C EEPROM read pass data at %p\n", __func__,
+	      fru_content);
+
+	ret = dm_i2c_read(dev, 0, (uchar *)fru_content,
+			  eeprom_size);
+	if (ret) {
+		debug("%s: I2C EEPROM read failed\n", __func__);
+		free(fru_content);
+		return ret;
+	}
+
+	printf("Xilinx I2C FRU format at %s:\n", name);
+	fru_capture((unsigned long)fru_content);
+	ret = fru_display(0);
+	if (ret) {
+		printf("FRU format decoding failed.\n");
+		return ret;
+	}
+
+	if (desc->header == EEPROM_HEADER_MAGIC) {
+		debug("Information already filled\n");
+		return -EINVAL;
+	}
+
+	/* It is clear that FRU was captured and structures were filled */
+	strncpy(desc->name, (char *)fru_data.brd.product_name,
+		sizeof(desc->name));
+	strncpy(desc->revision, (char *)fru_data.brd.rev,
+		sizeof(desc->revision));
+	strncpy(desc->serial, (char *)fru_data.brd.serial_number,
+		sizeof(desc->serial));
+	desc->header = EEPROM_HEADER_MAGIC;
+
+	return 0;
+}
+
+static bool xilinx_detect_fru(u8 *buffer)
+{
+	u8 checksum = 0;
+	int i;
+
+	checksum = fru_checksum((u8 *)buffer, sizeof(struct fru_common_hdr));
+	if (checksum) {
+		debug("%s Common header CRC FAIL\n", __func__);
+		return false;
+	}
+
+	bool all_zeros = true;
+	/* Checksum over all zeros is also zero that's why detect this case */
+	for (i = 0; i < sizeof(struct fru_common_hdr); i++) {
+		if (buffer[i] != 0)
+			all_zeros = false;
+	}
+
+	if (all_zeros)
+		return false;
+
+	debug("%s Common header CRC PASS\n", __func__);
+	return true;
+}
+
 static int xilinx_read_eeprom_single(char *name,
 				     struct xilinx_board_description *desc)
 {
@@ -178,6 +253,9 @@ static int xilinx_read_eeprom_single(char *name,
 	}
 
 	debug("%s: i2c memory detected: %s\n", __func__, name);
+
+	if (CONFIG_IS_ENABLED(CMD_FRU) && xilinx_detect_fru(buffer))
+		return xilinx_read_eeprom_fru(dev, name, desc);
 
 	if (xilinx_detect_legacy(buffer))
 		return xilinx_read_eeprom_legacy(dev, name, desc);
