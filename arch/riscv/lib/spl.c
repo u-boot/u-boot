@@ -13,6 +13,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+__weak int spl_board_init_f(void)
+{
+	return 0;
+}
+
 __weak void board_init_f(ulong dummy)
 {
 	int ret;
@@ -24,6 +29,10 @@ __weak void board_init_f(ulong dummy)
 	arch_cpu_init_dm();
 
 	preloader_console_init();
+
+	ret = spl_board_init_f();
+	if (ret)
+		panic("spl_board_init_f() failed: %d\n", ret);
 }
 
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
