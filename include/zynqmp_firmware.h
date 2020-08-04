@@ -139,6 +139,15 @@ enum pm_pinctrl_tri_state {
 
 #define PMIO_NODE_ID_BASE	0x1410801B
 
+/*
+ * Return payload size
+ * Not every firmware call expects the same amount of return bytes, however the
+ * firmware driver always copies 5 bytes from RX buffer to the ret_payload
+ * buffer. Therefore allocating with this defined value is recommended to avoid
+ * overflows.
+ */
+#define PAYLOAD_ARG_CNT	5U
+
 unsigned int zynqmp_firmware_version(void);
 void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size);
 int xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,

@@ -30,7 +30,7 @@ static int versal_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	ulong bin_buf;
 	int ret;
 	u32 buf_lo, buf_hi;
-	u32 ret_payload[5];
+	u32 ret_payload[PAYLOAD_ARG_CNT];
 
 	bin_buf = versal_align_dma_buffer((ulong *)buf, bsize);
 

@@ -7,8 +7,6 @@
 #ifndef _ASM_ARCH_SYS_PROTO_H
 #define _ASM_ARCH_SYS_PROTO_H
 
-#define PAYLOAD_ARG_CNT		5
-
 #define ZYNQMP_CSU_SILICON_VER_MASK	0xF
 #define KEY_PTR_LEN	32
 #define IV_SIZE		12
