@@ -341,12 +341,10 @@ int board_init(void)
 #if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
     !defined(CONFIG_SPL_BUILD) || (defined(CONFIG_SPL_FPGA_SUPPORT) && \
     defined(CONFIG_SPL_BUILD))
-	if (current_el() != 3) {
-		zynqmppl.name = zynqmp_get_silicon_idcode_name();
-		printf("Chip ID:\t%s\n", zynqmppl.name);
-		fpga_init();
-		fpga_add(fpga_xilinx, &zynqmppl);
-	}
+	zynqmppl.name = zynqmp_get_silicon_idcode_name();
+	printf("Chip ID:\t%s\n", zynqmppl.name);
+	fpga_init();
+	fpga_add(fpga_xilinx, &zynqmppl);
 #endif
 
 	if (current_el() == 3)
