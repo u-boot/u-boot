@@ -80,12 +80,28 @@ enum {
 	VERDIN_IMX8MMDL,
 };
 
+enum {
+	DAHLIA = 155,
+	VERDIN_DEVELOPMENT_BOARD = 156,
+};
+
+enum {
+	VERDIN_DSI_TO_HDMI_ADAPTER = 157,
+	VERDIN_DSI_TO_LVDS_ADAPTER = 159,
+};
+
 extern const char * const toradex_modules[];
+extern const char * const toradex_carrier_boards[];
 extern bool valid_cfgblock;
 extern struct toradex_hw tdx_hw_tag;
+extern struct toradex_hw tdx_car_hw_tag;
 extern struct toradex_eth_addr tdx_eth_addr;
 extern u32 tdx_serial;
+extern u32 tdx_car_serial;
 
 int read_tdx_cfg_block(void);
+int read_tdx_cfg_block_carrier(void);
+
+int try_migrate_tdx_cfg_block_carrier(void);
 
 #endif /* _TDX_CFG_BLOCK_H */

@@ -1,42 +1,24 @@
-// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
 /*
- * Copyright 2019 Toradex AG
+ * Copyright 2020 Toradex
  */
 
-/ {
-	aliases {
-		u-boot,dm-pre-reloc;
-		mmc0 = &usdhc1;
-		usb0 = &usbotg1; /* required for ums */
-		display0 = &lcdif;
-	};
-};
-
-&pinctrl_uart1 {
-	u-boot,dm-pre-reloc;
-};
-
-&pinctrl_uart1_ctrl1 {
-	u-boot,dm-pre-reloc;
-};
-
 &lcdif {
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_lcdif_dat
 		     &pinctrl_lcdif_ctrl>;
-	status = "okay";
 	display = <&display0>;
 	u-boot,dm-pre-reloc;
 
 	display0: display0 {
 		bits-per-pixel = <18>;
-		bus-width = <24>;
+		bus-width = <18>;
 		status = "okay";
 
 		display-timings {
 			native-mode = <&timing_vga>;
 			timing_vga: 640x480 {
-				u-boot,dm-pre-reloc;
 				clock-frequency = <25175000>;
 				hactive = <640>;
 				vactive = <480>;

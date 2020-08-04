@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
-* Copyright 2018 NXP
-*/
+ * Copyright 2018 NXP
+ */
 
 #include <common.h>
 #include <errno.h>
@@ -201,7 +201,7 @@ unsigned int lpddr4_mr_read(unsigned int mr_rank, unsigned int mr_addr)
 }
 
 unsigned int look_for_max(unsigned int data[],
-		 unsigned int addr_start, unsigned int addr_end)
+			  unsigned int addr_start, unsigned int addr_end)
 {
 	unsigned int i, imax = 0;
 
@@ -233,9 +233,9 @@ void get_trained_CDD(u32 fsp)
 			if (i == 0) {
 				cdd_cha[0] = (tmp >> 8) & 0xff;
 			} else if (i == 6) {
-				cdd_cha[11]=tmp & 0xff;
+				cdd_cha[11] = tmp & 0xff;
 			} else {
-				cdd_chb[ i * 2 - 1] = tmp & 0xff;
+				cdd_chb[i * 2 - 1] = tmp & 0xff;
 				cdd_chb[i * 2] = (tmp >> 8) & 0xff;
 			}
 		}
@@ -254,7 +254,8 @@ void get_trained_CDD(u32 fsp)
 		g_cdd_ww_max[fsp] =  cdd_cha_ww_max > cdd_chb_ww_max ? cdd_cha_ww_max : cdd_chb_ww_max;
 	} else {
 		unsigned int ddr4_cdd[64];
-		for( i = 0; i < 29; i++) {
+
+		for (i = 0; i < 29; i++) {
 			tmp = reg32_read(IP2APB_DDRPHY_IPS_BASE_ADDR(0) + (0x54012 + i) * 4);
 			ddr4_cdd[i * 2] = tmp & 0xff;
 			ddr4_cdd[i * 2 + 1] = (tmp >> 8) & 0xff;
@@ -269,18 +270,18 @@ void get_trained_CDD(u32 fsp)
 
 void update_umctl2_rank_space_setting(unsigned int pstat_num)
 {
-	unsigned int i,ddr_type;
+	unsigned int i, ddr_type;
 	unsigned int addr_slot, rdata, tmp, tmp_t;
-	unsigned int ddrc_w2r,ddrc_r2w,ddrc_wr_gap,ddrc_rd_gap;
+	unsigned int ddrc_w2r, ddrc_r2w, ddrc_wr_gap, ddrc_rd_gap;
 
 	ddr_type = reg32_read(DDRC_MSTR(0)) & 0x3f;
 	for (i = 0; i < pstat_num; i++) {
 		addr_slot = i ? (i + 1) * 0x1000 : 0;
 		if (ddr_type == 0x20) {
 			/* update r2w:[13:8], w2r:[5:0] */
-			rdata=reg32_read(DDRC_DRAMTMG2(0) + addr_slot);
+			rdata = reg32_read(DDRC_DRAMTMG2(0) + addr_slot);
 			ddrc_w2r = rdata & 0x3f;
-			if(is_imx8mp())
+			if (is_imx8mp())
 				tmp = ddrc_w2r + (g_cdd_wr_max[i] >> 1);
 			else
 				tmp = ddrc_w2r + (g_cdd_wr_max[i] >> 1) + 1;
@@ -297,7 +298,7 @@ void update_umctl2_rank_space_setting(unsigned int pstat_num)
 			reg32_write((DDRC_DRAMTMG2(0) + addr_slot), tmp_t);
 		} else {
 			/* update w2r:[5:0] */
-			rdata=reg32_read(DDRC_DRAMTMG9(0) + addr_slot);
+			rdata = reg32_read(DDRC_DRAMTMG9(0) + addr_slot);
 			ddrc_w2r = rdata & 0x3f;
 			if (is_imx8mp())
 				tmp = ddrc_w2r + (g_cdd_wr_max[i] >> 1);
@@ -310,7 +311,7 @@ void update_umctl2_rank_space_setting(unsigned int pstat_num)
 			/* update r2w:[13:8] */
 			rdata = reg32_read(DDRC_DRAMTMG2(0) + addr_slot);
 			ddrc_r2w = (rdata >> 8) & 0x3f;
-			if(is_imx8mp())
+			if (is_imx8mp())
 				tmp = ddrc_r2w + (g_cdd_rw_max[i] >> 1);
 			else
 				tmp = ddrc_r2w + (g_cdd_rw_max[i] >> 1) + 1;
@@ -324,7 +325,7 @@ void update_umctl2_rank_space_setting(unsigned int pstat_num)
 			/* update rankctl: wr_gap:11:8; rd:gap:7:4; quasi-dymic, doc wrong(static) */
 			rdata = reg32_read(DDRC_RANKCTL(0) + addr_slot);
 			ddrc_wr_gap = (rdata >> 8) & 0xf;
-			if(is_imx8mp())
+			if (is_imx8mp())
 				tmp = ddrc_wr_gap + (g_cdd_ww_max[i] >> 1);
 			else
 				tmp = ddrc_wr_gap + (g_cdd_ww_max[i] >> 1) + 1;
@@ -342,7 +343,7 @@ void update_umctl2_rank_space_setting(unsigned int pstat_num)
 		}
 	}
 
-	if(is_imx8mq()) {
+	if (is_imx8mq()) {
 		/* update rankctl: wr_gap:11:8; rd:gap:7:4; quasi-dymic, doc wrong(static) */
 		rdata = reg32_read(DDRC_RANKCTL(0));
 		ddrc_wr_gap = (rdata >> 8) & 0xf;

@@ -665,8 +665,8 @@ static const struct udevice_id ipuv3_video_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(ipuv3_video) = {
-	.name	= "ipuv3_video",
+U_BOOT_DRIVER(fsl_imx6q_ipu) = {
+	.name	= "fsl_imx6q_ipu",
 	.id	= UCLASS_VIDEO,
 	.of_match = ipuv3_video_ids,
 	.bind	= ipuv3_video_bind,

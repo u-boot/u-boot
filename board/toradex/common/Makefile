@@ -8,4 +8,5 @@ obj- := __dummy__.o
 else
 obj-$(CONFIG_TDX_CFG_BLOCK) += tdx-cfg-block.o
 obj-y += tdx-common.o
+obj-y += tdx-eeprom.o
 endif

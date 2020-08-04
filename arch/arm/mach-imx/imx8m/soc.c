@@ -933,7 +933,7 @@ static void acquire_buildinfo(void)
 
 	/* Get ARM Trusted Firmware commit id */
 	arm_smccc_smc(IMX_SIP_BUILDINFO, IMX_SIP_BUILDINFO_GET_COMMITHASH,
-		      0, 0 , 0, 0, 0, 0, &res);
+		      0, 0, 0, 0, 0, 0, &res);
 	atf_commit = res.a0;
 	if (atf_commit == 0xffffffff) {
 		debug("ATF does not support build info\n");

@@ -61,17 +61,21 @@ Then, clear the SPI flash:
 => sf probe
 => sf erase 0x0 0x1000000
 
-Load the SPL from raw MMC into memory and copy to the SPI. The SPL is maximum
-392*512-byte blocks in size therefore 0x188 blocks, totaling 0x31000 bytes:
+Load the equivalent of u-boot-with-spl.imx from the raw MMC into memory and
+copy to the SPI. The SPL is expected at an offset of 0x400, and its size is
+maximum 392*512-byte blocks in size, therefore 0x188 blocks, totaling 0x31000
+bytes. Assume U-boot should fit into 640KiB, therefore 0x500 512-byte blocks,
+totalling 0xA0000 bytes. Adding these together:
 
-=> mmc read ${loadaddr} 0x2 0x188
-=> sf write ${loadaddr} 0x400 0x31000
+=> mmc read ${loadaddr} 0x2 0x688
+=> sf write ${loadaddr} 0x400 0xD1000
 
-Load the U-boot binary into memory and copy to the SPI. U-boot should fit into
-640KiB, so 0x500 512-byte blocks, totalling 0xA0000 bytes:
+The SPL is located at offset 0x400, and U-boot at 0x31400 in SPI flash, as to
+match the SD Card layout. This would allow, instead of reading from the SD Card
+above, with networking and TFTP correctly configured, the equivalent of:
 
-=> mmc read ${loadaddr} 0x18a 0x500
-=> sf write ${loadaddr} 0x40000 0xA0000
+=> tftp u-boot-with-spl.imx
+=> sf write ${fileaddr} 0x400 ${filesize}
 
 The default NAND bootscripts expect a single MTD partition named "rootfs",
 which in turn contains the UBI volumes "fit" (which contains the kernel fit-

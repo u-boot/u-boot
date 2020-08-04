@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include "tdx-cfg-block.h"
+#include "tdx-eeprom.h"
+
 #include <command.h>
 #include <asm/cache.h>
 
@@ -37,10 +39,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define TAG_VALID	0xcf01
 #define TAG_MAC		0x0000
+#define TAG_CAR_SERIAL	0x0021
 #define TAG_HW		0x0008
 #define TAG_INVALID	0xffff
 
 #define TAG_FLAG_VALID	0x1
+
+#define TDX_EEPROM_ID_MODULE		0
+#define TDX_EEPROM_ID_CARRIER		1
 
 #if defined(CONFIG_TDX_CFG_BLOCK_IS_IN_MMC)
 #define TDX_CFG_BLOCK_MAX_SIZE 512
@@ -48,8 +54,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #define TDX_CFG_BLOCK_MAX_SIZE 64
 #elif defined(CONFIG_TDX_CFG_BLOCK_IS_IN_NOR)
 #define TDX_CFG_BLOCK_MAX_SIZE 64
+#elif defined(CONFIG_TDX_CFG_BLOCK_IS_IN_EEPROM)
+#define TDX_CFG_BLOCK_MAX_SIZE 64
 #else
 #error Toradex config block location not set
+#endif
+
+#ifdef CONFIG_TDX_CFG_BLOCK_EXTRA
+#define TDX_CFG_BLOCK_EXTRA_MAX_SIZE 64
 #endif
 
 struct toradex_tag {
@@ -62,6 +74,11 @@ bool valid_cfgblock;
 struct toradex_hw tdx_hw_tag;
 struct toradex_eth_addr tdx_eth_addr;
 u32 tdx_serial;
+#ifdef CONFIG_TDX_CFG_BLOCK_EXTRA
+u32 tdx_car_serial;
+bool valid_cfgblock_carrier;
+struct toradex_hw tdx_car_hw_tag;
+#endif
 
 const char * const toradex_modules[] = {
 	 [0] = "UNKNOWN MODULE",
@@ -122,6 +139,18 @@ const char * const toradex_modules[] = {
 	[55] = "Verdin iMX8M Mini Quad 2GB Wi-Fi / BT IT",
 	[56] = "Verdin iMX8M Nano SoloLite 1GB", /* not currently on sale */
 	[57] = "Verdin iMX8M Mini DualLite 1GB",
+};
+
+const char * const toradex_carrier_boards[] = {
+	[0] = "UNKNOWN CARRIER BOARD",
+	[155] = "Dahlia",
+	[156] = "Verdin Development Board",
+};
+
+const char * const toradex_display_adapters[] = {
+	[0] = "UNKNOWN DISPLAY ADAPTER",
+	[157] = "Verdin DSI to HDMI Adapter",
+	[159] = "Verdin DSI to LVDS Adapter",
 };
 
 #ifdef CONFIG_TDX_CFG_BLOCK_IS_IN_MMC
@@ -224,6 +253,20 @@ static int write_tdx_cfg_block_to_nor(unsigned char *config_block)
 }
 #endif
 
+#ifdef CONFIG_TDX_CFG_BLOCK_IS_IN_EEPROM
+static int read_tdx_cfg_block_from_eeprom(unsigned char *config_block)
+{
+	return read_tdx_eeprom_data(TDX_EEPROM_ID_MODULE, 0x0, config_block,
+				    TDX_CFG_BLOCK_MAX_SIZE);
+}
+
+static int write_tdx_cfg_block_to_eeprom(unsigned char *config_block)
+{
+	return write_tdx_eeprom_data(TDX_EEPROM_ID_MODULE, 0x0, config_block,
+				     TDX_CFG_BLOCK_MAX_SIZE);
+}
+#endif
+
 int read_tdx_cfg_block(void)
 {
 	int ret = 0;
@@ -247,6 +290,8 @@ int read_tdx_cfg_block(void)
 	ret = read_tdx_cfg_block_from_nand(config_block);
 #elif defined(CONFIG_TDX_CFG_BLOCK_IS_IN_NOR)
 	ret = read_tdx_cfg_block_from_nor(config_block);
+#elif defined(CONFIG_TDX_CFG_BLOCK_IS_IN_EEPROM)
+	ret = read_tdx_cfg_block_from_eeprom(config_block);
 #else
 	ret = -EINVAL;
 #endif
@@ -263,7 +308,12 @@ int read_tdx_cfg_block(void)
 	valid_cfgblock = true;
 	offset = 4;
 
-	while (offset < TDX_CFG_BLOCK_MAX_SIZE) {
+	/*
+	 * check if there is enough space for storing tag and value of the
+	 * biggest element
+	 */
+	while (offset + sizeof(struct toradex_tag) +
+	       sizeof(struct toradex_hw) < TDX_CFG_BLOCK_MAX_SIZE) {
 		tag = (struct toradex_tag *)(config_block + offset);
 		offset += 4;
 		if (tag->id == TAG_INVALID)
@@ -321,7 +371,6 @@ static int get_cfgblock_interactive(void)
 	else
 		it = 'y';
 #endif
-
 
 #if defined(CONFIG_TARGET_APALIS_IMX8) || \
 		defined(CONFIG_TARGET_APALIS_IMX8X) || \
@@ -493,7 +542,8 @@ static int get_cfgblock_interactive(void)
 	return 0;
 }
 
-static int get_cfgblock_barcode(char *barcode)
+static int get_cfgblock_barcode(char *barcode, struct toradex_hw *tag,
+				u32 *serial)
 {
 	if (strlen(barcode) < 16) {
 		printf("Argument too short, barcode is 16 chars long\n");
@@ -501,30 +551,137 @@ static int get_cfgblock_barcode(char *barcode)
 	}
 
 	/* Get hardware information from the first 8 digits */
-	tdx_hw_tag.ver_major = barcode[4] - '0';
-	tdx_hw_tag.ver_minor = barcode[5] - '0';
-	tdx_hw_tag.ver_assembly = barcode[7] - '0';
+	tag->ver_major = barcode[4] - '0';
+	tag->ver_minor = barcode[5] - '0';
+	tag->ver_assembly = barcode[7] - '0';
 
 	barcode[4] = '\0';
-	tdx_hw_tag.prodid = simple_strtoul(barcode, NULL, 10);
+	tag->prodid = simple_strtoul(barcode, NULL, 10);
 
 	/* Parse second part of the barcode (serial number */
 	barcode += 8;
-	tdx_serial = simple_strtoul(barcode, NULL, 10);
+	*serial = simple_strtoul(barcode, NULL, 10);
 
 	return 0;
 }
 
-static int do_cfgblock_create(struct cmd_tbl *cmdtp, int flag, int argc,
-			      char *const argv[])
+static int write_tag(u8 *config_block, int *offset, int tag_id,
+		     u8 *tag_data, size_t tag_data_size)
 {
-	u8 *config_block;
 	struct toradex_tag *tag;
-	size_t size = TDX_CFG_BLOCK_MAX_SIZE;
+
+	if (!offset || !config_block)
+		return -EINVAL;
+
+	tag = (struct toradex_tag *)(config_block + *offset);
+	tag->id = tag_id;
+	tag->flags = TAG_FLAG_VALID;
+	/* len is provided as number of 32bit values after the tag */
+	tag->len = (tag_data_size + sizeof(u32) - 1) / sizeof(u32);
+	*offset += sizeof(struct toradex_tag);
+	if (tag_data && tag_data_size) {
+		memcpy(config_block + *offset, tag_data,
+		       tag_data_size);
+		*offset += tag_data_size;
+	}
+
+	return 0;
+}
+
+#ifdef CONFIG_TDX_CFG_BLOCK_EXTRA
+int read_tdx_cfg_block_carrier(void)
+{
+	int ret = 0;
+	u8 *config_block = NULL;
+	struct toradex_tag *tag;
+	size_t size = TDX_CFG_BLOCK_EXTRA_MAX_SIZE;
+	int offset;
+
+	/* Allocate RAM area for carrier config block */
+	config_block = memalign(ARCH_DMA_MINALIGN, size);
+	if (!config_block) {
+		printf("Not enough malloc space available!\n");
+		return -ENOMEM;
+	}
+
+	memset(config_block, 0, size);
+
+	ret = read_tdx_eeprom_data(TDX_EEPROM_ID_CARRIER, 0x0, config_block,
+				   size);
+	if (ret)
+		return ret;
+
+	/* Expect a valid tag first */
+	tag = (struct toradex_tag *)config_block;
+	if (tag->flags != TAG_FLAG_VALID || tag->id != TAG_VALID) {
+		valid_cfgblock_carrier = false;
+		ret = -EINVAL;
+		goto out;
+	}
+	valid_cfgblock_carrier = true;
+	offset = 4;
+
+	while (offset + sizeof(struct toradex_tag) +
+	       sizeof(struct toradex_hw) < TDX_CFG_BLOCK_MAX_SIZE) {
+		tag = (struct toradex_tag *)(config_block + offset);
+		offset += 4;
+		if (tag->id == TAG_INVALID)
+			break;
+
+		if (tag->flags == TAG_FLAG_VALID) {
+			switch (tag->id) {
+			case TAG_CAR_SERIAL:
+				memcpy(&tdx_car_serial, config_block + offset,
+				       sizeof(tdx_car_serial));
+				break;
+			case TAG_HW:
+				memcpy(&tdx_car_hw_tag, config_block +
+				       offset, 8);
+				break;
+			}
+		}
+
+		/* Get to next tag according to current tags length */
+		offset += tag->len * 4;
+	}
+out:
+	free(config_block);
+	return ret;
+}
+
+int check_pid8_sanity(char *pid8)
+{
+	char s_carrierid_verdin_dev[5];
+	char s_carrierid_dahlia[5];
+
+	sprintf(s_carrierid_verdin_dev, "0%d", VERDIN_DEVELOPMENT_BOARD);
+	sprintf(s_carrierid_dahlia, "0%d", DAHLIA);
+
+	/* sane value check, first 4 chars which represent carrier id */
+	if (!strncmp(pid8, s_carrierid_verdin_dev, 4))
+		return 0;
+
+	if (!strncmp(pid8, s_carrierid_dahlia, 4))
+		return 0;
+
+	return -EINVAL;
+}
+
+int try_migrate_tdx_cfg_block_carrier(void)
+{
+	char pid8[8];
 	int offset = 0;
 	int ret = CMD_RET_SUCCESS;
-	int err;
-	int force_overwrite = 0;
+	size_t size = TDX_CFG_BLOCK_EXTRA_MAX_SIZE;
+	u8 *config_block;
+
+	memset(pid8, 0x0, 8);
+	ret = read_tdx_eeprom_data(TDX_EEPROM_ID_CARRIER, 0x0, (u8 *)pid8, 8);
+	if (ret)
+		return ret;
+
+	if (check_pid8_sanity(pid8))
+		return -EINVAL;
 
 	/* Allocate RAM area for config block */
 	config_block = memalign(ARCH_DMA_MINALIGN, size);
@@ -534,11 +691,188 @@ static int do_cfgblock_create(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	memset(config_block, 0xff, size);
+	/* we try parse PID8 concatenating zeroed serial number */
+	tdx_car_hw_tag.ver_major = pid8[4] - '0';
+	tdx_car_hw_tag.ver_minor = pid8[5] - '0';
+	tdx_car_hw_tag.ver_assembly = pid8[7] - '0';
+
+	pid8[4] = '\0';
+	tdx_car_hw_tag.prodid = simple_strtoul(pid8, NULL, 10);
+
+	/* Valid Tag */
+	write_tag(config_block, &offset, TAG_VALID, NULL, 0);
+
+	/* Product Tag */
+	write_tag(config_block, &offset, TAG_HW, (u8 *)&tdx_car_hw_tag,
+		  sizeof(tdx_car_hw_tag));
+
+	/* Serial Tag */
+	write_tag(config_block, &offset, TAG_CAR_SERIAL, (u8 *)&tdx_car_serial,
+		  sizeof(tdx_car_serial));
+
+	memset(config_block + offset, 0, 32 - offset);
+	ret = write_tdx_eeprom_data(TDX_EEPROM_ID_CARRIER, 0x0, config_block,
+				    size);
+	if (ret) {
+		printf("Failed to write Toradex Extra config block: %d\n",
+		       ret);
+		ret = CMD_RET_FAILURE;
+		goto out;
+	}
+
+	printf("Successfully migrated to Toradex Config Block from PID8\n");
+
+out:
+	free(config_block);
+	return ret;
+}
+
+static int get_cfgblock_carrier_interactive(void)
+{
+	char message[CONFIG_SYS_CBSIZE];
+	int len;
+
+	printf("Supported carrier boards:\n");
+	printf("CARRIER BOARD NAME\t\t [ID]\n");
+	for (int i = 0; i < sizeof(toradex_carrier_boards) /
+			    sizeof(toradex_carrier_boards[0]); i++)
+		if (toradex_carrier_boards[i])
+			printf("%s \t\t [%d]\n", toradex_carrier_boards[i], i);
+
+	sprintf(message, "Choose your carrier board (provide ID): ");
+	len = cli_readline(message);
+	tdx_car_hw_tag.prodid = simple_strtoul(console_buffer, NULL, 10);
+
+	do {
+		sprintf(message, "Enter carrier board version (e.g. V1.1B): V");
+		len = cli_readline(message);
+	} while (len < 4);
+
+	tdx_car_hw_tag.ver_major = console_buffer[0] - '0';
+	tdx_car_hw_tag.ver_minor = console_buffer[2] - '0';
+	tdx_car_hw_tag.ver_assembly = console_buffer[3] - 'A';
+
+	while (len < 8) {
+		sprintf(message, "Enter carrier board serial number: ");
+		len = cli_readline(message);
+	}
+
+	tdx_car_serial = simple_strtoul(console_buffer, NULL, 10);
+
+	return 0;
+}
+
+static int do_cfgblock_carrier_create(struct cmd_tbl *cmdtp, int flag, int argc,
+				      char * const argv[])
+{
+	u8 *config_block;
+	size_t size = TDX_CFG_BLOCK_EXTRA_MAX_SIZE;
+	int offset = 0;
+	int ret = CMD_RET_SUCCESS;
+	int err;
+	int force_overwrite = 0;
 
 	if (argc >= 3) {
 		if (argv[2][0] == '-' && argv[2][1] == 'y')
 			force_overwrite = 1;
 	}
+
+	/* Allocate RAM area for config block */
+	config_block = memalign(ARCH_DMA_MINALIGN, size);
+	if (!config_block) {
+		printf("Not enough malloc space available!\n");
+		return CMD_RET_FAILURE;
+	}
+
+	memset(config_block, 0xff, size);
+	read_tdx_cfg_block_carrier();
+	if (valid_cfgblock_carrier && !force_overwrite) {
+		char message[CONFIG_SYS_CBSIZE];
+
+		sprintf(message, "A valid Toradex Carrier config block is present, still recreate? [y/N] ");
+
+		if (!cli_readline(message))
+			goto out;
+
+		if (console_buffer[0] != 'y' &&
+		    console_buffer[0] != 'Y')
+			goto out;
+	}
+
+	if (argc < 3 || (force_overwrite && argc < 4)) {
+		err = get_cfgblock_carrier_interactive();
+	} else {
+		if (force_overwrite)
+			err = get_cfgblock_barcode(argv[3], &tdx_car_hw_tag,
+						   &tdx_car_serial);
+		else
+			err = get_cfgblock_barcode(argv[2], &tdx_car_hw_tag,
+						   &tdx_car_serial);
+	}
+
+	if (err) {
+		ret = CMD_RET_FAILURE;
+		goto out;
+	}
+
+	/* Valid Tag */
+	write_tag(config_block, &offset, TAG_VALID, NULL, 0);
+
+	/* Product Tag */
+	write_tag(config_block, &offset, TAG_HW, (u8 *)&tdx_car_hw_tag,
+		  sizeof(tdx_car_hw_tag));
+
+	/* Serial Tag */
+	write_tag(config_block, &offset, TAG_CAR_SERIAL, (u8 *)&tdx_car_serial,
+		  sizeof(tdx_car_serial));
+
+	memset(config_block + offset, 0, 32 - offset);
+	err = write_tdx_eeprom_data(TDX_EEPROM_ID_CARRIER, 0x0, config_block,
+				    size);
+	if (err) {
+		printf("Failed to write Toradex Extra config block: %d\n",
+		       ret);
+		ret = CMD_RET_FAILURE;
+		goto out;
+	}
+
+	printf("Toradex Extra config block successfully written\n");
+
+out:
+	free(config_block);
+	return ret;
+}
+
+#endif /* CONFIG_TDX_CFG_BLOCK_EXTRA */
+
+static int do_cfgblock_create(struct cmd_tbl *cmdtp, int flag, int argc,
+			      char * const argv[])
+{
+	u8 *config_block;
+	size_t size = TDX_CFG_BLOCK_MAX_SIZE;
+	int offset = 0;
+	int ret = CMD_RET_SUCCESS;
+	int err;
+	int force_overwrite = 0;
+
+	if (argc >= 3) {
+#ifdef CONFIG_TDX_CFG_BLOCK_EXTRA
+		if (!strcmp(argv[2], "carrier"))
+			return do_cfgblock_carrier_create(cmdtp, flag,
+							  --argc, ++argv);
+#endif /* CONFIG_TDX_CFG_BLOCK_EXTRA */
+		if (argv[2][0] == '-' && argv[2][1] == 'y')
+			force_overwrite = 1;
+	}
+
+	/* Allocate RAM area for config block */
+	config_block = memalign(ARCH_DMA_MINALIGN, size);
+	if (!config_block) {
+		printf("Not enough malloc space available!\n");
+		return CMD_RET_FAILURE;
+	}
+
+	memset(config_block, 0xff, size);
 
 	read_tdx_cfg_block();
 	if (valid_cfgblock) {
@@ -581,9 +915,11 @@ static int do_cfgblock_create(struct cmd_tbl *cmdtp, int flag, int argc,
 		err = get_cfgblock_interactive();
 	} else {
 		if (force_overwrite)
-			err = get_cfgblock_barcode(argv[3]);
+			err = get_cfgblock_barcode(argv[3], &tdx_hw_tag,
+						   &tdx_serial);
 		else
-			err = get_cfgblock_barcode(argv[2]);
+			err = get_cfgblock_barcode(argv[2], &tdx_hw_tag,
+						   &tdx_serial);
 	}
 	if (err) {
 		ret = CMD_RET_FAILURE;
@@ -595,39 +931,25 @@ static int do_cfgblock_create(struct cmd_tbl *cmdtp, int flag, int argc,
 	tdx_eth_addr.nic = htonl(tdx_serial << 8);
 
 	/* Valid Tag */
-	tag = (struct toradex_tag *)config_block;
-	tag->id = TAG_VALID;
-	tag->flags = TAG_FLAG_VALID;
-	tag->len = 0;
-	offset += 4;
+	write_tag(config_block, &offset, TAG_VALID, NULL, 0);
 
 	/* Product Tag */
-	tag = (struct toradex_tag *)(config_block + offset);
-	tag->id = TAG_HW;
-	tag->flags = TAG_FLAG_VALID;
-	tag->len = 2;
-	offset += 4;
-
-	memcpy(config_block + offset, &tdx_hw_tag, 8);
-	offset += 8;
+	write_tag(config_block, &offset, TAG_HW, (u8 *)&tdx_hw_tag,
+		  sizeof(tdx_hw_tag));
 
 	/* MAC Tag */
-	tag = (struct toradex_tag *)(config_block + offset);
-	tag->id = TAG_MAC;
-	tag->flags = TAG_FLAG_VALID;
-	tag->len = 2;
-	offset += 4;
+	write_tag(config_block, &offset, TAG_MAC, (u8 *)&tdx_eth_addr,
+		  sizeof(tdx_eth_addr));
 
-	memcpy(config_block + offset, &tdx_eth_addr, 6);
-	offset += 6;
 	memset(config_block + offset, 0, 32 - offset);
-
 #if defined(CONFIG_TDX_CFG_BLOCK_IS_IN_MMC)
 	err = tdx_cfg_block_mmc_storage(config_block, 1);
 #elif defined(CONFIG_TDX_CFG_BLOCK_IS_IN_NAND)
 	err = write_tdx_cfg_block_to_nand(config_block);
 #elif defined(CONFIG_TDX_CFG_BLOCK_IS_IN_NOR)
 	err = write_tdx_cfg_block_to_nor(config_block);
+#elif defined(CONFIG_TDX_CFG_BLOCK_IS_IN_EEPROM)
+	err = write_tdx_cfg_block_to_eeprom(config_block);
 #else
 	err = -EINVAL;
 #endif
@@ -667,8 +989,10 @@ static int do_cfgblock(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_USAGE;
 }
 
-U_BOOT_CMD(cfgblock, 4, 0, do_cfgblock,
-	   "Toradex config block handling commands",
-	   "create [-y] [barcode] - (Re-)create Toradex config block\n"
-	   "cfgblock reload - Reload Toradex config block from flash"
+U_BOOT_CMD(
+	cfgblock, 5, 0, do_cfgblock,
+	"Toradex config block handling commands",
+	"create [-y] [barcode] - (Re-)create Toradex config block\n"
+	"create carrier [-y] [barcode] - (Re-)create Toradex Carrier config block\n"
+	"cfgblock reload - Reload Toradex config block from flash"
 );
