@@ -9,11 +9,12 @@
 #ifndef __LINUX_CLK_PROVIDER_H
 #define __LINUX_CLK_PROVIDER_H
 
-#include <dm.h>
 #include <linux/bitops.h>
 #include <linux/err.h>
 #include <clk-uclass.h>
 #include <linux/err.h>
+
+struct udevice;
 
 static inline void clk_dm(ulong id, struct clk *clk)
 {
@@ -188,8 +189,5 @@ struct clk *clk_register_mux(struct device *dev, const char *name,
 const char *clk_hw_get_name(const struct clk *hw);
 ulong clk_generic_get_rate(struct clk *clk);
 
-static inline struct clk *dev_get_clk_ptr(struct udevice *dev)
-{
-	return (struct clk *)dev_get_uclass_priv(dev);
-}
+struct clk *dev_get_clk_ptr(struct udevice *dev);
 #endif /* __LINUX_CLK_PROVIDER_H */

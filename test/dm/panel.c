@@ -14,8 +14,9 @@
 #include <asm/gpio.h>
 #include <asm/test.h>
 #include <dm/test.h>
-#include <test/ut.h>
 #include <power/regulator.h>
+#include <test/test.h>
+#include <test/ut.h>
 
 /* Basic test of the panel uclass */
 static int dm_test_panel(struct unit_test_state *uts)

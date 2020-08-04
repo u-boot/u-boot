@@ -9,9 +9,10 @@
 #include <virtio.h>
 #include <virtio_ring.h>
 #include <dm/device-internal.h>
-#include <dm/uclass-internal.h>
 #include <dm/root.h>
 #include <dm/test.h>
+#include <dm/uclass-internal.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 /* Basic test of the virtio uclass */

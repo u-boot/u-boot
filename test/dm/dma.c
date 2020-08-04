@@ -11,6 +11,7 @@
 #include <malloc.h>
 #include <dm/test.h>
 #include <dma.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 static int dm_test_dma_m2m(struct unit_test_state *uts)

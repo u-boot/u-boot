@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <ram.h>
 #include <dm/test.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -25,6 +25,11 @@ static inline const struct clk_ops *clk_dev_ops(struct udevice *dev)
 	return (const struct clk_ops *)dev->driver->ops;
 }
 
+struct clk *dev_get_clk_ptr(struct udevice *dev)
+{
+	return (struct clk *)dev_get_uclass_priv(dev);
+}
+
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 # if CONFIG_IS_ENABLED(OF_PLATDATA)
 int clk_get_by_driver_info(struct udevice *dev, struct phandle_1_arg *cells,

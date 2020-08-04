@@ -12,6 +12,7 @@
 #include <asm/test.h>
 #include <dm/test.h>
 #include <linux/err.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 /* Base test of register maps */

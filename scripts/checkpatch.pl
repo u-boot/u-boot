@@ -2322,7 +2322,7 @@ sub get_raw_comment {
 
 # Checks specific to U-Boot
 sub u_boot_line {
-	my ($realfile, $line,  $herecurr) = @_;
+	my ($realfile, $line, $rawline, $herecurr) = @_;
 
 	# ask for a test if a new uclass ID is added
 	if ($realfile =~ /uclass-id.h/ && $line =~ /^\+/) {
@@ -2352,6 +2352,12 @@ sub u_boot_line {
 	if ($line =~ /\+\s*#\s*(define|undef)\s+(CONFIG_CMD\w*)\b/) {
 		ERROR("DEFINE_CONFIG_CMD",
 		      "All commands are managed by Kconfig\n" . $herecurr);
+	}
+
+	# Don't put common.h and dm.h in header files
+	if ($realfile =~ /\.h$/ && $rawline =~ /^\+#include\s*<(common|dm)\.h>*/) {
+		ERROR("BARRED_INCLUDE_IN_HDR",
+		      "Avoid including common.h and dm.h in header files\n" . $herecurr);
 	}
 }
 
@@ -3296,7 +3302,7 @@ sub process {
 		}
 
 		if ($u_boot) {
-			u_boot_line($realfile, $line,  $herecurr);
+			u_boot_line($realfile, $line, $rawline, $herecurr);
 		}
 
 # check we are in a valid source file C or perl if not then ignore this hunk

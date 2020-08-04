@@ -5,6 +5,7 @@
 #include <log.h>
 #include <dm/of_extra.h>
 #include <dm/test.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 static int dm_test_ofnode_compatible(struct unit_test_state *uts)

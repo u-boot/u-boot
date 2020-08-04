@@ -14,6 +14,7 @@
 #include <power/pmic.h>
 #include <spmi/spmi.h>
 #include <asm/gpio.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 /* Test if bus childs got probed propperly*/

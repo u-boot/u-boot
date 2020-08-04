@@ -5,12 +5,13 @@
 
 #include <common.h>
 #include <dm.h>
+#include <hexdump.h>
+#include <pci_ep.h>
 #include <asm/io.h>
 #include <asm/test.h>
 #include <dm/test.h>
+#include <test/test.h>
 #include <test/ut.h>
-#include <hexdump.h>
-#include <pci_ep.h>
 
 /* Test that sandbox PCI EP works correctly */
 static int dm_test_pci_ep_base(struct unit_test_state *uts)

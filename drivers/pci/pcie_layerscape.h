@@ -8,7 +8,7 @@
 #ifndef _PCIE_LAYERSCAPE_H_
 #define _PCIE_LAYERSCAPE_H_
 #include <pci.h>
-#include <dm.h>
+
 #include <linux/sizes.h>
 
 #ifndef CONFIG_SYS_PCI_MEMORY_BUS

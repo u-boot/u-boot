@@ -8,9 +8,10 @@
 #include <axi.h>
 #include <dm.h>
 #include <log.h>
-#include <dm/test.h>
-#include <test/ut.h>
 #include <asm/axi.h>
+#include <dm/test.h>
+#include <test/test.h>
+#include <test/ut.h>
 
 /* Test that sandbox AXI works correctly */
 static int dm_test_axi_base(struct unit_test_state *uts)

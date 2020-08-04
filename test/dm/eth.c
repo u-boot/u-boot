@@ -13,10 +13,11 @@
 #include <log.h>
 #include <malloc.h>
 #include <net.h>
+#include <asm/eth.h>
 #include <dm/test.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
-#include <asm/eth.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 #define DM_TEST_ETH_NUM		4

@@ -10,6 +10,7 @@
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
 #include <cpu.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 static int dm_test_cpu(struct unit_test_state *uts)

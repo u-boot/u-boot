@@ -10,6 +10,7 @@
 #include <asm/state.h>
 #include <asm/test.h>
 #include <dm/test.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 static int dm_test_dsi_host_phy_init(void *priv_data)

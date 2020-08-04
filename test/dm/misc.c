@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <dm/test.h>
 #include <misc.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 static int dm_test_misc(struct unit_test_state *uts)

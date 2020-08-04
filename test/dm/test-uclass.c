@@ -14,6 +14,7 @@
 #include <asm/io.h>
 #include <dm/test.h>
 #include <linux/list.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 static struct unit_test_state *uts = &global_dm_test_state;

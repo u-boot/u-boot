@@ -4,7 +4,6 @@
  * Keerthy <j-keerthy@ti.com>
  */
 
-#include "regulator_common.h"
 #include <common.h>
 #include <fdtdec.h>
 #include <errno.h>
@@ -14,6 +13,8 @@
 #include <asm/gpio.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
+
+#include "regulator_common.h"
 
 #define GPIO_REGULATOR_MAX_STATES	2
 

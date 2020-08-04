@@ -8,6 +8,7 @@
 #include <mmc.h>
 #include <part.h>
 #include <dm/test.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 /*

@@ -30,6 +30,7 @@
 
 #include <common.h>
 #include <blk.h>
+#include <dm.h>
 #include <efi_driver.h>
 #include <malloc.h>
 #include <dm/device-internal.h>

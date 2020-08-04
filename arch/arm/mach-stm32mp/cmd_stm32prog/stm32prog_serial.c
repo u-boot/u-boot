@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <console.h>
+#include <dm.h>
 #include <dfu.h>
 #include <malloc.h>
 #include <serial.h>

@@ -8,6 +8,7 @@
 #include <serial.h>
 #include <dm.h>
 #include <dm/test.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 static int dm_test_serial(struct unit_test_state *uts)

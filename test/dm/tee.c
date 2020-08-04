@@ -10,6 +10,7 @@
 #include <dm/test.h>
 #include <sandboxtee.h>
 #include <tee.h>
+#include <test/test.h>
 #include <test/ut.h>
 #include <tee/optee_ta_avb.h>
 

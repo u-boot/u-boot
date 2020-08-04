@@ -4,10 +4,12 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <lmb.h>
 #include <log.h>
 #include <malloc.h>
 #include <dm/test.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 static int check_lmb(struct unit_test_state *uts, struct lmb *lmb,

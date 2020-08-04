@@ -17,6 +17,7 @@
 #include <power/regulator.h>
 #include <power/sandbox_pmic.h>
 #include <sandbox-adc.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 static int dm_test_adc_bind(struct unit_test_state *uts)

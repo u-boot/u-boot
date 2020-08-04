@@ -2470,7 +2470,7 @@ static int spi_nor_init(struct spi_nor *nor)
 		 * designer) that this is bad.
 		 */
 		if (nor->flags & SNOR_F_BROKEN_RESET)
-			printf("enabling reset hack; may not recover from unexpected reboots\n");
+			debug("enabling reset hack; may not recover from unexpected reboots\n");
 		set_4byte(nor, nor->info, 1);
 	}
 

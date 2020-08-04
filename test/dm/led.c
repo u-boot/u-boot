@@ -8,6 +8,7 @@
 #include <led.h>
 #include <asm/gpio.h>
 #include <dm/test.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 /* Base test of the led uclass */

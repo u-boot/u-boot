@@ -373,19 +373,19 @@ index 0000000..2234c87
         self.checkSingleMessage(pm, 'NEW_UCLASS')
 
     def testLivetree(self):
-        """Test for Use the livetree API"""
+        """Test for using the livetree API"""
         pm = PatchMaker()
         pm.add_line('common/main.c', 'fdtdec_do_something()')
         self.checkSingleMessage(pm, 'LIVETREE')
 
     def testNewCommand(self):
-        """Test for Use the livetree API"""
+        """Test for adding a new command"""
         pm = PatchMaker()
         pm.add_line('common/main.c', 'do_wibble(struct cmd_tbl *cmd_tbl)')
         self.checkSingleMessage(pm, 'CMD_TEST')
 
-    def testNewCommand(self):
-        """Test for Use the livetree API"""
+    def testPreferIf(self):
+        """Test for using #ifdef"""
         pm = PatchMaker()
         pm.add_line('common/main.c', '#ifdef CONFIG_YELLOW')
         pm.add_line('common/init.h', '#ifdef CONFIG_YELLOW')
@@ -393,10 +393,17 @@ index 0000000..2234c87
         self.checkSingleMessage(pm, "PREFER_IF")
 
     def testCommandUseDefconfig(self):
-        """Test for Use the livetree API"""
+        """Test for enabling/disabling commands using preprocesor"""
         pm = PatchMaker()
         pm.add_line('common/main.c', '#undef CONFIG_CMD_WHICH')
         self.checkSingleMessage(pm, 'DEFINE_CONFIG_CMD', 'error')
+
+    def testBarredIncludeInHdr(self):
+        """Test for using a barred include in a header file"""
+        pm = PatchMaker()
+        #pm.add_line('include/myfile.h', '#include <common.h>')
+        pm.add_line('include/myfile.h', '#include <dm.h>')
+        self.checkSingleMessage(pm, 'BARRED_INCLUDE_IN_HDR', 'error')
 
 
 if __name__ == "__main__":

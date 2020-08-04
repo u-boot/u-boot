@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <env.h>
 #include <w1.h>
 #include <w1-eeprom.h>

@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <log.h>
 #include <pci.h>
 #include <asm/arch/fsl_serdes.h>
