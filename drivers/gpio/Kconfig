@@ -346,6 +346,16 @@ config PIC32_GPIO
 	help
 	  Say yes here to support Microchip PIC32 GPIOs.
 
+config OCTEON_GPIO
+	bool "Octeon II/III/TX/TX2 GPIO driver"
+	depends on DM_GPIO && DM_PCI &&	(ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2)
+	default y
+	help
+	  Add support for the Marvell Octeon GPIO driver. This is used with
+	  various Octeon parts such as Octeon II/III and OcteonTX/TX2.
+	  Octeon II/III has 32 GPIOs (count defined via DT) and OcteonTX/TX2
+	  has 64 GPIOs (count defined via internal register).
+
 config STM32_GPIO
 	bool "ST STM32 GPIO driver"
 	depends on DM_GPIO && (ARCH_STM32 || ARCH_STM32MP)

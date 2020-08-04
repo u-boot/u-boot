@@ -5,7 +5,7 @@
 
 /dts-v1/;
 
-/include/ "mrvl,cn73xx.dtsi"
+#include "mrvl,cn73xx.dtsi"
 
 / {
 	model = "cavium,ebb7304";
@@ -13,6 +13,7 @@
 
 	aliases {
 		serial0 = &uart0;
+		spi0 = &spi;
 	};
 
 	chosen {
@@ -93,4 +94,22 @@
 
 &uart0 {
 	clock-frequency = <1200000000>;
+};
+
+&i2c0 {
+	u-boot,dm-pre-reloc;	/* Needed early for DDR SPD EEPROM */
+	clock-frequency = <100000>;
+};
+
+&i2c1 {
+	u-boot,dm-pre-reloc;	/* Needed early for DDR SPD EEPROM */
+	clock-frequency = <100000>;
+};
+
+&spi {
+	flash@0 {
+		compatible = "micron,n25q128a11", "jedec,spi-nor";
+		spi-max-frequency = <2000000>;
+		reg = <0>;
+	};
 };
