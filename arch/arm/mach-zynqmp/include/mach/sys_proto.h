@@ -59,7 +59,6 @@ int zynqmp_mmio_read(const u32 address, u32 *value);
 
 void initialize_tcm(bool mode);
 void mem_map_fill(void);
-int chip_id(unsigned char id);
 #if defined(CONFIG_SYS_MEM_RSVD_FOR_MMU) || defined(CONFIG_DEFINE_TCM_OCM_MMAP)
 void tcm_init(u8 mode);
 #endif

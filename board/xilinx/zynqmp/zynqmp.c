@@ -190,41 +190,6 @@ static const struct {
 };
 #endif
 
-int chip_id(unsigned char id)
-{
-	int val = -EINVAL;
-	u32 ret_payload[PAYLOAD_ARG_CNT];
-
-	xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0, ret_payload);
-
-	/*
-	 * Firmware returns:
-	 * payload[0][31:0]  = status of the operation
-	 * payload[1]] = IDCODE
-	 * payload[2][19:0]  = Version
-	 * payload[2][28:20] = EXTENDED_IDCODE
-	 * payload[2][29] = PL_INIT
-	 */
-	switch (id) {
-	case IDCODE:
-		val = ret_payload[1];
-		val &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK |
-			ZYNQMP_CSU_IDCODE_SVD_MASK;
-		val >>=	ZYNQMP_CSU_IDCODE_SVD_SHIFT;
-		break;
-	case VERSION:
-		val = ret_payload[2] & ZYNQMP_CSU_SILICON_VER_MASK;
-		break;
-	case IDCODE2:
-		val = ret_payload[2] >> ZYNQMP_CSU_VERSION_EMPTY_SHIFT;
-		break;
-	default:
-		printf("%s, Invalid Req:0x%x\n", __func__, id);
-	}
-
-	return val;
-}
-
 #define ZYNQMP_VERSION_SIZE		9
 #define ZYNQMP_PL_STATUS_BIT		9
 #define ZYNQMP_IPDIS_VCU_BIT		8
@@ -241,9 +206,27 @@ static char *zynqmp_get_silicon_idcode_name(void)
 	u32 i, id, ver, j;
 	char *buf;
 	static char name[ZYNQMP_VERSION_SIZE];
+	u32 ret_payload[PAYLOAD_ARG_CNT];
 
-	id = chip_id(IDCODE);
-	ver = chip_id(IDCODE2);
+	xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0, ret_payload);
+
+	/*
+	 * Firmware returns:
+	 * payload[0][31:0]  = status of the operation
+	 * payload[1]] = IDCODE
+	 * payload[2][19:0]  = Version
+	 * payload[2][28:20] = EXTENDED_IDCODE
+	 * payload[2][29] = PL_INIT
+	 */
+
+	/* Get IDCODE field */
+	id = ret_payload[1];
+	id &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK | ZYNQMP_CSU_IDCODE_SVD_MASK;
+	id >>=	ZYNQMP_CSU_IDCODE_SVD_SHIFT;
+
+	/* Shift silicon version info */
+	ver = ret_payload[2] >> ZYNQMP_CSU_VERSION_EMPTY_SHIFT;
+
 	debug("%s, ID: 0x%0X, Ver: 0x%0X\r\n", __func__, id, ver);
 
 	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
