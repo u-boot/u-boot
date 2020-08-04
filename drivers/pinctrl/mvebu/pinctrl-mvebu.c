@@ -193,7 +193,7 @@ int mvebu_pinctl_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	priv->base_reg = devfdt_get_addr_ptr(dev);
+	priv->base_reg = dev_read_addr_ptr(dev);
 	if (!priv->base_reg) {
 		debug("%s: Failed to get base address\n", __func__);
 		return -EINVAL;

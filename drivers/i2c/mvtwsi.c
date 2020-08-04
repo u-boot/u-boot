@@ -798,7 +798,7 @@ static int mvtwsi_i2c_ofdata_to_platdata(struct udevice *bus)
 {
 	struct mvtwsi_i2c_dev *dev = dev_get_priv(bus);
 
-	dev->base = devfdt_get_addr_ptr(bus);
+	dev->base = dev_read_addr_ptr(bus);
 
 	if (!dev->base)
 		return -ENOMEM;
@@ -820,7 +820,7 @@ static void twsi_disable_i2c_slave(struct mvtwsi_registers *twsi)
 
 static int mvtwsi_i2c_bind(struct udevice *bus)
 {
-	struct mvtwsi_registers *twsi = devfdt_get_addr_ptr(bus);
+	struct mvtwsi_registers *twsi = dev_read_addr_ptr(bus);
 
 	/* Disable the hidden slave in i2c0 of these platforms */
 	if ((IS_ENABLED(CONFIG_ARMADA_38X) || IS_ENABLED(CONFIG_ARCH_KIRKWOOD))

@@ -497,7 +497,7 @@ static int ast2500_clk_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ast2500_clk_priv *priv = dev_get_priv(dev);
 
-	priv->scu = devfdt_get_addr_ptr(dev);
+	priv->scu = dev_read_addr_ptr(dev);
 	if (!priv->scu)
 		return -EINVAL;
 

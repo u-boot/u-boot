@@ -368,7 +368,7 @@ static int uniphier_spi_ofdata_to_platdata(struct udevice *bus)
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
-	plat->base = devfdt_get_addr_ptr(bus);
+	plat->base = dev_read_addr_ptr(bus);
 
 	plat->frequency =
 		fdtdec_get_int(blob, node, "spi-max-frequency", 12500000);

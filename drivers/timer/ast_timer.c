@@ -64,7 +64,7 @@ static int ast_timer_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ast_timer_priv *priv = dev_get_priv(dev);
 
-	priv->regs = devfdt_get_addr_ptr(dev);
+	priv->regs = dev_read_addr_ptr(dev);
 	if (!priv->regs)
 		return -EINVAL;
 

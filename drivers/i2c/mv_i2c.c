@@ -580,7 +580,7 @@ static int mv_i2c_probe(struct udevice *bus)
 {
 	struct mv_i2c_priv *priv = dev_get_priv(bus);
 
-	priv->base = (void *)devfdt_get_addr_ptr(bus);
+	priv->base = dev_read_addr_ptr(bus);
 
 	return 0;
 }
