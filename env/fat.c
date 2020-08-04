@@ -29,15 +29,6 @@
 # define LOADENV
 #endif
 
-__weak int mmc_get_env_dev(void)
-{
-#ifdef CONFIG_SYS_MMC_ENV_DEV
-	return CONFIG_SYS_MMC_ENV_DEV;
-#else
-	return 0;
-#endif
-}
-
 static char *env_fat_device_and_part(void)
 {
 #ifdef CONFIG_MMC

@@ -24,11 +24,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-__weak int mmc_get_env_dev(void)
-{
-	return CONFIG_SYS_MMC_ENV_DEV;
-}
-
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static inline int mmc_offset_try_partition(const char *str, int copy, s64 *val)
 {
