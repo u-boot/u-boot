@@ -606,7 +606,7 @@ static int at91_gpio_probe(struct udevice *dev)
 	clk_free(&clk);
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-	plat->base_addr = (uint32_t)devfdt_get_addr_ptr(dev);
+	plat->base_addr = dev_read_addr(dev);
 #endif
 	plat->bank_name = at91_get_bank_name(plat->base_addr);
 	port->regs = (struct at91_port *)plat->base_addr;
