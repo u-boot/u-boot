@@ -272,16 +272,16 @@
 				#io-channel-cells = <1>;
 				label = "ina226-vccint";
 				reg = <0x40>;
-				shunt-resistor = <5000>; /* R440 */
-				/* 0.78V @ 32A 1 of 6 Phases*/
+				shunt-resistor = <500>; /* R440 */
+				/* 0.80V @ 32A 1 of 6 Phases*/
 			};
 			vcc_soc: ina226@41 { /* u161 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
 				label = "ina226-vcc-soc";
 				reg = <0x41>;
-				shunt-resistor = <2000>; /* R1186 */
-				/* 0.78V @ 18A */
+				shunt-resistor = <500>; /* R1702 */
+				/* 0.80V @ 18A */
 			};
 			vcc_pmc: ina226@42 { /* u163 */
 				compatible = "ti,ina226";
