@@ -596,6 +596,31 @@
 			reg = <7>;
 		};
 	};
+	i2c-mux@75 { /* u214 */
+		compatible = "nxp,pca9548";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x75>;
+		i2c@0 { /* SFP0_IIC */
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0>;
+			/* SFP0 */
+		};
+		i2c@1 { /* SFP1_IIC */
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <1>;
+			/* SFP1 */
+		};
+		i2c@2 { /* QSFP1_I2C */
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <2>;
+			/* QSFP1 */
+		};
+		/* 3 - 7 unused */
+	};
 };
 
 &xilinx_ams {
