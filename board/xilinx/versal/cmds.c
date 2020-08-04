@@ -16,7 +16,7 @@ static int do_versal_load_pdi(struct cmd_tbl *cmdtp, int flag, int argc,
 			      char * const argv[])
 {
 	u32 buf_lo, buf_hi;
-	u32 ret_payload[5];
+	u32 ret_payload[PAYLOAD_ARG_CNT];
 	ulong addr, *pdi_buf;
 	size_t len;
 	int ret;
