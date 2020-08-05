@@ -33,6 +33,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SYSFW_CFG_RM			"rm-cfg.bin"
 #define SYSFW_CFG_SEC			"sec-cfg.bin"
 
+/*
+ * It is assumed that remoteproc device 0 is the corresponding
+ * system-controller that runs SYSFW. Make sure DT reflects the same.
+ */
+#define K3_SYSTEM_CONTROLLER_RPROC_ID	0
+
 static bool sysfw_loaded;
 static void *sysfw_load_address;
 
@@ -72,6 +78,26 @@ static int fit_get_data_by_name(const void *fit, int images, const char *name,
 	return fit_image_get_data(fit, node_offset, addr, size);
 }
 
+static void k3_start_system_controller(int rproc_id, bool rproc_loaded,
+				       ulong addr, ulong size)
+{
+	int ret;
+
+	ret = rproc_dev_init(rproc_id);
+	if (ret)
+		panic("rproc failed to be initialized (%d)\n", ret);
+
+	if (!rproc_loaded) {
+		ret = rproc_load(rproc_id, addr, size);
+		if (ret)
+			panic("Firmware failed to start on rproc (%d)\n", ret);
+	}
+
+	ret = rproc_start(0);
+	if (ret)
+		panic("Firmware init failed on rproc (%d)\n", ret);
+}
+
 static void k3_sysfw_load_using_fit(void *fit)
 {
 	int images;
@@ -91,23 +117,9 @@ static void k3_sysfw_load_using_fit(void *fit)
 		panic("Error accessing %s node in FIT (%d)\n", SYSFW_FIRMWARE,
 		      ret);
 
-	/*
-	 * Start up system controller firmware
-	 *
-	 * It is assumed that remoteproc device 0 is the corresponding
-	 * system-controller that runs SYSFW. Make sure DT reflects the same.
-	 */
-	ret = rproc_dev_init(0);
-	if (ret)
-		panic("rproc failed to be initialized (%d)\n", ret);
-
-	ret = rproc_load(0, (ulong)sysfw_addr, (ulong)sysfw_size);
-	if (ret)
-		panic("Firmware failed to start on rproc (%d)\n", ret);
-
-	ret = rproc_start(0);
-	if (ret)
-		panic("Firmware init failed on rproc (%d)\n", ret);
+	/* Start up system controller firmware */
+	k3_start_system_controller(K3_SYSTEM_CONTROLLER_RPROC_ID, false,
+				   (ulong)sysfw_addr, (ulong)sysfw_size);
 }
 
 static void k3_sysfw_configure_using_fit(void *fit,
@@ -223,13 +235,21 @@ static void *k3_sysfw_get_spi_addr(void)
 }
 #endif
 
-void k3_sysfw_loader(void (*config_pm_pre_callback) (void),
+void k3_sysfw_loader(bool rom_loaded_sysfw,
+		     void (*config_pm_pre_callback)(void),
 		     void (*config_pm_done_callback)(void))
 {
 	struct spl_image_info spl_image = { 0 };
 	struct spl_boot_device bootdev = { 0 };
 	struct ti_sci_handle *ti_sci;
 	int ret = 0;
+
+	if (rom_loaded_sysfw) {
+		k3_start_system_controller(K3_SYSTEM_CONTROLLER_RPROC_ID,
+					   rom_loaded_sysfw, 0, 0);
+		sysfw_loaded = true;
+		return;
+	}
 
 	/* Reserve a block of aligned memory for loading the SYSFW image */
 	sysfw_load_address = memalign(ARCH_DMA_MINALIGN,

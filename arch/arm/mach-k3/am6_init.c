@@ -216,7 +216,7 @@ void board_init_f(ulong dummy)
 	 * Load, start up, and configure system controller firmware while
 	 * also populating the SYSFW post-PM configuration callback hook.
 	 */
-	k3_sysfw_loader(k3_mmc_stop_clock, k3_mmc_restart_clock);
+	k3_sysfw_loader(false, k3_mmc_stop_clock, k3_mmc_restart_clock);
 
 	/* Prepare console output */
 	preloader_console_init();
