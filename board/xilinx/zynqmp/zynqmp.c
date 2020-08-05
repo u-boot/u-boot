@@ -148,7 +148,7 @@ static char *zynqmp_get_silicon_idcode_name(void)
 {
 	u32 i;
 	u32 idcode, idcode2;
-	static char name[ZYNQMP_VERSION_SIZE];
+	char name[ZYNQMP_VERSION_SIZE];
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 
 	xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0, ret_payload);
@@ -176,7 +176,7 @@ static char *zynqmp_get_silicon_idcode_name(void)
 		return "unknown";
 
 	/* Add device prefix to the name */
-	strncat(name, "zu", 2);
+	strncpy(name, "zu", ZYNQMP_VERSION_SIZE);
 	strncat(&name[2], simple_itoa(zynqmp_devices[i].device), 2);
 
 	if (zynqmp_devices[i].variants & ZYNQMP_VARIANT_EV) {
@@ -226,7 +226,7 @@ static char *zynqmp_get_silicon_idcode_name(void)
 		debug("Variant not identified\n");
 	}
 
-	return name;
+	return strdup(name);
 }
 #endif
 
