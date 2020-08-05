@@ -177,7 +177,8 @@ void board_init_f(ulong dummy)
 	 * callback hook, effectively switching on (or over) the console
 	 * output.
 	 */
-	k3_sysfw_loader(false, k3_mmc_stop_clock, k3_mmc_restart_clock);
+	k3_sysfw_loader(is_rom_loaded_sysfw(&bootdata),
+			k3_mmc_stop_clock, k3_mmc_restart_clock);
 
 	/* Prepare console output */
 	preloader_console_init();

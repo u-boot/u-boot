@@ -72,6 +72,14 @@ void mmr_unlock(phys_addr_t base, u32 partition)
 	writel(CTRLMMR_LOCK_KICK1_UNLOCK_VAL, part_base + CTRLMMR_LOCK_KICK1);
 }
 
+bool is_rom_loaded_sysfw(struct rom_extended_boot_data *data)
+{
+	if (strncmp(data->header, K3_ROM_BOOT_HEADER_MAGIC, 7))
+		return false;
+
+	return data->num_components > 1;
+}
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_K3_EARLY_CONS

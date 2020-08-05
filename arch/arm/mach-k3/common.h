@@ -7,6 +7,7 @@
  */
 
 #include <asm/armv7_mpu.h>
+#include <asm/hardware.h>
 
 #define J721E  0xbb64
 #define J7200  0xbb6d
@@ -26,3 +27,4 @@ int load_firmware(char *name_fw, char *name_loadaddr, u32 *loadaddr);
 void k3_sysfw_print_ver(void);
 void spl_enable_dcache(void);
 void mmr_unlock(phys_addr_t base, u32 partition);
+bool is_rom_loaded_sysfw(struct rom_extended_boot_data *data);
