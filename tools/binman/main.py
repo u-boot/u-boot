@@ -10,7 +10,6 @@
 """See README for more information"""
 
 from distutils.sysconfig import get_python_lib
-import glob
 import os
 import site
 import sys
@@ -78,20 +77,9 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
 
     return test_util.ReportResult('binman', test_name, result)
 
-def GetEntryModules(include_testing=True):
-    """Get a set of entry class implementations
-
-    Returns:
-        Set of paths to entry class filenames
-    """
-    glob_list = glob.glob(os.path.join(our_path, 'etype/*.py'))
-    return set([os.path.splitext(os.path.basename(item))[0]
-                for item in glob_list
-                if include_testing or '_testing' not in item])
-
 def RunTestCoverage(toolpath):
     """Run the tests and check that we get 100% coverage"""
-    glob_list = GetEntryModules(False)
+    glob_list = control.GetEntryModules(False)
     all_set = set([os.path.splitext(os.path.basename(item))[0]
                    for item in glob_list if '_testing' not in item])
     extra_args = ''
@@ -127,7 +115,7 @@ def RunBinman(args):
                                 args.toolpath)
 
     elif args.cmd == 'entry-docs':
-        control.WriteEntryDocs(GetEntryModules())
+        control.WriteEntryDocs(control.GetEntryModules())
 
     else:
         try:

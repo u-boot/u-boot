@@ -24,7 +24,6 @@ from binman import control
 from binman import elf
 from binman import elf_test
 from binman import fmap_util
-from binman import main
 from binman import state
 from dtoc import fdt
 from dtoc import fdt_util
@@ -1440,14 +1439,14 @@ class TestFunctional(unittest.TestCase):
     def testEntryDocs(self):
         """Test for creation of entry documentation"""
         with test_util.capture_sys_output() as (stdout, stderr):
-            control.WriteEntryDocs(main.GetEntryModules())
+            control.WriteEntryDocs(control.GetEntryModules())
         self.assertTrue(len(stdout.getvalue()) > 0)
 
     def testEntryDocsMissing(self):
         """Test handling of missing entry documentation"""
         with self.assertRaises(ValueError) as e:
             with test_util.capture_sys_output() as (stdout, stderr):
-                control.WriteEntryDocs(main.GetEntryModules(), 'u_boot')
+                control.WriteEntryDocs(control.GetEntryModules(), 'u_boot')
         self.assertIn('Documentation is missing for modules: u_boot',
                       str(e.exception))
 
