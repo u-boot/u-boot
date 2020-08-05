@@ -362,7 +362,8 @@ void spl_board_init(void)
 	int ret;
 #endif
 
-	if (IS_ENABLED(CONFIG_TARGET_J721E_A72_EVM) &&
+	if ((IS_ENABLED(CONFIG_TARGET_J721E_A72_EVM) ||
+	     IS_ENABLED(CONFIG_TARGET_J7200_A72_EVM)) &&
 	    IS_ENABLED(CONFIG_TI_I2C_BOARD_DETECT))
 		probe_daughtercards();
 
