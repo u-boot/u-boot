@@ -361,6 +361,9 @@ void start_non_linux_remote_cores(void)
 	int size = 0, ret;
 	u32 loadaddr = 0;
 
+	if (!soc_is_j721e())
+		return;
+
 	size = load_firmware("name_mainr5f0_0fw", "addr_mainr5f0_0load",
 			     &loadaddr);
 	if (size <= 0)

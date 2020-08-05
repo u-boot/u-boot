@@ -8,6 +8,8 @@
 
 #include <asm/armv7_mpu.h>
 
+#define J721E  0xbb64
+
 struct fwl_data {
 	const char *name;
 	u16 fwl_id;

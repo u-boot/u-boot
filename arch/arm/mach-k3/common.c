@@ -345,6 +345,16 @@ int print_cpuinfo(void)
 }
 #endif
 
+bool soc_is_j721e(void)
+{
+	u32 soc;
+
+	soc = (readl(CTRLMMR_WKUP_JTAG_ID) &
+		JTAG_ID_PARTNO_MASK) >> JTAG_ID_PARTNO_SHIFT;
+
+	return soc == J721E;
+}
+
 #ifdef CONFIG_ARM64
 void board_prep_linux(bootm_headers_t *images)
 {
