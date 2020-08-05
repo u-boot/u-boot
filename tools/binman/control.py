@@ -123,7 +123,7 @@ def ReadEntry(image_fname, entry_path, decomp=True):
         data extracted from the entry
     """
     global Image
-    from image import Image
+    from binman.image import Image
 
     image = Image.FromFile(image_fname)
     entry = image.FindEntryPath(entry_path)
@@ -496,7 +496,7 @@ def Binman(args):
         return 0
 
     # Put these here so that we can import this module without libfdt
-    from image import Image
+    from binman.image import Image
     from binman import state
 
     if args.cmd in ['ls', 'extract', 'replace']:

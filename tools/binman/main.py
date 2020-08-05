@@ -61,7 +61,6 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
     from binman import fdt_test
     from binman import ftest
     from binman import image_test
-    from binman import test
     import doctest
 
     result = unittest.TestResult()

@@ -29,7 +29,7 @@ from dtoc import fdt
 from dtoc import fdt_util
 from binman.etype import fdtmap
 from binman.etype import image_header
-from image import Image
+from binman.image import Image
 from patman import command
 from patman import test_util
 from patman import tools
