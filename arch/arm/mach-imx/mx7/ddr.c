@@ -106,6 +106,15 @@ void mx7_dram_cfg(struct ddrc *ddrc_regs_val, struct ddrc_mp *ddrc_mp_val,
 	       ~DDR_PHY_CMD_SDLL_CON0_CTRL_RESYNC_MASK,
 	       &ddr_phy_regs->cmd_sdll_con0);
 	writel(ddr_phy_regs_val->offset_lp_con0, &ddr_phy_regs->offset_lp_con0);
+	writel(ddr_phy_regs_val->cmd_deskew_con0,
+	       &ddr_phy_regs->cmd_deskew_con0);
+	writel(ddr_phy_regs_val->cmd_deskew_con1,
+	       &ddr_phy_regs->cmd_deskew_con1);
+	writel(ddr_phy_regs_val->cmd_deskew_con2,
+	       &ddr_phy_regs->cmd_deskew_con2);
+	writel(ddr_phy_regs_val->cmd_deskew_con3,
+	       &ddr_phy_regs->cmd_deskew_con3);
+	writel(ddr_phy_regs_val->cmd_lvl_con0, &ddr_phy_regs->cmd_lvl_con0);
 
 	/* calibration */
 	for (i = 0; i < calib_param->num_val; i++)

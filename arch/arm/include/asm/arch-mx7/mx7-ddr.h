@@ -136,11 +136,21 @@ struct ddr_phy {
 	u32 offset_wr_con0;	/* 0x0030 */
 	u32 reserved5[0x07];
 	u32 cmd_sdll_con0;	/* 0x0050 */
-	u32 reserved6[0x12];
+	u32 reserved6[0x06];
+	u32 cmd_lvl_con0;	/* 0x006c */
+	u32 reserved7[0x02];
+	u32 cmd_lvl_con3;	/* 0x0078 */
+	u32 cmd_deskew_con0;	/* 0x007c */
+	u32 cmd_deskew_con1;	/* 0x0080 */
+	u32 cmd_deskew_con2;	/* 0x0084 */
+	u32 cmd_deskew_con3;	/* 0x0088 */
+	u32 reserved8[0x02];
+	u32 cmd_deskew_con4;	/* 0x0094 */
+	u32 reserved9;
 	u32 drvds_con0;		/* 0x009c */
-	u32 reserved7[0x04];
+	u32 reserved10[0x04];
 	u32 mdll_con0;		/* 0x00b0 */
-	u32 reserved8[0x03];
+	u32 reserved11[0x03];
 	u32 zq_con0;		/* 0x00c0 */
 };
 
