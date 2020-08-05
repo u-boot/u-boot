@@ -21,4 +21,11 @@
 #define JTAG_ID_PARTNO_SHIFT	12
 #define JTAG_ID_PARTNO_MASK	(0xffff << 12)
 
+#define K3_ROM_BOOT_HEADER_MAGIC	"EXTBOOT"
+
+struct rom_extended_boot_data {
+	char header[8];
+	u32 num_components;
+};
+
 #endif /* _ASM_ARCH_HARDWARE_H_ */

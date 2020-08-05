@@ -126,10 +126,13 @@ void k3_mmc_restart_clock(void)
  * it to the .data section.
  */
 u32 bootindex __attribute__((section(".data")));
+static struct rom_extended_boot_data bootdata __section(.data);
 
-static void store_boot_index_from_rom(void)
+static void store_boot_info_from_rom(void)
 {
 	bootindex = *(u32 *)(CONFIG_SYS_K3_BOOT_PARAM_TABLE_INDEX);
+	memcpy(&bootdata, (uintptr_t *)ROM_ENTENDED_BOOT_DATA_INFO,
+	       sizeof(struct rom_extended_boot_data));
 }
 
 void board_init_f(ulong dummy)
@@ -142,7 +145,7 @@ void board_init_f(ulong dummy)
 	 * Cannot delay this further as there is a chance that
 	 * K3_BOOT_PARAM_TABLE_INDEX can be over written by SPL MALLOC section.
 	 */
-	store_boot_index_from_rom();
+	store_boot_info_from_rom();
 
 	/* Make all control module registers accessible */
 	ctrl_mmr_unlock();
