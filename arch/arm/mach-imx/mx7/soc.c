@@ -13,6 +13,7 @@
 #include <asm/mach-imx/hab.h>
 #include <asm/mach-imx/rdc-sema.h>
 #include <asm/arch/imx-rdc.h>
+#include <asm/mach-imx/boot_mode.h>
 #include <asm/arch/crm_regs.h>
 #include <dm.h>
 #include <env.h>
@@ -409,6 +410,13 @@ void s_init(void)
 
 	return;
 }
+
+#ifndef CONFIG_SPL_BUILD
+const struct boot_mode soc_boot_modes[] = {
+	{"normal",	MAKE_CFGVAL(0x00, 0x00, 0x00, 0x00)},
+	{NULL,		0},
+};
+#endif
 
 void reset_misc(void)
 {

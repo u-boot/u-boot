@@ -103,14 +103,20 @@ void init_src(void)
 #ifdef CONFIG_CMD_BMODE
 void boot_mode_apply(unsigned cfg_val)
 {
-	unsigned reg;
+#ifdef CONFIG_MX6
+	const u32 bmode = IMX6_SRC_GPR10_BMODE;
+#elif CONFIG_MX7
+	const u32 bmode = IMX7_SRC_GPR10_BMODE;
+#endif
 	struct src *psrc = (struct src *)SRC_BASE_ADDR;
+	unsigned reg;
+
 	writel(cfg_val, &psrc->gpr9);
 	reg = readl(&psrc->gpr10);
 	if (cfg_val)
-		reg |= IMX6_SRC_GPR10_BMODE;
+		reg |= bmode;
 	else
-		reg &= ~IMX6_SRC_GPR10_BMODE;
+		reg &= ~bmode;
 	writel(reg, &psrc->gpr10);
 }
 #endif
