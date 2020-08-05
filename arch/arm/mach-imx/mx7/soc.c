@@ -418,6 +418,13 @@ const struct boot_mode soc_boot_modes[] = {
 	{"secondary",	MAKE_CFGVAL_SECONDARY_BOOT},
 	{NULL,		0},
 };
+
+int boot_mode_getprisec(void)
+{
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
+
+	return !!(readl(&psrc->gpr10) & IMX7_SRC_GPR10_PERSIST_SECONDARY_BOOT);
+}
 #endif
 
 void reset_misc(void)
