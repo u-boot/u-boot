@@ -79,6 +79,7 @@ struct bd_info;
 
 #ifdef CONFIG_MX6
 #define IMX6_SRC_GPR10_BMODE			BIT(28)
+#define IMX6_SRC_GPR10_PERSIST_SECONDARY_BOOT	BIT(30)
 
 #define IMX6_BMODE_MASK			GENMASK(7, 0)
 #define	IMX6_BMODE_SHIFT		4
@@ -128,6 +129,7 @@ void gpr_init(void);
 
 #ifdef CONFIG_MX7
 #define IMX7_SRC_GPR10_BMODE			BIT(28)
+#define IMX7_SRC_GPR10_PERSIST_SECONDARY_BOOT	BIT(30)
 #endif
 
 /* address translation table */

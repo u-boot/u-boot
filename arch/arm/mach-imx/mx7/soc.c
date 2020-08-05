@@ -414,6 +414,8 @@ void s_init(void)
 #ifndef CONFIG_SPL_BUILD
 const struct boot_mode soc_boot_modes[] = {
 	{"normal",	MAKE_CFGVAL(0x00, 0x00, 0x00, 0x00)},
+	{"primary",	MAKE_CFGVAL_PRIMARY_BOOT},
+	{"secondary",	MAKE_CFGVAL_SECONDARY_BOOT},
 	{NULL,		0},
 };
 #endif
