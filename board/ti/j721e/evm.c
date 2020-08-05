@@ -28,6 +28,8 @@
 #define board_is_j721e_som()	(board_ti_k3_is("J721EX-PM1-SOM") || \
 				 board_ti_k3_is("J721EX-PM2-SOM"))
 
+#define board_is_j7200_som()	board_ti_k3_is("J7200X-PM1-SOM")
+
 /* Max number of MAC addresses that are parsed/processed per daughter card */
 #define DAUGHTER_CARD_NO_OF_MAC_ADDR	8
 
@@ -139,6 +141,8 @@ static void setup_board_eeprom_env(void)
 
 	if (board_is_j721e_som())
 		name = "j721e";
+	else if (board_is_j7200_som())
+		name = "j7200";
 	else
 		printf("Unidentified board claims %s in eeprom header\n",
 		       board_ti_get_name());
