@@ -199,7 +199,6 @@ uint32_t lpddr4_init(lpddr4_privatedata * pd, const lpddr4_config * cfg)
 {
 	uint32_t result = 0U;
 	uint16_t productid = 0U;
-	uint32_t version[2] = { 0, 0 };
 
 	result = lpddr4_initsf(pd, cfg);
 	if (result == (uint32_t) CDN_EOK) {
@@ -209,20 +208,7 @@ uint32_t lpddr4_init(lpddr4_privatedata * pd, const lpddr4_config * cfg)
 						     CPS_REG_READ(&
 								  (ctlregbase->
 								   LPDDR4__CONTROLLER_ID__REG))));
-		version[0] =
-		    (uint32_t) (CPS_FLD_READ
-				(LPDDR4__CONTROLLER_VERSION_0__FLD,
-				 CPS_REG_READ(&
-					      (ctlregbase->
-					       LPDDR4__CONTROLLER_VERSION_0__REG))));
-		version[1] =
-		    (uint32_t) (CPS_FLD_READ
-				(LPDDR4__CONTROLLER_VERSION_1__FLD,
-				 CPS_REG_READ(&
-					      (ctlregbase->
-					       LPDDR4__CONTROLLER_VERSION_1__REG))));
-		if ((productid == PRODUCT_ID) && (version[0] == VERSION_0)
-		    && (version[1] == VERSION_1)) {
+		if (productid == PRODUCT_ID) {
 			/* Populating configuration data to pD */
 			pd->ctlbase = ctlregbase;
 			pd->infohandler =
