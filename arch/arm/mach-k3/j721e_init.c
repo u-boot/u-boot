@@ -64,16 +64,6 @@ struct fwl_data cbass_hc_cfg0_fwls[] = {
 #endif
 #endif
 
-static void mmr_unlock(u32 base, u32 partition)
-{
-	/* Translate the base address */
-	phys_addr_t part_base = base + partition * CTRL_MMR0_PARTITION_SIZE;
-
-	/* Unlock the requested partition if locked using two-step sequence */
-	writel(CTRLMMR_LOCK_KICK0_UNLOCK_VAL, part_base + CTRLMMR_LOCK_KICK0);
-	writel(CTRLMMR_LOCK_KICK1_UNLOCK_VAL, part_base + CTRLMMR_LOCK_KICK1);
-}
-
 static void ctrl_mmr_unlock(void)
 {
 	/* Unlock all WKUP_CTRL_MMR0 module registers */
