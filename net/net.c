@@ -409,6 +409,10 @@ int net_loop(enum proto_t protocol)
 	int ret = -EINVAL;
 	enum net_loop_state prev_net_state = net_state;
 
+#if defined(CONFIG_CMD_PING)
+	if (protocol != PING)
+		net_ping_ip.s_addr = 0;
+#endif
 	net_restarted = 0;
 	net_dev_exists = 0;
 	net_try_count = 1;

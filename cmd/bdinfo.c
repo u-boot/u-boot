@@ -9,6 +9,7 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <lmb.h>
 #include <net.h>
 #include <vsprintf.h>
 #include <asm/cache.h>
@@ -33,9 +34,10 @@ static void print_eth(int idx)
 	printf("%-12s= %s\n", name, val);
 }
 
-static void print_lnum(const char *name, unsigned long long value)
+static void print_phys_addr(const char *name, phys_addr_t value)
 {
-	printf("%-12s= 0x%.8llX\n", name, value);
+	printf("%-12s= 0x%.*llx\n", name, 2 * (int)sizeof(ulong),
+	       (unsigned long long)value);
 }
 
 void bdinfo_print_mhz(const char *name, unsigned long hz)
@@ -74,7 +76,7 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	bdinfo_print_num("boot_params", (ulong)bd->bi_boot_params);
 	print_bi_dram(bd);
 	bdinfo_print_num("memstart", (ulong)bd->bi_memstart);
-	print_lnum("memsize", (u64)bd->bi_memsize);
+	print_phys_addr("memsize", bd->bi_memsize);
 	bdinfo_print_num("flashstart", (ulong)bd->bi_flashstart);
 	bdinfo_print_num("flashsize", (ulong)bd->bi_flashsize);
 	bdinfo_print_num("flashoffset", (ulong)bd->bi_flashoffset);
@@ -96,6 +98,12 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 #if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
 	bdinfo_print_num("multi_dtb_fit", (ulong)gd->multi_dtb_fit);
 #endif
+	if (gd->fdt_blob) {
+		struct lmb lmb;
+
+		lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
+		lmb_dump_all_force(&lmb);
+	}
 
 	arch_print_bdinfo();
 

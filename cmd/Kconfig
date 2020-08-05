@@ -1148,6 +1148,14 @@ config CMD_MMC_SWRITE
 
 endif
 
+config CMD_CLONE
+	bool "clone"
+	depends on BLK
+	help
+	  Enable storage cloning over block devices, useful for
+	  initial flashing by external block device without network
+	  or usb support.
+
 config CMD_MTD
 	bool "mtd"
 	depends on MTD

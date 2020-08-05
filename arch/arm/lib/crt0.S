@@ -64,7 +64,7 @@
  * can afford it due to sufficient memory being available early.
  */
 
-.macro SPL_CLEAR_BSS
+.macro CLEAR_BSS
 	ldr	r0, =__bss_start	/* this is auto-relocated! */
 
 #ifdef CONFIG_USE_ARCH_MEMSET
@@ -109,8 +109,8 @@ ENTRY(_main)
 	mov	r9, r0
 	bl	board_init_f_init_reserve
 
-#if defined(CONFIG_SPL_EARLY_BSS)
-	SPL_CLEAR_BSS
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_EARLY_BSS)
+	CLEAR_BSS
 #endif
 
 	mov	r0, #0
@@ -150,8 +150,8 @@ here:
 #endif
 #if !defined(CONFIG_SPL_BUILD) || CONFIG_IS_ENABLED(FRAMEWORK)
 
-#if !defined(CONFIG_SPL_EARLY_BSS)
-	SPL_CLEAR_BSS
+#if !defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SPL_EARLY_BSS)
+	CLEAR_BSS
 #endif
 
 # ifdef CONFIG_SPL_BUILD

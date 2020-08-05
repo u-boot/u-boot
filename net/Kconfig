@@ -59,4 +59,13 @@ config TFTP_BLOCKSIZE
 	  almost-MTU block sizes.
 	  You can also activate CONFIG_IP_DEFRAG to set a larger block.
 
+config TFTP_WINDOWSIZE
+	int "TFTP window size"
+	default 1
+	help
+	  Default TFTP window size.
+	  RFC7440 defines an optional window size of transmits,
+	  before an ack response is required.
+	  The default TFTP implementation implies a window size of 1.
+
 endif   # if NET

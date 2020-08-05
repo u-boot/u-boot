@@ -6,4 +6,5 @@ Build U-Boot
 .. toctree::
    :maxdepth: 2
 
+   clang
    tools

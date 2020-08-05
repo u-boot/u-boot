@@ -952,8 +952,8 @@ static int flash_read_buf(int dev, int fd, void *buf, size_t count,
 			return -1;
 		}
 		if (rc != readlen) {
-			fprintf(stderr, "Read error on %s: "
-				"Attempted to read %d bytes but got %d\n",
+			fprintf(stderr,
+				"Read error on %s: Attempted to read %zd bytes but got %d\n",
 				DEVNAME(dev), readlen, rc);
 			return -1;
 		}
@@ -995,7 +995,7 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 				   of the data */
 	loff_t blockstart;	/* running start of the current block -
 				   MEMGETBADBLOCK needs 64 bits */
-	int was_locked;		/* flash lock flag */
+	int was_locked = 0;	/* flash lock flag */
 	int rc;
 
 	/*

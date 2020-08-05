@@ -425,7 +425,6 @@ extern int soft_i2c_gpio_scl;
 
 #ifdef CONFIG_USB_KEYBOARD
 #define CONSOLE_STDIN_SETTINGS \
-	"preboot=usb start\0" \
 	"stdin=serial,usbkbd\0"
 #else
 #define CONSOLE_STDIN_SETTINGS \

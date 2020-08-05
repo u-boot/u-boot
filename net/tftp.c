@@ -5,7 +5,6 @@
  * Copyright 2011 Comelit Group SpA,
  *                Luca Ceresoli <luca.ceresoli@comelit.it>
  */
-
 #include <common.h>
 #include <command.h>
 #include <efi_loader.h>
@@ -98,6 +97,12 @@ static int	tftp_tsize;
 /* The number of hashes we printed */
 static short	tftp_tsize_num_hash;
 #endif
+/* The window size negotiated */
+static ushort	tftp_windowsize;
+/* Next block to send ack to */
+static ushort	tftp_next_ack;
+/* Last nack block we send */
+static ushort	tftp_last_nack;
 #ifdef CONFIG_CMD_TFTPPUT
 /* 1 if writing, else 0 */
 static int	tftp_put_active;
@@ -138,8 +143,19 @@ static char tftp_filename[MAX_LEN];
  * (but those using CONFIG_IP_DEFRAG may want to set a larger block in cfg file)
  */
 
+/* When windowsize is defined to 1,
+ * tftp behaves the same way as it was
+ * never declared
+ */
+#ifdef CONFIG_TFTP_WINDOWSIZE
+#define TFTP_WINDOWSIZE CONFIG_TFTP_WINDOWSIZE
+#else
+#define TFTP_WINDOWSIZE 1
+#endif
+
 static unsigned short tftp_block_size = TFTP_BLOCK_SIZE;
 static unsigned short tftp_block_size_option = CONFIG_TFTP_BLOCKSIZE;
+static unsigned short tftp_window_size_option = TFTP_WINDOWSIZE;
 
 static inline int store_block(int block, uchar *src, unsigned int len)
 {
@@ -356,6 +372,14 @@ static void tftp_send(void)
 		/* try for more effic. blk size */
 		pkt += sprintf((char *)pkt, "blksize%c%d%c",
 				0, tftp_block_size_option, 0);
+
+		/* try for more effic. window size.
+		 * Implemented only for tftp get.
+		 * Don't bother sending if it's 1
+		 */
+		if (tftp_state == STATE_SEND_RRQ && tftp_window_size_option > 1)
+			pkt += sprintf((char *)pkt, "windowsize%c%d%c",
+					0, tftp_window_size_option, 0);
 		len = pkt - xp;
 		break;
 
@@ -550,7 +574,17 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 				      (char *)pkt + i + 6, tftp_tsize);
 			}
 #endif
+			if (strcasecmp((char *)pkt + i,  "windowsize") == 0) {
+				tftp_windowsize =
+					simple_strtoul((char *)pkt + i + 11,
+						       NULL, 10);
+				debug("windowsize = %s, %d\n",
+				      (char *)pkt + i + 11, tftp_windowsize);
+			}
 		}
+
+		tftp_next_ack = tftp_windowsize;
+
 #ifdef CONFIG_CMD_TFTPPUT
 		if (tftp_put_active && tftp_state == STATE_OACK) {
 			/* Get ready to send the first block */
@@ -564,7 +598,28 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		if (len < 2)
 			return;
 		len -= 2;
-		tftp_cur_block = ntohs(*(__be16 *)pkt);
+
+		if (ntohs(*(__be16 *)pkt) != (ushort)(tftp_cur_block + 1)) {
+			debug("Received unexpected block: %d, expected: %d\n",
+			      ntohs(*(__be16 *)pkt),
+			      (ushort)(tftp_cur_block + 1));
+			/*
+			 * If one packet is dropped most likely
+			 * all other buffers in the window
+			 * that will arrive will cause a sending NACK.
+			 * This just overwellms the server, let's just send one.
+			 */
+			if (tftp_last_nack != tftp_cur_block) {
+				tftp_send();
+				tftp_last_nack = tftp_cur_block;
+				tftp_next_ack = (ushort)(tftp_cur_block +
+							 tftp_windowsize);
+			}
+			break;
+		}
+
+		tftp_cur_block++;
+		tftp_cur_block %= TFTP_SEQUENCE_SIZE;
 
 		if (tftp_state == STATE_SEND_RRQ)
 			debug("Server did not acknowledge any options!\n");
@@ -606,10 +661,15 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		 *	Acknowledge the block just received, which will prompt
 		 *	the remote for the next one.
 		 */
-		tftp_send();
+		if (tftp_cur_block == tftp_next_ack) {
+			tftp_send();
+			tftp_next_ack += tftp_windowsize;
+		}
 
-		if (len < tftp_block_size)
+		if (len < tftp_block_size) {
+			tftp_send();
 			tftp_complete();
+		}
 		break;
 
 	case TFTP_ERROR:
@@ -683,6 +743,10 @@ void tftp_start(enum proto_t protocol)
 	if (ep != NULL)
 		tftp_block_size_option = simple_strtol(ep, NULL, 10);
 
+	ep = env_get("tftpwindowsize");
+	if (ep != NULL)
+		tftp_window_size_option = simple_strtol(ep, NULL, 10);
+
 	ep = env_get("tftptimeout");
 	if (ep != NULL)
 		timeout_ms = simple_strtol(ep, NULL, 10);
@@ -704,8 +768,8 @@ void tftp_start(enum proto_t protocol)
 	}
 #endif
 
-	debug("TFTP blocksize = %i, timeout = %ld ms\n",
-	      tftp_block_size_option, timeout_ms);
+	debug("TFTP blocksize = %i, TFTP windowsize = %d timeout = %ld ms\n",
+	      tftp_block_size_option, tftp_window_size_option, timeout_ms);
 
 	tftp_remote_ip = net_server_ip;
 	if (!net_parse_bootfile(&tftp_remote_ip, tftp_filename, MAX_LEN)) {
@@ -801,7 +865,8 @@ void tftp_start(enum proto_t protocol)
 		tftp_our_port = simple_strtol(ep, NULL, 10);
 #endif
 	tftp_cur_block = 0;
-
+	tftp_windowsize = 1;
+	tftp_last_nack = 0;
 	/* zero out server ether in case the server ip has changed */
 	memset(net_server_ethaddr, 0, 6);
 	/* Revert tftp_block_size to dflt */

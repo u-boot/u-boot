@@ -266,7 +266,7 @@ static void parse_config_file(const char *p)
 		    (q - p == 9 && !memcmp(p, "IS_MODULE(", 10)) ||
 		    (q - p == 3 && !memcmp(p, "VAL(", 4))) {
 			p = q + 1;
-			q  = p;
+			q = p;
 			while (isalnum(*q) || *q == '_')
 				q++;
 			r = q;
