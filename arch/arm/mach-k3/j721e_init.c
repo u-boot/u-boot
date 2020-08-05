@@ -87,9 +87,9 @@ static void ctrl_mmr_unlock(void)
 	mmr_unlock(CTRL_MMR0_BASE, 1);
 	mmr_unlock(CTRL_MMR0_BASE, 2);
 	mmr_unlock(CTRL_MMR0_BASE, 3);
-	mmr_unlock(CTRL_MMR0_BASE, 4);
 	mmr_unlock(CTRL_MMR0_BASE, 5);
-	mmr_unlock(CTRL_MMR0_BASE, 6);
+	if (soc_is_j721e())
+		mmr_unlock(CTRL_MMR0_BASE, 6);
 	mmr_unlock(CTRL_MMR0_BASE, 7);
 }
 
