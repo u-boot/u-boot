@@ -100,6 +100,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 }
 #endif
 
+#ifdef CONFIG_TI_I2C_BOARD_DETECT
 int do_board_detect(void)
 {
 	int ret;
@@ -336,14 +337,17 @@ static int probe_daughtercards(void)
 
 	return 0;
 }
+#endif
 
 int board_late_init(void)
 {
-	setup_board_eeprom_env();
-	setup_serial();
+	if (IS_ENABLED(CONFIG_TI_I2C_BOARD_DETECT)) {
+		setup_board_eeprom_env();
+		setup_serial();
 
-	/* Check for and probe any plugged-in daughtercards */
-	probe_daughtercards();
+		/* Check for and probe any plugged-in daughtercards */
+		probe_daughtercards();
+	}
 
 	return 0;
 }
@@ -355,7 +359,9 @@ void spl_board_init(void)
 	int ret;
 #endif
 
-	probe_daughtercards();
+	if (IS_ENABLED(CONFIG_TARGET_J721E_A72_EVM) &&
+	    IS_ENABLED(CONFIG_TI_I2C_BOARD_DETECT))
+		probe_daughtercards();
 
 #ifdef CONFIG_ESM_K3
 	if (board_ti_k3_is("J721EX-PM2-SOM")) {
