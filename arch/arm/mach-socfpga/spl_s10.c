@@ -81,6 +81,7 @@ void board_init_f(ulong dummy)
 #endif
 
 	preloader_console_init();
+	print_reset_info();
 	cm_print_clock_quick_summary();
 
 	firewall_setup();

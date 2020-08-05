@@ -104,3 +104,25 @@ int cpu_has_been_warmreset(void)
 	return readl(socfpga_get_rstmgr_addr() + RSTMGR_SOC64_STATUS) &
 			RSTMGR_L4WD_MPU_WARMRESET_MASK;
 }
+
+void print_reset_info(void)
+{
+	bool iswd;
+	int n;
+	u32 stat = cpu_has_been_warmreset();
+
+	printf("Reset state: %s%s", stat ? "Warm " : "Cold",
+	       (stat & RSTMGR_STAT_SDMWARMRST) ? "[from SDM] " : "");
+
+	stat &= ~RSTMGR_STAT_SDMWARMRST;
+	if (!stat) {
+		puts("\n");
+		return;
+	}
+
+	n = generic_ffs(stat) - 1;
+	iswd = (n >= RSTMGR_STAT_L4WD0RST_BITPOS);
+	printf("(Triggered by %s %d)\n", iswd ? "Watchdog" : "MPU",
+	       iswd ? (n - RSTMGR_STAT_L4WD0RST_BITPOS) :
+	       (n - RSTMGR_STAT_MPU0RST_BITPOS));
+}

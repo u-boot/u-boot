@@ -8,6 +8,7 @@
 
 void reset_deassert_peripherals_handoff(void);
 int cpu_has_been_warmreset(void);
+void print_reset_info(void);
 void socfpga_bridges_reset(int enable);
 
 #define RSTMGR_SOC64_STATUS	0x00
