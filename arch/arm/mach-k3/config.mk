@@ -58,10 +58,16 @@ SPL_ITS := u-boot-spl-k3.its
 INPUTS-y	+= tispl.bin
 endif
 
+ifeq ($(CONFIG_SPL_OF_LIST),)
+LIST_OF_DTB := $(CONFIG_DEFAULT_DEVICE_TREE)
+else
+LIST_OF_DTB := $(CONFIG_SPL_OF_LIST)
+endif
+
 quiet_cmd_k3_mkits = MKITS   $@
 cmd_k3_mkits = \
 	$(srctree)/tools/k3_fit_atf.sh \
-	$(patsubst %,$(obj)/dts/%.dtb,$(subst ",,$(CONFIG_SPL_OF_LIST))) > $@
+	$(patsubst %,$(obj)/dts/%.dtb,$(subst ",,$(LIST_OF_DTB))) > $@
 
 $(SPL_ITS): FORCE
 	$(call cmd,k3_mkits)
