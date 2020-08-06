@@ -9,6 +9,9 @@
 		tick-timer = &timer1;
 	};
 
+	aliases {
+		ethernet0 = &cpsw_port1;
+	};
 };
 
 &chipid {
@@ -101,6 +104,18 @@
 
 &exp2 {
 	u-boot,dm-spl;
+};
+
+&mcu_cpsw {
+	reg = <0x0 0x46000000 0x0 0x200000>,
+	      <0x0 0x40f00200 0x0 0x8>;
+	reg-names = "cpsw_nuss", "mac_efuse";
+
+	cpsw-phy-sel@40f04040 {
+		compatible = "ti,am654-cpsw-phy-sel";
+		reg= <0x0 0x40f04040 0x0 0x4>;
+		reg-names = "gmii-sel";
+	};
 };
 
 &main_usbss0_pins_default {
