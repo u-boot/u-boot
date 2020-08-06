@@ -270,8 +270,7 @@ static int do_bcb_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static int do_bcb_store(struct cmd_tbl *cmdtp, int flag, int argc,
-			char *const argv[])
+static int __bcb_store(void)
 {
 	struct blk_desc *desc;
 	struct disk_partition info;
@@ -300,6 +299,12 @@ err:
 	printf("Error: mmc %d:%d write failed (%d)\n", bcb_dev, bcb_part, ret);
 
 	return CMD_RET_FAILURE;
+}
+
+static int do_bcb_store(struct cmd_tbl *cmdtp, int flag, int argc,
+			char * const argv[])
+{
+	return __bcb_store();
 }
 
 static struct cmd_tbl cmd_bcb_sub[] = {
