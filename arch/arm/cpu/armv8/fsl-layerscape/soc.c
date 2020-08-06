@@ -45,7 +45,22 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_GIC_V3_ITS
 int ls_gic_rd_tables_init(void *blob)
 {
-	int ret;
+	struct fdt_memory lpi_base;
+	fdt_addr_t addr;
+	fdt_size_t size;
+	int offset, ret;
+
+	offset = fdt_path_offset(gd->fdt_blob, "/syscon@0x80000000");
+	addr = fdtdec_get_addr_size_auto_noparent(gd->fdt_blob, offset, "reg",
+						  0, &size, false);
+
+	lpi_base.start = addr;
+	lpi_base.end = addr + size - 1;
+	ret = fdtdec_add_reserved_memory(blob, "lpi_rd_table", &lpi_base, NULL);
+	if (ret) {
+		debug("%s: failed to add reserved memory\n", __func__);
+		return ret;
+	}
 
 	ret = gic_lpi_tables_init();
 	if (ret)
