@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2020 Eugeniu Rosca <rosca.eugeniu@gmail.com>
+ *
+ * Android Bootloader Control Block Header
+ */
+
+#ifndef __BCB_H__
+#define __BCB_H__
+
+#include <common.h>
+
+#if CONFIG_IS_ENABLED(CMD_BCB)
+int bcb_write_reboot_reason(int devnum, char *partp, char *reasonp);
+#else
+static inline int bcb_write_reboot_reason(int devnum, char *partp, char *reasonp)
+{
+	return -EOPNOTSUPP;
+}
+#endif
+
+#endif /* __BCB_H__ */

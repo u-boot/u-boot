@@ -6,6 +6,7 @@
  */
 
 #include <android_bootloader_message.h>
+#include <bcb.h>
 #include <command.h>
 #include <common.h>
 #include <log.h>
@@ -305,6 +306,25 @@ static int do_bcb_store(struct cmd_tbl *cmdtp, int flag, int argc,
 			char * const argv[])
 {
 	return __bcb_store();
+}
+
+int bcb_write_reboot_reason(int devnum, char *partp, char *reasonp)
+{
+	int ret;
+
+	ret = __bcb_load(devnum, partp);
+	if (ret != CMD_RET_SUCCESS)
+		return ret;
+
+	ret = __bcb_set("command", reasonp);
+	if (ret != CMD_RET_SUCCESS)
+		return ret;
+
+	ret = __bcb_store();
+	if (ret != CMD_RET_SUCCESS)
+		return ret;
+
+	return 0;
 }
 
 static struct cmd_tbl cmd_bcb_sub[] = {
