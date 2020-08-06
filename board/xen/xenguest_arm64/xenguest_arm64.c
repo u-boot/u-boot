@@ -17,8 +17,11 @@
 #include <asm/armv8/mmu.h>
 #include <asm/xen.h>
 #include <asm/xen/hypercall.h>
+#include <asm/xen/system.h>
 
 #include <linux/compiler.h>
+
+#include <xen/hvm.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -56,9 +59,28 @@ static int get_next_memory_node(const void *blob, int mem)
 
 static int setup_mem_map(void)
 {
-	int i, ret, mem, reg = 0;
+	int i = 0, ret, mem, reg = 0;
 	struct fdt_resource res;
 	const void *blob = gd->fdt_blob;
+	u64 gfn;
+
+	/*
+	 * Add "magic" region which is used by Xen to provide some essentials
+	 * for the guest: we need console.
+	 */
+	ret = hvm_get_parameter_maintain_dcache(HVM_PARAM_CONSOLE_PFN, &gfn);
+	if (ret < 0) {
+		printf("%s: Can't get HVM_PARAM_CONSOLE_PFN, ret %d\n",
+		       __func__, ret);
+		return -EINVAL;
+	}
+
+	xen_mem_map[i].virt = PFN_PHYS(gfn);
+	xen_mem_map[i].phys = PFN_PHYS(gfn);
+	xen_mem_map[i].size = PAGE_SIZE;
+	xen_mem_map[i].attrs = (PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+				PTE_BLOCK_INNER_SHARE);
+	i++;
 
 	mem = get_next_memory_node(blob, -1);
 	if (mem < 0) {
@@ -66,7 +88,7 @@ static int setup_mem_map(void)
 		return -EINVAL;
 	}
 
-	for (i = 0; i < MAX_MEM_MAP_REGIONS; i++) {
+	for (; i < MAX_MEM_MAP_REGIONS; i++) {
 		ret = fdt_get_resource(blob, mem, "reg", reg++, &res);
 		if (ret == -FDT_ERR_NOTFOUND) {
 			reg = 0;
@@ -143,10 +165,5 @@ int print_cpuinfo(void)
 {
 	printf("Xen virtual CPU\n");
 	return 0;
-}
-
-__weak struct serial_device *default_serial_console(void)
-{
-	return NULL;
 }
 

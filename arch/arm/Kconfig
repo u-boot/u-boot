@@ -1755,6 +1755,7 @@ config TARGET_XENGUEST_ARM64
 	select XEN
 	select OF_CONTROL
 	select LINUX_KERNEL_IMAGE_HEADER
+	select XEN_SERIAL
 endchoice
 
 config ARCH_SUPPORT_TFABOOT
