@@ -21,6 +21,7 @@
 
 #include <linux/compiler.h>
 
+#include <xen/gnttab.h>
 #include <xen/hvm.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -63,6 +64,8 @@ static int setup_mem_map(void)
 	struct fdt_resource res;
 	const void *blob = gd->fdt_blob;
 	u64 gfn;
+	phys_addr_t gnttab_base;
+	phys_size_t gnttab_sz;
 
 	/*
 	 * Add "magic" region which is used by Xen to provide some essentials
@@ -92,6 +95,16 @@ static int setup_mem_map(void)
 	xen_mem_map[i].virt = PFN_PHYS(gfn);
 	xen_mem_map[i].phys = PFN_PHYS(gfn);
 	xen_mem_map[i].size = PAGE_SIZE;
+	xen_mem_map[i].attrs = (PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+				PTE_BLOCK_INNER_SHARE);
+	i++;
+
+	/* Get Xen's suggested physical page assignments for the grant table. */
+	get_gnttab_base(&gnttab_base, &gnttab_sz);
+
+	xen_mem_map[i].virt = gnttab_base;
+	xen_mem_map[i].phys = gnttab_base;
+	xen_mem_map[i].size = gnttab_sz;
 	xen_mem_map[i].attrs = (PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 				PTE_BLOCK_INNER_SHARE);
 	i++;

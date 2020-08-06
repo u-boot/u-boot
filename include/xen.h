@@ -8,7 +8,8 @@
 /**
  * xen_init() - Xen initialization
  *
- * Map Xen memory pages, initialize event handler and xenbus.
+ * Map Xen memory pages, initialize event handler and xenbus,
+ * setup the grant table.
  */
 void xen_init(void);
 
