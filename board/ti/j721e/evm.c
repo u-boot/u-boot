@@ -89,6 +89,34 @@ int board_fit_config_name_match(const char *name)
 }
 #endif
 
+#if CONFIG_IS_ENABLED(DM_GPIO) && CONFIG_IS_ENABLED(OF_LIBFDT)
+/* Returns 1, if onboard mux is set to hyperflash */
+static void __maybe_unused detect_enable_hyperflash(void *blob)
+{
+	struct gpio_desc desc = {0};
+
+	if (dm_gpio_lookup_name("6", &desc))
+		return;
+
+	if (dm_gpio_request(&desc, "6"))
+		return;
+
+	if (dm_gpio_set_dir_flags(&desc, GPIOD_IS_IN))
+		return;
+
+	if (dm_gpio_get_value(&desc)) {
+		int offset;
+
+		do_fixup_by_compat(blob, "ti,am654-hbmc", "status",
+				   "okay", sizeof("okay"), 0);
+		offset = fdt_node_offset_by_compatible(blob, -1,
+						       "ti,j721e-ospi");
+		fdt_setprop(blob, offset, "status", "disabled",
+			    sizeof("disabled"));
+	}
+}
+#endif
+
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
@@ -100,6 +128,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 					 "sram@70000000");
 	if (ret)
 		printf("%s: fixing up msmc ram failed %d\n", __func__, ret);
+
+	detect_enable_hyperflash(blob);
 
 	return ret;
 }
