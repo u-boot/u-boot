@@ -80,6 +80,10 @@ config SPL_SPRINTF
 config TPL_SPRINTF
 	bool
 
+config SSCANF
+	bool
+	default n
+
 config STRTO
 	bool
 	default y
