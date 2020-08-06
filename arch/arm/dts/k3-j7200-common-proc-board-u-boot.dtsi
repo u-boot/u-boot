@@ -102,3 +102,17 @@
 &exp2 {
 	u-boot,dm-spl;
 };
+
+&main_usbss0_pins_default {
+	u-boot,dm-spl;
+};
+
+&usbss0 {
+	u-boot,dm-spl;
+	ti,usb2-only;
+};
+
+&usb0 {
+	dr_mode = "peripheral";
+	u-boot,dm-spl;
+};
