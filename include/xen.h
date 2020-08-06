@@ -13,4 +13,12 @@
  */
 void xen_init(void);
 
+/**
+ * xen_fini() - Board cleanup before Linux kernel start
+ *
+ * Unmap Xen memory pages the specified guest's pseudophysical
+ * address space and unbind all event channels.
+ */
+void xen_fini(void);
+
 #endif /* __XEN_H__ */
