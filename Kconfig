@@ -105,6 +105,24 @@ config CC_COVERAGE
 config CC_HAS_ASM_INLINE
 	def_bool $(success,echo 'void foo(void) { asm inline (""); }' | $(CC) -x c - -c -o /dev/null)
 
+config XEN
+	bool "Select U-Boot be run as a bootloader for XEN Virtual Machine"
+	help
+	  Enabling this option will make U-Boot be run as a bootloader
+	  for XEN [1] Virtual Machine.
+
+	  Xen is a virtual machine monitor (VMM) or a type-1 hypervisor with support
+	  for para-virtualization. Xen can organize the safe execution of several
+	  virtual machines on the same physical system with performance close to
+	  native. It is used as the basis for a number of different commercial and
+	  open source applications, such as: server virtualization, Infrastructure
+	  as a Service (IaaS), desktop virtualization, security applications,
+	  embedded and hardware appliances.
+	  Xen has a special VM called Domain-0 that runs the Dom0 kernel and allows
+	  Xen to use the device drivers for the Domain-0 kernel by default.
+
+	  [1] - https://xenproject.org/
+
 config DISTRO_DEFAULTS
 	bool "Select defaults suitable for booting general purpose Linux distributions"
 	select AUTO_COMPLETE
