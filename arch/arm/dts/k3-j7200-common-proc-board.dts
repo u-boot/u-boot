@@ -21,6 +21,12 @@
 			J721E_WKUP_IOPAD(0x104, PIN_INPUT_PULLUP, 0) /* (H21) WKUP_I2C0_SDA */
 		>;
 	};
+
+	wkup_gpio_pins_default: wkup-gpio-pins-default {
+		pinctrl-single,pins = <
+			J721E_WKUP_IOPAD(0xd8, PIN_INPUT, 7) /* (C14) WKUP_GPIO0_6 */
+		>;
+	};
 };
 
 &main_pmx0 {
@@ -138,4 +144,9 @@
 &usb0 {
 	dr_mode = "otg";
 	maximum-speed = "high-speed";
+};
+
+&wkup_gpio0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&wkup_gpio_pins_default>;
 };
