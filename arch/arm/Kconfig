@@ -1749,6 +1749,12 @@ config TARGET_PRESIDIO_ASIC
 	bool "Support Cortina Presidio ASIC Platform"
 	select ARM64
 
+config TARGET_XENGUEST_ARM64
+	bool "Xen guest ARM64"
+	select ARM64
+	select XEN
+	select OF_CONTROL
+	select LINUX_KERNEL_IMAGE_HEADER
 endchoice
 
 config ARCH_SUPPORT_TFABOOT
@@ -1955,6 +1961,7 @@ source "board/xilinx/Kconfig"
 source "board/xilinx/zynq/Kconfig"
 source "board/xilinx/zynqmp/Kconfig"
 source "board/phytium/durian/Kconfig"
+source "board/xen/xenguest_arm64/Kconfig"
 
 source "arch/arm/Kconfig.debug"
 

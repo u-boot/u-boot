@@ -1,0 +1,7 @@
+XEN GUEST FOR ARM64
+M:	Andrii Anisov <andrii_anisov@epam.com>
+S:	Maintained
+F:	board/xen/xenguest_arm64/
+F:	doc/board/xen/
+F:	include/configs/xenguest_arm64.h
+F:	configs/xenguest_arm64_defconfig
