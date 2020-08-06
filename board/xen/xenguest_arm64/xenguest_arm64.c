@@ -66,11 +66,25 @@ static int setup_mem_map(void)
 
 	/*
 	 * Add "magic" region which is used by Xen to provide some essentials
-	 * for the guest: we need console.
+	 * for the guest: we need console and xenstore.
 	 */
 	ret = hvm_get_parameter_maintain_dcache(HVM_PARAM_CONSOLE_PFN, &gfn);
 	if (ret < 0) {
 		printf("%s: Can't get HVM_PARAM_CONSOLE_PFN, ret %d\n",
+		       __func__, ret);
+		return -EINVAL;
+	}
+
+	xen_mem_map[i].virt = PFN_PHYS(gfn);
+	xen_mem_map[i].phys = PFN_PHYS(gfn);
+	xen_mem_map[i].size = PAGE_SIZE;
+	xen_mem_map[i].attrs = (PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+				PTE_BLOCK_INNER_SHARE);
+	i++;
+
+	ret = hvm_get_parameter_maintain_dcache(HVM_PARAM_STORE_PFN, &gfn);
+	if (ret < 0) {
+		printf("%s: Can't get HVM_PARAM_STORE_PFN, ret %d\n",
 		       __func__, ret);
 		return -EINVAL;
 	}

@@ -4,3 +4,4 @@
 
 obj-y += hypervisor.o
 obj-y += events.o
+obj-y += xenbus.o
