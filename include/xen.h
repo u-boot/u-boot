@@ -8,7 +8,7 @@
 /**
  * xen_init() - Xen initialization
  *
- * Map Xen memory pages.
+ * Map Xen memory pages, initialize event handler.
  */
 void xen_init(void);
 
