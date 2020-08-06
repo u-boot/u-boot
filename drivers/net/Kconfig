@@ -427,7 +427,7 @@ config SH_ETHER
 source "drivers/net/ti/Kconfig"
 
 config XILINX_AXIEMAC
-	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
+	depends on DM_ETH
 	select PHYLIB
 	select MII
 	bool "Xilinx AXI Ethernet"
@@ -435,7 +435,7 @@ config XILINX_AXIEMAC
 	  This MAC is present in Xilinx Microblaze, Zynq and ZynqMP SoCs.
 
 config XILINX_EMACLITE
-	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP || MIPS)
+	depends on DM_ETH
 	select PHYLIB
 	select MII
 	bool "Xilinx Ethernetlite"
@@ -443,7 +443,7 @@ config XILINX_EMACLITE
 	  This MAC is present in Xilinx Microblaze, Zynq and ZynqMP SoCs.
 
 config ZYNQ_GEM
-	depends on DM_ETH && (ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL)
+	depends on DM_ETH
 	select PHYLIB
 	bool "Xilinx Ethernet GEM"
 	help

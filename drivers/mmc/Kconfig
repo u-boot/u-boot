@@ -626,7 +626,6 @@ config TEGRA124_MMC_DISABLE_EXT_LOOPBACK
 
 config MMC_SDHCI_ZYNQ
 	bool "Arasan SDHCI controller support"
-	depends on ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL
 	depends on DM_MMC && OF_CONTROL && BLK
 	depends on MMC_SDHCI
 	help

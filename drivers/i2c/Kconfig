@@ -80,7 +80,7 @@ config SYS_I2C_FSL
 
 config SYS_I2C_CADENCE
 	tristate "Cadence I2C Controller"
-	depends on DM_I2C && (ARCH_ZYNQ || ARM64)
+	depends on DM_I2C
 	help
 	  Say yes here to select Cadence I2C Host Controller. This controller is
 	  e.g. used by Xilinx Zynq.
