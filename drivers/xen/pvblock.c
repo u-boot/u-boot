@@ -793,6 +793,24 @@ fail:
 	return ret;
 }
 
+static void print_pvblock_devices(void)
+{
+	struct udevice *udev;
+	bool first = true;
+	const char *class_name;
+
+	class_name = uclass_get_name(UCLASS_PVBLOCK);
+	for (blk_first_device(IF_TYPE_PVBLOCK, &udev); udev;
+	     blk_next_device(&udev), first = false) {
+		struct blk_desc *desc = dev_get_uclass_platdata(udev);
+
+		if (!first)
+			puts(", ");
+		printf("%s: %d", class_name, desc->devnum);
+	}
+	printf("\n");
+}
+
 void pvblock_init(void)
 {
 	struct driver_info info;
@@ -815,6 +833,8 @@ void pvblock_init(void)
 	if (ret)
 		return;
 	uclass_foreach_dev_probe(UCLASS_PVBLOCK, udev);
+
+	print_pvblock_devices();
 }
 
 static int pvblock_probe(struct udevice *udev)
