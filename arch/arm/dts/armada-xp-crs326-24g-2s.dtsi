@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Device Tree file for CRS305-1G-4S board
+ * Device Tree file for CRS326-24G-2S board
  *
  * Copyright (C) 2016 Allied Telesis Labs
  * Copyright (C) 2020 Sartura Ltd.
@@ -19,10 +19,10 @@
 
 /dts-v1/;
 #include "armada-xp-98dx3236.dtsi"
-#include "armada-xp-crs305-1g-4s-u-boot.dtsi"
+#include "armada-xp-crs326-24g-2s-u-boot.dtsi"
 
 / {
-	model = "CRS305-1G-4S+";
+	model = "CRS326-24G-2S+";
 	compatible = "marvell,armadaxp-98dx3236", "marvell,armadaxp-mv78260", "marvell,armadaxp", "marvell,armada-370-xp";
 
 	chosen {
@@ -106,6 +106,5 @@
 			reg = <0x00200000 0x00e00000>;
 			label = "ubi1";
 		};
-
 	};
 };
