@@ -56,6 +56,9 @@
 #include <timer.h>
 #include <trace.h>
 #include <watchdog.h>
+#ifdef CONFIG_XEN
+#include <xen.h>
+#endif
 #ifdef CONFIG_ADDR_MAP
 #include <asm/mmu.h>
 #endif
@@ -465,6 +468,13 @@ static int initr_mmc(void)
 }
 #endif
 
+#ifdef CONFIG_XEN
+static int initr_xen(void)
+{
+	xen_init();
+	return 0;
+}
+#endif
 /*
  * Tell if it's OK to load the environment early in boot.
  *
@@ -761,6 +771,9 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_MMC
 	initr_mmc,
+#endif
+#ifdef CONFIG_XEN
+	initr_xen,
 #endif
 	initr_env,
 #ifdef CONFIG_SYS_BOOTPARAMS_LEN

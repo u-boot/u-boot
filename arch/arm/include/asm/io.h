@@ -110,8 +110,12 @@ static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
  * have some advantages to use them instead of the simple one here.
  */
 #define mb()		dsb()
+#define rmb()		dsb()
+#define wmb()		dsb()
 #define __iormb()	dmb()
 #define __iowmb()	dmb()
+
+#define smp_processor_id()	0
 
 #define writeb(v,c)	({ u8  __v = v; __iowmb(); __arch_putb(__v,c); __v; })
 #define writew(v,c)	({ u16 __v = v; __iowmb(); __arch_putw(__v,c); __v; })
