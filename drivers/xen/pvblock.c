@@ -14,6 +14,7 @@
 #include <asm/io.h>
 #include <asm/xen/system.h>
 
+#include <linux/bug.h>
 #include <linux/compat.h>
 
 #include <xen/events.h>
@@ -30,6 +31,7 @@
 
 #define O_RDONLY	00
 #define O_RDWR		02
+#define WAIT_RING_TO_MS	10
 
 struct blkfront_info {
 	u64 sectors;
@@ -65,11 +67,41 @@ struct blkfront_dev {
 	char *backend;
 	struct blkfront_info info;
 	unsigned int devid;
+	u8 *bounce_buffer;
 };
 
 struct blkfront_platdata {
 	unsigned int devid;
 };
+
+/**
+ * struct blkfront_aiocb - AIO сontrol block
+ * @aio_dev: Blockfront device
+ * @aio_buf: Memory buffer, which must be sector-aligned for
+ *	     @aio_dev sector
+ * @aio_nbytes: Size of AIO, which must be less than @aio_dev
+ *		sector-sized amounts
+ * @aio_offset: Offset, which must not go beyond @aio_dev
+ *		sector-aligned location
+ * @data: Data used to receiving response from ring
+ * @gref: Array of grant references
+ * @n: Number of segments
+ * @aio_cb: Represents one I/O request.
+ */
+struct blkfront_aiocb {
+	struct blkfront_dev *aio_dev;
+	u8 *aio_buf;
+	size_t aio_nbytes;
+	off_t aio_offset;
+	void *data;
+
+	grant_ref_t gref[BLKIF_MAX_SEGMENTS_PER_REQUEST];
+	int n;
+
+	void (*aio_cb)(struct blkfront_aiocb *aiocb, int ret);
+};
+
+static void blkfront_sync(struct blkfront_dev *dev);
 
 static void free_blkfront(struct blkfront_dev *dev)
 {
@@ -81,14 +113,9 @@ static void free_blkfront(struct blkfront_dev *dev)
 
 	unbind_evtchn(dev->evtchn);
 
+	free(dev->bounce_buffer);
 	free(dev->nodename);
 	free(dev);
-}
-
-static void blkfront_handler(evtchn_port_t port, struct pt_regs *regs,
-			     void *data)
-{
-	printf("%s [Port %d] - event received\n", __func__, port);
 }
 
 static int init_blkfront(unsigned int devid, struct blkfront_dev *dev)
@@ -111,7 +138,7 @@ static int init_blkfront(unsigned int devid, struct blkfront_dev *dev)
 
 	snprintf(path, sizeof(path), "%s/backend-id", nodename);
 	dev->dom = xenbus_read_integer(path);
-	evtchn_alloc_unbound(dev->dom, blkfront_handler, dev, &dev->evtchn);
+	evtchn_alloc_unbound(dev->dom, NULL, dev, &dev->evtchn);
 
 	s = (struct blkif_sring *)memalign(PAGE_SIZE, PAGE_SIZE);
 	if (!s) {
@@ -232,8 +259,16 @@ done:
 	}
 	unmask_evtchn(dev->evtchn);
 
-	debug("%llu sectors of %u bytes\n",
-	      dev->info.sectors, dev->info.sector_size);
+	dev->bounce_buffer = memalign(dev->info.sector_size,
+				      dev->info.sector_size);
+	if (!dev->bounce_buffer) {
+		printf("Failed to allocate bouncing buffer\n");
+		goto error;
+	}
+
+	debug("%llu sectors of %u bytes, bounce buffer at %p\n",
+	      dev->info.sectors, dev->info.sector_size,
+	      dev->bounce_buffer);
 
 	return 0;
 
@@ -253,6 +288,8 @@ static void shutdown_blkfront(struct blkfront_dev *dev)
 	char nodename[strlen(dev->nodename) + strlen("/event-channel") + 1];
 
 	debug("Close " DRV_NAME ", device ID %d\n", dev->devid);
+
+	blkfront_sync(dev);
 
 	snprintf(path, sizeof(path), "%s/state", dev->backend);
 	snprintf(nodename, sizeof(nodename), "%s/state", dev->nodename);
@@ -308,16 +345,315 @@ close:
 		free_blkfront(dev);
 }
 
+/**
+ * blkfront_aio_poll() - AIO polling function.
+ * @dev: Blkfront device
+ *
+ * Here we receive response from the ring and check its status. This happens
+ * until we read all data from the ring. We read the data from consumed pointer
+ * to the response pointer. Then increase consumed pointer to make it clear that
+ * the data has been read.
+ *
+ * Return: Number of consumed bytes.
+ */
+static int blkfront_aio_poll(struct blkfront_dev *dev)
+{
+	RING_IDX rp, cons;
+	struct blkif_response *rsp;
+	int more;
+	int nr_consumed;
+
+moretodo:
+	rp = dev->ring.sring->rsp_prod;
+	rmb(); /* Ensure we see queued responses up to 'rp'. */
+	cons = dev->ring.rsp_cons;
+
+	nr_consumed = 0;
+	while ((cons != rp)) {
+		struct blkfront_aiocb *aiocbp;
+		int status;
+
+		rsp = RING_GET_RESPONSE(&dev->ring, cons);
+		nr_consumed++;
+
+		aiocbp = (void *)(uintptr_t)rsp->id;
+		status = rsp->status;
+
+		switch (rsp->operation) {
+		case BLKIF_OP_READ:
+		case BLKIF_OP_WRITE:
+		{
+			int j;
+
+			if (status != BLKIF_RSP_OKAY)
+				printf("%s error %d on %s at offset %llu, num bytes %llu\n",
+				       rsp->operation == BLKIF_OP_READ ?
+				       "read" : "write",
+				       status, aiocbp->aio_dev->nodename,
+				       (unsigned long long)aiocbp->aio_offset,
+				       (unsigned long long)aiocbp->aio_nbytes);
+
+			for (j = 0; j < aiocbp->n; j++)
+				gnttab_end_access(aiocbp->gref[j]);
+
+			break;
+		}
+
+		case BLKIF_OP_WRITE_BARRIER:
+			if (status != BLKIF_RSP_OKAY)
+				printf("write barrier error %d\n", status);
+			break;
+		case BLKIF_OP_FLUSH_DISKCACHE:
+			if (status != BLKIF_RSP_OKAY)
+				printf("flush error %d\n", status);
+			break;
+
+		default:
+			printf("unrecognized block operation %d response (status %d)\n",
+			       rsp->operation, status);
+			break;
+		}
+
+		dev->ring.rsp_cons = ++cons;
+		/* Nota: callback frees aiocbp itself */
+		if (aiocbp && aiocbp->aio_cb)
+			aiocbp->aio_cb(aiocbp, status ? -EIO : 0);
+		if (dev->ring.rsp_cons != cons)
+			/* We reentered, we must not continue here */
+			break;
+	}
+
+	RING_FINAL_CHECK_FOR_RESPONSES(&dev->ring, more);
+	if (more)
+		goto moretodo;
+
+	return nr_consumed;
+}
+
+static void blkfront_wait_slot(struct blkfront_dev *dev)
+{
+	/* Wait for a slot */
+	if (RING_FULL(&dev->ring)) {
+		while (true) {
+			blkfront_aio_poll(dev);
+			if (!RING_FULL(&dev->ring))
+				break;
+			wait_event_timeout(NULL, !RING_FULL(&dev->ring),
+					   WAIT_RING_TO_MS);
+		}
+	}
+}
+
+/**
+ * blkfront_aio_poll() - Issue an aio.
+ * @aiocbp: AIO control block structure
+ * @write: Describes is it read or write operation
+ *	   0 - read
+ *	   1 - write
+ *
+ * We check whether the AIO parameters meet the requirements of the device.
+ * Then receive request from ring and define its arguments. After this we
+ * grant access to the grant references. The last step is notifying about AIO
+ * via event channel.
+ */
+static void blkfront_aio(struct blkfront_aiocb *aiocbp, int write)
+{
+	struct blkfront_dev *dev = aiocbp->aio_dev;
+	struct blkif_request *req;
+	RING_IDX i;
+	int notify;
+	int n, j;
+	uintptr_t start, end;
+
+	/* Can't io at non-sector-aligned location */
+	BUG_ON(aiocbp->aio_offset & (dev->info.sector_size - 1));
+	/* Can't io non-sector-sized amounts */
+	BUG_ON(aiocbp->aio_nbytes & (dev->info.sector_size - 1));
+	/* Can't io non-sector-aligned buffer */
+	BUG_ON(((uintptr_t)aiocbp->aio_buf & (dev->info.sector_size - 1)));
+
+	start = (uintptr_t)aiocbp->aio_buf & PAGE_MASK;
+	end = ((uintptr_t)aiocbp->aio_buf + aiocbp->aio_nbytes +
+	       PAGE_SIZE - 1) & PAGE_MASK;
+	n = (end - start) / PAGE_SIZE;
+	aiocbp->n = n;
+
+	BUG_ON(n > BLKIF_MAX_SEGMENTS_PER_REQUEST);
+
+	blkfront_wait_slot(dev);
+	i = dev->ring.req_prod_pvt;
+	req = RING_GET_REQUEST(&dev->ring, i);
+
+	req->operation = write ? BLKIF_OP_WRITE : BLKIF_OP_READ;
+	req->nr_segments = n;
+	req->handle = dev->handle;
+	req->id = (uintptr_t)aiocbp;
+	req->sector_number = aiocbp->aio_offset / dev->info.sector_size;
+
+	for (j = 0; j < n; j++) {
+		req->seg[j].first_sect = 0;
+		req->seg[j].last_sect = PAGE_SIZE / dev->info.sector_size - 1;
+	}
+	req->seg[0].first_sect = ((uintptr_t)aiocbp->aio_buf & ~PAGE_MASK) /
+		dev->info.sector_size;
+	req->seg[n - 1].last_sect = (((uintptr_t)aiocbp->aio_buf +
+		aiocbp->aio_nbytes - 1) & ~PAGE_MASK) / dev->info.sector_size;
+	for (j = 0; j < n; j++) {
+		uintptr_t data = start + j * PAGE_SIZE;
+
+		if (!write) {
+			/* Trigger CoW if needed */
+			*(char *)(data + (req->seg[j].first_sect *
+					  dev->info.sector_size)) = 0;
+			barrier();
+		}
+		req->seg[j].gref = gnttab_grant_access(dev->dom,
+						       virt_to_pfn((void *)data),
+						       write);
+		aiocbp->gref[j] = req->seg[j].gref;
+	}
+
+	dev->ring.req_prod_pvt = i + 1;
+
+	wmb();
+	RING_PUSH_REQUESTS_AND_CHECK_NOTIFY(&dev->ring, notify);
+
+	if (notify)
+		notify_remote_via_evtchn(dev->evtchn);
+}
+
+static void blkfront_aio_cb(struct blkfront_aiocb *aiocbp, int ret)
+{
+	aiocbp->data = (void *)1;
+	aiocbp->aio_cb = NULL;
+}
+
+static void blkfront_io(struct blkfront_aiocb *aiocbp, int write)
+{
+	aiocbp->aio_cb = blkfront_aio_cb;
+	blkfront_aio(aiocbp, write);
+	aiocbp->data = NULL;
+
+	while (true) {
+		blkfront_aio_poll(aiocbp->aio_dev);
+		if (aiocbp->data)
+			break;
+		cpu_relax();
+	}
+}
+
+static void blkfront_push_operation(struct blkfront_dev *dev, u8 op,
+				    uint64_t id)
+{
+	struct blkif_request *req;
+	int notify, i;
+
+	blkfront_wait_slot(dev);
+	i = dev->ring.req_prod_pvt;
+	req = RING_GET_REQUEST(&dev->ring, i);
+	req->operation = op;
+	req->nr_segments = 0;
+	req->handle = dev->handle;
+	req->id = id;
+	req->sector_number = 0;
+	dev->ring.req_prod_pvt = i + 1;
+	wmb();
+	RING_PUSH_REQUESTS_AND_CHECK_NOTIFY(&dev->ring, notify);
+	if (notify)
+		notify_remote_via_evtchn(dev->evtchn);
+}
+
+static void blkfront_sync(struct blkfront_dev *dev)
+{
+	if (dev->info.mode == O_RDWR) {
+		if (dev->info.barrier == 1)
+			blkfront_push_operation(dev,
+						BLKIF_OP_WRITE_BARRIER, 0);
+
+		if (dev->info.flush == 1)
+			blkfront_push_operation(dev,
+						BLKIF_OP_FLUSH_DISKCACHE, 0);
+	}
+
+	while (true) {
+		blkfront_aio_poll(dev);
+		if (RING_FREE_REQUESTS(&dev->ring) == RING_SIZE(&dev->ring))
+			break;
+		cpu_relax();
+	}
+}
+
+/**
+ * pvblock_iop() - Issue an aio.
+ * @udev: Pvblock device
+ * @blknr: Block number to read from / write to
+ * @blkcnt: Amount of blocks to read / write
+ * @buffer: Memory buffer with data to be read / write
+ * @write: Describes is it read or write operation
+ *	   0 - read
+ *	   1 - write
+ *
+ * Depending on the operation - reading or writing, data is read / written from the
+ * specified address (@buffer) to the sector (@blknr).
+ */
+static ulong pvblock_iop(struct udevice *udev, lbaint_t blknr,
+			 lbaint_t blkcnt, void *buffer, int write)
+{
+	struct blkfront_dev *blk_dev = dev_get_priv(udev);
+	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+	struct blkfront_aiocb aiocb;
+	lbaint_t blocks_todo;
+	bool unaligned;
+
+	if (blkcnt == 0)
+		return 0;
+
+	if ((blknr + blkcnt) > desc->lba) {
+		printf(DRV_NAME ": block number 0x" LBAF " exceeds max(0x" LBAF ")\n",
+		       blknr + blkcnt, desc->lba);
+		return 0;
+	}
+
+	unaligned = (uintptr_t)buffer & (blk_dev->info.sector_size - 1);
+
+	aiocb.aio_dev = blk_dev;
+	aiocb.aio_offset = blknr * desc->blksz;
+	aiocb.aio_cb = NULL;
+	aiocb.data = NULL;
+	blocks_todo = blkcnt;
+	do {
+		aiocb.aio_buf = unaligned ? blk_dev->bounce_buffer : buffer;
+
+		if (write && unaligned)
+			memcpy(blk_dev->bounce_buffer, buffer, desc->blksz);
+
+		aiocb.aio_nbytes = unaligned ? desc->blksz :
+			min((size_t)(BLKIF_MAX_SEGMENTS_PER_REQUEST * PAGE_SIZE),
+			    (size_t)(blocks_todo * desc->blksz));
+
+		blkfront_io(&aiocb, write);
+
+		if (!write && unaligned)
+			memcpy(buffer, blk_dev->bounce_buffer, desc->blksz);
+
+		aiocb.aio_offset += aiocb.aio_nbytes;
+		buffer += aiocb.aio_nbytes;
+		blocks_todo -= aiocb.aio_nbytes / desc->blksz;
+	} while (blocks_todo > 0);
+
+	return blkcnt;
+}
+
 ulong pvblock_blk_read(struct udevice *udev, lbaint_t blknr, lbaint_t blkcnt,
 		       void *buffer)
 {
-	return 0;
+	return pvblock_iop(udev, blknr, blkcnt, buffer, 0);
 }
 
 ulong pvblock_blk_write(struct udevice *udev, lbaint_t blknr, lbaint_t blkcnt,
 			const void *buffer)
 {
-	return 0;
+	return pvblock_iop(udev, blknr, blkcnt, (void *)buffer, 1);
 }
 
 static int pvblock_blk_bind(struct udevice *udev)

@@ -107,7 +107,7 @@ void unbind_evtchn(evtchn_port_t port)
 	int rc;
 
 	if (ev_actions[port].handler == default_handler)
-		printf("WARN: No handler for port %d when unbinding\n", port);
+		debug("Default handler for port %d when unbinding\n", port);
 	mask_evtchn(port);
 	clear_evtchn(port);
 
