@@ -28,6 +28,7 @@ static const char *if_typename_str[IF_TYPE_COUNT] = {
 	[IF_TYPE_NVME]		= "nvme",
 	[IF_TYPE_EFI]		= "efi",
 	[IF_TYPE_VIRTIO]	= "virtio",
+	[IF_TYPE_PVBLOCK]	= "pvblock",
 };
 
 static enum uclass_id if_type_uclass_id[IF_TYPE_COUNT] = {
@@ -43,6 +44,7 @@ static enum uclass_id if_type_uclass_id[IF_TYPE_COUNT] = {
 	[IF_TYPE_NVME]		= UCLASS_NVME,
 	[IF_TYPE_EFI]		= UCLASS_EFI,
 	[IF_TYPE_VIRTIO]	= UCLASS_VIRTIO,
+	[IF_TYPE_PVBLOCK]	= UCLASS_PVBLOCK,
 };
 
 static enum if_type if_typename_to_iftype(const char *if_typename)

@@ -6,3 +6,5 @@ obj-y += hypervisor.o
 obj-y += events.o
 obj-y += xenbus.o
 obj-y += gnttab.o
+
+obj-$(CONFIG_PVBLOCK) += pvblock.o

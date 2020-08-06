@@ -1370,6 +1370,13 @@ config CMD_USB_MASS_STORAGE
 	help
 	  USB mass storage support
 
+config CMD_PVBLOCK
+	bool "Xen para-virtualized block device"
+	depends on XEN
+	select PVBLOCK
+	help
+	  Xen para-virtualized block device support
+
 config CMD_VIRTIO
 	bool "virtio"
 	depends on VIRTIO
