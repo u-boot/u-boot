@@ -1,11 +1,19 @@
 #ifndef _LINUX_COMPAT_H_
 #define _LINUX_COMPAT_H_
 
+#include <console.h>
 #include <log.h>
 #include <malloc.h>
+
+#include <asm/processor.h>
+
 #include <linux/types.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
+
+#ifdef CONFIG_XEN
+#include <xen/events.h>
+#endif
 
 struct unused {};
 typedef struct unused unused_t;
@@ -121,6 +129,52 @@ static inline void kmem_cache_destroy(struct kmem_cache *cachep)
 #define DECLARE_WAITQUEUE(...)	do { } while (0)
 #define add_wait_queue(...)	do { } while (0)
 #define remove_wait_queue(...)	do { } while (0)
+
+#ifndef CONFIG_XEN
+#define eventchn_poll()
+#endif
+
+#define __wait_event_timeout(condition, timeout, ret)		\
+({								\
+	ulong __ret = ret; /* explicit shadow */		\
+	ulong start = get_timer(0);				\
+	for (;;) {						\
+		eventchn_poll();				\
+		if (condition) {				\
+			__ret = 1;				\
+			break;					\
+	}							\
+	if ((get_timer(start) > timeout) || ctrlc()) {		\
+		__ret = 0;					\
+		break;						\
+	}							\
+	cpu_relax();						\
+	}							\
+	__ret;							\
+})
+
+/**
+ * wait_event_timeout() - Wait until the event occurs before the timeout.
+ * @wr_head: The wait queue to wait on.
+ * @condition: Expression for the event to wait for.
+ * @timeout: Maximum waiting time.
+ *
+ * We wait until the @condition evaluates to %true (succeed) or
+ * %false (@timeout elapsed).
+ *
+ * Return:
+ * 0 - if the @condition evaluated to %false after the @timeout elapsed
+ * 1 - if the @condition evaluated to %true
+ */
+#define wait_event_timeout(wq_head, condition, timeout)			\
+({									\
+	ulong __ret;							\
+	if (condition)							\
+		__ret = 1;						\
+	else								\
+		__ret = __wait_event_timeout(condition, timeout, __ret);\
+	__ret;								\
+})
 
 #define KERNEL_VERSION(a,b,c)	(((a) << 16) + ((b) << 8) + (c))
 

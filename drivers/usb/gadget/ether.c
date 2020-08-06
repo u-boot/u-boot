@@ -33,7 +33,6 @@
 
 #define USB_NET_NAME "usb_ether"
 
-#define atomic_read
 extern struct platform_data brd;
 
 
