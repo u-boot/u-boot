@@ -31,15 +31,15 @@ static const struct mtk_pin_field_calc mt8512_pin_di_range[] = {
 };
 
 static const struct mtk_pin_field_calc mt8512_pin_do_range[] = {
-	PIN_FIELD(0, 115, 0x860, 0x10, 0, 1),
+	PIN_FIELD(0, 115, 0x0A0, 0x10, 0, 1),
 };
 
 static const struct mtk_pin_field_calc mt8512_pin_pullen_range[] = {
-	PIN_FIELD(0, 115, 0x900, 0x10, 0, 1),
+	PIN_FIELD(0, 115, 0x860, 0x10, 0, 1),
 };
 
 static const struct mtk_pin_field_calc mt8512_pin_pullsel_range[] = {
-	PIN_FIELD(0, 115, 0x0A0, 0x10, 0, 1),
+	PIN_FIELD(0, 115, 0x900, 0x10, 0, 1),
 };
 
 static const struct mtk_pin_field_calc mt8512_pin_ies_range[] = {
