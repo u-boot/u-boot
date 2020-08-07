@@ -1024,8 +1024,12 @@ PHONY += inputs
 inputs: $(INPUTS-y)
 
 all: .binman_stamp inputs
+	# Hack for sunxi which doesn't have a proper binman definition for
+	# 64-bit boards
+ifneq ($(CONFIG_ARCH_SUNXI)$(CONFIG_ARM64),yy)
 ifeq ($(CONFIG_BINMAN),y)
 	$(call if_changed,binman)
+endif
 endif
 
 # Timestamp file to make sure that binman always runs
