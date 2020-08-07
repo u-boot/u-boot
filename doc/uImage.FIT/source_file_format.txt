@@ -172,7 +172,7 @@ the '/images' node should have the following layout:
   - os : OS name, mandatory for types "kernel" and "ramdisk". Valid OS names
     are: "openbsd", "netbsd", "freebsd", "4_4bsd", "linux", "svr4", "esix",
     "solaris", "irix", "sco", "dell", "ncr", "lynxos", "vxworks", "psos", "qnx",
-    "u_boot", "rtems", "unity", "integrity".
+    "u-boot", "rtems", "unity", "integrity".
   - arch : Architecture name, mandatory for types: "standalone", "kernel",
     "firmware", "ramdisk" and "fdt". Valid architecture names are: "alpha",
     "arm", "i386", "ia64", "mips", "mips64", "ppc", "s390", "sh", "sparc",
