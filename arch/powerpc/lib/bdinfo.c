@@ -11,6 +11,31 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+int arch_setup_bdinfo(void)
+{
+	struct bd_info *bd = gd->bd;
+
+#if defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
+	bd->bi_immr_base = CONFIG_SYS_IMMR;	/* base  of IMMR register     */
+#endif
+
+#if defined(CONFIG_MPC83xx)
+	bd->bi_immrbar = CONFIG_SYS_IMMR;
+#endif
+
+	bd->bi_intfreq = gd->cpu_clk;	/* Internal Freq, in Hz */
+	bd->bi_busfreq = gd->bus_clk;	/* Bus Freq,      in Hz */
+
+#if defined(CONFIG_CPM2)
+	bd->bi_cpmfreq = gd->arch.cpm_clk;
+	bd->bi_brgfreq = gd->arch.brg_clk;
+	bd->bi_sccfreq = gd->arch.scc_clk;
+	bd->bi_vco = gd->arch.vco_out;
+#endif /* CONFIG_CPM2 */
+
+	return 0;
+}
+
 void __weak board_detail(void)
 {
 	/* Please define board_detail() for your PPC platform */
@@ -20,10 +45,6 @@ void arch_print_bdinfo(void)
 {
 	struct bd_info *bd = gd->bd;
 
-#if defined(CONFIG_SYS_INIT_RAM_ADDR)
-	bdinfo_print_num("sramstart", (ulong)bd->bi_sramstart);
-	bdinfo_print_num("sramsize", (ulong)bd->bi_sramsize);
-#endif
 	bdinfo_print_mhz("busfreq", bd->bi_busfreq);
 #if defined(CONFIG_MPC8xx) || defined(CONFIG_E500)
 	bdinfo_print_num("immr_base", bd->bi_immr_base);

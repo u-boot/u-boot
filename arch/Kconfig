@@ -10,7 +10,6 @@ choice
 
 config ARC
 	bool "ARC architecture"
-	select ARCH_EARLY_INIT_R
 	select ARC_TIMER
 	select CLK
 	select HAVE_PRIVATE_LIBGCC

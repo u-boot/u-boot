@@ -187,12 +187,6 @@ static int initr_reloc_global_data(void)
 	return 0;
 }
 
-static int initr_serial(void)
-{
-	serial_initialize();
-	return 0;
-}
-
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_MIPS)
 static int initr_trap(void)
 {
@@ -714,12 +708,15 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	initr_dm_devices,
 	stdio_init_tables,
-	initr_serial,
+	serial_initialize,
 	initr_announce,
 #if CONFIG_IS_ENABLED(WDT)
 	initr_watchdog,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
+#if defined(CONFIG_NEEDS_MANUAL_RELOC) && defined(CONFIG_BLOCK_CACHE)
+	blkcache_init,
+#endif
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	initr_manual_reloc_cmdtable,
 #endif
@@ -853,9 +850,6 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 #if defined(CONFIG_PRAM)
 	initr_mem,
-#endif
-#if defined(CONFIG_M68K) && defined(CONFIG_BLOCK_CACHE)
-	blkcache_init,
 #endif
 	run_main_loop,
 };

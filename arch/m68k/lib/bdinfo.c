@@ -11,14 +11,31 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+int arch_setup_bdinfo(void)
+{
+	struct bd_info *bd = gd->bd;
+
+	bd->bi_mbar_base = CONFIG_SYS_MBAR; /* base of internal registers */
+
+	bd->bi_intfreq = gd->cpu_clk;	/* Internal Freq, in Hz */
+	bd->bi_busfreq = gd->bus_clk;	/* Bus Freq,      in Hz */
+
+	if (IS_ENABLED(CONFIG_PCI))
+		bd->bi_pcifreq = gd->pci_clk;
+
+#if defined(CONFIG_EXTRA_CLOCK)
+	bd->bi_inpfreq = gd->arch.inp_clk;	/* input Freq in Hz */
+	bd->bi_vcofreq = gd->arch.vco_clk;	/* vco Freq in Hz */
+	bd->bi_flbfreq = gd->arch.flb_clk;	/* flexbus Freq in Hz */
+#endif
+
+	return 0;
+}
+
 void arch_print_bdinfo(void)
 {
 	struct bd_info *bd = gd->bd;
 
-#if defined(CONFIG_SYS_INIT_RAM_ADDR)
-	bdinfo_print_num("sramstart", (ulong)bd->bi_sramstart);
-	bdinfo_print_num("sramsize", (ulong)bd->bi_sramsize);
-#endif
 	bdinfo_print_mhz("busfreq", bd->bi_busfreq);
 #if defined(CONFIG_SYS_MBAR)
 	bdinfo_print_num("mbar", bd->bi_mbar_base);

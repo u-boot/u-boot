@@ -644,11 +644,12 @@ int blk_unbind_all(int if_type)
 
 static int blk_post_probe(struct udevice *dev)
 {
-#if defined(CONFIG_PARTITIONS) && defined(CONFIG_HAVE_BLOCK_DEVICE)
-	struct blk_desc *desc = dev_get_uclass_platdata(dev);
+	if (IS_ENABLED(CONFIG_PARTITIONS) &&
+	    IS_ENABLED(CONFIG_HAVE_BLOCK_DEVICE)) {
+		struct blk_desc *desc = dev_get_uclass_platdata(dev);
 
-	part_init(desc);
-#endif
+		part_init(desc);
+	}
 
 	return 0;
 }

@@ -598,62 +598,25 @@ static int display_new_sp(void)
 	return 0;
 }
 
-#if defined(CONFIG_M68K) || defined(CONFIG_MIPS) || defined(CONFIG_PPC) || \
-	defined(CONFIG_SH)
-static int setup_board_part1(void)
+__weak int arch_setup_bdinfo(void)
+{
+	return 0;
+}
+
+int setup_bdinfo(void)
 {
 	struct bd_info *bd = gd->bd;
 
-	/*
-	 * Save local variables to board info struct
-	 */
-	bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;	/* start of memory */
-	bd->bi_memsize = gd->ram_size;			/* size in bytes */
+	bd->bi_memstart = gd->ram_base;  /* start of memory */
+	bd->bi_memsize = gd->ram_size;   /* size in bytes */
 
-#ifdef CONFIG_SYS_SRAM_BASE
-	bd->bi_sramstart = CONFIG_SYS_SRAM_BASE;	/* start of SRAM */
-	bd->bi_sramsize = CONFIG_SYS_SRAM_SIZE;		/* size  of SRAM */
-#endif
+	if (IS_ENABLED(CONFIG_SYS_HAS_SRAM)) {
+		bd->bi_sramstart = CONFIG_SYS_SRAM_BASE; /* start of SRAM */
+		bd->bi_sramsize = CONFIG_SYS_SRAM_SIZE;  /* size  of SRAM */
+	}
 
-#if defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
-	bd->bi_immr_base = CONFIG_SYS_IMMR;	/* base  of IMMR register     */
-#endif
-#if defined(CONFIG_M68K)
-	bd->bi_mbar_base = CONFIG_SYS_MBAR;	/* base of internal registers */
-#endif
-#if defined(CONFIG_MPC83xx)
-	bd->bi_immrbar = CONFIG_SYS_IMMR;
-#endif
-
-	return 0;
+	return arch_setup_bdinfo();
 }
-#endif
-
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
-static int setup_board_part2(void)
-{
-	struct bd_info *bd = gd->bd;
-
-	bd->bi_intfreq = gd->cpu_clk;	/* Internal Freq, in Hz */
-	bd->bi_busfreq = gd->bus_clk;	/* Bus Freq,      in Hz */
-#if defined(CONFIG_CPM2)
-	bd->bi_cpmfreq = gd->arch.cpm_clk;
-	bd->bi_brgfreq = gd->arch.brg_clk;
-	bd->bi_sccfreq = gd->arch.scc_clk;
-	bd->bi_vco = gd->arch.vco_out;
-#endif /* CONFIG_CPM2 */
-#if defined(CONFIG_M68K) && defined(CONFIG_PCI)
-	bd->bi_pcifreq = gd->pci_clk;
-#endif
-#if defined(CONFIG_EXTRA_CLOCK)
-	bd->bi_inpfreq = gd->arch.inp_clk;	/* input Freq in Hz */
-	bd->bi_vcofreq = gd->arch.vco_clk;	/* vco Freq in Hz */
-	bd->bi_flbfreq = gd->arch.flb_clk;	/* flexbus Freq in Hz */
-#endif
-
-	return 0;
-}
-#endif
 
 #ifdef CONFIG_POST
 static int init_post(void)
@@ -975,14 +938,8 @@ static const init_fnc_t init_sequence_f[] = {
 	reserve_stacks,
 	dram_init_banksize,
 	show_dram_config,
-#if defined(CONFIG_M68K) || defined(CONFIG_MIPS) || defined(CONFIG_PPC) || \
-	defined(CONFIG_SH)
-	setup_board_part1,
-#endif
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 	INIT_FUNC_WATCHDOG_RESET
-	setup_board_part2,
-#endif
+	setup_bdinfo,
 	display_new_sp,
 #ifdef CONFIG_OF_BOARD_FIXUP
 	fix_fdt,
