@@ -323,15 +323,15 @@ err:
 static int fit_image_setup_cipher(struct image_cipher_info *info,
 				  const char *keydir, void *fit,
 				  const char *image_name, int image_noffset,
-				  const char *node_name, int noffset)
+				  int noffset)
 {
 	char *algo_name;
 	char filename[128];
 	int ret = -1;
 
 	if (fit_image_cipher_get_algo(fit, noffset, &algo_name)) {
-		printf("Can't get algo name for cipher '%s' in image '%s'\n",
-		       node_name, image_name);
+		printf("Can't get algo name for cipher in image '%s'\n",
+		       image_name);
 		goto out;
 	}
 
@@ -340,16 +340,16 @@ static int fit_image_setup_cipher(struct image_cipher_info *info,
 	/* Read the key name */
 	info->keyname = fdt_getprop(fit, noffset, FIT_KEY_HINT, NULL);
 	if (!info->keyname) {
-		printf("Can't get key name for cipher '%s' in image '%s'\n",
-		       node_name, image_name);
+		printf("Can't get key name for cipher in image '%s'\n",
+		       image_name);
 		goto out;
 	}
 
 	/* Read the IV name */
 	info->ivname = fdt_getprop(fit, noffset, "iv-name-hint", NULL);
 	if (!info->ivname) {
-		printf("Can't get iv name for cipher '%s' in image '%s'\n",
-		       node_name, image_name);
+		printf("Can't get iv name for cipher in image '%s'\n",
+		       image_name);
 		goto out;
 	}
 
@@ -399,23 +399,24 @@ int fit_image_write_cipher(void *fit, int image_noffset, int noffset,
 {
 	int ret = -1;
 
-	/* Remove unciphered data */
-	ret = fdt_delprop(fit, image_noffset, FIT_DATA_PROP);
-	if (ret) {
-		printf("Can't remove data (err = %d)\n", ret);
-		goto out;
-	}
-
-	/* Add ciphered data */
+	/* Replace data with ciphered data */
 	ret = fdt_setprop(fit, image_noffset, FIT_DATA_PROP,
 			  data_ciphered, data_ciphered_len);
+	if (ret == -FDT_ERR_NOSPACE) {
+		ret = -ENOSPC;
+		goto out;
+	}
 	if (ret) {
-		printf("Can't add ciphered data (err = %d)\n", ret);
+		printf("Can't replace data with ciphered data (err = %d)\n", ret);
 		goto out;
 	}
 
 	/* add non ciphered data size */
 	ret = fdt_setprop_u32(fit, image_noffset, "data-size-unciphered", size);
+	if (ret == -FDT_ERR_NOSPACE) {
+		ret = -ENOSPC;
+		goto out;
+	}
 	if (ret) {
 		printf("Can't add unciphered data size (err = %d)\n", ret);
 		goto out;
@@ -428,8 +429,7 @@ int fit_image_write_cipher(void *fit, int image_noffset, int noffset,
 static int
 fit_image_process_cipher(const char *keydir, void *keydest, void *fit,
 			 const char *image_name, int image_noffset,
-			 const char *node_name, int node_noffset,
-			 const void *data, size_t size,
+			 int node_noffset, const void *data, size_t size,
 			 const char *cmdname)
 {
 	struct image_cipher_info info;
@@ -440,7 +440,7 @@ fit_image_process_cipher(const char *keydir, void *keydest, void *fit,
 	memset(&info, 0, sizeof(info));
 
 	ret = fit_image_setup_cipher(&info, keydir, fit, image_name,
-				     image_noffset, node_name, node_noffset);
+				     image_noffset, node_noffset);
 	if (ret)
 		goto out;
 
@@ -482,7 +482,7 @@ int fit_image_cipher_data(const char *keydir, void *keydest,
 	const char *image_name;
 	const void *data;
 	size_t size;
-	int node_noffset;
+	int cipher_node_offset, len;
 
 	/* Get image name */
 	image_name = fit_get_name(fit, image_noffset, NULL);
@@ -497,32 +497,33 @@ int fit_image_cipher_data(const char *keydir, void *keydest,
 		return -1;
 	}
 
-	/* Process all hash subnodes of the component image node */
-	for (node_noffset = fdt_first_subnode(fit, image_noffset);
-	     node_noffset >= 0;
-	     node_noffset = fdt_next_subnode(fit, node_noffset)) {
-		const char *node_name;
-		int ret = 0;
-
-		node_name = fit_get_name(fit, node_noffset, NULL);
-		if (!node_name) {
-			printf("Can't get node name\n");
-			return -1;
-		}
-
-		if (IMAGE_ENABLE_ENCRYPT && keydir &&
-		    !strncmp(node_name, FIT_CIPHER_NODENAME,
-			     strlen(FIT_CIPHER_NODENAME)))
-			ret = fit_image_process_cipher(keydir, keydest,
-						       fit, image_name,
-						       image_noffset,
-						       node_name, node_noffset,
-						       data, size, cmdname);
-		if (ret)
-			return ret;
+	/*
+	 * Don't cipher ciphered data.
+	 *
+	 * If the data-size-unciphered property is present the data for this
+	 * image is already encrypted. This is important as 'mkimage -F' can be
+	 * run multiple times on a FIT image.
+	 */
+	if (fdt_getprop(fit, image_noffset, "data-size-unciphered", &len))
+		return 0;
+	if (len != -FDT_ERR_NOTFOUND) {
+		printf("Failure testing for data-size-unciphered\n");
+		return -1;
 	}
 
-	return 0;
+	/* Process cipher node if present */
+	cipher_node_offset = fdt_subnode_offset(fit, image_noffset,
+						FIT_CIPHER_NODENAME);
+	if (cipher_node_offset == -FDT_ERR_NOTFOUND)
+		return 0;
+	if (cipher_node_offset < 0) {
+		printf("Failure getting cipher node\n");
+		return -1;
+	}
+	if (!IMAGE_ENABLE_ENCRYPT || !keydir)
+		return 0;
+	return fit_image_process_cipher(keydir, keydest, fit, image_name,
+		image_noffset, cipher_node_offset, data, size, cmdname);
 }
 
 /**
@@ -741,6 +742,23 @@ static int fit_config_get_hash_list(void *fit, int conf_noffset,
 			printf("Failed to find any hash nodes in configuration '%s/%s' image '%s' - without these it is not possible to verify this image\n",
 			       conf_name, sig_name, iname);
 			return -ENOMSG;
+		}
+
+		/* Add this image's cipher node if present */
+		noffset = fdt_subnode_offset(fit, image_noffset,
+					     FIT_CIPHER_NODENAME);
+		if (noffset != -FDT_ERR_NOTFOUND) {
+			if (noffset < 0) {
+				printf("Failed to get cipher node in configuration '%s/%s' image '%s': %s\n",
+				       conf_name, sig_name, iname,
+				       fdt_strerror(noffset));
+				return -EIO;
+			}
+			ret = fdt_get_path(fit, noffset, path, sizeof(path));
+			if (ret < 0)
+				goto err_path;
+			if (strlist_add(node_inc, path))
+				goto err_mem;
 		}
 
 		image_count++;
