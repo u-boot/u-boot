@@ -275,7 +275,7 @@ void xhci_queue_command(struct xhci_ctrl *ctrl, u8 *ptr, u32 slot_id,
 			u32 ep_index, trb_type cmd)
 {
 	u32 fields[4];
-	u64 val_64 = (uintptr_t)ptr;
+	u64 val_64 = virt_to_phys(ptr);
 
 	BUG_ON(prepare_ring(ctrl, ctrl->cmd_ring, EP_STATE_RUNNING));
 
@@ -399,7 +399,7 @@ void xhci_acknowledge_event(struct xhci_ctrl *ctrl)
 
 	/* Inform the hardware */
 	xhci_writeq(&ctrl->ir_set->erst_dequeue,
-		(uintptr_t)ctrl->event_ring->dequeue | ERST_EHB);
+		    virt_to_phys(ctrl->event_ring->dequeue) | ERST_EHB);
 }
 
 /**
@@ -577,7 +577,7 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	u64 addr;
 	int ret;
 	u32 trb_fields[4];
-	u64 val_64 = (uintptr_t)buffer;
+	u64 val_64 = virt_to_phys(buffer);
 
 	debug("dev=%p, pipe=%lx, buffer=%p, length=%d\n",
 		udev, pipe, buffer, length);
@@ -876,7 +876,7 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 	if (length > 0) {
 		if (req->requesttype & USB_DIR_IN)
 			field |= TRB_DIR_IN;
-		buf_64 = (uintptr_t)buffer;
+		buf_64 = virt_to_phys(buffer);
 
 		trb_fields[0] = lower_32_bits(buf_64);
 		trb_fields[1] = upper_32_bits(buf_64);

@@ -416,21 +416,21 @@ static int usb_match_device(const struct usb_device_descriptor *desc,
 			    const struct usb_device_id *id)
 {
 	if ((id->match_flags & USB_DEVICE_ID_MATCH_VENDOR) &&
-	    id->idVendor != le16_to_cpu(desc->idVendor))
+	    id->idVendor != desc->idVendor)
 		return 0;
 
 	if ((id->match_flags & USB_DEVICE_ID_MATCH_PRODUCT) &&
-	    id->idProduct != le16_to_cpu(desc->idProduct))
+	    id->idProduct != desc->idProduct)
 		return 0;
 
 	/* No need to test id->bcdDevice_lo != 0, since 0 is never
 	   greater than any unsigned number. */
 	if ((id->match_flags & USB_DEVICE_ID_MATCH_DEV_LO) &&
-	    (id->bcdDevice_lo > le16_to_cpu(desc->bcdDevice)))
+	    (id->bcdDevice_lo > desc->bcdDevice))
 		return 0;
 
 	if ((id->match_flags & USB_DEVICE_ID_MATCH_DEV_HI) &&
-	    (id->bcdDevice_hi < le16_to_cpu(desc->bcdDevice)))
+	    (id->bcdDevice_hi < desc->bcdDevice))
 		return 0;
 
 	if ((id->match_flags & USB_DEVICE_ID_MATCH_DEV_CLASS) &&
