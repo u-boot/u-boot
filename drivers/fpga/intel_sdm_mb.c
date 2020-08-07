@@ -6,6 +6,7 @@
 #include <common.h>
 #include <altera.h>
 #include <log.h>
+#include <watchdog.h>
 #include <asm/arch/mailbox_s10.h>
 #include <linux/delay.h>
 
@@ -113,6 +114,7 @@ static int reconfig_status_polling_resp(void)
 
 		puts(".");
 		udelay(RECONFIG_STATUS_INTERVAL_DELAY_US);
+		WATCHDOG_RESET();
 	}
 
 	return -ETIMEDOUT;
@@ -238,6 +240,7 @@ static int send_reconfig_data(const void *rbf_data, size_t rbf_size,
 			if (resp_err && !xfer_count)
 				return resp_err;
 		}
+		WATCHDOG_RESET();
 	}
 
 	return 0;
