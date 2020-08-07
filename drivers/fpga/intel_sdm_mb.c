@@ -247,7 +247,7 @@ static int send_reconfig_data(const void *rbf_data, size_t rbf_size,
  * This is the interface used by FPGA driver.
  * Return 0 for success, non-zero for error.
  */
-int stratix10_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size)
+int intel_sdm_mb_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size)
 {
 	int ret;
 	u32 resp_len = 2;

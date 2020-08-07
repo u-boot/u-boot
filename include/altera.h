@@ -56,10 +56,10 @@ enum altera_family {
 	Altera_StratixII,
 	/* StratixV Family */
 	Altera_StratixV,
-	/* Stratix10 Family */
-	Intel_FPGA_Stratix10,
 	/* SoCFPGA Family */
 	Altera_SoCFPGA,
+	/* Intel FPGA Family with SDM (Secure Device Manager) Mailbox */
+	Intel_FPGA_SDM_Mailbox,
 
 	/* Add new models here */
 
@@ -120,8 +120,9 @@ int socfpga_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size);
 int stratixv_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size);
 #endif
 
-#ifdef CONFIG_FPGA_STRATIX10
-int stratix10_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size);
+#ifdef CONFIG_FPGA_INTEL_SDM_MAILBOX
+int intel_sdm_mb_load(Altera_desc *desc, const void *rbf_data,
+		      size_t rbf_size);
 #endif
 
 #endif /* _ALTERA_H_ */
