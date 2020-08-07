@@ -51,6 +51,7 @@ addons:
     - sbsigntool
     - fakeroot
     - mtd-utils
+    - squashfs-tools
 
 install:
  # Clone uboot-test-hooks
