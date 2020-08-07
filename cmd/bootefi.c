@@ -310,17 +310,11 @@ efi_status_t efi_install_fdt(void *fdt)
  * Load the EFI binary into a newly assigned memory unwinding the relocation
  * information, install the loaded image protocol, and call the binary.
  */
-static efi_status_t do_bootefi_exec(efi_handle_t handle)
+static efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options)
 {
 	efi_status_t ret;
 	efi_uintn_t exit_data_size = 0;
 	u16 *exit_data = NULL;
-	u16 *load_options;
-
-	/* Transfer environment variable as load options */
-	ret = efi_env_set_load_options(handle, "bootargs", &load_options);
-	if (ret != EFI_SUCCESS)
-		return ret;
 
 	/* Call our payload! */
 	ret = EFI_CALL(efi_start_image(handle, &exit_data_size, &exit_data));
@@ -349,14 +343,15 @@ static int do_efibootmgr(void)
 {
 	efi_handle_t handle;
 	efi_status_t ret;
+	void *load_options;
 
-	ret = efi_bootmgr_load(&handle);
+	ret = efi_bootmgr_load(&handle, &load_options);
 	if (ret != EFI_SUCCESS) {
 		log_notice("EFI boot manager: Cannot load any image\n");
 		return CMD_RET_FAILURE;
 	}
 
-	ret = do_bootefi_exec(handle);
+	ret = do_bootefi_exec(handle, load_options);
 
 	if (ret != EFI_SUCCESS)
 		return CMD_RET_FAILURE;
@@ -467,7 +462,14 @@ efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	ret = do_bootefi_exec(handle);
+	u16 *load_options;
+
+	/* Transfer environment variable as load options */
+	ret = efi_env_set_load_options(handle, "bootargs", &load_options);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = do_bootefi_exec(handle, load_options);
 
 out:
 	efi_delete_handle(mem_handle);

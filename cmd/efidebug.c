@@ -1126,8 +1126,9 @@ static int do_efi_test_bootmgr(struct cmd_tbl *cmdtp, int flag,
 	efi_uintn_t exit_data_size = 0;
 	u16 *exit_data = NULL;
 	efi_status_t ret;
+	void *load_options;
 
-	ret = efi_bootmgr_load(&image);
+	ret = efi_bootmgr_load(&image, &load_options);
 	printf("efi_bootmgr_load() returned: %ld\n", ret & ~EFI_ERROR_MASK);
 
 	/* We call efi_start_image() even if error for test purpose. */
@@ -1138,6 +1139,7 @@ static int do_efi_test_bootmgr(struct cmd_tbl *cmdtp, int flag,
 
 	efi_restore_gd();
 
+	free(load_options);
 	return CMD_RET_SUCCESS;
 }
 
