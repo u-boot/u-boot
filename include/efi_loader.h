@@ -717,6 +717,9 @@ struct efi_load_option {
 efi_status_t efi_deserialize_load_option(struct efi_load_option *lo, u8 *data,
 					 efi_uintn_t *size);
 unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data);
+efi_status_t efi_set_load_options(efi_handle_t handle,
+				  efi_uintn_t load_options_size,
+				  void *load_options);
 efi_status_t efi_bootmgr_load(efi_handle_t *handle);
 
 /**

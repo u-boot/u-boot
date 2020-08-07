@@ -30,6 +30,38 @@ static const struct efi_runtime_services *rs;
  * should do normal or recovery boot.
  */
 
+/**
+ * efi_set_load_options() - set the load options of a loaded image
+ *
+ * @handle:		the image handle
+ * @load_options_size:	size of load options
+ * @load_options:	pointer to load options
+ * Return:		status code
+ */
+efi_status_t efi_set_load_options(efi_handle_t handle,
+				  efi_uintn_t load_options_size,
+				  void *load_options)
+{
+	struct efi_loaded_image *loaded_image_info;
+	efi_status_t ret;
+
+	ret = EFI_CALL(systab.boottime->open_protocol(
+					handle,
+					&efi_guid_loaded_image,
+					(void **)&loaded_image_info,
+					efi_root, NULL,
+					EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL));
+	if (ret != EFI_SUCCESS)
+		return EFI_INVALID_PARAMETER;
+
+	loaded_image_info->load_options = load_options;
+	loaded_image_info->load_options_size = load_options_size;
+
+	return EFI_CALL(systab.boottime->close_protocol(handle,
+							&efi_guid_loaded_image,
+							efi_root, NULL));
+}
+
 
 /**
  * efi_deserialize_load_option() - parse serialized data
