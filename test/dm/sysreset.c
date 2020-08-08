@@ -44,7 +44,7 @@ static int dm_test_sysreset_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_sysreset_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_sysreset_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 static int dm_test_sysreset_get_status(struct unit_test_state *uts)
 {
@@ -63,7 +63,7 @@ static int dm_test_sysreset_get_status(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_sysreset_get_status, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_sysreset_get_status, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that we can walk through the sysreset devices */
 static int dm_test_sysreset_walk(struct unit_test_state *uts)
@@ -91,7 +91,7 @@ static int dm_test_sysreset_walk(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_sysreset_walk, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_sysreset_walk, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 static int dm_test_sysreset_get_last(struct unit_test_state *uts)
 {
@@ -110,4 +110,4 @@ static int dm_test_sysreset_get_last(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_sysreset_get_last, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_sysreset_get_last, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

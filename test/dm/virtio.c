@@ -36,7 +36,7 @@ static int dm_test_virtio_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_virtio_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_virtio_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test all of the virtio uclass ops */
 static int dm_test_virtio_all_ops(struct unit_test_state *uts)
@@ -85,7 +85,7 @@ static int dm_test_virtio_all_ops(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_virtio_all_ops, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_virtio_all_ops, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test of the virtio driver that does not have required driver ops */
 static int dm_test_virtio_missing_ops(struct unit_test_state *uts)
@@ -103,7 +103,7 @@ static int dm_test_virtio_missing_ops(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_virtio_missing_ops, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_virtio_missing_ops, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test removal of virtio device driver */
 static int dm_test_virtio_remove(struct unit_test_state *uts)
@@ -127,4 +127,4 @@ static int dm_test_virtio_remove(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_virtio_remove, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_virtio_remove, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

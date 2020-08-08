@@ -28,5 +28,5 @@ static int dm_test_bootcount(struct unit_test_state *uts)
 	return 0;
 }
 
-DM_TEST(dm_test_bootcount, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_bootcount, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 

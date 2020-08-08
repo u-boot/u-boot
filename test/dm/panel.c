@@ -77,4 +77,4 @@ static int dm_test_panel(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_panel, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_panel, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

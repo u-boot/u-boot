@@ -20,7 +20,7 @@ static int dm_test_pci_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pci_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that sandbox PCI bus numbering and device works correctly */
 static int dm_test_pci_busdev(struct unit_test_state *uts)
@@ -55,7 +55,7 @@ static int dm_test_pci_busdev(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_busdev, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pci_busdev, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that we can use the swapcase device correctly */
 static int dm_test_pci_swapcase(struct unit_test_state *uts)
@@ -108,7 +108,7 @@ static int dm_test_pci_swapcase(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_swapcase, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pci_swapcase, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that we can dynamically bind the device driver correctly */
 static int dm_test_pci_drvdata(struct unit_test_state *uts)
@@ -130,7 +130,7 @@ static int dm_test_pci_drvdata(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_drvdata, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pci_drvdata, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that devices on PCI bus#2 can be accessed correctly */
 static int dm_test_pci_mixed(struct unit_test_state *uts)
@@ -193,7 +193,7 @@ static int dm_test_pci_mixed(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_mixed, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pci_mixed, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test looking up PCI capability and extended capability */
 static int dm_test_pci_cap(struct unit_test_state *uts)
@@ -245,7 +245,7 @@ static int dm_test_pci_cap(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_cap, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pci_cap, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test looking up BARs in EA capability structure */
 static int dm_test_pci_ea(struct unit_test_state *uts)
@@ -294,7 +294,7 @@ static int dm_test_pci_ea(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_ea, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pci_ea, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test the dev_read_addr_pci() function */
 static int dm_test_pci_addr_flat(struct unit_test_state *uts)
@@ -316,14 +316,14 @@ static int dm_test_pci_addr_flat(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_addr_flat, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT |
-		DM_TESTF_FLAT_TREE);
+DM_TEST(dm_test_pci_addr_flat, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT |
+		UT_TESTF_FLAT_TREE);
 
 /*
  * Test the dev_read_addr_pci() function with livetree. That function is
  * not currently fully implemented, in that it fails to return the BAR address.
  * Once that is implemented this test can be removed and dm_test_pci_addr_flat()
- * can be used for both flattree and livetree by removing the DM_TESTF_FLAT_TREE
+ * can be used for both flattree and livetree by removing the UT_TESTF_FLAT_TREE
  * flag above.
  */
 static int dm_test_pci_addr_live(struct unit_test_state *uts)
@@ -338,8 +338,8 @@ static int dm_test_pci_addr_live(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_addr_live, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT |
-		DM_TESTF_LIVE_TREE);
+DM_TEST(dm_test_pci_addr_live, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT |
+		UT_TESTF_LIVE_TREE);
 
 /* Test device_is_on_pci_bus() */
 static int dm_test_pci_on_bus(struct unit_test_state *uts)
@@ -353,4 +353,4 @@ static int dm_test_pci_on_bus(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_on_bus, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pci_on_bus, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

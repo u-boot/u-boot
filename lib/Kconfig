@@ -460,6 +460,13 @@ config GZIP
 	help
 	  This enables support for GZIP compression algorithm.
 
+config ZLIB_UNCOMPRESS
+	bool "Enables zlib's uncompress() functionality"
+	help
+	  This enables an extra zlib functionality: the uncompress() function,
+	  which decompresses data from a buffer into another, knowing their
+	  sizes. Unlike gunzip(), there is no header parsing.
+
 config GZIP_COMPRESSED
 	bool
 	select ZLIB

@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <console.h>
 #include <test/suites.h>
 #include <test/test.h>
 
@@ -33,6 +34,15 @@ int cmd_ut_category(const char *name, const char *prefix,
 		if (argc > 1 && strcmp(argv[1], test_name))
 			continue;
 		printf("Test: %s\n", test->name);
+
+		if (test->flags & UT_TESTF_CONSOLE_REC) {
+			int ret = console_record_reset_enable();
+
+			if (ret) {
+				printf("Skipping: Console recording disabled\n");
+				continue;
+			}
+		}
 
 		uts.start = mallinfo();
 
@@ -64,6 +74,7 @@ static struct cmd_tbl cmd_ut_sub[] = {
 #ifdef CONFIG_UT_LOG
 	U_BOOT_CMD_MKENT(log, CONFIG_SYS_MAXARGS, 1, do_ut_log, "", ""),
 #endif
+	U_BOOT_CMD_MKENT(mem, CONFIG_SYS_MAXARGS, 1, do_ut_mem, "", ""),
 #ifdef CONFIG_UT_TIME
 	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
 #endif
@@ -135,6 +146,7 @@ static char ut_help_text[] =
 #ifdef CONFIG_UT_LOG
 	"ut log [test-name] - test logging functions\n"
 #endif
+	"ut mem [test-name] - test memory-related commands\n"
 #ifdef CONFIG_UT_OPTEE
 	"ut optee [test-name]\n"
 #endif

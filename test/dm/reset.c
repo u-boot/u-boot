@@ -39,7 +39,7 @@ static int dm_test_reset_base(struct unit_test_state *uts)
 	return 0;
 }
 
-DM_TEST(dm_test_reset_base, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_reset_base, UT_TESTF_SCAN_FDT);
 
 static int dm_test_reset(struct unit_test_state *uts)
 {
@@ -64,7 +64,7 @@ static int dm_test_reset(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_reset, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_reset, UT_TESTF_SCAN_FDT);
 
 static int dm_test_reset_bulk(struct unit_test_state *uts)
 {
@@ -94,4 +94,4 @@ static int dm_test_reset_bulk(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_reset_bulk, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_reset_bulk, UT_TESTF_SCAN_FDT);

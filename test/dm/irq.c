@@ -31,7 +31,7 @@ static int dm_test_irq_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_irq_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_irq_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test of irq_first_device_type() */
 static int dm_test_irq_type(struct unit_test_state *uts)
@@ -43,7 +43,7 @@ static int dm_test_irq_type(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_irq_type, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_irq_type, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test of irq_read_and_clear() */
 static int dm_test_read_and_clear(struct unit_test_state *uts)
@@ -60,7 +60,7 @@ static int dm_test_read_and_clear(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_read_and_clear, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_read_and_clear, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test of irq_request() */
 static int dm_test_request(struct unit_test_state *uts)
@@ -75,7 +75,7 @@ static int dm_test_request(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_request, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_request, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test of irq_get_acpi() */
 static int dm_test_irq_get_acpi(struct unit_test_state *uts)
@@ -97,4 +97,4 @@ static int dm_test_irq_get_acpi(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_irq_get_acpi, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_irq_get_acpi, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

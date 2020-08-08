@@ -724,7 +724,7 @@ config CMD_MEMORY
 	    base - print or set address offset
 	    loop - initialize loop on address range
 
-config MEM_SEARCH
+config CMD_MEM_SEARCH
 	bool "ms - Memory search"
 	help
 	  Memory-search command
@@ -2089,6 +2089,12 @@ config CMD_FAT
 	select FS_FAT
 	help
 	  Support for the FAT fs
+
+config CMD_SQUASHFS
+	bool "SquashFS command support"
+	select FS_SQUASHFS
+	help
+	  Enables SquashFS filesystem commands (e.g. load, ls).
 
 config CMD_FS_GENERIC
 	bool "filesystem commands"

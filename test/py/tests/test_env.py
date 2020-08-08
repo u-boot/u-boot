@@ -416,7 +416,10 @@ def mk_env_ext4(state_test_env):
     else:
         try:
             u_boot_utils.run_and_log(c, 'dd if=/dev/zero of=%s bs=1M count=16' % persistent)
-            u_boot_utils.run_and_log(c, 'mkfs.ext4 -O ^metadata_csum %s' % persistent)
+            u_boot_utils.run_and_log(c, 'mkfs.ext4 %s' % persistent)
+            sb_content = u_boot_utils.run_and_log(c, 'tune2fs -l %s' % persistent)
+            if 'metadata_csum' in sb_content:
+                u_boot_utils.run_and_log(c, 'tune2fs -O ^metadata_csum %s' % persistent)
         except CalledProcessError:
             call('rm -f %s' % persistent, shell=True)
             raise

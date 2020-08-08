@@ -22,6 +22,7 @@
 #include <div64.h>
 #include <linux/math64.h>
 #include <efi_loader.h>
+#include <squashfs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -58,6 +59,9 @@ static int fs_ls_generic(const char *dirname)
 		if (dent->type == FS_DT_DIR) {
 			printf("            %s/\n", dent->name);
 			ndirs++;
+		} else if (dent->type == FS_DT_LNK) {
+			printf("    <SYM>   %s\n", dent->name);
+			nfiles++;
 		} else {
 			printf(" %8lld   %s\n", dent->size, dent->name);
 			nfiles++;
@@ -275,6 +279,20 @@ static struct fstype_info fstypes[] = {
 		.unlink = fs_unlink_unsupported,
 		.mkdir = fs_mkdir_unsupported,
 		.ln = fs_ln_unsupported,
+	},
+#endif
+#if IS_ENABLED(CONFIG_FS_SQUASHFS)
+	{
+		.fstype = FS_TYPE_SQUASHFS,
+		.name = "squashfs",
+		.probe = sqfs_probe,
+		.opendir = sqfs_opendir,
+		.readdir = sqfs_readdir,
+		.ls = fs_ls_generic,
+		.read = sqfs_read,
+		.size = sqfs_size,
+		.close = sqfs_close,
+		.closedir = sqfs_closedir,
 	},
 #endif
 	{

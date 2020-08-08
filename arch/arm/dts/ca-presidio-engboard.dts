@@ -64,4 +64,35 @@
 			spi-max-frequency = <108000000>;
 		};
 	};
+
+	leds: led-controller@f43200f0 {
+		compatible = "cortina,ca-leds";
+		reg = <0x0 0xf43200f0 0x40>;
+
+		cortina,blink-rate1 = <256>;
+		cortina,blink-rate2 = <512>;
+
+		led@0 {
+			pin = <0>;
+			active-low;
+			blink-sel =<0>;
+			port = <0>;
+			off-event = <0>;
+			label = "led0";
+		};
+
+		led@1 {
+			pin = <1>;
+			active-low;
+			blink-sel =<1>;
+			label = "led1";
+		};
+
+		led@2 {
+			pin = <2>;
+			active-low;
+			label = "led2";
+		};
+
+	};
 };

@@ -25,7 +25,7 @@ static int dm_test_button_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_button_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_button_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test of the button uclass using the button_gpio driver */
 static int dm_test_button_gpio(struct unit_test_state *uts)
@@ -50,7 +50,7 @@ static int dm_test_button_gpio(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_button_gpio, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_button_gpio, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test obtaining an BUTTON by label */
 static int dm_test_button_label(struct unit_test_state *uts)
@@ -71,4 +71,4 @@ static int dm_test_button_label(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_button_label, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_button_label, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

@@ -489,4 +489,4 @@ static int dm_test_acpi_dp_copy(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_acpi_dp_copy, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_acpi_dp_copy, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

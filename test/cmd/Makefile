@@ -2,4 +2,5 @@
 #
 # Copyright (c) 2013 Google, Inc
 
-obj-$(CONFIG_MEM_SEARCH) += mem_search.o
+obj-y += mem.o
+obj-$(CONFIG_CMD_MEM_SEARCH) += mem_search.o
