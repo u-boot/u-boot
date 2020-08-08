@@ -97,7 +97,6 @@ int public_key_verify_signature(const struct public_key *pkey,
 				const struct public_key_signature *sig)
 {
 	struct image_sign_info info;
-	struct image_region region;
 	int ret;
 
 	pr_devel("==>%s()\n", __func__);
@@ -136,9 +135,6 @@ int public_key_verify_signature(const struct public_key *pkey,
 
 	info.key = pkey->key;
 	info.keylen = pkey->keylen;
-
-	region.data = sig->digest;
-	region.size = sig->digest_size;
 
 	if (rsa_verify_with_pkey(&info, sig->digest, sig->s, sig->s_size))
 		ret = -EKEYREJECTED;
