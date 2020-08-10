@@ -453,6 +453,41 @@ static const struct mtk_gate peri_cgs[] = {
 	GATE_PERI1(CLK_PERI_IRTX_PD, CLK_TOP_IRTX_SEL, 2),
 };
 
+/* pciesys */
+static const struct mtk_gate_regs pcie_cg_regs = {
+	.set_ofs = 0x30,
+	.clr_ofs = 0x30,
+	.sta_ofs = 0x30,
+};
+
+#define GATE_PCIE(_id, _parent, _shift) {		\
+		.id = _id,				\
+		.parent = _parent,			\
+		.regs = &pcie_cg_regs,			\
+		.shift = _shift,			\
+		.flags = CLK_GATE_NO_SETCLR_INV | CLK_PARENT_TOPCKGEN,	\
+	}
+
+static const struct mtk_gate pcie_cgs[] = {
+	GATE_PCIE(CLK_PCIE_P1_AUX_EN, CLK_TOP_P1_1MHZ, 12),
+	GATE_PCIE(CLK_PCIE_P1_OBFF_EN, CLK_TOP_4MHZ, 13),
+	GATE_PCIE(CLK_PCIE_P1_AHB_EN, CLK_TOP_AXI_SEL, 14),
+	GATE_PCIE(CLK_PCIE_P1_AXI_EN, CLK_TOP_HIF_SEL, 15),
+	GATE_PCIE(CLK_PCIE_P1_MAC_EN, CLK_TOP_PCIE1_MAC_EN, 16),
+	GATE_PCIE(CLK_PCIE_P1_PIPE_EN, CLK_TOP_PCIE1_PIPE_EN, 17),
+	GATE_PCIE(CLK_PCIE_P0_AUX_EN, CLK_TOP_P0_1MHZ, 18),
+	GATE_PCIE(CLK_PCIE_P0_OBFF_EN, CLK_TOP_4MHZ, 19),
+	GATE_PCIE(CLK_PCIE_P0_AHB_EN, CLK_TOP_AXI_SEL, 20),
+	GATE_PCIE(CLK_PCIE_P0_AXI_EN, CLK_TOP_HIF_SEL, 21),
+	GATE_PCIE(CLK_PCIE_P0_MAC_EN, CLK_TOP_PCIE0_MAC_EN, 22),
+	GATE_PCIE(CLK_PCIE_P0_PIPE_EN, CLK_TOP_PCIE0_PIPE_EN, 23),
+	GATE_PCIE(CLK_SATA_AHB_EN, CLK_TOP_AXI_SEL, 26),
+	GATE_PCIE(CLK_SATA_AXI_EN, CLK_TOP_HIF_SEL, 27),
+	GATE_PCIE(CLK_SATA_ASIC_EN, CLK_TOP_SATA_ASIC, 28),
+	GATE_PCIE(CLK_SATA_RBC_EN, CLK_TOP_SATA_RBC, 29),
+	GATE_PCIE(CLK_SATA_PM_EN, CLK_TOP_UNIVPLL2_D4, 30),
+};
+
 /* ethsys */
 static const struct mtk_gate_regs eth_cg_regs = {
 	.sta_ofs = 0x30,
@@ -554,6 +589,11 @@ static int mt7622_pericfg_probe(struct udevice *dev)
 	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, peri_cgs);
 }
 
+static int mt7622_pciesys_probe(struct udevice *dev)
+{
+	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, pcie_cgs);
+}
+
 static int mt7622_ethsys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, eth_cgs);
@@ -594,6 +634,11 @@ static const struct udevice_id mt7622_infracfg_compat[] = {
 
 static const struct udevice_id mt7622_pericfg_compat[] = {
 	{ .compatible = "mediatek,mt7622-pericfg", },
+	{ }
+};
+
+static const struct udevice_id mt7622_pciesys_compat[] = {
+	{ .compatible = "mediatek,mt7622-pciesys", },
 	{ }
 };
 
@@ -658,6 +703,15 @@ U_BOOT_DRIVER(mtk_clk_pericfg) = {
 	.priv_auto_alloc_size = sizeof(struct mtk_cg_priv),
 	.ops = &mtk_clk_gate_ops,
 	.flags = DM_FLAG_PRE_RELOC,
+};
+
+U_BOOT_DRIVER(mtk_clk_pciesys) = {
+	.name = "mt7622-clock-pciesys",
+	.id = UCLASS_CLK,
+	.of_match = mt7622_pciesys_compat,
+	.probe = mt7622_pciesys_probe,
+	.priv_auto_alloc_size = sizeof(struct mtk_cg_priv),
+	.ops = &mtk_clk_gate_ops,
 };
 
 U_BOOT_DRIVER(mtk_clk_ethsys) = {
