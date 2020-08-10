@@ -100,6 +100,8 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c1_pins>;
 	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
 
 	rtc@6f {
 		compatible = "microchip,mcp7941x";
