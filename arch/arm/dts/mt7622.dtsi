@@ -186,6 +186,13 @@
 		status = "disabled";
 	};
 
+	pciesys: pciesys@1a100800 {
+		compatible = "mediatek,mt7622-pciesys", "syscon";
+		reg = <0x1a100800 0x1000>;
+		#clock-cells = <1>;
+		#reset-cells = <1>;
+	};
+
 	ethsys: syscon@1b000000 {
 		compatible = "mediatek,mt7622-ethsys", "syscon";
 		reg = <0x1b000000 0x1000>;
