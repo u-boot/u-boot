@@ -12,8 +12,9 @@ from sqfs_common import *
 @pytest.mark.buildconfigspec('fs_squashfs')
 @pytest.mark.requiredtool('mksquashfs')
 def test_sqfs_ls(u_boot_console):
-    sqfs_generate_image()
-    path = "test/py/tests/test_fs/test_squashfs/sqfs"
+    cons = u_boot_console
+    sqfs_generate_image(cons)
+    path = os.path.join(cons.config.build_dir, "sqfs")
     try:
         output = u_boot_console.run_command("host bind 0 " + path)
         output = u_boot_console.run_command("sqfsls host 0")
@@ -22,5 +23,5 @@ def test_sqfs_ls(u_boot_console):
         output = u_boot_console.run_command("sqfsls host 0 xxx")
         assert "** Cannot find directory. **" in output
     except:
-        sqfs_clean()
-    sqfs_clean()
+        sqfs_clean(cons)
+    sqfs_clean(cons)

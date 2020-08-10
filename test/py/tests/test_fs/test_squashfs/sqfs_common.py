@@ -20,9 +20,9 @@ def sqfs_generate_file(path, size):
     file.close()
 
 # generate image with three files and a symbolic link
-def sqfs_generate_image():
-    src = "test/py/tests/test_fs/test_squashfs/sqfs_src/"
-    dest = "test/py/tests/test_fs/test_squashfs/sqfs"
+def sqfs_generate_image(cons):
+    src = os.path.join(cons.config.build_dir, "sqfs_src/")
+    dest = os.path.join(cons.config.build_dir, "sqfs")
     os.mkdir(src)
     sqfs_generate_file(src + "frag_only", 100)
     sqfs_generate_file(src + "blks_frag", 5100)
@@ -31,9 +31,9 @@ def sqfs_generate_image():
     os.system("mksquashfs " + src + " " + dest + " -b 4096 -always-use-fragments")
 
 # removes all files created by sqfs_generate_image()
-def sqfs_clean():
-    src = "test/py/tests/test_fs/test_squashfs/sqfs_src/"
-    dest = "test/py/tests/test_fs/test_squashfs/sqfs"
+def sqfs_clean(cons):
+    src = os.path.join(cons.config.build_dir, "sqfs_src/")
+    dest = os.path.join(cons.config.build_dir, "sqfs")
     os.remove(src + "frag_only")
     os.remove(src + "blks_frag")
     os.remove(src + "blks_only")
