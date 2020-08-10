@@ -12,9 +12,10 @@ from sqfs_common import *
 @pytest.mark.buildconfigspec('fs_squashfs')
 @pytest.mark.requiredtool('mksquashfs')
 def test_sqfs_load(u_boot_console):
-    sqfs_generate_image()
+    cons = u_boot_console
+    sqfs_generate_image(cons)
     command = "sqfsload host 0 $kernel_addr_r "
-    path = "test/py/tests/test_fs/test_squashfs/sqfs"
+    path = os.path.join(cons.config.build_dir, "sqfs")
 
     try:
         output = u_boot_console.run_command("host bind 0 " + path)
@@ -29,5 +30,5 @@ def test_sqfs_load(u_boot_console):
         output = u_boot_console.run_command(command + "sym")
         assert "100 bytes read in" in output
     except:
-        sqfs_clean()
-    sqfs_clean()
+        sqfs_clean(cons)
+    sqfs_clean(cons)
