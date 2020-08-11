@@ -666,7 +666,8 @@ def cleanup_headers(configs, options):
             if dirpath == os.path.join('include', 'generated'):
                 continue
             for filename in filenames:
-                if not filename.endswith(('~', '.dts', '.dtsi')):
+                if not filename.endswith(('~', '.dts', '.dtsi', '.bin',
+                                          '.elf')):
                     header_path = os.path.join(dirpath, filename)
                     # This file contains UTF-16 data and no CONFIG symbols
                     if header_path == 'include/video_font_data.h':
