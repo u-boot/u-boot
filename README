@@ -1250,48 +1250,6 @@ The following options need to be configured:
 		Enables an 'i2c edid' command which can read EDID
 		information over I2C from an attached LCD display.
 
-- Splash Screen Support: CONFIG_SPLASH_SCREEN
-
-		If this option is set, the environment is checked for
-		a variable "splashimage". If found, the usual display
-		of logo, copyright and system information on the LCD
-		is suppressed and the BMP image at the address
-		specified in "splashimage" is loaded instead. The
-		console is redirected to the "nulldev", too. This
-		allows for a "silent" boot where a splash screen is
-		loaded very quickly after power-on.
-
-		CONFIG_SPLASHIMAGE_GUARD
-
-		If this option is set, then U-Boot will prevent the environment
-		variable "splashimage" from being set to a problematic address
-		(see doc/README.displaying-bmps).
-		This option is useful for targets where, due to alignment
-		restrictions, an improperly aligned BMP image will cause a data
-		abort. If you think you will not have problems with unaligned
-		accesses (for example because your toolchain prevents them)
-		there is no need to set this option.
-
-		CONFIG_SPLASH_SCREEN_ALIGN
-
-		If this option is set the splash image can be freely positioned
-		on the screen. Environment variable "splashpos" specifies the
-		position as "x,y". If a positive number is given it is used as
-		number of pixel from left/top. If a negative number is given it
-		is used as number of pixel from right/bottom. You can also
-		specify 'm' for centering the image.
-
-		Example:
-		setenv splashpos m,m
-			=> image at center of screen
-
-		setenv splashpos 30,20
-			=> image at x = 30 and y = 20
-
-		setenv splashpos -10,m
-			=> vertically centered image
-			   at x = dspWidth - bmpWidth - 9
-
 - Gzip compressed BMP image support: CONFIG_VIDEO_BMP_GZIP
 
 		If this option is set, additionally to standard BMP
