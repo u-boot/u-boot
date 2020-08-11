@@ -635,6 +635,22 @@ config SYS_STDIO_DEREGISTER
 	  removed (for example a USB keyboard) then this option can be
 	  enabled to ensure this is handled correctly.
 
+config SPL_SYS_STDIO_DEREGISTER
+	bool "Allow deregistering stdio devices in SPL"
+	help
+	  Generally there is no need to deregister stdio devices since they
+	  are never deactivated. But if a stdio device is used which can be
+	  removed (for example a USB keyboard) then this option can be
+	  enabled to ensure this is handled correctly. This is very rarely
+	  needed in SPL.
+
+config SYS_DEVICE_NULLDEV
+	bool "Enable a null device for stdio"
+	help
+	  Enable creation of a "nulldev" stdio device. This allows silent
+	  operation of the console by setting stdout to "nulldev". Enable
+	  this to use a serial console under board control.
+
 endmenu
 
 menu "Logging"
