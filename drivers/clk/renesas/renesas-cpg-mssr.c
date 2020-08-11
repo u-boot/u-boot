@@ -127,6 +127,10 @@ int renesas_clk_remove(void __iomem *base, struct cpg_mssr_info *info)
 		clrsetbits_le32(base + info->control_regs[i],
 				info->mstp_table[i].sdis,
 				info->mstp_table[i].sen);
+
+		if (info->reg_layout == CLK_REG_LAYOUT_RCAR_V3U)
+			continue;
+
 		clrsetbits_le32(base + RMSTPCR(i),
 				info->mstp_table[i].rdis,
 				info->mstp_table[i].ren);

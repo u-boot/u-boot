@@ -418,6 +418,11 @@ int gen3_clk_probe(struct udevice *dev)
 		priv->info->control_regs = smstpcr;
 		priv->info->reset_regs = srcr;
 		priv->info->reset_clear_regs = srstclr;
+	} else if (info->reg_layout == CLK_REG_LAYOUT_RCAR_V3U) {
+		priv->info->status_regs = mstpsr_for_v3u;
+		priv->info->control_regs = mstpcr_for_v3u;
+		priv->info->reset_regs = srcr_for_v3u;
+		priv->info->reset_clear_regs = srstclr_for_v3u;
 	} else {
 		return -EINVAL;
 	}
