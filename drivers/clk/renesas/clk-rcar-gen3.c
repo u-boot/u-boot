@@ -289,6 +289,7 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		return -EINVAL;
 
 	case CLK_TYPE_GEN3_RPC:
+	case CLK_TYPE_GEN3_RPCD2:
 		rate = gen3_clk_get_rate64(&parent);
 
 		value = readl(priv->base + core->offset);
@@ -304,13 +305,21 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 
 		postdiv = (value >> CPG_RPC_POSTDIV_OFFSET) &
 			  CPG_RPC_POSTDIV_MASK;
-		rate /= postdiv + 1;
 
-		debug("%s[%i] RPC clk: parent=%i prediv=%i postdiv=%i => rate=%llu\n",
-		      __func__, __LINE__,
-		      core->parent, prediv, postdiv, rate);
+		if (postdiv % 2 != 0) {
+			rate /= postdiv + 1;
 
-		return rate;
+			if (core->type == CLK_TYPE_GEN3_RPCD2)
+				rate /= 2;
+
+			debug("%s[%i] RPC clk: parent=%i prediv=%i postdiv=%i => rate=%llu\n",
+			      __func__, __LINE__,
+			      core->parent, prediv, postdiv, rate);
+
+			return rate;
+		}
+
+		return -EINVAL;
 
 	}
 
