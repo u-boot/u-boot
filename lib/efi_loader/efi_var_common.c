@@ -3,6 +3,7 @@
  * UEFI runtime variable services
  *
  * Copyright (c) 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
+ * Copyright (c) 2020 Linaro Limited, Author: AKASHI Takahiro
  */
 
 #include <common.h>

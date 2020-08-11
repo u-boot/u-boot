@@ -31,55 +31,37 @@ static struct efi_device_path *bootefi_image_path;
 static struct efi_device_path *bootefi_device_path;
 
 /**
- * Set the load options of an image from an environment variable.
+ * efi_env_set_load_options() - set load options from environment variable
  *
  * @handle:		the image handle
  * @env_var:		name of the environment variable
  * @load_options:	pointer to load options (output)
  * Return:		status code
  */
-static efi_status_t set_load_options(efi_handle_t handle, const char *env_var,
-				     u16 **load_options)
+static efi_status_t efi_env_set_load_options(efi_handle_t handle,
+					     const char *env_var,
+					     u16 **load_options)
 {
-	struct efi_loaded_image *loaded_image_info;
-	size_t size;
 	const char *env = env_get(env_var);
+	size_t size;
 	u16 *pos;
 	efi_status_t ret;
 
 	*load_options = NULL;
-	ret = EFI_CALL(systab.boottime->open_protocol(
-					handle,
-					&efi_guid_loaded_image,
-					(void **)&loaded_image_info,
-					efi_root, NULL,
-					EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL));
-	if (ret != EFI_SUCCESS)
-		return EFI_INVALID_PARAMETER;
-
-	loaded_image_info->load_options = NULL;
-	loaded_image_info->load_options_size = 0;
 	if (!env)
-		goto out;
-
-	size = utf8_utf16_strlen(env) + 1;
-	loaded_image_info->load_options = calloc(size, sizeof(u16));
-	if (!loaded_image_info->load_options) {
-		log_err("ERROR: Out of memory\n");
-		EFI_CALL(systab.boottime->close_protocol(handle,
-							 &efi_guid_loaded_image,
-							 efi_root, NULL));
+		return EFI_SUCCESS;
+	size = sizeof(u16) * (utf8_utf16_strlen(env) + 1);
+	pos = calloc(size, 1);
+	if (!pos)
 		return EFI_OUT_OF_RESOURCES;
-	}
-	pos = loaded_image_info->load_options;
 	*load_options = pos;
 	utf8_utf16_strcpy(&pos, env);
-	loaded_image_info->load_options_size = size * 2;
-
-out:
-	return EFI_CALL(systab.boottime->close_protocol(handle,
-							&efi_guid_loaded_image,
-							efi_root, NULL));
+	ret = efi_set_load_options(handle, size, *load_options);
+	if (ret != EFI_SUCCESS) {
+		free(*load_options);
+		*load_options = NULL;
+	}
+	return ret;
 }
 
 #if !CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)
@@ -328,17 +310,11 @@ efi_status_t efi_install_fdt(void *fdt)
  * Load the EFI binary into a newly assigned memory unwinding the relocation
  * information, install the loaded image protocol, and call the binary.
  */
-static efi_status_t do_bootefi_exec(efi_handle_t handle)
+static efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options)
 {
 	efi_status_t ret;
 	efi_uintn_t exit_data_size = 0;
 	u16 *exit_data = NULL;
-	u16 *load_options;
-
-	/* Transfer environment variable as load options */
-	ret = set_load_options(handle, "bootargs", &load_options);
-	if (ret != EFI_SUCCESS)
-		return ret;
 
 	/* Call our payload! */
 	ret = EFI_CALL(efi_start_image(handle, &exit_data_size, &exit_data));
@@ -367,14 +343,15 @@ static int do_efibootmgr(void)
 {
 	efi_handle_t handle;
 	efi_status_t ret;
+	void *load_options;
 
-	ret = efi_bootmgr_load(&handle);
+	ret = efi_bootmgr_load(&handle, &load_options);
 	if (ret != EFI_SUCCESS) {
 		log_notice("EFI boot manager: Cannot load any image\n");
 		return CMD_RET_FAILURE;
 	}
 
-	ret = do_bootefi_exec(handle);
+	ret = do_bootefi_exec(handle, load_options);
 
 	if (ret != EFI_SUCCESS)
 		return CMD_RET_FAILURE;
@@ -485,7 +462,14 @@ efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	ret = do_bootefi_exec(handle);
+	u16 *load_options;
+
+	/* Transfer environment variable as load options */
+	ret = efi_env_set_load_options(handle, "bootargs", &load_options);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = do_bootefi_exec(handle, load_options);
 
 out:
 	efi_delete_handle(mem_handle);
@@ -509,8 +493,9 @@ static efi_status_t bootefi_run_prepare(const char *load_options_path,
 		return ret;
 
 	/* Transfer environment variable as load options */
-	return set_load_options((efi_handle_t)*image_objp, load_options_path,
-				&load_options);
+	return efi_env_set_load_options((efi_handle_t)*image_objp,
+					load_options_path,
+					&load_options);
 }
 
 /**
