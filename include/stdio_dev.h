@@ -84,6 +84,15 @@ int stdio_init(void);
 
 void stdio_print_current_devices(void);
 int stdio_deregister(const char *devname, int force);
+
+/**
+ * stdio_deregister_dev() - deregister the device "devname".
+ *
+ * @dev: Stdio device to deregister
+ * @force: true to force deregistration even if in use
+ *
+ * returns 0 on success, -EBUSY if device is assigned
+ */
 int stdio_deregister_dev(struct stdio_dev *dev, int force);
 struct list_head *stdio_get_list(void);
 struct stdio_dev *stdio_get_by_name(const char *name);

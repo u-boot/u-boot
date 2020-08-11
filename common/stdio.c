@@ -191,16 +191,15 @@ struct stdio_dev *stdio_get_by_name(const char *name)
 	return NULL;
 }
 
-struct stdio_dev* stdio_clone(struct stdio_dev *dev)
+struct stdio_dev *stdio_clone(struct stdio_dev *dev)
 {
 	struct stdio_dev *_dev;
 
-	if(!dev)
+	if (!dev)
 		return NULL;
 
 	_dev = calloc(1, sizeof(struct stdio_dev));
-
-	if(!_dev)
+	if (!_dev)
 		return NULL;
 
 	memcpy(_dev, dev, sizeof(struct stdio_dev));
@@ -213,7 +212,7 @@ int stdio_register_dev(struct stdio_dev *dev, struct stdio_dev **devp)
 	struct stdio_dev *_dev;
 
 	_dev = stdio_clone(dev);
-	if(!_dev)
+	if (!_dev)
 		return -ENODEV;
 	list_add_tail(&_dev->list, &devs.list);
 	if (devp)
@@ -227,41 +226,38 @@ int stdio_register(struct stdio_dev *dev)
 	return stdio_register_dev(dev, NULL);
 }
 
-/* deregister the device "devname".
- * returns 0 if success, -1 if device is assigned and 1 if devname not found
- */
 int stdio_deregister_dev(struct stdio_dev *dev, int force)
 {
-	int l;
 	struct list_head *pos;
 	char temp_names[3][16];
+	int i;
 
 	/* get stdio devices (ListRemoveItem changes the dev list) */
-	for (l=0 ; l< MAX_FILES; l++) {
-		if (stdio_devices[l] == dev) {
+	for (i = 0 ; i < MAX_FILES; i++) {
+		if (stdio_devices[i] == dev) {
 			if (force) {
-				strcpy(temp_names[l], "nulldev");
+				strcpy(temp_names[i], "nulldev");
 				continue;
 			}
 			/* Device is assigned -> report error */
-			return -1;
+			return -EBUSY;
 		}
-		memcpy (&temp_names[l][0],
-			stdio_devices[l]->name,
-			sizeof(temp_names[l]));
+		memcpy(&temp_names[i][0], stdio_devices[i]->name,
+		       sizeof(temp_names[i]));
 	}
 
 	list_del(&dev->list);
 	free(dev);
 
-	/* reassign Device list */
+	/* reassign device list */
 	list_for_each(pos, &devs.list) {
 		dev = list_entry(pos, struct stdio_dev, list);
-		for (l=0 ; l< MAX_FILES; l++) {
-			if(strcmp(dev->name, temp_names[l]) == 0)
-				stdio_devices[l] = dev;
+		for (i = 0 ; i < MAX_FILES; i++) {
+			if (strcmp(dev->name, temp_names[i]) == 0)
+				stdio_devices[i] = dev;
 		}
 	}
+
 	return 0;
 }
 
@@ -270,7 +266,6 @@ int stdio_deregister(const char *devname, int force)
 	struct stdio_dev *dev;
 
 	dev = stdio_get_by_name(devname);
-
 	if (!dev) /* device not found */
 		return -ENODEV;
 
