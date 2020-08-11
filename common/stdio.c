@@ -18,10 +18,7 @@
 #include <stdio_dev.h>
 #include <serial.h>
 #include <splash.h>
-
-#if defined(CONFIG_SYS_I2C)
 #include <i2c.h>
-#endif
 
 #include <dm/device-internal.h>
 
@@ -109,7 +106,6 @@ struct list_head* stdio_get_list(void)
 	return &(devs.list);
 }
 
-#ifdef CONFIG_DM_VIDEO
 /**
  * stdio_probe_device() - Find a device which provides the given stdio device
  *
@@ -160,7 +156,6 @@ static int stdio_probe_device(const char *name, enum uclass_id id,
 
 	return 0;
 }
-#endif
 
 struct stdio_dev *stdio_get_by_name(const char *name)
 {
@@ -175,22 +170,23 @@ struct stdio_dev *stdio_get_by_name(const char *name)
 		if (strcmp(sdev->name, name) == 0)
 			return sdev;
 	}
-#ifdef CONFIG_DM_VIDEO
-	/*
-	 * We did not find a suitable stdio device. If there is a video
-	 * driver with a name starting with 'vidconsole', we can try probing
-	 * that in the hope that it will produce the required stdio device.
-	 *
-	 * This function is sometimes called with the entire value of
-	 * 'stdout', which may include a list of devices separate by commas.
-	 * Obviously this is not going to work, so we ignore that case. The
-	 * call path in that case is console_init_r() -> search_device() ->
-	 * stdio_get_by_name().
-	 */
-	if (!strncmp(name, "vidconsole", 10) && !strchr(name, ',') &&
-	    !stdio_probe_device(name, UCLASS_VIDEO, &sdev))
-		return sdev;
-#endif
+	if (IS_ENABLED(CONFIG_DM_VIDEO)) {
+		/*
+		 * We did not find a suitable stdio device. If there is a video
+		 * driver with a name starting with 'vidconsole', we can try
+		 * probing that in the hope that it will produce the required
+		 * stdio device.
+		 *
+		 * This function is sometimes called with the entire value of
+		 * 'stdout', which may include a list of devices separate by
+		 * commas. Obviously this is not going to work, so we ignore
+		 * that case. The call path in that case is
+		 * console_init_r() -> search_device() -> stdio_get_by_name()
+		 */
+		if (!strncmp(name, "vidconsole", 10) && !strchr(name, ',') &&
+		    !stdio_probe_device(name, UCLASS_VIDEO, &sdev))
+			return sdev;
+	}
 
 	return NULL;
 }
@@ -234,7 +230,6 @@ int stdio_register(struct stdio_dev *dev)
 /* deregister the device "devname".
  * returns 0 if success, -1 if device is assigned and 1 if devname not found
  */
-#if CONFIG_IS_ENABLED(SYS_STDIO_DEREGISTER)
 int stdio_deregister_dev(struct stdio_dev *dev, int force)
 {
 	int l;
@@ -281,7 +276,6 @@ int stdio_deregister(const char *devname, int force)
 
 	return stdio_deregister_dev(dev, force);
 }
-#endif /* CONFIG_IS_ENABLED(SYS_STDIO_DEREGISTER) */
 
 int stdio_init_tables(void)
 {
@@ -305,87 +299,87 @@ int stdio_init_tables(void)
 
 int stdio_add_devices(void)
 {
-#ifdef CONFIG_DM_KEYBOARD
 	struct udevice *dev;
 	struct uclass *uc;
 	int ret;
 
-	/*
-	 * For now we probe all the devices here. At some point this should be
-	 * done only when the devices are required - e.g. we have a list of
-	 * input devices to start up in the stdin environment variable. That
-	 * work probably makes more sense when stdio itself is converted to
-	 * driver model.
-	 *
-	 * TODO(sjg@chromium.org): Convert changing uclass_first_device() etc.
-	 * to return the device even on error. Then we could use that here.
-	 */
-	ret = uclass_get(UCLASS_KEYBOARD, &uc);
-	if (ret)
-		return ret;
-
-	/* Don't report errors to the caller - assume that they are non-fatal */
-	uclass_foreach_dev(dev, uc) {
-		ret = device_probe(dev);
+	if (IS_ENABLED(CONFIG_DM_KEYBOARD)) {
+		/*
+		 * For now we probe all the devices here. At some point this
+		 * should be done only when the devices are required - e.g. we
+		 * have a list of input devices to start up in the stdin
+		 * environment variable. That work probably makes more sense
+		 * when stdio itself is converted to driver model.
+		 *
+		 * TODO(sjg@chromium.org): Convert changing
+		 * uclass_first_device() etc. to return the device even on
+		 * error. Then we could use that here.
+		 */
+		ret = uclass_get(UCLASS_KEYBOARD, &uc);
 		if (ret)
-			printf("Failed to probe keyboard '%s'\n", dev->name);
+			return ret;
+
+		/*
+		 * Don't report errors to the caller - assume that they are
+		 * non-fatal
+		 */
+		uclass_foreach_dev(dev, uc) {
+			ret = device_probe(dev);
+			if (ret)
+				printf("Failed to probe keyboard '%s'\n",
+				       dev->name);
+		}
 	}
-#endif
 #ifdef CONFIG_SYS_I2C
 	i2c_init_all();
-#else
 #endif
-#ifdef CONFIG_DM_VIDEO
-	/*
-	 * If the console setting is not in environment variables then
-	 * console_init_r() will not be calling iomux_doenv() (which calls
-	 * search_device()). So we will not dynamically add devices by
-	 * calling stdio_probe_device().
-	 *
-	 * So just probe all video devices now so that whichever one is
-	 * required will be available.
-	 */
-#ifndef CONFIG_SYS_CONSOLE_IS_IN_ENV
-	struct udevice *vdev;
-# ifndef CONFIG_DM_KEYBOARD
-	int ret;
-# endif
+	if (IS_ENABLED(CONFIG_DM_VIDEO)) {
+		/*
+		 * If the console setting is not in environment variables then
+		 * console_init_r() will not be calling iomux_doenv() (which
+		 * calls search_device()). So we will not dynamically add
+		 * devices by calling stdio_probe_device().
+		 *
+		 * So just probe all video devices now so that whichever one is
+		 * required will be available.
+		 */
+		struct udevice *vdev;
+		int ret;
 
-	for (ret = uclass_first_device(UCLASS_VIDEO, &vdev);
-	     vdev;
-	     ret = uclass_next_device(&vdev))
-		;
-	if (ret)
-		printf("%s: Video device failed (ret=%d)\n", __func__, ret);
-#endif /* !CONFIG_SYS_CONSOLE_IS_IN_ENV */
-#if defined(CONFIG_SPLASH_SCREEN) && defined(CONFIG_CMD_BMP)
-	splash_display();
-#endif /* CONFIG_SPLASH_SCREEN && CONFIG_CMD_BMP */
-#else
-# if defined(CONFIG_LCD)
-	drv_lcd_init ();
-# endif
-# if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
-	drv_video_init ();
-# endif
-#endif /* CONFIG_DM_VIDEO */
+		if (!IS_ENABLED(CONFIG_SYS_CONSOLE_IS_IN_ENV)) {
+			for (ret = uclass_first_device(UCLASS_VIDEO, &vdev);
+			     vdev;
+			     ret = uclass_next_device(&vdev))
+				;
+			if (ret)
+				printf("%s: Video device failed (ret=%d)\n",
+				       __func__, ret);
+		}
+		if (IS_ENABLED(CONFIG_SPLASH_SCREEN) &&
+		    IS_ENABLED(CONFIG_CMD_BMP))
+			splash_display();
+	} else {
+		if (IS_ENABLED(CONFIG_LCD))
+			drv_lcd_init();
+		if (IS_ENABLED(CONFIG_VIDEO) || IS_ENABLED(CONFIG_CFB_CONSOLE))
+			drv_video_init();
+	}
+
 #if defined(CONFIG_KEYBOARD) && !defined(CONFIG_DM_KEYBOARD)
-	drv_keyboard_init ();
+	drv_keyboard_init();
 #endif
-	drv_system_init ();
-	serial_stdio_init ();
+	drv_system_init();
+	serial_stdio_init();
 #ifdef CONFIG_USB_TTY
-	drv_usbtty_init ();
+	drv_usbtty_init();
 #endif
-#ifdef CONFIG_NETCONSOLE
-	drv_nc_init ();
-#endif
+	if (IS_ENABLED(CONFIG_NETCONSOLE))
+		drv_nc_init();
 #ifdef CONFIG_JTAG_CONSOLE
-	drv_jtag_console_init ();
+	drv_jtag_console_init();
 #endif
-#ifdef CONFIG_CBMEM_CONSOLE
-	cbmemc_init();
-#endif
+	if (IS_ENABLED(CONFIG_CBMEM_CONSOLE))
+		cbmemc_init();
 
 	return 0;
 }
