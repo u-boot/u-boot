@@ -31,15 +31,6 @@ static struct stdio_dev devs;
 struct stdio_dev *stdio_devices[] = { NULL, NULL, NULL };
 char *stdio_names[MAX_FILES] = { "stdin", "stdout", "stderr" };
 
-#if defined(CONFIG_SPLASH_SCREEN) && !defined(CONFIG_SYS_DEVICE_NULLDEV)
-#define	CONFIG_SYS_DEVICE_NULLDEV	1
-#endif
-
-#if CONFIG_IS_ENABLED(SYS_STDIO_DEREGISTER)
-#define	CONFIG_SYS_DEVICE_NULLDEV	1
-#endif
-
-#ifdef CONFIG_SYS_DEVICE_NULLDEV
 static void nulldev_putc(struct stdio_dev *dev, const char c)
 {
 	/* nulldev is empty! */
@@ -55,7 +46,6 @@ static int nulldev_input(struct stdio_dev *dev)
 	/* nulldev is empty! */
 	return 0;
 }
-#endif
 
 static void stdio_serial_putc(struct stdio_dev *dev, const char c)
 {
@@ -96,18 +86,18 @@ static void drv_system_init (void)
 	dev.tstc = stdio_serial_tstc;
 	stdio_register (&dev);
 
-#ifdef CONFIG_SYS_DEVICE_NULLDEV
-	memset (&dev, 0, sizeof (dev));
+	if (CONFIG_IS_ENABLED(SYS_DEVICE_NULLDEV)) {
+		memset(&dev, '\0', sizeof(dev));
 
-	strcpy (dev.name, "nulldev");
-	dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT;
-	dev.putc = nulldev_putc;
-	dev.puts = nulldev_puts;
-	dev.getc = nulldev_input;
-	dev.tstc = nulldev_input;
+		strcpy(dev.name, "nulldev");
+		dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT;
+		dev.putc = nulldev_putc;
+		dev.puts = nulldev_puts;
+		dev.getc = nulldev_input;
+		dev.tstc = nulldev_input;
 
-	stdio_register (&dev);
-#endif
+		stdio_register(&dev);
+	}
 }
 
 /**************************************************************************

@@ -646,6 +646,7 @@ config SPL_SYS_STDIO_DEREGISTER
 
 config SYS_DEVICE_NULLDEV
 	bool "Enable a null device for stdio"
+	default y if SPLASH_SCREEN || SYS_STDIO_DEREGISTER
 	help
 	  Enable creation of a "nulldev" stdio device. This allows silent
 	  operation of the console by setting stdout to "nulldev". Enable
