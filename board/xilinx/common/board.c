@@ -77,13 +77,7 @@ void *board_fdt_blob_setup(void)
 
 int board_late_init_xilinx(void)
 {
-	ulong initrd_hi;
-
 	env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
-
-	initrd_hi = gd->start_addr_sp - CONFIG_STACK_SIZE;
-	initrd_hi = round_down(initrd_hi, SZ_16M);
-	env_set_addr("initrd_high", (void *)initrd_hi);
 
 	env_set_addr("bootm_low", (void *)gd->ram_base);
 	env_set_addr("bootm_size", (void *)gd->ram_size);
