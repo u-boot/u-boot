@@ -29,13 +29,14 @@ DECLARE_GLOBAL_DATA_PTR;
 static __always_inline int mbox_polling_resp(u32 rout)
 {
 	u32 rin;
-	unsigned long i = ~0;
+	unsigned long i = 2000;
 
 	while (i) {
 		rin = MBOX_READL(MBOX_RIN);
 		if (rout != rin)
 			return 0;
 
+		udelay(1000);
 		i--;
 	}
 
@@ -176,11 +177,15 @@ static __always_inline int mbox_send_cmd_common(u8 id, u32 cmd, u8 is_indirect,
 	MBOX_WRITEL(1, MBOX_DOORBELL_TO_SDM);
 
 	while (1) {
-		ret = ~0;
+		ret = 1000;
 
 		/* Wait for doorbell from SDM */
-		while (!MBOX_READL(MBOX_DOORBELL_FROM_SDM) && ret--)
-			;
+		do {
+			if (MBOX_READL(MBOX_DOORBELL_FROM_SDM))
+				break;
+			udelay(1000);
+		} while (--ret);
+
 		if (!ret)
 			return -ETIMEDOUT;
 
