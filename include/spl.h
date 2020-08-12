@@ -503,6 +503,20 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 		 int raw_part,
 		 unsigned long raw_sect);
 
+/**
+ * spl_usb_load() - Load an image file from USB mass storage
+ *
+ * @param spl_image	Image data filled in by loading process
+ * @param bootdev	Describes which device to load from
+ * @param raw_part	Fat partition to load from
+ * @param filename	Name of file to load
+ *
+ * @return 0 on success, otherwise error code
+ */
+int spl_usb_load(struct spl_image_info *spl_image,
+		 struct spl_boot_device *bootdev,
+		 int partition, const char *filename);
+
 int spl_ymodem_load_image(struct spl_image_info *spl_image,
 			  struct spl_boot_device *bootdev);
 

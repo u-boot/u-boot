@@ -311,6 +311,7 @@ int __maybe_unused ti_i2c_eeprom_am6_get(int bus_addr, int dev_addr,
  */
 int __maybe_unused ti_i2c_eeprom_am6_get_base(int bus_addr, int dev_addr);
 
+#ifdef CONFIG_TI_I2C_BOARD_DETECT
 /**
  * board_ti_is() - Board detection logic for TI EVMs
  * @name_tag:	Tag used in eeprom for the board
@@ -454,5 +455,17 @@ bool board_ti_was_eeprom_read(void);
  * Return: 0 if all went fine, else return error.
  */
 int ti_i2c_eeprom_am_set(const char *name, const char *rev);
+#else
+static inline bool board_ti_is(char *name_tag) { return false; };
+static inline bool board_ti_k3_is(char *name_tag) { return false; };
+static inline bool board_ti_rev_is(char *rev_tag, int cmp_len)
+{ return false; };
+static inline char *board_ti_get_rev(void) { return NULL; };
+static inline char *board_ti_get_config(void) { return NULL; };
+static inline char *board_ti_get_name(void) { return NULL; };
+static inline bool board_ti_was_eeprom_read(void) { return false; };
+static inline int ti_i2c_eeprom_am_set(const char *name, const char *rev)
+{ return -EINVAL; };
+#endif
 
 #endif	/* __BOARD_DETECT_H */

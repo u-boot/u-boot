@@ -61,7 +61,10 @@ config TARGET_OMAP3_EVM
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	select OMAP3_GPIO_2
 	select OMAP3_GPIO_3
+	select OMAP3_GPIO_5
+	select OMAP3_GPIO_6
 	imply CMD_DM
 
 config TARGET_OMAP3_IGEP00X0

@@ -62,6 +62,24 @@ void k3_sysfw_print_ver(void)
 	       ti_sci->version.firmware_revision, fw_desc);
 }
 
+void mmr_unlock(phys_addr_t base, u32 partition)
+{
+	/* Translate the base address */
+	phys_addr_t part_base = base + partition * CTRL_MMR0_PARTITION_SIZE;
+
+	/* Unlock the requested partition if locked using two-step sequence */
+	writel(CTRLMMR_LOCK_KICK0_UNLOCK_VAL, part_base + CTRLMMR_LOCK_KICK0);
+	writel(CTRLMMR_LOCK_KICK1_UNLOCK_VAL, part_base + CTRLMMR_LOCK_KICK1);
+}
+
+bool is_rom_loaded_sysfw(struct rom_extended_boot_data *data)
+{
+	if (strncmp(data->header, K3_ROM_BOOT_HEADER_MAGIC, 7))
+		return false;
+
+	return data->num_components > 1;
+}
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_K3_EARLY_CONS
@@ -334,6 +352,26 @@ int print_cpuinfo(void)
 	return 0;
 }
 #endif
+
+bool soc_is_j721e(void)
+{
+	u32 soc;
+
+	soc = (readl(CTRLMMR_WKUP_JTAG_ID) &
+		JTAG_ID_PARTNO_MASK) >> JTAG_ID_PARTNO_SHIFT;
+
+	return soc == J721E;
+}
+
+bool soc_is_j7200(void)
+{
+	u32 soc;
+
+	soc = (readl(CTRLMMR_WKUP_JTAG_ID) &
+		JTAG_ID_PARTNO_MASK) >> JTAG_ID_PARTNO_SHIFT;
+
+	return soc == J7200;
+}
 
 #ifdef CONFIG_ARM64
 void board_prep_linux(bootm_headers_t *images)
