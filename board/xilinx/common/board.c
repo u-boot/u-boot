@@ -77,10 +77,15 @@ void *board_fdt_blob_setup(void)
 
 int board_late_init_xilinx(void)
 {
-	env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
+	u32 ret = 0;
 
-	env_set_addr("bootm_low", (void *)gd->ram_base);
-	env_set_addr("bootm_size", (void *)gd->ram_size);
+	ret |= env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
+
+	ret |= env_set_addr("bootm_low", (void *)gd->ram_base);
+	ret |= env_set_addr("bootm_size", (void *)gd->ram_size);
+
+	if (ret)
+		printf("%s: Saving run time variables FAILED\n", __func__);
 
 	return 0;
 }
