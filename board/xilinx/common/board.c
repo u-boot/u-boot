@@ -8,6 +8,7 @@
 #include <asm/sections.h>
 #include <dm/uclass.h>
 #include <i2c.h>
+#include <linux/sizes.h>
 #include <malloc.h>
 #include "board.h"
 #include <dm.h>
@@ -366,6 +367,10 @@ int board_late_init_xilinx(void)
 	int i, id, macid = 0;
 	struct xilinx_board_description *desc;
 	u32 ret = 0;
+	phys_size_t bootm_size = gd->ram_size;
+
+	if (CONFIG_IS_ENABLED(ARCH_ZYNQ))
+		bootm_size = min(bootm_size, (phys_size_t)(SZ_512M + SZ_256M));
 
 	if (bd->bi_dram[0].start) {
 		ulong scriptaddr;
@@ -378,7 +383,7 @@ int board_late_init_xilinx(void)
 	ret |= env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
 
 	ret |= env_set_addr("bootm_low", (void *)gd->ram_base);
-	ret |= env_set_addr("bootm_size", (void *)gd->ram_size);
+	ret |= env_set_addr("bootm_size", (void *)bootm_size);
 
 	for (id = 0; id <= highest_id; id++) {
 		desc = board_info[id];
