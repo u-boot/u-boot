@@ -221,9 +221,7 @@ static __always_inline int mbox_send_cmd_common(u8 id, u32 cmd, u8 is_indirect,
 			if ((MBOX_RESP_CLIENT_GET(resp) ==
 			     MBOX_CLIENT_ID_UBOOT) &&
 			    (MBOX_RESP_ID_GET(resp) == id)) {
-				ret = MBOX_RESP_ERR_GET(resp);
-				if (ret)
-					return ret;
+				int resp_err = MBOX_RESP_ERR_GET(resp);
 
 				if (resp_buf_len) {
 					buf_len = *resp_buf_len;
@@ -252,7 +250,7 @@ static __always_inline int mbox_send_cmd_common(u8 id, u32 cmd, u8 is_indirect,
 						buf_len--;
 					}
 				}
-				return ret;
+				return resp_err;
 			}
 		}
 	};
