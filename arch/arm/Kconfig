@@ -1198,6 +1198,15 @@ config TARGET_VEXPRESS64_JUNO
 	select USB
 	select DM_USB
 
+config TARGET_TOTAL_COMPUTE
+	bool "Support Total Compute Platform"
+	select ARM64
+	select PL01X_SERIAL
+	select DM
+	select DM_SERIAL
+	select DM_MMC
+	select DM_GPIO
+
 config TARGET_LS2080A_EMU
 	bool "Support ls2080a_emu"
 	select ARCH_LS2080A
@@ -1903,6 +1912,8 @@ source "arch/arm/cpu/armv8/Kconfig"
 source "arch/arm/mach-imx/Kconfig"
 
 source "arch/arm/mach-nexell/Kconfig"
+
+source "board/armltd/total_compute/Kconfig"
 
 source "board/bosch/shc/Kconfig"
 source "board/bosch/guardian/Kconfig"
