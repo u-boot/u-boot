@@ -911,8 +911,8 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 			   ofnode node)
 {
 	int pci_addr_cells, addr_cells, size_cells;
-	struct bd_info *bd = gd->bd;
 	int cells_per_record;
+	struct bd_info *bd;
 	const u32 *prop;
 	int max_regions;
 	int len;
@@ -989,6 +989,7 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 	}
 
 	/* Add a region for our local memory */
+	bd = gd->bd;
 	if (!bd)
 		return;
 

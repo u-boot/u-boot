@@ -685,8 +685,7 @@ phys_size_t env_get_bootm_size(void)
 		return tmp;
 	}
 
-#if (defined(CONFIG_ARM) || defined(CONFIG_MICROBLAZE)) && \
-     defined(CONFIG_NR_DRAM_BANKS)
+#if defined(CONFIG_ARM) || defined(CONFIG_MICROBLAZE)
 	start = gd->bd->bi_dram[0].start;
 	size = gd->bd->bi_dram[0].size;
 #else

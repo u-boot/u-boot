@@ -53,14 +53,12 @@ void board_debug_uart_init(void)
 
 int dram_init_banksize(void)
 {
-#ifdef CONFIG_NR_DRAM_BANKS
 	struct spl_handoff *ho;
 
 	ho = bloblist_find(BLOBLISTT_SPL_HANDOFF, sizeof(*ho));
 	if (!ho)
 		return log_msg_ret("Missing SPL hand-off info", -ENOENT);
 	handoff_load_dram_banks(ho);
-#endif
 
 	return 0;
 }
