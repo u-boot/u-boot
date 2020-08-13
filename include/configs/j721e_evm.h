@@ -23,8 +23,10 @@
 #if defined(CONFIG_TARGET_J721E_A72_EVM) || defined(CONFIG_TARGET_J7200_A72_EVM)
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE +	\
 					 CONFIG_SYS_K3_NON_SECURE_MSRAM_SIZE)
+#define CONFIG_SYS_UBOOT_BASE		0x50280000
 /* Image load address in RAM for DFU boot*/
 #else
+#define CONFIG_SYS_UBOOT_BASE		0x50080000
 /*
  * Maximum size in memory allocated to the SPL BSS. Keep it as tight as
  * possible (to allow the build to go through), as this directly affects
