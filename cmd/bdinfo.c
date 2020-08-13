@@ -34,12 +34,6 @@ static void print_eth(int idx)
 	printf("%-12s= %s\n", name, val);
 }
 
-static void print_phys_addr(const char *name, phys_addr_t value)
-{
-	printf("%-12s= 0x%.*llx\n", name, 2 * (int)sizeof(ulong),
-	       (unsigned long long)value);
-}
-
 void bdinfo_print_mhz(const char *name, unsigned long hz)
 {
 	char buf[32];
@@ -73,8 +67,6 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 #endif
 	bdinfo_print_num("boot_params", (ulong)bd->bi_boot_params);
 	print_bi_dram(bd);
-	bdinfo_print_num("memstart", (ulong)bd->bi_memstart);
-	print_phys_addr("memsize", bd->bi_memsize);
 	if (IS_ENABLED(CONFIG_SYS_HAS_SRAM)) {
 		bdinfo_print_num("sramstart", (ulong)bd->bi_sramstart);
 		bdinfo_print_num("sramsize", (ulong)bd->bi_sramsize);
