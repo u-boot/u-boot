@@ -594,6 +594,20 @@ static int mt7622_pciesys_probe(struct udevice *dev)
 	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, pcie_cgs);
 }
 
+static int mt7622_pciesys_bind(struct udevice *dev)
+{
+	int ret = 0;
+
+	if (IS_ENABLED(CONFIG_RESET_MEDIATEK)) {
+//	PCIESYS uses in linux also 0x34 = ETHSYS reset controller
+	ret = mediatek_reset_bind(dev, ETHSYS_HIFSYS_RST_CTRL_OFS, 1);
+	if (ret)
+		debug("Warning: failed to bind reset controller\n");
+	}
+
+	return ret;
+}
+
 static int mt7622_ethsys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, eth_cgs);
@@ -710,6 +724,7 @@ U_BOOT_DRIVER(mtk_clk_pciesys) = {
 	.id = UCLASS_CLK,
 	.of_match = mt7622_pciesys_compat,
 	.probe = mt7622_pciesys_probe,
+	.bind = mt7622_pciesys_bind,
 	.priv_auto_alloc_size = sizeof(struct mtk_cg_priv),
 	.ops = &mtk_clk_gate_ops,
 };
