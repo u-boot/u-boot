@@ -919,6 +919,9 @@ static const init_fnc_t init_sequence_f[] = {
 	 *  - board info struct
 	 */
 	setup_dest_addr,
+#ifdef CONFIG_OF_BOARD_FIXUP
+	fix_fdt,
+#endif
 #ifdef CONFIG_PRAM
 	reserve_pram,
 #endif
@@ -941,9 +944,6 @@ static const init_fnc_t init_sequence_f[] = {
 	INIT_FUNC_WATCHDOG_RESET
 	setup_bdinfo,
 	display_new_sp,
-#ifdef CONFIG_OF_BOARD_FIXUP
-	fix_fdt,
-#endif
 	INIT_FUNC_WATCHDOG_RESET
 	reloc_fdt,
 	reloc_bootstage,
