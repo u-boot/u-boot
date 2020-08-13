@@ -177,6 +177,9 @@
 			};
 
 			mdio {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
 				phy0: ethernet-phy@0 {
 					reg = <0>;
 				};
