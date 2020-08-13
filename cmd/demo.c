@@ -130,5 +130,4 @@ U_BOOT_CMD(
 	"demo hello <num> [<char>]     Say hello\n"
 	"demo light [<num>]            Set or get the lights\n"
 	"demo status <num>             Get demo device status\n"
-	"demo list                     List available demo devices"
 );
