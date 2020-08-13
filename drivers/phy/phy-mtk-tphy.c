@@ -175,6 +175,65 @@
 #define XC3_RG_U3_XTAL_RX_PWD		BIT(9)
 #define XC3_RG_U3_FRC_XTAL_RX_PWD	BIT(8)
 
+/* SATA register setting */
+#define PHYD_CTRL_SIGNAL_MODE4		0x1c
+/* CDR Charge Pump P-path current adjustment */
+#define RG_CDR_BICLTD1_GEN1_MSK		GENMASK(23, 20)
+#define RG_CDR_BICLTD1_GEN1_VAL(x)	((0xf & (x)) << 20)
+#define RG_CDR_BICLTD0_GEN1_MSK		GENMASK(11, 8)
+#define RG_CDR_BICLTD0_GEN1_VAL(x)	((0xf & (x)) << 8)
+
+#define PHYD_DESIGN_OPTION2		0x24
+/* Symbol lock count selection */
+#define RG_LOCK_CNT_SEL_MSK		GENMASK(5, 4)
+#define RG_LOCK_CNT_SEL_VAL(x)		((0x3 & (x)) << 4)
+
+#define PHYD_DESIGN_OPTION9		0x40
+/* COMWAK GAP width window */
+#define RG_TG_MAX_MSK			GENMASK(20, 16)
+#define RG_TG_MAX_VAL(x)		((0x1f & (x)) << 16)
+/* COMINIT GAP width window */
+#define RG_T2_MAX_MSK			GENMASK(13, 8)
+#define RG_T2_MAX_VAL(x)		((0x3f & (x)) << 8)
+/* COMWAK GAP width window */
+#define RG_TG_MIN_MSK			GENMASK(7, 5)
+#define RG_TG_MIN_VAL(x)		((0x7 & (x)) << 5)
+/* COMINIT GAP width window */
+#define RG_T2_MIN_MSK			GENMASK(4, 0)
+#define RG_T2_MIN_VAL(x)		(0x1f & (x))
+
+#define ANA_RG_CTRL_SIGNAL1		0x4c
+/* TX driver tail current control for 0dB de-empahsis mdoe for Gen1 speed */
+#define RG_IDRV_0DB_GEN1_MSK		GENMASK(13, 8)
+#define RG_IDRV_0DB_GEN1_VAL(x)		((0x3f & (x)) << 8)
+
+#define ANA_RG_CTRL_SIGNAL4		0x58
+#define RG_CDR_BICLTR_GEN1_MSK		GENMASK(23, 20)
+#define RG_CDR_BICLTR_GEN1_VAL(x)	((0xf & (x)) << 20)
+/* Loop filter R1 resistance adjustment for Gen1 speed */
+#define RG_CDR_BR_GEN2_MSK		GENMASK(10, 8)
+#define RG_CDR_BR_GEN2_VAL(x)		((0x7 & (x)) << 8)
+
+#define ANA_RG_CTRL_SIGNAL6		0x60
+/* I-path capacitance adjustment for Gen1 */
+#define RG_CDR_BC_GEN1_MSK		GENMASK(28, 24)
+#define RG_CDR_BC_GEN1_VAL(x)		((0x1f & (x)) << 24)
+#define RG_CDR_BIRLTR_GEN1_MSK		GENMASK(4, 0)
+#define RG_CDR_BIRLTR_GEN1_VAL(x)	(0x1f & (x))
+
+#define ANA_EQ_EYE_CTRL_SIGNAL1		0x6c
+/* RX Gen1 LEQ tuning step */
+#define RG_EQ_DLEQ_LFI_GEN1_MSK		GENMASK(11, 8)
+#define RG_EQ_DLEQ_LFI_GEN1_VAL(x)	((0xf & (x)) << 8)
+
+#define ANA_EQ_EYE_CTRL_SIGNAL4		0xd8
+#define RG_CDR_BIRLTD0_GEN1_MSK		GENMASK(20, 16)
+#define RG_CDR_BIRLTD0_GEN1_VAL(x)	((0x1f & (x)) << 16)
+
+#define ANA_EQ_EYE_CTRL_SIGNAL5		0xdc
+#define RG_CDR_BIRLTD0_GEN3_MSK		GENMASK(4, 0)
+#define RG_CDR_BIRLTD0_GEN3_VAL(x)	(0x1f & (x))
+
 enum mtk_phy_version {
 	MTK_TPHY_V1 = 1,
 	MTK_TPHY_V2,
@@ -372,6 +431,45 @@ static void pcie_phy_instance_init(struct mtk_tphy *tphy,
 	udelay(3000);
 }
 
+static void sata_phy_instance_init(struct mtk_tphy *tphy,
+				   struct mtk_phy_instance *instance)
+{
+	struct u3phy_banks *u3_banks = &instance->u3_banks;
+
+	clrsetbits_le32(u3_banks->phyd + ANA_RG_CTRL_SIGNAL6,
+			RG_CDR_BIRLTR_GEN1_MSK | RG_CDR_BC_GEN1_MSK,
+			RG_CDR_BIRLTR_GEN1_VAL(0x6) |
+			RG_CDR_BC_GEN1_VAL(0x1a));
+	clrsetbits_le32(u3_banks->phyd + ANA_EQ_EYE_CTRL_SIGNAL4,
+			RG_CDR_BIRLTD0_GEN1_MSK,
+			RG_CDR_BIRLTD0_GEN1_VAL(0x18));
+	clrsetbits_le32(u3_banks->phyd + ANA_EQ_EYE_CTRL_SIGNAL5,
+			RG_CDR_BIRLTD0_GEN3_MSK,
+			RG_CDR_BIRLTD0_GEN3_VAL(0x06));
+	clrsetbits_le32(u3_banks->phyd + ANA_RG_CTRL_SIGNAL4,
+			RG_CDR_BICLTR_GEN1_MSK | RG_CDR_BR_GEN2_MSK,
+			RG_CDR_BICLTR_GEN1_VAL(0x0c) |
+			RG_CDR_BR_GEN2_VAL(0x07));
+	clrsetbits_le32(u3_banks->phyd + PHYD_CTRL_SIGNAL_MODE4,
+			RG_CDR_BICLTD0_GEN1_MSK | RG_CDR_BICLTD1_GEN1_MSK,
+			RG_CDR_BICLTD0_GEN1_VAL(0x08) |
+			RG_CDR_BICLTD1_GEN1_VAL(0x02));
+	clrsetbits_le32(u3_banks->phyd + PHYD_DESIGN_OPTION2,
+			RG_LOCK_CNT_SEL_MSK,
+			RG_LOCK_CNT_SEL_VAL(0x02));
+	clrsetbits_le32(u3_banks->phyd + PHYD_DESIGN_OPTION9,
+			RG_T2_MIN_MSK | RG_TG_MIN_MSK |
+			RG_T2_MAX_MSK | RG_TG_MAX_MSK,
+			RG_T2_MIN_VAL(0x12) | RG_TG_MIN_VAL(0x04) |
+			RG_T2_MAX_VAL(0x31) | RG_TG_MAX_VAL(0x0e));
+	clrsetbits_le32(u3_banks->phyd + ANA_RG_CTRL_SIGNAL1,
+			RG_IDRV_0DB_GEN1_MSK,
+			RG_IDRV_0DB_GEN1_VAL(0x20));
+	clrsetbits_le32(u3_banks->phyd + ANA_EQ_EYE_CTRL_SIGNAL1,
+			RG_EQ_DLEQ_LFI_GEN1_MSK,
+			RG_EQ_DLEQ_LFI_GEN1_VAL(0x03));
+}
+
 static void pcie_phy_instance_power_on(struct mtk_tphy *tphy,
 				       struct mtk_phy_instance *instance)
 {
@@ -413,6 +511,9 @@ static void phy_v1_banks_init(struct mtk_tphy *tphy,
 		u3_banks->chip = tphy->sif_base + SSUSB_SIFSLV_V1_CHIP;
 		u3_banks->phyd = instance->port_base + SSUSB_SIFSLV_V1_U3PHYD;
 		u3_banks->phya = instance->port_base + SSUSB_SIFSLV_V1_U3PHYA;
+		break;
+	case PHY_TYPE_SATA:
+		u3_banks->phyd = instance->port_base + SSUSB_SIFSLV_V1_U3PHYD;
 		break;
 	default:
 		dev_err(tphy->dev, "incompatible PHY type\n");
@@ -473,6 +574,9 @@ static int mtk_phy_init(struct phy *phy)
 		break;
 	case PHY_TYPE_PCIE:
 		pcie_phy_instance_init(tphy, instance);
+		break;
+	case PHY_TYPE_SATA:
+		sata_phy_instance_init(tphy, instance);
 		break;
 	default:
 		dev_err(tphy->dev, "incompatible PHY type\n");
@@ -552,6 +656,7 @@ static int mtk_phy_xlate(struct phy *phy,
 	instance->type = args->args[1];
 	if (!(instance->type == PHY_TYPE_USB2 ||
 	      instance->type == PHY_TYPE_USB3 ||
+	      instance->type == PHY_TYPE_SATA ||
 	      instance->type == PHY_TYPE_PCIE)) {
 		dev_err(phy->dev, "unsupported device type\n");
 		return -EINVAL;
