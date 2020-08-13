@@ -10,6 +10,7 @@
 #include <dt-bindings/power/mt7629-power.h>
 #include <dt-bindings/reset/mt7629-reset.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/phy/phy.h>
 
 / {
 	compatible = "mediatek,mt7622";
@@ -267,6 +268,37 @@
 				#address-cells = <0>;
 				#interrupt-cells = <1>;
 			};
+		};
+	};
+
+	sata: sata@1a200000 {
+		compatible = "mediatek,mtk-ahci";
+		reg = <0x1a200000 0x1100>;
+		resets = <&pciesys MT7622_SATA_AXI_BUS_RST>,
+			<&pciesys MT7622_SATA_PHY_SW_RST>,
+			<&pciesys MT7622_SATA_PHY_REG_RST>;
+		reset-names = "axi", "sw", "reg";
+		mediatek,phy-mode = <&pciesys>;
+		ports-implemented = <0x1>;
+		phys = <&sata_port PHY_TYPE_SATA>;
+		phy-names = "sata-phy";
+		status = "okay";
+	};
+
+	sata_phy: sata-phy@1a243000 {
+		compatible = "mediatek,generic-tphy-v1";
+		reg = <0x1a243000 0x0100>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+		status = "okay";
+
+		sata_port: sata-phy@1a243000 {
+			reg = <0x1a243000 0x0100>;
+			clocks = <&topckgen CLK_TOP_ETH_500M>;
+			clock-names = "ref";
+			#phy-cells = <1>;
+			status = "okay";
 		};
 	};
 

@@ -235,3 +235,12 @@
 		full-duplex;
 	};
 };
+
+&gpio {
+	/*gpio 90 for setting mode to sata*/
+	asm_sel {
+		gpio-hog;
+		gpios = <90 GPIO_ACTIVE_HIGH>;
+		output-low;
+	};
+};
