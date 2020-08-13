@@ -27,8 +27,6 @@
 #include <linux/types.h>
 
 struct bd_info {
-	unsigned long	bi_memstart;	/* start of DRAM memory */
-	phys_size_t	bi_memsize;	/* size	 of DRAM memory in bytes */
 	unsigned long	bi_flashstart;	/* start of FLASH memory */
 	unsigned long	bi_flashsize;	/* size	 of FLASH memory */
 	unsigned long	bi_flashoffset; /* reserved area for startup monitor */
