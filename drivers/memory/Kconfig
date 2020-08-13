@@ -4,6 +4,15 @@
 
 menu "Memory Controller drivers"
 
+config STM32_FMC2_EBI
+	bool "Support for FMC2 External Bus Interface on STM32MP SoCs"
+	depends on ARCH_STM32MP
+	help
+	  Select this option to enable the STM32 FMC2 External Bus Interface
+	  controller. This driver configures the transactions with external
+	  devices (like SRAM, ethernet adapters, FPGAs, LCD displays, ...) on
+	  SOCs containing the FMC2 External Bus Interface.
+
 config TI_AEMIF
 	tristate "Texas Instruments AEMIF driver"
 	depends on ARCH_KEYSTONE

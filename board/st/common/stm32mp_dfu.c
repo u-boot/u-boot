@@ -114,11 +114,13 @@ void set_dfu_alt_info(char *interface, char *devstr)
 	snprintf(buf, DFU_ALT_BUF_LEN,
 		 "ram 0=%s", CONFIG_DFU_ALT_RAM0);
 
-	if (!uclass_get_device(UCLASS_MMC, 0, &dev))
-		board_get_alt_info_mmc(dev, buf);
+	if (CONFIG_IS_ENABLED(MMC)) {
+		if (!uclass_get_device(UCLASS_MMC, 0, &dev))
+			board_get_alt_info_mmc(dev, buf);
 
-	if (!uclass_get_device(UCLASS_MMC, 1, &dev))
-		board_get_alt_info_mmc(dev, buf);
+		if (!uclass_get_device(UCLASS_MMC, 1, &dev))
+			board_get_alt_info_mmc(dev, buf);
+	}
 
 	if (CONFIG_IS_ENABLED(MTD)) {
 		/* probe all MTD devices */
@@ -140,12 +142,12 @@ void set_dfu_alt_info(char *interface, char *devstr)
 			board_get_alt_info_mtd(mtd, buf);
 	}
 
-#ifdef CONFIG_DFU_VIRT
-	strncat(buf, "&virt 0=OTP", DFU_ALT_BUF_LEN);
+	if (IS_ENABLED(CONFIG_DFU_VIRT)) {
+		strncat(buf, "&virt 0=OTP", DFU_ALT_BUF_LEN);
 
-	if (IS_ENABLED(CONFIG_PMIC_STPMIC1))
-		strncat(buf, "&virt 1=PMIC", DFU_ALT_BUF_LEN);
-#endif
+		if (IS_ENABLED(CONFIG_PMIC_STPMIC1))
+			strncat(buf, "&virt 1=PMIC", DFU_ALT_BUF_LEN);
+	}
 
 	env_set("dfu_alt_info", buf);
 	puts("DFU alt info setting: done\n");

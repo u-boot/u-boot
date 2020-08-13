@@ -84,11 +84,26 @@ DECLARE_GLOBAL_DATA_PTR;
 int setup_mac_address(void)
 {
 	unsigned char enetaddr[6];
+	bool skip_eth0 = false;
+	bool skip_eth1 = false;
 	struct udevice *dev;
 	int off, ret;
 
 	ret = eth_env_get_enetaddr("ethaddr", enetaddr);
 	if (ret)	/* ethaddr is already set */
+		skip_eth0 = true;
+
+	off = fdt_path_offset(gd->fdt_blob, "ethernet1");
+	if (off < 0) {
+		/* ethernet1 is not present in the system */
+		skip_eth1 = true;
+	} else {
+		ret = eth_env_get_enetaddr("eth1addr", enetaddr);
+		if (ret)	/* eth1addr is already set */
+			skip_eth1 = true;
+	}
+
+	if (skip_eth0 && skip_eth1)
 		return 0;
 
 	off = fdt_path_offset(gd->fdt_blob, "eeprom0");
@@ -109,8 +124,14 @@ int setup_mac_address(void)
 		return ret;
 	}
 
-	if (is_valid_ethaddr(enetaddr))
-		eth_env_set_enetaddr("ethaddr", enetaddr);
+	if (is_valid_ethaddr(enetaddr)) {
+		if (!skip_eth0)
+			eth_env_set_enetaddr("ethaddr", enetaddr);
+
+		enetaddr[5]++;
+		if (!skip_eth1)
+			eth_env_set_enetaddr("eth1addr", enetaddr);
+	}
 
 	return 0;
 }
@@ -216,9 +237,13 @@ int board_early_init_f(void)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
-	char test[20];
+	const char *compat;
+	char test[128];
 
-	snprintf(test, sizeof(test), "somrev%d_boardrev%d", somcode, brdcode);
+	compat = fdt_getprop(gd->fdt_blob, 0, "compatible", NULL);
+
+	snprintf(test, sizeof(test), "%s_somrev%d_boardrev%d",
+		compat, somcode, brdcode);
 
 	if (!strcmp(name, test))
 		return 0;
