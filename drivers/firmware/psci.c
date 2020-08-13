@@ -19,6 +19,7 @@
 #include <linux/errno.h>
 #include <linux/printk.h>
 #include <linux/psci.h>
+#include <asm/system.h>
 
 #define DRIVER_NAME "psci"
 
@@ -72,6 +73,11 @@ static int psci_bind(struct udevice *dev)
 static int psci_probe(struct udevice *dev)
 {
 	const char *method;
+
+#if defined(CONFIG_ARM64)
+	if (current_el() == 3)
+		return -EINVAL;
+#endif
 
 	method = ofnode_read_string(dev_ofnode(dev), "method");
 	if (!method) {
