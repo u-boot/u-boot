@@ -52,7 +52,7 @@ static int init_plic(void)
 	if (ret)
 		return ret;
 
-	if (ret == 0 && dev) {
+	if (dev) {
 		ofnode_for_each_subnode(node, dev_ofnode(dev->parent)) {
 			const char *device_type;
 

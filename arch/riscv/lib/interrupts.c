@@ -10,36 +10,43 @@
  */
 
 #include <common.h>
+#include <efi_loader.h>
 #include <hang.h>
 #include <irq_func.h>
 #include <asm/ptrace.h>
 #include <asm/system.h>
 #include <asm/encoding.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
+static void show_efi_loaded_images(uintptr_t epc)
+{
+	efi_print_image_infos((void *)epc);
+}
+
 static void show_regs(struct pt_regs *regs)
 {
 #ifdef CONFIG_SHOW_REGS
-	printf("RA: " REG_FMT " SP:  " REG_FMT " GP:  " REG_FMT "\n",
-	       regs->ra, regs->sp, regs->gp);
-	printf("TP: " REG_FMT " T0:  " REG_FMT " T1:  " REG_FMT "\n",
-	       regs->tp, regs->t0, regs->t1);
-	printf("T2: " REG_FMT " S0:  " REG_FMT " S1:  " REG_FMT "\n",
-	       regs->t2, regs->s0, regs->s1);
-	printf("A0: " REG_FMT " A1:  " REG_FMT " A2:  " REG_FMT "\n",
-	       regs->a0, regs->a1, regs->a2);
-	printf("A3: " REG_FMT " A4:  " REG_FMT " A5:  " REG_FMT "\n",
-	       regs->a3, regs->a4, regs->a5);
-	printf("A6: " REG_FMT " A7:  " REG_FMT " S2:  " REG_FMT "\n",
-	       regs->a6, regs->a7, regs->s2);
-	printf("S3: " REG_FMT " S4:  " REG_FMT " S5:  " REG_FMT "\n",
-	       regs->s3, regs->s4, regs->s5);
-	printf("S6: " REG_FMT " S7:  " REG_FMT " S8:  " REG_FMT "\n",
-	       regs->s6, regs->s7, regs->s8);
-	printf("S9: " REG_FMT " S10: " REG_FMT " S11: " REG_FMT "\n",
-	       regs->s9, regs->s10, regs->s11);
-	printf("T3: " REG_FMT " T4:  " REG_FMT " T5:  " REG_FMT "\n",
-	       regs->t3, regs->t4, regs->t5);
-	printf("T6: " REG_FMT "\n", regs->t6);
+	printf("SP:  " REG_FMT " GP:  " REG_FMT " TP:  " REG_FMT "\n",
+	       regs->sp, regs->gp, regs->tp);
+	printf("T0:  " REG_FMT " T1:  " REG_FMT " T2:  " REG_FMT "\n",
+	       regs->t0, regs->t1, regs->t2);
+	printf("S0:  " REG_FMT " S1:  " REG_FMT " A0:  " REG_FMT "\n",
+	       regs->s0, regs->s1, regs->a0);
+	printf("A1:  " REG_FMT " A2:  " REG_FMT " A3:  " REG_FMT "\n",
+	       regs->a1, regs->a2, regs->a3);
+	printf("A4:  " REG_FMT " A5:  " REG_FMT " A6:  " REG_FMT "\n",
+	       regs->a4, regs->a5, regs->a6);
+	printf("A7:  " REG_FMT " S2:  " REG_FMT " S3:  " REG_FMT "\n",
+	       regs->a7, regs->s2, regs->s3);
+	printf("S4:  " REG_FMT " S5:  " REG_FMT " S6:  " REG_FMT "\n",
+	       regs->s4, regs->s5, regs->s6);
+	printf("S7:  " REG_FMT " S8:  " REG_FMT " S9:  " REG_FMT "\n",
+	       regs->s7, regs->s8, regs->s9);
+	printf("S10: " REG_FMT " S11: " REG_FMT " T3:  " REG_FMT "\n",
+	       regs->s10, regs->s11, regs->t3);
+	printf("T4:  " REG_FMT " T5:  " REG_FMT " T6:  " REG_FMT "\n\n",
+	       regs->t4, regs->t5, regs->t6);
 #endif
 }
 
@@ -69,8 +76,14 @@ static void _exit_trap(ulong code, ulong epc, ulong tval, struct pt_regs *regs)
 	else
 		printf("Unhandled exception code: %ld\n", code);
 
-	printf("EPC: " REG_FMT " TVAL: " REG_FMT "\n", epc, tval);
+	printf("EPC: " REG_FMT " RA: " REG_FMT " TVAL: " REG_FMT "\n",
+	       epc, regs->ra, tval);
+	if (gd->flags & GD_FLG_RELOC)
+		printf("EPC: " REG_FMT " RA: " REG_FMT " reloc adjusted\n\n",
+		       epc - gd->reloc_off, regs->ra - gd->reloc_off);
+
 	show_regs(regs);
+	show_efi_loaded_images(epc);
 	hang();
 }
 
