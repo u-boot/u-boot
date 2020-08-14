@@ -31,17 +31,64 @@ struct uartlite {
 
 struct uartlite_platdata {
 	struct uartlite *regs;
+	const struct uartlite_reg_ops *reg_ops;
 };
+
+struct uartlite_reg_ops {
+	u32 (*in)(void __iomem *addr);
+	void (*out)(u32 val, void __iomem *addr);
+};
+
+static u32 uartlite_inle32(void __iomem *addr)
+{
+	return in_le32(addr);
+}
+
+static void uartlite_outle32(u32 val, void __iomem *addr)
+{
+	out_le32(addr, val);
+}
+
+static const struct uartlite_reg_ops uartlite_le = {
+	.in = uartlite_inle32,
+	.out = uartlite_outle32,
+};
+
+static u32 uartlite_inbe32(void __iomem *addr)
+{
+	return in_be32(addr);
+}
+
+static void uartlite_outbe32(u32 val, void __iomem *addr)
+{
+	out_be32(addr, val);
+}
+
+static const struct uartlite_reg_ops uartlite_be = {
+	.in = uartlite_inbe32,
+	.out = uartlite_outbe32,
+};
+
+static u32 uart_in32(void __iomem *addr, struct uartlite_platdata *plat)
+{
+	return plat->reg_ops->in(addr);
+}
+
+static void uart_out32(void __iomem *addr, u32 val,
+		       struct uartlite_platdata *plat)
+{
+	plat->reg_ops->out(val, addr);
+}
 
 static int uartlite_serial_putc(struct udevice *dev, const char ch)
 {
 	struct uartlite_platdata *plat = dev_get_platdata(dev);
 	struct uartlite *regs = plat->regs;
 
-	if (in_be32(&regs->status) & SR_TX_FIFO_FULL)
+	if (uart_in32(&regs->status, plat) & SR_TX_FIFO_FULL)
 		return -EAGAIN;
 
-	out_be32(&regs->tx_fifo, ch & 0xff);
+	uart_out32(&regs->tx_fifo, ch & 0xff, plat);
 
 	return 0;
 }
@@ -51,10 +98,10 @@ static int uartlite_serial_getc(struct udevice *dev)
 	struct uartlite_platdata *plat = dev_get_platdata(dev);
 	struct uartlite *regs = plat->regs;
 
-	if (!(in_be32(&regs->status) & SR_RX_FIFO_VALID_DATA))
+	if (!(uart_in32(&regs->status, plat) & SR_RX_FIFO_VALID_DATA))
 		return -EAGAIN;
 
-	return in_be32(&regs->rx_fifo) & 0xff;
+	return uart_in32(&regs->rx_fifo, plat) & 0xff;
 }
 
 static int uartlite_serial_pending(struct udevice *dev, bool input)
@@ -63,19 +110,26 @@ static int uartlite_serial_pending(struct udevice *dev, bool input)
 	struct uartlite *regs = plat->regs;
 
 	if (input)
-		return in_be32(&regs->status) & SR_RX_FIFO_VALID_DATA;
+		return uart_in32(&regs->status, plat) & SR_RX_FIFO_VALID_DATA;
 
-	return !(in_be32(&regs->status) & SR_TX_FIFO_EMPTY);
+	return !(uart_in32(&regs->status, plat) & SR_TX_FIFO_EMPTY);
 }
 
 static int uartlite_serial_probe(struct udevice *dev)
 {
 	struct uartlite_platdata *plat = dev_get_platdata(dev);
 	struct uartlite *regs = plat->regs;
+	int ret;
 
-	out_be32(&regs->control, 0);
-	out_be32(&regs->control, ULITE_CONTROL_RST_RX | ULITE_CONTROL_RST_TX);
-	in_be32(&regs->control);
+	plat->reg_ops = &uartlite_be;
+	ret = uart_in32(&regs->control, plat);
+	uart_out32(&regs->control, 0, plat);
+	uart_out32(&regs->control,
+		   ULITE_CONTROL_RST_RX | ULITE_CONTROL_RST_TX, plat);
+	ret = uart_in32(&regs->status, plat);
+	/* Endianness detection */
+	if ((ret & SR_TX_FIFO_EMPTY) != SR_TX_FIFO_EMPTY)
+		plat->reg_ops = &uartlite_le;
 
 	return 0;
 }
