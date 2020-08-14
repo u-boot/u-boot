@@ -822,6 +822,13 @@ config MPC8XX_CONS
 	depends on MPC8xx
 	default y
 
+config XEN_SERIAL
+	bool "XEN serial support"
+	depends on XEN
+	help
+	  If built without DM support, then requires Xen
+	  to be built with CONFIG_VERBOSE_DEBUG.
+
 choice
 	prompt "Console port"
 	default 8xx_CONS_SMC1

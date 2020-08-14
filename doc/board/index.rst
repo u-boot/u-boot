@@ -22,4 +22,5 @@ Board-specific doc
    st/index
    tbs/index
    toradex/index
+   xen/index
    xilinx/index

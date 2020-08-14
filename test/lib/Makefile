@@ -6,6 +6,7 @@ obj-y += cmd_ut_lib.o
 obj-$(CONFIG_EFI_SECURE_BOOT) += efi_image_region.o
 obj-y += hexdump.o
 obj-y += lmb.o
+obj-y += sscanf.o
 obj-y += string.o
 obj-$(CONFIG_ERRNO_STR) += test_errno_str.o
 obj-$(CONFIG_UT_LIB_ASN1) += asn1.o

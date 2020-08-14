@@ -149,6 +149,7 @@ void dev_print (struct blk_desc *dev_desc)
 	case IF_TYPE_MMC:
 	case IF_TYPE_USB:
 	case IF_TYPE_NVME:
+	case IF_TYPE_PVBLOCK:
 		printf ("Vendor: %s Rev: %s Prod: %s\n",
 			dev_desc->vendor,
 			dev_desc->revision,
@@ -287,6 +288,9 @@ static void print_part_header(const char *type, struct blk_desc *dev_desc)
 		break;
 	case IF_TYPE_NVME:
 		puts ("NVMe");
+		break;
+	case IF_TYPE_PVBLOCK:
+		puts("PV BLOCK");
 		break;
 	case IF_TYPE_VIRTIO:
 		puts("VirtIO");

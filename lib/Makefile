@@ -123,6 +123,7 @@ else
 # Main U-Boot always uses the full printf support
 obj-y += vsprintf.o strto.o
 obj-$(CONFIG_OID_REGISTRY) += oid_registry.o
+obj-$(CONFIG_SSCANF) += sscanf.o
 endif
 
 obj-y += date.o

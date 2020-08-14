@@ -29,6 +29,7 @@ obj-$(CONFIG_$(SPL_)REMOTEPROC) += remoteproc/
 obj-$(CONFIG_$(SPL_TPL_)TPM) += tpm/
 obj-$(CONFIG_$(SPL_TPL_)ACPI_PMC) += power/acpi_pmc/
 obj-$(CONFIG_$(SPL_)BOARD) += board/
+obj-$(CONFIG_XEN) += xen/
 
 ifndef CONFIG_TPL_BUILD
 ifdef CONFIG_SPL_BUILD
