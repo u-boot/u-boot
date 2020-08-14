@@ -174,6 +174,8 @@ static bool efi_lookup_certificate(struct x509_certificate *cert,
 			if (IS_ERR_OR_NULL(cert_tmp))
 				continue;
 
+			EFI_PRINT("%s: against %s\n", __func__,
+				  cert_tmp->subject);
 			reg[0].data = cert_tmp->tbs;
 			reg[0].size = cert_tmp->tbs_size;
 			if (!efi_hash_regions(reg, 1, &hash_tmp, NULL))
@@ -266,7 +268,7 @@ out:
  * protocol at this time and any image will be unconditionally revoked
  * when this match occurs.
  *
- * Return:	true if check passed, false otherwise.
+ * Return:	true if check passed (not found), false otherwise.
  */
 static bool efi_signature_check_revocation(struct pkcs7_signed_info *sinfo,
 					   struct x509_certificate *cert,
@@ -336,70 +338,6 @@ out:
 	return !revoked;
 }
 
-/**
- * efi_signature_verify_one - verify signatures with database
- * @regs:	List of regions to be authenticated
- * @msg:	Signature
- * @db:		Signature database
- *
- * All the signature pointed to by @msg against image pointed to by @regs
- * will be verified by signature database pointed to by @db.
- *
- * Return:	true if verification for one of signatures passed, false
- *		otherwise
- */
-bool efi_signature_verify_one(struct efi_image_regions *regs,
-			      struct pkcs7_message *msg,
-			      struct efi_signature_store *db)
-{
-	struct pkcs7_signed_info *sinfo;
-	struct x509_certificate *signer;
-	bool verified = false;
-	int ret;
-
-	EFI_PRINT("%s: Enter, %p, %p, %p\n", __func__, regs, msg, db);
-
-	if (!db)
-		goto out;
-
-	if (!db->sig_data_list)
-		goto out;
-
-	EFI_PRINT("%s: Verify signed image with db\n", __func__);
-	for (sinfo = msg->signed_infos; sinfo; sinfo = sinfo->next) {
-		EFI_PRINT("Signed Info: digest algo: %s, pkey algo: %s\n",
-			  sinfo->sig->hash_algo, sinfo->sig->pkey_algo);
-
-		EFI_PRINT("Verifying certificate chain\n");
-		signer = NULL;
-		ret = pkcs7_verify_one(msg, sinfo, &signer);
-		if (ret == -ENOPKG)
-			continue;
-
-		if (ret < 0 || !signer)
-			goto out;
-
-		if (sinfo->blacklisted)
-			continue;
-
-		EFI_PRINT("Verifying last certificate in chain\n");
-		if (signer->self_signed) {
-			if (efi_lookup_certificate(signer, db)) {
-				verified = true;
-				goto out;
-			}
-		} else if (efi_verify_certificate(signer, db, NULL)) {
-			verified = true;
-			goto out;
-		}
-		EFI_PRINT("Valid certificate not in db\n");
-	}
-
-out:
-	EFI_PRINT("%s: Exit, verified: %d\n", __func__, verified);
-	return verified;
-}
-
 /*
  * efi_signature_verify - verify signatures with db and dbx
  * @regs:	List of regions to be authenticated
@@ -462,7 +400,7 @@ bool efi_signature_verify(struct efi_image_regions *regs,
 			if (efi_lookup_certificate(signer, db))
 				if (efi_signature_check_revocation(sinfo,
 								   signer, dbx))
-					continue;
+					break;
 		} else if (efi_verify_certificate(signer, db, &root)) {
 			bool check;
 
@@ -470,13 +408,13 @@ bool efi_signature_verify(struct efi_image_regions *regs,
 							       dbx);
 			x509_free_certificate(root);
 			if (check)
-				continue;
+				break;
 		}
 
 		EFI_PRINT("Certificate chain didn't reach trusted CA\n");
-		goto out;
 	}
-	verified = true;
+	if (sinfo)
+		verified = true;
 out:
 	EFI_PRINT("%s: Exit, verified: %d\n", __func__, verified);
 	return verified;

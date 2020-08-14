@@ -773,13 +773,16 @@ struct pkcs7_message;
 
 bool efi_signature_lookup_digest(struct efi_image_regions *regs,
 				 struct efi_signature_store *db);
-bool efi_signature_verify_one(struct efi_image_regions *regs,
-			      struct pkcs7_message *msg,
-			      struct efi_signature_store *db);
 bool efi_signature_verify(struct efi_image_regions *regs,
 			  struct pkcs7_message *msg,
 			  struct efi_signature_store *db,
 			  struct efi_signature_store *dbx);
+static inline bool efi_signature_verify_one(struct efi_image_regions *regs,
+					    struct pkcs7_message *msg,
+					    struct efi_signature_store *db)
+{
+	return efi_signature_verify(regs, msg, db, NULL);
+}
 bool efi_signature_check_signers(struct pkcs7_message *msg,
 				 struct efi_signature_store *dbx);
 
