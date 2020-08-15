@@ -39,7 +39,7 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
 	typedef void __noreturn (*image_entry_riscv_t)(ulong hart, void *dtb);
 	void *fdt_blob;
-	int ret;
+	__maybe_unused int ret;
 
 #if CONFIG_IS_ENABLED(LOAD_FIT) || CONFIG_IS_ENABLED(LOAD_FIT_FULL)
 	fdt_blob = spl_image->fdt_addr;
