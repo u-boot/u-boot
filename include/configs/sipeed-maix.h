@@ -21,4 +21,13 @@
 /* For early init */
 #define K210_SYSCTL_BASE 0x50440000
 
+#ifndef CONFIG_EXTRA_ENV_SETTINGS
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"loadaddr=0x80060000\0" \
+	"fdt_addr_r=0x80028000\0" \
+	"scriptaddr=0x80020000\0" \
+	"kernel_addr_r=0x80060000\0" \
+	"fdtfile=kendryte/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0"
+#endif
+
 #endif /* CONFIGS_SIPEED_MAIX_H */

@@ -546,6 +546,11 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 		goto err;
 	}
 
+	if (efi_signature_lookup_digest(regs, dbx)) {
+		EFI_PRINT("Image's digest was found in \"dbx\"\n");
+		goto err;
+	}
+
 	/*
 	 * go through WIN_CERTIFICATE list
 	 * NOTE:
@@ -553,10 +558,9 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	 * in PE header, or as pkcs7 SignerInfo's in SignedData.
 	 * So the verification policy here is:
 	 *   - Success if, at least, one of signatures is verified
-	 *   - unless
-	 *       any of signatures is rejected explicitly, or
-	 *       none of digest algorithms are supported
+	 *   - unless signature is rejected explicitly with its digest.
 	 */
+
 	for (wincert = wincerts, wincerts_end = (u8 *)wincerts + wincerts_len;
 	     (u8 *)wincert < wincerts_end;
 	     wincert = (WIN_CERTIFICATE *)
@@ -627,32 +631,29 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 		/* try black-list first */
 		if (efi_signature_verify_one(regs, msg, dbx)) {
 			EFI_PRINT("Signature was rejected by \"dbx\"\n");
-			goto err;
+			continue;
 		}
 
 		if (!efi_signature_check_signers(msg, dbx)) {
 			EFI_PRINT("Signer(s) in \"dbx\"\n");
-			goto err;
-		}
-
-		if (efi_signature_lookup_digest(regs, dbx)) {
-			EFI_PRINT("Image's digest was found in \"dbx\"\n");
-			goto err;
+			continue;
 		}
 
 		/* try white-list */
-		if (efi_signature_verify_with_sigdb(regs, msg, db, dbx))
-			continue;
+		if (efi_signature_verify(regs, msg, db, dbx)) {
+			ret = true;
+			break;
+		}
 
 		debug("Signature was not verified by \"db\"\n");
 
-		if (efi_signature_lookup_digest(regs, db))
-			continue;
+		if (efi_signature_lookup_digest(regs, db)) {
+			ret = true;
+			break;
+		}
 
 		debug("Image's digest was not found in \"db\" or \"dbx\"\n");
-		goto err;
 	}
-	ret = true;
 
 err:
 	efi_sigstore_free(db);

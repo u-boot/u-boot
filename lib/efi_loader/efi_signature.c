@@ -10,7 +10,9 @@
 #include <image.h>
 #include <hexdump.h>
 #include <malloc.h>
+#include <crypto/pkcs7.h>
 #include <crypto/pkcs7_parser.h>
+#include <crypto/public_key.h>
 #include <linux/compat.h>
 #include <linux/oid_registry.h>
 #include <u-boot/rsa.h>
@@ -58,143 +60,6 @@ static bool efi_hash_regions(struct image_region *regs, int count,
 #endif
 
 	return true;
-}
-
-/**
- * efi_hash_msg_content - calculate a hash value of contentInfo
- * @msg:	Signature
- * @hash:	Pointer to a pointer to buffer holding a hash value
- * @size:	Size of buffer to be returned
- *
- * Calculate a sha256 value of contentInfo in @msg and return a value in @hash.
- *
- * Return:	true on success, false on error
- */
-static bool efi_hash_msg_content(struct pkcs7_message *msg, void **hash,
-				 size_t *size)
-{
-	struct image_region regtmp;
-
-	regtmp.data = msg->data;
-	regtmp.size = msg->data_len;
-
-	return efi_hash_regions(&regtmp, 1, hash, size);
-}
-
-/**
- * efi_signature_verify - verify a signature with a certificate
- * @regs:		List of regions to be authenticated
- * @signed_info:	Pointer to PKCS7's signed_info
- * @cert:		x509 certificate
- *
- * Signature pointed to by @signed_info against image pointed to by @regs
- * is verified by a certificate pointed to by @cert.
- * @signed_info holds a signature, including a message digest which is to be
- * compared with a hash value calculated from @regs.
- *
- * Return:	true if signature is verified, false if not
- */
-static bool efi_signature_verify(struct efi_image_regions *regs,
-				 struct pkcs7_message *msg,
-				 struct pkcs7_signed_info *ps_info,
-				 struct x509_certificate *cert)
-{
-	struct image_sign_info info;
-	struct image_region regtmp[2];
-	void *hash;
-	size_t size;
-	char c;
-	bool verified;
-
-	EFI_PRINT("%s: Enter, %p, %p, %p(issuer: %s, subject: %s)\n", __func__,
-		  regs, ps_info, cert, cert->issuer, cert->subject);
-
-	verified = false;
-
-	memset(&info, '\0', sizeof(info));
-	info.padding = image_get_padding_algo("pkcs-1.5");
-	/*
-	 * Note: image_get_[checksum|crypto]_algo takes an string
-	 * argument like "<checksum>,<crypto>"
-	 * TODO: support other hash algorithms
-	 */
-	if (!strcmp(ps_info->sig->hash_algo, "sha1")) {
-		info.checksum = image_get_checksum_algo("sha1,rsa2048");
-		info.name = "sha1,rsa2048";
-	} else if (!strcmp(ps_info->sig->hash_algo, "sha256")) {
-		info.checksum = image_get_checksum_algo("sha256,rsa2048");
-		info.name = "sha256,rsa2048";
-	} else {
-		EFI_PRINT("unknown msg digest algo: %s\n",
-			  ps_info->sig->hash_algo);
-		goto out;
-	}
-	info.crypto = image_get_crypto_algo(info.name);
-
-	info.key = cert->pub->key;
-	info.keylen = cert->pub->keylen;
-
-	/* verify signature */
-	EFI_PRINT("%s: crypto: %s, signature len:%x\n", __func__,
-		  info.name, ps_info->sig->s_size);
-	if (ps_info->aa_set & (1UL << sinfo_has_message_digest)) {
-		EFI_PRINT("%s: RSA verify authentication attribute\n",
-			  __func__);
-		/*
-		 * NOTE: This path will be executed only for
-		 * PE image authentication
-		 */
-
-		/* check if hash matches digest first */
-		EFI_PRINT("checking msg digest first, len:0x%x\n",
-			  ps_info->msgdigest_len);
-
-#ifdef DEBUG
-		EFI_PRINT("hash in database:\n");
-		print_hex_dump("    ", DUMP_PREFIX_OFFSET, 16, 1,
-			       ps_info->msgdigest, ps_info->msgdigest_len,
-			       false);
-#endif
-		/* against contentInfo first */
-		hash = NULL;
-		if ((msg->data && efi_hash_msg_content(msg, &hash, &size)) ||
-				/* for signed image */
-		    efi_hash_regions(regs->reg, regs->num, &hash, &size)) {
-				/* for authenticated variable */
-			if (ps_info->msgdigest_len != size ||
-			    memcmp(hash, ps_info->msgdigest, size)) {
-				EFI_PRINT("Digest doesn't match\n");
-				free(hash);
-				goto out;
-			}
-
-			free(hash);
-		} else {
-			EFI_PRINT("Digesting image failed\n");
-			goto out;
-		}
-
-		/* against digest */
-		c = 0x31;
-		regtmp[0].data = &c;
-		regtmp[0].size = 1;
-		regtmp[1].data = ps_info->authattrs;
-		regtmp[1].size = ps_info->authattrs_len;
-
-		if (!rsa_verify(&info, regtmp, 2,
-				ps_info->sig->s, ps_info->sig->s_size))
-			verified = true;
-	} else {
-		EFI_PRINT("%s: RSA verify content data\n", __func__);
-		/* against all data */
-		if (!rsa_verify(&info, regs->reg, regs->num,
-				ps_info->sig->s, ps_info->sig->s_size))
-			verified = true;
-	}
-
-out:
-	EFI_PRINT("%s: Exit, verified: %d\n", __func__, verified);
-	return verified;
 }
 
 /**
@@ -260,61 +125,129 @@ out:
 }
 
 /**
- * efi_signature_verify_with_list - verify a signature with signature list
- * @regs:		List of regions to be authenticated
- * @msg:		Signature
- * @signed_info:	Pointer to PKCS7's signed_info
- * @siglist:		Signature list for certificates
- * @valid_cert:		x509 certificate that verifies this signature
+ * efi_lookup_certificate - find a certificate within db
+ * @msg:	Signature
+ * @db:		Signature database
  *
- * Signature pointed to by @signed_info against image pointed to by @regs
- * is verified by signature list pointed to by @siglist.
- * Signature database is a simple concatenation of one or more
- * signature list(s).
+ * Search signature database pointed to by @db and find a certificate
+ * pointed to by @cert.
  *
- * Return:	true if signature is verified, false if not
+ * Return:	true if found, false otherwise.
  */
-static
-bool efi_signature_verify_with_list(struct efi_image_regions *regs,
-				    struct pkcs7_message *msg,
-				    struct pkcs7_signed_info *signed_info,
-				    struct efi_signature_store *siglist,
-				    struct x509_certificate **valid_cert)
+static bool efi_lookup_certificate(struct x509_certificate *cert,
+				   struct efi_signature_store *db)
 {
-	struct x509_certificate *cert;
+	struct efi_signature_store *siglist;
 	struct efi_sig_data *sig_data;
-	bool verified = false;
+	struct image_region reg[1];
+	void *hash = NULL, *hash_tmp = NULL;
+	size_t size = 0;
+	bool found = false;
 
-	EFI_PRINT("%s: Enter, %p, %p, %p, %p\n", __func__,
-		  regs, signed_info, siglist, valid_cert);
+	EFI_PRINT("%s: Enter, %p, %p\n", __func__, cert, db);
 
-	if (guidcmp(&siglist->sig_type, &efi_guid_cert_x509)) {
-		EFI_PRINT("Signature type is not supported: %pUl\n",
-			  &siglist->sig_type);
+	if (!cert || !db || !db->sig_data_list)
 		goto out;
+
+	/*
+	 * TODO: identify a certificate using sha256 digest
+	 * Is there any better way?
+	 */
+	/* calculate hash of TBSCertificate */
+	reg[0].data = cert->tbs;
+	reg[0].size = cert->tbs_size;
+	if (!efi_hash_regions(reg, 1, &hash, &size))
+		goto out;
+
+	EFI_PRINT("%s: searching for %s\n", __func__, cert->subject);
+	for (siglist = db; siglist; siglist = siglist->next) {
+		/* only with x509 certificate */
+		if (guidcmp(&siglist->sig_type, &efi_guid_cert_x509))
+			continue;
+
+		for (sig_data = siglist->sig_data_list; sig_data;
+		     sig_data = sig_data->next) {
+			struct x509_certificate *cert_tmp;
+
+			cert_tmp = x509_cert_parse(sig_data->data,
+						   sig_data->size);
+			if (IS_ERR_OR_NULL(cert_tmp))
+				continue;
+
+			EFI_PRINT("%s: against %s\n", __func__,
+				  cert_tmp->subject);
+			reg[0].data = cert_tmp->tbs;
+			reg[0].size = cert_tmp->tbs_size;
+			if (!efi_hash_regions(reg, 1, &hash_tmp, NULL))
+				goto out;
+
+			x509_free_certificate(cert_tmp);
+
+			if (!memcmp(hash, hash_tmp, size)) {
+				found = true;
+				goto out;
+			}
+		}
 	}
+out:
+	free(hash);
+	free(hash_tmp);
 
-	/* go through the list */
-	for (sig_data = siglist->sig_data_list; sig_data;
-	     sig_data = sig_data->next) {
-		/* TODO: support owner check based on policy */
+	EFI_PRINT("%s: Exit, found: %d\n", __func__, found);
+	return found;
+}
 
-		cert = x509_cert_parse(sig_data->data, sig_data->size);
-		if (IS_ERR(cert)) {
-			EFI_PRINT("Parsing x509 certificate failed\n");
-			goto out;
+/**
+ * efi_verify_certificate - verify certificate's signature with database
+ * @signer:	Certificate
+ * @db:		Signature database
+ * @root:	Certificate to verify @signer
+ *
+ * Determine if certificate pointed to by @signer may be verified
+ * by one of certificates in signature database pointed to by @db.
+ *
+ * Return:	true if certificate is verified, false otherwise.
+ */
+static bool efi_verify_certificate(struct x509_certificate *signer,
+				   struct efi_signature_store *db,
+				   struct x509_certificate **root)
+{
+	struct efi_signature_store *siglist;
+	struct efi_sig_data *sig_data;
+	struct x509_certificate *cert;
+	bool verified = false;
+	int ret;
+
+	EFI_PRINT("%s: Enter, %p, %p\n", __func__, signer, db);
+
+	if (!signer || !db || !db->sig_data_list)
+		goto out;
+
+	for (siglist = db; siglist; siglist = siglist->next) {
+		/* only with x509 certificate */
+		if (guidcmp(&siglist->sig_type, &efi_guid_cert_x509))
+			continue;
+
+		for (sig_data = siglist->sig_data_list; sig_data;
+		     sig_data = sig_data->next) {
+			cert = x509_cert_parse(sig_data->data, sig_data->size);
+			if (IS_ERR_OR_NULL(cert)) {
+				EFI_PRINT("Cannot parse x509 certificate\n");
+				continue;
+			}
+
+			ret = public_key_verify_signature(cert->pub,
+							  signer->sig);
+			if (!ret) {
+				verified = true;
+				if (root)
+					*root = cert;
+				else
+					x509_free_certificate(cert);
+				goto out;
+			}
+			x509_free_certificate(cert);
 		}
-
-		verified = efi_signature_verify(regs, msg, signed_info, cert);
-
-		if (verified) {
-			if (valid_cert)
-				*valid_cert = cert;
-			else
-				x509_free_certificate(cert);
-			break;
-		}
-		x509_free_certificate(cert);
 	}
 
 out:
@@ -335,7 +268,7 @@ out:
  * protocol at this time and any image will be unconditionally revoked
  * when this match occurs.
  *
- * Return:	true if check passed, false otherwise.
+ * Return:	true if check passed (not found), false otherwise.
  */
 static bool efi_signature_check_revocation(struct pkcs7_signed_info *sinfo,
 					   struct x509_certificate *cert,
@@ -405,56 +338,8 @@ out:
 	return !revoked;
 }
 
-/**
- * efi_signature_verify_one - verify signatures with database
- * @regs:	List of regions to be authenticated
- * @msg:	Signature
- * @db:		Signature database
- *
- * All the signature pointed to by @msg against image pointed to by @regs
- * will be verified by signature database pointed to by @db.
- *
- * Return:	true if verification for one of signatures passed, false
- *		otherwise
- */
-bool efi_signature_verify_one(struct efi_image_regions *regs,
-			      struct pkcs7_message *msg,
-			      struct efi_signature_store *db)
-{
-	struct pkcs7_signed_info *sinfo;
-	struct efi_signature_store *siglist;
-	struct x509_certificate *cert;
-	bool verified = false;
-
-	EFI_PRINT("%s: Enter, %p, %p, %p\n", __func__, regs, msg, db);
-
-	if (!db)
-		goto out;
-
-	if (!db->sig_data_list)
-		goto out;
-
-	EFI_PRINT("%s: Verify signed image with db\n", __func__);
-	for (sinfo = msg->signed_infos; sinfo; sinfo = sinfo->next) {
-		EFI_PRINT("Signed Info: digest algo: %s, pkey algo: %s\n",
-			  sinfo->sig->hash_algo, sinfo->sig->pkey_algo);
-
-		for (siglist = db; siglist; siglist = siglist->next)
-			if (efi_signature_verify_with_list(regs, msg, sinfo,
-							   siglist, &cert)) {
-				verified = true;
-				goto out;
-			}
-		EFI_PRINT("Valid certificate not in \"db\"\n");
-	}
-
-out:
-	EFI_PRINT("%s: Exit, verified: %d\n", __func__, verified);
-	return verified;
-}
-
-/**
- * efi_signature_verify_with_sigdb - verify signatures with db and dbx
+/*
+ * efi_signature_verify - verify signatures with db and dbx
  * @regs:	List of regions to be authenticated
  * @msg:	Signature
  * @db:		Signature database for trusted certificates
@@ -465,43 +350,71 @@ out:
  *
  * Return:	true if verification for all signatures passed, false otherwise
  */
-bool efi_signature_verify_with_sigdb(struct efi_image_regions *regs,
-				     struct pkcs7_message *msg,
-				     struct efi_signature_store *db,
-				     struct efi_signature_store *dbx)
+bool efi_signature_verify(struct efi_image_regions *regs,
+			  struct pkcs7_message *msg,
+			  struct efi_signature_store *db,
+			  struct efi_signature_store *dbx)
 {
-	struct pkcs7_signed_info *info;
-	struct efi_signature_store *siglist;
-	struct x509_certificate *cert;
+	struct pkcs7_signed_info *sinfo;
+	struct x509_certificate *signer, *root;
 	bool verified = false;
+	int ret;
 
 	EFI_PRINT("%s: Enter, %p, %p, %p, %p\n", __func__, regs, msg, db, dbx);
 
 	if (!regs || !msg || !db || !db->sig_data_list)
 		goto out;
 
-	for (info = msg->signed_infos; info; info = info->next) {
+	for (sinfo = msg->signed_infos; sinfo; sinfo = sinfo->next) {
 		EFI_PRINT("Signed Info: digest algo: %s, pkey algo: %s\n",
-			  info->sig->hash_algo, info->sig->pkey_algo);
+			  sinfo->sig->hash_algo, sinfo->sig->pkey_algo);
 
-		for (siglist = db; siglist; siglist = siglist->next) {
-			if (efi_signature_verify_with_list(regs, msg, info,
-							   siglist, &cert))
-				break;
-		}
-		if (!siglist) {
-			EFI_PRINT("Valid certificate not in \"db\"\n");
+		/*
+		 * only for authenticated variable.
+		 *
+		 * If this function is called for image,
+		 * hash calculation will be done in
+		 * pkcs7_verify_one().
+		 */
+		if (!msg->data &&
+		    !efi_hash_regions(regs->reg, regs->num,
+				      (void **)&sinfo->sig->digest, NULL)) {
+			EFI_PRINT("Digesting an image failed\n");
 			goto out;
 		}
 
-		if (!dbx || efi_signature_check_revocation(info, cert, dbx))
+		EFI_PRINT("Verifying certificate chain\n");
+		signer = NULL;
+		ret = pkcs7_verify_one(msg, sinfo, &signer);
+		if (ret == -ENOPKG)
 			continue;
 
-		EFI_PRINT("Certificate in \"dbx\"\n");
-		goto out;
-	}
-	verified = true;
+		if (ret < 0 || !signer)
+			goto out;
 
+		if (sinfo->blacklisted)
+			goto out;
+
+		EFI_PRINT("Verifying last certificate in chain\n");
+		if (signer->self_signed) {
+			if (efi_lookup_certificate(signer, db))
+				if (efi_signature_check_revocation(sinfo,
+								   signer, dbx))
+					break;
+		} else if (efi_verify_certificate(signer, db, &root)) {
+			bool check;
+
+			check = efi_signature_check_revocation(sinfo, root,
+							       dbx);
+			x509_free_certificate(root);
+			if (check)
+				break;
+		}
+
+		EFI_PRINT("Certificate chain didn't reach trusted CA\n");
+	}
+	if (sinfo)
+		verified = true;
 out:
 	EFI_PRINT("%s: Exit, verified: %d\n", __func__, verified);
 	return verified;

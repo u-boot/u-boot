@@ -37,16 +37,21 @@ static u8 pkcs7_hdr[] = {
  * efi_variable_parse_signature - parse a signature in variable
  * @buf:	Pointer to variable's value
  * @buflen:	Length of @buf
+ * @tmpbuf:	Pointer to temporary buffer
  *
  * Parse a signature embedded in variable's value and instantiate
  * a pkcs7_message structure. Since pkcs7_parse_message() accepts only
  * pkcs7's signedData, some header needed be prepended for correctly
  * parsing authentication data, particularly for variable's.
+ * A temporary buffer will be allocated if needed, and it should be
+ * kept valid during the authentication because some data in the buffer
+ * will be referenced by efi_signature_verify().
  *
  * Return:	Pointer to pkcs7_message structure on success, NULL on error
  */
 static struct pkcs7_message *efi_variable_parse_signature(const void *buf,
-							  size_t buflen)
+							  size_t buflen,
+							  u8 **tmpbuf)
 {
 	u8 *ebuf;
 	size_t ebuflen, len;
@@ -59,7 +64,9 @@ static struct pkcs7_message *efi_variable_parse_signature(const void *buf,
 	if (buflen > sizeof(pkcs7_hdr) &&
 	    !memcmp(&((u8 *)buf)[4], &pkcs7_hdr[4], 11)) {
 		msg = pkcs7_parse_message(buf, buflen);
-		goto out;
+		if (IS_ERR(msg))
+			return NULL;
+		return msg;
 	}
 
 	/*
@@ -94,12 +101,12 @@ static struct pkcs7_message *efi_variable_parse_signature(const void *buf,
 
 	msg = pkcs7_parse_message(ebuf, ebuflen);
 
-	free(ebuf);
-
-out:
-	if (IS_ERR(msg))
+	if (IS_ERR(msg)) {
+		free(ebuf);
 		return NULL;
+	}
 
+	*tmpbuf = ebuf;
 	return msg;
 }
 
@@ -136,6 +143,7 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 	struct efi_time timestamp;
 	struct rtc_time tm;
 	u64 new_time;
+	u8 *ebuf;
 	enum efi_auth_var_type var_type;
 	efi_status_t ret;
 
@@ -143,6 +151,7 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 	truststore = NULL;
 	truststore2 = NULL;
 	regs = NULL;
+	ebuf = NULL;
 	ret = EFI_SECURITY_VIOLATION;
 
 	if (*data_size < sizeof(struct efi_variable_authentication_2))
@@ -204,9 +213,12 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 	/* variable's signature list */
 	if (auth->auth_info.hdr.dwLength < sizeof(auth->auth_info))
 		goto err;
+
+	/* ebuf should be kept valid during the authentication */
 	var_sig = efi_variable_parse_signature(auth->auth_info.cert_data,
 					       auth->auth_info.hdr.dwLength
-						   - sizeof(auth->auth_info));
+						   - sizeof(auth->auth_info),
+					       &ebuf);
 	if (!var_sig) {
 		EFI_PRINT("Parsing variable's signature failed\n");
 		goto err;
@@ -241,12 +253,11 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 	}
 
 	/* verify signature */
-	if (efi_signature_verify_with_sigdb(regs, var_sig, truststore, NULL)) {
+	if (efi_signature_verify(regs, var_sig, truststore, NULL)) {
 		EFI_PRINT("Verified\n");
 	} else {
 		if (truststore2 &&
-		    efi_signature_verify_with_sigdb(regs, var_sig,
-						    truststore2, NULL)) {
+		    efi_signature_verify(regs, var_sig, truststore2, NULL)) {
 			EFI_PRINT("Verified\n");
 		} else {
 			EFI_PRINT("Verifying variable's signature failed\n");
@@ -262,6 +273,7 @@ err:
 	efi_sigstore_free(truststore);
 	efi_sigstore_free(truststore2);
 	pkcs7_free_message(var_sig);
+	free(ebuf);
 	free(regs);
 
 	return ret;
@@ -496,10 +508,6 @@ efi_status_t efi_init_variables(void)
 	if (ret != EFI_SUCCESS)
 		return ret;
 
-	ret = efi_init_secure_state();
-	if (ret != EFI_SUCCESS)
-		return ret;
-
 	if (IS_ENABLED(CONFIG_EFI_VARIABLES_PRESEED)) {
 		ret = efi_var_restore((struct efi_var_file *)
 				      __efi_var_file_begin);
@@ -507,5 +515,9 @@ efi_status_t efi_init_variables(void)
 			log_err("Invalid EFI variable seed\n");
 	}
 
-	return efi_var_from_file();
+	ret = efi_var_from_file();
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	return efi_init_secure_state();
 }
