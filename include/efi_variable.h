@@ -274,7 +274,6 @@ efi_get_next_variable_name_mem(efi_uintn_t *variable_name_size, u16 *variable_na
  * @data:		buffer to which the variable value is copied
  * @timep:		authentication time (seconds since start of epoch)
  * Return:		status code
-
  */
 efi_status_t __efi_runtime
 efi_get_variable_mem(u16 *variable_name, const efi_guid_t *vendor, u32 *attributes,
