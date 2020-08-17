@@ -2,7 +2,7 @@
 /*
  * Configuration header file for K3 J721E EVM
  *
- * Copyright (C) 2018-2019 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2018-2020 Texas Instruments Incorporated - https://www.ti.com/
  *	Lokesh Vutla <lokeshvutla@ti.com>
  */
 
@@ -118,9 +118,14 @@
 		"${bootdir}/${name_fit}\0"				\
 	"partitions=" PARTS_DEFAULT
 
+/* Set the default list of remote processors to boot */
+#if defined(CONFIG_TARGET_J721E_A72_EVM) || defined(CONFIG_TARGET_J7200_A72_EVM)
 #ifdef DEFAULT_RPROCS
 #undef DEFAULT_RPROCS
 #endif
+#endif
+
+#ifdef CONFIG_TARGET_J721E_A72_EVM
 #define DEFAULT_RPROCS	""						\
 		"3 /lib/firmware/j7-main-r5f0_1-fw "			\
 		"4 /lib/firmware/j7-main-r5f1_0-fw "			\
@@ -128,6 +133,13 @@
 		"6 /lib/firmware/j7-c66_0-fw "				\
 		"7 /lib/firmware/j7-c66_1-fw "				\
 		"8 /lib/firmware/j7-c71_0-fw "
+#endif /* CONFIG_TARGET_J721E_A72_EVM */
+
+#ifdef CONFIG_TARGET_J7200_A72_EVM
+#define DEFAULT_RPROCS ""						\
+		"2 /lib/firmware/j7200-main-r5f0_0-fw "			\
+		"3 /lib/firmware/j7200-main-r5f0_1-fw "
+#endif /* CONFIG_TARGET_J7200_A72_EVM */
 
 /* set default dfu_bufsiz to 128KB (sector size of OSPI) */
 #define EXTRA_ENV_DFUARGS \
