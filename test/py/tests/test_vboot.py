@@ -126,6 +126,23 @@ def test_vboot(u_boot_console, sha_algo, padding, sign_options, required):
         cons.log.action('%s: Sign images' % sha_algo)
         util.run_and_log(cons, args)
 
+    def sign_fit_norequire(sha_algo, options):
+        """Sign the FIT
+
+        Signs the FIT and writes the signature into it. It also writes the
+        public key into the dtb. It does not mark key as 'required' in dtb.
+
+        Args:
+            sha_algo: Either 'sha1' or 'sha256', to select the algorithm to
+                    use.
+            options: Options to provide to mkimage.
+        """
+        args = [mkimage, '-F', '-k', tmpdir, '-K', dtb, fit]
+        if options:
+            args += options.split(' ')
+        cons.log.action('%s: Sign images' % sha_algo)
+        util.run_and_log(cons, args)
+
     def replace_fit_totalsize(size):
         """Replace FIT header's totalsize with something greater.
 
@@ -279,14 +296,39 @@ def test_vboot(u_boot_console, sha_algo, padding, sign_options, required):
         # Build the FIT with dev key (keys NOT required). This adds the
         # signature into sandbox-u-boot.dtb, NOT marked 'required'.
         make_fit('sign-configs-%s%s.its' % (sha_algo, padding))
-        sign_fit(sha_algo, sign_options)
+        sign_fit_norequire(sha_algo, sign_options)
 
         # So now sandbox-u-boot.dtb two signatures, for the prod and dev keys.
         # Only the prod key is set as 'required'. But FIT we just built has
-        # a dev signature only (sign_fit() overwrites the FIT).
+        # a dev signature only (sign_fit_norequire() overwrites the FIT).
         # Try to boot the FIT with dev key. This FIT should not be accepted by
         # U-Boot because the prod key is required.
         run_bootm(sha_algo, 'required key', '', False)
+
+        # Build the FIT with dev key (keys required) and sign it. This puts the
+        # signature into sandbox-u-boot.dtb, marked 'required'.
+        make_fit('sign-configs-%s%s.its' % (sha_algo, padding))
+        sign_fit(sha_algo, sign_options)
+
+        # Set the required-mode policy to "any".
+        # So now sandbox-u-boot.dtb two signatures, for the prod and dev keys.
+        # Both the dev and prod key are set as 'required'. But FIT we just built has
+        # a dev signature only (sign_fit() overwrites the FIT).
+        # Try to boot the FIT with dev key. This FIT should be accepted by
+        # U-Boot because the dev key is required and policy is "any" required key.
+        util.run_and_log(cons, 'fdtput -t s %s /signature required-mode any' %
+                         (dtb))
+        run_bootm(sha_algo, 'multi required key', 'dev+', True)
+
+        # Set the required-mode policy to "all".
+        # So now sandbox-u-boot.dtb two signatures, for the prod and dev keys.
+        # Both the dev and prod key are set as 'required'. But FIT we just built has
+        # a dev signature only (sign_fit() overwrites the FIT).
+        # Try to boot the FIT with dev key. This FIT should not be accepted by
+        # U-Boot because the prod key is required and policy is "all" required key
+        util.run_and_log(cons, 'fdtput -t s %s /signature required-mode all' %
+                         (dtb))
+        run_bootm(sha_algo, 'multi required key', '', False)
 
     cons = u_boot_console
     tmpdir = cons.config.result_dir + '/'
