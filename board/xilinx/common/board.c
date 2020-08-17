@@ -388,6 +388,9 @@ int board_late_init_xilinx(void)
 				ret |= env_set_by_index("serial", id,
 							desc->serial);
 
+			if (!CONFIG_IS_ENABLED(NET))
+				continue;
+
 			for (i = 0; i < EEPROM_HDR_NO_OF_MAC_ADDR; i++) {
 				if (!desc->mac_addr[i])
 					continue;
