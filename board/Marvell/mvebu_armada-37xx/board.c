@@ -44,6 +44,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Switch Port Registers */
 #define MVEBU_SW_LINK_CTRL_REG		(1)
 #define MVEBU_SW_PORT_CTRL_REG		(4)
+#define MVEBU_SW_PORT_BASE_VLAN		(6)
 
 /* Global 2 Registers */
 #define MVEBU_G2_SMI_PHY_CMD_REG	(24)
@@ -207,8 +208,16 @@ int board_network_enable(struct mii_dev *bus)
 	 * FIXME: remove this code once Topaz driver gets available
 	 * A3720 Community Board Only
 	 * Configure Topaz switch (88E6341)
+	 * Restrict output to ports 1,2,3 only from port 0 (CPU)
 	 * Set port 0,1,2,3 to forwarding Mode (through Switch Port registers)
 	 */
+	mii_multi_chip_mode_write(bus, 1, MVEBU_PORT_CTRL_SMI_ADDR(1),
+				  MVEBU_SW_PORT_BASE_VLAN, BIT(0));
+	mii_multi_chip_mode_write(bus, 1, MVEBU_PORT_CTRL_SMI_ADDR(2),
+				  MVEBU_SW_PORT_BASE_VLAN, BIT(0));
+	mii_multi_chip_mode_write(bus, 1, MVEBU_PORT_CTRL_SMI_ADDR(3),
+				  MVEBU_SW_PORT_BASE_VLAN, BIT(0));
+
 	mii_multi_chip_mode_write(bus, 1, MVEBU_PORT_CTRL_SMI_ADDR(0),
 				  MVEBU_SW_PORT_CTRL_REG, 0x7f);
 	mii_multi_chip_mode_write(bus, 1, MVEBU_PORT_CTRL_SMI_ADDR(1),
