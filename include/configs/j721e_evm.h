@@ -117,6 +117,7 @@
 #define DEFAULT_RPROCS	""						\
 		"3 /lib/firmware/j7-main-r5f0_1-fw "			\
 		"4 /lib/firmware/j7-main-r5f1_0-fw "			\
+		"5 /lib/firmware/j7-main-r5f1_1-fw "			\
 		"6 /lib/firmware/j7-c66_0-fw "				\
 		"7 /lib/firmware/j7-c66_1-fw "				\
 		"8 /lib/firmware/j7-c71_0-fw "
