@@ -83,16 +83,23 @@
 	"uuid_disk=${uuid_gpt_disk};" \
 	"name=rootfs,start=0,size=-,uuid=${uuid_gpt_rootfs}\0"
 
+#ifdef CONFIG_SYS_K3_SPL_ATF
+#define EXTRA_ENV_R5_SPL_RPROC_FW_ARGS_MMC				\
+	"addr_mainr5f0_0load=0x88000000\0"				\
+	"name_mainr5f0_0fw=/lib/firmware/j7-main-r5f0_0-fw\0"		\
+	"addr_mcur5f0_0load=0x89000000\0"				\
+	"name_mcur5f0_0fw=/lib/firmware/j7-mcu-r5f0_0-fw\0"
+#else
+#define EXTRA_ENV_R5_SPL_RPROC_FW_ARGS_MMC ""
+#endif /* CONFIG_SYS_K3_SPL_ATF */
+
 /* U-Boot MMC-specific configuration */
 #define EXTRA_ENV_J721E_BOARD_SETTINGS_MMC				\
 	"boot=mmc\0"							\
 	"mmcdev=1\0"							\
 	"bootpart=1:2\0"						\
 	"bootdir=/boot\0"						\
-	"addr_mainr5f0_0load=88000000\0"					\
-	"name_mainr5f0_0fw=/lib/firmware/j7-main-r5f0_0-fw\0"		\
-	"addr_mcur5f0_0load=89000000\0"					\
-	"name_mcur5f0_0fw=/lib/firmware/j7-mcu-r5f0_0-fw\0"		\
+	EXTRA_ENV_R5_SPL_RPROC_FW_ARGS_MMC				\
 	"rd_spec=-\0"							\
 	"init_mmc=run args_all args_mmc\0"				\
 	"get_fdt_mmc=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${name_fdt}\0" \
