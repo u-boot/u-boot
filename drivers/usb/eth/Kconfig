@@ -1,5 +1,6 @@
 menuconfig USB_HOST_ETHER
 	bool "USB to Ethernet Controller Drivers"
+	depends on NET
 	---help---
 	  Say Y here if you would like to enable support for USB Ethernet
 	  adapters.
