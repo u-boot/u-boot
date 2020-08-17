@@ -38,7 +38,7 @@ static int do_clone(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv
 	srcbz = srcdesc->blksz;
 	destbz = destdesc->blksz;
 
-	if ((srcbz * (buffersize / srcbz) != buffersize) &&
+	if ((srcbz * (buffersize / srcbz) != buffersize) ||
 	    (destbz * (buffersize / destbz) != buffersize)) {
 		printf("failed: cannot match device block sizes\n");
 		return 1;
@@ -55,10 +55,12 @@ static int do_clone(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv
 		switch (unit[0]) {
 		case 'g':
 		case 'G':
-			requested *= 1024;
+			requested *= 1024 * 1024 * 1024;
+			break;
 		case 'm':
 		case 'M':
-			requested *= 1024;
+			requested *= 1024 * 1024;
+			break;
 		case 'k':
 		case 'K':
 			requested *= 1024;
