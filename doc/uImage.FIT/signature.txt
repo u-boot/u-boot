@@ -386,6 +386,20 @@ that might be used by the target needs to be signed with 'required' keys.
 
 This happens automatically as part of a bootm command when FITs are used.
 
+For Signed Configurations, the default verification behavior can be changed by
+the following optional property in /signature node in U-Boot's control FDT.
+
+- required-mode: Valid values are "any" to allow verified boot to succeed if
+the selected configuration is signed by any of the 'required' keys, and "all"
+to allow verified boot to succeed if the selected configuration is signed by
+all of the 'required' keys.
+
+This property can be added to a binary device tree using fdtput as shown in
+below examples::
+
+	fdtput -t s control.dtb /signature required-mode any
+	fdtput -t s control.dtb /signature required-mode all
+
 
 Enabling FIT Verification
 -------------------------
