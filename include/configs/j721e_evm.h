@@ -84,11 +84,17 @@
 	"name=rootfs,start=0,size=-,uuid=${uuid_gpt_rootfs}\0"
 
 #ifdef CONFIG_SYS_K3_SPL_ATF
+#if defined(CONFIG_TARGET_J721E_R5_EVM)
 #define EXTRA_ENV_R5_SPL_RPROC_FW_ARGS_MMC				\
 	"addr_mainr5f0_0load=0x88000000\0"				\
 	"name_mainr5f0_0fw=/lib/firmware/j7-main-r5f0_0-fw\0"		\
 	"addr_mcur5f0_0load=0x89000000\0"				\
 	"name_mcur5f0_0fw=/lib/firmware/j7-mcu-r5f0_0-fw\0"
+#elif defined(CONFIG_TARGET_J7200_R5_EVM)
+#define EXTRA_ENV_R5_SPL_RPROC_FW_ARGS_MMC				\
+	"addr_mcur5f0_0load=0x89000000\0"				\
+	"name_mcur5f0_0fw=/lib/firmware/j7200-mcu-r5f0_0-fw\0"
+#endif /* CONFIG_TARGET_J721E_R5_EVM */
 #else
 #define EXTRA_ENV_R5_SPL_RPROC_FW_ARGS_MMC ""
 #endif /* CONFIG_SYS_K3_SPL_ATF */
