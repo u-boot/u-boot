@@ -551,6 +551,10 @@ static int ftgmac100_probe(struct udevice *dev)
 	priv->max_speed = pdata->max_speed;
 	priv->phy_addr = 0;
 
+#ifdef CONFIG_PHY_ADDR
+	priv->phy_addr = CONFIG_PHY_ADDR;
+#endif
+
 	ret = clk_enable_bulk(&priv->clks);
 	if (ret)
 		goto out;
