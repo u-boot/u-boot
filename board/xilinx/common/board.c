@@ -44,6 +44,7 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 #endif
 
 #define EEPROM_HEADER_MAGIC		0xdaaddeed
+#define EEPROM_HDR_MANUFACTURER_LEN	16
 #define EEPROM_HDR_NAME_LEN		16
 #define EEPROM_HDR_REV_LEN		8
 #define EEPROM_HDR_SERIAL_LEN		20
@@ -52,6 +53,7 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 
 struct xilinx_board_description {
 	u32 header;
+	char manufacturer[EEPROM_HDR_MANUFACTURER_LEN + 1];
 	char name[EEPROM_HDR_NAME_LEN + 1];
 	char revision[EEPROM_HDR_REV_LEN + 1];
 	char serial[EEPROM_HDR_SERIAL_LEN + 1];
@@ -194,6 +196,8 @@ static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 	}
 
 	/* It is clear that FRU was captured and structures were filled */
+	strncpy(desc->manufacturer, (char *)fru_data.brd.manufacturer_name,
+		sizeof(desc->manufacturer));
 	strncpy(desc->name, (char *)fru_data.brd.product_name,
 		sizeof(desc->name));
 	strncpy(desc->revision, (char *)fru_data.brd.rev,
@@ -379,6 +383,9 @@ int board_late_init_xilinx(void)
 	for (id = 0; id <= highest_id; id++) {
 		desc = board_info[id];
 		if (desc && desc->header == EEPROM_HEADER_MAGIC) {
+			if (desc->manufacturer[0])
+				ret |= env_set_by_index("manufacturer", id,
+							desc->manufacturer);
 			if (desc->name[0])
 				ret |= env_set_by_index("name", id,
 							desc->name);
