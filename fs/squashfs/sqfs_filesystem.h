@@ -77,6 +77,9 @@ struct squashfs_ctxt {
 	struct disk_partition cur_part_info;
 	struct blk_desc *cur_dev;
 	struct squashfs_super_block *sblk;
+#if IS_ENABLED(CONFIG_ZSTD)
+	void *zstd_workspace;
+#endif
 };
 
 struct squashfs_directory_index {
