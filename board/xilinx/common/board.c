@@ -359,8 +359,9 @@ static int env_set_by_index(const char *name, int index, char *data)
 int board_late_init_xilinx(void)
 {
 	bd_t *bd = gd->bd;
-	int i, id, ret = 0, macid = 0;
+	int i, id, macid = 0;
 	struct xilinx_board_description *desc;
+	u32 ret = 0;
 
 	if (bd->bi_dram[0].start) {
 		ulong scriptaddr;
