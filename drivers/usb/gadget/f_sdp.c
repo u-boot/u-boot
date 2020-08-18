@@ -159,10 +159,27 @@ static struct usb_endpoint_descriptor in_desc = {
 	.bInterval =		1,
 };
 
+static struct usb_endpoint_descriptor in_hs_desc = {
+	.bLength =		USB_DT_ENDPOINT_SIZE,
+	.bDescriptorType =	USB_DT_ENDPOINT, /*USB_DT_CS_ENDPOINT*/
+
+	.bEndpointAddress =	1 | USB_DIR_IN,
+	.bmAttributes =	USB_ENDPOINT_XFER_INT,
+	.wMaxPacketSize =	512,
+	.bInterval =		1,
+};
+
 static struct usb_descriptor_header *sdp_runtime_descs[] = {
 	(struct usb_descriptor_header *)&sdp_intf_runtime,
 	(struct usb_descriptor_header *)&sdp_hid_desc,
 	(struct usb_descriptor_header *)&in_desc,
+	NULL,
+};
+
+static struct usb_descriptor_header *sdp_runtime_hs_descs[] = {
+	(struct usb_descriptor_header *)&sdp_intf_runtime,
+	(struct usb_descriptor_header *)&sdp_hid_desc,
+	(struct usb_descriptor_header *)&in_hs_desc,
 	NULL,
 };
 
@@ -489,6 +506,11 @@ static int sdp_bind(struct usb_configuration *c, struct usb_function *f)
 		goto error;
 	}
 
+	if (gadget_is_dualspeed(gadget)) {
+		/* Assume endpoint addresses are the same for both speeds */
+		in_hs_desc.bEndpointAddress = in_desc.bEndpointAddress;
+	}
+
 	sdp->in_ep = ep; /* Store IN EP for enabling @ setup */
 
 	cdev->req->context = sdp;
@@ -541,11 +563,15 @@ static int sdp_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
 {
 	struct f_sdp *sdp = func_to_sdp(f);
 	struct usb_composite_dev *cdev = f->config->cdev;
+	struct usb_gadget *gadget = cdev->gadget;
 	int result;
 
 	debug("%s: intf: %d alt: %d\n", __func__, intf, alt);
 
-	result = usb_ep_enable(sdp->in_ep, &in_desc);
+	if (gadget_is_dualspeed(gadget) && gadget->speed == USB_SPEED_HIGH)
+		result = usb_ep_enable(sdp->in_ep, &in_hs_desc);
+	else
+		result = usb_ep_enable(sdp->in_ep, &in_desc);
 	if (result)
 		return result;
 	sdp->in_req = sdp_start_ep(sdp->in_ep);
@@ -591,7 +617,7 @@ static int sdp_bind_config(struct usb_configuration *c)
 	memset(sdp_func, 0, sizeof(*sdp_func));
 
 	sdp_func->usb_function.name = "sdp";
-	sdp_func->usb_function.hs_descriptors = sdp_runtime_descs;
+	sdp_func->usb_function.hs_descriptors = sdp_runtime_hs_descs;
 	sdp_func->usb_function.descriptors = sdp_runtime_descs;
 	sdp_func->usb_function.bind = sdp_bind;
 	sdp_func->usb_function.unbind = sdp_unbind;
