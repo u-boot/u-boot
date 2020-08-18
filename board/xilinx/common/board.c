@@ -378,13 +378,13 @@ int board_late_init_xilinx(void)
 	for (id = 0; id <= highest_id; id++) {
 		desc = board_info[id];
 		if (desc && desc->header == EEPROM_HEADER_MAGIC) {
-			if (desc->name)
+			if (desc->name[0])
 				ret |= env_set_by_index("name", id,
 							desc->name);
-			if (desc->revision)
+			if (desc->revision[0])
 				ret |= env_set_by_index("rev", id,
 							desc->revision);
-			if (desc->serial)
+			if (desc->serial[0])
 				ret |= env_set_by_index("serial", id,
 							desc->serial);
 
