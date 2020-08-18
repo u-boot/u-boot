@@ -186,7 +186,7 @@ static struct usb_endpoint_descriptor in_hs_desc = {
 	.bEndpointAddress =	1 | USB_DIR_IN,
 	.bmAttributes =	USB_ENDPOINT_XFER_INT,
 	.wMaxPacketSize =	512,
-	.bInterval =		1,
+	.bInterval =		3,
 };
 
 static struct usb_endpoint_descriptor out_hs_desc = {
@@ -196,7 +196,7 @@ static struct usb_endpoint_descriptor out_hs_desc = {
 	.bEndpointAddress =	1 | USB_DIR_OUT,
 	.bmAttributes =		USB_ENDPOINT_XFER_INT,
 	.wMaxPacketSize =	SDP_HID_PACKET_SIZE_EP1,
-	.bInterval =		1,
+	.bInterval =		3,
 };
 
 static struct usb_descriptor_header *sdp_runtime_descs[] = {
