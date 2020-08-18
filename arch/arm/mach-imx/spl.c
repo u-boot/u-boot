@@ -187,6 +187,12 @@ int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 
 	return 0;
 }
+
+#define SDPV_BCD_DEVICE 0x500
+int g_dnl_get_board_bcd_device_number(int gcnum)
+{
+	return SDPV_BCD_DEVICE;
+}
 #endif
 
 #if defined(CONFIG_SPL_MMC_SUPPORT)
