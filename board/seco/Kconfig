@@ -21,15 +21,15 @@ choice
 
 config SECOMX6Q
 	bool "i.MX6Q"
-	select MX6Q
+	depends on MX6Q
 
 config SECOMX6DL
 	bool "i.MX6DL"
-	select MX6DL
+	depends on MX6DL
 
 config SECOMX6S
 	bool "i.MX6S"
-	select MX6S
+	depends on MX6S
 
 endchoice
 
