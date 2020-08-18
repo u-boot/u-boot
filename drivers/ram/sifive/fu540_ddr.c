@@ -316,12 +316,12 @@ static int fu540_ddr_setup(struct udevice *dev)
 	priv->info.size = get_ram_size((long *)priv->info.base,
 				       ddr_size);
 
-	debug("%s : %lx\n", __func__, priv->info.size);
+	debug("%s : %lx\n", __func__, (uintptr_t)priv->info.size);
 
 	/* check memory access for all memory */
 	if (priv->info.size != ddr_size) {
 		printf("DDR invalid size : 0x%lx, expected 0x%lx\n",
-		       priv->info.size, (uintptr_t)ddr_size);
+		       (uintptr_t)priv->info.size, (uintptr_t)ddr_size);
 		return -EINVAL;
 	}
 
