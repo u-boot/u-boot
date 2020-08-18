@@ -18,6 +18,12 @@
 	chosen {
 		stdout-path = &main_uart0;
 		tick-timer = &timer1;
+		firmware-loader = &fs_loader0;
+	};
+
+	fs_loader0: fs_loader@0 {
+		u-boot,dm-pre-reloc;
+		compatible = "u-boot,fs-loader";
 	};
 
 	a72_0: a72@0 {
