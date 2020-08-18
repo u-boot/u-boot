@@ -205,7 +205,7 @@ static inline int phy_write(struct phy_device *phydev, int devad, int regnum,
 {
 	struct mii_dev *bus = phydev->bus;
 
-	if (!bus || !bus->read) {
+	if (!bus || !bus->write) {
 		debug("%s: No bus configured\n", __func__);
 		return -1;
 	}
