@@ -62,9 +62,10 @@ static void zlib_decompression_status(int ret)
 }
 #endif
 
-int sqfs_decompress(u16 comp_type, void *dest, unsigned long *dest_len,
-		    void *source, u32 src_len)
+int sqfs_decompress(struct squashfs_ctxt *ctxt, void *dest,
+		    unsigned long *dest_len, void *source, u32 src_len)
 {
+	u16 comp_type = get_unaligned_le16(&ctxt->sblk->compression);
 	int ret = 0;
 
 	switch (comp_type) {

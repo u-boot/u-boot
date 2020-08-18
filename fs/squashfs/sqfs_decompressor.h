@@ -53,8 +53,8 @@ union squashfs_compression_opts {
 	struct squashfs_lzo_opts *lzo;
 };
 
-int sqfs_decompress(u16 comp_type, void *dest, unsigned long *dest_len,
-		    void *source, u32 lenp);
+int sqfs_decompress(struct squashfs_ctxt *ctxt, void *dest,
+		    unsigned long *dest_len, void *source, u32 src_len);
 int sqfs_decompressor_init(struct squashfs_ctxt *ctxt);
 void sqfs_decompressor_cleanup(struct squashfs_ctxt *ctxt);
 
