@@ -548,7 +548,7 @@ static struct usb_request *sdp_start_ep(struct usb_ep *ep)
 {
 	struct usb_request *req;
 
-	req = alloc_ep_req(ep, 64);
+	req = alloc_ep_req(ep, 65);
 	debug("%s: ep:%p req:%p\n", __func__, ep, req);
 
 	if (!req)
