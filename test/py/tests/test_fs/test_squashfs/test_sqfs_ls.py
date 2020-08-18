@@ -12,16 +12,25 @@ from sqfs_common import *
 @pytest.mark.buildconfigspec('fs_squashfs')
 @pytest.mark.requiredtool('mksquashfs')
 def test_sqfs_ls(u_boot_console):
-    cons = u_boot_console
-    sqfs_generate_image(cons)
-    path = os.path.join(cons.config.build_dir, "sqfs")
-    try:
+    build_dir = u_boot_console.config.build_dir
+    for opt in comp_opts:
+        try:
+            opt.gen_image(build_dir)
+        except RuntimeError:
+            opt.clean_source(build_dir)
+            # skip unsupported compression types
+            continue
+        path = os.path.join(build_dir, "sqfs-" + opt.name)
         output = u_boot_console.run_command("host bind 0 " + path)
-        output = u_boot_console.run_command("sqfsls host 0")
-        assert "4 file(s), 0 dir(s)" in output
-        assert "<SYM>   sym" in output
-        output = u_boot_console.run_command("sqfsls host 0 xxx")
-        assert "** Cannot find directory. **" in output
-    except:
-        sqfs_clean(cons)
-    sqfs_clean(cons)
+
+        try:
+            # list files in root directory
+            output = u_boot_console.run_command("sqfsls host 0")
+            assert str(len(opt.files) + 1) + " file(s), 0 dir(s)" in output
+            assert "<SYM>   sym" in output
+            output = u_boot_console.run_command("sqfsls host 0 xxx")
+            assert "** Cannot find directory. **" in output
+        except:
+            opt.cleanup(build_dir)
+            assert False
+        opt.cleanup(build_dir)
