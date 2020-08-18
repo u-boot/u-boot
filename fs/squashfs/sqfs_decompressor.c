@@ -9,6 +9,11 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#if IS_ENABLED(CONFIG_LZO)
+#include <linux/lzo.h>
+#endif
+
 #if IS_ENABLED(CONFIG_ZLIB)
 #include <u-boot/zlib.h>
 #endif
@@ -25,6 +30,10 @@ int sqfs_decompressor_init(struct squashfs_ctxt *ctxt)
 	u16 comp_type = get_unaligned_le16(&ctxt->sblk->compression);
 
 	switch (comp_type) {
+#if IS_ENABLED(CONFIG_LZO)
+	case SQFS_COMP_LZO:
+		break;
+#endif
 #if IS_ENABLED(CONFIG_ZLIB)
 	case SQFS_COMP_ZLIB:
 		break;
@@ -49,6 +58,10 @@ void sqfs_decompressor_cleanup(struct squashfs_ctxt *ctxt)
 	u16 comp_type = get_unaligned_le16(&ctxt->sblk->compression);
 
 	switch (comp_type) {
+#if IS_ENABLED(CONFIG_LZO)
+	case SQFS_COMP_LZO:
+		break;
+#endif
 #if IS_ENABLED(CONFIG_ZLIB)
 	case SQFS_COMP_ZLIB:
 		break;
@@ -101,6 +114,18 @@ int sqfs_decompress(struct squashfs_ctxt *ctxt, void *dest,
 	int ret = 0;
 
 	switch (comp_type) {
+#if IS_ENABLED(CONFIG_LZO)
+	case SQFS_COMP_LZO: {
+		size_t lzo_dest_len = *dest_len;
+		ret = lzo1x_decompress_safe(source, src_len, dest, &lzo_dest_len);
+		if (ret) {
+			printf("LZO decompression failed. Error code: %d\n", ret);
+			return -EINVAL;
+		}
+
+		break;
+	}
+#endif
 #if IS_ENABLED(CONFIG_ZLIB)
 	case SQFS_COMP_ZLIB:
 		ret = uncompress(dest, dest_len, source, src_len);
