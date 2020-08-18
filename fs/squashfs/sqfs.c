@@ -23,12 +23,6 @@
 #include "sqfs_filesystem.h"
 #include "sqfs_utils.h"
 
-struct squashfs_ctxt {
-	struct disk_partition cur_part_info;
-	struct blk_desc *cur_dev;
-	struct squashfs_super_block *sblk;
-};
-
 static struct squashfs_ctxt ctxt;
 
 static int sqfs_disk_read(__u32 block, __u32 nr_blocks, void *buf)
@@ -1023,6 +1017,14 @@ int sqfs_probe(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition
 
 	ctxt.sblk = sblk;
 
+	ret = sqfs_decompressor_init(&ctxt);
+
+	if (ret) {
+		ctxt.cur_dev = NULL;
+		free(ctxt.sblk);
+		return -EINVAL;
+	}
+
 	return 0;
 }
 
@@ -1525,6 +1527,7 @@ void sqfs_close(void)
 {
 	free(ctxt.sblk);
 	ctxt.cur_dev = NULL;
+	sqfs_decompressor_cleanup(&ctxt);
 }
 
 void sqfs_closedir(struct fs_dir_stream *dirs)

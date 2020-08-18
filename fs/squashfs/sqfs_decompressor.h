@@ -9,6 +9,7 @@
 #define SQFS_DECOMPRESSOR_H
 
 #include <stdint.h>
+#include "sqfs_filesystem.h"
 
 #define SQFS_COMP_ZLIB 1
 #define SQFS_COMP_LZMA 2
@@ -54,5 +55,7 @@ union squashfs_compression_opts {
 
 int sqfs_decompress(u16 comp_type, void *dest, unsigned long *dest_len,
 		    void *source, u32 lenp);
+int sqfs_decompressor_init(struct squashfs_ctxt *ctxt);
+void sqfs_decompressor_cleanup(struct squashfs_ctxt *ctxt);
 
 #endif /* SQFS_DECOMPRESSOR_H */

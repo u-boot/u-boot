@@ -9,8 +9,9 @@
 #define SQFS_FILESYSTEM_H
 
 #include <asm/unaligned.h>
-#include <stdint.h>
 #include <fs.h>
+#include <part.h>
+#include <stdint.h>
 
 #define SQFS_UNCOMPRESSED_DATA 0x0002
 #define SQFS_MAGIC_NUMBER 0x73717368
@@ -70,6 +71,12 @@ struct squashfs_super_block {
 	__le64 directory_table_start;
 	__le64 fragment_table_start;
 	__le64 export_table_start;
+};
+
+struct squashfs_ctxt {
+	struct disk_partition cur_part_info;
+	struct blk_desc *cur_dev;
+	struct squashfs_super_block *sblk;
 };
 
 struct squashfs_directory_index {
