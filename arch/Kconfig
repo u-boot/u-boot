@@ -12,6 +12,7 @@ config ARC
 	bool "ARC architecture"
 	select ARC_TIMER
 	select CLK
+	select DM
 	select HAVE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
 	select TIMER
