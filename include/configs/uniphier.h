@@ -7,8 +7,8 @@
 
 /* U-Boot - Common settings for UniPhier Family */
 
-#ifndef __CONFIG_UNIPHIER_COMMON_H__
-#define __CONFIG_UNIPHIER_COMMON_H__
+#ifndef __CONFIG_UNIPHIER_H__
+#define __CONFIG_UNIPHIER_H__
 
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_bootcmd.h>
@@ -210,4 +210,4 @@
 
 #define CONFIG_SPL_PAD_TO			0x20000
 
-#endif /* __CONFIG_UNIPHIER_COMMON_H__ */
+#endif /* __CONFIG_UNIPHIER_H__ */
