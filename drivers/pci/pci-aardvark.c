@@ -616,7 +616,7 @@ static int pcie_advk_probe(struct udevice *dev)
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	struct gpio_desc reset_gpio;
 
-	gpio_request_by_name(dev, "reset-gpio", 0, &reset_gpio,
+	gpio_request_by_name(dev, "reset-gpios", 0, &reset_gpio,
 			     GPIOD_IS_OUT);
 	/*
 	 * Issue reset to add-in card through the dedicated GPIO.
@@ -633,9 +633,9 @@ static int pcie_advk_probe(struct udevice *dev)
 	 */
 	if (dm_gpio_is_valid(&reset_gpio)) {
 		dev_dbg(pcie->dev, "Toggle PCIE Reset GPIO ...\n");
-		dm_gpio_set_value(&reset_gpio, 0);
-		mdelay(200);
 		dm_gpio_set_value(&reset_gpio, 1);
+		mdelay(200);
+		dm_gpio_set_value(&reset_gpio, 0);
 	}
 #else
 	dev_dbg(pcie->dev, "PCIE Reset on GPIO support is missing\n");
