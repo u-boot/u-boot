@@ -154,6 +154,11 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	header = get_unaligned_le16(metadata_buffer + table_offset);
 	metadata = metadata_buffer + table_offset + SQFS_HEADER_SIZE;
 
+	if (!metadata) {
+		ret = -ENOMEM;
+		goto free_buffer;
+	}
+
 	entries = malloc(SQFS_METADATA_BLOCK_SIZE);
 	if (!entries) {
 		ret = -ENOMEM;
@@ -272,8 +277,8 @@ static int sqfs_join(char **strings, char *dest, int start, int end,
  */
 static int sqfs_tokenize(char **tokens, int count, const char *str)
 {
+	int i, j, ret = 0;
 	char *aux, *strc;
-	int i, j;
 
 	strc = strdup(str);
 	if (!strc)
@@ -282,8 +287,8 @@ static int sqfs_tokenize(char **tokens, int count, const char *str)
 	if (!strcmp(strc, "/")) {
 		tokens[0] = strdup(strc);
 		if (!tokens[0]) {
-			free(strc);
-			return -ENOMEM;
+			ret = -ENOMEM;
+			goto free_strc;
 		}
 	} else {
 		for (j = 0; j < count; j++) {
@@ -292,15 +297,16 @@ static int sqfs_tokenize(char **tokens, int count, const char *str)
 			if (!tokens[j]) {
 				for (i = 0; i < j; i++)
 					free(tokens[i]);
-				free(strc);
-				return -ENOMEM;
+				ret = -ENOMEM;
+				goto free_strc;
 			}
 		}
 	}
 
+free_strc:
 	free(strc);
 
-	return 0;
+	return ret;
 }
 
 /*
@@ -428,9 +434,9 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 {
 	struct squashfs_super_block *sblk = ctxt.sblk;
 	char *path, *target, **sym_tokens, *res, *rem;
+	struct squashfs_ldir_inode *ldir = NULL;
 	int j, ret, new_inode_number, offset;
 	struct squashfs_symlink_inode *sym;
-	struct squashfs_ldir_inode *ldir;
 	struct squashfs_dir_inode *dir;
 	struct fs_dir_stream *dirsp;
 	struct fs_dirent *dent;
@@ -630,7 +636,7 @@ static int sqfs_read_inode_table(unsigned char **inode_table)
 	int j, ret = 0, metablks_count;
 	unsigned char *src_table, *itb;
 	u32 src_len, dest_offset = 0;
-	unsigned long dest_len;
+	unsigned long dest_len = 0;
 	bool compressed;
 
 	table_size = get_unaligned_le64(&sblk->directory_table_start) -
@@ -685,6 +691,7 @@ static int sqfs_read_inode_table(unsigned char **inode_table)
 				goto free_itb;
 			}
 
+			dest_offset += dest_len;
 		} else {
 			memcpy(*inode_table + (j * SQFS_METADATA_BLOCK_SIZE),
 			       src_table, src_len);
@@ -694,7 +701,7 @@ static int sqfs_read_inode_table(unsigned char **inode_table)
 		 * Offsets to the decompression destination, to the metadata
 		 * buffer 'itb' and to the decompression source, respectively.
 		 */
-		dest_offset += dest_len;
+
 		table_offset += src_len + SQFS_HEADER_SIZE;
 		src_table += src_len + SQFS_HEADER_SIZE;
 	}
@@ -712,7 +719,7 @@ static int sqfs_read_directory_table(unsigned char **dir_table, u32 **pos_list)
 	int j, ret = 0, metablks_count = -1;
 	unsigned char *src_table, *dtb;
 	u32 src_len, dest_offset = 0;
-	unsigned long dest_len;
+	unsigned long dest_len = 0;
 	bool compressed;
 
 	/* DIRECTORY TABLE */
@@ -781,6 +788,8 @@ static int sqfs_read_directory_table(unsigned char **dir_table, u32 **pos_list)
 				dest_offset += dest_len;
 				break;
 			}
+
+			dest_offset += dest_len;
 		} else {
 			memcpy(*dir_table + (j * SQFS_METADATA_BLOCK_SIZE),
 			       src_table, src_len);
@@ -790,7 +799,6 @@ static int sqfs_read_directory_table(unsigned char **dir_table, u32 **pos_list)
 		 * Offsets to the decompression destination, to the metadata
 		 * buffer 'dtb' and to the decompression source, respectively.
 		 */
-		dest_offset += dest_len;
 		table_offset += src_len + SQFS_HEADER_SIZE;
 		src_table += src_len + SQFS_HEADER_SIZE;
 	}
@@ -1138,6 +1146,9 @@ static int sqfs_get_regfile_info(struct squashfs_reg_inode *reg,
 	finfo->start = get_unaligned_le32(&reg->start_block);
 	finfo->frag = SQFS_IS_FRAGMENTED(get_unaligned_le32(&reg->fragment));
 
+	if (finfo->size < 1 || finfo->offset < 0 || finfo->start < 0)
+		return -EINVAL;
+
 	if (finfo->frag) {
 		datablk_count = finfo->size / le32_to_cpu(blksz);
 		ret = sqfs_frag_lookup(get_unaligned_le32(&reg->fragment),
@@ -1145,6 +1156,8 @@ static int sqfs_get_regfile_info(struct squashfs_reg_inode *reg,
 		if (ret < 0)
 			return -EINVAL;
 		finfo->comp = true;
+		if (fentry->size < 1 || fentry->start < 0)
+			return -EINVAL;
 	} else {
 		datablk_count = DIV_ROUND_UP(finfo->size, le32_to_cpu(blksz));
 	}
@@ -1168,6 +1181,9 @@ static int sqfs_get_lregfile_info(struct squashfs_lreg_inode *lreg,
 	finfo->start = get_unaligned_le64(&lreg->start_block);
 	finfo->frag = SQFS_IS_FRAGMENTED(get_unaligned_le32(&lreg->fragment));
 
+	if (finfo->size < 1 || finfo->offset < 0 || finfo->start < 0)
+		return -EINVAL;
+
 	if (finfo->frag) {
 		datablk_count = finfo->size / le32_to_cpu(blksz);
 		ret = sqfs_frag_lookup(get_unaligned_le32(&lreg->fragment),
@@ -1175,6 +1191,8 @@ static int sqfs_get_lregfile_info(struct squashfs_lreg_inode *lreg,
 		if (ret < 0)
 			return -EINVAL;
 		finfo->comp = true;
+		if (fentry->size < 1 || fentry->start < 0)
+			return -EINVAL;
 	} else {
 		datablk_count = DIV_ROUND_UP(finfo->size, le32_to_cpu(blksz));
 	}

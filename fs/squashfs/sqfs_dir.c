@@ -53,6 +53,9 @@ int sqfs_dir_offset(void *dir_i, u32 *m_list, int m_count)
 		return -EINVAL;
 	}
 
+	if (offset < 0)
+		return -EINVAL;
+
 	for (j = 0; j < m_count; j++) {
 		if (m_list[j] == start_block)
 			return (++j * SQFS_METADATA_BLOCK_SIZE) + offset;

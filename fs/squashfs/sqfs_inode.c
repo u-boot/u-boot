@@ -138,11 +138,14 @@ void *sqfs_find_inode(void *inode_table, int inode_number, __le32 inode_count,
 int sqfs_read_metablock(unsigned char *file_mapping, int offset,
 			bool *compressed, u32 *data_size)
 {
-	unsigned char *data;
+	const unsigned char *data;
 	u16 header;
 
 	data = file_mapping + offset;
 	header = get_unaligned((u16 *)data);
+	if (!header || !data)
+		return -EINVAL;
+
 	*compressed = SQFS_COMPRESSED_METADATA(header);
 	*data_size = SQFS_METADATA_SIZE(header);
 
