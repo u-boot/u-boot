@@ -1005,6 +1005,10 @@ F:	arch/arm/dts/ns3-board.dts
 F:	arch/arm/dts/ns3.dtsi
 F:	arch/arm/cpu/armv8/bcmns3
 F:	arch/arm/include/asm/arch-bcmns3/
+F:	cmd/broadcom/Makefile
+F:	cmd/broadcom/chimp_boot.c
+F:	cmd/broadcom/nitro_image_load.c
+F:	cmd/broadcom/chimp_handshake.c
 
 TDA19988 HDMI ENCODER
 M:	Liviu Dudau <liviu.dudau@foss.arm.com>
