@@ -9,6 +9,12 @@
 
 #include <linux/compiler.h>
 
+/*
+ * Chimp binary has health status like initialization complete,
+ * crash or running fine
+ */
+#define BCM_CHIMP_RUNNIG_GOOD	0x8000
+
 /**
  * chimp_fastboot_optee() - api to load bnxt firmware
  *
