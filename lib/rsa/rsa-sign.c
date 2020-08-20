@@ -708,7 +708,7 @@ static int fdt_add_bignum(void *blob, int noffset, const char *prop_name,
 		return -ENOMEM;
 	}
 	ctx = BN_CTX_new();
-	if (!tmp) {
+	if (!ctx) {
 		fprintf(stderr, "Out of memory (bignum context)\n");
 		return -ENOMEM;
 	}
