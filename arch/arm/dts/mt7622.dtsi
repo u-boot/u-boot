@@ -192,6 +192,14 @@
 		status = "disabled";
 	};
 
+	ssusbsys: ssusbsys@1a000000 {
+		compatible = "mediatek,mt7622-ssusbsys",
+			     "syscon";
+		reg = <0x1a000000 0x1000>;
+		#clock-cells = <1>;
+		#reset-cells = <1>;
+	};
+
 	pciesys: pciesys@1a100800 {
 		compatible = "mediatek,mt7622-pciesys", "syscon";
 		reg = <0x1a100800 0x1000>;
@@ -299,6 +307,54 @@
 			clock-names = "ref";
 			#phy-cells = <1>;
 			status = "okay";
+		};
+	};
+
+	ssusb: usb@1a0c0000 {
+		compatible = "mediatek,mt7622-xhci",
+			     "mediatek,mtk-xhci";
+		reg = <0x1a0c0000 0x01000>,
+		      <0x1a0c4700 0x0100>;
+		reg-names = "mac", "ippc";
+		interrupts = <GIC_SPI 232 IRQ_TYPE_LEVEL_LOW>;
+		power-domains = <&scpsys MT7629_POWER_DOMAIN_HIF1>;
+		clocks = <&ssusbsys CLK_SSUSB_SYS_EN>,
+			 <&ssusbsys CLK_SSUSB_REF_EN>,
+			 <&ssusbsys CLK_SSUSB_MCU_EN>,
+			 <&ssusbsys CLK_SSUSB_DMA_EN>;
+		clock-names = "sys_ck", "ref_ck", "mcu_ck", "dma_ck";
+		phys = <&u2port0 PHY_TYPE_USB2>,
+		       <&u3port0 PHY_TYPE_USB3>,
+		       <&u2port1 PHY_TYPE_USB2>;
+		status = "disabled";
+	};
+
+	u3phy: usb-phy@1a0c4000 {
+		compatible = "mediatek,mt7622-u3phy",
+			     "mediatek,generic-tphy-v1";
+		reg = <0x1a0c4000 0x700>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+		status = "disabled";
+
+		u2port0: usb-phy@1a0c4800 {
+			reg = <0x1a0c4800 0x0100>;
+			#phy-cells = <1>;
+			clocks = <&ssusbsys CLK_SSUSB_U2_PHY_EN>;
+			clock-names = "ref";
+		};
+
+		u3port0: usb-phy@1a0c4900 {
+			reg = <0x1a0c4900 0x0700>;
+			#phy-cells = <1>;
+		};
+
+		u2port1: usb-phy@1a0c5000 {
+			reg = <0x1a0c5000 0x0100>;
+			#phy-cells = <1>;
+			clocks = <&ssusbsys CLK_SSUSB_U2_PHY_1P_EN>;
+			clock-names = "ref";
 		};
 	};
 

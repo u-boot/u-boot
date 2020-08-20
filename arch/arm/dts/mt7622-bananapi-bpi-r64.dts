@@ -244,3 +244,11 @@
 		output-low;
 	};
 };
+
+&ssusb {
+	status = "okay";
+};
+
+&u3phy {
+	status = "okay";
+};
