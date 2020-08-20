@@ -126,6 +126,12 @@
 /* Used for Micron flashes only. */
 #define SPINOR_OP_RD_EVCR	0x65	/* Read EVCR register */
 #define SPINOR_OP_WD_EVCR	0x61	/* Write EVCR register */
+#define SPINOR_OP_MT_DTR_RD	0xfd	/* Fast Read opcode in DTR mode */
+#define SPINOR_OP_MT_RD_ANY_REG	0x85	/* Read volatile register */
+#define SPINOR_OP_MT_WR_ANY_REG	0x81	/* Write volatile register */
+#define SPINOR_REG_MT_CFR0V	0x00	/* For setting octal DTR mode */
+#define SPINOR_REG_MT_CFR1V	0x01	/* For setting dummy cycles */
+#define SPINOR_MT_OCT_DTR	0xe7	/* Enable Octal DTR with DQS. */
 
 /* Status Register bits. */
 #define SR_WIP			BIT(0)	/* Write in progress */
