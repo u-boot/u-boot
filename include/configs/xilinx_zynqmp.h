@@ -47,13 +47,6 @@
 # define CONFIG_SYS_NAND_ONFI_DETECTION
 #endif
 
-#if !defined(CONFIG_SPL_BUILD)
-#if defined(CONFIG_ZYNQMP_GQSPI)
-/* SPI layer registers with MTD */
-#define CONFIG_SPI_FLASH_MTD
-#endif
-#endif
-
 #if defined(CONFIG_SPL_BUILD)
 #define CONFIG_ZYNQMP_PSU_INIT_ENABLED
 #endif
