@@ -441,8 +441,6 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 		req->length = rx_bytes_expected(ep);
 	}
 
-	fastboot_tx_write_str(response);
-
 	if (!strncmp("OKAY", response, 4)) {
 		switch (cmd) {
 		case FASTBOOT_COMMAND_BOOT:
@@ -461,6 +459,8 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 			break;
 		}
 	}
+
+	fastboot_tx_write_str(response);
 
 	*cmdbuf = '\0';
 	req->actual = 0;
