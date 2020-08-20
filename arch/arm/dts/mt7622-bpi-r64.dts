@@ -11,7 +11,7 @@
 / {
 	#address-cells = <1>;
 	#size-cells = <1>;
-	model = "mt7622-rfb";
+	model = "mt7622-bpi-r64";
 	compatible = "mediatek,mt7622", "mediatek,mt7622-rfb";
 	chosen {
 		stdout-path = &uart0;
@@ -24,7 +24,7 @@
 
 	memory@40000000 {
 		device_type = "memory";
-		reg = <0x40000000 0x10000000>;
+		reg = <0x40000000 0x40000000>;
 	};
 
 	reg_1p8v: regulator-1p8v {
@@ -97,6 +97,13 @@
 		mux {
 			function = "uart";
 			groups = "uart0_0_tx_rx" ;
+		};
+	};
+
+	pwm_pins: pwm1 {
+		mux {
+			function = "pwm";
+			groups = "pwm_ch1_0" ;
 		};
 	};
 
@@ -180,6 +187,12 @@
 	status = "okay";
 };
 
+&pwm {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pwm_pins>;
+	status = "okay";
+};
+
 &mmc0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_default>;
@@ -220,5 +233,14 @@
 	fixed-link {
 		speed = <1000>;
 		full-duplex;
+	};
+};
+
+&gpio {
+	/*gpio 90 for setting mode to sata*/
+	asm_sel {
+		gpio-hog;
+		gpios = <90 GPIO_ACTIVE_HIGH>;
+		output-low;
 	};
 };

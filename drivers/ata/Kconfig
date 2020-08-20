@@ -130,4 +130,12 @@ config AHCI_MVEBU
 	  onboard AHCI SATA.
 
 	  If unsure, say N.
+
+config MTK_AHCI
+	bool "Enable Mediatek AHCI driver support"
+	depends on AHCI
+	help
+	  Enable this driver to support Sata devices through
+	  Mediatek AHCI controller (e.g. MT7622).
+
 endmenu
