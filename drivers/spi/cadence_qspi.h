@@ -36,6 +36,12 @@ struct cadence_spi_plat {
 	u32		tsd2d_ns;
 	u32		tchsh_ns;
 	u32		tslch_ns;
+
+	/* Transaction protocol parameters. */
+	u8		inst_width;
+	u8		addr_width;
+	u8		data_width;
+	bool		dtr;
 };
 
 struct cadence_spi_priv {
@@ -59,9 +65,13 @@ void cadence_qspi_apb_controller_enable(void *reg_base_addr);
 void cadence_qspi_apb_controller_disable(void *reg_base_addr);
 void cadence_qspi_apb_dac_mode_enable(void *reg_base);
 
-int cadence_qspi_apb_command_read(void *reg_base_addr,
+int cadence_qspi_apb_command_read_setup(struct cadence_spi_plat *plat,
+					const struct spi_mem_op *op);
+int cadence_qspi_apb_command_read(struct cadence_spi_plat *plat,
 				  const struct spi_mem_op *op);
-int cadence_qspi_apb_command_write(void *reg_base_addr,
+int cadence_qspi_apb_command_write_setup(struct cadence_spi_plat *plat,
+					 const struct spi_mem_op *op);
+int cadence_qspi_apb_command_write(struct cadence_spi_plat *plat,
 				   const struct spi_mem_op *op);
 
 int cadence_qspi_apb_read_setup(struct cadence_spi_plat *plat,
