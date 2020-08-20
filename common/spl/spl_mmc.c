@@ -115,8 +115,11 @@ int mmc_load_image_raw_sector(struct spl_image_info *spl_image,
 		load.read = h_spl_load_read;
 
 		ret = spl_load_imx_container(spl_image, &load, sector);
-	} else {
+	} else if (IS_ENABLED(CONFIG_SPL_LEGACY_IMAGE_SUPPORT)) {
 		ret = mmc_load_legacy(spl_image, mmc, sector, header);
+	} else {
+		puts("mmc_load_image_raw_sector: unsupported image format\n");
+		return -1;
 	}
 
 end:
