@@ -167,6 +167,9 @@ bool spi_mem_default_supports_op(struct spi_slave *slave,
 	if (op->cmd.dtr || op->addr.dtr || op->dummy.dtr || op->data.dtr)
 		return false;
 
+	if (op->cmd.nbytes != 1)
+		return false;
+
 	return true;
 }
 EXPORT_SYMBOL_GPL(spi_mem_default_supports_op);
@@ -273,8 +276,7 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 	}
 
 #ifndef __UBOOT__
-	tmpbufsize = sizeof(op->cmd.opcode) + op->addr.nbytes +
-		     op->dummy.nbytes;
+	tmpbufsize = op->cmd.nbytes + op->addr.nbytes + op->dummy.nbytes;
 
 	/*
 	 * Allocate a buffer to transmit the CMD, ADDR cycles with kmalloc() so
@@ -289,7 +291,7 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 
 	tmpbuf[0] = op->cmd.opcode;
 	xfers[xferpos].tx_buf = tmpbuf;
-	xfers[xferpos].len = sizeof(op->cmd.opcode);
+	xfers[xferpos].len = op->cmd.nbytes;
 	xfers[xferpos].tx_nbits = op->cmd.buswidth;
 	spi_message_add_tail(&xfers[xferpos], &msg);
 	xferpos++;
@@ -353,7 +355,7 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 			tx_buf = op->data.buf.out;
 	}
 
-	op_len = sizeof(op->cmd.opcode) + op->addr.nbytes + op->dummy.nbytes;
+	op_len = op->cmd.nbytes + op->addr.nbytes + op->dummy.nbytes;
 
 	/*
 	 * Avoid using malloc() here so that we can use this code in SPL where
@@ -442,8 +444,7 @@ int spi_mem_adjust_op_size(struct spi_slave *slave, struct spi_mem_op *op)
 	if (!ops->mem_ops || !ops->mem_ops->exec_op) {
 		unsigned int len;
 
-		len = sizeof(op->cmd.opcode) + op->addr.nbytes +
-			op->dummy.nbytes;
+		len = op->cmd.nbytes + op->addr.nbytes + op->dummy.nbytes;
 		if (slave->max_write_size && len > slave->max_write_size)
 			return -EINVAL;
 

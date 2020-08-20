@@ -27,7 +27,7 @@ int spi_mem_exec_op(struct spi_slave *slave,
 			tx_buf = op->data.buf.out;
 	}
 
-	op_len = sizeof(op->cmd.opcode) + op->addr.nbytes + op->dummy.nbytes;
+	op_len = op->cmd.nbytes + op->addr.nbytes + op->dummy.nbytes;
 	op_buf = calloc(1, op_len);
 
 	ret = spi_claim_bus(slave);
@@ -89,7 +89,7 @@ int spi_mem_adjust_op_size(struct spi_slave *slave,
 {
 	unsigned int len;
 
-	len = sizeof(op->cmd.opcode) + op->addr.nbytes + op->dummy.nbytes;
+	len = op->cmd.nbytes + op->addr.nbytes + op->dummy.nbytes;
 	if (slave->max_write_size && len > slave->max_write_size)
 		return -EINVAL;
 
