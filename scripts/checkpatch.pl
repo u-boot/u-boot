@@ -2359,6 +2359,12 @@ sub u_boot_line {
 		ERROR("BARRED_INCLUDE_IN_HDR",
 		      "Avoid including common.h and dm.h in header files\n" . $herecurr);
 	}
+
+	# Do not disable fdt / initrd relocation
+	if ($rawline =~ /.*(fdt|initrd)_high=0xffffffff/) {
+		ERROR("DISABLE_FDT_OR_INITRD_RELOC",
+		     "fdt or initrd relocation disabled at boot time\n" . $herecurr);
+	}
 }
 
 sub process {
