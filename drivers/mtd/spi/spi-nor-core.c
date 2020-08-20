@@ -3062,6 +3062,33 @@ int spi_nor_scan(struct spi_nor *nor)
 
 	nor->setup = spi_nor_default_setup;
 
+#ifdef CONFIG_SPI_FLASH_SOFT_RESET_ON_BOOT
+	/*
+	 * When the flash is handed to us in a stateful mode like 8D-8D-8D, it
+	 * is difficult to detect the mode the flash is in. One option is to
+	 * read SFDP in all modes and see which one gives the correct "SFDP"
+	 * signature, but not all flashes support SFDP in 8D-8D-8D mode.
+	 *
+	 * Further, even if you detect the mode of the flash via SFDP, you
+	 * still have the problem of actually reading the ID. The Read ID
+	 * command is not standardized across flash vendors. Flashes can have
+	 * different dummy cycles needed for reading the ID. Some flashes even
+	 * expect a 4-byte dummy address with the Read ID command. All this
+	 * information cannot be obtained from the SFDP table.
+	 *
+	 * So, perform a Software Reset sequence before reading the ID and
+	 * initializing the flash. A Soft Reset will bring back the flash in
+	 * its default protocol mode assuming no non-volatile configuration was
+	 * set. This will let us detect the flash even if ROM hands it to us in
+	 * Octal DTR mode.
+	 *
+	 * To accommodate cases where there is more than one flash on a board,
+	 * and only one of them needs a soft reset, failure to reset is not
+	 * made fatal, and we still try to read ID if possible.
+	 */
+	spi_nor_soft_reset(nor);
+#endif /* CONFIG_SPI_FLASH_SOFT_RESET_ON_BOOT */
+
 	info = spi_nor_read_id(nor);
 	if (IS_ERR_OR_NULL(info))
 		return -ENOENT;
