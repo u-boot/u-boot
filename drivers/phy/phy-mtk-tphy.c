@@ -698,11 +698,10 @@ static int mtk_tphy_probe(struct udevice *dev)
 	tphy->dev = dev;
 	tphy->version = dev_get_driver_data(dev);
 
-	/* v1 has shared banks */
+	/* v1 has shared banks for usb/pcie mode, */
+	/* but not for sata mode */
 	if (tphy->version == MTK_TPHY_V1) {
 		tphy->sif_base = dev_read_addr_ptr(dev);
-		if (!tphy->sif_base)
-			return -ENOENT;
 	}
 
 	dev_for_each_subnode(subnode, dev) {
