@@ -31,6 +31,7 @@ efi_selftest_mem.o \
 efi_selftest_memory.o \
 efi_selftest_open_protocol.o \
 efi_selftest_register_notify.o \
+efi_selftest_reset.o \
 efi_selftest_set_virtual_address_map.o \
 efi_selftest_textinput.o \
 efi_selftest_textinputex.o \
