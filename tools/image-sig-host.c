@@ -11,6 +11,7 @@
 #include <u-boot/ecdsa.h>
 #include <u-boot/rsa.h>
 #include <u-boot/hash-checksum.h>
+#include <linux/kconfig.h>
 
 struct checksum_algo checksum_algos[] = {
 	{
