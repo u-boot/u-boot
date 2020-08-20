@@ -3,3 +3,4 @@
 
 obj-y += chimp_boot.o
 obj-y += nitro_image_load.o
+obj-y += chimp_handshake.o

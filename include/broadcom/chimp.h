@@ -15,6 +15,12 @@
  */
 #define BCM_CHIMP_RUNNIG_GOOD	0x8000
 
+enum {
+	CHIMP_HANDSHAKE_SUCCESS = 0,
+	CHIMP_HANDSHAKE_WAIT_ERROR,
+	CHIMP_HANDSHAKE_WAIT_TIMEOUT,
+};
+
 /**
  * chimp_fastboot_optee() - api to load bnxt firmware
  *
