@@ -270,6 +270,12 @@ config SPL_CMD_TLV_EEPROM
 	help
 	  Read system EEPROM data block in ONIE Tlvinfo format from SPL.
 
+config CMD_SBI
+	bool "sbi"
+	depends on RISCV_SMODE && SBI_V02
+	help
+	  Display information about the SBI implementation.
+
 endmenu
 
 menu "Boot commands"
