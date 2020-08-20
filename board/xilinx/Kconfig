@@ -48,7 +48,7 @@ config XILINX_BOARD_DETECT_FRU
 endif
 
 config XILINX_OF_BOARD_DTB_ADDR
-	hex
+	hex "Default DTB pickup address"
 	default 0x1000 if ARCH_VERSAL
 	default 0x100000 if ARCH_ZYNQ || ARCH_ZYNQMP
 	depends on OF_BOARD || OF_SEPARATE
