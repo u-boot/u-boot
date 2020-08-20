@@ -2,12 +2,10 @@
 /*
  * MTK SATA platform driver
  *
- * (C) Copyright 2020
- *     Mediatek
+ * Copyright (C) 2020 MediaTek Inc.
  *
- * Author: Frank Wunderlich <frank-w@public-files.de>
- * based on https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/ata/ahci_mtk.c
  * Author: Ryder Lee <ryder.lee@mediatek.com>
+ * Author: Frank Wunderlich <frank-w@public-files.de>
  */
 
 #include <common.h>
