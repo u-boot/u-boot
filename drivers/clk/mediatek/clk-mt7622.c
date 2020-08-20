@@ -521,11 +521,34 @@ static const struct mtk_gate_regs sgmii_cg_regs = {
 	.flags = CLK_GATE_NO_SETCLR_INV | CLK_PARENT_TOPCKGEN,	\
 }
 
+static const struct mtk_gate_regs ssusb_cg_regs = {
+	.set_ofs = 0x30,
+	.clr_ofs = 0x30,
+	.sta_ofs = 0x30,
+};
+
+#define GATE_SSUSB(_id, _parent, _shift) {                      \
+	.id = _id,                                              \
+	.parent = _parent,                                      \
+	.regs = &ssusb_cg_regs,                                 \
+	.shift = _shift,                                        \
+	.flags = CLK_GATE_NO_SETCLR_INV | CLK_PARENT_TOPCKGEN,  \
+}
+
 static const struct mtk_gate sgmii_cgs[] = {
 	GATE_SGMII(CLK_SGMII_TX250M_EN, CLK_TOP_SSUSB_TX250M, 2),
 	GATE_SGMII(CLK_SGMII_RX250M_EN, CLK_TOP_SSUSB_EQ_RX250M, 3),
 	GATE_SGMII(CLK_SGMII_CDR_REF, CLK_TOP_SSUSB_CDR_REF, 4),
 	GATE_SGMII(CLK_SGMII_CDR_FB, CLK_TOP_SSUSB_CDR_FB, 5),
+};
+
+static const struct mtk_gate ssusb_cgs[] = {
+	GATE_SSUSB(CLK_SSUSB_U2_PHY_1P_EN, CLK_TOP_TO_U2_PHY_1P, 0),
+	GATE_SSUSB(CLK_SSUSB_U2_PHY_EN, CLK_TOP_TO_U2_PHY, 1),
+	GATE_SSUSB(CLK_SSUSB_REF_EN, CLK_TOP_TO_USB3_REF, 5),
+	GATE_SSUSB(CLK_SSUSB_SYS_EN, CLK_TOP_TO_USB3_SYS, 6),
+	GATE_SSUSB(CLK_SSUSB_MCU_EN, CLK_TOP_AXI_SEL, 7),
+	GATE_SSUSB(CLK_SSUSB_DMA_EN, CLK_TOP_HIF_SEL, 8),
 };
 
 static const struct mtk_clk_tree mt7622_clk_tree = {
@@ -630,6 +653,11 @@ static int mt7622_sgmiisys_probe(struct udevice *dev)
 	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, sgmii_cgs);
 }
 
+static int mt7622_ssusbsys_probe(struct udevice *dev)
+{
+	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, ssusb_cgs);
+}
+
 static const struct udevice_id mt7622_apmixed_compat[] = {
 	{ .compatible = "mediatek,mt7622-apmixedsys" },
 	{ }
@@ -667,6 +695,11 @@ static const struct udevice_id mt7622_sgmiisys_compat[] = {
 
 static const struct udevice_id mt7622_mcucfg_compat[] = {
 	{ .compatible = "mediatek,mt7622-mcucfg" },
+	{ }
+};
+
+static const struct udevice_id mt7622_ssusbsys_compat[] = {
+	{ .compatible = "mediatek,mt7622-ssusbsys" },
 	{ }
 };
 
@@ -743,6 +776,15 @@ U_BOOT_DRIVER(mtk_clk_sgmiisys) = {
 	.id = UCLASS_CLK,
 	.of_match = mt7622_sgmiisys_compat,
 	.probe = mt7622_sgmiisys_probe,
+	.priv_auto_alloc_size = sizeof(struct mtk_cg_priv),
+	.ops = &mtk_clk_gate_ops,
+};
+
+U_BOOT_DRIVER(mtk_clk_ssusbsys) = {
+	.name = "mt7622-clock-ssusbsys",
+	.id = UCLASS_CLK,
+	.of_match = mt7622_ssusbsys_compat,
+	.probe = mt7622_ssusbsys_probe,
 	.priv_auto_alloc_size = sizeof(struct mtk_cg_priv),
 	.ops = &mtk_clk_gate_ops,
 };
