@@ -12,4 +12,11 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "bcm_ns3"
 
+config CMD_BCM_EXT_UTILS
+	bool "Enable Broadcom-specific U-Boot commands"
+	default y
+	help
+	  Enable Broadcom specific U-Boot commands such as error log setup
+	  command or any other commands specific to NS3 platform.
+
 endif
