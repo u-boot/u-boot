@@ -5,9 +5,11 @@
 
 #include <common.h>
 #include <hang.h>
+#include <led.h>
 #include <log.h>
 
 #ifdef CONFIG_SPL_BUILD
+DECLARE_GLOBAL_DATA_PTR;
 static int setup_led(void)
 {
 #ifdef CONFIG_SPL_LED
@@ -23,7 +25,7 @@ static int setup_led(void)
 		debug("%s: get=%d\n", __func__, ret);
 		return ret;
 	}
-	ret = led_set_on(dev, 1);
+	ret = led_set_state(dev, LEDST_ON);
 	if (ret)
 		return ret;
 #endif
