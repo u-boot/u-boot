@@ -19,6 +19,7 @@ config SYS_TEXT_BASE
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select X86_RESET_VECTOR
+	select USE_EARLY_BOARD_INIT
 	select INTEL_BROADWELL
 	select HAVE_INTEL_ME
 	select BOARD_ROMSIZE_KB_8192

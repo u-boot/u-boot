@@ -203,6 +203,9 @@ config SPL_X86_32BIT_INIT
 	help
 	  This is enabled when 32-bit init is in SPL
 
+config USE_EARLY_BOARD_INIT
+	bool
+
 config RESET_SEG_START
 	hex
 	depends on X86_RESET_VECTOR
