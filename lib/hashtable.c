@@ -324,8 +324,7 @@ int hsearch_r(struct env_entry item, enum env_action action,
 		 */
 		unsigned hval2;
 
-		if (htab->table[idx].used == USED_DELETED
-		    && !first_deleted)
+		if (htab->table[idx].used == USED_DELETED)
 			first_deleted = idx;
 
 		ret = _compare_and_overwrite_entry(item, action, retval, htab,
