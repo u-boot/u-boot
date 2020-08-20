@@ -599,7 +599,6 @@ static int mt7622_pciesys_bind(struct udevice *dev)
 	int ret = 0;
 
 	if (IS_ENABLED(CONFIG_RESET_MEDIATEK)) {
-//	PCIESYS uses in linux also 0x34 = ETHSYS reset controller
 	ret = mediatek_reset_bind(dev, ETHSYS_HIFSYS_RST_CTRL_OFS, 1);
 	if (ret)
 		debug("Warning: failed to bind reset controller\n");
