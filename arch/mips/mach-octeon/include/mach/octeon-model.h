@@ -262,6 +262,8 @@
 		  )));							\
 	})
 
+#ifndef __ASSEMBLY__
+
 #ifndef OCTEON_IS_MODEL
 
 static inline int __octeon_is_model_runtime_internal__(u32 model)
@@ -309,5 +311,7 @@ static inline u32 cvmx_get_octeon_family(void)
 {
 	return (read_c0_prid() & OCTEON_FAMILY_MASK);
 }
+
+#endif /* __ASSEMBLY__ */
 
 #endif /* __OCTEON_MODEL_H__ */
