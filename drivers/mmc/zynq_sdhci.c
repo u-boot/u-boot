@@ -276,7 +276,7 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 		return PTR_ERR(priv->host->ioaddr);
 
 	priv->deviceid = dev_read_u32_default(dev, "xlnx,device_id", -1);
-	priv->bank = dev_read_u32_default(dev, "xlnx,mio_bank", -1);
+	priv->bank = dev_read_u32_default(dev, "xlnx,mio-bank", 0);
 
 	return 0;
 }

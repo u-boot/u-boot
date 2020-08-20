@@ -197,67 +197,6 @@ static const struct {
 };
 #endif
 
-int chip_id(unsigned char id)
-{
-	struct pt_regs regs;
-	int val = -EINVAL;
-
-	if (current_el() != 3) {
-		regs.regs[0] = ZYNQMP_SIP_SVC_CSU_DMA_CHIPID;
-		regs.regs[1] = 0;
-		regs.regs[2] = 0;
-		regs.regs[3] = 0;
-
-		smc_call(&regs);
-
-		/*
-		 * SMC returns:
-		 * regs[0][31:0]  = status of the operation
-		 * regs[0][63:32] = CSU.IDCODE register
-		 * regs[1][31:0]  = CSU.version register
-		 * regs[1][63:32] = CSU.IDCODE2 register
-		 */
-		switch (id) {
-		case IDCODE:
-			regs.regs[0] = upper_32_bits(regs.regs[0]);
-			regs.regs[0] &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK |
-					ZYNQMP_CSU_IDCODE_SVD_MASK;
-			regs.regs[0] >>= ZYNQMP_CSU_IDCODE_SVD_SHIFT;
-			val = regs.regs[0];
-			break;
-		case VERSION:
-			regs.regs[1] = lower_32_bits(regs.regs[1]);
-			regs.regs[1] &= ZYNQMP_CSU_SILICON_VER_MASK;
-			val = regs.regs[1];
-			break;
-		case IDCODE2:
-			regs.regs[1] = lower_32_bits(regs.regs[1]);
-			regs.regs[1] >>= ZYNQMP_CSU_VERSION_EMPTY_SHIFT;
-			val = regs.regs[1];
-			break;
-		default:
-			printf("%s, Invalid Req:0x%x\n", __func__, id);
-		}
-	} else {
-		switch (id) {
-		case IDCODE:
-			val = readl(ZYNQMP_CSU_IDCODE_ADDR);
-			val &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK |
-			       ZYNQMP_CSU_IDCODE_SVD_MASK;
-			val >>= ZYNQMP_CSU_IDCODE_SVD_SHIFT;
-			break;
-		case VERSION:
-			val = readl(ZYNQMP_CSU_VER_ADDR);
-			val &= ZYNQMP_CSU_SILICON_VER_MASK;
-			break;
-		default:
-			printf("%s, Invalid Req:0x%x\n", __func__, id);
-		}
-	}
-
-	return val;
-}
-
 #define ZYNQMP_VERSION_SIZE		9
 #define ZYNQMP_PL_STATUS_BIT		9
 #define ZYNQMP_IPDIS_VCU_BIT		8
@@ -274,9 +213,28 @@ static char *zynqmp_get_silicon_idcode_name(void)
 	u32 i, id, ver, j;
 	char *buf;
 	static char name[ZYNQMP_VERSION_SIZE];
+	u32 ret_payload[PAYLOAD_ARG_CNT];
 
-	id = chip_id(IDCODE);
-	ver = chip_id(IDCODE2);
+	xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0, ret_payload);
+
+	/*
+	 * Firmware returns:
+	 * payload[0][31:0]  = status of the operation
+	 * payload[1]] = IDCODE
+	 * payload[2][19:0]  = Version
+	 * payload[2][28:20] = EXTENDED_IDCODE
+	 * payload[2][29] = PL_INIT
+	 */
+
+	/* Get IDCODE field */
+	id = ret_payload[1];
+	id &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK | ZYNQMP_CSU_IDCODE_SVD_MASK;
+	id >>=	ZYNQMP_CSU_IDCODE_SVD_SHIFT;
+
+	/* Shift silicon version info */
+	ver = ret_payload[2] >> ZYNQMP_CSU_VERSION_EMPTY_SHIFT;
+
+	debug("%s, ID: 0x%0X, Ver: 0x%0X\r\n", __func__, id, ver);
 
 	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
 		if (zynqmp_devices[i].id == id) {
@@ -387,12 +345,10 @@ int board_init(void)
 #if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
     !defined(CONFIG_SPL_BUILD) || (defined(CONFIG_SPL_FPGA_SUPPORT) && \
     defined(CONFIG_SPL_BUILD))
-	if (current_el() != 3) {
-		zynqmppl.name = zynqmp_get_silicon_idcode_name();
-		printf("Chip ID:\t%s\n", zynqmppl.name);
-		fpga_init();
-		fpga_add(fpga_xilinx, &zynqmppl);
-	}
+	zynqmppl.name = zynqmp_get_silicon_idcode_name();
+	printf("Chip ID:\t%s\n", zynqmppl.name);
+	fpga_init();
+	fpga_add(fpga_xilinx, &zynqmppl);
 #endif
 
 	if (current_el() == 3)
@@ -541,23 +497,30 @@ static int set_fdtfile(void)
 	char *compatible, *fdtfile;
 	const char *suffix = ".dtb";
 	const char *vendor = "xilinx/";
+	int fdt_compat_len;
 
 	if (env_get("fdtfile"))
 		return 0;
 
-	compatible = (char *)fdt_getprop(gd->fdt_blob, 0, "compatible", NULL);
-	if (compatible) {
+	compatible = (char *)fdt_getprop(gd->fdt_blob, 0, "compatible",
+					 &fdt_compat_len);
+	if (compatible && fdt_compat_len) {
+		char *name;
+
 		debug("Compatible: %s\n", compatible);
 
-		/* Discard vendor prefix */
-		strsep(&compatible, ",");
+		name = strchr(compatible, ',');
+		if (!name)
+			return -EINVAL;
 
-		fdtfile = calloc(1, strlen(vendor) + strlen(compatible) +
+		name++;
+
+		fdtfile = calloc(1, strlen(vendor) + strlen(name) +
 				 strlen(suffix) + 1);
 		if (!fdtfile)
 			return -ENOMEM;
 
-		sprintf(fdtfile, "%s%s%s", vendor, compatible, suffix);
+		sprintf(fdtfile, "%s%s%s", vendor, name, suffix);
 
 		env_set("fdtfile", fdtfile);
 		free(fdtfile);
@@ -604,6 +567,9 @@ int board_late_init(void)
 		debug("Saved variables - Skipping\n");
 		return 0;
 	}
+
+	if (!CONFIG_IS_ENABLED(ENV_VARS_UBOOT_RUNTIME_CONFIG))
+		return 0;
 
 	ret = set_fdtfile();
 	if (ret)

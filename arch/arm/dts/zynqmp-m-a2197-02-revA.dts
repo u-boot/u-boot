@@ -85,7 +85,7 @@
 	non-removable;
 	disable-wp;
 	bus-width = <8>;
-	xlnx,mio_bank = <0>; /* FIXME tap delay */
+	xlnx,mio-bank = <0>; /* FIXME tap delay */
 };
 
 &uart0 { /* uart0 MIO38-39 */
@@ -102,7 +102,7 @@
 	status = "disable";
 	no-1-8-v;
 	disable-wp;
-	xlnx,mio_bank = <1>;
+	xlnx,mio-bank = <1>;
 };
 
 &gem0 {

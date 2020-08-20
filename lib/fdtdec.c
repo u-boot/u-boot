@@ -24,6 +24,7 @@
 #include <asm/sections.h>
 #include <linux/ctype.h>
 #include <linux/lzo.h>
+#include <linux/ioport.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -1032,16 +1033,17 @@ int fdtdec_decode_display_timing(const void *blob, int parent, int index,
 
 int fdtdec_setup_mem_size_base(void)
 {
-	int ret, mem;
-	struct fdt_resource res;
+	int ret;
+	ofnode mem;
+	struct resource res;
 
-	mem = fdt_path_offset(gd->fdt_blob, "/memory");
-	if (mem < 0) {
+	mem = ofnode_path("/memory");
+	if (!ofnode_valid(mem)) {
 		debug("%s: Missing /memory node\n", __func__);
 		return -EINVAL;
 	}
 
-	ret = fdt_get_resource(gd->fdt_blob, mem, "reg", 0, &res);
+	ret = ofnode_read_resource(mem, 0, &res);
 	if (ret != 0) {
 		debug("%s: Unable to decode first memory bank\n", __func__);
 		return -EINVAL;
@@ -1057,42 +1059,42 @@ int fdtdec_setup_mem_size_base(void)
 
 #if defined(CONFIG_NR_DRAM_BANKS)
 
-static int get_next_memory_node(const void *blob, int mem)
+ofnode get_next_memory_node(ofnode mem)
 {
 	do {
-		mem = fdt_node_offset_by_prop_value(gd->fdt_blob, mem,
-						    "device_type", "memory", 7);
-	} while (!fdtdec_get_is_enabled(blob, mem));
+		mem = ofnode_by_prop_value(mem, "device_type", "memory", 7);
+	} while (!ofnode_is_available(mem));
 
 	return mem;
 }
 
 int fdtdec_setup_memory_banksize(void)
 {
-	int bank, ret, mem, reg = 0;
-	struct fdt_resource res;
+	int bank, ret, reg = 0;
+	struct resource res;
+	ofnode mem = ofnode_null();
 
-	mem = get_next_memory_node(gd->fdt_blob, -1);
-	if (mem < 0) {
+	mem = get_next_memory_node(mem);
+	if (!ofnode_valid(mem)) {
 		debug("%s: Missing /memory node\n", __func__);
 		return -EINVAL;
 	}
 
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		ret = fdt_get_resource(gd->fdt_blob, mem, "reg", reg++, &res);
-		if (ret == -FDT_ERR_NOTFOUND) {
+		ret = ofnode_read_resource(mem, reg++, &res);
+		if (ret < 0) {
 			reg = 0;
-			mem = get_next_memory_node(gd->fdt_blob, mem);
-			if (mem == -FDT_ERR_NOTFOUND)
+			mem = get_next_memory_node(mem);
+			if (ofnode_valid(mem))
 				break;
 
-			ret = fdt_get_resource(gd->fdt_blob, mem, "reg", reg++, &res);
-			if (ret == -FDT_ERR_NOTFOUND)
+			ret = ofnode_read_resource(mem, reg++, &res);
+			if (ret < 0)
 				break;
 		}
-		if (ret != 0) {
+
+		if (ret != 0)
 			return -EINVAL;
-		}
 
 		gd->bd->bi_dram[bank].start = (phys_addr_t)res.start;
 		gd->bd->bi_dram[bank].size =
@@ -1102,6 +1104,52 @@ int fdtdec_setup_memory_banksize(void)
 		      __func__, bank,
 		      (unsigned long long)gd->bd->bi_dram[bank].start,
 		      (unsigned long long)gd->bd->bi_dram[bank].size);
+	}
+
+	return 0;
+}
+
+int fdtdec_setup_mem_size_base_lowest(void)
+{
+	int bank, ret, reg = 0;
+	struct resource res;
+	unsigned long base;
+	phys_size_t size;
+	ofnode mem = ofnode_null();
+
+	gd->ram_base = (unsigned long)~0;
+
+	mem = get_next_memory_node(mem);
+	if (!ofnode_valid(mem)) {
+		debug("%s: Missing /memory node\n", __func__);
+		return -EINVAL;
+	}
+
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		ret = ofnode_read_resource(mem, reg++, &res);
+		if (ret < 0) {
+			reg = 0;
+			mem = get_next_memory_node(mem);
+			if (ofnode_valid(mem))
+				break;
+
+			ret = ofnode_read_resource(mem, reg++, &res);
+			if (ret < 0)
+				break;
+		}
+
+		if (ret != 0)
+			return -EINVAL;
+
+		base = (unsigned long)res.start;
+		size = (phys_size_t)(res.end - res.start + 1);
+
+		if (gd->ram_base > base && size) {
+			gd->ram_base = base;
+			gd->ram_size = size;
+			debug("%s: Initial DRAM base %lx size %lx\n",
+			      __func__, base, (unsigned long)size);
+		}
 	}
 
 	return 0;

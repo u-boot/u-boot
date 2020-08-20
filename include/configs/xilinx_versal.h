@@ -54,7 +54,7 @@
 #define DFU_ALT_INFO_RAM \
 	"dfu_ram_info=" \
 	"setenv dfu_alt_info " \
-	"Image ram $kernel_addr_r $kernel_size_r\\\\;" \
+	"Image ram 80000 $kernel_size_r\\\\;" \
 	"system.dtb ram $fdt_addr_r $fdt_size_r\0" \
 	"dfu_ram=run dfu_ram_info && dfu 0 ram 0\0" \
 	"thor_ram=run dfu_ram_info && thordown 0 ram 0\0"
@@ -79,7 +79,6 @@
 #define CONFIG_CLOCKS
 
 #define ENV_MEM_LAYOUT_SETTINGS \
-	"fdt_high=10000000\0" \
 	"fdt_addr_r=0x40000000\0" \
 	"fdt_size_r=0x400000\0" \
 	"pxefile_addr_r=0x10000000\0" \

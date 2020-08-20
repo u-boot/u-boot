@@ -116,6 +116,9 @@ int board_late_init(void)
 		return 0;
 	}
 
+	if (!CONFIG_IS_ENABLED(ENV_VARS_UBOOT_RUNTIME_CONFIG))
+		return 0;
+
 	bootmode = versal_get_bootmode();
 
 	puts("Bootmode: ");
@@ -229,7 +232,7 @@ int dram_init_banksize(void)
 
 int dram_init(void)
 {
-	if (fdtdec_setup_mem_size_base() != 0)
+	if (fdtdec_setup_mem_size_base_lowest() != 0)
 		return -EINVAL;
 
 	return 0;

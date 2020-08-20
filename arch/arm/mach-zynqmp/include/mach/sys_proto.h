@@ -7,8 +7,6 @@
 #ifndef _ASM_ARCH_SYS_PROTO_H
 #define _ASM_ARCH_SYS_PROTO_H
 
-#define PAYLOAD_ARG_CNT		5
-
 #define ZYNQMP_CSU_SILICON_VER_MASK	0xF
 #define KEY_PTR_LEN	32
 
@@ -51,7 +49,6 @@ int zynqmp_mmio_read(const u32 address, u32 *value);
 
 void initialize_tcm(bool mode);
 void mem_map_fill(void);
-int chip_id(unsigned char id);
 #if defined(CONFIG_SYS_MEM_RSVD_FOR_MMU) || defined(CONFIG_DEFINE_TCM_OCM_MMAP)
 void tcm_init(u8 mode);
 #endif

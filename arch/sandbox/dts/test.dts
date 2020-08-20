@@ -415,6 +415,14 @@
 			reg = <0x2c>;
 			compatible = "i2c-eeprom";
 			sandbox,emul = <&emul_eeprom>;
+			partitions {
+				compatible = "fixed-partitions";
+				#address-cells = <1>;
+				#size-cells = <1>;
+				bootcount_i2c: bootcount@10 {
+					reg = <10 2>;
+				};
+			};
 		};
 
 		rtc_0: rtc@43 {
@@ -460,6 +468,11 @@
 		compatible = "u-boot,bootcount-rtc";
 		rtc = <&rtc_1>;
 		offset = <0x13>;
+	};
+
+	bootcount {
+		compatible = "u-boot,bootcount-i2c-eeprom";
+		i2c-eeprom = <&bootcount_i2c>;
 	};
 
 	adc@0 {

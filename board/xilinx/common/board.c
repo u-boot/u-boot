@@ -13,11 +13,10 @@
 #include <linux/sizes.h>
 #include "board.h"
 
+#if defined(CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET)
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 {
 	int ret = -EINVAL;
-
-#if defined(CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET)
 	struct udevice *dev;
 	ofnode eeprom;
 
@@ -37,10 +36,10 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 		debug("%s: I2C EEPROM MAC address read failed\n", __func__);
 	else
 		debug("%s: I2C EEPROM MAC %pM\n", __func__, ethaddr);
-#endif
 
 	return ret;
 }
+#endif
 
 #if defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
 void *board_fdt_blob_setup(void)
@@ -78,13 +77,19 @@ void *board_fdt_blob_setup(void)
 
 int board_late_init_xilinx(void)
 {
-	ulong initrd_hi;
+	u32 ret = 0;
+	phys_size_t bootm_size = gd->ram_size;
 
-	env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
+	if (CONFIG_IS_ENABLED(ARCH_ZYNQ))
+		bootm_size = min(bootm_size, (phys_size_t)(SZ_512M + SZ_256M));
 
-	initrd_hi = gd->start_addr_sp - CONFIG_STACK_SIZE;
-	initrd_hi = round_down(initrd_hi, SZ_16M);
-	env_set_addr("initrd_high", (void *)initrd_hi);
+	ret |= env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
+
+	ret |= env_set_addr("bootm_low", (void *)gd->ram_base);
+	ret |= env_set_addr("bootm_size", (void *)bootm_size);
+
+	if (ret)
+		printf("%s: Saving run time variables FAILED\n", __func__);
 
 	return 0;
 }
