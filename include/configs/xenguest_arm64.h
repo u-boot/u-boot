@@ -39,8 +39,6 @@
 #define CONFIG_CMDLINE_TAG            1
 #define CONFIG_INITRD_TAG             1
 
-#define CONFIG_CMD_RUN
-
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"loadimage=ext4load pvblock 0 0x90000000 /boot/Image;\0" \
