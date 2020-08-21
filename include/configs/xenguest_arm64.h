@@ -9,8 +9,6 @@
 #include <linux/types.h>
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 #define CONFIG_EXTRA_ENV_SETTINGS
 
 #undef CONFIG_NR_DRAM_BANKS
