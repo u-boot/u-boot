@@ -294,8 +294,8 @@ static void shutdown_blkfront(struct blkfront_dev *dev)
 	snprintf(path, sizeof(path), "%s/state", dev->backend);
 	snprintf(nodename, sizeof(nodename), "%s/state", dev->nodename);
 
-	if ((err = xenbus_switch_state(XBT_NIL, nodename,
-				       XenbusStateClosing)) != NULL) {
+	err = xenbus_switch_state(XBT_NIL, nodename, XenbusStateClosing);
+	if (err) {
 		printf("%s: error changing state to %d: %s\n", __func__,
 		       XenbusStateClosing, err);
 		goto close;
@@ -306,8 +306,8 @@ static void shutdown_blkfront(struct blkfront_dev *dev)
 		err = xenbus_wait_for_state_change(path, &state);
 	free(err);
 
-	if ((err = xenbus_switch_state(XBT_NIL, nodename,
-				       XenbusStateClosed)) != NULL) {
+	err = xenbus_switch_state(XBT_NIL, nodename, XenbusStateClosed);
+	if (err) {
 		printf("%s: error changing state to %d: %s\n", __func__,
 		       XenbusStateClosed, err);
 		goto close;
@@ -319,8 +319,8 @@ static void shutdown_blkfront(struct blkfront_dev *dev)
 		free(err);
 	}
 
-	if ((err = xenbus_switch_state(XBT_NIL, nodename,
-				       XenbusStateInitialising)) != NULL) {
+	err = xenbus_switch_state(XBT_NIL, nodename, XenbusStateInitialising);
+	if (err) {
 		printf("%s: error changing state to %d: %s\n", __func__,
 		       XenbusStateInitialising, err);
 		goto close;

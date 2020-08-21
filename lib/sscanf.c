@@ -555,7 +555,8 @@ literal:
 			if (flags & SUPPRESS) {
 				size_t sum = 0;
 
-				if ((n = inr) < width) {
+				n = inr;
+				if (n < width) {
 					sum += n;
 					width -= n;
 					inp += n;

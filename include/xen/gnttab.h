@@ -1,5 +1,4 @@
-/*
- * SPDX-License-Identifier: GPL-2.0
+/* SPDX-License-Identifier: GPL-2.0
  *
  * (C) 2006, Steven Smith <sos22@cam.ac.uk>
  * (C) 2006, Grzegorz Milos <gm281@cam.ac.uk>
