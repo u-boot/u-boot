@@ -98,7 +98,6 @@
 #define CONFIG_MXC_USB_FLAGS		0
 /* Gadget part */
 #define CONFIG_USBD_HS
-#define CONFIG_NETCONSOLE
 #endif
 
 /* Video output */
