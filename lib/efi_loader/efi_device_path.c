@@ -1127,3 +1127,36 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 
 	return EFI_SUCCESS;
 }
+
+/**
+ * efi_dp_check_length() - check length of a device path
+ *
+ * @dp:		pointer to device path
+ * @maxlen:	maximum length of the device path
+ * Return:
+ * * length of the device path if it is less or equal @maxlen
+ * * -1 if the device path is longer then @maxlen
+ * * -1 if a device path node has a length of less than 4
+ * * -EINVAL if maxlen exceeds SSIZE_MAX
+ */
+ssize_t efi_dp_check_length(const struct efi_device_path *dp,
+			    const size_t maxlen)
+{
+	ssize_t ret = 0;
+	u16 len;
+
+	if (maxlen > SSIZE_MAX)
+		return -EINVAL;
+	for (;;) {
+		len = dp->length;
+		if (len < 4)
+			return -1;
+		ret += len;
+		if (ret > maxlen)
+			return -1;
+		if (dp->type == DEVICE_PATH_TYPE_END &&
+		    dp->sub_type == DEVICE_PATH_SUB_TYPE_END)
+			return ret;
+		dp = (const struct efi_device_path *)((const u8 *)dp + len);
+	}
+}
