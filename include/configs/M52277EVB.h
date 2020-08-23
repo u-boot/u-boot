@@ -74,7 +74,6 @@
 
 /* LCD */
 #ifdef CONFIG_CMD_BMP
-#define CONFIG_SPLASH_SCREEN
 #define CONFIG_LCD_LOGO
 #define CONFIG_SHARP_LQ035Q7DH06
 #endif

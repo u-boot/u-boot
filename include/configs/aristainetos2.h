@@ -438,8 +438,6 @@
 
 /* Framebuffer */
 /* check this console not needed, after test remove it */
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_SPLASH_SCREEN_ALIGN
 #define CONFIG_IMX_VIDEO_SKIP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO

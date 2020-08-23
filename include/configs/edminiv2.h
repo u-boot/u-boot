@@ -114,7 +114,6 @@
 #define CONFIG_SKIP_LOCAL_MAC_RANDOMIZATION	/* don't randomize MAC */
 #define CONFIG_PHY_BASE_ADR	0x8
 #define CONFIG_RESET_PHY_R	/* use reset_phy() to init mv8831116 PHY */
-#define CONFIG_NETCONSOLE	/* include NetConsole support   */
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
 #endif
 

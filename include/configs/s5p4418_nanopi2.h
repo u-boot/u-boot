@@ -152,8 +152,6 @@
 
 #define CONFIG_VIDEO_LOGO
 
-#define CONFIG_SPLASH_SCREEN
-
 #ifdef CONFIG_VIDEO_LOGO
 
 #ifdef CONFIG_DM_VIDEO
@@ -161,8 +159,6 @@
 #endif
 
 #ifdef CONFIG_SPLASH_SCREEN
-#define CONFIG_SPLASH_SOURCE		1
-#define CONFIG_SPLASH_SCREEN_ALIGN	1
 #define SPLASH_FILE			logo.bmp
 #endif
 

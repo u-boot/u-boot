@@ -854,4 +854,89 @@ config IHS_VIDEO_OUT
 	  out On-screen Display (OSD) used on gdsys FPGAs to control dynamic
 	  textual overlays of the display outputs.
 
+config SPLASH_SCREEN
+	bool "Show a splash-screen image"
+	help
+	  If this option is set, the environment is checked for a variable
+	  "splashimage". If found, the usual display of logo, copyright and
+	  system information on the LCD is suppressed and the BMP image at the
+	  address specified in "splashimage" is loaded instead. The console is
+	  redirected to the "nulldev", too. This allows for a "silent" boot
+	  where a splash screen is loaded very quickly after power-on.
+
+	  The splash_screen_prepare() function is a weak function defined in
+	  common/splash.c. It is called as part of the splash screen display
+	  sequence. It gives the board an opportunity to prepare the splash
+	  image data before it is processed and sent to the frame buffer by
+	  U-Boot. Define your own version to use this feature.
+
+config SPLASHIMAGE_GUARD
+	bool "Support unaligned BMP images"
+	depends on SPLASH_SCREEN
+	help
+	  If this option is set, then U-Boot will prevent the environment
+	  variable "splashimage" from being set to a problematic address
+	  (see doc/README.displaying-bmps).
+
+	  This option is useful for targets where, due to alignment
+	  restrictions, an improperly aligned BMP image will cause a data
+	  abort. If you think you will not have problems with unaligned
+	  accesses (for example because your toolchain prevents them)
+	  there is no need to set this option.
+
+config SPLASH_SCREEN_ALIGN
+	bool "Allow positioning the splash image anywhere on the display"
+	depends on SPLASH_SCREEN || CMD_BMP
+	help
+	  If this option is set the splash image can be freely positioned
+	  on the screen. Environment variable "splashpos" specifies the
+	  position as "x,y". If a positive number is given it is used as
+	  number of pixel from left/top. If a negative number is given it
+	  is used as number of pixel from right/bottom. You can also
+	  specify 'm' for centering the image.
+
+	  Example:
+	  setenv splashpos m,m
+	  	=> image at center of screen
+
+	  setenv splashpos 30,20
+	  	=> image at x = 30 and y = 20
+
+	  setenv splashpos -10,m
+	  	=> vertically centered image
+	  	   at x = dspWidth - bmpWidth - 9
+
+config SPLASH_SOURCE
+	bool "Control the source of the splash image"
+	depends on SPLASH_SCREEN
+	help
+	  Use the splash_source.c library. This library provides facilities to
+	  declare board specific splash image locations, routines for loading
+	  splash image from supported locations, and a way of controlling the
+	  selected splash location using the "splashsource" environment
+	  variable.
+
+	  This CONFIG works as follows:
+
+	  - If splashsource is set to a supported location name as defined by
+	    board code, use that splash location.
+	  - If splashsource is undefined, use the first splash location as
+	    default.
+	  - If splashsource is set to an unsupported value, do not load a splash
+	    screen.
+
+	  A splash source location can describe either storage with raw data, a
+	  storage formatted with a file system or a FIT image. In case of a
+	  filesystem, the splash screen data is loaded as a file. The name of
+	  the splash screen file can be controlled with the environment variable
+	  "splashfile".
+
+	  To enable loading the splash image from a FIT image, CONFIG_FIT must
+	  be enabled. The FIT image has to start at the 'offset' field address
+	  in the selected splash location. The name of splash image within the
+	  FIT shall be specified by the environment variable "splashfile".
+
+	  In case the environment variable "splashfile" is not defined the
+	  default name 'splash.bmp' will be used.
+
 endmenu

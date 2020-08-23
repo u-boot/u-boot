@@ -83,7 +83,6 @@
 /* Network hardware configuration */
 #define CONFIG_DRIVER_EP93XX_MAC
 #define CONFIG_MII_SUPPRESS_PREAMBLE
-#undef CONFIG_NETCONSOLE
 
 /* SDRAM configuration */
 #if defined(CONFIG_EDB9301) || defined(CONFIG_EDB9302) || \

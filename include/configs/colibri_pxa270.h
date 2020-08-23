@@ -69,8 +69,6 @@
 #define	CONFIG_BOOTP_BOOTFILESIZE
 #endif
 
-#define	CONFIG_SYS_DEVICE_NULLDEV	1
-
 /*
  * Clock Configuration
  */

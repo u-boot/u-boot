@@ -101,7 +101,6 @@
 #define CONFIG_VIDEO_LOGO
 #define VIDEO_FB_16BPP_PIXEL_SWAP
 #define VIDEO_FB_16BPP_WORD_SWAP
-#define CONFIG_SPLASH_SCREEN
 
 /* functions for cfb_console */
 #define VIDEO_KBD_INIT_FCT		rx51_kp_init()

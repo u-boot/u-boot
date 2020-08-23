@@ -204,8 +204,6 @@
 /* Display */
 #define CONFIG_IMX_HDMI
 
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_SPLASH_SOURCE
 #define CONFIG_VIDEO_BMP_RLE8
 
 #define CONFIG_VIDEO_LOGO
