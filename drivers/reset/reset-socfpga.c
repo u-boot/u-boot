@@ -118,7 +118,7 @@ static int socfpga_reset_probe(struct udevice *dev)
 	u32 modrst_offset;
 	void __iomem *membase;
 
-	membase = devfdt_get_addr_ptr(dev);
+	membase = dev_read_addr_ptr(dev);
 
 	modrst_offset = dev_read_u32_default(dev, "altr,modrst-offset", 0x10);
 	data->modrst_base = membase + modrst_offset;

@@ -6,7 +6,7 @@
 
 import unittest
 
-from image import Image
+from binman.image import Image
 from patman.test_util import capture_sys_output
 
 class TestImage(unittest.TestCase):

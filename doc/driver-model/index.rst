@@ -6,6 +6,7 @@ Driver Model
 .. toctree::
    :maxdepth: 2
 
+   bind
    debugging
    design
    ethernet

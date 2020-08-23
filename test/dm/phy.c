@@ -47,7 +47,7 @@ static int dm_test_phy_base(struct unit_test_state *uts)
 	ut_assert(phy2.dev != phy3.dev);
 
 	/* Try to get a non-existing phy */
-	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_PHY, 3, &dev));
+	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_PHY, 4, &dev));
 	ut_asserteq(-ENODATA, generic_phy_get_by_name(parent,
 					"phy_not_existing", &phy1_method1));
 

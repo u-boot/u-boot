@@ -149,6 +149,7 @@
 	};
 
 	bind-test {
+		compatible = "simple-bus";
 		bind-test-child1 {
 			compatible = "sandbox,phy";
 			#phy-cells = <1>;

@@ -592,7 +592,7 @@ static int atmel_mci_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	plat->mci = (struct atmel_mci *)devfdt_get_addr_ptr(dev);
+	plat->mci = dev_read_addr_ptr(dev);
 
 	atmel_mci_setup_cfg(dev);
 

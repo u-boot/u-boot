@@ -6,6 +6,7 @@
 #
 
 from collections import OrderedDict
+import glob
 import os
 import sys
 from patman import tools
@@ -50,6 +51,18 @@ def _FindBinmanNode(dtb):
         if node.name == 'binman':
             return node
     return None
+
+def GetEntryModules(include_testing=True):
+    """Get a set of entry class implementations
+
+    Returns:
+        Set of paths to entry class filenames
+    """
+    our_path = os.path.dirname(os.path.realpath(__file__))
+    glob_list = glob.glob(os.path.join(our_path, 'etype/*.py'))
+    return set([os.path.splitext(os.path.basename(item))[0]
+                for item in glob_list
+                if include_testing or '_testing' not in item])
 
 def WriteEntryDocs(modules, test_missing=None):
     """Write out documentation for all entries
@@ -110,7 +123,7 @@ def ReadEntry(image_fname, entry_path, decomp=True):
         data extracted from the entry
     """
     global Image
-    from image import Image
+    from binman.image import Image
 
     image = Image.FromFile(image_fname)
     entry = image.FindEntryPath(entry_path)
@@ -483,7 +496,7 @@ def Binman(args):
         return 0
 
     # Put these here so that we can import this module without libfdt
-    from image import Image
+    from binman.image import Image
     from binman import state
 
     if args.cmd in ['ls', 'extract', 'replace']:

@@ -64,7 +64,7 @@ static int atmel_pit_ofdata_to_platdata(struct udevice *dev)
 {
 	struct atmel_pit_platdata *plat = dev_get_platdata(dev);
 
-	plat->regs = (struct atmel_pit_regs *)devfdt_get_addr_ptr(dev);
+	plat->regs = dev_read_addr_ptr(dev);
 
 	return 0;
 }

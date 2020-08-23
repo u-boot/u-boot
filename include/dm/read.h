@@ -802,9 +802,7 @@ static inline fdt_addr_t dev_read_addr(const struct udevice *dev)
 
 static inline void *dev_read_addr_ptr(const struct udevice *dev)
 {
-	void *addr = devfdt_get_addr_ptr(dev);
-
-	return ((fdt_addr_t)(uintptr_t)addr == FDT_ADDR_T_NONE) ? NULL : addr;
+	return devfdt_get_addr_ptr(dev);
 }
 
 static inline fdt_addr_t dev_read_addr_pci(const struct udevice *dev)
@@ -878,14 +876,16 @@ static inline int dev_count_phandle_with_args(const struct udevice *dev,
 
 static inline int dev_read_addr_cells(const struct udevice *dev)
 {
-	/* NOTE: this call should walk up the parent stack */
-	return fdt_address_cells(gd->fdt_blob, dev_of_offset(dev));
+	int parent = fdt_parent_offset(gd->fdt_blob, dev_of_offset(dev));
+
+	return fdt_address_cells(gd->fdt_blob, parent);
 }
 
 static inline int dev_read_size_cells(const struct udevice *dev)
 {
-	/* NOTE: this call should walk up the parent stack */
-	return fdt_size_cells(gd->fdt_blob, dev_of_offset(dev));
+	int parent = fdt_parent_offset(gd->fdt_blob, dev_of_offset(dev));
+
+	return fdt_size_cells(gd->fdt_blob, parent);
 }
 
 static inline int dev_read_simple_addr_cells(const struct udevice *dev)

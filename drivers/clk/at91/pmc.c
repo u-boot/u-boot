@@ -41,7 +41,7 @@ int at91_pmc_core_probe(struct udevice *dev)
 
 	dev = dev_get_parent(dev);
 
-	plat->reg_base = (struct at91_pmc *)devfdt_get_addr_ptr(dev);
+	plat->reg_base = dev_read_addr_ptr(dev);
 
 	return 0;
 }
@@ -116,7 +116,7 @@ int at91_clk_probe(struct udevice *dev)
 	dev_periph_container = dev_get_parent(dev);
 	dev_pmc = dev_get_parent(dev_periph_container);
 
-	plat->reg_base = (struct at91_pmc *)devfdt_get_addr_ptr(dev_pmc);
+	plat->reg_base = dev_read_addr_ptr(dev_pmc);
 
 	return 0;
 }
