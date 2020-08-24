@@ -57,7 +57,7 @@
 		"fi;\0" \
 	"mmcboot=mmc dev ${mmcdev}; " \
 		"devnum=${mmcdev}; " \
-		"setenv devtype mmc; " \
+		"devtype=mmc; " \
 		"if mmc rescan; then " \
 			"echo SD/MMC found on device ${mmcdev};" \
 			"if run loadimage; then " \
