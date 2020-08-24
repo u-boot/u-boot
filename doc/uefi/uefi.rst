@@ -173,11 +173,11 @@ Sign an image with one of the keys in "db" on your host
 Now in U-Boot install the keys on your board::
 
     fatload mmc 0:1 <tmpaddr> PK.auth
-    setenv -e -nv -bs -rt -at -i <tmpaddr>,$filesize PK
+    setenv -e -nv -bs -rt -at -i <tmpaddr>:$filesize PK
     fatload mmc 0:1 <tmpaddr> KEK.auth
-    setenv -e -nv -bs -rt -at -i <tmpaddr>,$filesize KEK
+    setenv -e -nv -bs -rt -at -i <tmpaddr>:$filesize KEK
     fatload mmc 0:1 <tmpaddr> db.auth
-    setenv -e -nv -bs -rt -at -i <tmpaddr>,$filesize db
+    setenv -e -nv -bs -rt -at -i <tmpaddr>:$filesize db
 
 Set up boot parameters on your board::
 

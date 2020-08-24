@@ -31,11 +31,11 @@ class TestEfiSignedImageIntca(object):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
                 'fatload host 0:1 4000000 db_c.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
+                'setenv -e -nv -bs -rt -at -i 4000000:$filesize db',
                 'fatload host 0:1 4000000 KEK.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
+                'setenv -e -nv -bs -rt -at -i 4000000:$filesize KEK',
                 'fatload host 0:1 4000000 PK.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
+                'setenv -e -nv -bs -rt -at -i 4000000:$filesize PK'])
             assert 'Failed to set EFI variable' not in ''.join(output)
 
             output = u_boot_console.run_command_list([
@@ -64,9 +64,9 @@ class TestEfiSignedImageIntca(object):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
                 'fatload host 0:1 4000000 KEK.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
+                'setenv -e -nv -bs -rt -at -i 4000000:$filesize KEK',
                 'fatload host 0:1 4000000 PK.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
+                'setenv -e -nv -bs -rt -at -i 4000000:$filesize PK'])
             assert 'Failed to set EFI variable' not in ''.join(output)
 
             output = u_boot_console.run_command_list([
@@ -80,7 +80,7 @@ class TestEfiSignedImageIntca(object):
             # Test Case 2b, signed and authenticated by root CA
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 db_b.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
+                'setenv -e -nv -bs -rt -at -i 4000000:$filesize db',
                 'efidebug boot next 1',
                 'efidebug test bootmgr'])
             assert '\'HELLO_abc\' failed' in ''.join(output)
@@ -90,7 +90,7 @@ class TestEfiSignedImageIntca(object):
             # Test Case 2c, signed and authenticated by root CA
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 db_c.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
+                'setenv -e -nv -bs -rt -at -i 4000000:$filesize db',
                 'efidebug boot next 1',
                 'efidebug test bootmgr'])
             assert 'Hello, world!' in ''.join(output)
@@ -106,13 +106,13 @@ class TestEfiSignedImageIntca(object):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
                 'fatload host 0:1 4000000 dbx_b.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx',
+                'setenv -e -nv -bs -rt -at -i 4000000:$filesize dbx',
                 'fatload host 0:1 4000000 db_c.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
+                'setenv -e -nv -bs -rt -at -i 4000000:$filesize db',
                 'fatload host 0:1 4000000 KEK.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
+                'setenv -e -nv -bs -rt -at -i 4000000:$filesize KEK',
                 'fatload host 0:1 4000000 PK.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
+                'setenv -e -nv -bs -rt -at -i 4000000:$filesize PK'])
             assert 'Failed to set EFI variable' not in ''.join(output)
 
             output = u_boot_console.run_command_list([
@@ -128,7 +128,7 @@ class TestEfiSignedImageIntca(object):
             # Test Case 3b, revoked by root CA in dbx
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 dbx_c.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx',
+                'setenv -e -nv -bs -rt -at -i 4000000:$filesize dbx',
                 'efidebug boot next 1',
                 'efidebug test bootmgr'])
             assert '\'HELLO_abc\' failed' in ''.join(output)
