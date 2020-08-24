@@ -142,6 +142,7 @@ struct clk *clk_register_gate(struct device *dev, const char *name,
 #endif
 
 	clk = &gate->clk;
+	clk->flags = flags;
 
 	ret = clk_register(clk, UBOOT_DM_CLK_GATE, name, parent_name);
 	if (ret) {

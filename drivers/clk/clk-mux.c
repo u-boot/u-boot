@@ -22,16 +22,17 @@
  */
 
 #include <common.h>
-#include <asm/io.h>
-#include <malloc.h>
+#include <clk.h>
 #include <clk-uclass.h>
 #include <dm/device.h>
 #include <dm/devres.h>
+#include <dm/uclass.h>
 #include <linux/bitops.h>
+#include <malloc.h>
+#include <asm/io.h>
 #include <linux/clk-provider.h>
-#include <clk.h>
-#include "clk.h"
 #include <linux/err.h>
+#include "clk.h"
 
 #define UBOOT_DM_CLK_CCF_MUX "ccf_clk_mux"
 
@@ -131,18 +132,50 @@ static int clk_mux_set_parent(struct clk *clk, struct clk *parent)
 	if (mux->flags & CLK_MUX_HIWORD_MASK) {
 		reg = mux->mask << (mux->shift + 16);
 	} else {
+#if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
+		reg = mux->io_mux_val;
+#else
 		reg = readl(mux->reg);
+#endif
 		reg &= ~(mux->mask << mux->shift);
 	}
 	val = val << mux->shift;
 	reg |= val;
+#if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
+	mux->io_mux_val = reg;
+#else
 	writel(reg, mux->reg);
+#endif
 
 	return 0;
 }
 
+static ulong clk_mux_get_rate(struct clk *clk)
+{
+	struct clk_mux *mux = to_clk_mux(clk_dev_binded(clk) ?
+			dev_get_clk_ptr(clk->dev) : clk);
+	struct udevice *parent;
+	struct clk *pclk;
+	int err, index;
+
+	index = clk_mux_get_parent(clk);
+	if (index >= mux->num_parents)
+		return -EFAULT;
+
+	err = uclass_get_device_by_name(UCLASS_CLK, mux->parent_names[index],
+					&parent);
+	if (err)
+		return err;
+
+	pclk = dev_get_clk_ptr(parent);
+	if (!pclk)
+		return -ENODEV;
+
+	return clk_get_rate(pclk);
+}
+
 const struct clk_ops clk_mux_ops = {
-	.get_rate = clk_generic_get_rate,
+	.get_rate = clk_mux_get_rate,
 	.set_parent = clk_mux_set_parent,
 };
 
@@ -185,12 +218,13 @@ struct clk *clk_hw_register_mux_table(struct device *dev, const char *name,
 #endif
 
 	clk = &mux->clk;
+	clk->flags = flags;
 
 	/*
 	 * Read the current mux setup - so we assign correct parent.
 	 *
 	 * Changing parent would require changing internals of udevice struct
-	 * for the corresponding clock (to do that define .set_parent() method.
+	 * for the corresponding clock (to do that define .set_parent() method).
 	 */
 	ret = clk_register(clk, UBOOT_DM_CLK_CCF_MUX, name,
 			   parent_names[clk_mux_get_parent(clk)]);

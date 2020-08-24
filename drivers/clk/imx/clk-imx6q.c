@@ -113,6 +113,10 @@ static int imx6q_clk_probe(struct udevice *dev)
 	       imx_clk_pfd("pll2_pfd0_352m", "pll2_bus", base + 0x100, 0));
 	clk_dm(IMX6QDL_CLK_PLL2_PFD2_396M,
 	       imx_clk_pfd("pll2_pfd2_396m", "pll2_bus", base + 0x100, 2));
+	clk_dm(IMX6QDL_CLK_PLL6,
+	       imx_clk_pllv3(IMX_PLLV3_ENET, "pll6", "osc", base + 0xe0, 0x3));
+	clk_dm(IMX6QDL_CLK_PLL6_ENET,
+	       imx_clk_gate("pll6_enet", "pll6", base + 0xe0, 13));
 
 	/* CCM clocks */
 	base = dev_read_addr_ptr(dev);
@@ -182,6 +186,10 @@ static int imx6q_clk_probe(struct udevice *dev)
 	       imx_clk_gate2("i2c1", "ipg_per", base + 0x70, 6));
 	clk_dm(IMX6QDL_CLK_I2C2,
 	       imx_clk_gate2("i2c2", "ipg_per", base + 0x70, 8));
+
+	clk_dm(IMX6QDL_CLK_ENET, imx_clk_gate2("enet", "ipg", base + 0x6c, 10));
+	clk_dm(IMX6QDL_CLK_ENET_REF,
+	       imx_clk_fixed_factor("enet_ref", "pll6_enet", 1, 1));
 
 	return 0;
 }

@@ -23,31 +23,32 @@ static void show_clks(struct udevice *dev, int depth, int last_flag)
 
 	clkp = dev_get_clk_ptr(dev);
 	if (device_get_uclass_id(dev) == UCLASS_CLK && clkp) {
+		depth++;
 		rate = clk_get_rate(clkp);
 
-	printf(" %-12u  %8d        ", rate, clkp->enable_count);
+		printf(" %-12u  %8d        ", rate, clkp->enable_count);
 
-	for (i = depth; i >= 0; i--) {
-		is_last = (last_flag >> i) & 1;
-		if (i) {
-			if (is_last)
-				printf("    ");
-			else
-				printf("|   ");
-		} else {
-			if (is_last)
-				printf("`-- ");
-			else
-				printf("|-- ");
+		for (i = depth; i >= 0; i--) {
+			is_last = (last_flag >> i) & 1;
+			if (i) {
+				if (is_last)
+					printf("    ");
+				else
+					printf("|   ");
+			} else {
+				if (is_last)
+					printf("`-- ");
+				else
+					printf("|-- ");
+			}
 		}
-	}
 
-	printf("%s\n", dev->name);
+		printf("%s\n", dev->name);
 	}
 
 	list_for_each_entry(child, &dev->child_head, sibling_node) {
 		is_last = list_is_last(&child->sibling_node, &dev->child_head);
-		show_clks(child, depth + 1, (last_flag << 1) | is_last);
+		show_clks(child, depth, (last_flag << 1) | is_last);
 	}
 }
 

@@ -145,6 +145,7 @@ struct clk *clk_register_composite(struct device *dev, const char *name,
 	}
 
 	clk = &composite->clk;
+	clk->flags = flags;
 	ret = clk_register(clk, UBOOT_DM_CLK_COMPOSITE, name,
 			   parent_names[clk_composite_get_parent(clk)]);
 	if (ret) {
