@@ -122,7 +122,7 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	u32 reg;
 	int ret;
 
-	hccr = (struct xhci_hccr *)((uintptr_t)dev_read_addr(dev));
+	hccr = (struct xhci_hccr *)((uintptr_t)dev_remap_addr(dev));
 	hcor = (struct xhci_hcor *)((uintptr_t)hccr +
 			HC_LENGTH(xhci_readl(&(hccr)->cr_capbase)));
 
