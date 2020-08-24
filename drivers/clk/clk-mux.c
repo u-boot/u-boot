@@ -26,6 +26,7 @@
 #include <clk-uclass.h>
 #include <dm/device.h>
 #include <dm/devres.h>
+#include <dm/uclass.h>
 #include <linux/bitops.h>
 #include <malloc.h>
 #include <asm/io.h>
