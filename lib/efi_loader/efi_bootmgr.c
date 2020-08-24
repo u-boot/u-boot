@@ -105,10 +105,8 @@ efi_status_t efi_deserialize_load_option(struct efi_load_option *lo, u8 *data,
 	if (*size < len)
 		return EFI_INVALID_PARAMETER;
 	lo->file_path = (struct efi_device_path *)data;
-	 /*
-	  * TODO: validate device path. There should be an end node within
-	  * the indicated file_path_length.
-	  */
+	if (efi_dp_check_length(lo->file_path, len) < 0)
+		return EFI_INVALID_PARAMETER;
 	data += len;
 	*size -= len;
 

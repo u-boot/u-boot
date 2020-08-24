@@ -473,7 +473,7 @@ int do_env_set_efi(struct cmd_tbl *cmdtp, int flag, int argc,
 			argc--;
 			argv++;
 			addr = simple_strtoul(argv[0], &ep, 16);
-			if (*ep != ',')
+			if (*ep != ':')
 				return CMD_RET_USAGE;
 
 			/* 0 should be allowed for delete */

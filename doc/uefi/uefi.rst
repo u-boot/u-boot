@@ -59,6 +59,10 @@ Below you find the output of an example session starting GRUB::
     120832 bytes read in 7 ms (16.5 MiB/s)
     => bootefi ${kernel_addr_r} ${fdt_addr_r}
 
+The bootefi command uses the device, the file name, and the file size
+(environment variable 'filesize') of the most recently loaded file when setting
+up the binary for execution. So the UEFI binary should be loaded last.
+
 The environment variable 'bootargs' is passed as load options in the UEFI system
 table. The Linux kernel EFI stub uses the load options as command line
 arguments.
@@ -169,11 +173,11 @@ Sign an image with one of the keys in "db" on your host
 Now in U-Boot install the keys on your board::
 
     fatload mmc 0:1 <tmpaddr> PK.auth
-    setenv -e -nv -bs -rt -at -i <tmpaddr>,$filesize PK
+    setenv -e -nv -bs -rt -at -i <tmpaddr>:$filesize PK
     fatload mmc 0:1 <tmpaddr> KEK.auth
-    setenv -e -nv -bs -rt -at -i <tmpaddr>,$filesize KEK
+    setenv -e -nv -bs -rt -at -i <tmpaddr>:$filesize KEK
     fatload mmc 0:1 <tmpaddr> db.auth
-    setenv -e -nv -bs -rt -at -i <tmpaddr>,$filesize db
+    setenv -e -nv -bs -rt -at -i <tmpaddr>:$filesize db
 
 Set up boot parameters on your board::
 
@@ -217,13 +221,13 @@ which has to be enabled via CONFIG_SUPPORT_EMMC_RPMB=y.
 Executing the boot manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The UEFI specification foresees to define boot entries and boot sequence via UEFI
-variables. Booting according to these variables is possible via::
+The UEFI specification foresees to define boot entries and boot sequence via
+UEFI variables. Booting according to these variables is possible via::
 
     bootefi bootmgr [fdt address]
 
-As of U-Boot v2018.03 UEFI variables are not persisted and cannot be set at
-runtime.
+As of U-Boot v2020.10 UEFI variables cannot be set at runtime. The U-Boot
+command 'efidebug' can be used to set the variables.
 
 Executing the built in hello world application
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

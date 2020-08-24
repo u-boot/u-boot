@@ -631,6 +631,8 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 			      const char *path,
 			      struct efi_device_path **device,
 			      struct efi_device_path **file);
+ssize_t efi_dp_check_length(const struct efi_device_path *dp,
+			    const size_t maxlen);
 
 #define EFI_DP_TYPE(_dp, _type, _subtype) \
 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \

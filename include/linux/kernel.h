@@ -19,6 +19,9 @@
 #ifndef SIZE_MAX
 #define SIZE_MAX	(~(size_t)0)
 #endif
+#ifndef SSIZE_MAX
+#define SSIZE_MAX	((ssize_t)(SIZE_MAX >> 1))
+#endif
 
 #define U8_MAX		((u8)~0U)
 #define S8_MAX		((s8)(U8_MAX>>1))

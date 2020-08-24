@@ -304,7 +304,11 @@ efi_status_t efi_install_fdt(void *fdt)
 /**
  * do_bootefi_exec() - execute EFI binary
  *
+ * The image indicated by @handle is started. When it returns the allocated
+ * memory for the @load_options is freed.
+ *
  * @handle:		handle of loaded image
+ * @load_options:	load options
  * Return:		status code
  *
  * Load the EFI binary into a newly assigned memory unwinding the relocation

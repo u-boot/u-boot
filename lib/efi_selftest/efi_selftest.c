@@ -5,6 +5,7 @@
  * Copyright (c) 2017 Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
 
+#include <command.h>
 #include <efi_selftest.h>
 #include <vsprintf.h>
 
@@ -309,8 +310,13 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 	/* Reset system */
 	efi_st_printf("Preparing for reset. Press any key...\n");
 	efi_st_get_key();
-	runtime->reset_system(EFI_RESET_WARM, EFI_NOT_READY,
-			      sizeof(reset_message), reset_message);
+
+	if (IS_ENABLED(CONFIG_EFI_HAVE_RUNTIME_RESET))
+		runtime->reset_system(EFI_RESET_WARM, EFI_NOT_READY,
+				      sizeof(reset_message), reset_message);
+	else
+		do_reset(NULL, 0, 0, NULL);
+
 	efi_st_printf("\n");
 	efi_st_error("Reset failed\n");
 
