@@ -113,3 +113,27 @@
 		reg = <0>;
 	};
 };
+
+/* USB 0 */
+&usb0 {
+	status = "okay";
+	/*
+	 * Power is specified by three parts:
+	 * 1) GPIO handle (must be &gpio)
+	 * 2) GPIO pin number
+	 * 3) Active high (0) or active low (1)
+	 */
+	power = <&gpio 20 0>;
+};
+
+/* USB 1 */
+&usb1 {
+	status = "okay";
+	/*
+	 * Power is specified by three parts:
+	 * 1) GPIO handle (must be &gpio)
+	 * 2) GPIO pin number
+	 * 3) Active high (0) or active low (1)
+	 */
+	power = <&gpio 21 0>;
+};
