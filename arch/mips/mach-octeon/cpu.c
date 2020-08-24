@@ -13,6 +13,27 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * TRUE for devices having registers with little-endian byte
+ * order, FALSE for registers with native-endian byte order.
+ * PCI mandates little-endian, USB and SATA are configurable,
+ * but we chose little-endian for these.
+ *
+ * This table will be referened in the Octeon platform specific
+ * mangle-port.h header.
+ */
+const bool octeon_should_swizzle_table[256] = {
+	[0x00] = true,	/* bootbus/CF */
+	[0x1b] = true,	/* PCI mmio window */
+	[0x1c] = true,	/* PCI mmio window */
+	[0x1d] = true,	/* PCI mmio window */
+	[0x1e] = true,	/* PCI mmio window */
+	[0x68] = true,	/* OCTEON III USB */
+	[0x69] = true,	/* OCTEON III USB */
+	[0x6c] = true,	/* OCTEON III SATA */
+	[0x6f] = true,	/* OCTEON II USB */
+};
+
 static int get_clocks(void)
 {
 	const u64 ref_clock = PLL_REF_CLK;
