@@ -680,6 +680,18 @@ int dev_read_alias_highest_id(const char *stem);
  */
 int dev_get_child_count(const struct udevice *dev);
 
+/**
+ * dev_read_pci_bus_range - Read PCI bus-range resource
+ *
+ * Look at the bus range property of a device node and return the pci bus
+ * range for this node.
+ *
+ * @dev: device to examine
+ * @res returns the resource
+ * @return 0 if ok, negative on error
+ */
+int dev_read_pci_bus_range(const struct udevice *dev, struct resource *res);
+
 #else /* CONFIG_DM_DEV_READ_INLINE is enabled */
 
 static inline int dev_read_u32(const struct udevice *dev,

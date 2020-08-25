@@ -354,3 +354,25 @@ static int dm_test_pci_on_bus(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_pci_on_bus, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/*
+ * Test support for multiple memory regions enabled via
+ * CONFIG_PCI_REGION_MULTI_ENTRY. When this feature is not enabled,
+ * only the last region of one type is stored. In this test-case,
+ * we have 2 memory regions, the first at 0x3000.0000 and the 2nd
+ * at 0x3100.0000. A correct test results now in BAR1 located at
+ * 0x3000.0000.
+ */
+static int dm_test_pci_region_multi(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	ulong mem_addr;
+
+	/* Test memory BAR1 on bus#1 */
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(1, 0x08, 0), &dev));
+	mem_addr = dm_pci_read_bar32(dev, 1);
+	ut_asserteq(mem_addr, 0x30000000);
+
+	return 0;
+}
+DM_TEST(dm_test_pci_region_multi, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

@@ -243,6 +243,22 @@ int fdtdec_get_pci_bar32(const struct udevice *dev, struct fdt_pci_addr *addr,
 
 	return 0;
 }
+
+int fdtdec_get_pci_bus_range(const void *blob, int node,
+			     struct fdt_resource *res)
+{
+	const u32 *values;
+	int len;
+
+	values = fdt_getprop(blob, node, "bus-range", &len);
+	if (!values || len < sizeof(*values) * 2)
+		return -EINVAL;
+
+	res->start = fdt32_to_cpu(*values++);
+	res->end = fdt32_to_cpu(*values);
+
+	return 0;
+}
 #endif
 
 uint64_t fdtdec_get_uint64(const void *blob, int node, const char *prop_name,

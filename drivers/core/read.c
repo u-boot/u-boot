@@ -10,6 +10,7 @@
 #include <mapmem.h>
 #include <asm/types.h>
 #include <asm/io.h>
+#include <linux/ioport.h>
 
 int dev_read_u32(const struct udevice *dev, const char *propname, u32 *outp)
 {
@@ -358,4 +359,20 @@ fdt_addr_t dev_read_addr_pci(const struct udevice *dev)
 int dev_get_child_count(const struct udevice *dev)
 {
 	return ofnode_get_child_count(dev_ofnode(dev));
+}
+
+int dev_read_pci_bus_range(const struct udevice *dev,
+			   struct resource *res)
+{
+	const u32 *values;
+	int len;
+
+	values = dev_read_prop(dev, "bus-range", &len);
+	if (!values || len < sizeof(*values) * 2)
+		return -EINVAL;
+
+	res->start = *values++;
+	res->end = *values;
+
+	return 0;
 }
