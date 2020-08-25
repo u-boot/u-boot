@@ -148,9 +148,7 @@ struct pcie_advk {
 	void           *base;
 	int            first_busno;
 	struct udevice *dev;
-#if CONFIG_IS_ENABLED(DM_GPIO)
 	struct gpio_desc reset_gpio;
-#endif
 };
 
 static inline void advk_writel(struct pcie_advk *pcie, uint val, uint reg)
@@ -616,7 +614,6 @@ static int pcie_advk_probe(struct udevice *dev)
 {
 	struct pcie_advk *pcie = dev_get_priv(dev);
 
-#if CONFIG_IS_ENABLED(DM_GPIO)
 	gpio_request_by_name(dev, "reset-gpios", 0, &pcie->reset_gpio,
 			     GPIOD_IS_OUT);
 	/*
@@ -637,10 +634,9 @@ static int pcie_advk_probe(struct udevice *dev)
 		dm_gpio_set_value(&pcie->reset_gpio, 1);
 		mdelay(200);
 		dm_gpio_set_value(&pcie->reset_gpio, 0);
+	} else {
+		dev_warn(pcie->dev, "PCIE Reset on GPIO support is missing\n");
 	}
-#else
-	dev_dbg(pcie->dev, "PCIE Reset on GPIO support is missing\n");
-#endif /* DM_GPIO */
 
 	pcie->first_busno = dev->seq;
 	pcie->dev = pci_get_controller(dev);
@@ -650,12 +646,10 @@ static int pcie_advk_probe(struct udevice *dev)
 
 static int pcie_advk_remove(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(DM_GPIO)
 	struct pcie_advk *pcie = dev_get_priv(dev);
 
 	if (dm_gpio_is_valid(&pcie->reset_gpio))
 		dm_gpio_set_value(&pcie->reset_gpio, 1);
-#endif /* DM_GPIO */
 
 	return 0;
 }

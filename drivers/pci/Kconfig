@@ -30,6 +30,7 @@ config PCI_AARDVARK
 	bool "Enable Aardvark PCIe driver"
 	default n
 	depends on DM_PCI
+	depends on DM_GPIO
 	depends on ARMADA_3700
 	help
 	  Say Y here if you want to enable PCIe controller support on
