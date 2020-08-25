@@ -35,7 +35,8 @@ int cache_enable_ways(void)
 	if (node < 0)
 		return node;
 
-	base = fdtdec_get_addr(blob, node, "reg");
+	base = fdtdec_get_addr_size_auto_parent(blob, 0, node, "reg", 0,
+						NULL, false);
 	if (base == FDT_ADDR_T_NONE)
 		return FDT_ADDR_T_NONE;
 

@@ -75,6 +75,49 @@ console shall be opened immediately. Boot output should look like the following:
     Err:   serial@38000000
     =>
 
+OpenSBI
+^^^^^^^
+
+OpenSBI is an open source supervisor execution environment implementing the
+RISC-V Supervisor Binary Interface Specification [1]. One of its features is
+to intercept run-time exceptions, e.g. for unaligned access or illegal
+instructions, and to emulate the failing instructions.
+
+The OpenSBI source can be downloaded via:
+
+.. code-block:: bash
+
+    git clone https://github.com/riscv/opensbi
+
+As OpenSBI will be loaded at 0x80000000 we have to adjust the U-Boot text base.
+Furthermore we have to enable building U-Boot for S-mode::
+
+    CONFIG_SYS_TEXT_BASE=0x80020000
+    CONFIG_RISCV_SMODE=y
+
+Both settings are contained in sipeed_maix_smode_defconfig so we can build
+U-Boot with:
+
+.. code-block:: bash
+
+    make sipeed_maix_smode_defconfig
+    make
+
+To build OpenSBI with U-Boot as a payload:
+
+.. code-block:: bash
+
+    cd opensbi
+    make \
+    PLATFORM=kendryte/k210 \
+    FW_PAYLOAD=y \
+    FW_PAYLOAD_OFFSET=0x20000 \
+    FW_PAYLOAD_PATH=<path to U-Boot>/u-boot-dtb.bin
+
+The value of FW_PAYLOAD_OFFSET must match CONFIG_SYS_TEXT_BASE - 0x80000000.
+
+The file to flash is build/platform/kendryte/k210/firmware/fw_payload.bin.
+
 Loading Images
 ^^^^^^^^^^^^^^
 
@@ -363,3 +406,9 @@ Address    Size      Description
                      interrupts)
 0x8801f000 0x1000    credits
 ========== ========= ===========
+
+Links
+-----
+
+[1] https://github.com/riscv/riscv-sbi-doc
+    RISC-V Supervisor Binary Interface Specification

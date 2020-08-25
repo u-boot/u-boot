@@ -54,6 +54,42 @@ void sbi_set_timer(uint64_t stime_value)
 }
 
 /**
+ * sbi_get_spec_version() - get current SBI specification version
+ *
+ * Return: version id
+ */
+long sbi_get_spec_version(void)
+{
+	struct sbiret ret;
+
+	ret = sbi_ecall(SBI_EXT_BASE, SBI_EXT_BASE_GET_SPEC_VERSION,
+			0, 0, 0, 0, 0, 0);
+	if (!ret.error)
+		if (ret.value)
+			return ret.value;
+
+	return -ENOTSUPP;
+}
+
+/**
+ * sbi_get_impl_id() - get SBI implementation ID
+ *
+ * Return: implementation ID
+ */
+int sbi_get_impl_id(void)
+{
+	struct sbiret ret;
+
+	ret = sbi_ecall(SBI_EXT_BASE, SBI_EXT_BASE_GET_IMP_ID,
+			0, 0, 0, 0, 0, 0);
+	if (!ret.error)
+		if (ret.value)
+			return ret.value;
+
+	return -ENOTSUPP;
+}
+
+/**
  * sbi_probe_extension() - Check if an SBI extension ID is supported or not.
  * @extid: The extension ID to be probed.
  *
