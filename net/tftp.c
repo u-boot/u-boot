@@ -502,6 +502,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 				int block = ntohs(*s);
 				int ack_ok = (tftp_cur_block == block);
 
+				tftp_prev_block = tftp_cur_block;
 				tftp_cur_block = (unsigned short)(block + 1);
 				update_block_number();
 				if (ack_ok)
