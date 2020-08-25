@@ -234,7 +234,8 @@ static void new_transfer(void)
 static int load_block(unsigned block, uchar *dst, unsigned len)
 {
 	/* We may want to get the final block from the previous set */
-	ulong offset = ((int)block - 1) * len + tftp_block_wrap_offset;
+	ulong offset = block * tftp_block_size + tftp_block_wrap_offset -
+		       tftp_block_size;
 	ulong tosend = len;
 
 	tosend = min(net_boot_file_size - offset, tosend);
