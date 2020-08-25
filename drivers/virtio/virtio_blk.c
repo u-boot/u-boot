@@ -115,6 +115,7 @@ static int virtio_blk_probe(struct udevice *dev)
 		return ret;
 
 	desc->blksz = 512;
+	desc->log2blksz = 9;
 	virtio_cread(dev, struct virtio_blk_config, capacity, &cap);
 	desc->lba = cap;
 

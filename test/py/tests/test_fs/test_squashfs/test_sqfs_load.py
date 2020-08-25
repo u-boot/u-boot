@@ -12,23 +12,35 @@ from sqfs_common import *
 @pytest.mark.buildconfigspec('fs_squashfs')
 @pytest.mark.requiredtool('mksquashfs')
 def test_sqfs_load(u_boot_console):
-    cons = u_boot_console
-    sqfs_generate_image(cons)
+    build_dir = u_boot_console.config.build_dir
     command = "sqfsload host 0 $kernel_addr_r "
-    path = os.path.join(cons.config.build_dir, "sqfs")
 
-    try:
+    for opt in comp_opts:
+        # generate and load the squashfs image
+        try:
+            opt.gen_image(build_dir)
+        except RuntimeError:
+            opt.clean_source(build_dir)
+            # skip unsupported compression types
+            continue
+
+        path = os.path.join(build_dir, "sqfs-" + opt.name)
         output = u_boot_console.run_command("host bind 0 " + path)
+
         output = u_boot_console.run_command(command + "xxx")
         assert "File not found." in output
-        output = u_boot_console.run_command(command + "frag_only")
-        assert "100 bytes read in" in output
-        output = u_boot_console.run_command(command + "blks_frag")
-        assert "5100 bytes read in" in output
-        output = u_boot_console.run_command(command + "blks_only")
-        assert "4096 bytes read in" in output
+
+        for (f, s) in zip(opt.files, opt.sizes):
+            try:
+                output = u_boot_console.run_command(command + f)
+                assert str(s) in output
+            except:
+                assert False
+                opt.cleanup(build_dir)
+
+        # test symbolic link
         output = u_boot_console.run_command(command + "sym")
-        assert "100 bytes read in" in output
-    except:
-        sqfs_clean(cons)
-    sqfs_clean(cons)
+        assert str(opt.sizes[0]) in output
+
+        # remove generated files
+        opt.cleanup(build_dir)

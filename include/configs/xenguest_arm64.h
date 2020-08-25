@@ -9,8 +9,6 @@
 #include <linux/types.h>
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 #define CONFIG_EXTRA_ENV_SETTINGS
 
 #undef CONFIG_NR_DRAM_BANKS
@@ -37,11 +35,6 @@
 				      sizeof(CONFIG_SYS_PROMPT) + 16)
 
 #define CONFIG_OF_SYSTEM_SETUP
-
-#define CONFIG_CMDLINE_TAG            1
-#define CONFIG_INITRD_TAG             1
-
-#define CONFIG_CMD_RUN
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS	\

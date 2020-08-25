@@ -23,12 +23,6 @@
 #include "sqfs_filesystem.h"
 #include "sqfs_utils.h"
 
-struct squashfs_ctxt {
-	struct disk_partition cur_part_info;
-	struct blk_desc *cur_dev;
-	struct squashfs_super_block *sblk;
-};
-
 static struct squashfs_ctxt ctxt;
 
 static int sqfs_disk_read(__u32 block, __u32 nr_blocks, void *buf)
@@ -110,9 +104,7 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	struct squashfs_super_block *sblk = ctxt.sblk;
 	unsigned long dest_len;
 	int block, offset, ret;
-	u16 header, comp_type;
-
-	comp_type = get_unaligned_le16(&sblk->compression);
+	u16 header;
 
 	if (inode_fragment_index >= get_unaligned_le32(&sblk->fragments))
 		return -EINVAL;
@@ -162,6 +154,11 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	header = get_unaligned_le16(metadata_buffer + table_offset);
 	metadata = metadata_buffer + table_offset + SQFS_HEADER_SIZE;
 
+	if (!metadata) {
+		ret = -ENOMEM;
+		goto free_buffer;
+	}
+
 	entries = malloc(SQFS_METADATA_BLOCK_SIZE);
 	if (!entries) {
 		ret = -ENOMEM;
@@ -171,7 +168,7 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	if (SQFS_COMPRESSED_METADATA(header)) {
 		src_len = SQFS_METADATA_SIZE(header);
 		dest_len = SQFS_METADATA_BLOCK_SIZE;
-		ret = sqfs_decompress(comp_type, entries, &dest_len, metadata,
+		ret = sqfs_decompress(&ctxt, entries, &dest_len, metadata,
 				      src_len);
 		if (ret) {
 			ret = -EINVAL;
@@ -280,8 +277,8 @@ static int sqfs_join(char **strings, char *dest, int start, int end,
  */
 static int sqfs_tokenize(char **tokens, int count, const char *str)
 {
+	int i, j, ret = 0;
 	char *aux, *strc;
-	int i, j;
 
 	strc = strdup(str);
 	if (!strc)
@@ -290,8 +287,8 @@ static int sqfs_tokenize(char **tokens, int count, const char *str)
 	if (!strcmp(strc, "/")) {
 		tokens[0] = strdup(strc);
 		if (!tokens[0]) {
-			free(strc);
-			return -ENOMEM;
+			ret = -ENOMEM;
+			goto free_strc;
 		}
 	} else {
 		for (j = 0; j < count; j++) {
@@ -300,15 +297,16 @@ static int sqfs_tokenize(char **tokens, int count, const char *str)
 			if (!tokens[j]) {
 				for (i = 0; i < j; i++)
 					free(tokens[i]);
-				free(strc);
-				return -ENOMEM;
+				ret = -ENOMEM;
+				goto free_strc;
 			}
 		}
 	}
 
+free_strc:
 	free(strc);
 
-	return 0;
+	return ret;
 }
 
 /*
@@ -436,9 +434,9 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 {
 	struct squashfs_super_block *sblk = ctxt.sblk;
 	char *path, *target, **sym_tokens, *res, *rem;
+	struct squashfs_ldir_inode *ldir = NULL;
 	int j, ret, new_inode_number, offset;
 	struct squashfs_symlink_inode *sym;
-	struct squashfs_ldir_inode *ldir;
 	struct squashfs_dir_inode *dir;
 	struct fs_dir_stream *dirsp;
 	struct fs_dirent *dent;
@@ -635,13 +633,12 @@ static int sqfs_read_inode_table(unsigned char **inode_table)
 {
 	struct squashfs_super_block *sblk = ctxt.sblk;
 	u64 start, n_blks, table_offset, table_size;
-	int j, ret = 0, metablks_count, comp_type;
+	int j, ret = 0, metablks_count;
 	unsigned char *src_table, *itb;
 	u32 src_len, dest_offset = 0;
-	unsigned long dest_len;
+	unsigned long dest_len = 0;
 	bool compressed;
 
-	comp_type = get_unaligned_le16(&sblk->compression);
 	table_size = get_unaligned_le64(&sblk->directory_table_start) -
 		get_unaligned_le64(&sblk->inode_table_start);
 	start = get_unaligned_le64(&sblk->inode_table_start) /
@@ -686,7 +683,7 @@ static int sqfs_read_inode_table(unsigned char **inode_table)
 		sqfs_read_metablock(itb, table_offset, &compressed, &src_len);
 		if (compressed) {
 			dest_len = SQFS_METADATA_BLOCK_SIZE;
-			ret = sqfs_decompress(comp_type, *inode_table +
+			ret = sqfs_decompress(&ctxt, *inode_table +
 					      dest_offset, &dest_len,
 					      src_table, src_len);
 			if (ret) {
@@ -694,6 +691,7 @@ static int sqfs_read_inode_table(unsigned char **inode_table)
 				goto free_itb;
 			}
 
+			dest_offset += dest_len;
 		} else {
 			memcpy(*inode_table + (j * SQFS_METADATA_BLOCK_SIZE),
 			       src_table, src_len);
@@ -703,7 +701,7 @@ static int sqfs_read_inode_table(unsigned char **inode_table)
 		 * Offsets to the decompression destination, to the metadata
 		 * buffer 'itb' and to the decompression source, respectively.
 		 */
-		dest_offset += dest_len;
+
 		table_offset += src_len + SQFS_HEADER_SIZE;
 		src_table += src_len + SQFS_HEADER_SIZE;
 	}
@@ -717,14 +715,12 @@ free_itb:
 static int sqfs_read_directory_table(unsigned char **dir_table, u32 **pos_list)
 {
 	u64 start, n_blks, table_offset, table_size;
-	int j, ret = 0, metablks_count = -1, comp_type;
 	struct squashfs_super_block *sblk = ctxt.sblk;
+	int j, ret = 0, metablks_count = -1;
 	unsigned char *src_table, *dtb;
 	u32 src_len, dest_offset = 0;
-	unsigned long dest_len;
+	unsigned long dest_len = 0;
 	bool compressed;
-
-	comp_type = get_unaligned_le16(&sblk->compression);
 
 	/* DIRECTORY TABLE */
 	table_size = get_unaligned_le64(&sblk->fragment_table_start) -
@@ -779,7 +775,7 @@ static int sqfs_read_directory_table(unsigned char **dir_table, u32 **pos_list)
 		sqfs_read_metablock(dtb, table_offset, &compressed, &src_len);
 		if (compressed) {
 			dest_len = SQFS_METADATA_BLOCK_SIZE;
-			ret = sqfs_decompress(comp_type, *dir_table +
+			ret = sqfs_decompress(&ctxt, *dir_table +
 					      (j * SQFS_METADATA_BLOCK_SIZE),
 					      &dest_len, src_table, src_len);
 			if (ret) {
@@ -792,6 +788,8 @@ static int sqfs_read_directory_table(unsigned char **dir_table, u32 **pos_list)
 				dest_offset += dest_len;
 				break;
 			}
+
+			dest_offset += dest_len;
 		} else {
 			memcpy(*dir_table + (j * SQFS_METADATA_BLOCK_SIZE),
 			       src_table, src_len);
@@ -801,7 +799,6 @@ static int sqfs_read_directory_table(unsigned char **dir_table, u32 **pos_list)
 		 * Offsets to the decompression destination, to the metadata
 		 * buffer 'dtb' and to the decompression source, respectively.
 		 */
-		dest_offset += dest_len;
 		table_offset += src_len + SQFS_HEADER_SIZE;
 		src_table += src_len + SQFS_HEADER_SIZE;
 	}
@@ -1023,6 +1020,14 @@ int sqfs_probe(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition
 
 	ctxt.sblk = sblk;
 
+	ret = sqfs_decompressor_init(&ctxt);
+
+	if (ret) {
+		ctxt.cur_dev = NULL;
+		free(ctxt.sblk);
+		return -EINVAL;
+	}
+
 	return 0;
 }
 
@@ -1141,6 +1146,9 @@ static int sqfs_get_regfile_info(struct squashfs_reg_inode *reg,
 	finfo->start = get_unaligned_le32(&reg->start_block);
 	finfo->frag = SQFS_IS_FRAGMENTED(get_unaligned_le32(&reg->fragment));
 
+	if (finfo->size < 1 || finfo->offset < 0 || finfo->start < 0)
+		return -EINVAL;
+
 	if (finfo->frag) {
 		datablk_count = finfo->size / le32_to_cpu(blksz);
 		ret = sqfs_frag_lookup(get_unaligned_le32(&reg->fragment),
@@ -1148,6 +1156,8 @@ static int sqfs_get_regfile_info(struct squashfs_reg_inode *reg,
 		if (ret < 0)
 			return -EINVAL;
 		finfo->comp = true;
+		if (fentry->size < 1 || fentry->start < 0)
+			return -EINVAL;
 	} else {
 		datablk_count = DIV_ROUND_UP(finfo->size, le32_to_cpu(blksz));
 	}
@@ -1171,6 +1181,9 @@ static int sqfs_get_lregfile_info(struct squashfs_lreg_inode *lreg,
 	finfo->start = get_unaligned_le64(&lreg->start_block);
 	finfo->frag = SQFS_IS_FRAGMENTED(get_unaligned_le32(&lreg->fragment));
 
+	if (finfo->size < 1 || finfo->offset < 0 || finfo->start < 0)
+		return -EINVAL;
+
 	if (finfo->frag) {
 		datablk_count = finfo->size / le32_to_cpu(blksz);
 		ret = sqfs_frag_lookup(get_unaligned_le32(&lreg->fragment),
@@ -1178,6 +1191,8 @@ static int sqfs_get_lregfile_info(struct squashfs_lreg_inode *lreg,
 		if (ret < 0)
 			return -EINVAL;
 		finfo->comp = true;
+		if (fentry->size < 1 || fentry->start < 0)
+			return -EINVAL;
 	} else {
 		datablk_count = DIV_ROUND_UP(finfo->size, le32_to_cpu(blksz));
 	}
@@ -1195,7 +1210,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 	char *dir, *fragment_block, *datablock = NULL, *data_buffer = NULL;
 	char *fragment, *file, *resolved, *data;
 	u64 start, n_blks, table_size, data_offset, table_offset;
-	int ret, j, i_number, comp_type, datablk_count = 0;
+	int ret, j, i_number, datablk_count = 0;
 	struct squashfs_super_block *sblk = ctxt.sblk;
 	struct squashfs_fragment_block_entry frag_entry;
 	struct squashfs_file_info finfo = {0};
@@ -1210,8 +1225,6 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 	unsigned char *ipos;
 
 	*actread = 0;
-
-	comp_type = get_unaligned_le16(&sblk->compression);
 
 	/*
 	 * sqfs_opendir will uncompress inode and directory tables, and will
@@ -1344,7 +1357,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 		/* Load the data */
 		if (SQFS_COMPRESSED_BLOCK(finfo.blk_sizes[j])) {
 			dest_len = get_unaligned_le32(&sblk->block_size);
-			ret = sqfs_decompress(comp_type, datablock, &dest_len,
+			ret = sqfs_decompress(&ctxt, datablock, &dest_len,
 					      data, table_size);
 			if (ret)
 				goto free_buffer;
@@ -1394,7 +1407,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 			goto free_fragment;
 		}
 
-		ret = sqfs_decompress(comp_type, fragment_block, &dest_len,
+		ret = sqfs_decompress(&ctxt, fragment_block, &dest_len,
 				      (void *)fragment  + table_offset,
 				      frag_entry.size);
 		if (ret) {
@@ -1525,6 +1538,7 @@ void sqfs_close(void)
 {
 	free(ctxt.sblk);
 	ctxt.cur_dev = NULL;
+	sqfs_decompressor_cleanup(&ctxt);
 }
 
 void sqfs_closedir(struct fs_dir_stream *dirs)

@@ -1003,7 +1003,7 @@ config HASH
 
 config AVB_VERIFY
 	bool "Build Android Verified Boot operations"
-	depends on LIBAVB && FASTBOOT
+	depends on LIBAVB
 	depends on PARTITION_UUIDS
 	help
 	  This option enables compilation of bootloader-dependent operations,
@@ -1011,6 +1011,24 @@ config AVB_VERIFY
 	    * Helpers to process strings in order to build OS bootargs.
 	    * Helpers to access MMC, similar to drivers/fastboot/fb_mmc.c.
 	    * Helpers to alloc/init/free avb ops.
+
+if AVB_VERIFY
+
+config AVB_BUF_ADDR
+	hex "Define AVB buffer address"
+	default FASTBOOT_BUF_ADDR
+	help
+	  AVB requires a buffer for memory transactions. This variable defines the
+	  buffer address.
+
+config AVB_BUF_SIZE
+	hex "Define AVB buffer SIZE"
+	default FASTBOOT_BUF_SIZE
+	help
+	  AVB requires a buffer for memory transactions. This variable defines the
+	  buffer size.
+
+endif # AVB_VERIFY
 
 config SPL_HASH
 	bool # "Support hashing API (SHA1, SHA256, etc.)"

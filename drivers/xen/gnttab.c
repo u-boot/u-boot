@@ -100,7 +100,8 @@ int gnttab_end_access(grant_ref_t ref)
 
 	nflags = gnttab_table[ref].flags;
 	do {
-		if ((flags = nflags) & (GTF_reading | GTF_writing)) {
+		flags = nflags;
+		if ((flags) & (GTF_reading | GTF_writing)) {
 			printf("WARNING: g.e. still in use! (%x)\n", flags);
 			return 0;
 		}

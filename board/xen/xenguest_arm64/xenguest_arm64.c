@@ -184,11 +184,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 int print_cpuinfo(void)
 {
 	printf("Xen virtual CPU\n");

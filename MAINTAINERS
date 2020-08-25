@@ -1097,6 +1097,22 @@ T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-x86.git
 F:	arch/x86/
 F:	cmd/x86/
 
+XEN
+M:	Anastasiia Lukianenko <anastasiia_lukianenko@epam.com>
+M:	Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+S:	Maintained
+F:	arch/arm/cpu/armv8/xen/
+F:	arch/arm/include/asm/xen.h
+F:	arch/arm/include/asm/xen/
+F:	cmd/pvblock.c
+F:	drivers/serial/serial_xen.c
+F:	drivers/xen/
+F:	include/pvblock.h
+F:	include/xen/
+F:	include/xen.h
+F:	lib/sscanf.c
+F:	test/lib/sscanf.c
+
 XTENSA
 M:	Max Filippov <jcmvbkbc@gmail.com>
 S:	Maintained

@@ -5,6 +5,7 @@
 import os
 import random
 import string
+import subprocess
 
 def sqfs_get_random_letters(size):
     letters = []
@@ -19,24 +20,57 @@ def sqfs_generate_file(path, size):
     file.write(content)
     file.close()
 
-# generate image with three files and a symbolic link
-def sqfs_generate_image(cons):
-    src = os.path.join(cons.config.build_dir, "sqfs_src/")
-    dest = os.path.join(cons.config.build_dir, "sqfs")
-    os.mkdir(src)
-    sqfs_generate_file(src + "frag_only", 100)
-    sqfs_generate_file(src + "blks_frag", 5100)
-    sqfs_generate_file(src + "blks_only", 4096)
-    os.symlink("frag_only", src + "sym")
-    os.system("mksquashfs " + src + " " + dest + " -b 4096 -always-use-fragments")
+class Compression:
+    def __init__(self, name, files, sizes, block_size = 4096):
+        self.name = name
+        self.files = files
+        self.sizes = sizes
+        self.mksquashfs_opts = " -b " + str(block_size) + " -comp " + self.name
 
-# removes all files created by sqfs_generate_image()
-def sqfs_clean(cons):
-    src = os.path.join(cons.config.build_dir, "sqfs_src/")
-    dest = os.path.join(cons.config.build_dir, "sqfs")
-    os.remove(src + "frag_only")
-    os.remove(src + "blks_frag")
-    os.remove(src + "blks_only")
-    os.remove(src + "sym")
-    os.rmdir(src)
-    os.remove(dest)
+    def add_opt(self, opt):
+        self.mksquashfs_opts += " " + opt
+
+    def gen_image(self, build_dir):
+        src = os.path.join(build_dir, "sqfs_src/")
+        os.mkdir(src)
+        for (f, s) in zip(self.files, self.sizes):
+            sqfs_generate_file(src + f, s)
+
+        # the symbolic link always targets the first file
+        os.symlink(self.files[0], src + "sym")
+
+        sqfs_img = os.path.join(build_dir, "sqfs-" + self.name)
+        i_o = src + " " + sqfs_img
+        opts = self.mksquashfs_opts
+        try:
+            subprocess.run(["mksquashfs " + i_o + opts], shell = True, check = True)
+        except:
+            print("mksquashfs error. Compression type: " + self.name)
+            raise RuntimeError
+
+    def clean_source(self, build_dir):
+        src = os.path.join(build_dir, "sqfs_src/")
+        for f in self.files:
+            os.remove(src + f)
+        os.remove(src + "sym")
+        os.rmdir(src)
+
+    def cleanup(self, build_dir):
+        self.clean_source(build_dir)
+        sqfs_img = os.path.join(build_dir, "sqfs-" + self.name)
+        os.remove(sqfs_img)
+
+files = ["blks_only", "blks_frag", "frag_only"]
+sizes = [4096, 5100, 100]
+gzip = Compression("gzip", files, sizes)
+zstd = Compression("zstd", files, sizes)
+lzo = Compression("lzo", files, sizes)
+
+# use fragment blocks for files larger than block_size
+gzip.add_opt("-always-use-fragments")
+zstd.add_opt("-always-use-fragments")
+
+# avoid fragments if lzo is used
+lzo.add_opt("-no-fragments")
+
+comp_opts = [gzip, zstd, lzo]
