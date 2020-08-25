@@ -3,6 +3,8 @@
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
  */
 
+#define LOG_CATEGORY LOGC_CORE
+
 #include <command.h>
 #include <config.h>
 #include <errno.h>
@@ -34,7 +36,7 @@ static int fs_type = FS_TYPE_ANY;
 static inline int fs_probe_unsupported(struct blk_desc *fs_dev_desc,
 				      struct disk_partition *fs_partition)
 {
-	printf("** Unrecognized filesystem type **\n");
+	log_err("** Unrecognized filesystem type **\n");
 	return -1;
 }
 
@@ -508,7 +510,7 @@ static int fs_read_lmb_check(const char *filename, ulong addr, loff_t offset,
 	if (lmb_alloc_addr(&lmb, addr, read_len) == addr)
 		return 0;
 
-	printf("** Reading file would overwrite reserved memory **\n");
+	log_err("** Reading file would overwrite reserved memory **\n");
 	return -ENOSPC;
 }
 #endif
@@ -538,7 +540,7 @@ static int _fs_read(const char *filename, ulong addr, loff_t offset, loff_t len,
 
 	/* If we requested a specific number of bytes, check we got it */
 	if (ret == 0 && len && *actread != len)
-		debug("** %s shorter than offset + len **\n", filename);
+		log_debug("** %s shorter than offset + len **\n", filename);
 	fs_close();
 
 	return ret;
@@ -562,7 +564,7 @@ int fs_write(const char *filename, ulong addr, loff_t offset, loff_t len,
 	unmap_sysmem(buf);
 
 	if (ret < 0 && len != *actwrite) {
-		printf("** Unable to write file %s **\n", filename);
+		log_err("** Unable to write file %s **\n", filename);
 		ret = -1;
 	}
 	fs_close();
@@ -656,7 +658,7 @@ int fs_ln(const char *fname, const char *target)
 	ret = info->ln(fname, target);
 
 	if (ret < 0) {
-		printf("** Unable to create link %s -> %s **\n", fname, target);
+		log_err("** Unable to create link %s -> %s **\n", fname, target);
 		ret = -1;
 	}
 	fs_close();
@@ -737,7 +739,7 @@ int do_load(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 	ret = _fs_read(filename, addr, pos, bytes, 1, &len_read);
 	time = get_timer(time);
 	if (ret < 0) {
-		printf("Failed to load '%s'\n", filename);
+		log_err("Failed to load '%s'\n", filename);
 		return 1;
 	}
 
@@ -902,7 +904,7 @@ int do_mkdir(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 
 	ret = fs_mkdir(argv[3]);
 	if (ret) {
-		printf("** Unable to create a directory \"%s\" **\n", argv[3]);
+		log_err("** Unable to create a directory \"%s\" **\n", argv[3]);
 		return 1;
 	}
 
