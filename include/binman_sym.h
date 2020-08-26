@@ -16,7 +16,7 @@
 #ifdef CONFIG_BINMAN
 
 /**
- * binman_symname() - Internal fnuction to get a binman symbol name
+ * binman_symname() - Internal function to get a binman symbol name
  *
  * @entry_name: Name of the entry to look for (e.g. 'u_boot_spl')
  * @_prop_name: Property value to get from that entry (e.g. 'pos')
