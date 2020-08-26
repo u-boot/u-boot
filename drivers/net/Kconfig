@@ -414,12 +414,29 @@ config NET_OCTEONTX
 	help
 	  You must select Y to enable network device support for
 	  OcteonTX SoCs. If unsure, say n
+
+config NET_OCTEONTX2
+	bool "OcteonTX2 Ethernet support"
+	depends on ARCH_OCTEONTX2
+	select OCTEONTX2_CGX_INTF
+	help
+	  You must select Y to enable network device support for
+	  OcteonTX2 SoCs. If unsure, say n
+
 config OCTEONTX_SMI
 	bool "OcteonTX SMI Device support"
 	depends on ARCH_OCTEONTX || ARCH_OCTEONTX2
 	help
 	  You must select Y to enable SMI controller support for
 	  OcteonTX or OcteonTX2 SoCs. If unsure, say n
+
+config OCTEONTX2_CGX_INTF
+	bool "OcteonTX2 CGX ATF interface support"
+	depends on ARCH_OCTEONTX2
+	default y if ARCH_OCTEONTX2
+	help
+	  You must select Y to enable CGX ATF interface support for
+	  OcteonTX2 SoCs. If unsure, say n
 
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"
