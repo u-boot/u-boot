@@ -529,7 +529,7 @@ static void print_hdr_v2(struct imx_header *imx_hdr)
 			       (uint32_t)fhdr_v2->self, 0,
 			       (uint32_t)(fhdr_v2->csf - fhdr_v2->self));
 			printf("DCD Blocks:   0x%08x 0x%08x 0x%08x\n",
-			       offs, CONFIG_IMX_DCD_ADDR, be16_to_cpu(dcdlen));
+			       CONFIG_IMX_DCD_ADDR, offs, be16_to_cpu(dcdlen));
 		}
 	} else {
 		imx_header_v2_t *next_hdr_v2;

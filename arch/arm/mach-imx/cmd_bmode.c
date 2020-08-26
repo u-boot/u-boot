@@ -51,7 +51,17 @@ static int create_usage(char *dest)
 	if (dest)
 		memcpy(dest - 1, " [noreset]", 11);	/* include trailing 0 */
 	size += 10;
+
+	if (dest)
+		memcpy(dest - 1, "\nbmode - getprisec", 19);
+	size += 18;
+
 	return size;
+}
+
+__weak int boot_mode_getprisec(void)
+{
+	return 0;
 }
 
 static int do_boot_mode(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -62,6 +72,8 @@ static int do_boot_mode(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
+	if (!strcmp(argv[1], "getprisec"))
+		return boot_mode_getprisec();
 	p = search_modes(argv[1]);
 	if (!p)
 		return CMD_RET_USAGE;

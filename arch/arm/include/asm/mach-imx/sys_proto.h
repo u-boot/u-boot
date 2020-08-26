@@ -78,7 +78,8 @@ struct bd_info;
 #define is_imx8qxp() (is_cpu_type(MXC_CPU_IMX8QXP))
 
 #ifdef CONFIG_MX6
-#define IMX6_SRC_GPR10_BMODE		BIT(28)
+#define IMX6_SRC_GPR10_BMODE			BIT(28)
+#define IMX6_SRC_GPR10_PERSIST_SECONDARY_BOOT	BIT(30)
 
 #define IMX6_BMODE_MASK			GENMASK(7, 0)
 #define	IMX6_BMODE_SHIFT		4
@@ -125,6 +126,11 @@ u32 imx6_src_get_boot_mode(void);
 void gpr_init(void);
 
 #endif /* CONFIG_MX6 */
+
+#ifdef CONFIG_MX7
+#define IMX7_SRC_GPR10_BMODE			BIT(28)
+#define IMX7_SRC_GPR10_PERSIST_SECONDARY_BOOT	BIT(30)
+#endif
 
 /* address translation table */
 struct rproc_att {

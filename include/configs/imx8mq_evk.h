@@ -83,7 +83,6 @@
 		"clk_ignore_unused "\
 		"\0" \
 	"initrd_addr=0x43800000\0" \
-	"initrd_high=0xffffffff\0" \
 	"bootcmd_mfg=run mfgtool_args;booti ${loadaddr} ${initrd_addr} ${fdt_addr};\0" \
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
@@ -92,11 +91,10 @@
 	"image=Image\0" \
 	"console=ttymxc0,115200\0" \
 	"fdt_addr=0x43000000\0"			\
-	"fdt_high=0xffffffffffffffff\0"		\
 	"boot_fdt=try\0" \
 	"fdt_file=imx8mq-evk.dtb\0" \
 	"initrd_addr=0x43800000\0"		\
-	"initrd_high=0xffffffffffffffff\0" \
+	"bootm_size=0x10000000\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
