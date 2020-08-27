@@ -114,8 +114,8 @@ int board_early_init_f(void)
 
 #ifdef CONFIG_EMC2305
 	select_i2c_ch_pca9547(I2C_MUX_CH_EMC2305);
-	emc2305_init();
-	set_fan_speed(I2C_EMC2305_PWM);
+	emc2305_init(I2C_EMC2305_ADDR);
+	set_fan_speed(I2C_EMC2305_PWM, I2C_EMC2305_ADDR);
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 #endif
 
