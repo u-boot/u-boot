@@ -89,6 +89,10 @@ static int atmel_sdhci_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+	ret = mmc_of_parse(dev, &plat->cfg);
+	if (ret)
+		return ret;
+
 	host->max_clk = max_clk;
 	host->mmc = &plat->mmc;
 	host->mmc->dev = dev;
