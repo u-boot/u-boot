@@ -13,7 +13,8 @@ Build Procedure
 
 2. Set the cross compiler:
 
-		# export CROSS_COMPILE=/path/to/toolchain/aarch64-marvell-linux-gnu-
+		# sudo apt-get install gcc-aarch64-linux-gnu
+		# export CROSS_COMPILE=aarch64-linux-gnu-
 
 3. Clean-up old residuals:
 
@@ -30,7 +31,7 @@ Build Procedure
 
 5. Configure the device-tree and build the U-Boot image:
 
-	Compile u-boot and set the required device-tree using:
+	For the Armada-70x0/80x0 DB board compile u-boot and set the required device-tree using:
 
 		# make DEVICE_TREE=<name>
 
@@ -42,12 +43,45 @@ Build Procedure
         In order to prevent this, the required device-tree MUST be set during compilation.
         All device-tree files are located in ./arch/arm/dts/ folder.
 
+	For other DB boards (MacchiatoBin, EspressoBin and 3700 DB board) compile u-boot with
+	just default device-tree from defconfig using:
+
+		# make
+
 	NOTE:
 	The u-boot.bin should not be used as a stand-alone image.
 	The ARM Trusted Firmware (ATF) build process uses this image to generate the
-	flash image.
+	flash image. See TF-A Build Instructions for Marvell Platforms for more details at:
+	https://trustedfirmware-a.readthedocs.io/en/latest/plat/marvell/armada/build.html
 
 Configuration update
 ---------------------
 	To update the U-Boot configuration, please refer to doc/README.kconfig
 
+
+Permanent ethernet MAC address
+-------------------------------
+	Prior flashing new U-Boot version (as part of ATF image) it is suggested to backup
+	permanent ethernet MAC address as it is stored only in U-Boot env storage (SPI or eMMC).
+	Some boards like EspressoBin have MAC address printed on sticker. To print current MAC
+	address run:
+
+		# echo $ethaddr
+
+	MAC addresses 00:51:82:11:22:00, 00:51:82:11:22:01, 00:51:82:11:22:02, 00:51:82:11:22:03
+	and F0:AD:4E:03:64:7F are default hardcoded values found in Marvell's and Armbian U-Boot
+	forks and therefore *not* unique. Usage of static hardcoded MAC addresses should be avoided.
+	When original address is lost (e.g. erased by Armbian boot scripts for EspressoBin) it is
+	suggested to generate new random one.
+
+	After flashing new U-Boot version it is suggested to reset U-Boot env variables to default
+	and then set correct permanent ethernet MAC address.
+
+		# env default -a
+		# setenv ethaddr XX:XX:XX:XX:XX:XX
+		# saveenv
+
+	Where XX:XX:XX:XX:XX:XX is permanent ethernet MAC address.
+
+	Recent Linux kernel versions use correct permanent ethernet MAC address from U-Boot env as
+	U-Boot will inject it into kernel's device-tree.
