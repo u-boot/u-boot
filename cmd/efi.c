@@ -71,7 +71,19 @@ static int h_cmp_entry(const void *v1, const void *v2)
 	return diff < 0 ? -1 : diff > 0 ? 1 : 0;
 }
 
-void *efi_build_mem_table(struct efi_entry_memmap *map, int size, bool skip_bs)
+/**
+ * efi_build_mem_table() - make a sorted copy of the memory table
+ *
+ * @map:	Pointer to EFI memory map table
+ * @size:	Size of table in bytes
+ * @skip_bs:	True to skip boot-time memory and merge it with conventional
+ *		memory. This will significantly reduce the number of table
+ *		entries.
+ * Return:	pointer to the new table. It should be freed with free() by the
+ *		caller.
+ */
+static void *efi_build_mem_table(struct efi_entry_memmap *map, int size,
+				 bool skip_bs)
 {
 	struct efi_mem_desc *desc, *end, *base, *dest, *prev;
 	int count;
@@ -92,7 +104,13 @@ void *efi_build_mem_table(struct efi_entry_memmap *map, int size, bool skip_bs)
 	end = (struct efi_mem_desc *)((ulong)base + count * map->desc_size);
 	for (desc = base; desc < end; desc = efi_get_next_mem_desc(map, desc)) {
 		bool merge = true;
-		int type = desc->type;
+		u32 type = desc->type;
+
+		if (type >= EFI_MAX_MEMORY_TYPE) {
+			printf("Memory map contains invalid entry type %u\n",
+			       type);
+			continue;
+		}
 
 		if (skip_bs && is_boot_services(desc->type))
 			type = EFI_CONVENTIONAL_MEMORY;
@@ -119,7 +137,7 @@ void *efi_build_mem_table(struct efi_entry_memmap *map, int size, bool skip_bs)
 	}
 
 	/* Mark the end */
-	dest->type = EFI_TABLE_END;
+	dest->type = EFI_MAX_MEMORY_TYPE;
 
 	return base;
 }
@@ -138,7 +156,7 @@ static void efi_print_mem_table(struct efi_entry_memmap *map,
 	/* Keep track of all the different attributes we have seen */
 	attr_seen_count = 0;
 	addr = 0;
-	for (upto = 0; desc->type != EFI_TABLE_END;
+	for (upto = 0; desc->type != EFI_MAX_MEMORY_TYPE;
 	     upto++, desc = efi_get_next_mem_desc(map, desc)) {
 		const char *name;
 		u64 size;

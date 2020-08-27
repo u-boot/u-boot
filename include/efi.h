@@ -180,7 +180,6 @@ enum efi_mem_type {
 	EFI_PERSISTENT_MEMORY_TYPE,
 
 	EFI_MAX_MEMORY_TYPE,
-	EFI_TABLE_END,	/* For efi_build_mem_table() */
 };
 
 /* Attribute values */
@@ -480,18 +479,5 @@ void efi_putc(struct efi_priv *priv, const char ch);
  * of the requested type, -EPROTONOSUPPORT if the table has the wrong version
  */
 int efi_info_get(enum efi_entry_t type, void **datap, int *sizep);
-
-/**
- * efi_build_mem_table() - make a sorted copy of the memory table
- *
- * @map:	Pointer to EFI memory map table
- * @size:	Size of table in bytes
- * @skip_bs:	True to skip boot-time memory and merge it with conventional
- *		memory. This will significantly reduce the number of table
- *		entries.
- * @return pointer to the new table. It should be freed with free() by the
- *	   caller
- */
-void *efi_build_mem_table(struct efi_entry_memmap *map, int size, bool skip_bs);
 
 #endif /* _LINUX_EFI_H */
