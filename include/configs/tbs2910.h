@@ -85,13 +85,12 @@
 			"bootm 0x10800000 0x10d00000\0" \
 	"console=ttymxc0\0" \
 	"fan=gpio set 92\0" \
-	"fdt_addr=0x13000000\0" \
-	"fdt_addr_r=0x13000000\0" \
+	"fdt_addr_r=0x18000000\0" \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
-	"kernel_addr_r=0x10008000\0" \
-	"pxefile_addr_r=0x10008000\0" \
-	"ramdisk_addr_r=0x18000000\0" \
-	"scriptaddr=0x14000000\0" \
+	"kernel_addr_r=0x12000000\0" \
+	"pxefile_addr_r=0x10100000\0" \
+	"ramdisk_addr_r=0x18080000\0" \
+	"scriptaddr=0x10000000\0" \
 	"set_con_serial=setenv stdout serial; " \
 			"setenv stderr serial\0" \
 	"set_con_hdmi=setenv stdout serial,vidconsole; " \
