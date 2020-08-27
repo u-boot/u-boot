@@ -85,6 +85,10 @@ static int atmel_sdhci_probe(struct udevice *dev)
 	if (!max_clk)
 		return -EINVAL;
 
+	ret = clk_enable(&clk);
+	if (ret)
+		return ret;
+
 	host->max_clk = max_clk;
 	host->mmc = &plat->mmc;
 	host->mmc->dev = dev;
