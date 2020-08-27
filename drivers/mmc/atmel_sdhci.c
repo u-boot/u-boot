@@ -79,9 +79,7 @@ static int atmel_sdhci_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = clk_set_rate(&clk, ATMEL_SDHC_GCK_RATE);
-	if (ret)
-		return ret;
+	clk_set_rate(&clk, ATMEL_SDHC_GCK_RATE);
 
 	max_clk = clk_get_rate(&clk);
 	if (!max_clk)
