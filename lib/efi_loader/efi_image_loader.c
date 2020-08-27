@@ -762,10 +762,12 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 	}
 
 	/* Authenticate an image */
-	if (efi_image_authenticate(efi, efi_size))
+	if (efi_image_authenticate(efi, efi_size)) {
 		handle->auth_status = EFI_IMAGE_AUTH_PASSED;
-	else
+	} else {
 		handle->auth_status = EFI_IMAGE_AUTH_FAILED;
+		log_err("Image not authenticated\n");
+	}
 
 	/* Calculate upper virtual address boundary */
 	for (i = num_sections - 1; i >= 0; i--) {
