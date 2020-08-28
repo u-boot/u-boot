@@ -52,7 +52,7 @@ Build U-Boot
 
 .. code-block:: bash
 
-   $ make colibri-imx8qxp_defconfig
+   $ make colibri-imx8x_defconfig
    $ make u-boot-dtb.imx
 
 Load the U-Boot Binary Using UUU
