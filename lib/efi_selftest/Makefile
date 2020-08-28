@@ -62,10 +62,6 @@ ifeq ($(CONFIG_BLK)$(CONFIG_DOS_PARTITION),yy)
 obj-y += efi_selftest_block_device.o
 endif
 
-# TODO: As of v2019.10 the relocation code for the EFI application cannot
-# be built on ARMv7-M.
-ifeq ($(CONFIG_CPU_V7M),)
-
 obj-y += \
 efi_selftest_exception.o \
 efi_selftest_loadimage.o \
@@ -99,5 +95,3 @@ $(obj)/efi_selftest_exception.o: $(obj)/efi_miniapp_file_image_exception.h
 $(obj)/efi_selftest_startimage_exit.o: $(obj)/efi_miniapp_file_image_exit.h
 
 $(obj)/efi_selftest_startimage_return.o: $(obj)/efi_miniapp_file_image_return.h
-
-endif
