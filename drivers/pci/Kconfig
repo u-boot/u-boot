@@ -260,6 +260,7 @@ config PCIE_MEDIATEK
 
 config PCIE_ROCKCHIP
 	bool "Enable Rockchip PCIe driver"
+	depends on ARCH_ROCKCHIP
 	select DM_PCI
 	select PHY_ROCKCHIP_PCIE
 	default y if ROCKCHIP_RK3399

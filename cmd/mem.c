@@ -30,10 +30,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_SYS_MEMTEST_SCRATCH
-#define CONFIG_SYS_MEMTEST_SCRATCH 0
-#endif
-
 /* Create a compile-time value */
 #ifdef MEM_SUPPORT_64BIT_DATA
 #define SUPPORT_64BIT_DATA 1

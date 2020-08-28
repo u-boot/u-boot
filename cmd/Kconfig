@@ -860,7 +860,7 @@ config CMD_ARMFLASH
 config CMD_ADC
 	bool "adc - Access Analog to Digital Converters info and data"
 	select ADC
-	select DM_REGULATOR
+	depends on DM_REGULATOR
 	help
 	  Shows ADC device info and permit printing one-shot analog converted
 	  data from a named Analog to Digital Converter.

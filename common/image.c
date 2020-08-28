@@ -694,6 +694,9 @@ phys_size_t env_get_bootm_size(void)
 	size = gd->bd->bi_memsize;
 #endif
 
+	if (start + size > gd->ram_top)
+		size = gd->ram_top - start;
+
 	s = env_get("bootm_low");
 	if (s)
 		tmp = (phys_size_t)simple_strtoull(s, NULL, 16);
