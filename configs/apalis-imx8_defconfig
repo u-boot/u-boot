@@ -11,7 +11,7 @@ CONFIG_DEFAULT_DEVICE_TREE="fsl-imx8qm-apalis"
 CONFIG_DISTRO_DEFAULTS=y
 CONFIG_FIT=y
 CONFIG_OF_SYSTEM_SETUP=y
-CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/toradex/apalis-imx8/apalis-imx8qm-imximage.cfg"
+CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/toradex/apalis-imx8/apalis-imx8-imximage.cfg"
 CONFIG_LOG=y
 CONFIG_VERSION_VARIABLE=y
 # CONFIG_DISPLAY_BOARDINFO is not set

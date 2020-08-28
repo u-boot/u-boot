@@ -51,7 +51,7 @@ Build U-Boot
 ------------
 .. code-block:: bash
 
-    $ make apalis-imx8qm_defconfig
+    $ make apalis-imx8_defconfig
     $ make u-boot-dtb.imx
 
 Load the U-Boot Binary Using UUU
