@@ -8,6 +8,8 @@
 from collections import OrderedDict
 import glob
 import os
+import pkg_resources
+
 import sys
 from patman import tools
 
@@ -58,8 +60,8 @@ def GetEntryModules(include_testing=True):
     Returns:
         Set of paths to entry class filenames
     """
-    our_path = os.path.dirname(os.path.realpath(__file__))
-    glob_list = glob.glob(os.path.join(our_path, 'etype/*.py'))
+    glob_list = pkg_resources.resource_listdir(__name__, 'etype')
+    glob_list = [fname for fname in glob_list if fname.endswith('.py')]
     return set([os.path.splitext(os.path.basename(item))[0]
                 for item in glob_list
                 if include_testing or '_testing' not in item])
