@@ -16,8 +16,6 @@ from patman import tout
 
 modules = {}
 
-our_path = os.path.dirname(os.path.realpath(__file__))
-
 
 # An argument which can be passed to entries on the command line, in lieu of
 # device-tree properties.

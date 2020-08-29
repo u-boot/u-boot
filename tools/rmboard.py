@@ -28,9 +28,6 @@ import os
 import re
 import sys
 
-# Bring in the patman libraries
-our_path = os.path.dirname(os.path.realpath(__file__))
-
 from patman import command
 
 def rm_kconfig_include(path):
