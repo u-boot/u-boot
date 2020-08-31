@@ -1171,6 +1171,11 @@ static int do_env_import(struct cmd_tbl *cmdtp, int flag,
 		uint32_t crc;
 		env_t *ep = (env_t *)ptr;
 
+		if (size <= offsetof(env_t, data)) {
+			printf("## Error: Invalid size 0x%zX\n", size);
+			return 1;
+		}
+
 		size -= offsetof(env_t, data);
 		memcpy(&crc, &ep->crc, sizeof(crc));
 
