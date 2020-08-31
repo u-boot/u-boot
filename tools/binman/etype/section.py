@@ -83,7 +83,7 @@ class Entry_section(Entry):
 
     def _ReadEntries(self):
         for node in self._node.subnodes:
-            if node.name == 'hash':
+            if node.name.startswith('hash') or node.name.startswith('signature'):
                 continue
             entry = Entry.Create(self, node)
             entry.ReadNode()

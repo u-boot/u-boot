@@ -3477,5 +3477,11 @@ class TestFunctional(unittest.TestCase):
         fnode = dtb.GetNode('/images/kernel')
         self.assertNotIn('data', fnode.props)
 
+    def testSectionIgnoreHashSignature(self):
+        """Test that sections ignore hash, signature nodes for its data"""
+        data = self._DoReadFile('165_section_ignore_hash_signature.dts')
+        expected = (U_BOOT_DATA + U_BOOT_DATA)
+        self.assertEqual(expected, data)
+
 if __name__ == "__main__":
     unittest.main()
