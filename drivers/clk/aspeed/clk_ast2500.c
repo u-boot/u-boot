@@ -10,7 +10,7 @@
 #include <asm/io.h>
 #include <asm/arch/scu_ast2500.h>
 #include <dm/lists.h>
-#include <dt-bindings/clock/ast2500-scu.h>
+#include <dt-bindings/clock/aspeed-clock.h>
 #include <linux/delay.h>
 #include <linux/err.h>
 

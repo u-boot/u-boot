@@ -1,4 +1,4 @@
-#include <dt-bindings/clock/ast2500-scu.h>
+#include <dt-bindings/clock/aspeed-clock.h>
 #include <dt-bindings/reset/ast2500-reset.h>
 
 #include "ast2500.dtsi"

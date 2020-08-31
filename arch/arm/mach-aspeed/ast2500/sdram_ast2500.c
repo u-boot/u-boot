@@ -19,7 +19,7 @@
 #include <asm/arch/wdt.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
-#include <dt-bindings/clock/ast2500-scu.h>
+#include <dt-bindings/clock/aspeed-clock.h>
 
 /* These configuration parameters are taken from Aspeed SDK */
 #define DDR4_MR46_MODE		0x08000000
