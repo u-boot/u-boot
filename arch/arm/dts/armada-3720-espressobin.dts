@@ -67,18 +67,29 @@
 		device_type = "memory";
 		reg = <0x00000000 0x00000000 0x00000000 0x20000000>;
 	};
+
+	vcc_sd_reg0: regulator@0 {
+		compatible = "regulator-gpio";
+		regulator-name = "vcc_sd0";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-type = "voltage";
+		states = <1800000 0x1
+			  3300000 0x0>;
+		gpios = <&gpionb 4 GPIO_ACTIVE_HIGH>;
+	};
 };
 
 &comphy {
 	max-lanes = <3>;
 	phy0 {
-		phy-type = <PHY_TYPE_PEX0>;
-		phy-speed = <PHY_SPEED_2_5G>;
+		phy-type = <PHY_TYPE_USB3_HOST0>;
+		phy-speed = <PHY_SPEED_5G>;
 	};
 
 	phy1 {
-		phy-type = <PHY_TYPE_USB3_HOST0>;
-		phy-speed = <PHY_SPEED_5G>;
+		phy-type = <PHY_TYPE_PEX0>;
+		phy-speed = <PHY_SPEED_2_5G>;
 	};
 
 	phy2 {
@@ -107,6 +118,15 @@
 
 /* CON3 */
 &sata {
+	status = "okay";
+};
+
+&sdhci0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdio_pins>;
+	bus-width = <4>;
+	cd-gpios = <&gpionb 3 GPIO_ACTIVE_LOW>;
+	vqmmc-supply = <&vcc_sd_reg0>;
 	status = "okay";
 };
 
@@ -145,6 +165,6 @@
 &pcie0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pcie_pins>;
-	reset-gpio = <&gpiosb 3 GPIO_ACTIVE_HIGH>;
+	reset-gpios = <&gpiosb 3 GPIO_ACTIVE_LOW>;
 	status = "okay";
 };

@@ -148,6 +148,7 @@ struct pcie_advk {
 	void           *base;
 	int            first_busno;
 	struct udevice *dev;
+	struct gpio_desc reset_gpio;
 };
 
 static inline void advk_writel(struct pcie_advk *pcie, uint val, uint reg)
@@ -613,10 +614,7 @@ static int pcie_advk_probe(struct udevice *dev)
 {
 	struct pcie_advk *pcie = dev_get_priv(dev);
 
-#if CONFIG_IS_ENABLED(DM_GPIO)
-	struct gpio_desc reset_gpio;
-
-	gpio_request_by_name(dev, "reset-gpio", 0, &reset_gpio,
+	gpio_request_by_name(dev, "reset-gpios", 0, &pcie->reset_gpio,
 			     GPIOD_IS_OUT);
 	/*
 	 * Issue reset to add-in card through the dedicated GPIO.
@@ -631,20 +629,29 @@ static int pcie_advk_probe(struct udevice *dev)
 	 *     possible before PCIe PHY initialization. Moreover, the PCIe
 	 *     clock should be gated as well.
 	 */
-	if (dm_gpio_is_valid(&reset_gpio)) {
+	if (dm_gpio_is_valid(&pcie->reset_gpio)) {
 		dev_dbg(pcie->dev, "Toggle PCIE Reset GPIO ...\n");
-		dm_gpio_set_value(&reset_gpio, 0);
+		dm_gpio_set_value(&pcie->reset_gpio, 1);
 		mdelay(200);
-		dm_gpio_set_value(&reset_gpio, 1);
+		dm_gpio_set_value(&pcie->reset_gpio, 0);
+	} else {
+		dev_warn(pcie->dev, "PCIE Reset on GPIO support is missing\n");
 	}
-#else
-	dev_dbg(pcie->dev, "PCIE Reset on GPIO support is missing\n");
-#endif /* DM_GPIO */
 
 	pcie->first_busno = dev->seq;
 	pcie->dev = pci_get_controller(dev);
 
 	return pcie_advk_setup_hw(pcie);
+}
+
+static int pcie_advk_remove(struct udevice *dev)
+{
+	struct pcie_advk *pcie = dev_get_priv(dev);
+
+	if (dm_gpio_is_valid(&pcie->reset_gpio))
+		dm_gpio_set_value(&pcie->reset_gpio, 1);
+
+	return 0;
 }
 
 /**
@@ -687,5 +694,7 @@ U_BOOT_DRIVER(pcie_advk) = {
 	.ops			= &pcie_advk_ops,
 	.ofdata_to_platdata	= pcie_advk_ofdata_to_platdata,
 	.probe			= pcie_advk_probe,
+	.remove			= pcie_advk_remove,
+	.flags			= DM_FLAG_OS_PREPARE,
 	.priv_auto_alloc_size	= sizeof(struct pcie_advk),
 };

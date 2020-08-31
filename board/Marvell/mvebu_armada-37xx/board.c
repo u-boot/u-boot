@@ -44,6 +44,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Switch Port Registers */
 #define MVEBU_SW_LINK_CTRL_REG		(1)
 #define MVEBU_SW_PORT_CTRL_REG		(4)
+#define MVEBU_SW_PORT_BASE_VLAN		(6)
 
 /* Global 2 Registers */
 #define MVEBU_G2_SMI_PHY_CMD_REG	(24)
@@ -207,8 +208,16 @@ int board_network_enable(struct mii_dev *bus)
 	 * FIXME: remove this code once Topaz driver gets available
 	 * A3720 Community Board Only
 	 * Configure Topaz switch (88E6341)
+	 * Restrict output to ports 1,2,3 only from port 0 (CPU)
 	 * Set port 0,1,2,3 to forwarding Mode (through Switch Port registers)
 	 */
+	mii_multi_chip_mode_write(bus, 1, MVEBU_PORT_CTRL_SMI_ADDR(1),
+				  MVEBU_SW_PORT_BASE_VLAN, BIT(0));
+	mii_multi_chip_mode_write(bus, 1, MVEBU_PORT_CTRL_SMI_ADDR(2),
+				  MVEBU_SW_PORT_BASE_VLAN, BIT(0));
+	mii_multi_chip_mode_write(bus, 1, MVEBU_PORT_CTRL_SMI_ADDR(3),
+				  MVEBU_SW_PORT_BASE_VLAN, BIT(0));
+
 	mii_multi_chip_mode_write(bus, 1, MVEBU_PORT_CTRL_SMI_ADDR(0),
 				  MVEBU_SW_PORT_CTRL_REG, 0x7f);
 	mii_multi_chip_mode_write(bus, 1, MVEBU_PORT_CTRL_SMI_ADDR(1),
@@ -234,3 +243,103 @@ int board_network_enable(struct mii_dev *bus)
 
 	return 0;
 }
+
+#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_ENV_IS_IN_SPI_FLASH)
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	int ret;
+	int spi_off;
+	int parts_off;
+	int part_off;
+
+	/* Fill SPI MTD partitions for Linux kernel on Espressobin */
+	if (!of_machine_is_compatible("marvell,armada-3720-espressobin"))
+		return 0;
+
+	spi_off = fdt_node_offset_by_compatible(blob, -1, "jedec,spi-nor");
+	if (spi_off < 0)
+		return 0;
+
+	/* Do not touch partitions if they are already defined */
+	if (fdt_subnode_offset(blob, spi_off, "partitions") >= 0)
+		return 0;
+
+	parts_off = fdt_add_subnode(blob, spi_off, "partitions");
+	if (parts_off < 0) {
+		printf("Can't add partitions node: %s\n", fdt_strerror(parts_off));
+		return 0;
+	}
+
+	ret = fdt_setprop_string(blob, parts_off, "compatible", "fixed-partitions");
+	if (ret < 0) {
+		printf("Can't set compatible property: %s\n", fdt_strerror(ret));
+		return 0;
+	}
+
+	ret = fdt_setprop_u32(blob, parts_off, "#address-cells", 1);
+	if (ret < 0) {
+		printf("Can't set #address-cells property: %s\n", fdt_strerror(ret));
+		return 0;
+	}
+
+	ret = fdt_setprop_u32(blob, parts_off, "#size-cells", 1);
+	if (ret < 0) {
+		printf("Can't set #size-cells property: %s\n", fdt_strerror(ret));
+		return 0;
+	}
+
+	/* Add u-boot-env partition */
+
+	part_off = fdt_add_subnode(blob, parts_off, "partition@u-boot-env");
+	if (part_off < 0) {
+		printf("Can't add partition@u-boot-env node: %s\n", fdt_strerror(part_off));
+		return 0;
+	}
+
+	ret = fdt_setprop_u32(blob, part_off, "reg", CONFIG_ENV_OFFSET);
+	if (ret < 0) {
+		printf("Can't set partition@u-boot-env reg property: %s\n", fdt_strerror(ret));
+		return 0;
+	}
+
+	ret = fdt_appendprop_u32(blob, part_off, "reg", CONFIG_ENV_SIZE);
+	if (ret < 0) {
+		printf("Can't set partition@u-boot-env reg property: %s\n", fdt_strerror(ret));
+		return 0;
+	}
+
+	ret = fdt_setprop_string(blob, part_off, "label", "u-boot-env");
+	if (ret < 0) {
+		printf("Can't set partition@u-boot-env label property: %s\n", fdt_strerror(ret));
+		return 0;
+	}
+
+	/* Add firmware partition */
+
+	part_off = fdt_add_subnode(blob, parts_off, "partition@firmware");
+	if (part_off < 0) {
+		printf("Can't add partition@firmware node: %s\n", fdt_strerror(part_off));
+		return 0;
+	}
+
+	ret = fdt_setprop_u32(blob, part_off, "reg", 0);
+	if (ret < 0) {
+		printf("Can't set partition@firmware reg property: %s\n", fdt_strerror(ret));
+		return 0;
+	}
+
+	ret = fdt_appendprop_u32(blob, part_off, "reg", CONFIG_ENV_OFFSET);
+	if (ret < 0) {
+		printf("Can't set partition@firmware reg property: %s\n", fdt_strerror(ret));
+		return 0;
+	}
+
+	ret = fdt_setprop_string(blob, part_off, "label", "firmware");
+	if (ret < 0) {
+		printf("Can't set partition@firmware label property: %s\n", fdt_strerror(ret));
+		return 0;
+	}
+
+	return 0;
+}
+#endif

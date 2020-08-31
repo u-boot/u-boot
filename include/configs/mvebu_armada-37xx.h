@@ -37,7 +37,7 @@
 /*
  * Other required minimal configurations
  */
-#define CONFIG_SYS_LOAD_ADDR	0x00800000	/* default load adr- 8M */
+#define CONFIG_SYS_LOAD_ADDR	0x06000000	/* default load adr */
 #define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
 #define CONFIG_SYS_MAXARGS	32	/* max number of command args */
 
@@ -90,12 +90,15 @@
 
 #include <config_distro_bootcmd.h>
 
+/* fdt_addr and kernel_addr are needed for existing distribution boot scripts */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-	"scriptaddr=0x4d00000\0"	\
-	"pxefile_addr_r=0x4e00000\0"	\
-	"fdt_addr_r=0x4f00000\0"	\
-	"kernel_addr_r=0x5000000\0"	\
-	"ramdisk_addr_r=0x8000000\0"	\
+	"scriptaddr=0x6d00000\0"	\
+	"pxefile_addr_r=0x6e00000\0"	\
+	"fdt_addr=0x6f00000\0"		\
+	"fdt_addr_r=0x6f00000\0"	\
+	"kernel_addr=0x7000000\0"	\
+	"kernel_addr_r=0x7000000\0"	\
+	"ramdisk_addr_r=0xa000000\0"	\
 	BOOTENV
 
 #endif /* _CONFIG_MVEBU_ARMADA_37XX_H */
