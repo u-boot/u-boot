@@ -152,7 +152,7 @@ class Entry_section(Entry):
         for entry in self._entries.values():
             data = entry.GetData()
             base = self.pad_before + (entry.offset or 0) - self._skip_at_start
-            pad = base - len(section_data)
+            pad = base - len(section_data) + (entry.pad_before or 0)
             if pad > 0:
                 section_data += tools.GetBytes(self._pad_byte, pad)
             section_data += data
