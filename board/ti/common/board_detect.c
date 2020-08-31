@@ -113,18 +113,15 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 
 	/* Corrupted data??? */
 	if (hdr_read != header) {
-		rc = dm_i2c_read(dev, 0, (uint8_t *)&hdr_read, 4);
 		/*
 		 * read the eeprom header using i2c again, but use only a
 		 * 1 byte address (some legacy boards need this..)
 		 */
-		if (rc) {
-			rc =  i2c_set_chip_offset_len(dev, 1);
-			if (rc)
-				return rc;
+		rc = i2c_set_chip_offset_len(dev, 1);
+		if (rc)
+			return rc;
 
-			rc = dm_i2c_read(dev, 0, (uint8_t *)&hdr_read, 4);
-		}
+		rc = dm_i2c_read(dev, 0, (uint8_t *)&hdr_read, 4);
 		if (rc)
 			return rc;
 	}
@@ -153,16 +150,13 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 
 	/* Corrupted data??? */
 	if (hdr_read != header) {
-		rc = i2c_read(dev_addr, 0x0, byte, (uint8_t *)&hdr_read, 4);
 		/*
 		 * read the eeprom header using i2c again, but use only a
 		 * 1 byte address (some legacy boards need this..)
 		 */
 		byte = 1;
-		if (rc) {
-			rc = i2c_read(dev_addr, 0x0, byte, (uint8_t *)&hdr_read,
-				      4);
-		}
+		rc = i2c_read(dev_addr, 0x0, byte, (uint8_t *)&hdr_read,
+			      4);
 		if (rc)
 			return rc;
 	}
