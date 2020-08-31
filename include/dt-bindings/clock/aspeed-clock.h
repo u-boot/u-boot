@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
+// SPDX-License-Identifier: GPL-2.0
 
 #define ASPEED_CLK_GATE_ECLK		0
 #define ASPEED_CLK_GATE_GCLK		1
