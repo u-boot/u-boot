@@ -55,14 +55,14 @@ class Entry_fit(Entry):
         """
         Members:
             _fit: FIT file being built
-            _fit_content: dict:
+            _fit_sections: dict:
                 key: relative path to entry Node (from the base of the FIT)
-                value: List of Entry objects comprising the contents of this
+                value: Entry_section object comprising the contents of this
                     node
         """
         super().__init__(section, etype, node)
         self._fit = None
-        self._fit_content = defaultdict(list)
+        self._fit_sections = {}
         self._fit_props = {}
 
     def ReadNode(self):
@@ -91,15 +91,23 @@ class Entry_fit(Entry):
 
             rel_path = node.path[len(base_node.path):]
             has_images = depth == 2 and rel_path.startswith('/images/')
+            if has_images:
+                # This node is a FIT subimage node (e.g. "/images/kernel")
+                # containing content nodes. We collect the subimage nodes and
+                # section entries for them here to merge the content subnodes
+                # together and put the merged contents in the subimage node's
+                # 'data' property later.
+                entry = Entry.Create(self.section, node, etype='section')
+                entry.ReadNode()
+                self._fit_sections[rel_path] = entry
+
             for subnode in node.subnodes:
                 if has_images and not (subnode.name.startswith('hash') or
                                        subnode.name.startswith('signature')):
-                    # This is a content node. We collect all of these together
-                    # and put them in the 'data' property. They do not appear
-                    # in the FIT.
-                    entry = Entry.Create(self.section, subnode)
-                    entry.ReadNode()
-                    self._fit_content[rel_path].append(entry)
+                    # This subnode is a content node not meant to appear in
+                    # the FIT (e.g. "/images/kernel/u-boot"), so don't call
+                    # fsw.add_node() or _AddNode() for it.
+                    pass
                 else:
                     with fsw.add_node(subnode.name):
                         _AddNode(base_node, depth + 1, subnode)
@@ -123,9 +131,8 @@ class Entry_fit(Entry):
         This adds the 'data' properties to the input ITB (Image-tree Binary)
         then runs mkimage to process it.
         """
+        # self._BuildInput() either returns bytes or raises an exception.
         data = self._BuildInput(self._fdt)
-        if data == False:
-            return False
         uniq = self.GetUniqueName()
         input_fname = tools.GetOutputFilename('%s.itb' % uniq)
         output_fname = tools.GetOutputFilename('%s.fit' % uniq)
@@ -150,15 +157,30 @@ class Entry_fit(Entry):
         Returns:
             New fdt contents (bytes)
         """
-        for path, entries in self._fit_content.items():
+        for path, section in self._fit_sections.items():
             node = fdt.GetNode(path)
-            data = b''
-            for entry in entries:
-                if not entry.ObtainContents():
-                    return False
-                data += entry.GetData()
+            # Entry_section.ObtainContents() either returns True or
+            # raises an exception.
+            section.ObtainContents()
+            section.Pack(0)
+            data = section.GetData()
             node.AddData('data', data)
 
         fdt.Sync(auto_resize=True)
         data = fdt.GetContents()
         return data
+
+    def CheckMissing(self, missing_list):
+        """Check if any entries in this FIT have missing external blobs
+
+        If there are missing blobs, the entries are added to the list
+
+        Args:
+            missing_list: List of Entry objects to be added to
+        """
+        for path, section in self._fit_sections.items():
+            section.CheckMissing(missing_list)
+
+    def SetAllowMissing(self, allow_missing):
+        for section in self._fit_sections.values():
+            section.SetAllowMissing(allow_missing)
