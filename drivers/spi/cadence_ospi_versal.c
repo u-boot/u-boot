@@ -17,6 +17,7 @@
 #include <zynqmp_firmware.h>
 
 #define CMD_4BYTE_READ  0x13
+#define CMD_4BYTE_FAST_READ  0x0C
 
 int cadence_qspi_apb_dma_read(struct cadence_spi_platdata *plat,
 			      unsigned int n_rx, u8 *rxbuf)
@@ -75,7 +76,11 @@ int cadence_qspi_apb_dma_read(struct cadence_spi_platdata *plat,
 		addr_bytes = readl(plat->regbase + CQSPI_REG_SIZE) &
 				   CQSPI_REG_SIZE_ADDRESS_MASK;
 
-		opcode = CMD_4BYTE_READ;
+		opcode = CMD_4BYTE_FAST_READ;
+		dummy_cycles = 8;
+		writel((dummy_cycles << CQSPI_REG_RD_INSTR_DUMMY_LSB) | opcode,
+		       plat->regbase + CQSPI_REG_RD_INSTR);
+
 		reg = opcode << CQSPI_REG_CMDCTRL_OPCODE_LSB;
 		reg |= (0x1 << CQSPI_REG_CMDCTRL_RD_EN_LSB);
 		reg |= (addr_bytes & CQSPI_REG_CMDCTRL_ADD_BYTES_MASK) <<
