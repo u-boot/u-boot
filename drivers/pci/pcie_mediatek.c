@@ -443,29 +443,36 @@ static void mtk_pcie_enable_port(struct mtk_pcie_port *port)
 
 	err = clk_enable(&port->sys_ck);
 	if (err)
-		goto exit;
+		goto err_sys_clk;
 
 	err = reset_assert(&port->reset);
 	if (err)
-		goto exit;
+		goto err_reset;
 
 	err = reset_deassert(&port->reset);
 	if (err)
-		goto exit;
+		goto err_reset;
 
 	err = generic_phy_init(&port->phy);
 	if (err)
-		goto exit;
+		goto err_phy_init;
 
 	err = generic_phy_power_on(&port->phy);
 	if (err)
-		goto exit;
+		goto err_phy_on;
 
 	if (!mtk_pcie_startup_port(port))
 		return;
 
 	pr_err("Port%d link down\n", port->slot);
-exit:
+
+	generic_phy_power_off(&port->phy);
+err_phy_on:
+	generic_phy_exit(&port->phy);
+err_phy_init:
+err_reset:
+	clk_disable(&port->sys_ck);
+err_sys_clk:
 	mtk_pcie_port_free(port);
 }
 
