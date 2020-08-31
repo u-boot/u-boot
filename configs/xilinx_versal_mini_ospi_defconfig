@@ -44,7 +44,7 @@ CONFIG_SYS_PROMPT="Versal> "
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_CMD_MISC is not set
 # CONFIG_PARTITIONS is not set
-CONFIG_DEFAULT_DEVICE_TREE="versal-mini-ospi"
+CONFIG_DEFAULT_DEVICE_TREE="versal-mini-ospi-single"
 # CONFIG_NET is not set
 # CONFIG_DM_WARN is not set
 # CONFIG_DM_DEVICE_REMOVE is not set
