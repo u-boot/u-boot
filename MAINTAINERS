@@ -506,9 +506,7 @@ F:	arch/arm/mach-u8500/
 F:	drivers/timer/nomadik-mtu-timer.c
 
 ARM UNIPHIER
-M:	Masahiro Yamada <yamada.masahiro@socionext.com>
-S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-uniphier.git
+S:	Orphan (Since 2020-09)
 F:	arch/arm/mach-uniphier/
 F:	configs/uniphier_*_defconfig
 N:	uniphier
