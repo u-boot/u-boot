@@ -11,9 +11,9 @@
 #include <common.h>
 
 #if CONFIG_IS_ENABLED(CMD_BCB)
-int bcb_write_reboot_reason(int devnum, char *partp, char *reasonp);
+int bcb_write_reboot_reason(int devnum, char *partp, const char *reasonp);
 #else
-static inline int bcb_write_reboot_reason(int devnum, char *partp, char *reasonp)
+static inline int bcb_write_reboot_reason(int devnum, char *partp, const char *reasonp)
 {
 	return -EOPNOTSUPP;
 }
