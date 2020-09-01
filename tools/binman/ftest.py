@@ -75,6 +75,11 @@ FSP_M_DATA            = b'fsp_m'
 FSP_S_DATA            = b'fsp_s'
 FSP_T_DATA            = b'fsp_t'
 ATF_BL31_DATA         = b'bl31'
+TEST_FDT1_DATA        = b'fdt1'
+TEST_FDT2_DATA        = b'test-fdt2'
+
+# Subdirectory of the input dir to use to put test FDTs
+TEST_FDT_SUBDIR       = 'fdts'
 
 # The expected size for the device tree in some tests
 EXTRACT_DTB_SIZE = 0x3c9
@@ -169,6 +174,12 @@ class TestFunctional(unittest.TestCase):
 
         TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
         TestFunctional._MakeInputFile('bl31.bin', ATF_BL31_DATA)
+
+        # Add a few .dtb files for testing
+        TestFunctional._MakeInputFile('%s/test-fdt1.dtb' % TEST_FDT_SUBDIR,
+                                      TEST_FDT1_DATA)
+        TestFunctional._MakeInputFile('%s/test-fdt2.dtb' % TEST_FDT_SUBDIR,
+                                      TEST_FDT2_DATA)
 
         # Travis-CI may have an old lz4
         cls.have_lz4 = True
@@ -287,7 +298,7 @@ class TestFunctional(unittest.TestCase):
 
     def _DoTestFile(self, fname, debug=False, map=False, update_dtb=False,
                     entry_args=None, images=None, use_real_dtb=False,
-                    verbosity=None, allow_missing=False):
+                    verbosity=None, allow_missing=False, extra_indirs=None):
         """Run binman with a given test file
 
         Args:
@@ -307,6 +318,7 @@ class TestFunctional(unittest.TestCase):
             verbosity: Verbosity level to use (0-3, None=don't set it)
             allow_missing: Set the '--allow-missing' flag so that missing
                 external binaries just produce a warning instead of an error
+            extra_indirs: Extra input directories to add using -I
         """
         args = []
         if debug:
@@ -333,6 +345,9 @@ class TestFunctional(unittest.TestCase):
         if images:
             for image in images:
                 args += ['-i', image]
+        if extra_indirs:
+            for indir in extra_indirs:
+                args += ['-I', indir]
         return self._DoBinman(*args)
 
     def _SetupDtb(self, fname, outfile='u-boot.dtb'):
@@ -382,7 +397,8 @@ class TestFunctional(unittest.TestCase):
         return dtb.GetContents()
 
     def _DoReadFileDtb(self, fname, use_real_dtb=False, map=False,
-                       update_dtb=False, entry_args=None, reset_dtbs=True):
+                       update_dtb=False, entry_args=None, reset_dtbs=True,
+                       extra_indirs=None):
         """Run binman and return the resulting image
 
         This runs binman with a given test file and then reads the resulting
@@ -406,6 +422,7 @@ class TestFunctional(unittest.TestCase):
             reset_dtbs: With use_real_dtb the test dtb is overwritten by this
                 function. If reset_dtbs is True, then the original test dtb
                 is written back before this function finishes
+            extra_indirs: Extra input directories to add using -I
 
         Returns:
             Tuple:
@@ -429,7 +446,8 @@ class TestFunctional(unittest.TestCase):
 
         try:
             retcode = self._DoTestFile(fname, map=map, update_dtb=update_dtb,
-                    entry_args=entry_args, use_real_dtb=use_real_dtb)
+                    entry_args=entry_args, use_real_dtb=use_real_dtb,
+                    extra_indirs=extra_indirs)
             self.assertEqual(0, retcode)
             out_dtb_fname = tools.GetOutputFilename('u-boot.dtb.out')
 
@@ -3557,7 +3575,87 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('169_atf_bl31.dts')
         self.assertEqual(ATF_BL31_DATA, data[:len(ATF_BL31_DATA)])
 
-ATF_BL31_DATA
+    def testFitFdt(self):
+        """Test an image with an FIT with multiple FDT images"""
+        def _CheckFdt(seq, expected_data):
+            """Check the FDT nodes
+
+            Args:
+                seq: Sequence number to check (0 or 1)
+                expected_data: Expected contents of 'data' property
+            """
+            name = 'fdt-%d' % seq
+            fnode = dtb.GetNode('/images/%s' % name)
+            self.assertIsNotNone(fnode)
+            self.assertEqual({'description','type', 'compression', 'data'},
+                             set(fnode.props.keys()))
+            self.assertEqual(expected_data, fnode.props['data'].bytes)
+            self.assertEqual('fdt-test-fdt%d.dtb' % seq,
+                             fnode.props['description'].value)
+
+        def _CheckConfig(seq, expected_data):
+            """Check the configuration nodes
+
+            Args:
+                seq: Sequence number to check (0 or 1)
+                expected_data: Expected contents of 'data' property
+            """
+            cnode = dtb.GetNode('/configurations')
+            self.assertIn('default', cnode.props)
+            self.assertEqual('config-1', cnode.props['default'].value)
+
+            name = 'config-%d' % seq
+            fnode = dtb.GetNode('/configurations/%s' % name)
+            self.assertIsNotNone(fnode)
+            self.assertEqual({'description','firmware', 'loadables', 'fdt'},
+                             set(fnode.props.keys()))
+            self.assertEqual('conf-test-fdt%d.dtb' % seq,
+                             fnode.props['description'].value)
+            self.assertEqual('fdt-%d' % seq, fnode.props['fdt'].value)
+
+        entry_args = {
+            'of-list': 'test-fdt1 test-fdt2',
+        }
+        data = self._DoReadFileDtb(
+            '170_fit_fdt.dts',
+            entry_args=entry_args,
+            extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])[0]
+        self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
+        fit_data = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
+
+        dtb = fdt.Fdt.FromData(fit_data)
+        dtb.Scan()
+        fnode = dtb.GetNode('/images/kernel')
+        self.assertIn('data', fnode.props)
+
+        # Check all the properties in fdt-1 and fdt-2
+        _CheckFdt(1, TEST_FDT1_DATA)
+        _CheckFdt(2, TEST_FDT2_DATA)
+
+        # Check configurations
+        _CheckConfig(1, TEST_FDT1_DATA)
+        _CheckConfig(2, TEST_FDT2_DATA)
+
+    def testFitFdtMissingList(self):
+        """Test handling of a missing 'of-list' entry arg"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('170_fit_fdt.dts')
+        self.assertIn("Generator node requires 'of-list' entry argument",
+                      str(e.exception))
+
+    def testFitFdtEmptyList(self):
+        """Test handling of an empty 'of-list' entry arg"""
+        entry_args = {
+            'of-list': '',
+        }
+        data = self._DoReadFileDtb('170_fit_fdt.dts', entry_args=entry_args)[0]
+
+    def testFitFdtMissingProp(self):
+        """Test handling of a missing 'fit,fdt-list' property"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('171_fit_fdt_missing_prop.dts')
+        self.assertIn("Generator node requires 'fit,fdt-list' property",
+                      str(e.exception))
 
 if __name__ == "__main__":
     unittest.main()
