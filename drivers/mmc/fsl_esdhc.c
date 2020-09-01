@@ -60,7 +60,9 @@ struct fsl_esdhc {
 	uint    dmaerrattr;	/* DMA error attribute register */
 	char    reserved5[4];	/* reserved */
 	uint    hostcapblt2;	/* Host controller capabilities register 2 */
-	char    reserved6[756];	/* reserved */
+	char	reserved6[8];	/* reserved */
+	uint	tbctl;		/* Tuning block control register */
+	char    reserved7[744];	/* reserved */
 	uint    esdhcctl;	/* eSDHC control register */
 };
 
@@ -101,7 +103,9 @@ static uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 	if (data) {
 		xfertyp |= XFERTYP_DPSEL;
 #ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-		xfertyp |= XFERTYP_DMAEN;
+		if (cmd->cmdidx != MMC_CMD_SEND_TUNING_BLOCK &&
+		    cmd->cmdidx != MMC_CMD_SEND_TUNING_BLOCK_HS200)
+			xfertyp |= XFERTYP_DMAEN;
 #endif
 		if (data->blocks > 1) {
 			xfertyp |= XFERTYP_MSBSEL;
@@ -380,6 +384,10 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 	esdhc_write32(&regs->cmdarg, cmd->cmdarg);
 	esdhc_write32(&regs->xfertyp, xfertyp);
 
+	if (cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK ||
+	    cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200)
+		flags = IRQSTAT_BRR;
+
 	/* Wait for the command to complete */
 	start = get_timer(0);
 	while (!(esdhc_read32(&regs->irqstat) & flags)) {
@@ -439,6 +447,11 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 #ifdef CONFIG_SYS_FSL_ESDHC_USE_PIO
 		esdhc_pio_read_write(priv, data);
 #else
+		flags = DATA_COMPLETE;
+		if (cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK ||
+		    cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200)
+			flags = IRQSTAT_BRR;
+
 		do {
 			irqstat = esdhc_read32(&regs->irqstat);
 
@@ -451,7 +464,7 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 				err = -ECOMM;
 				goto out;
 			}
-		} while ((irqstat & DATA_COMPLETE) != DATA_COMPLETE);
+		} while ((irqstat & flags) != flags);
 
 		/*
 		 * Need invalidate the dcache here again to avoid any
@@ -555,6 +568,19 @@ static void esdhc_clock_control(struct fsl_esdhc_priv *priv, bool enable)
 	}
 }
 
+static void esdhc_set_timing(struct fsl_esdhc_priv *priv, enum bus_mode mode)
+{
+	struct fsl_esdhc *regs = priv->esdhc_regs;
+
+	esdhc_clock_control(priv, false);
+
+	if (mode == MMC_HS_200)
+		esdhc_clrsetbits32(&regs->autoc12err, UHSM_MASK,
+				   UHSM_SDR104_HS200);
+
+	esdhc_clock_control(priv, true);
+}
+
 static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 {
 	struct fsl_esdhc *regs = priv->esdhc_regs;
@@ -569,6 +595,9 @@ static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 	/* Set the clock speed */
 	if (priv->clock != mmc->clock)
 		set_sysctl(priv, mmc, mmc->clock);
+
+	/* Set timing */
+	esdhc_set_timing(priv, mmc->selected_mode);
 
 	/* Set the bus width */
 	esdhc_clrbits32(&regs->proctl, PROCTL_DTW_4 | PROCTL_DTW_8);
@@ -914,6 +943,77 @@ static int fsl_esdhc_reinit(struct udevice *dev)
 
 	return esdhc_init_common(priv, &plat->mmc);
 }
+
+#ifdef MMC_SUPPORTS_TUNING
+static void esdhc_flush_async_fifo(struct fsl_esdhc_priv *priv)
+{
+	struct fsl_esdhc *regs = priv->esdhc_regs;
+	u32 time_out;
+
+	esdhc_setbits32(&regs->esdhcctl, ESDHCCTL_FAF);
+
+	time_out = 20;
+	while (esdhc_read32(&regs->esdhcctl) & ESDHCCTL_FAF) {
+		if (time_out == 0) {
+			printf("fsl_esdhc: Flush asynchronous FIFO timeout.\n");
+			break;
+		}
+		time_out--;
+		mdelay(1);
+	}
+}
+
+static void esdhc_tuning_block_enable(struct fsl_esdhc_priv *priv,
+				      bool en)
+{
+	struct fsl_esdhc *regs = priv->esdhc_regs;
+
+	esdhc_clock_control(priv, false);
+	esdhc_flush_async_fifo(priv);
+	if (en)
+		esdhc_setbits32(&regs->tbctl, TBCTL_TB_EN);
+	else
+		esdhc_clrbits32(&regs->tbctl, TBCTL_TB_EN);
+	esdhc_clock_control(priv, true);
+}
+
+static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
+{
+	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
+	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
+	struct fsl_esdhc *regs = priv->esdhc_regs;
+	u32 val, irqstaten;
+	int i;
+
+	esdhc_tuning_block_enable(priv, true);
+	esdhc_setbits32(&regs->autoc12err, EXECUTE_TUNING);
+
+	irqstaten = esdhc_read32(&regs->irqstaten);
+	esdhc_write32(&regs->irqstaten, IRQSTATEN_BRR);
+
+	for (i = 0; i < MAX_TUNING_LOOP; i++) {
+		mmc_send_tuning(&plat->mmc, opcode, NULL);
+		mdelay(1);
+
+		val = esdhc_read32(&regs->autoc12err);
+		if (!(val & EXECUTE_TUNING)) {
+			if (val & SMPCLKSEL)
+				break;
+		}
+	}
+
+	esdhc_write32(&regs->irqstaten, irqstaten);
+
+	if (i != MAX_TUNING_LOOP)
+		return 0;
+
+	printf("fsl_esdhc: tuning failed!\n");
+	esdhc_clrbits32(&regs->autoc12err, SMPCLKSEL);
+	esdhc_clrbits32(&regs->autoc12err, EXECUTE_TUNING);
+	esdhc_tuning_block_enable(priv, false);
+	return -ETIMEDOUT;
+}
+#endif
 
 static const struct dm_mmc_ops fsl_esdhc_ops = {
 	.get_cd		= fsl_esdhc_get_cd,

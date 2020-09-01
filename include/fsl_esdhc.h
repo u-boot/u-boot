@@ -74,8 +74,10 @@
 #define IRQSTATEN_TC		(0x00000002)
 #define IRQSTATEN_CC		(0x00000001)
 
+/* eSDHC control register */
 #define ESDHCCTL		0x0002e40c
 #define ESDHCCTL_PCS		(0x00080000)
+#define ESDHCCTL_FAF		(0x00040000)
 
 #define PRSSTAT			0x0002e024
 #define PRSSTAT_DAT0		(0x01000000)
@@ -154,6 +156,12 @@
 #define BLKATTR_SIZE(x)	(x & 0x1fff)
 #define MAX_BLK_CNT	0x7fff	/* so malloc will have enough room with 32M */
 
+/* Auto CMD error status register / system control 2 register */
+#define EXECUTE_TUNING		0x00400000
+#define SMPCLKSEL		0x00800000
+#define UHSM_MASK		0x00070000
+#define UHSM_SDR104_HS200	0x00030000
+
 /* Host controller capabilities register */
 #define HOSTCAPBLT_VS18		0x04000000
 #define HOSTCAPBLT_VS30		0x02000000
@@ -161,6 +169,11 @@
 #define HOSTCAPBLT_SRS		0x00800000
 #define HOSTCAPBLT_DMAS		0x00400000
 #define HOSTCAPBLT_HSS		0x00200000
+
+/* Tuning block control register */
+#define TBCTL_TB_EN		0x00000004
+
+#define MAX_TUNING_LOOP		40
 
 struct fsl_esdhc_cfg {
 	phys_addr_t esdhc_base;
@@ -203,10 +216,6 @@ struct fsl_esdhc_cfg {
 int fsl_esdhc_mmc_init(struct bd_info *bis);
 int fsl_esdhc_initialize(struct bd_info *bis, struct fsl_esdhc_cfg *cfg);
 void fdt_fixup_esdhc(void *blob, struct bd_info *bd);
-#ifdef MMC_SUPPORTS_TUNING
-static inline int fsl_esdhc_execute_tuning(struct udevice *dev,
-					   uint32_t opcode) {return 0; }
-#endif
 #else
 static inline int fsl_esdhc_mmc_init(struct bd_info *bis) { return -ENOSYS; }
 static inline void fdt_fixup_esdhc(void *blob, struct bd_info *bd) {}
