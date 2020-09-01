@@ -1334,8 +1334,7 @@ quiet_cmd_binman = BINMAN  $@
 cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
                 --toolpath $(objtree)/tools \
 		$(if $(BINMAN_VERBOSE),-v$(BINMAN_VERBOSE)) \
-		build -u -d u-boot.dtb -O . \
-		$(if $(BUILD_ROM),,-m --allow-missing) \
+		build -u -d u-boot.dtb -O . -m --allow-missing \
 		-I . -I $(srctree) -I $(srctree)/board/$(BOARDDIR) \
 		$(BINMAN_$(@F))
 
