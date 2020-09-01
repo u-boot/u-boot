@@ -692,7 +692,7 @@ Properties / Entry arguments: (see binman README for more information)
         when writing out the map
 
 Properties:
-    _allow_missing: True if this section permits external blobs to be
+    allow_missing: True if this section permits external blobs to be
         missing their contents. The second will produce an image but of
         course it will not work.
 

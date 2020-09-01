@@ -57,6 +57,10 @@ class Entry(object):
         compress: Compression algoithm used (e.g. 'lz4'), 'none' if none
         orig_offset: Original offset value read from node
         orig_size: Original size value read from node
+        missing: True if this entry is missing its contents
+        allow_missing: Allow children of this entry to be missing (used by
+            subclasses such as Entry_section)
+        external: True if this entry contains an external binary blob
     """
     def __init__(self, section, etype, node, name_prefix=''):
         # Put this here to allow entry-docs and help to work without libfdt
@@ -83,6 +87,8 @@ class Entry(object):
         self._expand_size = False
         self.compress = 'none'
         self.missing = False
+        self.external = False
+        self.allow_missing = False
 
     @staticmethod
     def Lookup(node_path, etype):
@@ -813,3 +819,11 @@ features to produce new behaviours.
         """
         if self.missing:
             missing_list.append(self)
+
+    def GetAllowMissing(self):
+        """Get whether a section allows missing external blobs
+
+        Returns:
+            True if allowed, False if not allowed
+        """
+        return self.allow_missing
