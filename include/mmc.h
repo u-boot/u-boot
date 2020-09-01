@@ -513,6 +513,14 @@ struct dm_mmc_ops {
 	 * @return maximum number of blocks for this transfer
 	 */
 	int (*get_b_max)(struct udevice *dev, void *dst, lbaint_t blkcnt);
+
+	/**
+	 * hs400_prepare_ddr - prepare to switch to DDR mode
+	 *
+	 * @dev:	Device to check
+	 * @return 0 if success, -ve on error
+	 */
+	int (*hs400_prepare_ddr)(struct udevice *dev);
 };
 
 #define mmc_get_ops(dev)        ((struct dm_mmc_ops *)(dev)->driver->ops)
@@ -540,7 +548,7 @@ int mmc_host_power_cycle(struct mmc *mmc);
 int mmc_deferred_probe(struct mmc *mmc);
 int mmc_reinit(struct mmc *mmc);
 int mmc_get_b_max(struct mmc *mmc, void *dst, lbaint_t blkcnt);
-
+int mmc_hs400_prepare_ddr(struct mmc *mmc);
 #else
 struct mmc_ops {
 	int (*send_cmd)(struct mmc *mmc,
@@ -552,6 +560,11 @@ struct mmc_ops {
 	int (*host_power_cycle)(struct mmc *mmc);
 	int (*get_b_max)(struct mmc *mmc, void *dst, lbaint_t blkcnt);
 };
+
+static inline int mmc_hs400_prepare_ddr(struct mmc *mmc)
+{
+	return 0;
+}
 #endif
 
 struct mmc_config {

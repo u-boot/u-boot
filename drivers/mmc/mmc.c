@@ -1993,6 +1993,10 @@ static int mmc_select_hs400(struct mmc *mmc)
 	/* Set back to HS */
 	mmc_set_card_speed(mmc, MMC_HS, true);
 
+	err = mmc_hs400_prepare_ddr(mmc);
+	if (err)
+		return err;
+
 	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BUS_WIDTH,
 			 EXT_CSD_BUS_WIDTH_8 | EXT_CSD_DDR_FLAG);
 	if (err)
