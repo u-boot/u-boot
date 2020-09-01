@@ -907,6 +907,14 @@ static int fsl_esdhc_set_ios(struct udevice *dev)
 	return esdhc_set_ios_common(priv, &plat->mmc);
 }
 
+static int fsl_esdhc_reinit(struct udevice *dev)
+{
+	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
+	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
+
+	return esdhc_init_common(priv, &plat->mmc);
+}
+
 static const struct dm_mmc_ops fsl_esdhc_ops = {
 	.get_cd		= fsl_esdhc_get_cd,
 	.send_cmd	= fsl_esdhc_send_cmd,
@@ -914,6 +922,7 @@ static const struct dm_mmc_ops fsl_esdhc_ops = {
 #ifdef MMC_SUPPORTS_TUNING
 	.execute_tuning = fsl_esdhc_execute_tuning,
 #endif
+	.reinit = fsl_esdhc_reinit,
 };
 
 static const struct udevice_id fsl_esdhc_ids[] = {
