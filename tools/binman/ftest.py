@@ -1382,8 +1382,9 @@ class TestFunctional(unittest.TestCase):
         }
         with self.assertRaises(ValueError) as e:
             self._DoReadFileDtb('064_entry_args_required.dts')
-        self.assertIn("Node '/binman/_testing': Missing required "
-            'properties/entry args: test-str-arg, test-int-fdt, test-int-arg',
+        self.assertIn("Node '/binman/_testing': "
+            'Missing required properties/entry args: test-str-arg, '
+            'test-int-fdt, test-int-arg',
             str(e.exception))
 
     def testEntryArgsInvalidFormat(self):
@@ -1487,8 +1488,7 @@ class TestFunctional(unittest.TestCase):
         entry_args = {
             'cros-ec-rw-path': 'ecrw.bin',
         }
-        data, _, _, _ = self._DoReadFileDtb('068_blob_named_by_arg.dts',
-                                            entry_args=entry_args)
+        self._DoReadFileDtb('068_blob_named_by_arg.dts', entry_args=entry_args)
 
     def testFill(self):
         """Test for an fill entry type"""
@@ -3522,6 +3522,13 @@ class TestFunctional(unittest.TestCase):
                              allow_missing=True)
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'main-section'.*missing.*: blob-ext")
+
+    def testBlobNamedByArgMissing(self):
+        """Test handling of a missing entry arg"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('068_blob_named_by_arg.dts')
+        self.assertIn("Missing required properties/entry args: cros-ec-rw-path",
+                      str(e.exception))
 
 if __name__ == "__main__":
     unittest.main()
