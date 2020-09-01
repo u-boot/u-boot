@@ -644,7 +644,10 @@ static void esdhc_set_timing(struct fsl_esdhc_priv *priv, enum bus_mode mode)
 		esdhc_setbits32(&regs->sdclkctl, CMD_CLK_CTL);
 		esdhc_clock_control(priv, true);
 
-		esdhc_setbits32(&regs->dllcfg0, DLL_ENABLE | DLL_FREQ_SEL);
+		if (priv->clock == 200000000)
+			esdhc_setbits32(&regs->dllcfg0, DLL_FREQ_SEL);
+
+		esdhc_setbits32(&regs->dllcfg0, DLL_ENABLE);
 		esdhc_setbits32(&regs->tbctl, HS400_WNDW_ADJUST);
 
 		esdhc_clock_control(priv, false);
