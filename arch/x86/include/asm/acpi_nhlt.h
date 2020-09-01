@@ -139,14 +139,6 @@ void nhlt_next_instance(struct nhlt *nhlt, int link_type);
 
 /*
  * Serialize NHLT object to ACPI table. Take in the beginning address of where
- * the table will reside and return the address of the next ACPI table. On
- * error 0 will be returned. The NHLT object is no longer valid after this
- * function is called.
- */
-uintptr_t nhlt_serialise(struct nhlt *nhlt, uintptr_t acpi_addr);
-
-/*
- * Serialize NHLT object to ACPI table. Take in the beginning address of where
  * the table will reside oem_id and oem_table_id and return the address of the
  * next ACPI table. On error 0 will be returned. The NHLT object is no longer
  * valid after this function is called.

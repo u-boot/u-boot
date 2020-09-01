@@ -121,7 +121,8 @@ static int do_mtrr(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 1 || !cmd) {
 		cmd = 'l';
 		reg = 0;
-	} else {
+	}
+	if (cmd != 'l') {
 		if (argc < 2)
 			return CMD_RET_USAGE;
 		reg = simple_strtoul(argv[1], NULL, 16);

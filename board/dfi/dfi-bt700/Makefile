@@ -2,5 +2,5 @@
 #
 # Copyright (C) 2015, Google, Inc
 
-obj-y	+= dfi-bt700.o start.o
+obj-y	+= dfi-bt700.o
 obj-$(CONFIG_GENERATE_ACPI_TABLE) += dsdt.o

@@ -88,6 +88,7 @@ _start:
 	/* Clear the interrupt vectors */
 	lidt	blank_idt_ptr
 
+#ifdef CONFIG_USE_EARLY_BOARD_INIT
 	/*
 	 * Critical early platform init - generally not used, we prefer init
 	 * to happen later when we have a console, in case something goes
@@ -96,6 +97,8 @@ _start:
 	jmp	early_board_init
 .globl early_board_init_ret
 early_board_init_ret:
+#endif
+
 	post_code(POST_START)
 
 	/* Initialise Cache-As-RAM */
