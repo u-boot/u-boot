@@ -77,6 +77,8 @@
 	};
 
 	pinctrl: pinctrl@1f801400 {
+		#address-cells = <1>;
+		#size-cells = <1>;
 		compatible = "microchip,pic32mzda-pinctrl";
 		reg = <0x1f801400 0x100>, /* in  */
 		      <0x1f801500 0x200>, /* out */
@@ -84,75 +86,72 @@
 		reg-names = "ppsin","ppsout","port";
 		status = "disabled";
 
-		ranges = <0 0x1f860000 0xa00>;
-		#address-cells = <1>;
-		#size-cells = <1>;
-		gpioA: gpio0@0 {
+		gpioA: gpio0@1f860000 {
 			compatible = "microchip,pic32mzda-gpio";
-			reg = <0x000 0x48>;
+			reg = <0x1f860000 0xe0>;
 			gpio-controller;
 			#gpio-cells = <2>;
 		};
 
-		gpioB: gpio1@100 {
+		gpioB: gpio1@1f860100 {
 			compatible = "microchip,pic32mzda-gpio";
-			reg = <0x100 0x48>;
+			reg = <0x1f860100 0xe0>;
 			gpio-controller;
 			#gpio-cells = <2>;
 		};
 
-		gpioC: gpio2@200 {
+		gpioC: gpio2@1f860200 {
 			compatible = "microchip,pic32mzda-gpio";
-			reg = <0x200 0x48>;
+			reg = <0x1f860200 0xe0>;
 			gpio-controller;
 			#gpio-cells = <2>;
 		};
 
-		gpioD: gpio3@300 {
+		gpioD: gpio3@1f860300 {
 			compatible = "microchip,pic32mzda-gpio";
-			reg = <0x300 0x48>;
+			reg = <0x1f860300 0xe0>;
 			gpio-controller;
 			#gpio-cells = <2>;
 		};
 
-		gpioE: gpio4@400 {
+		gpioE: gpio4@1f860400 {
 			compatible = "microchip,pic32mzda-gpio";
-			reg = <0x400 0x48>;
+			reg = <0x1f860400 0xe0>;
 			gpio-controller;
 			#gpio-cells = <2>;
 		};
 
-		gpioF: gpio5@500 {
+		gpioF: gpio5@1f860500 {
 			compatible = "microchip,pic32mzda-gpio";
-			reg = <0x500 0x48>;
+			reg = <0x1f860500 0xe0>;
 			gpio-controller;
 			#gpio-cells = <2>;
 		};
 
-		gpioG: gpio6@600 {
+		gpioG: gpio6@1f860600 {
 			compatible = "microchip,pic32mzda-gpio";
-			reg = <0x600 0x48>;
+			reg = <0x1f860600 0xe0>;
 			gpio-controller;
 			#gpio-cells = <2>;
 		};
 
-		gpioH: gpio7@700 {
+		gpioH: gpio7@1f860700 {
 			compatible = "microchip,pic32mzda-gpio";
-			reg = <0x700 0x48>;
+			reg = <0x1f860700 0xe0>;
 			gpio-controller;
 			#gpio-cells = <2>;
 		};
 
-		gpioJ: gpio8@800 {
+		gpioJ: gpio8@1f860800 {
 			compatible = "microchip,pic32mzda-gpio";
-			reg = <0x800 0x48>;
+			reg = <0x1f860800 0xe0>;
 			gpio-controller;
 			#gpio-cells = <2>;
 		};
 
-		gpioK: gpio9@900 {
+		gpioK: gpio9@1f860900 {
 			compatible = "microchip,pic32mzda-gpio";
-			reg = <0x900 0x48>;
+			reg = <0x1f860900 0xe0>;
 			gpio-controller;
 			#gpio-cells = <2>;
 		};
