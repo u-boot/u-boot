@@ -26,8 +26,13 @@
 	};
 
 	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
 		cpu@0 {
 			compatible = "mips,mips14kc";
+			device-type = "cpu";
+			reg = <0>;
 		};
 	};
 
@@ -40,6 +45,7 @@
 	uart1: serial@1f822000 {
 		compatible = "microchip,pic32mzda-uart";
 		reg = <0x1f822000 0x50>;
+		interrupt-parent = <&evic>;
 		interrupts = <112 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
 		clocks = <&clock PB2CLK>;
@@ -48,6 +54,7 @@
 	uart2: serial@1f822200 {
 		compatible = "microchip,pic32mzda-uart";
 		reg = <0x1f822200 0x50>;
+		interrupt-parent = <&evic>;
 		interrupts = <145 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&clock PB2CLK>;
 		status = "disabled";
@@ -56,6 +63,7 @@
 	uart6: serial@1f822a00 {
 		compatible = "microchip,pic32mzda-uart";
 		reg = <0x1f822a00 0x50>;
+		interrupt-parent = <&evic>;
 		interrupts = <188 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&clock PB2CLK>;
 		status = "disabled";
@@ -153,6 +161,7 @@
 	sdhci: sdhci@1f8ec000 {
 		compatible = "microchip,pic32mzda-sdhci";
 		reg = <0x1f8ec000 0x100>;
+		interrupt-parent = <&evic>;
 		interrupts = <191 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&clock REF4CLK>, <&clock PB5CLK>;
 		clock-names = "base_clk", "sys_clk";
@@ -164,6 +173,7 @@
 	ethernet: ethernet@1f882000 {
 		compatible = "microchip,pic32mzda-eth";
 		reg = <0x1f882000 0x1000>;
+		interrupt-parent = <&evic>;
 		interrupts = <153 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&clock PB5CLK>;
 		status = "disabled";
@@ -176,6 +186,7 @@
 		reg = <0x1f8e3000 0x1000>,
 		      <0x1f884000 0x1000>;
 		reg-names = "mc", "control";
+		interrupt-parent = <&evic>;
 		interrupts = <132 IRQ_TYPE_EDGE_RISING>,
 			     <133 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&clock PB5CLK>;
