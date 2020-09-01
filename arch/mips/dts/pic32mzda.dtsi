@@ -142,14 +142,14 @@
 			#gpio-cells = <2>;
 		};
 
-		gpioJ: gpio8@1f860800 {
+		gpioJ: gpio9@1f860800 {
 			compatible = "microchip,pic32mzda-gpio";
 			reg = <0x1f860800 0xe0>;
 			gpio-controller;
 			#gpio-cells = <2>;
 		};
 
-		gpioK: gpio9@1f860900 {
+		gpioK: gpio10@1f860900 {
 			compatible = "microchip,pic32mzda-gpio";
 			reg = <0x1f860900 0xe0>;
 			gpio-controller;
