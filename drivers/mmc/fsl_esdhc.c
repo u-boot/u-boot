@@ -637,6 +637,9 @@ static int esdhc_init_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 			return -ETIMEDOUT;
 	}
 
+	/* Clean TBCTL[TB_EN] which is not able to be reset by reset all */
+	esdhc_clrbits32(&regs->tbctl, TBCTL_TB_EN);
+
 	esdhc_enable_cache_snooping(regs);
 
 	esdhc_setbits32(&regs->sysctl, SYSCTL_HCKEN | SYSCTL_IPGEN);
