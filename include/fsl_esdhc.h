@@ -172,6 +172,18 @@
 
 /* Tuning block control register */
 #define TBCTL_TB_EN		0x00000004
+#define HS400_MODE		0x00000010
+#define HS400_WNDW_ADJUST	0x00000040
+
+/* SD clock control register */
+#define CMD_CLK_CTL		0x00008000
+
+/* SD timing control register */
+#define FLW_CTL_BG		0x00008000
+
+/* DLL config 0 register */
+#define DLL_ENABLE		0x80000000
+#define DLL_FREQ_SEL		0x08000000
 
 #define MAX_TUNING_LOOP		40
 

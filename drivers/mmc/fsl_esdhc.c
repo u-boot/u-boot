@@ -62,7 +62,12 @@ struct fsl_esdhc {
 	uint    hostcapblt2;	/* Host controller capabilities register 2 */
 	char	reserved6[8];	/* reserved */
 	uint	tbctl;		/* Tuning block control register */
-	char    reserved7[744];	/* reserved */
+	char    reserved7[32];	/* reserved */
+	uint	sdclkctl;	/* SD clock control register */
+	uint	sdtimingctl;	/* SD timing control register */
+	char    reserved8[20];	/* reserved */
+	uint	dllcfg0;	/* DLL config 0 register */
+	char    reserved9[680];	/* reserved */
 	uint    esdhcctl;	/* eSDHC control register */
 };
 
@@ -568,16 +573,80 @@ static void esdhc_clock_control(struct fsl_esdhc_priv *priv, bool enable)
 	}
 }
 
+static void esdhc_flush_async_fifo(struct fsl_esdhc_priv *priv)
+{
+	struct fsl_esdhc *regs = priv->esdhc_regs;
+	u32 time_out;
+
+	esdhc_setbits32(&regs->esdhcctl, ESDHCCTL_FAF);
+
+	time_out = 20;
+	while (esdhc_read32(&regs->esdhcctl) & ESDHCCTL_FAF) {
+		if (time_out == 0) {
+			printf("fsl_esdhc: Flush asynchronous FIFO timeout.\n");
+			break;
+		}
+		time_out--;
+		mdelay(1);
+	}
+}
+
+static void esdhc_tuning_block_enable(struct fsl_esdhc_priv *priv,
+				      bool en)
+{
+	struct fsl_esdhc *regs = priv->esdhc_regs;
+
+	esdhc_clock_control(priv, false);
+	esdhc_flush_async_fifo(priv);
+	if (en)
+		esdhc_setbits32(&regs->tbctl, TBCTL_TB_EN);
+	else
+		esdhc_clrbits32(&regs->tbctl, TBCTL_TB_EN);
+	esdhc_clock_control(priv, true);
+}
+
+static void esdhc_exit_hs400(struct fsl_esdhc_priv *priv)
+{
+	struct fsl_esdhc *regs = priv->esdhc_regs;
+
+	esdhc_clrbits32(&regs->sdtimingctl, FLW_CTL_BG);
+	esdhc_clrbits32(&regs->sdclkctl, CMD_CLK_CTL);
+
+	esdhc_clock_control(priv, false);
+	esdhc_clrbits32(&regs->tbctl, HS400_MODE);
+	esdhc_clock_control(priv, true);
+
+	esdhc_clrbits32(&regs->dllcfg0, DLL_FREQ_SEL | DLL_ENABLE);
+	esdhc_clrbits32(&regs->tbctl, HS400_WNDW_ADJUST);
+
+	esdhc_tuning_block_enable(priv, false);
+}
+
 static void esdhc_set_timing(struct fsl_esdhc_priv *priv, enum bus_mode mode)
 {
 	struct fsl_esdhc *regs = priv->esdhc_regs;
+
+	/* Exit HS400 mode before setting any other mode */
+	if (esdhc_read32(&regs->tbctl) & HS400_MODE &&
+	    mode != MMC_HS_400)
+		esdhc_exit_hs400(priv);
 
 	esdhc_clock_control(priv, false);
 
 	if (mode == MMC_HS_200)
 		esdhc_clrsetbits32(&regs->autoc12err, UHSM_MASK,
 				   UHSM_SDR104_HS200);
+	if (mode == MMC_HS_400) {
+		esdhc_setbits32(&regs->tbctl, HS400_MODE);
+		esdhc_setbits32(&regs->sdclkctl, CMD_CLK_CTL);
+		esdhc_clock_control(priv, true);
 
+		esdhc_setbits32(&regs->dllcfg0, DLL_ENABLE | DLL_FREQ_SEL);
+		esdhc_setbits32(&regs->tbctl, HS400_WNDW_ADJUST);
+
+		esdhc_clock_control(priv, false);
+		esdhc_flush_async_fifo(priv);
+	}
 	esdhc_clock_control(priv, true);
 }
 
@@ -591,6 +660,9 @@ static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 		esdhc_setbits32(&regs->esdhcctl, ESDHCCTL_PCS);
 		esdhc_clock_control(priv, true);
 	}
+
+	if (mmc->selected_mode == MMC_HS_400)
+		esdhc_tuning_block_enable(priv, true);
 
 	/* Set the clock speed */
 	if (priv->clock != mmc->clock)
@@ -948,38 +1020,6 @@ static int fsl_esdhc_reinit(struct udevice *dev)
 }
 
 #ifdef MMC_SUPPORTS_TUNING
-static void esdhc_flush_async_fifo(struct fsl_esdhc_priv *priv)
-{
-	struct fsl_esdhc *regs = priv->esdhc_regs;
-	u32 time_out;
-
-	esdhc_setbits32(&regs->esdhcctl, ESDHCCTL_FAF);
-
-	time_out = 20;
-	while (esdhc_read32(&regs->esdhcctl) & ESDHCCTL_FAF) {
-		if (time_out == 0) {
-			printf("fsl_esdhc: Flush asynchronous FIFO timeout.\n");
-			break;
-		}
-		time_out--;
-		mdelay(1);
-	}
-}
-
-static void esdhc_tuning_block_enable(struct fsl_esdhc_priv *priv,
-				      bool en)
-{
-	struct fsl_esdhc *regs = priv->esdhc_regs;
-
-	esdhc_clock_control(priv, false);
-	esdhc_flush_async_fifo(priv);
-	if (en)
-		esdhc_setbits32(&regs->tbctl, TBCTL_TB_EN);
-	else
-		esdhc_clrbits32(&regs->tbctl, TBCTL_TB_EN);
-	esdhc_clock_control(priv, true);
-}
-
 static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
 {
 	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
@@ -1007,8 +1047,11 @@ static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
 
 	esdhc_write32(&regs->irqstaten, irqstaten);
 
-	if (i != MAX_TUNING_LOOP)
+	if (i != MAX_TUNING_LOOP) {
+		if (plat->mmc.hs400_tuning)
+			esdhc_setbits32(&regs->sdtimingctl, FLW_CTL_BG);
 		return 0;
+	}
 
 	printf("fsl_esdhc: tuning failed!\n");
 	esdhc_clrbits32(&regs->autoc12err, SMPCLKSEL);
@@ -1018,6 +1061,14 @@ static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
 }
 #endif
 
+int fsl_esdhc_hs400_prepare_ddr(struct udevice *dev)
+{
+	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
+
+	esdhc_tuning_block_enable(priv, false);
+	return 0;
+}
+
 static const struct dm_mmc_ops fsl_esdhc_ops = {
 	.get_cd		= fsl_esdhc_get_cd,
 	.send_cmd	= fsl_esdhc_send_cmd,
@@ -1026,6 +1077,7 @@ static const struct dm_mmc_ops fsl_esdhc_ops = {
 	.execute_tuning = fsl_esdhc_execute_tuning,
 #endif
 	.reinit = fsl_esdhc_reinit,
+	.hs400_prepare_ddr = fsl_esdhc_hs400_prepare_ddr,
 };
 
 static const struct udevice_id fsl_esdhc_ids[] = {
