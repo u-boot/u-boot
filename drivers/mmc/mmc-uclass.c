@@ -171,6 +171,21 @@ int mmc_deferred_probe(struct mmc *mmc)
 	return dm_mmc_deferred_probe(mmc->dev);
 }
 
+int dm_mmc_reinit(struct udevice *dev)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (ops->reinit)
+		return ops->reinit(dev);
+
+	return 0;
+}
+
+int mmc_reinit(struct mmc *mmc)
+{
+	return dm_mmc_reinit(mmc->dev);
+}
+
 int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 {
 	int val;

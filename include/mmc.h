@@ -422,6 +422,14 @@ struct dm_mmc_ops {
 	 */
 	int (*deferred_probe)(struct udevice *dev);
 	/**
+	 * reinit() - Re-initialization to clear old configuration for
+	 * mmc rescan.
+	 *
+	 * @dev:	Device to reinit
+	 * @return 0 if Ok, -ve if error
+	 */
+	int (*reinit)(struct udevice *dev);
+	/**
 	 * send_cmd() - Send a command to the MMC device
 	 *
 	 * @dev:	Device to receive the command
@@ -518,6 +526,7 @@ int dm_mmc_execute_tuning(struct udevice *dev, uint opcode);
 int dm_mmc_wait_dat0(struct udevice *dev, int state, int timeout_us);
 int dm_mmc_host_power_cycle(struct udevice *dev);
 int dm_mmc_deferred_probe(struct udevice *dev);
+int dm_mmc_reinit(struct udevice *dev);
 int dm_mmc_get_b_max(struct udevice *dev, void *dst, lbaint_t blkcnt);
 
 /* Transition functions for compatibility */
@@ -529,6 +538,7 @@ int mmc_wait_dat0(struct mmc *mmc, int state, int timeout_us);
 int mmc_set_enhanced_strobe(struct mmc *mmc);
 int mmc_host_power_cycle(struct mmc *mmc);
 int mmc_deferred_probe(struct mmc *mmc);
+int mmc_reinit(struct mmc *mmc);
 int mmc_get_b_max(struct mmc *mmc, void *dst, lbaint_t blkcnt);
 
 #else
