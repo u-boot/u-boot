@@ -346,6 +346,11 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
         dtb_fname: Filename of the device tree file to use (.dts or .dtb)
         selected_images: List of images to output, or None for all
         update_fdt: True to update the FDT wth entry offsets, etc.
+
+    Returns:
+        OrderedDict of images:
+            key: Image name (str)
+            value: Image object
     """
     # Import these here in case libfdt.py is not available, in which case
     # the above help option still works.

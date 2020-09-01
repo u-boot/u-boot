@@ -298,6 +298,13 @@ class TestFunctional(unittest.TestCase):
                 key: arg name
                 value: value of that arg
             images: List of image names to build
+            use_real_dtb: True to use the test file as the contents of
+                the u-boot-dtb entry. Normally this is not needed and the
+                test contents (the U_BOOT_DTB_DATA string) can be used.
+                But in some test we need the real contents.
+            verbosity: Verbosity level to use (0-3, None=don't set it)
+            allow_missing: Set the '--allow-missing' flag so that missing
+                external binaries just produce a warning instead of an error
         """
         args = []
         if debug:
@@ -357,6 +364,13 @@ class TestFunctional(unittest.TestCase):
         We still want the DTBs for SPL and TPL to be different though, since
         otherwise it is confusing to know which one we are looking at. So add
         an 'spl' or 'tpl' property to the top-level node.
+
+        Args:
+            dtb_data: dtb data to modify (this should be a value devicetree)
+            name: Name of a new property to add
+
+        Returns:
+            New dtb data with the property added
         """
         dtb = fdt.Fdt.FromData(dtb_data)
         dtb.Scan()
@@ -384,6 +398,12 @@ class TestFunctional(unittest.TestCase):
             map: True to output map files for the images
             update_dtb: Update the offset and size of each entry in the device
                 tree before packing it into the image
+            entry_args: Dict of entry args to supply to binman
+                key: arg name
+                value: value of that arg
+            reset_dtbs: With use_real_dtb the test dtb is overwritten by this
+                function. If reset_dtbs is True, then the original test dtb
+                is written back before this function finishes
 
         Returns:
             Tuple:
@@ -3467,7 +3487,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(len(U_BOOT_SPL_DTB_DATA), int(data_sizes[1].split()[0]))
 
     def testFitExternal(self):
-        """Test an image with an FIT"""
+        """Test an image with an FIT with external images"""
         data = self._DoReadFile('162_fit_external.dts')
         fit_data = data[len(U_BOOT_DATA):-2]  # _testing is 2 bytes
 
