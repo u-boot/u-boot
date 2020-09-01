@@ -74,6 +74,7 @@ REFCODE_DATA          = b'refcode'
 FSP_M_DATA            = b'fsp_m'
 FSP_S_DATA            = b'fsp_s'
 FSP_T_DATA            = b'fsp_t'
+ATF_BL31_DATA         = b'bl31'
 
 # The expected size for the device tree in some tests
 EXTRACT_DTB_SIZE = 0x3c9
@@ -167,6 +168,7 @@ class TestFunctional(unittest.TestCase):
                         os.path.join(cls._indir, 'files'))
 
         TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
+        TestFunctional._MakeInputFile('bl31.bin', ATF_BL31_DATA)
 
         # Travis-CI may have an old lz4
         cls.have_lz4 = True
@@ -3549,6 +3551,13 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFile('068_blob_named_by_arg.dts')
         self.assertIn("Missing required properties/entry args: cros-ec-rw-path",
                       str(e.exception))
+
+    def testPackBl31(self):
+        """Test that an image with an ATF BL31 binary can be created"""
+        data = self._DoReadFile('169_atf_bl31.dts')
+        self.assertEqual(ATF_BL31_DATA, data[:len(ATF_BL31_DATA)])
+
+ATF_BL31_DATA
 
 if __name__ == "__main__":
     unittest.main()

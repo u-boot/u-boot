@@ -11,6 +11,20 @@ features to produce new behaviours.
 
 
 
+Entry: atf-bl31: Entry containing an ARM Trusted Firmware (ATF) BL31 blob
+-------------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - atf-bl31-path: Filename of file to read into entry. This is typically
+        called bl31.bin or bl31.elf
+
+This entry holds the run-time firmware, typically started by U-Boot SPL.
+See the U-Boot README for your architecture or board for how to use it. See
+https://github.com/ARM-software/arm-trusted-firmware for more information
+about ATF.
+
+
+
 Entry: blob: Entry containing an arbitrary binary blob
 ------------------------------------------------------
 
