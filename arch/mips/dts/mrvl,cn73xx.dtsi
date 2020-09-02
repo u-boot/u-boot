@@ -72,6 +72,23 @@
 				     <0x0300e 4>, <0x0300f 4>;
 		};
 
+		l2c: l2c@1180080000000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "cavium,octeon-7xxx-l2c";
+			reg = <0x11800 0x80000000 0x0 0x01000000>;
+			u-boot,dm-pre-reloc;
+		};
+
+		lmc: lmc@1180088000000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "cavium,octeon-7xxx-ddr4";
+			reg = <0x11800 0x88000000 0x0 0x02000000>; // 2 IFs
+			u-boot,dm-pre-reloc;
+			l2c-handle = <&l2c>;
+		};
+
 		reset: reset@1180006001600 {
 			compatible = "mrvl,cn7xxx-rst";
 			reg = <0x11800 0x06001600 0x0 0x200>;
