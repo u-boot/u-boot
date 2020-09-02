@@ -76,3 +76,4 @@ config IMXRT_SDRAM
 source "drivers/ram/rockchip/Kconfig"
 source "drivers/ram/sifive/Kconfig"
 source "drivers/ram/stm32mp1/Kconfig"
+source "drivers/ram/octeon/Kconfig"
