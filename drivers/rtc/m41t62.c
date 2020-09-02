@@ -23,6 +23,7 @@
 #include <rtc.h>
 #include <i2c.h>
 #include <linux/log2.h>
+#include <linux/delay.h>
 
 #define M41T62_REG_SSEC	0
 #define M41T62_REG_SEC	1
@@ -48,6 +49,7 @@
 #define M41T62_ALMON_SQWE	(1 << 6)	/* SQWE: SQW Enable Bit */
 #define M41T62_ALHOUR_HT	(1 << 6)	/* HT: Halt Update Bit */
 #define M41T62_FLAGS_AF		(1 << 6)	/* AF: Alarm Flag Bit */
+#define M41T62_FLAGS_OF		(1 << 2)	/* OF: Oscillator Flag Bit */
 #define M41T62_FLAGS_BATT_LOW	(1 << 4)	/* BL: Battery Low Bit */
 
 #define M41T62_WDAY_SQW_FREQ_MASK	0xf0
@@ -193,6 +195,50 @@ static int m41t62_sqw_set_rate(struct udevice *dev, unsigned int rate)
 	return dm_i2c_write(dev, M41T62_REG_WDAY, &newval, sizeof(newval));
 }
 
+static int m41t62_rtc_restart_osc(struct udevice *dev)
+{
+	u8 val;
+	int ret;
+
+	/* 0. check if oscillator failure happened */
+	ret = dm_i2c_read(dev, M41T62_REG_FLAGS, &val, sizeof(val));
+	if (ret)
+		return ret;
+	if (!(val & M41T62_FLAGS_OF))
+		return 0;
+
+	ret = dm_i2c_read(dev, M41T62_REG_SEC, &val, sizeof(val));
+	if (ret)
+		return ret;
+
+	/* 1. Set stop bit */
+	val |= M41T62_SEC_ST;
+	ret = dm_i2c_write(dev, M41T62_REG_ALARM_HOUR, &val, sizeof(val));
+	if (ret)
+		return ret;
+
+	/* 2. Clear stop bit */
+	val &= ~M41T62_SEC_ST;
+	ret = dm_i2c_write(dev, M41T62_REG_ALARM_HOUR, &val, sizeof(val));
+	if (ret)
+		return ret;
+
+	/* 3. wait 4 seconds */
+	mdelay(4000);
+
+	ret = dm_i2c_read(dev, M41T62_REG_FLAGS, &val, sizeof(val));
+	if (ret)
+		return ret;
+
+	/* 4. clear M41T62_FLAGS_OF bit */
+	val &= ~M41T62_FLAGS_OF;
+	ret = dm_i2c_write(dev, M41T62_REG_FLAGS, &val, sizeof(val));
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 static int m41t62_rtc_clear_ht(struct udevice *dev)
 {
 	u8 val;
@@ -217,6 +263,10 @@ static int m41t62_rtc_clear_ht(struct udevice *dev)
 static int m41t62_rtc_reset(struct udevice *dev)
 {
 	int ret;
+
+	ret = m41t62_rtc_restart_osc(dev);
+	if (ret)
+		return ret;
 
 	ret = m41t62_rtc_clear_ht(dev);
 	if (ret)
