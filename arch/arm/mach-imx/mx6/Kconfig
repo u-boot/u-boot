@@ -253,6 +253,14 @@ config TARGET_GE_BX50V3
 	depends on MX6Q
 	select BOARD_LATE_INIT
 
+config TARGET_GE_B1X5V2
+	bool "General Electric B1x5v2"
+	depends on MX6QDL
+	select BOARD_LATE_INIT
+	select DM
+	select DM_THERMAL
+	select SUPPORT_SPL
+
 config TARGET_GW_VENTANA
 	bool "gw_ventana"
 	depends on MX6QDL
@@ -713,6 +721,7 @@ config SYS_SOC
 	default "mx6"
 
 source "board/ge/bx50v3/Kconfig"
+source "board/ge/b1x5v2/Kconfig"
 source "board/advantech/dms-ba16/Kconfig"
 source "board/aristainetos/Kconfig"
 source "board/armadeus/opos6uldev/Kconfig"
