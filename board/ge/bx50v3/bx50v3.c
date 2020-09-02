@@ -429,7 +429,7 @@ static void set_confidx(const struct vpd_cache* vpd)
 
 int board_init(void)
 {
-	if (!read_vpd(&vpd, vpd_callback)) {
+	if (!read_i2c_vpd(&vpd, vpd_callback)) {
 		int ret, rescan;
 
 		vpd.is_read = true;

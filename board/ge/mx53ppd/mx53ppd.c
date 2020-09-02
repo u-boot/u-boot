@@ -225,7 +225,7 @@ int board_late_init(void)
 	struct vpd_cache vpd;
 
 	memset(&vpd, 0, sizeof(vpd));
-	res = read_vpd(&vpd, vpd_callback);
+	res = read_i2c_vpd(&vpd, vpd_callback);
 	if (!res)
 		process_vpd(&vpd);
 	else
