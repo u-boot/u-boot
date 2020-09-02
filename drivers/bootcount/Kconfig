@@ -108,6 +108,16 @@ config DM_BOOTCOUNT_I2C_EEPROM
 	  pointing to the underlying i2c eeprom device) and an optional 'offset'
 	  property are supported.
 
+config DM_BOOTCOUNT_SPI_FLASH
+	bool "Support SPI flash devices as a backing store for bootcount"
+	depends on DM_SPI_FLASH
+	help
+	  Enabled reading/writing the bootcount in a DM SPI flash device.
+	  The wrapper device is to be specified with the compatible string
+	  'u-boot,bootcount-spi-flash' and the 'spi-flash'-property (a phandle
+	  pointing to the underlying SPI flash device) and an optional 'offset'
+	  property are supported.
+
 config BOOTCOUNT_MEM
 	bool "Support memory based bootcounter"
 	help
