@@ -36,7 +36,7 @@
 #include <watchdog.h>
 #include "ppd_gpio.h"
 #include <stdlib.h>
-#include "../../ge/common/ge_common.h"
+#include "../../ge/common/ge_rtc.h"
 #include "../../ge/common/vpd_reader.h"
 
 DECLARE_GLOBAL_DATA_PTR;

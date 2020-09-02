@@ -35,7 +35,7 @@
 #include <version.h>
 #include <stdlib.h>
 #include <dm/root.h>
-#include "../common/ge_common.h"
+#include "../common/ge_rtc.h"
 #include "../common/vpd_reader.h"
 #include "../../../drivers/net/e1000.h"
 #include <pci.h>

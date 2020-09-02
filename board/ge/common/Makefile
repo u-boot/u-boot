@@ -2,4 +2,4 @@
 #
 # Copyright 2017 General Electric Company
 
-obj-y  := vpd_reader.o ge_common.o
+obj-y  := vpd_reader.o ge_rtc.o
