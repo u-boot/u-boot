@@ -99,10 +99,10 @@ struct axidma_priv {
 
 /* BD descriptors */
 struct axidma_bd {
-	u32 next;	/* Next descriptor pointer */
-	u32 reserved1;
-	u32 phys;	/* Buffer address */
-	u32 reserved2;
+	u32 next_desc;	/* Next descriptor pointer */
+	u32 next_desc_msb;
+	u32 buf_addr;	/* Buffer address */
+	u32 buf_addr_msb;
 	u32 reserved3;
 	u32 reserved4;
 	u32 cntrl;	/* Control */
@@ -180,7 +180,7 @@ static inline int mdio_wait(struct axi_regs *regs)
 static inline void axienet_dma_write(struct axidma_bd *bd, u32 *desc)
 {
 #if defined(CONFIG_PHYS_64BIT)
-	writeq(bd, desc);
+	writeq((unsigned long)bd, desc);
 #else
 	writel((u32)bd, desc);
 #endif
@@ -490,8 +490,12 @@ static int axiemac_start(struct udevice *dev)
 
 	/* Setup the BD. */
 	memset(&rx_bd, 0, sizeof(rx_bd));
-	rx_bd.next = (u32)&rx_bd;
-	rx_bd.phys = (u32)&rxframe;
+	rx_bd.next_desc = lower_32_bits((unsigned long)&rx_bd);
+	rx_bd.buf_addr = lower_32_bits((unsigned long)&rxframe);
+#if defined(CONFIG_PHYS_64BIT)
+	rx_bd.next_desc_msb = upper_32_bits((unsigned long)&rx_bd);
+	rx_bd.buf_addr_msb = upper_32_bits((unsigned long)&rxframe);
+#endif
 	rx_bd.cntrl = sizeof(rxframe);
 	/* Flush the last BD so DMA core could see the updates */
 	flush_cache((u32)&rx_bd, sizeof(rx_bd));
@@ -537,8 +541,12 @@ static int axiemac_send(struct udevice *dev, void *ptr, int len)
 	/* Setup Tx BD */
 	memset(&tx_bd, 0, sizeof(tx_bd));
 	/* At the end of the ring, link the last BD back to the top */
-	tx_bd.next = (u32)&tx_bd;
-	tx_bd.phys = (u32)ptr;
+	tx_bd.next_desc = lower_32_bits((unsigned long)&tx_bd);
+	tx_bd.buf_addr = lower_32_bits((unsigned long)ptr);
+#if defined(CONFIG_PHYS_64BIT)
+	tx_bd.next_desc_msb = upper_32_bits((unsigned long)&tx_bd);
+	tx_bd.buf_addr_msb = upper_32_bits((unsigned long)ptr);
+#endif
 	/* Save len */
 	tx_bd.cntrl = len | XAXIDMA_BD_CTRL_TXSOF_MASK |
 						XAXIDMA_BD_CTRL_TXEOF_MASK;
@@ -635,8 +643,12 @@ static int axiemac_free_pkt(struct udevice *dev, uchar *packet, int length)
 	/* Setup RxBD */
 	/* Clear the whole buffer and setup it again - all flags are cleared */
 	memset(&rx_bd, 0, sizeof(rx_bd));
-	rx_bd.next = (u32)&rx_bd;
-	rx_bd.phys = (u32)&rxframe;
+	rx_bd.next_desc = lower_32_bits((unsigned long)&rx_bd);
+	rx_bd.buf_addr = lower_32_bits((unsigned long)&rxframe);
+#if defined(CONFIG_PHYS_64BIT)
+	rx_bd.next_desc_msb = upper_32_bits((unsigned long)&rx_bd);
+	rx_bd.buf_addr_msb = upper_32_bits((unsigned long)&rxframe);
+#endif
 	rx_bd.cntrl = sizeof(rxframe);
 
 	/* Write bd to HW */
@@ -736,7 +748,7 @@ static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 	/* RX channel offset is 0x30 */
-	priv->dmarx = (struct axidma_reg *)((u32)priv->dmatx + 0x30);
+	priv->dmarx = (struct axidma_reg *)((phys_addr_t)priv->dmatx + 0x30);
 
 	priv->phyaddr = -1;
 
