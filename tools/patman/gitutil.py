@@ -259,6 +259,48 @@ def Fetch(git_dir=None, work_tree=None):
     if result.return_code != 0:
         raise OSError('git fetch: %s' % result.stderr)
 
+def CheckWorktreeIsAvailable(git_dir):
+    """Check if git-worktree functionality is available
+
+    Args:
+        git_dir: The repository to test in
+
+    Returns:
+        True if git-worktree commands will work, False otherwise.
+    """
+    pipe = ['git', '--git-dir', git_dir, 'worktree', 'list']
+    result = command.RunPipe([pipe], capture=True, capture_stderr=True,
+                             raise_on_error=False)
+    return result.return_code == 0
+
+def AddWorktree(git_dir, output_dir, commit_hash=None):
+    """Create and checkout a new git worktree for this build
+
+    Args:
+        git_dir: The repository to checkout the worktree from
+        output_dir: Path for the new worktree
+        commit_hash: Commit hash to checkout
+    """
+    # We need to pass --detach to avoid creating a new branch
+    pipe = ['git', '--git-dir', git_dir, 'worktree', 'add', '.', '--detach']
+    if commit_hash:
+        pipe.append(commit_hash)
+    result = command.RunPipe([pipe], capture=True, cwd=output_dir,
+                             capture_stderr=True)
+    if result.return_code != 0:
+        raise OSError('git worktree add: %s' % result.stderr)
+
+def PruneWorktrees(git_dir):
+    """Remove administrative files for deleted worktrees
+
+    Args:
+        git_dir: The repository whose deleted worktrees should be pruned
+    """
+    pipe = ['git', '--git-dir', git_dir, 'worktree', 'prune']
+    result = command.RunPipe([pipe], capture=True, capture_stderr=True)
+    if result.return_code != 0:
+        raise OSError('git worktree prune: %s' % result.stderr)
+
 def CreatePatches(branch, start, count, ignore_binary, series):
     """Create a series of patches from the top of the current branch.
 

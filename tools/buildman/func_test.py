@@ -319,6 +319,8 @@ class TestFunctional(unittest.TestCase):
             return command.CommandResult(return_code=0)
         elif sub_cmd == 'checkout':
             return command.CommandResult(return_code=0)
+        elif sub_cmd == 'worktree':
+            return command.CommandResult(return_code=0)
 
         # Not handled, so abort
         print('git', git_args, sub_cmd, args)
