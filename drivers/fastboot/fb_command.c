@@ -37,6 +37,8 @@ static void flash(char *, char *);
 static void erase(char *, char *);
 #endif
 static void reboot_bootloader(char *, char *);
+static void reboot_fastbootd(char *, char *);
+static void reboot_recovery(char *, char *);
 #if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_FORMAT)
 static void oem_format(char *, char *);
 #endif
@@ -78,6 +80,14 @@ static const struct {
 	[FASTBOOT_COMMAND_REBOOT_BOOTLOADER] =  {
 		.command = "reboot-bootloader",
 		.dispatch = reboot_bootloader
+	},
+	[FASTBOOT_COMMAND_REBOOT_FASTBOOTD] =  {
+		.command = "reboot-fastboot",
+		.dispatch = reboot_fastbootd
+	},
+	[FASTBOOT_COMMAND_REBOOT_RECOVERY] =  {
+		.command = "reboot-recovery",
+		.dispatch = reboot_recovery
 	},
 	[FASTBOOT_COMMAND_SET_ACTIVE] =  {
 		.command = "set_active",
@@ -307,8 +317,36 @@ static void erase(char *cmd_parameter, char *response)
  */
 static void reboot_bootloader(char *cmd_parameter, char *response)
 {
-	if (fastboot_set_reboot_flag())
+	if (fastboot_set_reboot_flag(FASTBOOT_REBOOT_REASON_BOOTLOADER))
 		fastboot_fail("Cannot set reboot flag", response);
+	else
+		fastboot_okay(NULL, response);
+}
+
+/**
+ * reboot_fastbootd() - Sets reboot fastboot flag.
+ *
+ * @cmd_parameter: Pointer to command parameter
+ * @response: Pointer to fastboot response buffer
+ */
+static void reboot_fastbootd(char *cmd_parameter, char *response)
+{
+	if (fastboot_set_reboot_flag(FASTBOOT_REBOOT_REASON_FASTBOOTD))
+		fastboot_fail("Cannot set fastboot flag", response);
+	else
+		fastboot_okay(NULL, response);
+}
+
+/**
+ * reboot_recovery() - Sets reboot recovery flag.
+ *
+ * @cmd_parameter: Pointer to command parameter
+ * @response: Pointer to fastboot response buffer
+ */
+static void reboot_recovery(char *cmd_parameter, char *response)
+{
+	if (fastboot_set_reboot_flag(FASTBOOT_REBOOT_REASON_RECOVERY))
+		fastboot_fail("Cannot set recovery flag", response);
 	else
 		fastboot_okay(NULL, response);
 }

@@ -922,6 +922,15 @@ struct ehci_ctrl;
 int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp);
 
 /**
+ * usb_remove_ehci_gadget() - Remove a gadget USB device
+ *
+ * TODO(sjg@chromium.org): Tidy this up when USB gadgets can use driver model
+ *
+ * This provides a way to tell a controller to remove a USB device
+ */
+int usb_remove_ehci_gadget(struct ehci_ctrl **ctlrp);
+
+/**
  * usb_stor_reset() - Prepare to scan USB storage devices
  *
  * Empty the list of USB storage devices in preparation for scanning them.

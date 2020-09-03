@@ -79,7 +79,7 @@ struct nand_internal_data {
 };
 
 struct ram_internal_data {
-	void		*start;
+	unsigned long	start;
 	unsigned int	size;
 };
 

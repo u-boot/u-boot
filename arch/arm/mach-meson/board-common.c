@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <fastboot.h>
 #include <init.h>
 #include <net.h>
 #include <asm/arch/boot.h>
@@ -153,8 +154,11 @@ int board_late_init(void)
 #if CONFIG_IS_ENABLED(FASTBOOT)
 static unsigned int reboot_reason = REBOOT_REASON_NORMAL;
 
-int fastboot_set_reboot_flag()
+int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 {
+	if (reason != FASTBOOT_REBOOT_REASON_BOOTLOADER)
+		return -ENOTSUPP;
+
 	reboot_reason = REBOOT_REASON_BOOTLOADER;
 
 	printf("Using reboot reason: 0x%x\n", reboot_reason);

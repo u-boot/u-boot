@@ -9,6 +9,7 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
+#include <fastboot.h>
 #include <init.h>
 #include <linux/ctype.h>
 #include <linux/usb/musb.h>
@@ -175,8 +176,11 @@ void reset_misc(void)
 	omap_reboot_mode_store(reboot_mode);
 }
 
-int fastboot_set_reboot_flag(void)
+int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 {
+	if (reason != FASTBOOT_REBOOT_REASON_BOOTLOADER)
+		return -ENOTSUPP;
+
 	return omap_reboot_mode_store("b");
 }
 

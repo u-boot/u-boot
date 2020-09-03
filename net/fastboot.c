@@ -227,6 +227,8 @@ static void fastboot_send(struct fastboot_header header, char *fastboot_data,
 
 		case FASTBOOT_COMMAND_REBOOT:
 		case FASTBOOT_COMMAND_REBOOT_BOOTLOADER:
+		case FASTBOOT_COMMAND_REBOOT_FASTBOOTD:
+		case FASTBOOT_COMMAND_REBOOT_RECOVERY:
 			do_reset(NULL, 0, 0, NULL);
 			break;
 		}

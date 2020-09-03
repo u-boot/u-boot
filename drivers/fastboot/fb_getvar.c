@@ -95,7 +95,7 @@ static const struct {
  *
  * @param[in] part_name Info for which partition name to look for
  * @param[in,out] response Pointer to fastboot response buffer
- * @param[out] size If not NULL, will contain partition size (in blocks)
+ * @param[out] size If not NULL, will contain partition size
  * @return Partition number or negative value on error
  */
 static int getvar_get_part_info(const char *part_name, char *response,
@@ -109,7 +109,7 @@ static int getvar_get_part_info(const char *part_name, char *response,
 	r = fastboot_mmc_get_part_info(part_name, &dev_desc, &part_info,
 				       response);
 	if (r >= 0 && size)
-		*size = part_info.size;
+		*size = part_info.size * part_info.blksz;
 # elif CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND)
 	struct part_info *part_info;
 
