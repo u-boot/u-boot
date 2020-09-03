@@ -92,13 +92,15 @@ static int uartlite_serial_probe(struct udevice *dev)
 	struct uartlite *regs = plat->regs;
 	int ret;
 
-	ret = uart_in32(&regs->control);
 	uart_out32(&regs->control, 0);
 	uart_out32(&regs->control, ULITE_CONTROL_RST_RX | ULITE_CONTROL_RST_TX);
 	ret = uart_in32(&regs->status);
 	/* Endianness detection */
-	if ((ret & SR_TX_FIFO_EMPTY) != SR_TX_FIFO_EMPTY)
+	if ((ret & SR_TX_FIFO_EMPTY) != SR_TX_FIFO_EMPTY) {
 		little_endian = true;
+		uart_out32(&regs->control, ULITE_CONTROL_RST_RX |
+			   ULITE_CONTROL_RST_TX);
+	}
 
 	return 0;
 }
@@ -143,13 +145,15 @@ static inline void _debug_uart_init(void)
 	struct uartlite *regs = (struct uartlite *)CONFIG_DEBUG_UART_BASE;
 	int ret;
 
-	ret = uart_in32(&regs->control);
 	uart_out32(&regs->control, 0);
 	uart_out32(&regs->control, ULITE_CONTROL_RST_RX | ULITE_CONTROL_RST_TX);
-	uart_in32(&regs->control);
+	uart_in32(&regs->status);
 	/* Endianness detection */
-	if ((ret & SR_TX_FIFO_EMPTY) != SR_TX_FIFO_EMPTY)
+	if ((ret & SR_TX_FIFO_EMPTY) != SR_TX_FIFO_EMPTY) {
 		little_endian = true;
+		uart_out32(&regs->control, ULITE_CONTROL_RST_RX |
+			   ULITE_CONTROL_RST_TX);
+	}
 }
 
 static inline void _debug_uart_putc(int ch)
