@@ -616,9 +616,9 @@ int fdt_record_loadable(void *blob, u32 index, const char *name,
 	 * However, spl_fit.c is not 64bit safe either: i.e. we should not
 	 * have an issue here.
 	 */
-	fdt_setprop_u32(blob, node, "load-addr", load_addr);
+	fdt_setprop_u32(blob, node, "load", load_addr);
 	if (entry_point != -1)
-		fdt_setprop_u32(blob, node, "entry-point", entry_point);
+		fdt_setprop_u32(blob, node, "entry", entry_point);
 	fdt_setprop_u32(blob, node, "size", size);
 	if (type)
 		fdt_setprop_string(blob, node, "type", type);

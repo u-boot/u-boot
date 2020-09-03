@@ -132,10 +132,11 @@ static int spl_fit_images_find(void *blob, int os)
 uintptr_t spl_fit_images_get_entry(void *blob, int node)
 {
 	ulong  val;
+	int ret;
 
-	val = fdt_getprop_u32(blob, node, "entry-point");
-	if (val == FDT_ERROR)
-		val = fdt_getprop_u32(blob, node, "load-addr");
+	ret = fit_image_get_entry(blob, node, &val);
+	if (ret)
+		ret = fit_image_get_load(blob, node, &val);
 
 	debug("%s: entry point 0x%lx\n", __func__, val);
 	return val;

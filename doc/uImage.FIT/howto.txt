@@ -66,6 +66,90 @@ can point to a script which generates this image source file during
 the build process. It gets passed a list of device tree files (taken from the
 CONFIG_OF_LIST symbol).
 
+The SPL also records to a DT all additional images (called loadables) which are
+loaded. The information about loadables locations is passed via the DT node with
+fit-images name.
+
+Loadables Example
+-----------------
+Consider the following case for an ARM64 platform where U-Boot runs in EL2
+started by ATF where SPL is loading U-Boot (as loadables) and ATF (as firmware).
+
+/dts-v1/;
+
+/ {
+	description = "Configuration to load ATF before U-Boot";
+
+	images {
+		uboot {
+			description = "U-Boot (64-bit)";
+			data = /incbin/("u-boot-nodtb.bin");
+			type = "firmware";
+			os = "u-boot";
+			arch = "arm64";
+			compression = "none";
+			load = <0x8 0x8000000>;
+			entry = <0x8 0x8000000>;
+			hash {
+				algo = "md5";
+			};
+		};
+		atf {
+			description = "ARM Trusted Firmware";
+			data = /incbin/("bl31.bin");
+			type = "firmware";
+			os = "arm-trusted-firmware";
+			arch = "arm64";
+			compression = "none";
+			load = <0xfffea000>;
+			entry = <0xfffea000>;
+			hash {
+				algo = "md5";
+			};
+		};
+		fdt_1 {
+			description = "zynqmp-zcu102-revA";
+			data = /incbin/("arch/arm/dts/zynqmp-zcu102-revA.dtb");
+			type = "flat_dt";
+			arch = "arm64";
+			compression = "none";
+			load = <0x100000>;
+			hash {
+				algo = "md5";
+			};
+		};
+	};
+	configurations {
+		default = "config_1";
+
+		config_1 {
+			description = "zynqmp-zcu102-revA";
+			firmware = "atf";
+			loadables = "uboot";
+			fdt = "fdt_1";
+		};
+	};
+};
+
+In this case the SPL records via fit-images DT node the information about
+loadables U-Boot image.
+
+ZynqMP> fdt addr $fdtcontroladdr
+ZynqMP> fdt print /fit-images
+fit-images {
+	uboot {
+		os = "u-boot";
+		type = "firmware";
+		size = <0x001017c8>;
+		entry = <0x00000008 0x08000000>;
+		load = <0x00000008 0x08000000>;
+	};
+};
+
+As you can see entry and load properties are 64bit wide to support loading
+images above 4GB (in past entry and load properties where just 32bit).
+
+
 Example 1 -- old-style (non-FDT) kernel booting
 -----------------------------------------------
 

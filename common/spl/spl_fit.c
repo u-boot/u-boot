@@ -332,9 +332,15 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	}
 
 	if (image_info) {
+		ulong entry_point;
+
 		image_info->load_addr = load_addr;
 		image_info->size = length;
-		image_info->entry_point = fdt_getprop_u32(fit, node, "entry");
+
+		if (!fit_image_get_entry(fit, node, &entry_point))
+			image_info->entry_point = entry_point;
+		else
+			image_info->entry_point = FDT_ERROR;
 	}
 
 	return 0;
