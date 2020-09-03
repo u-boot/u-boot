@@ -39,6 +39,11 @@ void socfpga_init_security_policies(void);
 void socfpga_sdram_remap_zero(void);
 #endif
 
+#if defined(CONFIG_TARGET_SOCFPGA_STRATIX10) || \
+	defined(CONFIG_TARGET_SOCFPGA_AGILEX)
+int is_fpga_config_ready(void);
+#endif
+
 void do_bridge_reset(int enable, unsigned int mask);
 void socfpga_pl310_clear(void);
 void socfpga_get_managers_addr(void);
