@@ -27,10 +27,6 @@
 	status = "okay";
 };
 
-&uart2 {
-	reg-shift = <2>;
-};
-
 &usb_host1 {
 	vbus-supply = <&vcc5v0_host>;
 	status = "okay";
