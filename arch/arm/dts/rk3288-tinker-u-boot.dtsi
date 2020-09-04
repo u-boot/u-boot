@@ -17,6 +17,13 @@
 	rockchip,sdram-params = <0x20d266a4 0x5b6 2 533000000 6 9 0>;
 };
 
+&i2c2 {
+	m24c08@50 {
+		compatible = "at,24c08", "i2c-eeprom";
+		reg = <0x50>;
+	};
+};
+
 &pinctrl {
 	u-boot,dm-pre-reloc;
 };
