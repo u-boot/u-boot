@@ -44,7 +44,7 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 #if defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
 void *board_fdt_blob_setup(void)
 {
-	static void *fdt_blob;
+	void *fdt_blob;
 
 #if !defined(CONFIG_VERSAL_NO_DDR) && !defined(CONFIG_ZYNQMP_NO_DDR)
 	fdt_blob = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
