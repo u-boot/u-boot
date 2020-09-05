@@ -333,7 +333,6 @@ int do_zboot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	struct boot_params *base_ptr;
 	char *s;
 
-	disable_interrupts();
 	memset(&state, '\0', sizeof(state));
 	if (argc >= 2) {
 		/* argv[1] holds the address of the bzImage */
@@ -369,6 +368,7 @@ int do_zboot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return -1;
 	}
 
+	disable_interrupts();
 	/* we assume that the kernel is in place */
 	return boot_linux_kernel((ulong)base_ptr, state.load_address, false);
 }
