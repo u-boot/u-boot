@@ -73,6 +73,8 @@ enum {
 	ZBOOT_STATE_INFO	= BIT(3),
 	ZBOOT_STATE_GO		= BIT(4),
 
+	/* This one doesn't execute automatically, so stop the count before 5 */
+	ZBOOT_STATE_DUMP	= BIT(5),
 	ZBOOT_STATE_COUNT	= 5,
 };
 
@@ -458,6 +460,199 @@ static int do_zboot_go(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_FAILURE;
 }
 
+static void print_num(const char *name, ulong value)
+{
+	printf("%-20s: %lx\n", name, value);
+}
+
+static void print_num64(const char *name, u64 value)
+{
+	printf("%-20s: %llx\n", name, value);
+}
+
+static const char *const e820_type_name[E820_COUNT] = {
+	[E820_RAM] = "RAM",
+	[E820_RESERVED] = "Reserved",
+	[E820_ACPI] = "ACPI",
+	[E820_NVS] = "ACPI NVS",
+	[E820_UNUSABLE] = "Unusable",
+};
+
+static const char *const bootloader_id[] = {
+	"LILO",
+	"Loadlin",
+	"bootsect-loader",
+	"Syslinux",
+	"Etherboot/gPXE/iPXE",
+	"ELILO",
+	"undefined",
+	"GRUB",
+	"U-Boot",
+	"Xen",
+	"Gujin",
+	"Qemu",
+	"Arcturus Networks uCbootloader",
+	"kexec-tools",
+	"Extended",
+	"Special",
+	"Reserved",
+	"Minimal Linux Bootloader",
+	"OVMF UEFI virtualization stack",
+};
+
+struct flag_info {
+	uint bit;
+	const char *name;
+};
+
+static struct flag_info load_flags[] = {
+	{ LOADED_HIGH, "loaded-high" },
+	{ QUIET_FLAG, "quiet" },
+	{ KEEP_SEGMENTS, "keep-segments" },
+	{ CAN_USE_HEAP, "can-use-heap" },
+};
+
+static struct flag_info xload_flags[] = {
+	{ XLF_KERNEL_64, "64-bit-entry" },
+	{ XLF_CAN_BE_LOADED_ABOVE_4G, "can-load-above-4gb" },
+	{ XLF_EFI_HANDOVER_32, "32-efi-handoff" },
+	{ XLF_EFI_HANDOVER_64, "64-efi-handoff" },
+	{ XLF_EFI_KEXEC, "kexec-efi-runtime" },
+};
+
+static void print_flags(struct flag_info *flags, int count, uint value)
+{
+	int i;
+
+	printf("%-20s:", "");
+	for (i = 0; i < count; i++) {
+		uint mask = flags[i].bit;
+
+		if (value & mask)
+			printf(" %s", flags[i].name);
+	}
+	printf("\n");
+}
+
+static void show_loader(struct setup_header *hdr)
+{
+	bool version_valid = false;
+	int type, version;
+	const char *name;
+
+	type = hdr->type_of_loader >> 4;
+	version = hdr->type_of_loader & 0xf;
+	if (type == 0xe)
+		type = 0x10 + hdr->ext_loader_type;
+	version |= hdr->ext_loader_ver << 4;
+	if (!hdr->type_of_loader) {
+		name = "pre-2.00 bootloader";
+	} else if (hdr->type_of_loader == 0xff) {
+		name = "unknown";
+	} else if (type < ARRAY_SIZE(bootloader_id)) {
+		name = bootloader_id[type];
+		version_valid = true;
+	} else {
+		name = "undefined";
+	}
+	printf("%20s  %s", "", name);
+	if (version_valid)
+		printf(", version %x", version);
+	printf("\n");
+}
+
+int do_zboot_dump(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+{
+	struct boot_params *base_ptr = state.base_ptr;
+	struct setup_header *hdr;
+	const char *version;
+	int i;
+
+	if (argc > 1)
+		base_ptr = (void *)simple_strtoul(argv[1], NULL, 16);
+	if (!base_ptr) {
+		printf("No zboot setup_base\n");
+		return CMD_RET_FAILURE;
+	}
+	printf("Setup located at %p:\n\n", base_ptr);
+	print_num64("ACPI RSDP addr", base_ptr->acpi_rsdp_addr);
+
+	printf("E820: %d entries\n", base_ptr->e820_entries);
+	if (base_ptr->e820_entries) {
+		printf("%18s  %16s  %s\n", "Addr", "Size", "Type");
+		for (i = 0; i < base_ptr->e820_entries; i++) {
+			struct e820_entry *entry = &base_ptr->e820_map[i];
+
+			printf("%12llx  %10llx  %s\n", entry->addr, entry->size,
+			       entry->type < E820_COUNT ?
+			       e820_type_name[entry->type] :
+			       simple_itoa(entry->type));
+		}
+	}
+
+	hdr = &base_ptr->hdr;
+	print_num("Setup sectors", hdr->setup_sects);
+	print_num("Root flags", hdr->root_flags);
+	print_num("Sys size", hdr->syssize);
+	print_num("RAM size", hdr->ram_size);
+	print_num("Video mode", hdr->vid_mode);
+	print_num("Root dev", hdr->root_dev);
+	print_num("Boot flag", hdr->boot_flag);
+	print_num("Jump", hdr->jump);
+	print_num("Header", hdr->header);
+	if (hdr->header == KERNEL_V2_MAGIC)
+		printf("%-20s  %s\n", "", "Kernel V2");
+	else
+		printf("%-20s  %s\n", "", "Ancient kernel, using version 100");
+	print_num("Version", hdr->version);
+	print_num("Real mode switch", hdr->realmode_swtch);
+	print_num("Start sys", hdr->start_sys);
+	print_num("Kernel version", hdr->kernel_version);
+	version = get_kernel_version(base_ptr, (void *)state.bzimage_addr);
+	if (version)
+		printf("   @%p: %s\n", version, version);
+	print_num("Type of loader", hdr->type_of_loader);
+	show_loader(hdr);
+	print_num("Load flags", hdr->loadflags);
+	print_flags(load_flags, ARRAY_SIZE(load_flags), hdr->loadflags);
+	print_num("Setup move size", hdr->setup_move_size);
+	print_num("Code32 start", hdr->code32_start);
+	print_num("Ramdisk image", hdr->ramdisk_image);
+	print_num("Ramdisk size", hdr->ramdisk_size);
+	print_num("Bootsect kludge", hdr->bootsect_kludge);
+	print_num("Heap end ptr", hdr->heap_end_ptr);
+	print_num("Ext loader ver", hdr->ext_loader_ver);
+	print_num("Ext loader type", hdr->ext_loader_type);
+	print_num("Command line ptr", hdr->cmd_line_ptr);
+	if (hdr->cmd_line_ptr) {
+		printf("   ");
+		/* Use puts() to avoid limits from CONFIG_SYS_PBSIZE */
+		puts((char *)hdr->cmd_line_ptr);
+		printf("\n");
+	}
+	print_num("Initrd addr max", hdr->initrd_addr_max);
+	print_num("Kernel alignment", hdr->kernel_alignment);
+	print_num("Relocatable kernel", hdr->relocatable_kernel);
+	print_num("Min alignment", hdr->min_alignment);
+	if (hdr->min_alignment)
+		printf("%-20s: %x\n", "", 1 << hdr->min_alignment);
+	print_num("Xload flags", hdr->xloadflags);
+	print_flags(xload_flags, ARRAY_SIZE(xload_flags), hdr->xloadflags);
+	print_num("Cmdline size", hdr->cmdline_size);
+	print_num("Hardware subarch", hdr->hardware_subarch);
+	print_num64("HW subarch data", hdr->hardware_subarch_data);
+	print_num("Payload offset", hdr->payload_offset);
+	print_num("Payload length", hdr->payload_length);
+	print_num64("Setup data", hdr->setup_data);
+	print_num64("Pref address", hdr->pref_address);
+	print_num("Init size", hdr->init_size);
+	print_num("Handover offset", hdr->handover_offset);
+	if (get_boot_protocol(hdr, false) >= 0x215)
+		print_num("Kernel info offset", hdr->kernel_info_offset);
+
+	return 0;
+}
+
 /* Note: This defines the complete_zboot() function */
 U_BOOT_SUBCMDS(zboot,
 	U_BOOT_CMD_MKENT(start, 7, 1, do_zboot_start, "", ""),
@@ -465,6 +660,7 @@ U_BOOT_SUBCMDS(zboot,
 	U_BOOT_CMD_MKENT(setup, 1, 1, do_zboot_setup, "", ""),
 	U_BOOT_CMD_MKENT(info, 1, 1, do_zboot_info, "", ""),
 	U_BOOT_CMD_MKENT(go, 1, 1, do_zboot_go, "", ""),
+	U_BOOT_CMD_MKENT(dump, 2, 1, do_zboot_dump, "", ""),
 )
 
 int do_zboot_states(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -528,6 +724,7 @@ U_BOOT_CMDREP_COMPLETE(
 	"\tload   - load OS image\n"
 	"\tsetup  - set up table\n"
 	"\tinfo   - show summary info\n"
-	"\tgo     - start OS\n",
+	"\tgo     - start OS\n"
+	"\tdump [addr]    - dump info (optional address of boot params)",
 	complete_zboot
 );

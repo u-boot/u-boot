@@ -8,6 +8,7 @@
 #define E820_ACPI	3
 #define E820_NVS	4
 #define E820_UNUSABLE	5
+#define E820_COUNT	6	/* Number of types */
 
 #ifndef __ASSEMBLY__
 #include <linux/types.h>
