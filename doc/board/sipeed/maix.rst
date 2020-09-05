@@ -59,7 +59,7 @@ Sipeed MAIX BiT          sipeed_maix_bitm_defconfig bit        first
 Sipeed MAIX BiT with Mic sipeed_maix_bitm_defconfig bit_mic    first
 Sipeed MAIXDUINO         sipeed_maix_bitm_defconfig maixduino  first
 Sipeed MAIX GO                                      goE        second
-Sipeed MAIX ONE DOCK                                goD        first
+Sipeed MAIX ONE DOCK                                dan        first
 ======================== ========================== ========== ==========
 
 Flashing causes a reboot of the device. Parameter -t specifies that the serial
