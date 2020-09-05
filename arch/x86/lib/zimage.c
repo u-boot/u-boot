@@ -366,6 +366,22 @@ static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
 		state.initrd_addr = simple_strtoul(argv[3], NULL, 16);
 	if (argc >= 5)
 		state.initrd_size = simple_strtoul(argv[4], NULL, 16);
+	if (argc >= 6) {
+		/*
+		 * When the base_ptr is passed in, we assume that the image is
+		 * already loaded at the address given by argv[1] and therefore
+		 * the original bzImage is somewhere else, or not accessible.
+		 * In any case, we don't need access to the bzImage since all
+		 * the processing is assumed to be done.
+		 *
+		 * So set the base_ptr to the given address, use this arg as the
+		 * load address and set bzimage_addr to 0 so we know that it
+		 * cannot be proceesed (or processed again).
+		 */
+		state.base_ptr = (void *)simple_strtoul(argv[5], NULL, 16);
+		state.load_address = state.bzimage_addr;
+		state.bzimage_addr = 0;
+	}
 
 	return 0;
 }
@@ -375,11 +391,20 @@ static int do_zboot_load(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	struct boot_params *base_ptr;
 
-	base_ptr = load_zimage((void *)state.bzimage_addr, state.bzimage_size,
-			       &state.load_address);
-	if (!base_ptr) {
-		puts("## Kernel loading failed ...\n");
-		return CMD_RET_FAILURE;
+	if (state.base_ptr) {
+		struct boot_params *from = (struct boot_params *)state.base_ptr;
+
+		base_ptr = (struct boot_params *)DEFAULT_SETUP_BASE;
+		printf("Building boot_params at 0x%8.8lx\n", (ulong)base_ptr);
+		memset(base_ptr, '\0', sizeof(*base_ptr));
+		base_ptr->hdr = from->hdr;
+	} else {
+		base_ptr = load_zimage((void *)state.bzimage_addr, state.bzimage_size,
+				       &state.load_address);
+		if (!base_ptr) {
+			puts("## Kernel loading failed ...\n");
+			return CMD_RET_FAILURE;
+		}
 	}
 	state.base_ptr = base_ptr;
 	if (env_set_hex("zbootbase", (ulong)base_ptr) ||
@@ -435,7 +460,7 @@ static int do_zboot_go(struct cmd_tbl *cmdtp, int flag, int argc,
 
 /* Note: This defines the complete_zboot() function */
 U_BOOT_SUBCMDS(zboot,
-	U_BOOT_CMD_MKENT(start, 6, 1, do_zboot_start, "", ""),
+	U_BOOT_CMD_MKENT(start, 7, 1, do_zboot_start, "", ""),
 	U_BOOT_CMD_MKENT(load, 1, 1, do_zboot_load, "", ""),
 	U_BOOT_CMD_MKENT(setup, 1, 1, do_zboot_setup, "", ""),
 	U_BOOT_CMD_MKENT(info, 1, 1, do_zboot_info, "", ""),
@@ -486,8 +511,8 @@ int do_zboot_parent(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 U_BOOT_CMDREP_COMPLETE(
-	zboot, 6, do_zboot_parent, "Boot bzImage",
-	"[addr] [size] [initrd addr] [initrd size]\n"
+	zboot, 7, do_zboot_parent, "Boot bzImage",
+	"[addr] [size] [initrd addr] [initrd size] [setup]\n"
 	"      addr -        The optional starting address of the bzimage.\n"
 	"                    If not set it defaults to the environment\n"
 	"                    variable \"fileaddr\".\n"
@@ -495,6 +520,8 @@ U_BOOT_CMDREP_COMPLETE(
 	"                    zero.\n"
 	"      initrd addr - The address of the initrd image to use, if any.\n"
 	"      initrd size - The size of the initrd image to use, if any.\n"
+	"      setup -       The address of the kernel setup region, if this\n"
+	"                    is not at addr\n"
 	"\n"
 	"Sub-commands to do part of the zboot sequence:\n"
 	"\tstart [addr [arg ...]] - specify arguments\n"
