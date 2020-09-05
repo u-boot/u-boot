@@ -69,10 +69,11 @@ struct zboot_state {
 enum {
 	ZBOOT_STATE_START	= BIT(0),
 	ZBOOT_STATE_LOAD	= BIT(1),
-	ZBOOT_STATE_INFO	= BIT(2),
-	ZBOOT_STATE_GO		= BIT(3),
+	ZBOOT_STATE_SETUP	= BIT(2),
+	ZBOOT_STATE_INFO	= BIT(3),
+	ZBOOT_STATE_GO		= BIT(4),
 
-	ZBOOT_STATE_COUNT	= 4,
+	ZBOOT_STATE_COUNT	= 5,
 };
 
 static void build_command_line(char *command_line, int auto_boot)
@@ -382,10 +383,24 @@ static int do_zboot_load(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 	state.base_ptr = base_ptr;
 
-	if (setup_zimage(base_ptr, (char *)base_ptr + COMMAND_LINE_OFFSET, 0,
-			 state.initrd_addr, state.initrd_size)) {
+	return 0;
+}
+
+static int do_zboot_setup(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
+{
+	struct boot_params *base_ptr = state.base_ptr;
+	int ret;
+
+	if (!base_ptr) {
+		printf("base is not set: use 'zboot load' first\n");
+		return CMD_RET_FAILURE;
+	}
+	ret = setup_zimage(base_ptr, (char *)base_ptr + COMMAND_LINE_OFFSET,
+			   0, state.initrd_addr, state.initrd_size);
+	if (ret) {
 		puts("Setting up boot parameters failed ...\n");
-		return -1;
+		return CMD_RET_FAILURE;
 	}
 
 	return 0;
@@ -419,6 +434,7 @@ static int do_zboot_go(struct cmd_tbl *cmdtp, int flag, int argc,
 U_BOOT_SUBCMDS(zboot,
 	U_BOOT_CMD_MKENT(start, 6, 1, do_zboot_start, "", ""),
 	U_BOOT_CMD_MKENT(load, 1, 1, do_zboot_load, "", ""),
+	U_BOOT_CMD_MKENT(setup, 1, 1, do_zboot_setup, "", ""),
 	U_BOOT_CMD_MKENT(info, 1, 1, do_zboot_info, "", ""),
 	U_BOOT_CMD_MKENT(go, 1, 1, do_zboot_go, "", ""),
 )
@@ -460,7 +476,8 @@ int do_zboot_parent(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	do_zboot_states(cmdtp, flag, argc, argv, ZBOOT_STATE_START |
-			ZBOOT_STATE_LOAD | ZBOOT_STATE_INFO | ZBOOT_STATE_GO);
+			ZBOOT_STATE_LOAD | ZBOOT_STATE_SETUP |
+			ZBOOT_STATE_INFO | ZBOOT_STATE_GO);
 
 	return CMD_RET_FAILURE;
 }
@@ -479,6 +496,7 @@ U_BOOT_CMDREP_COMPLETE(
 	"Sub-commands to do part of the zboot sequence:\n"
 	"\tstart [addr [arg ...]] - specify arguments\n"
 	"\tload   - load OS image\n"
+	"\tsetup  - set up table\n"
 	"\tinfo   - show summary info\n"
 	"\tgo     - start OS\n",
 	complete_zboot
