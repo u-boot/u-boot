@@ -7,5 +7,6 @@ Build U-Boot
    :maxdepth: 2
 
    source
+   gcc
    clang
    tools
