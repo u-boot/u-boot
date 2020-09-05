@@ -27,6 +27,9 @@ available:
         since many of them only support coreboot as the bootloader and have
         no bare-metal support in U-Boot. For this, use the 'coreboot' target.
 
+   - Running U-Boot and booting into a Chrome OS image, but without verified
+        boot. This can be useful for testing.
+
 
 U-Boot with Chromium OS verified boot
 -------------------------------------
@@ -173,6 +176,35 @@ The U-Boot tests ('make check') do operate, but at present there are no
 Chromium OS tests available. These will hopefully come together over time. Of
 course the above sandbox feature provides a sort of functional test and can
 detect problems that affect the flow or particular vboot features.
+
+
+U-Boot without Chromium OS verified boot
+----------------------------------------
+
+The following script can be used to boot a Chrome OS image on coral:
+
+   # Read the image header and obtain the address of the kernel
+   # The offset 4f0 is defined by verified boot and may change for other
+   # Chromebooks
+   read mmc 2:2 100000 0 80; setexpr loader *001004f0;
+
+   # Get the kernel size and calculate the number of blocks (0x200 bytes each)
+   setexpr size *00100518; setexpr blocks $size / 200;
+
+   # Read the full kernel and calculate the address of the setup block
+   read mmc 2:2 100000 80 $blocks; setexpr setup $loader - 1000;
+
+   # Locate the command line
+   setexpr cmdline $loader - 2000;
+
+   # Start the zboot process with the loaded kernel, setup block and cmdline
+   zboot start 100000 0 0 0 $setup $cmdline;
+
+   # Load the kernel, fix up the 'setup' block, dump information
+   zboot load; zboot setup; zboot dump
+
+   # Boot into Chrome OS
+   zboot go
 
 
 TO DO
