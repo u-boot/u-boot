@@ -303,21 +303,17 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 		build_command_line(cmd_line, auto_boot);
 	}
 
-#ifdef CONFIG_INTEL_MID
-	if (bootproto >= 0x0207)
+	if (IS_ENABLED(CONFIG_INTEL_MID) && bootproto >= 0x0207)
 		hdr->hardware_subarch = X86_SUBARCH_INTEL_MID;
-#endif
 
-#ifdef CONFIG_GENERATE_ACPI_TABLE
-	setup_base->acpi_rsdp_addr = acpi_get_rsdp_addr();
-#endif
+	if (IS_ENABLED(CONFIG_GENERATE_ACPI_TABLE))
+		setup_base->acpi_rsdp_addr = acpi_get_rsdp_addr();
 
 	setup_device_tree(hdr, (const void *)env_get_hex("fdtaddr", 0));
 	setup_video(&setup_base->screen_info);
 
-#ifdef CONFIG_EFI_STUB
-	setup_efi_info(&setup_base->efi_info);
-#endif
+	if (IS_ENABLED(CONFIG_EFI_STUB))
+		setup_efi_info(&setup_base->efi_info);
 
 	return 0;
 }
