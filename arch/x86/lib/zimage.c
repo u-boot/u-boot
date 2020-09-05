@@ -68,10 +68,11 @@ struct zboot_state {
 
 enum {
 	ZBOOT_STATE_START	= BIT(0),
-	ZBOOT_STATE_INFO	= BIT(1),
-	ZBOOT_STATE_GO		= BIT(2),
+	ZBOOT_STATE_LOAD	= BIT(1),
+	ZBOOT_STATE_INFO	= BIT(2),
+	ZBOOT_STATE_GO		= BIT(3),
 
-	ZBOOT_STATE_COUNT	= 3,
+	ZBOOT_STATE_COUNT	= 4,
 };
 
 static void build_command_line(char *command_line, int auto_boot)
@@ -342,7 +343,6 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
-	struct boot_params *base_ptr;
 	const char *s;
 
 	memset(&state, '\0', sizeof(state));
@@ -366,12 +366,19 @@ static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc >= 5)
 		state.initrd_size = simple_strtoul(argv[4], NULL, 16);
 
-	/* Lets look for */
+	return 0;
+}
+
+static int do_zboot_load(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
+{
+	struct boot_params *base_ptr;
+
 	base_ptr = load_zimage((void *)state.bzimage_addr, state.bzimage_size,
 			       &state.load_address);
 	if (!base_ptr) {
 		puts("## Kernel loading failed ...\n");
-		return -1;
+		return CMD_RET_FAILURE;
 	}
 	state.base_ptr = base_ptr;
 
@@ -411,6 +418,7 @@ static int do_zboot_go(struct cmd_tbl *cmdtp, int flag, int argc,
 /* Note: This defines the complete_zboot() function */
 U_BOOT_SUBCMDS(zboot,
 	U_BOOT_CMD_MKENT(start, 6, 1, do_zboot_start, "", ""),
+	U_BOOT_CMD_MKENT(load, 1, 1, do_zboot_load, "", ""),
 	U_BOOT_CMD_MKENT(info, 1, 1, do_zboot_info, "", ""),
 	U_BOOT_CMD_MKENT(go, 1, 1, do_zboot_go, "", ""),
 )
@@ -452,7 +460,7 @@ int do_zboot_parent(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	do_zboot_states(cmdtp, flag, argc, argv, ZBOOT_STATE_START |
-			ZBOOT_STATE_INFO | ZBOOT_STATE_GO);
+			ZBOOT_STATE_LOAD | ZBOOT_STATE_INFO | ZBOOT_STATE_GO);
 
 	return CMD_RET_FAILURE;
 }
@@ -470,6 +478,7 @@ U_BOOT_CMDREP_COMPLETE(
 	"\n"
 	"Sub-commands to do part of the zboot sequence:\n"
 	"\tstart [addr [arg ...]] - specify arguments\n"
+	"\tload   - load OS image\n"
 	"\tinfo   - show summary info\n"
 	"\tgo     - start OS\n",
 	complete_zboot
