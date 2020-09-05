@@ -54,6 +54,8 @@
  * @initrd_size: Size of the initial ramdisk, or 0 if none
  * @load_address: Address where the bzImage is moved before booting, either
  *	BZIMAGE_LOAD_ADDR or ZIMAGE_LOAD_ADDR
+ * @base_ptr: Pointer to the boot parameters, typically at address
+ *	DEFAULT_SETUP_BASE
  */
 struct zboot_state {
 	ulong bzimage_addr;
@@ -61,12 +63,14 @@ struct zboot_state {
 	ulong initrd_addr;
 	ulong initrd_size;
 	ulong load_address;
+	struct boot_params *base_ptr;
 } state;
 
 enum {
 	ZBOOT_STATE_START	= BIT(0),
+	ZBOOT_STATE_GO		= BIT(1),
 
-	ZBOOT_STATE_COUNT	= 1,
+	ZBOOT_STATE_COUNT	= 2,
 };
 
 static void build_command_line(char *command_line, int auto_boot)
@@ -368,6 +372,7 @@ static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
 		puts("## Kernel loading failed ...\n");
 		return -1;
 	}
+	state.base_ptr = base_ptr;
 
 	if (setup_zimage(base_ptr, (char *)base_ptr + COMMAND_LINE_OFFSET, 0,
 			 state.initrd_addr, state.initrd_size)) {
@@ -375,14 +380,28 @@ static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
 		return -1;
 	}
 
+	return 0;
+}
+
+static int do_zboot_go(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
+{
+	int ret;
+
 	disable_interrupts();
+
 	/* we assume that the kernel is in place */
-	return boot_linux_kernel((ulong)base_ptr, state.load_address, false);
+	ret = boot_linux_kernel((ulong)state.base_ptr, state.load_address,
+				false);
+	printf("Kernel returned! (err=%d)\n", ret);
+
+	return CMD_RET_FAILURE;
 }
 
 /* Note: This defines the complete_zboot() function */
 U_BOOT_SUBCMDS(zboot,
 	U_BOOT_CMD_MKENT(start, 6, 1, do_zboot_start, "", ""),
+	U_BOOT_CMD_MKENT(go, 1, 1, do_zboot_go, "", ""),
 )
 
 int do_zboot_states(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -421,7 +440,8 @@ int do_zboot_parent(struct cmd_tbl *cmdtp, int flag, int argc,
 			return do_zboot(cmdtp, flag, argc, argv, repeatable);
 	}
 
-	do_zboot_states(cmdtp, flag, argc, argv, ZBOOT_STATE_START);
+	do_zboot_states(cmdtp, flag, argc, argv, ZBOOT_STATE_START |
+			ZBOOT_STATE_GO);
 
 	return CMD_RET_FAILURE;
 }
@@ -438,6 +458,7 @@ U_BOOT_CMDREP_COMPLETE(
 	"      initrd size - The size of the initrd image to use, if any.\n"
 	"\n"
 	"Sub-commands to do part of the zboot sequence:\n"
-	"\tstart [addr [arg ...]] - specify arguments\n",
+	"\tstart [addr [arg ...]] - specify arguments\n"
+	"\tgo     - start OS\n",
 	complete_zboot
 );
