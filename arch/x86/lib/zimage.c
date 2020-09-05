@@ -63,6 +63,12 @@ struct zboot_state {
 	ulong load_address;
 } state;
 
+enum {
+	ZBOOT_STATE_START	= BIT(0),
+
+	ZBOOT_STATE_COUNT	= 1,
+};
+
 static void build_command_line(char *command_line, int auto_boot)
 {
 	char *env_command_line;
@@ -328,10 +334,11 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	return 0;
 }
 
-int do_zboot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	struct boot_params *base_ptr;
-	char *s;
+	const char *s;
 
 	memset(&state, '\0', sizeof(state));
 	if (argc >= 2) {
@@ -373,9 +380,54 @@ int do_zboot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	return boot_linux_kernel((ulong)base_ptr, state.load_address, false);
 }
 
-U_BOOT_CMD(
-	zboot, 5, 0,	do_zboot,
-	"Boot bzImage",
+/* Note: This defines the complete_zboot() function */
+U_BOOT_SUBCMDS(zboot,
+	U_BOOT_CMD_MKENT(start, 6, 1, do_zboot_start, "", ""),
+)
+
+int do_zboot_states(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[], int state_mask)
+{
+	int i;
+
+	for (i = 0; i < ZBOOT_STATE_COUNT; i++) {
+		struct cmd_tbl *cmd = &zboot_subcmds[i];
+		int mask = 1 << i;
+		int ret;
+
+		if (mask & state_mask) {
+			ret = cmd->cmd(cmd, flag, argc, argv);
+			if (ret)
+				return ret;
+		}
+	}
+
+	return 0;
+}
+
+int do_zboot_parent(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[], int *repeatable)
+{
+	/* determine if we have a sub command */
+	if (argc > 1) {
+		char *endp;
+
+		simple_strtoul(argv[1], &endp, 16);
+		/*
+		 * endp pointing to nul means that argv[1] was just a valid
+		 * number, so pass it along to the normal processing
+		 */
+		if (*endp)
+			return do_zboot(cmdtp, flag, argc, argv, repeatable);
+	}
+
+	do_zboot_states(cmdtp, flag, argc, argv, ZBOOT_STATE_START);
+
+	return CMD_RET_FAILURE;
+}
+
+U_BOOT_CMDREP_COMPLETE(
+	zboot, 6, do_zboot_parent, "Boot bzImage",
 	"[addr] [size] [initrd addr] [initrd size]\n"
 	"      addr -        The optional starting address of the bzimage.\n"
 	"                    If not set it defaults to the environment\n"
@@ -384,4 +436,8 @@ U_BOOT_CMD(
 	"                    zero.\n"
 	"      initrd addr - The address of the initrd image to use, if any.\n"
 	"      initrd size - The size of the initrd image to use, if any.\n"
+	"\n"
+	"Sub-commands to do part of the zboot sequence:\n"
+	"\tstart [addr [arg ...]] - specify arguments\n",
+	complete_zboot
 );
