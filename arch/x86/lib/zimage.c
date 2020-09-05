@@ -56,6 +56,8 @@
  *	BZIMAGE_LOAD_ADDR or ZIMAGE_LOAD_ADDR
  * @base_ptr: Pointer to the boot parameters, typically at address
  *	DEFAULT_SETUP_BASE
+ * @cmdline: Address of 'override' command line, or 0 to use the one in the
+ *	setup block
  */
 struct zboot_state {
 	ulong bzimage_addr;
@@ -64,6 +66,7 @@ struct zboot_state {
 	ulong initrd_size;
 	ulong load_address;
 	struct boot_params *base_ptr;
+	ulong cmdline;
 } state;
 
 enum {
@@ -284,7 +287,7 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 }
 
 int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
-		 unsigned long initrd_addr, unsigned long initrd_size)
+		 ulong initrd_addr, ulong initrd_size, ulong cmdline_force)
 {
 	struct setup_header *hdr = &setup_base->hdr;
 	int bootproto = get_boot_protocol(hdr, false);
@@ -325,7 +328,10 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 		}
 
 		/* build command line at COMMAND_LINE_OFFSET */
-		build_command_line(cmd_line, auto_boot);
+		if (cmdline_force)
+			strcpy(cmd_line, (char *)cmdline_force);
+		else
+			build_command_line(cmd_line, auto_boot);
 	}
 
 	if (IS_ENABLED(CONFIG_INTEL_MID) && bootproto >= 0x0207)
@@ -384,6 +390,8 @@ static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
 		state.load_address = state.bzimage_addr;
 		state.bzimage_addr = 0;
 	}
+	if (argc >= 7)
+		state.cmdline = simple_strtoul(argv[6], NULL, 16);
 
 	return 0;
 }
@@ -427,7 +435,8 @@ static int do_zboot_setup(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 	ret = setup_zimage(base_ptr, (char *)base_ptr + COMMAND_LINE_OFFSET,
-			   0, state.initrd_addr, state.initrd_size);
+			   0, state.initrd_addr, state.initrd_size,
+			   state.cmdline);
 	if (ret) {
 		puts("Setting up boot parameters failed ...\n");
 		return CMD_RET_FAILURE;
@@ -627,7 +636,7 @@ int do_zboot_dump(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (hdr->cmd_line_ptr) {
 		printf("   ");
 		/* Use puts() to avoid limits from CONFIG_SYS_PBSIZE */
-		puts((char *)hdr->cmd_line_ptr);
+		puts((char *)(ulong)hdr->cmd_line_ptr);
 		printf("\n");
 	}
 	print_num("Initrd addr max", hdr->initrd_addr_max);
@@ -655,7 +664,7 @@ int do_zboot_dump(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 /* Note: This defines the complete_zboot() function */
 U_BOOT_SUBCMDS(zboot,
-	U_BOOT_CMD_MKENT(start, 7, 1, do_zboot_start, "", ""),
+	U_BOOT_CMD_MKENT(start, 8, 1, do_zboot_start, "", ""),
 	U_BOOT_CMD_MKENT(load, 1, 1, do_zboot_load, "", ""),
 	U_BOOT_CMD_MKENT(setup, 1, 1, do_zboot_setup, "", ""),
 	U_BOOT_CMD_MKENT(info, 1, 1, do_zboot_info, "", ""),
@@ -707,8 +716,8 @@ int do_zboot_parent(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 U_BOOT_CMDREP_COMPLETE(
-	zboot, 7, do_zboot_parent, "Boot bzImage",
-	"[addr] [size] [initrd addr] [initrd size] [setup]\n"
+	zboot, 8, do_zboot_parent, "Boot bzImage",
+	"[addr] [size] [initrd addr] [initrd size] [setup] [cmdline]\n"
 	"      addr -        The optional starting address of the bzimage.\n"
 	"                    If not set it defaults to the environment\n"
 	"                    variable \"fileaddr\".\n"
@@ -718,6 +727,8 @@ U_BOOT_CMDREP_COMPLETE(
 	"      initrd size - The size of the initrd image to use, if any.\n"
 	"      setup -       The address of the kernel setup region, if this\n"
 	"                    is not at addr\n"
+	"      cmdline -     The address of the kernel command line, to\n"
+	"                    override U-Boot's normal cmdline generation\n"
 	"\n"
 	"Sub-commands to do part of the zboot sequence:\n"
 	"\tstart [addr [arg ...]] - specify arguments\n"
