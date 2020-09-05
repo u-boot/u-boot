@@ -103,21 +103,23 @@ static int kernel_magic_ok(struct setup_header *hdr)
 	}
 }
 
-static int get_boot_protocol(struct setup_header *hdr)
+static int get_boot_protocol(struct setup_header *hdr, bool verbose)
 {
 	if (hdr->header == KERNEL_V2_MAGIC) {
-		printf("Magic signature found\n");
+		if (verbose)
+			printf("Magic signature found\n");
 		return hdr->version;
 	} else {
 		/* Very old kernel */
-		printf("Magic signature not found\n");
+		if (verbose)
+			printf("Magic signature not found\n");
 		return 0x0100;
 	}
 }
 
 static int setup_device_tree(struct setup_header *hdr, const void *fdt_blob)
 {
-	int bootproto = get_boot_protocol(hdr);
+	int bootproto = get_boot_protocol(hdr, false);
 	struct setup_data *sd;
 	int size;
 
@@ -147,10 +149,24 @@ static int setup_device_tree(struct setup_header *hdr, const void *fdt_blob)
 	return 0;
 }
 
+static const char *get_kernel_version(struct boot_params *params,
+				      void *kernel_base)
+{
+	struct setup_header *hdr = &params->hdr;
+	int bootproto;
+
+	bootproto = get_boot_protocol(hdr, false);
+	if (bootproto < 0x0200 || hdr->setup_sects < 15)
+		return NULL;
+
+	return kernel_base + hdr->kernel_version + 0x200;
+}
+
 struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 				ulong *load_addressp)
 {
 	struct boot_params *setup_base;
+	const char *version;
 	int setup_size;
 	int bootproto;
 	int big_image;
@@ -178,21 +194,16 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 		printf("Error: Setup is too large (%d bytes)\n", setup_size);
 
 	/* determine boot protocol version */
-	bootproto = get_boot_protocol(hdr);
+	bootproto = get_boot_protocol(hdr, true);
 
 	printf("Using boot protocol version %x.%02x\n",
 	       (bootproto & 0xff00) >> 8, bootproto & 0xff);
 
-	if (bootproto >= 0x0200) {
-		if (hdr->setup_sects >= 15) {
-			printf("Linux kernel version %s\n",
-				(char *)params +
-				hdr->kernel_version + 0x200);
-		} else {
-			printf("Setup Sectors < 15 - "
-				"Cannot print kernel version.\n");
-		}
-	}
+	version = get_kernel_version(params, image);
+	if (version)
+		printf("Linux kernel version %s\n", version);
+	else
+		printf("Setup Sectors < 15 - Cannot print kernel version\n");
 
 	/* Determine image type */
 	big_image = (bootproto >= 0x0200) &&
@@ -261,7 +272,7 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 		 unsigned long initrd_addr, unsigned long initrd_size)
 {
 	struct setup_header *hdr = &setup_base->hdr;
-	int bootproto = get_boot_protocol(hdr);
+	int bootproto = get_boot_protocol(hdr, false);
 
 	setup_base->e820_entries = install_e820_map(
 		ARRAY_SIZE(setup_base->e820_map), setup_base->e820_map);
