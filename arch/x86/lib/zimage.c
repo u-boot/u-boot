@@ -382,6 +382,9 @@ static int do_zboot_load(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 	state.base_ptr = base_ptr;
+	if (env_set_hex("zbootbase", (ulong)base_ptr) ||
+	    env_set_hex("zbootaddr", state.load_address))
+		return CMD_RET_FAILURE;
 
 	return 0;
 }
