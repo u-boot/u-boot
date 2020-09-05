@@ -282,8 +282,7 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 		setup_base->screen_info.cl_offset = COMMAND_LINE_OFFSET;
 	}
 	if (bootproto >= 0x0200) {
-		hdr->type_of_loader = 8;
-
+		hdr->type_of_loader = 0x80;	/* U-Boot version 0 */
 		if (initrd_addr) {
 			printf("Initial RAM disk at linear address "
 			       "0x%08lx, size %ld bytes\n",
