@@ -68,9 +68,10 @@ struct zboot_state {
 
 enum {
 	ZBOOT_STATE_START	= BIT(0),
-	ZBOOT_STATE_GO		= BIT(1),
+	ZBOOT_STATE_INFO	= BIT(1),
+	ZBOOT_STATE_GO		= BIT(2),
 
-	ZBOOT_STATE_COUNT	= 2,
+	ZBOOT_STATE_COUNT	= 3,
 };
 
 static void build_command_line(char *command_line, int auto_boot)
@@ -383,6 +384,15 @@ static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int do_zboot_info(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
+{
+	printf("Kernel loaded at %08lx, setup_base=%p\n",
+	       state.load_address, state.base_ptr);
+
+	return 0;
+}
+
 static int do_zboot_go(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
@@ -401,6 +411,7 @@ static int do_zboot_go(struct cmd_tbl *cmdtp, int flag, int argc,
 /* Note: This defines the complete_zboot() function */
 U_BOOT_SUBCMDS(zboot,
 	U_BOOT_CMD_MKENT(start, 6, 1, do_zboot_start, "", ""),
+	U_BOOT_CMD_MKENT(info, 1, 1, do_zboot_info, "", ""),
 	U_BOOT_CMD_MKENT(go, 1, 1, do_zboot_go, "", ""),
 )
 
@@ -441,7 +452,7 @@ int do_zboot_parent(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	do_zboot_states(cmdtp, flag, argc, argv, ZBOOT_STATE_START |
-			ZBOOT_STATE_GO);
+			ZBOOT_STATE_INFO | ZBOOT_STATE_GO);
 
 	return CMD_RET_FAILURE;
 }
@@ -459,6 +470,7 @@ U_BOOT_CMDREP_COMPLETE(
 	"\n"
 	"Sub-commands to do part of the zboot sequence:\n"
 	"\tstart [addr [arg ...]] - specify arguments\n"
+	"\tinfo   - show summary info\n"
 	"\tgo     - start OS\n",
 	complete_zboot
 );
