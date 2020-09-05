@@ -45,6 +45,24 @@
 
 #define COMMAND_LINE_SIZE	2048
 
+/**
+ * struct zboot_state - Current state of the boot
+ *
+ * @bzimage_addr: Address of the bzImage to boot
+ * @bzimage_size: Size of the bzImage, or 0 to detect this
+ * @initrd_addr: Address of the initial ramdisk, or 0 if none
+ * @initrd_size: Size of the initial ramdisk, or 0 if none
+ * @load_address: Address where the bzImage is moved before booting, either
+ *	BZIMAGE_LOAD_ADDR or ZIMAGE_LOAD_ADDR
+ */
+struct zboot_state {
+	ulong bzimage_addr;
+	ulong bzimage_size;
+	ulong initrd_addr;
+	ulong initrd_size;
+	ulong load_address;
+} state;
+
 static void build_command_line(char *command_line, int auto_boot)
 {
 	char *env_command_line;
@@ -307,15 +325,10 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 int do_zboot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct boot_params *base_ptr;
-	void *bzImage_addr = NULL;
-	ulong load_address;
 	char *s;
-	ulong bzImage_size = 0;
-	ulong initrd_addr = 0;
-	ulong initrd_size = 0;
 
 	disable_interrupts();
-
+	memset(&state, '\0', sizeof(state));
 	if (argc >= 2) {
 		/* argv[1] holds the address of the bzImage */
 		s = argv[1];
@@ -324,33 +337,34 @@ int do_zboot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	if (s)
-		bzImage_addr = (void *)simple_strtoul(s, NULL, 16);
+		state.bzimage_addr = simple_strtoul(s, NULL, 16);
 
 	if (argc >= 3) {
 		/* argv[2] holds the size of the bzImage */
-		bzImage_size = simple_strtoul(argv[2], NULL, 16);
+		state.bzimage_size = simple_strtoul(argv[2], NULL, 16);
 	}
 
 	if (argc >= 4)
-		initrd_addr = simple_strtoul(argv[3], NULL, 16);
+		state.initrd_addr = simple_strtoul(argv[3], NULL, 16);
 	if (argc >= 5)
-		initrd_size = simple_strtoul(argv[4], NULL, 16);
+		state.initrd_size = simple_strtoul(argv[4], NULL, 16);
 
 	/* Lets look for */
-	base_ptr = load_zimage(bzImage_addr, bzImage_size, &load_address);
-
+	base_ptr = load_zimage((void *)state.bzimage_addr, state.bzimage_size,
+			       &state.load_address);
 	if (!base_ptr) {
 		puts("## Kernel loading failed ...\n");
 		return -1;
 	}
-	if (setup_zimage(base_ptr, (char *)base_ptr + COMMAND_LINE_OFFSET,
-			0, initrd_addr, initrd_size)) {
+
+	if (setup_zimage(base_ptr, (char *)base_ptr + COMMAND_LINE_OFFSET, 0,
+			 state.initrd_addr, state.initrd_size)) {
 		puts("Setting up boot parameters failed ...\n");
 		return -1;
 	}
 
 	/* we assume that the kernel is in place */
-	return boot_linux_kernel((ulong)base_ptr, load_address, false);
+	return boot_linux_kernel((ulong)base_ptr, state.load_address, false);
 }
 
 U_BOOT_CMD(
