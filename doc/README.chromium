@@ -23,6 +23,10 @@ available:
         from U-Boot in 2013) and coreboot. See below for more information on
         this.
 
+   - Running U-Boot from coreboot. This allows U-Boot to run on more devices
+        since many of them only support coreboot as the bootloader and have
+        no bare-metal support in U-Boot. For this, use the 'coreboot' target.
+
 
 U-Boot with Chromium OS verified boot
 -------------------------------------
@@ -168,14 +172,13 @@ existed in U-Boot were not brought over to coreboot or depthcharge.
 The U-Boot tests ('make check') do operate, but at present there are no
 Chromium OS tests available. These will hopefully come together over time. Of
 course the above sandbox feature provides a sort of functional test and can
-detecte problems that affect the flow or particular vboot features.
+detect problems that affect the flow or particular vboot features.
 
 
 TO DO
 -----
 
-- Support for booting from coreboot (patches expected March 2019)
-- Support for booting from an ARM board, e.g. bob
+Get the full ACPI tables working with Coral
 
 
 Simon Glass
