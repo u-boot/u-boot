@@ -343,6 +343,12 @@ compress:
 	Sets the compression algortihm to use (for blobs only). See the entry
 	documentation for details.
 
+missing-msg:
+	Sets the tag of the message to show if this entry is missing. This is
+	used for external blobs. When they are missing it is helpful to show
+	information about what needs to be fixed. See missing-blob-help for the
+	message for each tag.
+
 The attributes supported for images and sections are described below. Several
 are similar to those for entries.
 

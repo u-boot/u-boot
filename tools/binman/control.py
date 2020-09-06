@@ -9,6 +9,7 @@ from collections import OrderedDict
 import glob
 import os
 import pkg_resources
+import re
 
 import sys
 from patman import tools
@@ -21,6 +22,11 @@ from patman import tout
 # List of images we plan to create
 # Make this global so that it can be referenced from tests
 images = OrderedDict()
+
+# Help text for each type of missing blob, dict:
+#    key: Value of the entry's 'missing-msg' or entry name
+#    value: Text for the help
+missing_blob_help = {}
 
 def _ReadImageDesc(binman_node):
     """Read the image descriptions from the /binman node
@@ -53,6 +59,66 @@ def _FindBinmanNode(dtb):
         if node.name == 'binman':
             return node
     return None
+
+def _ReadMissingBlobHelp():
+    """Read the missing-blob-help file
+
+    This file containins help messages explaining what to do when external blobs
+    are missing.
+
+    Returns:
+        Dict:
+            key: Message tag (str)
+            value: Message text (str)
+    """
+
+    def _FinishTag(tag, msg, result):
+        if tag:
+            result[tag] = msg.rstrip()
+            tag = None
+            msg = ''
+        return tag, msg
+
+    my_data = pkg_resources.resource_string(__name__, 'missing-blob-help')
+    re_tag = re.compile('^([-a-z0-9]+):$')
+    result = {}
+    tag = None
+    msg = ''
+    for line in my_data.decode('utf-8').splitlines():
+        if not line.startswith('#'):
+            m_tag = re_tag.match(line)
+            if m_tag:
+                _, msg = _FinishTag(tag, msg, result)
+                tag = m_tag.group(1)
+            elif tag:
+                msg += line + '\n'
+    _FinishTag(tag, msg, result)
+    return result
+
+def _ShowBlobHelp(path, text):
+    tout.Warning('\n%s:' % path)
+    for line in text.splitlines():
+        tout.Warning('   %s' % line)
+
+def _ShowHelpForMissingBlobs(missing_list):
+    """Show help for each missing blob to help the user take action
+
+    Args:
+        missing_list: List of Entry objects to show help for
+    """
+    global missing_blob_help
+
+    if not missing_blob_help:
+        missing_blob_help = _ReadMissingBlobHelp()
+
+    for entry in missing_list:
+        tags = entry.GetHelpTags()
+
+        # Show the first match help message
+        for tag in tags:
+            if tag in missing_blob_help:
+                _ShowBlobHelp(entry._node.path, missing_blob_help[tag])
+                break
 
 def GetEntryModules(include_testing=True):
     """Get a set of entry class implementations
@@ -478,6 +544,7 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     if missing_list:
         tout.Warning("Image '%s' is missing external blobs and is non-functional: %s" %
                      (image.name, ' '.join([e.name for e in missing_list])))
+        _ShowHelpForMissingBlobs(missing_list)
     return bool(missing_list)
 
 
@@ -563,7 +630,7 @@ def Binman(args):
                 tools.WriteFile(dtb_item._fname, dtb_item.GetContents())
 
             if missing:
-                tout.Warning("Some images are invalid")
+                tout.Warning("\nSome images are invalid")
         finally:
             tools.FinaliseOutputDir()
     finally:

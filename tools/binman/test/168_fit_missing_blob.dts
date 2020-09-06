@@ -29,8 +29,15 @@
 					hash-2 {
 						algo = "sha1";
 					};
-					blob-ext {
+					atf-bl31 {
 						filename = "missing";
+					};
+					cros-ec-rw {
+						type = "atf-bl31";
+						missing-msg = "wibble";
+					};
+					another {
+						type = "atf-bl31";
 					};
 				};
 			};

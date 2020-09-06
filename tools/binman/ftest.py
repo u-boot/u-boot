@@ -3561,7 +3561,7 @@ class TestFunctional(unittest.TestCase):
             self._DoTestFile('168_fit_missing_blob.dts',
                              allow_missing=True)
         err = stderr.getvalue()
-        self.assertRegex(err, "Image 'main-section'.*missing.*: blob-ext")
+        self.assertRegex(err, "Image 'main-section'.*missing.*: atf-bl31")
 
     def testBlobNamedByArgMissing(self):
         """Test handling of a missing entry arg"""
@@ -3691,6 +3691,22 @@ class TestFunctional(unittest.TestCase):
                 extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])[0]
         self.assertIn("default-dt entry argument 'test-fdt3' not found in fdt list: test-fdt1, test-fdt2",
                       str(e.exception))
+
+    def testFitExtblobMissingHelp(self):
+        """Test display of help messages when an external blob is missing"""
+        control.missing_blob_help = control._ReadMissingBlobHelp()
+        control.missing_blob_help['wibble'] = 'Wibble test'
+        control.missing_blob_help['another'] = 'Another test'
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('168_fit_missing_blob.dts',
+                             allow_missing=True)
+        err = stderr.getvalue()
+
+        # We can get the tag from the name, the type or the missing-msg
+        # property. Check all three.
+        self.assertIn('You may need to build ARM Trusted', err)
+        self.assertIn('Wibble test', err)
+        self.assertIn('Another test', err)
 
 if __name__ == "__main__":
     unittest.main()

@@ -178,6 +178,7 @@ class Entry(object):
         self.align_end = fdt_util.GetInt(self._node, 'align-end')
         self.offset_unset = fdt_util.GetBool(self._node, 'offset-unset')
         self.expand_size = fdt_util.GetBool(self._node, 'expand-size')
+        self.missing_msg = fdt_util.GetString(self._node, 'missing-msg')
 
     def GetDefaultFilename(self):
         return None
@@ -827,3 +828,11 @@ features to produce new behaviours.
             True if allowed, False if not allowed
         """
         return self.allow_missing
+
+    def GetHelpTags(self):
+        """Get the tags use for missing-blob help
+
+        Returns:
+            list of possible tags, most desirable first
+        """
+        return list(filter(None, [self.missing_msg, self.name, self.etype]))
