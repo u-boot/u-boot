@@ -188,6 +188,77 @@ def PathHasFile(path_spec, fname):
             return True
     return False
 
+def GetTargetCompileTool(name, cross_compile=None):
+    """Get the target-specific version for a compile tool
+
+    This first checks the environment variables that specify which
+    version of the tool should be used (e.g. ${CC}). If those aren't
+    specified, it checks the CROSS_COMPILE variable as a prefix for the
+    tool with some substitutions (e.g. "${CROSS_COMPILE}gcc" for cc).
+
+    The following table lists the target-specific versions of the tools
+    this function resolves to:
+
+        Compile Tool  | First choice   | Second choice
+        --------------+----------------+----------------------------
+        as            |  ${AS}         | ${CROSS_COMPILE}as
+        ld            |  ${LD}         | ${CROSS_COMPILE}ld.bfd
+                      |                |   or ${CROSS_COMPILE}ld
+        cc            |  ${CC}         | ${CROSS_COMPILE}gcc
+        cpp           |  ${CPP}        | ${CROSS_COMPILE}gcc -E
+        c++           |  ${CXX}        | ${CROSS_COMPILE}g++
+        ar            |  ${AR}         | ${CROSS_COMPILE}ar
+        nm            |  ${NM}         | ${CROSS_COMPILE}nm
+        ldr           |  ${LDR}        | ${CROSS_COMPILE}ldr
+        strip         |  ${STRIP}      | ${CROSS_COMPILE}strip
+        objcopy       |  ${OBJCOPY}    | ${CROSS_COMPILE}objcopy
+        objdump       |  ${OBJDUMP}    | ${CROSS_COMPILE}objdump
+        dtc           |  ${DTC}        | (no CROSS_COMPILE version)
+
+    Args:
+        name: Command name to run
+
+    Returns:
+        target_name: Exact command name to run instead
+        extra_args: List of extra arguments to pass
+    """
+    env = dict(os.environ)
+
+    target_name = None
+    extra_args = []
+    if name in ('as', 'ld', 'cc', 'cpp', 'ar', 'nm', 'ldr', 'strip',
+                'objcopy', 'objdump', 'dtc'):
+        target_name, *extra_args = env.get(name.upper(), '').split(' ')
+    elif name == 'c++':
+        target_name, *extra_args = env.get('CXX', '').split(' ')
+
+    if target_name:
+        return target_name, extra_args
+
+    if cross_compile is None:
+        cross_compile = env.get('CROSS_COMPILE', '')
+    if not cross_compile:
+        return name, []
+
+    if name in ('as', 'ar', 'nm', 'ldr', 'strip', 'objcopy', 'objdump'):
+        target_name = cross_compile + name
+    elif name == 'ld':
+        try:
+            if Run(cross_compile + 'ld.bfd', '-v'):
+                target_name = cross_compile + 'ld.bfd'
+        except:
+            target_name = cross_compile + 'ld'
+    elif name == 'cc':
+        target_name = cross_compile + 'gcc'
+    elif name == 'cpp':
+        target_name = cross_compile + 'gcc'
+        extra_args = ['-E']
+    elif name == 'c++':
+        target_name = cross_compile + 'g++'
+    else:
+        target_name = name
+    return target_name, extra_args
+
 def Run(name, *args, **kwargs):
     """Run a tool with some arguments
 
@@ -198,16 +269,22 @@ def Run(name, *args, **kwargs):
     Args:
         name: Command name to run
         args: Arguments to the tool
+        for_target: False to run the command as-is, without resolving it
+                   to the version for the compile target
 
     Returns:
         CommandResult object
     """
     try:
         binary = kwargs.get('binary')
+        for_target = kwargs.get('for_target', True)
         env = None
         if tool_search_paths:
             env = dict(os.environ)
             env['PATH'] = ':'.join(tool_search_paths) + ':' + env['PATH']
+        if for_target:
+            name, extra_args = GetTargetCompileTool(name)
+            args = tuple(extra_args) + args
         all_args = (name,) + args
         result = command.RunPipe([all_args], capture=True, capture_stderr=True,
                                  env=env, raise_on_error=False, binary=binary)

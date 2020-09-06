@@ -68,22 +68,23 @@ def EnsureCompiled(fname, tmpdir=None, capture_stderr=False):
 
     search_paths = [os.path.join(os.getcwd(), 'include')]
     root, _ = os.path.splitext(fname)
-    args = ['-E', '-P', '-x', 'assembler-with-cpp', '-D__ASSEMBLY__']
+    cc, args = tools.GetTargetCompileTool('cc')
+    args += ['-E', '-P', '-x', 'assembler-with-cpp', '-D__ASSEMBLY__']
     args += ['-Ulinux']
     for path in search_paths:
         args.extend(['-I', path])
     args += ['-o', dts_input, fname]
-    command.Run('cc', *args)
+    command.Run(cc, *args)
 
     # If we don't have a directory, put it in the tools tempdir
     search_list = []
     for path in search_paths:
         search_list.extend(['-i', path])
-    args = ['-I', 'dts', '-o', dtb_output, '-O', 'dtb',
+    dtc, args = tools.GetTargetCompileTool('dtc')
+    args += ['-I', 'dts', '-o', dtb_output, '-O', 'dtb',
             '-W', 'no-unit_address_vs_reg']
     args.extend(search_list)
     args.append(dts_input)
-    dtc = os.environ.get('DTC') or 'dtc'
     command.Run(dtc, *args, capture_stderr=capture_stderr)
     return dtb_output
 
