@@ -402,6 +402,10 @@ Available substitutions for '@' nodes are:
 Note that if no devicetree files are provided (with '-a of-list' as above)
 then no nodes will be generated.
 
+The 'default' property, if present, will be automatically set to the name
+if of configuration whose devicetree matches the 'default-dt' entry
+argument, e.g. with '-a default-dt=sun50i-a64-pine64-lts'.
+
 
 Properties (in the 'fit' node itself):
     fit,external-offset: Indicates that the contents of the FIT are external

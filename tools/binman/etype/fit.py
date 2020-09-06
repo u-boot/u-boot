@@ -90,6 +90,14 @@ class Entry_fit(Entry):
     Note that if no devicetree files are provided (with '-a of-list' as above)
     then no nodes will be generated.
 
+    The 'default' property, if present, will be automatically set to the name
+    if of configuration whose devicetree matches the 'default-dt' entry
+    argument, e.g. with '-a default-dt=sun50i-a64-pine64-lts'.
+
+    Available substitutions for '@' property values are:
+
+        DEFAULT-SEQ  Sequence number of the default fdt,as provided by the
+                     'default-dt' entry argument
 
     Properties (in the 'fit' node itself):
         fit,external-offset: Indicates that the contents of the FIT are external
@@ -121,6 +129,8 @@ class Entry_fit(Entry):
                 [EntryArg(self._fit_list_prop.value, str)])
             if fdts is not None:
                 self._fdts = fdts.split()
+        self._fit_default_dt = self.GetEntryArgsOrProps([EntryArg('default-dt',
+                                                                  str)])[0]
 
     def ReadNode(self):
         self._ReadSubnodes()
@@ -142,6 +152,22 @@ class Entry_fit(Entry):
             """
             for pname, prop in node.props.items():
                 if not pname.startswith('fit,'):
+                    if pname == 'default':
+                        val = prop.value
+                        # Handle the 'default' property
+                        if val.startswith('@'):
+                            if not self._fdts:
+                                continue
+                            if not self._fit_default_dt:
+                                self.Raise("Generated 'default' node requires default-dt entry argument")
+                            if self._fit_default_dt not in self._fdts:
+                                self.Raise("default-dt entry argument '%s' not found in fdt list: %s" %
+                                           (self._fit_default_dt,
+                                            ', '.join(self._fdts)))
+                            seq = self._fdts.index(self._fit_default_dt)
+                            val = val[1:].replace('DEFAULT-SEQ', str(seq + 1))
+                            fsw.property_string(pname, val)
+                            continue
                     fsw.property(pname, prop.bytes)
 
             rel_path = node.path[len(base_node.path):]

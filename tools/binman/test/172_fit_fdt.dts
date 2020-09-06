@@ -40,7 +40,7 @@
 			};
 
 			configurations {
-				default = "config-1";
+				default = "@config-DEFAULT-SEQ";
 				@config-SEQ {
 					description = "conf-NAME.dtb";
 					firmware = "uboot";

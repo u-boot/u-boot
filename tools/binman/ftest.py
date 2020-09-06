@@ -3602,7 +3602,7 @@ class TestFunctional(unittest.TestCase):
             """
             cnode = dtb.GetNode('/configurations')
             self.assertIn('default', cnode.props)
-            self.assertEqual('config-1', cnode.props['default'].value)
+            self.assertEqual('config-2', cnode.props['default'].value)
 
             name = 'config-%d' % seq
             fnode = dtb.GetNode('/configurations/%s' % name)
@@ -3615,9 +3615,10 @@ class TestFunctional(unittest.TestCase):
 
         entry_args = {
             'of-list': 'test-fdt1 test-fdt2',
+            'default-dt': 'test-fdt2',
         }
         data = self._DoReadFileDtb(
-            '170_fit_fdt.dts',
+            '172_fit_fdt.dts',
             entry_args=entry_args,
             extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])[0]
         self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
@@ -3639,7 +3640,7 @@ class TestFunctional(unittest.TestCase):
     def testFitFdtMissingList(self):
         """Test handling of a missing 'of-list' entry arg"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('170_fit_fdt.dts')
+            self._DoReadFile('172_fit_fdt.dts')
         self.assertIn("Generator node requires 'of-list' entry argument",
                       str(e.exception))
 
@@ -3655,6 +3656,40 @@ class TestFunctional(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('171_fit_fdt_missing_prop.dts')
         self.assertIn("Generator node requires 'fit,fdt-list' property",
+                      str(e.exception))
+
+    def testFitFdtEmptyList(self):
+        """Test handling of an empty 'of-list' entry arg"""
+        entry_args = {
+            'of-list': '',
+        }
+        data = self._DoReadFileDtb('172_fit_fdt.dts', entry_args=entry_args)[0]
+
+    def testFitFdtMissing(self):
+        """Test handling of a missing 'default-dt' entry arg"""
+        entry_args = {
+            'of-list': 'test-fdt1 test-fdt2',
+        }
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb(
+                '172_fit_fdt.dts',
+                entry_args=entry_args,
+                extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])[0]
+        self.assertIn("Generated 'default' node requires default-dt entry argument",
+                      str(e.exception))
+
+    def testFitFdtNotInList(self):
+        """Test handling of a default-dt that is not in the of-list"""
+        entry_args = {
+            'of-list': 'test-fdt1 test-fdt2',
+            'default-dt': 'test-fdt3',
+        }
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb(
+                '172_fit_fdt.dts',
+                entry_args=entry_args,
+                extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])[0]
+        self.assertIn("default-dt entry argument 'test-fdt3' not found in fdt list: test-fdt1, test-fdt2",
                       str(e.exception))
 
 if __name__ == "__main__":
