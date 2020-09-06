@@ -9,3 +9,7 @@
 atf-bl31:
 See the documentation for your board. You may need to build ARM Trusted
 Firmware and build with BL31=/path/to/bl31.bin
+
+atf-bl31-sunxi:
+Please read the section on ARM Trusted Firmware (ATF) in
+board/sunxi/README.sunxi64

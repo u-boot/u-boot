@@ -48,6 +48,7 @@
 					entry = <0x44000>;
 #endif
 					atf-bl31 {
+						missing-msg = "atf-bl31-sunxi";
 					};
 				};
 
