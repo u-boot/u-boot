@@ -188,6 +188,49 @@ def PathHasFile(path_spec, fname):
             return True
     return False
 
+def GetHostCompileTool(name):
+    """Get the host-specific version for a compile tool
+
+    This checks the environment variables that specify which version of
+    the tool should be used (e.g. ${HOSTCC}).
+
+    The following table lists the host-specific versions of the tools
+    this function resolves to:
+
+        Compile Tool  | Host version
+        --------------+----------------
+        as            |  ${HOSTAS}
+        ld            |  ${HOSTLD}
+        cc            |  ${HOSTCC}
+        cpp           |  ${HOSTCPP}
+        c++           |  ${HOSTCXX}
+        ar            |  ${HOSTAR}
+        nm            |  ${HOSTNM}
+        ldr           |  ${HOSTLDR}
+        strip         |  ${HOSTSTRIP}
+        objcopy       |  ${HOSTOBJCOPY}
+        objdump       |  ${HOSTOBJDUMP}
+        dtc           |  ${HOSTDTC}
+
+    Args:
+        name: Command name to run
+
+    Returns:
+        host_name: Exact command name to run instead
+        extra_args: List of extra arguments to pass
+    """
+    host_name = None
+    extra_args = []
+    if name in ('as', 'ld', 'cc', 'cpp', 'ar', 'nm', 'ldr', 'strip',
+                'objcopy', 'objdump', 'dtc'):
+        host_name, *host_args = env.get('HOST' + name.upper(), '').split(' ')
+    elif name == 'c++':
+        host_name, *host_args = env.get('HOSTCXX', '').split(' ')
+
+    if host_name:
+        return host_name, extra_args
+    return name, []
+
 def GetTargetCompileTool(name, cross_compile=None):
     """Get the target-specific version for a compile tool
 
@@ -269,6 +312,7 @@ def Run(name, *args, **kwargs):
     Args:
         name: Command name to run
         args: Arguments to the tool
+        for_host: True to resolve the command to the version for the host
         for_target: False to run the command as-is, without resolving it
                    to the version for the compile target
 
@@ -277,13 +321,17 @@ def Run(name, *args, **kwargs):
     """
     try:
         binary = kwargs.get('binary')
-        for_target = kwargs.get('for_target', True)
+        for_host = kwargs.get('for_host', False)
+        for_target = kwargs.get('for_target', not for_host)
         env = None
         if tool_search_paths:
             env = dict(os.environ)
             env['PATH'] = ':'.join(tool_search_paths) + ':' + env['PATH']
         if for_target:
             name, extra_args = GetTargetCompileTool(name)
+            args = tuple(extra_args) + args
+        elif for_host:
+            name, extra_args = GetHostCompileTool(name)
             args = tuple(extra_args) + args
         all_args = (name,) + args
         result = command.RunPipe([all_args], capture=True, capture_stderr=True,
