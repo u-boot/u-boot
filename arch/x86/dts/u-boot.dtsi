@@ -6,7 +6,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_CHROMEOS
 / {
 	binman {
 		multiple-images;
@@ -14,12 +13,6 @@
 		};
 	};
 };
-#else
-/ {
-	rom: binman {
-	};
-};
-#endif
 
 #ifdef CONFIG_ROM_SIZE
 &rom {
