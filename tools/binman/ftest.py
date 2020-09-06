@@ -3708,5 +3708,12 @@ class TestFunctional(unittest.TestCase):
         self.assertIn('Wibble test', err)
         self.assertIn('Another test', err)
 
+    def testMissingBlob(self):
+        """Test handling of a blob containing a missing file"""
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('173_missing_blob.dts', allow_missing=True)
+        self.assertIn("Filename 'missing' not found in input path",
+                      str(e.exception))
+
 if __name__ == "__main__":
     unittest.main()

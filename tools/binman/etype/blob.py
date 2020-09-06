@@ -38,12 +38,13 @@ class Entry_blob(Entry):
     def ObtainContents(self):
         self._filename = self.GetDefaultFilename()
         self._pathname = tools.GetInputFilename(self._filename,
-                                                self.section.GetAllowMissing())
+            self.external and self.section.GetAllowMissing())
         # Allow the file to be missing
-        if self.external and not self._pathname:
+        if not self._pathname:
             self.SetContents(b'')
             self.missing = True
             return True
+
         self.ReadBlobContents()
         return True
 
