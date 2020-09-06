@@ -77,6 +77,7 @@ FSP_T_DATA            = b'fsp_t'
 ATF_BL31_DATA         = b'bl31'
 TEST_FDT1_DATA        = b'fdt1'
 TEST_FDT2_DATA        = b'test-fdt2'
+ENV_DATA              = b'var1=1\nvar2="2"'
 
 # Subdirectory of the input dir to use to put test FDTs
 TEST_FDT_SUBDIR       = 'fdts'
@@ -180,6 +181,8 @@ class TestFunctional(unittest.TestCase):
                                       TEST_FDT1_DATA)
         TestFunctional._MakeInputFile('%s/test-fdt2.dtb' % TEST_FDT_SUBDIR,
                                       TEST_FDT2_DATA)
+
+        TestFunctional._MakeInputFile('env.txt', ENV_DATA)
 
         # Travis-CI may have an old lz4
         cls.have_lz4 = True
@@ -3714,6 +3717,34 @@ class TestFunctional(unittest.TestCase):
             self._DoTestFile('173_missing_blob.dts', allow_missing=True)
         self.assertIn("Filename 'missing' not found in input path",
                       str(e.exception))
+
+    def testEnvironment(self):
+        """Test adding a U-Boot environment"""
+        data = self._DoReadFile('174_env.dts')
+        self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
+        self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
+        env = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
+        self.assertEqual(b'\x1b\x97\x22\x7c\x01var1=1\0var2="2"\0\0\xff\xff',
+                         env)
+
+    def testEnvironmentNoSize(self):
+        """Test that a missing 'size' property is detected"""
+        with self.assertRaises(ValueError) as e:
+            data = self._DoTestFile('175_env_no_size.dts')
+        self.assertIn("'u-boot-env' entry must have a size property",
+                      str(e.exception))
+
+    def testEnvironmentTooSmall(self):
+        """Test handling of an environment that does not fit"""
+        with self.assertRaises(ValueError) as e:
+            data = self._DoTestFile('176_env_too_small.dts')
+
+        # checksum, start byte, environment with \0 terminator, final \0
+        need = 4 + 1 + len(ENV_DATA) + 1 + 1
+        short = need - 0x8
+        self.assertIn("too small to hold data (need %#x more bytes)" % short,
+                      str(e.exception))
+
 
 if __name__ == "__main__":
     unittest.main()
