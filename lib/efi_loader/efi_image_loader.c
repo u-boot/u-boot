@@ -7,9 +7,12 @@
  *  Copyright (c) 2016 Alexander Graf
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <common.h>
 #include <cpu_func.h>
 #include <efi_loader.h>
+#include <log.h>
 #include <malloc.h>
 #include <pe.h>
 #include <sort.h>
@@ -153,14 +156,14 @@ static efi_status_t efi_loader_relocate(const IMAGE_BASE_RELOCATION *rel,
 			case IMAGE_REL_BASED_RISCV_LOW12S:
 				/* We know that we're 4k aligned */
 				if (delta & 0xfff) {
-					printf("Unsupported reloc offset\n");
+					log_err("Unsupported reloc offset\n");
 					return EFI_LOAD_ERROR;
 				}
 				break;
 #endif
 			default:
-				printf("Unknown Relocation off %x type %x\n",
-				       offset, type);
+				log_err("Unknown Relocation off %x type %x\n",
+					offset, type);
 				return EFI_LOAD_ERROR;
 			}
 			relocs++;
@@ -202,7 +205,7 @@ static void efi_set_code_and_data_type(
 		loaded_image_info->image_data_type = EFI_RUNTIME_SERVICES_DATA;
 		break;
 	default:
-		printf("%s: invalid image type: %u\n", __func__, image_type);
+		log_err("invalid image type: %u\n", image_type);
 		/* Let's assume it is an application */
 		loaded_image_info->image_code_type = EFI_LOADER_CODE;
 		loaded_image_info->image_data_type = EFI_LOADER_DATA;
@@ -499,7 +502,7 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	size_t new_efi_size, auth_size;
 	bool ret = false;
 
-	debug("%s: Enter, %d\n", __func__, ret);
+	EFI_PRINT("%s: Enter, %d\n", __func__, ret);
 
 	if (!efi_secure_boot_enabled())
 		return true;
@@ -645,14 +648,14 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 			break;
 		}
 
-		debug("Signature was not verified by \"db\"\n");
+		EFI_PRINT("Signature was not verified by \"db\"\n");
 
 		if (efi_signature_lookup_digest(regs, db)) {
 			ret = true;
 			break;
 		}
 
-		debug("Image's digest was not found in \"db\" or \"dbx\"\n");
+		EFI_PRINT("Image's digest was not found in \"db\" or \"dbx\"\n");
 	}
 
 err:
@@ -662,7 +665,7 @@ err:
 	free(regs);
 	free(new_efi);
 
-	debug("%s: Exit, %d\n", __func__, ret);
+	EFI_PRINT("%s: Exit, %d\n", __func__, ret);
 	return ret;
 }
 #else
@@ -704,14 +707,14 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 
 	/* Sanity check for a file header */
 	if (efi_size < sizeof(*dos)) {
-		printf("%s: Truncated DOS Header\n", __func__);
+		log_err("Truncated DOS Header\n");
 		ret = EFI_LOAD_ERROR;
 		goto err;
 	}
 
 	dos = efi;
 	if (dos->e_magic != IMAGE_DOS_SIGNATURE) {
-		printf("%s: Invalid DOS Signature\n", __func__);
+		log_err("Invalid DOS Signature\n");
 		ret = EFI_LOAD_ERROR;
 		goto err;
 	}
@@ -722,14 +725,14 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 	 * of the 64bit header which is longer than the 32bit header.
 	 */
 	if (efi_size < dos->e_lfanew + sizeof(IMAGE_NT_HEADERS64)) {
-		printf("%s: Invalid offset for Extended Header\n", __func__);
+		log_err("Invalid offset for Extended Header\n");
 		ret = EFI_LOAD_ERROR;
 		goto err;
 	}
 
 	nt = (void *) ((char *)efi + dos->e_lfanew);
 	if (nt->Signature != IMAGE_NT_SIGNATURE) {
-		printf("%s: Invalid NT Signature\n", __func__);
+		log_err("Invalid NT Signature\n");
 		ret = EFI_LOAD_ERROR;
 		goto err;
 	}
@@ -741,8 +744,8 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 		}
 
 	if (!supported) {
-		printf("%s: Machine type 0x%04x is not supported\n",
-		       __func__, nt->FileHeader.Machine);
+		log_err("Machine type 0x%04x is not supported\n",
+			nt->FileHeader.Machine);
 		ret = EFI_LOAD_ERROR;
 		goto err;
 	}
@@ -753,17 +756,18 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 
 	if (efi_size < ((void *)sections + sizeof(sections[0]) * num_sections
 			- efi)) {
-		printf("%s: Invalid number of sections: %d\n",
-		       __func__, num_sections);
+		log_err("Invalid number of sections: %d\n", num_sections);
 		ret = EFI_LOAD_ERROR;
 		goto err;
 	}
 
 	/* Authenticate an image */
-	if (efi_image_authenticate(efi, efi_size))
+	if (efi_image_authenticate(efi, efi_size)) {
 		handle->auth_status = EFI_IMAGE_AUTH_PASSED;
-	else
+	} else {
 		handle->auth_status = EFI_IMAGE_AUTH_FAILED;
+		log_err("Image not authenticated\n");
+	}
 
 	/* Calculate upper virtual address boundary */
 	for (i = num_sections - 1; i >= 0; i--) {
@@ -782,8 +786,7 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 		efi_reloc = efi_alloc(virt_size,
 				      loaded_image_info->image_code_type);
 		if (!efi_reloc) {
-			printf("%s: Could not allocate %lu bytes\n",
-			       __func__, virt_size);
+			log_err("Out of memory\n");
 			ret = EFI_OUT_OF_RESOURCES;
 			goto err;
 		}
@@ -799,8 +802,7 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 		efi_reloc = efi_alloc(virt_size,
 				      loaded_image_info->image_code_type);
 		if (!efi_reloc) {
-			printf("%s: Could not allocate %lu bytes\n",
-			       __func__, virt_size);
+			log_err("Out of memory\n");
 			ret = EFI_OUT_OF_RESOURCES;
 			goto err;
 		}
@@ -809,8 +811,8 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
 		virt_size = ALIGN(virt_size, opt->SectionAlignment);
 	} else {
-		printf("%s: Invalid optional header magic %x\n", __func__,
-		       nt->OptionalHeader.Magic);
+		log_err("Invalid optional header magic %x\n",
+			nt->OptionalHeader.Magic);
 		ret = EFI_LOAD_ERROR;
 		goto err;
 	}

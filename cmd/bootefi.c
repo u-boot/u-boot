@@ -433,7 +433,9 @@ efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size)
 {
 	efi_handle_t mem_handle = NULL, handle;
 	struct efi_device_path *file_path = NULL;
+	struct efi_device_path *msg_path;
 	efi_status_t ret;
+	u16 *load_options;
 
 	if (!bootefi_device_path || !bootefi_image_path) {
 		/*
@@ -456,17 +458,21 @@ efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size)
 				       file_path);
 		if (ret != EFI_SUCCESS)
 			goto out;
+		msg_path = file_path;
 	} else {
 		file_path = efi_dp_append(bootefi_device_path,
 					  bootefi_image_path);
+		msg_path = bootefi_image_path;
 	}
+
+	log_info("Booting %pD\n", msg_path);
 
 	ret = EFI_CALL(efi_load_image(false, efi_root, file_path, source_buffer,
 				      source_size, &handle));
-	if (ret != EFI_SUCCESS)
+	if (ret != EFI_SUCCESS) {
+		log_err("Loading image failed\n");
 		goto out;
-
-	u16 *load_options;
+	}
 
 	/* Transfer environment variable as load options */
 	ret = efi_env_set_load_options(handle, "bootargs", &load_options);
