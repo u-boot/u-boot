@@ -85,6 +85,9 @@ at91_clk_sama7g5_register_master(void __iomem *base, const char *name,
 			const char * const *parent_names, int num_parents,
 			const u32 *mux_table, const u32 *clk_mux_table,
 			bool critical, u8 id);
+struct clk *
+at91_clk_register_utmi(void __iomem *base, struct udevice *dev,
+			const char *name, const char *parent_name);
 
 int at91_clk_mux_val_to_index(const u32 *table, u32 num_parents, u32 val);
 int at91_clk_mux_index_to_val(const u32 *table, u32 num_parents, u32 index);
