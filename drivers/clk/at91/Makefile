@@ -3,7 +3,7 @@
 #
 
 ifdef CONFIG_CLK_CCF
-obj-y += pmc.o
+obj-y += pmc.o sckc.o
 else
 obj-y += compat.o
 endif
