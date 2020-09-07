@@ -19,11 +19,24 @@
 #include "pmc.h"
 
 #define UBOOT_DM_CLK_AT91_MASTER		"at91-master-clk"
+#define UBOOT_DM_CLK_AT91_SAMA7G5_MASTER	"at91-sama7g5-master-clk"
 
 #define MASTER_PRES_MASK	0x7
 #define MASTER_PRES_MAX		MASTER_PRES_MASK
 #define MASTER_DIV_SHIFT	8
 #define MASTER_DIV_MASK		0x3
+
+#define PMC_MCR			0x30
+#define PMC_MCR_ID_MSK		GENMASK(3, 0)
+#define PMC_MCR_CMD		BIT(7)
+#define PMC_MCR_DIV		GENMASK(10, 8)
+#define PMC_MCR_CSS		GENMASK(20, 16)
+#define PMC_MCR_CSS_SHIFT	(16)
+#define PMC_MCR_EN		BIT(28)
+
+#define PMC_MCR_ID(x)		((x) & PMC_MCR_ID_MSK)
+
+#define MASTER_MAX_ID		4
 
 struct clk_master {
 	void __iomem *base;
@@ -40,11 +53,12 @@ struct clk_master {
 
 static inline bool clk_master_ready(struct clk_master *master)
 {
+	unsigned int bit = master->id ? AT91_PMC_MCKXRDY : AT91_PMC_MCKRDY;
 	unsigned int status;
 
 	pmc_read(master->base, AT91_PMC_SR, &status);
 
-	return !!(status & AT91_PMC_MCKRDY);
+	return !!(status & bit);
 }
 
 static int clk_master_enable(struct clk *clk)
@@ -140,6 +154,168 @@ U_BOOT_DRIVER(at91_master_clk) = {
 	.name = UBOOT_DM_CLK_AT91_MASTER,
 	.id = UCLASS_CLK,
 	.ops = &master_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+
+static int clk_sama7g5_master_set_parent(struct clk *clk, struct clk *parent)
+{
+	struct clk_master *master = to_clk_master(clk);
+	int index;
+
+	index = at91_clk_mux_val_to_index(master->clk_mux_table,
+					  master->num_parents, parent->id);
+	if (index < 0)
+		return index;
+
+	index = at91_clk_mux_index_to_val(master->mux_table,
+					  master->num_parents, index);
+	if (index < 0)
+		return index;
+
+	pmc_write(master->base, PMC_MCR, PMC_MCR_ID(master->id));
+	pmc_update_bits(master->base, PMC_MCR,
+			PMC_MCR_CSS | PMC_MCR_CMD | PMC_MCR_ID_MSK,
+			(index << PMC_MCR_CSS_SHIFT) | PMC_MCR_CMD |
+			PMC_MCR_ID(master->id));
+	return 0;
+}
+
+static int clk_sama7g5_master_enable(struct clk *clk)
+{
+	struct clk_master *master = to_clk_master(clk);
+
+	pmc_write(master->base, PMC_MCR, PMC_MCR_ID(master->id));
+	pmc_update_bits(master->base, PMC_MCR,
+			PMC_MCR_EN | PMC_MCR_CMD | PMC_MCR_ID_MSK,
+			PMC_MCR_EN | PMC_MCR_CMD | PMC_MCR_ID(master->id));
+
+	return 0;
+}
+
+static int clk_sama7g5_master_disable(struct clk *clk)
+{
+	struct clk_master *master = to_clk_master(clk);
+
+	pmc_write(master->base, PMC_MCR, master->id);
+	pmc_update_bits(master->base, PMC_MCR,
+			PMC_MCR_EN | PMC_MCR_CMD | PMC_MCR_ID_MSK,
+			PMC_MCR_CMD | PMC_MCR_ID(master->id));
+
+	return 0;
+}
+
+static ulong clk_sama7g5_master_set_rate(struct clk *clk, ulong rate)
+{
+	struct clk_master *master = to_clk_master(clk);
+	ulong parent_rate = clk_get_parent_rate(clk);
+	ulong div, rrate;
+
+	if (!parent_rate)
+		return 0;
+
+	div = DIV_ROUND_CLOSEST(parent_rate, rate);
+	if ((div > (1 << (MASTER_PRES_MAX - 1))) || (div & (div - 1))) {
+		return 0;
+	} else if (div == 3) {
+		rrate = DIV_ROUND_CLOSEST(parent_rate, MASTER_PRES_MAX);
+		div = MASTER_PRES_MAX;
+	} else {
+		rrate = DIV_ROUND_CLOSEST(parent_rate, div);
+		div = ffs(div) - 1;
+	}
+
+	pmc_write(master->base, PMC_MCR, master->id);
+	pmc_update_bits(master->base, PMC_MCR,
+			PMC_MCR_DIV | PMC_MCR_CMD | PMC_MCR_ID_MSK,
+			(div << MASTER_DIV_SHIFT) | PMC_MCR_CMD |
+			PMC_MCR_ID(master->id));
+
+	return rrate;
+}
+
+static ulong clk_sama7g5_master_get_rate(struct clk *clk)
+{
+	struct clk_master *master = to_clk_master(clk);
+	ulong parent_rate = clk_get_parent_rate(clk);
+	unsigned int val;
+	ulong div;
+
+	if (!parent_rate)
+		return 0;
+
+	pmc_write(master->base, PMC_MCR, master->id);
+	pmc_read(master->base, PMC_MCR, &val);
+
+	div = (val >> MASTER_DIV_SHIFT) & MASTER_DIV_MASK;
+
+	if (div == MASTER_PRES_MAX)
+		div = 3;
+	else
+		div = 1 << div;
+
+	return DIV_ROUND_CLOSEST(parent_rate, div);
+}
+
+static const struct clk_ops sama7g5_master_ops = {
+	.enable = clk_sama7g5_master_enable,
+	.disable = clk_sama7g5_master_disable,
+	.set_rate = clk_sama7g5_master_set_rate,
+	.get_rate = clk_sama7g5_master_get_rate,
+	.set_parent = clk_sama7g5_master_set_parent,
+};
+
+struct clk *at91_clk_sama7g5_register_master(void __iomem *base,
+		const char *name, const char * const *parent_names,
+		int num_parents, const u32 *mux_table, const u32 *clk_mux_table,
+		bool critical, u8 id)
+{
+	struct clk_master *master;
+	struct clk *clk;
+	u32 val, index;
+	int ret;
+
+	if (!base || !name || !num_parents || !parent_names ||
+	    !mux_table || !clk_mux_table || id > MASTER_MAX_ID)
+		return ERR_PTR(-EINVAL);
+
+	master = kzalloc(sizeof(*master), GFP_KERNEL);
+	if (!master)
+		return ERR_PTR(-ENOMEM);
+
+	master->base = base;
+	master->id = id;
+	master->mux_table = mux_table;
+	master->clk_mux_table = clk_mux_table;
+	master->num_parents = num_parents;
+
+	pmc_write(master->base, PMC_MCR, master->id);
+	pmc_read(master->base, PMC_MCR, &val);
+
+	index = at91_clk_mux_val_to_index(master->mux_table,
+				master->num_parents,
+				(val & PMC_MCR_CSS) >> PMC_MCR_CSS_SHIFT);
+	if (index < 0) {
+		kfree(master);
+		return ERR_PTR(index);
+	}
+
+	clk = &master->clk;
+	clk->flags = CLK_GET_RATE_NOCACHE | (critical ? CLK_IS_CRITICAL : 0);
+
+	ret = clk_register(clk, UBOOT_DM_CLK_AT91_SAMA7G5_MASTER, name,
+			   parent_names[index]);
+	if (ret) {
+		kfree(master);
+		clk = ERR_PTR(ret);
+	}
+
+	return clk;
+}
+
+U_BOOT_DRIVER(at91_sama7g5_master_clk) = {
+	.name = UBOOT_DM_CLK_AT91_SAMA7G5_MASTER,
+	.id = UCLASS_CLK,
+	.ops = &sama7g5_master_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
