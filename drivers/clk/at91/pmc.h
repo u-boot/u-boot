@@ -108,6 +108,9 @@ at91_clk_register_programmable(void __iomem *base, const char *name,
 			const char * const *parent_names, u8 num_parents, u8 id,
 			const struct clk_programmable_layout *layout,
 			const u32 *clk_mux_table, const u32 *mux_table);
+struct clk *
+at91_clk_register_system(void __iomem *base, const char *name,
+			const char *parent_name, u8 id);
 
 int at91_clk_mux_val_to_index(const u32 *table, u32 num_parents, u32 val);
 int at91_clk_mux_index_to_val(const u32 *table, u32 num_parents, u32 index);
