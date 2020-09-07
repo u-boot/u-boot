@@ -19,6 +19,21 @@ struct clk_range {
 	unsigned long max;
 };
 
+struct clk_master_layout {
+	u32 offset;
+	u32 mask;
+	u8 pres_shift;
+};
+
+extern const struct clk_master_layout at91rm9200_master_layout;
+extern const struct clk_master_layout at91sam9x5_master_layout;
+
+struct clk_master_characteristics {
+	struct clk_range output;
+	u32 divisors[4];
+	u8 have_div3_pres;
+};
+
 struct clk_pll_characteristics {
 	struct clk_range input;
 	int num_output;
@@ -59,6 +74,12 @@ sam9x60_clk_register_frac_pll(void __iomem *base, const char *name,
 			const char *parent_name, u8 id,
 			const struct clk_pll_characteristics *characteristics,
 			const struct clk_pll_layout *layout, bool critical);
+struct clk *
+at91_clk_register_master(void __iomem *base, const char *name,
+			const char * const *parent_names, int num_parents,
+			const struct clk_master_layout *layout,
+			const struct clk_master_characteristics *characteristics,
+			const u32 *mux_table);
 
 int at91_clk_mux_val_to_index(const u32 *table, u32 num_parents, u32 val);
 int at91_clk_mux_index_to_val(const u32 *table, u32 num_parents, u32 index);
