@@ -5,7 +5,78 @@
  */
 
 #include <asm/io.h>
+#include <clk-uclass.h>
 #include <common.h>
+
+#include "pmc.h"
+
+static int at91_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
+{
+	if (args->args_count != 2) {
+		debug("AT91: clk: Invalid args_count: %d\n", args->args_count);
+		return -EINVAL;
+	}
+
+	clk->id = AT91_TO_CLK_ID(args->args[0], args->args[1]);
+
+	return 0;
+}
+
+static ulong at91_clk_get_rate(struct clk *clk)
+{
+	struct clk *c;
+	int ret;
+
+	ret = clk_get_by_id(clk->id, &c);
+	if (ret)
+		return ret;
+
+	return clk_get_rate(c);
+}
+
+static ulong at91_clk_set_rate(struct clk *clk, ulong rate)
+{
+	struct clk *c;
+	int ret;
+
+	ret = clk_get_by_id(clk->id, &c);
+	if (ret)
+		return ret;
+
+	return clk_set_rate(c, rate);
+}
+
+static int at91_clk_enable(struct clk *clk)
+{
+	struct clk *c;
+	int ret;
+
+	ret = clk_get_by_id(clk->id, &c);
+	if (ret)
+		return ret;
+
+	return clk_enable(c);
+}
+
+static int at91_clk_disable(struct clk *clk)
+{
+	struct clk *c;
+	int ret;
+
+	ret = clk_get_by_id(clk->id, &c);
+	if (ret)
+		return ret;
+
+	return clk_disable(c);
+}
+
+const struct clk_ops at91_clk_ops = {
+	.of_xlate	= at91_clk_of_xlate,
+	.set_rate	= at91_clk_set_rate,
+	.get_rate	= at91_clk_get_rate,
+	.enable		= at91_clk_enable,
+	.disable	= at91_clk_disable,
+};
 
 /**
  * pmc_read() - read content at address base + off into val
