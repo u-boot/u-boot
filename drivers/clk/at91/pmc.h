@@ -127,6 +127,12 @@ at91_clk_register_sam9x5_peripheral(void __iomem *base,
 			const struct clk_pcr_layout *layout,
 			const char *name, const char *parent_name,
 			u32 id, const struct clk_range *range);
+struct clk *
+at91_clk_register_generic(void __iomem *base,
+			const struct clk_pcr_layout *layout, const char *name,
+			const char * const *parent_names,
+			const u32 *clk_mux_table, const u32 *mux_table,
+			u8 num_parents, u8 id, const struct clk_range *range);
 
 int at91_clk_mux_val_to_index(const u32 *table, u32 num_parents, u32 val);
 int at91_clk_mux_index_to_val(const u32 *table, u32 num_parents, u32 index);
