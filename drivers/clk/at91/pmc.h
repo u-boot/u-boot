@@ -63,6 +63,14 @@ struct clk_programmable_layout {
 	u8 is_pres_direct;
 };
 
+struct clk_pcr_layout {
+	u32 offset;
+	u32 cmd;
+	u32 div_mask;
+	u32 gckcss_mask;
+	u32 pid_mask;
+};
+
 extern const struct clk_programmable_layout at91rm9200_programmable_layout;
 extern const struct clk_programmable_layout at91sam9g45_programmable_layout;
 extern const struct clk_programmable_layout at91sam9x5_programmable_layout;
@@ -111,6 +119,14 @@ at91_clk_register_programmable(void __iomem *base, const char *name,
 struct clk *
 at91_clk_register_system(void __iomem *base, const char *name,
 			const char *parent_name, u8 id);
+struct clk *
+at91_clk_register_peripheral(void __iomem *base, const char *name,
+			const char *parent_name, u32 id);
+struct clk *
+at91_clk_register_sam9x5_peripheral(void __iomem *base,
+			const struct clk_pcr_layout *layout,
+			const char *name, const char *parent_name,
+			u32 id, const struct clk_range *range);
 
 int at91_clk_mux_val_to_index(const u32 *table, u32 num_parents, u32 val);
 int at91_clk_mux_index_to_val(const u32 *table, u32 num_parents, u32 index);
