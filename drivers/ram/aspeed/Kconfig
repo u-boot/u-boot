@@ -1,0 +1,10 @@
+if RAM || SPL_RAM
+config ASPEED_DDR4_DUALX8
+	bool "Enable Dual X8 DDR4 die"
+	depends on DM && OF_CONTROL && ARCH_ASPEED
+	default n
+	help
+		Say Y if dual X8 DDR4 die is used on the board.  The aspeed ddr sdram
+		controller needs to know if the memory chip mounted on the board is dual
+		 x8 die or not.  Or it may get the wrong size of the memory space.
+endif
