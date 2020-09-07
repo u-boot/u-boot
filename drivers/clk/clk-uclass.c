@@ -606,6 +606,9 @@ int clk_disable(struct clk *clk)
 
 	if (CONFIG_IS_ENABLED(CLK_CCF)) {
 		if (clk->id && !clk_get_by_id(clk->id, &clkp)) {
+			if (clkp->flags & CLK_IS_CRITICAL)
+				return 0;
+
 			if (clkp->enable_count == 0) {
 				printf("clk %s already disabled\n",
 				       clkp->dev->name);

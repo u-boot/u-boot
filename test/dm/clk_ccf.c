@@ -24,7 +24,7 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	int ret;
 #if CONFIG_IS_ENABLED(CLK_CCF)
 	const char *clkname;
-	int clkid;
+	int clkid, i;
 #endif
 
 	/* Get the device using the clk device */
@@ -157,6 +157,36 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	pclk = clk_get_parent(clk);
 	ut_assertok_ptr(pclk);
 	ut_asserteq_str(clkname, pclk->dev->name);
+
+	/* Test disabling critical clock. */
+	ret = clk_get_by_id(SANDBOX_CLK_I2C_ROOT, &clk);
+	ut_assertok(ret);
+	ut_asserteq_str("i2c_root", clk->dev->name);
+
+	/* Disable it, if any. */
+	ret = sandbox_clk_enable_count(clk);
+	for (i = 0; i < ret; i++) {
+		ret = clk_disable(clk);
+		ut_assertok(ret);
+	}
+
+	ret = sandbox_clk_enable_count(clk);
+	ut_asserteq(ret, 0);
+
+	clk->flags = CLK_IS_CRITICAL;
+	ret = clk_enable(clk);
+	ut_assertok(ret);
+
+	ret = clk_disable(clk);
+	ut_assertok(ret);
+	ret = sandbox_clk_enable_count(clk);
+	ut_asserteq(ret, 1);
+	clk->flags &= ~CLK_IS_CRITICAL;
+
+	ret = clk_disable(clk);
+	ut_assertok(ret);
+	ret = sandbox_clk_enable_count(clk);
+	ut_asserteq(ret, 0);
 #endif
 
 	return 1;
