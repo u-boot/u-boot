@@ -24,8 +24,7 @@ DECLARE_GLOBAL_DATA_PTR;
 int platform_sys_info(struct sys_info *si)
 {
 
-	platform_set_mr(si, gd->bd->bi_memstart,
-			gd->bd->bi_memsize, MR_ATTR_DRAM);
+	platform_set_mr(si, gd->ram_base, gd->ram_size, MR_ATTR_DRAM);
 
 	return 1;
 }

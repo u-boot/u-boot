@@ -49,11 +49,6 @@ int checkboard(void)
 	return 0;
 }
 
-int dram_init_banksize(void)
-{
-	return 0;
-}
-
 int board_postclk_init(void)
 {
 	/*

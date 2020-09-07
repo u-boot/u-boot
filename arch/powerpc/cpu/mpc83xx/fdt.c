@@ -121,7 +121,7 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
                 "clock-frequency", get_serial_clock(), 1);
 #endif
 
-	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
+	fdt_fixup_memory(blob, (u64)gd->ram_base, (u64)gd->ram_size);
 
 #if defined(CONFIG_BOOTCOUNT_LIMIT) && \
 	(defined(CONFIG_QE) && !defined(CONFIG_ARCH_MPC831X))

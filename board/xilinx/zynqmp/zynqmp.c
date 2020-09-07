@@ -423,10 +423,8 @@ int dram_init(void)
 #else
 int dram_init_banksize(void)
 {
-#if defined(CONFIG_NR_DRAM_BANKS)
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = get_effective_memsize();
-#endif
 
 	mem_map_fill();
 

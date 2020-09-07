@@ -27,8 +27,6 @@
 #include <linux/types.h>
 
 struct bd_info {
-	unsigned long	bi_memstart;	/* start of DRAM memory */
-	phys_size_t	bi_memsize;	/* size	 of DRAM memory in bytes */
 	unsigned long	bi_flashstart;	/* start of FLASH memory */
 	unsigned long	bi_flashsize;	/* size	 of FLASH memory */
 	unsigned long	bi_flashoffset; /* reserved area for startup monitor */
@@ -70,12 +68,10 @@ struct bd_info {
 #endif
 	ulong	        bi_arch_number;	/* unique id for this board */
 	ulong	        bi_boot_params;	/* where this board expects params */
-#ifdef CONFIG_NR_DRAM_BANKS
 	struct {			/* RAM configuration */
 		phys_addr_t start;
 		phys_size_t size;
 	} bi_dram[CONFIG_NR_DRAM_BANKS];
-#endif /* CONFIG_NR_DRAM_BANKS */
 };
 
 #endif /* __ASSEMBLY__ */
