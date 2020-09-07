@@ -20,7 +20,8 @@
 
 #include "pmc.h"
 
-#define UBOOT_DM_CLK_AT91_UTMI		"at91-utmi-clk"
+#define UBOOT_DM_CLK_AT91_UTMI			"at91-utmi-clk"
+#define UBOOT_DM_CLK_AT91_SAMA7G5_UTMI		"at91-sama7g5-utmi-clk"
 
 /*
  * The purpose of this clock is to generate a 480 MHz signal. A different
@@ -161,5 +162,73 @@ U_BOOT_DRIVER(at91_utmi_clk) = {
 	.name = UBOOT_DM_CLK_AT91_UTMI,
 	.id = UCLASS_CLK,
 	.ops = &utmi_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+
+static int clk_utmi_sama7g5_enable(struct clk *clk)
+{
+	struct clk_utmi *utmi = to_clk_utmi(clk);
+	ulong parent_rate = clk_get_parent_rate(clk);
+	unsigned int val;
+
+	switch (parent_rate) {
+	case 16000000:
+		val = 0;
+		break;
+	case 20000000:
+		val = 2;
+		break;
+	case 24000000:
+		val = 3;
+		break;
+	case 32000000:
+		val = 5;
+		break;
+	default:
+		debug("UTMICK: unsupported main_xtal rate\n");
+		return -EINVAL;
+	}
+
+	pmc_write(utmi->base, AT91_PMC_XTALF, val);
+
+	return 0;
+}
+
+static const struct clk_ops sama7g5_utmi_ops = {
+	.enable = clk_utmi_sama7g5_enable,
+	.get_rate = clk_utmi_get_rate,
+};
+
+struct clk *at91_clk_sama7g5_register_utmi(void __iomem *base,
+		const char *name, const char *parent_name)
+{
+	struct clk_utmi *utmi;
+	struct clk *clk;
+	int ret;
+
+	if (!base || !name || !parent_name)
+		return ERR_PTR(-EINVAL);
+
+	utmi = kzalloc(sizeof(*utmi), GFP_KERNEL);
+	if (!utmi)
+		return ERR_PTR(-ENOMEM);
+
+	utmi->base = base;
+
+	clk = &utmi->clk;
+	ret = clk_register(clk, UBOOT_DM_CLK_AT91_SAMA7G5_UTMI, name,
+			   parent_name);
+	if (ret) {
+		kfree(utmi);
+		clk = ERR_PTR(ret);
+	}
+
+	return clk;
+}
+
+U_BOOT_DRIVER(at91_sama7g5_utmi_clk) = {
+	.name = UBOOT_DM_CLK_AT91_SAMA7G5_UTMI,
+	.id = UCLASS_CLK,
+	.ops = &sama7g5_utmi_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
