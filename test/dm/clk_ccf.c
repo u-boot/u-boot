@@ -22,6 +22,10 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	struct udevice *dev;
 	long long rate;
 	int ret;
+#if CONFIG_IS_ENABLED(CLK_CCF)
+	const char *clkname;
+	int clkid;
+#endif
 
 	/* Get the device using the clk device */
 	ut_assertok(uclass_get_device_by_name(UCLASS_CLK, "clk-ccf", &dev));
@@ -130,6 +134,29 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 
 	ret = sandbox_clk_enable_count(pclk);
 	ut_asserteq(ret, 0);
+
+	/* Test clock re-parenting. */
+	ret = clk_get_by_id(SANDBOX_CLK_USDHC1_SEL, &clk);
+	ut_assertok(ret);
+	ut_asserteq_str("usdhc1_sel", clk->dev->name);
+
+	pclk = clk_get_parent(clk);
+	ut_assertok_ptr(pclk);
+	if (!strcmp(pclk->dev->name, "pll3_60m")) {
+		clkname = "pll3_80m";
+		clkid = SANDBOX_CLK_PLL3_80M;
+	} else {
+		clkname = "pll3_60m";
+		clkid = SANDBOX_CLK_PLL3_60M;
+	}
+
+	ret = clk_get_by_id(clkid, &pclk);
+	ut_assertok(ret);
+	ret = clk_set_parent(clk, pclk);
+	ut_assertok(ret);
+	pclk = clk_get_parent(clk);
+	ut_assertok_ptr(pclk);
+	ut_asserteq_str(clkname, pclk->dev->name);
 #endif
 
 	return 1;
