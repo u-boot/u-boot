@@ -632,11 +632,8 @@ struct xhci_ep_ctx {
  */
 #define	FORCE_EVENT		(0x1)
 #define ERROR_COUNT(p)		(((p) & 0x3) << 1)
-#define ERROR_COUNT_SHIFT	(1)
-#define ERROR_COUNT_MASK	(0x3)
 #define CTX_TO_EP_TYPE(p)	(((p) >> 3) & 0x7)
 #define EP_TYPE(p)		((p) << 3)
-#define EP_TYPE_SHIFT		(3)
 #define ISOC_OUT_EP		1
 #define BULK_OUT_EP		2
 #define INT_OUT_EP		3
@@ -647,13 +644,10 @@ struct xhci_ep_ctx {
 /* bit 6 reserved */
 /* bit 7 is Host Initiate Disable - for disabling stream selection */
 #define MAX_BURST(p)		(((p)&0xff) << 8)
-#define MAX_BURST_MASK		(0xff)
-#define MAX_BURST_SHIFT		(8)
 #define CTX_TO_MAX_BURST(p)	(((p) >> 8) & 0xff)
 #define MAX_PACKET(p)		(((p)&0xffff) << 16)
 #define MAX_PACKET_MASK		(0xffff)
 #define MAX_PACKET_DECODED(p)	(((p) >> 16) & 0xffff)
-#define MAX_PACKET_SHIFT	(16)
 
 /* Get max packet size from ep desc. Bit 10..0 specify the max packet size.
  * USB2.0 spec 9.6.6.
