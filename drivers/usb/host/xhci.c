@@ -33,6 +33,7 @@
 #include <linux/bug.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
+#include <linux/iopoll.h>
 #include <usb/xhci.h>
 
 #ifndef CONFIG_USB_MAX_CONTROLLER_COUNT
@@ -143,23 +144,19 @@ struct xhci_ctrl *xhci_get_ctrl(struct usb_device *udev)
  * @param usec	time to wait till
  * @return 0 if handshake is success else < 0 on failure
  */
-static int handshake(uint32_t volatile *ptr, uint32_t mask,
-					uint32_t done, int usec)
+static int
+handshake(uint32_t volatile *ptr, uint32_t mask, uint32_t done, int usec)
 {
 	uint32_t result;
+	int ret;
 
-	do {
-		result = xhci_readl(ptr);
-		if (result == ~(uint32_t)0)
-			return -ENODEV;
-		result &= mask;
-		if (result == done)
-			return 0;
-		usec--;
-		udelay(1);
-	} while (usec > 0);
+	ret = readx_poll_sleep_timeout(xhci_readl, ptr, result,
+				 (result & mask) == done || result == U32_MAX,
+				 1, usec);
+	if (result == U32_MAX)		/* card removed */
+		return -ENODEV;
 
-	return -ETIMEDOUT;
+	return ret;
 }
 
 /**
