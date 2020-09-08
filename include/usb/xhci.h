@@ -101,8 +101,6 @@ struct xhci_hccr {
 /* bits 8:18, Max Interrupters */
 #define HCS_MAX_INTRS(p)	(((p) >> 8) & 0x7ff)
 /* bits 24:31, Max Ports - max value is 0x7F = 127 ports */
-#define HCS_MAX_PORTS_SHIFT	24
-#define HCS_MAX_PORTS_MASK	(0xff << HCS_MAX_PORTS_SHIFT)
 #define HCS_MAX_PORTS(p)	(((p) >> 24) & 0xff)
 
 /* HCSPARAMS2 - hcs_params2 - bitmasks */

@@ -1257,8 +1257,7 @@ static int xhci_lowlevel_init(struct xhci_ctrl *ctrl)
 		return -ENOMEM;
 
 	reg = xhci_readl(&hccr->cr_hcsparams1);
-	descriptor.hub.bNbrPorts = ((reg & HCS_MAX_PORTS_MASK) >>
-						HCS_MAX_PORTS_SHIFT);
+	descriptor.hub.bNbrPorts = HCS_MAX_PORTS(reg);
 	printf("Register %x NbrPorts %d\n", reg, descriptor.hub.bNbrPorts);
 
 	/* Port Indicators */
