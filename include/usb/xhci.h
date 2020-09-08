@@ -1227,6 +1227,7 @@ struct xhci_ctrl {
 	struct xhci_scratchpad *scratchpad;
 	struct xhci_virt_device *devs[MAX_HC_SLOTS];
 	int rootdev;
+	u16 hci_version;
 };
 
 unsigned long trb_addr(struct xhci_segment *seg, union xhci_trb *trb);

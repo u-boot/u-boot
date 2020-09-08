@@ -1283,6 +1283,7 @@ static int xhci_lowlevel_init(struct xhci_ctrl *ctrl)
 
 	reg = HC_VERSION(xhci_readl(&hccr->cr_capbase));
 	printf("USB XHCI %x.%02x\n", reg >> 8, reg & 0xff);
+	ctrl->hci_version = reg;
 
 	return 0;
 }
