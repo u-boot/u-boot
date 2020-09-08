@@ -332,13 +332,18 @@ static u32 xhci_td_remainder(struct xhci_ctrl *ctrl, int transferred,
 {
 	u32 total_packet_count;
 
-	if (ctrl->hci_version < 0x100)
+	/* MTK xHCI 0.96 contains some features from 1.0 */
+	if (ctrl->hci_version < 0x100 && !(ctrl->quirks & XHCI_MTK_HOST))
 		return ((td_total_len - transferred) >> 10);
 
 	/* One TRB with a zero-length data packet. */
 	if (!more_trbs_coming || (transferred == 0 && trb_buff_len == 0) ||
 	    trb_buff_len == td_total_len)
 		return 0;
+
+	/* for MTK xHCI 0.96, TD size include this TRB, but not in 1.x */
+	if ((ctrl->quirks & XHCI_MTK_HOST) && (ctrl->hci_version < 0x100))
+		trb_buff_len = 0;
 
 	total_packet_count = DIV_ROUND_UP(td_total_len, maxp);
 
@@ -823,7 +828,7 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 		field |= 0x1;
 
 	/* xHCI 1.0 6.4.1.2.1: Transfer Type field */
-	if (ctrl->hci_version >= 0x100) {
+	if (ctrl->hci_version >= 0x100 || ctrl->quirks & XHCI_MTK_HOST) {
 		if (length > 0) {
 			if (req->requesttype & USB_DIR_IN)
 				field |= (TRB_DATA_IN << TRB_TX_TYPE_SHIFT);

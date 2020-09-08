@@ -650,7 +650,7 @@ static int xhci_set_configuration(struct usb_device *udev)
 		 * are put into reserved DWs in Slot and Endpoint Contexts
 		 * for synchronous endpoints.
 		 */
-		if (IS_ENABLED(CONFIG_USB_XHCI_MTK)) {
+		if (ctrl->quirks & XHCI_MTK_HOST) {
 			ep_ctx[ep_index]->reserved[0] =
 				cpu_to_le32(EP_BPKTS(1) | EP_BBM(1));
 		}

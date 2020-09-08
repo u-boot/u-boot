@@ -1230,6 +1230,8 @@ struct xhci_ctrl {
 	struct xhci_virt_device *devs[MAX_HC_SLOTS];
 	int rootdev;
 	u16 hci_version;
+	u32 quirks;
+#define XHCI_MTK_HOST		BIT(0)
 };
 
 unsigned long trb_addr(struct xhci_segment *seg, union xhci_trb *trb);
