@@ -879,7 +879,6 @@ struct xhci_event_cmd {
 /* Control transfer TRB specific fields */
 #define TRB_DIR_IN		(1<<16)
 #define	TRB_TX_TYPE(p)		((p) << 16)
-#define	TRB_TX_TYPE_SHIFT	(16)
 #define	TRB_DATA_OUT		2
 #define	TRB_DATA_IN		3
 

@@ -830,9 +830,9 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 	if (ctrl->hci_version >= 0x100 || ctrl->quirks & XHCI_MTK_HOST) {
 		if (length > 0) {
 			if (req->requesttype & USB_DIR_IN)
-				field |= (TRB_DATA_IN << TRB_TX_TYPE_SHIFT);
+				field |= TRB_TX_TYPE(TRB_DATA_IN);
 			else
-				field |= (TRB_DATA_OUT << TRB_TX_TYPE_SHIFT);
+				field |= TRB_TX_TYPE(TRB_DATA_OUT);
 		}
 	}
 
