@@ -8,6 +8,7 @@
  */
 
 #include "versal-vc-p-a2197-00-revA.dts"
+#include <dt-bindings/net/mscc-phy-vsc8531.h>
 
 / {
 	compatible = "xlnx,versal-vc-p-a2197-00-revA-x-prc-05-revA",
@@ -38,10 +39,12 @@
 	phy-handle = <&phy1>;
 	phy-mode = "rgmii-id";
 	phy1: phy@1 { /* 88e1510 */
-		reg = <1>; /* FIXME */
+		reg = <1>;
 	};
 	phy2: phy@2 { /* VSC8531 */
-		reg = <2>; /* FIXME */
+		reg = <2>;
+		vsc8531,rx-delay = <VSC8531_RGMII_CLK_DELAY_2_6_NS>;
+		vsc8531,tx-delay = <VSC8531_RGMII_CLK_DELAY_2_6_NS>;
 	};
 };
 
