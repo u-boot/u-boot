@@ -298,55 +298,52 @@ void xhci_queue_command(struct xhci_ctrl *ctrl, u8 *ptr, u32 slot_id,
 	xhci_writel(&ctrl->dba->doorbell[0], DB_VALUE_HOST);
 }
 
-/**
- * The TD size is the number of bytes remaining in the TD (including this TRB),
- * right shifted by 10.
- * It must fit in bits 21:17, so it can't be bigger than 31.
+/*
+ * For xHCI 1.0 host controllers, TD size is the number of max packet sized
+ * packets remaining in the TD (*not* including this TRB).
  *
- * @param remainder	remaining packets to be sent
- * @return remainder if remainder is less than max else max
- */
-static u32 xhci_td_remainder(unsigned int remainder)
-{
-	u32 max = (1 << (21 - 17 + 1)) - 1;
-
-	if ((remainder >> 10) >= max)
-		return max << 17;
-	else
-		return (remainder >> 10) << 17;
-}
-
-/**
- * Finds out the remanining packets to be sent
+ * Total TD packet count = total_packet_count =
+ *     DIV_ROUND_UP(TD size in bytes / wMaxPacketSize)
  *
- * @param running_total	total size sent so far
+ * Packets transferred up to and including this TRB = packets_transferred =
+ *     rounddown(total bytes transferred including this TRB / wMaxPacketSize)
+ *
+ * TD size = total_packet_count - packets_transferred
+ *
+ * For xHCI 0.96 and older, TD size field should be the remaining bytes
+ * including this TRB, right shifted by 10
+ *
+ * For all hosts it must fit in bits 21:17, so it can't be bigger than 31.
+ * This is taken care of in the TRB_TD_SIZE() macro
+ *
+ * The last TRB in a TD must have the TD size set to zero.
+ *
+ * @param ctrl	host controller data structure
+ * @param transferred	total size sent so far
  * @param trb_buff_len	length of the TRB Buffer
- * @param total_packet_count	total packet count
- * @param maxpacketsize		max packet size of current pipe
- * @param num_trbs_left		number of TRBs left to be processed
- * @return 0 if running_total or trb_buff_len is 0, else remainder
+ * @param td_total_len	total packet count
+ * @param maxp	max packet size of current pipe
+ * @param more_trbs_coming	indicate last trb in TD
+ * @return remainder
  */
-static u32 xhci_v1_0_td_remainder(int running_total,
-				int trb_buff_len,
-				unsigned int total_packet_count,
-				int maxpacketsize,
-				unsigned int num_trbs_left)
+static u32 xhci_td_remainder(struct xhci_ctrl *ctrl, int transferred,
+			     int trb_buff_len, unsigned int td_total_len,
+			     int maxp, bool more_trbs_coming)
 {
-	int packets_transferred;
+	u32 total_packet_count;
+
+	if (ctrl->hci_version < 0x100)
+		return ((td_total_len - transferred) >> 10);
 
 	/* One TRB with a zero-length data packet. */
-	if (num_trbs_left == 0 || (running_total == 0 && trb_buff_len == 0))
+	if (!more_trbs_coming || (transferred == 0 && trb_buff_len == 0) ||
+	    trb_buff_len == td_total_len)
 		return 0;
 
-	/*
-	 * All the TRB queueing functions don't count the current TRB in
-	 * running_total.
-	 */
-	packets_transferred = (running_total + trb_buff_len) / maxpacketsize;
+	total_packet_count = DIV_ROUND_UP(td_total_len, maxp);
 
-	if ((total_packet_count - packets_transferred) > 31)
-		return 31 << 17;
-	return (total_packet_count - packets_transferred) << 17;
+	/* Queueing functions don't count the current TRB into transferred */
+	return (total_packet_count - ((transferred + trb_buff_len) / maxp));
 }
 
 /**
@@ -572,7 +569,7 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	union xhci_trb *event;
 
 	int running_total, trb_buff_len;
-	unsigned int total_packet_count;
+	bool more_trbs_coming = true;
 	int maxpacketsize;
 	u64 addr;
 	int ret;
@@ -636,8 +633,6 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	running_total = 0;
 	maxpacketsize = usb_maxpacket(udev, pipe);
 
-	total_packet_count = DIV_ROUND_UP(length, maxpacketsize);
-
 	/* How much data is in the first TRB? */
 	/*
 	 * How much data is (potentially) left before the 64KB boundary?
@@ -672,27 +667,24 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 		 * Chain all the TRBs together; clear the chain bit in the last
 		 * TRB to indicate it's the last TRB in the chain.
 		 */
-		if (num_trbs > 1)
+		if (num_trbs > 1) {
 			field |= TRB_CHAIN;
-		else
+		} else {
 			field |= TRB_IOC;
+			more_trbs_coming = false;
+		}
 
 		/* Only set interrupt on short packet for IN endpoints */
 		if (usb_pipein(pipe))
 			field |= TRB_ISP;
 
 		/* Set the TRB length, TD size, and interrupter fields. */
-		if (ctrl->hci_version < 0x100)
-			remainder = xhci_td_remainder(length - running_total);
-		else
-			remainder = xhci_v1_0_td_remainder(running_total,
-							   trb_buff_len,
-							   total_packet_count,
-							   maxpacketsize,
-							   num_trbs - 1);
+		remainder = xhci_td_remainder(ctrl, running_total, trb_buff_len,
+					      length, maxpacketsize,
+					      more_trbs_coming);
 
 		length_field = ((trb_buff_len & TRB_LEN_MASK) |
-				remainder |
+				TRB_TD_SIZE(remainder) |
 				((0 & TRB_INTR_TARGET_MASK) <<
 				TRB_INTR_TARGET_SHIFT));
 
@@ -764,6 +756,7 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 	struct xhci_virt_device *virt_dev = ctrl->devs[slot_id];
 	struct xhci_ring *ep_ring;
 	union xhci_trb *event;
+	u32 remainder;
 
 	debug("req=%u (%#x), type=%u (%#x), value=%u (%#x), index=%u\n",
 		req->request, req->request,
@@ -866,12 +859,14 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 	else
 		field = (TRB_DATA << TRB_TYPE_SHIFT);
 
-	length_field = (length & TRB_LEN_MASK) | xhci_td_remainder(length) |
+	remainder = xhci_td_remainder(ctrl, 0, length, length,
+				      usb_maxpacket(udev, pipe), true);
+	length_field = (length & TRB_LEN_MASK) | TRB_TD_SIZE(remainder) |
 			((0 & TRB_INTR_TARGET_MASK) << TRB_INTR_TARGET_SHIFT);
 	debug("length_field = %d, length = %d,"
 		"xhci_td_remainder(length) = %d , TRB_INTR_TARGET(0) = %d\n",
 		length_field, (length & TRB_LEN_MASK),
-		xhci_td_remainder(length), 0);
+		TRB_TD_SIZE(remainder), 0);
 
 	if (length > 0) {
 		if (req->requesttype & USB_DIR_IN)
