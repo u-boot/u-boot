@@ -903,7 +903,6 @@ union xhci_trb {
 /* TRB bit mask */
 #define	TRB_TYPE_BITMASK	(0xfc00)
 #define TRB_TYPE(p)		((p) << 10)
-#define TRB_TYPE_SHIFT		(10)
 #define TRB_FIELD_TO_TYPE(p)	(((p) & TRB_TYPE_BITMASK) >> 10)
 
 /* TRB type IDs */

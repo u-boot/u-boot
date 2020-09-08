@@ -236,8 +236,7 @@ static void xhci_link_segments(struct xhci_segment *prev,
 		 */
 		val = le32_to_cpu(prev->trbs[TRBS_PER_SEGMENT-1].link.control);
 		val &= ~TRB_TYPE_BITMASK;
-		val |= (TRB_LINK << TRB_TYPE_SHIFT);
-
+		val |= TRB_TYPE(TRB_LINK);
 		prev->trbs[TRBS_PER_SEGMENT-1].link.control = cpu_to_le32(val);
 	}
 }

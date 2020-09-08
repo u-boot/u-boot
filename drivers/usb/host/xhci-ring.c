@@ -696,7 +696,7 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 		trb_fields[0] = lower_32_bits(addr);
 		trb_fields[1] = upper_32_bits(addr);
 		trb_fields[2] = length_field;
-		trb_fields[3] = field | (TRB_NORMAL << TRB_TYPE_SHIFT);
+		trb_fields[3] = field | TRB_TYPE(TRB_NORMAL);
 
 		queue_trb(ctrl, ring, (num_trbs > 1), trb_fields);
 
@@ -823,7 +823,7 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 	/* Queue setup TRB - see section 6.4.1.2.1 */
 	/* FIXME better way to translate setup_packet into two u32 fields? */
 	field = 0;
-	field |= TRB_IDT | (TRB_SETUP << TRB_TYPE_SHIFT);
+	field |= TRB_IDT | TRB_TYPE(TRB_SETUP);
 	if (start_cycle == 0)
 		field |= 0x1;
 
@@ -860,9 +860,9 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 	/* If there's data, queue data TRBs */
 	/* Only set interrupt on short packet for IN endpoints */
 	if (usb_pipein(pipe))
-		field = TRB_ISP | (TRB_DATA << TRB_TYPE_SHIFT);
+		field = TRB_ISP | TRB_TYPE(TRB_DATA);
 	else
-		field = (TRB_DATA << TRB_TYPE_SHIFT);
+		field = TRB_TYPE(TRB_DATA);
 
 	remainder = xhci_td_remainder(ctrl, 0, length, length,
 				      usb_maxpacket(udev, pipe), true);
@@ -904,8 +904,7 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 	trb_fields[2] = ((0 & TRB_INTR_TARGET_MASK) << TRB_INTR_TARGET_SHIFT);
 		/* Event on completion */
 	trb_fields[3] = field | TRB_IOC |
-			(TRB_STATUS << TRB_TYPE_SHIFT) |
-			ep_ring->cycle_state;
+			TRB_TYPE(TRB_STATUS) | ep_ring->cycle_state;
 
 	queue_trb(ctrl, ep_ring, false, trb_fields);
 
