@@ -378,8 +378,6 @@ static void rx_descs_init(struct bcmgenet_eth_priv *priv)
 	u32 len_stat, i;
 	void *desc_base = priv->rx_desc_base;
 
-	priv->c_index = 0;
-
 	len_stat = (RX_BUF_LENGTH << DMA_BUFLENGTH_SHIFT) | DMA_OWN;
 
 	for (i = 0; i < RX_DESCS; i++) {
@@ -403,8 +401,11 @@ static void rx_ring_init(struct bcmgenet_eth_priv *priv)
 	writel(RX_DESCS * DMA_DESC_SIZE / 4 - 1,
 	       priv->mac_reg + RDMA_RING_REG_BASE + DMA_END_ADDR);
 
-	writel(0x0, priv->mac_reg + RDMA_PROD_INDEX);
-	writel(0x0, priv->mac_reg + RDMA_CONS_INDEX);
+	/* cannot init RDMA_PROD_INDEX to 0, so align RDMA_CONS_INDEX on it instead */
+	priv->c_index = readl(priv->mac_reg + RDMA_PROD_INDEX);
+	writel(priv->c_index, priv->mac_reg + RDMA_CONS_INDEX);
+	priv->rx_index = priv->c_index;
+	priv->rx_index &= 0xFF;
 	writel((RX_DESCS << DMA_RING_SIZE_SHIFT) | RX_BUF_LENGTH,
 	       priv->mac_reg + RDMA_RING_REG_BASE + DMA_RING_BUF_SIZE);
 	writel(DMA_FC_THRESH_VALUE, priv->mac_reg + RDMA_XON_XOFF_THRESH);
@@ -421,8 +422,10 @@ static void tx_ring_init(struct bcmgenet_eth_priv *priv)
 	writel(0x0, priv->mac_reg + TDMA_WRITE_PTR);
 	writel(TX_DESCS * DMA_DESC_SIZE / 4 - 1,
 	       priv->mac_reg + TDMA_RING_REG_BASE + DMA_END_ADDR);
-	writel(0x0, priv->mac_reg + TDMA_PROD_INDEX);
-	writel(0x0, priv->mac_reg + TDMA_CONS_INDEX);
+	/* cannot init TDMA_CONS_INDEX to 0, so align TDMA_PROD_INDEX on it instead */
+	priv->tx_index = readl(priv->mac_reg + TDMA_CONS_INDEX);
+	writel(priv->tx_index, priv->mac_reg + TDMA_PROD_INDEX);
+	priv->tx_index &= 0xFF;
 	writel(0x1, priv->mac_reg + TDMA_RING_REG_BASE + DMA_MBUF_DONE_THRESH);
 	writel(0x0, priv->mac_reg + TDMA_FLOW_PERIOD);
 	writel((TX_DESCS << DMA_RING_SIZE_SHIFT) | RX_BUF_LENGTH,
@@ -454,7 +457,8 @@ static int bcmgenet_adjust_link(struct bcmgenet_eth_priv *priv)
 	clrsetbits_32(priv->mac_reg + EXT_RGMII_OOB_CTRL, OOB_DISABLE,
 			RGMII_LINK | RGMII_MODE_EN);
 
-	if (phy_dev->interface == PHY_INTERFACE_MODE_RGMII)
+	if (phy_dev->interface == PHY_INTERFACE_MODE_RGMII ||
+	    phy_dev->interface == PHY_INTERFACE_MODE_RGMII_RXID)
 		setbits_32(priv->mac_reg + EXT_RGMII_OOB_CTRL, ID_MODE_DIS);
 
 	writel(speed << CMD_SPEED_SHIFT, (priv->mac_reg + UMAC_CMD));
@@ -469,8 +473,6 @@ static int bcmgenet_gmac_eth_start(struct udevice *dev)
 
 	priv->tx_desc_base = priv->mac_reg + GENET_TX_OFF;
 	priv->rx_desc_base = priv->mac_reg + GENET_RX_OFF;
-	priv->tx_index = 0x0;
-	priv->rx_index = 0x0;
 
 	bcmgenet_umac_reset(priv);
 
