@@ -34,7 +34,7 @@ void board_init_f(ulong dummy)
 void spl_board_init(void)
 {
 	preloader_console_init();
-#if defined(CONFIG_ARCH_EARLY_INIT_R) && defined(CONFIG_SPL_FPGA_SUPPORT)
+#if defined(CONFIG_ARCH_EARLY_INIT_R) && defined(CONFIG_SPL_FPGA)
 	arch_early_init_r();
 #endif
 	board_init();

@@ -30,6 +30,7 @@ obj-$(CONFIG_$(SPL_TPL_)TPM) += tpm/
 obj-$(CONFIG_$(SPL_TPL_)ACPI_PMC) += power/acpi_pmc/
 obj-$(CONFIG_$(SPL_)BOARD) += board/
 obj-$(CONFIG_XEN) += xen/
+obj-$(CONFIG_$(SPL_)FPGA) += fpga/
 
 ifndef CONFIG_TPL_BUILD
 ifdef CONFIG_SPL_BUILD
@@ -60,7 +61,6 @@ obj-$(CONFIG_SPL_USB_HOST_SUPPORT) += usb/host/
 obj-$(CONFIG_OMAP_USB_PHY) += usb/phy/
 obj-$(CONFIG_SPL_SATA_SUPPORT) += ata/ scsi/
 obj-$(CONFIG_HAVE_BLOCK_DEVICE) += block/
-obj-$(CONFIG_SPL_FPGA_SUPPORT) += fpga/
 obj-$(CONFIG_SPL_THERMAL) += thermal/
 
 endif
@@ -85,7 +85,6 @@ obj-y += cache/
 obj-$(CONFIG_CPU) += cpu/
 obj-y += crypto/
 obj-$(CONFIG_FASTBOOT) += fastboot/
-obj-$(CONFIG_FPGA) += fpga/
 obj-y += misc/
 obj-$(CONFIG_MMC) += mmc/
 obj-$(CONFIG_NVME) += nvme/
