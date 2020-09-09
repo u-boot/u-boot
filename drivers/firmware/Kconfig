@@ -36,3 +36,5 @@ config ZYNQMP_FIRMWARE
 	  various platform management services.
 	  Say yes to enable ZynqMP firmware interface driver.
 	  If in doubt, say N.
+
+source "drivers/firmware/scmi/Kconfig"

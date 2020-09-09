@@ -366,6 +366,22 @@
 		sandbox_firmware: sandbox-firmware {
 			compatible = "sandbox,firmware";
 		};
+
+		sandbox-scmi-agent@0 {
+			compatible = "sandbox,scmi-agent";
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		sandbox-scmi-agent@1 {
+			compatible = "sandbox,scmi-agent";
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			protocol@10 {
+				reg = <0x10>;
+			};
+		};
 	};
 
 	pinctrl-gpio {
