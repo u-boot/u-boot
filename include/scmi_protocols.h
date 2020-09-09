@@ -116,4 +116,64 @@ struct scmi_clk_rate_set_out {
 	s32 status;
 };
 
+/*
+ * SCMI Reset Domain Protocol
+ */
+
+enum scmi_reset_domain_message_id {
+	SCMI_RESET_DOMAIN_ATTRIBUTES = 0x3,
+	SCMI_RESET_DOMAIN_RESET = 0x4,
+};
+
+#define SCMI_RD_NAME_LEN		16
+
+#define SCMI_RD_ATTRIBUTES_FLAG_ASYNC	BIT(31)
+#define SCMI_RD_ATTRIBUTES_FLAG_NOTIF	BIT(30)
+
+#define SCMI_RD_RESET_FLAG_ASYNC	BIT(2)
+#define SCMI_RD_RESET_FLAG_ASSERT	BIT(1)
+#define SCMI_RD_RESET_FLAG_CYCLE	BIT(0)
+
+/**
+ * struct scmi_rd_attr_in - Payload for RESET_DOMAIN_ATTRIBUTES message
+ * @domain_id:	SCMI reset domain ID
+ */
+struct scmi_rd_attr_in {
+	u32 domain_id;
+};
+
+/**
+ * struct scmi_rd_attr_out - Payload for RESET_DOMAIN_ATTRIBUTES response
+ * @status:	SCMI command status
+ * @attributes:	Retrieved attributes of the reset domain
+ * @latency:	Reset cycle max lantency
+ * @name:	Reset domain name
+ */
+struct scmi_rd_attr_out {
+	s32 status;
+	u32 attributes;
+	u32 latency;
+	char name[SCMI_RD_NAME_LEN];
+};
+
+/**
+ * struct scmi_rd_reset_in - Message payload for RESET command
+ * @domain_id:		SCMI reset domain ID
+ * @flags:		Flags for the reset request
+ * @reset_state:	Reset target state
+ */
+struct scmi_rd_reset_in {
+	u32 domain_id;
+	u32 flags;
+	u32 reset_state;
+};
+
+/**
+ * struct scmi_rd_reset_out - Response payload for RESET command
+ * @status:	SCMI command status
+ */
+struct scmi_rd_reset_out {
+	s32 status;
+};
+
 #endif /* _SCMI_PROTOCOLS_H */
