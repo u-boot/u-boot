@@ -15,6 +15,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <reset.h>
 #include <asm/scmi_test.h>
 #include <dm/device-internal.h>
 #include <dm/test.h>
@@ -44,6 +45,8 @@ static int ut_assert_scmi_state_postprobe(struct unit_test_state *uts,
 	ut_assertnonnull(scmi_devices);
 	if (IS_ENABLED(CONFIG_CLK_SCMI))
 		ut_asserteq(3, scmi_devices->clk_count);
+	if (IS_ENABLED(CONFIG_RESET_SCMI))
+		ut_asserteq(1, scmi_devices->reset_count);
 
 	/* State of the simulated SCMI server exposed */
 	scmi_ctx = sandbox_scmi_service_ctx();
@@ -53,6 +56,8 @@ static int ut_assert_scmi_state_postprobe(struct unit_test_state *uts,
 	ut_assertnonnull(scmi_ctx->agent[0]);
 	ut_asserteq(2, scmi_ctx->agent[0]->clk_count);
 	ut_assertnonnull(scmi_ctx->agent[0]->clk);
+	ut_asserteq(1, scmi_ctx->agent[0]->reset_count);
+	ut_assertnonnull(scmi_ctx->agent[0]->reset);
 
 	ut_assertnonnull(scmi_ctx->agent[1]);
 	ut_assertnonnull(scmi_ctx->agent[1]->clk);
@@ -165,3 +170,34 @@ static int dm_test_scmi_clocks(struct unit_test_state *uts)
 }
 
 DM_TEST(dm_test_scmi_clocks, UT_TESTF_SCAN_FDT);
+
+static int dm_test_scmi_resets(struct unit_test_state *uts)
+{
+	struct sandbox_scmi_devices *scmi_devices;
+	struct sandbox_scmi_service *scmi_ctx;
+	struct udevice *dev = NULL;
+	int ret;
+
+	if (!IS_ENABLED(CONFIG_RESET_SCMI))
+		return 0;
+
+	ret = load_sandbox_scmi_test_devices(uts, &dev);
+	if (ret)
+		return ret;
+
+	scmi_devices = sandbox_scmi_devices_ctx(dev);
+	scmi_ctx = sandbox_scmi_service_ctx();
+
+	/* Test SCMI resect controller manipulation */
+	ut_assert(!scmi_ctx->agent[0]->reset[0].asserted)
+
+	ut_assertok(reset_assert(&scmi_devices->reset[0]));
+	ut_assert(scmi_ctx->agent[0]->reset[0].asserted)
+
+	ut_assertok(reset_deassert(&scmi_devices->reset[0]));
+	ut_assert(!scmi_ctx->agent[0]->reset[0].asserted);
+
+	return release_sandbox_scmi_test_devices(uts, dev);
+}
+
+DM_TEST(dm_test_scmi_resets, UT_TESTF_SCAN_FDT);

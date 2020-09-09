@@ -18,19 +18,20 @@
  * processing. It simulates few of the SCMI services for some of the
  * SCMI protocols embedded in U-Boot. Currently:
  * - SCMI clock protocol: emulate 2 agents each exposing few clocks
+ * - SCMI reset protocol: emulate 1 agents each exposing a reset
  *
- * Agent #0 simulates 2 clocks.
- * See IDs in scmi0_clk[] and "sandbox-scmi-agent@0" in test.dts.
+ * Agent #0 simulates 2 clocks and 1 reset domain.
+ * See IDs in scmi0_clk[]/scmi0_reset[] and "sandbox-scmi-agent@0" in test.dts.
  *
  * Agent #1 simulates 1 clock.
  * See IDs in scmi1_clk[] and "sandbox-scmi-agent@1" in test.dts.
  *
- * All clocks are default disabled.
+ * All clocks are default disabled and reset levels down.
  *
  * This Driver exports sandbox_scmi_service_ct() for the test sequence to
  * get the state of the simulated services (clock state, rate, ...) and
  * check back-end device state reflects the request send through the
- * various uclass devices, currently only clock controllers.
+ * various uclass devices, as clocks and reset controllers.
  */
 
 #define SANDBOX_SCMI_AGENT_COUNT	2
@@ -38,6 +39,10 @@
 static struct sandbox_scmi_clk scmi0_clk[] = {
 	{ .id = 7, .rate = 1000 },
 	{ .id = 3, .rate = 333 },
+};
+
+static struct sandbox_scmi_reset scmi0_reset[] = {
+	{ .id = 3 },
 };
 
 static struct sandbox_scmi_clk scmi1_clk[] = {
@@ -71,6 +76,11 @@ static void debug_print_agent_state(struct udevice *dev, char *str)
 		agent->clk_count > 1 ? agent->clk[1].rate : -1,
 		agent->clk_count > 2 ? agent->clk[2].enabled : -1,
 		agent->clk_count > 2 ? agent->clk[2].rate : -1);
+	dev_dbg(dev, " scmi%u_reset (%zu): %d, %d, ...\n",
+		agent->idx,
+		agent->reset_count,
+		agent->reset_count ? agent->reset[0].asserted : -1,
+		agent->reset_count > 1 ? agent->reset[1].asserted : -1);
 };
 
 static struct sandbox_scmi_clk *get_scmi_clk_state(uint agent_id, uint clock_id)
@@ -95,6 +105,20 @@ static struct sandbox_scmi_clk *get_scmi_clk_state(uint agent_id, uint clock_id)
 	for (n = 0; n < target_count; n++)
 		if (target[n].id == clock_id)
 			return target + n;
+
+	return NULL;
+}
+
+static struct sandbox_scmi_reset *get_scmi_reset_state(uint agent_id,
+						       uint reset_id)
+{
+	size_t n;
+
+	if (agent_id == 0) {
+		for (n = 0; n < ARRAY_SIZE(scmi0_reset); n++)
+			if (scmi0_reset[n].id == reset_id)
+				return scmi0_reset + n;
+	}
 
 	return NULL;
 }
@@ -194,6 +218,78 @@ static int sandbox_scmi_clock_gate(struct udevice *dev, struct scmi_msg *msg)
 	return 0;
 }
 
+static int sandbox_scmi_rd_attribs(struct udevice *dev, struct scmi_msg *msg)
+{
+	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
+	struct scmi_rd_attr_in *in = NULL;
+	struct scmi_rd_attr_out *out = NULL;
+	struct sandbox_scmi_reset *reset_state = NULL;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(*in) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	in = (struct scmi_rd_attr_in *)msg->in_msg;
+	out = (struct scmi_rd_attr_out *)msg->out_msg;
+
+	reset_state = get_scmi_reset_state(agent->idx, in->domain_id);
+	if (!reset_state) {
+		dev_err(dev, "Unexpected reset domain ID %u\n", in->domain_id);
+
+		out->status = SCMI_NOT_FOUND;
+	} else {
+		memset(out, 0, sizeof(*out));
+		snprintf(out->name, sizeof(out->name), "rd%u", in->domain_id);
+
+		out->status = SCMI_SUCCESS;
+	}
+
+	return 0;
+}
+
+static int sandbox_scmi_rd_reset(struct udevice *dev, struct scmi_msg *msg)
+{
+	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
+	struct scmi_rd_reset_in *in = NULL;
+	struct scmi_rd_reset_out *out = NULL;
+	struct sandbox_scmi_reset *reset_state = NULL;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(*in) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	in = (struct scmi_rd_reset_in *)msg->in_msg;
+	out = (struct scmi_rd_reset_out *)msg->out_msg;
+
+	reset_state = get_scmi_reset_state(agent->idx, in->domain_id);
+	if (!reset_state) {
+		dev_err(dev, "Unexpected reset domain ID %u\n", in->domain_id);
+
+		out->status = SCMI_NOT_FOUND;
+	} else if (in->reset_state > 1) {
+		dev_err(dev, "Invalid reset domain input attribute value\n");
+
+		out->status = SCMI_INVALID_PARAMETERS;
+	} else {
+		if (in->flags & SCMI_RD_RESET_FLAG_CYCLE) {
+			if (in->flags & SCMI_RD_RESET_FLAG_ASYNC) {
+				out->status = SCMI_NOT_SUPPORTED;
+			} else {
+				/* Ends deasserted whatever current state */
+				reset_state->asserted = false;
+				out->status = SCMI_SUCCESS;
+			}
+		} else {
+			reset_state->asserted = in->flags &
+						SCMI_RD_RESET_FLAG_ASSERT;
+
+			out->status = SCMI_SUCCESS;
+		}
+	}
+
+	return 0;
+}
+
 static int sandbox_scmi_test_process_msg(struct udevice *dev,
 					 struct scmi_msg *msg)
 {
@@ -210,12 +306,21 @@ static int sandbox_scmi_test_process_msg(struct udevice *dev,
 			break;
 		}
 		break;
+	case SCMI_PROTOCOL_ID_RESET_DOMAIN:
+		switch (msg->message_id) {
+		case SCMI_RESET_DOMAIN_ATTRIBUTES:
+			return sandbox_scmi_rd_attribs(dev, msg);
+		case SCMI_RESET_DOMAIN_RESET:
+			return sandbox_scmi_rd_reset(dev, msg);
+		default:
+			break;
+		}
+		break;
 	case SCMI_PROTOCOL_ID_BASE:
 	case SCMI_PROTOCOL_ID_POWER_DOMAIN:
 	case SCMI_PROTOCOL_ID_SYSTEM:
 	case SCMI_PROTOCOL_ID_PERF:
 	case SCMI_PROTOCOL_ID_SENSOR:
-	case SCMI_PROTOCOL_ID_RESET_DOMAIN:
 		*(u32 *)msg->out_msg = SCMI_NOT_SUPPORTED;
 		return 0;
 	default:
@@ -260,6 +365,8 @@ static int sandbox_scmi_test_probe(struct udevice *dev)
 			.idx = 0,
 			.clk = scmi0_clk,
 			.clk_count = ARRAY_SIZE(scmi0_clk),
+			.reset = scmi0_reset,
+			.reset_count = ARRAY_SIZE(scmi0_reset),
 		};
 		break;
 	case '1':

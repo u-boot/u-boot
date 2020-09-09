@@ -376,6 +376,11 @@
 				reg = <0x14>;
 				#clock-cells = <1>;
 			};
+
+			reset_scmi0: protocol@16 {
+				reg = <0x16>;
+				#reset-cells = <1>;
+			};
 		};
 
 		sandbox-scmi-agent@1 {
@@ -1082,6 +1087,7 @@
 	sandbox_scmi {
 		compatible = "sandbox,scmi-devices";
 		clocks = <&clk_scmi0 7>, <&clk_scmi0 3>, <&clk_scmi1 1>;
+		resets = <&reset_scmi0 3>;
 	};
 
 	pinctrl {

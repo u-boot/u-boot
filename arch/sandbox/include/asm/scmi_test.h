@@ -23,15 +23,28 @@ struct sandbox_scmi_clk {
 };
 
 /**
+ * struct sandbox_scmi_reset - Simulated reset controller exposed by SCMI
+ * @asserted:	Reset control state: true if asserted, false if desasserted
+ */
+struct sandbox_scmi_reset {
+	uint id;
+	bool asserted;
+};
+
+/**
  * struct sandbox_scmi_agent - Simulated SCMI service seen by SCMI agent
  * @idx:	Identifier for the SCMI agent, its index
  * @clk:	Simulated clocks
  * @clk_count:	Simulated clocks array size
+ * @clk:	Simulated reset domains
+ * @clk_count:	Simulated reset domains array size
  */
 struct sandbox_scmi_agent {
 	uint idx;
 	struct sandbox_scmi_clk *clk;
 	size_t clk_count;
+	struct sandbox_scmi_reset *reset;
+	size_t reset_count;
 };
 
 /**
@@ -48,10 +61,14 @@ struct sandbox_scmi_service {
  * struct sandbox_scmi_devices - Reference to devices probed through SCMI
  * @clk:		Array the clock devices
  * @clk_count:		Number of clock devices probed
+ * @reset:		Array the reset controller devices
+ * @reset_count:	Number of reset controller devices probed
  */
 struct sandbox_scmi_devices {
 	struct clk *clk;
 	size_t clk_count;
+	struct reset_ctl *reset;
+	size_t reset_count;
 };
 
 #ifdef CONFIG_SCMI_FIRMWARE
