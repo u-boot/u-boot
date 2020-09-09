@@ -273,20 +273,18 @@ static const struct dm_gpio_ops gpio_stm32_ops = {
 static int gpio_stm32_probe(struct udevice *dev)
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct ofnode_phandle_args args;
+	const char *name;
 	struct clk clk;
 	fdt_addr_t addr;
-	int ret;
+	int ret, i;
 
 	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	priv->regs = (struct stm32_gpio_regs *)addr;
-
-	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct ofnode_phandle_args args;
-	const char *name;
-	int i;
 
 	name = dev_read_string(dev, "st,bank-name");
 	if (!name)
