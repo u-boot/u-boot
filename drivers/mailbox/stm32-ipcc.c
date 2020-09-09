@@ -101,9 +101,8 @@ static int stm32_ipcc_probe(struct udevice *dev)
 {
 	struct stm32_ipcc *ipcc = dev_get_priv(dev);
 	fdt_addr_t addr;
-	const fdt32_t *cell;
 	struct clk clk;
-	int len, ret;
+	int ret;
 
 	debug("%s(dev=%p)\n", __func__, dev);
 
@@ -114,13 +113,11 @@ static int stm32_ipcc_probe(struct udevice *dev)
 	ipcc->reg_base = (void __iomem *)addr;
 
 	/* proc_id */
-	cell = dev_read_prop(dev, "st,proc_id", &len);
-	if (len < sizeof(fdt32_t)) {
+	ret = dev_read_u32_index(dev, "st,proc_id", 1, &ipcc->proc_id);
+	if (ret) {
 		dev_dbg(dev, "Missing st,proc_id\n");
 		return -EINVAL;
 	}
-
-	ipcc->proc_id = fdtdec_get_number(cell, 1);
 
 	if (ipcc->proc_id >= STM32_MAX_PROCS) {
 		dev_err(dev, "Invalid proc_id (%d)\n", ipcc->proc_id);
