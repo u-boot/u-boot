@@ -159,6 +159,14 @@ config CLK_CDCE9XX
 	   Enable the clock synthesizer driver for CDCE913/925/937/949
 	   series of chips.
 
+config CLK_SCMI
+	bool "Enable SCMI clock driver"
+	depends on SCMI_FIRMWARE
+	help
+	  Enable this option if you want to support clock devices exposed
+	  by a SCMI agent based on SCMI clock protocol communication
+	  with a SCMI server.
+
 source "drivers/clk/analogbits/Kconfig"
 source "drivers/clk/at91/Kconfig"
 source "drivers/clk/exynos/Kconfig"

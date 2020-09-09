@@ -58,9 +58,9 @@ static int scmi_bind_protocols(struct udevice *dev)
 {
 	int ret = 0;
 	ofnode node;
-	struct driver *drv;
 
 	dev_for_each_subnode(node, dev) {
+		struct driver *drv = NULL;
 		u32 protocol_id;
 
 		if (!ofnode_is_available(node))
@@ -70,9 +70,17 @@ static int scmi_bind_protocols(struct udevice *dev)
 			continue;
 
 		switch (protocol_id) {
+		case SCMI_PROTOCOL_ID_CLOCK:
+			if (IS_ENABLED(CONFIG_CLK_SCMI))
+				drv = DM_GET_DRIVER(scmi_clock);
+			break;
 		default:
-			dev_info(dev, "Ignore unsupported SCMI protocol %#x\n",
-				 protocol_id);
+			break;
+		}
+
+		if (!drv) {
+			dev_dbg(dev, "Ignore unsupported SCMI protocol %#x\n",
+				protocol_id);
 			continue;
 		}
 

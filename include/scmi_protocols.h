@@ -7,6 +7,7 @@
 #define _SCMI_PROTOCOLS_H
 
 #include <linux/bitops.h>
+#include <asm/types.h>
 
 /*
  * Subset the SCMI protocols definition
@@ -36,6 +37,83 @@ enum scmi_status_code {
 	SCMI_GENERIC_ERROR = -8,
 	SCMI_HARDWARE_ERROR = -9,
 	SCMI_PROTOCOL_ERROR = -10,
+};
+
+/*
+ * SCMI Clock Protocol
+ */
+
+enum scmi_clock_message_id {
+	SCMI_CLOCK_RATE_SET = 0x5,
+	SCMI_CLOCK_RATE_GET = 0x6,
+	SCMI_CLOCK_CONFIG_SET = 0x7,
+};
+
+#define SCMI_CLK_RATE_ASYNC_NOTIFY	BIT(0)
+#define SCMI_CLK_RATE_ASYNC_NORESP	(BIT(0) | BIT(1))
+#define SCMI_CLK_RATE_ROUND_DOWN	0
+#define SCMI_CLK_RATE_ROUND_UP		BIT(2)
+#define SCMI_CLK_RATE_ROUND_CLOSEST	BIT(3)
+
+/**
+ * struct scmi_clk_state_in - Message payload for CLOCK_CONFIG_SET command
+ * @clock_id:	SCMI clock ID
+ * @attributes:	Attributes of the targets clock state
+ */
+struct scmi_clk_state_in {
+	u32 clock_id;
+	u32 attributes;
+};
+
+/**
+ * struct scmi_clk_state_out - Response payload for CLOCK_CONFIG_SET command
+ * @status:	SCMI command status
+ */
+struct scmi_clk_state_out {
+	s32 status;
+};
+
+/**
+ * struct scmi_clk_state_in - Message payload for CLOCK_RATE_GET command
+ * @clock_id:	SCMI clock ID
+ * @attributes:	Attributes of the targets clock state
+ */
+struct scmi_clk_rate_get_in {
+	u32 clock_id;
+};
+
+/**
+ * struct scmi_clk_rate_get_out - Response payload for CLOCK_RATE_GET command
+ * @status:	SCMI command status
+ * @rate_lsb:	32bit LSB of the clock rate in Hertz
+ * @rate_msb:	32bit MSB of the clock rate in Hertz
+ */
+struct scmi_clk_rate_get_out {
+	s32 status;
+	u32 rate_lsb;
+	u32 rate_msb;
+};
+
+/**
+ * struct scmi_clk_state_in - Message payload for CLOCK_RATE_SET command
+ * @clock_id:	SCMI clock ID
+ * @flags:	Flags for the clock rate set request
+ * @rate_lsb:	32bit LSB of the clock rate in Hertz
+ * @rate_msb:	32bit MSB of the clock rate in Hertz
+ */
+struct scmi_clk_rate_set_in {
+	u32 clock_id;
+	u32 flags;
+	u32 rate_lsb;
+	u32 rate_msb;
+};
+
+/**
+ * struct scmi_clk_rate_set_out - Response payload for CLOCK_RATE_SET command
+ * @status:	SCMI command status
+ */
+struct scmi_clk_rate_set_out {
+	s32 status;
 };
 
 #endif /* _SCMI_PROTOCOLS_H */
