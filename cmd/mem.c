@@ -985,6 +985,18 @@ static ulong test_bitflip_comparison(volatile unsigned long *bufa,
 	return errs;
 }
 
+static ulong mem_test_bitflip(vu_long *buf, ulong start, ulong end)
+{
+	/*
+	 * Split the specified range into two halves.
+	 * Note that mtest range is inclusive of start,end.
+	 * Bitflip test instead uses a count (of 32-bit words).
+	 */
+	ulong half_size = (end - start + 1) / 2 / sizeof(unsigned long);
+
+	return test_bitflip_comparison(buf, buf + half_size, half_size);
+}
+
 static ulong mem_test_quick(vu_long *buf, ulong start_addr, ulong end_addr,
 			    vu_long pattern, int iteration)
 {
@@ -1104,11 +1116,10 @@ static int do_mem_mtest(struct cmd_tbl *cmdtp, int flag, int argc,
 			errs = mem_test_alt(buf, start, end, dummy);
 			if (errs == -1UL)
 				break;
-			count += errs;
-			errs = test_bitflip_comparison(buf,
-						       buf + (end - start) / 2,
-						       (end - start) /
-						       sizeof(unsigned long));
+			if (IS_ENABLED(CONFIG_SYS_ALT_MEMTEST_BITFLIP)) {
+				count += errs;
+				errs = mem_test_bitflip(buf, start, end);
+			}
 		} else {
 			errs = mem_test_quick(buf, start, end, pattern,
 					      iteration);
