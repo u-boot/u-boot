@@ -295,6 +295,9 @@ static int gpio_stm32_probe(struct udevice *dev)
 	ret = dev_read_phandle_with_args(dev, "gpio-ranges",
 					 NULL, 3, i, &args);
 
+	if (!ret && args.args_count < 3)
+		return -EINVAL;
+
 	if (ret == -ENOENT) {
 		uc_priv->gpio_count = STM32_GPIOS_PER_BANK;
 		priv->gpio_range = GENMASK(STM32_GPIOS_PER_BANK - 1, 0);
@@ -308,6 +311,8 @@ static int gpio_stm32_probe(struct udevice *dev)
 
 		ret = dev_read_phandle_with_args(dev, "gpio-ranges", NULL, 3,
 						 ++i, &args);
+		if (!ret && args.args_count < 3)
+			return -EINVAL;
 	}
 
 	dev_dbg(dev, "addr = 0x%p bank_name = %s gpio_count = %d gpio_range = 0x%x\n",
