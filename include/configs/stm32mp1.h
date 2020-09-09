@@ -132,6 +132,19 @@
 		"run distro_bootcmd;" \
 	"fi;\0"
 
+#ifdef CONFIG_FASTBOOT_CMD_OEM_FORMAT
+/* eMMC default partitions for fastboot command: oem format */
+#define PARTS_DEFAULT \
+	"partitions=" \
+	"name=ssbl,size=2M;" \
+	"name=bootfs,size=64MB,bootable;" \
+	"name=vendorfs,size=16M;" \
+	"name=rootfs,size=746M;" \
+	"name=userfs,size=-\0"
+#else
+#define PARTS_DEFAULT
+#endif
+
 #include <config_distro_bootcmd.h>
 
 /*
@@ -150,6 +163,7 @@
 	"altbootcmd=run bootcmd\0" \
 	"env_check=if env info -p -d -q; then env save; fi\0" \
 	STM32MP_BOOTCMD \
+	PARTS_DEFAULT \
 	BOOTENV \
 	"boot_net_usb_start=true\0"
 
