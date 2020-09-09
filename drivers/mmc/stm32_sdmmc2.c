@@ -676,27 +676,13 @@ static int stm32_sdmmc2_probe(struct udevice *dev)
 			     GPIOD_IS_IN);
 
 	cfg->f_min = 400000;
-	cfg->f_max = dev_read_u32_default(dev, "max-frequency", 52000000);
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 	cfg->name = "STM32 SD/MMC";
 
 	cfg->host_caps = 0;
-	if (cfg->f_max > 25000000)
-		cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
-
-	switch (dev_read_u32_default(dev, "bus-width", 1)) {
-	case 8:
-		cfg->host_caps |= MMC_MODE_8BIT;
-		/* fall through */
-	case 4:
-		cfg->host_caps |= MMC_MODE_4BIT;
-		break;
-	case 1:
-		break;
-	default:
-		pr_err("invalid \"bus-width\" property, force to 1\n");
-	}
+	cfg->f_max = 52000000;
+	mmc_of_parse(dev, cfg);
 
 	upriv->mmc = &plat->mmc;
 
