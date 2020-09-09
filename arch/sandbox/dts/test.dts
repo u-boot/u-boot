@@ -371,12 +371,22 @@
 			compatible = "sandbox,scmi-agent";
 			#address-cells = <1>;
 			#size-cells = <0>;
+
+			clk_scmi0: protocol@14 {
+				reg = <0x14>;
+				#clock-cells = <1>;
+			};
 		};
 
 		sandbox-scmi-agent@1 {
 			compatible = "sandbox,scmi-agent";
 			#address-cells = <1>;
 			#size-cells = <0>;
+
+			clk_scmi1: protocol@14 {
+				reg = <0x14>;
+				#clock-cells = <1>;
+			};
 
 			protocol@10 {
 				reg = <0x10>;
@@ -1067,6 +1077,11 @@
 
 	sandbox_virtio2 {
 		compatible = "sandbox,virtio2";
+	};
+
+	sandbox_scmi {
+		compatible = "sandbox,scmi-devices";
+		clocks = <&clk_scmi0 7>, <&clk_scmi0 3>, <&clk_scmi1 1>;
 	};
 
 	pinctrl {
