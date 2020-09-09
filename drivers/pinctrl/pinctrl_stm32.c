@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2017-2020 STMicroelectronics - All Rights Reserved
+ */
+
 #include <common.h>
 #include <dm.h>
 #include <hwspinlock.h>
