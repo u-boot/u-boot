@@ -42,9 +42,9 @@ LIST_HEAD(efi_register_notify_events);
 /* Handle of the currently executing image */
 static efi_handle_t current_image;
 
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_RISCV)
 /*
- * The "gd" pointer lives in a register on ARM and AArch64 that we declare
+ * The "gd" pointer lives in a register on ARM and RISC-V that we declare
  * fixed when compiling U-Boot. However, the payload does not know about that
  * restriction so we need to manually swap its and our view of that register on
  * EFI callback entry/exit.
@@ -86,7 +86,7 @@ static efi_status_t EFIAPI efi_disconnect_controller(
 int __efi_entry_check(void)
 {
 	int ret = entry_count++ == 0;
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_RISCV)
 	assert(efi_gd);
 	app_gd = gd;
 	set_gd(efi_gd);
@@ -98,7 +98,7 @@ int __efi_entry_check(void)
 int __efi_exit_check(void)
 {
 	int ret = --entry_count == 0;
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_RISCV)
 	set_gd(app_gd);
 #endif
 	return ret;
@@ -107,7 +107,7 @@ int __efi_exit_check(void)
 /**
  * efi_save_gd() - save global data register
  *
- * On the ARM architecture gd is mapped to a fixed register (r9 or x18).
+ * On the ARM and RISC-V architectures gd is mapped to a fixed register.
  * As this register may be overwritten by an EFI payload we save it here
  * and restore it on every callback entered.
  *
@@ -115,7 +115,7 @@ int __efi_exit_check(void)
  */
 void efi_save_gd(void)
 {
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_RISCV)
 	efi_gd = gd;
 #endif
 }
@@ -123,13 +123,13 @@ void efi_save_gd(void)
 /**
  * efi_restore_gd() - restore global data register
  *
- * On the ARM architecture gd is mapped to a fixed register (r9 or x18).
+ * On the ARM and RISC-V architectures gd is mapped to a fixed register.
  * Restore it after returning from the UEFI world to the value saved via
  * efi_save_gd().
  */
 void efi_restore_gd(void)
 {
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_RISCV)
 	/* Only restore if we're already in EFI context */
 	if (!efi_gd)
 		return;
@@ -2920,7 +2920,7 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 		 * us to the current line. This implies that the second half
 		 * of the EFI_CALL macro has not been executed.
 		 */
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_RISCV)
 		/*
 		 * efi_exit() called efi_restore_gd(). We have to undo this
 		 * otherwise __efi_entry_check() will put the wrong value into
