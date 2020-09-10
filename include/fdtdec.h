@@ -1029,7 +1029,7 @@ static inline int fdtdec_set_phandle(void *blob, int node, uint32_t phandle)
  *     };
  *     uint32_t phandle;
  *
- *     fdtdec_add_reserved_memory(fdt, "framebuffer", &fb, &phandle);
+ *     fdtdec_add_reserved_memory(fdt, "framebuffer", &fb, &phandle, false);
  *
  * This results in the following subnode being added to the top-level
  * /reserved-memory node:
@@ -1056,11 +1056,12 @@ static inline int fdtdec_set_phandle(void *blob, int node, uint32_t phandle)
  * @param carveout	information about the carveout region
  * @param phandlep	return location for the phandle of the carveout region
  *			can be NULL if no phandle should be added
+ * @param no_map	add "no-map" property if true
  * @return 0 on success or a negative error code on failure
  */
 int fdtdec_add_reserved_memory(void *blob, const char *basename,
 			       const struct fdt_memory *carveout,
-			       uint32_t *phandlep);
+			       uint32_t *phandlep, bool no_map);
 
 /**
  * fdtdec_get_carveout() - reads a carveout from an FDT
