@@ -101,9 +101,12 @@ static int dm_test_fdtdec_add_reserved_memory(struct unit_test_state *uts)
 	resv.start = 0x2000;
 	resv.end = 0x2fff;
 	ut_assertok(fdtdec_add_reserved_memory(blob, "rsvd_region1",
-					       &resv, &phandle1, false));
+					       &resv, &phandle1, true));
 	subnode = fdt_path_offset(blob, "/reserved-memory/rsvd_region1");
 	ut_assert(subnode > 0);
+
+	/* check that no-map property is present */
+	ut_assert(fdt_getprop(blob, subnode, "no-map", NULL) > 0);
 
 	/* phandles must be different */
 	ut_assert(phandle != phandle1);
