@@ -197,6 +197,8 @@ obj-$(CONFIG_$(SPL_)CMD_TLV_EEPROM) += tlv_eeprom.o
 # core command
 obj-y += nvedit.o
 
+obj-$(CONFIG_CMD_BCM_EXT_UTILS) += broadcom/
+
 obj-$(CONFIG_TI_COMMON_CMD_OPTIONS) += ti/
 
 filechk_data_gz = (echo "static const char data_gz[] ="; cat $< | scripts/bin2c; echo ";")

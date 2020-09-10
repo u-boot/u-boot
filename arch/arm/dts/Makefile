@@ -938,7 +938,7 @@ dtb-$(CONFIG_ARCH_BCM6858) += \
 
 dtb-$(CONFIG_TARGET_BCMNS3) += ns3-board.dtb
 
-dtb-$(CONFIG_ARCH_ASPEED) += ast2500-evb.dtb
+dtb-$(CONFIG_ASPEED_AST2500) += ast2500-evb.dtb
 
 dtb-$(CONFIG_ARCH_STI) += stih410-b2260.dtb
 
