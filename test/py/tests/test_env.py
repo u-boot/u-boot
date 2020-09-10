@@ -151,7 +151,7 @@ def validate_empty(state_test_env, var):
         Nothing.
     """
 
-    response = state_test_env.u_boot_console.run_command('echo $%s' % var)
+    response = state_test_env.u_boot_console.run_command('echo ${%s}' % var)
     assert response == ''
 
 def validate_set(state_test_env, var, value):
