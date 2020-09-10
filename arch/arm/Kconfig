@@ -767,6 +767,7 @@ config ARCH_IPQ40XX
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	select DM_RESET
 	select MSM_SMEM
 	select PINCTRL
 	select CLK
