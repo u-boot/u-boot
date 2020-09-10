@@ -125,6 +125,12 @@ config STI_USB_PHY
 	  used by USB2 and USB3 Host controllers available on
 	  STiH407 SoC families.
 
+config PHY_QCOM_IPQ4019_USB
+	tristate "Qualcomm IPQ4019 USB PHY driver"
+	depends on PHY && ARCH_IPQ40XX
+	help
+	  Support for the USB PHY-s on Qualcomm IPQ40xx SoC-s.
+
 config PHY_RCAR_GEN2
 	tristate "Renesas R-Car Gen2 USB PHY"
 	depends on PHY && RCAR_GEN2

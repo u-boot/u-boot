@@ -240,6 +240,7 @@ F:	arch/arm/mach-ipq40xx/
 F:	include/dt-bindings/clock/qcom,ipq4019-gcc.h
 F:	include/dt-bindings/reset/qcom,ipq4019-reset.h
 F:	drivers/reset/reset-ipq4019.c
+F:	drivers/phy/phy-qcom-ipq4019-usb.c
 
 ARM MARVELL KIRKWOOD ARMADA-XP ARMADA-38X ARMADA-37XX ARMADA-7K/8K
 M:	Stefan Roese <sr@denx.de>
