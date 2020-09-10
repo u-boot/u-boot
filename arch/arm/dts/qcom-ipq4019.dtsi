@@ -39,6 +39,11 @@
 		};
 	};
 
+	smem {
+		compatible = "qcom,smem";
+		memory-region = <&smem_mem>;
+	};
+
 	soc: soc {
 		#address-cells = <1>;
 		#size-cells = <1>;

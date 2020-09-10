@@ -767,8 +767,10 @@ config ARCH_IPQ40XX
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	select MSM_SMEM
 	select PINCTRL
 	select CLK
+	select SMEM
 	select OF_CONTROL
 	imply CMD_DM
 
