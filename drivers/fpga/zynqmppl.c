@@ -305,7 +305,7 @@ static int zynqmp_pcap_info(xilinx_desc *desc)
 
 struct xilinx_fpga_op zynqmp_op = {
 	.load = zynqmp_load,
-#if defined CONFIG_CMD_FPGA_LOAD_SECURE
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE) && !defined(CONFIG_SPL_BUILD)
 	.loads = zynqmp_loads,
 #endif
 	.info = zynqmp_pcap_info,
