@@ -22,6 +22,34 @@
 #include "pcie_layerscape.h"
 #include "pcie_layerscape_fixup_common.h"
 
+static int fdt_pcie_get_nodeoffset(void *blob, struct ls_pcie_rc *pcie_rc)
+{
+	int nodeoffset;
+	uint svr;
+	char *compat = NULL;
+
+	/* find pci controller node */
+	nodeoffset = fdt_node_offset_by_compat_reg(blob, "fsl,ls-pcie",
+						   pcie_rc->dbi_res.start);
+	if (nodeoffset < 0) {
+#ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
+		svr = (get_svr() >> SVR_VAR_PER_SHIFT) & 0xFFFFFE;
+		if (svr == SVR_LS2088A || svr == SVR_LS2084A ||
+		    svr == SVR_LS2048A || svr == SVR_LS2044A ||
+		    svr == SVR_LS2081A || svr == SVR_LS2041A)
+			compat = "fsl,ls2088a-pcie";
+		else
+			compat = CONFIG_FSL_PCIE_COMPAT;
+
+		nodeoffset =
+			fdt_node_offset_by_compat_reg(blob, compat,
+						      pcie_rc->dbi_res.start);
+#endif
+	}
+
+	return nodeoffset;
+}
+
 #if defined(CONFIG_FSL_LSCH3) || defined(CONFIG_FSL_LSCH2)
 /*
  * Return next available LUT index.
@@ -127,30 +155,11 @@ static void fdt_pcie_set_iommu_map_entry_ls(void *blob,
 	u32 iommu_map[4];
 	int nodeoffset;
 	int lenp;
-	uint svr;
-	char *compat = NULL;
 	struct ls_pcie *pcie = pcie_rc->pcie;
 
-	/* find pci controller node */
-	nodeoffset = fdt_node_offset_by_compat_reg(blob, "fsl,ls-pcie",
-						   pcie_rc->dbi_res.start);
-	if (nodeoffset < 0) {
-#ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
-		svr = (get_svr() >> SVR_VAR_PER_SHIFT) & 0xFFFFFE;
-		if (svr == SVR_LS2088A || svr == SVR_LS2084A ||
-		    svr == SVR_LS2048A || svr == SVR_LS2044A ||
-		    svr == SVR_LS2081A || svr == SVR_LS2041A)
-			compat = "fsl,ls2088a-pcie";
-		else
-			compat = CONFIG_FSL_PCIE_COMPAT;
-
-		if (compat)
-			nodeoffset = fdt_node_offset_by_compat_reg(blob,
-						compat, pcie_rc->dbi_res.start);
-#endif
-		if (nodeoffset < 0)
-			return;
-	}
+	nodeoffset = fdt_pcie_get_nodeoffset(blob, pcie_rc);
+	if (nodeoffset < 0)
+		return;
 
 	/* get phandle to iommu controller */
 	prop = fdt_getprop_w(blob, nodeoffset, "iommu-map", &lenp);
@@ -238,28 +247,11 @@ static void fdt_fixup_pcie_ls(void *blob)
 static void ft_pcie_rc_fix(void *blob, struct ls_pcie_rc *pcie_rc)
 {
 	int off;
-	uint svr;
-	char *compat = NULL;
 	struct ls_pcie *pcie = pcie_rc->pcie;
 
-	off = fdt_node_offset_by_compat_reg(blob, "fsl,ls-pcie",
-					    pcie_rc->dbi_res.start);
-	if (off < 0) {
-#ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
-		svr = (get_svr() >> SVR_VAR_PER_SHIFT) & 0xFFFFFE;
-		if (svr == SVR_LS2088A || svr == SVR_LS2084A ||
-		    svr == SVR_LS2048A || svr == SVR_LS2044A ||
-		    svr == SVR_LS2081A || svr == SVR_LS2041A)
-			compat = "fsl,ls2088a-pcie";
-		else
-			compat = CONFIG_FSL_PCIE_COMPAT;
-		if (compat)
-			off = fdt_node_offset_by_compat_reg(blob,
-					compat, pcie_rc->dbi_res.start);
-#endif
-		if (off < 0)
-			return;
-	}
+	off = fdt_pcie_get_nodeoffset(blob, pcie_rc);
+	if (off < 0)
+		return;
 
 	if (pcie_rc->enabled && pcie->mode == PCI_HEADER_TYPE_BRIDGE)
 		fdt_set_node_status(blob, off, FDT_STATUS_OKAY, 0);
