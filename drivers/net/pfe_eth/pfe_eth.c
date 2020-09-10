@@ -176,9 +176,10 @@ static int pfe_eth_send(struct udevice *dev, void *packet, int length)
 
 		udelay(100);
 		i++;
-		if (i == 30000)
+		if (i == 30000) {
 			printf("Tx timeout, send failed\n");
-		break;
+			break;
+		}
 	}
 
 	return 0;
