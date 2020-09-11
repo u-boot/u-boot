@@ -153,6 +153,21 @@ static const struct {
 		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
+		.id = 0x047FD093,
+		.device = 43,
+		.variants = ZYNQMP_VARIANT_DR,
+	},
+	{
+		.id = 0x047F8093,
+		.device = 46,
+		.variants = ZYNQMP_VARIANT_DR,
+	},
+	{
+		.id = 0x047FF093,
+		.device = 47,
+		.variants = ZYNQMP_VARIANT_DR,
+	},
+	{
 		.id = 0x047FB093,
 		.device = 48,
 		.variants = ZYNQMP_VARIANT_DR,
