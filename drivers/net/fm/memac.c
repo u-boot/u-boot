@@ -98,6 +98,7 @@ static void memac_set_interface_mode(struct fsl_enet_mac *mac,
 		if_mode &= ~IF_MODE_MASK;
 		if_mode |= (IF_MODE_GMII);
 		break;
+	case PHY_INTERFACE_MODE_XFI:
 	case PHY_INTERFACE_MODE_XGMII:
 		if_mode &= ~IF_MODE_MASK;
 		if_mode |= IF_MODE_XGMII;
@@ -106,7 +107,7 @@ static void memac_set_interface_mode(struct fsl_enet_mac *mac,
 		break;
 	}
 	/* Enable automatic speed selection for Non-XGMII */
-	if (type != PHY_INTERFACE_MODE_XGMII)
+	if (type != PHY_INTERFACE_MODE_XGMII && type != PHY_INTERFACE_MODE_XFI)
 		if_mode |= IF_MODE_EN_AUTO;
 
 	if (type == PHY_INTERFACE_MODE_RGMII ||
