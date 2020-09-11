@@ -532,17 +532,6 @@ endmenu
 
 endmenu		# Init options
 
-config BOUNCE_BUFFER
-	bool "Include bounce buffer API"
-	help
-	  Some peripherals support DMA from a subset of physically
-	  addressable memory only.  To support such peripherals, the
-	  bounce buffer API uses a temporary buffer: it copies data
-	  to/from DMA regions while managing cache operations.
-
-	  A second possible use of bounce buffers is their ability to
-	  provide aligned buffers for DMA operations.
-
 config BOARD_TYPES
 	bool "Call get_board_type() to get and display the board type"
 	help
