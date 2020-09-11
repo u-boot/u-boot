@@ -433,6 +433,8 @@ endif
 
 endmenu
 
+menu "Init options"
+
 config MISC_INIT_R
 	bool "Execute Misc Init"
 	default y if ARCH_KEYSTONE || ARCH_SUNXI || MPC85xx
@@ -482,6 +484,8 @@ config DISPLAY_BOARDINFO_LATE
 	  Display information about the board that U-Boot is running on after
 	  the relocation phase. The board function checkboard() is called to do
 	  this.
+
+endmenu		# Init options
 
 config BOUNCE_BUFFER
 	bool "Include bounce buffer API"
