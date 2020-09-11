@@ -532,16 +532,6 @@ endmenu
 
 endmenu		# Init options
 
-config VERSION_VARIABLE
-	bool "add U-Boot environment variable vers"
-	default n
-	help
-	  If this variable is defined, an environment variable
-	  named "ver" is created by U-Boot showing the U-Boot
-	  version as printed by the "version" command.
-	  Any change to this variable will be reverted at the
-	  next reset.
-
 config BOUNCE_BUFFER
 	bool "Include bounce buffer API"
 	help
