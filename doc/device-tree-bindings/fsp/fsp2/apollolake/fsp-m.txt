@@ -174,7 +174,7 @@ Optional properties:
 - fspm,oem-loading-base: OEM File Loading Address
 - fspm,oem-file-name: OEM File Name to Load
 - fspm,mrc-boot-data-ptr:
-- fspm,e-mmc-trace-len: eMMC Trace Length
+- fspm,emmc-trace-len: eMMC Trace Length
   0x0: Long
   0x1: Short
 - fspm,skip-cse-rbp: Skip CSE RBP to support zero sized IBB
