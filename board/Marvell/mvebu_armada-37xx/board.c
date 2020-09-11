@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <i2c.h>
 #include <init.h>
 #include <phy.h>
@@ -50,6 +51,22 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MVEBU_G2_SMI_PHY_CMD_REG	(24)
 #define MVEBU_G2_SMI_PHY_DATA_REG	(25)
 
+/*
+ * Memory Controller Registers
+ *
+ * Assembled based on public information:
+ * https://gitlab.nic.cz/turris/mox-boot-builder/-/blob/master/wtmi/main.c#L332-336
+ * https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell/blob/mv_ddr-armada-18.12/drivers/mv_ddr_mc6.h#L309-L332
+ *
+ * And checked against the written register values for the various topologies:
+ * https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell/blob/mv_ddr-armada-atf-mainline/a3700/mv_ddr_tim.h
+ */
+#define A3700_CH0_MC_CTRL2_REG		MVEBU_REGISTER(0x002c4)
+#define A3700_MC_CTRL2_SDRAM_TYPE_MASK	0xf
+#define A3700_MC_CTRL2_SDRAM_TYPE_OFFS	4
+#define A3700_MC_CTRL2_SDRAM_TYPE_DDR3	2
+#define A3700_MC_CTRL2_SDRAM_TYPE_DDR4	3
+
 int board_early_init_f(void)
 {
 	return 0;
@@ -62,6 +79,36 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+	bool ddr4, emmc;
+
+	if (env_get("fdtfile"))
+		return 0;
+
+	if (!of_machine_is_compatible("globalscale,espressobin"))
+		return 0;
+
+	/* If the memory controller has been configured for DDR4, we're running on v7 */
+	ddr4 = ((readl(A3700_CH0_MC_CTRL2_REG) >> A3700_MC_CTRL2_SDRAM_TYPE_OFFS)
+		& A3700_MC_CTRL2_SDRAM_TYPE_MASK) == A3700_MC_CTRL2_SDRAM_TYPE_DDR4;
+
+	emmc = of_machine_is_compatible("globalscale,espressobin-emmc");
+
+	if (ddr4 && emmc)
+		env_set("fdtfile", "marvell/armada-3720-espressobin-v7-emmc.dtb");
+	else if (ddr4)
+		env_set("fdtfile", "marvell/armada-3720-espressobin-v7.dtb");
+	else if (emmc)
+		env_set("fdtfile", "marvell/armada-3720-espressobin-emmc.dtb");
+	else
+		env_set("fdtfile", "marvell/armada-3720-espressobin.dtb");
+
+	return 0;
+}
+#endif
 
 /* Board specific AHCI / SATA enable code */
 int board_ahci_enable(void)
