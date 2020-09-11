@@ -435,23 +435,6 @@ endmenu
 
 menu "Init options"
 
-config MISC_INIT_R
-	bool "Execute Misc Init"
-	default y if ARCH_KEYSTONE || ARCH_SUNXI || MPC85xx
-	default y if ARCH_OMAP2PLUS && !AM33XX
-	help
-	  Enabling this option calls 'misc_init_r' function
-
-config BOARD_LATE_INIT
-	bool "Execute Board late init"
-	help
-	  Sometimes board require some initialization code that might
-	  require once the actual init done, example saving board specific env,
-	  boot-modes etc. which eventually done at late.
-
-	  So this config enable the late init code with the help of board_late_init
-	  function which should defined on respective boards.
-
 config DISPLAY_CPUINFO
 	bool "Display information about the CPU during start up"
 	default y if ARC|| ARM || NIOS2 || X86 || XTENSA || M68K
@@ -509,6 +492,16 @@ config BOARD_EARLY_INIT_R
 	  relocation. With this option, U-Boot calls board_early_init_r()
 	  in the post-relocation init sequence.
 
+config BOARD_LATE_INIT
+	bool "Execute Board late init"
+	help
+	  Sometimes board require some initialization code that might
+	  require once the actual init done, example saving board specific env,
+	  boot-modes etc. which eventually done at late.
+
+	  So this config enable the late init code with the help of board_late_init
+	  function which should defined on respective boards.
+
 config LAST_STAGE_INIT
 	bool "Call board-specific as last setup step"
 	help
@@ -517,6 +510,13 @@ config LAST_STAGE_INIT
 	  that depend on later phases in the init sequence). With this option,
 	  U-Boot calls last_stage_init() before the command-line interpreter is
 	  started.
+
+config MISC_INIT_R
+	bool "Execute Misc Init"
+	default y if ARCH_KEYSTONE || ARCH_SUNXI || MPC85xx
+	default y if ARCH_OMAP2PLUS && !AM33XX
+	help
+	  Enabling this option calls 'misc_init_r' function
 
 config PCI_INIT_R
 	bool "Enumerate PCI buses during init"
