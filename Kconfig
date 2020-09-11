@@ -432,6 +432,8 @@ config EXAMPLES
 
 endmenu		# General setup
 
+menu "Boot options"
+
 menu "Boot images"
 
 config ANDROID_BOOT_IMAGE
@@ -768,6 +770,8 @@ config ARCH_FIXUP_FDT_MEMORY
 	  the memory location should be used for different purpose.
 
 endmenu		# Boot images
+
+endmenu		# Booting
 
 source "api/Kconfig"
 
