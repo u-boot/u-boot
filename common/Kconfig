@@ -1,58 +1,5 @@
 source "common/Kconfig.boot"
 
-config USE_BOOTARGS
-	bool "Enable boot arguments"
-	help
-	  Provide boot arguments to bootm command. Boot arguments are specified
-	  in CONFIG_BOOTARGS option. Enable this option to be able to specify
-	  CONFIG_BOOTARGS string. If this option is disabled, CONFIG_BOOTARGS
-	  will be undefined and won't take any space in U-Boot image.
-
-config BOOTARGS
-	string "Boot arguments"
-	depends on USE_BOOTARGS && !USE_DEFAULT_ENV_FILE
-	help
-	  This can be used to pass arguments to the bootm command. The value of
-	  CONFIG_BOOTARGS goes into the environment value "bootargs". Note that
-	  this value will also override the "chosen" node in FDT blob.
-
-config USE_BOOTCOMMAND
-	bool "Enable a default value for bootcmd"
-	help
-	  Provide a default value for the bootcmd entry in the environment.  If
-	  autoboot is enabled this is what will be run automatically.  Enable
-	  this option to be able to specify CONFIG_BOOTCOMMAND as a string.  If
-	  this option is disabled, CONFIG_BOOTCOMMAND will be undefined and
-	  won't take any space in U-Boot image.
-
-config BOOTCOMMAND
-	string "bootcmd value"
-	depends on USE_BOOTCOMMAND && !USE_DEFAULT_ENV_FILE
-	default "run distro_bootcmd" if DISTRO_DEFAULTS
-	help
-	  This is the string of commands that will be used as bootcmd and if
-	  AUTOBOOT is set, automatically run.
-
-config USE_PREBOOT
-	bool "Enable preboot"
-	help
-	  When this option is enabled, the existence of the environment
-	  variable "preboot" will be checked immediately before starting the
-	  CONFIG_BOOTDELAY countdown and/or running the auto-boot command resp.
-	  entering interactive mode.
-
-	  This feature is especially useful when "preboot" is automatically
-	  generated or modified. For example, the boot code can modify the
-	  "preboot" when a user holds down a certain combination of keys.
-
-config PREBOOT
-	string "preboot default value"
-	depends on USE_PREBOOT && !USE_DEFAULT_ENV_FILE
-	default "usb start" if USB_KEYBOARD || USB_STORAGE
-	default ""
-	help
-	  This is the default of "preboot" environment variable.
-
 menu "Console"
 
 config MENU
