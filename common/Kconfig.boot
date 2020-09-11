@@ -885,4 +885,9 @@ config PREBOOT
 	help
 	  This is the default of "preboot" environment variable.
 
+config DEFAULT_FDT_FILE
+	string "Default fdt file"
+	help
+	  This option is used to set the default fdt file to boot OS.
+
 endmenu		# Booting

@@ -433,11 +433,6 @@ endif
 
 endmenu
 
-config DEFAULT_FDT_FILE
-	string "Default fdt file"
-	help
-	  This option is used to set the default fdt file to boot OS.
-
 config MISC_INIT_R
 	bool "Execute Misc Init"
 	default y if ARCH_KEYSTONE || ARCH_SUNXI || MPC85xx
