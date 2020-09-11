@@ -263,6 +263,14 @@ config LEGACY_IMAGE_FORMAT
 	  loaded. If a board needs the legacy image format support in this
 	  case, enable it here.
 
+config SUPPORT_RAW_INITRD
+	bool "Enable raw initrd images"
+	help
+	  Note, defining the SUPPORT_RAW_INITRD allows user to supply
+	  kernel with raw initrd images. The syntax is slightly different, the
+	  address of the initrd must be augmented by it's size, in the following
+	  format: "<initrd address>:<initrd size>".
+
 config OF_BOARD_SETUP
 	bool "Set up board-specific details in device tree before boot"
 	depends on OF_LIBFDT
