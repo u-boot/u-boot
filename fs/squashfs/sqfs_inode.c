@@ -142,8 +142,11 @@ int sqfs_read_metablock(unsigned char *file_mapping, int offset,
 	u16 header;
 
 	data = file_mapping + offset;
+	if (!data)
+		return -EFAULT;
+
 	header = get_unaligned((u16 *)data);
-	if (!header || !data)
+	if (!header)
 		return -EINVAL;
 
 	*compressed = SQFS_COMPRESSED_METADATA(header);
