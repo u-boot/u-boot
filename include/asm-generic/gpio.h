@@ -701,4 +701,51 @@ int gpio_get_number(const struct gpio_desc *desc);
  */
 int gpio_get_acpi(const struct gpio_desc *desc, struct acpi_gpio *gpio);
 
+/**
+ * devm_gpiod_get_index - Resource-managed gpiod_get()
+ * @dev:	GPIO consumer
+ * @con_id:	function within the GPIO consumer
+ * @index:	index of the GPIO to obtain in the consumer
+ * @flags:	optional GPIO initialization flags
+ *
+ * Managed gpiod_get(). GPIO descriptors returned from this function are
+ * automatically disposed on device unbind.
+ * Return the GPIO descriptor corresponding to the function con_id of device
+ * dev, -ENOENT if no GPIO has been assigned to the requested function, or
+ * another IS_ERR() code if an error occurred while trying to acquire the GPIO.
+ */
+struct gpio_desc *devm_gpiod_get_index(struct udevice *dev, const char *id,
+				       unsigned int index, int flags);
+
+#define devm_gpiod_get(dev, id, flags) devm_gpiod_get_index(dev, id, 0, flags)
+/**
+ * gpiod_get_optional - obtain an optional GPIO for a given GPIO function
+ * @dev: GPIO consumer, can be NULL for system-global GPIOs
+ * @con_id: function within the GPIO consumer
+ * @index:	index of the GPIO to obtain in the consumer
+ * @flags: optional GPIO initialization flags
+ *
+ * This is equivalent to devm_gpiod_get(), except that when no GPIO was
+ * assigned to the requested function it will return NULL. This is convenient
+ * for drivers that need to handle optional GPIOs.
+ */
+struct gpio_desc *devm_gpiod_get_index_optional(struct udevice *dev,
+						const char *id,
+						unsigned int index,
+						int flags);
+
+#define devm_gpiod_get_optional(dev, id, flags) \
+	devm_gpiod_get_index_optional(dev, id, 0, flags)
+
+/**
+ * devm_gpiod_put - Resource-managed gpiod_put()
+ * @dev:	GPIO consumer
+ * @desc:	GPIO descriptor to dispose of
+ *
+ * Dispose of a GPIO descriptor obtained with devm_gpiod_get() or
+ * devm_gpiod_get_index(). Normally this function will not be called as the GPIO
+ * will be disposed of by the resource management code.
+ */
+void devm_gpiod_put(struct udevice *dev, struct gpio_desc *desc);
+
 #endif	/* _ASM_GENERIC_GPIO_H_ */
