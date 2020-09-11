@@ -251,7 +251,7 @@ int dm_check_devices(struct unit_test_state *uts, int num_devices)
 /* Test that FDT-based binding works correctly */
 static int dm_test_fdt(struct unit_test_state *uts)
 {
-	const int num_devices = 8;
+	const int num_devices = 9;
 	struct udevice *dev;
 	struct uclass *uc;
 	int ret;
@@ -473,12 +473,12 @@ static int dm_test_uclass_foreach(struct unit_test_state *uts)
 	count = 0;
 	uclass_id_foreach_dev(UCLASS_TEST_FDT, dev, uc)
 		count++;
-	ut_asserteq(8, count);
+	ut_asserteq(9, count);
 
 	count = 0;
 	uclass_foreach_dev(dev, uc)
 		count++;
-	ut_asserteq(8, count);
+	ut_asserteq(9, count);
 
 	return 0;
 }
