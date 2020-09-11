@@ -170,6 +170,9 @@ int pfe_spi_flash_init(void)
 	int ret = 0;
 	void *addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
 
+	if (!addr)
+		return -ENOMEM;
+
 #ifdef CONFIG_DM_SPI_FLASH
 	struct udevice *new;
 
@@ -186,6 +189,7 @@ int pfe_spi_flash_init(void)
 #endif
 	if (!pfe_flash) {
 		printf("SF: probe for pfe failed\n");
+		free(addr);
 		return -ENODEV;
 	}
 
