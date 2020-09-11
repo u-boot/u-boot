@@ -123,6 +123,11 @@ static const struct {
 		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
+		.id = 0x047E3093,
+		.device = 23,
+		.variants = ZYNQMP_VARIANT_DR,
+	},
+	{
 		.id = 0x047E5093,
 		.device = 25,
 		.variants = ZYNQMP_VARIANT_DR,
@@ -140,6 +145,21 @@ static const struct {
 	{
 		.id = 0x047E2093,
 		.device = 29,
+		.variants = ZYNQMP_VARIANT_DR,
+	},
+	{
+		.id = 0x047E6093,
+		.device = 39,
+		.variants = ZYNQMP_VARIANT_DR,
+	},
+	{
+		.id = 0x047FB093,
+		.device = 48,
+		.variants = ZYNQMP_VARIANT_DR,
+	},
+	{
+		.id = 0x047FE093,
+		.device = 49,
 		.variants = ZYNQMP_VARIANT_DR,
 	},
 };
