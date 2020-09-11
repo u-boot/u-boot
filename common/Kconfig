@@ -1,3 +1,5 @@
+source "common/Kconfig.boot"
+
 menu "Boot timing"
 
 config BOOTSTAGE
