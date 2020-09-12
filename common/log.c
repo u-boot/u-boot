@@ -207,7 +207,8 @@ static int log_dispatch(struct log_rec *rec)
 	/* Emit message */
 	processing_msg = 1;
 	list_for_each_entry(ldev, &gd->log_head, sibling_node) {
-		if (log_passes_filters(ldev, rec))
+		if ((ldev->flags & LOGDF_ENABLE) &&
+		    log_passes_filters(ldev, rec))
 			ldev->drv->emit(ldev, rec);
 	}
 	processing_msg = 0;
@@ -329,6 +330,7 @@ int log_init(void)
 		}
 		INIT_LIST_HEAD(&ldev->filter_head);
 		ldev->drv = drv;
+		ldev->flags = drv->flags;
 		list_add_tail(&ldev->sibling_node,
 			      (struct list_head *)&gd->log_head);
 		drv++;

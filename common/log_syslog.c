@@ -107,4 +107,5 @@ out:
 LOG_DRIVER(syslog) = {
 	.name	= "syslog",
 	.emit	= log_syslog_emit,
+	.flags	= LOGDF_ENABLE,
 };
