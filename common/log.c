@@ -157,6 +157,9 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
 {
 	struct log_filter *filt;
 
+	if (rec->force_debug)
+		return true;
+
 	/* If there are no filters, filter on the default log level */
 	if (list_empty(&ldev->filter_head)) {
 		if (rec->level > gd->default_log_level)
@@ -219,7 +222,8 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 	va_list args;
 
 	rec.cat = cat;
-	rec.level = level;
+	rec.level = level & LOGL_LEVEL_MASK;
+	rec.force_debug = level & LOGL_FORCE_DEBUG;
 	rec.file = file;
 	rec.line = line;
 	rec.func = func;

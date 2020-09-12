@@ -10,6 +10,7 @@ obj-y += test-main.o
 
 ifdef CONFIG_SANDBOX
 obj-$(CONFIG_LOG_SYSLOG) += syslog_test.o
+obj-$(CONFIG_LOG_SYSLOG) += syslog_test_ndebug.o
 endif
 
 ifndef CONFIG_LOG
