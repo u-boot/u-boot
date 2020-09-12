@@ -308,6 +308,44 @@ int log_remove_filter(const char *drv_name, int filter_num)
 	return -ENOENT;
 }
 
+/**
+ * log_find_device_by_drv() - Find a device by its driver
+ *
+ * @drv: Log driver
+ * @return Device associated with that driver, or NULL if not found
+ */
+static struct log_device *log_find_device_by_drv(struct log_driver *drv)
+{
+	struct log_device *ldev;
+
+	list_for_each_entry(ldev, &gd->log_head, sibling_node) {
+		if (ldev->drv == drv)
+			return ldev;
+	}
+	/*
+	 * It is quite hard to pass an invalid driver since passing an unknown
+	 * LOG_GET_DRIVER(xxx) would normally produce a compilation error. But
+	 * it is possible to pass NULL, for example, so this
+	 */
+
+	return NULL;
+}
+
+int log_device_set_enable(struct log_driver *drv, bool enable)
+{
+	struct log_device *ldev;
+
+	ldev = log_find_device_by_drv(drv);
+	if (!ldev)
+		return -ENOENT;
+	if (enable)
+		ldev->flags |= LOGDF_ENABLE;
+	else
+		ldev->flags &= ~LOGDF_ENABLE;
+
+	return 0;
+}
+
 int log_init(void)
 {
 	struct log_driver *drv = ll_entry_start(struct log_driver, log_driver);

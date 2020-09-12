@@ -196,6 +196,13 @@ static int log_test(int testnum)
 		log_io("level %d\n", LOGL_DEBUG_IO);
 		break;
 	}
+	case 11:
+		log_err("default\n");
+		ret = log_device_set_enable(LOG_GET_DRIVER(console), false);
+		log_err("disabled\n");
+		ret = log_device_set_enable(LOG_GET_DRIVER(console), true);
+		log_err("enabled\n");
+		break;
 	}
 
 	return 0;

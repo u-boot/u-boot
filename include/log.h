@@ -388,6 +388,10 @@ struct log_filter {
 #define LOG_DRIVER(_name) \
 	ll_entry_declare(struct log_driver, _name, log_driver)
 
+/* Get a pointer to a given driver */
+#define LOG_GET_DRIVER(__name)						\
+	ll_entry_get(struct log_driver, __name, log_driver)
+
 /**
  * log_get_cat_name() - Get the name of a category
  *
@@ -464,6 +468,19 @@ int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
  *	filter number was not found
  */
 int log_remove_filter(const char *drv_name, int filter_num);
+
+/**
+ * log_device_set_enable() - Enable or disable a log device
+ *
+ * Devices are referenced by their driver, so use LOG_GET_DRIVER(name) to pass
+ * the driver to this function. For example if the driver is declared with
+ * LOG_DRIVER(wibble) then pass LOG_GET_DRIVER(wibble) here.
+ *
+ * @drv: Driver of device to enable
+ * @enable: true to enable, false to disable
+ * @return 0 if OK, -ENOENT if the driver was not found
+ */
+int log_device_set_enable(struct log_driver *drv, bool enable);
 
 #if CONFIG_IS_ENABLED(LOG)
 /**
