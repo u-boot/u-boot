@@ -39,7 +39,9 @@ static int log_syslog_emit(struct log_device *ldev, struct log_rec *rec)
 	char *log_hostname;
 
 	/* Setup packet buffers */
-	net_init();
+	ret = net_init();
+	if (ret)
+		return ret;
 	/* Disable hardware and put it into the reset state */
 	eth_halt();
 	/* Set current device according to environment variables */
