@@ -593,7 +593,7 @@ extern int net_ntp_time_offset;			/* offset time from UTC */
 #endif
 
 /* Initialize the network adapter */
-void net_init(void);
+int net_init(void);
 int net_loop(enum proto_t);
 
 /* Load failed.	 Start again. */
