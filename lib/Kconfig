@@ -542,6 +542,14 @@ config HEXDUMP
 	help
 	  This enables functions for printing dumps of binary data.
 
+config SPL_HEXDUMP
+	bool "Enable hexdump in SPL"
+	depends on HEXDUMP
+	default y
+	help
+	  This enables functions for printing dumps of binary data in
+	  SPL.
+
 config OF_LIBFDT
 	bool "Enable the FDT library"
 	default y if OF_CONTROL
