@@ -201,7 +201,6 @@ static int log_test(int testnum)
 	return 0;
 }
 
-#ifdef CONFIG_LOG_TEST
 int do_log_test(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int testnum = 0;
@@ -216,4 +215,3 @@ int do_log_test(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	return ret ? CMD_RET_FAILURE : 0;
 }
-#endif
