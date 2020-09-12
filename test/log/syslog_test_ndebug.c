@@ -33,6 +33,7 @@ static int log_test_syslog_nodebug(struct unit_test_state *uts)
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
 
+	ut_assertok(syslog_test_setup(uts));
 	gd->log_fmt = LOGF_TEST;
 	gd->default_log_level = LOGL_INFO;
 	env_set("ethact", "eth@10002000");
@@ -49,6 +50,7 @@ static int log_test_syslog_nodebug(struct unit_test_state *uts)
 	ut_assertnonnull(env.expected);
 	gd->default_log_level = old_log_level;
 	gd->log_fmt = log_get_default_format();
+	ut_assertok(syslog_test_finish(uts));
 
 	return 0;
 }

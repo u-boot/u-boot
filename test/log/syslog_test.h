@@ -47,4 +47,20 @@ struct sb_log_env {
  */
 int sb_log_tx_handler(struct udevice *dev, void *packet, unsigned int len);
 
+/**
+ * syslog_test_setup() - Enable syslog logging ready for tests
+ *
+ * @uts: Test state
+ * @return 0 if OK, -ENOENT if the syslog log driver is not found
+ */
+int syslog_test_setup(struct unit_test_state *uts);
+
+/**
+ * syslog_test_finish() - Disable syslog logging after tests
+ *
+ * @uts: Test state
+ * @return 0 if OK, -ENOENT if the syslog log driver is not found
+ */
+int syslog_test_finish(struct unit_test_state *uts);
+
 #endif

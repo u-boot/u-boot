@@ -56,6 +56,20 @@ int sb_log_tx_handler(struct udevice *dev, void *packet, unsigned int len)
 	return 0;
 }
 
+int syslog_test_setup(struct unit_test_state *uts)
+{
+	ut_assertok(log_device_set_enable(LOG_GET_DRIVER(syslog), true));
+
+	return 0;
+}
+
+int syslog_test_finish(struct unit_test_state *uts)
+{
+	ut_assertok(log_device_set_enable(LOG_GET_DRIVER(syslog), false));
+
+	return 0;
+}
+
 /**
  * log_test_syslog_err() - test log_err() function
  *
@@ -67,6 +81,7 @@ static int log_test_syslog_err(struct unit_test_state *uts)
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
 
+	ut_assertok(syslog_test_setup(uts));
 	gd->log_fmt = LOGF_TEST;
 	gd->default_log_level = LOGL_INFO;
 	env_set("ethact", "eth@10002000");
@@ -82,6 +97,7 @@ static int log_test_syslog_err(struct unit_test_state *uts)
 	sandbox_eth_set_tx_handler(0, NULL);
 	gd->default_log_level = old_log_level;
 	gd->log_fmt = log_get_default_format();
+	ut_assertok(syslog_test_finish(uts));
 
 	return 0;
 }
@@ -98,6 +114,7 @@ static int log_test_syslog_warning(struct unit_test_state *uts)
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
 
+	ut_assertok(syslog_test_setup(uts));
 	gd->log_fmt = LOGF_TEST;
 	gd->default_log_level = LOGL_INFO;
 	env_set("ethact", "eth@10002000");
@@ -114,6 +131,7 @@ static int log_test_syslog_warning(struct unit_test_state *uts)
 	ut_assertnull(env.expected);
 	gd->default_log_level = old_log_level;
 	gd->log_fmt = log_get_default_format();
+	ut_assertok(syslog_test_finish(uts));
 
 	return 0;
 }
@@ -130,6 +148,7 @@ static int log_test_syslog_notice(struct unit_test_state *uts)
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
 
+	ut_assertok(syslog_test_setup(uts));
 	gd->log_fmt = LOGF_TEST;
 	gd->default_log_level = LOGL_INFO;
 	env_set("ethact", "eth@10002000");
@@ -146,6 +165,7 @@ static int log_test_syslog_notice(struct unit_test_state *uts)
 	ut_assertnull(env.expected);
 	gd->default_log_level = old_log_level;
 	gd->log_fmt = log_get_default_format();
+	ut_assertok(syslog_test_finish(uts));
 
 	return 0;
 }
@@ -162,6 +182,7 @@ static int log_test_syslog_info(struct unit_test_state *uts)
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
 
+	ut_assertok(syslog_test_setup(uts));
 	gd->log_fmt = LOGF_TEST;
 	gd->default_log_level = LOGL_INFO;
 	env_set("ethact", "eth@10002000");
@@ -178,6 +199,7 @@ static int log_test_syslog_info(struct unit_test_state *uts)
 	ut_assertnull(env.expected);
 	gd->default_log_level = old_log_level;
 	gd->log_fmt = log_get_default_format();
+	ut_assertok(syslog_test_finish(uts));
 
 	return 0;
 }
@@ -194,6 +216,7 @@ static int log_test_syslog_debug(struct unit_test_state *uts)
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
 
+	ut_assertok(syslog_test_setup(uts));
 	gd->log_fmt = LOGF_TEST;
 	gd->default_log_level = LOGL_DEBUG;
 	env_set("ethact", "eth@10002000");
@@ -210,6 +233,7 @@ static int log_test_syslog_debug(struct unit_test_state *uts)
 	ut_assertnull(env.expected);
 	gd->default_log_level = old_log_level;
 	gd->log_fmt = log_get_default_format();
+	ut_assertok(syslog_test_finish(uts));
 
 	return 0;
 }
