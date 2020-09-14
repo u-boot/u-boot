@@ -75,11 +75,11 @@ int do_button(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	ret = show_button_state(dev);
 
-	return 0;
+	return !ret;
 }
 
 U_BOOT_CMD(
-	button, 4, 1, do_button,
+	button, 2, 1, do_button,
 	"manage buttons",
 	"<button_label> \tGet button state\n"
 	"button list\t\tShow a list of buttons"

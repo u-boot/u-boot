@@ -4,16 +4,34 @@ import pytest
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_button')
-def test_button_exit_statuses(u_boot_console):
-    """Test that non-input button commands correctly return the command
-    success/failure status."""
+def test_button_list(u_boot_console):
+    """Test listing buttons"""
 
-    expected_response = 'rc:0'
     response = u_boot_console.run_command('button list; echo rc:$?')
-    assert(expected_response in response)
-    response = u_boot_console.run_command('button button1; echo rc:$?')
-    assert(expected_response in response)
+    assert('button1' in response)
+    assert('button2' in response)
+    assert('rc:0' in response)
 
-    expected_response = 'rc:1'
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_button')
+@pytest.mark.buildconfigspec('cmd_gpio')
+def test_button_return_code(u_boot_console):
+    """Test correct reporting of the button status
+
+    The sandbox gpio driver reports the last output value as input value.
+    We can use this in our test to emulate different input statuses.
+    """
+
+    u_boot_console.run_command('gpio set a3; gpio input a3');
+    response = u_boot_console.run_command('button button1; echo rc:$?')
+    assert('on' in response)
+    assert('rc:0' in response)
+
+    u_boot_console.run_command('gpio clear a3; gpio input a3');
+    response = u_boot_console.run_command('button button1; echo rc:$?')
+    assert('off' in response)
+    assert('rc:1' in response)
+
     response = u_boot_console.run_command('button nonexistent-button; echo rc:$?')
-    assert(expected_response in response)
+    assert('not found' in response)
+    assert('rc:1' in response)
