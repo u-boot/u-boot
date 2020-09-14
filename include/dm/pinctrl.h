@@ -34,29 +34,33 @@ struct pinconf_param {
  * depending on your necessity.
  *
  * @get_pins_count: return number of selectable named pins available
- *	in this driver.  (necessary to parse "pins" property in DTS)
+ *	in this driver. (necessary to parse "pins" property in DTS)
  * @get_pin_name: return the pin name of the pin selector,
  *	called by the core to figure out which pin it shall do
- *	operations to.  (necessary to parse "pins" property in DTS)
+ *	operations to. (necessary to parse "pins" property in DTS)
  * @get_groups_count: return number of selectable named groups available
- *	in this driver.  (necessary to parse "groups" property in DTS)
+ *	in this driver. (necessary to parse "groups" property in DTS)
  * @get_group_name: return the group name of the group selector,
  *	called by the core to figure out which pin group it shall do
- *	operations to.  (necessary to parse "groups" property in DTS)
+ *	operations to. (necessary to parse "groups" property in DTS)
  * @get_functions_count: return number of selectable named functions available
- *	in this driver.  (necessary for pin-muxing)
+ *	in this driver. (necessary for pin-muxing)
  * @get_function_name: return the function name of the muxing selector,
  *	called by the core to figure out which mux setting it shall map a
- *	certain device to.  (necessary for pin-muxing)
+ *	certain device to. (necessary for pin-muxing)
  * @pinmux_set: enable a certain muxing function with a certain pin.
  *	The @func_selector selects a certain function whereas @pin_selector
  *	selects a certain pin to be used. On simple controllers one of them
- *	may be ignored.  (necessary for pin-muxing against a single pin)
+ *	may be ignored. (necessary for pin-muxing against a single pin)
  * @pinmux_group_set: enable a certain muxing function with a certain pin
- *	group.  The @func_selector selects a certain function whereas
+ *	group. The @func_selector selects a certain function whereas
  *	@group_selector selects a certain set of pins to be used. On simple
  *	controllers one of them may be ignored.
  *	(necessary for pin-muxing against a pin group)
+ * @pinmux_property_set: enable a pinmux group. @pinmux_group should specify the
+ *      pin identifier and mux settings. The exact format of a pinmux group is
+ *      left up to the driver. The pin selector for the mux-ed pin should be
+ *      returned on success. (necessary to parse the "pinmux" property in DTS)
  * @pinconf_num_params: number of driver-specific parameters to be parsed
  *	from device trees  (necessary for pin-configuration)
  * @pinconf_params: list of driver_specific parameters to be parsed from
@@ -90,6 +94,7 @@ struct pinctrl_ops {
 			  unsigned func_selector);
 	int (*pinmux_group_set)(struct udevice *dev, unsigned group_selector,
 				unsigned func_selector);
+	int (*pinmux_property_set)(struct udevice *dev, u32 pinmux_group);
 	unsigned int pinconf_num_params;
 	const struct pinconf_param *pinconf_params;
 	int (*pinconf_set)(struct udevice *dev, unsigned pin_selector,
