@@ -359,6 +359,34 @@ qemu-x86_64 test.py:
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
+r2dplus_i82557c test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "r2dplus"
+    TEST_PY_ID: "--id i82557c_qemu"
+  <<: *buildman_and_testpy_dfn
+
+r2dplus_pcnet test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "r2dplus"
+    TEST_PY_ID: "--id pcnet_qemu"
+  <<: *buildman_and_testpy_dfn
+
+r2dplus_rtl8139 test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "r2dplus"
+    TEST_PY_ID: "--id rtl8139_qemu"
+  <<: *buildman_and_testpy_dfn
+
+r2dplus_tulip test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "r2dplus"
+    TEST_PY_ID: "--id tulip_qemu"
+  <<: *buildman_and_testpy_dfn
+
 xilinx_zynq_virt test.py:
   tags: [ 'all' ]
   variables:
