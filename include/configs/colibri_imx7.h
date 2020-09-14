@@ -118,13 +118,11 @@
 
 #if defined(CONFIG_TARGET_COLIBRI_IMX7_NAND)
 #define CONFIG_BOOTCOMMAND "run ubiboot ; echo ; echo ubiboot failed ; " \
-	"setenv fdtfile ${soc}-colibri-${fdt_board}.dtb && run distro_bootcmd;"
+	"run distro_bootcmd;"
 #define MODULE_EXTRA_ENV_SETTINGS \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	UBI_BOOTCMD
 #elif defined(CONFIG_TARGET_COLIBRI_IMX7_EMMC)
-#define CONFIG_BOOTCOMMAND \
-	"setenv fdtfile ${soc}-colibri-emmc-${fdt_board}.dtb && run distro_bootcmd;"
 #define MODULE_EXTRA_ENV_SETTINGS \
 	"variant=-emmc\0" \
 	EMMC_ANDROID_BOOTCMD
