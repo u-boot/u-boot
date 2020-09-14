@@ -559,7 +559,7 @@
 
 		default_off {
 			gpios = <&gpio_a 6 0>;
-			label = "sandbox:default_off";
+			/* label intentionally omitted */
 			default-state = "off";
 		};
 	};
