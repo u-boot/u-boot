@@ -99,11 +99,8 @@ static int led_gpio_bind(struct udevice *parent)
 		const char *label;
 
 		label = ofnode_read_string(node, "label");
-		if (!label) {
-			debug("%s: node %s has no label\n", __func__,
-			      ofnode_get_name(node));
-			return -EINVAL;
-		}
+		if (!label)
+			label = ofnode_get_name(node);
 		ret = device_bind_driver_to_node(parent, "gpio_led",
 						 ofnode_get_name(node),
 						 node, &dev);
