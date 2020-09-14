@@ -173,8 +173,6 @@ int board_late_init(void)
 
 #if defined(CONFIG_DM_VIDEO)
 	setup_lcd();
-
-	show_boot_logo();
 #endif
 
 	return 0;
