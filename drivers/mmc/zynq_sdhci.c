@@ -191,7 +191,7 @@ static void arasan_sdhci_set_control_reg(struct sdhci_host *host)
 
 #if defined(CONFIG_ARCH_ZYNQMP)
 const struct sdhci_ops arasan_ops = {
-	.platform_execute_tuning	= &arasan_sdhci_execute_tuning,
+	.platform_execute_tuning = &arasan_sdhci_execute_tuning,
 	.set_delay = &arasan_sdhci_set_tapdelay,
 	.set_control_reg = &arasan_sdhci_set_control_reg,
 };
