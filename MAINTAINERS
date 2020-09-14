@@ -984,6 +984,7 @@ F:	include/spmi/
 SQUASHFS
 M:	Joao Marcos Costa <joaomarcos.costa@bootlin.com>
 R:	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+R:	Miquel Raynal <miquel.raynal@bootlin.com>
 S:	Maintained
 F:	fs/squashfs/
 F:	include/sqfs.h
