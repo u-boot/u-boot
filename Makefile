@@ -2025,7 +2025,7 @@ CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h tools/version.h \
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated spl tpl \
-		  .tmp_objdiff
+		  .tmp_objdiff doc/output
 MRPROPER_FILES += .config .config.old include/autoconf.mk* include/config.h \
 		  ctags etags tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS \
 		  drivers/video/fonts/*.S

@@ -349,9 +349,12 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 
 	/*
 	 * Use the address following the image as target address for the
-	 * device tree.
+	 * device tree. Load address is aligned to 8 bytes to match the required
+	 * alignment specified for linux arm [1] and arm 64 [2] booting
+	 * [1]: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/arm/booting.rst#n126
+	 * [2]: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/arm64/booting.rst#n45
 	 */
-	image_info.load_addr = spl_image->load_addr + spl_image->size;
+	image_info.load_addr = ALIGN(spl_image->load_addr + spl_image->size, 8);
 
 	/* Figure out which device tree the board wants to use */
 	node = spl_fit_get_image_node(fit, images, FIT_FDT_PROP, index++);
