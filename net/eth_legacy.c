@@ -261,7 +261,7 @@ int eth_initialize(void)
 	}
 
 	if (!eth_devices) {
-		puts("No ethernet found.\n");
+		log_err("No ethernet found.\n");
 		bootstage_error(BOOTSTAGE_ID_NET_ETH_START);
 	} else {
 		struct eth_device *dev = eth_devices;
@@ -319,7 +319,7 @@ int eth_init(void)
 	struct eth_device *old_current;
 
 	if (!eth_current) {
-		puts("No ethernet found.\n");
+		log_err("No ethernet found.\n");
 		return -ENODEV;
 	}
 

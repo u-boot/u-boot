@@ -273,7 +273,7 @@ int eth_init(void)
 	if (!current) {
 		current = eth_get_dev();
 		if (!current) {
-			printf("No ethernet found.\n");
+			log_err("No ethernet found.\n");
 			return -ENODEV;
 		}
 	}
@@ -414,7 +414,7 @@ int eth_initialize(void)
 	 */
 	uclass_first_device_check(UCLASS_ETH, &dev);
 	if (!dev) {
-		printf("No ethernet found.\n");
+		log_err("No ethernet found.\n");
 		bootstage_error(BOOTSTAGE_ID_NET_ETH_START);
 	} else {
 		char *ethprime = env_get("ethprime");
@@ -449,7 +449,7 @@ int eth_initialize(void)
 		} while (dev);
 
 		if (!num_devices)
-			printf("No ethernet found.\n");
+			log_err("No ethernet found.\n");
 		putc('\n');
 	}
 
