@@ -83,7 +83,7 @@ Mainline status
 ---------------
 
 - Added basic board configurations support.
-- Added zynq u-boot bsp code - arch/arm/cpu/armv7/zynq
+- Added zynq u-boot bsp code - arch/arm/mach-zynq
 - Added zynq boards named - zc70x, zed, microzed, zc770_xm010/xm011/xm012/xm013
 - Added zynq drivers:
 
@@ -98,11 +98,6 @@ Mainline status
 - Done proper cleanups on board configurations
 - Added basic FDT support for zynq boards
 - d-cache support for zynq_gem.c
-
-TODO
-----
-
-Add FDT support on individual drivers
 
 * [1] http://www.xilinx.com/products/boards-and-kits/EK-Z7-ZC702-G.htm
 * [2] http://www.xilinx.com/products/boards-and-kits/EK-Z7-ZC706-G.htm
