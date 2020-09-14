@@ -414,17 +414,10 @@ static int omap3_spi_set_wordlen(struct udevice *dev, unsigned int wordlen)
 static int omap3_spi_probe(struct udevice *dev)
 {
 	struct omap3_spi_priv *priv = dev_get_priv(dev);
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(dev);
+	struct omap3_spi_plat *plat = dev_get_platdata(dev);
 
-	struct omap2_mcspi_platform_config* data =
-		(struct omap2_mcspi_platform_config*)dev_get_driver_data(dev);
-
-	priv->regs = (struct mcspi *)(dev_read_addr(dev) + data->regs_offset);
-	if (fdtdec_get_bool(blob, node, "ti,pindir-d0-out-d1-in"))
-		priv->pin_dir = MCSPI_PINDIR_D0_OUT_D1_IN;
-	else
-		priv->pin_dir = MCSPI_PINDIR_D0_IN_D1_OUT;
+	priv->regs = plat->regs;
+	priv->pin_dir = plat->pin_dir;
 	priv->wordlen = SPI_DEFAULT_WORDLEN;
 
 	spi_reset(priv->regs);
@@ -476,6 +469,7 @@ static const struct dm_spi_ops omap3_spi_ops = {
 	 */
 };
 
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static struct omap2_mcspi_platform_config omap2_pdata = {
 	.regs_offset = 0,
 };
@@ -484,16 +478,37 @@ static struct omap2_mcspi_platform_config omap4_pdata = {
 	.regs_offset = OMAP4_MCSPI_REG_OFFSET,
 };
 
+static int omap3_spi_ofdata_to_platdata(struct udevice *dev)
+{
+	struct omap2_mcspi_platform_config *data =
+		(struct omap2_mcspi_platform_config *)dev_get_driver_data(dev);
+	struct omap3_spi_plat *plat = dev_get_platdata(dev);
+
+	plat->regs = (struct mcspi *)(dev_read_addr(dev) + data->regs_offset);
+
+	if (dev_read_bool(dev, "ti,pindir-d0-out-d1-in"))
+		plat->pin_dir = MCSPI_PINDIR_D0_OUT_D1_IN;
+	else
+		plat->pin_dir = MCSPI_PINDIR_D0_IN_D1_OUT;
+
+	return 0;
+}
+
 static const struct udevice_id omap3_spi_ids[] = {
 	{ .compatible = "ti,omap2-mcspi", .data = (ulong)&omap2_pdata },
 	{ .compatible = "ti,omap4-mcspi", .data = (ulong)&omap4_pdata },
 	{ }
 };
-
+#endif
 U_BOOT_DRIVER(omap3_spi) = {
 	.name   = "omap3_spi",
 	.id     = UCLASS_SPI,
+	.flags	= DM_FLAG_PRE_RELOC,
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap3_spi_ids,
+	.ofdata_to_platdata = omap3_spi_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct omap3_spi_plat),
+#endif
 	.probe = omap3_spi_probe,
 	.ops    = &omap3_spi_ops,
 	.priv_auto_alloc_size = sizeof(struct omap3_spi_priv),
