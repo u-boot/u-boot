@@ -2,6 +2,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/gpio/sandbox-gpio.h>
+#include <dt-bindings/pinctrl/sandbox-pinmux.h>
 
 / {
 	model = "sandbox";
@@ -1094,28 +1095,58 @@
 	pinctrl {
 		compatible = "sandbox,pinctrl";
 
-		pinctrl-names = "default";
-		pinctrl-0 = <&gpios>;
+		pinctrl-names = "default", "alternate";
+		pinctrl-0 = <&pinctrl_gpios>, <&pinctrl_i2s>;
+		pinctrl-1 = <&pinctrl_spi>, <&pinctrl_i2c>;
 
-		gpios: gpios {
+		pinctrl_gpios: gpios {
 			gpio0 {
-				pins = "GPIO0";
+				pins = "P5";
+				function = "GPIO";
 				bias-pull-up;
 				input-disable;
 			};
 			gpio1 {
-				pins = "GPIO1";
+				pins = "P6";
+				function = "GPIO";
 				output-high;
 				drive-open-drain;
 			};
 			gpio2 {
-				pins = "GPIO2";
+				pinmux = <SANDBOX_PINMUX(7, SANDBOX_PINMUX_GPIO)>;
 				bias-pull-down;
 				input-enable;
 			};
 			gpio3 {
-				pins = "GPIO3";
+				pinmux = <SANDBOX_PINMUX(8, SANDBOX_PINMUX_GPIO)>;
 				bias-disable;
+			};
+		};
+
+		pinctrl_i2c: i2c {
+			groups {
+				groups = "I2C_UART";
+				function = "I2C";
+			};
+
+			pins {
+				pins = "P0", "P1";
+				drive-open-drain;
+			};
+		};
+
+		pinctrl_i2s: i2s {
+			groups = "SPI_I2S";
+			function = "I2S";
+		};
+
+		pinctrl_spi: spi {
+			groups = "SPI_I2S";
+			function = "SPI";
+
+			cs {
+				pinmux = <SANDBOX_PINMUX(5, SANDBOX_PINMUX_CS)>,
+					 <SANDBOX_PINMUX(6, SANDBOX_PINMUX_CS)>;
 			};
 		};
 	};
