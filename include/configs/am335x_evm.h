@@ -287,8 +287,6 @@
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
 #endif
 
-/* SPI flash. */
-
 /* Network. */
 /* Enable Atheros phy driver */
 
