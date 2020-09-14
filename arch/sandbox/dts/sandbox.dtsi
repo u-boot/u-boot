@@ -18,14 +18,14 @@
 	buttons {
 		compatible = "gpio-keys";
 
-		summer {
+		btn1 {
 			gpios = <&gpio_a 3 0>;
-			label = "summer";
+			label = "button1";
 		};
 
-		christmas {
+		btn2 {
 			gpios = <&gpio_a 4 0>;
-			label = "christmas";
+			label = "button2";
 		};
 	};
 

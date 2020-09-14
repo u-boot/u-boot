@@ -11,7 +11,7 @@ def test_button_exit_statuses(u_boot_console):
     expected_response = 'rc:0'
     response = u_boot_console.run_command('button list; echo rc:$?')
     assert(expected_response in response)
-    response = u_boot_console.run_command('button summer; echo rc:$?')
+    response = u_boot_console.run_command('button button1; echo rc:$?')
     assert(expected_response in response)
 
     expected_response = 'rc:1'
