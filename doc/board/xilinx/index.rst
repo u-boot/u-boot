@@ -9,3 +9,4 @@ Xilinx
    xilinx
    zynq
    zynqmp
+   zynqmp-r5
