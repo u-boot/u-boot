@@ -186,7 +186,15 @@ static int gpio_dwapb_bind(struct udevice *dev)
 			 * Fall back to node name. This means accessing pins
 			 * via bank name won't work.
 			 */
-			plat->name = ofnode_get_name(node);
+			char name[32];
+
+			snprintf(name, sizeof(name), "%s_",
+				 ofnode_get_name(node));
+			plat->name = strdup(name);
+			if (!plat->name) {
+				kfree(plat);
+				return -ENOMEM;
+			}
 		}
 
 		ret = device_bind_ofnode(dev, dev->driver, plat->name,
