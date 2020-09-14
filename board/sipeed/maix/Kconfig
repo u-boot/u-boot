@@ -44,4 +44,13 @@ config BOARD_SPECIFIC_OPTIONS
 	imply RESET_SYSCON
 	imply SYSRESET
 	imply SYSRESET_SYSCON
+	imply PINCTRL
+	imply PINCONF
+	imply PINCTRL_K210
+	imply DM_GPIO
+	imply DWAPB_GPIO
+	imply SIFIVE_GPIO
+	imply CMD_GPIO
+	imply LED
+	imply LED_GPIO
 endif
