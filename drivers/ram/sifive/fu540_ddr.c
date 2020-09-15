@@ -369,6 +369,11 @@ static int fu540_ddr_probe(struct udevice *dev)
 	}
 
 	ret = clk_enable(&priv->ddr_clk);
+	if (ret < 0) {
+		debug("Could not enable DDR clock\n");
+		return ret;
+	}
+
 	priv->ctl = regmap_get_range(map, 0);
 	priv->phy = regmap_get_range(map, 1);
 	priv->physical_filter_ctrl = regmap_get_range(map, 2);
