@@ -272,13 +272,15 @@ static int sun4i_usb_phy_init(struct phy *phy)
 
 	ret = clk_enable(&usb_phy->clocks);
 	if (ret) {
-		dev_err(dev, "failed to enable usb_%ldphy clock\n", phy->id);
+		dev_err(phy->dev, "failed to enable usb_%ldphy clock\n",
+			phy->id);
 		return ret;
 	}
 
 	ret = reset_deassert(&usb_phy->resets);
 	if (ret) {
-		dev_err(dev, "failed to deassert usb_%ldreset reset\n", phy->id);
+		dev_err(phy->dev, "failed to deassert usb_%ldreset reset\n",
+			phy->id);
 		return ret;
 	}
 
@@ -338,13 +340,15 @@ static int sun4i_usb_phy_exit(struct phy *phy)
 
 	ret = clk_disable(&usb_phy->clocks);
 	if (ret) {
-		dev_err(dev, "failed to disable usb_%ldphy clock\n", phy->id);
+		dev_err(phy->dev, "failed to disable usb_%ldphy clock\n",
+			phy->id);
 		return ret;
 	}
 
 	ret = reset_assert(&usb_phy->resets);
 	if (ret) {
-		dev_err(dev, "failed to assert usb_%ldreset reset\n", phy->id);
+		dev_err(phy->dev, "failed to assert usb_%ldreset reset\n",
+			phy->id);
 		return ret;
 	}
 
