@@ -98,7 +98,7 @@ static int rockchip_pcie_phy_power_on(struct phy *phy)
 
 	ret = reset_deassert(&priv->phy_rst);
 	if (ret) {
-		dev_err(dev, "failed to assert phy reset\n");
+		dev_err(phy->dev, "failed to assert phy reset\n");
 		return ret;
 	}
 
@@ -119,7 +119,7 @@ static int rockchip_pcie_phy_power_on(struct phy *phy)
 				       20 * 1000,
 				       50);
 	if (ret) {
-		dev_err(&priv->dev, "pll lock timeout!\n");
+		dev_err(phy->dev, "pll lock timeout!\n");
 		goto err_pll_lock;
 	}
 
@@ -133,7 +133,7 @@ static int rockchip_pcie_phy_power_on(struct phy *phy)
 				       20 * 1000,
 				       50);
 	if (ret) {
-		dev_err(&priv->dev, "pll output enable timeout!\n");
+		dev_err(phy->dev, "pll output enable timeout!\n");
 		goto err_pll_lock;
 	}
 
@@ -149,7 +149,7 @@ static int rockchip_pcie_phy_power_on(struct phy *phy)
 				       20 * 1000,
 				       50);
 	if (ret) {
-		dev_err(&priv->dev, "pll relock timeout!\n");
+		dev_err(phy->dev, "pll relock timeout!\n");
 		goto err_pll_lock;
 	}
 
@@ -173,7 +173,7 @@ static int rockchip_pcie_phy_power_off(struct phy *phy)
 
 	ret = reset_assert(&priv->phy_rst);
 	if (ret) {
-		dev_err(dev, "failed to assert phy reset\n");
+		dev_err(phy->dev, "failed to assert phy reset\n");
 		return ret;
 	}
 
@@ -187,13 +187,13 @@ static int rockchip_pcie_phy_init(struct phy *phy)
 
 	ret = clk_enable(&priv->refclk);
 	if (ret) {
-		dev_err(dev, "failed to enable refclk clock\n");
+		dev_err(phy->dev, "failed to enable refclk clock\n");
 		return ret;
 	}
 
 	ret = reset_assert(&priv->phy_rst);
 	if (ret) {
-		dev_err(dev, "failed to assert phy reset\n");
+		dev_err(phy->dev, "failed to assert phy reset\n");
 		goto err_reset;
 	}
 
