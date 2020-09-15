@@ -189,8 +189,9 @@ def unpack_elf(filename):
         p_type, p_flags, p_offset = struct.unpack_from('<LLQ', elf, offset)
         if p_type == 1: # PT_LOAD
             p_paddr, p_filesz = struct.unpack_from('<2Q', elf, offset + 0x18)
-            p_data = elf[p_offset:p_offset + p_filesz]
-            segments.append((index, e_entry, p_paddr, p_data))
+            if p_filesz > 0:
+                p_data = elf[p_offset:p_offset + p_filesz]
+                segments.append((index, e_entry, p_paddr, p_data))
     return segments
 
 def main():
