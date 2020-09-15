@@ -80,3 +80,13 @@ can be enabled with the following command line parameters:
     -drive if=none,file=disk.img,id=mydisk -device nvme,drive=mydisk,serial=foo
 
 These have been tested in QEMU 2.9.0 but should work in at least 2.5.0 as well.
+
+Debug UART
+----------
+
+The debug UART on the ARM virt board uses these settings::
+
+    CONFIG_DEBUG_UART=y
+    CONFIG_DEBUG_UART_PL010=y
+    CONFIG_DEBUG_UART_BASE=0x9000000
+    CONFIG_DEBUG_UART_CLOCK=0
