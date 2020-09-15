@@ -1402,7 +1402,7 @@ static int mvneta_init(struct udevice *dev)
 
 	err = mvneta_init2(pp);
 	if (err < 0) {
-		dev_err(&pdev->dev, "can't init eth hal\n");
+		dev_err(dev, "can't init eth hal\n");
 		return err;
 	}
 
@@ -1410,7 +1410,7 @@ static int mvneta_init(struct udevice *dev)
 
 	err = mvneta_port_power_up(pp, pp->phy_interface);
 	if (err < 0) {
-		dev_err(&pdev->dev, "can't power up port\n");
+		dev_err(dev, "can't power up port\n");
 		return err;
 	}
 
