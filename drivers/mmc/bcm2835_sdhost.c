@@ -185,22 +185,22 @@ struct bcm2835_host {
 
 static void bcm2835_dumpregs(struct bcm2835_host *host)
 {
-	dev_dbg(dev, "=========== REGISTER DUMP ===========\n");
-	dev_dbg(dev, "SDCMD  0x%08x\n", readl(host->ioaddr + SDCMD));
-	dev_dbg(dev, "SDARG  0x%08x\n", readl(host->ioaddr + SDARG));
-	dev_dbg(dev, "SDTOUT 0x%08x\n", readl(host->ioaddr + SDTOUT));
-	dev_dbg(dev, "SDCDIV 0x%08x\n", readl(host->ioaddr + SDCDIV));
-	dev_dbg(dev, "SDRSP0 0x%08x\n", readl(host->ioaddr + SDRSP0));
-	dev_dbg(dev, "SDRSP1 0x%08x\n", readl(host->ioaddr + SDRSP1));
-	dev_dbg(dev, "SDRSP2 0x%08x\n", readl(host->ioaddr + SDRSP2));
-	dev_dbg(dev, "SDRSP3 0x%08x\n", readl(host->ioaddr + SDRSP3));
-	dev_dbg(dev, "SDHSTS 0x%08x\n", readl(host->ioaddr + SDHSTS));
-	dev_dbg(dev, "SDVDD  0x%08x\n", readl(host->ioaddr + SDVDD));
-	dev_dbg(dev, "SDEDM  0x%08x\n", readl(host->ioaddr + SDEDM));
-	dev_dbg(dev, "SDHCFG 0x%08x\n", readl(host->ioaddr + SDHCFG));
-	dev_dbg(dev, "SDHBCT 0x%08x\n", readl(host->ioaddr + SDHBCT));
-	dev_dbg(dev, "SDHBLC 0x%08x\n", readl(host->ioaddr + SDHBLC));
-	dev_dbg(dev, "===========================================\n");
+	dev_dbg(host->dev, "=========== REGISTER DUMP ===========\n");
+	dev_dbg(host->dev, "SDCMD  0x%08x\n", readl(host->ioaddr + SDCMD));
+	dev_dbg(host->dev, "SDARG  0x%08x\n", readl(host->ioaddr + SDARG));
+	dev_dbg(host->dev, "SDTOUT 0x%08x\n", readl(host->ioaddr + SDTOUT));
+	dev_dbg(host->dev, "SDCDIV 0x%08x\n", readl(host->ioaddr + SDCDIV));
+	dev_dbg(host->dev, "SDRSP0 0x%08x\n", readl(host->ioaddr + SDRSP0));
+	dev_dbg(host->dev, "SDRSP1 0x%08x\n", readl(host->ioaddr + SDRSP1));
+	dev_dbg(host->dev, "SDRSP2 0x%08x\n", readl(host->ioaddr + SDRSP2));
+	dev_dbg(host->dev, "SDRSP3 0x%08x\n", readl(host->ioaddr + SDRSP3));
+	dev_dbg(host->dev, "SDHSTS 0x%08x\n", readl(host->ioaddr + SDHSTS));
+	dev_dbg(host->dev, "SDVDD  0x%08x\n", readl(host->ioaddr + SDVDD));
+	dev_dbg(host->dev, "SDEDM  0x%08x\n", readl(host->ioaddr + SDEDM));
+	dev_dbg(host->dev, "SDHCFG 0x%08x\n", readl(host->ioaddr + SDHCFG));
+	dev_dbg(host->dev, "SDHBCT 0x%08x\n", readl(host->ioaddr + SDHBCT));
+	dev_dbg(host->dev, "SDHBLC 0x%08x\n", readl(host->ioaddr + SDHBLC));
+	dev_dbg(host->dev, "===========================================\n");
 }
 
 static void bcm2835_reset_internal(struct bcm2835_host *host)
@@ -738,7 +738,7 @@ static void bcm2835_add_host(struct bcm2835_host *host)
 	cfg->f_min = host->max_clk / SDCDIV_MAX_CDIV;
 	cfg->b_max = 65535;
 
-	dev_dbg(dev, "f_max %d, f_min %d\n",
+	dev_dbg(host->dev, "f_max %d, f_min %d\n",
 		cfg->f_max, cfg->f_min);
 
 	/* host controller capabilities */
