@@ -856,8 +856,14 @@ static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 		ret = phy_set_supported(phydev, slave->data->max_speed);
 		if (ret)
 			return ret;
+#if CONFIG_IS_ENABLED(DM_ETH)
 		dev_dbg(priv->dev, "Port %u speed forced to %uMbit\n",
 			slave->slave_num + 1, slave->data->max_speed);
+#else
+		log_debug("%s: Port %u speed forced to %uMbit\n",
+			  priv->dev->name, slave->slave_num + 1,
+			  slave->data->max_speed);
+#endif
 	}
 	phydev->advertising = phydev->supported;
 
