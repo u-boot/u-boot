@@ -10,6 +10,7 @@
 #ifndef _DM_DEVICE_COMPAT_H
 #define _DM_DEVICE_COMPAT_H
 
+#include <log.h>
 #include <linux/compat.h>
 
 /*
@@ -48,28 +49,28 @@
 })
 
 #define dev_emerg(dev, fmt, ...) \
-	__dev_printk(0, dev, fmt, ##__VA_ARGS__)
+	__dev_printk(LOGL_EMERG, dev, fmt, ##__VA_ARGS__)
 #define dev_alert(dev, fmt, ...) \
-	__dev_printk(1, dev, fmt, ##__VA_ARGS__)
+	__dev_printk(LOGL_ALERT, dev, fmt, ##__VA_ARGS__)
 #define dev_crit(dev, fmt, ...) \
-	__dev_printk(2, dev, fmt, ##__VA_ARGS__)
+	__dev_printk(LOGL_CRIT, dev, fmt, ##__VA_ARGS__)
 #define dev_err(dev, fmt, ...) \
-	__dev_printk(3, dev, fmt, ##__VA_ARGS__)
+	__dev_printk(LOGL_ERR, dev, fmt, ##__VA_ARGS__)
 #define dev_warn(dev, fmt, ...) \
-	__dev_printk(4, dev, fmt, ##__VA_ARGS__)
+	__dev_printk(LOGL_WARNING, dev, fmt, ##__VA_ARGS__)
 #define dev_notice(dev, fmt, ...) \
-	__dev_printk(5, dev, fmt, ##__VA_ARGS__)
+	__dev_printk(LOGL_NOTICE, dev, fmt, ##__VA_ARGS__)
 #define dev_info(dev, fmt, ...) \
-	__dev_printk(6, dev, fmt, ##__VA_ARGS__)
+	__dev_printk(LOGL_INFO, dev, fmt, ##__VA_ARGS__)
 
 #ifdef DEBUG
 #define dev_dbg(dev, fmt, ...) \
-	__dev_printk(7, dev, fmt, ##__VA_ARGS__)
+	__dev_printk(LOGL_DEBUG, dev, fmt, ##__VA_ARGS__)
 #else
 #define dev_dbg(dev, fmt, ...)					\
 ({								\
 	if (0)							\
-		__dev_printk(7, dev, fmt, ##__VA_ARGS__);	\
+		__dev_printk(LOGL_DEBUG, dev, fmt, ##__VA_ARGS__);	\
 })
 #endif
 
@@ -79,7 +80,7 @@
 #define dev_vdbg(dev, fmt, ...)					\
 ({								\
 	if (0)							\
-		__dev_printk(7, dev, fmt, ##__VA_ARGS__);	\
+		__dev_printk(LOGL_DEBUG, dev, fmt, ##__VA_ARGS__);	\
 })
 #endif
 
