@@ -70,7 +70,7 @@ static int syscon_probe_by_ofnode(ofnode node, struct udevice **devp)
 
 	/* found node with "syscon" compatible, not bounded to SYSCON UCLASS */
 	if (!ofnode_device_is_compatible(node, "syscon")) {
-		dev_dbg(dev, "invalid compatible for syscon device\n");
+		log_debug("invalid compatible for syscon device\n");
 		return -EINVAL;
 	}
 
