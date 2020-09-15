@@ -2773,9 +2773,9 @@ static int mvpp2_bm_bufs_add(struct mvpp2_port *port,
 
 	if (buf_num < 0 ||
 	    (buf_num + bm_pool->buf_num > bm_pool->size)) {
-		netdev_err(port->dev,
-			   "cannot allocate %d buffers for pool %d\n",
-			   buf_num, bm_pool->id);
+		dev_err(port->phy_dev->dev,
+			"cannot allocate %d buffers for pool %d\n", buf_num,
+			bm_pool->id);
 		return 0;
 	}
 
@@ -2803,7 +2803,7 @@ mvpp2_bm_pool_use(struct mvpp2_port *port, int pool, enum mvpp2_bm_type type,
 	int num;
 
 	if (new_pool->type != MVPP2_BM_FREE && new_pool->type != type) {
-		netdev_err(port->dev, "mixing pool types is forbidden\n");
+		dev_err(port->phy_dev->dev, "mixing pool types is forbidden\n");
 		return NULL;
 	}
 
@@ -3345,8 +3345,7 @@ static int gop_port_init(struct mvpp2_port *port)
 	int num_of_act_lanes;
 
 	if (mac_num >= MVPP22_GOP_MAC_NUM) {
-		netdev_err(NULL, "%s: illegal port number %d", __func__,
-			   mac_num);
+		log_err("illegal port number %d", mac_num);
 		return -1;
 	}
 
@@ -3400,8 +3399,8 @@ static int gop_port_init(struct mvpp2_port *port)
 		break;
 
 	default:
-		netdev_err(NULL, "%s: Requested port mode (%d) not supported\n",
-			   __func__, port->phy_interface);
+		log_err("Requested port mode (%d) not supported\n",
+			port->phy_interface);
 		return -1;
 	}
 
@@ -3441,8 +3440,8 @@ static void gop_port_enable(struct mvpp2_port *port, int enable)
 
 		break;
 	default:
-		netdev_err(NULL, "%s: Wrong port mode (%d)\n", __func__,
-			   port->phy_interface);
+		log_err("%s: Wrong port mode (%d)\n", __func__,
+			port->phy_interface);
 		return;
 	}
 }
@@ -3812,9 +3811,9 @@ static void mvpp2_egress_disable(struct mvpp2_port *port)
 	delay = 0;
 	do {
 		if (delay >= MVPP2_TX_DISABLE_TIMEOUT_MSEC) {
-			netdev_warn(port->dev,
-				    "Tx stop timed out, status=0x%08x\n",
-				    reg_data);
+			dev_warn(port->phy_dev->dev,
+				 "Tx stop timed out, status=0x%08x\n",
+				 reg_data);
 			break;
 		}
 		mdelay(1);
@@ -4262,9 +4261,9 @@ static void mvpp2_txq_clean(struct mvpp2_port *port, struct mvpp2_tx_queue *txq)
 	delay = 0;
 	do {
 		if (delay >= MVPP2_TX_PENDING_TIMEOUT_MSEC) {
-			netdev_warn(port->dev,
-				    "port %d: cleaning queue %d timed out\n",
-				    port->id, txq->log_id);
+			dev_warn(port->phy_dev->dev,
+				 "port %d: cleaning queue %d timed out\n",
+				 port->id, txq->log_id);
 			break;
 		}
 		mdelay(1);
@@ -4431,16 +4430,19 @@ static void mvpp2_rx_error(struct mvpp2_port *port,
 
 	switch (status & MVPP2_RXD_ERR_CODE_MASK) {
 	case MVPP2_RXD_ERR_CRC:
-		netdev_err(port->dev, "bad rx status %08x (crc error), size=%zu\n",
-			   status, sz);
+		dev_err(port->phy_dev->dev,
+			"bad rx status %08x (crc error), size=%zu\n", status,
+			sz);
 		break;
 	case MVPP2_RXD_ERR_OVERRUN:
-		netdev_err(port->dev, "bad rx status %08x (overrun error), size=%zu\n",
-			   status, sz);
+		dev_err(port->phy_dev->dev,
+			"bad rx status %08x (overrun error), size=%zu\n",
+			status, sz);
 		break;
 	case MVPP2_RXD_ERR_RESOURCE:
-		netdev_err(port->dev, "bad rx status %08x (resource error), size=%zu\n",
-			   status, sz);
+		dev_err(port->phy_dev->dev,
+			"bad rx status %08x (resource error), size=%zu\n",
+			status, sz);
 		break;
 	}
 }
@@ -4508,8 +4510,8 @@ static void mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
 		 */
 		if (phy_dev &&
 		    phy_dev->drv->uid == 0xffffffff) {/* Generic phy */
-			netdev_warn(port->dev,
-				    "Marking phy as invalid, link will not be checked\n");
+			dev_warn(port->phy_dev->dev,
+				 "Marking phy as invalid, link will not be checked\n");
 			/* set phy_addr to invalid value */
 			port->phyaddr = PHY_MAX_ADDR;
 			mvpp2_egress_enable(port);
@@ -4520,7 +4522,7 @@ static void mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
 
 		port->phy_dev = phy_dev;
 		if (!phy_dev) {
-			netdev_err(port->dev, "cannot connect to phy\n");
+			dev_err(port->phy_dev->dev, "cannot connect to phy\n");
 			return;
 		}
 		phy_dev->supported &= PHY_GBIT_FEATURES;
@@ -4551,31 +4553,31 @@ static int mvpp2_open(struct udevice *dev, struct mvpp2_port *port)
 
 	err = mvpp2_prs_mac_da_accept(port->priv, port->id, mac_bcast, true);
 	if (err) {
-		netdev_err(dev, "mvpp2_prs_mac_da_accept BC failed\n");
+		dev_err(dev, "mvpp2_prs_mac_da_accept BC failed\n");
 		return err;
 	}
 	err = mvpp2_prs_mac_da_accept(port->priv, port->id,
 				      port->dev_addr, true);
 	if (err) {
-		netdev_err(dev, "mvpp2_prs_mac_da_accept MC failed\n");
+		dev_err(dev, "mvpp2_prs_mac_da_accept MC failed\n");
 		return err;
 	}
 	err = mvpp2_prs_def_flow(port);
 	if (err) {
-		netdev_err(dev, "mvpp2_prs_def_flow failed\n");
+		dev_err(dev, "mvpp2_prs_def_flow failed\n");
 		return err;
 	}
 
 	/* Allocate the Rx/Tx queues */
 	err = mvpp2_setup_rxqs(port);
 	if (err) {
-		netdev_err(port->dev, "cannot allocate Rx queues\n");
+		dev_err(port->phy_dev->dev, "cannot allocate Rx queues\n");
 		return err;
 	}
 
 	err = mvpp2_setup_txqs(port);
 	if (err) {
-		netdev_err(port->dev, "cannot allocate Tx queues\n");
+		dev_err(port->phy_dev->dev, "cannot allocate Tx queues\n");
 		return err;
 	}
 
@@ -5100,7 +5102,7 @@ static int mvpp2_recv(struct udevice *dev, int flags, uchar **packetp)
 
 	err = mvpp2_rx_refill(port, bm_pool, bm, dma_addr);
 	if (err) {
-		netdev_err(port->dev, "failed to refill BM pools\n");
+		dev_err(port->phy_dev->dev, "failed to refill BM pools\n");
 		return 0;
 	}
 
