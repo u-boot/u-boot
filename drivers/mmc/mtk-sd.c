@@ -774,7 +774,8 @@ static void msdc_set_buswidth(struct msdc_host *host, u32 width)
 	writel(val, &host->base->sdc_cfg);
 }
 
-static void msdc_set_mclk(struct msdc_host *host, enum bus_mode timing, u32 hz)
+static void msdc_set_mclk(struct udevice *dev,
+			  struct msdc_host *host, enum bus_mode timing, u32 hz)
 {
 	u32 mode;
 	u32 div;
@@ -897,7 +898,7 @@ static int msdc_ops_set_ios(struct udevice *dev)
 		clock = mmc->cfg->f_min;
 
 	if (host->mclk != clock || host->timing != mmc->selected_mode)
-		msdc_set_mclk(host, mmc->selected_mode, clock);
+		msdc_set_mclk(dev, host, mmc->selected_mode, clock);
 
 	return 0;
 }
@@ -957,7 +958,8 @@ static int get_delay_len(u32 delay, u32 start_bit)
 	return PAD_DELAY_MAX - start_bit;
 }
 
-static struct msdc_delay_phase get_best_delay(struct msdc_host *host, u32 delay)
+static struct msdc_delay_phase get_best_delay(struct udevice *dev,
+					      struct msdc_host *host, u32 delay)
 {
 	int start = 0, len = 0;
 	int start_final = 0, len_final = 0;
@@ -1067,7 +1069,7 @@ static int hs400_tune_response(struct udevice *dev, u32 opcode)
 		}
 	}
 
-	final_cmd_delay = get_best_delay(host, cmd_delay);
+	final_cmd_delay = get_best_delay(dev, host, cmd_delay);
 	clrsetbits_le32(tune_reg, PAD_CMD_TUNE_RX_DLY3,
 			final_cmd_delay.final_phase <<
 			PAD_CMD_TUNE_RX_DLY3_S);
@@ -1117,7 +1119,7 @@ static int msdc_tune_response(struct udevice *dev, u32 opcode)
 		}
 	}
 
-	final_rise_delay = get_best_delay(host, rise_delay);
+	final_rise_delay = get_best_delay(dev, host, rise_delay);
 	/* if rising edge has enough margin, do not scan falling edge */
 	if (final_rise_delay.maxlen >= 12 ||
 	    (final_rise_delay.start == 0 && final_rise_delay.maxlen >= 4))
@@ -1139,7 +1141,7 @@ static int msdc_tune_response(struct udevice *dev, u32 opcode)
 		}
 	}
 
-	final_fall_delay = get_best_delay(host, fall_delay);
+	final_fall_delay = get_best_delay(dev, host, fall_delay);
 
 skip_fall:
 	final_maxlen = max(final_rise_delay.maxlen, final_fall_delay.maxlen);
@@ -1171,7 +1173,7 @@ skip_fall:
 
 	dev_err(dev, "Final internal delay: 0x%x\n", internal_delay);
 
-	internal_delay_phase = get_best_delay(host, internal_delay);
+	internal_delay_phase = get_best_delay(dev, host, internal_delay);
 	clrsetbits_le32(tune_reg, MSDC_PAD_TUNE_CMDRRDLY_M,
 			internal_delay_phase.final_phase <<
 			MSDC_PAD_TUNE_CMDRRDLY_S);
@@ -1214,7 +1216,7 @@ static int msdc_tune_data(struct udevice *dev, u32 opcode)
 		}
 	}
 
-	final_rise_delay = get_best_delay(host, rise_delay);
+	final_rise_delay = get_best_delay(dev, host, rise_delay);
 	if (final_rise_delay.maxlen >= 12 ||
 	    (final_rise_delay.start == 0 && final_rise_delay.maxlen >= 4))
 		goto skip_fall;
@@ -1237,7 +1239,7 @@ static int msdc_tune_data(struct udevice *dev, u32 opcode)
 		}
 	}
 
-	final_fall_delay = get_best_delay(host, fall_delay);
+	final_fall_delay = get_best_delay(dev, host, fall_delay);
 
 skip_fall:
 	final_maxlen = max(final_rise_delay.maxlen, final_fall_delay.maxlen);
@@ -1293,7 +1295,7 @@ static int msdc_tune_together(struct udevice *dev, u32 opcode)
 			rise_delay |= (1 << i);
 	}
 
-	final_rise_delay = get_best_delay(host, rise_delay);
+	final_rise_delay = get_best_delay(dev, host, rise_delay);
 	if (final_rise_delay.maxlen >= 12 ||
 	    (final_rise_delay.start == 0 && final_rise_delay.maxlen >= 4))
 		goto skip_fall;
@@ -1309,7 +1311,7 @@ static int msdc_tune_together(struct udevice *dev, u32 opcode)
 			fall_delay |= (1 << i);
 	}
 
-	final_fall_delay = get_best_delay(host, fall_delay);
+	final_fall_delay = get_best_delay(dev, host, fall_delay);
 
 skip_fall:
 	final_maxlen = max(final_rise_delay.maxlen, final_fall_delay.maxlen);
