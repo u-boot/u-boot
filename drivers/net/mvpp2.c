@@ -2568,7 +2568,7 @@ static int mvpp2_bm_pool_create(struct udevice *dev,
 
 	if (!IS_ALIGNED((unsigned long)bm_pool->virt_addr,
 			MVPP2_BM_POOL_PTR_ALIGN)) {
-		dev_err(&pdev->dev, "BM pool %d is not %d bytes aligned\n",
+		dev_err(dev, "BM pool %d is not %d bytes aligned\n",
 			bm_pool->id, MVPP2_BM_POOL_PTR_ALIGN);
 		return -ENOMEM;
 	}
@@ -2659,7 +2659,7 @@ static int mvpp2_bm_pools_init(struct udevice *dev,
 	return 0;
 
 err_unroll_pools:
-	dev_err(&pdev->dev, "failed to create BM pool %d, size %d\n", i, size);
+	dev_err(dev, "failed to create BM pool %d, size %d\n", i, size);
 	for (i = i - 1; i >= 0; i--)
 		mvpp2_bm_pool_destroy(dev, priv, &priv->bm_pools[i]);
 	return err;
@@ -2834,8 +2834,9 @@ mvpp2_bm_pool_use(struct mvpp2_port *port, int pool, enum mvpp2_bm_type type,
 		/* Allocate buffers for this pool */
 		num = mvpp2_bm_bufs_add(port, new_pool, pkts_num);
 		if (num != pkts_num) {
-			dev_err(dev, "pool %d: %d of %d allocated\n",
-				new_pool->id, num, pkts_num);
+			dev_err(port->phy_dev->dev,
+				"pool %d: %d of %d allocated\n", new_pool->id,
+				num, pkts_num);
 			return NULL;
 		}
 	}
@@ -4725,7 +4726,7 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 		int parent;
 		phyaddr = fdtdec_get_int(gd->fdt_blob, phy_node, "reg", 0);
 		if (phyaddr < 0) {
-			dev_err(&pdev->dev, "could not find phy address\n");
+			dev_err(dev, "could not find phy address\n");
 			return -1;
 		}
 		parent = fdt_parent_offset(gd->fdt_blob, phy_node);
@@ -4742,13 +4743,13 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 	if (phy_mode_str)
 		phy_mode = phy_get_interface_by_name(phy_mode_str);
 	if (phy_mode == -1) {
-		dev_err(&pdev->dev, "incorrect phy mode\n");
+		dev_err(dev, "incorrect phy mode\n");
 		return -EINVAL;
 	}
 
 	id = fdtdec_get_int(gd->fdt_blob, port_node, "port-id", -1);
 	if (id == -1) {
-		dev_err(&pdev->dev, "missing port-id value\n");
+		dev_err(dev, "missing port-id value\n");
 		return -EINVAL;
 	}
 
@@ -4807,7 +4808,7 @@ static int mvpp2_port_probe(struct udevice *dev,
 
 	err = mvpp2_port_init(dev, port);
 	if (err < 0) {
-		dev_err(&pdev->dev, "failed to init port %d\n", port->id);
+		dev_err(dev, "failed to init port %d\n", port->id);
 		return err;
 	}
 	mvpp2_port_power_up(port);
@@ -4978,7 +4979,7 @@ static int mvpp2_init(struct udevice *dev, struct mvpp2 *priv)
 	/* Checks for hardware constraints (U-Boot uses only one rxq) */
 	if ((rxq_number > priv->max_port_rxqs) ||
 	    (txq_number > MVPP2_MAX_TXQ)) {
-		dev_err(&pdev->dev, "invalid queue size parameter\n");
+		dev_err(dev, "invalid queue size parameter\n");
 		return -EINVAL;
 	}
 
@@ -5345,7 +5346,7 @@ static int mvpp2_probe(struct udevice *dev)
 		port->gop_id = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					      "gop-port-id", -1);
 		if (port->id == -1) {
-			dev_err(&pdev->dev, "missing gop-port-id value\n");
+			dev_err(dev, "missing gop-port-id value\n");
 			return -EINVAL;
 		}
 
@@ -5364,7 +5365,7 @@ static int mvpp2_probe(struct udevice *dev)
 		/* Initialize network controller */
 		err = mvpp2_init(dev, priv);
 		if (err < 0) {
-			dev_err(&pdev->dev, "failed to initialize controller\n");
+			dev_err(dev, "failed to initialize controller\n");
 			return err;
 		}
 		priv->num_ports = 0;
