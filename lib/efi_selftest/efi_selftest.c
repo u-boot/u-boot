@@ -311,11 +311,13 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 	efi_st_printf("Preparing for reset. Press any key...\n");
 	efi_st_get_key();
 
-	if (IS_ENABLED(CONFIG_EFI_HAVE_RUNTIME_RESET))
+	if (IS_ENABLED(CONFIG_EFI_HAVE_RUNTIME_RESET)) {
 		runtime->reset_system(EFI_RESET_WARM, EFI_NOT_READY,
 				      sizeof(reset_message), reset_message);
-	else
+	} else {
+		efi_restore_gd();
 		do_reset(NULL, 0, 0, NULL);
+	}
 
 	efi_st_printf("\n");
 	efi_st_error("Reset failed\n");

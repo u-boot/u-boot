@@ -12,9 +12,9 @@
 #include <common.h>
 #include <image.h>
 #include <malloc.h>
-#include <asm/byteorder.h>
 #include <crypto/internal/rsa.h>
 #include <u-boot/rsa-mod-exp.h>
+#include <asm/unaligned.h>
 
 /**
  * br_dec16be() - Convert 16-bit big-endian integer to native
@@ -23,7 +23,7 @@
  */
 static unsigned br_dec16be(const void *src)
 {
-	return be16_to_cpup(src);
+	return get_unaligned_be16(src);
 }
 
 /**
@@ -33,7 +33,7 @@ static unsigned br_dec16be(const void *src)
  */
 static uint32_t br_dec32be(const void *src)
 {
-	return be32_to_cpup(src);
+	return get_unaligned_be32(src);
 }
 
 /**
