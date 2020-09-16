@@ -14,7 +14,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int mach_cpu_init(void)
+int board_early_init_f(void)
 {
 	struct rv1108_grf *grf;
 	enum {
