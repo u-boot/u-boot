@@ -252,6 +252,8 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 	int space_id;
 	int ret = -ENODEV;
 
+	memset((void *)spcr, 0, sizeof(struct acpi_spcr));
+
 	/* Fill out header fields */
 	acpi_fill_header(header, "SPCR");
 	header->length = sizeof(struct acpi_spcr);
