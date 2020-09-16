@@ -57,7 +57,7 @@ struct mxc_ccm_reg {
 	uint32_t reserved_0[4092];
 	struct mxc_ccm_ccgr ccgr_array[191];	/* offset 0x4000 */
 	uint32_t reserved_1[3332];
-	struct mxc_ccm_root_slice root[121];	/* offset 0x8000 */
+	struct mxc_ccm_root_slice root[125];	/* offset 0x8000 */
 
 };
 
