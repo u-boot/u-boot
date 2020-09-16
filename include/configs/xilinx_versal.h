@@ -94,6 +94,18 @@
 # define BOOT_TARGET_DEVICES_MMC(func)
 #endif
 
+#if defined(CONFIG_CMD_PXE) && defined(CONFIG_CMD_DHCP)
+# define BOOT_TARGET_DEVICES_PXE(func)	func(PXE, pxe, na)
+#else
+# define BOOT_TARGET_DEVICES_PXE(func)
+#endif
+
+#if defined(CONFIG_CMD_DHCP)
+# define BOOT_TARGET_DEVICES_DHCP(func)	func(DHCP, dhcp, na)
+#else
+# define BOOT_TARGET_DEVICES_DHCP(func)
+#endif
+
 #if defined(CONFIG_ZYNQMP_GQSPI) || defined(CONFIG_CADENCE_OSPI_VERSAL)
 # define BOOT_TARGET_DEVICES_XSPI(func)	func(XSPI, xspi, 0)
 #else
@@ -135,8 +147,8 @@
 	BOOT_TARGET_DEVICES_MMC(func) \
 	BOOT_TARGET_DEVICES_XSPI(func) \
 	BOOT_TARGET_DEVICES_DFU_USB(func) \
-	func(PXE, pxe, na) \
-	func(DHCP, dhcp, na)
+	BOOT_TARGET_DEVICES_PXE(func) \
+	BOOT_TARGET_DEVICES_DHCP(func)
 
 #include <config_distro_bootcmd.h>
 
