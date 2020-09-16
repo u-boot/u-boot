@@ -8,3 +8,4 @@ Xilinx
 
    xilinx
    zynq
+   zynqmp
