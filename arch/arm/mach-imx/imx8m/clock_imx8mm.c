@@ -360,6 +360,7 @@ void init_clk_ecspi(u32 index)
 		clock_enable(CCGR_ECSPI2, 0);
 		clock_set_target_val(ECSPI2_CLK_ROOT, CLK_ROOT_ON | CLK_ROOT_SOURCE_SEL(0));
 		clock_enable(CCGR_ECSPI2, 1);
+		return;
 	case 2:
 		clock_enable(CCGR_ECSPI3, 0);
 		clock_set_target_val(ECSPI3_CLK_ROOT, CLK_ROOT_ON | CLK_ROOT_SOURCE_SEL(0));
