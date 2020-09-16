@@ -427,7 +427,7 @@ ulong write_acpi_tables(ulong start_addr)
 	       (char *)&AmlCode + sizeof(struct acpi_table_header),
 	       dsdt->length - sizeof(struct acpi_table_header));
 
-	acpi_inc_align(ctx, dsdt->length - sizeof(struct acpi_table_header));
+	acpi_inc(ctx, dsdt->length - sizeof(struct acpi_table_header));
 
 	/* Pack GNVS into the ACPI table area */
 	for (i = 0; i < dsdt->length; i++) {
@@ -449,6 +449,8 @@ ulong write_acpi_tables(ulong start_addr)
 	dsdt->length = ctx->current - (void *)dsdt;
 	dsdt->checksum = 0;
 	dsdt->checksum = table_compute_checksum((void *)dsdt, dsdt->length);
+
+	acpi_align(ctx);
 
 	/*
 	 * Fill in platform-specific global NVS variables. If this fails we
