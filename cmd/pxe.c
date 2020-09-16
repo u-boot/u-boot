@@ -212,9 +212,23 @@ static struct cmd_tbl cmd_pxe_sub[] = {
 	U_BOOT_CMD_MKENT(boot, 2, 1, do_pxe_boot, "", "")
 };
 
+static void __maybe_unused pxe_reloc(void)
+{
+	static int relocated_pxe;
+
+	if (!relocated_pxe) {
+		fixup_cmdtable(cmd_pxe_sub, ARRAY_SIZE(cmd_pxe_sub));
+		relocated_pxe = 1;
+	}
+}
+
 static int do_pxe(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct cmd_tbl *cp;
+
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
+	pxe_reloc();
+#endif
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
