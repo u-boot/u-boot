@@ -110,7 +110,7 @@ static void __maybe_unused detect_enable_hyperflash(void *blob)
 		do_fixup_by_compat(blob, "ti,am654-hbmc", "status",
 				   "okay", sizeof("okay"), 0);
 		offset = fdt_node_offset_by_compatible(blob, -1,
-						       "ti,j721e-ospi");
+						       "ti,am654-ospi");
 		fdt_setprop(blob, offset, "status", "disabled",
 			    sizeof("disabled"));
 	}
