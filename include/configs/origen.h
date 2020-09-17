@@ -24,11 +24,6 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_ORIGEN
 
-/* select serial console configuration */
-
-/* Console configuration */
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
-
 #define CONFIG_SYS_MEM_TOP_HIDE	(1 << 20)	/* ram console */
 
 #define CONFIG_SYS_MONITOR_BASE	0x00000000

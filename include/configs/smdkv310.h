@@ -36,8 +36,6 @@
 
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0 40007000 uImage; bootm 40007000"
 
-/* Miscellaneous configurable options */
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 /* memtest works on */
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
 
