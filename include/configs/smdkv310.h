@@ -27,9 +27,6 @@
 #define S5P_CHECK_DIDLE			0xBAD00000
 #define S5P_CHECK_LPA			0xABAD0000
 
-/* select serial console configuration */
-#define EXYNOS4_DEFAULT_UART_OFFSET	0x010000
-
 /* MMC SPL */
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define COPY_BL2_FNPTR_ADDR	0x00002488
