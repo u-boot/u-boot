@@ -34,10 +34,6 @@
 /* Size of malloc() pool before and after relocation */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 << 20))
 
-/*
- * select serial console configuration
- */
-
 /* MMC */
 #define SDHCI_MAX_HOSTS		4
 
@@ -85,8 +81,6 @@
 
 #define CONFIG_BOOTCOMMAND	"run mmcboot"
 
-#define CONFIG_DEFAULT_CONSOLE	"console=ttySAC2,115200n8\0"
-
 #define CONFIG_RAMDISK_BOOT	"root=/dev/ram0 rw rootfstype=ext4" \
 		" ${console} ${meminfo}"
 
@@ -131,7 +125,7 @@
 	"bootchart=set opts init=/sbin/bootchartd; run bootcmd\0" \
 	"verify=n\0" \
 	"rootfstype=ext4\0" \
-	"console=" CONFIG_DEFAULT_CONSOLE \
+	"console=console=ttySAC2,115200n8\0" \
 	"meminfo=mem=80M mem=256M@0x40000000 mem=128M@0x50000000\0" \
 	"loaduimage=ext4load mmc ${mmcdev}:${mmcbootpart} 0x30007FC0 uImage\0" \
 	"mmcdev=0\0" \
