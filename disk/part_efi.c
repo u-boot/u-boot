@@ -7,7 +7,7 @@
 /*
  * NOTE:
  *   when CONFIG_SYS_64BIT_LBA is not defined, lbaint_t is 32 bits; this
- *   limits the maximum size of addressable storage to < 2 Terra Bytes
+ *   limits the maximum size of addressable storage to < 2 tebibytes
  */
 #include <common.h>
 #include <blk.h>
