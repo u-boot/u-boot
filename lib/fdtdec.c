@@ -1101,7 +1101,7 @@ int fdtdec_setup_memory_banksize(void)
 		if (ret < 0) {
 			reg = 0;
 			mem = get_next_memory_node(mem);
-			if (ofnode_valid(mem))
+			if (!ofnode_valid(mem))
 				break;
 
 			ret = ofnode_read_resource(mem, reg++, &res);
@@ -1146,7 +1146,7 @@ int fdtdec_setup_mem_size_base_lowest(void)
 		if (ret < 0) {
 			reg = 0;
 			mem = get_next_memory_node(mem);
-			if (ofnode_valid(mem))
+			if (!ofnode_valid(mem))
 				break;
 
 			ret = ofnode_read_resource(mem, reg++, &res);
