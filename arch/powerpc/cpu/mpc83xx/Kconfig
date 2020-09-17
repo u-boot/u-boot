@@ -101,34 +101,42 @@ config TARGET_IDS8313
 config TARGET_KMETER1
 	bool "Support kmeter1"
 	select VENDOR_KM
+	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
 config TARGET_KMCOGE5NE
 	bool "Support kmcoge5ne"
 	select VENDOR_KM
+	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
 config TARGET_KMTEGR1
 	bool "Support kmtegr1"
 	select VENDOR_KM
+	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
 config TARGET_TUXX1
 	bool "Support tuxx1"
 	select VENDOR_KM
+	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
 config TARGET_KMSUPX5
 	bool "Support kmsupx5"
 	select VENDOR_KM
+	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
 config TARGET_TUGE1
 	bool "Support tuge1"
 	select VENDOR_KM
+	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
 config TARGET_KMOPTI2
 	bool "Support kmopti2"
 	select VENDOR_KM
+	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
 config TARGET_KMTEPR2
 	bool "Support kmtepr2"
 	select VENDOR_KM
+	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
 config TARGET_TQM834X
 	bool "Support TQM834x"

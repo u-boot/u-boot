@@ -1,73 +1,34 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2006-2011 Freescale Semiconductor, Inc.
+ * QE UEC ethernet controller driver
  *
- * Dave Liu <daveliu@freescale.com>
+ * based on drivers/qe/uec.c from NXP
+ *
+ * Copyright (C) 2020 Heiko Schocher <hs@denx.de>
  */
 
 #include <common.h>
-#include <log.h>
-#include <net.h>
-#include <malloc.h>
-#include <linux/delay.h>
-#include <linux/errno.h>
+#include <dm.h>
+#include <errno.h>
+#include <memalign.h>
+#include <miiphy.h>
 #include <asm/io.h>
-#include <linux/immap_qe.h>
-#include "uccf.h"
-#include "uec.h"
-#include "uec_phy.h"
-#include "miiphy.h"
-#include <fsl_qe.h>
-#include <phy.h>
 
-#if !defined(CONFIG_DM_ETH)
+#include "dm_qe_uec.h"
+
+#define QE_UEC_DRIVER_NAME	"ucc_geth"
+
 /* Default UTBIPAR SMI address */
 #ifndef CONFIG_UTBIPAR_INIT_TBIPA
 #define CONFIG_UTBIPAR_INIT_TBIPA 0x1F
 #endif
-
-static struct uec_inf uec_info[] = {
-#ifdef CONFIG_UEC_ETH1
-	STD_UEC_INFO(1),	/* UEC1 */
-#endif
-#ifdef CONFIG_UEC_ETH2
-	STD_UEC_INFO(2),	/* UEC2 */
-#endif
-#ifdef CONFIG_UEC_ETH3
-	STD_UEC_INFO(3),	/* UEC3 */
-#endif
-#ifdef CONFIG_UEC_ETH4
-	STD_UEC_INFO(4),	/* UEC4 */
-#endif
-#ifdef CONFIG_UEC_ETH5
-	STD_UEC_INFO(5),	/* UEC5 */
-#endif
-#ifdef CONFIG_UEC_ETH6
-	STD_UEC_INFO(6),	/* UEC6 */
-#endif
-#ifdef CONFIG_UEC_ETH7
-	STD_UEC_INFO(7),	/* UEC7 */
-#endif
-#ifdef CONFIG_UEC_ETH8
-	STD_UEC_INFO(8),	/* UEC8 */
-#endif
-};
-
-#define MAXCONTROLLERS	(8)
-
-static struct eth_device *devlist[MAXCONTROLLERS];
 
 static int uec_mac_enable(struct uec_priv *uec, comm_dir_e mode)
 {
 	uec_t		*uec_regs;
 	u32		maccfg1;
 
-	if (!uec) {
-		printf("%s: uec not initial\n", __func__);
-		return -EINVAL;
-	}
 	uec_regs = uec->uec_regs;
-
 	maccfg1 = in_be32(&uec_regs->maccfg1);
 
 	if (mode & COMM_DIR_TX)	{
@@ -90,12 +51,7 @@ static int uec_mac_disable(struct uec_priv *uec, comm_dir_e mode)
 	uec_t		*uec_regs;
 	u32		maccfg1;
 
-	if (!uec) {
-		printf("%s: uec not initial\n", __func__);
-		return -EINVAL;
-	}
 	uec_regs = uec->uec_regs;
-
 	maccfg1 = in_be32(&uec_regs->maccfg1);
 
 	if (mode & COMM_DIR_TX)	{
@@ -113,84 +69,12 @@ static int uec_mac_disable(struct uec_priv *uec, comm_dir_e mode)
 	return 0;
 }
 
-static int uec_graceful_stop_tx(struct uec_priv *uec)
-{
-	ucc_fast_t		*uf_regs;
-	u32			cecr_subblock;
-	u32			ucce;
-
-	if (!uec || !uec->uccf) {
-		printf("%s: No handle passed.\n", __func__);
-		return -EINVAL;
-	}
-
-	uf_regs = uec->uccf->uf_regs;
-
-	/* Clear the grace stop event */
-	out_be32(&uf_regs->ucce, UCCE_GRA);
-
-	/* Issue host command */
-	cecr_subblock =
-		 ucc_fast_get_qe_cr_subblock(uec->uec_info->uf_info.ucc_num);
-	qe_issue_cmd(QE_GRACEFUL_STOP_TX, cecr_subblock,
-		     (u8)QE_CR_PROTOCOL_ETHERNET, 0);
-
-	/* Wait for command to complete */
-	do {
-		ucce = in_be32(&uf_regs->ucce);
-	} while (!(ucce & UCCE_GRA));
-
-	uec->grace_stopped_tx = 1;
-
-	return 0;
-}
-
-static int uec_graceful_stop_rx(struct uec_priv *uec)
-{
-	u32		cecr_subblock;
-	u8		ack;
-
-	if (!uec) {
-		printf("%s: No handle passed.\n", __func__);
-		return -EINVAL;
-	}
-
-	if (!uec->p_rx_glbl_pram) {
-		printf("%s: No init rx global parameter\n", __func__);
-		return -EINVAL;
-	}
-
-	/* Clear acknowledge bit */
-	ack = uec->p_rx_glbl_pram->rxgstpack;
-	ack &= ~GRACEFUL_STOP_ACKNOWLEDGE_RX;
-	uec->p_rx_glbl_pram->rxgstpack = ack;
-
-	/* Keep issuing cmd and checking ack bit until it is asserted */
-	do {
-		/* Issue host command */
-		cecr_subblock =
-		 ucc_fast_get_qe_cr_subblock(uec->uec_info->uf_info.ucc_num);
-		qe_issue_cmd(QE_GRACEFUL_STOP_RX, cecr_subblock,
-			     (u8)QE_CR_PROTOCOL_ETHERNET, 0);
-		ack = uec->p_rx_glbl_pram->rxgstpack;
-	} while (!(ack & GRACEFUL_STOP_ACKNOWLEDGE_RX));
-
-	uec->grace_stopped_rx = 1;
-
-	return 0;
-}
-
 static int uec_restart_tx(struct uec_priv *uec)
 {
+	struct uec_inf	*ui = uec->uec_info;
 	u32		cecr_subblock;
 
-	if (!uec || !uec->uec_info) {
-		printf("%s: No handle passed.\n", __func__);
-		return -EINVAL;
-	}
-
-	cecr_subblock =
-	 ucc_fast_get_qe_cr_subblock(uec->uec_info->uf_info.ucc_num);
+	cecr_subblock = ucc_fast_get_qe_cr_subblock(ui->uf_info.ucc_num);
 	qe_issue_cmd(QE_RESTART_TX, cecr_subblock,
 		     (u8)QE_CR_PROTOCOL_ETHERNET, 0);
 
@@ -201,15 +85,10 @@ static int uec_restart_tx(struct uec_priv *uec)
 
 static int uec_restart_rx(struct uec_priv *uec)
 {
+	struct uec_inf	*ui = uec->uec_info;
 	u32		cecr_subblock;
 
-	if (!uec || !uec->uec_info) {
-		printf("%s: No handle passed.\n", __func__);
-		return -EINVAL;
-	}
-
-	cecr_subblock =
-	 ucc_fast_get_qe_cr_subblock(uec->uec_info->uf_info.ucc_num);
+	cecr_subblock = ucc_fast_get_qe_cr_subblock(ui->uf_info.ucc_num);
 	qe_issue_cmd(QE_RESTART_RX, cecr_subblock,
 		     (u8)QE_CR_PROTOCOL_ETHERNET, 0);
 
@@ -222,10 +101,6 @@ static int uec_open(struct uec_priv *uec, comm_dir_e mode)
 {
 	struct ucc_fast_priv	*uccf;
 
-	if (!uec || !uec->uccf) {
-		printf("%s: No handle passed.\n", __func__);
-		return -EINVAL;
-	}
 	uccf = uec->uccf;
 
 	/* check if the UCC number is in range. */
@@ -243,82 +118,23 @@ static int uec_open(struct uec_priv *uec, comm_dir_e mode)
 	/* RISC microcode start */
 	if ((mode & COMM_DIR_TX) && uec->grace_stopped_tx)
 		uec_restart_tx(uec);
+
 	if ((mode & COMM_DIR_RX) && uec->grace_stopped_rx)
 		uec_restart_rx(uec);
 
 	return 0;
 }
 
-static int uec_stop(struct uec_priv *uec, comm_dir_e mode)
+static int uec_set_mac_if_mode(struct uec_priv *uec)
 {
-	if (!uec || !uec->uccf) {
-		printf("%s: No handle passed.\n", __func__);
-		return -EINVAL;
-	}
-
-	/* check if the UCC number is in range. */
-	if (uec->uec_info->uf_info.ucc_num >= UCC_MAX_NUM) {
-		printf("%s: ucc_num out of range.\n", __func__);
-		return -EINVAL;
-	}
-	/* Stop any transmissions */
-	if ((mode & COMM_DIR_TX) && !uec->grace_stopped_tx)
-		uec_graceful_stop_tx(uec);
-
-	/* Stop any receptions */
-	if ((mode & COMM_DIR_RX) && !uec->grace_stopped_rx)
-		uec_graceful_stop_rx(uec);
-
-	/* Disable the UCC fast */
-	ucc_fast_disable(uec->uccf, mode);
-
-	/* Disable the MAC */
-	uec_mac_disable(uec, mode);
-
-	return 0;
-}
-
-static int uec_set_mac_duplex(struct uec_priv *uec, int duplex)
-{
-	uec_t		*uec_regs;
-	u32		maccfg2;
-
-	if (!uec) {
-		printf("%s: uec not initial\n", __func__);
-		return -EINVAL;
-	}
-	uec_regs = uec->uec_regs;
-
-	if (duplex == DUPLEX_HALF) {
-		maccfg2 = in_be32(&uec_regs->maccfg2);
-		maccfg2 &= ~MACCFG2_FDX;
-		out_be32(&uec_regs->maccfg2, maccfg2);
-	}
-
-	if (duplex == DUPLEX_FULL) {
-		maccfg2 = in_be32(&uec_regs->maccfg2);
-		maccfg2 |= MACCFG2_FDX;
-		out_be32(&uec_regs->maccfg2, maccfg2);
-	}
-
-	return 0;
-}
-
-static int uec_set_mac_if_mode(struct uec_priv *uec,
-			       phy_interface_t if_mode, int speed)
-{
+	struct uec_inf		*uec_info = uec->uec_info;
 	phy_interface_t		enet_if_mode;
 	uec_t			*uec_regs;
 	u32			upsmr;
 	u32			maccfg2;
 
-	if (!uec) {
-		printf("%s: uec not initial\n", __func__);
-		return -EINVAL;
-	}
-
 	uec_regs = uec->uec_regs;
-	enet_if_mode = if_mode;
+	enet_if_mode = uec_info->enet_interface_type;
 
 	maccfg2 = in_be32(&uec_regs->maccfg2);
 	maccfg2 &= ~MACCFG2_INTERFACE_MODE_MASK;
@@ -326,7 +142,7 @@ static int uec_set_mac_if_mode(struct uec_priv *uec,
 	upsmr = in_be32(&uec->uccf->uf_regs->upsmr);
 	upsmr &= ~(UPSMR_RPM | UPSMR_TBIM | UPSMR_R10M | UPSMR_RMM);
 
-	switch (speed) {
+	switch (uec_info->speed) {
 	case SPEED_10:
 		maccfg2 |= MACCFG2_INTERFACE_MODE_NIBBLE;
 		switch (enet_if_mode) {
@@ -355,8 +171,8 @@ static int uec_set_mac_if_mode(struct uec_priv *uec,
 			break;
 		default:
 			return -EINVAL;
-		}
-		break;
+	}
+	break;
 	case SPEED_1000:
 		maccfg2 |= MACCFG2_INTERFACE_MODE_BYTE;
 		switch (enet_if_mode) {
@@ -391,281 +207,221 @@ static int uec_set_mac_if_mode(struct uec_priv *uec,
 	return 0;
 }
 
-static int init_mii_management_configuration(uec_mii_t *uec_mii_regs)
+static int qe_uec_start(struct udevice *dev)
 {
-	uint		timeout = 0x1000;
-	u32		miimcfg = 0;
-
-	miimcfg = in_be32(&uec_mii_regs->miimcfg);
-	miimcfg |= MIIMCFG_MNGMNT_CLC_DIV_INIT_VALUE;
-	out_be32(&uec_mii_regs->miimcfg, miimcfg);
-
-	/* Wait until the bus is free */
-	while ((in_be32(&uec_mii_regs->miimcfg) & MIIMIND_BUSY) && timeout--)
-		;
-	if (timeout <= 0) {
-		printf("%s: The MII Bus is stuck!", __func__);
-		return -ETIMEDOUT;
-	}
-
-	return 0;
-}
-
-static int init_phy(struct eth_device *dev)
-{
-	struct uec_priv		*uec;
-	uec_mii_t		*umii_regs;
-	struct uec_mii_info	*mii_info;
-	struct phy_info		*curphy;
+	struct qe_uec_priv *priv = dev_get_priv(dev);
+	struct uec_priv		*uec = priv->uec;
+	struct phy_device	*phydev = priv->phydev;
+	struct uec_inf		*uec_info = uec->uec_info;
 	int			err;
 
-	uec = (struct uec_priv *)dev->priv;
-	umii_regs = uec->uec_mii_regs;
+	if (!phydev)
+		return -ENODEV;
 
-	uec->oldlink = 0;
-	uec->oldspeed = 0;
-	uec->oldduplex = -1;
+	/* Setup MAC interface mode */
+	genphy_update_link(phydev);
+	genphy_parse_link(phydev);
+	uec_info->speed = phydev->speed;
+	uec_set_mac_if_mode(uec);
 
-	mii_info = malloc(sizeof(*mii_info));
-	if (!mii_info) {
-		printf("%s: Could not allocate mii_info", dev->name);
-		return -ENOMEM;
-	}
-	memset(mii_info, 0, sizeof(*mii_info));
-
-	if (uec->uec_info->uf_info.eth_type == GIGA_ETH)
-		mii_info->speed = SPEED_1000;
-	else
-		mii_info->speed = SPEED_100;
-
-	mii_info->duplex = DUPLEX_FULL;
-	mii_info->pause = 0;
-	mii_info->link = 1;
-
-	mii_info->advertising = (ADVERTISED_10baseT_Half |
-				ADVERTISED_10baseT_Full |
-				ADVERTISED_100baseT_Half |
-				ADVERTISED_100baseT_Full |
-				ADVERTISED_1000baseT_Full);
-	mii_info->autoneg = 1;
-	mii_info->mii_id = uec->uec_info->phy_address;
-	mii_info->dev = dev;
-
-	mii_info->mdio_read = &uec_read_phy_reg;
-	mii_info->mdio_write = &uec_write_phy_reg;
-
-	uec->mii_info = mii_info;
-
-	qe_set_mii_clk_src(uec->uec_info->uf_info.ucc_num);
-
-	if (init_mii_management_configuration(umii_regs)) {
-		printf("%s: The MII Bus is stuck!", dev->name);
-		err = -1;
-		goto bus_fail;
-	}
-
-	/* get info for this PHY */
-	curphy = uec_get_phy_info(uec->mii_info);
-	if (!curphy) {
-		printf("%s: No PHY found", dev->name);
-		err = -1;
-		goto no_phy;
-	}
-
-	mii_info->phyinfo = curphy;
-
-	/* Run the commands which initialize the PHY */
-	if (curphy->init) {
-		err = curphy->init(uec->mii_info);
-		if (err)
-			goto phy_init_fail;
-	}
-
-	return 0;
-
-phy_init_fail:
-no_phy:
-bus_fail:
-	free(mii_info);
-	return err;
-}
-
-static void adjust_link(struct eth_device *dev)
-{
-	struct uec_priv		*uec = (struct uec_priv *)dev->priv;
-	struct uec_mii_info	*mii_info = uec->mii_info;
-
-	if (mii_info->link) {
-		/*
-		 * Now we make sure that we can be in full duplex mode.
-		 * If not, we operate in half-duplex mode.
-		 */
-		if (mii_info->duplex != uec->oldduplex) {
-			if (!(mii_info->duplex)) {
-				uec_set_mac_duplex(uec, DUPLEX_HALF);
-				printf("%s: Half Duplex\n", dev->name);
-			} else {
-				uec_set_mac_duplex(uec, DUPLEX_FULL);
-				printf("%s: Full Duplex\n", dev->name);
-			}
-			uec->oldduplex = mii_info->duplex;
-		}
-
-		if (mii_info->speed != uec->oldspeed) {
-			phy_interface_t mode =
-				uec->uec_info->enet_interface_type;
-			if (uec->uec_info->uf_info.eth_type == GIGA_ETH) {
-				switch (mii_info->speed) {
-				case SPEED_1000:
-					break;
-				case SPEED_100:
-					printf("switching to rgmii 100\n");
-					mode = PHY_INTERFACE_MODE_RGMII;
-					break;
-				case SPEED_10:
-					printf("switching to rgmii 10\n");
-					mode = PHY_INTERFACE_MODE_RGMII;
-					break;
-				default:
-					printf("%s: Ack,Speed(%d)is illegal\n",
-					       dev->name, mii_info->speed);
-					break;
-				}
-			}
-
-			/* change phy */
-			change_phy_interface_mode(dev, mode, mii_info->speed);
-			/* change the MAC interface mode */
-			uec_set_mac_if_mode(uec, mode, mii_info->speed);
-
-			printf("%s: Speed %dBT\n", dev->name, mii_info->speed);
-			uec->oldspeed = mii_info->speed;
-		}
-
-		if (!uec->oldlink) {
-			printf("%s: Link is up\n", dev->name);
-			uec->oldlink = 1;
-		}
-
-	} else { /* if (mii_info->link) */
-		if (uec->oldlink) {
-			printf("%s: Link is down\n", dev->name);
-			uec->oldlink = 0;
-			uec->oldspeed = 0;
-			uec->oldduplex = -1;
-		}
-	}
-}
-
-static void phy_change(struct eth_device *dev)
-{
-	struct uec_priv	*uec = (struct uec_priv *)dev->priv;
-
-#if defined(CONFIG_ARCH_P1021) || defined(CONFIG_ARCH_P1025)
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-
-	/* QE9 and QE12 need to be set for enabling QE MII management signals */
-	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE9);
-	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE12);
-#endif
-
-	/* Update the link, speed, duplex */
-	uec->mii_info->phyinfo->read_status(uec->mii_info);
-
-#if defined(CONFIG_ARCH_P1021) || defined(CONFIG_ARCH_P1025)
-	/*
-	 * QE12 is muxed with LBCTL, it needs to be released for enabling
-	 * LBCTL signal for LBC usage.
-	 */
-	clrbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE12);
-#endif
-
-	/* Adjust the interface according to speed */
-	adjust_link(dev);
-}
-
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-
-/*
- * Find a device index from the devlist by name
- *
- * Returns:
- *  The index where the device is located, -1 on error
- */
-static int uec_miiphy_find_dev_by_name(const char *devname)
-{
-	int i;
-
-	for (i = 0; i < MAXCONTROLLERS; i++) {
-		if (strncmp(devname, devlist[i]->name, strlen(devname)) == 0)
-			break;
-	}
-
-	/* If device cannot be found, returns -1 */
-	if (i == MAXCONTROLLERS) {
-		debug("%s: device %s not found in devlist\n", __func__,
-		      devname);
-		i = -1;
-	}
-
-	return i;
-}
-
-/*
- * Read a MII PHY register.
- *
- * Returns:
- *  0 on success
- */
-static int uec_miiphy_read(struct mii_dev *bus, int addr, int devad, int reg)
-{
-	unsigned short value = 0;
-	int devindex = 0;
-
-	if (!bus->name) {
-		debug("%s: NULL pointer given\n", __func__);
-	} else {
-		devindex = uec_miiphy_find_dev_by_name(bus->name);
-		if (devindex >= 0)
-			value = uec_read_phy_reg(devlist[devindex], addr, reg);
-	}
-	return value;
-}
-
-/*
- * Write a MII PHY register.
- *
- * Returns:
- *  0 on success
- */
-static int uec_miiphy_write(struct mii_dev *bus, int addr, int devad, int reg,
-			    u16 value)
-{
-	int devindex = 0;
-
-	if (!bus->name) {
-		debug("%s: NULL pointer given\n", __func__);
-	} else {
-		devindex = uec_miiphy_find_dev_by_name(bus->name);
-		if (devindex >= 0)
-			uec_write_phy_reg(devlist[devindex], addr, reg, value);
-	}
-	return 0;
-}
-#endif
-
-static int uec_set_mac_address(struct uec_priv *uec, u8 *mac_addr)
-{
-	uec_t		*uec_regs;
-	u32		mac_addr1;
-	u32		mac_addr2;
-
-	if (!uec) {
-		printf("%s: uec not initial\n", __func__);
+	err = uec_open(uec, COMM_DIR_RX_AND_TX);
+	if (err) {
+		printf("%s: cannot enable UEC device\n", dev->name);
 		return -EINVAL;
 	}
 
-	uec_regs = uec->uec_regs;
+	return (phydev->link ? 0 : -EINVAL);
+}
+
+static int qe_uec_send(struct udevice *dev, void *packet, int length)
+{
+	struct qe_uec_priv *priv = dev_get_priv(dev);
+	struct uec_priv		*uec = priv->uec;
+	struct ucc_fast_priv	*uccf = uec->uccf;
+	struct buffer_descriptor	*bd;
+	u16			status;
+	int			i;
+	int			result = 0;
+
+	uccf = uec->uccf;
+	bd = uec->tx_bd;
+
+	/* Find an empty TxBD */
+	for (i = 0; BD_STATUS(bd) & TX_BD_READY; i++) {
+		if (i > 0x100000) {
+			printf("%s: tx buffer not ready\n", dev->name);
+			return result;
+		}
+	}
+
+	/* Init TxBD */
+	BD_DATA_SET(bd, packet);
+	BD_LENGTH_SET(bd, length);
+	status = BD_STATUS(bd);
+	status &= BD_WRAP;
+	status |= (TX_BD_READY | TX_BD_LAST);
+	BD_STATUS_SET(bd, status);
+
+	/* Tell UCC to transmit the buffer */
+	ucc_fast_transmit_on_demand(uccf);
+
+	/* Wait for buffer to be transmitted */
+	for (i = 0; BD_STATUS(bd) & TX_BD_READY; i++) {
+		if (i > 0x100000) {
+			printf("%s: tx error\n", dev->name);
+			return result;
+		}
+	}
+
+	/* Ok, the buffer be transimitted */
+	BD_ADVANCE(bd, status, uec->p_tx_bd_ring);
+	uec->tx_bd = bd;
+	result = 1;
+
+	return result;
+}
+
+/*
+ * Receive frame:
+ * - wait for the next BD to get ready bit set
+ * - clean up the descriptor
+ * - move on and indicate to HW that the cleaned BD is available for Rx
+ */
+static int qe_uec_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct qe_uec_priv *priv = dev_get_priv(dev);
+	struct uec_priv		*uec = priv->uec;
+	struct buffer_descriptor	*bd;
+	u16			status;
+	u16			len = 0;
+	u8			*data;
+
+	*packetp = memalign(ARCH_DMA_MINALIGN, MAX_RXBUF_LEN);
+	if (*packetp == 0) {
+		printf("%s: error allocating packetp\n", __func__);
+		return -ENOMEM;
+	}
+
+	bd = uec->rx_bd;
+	status = BD_STATUS(bd);
+
+	while (!(status & RX_BD_EMPTY)) {
+		if (!(status & RX_BD_ERROR)) {
+			data = BD_DATA(bd);
+			len = BD_LENGTH(bd);
+			memcpy(*packetp, (char *)data, len);
+		} else {
+			printf("%s: Rx error\n", dev->name);
+		}
+		status &= BD_CLEAN;
+		BD_LENGTH_SET(bd, 0);
+		BD_STATUS_SET(bd, status | RX_BD_EMPTY);
+		BD_ADVANCE(bd, status, uec->p_rx_bd_ring);
+		status = BD_STATUS(bd);
+	}
+	uec->rx_bd = bd;
+
+	return len;
+}
+
+static int uec_graceful_stop_tx(struct uec_priv *uec)
+{
+	ucc_fast_t		*uf_regs;
+	u32			cecr_subblock;
+	u32			ucce;
+
+	uf_regs = uec->uccf->uf_regs;
+
+	/* Clear the grace stop event */
+	out_be32(&uf_regs->ucce, UCCE_GRA);
+
+	/* Issue host command */
+	cecr_subblock =
+		 ucc_fast_get_qe_cr_subblock(uec->uec_info->uf_info.ucc_num);
+	qe_issue_cmd(QE_GRACEFUL_STOP_TX, cecr_subblock,
+		     (u8)QE_CR_PROTOCOL_ETHERNET, 0);
+
+	/* Wait for command to complete */
+	do {
+		ucce = in_be32(&uf_regs->ucce);
+	} while (!(ucce & UCCE_GRA));
+
+	uec->grace_stopped_tx = 1;
+
+	return 0;
+}
+
+static int uec_graceful_stop_rx(struct uec_priv *uec)
+{
+	u32		cecr_subblock;
+	u8		ack;
+
+	if (!uec->p_rx_glbl_pram) {
+		printf("%s: No init rx global parameter\n", __func__);
+		return -EINVAL;
+	}
+
+	/* Clear acknowledge bit */
+	ack = uec->p_rx_glbl_pram->rxgstpack;
+	ack &= ~GRACEFUL_STOP_ACKNOWLEDGE_RX;
+	uec->p_rx_glbl_pram->rxgstpack = ack;
+
+	/* Keep issuing cmd and checking ack bit until it is asserted */
+	do {
+		/* Issue host command */
+		cecr_subblock =
+		ucc_fast_get_qe_cr_subblock(uec->uec_info->uf_info.ucc_num);
+		qe_issue_cmd(QE_GRACEFUL_STOP_RX, cecr_subblock,
+			     (u8)QE_CR_PROTOCOL_ETHERNET, 0);
+		ack = uec->p_rx_glbl_pram->rxgstpack;
+	} while (!(ack & GRACEFUL_STOP_ACKNOWLEDGE_RX));
+
+	uec->grace_stopped_rx = 1;
+
+	return 0;
+}
+
+static int uec_stop(struct uec_priv *uec, comm_dir_e mode)
+{
+	/* check if the UCC number is in range. */
+	if (uec->uec_info->uf_info.ucc_num >= UCC_MAX_NUM) {
+		printf("%s: ucc_num out of range.\n", __func__);
+		return -EINVAL;
+	}
+	/* Stop any transmissions */
+	if ((mode & COMM_DIR_TX) && !uec->grace_stopped_tx)
+		uec_graceful_stop_tx(uec);
+
+	/* Stop any receptions */
+	if ((mode & COMM_DIR_RX) && !uec->grace_stopped_rx)
+		uec_graceful_stop_rx(uec);
+
+	/* Disable the UCC fast */
+	ucc_fast_disable(uec->uccf, mode);
+
+	/* Disable the MAC */
+	uec_mac_disable(uec, mode);
+
+	return 0;
+}
+
+static void qe_uec_stop(struct udevice *dev)
+{
+	struct qe_uec_priv *priv = dev_get_priv(dev);
+	struct uec_priv		*uec = priv->uec;
+
+	uec_stop(uec, COMM_DIR_RX_AND_TX);
+}
+
+static int qe_uec_set_hwaddr(struct udevice *dev)
+{
+	struct qe_uec_priv *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct uec_priv *uec = priv->uec;
+	uec_t *uec_regs = uec->uec_regs;
+	uchar *mac = pdata->enetaddr;
+	u32		mac_addr1;
+	u32		mac_addr2;
 
 	/*
 	 * if a station address of 0x12345678ABCD, perform a write to
@@ -673,15 +429,32 @@ static int uec_set_mac_address(struct uec_priv *uec, u8 *mac_addr)
 	 * MACSTNADDR2 of 0x34120000
 	 */
 
-	mac_addr1 = (mac_addr[5] << 24) | (mac_addr[4] << 16) |
-			(mac_addr[3] << 8)  | (mac_addr[2]);
+	mac_addr1 = (mac[5] << 24) | (mac[4] << 16) |
+			(mac[3] << 8)  | (mac[2]);
 	out_be32(&uec_regs->macstnaddr1, mac_addr1);
 
-	mac_addr2 = ((mac_addr[1] << 24) | (mac_addr[0] << 16)) & 0xffff0000;
+	mac_addr2 = ((mac[1] << 24) | (mac[0] << 16)) & 0xffff0000;
 	out_be32(&uec_regs->macstnaddr2, mac_addr2);
 
 	return 0;
 }
+
+static int qe_uec_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	if (packet)
+		free(packet);
+
+	return 0;
+}
+
+static const struct eth_ops qe_uec_eth_ops = {
+	.start		= qe_uec_start,
+	.send		= qe_uec_send,
+	.recv		= qe_uec_recv,
+	.free_pkt	= qe_uec_free_pkt,
+	.stop		= qe_uec_stop,
+	.write_hwaddr	= qe_uec_set_hwaddr,
+};
 
 static int uec_convert_threads_num(enum uec_num_of_threads threads_num,
 				   int *threads_num_ret)
@@ -979,10 +752,12 @@ static int uec_issue_init_enet_rxtx_cmd(struct uec_priv *uec,
 	return 0;
 }
 
-static int uec_startup(struct uec_priv *uec)
+static int uec_startup(struct udevice *dev)
 {
+	struct qe_uec_priv *priv = dev_get_priv(dev);
+	struct uec_priv *uec = priv->uec;
 	struct uec_inf			*uec_info;
-	struct ucc_fast_inf		*uf_info;
+	struct ucc_fast_inf			*uf_info;
 	struct ucc_fast_priv		*uccf;
 	ucc_fast_t			*uf_regs;
 	uec_t				*uec_regs;
@@ -995,17 +770,12 @@ static int uec_startup(struct uec_priv *uec)
 	u8				*buf;
 	int				i;
 
-	if (!uec || !uec->uec_info) {
-		printf("%s: uec or uec_info not initial\n", __func__);
-		return -EINVAL;
-	}
-
 	uec_info = uec->uec_info;
 	uf_info = &uec_info->uf_info;
 
 	/* Check if Rx BD ring len is illegal */
 	if (uec_info->rx_bd_ring_len < UEC_RX_BD_RING_SIZE_MIN ||
-	    (uec_info->rx_bd_ring_len % UEC_RX_BD_RING_SIZE_ALIGNMENT)) {
+	    uec_info->rx_bd_ring_len % UEC_RX_BD_RING_SIZE_ALIGNMENT) {
 		printf("%s: Rx BD ring len must be multiple of 4, and > 8.\n",
 		       __func__);
 		return -EINVAL;
@@ -1019,7 +789,7 @@ static int uec_startup(struct uec_priv *uec)
 	}
 
 	/* Check if MRBLR is illegal */
-	if (MAX_RXBUF_LEN == 0 || MAX_RXBUF_LEN  % UEC_MRBLR_ALIGNMENT) {
+	if (MAX_RXBUF_LEN == 0 || (MAX_RXBUF_LEN  % UEC_MRBLR_ALIGNMENT)) {
 		printf("%s: max rx buffer length must be mutliple of 128.\n",
 		       __func__);
 		return -EINVAL;
@@ -1040,15 +810,13 @@ static int uec_startup(struct uec_priv *uec)
 
 	/* Convert the Tx threads number */
 	if (uec_convert_threads_num(uec_info->num_threads_tx,
-				    &num_threads_tx)) {
+				    &num_threads_tx))
 		return -EINVAL;
-	}
 
 	/* Convert the Rx threads number */
 	if (uec_convert_threads_num(uec_info->num_threads_rx,
-				    &num_threads_rx)) {
+				    &num_threads_rx))
 		return -EINVAL;
-	}
 
 	uf_regs = uccf->uf_regs;
 
@@ -1067,20 +835,6 @@ static int uec_startup(struct uec_priv *uec)
 	/* Init MACCFG2, length check, MAC PAD and CRC enable */
 	out_be32(&uec_regs->maccfg2, MACCFG2_INIT_VALUE);
 
-	/* Setup MAC interface mode */
-	uec_set_mac_if_mode(uec, uec_info->enet_interface_type,
-			    uec_info->speed);
-
-	/* Setup MII management base */
-#ifndef CONFIG_eTSEC_MDIO_BUS
-	uec->uec_mii_regs = (uec_mii_t *)(&uec_regs->miimcfg);
-#else
-	uec->uec_mii_regs = (uec_mii_t *)CONFIG_MIIM_ADDRESS;
-#endif
-
-	/* Setup MII master clock source */
-	qe_set_mii_clk_src(uec_info->uf_info.ucc_num);
-
 	/* Setup UTBIPAR */
 	utbipar = in_be32(&uec_regs->utbipar);
 	utbipar &= ~UTBIPAR_PHY_ADDRESS_MASK;
@@ -1091,34 +845,19 @@ static int uec_startup(struct uec_priv *uec)
 	utbipar |= CONFIG_UTBIPAR_INIT_TBIPA << UTBIPAR_PHY_ADDRESS_SHIFT;
 	out_be32(&uec_regs->utbipar, utbipar);
 
-	/* Configure the TBI for SGMII operation */
-	if (uec->uec_info->enet_interface_type == PHY_INTERFACE_MODE_SGMII &&
-	    uec->uec_info->speed == SPEED_1000) {
-		uec_write_phy_reg(uec->dev, uec_regs->utbipar,
-				  ENET_TBI_MII_ANA, TBIANA_SETTINGS);
-
-		uec_write_phy_reg(uec->dev, uec_regs->utbipar,
-				  ENET_TBI_MII_TBICON, TBICON_CLK_SELECT);
-
-		uec_write_phy_reg(uec->dev, uec_regs->utbipar,
-				  ENET_TBI_MII_CR, TBICR_SETTINGS);
-	}
-
 	/* Allocate Tx BDs */
 	length = ((uec_info->tx_bd_ring_len * SIZEOFBD) /
 		 UEC_TX_BD_RING_SIZE_MEMORY_ALIGNMENT) *
 		 UEC_TX_BD_RING_SIZE_MEMORY_ALIGNMENT;
 	if ((uec_info->tx_bd_ring_len * SIZEOFBD) %
-		 UEC_TX_BD_RING_SIZE_MEMORY_ALIGNMENT) {
+	    UEC_TX_BD_RING_SIZE_MEMORY_ALIGNMENT)
 		length += UEC_TX_BD_RING_SIZE_MEMORY_ALIGNMENT;
-	}
 
 	align = UEC_TX_BD_RING_ALIGNMENT;
 	uec->tx_bd_ring_offset = (u32)malloc((u32)(length + align));
-	if (uec->tx_bd_ring_offset != 0) {
+	if (uec->tx_bd_ring_offset != 0)
 		uec->p_tx_bd_ring = (u8 *)((uec->tx_bd_ring_offset + align)
-						 & ~(align - 1));
-	}
+					   & ~(align - 1));
 
 	/* Zero all of Tx BDs */
 	memset((void *)(uec->tx_bd_ring_offset), 0, length + align);
@@ -1127,10 +866,9 @@ static int uec_startup(struct uec_priv *uec)
 	length = uec_info->rx_bd_ring_len * SIZEOFBD;
 	align = UEC_RX_BD_RING_ALIGNMENT;
 	uec->rx_bd_ring_offset = (u32)(malloc((u32)(length + align)));
-	if (uec->rx_bd_ring_offset != 0) {
+	if (uec->rx_bd_ring_offset != 0)
 		uec->p_rx_bd_ring = (u8 *)((uec->rx_bd_ring_offset + align)
-							 & ~(align - 1));
-	}
+					   & ~(align - 1));
 
 	/* Zero all of Rx BDs */
 	memset((void *)(uec->rx_bd_ring_offset), 0, length + align);
@@ -1139,10 +877,9 @@ static int uec_startup(struct uec_priv *uec)
 	length = uec_info->rx_bd_ring_len * MAX_RXBUF_LEN;
 	align = UEC_RX_DATA_BUF_ALIGNMENT;
 	uec->rx_buf_offset = (u32)malloc(length + align);
-	if (uec->rx_buf_offset != 0) {
+	if (uec->rx_buf_offset != 0)
 		uec->p_rx_buf = (u8 *)((uec->rx_buf_offset + align)
-						 & ~(align - 1));
-	}
+				       & ~(align - 1));
 
 	/* Zero all of the Rx buffer */
 	memset((void *)(uec->rx_buf_offset), 0, length + align);
@@ -1184,184 +921,174 @@ static int uec_startup(struct uec_priv *uec)
 		printf("%s issue init enet cmd failed\n", __func__);
 		return -ENOMEM;
 	}
-
 	return 0;
 }
 
-static int uec_init(struct eth_device *dev, struct bd_info *bd)
+/* Convert a string to a QE clock source enum
+ *
+ * This function takes a string, typically from a property in the device
+ * tree, and returns the corresponding "enum qe_clock" value.
+ */
+enum qe_clock qe_clock_source(const char *source)
 {
-	struct uec_priv		*uec;
-	int			err, i;
-	struct phy_info         *curphy;
-#if defined(CONFIG_ARCH_P1021) || defined(CONFIG_ARCH_P1025)
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	unsigned int i;
+
+	if (strcasecmp(source, "none") == 0)
+		return QE_CLK_NONE;
+
+	if (strncasecmp(source, "brg", 3) == 0) {
+		i = simple_strtoul(source + 3, NULL, 10);
+		if (i >= 1 && i <= 16)
+			return (QE_BRG1 - 1) + i;
+		else
+			return QE_CLK_DUMMY;
+	}
+
+	if (strncasecmp(source, "clk", 3) == 0) {
+		i = simple_strtoul(source + 3, NULL, 10);
+		if (i >= 1 && i <= 24)
+			return (QE_CLK1 - 1) + i;
+		else
+			return QE_CLK_DUMMY;
+	}
+
+	return QE_CLK_DUMMY;
+}
+
+static void qe_uec_set_eth_type(struct udevice *dev)
+{
+	struct qe_uec_priv *priv = dev_get_priv(dev);
+	struct uec_priv		*uec = priv->uec;
+	struct uec_inf *uec_info  = uec->uec_info;
+	struct ucc_fast_inf *uf_info = &uec_info->uf_info;
+
+	switch (uec_info->enet_interface_type) {
+	case PHY_INTERFACE_MODE_GMII:
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+	case PHY_INTERFACE_MODE_TBI:
+	case PHY_INTERFACE_MODE_RTBI:
+	case PHY_INTERFACE_MODE_SGMII:
+		uf_info->eth_type = GIGA_ETH;
+		break;
+	default:
+		uf_info->eth_type = FAST_ETH;
+		break;
+	}
+}
+
+static int qe_uec_set_uec_info(struct udevice *dev)
+{
+	struct qe_uec_priv *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct uec_priv *uec = priv->uec;
+	struct uec_inf *uec_info;
+	struct ucc_fast_inf *uf_info;
+	const char *s;
+	int ret;
+	u32 val;
+
+	uec_info = (struct uec_inf *)malloc(sizeof(struct uec_inf));
+	if (!uec_info)
+		return -ENOMEM;
+
+	uf_info = &uec_info->uf_info;
+
+	ret = dev_read_u32(dev, "cell-index", &val);
+	if (ret) {
+		ret = dev_read_u32(dev, "device-id", &val);
+		if (ret) {
+			pr_err("no cell-index nor device-id found!");
+			goto out;
+		}
+	}
+
+	uf_info->ucc_num = val - 1;
+	if (uf_info->ucc_num < 0 || uf_info->ucc_num > 7) {
+		ret = -ENODEV;
+		goto out;
+	}
+
+	ret = dev_read_string_index(dev, "rx-clock-name", 0, &s);
+	if (!ret) {
+		uf_info->rx_clock = qe_clock_source(s);
+		if (uf_info->rx_clock < QE_CLK_NONE ||
+		    uf_info->rx_clock > QE_CLK24) {
+			pr_err("invalid rx-clock-name property\n");
+			ret = -EINVAL;
+			goto out;
+		}
+	} else {
+		ret = dev_read_u32(dev, "rx-clock", &val);
+		if (ret) {
+			/*
+			 * If both rx-clock-name and rx-clock are missing,
+			 * we want to tell people to use rx-clock-name.
+			 */
+			pr_err("missing rx-clock-name property\n");
+			goto out;
+		}
+		if (val < QE_CLK_NONE || val > QE_CLK24) {
+			pr_err("invalid rx-clock property\n");
+			ret = -EINVAL;
+			goto out;
+		}
+		uf_info->rx_clock = val;
+	}
+
+	ret = dev_read_string_index(dev, "tx-clock-name", 0, &s);
+	if (!ret) {
+		uf_info->tx_clock = qe_clock_source(s);
+		if (uf_info->tx_clock < QE_CLK_NONE ||
+		    uf_info->tx_clock > QE_CLK24) {
+			pr_err("invalid tx-clock-name property\n");
+			ret = -EINVAL;
+			goto out;
+		}
+	} else {
+		ret = dev_read_u32(dev, "tx-clock", &val);
+		if (ret) {
+			pr_err("missing tx-clock-name property\n");
+			goto out;
+		}
+		if (val < QE_CLK_NONE || val > QE_CLK24) {
+			pr_err("invalid tx-clock property\n");
+			ret = -EINVAL;
+			goto out;
+		}
+		uf_info->tx_clock = val;
+	}
+
+	uec_info->num_threads_tx = UEC_NUM_OF_THREADS_1;
+	uec_info->num_threads_rx = UEC_NUM_OF_THREADS_1;
+	uec_info->risc_tx = QE_RISC_ALLOCATION_RISC1_AND_RISC2;
+	uec_info->risc_rx = QE_RISC_ALLOCATION_RISC1_AND_RISC2;
+	uec_info->tx_bd_ring_len = 16;
+	uec_info->rx_bd_ring_len = 16;
+#if (MAX_QE_RISC == 4)
+	uec_info->risc_tx = QE_RISC_ALLOCATION_FOUR_RISCS;
+	uec_info->risc_rx = QE_RISC_ALLOCATION_FOUR_RISCS;
 #endif
 
-	uec = (struct uec_priv *)dev->priv;
+	uec_info->enet_interface_type = pdata->phy_interface;
 
-	if (!uec->the_first_run) {
-#if defined(CONFIG_ARCH_P1021) || defined(CONFIG_ARCH_P1025)
-		/*
-		 * QE9 and QE12 need to be set for enabling QE MII
-		 * management signals
-		 */
-		setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE9);
-		setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE12);
-#endif
+	uec->uec_info = uec_info;
+	qe_uec_set_eth_type(dev);
 
-		err = init_phy(dev);
-		if (err) {
-			printf("%s: Cannot initialize PHY, aborting.\n",
-			       dev->name);
-			return err;
-		}
-
-		curphy = uec->mii_info->phyinfo;
-
-		if (curphy->config_aneg) {
-			err = curphy->config_aneg(uec->mii_info);
-			if (err) {
-				printf("%s: Can't negotiate PHY\n", dev->name);
-				return err;
-			}
-		}
-
-		/* Give PHYs up to 5 sec to report a link */
-		i = 50;
-		do {
-			err = curphy->read_status(uec->mii_info);
-			if (!(((i-- > 0) && !uec->mii_info->link) || err))
-				break;
-			mdelay(100);
-		} while (1);
-
-#if defined(CONFIG_ARCH_P1021) || defined(CONFIG_ARCH_P1025)
-		/* QE12 needs to be released for enabling LBCTL signal*/
-		clrbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE12);
-#endif
-
-		if (err || i <= 0)
-			printf("warning: %s: timeout on PHY link\n", dev->name);
-
-		adjust_link(dev);
-		uec->the_first_run = 1;
-	}
-
-	/* Set up the MAC address */
-	if (dev->enetaddr[0] & 0x01) {
-		printf("%s: MacAddress is multcast address\n",
-		       __func__);
-		return -1;
-	}
-	uec_set_mac_address(uec, dev->enetaddr);
-
-	err = uec_open(uec, COMM_DIR_RX_AND_TX);
-	if (err) {
-		printf("%s: cannot enable UEC device\n", dev->name);
-		return -1;
-	}
-
-	phy_change(dev);
-
-	return uec->mii_info->link ? 0 : -1;
+	return 0;
+out:
+	free(uec_info);
+	return ret;
 }
 
-static void uec_halt(struct eth_device *dev)
+static int qe_uec_probe(struct udevice *dev)
 {
-	struct uec_priv	*uec = (struct uec_priv *)dev->priv;
-
-	uec_stop(uec, COMM_DIR_RX_AND_TX);
-}
-
-static int uec_send(struct eth_device *dev, void *buf, int len)
-{
+	struct qe_uec_priv *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct uec_priv		*uec;
-	struct ucc_fast_priv	*uccf;
-	struct buffer_descriptor	*bd;
-	u16			status;
-	int			i;
-	int			result = 0;
-
-	uec = (struct uec_priv *)dev->priv;
-	uccf = uec->uccf;
-	bd = uec->tx_bd;
-
-	/* Find an empty TxBD */
-	for (i = 0; BD_STATUS(bd) & TX_BD_READY; i++) {
-		if (i > 0x100000) {
-			printf("%s: tx buffer not ready\n", dev->name);
-			return result;
-		}
-	}
-
-	/* Init TxBD */
-	BD_DATA_SET(bd, buf);
-	BD_LENGTH_SET(bd, len);
-	status = BD_STATUS(bd);
-	status &= BD_WRAP;
-	status |= (TX_BD_READY | TX_BD_LAST);
-	BD_STATUS_SET(bd, status);
-
-	/* Tell UCC to transmit the buffer */
-	ucc_fast_transmit_on_demand(uccf);
-
-	/* Wait for buffer to be transmitted */
-	for (i = 0; BD_STATUS(bd) & TX_BD_READY; i++) {
-		if (i > 0x100000) {
-			printf("%s: tx error\n", dev->name);
-			return result;
-		}
-	}
-
-	/* Ok, the buffer be transimitted */
-	BD_ADVANCE(bd, status, uec->p_tx_bd_ring);
-	uec->tx_bd = bd;
-	result = 1;
-
-	return result;
-}
-
-static int uec_recv(struct eth_device *dev)
-{
-	struct uec_priv		*uec = dev->priv;
-	struct buffer_descriptor	*bd;
-	u16			status;
-	u16			len;
-	u8			*data;
-
-	bd = uec->rx_bd;
-	status = BD_STATUS(bd);
-
-	while (!(status & RX_BD_EMPTY)) {
-		if (!(status & RX_BD_ERROR)) {
-			data = BD_DATA(bd);
-			len = BD_LENGTH(bd);
-			net_process_received_packet(data, len);
-		} else {
-			printf("%s: Rx error\n", dev->name);
-		}
-		status &= BD_CLEAN;
-		BD_LENGTH_SET(bd, 0);
-		BD_STATUS_SET(bd, status | RX_BD_EMPTY);
-		BD_ADVANCE(bd, status, uec->p_rx_bd_ring);
-		status = BD_STATUS(bd);
-	}
-	uec->rx_bd = bd;
-
-	return 1;
-}
-
-int uec_initialize(struct bd_info *bis, struct uec_inf *uec_info)
-{
-	struct eth_device	*dev;
-	int			i;
-	struct uec_priv		*uec;
-	int			err;
-
-	dev = (struct eth_device *)malloc(sizeof(struct eth_device));
-	if (!dev)
-		return 0;
-	memset(dev, 0, sizeof(struct eth_device));
+	int ret;
 
 	/* Allocate the UEC private struct */
 	uec = (struct uec_priv *)malloc(sizeof(struct uec_priv));
@@ -1369,68 +1096,72 @@ int uec_initialize(struct bd_info *bis, struct uec_inf *uec_info)
 		return -ENOMEM;
 
 	memset(uec, 0, sizeof(struct uec_priv));
+	priv->uec = uec;
+	uec->uec_regs = (uec_t *)pdata->iobase;
 
-	/* Adjust uec_info */
-#if (MAX_QE_RISC == 4)
-	uec_info->risc_tx = QE_RISC_ALLOCATION_FOUR_RISCS;
-	uec_info->risc_rx = QE_RISC_ALLOCATION_FOUR_RISCS;
-#endif
-
-	devlist[uec_info->uf_info.ucc_num] = dev;
-
-	uec->uec_info = uec_info;
-	uec->dev = dev;
-
-	sprintf(dev->name, "UEC%d", uec_info->uf_info.ucc_num);
-	dev->iobase = 0;
-	dev->priv = (void *)uec;
-	dev->init = uec_init;
-	dev->halt = uec_halt;
-	dev->send = uec_send;
-	dev->recv = uec_recv;
-
-	/* Clear the ethnet address */
-	for (i = 0; i < 6; i++)
-		dev->enetaddr[i] = 0;
-
-	eth_register(dev);
-
-	err = uec_startup(uec);
-	if (err) {
-		printf("%s: Cannot configure net device, aborting.", dev->name);
-		return err;
+	/* setup uec info struct */
+	ret = qe_uec_set_uec_info(dev);
+	if (ret) {
+		free(uec);
+		return ret;
 	}
 
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-	int retval;
-	struct mii_dev *mdiodev = mdio_alloc();
+	ret = uec_startup(dev);
+	if (ret) {
+		free(uec->uec_info);
+		free(uec);
+		return ret;
+	}
 
-	if (!mdiodev)
-		return -ENOMEM;
-	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
-	mdiodev->read = uec_miiphy_read;
-	mdiodev->write = uec_miiphy_write;
-
-	retval = mdio_register(mdiodev);
-	if (retval < 0)
-		return retval;
-#endif
-
-	return 1;
+	priv->phydev = dm_eth_phy_connect(dev);
+	return 0;
 }
 
-int uec_eth_init(struct bd_info *bis, struct uec_inf *uecs, int num)
+/*
+ * Remove the driver from an interface:
+ * - free up allocated memory
+ */
+static int qe_uec_remove(struct udevice *dev)
 {
-	int i;
+	struct qe_uec_priv *priv = dev_get_priv(dev);
 
-	for (i = 0; i < num; i++)
-		uec_initialize(bis, &uecs[i]);
+	free(priv->uec);
+	return 0;
+}
+
+static int qe_uec_ofdata_to_platdata(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	const char *phy_mode;
+
+	pdata->iobase = (phys_addr_t)devfdt_get_addr(dev);
+
+	pdata->phy_interface = -1;
+	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
+			       "phy-connection-type", NULL);
+	if (phy_mode)
+		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
+	if (pdata->phy_interface == -1) {
+		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+		return -EINVAL;
+	}
 
 	return 0;
 }
 
-int uec_standard_init(struct bd_info *bis)
-{
-	return uec_eth_init(bis, uec_info, ARRAY_SIZE(uec_info));
-}
-#endif
+static const struct udevice_id qe_uec_ids[] = {
+	{ .compatible = QE_UEC_DRIVER_NAME },
+	{ }
+};
+
+U_BOOT_DRIVER(eth_qe_uec) = {
+	.name	= QE_UEC_DRIVER_NAME,
+	.id	= UCLASS_ETH,
+	.of_match = qe_uec_ids,
+	.ofdata_to_platdata = qe_uec_ofdata_to_platdata,
+	.probe	= qe_uec_probe,
+	.remove = qe_uec_remove,
+	.ops	= &qe_uec_eth_ops,
+	.priv_auto_alloc_size = sizeof(struct qe_uec_priv),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+};

@@ -432,6 +432,8 @@ config PCNET
 	  This driver supports AMD PCnet series fast ethernet family of
 	  PCI chipsets/adapters.
 
+source "drivers/net/qe/Kconfig"
+
 config RTL8139
 	bool "Realtek 8139 series Ethernet controller driver"
 	help

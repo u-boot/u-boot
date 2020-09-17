@@ -296,4 +296,7 @@ int u_qe_firmware_resume(const struct qe_firmware *firmware,
 			 qe_map_t *qe_immrr);
 #endif
 
+#if defined(CONFIG_PINCTRL)
+int par_io_of_config(struct udevice *dev);
+#endif
 #endif /* __QE_H__ */

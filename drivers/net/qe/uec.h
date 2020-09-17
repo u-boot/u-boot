@@ -647,7 +647,6 @@ struct uec_priv {
 	struct ucc_fast_priv		*uccf;
 	struct eth_device		*dev;
 	uec_t				*uec_regs;
-	uec_mii_t			*uec_mii_regs;
 	/* enet init command parameter */
 	struct uec_init_cmd_pram		*p_init_enet_param;
 	u32				init_enet_param_offset;
@@ -679,11 +678,13 @@ struct uec_priv {
 	int				grace_stopped_tx;
 	int				grace_stopped_rx;
 	int				the_first_run;
+#if !defined(COFIG_DM)
 	/* PHY specific */
 	struct uec_mii_info		*mii_info;
 	int				oldspeed;
 	int				oldduplex;
 	int				oldlink;
+#endif
 };
 
 int uec_initialize(struct bd_info *bis, struct uec_inf *uec_info);

@@ -3,7 +3,7 @@
 #
 config QE
 	bool "Enable support for QUICC Engine"
-	depends on PPC && !DM_ETH
+	depends on PPC
 	default y if ARCH_T1040 || ARCH_T1042 || ARCH_T1024 || ARCH_P1021 \
 		|| ARCH_P1025
 	help

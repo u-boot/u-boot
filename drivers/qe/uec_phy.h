@@ -11,6 +11,8 @@
 #ifndef __UEC_PHY_H__
 #define __UEC_PHY_H__
 
+#include <linux/bitops.h>
+
 #define MII_end ((u32)-2)
 #define MII_read ((u32)-1)
 
@@ -93,8 +95,8 @@
 #define MII_DM9161_INTR_LINK_CHANGE	0x0004
 #define MII_DM9161_INTR_INIT		0x0000
 #define MII_DM9161_INTR_STOP	\
-(MII_DM9161_INTR_DPLX_MASK | MII_DM9161_INTR_SPD_MASK \
- | MII_DM9161_INTR_LINK_MASK | MII_DM9161_INTR_MASK)
+		(MII_DM9161_INTR_DPLX_MASK | MII_DM9161_INTR_SPD_MASK | \
+		 MII_DM9161_INTR_LINK_MASK | MII_DM9161_INTR_MASK)
 
 /* DM9161 10BT Configuration/Status */
 #define MII_DM9161_10BTCSR		0x12
@@ -124,35 +126,6 @@
 /* Duplex, half or full. */
 #define DUPLEX_HALF		0x00
 #define DUPLEX_FULL		0x01
-
-/* Indicates what features are supported by the interface. */
-#define SUPPORTED_10baseT_Half		(1 << 0)
-#define SUPPORTED_10baseT_Full		(1 << 1)
-#define SUPPORTED_100baseT_Half		(1 << 2)
-#define SUPPORTED_100baseT_Full		(1 << 3)
-#define SUPPORTED_1000baseT_Half	(1 << 4)
-#define SUPPORTED_1000baseT_Full	(1 << 5)
-#define SUPPORTED_Autoneg		(1 << 6)
-#define SUPPORTED_TP			(1 << 7)
-#define SUPPORTED_AUI			(1 << 8)
-#define SUPPORTED_MII			(1 << 9)
-#define SUPPORTED_FIBRE			(1 << 10)
-#define SUPPORTED_BNC			(1 << 11)
-#define SUPPORTED_10000baseT_Full	(1 << 12)
-
-#define ADVERTISED_10baseT_Half		(1 << 0)
-#define ADVERTISED_10baseT_Full		(1 << 1)
-#define ADVERTISED_100baseT_Half	(1 << 2)
-#define ADVERTISED_100baseT_Full	(1 << 3)
-#define ADVERTISED_1000baseT_Half	(1 << 4)
-#define ADVERTISED_1000baseT_Full	(1 << 5)
-#define ADVERTISED_Autoneg		(1 << 6)
-#define ADVERTISED_TP			(1 << 7)
-#define ADVERTISED_AUI			(1 << 8)
-#define ADVERTISED_MII			(1 << 9)
-#define ADVERTISED_FIBRE		(1 << 10)
-#define ADVERTISED_BNC			(1 << 11)
-#define ADVERTISED_10000baseT_Full	(1 << 12)
 
 /* Taken from mii_if_info and sungem_phy.h */
 struct uec_mii_info {
@@ -184,9 +157,9 @@ struct uec_mii_info {
 	void *priv;
 
 	/* Provided by ethernet driver */
-	int (*mdio_read) (struct eth_device * dev, int mii_id, int reg);
-	void (*mdio_write) (struct eth_device * dev, int mii_id, int reg,
-			    int val);
+	int (*mdio_read)(struct eth_device *dev, int mii_id, int reg);
+	void (*mdio_write)(struct eth_device *dev, int mii_id, int reg,
+			   int val);
 };
 
 /* struct phy_info: a structure which defines attributes for a PHY
@@ -208,32 +181,34 @@ struct phy_info {
 	u32 features;
 
 	/* Called to initialize the PHY */
-	int (*init) (struct uec_mii_info * mii_info);
+	int (*init)(struct uec_mii_info *mii_info);
 
 	/* Called to suspend the PHY for power */
-	int (*suspend) (struct uec_mii_info * mii_info);
+	int (*suspend)(struct uec_mii_info *mii_info);
 
 	/* Reconfigures autonegotiation (or disables it) */
-	int (*config_aneg) (struct uec_mii_info * mii_info);
+	int (*config_aneg)(struct uec_mii_info *mii_info);
 
 	/* Determines the negotiated speed and duplex */
-	int (*read_status) (struct uec_mii_info * mii_info);
+	int (*read_status)(struct uec_mii_info *mii_info);
 
 	/* Clears any pending interrupts */
-	int (*ack_interrupt) (struct uec_mii_info * mii_info);
+	int (*ack_interrupt)(struct uec_mii_info *mii_info);
 
 	/* Enables or disables interrupts */
-	int (*config_intr) (struct uec_mii_info * mii_info);
+	int (*config_intr)(struct uec_mii_info *mii_info);
 
 	/* Clears up any memory if needed */
-	void (*close) (struct uec_mii_info * mii_info);
+	void (*close)(struct uec_mii_info *mii_info);
 };
 
-struct phy_info *uec_get_phy_info (struct uec_mii_info *mii_info);
-void uec_write_phy_reg (struct eth_device *dev, int mii_id, int regnum,
-		    int value);
-int uec_read_phy_reg (struct eth_device *dev, int mii_id, int regnum);
-void mii_clear_phy_interrupt (struct uec_mii_info *mii_info);
-void mii_configure_phy_interrupt (struct uec_mii_info *mii_info,
-				  u32 interrupts);
+struct phy_info *uec_get_phy_info(struct uec_mii_info *mii_info);
+void uec_write_phy_reg(struct eth_device *dev, int mii_id, int regnum,
+		       int value);
+int uec_read_phy_reg(struct eth_device *dev, int mii_id, int regnum);
+void mii_clear_phy_interrupt(struct uec_mii_info *mii_info);
+void mii_configure_phy_interrupt(struct uec_mii_info *mii_info,
+				 u32 interrupts);
+void change_phy_interface_mode(struct eth_device *dev,
+			       phy_interface_t type, int speed);
 #endif /* __UEC_PHY_H__ */
