@@ -1134,7 +1134,9 @@ err_free_res:
 
 static void udma_free_chan_resources(struct udma_chan *uc)
 {
-	/* Some configuration to UDMA-P channel: disable, reset, whatever */
+	/* Hard reset UDMA channel */
+	udma_stop_hard(uc);
+	udma_reset_counters(uc);
 
 	/* Release PSI-L pairing */
 	udma_navss_psil_unpair(uc->ud, uc->config.src_thread, uc->config.dst_thread);
