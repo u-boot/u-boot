@@ -16,6 +16,9 @@ config TARGET_MICROBLAZE_GENERIC
 	select OF_CONTROL
 	select SUPPORT_SPL
 	select SYSRESET
+	select DM_SPI
+	select DM_SPI_FLASH
+	select SPI
 	imply CMD_DM
 
 endchoice
