@@ -219,6 +219,21 @@ static int execute(void)
 			return EFI_ST_FAILURE;
 		}
 	}
+	str = get_property(L"boot-hartid", L"chosen");
+	if (IS_ENABLED(CONFIG_RISCV)) {
+		if (str) {
+			efi_st_printf("boot-hartid: %u\n",
+				      f2h(*(fdt32_t *)str));
+			ret = boottime->free_pool(str);
+			if (ret != EFI_SUCCESS) {
+				efi_st_error("FreePool failed\n");
+				return EFI_ST_FAILURE;
+			}
+		} else {
+			efi_st_error("boot-hartid not found\n");
+			return EFI_ST_FAILURE;
+		}
+	}
 
 	return EFI_ST_SUCCESS;
 }
