@@ -52,6 +52,7 @@ struct sntp_pkt_t {
 	unsigned long long transmit_timestamp;
 } __attribute__((packed));
 
-void sntp_start(void);	/* Begin SNTP */
+int sntp_prereq(void *data);
+int sntp_start(void *data);	/* Begin SNTP */
 
 #endif /* __SNTP_H__ */
