@@ -8,6 +8,12 @@ menuconfig NET
 
 if NET
 
+config PROT_UDP
+	bool "Enable generic udp framework"
+	help
+	  Enable a generic udp framework that allows defining a custom
+	  handler for udp protocol.
+
 config BOOTP_SEND_HOSTNAME
 	bool "Send hostname to DNS server"
 	help
