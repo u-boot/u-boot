@@ -250,16 +250,31 @@ int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 
 static void mmdc_set_sdqs(bool set)
 {
+	struct mx6sdl_iomux_ddr_regs *mx6sdl_ddr_iomux =
+		(struct mx6sdl_iomux_ddr_regs *)MX6SDL_IOM_DDR_BASE;
 	struct mx6dq_iomux_ddr_regs *mx6dq_ddr_iomux =
 		(struct mx6dq_iomux_ddr_regs *)MX6DQ_IOM_DDR_BASE;
 	struct mx6sx_iomux_ddr_regs *mx6sx_ddr_iomux =
 		(struct mx6sx_iomux_ddr_regs *)MX6SX_IOM_DDR_BASE;
+	struct mx6sl_iomux_ddr_regs *mx6sl_ddr_iomux =
+		(struct mx6sl_iomux_ddr_regs *)MX6SL_IOM_DDR_BASE;
+	struct mx6ul_iomux_ddr_regs *mx6ul_ddr_iomux =
+		(struct mx6ul_iomux_ddr_regs *)MX6UL_IOM_DDR_BASE;
 	int i, sdqs_cnt;
 	u32 sdqs;
 
 	if (is_mx6sx()) {
 		sdqs = (u32)(&mx6sx_ddr_iomux->dram_sdqs0);
 		sdqs_cnt = 2;
+	} else if (is_mx6sl()) {
+		sdqs = (u32)(&mx6sl_ddr_iomux->dram_sdqs0);
+		sdqs_cnt = 2;
+	} else if (is_mx6ul() || is_mx6ull()) {
+		sdqs = (u32)(&mx6ul_ddr_iomux->dram_sdqs0);
+		sdqs_cnt = 2;
+	} else if (is_mx6sdl()) {
+		sdqs = (u32)(&mx6sdl_ddr_iomux->dram_sdqs0);
+		sdqs_cnt = 8;
 	} else {	/* MX6DQ */
 		sdqs = (u32)(&mx6dq_ddr_iomux->dram_sdqs0);
 		sdqs_cnt = 8;
