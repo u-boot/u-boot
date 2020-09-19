@@ -1477,7 +1477,7 @@ static char env_help_text[] =
 	"env select [target] - select environment target\n"
 #endif
 #if defined(CONFIG_CMD_NVEDIT_EFI)
-	"env set -e [-nv][-bs][-rt][-at][-a][-i addr,size][-v] name [arg ...]\n"
+	"env set -e [-nv][-bs][-rt][-at][-a][-i addr:size][-v] name [arg ...]\n"
 	"    - set UEFI variable; unset if '-i' or 'arg' not specified\n"
 #endif
 	"env set [-f] name [arg ...]\n";
@@ -1541,7 +1541,7 @@ U_BOOT_CMD_COMPLETE(
 	"set environment variables",
 #if defined(CONFIG_CMD_NVEDIT_EFI)
 	"-e [-guid guid][-nv][-bs][-rt][-at][-a][-v]\n"
-	"        [-i addr,size name], or [name [value ...]]\n"
+	"        [-i addr:size name], or [name [value ...]]\n"
 	"    - set UEFI variable 'name' to 'value' ...'\n"
 	"      \"-guid\": GUID xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\n"
 	"      \"-nv\": set non-volatile attribute\n"
