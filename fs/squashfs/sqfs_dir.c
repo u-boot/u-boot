@@ -34,8 +34,7 @@ int sqfs_dir_offset(void *dir_i, u32 *m_list, int m_count)
 	struct squashfs_ldir_inode *ldir;
 	struct squashfs_dir_inode *dir;
 	u32 start_block;
-	u16 offset;
-	int j;
+	int j, offset;
 
 	switch (get_unaligned_le16(&base->inode_type)) {
 	case SQFS_DIR_TYPE:
