@@ -7,6 +7,7 @@
 #include <bloblist.h>
 #include <log.h>
 #include <mapmem.h>
+#include <asm/state.h>
 #include <test/suites.h>
 #include <test/test.h>
 #include <test/ut.h>
@@ -231,8 +232,64 @@ static int bloblist_test_checksum(struct unit_test_state *uts)
 
 	return 0;
 }
-
 BLOBLIST_TEST(bloblist_test_checksum, 0);
+
+/* Test the 'bloblist info' command */
+static int bloblist_test_cmd_info(struct unit_test_state *uts)
+{
+	struct sandbox_state *state = state_get_current();
+	struct bloblist_hdr *hdr;
+	char *data, *data2;
+
+	hdr = clear_bloblist();
+	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+	data = bloblist_ensure(TEST_TAG, TEST_SIZE);
+	data2 = bloblist_ensure(TEST_TAG2, TEST_SIZE2);
+
+	console_record_reset_enable();
+	if (!state->show_test_output)
+		gd->flags |= GD_FLG_SILENT;
+	console_record_reset();
+	run_command("bloblist info", 0);
+	ut_assert_nextline("base:     %x", map_to_sysmem(hdr));
+	ut_assert_nextline("size:     100    256 Bytes");
+	ut_assert_nextline("alloced:  70     112 Bytes");
+	ut_assert_nextline("free:     90     144 Bytes");
+	ut_assert_console_end();
+	gd->flags &= ~(GD_FLG_SILENT | GD_FLG_RECORD);
+
+	return 0;
+}
+BLOBLIST_TEST(bloblist_test_cmd_info, 0);
+
+/* Test the 'bloblist list' command */
+static int bloblist_test_cmd_list(struct unit_test_state *uts)
+{
+	struct sandbox_state *state = state_get_current();
+	struct bloblist_hdr *hdr;
+	char *data, *data2;
+
+	hdr = clear_bloblist();
+	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+	data = bloblist_ensure(TEST_TAG, TEST_SIZE);
+	data2 = bloblist_ensure(TEST_TAG2, TEST_SIZE2);
+
+	console_record_reset_enable();
+	if (!state->show_test_output)
+		gd->flags |= GD_FLG_SILENT;
+	console_record_reset();
+	run_command("bloblist list", 0);
+	ut_assert_nextline("Address       Size  Tag Name");
+	ut_assert_nextline("%08x  %8x    1 EC host event", map_to_sysmem(data),
+			   TEST_SIZE);
+	ut_assert_nextline("%08x  %8x    2 SPL hand-off", map_to_sysmem(data2),
+			   TEST_SIZE2);
+	ut_assert_console_end();
+	gd->flags &= ~(GD_FLG_SILENT | GD_FLG_RECORD);
+
+	return 0;
+}
+BLOBLIST_TEST(bloblist_test_cmd_list, 0);
 
 int do_ut_bloblist(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])

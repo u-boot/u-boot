@@ -19,6 +19,7 @@ enum {
 	BLOBLIST_ALIGN		= 16,
 };
 
+/* Supported tags - add new ones to tag_name in bloblist.c */
 enum bloblist_tag_t {
 	BLOBLISTT_NONE = 0,
 
@@ -35,6 +36,8 @@ enum bloblist_tag_t {
 	BLOBLISTT_INTEL_VBT,		/* Intel Video-BIOS table */
 	BLOBLISTT_TPM2_TCG_LOG,		/* TPM v2 log space */
 	BLOBLISTT_TCPA_LOG,		/* TPM log space */
+
+	BLOBLISTT_COUNT
 };
 
 /**
@@ -205,6 +208,35 @@ int bloblist_check(ulong addr, uint size);
  * @return 0
  */
 int bloblist_finish(void);
+
+/**
+ * bloblist_get_stats() - Get information about the bloblist
+ *
+ * This returns useful information about the bloblist
+ */
+void bloblist_get_stats(ulong *basep, ulong *sizep, ulong *allocedp);
+
+/**
+ * bloblist_show_stats() - Show information about the bloblist
+ *
+ * This shows useful information about the bloblist on the console
+ */
+void bloblist_show_stats(void);
+
+/**
+ * bloblist_show_list() - Show a list of blobs in the bloblist
+ *
+ * This shows a list of blobs, showing their address, size and tag.
+ */
+void bloblist_show_list(void);
+
+/**
+ * bloblist_tag_name() - Get the name for a tag
+ *
+ * @tag: Tag to check
+ * @return name of tag, or "invalid" if an invalid tag is provided
+ */
+const char *bloblist_tag_name(enum bloblist_tag_t tag);
 
 /**
  * bloblist_init() - Init the bloblist system with a single bloblist

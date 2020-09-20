@@ -13,15 +13,31 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct bloblist_rec *bloblist_first_blob(struct bloblist_hdr *hdr)
+static const char *const tag_name[] = {
+	[BLOBLISTT_NONE]		= "(none)",
+	[BLOBLISTT_EC_HOSTEVENT]	= "EC host event",
+	[BLOBLISTT_SPL_HANDOFF]		= "SPL hand-off",
+	[BLOBLISTT_VBOOT_CTX]		= "Chrome OS vboot context",
+	[BLOBLISTT_VBOOT_HANDOFF]	= "Chrome OS vboot hand-off",
+};
+
+const char *bloblist_tag_name(enum bloblist_tag_t tag)
+{
+	if (tag < 0 || tag >= BLOBLISTT_COUNT)
+		return "invalid";
+
+	return tag_name[tag];
+}
+
+static struct bloblist_rec *bloblist_first_blob(struct bloblist_hdr *hdr)
 {
 	if (hdr->alloced <= hdr->hdr_size)
 		return NULL;
 	return (struct bloblist_rec *)((void *)hdr + hdr->hdr_size);
 }
 
-struct bloblist_rec *bloblist_next_blob(struct bloblist_hdr *hdr,
-					struct bloblist_rec *rec)
+static struct bloblist_rec *bloblist_next_blob(struct bloblist_hdr *hdr,
+					       struct bloblist_rec *rec)
 {
 	ulong offset;
 
@@ -231,6 +247,46 @@ int bloblist_finish(void)
 	hdr->chksum = bloblist_calc_chksum(hdr);
 
 	return 0;
+}
+
+void bloblist_get_stats(ulong *basep, ulong *sizep, ulong *allocedp)
+{
+	struct bloblist_hdr *hdr = gd->bloblist;
+
+	*basep = map_to_sysmem(gd->bloblist);
+	*sizep = hdr->size;
+	*allocedp = hdr->alloced;
+}
+
+static void show_value(const char *prompt, ulong value)
+{
+	printf("%s:%*s %-5lx  ", prompt, 8 - (int)strlen(prompt), "", value);
+	print_size(value, "\n");
+}
+
+void bloblist_show_stats(void)
+{
+	ulong base, size, alloced;
+
+	bloblist_get_stats(&base, &size, &alloced);
+	printf("base:     %lx\n", base);
+	show_value("size", size);
+	show_value("alloced", alloced);
+	show_value("free", size - alloced);
+}
+
+void bloblist_show_list(void)
+{
+	struct bloblist_hdr *hdr = gd->bloblist;
+	struct bloblist_rec *rec;
+
+	printf("%-8s  %8s  Tag Name\n", "Address", "Size");
+	for (rec = bloblist_first_blob(hdr); rec;
+	     rec = bloblist_next_blob(hdr, rec)) {
+		printf("%08lx  %8x  %3d %s\n",
+		       (ulong)map_to_sysmem((void *)rec + rec->hdr_size),
+		       rec->size, rec->tag, bloblist_tag_name(rec->tag));
+	}
 }
 
 int bloblist_init(void)
