@@ -198,7 +198,7 @@ int southbridge_inject_dsdt(const struct udevice *dev, struct acpi_ctx *ctx)
 	struct acpi_global_nvs *gnvs;
 	int ret;
 
-	ret = bloblist_ensure_size(BLOBLISTT_ACPI_GNVS, sizeof(*gnvs),
+	ret = bloblist_ensure_size(BLOBLISTT_ACPI_GNVS, sizeof(*gnvs), 0,
 				   (void **)&gnvs);
 	if (ret)
 		return log_msg_ret("bloblist", ret);
