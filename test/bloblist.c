@@ -29,6 +29,8 @@ enum {
 
 	TEST_ADDR		= CONFIG_BLOBLIST_ADDR,
 	TEST_BLOBLIST_SIZE	= 0x100,
+
+	ERASE_BYTE		= '\xff',
 };
 
 static struct bloblist_hdr *clear_bloblist(void)
@@ -41,7 +43,7 @@ static struct bloblist_hdr *clear_bloblist(void)
 	 * to 0xff for testing purposes.
 	 */
 	hdr = map_sysmem(CONFIG_BLOBLIST_ADDR, TEST_BLOBLIST_SIZE);
-	memset(hdr, '\xff', TEST_BLOBLIST_SIZE);
+	memset(hdr, ERASE_BYTE, TEST_BLOBLIST_SIZE);
 	memset(hdr, '\0', sizeof(*hdr));
 
 	return hdr;
@@ -291,6 +293,40 @@ static int bloblist_test_cmd_list(struct unit_test_state *uts)
 	return 0;
 }
 BLOBLIST_TEST(bloblist_test_cmd_list, 0);
+
+/* Test alignment of bloblist blobs */
+static int bloblist_test_align(struct unit_test_state *uts)
+{
+	struct bloblist_hdr *hdr;
+	int i;
+
+	/* At the start there should be no records */
+	hdr = clear_bloblist();
+	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+	ut_assertnull(bloblist_find(TEST_TAG, TEST_BLOBLIST_SIZE));
+
+	/* Check the alignment */
+	for (i = 0; i < 3; i++) {
+		int size = i * 3;
+		ulong addr;
+		char *data;
+		int j;
+
+		data = bloblist_add(i, size);
+		ut_assertnonnull(data);
+		addr = map_to_sysmem(data);
+		ut_asserteq(0, addr & (BLOBLIST_ALIGN - 1));
+
+		/* Only the bytes in the blob data should be zeroed */
+		for (j = 0; j < size; j++)
+			ut_asserteq(0, data[j]);
+		for (; j < BLOBLIST_ALIGN; j++)
+			ut_asserteq(ERASE_BYTE, data[j]);
+	}
+
+	return 0;
+}
+BLOBLIST_TEST(bloblist_test_align, 0);
 
 int do_ut_bloblist(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])

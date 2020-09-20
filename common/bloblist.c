@@ -11,6 +11,20 @@
 #include <spl.h>
 #include <u-boot/crc.h>
 
+/*
+ * A bloblist is a single contiguous chunk of memory with a header
+ * (struct bloblist_hdr) and a number of blobs in it.
+ *
+ * Each blob starts on a BLOBLIST_ALIGN boundary relative to the start of the
+ * bloblist and consists of a struct bloblist_rec, some padding to the required
+ * alignment for the blog and then the actual data. The padding ensures that the
+ * start address of the data in each blob is aligned as required. Note that
+ * each blob's *data* is aligned to BLOBLIST_ALIGN regardless of the alignment
+ * of the bloblist itself or the blob header.
+ *
+ * So far, only BLOBLIST_ALIGN alignment is supported.
+ */
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static const char *const tag_name[] = {
@@ -73,9 +87,14 @@ static int bloblist_addrec(uint tag, int size, struct bloblist_rec **recp)
 {
 	struct bloblist_hdr *hdr = gd->bloblist;
 	struct bloblist_rec *rec;
-	int new_alloced;
+	int data_start, new_alloced;
 
-	new_alloced = hdr->alloced + sizeof(*rec) + ALIGN(size, BLOBLIST_ALIGN);
+	/* Figure out where the new data will start */
+	data_start = hdr->alloced + sizeof(*rec);
+	data_start = ALIGN(data_start, BLOBLIST_ALIGN);
+
+	/* Calculate the new allocated total */
+	new_alloced = data_start + ALIGN(size, BLOBLIST_ALIGN);
 	if (new_alloced >= hdr->size) {
 		log(LOGC_BLOBLIST, LOGL_ERR,
 		    "Failed to allocate %x bytes size=%x, need size=%x\n",
@@ -83,15 +102,16 @@ static int bloblist_addrec(uint tag, int size, struct bloblist_rec **recp)
 		return log_msg_ret("bloblist add", -ENOSPC);
 	}
 	rec = (void *)hdr + hdr->alloced;
-	hdr->alloced = new_alloced;
 
 	rec->tag = tag;
-	rec->hdr_size = sizeof(*rec);
+	rec->hdr_size = data_start - hdr->alloced;
 	rec->size = size;
 	rec->spare = 0;
 
 	/* Zero the record data */
-	memset(rec + 1, '\0', rec->size);
+	memset((void *)rec + rec->hdr_size, '\0', rec->size);
+
+	hdr->alloced = new_alloced;
 	*recp = rec;
 
 	return 0;
@@ -139,7 +159,7 @@ void *bloblist_add(uint tag, int size)
 	if (bloblist_addrec(tag, size, &rec))
 		return NULL;
 
-	return rec + 1;
+	return (void *)rec + rec->hdr_size;
 }
 
 int bloblist_ensure_size(uint tag, int size, void **blobp)
