@@ -11,7 +11,6 @@ F:	configs/P3041DS_SRIO_PCIE_BOOT_defconfig
 F:	include/configs/P4080DS.h
 F:	configs/P4080DS_defconfig
 F:	configs/P4080DS_SDCARD_defconfig
-F:	configs/P4080DS_SECURE_BOOT_defconfig
 F:	configs/P4080DS_SPIFLASH_defconfig
 F:	configs/P4080DS_SRIO_PCIE_BOOT_defconfig
 F:	include/configs/P5020DS.h
