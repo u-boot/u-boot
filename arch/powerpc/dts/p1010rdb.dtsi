@@ -11,6 +11,56 @@
 };
 
 &soc {
+	mdio@24000 {
+		phy0: ethernet-phy@0 {
+			reg = <0x1>;
+		};
+
+		phy1: ethernet-phy@1 {
+			reg = <0x0>;
+		};
+
+		phy2: ethernet-phy@2 {
+			reg = <0x2>;
+		};
+
+		tbi-phy@3 {
+			device_type = "tbi-phy";
+			reg = <0x3>;
+		};
+	};
+
+	mdio@25000 {
+		tbi0: tbi-phy@11 {
+			reg = <0x11>;
+			device_type = "tbi-phy";
+		};
+	};
+
+	mdio@26000 {
+		tbi1: tbi-phy@11 {
+			reg = <0x11>;
+			device_type = "tbi-phy";
+		};
+	};
+
+	enet0: ethernet@b0000 {
+		phy-handle = <&phy0>;
+		phy-connection-type = "rgmii-id";
+	};
+
+	enet1: ethernet@b1000 {
+		phy-handle = <&phy1>;
+		tbi-handle = <&tbi0>;
+		phy-connection-type = "sgmii";
+	};
+
+	enet2: ethernet@b2000 {
+		phy-handle = <&phy2>;
+		tbi-handle = <&tbi1>;
+		phy-connection-type = "sgmii";
+	};
+
 	i2c@3000 {
 		rtc@68 {
 			compatible = "pericom,pt7c4338";
