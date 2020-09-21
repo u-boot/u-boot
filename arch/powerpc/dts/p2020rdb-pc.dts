@@ -41,6 +41,7 @@
 	};
 };
 
+/include/ "p2020rdb-pc.dtsi"
 /include/ "p2020-post.dtsi"
 
 &espi0 {

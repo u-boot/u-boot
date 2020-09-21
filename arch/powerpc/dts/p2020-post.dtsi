@@ -47,8 +47,12 @@
 		status = "disabled";
 	};
 
-	/include/ "pq3-i2c-0.dtsi"
-	/include/ "pq3-i2c-1.dtsi"
+/include/ "pq3-i2c-0.dtsi"
+/include/ "pq3-i2c-1.dtsi"
+
+/include/ "pq3-etsec1-0.dtsi"
+/include/ "pq3-etsec1-1.dtsi"
+/include/ "pq3-etsec1-2.dtsi"
 };
 
 /* PCIe controller base address 0x8000 */
