@@ -36,6 +36,7 @@
 	};
 };
 
+/include/ "p1020rdb-pc.dtsi"
 /include/ "p1020-post.dtsi"
 
 &espi0 {
