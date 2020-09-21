@@ -41,13 +41,13 @@ static int ohci_setup_phy(struct udevice *dev, int index)
 	} else {
 		ret = generic_phy_init(&priv->phy);
 		if (ret) {
-			dev_err(dev, "failed to init usb phy\n");
+			dev_dbg(dev, "failed to init usb phy\n");
 			return ret;
 		}
 
 		ret = generic_phy_power_on(&priv->phy);
 		if (ret) {
-			dev_err(dev, "failed to power on usb phy\n");
+			dev_dbg(dev, "failed to power on usb phy\n");
 			return generic_phy_exit(&priv->phy);
 		}
 	}
@@ -63,13 +63,13 @@ static int ohci_shutdown_phy(struct udevice *dev)
 	if (generic_phy_valid(&priv->phy)) {
 		ret = generic_phy_power_off(&priv->phy);
 		if (ret) {
-			dev_err(dev, "failed to power off usb phy\n");
+			dev_dbg(dev, "failed to power off usb phy\n");
 			return ret;
 		}
 
 		ret = generic_phy_exit(&priv->phy);
 		if (ret) {
-			dev_err(dev, "failed to power off usb phy\n");
+			dev_dbg(dev, "failed to power off usb phy\n");
 			return ret;
 		}
 	}

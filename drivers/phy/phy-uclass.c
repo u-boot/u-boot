@@ -117,56 +117,91 @@ int generic_phy_get_by_name(struct udevice *dev, const char *phy_name,
 int generic_phy_init(struct phy *phy)
 {
 	struct phy_ops const *ops;
+	int ret;
 
 	if (!generic_phy_valid(phy))
 		return 0;
 	ops = phy_dev_ops(phy->dev);
+	if (!ops->init)
+		return 0;
+	ret = ops->init(phy);
+	if (ret)
+		dev_err(phy->dev, "PHY: Failed to init %s: %d.\n",
+			phy->dev->name, ret);
 
-	return ops->init ? ops->init(phy) : 0;
+	return ret;
 }
 
 int generic_phy_reset(struct phy *phy)
 {
 	struct phy_ops const *ops;
+	int ret;
 
 	if (!generic_phy_valid(phy))
 		return 0;
 	ops = phy_dev_ops(phy->dev);
+	if (!ops->reset)
+		return 0;
+	ret = ops->reset(phy);
+	if (ret)
+		dev_err(phy->dev, "PHY: Failed to reset %s: %d.\n",
+			phy->dev->name, ret);
 
-	return ops->reset ? ops->reset(phy) : 0;
+	return ret;
 }
 
 int generic_phy_exit(struct phy *phy)
 {
 	struct phy_ops const *ops;
+	int ret;
 
 	if (!generic_phy_valid(phy))
 		return 0;
 	ops = phy_dev_ops(phy->dev);
+	if (!ops->exit)
+		return 0;
+	ret = ops->exit(phy);
+	if (ret)
+		dev_err(phy->dev, "PHY: Failed to exit %s: %d.\n",
+			phy->dev->name, ret);
 
-	return ops->exit ? ops->exit(phy) : 0;
+	return ret;
 }
 
 int generic_phy_power_on(struct phy *phy)
 {
 	struct phy_ops const *ops;
+	int ret;
 
 	if (!generic_phy_valid(phy))
 		return 0;
 	ops = phy_dev_ops(phy->dev);
+	if (!ops->power_on)
+		return 0;
+	ret = ops->power_on(phy);
+	if (ret)
+		dev_err(phy->dev, "PHY: Failed to power on %s: %d.\n",
+			phy->dev->name, ret);
 
-	return ops->power_on ? ops->power_on(phy) : 0;
+	return ret;
 }
 
 int generic_phy_power_off(struct phy *phy)
 {
 	struct phy_ops const *ops;
+	int ret;
 
 	if (!generic_phy_valid(phy))
 		return 0;
 	ops = phy_dev_ops(phy->dev);
+	if (!ops->power_off)
+		return 0;
+	ret = ops->power_off(phy);
+	if (ret)
+		dev_err(phy->dev, "PHY: Failed to power off %s: %d.\n",
+			phy->dev->name, ret);
 
-	return ops->power_off ? ops->power_off(phy) : 0;
+	return ret;
 }
 
 int generic_phy_get_bulk(struct udevice *dev, struct phy_bulk *bulk)

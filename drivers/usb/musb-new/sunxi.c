@@ -257,7 +257,7 @@ static int sunxi_musb_enable(struct musb *musb)
 
 		ret = generic_phy_power_on(&glue->phy);
 		if (ret) {
-			pr_err("failed to power on USB PHY\n");
+			pr_debug("failed to power on USB PHY\n");
 			return ret;
 		}
 	}
@@ -281,7 +281,7 @@ static void sunxi_musb_disable(struct musb *musb)
 	if (is_host_enabled(musb)) {
 		ret = generic_phy_power_off(&glue->phy);
 		if (ret) {
-			pr_err("failed to power off USB PHY\n");
+			pr_debug("failed to power off USB PHY\n");
 			return;
 		}
 	}
@@ -315,7 +315,7 @@ static int sunxi_musb_init(struct musb *musb)
 
 	ret = generic_phy_init(&glue->phy);
 	if (ret) {
-		dev_err(dev, "failed to init USB PHY\n");
+		dev_dbg(dev, "failed to init USB PHY\n");
 		goto err_rst;
 	}
 
@@ -352,7 +352,7 @@ static int sunxi_musb_exit(struct musb *musb)
 	if (generic_phy_valid(&glue->phy)) {
 		ret = generic_phy_exit(&glue->phy);
 		if (ret) {
-			dev_err(dev, "failed to power off usb phy\n");
+			dev_dbg(dev, "failed to power off usb phy\n");
 			return ret;
 		}
 	}
