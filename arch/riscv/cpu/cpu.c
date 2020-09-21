@@ -72,6 +72,17 @@ static int riscv_cpu_probe(void)
 	return 0;
 }
 
+/*
+ * This is called on secondary harts just after the IPI is init'd. Currently
+ * there's nothing to do, since we just need to clear any existing IPIs, and
+ * that is handled by the sending of an ipi itself.
+ */
+#if CONFIG_IS_ENABLED(SMP)
+static void dummy_pending_ipi_clear(ulong hart, ulong arg0, ulong arg1)
+{
+}
+#endif
+
 int arch_cpu_init_dm(void)
 {
 	int ret;
@@ -109,6 +120,15 @@ int arch_cpu_init_dm(void)
 
 #if CONFIG_IS_ENABLED(SMP)
 	ret = riscv_init_ipi();
+	if (ret)
+		return ret;
+
+	/*
+	 * Clear all pending IPIs on secondary harts. We don't do anything on
+	 * the boot hart, since we never send an IPI to ourselves, and no
+	 * interrupts are enabled
+	 */
+	ret = smp_call_function((ulong)dummy_pending_ipi_clear, 0, 0, 0);
 	if (ret)
 		return ret;
 #endif
