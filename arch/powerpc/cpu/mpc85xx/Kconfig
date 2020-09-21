@@ -136,15 +136,6 @@ config TARGET_P1020RDB_PD
 	imply CMD_SATA
 	imply PANIC_HANG
 
-config TARGET_P1020UTM
-	bool "Support P1020UTM"
-	select SUPPORT_SPL
-	select SUPPORT_TPL
-	select ARCH_P1020
-	imply CMD_EEPROM
-	imply CMD_SATA
-	imply PANIC_HANG
-
 config TARGET_P1021RDB
 	bool "Support P1021RDB"
 	select SUPPORT_SPL
