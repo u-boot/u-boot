@@ -7,7 +7,6 @@ P1_P2_RDB_PC represents a set of boards including
     P1020UTM-PC
     P1021RDB-PC
     P1024RDB
-    P1025RDB
     P2020RDB-PC
 
 They have similar design of P1020RDB but have DDR3 instead of DDR2. P2020RDB-PC
