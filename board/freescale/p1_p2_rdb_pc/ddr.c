@@ -14,8 +14,7 @@
 #include <asm/fsl_law.h>
 
 #ifdef CONFIG_SYS_DDR_RAW_TIMING
-#if	defined(CONFIG_P1020RDB_PROTO) || \
-	defined(CONFIG_TARGET_P1021RDB)
+#if	defined(CONFIG_P1020RDB_PROTO)
 /* Micron MT41J256M8_187E */
 dimm_params_t ddr_raw_timing = {
 	.n_ranks = 1,

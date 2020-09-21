@@ -56,24 +56,6 @@
  */
 #endif
 
-#if defined(CONFIG_TARGET_P1021RDB)
-#define CONFIG_BOARDNAME "P1021RDB-PC"
-#define CONFIG_NAND_FSL_ELBC
-#define CONFIG_VSC7385_ENET
-#define CONFIG_SYS_LBC_LBCR	0x00080000	/* Implement conversion of
-						addresses in the LBC */
-#define __SW_BOOT_MASK		0x03
-#define __SW_BOOT_NOR		0x5c
-#define __SW_BOOT_SPI		0x1c
-#define __SW_BOOT_SD		0x9c
-#define __SW_BOOT_NAND		0xec
-#define __SW_BOOT_PCIE		0x6c
-#define CONFIG_SYS_L2_SIZE	(256 << 10)
-/*
- * Dynamic MTD Partition support with mtdparts
- */
-#endif
-
 #if defined(CONFIG_TARGET_P1024RDB)
 #define CONFIG_BOARDNAME "P1024RDB"
 #define CONFIG_NAND_FSL_ELBC
