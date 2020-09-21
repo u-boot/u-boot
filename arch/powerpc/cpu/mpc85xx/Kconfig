@@ -109,13 +109,6 @@ config TARGET_P1010RDB_PB
 	imply CMD_SATA
 	imply PANIC_HANG
 
-config TARGET_P1023RDB
-	bool "Support P1023RDB"
-	select ARCH_P1023
-	select FSL_DDR_INTERACTIVE
-	imply CMD_EEPROM
-	imply PANIC_HANG
-
 config TARGET_P1020MBG
 	bool "Support P1020MBG-PC"
 	select SUPPORT_SPL
@@ -1506,7 +1499,6 @@ source "board/freescale/mpc8568mds/Kconfig"
 source "board/freescale/mpc8569mds/Kconfig"
 source "board/freescale/mpc8572ds/Kconfig"
 source "board/freescale/p1010rdb/Kconfig"
-source "board/freescale/p1023rdb/Kconfig"
 source "board/freescale/p1_p2_rdb_pc/Kconfig"
 source "board/freescale/p2041rdb/Kconfig"
 source "board/freescale/qemu-ppce500/Kconfig"
