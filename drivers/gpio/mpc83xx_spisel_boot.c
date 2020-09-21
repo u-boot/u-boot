@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <dm.h>
 #include <mapmem.h>
 #include <asm/gpio.h>
