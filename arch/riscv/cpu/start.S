@@ -125,14 +125,12 @@ call_board_init_f_0:
 
 #ifndef CONFIG_XIP
 	la	t0, available_harts_lock
-	fence	rw, w
-	amoswap.w zero, zero, 0(t0)
+	amoswap.w.rl zero, zero, 0(t0)
 
 wait_for_gd_init:
 	la	t0, available_harts_lock
 	li	t1, 1
-1:	amoswap.w t1, t1, 0(t0)
-	fence	r, rw
+1:	amoswap.w.aq t1, t1, 0(t0)
 	bnez	t1, 1b
 
 	/* register available harts in the available_harts mask */
@@ -142,8 +140,7 @@ wait_for_gd_init:
 	or	t2, t2, t1
 	SREG	t2, GD_AVAILABLE_HARTS(gp)
 
-	fence	rw, w
-	amoswap.w zero, zero, 0(t0)
+	amoswap.w.rl zero, zero, 0(t0)
 
 	/*
 	 * Continue on hart lottery winner, others branch to
