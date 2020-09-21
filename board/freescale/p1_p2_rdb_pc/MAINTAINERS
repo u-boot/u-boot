@@ -15,11 +15,6 @@ F:	configs/P1020RDB-PD_defconfig
 F:	configs/P1020RDB-PD_NAND_defconfig
 F:	configs/P1020RDB-PD_SDCARD_defconfig
 F:	configs/P1020RDB-PD_SPIFLASH_defconfig
-F:	configs/P1024RDB_defconfig
-F:	configs/P1024RDB_36BIT_defconfig
-F:	configs/P1024RDB_NAND_defconfig
-F:	configs/P1024RDB_SDCARD_defconfig
-F:	configs/P1024RDB_SPIFLASH_defconfig
 F:	configs/P2020RDB-PC_defconfig
 F:	configs/P2020RDB-PC_36BIT_defconfig
 F:	configs/P2020RDB-PC_36BIT_NAND_defconfig

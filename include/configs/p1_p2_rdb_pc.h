@@ -56,18 +56,6 @@
  */
 #endif
 
-#if defined(CONFIG_TARGET_P1024RDB)
-#define CONFIG_BOARDNAME "P1024RDB"
-#define CONFIG_NAND_FSL_ELBC
-#define CONFIG_SLIC
-#define __SW_BOOT_MASK		0xf3
-#define __SW_BOOT_NOR		0x00
-#define __SW_BOOT_SPI		0x08
-#define __SW_BOOT_SD		0x04
-#define __SW_BOOT_NAND		0x0c
-#define CONFIG_SYS_L2_SIZE	(256 << 10)
-#endif
-
 #if defined(CONFIG_TARGET_P2020RDB)
 #define CONFIG_BOARDNAME "P2020RDB-PC"
 #define CONFIG_NAND_FSL_ELBC
