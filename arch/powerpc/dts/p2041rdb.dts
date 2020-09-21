@@ -26,6 +26,7 @@
 		phy_sgmii_1e = &phy_sgmii_1e;
 		phy_sgmii_1f = &phy_sgmii_1f;
 		phy_xgmii_2 = &phy_xgmii_2;
+		spi0 = &espi0;
 	};
 
 	soc: soc@ffe000000 {
@@ -108,6 +109,18 @@
 				};
 			};
 		};
+	};
+};
+
+&espi0 {
+	status = "okay";
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0>;
+		/* input clock */
+		spi-max-frequency = <10000000>;
 	};
 };
 
