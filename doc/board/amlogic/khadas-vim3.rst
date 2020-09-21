@@ -18,6 +18,33 @@ Technology Co., Ltd. with the following specifications:
 
 Schematics are available on the manufacturer website.
 
+PCIe Setup
+----------
+The VIM3 on-board  MCU can mux the PCIe/USB3.0 shared differential
+lines using a FUSB340TMX USB 3.1 SuperSpeed Data Switch between
+an USB3.0 Type A connector and a M.2 Key M slot.
+The PHY driving these differential lines is shared between
+the USB3.0 controller and the PCIe Controller, thus only
+a single controller can use it.
+
+To setup for PCIe, run the following commands from U-Boot:
+
+.. code-block:: none
+
+    i2c dev i2c@5000
+    i2c mw 0x18 0x33 1
+
+Then power-cycle the board.
+
+To set back to USB3.0, run the following commands from U-Boot:
+
+.. code-block:: none
+
+    i2c dev i2c@5000
+    i2c mw 0x18 0x33 0
+
+Then power-cycle the board.
+
 U-Boot compilation
 ------------------
 
