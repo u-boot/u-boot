@@ -12,16 +12,6 @@
 
 #include <linux/stringify.h>
 
-#if defined(CONFIG_TARGET_P1020MBG)
-#define CONFIG_BOARDNAME "P1020MBG-PC"
-#define CONFIG_VSC7385_ENET
-#define CONFIG_SLIC
-#define __SW_BOOT_MASK		0x03
-#define __SW_BOOT_NOR		0xe4
-#define __SW_BOOT_SD		0x54
-#define CONFIG_SYS_L2_SIZE	(256 << 10)
-#endif
-
 #if defined(CONFIG_TARGET_P1020RDB_PC)
 #define CONFIG_BOARDNAME "P1020RDB-PC"
 #define CONFIG_NAND_FSL_ELBC
@@ -223,7 +213,7 @@
 #define CONFIG_SYS_SPD_BUS_NUM 1
 #define SPD_EEPROM_ADDRESS 0x52
 
-#if (defined(CONFIG_TARGET_P1020MBG) || defined(CONFIG_TARGET_P1020RDB_PD))
+#if defined(CONFIG_TARGET_P1020RDB_PD)
 #define CONFIG_SYS_SDRAM_SIZE_LAW	LAW_SIZE_2G
 #define CONFIG_CHIP_SELECTS_PER_CTRL	2
 #else
@@ -290,7 +280,7 @@
 /*
  * Local Bus Definitions
  */
-#if (defined(CONFIG_TARGET_P1020MBG) || defined(CONFIG_TARGET_P1020RDB_PD))
+#if defined(CONFIG_TARGET_P1020RDB_PD)
 #define CONFIG_SYS_MAX_FLASH_SECT	512	/* 64M */
 #define CONFIG_SYS_FLASH_BASE		0xec000000
 #else

@@ -3,10 +3,6 @@ P1_P2_RDB_PC BOARD
 S:	Maintained
 F:	board/freescale/p1_p2_rdb_pc/
 F:	include/configs/p1_p2_rdb_pc.h
-F:	configs/P1020MBG-PC_defconfig
-F:	configs/P1020MBG-PC_36BIT_defconfig
-F:	configs/P1020MBG-PC_36BIT_SDCARD_defconfig
-F:	configs/P1020MBG-PC_SDCARD_defconfig
 F:	configs/P1020RDB-PC_defconfig
 F:	configs/P1020RDB-PC_36BIT_defconfig
 F:	configs/P1020RDB-PC_36BIT_NAND_defconfig
