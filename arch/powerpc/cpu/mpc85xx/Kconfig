@@ -40,14 +40,6 @@ config TARGET_P4080DS
 	imply CMD_SATA
 	imply PANIC_HANG
 
-config TARGET_P5020DS
-	bool "Support P5020DS"
-	select PHYS_64BIT
-	select ARCH_P5020
-	select BOARD_LATE_INIT if CHAIN_OF_TRUST
-	imply CMD_SATA
-	imply PANIC_HANG
-
 config TARGET_P5040DS
 	bool "Support P5040DS"
 	select PHYS_64BIT

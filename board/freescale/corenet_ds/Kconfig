@@ -28,21 +28,6 @@ source "board/freescale/common/Kconfig"
 
 endif
 
-if TARGET_P5020DS
-
-config SYS_BOARD
-	default "corenet_ds"
-
-config SYS_VENDOR
-	default "freescale"
-
-config SYS_CONFIG_NAME
-	default "P5020DS"
-
-source "board/freescale/common/Kconfig"
-
-endif
-
 if TARGET_P5040DS
 
 config SYS_BOARD
