@@ -26,7 +26,7 @@ static void dump_hdr(struct acpi_table_header *hdr)
 	printf("%.*s %08lx %06x", ACPI_NAME_LEN, hdr->signature,
 	       (ulong)map_to_sysmem(hdr), hdr->length);
 	if (has_hdr) {
-		printf(" (v%02d %.6s %.8s %u %.4s %d)\n", hdr->revision,
+		printf(" (v%02d %.6s %.8s %x %.4s %x)\n", hdr->revision,
 		       hdr->oem_id, hdr->oem_table_id, hdr->oem_revision,
 		       hdr->aslc_id, hdr->aslc_revision);
 	} else {

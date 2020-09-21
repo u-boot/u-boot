@@ -555,7 +555,7 @@ const struct fsp_binding fsp_m_bindings[] = {
 	}, {
 	.type = FSP_UINT8,
 	.offset = offsetof(struct fsp_m_config, e_mmc_trace_len),
-	.propname = "fspm,e-mmc-trace-len",
+	.propname = "fspm,emmc-trace-len",
 	}, {
 	.type = FSP_UINT8,
 	.offset = offsetof(struct fsp_m_config, skip_cse_rbp),
@@ -1465,11 +1465,11 @@ const struct fsp_binding fsp_s_bindings[] = {
 	}, {
 	.type = FSP_UINT8,
 	.offset = offsetof(struct fsp_s_config, e_mmc_enabled),
-	.propname = "fsps,e-mmc-enabled",
+	.propname = "fsps,emmc-enabled",
 	}, {
 	.type = FSP_UINT8,
 	.offset = offsetof(struct fsp_s_config, e_mmc_host_max_speed),
-	.propname = "fsps,e-mmc-host-max-speed",
+	.propname = "fsps,emmc-host-max-speed",
 	}, {
 	.type = FSP_UINT8,
 	.offset = offsetof(struct fsp_s_config, ufs_enabled),

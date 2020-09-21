@@ -318,7 +318,7 @@ Optional properties:
   0x6: warm reset (default)
   0xE: cold reset
 - fsps,sdcard-enabled: SD Card Support (D27:F0)
-- fsps,e-mmc-enabled: SeMMC Support (D28:F0)
+- fsps,emmc-enabled: SeMMC Support (D28:F0)
 - fsps,emmc-host-max-speed: eMMC Max Speed
   0: HS400(default)
   1: HS200
