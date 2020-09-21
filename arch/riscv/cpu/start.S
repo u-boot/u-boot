@@ -43,7 +43,10 @@ _start:
 	csrr	a0, CSR_MHARTID
 #endif
 
-	/* save hart id and dtb pointer */
+	/*
+	 * Save hart id and dtb pointer. The thread pointer register is not
+	 * modified by C code. It is used by secondary_hart_loop.
+	 */
 	mv	tp, a0
 	mv	s1, a1
 
@@ -54,10 +57,18 @@ _start:
 	 */
 	mv	gp, zero
 
+	/*
+	 * Set the trap handler. This must happen after initializing gp because
+	 * the handler may use it.
+	 */
 	la	t0, trap_entry
 	csrw	MODE_PREFIX(tvec), t0
 
-	/* mask all interrupts */
+	/*
+	 * Mask all interrupts. Interrupts are disabled globally (in m/sstatus)
+	 * for U-Boot, but we will need to read m/sip to determine if we get an
+	 * IPI
+	 */
 	csrw	MODE_PREFIX(ie), zero
 
 #if CONFIG_IS_ENABLED(SMP)
@@ -412,6 +423,10 @@ secondary_hart_relocate:
 	mv	gp, a2
 #endif
 
+/*
+ * Interrupts are disabled globally, but they can still be read from m/sip. The
+ * wfi function will wake us up if we get an IPI, even if we do not trap.
+ */
 secondary_hart_loop:
 	wfi
 
