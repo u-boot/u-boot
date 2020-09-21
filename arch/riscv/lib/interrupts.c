@@ -78,7 +78,8 @@ static void _exit_trap(ulong code, ulong epc, ulong tval, struct pt_regs *regs)
 
 	printf("EPC: " REG_FMT " RA: " REG_FMT " TVAL: " REG_FMT "\n",
 	       epc, regs->ra, tval);
-	if (gd->flags & GD_FLG_RELOC)
+	/* Print relocation adjustments, but only if gd is initialized */
+	if (gd && gd->flags & GD_FLG_RELOC)
 		printf("EPC: " REG_FMT " RA: " REG_FMT " reloc adjusted\n\n",
 		       epc - gd->reloc_off, regs->ra - gd->reloc_off);
 

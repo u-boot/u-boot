@@ -47,6 +47,13 @@ _start:
 	mv	tp, a0
 	mv	s1, a1
 
+	/*
+	 * Set the global data pointer to a known value in case we get a very
+	 * early trap. The global data pointer will be set its actual value only
+	 * after it has been initialized.
+	 */
+	mv	gp, zero
+
 	la	t0, trap_entry
 	csrw	MODE_PREFIX(tvec), t0
 
@@ -85,10 +92,10 @@ call_board_init_f_0:
 	jal	board_init_f_alloc_reserve
 
 	/*
-	 * Set global data pointer here for all harts, uninitialized at this
-	 * point.
+	 * Save global data pointer for later. We don't set it here because it
+	 * is not initialized yet.
 	 */
-	mv	gp, a0
+	mv	s0, a0
 
 	/* setup stack */
 #if CONFIG_IS_ENABLED(SMP)
@@ -109,6 +116,14 @@ call_board_init_f_0:
 	amoswap.w s2, t1, 0(t0)
 	bnez	s2, wait_for_gd_init
 #else
+	/*
+	 * FIXME: gp is set before it is initialized. If an XIP U-Boot ever
+	 * encounters a pending IPI on boot it is liable to jump to whatever
+	 * memory happens to be in ipi_data.addr on boot. It may also run into
+	 * problems if it encounters an exception too early (because printf/puts
+	 * accesses gd).
+	 */
+	mv	gp, s0
 	bnez	tp, secondary_hart_loop
 #endif
 
@@ -132,6 +147,13 @@ wait_for_gd_init:
 	li	t1, 1
 1:	amoswap.w.aq t1, t1, 0(t0)
 	bnez	t1, 1b
+
+	/*
+	 * Set the global data pointer only when gd_t has been initialized.
+	 * This was already set by arch_setup_gd on the boot hart, but all other
+	 * harts' global data pointers gets set here.
+	 */
+	mv	gp, s0
 
 	/* register available harts in the available_harts mask */
 	li	t1, 1
