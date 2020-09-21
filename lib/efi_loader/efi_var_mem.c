@@ -211,7 +211,7 @@ static void efi_var_mem_bs_del(void)
  * @event:	callback event
  * @context:	callback context
  */
-static void EFIAPI __efi_runtime
+static void EFIAPI
 efi_var_mem_notify_exit_boot_services(struct efi_event *event, void *context)
 {
 	EFI_ENTRY("%p, %p", event, context);

@@ -378,7 +378,7 @@ config USE_BOOTARGS
 
 config BOOTARGS
 	string "Boot arguments"
-	depends on USE_BOOTARGS
+	depends on USE_BOOTARGS && !USE_DEFAULT_ENV_FILE
 	help
 	  This can be used to pass arguments to the bootm command. The value of
 	  CONFIG_BOOTARGS goes into the environment value "bootargs". Note that
@@ -395,7 +395,7 @@ config USE_BOOTCOMMAND
 
 config BOOTCOMMAND
 	string "bootcmd value"
-	depends on USE_BOOTCOMMAND
+	depends on USE_BOOTCOMMAND && !USE_DEFAULT_ENV_FILE
 	default "run distro_bootcmd" if DISTRO_DEFAULTS
 	help
 	  This is the string of commands that will be used as bootcmd and if
@@ -416,7 +416,7 @@ config USE_PREBOOT
 
 config PREBOOT
 	string "preboot default value"
-	depends on USE_PREBOOT
+	depends on USE_PREBOOT && !USE_DEFAULT_ENV_FILE
 	default ""
 	help
 	  This is the default of "preboot" environment variable.

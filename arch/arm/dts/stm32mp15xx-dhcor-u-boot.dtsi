@@ -132,11 +132,11 @@
 		u-boot,dm-pre-reloc;
 	};
 
-	/* VCO = 600.0 MHz => P = 100, Q = 50, R = 100 */
+	/* VCO = 600.0 MHz => P = 99, Q = 74, R = 99 */
 	pll4: st,pll@3 {
 		compatible = "st,stm32mp1-pll";
 		reg = <3>;
-		cfg = < 1 49 5 11 5 PQR(1,1,1) >;
+		cfg = < 3 98 5 7 5 PQR(1,1,1) >;
 		u-boot,dm-pre-reloc;
 	};
 };

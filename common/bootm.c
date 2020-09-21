@@ -390,6 +390,8 @@ static int bootm_load_os(bootm_headers_t *images, int boot_progress)
 		bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 		return err;
 	}
+	/* We need the decompressed image size in the next steps */
+	images->os.image_len = load_end - load;
 
 	flush_cache(flush_start, ALIGN(load_end, ARCH_DMA_MINALIGN) - flush_start);
 

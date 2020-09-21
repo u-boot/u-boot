@@ -76,8 +76,7 @@
 	"ubi read ${fdt_addr_r} dtb && " \
 	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
-#define CONFIG_BOOTCOMMAND "run ubiboot; " \
-	"setenv fdtfile ${soc}-colibri-${fdt_board}.dtb && run distro_bootcmd;"
+#define CONFIG_BOOTCOMMAND "run ubiboot || run distro_bootcmd;"
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \

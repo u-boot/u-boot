@@ -35,8 +35,6 @@
 #define CONFIG_NETMASK			255.255.255.0
 #define CONFIG_SERVERIP			192.168.10.1
 
-#define FDT_FILE "imx6ull-colibri${variant}-${fdt_board}.dtb"
-
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0x10000000\0" \
 	"fdt_addr_r=0x82100000\0" \
@@ -57,7 +55,7 @@
 		"setenv bootargs ${defargs} ${nfsargs} " \
 		"${setupargs} ${vidargs}; echo Booting from NFS...;" \
 		"dhcp ${kernel_addr_r} && " \
-		"tftp ${fdt_addr_r} " FDT_FILE " && " \
+		"tftp ${fdt_addr_r} ${fdtfile} && " \
 		"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
 #define UBI_BOOTCMD \
@@ -71,8 +69,8 @@
 		"ubi read ${fdt_addr_r} dtb && " \
 		"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
-#define CONFIG_BOOTCOMMAND "run ubiboot; " \
-	"setenv fdtfile " FDT_FILE " && run distro_bootcmd;"
+/* Run Distro Boot script if ubiboot fails */
+#define CONFIG_BOOTCOMMAND "run ubiboot || run distro_bootcmd;"
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
@@ -111,6 +109,7 @@
 		"fatload ${interface} 0:1 ${loadaddr} " \
 		"${board}/flash_blk.img && source ${loadaddr}\0" \
 	"splashpos=m,m\0" \
+	"splashimage=" __stringify(CONFIG_LOADADDR) "\0" \
 	"videomode=video=ctfb:x:640,y:480,depth:18,pclk:39722,le:48,ri:16,up:33,lo:10,hs:96,vs:2,sync:0,vmode:0\0" \
 	"vidargs=video=mxsfb:640x480M-16@60"
 

@@ -133,8 +133,10 @@ static int setup_lcd(void)
  */
 void board_preboot_os(void)
 {
+#ifdef CONFIG_DM_VIDEO
 	gpio_direction_output(GPIO_PWM_A, 1);
 	gpio_direction_output(GPIO_BL_ON, 0);
+#endif
 }
 
 static void setup_iomux_uart(void)
@@ -356,8 +358,6 @@ int board_late_init(void)
 {
 #if defined(CONFIG_DM_VIDEO)
 	setup_lcd();
-
-	show_boot_logo();
 #endif
 	return 0;
 }

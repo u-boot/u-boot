@@ -777,6 +777,18 @@ config SYS_ALT_MEMTEST
 	help
 	  Use a more complete alternative memory test.
 
+if SYS_ALT_MEMTEST
+
+config SYS_ALT_MEMTEST_BITFLIP
+	bool "Bitflip test"
+	default y
+	help
+	  The alternative memory test includes bitflip test since 2020.07.
+	  The bitflip test significantly increases the overall test time.
+	  Bitflip test can optionally be disabled here.
+
+endif
+
 config SYS_MEMTEST_START
 	hex "default start address for mtest"
 	default 0

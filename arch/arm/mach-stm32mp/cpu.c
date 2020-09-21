@@ -580,8 +580,8 @@ __weak int setup_mac_address(void)
 		return -EINVAL;
 	}
 	pr_debug("OTP MAC address = %pM\n", enetaddr);
-	ret = !eth_env_set_enetaddr("ethaddr", enetaddr);
-	if (!ret)
+	ret = eth_env_set_enetaddr("ethaddr", enetaddr);
+	if (ret)
 		pr_err("Failed to set mac address %pM from OTP: %d\n",
 		       enetaddr, ret);
 #endif

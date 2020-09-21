@@ -9,8 +9,8 @@
 #include "fsl-imx8qxp-colibri-u-boot.dtsi"
 
 / {
-	model = "Toradex Colibri iMX8QXP";
-	compatible = "toradex,colibri-imx8qxp", "fsl,imx8qxp";
+	model = "Toradex Colibri iMX8X";
+	compatible = "toradex,colibri-imx8x", "fsl,imx8qxp";
 
 	chosen {
 		bootargs = "console=ttyLP3,115200 earlycon=lpuart32,0x5a090000,115200";
@@ -32,7 +32,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_hog0>, <&pinctrl_hog1>, <&pinctrl_hog2>;
 
-	colibri-imx8qxp {
+	colibri-imx8x {
 		pinctrl_lpuart0: lpuart0grp {
 			fsl,pins = <
 				SC_P_UART0_RX_ADMA_UART0_RX	0x06000020

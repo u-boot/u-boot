@@ -485,20 +485,10 @@ static int xenon_sdhci_probe(struct udevice *dev)
 		armada_3700_soc_pad_voltage_set(host);
 
 	host->host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz | MMC_MODE_DDR_52MHz;
-	switch (fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "bus-width",
-		1)) {
-	case 8:
-		host->host_caps |= MMC_MODE_8BIT;
-		break;
-	case 4:
-		host->host_caps |= MMC_MODE_4BIT;
-		break;
-	case 1:
-		break;
-	default:
-		printf("Invalid \"bus-width\" value\n");
-		return -EINVAL;
-	}
+
+	ret = mmc_of_parse(dev, &plat->cfg);
+	if (ret)
+		return ret;
 
 	host->ops = &xenon_sdhci_ops;
 

@@ -343,12 +343,8 @@ static u32 get_cpu_variant_type(u32 type)
 		switch (flag) {
 		case 7:
 			return MXC_CPU_IMX8MPL;
-		case 6:
-			return MXC_CPU_IMX8MP5;
 		case 2:
 			return MXC_CPU_IMX8MP6;
-		case 1:
-			return MXC_CPU_IMX8MP7;
 		default:
 			break;
 		}
@@ -889,16 +885,16 @@ usb_modify_speed:
 		disable_cpu_nodes(blob, 3);
 
 #elif defined(CONFIG_IMX8MP)
-	if (is_imx8mpl() || is_imx8mp7())
+	if (is_imx8mpl())
 		disable_vpu_nodes(blob);
 
-	if (is_imx8mpl() || is_imx8mp6() || is_imx8mp5())
+	if (is_imx8mpl() || is_imx8mp6())
 		disable_npu_nodes(blob);
 
-	if (is_imx8mpl() || is_imx8mp5())
+	if (is_imx8mpl())
 		disable_isp_nodes(blob);
 
-	if (is_imx8mpl() || is_imx8mp7() || is_imx8mp6() || is_imx8mp5())
+	if (is_imx8mpl() || is_imx8mp6())
 		disable_dsp_nodes(blob);
 
 	if (is_imx8mpd())

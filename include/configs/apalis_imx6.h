@@ -135,7 +135,7 @@
 #endif
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
-	"bootcmd=setenv fdtfile ${fdt_file}; run distro_bootcmd ; " \
+	"bootcmd=run distro_bootcmd ; " \
 		"usb start ; " \
 		"setenv stdout serial,vidconsole; " \
 		"setenv stdin serial,usbkbd\0" \
@@ -143,6 +143,7 @@
 	"console=ttymxc0\0" \
 	"defargs=enable_wait_mode=off vmalloc=400M\0" \
 	"fdt_file=" FDT_FILE "\0" \
+	"fdtfile=" FDT_FILE "\0" \
 	"fdt_fixup=;\0" \
 	MEM_LAYOUT_ENV_SETTINGS \
 	NFS_BOOTCMD \

@@ -235,7 +235,7 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
  * @start:		start address, must be a multiple of EFI_PAGE_SIZE
  * @pages:		number of pages to add
  * @memory_type:	type of memory added
- * @overlap_only_ram:	the memory area must overlap existing
+ * @overlap_only_ram:	region may only overlap RAM
  * Return:		status code
  */
 static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,

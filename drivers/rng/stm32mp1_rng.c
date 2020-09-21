@@ -3,6 +3,8 @@
  * Copyright (c) 2019, Linaro Limited
  */
 
+#define LOG_CATEGORY UCLASS_RNG
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
@@ -53,7 +55,7 @@ static int stm32_rng_read(struct udevice *dev, void *data, size_t len)
 			for (i = 0; i < 12; i++)
 				readl(pdata->base + RNG_DR);
 			if (readl(pdata->base + RNG_SR) & RNG_SR_SEIS) {
-				printf("RNG Noise");
+				log_err("RNG Noise");
 				return -EIO;
 			}
 			/* start again */
