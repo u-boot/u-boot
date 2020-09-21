@@ -39,6 +39,7 @@
 		hydra_sg_slot6 = &hydra_sg_slot6;
 		hydra_xg_slot1 = &hydra_xg_slot1;
 		hydra_xg_slot2 = &hydra_xg_slot2;
+		spi0 = &espi0;
 	};
 
 	soc: soc@ffe000000 {
@@ -262,6 +263,18 @@
 				};
 			};
 		};
+	};
+};
+
+&espi0 {
+	status = "okay";
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0>;
+		/* input clock */
+		spi-max-frequency = <10000000>;
 	};
 };
 
