@@ -18,14 +18,21 @@
  * IPI data structure. The hart ID is inserted by the hart handling the IPI and
  * calling the function.
  *
+ * @valid is used to determine whether a sent IPI originated from U-Boot. It is
+ * initialized to zero by board_init_f_alloc_reserve. When U-Boot sends its
+ * first IPI, it is set to 1. This prevents already-pending IPIs not sent by
+ * U-Boot from being taken.
+ *
  * @addr: Address of function
  * @arg0: First argument of function
  * @arg1: Second argument of function
+ * @valid: Whether this IPI is valid
  */
 struct ipi_data {
 	ulong addr;
 	ulong arg0;
 	ulong arg1;
+	unsigned int valid;
 };
 
 /**
