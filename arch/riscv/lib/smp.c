@@ -54,6 +54,8 @@ static int send_ipi_many(struct ipi_data *ipi, int wait)
 		gd->arch.ipi[reg].arg0 = ipi->arg0;
 		gd->arch.ipi[reg].arg1 = ipi->arg1;
 
+		__smp_mb();
+
 		ret = riscv_send_ipi(reg);
 		if (ret) {
 			pr_err("Cannot send IPI to hart %d\n", reg);
