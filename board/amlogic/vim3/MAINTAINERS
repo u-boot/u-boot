@@ -1,0 +1,9 @@
+VIM3
+M:	Neil Armstrong <narmstrong@baylibre.com>
+S:	Maintained
+L:	u-boot-amlogic@groups.io
+F:	board/amlogic/vim3/
+F:	configs/khadas-vim3_defconfig
+F:	configs/khadas-vim3l_defconfig
+F:	doc/board/amlogic/khadas-vim3.rst
+F:	doc/board/amlogic/khadas-vim3l.rst
