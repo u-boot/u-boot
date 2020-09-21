@@ -6,7 +6,6 @@ F:	include/configs/P3041DS.h
 F:	configs/P3041DS_defconfig
 F:	configs/P3041DS_NAND_defconfig
 F:	configs/P3041DS_SDCARD_defconfig
-F:	configs/P3041DS_SECURE_BOOT_defconfig
 F:	configs/P3041DS_SPIFLASH_defconfig
 F:	configs/P3041DS_SRIO_PCIE_BOOT_defconfig
 F:	include/configs/P4080DS.h
