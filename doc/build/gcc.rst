@@ -17,7 +17,7 @@ You could install GCC and the GCC cross compiler for the ARMv8 architecture with
 
 .. code-block:: bash
 
-    sudo apt-get gcc gcc-aarch64-linux-gnu
+    sudo apt-get install gcc gcc-aarch64-linux-gnu
 
 Depending on the build targets further packages maybe needed
 

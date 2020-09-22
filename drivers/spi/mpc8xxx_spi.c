@@ -109,8 +109,7 @@ static void mpc8xxx_spi_cs_activate(struct udevice *dev)
 	struct mpc8xxx_priv *priv = dev_get_priv(dev->parent);
 	struct dm_spi_slave_platdata *platdata = dev_get_parent_platdata(dev);
 
-	dm_gpio_set_dir_flags(&priv->gpios[platdata->cs], GPIOD_IS_OUT);
-	dm_gpio_set_value(&priv->gpios[platdata->cs], 0);
+	dm_gpio_set_value(&priv->gpios[platdata->cs], 1);
 }
 
 static void mpc8xxx_spi_cs_deactivate(struct udevice *dev)
@@ -118,8 +117,7 @@ static void mpc8xxx_spi_cs_deactivate(struct udevice *dev)
 	struct mpc8xxx_priv *priv = dev_get_priv(dev->parent);
 	struct dm_spi_slave_platdata *platdata = dev_get_parent_platdata(dev);
 
-	dm_gpio_set_dir_flags(&priv->gpios[platdata->cs], GPIOD_IS_OUT);
-	dm_gpio_set_value(&priv->gpios[platdata->cs], 1);
+	dm_gpio_set_value(&priv->gpios[platdata->cs], 0);
 }
 
 static int mpc8xxx_spi_xfer(struct udevice *dev, uint bitlen,
