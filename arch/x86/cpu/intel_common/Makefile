@@ -2,6 +2,8 @@
 #
 # Copyright (c) 2016 Google, Inc
 
+obj-$(CONFIG_INTEL_ACPIGEN) += acpi.o
+
 ifdef CONFIG_HAVE_MRC
 obj-$(CONFIG_$(SPL_TPL_)X86_16BIT_INIT) += car.o
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += me_status.o

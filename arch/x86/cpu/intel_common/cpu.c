@@ -291,3 +291,17 @@ int cpu_get_max_turbo_ratio(void)
 
 	return msr.lo & 0xff;
 }
+
+int cpu_get_cores_per_package(void)
+{
+	struct cpuid_result result;
+	int cores = 1;
+
+	if (gd->arch.x86_vendor != X86_VENDOR_INTEL)
+		return 1;
+
+	result = cpuid_ext(0xb, 1);
+	cores = result.ebx & 0xff;
+
+	return cores;
+}

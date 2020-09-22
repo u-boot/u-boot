@@ -177,4 +177,11 @@ int cpu_get_power_max(void);
  */
 int cpu_get_max_turbo_ratio(void);
 
+/**
+ * cpu_get_cores_per_package() - Get the number of CPU cores in each package
+ *
+ * @return number of cores
+ */
+int cpu_get_cores_per_package(void);
+
 #endif

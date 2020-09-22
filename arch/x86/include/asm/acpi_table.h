@@ -76,4 +76,26 @@ ulong write_acpi_tables(ulong start);
  */
 ulong acpi_get_rsdp_addr(void);
 
+/**
+ * arch_read_sci_irq_select() - Read the system-control interrupt number
+ *
+ * @returns value of IRQ register in the PMC
+ */
+int arch_read_sci_irq_select(void);
+
+/**
+ * arch_write_sci_irq_select() - Set the system-control interrupt number
+ *
+ * @scis: New value for IRQ register in the PMC
+ */
+int arch_write_sci_irq_select(uint scis);
+
+/**
+ * arch_madt_sci_irq_polarity() - Return the priority to use for the MADT
+ *
+ * @sci: System-control interrupt number
+ * @return priority to use (MP_IRQ_POLARITY_...)
+ */
+int arch_madt_sci_irq_polarity(int sci);
+
 #endif /* __ASM_ACPI_TABLE_H__ */
