@@ -6,6 +6,8 @@
  * Copyright (C) 2016, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#define LOG_CATEGORY LOGC_ACPI
+
 #include <common.h>
 #include <bloblist.h>
 #include <cpu.h>
