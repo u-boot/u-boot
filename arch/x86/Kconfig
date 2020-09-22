@@ -1017,4 +1017,10 @@ config INTEL_GENERIC_WIFI
 	  network functionality. It is only here to generate the ACPI tables
 	  required by Linux.
 
+config INTEL_GMA_SWSMISCI
+	bool
+	help
+	  Select this option for Atom-based platforms which use the SWSMISCI
+	  register (0xe0) rather than the SWSCI register (0xe8).
+
 endmenu
