@@ -9,6 +9,8 @@
 #include <i2c.h>
 #include <log.h>
 #include <malloc.h>
+#include <acpi/acpi_device.h>
+#include <dm/acpi.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
@@ -16,6 +18,7 @@
 #include <asm/gpio.h>
 #endif
 #include <linux/delay.h>
+#include "acpi_i2c.h"
 
 #define I2C_MAX_OFFSET_LEN	4
 
@@ -749,7 +752,21 @@ UCLASS_DRIVER(i2c_generic) = {
 	.name		= "i2c_generic",
 };
 
+static const struct udevice_id generic_chip_i2c_ids[] = {
+	{ .compatible = "i2c-chip", .data = I2C_DEVICE_GENERIC },
+#if CONFIG_IS_ENABLED(ACPIGEN)
+	{ .compatible = "hid-over-i2c", .data = I2C_DEVICE_HID_OVER_I2C },
+#endif
+	{ }
+};
+
 U_BOOT_DRIVER(i2c_generic_chip_drv) = {
 	.name		= "i2c_generic_chip_drv",
 	.id		= UCLASS_I2C_GENERIC,
+	.of_match	= generic_chip_i2c_ids,
+#if CONFIG_IS_ENABLED(ACPIGEN)
+	.ofdata_to_platdata	= acpi_i2c_ofdata_to_platdata,
+	.priv_auto_alloc_size	= sizeof(struct acpi_i2c_priv),
+#endif
+	ACPI_OPS_PTR(&acpi_i2c_ops)
 };
