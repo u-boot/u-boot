@@ -324,7 +324,7 @@ struct acpi_dp *acpi_dp_add_integer_array(struct acpi_dp *dp, const char *name,
 
 struct acpi_dp *acpi_dp_add_gpio(struct acpi_dp *dp, const char *name,
 				 const char *ref, int index, int pin,
-				 enum acpi_irq_polarity polarity)
+				 enum acpi_gpio_polarity polarity)
 {
 	struct acpi_dp *gpio;
 
@@ -336,7 +336,7 @@ struct acpi_dp *acpi_dp_add_gpio(struct acpi_dp *dp, const char *name,
 	if (!acpi_dp_add_reference(gpio, NULL, ref) ||
 	    !acpi_dp_add_integer(gpio, NULL, index) ||
 	    !acpi_dp_add_integer(gpio, NULL, pin) ||
-	    !acpi_dp_add_integer(gpio, NULL, polarity == ACPI_IRQ_ACTIVE_LOW))
+	    !acpi_dp_add_integer(gpio, NULL, polarity == ACPI_GPIO_ACTIVE_LOW))
 		return NULL;
 
 	if (!acpi_dp_add_array(dp, gpio))

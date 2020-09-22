@@ -398,9 +398,9 @@ static int dm_test_acpi_dp_gpio(struct unit_test_state *uts)
 
 	/* Try a few different parameters */
 	ut_assertnonnull(acpi_dp_add_gpio(dp, "reset", TEST_REF, 0x23, 0x24,
-					  ACPI_IRQ_ACTIVE_HIGH));
+					  ACPI_GPIO_ACTIVE_HIGH));
 	ut_assertnonnull(acpi_dp_add_gpio(dp, "allow", TEST_REF, 0, 0,
-					  ACPI_IRQ_ACTIVE_LOW));
+					  ACPI_GPIO_ACTIVE_LOW));
 
 	ptr = acpigen_get_current(ctx);
 	ut_assertok(acpi_dp_write(ctx, dp));
