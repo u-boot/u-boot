@@ -35,7 +35,8 @@ int fsp_get_header(ulong offset, ulong size, bool use_spi_flash,
 	 *
 	 * You are in a maze of twisty little headers all alike.
 	 */
-	debug("offset=%x buf=%x\n", (uint)offset, (uint)buf);
+	log_debug("offset=%x buf=%x, use_spi_flash=%d\n", (uint)offset,
+		  (uint)buf, use_spi_flash);
 	if (use_spi_flash) {
 		ret = uclass_first_device_err(UCLASS_SPI_FLASH, &dev);
 		if (ret)
@@ -52,16 +53,16 @@ int fsp_get_header(ulong offset, ulong size, bool use_spi_flash,
 	fv = ptr;
 
 	/* Check the FV signature, _FVH */
-	debug("offset=%x sign=%x\n", (uint)offset, (uint)fv->sign);
+	log_debug("offset=%x sign=%x\n", (uint)offset, (uint)fv->sign);
 	if (fv->sign != EFI_FVH_SIGNATURE)
 		return log_msg_ret("Base FV signature", -EINVAL);
 
 	/* Go to the end of the FV header and align the address */
-	debug("fv->ext_hdr_off = %x\n", fv->ext_hdr_off);
+	log_debug("fv->ext_hdr_off = %x\n", fv->ext_hdr_off);
 	ptr += fv->ext_hdr_off;
 	exhdr = ptr;
 	ptr += ALIGN(exhdr->ext_hdr_size, 8);
-	debug("ptr=%x\n", ptr - (void *)buf);
+	log_debug("ptr=%x\n", ptr - (void *)buf);
 
 	/* Check the FFS GUID */
 	file_hdr = ptr;
@@ -71,7 +72,7 @@ int fsp_get_header(ulong offset, ulong size, bool use_spi_flash,
 	ptr = file_hdr + 1;
 
 	raw = ptr;
-	debug("raw->type = %x\n", raw->type);
+	log_debug("raw->type = %x\n", raw->type);
 	if (raw->type != EFI_SECTION_RAW)
 		return log_msg_ret("Section type not RAW", -ENOEXEC);
 
@@ -80,13 +81,18 @@ int fsp_get_header(ulong offset, ulong size, bool use_spi_flash,
 	fsp = ptr;
 
 	/* Check the FSPH header */
-	debug("fsp %x\n", (uint)fsp);
+	log_debug("fsp %x, fsp-buf=%x, si=%x\n", (uint)fsp, ptr - (void *)buf,
+		  (void *)&fsp->fsp_silicon_init - (void *)buf);
 	if (fsp->sign != EFI_FSPH_SIGNATURE)
 		return log_msg_ret("Base FSPH signature", -EACCES);
 
 	base = (void *)fsp->img_base;
-	debug("Image base %x\n", (uint)base);
-	debug("Image addr %x\n", (uint)fsp->fsp_mem_init);
+	log_debug("image base %x\n", (uint)base);
+	if (fsp->fsp_mem_init)
+		log_debug("mem_init offset %x\n", (uint)fsp->fsp_mem_init);
+	else if (fsp->fsp_silicon_init)
+		log_debug("silicon_init offset %x\n",
+			  (uint)fsp->fsp_silicon_init);
 	if (use_spi_flash) {
 		ret = spi_flash_read_dm(dev, offset, size, base);
 		if (ret)
