@@ -28,6 +28,10 @@
 #define SLP_TYP_S4	6
 #define SLP_TYP_S5	7
 
+/* PM1_STS register */
+#define RTC_EN		BIT(10)
+#define PWRBTN_EN	BIT(8)
+
 /* Memory size reserved for S3 resume */
 #define S3_RESERVE_SIZE	0x1000
 
