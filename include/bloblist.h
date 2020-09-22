@@ -32,6 +32,7 @@ enum bloblist_tag_t {
 	 * Sleeping table. This forms part of the ACPI tables passed to Linux.
 	 */
 	BLOBLISTT_ACPI_GNVS,
+	BLOBLISTT_INTEL_VBT,		/* Intel Video-BIOS table */
 };
 
 /**

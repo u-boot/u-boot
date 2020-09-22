@@ -1001,4 +1001,12 @@ config PCIEX_LENGTH_128MB
 config PCIEX_LENGTH_64MB
 	bool
 
+config INTEL_GMA_ACPI
+	bool "Generate ACPI table for Intel GMA graphics"
+	help
+	  The Intel GMA graphics driver in Linux expects an ACPI table
+	  which describes the layout of the registers and the display
+	  connected to the device. Enable this option to create this
+	  table so that graphics works correctly.
+
 endmenu

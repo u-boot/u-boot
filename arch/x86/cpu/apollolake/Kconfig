@@ -48,6 +48,7 @@ config INTEL_APOLLOLAKE
 	imply CMD_CLK
 	imply CLK_INTEL
 	imply ACPI_GPE
+	imply INTEL_GMA_ACPI
 
 if INTEL_APOLLOLAKE
 
