@@ -9,6 +9,8 @@
 #ifndef __ASM_ACPI_TABLE_H__
 #define __ASM_ACPI_TABLE_H__
 
+#ifndef __ACPI__
+
 struct acpi_facs;
 struct acpi_fadt;
 struct acpi_global_nvs;
@@ -212,5 +214,7 @@ void acpi_fadt_common(struct acpi_fadt *fadt, struct acpi_facs *facs,
  * @fadt: Pointer to place to put FADT
  */
 void intel_acpi_fill_fadt(struct acpi_fadt *fadt);
+
+#endif /* !__ACPI__ */
 
 #endif /* __ASM_ACPI_TABLE_H__ */
