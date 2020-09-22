@@ -426,6 +426,16 @@ void acpigen_write_register_resource(struct acpi_ctx *ctx,
 	acpigen_write_resourcetemplate_footer(ctx);
 }
 
+void acpigen_write_prw(struct acpi_ctx *ctx, uint wake, uint level)
+{
+	/* Name (_PRW, Package () { wake, level } */
+	acpigen_write_name(ctx, "_PRW");
+	acpigen_write_package(ctx, 2);
+	acpigen_write_integer(ctx, wake);
+	acpigen_write_integer(ctx, level);
+	acpigen_pop_len(ctx);
+}
+
 /*
  * ToUUID(uuid)
  *

@@ -1097,3 +1097,33 @@ static int dm_test_acpi_write_name(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_write_name, 0);
+
+/* Test emitting a _PRW component */
+static int dm_test_acpi_write_prw(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_prw(ctx, 5, 3);
+	ut_asserteq(NAME_OP, *ptr++);
+
+	ut_asserteq_strn("_PRW", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ut_asserteq(8, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(2, *ptr++);
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(5, *ptr++);
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(3, *ptr++);
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_prw, 0);

@@ -563,4 +563,14 @@ int acpigen_set_enable_tx_gpio(struct acpi_ctx *ctx, u32 tx_state_val,
 			       const char *dw0_read, const char *dw0_write,
 			       struct acpi_gpio *gpio, bool enable);
 
+/**
+ * acpigen_write_prw() - Write a power resource for wake (_PRW)
+ *
+ * @ctx: ACPI context pointer
+ * @wake: GPE that wakes up the device
+ * @level: Deepest power system sleeping state that can be entered while still
+ *	providing wake functionality
+ */
+void acpigen_write_prw(struct acpi_ctx *ctx, uint wake, uint level);
+
 #endif
