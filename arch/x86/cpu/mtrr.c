@@ -19,6 +19,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <log.h>
+#include <sort.h>
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/mp.h>
@@ -124,6 +125,16 @@ static int mtrr_copy_to_aps(void)
 	return 0;
 }
 
+static int h_comp_mtrr(const void *p1, const void *p2)
+{
+	const struct mtrr_request *req1 = p1;
+	const struct mtrr_request *req2 = p2;
+
+	s64 diff = req1->start - req2->start;
+
+	return diff < 0 ? -1 : diff > 0 ? 1 : 0;
+}
+
 int mtrr_commit(bool do_caches)
 {
 	struct mtrr_request *req = gd->arch.mtrr_req;
@@ -139,6 +150,7 @@ int mtrr_commit(bool do_caches)
 	debug("open\n");
 	mtrr_open(&state, do_caches);
 	debug("open done\n");
+	qsort(req, gd->arch.mtrr_req_count, sizeof(*req), h_comp_mtrr);
 	for (i = 0; i < gd->arch.mtrr_req_count; i++, req++)
 		set_var_mtrr(i, req->type, req->start, req->size);
 
