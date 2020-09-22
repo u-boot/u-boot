@@ -66,14 +66,17 @@ int acpi_create_madt_lapics(u32 current)
 {
 	struct udevice *dev;
 	int total_length = 0;
+	int cpu_num = 0;
 
 	for (uclass_find_first_device(UCLASS_CPU, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
 		struct cpu_platdata *plat = dev_get_parent_platdata(dev);
-		int length = acpi_create_madt_lapic(
-				(struct acpi_madt_lapic *)current,
-				plat->cpu_id, plat->cpu_id);
+		int length;
+
+		length = acpi_create_madt_lapic(
+			(struct acpi_madt_lapic *)current, cpu_num++,
+			plat->cpu_id);
 		current += length;
 		total_length += length;
 	}
