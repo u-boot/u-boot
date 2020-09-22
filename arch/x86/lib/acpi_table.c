@@ -529,3 +529,62 @@ ulong acpi_get_rsdp_addr(void)
 {
 	return acpi_rsdp_addr;
 }
+
+/**
+ * acpi_write_hpet() - Write out a HPET table
+ *
+ * Write out the table for High-Precision Event Timers
+ *
+ * @hpet: Place to put HPET table
+ */
+static int acpi_create_hpet(struct acpi_hpet *hpet)
+{
+	struct acpi_table_header *header = &hpet->header;
+	struct acpi_gen_regaddr *addr = &hpet->addr;
+
+	/*
+	 * See IA-PC HPET (High Precision Event Timers) Specification v1.0a
+	 * https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/software-developers-hpet-spec-1-0a.pdf
+	 */
+	memset((void *)hpet, '\0', sizeof(struct acpi_hpet));
+
+	/* Fill out header fields. */
+	acpi_fill_header(header, "HPET");
+
+	header->aslc_revision = ASL_REVISION;
+	header->length = sizeof(struct acpi_hpet);
+	header->revision = acpi_get_table_revision(ACPITAB_HPET);
+
+	/* Fill out HPET address */
+	addr->space_id = 0;  /* Memory */
+	addr->bit_width = 64;
+	addr->bit_offset = 0;
+	addr->addrl = CONFIG_HPET_ADDRESS & 0xffffffff;
+	addr->addrh = ((unsigned long long)CONFIG_HPET_ADDRESS) >> 32;
+
+	hpet->id = *(u32 *)CONFIG_HPET_ADDRESS;
+	hpet->number = 0;
+	hpet->min_tick = 0; /* HPET_MIN_TICKS */
+
+	header->checksum = table_compute_checksum(hpet,
+						  sizeof(struct acpi_hpet));
+
+	return 0;
+}
+
+int acpi_write_hpet(struct acpi_ctx *ctx)
+{
+	struct acpi_hpet *hpet;
+	int ret;
+
+	log_debug("ACPI:    * HPET\n");
+
+	hpet = ctx->current;
+	acpi_inc_align(ctx, sizeof(struct acpi_hpet));
+	acpi_create_hpet(hpet);
+	ret = acpi_add_table(ctx, hpet);
+	if (ret)
+		return log_msg_ret("add", ret);
+
+	return 0;
+}

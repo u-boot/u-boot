@@ -20,6 +20,9 @@
 #define OEM_TABLE_ID		"U-BOOTBL"	/* U-Boot Table */
 #define ASLC_ID			"INTL"		/* Intel ASL Compiler */
 
+/* TODO(sjg@chromium.org): Figure out how to get compiler revision */
+#define ASL_REVISION	0
+
 #define ACPI_RSDP_REV_ACPI_1_0	0
 #define ACPI_RSDP_REV_ACPI_2_0	2
 
@@ -56,6 +59,15 @@ struct __packed acpi_table_header {
 	u32 aslc_revision;	/* ASL compiler revision number */
 };
 
+struct acpi_gen_regaddr {
+	u8 space_id;	/* Address space ID */
+	u8 bit_width;	/* Register size in bits */
+	u8 bit_offset;	/* Register bit offset */
+	u8 access_size;	/* Access size */
+	u32 addrl;	/* Register address, low 32 bits */
+	u32 addrh;	/* Register address, high 32 bits */
+};
+
 /* A maximum number of 32 ACPI tables ought to be enough for now */
 #define MAX_ACPI_TABLES		32
 
@@ -69,6 +81,16 @@ struct acpi_rsdt {
 struct acpi_xsdt {
 	struct acpi_table_header header;
 	u64 entry[MAX_ACPI_TABLES];
+};
+
+/* HPET timers */
+struct __packed acpi_hpet {
+	struct acpi_table_header header;
+	u32 id;
+	struct acpi_gen_regaddr addr;
+	u8 number;
+	u16 min_tick;
+	u8 attributes;
 };
 
 /* FADT Preferred Power Management Profile */
@@ -136,15 +158,6 @@ enum acpi_address_space_size {
 	ACPI_ACCESS_SIZE_WORD_ACCESS,
 	ACPI_ACCESS_SIZE_DWORD_ACCESS,
 	ACPI_ACCESS_SIZE_QWORD_ACCESS
-};
-
-struct acpi_gen_regaddr {
-	u8 space_id;	/* Address space ID */
-	u8 bit_width;	/* Register size in bits */
-	u8 bit_offset;	/* Register bit offset */
-	u8 access_size;	/* Access size */
-	u32 addrl;	/* Register address, low 32 bits */
-	u32 addrh;	/* Register address, high 32 bits */
 };
 
 /* FADT (Fixed ACPI Description Table) */

@@ -37,6 +37,16 @@ u32 acpi_fill_mcfg(u32 current);
 u32 acpi_fill_csrt(u32 current);
 
 /**
+ * acpi_write_hpet() - Write out a HPET table
+ *
+ * Write out the table for High-Precision Event Timers
+ *
+ * @ctx: Current ACPI context
+ * @return 0 if OK, -ve on error
+ */
+int acpi_write_hpet(struct acpi_ctx *ctx);
+
+/**
  * acpi_create_gnvs() - Create a GNVS (Global Non Volatile Storage) table
  *
  * @gnvs: Table to fill in
