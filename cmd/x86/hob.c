@@ -34,7 +34,12 @@ static int do_hob(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	int i = 0;
 	efi_guid_t *guid;
 	char uuid[UUID_STR_LEN + 1];
+	int seq = -1;	/* Show all by default */
 
+	argc--;
+	argv++;
+	if (argc)
+		seq = simple_strtol(*argv, NULL, 16);
 	hdr = gd->arch.hob_list;
 
 	printf("HOB list address: 0x%08x\n\n", (unsigned int)hdr);
@@ -43,7 +48,9 @@ static int do_hob(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	printf("%36s\n", "GUID");
 	printf("---|----------|-----------|------|-");
 	printf("------------------------------------\n");
-	while (!end_of_hob(hdr)) {
+	for (i = 0; !end_of_hob(hdr); i++, hdr = get_next_hob(hdr)) {
+		if (seq != -1 && seq != i)
+			continue;
 		printf("%02x | %08x | ", i, (unsigned int)hdr);
 		type = hdr->type;
 		if (type == HOB_TYPE_UNUSED)
@@ -65,14 +72,13 @@ static int do_hob(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			printf("%36s", "Not Available");
 		}
 		printf("\n");
-		hdr = get_next_hob(hdr);
-		i++;
 	}
 
 	return 0;
 }
 
-U_BOOT_CMD(hob, 1, 1, do_hob,
-	   "Print Hand-Off Block (HOB) information",
+U_BOOT_CMD(hob, 2, 1, do_hob,
+	   "[seq]  Print Hand-Off Block (HOB) information"
+	   "   seq - Record # to show (all by default)",
 	   ""
 );
