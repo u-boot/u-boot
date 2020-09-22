@@ -448,6 +448,29 @@ struct __packed acpi_dmar {
 
 #define ACPI_DBG2_UNKNOWN		0x00FF
 
+/* DBG2: Microsoft Debug Port Table 2 header */
+struct __packed acpi_dbg2_header {
+	struct acpi_table_header header;
+	u32 devices_offset;
+	u32 devices_count;
+};
+
+/* DBG2: Microsoft Debug Port Table 2 device entry */
+struct __packed acpi_dbg2_device {
+	u8  revision;
+	u16 length;
+	u8 address_count;
+	u16 namespace_string_length;
+	u16 namespace_string_offset;
+	u16 oem_data_length;
+	u16 oem_data_offset;
+	u16 port_type;
+	u16 port_subtype;
+	u8  reserved[2];
+	u16 base_address_offset;
+	u16 address_size_offset;
+};
+
 /* SPCR (Serial Port Console Redirection table) */
 struct __packed acpi_spcr {
 	struct acpi_table_header header;
@@ -521,6 +544,23 @@ int acpi_get_table_revision(enum acpi_tables table);
  * @return 0 if OK, -ve on error
  */
 int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags);
+
+/**
+ * acpi_create_dbg2() - Create a DBG2 table
+ *
+ * This table describes how to access the debug UART
+ *
+ * @dbg2: Place to put information
+ * @port_type: Serial port type (see ACPI_DBG2_...)
+ * @port_subtype: Serial port sub-type (see ACPI_DBG2_...)
+ * @address: ACPI address of port
+ * @address_size: Size of address space
+ * @device_path: Path of device (created using acpi_device_path())
+ */
+void acpi_create_dbg2(struct acpi_dbg2_header *dbg2,
+		      int port_type, int port_subtype,
+		      struct acpi_gen_regaddr *address, uint32_t address_size,
+		      const char *device_path);
 
 /**
  * acpi_fill_header() - Set up a new table header
