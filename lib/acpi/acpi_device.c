@@ -530,7 +530,7 @@ int acpi_device_write_dsm_i2c_hid(struct acpi_ctx *ctx,
 	return 0;
 }
 
-/* ACPI 6.3 section 6.4.3.8.2.1 - I2cSerialBus() */
+/* ACPI 6.3 section 6.4.3.8.2.1 - I2cSerialBusV2() */
 static void acpi_device_write_i2c(struct acpi_ctx *ctx,
 				  const struct acpi_i2c *i2c)
 {

@@ -413,7 +413,7 @@ int acpi_device_write_dsm_i2c_hid(struct acpi_ctx *ctx,
 /**
  * acpi_device_write_i2c_dev() - Write an I2C device to ACPI
  *
- * This creates a I2cSerialBus descriptor for an I2C device, including
+ * This creates a I2cSerialBusV2 descriptor for an I2C device, including
  * information ACPI needs to use it.
  *
  * @ctx: ACPI context pointer
