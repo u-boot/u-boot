@@ -22,10 +22,9 @@ struct e820_entry {
 #define ISA_START_ADDRESS	0xa0000
 #define ISA_END_ADDRESS		0x100000
 
-#endif /* __ASSEMBLY__ */
-
 /* Implementation defined function to install an e820 map */
 unsigned int install_e820_map(unsigned int max_entries,
 			      struct e820_entry *);
+#endif /* __ASSEMBLY__ */
 
 #endif /* _ASM_X86_E820_H */
