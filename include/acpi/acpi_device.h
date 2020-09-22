@@ -28,6 +28,9 @@ struct udevice;
 /* Length of a full path to an ACPI device */
 #define ACPI_PATH_MAX		30
 
+/* UUID for an I2C _DSM method */
+#define ACPI_DSM_I2C_HID_UUID	"3cdff6f7-4267-4555-ad05-b30a3d8938de"
+
 /* Values that can be returned for ACPI device _STA method */
 enum acpi_dev_status {
 	ACPI_DSTATUS_PRESENT		= BIT(0),
@@ -318,6 +321,17 @@ int acpi_device_write_gpio_desc(struct acpi_ctx *ctx,
  */
 int acpi_device_write_interrupt_or_gpio(struct acpi_ctx *ctx,
 					struct udevice *dev, const char *prop);
+
+/**
+ * acpi_device_write_dsm_i2c_hid() - Write a device-specific method for HID
+ *
+ * This writes a DSM for an I2C Human-Interface Device based on the config
+ * provided
+ *
+ * @hid_desc_reg_offset: HID register offset
+ */
+int acpi_device_write_dsm_i2c_hid(struct acpi_ctx *ctx,
+				  int hid_desc_reg_offset);
 
 /**
  * acpi_device_write_i2c_dev() - Write an I2C device to ACPI

@@ -609,6 +609,60 @@ void acpigen_write_return_byte(struct acpi_ctx *ctx, uint arg)
 	acpigen_write_byte(ctx, arg);
 }
 
+void acpigen_write_dsm_start(struct acpi_ctx *ctx)
+{
+	/* Method (_DSM, 4, Serialized) */
+	acpigen_write_method_serialized(ctx, "_DSM", 4);
+
+	/* ToBuffer (Arg0, Local0) */
+	acpigen_write_to_buffer(ctx, ARG0_OP, LOCAL0_OP);
+}
+
+int acpigen_write_dsm_uuid_start(struct acpi_ctx *ctx, const char *uuid)
+{
+	int ret;
+
+	/* If (LEqual (Local0, ToUUID(uuid))) */
+	acpigen_write_if(ctx);
+	acpigen_emit_byte(ctx, LEQUAL_OP);
+	acpigen_emit_byte(ctx, LOCAL0_OP);
+	ret = acpigen_write_uuid(ctx, uuid);
+	if (ret)
+		return log_msg_ret("uuid", ret);
+
+	/* ToInteger (Arg2, Local1) */
+	acpigen_write_to_integer(ctx, ARG2_OP, LOCAL1_OP);
+
+	return 0;
+}
+
+void acpigen_write_dsm_uuid_start_cond(struct acpi_ctx *ctx, int seq)
+{
+	/* If (LEqual (Local1, i)) */
+	acpigen_write_if_lequal_op_int(ctx, LOCAL1_OP, seq);
+}
+
+void acpigen_write_dsm_uuid_end_cond(struct acpi_ctx *ctx)
+{
+	acpigen_pop_len(ctx);	/* If */
+}
+
+void acpigen_write_dsm_uuid_end(struct acpi_ctx *ctx)
+{
+	/* Default case: Return (Buffer (One) { 0x0 }) */
+	acpigen_write_return_singleton_buffer(ctx, 0x0);
+
+	acpigen_pop_len(ctx);	/* If (LEqual (Local0, ToUUID(uuid))) */
+}
+
+void acpigen_write_dsm_end(struct acpi_ctx *ctx)
+{
+	/* Return (Buffer (One) { 0x0 }) */
+	acpigen_write_return_singleton_buffer(ctx, 0x0);
+
+	acpigen_pop_len(ctx);	/* Method _DSM */
+}
+
 /**
  * acpigen_get_dw0_in_local5() - Generate code to put dw0 cfg0 in local5
  *

@@ -666,4 +666,103 @@ void acpigen_write_return_singleton_buffer(struct acpi_ctx *ctx, uint arg);
  */
 void acpigen_write_return_byte(struct acpi_ctx *ctx, uint arg);
 
+/**
+ * acpigen_write_dsm_start() - Start a _DSM method
+ *
+ * Generate ACPI AML code to start the _DSM method.
+ *
+ * The functions need to be called in the correct sequence as below.
+ *
+ * Within the <generate-code-here> region, Local0 and Local1 must be are left
+ * untouched, but Local2-Local7 can be used
+ *
+ * Arguments passed into _DSM method:
+ * Arg0 = UUID
+ * Arg1 = Revision
+ * Arg2 = Function index
+ * Arg3 = Function-specific arguments
+ *
+ * AML code generated looks like this:
+ * Method (_DSM, 4, Serialized) {   -- acpigen_write_dsm_start)
+ *	ToBuffer (Arg0, Local0)
+ *	If (LEqual (Local0, ToUUID(uuid))) {  -- acpigen_write_dsm_uuid_start
+ *		ToInteger (Arg2, Local1)
+ *		If (LEqual (Local1, 0)) {  -- acpigen_write_dsm_uuid_start_cond
+ *			<generate-code-here>
+ *		}                          -- acpigen_write_dsm_uuid_end_cond
+ *		...
+ *		If (LEqual (Local1, n)) {  -- acpigen_write_dsm_uuid_start_cond
+ *			<generate-code-here>
+ *		}                          -- acpigen_write_dsm_uuid_end_cond
+ *		Return (Buffer (One) { 0x0 })
+ *	}                                  -- acpigen_write_dsm_uuid_end
+ *	...
+ *	If (LEqual (Local0, ToUUID(uuidn))) {
+ *	...
+ *	}
+ *	Return (Buffer (One) { 0x0 })  -- acpigen_write_dsm_end
+ * }
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_dsm_start(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_dsm_uuid_start() - Start a new UUID block
+ *
+ * This starts generation of code to handle a particular UUID:
+ *
+ *	If (LEqual (Local0, ToUUID(uuid))) {
+ *		ToInteger (Arg2, Local1)
+ *
+ * @ctx: ACPI context pointer
+ */
+int acpigen_write_dsm_uuid_start(struct acpi_ctx *ctx, const char *uuid);
+
+/**
+ * acpigen_write_dsm_uuid_start_cond() - Start a new condition block
+ *
+ * This starts generation of condition-checking code to handle a particular
+ * function:
+ *
+ *		If (LEqual (Local1, i))
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_dsm_uuid_start_cond(struct acpi_ctx *ctx, int seq);
+
+/**
+ * acpigen_write_dsm_uuid_end_cond() - Start a new condition block
+ *
+ * This ends generation of condition-checking code to handle a particular
+ * function:
+ *
+ *		}
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_dsm_uuid_end_cond(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_dsm_uuid_end() - End a UUID block
+ *
+ * This ends generation of code to handle a particular UUID:
+ *
+ *		Return (Buffer (One) { 0x0 })
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_dsm_uuid_end(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_dsm_end() - End a _DSM method
+ *
+ * This ends generates of the _DSM block:
+ *
+ *	Return (Buffer (One) { 0x0 })
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_dsm_end(struct acpi_ctx *ctx);
+
 #endif

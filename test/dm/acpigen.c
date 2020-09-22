@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <irq.h>
 #include <malloc.h>
+#include <uuid.h>
 #include <acpi/acpigen.h>
 #include <acpi/acpi_device.h>
 #include <acpi/acpi_table.h>
@@ -1218,3 +1219,127 @@ static int dm_test_acpi_write_return(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_write_return, 0);
+
+/* Test emitting a DSM for an I2C HID */
+static int dm_test_acpi_write_i2c_dsm(struct unit_test_state *uts)
+{
+	char uuid_str[UUID_STR_LEN + 1];
+	const int reg_offset = 0x20;
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	ut_assertok(acpi_device_write_dsm_i2c_hid(ctx, reg_offset));
+
+	/* acpigen_write_dsm_start() */
+	ut_asserteq(METHOD_OP, *ptr++);
+	ut_asserteq(0x78, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq_strn("_DSM", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(ACPI_METHOD_SERIALIZED_MASK | 4, *ptr++);
+
+	ut_asserteq(TO_BUFFER_OP, *ptr++);
+	ut_asserteq(ARG0_OP, *ptr++);
+	ut_asserteq(LOCAL0_OP, *ptr++);
+
+	/* acpigen_write_dsm_uuid_start() */
+	ut_asserteq(IF_OP, *ptr++);
+	ut_asserteq(0x65, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(LEQUAL_OP, *ptr++);
+	ut_asserteq(LOCAL0_OP, *ptr++);
+
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ut_asserteq(UUID_BIN_LEN + 6, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(WORD_PREFIX, *ptr++);
+	ut_asserteq(UUID_BIN_LEN, get_unaligned((u16 *)ptr));
+	ptr += 2;
+	uuid_bin_to_str(ptr, uuid_str, UUID_STR_FORMAT_GUID);
+	ut_asserteq_str(ACPI_DSM_I2C_HID_UUID, uuid_str);
+	ptr += UUID_BIN_LEN;
+
+	ut_asserteq(TO_INTEGER_OP, *ptr++);
+	ut_asserteq(ARG2_OP, *ptr++);
+	ut_asserteq(LOCAL1_OP, *ptr++);
+
+	/* acpigen_write_dsm_uuid_start_cond() */
+	ut_asserteq(IF_OP, *ptr++);
+	ut_asserteq(0x34, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(LEQUAL_OP, *ptr++);
+	ut_asserteq(LOCAL1_OP, *ptr++);
+	ut_asserteq(ZERO_OP, *ptr++);
+
+	/*
+	 * See code from acpi_device_write_dsm_i2c_hid(). We don't check every
+	 * piece
+	 */
+	ut_asserteq(TO_INTEGER_OP, *ptr++);
+	ut_asserteq(ARG1_OP, *ptr++);
+	ut_asserteq(LOCAL2_OP, *ptr++);
+
+	ut_asserteq(IF_OP, *ptr++);
+	ut_asserteq(0xd, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(LEQUAL_OP, *ptr++);
+	ut_asserteq(LOCAL2_OP, *ptr++);
+	ut_asserteq(ZERO_OP, *ptr++);	/* function 0 */
+
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ptr += 5;
+
+	ut_asserteq(ELSE_OP, *ptr++);
+	ptr += 3;
+
+	ut_asserteq(IF_OP, *ptr++);
+	ut_asserteq(0xd, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(LEQUAL_OP, *ptr++);
+	ut_asserteq(LOCAL2_OP, *ptr++);
+	ut_asserteq(ONE_OP, *ptr++);
+
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ptr += 5;
+
+	ut_asserteq(ELSE_OP, *ptr++);
+	ptr += 3;
+
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ptr += 5;
+
+	/* acpigen_write_dsm_uuid_start_cond() */
+	ut_asserteq(IF_OP, *ptr++);
+	ut_asserteq(9, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(LEQUAL_OP, *ptr++);
+	ut_asserteq(LOCAL1_OP, *ptr++);
+	ut_asserteq(ONE_OP, *ptr++);	/* function 1 */
+
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(reg_offset, *ptr++);
+
+	/* acpigen_write_dsm_uuid_end() */
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ptr += 5;
+
+	/* acpigen_write_dsm_end */
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ptr += 5;
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_i2c_dsm, 0);
