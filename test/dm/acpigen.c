@@ -1343,3 +1343,110 @@ static int dm_test_acpi_write_i2c_dsm(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_write_i2c_dsm, 0);
+
+/* Test emitting a processor */
+static int dm_test_acpi_write_processor(struct unit_test_state *uts)
+{
+	const int cpuindex = 6;
+	const u32 pblock_addr = 0x12345600;
+	const u32 pblock_len = 0x60;
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_processor(ctx, cpuindex, pblock_addr, pblock_len);
+	acpigen_pop_len(ctx);
+
+	ut_asserteq(EXT_OP_PREFIX, *ptr++);
+	ut_asserteq(PROCESSOR_OP, *ptr++);
+	ut_asserteq(0x13, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq_strn("\\._PR_CP06", (char *)ptr);
+	ptr += 10;
+	ut_asserteq(cpuindex, *ptr++);
+	ut_asserteq(pblock_addr, get_unaligned((u32 *)ptr));
+	ptr += 4;
+	ut_asserteq(pblock_len, *ptr++);
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_processor, 0);
+
+/* Test emitting a processor package */
+static int dm_test_acpi_write_processor_package(struct unit_test_state *uts)
+{
+	const int core_count = 3;
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_processor_package(ctx, "XCPU", 0, core_count);
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ut_asserteq_strn("XCPU", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(core_count, *ptr++);
+
+	ut_asserteq_strn("\\._PR_CP00", (char *)ptr);
+	ptr += 10;
+	ut_asserteq_strn("\\._PR_CP01", (char *)ptr);
+	ptr += 10;
+	ut_asserteq_strn("\\._PR_CP02", (char *)ptr);
+	ptr += 10;
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_processor_package, 0);
+
+/* Test emitting a processor notification package */
+static int dm_test_acpi_write_processor_cnot(struct unit_test_state *uts)
+{
+	const int core_count = 3;
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_processor_cnot(ctx, core_count);
+
+	ut_asserteq(METHOD_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq_strn("\\._PR_CNOT", (char *)ptr);
+	ptr += 10;
+	ut_asserteq(1, *ptr++);
+
+	ut_asserteq(NOTIFY_OP, *ptr++);
+	ut_asserteq_strn("\\._PR_CP00", (char *)ptr);
+	ptr += 10;
+	ut_asserteq(ARG0_OP, *ptr++);
+	ut_asserteq(NOTIFY_OP, *ptr++);
+	ut_asserteq_strn("\\._PR_CP01", (char *)ptr);
+	ptr += 10;
+	ut_asserteq(ARG0_OP, *ptr++);
+	ut_asserteq(NOTIFY_OP, *ptr++);
+	ut_asserteq_strn("\\._PR_CP02", (char *)ptr);
+	ptr += 10;
+	ut_asserteq(ARG0_OP, *ptr++);
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_processor_cnot, 0);

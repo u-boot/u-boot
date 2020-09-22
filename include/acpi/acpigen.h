@@ -64,7 +64,9 @@ enum {
 	OR_OP			= 0x7d,
 	NOT_OP			= 0x80,
 	DEVICE_OP		= 0x82,
+	PROCESSOR_OP		= 0x83,
 	POWER_RES_OP		= 0x84,
+	NOTIFY_OP		= 0x86,
 	LEQUAL_OP		= 0x93,
 	TO_BUFFER_OP		= 0x96,
 	TO_INTEGER_OP		= 0x99,
@@ -776,5 +778,42 @@ void acpigen_write_dsm_uuid_end(struct acpi_ctx *ctx);
  * @ctx: ACPI context pointer
  */
 void acpigen_write_dsm_end(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_processor() - Write a Processor package
+ *
+ * This emits a Processor package header with the required information. The
+ * caller must complete the information and call acpigen_pop_len() at the end
+ *
+ * @ctx: ACPI context pointer
+ * @cpuindex: CPU number
+ * @pblock_addr: PBlk system IO address
+ * @pblock_len: PBlk length
+ */
+void acpigen_write_processor(struct acpi_ctx *ctx, uint cpuindex,
+			     u32 pblock_addr, uint pblock_len);
+
+/**
+ * acpigen_write_processor_package() - Write a package containing the processors
+ *
+ * The package containins the name of each processor in the SoC
+ *
+ * @ctx: ACPI context pointer
+ * @name: Package name (.e.g "PPKG")
+ * @first_core: Number of the first core (e.g. 0)
+ * @core_count: Number of cores (e.g. 4)
+ */
+void acpigen_write_processor_package(struct acpi_ctx *ctx, const char *name,
+				     uint first_core, uint core_count);
+
+/**
+ * acpigen_write_processor_cnot() - Write a processor notification method
+ *
+ * This writes a method that notifies all CPU cores
+ *
+ * @ctx: ACPI context pointer
+ * @num_cores: Number of CPU cores
+ */
+void acpigen_write_processor_cnot(struct acpi_ctx *ctx, const uint num_cores);
 
 #endif

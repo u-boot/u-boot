@@ -17,6 +17,9 @@
 #include <acpi/acpi_table.h>
 #include <dm/acpi.h>
 
+/* CPU path format */
+#define ACPI_CPU_STRING "\\_PR.CP%02d"
+
 u8 *acpigen_get_current(struct acpi_ctx *ctx)
 {
 	return ctx->current;
@@ -338,6 +341,58 @@ void acpigen_write_method_serialized(struct acpi_ctx *ctx, const char *name,
 	acpigen_write_method_internal(ctx, name,
 				      (nargs & ACPI_METHOD_NARGS_MASK) |
 				      ACPI_METHOD_SERIALIZED_MASK);
+}
+
+void acpigen_write_processor(struct acpi_ctx *ctx, uint cpuindex,
+			     u32 pblock_addr, uint pblock_len)
+{
+	/*
+	 * Processor (\_PR.CPnn, cpuindex, pblock_addr, pblock_len)
+	 * {
+	 */
+	char pscope[16];
+
+	acpigen_emit_ext_op(ctx, PROCESSOR_OP);
+	acpigen_write_len_f(ctx);
+
+	snprintf(pscope, sizeof(pscope), ACPI_CPU_STRING, cpuindex);
+	acpigen_emit_namestring(ctx, pscope);
+	acpigen_emit_byte(ctx, cpuindex);
+	acpigen_emit_dword(ctx, pblock_addr);
+	acpigen_emit_byte(ctx, pblock_len);
+}
+
+void acpigen_write_processor_package(struct acpi_ctx *ctx,
+				     const char *const name,
+				     const uint first_core,
+				     const uint core_count)
+{
+	uint i;
+	char pscope[16];
+
+	acpigen_write_name(ctx, name);
+	acpigen_write_package(ctx, core_count);
+	for (i = first_core; i < first_core + core_count; ++i) {
+		snprintf(pscope, sizeof(pscope), ACPI_CPU_STRING, i);
+		acpigen_emit_namestring(ctx, pscope);
+	}
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_processor_cnot(struct acpi_ctx *ctx, const uint num_cores)
+{
+	int core_id;
+
+	acpigen_write_method(ctx, "\\_PR.CNOT", 1);
+	for (core_id = 0; core_id < num_cores; core_id++) {
+		char buffer[30];
+
+		snprintf(buffer, sizeof(buffer), ACPI_CPU_STRING, core_id);
+		acpigen_emit_byte(ctx, NOTIFY_OP);
+		acpigen_emit_namestring(ctx, buffer);
+		acpigen_emit_byte(ctx, ARG0_OP);
+	}
+	acpigen_pop_len(ctx);
 }
 
 void acpigen_write_device(struct acpi_ctx *ctx, const char *name)
