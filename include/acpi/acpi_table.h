@@ -14,7 +14,6 @@
 #define __ACPI_TABLE_H__
 
 #include <dm/acpi.h>
-#include <linux/bitops.h>
 
 #define RSDP_SIG		"RSD PTR "	/* RSDP pointer signature */
 #define OEM_ID			"U-BOOT"	/* U-Boot */
@@ -28,6 +27,8 @@
 #define ACPI_RSDP_REV_ACPI_2_0	2
 
 #if !defined(__ACPI__)
+
+#include <linux/bitops.h>
 
 struct acpi_ctx;
 
