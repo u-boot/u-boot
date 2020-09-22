@@ -170,6 +170,28 @@ enum acpi_gpio_polarity {
  * @io_shared; true if GPIO is shared
  * @io_restrict: I/O restriction setting
  * @polarity: GPIO polarity
+ *
+ * Note that GpioIo doesn't have any means of Active Low / High setting, so a
+ * _DSD must be provided to mitigate this.
+ *
+ * GpioIo doesn't properly communicate the initial state of the output pin,
+ * thus Linux assumes the simple rule:
+ *
+ * Pull Bias       Polarity      Requested...
+ *
+ * Implicit        x             AS IS (assumed firmware configured for us)
+ * Explicit        x (no _DSD)   as Pull Bias (Up == High, Down == Low),
+ *                               assuming non-active (Polarity = !Pull Bias)
+ *
+ * Down            Low           as low, assuming active
+ * Down            High          as high, assuming non-active
+ * Up              Low           as high, assuming non-active
+ * Up              High          as high, assuming active
+ *
+ * GpioIo() can be used as interrupt and in this case the IoRestriction mustn't
+ * be OutputOnly. It also requires active_low flag from _DSD in cases where it's
+ * needed (better to always provide than rely on above assumption made on OS
+ * level).
  */
 struct acpi_gpio {
 	int pin_count;
