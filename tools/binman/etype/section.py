@@ -35,7 +35,7 @@ class Entry_section(Entry):
             when writing out the map
 
     Properties:
-        _allow_missing: True if this section permits external blobs to be
+        allow_missing: True if this section permits external blobs to be
             missing their contents. The second will produce an image but of
             course it will not work.
 
@@ -54,8 +54,6 @@ class Entry_section(Entry):
         self._sort = False
         self._skip_at_start = None
         self._end_4gb = False
-        self._allow_missing = False
-        self.missing = False
 
     def ReadNode(self):
         """Read properties from the image node"""
@@ -83,7 +81,7 @@ class Entry_section(Entry):
 
     def _ReadEntries(self):
         for node in self._node.subnodes:
-            if node.name == 'hash':
+            if node.name.startswith('hash') or node.name.startswith('signature'):
                 continue
             entry = Entry.Create(self, node)
             entry.ReadNode()
@@ -152,7 +150,7 @@ class Entry_section(Entry):
         for entry in self._entries.values():
             data = entry.GetData()
             base = self.pad_before + (entry.offset or 0) - self._skip_at_start
-            pad = base - len(section_data)
+            pad = base - len(section_data) + (entry.pad_before or 0)
             if pad > 0:
                 section_data += tools.GetBytes(self._pad_byte, pad)
             section_data += data
@@ -549,17 +547,9 @@ class Entry_section(Entry):
         Args:
             allow_missing: True if allowed, False if not allowed
         """
-        self._allow_missing = allow_missing
+        self.allow_missing = allow_missing
         for entry in self._entries.values():
             entry.SetAllowMissing(allow_missing)
-
-    def GetAllowMissing(self):
-        """Get whether a section allows missing external blobs
-
-        Returns:
-            True if allowed, False if not allowed
-        """
-        return self._allow_missing
 
     def CheckMissing(self, missing_list):
         """Check if any entries in this section have missing external blobs

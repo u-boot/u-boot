@@ -18,12 +18,16 @@
 
 /*
  * Caution:
- * This API requires the given device has alerady been bound to syscon driver.
- * For example,
+ * This API requires the given device has already been bound to the syscon
+ * driver. For example,
+ *
  *    compatible = "syscon", "simple-mfd";
+ *
  * works, but
+ *
  *    compatible = "simple-mfd", "syscon";
- * does not.  The behavior is different from Linux.
+ *
+ * does not. The behavior is different from Linux.
  */
 struct regmap *syscon_get_regmap(struct udevice *dev)
 {

@@ -786,7 +786,8 @@ class FdtSw(FdtRo):
             Fdt object allowing access to the newly created device tree
         """
         fdtsw = bytearray(self._fdt)
-        check_err(fdt_finish(fdtsw))
+        while self.check_space(fdt_finish(fdtsw)):
+            fdtsw = bytearray(self._fdt)
         return Fdt(fdtsw)
 
     def check_space(self, val):

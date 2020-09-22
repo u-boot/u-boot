@@ -407,6 +407,7 @@ struct device_node *of_parse_phandle(const struct device_node *np,
  * @np:		pointer to a device tree node containing a list
  * @list_name:	property name that contains a list
  * @cells_name:	property name that specifies phandles' arguments count
+ * @cells_count: Cell count to use if @cells_name is NULL
  * @index:	index of a phandle to parse out
  * @out_args:	optional pointer to output arguments structure (will be filled)
  * @return 0 on success (with @out_args filled out if not NULL), -ENOENT if
@@ -440,7 +441,8 @@ struct device_node *of_parse_phandle(const struct device_node *np,
  */
 int of_parse_phandle_with_args(const struct device_node *np,
 			       const char *list_name, const char *cells_name,
-			       int index, struct of_phandle_args *out_args);
+			       int cells_count, int index,
+			       struct of_phandle_args *out_args);
 
 /**
  * of_count_phandle_with_args() - Count the number of phandle in a list
