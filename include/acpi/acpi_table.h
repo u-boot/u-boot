@@ -104,6 +104,13 @@ struct __packed acpi_tpm2 {
 	u64 lasa;
 };
 
+struct __packed acpi_tcpa {
+	struct acpi_table_header header;
+	u16 platform_class;
+	u32 laml;
+	u64 lasa;
+};
+
 /* FADT Preferred Power Management Profile */
 enum acpi_pm_profile {
 	ACPI_PM_UNSPECIFIED = 0,

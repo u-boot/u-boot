@@ -215,6 +215,47 @@ static void acpi_create_mcfg(struct acpi_mcfg *mcfg)
 	header->checksum = table_compute_checksum((void *)mcfg, header->length);
 }
 
+/**
+ * acpi_create_tcpa() - Create a TCPA table
+ *
+ * @tcpa: Pointer to place to put table
+ *
+ * Trusted Computing Platform Alliance Capabilities Table
+ * TCPA PC Specific Implementation SpecificationTCPA is defined in the PCI
+ * Firmware Specification 3.0
+ */
+static int acpi_create_tcpa(struct acpi_tcpa *tcpa)
+{
+	struct acpi_table_header *header = &tcpa->header;
+	u32 current = (u32)tcpa + sizeof(struct acpi_tcpa);
+	int size = 0x10000;	/* Use this as the default size */
+	void *log;
+	int ret;
+
+	if (!CONFIG_IS_ENABLED(BLOBLIST))
+		return -ENXIO;
+	memset(tcpa, '\0', sizeof(struct acpi_tcpa));
+
+	/* Fill out header fields */
+	acpi_fill_header(header, "TCPA");
+	header->length = sizeof(struct acpi_tcpa);
+	header->revision = 1;
+
+	ret = bloblist_ensure_size_ret(BLOBLISTT_TCPA_LOG, &size, &log);
+	if (ret)
+		return log_msg_ret("blob", ret);
+
+	tcpa->platform_class = 0;
+	tcpa->laml = size;
+	tcpa->lasa = (ulong)log;
+
+	/* (Re)calculate length and checksum */
+	header->length = current - (u32)tcpa;
+	header->checksum = table_compute_checksum((void *)tcpa, header->length);
+
+	return 0;
+}
+
 static int get_tpm2_log(void **ptrp, int *sizep)
 {
 	const int tpm2_default_log_len = 0x10000;
@@ -457,11 +498,13 @@ ulong write_acpi_tables(ulong start_addr)
 	struct acpi_fadt *fadt;
 	struct acpi_table_header *ssdt;
 	struct acpi_mcfg *mcfg;
+	struct acpi_tcpa *tcpa;
 	struct acpi_madt *madt;
 	struct acpi_csrt *csrt;
 	struct acpi_spcr *spcr;
 	void *start;
 	ulong addr;
+	int ret;
 	int i;
 
 	start = map_sysmem(start_addr, 0);
@@ -560,7 +603,6 @@ ulong write_acpi_tables(ulong start_addr)
 
 	if (IS_ENABLED(CONFIG_TPM_V2)) {
 		struct acpi_tpm2 *tpm2;
-		int ret;
 
 		debug("ACPI:    * TPM2\n");
 		tpm2 = (struct acpi_tpm2 *)ctx->current;
@@ -578,6 +620,16 @@ ulong write_acpi_tables(ulong start_addr)
 	acpi_create_madt(madt);
 	acpi_inc_align(ctx, madt->header.length);
 	acpi_add_table(ctx, madt);
+
+	debug("ACPI:    * TCPA\n");
+	tcpa = (struct acpi_tcpa *)ctx->current;
+	ret = acpi_create_tcpa(tcpa);
+	if (ret) {
+		log_warning("Failed to create TCPA table (err=%d)\n", ret);
+	} else {
+		acpi_inc_align(ctx, tcpa->header.length);
+		acpi_add_table(ctx, tcpa);
+	}
 
 	debug("ACPI:    * CSRT\n");
 	csrt = ctx->current;
