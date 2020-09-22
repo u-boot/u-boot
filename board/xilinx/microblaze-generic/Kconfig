@@ -38,4 +38,9 @@ config XILINX_MICROBLAZE0_HW_VER
 	string "Core version number"
 	default "7.10.d"
 
+config BOOT_SCRIPT_OFFSET
+        hex "Boot script offset"
+        default 0xFC0000
+        help
+           Specifies distro boot script offset in NAND/QSPI flash.
 endif
