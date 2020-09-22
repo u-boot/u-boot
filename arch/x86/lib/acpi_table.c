@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <bloblist.h>
 #include <cpu.h>
 #include <dm.h>
 #include <log.h>
@@ -212,6 +213,64 @@ static void acpi_create_mcfg(struct acpi_mcfg *mcfg)
 	/* (Re)calculate length and checksum */
 	header->length = current - (u32)mcfg;
 	header->checksum = table_compute_checksum((void *)mcfg, header->length);
+}
+
+static int get_tpm2_log(void **ptrp, int *sizep)
+{
+	const int tpm2_default_log_len = 0x10000;
+	int size;
+	int ret;
+
+	*sizep = 0;
+	size = tpm2_default_log_len;
+	ret = bloblist_ensure_size_ret(BLOBLISTT_TPM2_TCG_LOG, &size, ptrp);
+	if (ret)
+		return log_msg_ret("blob", ret);
+	*sizep = size;
+
+	return 0;
+}
+
+static int acpi_create_tpm2(struct acpi_tpm2 *tpm2)
+{
+	struct acpi_table_header *header = &tpm2->header;
+	int tpm2_log_len;
+	void *lasa;
+	int ret;
+
+	memset((void *)tpm2, 0, sizeof(struct acpi_tpm2));
+
+	/*
+	 * Some payloads like SeaBIOS depend on log area to use TPM2.
+	 * Get the memory size and address of TPM2 log area or initialize it.
+	 */
+	ret = get_tpm2_log(&lasa, &tpm2_log_len);
+	if (ret)
+		return ret;
+
+	/* Fill out header fields. */
+	acpi_fill_header(header, "TPM2");
+	memcpy(header->aslc_id, ASLC_ID, 4);
+
+	header->length = sizeof(struct acpi_tpm2);
+	header->revision = acpi_get_table_revision(ACPITAB_TPM2);
+
+	/* Hard to detect for coreboot. Just set it to 0 */
+	tpm2->platform_class = 0;
+
+	/* Must be set to 0 for FIFO-interface support */
+	tpm2->control_area = 0;
+	tpm2->start_method = 6;
+	memset(tpm2->msp, 0, sizeof(tpm2->msp));
+
+	/* Fill the log area size and start address fields. */
+	tpm2->laml = tpm2_log_len;
+	tpm2->lasa = (uintptr_t)lasa;
+
+	/* Calculate checksum. */
+	header->checksum = table_compute_checksum((void *)tpm2, header->length);
+
+	return 0;
 }
 
 __weak u32 acpi_fill_csrt(u32 current)
@@ -498,6 +557,21 @@ ulong write_acpi_tables(ulong start_addr)
 	acpi_create_mcfg(mcfg);
 	acpi_inc_align(ctx, mcfg->header.length);
 	acpi_add_table(ctx, mcfg);
+
+	if (IS_ENABLED(CONFIG_TPM_V2)) {
+		struct acpi_tpm2 *tpm2;
+		int ret;
+
+		debug("ACPI:    * TPM2\n");
+		tpm2 = (struct acpi_tpm2 *)ctx->current;
+		ret = acpi_create_tpm2(tpm2);
+		if (!ret) {
+			acpi_inc_align(ctx, tpm2->header.length);
+			acpi_add_table(ctx, tpm2);
+		} else {
+			log_warning("TPM2 table creation failed\n");
+		}
+	}
 
 	debug("ACPI:    * MADT\n");
 	madt = ctx->current;

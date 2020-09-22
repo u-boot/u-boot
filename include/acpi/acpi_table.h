@@ -93,6 +93,17 @@ struct __packed acpi_hpet {
 	u8 attributes;
 };
 
+struct __packed acpi_tpm2 {
+	struct acpi_table_header header;
+	u16 platform_class;
+	u8  reserved[2];
+	u64 control_area;
+	u32 start_method;
+	u8  msp[12];
+	u32 laml;
+	u64 lasa;
+};
+
 /* FADT Preferred Power Management Profile */
 enum acpi_pm_profile {
 	ACPI_PM_UNSPECIFIED = 0,
