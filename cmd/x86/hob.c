@@ -27,6 +27,16 @@ static char *hob_type[] = {
 	"Capsule",
 };
 
+static char *res_type[] = {
+	"System",
+	"Memory-mapped I/O",
+	"I/O",
+	"Firmware device",
+	"Memory-mapped I/O port",
+	"Reserved",
+	"I/O reserved",
+};
+
 static struct guid_name {
 	efi_guid_t guid;
 	const char *name;
@@ -58,6 +68,26 @@ static const char *guid_to_name(const efi_guid_t *guid)
 	return NULL;
 }
 
+static void show_hob_details(const struct hob_header *hdr)
+{
+	const void *ptr = hdr;
+
+	switch (hdr->type) {
+	case HOB_TYPE_RES_DESC: {
+		const struct hob_res_desc *res = ptr;
+		const char *typename;
+
+		typename = res->type > 0 && res->type <= RES_MAX_MEM_TYPE ?
+			res_type[res->type] : "unknown";
+
+		printf("     base = %08llx, len = %08llx, end = %08llx, type = %d (%s)\n\n",
+		       res->phys_start, res->len, res->phys_start + res->len,
+		       res->type, typename);
+		break;
+	}
+	}
+}
+
 static int do_hob(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	const struct hob_header *hdr;
@@ -66,12 +96,20 @@ static int do_hob(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	int i = 0;
 	efi_guid_t *guid;
 	char uuid[UUID_STR_LEN + 1];
+	bool verbose = false;
 	int seq = -1;	/* Show all by default */
 
 	argc--;
 	argv++;
-	if (argc)
-		seq = simple_strtol(*argv, NULL, 16);
+	if (argc) {
+		if (!strcmp("-v", *argv)) {
+			verbose = true;
+			argc--;
+			argv++;
+		}
+		if (argc)
+			seq = simple_strtol(*argv, NULL, 16);
+	}
 	hdr = gd->arch.hob_list;
 
 	printf("HOB list address: 0x%08x\n\n", (unsigned int)hdr);
@@ -111,13 +149,16 @@ static int do_hob(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			printf("%36s", "Not Available");
 		}
 		printf("\n");
+		if (verbose)
+			show_hob_details(hdr);
 	}
 
 	return 0;
 }
 
-U_BOOT_CMD(hob, 2, 1, do_hob,
-	   "[seq]  Print Hand-Off Block (HOB) information"
+U_BOOT_CMD(hob, 3, 1, do_hob,
+	   "[-v] [seq]  Print Hand-Off Block (HOB) information"
+	   "   -v  - Show detailed HOB information where available"
 	   "   seq - Record # to show (all by default)",
 	   ""
 );
