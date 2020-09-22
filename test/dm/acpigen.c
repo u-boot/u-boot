@@ -1127,3 +1127,94 @@ static int dm_test_acpi_write_prw(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_write_prw, 0);
+
+/* Test emitting writing conditionals */
+static int dm_test_acpi_write_cond(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_if(ctx);
+	acpigen_pop_len(ctx);
+	ut_asserteq(IF_OP, *ptr++);
+	ut_asserteq(3, acpi_test_get_length(ptr));
+	ptr += 3;
+
+	acpigen_write_else(ctx);
+	acpigen_pop_len(ctx);
+	ut_asserteq(ELSE_OP, *ptr++);
+	ut_asserteq(3, acpi_test_get_length(ptr));
+	ptr += 3;
+
+	acpigen_write_if_lequal_op_int(ctx, LOCAL1_OP, 5);
+	acpigen_pop_len(ctx);
+	ut_asserteq(IF_OP, *ptr++);
+	ut_asserteq(7, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(LEQUAL_OP, *ptr++);
+	ut_asserteq(LOCAL1_OP, *ptr++);
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(5, *ptr++);
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_cond, 0);
+
+/* Test emitting writing return values and ToBuffer/ToInteger */
+static int dm_test_acpi_write_return(struct unit_test_state *uts)
+{
+	int len = sizeof(TEST_STRING);
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_to_buffer(ctx, ARG0_OP, LOCAL0_OP);
+	ut_asserteq(TO_BUFFER_OP, *ptr++);
+	ut_asserteq(ARG0_OP, *ptr++);
+	ut_asserteq(LOCAL0_OP, *ptr++);
+
+	acpigen_write_to_integer(ctx, ARG0_OP, LOCAL0_OP);
+	ut_asserteq(TO_INTEGER_OP, *ptr++);
+	ut_asserteq(ARG0_OP, *ptr++);
+	ut_asserteq(LOCAL0_OP, *ptr++);
+
+	acpigen_write_return_byte_buffer(ctx, (u8 *)TEST_STRING, len);
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ut_asserteq(5 + len, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(len, *ptr++);
+	ut_asserteq_mem(TEST_STRING, ptr, len);
+	ptr += len;
+
+	acpigen_write_return_singleton_buffer(ctx, 123);
+	len = 1;
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ut_asserteq(4 + len, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(ONE_OP, *ptr++);
+	ut_asserteq(123, *ptr++);
+
+	acpigen_write_return_byte(ctx, 43);
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(43, *ptr++);
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_return, 0);

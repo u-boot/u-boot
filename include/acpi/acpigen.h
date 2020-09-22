@@ -52,12 +52,24 @@ enum {
 	LOCAL5_OP		= 0x65,
 	LOCAL6_OP		= 0x66,
 	LOCAL7_OP		= 0x67,
+	ARG0_OP			= 0x68,
+	ARG1_OP			= 0x69,
+	ARG2_OP			= 0x6a,
+	ARG3_OP			= 0x6b,
+	ARG4_OP			= 0x6c,
+	ARG5_OP			= 0x6d,
+	ARG6_OP			= 0x6e,
 	STORE_OP		= 0x70,
 	AND_OP			= 0x7b,
 	OR_OP			= 0x7d,
 	NOT_OP			= 0x80,
 	DEVICE_OP		= 0x82,
 	POWER_RES_OP		= 0x84,
+	LEQUAL_OP		= 0x93,
+	TO_BUFFER_OP		= 0x96,
+	TO_INTEGER_OP		= 0x99,
+	IF_OP			= 0xa0,
+	ELSE_OP			= 0xa1,
 	RETURN_OP		= 0xa4,
 };
 
@@ -572,5 +584,86 @@ int acpigen_set_enable_tx_gpio(struct acpi_ctx *ctx, u32 tx_state_val,
  *	providing wake functionality
  */
 void acpigen_write_prw(struct acpi_ctx *ctx, uint wake, uint level);
+
+/**
+ * acpigen_write_if() - Write an If block
+ *
+ * This requires a call to acpigen_pop_len() to complete the block
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_if(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_if_lequal_op_int() - Write comparison between op and integer
+ *
+ * Generates ACPI code for checking if operand1 and operand2 are equal
+ *
+ * If (Lequal (op, val))
+ *
+ * @ctx: ACPI context pointer
+ * @op: Operand to check
+ * @val: Value to check against
+ */
+void acpigen_write_if_lequal_op_int(struct acpi_ctx *ctx, uint op, u64 val);
+
+/**
+ * acpigen_write_else() - Write an Ef block
+ *
+ * This requires a call to acpigen_pop_len() to complete the block
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_else(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_to_buffer() - Write a ToBuffer operation
+ *
+ * E.g.: to generate: ToBuffer (Arg0, Local0)
+ * use acpigen_write_to_buffer(ctx, ARG0_OP, LOCAL0_OP)
+ *
+ * @ctx: ACPI context pointer
+ * @src: Source argument
+ * @dst: Destination argument
+ */
+void acpigen_write_to_buffer(struct acpi_ctx *ctx, uint src, uint dst);
+
+/**
+ * acpigen_write_to_integer() - Write a ToInteger operation
+ *
+ * E.g.: to generate: ToInteger (Arg0, Local0)
+ * use acpigen_write_to_integer(ctx, ARG0_OP, LOCAL0_OP)
+ *
+ * @ctx: ACPI context pointer
+ * @src: Source argument
+ * @dst: Destination argument
+ */
+void acpigen_write_to_integer(struct acpi_ctx *ctx, uint src, uint dst);
+
+/**
+ * acpigen_write_return_byte_buffer() - Write a return of a byte buffer
+ *
+ * @ctx: ACPI context pointer
+ * @arr: Array of bytes to return
+ * @size: Number of bytes
+ */
+void acpigen_write_return_byte_buffer(struct acpi_ctx *ctx, u8 *arr,
+				      size_t size);
+
+/**
+ * acpigen_write_return_singleton_buffer() - Write a return of a 1-byte buffer
+ *
+ * @ctx: ACPI context pointer
+ * @arg: Byte to return
+ */
+void acpigen_write_return_singleton_buffer(struct acpi_ctx *ctx, uint arg);
+
+/**
+ * acpigen_write_return_byte() - Write a return of a byte
+ *
+ * @ctx: ACPI context pointer
+ * @arg: Byte to return
+ */
+void acpigen_write_return_byte(struct acpi_ctx *ctx, uint arg);
 
 #endif

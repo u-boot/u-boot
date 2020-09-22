@@ -541,6 +541,74 @@ void acpigen_write_debug_string(struct acpi_ctx *ctx, const char *str)
 	acpigen_emit_ext_op(ctx, DEBUG_OP);
 }
 
+void acpigen_write_if(struct acpi_ctx *ctx)
+{
+	acpigen_emit_byte(ctx, IF_OP);
+	acpigen_write_len_f(ctx);
+}
+
+void acpigen_write_if_lequal_op_int(struct acpi_ctx *ctx, uint op, u64 val)
+{
+	acpigen_write_if(ctx);
+	acpigen_emit_byte(ctx, LEQUAL_OP);
+	acpigen_emit_byte(ctx, op);
+	acpigen_write_integer(ctx, val);
+}
+
+void acpigen_write_else(struct acpi_ctx *ctx)
+{
+	acpigen_emit_byte(ctx, ELSE_OP);
+	acpigen_write_len_f(ctx);
+}
+
+void acpigen_write_to_buffer(struct acpi_ctx *ctx, uint src, uint dst)
+{
+	acpigen_emit_byte(ctx, TO_BUFFER_OP);
+	acpigen_emit_byte(ctx, src);
+	acpigen_emit_byte(ctx, dst);
+}
+
+void acpigen_write_to_integer(struct acpi_ctx *ctx, uint src, uint dst)
+{
+	acpigen_emit_byte(ctx, TO_INTEGER_OP);
+	acpigen_emit_byte(ctx, src);
+	acpigen_emit_byte(ctx, dst);
+}
+
+void acpigen_write_byte_buffer(struct acpi_ctx *ctx, u8 *arr, size_t size)
+{
+	size_t i;
+
+	acpigen_emit_byte(ctx, BUFFER_OP);
+	acpigen_write_len_f(ctx);
+	acpigen_write_integer(ctx, size);
+
+	for (i = 0; i < size; i++)
+		acpigen_emit_byte(ctx, arr[i]);
+
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_return_byte_buffer(struct acpi_ctx *ctx, u8 *arr,
+				      size_t size)
+{
+	acpigen_emit_byte(ctx, RETURN_OP);
+	acpigen_write_byte_buffer(ctx, arr, size);
+}
+
+void acpigen_write_return_singleton_buffer(struct acpi_ctx *ctx, uint arg)
+{
+	u8 buf = arg;
+
+	acpigen_write_return_byte_buffer(ctx, &buf, 1);
+}
+
+void acpigen_write_return_byte(struct acpi_ctx *ctx, uint arg)
+{
+	acpigen_emit_byte(ctx, RETURN_OP);
+	acpigen_write_byte(ctx, arg);
+}
+
 /**
  * acpigen_get_dw0_in_local5() - Generate code to put dw0 cfg0 in local5
  *
