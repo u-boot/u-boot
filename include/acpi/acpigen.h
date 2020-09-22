@@ -74,6 +74,18 @@ enum {
 };
 
 /**
+ * enum psd_coord - Coordination types for P-states
+ *
+ * The type of coordination that exists (hardware) or is required (software) as
+ * a result of the underlying hardware dependency
+ */
+enum psd_coord {
+	SW_ALL = 0xfc,
+	SW_ANY = 0xfd,
+	HW_ALL = 0xfe
+};
+
+/**
  * acpigen_get_current() - Get the current ACPI code output pointer
  *
  * @ctx: ACPI context pointer
