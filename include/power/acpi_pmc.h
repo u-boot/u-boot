@@ -6,7 +6,7 @@
 #ifndef __ACPI_PMC_H
 #define __ACPI_PMC_H
 
-#ifndef __ACPI__
+#ifndef __ASSEMBLY__
 
 enum {
 	GPE0_REG_MAX	= 4,
@@ -194,6 +194,6 @@ void pmc_dump_info(struct udevice *dev);
  */
 int pmc_gpe_init(struct udevice *dev);
 
-#endif /* !__ACPI__ */
+#endif /* !__ASSEMBLY__ */
 
 #endif
