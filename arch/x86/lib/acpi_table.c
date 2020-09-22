@@ -629,3 +629,114 @@ int acpi_write_dbg2_pci_uart(struct acpi_ctx *ctx, struct udevice *dev,
 
 	return 0;
 }
+
+void acpi_fadt_common(struct acpi_fadt *fadt, struct acpi_facs *facs,
+		      void *dsdt)
+{
+	struct acpi_table_header *header = &fadt->header;
+
+	memset((void *)fadt, '\0', sizeof(struct acpi_fadt));
+
+	acpi_fill_header(header, "FACP");
+	header->length = sizeof(struct acpi_fadt);
+	header->revision = 4;
+	memcpy(header->oem_id, OEM_ID, 6);
+	memcpy(header->oem_table_id, OEM_TABLE_ID, 8);
+	memcpy(header->aslc_id, ASLC_ID, 4);
+	header->aslc_revision = 1;
+
+	fadt->firmware_ctrl = (unsigned long)facs;
+	fadt->dsdt = (unsigned long)dsdt;
+
+	fadt->x_firmware_ctl_l = (unsigned long)facs;
+	fadt->x_firmware_ctl_h = 0;
+	fadt->x_dsdt_l = (unsigned long)dsdt;
+	fadt->x_dsdt_h = 0;
+
+	fadt->preferred_pm_profile = ACPI_PM_MOBILE;
+
+	/* Use ACPI 3.0 revision */
+	fadt->header.revision = 4;
+}
+
+void acpi_create_dmar_drhd(struct acpi_ctx *ctx, uint flags, uint segment,
+			   u64 bar)
+{
+	struct dmar_entry *drhd = ctx->current;
+
+	memset(drhd, '\0', sizeof(*drhd));
+	drhd->type = DMAR_DRHD;
+	drhd->length = sizeof(*drhd); /* will be fixed up later */
+	drhd->flags = flags;
+	drhd->segment = segment;
+	drhd->bar = bar;
+	acpi_inc(ctx, drhd->length);
+}
+
+void acpi_create_dmar_rmrr(struct acpi_ctx *ctx, uint segment, u64 bar,
+			   u64 limit)
+{
+	struct dmar_rmrr_entry *rmrr = ctx->current;
+
+	memset(rmrr, '\0', sizeof(*rmrr));
+	rmrr->type = DMAR_RMRR;
+	rmrr->length = sizeof(*rmrr); /* will be fixed up later */
+	rmrr->segment = segment;
+	rmrr->bar = bar;
+	rmrr->limit = limit;
+	acpi_inc(ctx, rmrr->length);
+}
+
+void acpi_dmar_drhd_fixup(struct acpi_ctx *ctx, void *base)
+{
+	struct dmar_entry *drhd = base;
+
+	drhd->length = ctx->current - base;
+}
+
+void acpi_dmar_rmrr_fixup(struct acpi_ctx *ctx, void *base)
+{
+	struct dmar_rmrr_entry *rmrr = base;
+
+	rmrr->length = ctx->current - base;
+}
+
+static int acpi_create_dmar_ds(struct acpi_ctx *ctx, enum dev_scope_type type,
+			       uint enumeration_id, pci_dev_t bdf)
+{
+	/* we don't support longer paths yet */
+	const size_t dev_scope_length = sizeof(struct dev_scope) + 2;
+	struct dev_scope *ds = ctx->current;
+
+	memset(ds, '\0', dev_scope_length);
+	ds->type = type;
+	ds->length = dev_scope_length;
+	ds->enumeration = enumeration_id;
+	ds->start_bus = PCI_BUS(bdf);
+	ds->path[0].dev = PCI_DEV(bdf);
+	ds->path[0].fn = PCI_FUNC(bdf);
+
+	return ds->length;
+}
+
+int acpi_create_dmar_ds_pci_br(struct acpi_ctx *ctx, pci_dev_t bdf)
+{
+	return acpi_create_dmar_ds(ctx, SCOPE_PCI_SUB, 0, bdf);
+}
+
+int acpi_create_dmar_ds_pci(struct acpi_ctx *ctx, pci_dev_t bdf)
+{
+	return acpi_create_dmar_ds(ctx, SCOPE_PCI_ENDPOINT, 0, bdf);
+}
+
+int acpi_create_dmar_ds_ioapic(struct acpi_ctx *ctx, uint enumeration_id,
+			       pci_dev_t bdf)
+{
+	return acpi_create_dmar_ds(ctx, SCOPE_IOAPIC, enumeration_id, bdf);
+}
+
+int acpi_create_dmar_ds_msi_hpet(struct acpi_ctx *ctx, uint enumeration_id,
+				 pci_dev_t bdf)
+{
+	return acpi_create_dmar_ds(ctx, SCOPE_MSI_HPET, enumeration_id, bdf);
+}
