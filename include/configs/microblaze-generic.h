@@ -125,10 +125,53 @@
 #define	CONFIG_SYS_LOAD_ADDR	0
 
 #define	CONFIG_HOSTNAME		"microblaze-generic"
-#define	CONFIG_BOOTCOMMAND	"base 0;tftp 11000000 image.img;bootm"
 
 /* architecture dependent code */
 #define	CONFIG_SYS_USR_EXCEP	/* user exception */
+
+#if defined(CONFIG_CMD_PXE) && defined(CONFIG_CMD_DHCP)
+#define BOOT_TARGET_DEVICES_PXE(func)	func(PXE, pxe, na)
+#else
+#define BOOT_TARGET_DEVICES_PXE(func)
+#endif
+
+#if defined(CONFIG_CMD_DHCP)
+#define BOOT_TARGET_DEVICES_DHCP(func)	func(DHCP, dhcp, na)
+#else
+#define BOOT_TARGET_DEVICES_DHCP(func)
+#endif
+
+#if defined(CONFIG_SPI_FLASH)
+# define BOOT_TARGET_DEVICES_QSPI(func) func(QSPI, qspi, na)
+#else
+# define BOOT_TARGET_DEVICES_QSPI(func)
+#endif
+
+#define BOOTENV_DEV_QSPI(devtypeu, devtypel, instance) \
+	"bootcmd_qspi=sf probe 0 0 0 && " \
+	"sf read ${scriptaddr} ${script_offset_f} ${script_size_f} && " \
+	"echo QSPI: Trying to boot script at ${scriptaddr} && " \
+	"source ${scriptaddr}; echo QSPI: SCRIPT FAILED: continuing...;\0"
+
+#define BOOTENV_DEV_NAME_QSPI(devtypeu, devtypel, instance) \
+	"qspi "
+
+#define BOOT_TARGET_DEVICES_JTAG(func)	func(JTAG, jtag, na)
+
+#define BOOTENV_DEV_JTAG(devtypeu, devtypel, instance) \
+	"bootcmd_jtag=echo JTAG: Trying to boot script at ${scriptaddr} && " \
+		"source ${scriptaddr}; echo JTAG: SCRIPT FAILED: continuing...;\0"
+
+#define BOOTENV_DEV_NAME_JTAG(devtypeu, devtypel, instance) \
+	"jtag "
+
+#define BOOT_TARGET_DEVICES(func) \
+	BOOT_TARGET_DEVICES_JTAG(func) \
+	BOOT_TARGET_DEVICES_QSPI(func)  \
+	BOOT_TARGET_DEVICES_DHCP(func) \
+	BOOT_TARGET_DEVICES_PXE(func)
+
+#include <config_distro_bootcmd.h>
 
 #ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -140,7 +183,9 @@
 	"nc=setenv stdout nc;"\
 	"setenv stdin nc\0" \
 	"serial=setenv stdout serial;"\
-	"setenv stdin serial\0"
+	"setenv stdin serial\0"\
+	"script_size_f=0x40000\0"\
+	BOOTENV
 #endif
 
 #if defined(CONFIG_XILINX_AXIEMAC)
