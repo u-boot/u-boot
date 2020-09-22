@@ -976,4 +976,22 @@ config TPL_ACPI_GPE
 
 	  See https://queue.acm.org/blogposting.cfm?id=18977 for more info
 
+config SA_PCIEX_LENGTH
+	hex
+	default 0x10000000 if (PCIEX_LENGTH_256MB)
+	default 0x8000000 if (PCIEX_LENGTH_128MB)
+	default 0x4000000 if (PCIEX_LENGTH_64MB)
+	default 0x10000000
+	help
+	  This option allows you to select length of PCIEX region.
+
+config PCIEX_LENGTH_256MB
+	bool
+
+config PCIEX_LENGTH_128MB
+	bool
+
+config PCIEX_LENGTH_64MB
+	bool
+
 endmenu
