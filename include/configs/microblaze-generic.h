@@ -131,15 +131,16 @@
 #define	CONFIG_SYS_USR_EXCEP	/* user exception */
 
 #ifndef CONFIG_EXTRA_ENV_SETTINGS
-#define	CONFIG_EXTRA_ENV_SETTINGS	"unlock=yes\0" \
-					"nor0=flash-0\0"\
-					"mtdparts=mtdparts=flash-0:"\
-					"256k(u-boot),256k(env),3m(kernel),"\
-					"1m(romfs),1m(cramfs),-(jffs2)\0"\
-					"nc=setenv stdout nc;"\
-					"setenv stdin nc\0" \
-					"serial=setenv stdout serial;"\
-					"setenv stdin serial\0"
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"unlock=yes\0"\
+	"nor0=flash-0\0"\
+	"mtdparts=mtdparts=flash-0:"\
+	"256k(u-boot),256k(env),3m(kernel),"\
+	"1m(romfs),1m(cramfs),-(jffs2)\0"\
+	"nc=setenv stdout nc;"\
+	"setenv stdin nc\0" \
+	"serial=setenv stdout serial;"\
+	"setenv stdin serial\0"
 #endif
 
 #if defined(CONFIG_XILINX_AXIEMAC)
