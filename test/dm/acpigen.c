@@ -1450,3 +1450,297 @@ static int dm_test_acpi_write_processor_cnot(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_write_processor_cnot, 0);
+
+/* Test acpigen_write_tpc */
+static int dm_test_acpi_write_tpc(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_tpc(ctx, "\\TLVL");
+
+	ut_asserteq(METHOD_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq_strn("_TPC", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(0, *ptr++);
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq_strn("\\TLVL", (char *)ptr);
+	ptr += 5;
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_tpc, 0);
+
+/* Test acpigen_write_pss_package(), etc. */
+static int dm_test_acpi_write_pss_psd(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_pss_package(ctx, 1, 2, 3, 4, 5, 6);
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(6, *ptr++);
+
+	ut_asserteq(DWORD_PREFIX, *ptr++);
+	ut_asserteq(1, get_unaligned((u32 *)ptr));
+	ptr += 5;
+
+	ut_asserteq(2, get_unaligned((u32 *)ptr));
+	ptr += 5;
+
+	ut_asserteq(3, get_unaligned((u32 *)ptr));
+	ptr += 5;
+
+	ut_asserteq(4, get_unaligned((u32 *)ptr));
+	ptr += 5;
+
+	ut_asserteq(5, get_unaligned((u32 *)ptr));
+	ptr += 5;
+
+	ut_asserteq(6, get_unaligned((u32 *)ptr));
+	ptr += 4;
+
+	acpigen_write_psd_package(ctx, 6, 7, HW_ALL);
+	ut_asserteq(NAME_OP, *ptr++);
+	ut_asserteq_strn("_PSD", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(1, *ptr++);
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(5, *ptr++);
+
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(5, *ptr++);
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(0, *ptr++);
+
+	ut_asserteq(DWORD_PREFIX, *ptr++);
+	ut_asserteq(6, get_unaligned((u32 *)ptr));
+	ptr += 5;
+
+	ut_asserteq(HW_ALL, get_unaligned((u32 *)ptr));
+	ptr += 5;
+
+	ut_asserteq(7, get_unaligned((u32 *)ptr));
+	ptr += 4;
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_pss_psd, 0);
+
+/* Test acpi_write_cst_package() */
+static int dm_test_acpi_write_cst(struct unit_test_state *uts)
+{
+	static struct acpi_cstate cstate_map[] = {
+		{
+			/* C1 */
+			.ctype = 1,		/* ACPI C1 */
+			.latency = 1,
+			.power = 1000,
+			.resource = {
+				.space_id = ACPI_ADDRESS_SPACE_FIXED,
+			},
+		}, {
+			.ctype = 2,		/* ACPI C2 */
+			.latency = 50,
+			.power = 10,
+			.resource = {
+				.space_id = ACPI_ADDRESS_SPACE_IO,
+				.bit_width = 8,
+				.addrl = 0x415,
+			},
+		},
+	};
+	int nentries = ARRAY_SIZE(cstate_map);
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+	int i;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_cst_package(ctx, cstate_map, nentries);
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ut_asserteq_strn("_CST", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(nentries + 1, *ptr++);
+	ut_asserteq(DWORD_PREFIX, *ptr++);
+	ut_asserteq(nentries, get_unaligned((u32 *)ptr));
+	ptr += 4;
+
+	for (i = 0; i < nentries; i++) {
+		ut_asserteq(PACKAGE_OP, *ptr++);
+		ptr += 3;  /* skip length */
+		ut_asserteq(4, *ptr++);
+		ut_asserteq(BUFFER_OP, *ptr++);
+		ptr += 0x17;
+		ut_asserteq(DWORD_PREFIX, *ptr++);
+		ut_asserteq(cstate_map[i].ctype, get_unaligned((u32 *)ptr));
+		ptr += 5;
+		ut_asserteq(cstate_map[i].latency, get_unaligned((u32 *)ptr));
+		ptr += 5;
+		ut_asserteq(cstate_map[i].power, get_unaligned((u32 *)ptr));
+		ptr += 4;
+	}
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_cst, 0);
+
+/* Test acpi_write_cst_package() */
+static int dm_test_acpi_write_csd(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_csd_package(ctx, 12, 34, CSD_HW_ALL, 56);
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ut_asserteq_strn("_CSD", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(1, *ptr++);
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(6, *ptr++);
+
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(6, *ptr++);
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(0, *ptr++);
+	ut_asserteq(DWORD_PREFIX, *ptr++);
+	ut_asserteq(12, get_unaligned((u32 *)ptr));
+	ptr += 5;
+	ut_asserteq(CSD_HW_ALL, get_unaligned((u32 *)ptr));
+	ptr += 5;
+	ut_asserteq(34, get_unaligned((u32 *)ptr));
+	ptr += 5;
+	ut_asserteq(56, get_unaligned((u32 *)ptr));
+	ptr += 4;
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_csd, 0);
+
+/* Test acpigen_write_tss_package() */
+static int dm_test_acpi_write_tss(struct unit_test_state *uts)
+{
+	static struct acpi_tstate tstate_list[] = {
+		{ 1, 2, 3, 4, 5, },
+		{ 6, 7, 8, 9, 10, },
+	};
+	int nentries = ARRAY_SIZE(tstate_list);
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+	int i;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_tss_package(ctx, tstate_list, nentries);
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ut_asserteq_strn("_TSS", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(nentries, *ptr++);
+
+	for (i = 0; i < nentries; i++) {
+		ut_asserteq(PACKAGE_OP, *ptr++);
+		ptr += 3;  /* skip length */
+		ut_asserteq(5, *ptr++);
+		ut_asserteq(DWORD_PREFIX, *ptr++);
+		ut_asserteq(tstate_list[i].percent, get_unaligned((u32 *)ptr));
+		ptr += 5;
+		ut_asserteq(tstate_list[i].power, get_unaligned((u32 *)ptr));
+		ptr += 5;
+		ut_asserteq(tstate_list[i].latency, get_unaligned((u32 *)ptr));
+		ptr += 5;
+		ut_asserteq(tstate_list[i].control, get_unaligned((u32 *)ptr));
+		ptr += 5;
+		ut_asserteq(tstate_list[i].status, get_unaligned((u32 *)ptr));
+		ptr += 4;
+	}
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_tss, 0);
+
+/* Test acpigen_write_tsd_package() */
+static int dm_test_acpi_write_tsd_package(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_tsd_package(ctx, 12, 34, HW_ALL);
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ut_asserteq_strn("_TSD", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(1, *ptr++);
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(5, *ptr++);
+
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(5, *ptr++);
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(0, *ptr++);
+	ut_asserteq(DWORD_PREFIX, *ptr++);
+	ut_asserteq(12, get_unaligned((u32 *)ptr));
+	ptr += 5;
+	ut_asserteq(CSD_HW_ALL, get_unaligned((u32 *)ptr));
+	ptr += 5;
+	ut_asserteq(34, get_unaligned((u32 *)ptr));
+	ptr += 4;
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_tsd_package, 0);

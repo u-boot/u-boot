@@ -481,6 +481,53 @@ void acpigen_write_register_resource(struct acpi_ctx *ctx,
 	acpigen_write_resourcetemplate_footer(ctx);
 }
 
+void acpigen_write_ppc(struct acpi_ctx *ctx, uint num_pstates)
+{
+	/*
+	 * Method (_PPC, 0, NotSerialized)
+	 * {
+	 *	Return (num_pstates)
+	 * }
+	 */
+	acpigen_write_method(ctx, "_PPC", 0);
+	acpigen_emit_byte(ctx, RETURN_OP);
+	acpigen_write_byte(ctx, num_pstates);
+	acpigen_pop_len(ctx);
+}
+
+/*
+ * Generates a func with max supported P-states saved
+ * in the variable PPCM.
+ */
+void acpigen_write_ppc_nvs(struct acpi_ctx *ctx)
+{
+	/*
+	 * Method (_PPC, 0, NotSerialized)
+	 * {
+	 *	Return (PPCM)
+	 * }
+	 */
+	acpigen_write_method(ctx, "_PPC", 0);
+	acpigen_emit_byte(ctx, RETURN_OP);
+	acpigen_emit_namestring(ctx, "PPCM");
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_tpc(struct acpi_ctx *ctx, const char *gnvs_tpc_limit)
+{
+	/*
+	 * // Sample _TPC method
+	 * Method (_TPC, 0, NotSerialized)
+	 * {
+	 *	Return (\TLVL)
+	 * }
+	 */
+	acpigen_write_method(ctx, "_TPC", 0);
+	acpigen_emit_byte(ctx, RETURN_OP);
+	acpigen_emit_namestring(ctx, gnvs_tpc_limit);
+	acpigen_pop_len(ctx);
+}
+
 void acpigen_write_prw(struct acpi_ctx *ctx, uint wake, uint level)
 {
 	/* Name (_PRW, Package () { wake, level } */
@@ -488,6 +535,126 @@ void acpigen_write_prw(struct acpi_ctx *ctx, uint wake, uint level)
 	acpigen_write_package(ctx, 2);
 	acpigen_write_integer(ctx, wake);
 	acpigen_write_integer(ctx, level);
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_pss_package(struct acpi_ctx *ctx, u32 core_freq, u32 power,
+			       u32 trans_lat, u32 busm_lat, u32 control,
+			       u32 status)
+{
+	acpigen_write_package(ctx, 6);
+	acpigen_write_dword(ctx, core_freq);
+	acpigen_write_dword(ctx, power);
+	acpigen_write_dword(ctx, trans_lat);
+	acpigen_write_dword(ctx, busm_lat);
+	acpigen_write_dword(ctx, control);
+	acpigen_write_dword(ctx, status);
+	acpigen_pop_len(ctx);
+
+	log_debug("PSS: %uMHz power %u control 0x%x status 0x%x\n",
+		  core_freq, power, control, status);
+}
+
+void acpigen_write_psd_package(struct acpi_ctx *ctx, uint domain, uint numprocs,
+			       enum psd_coord coordtype)
+{
+	acpigen_write_name(ctx, "_PSD");
+	acpigen_write_package(ctx, 1);
+	acpigen_write_package(ctx, 5);
+	acpigen_write_byte(ctx, 5);	// 5 values
+	acpigen_write_byte(ctx, 0);	// revision 0
+	acpigen_write_dword(ctx, domain);
+	acpigen_write_dword(ctx, coordtype);
+	acpigen_write_dword(ctx, numprocs);
+	acpigen_pop_len(ctx);
+	acpigen_pop_len(ctx);
+}
+
+static void acpigen_write_cst_package_entry(struct acpi_ctx *ctx,
+					    const struct acpi_cstate *cstate)
+{
+	acpigen_write_package(ctx, 4);
+	acpigen_write_register_resource(ctx, &cstate->resource);
+	acpigen_write_dword(ctx, cstate->ctype);
+	acpigen_write_dword(ctx, cstate->latency);
+	acpigen_write_dword(ctx, cstate->power);
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_cst_package(struct acpi_ctx *ctx,
+			       const struct acpi_cstate *cstate, int nentries)
+{
+	int i;
+
+	acpigen_write_name(ctx, "_CST");
+	acpigen_write_package(ctx, nentries + 1);
+	acpigen_write_dword(ctx, nentries);
+
+	for (i = 0; i < nentries; i++)
+		acpigen_write_cst_package_entry(ctx, cstate + i);
+
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_csd_package(struct acpi_ctx *ctx, uint domain, uint numprocs,
+			       enum csd_coord coordtype, uint index)
+{
+	acpigen_write_name(ctx, "_CSD");
+	acpigen_write_package(ctx, 1);
+	acpigen_write_package(ctx, 6);
+	acpigen_write_byte(ctx, 6);	// 6 values
+	acpigen_write_byte(ctx, 0);	// revision 0
+	acpigen_write_dword(ctx, domain);
+	acpigen_write_dword(ctx, coordtype);
+	acpigen_write_dword(ctx, numprocs);
+	acpigen_write_dword(ctx, index);
+	acpigen_pop_len(ctx);
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_tss_package(struct acpi_ctx *ctx,
+			       struct acpi_tstate *entry, int nentries)
+{
+	/*
+	 * Sample _TSS package with 100% and 50% duty cycles
+	 * Name (_TSS, Package (0x02)
+	 * {
+	 *	Package(){100, 1000, 0, 0x00, 0)
+	 *	Package(){50, 520, 0, 0x18, 0)
+	 * })
+	 */
+	struct acpi_tstate *tstate = entry;
+	int i;
+
+	acpigen_write_name(ctx, "_TSS");
+	acpigen_write_package(ctx, nentries);
+
+	for (i = 0; i < nentries; i++) {
+		acpigen_write_package(ctx, 5);
+		acpigen_write_dword(ctx, tstate->percent);
+		acpigen_write_dword(ctx, tstate->power);
+		acpigen_write_dword(ctx, tstate->latency);
+		acpigen_write_dword(ctx, tstate->control);
+		acpigen_write_dword(ctx, tstate->status);
+		acpigen_pop_len(ctx);
+		tstate++;
+	}
+
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_tsd_package(struct acpi_ctx *ctx, u32 domain, u32 numprocs,
+			       enum psd_coord coordtype)
+{
+	acpigen_write_name(ctx, "_TSD");
+	acpigen_write_package(ctx, 1);
+	acpigen_write_package(ctx, 5);
+	acpigen_write_byte(ctx, 5);	// 5 values
+	acpigen_write_byte(ctx, 0);	// revision 0
+	acpigen_write_dword(ctx, domain);
+	acpigen_write_dword(ctx, coordtype);
+	acpigen_write_dword(ctx, numprocs);
+	acpigen_pop_len(ctx);
 	acpigen_pop_len(ctx);
 }
 

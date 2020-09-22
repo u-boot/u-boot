@@ -10,8 +10,10 @@
 #ifndef __ACPI_ACPIGEN_H
 #define __ACPI_ACPIGEN_H
 
+#include <acpi/acpi_table.h>
 #include <linux/types.h>
 
+struct acpi_cstate;
 struct acpi_ctx;
 struct acpi_gen_regaddr;
 struct acpi_gpio;
@@ -85,6 +87,53 @@ enum psd_coord {
 	SW_ALL = 0xfc,
 	SW_ANY = 0xfd,
 	HW_ALL = 0xfe
+};
+
+/**
+ * enum csd_coord -  Coordination types for C-states
+ *
+ * The type of coordination that exists (hardware) or is required (software) as
+ * a result of the underlying hardware dependency
+ */
+enum csd_coord {
+	CSD_HW_ALL = 0xfe,
+};
+
+/**
+ * struct acpi_cstate - Information about a C-State
+ *
+ * @ctype: C State type (1=C1, 2=C2, 3=C3)
+ * @latency: Worst-case latency to enter and exit the C State (in uS)
+ * @power: Average power consumption of the processor when in this C-State (mW)
+ * @resource: Register to read to place the processor in this state
+ */
+struct acpi_cstate {
+	uint ctype;
+	uint latency;
+	uint power;
+	struct acpi_gen_regaddr resource;
+};
+
+/**
+ * struct acpi_tstate - Information about a Throttling Supported State
+ *
+ * See ACPI v6.3 section 8.4.5.2: _TSS (Throttling Supported States)
+ *
+ * @percent: Percent of the core CPU operating frequency that will be
+ *	available when this throttling state is invoked
+ * @power: Throttling state’s maximum power dissipation (mw)
+ * @latency: Worst-case latency (uS) that the CPU is unavailable during a
+ *	transition from any throttling state to this throttling state
+ * @control: Value to be written to the Processor Control Register
+ *	(THROTTLE_CTRL) to initiate a transition to this throttling state
+ * @status: Value in THROTTLE_STATUS when in this state
+ */
+struct acpi_tstate {
+	uint percent;
+	uint power;
+	uint latency;
+	uint control;
+	uint status;
 };
 
 /**
@@ -815,5 +864,118 @@ void acpigen_write_processor_package(struct acpi_ctx *ctx, const char *name,
  * @num_cores: Number of CPU cores
  */
 void acpigen_write_processor_cnot(struct acpi_ctx *ctx, const uint num_cores);
+
+/**
+ * acpigen_write_ppc() - generates a function returning max P-states
+ *
+ * @ctx: ACPI context pointer
+ * @num_pstates: Number of pstates to return
+ */
+void acpigen_write_ppc(struct acpi_ctx *ctx, uint num_pstates);
+
+/**
+ * acpigen_write_ppc() - generates a function returning PPCM
+ *
+ * This returns the maximum number of supported P-states, as saved in the
+ * variable PPCM
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_ppc_nvs(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_tpc() - Write a _TPC method that returns the TPC limit
+ *
+ * @ctx: ACPI context pointer
+ * @gnvs_tpc_limit: Variable that holds the TPC limit
+ */
+void acpigen_write_tpc(struct acpi_ctx *ctx, const char *gnvs_tpc_limit);
+
+/**
+ * acpigen_write_pss_package() - Write a PSS package
+ *
+ * See ACPI v6.3 section 8.4.6: Processor Performance Control
+ *
+ * @ctx: ACPI context pointer
+ * @corefreq: CPU core frequency in MHz
+ * @translat: worst-case latency in uS that the CPU is unavailable during a
+ *	transition from any performance state to this performance state
+ * @busmlat: worst-case latency in microseconds that Bus Masters are prevented
+ *	from accessing memory during a transition from any performance state to
+ *	this performance state
+ * @control: Value to write to PERF_CTRL to move to this performance state
+ * @status: Expected PERF_STATUS value when in this state
+ */
+void acpigen_write_pss_package(struct acpi_ctx *ctx, uint corefreq, uint power,
+			       uint translat, uint busmlat, uint control,
+			       uint status);
+
+/**
+ * acpigen_write_psd_package() - Write a PSD package
+ *
+ * Writes a P-State dependency package
+ *
+ * See ACPI v6.3 section 8.4.6.5: _PSD (P-State Dependency)
+ *
+ * @ctx: ACPI context pointer
+ * @domain: Dependency domain number to which this P state entry belongs
+ * @numprocs: Number of processors belonging to the domain for this logical
+ *	processor’s P-states
+ * @coordtype: Coordination type
+ */
+void acpigen_write_psd_package(struct acpi_ctx *ctx, uint domain, uint numprocs,
+			       enum psd_coord coordtype);
+
+/**
+ * acpigen_write_cst_package() - Write a _CST package
+ *
+ * See ACPI v6.3 section 8.4.2.1: _CST (C States)
+ *
+ * @ctx: ACPI context pointer
+ * @entry: Array of entries
+ * @nentries; Number of entries
+ */
+void acpigen_write_cst_package(struct acpi_ctx *ctx,
+			       const struct acpi_cstate *entry, int nentries);
+
+/**
+ * acpigen_write_csd_package() - Write a _CSD Package
+ *
+ * See ACPI v6.3 section 8.4.2.2: _CSD (C-State Dependency)
+ *
+ * @ctx: ACPI context pointer
+ * @domain: dependency domain number to which this C state entry belongs
+ * @numprocs: number of processors belonging to the domain for the particular
+ *	C-state
+ * @coordtype: Co-ordination type
+ * @index: Index of the C-State entry in the _CST object for which the
+ *	dependency applies
+ */
+void acpigen_write_csd_package(struct acpi_ctx *ctx, uint domain, uint numprocs,
+			       enum csd_coord coordtype, uint index);
+
+/**
+ * acpigen_write_tss_package() - Write a _TSS package
+ *
+ * @ctx: ACPI context pointer
+ * @entry: Entries to write
+ * @nentries: Number of entries to write
+ */
+void acpigen_write_tss_package(struct acpi_ctx *ctx,
+			       struct acpi_tstate *entry, int nentries);
+
+/**
+ * acpigen_write_tsd_package() - Write a _TSD package
+ *
+ * See ACPI v6.3 section 8.4.5.4: _TSD (T-State Dependency)
+ *
+ * @ctx: ACPI context pointer
+ * @domain: dependency domain number to which this T state entry belongs
+ * @numprocs: Number of processors belonging to the domain for this logical
+ *	processor’s T-states
+ * @coordtype: Coordination type
+ */
+void acpigen_write_tsd_package(struct acpi_ctx *ctx, uint domain, uint numprocs,
+			       enum psd_coord coordtype);
 
 #endif
