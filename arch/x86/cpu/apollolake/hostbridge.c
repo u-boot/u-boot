@@ -40,7 +40,9 @@ enum {
 
 	PCIEXBAR_PCIEXBAREN	= 1 << 0,
 
+	BGSM			= 0xb4,  /* Base GTT Stolen Memory */
 	TSEG			= 0xb8,  /* TSEG base */
+	TOLUD			= 0xbc,
 };
 
 static int apl_hostbridge_early_init_pinctrl(struct udevice *dev)
@@ -163,6 +165,31 @@ static int apl_hostbridge_probe(struct udevice *dev)
 		return apl_hostbridge_early_init(dev);
 
 	return 0;
+}
+
+static ulong sa_read_reg(struct udevice *dev, int reg)
+{
+	u32 val;
+
+	/* All regions concerned for have 1 MiB alignment */
+	dm_pci_read_config32(dev, BGSM, &val);
+
+	return ALIGN_DOWN(val, 1 << 20);
+}
+
+ulong sa_get_tolud_base(struct udevice *dev)
+{
+	return sa_read_reg(dev, TOLUD);
+}
+
+ulong sa_get_gsm_base(struct udevice *dev)
+{
+	return sa_read_reg(dev, BGSM);
+}
+
+ulong sa_get_tseg_base(struct udevice *dev)
+{
+	return sa_read_reg(dev, TSEG);
 }
 
 static const struct udevice_id apl_hostbridge_ids[] = {
