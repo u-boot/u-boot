@@ -8,6 +8,7 @@
 #include <efi.h>
 #include <uuid.h>
 #include <asm/hob.h>
+#include <asm/fsp/fsp_hob.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -25,6 +26,37 @@ static char *hob_type[] = {
 	"Load PEIM",
 	"Capsule",
 };
+
+static struct guid_name {
+	efi_guid_t guid;
+	const char *name;
+} guid_name[] = {
+	{ FSP_HOB_RESOURCE_OWNER_TSEG_GUID, "TSEG" },
+	{ FSP_HOB_RESOURCE_OWNER_FSP_GUID, "FSP" },
+	{ FSP_HOB_RESOURCE_OWNER_SMM_PEI_SMRAM_GUID, "SMM PEI SMRAM" },
+	{ FSP_NON_VOLATILE_STORAGE_HOB_GUID, "NVS" },
+	{ FSP_VARIABLE_NV_DATA_HOB_GUID, "Variable NVS" },
+	{ FSP_GRAPHICS_INFO_HOB_GUID, "Graphics info" },
+	{ FSP_HOB_RESOURCE_OWNER_PCD_DATABASE_GUID1, "PCD database ea" },
+	{ FSP_HOB_RESOURCE_OWNER_PCD_DATABASE_GUID2, "PCD database 9b" },
+	{ FSP_HOB_RESOURCE_OWNER_PEIM_DXE_GUID, "PEIM Init DXE" },
+	{ FSP_HOB_RESOURCE_OWNER_ALLOC_STACK_GUID, "Alloc stack" },
+	{ FSP_HOB_RESOURCE_OWNER_SMBIOS_MEMORY_GUID, "SMBIOS memory" },
+	{ {}, "zero-guid" },
+	{}
+};
+
+static const char *guid_to_name(const efi_guid_t *guid)
+{
+	struct guid_name *entry;
+
+	for (entry = guid_name; entry->name; entry++) {
+		if (!guidcmp(guid, &entry->guid))
+			return entry->name;
+	}
+
+	return NULL;
+}
 
 static int do_hob(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
@@ -65,9 +97,16 @@ static int do_hob(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 		if (type == HOB_TYPE_MEM_ALLOC || type == HOB_TYPE_RES_DESC ||
 		    type == HOB_TYPE_GUID_EXT) {
+			const char *name;
+
 			guid = (efi_guid_t *)(hdr + 1);
-			uuid_bin_to_str(guid->b, uuid, UUID_STR_FORMAT_GUID);
-			printf("%s", uuid);
+			name = guid_to_name(guid);
+			if (!name) {
+				uuid_bin_to_str(guid->b, uuid,
+						UUID_STR_FORMAT_GUID);
+				name = uuid;
+			}
+			printf("%36s", name);
 		} else {
 			printf("%36s", "Not Available");
 		}
