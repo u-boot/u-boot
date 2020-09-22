@@ -31,10 +31,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void s_init(void)
-{
-}
-
 #define DVFS_MSTP926		BIT(26)
 #define HSUSB_MSTP704		BIT(4)	/* HSUSB */
 

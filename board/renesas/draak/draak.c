@@ -30,10 +30,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void s_init(void)
-{
-}
-
 #define GSX_MSTP112		BIT(12)	/* 3DG */
 #define SCIF2_MSTP310		BIT(10)	/* SCIF2 */
 #define DVFS_MSTP926		BIT(26)
