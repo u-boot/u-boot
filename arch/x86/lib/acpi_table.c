@@ -430,17 +430,31 @@ ulong write_acpi_tables(ulong start_addr)
 	       dsdt->length - sizeof(struct acpi_table_header));
 
 	acpi_inc(ctx, dsdt->length - sizeof(struct acpi_table_header));
+	dsdt->length = ctx->current - (void *)dsdt;
+	acpi_align(ctx);
 
-	/* Pack GNVS into the ACPI table area */
-	for (i = 0; i < dsdt->length; i++) {
-		u32 *gnvs = (u32 *)((u32)dsdt + i);
-		if (*gnvs == ACPI_GNVS_ADDR) {
-			ulong addr = (ulong)map_to_sysmem(ctx->current);
+	if (!IS_ENABLED(CONFIG_ACPI_GNVS_EXTERNAL)) {
+		/* Pack GNVS into the ACPI table area */
+		for (i = 0; i < dsdt->length; i++) {
+			u32 *gnvs = (u32 *)((u32)dsdt + i);
 
-			debug("Fix up global NVS in DSDT to %#08lx\n", addr);
-			*gnvs = addr;
-			break;
+			if (*gnvs == ACPI_GNVS_ADDR) {
+				*gnvs = map_to_sysmem(ctx->current);
+				debug("Fix up global NVS in DSDT to %#08x\n",
+				      *gnvs);
+				break;
+			}
 		}
+
+		/*
+		 * Fill in platform-specific global NVS variables. If this fails
+		 * we cannot return the error but this should only happen while
+		 * debugging.
+		 */
+		addr = acpi_create_gnvs(ctx->current);
+		if (IS_ERR_VALUE(addr))
+			printf("Error: Gailed to create GNVS\n");
+		acpi_inc_align(ctx, sizeof(struct acpi_global_nvs));
 	}
 
 	/*
@@ -448,11 +462,8 @@ ulong write_acpi_tables(ulong start_addr)
 	 * the GNVS address. Set the checksum to zero since it is part of the
 	 * region being checksummed.
 	 */
-	dsdt->length = ctx->current - (void *)dsdt;
 	dsdt->checksum = 0;
 	dsdt->checksum = table_compute_checksum((void *)dsdt, dsdt->length);
-
-	acpi_align(ctx);
 
 	/*
 	 * Fill in platform-specific global NVS variables. If this fails we
