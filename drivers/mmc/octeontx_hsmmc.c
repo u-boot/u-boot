@@ -3638,7 +3638,6 @@ static int octeontx_mmc_slot_probe(struct udevice *dev)
 	struct mmc *mmc;
 	int err;
 
-	printk("%s (%d)\n", __func__, __LINE__); // test-only
 	debug("%s(%s)\n", __func__, dev->name);
 	if (!host_probed) {
 		pr_err("%s(%s): Error: host not probed yet\n",
