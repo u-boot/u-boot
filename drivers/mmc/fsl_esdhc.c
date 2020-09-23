@@ -26,6 +26,7 @@
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
+#include <linux/dma-mapping.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -98,6 +99,7 @@ struct fsl_esdhc_priv {
 	struct mmc *mmc;
 #endif
 	struct udevice *dev;
+	dma_addr_t dma_addr;
 };
 
 /* Return the XFERTYP flags for a given command and data packet */
@@ -210,8 +212,8 @@ static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 			    struct mmc_data *data)
 {
 	int timeout;
+	uint trans_bytes = data->blocksize * data->blocks;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
-	dma_addr_t addr;
 	uint wml_value;
 
 	wml_value = data->blocksize/4;
@@ -222,17 +224,13 @@ static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 
 		esdhc_clrsetbits32(&regs->wml, WML_RD_WML_MASK, wml_value);
 #ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-		addr = virt_to_phys((void *)(data->dest));
-		if (upper_32_bits(addr))
+		priv->dma_addr = dma_map_single(data->dest, trans_bytes,
+						mmc_get_dma_dir(data));
+		if (upper_32_bits(priv->dma_addr))
 			printf("Cannot use 64 bit addresses with SDMA\n");
-		esdhc_write32(&regs->dsaddr, lower_32_bits(addr));
+		esdhc_write32(&regs->dsaddr, lower_32_bits(priv->dma_addr));
 #endif
 	} else {
-#ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-		flush_dcache_range((ulong)data->src,
-				   (ulong)data->src+data->blocks
-					 *data->blocksize);
-#endif
 		if (wml_value > WML_WR_WML_MAX)
 			wml_value = WML_WR_WML_MAX_VAL;
 
@@ -244,10 +242,11 @@ static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 		esdhc_clrsetbits32(&regs->wml, WML_WR_WML_MASK,
 					wml_value << 16);
 #ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-		addr = virt_to_phys((void *)(data->src));
-		if (upper_32_bits(addr))
+		priv->dma_addr = dma_map_single((void *)data->src, trans_bytes,
+						mmc_get_dma_dir(data));
+		if (upper_32_bits(priv->dma_addr))
 			printf("Cannot use 64 bit addresses with SDMA\n");
-		esdhc_write32(&regs->dsaddr, lower_32_bits(addr));
+		esdhc_write32(&regs->dsaddr, lower_32_bits(priv->dma_addr));
 #endif
 	}
 
@@ -297,23 +296,6 @@ static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 	return 0;
 }
 
-static void check_and_invalidate_dcache_range
-	(struct mmc_cmd *cmd,
-	 struct mmc_data *data) {
-	unsigned start = 0;
-	unsigned end = 0;
-	unsigned size = roundup(ARCH_DMA_MINALIGN,
-				data->blocks*data->blocksize);
-	dma_addr_t addr;
-
-	addr = virt_to_phys((void *)(data->dest));
-	if (upper_32_bits(addr))
-		printf("Cannot use 64 bit addresses with SDMA\n");
-	start = lower_32_bits(addr);
-	end = start + size;
-	invalidate_dcache_range(start, end);
-}
-
 /*
  * Sends a command out on the bus.  Takes the mmc pointer,
  * a command pointer, and an optional data pointer.
@@ -357,9 +339,6 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 		err = esdhc_setup_data(priv, mmc, data);
 		if(err)
 			return err;
-
-		if (data->flags & MMC_DATA_READ)
-			check_and_invalidate_dcache_range(cmd, data);
 	}
 
 	/* Figure out the transfer arguments */
@@ -459,9 +438,9 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 		 * cache-fill during the DMA operations such as the
 		 * speculative pre-fetching etc.
 		 */
-		if (data->flags & MMC_DATA_READ) {
-			check_and_invalidate_dcache_range(cmd, data);
-		}
+		dma_unmap_single(priv->dma_addr,
+				 data->blocks * data->blocksize,
+				 mmc_get_dma_dir(data));
 #endif
 	}
 
