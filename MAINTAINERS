@@ -292,6 +292,7 @@ T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-atmel.git
 F:	arch/arm/mach-at91/
 F:	board/atmel/
 F:	drivers/misc/microchip_flexcom.c
+F:	drivers/timer/mchp-pit64b-timer.c
 
 ARM NEXELL S5P4418
 M:	Stefan Bosch <stefan_b@posteo.net>
