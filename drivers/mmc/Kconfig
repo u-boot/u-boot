@@ -46,6 +46,9 @@ config SPL_DM_MMC
 
 if MMC
 
+config MMC_SDHCI_ADMA_HELPERS
+	bool
+
 config MMC_SPI
 	bool "Support for SPI-based MMC controller"
 	depends on DM_MMC && DM_SPI
@@ -445,6 +448,7 @@ config MMC_SDHCI_SDMA
 config MMC_SDHCI_ADMA
 	bool "Support SDHCI ADMA2"
 	depends on MMC_SDHCI
+	select MMC_SDHCI_ADMA_HELPERS
 	help
 	  This enables support for the ADMA (Advanced DMA) defined
 	  in the SD Host Controller Standard Specification Version 3.00
@@ -452,6 +456,7 @@ config MMC_SDHCI_ADMA
 config SPL_MMC_SDHCI_ADMA
 	bool "Support SDHCI ADMA2 in SPL"
 	depends on MMC_SDHCI
+	select MMC_SDHCI_ADMA_HELPERS
 	help
 	  This enables support for the ADMA (Advanced DMA) defined
 	  in the SD Host Controller Standard Specification Version 3.00 in SPL.
