@@ -8,9 +8,11 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <env.h>
 #include <lmb.h>
 #include <net.h>
+#include <video.h>
 #include <vsprintf.h>
 #include <asm/cache.h>
 
@@ -32,6 +34,12 @@ static void print_eth(int idx)
 	if (!val)
 		val = "(not set)";
 	printf("%-12s= %s\n", name, val);
+}
+
+static void print_phys_addr(const char *name, phys_addr_t value)
+{
+	printf("%-12s= 0x%.*llx\n", name, 2 * (int)sizeof(ulong),
+	       (unsigned long long)value);
 }
 
 void bdinfo_print_mhz(const char *name, unsigned long hz)
@@ -56,6 +64,26 @@ static void print_bi_dram(const struct bd_info *bd)
 
 __weak void arch_print_bdinfo(void)
 {
+}
+
+static void show_video_info(void)
+{
+	const struct udevice *dev;
+	struct uclass *uc;
+
+	uclass_id_foreach_dev(UCLASS_VIDEO, dev, uc) {
+		printf("%-12s= %s %sactive\n", "Video", dev->name,
+		       device_active(dev) ? "" : "in");
+		if (device_active(dev)) {
+			struct video_priv *upriv = dev_get_uclass_priv(dev);
+
+			print_phys_addr("FB base", (ulong)upriv->fb);
+			if (upriv->copy_fb)
+				print_phys_addr("FB copy", (ulong)upriv->copy_fb);
+			printf("%-12s= %dx%dx%d\n", "FB size", upriv->xsize,
+			       upriv->ysize, 1 << upriv->bpix);
+		}
+	}
 }
 
 int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
@@ -86,7 +114,9 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	bdinfo_print_num("fdt_blob", (ulong)gd->fdt_blob);
 	bdinfo_print_num("new_fdt", (ulong)gd->new_fdt);
 	bdinfo_print_num("fdt_size", (ulong)gd->fdt_size);
-#if defined(CONFIG_LCD) || defined(CONFIG_VIDEO) || defined(CONFIG_DM_VIDEO)
+	if (IS_ENABLED(CONFIG_DM_VIDEO))
+		show_video_info();
+#if defined(CONFIG_LCD) || defined(CONFIG_VIDEO)
 	bdinfo_print_num("FB base  ", gd->fb_base);
 #endif
 #if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
