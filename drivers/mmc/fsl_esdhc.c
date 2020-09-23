@@ -211,9 +211,7 @@ static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 {
 	int timeout;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
-#if defined(CONFIG_FSL_LAYERSCAPE)
 	dma_addr_t addr;
-#endif
 	uint wml_value;
 
 	wml_value = data->blocksize/4;
@@ -224,15 +222,10 @@ static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 
 		esdhc_clrsetbits32(&regs->wml, WML_RD_WML_MASK, wml_value);
 #ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-#if defined(CONFIG_FSL_LAYERSCAPE)
 		addr = virt_to_phys((void *)(data->dest));
 		if (upper_32_bits(addr))
-			printf("Error found for upper 32 bits\n");
-		else
-			esdhc_write32(&regs->dsaddr, lower_32_bits(addr));
-#else
-		esdhc_write32(&regs->dsaddr, (u32)data->dest);
-#endif
+			printf("Cannot use 64 bit addresses with SDMA\n");
+		esdhc_write32(&regs->dsaddr, lower_32_bits(addr));
 #endif
 	} else {
 #ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
@@ -251,15 +244,10 @@ static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 		esdhc_clrsetbits32(&regs->wml, WML_WR_WML_MASK,
 					wml_value << 16);
 #ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-#if defined(CONFIG_FSL_LAYERSCAPE)
 		addr = virt_to_phys((void *)(data->src));
 		if (upper_32_bits(addr))
-			printf("Error found for upper 32 bits\n");
-		else
-			esdhc_write32(&regs->dsaddr, lower_32_bits(addr));
-#else
-		esdhc_write32(&regs->dsaddr, (u32)data->src);
-#endif
+			printf("Cannot use 64 bit addresses with SDMA\n");
+		esdhc_write32(&regs->dsaddr, lower_32_bits(addr));
 #endif
 	}
 
@@ -316,17 +304,12 @@ static void check_and_invalidate_dcache_range
 	unsigned end = 0;
 	unsigned size = roundup(ARCH_DMA_MINALIGN,
 				data->blocks*data->blocksize);
-#if defined(CONFIG_FSL_LAYERSCAPE)
 	dma_addr_t addr;
 
 	addr = virt_to_phys((void *)(data->dest));
 	if (upper_32_bits(addr))
-		printf("Error found for upper 32 bits\n");
-	else
-		start = lower_32_bits(addr);
-#else
-	start = (unsigned)data->dest;
-#endif
+		printf("Cannot use 64 bit addresses with SDMA\n");
+	start = lower_32_bits(addr);
 	end = start + size;
 	invalidate_dcache_range(start, end);
 }
