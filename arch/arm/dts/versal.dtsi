@@ -358,6 +358,46 @@
 			#size-cells = <0>;
 		};
 
+		mc0: memory-controller@f6150000	{
+			compatible = "xlnx,versal-ddrmc-edac";
+			status = "disabled";
+			reg = <0x0 0xf6150000 0x0 0x2000>, <0x0 0xf6070000 0x0 0x20000>;
+			reg-names = "ddrmc_base", "ddrmc_noc_base";
+			interrupt-parent = <&gic>;
+			interrupts = <0 147 4>;
+			xlnx,mc-id = <0>;
+		};
+
+		mc1: memory-controller@f62c0000 {
+			compatible = "xlnx,versal-ddrmc-edac";
+			status = "disabled";
+			reg = <0x0 0xf62c0000 0x0 0x2000>, <0x0 0xf6210000 0x0 0x20000>;
+			reg-names = "ddrmc_base", "ddrmc_noc_base";
+			interrupt-parent = <&gic>;
+			interrupts = <0 147 4>;
+			xlnx,mc-id = <1>;
+		};
+
+		mc2: memory-controller@f6430000 {
+			compatible = "xlnx,versal-ddrmc-edac";
+			status = "disabled";
+			reg = <0x0 0xf6430000 0x0 0x2000>, <0x0 0xf6380000 0x0 0x20000>;
+			reg-names = "ddrmc_base", "ddrmc_noc_base";
+			interrupt-parent = <&gic>;
+			interrupts = <0 147 4>;
+			xlnx,mc-id = <2>;
+		};
+
+		mc3: memory-controller@f65a0000 {
+			compatible = "xlnx,versal-ddrmc-edac";
+			status = "disabled";
+			reg = <0x0 0xf65a0000 0x0 0x2000>, <0x0 0xf64f0000 0x0 0x20000>;
+			reg-names = "ddrmc_base", "ddrmc_noc_base";
+			interrupt-parent = <&gic>;
+			interrupts = <0 147 4>;
+			xlnx,mc-id = <3>;
+		};
+
 		rtc: rtc@f12a0000 {
 			compatible = "xlnx,zynqmp-rtc";
 			status = "disabled";
