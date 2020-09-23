@@ -10,6 +10,7 @@
 /* TODO(sjg@chromium.org): Drop fdtdec.h include */
 #include <fdtdec.h>
 #include <dm/of.h>
+#include <log.h>
 
 /* Enable checks to protect against invalid calls */
 #undef OF_CHECKS
@@ -84,7 +85,7 @@ struct ofprop {
 };
 
 /**
- * _ofnode_to_np() - convert an ofnode to a live DT node pointer
+ * ofnode_to_np() - convert an ofnode to a live DT node pointer
  *
  * This cannot be called if the reference contains an offset.
  *
@@ -182,8 +183,8 @@ static inline bool ofnode_is_np(ofnode node)
 	 * live tree is in use.
 	 */
 	assert(!ofnode_valid(node) ||
-	       (of_live_active() ? _ofnode_to_np(node)
-				  : _ofnode_to_np(node)));
+	       (of_live_active() ? ofnode_to_np(node)
+				  : ofnode_to_np(node)));
 #endif
 	return of_live_active() && ofnode_valid(node);
 }
