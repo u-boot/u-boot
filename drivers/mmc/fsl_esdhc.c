@@ -208,49 +208,64 @@ static void esdhc_pio_read_write(struct fsl_esdhc_priv *priv,
 }
 #endif
 
-static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
-			    struct mmc_data *data)
+#ifdef CONFIG_SYS_FSL_ESDHC_USE_PIO
+static void esdhc_setup_watermark_level(struct fsl_esdhc_priv *priv,
+					struct mmc_data *data)
 {
-	int timeout;
-	uint trans_bytes = data->blocksize * data->blocks;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
-	uint wml_value;
-
-	wml_value = data->blocksize/4;
+	uint wml_value = data->blocksize / 4;
 
 	if (data->flags & MMC_DATA_READ) {
 		if (wml_value > WML_RD_WML_MAX)
 			wml_value = WML_RD_WML_MAX_VAL;
 
 		esdhc_clrsetbits32(&regs->wml, WML_RD_WML_MASK, wml_value);
-#ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-		priv->dma_addr = dma_map_single(data->dest, trans_bytes,
-						mmc_get_dma_dir(data));
-		if (upper_32_bits(priv->dma_addr))
-			printf("Cannot use 64 bit addresses with SDMA\n");
-		esdhc_write32(&regs->dsaddr, lower_32_bits(priv->dma_addr));
-#endif
 	} else {
 		if (wml_value > WML_WR_WML_MAX)
 			wml_value = WML_WR_WML_MAX_VAL;
 
-		if (!(esdhc_read32(&regs->prsstat) & PRSSTAT_WPSPL)) {
-			printf("Can not write to locked SD card.\n");
-			return -EINVAL;
-		}
-
 		esdhc_clrsetbits32(&regs->wml, WML_WR_WML_MASK,
-					wml_value << 16);
-#ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-		priv->dma_addr = dma_map_single((void *)data->src, trans_bytes,
-						mmc_get_dma_dir(data));
-		if (upper_32_bits(priv->dma_addr))
-			printf("Cannot use 64 bit addresses with SDMA\n");
-		esdhc_write32(&regs->dsaddr, lower_32_bits(priv->dma_addr));
+				   wml_value << 16);
+	}
+}
 #endif
+
+static void esdhc_setup_dma(struct fsl_esdhc_priv *priv, struct mmc_data *data)
+{
+	uint trans_bytes = data->blocksize * data->blocks;
+	struct fsl_esdhc *regs = priv->esdhc_regs;
+	void *buf;
+
+	if (data->flags & MMC_DATA_WRITE)
+		buf = (void *)data->src;
+	else
+		buf = data->dest;
+
+	priv->dma_addr = dma_map_single(buf, trans_bytes,
+					mmc_get_dma_dir(data));
+	if (upper_32_bits(priv->dma_addr))
+		printf("Cannot use 64 bit addresses with SDMA\n");
+	esdhc_write32(&regs->dsaddr, lower_32_bits(priv->dma_addr));
+	esdhc_write32(&regs->blkattr, data->blocks << 16 | data->blocksize);
+}
+
+static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
+			    struct mmc_data *data)
+{
+	int timeout;
+	bool is_write = data->flags & MMC_DATA_WRITE;
+	struct fsl_esdhc *regs = priv->esdhc_regs;
+
+	if (is_write && !(esdhc_read32(&regs->prsstat) & PRSSTAT_WPSPL)) {
+		printf("Can not write to locked SD card.\n");
+		return -EINVAL;
 	}
 
-	esdhc_write32(&regs->blkattr, data->blocks << 16 | data->blocksize);
+#ifdef CONFIG_SYS_FSL_ESDHC_USE_PIO
+	esdhc_setup_watermark_level(priv, data);
+#else
+	esdhc_setup_dma(priv, data);
+#endif
 
 	/* Calculate the timeout period for data transactions */
 	/*
