@@ -30,8 +30,9 @@ DECLARE_GLOBAL_DATA_PTR;
 static struct regmap *regmap_alloc(int count)
 {
 	struct regmap *map;
+	size_t size = sizeof(*map) + sizeof(map->ranges[0]) * count;
 
-	map = malloc(sizeof(*map) + sizeof(map->ranges[0]) * count);
+	map = calloc(1, size);
 	if (!map)
 		return NULL;
 	map->range_count = count;
