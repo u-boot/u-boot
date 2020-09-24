@@ -351,6 +351,25 @@ int regmap_init_mem_platdata(struct udevice *dev, fdt_val_t *reg, int count,
 int regmap_init_mem_index(ofnode node, struct regmap **mapp, int index);
 
 /**
+ * regmap_init_mem_range() - Set up a new memory region for ofnode with the
+ *			     specified range.
+ *
+ * @node:	The ofnode for the map.
+ * @r_start:	Start of the range.
+ * @r_size:	Size of the range.
+ * @mapp:	Returns allocated map.
+ *
+ * Return: 0 in success, -errno otherwise
+ *
+ * This creates a regmap with one range where instead of extracting the range
+ * from 'node', it is created based on the parameters specified. This is
+ * useful when a driver needs to calculate the base of the regmap at runtime,
+ * and can't specify it in device tree.
+ */
+int regmap_init_mem_range(ofnode node, ulong r_start, ulong r_size,
+			  struct regmap **mapp);
+
+/**
  * devm_regmap_init() - Initialise register map (device managed)
  *
  * @dev: Device that will be interacted with

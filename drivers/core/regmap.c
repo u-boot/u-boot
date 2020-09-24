@@ -164,6 +164,33 @@ err:
 	return ret;
 }
 
+int regmap_init_mem_range(ofnode node, ulong r_start, ulong r_size,
+			  struct regmap **mapp)
+{
+	struct regmap *map;
+	struct regmap_range *range;
+
+	map = regmap_alloc(1);
+	if (!map)
+		return -ENOMEM;
+
+	range = &map->ranges[0];
+	range->start = r_start;
+	range->size = r_size;
+
+	if (ofnode_read_bool(node, "little-endian"))
+		map->endianness = REGMAP_LITTLE_ENDIAN;
+	else if (ofnode_read_bool(node, "big-endian"))
+		map->endianness = REGMAP_BIG_ENDIAN;
+	else if (ofnode_read_bool(node, "native-endian"))
+		map->endianness = REGMAP_NATIVE_ENDIAN;
+	else /* Default: native endianness */
+		map->endianness = REGMAP_NATIVE_ENDIAN;
+
+	*mapp = map;
+	return 0;
+}
+
 int regmap_init_mem(ofnode node, struct regmap **mapp)
 {
 	struct regmap_range *range;
