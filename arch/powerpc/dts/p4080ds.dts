@@ -27,6 +27,7 @@
 		emi1_rgmii = &p4080mdio0;
 		emi2_slot4 = &p4080xmdio1;
 		emi2_slot5 = &p4080xmdio3;
+		spi0 = &espi0;
 	};
 
 	soc: soc@ffe000000 {
@@ -201,6 +202,18 @@
 				reg = <0x4>;
 			};
 		};
+	};
+};
+
+&espi0 {
+	status = "okay";
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0>;
+		/* input clock */
+		spi-max-frequency = <10000000>;
 	};
 };
 

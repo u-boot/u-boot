@@ -45,68 +45,12 @@
 #define GPIO_SLIC_PIN		30
 #define GPIO_SLIC_DATA		(1 << (31 - GPIO_SLIC_PIN))
 
-#if defined(CONFIG_TARGET_P1021RDB) && !defined(CONFIG_SYS_RAMBOOT)
-#define GPIO_DDR_RST_PORT	1
-#define GPIO_DDR_RST_PIN	8
-#define GPIO_DDR_RST_DATA	(1 << (31 - GPIO_DDR_RST_PIN))
-
-#define GPIO_2BIT_MASK		(0x3 << (32 - (GPIO_DDR_RST_PIN + 1) * 2))
-#endif
-
-#if defined(CONFIG_TARGET_P1025RDB) || defined(CONFIG_TARGET_P1021RDB)
-#define PCA_IOPORT_I2C_ADDR		0x23
-#define PCA_IOPORT_OUTPUT_CMD		0x2
-#define PCA_IOPORT_CFG_CMD		0x6
-#define PCA_IOPORT_QE_PIN_ENABLE	0xf8
-#define PCA_IOPORT_QE_TDM_ENABLE	0xf6
-#endif
-
 const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* GPIO */
 	{1,   1, 2, 0, 0}, /* GPIO7/PB1   - LOAD_DEFAULT_N */
-#if defined(CONFIG_TARGET_P1021RDB) && !defined(CONFIG_SYS_RAMBOOT)
-	{1,   8, 1, 1, 0}, /* GPIO10/PB8  - DDR_RST */
-#endif
 	{0,  15, 1, 0, 0}, /* GPIO11/A15  - WDI */
 	{GPIO_GETH_SW_PORT, GPIO_GETH_SW_PIN, 1, 0, 0},	/* RST_GETH_SW_N */
 	{GPIO_SLIC_PORT, GPIO_SLIC_PIN, 1, 0, 0},	/* RST_SLIC_N */
-
-#ifdef CONFIG_TARGET_P1025RDB
-	/* QE_MUX_MDC */
-	{1,  19, 1, 0, 1}, /* QE_MUX_MDC               */
-
-	/* QE_MUX_MDIO */
-	{1,  20, 3, 0, 1}, /* QE_MUX_MDIO              */
-
-	/* UCC_1_MII */
-	{0, 23, 2, 0, 2}, /* CLK12 */
-	{0, 24, 2, 0, 1}, /* CLK9 */
-	{0,  7, 1, 0, 2}, /* ENET1_TXD0_SER1_TXD0      */
-	{0,  9, 1, 0, 2}, /* ENET1_TXD1_SER1_TXD1      */
-	{0, 11, 1, 0, 2}, /* ENET1_TXD2_SER1_TXD2      */
-	{0, 12, 1, 0, 2}, /* ENET1_TXD3_SER1_TXD3      */
-	{0,  6, 2, 0, 2}, /* ENET1_RXD0_SER1_RXD0      */
-	{0, 10, 2, 0, 2}, /* ENET1_RXD1_SER1_RXD1      */
-	{0, 14, 2, 0, 2}, /* ENET1_RXD2_SER1_RXD2      */
-	{0, 15, 2, 0, 2}, /* ENET1_RXD3_SER1_RXD3      */
-	{0,  5, 1, 0, 2}, /* ENET1_TX_EN_SER1_RTS_B    */
-	{0, 13, 1, 0, 2}, /* ENET1_TX_ER               */
-	{0,  4, 2, 0, 2}, /* ENET1_RX_DV_SER1_CTS_B    */
-	{0,  8, 2, 0, 2}, /* ENET1_RX_ER_SER1_CD_B    */
-	{0, 17, 2, 0, 2}, /* ENET1_CRS    */
-	{0, 16, 2, 0, 2}, /* ENET1_COL    */
-
-	/* UCC_5_RMII */
-	{1, 11, 2, 0, 1}, /* CLK13 */
-	{1, 7,  1, 0, 2}, /* ENET5_TXD0_SER5_TXD0      */
-	{1, 10, 1, 0, 2}, /* ENET5_TXD1_SER5_TXD1      */
-	{1, 6, 2, 0, 2}, /* ENET5_RXD0_SER5_RXD0      */
-	{1, 9, 2, 0, 2}, /* ENET5_RXD1_SER5_RXD1      */
-	{1, 5, 1, 0, 2}, /* ENET5_TX_EN_SER5_RTS_B    */
-	{1, 4, 2, 0, 2}, /* ENET5_RX_DV_SER5_CTS_B    */
-	{1, 8, 2, 0, 2}, /* ENET5_RX_ER_SER5_CD_B    */
-#endif
-
 	{0,  0, 0, 0, QE_IOP_TAB_END} /* END of table */
 };
 #endif
@@ -156,16 +100,6 @@ void board_gpio_init(void)
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	par_io_t *par_io = (par_io_t *) &(gur->qe_par_io);
 
-#if defined(CONFIG_TARGET_P1021RDB) && !defined(CONFIG_SYS_RAMBOOT)
-	/* reset DDR3 */
-	setbits_be32(&par_io[GPIO_DDR_RST_PORT].cpdat, GPIO_DDR_RST_DATA);
-	udelay(1000);
-	clrbits_be32(&par_io[GPIO_DDR_RST_PORT].cpdat, GPIO_DDR_RST_DATA);
-	udelay(1000);
-	setbits_be32(&par_io[GPIO_DDR_RST_PORT].cpdat, GPIO_DDR_RST_DATA);
-	/* disable CE_PB8 */
-	clrbits_be32(&par_io[GPIO_DDR_RST_PORT].cpdir1, GPIO_2BIT_MASK);
-#endif
 	/* Enable VSC7385 switch */
 	setbits_be32(&par_io[GPIO_GETH_SW_PORT].cpdat, GPIO_GETH_SW_DATA);
 
@@ -316,6 +250,10 @@ int board_early_init_r(void)
 {
 	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
 	int flash_esel = find_tlb_idx((void *)flashbase, 1);
+#ifdef CONFIG_VSC7385_ENET
+	unsigned int vscfw_addr;
+	char *tmp;
+#endif
 
 	/*
 	 * Remap Boot flash region to caching-inhibited
@@ -338,9 +276,24 @@ int board_early_init_r(void)
 	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS, /* tlb, epn, rpn */
 		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,/* perms, wimge */
 		0, flash_esel, BOOKE_PAGESZ_64M, 1);/* ts, esel, tsize, iprot */
+
+#ifdef CONFIG_VSC7385_ENET
+	/* If a VSC7385 microcode image is present, then upload it. */
+	tmp = env_get("vscfw_addr");
+	if (tmp) {
+		vscfw_addr = simple_strtoul(tmp, NULL, 16);
+		printf("uploading VSC7385 microcode from %x\n", vscfw_addr);
+		if (vsc7385_upload_firmware((void *)vscfw_addr,
+					    CONFIG_VSC7385_IMAGE_SIZE))
+			puts("Failure uploading VSC7385 microcode.\n");
+	} else {
+		puts("No address specified for VSC7385 microcode.\n");
+	}
+#endif
 	return 0;
 }
 
+#ifndef CONFIG_DM_ETH
 int board_eth_init(struct bd_info *bis)
 {
 	struct fsl_pq_mdio_info mdio_info;
@@ -348,10 +301,6 @@ int board_eth_init(struct bd_info *bis)
 	ccsr_gur_t *gur __attribute__((unused)) =
 		(void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	int num = 0;
-#ifdef CONFIG_VSC7385_ENET
-	char *tmp;
-	unsigned int vscfw_addr;
-#endif
 
 #ifdef CONFIG_TSEC1
 	SET_STD_TSEC_INFO(tsec_info[num], 1);
@@ -375,19 +324,6 @@ int board_eth_init(struct bd_info *bis)
 		return 0;
 	}
 
-#ifdef CONFIG_VSC7385_ENET
-	/* If a VSC7385 microcode image is present, then upload it. */
-	tmp = env_get("vscfw_addr");
-	if (tmp) {
-		vscfw_addr = simple_strtoul(tmp, NULL, 16);
-		printf("uploading VSC7385 microcode from %x\n", vscfw_addr);
-		if (vsc7385_upload_firmware((void *) vscfw_addr,
-					CONFIG_VSC7385_IMAGE_SIZE))
-			puts("Failure uploading VSC7385 microcode.\n");
-	} else
-		puts("No address specified for VSC7385 microcode.\n");
-#endif
-
 	mdio_info.regs = TSEC_GET_MDIO_REGS_BASE(1);
 	mdio_info.name = DEFAULT_MII_NAME;
 
@@ -404,50 +340,6 @@ int board_eth_init(struct bd_info *bis)
 #endif
 
 	return pci_eth_init(bis);
-}
-
-#if defined(CONFIG_QE) && \
-	(defined(CONFIG_TARGET_P1025RDB) || defined(CONFIG_TARGET_P1021RDB))
-static void fdt_board_fixup_qe_pins(void *blob)
-{
-	unsigned int oldbus;
-	u8 val8;
-	int node;
-	fsl_lbc_t *lbc = LBC_BASE_ADDR;
-
-	if (hwconfig("qe")) {
-		/* For QE and eLBC pins multiplexing,
-		 * there is a PCA9555 device on P1025RDB.
-		 * It control the multiplex pins' functions,
-		 * and setting the PCA9555 can switch the
-		 * function between QE and eLBC.
-		 */
-		oldbus = i2c_get_bus_num();
-		i2c_set_bus_num(0);
-		if (hwconfig("tdm"))
-			val8 = PCA_IOPORT_QE_TDM_ENABLE;
-		else
-			val8 = PCA_IOPORT_QE_PIN_ENABLE;
-		i2c_write(PCA_IOPORT_I2C_ADDR, PCA_IOPORT_CFG_CMD,
-				1, &val8, 1);
-		i2c_write(PCA_IOPORT_I2C_ADDR, PCA_IOPORT_OUTPUT_CMD,
-				1, &val8, 1);
-		i2c_set_bus_num(oldbus);
-		/* if run QE TDM, Set ABSWP to implement
-		 * conversion of addresses in the eLBC.
-		 */
-		if (hwconfig("tdm")) {
-			set_lbc_or(2, CONFIG_PMC_OR_PRELIM);
-			set_lbc_br(2, CONFIG_PMC_BR_PRELIM);
-			setbits_be32(&lbc->lbcr, CONFIG_SYS_LBC_LBCR);
-		}
-	} else {
-		node = fdt_path_offset(blob, "/qe");
-		if (node >= 0)
-			fdt_del_node(blob, node);
-	}
-
-	return;
 }
 #endif
 
@@ -478,9 +370,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 #ifdef CONFIG_QE
 	do_fixup_by_compat(blob, "fsl,qe", "status", "okay",
 			sizeof("okay"), 0);
-#if defined(CONFIG_TARGET_P1025RDB) || defined(CONFIG_TARGET_P1021RDB)
-	fdt_board_fixup_qe_pins(blob);
-#endif
 #endif
 
 #if defined(CONFIG_HAS_FSL_DR_USB)

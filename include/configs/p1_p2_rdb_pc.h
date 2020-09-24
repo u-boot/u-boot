@@ -12,24 +12,6 @@
 
 #include <linux/stringify.h>
 
-#if defined(CONFIG_TARGET_P1020MBG)
-#define CONFIG_BOARDNAME "P1020MBG-PC"
-#define CONFIG_VSC7385_ENET
-#define CONFIG_SLIC
-#define __SW_BOOT_MASK		0x03
-#define __SW_BOOT_NOR		0xe4
-#define __SW_BOOT_SD		0x54
-#define CONFIG_SYS_L2_SIZE	(256 << 10)
-#endif
-
-#if defined(CONFIG_TARGET_P1020UTM)
-#define CONFIG_BOARDNAME "P1020UTM-PC"
-#define __SW_BOOT_MASK		0x03
-#define __SW_BOOT_NOR		0xe0
-#define __SW_BOOT_SD		0x50
-#define CONFIG_SYS_L2_SIZE	(256 << 10)
-#endif
-
 #if defined(CONFIG_TARGET_P1020RDB_PC)
 #define CONFIG_BOARDNAME "P1020RDB-PC"
 #define CONFIG_NAND_FSL_ELBC
@@ -72,51 +54,6 @@
 /*
  * Dynamic MTD Partition support with mtdparts
  */
-#endif
-
-#if defined(CONFIG_TARGET_P1021RDB)
-#define CONFIG_BOARDNAME "P1021RDB-PC"
-#define CONFIG_NAND_FSL_ELBC
-#define CONFIG_VSC7385_ENET
-#define CONFIG_SYS_LBC_LBCR	0x00080000	/* Implement conversion of
-						addresses in the LBC */
-#define __SW_BOOT_MASK		0x03
-#define __SW_BOOT_NOR		0x5c
-#define __SW_BOOT_SPI		0x1c
-#define __SW_BOOT_SD		0x9c
-#define __SW_BOOT_NAND		0xec
-#define __SW_BOOT_PCIE		0x6c
-#define CONFIG_SYS_L2_SIZE	(256 << 10)
-/*
- * Dynamic MTD Partition support with mtdparts
- */
-#endif
-
-#if defined(CONFIG_TARGET_P1024RDB)
-#define CONFIG_BOARDNAME "P1024RDB"
-#define CONFIG_NAND_FSL_ELBC
-#define CONFIG_SLIC
-#define __SW_BOOT_MASK		0xf3
-#define __SW_BOOT_NOR		0x00
-#define __SW_BOOT_SPI		0x08
-#define __SW_BOOT_SD		0x04
-#define __SW_BOOT_NAND		0x0c
-#define CONFIG_SYS_L2_SIZE	(256 << 10)
-#endif
-
-#if defined(CONFIG_TARGET_P1025RDB)
-#define CONFIG_BOARDNAME "P1025RDB"
-#define CONFIG_NAND_FSL_ELBC
-#define CONFIG_SLIC
-
-#define CONFIG_SYS_LBC_LBCR	0x00080000	/* Implement conversion of
-						addresses in the LBC */
-#define __SW_BOOT_MASK		0xf3
-#define __SW_BOOT_NOR		0x00
-#define __SW_BOOT_SPI		0x08
-#define __SW_BOOT_SD		0x04
-#define __SW_BOOT_NAND		0x0c
-#define CONFIG_SYS_L2_SIZE	(256 << 10)
 #endif
 
 #if defined(CONFIG_TARGET_P2020RDB)
@@ -246,7 +183,7 @@
 #define CONFIG_SYS_SPD_BUS_NUM 1
 #define SPD_EEPROM_ADDRESS 0x52
 
-#if (defined(CONFIG_TARGET_P1020MBG) || defined(CONFIG_TARGET_P1020RDB_PD))
+#if defined(CONFIG_TARGET_P1020RDB_PD)
 #define CONFIG_SYS_SDRAM_SIZE_LAW	LAW_SIZE_2G
 #define CONFIG_CHIP_SELECTS_PER_CTRL	2
 #else
@@ -313,12 +250,9 @@
 /*
  * Local Bus Definitions
  */
-#if (defined(CONFIG_TARGET_P1020MBG) || defined(CONFIG_TARGET_P1020RDB_PD))
+#if defined(CONFIG_TARGET_P1020RDB_PD)
 #define CONFIG_SYS_MAX_FLASH_SECT	512	/* 64M */
 #define CONFIG_SYS_FLASH_BASE		0xec000000
-#elif defined(CONFIG_TARGET_P1020UTM)
-#define CONFIG_SYS_MAX_FLASH_SECT	256	/* 32M */
-#define CONFIG_SYS_FLASH_BASE		0xee000000
 #else
 #define CONFIG_SYS_MAX_FLASH_SECT	128	/* 16M */
 #define CONFIG_SYS_FLASH_BASE		0xef000000
@@ -451,6 +385,7 @@
 
 /* Vsc7385 switch */
 #ifdef CONFIG_VSC7385_ENET
+#define __VSCFW_ADDR			"vscfw_addr=ef000000"
 #define CONFIG_SYS_VSC7385_BASE		0xffb00000
 
 #ifdef CONFIG_PHYS_64BIT
@@ -654,42 +589,6 @@
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #endif /* CONFIG_QE */
 
-#ifdef CONFIG_TARGET_P1025RDB
-/*
- * QE UEC ethernet configuration
- */
-#define CONFIG_MIIM_ADDRESS	(CONFIG_SYS_CCSRBAR + 0x82120)
-
-#undef CONFIG_UEC_ETH
-#define CONFIG_PHY_MODE_NEED_CHANGE
-
-#define CONFIG_UEC_ETH1	/* ETH1 */
-#define CONFIG_HAS_ETH0
-
-#ifdef CONFIG_UEC_ETH1
-#define CONFIG_SYS_UEC1_UCC_NUM	0	/* UCC1 */
-#define CONFIG_SYS_UEC1_RX_CLK	QE_CLK12 /* CLK12 for MII */
-#define CONFIG_SYS_UEC1_TX_CLK	QE_CLK9 /* CLK9 for MII */
-#define CONFIG_SYS_UEC1_ETH_TYPE	FAST_ETH
-#define CONFIG_SYS_UEC1_PHY_ADDR	0x0	/* 0x0 for MII */
-#define CONFIG_SYS_UEC1_INTERFACE_TYPE PHY_INTERFACE_MODE_RMII
-#define CONFIG_SYS_UEC1_INTERFACE_SPEED	100
-#endif /* CONFIG_UEC_ETH1 */
-
-#define CONFIG_UEC_ETH5	/* ETH5 */
-#define CONFIG_HAS_ETH1
-
-#ifdef CONFIG_UEC_ETH5
-#define CONFIG_SYS_UEC5_UCC_NUM	4	/* UCC5 */
-#define CONFIG_SYS_UEC5_RX_CLK	QE_CLK_NONE
-#define CONFIG_SYS_UEC5_TX_CLK	QE_CLK13 /* CLK 13 for RMII */
-#define CONFIG_SYS_UEC5_ETH_TYPE	FAST_ETH
-#define CONFIG_SYS_UEC5_PHY_ADDR	0x3	/* 0x3 for RMII */
-#define CONFIG_SYS_UEC5_INTERFACE_TYPE PHY_INTERFACE_MODE_RMII
-#define CONFIG_SYS_UEC5_INTERFACE_SPEED	100
-#endif /* CONFIG_UEC_ETH5 */
-#endif /* CONFIG_TARGET_P1025RDB */
-
 /*
  * Environment
  */
@@ -809,6 +708,7 @@ i2c mw 18 3 __SW_BOOT_MASK 1; reset
 "ramdisk_size=120000\0"	\
 "map_lowernorbank=i2c dev 1; i2c mw 18 1 02 1; i2c mw 18 3 fd 1\0" \
 "map_uppernorbank=i2c dev 1; i2c mw 18 1 00 1; i2c mw 18 3 fd 1\0" \
+__stringify(__VSCFW_ADDR)"\0" \
 __stringify(__NOR_RST_CMD)"\0" \
 __stringify(__SPI_RST_CMD)"\0" \
 __stringify(__SD_RST_CMD)"\0" \

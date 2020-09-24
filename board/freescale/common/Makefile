@@ -53,7 +53,6 @@ obj-$(CONFIG_TARGET_P1022DS)		+= ics307_clk.o
 obj-$(CONFIG_P2020DS)		+= ics307_clk.o
 obj-$(CONFIG_TARGET_P3041DS)		+= ics307_clk.o
 obj-$(CONFIG_TARGET_P4080DS)		+= ics307_clk.o
-obj-$(CONFIG_TARGET_P5020DS)		+= ics307_clk.o
 obj-$(CONFIG_TARGET_P5040DS)		+= ics307_clk.o
 obj-$(CONFIG_VSC_CROSSBAR)    += vsc3316_3308.o
 obj-$(CONFIG_IDT8T49N222A)	+= idt8t49n222a_serdes_clk.o
