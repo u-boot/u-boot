@@ -1139,6 +1139,19 @@
 		resets = <&resetc2 15>, <&resetc2 30>, <&resetc2 60>;
 		reset-names = "valid", "no_mask", "out_of_range";
 	};
+
+	some_regmapped-bus {
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+
+		ranges = <0x0 0x0 0x10>;
+		compatible = "simple-bus";
+
+		regmap-test_0 {
+			reg = <0 0x10>;
+			compatible = "sandbox,regmap_test";
+		};
+	};
 };
 
 #include "sandbox_pmic.dtsi"
