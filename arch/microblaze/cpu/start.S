@@ -17,25 +17,39 @@ _start:
 
 	addi	r8, r0, __end
 	mts	rslr, r8
-	/* TODO: Redo this code to call board_init_f_*() */
+
 #if defined(CONFIG_SPL_BUILD)
 	addi	r1, r0, CONFIG_SPL_STACK_ADDR
-	mts	rshr, r1
-	addi	r1, r1, -4	/* Decrement SP to top of memory */
-#else
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
-	addi	r1, r0, CONFIG_SYS_INIT_SP_OFFSET - CONFIG_VAL(SYS_MALLOC_F_LEN)
 #else
 	addi	r1, r0, CONFIG_SYS_INIT_SP_OFFSET
 #endif
-	mts	rshr, r1
+
 	addi	r1, r1, -4	/* Decrement SP to top of memory */
 
+	/* Call board_init_f_alloc_reserve with the current stack pointer as
+	 * parameter. */
+	add	r5, r0, r1
+	bralid	r15, board_init_f_alloc_reserve
+	nop
+
+	/* board_init_f_alloc_reserve returns a pointer to the allocated area
+	 * in r3. Set the new stack pointer below this area. */
+	add	r1, r0, r3
+	mts	rshr, r1
+	addi	r1, r1, -4
+
+	/* Call board_init_f_init_reserve with the address returned by
+	 * board_init_f_alloc_reserve as parameter. */
+	add	r5, r0, r3
+	bralid	r15, board_init_f_init_reserve
+	nop
+
+#if !defined(CONFIG_SPL_BUILD)
 	/* Setup vectors with pre-relocation symbols */
 	or	r5, r0, r0
 	bralid	r15, __setup_exceptions
 	nop
-#endif /* CONFIG_SPL_BUILD */
+#endif
 
 	/* Flush cache before enable cache */
 	addik	r5, r0, 0
@@ -48,7 +62,6 @@ _start:
 	ori	r12, r12, 0x1a0
 	mts	rmsr, r12
 
-	/* TODO: Redo this code to call board_init_f_*() */
 clear_bss:
 	/* clear BSS segments */
 	addi	r5, r0, __bss_start
@@ -67,26 +80,11 @@ clear_bss:
 #endif
 #ifndef CONFIG_SPL_BUILD
 	or	r5, r0, r0	/* flags - empty */
-	addi    r31, r0, _gd
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
-	addi	r6, r0, CONFIG_SYS_INIT_SP_OFFSET
-	swi	r6, r31, GD_MALLOC_BASE
-#endif
 	brai	board_init_f
 #else
-	addi	r31, r0, _gd
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
-	addi	r6, r0, CONFIG_SPL_STACK_ADDR
-	swi	r6, r31, GD_MALLOC_BASE
-#endif
 	brai	board_init_r
 #endif
 1:	bri	1b
-
- .section .bss
-.align 4
-_gd:
-         .space  GENERATED_GBL_DATA_SIZE
 
 #ifndef CONFIG_SPL_BUILD
 	.text
