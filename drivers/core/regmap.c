@@ -25,6 +25,10 @@ DECLARE_GLOBAL_DATA_PTR;
  * regmap_alloc() - Allocate a regmap with a given number of ranges.
  *
  * @count: Number of ranges to be allocated for the regmap.
+ *
+ * The default regmap width is set to REGMAP_SIZE_32. Callers can override it
+ * if they need.
+ *
  * Return: A pointer to the newly allocated regmap, or NULL on error.
  */
 static struct regmap *regmap_alloc(int count)
@@ -36,6 +40,7 @@ static struct regmap *regmap_alloc(int count)
 	if (!map)
 		return NULL;
 	map->range_count = count;
+	map->width = REGMAP_SIZE_32;
 
 	return map;
 }
@@ -244,7 +249,7 @@ struct regmap *devm_regmap_init(struct udevice *dev,
 				const struct regmap_config *config)
 {
 	int rc;
-	struct regmap **mapp;
+	struct regmap **mapp, *map;
 
 	mapp = devres_alloc(devm_regmap_release, sizeof(struct regmap *),
 			    __GFP_ZERO);
@@ -254,6 +259,10 @@ struct regmap *devm_regmap_init(struct udevice *dev,
 	rc = regmap_init_mem(dev_ofnode(dev), mapp);
 	if (rc)
 		return ERR_PTR(rc);
+
+	map = *mapp;
+	if (config)
+		map->width = config->width;
 
 	devres_add(dev, mapp);
 	return *mapp;
@@ -377,7 +386,7 @@ int regmap_raw_read(struct regmap *map, uint offset, void *valp, size_t val_len)
 
 int regmap_read(struct regmap *map, uint offset, uint *valp)
 {
-	return regmap_raw_read(map, offset, valp, REGMAP_SIZE_32);
+	return regmap_raw_read(map, offset, valp, map->width);
 }
 
 static inline void __write_8(u8 *addr, const u8 *val,
@@ -487,7 +496,7 @@ int regmap_raw_write(struct regmap *map, uint offset, const void *val,
 
 int regmap_write(struct regmap *map, uint offset, uint val)
 {
-	return regmap_raw_write(map, offset, &val, REGMAP_SIZE_32);
+	return regmap_raw_write(map, offset, &val, map->width);
 }
 
 int regmap_update_bits(struct regmap *map, uint offset, uint mask, uint val)

@@ -76,16 +76,28 @@ struct regmap_range {
 };
 
 struct regmap_bus;
-struct regmap_config;
+
+/**
+ * struct regmap_config - Configure the behaviour of a regmap
+ *
+ * @width:		Width of the read/write operations. Defaults to
+ *			REGMAP_SIZE_32 if set to 0.
+ */
+struct regmap_config {
+	enum regmap_size_t width;
+};
 
 /**
  * struct regmap - a way of accessing hardware/bus registers
  *
+ * @width:		Width of the read/write operations. Defaults to
+ *			REGMAP_SIZE_32 if set to 0.
  * @range_count:	Number of ranges available within the map
  * @ranges:		Array of ranges
  */
 struct regmap {
 	enum regmap_endianness_t endianness;
+	enum regmap_size_t width;
 	int range_count;
 	struct regmap_range ranges[0];
 };
@@ -96,31 +108,23 @@ struct regmap {
  */
 
 /**
- * regmap_write() - Write a 32-bit value to a regmap
+ * regmap_write() - Write a value to a regmap
  *
  * @map:	Regmap to write to
  * @offset:	Offset in the regmap to write to
  * @val:	Data to write to the regmap at the specified offset
- *
- * Note that this function will only write values of 32 bit width to the
- * regmap; if the size of data to be read is different, the regmap_raw_write
- * function can be used.
  *
  * Return: 0 if OK, -ve on error
  */
 int regmap_write(struct regmap *map, uint offset, uint val);
 
 /**
- * regmap_read() - Read a 32-bit value from a regmap
+ * regmap_read() - Read a value from a regmap
  *
  * @map:	Regmap to read from
  * @offset:	Offset in the regmap to read from
  * @valp:	Pointer to the buffer to receive the data read from the regmap
  *		at the specified offset
- *
- * Note that this function will only read values of 32 bit width from the
- * regmap; if the size of data to be read is different, the regmap_raw_read
- * function can be used.
  *
  * Return: 0 if OK, -ve on error
  */
@@ -135,8 +139,9 @@ int regmap_read(struct regmap *map, uint offset, uint *valp);
  * @val_len:	Length of the data to be written to the regmap
  *
  * Note that this function will, as opposed to regmap_write, write data of
- * arbitrary length to the regmap, and not just 32-bit values, and is thus a
- * generalized version of regmap_write.
+ * arbitrary length to the regmap, and not just the size configured in the
+ * regmap (defaults to 32-bit) and is thus a generalized version of
+ * regmap_write.
  *
  * Return: 0 if OK, -ve on error
  */
@@ -153,8 +158,9 @@ int regmap_raw_write(struct regmap *map, uint offset, const void *val,
  * @val_len:	Length of the data to be read from the regmap
  *
  * Note that this function will, as opposed to regmap_read, read data of
- * arbitrary length from the regmap, and not just 32-bit values, and is thus a
- * generalized version of regmap_read.
+ * arbitrary length from the regmap, and not just the size configured in the
+ * regmap (defaults to 32-bit) and is thus a generalized version of
+ * regmap_read.
  *
  * Return: 0 if OK, -ve on error
  */
@@ -344,7 +350,7 @@ int regmap_init_mem_index(ofnode node, struct regmap **mapp, int index);
  * @dev: Device that will be interacted with
  * @bus: Bus-specific callbacks to use with device (IGNORED)
  * @bus_context: Data passed to bus-specific callbacks (IGNORED)
- * @config: Configuration for register map (IGNORED)
+ * @config: Configuration for register map
  *
  * @Return a valid pointer to a struct regmap or a ERR_PTR() on error.
  * The structure is automatically freed when the device is unbound
