@@ -261,8 +261,10 @@ struct regmap *devm_regmap_init(struct udevice *dev,
 		return ERR_PTR(rc);
 
 	map = *mapp;
-	if (config)
+	if (config) {
 		map->width = config->width;
+		map->reg_offset_shift = config->reg_offset_shift;
+	}
 
 	devres_add(dev, mapp);
 	return *mapp;
@@ -349,6 +351,7 @@ int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
 	}
 	range = &map->ranges[range_num];
 
+	offset <<= map->reg_offset_shift;
 	if (offset + val_len > range->size) {
 		debug("%s: offset/size combination invalid\n", __func__);
 		return -ERANGE;
@@ -458,6 +461,7 @@ int regmap_raw_write_range(struct regmap *map, uint range_num, uint offset,
 	}
 	range = &map->ranges[range_num];
 
+	offset <<= map->reg_offset_shift;
 	if (offset + val_len > range->size) {
 		debug("%s: offset/size combination invalid\n", __func__);
 		return -ERANGE;

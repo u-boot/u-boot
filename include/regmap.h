@@ -82,9 +82,12 @@ struct regmap_bus;
  *
  * @width:		Width of the read/write operations. Defaults to
  *			REGMAP_SIZE_32 if set to 0.
+ * @reg_offset_shift	Left shift the register offset by this value before
+ *			performing read or write.
  */
 struct regmap_config {
 	enum regmap_size_t width;
+	u32 reg_offset_shift;
 };
 
 /**
@@ -92,12 +95,15 @@ struct regmap_config {
  *
  * @width:		Width of the read/write operations. Defaults to
  *			REGMAP_SIZE_32 if set to 0.
+ * @reg_offset_shift	Left shift the register offset by this value before
+ *			performing read or write.
  * @range_count:	Number of ranges available within the map
  * @ranges:		Array of ranges
  */
 struct regmap {
 	enum regmap_endianness_t endianness;
 	enum regmap_size_t width;
+	u32 reg_offset_shift;
 	int range_count;
 	struct regmap_range ranges[0];
 };
