@@ -6,12 +6,16 @@
 #ifndef _CONFIG_MVEBU_ARMADA_37XX_H
 #define _CONFIG_MVEBU_ARMADA_37XX_H
 
+#include <linux/sizes.h>
+
 /*
  * High Level Configuration Options (easy to change)
  */
 
 /* additions for new ARM relocation support */
 #define CONFIG_SYS_SDRAM_BASE	0x00000000
+
+#define CONFIG_SYS_BOOTM_LEN	SZ_64M /* Increase max gunzip size */
 
 /* auto boot */
 

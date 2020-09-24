@@ -240,6 +240,9 @@ int board_eth_init(struct bd_info *bis)
 
 int board_late_init(void)
 {
+	if (env_get("fdtfile"))
+		return 0;
+
 	cf_read_tlv_data();
 
 	if (sr_product_is(&cf_tlv_data, "Clearfog Base"))
