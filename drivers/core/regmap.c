@@ -283,7 +283,11 @@ struct regmap *devm_regmap_init(struct udevice *dev,
 	if (unlikely(!mapp))
 		return ERR_PTR(-ENOMEM);
 
-	rc = regmap_init_mem(dev_ofnode(dev), mapp);
+	if (config && config->r_size != 0)
+		rc = regmap_init_mem_range(dev_ofnode(dev), config->r_start,
+					   config->r_size, mapp);
+	else
+		rc = regmap_init_mem(dev_ofnode(dev), mapp);
 	if (rc)
 		return ERR_PTR(rc);
 

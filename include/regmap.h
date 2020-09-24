@@ -84,10 +84,16 @@ struct regmap_bus;
  *			REGMAP_SIZE_32 if set to 0.
  * @reg_offset_shift	Left shift the register offset by this value before
  *			performing read or write.
+ * @r_start:		If specified, the regmap is created with one range
+ *			which starts at this address, instead of finding the
+ *			start from device tree.
+ * @r_size:		Same as above for the range size
  */
 struct regmap_config {
 	enum regmap_size_t width;
 	u32 reg_offset_shift;
+	ulong r_start;
+	ulong r_size;
 };
 
 /**
