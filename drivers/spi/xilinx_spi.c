@@ -237,7 +237,7 @@ static void xilinx_spi_startup_block(struct udevice *dev, unsigned int bytes,
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 	const unsigned char *txp = dout;
 	unsigned char *rxp = din;
-	u32 reg, count;
+	u32 reg;
 	u32 txbytes = bytes;
 	u32 rxbytes = bytes;
 
@@ -247,10 +247,10 @@ static void xilinx_spi_startup_block(struct udevice *dev, unsigned int bytes,
 	 * it sets txp to the initial value for the normal operation.
 	 */
 	for ( ; priv->startup < 2; priv->startup++) {
-		count = xilinx_spi_fill_txfifo(bus, txp, txbytes);
+		xilinx_spi_fill_txfifo(bus, txp, txbytes);
 		reg = readl(&regs->spicr) & ~SPICR_MASTER_INHIBIT;
 		writel(reg, &regs->spicr);
-		count = xilinx_spi_read_rxfifo(bus, rxp, rxbytes);
+		xilinx_spi_read_rxfifo(bus, rxp, rxbytes);
 		txp = din;
 
 		if (priv->startup) {
