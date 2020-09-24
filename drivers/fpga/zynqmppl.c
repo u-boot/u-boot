@@ -231,11 +231,11 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	buf_hi = upper_32_bits(bin_buf);
 
 	if (xilfpga_old)
-		ret = xilinx_pm_request(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo,
+		ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo,
 					buf_hi, (u32)(uintptr_t)bsizeptr,
 					bstype, ret_payload);
 	else
-		ret = xilinx_pm_request(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo,
+		ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo,
 					buf_hi, (u32)bsize, 0, ret_payload);
 
 	if (ret)
@@ -277,7 +277,7 @@ static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 	buf_lo = lower_32_bits((ulong)buf);
 	buf_hi = upper_32_bits((ulong)buf);
 
-	ret = xilinx_pm_request(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo,
+	ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo,
 				buf_hi,
 			 (u32)(uintptr_t)fpga_sec_info->userkey_addr,
 			 flag, ret_payload);
@@ -295,7 +295,7 @@ static int zynqmp_pcap_info(xilinx_desc *desc)
 	int ret;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 
-	ret = xilinx_pm_request(ZYNQMP_SIP_SVC_PM_FPGA_STATUS, 0, 0, 0,
+	ret = xilinx_pm_request(PM_FPGA_GET_STATUS, 0, 0, 0,
 				0, ret_payload);
 	if (!ret)
 		printf("PCAP status\t0x%x\n", ret_payload[1]);
@@ -305,7 +305,7 @@ static int zynqmp_pcap_info(xilinx_desc *desc)
 
 struct xilinx_fpga_op zynqmp_op = {
 	.load = zynqmp_load,
-#if defined CONFIG_CMD_FPGA_LOAD_SECURE
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE) && !defined(CONFIG_SPL_BUILD)
 	.loads = zynqmp_loads,
 #endif
 	.info = zynqmp_pcap_info,

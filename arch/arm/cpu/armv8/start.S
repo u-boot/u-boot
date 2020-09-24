@@ -59,6 +59,23 @@ reset:
 save_boot_params_ret:
 
 #if CONFIG_POSITION_INDEPENDENT
+	/* Verify that we're 4K aligned.  */
+	adr	x0, _start
+	ands	x0, x0, #0xfff
+	b.eq	1f
+0:
+	/*
+	 * FATAL, can't continue.
+	 * U-Boot needs to be loaded at a 4K aligned address.
+	 *
+	 * We use ADRP and ADD to load some symbol addresses during startup.
+	 * The ADD uses an absolute (non pc-relative) lo12 relocation
+	 * thus requiring 4K alignment.
+	 */
+	wfi
+	b	0b
+1:
+
 	/*
 	 * Fix .rela.dyn relocations. This allows U-Boot to be loaded to and
 	 * executed at a different address than it was linked at.
@@ -67,8 +84,10 @@ pie_fixup:
 	adr	x0, _start		/* x0 <- Runtime value of _start */
 	ldr	x1, _TEXT_BASE		/* x1 <- Linked value of _start */
 	sub	x9, x0, x1		/* x9 <- Run-vs-link offset */
-	adr	x2, __rel_dyn_start	/* x2 <- Runtime &__rel_dyn_start */
-	adr	x3, __rel_dyn_end	/* x3 <- Runtime &__rel_dyn_end */
+	adrp    x2, __rel_dyn_start     /* x2 <- Runtime &__rel_dyn_start */
+	add     x2, x2, #:lo12:__rel_dyn_start
+	adrp    x3, __rel_dyn_end       /* x3 <- Runtime &__rel_dyn_end */
+	add     x3, x3, #:lo12:__rel_dyn_end
 pie_fix_loop:
 	ldp	x0, x1, [x2], #16	/* (x0, x1) <- (Link location, fixup) */
 	ldr	x4, [x2], #8		/* x4 <- addend */

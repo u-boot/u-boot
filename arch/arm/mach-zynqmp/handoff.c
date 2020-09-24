@@ -65,7 +65,7 @@ struct xfsbl_atf_handoff_params {
 	struct xfsbl_partition partition[FSBL_MAX_PARTITIONS];
 };
 
-#ifdef CONFIG_SPL_OS_BOOT
+#ifdef CONFIG_SPL_ATF
 struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl32_entry,
 					     uintptr_t bl33_entry,
 					     uintptr_t fdt_addr)

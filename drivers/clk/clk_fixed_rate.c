@@ -53,4 +53,5 @@ U_BOOT_DRIVER(clk_fixed_rate) = {
 	.ofdata_to_platdata = clk_fixed_rate_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct clk_fixed_rate),
 	.ops = &clk_fixed_rate_ops,
+	.flags = DM_FLAG_PRE_RELOC,
 };

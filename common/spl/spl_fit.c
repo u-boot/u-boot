@@ -253,7 +253,7 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	const void *data;
 	bool external_data = false;
 
-	if (IS_ENABLED(CONFIG_SPL_FPGA_SUPPORT) ||
+	if (IS_ENABLED(CONFIG_SPL_FPGA) ||
 	    (IS_ENABLED(CONFIG_SPL_OS_BOOT) && IS_ENABLED(CONFIG_SPL_GZIP))) {
 		if (fit_image_get_type(fit, node, &type))
 			puts("Cannot get image type.\n");
@@ -546,7 +546,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 		return -1;
 	}
 
-#ifdef CONFIG_SPL_FPGA_SUPPORT
+#ifdef CONFIG_SPL_FPGA
 	node = spl_fit_get_image_node(fit, images, "fpga", 0);
 	if (node >= 0) {
 		/* Load the image and set up the spl_image structure */

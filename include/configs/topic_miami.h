@@ -24,7 +24,6 @@
 
 /* No falcon support */
 #undef CONFIG_SPL_OS_BOOT
-#undef CONFIG_SPL_FPGA_SUPPORT
 
 /* FPGA commands that we don't use */
 
