@@ -19,6 +19,22 @@ static int dm_test_ofnode_compatible(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_compatible, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+static int dm_test_ofnode_get_by_phandle(struct unit_test_state *uts)
+{
+	/* test invalid phandle */
+	ut_assert(!ofnode_valid(ofnode_get_by_phandle(0)));
+	ut_assert(!ofnode_valid(ofnode_get_by_phandle(-1)));
+
+	/* test first valid phandle */
+	ut_assert(ofnode_valid(ofnode_get_by_phandle(1)));
+
+	/* test unknown phandle */
+	ut_assert(!ofnode_valid(ofnode_get_by_phandle(0x1000000)));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_get_by_phandle, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
 static int dm_test_ofnode_by_prop_value(struct unit_test_state *uts)
 {
 	const char propname[] = "compatible";

@@ -128,7 +128,7 @@ static inline bool ofnode_valid(ofnode node)
 	if (of_live_active())
 		return node.np != NULL;
 	else
-		return node.of_offset != -1;
+		return node.of_offset >= 0;
 }
 
 /**
