@@ -14,7 +14,10 @@
 #include <regmap.h>
 #include <asm/io.h>
 #include <dm/of_addr.h>
+#include <dm/devres.h>
 #include <linux/ioport.h>
+#include <linux/compat.h>
+#include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -227,6 +230,32 @@ err:
 	regmap_uninit(map);
 
 	return ret;
+}
+
+static void devm_regmap_release(struct udevice *dev, void *res)
+{
+	regmap_uninit(*(struct regmap **)res);
+}
+
+struct regmap *devm_regmap_init(struct udevice *dev,
+				const struct regmap_bus *bus,
+				void *bus_context,
+				const struct regmap_config *config)
+{
+	int rc;
+	struct regmap **mapp;
+
+	mapp = devres_alloc(devm_regmap_release, sizeof(struct regmap *),
+			    __GFP_ZERO);
+	if (unlikely(!mapp))
+		return ERR_PTR(-ENOMEM);
+
+	rc = regmap_init_mem(dev_ofnode(dev), mapp);
+	if (rc)
+		return ERR_PTR(rc);
+
+	devres_add(dev, mapp);
+	return *mapp;
 }
 #endif
 
