@@ -214,10 +214,11 @@ int dev_read_phandle_with_args(const struct udevice *dev, const char *list_name,
 }
 
 int dev_count_phandle_with_args(const struct udevice *dev,
-				const char *list_name, const char *cells_name)
+				const char *list_name, const char *cells_name,
+				int cell_count)
 {
 	return ofnode_count_phandle_with_args(dev_ofnode(dev), list_name,
-					      cells_name);
+					      cells_name, cell_count);
 }
 
 int dev_read_addr_cells(const struct udevice *dev)

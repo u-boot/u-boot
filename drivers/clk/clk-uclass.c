@@ -161,7 +161,7 @@ int clk_get_bulk(struct udevice *dev, struct clk_bulk *bulk)
 	
 	bulk->count = 0;
 
-	count = dev_count_phandle_with_args(dev, "clocks", "#clock-cells");
+	count = dev_count_phandle_with_args(dev, "clocks", "#clock-cells", 0);
 	if (count < 1)
 		return count;
 
@@ -213,7 +213,7 @@ static int clk_set_default_parents(struct udevice *dev, int stage)
 	int ret;
 
 	num_parents = dev_count_phandle_with_args(dev, "assigned-clock-parents",
-						  "#clock-cells");
+						  "#clock-cells", 0);
 	if (num_parents < 0) {
 		debug("%s: could not read assigned-clock-parents for %p\n",
 		      __func__, dev);

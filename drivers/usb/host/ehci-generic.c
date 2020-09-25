@@ -86,7 +86,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	err = 0;
 	priv->clock_count = 0;
 	clock_nb = ofnode_count_phandle_with_args(dev_ofnode(dev), "clocks",
-						  "#clock-cells");
+						  "#clock-cells", 0);
 	if (clock_nb > 0) {
 		priv->clocks = devm_kcalloc(dev, clock_nb, sizeof(struct clk),
 					    GFP_KERNEL);
@@ -116,7 +116,7 @@ static int ehci_usb_probe(struct udevice *dev)
 
 	priv->reset_count = 0;
 	reset_nb = ofnode_count_phandle_with_args(dev_ofnode(dev), "resets",
-						  "#reset-cells");
+						  "#reset-cells", 0);
 	if (reset_nb > 0) {
 		priv->resets = devm_kcalloc(dev, reset_nb,
 					    sizeof(struct reset_ctl),
