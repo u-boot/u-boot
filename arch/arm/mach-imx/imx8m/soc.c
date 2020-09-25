@@ -210,6 +210,9 @@ int dram_init(void)
 	else
 		gd->ram_size = sdram_size;
 
+	/* also update the SDRAM size in the mem_map used externally */
+	imx8m_mem_map[5].size = sdram_size;
+
 #ifdef PHYS_SDRAM_2_SIZE
 	gd->ram_size += PHYS_SDRAM_2_SIZE;
 #endif
