@@ -154,7 +154,6 @@ extern const struct efi_hii_config_routing_protocol efi_hii_config_routing;
 extern const struct efi_hii_config_access_protocol efi_hii_config_access;
 extern const struct efi_hii_database_protocol efi_hii_database;
 extern const struct efi_hii_string_protocol efi_hii_string;
-extern const struct efi_rng_protocol efi_rng_protocol;
 
 uint16_t *efi_dp_str(struct efi_device_path *dp);
 
@@ -404,6 +403,8 @@ efi_status_t EFIAPI efi_convert_pointer(efi_uintn_t debug_disposition,
 efi_status_t efi_console_register(void);
 /* Called by bootefi to make all disk storage accessible as EFI objects */
 efi_status_t efi_disk_register(void);
+/* Called by efi_init_obj_list() to install EFI_RNG_PROTOCOL */
+efi_status_t efi_rng_register(void);
 /* Create handles and protocols for the partitions of a block device */
 int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 			       const char *if_typename, int diskid,
