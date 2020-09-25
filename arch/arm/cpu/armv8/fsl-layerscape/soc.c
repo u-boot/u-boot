@@ -36,6 +36,8 @@
 #ifdef CONFIG_TFABOOT
 #include <env_internal.h>
 #endif
+#include <dm.h>
+#include <linux/err.h>
 #if defined(CONFIG_TFABOOT) || defined(CONFIG_GIC_V3_ITS)
 DECLARE_GLOBAL_DATA_PTR;
 #endif
@@ -43,7 +45,22 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_GIC_V3_ITS
 int ls_gic_rd_tables_init(void *blob)
 {
-	int ret;
+	struct fdt_memory lpi_base;
+	fdt_addr_t addr;
+	fdt_size_t size;
+	int offset, ret;
+
+	offset = fdt_path_offset(gd->fdt_blob, "/syscon@0x80000000");
+	addr = fdtdec_get_addr_size_auto_noparent(gd->fdt_blob, offset, "reg",
+						  0, &size, false);
+
+	lpi_base.start = addr;
+	lpi_base.end = addr + size - 1;
+	ret = fdtdec_add_reserved_memory(blob, "lpi_rd_table", &lpi_base, NULL);
+	if (ret) {
+		debug("%s: failed to add reserved memory\n", __func__);
+		return ret;
+	}
 
 	ret = gic_lpi_tables_init();
 	if (ret)
@@ -897,6 +914,38 @@ __weak int fsl_board_late_init(void)
 	return 0;
 }
 
+#define DWC3_GSBUSCFG0			0xc100
+#define DWC3_GSBUSCFG0_CACHETYPE_SHIFT	16
+#define DWC3_GSBUSCFG0_CACHETYPE(n)        (((n) & 0xffff)            \
+	<< DWC3_GSBUSCFG0_CACHETYPE_SHIFT)
+
+void enable_dwc3_snooping(void)
+{
+	int ret;
+	u32 val;
+	struct udevice *bus;
+	struct uclass *uc;
+	fdt_addr_t dwc3_base;
+
+	ret = uclass_get(UCLASS_USB, &uc);
+	if (ret)
+		return;
+
+	uclass_foreach_dev(bus, uc) {
+		if (!strcmp(bus->driver->of_match->compatible, "fsl,layerscape-dwc3")) {
+			dwc3_base = devfdt_get_addr(bus);
+			if (dwc3_base == FDT_ADDR_T_NONE) {
+				dev_err(bus, "dwc3 regs missing\n");
+				continue;
+			}
+			val = in_le32(dwc3_base + DWC3_GSBUSCFG0);
+			val &= ~DWC3_GSBUSCFG0_CACHETYPE(~0);
+			val |= DWC3_GSBUSCFG0_CACHETYPE(0x2222);
+			writel(val, dwc3_base + DWC3_GSBUSCFG0);
+		}
+	}
+}
+
 int board_late_init(void)
 {
 #ifdef CONFIG_CHAIN_OF_TRUST
@@ -933,6 +982,9 @@ int board_late_init(void)
 #ifdef CONFIG_FSPI_AHB_EN_4BYTE
 	fspi_ahb_init();
 #endif
+
+	if (IS_ENABLED(CONFIG_DM))
+		enable_dwc3_snooping();
 
 	return fsl_board_late_init();
 }

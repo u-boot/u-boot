@@ -43,6 +43,12 @@
 		interrupts = <1 9 0x4>;
 	};
 
+	gic_lpi_base: syscon@0x80000000 {
+		compatible = "gic-lpi-base";
+		reg = <0x0 0x80000000 0x0 0x200000>;
+		max-gic-redistributors = <16>;
+	};
+
 	timer {
 		compatible = "arm,armv8-timer";
 		interrupts = <1 13 0x8>, /* Physical Secure PPI, active-low */
@@ -193,9 +199,42 @@
 		num-cs = <6>;
 	};
 
+	gpio0: gpio@2300000 {
+		compatible = "fsl,qoriq-gpio";
+		reg = <0x0 0x2300000 0x0 0x10000>;
+		interrupts = <0 36 4>;
+		gpio-controller;
+		little-endian;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpio1: gpio@2310000 {
+		compatible = "fsl,qoriq-gpio";
+		reg = <0x0 0x2310000 0x0 0x10000>;
+		interrupts = <0 36 4>;
+		gpio-controller;
+		little-endian;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
 	gpio2: gpio@2320000 {
 		compatible = "fsl,qoriq-gpio";
 		reg = <0x0 0x2320000 0x0 0x10000>;
+		interrupts = <0 37 4>;
+		gpio-controller;
+		little-endian;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpio3: gpio@2330000 {
+		compatible = "fsl,qoriq-gpio";
+		reg = <0x0 0x2330000 0x0 0x10000>;
 		interrupts = <0 37 4>;
 		gpio-controller;
 		little-endian;
@@ -297,7 +336,8 @@
 		#size-cells = <2>;
 		device_type = "pci";
 		bus-range = <0x0 0xff>;
-		ranges = <0x82000000 0x0 0x40000000 0x80 0x40000000 0x0 0x40000000>;
+		ranges = <0x81000000 0x0 0x00000000 0x80 0x00020000 0x0 0x00010000   /* downstream I/O */
+			  0x82000000 0x0 0x40000000 0x80 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
 	};
 
 	pcie@3500000 {
@@ -312,7 +352,8 @@
 		device_type = "pci";
 		num-lanes = <2>;
 		bus-range = <0x0 0xff>;
-		ranges = <0x82000000 0x0 0x40000000 0x88 0x40000000 0x0 0x40000000>;
+		ranges = <0x81000000 0x0 0x00000000 0x88 0x00020000 0x0 0x00010000   /* downstream I/O */
+			  0x82000000 0x0 0x40000000 0x88 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
 	};
 
 	pcie@3600000 {
@@ -326,7 +367,8 @@
 		#size-cells = <2>;
 		device_type = "pci";
 		bus-range = <0x0 0xff>;
-		ranges = <0x82000000 0x0 0x40000000 0x90 0x40000000 0x0 0x40000000>;
+		ranges = <0x81000000 0x0 0x00000000 0x90 0x00020000 0x0 0x00010000   /* downstream I/O */
+			  0x82000000 0x0 0x40000000 0x90 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
 	};
 
 	pcie@3700000 {
@@ -340,7 +382,8 @@
 		#size-cells = <2>;
 		device_type = "pci";
 		bus-range = <0x0 0xff>;
-		ranges = <0x82000000 0x0 0x40000000 0x98 0x40000000 0x0 0x40000000>;
+		ranges = <0x81000000 0x0 0x00000000 0x98 0x00020000 0x0 0x00010000   /* downstream I/O */
+			  0x82000000 0x0 0x40000000 0x98 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
 	};
 
 	pcie@3800000 {
@@ -354,7 +397,8 @@
 		#size-cells = <2>;
 		device_type = "pci";
 		bus-range = <0x0 0xff>;
-		ranges = <0x82000000 0x0 0x40000000 0xa0 0x40000000 0x0 0x40000000>;
+		ranges = <0x81000000 0x0 0x00000000 0xa0 0x00020000 0x0 0x00010000   /* downstream I/O */
+			  0x82000000 0x0 0x40000000 0xa0 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
 	};
 
 	pcie@3900000 {
@@ -368,7 +412,8 @@
 		#size-cells = <2>;
 		device_type = "pci";
 		bus-range = <0x0 0xff>;
-		ranges = <0x82000000 0x0 0x40000000 0xa8 0x40000000 0x0 0x40000000>;
+		ranges = <0x81000000 0x0 0x00000000 0xa8 0x00020000 0x0 0x00010000   /* downstream I/O */
+			  0x82000000 0x0 0x40000000 0xa8 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
 	};
 
 	fsl_mc: fsl-mc@80c000000 {

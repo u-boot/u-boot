@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2018 NXP
+ * Copyright 2018, 2020 NXP
  */
 #include <common.h>
 #include <phy.h>
@@ -57,7 +57,7 @@ phy_interface_t wriop_dpmac_enet_if(int dpmac_id, int lane_prtcl)
 {
 	enum srds_prtcl;
 
-	if (is_device_disabled(dpmac_id + 1))
+	if (is_device_disabled(dpmac_id))
 		return PHY_INTERFACE_MODE_NONE;
 
 	if (lane_prtcl >= SGMII1 && lane_prtcl <= SGMII18)

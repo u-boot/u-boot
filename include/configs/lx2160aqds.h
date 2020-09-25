@@ -131,7 +131,7 @@ u8 qixis_esdhc_detect_quirk(void);
 		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; "\
 		" bootm $load_addr#$BOARD\0"			\
 	"sd_bootcmd=echo Trying load from sd card..;"		\
-		"mmcinfo; mmc read $load_addr "			\
+		"mmc dev 0; mmcinfo; mmc read $load_addr "			\
 		"$kernel_addr_sd $kernel_size_sd ;"		\
 		"env exists secureboot && mmc read $kernelheader_addr_r "\
 		"$kernelhdr_addr_sd $kernelhdr_size_sd "	\

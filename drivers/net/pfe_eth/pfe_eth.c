@@ -176,9 +176,10 @@ static int pfe_eth_send(struct udevice *dev, void *packet, int length)
 
 		udelay(100);
 		i++;
-		if (i == 30000)
+		if (i == 30000) {
 			printf("Tx timeout, send failed\n");
-		break;
+			break;
+		}
 	}
 
 	return 0;
@@ -213,27 +214,22 @@ static int pfe_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 static int pfe_eth_probe(struct udevice *dev)
 {
 	struct pfe_eth_dev *priv = dev_get_priv(dev);
-	struct pfe_ddr_address *pfe_addr;
+	struct pfe_ddr_address pfe_addr;
 	struct pfe_eth_pdata *pdata = dev_get_platdata(dev);
 	int ret = 0;
 	static int init_done;
 
 	if (!init_done) {
-		pfe_addr = (struct pfe_ddr_address *)malloc(sizeof
-						    (struct pfe_ddr_address));
-		if (!pfe_addr)
-			return -ENOMEM;
-
-		pfe_addr->ddr_pfe_baseaddr =
+		pfe_addr.ddr_pfe_baseaddr =
 				(void *)pdata->pfe_ddr_addr.ddr_pfe_baseaddr;
-		pfe_addr->ddr_pfe_phys_baseaddr =
+		pfe_addr.ddr_pfe_phys_baseaddr =
 		(unsigned long)pdata->pfe_ddr_addr.ddr_pfe_phys_baseaddr;
 
 		debug("ddr_pfe_baseaddr: %p, ddr_pfe_phys_baseaddr: %08x\n",
-		      pfe_addr->ddr_pfe_baseaddr,
-		      (u32)pfe_addr->ddr_pfe_phys_baseaddr);
+		      pfe_addr.ddr_pfe_baseaddr,
+		      (u32)pfe_addr.ddr_pfe_phys_baseaddr);
 
-		ret = pfe_drv_init(pfe_addr);
+		ret = pfe_drv_init(&pfe_addr);
 		if (ret)
 			return ret;
 

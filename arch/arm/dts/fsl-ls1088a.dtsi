@@ -26,6 +26,12 @@
 		interrupts = <1 9 0x4>;
 	};
 
+	gic_lpi_base: syscon@0x80000000 {
+		compatible = "gic-lpi-base";
+		reg = <0x0 0x80000000 0x0 0x100000>;
+		max-gic-redistributors = <8>;
+	};
+
 	timer {
 		compatible = "arm,armv8-timer";
 		interrupts = <1 13 0x8>, /* Physical Secure PPI, active-low */

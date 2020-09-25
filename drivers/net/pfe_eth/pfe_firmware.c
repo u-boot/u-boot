@@ -167,25 +167,23 @@ static int pfe_fit_check(void)
 int pfe_spi_flash_init(void)
 {
 	struct spi_flash *pfe_flash;
+	struct udevice *new;
 	int ret = 0;
 	void *addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
 
-#ifdef CONFIG_DM_SPI_FLASH
-	struct udevice *new;
+	if (!addr)
+		return -ENOMEM;
 
-	/* speed and mode will be read from DT */
 	ret = spi_flash_probe_bus_cs(CONFIG_ENV_SPI_BUS,
-				     CONFIG_ENV_SPI_CS, 0, 0, &new);
+				     CONFIG_ENV_SPI_CS,
+				     CONFIG_ENV_SPI_MAX_HZ,
+				     CONFIG_ENV_SPI_MODE,
+				     &new);
 
 	pfe_flash = dev_get_uclass_priv(new);
-#else
-	pfe_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS,
-				    CONFIG_ENV_SPI_CS,
-				    CONFIG_ENV_SPI_MAX_HZ,
-				    CONFIG_ENV_SPI_MODE);
-#endif
 	if (!pfe_flash) {
 		printf("SF: probe for pfe failed\n");
+		free(addr);
 		return -ENODEV;
 	}
 
