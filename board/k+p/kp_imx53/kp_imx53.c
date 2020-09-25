@@ -17,11 +17,13 @@
 #include <env.h>
 #include <power/pmic.h>
 #include <fsl_pmic.h>
+#include <bootstage.h>
 #include "kp_id_rev.h"
 
 #define BOOSTER_OFF IMX_GPIO_NR(2, 23)
 #define LCD_BACKLIGHT IMX_GPIO_NR(1, 1)
 #define KEY1 IMX_GPIO_NR(2, 26)
+#define LED_RED IMX_GPIO_NR(3, 28)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -150,4 +152,53 @@ int board_late_init(void)
 	board_misc_setup();
 
 	return ret;
+}
+
+#define GPIO_DR 0x0
+#define GPIO_GDIR 0x4
+#define GPIO_ALT1 0x1
+#define GPIO5_BASE 0x53FDC000
+#define IOMUXC_EIM_WAIT 0x53FA81E4
+/* Green LED: GPIO5_0 */
+#define GPIO_GREEN BIT(0)
+
+void show_boot_progress(int status)
+{
+	/*
+	 * This BOOTSTAGE_ID is called at very early stage of execution. DM gpio
+	 * is not yet initialized.
+	 */
+	if (status == BOOTSTAGE_ID_START_UBOOT_F) {
+		/*
+		 * After ROM execution the EIM_WAIT PAD is set as ALT0
+		 * (according to RM it shall be ALT1 after reset). To use it as
+		 * GPIO we need to set it to ALT1.
+		 */
+		setbits_le32(((uint32_t *)(IOMUXC_EIM_WAIT)), GPIO_ALT1);
+
+		/* Configure green LED GPIO pin direction */
+		setbits_le32(((uint32_t *)(GPIO5_BASE + GPIO_GDIR)),
+			     GPIO_GREEN);
+		/* Turn on green LED */
+		setbits_le32(((uint32_t *)(GPIO5_BASE + GPIO_DR)), GPIO_GREEN);
+	}
+
+	/*
+	 * This BOOTSTAGE_ID is called just before handling execution to kernel
+	 * - i.e. gpio subsystem is already initialized
+	 */
+	if (status == BOOTSTAGE_ID_BOOTM_HANDOFF) {
+		/*
+		 * Off green LED - the same approach - i.e. non dm gpio
+		 * (*bits_le32) is used as in the very early stage.
+		 */
+		clrbits_le32(((uint32_t *)(GPIO5_BASE + GPIO_DR)),
+			     GPIO_GREEN);
+
+		/*
+		 * On red LED
+		 */
+		gpio_request(LED_RED, "LED_RED_ERROR");
+		gpio_direction_output(LED_RED, 1);
+	}
 }
