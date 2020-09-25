@@ -27,7 +27,7 @@ Build Procedure
 	- For the Armada-70x0/80x0 DB board use "mvebu_db_armada8k_defconfig"
 	- For the Armada-80x0 MacchiatoBin use "make mvebu_mcbin-88f8040_defconfig"
 	- For the Armada-3700 DB board use "make mvebu_db-88f3720_defconfig"
-	- For the Armada-3700 EsspressoBin use "make mvebu_espressobin-88f3720_defconfig"
+	- For the Armada-3700 EspressoBin use "make mvebu_espressobin-88f3720_defconfig"
 
 5. Configure the device-tree and build the U-Boot image:
 
@@ -62,11 +62,15 @@ Configuration update
 Permanent ethernet MAC address
 -------------------------------
 	Prior flashing new U-Boot version (as part of ATF image) it is suggested to backup
-	permanent ethernet MAC address as it is stored only in U-Boot env storage (SPI or eMMC).
-	Some boards like EspressoBin have MAC address printed on sticker. To print current MAC
-	address run:
+	permanent ethernet MAC addresses as they are stored only in U-Boot env storage (SPI or eMMC).
+	Some boards like EspressoBin have MAC addresses printed on sticker. Some boards got assigned
+	only one address other may also more than one. To print current MAC addresses run:
 
 		# echo $ethaddr
+		# echo $eth1addr
+		# echo $eth2addr
+		# echo $eth3addr
+		# ...
 
 	MAC addresses 00:51:82:11:22:00, 00:51:82:11:22:01, 00:51:82:11:22:02, 00:51:82:11:22:03
 	and F0:AD:4E:03:64:7F are default hardcoded values found in Marvell's and Armbian U-Boot
@@ -75,13 +79,20 @@ Permanent ethernet MAC address
 	suggested to generate new random one.
 
 	After flashing new U-Boot version it is suggested to reset U-Boot env variables to default
-	and then set correct permanent ethernet MAC address.
+	and then set correct permanent ethernet MAC addresses.
 
 		# env default -a
 		# setenv ethaddr XX:XX:XX:XX:XX:XX
+		# setenv eth1addr XX:XX:XX:XX:XX:XX
+		# setenv eth2addr YY:YY:YY:YY:YY:YY
+		# setenv eth3addr ZZ:ZZ:ZZ:ZZ:ZZ:ZZ
+		# ...
 		# saveenv
 
-	Where XX:XX:XX:XX:XX:XX is permanent ethernet MAC address.
+	Where value for ethaddr is required permanent ethernet MAC address and values for ethNaddr
+	are optional per-port MAC addresses. When optional ethNaddr variables are not defined then
+	they are inherited from required ethaddr variable. eth1addr contains MAC address for the
+	wan port, other for particular lan ports.
 
 	Recent Linux kernel versions use correct permanent ethernet MAC address from U-Boot env as
 	U-Boot will inject it into kernel's device-tree.
