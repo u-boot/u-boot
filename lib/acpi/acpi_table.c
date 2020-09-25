@@ -264,3 +264,67 @@ void acpi_setup_base_tables(struct acpi_ctx *ctx, void *start)
 	 */
 	acpi_align64(ctx);
 }
+
+void acpi_create_dbg2(struct acpi_dbg2_header *dbg2,
+		      int port_type, int port_subtype,
+		      struct acpi_gen_regaddr *address, u32 address_size,
+		      const char *device_path)
+{
+	uintptr_t current;
+	struct acpi_dbg2_device *device;
+	u32 *dbg2_addr_size;
+	struct acpi_table_header *header;
+	size_t path_len;
+	const char *path;
+	char *namespace;
+
+	/* Fill out header fields. */
+	current = (uintptr_t)dbg2;
+	memset(dbg2, '\0', sizeof(struct acpi_dbg2_header));
+	header = &dbg2->header;
+
+	header->revision = acpi_get_table_revision(ACPITAB_DBG2);
+	acpi_fill_header(header, "DBG2");
+	header->aslc_revision = ASL_REVISION;
+
+	/* One debug device defined */
+	dbg2->devices_offset = sizeof(struct acpi_dbg2_header);
+	dbg2->devices_count = 1;
+	current += sizeof(struct acpi_dbg2_header);
+
+	/* Device comes after the header */
+	device = (struct acpi_dbg2_device *)current;
+	memset(device, 0, sizeof(struct acpi_dbg2_device));
+	current += sizeof(struct acpi_dbg2_device);
+
+	device->revision = 0;
+	device->address_count = 1;
+	device->port_type = port_type;
+	device->port_subtype = port_subtype;
+
+	/* Base Address comes after device structure */
+	memcpy((void *)current, address, sizeof(struct acpi_gen_regaddr));
+	device->base_address_offset = current - (uintptr_t)device;
+	current += sizeof(struct acpi_gen_regaddr);
+
+	/* Address Size comes after address structure */
+	dbg2_addr_size = (uint32_t *)current;
+	device->address_size_offset = current - (uintptr_t)device;
+	*dbg2_addr_size = address_size;
+	current += sizeof(uint32_t);
+
+	/* Namespace string comes last, use '.' if not provided */
+	path = device_path ? : ".";
+	/* Namespace string length includes NULL terminator */
+	path_len = strlen(path) + 1;
+	namespace = (char *)current;
+	device->namespace_string_length = path_len;
+	device->namespace_string_offset = current - (uintptr_t)device;
+	strncpy(namespace, path, path_len);
+	current += path_len;
+
+	/* Update structure lengths and checksum */
+	device->length = current - (uintptr_t)device;
+	header->length = current - (uintptr_t)dbg2;
+	header->checksum = table_compute_checksum(dbg2, header->length);
+}

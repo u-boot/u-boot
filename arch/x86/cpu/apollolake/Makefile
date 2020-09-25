@@ -16,6 +16,7 @@ obj-y += fsp_m.o
 endif
 endif
 ifndef CONFIG_SPL_BUILD
+obj-y += acpi.o
 obj-y += fsp_s.o
 endif
 

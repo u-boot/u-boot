@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <irq.h>
 #include <malloc.h>
+#include <uuid.h>
 #include <acpi/acpigen.h>
 #include <acpi/acpi_device.h>
 #include <acpi/acpi_table.h>
@@ -1097,3 +1098,649 @@ static int dm_test_acpi_write_name(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_write_name, 0);
+
+/* Test emitting a _PRW component */
+static int dm_test_acpi_write_prw(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_prw(ctx, 5, 3);
+	ut_asserteq(NAME_OP, *ptr++);
+
+	ut_asserteq_strn("_PRW", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ut_asserteq(8, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(2, *ptr++);
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(5, *ptr++);
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(3, *ptr++);
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_prw, 0);
+
+/* Test emitting writing conditionals */
+static int dm_test_acpi_write_cond(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_if(ctx);
+	acpigen_pop_len(ctx);
+	ut_asserteq(IF_OP, *ptr++);
+	ut_asserteq(3, acpi_test_get_length(ptr));
+	ptr += 3;
+
+	acpigen_write_else(ctx);
+	acpigen_pop_len(ctx);
+	ut_asserteq(ELSE_OP, *ptr++);
+	ut_asserteq(3, acpi_test_get_length(ptr));
+	ptr += 3;
+
+	acpigen_write_if_lequal_op_int(ctx, LOCAL1_OP, 5);
+	acpigen_pop_len(ctx);
+	ut_asserteq(IF_OP, *ptr++);
+	ut_asserteq(7, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(LEQUAL_OP, *ptr++);
+	ut_asserteq(LOCAL1_OP, *ptr++);
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(5, *ptr++);
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_cond, 0);
+
+/* Test emitting writing return values and ToBuffer/ToInteger */
+static int dm_test_acpi_write_return(struct unit_test_state *uts)
+{
+	int len = sizeof(TEST_STRING);
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_to_buffer(ctx, ARG0_OP, LOCAL0_OP);
+	ut_asserteq(TO_BUFFER_OP, *ptr++);
+	ut_asserteq(ARG0_OP, *ptr++);
+	ut_asserteq(LOCAL0_OP, *ptr++);
+
+	acpigen_write_to_integer(ctx, ARG0_OP, LOCAL0_OP);
+	ut_asserteq(TO_INTEGER_OP, *ptr++);
+	ut_asserteq(ARG0_OP, *ptr++);
+	ut_asserteq(LOCAL0_OP, *ptr++);
+
+	acpigen_write_return_byte_buffer(ctx, (u8 *)TEST_STRING, len);
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ut_asserteq(5 + len, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(len, *ptr++);
+	ut_asserteq_mem(TEST_STRING, ptr, len);
+	ptr += len;
+
+	acpigen_write_return_singleton_buffer(ctx, 123);
+	len = 1;
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ut_asserteq(4 + len, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(ONE_OP, *ptr++);
+	ut_asserteq(123, *ptr++);
+
+	acpigen_write_return_byte(ctx, 43);
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(43, *ptr++);
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_return, 0);
+
+/* Test emitting a DSM for an I2C HID */
+static int dm_test_acpi_write_i2c_dsm(struct unit_test_state *uts)
+{
+	char uuid_str[UUID_STR_LEN + 1];
+	const int reg_offset = 0x20;
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	ut_assertok(acpi_device_write_dsm_i2c_hid(ctx, reg_offset));
+
+	/* acpigen_write_dsm_start() */
+	ut_asserteq(METHOD_OP, *ptr++);
+	ut_asserteq(0x78, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq_strn("_DSM", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(ACPI_METHOD_SERIALIZED_MASK | 4, *ptr++);
+
+	ut_asserteq(TO_BUFFER_OP, *ptr++);
+	ut_asserteq(ARG0_OP, *ptr++);
+	ut_asserteq(LOCAL0_OP, *ptr++);
+
+	/* acpigen_write_dsm_uuid_start() */
+	ut_asserteq(IF_OP, *ptr++);
+	ut_asserteq(0x65, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(LEQUAL_OP, *ptr++);
+	ut_asserteq(LOCAL0_OP, *ptr++);
+
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ut_asserteq(UUID_BIN_LEN + 6, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(WORD_PREFIX, *ptr++);
+	ut_asserteq(UUID_BIN_LEN, get_unaligned((u16 *)ptr));
+	ptr += 2;
+	uuid_bin_to_str(ptr, uuid_str, UUID_STR_FORMAT_GUID);
+	ut_asserteq_str(ACPI_DSM_I2C_HID_UUID, uuid_str);
+	ptr += UUID_BIN_LEN;
+
+	ut_asserteq(TO_INTEGER_OP, *ptr++);
+	ut_asserteq(ARG2_OP, *ptr++);
+	ut_asserteq(LOCAL1_OP, *ptr++);
+
+	/* acpigen_write_dsm_uuid_start_cond() */
+	ut_asserteq(IF_OP, *ptr++);
+	ut_asserteq(0x34, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(LEQUAL_OP, *ptr++);
+	ut_asserteq(LOCAL1_OP, *ptr++);
+	ut_asserteq(ZERO_OP, *ptr++);
+
+	/*
+	 * See code from acpi_device_write_dsm_i2c_hid(). We don't check every
+	 * piece
+	 */
+	ut_asserteq(TO_INTEGER_OP, *ptr++);
+	ut_asserteq(ARG1_OP, *ptr++);
+	ut_asserteq(LOCAL2_OP, *ptr++);
+
+	ut_asserteq(IF_OP, *ptr++);
+	ut_asserteq(0xd, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(LEQUAL_OP, *ptr++);
+	ut_asserteq(LOCAL2_OP, *ptr++);
+	ut_asserteq(ZERO_OP, *ptr++);	/* function 0 */
+
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ptr += 5;
+
+	ut_asserteq(ELSE_OP, *ptr++);
+	ptr += 3;
+
+	ut_asserteq(IF_OP, *ptr++);
+	ut_asserteq(0xd, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(LEQUAL_OP, *ptr++);
+	ut_asserteq(LOCAL2_OP, *ptr++);
+	ut_asserteq(ONE_OP, *ptr++);
+
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ptr += 5;
+
+	ut_asserteq(ELSE_OP, *ptr++);
+	ptr += 3;
+
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ptr += 5;
+
+	/* acpigen_write_dsm_uuid_start_cond() */
+	ut_asserteq(IF_OP, *ptr++);
+	ut_asserteq(9, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(LEQUAL_OP, *ptr++);
+	ut_asserteq(LOCAL1_OP, *ptr++);
+	ut_asserteq(ONE_OP, *ptr++);	/* function 1 */
+
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(reg_offset, *ptr++);
+
+	/* acpigen_write_dsm_uuid_end() */
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ptr += 5;
+
+	/* acpigen_write_dsm_end */
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ptr += 5;
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_i2c_dsm, 0);
+
+/* Test emitting a processor */
+static int dm_test_acpi_write_processor(struct unit_test_state *uts)
+{
+	const int cpuindex = 6;
+	const u32 pblock_addr = 0x12345600;
+	const u32 pblock_len = 0x60;
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_processor(ctx, cpuindex, pblock_addr, pblock_len);
+	acpigen_pop_len(ctx);
+
+	ut_asserteq(EXT_OP_PREFIX, *ptr++);
+	ut_asserteq(PROCESSOR_OP, *ptr++);
+	ut_asserteq(0x13, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq_strn("\\._PR_CP06", (char *)ptr);
+	ptr += 10;
+	ut_asserteq(cpuindex, *ptr++);
+	ut_asserteq(pblock_addr, get_unaligned((u32 *)ptr));
+	ptr += 4;
+	ut_asserteq(pblock_len, *ptr++);
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_processor, 0);
+
+/* Test emitting a processor package */
+static int dm_test_acpi_write_processor_package(struct unit_test_state *uts)
+{
+	const int core_count = 3;
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_processor_package(ctx, "XCPU", 0, core_count);
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ut_asserteq_strn("XCPU", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(core_count, *ptr++);
+
+	ut_asserteq_strn("\\._PR_CP00", (char *)ptr);
+	ptr += 10;
+	ut_asserteq_strn("\\._PR_CP01", (char *)ptr);
+	ptr += 10;
+	ut_asserteq_strn("\\._PR_CP02", (char *)ptr);
+	ptr += 10;
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_processor_package, 0);
+
+/* Test emitting a processor notification package */
+static int dm_test_acpi_write_processor_cnot(struct unit_test_state *uts)
+{
+	const int core_count = 3;
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_processor_cnot(ctx, core_count);
+
+	ut_asserteq(METHOD_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq_strn("\\._PR_CNOT", (char *)ptr);
+	ptr += 10;
+	ut_asserteq(1, *ptr++);
+
+	ut_asserteq(NOTIFY_OP, *ptr++);
+	ut_asserteq_strn("\\._PR_CP00", (char *)ptr);
+	ptr += 10;
+	ut_asserteq(ARG0_OP, *ptr++);
+	ut_asserteq(NOTIFY_OP, *ptr++);
+	ut_asserteq_strn("\\._PR_CP01", (char *)ptr);
+	ptr += 10;
+	ut_asserteq(ARG0_OP, *ptr++);
+	ut_asserteq(NOTIFY_OP, *ptr++);
+	ut_asserteq_strn("\\._PR_CP02", (char *)ptr);
+	ptr += 10;
+	ut_asserteq(ARG0_OP, *ptr++);
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_processor_cnot, 0);
+
+/* Test acpigen_write_tpc */
+static int dm_test_acpi_write_tpc(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_tpc(ctx, "\\TLVL");
+
+	ut_asserteq(METHOD_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq_strn("_TPC", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(0, *ptr++);
+	ut_asserteq(RETURN_OP, *ptr++);
+	ut_asserteq_strn("\\TLVL", (char *)ptr);
+	ptr += 5;
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_tpc, 0);
+
+/* Test acpigen_write_pss_package(), etc. */
+static int dm_test_acpi_write_pss_psd(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_pss_package(ctx, 1, 2, 3, 4, 5, 6);
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(6, *ptr++);
+
+	ut_asserteq(DWORD_PREFIX, *ptr++);
+	ut_asserteq(1, get_unaligned((u32 *)ptr));
+	ptr += 5;
+
+	ut_asserteq(2, get_unaligned((u32 *)ptr));
+	ptr += 5;
+
+	ut_asserteq(3, get_unaligned((u32 *)ptr));
+	ptr += 5;
+
+	ut_asserteq(4, get_unaligned((u32 *)ptr));
+	ptr += 5;
+
+	ut_asserteq(5, get_unaligned((u32 *)ptr));
+	ptr += 5;
+
+	ut_asserteq(6, get_unaligned((u32 *)ptr));
+	ptr += 4;
+
+	acpigen_write_psd_package(ctx, 6, 7, HW_ALL);
+	ut_asserteq(NAME_OP, *ptr++);
+	ut_asserteq_strn("_PSD", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(1, *ptr++);
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(5, *ptr++);
+
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(5, *ptr++);
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(0, *ptr++);
+
+	ut_asserteq(DWORD_PREFIX, *ptr++);
+	ut_asserteq(6, get_unaligned((u32 *)ptr));
+	ptr += 5;
+
+	ut_asserteq(HW_ALL, get_unaligned((u32 *)ptr));
+	ptr += 5;
+
+	ut_asserteq(7, get_unaligned((u32 *)ptr));
+	ptr += 4;
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_pss_psd, 0);
+
+/* Test acpi_write_cst_package() */
+static int dm_test_acpi_write_cst(struct unit_test_state *uts)
+{
+	static struct acpi_cstate cstate_map[] = {
+		{
+			/* C1 */
+			.ctype = 1,		/* ACPI C1 */
+			.latency = 1,
+			.power = 1000,
+			.resource = {
+				.space_id = ACPI_ADDRESS_SPACE_FIXED,
+			},
+		}, {
+			.ctype = 2,		/* ACPI C2 */
+			.latency = 50,
+			.power = 10,
+			.resource = {
+				.space_id = ACPI_ADDRESS_SPACE_IO,
+				.bit_width = 8,
+				.addrl = 0x415,
+			},
+		},
+	};
+	int nentries = ARRAY_SIZE(cstate_map);
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+	int i;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_cst_package(ctx, cstate_map, nentries);
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ut_asserteq_strn("_CST", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(nentries + 1, *ptr++);
+	ut_asserteq(DWORD_PREFIX, *ptr++);
+	ut_asserteq(nentries, get_unaligned((u32 *)ptr));
+	ptr += 4;
+
+	for (i = 0; i < nentries; i++) {
+		ut_asserteq(PACKAGE_OP, *ptr++);
+		ptr += 3;  /* skip length */
+		ut_asserteq(4, *ptr++);
+		ut_asserteq(BUFFER_OP, *ptr++);
+		ptr += 0x17;
+		ut_asserteq(DWORD_PREFIX, *ptr++);
+		ut_asserteq(cstate_map[i].ctype, get_unaligned((u32 *)ptr));
+		ptr += 5;
+		ut_asserteq(cstate_map[i].latency, get_unaligned((u32 *)ptr));
+		ptr += 5;
+		ut_asserteq(cstate_map[i].power, get_unaligned((u32 *)ptr));
+		ptr += 4;
+	}
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_cst, 0);
+
+/* Test acpi_write_cst_package() */
+static int dm_test_acpi_write_csd(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_csd_package(ctx, 12, 34, CSD_HW_ALL, 56);
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ut_asserteq_strn("_CSD", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(1, *ptr++);
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(6, *ptr++);
+
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(6, *ptr++);
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(0, *ptr++);
+	ut_asserteq(DWORD_PREFIX, *ptr++);
+	ut_asserteq(12, get_unaligned((u32 *)ptr));
+	ptr += 5;
+	ut_asserteq(CSD_HW_ALL, get_unaligned((u32 *)ptr));
+	ptr += 5;
+	ut_asserteq(34, get_unaligned((u32 *)ptr));
+	ptr += 5;
+	ut_asserteq(56, get_unaligned((u32 *)ptr));
+	ptr += 4;
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_csd, 0);
+
+/* Test acpigen_write_tss_package() */
+static int dm_test_acpi_write_tss(struct unit_test_state *uts)
+{
+	static struct acpi_tstate tstate_list[] = {
+		{ 1, 2, 3, 4, 5, },
+		{ 6, 7, 8, 9, 10, },
+	};
+	int nentries = ARRAY_SIZE(tstate_list);
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+	int i;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_tss_package(ctx, tstate_list, nentries);
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ut_asserteq_strn("_TSS", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(nentries, *ptr++);
+
+	for (i = 0; i < nentries; i++) {
+		ut_asserteq(PACKAGE_OP, *ptr++);
+		ptr += 3;  /* skip length */
+		ut_asserteq(5, *ptr++);
+		ut_asserteq(DWORD_PREFIX, *ptr++);
+		ut_asserteq(tstate_list[i].percent, get_unaligned((u32 *)ptr));
+		ptr += 5;
+		ut_asserteq(tstate_list[i].power, get_unaligned((u32 *)ptr));
+		ptr += 5;
+		ut_asserteq(tstate_list[i].latency, get_unaligned((u32 *)ptr));
+		ptr += 5;
+		ut_asserteq(tstate_list[i].control, get_unaligned((u32 *)ptr));
+		ptr += 5;
+		ut_asserteq(tstate_list[i].status, get_unaligned((u32 *)ptr));
+		ptr += 4;
+	}
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_tss, 0);
+
+/* Test acpigen_write_tsd_package() */
+static int dm_test_acpi_write_tsd_package(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_tsd_package(ctx, 12, 34, HW_ALL);
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ut_asserteq_strn("_TSD", (char *)ptr);
+	ptr += 4;
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(1, *ptr++);
+	ut_asserteq(PACKAGE_OP, *ptr++);
+	ptr += 3;  /* skip length */
+	ut_asserteq(5, *ptr++);
+
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(5, *ptr++);
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(0, *ptr++);
+	ut_asserteq(DWORD_PREFIX, *ptr++);
+	ut_asserteq(12, get_unaligned((u32 *)ptr));
+	ptr += 5;
+	ut_asserteq(CSD_HW_ALL, get_unaligned((u32 *)ptr));
+	ptr += 5;
+	ut_asserteq(34, get_unaligned((u32 *)ptr));
+	ptr += 4;
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_tsd_package, 0);

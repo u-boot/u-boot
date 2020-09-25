@@ -58,6 +58,12 @@ enum i2c_address_mode {
 	I2C_MODE_10_BIT
 };
 
+/** enum i2c_device_t - Types of I2C devices, used for compatible strings */
+enum i2c_device_t {
+	I2C_DEVICE_GENERIC,
+	I2C_DEVICE_HID_OVER_I2C,
+};
+
 struct udevice;
 /**
  * struct dm_i2c_chip - information about an i2c chip
@@ -557,6 +563,23 @@ int i2c_emul_find(struct udevice *dev, struct udevice **emulp);
  * @return device that @emul is emulating
  */
 struct udevice *i2c_emul_get_device(struct udevice *emul);
+
+/* ACPI operations for generic I2C devices */
+extern struct acpi_ops i2c_acpi_ops;
+
+/**
+ * acpi_i2c_ofdata_to_platdata() - Read properties intended for ACPI
+ *
+ * This reads the generic I2C properties from the device tree, so that these
+ * can be used to create ACPI information for the device.
+ *
+ * See the i2c/generic-acpi.txt binding file for information about the
+ * properties.
+ *
+ * @dev: I2C device to process
+ * @return 0 if OK, -EINVAL if acpi,hid is not present
+ */
+int acpi_i2c_ofdata_to_platdata(struct udevice *dev);
 
 #ifndef CONFIG_DM_I2C
 

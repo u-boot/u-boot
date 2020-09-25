@@ -13,17 +13,22 @@
 #ifndef __ACPI_TABLE_H__
 #define __ACPI_TABLE_H__
 
-#include <linux/bitops.h>
+#include <dm/acpi.h>
 
 #define RSDP_SIG		"RSD PTR "	/* RSDP pointer signature */
 #define OEM_ID			"U-BOOT"	/* U-Boot */
 #define OEM_TABLE_ID		"U-BOOTBL"	/* U-Boot Table */
 #define ASLC_ID			"INTL"		/* Intel ASL Compiler */
 
+/* TODO(sjg@chromium.org): Figure out how to get compiler revision */
+#define ASL_REVISION	0
+
 #define ACPI_RSDP_REV_ACPI_1_0	0
 #define ACPI_RSDP_REV_ACPI_2_0	2
 
 #if !defined(__ACPI__)
+
+#include <linux/bitops.h>
 
 struct acpi_ctx;
 
@@ -45,7 +50,7 @@ struct acpi_rsdp {
 
 /* Generic ACPI header, provided by (almost) all tables */
 struct __packed acpi_table_header {
-	char signature[4];	/* ACPI signature (4 ASCII characters) */
+	char signature[ACPI_NAME_LEN];	/* ACPI signature (4 ASCII chars) */
 	u32 length;		/* Table length in bytes (incl. header) */
 	u8 revision;		/* Table version (not ACPI version!) */
 	volatile u8 checksum;	/* To make sum of entire table == 0 */
@@ -54,6 +59,15 @@ struct __packed acpi_table_header {
 	u32 oem_revision;	/* OEM revision number */
 	char aslc_id[4];	/* ASL compiler vendor ID */
 	u32 aslc_revision;	/* ASL compiler revision number */
+};
+
+struct acpi_gen_regaddr {
+	u8 space_id;	/* Address space ID */
+	u8 bit_width;	/* Register size in bits */
+	u8 bit_offset;	/* Register bit offset */
+	u8 access_size;	/* Access size */
+	u32 addrl;	/* Register address, low 32 bits */
+	u32 addrh;	/* Register address, high 32 bits */
 };
 
 /* A maximum number of 32 ACPI tables ought to be enough for now */
@@ -69,6 +83,34 @@ struct acpi_rsdt {
 struct acpi_xsdt {
 	struct acpi_table_header header;
 	u64 entry[MAX_ACPI_TABLES];
+};
+
+/* HPET timers */
+struct __packed acpi_hpet {
+	struct acpi_table_header header;
+	u32 id;
+	struct acpi_gen_regaddr addr;
+	u8 number;
+	u16 min_tick;
+	u8 attributes;
+};
+
+struct __packed acpi_tpm2 {
+	struct acpi_table_header header;
+	u16 platform_class;
+	u8  reserved[2];
+	u64 control_area;
+	u32 start_method;
+	u8  msp[12];
+	u32 laml;
+	u64 lasa;
+};
+
+struct __packed acpi_tcpa {
+	struct acpi_table_header header;
+	u16 platform_class;
+	u32 laml;
+	u64 lasa;
 };
 
 /* FADT Preferred Power Management Profile */
@@ -136,15 +178,6 @@ enum acpi_address_space_size {
 	ACPI_ACCESS_SIZE_WORD_ACCESS,
 	ACPI_ACCESS_SIZE_DWORD_ACCESS,
 	ACPI_ACCESS_SIZE_QWORD_ACCESS
-};
-
-struct acpi_gen_regaddr {
-	u8 space_id;	/* Address space ID */
-	u8 bit_width;	/* Register size in bits */
-	u8 bit_offset;	/* Register bit offset */
-	u8 access_size;	/* Access size */
-	u32 addrl;	/* Register address, low 32 bits */
-	u32 addrh;	/* Register address, high 32 bits */
 };
 
 /* FADT (Fixed ACPI Description Table) */
@@ -232,7 +265,7 @@ struct __packed acpi_fadt {
 
 /* FACS (Firmware ACPI Control Structure) */
 struct acpi_facs {
-	char signature[4];		/* "FACS" */
+	char signature[ACPI_NAME_LEN];	/* "FACS" */
 	u32 length;			/* Length in bytes (>= 64) */
 	u32 hardware_signature;		/* Hardware signature */
 	u32 firmware_waking_vector;	/* Firmware waking vector */
@@ -364,6 +397,49 @@ struct acpi_csrt_shared_info {
 	u32 max_block_size;
 };
 
+/* Port types for ACPI _UPC object */
+enum acpi_upc_type {
+	UPC_TYPE_A,
+	UPC_TYPE_MINI_AB,
+	UPC_TYPE_EXPRESSCARD,
+	UPC_TYPE_USB3_A,
+	UPC_TYPE_USB3_B,
+	UPC_TYPE_USB3_MICRO_B,
+	UPC_TYPE_USB3_MICRO_AB,
+	UPC_TYPE_USB3_POWER_B,
+	UPC_TYPE_C_USB2_ONLY,
+	UPC_TYPE_C_USB2_SS_SWITCH,
+	UPC_TYPE_C_USB2_SS,
+	UPC_TYPE_PROPRIETARY = 0xff,
+	/*
+	 * The following types are not directly defined in the ACPI
+	 * spec but are used by coreboot to identify a USB device type.
+	 */
+	UPC_TYPE_INTERNAL = 0xff,
+	UPC_TYPE_UNUSED,
+	UPC_TYPE_HUB
+};
+
+enum dev_scope_type {
+	SCOPE_PCI_ENDPOINT = 1,
+	SCOPE_PCI_SUB = 2,
+	SCOPE_IOAPIC = 3,
+	SCOPE_MSI_HPET = 4,
+	SCOPE_ACPI_NAMESPACE_DEVICE = 5
+};
+
+struct __packed dev_scope {
+	u8 type;
+	u8 length;
+	u8 reserved[2];
+	u8 enumeration;
+	u8 start_bus;
+	struct {
+		u8 dev;
+		u8 fn;
+	} __packed path[0];
+};
+
 enum dmar_type {
 	DMAR_DRHD = 0,
 	DMAR_RMRR = 1,
@@ -434,6 +510,29 @@ struct __packed acpi_dmar {
 #define ACPI_DBG2_USB_EHCI		0x0001
 
 #define ACPI_DBG2_UNKNOWN		0x00FF
+
+/* DBG2: Microsoft Debug Port Table 2 header */
+struct __packed acpi_dbg2_header {
+	struct acpi_table_header header;
+	u32 devices_offset;
+	u32 devices_count;
+};
+
+/* DBG2: Microsoft Debug Port Table 2 device entry */
+struct __packed acpi_dbg2_device {
+	u8  revision;
+	u16 length;
+	u8 address_count;
+	u16 namespace_string_length;
+	u16 namespace_string_offset;
+	u16 oem_data_length;
+	u16 oem_data_offset;
+	u16 port_type;
+	u16 port_subtype;
+	u8  reserved[2];
+	u16 base_address_offset;
+	u16 address_size_offset;
+};
 
 /* SPCR (Serial Port Console Redirection table) */
 struct __packed acpi_spcr {
@@ -508,6 +607,23 @@ int acpi_get_table_revision(enum acpi_tables table);
  * @return 0 if OK, -ve on error
  */
 int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags);
+
+/**
+ * acpi_create_dbg2() - Create a DBG2 table
+ *
+ * This table describes how to access the debug UART
+ *
+ * @dbg2: Place to put information
+ * @port_type: Serial port type (see ACPI_DBG2_...)
+ * @port_subtype: Serial port sub-type (see ACPI_DBG2_...)
+ * @address: ACPI address of port
+ * @address_size: Size of address space
+ * @device_path: Path of device (created using acpi_device_path())
+ */
+void acpi_create_dbg2(struct acpi_dbg2_header *dbg2,
+		      int port_type, int port_subtype,
+		      struct acpi_gen_regaddr *address, uint32_t address_size,
+		      const char *device_path);
 
 /**
  * acpi_fill_header() - Set up a new table header

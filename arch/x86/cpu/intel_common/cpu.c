@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <log.h>
+#include <acpi/acpigen.h>
 #include <asm/cpu.h>
 #include <asm/cpu_common.h>
 #include <asm/intel_regs.h>
@@ -126,6 +127,7 @@ int cpu_intel_get_info(struct cpu_info *info, int bclk)
 	info->cpu_freq = ((msr.lo >> 8) & 0xff) * bclk * 1000000;
 	info->features = 1 << CPU_FEAT_L1_CACHE | 1 << CPU_FEAT_MMU |
 		1 << CPU_FEAT_UCODE | 1 << CPU_FEAT_DEVICE_ID;
+	info->address_width = cpu_phys_address_size();
 
 	return 0;
 }
@@ -226,4 +228,81 @@ void cpu_set_eist(bool eist_status)
 	else
 		msr.lo &= ~MISC_ENABLE_ENHANCED_SPEEDSTEP;
 	msr_write(MSR_IA32_MISC_ENABLE, msr);
+}
+
+int cpu_get_coord_type(void)
+{
+	return HW_ALL;
+}
+
+int cpu_get_min_ratio(void)
+{
+	msr_t msr;
+
+	/* Get bus ratio limits and calculate clock speeds */
+	msr = msr_read(MSR_PLATFORM_INFO);
+
+	return (msr.hi >> 8) & 0xff;	/* Max Efficiency Ratio */
+}
+
+int cpu_get_max_ratio(void)
+{
+	u32 ratio_max;
+	msr_t msr;
+
+	if (cpu_config_tdp_levels()) {
+		/* Set max ratio to nominal TDP ratio */
+		msr = msr_read(MSR_CONFIG_TDP_NOMINAL);
+		ratio_max = msr.lo & 0xff;
+	} else {
+		msr = msr_read(MSR_PLATFORM_INFO);
+		/* Max Non-Turbo Ratio */
+		ratio_max = (msr.lo >> 8) & 0xff;
+	}
+
+	return ratio_max;
+}
+
+int cpu_get_bus_clock_khz(void)
+{
+	/*
+	 * CPU bus clock is set by default here to 100MHz. This function returns
+	 * the bus clock in KHz.
+	 */
+	return INTEL_BCLK_MHZ * 1000;
+}
+
+int cpu_get_power_max(void)
+{
+	int power_unit;
+	msr_t msr;
+
+	msr = msr_read(MSR_PKG_POWER_SKU_UNIT);
+	power_unit = 2 << ((msr.lo & 0xf) - 1);
+	msr = msr_read(MSR_PKG_POWER_SKU);
+
+	return (msr.lo & 0x7fff) * 1000 / power_unit;
+}
+
+int cpu_get_max_turbo_ratio(void)
+{
+	msr_t msr;
+
+	msr = msr_read(MSR_TURBO_RATIO_LIMIT);
+
+	return msr.lo & 0xff;
+}
+
+int cpu_get_cores_per_package(void)
+{
+	struct cpuid_result result;
+	int cores = 1;
+
+	if (gd->arch.x86_vendor != X86_VENDOR_INTEL)
+		return 1;
+
+	result = cpuid_ext(0xb, 1);
+	cores = result.ebx & 0xff;
+
+	return cores;
 }

@@ -81,7 +81,7 @@ static int max98357a_acpi_fill_ssdt(const struct udevice *dev,
 	dp = acpi_dp_new_table("_DSD");
 	acpi_dp_add_gpio(dp, "sdmode-gpio", path, 0, 0,
 			 priv->sdmode_gpio.flags & GPIOD_ACTIVE_LOW ?
-			 ACPI_IRQ_ACTIVE_LOW : ACPI_IRQ_ACTIVE_HIGH);
+			 ACPI_GPIO_ACTIVE_LOW : ACPI_GPIO_ACTIVE_HIGH);
 	acpi_dp_add_integer(dp, "sdmode-delay",
 			    dev_read_u32_default(dev, "sdmode-delay", 0));
 	acpi_dp_write(ctx, dp);

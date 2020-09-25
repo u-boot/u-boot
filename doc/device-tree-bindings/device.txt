@@ -22,6 +22,8 @@ the acpi,compatible property.
  - acpi,name : Provides the ACPI name for a device, which is a string consisting
    of four alphanumeric character (upper case)
  - acpi,uid : _UID value for device
+ - acpi,wake : Provides the GPE used to detect a request from a device to wake
+   from sleep
  - linux,probed : Tells U-Boot to add 'linux,probed' to the ACPI tables so that
     Linux will only load the driver if the device can be detected (e.g. on I2C
     bus). Note that this is an out-of-tree Linux feature.
@@ -46,6 +48,7 @@ pcie-a0@14,0 {
 		compatible = "intel,generic-wifi";
 		acpi,ddn = "Intel WiFi";
 		acpi,name = "WF00";
+		acpi,wake = <GPE0_DW3_00>;
 		interrupts-extended = <&acpi_gpe 0x3c 0>;
 	};
 };
