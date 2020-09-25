@@ -90,8 +90,9 @@ static int meson_rng_ofdata_to_platdata(struct udevice *dev)
 	if (!pdata->base)
 		return -ENODEV;
 
+	/* Get optional "core" clock */
 	err = clk_get_by_name(dev, "core", &pdata->clk);
-	if (err)
+	if (err && err != -ENODATA)
 		return err;
 
 	return 0;
