@@ -111,6 +111,9 @@ ulong handle_trap(ulong cause, ulong epc, ulong tval, struct pt_regs *regs)
 {
 	ulong is_irq, irq;
 
+	/* An UEFI application may have changed gd. Restore U-Boot's gd. */
+	efi_restore_gd();
+
 	is_irq = (cause & MCAUSE_INT);
 	irq = (cause & ~MCAUSE_INT);
 
