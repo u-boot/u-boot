@@ -9,6 +9,7 @@
 #include <common.h>
 #include <command.h>
 #include <efi_loader.h>
+#include <efi_rng.h>
 #include <exports.h>
 #include <hexdump.h>
 #include <log.h>
@@ -247,6 +248,10 @@ static const struct {
 	{
 		"Load File2",
 		EFI_LOAD_FILE2_PROTOCOL_GUID,
+	},
+	{
+		"Random Number Generator",
+		EFI_RNG_PROTOCOL_GUID,
 	},
 	{
 		"Simple Network",
