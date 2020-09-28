@@ -155,10 +155,6 @@ config 64BIT
 config SIFIVE_CLINT
 	bool
 	depends on RISCV_MMODE || SPL_RISCV_MMODE
-	select REGMAP
-	select SYSCON
-	select SPL_REGMAP if SPL
-	select SPL_SYSCON if SPL
 	help
 	  The SiFive CLINT block holds memory-mapped control and status registers
 	  associated with software and timer interrupts.
