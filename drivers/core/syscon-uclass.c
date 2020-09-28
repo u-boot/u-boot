@@ -142,7 +142,7 @@ int syscon_get_by_driver_data(ulong driver_data, struct udevice **devp)
 
 	ret = uclass_first_device_drvdata(UCLASS_SYSCON, driver_data, devp);
 	if (ret)
-		return log_msg_ret("find", ret);
+		return ret;
 
 	return 0;
 }
