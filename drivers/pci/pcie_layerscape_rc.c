@@ -273,7 +273,8 @@ static int ls_pcie_probe(struct udevice *dev)
 
 	pcie_rc->enabled = is_serdes_configured(PCIE_SRDS_PRTCL(pcie->idx));
 	if (!pcie_rc->enabled) {
-		printf("PCIe%d: %s disabled\n", pcie->idx, dev->name);
+		printf("PCIe%d: %s disabled\n", PCIE_SRDS_PRTCL(pcie->idx),
+		       dev->name);
 		return 0;
 	}
 
@@ -342,7 +343,8 @@ static int ls_pcie_probe(struct udevice *dev)
 	      (unsigned long)pcie->ctrl, (unsigned long)pcie_rc->cfg0,
 	      pcie->big_endian);
 
-	printf("PCIe%u: %s %s", pcie->idx, dev->name, "Root Complex");
+	printf("PCIe%u: %s %s", PCIE_SRDS_PRTCL(pcie->idx), dev->name,
+	       "Root Complex");
 	ls_pcie_setup_ctrl(pcie_rc);
 
 	if (!ls_pcie_link_up(pcie)) {

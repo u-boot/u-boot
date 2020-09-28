@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <asm/arch/fsl_serdes.h>
 #include <dm.h>
 #include <dm/devres.h>
 #include <errno.h>
@@ -294,7 +295,8 @@ static int ls_pcie_ep_probe(struct udevice *dev)
 	pcie_ep->num_ob_wins = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					      "num-ob-windows", 8);
 
-	printf("PCIe%u: %s %s", pcie->idx, dev->name, "Endpoint");
+	printf("PCIe%u: %s %s", PCIE_SRDS_PRTCL(pcie->idx), dev->name,
+	       "Endpoint");
 	ls_pcie_setup_ep(pcie_ep);
 
 	if (!ls_pcie_link_up(pcie)) {
