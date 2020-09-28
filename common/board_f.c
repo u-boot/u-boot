@@ -573,7 +573,9 @@ static int reserve_stacks(void)
 static int reserve_bloblist(void)
 {
 #ifdef CONFIG_BLOBLIST
-	gd->start_addr_sp = reserve_stack_aligned(CONFIG_BLOBLIST_SIZE);
+	/* Align to a 4KB boundary for easier reading of addresses */
+	gd->start_addr_sp = ALIGN_DOWN(gd->start_addr_sp - CONFIG_BLOBLIST_SIZE,
+				       0x1000);
 	gd->new_bloblist = map_sysmem(gd->start_addr_sp, CONFIG_BLOBLIST_SIZE);
 #endif
 
