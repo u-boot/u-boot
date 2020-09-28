@@ -954,4 +954,22 @@ config VIDEO_BMP_RLE8
 	  If this option is set, the 8-bit RLE compressed BMP images
 	  is supported.
 
+config BMP_16BPP
+	bool "16-bit-per-pixel BMP image support"
+	depends on DM_VIDEO || LCD
+	help
+	  Support display of bitmaps file with 16-bit-per-pixel
+
+config BMP_24BPP
+	bool "24-bit-per-pixel BMP image support"
+	depends on DM_VIDEO || LCD
+	help
+	  Support display of bitmaps file with 24-bit-per-pixel.
+
+config BMP_32BPP
+	bool "32-bit-per-pixel BMP image support"
+	depends on DM_VIDEO || LCD
+	help
+	  Support display of bitmaps file with 32-bit-per-pixel.
+
 endmenu

@@ -12,8 +12,4 @@
 
 #define CONFIG_SERIAL_TAG
 
-#define CONFIG_BMP_16BPP
-#define CONFIG_BMP_24BPP
-#define CONFIG_BMP_32BPP
-
 #endif

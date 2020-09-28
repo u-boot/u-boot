@@ -31,7 +31,6 @@
 /* Framebuffer support */
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_BMP_16BPP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(512 << 10)
 #endif
 

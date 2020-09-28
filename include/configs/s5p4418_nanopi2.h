@@ -153,11 +153,6 @@
 #define CONFIG_VIDEO_LOGO
 
 #ifdef CONFIG_VIDEO_LOGO
-
-#ifdef CONFIG_DM_VIDEO
-#define CONFIG_BMP_24BPP
-#endif
-
 #ifdef CONFIG_SPLASH_SCREEN
 #define SPLASH_FILE			logo.bmp
 #endif

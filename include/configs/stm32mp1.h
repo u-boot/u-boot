@@ -75,12 +75,6 @@
 #define CONFIG_SYS_AUTOLOAD		"no"
 #endif
 
-#ifdef CONFIG_DM_VIDEO
-#define CONFIG_BMP_16BPP
-#define CONFIG_BMP_24BPP
-#define CONFIG_BMP_32BPP
-#endif
-
 /*****************************************************************************/
 #ifdef CONFIG_DISTRO_DEFAULTS
 /*****************************************************************************/

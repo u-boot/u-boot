@@ -141,7 +141,6 @@
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_MXS
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_BMP_LOGO
 #endif
 
