@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu.h>
 #include <dm.h>
 #include <init.h>
 #include <dm/lists.h>
@@ -78,6 +79,36 @@ static int timer_post_probe(struct udevice *dev)
 
 	return 0;
 }
+
+/*
+ * TODO: should be CONFIG_IS_ENABLED(CPU), but the SPL config has _SUPPORT on
+ * the end...
+ */
+#if defined(CONFIG_CPU) || defined(CONFIG_SPL_CPU_SUPPORT)
+int timer_timebase_fallback(struct udevice *dev)
+{
+	struct udevice *cpu;
+	struct cpu_platdata *cpu_plat;
+	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	/* Did we get our clock rate from the device tree? */
+	if (uc_priv->clock_rate)
+		return 0;
+
+	/* Fall back to timebase-frequency */
+	dev_dbg(dev, "missing clocks or clock-frequency property; falling back on timebase-frequency\n");
+	cpu = cpu_get_current_dev();
+	if (!cpu)
+		return -ENODEV;
+
+	cpu_plat = dev_get_parent_platdata(cpu);
+	if (!cpu_plat)
+		return -ENODEV;
+
+	uc_priv->clock_rate = cpu_plat->timebase_freq;
+	return 0;
+}
+#endif
 
 u64 timer_conv_64(u32 count)
 {
