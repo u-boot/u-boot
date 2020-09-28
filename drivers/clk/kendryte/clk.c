@@ -646,6 +646,10 @@ static int k210_clk_probe(struct udevice *dev)
 	REGISTER_GATE(K210_CLK_RTC,   "rtc",   in0);
 #undef REGISTER_GATE
 
+	/* The MTIME register in CLINT runs at one 50th the CPU clock speed */
+	clk_dm(K210_CLK_CLINT,
+	       clk_register_fixed_factor(NULL, "clint", "cpu", 0, 1, 50));
+
 	return 0;
 }
 
