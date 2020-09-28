@@ -3,6 +3,8 @@
  * Copyright (c) 2019, Linaro Limited
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <common.h>
 #include <dm.h>
 #include <efi_loader.h>
@@ -144,7 +146,33 @@ back:
 	return EFI_EXIT(status);
 }
 
-const struct efi_rng_protocol efi_rng_protocol = {
+static const struct efi_rng_protocol efi_rng_protocol = {
 	.get_info = rng_getinfo,
 	.get_rng = getrng,
 };
+
+/**
+ * efi_rng_register() - register EFI_RNG_PROTOCOL
+ *
+ * If a RNG device is available, the Random Number Generator Protocol is
+ * registered.
+ *
+ * Return:	An error status is only returned if adding the protocol fails.
+ */
+efi_status_t efi_rng_register(void)
+{
+	efi_status_t ret;
+	struct udevice *dev;
+
+	ret = platform_get_rng_device(&dev);
+	if (ret != EFI_SUCCESS) {
+		log_warning("Missing RNG device for EFI_RNG_PROTOCOL");
+		return EFI_SUCCESS;
+	}
+	ret = efi_add_protocol(efi_root, &efi_guid_rng_protocol,
+			       (void *)&efi_rng_protocol);
+	if (ret != EFI_SUCCESS)
+		log_err("Cannot install EFI_RNG_PROTOCOL");
+
+	return ret;
+}
