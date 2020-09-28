@@ -43,7 +43,7 @@ static int binman_entry_find_internal(ofnode node, const char *name,
 
 	ret = ofnode_read_u32(node, "image-pos", &entry->image_pos);
 	if (ret)
-		return log_msg_ret("import-pos", ret);
+		return log_msg_ret("image-pos", ret);
 	ret = ofnode_read_u32(node, "size", &entry->size);
 	if (ret)
 		return log_msg_ret("size", ret);
@@ -81,6 +81,11 @@ ofnode binman_section_find_node(const char *name)
 void binman_set_rom_offset(int rom_offset)
 {
 	binman->rom_offset = rom_offset;
+}
+
+int binman_get_rom_offset(void)
+{
+	return binman->rom_offset;
 }
 
 int binman_init(void)
