@@ -494,13 +494,13 @@ static int process_reset(struct udevice *dev)
 			continue;
 		}
 
-		log_warning("TPM ready after %ld ms\n", get_timer(start));
+		log_debug("TPM ready after %ld ms\n", get_timer(start));
 
 		return 0;
 	} while (get_timer(start) < TIMEOUT_INIT_MS);
 
-	log_warning("TPM failed to reset after %ld ms, status: %#x\n",
-		    get_timer(start), access);
+	log_err("TPM failed to reset after %ld ms, status: %#x\n",
+		get_timer(start), access);
 
 	return -EPERM;
 }
@@ -539,7 +539,7 @@ static int claim_locality(struct udevice *dev, int loc)
 		log_err("Failed to claim locality\n");
 		return -EPERM;
 	}
-	log_info("Claimed locality %d\n", loc);
+	log_debug("Claimed locality %d\n", loc);
 	priv->locality = loc;
 
 	return 0;
@@ -577,7 +577,7 @@ static int cr50_i2c_cleanup(struct udevice *dev)
 {
 	struct cr50_priv *priv = dev_get_priv(dev);
 
-	printf("%s: cleanup %d\n", __func__, priv->locality);
+	log_debug("cleanup %d\n", priv->locality);
 	if (priv->locality != -1)
 		release_locality(dev, 1);
 
