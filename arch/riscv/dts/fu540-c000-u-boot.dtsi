@@ -55,9 +55,13 @@
 			reg = <0x0 0x10070000 0x0 0x1000>;
 			fuse-count = <0x1000>;
 		};
-		clint@2000000 {
+		clint: clint@2000000 {
 			compatible = "riscv,clint0";
-			interrupts-extended = <&cpu0_intc 3 &cpu0_intc 7 &cpu1_intc 3 &cpu1_intc 7 &cpu2_intc 3 &cpu2_intc 7 &cpu3_intc 3 &cpu3_intc 7 &cpu4_intc 3 &cpu4_intc 7>;
+			interrupts-extended = <&cpu0_intc 3 &cpu0_intc 7
+					       &cpu1_intc 3 &cpu1_intc 7
+					       &cpu2_intc 3 &cpu2_intc 7
+					       &cpu3_intc 3 &cpu3_intc 7
+					       &cpu4_intc 3 &cpu4_intc 7>;
 			reg = <0x0 0x2000000 0x0 0xc0000>;
 			u-boot,dm-spl;
 		};
