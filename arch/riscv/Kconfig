@@ -177,10 +177,6 @@ config ANDES_PLIC
 config ANDES_PLMT
 	bool
 	depends on RISCV_MMODE || SPL_RISCV_MMODE
-	select REGMAP
-	select SYSCON
-	select SPL_REGMAP if SPL
-	select SPL_SYSCON if SPL
 	help
 	  The Andes PLMT block holds memory-mapped mtime register
 	  associated with timer tick.
