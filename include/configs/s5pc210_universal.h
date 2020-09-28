@@ -160,7 +160,6 @@ int universal_spi_read(void);
  */
 #define CONFIG_BMP_16BPP
 #define CONFIG_LD9040
-#define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 160 * 4) + 54)
 
 #endif	/* __CONFIG_H */

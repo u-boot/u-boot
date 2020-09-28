@@ -939,4 +939,12 @@ config SPLASH_SOURCE
 	  In case the environment variable "splashfile" is not defined the
 	  default name 'splash.bmp' will be used.
 
+config VIDEO_BMP_GZIP
+	bool "Gzip compressed BMP image support"
+	depends on CMD_BMP || SPLASH_SCREEN
+	help
+	  If this option is set, additionally to standard BMP
+	  images, gzipped BMP images can be displayed via the
+	  splashscreen support or the bmp command.
+
 endmenu
