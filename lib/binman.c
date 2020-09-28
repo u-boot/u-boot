@@ -96,6 +96,13 @@ int binman_init(void)
 	binman->image = ofnode_path("/binman");
 	if (!ofnode_valid(binman->image))
 		return log_msg_ret("binman node", -EINVAL);
+	if (ofnode_read_bool(binman->image, "multiple-images")) {
+		ofnode node = ofnode_first_subnode(binman->image);
+
+		if (!ofnode_valid(node))
+			return log_msg_ret("first image", -ENOENT);
+		binman->image = node;
+	}
 	binman->rom_offset = ROM_OFFSET_NONE;
 
 	return 0;
