@@ -533,7 +533,9 @@
 	};
 
 	cpus {
+		timebase-frequency = <2000000>;
 		cpu-test1 {
+			timebase-frequency = <3000000>;
 			compatible = "sandbox,cpu_sandbox";
 			u-boot,dm-pre-reloc;
 		};
@@ -839,9 +841,14 @@
 			0x58 8>;
 	};
 
-	timer {
+	timer@0 {
 		compatible = "sandbox,timer";
 		clock-frequency = <1000000>;
+	};
+
+	timer@1 {
+		compatible = "sandbox,timer";
+		sandbox,timebase-frequency-fallback;
 	};
 
 	tpm2 {
