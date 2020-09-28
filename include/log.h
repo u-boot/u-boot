@@ -42,7 +42,9 @@ enum log_level_t {
 
 /**
  * Log categories supported. Most of these correspond to uclasses (i.e.
- * enum uclass_id) but there are also some more generic categories
+ * enum uclass_id) but there are also some more generic categories.
+ *
+ * Remember to update log_cat_name[] after adding a new category.
  */
 enum log_category_t {
 	LOGC_FIRST = 0,	/* First part mirrors UCLASS_... */
