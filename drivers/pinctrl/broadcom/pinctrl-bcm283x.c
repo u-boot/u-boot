@@ -104,23 +104,25 @@ static const struct udevice_id bcm2835_pinctrl_id[] = {
 	{}
 };
 
-int bcm283x_pinctl_probe(struct udevice *dev)
+int bcm283x_pinctl_ofdata_to_platdata(struct udevice *dev)
 {
 	struct bcm283x_pinctrl_priv *priv;
-	int ret;
-	struct udevice *pdev;
 
 	priv = dev_get_priv(dev);
-	if (!priv) {
-		debug("%s: Failed to get private\n", __func__);
-		return -EINVAL;
-	}
 
 	priv->base_reg = dev_read_addr_ptr(dev);
 	if (!priv->base_reg) {
 		debug("%s: Failed to get base address\n", __func__);
 		return -EINVAL;
 	}
+
+	return 0;
+}
+
+int bcm283x_pinctl_probe(struct udevice *dev)
+{
+	int ret;
+	struct udevice *pdev;
 
 	/* Create GPIO device as well */
 	ret = device_bind(dev, lists_driver_lookup_name("gpio_bcm2835"),
@@ -147,6 +149,7 @@ U_BOOT_DRIVER(pinctrl_bcm283x) = {
 	.name		= "bcm283x_pinctrl",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= of_match_ptr(bcm2835_pinctrl_id),
+	.ofdata_to_platdata = bcm283x_pinctl_ofdata_to_platdata,
 	.priv_auto_alloc_size = sizeof(struct bcm283x_pinctrl_priv),
 	.ops		= &bcm283x_pinctrl_ops,
 	.probe		= bcm283x_pinctl_probe,
