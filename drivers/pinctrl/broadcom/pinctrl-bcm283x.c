@@ -63,7 +63,7 @@ static int bcm2835_gpio_get_func_id(struct udevice *dev, unsigned int gpio)
 int bcm283x_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
 	u32 pin_arr[MAX_PINS_PER_BANK];
-	u32 function;
+	int function;
 	int i, len, pin_count = 0;
 
 	if (!dev_read_prop(config, "brcm,pins", &len) || !len ||
