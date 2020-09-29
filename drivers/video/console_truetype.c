@@ -432,7 +432,7 @@ static int console_truetype_backspace(struct udevice *dev)
 	pos = &priv->pos[--priv->pos_ptr];
 
 	/*
-	 * Figure out the end position for clearing. Normlly it is the current
+	 * Figure out the end position for clearing. Normally it is the current
 	 * cursor position, but if we are clearing a character on the previous
 	 * line, we clear from the end of the line.
 	 */
