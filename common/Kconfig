@@ -403,7 +403,6 @@ config BOOTCOMMAND
 
 config USE_PREBOOT
 	bool "Enable preboot"
-	default "usb start" if USB_KEYBOARD
 	help
 	  When this option is enabled, the existence of the environment
 	  variable "preboot" will be checked immediately before starting the
@@ -417,6 +416,7 @@ config USE_PREBOOT
 config PREBOOT
 	string "preboot default value"
 	depends on USE_PREBOOT && !USE_DEFAULT_ENV_FILE
+	default "usb start" if USB_KEYBOARD || USB_STORAGE
 	default ""
 	help
 	  This is the default of "preboot" environment variable.
