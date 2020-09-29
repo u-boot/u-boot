@@ -784,8 +784,7 @@ int sh_sdhi_init(unsigned long addr, int ch, unsigned long quirks)
 
 	return ret;
 error:
-	if (host)
-		free(host);
+	free(host);
 	return ret;
 }
 
