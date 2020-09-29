@@ -449,6 +449,15 @@ config VIDEO_LCD_SSD2828_RESET
 	The reset pin of SSD2828 chip. This takes a string in the format
 	understood by 'name_to_gpio' function, e.g. PH1 for pin 1 of port H.
 
+config VIDEO_LCD_TDO_TL070WSH30
+	bool "TDO TL070WSH30 DSI LCD panel support"
+	depends on DM_VIDEO
+	select VIDEO_MIPI_DSI
+	default n
+	help
+	Say Y here if you want to enable support for TDO TL070WSH30
+	1024x600 DSI video mode panel.
+
 config VIDEO_LCD_HITACHI_TX18D42VM
 	bool "Hitachi tx18d42vm LVDS LCD panel support"
 	depends on VIDEO
