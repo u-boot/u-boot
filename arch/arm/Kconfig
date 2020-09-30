@@ -1801,8 +1801,13 @@ config TFABOOT
 	depends on ARCH_SUPPORT_TFABOOT
 	default n
 	help
-	  Enabling this will make a U-Boot binary that is capable of being
-	  booted via TF-A (Trusted Firmware for Cortex-A).
+	  Some platforms support the setup of secure registers (for instance
+	  for CPU errata handling) or provide secure services like PSCI.
+	  Those services could also be provided by other firmware parts
+	  like TF-A (Trusted Firmware for Cortex-A), in which case U-Boot
+	  does not need to (and cannot) execute this code.
+	  Enabling this option will make a U-Boot binary that is relying
+	  on other firmware layers to provide secure functionality.
 
 config TI_SECURE_DEVICE
 	bool "HS Device Type Support"
