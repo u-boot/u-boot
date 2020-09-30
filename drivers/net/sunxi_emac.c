@@ -505,7 +505,8 @@ static int _sunxi_emac_eth_send(struct emac_eth_dev *priv, void *packet,
 	return 0;
 }
 
-static int sunxi_emac_board_setup(struct emac_eth_dev *priv)
+static int sunxi_emac_board_setup(struct udevice *dev,
+				  struct emac_eth_dev *priv)
 {
 	struct sunxi_sramc_regs *sram =
 		(struct sunxi_sramc_regs *)SUNXI_SRAMC_BASE;
@@ -576,7 +577,7 @@ static int sunxi_emac_eth_probe(struct udevice *dev)
 		return ret;
 	}
 
-	ret = sunxi_emac_board_setup(priv);
+	ret = sunxi_emac_board_setup(dev, priv);
 	if (ret)
 		return ret;
 

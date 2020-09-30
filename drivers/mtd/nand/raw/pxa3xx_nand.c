@@ -512,7 +512,7 @@ static int pxa3xx_nand_init_timings(struct pxa3xx_nand_host *host)
 		}
 
 		if (i == ntypes) {
-			dev_err(&info->pdev->dev, "Error: timings not found\n");
+			dev_err(mtd->dev, "Error: timings not found\n");
 			return -EINVAL;
 		}
 
@@ -603,7 +603,7 @@ static void drain_fifo(struct pxa3xx_nand_info *info, void *data, int len)
 			ts = get_timer(0);
 			while (!(nand_readl(info, NDSR) & NDSR_RDDREQ)) {
 				if (get_timer(ts) > TIMEOUT_DRAIN_FIFO) {
-					dev_err(&info->pdev->dev,
+					dev_err(info->controller.active->mtd.dev,
 						"Timeout on RDDREQ while draining the FIFO\n");
 					return;
 				}
@@ -656,8 +656,8 @@ static void handle_data_pio(struct pxa3xx_nand_info *info)
 				   DIV_ROUND_UP(info->step_spare_size, 4));
 		break;
 	default:
-		dev_err(&info->pdev->dev, "%s: invalid state %d\n", __func__,
-				info->state);
+		dev_err(info->controller.active->mtd.dev,
+			"%s: invalid state %d\n", __func__, info->state);
 		BUG();
 	}
 
@@ -1027,7 +1027,7 @@ static int prepare_set_command(struct pxa3xx_nand_info *info, int command,
 
 	default:
 		exec_cmd = 0;
-		dev_err(&info->pdev->dev, "non-supported command %x\n",
+		dev_err(mtd->dev, "non-supported command %x\n",
 			command);
 		break;
 	}
@@ -1087,7 +1087,7 @@ static void nand_cmdfunc(struct mtd_info *mtd, unsigned command,
 				break;
 
 			if (get_timer(ts) > CHIP_DELAY_TIMEOUT) {
-				dev_err(&info->pdev->dev, "Wait timeout!!!\n");
+				dev_err(mtd->dev, "Wait timeout!!!\n");
 				return;
 			}
 		}
@@ -1180,7 +1180,7 @@ static void nand_cmdfunc_extended(struct mtd_info *mtd,
 				break;
 
 			if (get_timer(ts) > CHIP_DELAY_TIMEOUT) {
-				dev_err(&info->pdev->dev, "Wait timeout!!!\n");
+				dev_err(mtd->dev, "Wait timeout!!!\n");
 				return;
 			}
 		}
@@ -1426,7 +1426,7 @@ static int pxa3xx_nand_waitfunc(struct mtd_info *mtd, struct nand_chip *this)
 				break;
 
 			if (get_timer(ts) > CHIP_DELAY_TIMEOUT) {
-				dev_err(&info->pdev->dev, "Ready timeout!!!\n");
+				dev_err(mtd->dev, "Ready timeout!!!\n");
 				return NAND_STATUS_FAIL;
 			}
 		}
@@ -1633,7 +1633,7 @@ static int pxa_ecc_init(struct pxa3xx_nand_info *info,
 		ecc->strength = 16;
 
 	} else {
-		dev_err(&info->pdev->dev,
+		dev_err(info->controller.active->mtd.dev,
 			"ECC strength %d at page size %d is not supported\n",
 			strength, page_size);
 		return -ENODEV;
@@ -1659,8 +1659,7 @@ static int pxa3xx_nand_scan(struct mtd_info *mtd)
 			return ret;
 		ret = pxa3xx_nand_sensing(host);
 		if (ret) {
-			dev_info(&info->pdev->dev,
-				 "There is no chip on cs %d!\n",
+			dev_info(mtd->dev, "There is no chip on cs %d!\n",
 				 info->cs);
 			return ret;
 		}
@@ -1676,7 +1675,7 @@ static int pxa3xx_nand_scan(struct mtd_info *mtd)
 	if (!pdata->keep_config) {
 		ret = pxa3xx_nand_init_timings(host);
 		if (ret) {
-			dev_err(&info->pdev->dev,
+			dev_err(mtd->dev,
 				"Failed to set timings: %d\n", ret);
 			return ret;
 		}
@@ -1720,7 +1719,7 @@ static int pxa3xx_nand_scan(struct mtd_info *mtd)
 		if (info->variant == PXA3XX_NAND_VARIANT_ARMADA370) {
 			chip->cmdfunc = nand_cmdfunc_extended;
 		} else {
-			dev_err(&info->pdev->dev,
+			dev_err(mtd->dev,
 				"unsupported page size on this variant\n");
 			return -ENODEV;
 		}
@@ -1873,6 +1872,7 @@ static int pxa3xx_nand_probe_dt(struct pxa3xx_nand_info *info)
 
 static int pxa3xx_nand_probe(struct pxa3xx_nand_info *info)
 {
+	struct mtd_info *mtd = &info->controller.active->mtd;
 	struct pxa3xx_nand_platform_data *pdata;
 	int ret, cs, probe_success;
 
@@ -1884,7 +1884,7 @@ static int pxa3xx_nand_probe(struct pxa3xx_nand_info *info)
 
 	ret = alloc_nand_resource(info);
 	if (ret) {
-		dev_err(&pdev->dev, "alloc nand resource failed\n");
+		dev_err(mtd->dev, "alloc nand resource failed\n");
 		return ret;
 	}
 
@@ -1901,7 +1901,7 @@ static int pxa3xx_nand_probe(struct pxa3xx_nand_info *info)
 		info->cs = cs;
 		ret = pxa3xx_nand_scan(mtd);
 		if (ret) {
-			dev_info(&pdev->dev, "failed to scan nand at cs %d\n",
+			dev_info(mtd->dev, "failed to scan nand at cs %d\n",
 				 cs);
 			continue;
 		}

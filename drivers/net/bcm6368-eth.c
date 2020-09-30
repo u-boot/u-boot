@@ -249,8 +249,7 @@ static int bcm6368_eth_adjust_link(struct udevice *dev)
 
 		/* link changed */
 		if (!up) {
-			dev_info(&priv->pdev->dev, "link DOWN on %s\n",
-				 port->name);
+			dev_info(dev, "link DOWN on %s\n", port->name);
 			writeb_be(ETH_PORTOV_ENABLE_MASK,
 				  priv->base + ETH_PORTOV_REG(i));
 			writeb_be(ETH_PTCTRL_RXDIS_MASK |

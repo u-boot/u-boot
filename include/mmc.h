@@ -888,6 +888,8 @@ void mmc_set_preinit(struct mmc *mmc, int preinit);
 #define mmc_host_is_spi(mmc)	0
 #endif
 
+#define mmc_dev(x)	((x)->dev)
+
 void board_mmc_power_init(void);
 int board_mmc_init(struct bd_info *bis);
 int cpu_mmc_init(struct bd_info *bis);

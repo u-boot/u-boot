@@ -145,7 +145,7 @@ static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
 			break;
 
 	if (!ofnode_valid(phandle.node)) {
-		dev_dbg(dev, "can't find PHY node\n");
+		dev_dbg(ethdev, "can't find PHY node\n");
 		return NULL;
 	}
 
@@ -161,7 +161,7 @@ static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
 	if (uclass_get_device_by_ofnode(UCLASS_MDIO,
 					ofnode_get_parent(phandle.node),
 					&mdiodev)) {
-		dev_dbg(dev, "can't find MDIO bus for node %s\n",
+		dev_dbg(ethdev, "can't find MDIO bus for node %s\n",
 			ofnode_get_name(ofnode_get_parent(phandle.node)));
 		return NULL;
 	}

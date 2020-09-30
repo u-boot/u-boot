@@ -2399,8 +2399,7 @@ static void cdns3_gadget_udc_set_speed(struct usb_gadget *gadget,
 	case USB_SPEED_SUPER:
 		break;
 	default:
-		dev_err(cdns->dev, "invalid speed parameter %d\n",
-			speed);
+		dev_err(priv_dev->dev, "invalid speed parameter %d\n", speed);
 	}
 
 	priv_dev->gadget.speed = speed;

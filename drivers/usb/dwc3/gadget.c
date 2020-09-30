@@ -17,6 +17,7 @@
 #include <cpu_func.h>
 #include <log.h>
 #include <malloc.h>
+#include <dm.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/bug.h>
@@ -633,7 +634,7 @@ static int dwc3_gadget_ep_enable(struct usb_ep *ep,
 		strlcat(dep->name, "-int", sizeof(dep->name));
 		break;
 	default:
-		dev_err(dwc->dev, "invalid endpoint transfer type\n");
+		dev_err(dep->dwc->dev, "invalid endpoint transfer type\n");
 	}
 
 	spin_lock_irqsave(&dwc->lock, flags);
@@ -708,10 +709,9 @@ static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
 {
 	struct dwc3_trb		*trb;
 
-	dev_vdbg(dwc->dev, "%s: req %p dma %08llx length %d%s%s\n",
-			dep->name, req, (unsigned long long) dma,
-			length, last ? " last" : "",
-			chain ? " chain" : "");
+	dev_vdbg(dep->dwc->dev, "%s: req %p dma %08llx length %d%s%s\n",
+		 dep->name, req, (unsigned long long)dma,
+		 length, last ? " last" : "", chain ? " chain" : "");
 
 
 	trb = &dep->trb_pool[dep->free_slot & DWC3_TRB_MASK];
@@ -1074,21 +1074,22 @@ static int dwc3_gadget_ep_queue(struct usb_ep *ep, struct usb_request *request,
 
 	spin_lock_irqsave(&dwc->lock, flags);
 	if (!dep->endpoint.desc) {
-		dev_dbg(dwc->dev, "trying to queue request %p to disabled %s\n",
-				request, ep->name);
+		dev_dbg(dep->dwc->dev,
+			"trying to queue request %p to disabled %s\n", request,
+			ep->name);
 		ret = -ESHUTDOWN;
 		goto out;
 	}
 
 	if (req->dep != dep) {
-		WARN(true, "request %p belongs to '%s'\n",
-				request, req->dep->name);
+		WARN(true, "request %p belongs to '%s'\n", request,
+		     req->dep->name);
 		ret = -EINVAL;
 		goto out;
 	}
 
-	dev_vdbg(dwc->dev, "queing request %p to %s length %d\n",
-			request, ep->name, request->length);
+	dev_vdbg(dep->dwc->dev, "queing request %p to %s length %d\n",
+		 request, ep->name, request->length);
 
 	ret = __dwc3_gadget_ep_queue(dep, req);
 

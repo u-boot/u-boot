@@ -51,8 +51,7 @@ static int ti_sci_sysreset_request(struct udevice *dev, enum sysreset_t type)
 
 	ret = cops->reboot_device(sci);
 	if (ret)
-		dev_err(rst->dev, "%s: reboot_device failed (%d)\n",
-			__func__, ret);
+		dev_err(dev, "%s: reboot_device failed (%d)\n", __func__, ret);
 
 	return ret;
 }

@@ -301,21 +301,21 @@ static int sunxi_musb_init(struct musb *musb)
 
 	ret = clk_enable(&glue->clk);
 	if (ret) {
-		dev_err(dev, "failed to enable clock\n");
+		dev_err(musb->controller, "failed to enable clock\n");
 		return ret;
 	}
 
 	if (reset_valid(&glue->rst)) {
 		ret = reset_deassert(&glue->rst);
 		if (ret) {
-			dev_err(dev, "failed to deassert reset\n");
+			dev_err(musb->controller, "failed to deassert reset\n");
 			goto err_clk;
 		}
 	}
 
 	ret = generic_phy_init(&glue->phy);
 	if (ret) {
-		dev_dbg(dev, "failed to init USB PHY\n");
+		dev_dbg(musb->controller, "failed to init USB PHY\n");
 		goto err_rst;
 	}
 
@@ -352,7 +352,8 @@ static int sunxi_musb_exit(struct musb *musb)
 	if (generic_phy_valid(&glue->phy)) {
 		ret = generic_phy_exit(&glue->phy);
 		if (ret) {
-			dev_dbg(dev, "failed to power off usb phy\n");
+			dev_dbg(musb->controller,
+				"failed to power off usb phy\n");
 			return ret;
 		}
 	}

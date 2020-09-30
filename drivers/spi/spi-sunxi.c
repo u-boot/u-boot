@@ -489,19 +489,19 @@ static int sun4i_spi_probe(struct udevice *bus)
 
 	ret = clk_get_by_name(bus, "ahb", &priv->clk_ahb);
 	if (ret) {
-		dev_err(dev, "failed to get ahb clock\n");
+		dev_err(bus, "failed to get ahb clock\n");
 		return ret;
 	}
 
 	ret = clk_get_by_name(bus, "mod", &priv->clk_mod);
 	if (ret) {
-		dev_err(dev, "failed to get mod clock\n");
+		dev_err(bus, "failed to get mod clock\n");
 		return ret;
 	}
 
 	ret = reset_get_by_index(bus, 0, &priv->reset);
 	if (ret && ret != -ENOENT) {
-		dev_err(dev, "failed to get reset\n");
+		dev_err(bus, "failed to get reset\n");
 		return ret;
 	}
 

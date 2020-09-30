@@ -663,7 +663,8 @@ static int sun8i_eth_write_hwaddr(struct udevice *dev)
 	return _sun8i_write_hwaddr(priv, pdata->enetaddr);
 }
 
-static int sun8i_emac_board_setup(struct emac_eth_dev *priv)
+static int sun8i_emac_board_setup(struct udevice *dev,
+				  struct emac_eth_dev *priv)
 {
 	int ret;
 
@@ -833,7 +834,7 @@ static int sun8i_emac_eth_probe(struct udevice *dev)
 
 	priv->mac_reg = (void *)pdata->iobase;
 
-	ret = sun8i_emac_board_setup(priv);
+	ret = sun8i_emac_board_setup(dev, priv);
 	if (ret)
 		return ret;
 
@@ -854,7 +855,7 @@ static const struct eth_ops sun8i_emac_eth_ops = {
 	.stop                   = sun8i_emac_eth_stop,
 };
 
-static int sun8i_get_ephy_nodes(struct emac_eth_dev *priv)
+static int sun8i_get_ephy_nodes(struct udevice *dev, struct emac_eth_dev *priv)
 {
 	int emac_node, ephy_node, ret, ephy_handle;
 
@@ -986,7 +987,7 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	if (priv->variant == H3_EMAC) {
-		ret = sun8i_get_ephy_nodes(priv);
+		ret = sun8i_get_ephy_nodes(dev, priv);
 		if (ret)
 			return ret;
 	}

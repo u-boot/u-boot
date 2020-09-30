@@ -212,14 +212,16 @@ static int k3_sec_proxy_send(struct mbox_chan *chan, const void *data)
 
 	ret = k3_sec_proxy_verify_thread(spt, THREAD_IS_TX);
 	if (ret) {
-		dev_err(dev, "%s: Thread%d verification failed. ret = %d\n",
+		dev_err(chan->dev,
+			"%s: Thread%d verification failed. ret = %d\n",
 			__func__, spt->id, ret);
 		return ret;
 	}
 
 	/* Check the message size. */
 	if (msg->len > spm->desc->max_msg_size) {
-		printf("%s: Thread %ld message length %zu > max msg size %d\n",
+		dev_err(chan->dev,
+			"%s: Thread %ld message length %zu > max msg size %d\n",
 		       __func__, chan->id, msg->len, spm->desc->max_msg_size);
 		return -EINVAL;
 	}
