@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2019, Rick Chen <rick@andestech.com>
+ * Copyright (C) 2020, Sean Anderson <seanga2@gmail.com>
  *
  * U-Boot syscon driver for Andes's Platform Level Machine Timer (PLMT).
  * The PLMT block holds memory-mapped mtime register
@@ -9,46 +10,43 @@
 
 #include <common.h>
 #include <dm.h>
-#include <regmap.h>
-#include <syscon.h>
+#include <timer.h>
 #include <asm/io.h>
-#include <asm/syscon.h>
 #include <linux/err.h>
 
 /* mtime register */
 #define MTIME_REG(base)			((ulong)(base))
 
-DECLARE_GLOBAL_DATA_PTR;
-
-#define PLMT_BASE_GET(void)						\
-	do {								\
-		long *ret;						\
-									\
-		if (!gd->arch.plmt) {					\
-			ret = syscon_get_first_range(RISCV_SYSCON_PLMT); \
-			if (IS_ERR(ret))				\
-				return PTR_ERR(ret);			\
-			gd->arch.plmt = ret;				\
-		}							\
-	} while (0)
-
-int riscv_get_time(u64 *time)
+static int andes_plmt_get_count(struct udevice *dev, u64 *count)
 {
-	PLMT_BASE_GET();
-
-	*time = readq((void __iomem *)MTIME_REG(gd->arch.plmt));
+	*count = readq((void __iomem *)MTIME_REG(dev->priv));
 
 	return 0;
 }
 
+static const struct timer_ops andes_plmt_ops = {
+	.get_count = andes_plmt_get_count,
+};
+
+static int andes_plmt_probe(struct udevice *dev)
+{
+	dev->priv = dev_read_addr_ptr(dev);
+	if (!dev->priv)
+		return -EINVAL;
+
+	return timer_timebase_fallback(dev);
+}
+
 static const struct udevice_id andes_plmt_ids[] = {
-	{ .compatible = "riscv,plmt0", .data = RISCV_SYSCON_PLMT },
+	{ .compatible = "riscv,plmt0" },
 	{ }
 };
 
 U_BOOT_DRIVER(andes_plmt) = {
 	.name		= "andes_plmt",
-	.id		= UCLASS_SYSCON,
+	.id		= UCLASS_TIMER,
 	.of_match	= andes_plmt_ids,
+	.ops		= &andes_plmt_ops,
+	.probe		= andes_plmt_probe,
 	.flags		= DM_FLAG_PRE_RELOC,
 };

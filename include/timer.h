@@ -15,6 +15,21 @@
  */
 int dm_timer_init(void);
 
+/**
+ * timer_timebase_fallback() - Helper for timers using timebase fallback
+ * @dev: A timer partially-probed timer device
+ *
+ * This is a helper function designed for timers which need to fall back on the
+ * cpu's timebase. This function is designed to be called during the driver's
+ * probe(). If there is a clocks or clock-frequency property in the timer's
+ * binding, then it will be used. Otherwise, the timebase of the current cpu
+ * will be used. This is initialized by the cpu driver, and usually gotten from
+ * ``/cpus/timebase-frequency`` or ``/cpus/cpu@X/timebase-frequency``.
+ *
+ * Return: 0 if OK, or negative error code on failure
+ */
+int timer_timebase_fallback(struct udevice *dev);
+
 /*
  * timer_conv_64 - convert 32-bit counter value to 64-bit
  *

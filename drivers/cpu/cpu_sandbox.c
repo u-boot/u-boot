@@ -8,14 +8,15 @@
 #include <dm.h>
 #include <cpu.h>
 
-int cpu_sandbox_get_desc(const struct udevice *dev, char *buf, int size)
+static int cpu_sandbox_get_desc(const struct udevice *dev, char *buf, int size)
 {
 	snprintf(buf, size, "LEG Inc. SuperMegaUltraTurbo CPU No. 1");
 
 	return 0;
 }
 
-int cpu_sandbox_get_info(const struct udevice *dev, struct cpu_info *info)
+static int cpu_sandbox_get_info(const struct udevice *dev,
+				struct cpu_info *info)
 {
 	info->cpu_freq = 42 * 42 * 42 * 42 * 42;
 	info->features = 0x42424242;
@@ -24,21 +25,29 @@ int cpu_sandbox_get_info(const struct udevice *dev, struct cpu_info *info)
 	return 0;
 }
 
-int cpu_sandbox_get_count(const struct udevice *dev)
+static int cpu_sandbox_get_count(const struct udevice *dev)
 {
 	return 42;
 }
 
-int cpu_sandbox_get_vendor(const struct udevice *dev, char *buf, int size)
+static int cpu_sandbox_get_vendor(const struct udevice *dev, char *buf,
+				  int size)
 {
 	snprintf(buf, size, "Languid Example Garbage Inc.");
 
 	return 0;
 }
 
-int cpu_sandbox_is_current(struct udevice *dev)
+static const char *cpu_current = "cpu-test1";
+
+void cpu_sandbox_set_current(const char *name)
 {
-	if (!strcmp(dev->name, "cpu-test1"))
+	cpu_current = name;
+}
+
+static int cpu_sandbox_is_current(struct udevice *dev)
+{
+	if (!strcmp(dev->name, cpu_current))
 		return 1;
 
 	return 0;
@@ -52,7 +61,22 @@ static const struct cpu_ops cpu_sandbox_ops = {
 	.is_current = cpu_sandbox_is_current,
 };
 
-int cpu_sandbox_probe(struct udevice *dev)
+static int cpu_sandbox_bind(struct udevice *dev)
+{
+	int ret;
+	struct cpu_platdata *plat = dev_get_parent_platdata(dev);
+
+	/* first examine the property in current cpu node */
+	ret = dev_read_u32(dev, "timebase-frequency", &plat->timebase_freq);
+	/* if not found, then look at the parent /cpus node */
+	if (ret)
+		ret = dev_read_u32(dev->parent, "timebase-frequency",
+				   &plat->timebase_freq);
+
+	return ret;
+}
+
+static int cpu_sandbox_probe(struct udevice *dev)
 {
 	return 0;
 }
@@ -67,5 +91,6 @@ U_BOOT_DRIVER(cpu_sandbox) = {
 	.id             = UCLASS_CPU,
 	.ops		= &cpu_sandbox_ops,
 	.of_match       = cpu_sandbox_ids,
+	.bind		= cpu_sandbox_bind,
 	.probe          = cpu_sandbox_probe,
 };

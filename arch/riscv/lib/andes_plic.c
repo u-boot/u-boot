@@ -41,53 +41,45 @@ static int enable_ipi(int hart)
 	return 0;
 }
 
-static int init_plic(void)
+int riscv_init_ipi(void)
 {
-	struct udevice *dev;
-	ofnode node;
 	int ret;
+	long *base = syscon_get_first_range(RISCV_SYSCON_PLIC);
+	ofnode node;
+	struct udevice *dev;
 	u32 reg;
+
+	if (IS_ERR(base))
+		return PTR_ERR(base);
+	gd->arch.plic = base;
 
 	ret = uclass_find_first_device(UCLASS_CPU, &dev);
 	if (ret)
 		return ret;
+	else if (!dev)
+		return -ENODEV;
 
-	if (dev) {
-		ofnode_for_each_subnode(node, dev_ofnode(dev->parent)) {
-			const char *device_type;
+	ofnode_for_each_subnode(node, dev_ofnode(dev->parent)) {
+		const char *device_type;
 
-			device_type = ofnode_read_string(node, "device_type");
-			if (!device_type)
-				continue;
+		device_type = ofnode_read_string(node, "device_type");
+		if (!device_type)
+			continue;
 
-			if (strcmp(device_type, "cpu"))
-				continue;
+		if (strcmp(device_type, "cpu"))
+			continue;
 
-			/* skip if hart is marked as not available */
-			if (!ofnode_is_available(node))
-				continue;
+		/* skip if hart is marked as not available */
+		if (!ofnode_is_available(node))
+			continue;
 
-			/* read hart ID of CPU */
-			ret = ofnode_read_u32(node, "reg", &reg);
-			if (ret == 0)
-				enable_ipi(reg);
-		}
-
-		return 0;
+		/* read hart ID of CPU */
+		ret = ofnode_read_u32(node, "reg", &reg);
+		if (ret == 0)
+			enable_ipi(reg);
 	}
 
-	return -ENODEV;
-}
-
-int riscv_init_ipi(void)
-{
-	long *ret = syscon_get_first_range(RISCV_SYSCON_PLIC);
-
-	if (IS_ERR(ret))
-		return PTR_ERR(ret);
-	gd->arch.plic = ret;
-
-	return init_plic();
+	return 0;
 }
 
 int riscv_send_ipi(int hart)

@@ -17,6 +17,8 @@
 	compatible = "kendryte,k210";
 
 	aliases {
+		cpu0 = &cpu0;
+		cpu1 = &cpu1;
 		dma0 = &dmac0;
 		gpio0 = &gpio0;
 		gpio1 = &gpio1_0;
@@ -126,14 +128,13 @@
 			read-only;
 		};
 
-		clint0: interrupt-controller@2000000 {
+		clint0: clint@2000000 {
 			#interrupt-cells = <1>;
 			compatible = "kendryte,k210-clint", "riscv,clint0";
 			reg = <0x2000000 0xC000>;
-			interrupt-controller;
 			interrupts-extended = <&cpu0_intc 3>, <&cpu0_intc 7>,
 					      <&cpu1_intc 3>, <&cpu1_intc 7>;
-			clocks = <&sysclk K210_CLK_CPU>;
+			clocks = <&sysclk K210_CLK_CLINT>;
 		};
 
 		plic0: interrupt-controller@C000000 {

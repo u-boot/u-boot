@@ -34,6 +34,10 @@
 
 };
 
+&clint {
+	clocks = <&rtcclk>;
+};
+
 &qspi0 {
 	u-boot,dm-spl;
 
