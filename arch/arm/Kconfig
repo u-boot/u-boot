@@ -22,6 +22,7 @@ config POSITION_INDEPENDENT
 
 config INIT_SP_RELATIVE
 	bool "Specify the early stack pointer relative to the .bss section"
+	default n if ARCH_QEMU
 	default y if POSITION_INDEPENDENT
 	help
 	  U-Boot typically uses a hard-coded value for the stack pointer
