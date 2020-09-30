@@ -181,4 +181,12 @@ config RESET_RASPBERRYPI
 	  relevant. This driver provides a reset controller capable of
 	  interfacing with RPi4's co-processor and model these firmware
 	  initialization routines as reset lines.
+
+config RESET_SCMI
+	bool "Enable SCMI reset domain driver"
+	select SCMI_FIRMWARE
+	help
+	  Enable this option if you want to support reset controller
+	  devices exposed by a SCMI agent based on SCMI reset domain
+	  protocol communication with a SCMI server.
 endmenu

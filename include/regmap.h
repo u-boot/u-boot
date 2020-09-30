@@ -75,14 +75,41 @@ struct regmap_range {
 	ulong size;
 };
 
+struct regmap_bus;
+
+/**
+ * struct regmap_config - Configure the behaviour of a regmap
+ *
+ * @width:		Width of the read/write operations. Defaults to
+ *			REGMAP_SIZE_32 if set to 0.
+ * @reg_offset_shift	Left shift the register offset by this value before
+ *			performing read or write.
+ * @r_start:		If specified, the regmap is created with one range
+ *			which starts at this address, instead of finding the
+ *			start from device tree.
+ * @r_size:		Same as above for the range size
+ */
+struct regmap_config {
+	enum regmap_size_t width;
+	u32 reg_offset_shift;
+	ulong r_start;
+	ulong r_size;
+};
+
 /**
  * struct regmap - a way of accessing hardware/bus registers
  *
+ * @width:		Width of the read/write operations. Defaults to
+ *			REGMAP_SIZE_32 if set to 0.
+ * @reg_offset_shift	Left shift the register offset by this value before
+ *			performing read or write.
  * @range_count:	Number of ranges available within the map
  * @ranges:		Array of ranges
  */
 struct regmap {
 	enum regmap_endianness_t endianness;
+	enum regmap_size_t width;
+	u32 reg_offset_shift;
 	int range_count;
 	struct regmap_range ranges[0];
 };
@@ -93,31 +120,23 @@ struct regmap {
  */
 
 /**
- * regmap_write() - Write a 32-bit value to a regmap
+ * regmap_write() - Write a value to a regmap
  *
  * @map:	Regmap to write to
  * @offset:	Offset in the regmap to write to
  * @val:	Data to write to the regmap at the specified offset
- *
- * Note that this function will only write values of 32 bit width to the
- * regmap; if the size of data to be read is different, the regmap_raw_write
- * function can be used.
  *
  * Return: 0 if OK, -ve on error
  */
 int regmap_write(struct regmap *map, uint offset, uint val);
 
 /**
- * regmap_read() - Read a 32-bit value from a regmap
+ * regmap_read() - Read a value from a regmap
  *
  * @map:	Regmap to read from
  * @offset:	Offset in the regmap to read from
  * @valp:	Pointer to the buffer to receive the data read from the regmap
  *		at the specified offset
- *
- * Note that this function will only read values of 32 bit width from the
- * regmap; if the size of data to be read is different, the regmap_raw_read
- * function can be used.
  *
  * Return: 0 if OK, -ve on error
  */
@@ -132,8 +151,9 @@ int regmap_read(struct regmap *map, uint offset, uint *valp);
  * @val_len:	Length of the data to be written to the regmap
  *
  * Note that this function will, as opposed to regmap_write, write data of
- * arbitrary length to the regmap, and not just 32-bit values, and is thus a
- * generalized version of regmap_write.
+ * arbitrary length to the regmap, and not just the size configured in the
+ * regmap (defaults to 32-bit) and is thus a generalized version of
+ * regmap_write.
  *
  * Return: 0 if OK, -ve on error
  */
@@ -150,8 +170,9 @@ int regmap_raw_write(struct regmap *map, uint offset, const void *val,
  * @val_len:	Length of the data to be read from the regmap
  *
  * Note that this function will, as opposed to regmap_read, read data of
- * arbitrary length from the regmap, and not just 32-bit values, and is thus a
- * generalized version of regmap_read.
+ * arbitrary length from the regmap, and not just the size configured in the
+ * regmap (defaults to 32-bit) and is thus a generalized version of
+ * regmap_read.
  *
  * Return: 0 if OK, -ve on error
  */
@@ -292,6 +313,43 @@ int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
 				      timeout_ms, 0) \
 
 /**
+ * regmap_field_read_poll_timeout - Poll until a condition is met or a timeout
+ *				    occurs
+ *
+ * @field:	Regmap field to read from
+ * @val:	Unsigned integer variable to read the value into
+ * @cond:	Break condition (usually involving @val)
+ * @sleep_us:	Maximum time to sleep between reads in us (0 tight-loops).
+ * @timeout_ms:	Timeout in ms, 0 means never timeout
+ *
+ * Returns 0 on success and -ETIMEDOUT upon a timeout or the regmap_field_read
+ * error return value in case of a error read. In the two former cases,
+ * the last read value at @addr is stored in @val.
+ *
+ * This is modelled after the regmap_read_poll_timeout macros in linux but
+ * with millisecond timeout.
+ */
+#define regmap_field_read_poll_timeout(field, val, cond, sleep_us, timeout_ms) \
+({ \
+	unsigned long __start = get_timer(0); \
+	int __ret; \
+	for (;;) { \
+		__ret = regmap_field_read((field), &(val)); \
+		if (__ret) \
+			break; \
+		if (cond) \
+			break; \
+		if ((timeout_ms) && get_timer(__start) > (timeout_ms)) { \
+			__ret = regmap_field_read((field), &(val)); \
+			break; \
+		} \
+		if ((sleep_us)) \
+			udelay((sleep_us)); \
+	} \
+	__ret ?: ((cond) ? 0 : -ETIMEDOUT); \
+})
+
+/**
  * regmap_update_bits() - Perform a read/modify/write using a mask
  *
  * @map:	The map returned by regmap_init_mem*()
@@ -336,6 +394,40 @@ int regmap_init_mem_platdata(struct udevice *dev, fdt_val_t *reg, int count,
 int regmap_init_mem_index(ofnode node, struct regmap **mapp, int index);
 
 /**
+ * regmap_init_mem_range() - Set up a new memory region for ofnode with the
+ *			     specified range.
+ *
+ * @node:	The ofnode for the map.
+ * @r_start:	Start of the range.
+ * @r_size:	Size of the range.
+ * @mapp:	Returns allocated map.
+ *
+ * Return: 0 in success, -errno otherwise
+ *
+ * This creates a regmap with one range where instead of extracting the range
+ * from 'node', it is created based on the parameters specified. This is
+ * useful when a driver needs to calculate the base of the regmap at runtime,
+ * and can't specify it in device tree.
+ */
+int regmap_init_mem_range(ofnode node, ulong r_start, ulong r_size,
+			  struct regmap **mapp);
+
+/**
+ * devm_regmap_init() - Initialise register map (device managed)
+ *
+ * @dev: Device that will be interacted with
+ * @bus: Bus-specific callbacks to use with device (IGNORED)
+ * @bus_context: Data passed to bus-specific callbacks (IGNORED)
+ * @config: Configuration for register map
+ *
+ * @Return a valid pointer to a struct regmap or a ERR_PTR() on error.
+ * The structure is automatically freed when the device is unbound
+ */
+struct regmap *devm_regmap_init(struct udevice *dev,
+				const struct regmap_bus *bus,
+				void *bus_context,
+				const struct regmap_config *config);
+/**
  * regmap_get_range() - Obtain the base memory address of a regmap range
  *
  * @map:	Regmap to query
@@ -351,5 +443,90 @@ void *regmap_get_range(struct regmap *map, unsigned int range_num);
  * Return: 0 if OK, -ve on error
  */
 int regmap_uninit(struct regmap *map);
+
+/**
+ * struct reg_field - Description of an register field
+ *
+ * @reg: Offset of the register within the regmap bank
+ * @lsb: lsb of the register field.
+ * @msb: msb of the register field.
+ */
+struct reg_field {
+	unsigned int reg;
+	unsigned int lsb;
+	unsigned int msb;
+};
+
+struct regmap_field;
+
+/**
+ * REG_FIELD() - A convenient way to initialize a 'struct reg_feild'.
+ *
+ * @_reg: Offset of the register within the regmap bank
+ * @_lsb: lsb of the register field.
+ * @_msb: msb of the register field.
+ *
+ * Register fields are often described in terms of 3 things: the register it
+ * belongs to, its LSB, and its MSB. This macro can be used by drivers to
+ * clearly and easily initialize a 'struct regmap_field'.
+ *
+ * For example, say a device has a register at offset DEV_REG1 (0x100) and a
+ * field of DEV_REG1 is on bits [7:3]. So a driver can initialize a regmap
+ * field for this by doing:
+ *     struct reg_field field = REG_FIELD(DEV_REG1, 3, 7);
+ */
+#define REG_FIELD(_reg, _lsb, _msb) {		\
+				.reg = _reg,	\
+				.lsb = _lsb,	\
+				.msb = _msb,	\
+				}
+
+/**
+ * devm_regmap_field_alloc() - Allocate and initialise a register field.
+ *
+ * @dev: Device that will be interacted with
+ * @regmap: regmap bank in which this register field is located.
+ * @reg_field: Register field with in the bank.
+ *
+ * The return value will be an ERR_PTR() on error or a valid pointer
+ * to a struct regmap_field. The regmap_field will be automatically freed
+ * by the device management code.
+ */
+struct regmap_field *devm_regmap_field_alloc(struct udevice *dev,
+					     struct regmap *regmap,
+					     struct reg_field reg_field);
+/**
+ * devm_regmap_field_free() - Free a register field allocated using
+ *                            devm_regmap_field_alloc.
+ *
+ * @dev: Device that will be interacted with
+ * @field: regmap field which should be freed.
+ *
+ * Free register field allocated using devm_regmap_field_alloc(). Usually
+ * drivers need not call this function, as the memory allocated via devm
+ * will be freed as per device-driver life-cyle.
+ */
+void devm_regmap_field_free(struct udevice *dev, struct regmap_field *field);
+
+/**
+ * regmap_field_write() - Write a value to a regmap field
+ *
+ * @field:	Regmap field to write to
+ * @val:	Data to write to the regmap at the specified offset
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int regmap_field_write(struct regmap_field *field, unsigned int val);
+
+/**
+ * regmap_read() - Read a 32-bit value from a regmap
+ *
+ * @field:	Regmap field to write to
+ * @valp:	Pointer to the buffer to receive the data read from the regmap
+ *		field
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int regmap_field_read(struct regmap_field *field, unsigned int *val);
 
 #endif
