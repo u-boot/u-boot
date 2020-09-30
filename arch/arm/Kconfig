@@ -12,7 +12,6 @@ config ARM64
 if ARM64
 config POSITION_INDEPENDENT
 	bool "Generate position-independent pre-relocation code"
-	select INIT_SP_RELATIVE
 	help
 	  U-Boot expects to be linked to a specific hard-coded address, and to
 	  be loaded to and run from that address. This option lifts that
@@ -23,6 +22,7 @@ config POSITION_INDEPENDENT
 
 config INIT_SP_RELATIVE
 	bool "Specify the early stack pointer relative to the .bss section"
+	default y if POSITION_INDEPENDENT
 	help
 	  U-Boot typically uses a hard-coded value for the stack pointer
 	  before relocation. Enable this option to instead calculate the
