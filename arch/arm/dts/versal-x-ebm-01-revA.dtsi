@@ -21,7 +21,7 @@ flash@0 {
 	reg = <0>;
 	spi-tx-bus-width = <1>;
 	spi-rx-bus-width = <4>;
-	spi-max-frequency = <104000000>;
+	spi-max-frequency = <150000000>;
 	partition@0 {
 		label = "spi0-flash0";
 		reg = <0x0 0x10000000>;
