@@ -146,6 +146,7 @@ static int xhci_rcar_ofdata_to_platdata(struct udevice *dev)
 }
 
 static const struct udevice_id xhci_rcar_ids[] = {
+	{ .compatible = "renesas,rcar-gen3-xhci" },
 	{ .compatible = "renesas,xhci-r8a7795" },
 	{ .compatible = "renesas,xhci-r8a7796" },
 	{ .compatible = "renesas,xhci-r8a77965" },

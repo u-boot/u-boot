@@ -33,6 +33,7 @@
 #include <linux/bug.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
+#include <linux/iopoll.h>
 #include <usb/xhci.h>
 
 #ifndef CONFIG_USB_MAX_CONTROLLER_COUNT
@@ -143,23 +144,19 @@ struct xhci_ctrl *xhci_get_ctrl(struct usb_device *udev)
  * @param usec	time to wait till
  * @return 0 if handshake is success else < 0 on failure
  */
-static int handshake(uint32_t volatile *ptr, uint32_t mask,
-					uint32_t done, int usec)
+static int
+handshake(uint32_t volatile *ptr, uint32_t mask, uint32_t done, int usec)
 {
 	uint32_t result;
+	int ret;
 
-	do {
-		result = xhci_readl(ptr);
-		if (result == ~(uint32_t)0)
-			return -ENODEV;
-		result &= mask;
-		if (result == done)
-			return 0;
-		usec--;
-		udelay(1);
-	} while (usec > 0);
+	ret = readx_poll_sleep_timeout(xhci_readl, ptr, result,
+				 (result & mask) == done || result == U32_MAX,
+				 1, usec);
+	if (result == U32_MAX)		/* card removed */
+		return -ENODEV;
 
-	return -ETIMEDOUT;
+	return ret;
 }
 
 /**
@@ -618,8 +615,7 @@ static int xhci_set_configuration(struct usb_device *udev)
 			cpu_to_le32(EP_MAX_ESIT_PAYLOAD_HI(max_esit_payload) |
 			EP_INTERVAL(interval) | EP_MULT(mult));
 
-		ep_ctx[ep_index]->ep_info2 =
-			cpu_to_le32(ep_type << EP_TYPE_SHIFT);
+		ep_ctx[ep_index]->ep_info2 = cpu_to_le32(EP_TYPE(ep_type));
 		ep_ctx[ep_index]->ep_info2 |=
 			cpu_to_le32(MAX_PACKET
 			(get_unaligned(&endpt_desc->wMaxPacketSize)));
@@ -650,7 +646,7 @@ static int xhci_set_configuration(struct usb_device *udev)
 		 * are put into reserved DWs in Slot and Endpoint Contexts
 		 * for synchronous endpoints.
 		 */
-		if (IS_ENABLED(CONFIG_USB_XHCI_MTK)) {
+		if (ctrl->quirks & XHCI_MTK_HOST) {
 			ep_ctx[ep_index]->reserved[0] =
 				cpu_to_le32(EP_BPKTS(1) | EP_BBM(1));
 		}
@@ -832,8 +828,7 @@ int xhci_check_maxpacket(struct usb_device *udev)
 				ctrl->devs[slot_id]->out_ctx, ep_index);
 		in_ctx = ctrl->devs[slot_id]->in_ctx;
 		ep_ctx = xhci_get_ep_ctx(ctrl, in_ctx, ep_index);
-		ep_ctx->ep_info2 &= cpu_to_le32(~((0xffff & MAX_PACKET_MASK)
-						<< MAX_PACKET_SHIFT));
+		ep_ctx->ep_info2 &= cpu_to_le32(~MAX_PACKET(MAX_PACKET_MASK));
 		ep_ctx->ep_info2 |= cpu_to_le32(MAX_PACKET(max_packet_size));
 
 		/*
@@ -1257,8 +1252,7 @@ static int xhci_lowlevel_init(struct xhci_ctrl *ctrl)
 		return -ENOMEM;
 
 	reg = xhci_readl(&hccr->cr_hcsparams1);
-	descriptor.hub.bNbrPorts = ((reg & HCS_MAX_PORTS_MASK) >>
-						HCS_MAX_PORTS_SHIFT);
+	descriptor.hub.bNbrPorts = HCS_MAX_PORTS(reg);
 	printf("Register %x NbrPorts %d\n", reg, descriptor.hub.bNbrPorts);
 
 	/* Port Indicators */
@@ -1283,6 +1277,7 @@ static int xhci_lowlevel_init(struct xhci_ctrl *ctrl)
 
 	reg = HC_VERSION(xhci_readl(&hccr->cr_capbase));
 	printf("USB XHCI %x.%02x\n", reg >> 8, reg & 0xff);
+	ctrl->hci_version = reg;
 
 	return 0;
 }

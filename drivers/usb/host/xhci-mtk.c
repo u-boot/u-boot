@@ -258,6 +258,7 @@ static int xhci_mtk_probe(struct udevice *dev)
 	if (ret)
 		goto ssusb_init_err;
 
+	mtk->ctrl.quirks = XHCI_MTK_HOST;
 	hcor = (struct xhci_hcor *)((uintptr_t)mtk->hcd +
 			HC_LENGTH(xhci_readl(&mtk->hcd->cr_capbase)));
 
