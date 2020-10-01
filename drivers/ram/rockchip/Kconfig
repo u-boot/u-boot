@@ -22,6 +22,27 @@ config RAM_ROCKCHIP_DEBUG
 	  This is an option for developers to understand the ram drivers
 	  initialization, configurations and etc.
 
+config RAM_PX30_DDR4
+	bool "DDR3 support for Rockchip PX30"
+	depends on RAM_ROCKCHIP && ROCKCHIP_PX30
+	help
+	  This enables DDR4 sdram support instead of the default DDR3 support
+	  on Rockchip PC30 SoCs.
+
+config RAM_PX30_LPDDR2
+	bool "LPDDR2 support for Rockchip PX30"
+	depends on RAM_ROCKCHIP && ROCKCHIP_PX30
+	help
+	  This enables LPDDR2 sdram support instead of the default DDR3 support
+	  on Rockchip PC30 SoCs.
+
+config RAM_PX30_LPDDR3
+	bool "LPDDR3 support for Rockchip PX30"
+	depends on RAM_ROCKCHIP && ROCKCHIP_PX30
+	help
+	  This enables LPDDR3 sdram support instead of the default DDR3 support
+	  on Rockchip PC30 SoCs.
+
 config RAM_RK3399_LPDDR4
 	bool "LPDDR4 support for Rockchip RK3399"
 	depends on RAM_ROCKCHIP && ROCKCHIP_RK3399
