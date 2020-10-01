@@ -211,7 +211,7 @@ static int rcar_i2c_xfer(struct udevice *dev, struct i2c_msg *msg, int nmsgs)
 	int ret;
 
 	for (; nmsgs > 0; nmsgs--, msg++) {
-		ret = rcar_i2c_set_addr(dev, msg->addr, 1);
+		ret = rcar_i2c_set_addr(dev, msg->addr, !!(msg->flags & I2C_M_RD));
 		if (ret)
 			return ret;
 
