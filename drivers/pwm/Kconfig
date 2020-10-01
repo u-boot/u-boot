@@ -23,6 +23,13 @@ config PWM_IMX
 	help
 	  This PWM is found i.MX27 and later i.MX SoCs.
 
+config PWM_MESON
+	bool "Enable support for Amlogic Meson SoCs PWM"
+	depends on DM_PWM
+	help
+	  This PWM is found on Amlogic Meson SoCs. It supports a
+	  programmable period and duty cycle for 2 independant channels.
+
 config PWM_MTK
 	bool "Enable support for MediaTek PWM"
 	depends on DM_PWM
