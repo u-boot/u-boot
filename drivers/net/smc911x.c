@@ -6,7 +6,6 @@
  */
 
 #include <common.h>
-#include <env.h>
 #include <command.h>
 #include <malloc.h>
 #include <net.h>
@@ -186,8 +185,6 @@ static void smc911x_handle_mac_address(struct smc911x_priv *priv)
 	smc911x_set_mac_csr(priv, ADDRH, addrh);
 
 	printf(DRIVERNAME ": MAC %pM\n", m);
-	if (!env_get("ethaddr"))
-		env_set("ethaddr", (const char *)m);
 }
 
 static bool smc911x_read_mac_address(struct smc911x_priv *priv)
