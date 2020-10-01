@@ -18,15 +18,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void s_init(void)
-{
-}
-
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 int board_init(void)
 {
 	/* adress of boot parameters */

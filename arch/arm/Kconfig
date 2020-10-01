@@ -943,9 +943,9 @@ config ARCH_QEMU
 
 config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"
-	select BOARD_EARLY_INIT_F if !RZA1
 	select DM
 	select DM_SERIAL
+	imply BOARD_EARLY_INIT_F
 	imply CMD_DM
 	imply FAT_WRITE
 	imply SYS_THUMB_BUILD
