@@ -88,14 +88,14 @@ int board_late_init(void)
 	if (env_get("fdtfile"))
 		return 0;
 
-	if (!of_machine_is_compatible("globalscale,espressobin"))
+	if (!of_machine_is_compatible("marvell,armada-3720-espressobin"))
 		return 0;
 
 	/* If the memory controller has been configured for DDR4, we're running on v7 */
 	ddr4 = ((readl(A3700_CH0_MC_CTRL2_REG) >> A3700_MC_CTRL2_SDRAM_TYPE_OFFS)
 		& A3700_MC_CTRL2_SDRAM_TYPE_MASK) == A3700_MC_CTRL2_SDRAM_TYPE_DDR4;
 
-	emmc = of_machine_is_compatible("globalscale,espressobin-emmc");
+	emmc = of_machine_is_compatible("marvell,armada-3720-espressobin-emmc");
 
 	if (ddr4 && emmc)
 		env_set("fdtfile", "marvell/armada-3720-espressobin-v7-emmc.dtb");
