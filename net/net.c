@@ -72,12 +72,6 @@
  *	We want:	- load the boot file
  *	Next step:	none
  *
- * SNTP:
- *
- *	Prerequisites:	- own ethernet address
- *			- own IP address
- *	We want:	- network time
- *	Next step:	none
  *
  * WOL:
  *
@@ -102,6 +96,7 @@
 #if defined(CONFIG_CMD_PCAP)
 #include <net/pcap.h>
 #endif
+#include <net/udp.h>
 #if defined(CONFIG_LED_STATUS)
 #include <miiphy.h>
 #include <status_led.h>
@@ -118,9 +113,6 @@
 #include "nfs.h"
 #include "ping.h"
 #include "rarp.h"
-#if defined(CONFIG_CMD_SNTP)
-#include "sntp.h"
-#endif
 #if defined(CONFIG_CMD_WOL)
 #include "wol.h"
 #endif
@@ -183,13 +175,6 @@ bool net_boot_file_name_explicit;
 u32 net_boot_file_size;
 /* Boot file size in blocks as reported by the DHCP server */
 u32 net_boot_file_expected_size_in_blocks;
-
-#if defined(CONFIG_CMD_SNTP)
-/* NTP server IP address */
-struct in_addr	net_ntp_server;
-/* offset time from UTC */
-int		net_ntp_time_offset;
-#endif
 
 static uchar net_pkt_buf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
 /* Receive packets */
@@ -520,11 +505,6 @@ restart:
 			nc_start();
 			break;
 #endif
-#if defined(CONFIG_CMD_SNTP)
-		case SNTP:
-			sntp_start();
-			break;
-#endif
 #if defined(CONFIG_CMD_DNS)
 		case DNS:
 			dns_start();
@@ -543,6 +523,9 @@ restart:
 		default:
 			break;
 		}
+
+		if (IS_ENABLED(CONFIG_PROT_UDP) && protocol == UDP)
+			udp_start();
 
 		break;
 	}
@@ -1348,14 +1331,6 @@ static int net_check_prereq(enum proto_t protocol)
 		}
 		goto common;
 #endif
-#if defined(CONFIG_CMD_SNTP)
-	case SNTP:
-		if (net_ntp_server.s_addr == 0) {
-			puts("*** ERROR: NTP server address not given\n");
-			return 1;
-		}
-		goto common;
-#endif
 #if defined(CONFIG_CMD_DNS)
 	case DNS:
 		if (net_dns_server.s_addr == 0) {
@@ -1364,6 +1339,13 @@ static int net_check_prereq(enum proto_t protocol)
 		}
 		goto common;
 #endif
+#if defined(CONFIG_PROT_UDP)
+	case UDP:
+		if (udp_prereq())
+			return 1;
+		goto common;
+#endif
+
 #if defined(CONFIG_CMD_NFS)
 	case NFS:
 #endif
@@ -1374,8 +1356,8 @@ static int net_check_prereq(enum proto_t protocol)
 			puts("*** ERROR: `serverip' not set\n");
 			return 1;
 		}
-#if	defined(CONFIG_CMD_PING) || defined(CONFIG_CMD_SNTP) || \
-	defined(CONFIG_CMD_DNS)
+#if	defined(CONFIG_CMD_PING) || \
+	defined(CONFIG_CMD_DNS) || defined(CONFIG_PROT_UDP)
 common:
 #endif
 		/* Fall through */
