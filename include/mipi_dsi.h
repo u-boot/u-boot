@@ -123,6 +123,7 @@ struct mipi_dsi_phy_ops {
 	void (*post_set_mode)(void *priv_data,  unsigned long mode_flags);
 	int (*get_timing)(void *priv_data, unsigned int lane_mbps,
 			  struct mipi_dsi_phy_timing *timing);
+	void (*get_esc_clk_rate)(void *priv_data, unsigned int *esc_clk_rate);
 };
 
 /**
