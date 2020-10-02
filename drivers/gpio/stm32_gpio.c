@@ -18,6 +18,8 @@
 #include <linux/errno.h>
 #include <linux/io.h>
 
+#define STM32_GPIOS_PER_BANK		16
+
 #define MODE_BITS(gpio_pin)		((gpio_pin) * 2)
 #define MODE_BITS_MASK			3
 #define BSRR_BIT(gpio_pin, value)	BIT((gpio_pin) + (value ? 0 : 16))
