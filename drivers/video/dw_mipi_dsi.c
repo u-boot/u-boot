@@ -645,7 +645,12 @@ static void dw_mipi_dsi_vertical_timing_config(struct dw_mipi_dsi *dsi,
 
 static void dw_mipi_dsi_dphy_timing_config(struct dw_mipi_dsi *dsi)
 {
+	const struct mipi_dsi_phy_ops *phy_ops = dsi->phy_ops;
+	struct mipi_dsi_phy_timing timing = {0x40, 0x40, 0x40, 0x40};
 	u32 hw_version;
+
+	if (phy_ops->get_timing)
+		phy_ops->get_timing(dsi->device, dsi->lane_mbps, &timing);
 
 	/*
 	 * TODO dw drv improvements
@@ -658,16 +663,16 @@ static void dw_mipi_dsi_dphy_timing_config(struct dw_mipi_dsi *dsi)
 	hw_version = dsi_read(dsi, DSI_VERSION) & VERSION;
 
 	if (hw_version >= HWVER_131) {
-		dsi_write(dsi, DSI_PHY_TMR_CFG, PHY_HS2LP_TIME_V131(0x40) |
-			  PHY_LP2HS_TIME_V131(0x40));
+		dsi_write(dsi, DSI_PHY_TMR_CFG, PHY_HS2LP_TIME_V131(timing.data_hs2lp) |
+			  PHY_LP2HS_TIME_V131(timing.data_lp2hs));
 		dsi_write(dsi, DSI_PHY_TMR_RD_CFG, MAX_RD_TIME_V131(10000));
 	} else {
-		dsi_write(dsi, DSI_PHY_TMR_CFG, PHY_HS2LP_TIME(0x40) |
-			  PHY_LP2HS_TIME(0x40) | MAX_RD_TIME(10000));
+		dsi_write(dsi, DSI_PHY_TMR_CFG, PHY_HS2LP_TIME(timing.data_hs2lp) |
+			  PHY_LP2HS_TIME(timing.data_lp2hs) | MAX_RD_TIME(10000));
 	}
 
-	dsi_write(dsi, DSI_PHY_TMR_LPCLK_CFG, PHY_CLKHS2LP_TIME(0x40)
-		  | PHY_CLKLP2HS_TIME(0x40));
+	dsi_write(dsi, DSI_PHY_TMR_LPCLK_CFG, PHY_CLKHS2LP_TIME(timing.clk_hs2lp)
+		  | PHY_CLKLP2HS_TIME(timing.clk_lp2hs));
 }
 
 static void dw_mipi_dsi_dphy_interface_config(struct dw_mipi_dsi *dsi)
