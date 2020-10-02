@@ -50,8 +50,8 @@
 #include "armada-372x.dtsi"
 
 / {
-	model = "Marvell Armada 3720 Community Board ESPRESSOBin";
-	compatible = "marvell,armada-3720-espressobin", "marvell,armada3720", "marvell,armada3710";
+	model = "Globalscale Marvell ESPRESSOBin Board";
+	compatible = "globalscale,espressobin", "marvell,armada3720", "marvell,armada3710";
 
 	chosen {
 		stdout-path = "serial0:115200n8";
