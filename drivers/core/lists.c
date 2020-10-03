@@ -56,14 +56,20 @@ int lists_bind_drivers(struct udevice *parent, bool pre_reloc_only)
 	struct driver_info *info =
 		ll_entry_start(struct driver_info, driver_info);
 	const int n_ents = ll_entry_count(struct driver_info, driver_info);
-	struct driver_info *entry;
-	struct udevice *dev;
 	int result = 0;
-	int ret;
+	uint idx;
 
-	for (entry = info; entry != info + n_ents; entry++) {
+	for (idx = 0; idx < n_ents; idx++) {
+		const struct driver_info *entry = info + idx;
+		struct driver_rt *drt = gd_dm_driver_rt() + idx;
+		struct udevice *dev;
+		int ret;
+
 		ret = device_bind_by_name(parent, pre_reloc_only, entry, &dev);
-		if (ret && ret != -EPERM) {
+		if (!ret) {
+			if (CONFIG_IS_ENABLED(OF_PLATDATA))
+				drt->dev = dev;
+		} else if (ret != -EPERM) {
 			dm_warn("No match for driver '%s'\n", entry->name);
 			if (!result || ret != -ENOENT)
 				result = ret;

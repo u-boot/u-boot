@@ -22,15 +22,25 @@
  * @name:	Driver name
  * @platdata:	Driver-specific platform data
  * @platdata_size: Size of platform data structure
- * @dev:	Device created from this structure data
  */
 struct driver_info {
 	const char *name;
 	const void *platdata;
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	uint platdata_size;
-	struct udevice *dev;
 #endif
+};
+
+/**
+ * driver_rt - runtime information set up by U-Boot
+ *
+ * There is one of these for every driver_info in the linker list, indexed by
+ * the driver_info idx value.
+ *
+ * @dev: Device created from this idx
+ */
+struct driver_rt {
+	struct udevice *dev;
 };
 
 /**

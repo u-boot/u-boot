@@ -24,6 +24,8 @@
 #include <membuff.h>
 #include <linux/list.h>
 
+struct driver_rt;
+
 typedef struct global_data gd_t;
 
 /**
@@ -192,6 +194,10 @@ struct global_data {
 	 * @uclass_root: head of core tree
 	 */
 	struct list_head uclass_root;
+# if CONFIG_IS_ENABLED(OF_PLATDATA)
+        /** Dynamic info about the driver */
+	struct driver_rt *dm_driver_rt;
+# endif
 #endif
 #ifdef CONFIG_TIMER
 	/**
@@ -436,6 +442,14 @@ struct global_data {
 #define gd_of_root()		NULL
 #define gd_of_root_ptr()	NULL
 #define gd_set_of_root(_root)
+#endif
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+#define gd_set_dm_driver_rt(dyn)	gd->dm_driver_rt = dyn
+#define gd_dm_driver_rt()		gd->dm_driver_rt
+#else
+#define gd_set_dm_driver_rt(dyn)
+#define gd_dm_driver_rt()		NULL
 #endif
 
 /**

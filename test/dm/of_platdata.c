@@ -109,16 +109,16 @@ static int find_driver_info(struct unit_test_state *uts, struct udevice *parent,
 
 	/* If not the root device, find the entry that caused it to be bound */
 	if (parent->parent) {
-		const struct driver_info *info =
-			ll_entry_start(struct driver_info, driver_info);
 		const int n_ents =
 			ll_entry_count(struct driver_info, driver_info);
-		const struct driver_info *entry;
 		int idx = -1;
+		int i;
 
-		for (entry = info; entry != info + n_ents; entry++) {
-			if (entry->dev == parent) {
-				idx = entry - info;
+		for (i = 0; i < n_ents; i++) {
+			const struct driver_rt *drt = gd_dm_driver_rt() + i;
+
+			if (drt->dev == parent) {
+				idx = i;
 				found[idx] = true;
 				break;
 			}
@@ -153,16 +153,17 @@ static int dm_test_of_platdata_dev(struct unit_test_state *uts)
 
 	/* Make sure that the driver entries without devices have no ->dev */
 	for (i = 0; i < n_ents; i++) {
+		const struct driver_rt *drt = gd_dm_driver_rt() + i;
 		const struct driver_info *entry = info + i;
 		struct udevice *dev;
 
 		if (found[i]) {
 			/* Make sure we can find it */
-			ut_assertnonnull(entry->dev);
+			ut_assertnonnull(drt->dev);
 			ut_assertok(device_get_by_driver_info(entry, &dev));
-			ut_asserteq_ptr(dev, entry->dev);
+			ut_asserteq_ptr(dev, drt->dev);
 		} else {
-			ut_assertnull(entry->dev);
+			ut_assertnull(drt->dev);
 			ut_asserteq(-ENOENT,
 				    device_get_by_driver_info(entry, &dev));
 		}
