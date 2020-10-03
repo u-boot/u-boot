@@ -26,7 +26,11 @@ static int dm_test_of_platdata_props(struct unit_test_state *uts)
 	struct udevice *dev;
 	int i;
 
+	/* Skip the clock */
 	ut_assertok(uclass_first_device_err(UCLASS_MISC, &dev));
+	ut_asserteq_str("sandbox_clk_test", dev->name);
+
+	ut_assertok(uclass_next_device_err(&dev));
 	plat = dev_get_platdata(dev);
 	ut_assert(plat->boolval);
 	ut_asserteq(1, plat->intval);
@@ -167,3 +171,36 @@ static int dm_test_of_platdata_dev(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_of_platdata_dev, UT_TESTF_SCAN_PDATA);
+
+/* Test handling of phandles that point to other devices */
+static int dm_test_of_platdata_phandle(struct unit_test_state *uts)
+{
+	struct dtd_sandbox_clk_test *plat;
+	struct udevice *dev, *clk;
+
+	ut_assertok(uclass_first_device_err(UCLASS_MISC, &dev));
+	ut_asserteq_str("sandbox_clk_test", dev->name);
+	plat = dev_get_platdata(dev);
+
+	ut_assertok(device_get_by_driver_info(plat->clocks[0].node, &clk));
+	ut_asserteq_str("fixed_clock", clk->name);
+
+	ut_assertok(device_get_by_driver_info(plat->clocks[1].node, &clk));
+	ut_asserteq_str("sandbox_clk", clk->name);
+	ut_asserteq(1, plat->clocks[1].arg[0]);
+
+	ut_assertok(device_get_by_driver_info(plat->clocks[2].node, &clk));
+	ut_asserteq_str("sandbox_clk", clk->name);
+	ut_asserteq(0, plat->clocks[2].arg[0]);
+
+	ut_assertok(device_get_by_driver_info(plat->clocks[3].node, &clk));
+	ut_asserteq_str("sandbox_clk", clk->name);
+	ut_asserteq(3, plat->clocks[3].arg[0]);
+
+	ut_assertok(device_get_by_driver_info(plat->clocks[4].node, &clk));
+	ut_asserteq_str("sandbox_clk", clk->name);
+	ut_asserteq(2, plat->clocks[4].arg[0]);
+
+	return 0;
+}
+DM_TEST(dm_test_of_platdata_phandle, UT_TESTF_SCAN_PDATA);

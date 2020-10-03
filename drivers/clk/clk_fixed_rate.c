@@ -46,8 +46,8 @@ static const struct udevice_id clk_fixed_rate_match[] = {
 	{ /* sentinel */ }
 };
 
-U_BOOT_DRIVER(clk_fixed_rate) = {
-	.name = "fixed_rate_clock",
+U_BOOT_DRIVER(fixed_clock) = {
+	.name = "fixed_clock",
 	.id = UCLASS_CLK,
 	.of_match = clk_fixed_rate_match,
 	.ofdata_to_platdata = clk_fixed_rate_ofdata_to_platdata,

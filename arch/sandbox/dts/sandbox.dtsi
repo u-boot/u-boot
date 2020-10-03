@@ -29,6 +29,32 @@
 		};
 	};
 
+	clk_fixed: clk-fixed {
+		u-boot,dm-pre-reloc;
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <1234>;
+	};
+
+	clk_sandbox: clk-sbox {
+		u-boot,dm-pre-reloc;
+		compatible = "sandbox,clk";
+		#clock-cells = <1>;
+		assigned-clocks = <&clk_sandbox 3>;
+		assigned-clock-rates = <321>;
+	};
+
+	clk-test {
+		u-boot,dm-pre-reloc;
+		compatible = "sandbox,clk-test";
+		clocks = <&clk_fixed>,
+			 <&clk_sandbox 1>,
+			 <&clk_sandbox 0>,
+			 <&clk_sandbox 3>,
+			 <&clk_sandbox 2>;
+		clock-names = "fixed", "i2c", "spi", "uart2", "uart1";
+	};
+
 	gpio_a: gpios@0 {
 		u-boot,dm-pre-reloc;
 		gpio-controller;
