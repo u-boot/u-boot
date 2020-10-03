@@ -22,14 +22,22 @@
  * @name:	Driver name
  * @platdata:	Driver-specific platform data
  * @platdata_size: Size of platform data structure
+ * @parent_idx:	Index of the parent driver_info structure
  */
 struct driver_info {
 	const char *name;
 	const void *platdata;
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	uint platdata_size;
+	unsigned short platdata_size;
+	short parent_idx;
 #endif
 };
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+#define driver_info_parent_id(driver_info)	driver_info->parent_idx
+#else
+#define driver_info_parent_id(driver_info)	(-1)
+#endif
 
 /**
  * driver_rt - runtime information set up by U-Boot

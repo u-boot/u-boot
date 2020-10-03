@@ -216,6 +216,7 @@ U_BOOT_DEVICE(i2c_at_0) = {
 \t.name\t\t= "sandbox_i2c_test",
 \t.platdata\t= &dtv_i2c_at_0,
 \t.platdata_size\t= sizeof(dtv_i2c_at_0),
+\t.parent_idx\t= -1,
 };
 
 /* Node /i2c@0/pmic@9 index 1 */
@@ -227,6 +228,7 @@ U_BOOT_DEVICE(pmic_at_9) = {
 \t.name\t\t= "sandbox_pmic_test",
 \t.platdata\t= &dtv_pmic_at_9,
 \t.platdata_size\t= sizeof(dtv_pmic_at_9),
+\t.parent_idx\t= 0,
 };
 
 /* Node /spl-test index 2 */
@@ -246,6 +248,7 @@ U_BOOT_DEVICE(spl_test) = {
 \t.name\t\t= "sandbox_spl_test",
 \t.platdata\t= &dtv_spl_test,
 \t.platdata_size\t= sizeof(dtv_spl_test),
+\t.parent_idx\t= -1,
 };
 
 /* Node /spl-test2 index 3 */
@@ -264,6 +267,7 @@ U_BOOT_DEVICE(spl_test2) = {
 \t.name\t\t= "sandbox_spl_test",
 \t.platdata\t= &dtv_spl_test2,
 \t.platdata_size\t= sizeof(dtv_spl_test2),
+\t.parent_idx\t= -1,
 };
 
 /* Node /spl-test3 index 4 */
@@ -276,6 +280,7 @@ U_BOOT_DEVICE(spl_test3) = {
 \t.name\t\t= "sandbox_spl_test",
 \t.platdata\t= &dtv_spl_test3,
 \t.platdata_size\t= sizeof(dtv_spl_test3),
+\t.parent_idx\t= -1,
 };
 
 /* Node /spl-test4 index 5 */
@@ -285,6 +290,7 @@ U_BOOT_DEVICE(spl_test4) = {
 \t.name\t\t= "sandbox_spl_test_2",
 \t.platdata\t= &dtv_spl_test4,
 \t.platdata_size\t= sizeof(dtv_spl_test4),
+\t.parent_idx\t= -1,
 };
 
 ''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
@@ -318,6 +324,7 @@ U_BOOT_DEVICE(gpios_at_0) = {
 \t.name\t\t= "sandbox_gpio",
 \t.platdata\t= &dtv_gpios_at_0,
 \t.platdata_size\t= sizeof(dtv_gpios_at_0),
+\t.parent_idx\t= -1,
 };
 
 void dm_populate_phandle_data(void) {
@@ -349,6 +356,7 @@ U_BOOT_DEVICE(spl_test) = {
 \t.name\t\t= "invalid",
 \t.platdata\t= &dtv_spl_test,
 \t.platdata_size\t= sizeof(dtv_spl_test),
+\t.parent_idx\t= -1,
 };
 
 void dm_populate_phandle_data(void) {
@@ -383,6 +391,7 @@ U_BOOT_DEVICE(phandle2_target) = {
 \t.name\t\t= "target",
 \t.platdata\t= &dtv_phandle2_target,
 \t.platdata_size\t= sizeof(dtv_phandle2_target),
+\t.parent_idx\t= -1,
 };
 
 /* Node /phandle3-target index 1 */
@@ -393,6 +402,7 @@ U_BOOT_DEVICE(phandle3_target) = {
 \t.name\t\t= "target",
 \t.platdata\t= &dtv_phandle3_target,
 \t.platdata_size\t= sizeof(dtv_phandle3_target),
+\t.parent_idx\t= -1,
 };
 
 /* Node /phandle-target index 4 */
@@ -403,6 +413,7 @@ U_BOOT_DEVICE(phandle_target) = {
 \t.name\t\t= "target",
 \t.platdata\t= &dtv_phandle_target,
 \t.platdata_size\t= sizeof(dtv_phandle_target),
+\t.parent_idx\t= -1,
 };
 
 /* Node /phandle-source index 2 */
@@ -417,6 +428,7 @@ U_BOOT_DEVICE(phandle_source) = {
 \t.name\t\t= "source",
 \t.platdata\t= &dtv_phandle_source,
 \t.platdata_size\t= sizeof(dtv_phandle_source),
+\t.parent_idx\t= -1,
 };
 
 /* Node /phandle-source2 index 3 */
@@ -428,6 +440,7 @@ U_BOOT_DEVICE(phandle_source2) = {
 \t.name\t\t= "source",
 \t.platdata\t= &dtv_phandle_source2,
 \t.platdata_size\t= sizeof(dtv_phandle_source2),
+\t.parent_idx\t= -1,
 };
 
 void dm_populate_phandle_data(void) {
@@ -470,6 +483,7 @@ U_BOOT_DEVICE(phandle_target) = {
 \t.name\t\t= "target",
 \t.platdata\t= &dtv_phandle_target,
 \t.platdata_size\t= sizeof(dtv_phandle_target),
+\t.parent_idx\t= -1,
 };
 
 /* Node /phandle-source2 index 0 */
@@ -481,6 +495,7 @@ U_BOOT_DEVICE(phandle_source2) = {
 \t.name\t\t= "source",
 \t.platdata\t= &dtv_phandle_source2,
 \t.platdata_size\t= sizeof(dtv_phandle_source2),
+\t.parent_idx\t= -1,
 };
 
 void dm_populate_phandle_data(void) {
@@ -504,6 +519,7 @@ U_BOOT_DEVICE(phandle2_target) = {
 \t.name\t\t= "target",
 \t.platdata\t= &dtv_phandle2_target,
 \t.platdata_size\t= sizeof(dtv_phandle2_target),
+\t.parent_idx\t= -1,
 };
 
 /* Node /phandle3-target index 1 */
@@ -514,6 +530,7 @@ U_BOOT_DEVICE(phandle3_target) = {
 \t.name\t\t= "target",
 \t.platdata\t= &dtv_phandle3_target,
 \t.platdata_size\t= sizeof(dtv_phandle3_target),
+\t.parent_idx\t= -1,
 };
 
 /* Node /phandle-target index 4 */
@@ -524,6 +541,7 @@ U_BOOT_DEVICE(phandle_target) = {
 \t.name\t\t= "target",
 \t.platdata\t= &dtv_phandle_target,
 \t.platdata_size\t= sizeof(dtv_phandle_target),
+\t.parent_idx\t= -1,
 };
 
 /* Node /phandle-source index 2 */
@@ -538,6 +556,7 @@ U_BOOT_DEVICE(phandle_source) = {
 \t.name\t\t= "source",
 \t.platdata\t= &dtv_phandle_source,
 \t.platdata_size\t= sizeof(dtv_phandle_source),
+\t.parent_idx\t= -1,
 };
 
 /* Node /phandle-source2 index 3 */
@@ -549,6 +568,7 @@ U_BOOT_DEVICE(phandle_source2) = {
 \t.name\t\t= "source",
 \t.platdata\t= &dtv_phandle_source2,
 \t.platdata_size\t= sizeof(dtv_phandle_source2),
+\t.parent_idx\t= -1,
 };
 
 void dm_populate_phandle_data(void) {
@@ -611,6 +631,7 @@ U_BOOT_DEVICE(test1) = {
 \t.name\t\t= "test1",
 \t.platdata\t= &dtv_test1,
 \t.platdata_size\t= sizeof(dtv_test1),
+\t.parent_idx\t= -1,
 };
 
 /* Node /test2 index 1 */
@@ -621,6 +642,7 @@ U_BOOT_DEVICE(test2) = {
 \t.name\t\t= "test2",
 \t.platdata\t= &dtv_test2,
 \t.platdata_size\t= sizeof(dtv_test2),
+\t.parent_idx\t= -1,
 };
 
 /* Node /test3 index 2 */
@@ -631,6 +653,7 @@ U_BOOT_DEVICE(test3) = {
 \t.name\t\t= "test3",
 \t.platdata\t= &dtv_test3,
 \t.platdata_size\t= sizeof(dtv_test3),
+\t.parent_idx\t= -1,
 };
 
 ''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
@@ -663,6 +686,7 @@ U_BOOT_DEVICE(test1) = {
 \t.name\t\t= "test1",
 \t.platdata\t= &dtv_test1,
 \t.platdata_size\t= sizeof(dtv_test1),
+\t.parent_idx\t= -1,
 };
 
 /* Node /test2 index 1 */
@@ -673,6 +697,7 @@ U_BOOT_DEVICE(test2) = {
 \t.name\t\t= "test2",
 \t.platdata\t= &dtv_test2,
 \t.platdata_size\t= sizeof(dtv_test2),
+\t.parent_idx\t= -1,
 };
 
 ''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
@@ -708,6 +733,7 @@ U_BOOT_DEVICE(test1) = {
 \t.name\t\t= "test1",
 \t.platdata\t= &dtv_test1,
 \t.platdata_size\t= sizeof(dtv_test1),
+\t.parent_idx\t= -1,
 };
 
 /* Node /test2 index 1 */
@@ -718,6 +744,7 @@ U_BOOT_DEVICE(test2) = {
 \t.name\t\t= "test2",
 \t.platdata\t= &dtv_test2,
 \t.platdata_size\t= sizeof(dtv_test2),
+\t.parent_idx\t= -1,
 };
 
 /* Node /test3 index 2 */
@@ -728,6 +755,7 @@ U_BOOT_DEVICE(test3) = {
 \t.name\t\t= "test3",
 \t.platdata\t= &dtv_test3,
 \t.platdata_size\t= sizeof(dtv_test3),
+\t.parent_idx\t= -1,
 };
 
 ''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
@@ -763,6 +791,7 @@ U_BOOT_DEVICE(test1) = {
 \t.name\t\t= "test1",
 \t.platdata\t= &dtv_test1,
 \t.platdata_size\t= sizeof(dtv_test1),
+\t.parent_idx\t= -1,
 };
 
 /* Node /test2 index 1 */
@@ -773,6 +802,7 @@ U_BOOT_DEVICE(test2) = {
 \t.name\t\t= "test2",
 \t.platdata\t= &dtv_test2,
 \t.platdata_size\t= sizeof(dtv_test2),
+\t.parent_idx\t= -1,
 };
 
 /* Node /test3 index 2 */
@@ -783,6 +813,7 @@ U_BOOT_DEVICE(test3) = {
 \t.name\t\t= "test3",
 \t.platdata\t= &dtv_test3,
 \t.platdata_size\t= sizeof(dtv_test3),
+\t.parent_idx\t= -1,
 };
 
 ''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
@@ -833,6 +864,7 @@ U_BOOT_DEVICE(spl_test) = {
 \t.name\t\t= "sandbox_spl_test",
 \t.platdata\t= &dtv_spl_test,
 \t.platdata_size\t= sizeof(dtv_spl_test),
+\t.parent_idx\t= -1,
 };
 
 /* Node /spl-test2 index 1 */
@@ -843,6 +875,7 @@ U_BOOT_DEVICE(spl_test2) = {
 \t.name\t\t= "sandbox_spl_test",
 \t.platdata\t= &dtv_spl_test2,
 \t.platdata_size\t= sizeof(dtv_spl_test2),
+\t.parent_idx\t= -1,
 };
 
 ''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)

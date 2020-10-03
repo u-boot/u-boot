@@ -662,6 +662,10 @@ class DtbPlatdata(object):
         self.buf('\t.name\t\t= "%s",\n' % struct_name)
         self.buf('\t.platdata\t= &%s%s,\n' % (VAL_PREFIX, var_name))
         self.buf('\t.platdata_size\t= sizeof(%s%s),\n' % (VAL_PREFIX, var_name))
+        idx = -1
+        if node.parent and node.parent in self._valid_nodes:
+            idx = node.parent.idx
+        self.buf('\t.parent_idx\t= %d,\n' % idx)
         self.buf('};\n')
         self.buf('\n')
 
