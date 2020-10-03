@@ -205,3 +205,18 @@ static int dm_test_of_platdata_phandle(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_of_platdata_phandle, UT_TESTF_SCAN_PDATA);
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA_PARENT)
+/* Test that device parents are correctly set up */
+static int dm_test_of_platdata_parent(struct unit_test_state *uts)
+{
+	struct udevice *rtc, *i2c;
+
+	ut_assertok(uclass_first_device_err(UCLASS_RTC, &rtc));
+	ut_assertok(uclass_first_device_err(UCLASS_I2C, &i2c));
+	ut_asserteq_ptr(i2c, dev_get_parent(rtc));
+
+	return 0;
+}
+DM_TEST(dm_test_of_platdata_parent, UT_TESTF_SCAN_PDATA);
+#endif

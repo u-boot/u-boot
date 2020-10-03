@@ -90,6 +90,7 @@
 			reg = <0x43>;
 			compatible = "sandbox-rtc";
 			sandbox,emul = <&emul0>;
+			u-boot,dm-pre-reloc;
 		};
 		sandbox_pmic: sandbox_pmic {
 			reg = <0x40>;

@@ -92,8 +92,8 @@ static const struct udevice_id sandbox_rtc_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(rtc_sandbox) = {
-	.name	= "rtc-sandbox",
+U_BOOT_DRIVER(sandbox_rtc) = {
+	.name	= "sandbox_rtc",
 	.id	= UCLASS_RTC,
 	.of_match = sandbox_rtc_ids,
 	.ops	= &sandbox_rtc_ops,
