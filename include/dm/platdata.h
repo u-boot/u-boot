@@ -45,7 +45,22 @@ struct driver_info {
 #define U_BOOT_DEVICES(__name)						\
 	ll_entry_declare_list(struct driver_info, __name, driver_info)
 
-/* Get a pointer to a given driver */
+/**
+ * Get a pointer to a given device info given its name
+ *
+ * With the declaration U_BOOT_DEVICE(name), DM_GET_DEVICE(name) will return a
+ * pointer to the struct driver_info created by that declaration.
+ *
+ * if OF_PLATDATA is enabled, from this it is possible to use the @dev member of
+ * struct driver_info to find the device pointer itself.
+ *
+ * TODO(sjg@chromium.org): U_BOOT_DEVICE() tells U-Boot to create a device, so
+ * the naming seems sensible, but DM_GET_DEVICE() is a bit of misnomer, since it
+ * finds the driver_info record, not the device.
+ *
+ * @__name: Driver name (C identifier, not a string. E.g. gpio7_at_ff7e0000)
+ * @return struct driver_info * to the driver that created the device
+ */
 #define DM_GET_DEVICE(__name)						\
 	ll_entry_get(struct driver_info, __name, driver_info)
 
