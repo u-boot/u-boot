@@ -90,17 +90,10 @@ DECLARE_GLOBAL_DATA_PTR;
  *
  * @returns true if livetree is active, false it not
  */
-#ifdef CONFIG_OF_LIVE
 static inline bool of_live_active(void)
 {
-	return gd->of_root != NULL;
+	return gd_of_root() != NULL;
 }
-#else
-static inline bool of_live_active(void)
-{
-	return false;
-}
-#endif
 
 #define OF_BAD_ADDR	((u64)-1)
 

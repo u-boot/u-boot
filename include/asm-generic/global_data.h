@@ -211,7 +211,7 @@ struct global_data {
 	 * @fdt_size: space reserved for relocated device space
 	 */
 	unsigned long fdt_size;
-#ifdef CONFIG_OF_LIVE
+#if CONFIG_IS_ENABLED(OF_LIVE)
 	/**
 	 * @of_root: root node of the live tree
 	 */
@@ -425,6 +425,17 @@ struct global_data {
 #define gd_board_type()		gd->board_type
 #else
 #define gd_board_type()		0
+#endif
+
+/* These macros help avoid #ifdefs in the code */
+#if CONFIG_IS_ENABLED(OF_LIVE)
+#define gd_of_root()		gd->of_root
+#define gd_of_root_ptr()	&gd->of_root
+#define gd_set_of_root(_root)	gd->of_root = (_root)
+#else
+#define gd_of_root()		NULL
+#define gd_of_root_ptr()	NULL
+#define gd_set_of_root(_root)
 #endif
 
 /**

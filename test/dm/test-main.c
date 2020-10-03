@@ -33,10 +33,8 @@ static int dm_test_init(struct unit_test_state *uts, bool of_live)
 	memset(dm_testdrv_op_count, '\0', sizeof(dm_testdrv_op_count));
 	state_reset_for_test(state_get_current());
 
-#ifdef CONFIG_OF_LIVE
 	/* Determine whether to make the live tree available */
-	gd->of_root = of_live ? uts->of_root : NULL;
-#endif
+	gd_set_of_root(of_live ? uts->of_root : NULL);
 	ut_assertok(dm_init(of_live));
 	dms->root = dm_root();
 
@@ -152,9 +150,7 @@ static int dm_test_main(const char *test_name)
 		printf("Running %d driver model tests\n", n_ents);
 
 	found = 0;
-#ifdef CONFIG_OF_LIVE
-	uts->of_root = gd->of_root;
-#endif
+	uts->of_root = gd_of_root();
 	for (test = tests; test < tests + n_ents; test++) {
 		const char *name = test->name;
 		int runs;
@@ -167,7 +163,7 @@ static int dm_test_main(const char *test_name)
 
 		/* Run with the live tree if possible */
 		runs = 0;
-		if (IS_ENABLED(CONFIG_OF_LIVE)) {
+		if (CONFIG_IS_ENABLED(OF_LIVE)) {
 			if (!(test->flags & UT_TESTF_FLAT_TREE)) {
 				ut_assertok(dm_do_test(uts, test, true));
 				runs++;
@@ -192,11 +188,9 @@ static int dm_test_main(const char *test_name)
 		printf("Failures: %d\n", uts->fail_count);
 
 	/* Put everything back to normal so that sandbox works as expected */
-#ifdef CONFIG_OF_LIVE
-	gd->of_root = uts->of_root;
-#endif
+	gd_set_of_root(uts->of_root);
 	gd->dm_root = NULL;
-	ut_assertok(dm_init(IS_ENABLED(CONFIG_OF_LIVE)));
+	ut_assertok(dm_init(CONFIG_IS_ENABLED(OF_LIVE)));
 	dm_scan_platdata(false);
 	dm_scan_fdt(gd->fdt_blob, false);
 
