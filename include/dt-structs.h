@@ -11,17 +11,17 @@
 struct driver_info;
 
 struct phandle_0_arg {
-	const struct driver_info *node;
+	uint idx;
 	int arg[0];
 };
 
 struct phandle_1_arg {
-	const struct driver_info *node;
+	uint idx;
 	int arg[1];
 };
 
 struct phandle_2_arg {
-	const struct driver_info *node;
+	uint idx;
 	int arg[2];
 };
 #include <generated/dt-structs-gen.h>

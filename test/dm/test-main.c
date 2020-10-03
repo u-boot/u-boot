@@ -127,6 +127,24 @@ static bool dm_test_run_on_flattree(struct unit_test *test)
 	return !strstr(fname, "video") || strstr(test->name, "video_base");
 }
 
+static bool test_matches(const char *test_name, const char *find_name)
+{
+	if (!find_name)
+		return true;
+
+	if (!strcmp(test_name, find_name))
+		return true;
+
+	/* All tests have this prefix */
+	if (!strncmp(test_name, "dm_test_", 8))
+		test_name += 8;
+
+	if (!strcmp(test_name, find_name))
+		return true;
+
+	return false;
+}
+
 int dm_test_main(const char *test_name)
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test, dm_test);
@@ -152,6 +170,7 @@ int dm_test_main(const char *test_name)
 
 	if (!test_name)
 		printf("Running %d driver model tests\n", n_ents);
+	else
 
 	found = 0;
 	uts->of_root = gd_of_root();
@@ -159,10 +178,7 @@ int dm_test_main(const char *test_name)
 		const char *name = test->name;
 		int runs;
 
-		/* All tests have this prefix */
-		if (!strncmp(name, "dm_test_", 8))
-			name += 8;
-		if (test_name && strcmp(test_name, name))
+		if (!test_matches(name, test_name))
 			continue;
 
 		/* Run with the live tree if possible */

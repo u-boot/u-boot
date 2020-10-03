@@ -419,10 +419,10 @@ U_BOOT_DEVICE(phandle_target) = {
 /* Node /phandle-source index 2 */
 static struct dtd_source dtv_phandle_source = {
 \t.clocks\t\t\t= {
-\t\t\t{NULL, {}},
-\t\t\t{NULL, {11}},
-\t\t\t{NULL, {12, 13}},
-\t\t\t{NULL, {}},},
+\t\t\t{4, {}},
+\t\t\t{0, {11}},
+\t\t\t{1, {12, 13}},
+\t\t\t{4, {}},},
 };
 U_BOOT_DEVICE(phandle_source) = {
 \t.name\t\t= "source",
@@ -434,7 +434,7 @@ U_BOOT_DEVICE(phandle_source) = {
 /* Node /phandle-source2 index 3 */
 static struct dtd_source dtv_phandle_source2 = {
 \t.clocks\t\t\t= {
-\t\t\t{NULL, {}},},
+\t\t\t{4, {}},},
 };
 U_BOOT_DEVICE(phandle_source2) = {
 \t.name\t\t= "source",
@@ -444,11 +444,6 @@ U_BOOT_DEVICE(phandle_source2) = {
 };
 
 void dm_populate_phandle_data(void) {
-\tdtv_phandle_source.clocks[0].node = DM_GET_DEVICE(phandle_target);
-\tdtv_phandle_source.clocks[1].node = DM_GET_DEVICE(phandle2_target);
-\tdtv_phandle_source.clocks[2].node = DM_GET_DEVICE(phandle3_target);
-\tdtv_phandle_source.clocks[3].node = DM_GET_DEVICE(phandle_target);
-\tdtv_phandle_source2.clocks[0].node = DM_GET_DEVICE(phandle_target);
 }
 ''', data)
 
@@ -489,7 +484,7 @@ U_BOOT_DEVICE(phandle_target) = {
 /* Node /phandle-source2 index 0 */
 static struct dtd_source dtv_phandle_source2 = {
 \t.clocks\t\t\t= {
-\t\t\t{NULL, {}},},
+\t\t\t{1, {}},},
 };
 U_BOOT_DEVICE(phandle_source2) = {
 \t.name\t\t= "source",
@@ -499,7 +494,6 @@ U_BOOT_DEVICE(phandle_source2) = {
 };
 
 void dm_populate_phandle_data(void) {
-\tdtv_phandle_source2.clocks[0].node = DM_GET_DEVICE(phandle_target);
 }
 ''', data)
 
@@ -547,10 +541,10 @@ U_BOOT_DEVICE(phandle_target) = {
 /* Node /phandle-source index 2 */
 static struct dtd_source dtv_phandle_source = {
 \t.cd_gpios\t\t= {
-\t\t\t{NULL, {}},
-\t\t\t{NULL, {11}},
-\t\t\t{NULL, {12, 13}},
-\t\t\t{NULL, {}},},
+\t\t\t{4, {}},
+\t\t\t{0, {11}},
+\t\t\t{1, {12, 13}},
+\t\t\t{4, {}},},
 };
 U_BOOT_DEVICE(phandle_source) = {
 \t.name\t\t= "source",
@@ -562,7 +556,7 @@ U_BOOT_DEVICE(phandle_source) = {
 /* Node /phandle-source2 index 3 */
 static struct dtd_source dtv_phandle_source2 = {
 \t.cd_gpios\t\t= {
-\t\t\t{NULL, {}},},
+\t\t\t{4, {}},},
 };
 U_BOOT_DEVICE(phandle_source2) = {
 \t.name\t\t= "source",
@@ -572,11 +566,6 @@ U_BOOT_DEVICE(phandle_source2) = {
 };
 
 void dm_populate_phandle_data(void) {
-\tdtv_phandle_source.cd_gpios[0].node = DM_GET_DEVICE(phandle_target);
-\tdtv_phandle_source.cd_gpios[1].node = DM_GET_DEVICE(phandle2_target);
-\tdtv_phandle_source.cd_gpios[2].node = DM_GET_DEVICE(phandle3_target);
-\tdtv_phandle_source.cd_gpios[3].node = DM_GET_DEVICE(phandle_target);
-\tdtv_phandle_source2.cd_gpios[0].node = DM_GET_DEVICE(phandle_target);
 }
 ''', data)
 

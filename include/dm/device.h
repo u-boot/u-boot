@@ -554,6 +554,20 @@ int device_get_by_driver_info(const struct driver_info *info,
 			      struct udevice **devp);
 
 /**
+ * device_get_by_driver_info_idx() - Get a device based on driver_info index
+ *
+ * Locates a device by its struct driver_info, by using its index number which
+ * is written into the idx field of struct phandle_1_arg, etc.
+ *
+ * The device is probed to activate it ready for use.
+ *
+ * @idx: Index number of the driver_info structure (0=first)
+ * @devp: Returns pointer to device if found, otherwise this is set to NULL
+ * @return 0 if OK, -ve on error
+ */
+int device_get_by_driver_info_idx(uint idx, struct udevice **devp);
+
+/**
  * device_find_first_child() - Find the first child of a device
  *
  * @parent: Parent device to search

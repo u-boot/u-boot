@@ -154,8 +154,6 @@ class DtbPlatdata(object):
             key: Driver alias declared with
                 U_BOOT_DRIVER_ALIAS(driver_alias, driver_name)
             value: Driver name declared with U_BOOT_DRIVER(driver_name)
-        _links: List of links to be included in dm_populate_phandle_data(),
-            each a PhandleLink
         _drivers_additional: List of additional drivers to use during scanning
     """
     def __init__(self, dtb_fname, include_disabled, warning_disabled,
@@ -169,7 +167,6 @@ class DtbPlatdata(object):
         self._lines = []
         self._drivers = []
         self._driver_aliases = {}
-        self._links = []
         self._drivers_additional = drivers_additional
 
     def get_normalized_compat_name(self, node):
@@ -612,17 +609,11 @@ class DtbPlatdata(object):
                     name = conv_name_to_c(target_node.name)
                     arg_values = []
                     for i in range(args):
-                        arg_values.append(str(fdt_util.fdt32_to_cpu(prop.value[pos + 1 + i])))
+                        arg_values.append(
+                            str(fdt_util.fdt32_to_cpu(prop.value[pos + 1 + i])))
                     pos += 1 + args
-                    # node member is filled with NULL as the real value
-                    # will be update at run-time during dm_init_and_scan()
-                    # by dm_populate_phandle_data()
-                    vals.append('\t{NULL, {%s}}' % (', '.join(arg_values)))
-                    var_node = '%s%s.%s[%d].node' % \
-                                (VAL_PREFIX, var_name, member_name, item)
-                    # Save the the link information to be use to define
-                    # dm_populate_phandle_data()
-                    self._links.append(PhandleLink(var_node, name))
+                    vals.append('\t{%d, {%s}}' % (target_node.idx,
+                                                  ', '.join(arg_values)))
                     item += 1
                 for val in vals:
                     self.buf('\n\t\t%s,' % val)
@@ -703,9 +694,6 @@ class DtbPlatdata(object):
         # nodes using DM_GET_DEVICE
         # dtv_dmc_at_xxx.clocks[0].node = DM_GET_DEVICE(clock_controller_at_xxx)
         self.buf('void dm_populate_phandle_data(void) {\n')
-        for link in self._links:
-            self.buf('\t%s = DM_GET_DEVICE(%s);\n' %
-                     (link.var_node, link.dev_name))
         self.buf('}\n')
 
         self.out(''.join(self.get_buf()))

@@ -772,6 +772,17 @@ int device_get_by_driver_info(const struct driver_info *info,
 
 	return device_get_device_tail(dev, dev ? 0 : -ENOENT, devp);
 }
+
+int device_get_by_driver_info_idx(uint idx, struct udevice **devp)
+{
+	struct driver_rt *drt = gd_dm_driver_rt() + idx;
+	struct udevice *dev;
+
+	dev = drt->dev;
+	*devp = NULL;
+
+	return device_get_device_tail(dev, dev ? 0 : -ENOENT, devp);
+}
 #endif
 
 int device_find_first_child(const struct udevice *parent, struct udevice **devp)
