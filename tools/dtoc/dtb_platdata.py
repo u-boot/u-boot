@@ -466,6 +466,13 @@ class DtbPlatdata(object):
 
         Once the widest property is determined, all other properties are
         updated to match that width.
+
+        Returns:
+            dict containing structures:
+                key (str): Node name, as a C identifier
+                value: dict containing structure fields:
+                    key (str): Field name
+                    value: Prop object with field information
         """
         structs = {}
         for node in self._valid_nodes:
@@ -536,6 +543,14 @@ class DtbPlatdata(object):
         This writes out the body of a header file consisting of structure
         definitions for node in self._valid_nodes. See the documentation in
         doc/driver-model/of-plat.rst for more information.
+
+        Args:
+            structs: dict containing structures:
+                key (str): Node name, as a C identifier
+                value: dict containing structure fields:
+                    key (str): Field name
+                    value: Prop object with field information
+
         """
         self.out_header()
         self.out('#include <stdbool.h>\n')
