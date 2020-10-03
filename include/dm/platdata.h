@@ -55,9 +55,17 @@ struct driver_rt {
  * NOTE: Avoid using these except in extreme circumstances, where device tree
  * is not feasible (e.g. serial driver in SPL where <8KB of SRAM is
  * available). U-Boot's driver model uses device tree for configuration.
+ *
+ * When of-platdata is in use, U_BOOT_DEVICE() cannot be used outside of the
+ * dt-platdata.c file created by dtoc
  */
+#if CONFIG_IS_ENABLED(OF_PLATDATA) && !defined(DT_PLATDATA_C)
+#define U_BOOT_DEVICE(__name)	_Static_assert(false, \
+	"Cannot use U_BOOT_DEVICE with of-platdata. Please use devicetree instead")
+#else
 #define U_BOOT_DEVICE(__name)						\
 	ll_entry_declare(struct driver_info, __name, driver_info)
+#endif
 
 /* Declare a list of devices. The argument is a driver_info[] array */
 #define U_BOOT_DEVICES(__name)						\
