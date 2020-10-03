@@ -5,12 +5,12 @@
 obj-$(CONFIG_SANDBOX) += bloblist.o
 obj-$(CONFIG_CMDLINE) += cmd/
 obj-$(CONFIG_UNIT_TEST) += cmd_ut.o
-obj-$(CONFIG_UNIT_TEST) += ut.o
 obj-$(CONFIG_SANDBOX) += command_ut.o
 obj-$(CONFIG_SANDBOX) += compression.o
+obj-$(CONFIG_UNIT_TEST) += lib/
+obj-y += log/
 obj-$(CONFIG_SANDBOX) += print_ut.o
 obj-$(CONFIG_SANDBOX) += str_ut.o
 obj-$(CONFIG_UT_TIME) += time_ut.o
 obj-$(CONFIG_UT_UNICODE) += unicode_ut.o
-obj-y += log/
-obj-$(CONFIG_UNIT_TEST) += lib/
+obj-$(CONFIG_UNIT_TEST) += ut.o
