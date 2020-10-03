@@ -767,6 +767,7 @@ int device_get_by_driver_info(const struct driver_info *info,
 	struct udevice *dev;
 
 	dev = info->dev;
+	*devp = NULL;
 
 	return device_get_device_tail(dev, dev ? 0 : -ENOENT, devp);
 }
