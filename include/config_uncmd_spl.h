@@ -16,7 +16,6 @@
 #undef CONFIG_DM_SPI
 #endif
 
-#undef CONFIG_DM_WARN
 #undef CONFIG_DM_STDIO
 
 #endif /* CONFIG_SPL_BUILD */
