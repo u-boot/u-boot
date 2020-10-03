@@ -47,9 +47,9 @@ static const struct efi_initrd_dp dp = {
 /**
  * get_file_size() - retrieve the size of initramfs, set efi status on error
  *
- * @dev:			device to read from. i.e "mmc"
- * @part:			device partition. i.e "0:1"
- * @file:			name fo file
+ * @dev:			device to read from, e.g. "mmc"
+ * @part:			device partition, e.g. "0:1"
+ * @file:			name of file
  * @status:			EFI exit code in case of failure
  *
  * Return:			size of file
@@ -78,15 +78,16 @@ out:
 }
 
 /**
- * load_file2() - get information about random number generation
+ * efi_load_file2initrd() - load initial RAM disk
  *
- * This function implement the LoadFile2() service in order to load an initram
- * disk requested by the Linux kernel stub.
+ * This function implements the LoadFile service of the EFI_LOAD_FILE2_PROTOCOL
+ * in order to load an initial RAM disk requested by the Linux kernel stub.
+ *
  * See the UEFI spec for details.
  *
- * @this:			loadfile2 protocol instance
- * @file_path:			relative path of the file. "" in this case
- * @boot_policy:		must be false for Loadfile2
+ * @this:			EFI_LOAD_FILE2_PROTOCOL instance
+ * @file_path:			media device path of the file, "" in this case
+ * @boot_policy:		must be false
  * @buffer_size:		size of allocated buffer
  * @buffer:			buffer to load the file
  *
@@ -128,7 +129,13 @@ efi_load_file2_initrd(struct efi_load_file_protocol *this,
 		goto out;
 	}
 
-	/* expect something like 'mmc 0:1 initrd.cpio.gz' */
+	/*
+	 * expect a string with three space separated parts:
+	 *
+	 * * a block device type, e.g. "mmc"
+	 * * a device and partition identifier, e.g. "0:1"
+	 * * a file path on the block device, e.g. "/boot/initrd.cpio.gz"
+	 */
 	dev = strsep(&s, " ");
 	if (!dev)
 		goto out;
@@ -168,23 +175,20 @@ out:
 }
 
 /**
- * efi_initrd_register() - Register a handle and loadfile2 protocol
+ * efi_initrd_register() - create handle for loading initial RAM disk
  *
- * This function creates a new handle and installs a linux specific GUID
- * to handle initram disk loading during boot.
- * See the UEFI spec for details.
+ * This function creates a new handle and installs a Linux specific vendor
+ * device path and an EFI_LOAD_FILE_2_PROTOCOL. Linux uses the device path
+ * to identify the handle and then calls the LoadFile service of the
+ * EFI_LOAD_FILE_2_PROTOCOL to read the initial RAM disk.
  *
- * Return:			status code
+ * Return:	status code
  */
 efi_status_t efi_initrd_register(void)
 {
 	efi_handle_t efi_initrd_handle = NULL;
 	efi_status_t ret;
 
-	/*
-	 * Set up the handle with the EFI_LOAD_FILE2_PROTOCOL which Linux may
-	 * use to load the initial ramdisk.
-	 */
 	ret = EFI_CALL(efi_install_multiple_protocol_interfaces
 		       (&efi_initrd_handle,
 			/* initramfs */
