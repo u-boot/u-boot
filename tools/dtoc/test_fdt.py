@@ -298,6 +298,7 @@ class TestProp(unittest.TestCase):
     def testWiden(self):
         """Test widening of values"""
         node2 = self.dtb.GetNode('/spl-test2')
+        node3 = self.dtb.GetNode('/spl-test3')
         prop = self.node.props['intval']
 
         # No action
@@ -316,11 +317,20 @@ class TestProp(unittest.TestCase):
         # byte array, it should turn into an array.
         prop = self.node.props['longbytearray']
         prop2 = node2.props['longbytearray']
+        prop3 = node3.props['longbytearray']
         self.assertFalse(isinstance(prop2.value, list))
         self.assertEqual(4, len(prop2.value))
+        self.assertEqual(b'\x09\x0a\x0b\x0c', prop2.value)
         prop2.Widen(prop)
         self.assertTrue(isinstance(prop2.value, list))
         self.assertEqual(9, len(prop2.value))
+        self.assertEqual(['\x09', '\x0a', '\x0b', '\x0c', '\0',
+                          '\0', '\0', '\0', '\0'], prop2.value)
+        prop3.Widen(prop)
+        self.assertTrue(isinstance(prop3.value, list))
+        self.assertEqual(9, len(prop3.value))
+        self.assertEqual(['\x09', '\x0a', '\x0b', '\x0c', '\x0d',
+                          '\x0e', '\x0f', '\x10', '\0'], prop3.value)
 
         # Similarly for a string array
         prop = self.node.props['stringval']

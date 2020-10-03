@@ -20,7 +20,7 @@ byte 08
 bytearray 01 23 34
 int 3
 intarray 5 0 0 0
-longbytearray 09 00 00 00 00 00 00 00 00
+longbytearray 09 0a 0b 0c 00 00 00 00 00
 string message2
 stringarray "another" "multi-word" "message"
 of-platdata probe:

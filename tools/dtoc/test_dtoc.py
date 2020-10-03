@@ -255,7 +255,7 @@ static struct dtd_sandbox_spl_test dtv_spl_test2 = {
 \t.byteval\t\t= 0x8,
 \t.intarray\t\t= {0x5, 0x0, 0x0, 0x0},
 \t.intval\t\t\t= 0x3,
-\t.longbytearray\t\t= {0x9, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+\t.longbytearray\t\t= {0x9, 0xa, 0xb, 0xc, 0x0, 0x0, 0x0, 0x0,
 \t\t0x0},
 \t.stringarray\t\t= {"another", "multi-word", "message"},
 \t.stringval\t\t= "message2",
@@ -268,6 +268,8 @@ U_BOOT_DEVICE(spl_test2) = {
 
 /* Node /spl-test3 index 4 */
 static struct dtd_sandbox_spl_test dtv_spl_test3 = {
+\t.longbytearray\t\t= {0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10,
+\t\t0x0},
 \t.stringarray\t\t= {"one", "", ""},
 };
 U_BOOT_DEVICE(spl_test3) = {
