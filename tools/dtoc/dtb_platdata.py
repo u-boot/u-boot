@@ -143,7 +143,8 @@ class DtbPlatdata(object):
     Properties:
         _fdt: Fdt object, referencing the device tree
         _dtb_fname: Filename of the input device tree binary file
-        _valid_nodes: A list of Node object with compatible strings
+        _valid_nodes: A list of Node object with compatible strings. The list
+            is ordered by conv_name_to_c(node.name)
         _include_disabled: true to include nodes marked status = "disabled"
         _outfile: The current output file (sys.stdout or a real file)
         _warning_disabled: true to disable warnings about driver names not found
@@ -367,23 +368,24 @@ class DtbPlatdata(object):
         """
         self._fdt = fdt.FdtScan(self._dtb_fname)
 
-    def scan_node(self, root):
+    def scan_node(self, root, valid_nodes):
         """Scan a node and subnodes to build a tree of node and phandle info
 
         This adds each node to self._valid_nodes.
 
         Args:
             root: Root node for scan
+            valid_nodes: List of Node objects to add to
         """
         for node in root.subnodes:
             if 'compatible' in node.props:
                 status = node.props.get('status')
                 if (not self._include_disabled and not status or
                         status.value != 'disabled'):
-                    self._valid_nodes.append(node)
+                    valid_nodes.append(node)
 
             # recurse to handle any subnodes
-            self.scan_node(node)
+            self.scan_node(node, valid_nodes)
 
     def scan_tree(self):
         """Scan the device tree for useful information
@@ -392,8 +394,12 @@ class DtbPlatdata(object):
             _valid_nodes: A list of nodes we wish to consider include in the
                 platform data
         """
-        self._valid_nodes = []
-        return self.scan_node(self._fdt.GetRoot())
+        valid_nodes = []
+        self.scan_node(self._fdt.GetRoot(), valid_nodes)
+        self._valid_nodes = sorted(valid_nodes,
+                                   key=lambda x: conv_name_to_c(x.name))
+        for idx, node in enumerate(self._valid_nodes):
+            node.idx = idx
 
     @staticmethod
     def get_num_cells(node):
@@ -474,7 +480,7 @@ class DtbPlatdata(object):
                     key (str): Field name
                     value: Prop object with field information
         """
-        structs = {}
+        structs = collections.OrderedDict()
         for node in self._valid_nodes:
             node_name, _ = self.get_normalized_compat_name(node)
             fields = {}
@@ -633,6 +639,7 @@ class DtbPlatdata(object):
 
         struct_name, _ = self.get_normalized_compat_name(node)
         var_name = conv_name_to_c(node.name)
+        self.buf('/* Node %s index %d */\n' % (node.path, node.idx))
         self.buf('static struct %s%s %s%s = {\n' %
                  (STRUCT_PREFIX, struct_name, VAL_PREFIX, var_name))
         for pname in sorted(node.props):

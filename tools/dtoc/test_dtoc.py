@@ -209,6 +209,27 @@ struct dtd_sandbox_spl_test_2 {
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
+/* Node /i2c@0 index 0 */
+static struct dtd_sandbox_i2c_test dtv_i2c_at_0 = {
+};
+U_BOOT_DEVICE(i2c_at_0) = {
+\t.name\t\t= "sandbox_i2c_test",
+\t.platdata\t= &dtv_i2c_at_0,
+\t.platdata_size\t= sizeof(dtv_i2c_at_0),
+};
+
+/* Node /i2c@0/pmic@9 index 1 */
+static struct dtd_sandbox_pmic_test dtv_pmic_at_9 = {
+\t.low_power\t\t= true,
+\t.reg\t\t\t= {0x9, 0x0},
+};
+U_BOOT_DEVICE(pmic_at_9) = {
+\t.name\t\t= "sandbox_pmic_test",
+\t.platdata\t= &dtv_pmic_at_9,
+\t.platdata_size\t= sizeof(dtv_pmic_at_9),
+};
+
+/* Node /spl-test index 2 */
 static struct dtd_sandbox_spl_test dtv_spl_test = {
 \t.boolval\t\t= true,
 \t.bytearray\t\t= {0x6, 0x0, 0x0},
@@ -227,6 +248,7 @@ U_BOOT_DEVICE(spl_test) = {
 \t.platdata_size\t= sizeof(dtv_spl_test),
 };
 
+/* Node /spl-test2 index 3 */
 static struct dtd_sandbox_spl_test dtv_spl_test2 = {
 \t.acpi_name\t\t= "\\\\_SB.GPO0",
 \t.bytearray\t\t= {0x1, 0x23, 0x34},
@@ -244,6 +266,7 @@ U_BOOT_DEVICE(spl_test2) = {
 \t.platdata_size\t= sizeof(dtv_spl_test2),
 };
 
+/* Node /spl-test3 index 4 */
 static struct dtd_sandbox_spl_test dtv_spl_test3 = {
 \t.stringarray\t\t= {"one", "", ""},
 };
@@ -253,30 +276,13 @@ U_BOOT_DEVICE(spl_test3) = {
 \t.platdata_size\t= sizeof(dtv_spl_test3),
 };
 
+/* Node /spl-test4 index 5 */
 static struct dtd_sandbox_spl_test_2 dtv_spl_test4 = {
 };
 U_BOOT_DEVICE(spl_test4) = {
 \t.name\t\t= "sandbox_spl_test_2",
 \t.platdata\t= &dtv_spl_test4,
 \t.platdata_size\t= sizeof(dtv_spl_test4),
-};
-
-static struct dtd_sandbox_i2c_test dtv_i2c_at_0 = {
-};
-U_BOOT_DEVICE(i2c_at_0) = {
-\t.name\t\t= "sandbox_i2c_test",
-\t.platdata\t= &dtv_i2c_at_0,
-\t.platdata_size\t= sizeof(dtv_i2c_at_0),
-};
-
-static struct dtd_sandbox_pmic_test dtv_pmic_at_9 = {
-\t.low_power\t\t= true,
-\t.reg\t\t\t= {0x9, 0x0},
-};
-U_BOOT_DEVICE(pmic_at_9) = {
-\t.name\t\t= "sandbox_pmic_test",
-\t.platdata\t= &dtv_pmic_at_9,
-\t.platdata_size\t= sizeof(dtv_pmic_at_9),
 };
 
 ''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
@@ -300,6 +306,7 @@ struct dtd_sandbox_gpio {
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
+/* Node /gpios@0 index 0 */
 static struct dtd_sandbox_gpio dtv_gpios_at_0 = {
 \t.gpio_bank_name\t\t= "a",
 \t.gpio_controller\t= true,
@@ -333,6 +340,7 @@ struct dtd_invalid {
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
+/* Node /spl-test index 0 */
 static struct dtd_invalid dtv_spl_test = {
 };
 U_BOOT_DEVICE(spl_test) = {
@@ -365,15 +373,7 @@ struct dtd_target {
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
-static struct dtd_target dtv_phandle_target = {
-\t.intval\t\t\t= 0x0,
-};
-U_BOOT_DEVICE(phandle_target) = {
-\t.name\t\t= "target",
-\t.platdata\t= &dtv_phandle_target,
-\t.platdata_size\t= sizeof(dtv_phandle_target),
-};
-
+/* Node /phandle2-target index 0 */
 static struct dtd_target dtv_phandle2_target = {
 \t.intval\t\t\t= 0x1,
 };
@@ -383,6 +383,7 @@ U_BOOT_DEVICE(phandle2_target) = {
 \t.platdata_size\t= sizeof(dtv_phandle2_target),
 };
 
+/* Node /phandle3-target index 1 */
 static struct dtd_target dtv_phandle3_target = {
 \t.intval\t\t\t= 0x2,
 };
@@ -392,6 +393,17 @@ U_BOOT_DEVICE(phandle3_target) = {
 \t.platdata_size\t= sizeof(dtv_phandle3_target),
 };
 
+/* Node /phandle-target index 4 */
+static struct dtd_target dtv_phandle_target = {
+\t.intval\t\t\t= 0x0,
+};
+U_BOOT_DEVICE(phandle_target) = {
+\t.name\t\t= "target",
+\t.platdata\t= &dtv_phandle_target,
+\t.platdata_size\t= sizeof(dtv_phandle_target),
+};
+
+/* Node /phandle-source index 2 */
 static struct dtd_source dtv_phandle_source = {
 \t.clocks\t\t\t= {
 \t\t\t{NULL, {}},
@@ -405,6 +417,7 @@ U_BOOT_DEVICE(phandle_source) = {
 \t.platdata_size\t= sizeof(dtv_phandle_source),
 };
 
+/* Node /phandle-source2 index 3 */
 static struct dtd_source dtv_phandle_source2 = {
 \t.clocks\t\t\t= {
 \t\t\t{NULL, {}},},
@@ -448,6 +461,7 @@ struct dtd_target {
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
+/* Node /phandle-target index 1 */
 static struct dtd_target dtv_phandle_target = {
 };
 U_BOOT_DEVICE(phandle_target) = {
@@ -456,6 +470,7 @@ U_BOOT_DEVICE(phandle_target) = {
 \t.platdata_size\t= sizeof(dtv_phandle_target),
 };
 
+/* Node /phandle-source2 index 0 */
 static struct dtd_source dtv_phandle_source2 = {
 \t.clocks\t\t\t= {
 \t\t\t{NULL, {}},},
@@ -479,15 +494,7 @@ void dm_populate_phandle_data(void) {
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
-static struct dtd_target dtv_phandle_target = {
-\t.intval\t\t\t= 0x0,
-};
-U_BOOT_DEVICE(phandle_target) = {
-\t.name\t\t= "target",
-\t.platdata\t= &dtv_phandle_target,
-\t.platdata_size\t= sizeof(dtv_phandle_target),
-};
-
+/* Node /phandle2-target index 0 */
 static struct dtd_target dtv_phandle2_target = {
 \t.intval\t\t\t= 0x1,
 };
@@ -497,6 +504,7 @@ U_BOOT_DEVICE(phandle2_target) = {
 \t.platdata_size\t= sizeof(dtv_phandle2_target),
 };
 
+/* Node /phandle3-target index 1 */
 static struct dtd_target dtv_phandle3_target = {
 \t.intval\t\t\t= 0x2,
 };
@@ -506,6 +514,17 @@ U_BOOT_DEVICE(phandle3_target) = {
 \t.platdata_size\t= sizeof(dtv_phandle3_target),
 };
 
+/* Node /phandle-target index 4 */
+static struct dtd_target dtv_phandle_target = {
+\t.intval\t\t\t= 0x0,
+};
+U_BOOT_DEVICE(phandle_target) = {
+\t.name\t\t= "target",
+\t.platdata\t= &dtv_phandle_target,
+\t.platdata_size\t= sizeof(dtv_phandle_target),
+};
+
+/* Node /phandle-source index 2 */
 static struct dtd_source dtv_phandle_source = {
 \t.cd_gpios\t\t= {
 \t\t\t{NULL, {}},
@@ -519,6 +538,7 @@ U_BOOT_DEVICE(phandle_source) = {
 \t.platdata_size\t= sizeof(dtv_phandle_source),
 };
 
+/* Node /phandle-source2 index 3 */
 static struct dtd_source dtv_phandle_source2 = {
 \t.cd_gpios\t\t= {
 \t\t\t{NULL, {}},},
@@ -581,6 +601,7 @@ struct dtd_test3 {
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
+/* Node /test1 index 0 */
 static struct dtd_test1 dtv_test1 = {
 \t.reg\t\t\t= {0x1234, 0x5678},
 };
@@ -590,6 +611,7 @@ U_BOOT_DEVICE(test1) = {
 \t.platdata_size\t= sizeof(dtv_test1),
 };
 
+/* Node /test2 index 1 */
 static struct dtd_test2 dtv_test2 = {
 \t.reg\t\t\t= {0x1234567890123456, 0x9876543210987654},
 };
@@ -599,6 +621,7 @@ U_BOOT_DEVICE(test2) = {
 \t.platdata_size\t= sizeof(dtv_test2),
 };
 
+/* Node /test3 index 2 */
 static struct dtd_test3 dtv_test3 = {
 \t.reg\t\t\t= {0x1234567890123456, 0x9876543210987654, 0x2, 0x3},
 };
@@ -630,6 +653,7 @@ struct dtd_test2 {
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
+/* Node /test1 index 0 */
 static struct dtd_test1 dtv_test1 = {
 \t.reg\t\t\t= {0x1234, 0x5678},
 };
@@ -639,6 +663,7 @@ U_BOOT_DEVICE(test1) = {
 \t.platdata_size\t= sizeof(dtv_test1),
 };
 
+/* Node /test2 index 1 */
 static struct dtd_test2 dtv_test2 = {
 \t.reg\t\t\t= {0x12345678, 0x98765432, 0x2, 0x3},
 };
@@ -673,6 +698,7 @@ struct dtd_test3 {
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
+/* Node /test1 index 0 */
 static struct dtd_test1 dtv_test1 = {
 \t.reg\t\t\t= {0x123400000000, 0x5678},
 };
@@ -682,6 +708,7 @@ U_BOOT_DEVICE(test1) = {
 \t.platdata_size\t= sizeof(dtv_test1),
 };
 
+/* Node /test2 index 1 */
 static struct dtd_test2 dtv_test2 = {
 \t.reg\t\t\t= {0x1234567890123456, 0x98765432},
 };
@@ -691,6 +718,7 @@ U_BOOT_DEVICE(test2) = {
 \t.platdata_size\t= sizeof(dtv_test2),
 };
 
+/* Node /test3 index 2 */
 static struct dtd_test3 dtv_test3 = {
 \t.reg\t\t\t= {0x1234567890123456, 0x98765432, 0x2, 0x3},
 };
@@ -725,6 +753,7 @@ struct dtd_test3 {
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
+/* Node /test1 index 0 */
 static struct dtd_test1 dtv_test1 = {
 \t.reg\t\t\t= {0x1234, 0x567800000000},
 };
@@ -734,6 +763,7 @@ U_BOOT_DEVICE(test1) = {
 \t.platdata_size\t= sizeof(dtv_test1),
 };
 
+/* Node /test2 index 1 */
 static struct dtd_test2 dtv_test2 = {
 \t.reg\t\t\t= {0x12345678, 0x9876543210987654},
 };
@@ -743,6 +773,7 @@ U_BOOT_DEVICE(test2) = {
 \t.platdata_size\t= sizeof(dtv_test2),
 };
 
+/* Node /test3 index 2 */
 static struct dtd_test3 dtv_test3 = {
 \t.reg\t\t\t= {0x12345678, 0x9876543210987654, 0x2, 0x3},
 };
@@ -792,6 +823,7 @@ struct dtd_sandbox_spl_test {
         with open(output) as infile:
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
+/* Node /spl-test index 0 */
 static struct dtd_sandbox_spl_test dtv_spl_test = {
 \t.intval\t\t\t= 0x1,
 };
@@ -801,6 +833,7 @@ U_BOOT_DEVICE(spl_test) = {
 \t.platdata_size\t= sizeof(dtv_spl_test),
 };
 
+/* Node /spl-test2 index 1 */
 static struct dtd_sandbox_spl_test dtv_spl_test2 = {
 \t.intarray\t\t= 0x5,
 };
