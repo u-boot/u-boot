@@ -50,7 +50,6 @@ void dm_fixup_for_gd_move(struct global_data *new_gd)
 	}
 }
 
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
 void fix_drivers(void)
 {
 	struct driver *drv =
@@ -129,8 +128,6 @@ void fix_devices(void)
 	}
 }
 
-#endif
-
 int dm_init(bool of_live)
 {
 	int ret;
@@ -141,11 +138,11 @@ int dm_init(bool of_live)
 	}
 	INIT_LIST_HEAD(&DM_UCLASS_ROOT_NON_CONST);
 
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-	fix_drivers();
-	fix_uclass();
-	fix_devices();
-#endif
+	if (IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC)) {
+		fix_drivers();
+		fix_uclass();
+		fix_devices();
+	}
 
 	ret = device_bind_by_name(NULL, false, &root_info, &DM_ROOT_NON_CONST);
 	if (ret)
@@ -350,9 +347,8 @@ int dm_init_and_scan(bool pre_reloc_only)
 {
 	int ret;
 
-#if CONFIG_IS_ENABLED(OF_PLATDATA)
-	dm_populate_phandle_data();
-#endif
+	if (CONFIG_IS_ENABLED(OF_PLATDATA))
+		dm_populate_phandle_data();
 
 	ret = dm_init(CONFIG_IS_ENABLED(OF_LIVE));
 	if (ret) {
