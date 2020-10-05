@@ -29,6 +29,7 @@ int arch_cpu_init(void)
 
 void arch_preboot_os(void)
 {
+#if (IS_ENABLED(CONFIG_ATMEL_PIT_TIMER))
 	ulong cpiv;
 	at91_pit_t *pit = (at91_pit_t *)ATMEL_BASE_PIT;
 
@@ -40,6 +41,7 @@ void arch_preboot_os(void)
 	 * without waiting for wrapping back to 0
 	 */
 	writel(cpiv + 0x1000, &pit->mr);
+#endif
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)

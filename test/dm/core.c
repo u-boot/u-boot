@@ -643,6 +643,166 @@ static int dm_test_children(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_children, 0);
 
+static int dm_test_device_reparent(struct unit_test_state *uts)
+{
+	struct dm_test_state *dms = uts->priv;
+	struct udevice *top[NODE_COUNT];
+	struct udevice *child[NODE_COUNT];
+	struct udevice *grandchild[NODE_COUNT];
+	struct udevice *dev;
+	int total;
+	int ret;
+	int i;
+
+	/* We don't care about the numbering for this test */
+	dms->skip_post_probe = 1;
+
+	ut_assert(NODE_COUNT > 5);
+
+	/* First create 10 top-level children */
+	ut_assertok(create_children(uts, dms->root, NODE_COUNT, 0, top));
+
+	/* Now a few have their own children */
+	ut_assertok(create_children(uts, top[2], NODE_COUNT, 2, NULL));
+	ut_assertok(create_children(uts, top[5], NODE_COUNT, 5, child));
+
+	/* And grandchildren */
+	for (i = 0; i < NODE_COUNT; i++)
+		ut_assertok(create_children(uts, child[i], NODE_COUNT, 50 * i,
+					    i == 2 ? grandchild : NULL));
+
+	/* Check total number of devices */
+	total = NODE_COUNT * (3 + NODE_COUNT);
+	ut_asserteq(total, dm_testdrv_op_count[DM_TEST_OP_BIND]);
+
+	/* Probe everything */
+	for (i = 0; i < total; i++)
+		ut_assertok(uclass_get_device(UCLASS_TEST, i, &dev));
+
+	/* Re-parent top-level children with no grandchildren. */
+	ut_assertok(device_reparent(top[3], top[0]));
+	/* try to get devices */
+	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     ret = uclass_find_next_device(&dev)) {
+		ut_assert(!ret);
+		ut_assertnonnull(dev);
+	}
+
+	ut_assertok(device_reparent(top[4], top[0]));
+	/* try to get devices */
+	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     ret = uclass_find_next_device(&dev)) {
+		ut_assert(!ret);
+		ut_assertnonnull(dev);
+	}
+
+	/* Re-parent top-level children with grandchildren. */
+	ut_assertok(device_reparent(top[2], top[0]));
+	/* try to get devices */
+	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     ret = uclass_find_next_device(&dev)) {
+		ut_assert(!ret);
+		ut_assertnonnull(dev);
+	}
+
+	ut_assertok(device_reparent(top[5], top[2]));
+	/* try to get devices */
+	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     ret = uclass_find_next_device(&dev)) {
+		ut_assert(!ret);
+		ut_assertnonnull(dev);
+	}
+
+	/* Re-parent grandchildren. */
+	ut_assertok(device_reparent(grandchild[0], top[1]));
+	/* try to get devices */
+	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     ret = uclass_find_next_device(&dev)) {
+		ut_assert(!ret);
+		ut_assertnonnull(dev);
+	}
+
+	ut_assertok(device_reparent(grandchild[1], top[1]));
+	/* try to get devices */
+	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     ret = uclass_find_next_device(&dev)) {
+		ut_assert(!ret);
+		ut_assertnonnull(dev);
+	}
+
+	/* Remove re-pareneted devices. */
+	ut_assertok(device_remove(top[3], DM_REMOVE_NORMAL));
+	/* try to get devices */
+	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     ret = uclass_find_next_device(&dev)) {
+		ut_assert(!ret);
+		ut_assertnonnull(dev);
+	}
+
+	ut_assertok(device_remove(top[4], DM_REMOVE_NORMAL));
+	/* try to get devices */
+	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     ret = uclass_find_next_device(&dev)) {
+		ut_assert(!ret);
+		ut_assertnonnull(dev);
+	}
+
+	ut_assertok(device_remove(top[5], DM_REMOVE_NORMAL));
+	/* try to get devices */
+	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     ret = uclass_find_next_device(&dev)) {
+		ut_assert(!ret);
+		ut_assertnonnull(dev);
+	}
+
+	ut_assertok(device_remove(top[2], DM_REMOVE_NORMAL));
+	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     ret = uclass_find_next_device(&dev)) {
+		ut_assert(!ret);
+		ut_assertnonnull(dev);
+	}
+
+	ut_assertok(device_remove(grandchild[0], DM_REMOVE_NORMAL));
+	/* try to get devices */
+	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     ret = uclass_find_next_device(&dev)) {
+		ut_assert(!ret);
+		ut_assertnonnull(dev);
+	}
+
+	ut_assertok(device_remove(grandchild[1], DM_REMOVE_NORMAL));
+	/* try to get devices */
+	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     ret = uclass_find_next_device(&dev)) {
+		ut_assert(!ret);
+		ut_assertnonnull(dev);
+	}
+
+	/* Try the same with unbind */
+	ut_assertok(device_unbind(top[3]));
+	ut_assertok(device_unbind(top[4]));
+	ut_assertok(device_unbind(top[5]));
+	ut_assertok(device_unbind(top[2]));
+
+	ut_assertok(device_unbind(grandchild[0]));
+	ut_assertok(device_unbind(grandchild[1]));
+
+	return 0;
+}
+DM_TEST(dm_test_device_reparent, 0);
+
 /* Test that pre-relocation devices work as expected */
 static int dm_test_pre_reloc(struct unit_test_state *uts)
 {

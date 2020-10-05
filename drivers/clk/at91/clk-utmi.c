@@ -1,17 +1,27 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2016 Atmel Corporation
- *               Wenyou.Yang <wenyou.yang@atmel.com>
+ * UTMI clock support for AT91 architectures.
+ *
+ * Copyright (C) 2020 Microchip Technology Inc. and its subsidiaries
+ *
+ * Author: Claudiu Beznea <claudiu.beznea@microchip.com>
+ *
+ * Based on drivers/clk/at91/clk-utmi.c from Linux.
  */
-
+#include <asm/processor.h>
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
-#include <syscon.h>
-#include <linux/io.h>
-#include <mach/at91_pmc.h>
+#include <linux/clk-provider.h>
+#include <linux/clk/at91_pmc.h>
 #include <mach/at91_sfr.h>
+#include <regmap.h>
+#include <syscon.h>
+
 #include "pmc.h"
+
+#define UBOOT_DM_CLK_AT91_UTMI			"at91-utmi-clk"
+#define UBOOT_DM_CLK_AT91_SAMA7G5_UTMI		"at91-sama7g5-utmi-clk"
 
 /*
  * The purpose of this clock is to generate a 480 MHz signal. A different
@@ -19,31 +29,37 @@
  */
 #define UTMI_RATE	480000000
 
-static int utmi_clk_enable(struct clk *clk)
-{
-	struct pmc_platdata *plat = dev_get_platdata(clk->dev);
-	struct at91_pmc *pmc = plat->reg_base;
-	struct clk clk_dev;
-	ulong clk_rate;
-	u32 utmi_ref_clk_freq;
-	u32 tmp;
-	int err;
-	int timeout = 2000000;
+struct clk_utmi {
+	void __iomem *base;
+	struct regmap *regmap_sfr;
+	struct clk clk;
+};
 
-	if (readl(&pmc->sr) & AT91_PMC_LOCKU)
-		return 0;
+#define to_clk_utmi(_clk) container_of(_clk, struct clk_utmi, clk)
+
+static inline bool clk_utmi_ready(struct regmap *regmap)
+{
+	unsigned int status;
+
+	pmc_read(regmap, AT91_PMC_SR, &status);
+
+	return !!(status & AT91_PMC_LOCKU);
+}
+
+static int clk_utmi_enable(struct clk *clk)
+{
+	struct clk_utmi *utmi = to_clk_utmi(clk);
+	unsigned int uckr = AT91_PMC_UPLLEN | AT91_PMC_UPLLCOUNT |
+			    AT91_PMC_BIASEN;
+	unsigned int utmi_ref_clk_freq;
+	ulong parent_rate = clk_get_parent_rate(clk);
 
 	/*
 	 * If mainck rate is different from 12 MHz, we have to configure the
 	 * FREQ field of the SFR_UTMICKTRIM register to generate properly
 	 * the utmi clock.
 	 */
-	err = clk_get_by_index(clk->dev, 0, &clk_dev);
-	if (err)
-		return -EINVAL;
-
-	clk_rate = clk_get_rate(&clk_dev);
-	switch (clk_rate) {
+	switch (parent_rate) {
 	case 12000000:
 		utmi_ref_clk_freq = 0;
 		break;
@@ -61,82 +77,158 @@ static int utmi_clk_enable(struct clk *clk)
 		utmi_ref_clk_freq = 3;
 		break;
 	default:
-		printf("UTMICK: unsupported mainck rate\n");
+		debug("UTMICK: unsupported mainck rate\n");
 		return -EINVAL;
 	}
 
-	if (plat->regmap_sfr) {
-		err = regmap_read(plat->regmap_sfr, AT91_SFR_UTMICKTRIM, &tmp);
-		if (err)
-			return -EINVAL;
-
-		tmp &= ~AT91_UTMICKTRIM_FREQ;
-		tmp |= utmi_ref_clk_freq;
-		err = regmap_write(plat->regmap_sfr, AT91_SFR_UTMICKTRIM, tmp);
-		if (err)
-			return -EINVAL;
+	if (utmi->regmap_sfr) {
+		regmap_update_bits(utmi->regmap_sfr, AT91_SFR_UTMICKTRIM,
+				   AT91_UTMICKTRIM_FREQ, utmi_ref_clk_freq);
 	} else if (utmi_ref_clk_freq) {
-		printf("UTMICK: sfr node required\n");
+		debug("UTMICK: sfr node required\n");
 		return -EINVAL;
 	}
 
-	tmp = readl(&pmc->uckr);
-	tmp |= AT91_PMC_UPLLEN |
-	       AT91_PMC_UPLLCOUNT |
-	       AT91_PMC_BIASEN;
-	writel(tmp, &pmc->uckr);
+	pmc_update_bits(utmi->base, AT91_CKGR_UCKR, uckr, uckr);
 
-	while ((--timeout) && !(readl(&pmc->sr) & AT91_PMC_LOCKU))
-		;
-	if (!timeout) {
-		printf("UTMICK: timeout waiting for UPLL lock\n");
-		return -ETIMEDOUT;
+	while (!clk_utmi_ready(utmi->base)) {
+		debug("waiting for utmi...\n");
+		cpu_relax();
 	}
 
 	return 0;
 }
 
-static ulong utmi_clk_get_rate(struct clk *clk)
+static int clk_utmi_disable(struct clk *clk)
+{
+	struct clk_utmi *utmi = to_clk_utmi(clk);
+
+	pmc_update_bits(utmi->base, AT91_CKGR_UCKR, AT91_PMC_UPLLEN, 0);
+
+	return 0;
+}
+
+static ulong clk_utmi_get_rate(struct clk *clk)
 {
 	/* UTMI clk rate is fixed. */
 	return UTMI_RATE;
 }
 
-static struct clk_ops utmi_clk_ops = {
-	.enable = utmi_clk_enable,
-	.get_rate = utmi_clk_get_rate,
+static const struct clk_ops utmi_ops = {
+	.enable = clk_utmi_enable,
+	.disable = clk_utmi_disable,
+	.get_rate = clk_utmi_get_rate,
 };
 
-static int utmi_clk_ofdata_to_platdata(struct udevice *dev)
+struct clk *at91_clk_register_utmi(void __iomem *base, struct udevice *dev,
+				   const char *name, const char *parent_name)
 {
-	struct pmc_platdata *plat = dev_get_platdata(dev);
 	struct udevice *syscon;
+	struct clk_utmi *utmi;
+	struct clk *clk;
+	int ret;
 
-	uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
-				     "regmap-sfr", &syscon);
+	if (!base || !dev || !name || !parent_name)
+		return ERR_PTR(-EINVAL);
 
-	if (syscon)
-		plat->regmap_sfr = syscon_get_regmap(syscon);
+	ret = uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
+					   "regmap-sfr", &syscon);
+	if (ret)
+		return ERR_PTR(ret);
+
+	utmi = kzalloc(sizeof(*utmi), GFP_KERNEL);
+	if (!utmi)
+		return ERR_PTR(-ENOMEM);
+
+	utmi->base = base;
+	utmi->regmap_sfr = syscon_get_regmap(syscon);
+	if (!utmi->regmap_sfr) {
+		kfree(utmi);
+		return ERR_PTR(-ENODEV);
+	}
+
+	clk = &utmi->clk;
+	clk->flags = CLK_GET_RATE_NOCACHE;
+	ret = clk_register(clk, UBOOT_DM_CLK_AT91_UTMI, name, parent_name);
+	if (ret) {
+		kfree(utmi);
+		clk = ERR_PTR(ret);
+	}
+
+	return clk;
+}
+
+U_BOOT_DRIVER(at91_utmi_clk) = {
+	.name = UBOOT_DM_CLK_AT91_UTMI,
+	.id = UCLASS_CLK,
+	.ops = &utmi_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+
+static int clk_utmi_sama7g5_enable(struct clk *clk)
+{
+	struct clk_utmi *utmi = to_clk_utmi(clk);
+	ulong parent_rate = clk_get_parent_rate(clk);
+	unsigned int val;
+
+	switch (parent_rate) {
+	case 16000000:
+		val = 0;
+		break;
+	case 20000000:
+		val = 2;
+		break;
+	case 24000000:
+		val = 3;
+		break;
+	case 32000000:
+		val = 5;
+		break;
+	default:
+		debug("UTMICK: unsupported main_xtal rate\n");
+		return -EINVAL;
+	}
+
+	pmc_write(utmi->base, AT91_PMC_XTALF, val);
 
 	return 0;
 }
 
-static int utmi_clk_probe(struct udevice *dev)
-{
-	return at91_pmc_core_probe(dev);
-}
-
-static const struct udevice_id utmi_clk_match[] = {
-	{ .compatible = "atmel,at91sam9x5-clk-utmi" },
-	{}
+static const struct clk_ops sama7g5_utmi_ops = {
+	.enable = clk_utmi_sama7g5_enable,
+	.get_rate = clk_utmi_get_rate,
 };
 
-U_BOOT_DRIVER(at91sam9x5_utmi_clk) = {
-	.name = "at91sam9x5-utmi-clk",
+struct clk *at91_clk_sama7g5_register_utmi(void __iomem *base,
+		const char *name, const char *parent_name)
+{
+	struct clk_utmi *utmi;
+	struct clk *clk;
+	int ret;
+
+	if (!base || !name || !parent_name)
+		return ERR_PTR(-EINVAL);
+
+	utmi = kzalloc(sizeof(*utmi), GFP_KERNEL);
+	if (!utmi)
+		return ERR_PTR(-ENOMEM);
+
+	utmi->base = base;
+
+	clk = &utmi->clk;
+	ret = clk_register(clk, UBOOT_DM_CLK_AT91_SAMA7G5_UTMI, name,
+			   parent_name);
+	if (ret) {
+		kfree(utmi);
+		clk = ERR_PTR(ret);
+	}
+
+	return clk;
+}
+
+U_BOOT_DRIVER(at91_sama7g5_utmi_clk) = {
+	.name = UBOOT_DM_CLK_AT91_SAMA7G5_UTMI,
 	.id = UCLASS_CLK,
-	.of_match = utmi_clk_match,
-	.probe = utmi_clk_probe,
-	.ofdata_to_platdata = utmi_clk_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct pmc_platdata),
-	.ops = &utmi_clk_ops,
+	.ops = &sama7g5_utmi_ops,
+	.flags = DM_FLAG_PRE_RELOC,
 };

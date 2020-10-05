@@ -22,3 +22,4 @@ obj-$(CONFIG_STI_TIMER)		+= sti-timer.o
 obj-$(CONFIG_STM32_TIMER)	+= stm32_timer.o
 obj-$(CONFIG_X86_TSC_TIMER)	+= tsc_timer.o
 obj-$(CONFIG_MTK_TIMER)		+= mtk_timer.o
+obj-$(CONFIG_MCHP_PIT64B_TIMER)	+= mchp-pit64b-timer.o

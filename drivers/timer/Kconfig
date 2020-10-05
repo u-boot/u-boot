@@ -213,4 +213,11 @@ config MTK_TIMER
 	  Select this to enable support for the timer found on
 	  MediaTek devices.
 
+config MCHP_PIT64B_TIMER
+	bool "Microchip 64-bit periodic interval timer support"
+	depends on TIMER
+	help
+	  Select this to enable support for Microchip 64-bit periodic
+	  interval timer.
+
 endmenu
