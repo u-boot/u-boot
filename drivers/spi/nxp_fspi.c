@@ -34,12 +34,13 @@
  */
 
 #include <common.h>
-#include <asm/io.h>
+#include <clk.h>
+#include <dm.h>
+#include <dm/device_compat.h>
 #include <malloc.h>
 #include <spi.h>
 #include <spi-mem.h>
-#include <dm.h>
-#include <clk.h>
+#include <asm/io.h>
 #include <linux/bitops.h>
 #include <linux/kernel.h>
 #include <linux/sizes.h>
