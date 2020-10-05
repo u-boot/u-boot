@@ -6,20 +6,20 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <dm/device_compat.h>
+#include <fsl-mc/fsl_dpmac.h>
+#include <fsl-mc/ldpaa_wriop.h>
+#include <hwconfig.h>
 #include <log.h>
+#include <malloc.h>
+#include <miiphy.h>
+#include <net.h>
+#include <phy.h>
 #include <asm/io.h>
 #include <asm/types.h>
-#include <malloc.h>
-#include <net.h>
-#include <hwconfig.h>
-#include <phy.h>
-#include <miiphy.h>
 #include <linux/bug.h>
 #include <linux/compat.h>
-#include <fsl-mc/fsl_dpmac.h>
 #include <linux/delay.h>
-
-#include <fsl-mc/ldpaa_wriop.h>
 #include "ldpaa_eth.h"
 
 #ifdef CONFIG_PHYLIB
