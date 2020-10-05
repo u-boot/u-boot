@@ -24,121 +24,383 @@
 #include <membuff.h>
 #include <linux/list.h>
 
-typedef struct global_data {
+typedef struct global_data gd_t;
+
+/**
+ * struct global_data - global data structure
+ */
+struct global_data {
+	/**
+	 * @bd: board information
+	 */
 	struct bd_info *bd;
+	/**
+	 * @flags: global data flags
+	 *
+	 * See &enum gd_flags
+	 */
 	unsigned long flags;
+	/**
+	 * @baudrate: baud rate of the serial interface
+	 */
 	unsigned int baudrate;
-	unsigned long cpu_clk;		/* CPU clock in Hz!		*/
+	/**
+	 * @cpu_clk: CPU clock rate in Hz
+	 */
+	unsigned long cpu_clk;
+	/**
+	 * @bus_clk: platform clock rate in Hz
+	 */
 	unsigned long bus_clk;
+	/**
+	 * @pci_clk: PCI clock rate in Hz
+	 */
 	/* We cannot bracket this with CONFIG_PCI due to mpc5xxx */
 	unsigned long pci_clk;
+	/**
+	 * @mem_clk: memory clock rate in Hz
+	 */
 	unsigned long mem_clk;
 #if defined(CONFIG_LCD) || defined(CONFIG_VIDEO) || defined(CONFIG_DM_VIDEO)
-	unsigned long fb_base;		/* Base address of framebuffer mem */
+	/**
+	 * @fb_base: base address of frame buffer memory
+	 */
+	unsigned long fb_base;
 #endif
 #if defined(CONFIG_POST)
-	unsigned long post_log_word;	/* Record POST activities */
-	unsigned long post_log_res;	/* success of POST test */
-	unsigned long post_init_f_time;	/* When post_init_f started */
+	/**
+	 * @post_log_word: active POST tests
+	 *
+	 * @post_log_word is a bit mask defining which POST tests are recorded
+	 * (see constants POST_*).
+	 */
+	unsigned long post_log_word;
+	/**
+	 * @post_log_res: POST results
+	 *
+	 * @post_log_res is a bit mask with the POST results. A bit with value 1
+	 * indicates successful execution.
+	 */
+	unsigned long post_log_res;
+	/**
+	 * @post_init_f_time: time in ms when post_init_f() started
+	 */
+	unsigned long post_init_f_time;
 #endif
 #ifdef CONFIG_BOARD_TYPES
+	/**
+	 * @board_type: board type
+	 *
+	 * If a U-Boot configuration supports multiple board types, the actual
+	 * board type may be stored in this field.
+	 */
 	unsigned long board_type;
 #endif
-	unsigned long have_console;	/* serial_init() was called */
+	/**
+	 * @have_console: console is available
+	 *
+	 * A value of 1 indicates that serial_init() was called and a console
+	 * is available.
+	 * A value of 0 indicates that console input and output drivers shall
+	 * not be called.
+	 */
+	unsigned long have_console;
 #if CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
-	unsigned long precon_buf_idx;	/* Pre-Console buffer index */
+	/**
+	 * @precon_buf_idx: pre-console buffer index
+	 *
+	 * @precon_buf_idx indicates the current position of the buffer used to
+	 * collect output before the console becomes available
+	 */
+	unsigned long precon_buf_idx;
 #endif
-	unsigned long env_addr;		/* Address  of Environment struct */
-	unsigned long env_valid;	/* Environment valid? enum env_valid */
-	unsigned long env_has_init;	/* Bitmask of boolean of struct env_location offsets */
-	int env_load_prio;		/* Priority of the loaded environment */
-
-	unsigned long ram_base;		/* Base address of RAM used by U-Boot */
-	unsigned long ram_top;		/* Top address of RAM used by U-Boot */
-	unsigned long relocaddr;	/* Start address of U-Boot in RAM */
-	phys_size_t ram_size;		/* RAM size */
-	unsigned long mon_len;		/* monitor len */
-	unsigned long irq_sp;		/* irq stack pointer */
-	unsigned long start_addr_sp;	/* start_addr_stackpointer */
+	/**
+	 * @env_addr: address of environment structure
+	 *
+	 * @env_addr contains the address of the structure holding the
+	 * environment variables.
+	 */
+	unsigned long env_addr;
+	/**
+	 * @env_valid: environment is valid
+	 *
+	 * See &enum env_valid
+	 */
+	unsigned long env_valid;
+	/**
+	 * @env_has_init: bit mask indicating environment locations
+	 *
+	 * &enum env_location defines which bit relates to which location
+	 */
+	unsigned long env_has_init;
+	/**
+	 * @env_load_prio: priority of the loaded environment
+	 */
+	int env_load_prio;
+	/**
+	 * @ram_base: base address of RAM used by U-Boot
+	 */
+	unsigned long ram_base;
+	/**
+	 * @ram_top: top address of RAM used by U-Boot
+	 */
+	unsigned long ram_top;
+	/**
+	 * @relocaddr: start address of U-Boot in RAM
+	 *
+	 * After relocation this field indicates the address to which U-Boot
+	 * has been relocated. It can be displayed using the bdinfo command.
+	 * Its value is needed to display the source code when debugging with
+	 * GDB using the 'add-symbol-file u-boot <relocaddr>' command.
+	 */
+	unsigned long relocaddr;
+	/**
+	 * @ram_size: RAM size in bytes
+	 */
+	phys_size_t ram_size;
+	/**
+	 * @mon_len: monitor length in bytes
+	 */
+	unsigned long mon_len;
+	/**
+	 * @irq_sp: IRQ stack pointer
+	 */
+	unsigned long irq_sp;
+	/**
+	 * @start_addr_sp: initial stack pointer address
+	 */
+	unsigned long start_addr_sp;
+	/**
+	 * @reloc_off: relocation offset
+	 */
 	unsigned long reloc_off;
-	struct global_data *new_gd;	/* relocated global data */
+	/**
+	 * @new_gd: pointer to relocated global data
+	 */
+	struct global_data *new_gd;
 
 #ifdef CONFIG_DM
-	struct udevice	*dm_root;	/* Root instance for Driver Model */
-	struct udevice	*dm_root_f;	/* Pre-relocation root instance */
-	struct list_head uclass_root;	/* Head of core tree */
+	/**
+	 * @dm_root: root instance for Driver Model
+	 */
+	struct udevice *dm_root;
+	/**
+	 * @dm_root_f: pre-relocation root instance
+	 */
+	struct udevice *dm_root_f;
+	/**
+	 * @uclass_root: head of core tree
+	 */
+	struct list_head uclass_root;
 #endif
 #ifdef CONFIG_TIMER
-	struct udevice	*timer;		/* Timer instance for Driver Model */
+	/**
+	 * @timer: timer instance for Driver Model
+	 */
+	struct udevice *timer;
 #endif
-
-	const void *fdt_blob;		/* Our device tree, NULL if none */
-	void *new_fdt;			/* Relocated FDT */
-	unsigned long fdt_size;		/* Space reserved for relocated FDT */
+	/**
+	 * @fdt_blob: U-Boot's own device tree, NULL if none
+	 */
+	const void *fdt_blob;
+	/**
+	 * @new_fdt: relocated device tree
+	 */
+	void *new_fdt;
+	/**
+	 * @fdt_size: space reserved for relocated device space
+	 */
+	unsigned long fdt_size;
 #ifdef CONFIG_OF_LIVE
+	/**
+	 * @of_root: root node of the live tree
+	 */
 	struct device_node *of_root;
 #endif
 
 #if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
-	const void *multi_dtb_fit;	/* uncompressed multi-dtb FIT image */
+	/**
+	 * @multi_dtb_fit: pointer to uncompressed multi-dtb FIT image
+	 */
+	const void *multi_dtb_fit;
 #endif
-	struct jt_funcs *jt;		/* jump table */
-	char env_buf[32];		/* buffer for env_get() before reloc. */
+	/**
+	 * @jt: jump table
+	 *
+	 * The jump table contains pointers to exported functions. A pointer to
+	 * the jump table is passed to standalone applications.
+	 */
+	struct jt_funcs *jt;
+	/**
+	 * @env_buf: buffer for env_get() before reloc
+	 */
+	char env_buf[32];
 #ifdef CONFIG_TRACE
-	void		*trace_buff;	/* The trace buffer */
+	/**
+	 * @trace_buff: trace buffer
+	 *
+	 * When tracing function in U-Boot this field points to the buffer
+	 * recording the function calls.
+	 */
+	void *trace_buff;
 #endif
 #if defined(CONFIG_SYS_I2C)
-	int		cur_i2c_bus;	/* current used i2c bus */
+	/**
+	 * @cur_i2c_bus: currently used I2C bus
+	 */
+	int cur_i2c_bus;
 #endif
+	/**
+	 * @timebase_h: high 32 bits of timer
+	 */
 	unsigned int timebase_h;
+	/**
+	 * @timebase_l: low 32 bits of timer
+	 */
 	unsigned int timebase_l;
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
-	unsigned long malloc_base;	/* base address of early malloc() */
-	unsigned long malloc_limit;	/* limit address */
-	unsigned long malloc_ptr;	/* current address */
+	/**
+	 * @malloc_base: base address of early malloc()
+	 */
+	unsigned long malloc_base;
+	/**
+	 * @malloc_limit: limit address of early malloc()
+	 */
+	unsigned long malloc_limit;
+	/**
+	 * @malloc_ptr: current address of early malloc()
+	 */
+	unsigned long malloc_ptr;
 #endif
 #ifdef CONFIG_PCI
-	struct pci_controller *hose;	/* PCI hose for early use */
-	phys_addr_t pci_ram_top;	/* top of region accessible to PCI */
+	/**
+	 * @hose: PCI hose for early use
+	 */
+	struct pci_controller *hose;
+	/**
+	 * @pci_ram_top: top of region accessible to PCI
+	 */
+	phys_addr_t pci_ram_top;
 #endif
 #ifdef CONFIG_PCI_BOOTDELAY
+	/**
+	 * @pcidelay_done: delay time before scanning of PIC hose expired
+	 *
+	 * If CONFIG_PCI_BOOTDELAY=y, pci_hose_scan() waits for the number of
+	 * milliseconds defined by environment variable pcidelay before
+	 * scanning. Once this delay has expired the flag @pcidelay_done
+	 * is set to 1.
+	 */
 	int pcidelay_done;
 #endif
-	struct udevice *cur_serial_dev;	/* current serial device */
-	struct arch_global_data arch;	/* architecture-specific data */
+	/**
+	 * @cur_serial_dev: current serial device
+	 */
+	struct udevice *cur_serial_dev;
+	/**
+	 * @arch: architecture-specific data
+	 */
+	struct arch_global_data arch;
 #ifdef CONFIG_CONSOLE_RECORD
-	struct membuff console_out;	/* console output */
-	struct membuff console_in;	/* console input */
+	/**
+	 * @console_out: output buffer for console recording
+	 *
+	 * This buffer is used to collect output during console recording.
+	 */
+	struct membuff console_out;
+	/**
+	 * @console_in: input buffer for console recording
+	 *
+	 * If console recording is activated, this buffer can be used to
+	 * emulate input.
+	 */
+	struct membuff console_in;
 #endif
 #ifdef CONFIG_DM_VIDEO
-	ulong video_top;		/* Top of video frame buffer area */
-	ulong video_bottom;		/* Bottom of video frame buffer area */
+	/**
+	 * @video_top: top of video frame buffer area
+	 */
+	ulong video_top;
+	/**
+	 * @video_bottom: bottom of video frame buffer area
+	 */
+	ulong video_bottom;
 #endif
 #ifdef CONFIG_BOOTSTAGE
-	struct bootstage_data *bootstage;	/* Bootstage information */
-	struct bootstage_data *new_bootstage;	/* Relocated bootstage info */
+	/**
+	 * @bootstage: boot stage information
+	 */
+	struct bootstage_data *bootstage;
+	/**
+	 * @new_bootstage: relocated boot stage information
+	 */
+	struct bootstage_data *new_bootstage;
 #endif
 #ifdef CONFIG_LOG
-	int log_drop_count;		/* Number of dropped log messages */
-	int default_log_level;		/* For devices with no filters */
-	struct list_head log_head;	/* List of struct log_device */
-	int log_fmt;			/* Mask containing log format info */
+	/**
+	 * @log_drop_count: number of dropped log messages
+	 *
+	 * This counter is incremented for each log message which can not
+	 * be processed because logging is not yet available as signaled by
+	 * flag %GD_FLG_LOG_READY in @flags.
+	 */
+	int log_drop_count;
+	/**
+	 * @default_log_level: default logging level
+	 *
+	 * For logging devices without filters @default_log_level defines the
+	 * logging level, cf. &enum log_level_t.
+	 */
+	int default_log_level;
+	/**
+	 * @log_head: list of logging devices
+	 */
+	struct list_head log_head;
+	/**
+	 * @log_fmt: bit mask for logging format
+	 *
+	 * The @log_fmt bit mask selects the fields to be shown in log messages.
+	 * &enum log_fmt defines the bits of the bit mask.
+	 */
+	int log_fmt;
 #endif
 #if CONFIG_IS_ENABLED(BLOBLIST)
-	struct bloblist_hdr *bloblist;	/* Bloblist information */
-	struct bloblist_hdr *new_bloblist;	/* Relocated blolist info */
+	/**
+	 * @bloblist: blob list information
+	 */
+	struct bloblist_hdr *bloblist;
+	/**
+	 * @new_bloblist: relocated blob list information
+	 */
+	struct bloblist_hdr *new_bloblist;
 # ifdef CONFIG_SPL
+	/**
+	 * @spl_handoff: SPL hand-off information
+	 */
 	struct spl_handoff *spl_handoff;
 # endif
 #endif
 #if defined(CONFIG_TRANSLATION_OFFSET)
-	fdt_addr_t translation_offset;	/* optional translation offset */
+	/**
+	 * @translation_offset: optional translation offset
+	 *
+	 * See CONFIG_TRANSLATION_OFFSET.
+	 */
+	fdt_addr_t translation_offset;
 #endif
 #if CONFIG_IS_ENABLED(WDT)
+	/**
+	 * @watchdog_dev: watchdog device
+	 */
 	struct udevice *watchdog_dev;
 #endif
-} gd_t;
+};
 
+/**
+ * gd_board_type() - retrieve board type
+ *
+ * Return: global board type
+ */
 #ifdef CONFIG_BOARD_TYPES
 #define gd_board_type()		gd->board_type
 #else
