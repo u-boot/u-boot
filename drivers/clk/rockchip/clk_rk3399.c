@@ -1592,7 +1592,7 @@ static int rk3399_pmuclk_ofdata_to_platdata(struct udevice *dev)
 
 static int rk3399_pmuclk_bind(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(CONFIG_RESET_ROCKCHIP)
+#if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
 	int ret;
 
 	ret = offsetof(struct rk3399_pmucru, pmucru_softrst_con[0]);
