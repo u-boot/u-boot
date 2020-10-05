@@ -4,6 +4,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY UCLASS_SYSCON
+
 #include <common.h>
 #include <log.h>
 #include <syscon.h>
