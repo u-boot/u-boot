@@ -16,26 +16,6 @@
 #include <linux/compat.h>
 
 /*
- * REVISIT:
- * remove the following after resolving conflicts with <linux/compat.h>
- */
-#ifdef dev_dbg
-#undef dev_dbg
-#endif
-#ifdef dev_vdbg
-#undef dev_vdbg
-#endif
-#ifdef dev_info
-#undef dev_info
-#endif
-#ifdef dev_err
-#undef dev_err
-#endif
-#ifdef dev_warn
-#undef dev_warn
-#endif
-
-/*
  * Define a new identifier which can be tested on by C code. A similar
  * definition is made for DEBUG in <log.h>.
  */
