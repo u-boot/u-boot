@@ -359,8 +359,7 @@ static int stm32_dsi_attach(struct udevice *dev)
 
 	ret = panel_get_display_timing(priv->panel, &timings);
 	if (ret) {
-		ret = fdtdec_decode_display_timing(gd->fdt_blob,
-						   dev_of_offset(priv->panel),
+		ret = ofnode_decode_display_timing(dev_ofnode(priv->panel),
 						   0, &timings);
 		if (ret) {
 			dev_err(dev, "decode display timing error %d\n", ret);

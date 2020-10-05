@@ -273,20 +273,18 @@ static const struct dm_gpio_ops gpio_stm32_ops = {
 static int gpio_stm32_probe(struct udevice *dev)
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct ofnode_phandle_args args;
+	const char *name;
 	struct clk clk;
 	fdt_addr_t addr;
-	int ret;
+	int ret, i;
 
 	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	priv->regs = (struct stm32_gpio_regs *)addr;
-
-	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct ofnode_phandle_args args;
-	const char *name;
-	int i;
 
 	name = dev_read_string(dev, "st,bank-name");
 	if (!name)
@@ -296,6 +294,9 @@ static int gpio_stm32_probe(struct udevice *dev)
 	i = 0;
 	ret = dev_read_phandle_with_args(dev, "gpio-ranges",
 					 NULL, 3, i, &args);
+
+	if (!ret && args.args_count < 3)
+		return -EINVAL;
 
 	if (ret == -ENOENT) {
 		uc_priv->gpio_count = STM32_GPIOS_PER_BANK;
@@ -310,6 +311,8 @@ static int gpio_stm32_probe(struct udevice *dev)
 
 		ret = dev_read_phandle_with_args(dev, "gpio-ranges", NULL, 3,
 						 ++i, &args);
+		if (!ret && args.args_count < 3)
+			return -EINVAL;
 	}
 
 	dev_dbg(dev, "addr = 0x%p bank_name = %s gpio_count = %d gpio_range = 0x%x\n",
