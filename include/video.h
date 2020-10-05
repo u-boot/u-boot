@@ -13,8 +13,6 @@
 #ifndef _VIDEO_H_
 #define _VIDEO_H_
 
-#ifdef CONFIG_DM_VIDEO
-
 #include <stdio_dev.h>
 
 struct udevice;
@@ -140,6 +138,7 @@ struct video_ops {
  */
 int video_reserve(ulong *addrp);
 
+#ifdef CONFIG_DM_VIDEO
 /**
  * video_clear() - Clear a device's frame buffer to background color.
  *
@@ -147,6 +146,7 @@ int video_reserve(ulong *addrp);
  * @return 0
  */
 int video_clear(struct udevice *dev);
+#endif /* CONFIG_DM_VIDEO */
 
 /**
  * video_sync() - Sync a device's frame buffer with its hardware
@@ -242,8 +242,6 @@ static inline int video_sync_copy(struct udevice *dev, void *from, void *to)
 	return 0;
 }
 #endif
-
-#endif /* CONFIG_DM_VIDEO */
 
 #ifndef CONFIG_DM_VIDEO
 

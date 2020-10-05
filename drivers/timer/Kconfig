@@ -146,8 +146,8 @@ config RISCV_TIMER
 	bool "RISC-V timer support"
 	depends on TIMER && RISCV
 	help
-	  Select this to enable support for the timer as defined
-	  by the RISC-V privileged architecture spec.
+	  Select this to enable support for a generic RISC-V S-Mode timer
+	  driver.
 
 config ROCKCHIP_TIMER
 	bool "Rockchip timer support"
@@ -212,5 +212,12 @@ config MTK_TIMER
 	help
 	  Select this to enable support for the timer found on
 	  MediaTek devices.
+
+config MCHP_PIT64B_TIMER
+	bool "Microchip 64-bit periodic interval timer support"
+	depends on TIMER
+	help
+	  Select this to enable support for Microchip 64-bit periodic
+	  interval timer.
 
 endmenu

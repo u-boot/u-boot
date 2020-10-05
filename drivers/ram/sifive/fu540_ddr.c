@@ -11,7 +11,6 @@
 #include <fdtdec.h>
 #include <init.h>
 #include <ram.h>
-#include <regmap.h>
 #include <syscon.h>
 #include <asm/io.h>
 #include <clk.h>
@@ -339,16 +338,11 @@ static int fu540_ddr_probe(struct udevice *dev)
 	priv->info.size = gd->ram_size;
 
 #if defined(CONFIG_SPL_BUILD)
-	struct regmap *map;
 	int ret;
 	u32 clock = 0;
 
 	debug("FU540 DDR probe\n");
 	priv->dev = dev;
-
-	ret = regmap_init_mem(dev_ofnode(dev), &map);
-	if (ret)
-		return ret;
 
 	ret = clk_get_by_index(dev, 0, &priv->ddr_clk);
 	if (ret) {
@@ -369,9 +363,14 @@ static int fu540_ddr_probe(struct udevice *dev)
 	}
 
 	ret = clk_enable(&priv->ddr_clk);
-	priv->ctl = regmap_get_range(map, 0);
-	priv->phy = regmap_get_range(map, 1);
-	priv->physical_filter_ctrl = regmap_get_range(map, 2);
+	if (ret < 0) {
+		debug("Could not enable DDR clock\n");
+		return ret;
+	}
+
+	priv->ctl = (struct fu540_ddrctl *)dev_read_addr_index(dev, 0);
+	priv->phy = (struct fu540_ddrphy *)dev_read_addr_index(dev, 1);
+	priv->physical_filter_ctrl = (u32 *)dev_read_addr_index(dev, 2);
 
 	return fu540_ddr_setup(dev);
 #endif

@@ -40,14 +40,6 @@ config TARGET_P4080DS
 	imply CMD_SATA
 	imply PANIC_HANG
 
-config TARGET_P5020DS
-	bool "Support P5020DS"
-	select PHYS_64BIT
-	select ARCH_P5020
-	select BOARD_LATE_INIT if CHAIN_OF_TRUST
-	imply CMD_SATA
-	imply PANIC_HANG
-
 config TARGET_P5040DS
 	bool "Support P5040DS"
 	select PHYS_64BIT
@@ -109,22 +101,6 @@ config TARGET_P1010RDB_PB
 	imply CMD_SATA
 	imply PANIC_HANG
 
-config TARGET_P1023RDB
-	bool "Support P1023RDB"
-	select ARCH_P1023
-	select FSL_DDR_INTERACTIVE
-	imply CMD_EEPROM
-	imply PANIC_HANG
-
-config TARGET_P1020MBG
-	bool "Support P1020MBG-PC"
-	select SUPPORT_SPL
-	select SUPPORT_TPL
-	select ARCH_P1020
-	imply CMD_EEPROM
-	imply CMD_SATA
-	imply PANIC_HANG
-
 config TARGET_P1020RDB_PC
 	bool "Support P1020RDB-PC"
 	select SUPPORT_SPL
@@ -142,42 +118,6 @@ config TARGET_P1020RDB_PD
 	imply CMD_EEPROM
 	imply CMD_SATA
 	imply PANIC_HANG
-
-config TARGET_P1020UTM
-	bool "Support P1020UTM"
-	select SUPPORT_SPL
-	select SUPPORT_TPL
-	select ARCH_P1020
-	imply CMD_EEPROM
-	imply CMD_SATA
-	imply PANIC_HANG
-
-config TARGET_P1021RDB
-	bool "Support P1021RDB"
-	select SUPPORT_SPL
-	select SUPPORT_TPL
-	select ARCH_P1021
-	imply CMD_EEPROM
-	imply CMD_SATA
-	imply PANIC_HANG
-
-config TARGET_P1024RDB
-	bool "Support P1024RDB"
-	select SUPPORT_SPL
-	select SUPPORT_TPL
-	select ARCH_P1024
-	imply CMD_EEPROM
-	imply CMD_SATA
-	imply PANIC_HANG
-
-config TARGET_P1025RDB
-	bool "Support P1025RDB"
-	select SUPPORT_SPL
-	select SUPPORT_TPL
-	select ARCH_P1025
-	imply CMD_EEPROM
-	imply CMD_SATA
-	imply SATA_SIL
 
 config TARGET_P2020RDB
 	bool "Support P2020RDB-PC"
@@ -1506,7 +1446,6 @@ source "board/freescale/mpc8568mds/Kconfig"
 source "board/freescale/mpc8569mds/Kconfig"
 source "board/freescale/mpc8572ds/Kconfig"
 source "board/freescale/p1010rdb/Kconfig"
-source "board/freescale/p1023rdb/Kconfig"
 source "board/freescale/p1_p2_rdb_pc/Kconfig"
 source "board/freescale/p2041rdb/Kconfig"
 source "board/freescale/qemu-ppce500/Kconfig"

@@ -5,14 +5,74 @@
 		mmc1 = &mmc2;
 	};
 
-	binman {
+	binman: binman {
+		multiple-images;
+	};
+};
+
+&binman {
+	u-boot-sunxi-with-spl {
 		filename = "u-boot-sunxi-with-spl.bin";
 		pad-byte = <0xff>;
 		blob {
 			filename = "spl/sunxi-spl.bin";
 		};
+#ifdef CONFIG_ARM64
+		fit {
+			description = "Configuration to load ATF before U-Boot";
+			#address-cells = <1>;
+			fit,fdt-list = "of-list";
+
+			images {
+				uboot {
+					description = "U-Boot (64-bit)";
+					type = "standalone";
+					arch = "arm64";
+					compression = "none";
+					load = <0x4a000000>;
+
+					u-boot-nodtb {
+					};
+				};
+				atf {
+					description = "ARM Trusted Firmware";
+					type = "firmware";
+					arch = "arm64";
+					compression = "none";
+/* TODO: Do this with an overwrite in this board's dtb? */
+#ifdef CONFIG_MACH_SUN50I_H6
+					load = <0x104000>;
+					entry = <0x104000>;
+#else
+					load = <0x44000>;
+					entry = <0x44000>;
+#endif
+					atf-bl31 {
+						missing-msg = "atf-bl31-sunxi";
+					};
+				};
+
+				@fdt-SEQ {
+					description = "NAME";
+					type = "flat_dt";
+					compression = "none";
+				};
+			};
+
+			configurations {
+				default = "config-1";
+				@config-SEQ {
+					description = "NAME";
+					firmware = "uboot";
+					loadables = "atf";
+					fdt = "fdt-SEQ";
+				};
+			};
+		};
+#else
 		u-boot-img {
 			offset = <CONFIG_SPL_PAD_TO>;
 		};
+#endif
 	};
 };

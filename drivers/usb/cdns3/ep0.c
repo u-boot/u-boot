@@ -11,8 +11,9 @@
  */
 
 #include <cpu_func.h>
-#include <asm/cache.h>
+#include <dm.h>
 #include <dm/device_compat.h>
+#include <asm/cache.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/usb/composite.h>
@@ -810,7 +811,7 @@ int cdns3_gadget_ep_set_wedge(struct usb_ep *ep)
 {
 	struct cdns3_endpoint *priv_ep = ep_to_cdns3_ep(ep);
 
-	dev_dbg(priv_dev->dev, "Wedge for %s\n", ep->name);
+	dev_dbg(priv_ep->cdns3_dev->dev, "Wedge for %s\n", ep->name);
 	cdns3_gadget_ep_set_halt(ep, 1);
 	priv_ep->flags |= EP_WEDGE;
 

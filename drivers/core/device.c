@@ -276,6 +276,28 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 	return ret;
 }
 
+int device_reparent(struct udevice *dev, struct udevice *new_parent)
+{
+	struct udevice *pos, *n;
+
+	assert(dev);
+	assert(new_parent);
+
+	list_for_each_entry_safe(pos, n, &dev->parent->child_head,
+				 sibling_node) {
+		if (pos->driver != dev->driver)
+			continue;
+
+		list_del(&dev->sibling_node);
+		list_add_tail(&dev->sibling_node, &new_parent->child_head);
+		dev->parent = new_parent;
+
+		break;
+	}
+
+	return 0;
+}
+
 static void *alloc_priv(int size, uint flags)
 {
 	void *priv;

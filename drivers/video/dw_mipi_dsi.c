@@ -314,7 +314,8 @@ static int dw_mipi_dsi_gen_pkt_hdr_write(struct dw_mipi_dsi *dsi, u32 hdr_val)
 				 val, !(val & GEN_CMD_FULL),
 				 CMD_PKT_STATUS_TIMEOUT_US);
 	if (ret) {
-		dev_err(dsi->dev, "failed to get available command FIFO\n");
+		dev_err(dsi->dsi_host.dev,
+			"failed to get available command FIFO\n");
 		return ret;
 	}
 
@@ -325,7 +326,7 @@ static int dw_mipi_dsi_gen_pkt_hdr_write(struct dw_mipi_dsi *dsi, u32 hdr_val)
 				 val, (val & mask) == mask,
 				 CMD_PKT_STATUS_TIMEOUT_US);
 	if (ret) {
-		dev_err(dsi->dev, "failed to write command FIFO\n");
+		dev_err(dsi->dsi_host.dev, "failed to write command FIFO\n");
 		return ret;
 	}
 
@@ -357,7 +358,7 @@ static int dw_mipi_dsi_write(struct dw_mipi_dsi *dsi,
 					 val, !(val & GEN_PLD_W_FULL),
 					 CMD_PKT_STATUS_TIMEOUT_US);
 		if (ret) {
-			dev_err(dsi->dev,
+			dev_err(dsi->dsi_host.dev,
 				"failed to get available write payload FIFO\n");
 			return ret;
 		}
@@ -380,7 +381,7 @@ static int dw_mipi_dsi_read(struct dw_mipi_dsi *dsi,
 				 val, !(val & GEN_RD_CMD_BUSY),
 				 CMD_PKT_STATUS_TIMEOUT_US);
 	if (ret) {
-		dev_err(dsi->dev, "Timeout during read operation\n");
+		dev_err(dsi->dsi_host.dev, "Timeout during read operation\n");
 		return ret;
 	}
 
@@ -390,7 +391,8 @@ static int dw_mipi_dsi_read(struct dw_mipi_dsi *dsi,
 					 val, !(val & GEN_PLD_R_EMPTY),
 					 CMD_PKT_STATUS_TIMEOUT_US);
 		if (ret) {
-			dev_err(dsi->dev, "Read payload FIFO is empty\n");
+			dev_err(dsi->dsi_host.dev,
+				"Read payload FIFO is empty\n");
 			return ret;
 		}
 
@@ -411,7 +413,7 @@ static ssize_t dw_mipi_dsi_host_transfer(struct mipi_dsi_host *host,
 
 	ret = mipi_dsi_create_packet(&packet, msg);
 	if (ret) {
-		dev_err(dsi->dev, "failed to create packet: %d\n", ret);
+		dev_err(host->dev, "failed to create packet: %d\n", ret);
 		return ret;
 	}
 
@@ -702,13 +704,15 @@ static void dw_mipi_dsi_dphy_enable(struct dw_mipi_dsi *dsi)
 	ret = readl_poll_timeout(dsi->base + DSI_PHY_STATUS, val,
 				 val & PHY_LOCK, PHY_STATUS_TIMEOUT_US);
 	if (ret)
-		dev_warn(dsi->dev, "failed to wait phy lock state\n");
+		dev_warn(dsi->dsi_host.dev,
+			 "failed to wait phy lock state\n");
 
 	ret = readl_poll_timeout(dsi->base + DSI_PHY_STATUS,
 				 val, val & PHY_STOP_STATE_CLK_LANE,
 				 PHY_STATUS_TIMEOUT_US);
 	if (ret)
-		dev_warn(dsi->dev, "failed to wait phy clk lane stop state\n");
+		dev_warn(dsi->dsi_host.dev,
+			 "failed to wait phy clk lane stop state\n");
 }
 
 static void dw_mipi_dsi_clear_err(struct dw_mipi_dsi *dsi)
@@ -729,7 +733,7 @@ static void dw_mipi_dsi_bridge_set(struct dw_mipi_dsi *dsi,
 	ret = phy_ops->get_lane_mbps(dsi->device, timings, device->lanes,
 				     device->format, &dsi->lane_mbps);
 	if (ret)
-		dev_warn(dsi->dev, "Phy get_lane_mbps() failed\n");
+		dev_warn(dsi->dsi_host.dev, "Phy get_lane_mbps() failed\n");
 
 	dw_mipi_dsi_init_pll(dsi);
 	dw_mipi_dsi_dpi_config(dsi, timings);
@@ -748,7 +752,7 @@ static void dw_mipi_dsi_bridge_set(struct dw_mipi_dsi *dsi,
 
 	ret = phy_ops->init(dsi->device);
 	if (ret)
-		dev_warn(dsi->dev, "Phy init() failed\n");
+		dev_warn(dsi->dsi_host.dev, "Phy init() failed\n");
 
 	dw_mipi_dsi_dphy_enable(dsi);
 

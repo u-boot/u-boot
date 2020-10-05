@@ -500,7 +500,7 @@ static const struct udevice_id cdns_i2c_of_match[] = {
 };
 
 U_BOOT_DRIVER(cdns_i2c) = {
-	.name = "i2c-cdns",
+	.name = "i2c_cdns",
 	.id = UCLASS_I2C,
 	.of_match = cdns_i2c_of_match,
 	.ofdata_to_platdata = cdns_i2c_ofdata_to_platdata,

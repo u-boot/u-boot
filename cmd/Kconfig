@@ -1645,6 +1645,7 @@ config CMD_CDP
 
 config CMD_SNTP
 	bool "sntp"
+	select PROT_UDP
 	help
 	  Synchronize RTC via network
 
@@ -2235,7 +2236,7 @@ config CMD_DIAG
 
 config CMD_IRQ
 	bool "irq - Show information about interrupts"
-	depends on !ARM && !MIPS && !SH
+	depends on !ARM && !MIPS && !RISCV && !SH
 	help
 	  This enables two commands:
 

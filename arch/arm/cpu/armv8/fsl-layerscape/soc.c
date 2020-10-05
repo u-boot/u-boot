@@ -56,7 +56,7 @@ int ls_gic_rd_tables_init(void *blob)
 
 	lpi_base.start = addr;
 	lpi_base.end = addr + size - 1;
-	ret = fdtdec_add_reserved_memory(blob, "lpi_rd_table", &lpi_base, NULL);
+	ret = fdtdec_add_reserved_memory(blob, "lpi_rd_table", &lpi_base, NULL, false);
 	if (ret) {
 		debug("%s: failed to add reserved memory\n", __func__);
 		return ret;

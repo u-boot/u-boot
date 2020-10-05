@@ -11,8 +11,11 @@
  * ACPI_GNVS_SIZE. They are to be used in platform's global_nvs.asl file
  * to declare the GNVS OperationRegion, as well as write_acpi_tables()
  * for the GNVS address runtime fix up.
+ *
+ * If using CONFIG_ACPI_GNVS_EXTERNAL, we don't need to locate the GNVS in
+ * DSDT, since it is created by code, so ACPI_GNVS_ADDR is unused.
  */
 #define ACPI_GNVS_ADDR	0xdeadbeef
-#define ACPI_GNVS_SIZE	0x100
+#define ACPI_GNVS_SIZE	0x1000
 
 #endif /* _ACPI_GNVS_H_ */

@@ -17,6 +17,9 @@
 #include <acpi/acpi_table.h>
 #include <dm/acpi.h>
 
+/* CPU path format */
+#define ACPI_CPU_STRING "\\_PR.CP%02d"
+
 u8 *acpigen_get_current(struct acpi_ctx *ctx)
 {
 	return ctx->current;
@@ -340,6 +343,58 @@ void acpigen_write_method_serialized(struct acpi_ctx *ctx, const char *name,
 				      ACPI_METHOD_SERIALIZED_MASK);
 }
 
+void acpigen_write_processor(struct acpi_ctx *ctx, uint cpuindex,
+			     u32 pblock_addr, uint pblock_len)
+{
+	/*
+	 * Processor (\_PR.CPnn, cpuindex, pblock_addr, pblock_len)
+	 * {
+	 */
+	char pscope[16];
+
+	acpigen_emit_ext_op(ctx, PROCESSOR_OP);
+	acpigen_write_len_f(ctx);
+
+	snprintf(pscope, sizeof(pscope), ACPI_CPU_STRING, cpuindex);
+	acpigen_emit_namestring(ctx, pscope);
+	acpigen_emit_byte(ctx, cpuindex);
+	acpigen_emit_dword(ctx, pblock_addr);
+	acpigen_emit_byte(ctx, pblock_len);
+}
+
+void acpigen_write_processor_package(struct acpi_ctx *ctx,
+				     const char *const name,
+				     const uint first_core,
+				     const uint core_count)
+{
+	uint i;
+	char pscope[16];
+
+	acpigen_write_name(ctx, name);
+	acpigen_write_package(ctx, core_count);
+	for (i = first_core; i < first_core + core_count; ++i) {
+		snprintf(pscope, sizeof(pscope), ACPI_CPU_STRING, i);
+		acpigen_emit_namestring(ctx, pscope);
+	}
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_processor_cnot(struct acpi_ctx *ctx, const uint num_cores)
+{
+	int core_id;
+
+	acpigen_write_method(ctx, "\\_PR.CNOT", 1);
+	for (core_id = 0; core_id < num_cores; core_id++) {
+		char buffer[30];
+
+		snprintf(buffer, sizeof(buffer), ACPI_CPU_STRING, core_id);
+		acpigen_emit_byte(ctx, NOTIFY_OP);
+		acpigen_emit_namestring(ctx, buffer);
+		acpigen_emit_byte(ctx, ARG0_OP);
+	}
+	acpigen_pop_len(ctx);
+}
+
 void acpigen_write_device(struct acpi_ctx *ctx, const char *name)
 {
 	acpigen_emit_ext_op(ctx, DEVICE_OP);
@@ -424,6 +479,183 @@ void acpigen_write_register_resource(struct acpi_ctx *ctx,
 	acpigen_write_resourcetemplate_header(ctx);
 	acpigen_write_register(ctx, addr);
 	acpigen_write_resourcetemplate_footer(ctx);
+}
+
+void acpigen_write_ppc(struct acpi_ctx *ctx, uint num_pstates)
+{
+	/*
+	 * Method (_PPC, 0, NotSerialized)
+	 * {
+	 *	Return (num_pstates)
+	 * }
+	 */
+	acpigen_write_method(ctx, "_PPC", 0);
+	acpigen_emit_byte(ctx, RETURN_OP);
+	acpigen_write_byte(ctx, num_pstates);
+	acpigen_pop_len(ctx);
+}
+
+/*
+ * Generates a func with max supported P-states saved
+ * in the variable PPCM.
+ */
+void acpigen_write_ppc_nvs(struct acpi_ctx *ctx)
+{
+	/*
+	 * Method (_PPC, 0, NotSerialized)
+	 * {
+	 *	Return (PPCM)
+	 * }
+	 */
+	acpigen_write_method(ctx, "_PPC", 0);
+	acpigen_emit_byte(ctx, RETURN_OP);
+	acpigen_emit_namestring(ctx, "PPCM");
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_tpc(struct acpi_ctx *ctx, const char *gnvs_tpc_limit)
+{
+	/*
+	 * // Sample _TPC method
+	 * Method (_TPC, 0, NotSerialized)
+	 * {
+	 *	Return (\TLVL)
+	 * }
+	 */
+	acpigen_write_method(ctx, "_TPC", 0);
+	acpigen_emit_byte(ctx, RETURN_OP);
+	acpigen_emit_namestring(ctx, gnvs_tpc_limit);
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_prw(struct acpi_ctx *ctx, uint wake, uint level)
+{
+	/* Name (_PRW, Package () { wake, level } */
+	acpigen_write_name(ctx, "_PRW");
+	acpigen_write_package(ctx, 2);
+	acpigen_write_integer(ctx, wake);
+	acpigen_write_integer(ctx, level);
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_pss_package(struct acpi_ctx *ctx, u32 core_freq, u32 power,
+			       u32 trans_lat, u32 busm_lat, u32 control,
+			       u32 status)
+{
+	acpigen_write_package(ctx, 6);
+	acpigen_write_dword(ctx, core_freq);
+	acpigen_write_dword(ctx, power);
+	acpigen_write_dword(ctx, trans_lat);
+	acpigen_write_dword(ctx, busm_lat);
+	acpigen_write_dword(ctx, control);
+	acpigen_write_dword(ctx, status);
+	acpigen_pop_len(ctx);
+
+	log_debug("PSS: %uMHz power %u control 0x%x status 0x%x\n",
+		  core_freq, power, control, status);
+}
+
+void acpigen_write_psd_package(struct acpi_ctx *ctx, uint domain, uint numprocs,
+			       enum psd_coord coordtype)
+{
+	acpigen_write_name(ctx, "_PSD");
+	acpigen_write_package(ctx, 1);
+	acpigen_write_package(ctx, 5);
+	acpigen_write_byte(ctx, 5);	// 5 values
+	acpigen_write_byte(ctx, 0);	// revision 0
+	acpigen_write_dword(ctx, domain);
+	acpigen_write_dword(ctx, coordtype);
+	acpigen_write_dword(ctx, numprocs);
+	acpigen_pop_len(ctx);
+	acpigen_pop_len(ctx);
+}
+
+static void acpigen_write_cst_package_entry(struct acpi_ctx *ctx,
+					    const struct acpi_cstate *cstate)
+{
+	acpigen_write_package(ctx, 4);
+	acpigen_write_register_resource(ctx, &cstate->resource);
+	acpigen_write_dword(ctx, cstate->ctype);
+	acpigen_write_dword(ctx, cstate->latency);
+	acpigen_write_dword(ctx, cstate->power);
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_cst_package(struct acpi_ctx *ctx,
+			       const struct acpi_cstate *cstate, int nentries)
+{
+	int i;
+
+	acpigen_write_name(ctx, "_CST");
+	acpigen_write_package(ctx, nentries + 1);
+	acpigen_write_dword(ctx, nentries);
+
+	for (i = 0; i < nentries; i++)
+		acpigen_write_cst_package_entry(ctx, cstate + i);
+
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_csd_package(struct acpi_ctx *ctx, uint domain, uint numprocs,
+			       enum csd_coord coordtype, uint index)
+{
+	acpigen_write_name(ctx, "_CSD");
+	acpigen_write_package(ctx, 1);
+	acpigen_write_package(ctx, 6);
+	acpigen_write_byte(ctx, 6);	// 6 values
+	acpigen_write_byte(ctx, 0);	// revision 0
+	acpigen_write_dword(ctx, domain);
+	acpigen_write_dword(ctx, coordtype);
+	acpigen_write_dword(ctx, numprocs);
+	acpigen_write_dword(ctx, index);
+	acpigen_pop_len(ctx);
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_tss_package(struct acpi_ctx *ctx,
+			       struct acpi_tstate *entry, int nentries)
+{
+	/*
+	 * Sample _TSS package with 100% and 50% duty cycles
+	 * Name (_TSS, Package (0x02)
+	 * {
+	 *	Package(){100, 1000, 0, 0x00, 0)
+	 *	Package(){50, 520, 0, 0x18, 0)
+	 * })
+	 */
+	struct acpi_tstate *tstate = entry;
+	int i;
+
+	acpigen_write_name(ctx, "_TSS");
+	acpigen_write_package(ctx, nentries);
+
+	for (i = 0; i < nentries; i++) {
+		acpigen_write_package(ctx, 5);
+		acpigen_write_dword(ctx, tstate->percent);
+		acpigen_write_dword(ctx, tstate->power);
+		acpigen_write_dword(ctx, tstate->latency);
+		acpigen_write_dword(ctx, tstate->control);
+		acpigen_write_dword(ctx, tstate->status);
+		acpigen_pop_len(ctx);
+		tstate++;
+	}
+
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_tsd_package(struct acpi_ctx *ctx, u32 domain, u32 numprocs,
+			       enum psd_coord coordtype)
+{
+	acpigen_write_name(ctx, "_TSD");
+	acpigen_write_package(ctx, 1);
+	acpigen_write_package(ctx, 5);
+	acpigen_write_byte(ctx, 5);	// 5 values
+	acpigen_write_byte(ctx, 0);	// revision 0
+	acpigen_write_dword(ctx, domain);
+	acpigen_write_dword(ctx, coordtype);
+	acpigen_write_dword(ctx, numprocs);
+	acpigen_pop_len(ctx);
+	acpigen_pop_len(ctx);
 }
 
 /*
@@ -529,6 +761,128 @@ void acpigen_write_debug_string(struct acpi_ctx *ctx, const char *str)
 	acpigen_write_store(ctx);
 	acpigen_write_string(ctx, str);
 	acpigen_emit_ext_op(ctx, DEBUG_OP);
+}
+
+void acpigen_write_if(struct acpi_ctx *ctx)
+{
+	acpigen_emit_byte(ctx, IF_OP);
+	acpigen_write_len_f(ctx);
+}
+
+void acpigen_write_if_lequal_op_int(struct acpi_ctx *ctx, uint op, u64 val)
+{
+	acpigen_write_if(ctx);
+	acpigen_emit_byte(ctx, LEQUAL_OP);
+	acpigen_emit_byte(ctx, op);
+	acpigen_write_integer(ctx, val);
+}
+
+void acpigen_write_else(struct acpi_ctx *ctx)
+{
+	acpigen_emit_byte(ctx, ELSE_OP);
+	acpigen_write_len_f(ctx);
+}
+
+void acpigen_write_to_buffer(struct acpi_ctx *ctx, uint src, uint dst)
+{
+	acpigen_emit_byte(ctx, TO_BUFFER_OP);
+	acpigen_emit_byte(ctx, src);
+	acpigen_emit_byte(ctx, dst);
+}
+
+void acpigen_write_to_integer(struct acpi_ctx *ctx, uint src, uint dst)
+{
+	acpigen_emit_byte(ctx, TO_INTEGER_OP);
+	acpigen_emit_byte(ctx, src);
+	acpigen_emit_byte(ctx, dst);
+}
+
+void acpigen_write_byte_buffer(struct acpi_ctx *ctx, u8 *arr, size_t size)
+{
+	size_t i;
+
+	acpigen_emit_byte(ctx, BUFFER_OP);
+	acpigen_write_len_f(ctx);
+	acpigen_write_integer(ctx, size);
+
+	for (i = 0; i < size; i++)
+		acpigen_emit_byte(ctx, arr[i]);
+
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_return_byte_buffer(struct acpi_ctx *ctx, u8 *arr,
+				      size_t size)
+{
+	acpigen_emit_byte(ctx, RETURN_OP);
+	acpigen_write_byte_buffer(ctx, arr, size);
+}
+
+void acpigen_write_return_singleton_buffer(struct acpi_ctx *ctx, uint arg)
+{
+	u8 buf = arg;
+
+	acpigen_write_return_byte_buffer(ctx, &buf, 1);
+}
+
+void acpigen_write_return_byte(struct acpi_ctx *ctx, uint arg)
+{
+	acpigen_emit_byte(ctx, RETURN_OP);
+	acpigen_write_byte(ctx, arg);
+}
+
+void acpigen_write_dsm_start(struct acpi_ctx *ctx)
+{
+	/* Method (_DSM, 4, Serialized) */
+	acpigen_write_method_serialized(ctx, "_DSM", 4);
+
+	/* ToBuffer (Arg0, Local0) */
+	acpigen_write_to_buffer(ctx, ARG0_OP, LOCAL0_OP);
+}
+
+int acpigen_write_dsm_uuid_start(struct acpi_ctx *ctx, const char *uuid)
+{
+	int ret;
+
+	/* If (LEqual (Local0, ToUUID(uuid))) */
+	acpigen_write_if(ctx);
+	acpigen_emit_byte(ctx, LEQUAL_OP);
+	acpigen_emit_byte(ctx, LOCAL0_OP);
+	ret = acpigen_write_uuid(ctx, uuid);
+	if (ret)
+		return log_msg_ret("uuid", ret);
+
+	/* ToInteger (Arg2, Local1) */
+	acpigen_write_to_integer(ctx, ARG2_OP, LOCAL1_OP);
+
+	return 0;
+}
+
+void acpigen_write_dsm_uuid_start_cond(struct acpi_ctx *ctx, int seq)
+{
+	/* If (LEqual (Local1, i)) */
+	acpigen_write_if_lequal_op_int(ctx, LOCAL1_OP, seq);
+}
+
+void acpigen_write_dsm_uuid_end_cond(struct acpi_ctx *ctx)
+{
+	acpigen_pop_len(ctx);	/* If */
+}
+
+void acpigen_write_dsm_uuid_end(struct acpi_ctx *ctx)
+{
+	/* Default case: Return (Buffer (One) { 0x0 }) */
+	acpigen_write_return_singleton_buffer(ctx, 0x0);
+
+	acpigen_pop_len(ctx);	/* If (LEqual (Local0, ToUUID(uuid))) */
+}
+
+void acpigen_write_dsm_end(struct acpi_ctx *ctx)
+{
+	/* Return (Buffer (One) { 0x0 }) */
+	acpigen_write_return_singleton_buffer(ctx, 0x0);
+
+	acpigen_pop_len(ctx);	/* Method _DSM */
 }
 
 /**

@@ -84,6 +84,13 @@ config BCM6368_USBH_PHY
 	help
 	  Support for the Broadcom MIPS BCM6368 USBH PHY.
 
+config BCM_SR_PCIE_PHY
+	bool "Broadcom Stingray PCIe PHY driver"
+	depends on PHY
+	help
+	  Enable this to support the Broadcom Stingray PCIe PHY
+	  If unsure, say N.
+
 config PHY_DA8XX_USB
 	tristate "TI DA8xx USB PHY Driver"
 	depends on PHY && ARCH_DAVINCI
@@ -124,6 +131,12 @@ config STI_USB_PHY
 	  This is the generic phy driver for the picoPHY ports
 	  used by USB2 and USB3 Host controllers available on
 	  STiH407 SoC families.
+
+config PHY_QCOM_IPQ4019_USB
+	tristate "Qualcomm IPQ4019 USB PHY driver"
+	depends on PHY && ARCH_IPQ40XX
+	help
+	  Support for the USB PHY-s on Qualcomm IPQ40xx SoC-s.
 
 config PHY_RCAR_GEN2
 	tristate "Renesas R-Car Gen2 USB PHY"

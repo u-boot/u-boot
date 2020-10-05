@@ -237,6 +237,10 @@ M:	Luka Kovacic <luka.kovacic@sartura.hr>
 M:	Luka Perkov <luka.perkov@sartura.hr>
 S:	Maintained
 F:	arch/arm/mach-ipq40xx/
+F:	include/dt-bindings/clock/qcom,ipq4019-gcc.h
+F:	include/dt-bindings/reset/qcom,ipq4019-reset.h
+F:	drivers/reset/reset-ipq4019.c
+F:	drivers/phy/phy-qcom-ipq4019-usb.c
 
 ARM MARVELL KIRKWOOD ARMADA-XP ARMADA-38X ARMADA-37XX ARMADA-7K/8K
 M:	Stefan Roese <sr@denx.de>
@@ -291,7 +295,9 @@ S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-atmel.git
 F:	arch/arm/mach-at91/
 F:	board/atmel/
+F:	drivers/cpu/at91_cpu.c
 F:	drivers/misc/microchip_flexcom.c
+F:	drivers/timer/mchp-pit64b-timer.c
 
 ARM NEXELL S5P4418
 M:	Stefan Bosch <stefan_b@posteo.net>
@@ -599,6 +605,8 @@ F:	tools/binman/
 
 BTRFS
 M:	Marek Behun <marek.behun@nic.cz>
+R:	Qu Wenruo <wqu@suse.com>
+L:	linux-btrfs@vger.kernel.org
 S:	Maintained
 F:	cmd/btrfs.c
 F:	fs/btrfs/
@@ -1005,6 +1013,10 @@ F:	arch/arm/dts/ns3-board.dts
 F:	arch/arm/dts/ns3.dtsi
 F:	arch/arm/cpu/armv8/bcmns3
 F:	arch/arm/include/asm/arch-bcmns3/
+F:	cmd/broadcom/Makefile
+F:	cmd/broadcom/chimp_boot.c
+F:	cmd/broadcom/nitro_image_load.c
+F:	cmd/broadcom/chimp_handshake.c
 
 TDA19988 HDMI ENCODER
 M:	Liviu Dudau <liviu.dudau@foss.arm.com>

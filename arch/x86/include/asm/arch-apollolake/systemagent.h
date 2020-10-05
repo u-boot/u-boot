@@ -35,4 +35,35 @@
  */
 void enable_bios_reset_cpl(void);
 
+/**
+ * sa_get_tolud_base() - Get the TOLUD base address
+ *
+ * This returns the Top Of Low Useable DRAM, marking the top of usable DRAM
+ * below 4GB
+ *
+ * @dev: hostbridge device
+ * @return TOLUD address
+ */
+ulong sa_get_tolud_base(struct udevice *dev);
+
+/**
+ * sa_get_gsm_base() - Get the GSM base address
+ *
+ * This returns the base of GTT Stolen Memory, marking the start of memory used
+ * for Graphics Translation Tables.
+ *
+ * @dev: hostbridge device
+ * @return GSM address
+ */
+ulong sa_get_gsm_base(struct udevice *dev);
+
+/**
+ * sa_get_tseg_base() - Get the TSEG base address
+ *
+ * This returns the top address of DRAM available below 4GB
+ *
+ * @return TSEG base
+ */
+ulong sa_get_tseg_base(struct udevice *dev);
+
 #endif

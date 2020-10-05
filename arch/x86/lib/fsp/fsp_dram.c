@@ -12,6 +12,7 @@
 #include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/post.h>
+#include <dm/ofnode.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -92,6 +93,8 @@ unsigned int install_e820_map(unsigned int max_entries,
 	unsigned int num_entries = 0;
 	const struct hob_header *hdr;
 	struct hob_res_desc *res_desc;
+	const fdt64_t *prop;
+	int size;
 
 	hdr = gd->arch.hob_list;
 
@@ -131,6 +134,20 @@ unsigned int install_e820_map(unsigned int max_entries,
 			stack_size;
 		entries[num_entries].type = E820_RESERVED;
 		num_entries++;
+	}
+
+	prop = ofnode_read_chosen_prop("e820-entries", &size);
+	if (prop) {
+		int count = size / (sizeof(u64) * 3);
+		int i;
+
+		if (num_entries + count >= max_entries)
+			return -ENOSPC;
+		for (i = 0; i < count; i++, num_entries++, prop += 3) {
+			entries[num_entries].addr = fdt64_to_cpu(prop[0]);
+			entries[num_entries].size = fdt64_to_cpu(prop[1]);
+			entries[num_entries].type = fdt64_to_cpu(prop[2]);
+		}
 	}
 
 	return num_entries;

@@ -169,6 +169,7 @@ static int atmel_pinctrl_probe(struct udevice *dev)
 
 static const struct udevice_id atmel_pinctrl_match[] = {
 	{ .compatible = "atmel,sama5d2-pinctrl" },
+	{ .compatible = "microchip,sama7g5-pinctrl" },
 	{}
 };
 

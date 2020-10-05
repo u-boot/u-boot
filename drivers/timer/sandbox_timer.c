@@ -40,7 +40,9 @@ static int sandbox_timer_probe(struct udevice *dev)
 {
 	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
-	if (!uc_priv->clock_rate)
+	if (dev_read_bool(dev, "sandbox,timebase-frequency-fallback"))
+		return timer_timebase_fallback(dev);
+	else if (!uc_priv->clock_rate)
 		uc_priv->clock_rate = SANDBOX_TIMER_RATE;
 
 	return 0;

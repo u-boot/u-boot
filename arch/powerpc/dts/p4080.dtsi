@@ -80,6 +80,15 @@
 			clock-frequency = <0x0>;
 		};
 
+		espi0: spi@110000 {
+			compatible = "fsl,mpc8536-espi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x110000 0x1000>;
+			fsl,espi-num-chipselects = <4>;
+			status = "disabled";
+		};
+
 		esdhc: esdhc@114000 {
 			compatible = "fsl,esdhc";
 			reg = <0x114000 0x1000>;

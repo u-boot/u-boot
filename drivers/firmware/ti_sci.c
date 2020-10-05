@@ -619,7 +619,7 @@ static int ti_sci_get_device_state(const struct ti_sci_handle *handle,
 
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret) {
-		dev_err(dev, "Mbox send fail %d\n", ret);
+		dev_err(info->dev, "Mbox send fail %d\n", ret);
 		return ret;
 	}
 
@@ -1591,7 +1591,7 @@ static int ti_sci_cmd_core_reboot(const struct ti_sci_handle *handle)
 
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret) {
-		dev_err(dev, "Mbox send fail %d\n", ret);
+		dev_err(info->dev, "Mbox send fail %d\n", ret);
 		return ret;
 	}
 
@@ -1639,7 +1639,7 @@ static int ti_sci_get_resource_range(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(dev, "Message alloc failed(%d)\n", ret);
+		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 
@@ -1649,7 +1649,7 @@ static int ti_sci_get_resource_range(const struct ti_sci_handle *handle,
 
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret) {
-		dev_err(dev, "Mbox send fail %d\n", ret);
+		dev_err(info->dev, "Mbox send fail %d\n", ret);
 		goto fail;
 	}
 
@@ -1745,7 +1745,7 @@ static int ti_sci_cmd_query_msmc(const struct ti_sci_handle *handle,
 
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret) {
-		dev_err(dev, "Mbox send fail %d\n", ret);
+		dev_err(info->dev, "Mbox send fail %d\n", ret);
 		return ret;
 	}
 
@@ -2229,6 +2229,14 @@ static int ti_sci_cmd_proc_shutdown_no_wait(const struct ti_sci_handle *handle,
 					    u8 proc_id)
 {
 	int ret;
+	struct ti_sci_info *info;
+
+	if (IS_ERR(handle))
+		return PTR_ERR(handle);
+	if (!handle)
+		return -EINVAL;
+
+	info = handle_to_ti_sci_info(handle);
 
 	/*
 	 * Send the core boot status wait message waiting for either WFE or
@@ -2554,7 +2562,8 @@ static int ti_sci_cmd_rm_udmap_rx_flow_cfg(
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(dev, "RX_FL_CFG: Message alloc failed(%d)\n", ret);
+		dev_err(info->dev, "RX_FL_CFG: Message alloc failed(%d)\n",
+			ret);
 		return ret;
 	}
 
@@ -2583,7 +2592,7 @@ static int ti_sci_cmd_rm_udmap_rx_flow_cfg(
 
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret) {
-		dev_err(dev, "RX_FL_CFG: Mbox send fail %d\n", ret);
+		dev_err(info->dev, "RX_FL_CFG: Mbox send fail %d\n", ret);
 		goto fail;
 	}
 

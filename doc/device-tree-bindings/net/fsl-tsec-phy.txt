@@ -2,7 +2,7 @@
 
 Properties:
 
-  - compatible : Should be "fsl,etsec2"
+  - compatible : Should be "fsl,etsec2" or "gianfar"
   - reg : Offset and length of the register set for the device
   - phy-handle : See ethernet.txt file in the same directory.
   - phy-connection-type : See ethernet.txt file in the same directory. This

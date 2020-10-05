@@ -9,10 +9,14 @@
 #include <ioports.h>
 #include <asm/io.h>
 #include <asm/processor.h>
+#include <fsl_qe.h>
 #ifdef CONFIG_USB_EHCI_FSL
 #include <usb/ehci-ci.h>
 #endif
 #include <linux/delay.h>
+#ifdef CONFIG_QE
+#include <fsl_qe.h>
+#endif
 
 #include "lblaw/lblaw.h"
 #include "elbc/elbc.h"
@@ -26,9 +30,8 @@ DECLARE_GLOBAL_DATA_PTR;
 extern qe_iop_conf_t qe_iop_conf_tab[];
 extern void qe_config_iopin(u8 port, u8 pin, int dir,
 			 int open_drain, int assign);
-extern void qe_init(uint qe_base);
-extern void qe_reset(void);
 
+#if !defined(CONFIG_PINCTRL)
 static void config_qe_ioports(void)
 {
 	u8	port, pin;
@@ -44,6 +47,7 @@ static void config_qe_ioports(void)
 		qe_config_iopin(port, pin, dir, open_drain, assign);
 	}
 }
+#endif
 #endif
 
 /*
@@ -191,10 +195,13 @@ void cpu_init_f (volatile immap_t * im)
 	__raw_writel(CONFIG_SYS_OBIR, &im->sysconf.obir);
 #endif
 
+#if !defined(CONFIG_PINCTRL)
 #ifdef CONFIG_QE
 	/* Config QE ioports */
 	config_qe_ioports();
 #endif
+#endif
+
 	/* Set up preliminary BR/OR regs */
 	init_early_memctl_regs();
 

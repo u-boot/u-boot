@@ -13,6 +13,8 @@
 #include <env.h>
 #include <image.h>
 #include <net.h>
+#include <net/udp.h>
+#include <net/sntp.h>
 
 static int netboot_common(enum proto_t, struct cmd_tbl *, int, char * const []);
 
@@ -356,6 +358,12 @@ U_BOOT_CMD(
 #endif
 
 #if defined(CONFIG_CMD_SNTP)
+static struct udp_ops sntp_ops = {
+	.prereq = sntp_prereq,
+	.start = sntp_start,
+	.data = NULL,
+};
+
 int do_sntp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *toff;
@@ -380,7 +388,7 @@ int do_sntp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	else
 		net_ntp_time_offset = simple_strtol(toff, NULL, 10);
 
-	if (net_loop(SNTP) < 0) {
+	if (udp_loop(&sntp_ops) < 0) {
 		printf("SNTP failed: host %pI4 not responding\n",
 		       &net_ntp_server);
 		return CMD_RET_FAILURE;

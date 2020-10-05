@@ -43,14 +43,32 @@ _start:
 	csrr	a0, CSR_MHARTID
 #endif
 
-	/* save hart id and dtb pointer */
+	/*
+	 * Save hart id and dtb pointer. The thread pointer register is not
+	 * modified by C code. It is used by secondary_hart_loop.
+	 */
 	mv	tp, a0
 	mv	s1, a1
 
+	/*
+	 * Set the global data pointer to a known value in case we get a very
+	 * early trap. The global data pointer will be set its actual value only
+	 * after it has been initialized.
+	 */
+	mv	gp, zero
+
+	/*
+	 * Set the trap handler. This must happen after initializing gp because
+	 * the handler may use it.
+	 */
 	la	t0, trap_entry
 	csrw	MODE_PREFIX(tvec), t0
 
-	/* mask all interrupts */
+	/*
+	 * Mask all interrupts. Interrupts are disabled globally (in m/sstatus)
+	 * for U-Boot, but we will need to read m/sip to determine if we get an
+	 * IPI
+	 */
 	csrw	MODE_PREFIX(ie), zero
 
 #if CONFIG_IS_ENABLED(SMP)
@@ -65,8 +83,6 @@ _start:
 #else
 	li	t0, SIE_SSIE
 #endif
-	/* Clear any pending IPIs */
-	csrc	MODE_PREFIX(ip), t0
 	csrs	MODE_PREFIX(ie), t0
 #endif
 
@@ -87,10 +103,10 @@ call_board_init_f_0:
 	jal	board_init_f_alloc_reserve
 
 	/*
-	 * Set global data pointer here for all harts, uninitialized at this
-	 * point.
+	 * Save global data pointer for later. We don't set it here because it
+	 * is not initialized yet.
 	 */
-	mv	gp, a0
+	mv	s0, a0
 
 	/* setup stack */
 #if CONFIG_IS_ENABLED(SMP)
@@ -111,6 +127,14 @@ call_board_init_f_0:
 	amoswap.w s2, t1, 0(t0)
 	bnez	s2, wait_for_gd_init
 #else
+	/*
+	 * FIXME: gp is set before it is initialized. If an XIP U-Boot ever
+	 * encounters a pending IPI on boot it is liable to jump to whatever
+	 * memory happens to be in ipi_data.addr on boot. It may also run into
+	 * problems if it encounters an exception too early (because printf/puts
+	 * accesses gd).
+	 */
+	mv	gp, s0
 	bnez	tp, secondary_hart_loop
 #endif
 
@@ -127,15 +151,20 @@ call_board_init_f_0:
 
 #ifndef CONFIG_XIP
 	la	t0, available_harts_lock
-	fence	rw, w
-	amoswap.w zero, zero, 0(t0)
+	amoswap.w.rl zero, zero, 0(t0)
 
 wait_for_gd_init:
 	la	t0, available_harts_lock
 	li	t1, 1
-1:	amoswap.w t1, t1, 0(t0)
-	fence	r, rw
+1:	amoswap.w.aq t1, t1, 0(t0)
 	bnez	t1, 1b
+
+	/*
+	 * Set the global data pointer only when gd_t has been initialized.
+	 * This was already set by arch_setup_gd on the boot hart, but all other
+	 * harts' global data pointers gets set here.
+	 */
+	mv	gp, s0
 
 	/* register available harts in the available_harts mask */
 	li	t1, 1
@@ -144,8 +173,7 @@ wait_for_gd_init:
 	or	t2, t2, t1
 	SREG	t2, GD_AVAILABLE_HARTS(gp)
 
-	fence	rw, w
-	amoswap.w zero, zero, 0(t0)
+	amoswap.w.rl zero, zero, 0(t0)
 
 	/*
 	 * Continue on hart lottery winner, others branch to
@@ -395,6 +423,10 @@ secondary_hart_relocate:
 	mv	gp, a2
 #endif
 
+/*
+ * Interrupts are disabled globally, but they can still be read from m/sip. The
+ * wfi function will wake us up if we get an IPI, even if we do not trap.
+ */
 secondary_hart_loop:
 	wfi
 

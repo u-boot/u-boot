@@ -36,8 +36,8 @@
 
 #define MTRR_BASE_TYPE_MASK	0x7
 
-/* Number of MTRRs supported */
-#define MTRR_COUNT		8
+/* Maximum number of MTRRs supported - see also mtrr_get_var_count() */
+#define MTRR_MAX_COUNT		10
 
 #define NUM_FIXED_MTRRS		11
 #define RANGES_PER_FIXED_MTRR	8
@@ -87,7 +87,7 @@ struct mtrr {
  * @mtrr: Information about each mtrr
  */
 struct mtrr_info {
-	struct mtrr mtrr[MTRR_COUNT];
+	struct mtrr mtrr[MTRR_MAX_COUNT];
 };
 
 /**
@@ -179,6 +179,15 @@ int mtrr_set_valid(int cpu_select, int reg, bool valid);
  * @return 0 on success, -ve on error
  */
 int mtrr_set(int cpu_select, int reg, u64 base, u64 mask);
+
+/**
+ * mtrr_get_var_count() - Get the number of variable MTRRs
+ *
+ * Some CPUs have more than 8 MTRRs. This function returns the actual number
+ *
+ * @return number of variable MTRRs
+ */
+int mtrr_get_var_count(void);
 
 #endif
 

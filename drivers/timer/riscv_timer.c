@@ -1,36 +1,37 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * Copyright (C) 2020, Sean Anderson <seanga2@gmail.com>
  * Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
+ * Copyright (C) 2018, Anup Patel <anup@brainfault.org>
+ * Copyright (C) 2012 Regents of the University of California
  *
- * RISC-V privileged architecture defined generic timer driver
+ * RISC-V architecturally-defined generic timer driver
  *
- * This driver relies on RISC-V platform codes to provide the essential API
- * riscv_get_time() which is supposed to return the timer counter as defined
- * by the RISC-V privileged architecture spec.
- *
- * This driver can be used in both M-mode and S-mode U-Boot.
+ * This driver provides generic timer support for S-mode U-Boot.
  */
 
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <timer.h>
-#include <asm/io.h>
-
-/**
- * riscv_get_time() - get the timer counter
- *
- * Platform codes should provide this API in order to make this driver function.
- *
- * @time:	the 64-bit timer count  as defined by the RISC-V privileged
- *		architecture spec.
- * @return:	0 on success, -ve on error.
- */
-extern int riscv_get_time(u64 *time);
+#include <asm/csr.h>
 
 static int riscv_timer_get_count(struct udevice *dev, u64 *count)
 {
-	return riscv_get_time(count);
+	if (IS_ENABLED(CONFIG_64BIT)) {
+		*count = csr_read(CSR_TIME);
+	} else {
+		u32 hi, lo;
+
+		do {
+			hi = csr_read(CSR_TIMEH);
+			lo = csr_read(CSR_TIME);
+		} while (hi != csr_read(CSR_TIMEH));
+
+		*count = ((u64)hi << 32) | lo;
+	}
+
+	return 0;
 }
 
 static int riscv_timer_probe(struct udevice *dev)

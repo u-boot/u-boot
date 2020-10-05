@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <log.h>
 #include <malloc.h>
+#include <dm/device-internal.h>
 #include <dm/devres.h>
 #include <dm/read.h>
 #include <linux/bug.h>
@@ -187,9 +188,26 @@ bulk_get_err:
 	return ret;
 }
 
+static struct clk *clk_set_default_get_by_id(struct clk *clk)
+{
+	struct clk *c = clk;
+
+	if (CONFIG_IS_ENABLED(CLK_CCF)) {
+		int ret = clk_get_by_id(clk->id, &c);
+
+		if (ret) {
+			debug("%s(): could not get parent clock pointer, id %lu\n",
+			      __func__, clk->id);
+			ERR_PTR(ret);
+		}
+	}
+
+	return c;
+}
+
 static int clk_set_default_parents(struct udevice *dev, int stage)
 {
-	struct clk clk, parent_clk;
+	struct clk clk, parent_clk, *c, *p;
 	int index;
 	int num_parents;
 	int ret;
@@ -215,6 +233,10 @@ static int clk_set_default_parents(struct udevice *dev, int stage)
 			return ret;
 		}
 
+		p = clk_set_default_get_by_id(&parent_clk);
+		if (IS_ERR(p))
+			return PTR_ERR(p);
+
 		ret = clk_get_by_indexed_prop(dev, "assigned-clocks",
 					      index, &clk);
 		if (ret) {
@@ -234,7 +256,11 @@ static int clk_set_default_parents(struct udevice *dev, int stage)
 			/* do not setup twice the parent clocks */
 			continue;
 
-		ret = clk_set_parent(&clk, &parent_clk);
+		c = clk_set_default_get_by_id(&clk);
+		if (IS_ERR(c))
+			return PTR_ERR(c);
+
+		ret = clk_set_parent(c, p);
 		/*
 		 * Not all drivers may support clock-reparenting (as of now).
 		 * Ignore errors due to this.
@@ -254,7 +280,7 @@ static int clk_set_default_parents(struct udevice *dev, int stage)
 
 static int clk_set_default_rates(struct udevice *dev, int stage)
 {
-	struct clk clk;
+	struct clk clk, *c;
 	int index;
 	int num_rates;
 	int size;
@@ -298,7 +324,11 @@ static int clk_set_default_rates(struct udevice *dev, int stage)
 			/* do not setup twice the parent clocks */
 			continue;
 
-		ret = clk_set_rate(&clk, rates[index]);
+		c = clk_set_default_get_by_id(&clk);
+		if (IS_ERR(c))
+			return PTR_ERR(c);
+
+		ret = clk_set_rate(c, rates[index]);
 
 		if (ret < 0) {
 			debug("%s: failed to set rate on clock index %d (%ld) for %s\n",
@@ -512,6 +542,7 @@ ulong clk_set_rate(struct clk *clk, ulong rate)
 int clk_set_parent(struct clk *clk, struct clk *parent)
 {
 	const struct clk_ops *ops;
+	int ret;
 
 	debug("%s(clk=%p, parent=%p)\n", __func__, clk, parent);
 	if (!clk_valid(clk))
@@ -521,7 +552,14 @@ int clk_set_parent(struct clk *clk, struct clk *parent)
 	if (!ops->set_parent)
 		return -ENOSYS;
 
-	return ops->set_parent(clk, parent);
+	ret = ops->set_parent(clk, parent);
+	if (ret)
+		return ret;
+
+	if (CONFIG_IS_ENABLED(CLK_CCF))
+		ret = device_reparent(clk->dev, parent->dev);
+
+	return ret;
 }
 
 int clk_enable(struct clk *clk)
@@ -597,6 +635,9 @@ int clk_disable(struct clk *clk)
 
 	if (CONFIG_IS_ENABLED(CLK_CCF)) {
 		if (clk->id && !clk_get_by_id(clk->id, &clkp)) {
+			if (clkp->flags & CLK_IS_CRITICAL)
+				return 0;
+
 			if (clkp->enable_count == 0) {
 				printf("clk %s already disabled\n",
 				       clkp->dev->name);

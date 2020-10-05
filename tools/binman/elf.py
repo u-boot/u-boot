@@ -234,8 +234,10 @@ SECTIONS
     #   text section at the start
     # -m32: Build for 32-bit x86
     # -T...: Specifies the link script, which sets the start address
-    stdout = command.Output('cc', '-static', '-nostdlib', '-Wl,--build-id=none',
-                            '-m32','-T', lds_file, '-o', elf_fname, s_file)
+    cc, args = tools.GetTargetCompileTool('cc')
+    args += ['-static', '-nostdlib', '-Wl,--build-id=none', '-m32', '-T',
+            lds_file, '-o', elf_fname, s_file]
+    stdout = command.Output(cc, *args)
     shutil.rmtree(outdir)
 
 def DecodeElf(data, location):

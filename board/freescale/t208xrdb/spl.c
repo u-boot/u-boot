@@ -72,8 +72,6 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 	bd = (struct bd_info *)(gd + sizeof(gd_t));
 	memset(bd, 0, sizeof(struct bd_info));
 	gd->bd = bd;
-	bd->bi_memstart = CONFIG_SYS_INIT_L3_ADDR;
-	bd->bi_memsize = CONFIG_SYS_L3_SIZE;
 
 	arch_cpu_init();
 	get_clocks();

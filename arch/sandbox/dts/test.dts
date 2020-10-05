@@ -121,6 +121,9 @@
 			<&gpio_c 5 GPIO_IN>,
 			<&gpio_c 6 (GPIO_ACTIVE_LOW|GPIO_OUT|GPIO_OPEN_DRAIN)>,
 			<&gpio_c 7 (GPIO_ACTIVE_LOW|GPIO_OUT|GPIO_OPEN_SOURCE)>;
+		test4-gpios = <&gpio_a 14>, <&gpio_b 4 1 3 2 1>;
+		test5-gpios = <&gpio_a 19>;
+
 		int-value = <1234>;
 		uint-value = <(-1234)>;
 		int64-value = /bits/ 64 <0x1111222233334444>;
@@ -270,6 +273,13 @@
 		compatible = "denx,u-boot-devres-test";
 	};
 
+	another-test {
+		reg = <0 2>;
+		compatible = "denx,u-boot-fdt-test";
+		test4-gpios = <&gpio_a 14>, <&gpio_b 4 1 3 2 1>;
+		test5-gpios = <&gpio_a 19>;
+	};
+
 	acpi_test1: acpi-test {
 		compatible = "denx,u-boot-acpi-test";
 		acpi-ssdt-test-data = "ab";
@@ -355,6 +365,37 @@
 	firmware {
 		sandbox_firmware: sandbox-firmware {
 			compatible = "sandbox,firmware";
+		};
+
+		sandbox-scmi-agent@0 {
+			compatible = "sandbox,scmi-agent";
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			clk_scmi0: protocol@14 {
+				reg = <0x14>;
+				#clock-cells = <1>;
+			};
+
+			reset_scmi0: protocol@16 {
+				reg = <0x16>;
+				#reset-cells = <1>;
+			};
+		};
+
+		sandbox-scmi-agent@1 {
+			compatible = "sandbox,scmi-agent";
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			clk_scmi1: protocol@14 {
+				reg = <0x14>;
+				#clock-cells = <1>;
+			};
+
+			protocol@10 {
+				reg = <0x10>;
+			};
 		};
 	};
 
@@ -533,7 +574,9 @@
 	};
 
 	cpus {
+		timebase-frequency = <2000000>;
 		cpu-test1 {
+			timebase-frequency = <3000000>;
 			compatible = "sandbox,cpu_sandbox";
 			u-boot,dm-pre-reloc;
 		};
@@ -839,9 +882,14 @@
 			0x58 8>;
 	};
 
-	timer {
+	timer@0 {
 		compatible = "sandbox,timer";
 		clock-frequency = <1000000>;
+	};
+
+	timer@1 {
+		compatible = "sandbox,timer";
+		sandbox,timebase-frequency-fallback;
 	};
 
 	tpm2 {
@@ -1036,6 +1084,12 @@
 		compatible = "sandbox,virtio2";
 	};
 
+	sandbox_scmi {
+		compatible = "sandbox,scmi-devices";
+		clocks = <&clk_scmi0 7>, <&clk_scmi0 3>, <&clk_scmi1 1>;
+		resets = <&reset_scmi0 3>;
+	};
+
 	pinctrl {
 		compatible = "sandbox,pinctrl";
 
@@ -1121,6 +1175,19 @@
 		compatible = "sandbox,misc_sandbox";
 		resets = <&resetc2 15>, <&resetc2 30>, <&resetc2 60>;
 		reset-names = "valid", "no_mask", "out_of_range";
+	};
+
+	some_regmapped-bus {
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+
+		ranges = <0x0 0x0 0x10>;
+		compatible = "simple-bus";
+
+		regmap-test_0 {
+			reg = <0 0x10>;
+			compatible = "sandbox,regmap_test";
+		};
 	};
 };
 

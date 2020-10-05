@@ -298,8 +298,8 @@ void boot_prep_vxworks(bootm_headers_t *images)
 	if (!images->ft_addr)
 		return;
 
-	base = (u64)gd->bd->bi_memstart;
-	size = (u64)gd->bd->bi_memsize;
+	base = (u64)gd->ram_base;
+	size = (u64)gd->ram_size;
 
 	off = fdt_path_offset(images->ft_addr, "/memory");
 	if (off < 0)

@@ -592,7 +592,7 @@ static int dwc3_core_init_mode(struct dwc3 *dwc)
 		dwc3_set_mode(dwc, DWC3_GCTL_PRTCAP_DEVICE);
 		ret = dwc3_gadget_init(dwc);
 		if (ret) {
-			dev_err(dev, "failed to initialize gadget\n");
+			dev_err(dwc->dev, "failed to initialize gadget\n");
 			return ret;
 		}
 		break;
@@ -600,7 +600,7 @@ static int dwc3_core_init_mode(struct dwc3 *dwc)
 		dwc3_set_mode(dwc, DWC3_GCTL_PRTCAP_HOST);
 		ret = dwc3_host_init(dwc);
 		if (ret) {
-			dev_err(dev, "failed to initialize host\n");
+			dev_err(dwc->dev, "failed to initialize host\n");
 			return ret;
 		}
 		break;
@@ -608,18 +608,19 @@ static int dwc3_core_init_mode(struct dwc3 *dwc)
 		dwc3_set_mode(dwc, DWC3_GCTL_PRTCAP_OTG);
 		ret = dwc3_host_init(dwc);
 		if (ret) {
-			dev_err(dev, "failed to initialize host\n");
+			dev_err(dwc->dev, "failed to initialize host\n");
 			return ret;
 		}
 
 		ret = dwc3_gadget_init(dwc);
 		if (ret) {
-			dev_err(dev, "failed to initialize gadget\n");
+			dev_err(dwc->dev, "failed to initialize gadget\n");
 			return ret;
 		}
 		break;
 	default:
-		dev_err(dev, "Unsupported mode of operation %d\n", dwc->dr_mode);
+		dev_err(dwc->dev,
+			"Unsupported mode of operation %d\n", dwc->dr_mode);
 		return -EINVAL;
 	}
 
@@ -768,7 +769,7 @@ int dwc3_uboot_init(struct dwc3_device *dwc3_dev)
 
 	ret = dwc3_core_init(dwc);
 	if (ret) {
-		dev_err(dev, "failed to initialize core\n");
+		dev_err(dwc->dev, "failed to initialize core\n");
 		goto err0;
 	}
 
@@ -974,7 +975,7 @@ int dwc3_init(struct dwc3 *dwc)
 
 	ret = dwc3_core_init(dwc);
 	if (ret) {
-		dev_err(dev, "failed to initialize core\n");
+		dev_err(dwc->dev, "failed to initialize core\n");
 		goto core_fail;
 	}
 

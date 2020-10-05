@@ -155,10 +155,6 @@ config 64BIT
 config SIFIVE_CLINT
 	bool
 	depends on RISCV_MMODE || SPL_RISCV_MMODE
-	select REGMAP
-	select SYSCON
-	select SPL_REGMAP if SPL
-	select SPL_SYSCON if SPL
 	help
 	  The SiFive CLINT block holds memory-mapped control and status registers
 	  associated with software and timer interrupts.
@@ -177,21 +173,9 @@ config ANDES_PLIC
 config ANDES_PLMT
 	bool
 	depends on RISCV_MMODE || SPL_RISCV_MMODE
-	select REGMAP
-	select SYSCON
-	select SPL_REGMAP if SPL
-	select SPL_SYSCON if SPL
 	help
 	  The Andes PLMT block holds memory-mapped mtime register
 	  associated with timer tick.
-
-config RISCV_RDTIME
-	bool
-	default y if RISCV_SMODE || SPL_RISCV_SMODE
-	help
-	  The provides the riscv_get_time() API that is implemented using the
-	  standard rdtime instruction. This is the case for S-mode U-Boot, and
-	  is useful for processors that support rdtime in M-mode too.
 
 config SYS_MALLOC_F_LEN
 	default 0x1000

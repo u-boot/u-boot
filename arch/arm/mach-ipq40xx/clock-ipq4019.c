@@ -13,6 +13,8 @@
 #include <dm.h>
 #include <errno.h>
 
+#include <dt-bindings/clock/qcom,ipq4019-gcc.h>
+
 struct msm_clk_priv {
 	phys_addr_t base;
 };
@@ -20,7 +22,7 @@ struct msm_clk_priv {
 ulong msm_set_rate(struct clk *clk, ulong rate)
 {
 	switch (clk->id) {
-	case 26: /*UART1*/
+	case GCC_BLSP1_UART1_APPS_CLK: /*UART1*/
 		/* This clock is already initialized by SBL1 */
 		return 0; 
 		break;

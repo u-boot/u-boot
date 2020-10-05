@@ -54,6 +54,14 @@ static int send_ipi_many(struct ipi_data *ipi, int wait)
 		gd->arch.ipi[reg].arg0 = ipi->arg0;
 		gd->arch.ipi[reg].arg1 = ipi->arg1;
 
+		/*
+		 * Ensure valid only becomes set when the IPI parameters are
+		 * set. An IPI may already be pending on other harts, so we
+		 * need a way to signal that the IPI device has been
+		 * initialized, and that it is ok to call the function.
+		 */
+		__smp_store_release(&gd->arch.ipi[reg].valid, 1);
+
 		ret = riscv_send_ipi(reg);
 		if (ret) {
 			pr_err("Cannot send IPI to hart %d\n", reg);
@@ -81,7 +89,13 @@ void handle_ipi(ulong hart)
 	if (hart >= CONFIG_NR_CPUS)
 		return;
 
-	__smp_mb();
+	/*
+	 * If valid is not set, then U-Boot has not requested the IPI. The
+	 * IPI device may not be initialized, so all we can do is wait for
+	 * U-Boot to initialize it and send an IPI
+	 */
+	if (!__smp_load_acquire(&gd->arch.ipi[hart].valid))
+		return;
 
 	smp_function = (void (*)(ulong, ulong, ulong))gd->arch.ipi[hart].addr;
 	invalidate_icache_all();

@@ -12,6 +12,7 @@
 #include <asm/armv8/mmu.h>
 #include <asm/arch-bcmns3/bl33_info.h>
 #include <dt-bindings/memory/bcm-ns3-mc.h>
+#include <broadcom/chimp.h>
 
 /* Default reset-level = 3 and strap-val = 0 */
 #define L3_RESET	30
@@ -210,7 +211,23 @@ void reset_cpu(ulong level)
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *fdt, struct bd_info *bd)
 {
+	u32 chimp_hs = CHIMP_HANDSHAKE_WAIT_TIMEOUT;
+
 	gic_lpi_tables_init();
+
+	/*
+	 * Check for chimp handshake status.
+	 * Zero timeout value will actually fall to default timeout.
+	 *
+	 * System boot is independent of chimp handshake.
+	 * chimp handshake failure is not a catastrophic error.
+	 * Hence continue booting if chimp handshake fails.
+	 */
+	chimp_handshake_status_optee(0, &chimp_hs);
+	if (chimp_hs == CHIMP_HANDSHAKE_SUCCESS)
+		printf("ChiMP handshake successful\n");
+	else
+		printf("ERROR: ChiMP handshake status 0x%x\n", chimp_hs);
 
 	return mem_info_parse_fixup(fdt);
 }

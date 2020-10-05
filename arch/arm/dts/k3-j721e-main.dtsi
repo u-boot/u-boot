@@ -302,7 +302,7 @@
 
 	main_r5fss1: r5fss@5e00000 {
 		compatible = "ti,j721e-r5fss";
-		lockstep-mode = <1>;
+		lockstep-mode = <0>;
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges = <0x5e00000 0x00 0x5e00000 0x20000>,

@@ -984,13 +984,13 @@ static int spinand_detect(struct spinand_device *spinand)
 
 	ret = spinand_manufacturer_detect(spinand);
 	if (ret) {
-		dev_err(dev, "unknown raw ID %*phN\n", SPINAND_MAX_ID_LEN,
-			spinand->id.data);
+		dev_err(spinand->slave->dev, "unknown raw ID %*phN\n",
+			SPINAND_MAX_ID_LEN, spinand->id.data);
 		return ret;
 	}
 
 	if (nand->memorg.ntargets > 1 && !spinand->select_target) {
-		dev_err(dev,
+		dev_err(spinand->slave->dev,
 			"SPI NANDs with more than one die must implement ->select_target()\n");
 		return -EINVAL;
 	}
@@ -1076,7 +1076,7 @@ static int spinand_init(struct spinand_device *spinand)
 
 	ret = spinand_manufacturer_init(spinand);
 	if (ret) {
-		dev_err(dev,
+		dev_err(spinand->slave->dev,
 			"Failed to initialize the SPI NAND chip (err = %d)\n",
 			ret);
 		goto err_free_bufs;

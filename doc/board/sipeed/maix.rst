@@ -59,7 +59,7 @@ Sipeed MAIX BiT          sipeed_maix_bitm_defconfig bit        first
 Sipeed MAIX BiT with Mic sipeed_maix_bitm_defconfig bit_mic    first
 Sipeed MAIXDUINO         sipeed_maix_bitm_defconfig maixduino  first
 Sipeed MAIX GO                                      goE        second
-Sipeed MAIX ONE DOCK                                goD        first
+Sipeed MAIX ONE DOCK                                dan        first
 ======================== ========================== ========== ==========
 
 Flashing causes a reboot of the device. Parameter -t specifies that the serial
@@ -285,11 +285,15 @@ Technical Details
 Boot Sequence
 ^^^^^^^^^^^^^
 
-1. ``RESET`` pin is deasserted.
+1. ``RESET`` pin is deasserted. The pin is connected to the ``RESET`` button. It
+   can also be set to low via either the ``DTR`` or the ``RTS`` line of the
+   serial interface (depending on the board).
 2. Both harts begin executing at ``0x00001000``.
 3. Both harts jump to firmware at ``0x88000000``.
 4. One hart is chosen as a boot hart.
-5. Firmware reads value of pin ``IO_16`` (ISP).
+5. Firmware reads the value of pin ``IO_16`` (ISP). This pin is connected to the
+   ``BOOT`` button. The pin can equally be set to low via either the ``DTR`` or
+   ``RTS`` line of the serial interface (depending on the board).
 
    * If the pin is low, enter ISP mode. This mode allows loading data to ram,
      writing it to flash, and booting from specific addresses.

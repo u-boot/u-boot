@@ -120,7 +120,7 @@ UCLASS_DRIVER(testbus) = {
 /* Test that we can probe for children */
 static int dm_test_bus_children(struct unit_test_state *uts)
 {
-	int num_devices = 8;
+	int num_devices = 9;
 	struct udevice *bus;
 	struct uclass *uc;
 

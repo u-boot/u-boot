@@ -9,6 +9,7 @@
 #include <cpu_func.h>
 #include <debug_uart.h>
 #include <env.h>
+#include <env_internal.h>
 #include <init.h>
 #include <log.h>
 #include <net.h>
@@ -38,181 +39,156 @@
 
 #include "pm_cfg_obj.h"
 
+#define ZYNQMP_VERSION_SIZE	7
+#define EFUSE_VCU_DIS_MASK     0x100
+#define EFUSE_VCU_DIS_SHIFT    8
+#define EFUSE_GPU_DIS_MASK     0x20
+#define EFUSE_GPU_DIS_SHIFT    5
+#define IDCODE2_PL_INIT_MASK   0x200
+#define IDCODE2_PL_INIT_SHIFT  9
+
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
-    !defined(CONFIG_SPL_BUILD)
+#if CONFIG_IS_ENABLED(FPGA) && defined(CONFIG_FPGA_ZYNQMPPL)
 static xilinx_desc zynqmppl = XILINX_ZYNQMP_DESC;
+
+enum {
+	ZYNQMP_VARIANT_EG = BIT(0U),
+	ZYNQMP_VARIANT_EV = BIT(1U),
+	ZYNQMP_VARIANT_CG = BIT(2U),
+	ZYNQMP_VARIANT_DR = BIT(3U),
+};
 
 static const struct {
 	u32 id;
-	u32 ver;
-	char *name;
-	bool evexists;
+	u8 device;
+	u8 variants;
 } zynqmp_devices[] = {
 	{
-		.id = 0x10,
-		.name = "3eg",
+		.id = 0x04711093,
+		.device = 2,
+		.variants = ZYNQMP_VARIANT_EG | ZYNQMP_VARIANT_CG,
 	},
 	{
-		.id = 0x10,
-		.ver = 0x2c,
-		.name = "3cg",
+		.id = 0x04710093,
+		.device = 3,
+		.variants = ZYNQMP_VARIANT_EG | ZYNQMP_VARIANT_CG,
 	},
 	{
-		.id = 0x11,
-		.name = "2eg",
+		.id = 0x04721093,
+		.device = 4,
+		.variants = ZYNQMP_VARIANT_EG | ZYNQMP_VARIANT_CG |
+			ZYNQMP_VARIANT_EV,
 	},
 	{
-		.id = 0x11,
-		.ver = 0x2c,
-		.name = "2cg",
+		.id = 0x04720093,
+		.device = 5,
+		.variants = ZYNQMP_VARIANT_EG | ZYNQMP_VARIANT_CG |
+			ZYNQMP_VARIANT_EV,
 	},
 	{
-		.id = 0x20,
-		.name = "5ev",
-		.evexists = 1,
+		.id = 0x04739093,
+		.device = 6,
+		.variants = ZYNQMP_VARIANT_EG | ZYNQMP_VARIANT_CG,
 	},
 	{
-		.id = 0x20,
-		.ver = 0x100,
-		.name = "5eg",
-		.evexists = 1,
+		.id = 0x04730093,
+		.device = 7,
+		.variants = ZYNQMP_VARIANT_EG | ZYNQMP_VARIANT_CG |
+			ZYNQMP_VARIANT_EV,
 	},
 	{
-		.id = 0x20,
-		.ver = 0x12c,
-		.name = "5cg",
-		.evexists = 1,
+		.id = 0x04738093,
+		.device = 9,
+		.variants = ZYNQMP_VARIANT_EG,
 	},
 	{
-		.id = 0x21,
-		.name = "4ev",
-		.evexists = 1,
+		.id = 0x04740093,
+		.device = 11,
+		.variants = ZYNQMP_VARIANT_EG,
 	},
 	{
-		.id = 0x21,
-		.ver = 0x100,
-		.name = "4eg",
-		.evexists = 1,
+		.id = 0x04750093,
+		.device = 15,
+		.variants = ZYNQMP_VARIANT_EG,
 	},
 	{
-		.id = 0x21,
-		.ver = 0x12c,
-		.name = "4cg",
-		.evexists = 1,
+		.id = 0x04759093,
+		.device = 17,
+		.variants = ZYNQMP_VARIANT_EG,
 	},
 	{
-		.id = 0x30,
-		.name = "7ev",
-		.evexists = 1,
+		.id = 0x04758093,
+		.device = 19,
+		.variants = ZYNQMP_VARIANT_EG,
 	},
 	{
-		.id = 0x30,
-		.ver = 0x100,
-		.name = "7eg",
-		.evexists = 1,
+		.id = 0x047E1093,
+		.device = 21,
+		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
-		.id = 0x30,
-		.ver = 0x12c,
-		.name = "7cg",
-		.evexists = 1,
+		.id = 0x047E3093,
+		.device = 23,
+		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
-		.id = 0x38,
-		.name = "9eg",
+		.id = 0x047E5093,
+		.device = 25,
+		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
-		.id = 0x38,
-		.ver = 0x2c,
-		.name = "9cg",
+		.id = 0x047E4093,
+		.device = 27,
+		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
-		.id = 0x39,
-		.name = "6eg",
+		.id = 0x047E0093,
+		.device = 28,
+		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
-		.id = 0x39,
-		.ver = 0x2c,
-		.name = "6cg",
+		.id = 0x047E2093,
+		.device = 29,
+		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
-		.id = 0x40,
-		.name = "11eg",
-	},
-	{ /* For testing purpose only */
-		.id = 0x50,
-		.ver = 0x2c,
-		.name = "15cg",
+		.id = 0x047E6093,
+		.device = 39,
+		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
-		.id = 0x50,
-		.name = "15eg",
+		.id = 0x047FD093,
+		.device = 43,
+		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
-		.id = 0x58,
-		.name = "19eg",
+		.id = 0x047F8093,
+		.device = 46,
+		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
-		.id = 0x59,
-		.name = "17eg",
+		.id = 0x047FF093,
+		.device = 47,
+		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
-		.id = 0x61,
-		.name = "21dr",
+		.id = 0x047FB093,
+		.device = 48,
+		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
-		.id = 0x63,
-		.name = "23dr",
-	},
-	{
-		.id = 0x65,
-		.name = "25dr",
-	},
-	{
-		.id = 0x64,
-		.name = "27dr",
-	},
-	{
-		.id = 0x60,
-		.name = "28dr",
-	},
-	{
-		.id = 0x62,
-		.name = "29dr",
-	},
-	{
-		.id = 0x66,
-		.name = "39dr",
-	},
-	{
-		.id = 0x7b,
-		.name = "48dr",
-	},
-	{
-		.id = 0x7e,
-		.name = "49dr",
+		.id = 0x047FE093,
+		.device = 49,
+		.variants = ZYNQMP_VARIANT_DR,
 	},
 };
-#endif
 
-#define ZYNQMP_VERSION_SIZE		9
-#define ZYNQMP_PL_STATUS_BIT		9
-#define ZYNQMP_IPDIS_VCU_BIT		8
-#define ZYNQMP_PL_STATUS_MASK		BIT(ZYNQMP_PL_STATUS_BIT)
-#define ZYNQMP_CSU_VERSION_MASK		~(ZYNQMP_PL_STATUS_MASK)
-#define ZYNQMP_CSU_VCUDIS_VER_MASK	ZYNQMP_CSU_VERSION_MASK & \
-					~BIT(ZYNQMP_IPDIS_VCU_BIT)
-#define MAX_VARIANTS_EV			3
-
-#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
-	!defined(CONFIG_SPL_BUILD)
 static char *zynqmp_get_silicon_idcode_name(void)
 {
-	u32 i, id, ver, j;
-	char *buf;
-	static char name[ZYNQMP_VERSION_SIZE];
+	u32 i;
+	u32 idcode, idcode2;
+	char name[ZYNQMP_VERSION_SIZE];
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 
 	xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0, ret_payload);
@@ -226,61 +202,71 @@ static char *zynqmp_get_silicon_idcode_name(void)
 	 * payload[2][29] = PL_INIT
 	 */
 
-	/* Get IDCODE field */
-	id = ret_payload[1];
-	id &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK | ZYNQMP_CSU_IDCODE_SVD_MASK;
-	id >>=	ZYNQMP_CSU_IDCODE_SVD_SHIFT;
-
-	/* Shift silicon version info */
-	ver = ret_payload[2] >> ZYNQMP_CSU_VERSION_EMPTY_SHIFT;
-
-	debug("%s, ID: 0x%0X, Ver: 0x%0X\r\n", __func__, id, ver);
+	idcode  = ret_payload[1];
+	idcode2 = ret_payload[2] >> ZYNQMP_CSU_VERSION_EMPTY_SHIFT;
+	debug("%s, IDCODE: 0x%0X, IDCODE2: 0x%0X\r\n", __func__, idcode,
+	      idcode2);
 
 	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
-		if (zynqmp_devices[i].id == id) {
-			if (zynqmp_devices[i].evexists &&
-			    !(ver & ZYNQMP_PL_STATUS_MASK))
-				break;
-			if (zynqmp_devices[i].ver == (ver &
-			    ZYNQMP_CSU_VERSION_MASK))
-				break;
-		}
+		if (zynqmp_devices[i].id == (idcode & 0x0FFFFFFF))
+			break;
 	}
 
 	if (i >= ARRAY_SIZE(zynqmp_devices))
 		return "unknown";
 
-	strncat(name, "zu", 2);
-	if (!zynqmp_devices[i].evexists ||
-	    (ver & ZYNQMP_PL_STATUS_MASK)) {
-		strncat(name, zynqmp_devices[i].name,
-			ZYNQMP_VERSION_SIZE - 3);
-		return name;
-	}
+	/* Add device prefix to the name */
+	strncpy(name, "zu", ZYNQMP_VERSION_SIZE);
+	strncat(&name[2], simple_itoa(zynqmp_devices[i].device), 2);
 
-	/*
-	 * Here we are means, PL not powered up and ev variant
-	 * exists. So, we need to ignore VCU disable bit(8) in
-	 * version and findout if its CG or EG/EV variant.
-	 */
-	for (j = 0; j < MAX_VARIANTS_EV; j++, i++) {
-		if ((zynqmp_devices[i].ver & ~BIT(ZYNQMP_IPDIS_VCU_BIT)) ==
-		    (ver & ZYNQMP_CSU_VCUDIS_VER_MASK)) {
-			strncat(name, zynqmp_devices[i].name,
-				ZYNQMP_VERSION_SIZE - 3);
-			break;
+	if (zynqmp_devices[i].variants & ZYNQMP_VARIANT_EV) {
+		/* Devices with EV variant might be EG/CG/EV family */
+		if (idcode2 & IDCODE2_PL_INIT_MASK) {
+			u32 family = ((idcode2 & EFUSE_VCU_DIS_MASK) >>
+				      EFUSE_VCU_DIS_SHIFT) << 1 |
+				     ((idcode2 & EFUSE_GPU_DIS_MASK) >>
+				      EFUSE_GPU_DIS_SHIFT);
+
+			/*
+			 * Get family name based on extended idcode values as
+			 * determined on UG1087, EXTENDED_IDCODE register
+			 * description
+			 */
+			switch (family) {
+			case 0x00:
+				strncat(name, "ev", 2);
+				break;
+			case 0x10:
+				strncat(name, "eg", 2);
+				break;
+			case 0x11:
+				strncat(name, "cg", 2);
+				break;
+			default:
+				/* Do not append family name*/
+				break;
+			}
+		} else {
+			/*
+			 * When PL powered down the VCU Disable efuse cannot be
+			 * read. So, ignore the bit and just findout if it is CG
+			 * or EG/EV variant.
+			 */
+			strncat(name, (idcode2 & EFUSE_GPU_DIS_MASK) ? "cg" :
+				"e", 2);
 		}
+	} else if (zynqmp_devices[i].variants & ZYNQMP_VARIANT_CG) {
+		/* Devices with CG variant might be EG or CG family */
+		strncat(name, (idcode2 & EFUSE_GPU_DIS_MASK) ? "cg" : "eg", 2);
+	} else if (zynqmp_devices[i].variants & ZYNQMP_VARIANT_EG) {
+		strncat(name, "eg", 2);
+	} else if (zynqmp_devices[i].variants & ZYNQMP_VARIANT_DR) {
+		strncat(name, "dr", 2);
+	} else {
+		debug("Variant not identified\n");
 	}
 
-	if (j >= MAX_VARIANTS_EV)
-		return "unknown";
-
-	if (strstr(name, "eg") || strstr(name, "ev")) {
-		buf = strstr(name, "e");
-		*buf = '\0';
-	}
-
-	return name;
+	return strdup(name);
 }
 #endif
 
@@ -342,9 +328,7 @@ int board_init(void)
 	/* Bug in ROM sets wrong value in this register */
 	writel(PS_SYSMON_ANALOG_BUS_VAL, PS_SYSMON_ANALOG_BUS_REG);
 
-#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
-    !defined(CONFIG_SPL_BUILD) || (defined(CONFIG_SPL_FPGA_SUPPORT) && \
-    defined(CONFIG_SPL_BUILD))
+#if CONFIG_IS_ENABLED(FPGA) && defined(CONFIG_FPGA_ZYNQMPPL)
 	zynqmppl.name = zynqmp_get_silicon_idcode_name();
 	printf("Chip ID:\t%s\n", zynqmppl.name);
 	fpga_init();
@@ -423,10 +407,8 @@ int dram_init(void)
 #else
 int dram_init_banksize(void)
 {
-#if defined(CONFIG_NR_DRAM_BANKS)
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = get_effective_memsize();
-#endif
 
 	mem_map_fill();
 
@@ -444,6 +426,24 @@ int dram_init(void)
 
 void reset_cpu(ulong addr)
 {
+}
+
+static u8 __maybe_unused zynqmp_get_bootmode(void)
+{
+	u8 bootmode;
+	u32 reg = 0;
+	int ret;
+
+	ret = zynqmp_mmio_read((ulong)&crlapb_base->boot_mode, &reg);
+	if (ret)
+		return -EINVAL;
+
+	if (reg >> BOOT_MODE_ALT_SHIFT)
+		reg >>= BOOT_MODE_ALT_SHIFT;
+
+	bootmode = reg & BOOT_MODES_MASK;
+
+	return bootmode;
 }
 
 #if defined(CONFIG_BOARD_LATE_INIT)
@@ -527,24 +527,6 @@ static int set_fdtfile(void)
 	}
 
 	return 0;
-}
-
-static u8 zynqmp_get_bootmode(void)
-{
-	u8 bootmode;
-	u32 reg = 0;
-	int ret;
-
-	ret = zynqmp_mmio_read((ulong)&crlapb_base->boot_mode, &reg);
-	if (ret)
-		return -EINVAL;
-
-	if (reg >> BOOT_MODE_ALT_SHIFT)
-		reg >>= BOOT_MODE_ALT_SHIFT;
-
-	bootmode = reg & BOOT_MODES_MASK;
-
-	return bootmode;
 }
 
 int board_late_init(void)
@@ -690,4 +672,38 @@ int checkboard(void)
 {
 	puts("Board: Xilinx ZynqMP\n");
 	return 0;
+}
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	u32 bootmode = zynqmp_get_bootmode();
+
+	if (prio)
+		return ENVL_UNKNOWN;
+
+	switch (bootmode) {
+	case EMMC_MODE:
+	case SD_MODE:
+	case SD1_LSHFT_MODE:
+	case SD_MODE1:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_FAT))
+			return ENVL_FAT;
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_EXT4))
+			return ENVL_EXT4;
+		return ENVL_UNKNOWN;
+	case NAND_MODE:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_NAND))
+			return ENVL_NAND;
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_UBI))
+			return ENVL_UBI;
+		return ENVL_UNKNOWN;
+	case QSPI_MODE_24BIT:
+	case QSPI_MODE_32BIT:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
+			return ENVL_SPI_FLASH;
+		return ENVL_UNKNOWN;
+	case JTAG_MODE:
+	default:
+		return ENVL_NOWHERE;
+	}
 }

@@ -2,11 +2,17 @@
 #
 # Copyright (c) 2016 Google, Inc
 
+obj-$(CONFIG_INTEL_ACPIGEN) += acpi.o
+
 ifdef CONFIG_HAVE_MRC
 obj-$(CONFIG_$(SPL_TPL_)X86_16BIT_INIT) += car.o
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += me_status.o
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += report_platform.o
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += mrc.o
+endif
+
+ifndef CONFIG_SPL_BUILD
+obj-$(CONFIG_INTEL_GMA_ACPI) += intel_opregion.o
 endif
 
 ifdef CONFIG_INTEL_CAR_CQOS
@@ -20,6 +26,7 @@ obj-y += cpu.o
 obj-y += fast_spi.o
 obj-y += lpc.o
 obj-y += lpss.o
+obj-$(CONFIG_INTEL_GENERIC_WIFI) += generic_wifi.o
 ifndef CONFIG_TARGET_EFI_APP
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += microcode.o
 ifndef CONFIG_$(SPL_)X86_64

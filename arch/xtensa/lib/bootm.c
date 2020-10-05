@@ -41,15 +41,14 @@ static struct bp_tag *setup_last_tag(struct bp_tag *params)
 
 static struct bp_tag *setup_memory_tag(struct bp_tag *params)
 {
-	struct bd_info *bd = gd->bd;
 	struct meminfo *mem;
 
 	params->id = BP_TAG_MEMORY;
 	params->size = sizeof(struct meminfo);
 	mem = (struct meminfo *)params->data;
 	mem->type = MEMORY_TYPE_CONVENTIONAL;
-	mem->start = bd->bi_memstart;
-	mem->end = bd->bi_memstart + bd->bi_memsize;
+	mem->start = PHYSADDR(gd->ram_base);
+	mem->end = PHYSADDR(gd->ram_base + gd->ram_size);
 
 	printf("   MEMORY:          tag:0x%04x, type:0X%lx, start:0X%lx, end:0X%lx\n",
 	       BP_TAG_MEMORY, mem->type, mem->start, mem->end);

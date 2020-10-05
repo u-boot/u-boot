@@ -6,6 +6,8 @@
 #include <common.h>
 #include <dm.h>
 #include <log.h>
+#include <dm/devres.h>
+#include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>
@@ -1207,6 +1209,75 @@ int gpio_dev_request_index(struct udevice *dev, const char *nodename,
 
 	return gpio_request_tail(0, nodename, &args, list_name, index, desc,
 				 flags, 0, dev);
+}
+
+static void devm_gpiod_release(struct udevice *dev, void *res)
+{
+	dm_gpio_free(dev, res);
+}
+
+static int devm_gpiod_match(struct udevice *dev, void *res, void *data)
+{
+	return res == data;
+}
+
+struct gpio_desc *devm_gpiod_get_index(struct udevice *dev, const char *id,
+				       unsigned int index, int flags)
+{
+	int rc;
+	struct gpio_desc *desc;
+	char *propname;
+	static const char suffix[] = "-gpios";
+
+	propname = malloc(strlen(id) + sizeof(suffix));
+	if (!propname) {
+		rc = -ENOMEM;
+		goto end;
+	}
+
+	strcpy(propname, id);
+	strcat(propname, suffix);
+
+	desc = devres_alloc(devm_gpiod_release, sizeof(struct gpio_desc),
+			    __GFP_ZERO);
+	if (unlikely(!desc)) {
+		rc = -ENOMEM;
+		goto end;
+	}
+
+	rc = gpio_request_by_name(dev, propname, index, desc, flags);
+
+end:
+	if (propname)
+		free(propname);
+
+	if (rc)
+		return ERR_PTR(rc);
+
+	devres_add(dev, desc);
+
+	return desc;
+}
+
+struct gpio_desc *devm_gpiod_get_index_optional(struct udevice *dev,
+						const char *id,
+						unsigned int index,
+						int flags)
+{
+	struct gpio_desc *desc = devm_gpiod_get_index(dev, id, index, flags);
+
+	if (IS_ERR(desc))
+		return NULL;
+
+	return desc;
+}
+
+void devm_gpiod_put(struct udevice *dev, struct gpio_desc *desc)
+{
+	int rc;
+
+	rc = devres_release(dev, devm_gpiod_release, devm_gpiod_match, desc);
+	WARN_ON(rc);
 }
 
 static int gpio_post_bind(struct udevice *dev)

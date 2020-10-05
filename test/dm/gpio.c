@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include <acpi/acpi_device.h>
 #include <asm/gpio.h>
+#include <dm/device-internal.h>
 #include <dm/root.h>
 #include <dm/test.h>
 #include <dm/util.h>
@@ -480,3 +481,104 @@ static int dm_test_gpio_get_acpi_irq(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_gpio_get_acpi_irq, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Test that we can get/release GPIOs using managed API */
+static int dm_test_gpio_devm(struct unit_test_state *uts)
+{
+	static const u32 flags = GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE;
+	struct gpio_desc *desc1, *desc2, *desc3, *desc_err;
+	struct udevice *dev;
+	struct udevice *dev2;
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_TEST_FDT, "a-test",
+					      &dev));
+	ut_assertok(uclass_get_device_by_name(UCLASS_TEST_FDT, "another-test",
+					      &dev2));
+
+	/* Get 3 GPIOs from 'a-test' dev */
+	desc1 = devm_gpiod_get_index(dev, "test4", 0, flags);
+	ut_assert(!IS_ERR(desc1));
+	desc2 = devm_gpiod_get_index(dev, "test4", 1, flags);
+	ut_assert(!IS_ERR(desc2));
+	desc3 = devm_gpiod_get_index_optional(dev, "test5", 0, flags);
+	ut_assert(!IS_ERR(desc3));
+	ut_assert(desc3);
+
+	/*
+	 * Try get the same 3 GPIOs from 'a-test' and 'another-test' devices.
+	 * check that it fails
+	 */
+	desc_err = devm_gpiod_get_index(dev, "test4", 0, flags);
+	ut_asserteq(-EBUSY, PTR_ERR(desc_err));
+	desc_err = devm_gpiod_get_index(dev2, "test4", 0, flags);
+	ut_asserteq(-EBUSY, PTR_ERR(desc_err));
+	desc_err = devm_gpiod_get_index(dev, "test4", 1, flags);
+	ut_asserteq(-EBUSY, PTR_ERR(desc_err));
+	desc_err = devm_gpiod_get_index(dev2, "test4", 1, flags);
+	ut_asserteq(-EBUSY, PTR_ERR(desc_err));
+	desc_err = devm_gpiod_get_index_optional(dev, "test5", 0, flags);
+	ut_asserteq_ptr(NULL, desc_err);
+	desc_err = devm_gpiod_get_index_optional(dev2, "test5", 0, flags);
+	ut_asserteq_ptr(NULL, desc_err);
+
+	/* Try get GPIOs outside of the list */
+	desc_err = devm_gpiod_get_index(dev, "test4", 2, flags);
+	ut_assert(IS_ERR(desc_err));
+	desc_err = devm_gpiod_get_index_optional(dev, "test5", 1, flags);
+	ut_asserteq_ptr(NULL, desc_err);
+
+	/* Manipulate the GPIOs */
+	ut_assertok(dm_gpio_set_value(desc1, 1));
+	ut_asserteq(1, dm_gpio_get_value(desc1));
+	ut_assertok(dm_gpio_set_value(desc1, 0));
+	ut_asserteq(0, dm_gpio_get_value(desc1));
+
+	ut_assertok(dm_gpio_set_value(desc2, 1));
+	ut_asserteq(1, dm_gpio_get_value(desc2));
+	ut_assertok(dm_gpio_set_value(desc2, 0));
+	ut_asserteq(0, dm_gpio_get_value(desc2));
+
+	ut_assertok(dm_gpio_set_value(desc3, 1));
+	ut_asserteq(1, dm_gpio_get_value(desc3));
+	ut_assertok(dm_gpio_set_value(desc3, 0));
+	ut_asserteq(0, dm_gpio_get_value(desc3));
+
+	/* Check that the GPIO cannot be owned by more than one device */
+	desc_err = devm_gpiod_get_index(dev2, "test4", 0, flags);
+	ut_asserteq(-EBUSY, PTR_ERR(desc_err));
+	desc_err = devm_gpiod_get_index(dev2, "test4", 1, flags);
+	ut_asserteq(-EBUSY, PTR_ERR(desc_err));
+	desc_err = devm_gpiod_get_index_optional(dev2, "test5", 0, flags);
+	ut_asserteq_ptr(NULL, desc_err);
+
+	/*
+	 * Release one GPIO and check that we can get it back using
+	 * 'another-test' and then 'a-test'
+	 */
+	devm_gpiod_put(dev, desc2);
+	desc2 = devm_gpiod_get_index(dev2, "test4", 1, flags);
+	ut_assert(!IS_ERR(desc2));
+
+	devm_gpiod_put(dev2, desc2);
+	desc2 = devm_gpiod_get_index(dev, "test4", 1, flags);
+	ut_assert(!IS_ERR(desc2));
+
+	/* Release one GPIO before removing the 'a-test' dev. */
+	devm_gpiod_put(dev, desc2);
+	device_remove(dev, DM_REMOVE_NORMAL);
+
+	/* All the GPIOs must have been freed. We should be able to claim
+	 * them with the 'another-test' device.
+	 */
+	desc1 = devm_gpiod_get_index(dev2, "test4", 0, flags);
+	ut_assert(!IS_ERR(desc1));
+	desc2 = devm_gpiod_get_index(dev2, "test4", 1, flags);
+	ut_assert(!IS_ERR(desc2));
+	desc3 = devm_gpiod_get_index_optional(dev2, "test5", 0, flags);
+	ut_assert(!IS_ERR(desc3));
+	ut_assert(desc3);
+
+	device_remove(dev2, DM_REMOVE_NORMAL);
+	return 0;
+}
+DM_TEST(dm_test_gpio_devm, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

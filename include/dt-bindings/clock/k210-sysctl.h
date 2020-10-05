@@ -55,5 +55,6 @@
 #define K210_CLK_OTP    43
 #define K210_CLK_RTC    44
 #define K210_CLK_ACLK   45
+#define K210_CLK_CLINT  46
 
 #endif /* CLOCK_K210_SYSCTL_H */

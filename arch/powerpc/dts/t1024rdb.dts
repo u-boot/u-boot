@@ -17,6 +17,7 @@
 
 	aliases {
 		sg_2500_aqr105_phy4 = &sg_2500_aqr105_phy4;
+		spi0 = &espi0;
 	};
 
 	soc: soc@ffe000000 {
@@ -63,7 +64,18 @@
 			};
 		};
 	};
+};
 
+&espi0 {
+	status = "okay";
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0>;
+		/* input clock */
+		spi-max-frequency = <10000000>;
+	};
 };
 
 #include "t1024si-post.dtsi"

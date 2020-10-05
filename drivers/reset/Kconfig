@@ -148,6 +148,14 @@ config RESET_IMX7
 	help
 	  Support for reset controller on i.MX7/8 SoCs.
 
+config RESET_IPQ419
+	bool "Reset driver for Qualcomm IPQ40xx SoCs"
+	depends on DM_RESET && ARCH_IPQ40XX
+	default y
+	help
+	  Support for reset controller on Qualcomm
+	  IPQ40xx SoCs.
+
 config RESET_SIFIVE
 	bool "Reset Driver for SiFive SoC's"
 	depends on DM_RESET && CLK_SIFIVE_FU540_PRCI && TARGET_SIFIVE_FU540
@@ -173,4 +181,12 @@ config RESET_RASPBERRYPI
 	  relevant. This driver provides a reset controller capable of
 	  interfacing with RPi4's co-processor and model these firmware
 	  initialization routines as reset lines.
+
+config RESET_SCMI
+	bool "Enable SCMI reset domain driver"
+	select SCMI_FIRMWARE
+	help
+	  Enable this option if you want to support reset controller
+	  devices exposed by a SCMI agent based on SCMI reset domain
+	  protocol communication with a SCMI server.
 endmenu

@@ -602,7 +602,7 @@ config SPL_FAT_WRITE
 	  Support for the underlying block device (e.g. MMC or USB) must be
 	  enabled separately.
 
-config SPL_FPGA_SUPPORT
+config SPL_FPGA
 	bool "Support FPGAs"
 	help
 	  Enable support for FPGAs in SPL. Field-programmable Gate Arrays
@@ -1271,7 +1271,7 @@ config SPL_YMODEM_SUPPORT
 
 config SPL_ATF
 	bool "Support ARM Trusted Firmware"
-	depends on ARM64
+	depends on ARM64 && SPL_FIT
 	help
 	  ATF(ARM Trusted Firmware) is a component for ARM AArch64 which
 	  is loaded by SPL (which is considered as BL2 in ATF terminology).

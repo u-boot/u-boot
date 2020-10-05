@@ -487,7 +487,50 @@ int acpi_device_add_power_res(struct acpi_ctx *ctx, u32 tx_state_val,
 	return 0;
 }
 
-/* ACPI 6.3 section 6.4.3.8.2.1 - I2cSerialBus() */
+int acpi_device_write_dsm_i2c_hid(struct acpi_ctx *ctx,
+				  int hid_desc_reg_offset)
+{
+	int ret;
+
+	acpigen_write_dsm_start(ctx);
+	ret = acpigen_write_dsm_uuid_start(ctx, ACPI_DSM_I2C_HID_UUID);
+	if (ret)
+		return log_ret(ret);
+
+	acpigen_write_dsm_uuid_start_cond(ctx, 0);
+	/* ToInteger (Arg1, Local2) */
+	acpigen_write_to_integer(ctx, ARG1_OP, LOCAL2_OP);
+	/* If (LEqual (Local2, 0x0)) */
+	acpigen_write_if_lequal_op_int(ctx, LOCAL2_OP, 0x0);
+	/*   Return (Buffer (One) { 0x1f }) */
+	acpigen_write_return_singleton_buffer(ctx, 0x1f);
+	acpigen_pop_len(ctx);	/* Pop : If */
+	/* Else */
+	acpigen_write_else(ctx);
+	/*   If (LEqual (Local2, 0x1)) */
+	acpigen_write_if_lequal_op_int(ctx, LOCAL2_OP, 0x1);
+	/*     Return (Buffer (One) { 0x3f }) */
+	acpigen_write_return_singleton_buffer(ctx, 0x3f);
+	acpigen_pop_len(ctx);	/* Pop : If */
+	/*   Else */
+	acpigen_write_else(ctx);
+	/*     Return (Buffer (One) { 0x0 }) */
+	acpigen_write_return_singleton_buffer(ctx, 0x0);
+	acpigen_pop_len(ctx);	/* Pop : Else */
+	acpigen_pop_len(ctx);	/* Pop : Else */
+	acpigen_write_dsm_uuid_end_cond(ctx);
+
+	acpigen_write_dsm_uuid_start_cond(ctx, 1);
+	acpigen_write_return_byte(ctx, hid_desc_reg_offset);
+	acpigen_write_dsm_uuid_end_cond(ctx);
+
+	acpigen_write_dsm_uuid_end(ctx);
+	acpigen_write_dsm_end(ctx);
+
+	return 0;
+}
+
+/* ACPI 6.3 section 6.4.3.8.2.1 - I2cSerialBusV2() */
 static void acpi_device_write_i2c(struct acpi_ctx *ctx,
 				  const struct acpi_i2c *i2c)
 {

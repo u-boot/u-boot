@@ -117,22 +117,17 @@ static void lmb_reserve_common(struct lmb *lmb, void *fdt_blob)
 /* Initialize the struct, add memory and call arch/board reserve functions */
 void lmb_init_and_reserve(struct lmb *lmb, struct bd_info *bd, void *fdt_blob)
 {
-#ifdef CONFIG_NR_DRAM_BANKS
 	int i;
-#endif
 
 	lmb_init(lmb);
-#ifdef CONFIG_NR_DRAM_BANKS
+
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		if (bd->bi_dram[i].size) {
 			lmb_add(lmb, bd->bi_dram[i].start,
 				bd->bi_dram[i].size);
 		}
 	}
-#else
-	if (bd->bi_memsize)
-		lmb_add(lmb, bd->bi_memstart, bd->bi_memsize);
-#endif
+
 	lmb_reserve_common(lmb, fdt_blob);
 }
 

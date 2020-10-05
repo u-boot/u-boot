@@ -1073,8 +1073,6 @@ int fdtdec_setup_mem_size_base(void)
 	return 0;
 }
 
-#if defined(CONFIG_NR_DRAM_BANKS)
-
 ofnode get_next_memory_node(ofnode mem)
 {
 	do {
@@ -1170,7 +1168,6 @@ int fdtdec_setup_mem_size_base_lowest(void)
 
 	return 0;
 }
-#endif
 
 #if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
 # if CONFIG_IS_ENABLED(MULTI_DTB_FIT_GZIP) ||\
@@ -1319,7 +1316,7 @@ static int fdtdec_init_reserved_memory(void *blob)
 
 int fdtdec_add_reserved_memory(void *blob, const char *basename,
 			       const struct fdt_memory *carveout,
-			       uint32_t *phandlep)
+			       uint32_t *phandlep, bool no_map)
 {
 	fdt32_t cells[4] = {}, *ptr = cells;
 	uint32_t upper, lower, phandle;
@@ -1419,6 +1416,12 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
 	if (err < 0)
 		return err;
 
+	if (no_map) {
+		err = fdt_setprop(blob, node, "no-map", NULL, 0);
+		if (err < 0)
+			return err;
+	}
+
 	/* return the phandle for the new node for the caller to use */
 	if (phandlep)
 		*phandlep = phandle;
@@ -1484,7 +1487,7 @@ int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
 	fdt32_t value;
 	void *prop;
 
-	err = fdtdec_add_reserved_memory(blob, name, carveout, &phandle);
+	err = fdtdec_add_reserved_memory(blob, name, carveout, &phandle, false);
 	if (err < 0) {
 		debug("failed to add reserved memory: %d\n", err);
 		return err;
@@ -1633,7 +1636,6 @@ int fdtdec_resetup(int *rescan)
 }
 #endif
 
-#ifdef CONFIG_NR_DRAM_BANKS
 int fdtdec_decode_ram_size(const void *blob, const char *area, int board_id,
 			   phys_addr_t *basep, phys_size_t *sizep,
 			   struct bd_info *bd)
@@ -1739,6 +1741,5 @@ int fdtdec_decode_ram_size(const void *blob, const char *area, int board_id,
 
 	return 0;
 }
-#endif /* CONFIG_NR_DRAM_BANKS */
 
 #endif /* !USE_HOSTCC */

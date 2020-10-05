@@ -745,13 +745,14 @@ struct device_node *of_parse_phandle(const struct device_node *np,
 
 int of_parse_phandle_with_args(const struct device_node *np,
 			       const char *list_name, const char *cells_name,
-			       int index, struct of_phandle_args *out_args)
+			       int cell_count, int index,
+			       struct of_phandle_args *out_args)
 {
 	if (index < 0)
 		return -EINVAL;
 
-	return __of_parse_phandle_with_args(np, list_name, cells_name, 0,
-					    index, out_args);
+	return __of_parse_phandle_with_args(np, list_name, cells_name,
+					    cell_count, index, out_args);
 }
 
 int of_count_phandle_with_args(const struct device_node *np,

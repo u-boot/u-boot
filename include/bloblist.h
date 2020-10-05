@@ -27,6 +27,14 @@ enum bloblist_tag_t {
 	BLOBLISTT_SPL_HANDOFF,		/* Hand-off info from SPL */
 	BLOBLISTT_VBOOT_CTX,		/* Chromium OS verified boot context */
 	BLOBLISTT_VBOOT_HANDOFF,	/* Chromium OS internal handoff info */
+	/*
+	 * Advanced Configuration and Power Interface Global Non-Volatile
+	 * Sleeping table. This forms part of the ACPI tables passed to Linux.
+	 */
+	BLOBLISTT_ACPI_GNVS,
+	BLOBLISTT_INTEL_VBT,		/* Intel Video-BIOS table */
+	BLOBLISTT_TPM2_TCG_LOG,		/* TPM v2 log space */
+	BLOBLISTT_TCPA_LOG,		/* TPM log space */
 };
 
 /**

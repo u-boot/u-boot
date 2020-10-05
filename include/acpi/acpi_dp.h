@@ -221,7 +221,7 @@ struct acpi_dp *acpi_dp_add_child(struct acpi_dp *dp, const char *name,
  */
 struct acpi_dp *acpi_dp_add_gpio(struct acpi_dp *dp, const char *name,
 				 const char *ref, int index, int pin,
-				 enum acpi_irq_polarity polarity);
+				 enum acpi_gpio_polarity polarity);
 
 /**
  * acpi_dp_write() - Write Device Property hierarchy and clean up resources

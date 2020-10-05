@@ -407,7 +407,6 @@ config XILINX_SPI
 
 config ZYNQ_SPI
 	bool "Zynq SPI driver"
-	depends on ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL
 	help
 	  Enable the Zynq SPI driver. This driver can be used to
 	  access the SPI NOR flash on platforms embedding this Zynq
@@ -415,7 +414,6 @@ config ZYNQ_SPI
 
 config ZYNQ_QSPI
 	bool "Zynq QSPI driver"
-	depends on ARCH_ZYNQ
 	imply SPI_FLASH_BAR
 	help
 	  Enable the Zynq Quad-SPI (QSPI) driver. This driver can be
@@ -425,7 +423,6 @@ config ZYNQ_QSPI
 
 config ZYNQMP_GQSPI
 	bool "Configure ZynqMP Generic QSPI"
-	depends on ARCH_ZYNQMP || ARCH_VERSAL
 	help
 	  This option is used to enable ZynqMP QSPI controller driver which
 	  is used to communicate with qspi flash devices.

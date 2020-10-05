@@ -10,8 +10,10 @@
 #ifndef __ACPI_ACPIGEN_H
 #define __ACPI_ACPIGEN_H
 
+#include <acpi/acpi_table.h>
 #include <linux/types.h>
 
+struct acpi_cstate;
 struct acpi_ctx;
 struct acpi_gen_regaddr;
 struct acpi_gpio;
@@ -52,13 +54,86 @@ enum {
 	LOCAL5_OP		= 0x65,
 	LOCAL6_OP		= 0x66,
 	LOCAL7_OP		= 0x67,
+	ARG0_OP			= 0x68,
+	ARG1_OP			= 0x69,
+	ARG2_OP			= 0x6a,
+	ARG3_OP			= 0x6b,
+	ARG4_OP			= 0x6c,
+	ARG5_OP			= 0x6d,
+	ARG6_OP			= 0x6e,
 	STORE_OP		= 0x70,
 	AND_OP			= 0x7b,
 	OR_OP			= 0x7d,
 	NOT_OP			= 0x80,
 	DEVICE_OP		= 0x82,
+	PROCESSOR_OP		= 0x83,
 	POWER_RES_OP		= 0x84,
+	NOTIFY_OP		= 0x86,
+	LEQUAL_OP		= 0x93,
+	TO_BUFFER_OP		= 0x96,
+	TO_INTEGER_OP		= 0x99,
+	IF_OP			= 0xa0,
+	ELSE_OP			= 0xa1,
 	RETURN_OP		= 0xa4,
+};
+
+/**
+ * enum psd_coord - Coordination types for P-states
+ *
+ * The type of coordination that exists (hardware) or is required (software) as
+ * a result of the underlying hardware dependency
+ */
+enum psd_coord {
+	SW_ALL = 0xfc,
+	SW_ANY = 0xfd,
+	HW_ALL = 0xfe
+};
+
+/**
+ * enum csd_coord -  Coordination types for C-states
+ *
+ * The type of coordination that exists (hardware) or is required (software) as
+ * a result of the underlying hardware dependency
+ */
+enum csd_coord {
+	CSD_HW_ALL = 0xfe,
+};
+
+/**
+ * struct acpi_cstate - Information about a C-State
+ *
+ * @ctype: C State type (1=C1, 2=C2, 3=C3)
+ * @latency: Worst-case latency to enter and exit the C State (in uS)
+ * @power: Average power consumption of the processor when in this C-State (mW)
+ * @resource: Register to read to place the processor in this state
+ */
+struct acpi_cstate {
+	uint ctype;
+	uint latency;
+	uint power;
+	struct acpi_gen_regaddr resource;
+};
+
+/**
+ * struct acpi_tstate - Information about a Throttling Supported State
+ *
+ * See ACPI v6.3 section 8.4.5.2: _TSS (Throttling Supported States)
+ *
+ * @percent: Percent of the core CPU operating frequency that will be
+ *	available when this throttling state is invoked
+ * @power: Throttling state’s maximum power dissipation (mw)
+ * @latency: Worst-case latency (uS) that the CPU is unavailable during a
+ *	transition from any throttling state to this throttling state
+ * @control: Value to be written to the Processor Control Register
+ *	(THROTTLE_CTRL) to initiate a transition to this throttling state
+ * @status: Value in THROTTLE_STATUS when in this state
+ */
+struct acpi_tstate {
+	uint percent;
+	uint power;
+	uint latency;
+	uint control;
+	uint status;
 };
 
 /**
@@ -562,5 +637,345 @@ void acpigen_write_power_res(struct acpi_ctx *ctx, const char *name, uint level,
 int acpigen_set_enable_tx_gpio(struct acpi_ctx *ctx, u32 tx_state_val,
 			       const char *dw0_read, const char *dw0_write,
 			       struct acpi_gpio *gpio, bool enable);
+
+/**
+ * acpigen_write_prw() - Write a power resource for wake (_PRW)
+ *
+ * @ctx: ACPI context pointer
+ * @wake: GPE that wakes up the device
+ * @level: Deepest power system sleeping state that can be entered while still
+ *	providing wake functionality
+ */
+void acpigen_write_prw(struct acpi_ctx *ctx, uint wake, uint level);
+
+/**
+ * acpigen_write_if() - Write an If block
+ *
+ * This requires a call to acpigen_pop_len() to complete the block
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_if(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_if_lequal_op_int() - Write comparison between op and integer
+ *
+ * Generates ACPI code for checking if operand1 and operand2 are equal
+ *
+ * If (Lequal (op, val))
+ *
+ * @ctx: ACPI context pointer
+ * @op: Operand to check
+ * @val: Value to check against
+ */
+void acpigen_write_if_lequal_op_int(struct acpi_ctx *ctx, uint op, u64 val);
+
+/**
+ * acpigen_write_else() - Write an Ef block
+ *
+ * This requires a call to acpigen_pop_len() to complete the block
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_else(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_to_buffer() - Write a ToBuffer operation
+ *
+ * E.g.: to generate: ToBuffer (Arg0, Local0)
+ * use acpigen_write_to_buffer(ctx, ARG0_OP, LOCAL0_OP)
+ *
+ * @ctx: ACPI context pointer
+ * @src: Source argument
+ * @dst: Destination argument
+ */
+void acpigen_write_to_buffer(struct acpi_ctx *ctx, uint src, uint dst);
+
+/**
+ * acpigen_write_to_integer() - Write a ToInteger operation
+ *
+ * E.g.: to generate: ToInteger (Arg0, Local0)
+ * use acpigen_write_to_integer(ctx, ARG0_OP, LOCAL0_OP)
+ *
+ * @ctx: ACPI context pointer
+ * @src: Source argument
+ * @dst: Destination argument
+ */
+void acpigen_write_to_integer(struct acpi_ctx *ctx, uint src, uint dst);
+
+/**
+ * acpigen_write_return_byte_buffer() - Write a return of a byte buffer
+ *
+ * @ctx: ACPI context pointer
+ * @arr: Array of bytes to return
+ * @size: Number of bytes
+ */
+void acpigen_write_return_byte_buffer(struct acpi_ctx *ctx, u8 *arr,
+				      size_t size);
+
+/**
+ * acpigen_write_return_singleton_buffer() - Write a return of a 1-byte buffer
+ *
+ * @ctx: ACPI context pointer
+ * @arg: Byte to return
+ */
+void acpigen_write_return_singleton_buffer(struct acpi_ctx *ctx, uint arg);
+
+/**
+ * acpigen_write_return_byte() - Write a return of a byte
+ *
+ * @ctx: ACPI context pointer
+ * @arg: Byte to return
+ */
+void acpigen_write_return_byte(struct acpi_ctx *ctx, uint arg);
+
+/**
+ * acpigen_write_dsm_start() - Start a _DSM method
+ *
+ * Generate ACPI AML code to start the _DSM method.
+ *
+ * The functions need to be called in the correct sequence as below.
+ *
+ * Within the <generate-code-here> region, Local0 and Local1 must be are left
+ * untouched, but Local2-Local7 can be used
+ *
+ * Arguments passed into _DSM method:
+ * Arg0 = UUID
+ * Arg1 = Revision
+ * Arg2 = Function index
+ * Arg3 = Function-specific arguments
+ *
+ * AML code generated looks like this:
+ * Method (_DSM, 4, Serialized) {   -- acpigen_write_dsm_start)
+ *	ToBuffer (Arg0, Local0)
+ *	If (LEqual (Local0, ToUUID(uuid))) {  -- acpigen_write_dsm_uuid_start
+ *		ToInteger (Arg2, Local1)
+ *		If (LEqual (Local1, 0)) {  -- acpigen_write_dsm_uuid_start_cond
+ *			<generate-code-here>
+ *		}                          -- acpigen_write_dsm_uuid_end_cond
+ *		...
+ *		If (LEqual (Local1, n)) {  -- acpigen_write_dsm_uuid_start_cond
+ *			<generate-code-here>
+ *		}                          -- acpigen_write_dsm_uuid_end_cond
+ *		Return (Buffer (One) { 0x0 })
+ *	}                                  -- acpigen_write_dsm_uuid_end
+ *	...
+ *	If (LEqual (Local0, ToUUID(uuidn))) {
+ *	...
+ *	}
+ *	Return (Buffer (One) { 0x0 })  -- acpigen_write_dsm_end
+ * }
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_dsm_start(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_dsm_uuid_start() - Start a new UUID block
+ *
+ * This starts generation of code to handle a particular UUID:
+ *
+ *	If (LEqual (Local0, ToUUID(uuid))) {
+ *		ToInteger (Arg2, Local1)
+ *
+ * @ctx: ACPI context pointer
+ */
+int acpigen_write_dsm_uuid_start(struct acpi_ctx *ctx, const char *uuid);
+
+/**
+ * acpigen_write_dsm_uuid_start_cond() - Start a new condition block
+ *
+ * This starts generation of condition-checking code to handle a particular
+ * function:
+ *
+ *		If (LEqual (Local1, i))
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_dsm_uuid_start_cond(struct acpi_ctx *ctx, int seq);
+
+/**
+ * acpigen_write_dsm_uuid_end_cond() - Start a new condition block
+ *
+ * This ends generation of condition-checking code to handle a particular
+ * function:
+ *
+ *		}
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_dsm_uuid_end_cond(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_dsm_uuid_end() - End a UUID block
+ *
+ * This ends generation of code to handle a particular UUID:
+ *
+ *		Return (Buffer (One) { 0x0 })
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_dsm_uuid_end(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_dsm_end() - End a _DSM method
+ *
+ * This ends generates of the _DSM block:
+ *
+ *	Return (Buffer (One) { 0x0 })
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_dsm_end(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_processor() - Write a Processor package
+ *
+ * This emits a Processor package header with the required information. The
+ * caller must complete the information and call acpigen_pop_len() at the end
+ *
+ * @ctx: ACPI context pointer
+ * @cpuindex: CPU number
+ * @pblock_addr: PBlk system IO address
+ * @pblock_len: PBlk length
+ */
+void acpigen_write_processor(struct acpi_ctx *ctx, uint cpuindex,
+			     u32 pblock_addr, uint pblock_len);
+
+/**
+ * acpigen_write_processor_package() - Write a package containing the processors
+ *
+ * The package containins the name of each processor in the SoC
+ *
+ * @ctx: ACPI context pointer
+ * @name: Package name (.e.g "PPKG")
+ * @first_core: Number of the first core (e.g. 0)
+ * @core_count: Number of cores (e.g. 4)
+ */
+void acpigen_write_processor_package(struct acpi_ctx *ctx, const char *name,
+				     uint first_core, uint core_count);
+
+/**
+ * acpigen_write_processor_cnot() - Write a processor notification method
+ *
+ * This writes a method that notifies all CPU cores
+ *
+ * @ctx: ACPI context pointer
+ * @num_cores: Number of CPU cores
+ */
+void acpigen_write_processor_cnot(struct acpi_ctx *ctx, const uint num_cores);
+
+/**
+ * acpigen_write_ppc() - generates a function returning max P-states
+ *
+ * @ctx: ACPI context pointer
+ * @num_pstates: Number of pstates to return
+ */
+void acpigen_write_ppc(struct acpi_ctx *ctx, uint num_pstates);
+
+/**
+ * acpigen_write_ppc() - generates a function returning PPCM
+ *
+ * This returns the maximum number of supported P-states, as saved in the
+ * variable PPCM
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_ppc_nvs(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_tpc() - Write a _TPC method that returns the TPC limit
+ *
+ * @ctx: ACPI context pointer
+ * @gnvs_tpc_limit: Variable that holds the TPC limit
+ */
+void acpigen_write_tpc(struct acpi_ctx *ctx, const char *gnvs_tpc_limit);
+
+/**
+ * acpigen_write_pss_package() - Write a PSS package
+ *
+ * See ACPI v6.3 section 8.4.6: Processor Performance Control
+ *
+ * @ctx: ACPI context pointer
+ * @corefreq: CPU core frequency in MHz
+ * @translat: worst-case latency in uS that the CPU is unavailable during a
+ *	transition from any performance state to this performance state
+ * @busmlat: worst-case latency in microseconds that Bus Masters are prevented
+ *	from accessing memory during a transition from any performance state to
+ *	this performance state
+ * @control: Value to write to PERF_CTRL to move to this performance state
+ * @status: Expected PERF_STATUS value when in this state
+ */
+void acpigen_write_pss_package(struct acpi_ctx *ctx, uint corefreq, uint power,
+			       uint translat, uint busmlat, uint control,
+			       uint status);
+
+/**
+ * acpigen_write_psd_package() - Write a PSD package
+ *
+ * Writes a P-State dependency package
+ *
+ * See ACPI v6.3 section 8.4.6.5: _PSD (P-State Dependency)
+ *
+ * @ctx: ACPI context pointer
+ * @domain: Dependency domain number to which this P state entry belongs
+ * @numprocs: Number of processors belonging to the domain for this logical
+ *	processor’s P-states
+ * @coordtype: Coordination type
+ */
+void acpigen_write_psd_package(struct acpi_ctx *ctx, uint domain, uint numprocs,
+			       enum psd_coord coordtype);
+
+/**
+ * acpigen_write_cst_package() - Write a _CST package
+ *
+ * See ACPI v6.3 section 8.4.2.1: _CST (C States)
+ *
+ * @ctx: ACPI context pointer
+ * @entry: Array of entries
+ * @nentries; Number of entries
+ */
+void acpigen_write_cst_package(struct acpi_ctx *ctx,
+			       const struct acpi_cstate *entry, int nentries);
+
+/**
+ * acpigen_write_csd_package() - Write a _CSD Package
+ *
+ * See ACPI v6.3 section 8.4.2.2: _CSD (C-State Dependency)
+ *
+ * @ctx: ACPI context pointer
+ * @domain: dependency domain number to which this C state entry belongs
+ * @numprocs: number of processors belonging to the domain for the particular
+ *	C-state
+ * @coordtype: Co-ordination type
+ * @index: Index of the C-State entry in the _CST object for which the
+ *	dependency applies
+ */
+void acpigen_write_csd_package(struct acpi_ctx *ctx, uint domain, uint numprocs,
+			       enum csd_coord coordtype, uint index);
+
+/**
+ * acpigen_write_tss_package() - Write a _TSS package
+ *
+ * @ctx: ACPI context pointer
+ * @entry: Entries to write
+ * @nentries: Number of entries to write
+ */
+void acpigen_write_tss_package(struct acpi_ctx *ctx,
+			       struct acpi_tstate *entry, int nentries);
+
+/**
+ * acpigen_write_tsd_package() - Write a _TSD package
+ *
+ * See ACPI v6.3 section 8.4.5.4: _TSD (T-State Dependency)
+ *
+ * @ctx: ACPI context pointer
+ * @domain: dependency domain number to which this T state entry belongs
+ * @numprocs: Number of processors belonging to the domain for this logical
+ *	processor’s T-states
+ * @coordtype: Coordination type
+ */
+void acpigen_write_tsd_package(struct acpi_ctx *ctx, uint domain, uint numprocs,
+			       enum psd_coord coordtype);
 
 #endif

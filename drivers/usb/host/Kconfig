@@ -200,8 +200,7 @@ config USB_EHCI_TEGRA
 
 config USB_EHCI_ZYNQ
 	bool "Support for Xilinx Zynq on-chip EHCI USB controller"
-	depends on ARCH_ZYNQ
-	default y
+	default y if ARCH_ZYNQ
 	---help---
 	  Enable support for Zynq on-chip EHCI USB controller
 

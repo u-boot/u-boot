@@ -923,11 +923,6 @@ INPUTS-$(CONFIG_REMAKE_ELF) += u-boot.elf
 INPUTS-$(CONFIG_EFI_APP) += u-boot-app.efi
 INPUTS-$(CONFIG_EFI_STUB) += u-boot-payload.efi
 
-# Build a combined spl + u-boot image for sunxi
-ifeq ($(CONFIG_ARCH_SUNXI)$(CONFIG_ARM64)$(CONFIG_SPL),yyy)
-INPUTS-y += u-boot-sunxi-with-spl.bin
-endif
-
 # Generate this input file for binman
 ifeq ($(CONFIG_SPL),)
 INPUTS-$(CONFIG_ARCH_MEDIATEK) += u-boot-mtk.bin
@@ -1024,12 +1019,8 @@ PHONY += inputs
 inputs: $(INPUTS-y)
 
 all: .binman_stamp inputs
-# Hack for sunxi which doesn't have a proper binman definition for
-# 64-bit boards
-ifneq ($(CONFIG_ARCH_SUNXI)$(CONFIG_ARM64),yy)
 ifeq ($(CONFIG_BINMAN),y)
 	$(call if_changed,binman)
-endif
 endif
 
 # Timestamp file to make sure that binman always runs
@@ -1330,13 +1321,16 @@ u-boot.ldr:	u-boot
 # binman
 # ---------------------------------------------------------------------------
 # Use 'make BINMAN_DEBUG=1' to enable debugging
+default_dt := $(if $(DEVICE_TREE),$(DEVICE_TREE),$(CONFIG_DEFAULT_DEVICE_TREE))
 quiet_cmd_binman = BINMAN  $@
 cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
                 --toolpath $(objtree)/tools \
 		$(if $(BINMAN_VERBOSE),-v$(BINMAN_VERBOSE)) \
-		build -u -d u-boot.dtb -O . \
-		$(if $(BUILD_ROM),,-m --allow-missing) \
+		build -u -d u-boot.dtb -O . -m --allow-missing \
 		-I . -I $(srctree) -I $(srctree)/board/$(BOARDDIR) \
+		-I arch/$(ARCH)/dts -a of-list=$(CONFIG_OF_LIST) \
+		-a atf-bl31-path=${BL31} \
+		-a default-dt=$(default_dt) \
 		$(BINMAN_$(@F))
 
 OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex
@@ -1625,13 +1619,6 @@ u-boot-x86-reset16.bin: u-boot FORCE
 	$(call if_changed,objcopy)
 
 endif # CONFIG_X86
-
-ifneq ($(CONFIG_ARCH_SUNXI),)
-ifeq ($(CONFIG_ARM64),y)
-u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.itb FORCE
-	$(call if_changed,cat)
-endif
-endif
 
 OBJCOPYFLAGS_u-boot-app.efi := $(OBJCOPYFLAGS_EFI)
 u-boot-app.efi: u-boot FORCE

@@ -191,12 +191,23 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
 static int log_dispatch(struct log_rec *rec)
 {
 	struct log_device *ldev;
+	static int processing_msg;
 
+	/*
+	 * When a log driver writes messages (e.g. via the network stack) this
+	 * may result in further generated messages. We cannot process them here
+	 * as this might result in infinite recursion.
+	 */
+	if (processing_msg)
+		return 0;
+
+	/* Emit message */
+	processing_msg = 1;
 	list_for_each_entry(ldev, &gd->log_head, sibling_node) {
 		if (log_passes_filters(ldev, rec))
 			ldev->drv->emit(ldev, rec);
 	}
-
+	processing_msg = 0;
 	return 0;
 }
 

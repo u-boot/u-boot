@@ -15,7 +15,7 @@ config SANDBOX_SMEM
 config MSM_SMEM
     bool "Qualcomm Shared Memory Manager (SMEM)"
     depends on DM
-    depends on ARCH_SNAPDRAGON
+    depends on ARCH_SNAPDRAGON || ARCH_IPQ40XX
     help
       Enable support for the Qualcomm Shared Memory Manager.
       The driver provides an interface to items in a heap shared among all

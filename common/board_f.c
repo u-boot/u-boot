@@ -215,8 +215,6 @@ static int announce_dram_init(void)
 static int show_dram_config(void)
 {
 	unsigned long long size;
-
-#ifdef CONFIG_NR_DRAM_BANKS
 	int i;
 
 	debug("\nRAM Configuration:\n");
@@ -229,9 +227,6 @@ static int show_dram_config(void)
 #endif
 	}
 	debug("\nDRAM:  ");
-#else
-	size = gd->ram_size;
-#endif
 
 	print_size(size, "");
 	board_add_ram_info(0);
@@ -242,10 +237,8 @@ static int show_dram_config(void)
 
 __weak int dram_init_banksize(void)
 {
-#if defined(CONFIG_NR_DRAM_BANKS) && defined(CONFIG_SYS_SDRAM_BASE)
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].start = gd->ram_base;
 	gd->bd->bi_dram[0].size = get_effective_memsize();
-#endif
 
 	return 0;
 }
@@ -602,9 +595,6 @@ __weak int arch_setup_bdinfo(void)
 int setup_bdinfo(void)
 {
 	struct bd_info *bd = gd->bd;
-
-	bd->bi_memstart = gd->ram_base;  /* start of memory */
-	bd->bi_memsize = gd->ram_size;   /* size in bytes */
 
 	if (IS_ENABLED(CONFIG_SYS_HAS_SRAM)) {
 		bd->bi_sramstart = CONFIG_SYS_SRAM_BASE; /* start of SRAM */

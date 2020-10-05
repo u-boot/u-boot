@@ -62,4 +62,7 @@ config VERSAL_NO_DDR
 	  This option configures MMU with no DDR to avoid speculative
 	  access to DDR memory where DDR is not present.
 
+source "board/xilinx/Kconfig"
+source "board/xilinx/versal/Kconfig"
+
 endif

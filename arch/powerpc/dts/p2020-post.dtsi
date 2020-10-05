@@ -38,8 +38,21 @@
 		clock-frequency = <0>;
 	};
 
-	/include/ "pq3-i2c-0.dtsi"
-	/include/ "pq3-i2c-1.dtsi"
+	espi0: spi@7000 {
+		compatible = "fsl,mpc8536-espi";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x7000 0x1000>;
+		fsl,espi-num-chipselects = <4>;
+		status = "disabled";
+	};
+
+/include/ "pq3-i2c-0.dtsi"
+/include/ "pq3-i2c-1.dtsi"
+
+/include/ "pq3-etsec1-0.dtsi"
+/include/ "pq3-etsec1-1.dtsi"
+/include/ "pq3-etsec1-2.dtsi"
 };
 
 /* PCIe controller base address 0x8000 */

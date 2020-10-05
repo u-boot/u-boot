@@ -59,6 +59,15 @@
 			clock-frequency = <0x0>;
 		};
 
+		espi0: spi@110000 {
+			compatible = "fsl,mpc8536-espi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x110000 0x1000>;
+			fsl,espi-num-chipselects = <4>;
+			status = "disabled";
+		};
+
 		usb0@210000 {
 			compatible = "fsl-usb2-mph";
 			reg = <0x210000 0x1000>;

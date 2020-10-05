@@ -3425,6 +3425,10 @@ List of environment variables (most likely not complete):
   mempos	- Index position of the last match found by the 'ms' command,
 		  in units of the size (.b, .w, .l) of the search
 
+  zbootbase	- (x86 only) Base address of the bzImage 'setup' block
+
+  zbootaddr	- (x86 only) Address of the loaded bzImage, typically
+		  BZIMAGE_LOAD_ADDR which is 0x100000
 
 The following image location variables contain the location of images
 used in booting. The "Image" column gives the role of the image and is

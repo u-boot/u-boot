@@ -157,6 +157,8 @@ int arch_fsps_preinit(void)
 	struct udevice *itss;
 	int ret;
 
+	if (!ll_boot_init())
+		return 0;
 	ret = irq_first_device_type(X86_IRQT_ITSS, &itss);
 	if (ret)
 		return log_msg_ret("no itss", ret);

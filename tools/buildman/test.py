@@ -9,9 +9,6 @@ import tempfile
 import time
 import unittest
 
-# Bring in the patman libraries
-our_path = os.path.dirname(os.path.realpath(__file__))
-
 from buildman import board
 from buildman import bsettings
 from buildman import builder

@@ -311,7 +311,7 @@ static int stm32_usbphyc_of_xlate(struct phy *phy,
 
 	if ((phy->id == 0 && args->args_count != 1) ||
 	    (phy->id == 1 && args->args_count != 2)) {
-		dev_err(dev, "invalid number of cells for phy port%ld\n",
+		dev_err(phy->dev, "invalid number of cells for phy port%ld\n",
 			phy->id);
 		return -EINVAL;
 	}

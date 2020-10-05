@@ -189,6 +189,14 @@ __weak void board_final_init(void)
 {
 }
 
+/*
+ * Implement a weak default function for boards that need to do some final
+ * processing before booting the OS.
+ */
+__weak void board_final_cleanup(void)
+{
+}
+
 int last_stage_init(void)
 {
 	struct acpi_fadt __maybe_unused *fadt;
@@ -217,6 +225,13 @@ int last_stage_init(void)
 			enter_acpi_mode(fadt->pm1a_cnt_blk);
 		}
 	}
+
+	/*
+	 * TODO(sjg@chromium.org): Move this to bootm_announce_and_cleanup()
+	 * once APL FSP-S at 0x200000 does not overlap with the bzimage at
+	 * 0x100000.
+	 */
+	board_final_cleanup();
 
 	return 0;
 }

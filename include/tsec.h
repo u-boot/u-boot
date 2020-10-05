@@ -394,6 +394,10 @@ struct tsec {
 
 #define TX_BUF_CNT	2
 
+struct tsec_data {
+	u32 mdio_regs_off;
+};
+
 struct tsec_private {
 	struct txbd8 __iomem txbd[TX_BUF_CNT];
 	struct rxbd8 __iomem rxbd[PKTBUFSRX];

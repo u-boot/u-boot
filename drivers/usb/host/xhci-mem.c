@@ -236,8 +236,7 @@ static void xhci_link_segments(struct xhci_segment *prev,
 		 */
 		val = le32_to_cpu(prev->trbs[TRBS_PER_SEGMENT-1].link.control);
 		val &= ~TRB_TYPE_BITMASK;
-		val |= (TRB_LINK << TRB_TYPE_SHIFT);
-
+		val |= TRB_TYPE(TRB_LINK);
 		prev->trbs[TRBS_PER_SEGMENT-1].link.control = cpu_to_le32(val);
 	}
 }
@@ -826,25 +825,22 @@ void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl,
 
 	/* Step 4 - ring already allocated */
 	/* Step 5 */
-	ep0_ctx->ep_info2 = cpu_to_le32(CTRL_EP << EP_TYPE_SHIFT);
+	ep0_ctx->ep_info2 = cpu_to_le32(EP_TYPE(CTRL_EP));
 	debug("SPEED = %d\n", speed);
 
 	switch (speed) {
 	case USB_SPEED_SUPER:
-		ep0_ctx->ep_info2 |= cpu_to_le32(((512 & MAX_PACKET_MASK) <<
-					MAX_PACKET_SHIFT));
+		ep0_ctx->ep_info2 |= cpu_to_le32(MAX_PACKET(512));
 		debug("Setting Packet size = 512bytes\n");
 		break;
 	case USB_SPEED_HIGH:
 	/* USB core guesses at a 64-byte max packet first for FS devices */
 	case USB_SPEED_FULL:
-		ep0_ctx->ep_info2 |= cpu_to_le32(((64 & MAX_PACKET_MASK) <<
-					MAX_PACKET_SHIFT));
+		ep0_ctx->ep_info2 |= cpu_to_le32(MAX_PACKET(64));
 		debug("Setting Packet size = 64bytes\n");
 		break;
 	case USB_SPEED_LOW:
-		ep0_ctx->ep_info2 |= cpu_to_le32(((8 & MAX_PACKET_MASK) <<
-					MAX_PACKET_SHIFT));
+		ep0_ctx->ep_info2 |= cpu_to_le32(MAX_PACKET(8));
 		debug("Setting Packet size = 8bytes\n");
 		break;
 	default:
@@ -853,9 +849,7 @@ void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl,
 	}
 
 	/* EP 0 can handle "burst" sizes of 1, so Max Burst Size field is 0 */
-	ep0_ctx->ep_info2 |=
-			cpu_to_le32(((0 & MAX_BURST_MASK) << MAX_BURST_SHIFT) |
-			((3 & ERROR_COUNT_MASK) << ERROR_COUNT_SHIFT));
+	ep0_ctx->ep_info2 |= cpu_to_le32(MAX_BURST(0) | ERROR_COUNT(3));
 
 	trb_64 = virt_to_phys(virt_dev->eps[0].ring->first_seg->trbs);
 	ep0_ctx->deq = cpu_to_le64(trb_64 | virt_dev->eps[0].ring->cycle_state);

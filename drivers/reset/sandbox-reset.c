@@ -15,6 +15,7 @@
 
 struct sandbox_reset_signal {
 	bool asserted;
+	bool requested;
 };
 
 struct sandbox_reset {
@@ -23,18 +24,24 @@ struct sandbox_reset {
 
 static int sandbox_reset_request(struct reset_ctl *reset_ctl)
 {
+	struct sandbox_reset *sbr = dev_get_priv(reset_ctl->dev);
+
 	debug("%s(reset_ctl=%p)\n", __func__, reset_ctl);
 
 	if (reset_ctl->id >= SANDBOX_RESET_SIGNALS)
 		return -EINVAL;
 
+	sbr->signals[reset_ctl->id].requested = true;
 	return 0;
 }
 
 static int sandbox_reset_free(struct reset_ctl *reset_ctl)
 {
+	struct sandbox_reset *sbr = dev_get_priv(reset_ctl->dev);
+
 	debug("%s(reset_ctl=%p)\n", __func__, reset_ctl);
 
+	sbr->signals[reset_ctl->id].requested = false;
 	return 0;
 }
 
@@ -106,4 +113,16 @@ int sandbox_reset_query(struct udevice *dev, unsigned long id)
 		return -EINVAL;
 
 	return sbr->signals[id].asserted;
+}
+
+int sandbox_reset_is_requested(struct udevice *dev, unsigned long id)
+{
+	struct sandbox_reset *sbr = dev_get_priv(dev);
+
+	debug("%s(dev=%p, id=%ld)\n", __func__, dev, id);
+
+	if (id >= SANDBOX_RESET_SIGNALS)
+		return -EINVAL;
+
+	return sbr->signals[id].requested;
 }

@@ -10,7 +10,6 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <log.h>
-#include <asm-generic/io.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
@@ -449,6 +448,7 @@ static const struct udevice_id dwc3_glue_ids[] = {
 	{ .compatible = "ti,am654-dwc3" },
 	{ .compatible = "rockchip,rk3328-dwc3" },
 	{ .compatible = "rockchip,rk3399-dwc3" },
+	{ .compatible = "qcom,dwc3" },
 	{ }
 };
 

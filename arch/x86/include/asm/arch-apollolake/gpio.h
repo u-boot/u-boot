@@ -482,4 +482,7 @@
 #define GPIO_72_IRQ			0x65
 #define GPIO_73_IRQ			0x66
 
+/* This is needed by ACPI */
+#define GPIO_NUM_PAD_CFG_REGS   2 /* DW0, DW1 */
+
 #endif /* _ASM_ARCH_GPIO_H_ */

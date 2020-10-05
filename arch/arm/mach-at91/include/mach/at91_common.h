@@ -40,6 +40,7 @@ void configure_ddrcfg_input_buffers(bool open);
 #endif
 
 int at91_set_ethaddr(int offset);
+int at91_set_eth1addr(int offset);
 void at91_spi_nor_set_ethaddr(void);
 int at91_video_show_board_info(void);
 

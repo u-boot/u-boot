@@ -12,6 +12,7 @@ config INTEL_TANGIER
 	imply MMC_SDHCI_TANGIER
 	imply USB
 	imply USB_DWC3
+	imply BINMAN
 
 if INTEL_TANGIER
 

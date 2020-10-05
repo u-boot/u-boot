@@ -16,8 +16,8 @@ config POSITION_INDEPENDENT
 	help
 	  U-Boot expects to be linked to a specific hard-coded address, and to
 	  be loaded to and run from that address. This option lifts that
-	  restriction, thus allowing the code to be loaded to and executed
-	  from almost any address. This logic relies on the relocation
+	  restriction, thus allowing the code to be loaded to and executed from
+	  almost any 4K aligned address. This logic relies on the relocation
 	  information that is embedded in the binary to support U-Boot
 	  relocating itself to the top-of-RAM later during execution.
 
@@ -767,8 +767,11 @@ config ARCH_IPQ40XX
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	select DM_RESET
+	select MSM_SMEM
 	select PINCTRL
 	select CLK
+	select SMEM
 	select OF_CONTROL
 	imply CMD_DM
 
@@ -940,9 +943,9 @@ config ARCH_QEMU
 
 config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"
-	select BOARD_EARLY_INIT_F if !RZA1
 	select DM
 	select DM_SERIAL
+	imply BOARD_EARLY_INIT_F
 	imply CMD_DM
 	imply FAT_WRITE
 	imply SYS_THUMB_BUILD
@@ -1152,7 +1155,8 @@ config ARCH_ZYNQMP
 	select OF_CONTROL
 	select SPL_BOARD_INIT if SPL
 	select SPL_CLK if SPL
-	select SPL_DM_SPI if SPI
+	select SPL_DM if SPL
+	select SPL_DM_SPI if SPI && SPL_DM
 	select SPL_DM_SPI_FLASH if SPL_DM_SPI
 	select SPL_DM_MAILBOX if SPL
 	select SPL_FIRMWARE if SPL
@@ -1997,10 +2001,6 @@ source "board/tcl/sl50/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
 source "board/variscite/dart_6ul/Kconfig"
 source "board/vscom/baltos/Kconfig"
-source "board/xilinx/Kconfig"
-source "board/xilinx/zynq/Kconfig"
-source "board/xilinx/zynqmp/Kconfig"
-source "board/xilinx/versal/Kconfig"
 source "board/phytium/durian/Kconfig"
 source "board/xen/xenguest_arm64/Kconfig"
 
