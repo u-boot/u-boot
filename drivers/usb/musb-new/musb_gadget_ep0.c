@@ -19,8 +19,10 @@
 #include <linux/interrupt.h>
 #else
 #include <common.h>
-#include "linux-compat.h"
+#include <dm.h>
+#include <dm/device_compat.h>
 #include <asm/processor.h>
+#include "linux-compat.h"
 #endif
 
 #include "musb_core.h"
