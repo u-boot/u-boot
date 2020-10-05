@@ -16,19 +16,20 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <dm/device_compat.h>
+#include <malloc.h>
+#include <mxs_nand.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/imx-regs.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/cache.h>
+#include <asm/io.h>
+#include <asm/mach-imx/regs-bch.h>
+#include <asm/mach-imx/regs-gpmi.h>
+#include <linux/errno.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/sizes.h>
 #include <linux/types.h>
-#include <malloc.h>
-#include <linux/errno.h>
-#include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/imx-regs.h>
-#include <asm/mach-imx/regs-bch.h>
-#include <asm/mach-imx/regs-gpmi.h>
-#include <asm/arch/sys_proto.h>
-#include <mxs_nand.h>
 
 #define	MXS_NAND_DMA_DESCRIPTOR_COUNT		4
 
@@ -115,13 +116,14 @@ static uint32_t mxs_nand_aux_status_offset(void)
 	return (MXS_NAND_METADATA_SIZE + 0x3) & ~0x3;
 }
 
-static inline bool mxs_nand_bbm_in_data_chunk(struct bch_geometry *geo, struct mtd_info *mtd,
-		unsigned int *chunk_num)
+static inline bool mxs_nand_bbm_in_data_chunk(struct bch_geometry *geo,
+					      struct mtd_info *mtd,
+					      unsigned int *chunk_num)
 {
 	unsigned int i, j;
 
 	if (geo->ecc_chunk0_size != geo->ecc_chunkn_size) {
-		dev_err(this->dev, "The size of chunk0 must equal to chunkn\n");
+		dev_err(mtd->dev, "The size of chunk0 must equal to chunkn\n");
 		return false;
 	}
 
@@ -135,7 +137,7 @@ static inline bool mxs_nand_bbm_in_data_chunk(struct bch_geometry *geo, struct m
 
 	if (j < geo->ecc_chunkn_size * 8) {
 		*chunk_num = i + 1;
-		dev_dbg(this->dev, "Set ecc to %d and bbm in chunk %d\n",
+		dev_dbg(mtd->dev, "Set ecc to %d and bbm in chunk %d\n",
 			geo->ecc_strength, *chunk_num);
 		return true;
 	}
@@ -1118,7 +1120,7 @@ static int mxs_nand_set_geometry(struct mtd_info *mtd, struct bch_geometry *geo)
 
 	if ((!(chip->ecc_strength_ds > 0 && chip->ecc_step_ds > 0) &&
 	     mtd->oobsize < 1024) || nand_info->legacy_bch_geometry) {
-		dev_warn(this->dev, "use legacy bch geometry\n");
+		dev_warn(mtd->dev, "use legacy bch geometry\n");
 		return mxs_nand_legacy_calc_ecc_layout(geo, mtd);
 	}
 
