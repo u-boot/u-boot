@@ -138,7 +138,6 @@ typedef struct global_data {
 	struct udevice *watchdog_dev;
 #endif
 } gd_t;
-#endif
 
 #ifdef CONFIG_BOARD_TYPES
 #define gd_board_type()		gd->board_type
@@ -146,27 +145,90 @@ typedef struct global_data {
 #define gd_board_type()		0
 #endif
 
-/*
- * Global Data Flags
+/**
+ * enum gd_flags - global data flags
+ *
+ * See field flags of &struct global_data.
  */
-#define GD_FLG_RELOC		0x00001	/* Code was relocated to RAM	   */
-#define GD_FLG_DEVINIT		0x00002	/* Devices have been initialized   */
-#define GD_FLG_SILENT		0x00004	/* Silent mode			   */
-#define GD_FLG_POSTFAIL		0x00008	/* Critical POST test failed	   */
-#define GD_FLG_POSTSTOP		0x00010	/* POST seqeunce aborted	   */
-#define GD_FLG_LOGINIT		0x00020	/* Log Buffer has been initialized */
-#define GD_FLG_DISABLE_CONSOLE	0x00040	/* Disable console (in & out)	   */
-#define GD_FLG_ENV_READY	0x00080	/* Env. imported into hash table   */
-#define GD_FLG_SERIAL_READY	0x00100	/* Pre-reloc serial console ready  */
-#define GD_FLG_FULL_MALLOC_INIT	0x00200	/* Full malloc() is ready	   */
-#define GD_FLG_SPL_INIT		0x00400	/* spl_init() has been called	   */
-#define GD_FLG_SKIP_RELOC	0x00800	/* Don't relocate		   */
-#define GD_FLG_RECORD		0x01000	/* Record console		   */
-#define GD_FLG_ENV_DEFAULT	0x02000 /* Default variable flag	   */
-#define GD_FLG_SPL_EARLY_INIT	0x04000 /* Early SPL init is done	   */
-#define GD_FLG_LOG_READY	0x08000 /* Log system is ready for use	   */
-#define GD_FLG_WDT_READY	0x10000 /* Watchdog is ready for use	   */
-#define GD_FLG_SKIP_LL_INIT	0x20000	/* Don't perform low-level init	   */
-#define GD_FLG_SMP_READY	0x40000	/* SMP init is complete		   */
+enum gd_flags {
+	/**
+	 * @GD_FLG_RELOC: code was relocated to RAM
+	 */
+	GD_FLG_RELOC = 0x00001,
+	/**
+	 * @GD_FLG_DEVINIT: devices have been initialized
+	 */
+	GD_FLG_DEVINIT = 0x00002,
+	/**
+	 * @GD_FLG_SILENT: silent mode
+	 */
+	GD_FLG_SILENT = 0x00004,
+	/**
+	 * @GD_FLG_POSTFAIL: critical POST test failed
+	 */
+	GD_FLG_POSTFAIL = 0x00008,
+	/**
+	 * @GD_FLG_POSTSTOP: POST sequence aborted
+	 */
+	GD_FLG_POSTSTOP = 0x00010,
+	/**
+	 * @GD_FLG_LOGINIT: log Buffer has been initialized
+	 */
+	GD_FLG_LOGINIT = 0x00020,
+	/**
+	 * @GD_FLG_DISABLE_CONSOLE: disable console (in & out)
+	 */
+	GD_FLG_DISABLE_CONSOLE = 0x00040,
+	/**
+	 * @GD_FLG_ENV_READY: environment imported into hash table
+	 */
+	GD_FLG_ENV_READY = 0x00080,
+	/**
+	 * @GD_FLG_SERIAL_READY: pre-relocation serial console ready
+	 */
+	GD_FLG_SERIAL_READY = 0x00100,
+	/**
+	 * @GD_FLG_FULL_MALLOC_INIT: full malloc() is ready
+	 */
+	GD_FLG_FULL_MALLOC_INIT = 0x00200,
+	/**
+	 * @GD_FLG_SPL_INIT: spl_init() has been called
+	 */
+	GD_FLG_SPL_INIT = 0x00400,
+	/**
+	 * @GD_FLG_SKIP_RELOC: don't relocate
+	 */
+	GD_FLG_SKIP_RELOC = 0x00800,
+	/**
+	 * @GD_FLG_RECORD: record console
+	 */
+	GD_FLG_RECORD = 0x01000,
+	/**
+	 * @GD_FLG_ENV_DEFAULT: default variable flag
+	 */
+	GD_FLG_ENV_DEFAULT = 0x02000,
+	/**
+	 * @GD_FLG_SPL_EARLY_INIT: early SPL initialization is done
+	 */
+	GD_FLG_SPL_EARLY_INIT = 0x04000,
+	/**
+	 * @GD_FLG_LOG_READY: log system is ready for use
+	 */
+	GD_FLG_LOG_READY = 0x08000,
+	/**
+	 * @GD_FLG_WDT_READY: watchdog is ready for use
+	 */
+	GD_FLG_WDT_READY = 0x10000,
+	/**
+	 * @GD_FLG_SKIP_LL_INIT: don't perform low-level initialization
+	 */
+	GD_FLG_SKIP_LL_INIT = 0x20000,
+	/**
+	 * @GD_FLG_SMP_READY: SMP initialization is complete
+	 */
+	GD_FLG_SMP_READY = 0x40000,
+};
+
+#endif /* __ASSEMBLY__ */
 
 #endif /* __ASM_GENERIC_GBL_DATA_H */
