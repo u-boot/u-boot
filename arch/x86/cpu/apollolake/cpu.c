@@ -102,8 +102,8 @@ static const struct udevice_id cpu_x86_apl_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(cpu_x86_apl_drv) = {
-	.name		= "cpu_x86_apl",
+U_BOOT_DRIVER(intel_apl_cpu) = {
+	.name		= "intel_apl_cpu",
 	.id		= UCLASS_CPU,
 	.of_match	= cpu_x86_apl_ids,
 	.bind		= cpu_x86_bind,

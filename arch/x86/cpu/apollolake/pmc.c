@@ -217,7 +217,7 @@ static const struct udevice_id apl_pmc_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(apl_pmc) = {
+U_BOOT_DRIVER(intel_apl_pmc) = {
 	.name		= "intel_apl_pmc",
 	.id		= UCLASS_ACPI_PMC,
 	.of_match	= apl_pmc_ids,

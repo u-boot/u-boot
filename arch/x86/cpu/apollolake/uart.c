@@ -122,7 +122,7 @@ static const struct udevice_id apl_ns16550_serial_ids[] = {
 	{ },
 };
 
-U_BOOT_DRIVER(apl_ns16550) = {
+U_BOOT_DRIVER(intel_apl_ns16550) = {
 	.name	= "intel_apl_ns16550",
 	.id	= UCLASS_SERIAL,
 	.of_match = apl_ns16550_serial_ids,

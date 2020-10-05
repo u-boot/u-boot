@@ -28,8 +28,8 @@ static const struct udevice_id apl_pch_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(apl_pch) = {
-	.name		= "apl_pch",
+U_BOOT_DRIVER(intel_apl_pch) = {
+	.name		= "intel_apl_pch",
 	.id		= UCLASS_PCH,
 	.of_match	= apl_pch_ids,
 	.ops		= &apl_pch_ops,

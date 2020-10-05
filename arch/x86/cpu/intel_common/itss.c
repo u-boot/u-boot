@@ -235,7 +235,7 @@ static const struct udevice_id itss_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(itss_drv) = {
+U_BOOT_DRIVER(intel_itss) = {
 	.name		= "intel_itss",
 	.id		= UCLASS_IRQ,
 	.of_match	= itss_ids,
