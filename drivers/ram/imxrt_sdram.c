@@ -7,6 +7,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <init.h>
 #include <log.h>
 #include <ram.h>
