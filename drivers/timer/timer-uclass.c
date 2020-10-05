@@ -4,14 +4,15 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <cpu.h>
 #include <dm.h>
-#include <init.h>
 #include <dm/lists.h>
+#include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/root.h>
-#include <clk.h>
 #include <errno.h>
+#include <init.h>
 #include <timer.h>
 #include <linux/err.h>
 
