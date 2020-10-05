@@ -405,6 +405,12 @@ index 0000000..2234c87
         pm.add_line('include/myfile.h', '#include <dm.h>')
         self.checkSingleMessage(pm, 'BARRED_INCLUDE_IN_HDR', 'error')
 
+    def testConfigIsEnabledConfig(self):
+        """Test for accidental CONFIG_IS_ENABLED(CONFIG_*) calls"""
+        pm = PatchMaker()
+        pm.add_line('common/main.c', 'if (CONFIG_IS_ENABLED(CONFIG_CLK))')
+        self.checkSingleMessage(pm, 'CONFIG_IS_ENABLED_CONFIG', 'error')
+
 
 if __name__ == "__main__":
     unittest.main()

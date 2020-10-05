@@ -2365,6 +2365,12 @@ sub u_boot_line {
 		ERROR("DISABLE_FDT_OR_INITRD_RELOC",
 		     "fdt or initrd relocation disabled at boot time\n" . $herecurr);
 	}
+
+	# Do not use CONFIG_ prefix in CONFIG_IS_ENABLED() calls
+	if ($line =~ /^\+.*CONFIG_IS_ENABLED\(CONFIG_\w*\).*/) {
+		ERROR("CONFIG_IS_ENABLED_CONFIG",
+		      "CONFIG_IS_ENABLED() takes values without the CONFIG_ prefix\n" . $herecurr);
+	}
 }
 
 sub process {
