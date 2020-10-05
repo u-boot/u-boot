@@ -184,6 +184,28 @@ static const struct {
 	},
 };
 
+static const struct {
+	u32 id;
+	char *name;
+} zynqmp_svd_devices[] = {
+	{
+		.id = 0x04724093,
+		.name = "xck26",
+	},
+};
+
+static char *zynqmp_detect_svd_name(u32 idcode)
+{
+	u32 i;
+
+	for (i = 0; i < ARRAY_SIZE(zynqmp_svd_devices); i++) {
+		if (zynqmp_svd_devices[i].id == (idcode & 0x0FFFFFFF))
+			return zynqmp_svd_devices[i].name;
+	}
+
+	return "unknown";
+}
+
 static char *zynqmp_get_silicon_idcode_name(void)
 {
 	u32 i;
@@ -218,7 +240,7 @@ static char *zynqmp_get_silicon_idcode_name(void)
 	}
 
 	if (i >= ARRAY_SIZE(zynqmp_devices))
-		return "unknown";
+		return zynqmp_detect_svd_name(idcode);
 
 	/* Add device prefix to the name */
 	ret = snprintf(name, ZYNQMP_VERSION_SIZE, "zu%d",
