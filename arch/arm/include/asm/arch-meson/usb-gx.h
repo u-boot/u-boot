@@ -11,6 +11,7 @@
 
 /* TOFIX add set_mode to struct phy_ops */
 void phy_meson_gxl_usb2_set_mode(struct phy *phy, enum usb_dr_mode mode);
-void phy_meson_gxl_usb3_set_mode(struct phy *phy, enum usb_dr_mode mode);
+
+int dwc3_meson_gxl_force_mode(struct udevice *dev, enum usb_dr_mode mode);
 
 #endif

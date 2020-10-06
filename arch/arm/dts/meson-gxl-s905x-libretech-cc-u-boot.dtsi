@@ -5,7 +5,3 @@
  */
 
 #include "meson-gxl-u-boot.dtsi"
-
-&dwc2 {
-	status = "okay";
-};
