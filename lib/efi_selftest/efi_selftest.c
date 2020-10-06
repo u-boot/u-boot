@@ -143,6 +143,27 @@ static int teardown(struct efi_unit_test *test, unsigned int *failures)
 }
 
 /*
+ * Check that a test requiring reset exists.
+ *
+ * @testname:	name of the test
+ * @return:	test, or NULL if not found
+ */
+static bool need_reset(const u16 *testname)
+{
+	struct efi_unit_test *test;
+
+	for (test = ll_entry_start(struct efi_unit_test, efi_unit_test);
+	     test < ll_entry_end(struct efi_unit_test, efi_unit_test); ++test) {
+		if (testname && efi_st_strcmp_16_8(testname, test->name))
+			continue;
+		if (test->phase == EFI_SETUP_BEFORE_BOOTTIME_EXIT ||
+		    test->phase == EFI_SETUP_AFTER_BOOTTIME_EXIT)
+			return true;
+	}
+	return false;
+}
+
+/*
  * Check that a test exists.
  *
  * @testname:	name of the test
@@ -289,6 +310,16 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 	efi_st_do_tests(testname, EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,
 			EFI_ST_SETUP | EFI_ST_EXECUTE | EFI_ST_TEARDOWN,
 			&failures);
+
+	if (!need_reset(testname)) {
+		if (failures)
+			ret = EFI_PROTOCOL_ERROR;
+
+		/* Give feedback */
+		efi_st_printc(EFI_WHITE, "\nSummary: %u failures\n\n",
+			      failures);
+		return ret;
+	}
 
 	/* Execute mixed tests */
 	efi_st_do_tests(testname, EFI_SETUP_BEFORE_BOOTTIME_EXIT,

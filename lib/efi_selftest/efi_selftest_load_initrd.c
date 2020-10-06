@@ -200,7 +200,7 @@ static int execute(void)
 		efi_st_error("Could not determine CRC32\n");
 		return EFI_ST_FAILURE;
 	}
-	efi_st_printf("CRC32 %u\n", (unsigned int)crc32);
+	efi_st_printf("CRC32 %.8x\n", (unsigned int)crc32);
 
 	status = boottime->free_pool(buf);
 	if (status != EFI_SUCCESS) {
