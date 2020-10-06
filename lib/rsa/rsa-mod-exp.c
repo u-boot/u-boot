@@ -25,6 +25,14 @@
 #define get_unaligned_be32(a) fdt32_to_cpu(*(uint32_t *)a)
 #define put_unaligned_be32(a, b) (*(uint32_t *)(b) = cpu_to_fdt32(a))
 
+static inline uint64_t fdt64_to_cpup(const void *p)
+{
+	fdt64_t w;
+
+	memcpy(&w, p, sizeof(w));
+	return fdt64_to_cpu(w);
+}
+
 /* Default public exponent for backward compatibility */
 #define RSA_DEFAULT_PUBEXP	65537
 
@@ -263,8 +271,7 @@ int rsa_mod_exp_sw(const uint8_t *sig, uint32_t sig_len,
 	if (!prop->public_exponent)
 		key.exponent = RSA_DEFAULT_PUBEXP;
 	else
-		rsa_convert_big_endian((uint32_t *)&key.exponent,
-				       prop->public_exponent, 2);
+		key.exponent = fdt64_to_cpup(prop->public_exponent);
 
 	if (!key.len || !prop->modulus || !prop->rr) {
 		debug("%s: Missing RSA key info", __func__);
