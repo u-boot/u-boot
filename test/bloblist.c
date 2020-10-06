@@ -7,6 +7,7 @@
 #include <bloblist.h>
 #include <log.h>
 #include <mapmem.h>
+#include <asm/state.h>
 #include <test/suites.h>
 #include <test/test.h>
 #include <test/ut.h>
@@ -24,10 +25,12 @@ enum {
 
 	TEST_SIZE		= 10,
 	TEST_SIZE2		= 20,
-	TEST_SIZE_LARGE		= 0xe0,
+	TEST_SIZE_LARGE		= 0x3e0,
 
 	TEST_ADDR		= CONFIG_BLOBLIST_ADDR,
-	TEST_BLOBLIST_SIZE	= 0x100,
+	TEST_BLOBLIST_SIZE	= 0x400,
+
+	ERASE_BYTE		= '\xff',
 };
 
 static struct bloblist_hdr *clear_bloblist(void)
@@ -40,7 +43,7 @@ static struct bloblist_hdr *clear_bloblist(void)
 	 * to 0xff for testing purposes.
 	 */
 	hdr = map_sysmem(CONFIG_BLOBLIST_ADDR, TEST_BLOBLIST_SIZE);
-	memset(hdr, '\xff', TEST_BLOBLIST_SIZE);
+	memset(hdr, ERASE_BYTE, TEST_BLOBLIST_SIZE);
 	memset(hdr, '\0', sizeof(*hdr));
 
 	return hdr;
@@ -94,26 +97,27 @@ static int bloblist_test_blob(struct unit_test_state *uts)
 	hdr = clear_bloblist();
 	ut_assertnull(bloblist_find(TEST_TAG, TEST_BLOBLIST_SIZE));
 	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+	ut_asserteq(map_to_sysmem(hdr), TEST_ADDR);
 
 	/* Add a record and check that we can find it */
-	data = bloblist_add(TEST_TAG, TEST_SIZE);
+	data = bloblist_add(TEST_TAG, TEST_SIZE, 0);
 	rec = (void *)(hdr + 1);
-	ut_asserteq_ptr(rec + 1, data);
+	ut_asserteq_addr(rec + 1, data);
 	data = bloblist_find(TEST_TAG, TEST_SIZE);
-	ut_asserteq_ptr(rec + 1, data);
+	ut_asserteq_addr(rec + 1, data);
 
 	/* Check the data is zeroed */
 	ut_assertok(check_zero(data, TEST_SIZE));
 
 	/* Check the 'ensure' method */
-	ut_asserteq_ptr(data, bloblist_ensure(TEST_TAG, TEST_SIZE));
+	ut_asserteq_addr(data, bloblist_ensure(TEST_TAG, TEST_SIZE));
 	ut_assertnull(bloblist_ensure(TEST_TAG, TEST_SIZE2));
 	rec2 = (struct bloblist_rec *)(data + ALIGN(TEST_SIZE, BLOBLIST_ALIGN));
 	ut_assertok(check_zero(data, TEST_SIZE));
 
 	/* Check for a non-existent record */
-	ut_asserteq_ptr(data, bloblist_ensure(TEST_TAG, TEST_SIZE));
-	ut_asserteq_ptr(rec2 + 1, bloblist_ensure(TEST_TAG2, TEST_SIZE2));
+	ut_asserteq_addr(data, bloblist_ensure(TEST_TAG, TEST_SIZE));
+	ut_asserteq_addr(rec2 + 1, bloblist_ensure(TEST_TAG2, TEST_SIZE2));
 	ut_assertnull(bloblist_find(TEST_TAG_MISSING, 0));
 
 	return 0;
@@ -139,7 +143,7 @@ static int bloblist_test_blob_ensure(struct unit_test_state *uts)
 	/* Check that we get the same thing again */
 	ut_assertok(bloblist_ensure_size_ret(TEST_TAG, &size, &data2));
 	ut_asserteq(TEST_SIZE, size);
-	ut_asserteq_ptr(data, data2);
+	ut_asserteq_addr(data, data2);
 
 	/* Check that the size remains the same */
 	size = TEST_SIZE2;
@@ -163,8 +167,8 @@ static int bloblist_test_bad_blob(struct unit_test_state *uts)
 	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
 	data = hdr + 1;
 	data += sizeof(struct bloblist_rec);
-	ut_asserteq_ptr(data, bloblist_ensure(TEST_TAG, TEST_SIZE));
-	ut_asserteq_ptr(data, bloblist_ensure(TEST_TAG, TEST_SIZE));
+	ut_asserteq_addr(data, bloblist_ensure(TEST_TAG, TEST_SIZE));
+	ut_asserteq_addr(data, bloblist_ensure(TEST_TAG, TEST_SIZE));
 
 	return 0;
 }
@@ -202,10 +206,10 @@ static int bloblist_test_checksum(struct unit_test_state *uts)
 	hdr->chksum--;
 
 	/* Make sure the checksum changes when we add blobs */
-	data = bloblist_add(TEST_TAG, TEST_SIZE);
+	data = bloblist_add(TEST_TAG, TEST_SIZE, 0);
 	ut_asserteq(-EIO, bloblist_check(TEST_ADDR, TEST_BLOBLIST_SIZE));
 
-	data2 = bloblist_add(TEST_TAG2, TEST_SIZE2);
+	data2 = bloblist_add(TEST_TAG2, TEST_SIZE2, 0);
 	ut_asserteq(-EIO, bloblist_check(TEST_ADDR, TEST_BLOBLIST_SIZE));
 	ut_assertok(bloblist_finish());
 
@@ -231,8 +235,122 @@ static int bloblist_test_checksum(struct unit_test_state *uts)
 
 	return 0;
 }
-
 BLOBLIST_TEST(bloblist_test_checksum, 0);
+
+/* Test the 'bloblist info' command */
+static int bloblist_test_cmd_info(struct unit_test_state *uts)
+{
+	struct sandbox_state *state = state_get_current();
+	struct bloblist_hdr *hdr;
+	char *data, *data2;
+
+	hdr = clear_bloblist();
+	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+	data = bloblist_ensure(TEST_TAG, TEST_SIZE);
+	data2 = bloblist_ensure(TEST_TAG2, TEST_SIZE2);
+
+	console_record_reset_enable();
+	if (!state->show_test_output)
+		gd->flags |= GD_FLG_SILENT;
+	console_record_reset();
+	run_command("bloblist info", 0);
+	ut_assert_nextline("base:     %lx", (ulong)map_to_sysmem(hdr));
+	ut_assert_nextline("size:     400    1 KiB");
+	ut_assert_nextline("alloced:  70     112 Bytes");
+	ut_assert_nextline("free:     390    912 Bytes");
+	ut_assert_console_end();
+	gd->flags &= ~(GD_FLG_SILENT | GD_FLG_RECORD);
+
+	return 0;
+}
+BLOBLIST_TEST(bloblist_test_cmd_info, 0);
+
+/* Test the 'bloblist list' command */
+static int bloblist_test_cmd_list(struct unit_test_state *uts)
+{
+	struct sandbox_state *state = state_get_current();
+	struct bloblist_hdr *hdr;
+	char *data, *data2;
+
+	hdr = clear_bloblist();
+	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+	data = bloblist_ensure(TEST_TAG, TEST_SIZE);
+	data2 = bloblist_ensure(TEST_TAG2, TEST_SIZE2);
+
+	console_record_reset_enable();
+	if (!state->show_test_output)
+		gd->flags |= GD_FLG_SILENT;
+	console_record_reset();
+	run_command("bloblist list", 0);
+	ut_assert_nextline("Address       Size  Tag Name");
+	ut_assert_nextline("%08lx  %8x    1 EC host event",
+			   (ulong)map_to_sysmem(data), TEST_SIZE);
+	ut_assert_nextline("%08lx  %8x    2 SPL hand-off",
+			   (ulong)map_to_sysmem(data2), TEST_SIZE2);
+	ut_assert_console_end();
+	gd->flags &= ~(GD_FLG_SILENT | GD_FLG_RECORD);
+
+	return 0;
+}
+BLOBLIST_TEST(bloblist_test_cmd_list, 0);
+
+/* Test alignment of bloblist blobs */
+static int bloblist_test_align(struct unit_test_state *uts)
+{
+	struct bloblist_hdr *hdr;
+	ulong addr;
+	char *data;
+	int i;
+
+	/* At the start there should be no records */
+	hdr = clear_bloblist();
+	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+	ut_assertnull(bloblist_find(TEST_TAG, TEST_BLOBLIST_SIZE));
+
+	/* Check the default alignment */
+	for (i = 0; i < 3; i++) {
+		int size = i * 3;
+		ulong addr;
+		char *data;
+		int j;
+
+		data = bloblist_add(i, size, 0);
+		ut_assertnonnull(data);
+		addr = map_to_sysmem(data);
+		ut_asserteq(0, addr & (BLOBLIST_ALIGN - 1));
+
+		/* Only the bytes in the blob data should be zeroed */
+		for (j = 0; j < size; j++)
+			ut_asserteq(0, data[j]);
+		for (; j < BLOBLIST_ALIGN; j++)
+			ut_asserteq(ERASE_BYTE, data[j]);
+	}
+
+	/* Check larger alignment */
+	for (i = 0; i < 3; i++) {
+		int align = 32 << i;
+
+		data = bloblist_add(3 + i, i * 4, align);
+		ut_assertnonnull(data);
+		addr = map_to_sysmem(data);
+		ut_asserteq(0, addr & (align - 1));
+	}
+
+	/* Check alignment with an bloblist starting on a smaller alignment */
+	hdr = map_sysmem(TEST_ADDR + BLOBLIST_ALIGN, TEST_BLOBLIST_SIZE);
+	memset(hdr, ERASE_BYTE, TEST_BLOBLIST_SIZE);
+	memset(hdr, '\0', sizeof(*hdr));
+	ut_assertok(bloblist_new(TEST_ADDR + BLOBLIST_ALIGN, TEST_BLOBLIST_SIZE,
+				 0));
+
+	data = bloblist_add(1, 5, BLOBLIST_ALIGN * 2);
+	ut_assertnonnull(data);
+	addr = map_to_sysmem(data);
+	ut_asserteq(0, addr & (BLOBLIST_ALIGN * 2 - 1));
+
+	return 0;
+}
+BLOBLIST_TEST(bloblist_test_align, 0);
 
 int do_ut_bloblist(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])

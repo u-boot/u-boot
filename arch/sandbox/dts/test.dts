@@ -131,6 +131,7 @@
 		str-value = "test string";
 		interrupts-extended = <&irq 3 0>;
 		acpi,name = "GHIJ";
+		phandle-value = <&gpio_c 10>, <0xFFFFFFFF 20>, <&gpio_a 30>;
 	};
 
 	junk {

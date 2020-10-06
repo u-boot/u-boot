@@ -756,10 +756,11 @@ int of_parse_phandle_with_args(const struct device_node *np,
 }
 
 int of_count_phandle_with_args(const struct device_node *np,
-			       const char *list_name, const char *cells_name)
+			       const char *list_name, const char *cells_name,
+			       int cell_count)
 {
-	return __of_parse_phandle_with_args(np, list_name, cells_name, 0,
-					    -1, NULL);
+	return __of_parse_phandle_with_args(np, list_name, cells_name,
+					    cell_count, -1, NULL);
 }
 
 static void of_alias_add(struct alias_prop *ap, struct device_node *np,

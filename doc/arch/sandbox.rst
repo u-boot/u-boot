@@ -97,30 +97,39 @@ Command-line Options
 --------------------
 
 Various options are available, mostly for test purposes. Use -h to see
-available options. Some of these are described below.
+available options. Some of these are described below:
 
-The terminal is normally in what is called 'raw-with-sigs' mode. This means
-that you can use arrow keys for command editing and history, but if you
-press Ctrl-C, U-Boot will exit instead of handling this as a keypress.
+* -t, --terminal <arg>
+  - The terminal is normally in what is called 'raw-with-sigs' mode. This means
+  that you can use arrow keys for command editing and history, but if you
+  press Ctrl-C, U-Boot will exit instead of handling this as a keypress.
+  Other options are 'raw' (so Ctrl-C is handled within U-Boot) and 'cooked'
+  (where the terminal is in cooked mode and cursor keys will not work, Ctrl-C
+  will exit).
 
-Other options are 'raw' (so Ctrl-C is handled within U-Boot) and 'cooked'
-(where the terminal is in cooked mode and cursor keys will not work, Ctrl-C
-will exit).
+* -l
+  - Show the LCD emulation window.
 
-As mentioned above, -l causes the LCD emulation window to be shown.
+* -d <device_tree>
+  - A device tree binary file can be provided with -d. If you edit the source
+  (it is stored at arch/sandbox/dts/sandbox.dts) you must rebuild U-Boot to
+  recreate the binary file.
 
-A device tree binary file can be provided with -d. If you edit the source
-(it is stored at arch/sandbox/dts/sandbox.dts) you must rebuild U-Boot to
-recreate the binary file.
+* -D
+  - To use the default device tree, use -D.
 
-To use the default device tree, use -D. To use the test device tree, use -T.
+* -T
+  - To use the test device tree, use -T.
 
-To execute commands directly, use the -c option. You can specify a single
-command, or multiple commands separated by a semicolon, as is normal in
-U-Boot. Be careful with quoting as the shell will normally process and
-swallow quotes. When -c is used, U-Boot exits after the command is complete,
-but you can force it to go to interactive mode instead with -i.
+* -c [<cmd>;]<cmd>
+  - To execute commands directly, use the -c option. You can specify a single
+  command, or multiple commands separated by a semicolon, as is normal in
+  U-Boot. Be careful with quoting as the shell will normally process and
+  swallow quotes. When -c is used, U-Boot exits after the command is complete,
+  but you can force it to go to interactive mode instead with -i.
 
+* -i
+  - Go to interactive mode after executing the commands specified by -c.
 
 Memory Emulation
 ----------------

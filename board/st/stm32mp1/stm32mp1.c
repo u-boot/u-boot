@@ -314,7 +314,7 @@ static int board_check_usb_power(void)
 	 * for each of them
 	 */
 	adc_count = ofnode_count_phandle_with_args(node, "st,adc_usb_pd",
-						   "#io-channel-cells");
+						   "#io-channel-cells", 0);
 	if (adc_count < 0) {
 		if (adc_count == -ENOENT)
 			return 0;

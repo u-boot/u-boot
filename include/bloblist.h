@@ -19,6 +19,7 @@ enum {
 	BLOBLIST_ALIGN		= 16,
 };
 
+/* Supported tags - add new ones to tag_name in bloblist.c */
 enum bloblist_tag_t {
 	BLOBLISTT_NONE = 0,
 
@@ -35,6 +36,8 @@ enum bloblist_tag_t {
 	BLOBLISTT_INTEL_VBT,		/* Intel Video-BIOS table */
 	BLOBLISTT_TPM2_TCG_LOG,		/* TPM v2 log space */
 	BLOBLISTT_TCPA_LOG,		/* TPM log space */
+
+	BLOBLISTT_COUNT
 };
 
 /**
@@ -65,7 +68,7 @@ enum bloblist_tag_t {
  *	the bloblist can grow up to this size. This starts out as
  *	sizeof(bloblist_hdr) since we need at least that much space to store a
  *	valid bloblist
- * @spare: Space space
+ * @spare: Spare space (for future use)
  * @chksum: CRC32 for the entire bloblist allocated area. Since any of the
  *	blobs can be altered after being created, this checksum is only valid
  *	when the bloblist is finalised before jumping to the next stage of boot.
@@ -112,7 +115,7 @@ struct bloblist_rec {
  * Searches the bloblist and returns the blob with the matching tag
  *
  * @tag:	Tag to search for (enum bloblist_tag_t)
- * @size:	Expected size of the blob
+ * @size:	Expected size of the blob, or 0 for any size
  * @return pointer to blob if found, or NULL if not found, or a blob was found
  *	but it is the wrong size
  */
@@ -129,10 +132,11 @@ void *bloblist_find(uint tag, int size);
  *
  * @tag:	Tag to add (enum bloblist_tag_t)
  * @size:	Size of the blob
+ * @align:	Alignment of the blob (in bytes), 0 for default
  * @return pointer to the newly added block, or NULL if there is not enough
  *	space for the blob
  */
-void *bloblist_add(uint tag, int size);
+void *bloblist_add(uint tag, int size, int align);
 
 /**
  * bloblist_ensure_size() - Find or add a blob
@@ -142,10 +146,11 @@ void *bloblist_add(uint tag, int size);
  * @tag:	Tag to add (enum bloblist_tag_t)
  * @size:	Size of the blob
  * @blobp:	Returns a pointer to blob on success
+ * @align:	Alignment of the blob (in bytes), 0 for default
  * @return 0 if OK, -ENOSPC if it is missing and could not be added due to lack
  *	of space, or -ESPIPE it exists but has the wrong size
  */
-int bloblist_ensure_size(uint tag, int size, void **blobp);
+int bloblist_ensure_size(uint tag, int size, int align, void **blobp);
 
 /**
  * bloblist_ensure() - Find or add a blob
@@ -205,6 +210,35 @@ int bloblist_check(ulong addr, uint size);
  * @return 0
  */
 int bloblist_finish(void);
+
+/**
+ * bloblist_get_stats() - Get information about the bloblist
+ *
+ * This returns useful information about the bloblist
+ */
+void bloblist_get_stats(ulong *basep, ulong *sizep, ulong *allocedp);
+
+/**
+ * bloblist_show_stats() - Show information about the bloblist
+ *
+ * This shows useful information about the bloblist on the console
+ */
+void bloblist_show_stats(void);
+
+/**
+ * bloblist_show_list() - Show a list of blobs in the bloblist
+ *
+ * This shows a list of blobs, showing their address, size and tag.
+ */
+void bloblist_show_list(void);
+
+/**
+ * bloblist_tag_name() - Get the name for a tag
+ *
+ * @tag: Tag to check
+ * @return name of tag, or "invalid" if an invalid tag is provided
+ */
+const char *bloblist_tag_name(enum bloblist_tag_t tag);
 
 /**
  * bloblist_init() - Init the bloblist system with a single bloblist

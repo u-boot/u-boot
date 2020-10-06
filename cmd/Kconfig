@@ -631,6 +631,15 @@ config CMD_BINOP
 	  Compute binary operations (xor, or, and) of byte arrays of arbitrary
 	  size from memory and store the result in memory or the environment.
 
+config CMD_BLOBLIST
+	bool "bloblist"
+	default y if BLOBLIST
+	help
+	  Show information about the bloblist, a collection of binary blobs
+	  held in memory that persist between SPL and U-Boot. In the case of
+	  x86 devices the bloblist can be used to hold ACPI tables so that they
+	  remain available in memory.
+
 config CMD_CRC32
 	bool "crc32"
 	default y

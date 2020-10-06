@@ -19,6 +19,22 @@ static int dm_test_ofnode_compatible(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_compatible, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+static int dm_test_ofnode_get_by_phandle(struct unit_test_state *uts)
+{
+	/* test invalid phandle */
+	ut_assert(!ofnode_valid(ofnode_get_by_phandle(0)));
+	ut_assert(!ofnode_valid(ofnode_get_by_phandle(-1)));
+
+	/* test first valid phandle */
+	ut_assert(ofnode_valid(ofnode_get_by_phandle(1)));
+
+	/* test unknown phandle */
+	ut_assert(!ofnode_valid(ofnode_get_by_phandle(0x1000000)));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_get_by_phandle, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
 static int dm_test_ofnode_by_prop_value(struct unit_test_state *uts)
 {
 	const char propname[] = "compatible";
@@ -86,6 +102,81 @@ static int dm_test_ofnode_read(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_read, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_phandle(struct unit_test_state *uts)
+{
+	struct ofnode_phandle_args args;
+	ofnode node;
+	int ret;
+	const char prop[] = "test-gpios";
+	const char cell[] = "#gpio-cells";
+	const char prop2[] = "phandle-value";
+
+	node = ofnode_path("/a-test");
+	ut_assert(ofnode_valid(node));
+
+	/* Test ofnode_count_phandle_with_args with cell name */
+	ret = ofnode_count_phandle_with_args(node, "missing", cell, 0);
+	ut_asserteq(-ENOENT, ret);
+	ret = ofnode_count_phandle_with_args(node, prop, "#invalid", 0);
+	ut_asserteq(-EINVAL, ret);
+	ret = ofnode_count_phandle_with_args(node, prop, cell, 0);
+	ut_asserteq(5, ret);
+
+	/* Test ofnode_parse_phandle_with_args with cell name */
+	ret = ofnode_parse_phandle_with_args(node, "missing", cell, 0, 0,
+					     &args);
+	ut_asserteq(-ENOENT, ret);
+	ret = ofnode_parse_phandle_with_args(node, prop, "#invalid", 0, 0,
+					     &args);
+	ut_asserteq(-EINVAL, ret);
+	ret = ofnode_parse_phandle_with_args(node, prop, cell, 0, 0, &args);
+	ut_assertok(ret);
+	ut_asserteq(1, args.args_count);
+	ut_asserteq(1, args.args[0]);
+	ret = ofnode_parse_phandle_with_args(node, prop, cell, 0, 1, &args);
+	ut_assertok(ret);
+	ut_asserteq(1, args.args_count);
+	ut_asserteq(4, args.args[0]);
+	ret = ofnode_parse_phandle_with_args(node, prop, cell, 0, 2, &args);
+	ut_assertok(ret);
+	ut_asserteq(5, args.args_count);
+	ut_asserteq(5, args.args[0]);
+	ut_asserteq(1, args.args[4]);
+	ret = ofnode_parse_phandle_with_args(node, prop, cell, 0, 3, &args);
+	ut_asserteq(-ENOENT, ret);
+	ret = ofnode_parse_phandle_with_args(node, prop, cell, 0, 4, &args);
+	ut_assertok(ret);
+	ut_asserteq(1, args.args_count);
+	ut_asserteq(12, args.args[0]);
+	ret = ofnode_parse_phandle_with_args(node, prop, cell, 0, 5, &args);
+	ut_asserteq(-ENOENT, ret);
+
+	/* Test ofnode_count_phandle_with_args with cell count */
+	ret = ofnode_count_phandle_with_args(node, "missing", NULL, 2);
+	ut_asserteq(-ENOENT, ret);
+	ret = ofnode_count_phandle_with_args(node, prop2, NULL, 1);
+	ut_asserteq(3, ret);
+
+	/* Test ofnode_parse_phandle_with_args with cell count */
+	ret = ofnode_parse_phandle_with_args(node, prop2, NULL, 1, 0, &args);
+	ut_assertok(ret);
+	ut_asserteq(1, ofnode_valid(args.node));
+	ut_asserteq(1, args.args_count);
+	ut_asserteq(10, args.args[0]);
+	ret = ofnode_parse_phandle_with_args(node, prop2, NULL, 1, 1, &args);
+	ut_asserteq(-EINVAL, ret);
+	ret = ofnode_parse_phandle_with_args(node, prop2, NULL, 1, 2, &args);
+	ut_assertok(ret);
+	ut_asserteq(1, ofnode_valid(args.node));
+	ut_asserteq(1, args.args_count);
+	ut_asserteq(30, args.args[0]);
+	ret = ofnode_parse_phandle_with_args(node, prop2, NULL, 1, 3, &args);
+	ut_asserteq(-ENOENT, ret);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_phandle, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 static int dm_test_ofnode_read_chosen(struct unit_test_state *uts)
 {

@@ -108,7 +108,7 @@ int intel_gma_init_igd_opregion(struct udevice *dev,
 		struct optionrom_vbt *ext_vbt;
 
 		ret = bloblist_ensure_size(BLOBLISTT_INTEL_VBT,
-					   vbt->hdr_vbt_size,
+					   vbt->hdr_vbt_size, 0,
 					   (void **)&ext_vbt);
 		if (ret) {
 			log_err("GMA: Unable to add Ext VBT to bloblist\n");

@@ -108,7 +108,8 @@ static int __reset_get_bulk(struct udevice *dev, ofnode node,
 
 	bulk->count = 0;
 
-	count = ofnode_count_phandle_with_args(node, "resets", "#reset-cells");
+	count = ofnode_count_phandle_with_args(node, "resets", "#reset-cells",
+					       0);
 	if (count < 1)
 		return count;
 

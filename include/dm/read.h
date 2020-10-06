@@ -429,12 +429,14 @@ int dev_read_phandle_with_args(const struct udevice *dev, const char *list_name,
  * @dev:	device whose node containing a list
  * @list_name:	property name that contains a list
  * @cells_name:	property name that specifies phandles' arguments count
+ * @cells_count: Cell count to use if @cells_name is NULL
  * @Returns number of phandle found on success, on error returns appropriate
  * errno value.
  */
 
 int dev_count_phandle_with_args(const struct udevice *dev,
-				const char *list_name, const char *cells_name);
+				const char *list_name, const char *cells_name,
+				int cell_count);
 
 /**
  * dev_read_addr_cells() - Get the number of address cells for a device's node
@@ -880,10 +882,10 @@ static inline int dev_read_phandle_with_args(const struct udevice *dev,
 }
 
 static inline int dev_count_phandle_with_args(const struct udevice *dev,
-		const char *list_name, const char *cells_name)
+		const char *list_name, const char *cells_name, int cell_count)
 {
 	return ofnode_count_phandle_with_args(dev_ofnode(dev), list_name,
-					      cells_name);
+					      cells_name, cell_count);
 }
 
 static inline int dev_read_addr_cells(const struct udevice *dev)

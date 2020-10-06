@@ -224,6 +224,19 @@ int ut_check_console_dump(struct unit_test_state *uts, int total_bytes);
 	}								\
 }
 
+/* Assert that two addresses (converted from pointers) are equal */
+#define ut_asserteq_addr(expr1, expr2) {				\
+	ulong _val1 = map_to_sysmem(expr1);				\
+	ulong _val2 = map_to_sysmem(expr2);				\
+									\
+	if (_val1 != _val2) {						\
+		ut_failf(uts, __FILE__, __LINE__, __func__,		\
+			 #expr1 " = " #expr2,				\
+			 "Expected %lx, got %lx", _val1, _val2);	\
+		return CMD_RET_FAILURE;					\
+	}								\
+}
+
 /* Assert that a pointer is NULL */
 #define ut_assertnull(expr) {					\
 	const void *_val = (expr);					\

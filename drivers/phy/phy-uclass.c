@@ -214,7 +214,7 @@ int generic_phy_get_bulk(struct udevice *dev, struct phy_bulk *bulk)
 	if (!dev_read_prop(dev, "phys", NULL))
 		return 0;
 
-	count = dev_count_phandle_with_args(dev, "phys", "#phy-cells");
+	count = dev_count_phandle_with_args(dev, "phys", "#phy-cells", 0);
 	if (count < 1)
 		return count;
 

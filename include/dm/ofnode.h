@@ -10,6 +10,7 @@
 /* TODO(sjg@chromium.org): Drop fdtdec.h include */
 #include <fdtdec.h>
 #include <dm/of.h>
+#include <log.h>
 
 /* Enable checks to protect against invalid calls */
 #undef OF_CHECKS
@@ -84,7 +85,7 @@ struct ofprop {
 };
 
 /**
- * _ofnode_to_np() - convert an ofnode to a live DT node pointer
+ * ofnode_to_np() - convert an ofnode to a live DT node pointer
  *
  * This cannot be called if the reference contains an offset.
  *
@@ -127,7 +128,7 @@ static inline bool ofnode_valid(ofnode node)
 	if (of_live_active())
 		return node.np != NULL;
 	else
-		return node.of_offset != -1;
+		return node.of_offset >= 0;
 }
 
 /**
@@ -182,8 +183,8 @@ static inline bool ofnode_is_np(ofnode node)
 	 * live tree is in use.
 	 */
 	assert(!ofnode_valid(node) ||
-	       (of_live_active() ? _ofnode_to_np(node)
-				  : _ofnode_to_np(node)));
+	       (of_live_active() ? ofnode_to_np(node)
+				  : ofnode_to_np(node)));
 #endif
 	return of_live_active() && ofnode_valid(node);
 }
@@ -555,12 +556,13 @@ int ofnode_parse_phandle_with_args(ofnode node, const char *list_name,
  * @node:	device tree node containing a list
  * @list_name:	property name that contains a list
  * @cells_name:	property name that specifies phandles' arguments count
+ * @cells_count: Cell count to use if @cells_name is NULL
  * @return number of phandle on success, -ENOENT if @list_name does not
  *      exist, -EINVAL if a phandle was not found, @cells_name could not
  *      be found.
  */
 int ofnode_count_phandle_with_args(ofnode node, const char *list_name,
-				   const char *cells_name);
+				   const char *cells_name, int cell_count);
 
 /**
  * ofnode_path() - find a node by full path
