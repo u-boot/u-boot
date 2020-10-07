@@ -47,6 +47,14 @@
 	u-boot,dm-pre-reloc;
 };
 
+&main_rc {
+	u-boot,dm-pre-reloc;
+};
+
+&main_xtal {
+	u-boot,dm-pre-reloc;
+};
+
 &pinctrl_dbgu {
 	u-boot,dm-pre-reloc;
 };
@@ -68,62 +76,6 @@
 };
 
 &pmc {
-	u-boot,dm-pre-reloc;
-};
-
-&main {
-	u-boot,dm-pre-reloc;
-};
-
-&plla {
-	u-boot,dm-pre-reloc;
-};
-
-&main_xtal {
-	u-boot,dm-pre-reloc;
-};
-
-&mck {
-	u-boot,dm-pre-reloc;
-};
-
-&system {
-	u-boot,dm-pre-reloc;
-};
-
-&qspick {
-	u-boot,dm-pre-reloc;
-};
-
-&periph {
-	u-boot,dm-pre-reloc;
-};
-
-&pioA_clk {
-	u-boot,dm-pre-reloc;
-};
-
-&pioB_clk {
-	u-boot,dm-pre-reloc;
-};
-
-&sdhci0_clk {
-	u-boot,dm-pre-reloc;
-};
-
-&dbgu_clk {
-	u-boot,dm-pre-reloc;
-};
-
-&qspi_clk {
-	u-boot,dm-pre-reloc;
-};
-
-&generic {
-	u-boot,dm-pre-reloc;
-};
-
-&sdhci0_gclk {
 	u-boot,dm-pre-reloc;
 };
 

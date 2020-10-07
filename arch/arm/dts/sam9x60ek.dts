@@ -67,7 +67,7 @@
 					pinctrl-0 = <&pinctrl_flx0>;
 					#address-cells = <1>;
 					#size-cells = <0>;
-					clocks = <&flx0_clk>;
+					clocks = <&pmc PMC_TYPE_PERIPHERAL 5>;
 					status = "okay";
 
 					eeprom@53 {
