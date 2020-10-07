@@ -2170,14 +2170,6 @@ int set_local_var(const char *s, int flg_export)
 
 	name=strdup(s);
 
-#ifdef __U_BOOT__
-	if (env_get(name) != NULL) {
-		printf ("ERROR: "
-				"There is a global environment variable with the same name.\n");
-		free(name);
-		return -1;
-	}
-#endif
 	/* Assume when we enter this function that we are already in
 	 * NAME=VALUE format.  So the first order of business is to
 	 * split 's' on the '=' into 'name' and 'value' */
