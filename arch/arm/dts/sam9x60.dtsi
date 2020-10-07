@@ -27,6 +27,12 @@
 	};
 
 	clocks {
+		slow_rc_osc: slow_rc_osc {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <18500>;
+		};
+
 		slow_xtal: slow_xtal {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
@@ -196,7 +202,7 @@
 				mck: masterck {
 					compatible = "atmel,at91sam9x5-clk-master";
 					#clock-cells = <0>;
-					clocks = <&md_slck>, <&main>, <&plla>;
+					clocks = <&clk32 0>, <&main>, <&plla>;
 					atmel,clk-output-range = <140000000 200000000>;
 					atmel,clk-divisors = <1 2 4 6>;
 				};
@@ -264,7 +270,7 @@
 					compatible = "microchip,sam9x60-clk-generated";
 					#address-cells = <1>;
 					#size-cells = <0>;
-					clocks = <&md_slck>, <&td_slck>, <&main>, <&mck>, <&plla>;
+					clocks = <&clk32 0>, <&clk32 1>, <&main>, <&mck>, <&plla>;
 
 					sdhci0_gclk: sdhci0_gclk {
 						#clock-cells = <0>;
@@ -279,33 +285,11 @@
 				clocks = <&mck>;
 			};
 
-			slowckc: sckc@fffffe50 {
-				compatible = "atmel,at91sam9x5-sckc";
+			clk32: sckc@fffffe50 {
+				compatible = "microchip,sam9x60-sckc";
 				reg = <0xfffffe50 0x4>;
-
-				slow_osc: slow_osc {
-					compatible = "atmel,at91sam9x5-clk-slow-osc";
-					#clock-cells = <0>;
-					clocks = <&slow_xtal>;
-				};
-
-				slow_rc_osc: slow_rc_osc {
-					compatible = "atmel,at91sam9x5-clk-slow-rc-osc";
-					#clock-cells = <0>;
-					clock-frequency = <32768>;
-				};
-
-				td_slck: td_slck {
-					compatible = "atmel,at91sam9x5-clk-slow";
-					#clock-cells = <0>;
-					clocks = <&slow_rc_osc>, <&slow_osc>;
-				};
-
-				md_slck: md_slck {
-					compatible = "atmel,at91sam9x5-clk-slow";
-					#clock-cells = <0>;
-					clocks = <&slow_rc_osc>;
-				};
+				clocks = <&slow_rc_osc>, <&slow_xtal>;
+				#clock-cells = <1>;
 			};
 		};
 	};
