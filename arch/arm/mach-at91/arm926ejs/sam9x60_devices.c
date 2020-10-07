@@ -44,6 +44,12 @@ char *get_cpu_name(void)
 		switch (extension_id) {
 		case ARCH_EXID_SAM9X60:
 			return "SAM9X60";
+		case ARCH_EXID_SAM9X60_D6K:
+			return "SAM9X60 8MiB SDRAM SiP";
+		case ARCH_EXID_SAM9X60_D5M:
+			return "SAM9X60 64MiB DDR2 SiP";
+		case ARCH_EXID_SAM9X60_D1G:
+			return "SAM9X60 128MiB DDR2 SiP";
 		default:
 			return "Unknown CPU type";
 		}
