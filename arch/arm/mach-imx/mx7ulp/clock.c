@@ -342,7 +342,7 @@ int do_mx7_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
 	printf("PLL_A7_APLL    %8d MHz\n", freq / 1000000);
 
 	freq = decode_pll(PLL_USB);
-	printf("PLL_USB    %8d MHz\n", freq / 1000000);
+	printf("PLL_USB        %8d MHz\n", freq / 1000000);
 
 	printf("\n");
 
