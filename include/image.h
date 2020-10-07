@@ -563,6 +563,7 @@ int genimg_get_cat_count(enum ih_category category);
 /**
  * genimg_get_cat_desc() - Get the description of a category
  *
+ * @category:	Category to check
  * @return the description of a category, e.g. "architecture". This
  * effectively converts the enum to a string.
  */
