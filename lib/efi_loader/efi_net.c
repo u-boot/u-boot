@@ -24,9 +24,12 @@ static const efi_guid_t efi_net_guid = EFI_SIMPLE_NETWORK_PROTOCOL_GUID;
 static const efi_guid_t efi_pxe_base_code_protocol_guid =
 					EFI_PXE_BASE_CODE_PROTOCOL_GUID;
 static struct efi_pxe_packet *dhcp_ack;
-static bool new_rx_packet;
 static void *new_tx_packet;
 static void *transmit_buffer;
+static uchar **receive_buffer;
+static size_t *receive_lengths;
+static int rx_packet_idx;
+static int rx_packet_num;
 
 /*
  * The notification function of this event is called in every timer cycle
@@ -115,6 +118,8 @@ static efi_status_t EFIAPI efi_net_stop(struct efi_simple_network *this)
 	} else {
 		/* Disable hardware and put it into the reset state */
 		eth_halt();
+		/* Clear cache of packets */
+		rx_packet_num = 0;
 		this->mode->state = EFI_NETWORK_STOPPED;
 	}
 out:
@@ -160,6 +165,8 @@ static efi_status_t EFIAPI efi_net_initialize(struct efi_simple_network *this,
 	net_init();
 	/* Disable hardware and put it into the reset state */
 	eth_halt();
+	/* Clear cache of packets */
+	rx_packet_num = 0;
 	/* Set current device according to environment variables */
 	eth_set_current();
 	/* Get hardware ready for send and receive operations */
@@ -602,16 +609,16 @@ static efi_status_t EFIAPI efi_net_receive
 		break;
 	}
 
-	if (!new_rx_packet) {
+	if (!rx_packet_num) {
 		ret = EFI_NOT_READY;
 		goto out;
 	}
 	/* Fill export parameters */
-	eth_hdr = (struct ethernet_hdr *)net_rx_packet;
+	eth_hdr = (struct ethernet_hdr *)receive_buffer[rx_packet_idx];
 	protlen = ntohs(eth_hdr->et_protlen);
 	if (protlen == 0x8100) {
 		hdr_size += 4;
-		protlen = ntohs(*(u16 *)&net_rx_packet[hdr_size - 2]);
+		protlen = ntohs(*(u16 *)&receive_buffer[rx_packet_idx][hdr_size - 2]);
 	}
 	if (header_size)
 		*header_size = hdr_size;
@@ -621,17 +628,22 @@ static efi_status_t EFIAPI efi_net_receive
 		memcpy(src_addr, eth_hdr->et_src, ARP_HLEN);
 	if (protocol)
 		*protocol = protlen;
-	if (*buffer_size < net_rx_packet_len) {
+	if (*buffer_size < receive_lengths[rx_packet_idx]) {
 		/* Packet doesn't fit, try again with bigger buffer */
-		*buffer_size = net_rx_packet_len;
+		*buffer_size = receive_lengths[rx_packet_idx];
 		ret = EFI_BUFFER_TOO_SMALL;
 		goto out;
 	}
 	/* Copy packet */
-	memcpy(buffer, net_rx_packet, net_rx_packet_len);
-	*buffer_size = net_rx_packet_len;
-	new_rx_packet = 0;
-	this->int_status &= ~EFI_SIMPLE_NETWORK_RECEIVE_INTERRUPT;
+	memcpy(buffer, receive_buffer[rx_packet_idx],
+	       receive_lengths[rx_packet_idx]);
+	*buffer_size = receive_lengths[rx_packet_idx];
+	rx_packet_idx = (rx_packet_idx + 1) % ETH_PACKETS_BATCH_RECV;
+	rx_packet_num--;
+	if (rx_packet_num)
+		wait_for_packet->is_signaled = true;
+	else
+		this->int_status &= ~EFI_SIMPLE_NETWORK_RECEIVE_INTERRUPT;
 out:
 	return EFI_EXIT(ret);
 }
@@ -664,7 +676,26 @@ void efi_net_set_dhcp_ack(void *pkt, int len)
  */
 static void efi_net_push(void *pkt, int len)
 {
-	new_rx_packet = true;
+	int rx_packet_next;
+
+	/* Check that we at least received an Ethernet header */
+	if (len < sizeof(struct ethernet_hdr))
+		return;
+
+	/* Check that the buffer won't overflow */
+	if (len > PKTSIZE_ALIGN)
+		return;
+
+	/* Can't store more than pre-alloced buffer */
+	if (rx_packet_num >= ETH_PACKETS_BATCH_RECV)
+		return;
+
+	rx_packet_next = (rx_packet_idx + rx_packet_num) %
+	    ETH_PACKETS_BATCH_RECV;
+	memcpy(receive_buffer[rx_packet_next], pkt, len);
+	receive_lengths[rx_packet_next] = len;
+
+	rx_packet_num++;
 }
 
 /**
@@ -689,20 +720,14 @@ static void EFIAPI efi_network_timer_notify(struct efi_event *event,
 	if (!this || this->mode->state != EFI_NETWORK_INITIALIZED)
 		goto out;
 
-	if (!new_rx_packet) {
+	if (!rx_packet_num) {
 		push_packet = efi_net_push;
 		eth_rx();
 		push_packet = NULL;
-		if (new_rx_packet) {
-			/* Check that we at least received an Ethernet header */
-			if (net_rx_packet_len >=
-			    sizeof(struct ethernet_hdr)) {
-				this->int_status |=
-					EFI_SIMPLE_NETWORK_RECEIVE_INTERRUPT;
-				wait_for_packet->is_signaled = true;
-			} else {
-				new_rx_packet = 0;
-			}
+		if (rx_packet_num) {
+			this->int_status |=
+				EFI_SIMPLE_NETWORK_RECEIVE_INTERRUPT;
+			wait_for_packet->is_signaled = true;
 		}
 	}
 out:
@@ -830,6 +855,7 @@ efi_status_t efi_net_register(void)
 {
 	struct efi_net_obj *netobj = NULL;
 	efi_status_t r;
+	int i;
 
 	if (!eth_get_dev()) {
 		/* No network device active, don't expose any */
@@ -846,6 +872,21 @@ efi_status_t efi_net_register(void)
 	if (!transmit_buffer)
 		goto out_of_resources;
 	transmit_buffer = (void *)ALIGN((uintptr_t)transmit_buffer, PKTALIGN);
+
+	/* Allocate a number of receive buffers */
+	receive_buffer = calloc(ETH_PACKETS_BATCH_RECV,
+				sizeof(*receive_buffer));
+	if (!receive_buffer)
+		goto out_of_resources;
+	for (i = 0; i < ETH_PACKETS_BATCH_RECV; i++) {
+		receive_buffer[i] = malloc(PKTSIZE_ALIGN);
+		if (!receive_buffer[i])
+			goto out_of_resources;
+	}
+	receive_lengths = calloc(ETH_PACKETS_BATCH_RECV,
+				 sizeof(*receive_lengths));
+	if (!receive_lengths)
+		goto out_of_resources;
 
 	/* Hook net up to the device list */
 	efi_add_handle(&netobj->header);
@@ -941,7 +982,12 @@ failure_to_add_protocol:
 	return r;
 out_of_resources:
 	free(netobj);
-	/* free(transmit_buffer) not needed yet */
+	free(transmit_buffer);
+	if (receive_buffer)
+		for (i = 0; i < ETH_PACKETS_BATCH_RECV; i++)
+			free(receive_buffer[i]);
+	free(receive_buffer);
+	free(receive_lengths);
 	printf("ERROR: Out of memory\n");
 	return EFI_OUT_OF_RESOURCES;
 }
