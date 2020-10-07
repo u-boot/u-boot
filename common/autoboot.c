@@ -363,7 +363,8 @@ void autoboot_command(const char *s)
 {
 	debug("### main_loop: bootcmd=\"%s\"\n", s ? s : "<UNDEFINED>");
 
-	if (stored_bootdelay != -1 && s && !abortboot(stored_bootdelay)) {
+	if (s && (stored_bootdelay == -2 ||
+		 (stored_bootdelay != -1 && !abortboot(stored_bootdelay)))) {
 		bool lock;
 		int prev;
 
