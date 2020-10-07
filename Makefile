@@ -885,7 +885,7 @@ cmd_static_rela = \
 	tools/relocate-rela $(3) $(4) $$start $$end
 else
 quiet_cmd_static_rela =
-cmd_static_rela =
+cmd_static_rela = true
 endif
 
 # Always append INPUTS so that arch config.mk's can add custom ones
@@ -1309,9 +1309,13 @@ init_sp_bss_offset_check: u-boot.dtb FORCE
 	fi
 endif
 
+shell_cmd = { $(echo-cmd) $(cmd_$(1)); }
+
+quiet_cmd_objcopy_uboot = OBJCOPY $@
+cmd_objcopy_uboot = $(cmd_objcopy) && $(call shell_cmd,static_rela,$<,$@,$(CONFIG_SYS_TEXT_BASE)) || rm -f $@
+
 u-boot-nodtb.bin: u-boot FORCE
-	$(call if_changed,objcopy)
-	$(call cmd,static_rela,$<,$@,$(CONFIG_SYS_TEXT_BASE))
+	$(call if_changed,objcopy_uboot)
 	$(BOARD_SIZE_CHECK)
 
 u-boot.ldr:	u-boot
