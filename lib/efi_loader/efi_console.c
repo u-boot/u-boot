@@ -76,7 +76,7 @@ static int term_get_char(s32 *c)
 		if (timer_get_us() > timeout)
 			return 1;
 
-	*c = getc();
+	*c = getchar();
 	return 0;
 }
 
@@ -269,7 +269,7 @@ static int query_console_serial(int *rows, int *cols)
 
 	/* Empty input buffer */
 	while (tstc())
-		getc();
+		getchar();
 
 	/*
 	 * Not all terminals understand CSI [18t for querying the console size.
@@ -634,13 +634,13 @@ static int analyze_modifiers(struct efi_key_state *key_state)
 {
 	int c, mod = 0, ret = 0;
 
-	c = getc();
+	c = getchar();
 
 	if (c != ';') {
 		ret = c;
 		if (c == '~')
 			goto out;
-		c = getc();
+		c = getchar();
 	}
 	for (;;) {
 		switch (c) {
@@ -649,7 +649,7 @@ static int analyze_modifiers(struct efi_key_state *key_state)
 			mod += c - '0';
 		/* fall through */
 		case ';':
-			c = getc();
+			c = getchar();
 			break;
 		default:
 			goto out;
@@ -692,25 +692,25 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
 		 * Xterm Control Sequences
 		 * https://www.xfree86.org/4.8.0/ctlseqs.html
 		 */
-		ch = getc();
+		ch = getchar();
 		switch (ch) {
 		case cESC: /* ESC */
 			pressed_key.scan_code = 23;
 			break;
 		case 'O': /* F1 - F4, End */
-			ch = getc();
+			ch = getchar();
 			/* consider modifiers */
 			if (ch == 'F') { /* End */
 				pressed_key.scan_code = 6;
 				break;
 			} else if (ch < 'P') {
 				set_shift_mask(ch - '0', &key->key_state);
-				ch = getc();
+				ch = getchar();
 			}
 			pressed_key.scan_code = ch - 'P' + 11;
 			break;
 		case '[':
-			ch = getc();
+			ch = getchar();
 			switch (ch) {
 			case 'A'...'D': /* up, down right, left */
 				pressed_key.scan_code = ch - 'A' + 1;
@@ -868,7 +868,7 @@ static void efi_cin_check(void)
 static void efi_cin_empty_buffer(void)
 {
 	while (tstc())
-		getc();
+		getchar();
 	key_available = false;
 }
 

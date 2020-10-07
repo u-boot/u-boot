@@ -131,7 +131,7 @@ static int console_setfile(int file, struct stdio_dev * dev)
 		 */
 		switch (file) {
 		case stdin:
-			gd->jt->getc = getc;
+			gd->jt->getc = getchar;
 			gd->jt->tstc = tstc;
 			break;
 		case stdout:
@@ -179,7 +179,7 @@ struct stdio_dev **console_devices[MAX_FILES];
 int cd_count[MAX_FILES];
 
 /*
- * This depends on tstc() always being called before getc().
+ * This depends on tstc() always being called before getchar().
  * This is guaranteed to be true because this routine is called
  * only from fgetc() which assures it.
  * No attempt is made to demultiplex multiple input sources.
@@ -404,7 +404,7 @@ int fprintf(int file, const char *fmt, ...)
 
 /** U-Boot INITIAL CONSOLE-COMPATIBLE FUNCTION *****************************/
 
-int getc(void)
+int getchar(void)
 {
 #ifdef CONFIG_DISABLE_CONSOLE
 	if (gd->flags & GD_FLG_DISABLE_CONSOLE)
@@ -663,7 +663,7 @@ int ctrlc(void)
 {
 	if (!ctrlc_disabled && gd->have_console) {
 		if (tstc()) {
-			switch (getc()) {
+			switch (getchar()) {
 			case 0x03:		/* ^C - Control C */
 				ctrlc_was_pressed = 1;
 				return 1;
@@ -685,10 +685,10 @@ int confirm_yesno(void)
 
 	/* Flush input */
 	while (tstc())
-		getc();
+		getchar();
 	i = 0;
 	while (i < sizeof(str_input)) {
-		str_input[i] = getc();
+		str_input[i] = getchar();
 		putc(str_input[i]);
 		if (str_input[i] == '\r')
 			break;

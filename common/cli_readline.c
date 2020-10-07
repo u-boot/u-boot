@@ -68,7 +68,7 @@ static char *delete_char (char *buffer, char *p, int *colp, int *np, int plen)
 #define CREAD_HIST_CHAR		('!')
 
 #define getcmd_putch(ch)	putc(ch)
-#define getcmd_getch()		getc()
+#define getcmd_getch()		getchar()
 #define getcmd_cbeep()		getcmd_putch('\a')
 
 #define HIST_MAX		20
@@ -571,7 +571,7 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
 			return -2;	/* timed out */
 		WATCHDOG_RESET();	/* Trigger watchdog, if needed */
 
-		c = getc();
+		c = getchar();
 
 		/*
 		 * Special character handling

@@ -413,7 +413,7 @@ static int on_baudrate(const char *name, const char *value, enum env_op op,
 
 		if ((flags & H_INTERACTIVE) != 0)
 			while (1) {
-				if (getc() == '\r')
+				if (getchar() == '\r')
 					break;
 			}
 

@@ -99,7 +99,7 @@ static void bootmenu_autoboot_loop(struct bootmenu_data *menu,
 			}
 
 			menu->delay = -1;
-			c = getc();
+			c = getchar();
 
 			switch (c) {
 			case '\e':
@@ -141,7 +141,7 @@ static void bootmenu_loop(struct bootmenu_data *menu,
 		mdelay(10);
 	}
 
-	c = getc();
+	c = getchar();
 
 	switch (*esc) {
 	case 0:

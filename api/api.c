@@ -57,7 +57,7 @@ static int API_getc(va_list ap)
 	if ((c = (int *)va_arg(ap, uintptr_t)) == NULL)
 		return API_EINVAL;
 
-	*c = getc();
+	*c = getchar();
 	return 0;
 }
 

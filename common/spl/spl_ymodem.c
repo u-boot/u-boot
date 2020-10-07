@@ -32,7 +32,7 @@ struct ymodem_fit_info {
 
 static int getcymodem(void) {
 	if (tstc())
-		return (getc());
+		return (getchar());
 	return -1;
 }
 
