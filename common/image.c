@@ -859,6 +859,24 @@ const char *genimg_get_cat_desc(enum ih_category category)
 }
 
 /**
+ * genimg_cat_has_id - check whether category has entry id
+ * @category: category to look up (enum ih_category)
+ * @id: entry id to be checked
+ *
+ * This will scan the translation table trying to find the entry that matches
+ * the given id.
+ *
+ * @return true if category has entry id; false if not
+ */
+bool genimg_cat_has_id(enum ih_category category, uint id)
+{
+	if (get_table_entry(table_info[category].table, id))
+		return true;
+
+	return false;
+}
+
+/**
  * get_table_entry_name - translate entry id to long name
  * @table: pointer to a translation table for entries of a specific type
  * @msg: message to be returned when translation fails

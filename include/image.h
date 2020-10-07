@@ -568,6 +568,15 @@ int genimg_get_cat_count(enum ih_category category);
  */
 const char *genimg_get_cat_desc(enum ih_category category);
 
+/**
+ * genimg_cat_has_id() - Check whether a category has an item
+ *
+ * @category:	Category to check
+ * @id:		Item ID
+ * @return true or false as to whether a category has an item
+ */
+bool genimg_cat_has_id(enum ih_category category, uint id);
+
 int genimg_get_os_id(const char *name);
 int genimg_get_arch_id(const char *name);
 int genimg_get_type_id(const char *name);
