@@ -8,3 +8,6 @@ obj-y += cache.o
 obj-y += clock.o
 obj-y += cpu.o
 obj-y += dram.o
+obj-y += cvmx-coremask.o
+obj-y += cvmx-bootmem.o
+obj-y += bootoctlinux.o

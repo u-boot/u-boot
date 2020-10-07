@@ -72,6 +72,23 @@
 				     <0x0300e 4>, <0x0300f 4>;
 		};
 
+		l2c: l2c@1180080000000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "cavium,octeon-7xxx-l2c";
+			reg = <0x11800 0x80000000 0x0 0x01000000>;
+			u-boot,dm-pre-reloc;
+		};
+
+		lmc: lmc@1180088000000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "cavium,octeon-7xxx-ddr4";
+			reg = <0x11800 0x88000000 0x0 0x02000000>; // 2 IFs
+			u-boot,dm-pre-reloc;
+			l2c-handle = <&l2c>;
+		};
+
 		reset: reset@1180006001600 {
 			compatible = "mrvl,cn7xxx-rst";
 			reg = <0x11800 0x06001600 0x0 0x200>;
@@ -125,6 +142,66 @@
 			#size-cells = <0>;
 			spi-max-frequency = <25000000>;
 			clocks = <&clk OCTEON_CLK_IO>;
+		};
+
+		/* USB 0 */
+		usb0: uctl@1180068000000 {
+			compatible = "cavium,octeon-7130-usb-uctl";
+			reg = <0x11800 0x68000000 0x0 0x100>;
+			ranges; /* Direct mapping */
+			#address-cells = <2>;
+			#size-cells = <2>;
+			/* Only 100MHz allowed */
+			refclk-frequency = <100000000>;
+			/* Only "dlmc_ref_clk0" is supported for 73xx */
+			refclk-type-ss = "dlmc_ref_clk0";
+			/* Only "dlmc_ref_clk0" is supported for 73xx */
+			refclk-type-hs = "dlmc_ref_clk0";
+
+			/*
+			 * Power is specified by three parts:
+			 * 1) GPIO handle (must be &gpio)
+			 * 2) GPIO pin number
+			 * 3) Active high (0) or active low (1)
+			 */
+			xhci@1680000000000 {
+				compatible = "cavium,octeon-7130-xhci","synopsys,dwc3","snps,dwc3";
+				reg = <0x16800 0x00000000 0x10 0x0>;
+				interrupts = <0x68080 4>; /* UAHC_IMAN, level */
+				maximum-speed = "super-speed";
+				dr_mode = "host";
+				snps,dis_u3_susphy_quirk;
+				snps,dis_u2_susphy_quirk;
+				snps,dis_enblslpm_quirk;
+			};
+		};
+
+		/* USB 1 */
+		usb1: uctl@1180069000000 {
+			compatible = "cavium,octeon-7130-usb-uctl";
+			reg = <0x11800 0x69000000 0x0 0x100>;
+			ranges; /* Direct mapping */
+			#address-cells = <2>;
+			#size-cells = <2>;
+			/* 50MHz, 100MHz and 125MHz allowed */
+			refclk-frequency = <100000000>;
+			/* Either "dlmc_ref_clk0" or "dlmc_ref_clk0" */
+			refclk-type-ss = "dlmc_ref_clk0";
+			/* Either "dlmc_ref_clk0" "dlmc_ref_clk1" or "pll_ref_clk" */
+			refclk-type-hs = "dlmc_ref_clk0";
+
+			/*
+			 * Power is specified by three parts:
+			 * 1) GPIO handle (must be &gpio)
+			 * 2) GPIO pin number
+			 * 3) Active high (0) or active low (1)
+			 */
+			xhci@1690000000000 {
+				compatible = "cavium,octeon-7130-xhci","synopsys,dwc3","snps,dwc3";
+				reg = <0x16900 0x00000000 0x10 0x0>;
+				interrupts = <0x69080 4>; /* UAHC_IMAN, level */
+				dr_mode = "host";
+			};
 		};
 	};
 };

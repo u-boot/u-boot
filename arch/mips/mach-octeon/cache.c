@@ -5,14 +5,13 @@
 
 #include <cpu_func.h>
 
-/*
- * The Octeon platform is cache coherent and cache flushes and invalidates
- * are not needed. Define some platform specific empty flush_foo()
- * functions here to overwrite the _weak common function as a no-op.
- * This effectively disables all cache operations.
- */
+/* Octeon memory write barrier */
+#define CVMX_SYNCW	asm volatile ("syncw\nsyncw\n" : : : "memory")
+
 void flush_dcache_range(ulong start_addr, ulong stop)
 {
+	/* Flush all pending writes */
+	CVMX_SYNCW;
 }
 
 void flush_cache(ulong start_addr, ulong size)
@@ -21,4 +20,5 @@ void flush_cache(ulong start_addr, ulong size)
 
 void invalidate_dcache_range(ulong start_addr, ulong stop)
 {
+	/* Don't need to do anything for OCTEON */
 }

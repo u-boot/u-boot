@@ -722,8 +722,6 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 
 	BUG_ON(TRB_TO_SLOT_ID(field) != slot_id);
 	BUG_ON(TRB_TO_EP_INDEX(field) != ep_index);
-	BUG_ON(*(void **)(uintptr_t)le64_to_cpu(event->trans_event.buffer) -
-		buffer > (size_t)length);
 
 	record_transfer_result(udev, event, length);
 	xhci_acknowledge_event(ctrl);
