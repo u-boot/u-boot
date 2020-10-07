@@ -16,10 +16,10 @@
 	#size-cells = <2>;
 	model = "Xilinx Versal MINI eMMC1";
 
-	clk25: clk25 {
+	clk200: clk200 {
 		compatible = "fixed-clock";
 		#clock-cells = <0x0>;
-		clock-frequency = <25000000>;
+		clock-frequency = <200000000>;
 	};
 
 	dcc: dcc {
@@ -38,9 +38,12 @@
 		sdhci1: sdhci@f1050000 {
 			compatible = "xlnx,versal-8.9a", "arasan,sdhci-8.9a";
 			status = "okay";
+			non-removable;
+			disable-wp;
+			bus-width = <8>;
 			reg = <0x0 0xf1050000 0x0 0x10000>;
 			clock-names = "clk_xin", "clk_ahb";
-			clocks = <&clk25 &clk25>;
+			clocks = <&clk200 &clk200>;
 			xlnx,device_id = <1>;
 			no-1-8-v;
 			xlnx,mio_bank = <0>;
