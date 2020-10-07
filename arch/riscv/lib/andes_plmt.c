@@ -17,11 +17,9 @@
 /* mtime register */
 #define MTIME_REG(base)			((ulong)(base))
 
-static int andes_plmt_get_count(struct udevice *dev, u64 *count)
+static u64 andes_plmt_get_count(struct udevice *dev)
 {
-	*count = readq((void __iomem *)MTIME_REG(dev->priv));
-
-	return 0;
+	return readq((void __iomem *)MTIME_REG(dev->priv));
 }
 
 static const struct timer_ops andes_plmt_ops = {

@@ -27,13 +27,11 @@ struct ostm_priv {
 	fdt_addr_t	regs;
 };
 
-static int ostm_get_count(struct udevice *dev, u64 *count)
+static u64 ostm_get_count(struct udevice *dev)
 {
 	struct ostm_priv *priv = dev_get_priv(dev);
 
-	*count = timer_conv_64(readl(priv->regs + OSTM_CNT));
-
-	return 0;
+	return timer_conv_64(readl(priv->regs + OSTM_CNT));
 }
 
 static int ostm_probe(struct udevice *dev)

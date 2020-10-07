@@ -25,7 +25,7 @@ struct dw_apb_timer_priv {
 	struct reset_ctl_bulk resets;
 };
 
-static int dw_apb_timer_get_count(struct udevice *dev, u64 *count)
+static u64 dw_apb_timer_get_count(struct udevice *dev)
 {
 	struct dw_apb_timer_priv *priv = dev_get_priv(dev);
 
@@ -34,9 +34,7 @@ static int dw_apb_timer_get_count(struct udevice *dev, u64 *count)
 	 * requires the count to be incrementing. Invert the
 	 * result.
 	 */
-	*count = timer_conv_64(~readl(priv->regs + DW_APB_CURR_VAL));
-
-	return 0;
+	return timer_conv_64(~readl(priv->regs + DW_APB_CURR_VAL));
 }
 
 static int dw_apb_timer_probe(struct udevice *dev)

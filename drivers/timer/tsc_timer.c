@@ -386,13 +386,11 @@ void __udelay(unsigned long usec)
 #endif
 }
 
-static int tsc_timer_get_count(struct udevice *dev, u64 *count)
+static u64 tsc_timer_get_count(struct udevice *dev)
 {
 	u64 now_tick = rdtsc();
 
-	*count = now_tick - gd->arch.tsc_base;
-
-	return 0;
+	return now_tick - gd->arch.tsc_base;
 }
 
 static void tsc_timer_ensure_setup(bool early)

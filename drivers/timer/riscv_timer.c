@@ -16,22 +16,19 @@
 #include <timer.h>
 #include <asm/csr.h>
 
-static int riscv_timer_get_count(struct udevice *dev, u64 *count)
+static u64 riscv_timer_get_count(struct udevice *dev)
 {
-	if (IS_ENABLED(CONFIG_64BIT)) {
-		*count = csr_read(CSR_TIME);
-	} else {
-		u32 hi, lo;
+	__maybe_unused u32 hi, lo;
 
-		do {
-			hi = csr_read(CSR_TIMEH);
-			lo = csr_read(CSR_TIME);
-		} while (hi != csr_read(CSR_TIMEH));
+	if (IS_ENABLED(CONFIG_64BIT))
+		return csr_read(CSR_TIME);
 
-		*count = ((u64)hi << 32) | lo;
-	}
+	do {
+		hi = csr_read(CSR_TIMEH);
+		lo = csr_read(CSR_TIME);
+	} while (hi != csr_read(CSR_TIMEH));
 
-	return 0;
+	return ((u64)hi << 32) | lo;
 }
 
 static int riscv_timer_probe(struct udevice *dev)

@@ -17,7 +17,7 @@ struct sti_timer_priv {
 	struct globaltimer *global_timer;
 };
 
-static int sti_timer_get_count(struct udevice *dev, u64 *count)
+static u64 sti_timer_get_count(struct udevice *dev)
 {
 	struct sti_timer_priv *priv = dev_get_priv(dev);
 	struct globaltimer *global_timer = priv->global_timer;
@@ -34,9 +34,7 @@ static int sti_timer_get_count(struct udevice *dev, u64 *count)
 			old = high;
 	}
 	timer = high;
-	*count = (u64)((timer << 32) | low);
-
-	return 0;
+	return (u64)((timer << 32) | low);
 }
 
 static int sti_timer_probe(struct udevice *dev)

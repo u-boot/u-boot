@@ -25,15 +25,13 @@ struct atmel_pit_platdata {
 	struct atmel_pit_regs *regs;
 };
 
-static int atmel_pit_get_count(struct udevice *dev, u64 *count)
+static u64 atmel_pit_get_count(struct udevice *dev)
 {
 	struct atmel_pit_platdata *plat = dev_get_platdata(dev);
 	struct atmel_pit_regs *const regs = plat->regs;
 	u32 val = readl(&regs->value_image);
 
-	*count = timer_conv_64(val);
-
-	return 0;
+	return timer_conv_64(val);
 }
 
 static int atmel_pit_probe(struct udevice *dev)

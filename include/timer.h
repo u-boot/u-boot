@@ -67,11 +67,14 @@ struct timer_ops {
 	 *
 	 * @dev: The timer device
 	 *
-	 * @count: pointer that returns the current 64-bit timer count
+	 * This function may be called at any time after the driver is probed.
+	 * All necessary initialization must be completed by the time probe()
+	 * returns. The count returned by this functions should be monotonic.
+	 * This function must succeed.
 	 *
-	 * Return: 0 if OK, -ve on error
+	 * Return: The current 64-bit timer count
 	 */
-	int (*get_count)(struct udevice *dev, u64 *count);
+	u64 (*get_count)(struct udevice *dev);
 };
 
 /**

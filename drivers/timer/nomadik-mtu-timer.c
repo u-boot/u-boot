@@ -54,14 +54,12 @@ struct nomadik_mtu_priv {
 	struct nomadik_mtu_timer_regs *timer;
 };
 
-static int nomadik_mtu_get_count(struct udevice *dev, u64 *count)
+static u64 nomadik_mtu_get_count(struct udevice *dev)
 {
 	struct nomadik_mtu_priv *priv = dev_get_priv(dev);
 
 	/* Decrementing counter: invert the value */
-	*count = timer_conv_64(~readl(&priv->timer->cv));
-
-	return 0;
+	return timer_conv_64(~readl(&priv->timer->cv));
 }
 
 static int nomadik_mtu_probe(struct udevice *dev)

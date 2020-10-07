@@ -34,7 +34,8 @@ int notrace timer_get_count(struct udevice *dev, u64 *count)
 	if (!ops->get_count)
 		return -ENOSYS;
 
-	return ops->get_count(dev, count);
+	*count = ops->get_count(dev);
+	return 0;
 }
 
 unsigned long notrace timer_get_rate(struct udevice *dev)
