@@ -81,6 +81,11 @@
  */
 DECLARE_GLOBAL_DATA_PTR;
 
+#define KS_CCR		0x08
+#define KS_CCR_EEPROM	BIT(9)
+#define KS_BE0		BIT(12)
+#define KS_BE1		BIT(13)
+
 int setup_mac_address(void)
 {
 	unsigned char enetaddr[6];
@@ -97,12 +102,39 @@ int setup_mac_address(void)
 	if (off < 0) {
 		/* ethernet1 is not present in the system */
 		skip_eth1 = true;
-	} else {
-		ret = eth_env_get_enetaddr("eth1addr", enetaddr);
-		if (ret)	/* eth1addr is already set */
-			skip_eth1 = true;
+		goto out_set_ethaddr;
 	}
 
+	ret = eth_env_get_enetaddr("eth1addr", enetaddr);
+	if (ret) {
+		/* eth1addr is already set */
+		skip_eth1 = true;
+		goto out_set_ethaddr;
+	}
+
+	ret = fdt_node_check_compatible(gd->fdt_blob, off, "micrel,ks8851-mll");
+	if (ret)
+		goto out_set_ethaddr;
+
+	/*
+	 * KS8851 with EEPROM may use custom MAC from EEPROM, read
+	 * out the KS8851 CCR register to determine whether EEPROM
+	 * is present. If EEPROM is present, it must contain valid
+	 * MAC address.
+	 */
+	u32 reg, ccr;
+	reg = fdt_get_base_address(gd->fdt_blob, off);
+	if (!reg)
+		goto out_set_ethaddr;
+
+	writew(KS_BE0 | KS_BE1 | KS_CCR, reg + 2);
+	ccr = readw(reg);
+	if (ccr & KS_CCR_EEPROM) {
+		skip_eth1 = true;
+		goto out_set_ethaddr;
+	}
+
+out_set_ethaddr:
 	if (skip_eth0 && skip_eth1)
 		return 0;
 
