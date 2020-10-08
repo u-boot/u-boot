@@ -58,16 +58,14 @@ Where to get source code:
 =========================
 
 The U-Boot source code is maintained in the Git repository at
-git://www.denx.de/git/u-boot.git ; you can browse it online at
-http://www.denx.de/cgi-bin/gitweb.cgi?p=u-boot.git;a=summary
+https://gitlab.denx.de/u-boot/u-boot.git ; you can browse it online at
+https://gitlab.denx.de/u-boot/u-boot
 
-The "snapshot" links on this page allow you to download tarballs of
+The "Tags" links on this page allow you to download tarballs of
 any version you might be interested in. Official releases are also
-available for FTP download from the ftp://ftp.denx.de/pub/u-boot/
-directory.
-
-Pre-built (and tested) images are available from
-ftp://ftp.denx.de/pub/u-boot/images/
+available from the DENX file server through HTTPS or FTP.
+https://ftp.denx.de/pub/u-boot/
+ftp://ftp.denx.de/pub/u-boot/
 
 
 Where we come from:
