@@ -136,12 +136,12 @@ Directory Hierarchy:
   /mips			Files generic to MIPS architecture
   /nds32		Files generic to NDS32 architecture
   /nios2		Files generic to Altera NIOS2 architecture
-  /openrisc		Files generic to OpenRISC architecture
   /powerpc		Files generic to PowerPC architecture
   /riscv		Files generic to RISC-V architecture
   /sandbox		Files generic to HW-independent "sandbox"
   /sh			Files generic to SH architecture
   /x86			Files generic to x86 architecture
+  /xtensa		Files generic to Xtensa architecture
 /api			Machine/arch independent API for external apps
 /board			Board dependent files
 /cmd			U-Boot commands functions
@@ -151,6 +151,7 @@ Directory Hierarchy:
 /doc			Documentation (don't expect too much)
 /drivers		Commonly used device drivers
 /dts			Contains Makefile for building internal U-Boot fdt.
+/env			Environment files
 /examples		Example code for standalone applications, etc.
 /fs			Filesystem code (cramfs, ext2, jffs2, etc.)
 /include		Header Files
