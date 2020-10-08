@@ -67,9 +67,7 @@
 	"findfdt="							\
 		"setenv name_fdt ${default_device_tree};"		\
 		"setenv fdtfile ${name_fdt}\0"				\
-	"loadaddr=0x80080000\0"						\
-	"fdtaddr=0x82000000\0"						\
-	"overlayaddr=0x83000000\0"					\
+	"overlayaddr=${dtboaddr}\0"					\
 	"name_kern=Image\0"						\
 	"console=ttyS2,115200n8\0"					\
 	"args_all=setenv optargs earlycon=ns16550a,mmio32,0x02800000 "	\
@@ -99,8 +97,8 @@
 		"fdt resize 0x100000;"					\
 		"for overlay in $name_overlays;"			\
 		"do;"							\
-		"load mmc ${bootpart} ${overlayaddr} ${bootdir}/${overlay} && "	\
-		"fdt apply ${overlayaddr};"				\
+		"load mmc ${bootpart} ${dtboaddr} ${bootdir}/${overlay} && "	\
+		"fdt apply ${dtboaddr};"				\
 		"done;\0"						\
 	"partitions=" PARTS_DEFAULT					\
 	"get_kern_mmc=load mmc ${bootpart} ${loadaddr} "		\
@@ -137,6 +135,7 @@
 
 /* Incorporate settings into the U-Boot environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
+	DEFAULT_LINUX_BOOT_ENV						\
 	DEFAULT_MMC_TI_ARGS						\
 	DEFAULT_FIT_TI_ARGS						\
 	EXTRA_ENV_J721E_BOARD_SETTINGS					\
