@@ -60,6 +60,13 @@
 			u-boot,dm-pre-reloc;
 		};
 
+		rng: rng@22000 {
+			compatible = "qcom,prng";
+			reg = <0x22000 0x140>;
+			clocks = <&gcc GCC_PRNG_AHB_CLK>;
+			status = "disabled";
+		};
+
 		reset: gcc-reset@1800000 {
 			compatible = "qcom,gcc-reset-ipq4019";
 			reg = <0x1800000 0x60000>;

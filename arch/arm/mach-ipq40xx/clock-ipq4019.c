@@ -54,6 +54,10 @@ static int msm_enable(struct clk *clk)
 		/* This clock is already initialized by SBL1 */
 		return 0;
 		break;
+	case GCC_PRNG_AHB_CLK: /*PRNG*/
+		/* This clock is already initialized by SBL1 */
+		return 0;
+		break;
 	default:
 		return 0;
 	}
