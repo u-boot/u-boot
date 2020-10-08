@@ -618,7 +618,7 @@ The following options need to be configured:
 		serverip, gatewayip, hostname, othbootargs.
 		It loads the vxWorks image pointed bootfile.
 
-		Note: If a "bootargs" environment is defined, it will overwride
+		Note: If a "bootargs" environment is defined, it will override
 		the defaults discussed just above.
 
 - Cache Configuration:
