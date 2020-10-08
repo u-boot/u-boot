@@ -242,6 +242,7 @@ F:	include/dt-bindings/reset/qcom,ipq4019-reset.h
 F:	drivers/reset/reset-ipq4019.c
 F:	drivers/phy/phy-qcom-ipq4019-usb.c
 F:	drivers/spi/spi-qup.c
+F:	drivers/net/mdio-ipq4019.c
 
 ARM MARVELL KIRKWOOD ARMADA-XP ARMADA-38X ARMADA-37XX ARMADA-7K/8K
 M:	Stefan Roese <sr@denx.de>
