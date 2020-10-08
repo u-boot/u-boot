@@ -185,7 +185,7 @@ int dram_init(void)
 
 int checkboard(void)
 {
-	puts("Board: ABB " CONFIG_SYS_CONFIG_NAME);
+	puts("Board: Hitachi " CONFIG_SYS_CONFIG_NAME);
 
 	if (piggy_present())
 		puts(" with PIGGY.");

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * ABB PGGA OPTI2 Device Tree Source
+ * Hitachi Power Grids OPTI2 Device Tree Source
  *
  * Copyright (C) 2020 Heiko Schocher <hs@denx.de>
  *
@@ -12,7 +12,7 @@
 
 / {
 	model = "KMOPTI2";
-	compatible = "ABB,kmpbec8321";
+	compatible = "hitachi,kmpbec8321";
 	#address-cells = <1>;
 	#size-cells = <1>;
 
