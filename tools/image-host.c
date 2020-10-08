@@ -293,8 +293,8 @@ static int fit_image_read_data(char *filename, unsigned char *data,
 
 	/* Check file size */
 	if (sbuf.st_size != expected_size) {
-		printf("File %s don't have the expected size (size=%ld, expected=%d)\n",
-		       filename, sbuf.st_size, expected_size);
+		printf("File %s don't have the expected size (size=%lld, expected=%d)\n",
+		       filename, (long long)sbuf.st_size, expected_size);
 		goto err;
 	}
 
@@ -308,8 +308,8 @@ static int fit_image_read_data(char *filename, unsigned char *data,
 
 	/* Check that we have read all the file */
 	if (n != sbuf.st_size) {
-		printf("Can't read all file %s (read %zd bytes, expexted %ld)\n",
-		       filename, n, sbuf.st_size);
+		printf("Can't read all file %s (read %zd bytes, expexted %lld)\n",
+		       filename, n, (long long)sbuf.st_size);
 		goto err;
 	}
 
