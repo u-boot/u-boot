@@ -622,6 +622,34 @@ static int ks8851_write_hwaddr(struct udevice *dev)
 	return 0;
 }
 
+static int ks8851_read_rom_hwaddr(struct udevice *dev)
+{
+	struct ks_net *ks = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	u16 addrl, addrm, addrh;
+
+	/* No EEPROM means no valid MAC address. */
+	if (!(ks_rdreg16(ks, KS_CCR) & CCR_EEPROM))
+		return -EINVAL;
+
+	/*
+	 * If the EEPROM contains valid MAC address, it is loaded into
+	 * the NIC on power on. Read the MAC out of the NIC registers.
+	 */
+	addrl = ks_rdreg16(ks, KS_MARL);
+	addrm = ks_rdreg16(ks, KS_MARM);
+	addrh = ks_rdreg16(ks, KS_MARH);
+
+	pdata->enetaddr[0] = (addrh >> 8) & 0xff;
+	pdata->enetaddr[1] = addrh & 0xff;
+	pdata->enetaddr[2] = (addrm >> 8) & 0xff;
+	pdata->enetaddr[3] = addrm & 0xff;
+	pdata->enetaddr[4] = (addrl >> 8) & 0xff;
+	pdata->enetaddr[5] = addrl & 0xff;
+
+	return !is_valid_ethaddr(pdata->enetaddr);
+}
+
 static int ks8851_bind(struct udevice *dev)
 {
 	return device_set_name(dev, dev->name);
@@ -654,6 +682,7 @@ static const struct eth_ops ks8851_ops = {
 	.send		= ks8851_send,
 	.recv		= ks8851_recv,
 	.write_hwaddr	= ks8851_write_hwaddr,
+	.read_rom_hwaddr = ks8851_read_rom_hwaddr,
 };
 
 static const struct udevice_id ks8851_ids[] = {
