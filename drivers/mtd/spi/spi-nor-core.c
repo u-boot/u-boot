@@ -2594,6 +2594,8 @@ static int spi_nor_init(struct spi_nor *nor)
 	    JEDEC_MFR(nor->info) == SNOR_MFR_INTEL ||
 	    JEDEC_MFR(nor->info) == SNOR_MFR_SST ||
 	    nor->info->flags & SPI_NOR_HAS_LOCK) {
+		if (nor->isparallel)
+			nor->spi->flags |= SPI_XFER_STRIPE;
 		write_enable(nor);
 		write_sr(nor, 0);
 		spi_nor_wait_till_ready(nor);
