@@ -545,7 +545,7 @@ int rsa_verify(struct image_sign_info *info,
 {
 	/* Reserve memory for maximum checksum-length */
 	uint8_t hash[info->crypto->key_len];
-	int ret = -EACCES;
+	int ret;
 
 	/*
 	 * Verify that the checksum-length does not exceed the
