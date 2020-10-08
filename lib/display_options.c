@@ -54,7 +54,7 @@ void print_freq(uint64_t freq, const char *s)
 {
 	unsigned long m = 0;
 	uint32_t f;
-	static const char names[] = {'G', 'M', 'K'};
+	static const char names[] = {'G', 'M', 'k'};
 	unsigned long d = 1e9;
 	char c = 0;
 	unsigned int i;
