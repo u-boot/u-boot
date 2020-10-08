@@ -67,7 +67,6 @@
 	"findfdt="							\
 		"setenv name_fdt ${default_device_tree};"		\
 		"setenv fdtfile ${name_fdt}\0"				\
-	"overlayaddr=${dtboaddr}\0"					\
 	"name_kern=Image\0"						\
 	"console=ttyS2,115200n8\0"					\
 	"args_all=setenv optargs earlycon=ns16550a,mmio32,0x02800000 "	\
