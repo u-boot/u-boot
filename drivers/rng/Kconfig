@@ -24,6 +24,13 @@ config RNG_SANDBOX
 	  Enable random number generator for sandbox. This is an
 	  emulation of a rng device.
 
+config RNG_MSM
+	bool "Qualcomm SoCs Random Number Generator support"
+	depends on DM_RNG
+	help
+	  This driver provides support for the Random Number
+	  Generator hardware found on Qualcomm SoCs.
+
 config RNG_STM32MP1
 	bool "Enable random number generator for STM32MP1"
 	depends on ARCH_STM32MP
