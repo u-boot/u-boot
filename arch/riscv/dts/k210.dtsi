@@ -5,6 +5,7 @@
 
 #include <dt-bindings/clock/k210-sysctl.h>
 #include <dt-bindings/mfd/k210-sysctl.h>
+#include <dt-bindings/pinctrl/k210-pinctrl.h>
 #include <dt-bindings/reset/k210-sysctl.h>
 
 / {
@@ -368,7 +369,18 @@
 				reg = <0x502B0000 0x100>;
 				clocks = <&sysclk K210_CLK_FPIOA>;
 				resets = <&sysrst K210_RST_FPIOA>;
+				kendryte,sysctl = <&sysctl>;
+				kendryte,power-offset = <K210_SYSCTL_POWER_SEL>;
+				pinctrl-0 = <&fpioa_jtag>;
+				pinctrl-names = "default";
 				status = "disabled";
+
+				fpioa_jtag: jtag {
+					pinmux = <K210_FPIOA(0, K210_PCF_JTAG_TCLK)>,
+						 <K210_FPIOA(1, K210_PCF_JTAG_TDI)>,
+						 <K210_FPIOA(2, K210_PCF_JTAG_TMS)>,
+						 <K210_FPIOA(3, K210_PCF_JTAG_TDO)>;
+				};
 			};
 
 			sha256: sha256@502C0000 {

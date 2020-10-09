@@ -199,7 +199,7 @@ To run legacy images, use the ``bootm`` command:
     Load Address: 80000000
     Entry Point:  80000000
 
-    $ picocom -b 115200 /dev/ttyUSB0i
+    $ picocom -b 115200 /dev/ttyUSB0
     => loady
     ## Ready for binary (ymodem) download to 0x80000000 at 115200 bps...
     C
@@ -229,6 +229,66 @@ To run legacy images, use the ``bootm`` command:
     argc = 0
     argv[0] = "<NULL>"
     Hit any key to exit ...
+
+Pin Assignment
+--------------
+
+The K210 contains a Fully Programmable I/O Array (FPIOA), which can remap any of
+its 256 input functions to any any of 48 output pins. The following table has
+the default pin assignments for the BitM.
+
+===== ========== =======
+Pin   Function   Comment
+===== ========== =======
+IO_0  JTAG_TCLK
+IO_1  JTAG_TDI
+IO_2  JTAG_TMS
+IO_3  JTAG_TDO
+IO_4  UARTHS_RX
+IO_5  UARTHS_TX
+IO_6             Not set
+IO_7             Not set
+IO_8  GPIO_0
+IO_9  GPIO_1
+IO_10 GPIO_2
+IO_11 GPIO_3
+IO_12 GPIO_4     Green LED
+IO_13 GPIO_5     Red LED
+IO_14 GPIO_6     Blue LED
+IO_15 GPIO_7
+IO_16 GPIOHS_0   ISP
+IO_17 GPIOHS_1
+IO_18 I2S0_SCLK  MIC CLK
+IO_19 I2S0_WS    MIC WS
+IO_20 I2S0_IN_D0 MIC SD
+IO_21 GPIOHS_5
+IO_22 GPIOHS_6
+IO_23 GPIOHS_7
+IO_24 GPIOHS_8
+IO_25 GPIOHS_9
+IO_26 SPI1_D1    MMC MISO
+IO_27 SPI1_SCLK  MMC CLK
+IO_28 SPI1_D0    MMC MOSI
+IO_29 GPIOHS_13  MMC CS
+IO_30 GPIOHS_14
+IO_31 GPIOHS_15
+IO_32 GPIOHS_16
+IO_33 GPIOHS_17
+IO_34 GPIOHS_18
+IO_35 GPIOHS_19
+IO_36 GPIOHS_20  Panel CS
+IO_37 GPIOHS_21  Panel RST
+IO_38 GPIOHS_22  Panel DC
+IO_39 SPI0_SCK   Panel WR
+IO_40 SCCP_SDA
+IO_41 SCCP_SCLK
+IO_42 DVP_RST
+IO_43 DVP_VSYNC
+IO_44 DVP_PWDN
+IO_45 DVP_HSYNC
+IO_46 DVP_XCLK
+IO_47 DVP_PCLK
+===== ========== =======
 
 Over- and Under-clocking
 ------------------------
@@ -408,7 +468,7 @@ Address    Size      Description
 0x8801C000 0x1000    riscv priv spec 1.9 config
 0x8801D000 0x2000    flattened device tree (contains only addresses and
                      interrupts)
-0x8801f000 0x1000    credits
+0x8801F000 0x1000    credits
 ========== ========= ===========
 
 Links

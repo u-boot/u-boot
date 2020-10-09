@@ -40,7 +40,8 @@ static int dm_test_led_default_state(struct unit_test_state *uts)
 	ut_assertok(led_get_by_label("sandbox:default_on", &dev));
 	ut_asserteq(LEDST_ON, led_get_state(dev));
 
-	ut_assertok(led_get_by_label("sandbox:default_off", &dev));
+	/* Also tests default label behaviour */
+	ut_assertok(led_get_by_label("default_off", &dev));
 	ut_asserteq(LEDST_OFF, led_get_state(dev));
 
 	return 0;

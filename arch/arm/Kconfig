@@ -12,7 +12,6 @@ config ARM64
 if ARM64
 config POSITION_INDEPENDENT
 	bool "Generate position-independent pre-relocation code"
-	select INIT_SP_RELATIVE
 	help
 	  U-Boot expects to be linked to a specific hard-coded address, and to
 	  be loaded to and run from that address. This option lifts that
@@ -23,6 +22,8 @@ config POSITION_INDEPENDENT
 
 config INIT_SP_RELATIVE
 	bool "Specify the early stack pointer relative to the .bss section"
+	default n if ARCH_QEMU
+	default y if POSITION_INDEPENDENT
 	help
 	  U-Boot typically uses a hard-coded value for the stack pointer
 	  before relocation. Enable this option to instead calculate the
@@ -76,7 +77,7 @@ config GIC_V3_ITS
 
 config STATIC_RELA
 	bool
-	default y if ARM64 && !POSITION_INDEPENDENT
+	default y if ARM64
 
 config DMA_ADDR_T_64BIT
 	bool
@@ -932,7 +933,6 @@ config ARCH_OWL
 
 config ARCH_QEMU
 	bool "QEMU Virtual Platform"
-	select ARCH_SUPPORT_TFABOOT
 	select DM
 	select DM_SERIAL
 	select OF_CONTROL
@@ -1801,8 +1801,13 @@ config TFABOOT
 	depends on ARCH_SUPPORT_TFABOOT
 	default n
 	help
-	  Enabling this will make a U-Boot binary that is capable of being
-	  booted via TF-A (Trusted Firmware for Cortex-A).
+	  Some platforms support the setup of secure registers (for instance
+	  for CPU errata handling) or provide secure services like PSCI.
+	  Those services could also be provided by other firmware parts
+	  like TF-A (Trusted Firmware for Cortex-A), in which case U-Boot
+	  does not need to (and cannot) execute this code.
+	  Enabling this option will make a U-Boot binary that is relying
+	  on other firmware layers to provide secure functionality.
 
 config TI_SECURE_DEVICE
 	bool "HS Device Type Support"

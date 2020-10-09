@@ -422,6 +422,14 @@ config SYS_SRAM_SIZE
 	default 0x10000 if TARGET_TRICORDER
 	default 0x0
 
+config EXAMPLES
+	bool "Compile API examples"
+	depends on !SANDBOX
+	default y if ARCH_QEMU
+	help
+	  U-Boot provides an API for standalone applications. Examples are
+	  provided in directory examples/.
+
 endmenu		# General setup
 
 menu "Boot images"
