@@ -143,8 +143,7 @@
 #define CONFIG_KM_DEF_ENV_FLASH_BOOT					\
 	"cramfsaddr=" __stringify(CONFIG_KM_CRAMFS_ADDR) "\0"		\
 	"cramfsloadkernel=cramfsload ${load_addr_r} ${uimage}\0"	\
-	"ubicopy=ubi read "__stringify(CONFIG_KM_CRAMFS_ADDR)		\
-			" bootfs${boot_bank}\0"				\
+	"ubicopy=ubi read ${cramfsaddr} bootfs${boot_bank}\0"		\
 	"uimage=" CONFIG_KM_UIMAGE_NAME					\
 	CONFIG_KM_DEV_ENV_FLASH_BOOT_UBI
 
