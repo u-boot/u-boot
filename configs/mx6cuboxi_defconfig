@@ -25,7 +25,6 @@ CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=arch/arm/mach-imx/spl_sd.cfg"
 CONFIG_BOOTCOMMAND="run findfdt; run finduuid; run distro_bootcmd"
 CONFIG_USE_PREBOOT=y
 CONFIG_PREBOOT="if hdmidet; then usb start; setenv stdin  serial,usbkbd; setenv stdout serial,vidconsole; setenv stderr serial,vidconsole; else setenv stdin  serial; setenv stdout serial; setenv stderr serial; fi;"
-CONFIG_BOUNCE_BUFFER=y
 CONFIG_BOARD_EARLY_INIT_F=y
 CONFIG_SPL_SEPARATE_BSS=y
 CONFIG_SPL_FS_EXT4=y
@@ -51,6 +50,7 @@ CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG=y
 CONFIG_NET_RANDOM_ETHADDR=y
 CONFIG_DM=y
 CONFIG_SPL_DM=y
+CONFIG_BOUNCE_BUFFER=y
 CONFIG_DWC_AHSATA=y
 CONFIG_DM_MMC=y
 CONFIG_FSL_USDHC=y
