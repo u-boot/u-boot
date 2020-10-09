@@ -160,6 +160,7 @@
 	"pnvramsize=" __stringify(CONFIG_KM_PNVRAM) "\0"		\
 	"testbootcmd=setenv boot_bank ${test_bank}; "			\
 		"run ${subbootcmds}; reset\0"				\
+	"env_version=1\0"						\
 	""
 
 #ifndef CONFIG_KM_DEF_ENV
