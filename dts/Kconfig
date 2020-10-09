@@ -377,12 +377,3 @@ config TPL_OF_PLATDATA
 	  declarations for each node. See of-plat.txt for more information.
 
 endmenu
-
-config MKIMAGE_DTC_PATH
-	string "Path to dtc binary for use within mkimage"
-	default "dtc"
-	help
-	  The mkimage host tool will, in order to generate FIT images make
-	  calls to the dtc application in order to create the output.  In
-	  some cases the system dtc may not support all required features
-	  and the path to a different version should be given here.

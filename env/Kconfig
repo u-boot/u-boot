@@ -773,4 +773,13 @@ config TPL_ENV_IS_IN_FLASH
 
 endif
 
+config VERSION_VARIABLE
+	bool "Add a 'ver' environment variable with the U-Boot version"
+	help
+	  If this variable is defined, an environment variable
+	  named "ver" is created by U-Boot showing the U-Boot
+	  version as printed by the "version" command.
+	  Any change to this variable will be reverted at the
+	  next reset.
+
 endmenu
