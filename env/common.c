@@ -141,12 +141,11 @@ int env_import(const char *buf, int check, int flags)
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 static unsigned char env_flags;
 
-int env_import_redund(const char *buf1, int buf1_read_fail,
-		      const char *buf2, int buf2_read_fail,
-		      int flags)
+int env_check_redund(const char *buf1, int buf1_read_fail,
+		     const char *buf2, int buf2_read_fail)
 {
 	int crc1_ok, crc2_ok;
-	env_t *ep, *tmp_env1, *tmp_env2;
+	env_t *tmp_env1, *tmp_env2;
 
 	tmp_env1 = (env_t *)buf1;
 	tmp_env2 = (env_t *)buf2;
@@ -159,14 +158,13 @@ int env_import_redund(const char *buf1, int buf1_read_fail,
 	}
 
 	if (buf1_read_fail && buf2_read_fail) {
-		env_set_default("bad env area", 0);
 		return -EIO;
 	} else if (!buf1_read_fail && buf2_read_fail) {
 		gd->env_valid = ENV_VALID;
-		return env_import((char *)tmp_env1, 1, flags);
+		return -EINVAL;
 	} else if (buf1_read_fail && !buf2_read_fail) {
 		gd->env_valid = ENV_REDUND;
-		return env_import((char *)tmp_env2, 1, flags);
+		return -ENOENT;
 	}
 
 	crc1_ok = crc32(0, tmp_env1->data, ENV_SIZE) ==
@@ -175,7 +173,6 @@ int env_import_redund(const char *buf1, int buf1_read_fail,
 			tmp_env2->crc;
 
 	if (!crc1_ok && !crc2_ok) {
-		env_set_default("bad CRC", 0);
 		return -ENOMSG; /* needed for env_load() */
 	} else if (crc1_ok && !crc2_ok) {
 		gd->env_valid = ENV_VALID;
@@ -195,12 +192,37 @@ int env_import_redund(const char *buf1, int buf1_read_fail,
 			gd->env_valid = ENV_VALID;
 	}
 
+	return 0;
+}
+
+int env_import_redund(const char *buf1, int buf1_read_fail,
+		      const char *buf2, int buf2_read_fail,
+		      int flags)
+{
+	env_t *ep;
+	int ret;
+
+	ret = env_check_redund(buf1, buf1_read_fail, buf2, buf2_read_fail);
+
+	if (ret == -EIO) {
+		env_set_default("bad env area", 0);
+		return -EIO;
+	} else if (ret == -EINVAL) {
+		return env_import((char *)buf1, 1, flags);
+	} else if (ret == -ENOENT) {
+		return env_import((char *)buf2, 1, flags);
+	} else if (ret == -ENOMSG) {
+		env_set_default("bad CRC", 0);
+		return -ENOMSG;
+	}
+
 	if (gd->env_valid == ENV_VALID)
-		ep = tmp_env1;
+		ep = (env_t *)buf1;
 	else
-		ep = tmp_env2;
+		ep = (env_t *)buf2;
 
 	env_flags = ep->flags;
+
 	return env_import((char *)ep, 0, flags);
 }
 #endif /* CONFIG_SYS_REDUNDAND_ENVIRONMENT */
