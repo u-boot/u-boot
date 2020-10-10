@@ -287,7 +287,10 @@ __weak void *env_sf_get_env_addr(void)
 #endif
 
 #if defined(INITENV) && (CONFIG_ENV_ADDR != 0x0)
-static int env_sf_init(void)
+/*
+ * check if Environment on CONFIG_ENV_ADDR is valid.
+ */
+static int env_sf_init_addr(void)
 {
 	env_t *env_ptr = (env_t *)env_sf_get_env_addr();
 
@@ -303,12 +306,103 @@ static int env_sf_init(void)
 }
 #endif
 
+#if defined(CONFIG_ENV_SPI_EARLY)
+/*
+ * early load environment from SPI flash (before relocation)
+ * and check if it is valid.
+ */
+static int env_sf_init_early(void)
+{
+	int ret;
+	int read1_fail;
+	int read2_fail;
+	int crc1_ok;
+	env_t *tmp_env2 = NULL;
+	env_t *tmp_env1;
+
+	/*
+	 * if malloc is not ready yet, we cannot use
+	 * this part yet.
+	 */
+	if (!gd->malloc_limit)
+		return -ENOENT;
+
+	tmp_env1 = (env_t *)memalign(ARCH_DMA_MINALIGN,
+			CONFIG_ENV_SIZE);
+	if (IS_ENABLED(CONFIG_SYS_REDUNDAND_ENVIRONMENT))
+		tmp_env2 = (env_t *)memalign(ARCH_DMA_MINALIGN,
+					     CONFIG_ENV_SIZE);
+
+	if (!tmp_env1 || !tmp_env2)
+		goto out;
+
+	ret = setup_flash_device();
+	if (ret)
+		goto out;
+
+	read1_fail = spi_flash_read(env_flash, CONFIG_ENV_OFFSET,
+				    CONFIG_ENV_SIZE, tmp_env1);
+
+	if (IS_ENABLED(CONFIG_SYS_REDUNDAND_ENVIRONMENT)) {
+		read2_fail = spi_flash_read(env_flash,
+					    CONFIG_ENV_OFFSET_REDUND,
+					    CONFIG_ENV_SIZE, tmp_env2);
+		ret = env_check_redund((char *)tmp_env1, read1_fail,
+				       (char *)tmp_env2, read2_fail);
+
+		if (ret == -EIO || ret == -ENOMSG)
+			goto err_read;
+
+		if (gd->env_valid == ENV_VALID)
+			gd->env_addr = (unsigned long)&tmp_env1->data;
+		else
+			gd->env_addr = (unsigned long)&tmp_env2->data;
+	} else {
+		if (read1_fail)
+			goto err_read;
+
+		crc1_ok = crc32(0, tmp_env1->data, ENV_SIZE) ==
+				tmp_env1->crc;
+		if (!crc1_ok)
+			goto err_read;
+
+		/* if valid -> this is our env */
+		gd->env_valid = ENV_VALID;
+		gd->env_addr = (unsigned long)&tmp_env1->data;
+	}
+
+	return 0;
+err_read:
+	spi_flash_free(env_flash);
+	env_flash = NULL;
+	free(tmp_env1);
+	if (IS_ENABLED(CONFIG_SYS_REDUNDAND_ENVIRONMENT))
+		free(tmp_env2);
+out:
+	/* env is not valid. always return 0 */
+	gd->env_valid = ENV_INVALID;
+	return 0;
+}
+#endif
+
+static int env_sf_init(void)
+{
+#if defined(INITENV) && (CONFIG_ENV_ADDR != 0x0)
+	return env_sf_init_addr();
+#elif defined(CONFIG_ENV_SPI_EARLY)
+	return env_sf_init_early();
+#endif
+	/*
+	 * we must return with 0 if there is nothing done,
+	 * else env_set_inited() get not called in env_init()
+	 */
+	return 0;
+}
+
 U_BOOT_ENV_LOCATION(sf) = {
 	.location	= ENVL_SPI_FLASH,
 	ENV_NAME("SPIFlash")
 	.load		= env_sf_load,
 	.save		= CONFIG_IS_ENABLED(SAVEENV) ? ENV_SAVE_PTR(env_sf_save) : NULL,
-#if defined(INITENV) && (CONFIG_ENV_ADDR != 0x0)
 	.init		= env_sf_init,
-#endif
 };

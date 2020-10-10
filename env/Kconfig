@@ -376,6 +376,14 @@ config ENV_SPI_MODE
 	  Value of the SPI work mode for environment.
 	  See include/spi.h for value.
 
+config ENV_SPI_EARLY
+	bool "Access Environment in SPI flashes before relocation"
+	depends on ENV_IS_IN_SPI_FLASH
+	help
+	  Enable this if you want to use Environment in SPI flash
+	  before relocation. Call env_init() and than you can use
+	  env_get_f() for accessing Environment variables.
+
 config ENV_IS_IN_UBI
 	bool "Environment in a UBI volume"
 	depends on !CHAIN_OF_TRUST
