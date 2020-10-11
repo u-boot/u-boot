@@ -33,7 +33,7 @@
  * @cur_level: Current level for the backlight (index or value)
  * @default_level: Default level for the backlight (index or value)
  * @min_level: Minimum level of the backlight (full off)
- * @min_level: Maximum level of the backlight (full on)
+ * @max_level: Maximum level of the backlight (full on)
  * @enabled: true if backlight is enabled
  */
 struct pwm_backlight_priv {
