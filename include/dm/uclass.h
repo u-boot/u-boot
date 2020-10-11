@@ -224,7 +224,8 @@ int uclass_get_device_by_ofnode(enum uclass_id id, ofnode node,
  *
  * @id: uclass ID to look up
  * @phandle_id: the phandle id to look up
- * @devp: Returns pointer to device (there is only one for each node)
+ * @devp: Returns pointer to device (there is only one for each node). NULL if
+ *	there is no such device.
  * @return 0 if OK, -ENODEV if there is no device match the phandle, other
  *	-ve on error
  */
