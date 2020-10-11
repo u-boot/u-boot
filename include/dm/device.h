@@ -823,7 +823,7 @@ static inline bool device_is_on_pci_bus(const struct udevice *dev)
 	     _ret = device_next_child_err(&dev))
 
 /**
- * dm_scan_fdt_dev() - Bind child device in a the device tree
+ * dm_scan_fdt_dev() - Bind child device in the device tree
  *
  * This handles device which have sub-nodes in the device tree. It scans all
  * sub-nodes and binds drivers for each node where a driver can be found.
