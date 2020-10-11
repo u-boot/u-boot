@@ -44,4 +44,5 @@ static int log_console_emit(struct log_device *ldev, struct log_rec *rec)
 LOG_DRIVER(console) = {
 	.name	= "console",
 	.emit	= log_console_emit,
+	.flags	= LOGDF_ENABLE,
 };

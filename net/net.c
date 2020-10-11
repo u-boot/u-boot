@@ -338,12 +338,19 @@ void net_auto_load(void)
 	tftp_start(TFTPGET);
 }
 
-static void net_init_loop(void)
+static int net_init_loop(void)
 {
 	if (eth_get_dev())
 		memcpy(net_ethaddr, eth_get_ethaddr(), 6);
+	else
+		/*
+		 * Not ideal, but there's no way to get the actual error, and I
+		 * don't feel like fixing all the users of eth_get_dev to deal
+		 * with errors.
+		 */
+		return -ENONET;
 
-	return;
+	return 0;
 }
 
 static void net_clear_handlers(void)
@@ -358,7 +365,7 @@ static void net_cleanup_loop(void)
 	net_clear_handlers();
 }
 
-void net_init(void)
+int net_init(void)
 {
 	static int first_call = 1;
 
@@ -381,7 +388,7 @@ void net_init(void)
 		first_call = 0;
 	}
 
-	net_init_loop();
+	return net_init_loop();
 }
 
 /**********************************************************************/

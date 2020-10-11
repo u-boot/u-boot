@@ -196,12 +196,18 @@ static int log_test(int testnum)
 		log_io("level %d\n", LOGL_DEBUG_IO);
 		break;
 	}
+	case 11:
+		log_err("default\n");
+		ret = log_device_set_enable(LOG_GET_DRIVER(console), false);
+		log_err("disabled\n");
+		ret = log_device_set_enable(LOG_GET_DRIVER(console), true);
+		log_err("enabled\n");
+		break;
 	}
 
 	return 0;
 }
 
-#ifdef CONFIG_LOG_TEST
 int do_log_test(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int testnum = 0;
@@ -216,4 +222,3 @@ int do_log_test(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	return ret ? CMD_RET_FAILURE : 0;
 }
-#endif

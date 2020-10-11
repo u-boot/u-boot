@@ -92,6 +92,13 @@ def test_log(u_boot_console):
         for i in range(7):
             assert 'log_test() level %d' % i == next(lines)
 
+    def test11():
+        """Test use of log_device_set_enable()"""
+        lines = run_test(11)
+        assert 'log_test() default'
+        # disabled should not be displayed
+        assert 'log_test() enabled'
+
     # TODO(sjg@chromium.org): Consider structuring this as separate tests
     cons = u_boot_console
     test0()
@@ -105,6 +112,7 @@ def test_log(u_boot_console):
     test8()
     test9()
     test10()
+    test11()
 
 @pytest.mark.buildconfigspec('cmd_log')
 def test_log_format(u_boot_console):

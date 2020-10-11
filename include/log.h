@@ -33,6 +33,9 @@ enum log_level_t {
 	LOGL_COUNT,
 	LOGL_NONE,
 
+	LOGL_LEVEL_MASK = 0xf,	/* Mask for valid log levels */
+	LOGL_FORCE_DEBUG = 0x10, /* Mask to force output due to LOG_DEBUG */
+
 	LOGL_FIRST = LOGL_EMERG,
 	LOGL_MAX = LOGL_DEBUG_IO,
 };
@@ -133,7 +136,7 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
 
 #if CONFIG_IS_ENABLED(LOG)
 #ifdef LOG_DEBUG
-#define _LOG_DEBUG	1
+#define _LOG_DEBUG	LOGL_FORCE_DEBUG
 #else
 #define _LOG_DEBUG	0
 #endif
@@ -141,9 +144,11 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
 /* Emit a log record if the level is less that the maximum */
 #define log(_cat, _level, _fmt, _args...) ({ \
 	int _l = _level; \
-	if (CONFIG_IS_ENABLED(LOG) && (_l <= _LOG_MAX_LEVEL || _LOG_DEBUG)) \
-		_log((enum log_category_t)(_cat), _l, __FILE__, __LINE__, \
-		      __func__, \
+	if (CONFIG_IS_ENABLED(LOG) && \
+	    (_LOG_DEBUG != 0 || _l <= _LOG_MAX_LEVEL)) \
+		_log((enum log_category_t)(_cat), \
+		     (enum log_level_t)(_l | _LOG_DEBUG), __FILE__, \
+		     __LINE__, __func__, \
 		      pr_fmt(_fmt), ##_args); \
 	})
 #else
@@ -279,8 +284,12 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
  * Memebers marked as 'allocated' are allocated (e.g. via strdup()) by the log
  * system.
  *
+ * TODO(sjg@chromium.org): Compress this struct down a bit to reduce space, e.g.
+ * a single u32 for cat, level, line and force_debug
+ *
  * @cat: Category, representing a uclass or part of U-Boot
  * @level: Severity level, less severe is higher
+ * @force_debug: Force output of debug
  * @file: Name of file where the log record was generated (not allocated)
  * @line: Line number where the log record was generated
  * @func: Function where the log record was generated (not allocated)
@@ -289,6 +298,7 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 struct log_rec {
 	enum log_category_t cat;
 	enum log_level_t level;
+	bool force_debug;
 	const char *file;
 	int line;
 	const char *func;
@@ -297,10 +307,16 @@ struct log_rec {
 
 struct log_device;
 
+enum log_device_flags {
+	LOGDF_ENABLE		= BIT(0),	/* Device is enabled */
+};
+
 /**
  * struct log_driver - a driver which accepts and processes log records
  *
  * @name: Name of driver
+ * @emit: Method to call to emit a log record via this device
+ * @flags: Initial value for flags (use LOGDF_ENABLE to enable on start-up)
  */
 struct log_driver {
 	const char *name;
@@ -311,6 +327,7 @@ struct log_driver {
 	 * for processing. The filter is checked before calling this function.
 	 */
 	int (*emit)(struct log_device *ldev, struct log_rec *rec);
+	unsigned short flags;
 };
 
 /**
@@ -323,12 +340,14 @@ struct log_driver {
  * @next_filter_num: Seqence number of next filter filter added (0=no filters
  *	yet). This increments with each new filter on the device, but never
  *	decrements
+ * @flags: Flags for this filter (enum log_device_flags)
  * @drv: Pointer to driver for this device
  * @filter_head: List of filters for this device
  * @sibling_node: Next device in the list of all devices
  */
 struct log_device {
-	int next_filter_num;
+	unsigned short next_filter_num;
+	unsigned short flags;
 	struct log_driver *drv;
 	struct list_head filter_head;
 	struct list_head sibling_node;
@@ -368,6 +387,10 @@ struct log_filter {
 
 #define LOG_DRIVER(_name) \
 	ll_entry_declare(struct log_driver, _name, log_driver)
+
+/* Get a pointer to a given driver */
+#define LOG_GET_DRIVER(__name)						\
+	ll_entry_get(struct log_driver, __name, log_driver)
 
 /**
  * log_get_cat_name() - Get the name of a category
@@ -445,6 +468,19 @@ int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
  *	filter number was not found
  */
 int log_remove_filter(const char *drv_name, int filter_num);
+
+/**
+ * log_device_set_enable() - Enable or disable a log device
+ *
+ * Devices are referenced by their driver, so use LOG_GET_DRIVER(name) to pass
+ * the driver to this function. For example if the driver is declared with
+ * LOG_DRIVER(wibble) then pass LOG_GET_DRIVER(wibble) here.
+ *
+ * @drv: Driver of device to enable
+ * @enable: true to enable, false to disable
+ * @return 0 if OK, -ENOENT if the driver was not found
+ */
+int log_device_set_enable(struct log_driver *drv, bool enable);
 
 #if CONFIG_IS_ENABLED(LOG)
 /**

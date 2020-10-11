@@ -75,6 +75,9 @@ struct udevice *eth_get_dev(void)
 	struct eth_uclass_priv *uc_priv;
 
 	uc_priv = eth_get_uclass_priv();
+	if (!uc_priv)
+		return NULL;
+
 	if (!uc_priv->current)
 		eth_errno = uclass_first_device(UCLASS_ETH,
 				    &uc_priv->current);
