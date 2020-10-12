@@ -3,7 +3,10 @@ if RCAR_GEN3
 menu "Select Target SoC"
 
 config R8A774A1
-        bool "Renesas SoC R8A774A1"
+	bool "Renesas SoC R8A774A1"
+
+config R8A774B1
+	bool "Renesas SoC R8A774B1"
 
 config R8A7795
 	bool "Renesas SoC R8A7795"
