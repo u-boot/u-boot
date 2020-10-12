@@ -618,7 +618,10 @@
 			compatible = "xlnx,versal-wwdt-1.0";
 			status = "disabled";
 			reg = <0 0xfd4d0000 0 0x10000>;
-			timeout-sec = <60>;
+			interrupt-names = "wdt", "wwdt_reset_pending";
+			interrupts = <0 0x64 1>, <0 0x6D 1>;
+			timeout-sec = <30>;
+			pretimeout-sec = <25>;
 		};
 	};
 };
