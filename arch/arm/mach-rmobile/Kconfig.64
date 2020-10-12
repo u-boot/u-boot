@@ -8,6 +8,9 @@ config R8A774A1
 config R8A774B1
 	bool "Renesas SoC R8A774B1"
 
+config R8A774E1
+	bool "Renesas SoC R8A774E1"
+
 config R8A7795
 	bool "Renesas SoC R8A7795"
 	imply CLK_R8A7795
