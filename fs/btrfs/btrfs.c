@@ -150,7 +150,7 @@ int btrfs_ls(const char *path)
 	}
 	ret = btrfs_iter_dir(root, ino, show_dir);
 	if (ret < 0) {
-		error("An error occured while listing directory %s", path);
+		error("An error occurred while listing directory %s", path);
 		return ret;
 	}
 	return 0;
@@ -257,7 +257,7 @@ int btrfs_read(const char *file, void *buf, loff_t offset, loff_t len,
 
 	ret = btrfs_file_read(root, ino, offset, len, buf);
 	if (ret < 0) {
-		error("An error occured while reading file %s", file);
+		error("An error occurred while reading file %s", file);
 		return ret;
 	}
 
