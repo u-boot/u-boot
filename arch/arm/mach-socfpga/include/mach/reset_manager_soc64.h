@@ -8,6 +8,7 @@
 
 void reset_deassert_peripherals_handoff(void);
 int cpu_has_been_warmreset(void);
+void print_reset_info(void);
 void socfpga_bridges_reset(int enable);
 
 #define RSTMGR_SOC64_STATUS	0x00
@@ -21,8 +22,15 @@ void socfpga_bridges_reset(int enable);
 #define RSTMGR_BRGMODRST_DDRSCH_MASK	0X00000040
 #define RSTMGR_BRGMODRST_FPGA2SOC_MASK	0x00000004
 
-/* Watchdogs and MPU warm reset mask */
-#define RSTMGR_L4WD_MPU_WARMRESET_MASK	0x000F0F00
+/* SDM, Watchdogs and MPU warm reset mask */
+#define RSTMGR_STAT_SDMWARMRST		BIT(1)
+#define RSTMGR_STAT_MPU0RST_BITPOS	8
+#define RSTMGR_STAT_L4WD0RST_BITPOS	16
+#define RSTMGR_L4WD_MPU_WARMRESET_MASK	(RSTMGR_STAT_SDMWARMRST | \
+		GENMASK(RSTMGR_STAT_MPU0RST_BITPOS + 3, \
+			RSTMGR_STAT_MPU0RST_BITPOS) | \
+		GENMASK(RSTMGR_STAT_L4WD0RST_BITPOS + 3, \
+			RSTMGR_STAT_L4WD0RST_BITPOS))
 
 /*
  * SocFPGA Stratix10 reset IDs, bank mapping is as follows:

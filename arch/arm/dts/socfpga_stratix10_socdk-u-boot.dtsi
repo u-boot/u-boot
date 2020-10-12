@@ -33,5 +33,6 @@
 };
 
 &watchdog0 {
+	status = "okay";
 	u-boot,dm-pre-reloc;
 };

@@ -3,7 +3,8 @@
  * Copyright (C) 2014-2015, 2020 Intel. All rights reserved.
  */
 
-#include "socfpga_arria10_socdk_sdmmc_handoff.dtsi"
+#include "socfpga_arria10_socdk_sdmmc_handoff.h"
+#include "socfpga_arria10-handoff.dtsi"
 #include "socfpga_arria10_handoff_u-boot.dtsi"
 #include "socfpga_arria10_socdk-u-boot.dtsi"
 

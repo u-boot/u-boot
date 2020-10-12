@@ -31,16 +31,16 @@ config FPGA_CYCLON2
 	  Enable FPGA driver for loading bitstream in BIT and BIN format
 	  on Altera Cyclone II device.
 
-config FPGA_STRATIX10
-	bool "Enable Altera FPGA driver for Stratix 10"
-	depends on TARGET_SOCFPGA_STRATIX10
+config FPGA_INTEL_SDM_MAILBOX
+	bool "Enable Intel FPGA Full Reconfiguration SDM Mailbox driver"
+	depends on TARGET_SOCFPGA_STRATIX10 || TARGET_SOCFPGA_AGILEX
 	select FPGA_ALTERA
 	help
-	  Say Y here to enable the Altera Stratix 10 FPGA specific driver
+	  Say Y here to enable the Intel FPGA Full Reconfig SDM Mailbox driver
 
-	  This provides common functionality for Altera Stratix 10 devices.
-	  Enable FPGA driver for writing bitstream into Altera Stratix10
-	  device.
+	  This provides common functionality for Intel FPGA devices.
+	  Enable FPGA driver for writing full bitstream into Intel FPGA
+	  devices through SDM (Secure Device Manager) Mailbox.
 
 config FPGA_XILINX
 	bool "Enable Xilinx FPGA drivers"

@@ -46,13 +46,21 @@ void sysmgr_pinmux_table_delay(const u32 **table, unsigned int *table_len);
 #define SYSMGR_SOC64_GPO			0xe4
 #define SYSMGR_SOC64_GPI			0xe8
 #define SYSMGR_SOC64_MPU			0xf0
+/* store qspi ref clock */
 #define SYSMGR_SOC64_BOOT_SCRATCH_COLD0		0x200
+/* store osc1 clock freq */
 #define SYSMGR_SOC64_BOOT_SCRATCH_COLD1		0x204
+/* store fpga clock freq */
 #define SYSMGR_SOC64_BOOT_SCRATCH_COLD2		0x208
+/* reserved for customer use */
 #define SYSMGR_SOC64_BOOT_SCRATCH_COLD3		0x20c
+/* store PSCI_CPU_ON value */
 #define SYSMGR_SOC64_BOOT_SCRATCH_COLD4		0x210
+/* store PSCI_CPU_ON value */
 #define SYSMGR_SOC64_BOOT_SCRATCH_COLD5		0x214
+/* store VBAR_EL3 value */
 #define SYSMGR_SOC64_BOOT_SCRATCH_COLD6		0x218
+/* store VBAR_EL3 value */
 #define SYSMGR_SOC64_BOOT_SCRATCH_COLD7		0x21c
 #define SYSMGR_SOC64_BOOT_SCRATCH_COLD8		0x220
 #define SYSMGR_SOC64_BOOT_SCRATCH_COLD9		0x224

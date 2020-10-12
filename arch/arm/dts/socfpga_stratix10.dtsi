@@ -386,7 +386,6 @@
 			reg = <0xffd00200 0x100>;
 			interrupts = <0 117 4>;
 			resets = <&rst WATCHDOG0_RESET>;
-			u-boot,dm-pre-reloc;
 			status = "disabled";
 		};
 

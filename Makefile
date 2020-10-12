@@ -1574,21 +1574,30 @@ u-boot.spr: spl/u-boot-spl.img u-boot.img FORCE
 	$(call if_changed,pad_cat)
 
 ifneq ($(CONFIG_ARCH_SOCFPGA),)
+quiet_cmd_gensplx4 = GENSPLX4 $@
+cmd_gensplx4 = cat	spl/u-boot-spl.sfp spl/u-boot-spl.sfp	\
+			spl/u-boot-spl.sfp spl/u-boot-spl.sfp > $@ || rm -f $@
+spl/u-boot-splx4.sfp: spl/u-boot-spl.sfp FORCE
+	$(call if_changed,gensplx4)
+
 quiet_cmd_socboot = SOCBOOT $@
-cmd_socboot = cat	spl/u-boot-spl.sfp spl/u-boot-spl.sfp	\
-			spl/u-boot-spl.sfp spl/u-boot-spl.sfp	\
-			u-boot.img > $@ || rm -f $@
-u-boot-with-spl.sfp: spl/u-boot-spl.sfp u-boot.img FORCE
+cmd_socboot = cat	spl/u-boot-splx4.sfp u-boot.img > $@ || rm -f $@
+u-boot-with-spl.sfp: spl/u-boot-splx4.sfp u-boot.img FORCE
 	$(call if_changed,socboot)
 
-quiet_cmd_socnandboot = SOCNANDBOOT $@
-cmd_socnandboot =  dd if=/dev/zero of=spl/u-boot-spl.pad bs=64 count=1024 ; \
+quiet_cmd_gensplpadx4 = GENSPLPADX4 $@
+cmd_gensplpadx4 =  dd if=/dev/zero of=spl/u-boot-spl.pad bs=64 count=1024 ; \
 		   cat	spl/u-boot-spl.sfp spl/u-boot-spl.pad \
 			spl/u-boot-spl.sfp spl/u-boot-spl.pad \
 			spl/u-boot-spl.sfp spl/u-boot-spl.pad \
-			spl/u-boot-spl.sfp spl/u-boot-spl.pad \
-			u-boot.img > $@ || rm -f $@ spl/u-boot-spl.pad
-u-boot-with-nand-spl.sfp: spl/u-boot-spl.sfp u-boot.img FORCE
+			spl/u-boot-spl.sfp spl/u-boot-spl.pad > $@ || \
+			rm -f $@ spl/u-boot-spl.pad
+u-boot-spl-padx4.sfp: spl/u-boot-spl.sfp FORCE
+	$(call if_changed,gensplpadx4)
+
+quiet_cmd_socnandboot = SOCNANDBOOT $@
+cmd_socnandboot = cat	u-boot-spl-padx4.sfp u-boot.img > $@ || rm -f $@
+u-boot-with-nand-spl.sfp: u-boot-spl-padx4.sfp u-boot.img FORCE
 	$(call if_changed,socnandboot)
 
 endif

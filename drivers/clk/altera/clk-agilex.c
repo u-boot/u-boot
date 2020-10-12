@@ -47,8 +47,66 @@ static void clk_write_ctrl(struct socfpga_clk_platdata *plat, u32 val)
 #define MEMBUS_MAINPLL				0
 #define MEMBUS_PERPLL				1
 #define MEMBUS_TIMEOUT				1000
-#define MEMBUS_ADDR_CLKSLICE			0x27
-#define MEMBUS_CLKSLICE_SYNC_MODE_EN		0x80
+
+#define MEMBUS_CLKSLICE_REG				0x27
+#define MEMBUS_SYNTHCALFOSC_INIT_CENTERFREQ_REG		0xb3
+#define MEMBUS_SYNTHPPM_WATCHDOGTMR_VF01_REG		0xe6
+#define MEMBUS_CALCLKSLICE0_DUTY_LOCOVR_REG		0x03
+#define MEMBUS_CALCLKSLICE1_DUTY_LOCOVR_REG		0x07
+
+static const struct {
+	u32 reg;
+	u32 val;
+	u32 mask;
+} membus_pll[] = {
+	{
+		MEMBUS_CLKSLICE_REG,
+		/*
+		 * BIT[7:7]
+		 * Enable source synchronous mode
+		 */
+		BIT(7),
+		BIT(7)
+	},
+	{
+		MEMBUS_SYNTHCALFOSC_INIT_CENTERFREQ_REG,
+		/*
+		 * BIT[0:0]
+		 * Sets synthcalfosc_init_centerfreq=1 to limit overshoot
+		 * frequency during lock
+		 */
+		BIT(0),
+		BIT(0)
+	},
+	{
+		MEMBUS_SYNTHPPM_WATCHDOGTMR_VF01_REG,
+		/*
+		 * BIT[0:0]
+		 * Sets synthppm_watchdogtmr_vf0=1 to give the pll more time
+		 * to settle before lock is asserted.
+		 */
+		BIT(0),
+		BIT(0)
+	},
+	{
+		MEMBUS_CALCLKSLICE0_DUTY_LOCOVR_REG,
+		/*
+		 * BIT[6:0]
+		 * Centering duty cycle for clkslice0 output
+		 */
+		0x4a,
+		GENMASK(6, 0)
+	},
+	{
+		MEMBUS_CALCLKSLICE1_DUTY_LOCOVR_REG,
+		/*
+		 * BIT[6:0]
+		 * Centering duty cycle for clkslice1 output
+		 */
+		0x4a,
+		GENMASK(6, 0)
+	},
+};
 
 static int membus_wait_for_req(struct socfpga_clk_platdata *plat, u32 pll,
 			       int timeout)
@@ -126,6 +184,20 @@ static int membus_read_pll(struct socfpga_clk_platdata *plat, u32 pll,
 	return 0;
 }
 
+static void membus_pll_configs(struct socfpga_clk_platdata *plat, u32 pll)
+{
+	int i;
+	u32 rdata;
+
+	for (i = 0; i < ARRAY_SIZE(membus_pll); i++) {
+		membus_read_pll(plat, pll, membus_pll[i].reg,
+				&rdata, MEMBUS_TIMEOUT);
+		membus_write_pll(plat, pll, membus_pll[i].reg,
+			 ((rdata & ~membus_pll[i].mask) | membus_pll[i].val),
+			 MEMBUS_TIMEOUT);
+	}
+}
+
 static u32 calc_vocalib_pll(u32 pllm, u32 pllglob)
 {
 	u32 mdiv, refclkdiv, arefclkdiv, drefclkdiv, mscnt, hscnt, vcocalib;
@@ -166,10 +238,19 @@ static void clk_basic_init(struct udevice *dev,
 {
 	struct socfpga_clk_platdata *plat = dev_get_platdata(dev);
 	u32 vcocalib;
-	u32 rdata;
 
 	if (!cfg)
 		return;
+
+#ifdef CONFIG_SPL_BUILD
+	/* Always force clock manager into boot mode before any configuration */
+	clk_write_ctrl(plat,
+		       CM_REG_READL(plat, CLKMGR_CTRL) | CLKMGR_CTRL_BOOTMODE);
+#else
+	/* Skip clock configuration in SSBL if it's not in boot mode */
+	if (!(CM_REG_READL(plat, CLKMGR_CTRL) & CLKMGR_CTRL_BOOTMODE))
+		return;
+#endif
 
 	/* Put both PLLs in bypass */
 	clk_write_bypass_mainpll(plat, CLKMGR_BYPASS_MAINPLL_ALL);
@@ -216,19 +297,10 @@ static void clk_basic_init(struct udevice *dev,
 	CM_REG_SETBITS(plat, CLKMGR_PERPLL_PLLGLOB,
 		       CLKMGR_PLLGLOB_PD_MASK | CLKMGR_PLLGLOB_RST_MASK);
 
-	/* Membus programming to set mainpll and perripll to
-	 * source synchronous mode
-	 */
-	membus_read_pll(plat, MEMBUS_MAINPLL, MEMBUS_ADDR_CLKSLICE, &rdata,
-			MEMBUS_TIMEOUT);
-	membus_write_pll(plat, MEMBUS_MAINPLL, MEMBUS_ADDR_CLKSLICE,
-			 (rdata | MEMBUS_CLKSLICE_SYNC_MODE_EN),
-			 MEMBUS_TIMEOUT);
-	membus_read_pll(plat, MEMBUS_PERPLL, MEMBUS_ADDR_CLKSLICE, &rdata,
-			MEMBUS_TIMEOUT);
-	membus_write_pll(plat, MEMBUS_PERPLL, MEMBUS_ADDR_CLKSLICE,
-			 (rdata | MEMBUS_CLKSLICE_SYNC_MODE_EN),
-			 MEMBUS_TIMEOUT);
+	/* Membus programming for mainpll */
+	membus_pll_configs(plat, MEMBUS_MAINPLL);
+	/* Membus programming for peripll */
+	membus_pll_configs(plat, MEMBUS_PERPLL);
 
 	cm_wait_for_lock(CLKMGR_STAT_ALLPLL_LOCKED_MASK);
 
@@ -533,10 +605,18 @@ static ulong socfpga_clk_get_rate(struct clk *clk)
 	case AGILEX_EMAC2_CLK:
 		return clk_get_emac_clk_hz(plat, clk->id);
 	case AGILEX_USB_CLK:
+	case AGILEX_NAND_X_CLK:
 		return clk_get_l4_mp_clk_hz(plat);
+	case AGILEX_NAND_CLK:
+		return clk_get_l4_mp_clk_hz(plat) / 4;
 	default:
 		return -ENXIO;
 	}
+}
+
+static int socfpga_clk_enable(struct clk *clk)
+{
+	return 0;
 }
 
 static int socfpga_clk_probe(struct udevice *dev)
@@ -562,6 +642,7 @@ static int socfpga_clk_ofdata_to_platdata(struct udevice *dev)
 }
 
 static struct clk_ops socfpga_clk_ops = {
+	.enable		= socfpga_clk_enable,
 	.get_rate	= socfpga_clk_get_rate,
 };
 

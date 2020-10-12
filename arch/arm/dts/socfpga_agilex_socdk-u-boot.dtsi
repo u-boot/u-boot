@@ -40,3 +40,7 @@
 &qspi {
 	status = "okay";
 };
+
+&watchdog0 {
+	u-boot,dm-pre-reloc;
+};

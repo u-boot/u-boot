@@ -9,6 +9,7 @@
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
 #include <dt-bindings/reset/altr,rst-mgr-s10.h>
+#include <linux/iopoll.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -54,6 +55,8 @@ void socfpga_per_reset_all(void)
 
 void socfpga_bridges_reset(int enable)
 {
+	u32 reg;
+
 	if (enable) {
 		/* clear idle request to all bridges */
 		setbits_le32(socfpga_get_sysmgr_addr() +
@@ -64,9 +67,9 @@ void socfpga_bridges_reset(int enable)
 			     ~0);
 
 		/* Poll until all idleack to 0 */
-		while (readl(socfpga_get_sysmgr_addr() +
-			     SYSMGR_SOC64_NOC_IDLEACK))
-			;
+		read_poll_timeout(readl, socfpga_get_sysmgr_addr() +
+				  SYSMGR_SOC64_NOC_IDLEACK, reg, !reg, 1000,
+				  300000);
 	} else {
 		/* set idle request to all bridges */
 		writel(~0,
@@ -77,14 +80,18 @@ void socfpga_bridges_reset(int enable)
 		writel(1, socfpga_get_sysmgr_addr() + SYSMGR_SOC64_NOC_TIMEOUT);
 
 		/* Poll until all idleack to 1 */
-		while ((readl(socfpga_get_sysmgr_addr() + SYSMGR_SOC64_NOC_IDLEACK) ^
-			(SYSMGR_NOC_H2F_MSK | SYSMGR_NOC_LWH2F_MSK)))
-			;
+		read_poll_timeout(readl, socfpga_get_sysmgr_addr() +
+				  SYSMGR_SOC64_NOC_IDLEACK, reg,
+				  reg == (SYSMGR_NOC_H2F_MSK |
+					  SYSMGR_NOC_LWH2F_MSK),
+				  1000, 300000);
 
 		/* Poll until all idlestatus to 1 */
-		while ((readl(socfpga_get_sysmgr_addr() + SYSMGR_SOC64_NOC_IDLESTATUS) ^
-			(SYSMGR_NOC_H2F_MSK | SYSMGR_NOC_LWH2F_MSK)))
-			;
+		read_poll_timeout(readl, socfpga_get_sysmgr_addr() +
+				  SYSMGR_SOC64_NOC_IDLESTATUS, reg,
+				  reg == (SYSMGR_NOC_H2F_MSK |
+					  SYSMGR_NOC_LWH2F_MSK),
+				  1000, 300000);
 
 		/* Reset all bridges (except NOR DDR scheduler & F2S) */
 		setbits_le32(socfpga_get_rstmgr_addr() + RSTMGR_SOC64_BRGMODRST,
@@ -103,4 +110,26 @@ int cpu_has_been_warmreset(void)
 {
 	return readl(socfpga_get_rstmgr_addr() + RSTMGR_SOC64_STATUS) &
 			RSTMGR_L4WD_MPU_WARMRESET_MASK;
+}
+
+void print_reset_info(void)
+{
+	bool iswd;
+	int n;
+	u32 stat = cpu_has_been_warmreset();
+
+	printf("Reset state: %s%s", stat ? "Warm " : "Cold",
+	       (stat & RSTMGR_STAT_SDMWARMRST) ? "[from SDM] " : "");
+
+	stat &= ~RSTMGR_STAT_SDMWARMRST;
+	if (!stat) {
+		puts("\n");
+		return;
+	}
+
+	n = generic_ffs(stat) - 1;
+	iswd = (n >= RSTMGR_STAT_L4WD0RST_BITPOS);
+	printf("(Triggered by %s %d)\n", iswd ? "Watchdog" : "MPU",
+	       iswd ? (n - RSTMGR_STAT_L4WD0RST_BITPOS) :
+	       (n - RSTMGR_STAT_MPU0RST_BITPOS));
 }

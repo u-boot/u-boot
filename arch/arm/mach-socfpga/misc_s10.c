@@ -8,20 +8,13 @@
 #include <common.h>
 #include <env.h>
 #include <errno.h>
-#include <fdtdec.h>
 #include <init.h>
 #include <log.h>
-#include <miiphy.h>
-#include <netdev.h>
 #include <asm/io.h>
+#include <asm/arch/mailbox_s10.h>
+#include <asm/arch/misc.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
-#include <asm/arch/misc.h>
-#include <asm/pl310.h>
-#include <linux/libfdt.h>
-#include <asm/arch/mailbox_s10.h>
-
-#include <dt-bindings/reset/altr,rst-mgr-s10.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -31,7 +24,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static Altera_desc altera_fpga[] = {
 	{
 		/* Family */
-		Intel_FPGA_Stratix10,
+		Intel_FPGA_SDM_Mailbox,
 		/* Interface type */
 		secure_device_manager_mailbox,
 		/* No limitation as additional data will be ignored */
@@ -45,79 +38,6 @@ static Altera_desc altera_fpga[] = {
 	},
 };
 
-/*
- * DesignWare Ethernet initialization
- */
-#ifdef CONFIG_ETH_DESIGNWARE
-
-static u32 socfpga_phymode_setup(u32 gmac_index, const char *phymode)
-{
-	u32 modereg;
-
-	if (!phymode)
-		return -EINVAL;
-
-	if (!strcmp(phymode, "mii") || !strcmp(phymode, "gmii") ||
-	    !strcmp(phymode, "sgmii"))
-		modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_GMII_MII;
-	else if (!strcmp(phymode, "rgmii"))
-		modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII;
-	else if (!strcmp(phymode, "rmii"))
-		modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RMII;
-	else
-		return -EINVAL;
-
-	clrsetbits_le32(socfpga_get_sysmgr_addr() + SYSMGR_SOC64_EMAC0 +
-			(gmac_index * sizeof(u32)),
-			SYSMGR_EMACGRP_CTRL_PHYSEL_MASK, modereg);
-
-	return 0;
-}
-
-static int socfpga_set_phymode(void)
-{
-	const void *fdt = gd->fdt_blob;
-	struct fdtdec_phandle_args args;
-	const char *phy_mode;
-	u32 gmac_index;
-	int nodes[3];	/* Max. 3 GMACs */
-	int ret, count;
-	int i, node;
-
-	count = fdtdec_find_aliases_for_id(fdt, "ethernet",
-					   COMPAT_ALTERA_SOCFPGA_DWMAC,
-					   nodes, ARRAY_SIZE(nodes));
-	for (i = 0; i < count; i++) {
-		node = nodes[i];
-		if (node <= 0)
-			continue;
-
-		ret = fdtdec_parse_phandle_with_args(fdt, node, "resets",
-						     "#reset-cells", 1, 0,
-						     &args);
-		if (ret || args.args_count != 1) {
-			debug("GMAC%i: Failed to parse DT 'resets'!\n", i);
-			continue;
-		}
-
-		gmac_index = args.args[0] - EMAC0_RESET;
-
-		phy_mode = fdt_getprop(fdt, node, "phy-mode", NULL);
-		ret = socfpga_phymode_setup(gmac_index, phy_mode);
-		if (ret) {
-			debug("GMAC%i: Failed to parse DT 'phy-mode'!\n", i);
-			continue;
-		}
-	}
-
-	return 0;
-}
-#else
-static int socfpga_set_phymode(void)
-{
-	return 0;
-};
-#endif
 
 /*
  * Print CPU information
@@ -139,7 +59,6 @@ int arch_misc_init(void)
 	sprintf(qspi_string, "<0x%08x>", cm_get_qspi_controller_clk_hz());
 	env_set("qspi_clock", qspi_string);
 
-	socfpga_set_phymode();
 	return 0;
 }
 #endif

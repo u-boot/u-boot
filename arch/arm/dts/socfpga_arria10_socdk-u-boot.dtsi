@@ -15,3 +15,7 @@
 &uart1 {
 	u-boot,dm-pre-reloc;
 };
+
+&watchdog1 {
+        u-boot,dm-pre-reloc;
+};
