@@ -109,17 +109,15 @@ static uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 
 	if (data) {
 		xfertyp |= XFERTYP_DPSEL;
-#ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-		if (cmd->cmdidx != MMC_CMD_SEND_TUNING_BLOCK &&
+		if (!IS_ENABLED(CONFIG_SYS_FSL_ESDHC_USE_PIO) &&
+		    cmd->cmdidx != MMC_CMD_SEND_TUNING_BLOCK &&
 		    cmd->cmdidx != MMC_CMD_SEND_TUNING_BLOCK_HS200)
 			xfertyp |= XFERTYP_DMAEN;
-#endif
 		if (data->blocks > 1) {
 			xfertyp |= XFERTYP_MSBSEL;
 			xfertyp |= XFERTYP_BCEN;
-#ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC111
-			xfertyp |= XFERTYP_AC12EN;
-#endif
+			if (IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_ESDHC111))
+				xfertyp |= XFERTYP_AC12EN;
 		}
 
 		if (data->flags & MMC_DATA_READ)
@@ -143,7 +141,6 @@ static uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 	return XFERTYP_CMD(cmd->cmdidx) | xfertyp;
 }
 
-#ifdef CONFIG_SYS_FSL_ESDHC_USE_PIO
 /*
  * PIO Read/Write Mode reduce the performace as DMA is not used in this mode.
  */
@@ -206,9 +203,7 @@ static void esdhc_pio_read_write(struct fsl_esdhc_priv *priv,
 		}
 	}
 }
-#endif
 
-#ifdef CONFIG_SYS_FSL_ESDHC_USE_PIO
 static void esdhc_setup_watermark_level(struct fsl_esdhc_priv *priv,
 					struct mmc_data *data)
 {
@@ -228,7 +223,6 @@ static void esdhc_setup_watermark_level(struct fsl_esdhc_priv *priv,
 				   wml_value << 16);
 	}
 }
-#endif
 
 static void esdhc_setup_dma(struct fsl_esdhc_priv *priv, struct mmc_data *data)
 {
@@ -261,11 +255,10 @@ static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 		return -EINVAL;
 	}
 
-#ifdef CONFIG_SYS_FSL_ESDHC_USE_PIO
-	esdhc_setup_watermark_level(priv, data);
-#else
-	esdhc_setup_dma(priv, data);
-#endif
+	if (IS_ENABLED(CONFIG_SYS_FSL_ESDHC_USE_PIO))
+		esdhc_setup_watermark_level(priv, data);
+	else
+		esdhc_setup_dma(priv, data);
 
 	/* Calculate the timeout period for data transactions */
 	/*
@@ -298,14 +291,13 @@ static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 	if (timeout < 0)
 		timeout = 0;
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC_A001
-	if ((timeout == 4) || (timeout == 8) || (timeout == 12))
+	if (IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_ESDHC_A001) &&
+	    (timeout == 4 || timeout == 8 || timeout == 12))
 		timeout++;
-#endif
 
-#ifdef ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE
-	timeout = 0xE;
-#endif
+	if (IS_ENABLED(ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE))
+		timeout = 0xE;
+
 	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_TIMEOUT_MASK, timeout << 16);
 
 	return 0;
@@ -325,10 +317,9 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 	unsigned long start;
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC111
-	if (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION)
+	if (IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_ESDHC111) &&
+	    cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION)
 		return 0;
-#endif
 
 	esdhc_write32(&regs->irqstat, -1);
 
@@ -426,37 +417,37 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 
 	/* Wait until all of the blocks are transferred */
 	if (data) {
-#ifdef CONFIG_SYS_FSL_ESDHC_USE_PIO
-		esdhc_pio_read_write(priv, data);
-#else
-		flags = DATA_COMPLETE;
-		if (cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK ||
-		    cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200)
-			flags = IRQSTAT_BRR;
+		if (IS_ENABLED(CONFIG_SYS_FSL_ESDHC_USE_PIO)) {
+			esdhc_pio_read_write(priv, data);
+		} else {
+			flags = DATA_COMPLETE;
+			if (cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK ||
+			    cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200)
+				flags = IRQSTAT_BRR;
 
-		do {
-			irqstat = esdhc_read32(&regs->irqstat);
+			do {
+				irqstat = esdhc_read32(&regs->irqstat);
 
-			if (irqstat & IRQSTAT_DTOE) {
-				err = -ETIMEDOUT;
-				goto out;
-			}
+				if (irqstat & IRQSTAT_DTOE) {
+					err = -ETIMEDOUT;
+					goto out;
+				}
 
-			if (irqstat & DATA_ERR) {
-				err = -ECOMM;
-				goto out;
-			}
-		} while ((irqstat & flags) != flags);
+				if (irqstat & DATA_ERR) {
+					err = -ECOMM;
+					goto out;
+				}
+			} while ((irqstat & flags) != flags);
 
-		/*
-		 * Need invalidate the dcache here again to avoid any
-		 * cache-fill during the DMA operations such as the
-		 * speculative pre-fetching etc.
-		 */
-		dma_unmap_single(priv->dma_addr,
-				 data->blocks * data->blocksize,
-				 mmc_get_dma_dir(data));
-#endif
+			/*
+			 * Need invalidate the dcache here again to avoid any
+			 * cache-fill during the DMA operations such as the
+			 * speculative pre-fetching etc.
+			 */
+			dma_unmap_single(priv->dma_addr,
+					 data->blocks * data->blocksize,
+					 mmc_get_dma_dir(data));
+		}
 	}
 
 out:
@@ -735,12 +726,10 @@ static void fsl_esdhc_get_cfg_common(struct fsl_esdhc_priv *priv,
 	u32 caps;
 
 	caps = esdhc_read32(&regs->hostcapblt);
-#ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC135
-	caps &= ~(HOSTCAPBLT_SRS | HOSTCAPBLT_VS18 | HOSTCAPBLT_VS30);
-#endif
-#ifdef CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
-	caps |= HOSTCAPBLT_VS33;
-#endif
+	if (IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_ESDHC135))
+		caps &= ~(HOSTCAPBLT_SRS | HOSTCAPBLT_VS18 | HOSTCAPBLT_VS30);
+	if (IS_ENABLED(CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33))
+		caps |= HOSTCAPBLT_VS33;
 	if (caps & HOSTCAPBLT_VS18)
 		cfg->voltages |= MMC_VDD_165_195;
 	if (caps & HOSTCAPBLT_VS30)
@@ -761,19 +750,18 @@ static void fsl_esdhc_get_cfg_common(struct fsl_esdhc_priv *priv,
 #ifdef CONFIG_OF_LIBFDT
 __weak int esdhc_status_fixup(void *blob, const char *compat)
 {
-#ifdef CONFIG_FSL_ESDHC_PIN_MUX
-	if (!hwconfig("esdhc")) {
+	if (IS_ENABLED(CONFIG_FSL_ESDHC_PIN_MUX) && !hwconfig("esdhc")) {
 		do_fixup_by_compat(blob, compat, "status", "disabled",
 				sizeof("disabled"), 1);
 		return 1;
 	}
-#endif
+
 	return 0;
 }
 
-#ifdef CONFIG_FSL_ESDHC_33V_IO_RELIABILITY_WORKAROUND
-static int fsl_esdhc_get_cd(struct udevice *dev);
 
+#if CONFIG_IS_ENABLED(DM_MMC)
+static int fsl_esdhc_get_cd(struct udevice *dev);
 static void esdhc_disable_for_no_card(void *blob)
 {
 	struct udevice *dev;
@@ -792,6 +780,10 @@ static void esdhc_disable_for_no_card(void *blob)
 				 sizeof("disabled"), 1);
 	}
 }
+#else
+static void esdhc_disable_for_no_card(void *blob)
+{
+}
 #endif
 
 void fdt_fixup_esdhc(void *blob, struct bd_info *bd)
@@ -800,9 +792,10 @@ void fdt_fixup_esdhc(void *blob, struct bd_info *bd)
 
 	if (esdhc_status_fixup(blob, compat))
 		return;
-#ifdef CONFIG_FSL_ESDHC_33V_IO_RELIABILITY_WORKAROUND
-	esdhc_disable_for_no_card(blob);
-#endif
+
+	if (IS_ENABLED(CONFIG_FSL_ESDHC_33V_IO_RELIABILITY_WORKAROUND))
+		esdhc_disable_for_no_card(blob);
+
 	do_fixup_by_compat_u32(blob, compat, "clock-frequency",
 			       gd->arch.sdhc_clk, 1);
 }
@@ -884,10 +877,9 @@ int fsl_esdhc_initialize(struct bd_info *bis, struct fsl_esdhc_cfg *cfg)
 		printf("No max bus width provided. Assume 8-bit supported.\n");
 	}
 
-#ifdef CONFIG_ESDHC_DETECT_8_BIT_QUIRK
-	if (CONFIG_ESDHC_DETECT_8_BIT_QUIRK)
+	if (IS_ENABLED(CONFIG_ESDHC_DETECT_8_BIT_QUIRK))
 		mmc_cfg->host_caps &= ~MMC_MODE_8BIT;
-#endif
+
 	mmc_cfg->ops = &esdhc_ops;
 
 	fsl_esdhc_get_cfg_common(priv, mmc_cfg);
@@ -959,10 +951,10 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_FSL_ESDHC_33V_IO_RELIABILITY_WORKAROUND
-	if (!fsl_esdhc_get_cd(dev))
+	if (IS_ENABLED(CONFIG_FSL_ESDHC_33V_IO_RELIABILITY_WORKAROUND) &&
+	    !fsl_esdhc_get_cd(dev))
 		esdhc_setbits32(&priv->esdhc_regs->proctl, PROCTL_VOLT_SEL);
-#endif
+
 	return 0;
 }
 
