@@ -97,6 +97,10 @@
 #define PROCTL_DTW_4		0x00000002
 #define PROCTL_DTW_8		0x00000004
 #define PROCTL_D3CD		0x00000008
+#define PROCTL_DMAS_MASK	0x00000300
+#define PROCTL_DMAS_SDMA	0x00000000
+#define PROCTL_DMAS_ADMA1	0x00000100
+#define PROCTL_DMAS_ADMA2	0x00000300
 #define PROCTL_VOLT_SEL		0x00000400
 
 #define CMDARG			0x0002e008
@@ -186,6 +190,16 @@
 #define DLL_FREQ_SEL		0x08000000
 
 #define MAX_TUNING_LOOP		40
+
+#define HOSTVER_VENDOR(x)	(((x) >> 8) & 0xff)
+#define VENDOR_V_10		0x00
+#define VENDOR_V_20		0x10
+#define VENDOR_V_21		0x11
+#define VENDOR_V_22		0x12
+#define VENDOR_V_23		0x13
+#define VENDOR_V_30		0x20
+#define VENDOR_V_31		0x21
+#define VENDOR_V_32		0x22
 
 struct fsl_esdhc_cfg {
 	phys_addr_t esdhc_base;

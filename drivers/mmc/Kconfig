@@ -755,6 +755,14 @@ config FSL_ESDHC
 	  This selects support for the eSDHC (Enhanced Secure Digital Host
 	  Controller) found on numerous Freescale/NXP SoCs.
 
+config FSL_ESDHC_SUPPORT_ADMA2
+	bool "enable ADMA2 support"
+	depends on FSL_ESDHC
+	select MMC_SDHCI_ADMA_HELPERS
+	help
+	  This enables support for the ADMA2 transfer mode. If supported by the
+	  eSDHC it will allow 64bit DMA addresses.
+
 config FSL_ESDHC_33V_IO_RELIABILITY_WORKAROUND
 	bool "enable eSDHC workaround for 3.3v IO reliability issue"
 	depends on FSL_ESDHC && DM_MMC

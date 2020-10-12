@@ -27,6 +27,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/dma-mapping.h>
+#include <sdhci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -52,8 +53,9 @@ struct fsl_esdhc {
 	char    reserved1[8];	/* reserved */
 	uint    fevt;		/* Force event register */
 	uint    admaes;		/* ADMA error status register */
-	uint    adsaddr;	/* ADMA system address register */
-	char    reserved2[160];
+	uint    adsaddrl;	/* ADMA system address low register */
+	uint    adsaddrh;	/* ADMA system address high register */
+	char    reserved2[156];
 	uint    hostver;	/* Host controller version register */
 	char    reserved3[4];	/* reserved */
 	uint    dmaerraddr;	/* DMA error address register */
@@ -99,6 +101,7 @@ struct fsl_esdhc_priv {
 	struct mmc *mmc;
 #endif
 	struct udevice *dev;
+	struct sdhci_adma_desc *adma_desc_table;
 	dma_addr_t dma_addr;
 };
 
@@ -228,6 +231,7 @@ static void esdhc_setup_dma(struct fsl_esdhc_priv *priv, struct mmc_data *data)
 {
 	uint trans_bytes = data->blocksize * data->blocks;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
+	phys_addr_t adma_addr;
 	void *buf;
 
 	if (data->flags & MMC_DATA_WRITE)
@@ -237,9 +241,29 @@ static void esdhc_setup_dma(struct fsl_esdhc_priv *priv, struct mmc_data *data)
 
 	priv->dma_addr = dma_map_single(buf, trans_bytes,
 					mmc_get_dma_dir(data));
-	if (upper_32_bits(priv->dma_addr))
-		printf("Cannot use 64 bit addresses with SDMA\n");
-	esdhc_write32(&regs->dsaddr, lower_32_bits(priv->dma_addr));
+
+	if (IS_ENABLED(CONFIG_FSL_ESDHC_SUPPORT_ADMA2) &&
+	    priv->adma_desc_table) {
+		debug("Using ADMA2\n");
+		/* prefer ADMA2 if it is available */
+		sdhci_prepare_adma_table(priv->adma_desc_table, data,
+					 priv->dma_addr);
+
+		adma_addr = virt_to_phys(priv->adma_desc_table);
+		esdhc_write32(&regs->adsaddrl, lower_32_bits(adma_addr));
+		if (IS_ENABLED(CONFIG_DMA_ADDR_T_64BIT))
+			esdhc_write32(&regs->adsaddrh, upper_32_bits(adma_addr));
+		esdhc_clrsetbits32(&regs->proctl, PROCTL_DMAS_MASK,
+				   PROCTL_DMAS_ADMA2);
+	} else {
+		debug("Using SDMA\n");
+		if (upper_32_bits(priv->dma_addr))
+			printf("Cannot use 64 bit addresses with SDMA\n");
+		esdhc_write32(&regs->dsaddr, lower_32_bits(priv->dma_addr));
+		esdhc_clrsetbits32(&regs->proctl, PROCTL_DMAS_MASK,
+				   PROCTL_DMAS_SDMA);
+	}
+
 	esdhc_write32(&regs->blkattr, data->blocks << 16 | data->blocksize);
 }
 
@@ -911,6 +935,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
+	u32 caps, hostver;
 	fdt_addr_t addr;
 	struct mmc *mmc;
 	int ret;
@@ -924,6 +949,21 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	priv->esdhc_regs = (struct fsl_esdhc *)addr;
 #endif
 	priv->dev = dev;
+
+	if (IS_ENABLED(CONFIG_FSL_ESDHC_SUPPORT_ADMA2)) {
+		/*
+		 * Only newer eSDHC controllers can do ADMA2 if the ADMA flag
+		 * is set in the host capabilities register.
+		 */
+		caps = esdhc_read32(&priv->esdhc_regs->hostcapblt);
+		hostver = esdhc_read32(&priv->esdhc_regs->hostver);
+		if (caps & HOSTCAPBLT_DMAS &&
+		    HOSTVER_VENDOR(hostver) > VENDOR_V_22) {
+			priv->adma_desc_table = sdhci_adma_init();
+			if (!priv->adma_desc_table)
+				debug("Could not allocate ADMA tables, falling back to SDMA\n");
+		}
+	}
 
 	if (gd->arch.sdhc_per_clk) {
 		priv->sdhc_clk = gd->arch.sdhc_per_clk;
