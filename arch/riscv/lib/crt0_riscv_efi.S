@@ -15,11 +15,13 @@
 #define SAVE_LONG(reg, idx)	sd	reg, (idx*SIZE_LONG)(sp)
 #define LOAD_LONG(reg, idx)	ld	reg, (idx*SIZE_LONG)(sp)
 #define PE_MACHINE	IMAGE_FILE_MACHINE_RISCV64
+#define PE_MAGIC        IMAGE_NT_OPTIONAL_HDR64_MAGIC
 #else
 #define SIZE_LONG	4
 #define SAVE_LONG(reg, idx)	sw	reg, (idx*SIZE_LONG)(sp)
 #define LOAD_LONG(reg, idx)	lw	reg, (idx*SIZE_LONG)(sp)
 #define PE_MACHINE	IMAGE_FILE_MACHINE_RISCV32
+#define PE_MAGIC        IMAGE_NT_OPTIONAL_HDR32_MAGIC
 #endif
 
 
@@ -48,7 +50,7 @@ coff_header:
 		 IMAGE_FILE_LOCAL_SYMS_STRIPPED | \
 		 IMAGE_FILE_DEBUG_STRIPPED)
 optional_header:
-	.short	IMAGE_NT_OPTIONAL_HDR64_MAGIC	/* PE32+ format */
+	.short	PE_MAGIC			/* PE32+ format */
 	.byte	0x02				/* MajorLinkerVersion */
 	.byte	0x14				/* MinorLinkerVersion */
 	.long	_edata - _start			/* SizeOfCode */
@@ -56,6 +58,9 @@ optional_header:
 	.long	0				/* SizeOfUninitializedData */
 	.long	_start - ImageBase		/* AddressOfEntryPoint */
 	.long	_start - ImageBase		/* BaseOfCode */
+#if __riscv_xlen == 32
+	.long	0				/* BaseOfData */
+#endif
 
 extra_header_fields:
 	.quad	0				/* ImageBase */
