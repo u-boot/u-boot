@@ -18,7 +18,7 @@
 #include <test/suites.h>
 #include <test/ut.h>
 #include <asm/eth.h>
-#include <syslog_test.h>
+#include "syslog_test.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
