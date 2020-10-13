@@ -4,9 +4,6 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-/*
- * Misc functions
- */
 #include <common.h>
 #include <command.h>
 #include <console.h>

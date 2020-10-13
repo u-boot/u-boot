@@ -1708,8 +1708,7 @@ config CMD_RNG
 	help
 	  Print bytes from the hardware random number generator.
 
-# TODO: rename to CMD_SLEEP
-config CMD_MISC
+config CMD_SLEEP
 	bool "sleep"
 	default y
 	help
