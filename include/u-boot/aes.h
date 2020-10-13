@@ -13,7 +13,8 @@
 int image_aes_encrypt(struct image_cipher_info *info,
 		      const unsigned char *data, int size,
 		      unsigned char **cipher, int *cipher_len);
-int image_aes_add_cipher_data(struct image_cipher_info *info, void *keydest);
+int image_aes_add_cipher_data(struct image_cipher_info *info, void *keydest,
+			      void *fit, int node_noffset);
 #else
 int image_aes_encrypt(struct image_cipher_info *info,
 		      const unsigned char *data, int size,
@@ -22,7 +23,8 @@ int image_aes_encrypt(struct image_cipher_info *info,
 	return -ENXIO;
 }
 
-int image_aes_add_cipher_data(struct image_cipher_info *info, void *keydest)
+int image_aes_add_cipher_data(struct image_cipher_info *info, void *keydest,
+			      void *fit, int node_noffset)
 {
 	return -ENXIO;
 }

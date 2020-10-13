@@ -439,11 +439,16 @@ static int rsa_verify_with_keynode(struct image_sign_info *info,
 	struct key_prop prop;
 	int length;
 	int ret = 0;
+	const char *algo;
 
 	if (node < 0) {
 		debug("%s: Skipping invalid node", __func__);
 		return -EBADF;
 	}
+
+	algo = fdt_getprop(blob, node, "algo", NULL);
+	if (strcmp(info->name, algo))
+		return -EFAULT;
 
 	prop.num_bits = fdtdec_get_int(blob, node, "rsa,num-bits", 0);
 
@@ -540,7 +545,7 @@ int rsa_verify(struct image_sign_info *info,
 {
 	/* Reserve memory for maximum checksum-length */
 	uint8_t hash[info->crypto->key_len];
-	int ret = -EACCES;
+	int ret;
 
 	/*
 	 * Verify that the checksum-length does not exceed the
