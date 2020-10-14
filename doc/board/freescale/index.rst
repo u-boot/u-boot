@@ -12,3 +12,4 @@ Freescale
    imx8mp_evk
    imx8mq_evk
    imx8qxp_mek
+   imxrt1020-evk
