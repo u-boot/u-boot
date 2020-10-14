@@ -49,6 +49,13 @@ static const char *const speed_names[] = {
 	[USB_SPEED_SUPER_PLUS] = "super-speed-plus",
 };
 
+const char *usb_speed_string(enum usb_device_speed speed)
+{
+	if (speed < 0 || speed >= ARRAY_SIZE(speed_names))
+		speed = USB_SPEED_UNKNOWN;
+	return speed_names[speed];
+}
+
 enum usb_device_speed usb_get_maximum_speed(ofnode node)
 {
 	const char *max_speed;
