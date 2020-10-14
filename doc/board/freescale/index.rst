@@ -16,3 +16,4 @@ Freescale
    imxrt1050-evk
    mx6sabreauto
    mx6sabresd
+   mx6ul_14x14_evk
