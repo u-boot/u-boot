@@ -7,5 +7,6 @@ Freescale
    :maxdepth: 2
 
    b4860qds
+   imx8mm_evk
    imx8mn_evk
    imx8mp_evk
