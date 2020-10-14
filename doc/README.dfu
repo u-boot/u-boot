@@ -121,7 +121,7 @@ Commands:
   "sf" (serial flash : NOR)
     cmd: dfu 0 sf <dev>
     each element in "dfu_alt_info" =
-      <name> ram <offset> <size>  raw access to sf device
+      <name> raw <offset> <size>  raw access to sf device
       <name> part <dev> <part_id>  raw acces to partition
       <name> partubi <dev> <part_id>  raw acces to ubi partition
 
