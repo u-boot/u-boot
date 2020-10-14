@@ -15,3 +15,4 @@ Freescale
    imxrt1020-evk
    imxrt1050-evk
    mx6sabreauto
+   mx6sabresd
