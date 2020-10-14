@@ -10,3 +10,4 @@ Freescale
    imx8mm_evk
    imx8mn_evk
    imx8mp_evk
+   imx8mq_evk
