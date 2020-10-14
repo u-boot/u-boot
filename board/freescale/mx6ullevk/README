@@ -15,7 +15,7 @@ This generates the u-boot-dtb.imx image in the current directory.
 
 - Flash the u-boot-dtb.imx image into the micro SD card:
 
-$ sudo dd if=u-boot-dtb.imx of=/dev/sdb bs=1K seek=1 && sync
+$ sudo dd if=u-boot-dtb.imx of=/dev/sdb bs=1K seek=1 conv=notrunc && sync
 
 - Jumper settings:
 

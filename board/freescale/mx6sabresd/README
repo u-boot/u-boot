@@ -25,11 +25,11 @@ This will generate the SPL and u-boot-dtb.img binaries.
 
 - Flash the SPL binary into the SD card:
 
-$ sudo dd if=SPL of=/dev/sdX bs=1K seek=1 && sync
+$ sudo dd if=SPL of=/dev/sdX bs=1K seek=1 conv=notrunc && sync
 
 - Flash the u-boot-dtb.img binary into the SD card:
 
-$ sudo dd if=u-boot-dtb.img of=/dev/sdX bs=1K seek=69 && sync
+$ sudo dd if=u-boot-dtb.img of=/dev/sdX bs=1K seek=69 conv=notrunc && sync
 
 
 2. Booting from eMMC
@@ -53,8 +53,8 @@ Mount the eMMC in the host PC:
 
 - Flash SPL and u-boot-dtb.img binaries into the eMMC:
 
-$ sudo dd if=SPL of=/dev/sdX bs=1K seek=1 && sync
-$ sudo dd if=u-boot-dtb.img of=/dev/sdX bs=1K seek=69 && sync
+$ sudo dd if=SPL of=/dev/sdX bs=1K seek=1 conv=notrunc && sync
+$ sudo dd if=u-boot-dtb.img of=/dev/sdX bs=1K seek=69 conv=notrunc && sync
 
 Set SW6 to eMMC 8-bit boot: 11010110
 
@@ -69,11 +69,11 @@ This will generate the SPL image called SPL and the u-boot-dtb.img.
 
 - Flash the SPL image into the SD card:
 
-$ sudo dd if=SPL of=/dev/sdX bs=1K seek=1 oflag=sync status=none && sync
+$ sudo dd if=SPL of=/dev/sdX bs=1K seek=1 oflag=sync status=none conv=notrunc && sync
 
 - Flash the u-boot-dtb.img image into the SD card:
 
-$ sudo dd if=u-boot-dtb.img of=/dev/sdX bs=1K seek=69 oflag=sync status=none && sync
+$ sudo dd if=u-boot-dtb.img of=/dev/sdX bs=1K seek=69 oflag=sync status=none conv=notrunc && sync
 
 Create a partition for root file system and extract it there:
 
