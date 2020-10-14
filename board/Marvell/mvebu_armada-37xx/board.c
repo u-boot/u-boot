@@ -88,14 +88,14 @@ int board_late_init(void)
 	if (env_get("fdtfile"))
 		return 0;
 
-	if (!of_machine_is_compatible("marvell,armada-3720-espressobin"))
+	if (!of_machine_is_compatible("globalscale,espressobin"))
 		return 0;
 
 	/* If the memory controller has been configured for DDR4, we're running on v7 */
 	ddr4 = ((readl(A3700_CH0_MC_CTRL2_REG) >> A3700_MC_CTRL2_SDRAM_TYPE_OFFS)
 		& A3700_MC_CTRL2_SDRAM_TYPE_MASK) == A3700_MC_CTRL2_SDRAM_TYPE_DDR4;
 
-	emmc = of_machine_is_compatible("marvell,armada-3720-espressobin-emmc");
+	emmc = of_machine_is_compatible("globalscale,espressobin-emmc");
 
 	if (ddr4 && emmc)
 		env_set("fdtfile", "marvell/armada-3720-espressobin-v7-emmc.dtb");
@@ -248,7 +248,7 @@ static int mii_multi_chip_mode_write(struct mii_dev *bus, int dev_smi_addr,
 /* Bring-up board-specific network stuff */
 int board_network_enable(struct mii_dev *bus)
 {
-	if (!of_machine_is_compatible("marvell,armada-3720-espressobin"))
+	if (!of_machine_is_compatible("globalscale,espressobin"))
 		return 0;
 
 	/*
@@ -300,7 +300,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	int part_off;
 
 	/* Fill SPI MTD partitions for Linux kernel on Espressobin */
-	if (!of_machine_is_compatible("marvell,armada-3720-espressobin"))
+	if (!of_machine_is_compatible("globalscale,espressobin"))
 		return 0;
 
 	spi_off = fdt_node_offset_by_compatible(blob, -1, "jedec,spi-nor");
