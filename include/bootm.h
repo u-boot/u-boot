@@ -75,4 +75,14 @@ void board_quiesce_devices(void);
  */
 void switch_to_non_secure_mode(void);
 
+/**
+ * arch_preboot_os() - arch specific configuration before booting
+ */
+void arch_preboot_os(void);
+
+/**
+ * board_preboot_os() - board specific configuration before booting
+ */
+void board_preboot_os(void);
+
 #endif

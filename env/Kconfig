@@ -477,6 +477,10 @@ config ENV_EXT4_DEVICE_AND_PART
 	                   If none, first valid partition in device D. If no
 	                   partition table then means device D.
 
+	  If ENV_EXT4_INTERFACE is set to "mmc" then device 'D' can be omitted,
+	  leaving the string starting with a colon, and the boot device will
+	  be used.
+
 config ENV_EXT4_FILE
 	string "Name of the EXT4 file to use for the environment"
 	depends on ENV_IS_IN_EXT4

@@ -3111,3 +3111,12 @@ int mmc_set_bkops_enable(struct mmc *mmc)
 	return 0;
 }
 #endif
+
+__weak int mmc_get_env_dev(void)
+{
+#ifdef CONFIG_SYS_MMC_ENV_DEV
+	return CONFIG_SYS_MMC_ENV_DEV;
+#else
+	return 0;
+#endif
+}

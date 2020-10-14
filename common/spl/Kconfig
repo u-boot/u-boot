@@ -1237,6 +1237,7 @@ endchoice
 
 config SPL_USB_SDP_SUPPORT
 	bool "Support SDP (Serial Download Protocol)"
+	depends on SPL_SERIAL_SUPPORT
 	help
 	  Enable Serial Download Protocol (SDP) device support in SPL. This
 	  allows to download images into memory and execute (jump to) them

@@ -735,6 +735,7 @@ struct e1000_ffvt_entry {
 #define E1000_ERT      0x02008  /* Early Rx Threshold - RW */
 #define E1000_FCRTL    0x02160	/* Flow Control Receive Threshold Low - RW */
 #define E1000_FCRTH    0x02168	/* Flow Control Receive Threshold High - RW */
+#define E1000_RXPBS    0x02404  /* Rx Packet Buffer Size - RW */
 #define E1000_RDBAL    0x02800	/* RX Descriptor Base Address Low - RW */
 #define E1000_RDBAH    0x02804	/* RX Descriptor Base Address High - RW */
 #define E1000_RDLEN    0x02808	/* RX Descriptor Length - RW */
@@ -745,6 +746,7 @@ struct e1000_ffvt_entry {
 #define E1000_RADV     0x0282C	/* RX Interrupt Absolute Delay Timer - RW */
 #define E1000_RSRPD    0x02C00	/* RX Small Packet Detect - RW */
 #define E1000_TXDMAC   0x03000	/* TX DMA Control - RW */
+#define E1000_TXPBS	   0x03404  /* Tx Packet Buffer Size - RW */
 #define E1000_TDFH     0x03410  /* TX Data FIFO Head - RW */
 #define E1000_TDFT     0x03418  /* TX Data FIFO Tail - RW */
 #define E1000_TDFHS    0x03420  /* TX Data FIFO Head Saved - RW */
@@ -2589,4 +2591,8 @@ struct e1000_hw {
 
 #define E1000_CTRL_EXT_INT_TIMER_CLR  0x20000000 /* Clear Interrupt timers
 							after IMS clear */
+
+#define I210_RXPBSIZE_DEFAULT          0x000000A2 /* RXPBSIZE default */
+#define I210_TXPBSIZE_DEFAULT          0x04000014 /* TXPBSIZE default */
+
 #endif	/* _E1000_HW_H_ */

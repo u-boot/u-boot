@@ -57,17 +57,17 @@ static int dm_test_button_label(struct unit_test_state *uts)
 {
 	struct udevice *dev, *cmp;
 
-	ut_assertok(button_get_by_label("summer", &dev));
+	ut_assertok(button_get_by_label("button1", &dev));
 	ut_asserteq(1, device_active(dev));
 	ut_assertok(uclass_get_device(UCLASS_BUTTON, 1, &cmp));
 	ut_asserteq_ptr(dev, cmp);
 
-	ut_assertok(button_get_by_label("christmas", &dev));
+	ut_assertok(button_get_by_label("button2", &dev));
 	ut_asserteq(1, device_active(dev));
 	ut_assertok(uclass_get_device(UCLASS_BUTTON, 2, &cmp));
 	ut_asserteq_ptr(dev, cmp);
 
-	ut_asserteq(-ENODEV, button_get_by_label("spring", &dev));
+	ut_asserteq(-ENODEV, button_get_by_label("nobutton", &dev));
 
 	return 0;
 }

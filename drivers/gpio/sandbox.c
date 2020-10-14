@@ -185,7 +185,15 @@ static int sb_gpio_set_dir_flags(struct udevice *dev, unsigned int offset,
 
 	dir_flags = get_gpio_dir_flags(dev, offset);
 
-	*dir_flags = flags;
+	/*
+	 * For testing purposes keep the output value when switching to input.
+	 * This allows us to manipulate the input value via the gpio command.
+	 */
+	if (flags & GPIOD_IS_IN)
+		*dir_flags = (flags & ~GPIOD_IS_OUT_ACTIVE) |
+			     (*dir_flags & GPIOD_IS_OUT_ACTIVE);
+	else
+		*dir_flags = flags;
 
 	return 0;
 }

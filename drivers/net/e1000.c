@@ -1644,6 +1644,11 @@ e1000_reset_hw(struct e1000_hw *hw)
 	E1000_WRITE_REG(hw, TCTL, E1000_TCTL_PSP);
 	E1000_WRITE_FLUSH(hw);
 
+	if (hw->mac_type == e1000_igb) {
+		E1000_WRITE_REG(hw, RXPBS, I210_RXPBSIZE_DEFAULT);
+		E1000_WRITE_REG(hw, TXPBS, I210_TXPBSIZE_DEFAULT);
+	}
+
 	/* The tbi_compatibility_on Flag must be cleared when Rctl is cleared. */
 	hw->tbi_compatibility_on = false;
 

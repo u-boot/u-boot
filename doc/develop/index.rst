@@ -9,4 +9,5 @@ Develop U-Boot
 
    coccinelle
    crash_dumps
+   global_data
    logging

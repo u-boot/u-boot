@@ -938,6 +938,7 @@ config ARCH_QEMU
 	select OF_CONTROL
 	select PL01X_SERIAL
 	imply CMD_DM
+	imply DM_RNG
 	imply DM_RTC
 	imply RTC_PL031
 
