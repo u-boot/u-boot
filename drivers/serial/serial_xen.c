@@ -5,6 +5,7 @@
  */
 #include <common.h>
 #include <cpu_func.h>
+#include <debug_uart.h>
 #include <dm.h>
 #include <serial.h>
 #include <watchdog.h>
@@ -15,10 +16,13 @@
 #include <xen/events.h>
 
 #include <xen/interface/sched.h>
+#include <xen/interface/xen.h>
 #include <xen/interface/hvm/hvm_op.h>
 #include <xen/interface/hvm/params.h>
 #include <xen/interface/io/console.h>
 #include <xen/interface/io/ring.h>
+
+#include <asm/xen/hypercall.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -178,3 +182,19 @@ U_BOOT_DRIVER(serial_xen) = {
 	.flags			= DM_FLAG_PRE_RELOC,
 };
 
+#if defined(CONFIG_DEBUG_UART_XEN)
+static inline void _debug_uart_init(void) {}
+
+static inline void _debug_uart_putc(int c)
+{
+#if CONFIG_IS_ENABLED(ARM)
+	xen_debug_putc(c);
+#else
+	/* the type cast should work on LE only */
+	HYPERVISOR_console_io(CONSOLEIO_write, 1, (char *)&ch);
+#endif
+}
+
+DEBUG_UART_FUNCS
+
+#endif

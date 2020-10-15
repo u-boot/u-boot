@@ -401,11 +401,19 @@ config DEBUG_UART_MTK
 	  driver will be available until the real driver model serial is
 	  running.
 
+config DEBUG_UART_XEN
+	bool "XEN Hypervisor Console"
+	depends on XEN_SERIAL
+	help
+	  Select this to enable a debug UART using the serial_xen driver. You
+	  will not have to provide any parameters to make this work. The driver
+          will be available until the real driver-model serial is running.
+
 endchoice
 
 config DEBUG_UART_BASE
 	hex "Base address of UART"
-	depends on DEBUG_UART
+	depends on DEBUG_UART && !DEBUG_UART_XEN
 	default 0 if DEBUG_UART_SANDBOX
 	help
 	  This is the base address of your UART for memory-mapped UARTs.
@@ -415,7 +423,7 @@ config DEBUG_UART_BASE
 
 config DEBUG_UART_CLOCK
 	int "UART input clock"
-	depends on DEBUG_UART
+	depends on DEBUG_UART && !DEBUG_UART_XEN
 	default 0 if DEBUG_UART_SANDBOX
 	help
 	  The UART input clock determines the speed of the internal UART
@@ -427,7 +435,7 @@ config DEBUG_UART_CLOCK
 
 config DEBUG_UART_SHIFT
 	int "UART register shift"
-	depends on DEBUG_UART
+	depends on DEBUG_UART && !DEBUG_UART_XEN
 	default 0 if DEBUG_UART
 	help
 	  Some UARTs (notably ns16550) support different register layouts
