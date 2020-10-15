@@ -139,19 +139,18 @@ static int stm32_copro_start(struct udevice *dev)
 
 	/*
 	 * Once copro running, reset hold boot flag to avoid copro
-	 * rebooting autonomously
+	 * rebooting autonomously (error should never occur)
 	 */
 	ret = reset_assert(&priv->hold_boot);
 	if (ret)
 		dev_err(dev, "Unable to assert hold boot (ret=%d)\n", ret);
 
-	writel(ret ? TAMP_COPRO_STATE_OFF : TAMP_COPRO_STATE_CRUN,
-	       TAMP_COPRO_STATE);
-	if (!ret)
-		/* Store rsc_address in bkp register */
-		writel(priv->rsc_table_addr, TAMP_COPRO_RSC_TBL_ADDRESS);
+	/* indicates that copro is running */
+	writel(TAMP_COPRO_STATE_CRUN, TAMP_COPRO_STATE);
+	/* Store rsc_address in bkp register */
+	writel(priv->rsc_table_addr, TAMP_COPRO_RSC_TBL_ADDRESS);
 
-	return ret;
+	return 0;
 }
 
 /**
