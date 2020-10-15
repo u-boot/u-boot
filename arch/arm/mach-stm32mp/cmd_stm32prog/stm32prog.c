@@ -768,9 +768,8 @@ static int init_device(struct stm32prog_data *data,
 			part_found = true;
 		}
 
+		/* no partition for this device */
 		if (!part_found) {
-			stm32prog_err("%s (0x%x): Invalid partition",
-				      part->name, part->id);
 			pr_debug("\n");
 			continue;
 		}
