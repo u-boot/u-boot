@@ -462,13 +462,6 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 	while (esdhc_read32(&regs->prsstat) & PRSSTAT_DLA)
 		;
 
-	/* Wait at least 8 SD clock cycles before the next command */
-	/*
-	 * Note: This is way more than 8 cycles, but 1ms seems to
-	 * resolve timing issues with some cards
-	 */
-	udelay(1000);
-
 	/* Set up for a data transfer if we have one */
 	if (data) {
 		err = esdhc_setup_data(priv, mmc, data);
@@ -729,7 +722,7 @@ static void esdhc_set_strobe_dll(struct mmc *mmc)
 	u32 val;
 
 	if (priv->clock > ESDHC_STROBE_DLL_CLK_FREQ) {
-		writel(ESDHC_STROBE_DLL_CTRL_RESET, &regs->strobe_dllctrl);
+		esdhc_write32(&regs->strobe_dllctrl, ESDHC_STROBE_DLL_CTRL_RESET);
 
 		/*
 		 * enable strobe dll ctrl and adjust the delay target
@@ -738,10 +731,10 @@ static void esdhc_set_strobe_dll(struct mmc *mmc)
 		val = ESDHC_STROBE_DLL_CTRL_ENABLE |
 			(priv->strobe_dll_delay_target <<
 			 ESDHC_STROBE_DLL_CTRL_SLV_DLY_TARGET_SHIFT);
-		writel(val, &regs->strobe_dllctrl);
+		esdhc_write32(&regs->strobe_dllctrl, val);
 		/* wait 1us to make sure strobe dll status register stable */
 		mdelay(1);
-		val = readl(&regs->strobe_dllstat);
+		val = esdhc_read32(&regs->strobe_dllstat);
 		if (!(val & ESDHC_STROBE_DLL_STS_REF_LOCK))
 			pr_warn("HS400 strobe DLL status REF not lock!\n");
 		if (!(val & ESDHC_STROBE_DLL_STS_SLV_LOCK))
@@ -755,18 +748,18 @@ static int esdhc_set_timing(struct mmc *mmc)
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 	u32 mixctrl;
 
-	mixctrl = readl(&regs->mixctrl);
+	mixctrl = esdhc_read32(&regs->mixctrl);
 	mixctrl &= ~(MIX_CTRL_DDREN | MIX_CTRL_HS400_EN);
 
 	switch (mmc->selected_mode) {
 	case MMC_LEGACY:
 		esdhc_reset_tuning(mmc);
-		writel(mixctrl, &regs->mixctrl);
+		esdhc_write32(&regs->mixctrl, mixctrl);
 		break;
 	case MMC_HS_400:
 	case MMC_HS_400_ES:
 		mixctrl |= MIX_CTRL_DDREN | MIX_CTRL_HS400_EN;
-		writel(mixctrl, &regs->mixctrl);
+		esdhc_write32(&regs->mixctrl, mixctrl);
 		esdhc_set_strobe_dll(mmc);
 		break;
 	case MMC_HS:
@@ -777,12 +770,12 @@ static int esdhc_set_timing(struct mmc *mmc)
 	case UHS_SDR25:
 	case UHS_SDR50:
 	case UHS_SDR104:
-		writel(mixctrl, &regs->mixctrl);
+		esdhc_write32(&regs->mixctrl, mixctrl);
 		break;
 	case UHS_DDR50:
 	case MMC_DDR_52:
 		mixctrl |= MIX_CTRL_DDREN;
-		writel(mixctrl, &regs->mixctrl);
+		esdhc_write32(&regs->mixctrl, mixctrl);
 		break;
 	default:
 		printf("Not supported %d\n", mmc->selected_mode);
@@ -862,8 +855,8 @@ static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 	struct mmc *mmc = &plat->mmc;
-	u32 irqstaten = readl(&regs->irqstaten);
-	u32 irqsigen = readl(&regs->irqsigen);
+	u32 irqstaten = esdhc_read32(&regs->irqstaten);
+	u32 irqsigen = esdhc_read32(&regs->irqsigen);
 	int i, ret = -ETIMEDOUT;
 	u32 val, mixctrl;
 
@@ -873,25 +866,25 @@ static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
 
 	/* This is readw/writew SDHCI_HOST_CONTROL2 when tuning */
 	if (priv->flags & ESDHC_FLAG_STD_TUNING) {
-		val = readl(&regs->autoc12err);
-		mixctrl = readl(&regs->mixctrl);
+		val = esdhc_read32(&regs->autoc12err);
+		mixctrl = esdhc_read32(&regs->mixctrl);
 		val &= ~MIX_CTRL_SMPCLK_SEL;
 		mixctrl &= ~(MIX_CTRL_FBCLK_SEL | MIX_CTRL_AUTO_TUNE_EN);
 
 		val |= MIX_CTRL_EXE_TUNE;
 		mixctrl |= MIX_CTRL_FBCLK_SEL | MIX_CTRL_AUTO_TUNE_EN;
 
-		writel(val, &regs->autoc12err);
-		writel(mixctrl, &regs->mixctrl);
+		esdhc_write32(&regs->autoc12err, val);
+		esdhc_write32(&regs->mixctrl, mixctrl);
 	}
 
 	/* sdhci_writew(host, SDHCI_TRNS_READ, SDHCI_TRANSFER_MODE); */
-	mixctrl = readl(&regs->mixctrl);
+	mixctrl = esdhc_read32(&regs->mixctrl);
 	mixctrl = MIX_CTRL_DTDSEL_READ | (mixctrl & ~MIX_CTRL_SDHCI_MASK);
-	writel(mixctrl, &regs->mixctrl);
+	esdhc_write32(&regs->mixctrl, mixctrl);
 
-	writel(IRQSTATEN_BRR, &regs->irqstaten);
-	writel(IRQSTATEN_BRR, &regs->irqsigen);
+	esdhc_write32(&regs->irqstaten, IRQSTATEN_BRR);
+	esdhc_write32(&regs->irqsigen, IRQSTATEN_BRR);
 
 	/*
 	 * Issue opcode repeatedly till Execute Tuning is set to 0 or the number
@@ -902,22 +895,22 @@ static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
 
 		if (opcode == MMC_CMD_SEND_TUNING_BLOCK_HS200) {
 			if (mmc->bus_width == 8)
-				writel(0x7080, &regs->blkattr);
+				esdhc_write32(&regs->blkattr, 0x7080);
 			else if (mmc->bus_width == 4)
-				writel(0x7040, &regs->blkattr);
+				esdhc_write32(&regs->blkattr, 0x7040);
 		} else {
-			writel(0x7040, &regs->blkattr);
+			esdhc_write32(&regs->blkattr, 0x7040);
 		}
 
 		/* sdhci_writew(host, SDHCI_TRNS_READ, SDHCI_TRANSFER_MODE) */
-		val = readl(&regs->mixctrl);
+		val = esdhc_read32(&regs->mixctrl);
 		val = MIX_CTRL_DTDSEL_READ | (val & ~MIX_CTRL_SDHCI_MASK);
-		writel(val, &regs->mixctrl);
+		esdhc_write32(&regs->mixctrl, val);
 
 		/* We are using STD tuning, no need to check return value */
 		mmc_send_tuning(mmc, opcode, NULL);
 
-		ctrl = readl(&regs->autoc12err);
+		ctrl = esdhc_read32(&regs->autoc12err);
 		if ((!(ctrl & MIX_CTRL_EXE_TUNE)) &&
 		    (ctrl & MIX_CTRL_SMPCLK_SEL)) {
 			ret = 0;
@@ -925,8 +918,8 @@ static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
 		}
 	}
 
-	writel(irqstaten, &regs->irqstaten);
-	writel(irqsigen, &regs->irqsigen);
+	esdhc_write32(&regs->irqstaten, irqstaten);
+	esdhc_write32(&regs->irqsigen, irqsigen);
 
 	esdhc_stop_tuning(mmc);
 
@@ -1179,7 +1172,7 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 	if (priv->vs18_enable)
 		esdhc_setbits32(&regs->vendorspec, ESDHC_VENDORSPEC_VSELECT);
 
-	writel(SDHCI_IRQ_EN_BITS, &regs->irqstaten);
+	esdhc_write32(&regs->irqstaten, SDHCI_IRQ_EN_BITS);
 	cfg = &plat->cfg;
 #ifndef CONFIG_DM_MMC
 	memset(cfg, '\0', sizeof(*cfg));
@@ -1260,10 +1253,10 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
-	writel(0, &regs->dllctrl);
+	esdhc_write32(&regs->dllctrl, 0);
 	if (priv->flags & ESDHC_FLAG_USDHC) {
 		if (priv->flags & ESDHC_FLAG_STD_TUNING) {
-			u32 val = readl(&regs->tuning_ctrl);
+			u32 val = esdhc_read32(&regs->tuning_ctrl);
 
 			val |= ESDHC_STD_TUNING_EN;
 			val &= ~ESDHC_TUNING_START_TAP_MASK;
@@ -1282,7 +1275,7 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 			 * after the whole tuning procedure always can't get any response.
 			 */
 			val |= ESDHC_TUNING_CMD_CRC_CHECK_DISABLE;
-			writel(val, &regs->tuning_ctrl);
+			esdhc_write32(&regs->tuning_ctrl, val);
 		}
 	}
 
@@ -1648,9 +1641,9 @@ static int fsl_esdhc_set_enhanced_strobe(struct udevice *dev)
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 	u32 m;
 
-	m = readl(&regs->mixctrl);
+	m = esdhc_read32(&regs->mixctrl);
 	m |= MIX_CTRL_HS400_ES;
-	writel(m, &regs->mixctrl);
+	esdhc_write32(&regs->mixctrl, m);
 
 	return 0;
 }

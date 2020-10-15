@@ -69,57 +69,6 @@ static void sdhci_transfer_pio(struct sdhci_host *host, struct mmc_data *data)
 	}
 }
 
-#if CONFIG_IS_ENABLED(MMC_SDHCI_ADMA)
-static void sdhci_adma_desc(struct sdhci_host *host, dma_addr_t dma_addr,
-			    u16 len, bool end)
-{
-	struct sdhci_adma_desc *desc;
-	u8 attr;
-
-	desc = &host->adma_desc_table[host->desc_slot];
-
-	attr = ADMA_DESC_ATTR_VALID | ADMA_DESC_TRANSFER_DATA;
-	if (!end)
-		host->desc_slot++;
-	else
-		attr |= ADMA_DESC_ATTR_END;
-
-	desc->attr = attr;
-	desc->len = len;
-	desc->reserved = 0;
-	desc->addr_lo = lower_32_bits(dma_addr);
-#ifdef CONFIG_DMA_ADDR_T_64BIT
-	desc->addr_hi = upper_32_bits(dma_addr);
-#endif
-}
-
-static void sdhci_prepare_adma_table(struct sdhci_host *host,
-				     struct mmc_data *data)
-{
-	uint trans_bytes = data->blocksize * data->blocks;
-	uint desc_count = DIV_ROUND_UP(trans_bytes, ADMA_MAX_LEN);
-	int i = desc_count;
-	dma_addr_t dma_addr = host->start_addr;
-
-	host->desc_slot = 0;
-
-	while (--i) {
-		sdhci_adma_desc(host, dma_addr, ADMA_MAX_LEN, false);
-		dma_addr += ADMA_MAX_LEN;
-		trans_bytes -= ADMA_MAX_LEN;
-	}
-
-	sdhci_adma_desc(host, dma_addr, trans_bytes, true);
-
-	flush_cache((dma_addr_t)host->adma_desc_table,
-		    ROUND(desc_count * sizeof(struct sdhci_adma_desc),
-			  ARCH_DMA_MINALIGN));
-}
-#elif defined(CONFIG_MMC_SDHCI_SDMA)
-static void sdhci_prepare_adma_table(struct sdhci_host *host,
-				     struct mmc_data *data)
-{}
-#endif
 #if (defined(CONFIG_MMC_SDHCI_SDMA) || CONFIG_IS_ENABLED(MMC_SDHCI_ADMA))
 static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 			      int *is_aligned, int trans_bytes)
@@ -156,8 +105,11 @@ static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 	if (host->flags & USE_SDMA) {
 		sdhci_writel(host, phys_to_bus((ulong)host->start_addr),
 				SDHCI_DMA_ADDRESS);
-	} else if (host->flags & (USE_ADMA | USE_ADMA64)) {
-		sdhci_prepare_adma_table(host, data);
+	}
+#if CONFIG_IS_ENABLED(MMC_SDHCI_ADMA)
+	else if (host->flags & (USE_ADMA | USE_ADMA64)) {
+		sdhci_prepare_adma_table(host->adma_desc_table, data,
+					 host->start_addr);
 
 		sdhci_writel(host, lower_32_bits(host->adma_addr),
 			     SDHCI_ADMA_ADDRESS);
@@ -165,6 +117,7 @@ static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 			sdhci_writel(host, upper_32_bits(host->adma_addr),
 				     SDHCI_ADMA_ADDRESS_HI);
 	}
+#endif
 }
 #else
 static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
@@ -770,9 +723,9 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		       __func__);
 		return -EINVAL;
 	}
-	host->adma_desc_table = memalign(ARCH_DMA_MINALIGN, ADMA_TABLE_SZ);
-
+	host->adma_desc_table = sdhci_adma_init();
 	host->adma_addr = (dma_addr_t)host->adma_desc_table;
+
 #ifdef CONFIG_DMA_ADDR_T_64BIT
 	host->flags |= USE_ADMA64;
 #else

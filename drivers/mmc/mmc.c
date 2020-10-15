@@ -805,8 +805,10 @@ static int __mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value,
 	 * capable of polling by using mmc_wait_dat0, then rely on waiting the
 	 * stated timeout to be sufficient.
 	 */
-	if (ret == -ENOSYS && !send_status)
+	if (ret == -ENOSYS && !send_status) {
 		mdelay(timeout_ms);
+		return 0;
+	}
 
 	/* Finally wait until the card is ready or indicates a failure
 	 * to switch. It doesn't hurt to use CMD13 here even if send_status
@@ -1982,7 +1984,9 @@ static int mmc_select_hs400(struct mmc *mmc)
 	mmc_set_clock(mmc, mmc->tran_speed, false);
 
 	/* execute tuning if needed */
+	mmc->hs400_tuning = 1;
 	err = mmc_execute_tuning(mmc, MMC_CMD_SEND_TUNING_BLOCK_HS200);
+	mmc->hs400_tuning = 0;
 	if (err) {
 		debug("tuning failed\n");
 		return err;
@@ -1990,6 +1994,10 @@ static int mmc_select_hs400(struct mmc *mmc)
 
 	/* Set back to HS */
 	mmc_set_card_speed(mmc, MMC_HS, true);
+
+	err = mmc_hs400_prepare_ddr(mmc);
+	if (err)
+		return err;
 
 	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BUS_WIDTH,
 			 EXT_CSD_BUS_WIDTH_8 | EXT_CSD_DDR_FLAG);
@@ -2816,13 +2824,17 @@ int mmc_get_op_cond(struct mmc *mmc)
 		return err;
 
 #if CONFIG_IS_ENABLED(DM_MMC)
-	/* The device has already been probed ready for use */
+	/*
+	 * Re-initialization is needed to clear old configuration for
+	 * mmc rescan.
+	 */
+	err = mmc_reinit(mmc);
 #else
 	/* made sure it's not NULL earlier */
 	err = mmc->cfg->ops->init(mmc);
+#endif
 	if (err)
 		return err;
-#endif
 	mmc->ddr_mode = 0;
 
 retry:
