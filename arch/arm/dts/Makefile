@@ -424,6 +424,9 @@ dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-qds-duart.dtb \
 	fsl-ls1012a-2g5rdb.dtb \
 	fsl-ls1012a-frdm.dtb \
 	fsl-ls1012a-frwy.dtb
+dtb-$(CONFIG_TARGET_SL28) += fsl-ls1028a-kontron-sl28.dtb \
+	fsl-ls1028a-kontron-sl28-var3.dtb \
+	fsl-ls1028a-kontron-sl28-var4.dtb \
 
 dtb-$(CONFIG_TARGET_DRAGONBOARD410C) += dragonboard410c.dtb
 dtb-$(CONFIG_TARGET_DRAGONBOARD820C) += dragonboard820c.dtb
