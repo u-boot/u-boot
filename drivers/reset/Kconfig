@@ -72,7 +72,7 @@ config RESET_UNIPHIER
 	  Say Y if you want to control reset signals provided by System Control
 	  block, Media I/O block, Peripheral Block.
 
-config AST2500_RESET
+config RESET_AST2500
 	bool "Reset controller driver for AST2500 SoCs"
 	depends on DM_RESET
 	default y if ASPEED_AST2500
