@@ -57,7 +57,7 @@ static inline uintptr_t __attribute__((no_instrument_function))
 	return offset / FUNC_SITE_SIZE;
 }
 
-#if defined(CONFIG_EFI_LOADER) && defined(CONFIG_ARM)
+#if defined(CONFIG_EFI_LOADER) && (defined(CONFIG_ARM) || defined(CONFIG_RISCV))
 
 /**
  * trace_gd - the value of the gd register
