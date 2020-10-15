@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright 2017 Google, Inc
+ * Copyright 2020 ASPEED Technology Inc.
  */
 
 #include <common.h>
@@ -9,62 +10,13 @@
 #include <misc.h>
 #include <reset.h>
 #include <reset-uclass.h>
-#include <wdt.h>
+#include <linux/err.h>
 #include <asm/io.h>
 #include <asm/arch/scu_ast2500.h>
-#include <asm/arch/wdt.h>
 
 struct ast2500_reset_priv {
-	/* WDT used to perform resets. */
-	struct udevice *wdt;
 	struct ast2500_scu *scu;
 };
-
-static int ast2500_ofdata_to_platdata(struct udevice *dev)
-{
-	struct ast2500_reset_priv *priv = dev_get_priv(dev);
-	int ret;
-
-	ret = uclass_get_device_by_phandle(UCLASS_WDT, dev, "aspeed,wdt",
-					   &priv->wdt);
-	if (ret) {
-		debug("%s: can't find WDT for reset controller", __func__);
-		return ret;
-	}
-
-	return 0;
-}
-
-static int ast2500_reset_assert(struct reset_ctl *reset_ctl)
-{
-	struct ast2500_reset_priv *priv = dev_get_priv(reset_ctl->dev);
-	u32 reset_mode, reset_mask;
-	bool reset_sdram;
-	int ret;
-
-	/*
-	 * To reset SDRAM, a specifal flag in SYSRESET register
-	 * needs to be enabled first
-	 */
-	reset_mode = ast_reset_mode_from_flags(reset_ctl->id);
-	reset_mask = ast_reset_mask_from_flags(reset_ctl->id);
-	reset_sdram = reset_mode == WDT_CTRL_RESET_SOC &&
-		(reset_mask & WDT_RESET_SDRAM);
-
-	if (reset_sdram) {
-		ast_scu_unlock(priv->scu);
-		setbits_le32(&priv->scu->sysreset_ctrl1,
-			     SCU_SYSRESET_SDRAM_WDT);
-		ret = wdt_expire_now(priv->wdt, reset_ctl->id);
-		clrbits_le32(&priv->scu->sysreset_ctrl1,
-			     SCU_SYSRESET_SDRAM_WDT);
-		ast_scu_lock(priv->scu);
-	} else {
-		ret = wdt_expire_now(priv->wdt, reset_ctl->id);
-	}
-
-	return ret;
-}
 
 static int ast2500_reset_request(struct reset_ctl *reset_ctl)
 {
@@ -74,11 +26,63 @@ static int ast2500_reset_request(struct reset_ctl *reset_ctl)
 	return 0;
 }
 
+static int ast2500_reset_free(struct reset_ctl *reset_ctl)
+{
+	debug("%s(reset_ctl=%p) (dev=%p, id=%lu)\n", __func__, reset_ctl,
+	      reset_ctl->dev, reset_ctl->id);
+
+	return 0;
+}
+
+static int ast2500_reset_assert(struct reset_ctl *reset_ctl)
+{
+	struct ast2500_reset_priv *priv = dev_get_priv(reset_ctl->dev);
+	struct ast2500_scu *scu = priv->scu;
+
+	debug("%s: reset_ctl->id: %lu\n", __func__, reset_ctl->id);
+
+	if (reset_ctl->id < 32)
+		setbits_le32(&scu->sysreset_ctrl1, BIT(reset_ctl->id));
+	else
+		setbits_le32(&scu->sysreset_ctrl2, BIT(reset_ctl->id - 32));
+
+	return 0;
+}
+
+static int ast2500_reset_deassert(struct reset_ctl *reset_ctl)
+{
+	struct ast2500_reset_priv *priv = dev_get_priv(reset_ctl->dev);
+	struct ast2500_scu *scu = priv->scu;
+
+	debug("%s: reset_ctl->id: %lu\n", __func__, reset_ctl->id);
+
+	if (reset_ctl->id < 32)
+		clrbits_le32(&scu->sysreset_ctrl1, BIT(reset_ctl->id));
+	else
+		clrbits_le32(&scu->sysreset_ctrl2, BIT(reset_ctl->id - 32));
+
+	return 0;
+}
+
 static int ast2500_reset_probe(struct udevice *dev)
 {
+	int rc;
 	struct ast2500_reset_priv *priv = dev_get_priv(dev);
+	struct udevice *scu_dev;
 
-	priv->scu = ast_get_scu();
+	/* get SCU base from clock device */
+	rc = uclass_get_device_by_driver(UCLASS_CLK,
+					 DM_GET_DRIVER(aspeed_ast2500_scu), &scu_dev);
+	if (rc) {
+		debug("%s: clock device not found, rc=%d\n", __func__, rc);
+		return rc;
+	}
+
+	priv->scu = devfdt_get_addr_ptr(scu_dev);
+	if (IS_ERR_OR_NULL(priv->scu)) {
+		debug("%s: invalid SCU base pointer\n", __func__);
+		return PTR_ERR(priv->scu);
+	}
 
 	return 0;
 }
@@ -89,16 +93,17 @@ static const struct udevice_id ast2500_reset_ids[] = {
 };
 
 struct reset_ops ast2500_reset_ops = {
-	.rst_assert = ast2500_reset_assert,
 	.request = ast2500_reset_request,
+	.rfree = ast2500_reset_free,
+	.rst_assert = ast2500_reset_assert,
+	.rst_deassert = ast2500_reset_deassert,
 };
 
 U_BOOT_DRIVER(ast2500_reset) = {
-	.name		= "ast2500_reset",
-	.id		= UCLASS_RESET,
+	.name = "ast2500_reset",
+	.id = UCLASS_RESET,
 	.of_match = ast2500_reset_ids,
 	.probe = ast2500_reset_probe,
 	.ops = &ast2500_reset_ops,
-	.ofdata_to_platdata = ast2500_ofdata_to_platdata,
 	.priv_auto_alloc_size = sizeof(struct ast2500_reset_priv),
 };

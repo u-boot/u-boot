@@ -16,7 +16,6 @@
 	rst: reset-controller {
 		u-boot,dm-pre-reloc;
 		compatible = "aspeed,ast2500-reset";
-		aspeed,wdt = <&wdt1>;
 		#reset-cells = <1>;
 	};
 
@@ -27,7 +26,7 @@
 			0x1e6e0200 0x1d4 >;
 		#reset-cells = <1>;
 		clocks = <&scu ASPEED_CLK_MPLL>;
-		resets = <&rst AST_RESET_SDRAM>;
+		resets = <&rst ASPEED_RESET_SDRAM>;
 	};
 
 	ahb {
@@ -41,7 +40,7 @@
 				reg = <0x1e740100>;
 				#reset-cells = <1>;
 				clocks = <&scu ASPEED_CLK_SDIO>;
-				resets = <&rst AST_RESET_SDIO>;
+				resets = <&rst ASPEED_RESET_SDIO>;
 			};
 
 			sdhci1: sdhci@1e740200 {
@@ -49,7 +48,7 @@
 				reg = <0x1e740200>;
 				#reset-cells = <1>;
 				clocks = <&scu ASPEED_CLK_SDIO>;
-				resets = <&rst AST_RESET_SDIO>;
+				resets = <&rst ASPEED_RESET_SDIO>;
 			};
 		};
 

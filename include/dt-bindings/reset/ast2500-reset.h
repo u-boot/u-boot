@@ -1,44 +1,49 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2017 Google, Inc
+ * Copyright 2020 ASPEED Technology Inc.
  */
 
 #ifndef _ABI_MACH_ASPEED_AST2500_RESET_H_
 #define _ABI_MACH_ASPEED_AST2500_RESET_H_
 
-/*
- * The values are intentionally layed out as flags in
- * WDT reset parameter.
- */
-
-#define AST_RESET_SOC			0
-#define AST_RESET_CHIP			1
-#define AST_RESET_CPU			(1 << 1)
-#define AST_RESET_ARM			(1 << 2)
-#define AST_RESET_COPROC		(1 << 3)
-#define AST_RESET_SDRAM			(1 << 4)
-#define AST_RESET_AHB			(1 << 5)
-#define AST_RESET_I2C			(1 << 6)
-#define AST_RESET_MAC1			(1 << 7)
-#define AST_RESET_MAC2			(1 << 8)
-#define AST_RESET_GCRT			(1 << 9)
-#define AST_RESET_USB20			(1 << 10)
-#define AST_RESET_USB11_HOST		(1 << 11)
-#define AST_RESET_USB11_HID		(1 << 12)
-#define AST_RESET_VIDEO			(1 << 13)
-#define AST_RESET_HAC			(1 << 14)
-#define AST_RESET_LPC			(1 << 15)
-#define AST_RESET_SDIO			(1 << 16)
-#define AST_RESET_MIC			(1 << 17)
-#define AST_RESET_CRT2D			(1 << 18)
-#define AST_RESET_PWM			(1 << 19)
-#define AST_RESET_PECI			(1 << 20)
-#define AST_RESET_JTAG			(1 << 21)
-#define AST_RESET_ADC			(1 << 22)
-#define AST_RESET_GPIO			(1 << 23)
-#define AST_RESET_MCTP			(1 << 24)
-#define AST_RESET_XDMA			(1 << 25)
-#define AST_RESET_SPI			(1 << 26)
-#define AST_RESET_MISC			(1 << 27)
+#define ASPEED_RESET_CRT1		(37)
+#define ASPEED_RESET_RESERVED36		(36)
+#define ASPEED_RESET_RESERVED35		(35)
+#define ASPEED_RESET_RESERVED34		(34)
+#define ASPEED_RESET_RESERVED33		(33)
+#define ASPEED_RESET_RESERVED32		(32)
+#define ASPEED_RESET_RESERVED31		(31)
+#define ASPEED_RESET_RESERVED30		(30)
+#define ASPEED_RESET_RESERVED29		(29)
+#define ASPEED_RESET_RESERVED28		(28)
+#define ASPEED_RESET_RESERVED27		(27)
+#define ASPEED_RESET_RESERVED26		(26)
+#define ASPEED_RESET_XDMA		(25)
+#define ASPEED_RESET_MCTP		(24)
+#define ASPEED_RESET_ADC		(23)
+#define ASPEED_RESET_JTAG_MASTER	(22)
+#define ASPEED_RESET_RESERVED21		(21)
+#define ASPEED_RESET_RESERVED20		(20)
+#define ASPEED_RESET_RESERVED19		(19)
+#define ASPEED_RESET_MIC		(18)
+#define ASPEED_RESET_RESERVED17		(17)
+#define ASPEED_RESET_SDIO		(16)
+#define ASPEED_RESET_UHCI		(15)
+#define ASPEED_RESET_EHCI_P1		(14)
+#define ASPEED_RESET_CRT		(13)
+#define ASPEED_RESET_MAC2		(12)
+#define ASPEED_RESET_MAC1		(11)
+#define ASPEED_RESET_PECI		(10)
+#define ASPEED_RESET_PWM		(9)
+#define ASPEED_RESET_PCI_VGA		(8)
+#define ASPEED_RESET_2D			(7)
+#define ASPEED_RESET_VIDEO		(6)
+#define ASPEED_RESET_LPC_ESPI		(5)
+#define ASPEED_RESET_HACE		(4)
+#define ASPEED_RESET_EHCI_P2		(3)
+#define ASPEED_RESET_I2C		(2)
+#define ASPEED_RESET_AHB		(1)
+#define ASPEED_RESET_SDRAM		(0)
 
 #endif  /* _ABI_MACH_ASPEED_AST2500_RESET_H_ */
