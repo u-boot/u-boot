@@ -26,6 +26,8 @@
 /* PCIe Link Status Register */
 #define PCI_LSR				(FSL_PCIE_CAP_ID + 0x12)
 
+#define DBI_RO_WR_EN			0x8bc
+
 #ifndef CONFIG_SYS_PCI_MEMORY_BUS
 #define CONFIG_SYS_PCI_MEMORY_BUS	0
 #endif
