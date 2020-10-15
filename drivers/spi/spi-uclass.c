@@ -3,12 +3,15 @@
  * Copyright (c) 2014 Google, Inc
  */
 
+#define LOG_CATEGORY UCLASS_SPI
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>
 #include <malloc.h>
 #include <spi.h>
+#include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #include <dm/lists.h>
@@ -29,7 +32,7 @@ static int spi_set_speed_mode(struct udevice *bus, int speed, int mode)
 	else
 		ret = -EINVAL;
 	if (ret) {
-		printf("Cannot set speed (err=%d)\n", ret);
+		dev_err(bus, "Cannot set speed (err=%d)\n", ret);
 		return ret;
 	}
 
@@ -38,7 +41,7 @@ static int spi_set_speed_mode(struct udevice *bus, int speed, int mode)
 	else
 		ret = -EINVAL;
 	if (ret) {
-		printf("Cannot set mode (err=%d)\n", ret);
+		dev_err(bus, "Cannot set mode (err=%d)\n", ret);
 		return ret;
 	}
 
@@ -138,13 +141,15 @@ int spi_write_then_read(struct spi_slave *slave, const u8 *opcode,
 
 	ret = spi_xfer(slave, n_opcode * 8, opcode, NULL, flags);
 	if (ret) {
-		debug("spi: failed to send command (%zu bytes): %d\n",
-		      n_opcode, ret);
+		dev_dbg(slave->dev,
+			"spi: failed to send command (%zu bytes): %d\n",
+			n_opcode, ret);
 	} else if (n_buf != 0) {
 		ret = spi_xfer(slave, n_buf * 8, txbuf, rxbuf, SPI_XFER_END);
 		if (ret)
-			debug("spi: failed to transfer %zu bytes of data: %d\n",
-			      n_buf, ret);
+			dev_dbg(slave->dev,
+				"spi: failed to transfer %zu bytes of data: %d\n",
+				n_buf, ret);
 	}
 
 	return ret;
@@ -248,7 +253,7 @@ int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp)
 	}
 
 	if (ret) {
-		printf("Invalid cs %d (err=%d)\n", cs, ret);
+		dev_err(bus, "Invalid cs %d (err=%d)\n", cs, ret);
 		return ret;
 	}
 
@@ -257,7 +262,7 @@ int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp)
 		struct dm_spi_slave_platdata *plat;
 
 		plat = dev_get_parent_platdata(dev);
-		debug("%s: plat=%p, cs=%d\n", __func__, plat, plat->cs);
+		dev_dbg(bus, "%s: plat=%p, cs=%d\n", __func__, plat, plat->cs);
 		if (plat->cs == cs) {
 			*devp = dev;
 			return 0;
@@ -275,7 +280,7 @@ int spi_cs_is_valid(unsigned int busnum, unsigned int cs)
 
 	ret = uclass_find_device_by_seq(UCLASS_SPI, busnum, false, &bus);
 	if (ret) {
-		debug("%s: No bus %d\n", __func__, busnum);
+		log_debug("%s: No bus %d\n", __func__, busnum);
 		return ret;
 	}
 
@@ -304,12 +309,12 @@ int spi_find_bus_and_cs(int busnum, int cs, struct udevice **busp,
 
 	ret = uclass_find_device_by_seq(UCLASS_SPI, busnum, false, &bus);
 	if (ret) {
-		debug("%s: No bus %d\n", __func__, busnum);
+		log_debug("%s: No bus %d\n", __func__, busnum);
 		return ret;
 	}
 	ret = spi_find_chip_select(bus, cs, &dev);
 	if (ret) {
-		debug("%s: No cs %d\n", __func__, cs);
+		dev_dbg(bus, "%s: No cs %d\n", __func__, cs);
 		return ret;
 	}
 	*busp = bus;
@@ -334,7 +339,7 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 	ret = uclass_get_device_by_seq(UCLASS_SPI, busnum, &bus);
 #endif
 	if (ret) {
-		printf("Invalid bus %d (err=%d)\n", busnum, ret);
+		log_err("Invalid bus %d (err=%d)\n", busnum, ret);
 		return ret;
 	}
 	ret = spi_find_chip_select(bus, cs, &dev);
@@ -345,12 +350,12 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 	 * SPI flash chip - we will bind to the correct driver.
 	 */
 	if (ret == -ENODEV && drv_name) {
-		debug("%s: Binding new device '%s', busnum=%d, cs=%d, driver=%s\n",
-		      __func__, dev_name, busnum, cs, drv_name);
+		dev_dbg(bus, "%s: Binding new device '%s', busnum=%d, cs=%d, driver=%s\n",
+			__func__, dev_name, busnum, cs, drv_name);
 		ret = device_bind_driver(bus, drv_name, dev_name, &dev);
 		if (ret) {
-			debug("%s: Unable to bind driver (ret=%d)\n", __func__,
-			      ret);
+			dev_dbg(bus, "%s: Unable to bind driver (ret=%d)\n",
+				__func__, ret);
 			return ret;
 		}
 		plat = dev_get_parent_platdata(dev);
@@ -358,15 +363,15 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 		if (speed) {
 			plat->max_hz = speed;
 		} else {
-			printf("Warning: SPI speed fallback to %u kHz\n",
-			       SPI_DEFAULT_SPEED_HZ / 1000);
+			dev_warn(bus,
+				 "Warning: SPI speed fallback to %u kHz\n",
+				 SPI_DEFAULT_SPEED_HZ / 1000);
 			plat->max_hz = SPI_DEFAULT_SPEED_HZ;
 		}
 		plat->mode = mode;
 		created = true;
 	} else if (ret) {
-		printf("Invalid chip select %d:%d (err=%d)\n", busnum, cs,
-		       ret);
+		dev_err(bus, "Invalid chip select %d:%d (err=%d)\n", busnum, cs, ret);
 		return ret;
 	}
 
@@ -394,13 +399,13 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 
 	*busp = bus;
 	*devp = slave;
-	debug("%s: bus=%p, slave=%p\n", __func__, bus, *devp);
+	log_debug("%s: bus=%p, slave=%p\n", __func__, bus, *devp);
 
 	return 0;
 
 err:
-	debug("%s: Error path, created=%d, device '%s'\n", __func__,
-	      created, dev->name);
+	log_debug("%s: Error path, created=%d, device '%s'\n", __func__,
+		  created, dev->name);
 	if (created) {
 		device_remove(dev, DM_REMOVE_NORMAL);
 		device_unbind(dev);
