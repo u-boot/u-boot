@@ -175,8 +175,6 @@ U_BOOT_DRIVER(serial_xen) = {
 	.priv_auto_alloc_size	= sizeof(struct xen_uart_priv),
 	.probe			= xen_serial_probe,
 	.ops			= &xen_serial_ops,
-#if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags			= DM_FLAG_PRE_RELOC,
-#endif
 };
 
