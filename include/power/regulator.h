@@ -264,6 +264,7 @@ struct dm_regulator_ops {
 	int (*set_mode)(struct udevice *dev, int mode_id);
 };
 
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
 /**
  * regulator_mode: returns a pointer to the array of regulator mode info
  *
@@ -524,5 +525,118 @@ int regulator_get_by_platname(const char *platname, struct udevice **devp);
  */
 int device_get_supply_regulator(struct udevice *dev, const char *supply_name,
 				struct udevice **devp);
+#else
+static inline int regulator_mode(struct udevice *dev, struct dm_regulator_mode **modep)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_get_value(struct udevice *dev)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_set_value(struct udevice *dev, int uV)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_set_suspend_value(struct udevice *dev, int uV)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_get_suspend_value(struct udevice *dev)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_set_value_force(struct udevice *dev, int uV)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_get_current(struct udevice *dev)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_set_current(struct udevice *dev, int uA)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_get_enable(struct udevice *dev)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_set_enable(struct udevice *dev, bool enable)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_set_enable_if_allowed(struct udevice *dev, bool enable)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_set_suspend_enable(struct udevice *dev, bool enable)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_get_suspend_enable(struct udevice *dev)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_get_mode(struct udevice *dev)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_set_mode(struct udevice *dev, int mode_id)
+{
+	return -ENOSYS;
+}
+
+static inline int regulators_enable_boot_on(bool verbose)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_autoset(struct udevice *dev)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_autoset_by_name(const char *platname, struct udevice **devp)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_list_autoset(const char *list_platname[], struct udevice *list_devp[],
+					 bool verbose)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_get_by_devname(const char *devname, struct udevice **devp)
+{
+	return -ENOSYS;
+}
+
+static inline int regulator_get_by_platname(const char *platname, struct udevice **devp)
+{
+	return -ENOSYS;
+}
+
+static inline int device_get_supply_regulator(struct udevice *dev, const char *supply_name,
+					       struct udevice **devp)
+{
+	return -ENOSYS;
+}
+#endif
 
 #endif /* _INCLUDE_REGULATOR_H_ */
