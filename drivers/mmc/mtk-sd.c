@@ -1171,7 +1171,7 @@ skip_fall:
 			internal_delay |= (1 << i);
 	}
 
-	dev_err(dev, "Final internal delay: 0x%x\n", internal_delay);
+	dev_dbg(dev, "Final internal delay: 0x%x\n", internal_delay);
 
 	internal_delay_phase = get_best_delay(dev, host, internal_delay);
 	clrsetbits_le32(tune_reg, MSDC_PAD_TUNE_CMDRRDLY_M,
@@ -1179,7 +1179,7 @@ skip_fall:
 			MSDC_PAD_TUNE_CMDRRDLY_S);
 
 skip_internal:
-	dev_err(dev, "Final cmd pad delay: %x\n", final_delay);
+	dev_dbg(dev, "Final cmd pad delay: %x\n", final_delay);
 	return final_delay == 0xff ? -EIO : 0;
 }
 
@@ -1265,7 +1265,7 @@ skip_fall:
 				host->hs200_write_int_delay <<
 				MSDC_PAD_TUNE_DATWRDLY_S);
 
-	dev_err(dev, "Final data pad delay: %x\n", final_delay);
+	dev_dbg(dev, "Final data pad delay: %x\n", final_delay);
 
 	return final_delay == 0xff ? -EIO : 0;
 }
