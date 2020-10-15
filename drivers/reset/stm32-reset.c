@@ -14,6 +14,9 @@
 #include <asm/io.h>
 #include <linux/bitops.h>
 
+/* offset of register without set/clear management */
+#define RCC_MP_GCR_OFFSET 0x10C
+
 /* reset clear offset for STM32MP RCC */
 #define RCC_CL 0x4
 
@@ -40,8 +43,11 @@ static int stm32_reset_assert(struct reset_ctl *reset_ctl)
 	      reset_ctl->id, bank, offset);
 
 	if (dev_get_driver_data(reset_ctl->dev) == STM32MP1)
-		/* reset assert is done in rcc set register */
-		writel(BIT(offset), priv->base + bank);
+		if (bank != RCC_MP_GCR_OFFSET)
+			/* reset assert is done in rcc set register */
+			writel(BIT(offset), priv->base + bank);
+		else
+			clrbits_le32(priv->base + bank, BIT(offset));
 	else
 		setbits_le32(priv->base + bank, BIT(offset));
 
@@ -57,8 +63,11 @@ static int stm32_reset_deassert(struct reset_ctl *reset_ctl)
 	      reset_ctl->id, bank, offset);
 
 	if (dev_get_driver_data(reset_ctl->dev) == STM32MP1)
-		/* reset deassert is done in rcc clr register */
-		writel(BIT(offset), priv->base + bank + RCC_CL);
+		if (bank != RCC_MP_GCR_OFFSET)
+			/* reset deassert is done in rcc clr register */
+			writel(BIT(offset), priv->base + bank + RCC_CL);
+		else
+			setbits_le32(priv->base + bank, BIT(offset));
 	else
 		clrbits_le32(priv->base + bank, BIT(offset));
 
