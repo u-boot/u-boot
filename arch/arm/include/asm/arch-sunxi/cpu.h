@@ -16,6 +16,7 @@
 
 #define SOCID_A64	0x1689
 #define SOCID_H3	0x1680
+#define SOCID_V3S	0x1681
 #define SOCID_H5	0x1718
 #define SOCID_R40	0x1701
 
