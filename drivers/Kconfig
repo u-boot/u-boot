@@ -64,6 +64,8 @@ source "drivers/mmc/Kconfig"
 
 source "drivers/mtd/Kconfig"
 
+source "drivers/mux/Kconfig"
+
 source "drivers/net/Kconfig"
 
 source "drivers/nvme/Kconfig"
