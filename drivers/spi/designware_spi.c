@@ -95,27 +95,26 @@ struct dw_spi_platdata {
 };
 
 struct dw_spi_priv {
-	void __iomem *regs;
-	unsigned int freq;		/* Default frequency */
-	unsigned int mode;
 	struct clk clk;
-	unsigned long bus_clk_rate;
-
+	struct reset_ctl_bulk resets;
 	struct gpio_desc cs_gpio;	/* External chip-select gpio */
 
-	int bits_per_word;
-	u8 cs;			/* chip select pin */
-	u8 tmode;		/* TR/TO/RO/EEPROM */
-	u8 type;		/* SPI/SSP/MicroWire */
-	int len;
+	void __iomem *regs;
+	unsigned long bus_clk_rate;
+	unsigned int freq;		/* Default frequency */
+	unsigned int mode;
 
-	u32 fifo_len;		/* depth of the FIFO buffer */
-	void *tx;
-	void *tx_end;
+	const void *tx;
+	const void *tx_end;
 	void *rx;
 	void *rx_end;
+	u32 fifo_len;			/* depth of the FIFO buffer */
 
-	struct reset_ctl_bulk	resets;
+	int bits_per_word;
+	int len;
+	u8 cs;				/* chip select pin */
+	u8 tmode;			/* TR/TO/RO/EEPROM */
+	u8 type;			/* SPI/SSP/MicroWire */
 };
 
 static inline u32 dw_read(struct dw_spi_priv *priv, u32 offset)
