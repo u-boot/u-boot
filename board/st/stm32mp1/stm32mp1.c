@@ -289,41 +289,13 @@ static void __maybe_unused led_error_blink(u32 nb_blink)
 		hang();
 }
 
-static int board_check_usb_power(void)
+static int adc_measurement(ofnode node, int adc_count, int *min_uV, int *max_uV)
 {
 	struct ofnode_phandle_args adc_args;
 	struct udevice *adc;
-	ofnode node;
 	unsigned int raw;
-	int max_uV = 0;
-	int min_uV = USB_START_HIGH_THRESHOLD_UV;
-	int ret, uV, adc_count;
-	u32 nb_blink;
-	u8 i;
-
-	if (!IS_ENABLED(CONFIG_ADC))
-		return -ENODEV;
-
-	node = ofnode_path("/config");
-	if (!ofnode_valid(node)) {
-		log_debug("no /config node?\n");
-		return -ENOENT;
-	}
-
-	/*
-	 * Retrieve the ADC channels devices and get measurement
-	 * for each of them
-	 */
-	adc_count = ofnode_count_phandle_with_args(node, "st,adc_usb_pd",
-						   "#io-channel-cells", 0);
-	if (adc_count < 0) {
-		if (adc_count == -ENOENT)
-			return 0;
-
-		log_err("can't find adc channel (%d)\n", adc_count);
-
-		return adc_count;
-	}
+	int ret, uV;
+	int i;
 
 	for (i = 0; i < adc_count; i++) {
 		if (ofnode_parse_phandle_with_args(node, "st,adc_usb_pd",
@@ -350,10 +322,10 @@ static int board_check_usb_power(void)
 		}
 		/* Convert to uV */
 		if (!adc_raw_to_uV(adc, raw, &uV)) {
-			if (uV > max_uV)
-				max_uV = uV;
-			if (uV < min_uV)
-				min_uV = uV;
+			if (uV > *max_uV)
+				*max_uV = uV;
+			if (uV < *min_uV)
+				*min_uV = uV;
 			log_debug("%s[%02d] = %u, %d uV\n",
 				  adc->name, adc_args.args[0], raw, uV);
 		} else {
@@ -362,18 +334,66 @@ static int board_check_usb_power(void)
 		}
 	}
 
+	return 0;
+}
+
+static int board_check_usb_power(void)
+{
+	ofnode node;
+	int max_uV = 0;
+	int min_uV = USB_START_HIGH_THRESHOLD_UV;
+	int adc_count, ret;
+	u32 nb_blink;
+	u8 i;
+
+	node = ofnode_path("/config");
+	if (!ofnode_valid(node)) {
+		log_debug("no /config node?\n");
+		return -ENOENT;
+	}
+
 	/*
-	 * If highest value is inside 1.23 Volts and 2.10 Volts, that means
-	 * board is plugged on an USB-C 3A power supply and boot process can
-	 * continue.
+	 * Retrieve the ADC channels devices and get measurement
+	 * for each of them
 	 */
-	if (max_uV > USB_START_LOW_THRESHOLD_UV &&
-	    max_uV <= USB_START_HIGH_THRESHOLD_UV &&
-	    min_uV <= USB_LOW_THRESHOLD_UV)
-		return 0;
+	adc_count = ofnode_count_phandle_with_args(node, "st,adc_usb_pd",
+						   "#io-channel-cells", 0);
+	if (adc_count < 0) {
+		if (adc_count == -ENOENT)
+			return 0;
+
+		log_err("Can't find adc channel (%d)\n", adc_count);
+
+		return adc_count;
+	}
+
+	/* perform maximum of 2 ADC measurements to detect power supply current */
+	for (i = 0; i < 2; i++) {
+		if (IS_ENABLED(CONFIG_ADC))
+			ret = adc_measurement(node, adc_count, &min_uV, &max_uV);
+		else
+			ret = -ENODEV;
+
+		if (ret)
+			return ret;
+
+		/*
+		 * If highest value is inside 1.23 Volts and 2.10 Volts, that means
+		 * board is plugged on an USB-C 3A power supply and boot process can
+		 * continue.
+		 */
+		if (max_uV > USB_START_LOW_THRESHOLD_UV &&
+		    max_uV <= USB_START_HIGH_THRESHOLD_UV &&
+		    min_uV <= USB_LOW_THRESHOLD_UV)
+			return 0;
+
+		if (i == 0) {
+			log_err("Previous ADC measurements was not the one expected, retry in 20ms\n");
+			mdelay(20);  /* equal to max tPDDebounce duration (min 10ms - max 20ms) */
+		}
+	}
 
 	log_notice("****************************************************\n");
-
 	/*
 	 * If highest and lowest value are either both below
 	 * USB_LOW_THRESHOLD_UV or both above USB_LOW_THRESHOLD_UV, that
