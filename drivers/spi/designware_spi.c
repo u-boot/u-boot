@@ -27,14 +27,14 @@
 #include <asm/io.h>
 
 /* Register offsets */
-#define DW_SPI_CTRL0			0x00
-#define DW_SPI_CTRL1			0x04
+#define DW_SPI_CTRLR0			0x00
+#define DW_SPI_CTRLR1			0x04
 #define DW_SPI_SSIENR			0x08
 #define DW_SPI_MWCR			0x0c
 #define DW_SPI_SER			0x10
 #define DW_SPI_BAUDR			0x14
-#define DW_SPI_TXFLTR			0x18
-#define DW_SPI_RXFLTR			0x1c
+#define DW_SPI_TXFTLR			0x18
+#define DW_SPI_RXFTLR			0x1c
 #define DW_SPI_TXFLR			0x20
 #define DW_SPI_RXFLR			0x24
 #define DW_SPI_SR			0x28
@@ -191,13 +191,13 @@ static void spi_hw_init(struct udevice *bus, struct dw_spi_priv *priv)
 		u32 fifo;
 
 		for (fifo = 1; fifo < 256; fifo++) {
-			dw_write(priv, DW_SPI_TXFLTR, fifo);
-			if (fifo != dw_read(priv, DW_SPI_TXFLTR))
+			dw_write(priv, DW_SPI_TXFTLR, fifo);
+			if (fifo != dw_read(priv, DW_SPI_TXFTLR))
 				break;
 		}
 
 		priv->fifo_len = (fifo == 1) ? 0 : fifo;
-		dw_write(priv, DW_SPI_TXFLTR, 0);
+		dw_write(priv, DW_SPI_TXFTLR, 0);
 	}
 	dev_dbg(bus, "fifo_len=%d\n", priv->fifo_len);
 }
@@ -443,8 +443,8 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	dev_dbg(dev, "cr0=%08x rx=%p tx=%p len=%d [bytes]\n", cr0, rx, tx,
 		priv->len);
 	/* Reprogram cr0 only if changed */
-	if (dw_read(priv, DW_SPI_CTRL0) != cr0)
-		dw_write(priv, DW_SPI_CTRL0, cr0);
+	if (dw_read(priv, DW_SPI_CTRLR0) != cr0)
+		dw_write(priv, DW_SPI_CTRLR0, cr0);
 
 	/*
 	 * Configure the desired SS (slave select 0...3) in the controller
