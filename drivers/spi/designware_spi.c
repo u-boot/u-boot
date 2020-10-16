@@ -135,7 +135,8 @@ static int request_gpio_cs(struct udevice *bus)
 	int ret;
 
 	/* External chip select gpio line is optional */
-	ret = gpio_request_by_name(bus, "cs-gpio", 0, &priv->cs_gpio, 0);
+	ret = gpio_request_by_name(bus, "cs-gpios", 0, &priv->cs_gpio,
+				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 	if (ret == -ENOENT)
 		return 0;
 
