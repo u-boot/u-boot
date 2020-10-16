@@ -437,13 +437,52 @@ __weak void fdt_fixup_ecam(void *blob)
 }
 #endif
 
+/*
+ * If it is a non-E part the crypto is disabled on the following SoCs:
+ *  - LS1043A
+ *  - LS1088A
+ *  - LS2080A
+ *  - LS2088A
+ * and their personalities.
+ *
+ * On all other SoCs just the export-controlled ciphers are disabled, that
+ * means that the following is still working:
+ *  - hashing (using MDHA - message digest hash accelerator)
+ *  - random number generation (using RNG4)
+ *  - cyclic redundancy checking (using CRCA)
+ *  - runtime integrity checker (RTIC)
+ *
+ * The linux driver will figure out what is available and what is not.
+ * Therefore, we just remove the crypto node on the SoCs which have no crypto
+ * support at all.
+ */
+static bool crypto_is_disabled(unsigned int svr)
+{
+	if (IS_E_PROCESSOR(svr))
+		return false;
+
+	if (IS_SVR_DEV(svr, SVR_DEV(SVR_LS1043A)))
+		return true;
+
+	if (IS_SVR_DEV(svr, SVR_DEV(SVR_LS1088A)))
+		return true;
+
+	if (IS_SVR_DEV(svr, SVR_DEV(SVR_LS2080A)))
+		return true;
+
+	if (IS_SVR_DEV(svr, SVR_DEV(SVR_LS2088A)))
+		return true;
+
+	return false;
+}
+
 void ft_cpu_setup(void *blob, struct bd_info *bd)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	unsigned int svr = gur_in32(&gur->svr);
 
 	/* delete crypto node if not on an E-processor */
-	if (!IS_E_PROCESSOR(svr))
+	if (crypto_is_disabled(svr))
 		fdt_fixup_crypto_node(blob, 0);
 #if CONFIG_SYS_FSL_SEC_COMPAT >= 4
 	else {
