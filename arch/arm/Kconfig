@@ -1744,6 +1744,7 @@ config ARCH_ROCKCHIP
 
 config ARCH_OCTEONTX
 	bool "Support OcteonTX SoCs"
+	select CLK
 	select DM
 	select ARM64
 	select OF_CONTROL
@@ -1753,6 +1754,7 @@ config ARCH_OCTEONTX
 
 config ARCH_OCTEONTX2
 	bool "Support OcteonTX2 SoCs"
+	select CLK
 	select DM
 	select ARM64
 	select OF_CONTROL
