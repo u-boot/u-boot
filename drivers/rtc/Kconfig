@@ -75,6 +75,12 @@ config RTC_ISL1208
 	  This driver supports reading and writing the RTC/calendar and detects
 	  total power failures.
 
+config RTC_PCF8563
+	tristate "Philips PCF8563"
+	help
+	  If you say yes here you get support for the Philips PCF8563 RTC
+	  and compatible chips.
+
 config RTC_RV3029
 	bool "Enable RV3029 driver"
 	depends on DM_RTC

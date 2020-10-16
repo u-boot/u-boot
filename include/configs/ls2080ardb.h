@@ -279,7 +279,6 @@ unsigned long get_board_sys_clk(void);
  */
 #define RTC
 #ifdef CONFIG_TARGET_LS2081ARDB
-#define CONFIG_RTC_PCF8563		1
 #define CONFIG_SYS_I2C_RTC_ADDR         0x51
 #else
 #define CONFIG_RTC_DS3231               1
