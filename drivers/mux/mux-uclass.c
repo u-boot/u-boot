@@ -304,6 +304,29 @@ static int mux_uclass_post_probe(struct udevice *dev)
 	return 0;
 }
 
+int dm_mux_init(void)
+{
+	struct uclass *uc;
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get(UCLASS_MUX, &uc);
+	if (ret < 0) {
+		log_debug("unable to get MUX uclass\n");
+		return ret;
+	}
+	uclass_foreach_dev(dev, uc) {
+		if (dev_read_bool(dev, "u-boot,mux-autoprobe")) {
+			ret = device_probe(dev);
+			if (ret)
+				log_debug("unable to probe device %s\n",
+					  dev->name);
+		}
+	}
+
+	return 0;
+}
+
 UCLASS_DRIVER(mux) = {
 	.id		= UCLASS_MUX,
 	.name		= "mux",

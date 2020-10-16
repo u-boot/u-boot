@@ -109,6 +109,13 @@ void mux_control_put(struct mux_control *mux);
  */
 struct mux_control *devm_mux_control_get(struct udevice *dev,
 					 const char *mux_name);
+/**
+ * dm_mux_init() - Initialize the multiplexer controls to their default state.
+ *
+ * Return: 0 if OK, -errno otherwise.
+ */
+int dm_mux_init(void);
+
 #else
 unsigned int mux_control_states(struct mux_control *mux)
 {
@@ -141,6 +148,11 @@ struct mux_control *devm_mux_control_get(struct udevice *dev,
 					 const char *mux_name)
 {
 	return NULL;
+}
+
+int dm_mux_init(void)
+{
+	return -ENOSYS;
 }
 #endif
 
