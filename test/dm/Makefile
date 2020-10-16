@@ -34,6 +34,7 @@ obj-y += irq.o
 obj-$(CONFIG_LED) += led.o
 obj-$(CONFIG_DM_MAILBOX) += mailbox.o
 obj-$(CONFIG_DM_MMC) += mmc.o
+obj-$(CONFIG_CMD_MUX) += mux-cmd.o
 obj-y += fdtdec.o
 obj-y += ofnode.o
 obj-y += ofread.o
