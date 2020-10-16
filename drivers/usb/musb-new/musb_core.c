@@ -80,6 +80,8 @@
 #include <linux/io.h>
 #else
 #include <common.h>
+#include <dm.h>
+#include <dm/device_compat.h>
 #include <usb.h>
 #include <linux/bitops.h>
 #include <linux/bug.h>

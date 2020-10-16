@@ -29,23 +29,23 @@
  */
 
 #include <common.h>
-#include <asm/io.h>
-#include <asm/arch/reset.h>
 #include <clk-uclass.h>
 #include <clk.h>
 #include <div64.h>
 #include <dm.h>
-#include <errno.h>
-#include <reset-uclass.h>
 #include <dm/device.h>
+#include <dm/device_compat.h>
 #include <dm/uclass.h>
-#include <linux/delay.h>
-#include <linux/err.h>
-
-#include <linux/math64.h>
-#include <linux/clk/analogbits-wrpll-cln28hpc.h>
 #include <dt-bindings/clock/sifive-fu540-prci.h>
 #include <dt-bindings/reset/sifive-fu540-prci.h>
+#include <errno.h>
+#include <reset-uclass.h>
+#include <asm/io.h>
+#include <asm/arch/reset.h>
+#include <linux/delay.h>
+#include <linux/err.h>
+#include <linux/math64.h>
+#include <linux/clk/analogbits-wrpll-cln28hpc.h>
 
 /*
  * EXPECTED_CLK_PARENT_COUNT: how many parent clocks this driver expects:

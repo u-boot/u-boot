@@ -24,19 +24,20 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <dm/device_compat.h>
 #include <log.h>
-#include <asm/io.h>
+#include <spi.h>
+#include <spi-mem.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <linux/sizes.h>
 #include <linux/iopoll.h>
-#include <dm.h>
 #include <linux/iopoll.h>
 #include <linux/sizes.h>
 #include <linux/err.h>
-#include <spi.h>
-#include <spi-mem.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -22,11 +22,13 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <log.h>
-#include <asm/byteorder.h>
-#include <usb.h>
 #include <malloc.h>
+#include <usb.h>
+#include <usb/xhci.h>
 #include <watchdog.h>
+#include <asm/byteorder.h>
 #include <asm/cache.h>
 #include <asm/unaligned.h>
 #include <linux/bitops.h>
@@ -34,7 +36,6 @@
 #include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/iopoll.h>
-#include <usb/xhci.h>
 
 #ifndef CONFIG_USB_MAX_CONTROLLER_COUNT
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 1
