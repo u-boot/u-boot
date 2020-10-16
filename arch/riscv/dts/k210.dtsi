@@ -496,6 +496,8 @@
 				interrupts = <24>;
 				clocks = <&sysclk K210_CLK_DVP>;
 				resets = <&sysrst K210_RST_DVP>;
+				kendryte,sysctl = <&sysctl>;
+				kendryte,misc-offset = <K210_SYSCTL_MISC>;
 				status = "disabled";
 			};
 
