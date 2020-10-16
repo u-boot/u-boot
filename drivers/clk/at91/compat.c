@@ -9,6 +9,7 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <dm/util.h>
 #include <mach/at91_pmc.h>
