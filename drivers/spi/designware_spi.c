@@ -171,17 +171,12 @@ static int dw_spi_ofdata_to_platdata(struct udevice *bus)
 	return request_gpio_cs(bus);
 }
 
-static inline void spi_enable_chip(struct dw_spi_priv *priv, int enable)
-{
-	dw_write(priv, DW_SPI_SSIENR, (enable ? 1 : 0));
-}
-
 /* Restart the controller, disable all interrupts, clean rx fifo */
 static void spi_hw_init(struct udevice *bus, struct dw_spi_priv *priv)
 {
-	spi_enable_chip(priv, 0);
+	dw_write(priv, DW_SPI_SSIENR, 0);
 	dw_write(priv, DW_SPI_IMR, 0xff);
-	spi_enable_chip(priv, 1);
+	dw_write(priv, DW_SPI_SSIENR, 1);
 
 	/*
 	 * Try to detect the FIFO depth if not set by interface driver,
@@ -438,7 +433,7 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	priv->rx_end = priv->rx + priv->len;
 
 	/* Disable controller before writing control registers */
-	spi_enable_chip(priv, 0);
+	dw_write(priv, DW_SPI_SSIENR, 0);
 
 	dev_dbg(dev, "cr0=%08x rx=%p tx=%p len=%d [bytes]\n", cr0, rx, tx,
 		priv->len);
@@ -455,7 +450,7 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	dw_write(priv, DW_SPI_SER, 1 << cs);
 
 	/* Enable controller after writing control registers */
-	spi_enable_chip(priv, 1);
+	dw_write(priv, DW_SPI_SSIENR, 1);
 
 	/* Start transfer in a polling loop */
 	ret = poll_transfer(priv);
@@ -490,7 +485,7 @@ static int dw_spi_set_speed(struct udevice *bus, uint speed)
 		speed = plat->frequency;
 
 	/* Disable controller before writing control registers */
-	spi_enable_chip(priv, 0);
+	dw_write(priv, DW_SPI_SSIENR, 0);
 
 	/* clk_div doesn't support odd number */
 	clk_div = priv->bus_clk_rate / speed;
@@ -498,7 +493,7 @@ static int dw_spi_set_speed(struct udevice *bus, uint speed)
 	dw_write(priv, DW_SPI_BAUDR, clk_div);
 
 	/* Enable controller after writing control registers */
-	spi_enable_chip(priv, 1);
+	dw_write(priv, DW_SPI_SSIENR, 1);
 
 	priv->freq = speed;
 	dev_dbg(bus, "speed=%d clk_div=%d\n", priv->freq, clk_div);
