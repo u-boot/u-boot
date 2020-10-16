@@ -9,6 +9,7 @@
  * Copyright (c) 2009, Intel Corporation.
  */
 
+#define LOG_CATEGORY UCLASS_SPI
 #include <common.h>
 #include <log.h>
 #include <asm-generic/gpio.h>
@@ -139,7 +140,7 @@ static int request_gpio_cs(struct udevice *bus)
 		return 0;
 
 	if (ret < 0) {
-		printf("Error: %d: Can't get %s gpio!\n", ret, bus->name);
+		dev_err(bus, "Couldn't request gpio! (error %d)\n", ret);
 		return ret;
 	}
 
@@ -148,7 +149,7 @@ static int request_gpio_cs(struct udevice *bus)
 				      GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 	}
 
-	debug("%s: used external gpio for CS management\n", __func__);
+	dev_dbg(bus, "Using external gpio for CS management\n");
 #endif
 	return 0;
 }
@@ -162,8 +163,7 @@ static int dw_spi_ofdata_to_platdata(struct udevice *bus)
 	/* Use 500KHz as a suitable default */
 	plat->frequency = dev_read_u32_default(bus, "spi-max-frequency",
 					       500000);
-	debug("%s: regs=%p max-frequency=%d\n", __func__, plat->regs,
-	      plat->frequency);
+	dev_info(bus, "max-frequency=%d\n", plat->frequency);
 
 	return request_gpio_cs(bus);
 }
@@ -174,7 +174,7 @@ static inline void spi_enable_chip(struct dw_spi_priv *priv, int enable)
 }
 
 /* Restart the controller, disable all interrupts, clean rx fifo */
-static void spi_hw_init(struct dw_spi_priv *priv)
+static void spi_hw_init(struct udevice *bus, struct dw_spi_priv *priv)
 {
 	spi_enable_chip(priv, 0);
 	dw_write(priv, DW_SPI_IMR, 0xff);
@@ -196,7 +196,7 @@ static void spi_hw_init(struct dw_spi_priv *priv)
 		priv->fifo_len = (fifo == 1) ? 0 : fifo;
 		dw_write(priv, DW_SPI_TXFLTR, 0);
 	}
-	debug("%s: fifo_len=%d\n", __func__, priv->fifo_len);
+	dev_dbg(bus, "fifo_len=%d\n", priv->fifo_len);
 }
 
 /*
@@ -221,8 +221,7 @@ __weak int dw_spi_get_clk(struct udevice *bus, ulong *rate)
 	if (!*rate)
 		goto err_rate;
 
-	debug("%s: get spi controller clk via device tree: %lu Hz\n",
-	      __func__, *rate);
+	dev_dbg(bus, "Got clock via device tree: %lu Hz\n", *rate);
 
 	return 0;
 
@@ -247,14 +246,16 @@ static int dw_spi_reset(struct udevice *bus)
 		if (ret == -ENOENT || ret == -ENOTSUPP)
 			return 0;
 
-		dev_warn(bus, "Can't get reset: %d\n", ret);
+		dev_warn(bus, "Couldn't find/assert reset device (error %d)\n",
+			 ret);
 		return ret;
 	}
 
 	ret = reset_deassert_bulk(&priv->resets);
 	if (ret) {
 		reset_release_bulk(&priv->resets);
-		dev_err(bus, "Failed to reset: %d\n", ret);
+		dev_err(bus, "Failed to de-assert reset for SPI (error %d)\n",
+			ret);
 		return ret;
 	}
 
@@ -284,7 +285,7 @@ static int dw_spi_probe(struct udevice *bus)
 	priv->tmode = 0; /* Tx & Rx */
 
 	/* Basic HW init */
-	spi_hw_init(priv);
+	spi_hw_init(bus, priv);
 
 	return 0;
 }
@@ -333,7 +334,7 @@ static void dw_writer(struct dw_spi_priv *priv)
 				txw = *(u16 *)(priv->tx);
 		}
 		dw_write(priv, DW_SPI_DR, txw);
-		debug("%s: tx=0x%02x\n", __func__, txw);
+		log_content("tx=0x%02x\n", txw);
 		priv->tx += priv->bits_per_word >> 3;
 	}
 }
@@ -345,7 +346,7 @@ static void dw_reader(struct dw_spi_priv *priv)
 
 	while (max--) {
 		rxw = dw_read(priv, DW_SPI_DR);
-		debug("%s: rx=0x%02x\n", __func__, rxw);
+		log_content("rx=0x%02x\n", rxw);
 
 		/* Care about rx if the transfer's original "rx" is not null */
 		if (priv->rx_end - priv->len) {
@@ -400,7 +401,7 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	/* spi core configured to do 8 bit transfers */
 	if (bitlen % 8) {
-		debug("Non byte aligned SPI transfer.\n");
+		dev_err(dev, "Non byte aligned SPI transfer.\n");
 		return -1;
 	}
 
@@ -427,7 +428,6 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	cr0 |= (priv->tmode << SPI_TMOD_OFFSET);
 
 	priv->len = bitlen >> 3;
-	debug("%s: rx=%p tx=%p len=%d [bytes]\n", __func__, rx, tx, priv->len);
 
 	priv->tx = (void *)tx;
 	priv->tx_end = priv->tx + priv->len;
@@ -437,7 +437,8 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	/* Disable controller before writing control registers */
 	spi_enable_chip(priv, 0);
 
-	debug("%s: cr0=%08x\n", __func__, cr0);
+	dev_dbg(dev, "cr0=%08x rx=%p tx=%p len=%d [bytes]\n", cr0, rx, tx,
+		priv->len);
 	/* Reprogram cr0 only if changed */
 	if (dw_read(priv, DW_SPI_CTRL0) != cr0)
 		dw_write(priv, DW_SPI_CTRL0, cr0);
@@ -497,8 +498,7 @@ static int dw_spi_set_speed(struct udevice *bus, uint speed)
 	spi_enable_chip(priv, 1);
 
 	priv->freq = speed;
-	debug("%s: regs=%p speed=%d clk_div=%d\n", __func__, priv->regs,
-	      priv->freq, clk_div);
+	dev_dbg(bus, "speed=%d clk_div=%d\n", priv->freq, clk_div);
 
 	return 0;
 }
@@ -513,7 +513,7 @@ static int dw_spi_set_mode(struct udevice *bus, uint mode)
 	 * real transfer function.
 	 */
 	priv->mode = mode;
-	debug("%s: regs=%p, mode=%d\n", __func__, priv->regs, priv->mode);
+	dev_dbg(bus, "mode=%d\n", priv->mode);
 
 	return 0;
 }
