@@ -322,7 +322,7 @@ static inline u32 rx_max(struct dw_spi_priv *priv)
 static void dw_writer(struct dw_spi_priv *priv)
 {
 	u32 max = tx_max(priv);
-	u16 txw = 0;
+	u16 txw = 0xFFFF;
 
 	while (max--) {
 		/* Set the tx word if the transfer's original "tx" is not null */
