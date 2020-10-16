@@ -3,6 +3,7 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/gpio/sandbox-gpio.h>
 #include <dt-bindings/pinctrl/sandbox-pinmux.h>
+#include <dt-bindings/mux/mux.h>
 
 / {
 	model = "sandbox";
@@ -133,6 +134,12 @@
 		interrupts-extended = <&irq 3 0>;
 		acpi,name = "GHIJ";
 		phandle-value = <&gpio_c 10>, <0xFFFFFFFF 20>, <&gpio_a 30>;
+
+		mux-controls = <&muxcontroller0 0>, <&muxcontroller0 1>,
+			       <&muxcontroller0 2>, <&muxcontroller0 3>,
+			       <&muxcontroller1>;
+		mux-control-names = "mux0", "mux1", "mux2", "mux3", "mux4";
+		mux-syscon = <&syscon3>;
 	};
 
 	junk {
@@ -170,6 +177,9 @@
 		compatible = "denx,u-boot-fdt-test";
 		ping-expect = <3>;
 		ping-add = <3>;
+
+		mux-controls = <&muxcontroller0 0>;
+		mux-control-names = "mux0";
 	};
 
 	phy_provider0: gen_phy@0 {
@@ -882,6 +892,29 @@
 			0x48 6
 			0x50 7
 			0x58 8>;
+	};
+
+	syscon3: syscon@3 {
+		compatible = "simple-mfd", "syscon";
+		reg = <0x000100 0x10>;
+
+		muxcontroller0: a-mux-controller {
+			compatible = "mmio-mux";
+			#mux-control-cells = <1>;
+
+			mux-reg-masks = <0x0 0x30>, /* 0: reg 0x0, bits 5:4 */
+					<0xc 0x1E>, /* 1: reg 0xc, bits 4:1 */
+					<0x4 0xFF>; /* 2: reg 0x4, bits 7:0 */
+			idle-states = <MUX_IDLE_AS_IS>, <0x02>, <0x73>;
+			u-boot,mux-autoprobe;
+		};
+	};
+
+	muxcontroller1: emul-mux-controller {
+		compatible = "mux-emul";
+		#mux-control-cells = <0>;
+		u-boot,mux-autoprobe;
+		idle-state = <0xabcd>;
 	};
 
 	timer@0 {
