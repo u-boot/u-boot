@@ -4,3 +4,4 @@
 # Jean-Jacques Hiblot <jjhiblot@ti.com>
 
 obj-$(CONFIG_$(SPL_)MULTIPLEXER) += mux-uclass.o
+obj-$(CONFIG_$(SPL_)MUX_MMIO) += mmio.o
