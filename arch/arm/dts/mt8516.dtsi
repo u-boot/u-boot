@@ -123,6 +123,20 @@
 		status = "disabled";
 	};
 
+	usb0: usb@11100000 {
+		compatible = "mediatek,mt8516-musb",
+			     "mediatek,mt8518-musb";
+		reg = <0x11100000 0x1000>;
+		interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-names = "mc";
+		clocks = <&topckgen CLK_TOP_USB_PHY48M>,
+			 <&topckgen_cg CLK_TOP_USBIF>,
+			 <&topckgen_cg CLK_TOP_USB>,
+			 <&topckgen_cg CLK_TOP_USB_1P>;
+		clock-names = "usbpll", "usbmcu", "usb", "icusb";
+		status = "disabled";
+	};
+
 	uart0: serial@11005000 {
 		compatible = "mediatek,hsuart";
 		reg = <0x11005000 0x1000>;
