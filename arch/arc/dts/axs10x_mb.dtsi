@@ -90,7 +90,7 @@
 		};
 
 		spi0: spi@0 {
-			compatible = "snps,dw-apb-ssi";
+			compatible = "snps,axs10x-spi", "snps,dw-apb-ssi";
 			reg = <0x0 0x100>;
 			#address-cells = <1>;
 			#size-cells = <0>;
