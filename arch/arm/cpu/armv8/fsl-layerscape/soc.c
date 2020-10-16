@@ -37,6 +37,7 @@
 #include <env_internal.h>
 #endif
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <linux/err.h>
 #if defined(CONFIG_TFABOOT) || defined(CONFIG_GIC_V3_ITS)
 DECLARE_GLOBAL_DATA_PTR;
