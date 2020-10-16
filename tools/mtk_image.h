@@ -136,7 +136,9 @@ struct gfh_brom_cfg {
 	struct gfh_common_header gfh;
 	uint32_t cfg_bits;
 	uint32_t usbdl_by_auto_detect_timeout_ms;
-	uint8_t unused[0x48];
+	uint8_t unused[0x45];
+	uint8_t jump_bl_arm64;
+	uint8_t unused2[2];
 	uint32_t usbdl_by_kcol0_timeout_ms;
 	uint32_t usbdl_by_flag_timeout_ms;
 	uint32_t pad;
@@ -146,6 +148,8 @@ struct gfh_brom_cfg {
 #define GFH_BROM_CFG_USBDL_AUTO_DETECT_DIS		0x10
 #define GFH_BROM_CFG_USBDL_BY_KCOL0_TIMEOUT_EN		0x80
 #define GFH_BROM_CFG_USBDL_BY_FLAG_TIMEOUT_EN		0x100
+#define GFH_BROM_CFG_JUMP_BL_ARM64_EN			0x1000
+#define GFH_BROM_CFG_JUMP_BL_ARM64			0x64
 
 struct gfh_bl_sec_key {
 	struct gfh_common_header gfh;

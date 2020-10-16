@@ -246,6 +246,7 @@ static const struct brom_img_type {
 /* Image type selected by user */
 static enum brlyt_img_type hdr_media;
 static int use_lk_hdr;
+static bool is_arm64_image;
 
 /* LK image name */
 static char lk_name[32] = "U-Boot";
@@ -276,6 +277,7 @@ static int mtk_brom_parse_imagename(const char *imagename)
 	static const char *media = "";
 	static const char *nandinfo = "";
 	static const char *lk = "";
+	static const char *arm64_param = "";
 
 	key = buf;
 	while (key) {
@@ -323,6 +325,9 @@ static int mtk_brom_parse_imagename(const char *imagename)
 
 			if (!strcmp(key, "lkname"))
 				snprintf(lk_name, sizeof(lk_name), "%s", val);
+
+			if (!strcmp(key, "arm64"))
+				arm64_param = val;
 		}
 
 		if (next)
@@ -353,6 +358,9 @@ static int mtk_brom_parse_imagename(const char *imagename)
 			break;
 		}
 	}
+
+	if (arm64_param && arm64_param[0] == '1')
+		is_arm64_image = true;
 
 	free(buf);
 
@@ -458,6 +466,9 @@ static int mtk_image_verify_gen_header(const uint8_t *ptr, int print)
 		       le32_to_cpu(gfh->file_info.load_addr) +
 		       le32_to_cpu(gfh->file_info.jump_offset));
 
+	if (print)
+		printf("Architecture: %s\n", is_arm64_image ? "ARM64" : "ARM");
+
 	return 0;
 }
 
@@ -523,6 +534,9 @@ static int mtk_image_verify_nand_header(const uint8_t *ptr, int print)
 		       le32_to_cpu(gfh->file_info.load_addr) +
 		       le32_to_cpu(gfh->file_info.jump_offset));
 
+	if (print)
+		printf("Architecture: %s\n", is_arm64_image ? "ARM64" : "ARM");
+
 	return 0;
 }
 
@@ -581,6 +595,8 @@ static void put_ghf_common_header(struct gfh_common_header *gfh, int size,
 static void put_ghf_header(struct gfh_header *gfh, int file_size,
 			   int dev_hdr_size, int load_addr, int flash_type)
 {
+	uint32_t cfg_bits;
+
 	memset(gfh, 0, sizeof(struct gfh_header));
 
 	/* GFH_FILE_INFO header */
@@ -608,11 +624,15 @@ static void put_ghf_header(struct gfh_header *gfh, int file_size,
 	/* GFH_BROM_CFG header */
 	put_ghf_common_header(&gfh->brom_cfg.gfh, sizeof(gfh->brom_cfg),
 			      GFH_TYPE_BROM_CFG, 3);
-	gfh->brom_cfg.cfg_bits = cpu_to_le32(
-		GFH_BROM_CFG_USBDL_AUTO_DETECT_DIS |
-		GFH_BROM_CFG_USBDL_BY_KCOL0_TIMEOUT_EN |
-		GFH_BROM_CFG_USBDL_BY_FLAG_TIMEOUT_EN);
+	cfg_bits = GFH_BROM_CFG_USBDL_AUTO_DETECT_DIS |
+		   GFH_BROM_CFG_USBDL_BY_KCOL0_TIMEOUT_EN |
+		   GFH_BROM_CFG_USBDL_BY_FLAG_TIMEOUT_EN;
 	gfh->brom_cfg.usbdl_by_kcol0_timeout_ms = cpu_to_le32(5000);
+	if (is_arm64_image) {
+		gfh->brom_cfg.jump_bl_arm64 = GFH_BROM_CFG_JUMP_BL_ARM64;
+		cfg_bits |= GFH_BROM_CFG_JUMP_BL_ARM64_EN;
+	}
+	gfh->brom_cfg.cfg_bits = cpu_to_le32(cfg_bits);
 
 	/* GFH_BL_SEC_KEY header */
 	put_ghf_common_header(&gfh->bl_sec_key.gfh, sizeof(gfh->bl_sec_key),
