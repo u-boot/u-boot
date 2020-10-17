@@ -13,7 +13,9 @@ obj-$(CONFIG_LOG_SYSLOG) += syslog_test.o
 obj-$(CONFIG_LOG_SYSLOG) += syslog_test_ndebug.o
 endif
 
-ifndef CONFIG_LOG
+ifdef CONFIG_LOG
+obj-$(CONFIG_CONSOLE_RECORD) += cont_test.o
+else
 obj-$(CONFIG_CONSOLE_RECORD) += nolog_test.o
 endif
 
