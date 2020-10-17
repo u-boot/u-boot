@@ -191,10 +191,12 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
  * log_dispatch() - Send a log record to all log devices for processing
  *
  * The log record is sent to each log device in turn, skipping those which have
- * filters which block the record
+ * filters which block the record.
  *
- * @rec: Log record to dispatch
- * @return 0 (meaning success)
+ * All log messages created while processing log record @rec are ignored.
+ *
+ * @rec:	log record to dispatch
+ * Return:	0 msg sent, 1 msg not sent while already dispatching another msg
  */
 static int log_dispatch(struct log_rec *rec)
 {
@@ -206,7 +208,7 @@ static int log_dispatch(struct log_rec *rec)
 	 * as this might result in infinite recursion.
 	 */
 	if (gd->processing_msg)
-		return 0;
+		return 1;
 
 	/* Emit message */
 	gd->processing_msg = true;
@@ -226,6 +228,12 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 	struct log_rec rec;
 	va_list args;
 
+	/* Check for message continuation */
+	if (cat == LOGC_CONT)
+		cat = gd->logc_prev;
+	if (level == LOGL_CONT)
+		level = gd->logl_prev;
+
 	rec.cat = cat;
 	rec.level = level & LOGL_LEVEL_MASK;
 	rec.force_debug = level & LOGL_FORCE_DEBUG;
@@ -241,7 +249,10 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 			gd->log_drop_count++;
 		return -ENOSYS;
 	}
-	log_dispatch(&rec);
+	if (!log_dispatch(&rec)) {
+		gd->logc_prev = cat;
+		gd->logl_prev = level;
+	}
 
 	return 0;
 }
@@ -381,6 +392,8 @@ int log_init(void)
 	if (!gd->default_log_level)
 		gd->default_log_level = CONFIG_LOG_DEFAULT_LEVEL;
 	gd->log_fmt = log_get_default_format();
+	gd->logc_prev = LOGC_NONE;
+	gd->logl_prev = LOGL_INFO;
 
 	return 0;
 }

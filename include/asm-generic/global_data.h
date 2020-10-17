@@ -371,6 +371,18 @@ struct global_data {
 	 * while another message is being processed.
 	 */
 	bool processing_msg;
+	/**
+	 * @logc_prev: logging category of previous message
+	 *
+	 * This value is used as logging category for continuation messages.
+	 */
+	int logc_prev;
+	/**
+	 * @logl_pref: logging level of the previous message
+	 *
+	 * This value is used as logging level for continuation messages.
+	 */
+	int logl_prev;
 #endif
 #if CONFIG_IS_ENABLED(BLOBLIST)
 	/**

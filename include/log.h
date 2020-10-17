@@ -38,6 +38,7 @@ enum log_level_t {
 
 	LOGL_FIRST = LOGL_EMERG,
 	LOGL_MAX = LOGL_DEBUG_IO,
+	LOGL_CONT = -1,		/* Use same log level as in previous call */
 };
 
 /**
@@ -65,6 +66,7 @@ enum log_category_t {
 
 	LOGC_COUNT,	/* Number of log categories */
 	LOGC_END,	/* Sentinel value for a list of log categories */
+	LOGC_CONT = -1,	/* Use same category as in previous call */
 };
 
 /* Helper to cast a uclass ID to a log category */
