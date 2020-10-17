@@ -363,6 +363,14 @@ struct global_data {
 	 * &enum log_fmt defines the bits of the bit mask.
 	 */
 	int log_fmt;
+
+	/**
+	 * @processing_msg: a log message is being processed
+	 *
+	 * This flag is used to suppress the creation of additional messages
+	 * while another message is being processed.
+	 */
+	bool processing_msg;
 #endif
 #if CONFIG_IS_ENABLED(BLOBLIST)
 	/**
