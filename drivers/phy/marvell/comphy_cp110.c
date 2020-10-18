@@ -28,13 +28,16 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MV_SIP_COMPHY_POWER_OFF	0x82000002
 #define MV_SIP_COMPHY_PLL_LOCK	0x82000003
 
+/* Used to distinguish between different possible callers (U-boot/Linux) */
+#define COMPHY_CALLER_UBOOT			(0x1 << 21)
+
 #define COMPHY_FW_MODE_FORMAT(mode)		((mode) << 12)
 #define COMPHY_FW_FORMAT(mode, idx, speeds)	\
 			(((mode) << 12) | ((idx) << 8) | ((speeds) << 2))
 
 #define COMPHY_FW_PCIE_FORMAT(pcie_width, clk_src, mode, speeds)	\
-			(((pcie_width) << 18) | ((clk_src) << 17) |	\
-			 COMPHY_FW_FORMAT(mode, 0, speeds))
+			(COMPHY_CALLER_UBOOT | ((pcie_width) << 18) |	\
+			((clk_src) << 17) | COMPHY_FW_FORMAT(mode, 0, speeds))
 
 #define COMPHY_SATA_MODE	0x1
 #define COMPHY_SGMII_MODE	0x2	/* SGMII 1G */
