@@ -19,7 +19,6 @@
 
 #define VIDEO_IO_OFFSET				0
 #define CONFIG_X86EMU_RAW_IO
-#define CONFIG_BMP_16BPP
 
 /* Environment settings */
 

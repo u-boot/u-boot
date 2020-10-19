@@ -485,15 +485,27 @@ static void dw_mipi_dsi_set_mode(struct dw_mipi_dsi *dsi,
 
 static void dw_mipi_dsi_init_pll(struct dw_mipi_dsi *dsi)
 {
+	const struct mipi_dsi_phy_ops *phy_ops = dsi->phy_ops;
+	unsigned int esc_rate;
+	u32 esc_clk_division;
+
 	/*
 	 * The maximum permitted escape clock is 20MHz and it is derived from
-	 * lanebyteclk, which is running at "lane_mbps / 8".  Thus we want:
-	 *
-	 *     (lane_mbps >> 3) / esc_clk_division < 20
-	 * which is:
-	 *     (lane_mbps >> 3) / 20 > esc_clk_division
+	 * lanebyteclk, which is running at "lane_mbps / 8".
 	 */
-	u32 esc_clk_division = (dsi->lane_mbps >> 3) / 20 + 1;
+	if (phy_ops->get_esc_clk_rate)
+		phy_ops->get_esc_clk_rate(dsi->device, &esc_rate);
+	else
+		esc_rate = 20; /* Default to 20MHz */
+
+	/*
+	 * We want:
+	 *
+	 *     (lane_mbps >> 3) / esc_clk_division < X
+	 * which is:
+	 *     (lane_mbps >> 3) / X > esc_clk_division
+	 */
+	esc_clk_division = (dsi->lane_mbps >> 3) / esc_rate + 1;
 
 	dsi_write(dsi, DSI_PWR_UP, RESET);
 
@@ -645,7 +657,12 @@ static void dw_mipi_dsi_vertical_timing_config(struct dw_mipi_dsi *dsi,
 
 static void dw_mipi_dsi_dphy_timing_config(struct dw_mipi_dsi *dsi)
 {
+	const struct mipi_dsi_phy_ops *phy_ops = dsi->phy_ops;
+	struct mipi_dsi_phy_timing timing = {0x40, 0x40, 0x40, 0x40};
 	u32 hw_version;
+
+	if (phy_ops->get_timing)
+		phy_ops->get_timing(dsi->device, dsi->lane_mbps, &timing);
 
 	/*
 	 * TODO dw drv improvements
@@ -658,16 +675,16 @@ static void dw_mipi_dsi_dphy_timing_config(struct dw_mipi_dsi *dsi)
 	hw_version = dsi_read(dsi, DSI_VERSION) & VERSION;
 
 	if (hw_version >= HWVER_131) {
-		dsi_write(dsi, DSI_PHY_TMR_CFG, PHY_HS2LP_TIME_V131(0x40) |
-			  PHY_LP2HS_TIME_V131(0x40));
+		dsi_write(dsi, DSI_PHY_TMR_CFG, PHY_HS2LP_TIME_V131(timing.data_hs2lp) |
+			  PHY_LP2HS_TIME_V131(timing.data_lp2hs));
 		dsi_write(dsi, DSI_PHY_TMR_RD_CFG, MAX_RD_TIME_V131(10000));
 	} else {
-		dsi_write(dsi, DSI_PHY_TMR_CFG, PHY_HS2LP_TIME(0x40) |
-			  PHY_LP2HS_TIME(0x40) | MAX_RD_TIME(10000));
+		dsi_write(dsi, DSI_PHY_TMR_CFG, PHY_HS2LP_TIME(timing.data_hs2lp) |
+			  PHY_LP2HS_TIME(timing.data_lp2hs) | MAX_RD_TIME(10000));
 	}
 
-	dsi_write(dsi, DSI_PHY_TMR_LPCLK_CFG, PHY_CLKHS2LP_TIME(0x40)
-		  | PHY_CLKLP2HS_TIME(0x40));
+	dsi_write(dsi, DSI_PHY_TMR_LPCLK_CFG, PHY_CLKHS2LP_TIME(timing.clk_hs2lp)
+		  | PHY_CLKLP2HS_TIME(timing.clk_lp2hs));
 }
 
 static void dw_mipi_dsi_dphy_interface_config(struct dw_mipi_dsi *dsi)

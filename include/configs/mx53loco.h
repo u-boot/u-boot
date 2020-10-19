@@ -176,8 +176,6 @@
 #endif
 
 /* Framebuffer and LCD */
-#define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 
 #endif				/* __CONFIG_H */

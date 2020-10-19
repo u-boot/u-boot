@@ -939,4 +939,37 @@ config SPLASH_SOURCE
 	  In case the environment variable "splashfile" is not defined the
 	  default name 'splash.bmp' will be used.
 
+config VIDEO_BMP_GZIP
+	bool "Gzip compressed BMP image support"
+	depends on CMD_BMP || SPLASH_SCREEN
+	help
+	  If this option is set, additionally to standard BMP
+	  images, gzipped BMP images can be displayed via the
+	  splashscreen support or the bmp command.
+
+config VIDEO_BMP_RLE8
+	bool "Run length encoded BMP image (RLE8) support"
+	depends on DM_VIDEO || CFB_CONSOLE
+	help
+	  If this option is set, the 8-bit RLE compressed BMP images
+	  is supported.
+
+config BMP_16BPP
+	bool "16-bit-per-pixel BMP image support"
+	depends on DM_VIDEO || LCD
+	help
+	  Support display of bitmaps file with 16-bit-per-pixel
+
+config BMP_24BPP
+	bool "24-bit-per-pixel BMP image support"
+	depends on DM_VIDEO || LCD
+	help
+	  Support display of bitmaps file with 24-bit-per-pixel.
+
+config BMP_32BPP
+	bool "32-bit-per-pixel BMP image support"
+	depends on DM_VIDEO || LCD
+	help
+	  Support display of bitmaps file with 32-bit-per-pixel.
+
 endmenu

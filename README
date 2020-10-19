@@ -1250,18 +1250,6 @@ The following options need to be configured:
 		Enables an 'i2c edid' command which can read EDID
 		information over I2C from an attached LCD display.
 
-- Gzip compressed BMP image support: CONFIG_VIDEO_BMP_GZIP
-
-		If this option is set, additionally to standard BMP
-		images, gzipped BMP images can be displayed via the
-		splashscreen support or the bmp command.
-
-- Run length encoded BMP image (RLE8) support: CONFIG_VIDEO_BMP_RLE8
-
-		If this option is set, 8-bit RLE compressed BMP images
-		can be displayed via the splashscreen support or the
-		bmp command.
-
 - MII/PHY support:
 		CONFIG_PHY_CLOCK_FREQ (ppc4xx)
 
