@@ -9,6 +9,7 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/phy/phy.h>
 
 / {
 	compatible = "mediatek,mt8512";
@@ -98,6 +99,52 @@
 			<&infracfg CLK_INFRA_UART0>;
 		clock-names = "baud", "bus";
 		status = "disabled";
+	};
+
+	usb3: usb@11213e00 {
+		compatible = "mediatek,mt8512-mtu3", "mediatek,mtu3";
+		reg = <0x11213e00 0x0100>;
+		reg-names = "ippc";
+		phys = <&u2port0 PHY_TYPE_USB2>, <&u2port1 PHY_TYPE_USB2>;
+		clocks = <&infracfg CLK_INFRA_USB_SYS>,
+			 <&topckgen CLK_TOP_SSUSB_TOP_CK_EN>,
+			 <&infracfg CLK_INFRA_ICUSB>;
+		clock-names = "sys_ck", "ref_ck", "mcu_ck";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+		status = "disabled";
+
+		ssusb: usb@11210000 {
+			compatible = "mediatek,ssusb";
+			reg = <0x11210000 0x3e00>;
+			interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_LOW>;
+			reg-names = "mac";
+			status = "disabled";
+		};
+	};
+
+	u3phy: usb-phy@11cc0000 {
+		compatible = "mediatek,mt8512-tphy",
+			     "mediatek,generic-tphy-v2";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+		status = "disabled";
+
+		u2port0: usb-phy@11cc0000 {
+			reg = <0x11cc0000 0x400>;
+			clocks = <&topckgen CLK_TOP_USB20_48M_EN>;
+			clock-names = "ref";
+			#phy-cells = <1>;
+			status = "okay";
+		};
+
+		u2port1: usb-phy@11c40000 {
+			reg = <0x11c40000 0x400>;
+			#phy-cells = <1>;
+			status = "okay";
+		};
 	};
 
 	mmc0: mmc@11230000 {

@@ -43,6 +43,25 @@
 		regulator-boot-on;
 		regulator-always-on;
 	};
+
+	usb_p0_vbus: regulator@0 {
+		compatible = "regulator-fixed";
+		regulator-name = "p0_vbus";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio 27 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	usb_p1_vbus: regulator@1 {
+		compatible = "regulator-fixed";
+		regulator-name = "p1_vbus";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio 32 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-always-on;
+	};
 };
 
 &mmc0 {
@@ -93,6 +112,21 @@
 				groups = "uart0_0_rxd_txd";
 			};
 		};
+};
+
+&ssusb {
+	dr_mode = "peripheral";
+	maximum-speed = "high-speed";
+	status = "okay";
+};
+
+&usb3 {
+	vbus-supply = <&usb_p0_vbus>;
+	status = "okay";
+};
+
+&u3phy {
+	status = "okay";
 };
 
 &uart0 {

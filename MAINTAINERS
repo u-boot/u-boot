@@ -266,6 +266,7 @@ F:	arch/arm/include/asm/arch-pxa/
 ARM MEDIATEK
 M:	Ryder Lee <ryder.lee@mediatek.com>
 M:	Weijie Gao <weijie.gao@mediatek.com>
+M:	Chunfeng Yun <chunfeng.yun@mediatek.com>
 R:	GSS_MTK_Uboot_upstream <GSS_MTK_Uboot_upstream@mediatek.com>
 S:	Maintained
 F:	arch/arm/mach-mediatek/
@@ -282,6 +283,8 @@ F:	drivers/power/domain/mtk-power-domain.c
 F:	drivers/ram/mediatek/
 F:	drivers/spi/mtk_snfi_spi.c
 F:	drivers/timer/mtk_timer.c
+F:	drivers/usb/host/xhci-mtk.c
+F:	drivers/usb/mtu3/
 F:	drivers/watchdog/mtk_wdt.c
 F:	drivers/net/mtk_eth.c
 F:	drivers/reset/reset-mediatek.c
