@@ -98,48 +98,7 @@ U_BOOT_CMD(
 static int do_fat_fswrite(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
-	loff_t size;
-	int ret;
-	unsigned long addr;
-	unsigned long count;
-	long offset;
-	struct blk_desc *dev_desc = NULL;
-	struct disk_partition info;
-	int dev = 0;
-	int part = 1;
-	void *buf;
-
-	if (argc < 5)
-		return cmd_usage(cmdtp);
-
-	part = blk_get_device_part_str(argv[1], argv[2], &dev_desc, &info, 1);
-	if (part < 0)
-		return 1;
-
-	dev = dev_desc->devnum;
-
-	if (fat_set_blk_dev(dev_desc, &info) != 0) {
-		printf("\n** Unable to use %s %d:%d for fatwrite **\n",
-			argv[1], dev, part);
-		return 1;
-	}
-	addr = simple_strtoul(argv[3], NULL, 16);
-	count = (argc <= 5) ? 0 : simple_strtoul(argv[5], NULL, 16);
-	/* offset should be a hex, but "-1" is allowed */
-	offset = (argc <= 6) ? 0 : simple_strtol(argv[6], NULL, 16);
-
-	buf = map_sysmem(addr, count);
-	ret = file_fat_write(argv[4], buf, offset, count, &size);
-	unmap_sysmem(buf);
-	if (ret < 0) {
-		printf("\n** Unable to write \"%s\" from %s %d:%d **\n",
-			argv[4], argv[1], dev, part);
-		return 1;
-	}
-
-	printf("%llu bytes written\n", size);
-
-	return 0;
+	return do_save(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }
 
 U_BOOT_CMD(
