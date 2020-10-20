@@ -187,7 +187,11 @@
 
 /* DLL config 0 register */
 #define DLL_ENABLE		0x80000000
+#define DLL_RESET		0x40000000
 #define DLL_FREQ_SEL		0x08000000
+
+/* DLL status 0 register */
+#define DLL_STS_SLV_LOCK	0x08000000
 
 #define MAX_TUNING_LOOP		40
 
