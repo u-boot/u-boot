@@ -74,7 +74,7 @@ static int dwc3_generic_probe(struct udevice *dev,
 	}
 
 	rc = dwc3_setup_phy(dev, &priv->phys);
-	if (rc)
+	if (rc && rc != -ENOTSUPP)
 		return rc;
 
 	if (device_is_compatible(dev->parent, "rockchip,rk3399-dwc3"))
