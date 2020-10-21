@@ -211,8 +211,11 @@ static int sun8i_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 				 CONFIG_MDIO_TIMEOUT, true);
 }
 
-static int _sun8i_write_hwaddr(struct emac_eth_dev *priv, u8 *mac_id)
+static int sun8i_eth_write_hwaddr(struct udevice *dev)
 {
+	struct emac_eth_dev *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	uchar *mac_id = pdata->enetaddr;
 	u32 macid_lo, macid_hi;
 
 	macid_lo = mac_id[0] + (mac_id[1] << 8) + (mac_id[2] << 16) +
@@ -412,8 +415,9 @@ static void tx_descs_init(struct emac_eth_dev *priv)
 	priv->tx_currdescnum = 0;
 }
 
-static int _sun8i_emac_eth_init(struct emac_eth_dev *priv, u8 *enetaddr)
+static int sun8i_emac_eth_start(struct udevice *dev)
 {
+	struct emac_eth_dev *priv = dev_get_priv(dev);
 	u32 reg, v;
 	int timeout = 100;
 	int ret;
@@ -433,7 +437,7 @@ static int _sun8i_emac_eth_init(struct emac_eth_dev *priv, u8 *enetaddr)
 	}
 
 	/* Rewrite mac address after reset */
-	_sun8i_write_hwaddr(priv, enetaddr);
+	sun8i_eth_write_hwaddr(dev);
 
 	v = readl(priv->mac_reg + EMAC_TX_CTL1);
 	/* TX_MD Transmission starts after a full frame located in TX DMA FIFO*/
@@ -542,8 +546,9 @@ static int parse_phy_pins(struct udevice *dev)
 	return 0;
 }
 
-static int _sun8i_eth_recv(struct emac_eth_dev *priv, uchar **packetp)
+static int sun8i_emac_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 {
+	struct emac_eth_dev *priv = dev_get_priv(dev);
 	u32 status, desc_num = priv->rx_currdescnum;
 	struct emac_dma_desc *desc_p = &priv->rx_chain[desc_num];
 	int length = -EAGAIN;
@@ -589,9 +594,9 @@ static int _sun8i_eth_recv(struct emac_eth_dev *priv, uchar **packetp)
 	return length;
 }
 
-static int _sun8i_emac_eth_send(struct emac_eth_dev *priv, void *packet,
-				int len)
+static int sun8i_emac_eth_send(struct udevice *dev, void *packet, int length)
 {
+	struct emac_eth_dev *priv = dev_get_priv(dev);
 	u32 v, desc_num = priv->tx_currdescnum;
 	struct emac_dma_desc *desc_p = &priv->tx_chain[desc_num];
 	uintptr_t desc_start = (uintptr_t)desc_p;
@@ -600,16 +605,16 @@ static int _sun8i_emac_eth_send(struct emac_eth_dev *priv, void *packet,
 
 	uintptr_t data_start = (uintptr_t)desc_p->buf_addr;
 	uintptr_t data_end = data_start +
-		roundup(len, ARCH_DMA_MINALIGN);
+		roundup(length, ARCH_DMA_MINALIGN);
 
 	/* Invalidate entire buffer descriptor */
 	invalidate_dcache_range(desc_start, desc_end);
 
-	desc_p->st = len;
+	desc_p->st = length;
 	/* Mandatory undocumented bit */
 	desc_p->st |= BIT(24);
 
-	memcpy((void *)data_start, packet, len);
+	memcpy((void *)data_start, packet, length);
 
 	/* Flush data to be sent */
 	flush_dcache_range(data_start, data_end);
@@ -637,14 +642,6 @@ static int _sun8i_emac_eth_send(struct emac_eth_dev *priv, void *packet,
 	writel(v, priv->mac_reg + EMAC_TX_CTL1);
 
 	return 0;
-}
-
-static int sun8i_eth_write_hwaddr(struct udevice *dev)
-{
-	struct eth_pdata *pdata = dev_get_platdata(dev);
-	struct emac_eth_dev *priv = dev_get_priv(dev);
-
-	return _sun8i_write_hwaddr(priv, pdata->enetaddr);
 }
 
 static int sun8i_emac_board_setup(struct udevice *dev,
@@ -744,29 +741,10 @@ static int sun8i_mdio_init(const char *name, struct udevice *priv)
 	return  mdio_register(bus);
 }
 
-static int sun8i_emac_eth_start(struct udevice *dev)
-{
-	struct eth_pdata *pdata = dev_get_platdata(dev);
-
-	return _sun8i_emac_eth_init(dev->priv, pdata->enetaddr);
-}
-
-static int sun8i_emac_eth_send(struct udevice *dev, void *packet, int length)
+static int sun8i_eth_free_pkt(struct udevice *dev, uchar *packet,
+			      int length)
 {
 	struct emac_eth_dev *priv = dev_get_priv(dev);
-
-	return _sun8i_emac_eth_send(priv, packet, length);
-}
-
-static int sun8i_emac_eth_recv(struct udevice *dev, int flags, uchar **packetp)
-{
-	struct emac_eth_dev *priv = dev_get_priv(dev);
-
-	return _sun8i_eth_recv(priv, packetp);
-}
-
-static int _sun8i_free_pkt(struct emac_eth_dev *priv)
-{
 	u32 desc_num = priv->rx_currdescnum;
 	struct emac_dma_desc *desc_p = &priv->rx_chain[desc_num];
 	uintptr_t desc_start = (uintptr_t)desc_p;
@@ -785,14 +763,6 @@ static int _sun8i_free_pkt(struct emac_eth_dev *priv)
 	priv->rx_currdescnum = desc_num;
 
 	return 0;
-}
-
-static int sun8i_eth_free_pkt(struct udevice *dev, uchar *packet,
-			      int length)
-{
-	struct emac_eth_dev *priv = dev_get_priv(dev);
-
-	return _sun8i_free_pkt(priv);
 }
 
 static void sun8i_emac_eth_stop(struct udevice *dev)
