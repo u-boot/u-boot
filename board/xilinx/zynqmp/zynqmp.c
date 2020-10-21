@@ -192,7 +192,11 @@ static char *zynqmp_get_silicon_idcode_name(void)
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 	int ret;
 
-	xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0, ret_payload);
+	ret = xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0, ret_payload);
+	if (ret) {
+		debug("%s: Getting chipid failed\n", __func__);
+		return "unknown";
+	}
 
 	/*
 	 * Firmware returns:
