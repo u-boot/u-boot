@@ -1048,7 +1048,7 @@ static int dwc2_udc_otg_reset_init(struct udevice *dev,
 	int ret;
 
 	ret = reset_get_bulk(dev, resets);
-	if (ret == -ENOTSUPP)
+	if (ret == -ENOTSUPP || ret == -ENOENT)
 		return 0;
 
 	if (ret)
