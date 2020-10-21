@@ -223,7 +223,7 @@ static char *zynqmp_get_silicon_idcode_name(void)
 	/* Add device prefix to the name */
 	ret = snprintf(name, ZYNQMP_VERSION_SIZE, "zu%d",
 		       zynqmp_devices[i].device);
-	if (ret <= 0)
+	if (ret < 0)
 		return "unknown";
 
 	if (zynqmp_devices[i].variants & ZYNQMP_VARIANT_EV) {
