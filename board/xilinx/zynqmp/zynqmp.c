@@ -209,7 +209,7 @@ static char *zynqmp_get_silicon_idcode_name(void)
 
 	idcode  = ret_payload[1];
 	idcode2 = ret_payload[2] >> ZYNQMP_CSU_VERSION_EMPTY_SHIFT;
-	debug("%s, IDCODE: 0x%0X, IDCODE2: 0x%0X\r\n", __func__, idcode,
+	debug("%s, IDCODE: 0x%0x, IDCODE2: 0x%0x\r\n", __func__, idcode,
 	      idcode2);
 
 	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
