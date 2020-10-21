@@ -810,47 +810,30 @@ static const struct eth_ops sun8i_emac_eth_ops = {
 	.stop                   = sun8i_emac_eth_stop,
 };
 
-static int sun8i_get_ephy_nodes(struct udevice *dev, struct emac_eth_dev *priv)
+static int sun8i_handle_internal_phy(struct udevice *dev, struct emac_eth_dev *priv)
 {
-	int emac_node, ephy_node, ret, ephy_handle;
+	struct ofnode_phandle_args phandle;
+	int ret;
 
-	emac_node = fdt_path_offset(gd->fdt_blob,
-				    "/soc/ethernet@1c30000");
-	if (emac_node < 0) {
-		debug("failed to get emac node\n");
-		return emac_node;
-	}
-	ephy_handle = fdtdec_lookup_phandle(gd->fdt_blob,
-					    emac_node, "phy-handle");
+	ret = ofnode_parse_phandle_with_args(dev_ofnode(dev), "phy-handle",
+					     NULL, 0, 0, &phandle);
+	if (ret)
+		return ret;
 
-	/* look for mdio-mux node for internal PHY node */
-	ephy_node = fdt_path_offset(gd->fdt_blob,
-				    "/soc/ethernet@1c30000/mdio-mux/mdio@1/ethernet-phy@1");
-	if (ephy_node < 0) {
-		debug("failed to get mdio-mux with internal PHY\n");
-		return ephy_node;
-	}
-
-	/* This is not the phy we are looking for */
-	if (ephy_node != ephy_handle)
+	/* If the PHY node is not a child of the internal MDIO bus, we are
+	 * using some external PHY.
+	 */
+	if (!ofnode_device_is_compatible(ofnode_get_parent(phandle.node),
+					 "allwinner,sun8i-h3-mdio-internal"))
 		return 0;
 
-	ret = fdt_node_check_compatible(gd->fdt_blob, ephy_node,
-					"allwinner,sun8i-h3-mdio-internal");
-	if (ret < 0) {
-		debug("failed to find mdio-internal node\n");
-		return ret;
-	}
-
-	ret = clk_get_by_index_nodev(offset_to_ofnode(ephy_node), 0,
-				     &priv->ephy_clk);
+	ret = clk_get_by_index_nodev(phandle.node, 0, &priv->ephy_clk);
 	if (ret) {
 		dev_err(dev, "failed to get EPHY TX clock\n");
 		return ret;
 	}
 
-	ret = reset_get_by_index_nodev(offset_to_ofnode(ephy_node), 0,
-				       &priv->ephy_rst);
+	ret = reset_get_by_index_nodev(phandle.node, 0, &priv->ephy_rst);
 	if (ret) {
 		dev_err(dev, "failed to get EPHY TX reset\n");
 		return ret;
@@ -942,7 +925,7 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	if (priv->variant == H3_EMAC) {
-		ret = sun8i_get_ephy_nodes(dev, priv);
+		ret = sun8i_handle_internal_phy(dev, priv);
 		if (ret)
 			return ret;
 	}
