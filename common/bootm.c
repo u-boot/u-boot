@@ -256,9 +256,11 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 
 	/* check if ramdisk overlaps OS image */
 	if (images.rd_start && (((ulong)images.rd_start >= start &&
-				 (ulong)images.rd_start <= start + size) ||
-				((ulong)images.rd_end >= start &&
-				 (ulong)images.rd_end <= start + size))) {
+				 (ulong)images.rd_start < start + size) ||
+				((ulong)images.rd_end > start &&
+				 (ulong)images.rd_end <= start + size) ||
+				((ulong)images.rd_start < start &&
+				 (ulong)images.rd_end >= start + size))) {
 		printf("ERROR: RD image overlaps OS image (OS=0x%lx..0x%lx)\n",
 		       start, start + size);
 		return 1;
