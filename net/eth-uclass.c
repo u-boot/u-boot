@@ -383,7 +383,7 @@ int eth_rx(void)
 
 	/* Process up to 32 packets at one time */
 	flags = ETH_RECV_CHECK_DEVICE;
-	for (i = 0; i < 32; i++) {
+	for (i = 0; i < ETH_PACKETS_BATCH_RECV; i++) {
 		ret = eth_get_ops(current)->recv(current, flags, &packet);
 		flags = 0;
 		if (ret > 0)

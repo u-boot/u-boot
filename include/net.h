@@ -44,6 +44,9 @@ struct udevice;
 
 #define PKTALIGN	ARCH_DMA_MINALIGN
 
+/* Number of packets processed together */
+#define ETH_PACKETS_BATCH_RECV	32
+
 /* ARP hardware address length */
 #define ARP_HLEN 6
 /*
