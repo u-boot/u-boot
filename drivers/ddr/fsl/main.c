@@ -705,7 +705,7 @@ phys_size_t __fsl_ddr_sdram(fsl_ddr_info_t *pinfo)
 
 	/* Compute it once normally. */
 #ifdef CONFIG_FSL_DDR_INTERACTIVE
-	if (tstc() && (getc() == 'd')) {	/* we got a key press of 'd' */
+	if (tstc() && (getchar() == 'd')) {	/* we got a key press of 'd' */
 		total_memory = fsl_ddr_interactive(pinfo, 0);
 	} else if (fsl_ddr_interactive_env_var_exists()) {
 		total_memory = fsl_ddr_interactive(pinfo, 1);

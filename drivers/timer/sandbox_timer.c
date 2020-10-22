@@ -29,11 +29,9 @@ unsigned long notrace timer_early_get_rate(void)
 	return SANDBOX_TIMER_RATE;
 }
 
-static notrace int sandbox_timer_get_count(struct udevice *dev, u64 *count)
+static notrace u64 sandbox_timer_get_count(struct udevice *dev)
 {
-	*count = timer_early_get_count();
-
-	return 0;
+	return timer_early_get_count();
 }
 
 static int sandbox_timer_probe(struct udevice *dev)

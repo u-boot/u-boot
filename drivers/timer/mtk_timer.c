@@ -27,14 +27,12 @@ struct mtk_timer_priv {
 	void __iomem *base;
 };
 
-static int mtk_timer_get_count(struct udevice *dev, u64 *count)
+static u64 mtk_timer_get_count(struct udevice *dev)
 {
 	struct mtk_timer_priv *priv = dev_get_priv(dev);
 	u32 val = readl(priv->base + MTK_GPT4_CNT);
 
-	*count = timer_conv_64(val);
-
-	return 0;
+	return timer_conv_64(val);
 }
 
 static int mtk_timer_probe(struct udevice *dev)

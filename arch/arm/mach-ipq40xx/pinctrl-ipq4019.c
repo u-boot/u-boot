@@ -18,6 +18,13 @@ static const struct pinctrl_function msm_pinctrl_functions[] = {
 	{"blsp_uart0_0", 1}, /* Only for GPIO:16,17 */
 	{"blsp_uart0_1", 2}, /* Only for GPIO:60,61 */
 	{"blsp_uart1", 1},
+	{"blsp_spi0_0", 1}, /* Only for GPIO:12,13,14,15 */
+	{"blsp_spi0_1", 2}, /* Only for GPIO:54,55,56,57 */
+	{"blsp_spi1", 2},
+	{"mdio_0", 1}, /* Only for GPIO6 */
+	{"mdio_1", 2}, /* Only for GPIO53 */
+	{"mdc_0", 1}, /* Only for GPIO7 */
+	{"mdc_1", 2}, /* Only for GPIO52 */
 };
 
 static const char *ipq4019_get_function_name(struct udevice *dev,

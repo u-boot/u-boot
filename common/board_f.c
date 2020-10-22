@@ -392,6 +392,8 @@ static int reserve_video(void)
 	ret = video_reserve(&addr);
 	if (ret)
 		return ret;
+	debug("Reserving %luk for video at: %08lx\n",
+	      (unsigned long)gd->relocaddr - addr, addr);
 	gd->relocaddr = addr;
 #elif defined(CONFIG_LCD)
 #  ifdef CONFIG_FB_ADDR
@@ -573,7 +575,9 @@ static int reserve_stacks(void)
 static int reserve_bloblist(void)
 {
 #ifdef CONFIG_BLOBLIST
-	gd->start_addr_sp = reserve_stack_aligned(CONFIG_BLOBLIST_SIZE);
+	/* Align to a 4KB boundary for easier reading of addresses */
+	gd->start_addr_sp = ALIGN_DOWN(gd->start_addr_sp - CONFIG_BLOBLIST_SIZE,
+				       0x1000);
 	gd->new_bloblist = map_sysmem(gd->start_addr_sp, CONFIG_BLOBLIST_SIZE);
 #endif
 

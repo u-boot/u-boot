@@ -496,7 +496,7 @@ int gpio_claim_vector(const int *gpio_num_array, const char *fmt);
  * @list_name:	Name of GPIO list (e.g. "board-id-gpios")
  * @index:	Index number of the GPIO in that list use request (0=first)
  * @desc:	Returns GPIO description information. If there is no such
- *		GPIO, dev->dev will be NULL.
+ *		GPIO, @desc->dev will be NULL.
  * @flags:	Indicates the GPIO input/output settings (GPIOD_...)
  * @return 0 if OK, -ENOENT if the GPIO does not exist, -EINVAL if there is
  * something wrong with the list, or other -ve for another error (e.g.

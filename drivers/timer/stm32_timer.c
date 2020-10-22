@@ -52,14 +52,12 @@ struct stm32_timer_priv {
 	struct stm32_timer_regs *base;
 };
 
-static int stm32_timer_get_count(struct udevice *dev, u64 *count)
+static u64 stm32_timer_get_count(struct udevice *dev)
 {
 	struct stm32_timer_priv *priv = dev_get_priv(dev);
 	struct stm32_timer_regs *regs = priv->base;
 
-	*count = readl(&regs->cnt);
-
-	return 0;
+	return readl(&regs->cnt);
 }
 
 static int stm32_timer_probe(struct udevice *dev)

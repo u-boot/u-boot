@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2017-2020 ABB
+ * Copyright (C) 2017-2020 Hitachi Power Grids
  */
 #include <common.h>
 #include <i2c.h>

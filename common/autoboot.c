@@ -117,7 +117,7 @@ static int passwd_abort_sha256(uint64_t etime)
 				return 0;
 			}
 
-			presskey[presskey_len++] = getc();
+			presskey[presskey_len++] = getchar();
 
 			/* Calculate sha256 upon each new char */
 			hash_block(algo_name, (const void *)presskey,
@@ -189,12 +189,12 @@ static int passwd_abort_key(uint64_t etime)
 	do {
 		if (tstc()) {
 			if (presskey_len < presskey_max) {
-				presskey[presskey_len++] = getc();
+				presskey[presskey_len++] = getchar();
 			} else {
 				for (i = 0; i < presskey_max - 1; i++)
 					presskey[i] = presskey[i + 1];
 
-				presskey[i] = getc();
+				presskey[i] = getchar();
 			}
 		}
 
@@ -257,7 +257,7 @@ static int abortboot_single_key(int bootdelay)
 	 * Check if key already pressed
 	 */
 	if (tstc()) {	/* we got a key press	*/
-		(void) getc();  /* consume input	*/
+		getchar();	/* consume input	*/
 		puts("\b\b\b 0");
 		abort = 1;	/* don't auto boot	*/
 	}
@@ -272,7 +272,7 @@ static int abortboot_single_key(int bootdelay)
 
 				abort  = 1;	/* don't auto boot	*/
 				bootdelay = 0;	/* no more delay	*/
-				key = getc(); /* consume input	*/
+				key = getchar();/* consume input	*/
 				if (IS_ENABLED(CONFIG_USE_AUTOBOOT_MENUKEY))
 					menukey = key;
 				break;
@@ -363,7 +363,8 @@ void autoboot_command(const char *s)
 {
 	debug("### main_loop: bootcmd=\"%s\"\n", s ? s : "<UNDEFINED>");
 
-	if (stored_bootdelay != -1 && s && !abortboot(stored_bootdelay)) {
+	if (s && (stored_bootdelay == -2 ||
+		 (stored_bootdelay != -1 && !abortboot(stored_bootdelay)))) {
 		bool lock;
 		int prev;
 

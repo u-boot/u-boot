@@ -2192,7 +2192,7 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 				return 0;
 error:
 			mmc_set_signal_voltage(mmc, old_voltage);
-			/* if an error occured, revert to a safer bus mode */
+			/* if an error occurred, revert to a safer bus mode */
 			mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
 				   EXT_CSD_BUS_WIDTH, EXT_CSD_BUS_WIDTH_1);
 			mmc_select_mode(mmc, MMC_LEGACY);

@@ -394,7 +394,7 @@ bool stm32mp1_ddr_interactive(void *priv,
 		unsigned long start = get_timer(0);
 
 		while (1) {
-			if (tstc() && (getc() == 'd')) {
+			if (tstc() && (getchar() == 'd')) {
 				next_step = STEP_DDR_RESET;
 				break;
 			}

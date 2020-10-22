@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * ABB PGGA 8321 U-Boot specific Device Tree Source parts
+ * Hitachi Power Grids 8321 U-Boot specific Device Tree Source parts
  *
  * Copyright (C) 2020 Heiko Schocher <hs@denx.de>
  *

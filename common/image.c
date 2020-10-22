@@ -801,14 +801,14 @@ static const char *unknown_msg(enum ih_category category)
 }
 
 /**
- * get_cat_table_entry_name - translate entry id to long name
+ * genimg_get_cat_name - translate entry id to long name
  * @category: category to look up (enum ih_category)
  * @id: entry id to be translated
  *
  * This will scan the translation table trying to find the entry that matches
  * the given id.
  *
- * @retur long entry name if translation succeeds; error string on failure
+ * @return long entry name if translation succeeds; error string on failure
  */
 const char *genimg_get_cat_name(enum ih_category category, uint id)
 {
@@ -825,14 +825,14 @@ const char *genimg_get_cat_name(enum ih_category category, uint id)
 }
 
 /**
- * get_cat_table_entry_short_name - translate entry id to short name
+ * genimg_get_cat_short_name - translate entry id to short name
  * @category: category to look up (enum ih_category)
  * @id: entry id to be translated
  *
  * This will scan the translation table trying to find the entry that matches
  * the given id.
  *
- * @retur short entry name if translation succeeds; error string on failure
+ * @return short entry name if translation succeeds; error string on failure
  */
 const char *genimg_get_cat_short_name(enum ih_category category, uint id)
 {
@@ -856,6 +856,24 @@ int genimg_get_cat_count(enum ih_category category)
 const char *genimg_get_cat_desc(enum ih_category category)
 {
 	return table_info[category].desc;
+}
+
+/**
+ * genimg_cat_has_id - check whether category has entry id
+ * @category: category to look up (enum ih_category)
+ * @id: entry id to be checked
+ *
+ * This will scan the translation table trying to find the entry that matches
+ * the given id.
+ *
+ * @return true if category has entry id; false if not
+ */
+bool genimg_cat_has_id(enum ih_category category, uint id)
+{
+	if (get_table_entry(table_info[category].table, id))
+		return true;
+
+	return false;
 }
 
 /**
@@ -900,6 +918,12 @@ const char *genimg_get_type_name(uint8_t type)
 	return (get_table_entry_name(uimage_type, "Unknown Image", type));
 }
 
+const char *genimg_get_comp_name(uint8_t comp)
+{
+	return (get_table_entry_name(uimage_comp, "Unknown Compression",
+					comp));
+}
+
 static const char *genimg_get_short_name(const table_entry_t *table, int val)
 {
 	table = get_table_entry(table, val);
@@ -915,12 +939,6 @@ static const char *genimg_get_short_name(const table_entry_t *table, int val)
 const char *genimg_get_type_short_name(uint8_t type)
 {
 	return genimg_get_short_name(uimage_type, type);
-}
-
-const char *genimg_get_comp_name(uint8_t comp)
-{
-	return (get_table_entry_name(uimage_comp, "Unknown Compression",
-					comp));
 }
 
 const char *genimg_get_comp_short_name(uint8_t comp)

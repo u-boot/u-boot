@@ -51,31 +51,28 @@ In case you have questions about, problems with or contributions for
 U-Boot, you should send a message to the U-Boot mailing list at
 <u-boot@lists.denx.de>. There is also an archive of previous traffic
 on the mailing list - please search the archive before asking FAQ's.
-Please see http://lists.denx.de/pipermail/u-boot and
-http://dir.gmane.org/gmane.comp.boot-loaders.u-boot
-
+Please see https://lists.denx.de/pipermail/u-boot and
+https://marc.info/?l=u-boot
 
 Where to get source code:
 =========================
 
 The U-Boot source code is maintained in the Git repository at
-git://www.denx.de/git/u-boot.git ; you can browse it online at
-http://www.denx.de/cgi-bin/gitweb.cgi?p=u-boot.git;a=summary
+https://gitlab.denx.de/u-boot/u-boot.git ; you can browse it online at
+https://gitlab.denx.de/u-boot/u-boot
 
-The "snapshot" links on this page allow you to download tarballs of
+The "Tags" links on this page allow you to download tarballs of
 any version you might be interested in. Official releases are also
-available for FTP download from the ftp://ftp.denx.de/pub/u-boot/
-directory.
-
-Pre-built (and tested) images are available from
-ftp://ftp.denx.de/pub/u-boot/images/
+available from the DENX file server through HTTPS or FTP.
+https://ftp.denx.de/pub/u-boot/
+ftp://ftp.denx.de/pub/u-boot/
 
 
 Where we come from:
 ===================
 
 - start from 8xxrom sources
-- create PPCBoot project (http://sourceforge.net/projects/ppcboot)
+- create PPCBoot project (https://sourceforge.net/projects/ppcboot)
 - clean up code
 - make it easier to add custom boards
 - make it possible to add other [PowerPC] CPUs
@@ -84,10 +81,10 @@ Where we come from:
   * S-Record download
   * network boot
   * ATA disk / SCSI ... boot
-- create ARMBoot project (http://sourceforge.net/projects/armboot)
+- create ARMBoot project (https://sourceforge.net/projects/armboot)
 - add other CPU families (starting with ARM)
-- create U-Boot project (http://sourceforge.net/projects/u-boot)
-- current project page: see http://www.denx.de/wiki/U-Boot
+- create U-Boot project (https://sourceforge.net/projects/u-boot)
+- current project page: see https://www.denx.de/wiki/U-Boot
 
 
 Names and Spelling:
@@ -139,12 +136,12 @@ Directory Hierarchy:
   /mips			Files generic to MIPS architecture
   /nds32		Files generic to NDS32 architecture
   /nios2		Files generic to Altera NIOS2 architecture
-  /openrisc		Files generic to OpenRISC architecture
   /powerpc		Files generic to PowerPC architecture
   /riscv		Files generic to RISC-V architecture
   /sandbox		Files generic to HW-independent "sandbox"
   /sh			Files generic to SH architecture
   /x86			Files generic to x86 architecture
+  /xtensa		Files generic to Xtensa architecture
 /api			Machine/arch independent API for external apps
 /board			Board dependent files
 /cmd			U-Boot commands functions
@@ -154,6 +151,7 @@ Directory Hierarchy:
 /doc			Documentation (don't expect too much)
 /drivers		Commonly used device drivers
 /dts			Contains Makefile for building internal U-Boot fdt.
+/env			Environment files
 /examples		Example code for standalone applications, etc.
 /fs			Filesystem code (cramfs, ext2, jffs2, etc.)
 /include		Header Files
@@ -212,7 +210,7 @@ board. This allows feature development which is not board- or architecture-
 specific to be undertaken on a native platform. The sandbox is also used to
 run some of U-Boot's tests.
 
-See doc/arch/index.rst for more details.
+See doc/arch/sandbox.rst for more details.
 
 
 Board Initialisation Flow:
@@ -608,7 +606,7 @@ The following options need to be configured:
 		This setting is mandatory for all boards that have only one
 		machine type and must be used to specify the machine type
 		number as it appears in the ARM machine registry
-		(see http://www.arm.linux.org.uk/developer/machines/).
+		(see https://www.arm.linux.org.uk/developer/machines/).
 		Only boards that have multiple machine types supported
 		in a single configuration file and the machine type is
 		runtime discoverable, do not have to use this setting.
@@ -620,7 +618,7 @@ The following options need to be configured:
 		serverip, gatewayip, hostname, othbootargs.
 		It loads the vxWorks image pointed bootfile.
 
-		Note: If a "bootargs" environment is defined, it will overwride
+		Note: If a "bootargs" environment is defined, it will override
 		the defaults discussed just above.
 
 - Cache Configuration:
@@ -3021,7 +3019,7 @@ Building U-Boot has been tested in several native build environments
 and in many different cross environments. Of course we cannot support
 all possibly existing versions of cross development tools in all
 (potentially obsolete) versions. In case of tool chain problems we
-recommend to use the ELDK (see http://www.denx.de/wiki/DULG/ELDK)
+recommend to use the ELDK (see https://www.denx.de/wiki/DULG/ELDK)
 which is extensively used to build and test U-Boot.
 
 If you are not using a native environment, it is assumed that you
@@ -4175,7 +4173,7 @@ consider minicom to be broken, and recommend not to use it. Under
 Unix, I recommend to use C-Kermit for general purpose use (and
 especially for kermit binary protocol download ("loadb" command), and
 use "cu" for S-Record download ("loads" command).  See
-http://www.denx.de/wiki/view/DULG/SystemSetup#Section_4.3.
+https://www.denx.de/wiki/view/DULG/SystemSetup#Section_4.3.
 for help with kermit.
 
 
@@ -4343,7 +4341,7 @@ On ARM, the following registers are used:
     Note: on ARM, only R_ARM_RELATIVE relocations are supported.
 
 On Nios II, the ABI is documented here:
-	http://www.altera.com/literature/hb/nios2/n2cpu_nii51016.pdf
+	https://www.altera.com/literature/hb/nios2/n2cpu_nii51016.pdf
 
     ==> U-Boot will use gp to hold a pointer to the global data
 
@@ -4494,7 +4492,7 @@ int main(int argc, char *argv[])
 
 	while (learning) {
 		Read the README file in the top level directory;
-		Read http://www.denx.de/twiki/bin/view/DULG/Manual;
+		Read https://www.denx.de/wiki/bin/view/DULG/Manual;
 		Read applicable doc/README.*;
 		Read the source, Luke;
 		/* find . -name "*.[chS]" | xargs grep -i <keyword> */
@@ -4575,7 +4573,7 @@ Since the number of patches for U-Boot is growing, we need to
 establish some rules. Submissions which do not conform to these rules
 may be rejected, even when they contain important and valuable stuff.
 
-Please see http://www.denx.de/wiki/U-Boot/Patches for details.
+Please see https://www.denx.de/wiki/U-Boot/Patches for details.
 
 Patches shall be sent to the u-boot mailing list <u-boot@lists.denx.de>;
 see https://lists.denx.de/listinfo/u-boot

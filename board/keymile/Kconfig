@@ -37,26 +37,20 @@ config KM_RESERVED_PRAM
 
 config KM_CRAMFS_ADDR
 	hex "CRAMFS Address"
-	default 0x2400000 if ARCH_KIRKWOOD
-	default 0xC00000 if MPC83xx
-	default 0x2000000 if MPC85xx
+	default 0x3000000
 	depends on !ARCH_SOCFPGA
 	help
 	  Start address of the CRAMFS containing the Linux kernel.
 
 config KM_KERNEL_ADDR
 	hex "Kernel Load Address"
-	default 0x2000000 if ARCH_KIRKWOOD
-	default 0x400000 if MPC83xx
-	default 0x1000000 if MPC85xx || ARCH_SOCFPGA
+	default 0x2000000
 	help
 	  Address where to load Linux kernel in RAM.
 
 config KM_FDT_ADDR
 	hex "FDT Load Address"
-	default 0x23E0000 if ARCH_KIRKWOOD || ARCH_SOCFPGA
-	default 0xB80000 if MPC83xx
-	default 0x1F80000 if MPC85xx
+	default 0x2FC0000
 	help
 	  Address where to load flattened device tree in RAM.
 

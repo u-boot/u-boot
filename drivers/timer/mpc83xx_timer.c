@@ -187,7 +187,7 @@ void wait_ticks(ulong ticks)
 		WATCHDOG_RESET();
 }
 
-static int mpc83xx_timer_get_count(struct udevice *dev, u64 *count)
+static u64 mpc83xx_timer_get_count(struct udevice *dev)
 {
 	u32 tbu, tbl;
 
@@ -201,9 +201,7 @@ static int mpc83xx_timer_get_count(struct udevice *dev, u64 *count)
 		tbl = mftb();
 	} while (tbu != mftbu());
 
-	*count = (tbu * 0x10000ULL) + tbl;
-
-	return 0;
+	return (tbu * 0x10000ULL) + tbl;
 }
 
 static int mpc83xx_timer_probe(struct udevice *dev)

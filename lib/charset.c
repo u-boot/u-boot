@@ -104,7 +104,7 @@ static u8 read_console(void *data)
 {
 	int ch;
 
-	ch = getc();
+	ch = getchar();
 	if (ch < 0)
 		ch = 0;
 	return ch;

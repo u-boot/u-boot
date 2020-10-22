@@ -21,6 +21,9 @@
 /* Reserve 4 MB for malloc */
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
+/* Increase max size of compressed kernel */
+#define CONFIG_SYS_BOOTM_LEN		0x2000000     /* 32 MB */
+
 /******************************************************************************
  * (PRAM usage)
  * ... -------------------------------------------------------
@@ -53,6 +56,7 @@
 		"protect on " __stringify(BOOTFLASH_START) "  +${filesize}\0"\
 	"set_fdthigh=true\0"						\
 	"checkfdt=true\0"						\
+	"bootm_mapsize=" __stringify(CONFIG_SYS_BOOTM_LEN) "\0"		\
 	""
 
 #endif /* __CONFIG_KEYMILE_POWERPC_H */

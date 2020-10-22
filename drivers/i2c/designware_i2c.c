@@ -807,8 +807,8 @@ int designware_i2c_probe(struct udevice *bus)
 		return -ENXIO;
 	}
 
-	log_info("I2C bus %s version %#x\n", bus->name,
-		 readl(&priv->regs->comp_version));
+	log_debug("I2C bus %s version %#x\n", bus->name,
+		  readl(&priv->regs->comp_version));
 
 	return __dw_i2c_init(priv->regs, 0, 0);
 }

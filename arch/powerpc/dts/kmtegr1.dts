@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * ABB PGGA TEGR1 Device Tree Source
+ * Hitachi Power Grids TEGR1 Device Tree Source
  *
  * Copyright (C) 2020 Heiko Schocher <hs@denx.de>
  *
@@ -10,7 +10,7 @@
 
 / {
 	model = "KMTEGR1";
-	compatible = "ABB,kmpbec8309";
+	compatible = "hitachi,kmpbec8309";
 	#address-cells = <1>;
 	#size-cells = <1>;
 

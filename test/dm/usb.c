@@ -427,7 +427,7 @@ static int dm_test_usb_keyb(struct unit_test_state *uts)
 
 		for (c = pos->result; *c; ++c) {
 			ut_asserteq(1, tstc());
-			ut_asserteq(*c, getc());
+			ut_asserteq(*c, getchar());
 		}
 		ut_asserteq(0, tstc());
 	}

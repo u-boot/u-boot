@@ -12,4 +12,5 @@ U-Boot API documentation
    pinctrl
    rng
    serial
+   timer
    unicode

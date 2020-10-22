@@ -732,6 +732,13 @@ config MDIO_MUX_I2CREG
 	  an I2C chip.  The board it was developed for uses a mux controlled by
 	  on-board FPGA which in turn is accessed as a chip over I2C.
 
+config MDIO_IPQ4019
+	bool "Qualcomm IPQ4019 MDIO interface support"
+	depends on DM_MDIO
+	help
+	  This driver supports the MDIO interface found in Qualcomm
+	  IPQ40xx series Soc-s.
+
 config MVMDIO
 	bool "Marvell MDIO interface support"
 	depends on DM_MDIO

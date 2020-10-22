@@ -8,7 +8,7 @@
 #define EXPORT_FUNC(a, b, c, ...)
 #endif
 	EXPORT_FUNC(get_version, unsigned long, get_version, void)
-	EXPORT_FUNC(getc, int, getc, void)
+	EXPORT_FUNC(getchar, int, getc, void)
 	EXPORT_FUNC(tstc, int, tstc, void)
 	EXPORT_FUNC(putc, void, putc, const char)
 	EXPORT_FUNC(puts, void, puts, const char *)

@@ -125,10 +125,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
  */
 #define CONFIG_PRAM		((CONFIG_KM_PNVRAM + CONFIG_KM_PHRAM) >> 10)
 
-#define CONFIG_KM_CRAMFS_ADDR	0x2000000
-#define CONFIG_KM_KERNEL_ADDR	0x1000000	/* max kernel size 15.5Mbytes */
-#define CONFIG_KM_FDT_ADDR	0x1F80000	/* max dtb    size  0.5Mbytes */
-
 /*
  * Local Bus Definitions
  */

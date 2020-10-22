@@ -22,6 +22,7 @@
 
 	aliases {
 		serial0 = &blsp1_uart1;
+		spi0 = &blsp1_spi1;
 	};
 
 	reserved-memory {
@@ -59,6 +60,13 @@
 			u-boot,dm-pre-reloc;
 		};
 
+		rng: rng@22000 {
+			compatible = "qcom,prng";
+			reg = <0x22000 0x140>;
+			clocks = <&gcc GCC_PRNG_AHB_CLK>;
+			status = "disabled";
+		};
+
 		reset: gcc-reset@1800000 {
 			compatible = "qcom,gcc-reset-ipq4019";
 			reg = <0x1800000 0x60000>;
@@ -89,6 +97,45 @@
 			gpio-count = <100>;
 			gpio-bank-name="soc";
 			#gpio-cells = <2>;
+			u-boot,dm-pre-reloc;
+		};
+
+		blsp1_spi1: spi@78b5000 {
+			compatible = "qcom,spi-qup-v2.2.1";
+			reg = <0x78b5000 0x600>;
+			clocks = <&gcc GCC_BLSP1_QUP1_SPI_APPS_CLK>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+			u-boot,dm-pre-reloc;
+		};
+
+		mdio: mdio@90000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "qcom,ipq4019-mdio";
+			reg = <0x90000 0x64>;
+			status = "disabled";
+
+			ethphy0: ethernet-phy@0 {
+				reg = <0>;
+			};
+
+			ethphy1: ethernet-phy@1 {
+				reg = <1>;
+			};
+
+			ethphy2: ethernet-phy@2 {
+				reg = <2>;
+			};
+
+			ethphy3: ethernet-phy@3 {
+				reg = <3>;
+			};
+
+			ethphy4: ethernet-phy@4 {
+				reg = <4>;
+			};
 		};
 
 		usb3_ss_phy: ssphy@9a000 {

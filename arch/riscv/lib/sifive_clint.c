@@ -62,11 +62,9 @@ int riscv_get_ipi(int hart, int *pending)
 	return 0;
 }
 
-static int sifive_clint_get_count(struct udevice *dev, u64 *count)
+static u64 sifive_clint_get_count(struct udevice *dev)
 {
-	*count = readq((void __iomem *)MTIME_REG(dev->priv));
-
-	return 0;
+	return readq((void __iomem *)MTIME_REG(dev->priv));
 }
 
 static const struct timer_ops sifive_clint_ops = {

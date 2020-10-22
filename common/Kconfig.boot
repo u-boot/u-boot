@@ -880,7 +880,7 @@ config USE_PREBOOT
 config PREBOOT
 	string "preboot default value"
 	depends on USE_PREBOOT && !USE_DEFAULT_ENV_FILE
-	default "usb start" if USB_KEYBOARD || USB_STORAGE
+	default "usb start" if USB_KEYBOARD
 	default ""
 	help
 	  This is the default of "preboot" environment variable.

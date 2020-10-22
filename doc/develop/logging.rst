@@ -83,11 +83,8 @@ Sometimes it is useful to turn on logging just in one file. You can use this
    #define LOG_DEBUG
 
 to enable building in of all logging statements in a single file. Put it at
-the top of the file, before any #includes.
-
-To actually get U-Boot to output this you need to also set the default logging
-level - e.g. set CONFIG_LOG_DEFAULT_LEVEL to 7 (LOGL_DEBUG) or more. Otherwise
-debug output is suppressed and will not be generated.
+the top of the file, before any #includes. This overrides any log-level setting
+in U-Boot, including CONFIG_LOG_DEFAULT_LEVEL, but just for that file.
 
 
 Convenience functions
@@ -110,6 +107,12 @@ LOG_CATEGORY, which you can only define once per file, above all #includes, e.g.
 .. code-block:: c
 
 	#define LOG_CATEGORY LOGC_ALLOC
+
+or
+
+.. code-block:: c
+
+	#define LOG_CATEGORY UCLASS_SPI
 
 Remember that all uclasses IDs are log categories too.
 

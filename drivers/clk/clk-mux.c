@@ -150,32 +150,8 @@ static int clk_mux_set_parent(struct clk *clk, struct clk *parent)
 	return 0;
 }
 
-static ulong clk_mux_get_rate(struct clk *clk)
-{
-	struct clk_mux *mux = to_clk_mux(clk_dev_binded(clk) ?
-			dev_get_clk_ptr(clk->dev) : clk);
-	struct udevice *parent;
-	struct clk *pclk;
-	int err, index;
-
-	index = clk_mux_get_parent(clk);
-	if (index >= mux->num_parents)
-		return -EFAULT;
-
-	err = uclass_get_device_by_name(UCLASS_CLK, mux->parent_names[index],
-					&parent);
-	if (err)
-		return err;
-
-	pclk = dev_get_clk_ptr(parent);
-	if (!pclk)
-		return -ENODEV;
-
-	return clk_get_rate(pclk);
-}
-
 const struct clk_ops clk_mux_ops = {
-	.get_rate = clk_mux_get_rate,
+	.get_rate = clk_generic_get_rate,
 	.set_parent = clk_mux_set_parent,
 };
 

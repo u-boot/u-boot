@@ -51,8 +51,13 @@ static int show_valid_options(enum ih_category category)
 		return -ENOMEM;
 
 	/* Sort the names in order of short name for easier reading */
-	for (item = 0; item < count; item++)
-		order[item] = item;
+	for (i = 0, item = 0; i < count; i++, item++) {
+		while (!genimg_cat_has_id(category, item) && i < count) {
+			item++;
+			count--;
+		}
+		order[i] = item;
+	}
 	cur_category = category;
 	qsort(order, count, sizeof(int), h_compare_category_name);
 

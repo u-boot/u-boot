@@ -27,16 +27,14 @@ struct mchp_pit64b_priv {
 	void __iomem *base;
 };
 
-static int mchp_pit64b_get_count(struct udevice *dev, u64 *count)
+static u64 mchp_pit64b_get_count(struct udevice *dev)
 {
 	struct mchp_pit64b_priv *priv = dev_get_priv(dev);
 
 	u32 lsb = readl(priv->base + MCHP_PIT64B_TLSBR);
 	u32 msb = readl(priv->base + MCHP_PIT64B_TMSBR);
 
-	*count = ((u64)msb << 32) | lsb;
-
-	return 0;
+	return ((u64)msb << 32) | lsb;
 }
 
 static int mchp_pit64b_probe(struct udevice *dev)
