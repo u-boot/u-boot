@@ -271,6 +271,7 @@ void *board_fdt_blob_setup(void)
 }
 #endif
 
+#if defined(CONFIG_BOARD_LATE_INIT)
 static int env_set_by_index(const char *name, int index, char *data)
 {
 	char var[32];
@@ -333,3 +334,4 @@ int board_late_init_xilinx(void)
 
 	return 0;
 }
+#endif
