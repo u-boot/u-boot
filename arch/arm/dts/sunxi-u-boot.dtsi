@@ -14,9 +14,11 @@
 	u-boot-sunxi-with-spl {
 		filename = "u-boot-sunxi-with-spl.bin";
 		pad-byte = <0xff>;
+
 		blob {
 			filename = "spl/sunxi-spl.bin";
 		};
+
 #ifdef CONFIG_ARM64
 		fit {
 			description = "Configuration to load ATF before U-Boot";
@@ -34,6 +36,7 @@
 					u-boot-nodtb {
 					};
 				};
+
 				atf {
 					description = "ARM Trusted Firmware";
 					type = "firmware";
@@ -47,6 +50,7 @@
 					load = <0x44000>;
 					entry = <0x44000>;
 #endif
+
 					atf-bl31 {
 						missing-msg = "atf-bl31-sunxi";
 					};
@@ -61,6 +65,7 @@
 
 			configurations {
 				default = "config-1";
+
 				@config-SEQ {
 					description = "NAME";
 					firmware = "uboot";
