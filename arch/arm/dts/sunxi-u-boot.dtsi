@@ -52,6 +52,7 @@
 #endif
 
 					atf-bl31 {
+						filename = "bl31.bin";
 						missing-msg = "atf-bl31-sunxi";
 					};
 				};
