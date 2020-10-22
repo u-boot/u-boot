@@ -1,0 +1,278 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Copyright 2020 Toradex
+ */
+
+/dts-v1/;
+
+#include "fsl-imx8qxp.dtsi"
+#include "fsl-imx8qxp-apalis-u-boot.dtsi"
+
+/ {
+	model = "Toradex Apalis iMX8X";
+	compatible = "toradex,apalis-imx8x", "fsl,imx8qxp";
+
+	chosen {
+		bootargs = "console=ttyLP1,115200";
+		stdout-path = &lpuart1;
+	};
+
+	regulators {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		reg_usb_otg1_vbus: regulator@0 {
+			compatible = "regulator-fixed";
+			reg = <0>;
+			regulator-name = "usb_otg1_vbus";
+			regulator-min-microvolt = <5000000>;
+			regulator-max-microvolt = <5000000>;
+			gpio = <&gpio3 16 GPIO_ACTIVE_HIGH>;
+			enable-active-high;
+		};
+	};
+};
+
+&iomuxc {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_hog0>, <&pinctrl_hog1>, <&pinctrl_reset_moci>;
+
+	apalis-imx8x {
+		/* Apalis UART1 */
+		pinctrl_lpuart1: lpuart1grp {
+			fsl,pins = <
+				SC_P_UART1_RX_ADMA_UART1_RX		0x06000020	/* SODIMM 118 */
+				SC_P_UART1_TX_ADMA_UART1_TX		0x06000020	/* SODIMM 112 */
+			>;
+		};
+
+		/* On-module Gigabit Ethernet PHY Micrel KSZ9031 */
+		pinctrl_fec1: fec1grp {
+			fsl,pins = <
+				SC_P_COMP_CTL_GPIO_1V8_3V3_ENET_ENETB0_PAD	0x14a0
+				SC_P_COMP_CTL_GPIO_1V8_3V3_ENET_ENETB1_PAD	0x14a0
+				SC_P_ENET0_MDC_CONN_ENET0_MDC			0x06000020
+				SC_P_ENET0_MDIO_CONN_ENET0_MDIO			0x06000020
+				SC_P_ENET0_RGMII_TX_CTL_CONN_ENET0_RGMII_TX_CTL	0x61
+				SC_P_ENET0_RGMII_TXC_CONN_ENET0_RGMII_TXC	0x61
+				SC_P_ENET0_RGMII_TXD0_CONN_ENET0_RGMII_TXD0	0x61
+				SC_P_ENET0_RGMII_TXD1_CONN_ENET0_RGMII_TXD1	0x61
+				SC_P_ENET0_RGMII_TXD2_CONN_ENET0_RGMII_TXD2	0x61
+				SC_P_ENET0_RGMII_TXD3_CONN_ENET0_RGMII_TXD3	0x61
+				SC_P_ENET0_RGMII_RXC_CONN_ENET0_RGMII_RXC	0x61
+				SC_P_ENET0_RGMII_RX_CTL_CONN_ENET0_RGMII_RX_CTL	0x61
+				SC_P_ENET0_RGMII_RXD0_CONN_ENET0_RGMII_RXD0	0x61
+				SC_P_ENET0_RGMII_RXD1_CONN_ENET0_RGMII_RXD1	0x61
+				SC_P_ENET0_RGMII_RXD2_CONN_ENET0_RGMII_RXD2	0x61
+				SC_P_ENET0_RGMII_RXD3_CONN_ENET0_RGMII_RXD3	0x61
+				/* On-module ETH_RESET# */
+				SC_P_MIPI_CSI0_MCLK_OUT_LSIO_GPIO3_IO04		0x06000020
+				/* On-module ETH_INT# */
+				SC_P_ADC_IN2_LSIO_GPIO1_IO12			0x21
+			>;
+		};
+
+		/* Apalis BKL_ON */
+		pinctrl_gpio_bkl_on: gpio-bkl-on {
+			fsl,pins = <
+				SC_P_QSPI0A_DQS_LSIO_GPIO3_IO13			0x40		/* SODIMM 286 */
+			>;
+		};
+
+		pinctrl_hog0: hog0grp {
+			fsl,pins = <
+				SC_P_COMP_CTL_GPIO_1V8_3V3_GPIORHB_PAD		0x000514a0
+			>;
+		};
+
+		pinctrl_hog1: hog1grp {
+			fsl,pins = <
+				/* Apalis USBO1_EN */
+				SC_P_QSPI0A_SCLK_LSIO_GPIO3_IO16		0x41		/* SODIMM 274 */
+			>;
+		};
+
+		/* Apalis RESET_MOCI# */
+		pinctrl_reset_moci: gpioresetmocigrp {
+			fsl,pins = <
+				SC_P_PCIE_CTRL0_CLKREQ_B_LSIO_GPIO4_IO01	0x21
+			>;
+		};
+
+		/* On-module eMMC */
+		pinctrl_usdhc1: usdhc1grp {
+			fsl,pins = <
+				SC_P_EMMC0_CLK_CONN_EMMC0_CLK			0x06000041
+				SC_P_EMMC0_CMD_CONN_EMMC0_CMD			0x21
+				SC_P_EMMC0_DATA0_CONN_EMMC0_DATA0		0x21
+				SC_P_EMMC0_DATA1_CONN_EMMC0_DATA1		0x21
+				SC_P_EMMC0_DATA2_CONN_EMMC0_DATA2		0x21
+				SC_P_EMMC0_DATA3_CONN_EMMC0_DATA3		0x21
+				SC_P_EMMC0_DATA4_CONN_EMMC0_DATA4		0x21
+				SC_P_EMMC0_DATA5_CONN_EMMC0_DATA5		0x21
+				SC_P_EMMC0_DATA6_CONN_EMMC0_DATA6		0x21
+				SC_P_EMMC0_DATA7_CONN_EMMC0_DATA7		0x21
+				SC_P_EMMC0_STROBE_CONN_EMMC0_STROBE		0x41
+				SC_P_EMMC0_RESET_B_CONN_EMMC0_RESET_B		0x21
+			>;
+		};
+
+		pinctrl_usdhc1_100mhz: usdhc1grp100mhz {
+			fsl,pins = <
+				SC_P_EMMC0_CLK_CONN_EMMC0_CLK			0x06000041
+				SC_P_EMMC0_CMD_CONN_EMMC0_CMD			0x21
+				SC_P_EMMC0_DATA0_CONN_EMMC0_DATA0		0x21
+				SC_P_EMMC0_DATA1_CONN_EMMC0_DATA1		0x21
+				SC_P_EMMC0_DATA2_CONN_EMMC0_DATA2		0x21
+				SC_P_EMMC0_DATA3_CONN_EMMC0_DATA3		0x21
+				SC_P_EMMC0_DATA4_CONN_EMMC0_DATA4		0x21
+				SC_P_EMMC0_DATA5_CONN_EMMC0_DATA5		0x21
+				SC_P_EMMC0_DATA6_CONN_EMMC0_DATA6		0x21
+				SC_P_EMMC0_DATA7_CONN_EMMC0_DATA7		0x21
+				SC_P_EMMC0_STROBE_CONN_EMMC0_STROBE		0x41
+				SC_P_EMMC0_RESET_B_CONN_EMMC0_RESET_B		0x21
+			>;
+		};
+
+		pinctrl_usdhc1_200mhz: usdhc1grp200mhz {
+			fsl,pins = <
+				SC_P_EMMC0_CLK_CONN_EMMC0_CLK			0x06000041
+				SC_P_EMMC0_CMD_CONN_EMMC0_CMD			0x21
+				SC_P_EMMC0_DATA0_CONN_EMMC0_DATA0		0x21
+				SC_P_EMMC0_DATA1_CONN_EMMC0_DATA1		0x21
+				SC_P_EMMC0_DATA2_CONN_EMMC0_DATA2		0x21
+				SC_P_EMMC0_DATA3_CONN_EMMC0_DATA3		0x21
+				SC_P_EMMC0_DATA4_CONN_EMMC0_DATA4		0x21
+				SC_P_EMMC0_DATA5_CONN_EMMC0_DATA5		0x21
+				SC_P_EMMC0_DATA6_CONN_EMMC0_DATA6		0x21
+				SC_P_EMMC0_DATA7_CONN_EMMC0_DATA7		0x21
+				SC_P_EMMC0_STROBE_CONN_EMMC0_STROBE		0x41
+				SC_P_EMMC0_RESET_B_CONN_EMMC0_RESET_B		0x21
+			>;
+		};
+
+		/* Apalis MMC1_CD# */
+		pinctrl_usdhc2_gpio: mmc1gpiogrp {
+			fsl,pins = <
+				SC_P_USDHC1_CD_B_LSIO_GPIO4_IO22		0x06000021	/* SODIMM 164 */
+			>;
+		};
+
+		pinctrl_usdhc2_gpio_sleep: usdhc1gpioslpgrp {
+			fsl,pins = <
+				SC_P_USDHC1_CD_B_LSIO_GPIO4_IO22		0x60		/* SODIMM 164 */
+			>;
+		};
+
+		/* Apalis USBH_EN */
+		pinctrl_usbh_en: usbhen {
+			fsl,pins = <
+				SC_P_USB_SS3_TC1_LSIO_GPIO4_IO04		0x40		/* SODIMM 84 */
+			>;
+		};
+
+		/* Apalis MMC1 */
+		pinctrl_usdhc2: usdhc2grp {
+			fsl,pins = <
+				SC_P_USDHC1_CLK_CONN_USDHC1_CLK			0x06000041	/* SODIMM 154 */
+				SC_P_USDHC1_CMD_CONN_USDHC1_CMD			0x21		/* SODIMM 150 */
+				SC_P_USDHC1_DATA0_CONN_USDHC1_DATA0		0x21		/* SODIMM 160 */
+				SC_P_USDHC1_DATA1_CONN_USDHC1_DATA1		0x21		/* SODIMM 162 */
+				SC_P_USDHC1_DATA2_CONN_USDHC1_DATA2		0x21		/* SODIMM 144 */
+				SC_P_USDHC1_DATA3_CONN_USDHC1_DATA3		0x21		/* SODIMM 146 */
+				SC_P_USDHC1_VSELECT_CONN_USDHC1_VSELECT		0x21
+			>;
+		};
+
+		pinctrl_usdhc2_100mhz: usdhc2grp100mhz {
+			fsl,pins = <
+				SC_P_USDHC1_CLK_CONN_USDHC1_CLK			0x06000041	/* SODIMM 154 */
+				SC_P_USDHC1_CMD_CONN_USDHC1_CMD			0x21		/* SODIMM 150 */
+				SC_P_USDHC1_DATA0_CONN_USDHC1_DATA0		0x21		/* SODIMM 160 */
+				SC_P_USDHC1_DATA1_CONN_USDHC1_DATA1		0x21		/* SODIMM 162 */
+				SC_P_USDHC1_DATA2_CONN_USDHC1_DATA2		0x21		/* SODIMM 144 */
+				SC_P_USDHC1_DATA3_CONN_USDHC1_DATA3		0x21		/* SODIMM 146 */
+				SC_P_USDHC1_VSELECT_CONN_USDHC1_VSELECT		0x21
+			>;
+		};
+
+		pinctrl_usdhc2_200mhz: usdhc2grp200mhz {
+			fsl,pins = <
+				SC_P_USDHC1_CLK_CONN_USDHC1_CLK			0x06000041	/* SODIMM 154 */
+				SC_P_USDHC1_CMD_CONN_USDHC1_CMD			0x21		/* SODIMM 150 */
+				SC_P_USDHC1_DATA0_CONN_USDHC1_DATA0		0x21		/* SODIMM 160 */
+				SC_P_USDHC1_DATA1_CONN_USDHC1_DATA1		0x21		/* SODIMM 162 */
+				SC_P_USDHC1_DATA2_CONN_USDHC1_DATA2		0x21		/* SODIMM 144 */
+				SC_P_USDHC1_DATA3_CONN_USDHC1_DATA3		0x21		/* SODIMM 146 */
+				SC_P_USDHC1_VSELECT_CONN_USDHC1_VSELECT		0x21
+			>;
+		};
+
+		pinctrl_usdhc2_sleep: usdhc2slpgrp {
+			fsl,pins = <
+				SC_P_USDHC1_CLK_LSIO_GPIO4_IO23			0x60		/* SODIMM 154 */
+				SC_P_USDHC1_CMD_LSIO_GPIO4_IO24			0x60		/* SODIMM 150 */
+				SC_P_USDHC1_DATA0_LSIO_GPIO4_IO25		0x60		/* SODIMM 160 */
+				SC_P_USDHC1_DATA1_LSIO_GPIO4_IO26		0x60		/* SODIMM 162 */
+				SC_P_USDHC1_DATA2_LSIO_GPIO4_IO27		0x60		/* SODIMM 144 */
+				SC_P_USDHC1_DATA3_LSIO_GPIO4_IO28		0x60		/* SODIMM 146 */
+				SC_P_USDHC1_VSELECT_CONN_USDHC1_VSELECT		0x21
+			>;
+		};
+	};
+};
+
+/* Apalis Gigabit LAN */
+&fec1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_fec1>;
+	fsl,magic-packet;
+	phy-handle = <&ethphy0>;
+	phy-mode = "rgmii";
+	phy-reset-duration = <10>;
+	phy-reset-post-delay = <150>;
+	phy-reset-gpios = <&gpio3 4 GPIO_ACTIVE_LOW>;
+	status = "okay";
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethphy0: ethernet-phy@4 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <4>;
+		};
+	};
+};
+
+/* Apalis UART1 */
+&lpuart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lpuart1>;
+	status = "okay";
+};
+
+/* On-module eMMC */
+&usdhc1 {
+	bus-width = <8>;
+	non-removable;
+	pinctrl-names = "default", "state_100mhz", "state_200mhz";
+	pinctrl-0 = <&pinctrl_usdhc1>;
+	pinctrl-1 = <&pinctrl_usdhc1_100mhz>;
+	pinctrl-2 = <&pinctrl_usdhc1_200mhz>;
+	status = "okay";
+};
+
+/* Apalis MMC1 */
+&usdhc2 {
+	bus-width = <4>;
+	cd-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
+	pinctrl-names = "default", "state_100mhz", "state_200mhz", "sleep";
+	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
+	pinctrl-1 = <&pinctrl_usdhc2_100mhz>, <&pinctrl_usdhc2_gpio>;
+	pinctrl-2 = <&pinctrl_usdhc2_200mhz>, <&pinctrl_usdhc2_gpio>;
+	pinctrl-3 = <&pinctrl_usdhc2_sleep>, <&pinctrl_usdhc2_gpio_sleep>;
+	disable-wp;
+	status = "okay";
+};
