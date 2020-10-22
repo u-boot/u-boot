@@ -35,6 +35,7 @@
 				uboot {
 					description = "U-Boot (64-bit)";
 					type = "standalone";
+					os = "u-boot";
 					arch = "arm64";
 					compression = "none";
 					load = <0x4a000000>;
@@ -46,6 +47,7 @@
 				atf {
 					description = "ARM Trusted Firmware";
 					type = "firmware";
+					os = "arm-trusted-firmware";
 					arch = "arm64";
 					compression = "none";
 					load = <BL31_ADDR>;
@@ -69,8 +71,8 @@
 
 				@config-SEQ {
 					description = "NAME";
-					firmware = "uboot";
-					loadables = "atf";
+					firmware = "atf";
+					loadables = "uboot";
 					fdt = "fdt-SEQ";
 				};
 			};

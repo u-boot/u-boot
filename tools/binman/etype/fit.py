@@ -73,8 +73,8 @@ class Entry_fit(Entry):
             default = "@config-DEFAULT-SEQ";
             @config-SEQ {
                 description = "NAME";
-                firmware = "uboot";
-                loadables = "atf";
+                firmware = "atf";
+                loadables = "uboot";
                 fdt = "fdt-SEQ";
             };
         };
