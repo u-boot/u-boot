@@ -247,45 +247,10 @@ void reset_cpu(ulong addr)
 {
 }
 
-#define PMC_TAP_VERSION_PLATFORM_MASK	0xF
-#define PMC_TAP_VERSION_PLATFORM_SHIFT	24
-
-/* pmc_tap_version platform */
-#define PMC_TAP_VERSION_SILICON	0
-#define PMC_TAP_VERSION_SPP	1
-#define PMC_TAP_VERSION_EMU	2
-#define PMC_TAP_VERSION_QEMU	3
-
 int __maybe_unused board_fit_config_name_match(const char *name)
 {
-	u32 version, platform;
-	char *platform_name = NULL;
-
-	version = readl(&pmc_base_base->version);
-	platform = (version >> PMC_TAP_VERSION_PLATFORM_SHIFT) &
-		   PMC_TAP_VERSION_PLATFORM_MASK;
-
-	switch (platform) {
-	case PMC_TAP_VERSION_SILICON:
-		platform_name = "versal-tenzing"; /* For now */
-		debug("Running on Silicon\n");
-		break;
-	case PMC_TAP_VERSION_SPP:
-		platform_name = "versal-spp";
-		break;
-	case PMC_TAP_VERSION_EMU:
-		platform_name = "versal-emu";
-		break;
-	case PMC_TAP_VERSION_QEMU:
-		platform_name = "versal-qemu"; /* Internal QEMU */
-		debug("Running on QEMU which is suspicious\n");
-		break;
-	}
-
-	if (!strncmp(name, platform_name, sizeof(platform_name))) {
-		printf("Selecting DTB %s for board %s\n", name, platform_name);
-		return 0;
-	}
+	/* Just empty function now - can't decide what to choose */
+	debug("%s: %s\n", __func__, name);
 
 	return -1;
 }

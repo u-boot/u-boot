@@ -52,15 +52,6 @@ struct rpu_regs {
 
 #define rpu_base ((struct rpu_regs *)VERSAL_RPU_BASEADDR)
 
-#define VERSAL_PMC_TAP_BASEADDR	0xF11A0000
-
-struct pmc_tap_regs {
-	u32 idcode; /* 0x0 */
-	u32 version; /* 0x4 */
-};
-
-#define pmc_base_base ((struct pmc_tap_regs *)VERSAL_PMC_TAP_BASEADDR)
-
 #define VERSAL_CRP_BASEADDR	0xF1260000
 
 struct crp_regs {
