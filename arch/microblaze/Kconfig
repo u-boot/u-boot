@@ -23,6 +23,7 @@ config TARGET_MICROBLAZE_GENERIC
 
 endchoice
 
+source "board/xilinx/Kconfig"
 source "board/xilinx/microblaze-generic/Kconfig"
 
 endmenu

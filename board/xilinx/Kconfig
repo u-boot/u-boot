@@ -50,12 +50,12 @@ config XILINX_OF_BOARD_DTB_ADDR
 
 config BOOT_SCRIPT_OFFSET
 	hex "Boot script offset"
-	depends on ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL
-	default 0xFC0000 if ARCH_ZYNQ
+	depends on ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL || MICROBLAZE
+	default 0xFC0000 if ARCH_ZYNQ || MICROBLAZE
 	default 0x3E80000 if ARCH_ZYNQMP
 	default 0x7F80000 if ARCH_VERSAL
 	help
-	   Specifies distro boot script offset in NAND/NOR flash.
+	   Specifies distro boot script offset in NAND/QSPI/NOR flash.
 
 config ZYNQ_MAC_IN_EEPROM
 	bool "Reading MAC address from EEPROM"
