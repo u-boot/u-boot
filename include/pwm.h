@@ -17,6 +17,10 @@ struct pwm_ops {
 	/**
 	 * set_config() - Set the PWM configuration
 	 *
+	 * Change both the PWM device's period and it's duty period if
+	 * possible. Otherwise, set an appropriate duty period that best
+	 * matches the given period_ns / duty_ns ratio for the device.
+	 *
 	 * @dev:	PWM device to update
 	 * @channel:	PWM channel to update
 	 * @period_ns:	PWM period in nanoseconds
@@ -50,6 +54,10 @@ struct pwm_ops {
 
 /**
  * pwm_set_config() - Set the PWM configuration
+ *
+ * Change both the PWM device's period and it's duty period if
+ * possible. Otherwise, set an appropriate duty period that best
+ * matches the given period_ns / duty_ns ratio for the device.
  *
  * @dev:	PWM device to update
  * @channel:	PWM channel to update

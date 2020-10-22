@@ -62,10 +62,17 @@ static int set_pwm(struct pwm_backlight_priv *priv)
 	uint duty_cycle;
 	int ret;
 
-	duty_cycle = priv->period_ns * (priv->cur_level - priv->min_level) /
-		(priv->max_level - priv->min_level);
-	ret = pwm_set_config(priv->pwm, priv->channel, priv->period_ns,
-			     duty_cycle);
+	if (priv->period_ns) {
+		duty_cycle = priv->period_ns * (priv->cur_level - priv->min_level) /
+			(priv->max_level - priv->min_level);
+		ret = pwm_set_config(priv->pwm, priv->channel, priv->period_ns,
+				     duty_cycle);
+	} else {
+		/* PWM driver will internally scale these like the above. */
+		ret = pwm_set_config(priv->pwm, priv->channel,
+				     priv->max_level - priv->min_level,
+				     priv->cur_level - priv->min_level);
+	}
 	if (ret)
 		return log_ret(ret);
 
@@ -213,10 +220,11 @@ static int pwm_backlight_of_to_plat(struct udevice *dev)
 		log_debug("Cannot get PWM: ret=%d\n", ret);
 		return log_ret(ret);
 	}
-	if (args.args_count < 2)
+	if (args.args_count < 1)
 		return log_msg_ret("Not enough arguments to pwm\n", -EINVAL);
 	priv->channel = args.args[0];
-	priv->period_ns = args.args[1];
+	if (args.args_count > 1)
+		priv->period_ns = args.args[1];
 	if (args.args_count > 2)
 		priv->polarity = args.args[2];
 
