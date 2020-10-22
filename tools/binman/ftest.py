@@ -75,6 +75,7 @@ FSP_M_DATA            = b'fsp_m'
 FSP_S_DATA            = b'fsp_s'
 FSP_T_DATA            = b'fsp_t'
 ATF_BL31_DATA         = b'bl31'
+SCP_DATA              = b'scp'
 TEST_FDT1_DATA        = b'fdt1'
 TEST_FDT2_DATA        = b'test-fdt2'
 ENV_DATA              = b'var1=1\nvar2="2"'
@@ -175,6 +176,7 @@ class TestFunctional(unittest.TestCase):
 
         TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
         TestFunctional._MakeInputFile('bl31.bin', ATF_BL31_DATA)
+        TestFunctional._MakeInputFile('scp.bin', SCP_DATA)
 
         # Add a few .dtb files for testing
         TestFunctional._MakeInputFile('%s/test-fdt1.dtb' % TEST_FDT_SUBDIR,
@@ -3577,6 +3579,11 @@ class TestFunctional(unittest.TestCase):
         """Test that an image with an ATF BL31 binary can be created"""
         data = self._DoReadFile('169_atf_bl31.dts')
         self.assertEqual(ATF_BL31_DATA, data[:len(ATF_BL31_DATA)])
+
+    def testPackScp(self):
+        """Test that an image with an SCP binary can be created"""
+        data = self._DoReadFile('172_scp.dts')
+        self.assertEqual(SCP_DATA, data[:len(SCP_DATA)])
 
     def testFitFdt(self):
         """Test an image with an FIT with multiple FDT images"""
