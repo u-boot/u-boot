@@ -1170,6 +1170,23 @@ int cros_ec_battery_cutoff(struct udevice *dev, uint8_t flags)
 	return 0;
 }
 
+int cros_ec_set_pwm_duty(struct udevice *dev, uint8_t index, uint16_t duty)
+{
+	struct ec_params_pwm_set_duty p;
+	int ret;
+
+	p.duty = duty;
+	p.pwm_type = EC_PWM_TYPE_GENERIC;
+	p.index = index;
+
+	ret = ec_command(dev, EC_CMD_PWM_SET_DUTY, 0, &p, sizeof(p),
+			 NULL, 0);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
 int cros_ec_set_ldo(struct udevice *dev, uint8_t index, uint8_t state)
 {
 	struct ec_params_ldo_set params;

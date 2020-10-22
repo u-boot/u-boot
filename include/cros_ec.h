@@ -513,6 +513,19 @@ int cros_ec_efs_verify(struct udevice *dev, enum ec_flash_region region);
 int cros_ec_battery_cutoff(struct udevice *dev, uint8_t flags);
 
 /**
+ * cros_ec_set_pwm_duty() - Set duty cycle of a generic pwm
+ *
+ * Note that duty value needs to be passed to the EC as a 16 bit number
+ * for increased precision.
+ *
+ * @param dev		CROS-EC device
+ * @param index		Index of the pwm
+ * @param duty		Desired duty cycle, in 0..EC_PWM_MAX_DUTY range.
+ * @return 0 if OK, -ve on error
+ */
+int cros_ec_set_pwm_duty(struct udevice *dev, uint8_t index, uint16_t duty);
+
+/**
  * cros_ec_read_limit_power() - Check if power is limited by batter/charger
  *
  * Sometimes the battery is low and / or the device is connected to a charger
