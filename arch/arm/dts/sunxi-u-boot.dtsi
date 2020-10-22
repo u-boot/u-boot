@@ -2,8 +2,10 @@
 
 #ifdef CONFIG_MACH_SUN50I_H6
 #define BL31_ADDR 0x104000
+#define  SCP_ADDR 0x114000
 #else
 #define BL31_ADDR  0x44000
+#define  SCP_ADDR  0x50000
 #endif
 
 / {
@@ -59,6 +61,19 @@
 					};
 				};
 
+				scp {
+					description = "SCP firmware";
+					type = "firmware";
+					arch = "or1k";
+					compression = "none";
+					load = <SCP_ADDR>;
+
+					scp {
+						filename = "scp.bin";
+						missing-msg = "scp-sunxi";
+					};
+				};
+
 				@fdt-SEQ {
 					description = "NAME";
 					type = "flat_dt";
@@ -72,7 +87,7 @@
 				@config-SEQ {
 					description = "NAME";
 					firmware = "atf";
-					loadables = "uboot";
+					loadables = "scp", "uboot";
 					fdt = "fdt-SEQ";
 				};
 			};
