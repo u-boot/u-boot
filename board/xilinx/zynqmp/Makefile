@@ -46,7 +46,6 @@ endif
 endif
 
 obj-$(CONFIG_MMC_SDHCI_ZYNQ) += tap_delays.o
-obj-$(CONFIG_XILINX_BOARD_DETECT_FRU) += ../common/board_detect_fru.o
 
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_CMD_ZYNQMP) += cmds.o

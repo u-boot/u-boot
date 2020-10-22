@@ -38,13 +38,6 @@ config XILINX_PS_INIT_FILE
 	     is not provided by U-Boot, you have to copy it there
 	     before the build.
 
-config XILINX_BOARD_DETECT_FRU
-	bool "Enable Xilinx board detection via FRU"
-	help
-	  Enabling this option u-boot will look at chosen/xlnx,eeprom
-	  property and will try to decode board name written in IPMI
-	  FRU format.
-
 endif
 
 config XILINX_OF_BOARD_DTB_ADDR
