@@ -465,9 +465,7 @@ config SPL_FIT_IMAGE_TINY
 	  Enable this to reduce the size of the FIT image loading code
 	  in SPL, if space for the SPL binary is very tight.
 
-	  This removes the detection of image types (which forces the
-	  first image to be treated as having a U-Boot style calling
-	  convention) and skips the recording of each loaded payload
+	  This skips the recording of each loaded payload
 	  (i.e. loadable) into the FDT (modifying the loaded FDT to
 	  ensure this information is available to the next image
 	  invoked).
