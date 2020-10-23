@@ -20,6 +20,12 @@
 #include <zynqmp_tap_delay.h>
 
 #define SDHCI_TUNING_LOOP_COUNT		40
+#define MMC_BANK2			0x2
+
+struct arasan_sdhci_clk_data {
+	int clk_phase_in[MMC_TIMING_MMC_HS400 + 1];
+	int clk_phase_out[MMC_TIMING_MMC_HS400 + 1];
+};
 
 struct arasan_sdhci_plat {
 	struct mmc_config cfg;
@@ -28,12 +34,17 @@ struct arasan_sdhci_plat {
 
 struct arasan_sdhci_priv {
 	struct sdhci_host *host;
+	struct arasan_sdhci_clk_data clk_data;
 	u8 deviceid;
 	u8 bank;
 	u8 no_1p8;
 };
 
 #if defined(CONFIG_ARCH_ZYNQMP)
+/* Default settings for ZynqMP Clock Phases */
+const u32 zynqmp_iclk_phases[] = {0, 63, 63, 0, 63,  0,   0, 183, 54,  0, 0};
+const u32 zynqmp_oclk_phases[] = {0, 72, 60, 0, 60, 72, 135, 48, 72, 135, 0};
+
 static const u8 mode2timing[] = {
 	[MMC_LEGACY] = MMC_TIMING_LEGACY,
 	[MMC_HS] = MMC_TIMING_MMC_HS,
@@ -168,6 +179,79 @@ static void arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 					   priv->bank);
 }
 
+static void arasan_dt_read_clk_phase(struct udevice *dev, unsigned char timing,
+				     const char *prop)
+{
+	struct arasan_sdhci_priv *priv = dev_get_priv(dev);
+	struct arasan_sdhci_clk_data *clk_data = &priv->clk_data;
+	u32 clk_phase[2] = {0};
+
+	/*
+	 * Read Tap Delay values from DT, if the DT does not contain the
+	 * Tap Values then use the pre-defined values
+	 */
+	if (dev_read_u32_array(dev, prop, &clk_phase[0], 2)) {
+		dev_dbg(dev, "Using predefined clock phase for %s = %d %d\n",
+			prop, clk_data->clk_phase_in[timing],
+			clk_data->clk_phase_out[timing]);
+		return;
+	}
+
+	/* The values read are Input and Output Clock Delays in order */
+	clk_data->clk_phase_in[timing] = clk_phase[0];
+	clk_data->clk_phase_out[timing] = clk_phase[1];
+}
+
+/**
+ * arasan_dt_parse_clk_phases - Read Tap Delay values from DT
+ *
+ * Called at initialization to parse the values of Tap Delays.
+ *
+ * @dev:                Pointer to our struct udevice.
+ */
+static void arasan_dt_parse_clk_phases(struct udevice *dev)
+{
+	struct arasan_sdhci_priv *priv = dev_get_priv(dev);
+	struct arasan_sdhci_clk_data *clk_data = &priv->clk_data;
+	int i;
+
+	if (IS_ENABLED(CONFIG_ARCH_ZYNQMP) &&
+	    device_is_compatible(dev, "xlnx,zynqmp-8.9a")) {
+		for (i = 0; i <= MMC_TIMING_MMC_HS400; i++) {
+			clk_data->clk_phase_in[i] = zynqmp_iclk_phases[i];
+			clk_data->clk_phase_out[i] = zynqmp_oclk_phases[i];
+		}
+
+		if (priv->bank == MMC_BANK2) {
+			clk_data->clk_phase_out[MMC_TIMING_UHS_SDR104] = 90;
+			clk_data->clk_phase_out[MMC_TIMING_MMC_HS200] = 90;
+		}
+	}
+
+	arasan_dt_read_clk_phase(dev, MMC_TIMING_LEGACY,
+				 "clk-phase-legacy");
+	arasan_dt_read_clk_phase(dev, MMC_TIMING_MMC_HS,
+				 "clk-phase-mmc-hs");
+	arasan_dt_read_clk_phase(dev, MMC_TIMING_SD_HS,
+				 "clk-phase-sd-hs");
+	arasan_dt_read_clk_phase(dev, MMC_TIMING_UHS_SDR12,
+				 "clk-phase-uhs-sdr12");
+	arasan_dt_read_clk_phase(dev, MMC_TIMING_UHS_SDR25,
+				 "clk-phase-uhs-sdr25");
+	arasan_dt_read_clk_phase(dev, MMC_TIMING_UHS_SDR50,
+				 "clk-phase-uhs-sdr50");
+	arasan_dt_read_clk_phase(dev, MMC_TIMING_UHS_SDR104,
+				 "clk-phase-uhs-sdr104");
+	arasan_dt_read_clk_phase(dev, MMC_TIMING_UHS_DDR50,
+				 "clk-phase-uhs-ddr50");
+	arasan_dt_read_clk_phase(dev, MMC_TIMING_MMC_DDR52,
+				 "clk-phase-mmc-ddr52");
+	arasan_dt_read_clk_phase(dev, MMC_TIMING_MMC_HS200,
+				 "clk-phase-mmc-hs200");
+	arasan_dt_read_clk_phase(dev, MMC_TIMING_MMC_HS400,
+				 "clk-phase-mmc-hs400");
+}
+
 static void arasan_sdhci_set_control_reg(struct sdhci_host *host)
 {
 	struct mmc *mmc = (struct mmc *)host->mmc;
@@ -271,6 +355,7 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 
 #if defined(CONFIG_ARCH_ZYNQMP)
 	priv->host->ops = &arasan_ops;
+	arasan_dt_parse_clk_phases(dev);
 #endif
 
 	priv->host->ioaddr = (void *)dev_read_addr(dev);
