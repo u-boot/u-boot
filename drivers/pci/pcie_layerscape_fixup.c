@@ -174,12 +174,41 @@ static void fdt_pcie_set_iommu_map_entry_ls(void *blob,
 	}
 }
 
+static int fdt_fixup_pcie_device_ls(void *blob, pci_dev_t bdf,
+				    struct ls_pcie_rc *pcie_rc)
+{
+	int streamid, index;
+
+	streamid = pcie_next_streamid(pcie_rc->stream_id_cur,
+				      pcie_rc->pcie->idx);
+	if (streamid < 0) {
+		printf("ERROR: out of stream ids for BDF %d.%d.%d\n",
+		       PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
+		return -ENOENT;
+	}
+	pcie_rc->stream_id_cur++;
+
+	index = ls_pcie_next_lut_index(pcie_rc);
+	if (index < 0) {
+		printf("ERROR: out of LUT indexes for BDF %d.%d.%d\n",
+		       PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
+		return -ENOENT;
+	}
+
+	/* map PCI b.d.f to streamID in LUT */
+	ls_pcie_lut_set_mapping(pcie_rc, index, bdf >> 8, streamid);
+	/* update msi-map in device tree */
+	fdt_pcie_set_msi_map_entry_ls(blob, pcie_rc, bdf >> 8, streamid);
+	/* update iommu-map in device tree */
+	fdt_pcie_set_iommu_map_entry_ls(blob, pcie_rc, bdf >> 8, streamid);
+
+	return 0;
+}
+
 static void fdt_fixup_pcie_ls(void *blob)
 {
 	struct udevice *dev, *bus;
 	struct ls_pcie_rc *pcie_rc;
-	int streamid;
-	int index;
 	pci_dev_t bdf;
 
 	/* Scan all known buses */
@@ -196,32 +225,11 @@ static void fdt_fixup_pcie_ls(void *blob)
 
 		pcie_rc = dev_get_priv(bus);
 
-		streamid = pcie_next_streamid(pcie_rc->stream_id_cur,
-					      pcie_rc->pcie->idx);
-		if (streamid < 0) {
-			debug("ERROR: no stream ids free\n");
-			continue;
-		} else {
-			pcie_rc->stream_id_cur++;
-		}
-
-		index = ls_pcie_next_lut_index(pcie_rc);
-		if (index < 0) {
-			debug("ERROR: no LUT indexes free\n");
-			continue;
-		}
-
 		/* the DT fixup must be relative to the hose first_busno */
 		bdf = dm_pci_get_bdf(dev) - PCI_BDF(bus->seq, 0, 0);
-		/* map PCI b.d.f to streamID in LUT */
-		ls_pcie_lut_set_mapping(pcie_rc, index, bdf >> 8,
-					streamid);
-		/* update msi-map in device tree */
-		fdt_pcie_set_msi_map_entry_ls(blob, pcie_rc, bdf >> 8,
-					      streamid);
-		/* update iommu-map in device tree */
-		fdt_pcie_set_iommu_map_entry_ls(blob, pcie_rc, bdf >> 8,
-						streamid);
+
+		if (fdt_fixup_pcie_device_ls(blob, bdf, pcie_rc) < 0)
+			break;
 	}
 	pcie_board_fix_fdt(blob);
 }
