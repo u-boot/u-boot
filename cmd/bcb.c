@@ -11,6 +11,7 @@
 #include <common.h>
 #include <log.h>
 #include <part.h>
+#include <malloc.h>
 
 enum bcb_cmd {
 	BCB_CMD_LOAD,
@@ -179,10 +180,10 @@ static int do_bcb_load(struct cmd_tbl *cmdtp, int flag, int argc,
 	return __bcb_load(devnum, argv[2]);
 }
 
-static int __bcb_set(char *fieldp, char *valp)
+static int __bcb_set(char *fieldp, const char *valp)
 {
 	int size, len;
-	char *field, *str, *found;
+	char *field, *str, *found, *tmp;
 
 	if (bcb_field_get(fieldp, &field, &size))
 		return CMD_RET_FAILURE;
@@ -193,14 +194,20 @@ static int __bcb_set(char *fieldp, char *valp)
 		       valp, len, size, fieldp);
 		return CMD_RET_FAILURE;
 	}
-	str = valp;
+	str = strdup(valp);
+	if (!str) {
+		printf("Error: Out of memory while strdup\n");
+		return CMD_RET_FAILURE;
+	}
 
+	tmp = str;
 	field[0] = '\0';
-	while ((found = strsep(&str, ":"))) {
+	while ((found = strsep(&tmp, ":"))) {
 		if (field[0] != '\0')
 			strcat(field, "\n");
 		strcat(field, found);
 	}
+	free(str);
 
 	return CMD_RET_SUCCESS;
 }
@@ -308,7 +315,7 @@ static int do_bcb_store(struct cmd_tbl *cmdtp, int flag, int argc,
 	return __bcb_store();
 }
 
-int bcb_write_reboot_reason(int devnum, char *partp, char *reasonp)
+int bcb_write_reboot_reason(int devnum, char *partp, const char *reasonp)
 {
 	int ret;
 
