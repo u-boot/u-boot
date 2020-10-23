@@ -18,6 +18,7 @@
 #include <dm/lists.h>
 #include <fdtdec.h>
 #include <linux/sizes.h>
+#include "../common/board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -36,7 +37,7 @@ int dram_init(void)
 
 int board_late_init(void)
 {
-	ulong max_size, lowmem_size;
+	ulong max_size;
 	u32 status = 0;
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_SYSRESET_MICROBLAZE)
@@ -56,14 +57,6 @@ int board_late_init(void)
 	max_size = gd->start_addr_sp - CONFIG_STACK_SIZE;
 	max_size = round_down(max_size, SZ_16M);
 
-	/* Linux default LOWMEM_SIZE is 0x30000000 = 768MB */
-	lowmem_size = gd->ram_base + 768 * 1024 * 1024;
-
-	status |= env_set_addr("initrd_high", (void *)min_t(ulong, max_size,
-				lowmem_size));
-	status |= env_set_addr("fdt_high", (void *)min_t(ulong, max_size,
-				lowmem_size));
-
 	status |= env_set_hex("scriptaddr", max_size + SZ_2M);
 
 	status |= env_set_hex("pxefile_addr_r", max_size + SZ_1M);
@@ -75,10 +68,8 @@ int board_late_init(void)
 	status |= env_set_hex("ramdisk_addr_r",
 			       gd->ram_base + SZ_32M + SZ_4M + SZ_2M);
 
-	status |= env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
-
 	if (status)
 		printf("%s: Saving run time variables FAILED\n", __func__);
 
-	return 0;
+	return board_late_init_xilinx();
 }
