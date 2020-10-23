@@ -76,12 +76,6 @@
 #define __HYPERVISOR_arch_6               54
 #define __HYPERVISOR_arch_7               55
 
-/*
- * Commands to HYPERVISOR_console_io().
- */
-#define CONSOLEIO_write         0
-#define CONSOLEIO_read          1
-
 #ifndef __ASSEMBLY__
 
 typedef u16 domid_t;
