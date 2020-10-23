@@ -27,17 +27,12 @@
 #define S5P_CHECK_DIDLE			0xBAD00000
 #define S5P_CHECK_LPA			0xABAD0000
 
-/* select serial console configuration */
-#define EXYNOS4_DEFAULT_UART_OFFSET	0x010000
-
 /* MMC SPL */
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define COPY_BL2_FNPTR_ADDR	0x00002488
 
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0 40007000 uImage; bootm 40007000"
 
-/* Miscellaneous configurable options */
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 /* memtest works on */
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
 

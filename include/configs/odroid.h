@@ -33,12 +33,7 @@
 
 #include <linux/sizes.h>
 
-/* select serial console configuration */
-
-/* Console configuration */
-
 #define CONFIG_BOOTCOMMAND		"run distro_bootcmd ; run autoboot"
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
 					- GENERATED_GBL_DATA_SIZE)
@@ -149,7 +144,7 @@
 		"elif test -e mmc ${mmcbootdev} uImage; then; " \
 			"run boot_uimg;" \
 		"fi;\0" \
-	"console=" CONFIG_DEFAULT_CONSOLE \
+	"console=console=ttySAC1,115200n8\0" \
 	"mmcbootdev=0\0" \
 	"mmcbootpart=1\0" \
 	"mmcrootdev=0\0" \

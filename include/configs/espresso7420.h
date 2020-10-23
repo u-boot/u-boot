@@ -18,9 +18,6 @@
 #define CONFIG_SPL_STACK		CONFIG_IRAM_END
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_IRAM_END
 
-/* select serial console configuration */
-#define CONFIG_DEFAULT_CONSOLE	"console=ttySAC1,115200n8\0"
-
 /* DRAM Memory Banks */
 #define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */
 
