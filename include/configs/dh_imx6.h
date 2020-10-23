@@ -52,12 +52,6 @@
 /* SATA Configs */
 #define CONFIG_LBA48
 
-/* SPI Flash Configs */
-#if defined(CONFIG_SPL_BUILD)
-#undef CONFIG_DM_SPI
-#undef CONFIG_DM_SPI_FLASH
-#endif
-
 /* UART */
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
