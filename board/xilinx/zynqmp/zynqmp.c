@@ -525,7 +525,6 @@ int board_late_init(void)
 	char *new_targets;
 	char *env_targets;
 	int ret;
-	ulong initrd_hi;
 
 #if defined(CONFIG_USB_ETHER) && !defined(CONFIG_USB_GADGET_DOWNLOAD)
 	usb_ether_init();
@@ -647,10 +646,6 @@ int board_late_init(void)
 			env_targets ? env_targets : "");
 
 	env_set("boot_targets", new_targets);
-
-	initrd_hi = gd->start_addr_sp - CONFIG_STACK_SIZE;
-	initrd_hi = round_down(initrd_hi, SZ_16M);
-	env_set_addr("initrd_high", (void *)initrd_hi);
 
 	reset_reason();
 
