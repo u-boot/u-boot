@@ -166,17 +166,135 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	return 0;
 }
 
-static void arasan_sdhci_set_tapdelay(struct sdhci_host *host)
+/**
+ * sdhci_zynqmp_sdcardclk_set_phase - Set the SD Output Clock Tap Delays
+ *
+ * Set the SD Output Clock Tap Delays for Output path
+ *
+ * @host:		Pointer to the sdhci_host structure.
+ * @degrees:		The clock phase shift between 0 - 359.
+ * Return: 0 on success and error value on error
+ */
+static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
+					    int degrees)
 {
 	struct arasan_sdhci_priv *priv = dev_get_priv(host->mmc->dev);
 	struct mmc *mmc = (struct mmc *)host->mmc;
-	u8 uhsmode;
+	u8 tap_delay, tap_max = 0;
+	int ret;
+	int timing = mode2timing[mmc->selected_mode];
 
-	uhsmode = mode2timing[mmc->selected_mode];
+	/*
+	 * This is applicable for SDHCI_SPEC_300 and above
+	 * ZynqMP does not set phase for <=25MHz clock.
+	 * If degrees is zero, no need to do anything.
+	 */
+	if (SDHCI_GET_VERSION(host) < SDHCI_SPEC_300 ||
+	    timing == MMC_TIMING_LEGACY ||
+	    timing == MMC_TIMING_UHS_SDR12 || !degrees)
+		return 0;
 
-	if (uhsmode >= UHS_SDR25_BUS_SPEED)
-		arasan_zynqmp_set_tapdelay(priv->deviceid, uhsmode,
-					   priv->bank);
+	switch (timing) {
+	case MMC_TIMING_MMC_HS:
+	case MMC_TIMING_SD_HS:
+	case MMC_TIMING_UHS_SDR25:
+	case MMC_TIMING_UHS_DDR50:
+	case MMC_TIMING_MMC_DDR52:
+		/* For 50MHz clock, 30 Taps are available */
+		tap_max = 30;
+		break;
+	case MMC_TIMING_UHS_SDR50:
+		/* For 100MHz clock, 15 Taps are available */
+		tap_max = 15;
+		break;
+	case MMC_TIMING_UHS_SDR104:
+	case MMC_TIMING_MMC_HS200:
+		/* For 200MHz clock, 8 Taps are available */
+		tap_max = 8;
+	default:
+		break;
+	}
+
+	tap_delay = (degrees * tap_max) / 360;
+
+	arasan_zynqmp_set_tapdelay(priv->deviceid, 0, tap_delay);
+
+	return ret;
+}
+
+/**
+ * sdhci_zynqmp_sampleclk_set_phase - Set the SD Input Clock Tap Delays
+ *
+ * Set the SD Input Clock Tap Delays for Input path
+ *
+ * @host:		Pointer to the sdhci_host structure.
+ * @degrees:		The clock phase shift between 0 - 359.
+ * Return: 0 on success and error value on error
+ */
+static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
+					    int degrees)
+{
+	struct arasan_sdhci_priv *priv = dev_get_priv(host->mmc->dev);
+	struct mmc *mmc = (struct mmc *)host->mmc;
+	u8 tap_delay, tap_max = 0;
+	int ret;
+	int timing = mode2timing[mmc->selected_mode];
+
+	/*
+	 * This is applicable for SDHCI_SPEC_300 and above
+	 * ZynqMP does not set phase for <=25MHz clock.
+	 * If degrees is zero, no need to do anything.
+	 */
+	if (SDHCI_GET_VERSION(host) < SDHCI_SPEC_300 ||
+	    timing == MMC_TIMING_LEGACY ||
+	    timing == MMC_TIMING_UHS_SDR12 || !degrees)
+		return 0;
+
+	switch (timing) {
+	case MMC_TIMING_MMC_HS:
+	case MMC_TIMING_SD_HS:
+	case MMC_TIMING_UHS_SDR25:
+	case MMC_TIMING_UHS_DDR50:
+	case MMC_TIMING_MMC_DDR52:
+		/* For 50MHz clock, 120 Taps are available */
+		tap_max = 120;
+		break;
+	case MMC_TIMING_UHS_SDR50:
+		/* For 100MHz clock, 60 Taps are available */
+		tap_max = 60;
+		break;
+	case MMC_TIMING_UHS_SDR104:
+	case MMC_TIMING_MMC_HS200:
+		/* For 200MHz clock, 30 Taps are available */
+		tap_max = 30;
+	default:
+		break;
+	}
+
+	tap_delay = (degrees * tap_max) / 360;
+
+	arasan_zynqmp_set_tapdelay(priv->deviceid, tap_delay, 0);
+
+	return ret;
+}
+
+static void arasan_sdhci_set_tapdelay(struct sdhci_host *host)
+{
+	struct arasan_sdhci_priv *priv = dev_get_priv(host->mmc->dev);
+	struct arasan_sdhci_clk_data *clk_data = &priv->clk_data;
+	struct mmc *mmc = (struct mmc *)host->mmc;
+	struct udevice *dev = mmc->dev;
+	u8 timing = mode2timing[mmc->selected_mode];
+	u32 iclk_phase = clk_data->clk_phase_in[timing];
+	u32 oclk_phase = clk_data->clk_phase_out[timing];
+
+	dev_dbg(dev, "%s, host:%s, mode:%d\n", __func__, host->name, timing);
+
+	if (IS_ENABLED(CONFIG_ARCH_ZYNQMP) &&
+	    device_is_compatible(dev, "xlnx,zynqmp-8.9a")) {
+		sdhci_zynqmp_sampleclk_set_phase(host, iclk_phase);
+		sdhci_zynqmp_sdcardclk_set_phase(host, oclk_phase);
+	}
 }
 
 static void arasan_dt_read_clk_phase(struct udevice *dev, unsigned char timing,
