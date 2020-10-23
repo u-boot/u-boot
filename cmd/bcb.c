@@ -178,22 +178,21 @@ static int do_bcb_load(struct cmd_tbl *cmdtp, int flag, int argc,
 	return __bcb_load(devnum, argv[2]);
 }
 
-static int do_bcb_set(struct cmd_tbl *cmdtp, int flag, int argc,
-		      char *const argv[])
+static int __bcb_set(char *fieldp, char *valp)
 {
 	int size, len;
 	char *field, *str, *found;
 
-	if (bcb_field_get(argv[1], &field, &size))
+	if (bcb_field_get(fieldp, &field, &size))
 		return CMD_RET_FAILURE;
 
-	len = strlen(argv[2]);
+	len = strlen(valp);
 	if (len >= size) {
 		printf("Error: sizeof('%s') = %d >= %d = sizeof(bcb.%s)\n",
-		       argv[2], len, size, argv[1]);
+		       valp, len, size, fieldp);
 		return CMD_RET_FAILURE;
 	}
-	str = argv[2];
+	str = valp;
 
 	field[0] = '\0';
 	while ((found = strsep(&str, ":"))) {
@@ -203,6 +202,12 @@ static int do_bcb_set(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	return CMD_RET_SUCCESS;
+}
+
+static int do_bcb_set(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char * const argv[])
+{
+	return __bcb_set(argv[1], argv[2]);
 }
 
 static int do_bcb_clear(struct cmd_tbl *cmdtp, int flag, int argc,
