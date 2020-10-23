@@ -57,18 +57,15 @@ static void sntp_timeout_handler(void)
 static void sntp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			 unsigned src, unsigned len)
 {
-#ifdef CONFIG_TIMESTAMP
 	struct sntp_pkt_t *rpktp = (struct sntp_pkt_t *)pkt;
 	struct rtc_time tm;
 	ulong seconds;
-#endif
 
 	debug("%s\n", __func__);
 
 	if (dest != sntp_our_port)
 		return;
 
-#ifdef CONFIG_TIMESTAMP
 	/*
 	 * As the RTC's used in U-Boot support second resolution only
 	 * we simply ignore the sub-second field.
@@ -76,8 +73,7 @@ static void sntp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	memcpy(&seconds, &rpktp->transmit_timestamp, sizeof(ulong));
 
 	rtc_to_tm(ntohl(seconds) - 2208988800UL + net_ntp_time_offset, &tm);
-#if defined(CONFIG_CMD_DATE)
-#  ifdef CONFIG_DM_RTC
+#ifdef CONFIG_DM_RTC
 	struct udevice *dev;
 	int ret;
 
@@ -86,14 +82,12 @@ static void sntp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		printf("SNTP: cannot find RTC: err=%d\n", ret);
 	else
 		dm_rtc_set(dev, &tm);
-#  else
+#elif defined(CONFIG_CMD_DATE)
 	rtc_set(&tm);
-#  endif
 #endif
 	printf("Date: %4d-%02d-%02d Time: %2d:%02d:%02d\n",
 	       tm.tm_year, tm.tm_mon, tm.tm_mday,
 	       tm.tm_hour, tm.tm_min, tm.tm_sec);
-#endif
 
 	net_set_state(NETLOOP_SUCCESS);
 }
