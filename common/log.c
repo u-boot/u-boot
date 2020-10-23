@@ -13,7 +13,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const char *log_cat_name[LOGC_COUNT - LOGC_NONE] = {
+static const char *log_cat_name[] = {
 	"none",
 	"arch",
 	"board",
@@ -28,7 +28,10 @@ static const char *log_cat_name[LOGC_COUNT - LOGC_NONE] = {
 	"acpi",
 };
 
-static const char *log_level_name[LOGL_COUNT] = {
+_Static_assert(ARRAY_SIZE(log_cat_name) == LOGC_COUNT - LOGC_NONE,
+	       "log_cat_name size");
+
+static const char *log_level_name[] = {
 	"EMERG",
 	"ALERT",
 	"CRIT",
@@ -41,6 +44,9 @@ static const char *log_level_name[LOGL_COUNT] = {
 	"IO",
 };
 
+_Static_assert(ARRAY_SIZE(log_level_name) == LOGL_COUNT, "log_level_name size");
+
+/* All error responses MUST begin with '<' */
 const char *log_get_cat_name(enum log_category_t cat)
 {
 	const char *name;
