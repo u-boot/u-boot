@@ -19,6 +19,8 @@
 #include <sdhci.h>
 #include <zynqmp_tap_delay.h>
 
+#define SDHCI_TUNING_LOOP_COUNT		40
+
 struct arasan_sdhci_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
@@ -45,8 +47,6 @@ static const u8 mode2timing[] = {
 	[UHS_SDR104] = MMC_TIMING_UHS_SDR104,
 	[MMC_HS_200] = MMC_TIMING_MMC_HS200,
 };
-
-#define SDHCI_TUNING_LOOP_COUNT	40
 
 static void arasan_zynqmp_dll_reset(struct sdhci_host *host, u8 deviceid)
 {
