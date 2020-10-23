@@ -170,21 +170,35 @@ static struct kbd_entry {
 };
 
 /*
- * Scan key code to ANSI 3.64 escape sequence table.  This table is
- * incomplete in that it does not include all possible extra keys.
+ * The table contains conversions from scan key codes to ECMA-48 escape
+ * sequences. The same sequences exist in the withdrawn ANSI 3.64 standard.
+ *
+ * As all escape sequences start with 0x1b this byte has been removed.
+ *
+ * This table is incomplete in that it does not include all possible extra keys.
  */
 static struct {
 	int kbd_scan_code;
 	char *escape;
 } kbd_to_ansi364[] = {
-	{ KEY_UP, "\033[A"},
-	{ KEY_DOWN, "\033[B"},
-	{ KEY_RIGHT, "\033[C"},
-	{ KEY_LEFT, "\033[D"},
+	{ KEY_UP, "[A"},
+	{ KEY_LEFT, "[D"},
+	{ KEY_RIGHT, "[C"},
+	{ KEY_DOWN, "[B"},
+	{ KEY_F1, "OP"},
+	{ KEY_F2, "OQ"},
+	{ KEY_F3, "OR"},
+	{ KEY_F4, "OS"},
+	{ KEY_F5, "[15~"},
+	{ KEY_F6, "[17~"},
+	{ KEY_F7, "[18~"},
+	{ KEY_F8, "[19~"},
+	{ KEY_F9, "[20~"},
+	{ KEY_F10, "[21~"},
 };
 
 /* Maximum number of output characters that an ANSI sequence expands to */
-#define ANSI_CHAR_MAX	3
+#define ANSI_CHAR_MAX	5
 
 static int input_queue_ascii(struct input_config *config, int ch)
 {
@@ -417,6 +431,7 @@ static int input_keycode_to_ansi364(struct input_config *config,
 	for (i = ch_count = 0; i < ARRAY_SIZE(kbd_to_ansi364); i++) {
 		if (keycode != kbd_to_ansi364[i].kbd_scan_code)
 			continue;
+		output_ch[ch_count++] = 0x1b;
 		for (escape = kbd_to_ansi364[i].escape; *escape; escape++) {
 			if (ch_count < max_chars)
 				output_ch[ch_count] = *escape;
@@ -473,7 +488,7 @@ static int input_keycodes_to_ascii(struct input_config *config,
 	/* Start conversion by looking for the first new keycode (by same). */
 	for (i = same; i < num_keycodes; i++) {
 		int key = keycode[i];
-		int ch;
+		int ch = 0xff;
 
 		/*
 		 * For a normal key (with an ASCII value), add it; otherwise
@@ -492,10 +507,10 @@ static int input_keycodes_to_ascii(struct input_config *config,
 			}
 			if (ch_count < max_chars && ch != 0xff)
 				output_ch[ch_count++] = (uchar)ch;
-		} else {
+		}
+		if (ch == 0xff)
 			ch_count += input_keycode_to_ansi364(config, key,
 						output_ch, max_chars);
-		}
 	}
 
 	if (ch_count > max_chars) {
