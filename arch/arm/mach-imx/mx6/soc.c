@@ -26,6 +26,9 @@
 #include <imx_thermal.h>
 #include <mmc.h>
 
+#define has_err007805() \
+	(is_mx6sl() || is_mx6dl() || is_mx6solo() || is_mx6ull())
+
 struct scu_regs {
 	u32	ctrl;
 	u32	config;
@@ -469,7 +472,7 @@ int arch_cpu_init(void)
 	}
 
 	/* Set perclk to source from OSC 24MHz */
-	if (is_mx6sl())
+	if (has_err007805())
 		setbits_le32(&ccm->cscmr1, MXC_CCM_CSCMR1_PER_CLK_SEL_MASK);
 
 	imx_wdog_disable_powerdown(); /* Disable PDE bit of WMCR register */
