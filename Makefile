@@ -1332,6 +1332,7 @@ cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		-I arch/$(ARCH)/dts -a of-list=$(CONFIG_OF_LIST) \
 		-a atf-bl31-path=${BL31} \
 		-a default-dt=$(default_dt) \
+		-a scp-path=$(SCP) \
 		$(BINMAN_$(@F))
 
 OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex
@@ -1441,11 +1442,13 @@ else
 MKIMAGEFLAGS_u-boot.itb = -E
 endif
 
+ifdef U_BOOT_ITS
 u-boot.itb: u-boot-nodtb.bin \
 		$(if $(CONFIG_OF_SEPARATE)$(CONFIG_OF_EMBED)$(CONFIG_OF_HOSTFILE),dts/dt.dtb) \
 		$(U_BOOT_ITS) FORCE
 	$(call if_changed,mkfitimage)
 	$(BOARD_SIZE_CHECK)
+endif
 
 u-boot-spl.kwb: u-boot.img spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)

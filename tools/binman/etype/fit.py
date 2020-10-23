@@ -73,8 +73,8 @@ class Entry_fit(Entry):
             default = "@config-DEFAULT-SEQ";
             @config-SEQ {
                 description = "NAME";
-                firmware = "uboot";
-                loadables = "atf";
+                firmware = "atf";
+                loadables = "uboot";
                 fdt = "fdt-SEQ";
             };
         };
@@ -205,10 +205,10 @@ class Entry_fit(Entry):
                                         b'SEQ', tools.ToBytes(str(seq + 1)))
                                     fsw.property(pname, val)
 
-                                    # Add data for 'fdt' nodes (but not 'config')
-                                    if depth == 1 and in_images:
-                                        fsw.property('data',
-                                                     tools.ReadFile(fname))
+                                # Add data for 'fdt' nodes (but not 'config')
+                                if depth == 1 and in_images:
+                                    fsw.property('data',
+                                                 tools.ReadFile(fname))
                     else:
                         if self._fdts is None:
                             if self._fit_list_prop:

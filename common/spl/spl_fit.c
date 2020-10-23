@@ -466,7 +466,22 @@ static int spl_fit_record_loadable(const void *fit, int images, int index,
 static int spl_fit_image_get_os(const void *fit, int noffset, uint8_t *os)
 {
 #if CONFIG_IS_ENABLED(FIT_IMAGE_TINY) && !defined(CONFIG_SPL_OS_BOOT)
-	return -ENOTSUPP;
+	const char *name = fdt_getprop(fit, noffset, FIT_OS_PROP, NULL);
+
+	if (!name)
+		return -ENOENT;
+
+	/*
+	 * We don't care what the type of the image actually is,
+	 * only whether or not it is U-Boot. This saves some
+	 * space by omitting the large table of OS types.
+	 */
+	if (!strcmp(name, "u-boot"))
+		*os = IH_OS_U_BOOT;
+	else
+		*os = IH_OS_INVALID;
+
+	return 0;
 #else
 	return fit_image_get_os(fit, noffset, os);
 #endif

@@ -13,3 +13,7 @@ Firmware and build with BL31=/path/to/bl31.bin
 atf-bl31-sunxi:
 Please read the section on ARM Trusted Firmware (ATF) in
 board/sunxi/README.sunxi64
+
+scp-sunxi:
+SCP firmware is required for system suspend, but is otherwise optional.
+Please read the section on SCP firmware in board/sunxi/README.sunxi64

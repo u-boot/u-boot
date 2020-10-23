@@ -29,6 +29,7 @@
 #include <net.h>
 #include <reset.h>
 #include <dt-bindings/pinctrl/sun4i-a10.h>
+#include <wait_bit.h>
 #if CONFIG_IS_ENABLED(DM_GPIO)
 #include <asm-generic/gpio.h>
 #endif
@@ -40,6 +41,11 @@
 #define MDIO_CMD_MII_PHY_REG_ADDR_SHIFT	4
 #define MDIO_CMD_MII_PHY_ADDR_MASK	0x0001f000
 #define MDIO_CMD_MII_PHY_ADDR_SHIFT	12
+#define MDIO_CMD_MII_CLK_CSR_DIV_16	0x0
+#define MDIO_CMD_MII_CLK_CSR_DIV_32	0x1
+#define MDIO_CMD_MII_CLK_CSR_DIV_64	0x2
+#define MDIO_CMD_MII_CLK_CSR_DIV_128	0x3
+#define MDIO_CMD_MII_CLK_CSR_SHIFT	20
 
 #define CONFIG_TX_DESCR_NUM	32
 #define CONFIG_RX_DESCR_NUM	32
@@ -84,15 +90,32 @@
 
 /* H3/A64 EMAC Register's offset */
 #define EMAC_CTL0		0x00
+#define EMAC_CTL0_FULL_DUPLEX		BIT(0)
+#define EMAC_CTL0_SPEED_MASK		GENMASK(3, 2)
+#define EMAC_CTL0_SPEED_10		(0x2 << 2)
+#define EMAC_CTL0_SPEED_100		(0x3 << 2)
+#define EMAC_CTL0_SPEED_1000		(0x0 << 2)
 #define EMAC_CTL1		0x04
+#define EMAC_CTL1_SOFT_RST		BIT(0)
+#define EMAC_CTL1_BURST_LEN_SHIFT	24
 #define EMAC_INT_STA		0x08
 #define EMAC_INT_EN		0x0c
 #define EMAC_TX_CTL0		0x10
+#define	EMAC_TX_CTL0_TX_EN		BIT(31)
 #define EMAC_TX_CTL1		0x14
+#define	EMAC_TX_CTL1_TX_MD		BIT(1)
+#define	EMAC_TX_CTL1_TX_DMA_EN		BIT(30)
+#define	EMAC_TX_CTL1_TX_DMA_START	BIT(31)
 #define EMAC_TX_FLOW_CTL	0x1c
 #define EMAC_TX_DMA_DESC	0x20
 #define EMAC_RX_CTL0		0x24
+#define	EMAC_RX_CTL0_RX_EN		BIT(31)
 #define EMAC_RX_CTL1		0x28
+#define	EMAC_RX_CTL1_RX_MD		BIT(1)
+#define	EMAC_RX_CTL1_RX_RUNT_FRM	BIT(2)
+#define	EMAC_RX_CTL1_RX_ERR_FRM		BIT(3)
+#define	EMAC_RX_CTL1_RX_DMA_EN		BIT(30)
+#define	EMAC_RX_CTL1_RX_DMA_START	BIT(31)
 #define EMAC_RX_DMA_DESC	0x34
 #define EMAC_MII_CMD		0x48
 #define EMAC_MII_DATA		0x4c
@@ -103,6 +126,13 @@
 #define EMAC_TX_CUR_BUF		0xb8
 #define EMAC_RX_DMA_STA		0xc0
 #define EMAC_RX_CUR_DESC	0xc4
+
+#define EMAC_DESC_OWN_DMA	BIT(31)
+#define EMAC_DESC_LAST_DESC	BIT(30)
+#define EMAC_DESC_FIRST_DESC	BIT(29)
+#define EMAC_DESC_CHAIN_SECOND	BIT(24)
+
+#define EMAC_DESC_RX_ERROR_MASK	0x400068db
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -116,7 +146,7 @@ enum emac_variant {
 
 struct emac_dma_desc {
 	u32 status;
-	u32 st;
+	u32 ctl_size;
 	u32 buf_addr;
 	u32 next;
 } __aligned(ARCH_DMA_MINALIGN);
@@ -166,32 +196,31 @@ static int sun8i_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
 	struct udevice *dev = bus->priv;
 	struct emac_eth_dev *priv = dev_get_priv(dev);
-	ulong start;
-	u32 miiaddr = 0;
-	int timeout = CONFIG_MDIO_TIMEOUT;
+	u32 mii_cmd;
+	int ret;
 
-	miiaddr &= ~MDIO_CMD_MII_WRITE;
-	miiaddr &= ~MDIO_CMD_MII_PHY_REG_ADDR_MASK;
-	miiaddr |= (reg << MDIO_CMD_MII_PHY_REG_ADDR_SHIFT) &
+	mii_cmd = (reg << MDIO_CMD_MII_PHY_REG_ADDR_SHIFT) &
 		MDIO_CMD_MII_PHY_REG_ADDR_MASK;
-
-	miiaddr &= ~MDIO_CMD_MII_PHY_ADDR_MASK;
-
-	miiaddr |= (addr << MDIO_CMD_MII_PHY_ADDR_SHIFT) &
+	mii_cmd |= (addr << MDIO_CMD_MII_PHY_ADDR_SHIFT) &
 		MDIO_CMD_MII_PHY_ADDR_MASK;
 
-	miiaddr |= MDIO_CMD_MII_BUSY;
+	/*
+	 * The EMAC clock is either 200 or 300 MHz, so we need a divider
+	 * of 128 to get the MDIO frequency below the required 2.5 MHz.
+	 */
+	mii_cmd |= MDIO_CMD_MII_CLK_CSR_DIV_128 << MDIO_CMD_MII_CLK_CSR_SHIFT;
 
-	writel(miiaddr, priv->mac_reg + EMAC_MII_CMD);
+	mii_cmd |= MDIO_CMD_MII_BUSY;
 
-	start = get_timer(0);
-	while (get_timer(start) < timeout) {
-		if (!(readl(priv->mac_reg + EMAC_MII_CMD) & MDIO_CMD_MII_BUSY))
-			return readl(priv->mac_reg + EMAC_MII_DATA);
-		udelay(10);
-	};
+	writel(mii_cmd, priv->mac_reg + EMAC_MII_CMD);
 
-	return -1;
+	ret = wait_for_bit_le32(priv->mac_reg + EMAC_MII_CMD,
+				MDIO_CMD_MII_BUSY, false,
+				CONFIG_MDIO_TIMEOUT, true);
+	if (ret < 0)
+		return ret;
+
+	return readl(priv->mac_reg + EMAC_MII_DATA);
 }
 
 static int sun8i_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
@@ -199,39 +228,35 @@ static int sun8i_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 {
 	struct udevice *dev = bus->priv;
 	struct emac_eth_dev *priv = dev_get_priv(dev);
-	ulong start;
-	u32 miiaddr = 0;
-	int ret = -1, timeout = CONFIG_MDIO_TIMEOUT;
+	u32 mii_cmd;
 
-	miiaddr &= ~MDIO_CMD_MII_PHY_REG_ADDR_MASK;
-	miiaddr |= (reg << MDIO_CMD_MII_PHY_REG_ADDR_SHIFT) &
+	mii_cmd = (reg << MDIO_CMD_MII_PHY_REG_ADDR_SHIFT) &
 		MDIO_CMD_MII_PHY_REG_ADDR_MASK;
-
-	miiaddr &= ~MDIO_CMD_MII_PHY_ADDR_MASK;
-	miiaddr |= (addr << MDIO_CMD_MII_PHY_ADDR_SHIFT) &
+	mii_cmd |= (addr << MDIO_CMD_MII_PHY_ADDR_SHIFT) &
 		MDIO_CMD_MII_PHY_ADDR_MASK;
 
-	miiaddr |= MDIO_CMD_MII_WRITE;
-	miiaddr |= MDIO_CMD_MII_BUSY;
+	/*
+	 * The EMAC clock is either 200 or 300 MHz, so we need a divider
+	 * of 128 to get the MDIO frequency below the required 2.5 MHz.
+	 */
+	mii_cmd |= MDIO_CMD_MII_CLK_CSR_DIV_128 << MDIO_CMD_MII_CLK_CSR_SHIFT;
+
+	mii_cmd |= MDIO_CMD_MII_WRITE;
+	mii_cmd |= MDIO_CMD_MII_BUSY;
 
 	writel(val, priv->mac_reg + EMAC_MII_DATA);
-	writel(miiaddr, priv->mac_reg + EMAC_MII_CMD);
+	writel(mii_cmd, priv->mac_reg + EMAC_MII_CMD);
 
-	start = get_timer(0);
-	while (get_timer(start) < timeout) {
-		if (!(readl(priv->mac_reg + EMAC_MII_CMD) &
-					MDIO_CMD_MII_BUSY)) {
-			ret = 0;
-			break;
-		}
-		udelay(10);
-	};
-
-	return ret;
+	return wait_for_bit_le32(priv->mac_reg + EMAC_MII_CMD,
+				 MDIO_CMD_MII_BUSY, false,
+				 CONFIG_MDIO_TIMEOUT, true);
 }
 
-static int _sun8i_write_hwaddr(struct emac_eth_dev *priv, u8 *mac_id)
+static int sun8i_eth_write_hwaddr(struct udevice *dev)
 {
+	struct emac_eth_dev *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	uchar *mac_id = pdata->enetaddr;
 	u32 macid_lo, macid_hi;
 
 	macid_lo = mac_id[0] + (mac_id[1] << 8) + (mac_id[2] << 16) +
@@ -252,21 +277,21 @@ static void sun8i_adjust_link(struct emac_eth_dev *priv,
 	v = readl(priv->mac_reg + EMAC_CTL0);
 
 	if (phydev->duplex)
-		v |= BIT(0);
+		v |= EMAC_CTL0_FULL_DUPLEX;
 	else
-		v &= ~BIT(0);
+		v &= ~EMAC_CTL0_FULL_DUPLEX;
 
-	v &= ~0x0C;
+	v &= ~EMAC_CTL0_SPEED_MASK;
 
 	switch (phydev->speed) {
 	case 1000:
+		v |= EMAC_CTL0_SPEED_1000;
 		break;
 	case 100:
-		v |= BIT(2);
-		v |= BIT(3);
+		v |= EMAC_CTL0_SPEED_100;
 		break;
 	case 10:
-		v |= BIT(3);
+		v |= EMAC_CTL0_SPEED_10;
 		break;
 	}
 	writel(v, priv->mac_reg + EMAC_CTL0);
@@ -372,24 +397,36 @@ static int sun8i_phy_init(struct emac_eth_dev *priv, void *dev)
 	return 0;
 }
 
+#define cache_clean_descriptor(desc)					\
+	flush_dcache_range((uintptr_t)(desc), 				\
+			   (uintptr_t)(desc) + sizeof(struct emac_dma_desc))
+
+#define cache_inv_descriptor(desc)					\
+	invalidate_dcache_range((uintptr_t)(desc),			\
+			       (uintptr_t)(desc) + sizeof(struct emac_dma_desc))
+
 static void rx_descs_init(struct emac_eth_dev *priv)
 {
 	struct emac_dma_desc *desc_table_p = &priv->rx_chain[0];
 	char *rxbuffs = &priv->rxbuffer[0];
 	struct emac_dma_desc *desc_p;
-	u32 idx;
+	int i;
 
-	/* flush Rx buffers */
-	flush_dcache_range((uintptr_t)rxbuffs, (ulong)rxbuffs +
-			RX_TOTAL_BUFSIZE);
+	/*
+	 * Make sure we don't have dirty cache lines around, which could
+	 * be cleaned to DRAM *after* the MAC has already written data to it.
+	 */
+	invalidate_dcache_range((uintptr_t)desc_table_p,
+			      (uintptr_t)desc_table_p + sizeof(priv->rx_chain));
+	invalidate_dcache_range((uintptr_t)rxbuffs,
+				(uintptr_t)rxbuffs + sizeof(priv->rxbuffer));
 
-	for (idx = 0; idx < CONFIG_RX_DESCR_NUM; idx++) {
-		desc_p = &desc_table_p[idx];
-		desc_p->buf_addr = (uintptr_t)&rxbuffs[idx * CONFIG_ETH_BUFSIZE]
-			;
-		desc_p->next = (uintptr_t)&desc_table_p[idx + 1];
-		desc_p->st |= CONFIG_ETH_RXSIZE;
-		desc_p->status = BIT(31);
+	for (i = 0; i < CONFIG_RX_DESCR_NUM; i++) {
+		desc_p = &desc_table_p[i];
+		desc_p->buf_addr = (uintptr_t)&rxbuffs[i * CONFIG_ETH_BUFSIZE];
+		desc_p->next = (uintptr_t)&desc_table_p[i + 1];
+		desc_p->ctl_size = CONFIG_ETH_RXSIZE;
+		desc_p->status = EMAC_DESC_OWN_DMA;
 	}
 
 	/* Correcting the last pointer of the chain */
@@ -408,87 +445,74 @@ static void tx_descs_init(struct emac_eth_dev *priv)
 	struct emac_dma_desc *desc_table_p = &priv->tx_chain[0];
 	char *txbuffs = &priv->txbuffer[0];
 	struct emac_dma_desc *desc_p;
-	u32 idx;
+	int i;
 
-	for (idx = 0; idx < CONFIG_TX_DESCR_NUM; idx++) {
-		desc_p = &desc_table_p[idx];
-		desc_p->buf_addr = (uintptr_t)&txbuffs[idx * CONFIG_ETH_BUFSIZE]
-			;
-		desc_p->next = (uintptr_t)&desc_table_p[idx + 1];
-		desc_p->status = (1 << 31);
-		desc_p->st = 0;
+	for (i = 0; i < CONFIG_TX_DESCR_NUM; i++) {
+		desc_p = &desc_table_p[i];
+		desc_p->buf_addr = (uintptr_t)&txbuffs[i * CONFIG_ETH_BUFSIZE];
+		desc_p->next = (uintptr_t)&desc_table_p[i + 1];
+		desc_p->ctl_size = 0;
+		desc_p->status = 0;
 	}
 
 	/* Correcting the last pointer of the chain */
 	desc_p->next =  (uintptr_t)&desc_table_p[0];
 
-	/* Flush all Tx buffer descriptors */
-	flush_dcache_range((uintptr_t)priv->tx_chain,
-			   (uintptr_t)priv->tx_chain +
-			sizeof(priv->tx_chain));
+	/* Flush the first TX buffer descriptor we will tell the MAC about. */
+	cache_clean_descriptor(desc_table_p);
 
 	writel((uintptr_t)&desc_table_p[0], priv->mac_reg + EMAC_TX_DMA_DESC);
 	priv->tx_currdescnum = 0;
 }
 
-static int _sun8i_emac_eth_init(struct emac_eth_dev *priv, u8 *enetaddr)
+static int sun8i_emac_eth_start(struct udevice *dev)
 {
-	u32 reg, v;
-	int timeout = 100;
+	struct emac_eth_dev *priv = dev_get_priv(dev);
+	int ret;
 
-	reg = readl((priv->mac_reg + EMAC_CTL1));
-
-	if (!(reg & 0x1)) {
-		/* Soft reset MAC */
-		setbits_le32((priv->mac_reg + EMAC_CTL1), 0x1);
-		do {
-			reg = readl(priv->mac_reg + EMAC_CTL1);
-		} while ((reg & 0x01) != 0 &&  (--timeout));
-		if (!timeout) {
-			printf("%s: Timeout\n", __func__);
-			return -1;
-		}
+	/* Soft reset MAC */
+	writel(EMAC_CTL1_SOFT_RST, priv->mac_reg + EMAC_CTL1);
+	ret = wait_for_bit_le32(priv->mac_reg + EMAC_CTL1,
+				EMAC_CTL1_SOFT_RST, false, 10, true);
+	if (ret) {
+		printf("%s: Timeout\n", __func__);
+		return ret;
 	}
 
 	/* Rewrite mac address after reset */
-	_sun8i_write_hwaddr(priv, enetaddr);
+	sun8i_eth_write_hwaddr(dev);
 
-	v = readl(priv->mac_reg + EMAC_TX_CTL1);
-	/* TX_MD Transmission starts after a full frame located in TX DMA FIFO*/
-	v |= BIT(1);
-	writel(v, priv->mac_reg + EMAC_TX_CTL1);
+	/* transmission starts after the full frame arrived in TX DMA FIFO */
+	setbits_le32(priv->mac_reg + EMAC_TX_CTL1, EMAC_TX_CTL1_TX_MD);
 
-	v = readl(priv->mac_reg + EMAC_RX_CTL1);
-	/* RX_MD RX DMA reads data from RX DMA FIFO to host memory after a
+	/*
+	 * RX DMA reads data from RX DMA FIFO to host memory after a
 	 * complete frame has been written to RX DMA FIFO
 	 */
-	v |= BIT(1);
-	writel(v, priv->mac_reg + EMAC_RX_CTL1);
+	setbits_le32(priv->mac_reg + EMAC_RX_CTL1, EMAC_RX_CTL1_RX_MD);
 
-	/* DMA */
-	writel(8 << 24, priv->mac_reg + EMAC_CTL1);
+	/* DMA burst length */
+	writel(8 << EMAC_CTL1_BURST_LEN_SHIFT, priv->mac_reg + EMAC_CTL1);
 
 	/* Initialize rx/tx descriptors */
 	rx_descs_init(priv);
 	tx_descs_init(priv);
 
 	/* PHY Start Up */
-	phy_startup(priv->phydev);
+	ret = phy_startup(priv->phydev);
+	if (ret)
+		return ret;
 
 	sun8i_adjust_link(priv, priv->phydev);
 
-	/* Start RX DMA */
-	v = readl(priv->mac_reg + EMAC_RX_CTL1);
-	v |= BIT(30);
-	writel(v, priv->mac_reg + EMAC_RX_CTL1);
-	/* Start TX DMA */
-	v = readl(priv->mac_reg + EMAC_TX_CTL1);
-	v |= BIT(30);
-	writel(v, priv->mac_reg + EMAC_TX_CTL1);
+	/* Start RX/TX DMA */
+	setbits_le32(priv->mac_reg + EMAC_RX_CTL1, EMAC_RX_CTL1_RX_DMA_EN |
+		     EMAC_RX_CTL1_RX_ERR_FRM | EMAC_RX_CTL1_RX_RUNT_FRM);
+	setbits_le32(priv->mac_reg + EMAC_TX_CTL1, EMAC_TX_CTL1_TX_DMA_EN);
 
 	/* Enable RX/TX */
-	setbits_le32(priv->mac_reg + EMAC_RX_CTL0, BIT(31));
-	setbits_le32(priv->mac_reg + EMAC_TX_CTL0, BIT(31));
+	setbits_le32(priv->mac_reg + EMAC_RX_CTL0, EMAC_RX_CTL0_RX_EN);
+	setbits_le32(priv->mac_reg + EMAC_TX_CTL0, EMAC_TX_CTL0_TX_EN);
 
 	return 0;
 }
@@ -558,88 +582,71 @@ static int parse_phy_pins(struct udevice *dev)
 	return 0;
 }
 
-static int _sun8i_eth_recv(struct emac_eth_dev *priv, uchar **packetp)
+static int sun8i_emac_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 {
+	struct emac_eth_dev *priv = dev_get_priv(dev);
 	u32 status, desc_num = priv->rx_currdescnum;
 	struct emac_dma_desc *desc_p = &priv->rx_chain[desc_num];
-	int length = -EAGAIN;
-	int good_packet = 1;
-	uintptr_t desc_start = (uintptr_t)desc_p;
-	uintptr_t desc_end = desc_start +
-		roundup(sizeof(*desc_p), ARCH_DMA_MINALIGN);
-
-	ulong data_start = (uintptr_t)desc_p->buf_addr;
-	ulong data_end;
+	uintptr_t data_start = (uintptr_t)desc_p->buf_addr;
+	int length;
 
 	/* Invalidate entire buffer descriptor */
-	invalidate_dcache_range(desc_start, desc_end);
+	cache_inv_descriptor(desc_p);
 
 	status = desc_p->status;
 
 	/* Check for DMA own bit */
-	if (!(status & BIT(31))) {
-		length = (desc_p->status >> 16) & 0x3FFF;
+	if (status & EMAC_DESC_OWN_DMA)
+		return -EAGAIN;
 
-		if (length < 0x40) {
-			good_packet = 0;
-			debug("RX: Bad Packet (runt)\n");
-		}
+	length = (status >> 16) & 0x3fff;
 
-		data_end = data_start + length;
-		/* Invalidate received data */
-		invalidate_dcache_range(rounddown(data_start,
-						  ARCH_DMA_MINALIGN),
-					roundup(data_end,
-						ARCH_DMA_MINALIGN));
-		if (good_packet) {
-			if (length > CONFIG_ETH_RXSIZE) {
-				printf("Received packet is too big (len=%d)\n",
-				       length);
-				return -EMSGSIZE;
-			}
-			*packetp = (uchar *)(ulong)desc_p->buf_addr;
-			return length;
-		}
+	/* make sure we read from DRAM, not our cache */
+	invalidate_dcache_range(data_start,
+				data_start + roundup(length, ARCH_DMA_MINALIGN));
+
+	if (status & EMAC_DESC_RX_ERROR_MASK) {
+		debug("RX: packet error: 0x%x\n",
+		      status & EMAC_DESC_RX_ERROR_MASK);
+		return 0;
 	}
+	if (length < 0x40) {
+		debug("RX: Bad Packet (runt)\n");
+		return 0;
+	}
+
+	if (length > CONFIG_ETH_RXSIZE) {
+		debug("RX: Too large packet (%d bytes)\n", length);
+		return 0;
+	}
+
+	*packetp = (uchar *)(ulong)desc_p->buf_addr;
 
 	return length;
 }
 
-static int _sun8i_emac_eth_send(struct emac_eth_dev *priv, void *packet,
-				int len)
+static int sun8i_emac_eth_send(struct udevice *dev, void *packet, int length)
 {
-	u32 v, desc_num = priv->tx_currdescnum;
+	struct emac_eth_dev *priv = dev_get_priv(dev);
+	u32 desc_num = priv->tx_currdescnum;
 	struct emac_dma_desc *desc_p = &priv->tx_chain[desc_num];
-	uintptr_t desc_start = (uintptr_t)desc_p;
-	uintptr_t desc_end = desc_start +
-		roundup(sizeof(*desc_p), ARCH_DMA_MINALIGN);
-
 	uintptr_t data_start = (uintptr_t)desc_p->buf_addr;
 	uintptr_t data_end = data_start +
-		roundup(len, ARCH_DMA_MINALIGN);
+		roundup(length, ARCH_DMA_MINALIGN);
 
-	/* Invalidate entire buffer descriptor */
-	invalidate_dcache_range(desc_start, desc_end);
+	desc_p->ctl_size = length | EMAC_DESC_CHAIN_SECOND;
 
-	desc_p->st = len;
-	/* Mandatory undocumented bit */
-	desc_p->st |= BIT(24);
-
-	memcpy((void *)data_start, packet, len);
+	memcpy((void *)data_start, packet, length);
 
 	/* Flush data to be sent */
 	flush_dcache_range(data_start, data_end);
 
-	/* frame end */
-	desc_p->st |= BIT(30);
-	desc_p->st |= BIT(31);
+	/* frame begin and end */
+	desc_p->ctl_size |= EMAC_DESC_LAST_DESC | EMAC_DESC_FIRST_DESC;
+	desc_p->status = EMAC_DESC_OWN_DMA;
 
-	/*frame begin */
-	desc_p->st |= BIT(29);
-	desc_p->status = BIT(31);
-
-	/*Descriptors st and status field has changed, so FLUSH it */
-	flush_dcache_range(desc_start, desc_end);
+	/* make sure the MAC reads the actual data from DRAM */
+	cache_clean_descriptor(desc_p);
 
 	/* Move to next Descriptor and wrap around */
 	if (++desc_num >= CONFIG_TX_DESCR_NUM)
@@ -647,20 +654,14 @@ static int _sun8i_emac_eth_send(struct emac_eth_dev *priv, void *packet,
 	priv->tx_currdescnum = desc_num;
 
 	/* Start the DMA */
-	v = readl(priv->mac_reg + EMAC_TX_CTL1);
-	v |= BIT(31);/* mandatory */
-	v |= BIT(30);/* mandatory */
-	writel(v, priv->mac_reg + EMAC_TX_CTL1);
+	setbits_le32(priv->mac_reg + EMAC_TX_CTL1, EMAC_TX_CTL1_TX_DMA_START);
+
+	/*
+	 * Since we copied the data above, we return here without waiting
+	 * for the packet to be actually send out.
+	 */
 
 	return 0;
-}
-
-static int sun8i_eth_write_hwaddr(struct udevice *dev)
-{
-	struct eth_pdata *pdata = dev_get_platdata(dev);
-	struct emac_eth_dev *priv = dev_get_priv(dev);
-
-	return _sun8i_write_hwaddr(priv, pdata->enetaddr);
 }
 
 static int sun8i_emac_board_setup(struct udevice *dev,
@@ -760,40 +761,18 @@ static int sun8i_mdio_init(const char *name, struct udevice *priv)
 	return  mdio_register(bus);
 }
 
-static int sun8i_emac_eth_start(struct udevice *dev)
-{
-	struct eth_pdata *pdata = dev_get_platdata(dev);
-
-	return _sun8i_emac_eth_init(dev->priv, pdata->enetaddr);
-}
-
-static int sun8i_emac_eth_send(struct udevice *dev, void *packet, int length)
+static int sun8i_eth_free_pkt(struct udevice *dev, uchar *packet,
+			      int length)
 {
 	struct emac_eth_dev *priv = dev_get_priv(dev);
-
-	return _sun8i_emac_eth_send(priv, packet, length);
-}
-
-static int sun8i_emac_eth_recv(struct udevice *dev, int flags, uchar **packetp)
-{
-	struct emac_eth_dev *priv = dev_get_priv(dev);
-
-	return _sun8i_eth_recv(priv, packetp);
-}
-
-static int _sun8i_free_pkt(struct emac_eth_dev *priv)
-{
 	u32 desc_num = priv->rx_currdescnum;
 	struct emac_dma_desc *desc_p = &priv->rx_chain[desc_num];
-	uintptr_t desc_start = (uintptr_t)desc_p;
-	uintptr_t desc_end = desc_start +
-		roundup(sizeof(u32), ARCH_DMA_MINALIGN);
 
-	/* Make the current descriptor valid again */
-	desc_p->status |= BIT(31);
+	/* give the current descriptor back to the MAC */
+	desc_p->status |= EMAC_DESC_OWN_DMA;
 
 	/* Flush Status field of descriptor */
-	flush_dcache_range(desc_start, desc_end);
+	cache_clean_descriptor(desc_p);
 
 	/* Move to next desc and wrap-around condition. */
 	if (++desc_num >= CONFIG_RX_DESCR_NUM)
@@ -803,24 +782,17 @@ static int _sun8i_free_pkt(struct emac_eth_dev *priv)
 	return 0;
 }
 
-static int sun8i_eth_free_pkt(struct udevice *dev, uchar *packet,
-			      int length)
-{
-	struct emac_eth_dev *priv = dev_get_priv(dev);
-
-	return _sun8i_free_pkt(priv);
-}
-
 static void sun8i_emac_eth_stop(struct udevice *dev)
 {
 	struct emac_eth_dev *priv = dev_get_priv(dev);
 
 	/* Stop Rx/Tx transmitter */
-	clrbits_le32(priv->mac_reg + EMAC_RX_CTL0, BIT(31));
-	clrbits_le32(priv->mac_reg + EMAC_TX_CTL0, BIT(31));
+	clrbits_le32(priv->mac_reg + EMAC_RX_CTL0, EMAC_RX_CTL0_RX_EN);
+	clrbits_le32(priv->mac_reg + EMAC_TX_CTL0, EMAC_TX_CTL0_TX_EN);
 
-	/* Stop TX DMA */
-	clrbits_le32(priv->mac_reg + EMAC_TX_CTL1, BIT(30));
+	/* Stop RX/TX DMA */
+	clrbits_le32(priv->mac_reg + EMAC_TX_CTL1, EMAC_TX_CTL1_TX_DMA_EN);
+	clrbits_le32(priv->mac_reg + EMAC_RX_CTL1, EMAC_RX_CTL1_RX_DMA_EN);
 
 	phy_shutdown(priv->phydev);
 }
@@ -855,47 +827,30 @@ static const struct eth_ops sun8i_emac_eth_ops = {
 	.stop                   = sun8i_emac_eth_stop,
 };
 
-static int sun8i_get_ephy_nodes(struct udevice *dev, struct emac_eth_dev *priv)
+static int sun8i_handle_internal_phy(struct udevice *dev, struct emac_eth_dev *priv)
 {
-	int emac_node, ephy_node, ret, ephy_handle;
+	struct ofnode_phandle_args phandle;
+	int ret;
 
-	emac_node = fdt_path_offset(gd->fdt_blob,
-				    "/soc/ethernet@1c30000");
-	if (emac_node < 0) {
-		debug("failed to get emac node\n");
-		return emac_node;
-	}
-	ephy_handle = fdtdec_lookup_phandle(gd->fdt_blob,
-					    emac_node, "phy-handle");
+	ret = ofnode_parse_phandle_with_args(dev_ofnode(dev), "phy-handle",
+					     NULL, 0, 0, &phandle);
+	if (ret)
+		return ret;
 
-	/* look for mdio-mux node for internal PHY node */
-	ephy_node = fdt_path_offset(gd->fdt_blob,
-				    "/soc/ethernet@1c30000/mdio-mux/mdio@1/ethernet-phy@1");
-	if (ephy_node < 0) {
-		debug("failed to get mdio-mux with internal PHY\n");
-		return ephy_node;
-	}
-
-	/* This is not the phy we are looking for */
-	if (ephy_node != ephy_handle)
+	/* If the PHY node is not a child of the internal MDIO bus, we are
+	 * using some external PHY.
+	 */
+	if (!ofnode_device_is_compatible(ofnode_get_parent(phandle.node),
+					 "allwinner,sun8i-h3-mdio-internal"))
 		return 0;
 
-	ret = fdt_node_check_compatible(gd->fdt_blob, ephy_node,
-					"allwinner,sun8i-h3-mdio-internal");
-	if (ret < 0) {
-		debug("failed to find mdio-internal node\n");
-		return ret;
-	}
-
-	ret = clk_get_by_index_nodev(offset_to_ofnode(ephy_node), 0,
-				     &priv->ephy_clk);
+	ret = clk_get_by_index_nodev(phandle.node, 0, &priv->ephy_clk);
 	if (ret) {
 		dev_err(dev, "failed to get EPHY TX clock\n");
 		return ret;
 	}
 
-	ret = reset_get_by_index_nodev(offset_to_ofnode(ephy_node), 0,
-				       &priv->ephy_rst);
+	ret = reset_get_by_index_nodev(phandle.node, 0, &priv->ephy_rst);
 	if (ret) {
 		dev_err(dev, "failed to get EPHY TX reset\n");
 		return ret;
@@ -987,7 +942,7 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	if (priv->variant == H3_EMAC) {
-		ret = sun8i_get_ephy_nodes(dev, priv);
+		ret = sun8i_handle_internal_phy(dev, priv);
 		if (ret)
 			return ret;
 	}

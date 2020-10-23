@@ -36,7 +36,7 @@ alias marex          Marek Vasut <marex@denx.de>
 alias mariosix       Mario Six <mario.six@gdsys.cc>
 alias masahiro       Masahiro Yamada <yamada.masahiro@socionext.com>
 alias mateusz        Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
-alias maxime         Maxime Ripard <maxime.ripard@free-electrons.com>
+alias maxime         Maxime Ripard <mripard@kernel.org>
 alias mbrugger       Matthias Brugger <mbrugger@suse.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
 alias prom           Minkyu Kang <mk7.kang@samsung.com>
