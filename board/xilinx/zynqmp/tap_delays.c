@@ -8,6 +8,7 @@
 #include <common.h>
 #include <asm/arch/sys_proto.h>
 #include <linux/delay.h>
+#include <mmc.h>
 
 #define SD_DLL_CTRL			0xFF180358
 #define SD_ITAP_DLY			0xFF180314
@@ -53,15 +54,6 @@
 #define SD1_OTAPDLYSEL_MMC_DDR50	0x00060000
 
 #define MMC_BANK2		0x2
-
-#define MMC_TIMING_UHS_SDR25		1
-#define MMC_TIMING_UHS_SDR50		2
-#define MMC_TIMING_UHS_SDR104		3
-#define MMC_TIMING_UHS_DDR50		4
-#define MMC_TIMING_MMC_HS200		5
-#define MMC_TIMING_SD_HS		6
-#define MMC_TIMING_MMC_DDR52		7
-#define MMC_TIMING_MMC_HS		8
 
 void zynqmp_dll_reset(u8 deviceid)
 {
