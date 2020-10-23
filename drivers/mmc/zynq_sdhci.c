@@ -539,7 +539,7 @@ static void arasan_sdhci_set_control_reg(struct sdhci_host *host)
 	}
 
 	if (mmc->selected_mode > SD_HS &&
-	    mmc->selected_mode <= UHS_DDR50)
+	    mmc->selected_mode <= MMC_HS_200)
 		sdhci_set_uhs_timing(host);
 }
 
