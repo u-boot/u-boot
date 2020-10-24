@@ -221,12 +221,13 @@ bool rkcommon_need_rc4_spl(struct image_tool_params *params)
 static void rkcommon_set_header0(void *buf, struct image_tool_params *params)
 {
 	struct header0_info *hdr = buf;
+	uint32_t init_boot_size;
 
 	memset(buf, '\0', RK_INIT_OFFSET * RK_BLK_SIZE);
-	hdr->signature = RK_SIGNATURE;
-	hdr->disable_rc4 = !rkcommon_need_rc4_spl(params);
-	hdr->init_offset = RK_INIT_OFFSET;
-	hdr->init_size = spl_params.init_size / RK_BLK_SIZE;
+	hdr->signature   = cpu_to_le32(RK_SIGNATURE);
+	hdr->disable_rc4 = cpu_to_le32(!rkcommon_need_rc4_spl(params));
+	hdr->init_offset = cpu_to_le16(RK_INIT_OFFSET);
+	hdr->init_size   = cpu_to_le16(spl_params.init_size / RK_BLK_SIZE);
 
 	/*
 	 * init_boot_size needs to be set, as it is read by the BootROM
@@ -237,11 +238,10 @@ static void rkcommon_set_header0(void *buf, struct image_tool_params *params)
 	 * for a more detailed explanation by Andy Yan
 	 */
 	if (spl_params.boot_file)
-		hdr->init_boot_size =
-			hdr->init_size + spl_params.boot_size / RK_BLK_SIZE;
+		init_boot_size = spl_params.init_size + spl_params.boot_size;
 	else
-		hdr->init_boot_size =
-			hdr->init_size + RK_MAX_BOOT_SIZE / RK_BLK_SIZE;
+		init_boot_size = spl_params.init_size + RK_MAX_BOOT_SIZE;
+	hdr->init_boot_size = cpu_to_le16(init_boot_size / RK_BLK_SIZE);
 
 	rc4_encode(buf, RK_BLK_SIZE, rc4_key);
 }
@@ -294,14 +294,14 @@ static int rkcommon_parse_header(const void *buf, struct header0_info *header0,
 	memcpy((void *)header0, buf, sizeof(struct header0_info));
 	rc4_encode((void *)header0, sizeof(struct header0_info), rc4_key);
 
-	if (header0->signature != RK_SIGNATURE)
+	if (le32_to_cpu(header0->signature) != RK_SIGNATURE)
 		return -EPROTO;
 
 	/* We don't support RC4 encoded image payloads here, yet... */
-	if (header0->disable_rc4 == 0)
+	if (le32_to_cpu(header0->disable_rc4) == 0)
 		return -ENOSYS;
 
-	hdr1_offset = header0->init_offset * RK_BLK_SIZE;
+	hdr1_offset = le16_to_cpu(header0->init_offset) * RK_BLK_SIZE;
 	hdr1_sdmmc = (struct header1_info *)(buf + hdr1_offset);
 	hdr1_spi = (struct header1_info *)(buf +
 					   rkcommon_offset_to_spi(hdr1_offset));
@@ -359,7 +359,7 @@ void rkcommon_print_header(const void *buf)
 	struct header0_info header0;
 	struct spl_info *spl_info;
 	uint8_t image_type;
-	int ret, boot_size;
+	int ret, boot_size, init_size;
 
 	ret = rkcommon_parse_header(buf, &header0, &spl_info);
 
@@ -377,9 +377,10 @@ void rkcommon_print_header(const void *buf)
 	printf("Image Type:   Rockchip %s (%s) boot image\n",
 	       spl_info->spl_hdr,
 	       (image_type == IH_TYPE_RKSD) ? "SD/MMC" : "SPI");
-	printf("Init Data Size: %d bytes\n", header0.init_size * RK_BLK_SIZE);
+	init_size = le16_to_cpu(header0.init_size) * RK_BLK_SIZE;
+	printf("Init Data Size: %d bytes\n", init_size);
 
-	boot_size = (header0.init_boot_size - header0.init_size) * RK_BLK_SIZE;
+	boot_size = le16_to_cpu(header0.init_boot_size) * RK_BLK_SIZE - init_size;
 	if (boot_size != RK_MAX_BOOT_SIZE)
 		printf("Boot Data Size: %d bytes\n", boot_size);
 }
