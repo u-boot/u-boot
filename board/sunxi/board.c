@@ -320,7 +320,6 @@ static struct boot_file_head * get_spl_header(uint8_t req_version)
 	return spl;
 }
 
-#ifdef CONFIG_SPL_LOAD_FIT
 static const char *get_spl_dt_name(void)
 {
 	struct boot_file_head *spl = get_spl_header(SPL_DT_HEADER_VERSION);
@@ -331,7 +330,6 @@ static const char *get_spl_dt_name(void)
 
 	return NULL;
 }
-#endif
 
 int dram_init(void)
 {
@@ -857,6 +855,7 @@ static void setup_environment(const void *fdt)
 
 int misc_init_r(void)
 {
+	const char *spl_dt_name;
 	uint boot;
 
 	env_set("fel_booted", NULL);
@@ -873,6 +872,16 @@ int misc_init_r(void)
 		env_set("mmc_bootdev", "0");
 	} else if (boot == BOOT_DEVICE_MMC2) {
 		env_set("mmc_bootdev", "1");
+	}
+
+	/* Set fdtfile to match the FIT configuration chosen in SPL. */
+	spl_dt_name = get_spl_dt_name();
+	if (spl_dt_name) {
+		char *prefix = IS_ENABLED(CONFIG_ARM64) ? "allwinner/" : "";
+		char str[64];
+
+		snprintf(str, sizeof(str), "%s%s.dtb", prefix, spl_dt_name);
+		env_set("fdtfile", str);
 	}
 
 	setup_environment(gd->fdt_blob);
