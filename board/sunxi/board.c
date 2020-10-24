@@ -916,14 +916,10 @@ int board_fit_config_name_match(const char *name)
 		return 0;
 	}
 #ifdef CONFIG_PINE64_DT_SELECTION
-/* Differentiate the two Pine64 board DTs by their DRAM size. */
-	if (strstr(name, "-pine64") && strstr(best_dt_name, "-pine64")) {
-		if ((gd->ram_size > 512 * 1024 * 1024))
-			return !strstr(name, "plus");
-		else
-			return !!strstr(name, "plus");
-	} else {
-		return strcmp(name, best_dt_name);
+	if (strstr(best_dt_name, "-pine64-plus")) {
+		/* Differentiate the Pine A64 boards by their DRAM size. */
+		if ((gd->ram_size == 512 * 1024 * 1024))
+			best_dt_name = "sun50i-a64-pine64";
 	}
 #endif
 	return strcmp(name, best_dt_name);
