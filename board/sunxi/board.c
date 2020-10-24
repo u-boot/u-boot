@@ -319,6 +319,19 @@ static struct boot_file_head * get_spl_header(uint8_t req_version)
 	return spl;
 }
 
+#ifdef CONFIG_SPL_LOAD_FIT
+static const char *get_spl_dt_name(void)
+{
+	struct boot_file_head *spl = get_spl_header(SPL_DT_HEADER_VERSION);
+
+	/* Check if there is a DT name stored in the SPL header. */
+	if (spl != INVALID_SPL_HEADER && spl->dt_name_offset)
+		return (char *)spl + spl->dt_name_offset;
+
+	return NULL;
+}
+#endif
+
 int dram_init(void)
 {
 	struct boot_file_head *spl = get_spl_header(SPL_DRAM_HEADER_VERSION);
@@ -891,20 +904,17 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
-	struct boot_file_head *spl = get_spl_header(SPL_DT_HEADER_VERSION);
-	const char *best_dt_name = (const char *)spl;
+	const char *best_dt_name = get_spl_dt_name();
 
-	/* Check if there is a DT name stored in the SPL header and use that. */
-	if (spl != INVALID_SPL_HEADER && spl->dt_name_offset) {
-		best_dt_name += spl->dt_name_offset;
-	} else {
 #ifdef CONFIG_DEFAULT_DEVICE_TREE
+	if (best_dt_name == NULL)
 		best_dt_name = CONFIG_DEFAULT_DEVICE_TREE;
-#else
-		return 0;
 #endif
-	};
 
+	if (best_dt_name == NULL) {
+		/* No DT name was provided, so accept the first config. */
+		return 0;
+	}
 #ifdef CONFIG_PINE64_DT_SELECTION
 /* Differentiate the two Pine64 board DTs by their DRAM size. */
 	if (strstr(name, "-pine64") && strstr(best_dt_name, "-pine64")) {
