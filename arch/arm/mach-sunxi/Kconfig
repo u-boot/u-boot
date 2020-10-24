@@ -1010,4 +1010,11 @@ config PINE64_DT_SELECTION
 	  option, the device tree selection code specific to Pine64 which
 	  utilizes the DRAM size will be enabled.
 
+config PINEPHONE_DT_SELECTION
+	bool "Enable PinePhone device tree selection code"
+	depends on MACH_SUN50I
+	help
+	  Enable this option to automatically select the device tree for the
+	  correct PinePhone hardware revision during boot.
+
 endif

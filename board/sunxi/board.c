@@ -27,6 +27,7 @@
 #include <asm/arch/dram.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
+#include <asm/arch/prcm.h>
 #include <asm/arch/spl.h>
 #include <linux/delay.h>
 #include <u-boot/crc.h>
@@ -922,6 +923,26 @@ int board_fit_config_name_match(const char *name)
 			best_dt_name = "sun50i-a64-pine64";
 	}
 #endif
+#ifdef CONFIG_PINEPHONE_DT_SELECTION
+	if (strstr(best_dt_name, "-pinephone")) {
+		/* Differentiate the PinePhone revisions by GPIO inputs. */
+		prcm_apb0_enable(PRCM_APB0_GATE_PIO);
+		sunxi_gpio_set_pull(SUNXI_GPL(6), SUNXI_GPIO_PULL_UP);
+		sunxi_gpio_set_cfgpin(SUNXI_GPL(6), SUNXI_GPIO_INPUT);
+		udelay(100);
+
+		/* PL6 is pulled low by the modem on v1.2. */
+		if (gpio_get_value(SUNXI_GPL(6)) == 0)
+			best_dt_name = "sun50i-a64-pinephone-1.2";
+		else
+			best_dt_name = "sun50i-a64-pinephone-1.1";
+
+		sunxi_gpio_set_cfgpin(SUNXI_GPL(6), SUNXI_GPIO_DISABLE);
+		sunxi_gpio_set_pull(SUNXI_GPL(6), SUNXI_GPIO_PULL_DISABLE);
+		prcm_apb0_disable(PRCM_APB0_GATE_PIO);
+	}
+#endif
+
 	return strcmp(name, best_dt_name);
 }
 #endif
