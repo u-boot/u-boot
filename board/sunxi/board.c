@@ -903,9 +903,26 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 }
 
 #ifdef CONFIG_SPL_LOAD_FIT
+
+static void set_spl_dt_name(const char *name)
+{
+	struct boot_file_head *spl = get_spl_header(SPL_ENV_HEADER_VERSION);
+
+	if (spl == INVALID_SPL_HEADER)
+		return;
+
+	/* Promote the header version for U-Boot proper, if needed. */
+	if (spl->spl_signature[3] < SPL_DT_HEADER_VERSION)
+		spl->spl_signature[3] = SPL_DT_HEADER_VERSION;
+
+	strcpy((char *)&spl->string_pool, name);
+	spl->dt_name_offset = offsetof(struct boot_file_head, string_pool);
+}
+
 int board_fit_config_name_match(const char *name)
 {
 	const char *best_dt_name = get_spl_dt_name();
+	int ret;
 
 #ifdef CONFIG_DEFAULT_DEVICE_TREE
 	if (best_dt_name == NULL)
@@ -943,6 +960,15 @@ int board_fit_config_name_match(const char *name)
 	}
 #endif
 
-	return strcmp(name, best_dt_name);
+	ret = strcmp(name, best_dt_name);
+
+	/*
+	 * If one of the FIT configurations matches the most accurate DT name,
+	 * update the SPL header to provide that DT name to U-Boot proper.
+	 */
+	if (ret == 0)
+		set_spl_dt_name(best_dt_name);
+
+	return ret;
 }
 #endif
