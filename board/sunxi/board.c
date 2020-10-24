@@ -892,14 +892,14 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 int board_fit_config_name_match(const char *name)
 {
 	struct boot_file_head *spl = get_spl_header(SPL_DT_HEADER_VERSION);
-	const char *cmp_str = (const char *)spl;
+	const char *best_dt_name = (const char *)spl;
 
 	/* Check if there is a DT name stored in the SPL header and use that. */
 	if (spl != INVALID_SPL_HEADER && spl->dt_name_offset) {
-		cmp_str += spl->dt_name_offset;
+		best_dt_name += spl->dt_name_offset;
 	} else {
 #ifdef CONFIG_DEFAULT_DEVICE_TREE
-		cmp_str = CONFIG_DEFAULT_DEVICE_TREE;
+		best_dt_name = CONFIG_DEFAULT_DEVICE_TREE;
 #else
 		return 0;
 #endif
@@ -907,15 +907,15 @@ int board_fit_config_name_match(const char *name)
 
 #ifdef CONFIG_PINE64_DT_SELECTION
 /* Differentiate the two Pine64 board DTs by their DRAM size. */
-	if (strstr(name, "-pine64") && strstr(cmp_str, "-pine64")) {
+	if (strstr(name, "-pine64") && strstr(best_dt_name, "-pine64")) {
 		if ((gd->ram_size > 512 * 1024 * 1024))
 			return !strstr(name, "plus");
 		else
 			return !!strstr(name, "plus");
 	} else {
-		return strcmp(name, cmp_str);
+		return strcmp(name, best_dt_name);
 	}
 #endif
-	return strcmp(name, cmp_str);
+	return strcmp(name, best_dt_name);
 }
 #endif
