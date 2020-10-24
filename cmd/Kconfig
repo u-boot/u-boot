@@ -1025,6 +1025,14 @@ config CMD_LSBLK
 	  Print list of available block device drivers, and for each, the list
 	  of known block devices.
 
+config CMD_MISC
+	bool "misc"
+	depends on MISC
+	help
+	  Enable the command "misc" for accessing miscellaneous devices with
+	  a MISC uclass driver. The command provides listing all MISC devices
+	  as well as read and write functionalities via their drivers.
+
 config CMD_MMC
 	bool "mmc"
 	help
@@ -1708,8 +1716,7 @@ config CMD_RNG
 	help
 	  Print bytes from the hardware random number generator.
 
-# TODO: rename to CMD_SLEEP
-config CMD_MISC
+config CMD_SLEEP
 	bool "sleep"
 	default y
 	help

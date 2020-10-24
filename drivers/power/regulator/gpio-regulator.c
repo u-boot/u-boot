@@ -18,8 +18,6 @@
 
 #define GPIO_REGULATOR_MAX_STATES	2
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct gpio_regulator_platdata {
 	struct regulator_common_platdata common;
 	struct gpio_desc gpio; /* GPIO for regulator voltage control */
@@ -32,10 +30,8 @@ static int gpio_regulator_ofdata_to_platdata(struct udevice *dev)
 	struct dm_regulator_uclass_platdata *uc_pdata;
 	struct gpio_regulator_platdata *dev_pdata;
 	struct gpio_desc *gpio;
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(dev);
 	int ret, count, i, j;
-	u32 states_array[8];
+	u32 states_array[GPIO_REGULATOR_MAX_STATES * 2];
 
 	dev_pdata = dev_get_platdata(dev);
 	uc_pdata = dev_get_uclass_platdata(dev);
@@ -57,11 +53,20 @@ static int gpio_regulator_ofdata_to_platdata(struct udevice *dev)
 	if (ret)
 		debug("regulator gpio - not found! Error: %d", ret);
 
-	count = fdtdec_get_int_array_count(blob, node, "states",
-					   states_array, 8);
+	ret = dev_read_size(dev, "states");
+	if (ret < 0)
+		return ret;
 
-	if (!count)
-		return -EINVAL;
+	count = ret / sizeof(states_array[0]);
+	if (count > ARRAY_SIZE(states_array)) {
+		debug("regulator gpio - to many states (%d > %d)",
+		      count / 2, GPIO_REGULATOR_MAX_STATES);
+		count = ARRAY_SIZE(states_array);
+	}
+
+	ret = dev_read_u32_array(dev, "states", states_array, count);
+	if (ret < 0)
+		return ret;
 
 	for (i = 0, j = 0; i < count; i += 2) {
 		dev_pdata->voltages[j] = states_array[i];
