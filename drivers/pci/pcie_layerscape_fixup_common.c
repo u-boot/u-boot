@@ -99,6 +99,8 @@ int lx2_board_fix_fdt(void *fdt)
 		if (!prop) {
 			printf("%s: Failed to fixup PCIe EP node @0x%x\n",
 			       __func__, off);
+			off = fdt_node_offset_by_compatible(fdt, off,
+							    "fsl,lx2160a-pcie-ep");
 			continue;
 		}
 
