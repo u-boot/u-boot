@@ -220,10 +220,12 @@ class Entry_section(Entry):
             if (entry.offset < self._skip_at_start or
                     entry.offset + entry.size > self._skip_at_start +
                     self.size):
-                entry.Raise("Offset %#x (%d) is outside the section starting "
-                            "at %#x (%d)" %
-                            (entry.offset, entry.offset, self._skip_at_start,
-                             self._skip_at_start))
+                entry.Raise('Offset %#x (%d) size %#x (%d) is outside the '
+                            "section '%s' starting at %#x (%d) "
+                            'of size %#x (%d)' %
+                            (entry.offset, entry.offset, entry.size, entry.size,
+                             self._node.path, self._skip_at_start,
+                             self._skip_at_start, self.size, self.size))
             if entry.offset < offset and entry.size:
                 entry.Raise("Offset %#x (%d) overlaps with previous entry '%s' "
                             "ending at %#x (%d)" %

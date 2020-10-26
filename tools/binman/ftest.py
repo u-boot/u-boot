@@ -970,8 +970,9 @@ class TestFunctional(unittest.TestCase):
         """Test that the end-at-4gb property checks for offset boundaries"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('028_pack_4gb_outside.dts')
-        self.assertIn("Node '/binman/u-boot': Offset 0x0 (0) is outside "
-                      "the section starting at 0xffffffe0 (4294967264)",
+        self.assertIn("Node '/binman/u-boot': Offset 0x0 (0) size 0x4 (4) "
+                      "is outside the section '/binman' starting at "
+                      '0xffffffe0 (4294967264) of size 0x20 (32)',
                       str(e.exception))
 
     def testPackX86Rom(self):
