@@ -56,7 +56,7 @@ class Entry_section(Entry):
         self._end_4gb = False
 
     def ReadNode(self):
-        """Read properties from the image node"""
+        """Read properties from the section node"""
         super().ReadNode()
         self._pad_byte = fdt_util.GetInt(self._node, 'pad-byte', 0)
         self._sort = fdt_util.GetBool(self._node, 'sort-by-offset')
@@ -183,7 +183,7 @@ class Entry_section(Entry):
         return super().Pack(offset)
 
     def _PackEntries(self):
-        """Pack all entries into the image"""
+        """Pack all entries into the section"""
         offset = self._skip_at_start
         for entry in self._entries.values():
             offset = entry.Pack(offset)
@@ -209,7 +209,7 @@ class Entry_section(Entry):
             self._entries[entry._node.name] = entry
 
     def CheckEntries(self):
-        """Check that entries do not overlap or extend outside the image"""
+        """Check that entries do not overlap or extend outside the section"""
         if self._sort:
             self._SortEntries()
         self._ExpandEntries()
@@ -456,7 +456,7 @@ class Entry_section(Entry):
 
 
     def CheckSize(self):
-        """Check that the image contents does not exceed its size, etc."""
+        """Check that the section contents does not exceed its size, etc."""
         contents_size = 0
         for entry in self._entries.values():
             contents_size = max(contents_size, entry.offset + entry.size)
