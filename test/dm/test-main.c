@@ -30,7 +30,8 @@ static int dm_test_init(struct unit_test_state *uts, bool of_live)
 
 	memset(dms, '\0', sizeof(*dms));
 	gd->dm_root = NULL;
-	memset(dm_testdrv_op_count, '\0', sizeof(dm_testdrv_op_count));
+	if (!CONFIG_IS_ENABLED(OF_PLATDATA))
+		memset(dm_testdrv_op_count, '\0', sizeof(dm_testdrv_op_count));
 	state_reset_for_test(state_get_current());
 
 	/* Determine whether to make the live tree available */
@@ -91,7 +92,8 @@ static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 		ut_assertok(dm_scan_platdata(false));
 	if (test->flags & UT_TESTF_PROBE_TEST)
 		ut_assertok(do_autoprobe(uts));
-	if (test->flags & UT_TESTF_SCAN_FDT)
+	if (!CONFIG_IS_ENABLED(OF_PLATDATA) &&
+	    (test->flags & UT_TESTF_SCAN_FDT))
 		ut_assertok(dm_extended_scan_fdt(gd->fdt_blob, false));
 
 	/*
@@ -136,14 +138,16 @@ static int dm_test_main(const char *test_name)
 	uts->priv = &_global_priv_dm_test_state;
 	uts->fail_count = 0;
 
-	/*
-	 * If we have no device tree, or it only has a root node, then these
-	 * tests clearly aren't going to work...
-	 */
-	if (!gd->fdt_blob || fdt_next_node(gd->fdt_blob, 0, NULL) < 0) {
-		puts("Please run with test device tree:\n"
-		     "    ./u-boot -d arch/sandbox/dts/test.dtb\n");
-		ut_assert(gd->fdt_blob);
+	if (!CONFIG_IS_ENABLED(OF_PLATDATA)) {
+		/*
+		 * If we have no device tree, or it only has a root node, then
+		 * these * tests clearly aren't going to work...
+		 */
+		if (!gd->fdt_blob || fdt_next_node(gd->fdt_blob, 0, NULL) < 0) {
+			puts("Please run with test device tree:\n"
+			     "    ./u-boot -d arch/sandbox/dts/test.dtb\n");
+			ut_assert(gd->fdt_blob);
+		}
 	}
 
 	if (!test_name)
@@ -192,7 +196,8 @@ static int dm_test_main(const char *test_name)
 	gd->dm_root = NULL;
 	ut_assertok(dm_init(CONFIG_IS_ENABLED(OF_LIVE)));
 	dm_scan_platdata(false);
-	dm_scan_fdt(gd->fdt_blob, false);
+	if (!CONFIG_IS_ENABLED(OF_PLATDATA))
+		dm_scan_fdt(gd->fdt_blob, false);
 
 	return uts->fail_count ? CMD_RET_FAILURE : 0;
 }
