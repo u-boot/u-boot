@@ -62,7 +62,7 @@
 					       &cpu2_intc 3 &cpu2_intc 7
 					       &cpu3_intc 3 &cpu3_intc 7
 					       &cpu4_intc 3 &cpu4_intc 7>;
-			reg = <0x0 0x2000000 0x0 0xc0000>;
+			reg = <0x0 0x2000000 0x0 0x10000>;
 			u-boot,dm-spl;
 		};
 		prci: clock-controller@10000000 {

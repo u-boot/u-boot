@@ -471,8 +471,7 @@ cleanup_gate:
 cleanup_div:
 	free(div);
 cleanup_mux:
-	if (mux)
-		free(mux);
+	free(mux);
 	return comp;
 }
 

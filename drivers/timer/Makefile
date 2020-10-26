@@ -5,6 +5,7 @@
 obj-y += timer-uclass.o
 obj-$(CONFIG_AG101P_TIMER) += ag101p_timer.o
 obj-$(CONFIG_ALTERA_TIMER)	+= altera_timer.o
+obj-$(CONFIG_ANDES_PLMT_TIMER) += andes_plmt_timer.o
 obj-$(CONFIG_ARC_TIMER)	+= arc_timer.o
 obj-$(CONFIG_AST_TIMER)	+= ast_timer.o
 obj-$(CONFIG_ATCPIT100_TIMER) += atcpit100_timer.o
@@ -18,6 +19,7 @@ obj-$(CONFIG_RENESAS_OSTM_TIMER) += ostm_timer.o
 obj-$(CONFIG_RISCV_TIMER) += riscv_timer.o
 obj-$(CONFIG_ROCKCHIP_TIMER) += rockchip_timer.o
 obj-$(CONFIG_SANDBOX_TIMER)	+= sandbox_timer.o
+obj-$(CONFIG_SIFIVE_CLINT) += sifive_clint_timer.o
 obj-$(CONFIG_STI_TIMER)		+= sti-timer.o
 obj-$(CONFIG_STM32_TIMER)	+= stm32_timer.o
 obj-$(CONFIG_X86_TSC_TIMER)	+= tsc_timer.o

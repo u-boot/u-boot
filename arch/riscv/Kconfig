@@ -170,13 +170,6 @@ config ANDES_PLIC
 	  The Andes PLIC block holds memory-mapped claim and pending registers
 	  associated with software interrupt.
 
-config ANDES_PLMT
-	bool
-	depends on RISCV_MMODE || SPL_RISCV_MMODE
-	help
-	  The Andes PLMT block holds memory-mapped mtime register
-	  associated with timer tick.
-
 config SYS_MALLOC_F_LEN
 	default 0x1000
 
@@ -272,6 +265,6 @@ config STACK_SIZE_SHIFT
 	default 14
 
 config OF_BOARD_FIXUP
-	default y if OF_SEPARATE
+	default y if OF_SEPARATE && RISCV_SMODE
 
 endmenu

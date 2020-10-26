@@ -200,8 +200,8 @@
 			dma-channels = <6>;
 			snps,dma-masters = <2>;
 			snps,data-width = <5>;
-			snps,block-size = <0x400000 0x400000 0x400000
-					   0x400000 0x400000 0x400000>;
+			snps,block-size = <0x200000 0x200000 0x200000
+					   0x200000 0x200000 0x200000>;
 			snps,axi-max-burst-len = <256>;
 			status = "disabled";
 		};

@@ -53,6 +53,13 @@ config ALTERA_TIMER
 	  Select this to enable a timer for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
+config ANDES_PLMT_TIMER
+	bool
+	depends on RISCV_MMODE || SPL_RISCV_MMODE
+	help
+	  The Andes PLMT block holds memory-mapped mtime register
+	  associated with timer tick.
+
 config ARC_TIMER
 	bool "ARC timer support"
 	depends on TIMER && ARC && CLK
