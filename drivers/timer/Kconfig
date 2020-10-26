@@ -53,7 +53,7 @@ config ALTERA_TIMER
 	  Select this to enable a timer for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
-config ANDES_PLMT
+config ANDES_PLMT_TIMER
 	bool
 	depends on RISCV_MMODE || SPL_RISCV_MMODE
 	help
