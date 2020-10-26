@@ -437,6 +437,12 @@ class Entry(object):
         return self._node.path
 
     def GetData(self):
+        """Get the contents of an entry
+
+        Returns:
+            bytes content of the entry, excluding any padding. If the entry is
+                compressed, the compressed data is returned
+        """
         self.Detail('GetData: size %s' % ToHexSize(self.data))
         return self.data
 

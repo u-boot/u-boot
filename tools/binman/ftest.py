@@ -1822,6 +1822,8 @@ class TestFunctional(unittest.TestCase):
         orig = self._decompress(entry.data)
         self.assertEqual(orig, entry.uncomp_data)
 
+        self.assertEqual(image.data, entry.data)
+
         expected = {
             'blob:uncomp-size': len(COMPRESS_DATA),
             'blob:size': len(data),
@@ -3890,7 +3892,7 @@ class TestFunctional(unittest.TestCase):
         section = entries['section']
         self.assertEqual(0, section.offset)
         self.assertEqual(len(all), section.size)
-        self.assertIsNone(section.data)
+        self.assertEqual(U_BOOT_DATA, section.data)
         self.assertEqual(all, section.GetPaddedData())
 
         entry = section.GetEntries()['u-boot']

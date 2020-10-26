@@ -226,7 +226,19 @@ class Entry_section(Entry):
         return section.GetPaddedDataForEntry(self)
 
     def GetData(self):
-        return self._BuildSectionData()
+        """Get the contents of an entry
+
+        This builds the contents of the section, stores this as the contents of
+        the section and returns it
+
+        Returns:
+            bytes content of the section, made up for all all of its subentries.
+            This excludes any padding. If the section is compressed, the
+            compressed data is returned
+        """
+        data = self._BuildSectionData()
+        self.SetContents(data)
+        return data
 
     def GetOffsets(self):
         """Handle entries that want to set the offset/size of other entries
