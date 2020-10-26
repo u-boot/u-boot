@@ -299,7 +299,7 @@ Entry: files: Entry containing a set of files
 
 Properties / Entry arguments:
     - pattern: Filename pattern to match the files to include
-    - compress: Compression algorithm to use:
+    - files-compress: Compression algorithm to use:
         none: No compression
         lz4: Use lz4 compression (via 'lz4' command-line utility)
 

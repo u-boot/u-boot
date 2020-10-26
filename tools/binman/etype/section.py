@@ -160,7 +160,7 @@ class Entry_section(Entry):
                 section_data += tools.GetBytes(self._pad_byte, pad)
         self.Detail('GetData: %d entries, total size %#x' %
                     (len(self._entries), len(section_data)))
-        return section_data
+        return self.CompressData(section_data)
 
     def GetOffsets(self):
         """Handle entries that want to set the offset/size of other entries
@@ -414,7 +414,7 @@ class Entry_section(Entry):
         return None
 
     def GetEntryContents(self):
-        """Call ObtainContents() for the section
+        """Call ObtainContents() for each entry in the section
         """
         todo = self._entries.values()
         for passnum in range(3):
