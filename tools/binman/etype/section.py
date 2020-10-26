@@ -165,14 +165,14 @@ class Entry_section(Entry):
         data = b''
         # Handle padding before the entry
         if entry.pad_before:
-            data += tools.GetBytes(pad_byte, entry.pad_before)
+            data += tools.GetBytes(self._pad_byte, entry.pad_before)
 
         # Add in the actual entry data
         data += entry.GetData()
 
         # Handle padding after the entry
         if entry.pad_after:
-            data += tools.GetBytes(pad_byte, entry.pad_after)
+            data += tools.GetBytes(self._pad_byte, entry.pad_after)
 
         if entry.size:
             data += tools.GetBytes(pad_byte, entry.size - len(data))

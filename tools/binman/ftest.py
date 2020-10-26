@@ -3886,5 +3886,28 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(len(U_BOOT_DATA), entry.size)
         self.assertEqual(U_BOOT_DATA, entry.data)
 
+    def testSectionPad(self):
+        """Testing padding with sections"""
+        data = self._DoReadFile('180_section_pad.dts')
+        expected = (tools.GetBytes(ord('&'), 3) +
+                    tools.GetBytes(ord('!'), 5) +
+                    U_BOOT_DATA +
+                    tools.GetBytes(ord('!'), 1) +
+                    tools.GetBytes(ord('&'), 2))
+        self.assertEqual(expected, data)
+
+    def testSectionAlign(self):
+        """Testing alignment with sections"""
+        data = self._DoReadFileDtb('181_section_align.dts', map=True)[0]
+        expected = (b'\0' +                         # fill section
+                    tools.GetBytes(ord('&'), 1) +   # padding to section align
+                    b'\0' +                         # fill section
+                    tools.GetBytes(ord('!'), 3) +   # padding to u-boot align
+                    U_BOOT_DATA +
+                    tools.GetBytes(ord('!'), 4) +   # padding to u-boot size
+                    tools.GetBytes(ord('!'), 4))    # padding to section size
+        self.assertEqual(expected, data)
+
+
 if __name__ == "__main__":
     unittest.main()
