@@ -939,6 +939,7 @@ T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-riscv.git
 F:	arch/riscv/
 F:	cmd/riscv/
 F:	drivers/timer/andes_plmt_timer.c
+F:	drivers/timer/sifive_clint_timer.c
 F:	tools/prelink-riscv.c
 
 RISC-V KENDRYTE
