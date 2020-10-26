@@ -712,40 +712,38 @@ size of an entry. The 'current' image offset is passed in, and the function
 returns the offset immediately after the entry being packed. The default
 implementation of Pack() is usually sufficient.
 
-Note: for sections, this also sets the size of the entry to be large enough
-for all entries it contains.
+Note: for sections, this also checks that the entries do not overlap, nor extend
+outside the section. If the section does not have a defined size, the size is
+set large enough to hold all the entries.
 
-6. CheckEntries() - checks that the entries do not overlap, nor extend
-outside the image.
-
-7. SetImagePos() - sets the image position of every entry. This is the absolute
+6. SetImagePos() - sets the image position of every entry. This is the absolute
 position 'image-pos', as opposed to 'offset' which is relative to the containing
 section. This must be done after all offsets are known, which is why it is quite
 late in the ordering.
 
-8. SetCalculatedProperties() - update any calculated properties in the device
+7. SetCalculatedProperties() - update any calculated properties in the device
 tree. This sets the correct 'offset' and 'size' vaues, for example.
 
-9. ProcessEntryContents() - this calls Entry.ProcessContents() on each entry.
+8. ProcessEntryContents() - this calls Entry.ProcessContents() on each entry.
 The default implementatoin does nothing. This can be overriden to adjust the
 contents of an entry in some way. For example, it would be possible to create
 an entry containing a hash of the contents of some other entries. At this
 stage the offset and size of entries should not be adjusted unless absolutely
 necessary, since it requires a repack (going back to PackEntries()).
 
-10. ResetForPack() - if the ProcessEntryContents() step failed, in that an entry
+9. ResetForPack() - if the ProcessEntryContents() step failed, in that an entry
 has changed its size, then there is no alternative but to go back to step 5 and
 try again, repacking the entries with the updated size. ResetForPack() removes
 the fixed offset/size values added by binman, so that the packing can start from
 scratch.
 
-11. WriteSymbols() - write the value of symbols into the U-Boot SPL binary.
+10. WriteSymbols() - write the value of symbols into the U-Boot SPL binary.
 See 'Access to binman entry offsets at run time' below for a description of
 what happens in this stage.
 
-12. BuildImage() - builds the image and writes it to a file
+11. BuildImage() - builds the image and writes it to a file
 
-13. WriteMap() - writes a text file containing a map of the image. This is the
+12. WriteMap() - writes a text file containing a map of the image. This is the
 final step.
 
 

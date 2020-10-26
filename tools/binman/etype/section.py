@@ -267,7 +267,9 @@ class Entry_section(Entry):
         size = self.CheckSize()
         self.size = size
 
-        return super().Pack(offset)
+        offset = super().Pack(offset)
+        self.CheckEntries()
+        return offset
 
     def _PackEntries(self):
         """Pack all entries into the section"""

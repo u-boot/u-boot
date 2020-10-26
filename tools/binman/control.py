@@ -513,7 +513,6 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     for pack_pass in range(passes):
         try:
             image.PackEntries()
-            image.CheckEntries()
         except Exception as e:
             if write_map:
                 fname = image.WriteMap()
