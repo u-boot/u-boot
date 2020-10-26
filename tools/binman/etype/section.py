@@ -159,17 +159,23 @@ class Entry_section(Entry):
             Contents of the entry along with any pad bytes before and
             after it (bytes)
         """
+        pad_byte = (entry._pad_byte if isinstance(entry, Entry_section)
+                    else self._pad_byte)
+
         data = b''
         # Handle padding before the entry
         if entry.pad_before:
-            data += tools.GetBytes(self._pad_byte, entry.pad_before)
+            data += tools.GetBytes(pad_byte, entry.pad_before)
 
         # Add in the actual entry data
         data += entry.GetData()
 
         # Handle padding after the entry
         if entry.pad_after:
-            data += tools.GetBytes(self._pad_byte, entry.pad_after)
+            data += tools.GetBytes(pad_byte, entry.pad_after)
+
+        if entry.size:
+            data += tools.GetBytes(pad_byte, entry.size - len(data))
 
         self.Detail('GetPaddedDataForEntry: size %s' % ToHexSize(self.data))
 
@@ -198,9 +204,6 @@ class Entry_section(Entry):
             # Add in the actual entry data
             section_data += data
 
-        if self.size:
-            section_data += tools.GetBytes(self._pad_byte,
-                                           self.size - len(section_data))
         self.Detail('GetData: %d entries, total size %#x' %
                     (len(self._entries), len(section_data)))
         return self.CompressData(section_data)
@@ -219,9 +222,8 @@ class Entry_section(Entry):
             Contents of the section along with any pad bytes before and
             after it (bytes)
         """
-        if self.section:
-            return super().GetPaddedData()
-        return self.GetData()
+        section = self.section or self
+        return section.GetPaddedDataForEntry(self)
 
     def GetData(self):
         return self._BuildSectionData()

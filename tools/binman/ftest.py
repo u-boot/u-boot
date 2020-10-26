@@ -708,7 +708,6 @@ class TestFunctional(unittest.TestCase):
         """Test a simple binman run with debugging enabled"""
         self._DoTestFile('005_simple.dts', debug=True)
 
-    @unittest.skip('Disable for now until padding of images is supported')
     def testDual(self):
         """Test that we can handle creating two images
 
@@ -3872,9 +3871,7 @@ class TestFunctional(unittest.TestCase):
         before = tools.GetBytes(0, 8)
         after = tools.GetBytes(0, 4)
         all = before + U_BOOT_DATA + after
-
-        # This is not correct, but it is what binman currently produces
-        self.assertEqual(before + U_BOOT_DATA + tools.GetBytes(0, 16), data)
+        self.assertEqual(all, data)
 
         image = control.images['image']
         entries = image.GetEntries()
@@ -3882,6 +3879,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(0, section.offset)
         self.assertEqual(len(all), section.size)
         self.assertIsNone(section.data)
+        self.assertEqual(all, section.GetPaddedData())
 
         entry = section.GetEntries()['u-boot']
         self.assertEqual(16, entry.offset)
