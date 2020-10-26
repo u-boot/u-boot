@@ -56,6 +56,8 @@ static int v3s_clk_bind(struct udevice *dev)
 static const struct udevice_id v3s_clk_ids[] = {
 	{ .compatible = "allwinner,sun8i-v3s-ccu",
 	  .data = (ulong)&v3s_ccu_desc },
+	{ .compatible = "allwinner,sun8i-v3-ccu",
+	  .data = (ulong)&v3s_ccu_desc },
 	{ }
 };
 
