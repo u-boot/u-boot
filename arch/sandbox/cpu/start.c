@@ -374,6 +374,15 @@ static int sandbox_cmdline_cb_show_of_platdata(struct sandbox_state *state,
 }
 SANDBOX_CMDLINE_OPT(show_of_platdata, 0, "Show of-platdata in SPL");
 
+static int sandbox_cmdline_cb_unittests(struct sandbox_state *state,
+					const char *arg)
+{
+	state->run_unittests = true;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(unittests, 'u', 0, "Run unit tests");
+
 static void setup_ram_buf(struct sandbox_state *state)
 {
 	/* Zero the RAM buffer if we didn't read it, to keep valgrind happy */

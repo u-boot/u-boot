@@ -127,7 +127,7 @@ static bool dm_test_run_on_flattree(struct unit_test *test)
 	return !strstr(fname, "video") || strstr(test->name, "video_base");
 }
 
-static int dm_test_main(const char *test_name)
+int dm_test_main(const char *test_name)
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test, dm_test);
 	const int n_ents = ll_entry_count(struct unit_test, dm_test);

@@ -12,6 +12,7 @@
 #include <spl.h>
 #include <asm/spl.h>
 #include <asm/state.h>
+#include <test/test.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -66,6 +67,13 @@ void spl_board_init(void)
 		     dev;
 		     uclass_next_device(&dev))
 			;
+	}
+
+	if (state->run_unittests) {
+		int ret;
+
+		ret = dm_test_main(NULL);
+		/* continue execution into U-Boot */
 	}
 }
 
