@@ -520,7 +520,7 @@ class Entry(object):
         """
         pass
 
-    def CheckOffset(self):
+    def CheckEntries(self):
         """Check that the entry offsets are correct
 
         This is used for entries which have extra offset requirements (other

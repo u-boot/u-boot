@@ -296,7 +296,7 @@ class Entry_section(Entry):
         offset = 0
         prev_name = 'None'
         for entry in self._entries.values():
-            entry.CheckOffset()
+            entry.CheckEntries()
             if (entry.offset < self._skip_at_start or
                     entry.offset + entry.size > self._skip_at_start +
                     self.size):
@@ -336,9 +336,6 @@ class Entry_section(Entry):
             if not entry.ProcessContents():
                 sizes_ok = False
         return sizes_ok and sizes_ok_base
-
-    def CheckOffset(self):
-        self.CheckEntries()
 
     def WriteMap(self, fd, indent):
         """Write a map of the section to a .map file
