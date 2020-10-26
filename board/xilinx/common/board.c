@@ -16,6 +16,7 @@
 #include <dm.h>
 #include <i2c_eeprom.h>
 #include <net.h>
+#include <generated/dt.h>
 
 #include "fru.h"
 
@@ -425,3 +426,13 @@ int board_late_init_xilinx(void)
 	return 0;
 }
 #endif
+
+int __maybe_unused board_fit_config_name_match(const char *name)
+{
+	debug("%s: Check %s, default %s\n", __func__, name, DEVICE_TREE);
+
+	if (!strcmp(name, DEVICE_TREE))
+		return 0;
+
+	return -1;
+}
