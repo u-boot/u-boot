@@ -16,6 +16,7 @@ from binman.entry import Entry
 from dtoc import fdt_util
 from patman import tools
 from patman import tout
+from patman.tools import ToHexSize
 
 
 class Entry_section(Entry):
@@ -144,6 +145,36 @@ class Entry_section(Entry):
     def ObtainContents(self):
         return self.GetEntryContents()
 
+    def GetPaddedDataForEntry(self, entry):
+        """Get the data for an entry including any padding
+
+        Gets the entry data and uses the section pad-byte value to add padding
+        before and after as defined by the pad-before and pad-after properties.
+        This does not consider alignment.
+
+        Args:
+            entry: Entry to check
+
+        Returns:
+            Contents of the entry along with any pad bytes before and
+            after it (bytes)
+        """
+        data = b''
+        # Handle padding before the entry
+        if entry.pad_before:
+            data += tools.GetBytes(self._pad_byte, entry.pad_before)
+
+        # Add in the actual entry data
+        data += entry.GetData()
+
+        # Handle padding after the entry
+        if entry.pad_after:
+            data += tools.GetBytes(self._pad_byte, entry.pad_after)
+
+        self.Detail('GetPaddedDataForEntry: size %s' % ToHexSize(self.data))
+
+        return data
+
     def _BuildSectionData(self):
         """Build the contents of a section
 
@@ -158,22 +189,14 @@ class Entry_section(Entry):
         section_data = b''
 
         for entry in self._entries.values():
-            data = entry.GetData()
+            data = self.GetPaddedDataForEntry(entry)
             # Handle empty space before the entry
             pad = (entry.offset or 0) - self._skip_at_start - len(section_data)
             if pad > 0:
                 section_data += tools.GetBytes(self._pad_byte, pad)
 
-            # Handle padding before the entry
-            if entry.pad_before:
-                section_data += tools.GetBytes(self._pad_byte, entry.pad_before)
-
             # Add in the actual entry data
             section_data += data
-
-            # Handle padding after the entry
-            if entry.pad_after:
-                section_data += tools.GetBytes(self._pad_byte, entry.pad_after)
 
         if self.size:
             section_data += tools.GetBytes(self._pad_byte,
@@ -181,6 +204,24 @@ class Entry_section(Entry):
         self.Detail('GetData: %d entries, total size %#x' %
                     (len(self._entries), len(section_data)))
         return self.CompressData(section_data)
+
+    def GetPaddedData(self):
+        """Get the data for a section including any padding
+
+        Gets the section data and uses the parent section's pad-byte value to
+        add padding before and after as defined by the pad-before and pad-after
+        properties. If this is a top-level section (i.e. an image), this is the
+        same as GetData(), since padding is not supported.
+
+        This does not consider alignment.
+
+        Returns:
+            Contents of the section along with any pad bytes before and
+            after it (bytes)
+        """
+        if self.section:
+            return super().GetPaddedData()
+        return self.GetData()
 
     def GetData(self):
         return self._BuildSectionData()
