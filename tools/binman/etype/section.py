@@ -136,11 +136,13 @@ class Entry_section(Entry):
         for entry in self._entries.values():
             entry.ExpandEntries()
 
-    def AddMissingProperties(self):
+    def AddMissingProperties(self, have_image_pos):
         """Add new properties to the device tree as needed for this entry"""
-        super().AddMissingProperties()
+        super().AddMissingProperties(have_image_pos)
+        if self.compress != 'none':
+            have_image_pos = False
         for entry in self._entries.values():
-            entry.AddMissingProperties()
+            entry.AddMissingProperties(have_image_pos)
 
     def ObtainContents(self):
         return self.GetEntryContents()
@@ -323,8 +325,9 @@ class Entry_section(Entry):
 
     def SetImagePos(self, image_pos):
         super().SetImagePos(image_pos)
-        for entry in self._entries.values():
-            entry.SetImagePos(image_pos + self.offset)
+        if self.compress == 'none':
+            for entry in self._entries.values():
+                entry.SetImagePos(image_pos + self.offset)
 
     def ProcessContents(self):
         sizes_ok_base = super(Entry_section, self).ProcessContents()

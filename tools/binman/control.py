@@ -462,7 +462,7 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
     for image in images.values():
         image.ExpandEntries()
         if update_fdt:
-            image.AddMissingProperties()
+            image.AddMissingProperties(True)
         image.ProcessFdt(dtb)
 
     for dtb_item in state.GetAllFdts():

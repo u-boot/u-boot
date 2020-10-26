@@ -213,11 +213,20 @@ class Entry(object):
     def ExpandEntries(self):
         pass
 
-    def AddMissingProperties(self):
-        """Add new properties to the device tree as needed for this entry"""
-        for prop in ['offset', 'size', 'image-pos']:
+    def AddMissingProperties(self, have_image_pos):
+        """Add new properties to the device tree as needed for this entry
+
+        Args:
+            have_image_pos: True if this entry has an image position. This can
+                be False if its parent section is compressed, since compression
+                groups all entries together into a compressed block of data,
+                obscuring the start of each individual child entry
+        """
+        for prop in ['offset', 'size']:
             if not prop in self._node.props:
                 state.AddZeroProp(self._node, prop)
+        if have_image_pos and 'image-pos' not in self._node.props:
+            state.AddZeroProp(self._node, 'image-pos')
         if self.GetImage().allow_repack:
             if self.orig_offset is not None:
                 state.AddZeroProp(self._node, 'orig-offset', True)
@@ -235,7 +244,8 @@ class Entry(object):
         state.SetInt(self._node, 'offset', self.offset)
         state.SetInt(self._node, 'size', self.size)
         base = self.section.GetRootSkipAtStart() if self.section else 0
-        state.SetInt(self._node, 'image-pos', self.image_pos - base)
+        if self.image_pos is not None:
+            state.SetInt(self._node, 'image-pos', self.image_pos)
         if self.GetImage().allow_repack:
             if self.orig_offset is not None:
                 state.SetInt(self._node, 'orig-offset', self.orig_offset, True)
