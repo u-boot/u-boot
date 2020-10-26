@@ -365,15 +365,6 @@ static int sandbox_cmdline_cb_log_level(struct sandbox_state *state,
 SANDBOX_CMDLINE_OPT_SHORT(log_level, 'L', 1,
 			  "Set log level (0=panic, 7=debug)");
 
-static int sandbox_cmdline_cb_show_of_platdata(struct sandbox_state *state,
-					       const char *arg)
-{
-	state->show_of_platdata = true;
-
-	return 0;
-}
-SANDBOX_CMDLINE_OPT(show_of_platdata, 0, "Show of-platdata in SPL");
-
 static int sandbox_cmdline_cb_unittests(struct sandbox_state *state,
 					const char *arg)
 {

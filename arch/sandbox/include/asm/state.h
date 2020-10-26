@@ -90,7 +90,6 @@ struct sandbox_state {
 	bool skip_delays;		/* Ignore any time delays (for test) */
 	bool show_test_output;		/* Don't suppress stdout in tests */
 	int default_log_level;		/* Default log level for sandbox */
-	bool show_of_platdata;		/* Show of-platdata in SPL */
 	bool ram_buf_read;		/* true if we read the RAM buffer */
 	bool run_unittests;		/* Run unit tests */
 	const char *select_unittests;	/* Unit test to run */
