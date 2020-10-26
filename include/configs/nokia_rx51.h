@@ -77,8 +77,6 @@
 
 /* commands to include */
 
-#define CONFIG_SYS_I2C
-
 /*
  * TWL4030
  */
