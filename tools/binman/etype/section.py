@@ -264,6 +264,9 @@ class Entry_section(Entry):
             self._SortEntries()
         self._ExpandEntries()
 
+        size = self.CheckSize()
+        self.size = size
+
         return super().Pack(offset)
 
     def _PackEntries(self):
@@ -271,7 +274,7 @@ class Entry_section(Entry):
         offset = self._skip_at_start
         for entry in self._entries.values():
             offset = entry.Pack(offset)
-        self.size = self.CheckSize()
+        return offset
 
     def _ExpandEntries(self):
         """Expand any entries that are permitted to"""
