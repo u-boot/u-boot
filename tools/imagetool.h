@@ -126,9 +126,9 @@ struct image_type_params {
 					struct image_tool_params *);
 	/*
 	 * This function is used by the command to retrieve a component
-	 * (sub-image) from the image (i.e. dumpimage -i <image> -p <position>
-	 * <sub-image-name>).
-	 * Thus the code to extract a file from an image must be put here.
+	 * (sub-image) from the image (i.e. dumpimage -p <position>
+	 * -o <component-outfile> <image>). Thus the code to extract a file
+	 * from an image must be put here.
 	 *
 	 * Returns 0 if the file was successfully retrieved from the image,
 	 * or a negative value on error.
