@@ -180,6 +180,9 @@ class Entry(object):
         self.expand_size = fdt_util.GetBool(self._node, 'expand-size')
         self.missing_msg = fdt_util.GetString(self._node, 'missing-msg')
 
+        # This is only supported by blobs and sections at present
+        self.compress = fdt_util.GetString(self._node, 'compress', 'none')
+
     def GetDefaultFilename(self):
         return None
 
@@ -836,3 +839,17 @@ features to produce new behaviours.
             list of possible tags, most desirable first
         """
         return list(filter(None, [self.missing_msg, self.name, self.etype]))
+
+    def CompressData(self, indata):
+        """Compress data according to the entry's compression method
+
+        Args:
+            indata: Data to compress
+
+        Returns:
+            Compressed data (first word is the compressed size)
+        """
+        if self.compress != 'none':
+            self.uncomp_size = len(indata)
+        data = tools.Compress(indata, self.compress)
+        return data
