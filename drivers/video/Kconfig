@@ -665,7 +665,7 @@ config VIDEO
 
 config CFB_CONSOLE
 	bool "Enable colour frame buffer console"
-	depends on VIDEO
+	depends on VIDEO || ARCH_OMAP2PLUS
 	default y if VIDEO
 	help
 	  Enables the colour frame buffer driver. This supports colour
