@@ -214,7 +214,7 @@ spl/boot.bin: $(obj)/$(SPL_BIN)-align.bin FORCE
 	$(call if_changed,mkimage)
 endif
 
-INPUTS-y	+= $(obj)/$(SPL_BIN).bin
+INPUTS-y	+= $(obj)/$(SPL_BIN).bin $(obj)/$(SPL_BIN).sym
 
 ifdef CONFIG_SAMSUNG
 INPUTS-y	+= $(obj)/$(BOARD)-spl.bin
@@ -407,6 +407,11 @@ MKIMAGEFLAGS_u-boot-spl-mtk.bin = -T mtk_image \
 
 $(obj)/u-boot-spl-mtk.bin: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
+
+quiet_cmd_sym ?= SYM     $@
+      cmd_sym ?= $(OBJDUMP) -t $< > $@
+$(obj)/$(SPL_BIN).sym: $(obj)/$(SPL_BIN) FORCE
+	$(call if_changed,sym)
 
 # Rule to link u-boot-spl
 # May be overridden by arch/$(ARCH)/config.mk
