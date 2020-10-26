@@ -785,7 +785,8 @@ class TestFunctional(unittest.TestCase):
 
     def testPackExtra(self):
         """Test that extra packing feature works as expected"""
-        data = self._DoReadFile('009_pack_extra.dts')
+        data, _, _, out_dtb_fname = self._DoReadFileDtb('009_pack_extra.dts',
+                                                        update_dtb=True)
 
         self.assertIn('image', control.images)
         image = control.images['image']
@@ -843,6 +844,36 @@ class TestFunctional(unittest.TestCase):
 
         self.CheckNoGaps(entries)
         self.assertEqual(128, image.size)
+
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['size', 'offset', 'image-pos'])
+        expected = {
+            'image-pos': 0,
+            'offset': 0,
+            'size': 128,
+
+            'u-boot:image-pos': 0,
+            'u-boot:offset': 0,
+            'u-boot:size': 3 + 5 + len(U_BOOT_DATA),
+
+            'u-boot-align-size-nop:image-pos': 12,
+            'u-boot-align-size-nop:offset': 12,
+            'u-boot-align-size-nop:size': 4,
+
+            'u-boot-align-size:image-pos': 16,
+            'u-boot-align-size:offset': 16,
+            'u-boot-align-size:size': 32,
+
+            'u-boot-align-end:image-pos': 48,
+            'u-boot-align-end:offset': 48,
+            'u-boot-align-end:size': 16,
+
+            'u-boot-align-both:image-pos': 64,
+            'u-boot-align-both:offset': 64,
+            'u-boot-align-both:size': 64,
+            }
+        self.assertEqual(expected, props)
 
     def testPackAlignPowerOf2(self):
         """Test that invalid entry alignment is detected"""

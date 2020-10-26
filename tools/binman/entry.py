@@ -48,9 +48,11 @@ class Entry(object):
         uncomp_size: Size of uncompressed data in bytes, if the entry is
             compressed, else None
         contents_size: Size of contents in bytes, 0 by default
-        align: Entry start offset alignment, or None
+        align: Entry start offset alignment relative to the start of the
+            containing section, or None
         align_size: Entry size alignment, or None
-        align_end: Entry end offset alignment, or None
+        align_end: Entry end offset alignment relative to the start of the
+            containing section, or None
         pad_before: Number of pad bytes before the contents when it is placed
             in the containing section, 0 if none. The pad bytes become part of
             the entry.

@@ -278,9 +278,12 @@ offset:
 
 align:
 	This sets the alignment of the entry. The entry offset is adjusted
-	so that the entry starts on an aligned boundary within the image. For
-	example 'align = <16>' means that the entry will start on a 16-byte
-	boundary. Alignment shold be a power of 2. If 'align' is not
+	so that the entry starts on an aligned boundary within the containing
+	section or image. For example 'align = <16>' means that the entry will
+	start on a 16-byte boundary. This may mean that padding is added before
+	the entry. The padding is part of the containing section but is not
+	included in the entry, meaning that an empty space may be created before
+	the entry starts. Alignment should be a power of 2. If 'align' is not
 	provided, no alignment is performed.
 
 size:
@@ -308,14 +311,22 @@ pad-after:
 align-size:
 	This sets the alignment of the entry size. For example, to ensure
 	that the size of an entry is a multiple of 64 bytes, set this to 64.
-	If 'align-size' is not provided, no alignment is performed.
+	While this does not affect the contents of the entry within binman
+	itself (the padding is performed only when its parent section is
+	assembled), the end result is that the entry ends with the padding
+	bytes, so may grow. If 'align-size' is not provided, no alignment is
+	performed.
 
 align-end:
-	This sets the alignment of the end of an entry. Some entries require
-	that they end on an alignment boundary, regardless of where they
-	start. This does not move the start of the entry, so the contents of
-	the entry will still start at the beginning. But there may be padding
-	at the end. If 'align-end' is not provided, no alignment is performed.
+	This sets the alignment of the end of an entry with respect to the
+	containing section. Some entries require that they end on an alignment
+	boundary, regardless of where they start. This does not move the start
+	of the entry, so the contents of the entry will still start at the
+	beginning. But there may be padding at the end. While this does not
+	affect the contents of the entry within binman itself (the padding is
+	performed only when its parent section is assembled), the end result
+	is that the entry ends with the padding bytes, so may grow.
+	If 'align-end' is not provided, no alignment is performed.
 
 filename:
 	For 'blob' types this provides the filename containing the binary to
