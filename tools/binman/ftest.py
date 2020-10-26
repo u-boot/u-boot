@@ -3737,14 +3737,14 @@ class TestFunctional(unittest.TestCase):
     def testEnvironmentNoSize(self):
         """Test that a missing 'size' property is detected"""
         with self.assertRaises(ValueError) as e:
-            data = self._DoTestFile('175_env_no_size.dts')
+            self._DoTestFile('175_env_no_size.dts')
         self.assertIn("'u-boot-env' entry must have a size property",
                       str(e.exception))
 
     def testEnvironmentTooSmall(self):
         """Test handling of an environment that does not fit"""
         with self.assertRaises(ValueError) as e:
-            data = self._DoTestFile('176_env_too_small.dts')
+            self._DoTestFile('176_env_too_small.dts')
 
         # checksum, start byte, environment with \0 terminator, final \0
         need = 4 + 1 + len(ENV_DATA) + 1 + 1
