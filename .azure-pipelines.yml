@@ -182,7 +182,7 @@ jobs:
           OVERRIDE: "-O clang-10"
         sandbox_spl:
           TEST_PY_BD: "sandbox_spl"
-          TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff"
+          TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"
         sandbox_flattree:
           TEST_PY_BD: "sandbox_flattree"
         evb_ast2500:
