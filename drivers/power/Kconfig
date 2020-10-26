@@ -14,7 +14,7 @@ choice
 	default AXP209_POWER if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	default AXP221_POWER if MACH_SUN6I || MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_R40
 	default AXP818_POWER if MACH_SUN8I_A83T
-	default SUNXI_NO_PMIC if MACH_SUNXI_H3_H5 || MACH_SUN50I
+	default SUNXI_NO_PMIC if MACH_SUNXI_H3_H5 || MACH_SUN50I || MACH_SUN8I_V3S
 
 config SUNXI_NO_PMIC
 	bool "board without a pmic"
@@ -32,7 +32,7 @@ config AXP152_POWER
 
 config AXP209_POWER
 	bool "axp209 pmic support"
-	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I || MACH_SUN8I_V3S
 	select AXP_PMIC_BUS
 	select CMD_POWEROFF
 	---help---
