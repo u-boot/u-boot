@@ -3752,6 +3752,65 @@ class TestFunctional(unittest.TestCase):
         self.assertIn("too small to hold data (need %#x more bytes)" % short,
                       str(e.exception))
 
+    def testSkipAtStart(self):
+        """Test handling of skip-at-start section"""
+        data = self._DoReadFile('177_skip_at_start.dts')
+        self.assertEqual(U_BOOT_DATA, data)
+
+        image = control.images['image']
+        entries = image.GetEntries()
+        section = entries['section']
+        self.assertEqual(0, section.offset)
+        self.assertEqual(len(U_BOOT_DATA), section.size)
+        self.assertEqual(U_BOOT_DATA, section.GetData())
+
+        entry = section.GetEntries()['u-boot']
+        self.assertEqual(16, entry.offset)
+        self.assertEqual(len(U_BOOT_DATA), entry.size)
+        self.assertEqual(U_BOOT_DATA, entry.data)
+
+    def testSkipAtStartPad(self):
+        """Test handling of skip-at-start section with padded entry"""
+        data = self._DoReadFile('178_skip_at_start_pad.dts')
+        before = tools.GetBytes(0, 8)
+        after = tools.GetBytes(0, 4)
+        all = before + U_BOOT_DATA + after
+        self.assertEqual(all, data)
+
+        image = control.images['image']
+        entries = image.GetEntries()
+        section = entries['section']
+        self.assertEqual(0, section.offset)
+        self.assertEqual(len(all), section.size)
+        self.assertEqual(all, section.GetData())
+
+        entry = section.GetEntries()['u-boot']
+        self.assertEqual(16, entry.offset)
+        self.assertEqual(len(all), entry.size)
+        self.assertEqual(U_BOOT_DATA, entry.data)
+
+    def testSkipAtStartSectionPad(self):
+        """Test handling of skip-at-start section with padding"""
+        data = self._DoReadFile('179_skip_at_start_section_pad.dts')
+        before = tools.GetBytes(0, 8)
+        after = tools.GetBytes(0, 4)
+        all = before + U_BOOT_DATA + after
+
+        # This is not correct, but it is what binman currently produces
+        self.assertEqual(tools.GetBytes(0, 16) + U_BOOT_DATA + after, data)
+
+        image = control.images['image']
+        entries = image.GetEntries()
+        section = entries['section']
+        self.assertEqual(0, section.offset)
+        self.assertEqual(len(all), section.size)
+        self.assertIsNone(section.data)
+        self.assertEqual(all, section.GetData())
+
+        entry = section.GetEntries()['u-boot']
+        self.assertEqual(16, entry.offset)
+        self.assertEqual(len(U_BOOT_DATA), entry.size)
+        self.assertEqual(U_BOOT_DATA, entry.data)
 
 if __name__ == "__main__":
     unittest.main()
