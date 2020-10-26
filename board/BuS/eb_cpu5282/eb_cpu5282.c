@@ -20,7 +20,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_VIDEO
+#if IS_ENABLED(CONFIG_VIDEO_VCXK)
 unsigned long display_width;
 unsigned long display_height;
 #endif
@@ -183,8 +183,7 @@ void __led_set(led_id_t mask, int state)
 		MCFGPTA_GPTPORT &= ~(1 << 3);
 }
 
-#if defined(CONFIG_VIDEO)
-
+#if IS_ENABLED(CONFIG_VIDEO_VCXK)
 int drv_video_init(void)
 {
 	char *s;
@@ -225,7 +224,7 @@ int drv_video_init(void)
 
 /*---------------------------------------------------------------------------*/
 
-#ifdef CONFIG_VIDEO
+#if IS_ENABLED(CONFIG_VIDEO_VCXK)
 int do_brightness(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int rcode = 0;
