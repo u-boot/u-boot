@@ -51,9 +51,14 @@ class Entry(object):
         align: Entry start offset alignment, or None
         align_size: Entry size alignment, or None
         align_end: Entry end offset alignment, or None
-        pad_before: Number of pad bytes before the contents, 0 if none
-        pad_after: Number of pad bytes after the contents, 0 if none
-        data: Contents of entry (string of bytes)
+        pad_before: Number of pad bytes before the contents when it is placed
+            in the containing section, 0 if none. The pad bytes become part of
+            the entry.
+        pad_after: Number of pad bytes after the contents when it is placed in
+            the containing section, 0 if none. The pad bytes become part of
+            the entry.
+        data: Contents of entry (string of bytes). This does not include
+            padding created by pad_before or pad_after
         compress: Compression algoithm used (e.g. 'lz4'), 'none' if none
         orig_offset: Original offset value read from node
         orig_size: Original size value read from node

@@ -3548,11 +3548,38 @@ class TestFunctional(unittest.TestCase):
 
     def testPadInSections(self):
         """Test pad-before, pad-after for entries in sections"""
-        data = self._DoReadFile('166_pad_in_sections.dts')
+        data, _, _, out_dtb_fname = self._DoReadFileDtb(
+            '166_pad_in_sections.dts', update_dtb=True)
         expected = (U_BOOT_DATA + tools.GetBytes(ord('!'), 12) +
                     U_BOOT_DATA + tools.GetBytes(ord('!'), 6) +
                     U_BOOT_DATA)
         self.assertEqual(expected, data)
+
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['size', 'image-pos', 'offset'])
+        expected = {
+            'image-pos': 0,
+            'offset': 0,
+            'size': 12 + 6 + 3 * len(U_BOOT_DATA),
+
+            'section:image-pos': 0,
+            'section:offset': 0,
+            'section:size': 12 + 6 + 3 * len(U_BOOT_DATA),
+
+            'section/before:image-pos': 0,
+            'section/before:offset': 0,
+            'section/before:size': len(U_BOOT_DATA),
+
+            'section/u-boot:image-pos': 4,
+            'section/u-boot:offset': 4,
+            'section/u-boot:size': 12 + len(U_BOOT_DATA) + 6,
+
+            'section/after:image-pos': 26,
+            'section/after:offset': 26,
+            'section/after:size': len(U_BOOT_DATA),
+            }
+        self.assertEqual(expected, props)
 
     def testFitImageSubentryAlignment(self):
         """Test relative alignability of FIT image subentries"""

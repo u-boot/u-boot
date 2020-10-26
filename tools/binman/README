@@ -290,14 +290,20 @@ size:
 
 pad-before:
 	Padding before the contents of the entry. Normally this is 0, meaning
-	that the contents start at the beginning of the entry. This can be
-	offset the entry contents a little. Defaults to 0.
+	that the contents start at the beginning of the entry. This can be used
+	to offset the entry contents a little. While this does not affect the
+	contents of the entry within binman itself (the padding is performed
+	only when its parent section is assembled), the end result will be that
+	the entry starts with the padding bytes, so may grow. Defaults to 0.
 
 pad-after:
 	Padding after the contents of the entry. Normally this is 0, meaning
 	that the entry ends at the last byte of content (unless adjusted by
 	other properties). This allows room to be created in the image for
-	this entry to expand later. Defaults to 0.
+	this entry to expand later. While this does not affect the contents of
+	the entry within binman itself (the padding is performed only when its
+	parent section is assembled), the end result will be that the entry ends
+	with the padding bytes, so may grow. Defaults to 0.
 
 align-size:
 	This sets the alignment of the entry size. For example, to ensure
