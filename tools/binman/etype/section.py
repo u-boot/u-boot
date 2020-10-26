@@ -144,23 +144,46 @@ class Entry_section(Entry):
     def ObtainContents(self):
         return self.GetEntryContents()
 
-    def GetData(self):
+    def _BuildSectionData(self):
+        """Build the contents of a section
+
+        This places all entries at the right place, dealing with padding before
+        and after entries. It does not do padding for the section itself (the
+        pad-before and pad-after properties in the section items) since that is
+        handled by the parent section.
+
+        Returns:
+            Contents of the section (bytes)
+        """
         section_data = b''
 
         for entry in self._entries.values():
             data = entry.GetData()
-            base = self.pad_before + (entry.offset or 0) - self._skip_at_start
-            pad = base - len(section_data) + (entry.pad_before or 0)
+            # Handle empty space before the entry
+            pad = (entry.offset or 0) - self._skip_at_start - len(section_data)
             if pad > 0:
                 section_data += tools.GetBytes(self._pad_byte, pad)
+
+            # Handle padding before the entry
+            if entry.pad_before:
+                section_data += tools.GetBytes(self._pad_byte, entry.pad_before)
+
+            # Add in the actual entry data
             section_data += data
+
+            # Handle padding after the entry
+            if entry.pad_after:
+                section_data += tools.GetBytes(self._pad_byte, entry.pad_after)
+
         if self.size:
-            pad = self.size - len(section_data)
-            if pad > 0:
-                section_data += tools.GetBytes(self._pad_byte, pad)
+            section_data += tools.GetBytes(self._pad_byte,
+                                           self.size - len(section_data))
         self.Detail('GetData: %d entries, total size %#x' %
                     (len(self._entries), len(section_data)))
         return self.CompressData(section_data)
+
+    def GetData(self):
+        return self._BuildSectionData()
 
     def GetOffsets(self):
         """Handle entries that want to set the offset/size of other entries
