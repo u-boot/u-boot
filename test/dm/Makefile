@@ -6,7 +6,9 @@ obj-$(CONFIG_UT_DM) += test-main.o
 
 # Tests for particular subsystems - when enabling driver model for a new
 # subsystem you must add sandbox tests here.
-ifeq ($(CONFIG_SPL_BUILD),)
+ifeq ($(CONFIG_SPL_BUILD),y)
+obj-$(CONFIG_SPL_OF_PLATDATA) += of_platdata.o
+else
 obj-$(CONFIG_UT_DM) += bus.o
 obj-$(CONFIG_UT_DM) += test-driver.o
 obj-$(CONFIG_UT_DM) += test-fdt.o
