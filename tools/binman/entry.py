@@ -60,7 +60,10 @@ class Entry(object):
             the containing section, 0 if none. The pad bytes become part of
             the entry.
         data: Contents of entry (string of bytes). This does not include
-            padding created by pad_before or pad_after
+            padding created by pad_before or pad_after. If the entry is
+            compressed, this contains the compressed data.
+        uncomp_data: Original uncompressed data, if this entry is compressed,
+            else None
         compress: Compression algoithm used (e.g. 'lz4'), 'none' if none
         orig_offset: Original offset value read from node
         orig_size: Original size value read from node
@@ -83,6 +86,7 @@ class Entry(object):
         self.pre_reset_size = None
         self.uncomp_size = None
         self.data = None
+        self.uncomp_data = None
         self.contents_size = 0
         self.align = None
         self.align_size = None
@@ -856,6 +860,7 @@ features to produce new behaviours.
         Returns:
             Compressed data (first word is the compressed size)
         """
+        self.uncomp_data = indata
         if self.compress != 'none':
             self.uncomp_size = len(indata)
         data = tools.Compress(indata, self.compress)
