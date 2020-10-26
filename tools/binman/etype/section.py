@@ -299,19 +299,21 @@ class Entry_section(Entry):
 
     def CheckEntries(self):
         """Check that entries do not overlap or extend outside the section"""
+        max_size = self.size if self.uncomp_size is None else self.uncomp_size
+
         offset = 0
         prev_name = 'None'
         for entry in self._entries.values():
             entry.CheckEntries()
             if (entry.offset < self._skip_at_start or
                     entry.offset + entry.size > self._skip_at_start +
-                    self.size):
+                    max_size):
                 entry.Raise('Offset %#x (%d) size %#x (%d) is outside the '
                             "section '%s' starting at %#x (%d) "
                             'of size %#x (%d)' %
                             (entry.offset, entry.offset, entry.size, entry.size,
                              self._node.path, self._skip_at_start,
-                             self._skip_at_start, self.size, self.size))
+                             self._skip_at_start, max_size, max_size))
             if entry.offset < offset and entry.size:
                 entry.Raise("Offset %#x (%d) overlaps with previous entry '%s' "
                             "ending at %#x (%d)" %
