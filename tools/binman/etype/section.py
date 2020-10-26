@@ -544,16 +544,13 @@ class Entry_section(Entry):
 
 
     def CheckSize(self):
-        """Check that the section contents does not exceed its size, etc."""
-        contents_size = 0
-        for entry in self._entries.values():
-            contents_size = max(contents_size, entry.offset + entry.size)
-
-        contents_size -= self._skip_at_start
+        data = self._BuildSectionData()
+        contents_size = len(data)
 
         size = self.size
         if not size:
-            size = self.pad_before + contents_size + self.pad_after
+            data = self.GetPaddedData()
+            size = len(data)
             size = tools.Align(size, self.align_size)
 
         if self.size and contents_size > self.size:
