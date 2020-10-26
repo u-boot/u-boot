@@ -72,7 +72,7 @@ void spl_board_init(void)
 	if (state->run_unittests) {
 		int ret;
 
-		ret = dm_test_main(NULL);
+		ret = dm_test_main(state->select_unittests);
 		/* continue execution into U-Boot */
 	}
 }

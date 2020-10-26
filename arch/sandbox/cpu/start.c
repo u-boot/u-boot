@@ -383,6 +383,15 @@ static int sandbox_cmdline_cb_unittests(struct sandbox_state *state,
 }
 SANDBOX_CMDLINE_OPT_SHORT(unittests, 'u', 0, "Run unit tests");
 
+static int sandbox_cmdline_cb_select_unittests(struct sandbox_state *state,
+					       const char *arg)
+{
+	state->select_unittests = arg;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(select_unittests, 'k', 1, "Select unit tests to run");
+
 static void setup_ram_buf(struct sandbox_state *state)
 {
 	/* Zero the RAM buffer if we didn't read it, to keep valgrind happy */
