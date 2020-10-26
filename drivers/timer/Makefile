@@ -5,6 +5,7 @@
 obj-y += timer-uclass.o
 obj-$(CONFIG_AG101P_TIMER) += ag101p_timer.o
 obj-$(CONFIG_ALTERA_TIMER)	+= altera_timer.o
+obj-$(CONFIG_ANDES_PLMT) += andes_plmt_timer.o
 obj-$(CONFIG_ARC_TIMER)	+= arc_timer.o
 obj-$(CONFIG_AST_TIMER)	+= ast_timer.o
 obj-$(CONFIG_ATCPIT100_TIMER) += atcpit100_timer.o
