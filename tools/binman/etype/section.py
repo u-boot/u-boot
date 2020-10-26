@@ -147,7 +147,7 @@ class Entry_section(Entry):
     def ObtainContents(self):
         return self.GetEntryContents()
 
-    def GetPaddedDataForEntry(self, entry):
+    def GetPaddedDataForEntry(self, entry, entry_data):
         """Get the data for an entry including any padding
 
         Gets the entry data and uses the section pad-byte value to add padding
@@ -170,7 +170,7 @@ class Entry_section(Entry):
             data += tools.GetBytes(self._pad_byte, entry.pad_before)
 
         # Add in the actual entry data
-        data += entry.GetData()
+        data += entry_data
 
         # Handle padding after the entry
         if entry.pad_after:
@@ -197,7 +197,7 @@ class Entry_section(Entry):
         section_data = b''
 
         for entry in self._entries.values():
-            data = self.GetPaddedDataForEntry(entry)
+            data = self.GetPaddedDataForEntry(entry, entry.GetData())
             # Handle empty space before the entry
             pad = (entry.offset or 0) - self._skip_at_start - len(section_data)
             if pad > 0:
@@ -210,7 +210,7 @@ class Entry_section(Entry):
                     (len(self._entries), len(section_data)))
         return self.CompressData(section_data)
 
-    def GetPaddedData(self):
+    def GetPaddedData(self, data=None):
         """Get the data for a section including any padding
 
         Gets the section data and uses the parent section's pad-byte value to
@@ -225,7 +225,9 @@ class Entry_section(Entry):
             after it (bytes)
         """
         section = self.section or self
-        return section.GetPaddedDataForEntry(self)
+        if data is None:
+            data = self.GetData()
+        return section.GetPaddedDataForEntry(self, data)
 
     def GetData(self):
         """Get the contents of an entry
@@ -264,8 +266,10 @@ class Entry_section(Entry):
             self._SortEntries()
         self._ExpandEntries()
 
-        size = self.CheckSize()
-        self.size = size
+        data = self._BuildSectionData()
+        self.SetContents(data)
+
+        self.CheckSize()
 
         offset = super().Pack(offset)
         self.CheckEntries()
@@ -542,14 +546,12 @@ class Entry_section(Entry):
             for name, info in offset_dict.items():
                 self._SetEntryOffsetSize(name, *info)
 
-
     def CheckSize(self):
-        data = self._BuildSectionData()
-        contents_size = len(data)
+        contents_size = len(self.data)
 
         size = self.size
         if not size:
-            data = self.GetPaddedData()
+            data = self.GetPaddedData(self.data)
             size = len(data)
             size = tools.Align(size, self.align_size)
 
