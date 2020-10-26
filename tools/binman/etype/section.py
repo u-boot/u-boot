@@ -260,6 +260,10 @@ class Entry_section(Entry):
     def Pack(self, offset):
         """Pack all entries into the section"""
         self._PackEntries()
+        if self._sort:
+            self._SortEntries()
+        self._ExpandEntries()
+
         return super().Pack(offset)
 
     def _PackEntries(self):
@@ -290,9 +294,6 @@ class Entry_section(Entry):
 
     def CheckEntries(self):
         """Check that entries do not overlap or extend outside the section"""
-        if self._sort:
-            self._SortEntries()
-        self._ExpandEntries()
         offset = 0
         prev_name = 'None'
         for entry in self._entries.values():
