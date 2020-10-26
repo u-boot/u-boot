@@ -70,6 +70,7 @@ VBLOCK_DATA           = b'vblk'
 FILES_DATA            = (b"sorry I'm late\nOh, don't bother apologising, I'm " +
                          b"sorry you're alive\n")
 COMPRESS_DATA         = b'compress xxxxxxxxxxxxxxxxxxxxxx data'
+COMPRESS_DATA_BIG     = COMPRESS_DATA * 2
 REFCODE_DATA          = b'refcode'
 FSP_M_DATA            = b'fsp_m'
 FSP_S_DATA            = b'fsp_s'
@@ -175,6 +176,7 @@ class TestFunctional(unittest.TestCase):
                         os.path.join(cls._indir, 'files'))
 
         TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
+        TestFunctional._MakeInputFile('compress_big', COMPRESS_DATA_BIG)
         TestFunctional._MakeInputFile('bl31.bin', ATF_BL31_DATA)
         TestFunctional._MakeInputFile('scp.bin', SCP_DATA)
 
@@ -3921,6 +3923,221 @@ class TestFunctional(unittest.TestCase):
                     tools.GetBytes(ord('!'), 4) +   # padding to u-boot size
                     tools.GetBytes(ord('!'), 4))    # padding to section size
         self.assertEqual(expected, data)
+
+    def testCompressImage(self):
+        """Test compression of the entire image"""
+        self._CheckLz4()
+        data, _, _, out_dtb_fname = self._DoReadFileDtb(
+            '182_compress_image.dts', use_real_dtb=True, update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['offset', 'image-pos', 'size',
+                                        'uncomp-size'])
+        orig = self._decompress(data)
+        self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, orig)
+
+        # Do a sanity check on various fields
+        image = control.images['image']
+        entries = image.GetEntries()
+        self.assertEqual(2, len(entries))
+
+        entry = entries['blob']
+        self.assertEqual(COMPRESS_DATA, entry.data)
+        self.assertEqual(len(COMPRESS_DATA), entry.size)
+
+        entry = entries['u-boot']
+        self.assertEqual(U_BOOT_DATA, entry.data)
+        self.assertEqual(len(U_BOOT_DATA), entry.size)
+
+        self.assertEqual(len(data), image.size)
+        self.assertEqual(COMPRESS_DATA + U_BOOT_DATA, image.uncomp_data)
+        self.assertEqual(len(COMPRESS_DATA + U_BOOT_DATA), image.uncomp_size)
+        orig = self._decompress(image.data)
+        self.assertEqual(orig, image.uncomp_data)
+
+        expected = {
+            'blob:offset': 0,
+            'blob:size': len(COMPRESS_DATA),
+            'u-boot:offset': len(COMPRESS_DATA),
+            'u-boot:size': len(U_BOOT_DATA),
+            'uncomp-size': len(COMPRESS_DATA + U_BOOT_DATA),
+            'offset': 0,
+            'image-pos': 0,
+            'size': len(data),
+            }
+        self.assertEqual(expected, props)
+
+    def testCompressImageLess(self):
+        """Test compression where compression reduces the image size"""
+        self._CheckLz4()
+        data, _, _, out_dtb_fname = self._DoReadFileDtb(
+            '183_compress_image_less.dts', use_real_dtb=True, update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['offset', 'image-pos', 'size',
+                                        'uncomp-size'])
+        orig = self._decompress(data)
+
+        self.assertEquals(COMPRESS_DATA + COMPRESS_DATA + U_BOOT_DATA, orig)
+
+        # Do a sanity check on various fields
+        image = control.images['image']
+        entries = image.GetEntries()
+        self.assertEqual(2, len(entries))
+
+        entry = entries['blob']
+        self.assertEqual(COMPRESS_DATA_BIG, entry.data)
+        self.assertEqual(len(COMPRESS_DATA_BIG), entry.size)
+
+        entry = entries['u-boot']
+        self.assertEqual(U_BOOT_DATA, entry.data)
+        self.assertEqual(len(U_BOOT_DATA), entry.size)
+
+        self.assertEqual(len(data), image.size)
+        self.assertEqual(COMPRESS_DATA_BIG + U_BOOT_DATA, image.uncomp_data)
+        self.assertEqual(len(COMPRESS_DATA_BIG + U_BOOT_DATA),
+                         image.uncomp_size)
+        orig = self._decompress(image.data)
+        self.assertEqual(orig, image.uncomp_data)
+
+        expected = {
+            'blob:offset': 0,
+            'blob:size': len(COMPRESS_DATA_BIG),
+            'u-boot:offset': len(COMPRESS_DATA_BIG),
+            'u-boot:size': len(U_BOOT_DATA),
+            'uncomp-size': len(COMPRESS_DATA_BIG + U_BOOT_DATA),
+            'offset': 0,
+            'image-pos': 0,
+            'size': len(data),
+            }
+        self.assertEqual(expected, props)
+
+    def testCompressSectionSize(self):
+        """Test compression of a section with a fixed size"""
+        self._CheckLz4()
+        data, _, _, out_dtb_fname = self._DoReadFileDtb(
+            '184_compress_section_size.dts', use_real_dtb=True, update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['offset', 'image-pos', 'size',
+                                        'uncomp-size'])
+        orig = self._decompress(data)
+        self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, orig)
+        expected = {
+            'section/blob:offset': 0,
+            'section/blob:size': len(COMPRESS_DATA),
+            'section/u-boot:offset': len(COMPRESS_DATA),
+            'section/u-boot:size': len(U_BOOT_DATA),
+            'section:offset': 0,
+            'section:image-pos': 0,
+            'section:uncomp-size': len(COMPRESS_DATA + U_BOOT_DATA),
+            'section:size': 0x30,
+            'offset': 0,
+            'image-pos': 0,
+            'size': 0x30,
+            }
+        self.assertEqual(expected, props)
+
+    def testCompressSection(self):
+        """Test compression of a section with no fixed size"""
+        self._CheckLz4()
+        data, _, _, out_dtb_fname = self._DoReadFileDtb(
+            '185_compress_section.dts', use_real_dtb=True, update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['offset', 'image-pos', 'size',
+                                        'uncomp-size'])
+        orig = self._decompress(data)
+        self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, orig)
+        expected = {
+            'section/blob:offset': 0,
+            'section/blob:size': len(COMPRESS_DATA),
+            'section/u-boot:offset': len(COMPRESS_DATA),
+            'section/u-boot:size': len(U_BOOT_DATA),
+            'section:offset': 0,
+            'section:image-pos': 0,
+            'section:uncomp-size': len(COMPRESS_DATA + U_BOOT_DATA),
+            'section:size': len(data),
+            'offset': 0,
+            'image-pos': 0,
+            'size': len(data),
+            }
+        self.assertEqual(expected, props)
+
+    def testCompressExtra(self):
+        """Test compression of a section with no fixed size"""
+        self._CheckLz4()
+        data, _, _, out_dtb_fname = self._DoReadFileDtb(
+            '186_compress_extra.dts', use_real_dtb=True, update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['offset', 'image-pos', 'size',
+                                        'uncomp-size'])
+
+        base = data[len(U_BOOT_DATA):]
+        self.assertEquals(U_BOOT_DATA, base[:len(U_BOOT_DATA)])
+        rest = base[len(U_BOOT_DATA):]
+
+        # Check compressed data
+        section1 = self._decompress(rest)
+        expect1 = tools.Compress(COMPRESS_DATA + U_BOOT_DATA, 'lz4')
+        self.assertEquals(expect1, rest[:len(expect1)])
+        self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, section1)
+        rest1 = rest[len(expect1):]
+
+        section2 = self._decompress(rest1)
+        expect2 = tools.Compress(COMPRESS_DATA + COMPRESS_DATA, 'lz4')
+        self.assertEquals(expect2, rest1[:len(expect2)])
+        self.assertEquals(COMPRESS_DATA + COMPRESS_DATA, section2)
+        rest2 = rest1[len(expect2):]
+
+        expect_size = (len(U_BOOT_DATA) + len(U_BOOT_DATA) + len(expect1) +
+                       len(expect2) + len(U_BOOT_DATA))
+        #self.assertEquals(expect_size, len(data))
+
+        #self.assertEquals(U_BOOT_DATA, rest2)
+
+        self.maxDiff = None
+        expected = {
+            'u-boot:offset': 0,
+            'u-boot:image-pos': 0,
+            'u-boot:size': len(U_BOOT_DATA),
+
+            'base:offset': len(U_BOOT_DATA),
+            'base:image-pos': len(U_BOOT_DATA),
+            'base:size': len(data) - len(U_BOOT_DATA),
+            'base/u-boot:offset': 0,
+            'base/u-boot:image-pos': len(U_BOOT_DATA),
+            'base/u-boot:size': len(U_BOOT_DATA),
+            'base/u-boot2:offset': len(U_BOOT_DATA) + len(expect1) +
+                len(expect2),
+            'base/u-boot2:image-pos': len(U_BOOT_DATA) * 2 + len(expect1) +
+                len(expect2),
+            'base/u-boot2:size': len(U_BOOT_DATA),
+
+            'base/section:offset': len(U_BOOT_DATA),
+            'base/section:image-pos': len(U_BOOT_DATA) * 2,
+            'base/section:size': len(expect1),
+            'base/section:uncomp-size': len(COMPRESS_DATA + U_BOOT_DATA),
+            'base/section/blob:offset': 0,
+            'base/section/blob:size': len(COMPRESS_DATA),
+            'base/section/u-boot:offset': len(COMPRESS_DATA),
+            'base/section/u-boot:size': len(U_BOOT_DATA),
+
+            'base/section2:offset': len(U_BOOT_DATA) + len(expect1),
+            'base/section2:image-pos': len(U_BOOT_DATA) * 2 + len(expect1),
+            'base/section2:size': len(expect2),
+            'base/section2:uncomp-size': len(COMPRESS_DATA + COMPRESS_DATA),
+            'base/section2/blob:offset': 0,
+            'base/section2/blob:size': len(COMPRESS_DATA),
+            'base/section2/blob2:offset': len(COMPRESS_DATA),
+            'base/section2/blob2:size': len(COMPRESS_DATA),
+
+            'offset': 0,
+            'image-pos': 0,
+            'size': len(data),
+            }
+        self.assertEqual(expected, props)
 
 
 if __name__ == "__main__":

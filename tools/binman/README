@@ -853,6 +853,14 @@ The entry will then contain the compressed data, using the 'lz4' compression
 algorithm. Currently this is the only one that is supported. The uncompressed
 size is written to the node in an 'uncomp-size' property, if -u is used.
 
+Compression is also supported for sections. In that case the entire section is
+compressed in one block, including all its contents. This means that accessing
+an entry from the section required decompressing the entire section. Also, the
+size of a section indicates the space that it consumes in its parent section
+(and typically the image). With compression, the section may contain more data,
+and the uncomp-size property indicates that, as above. The contents of the
+section is compressed first, before any padding is added. This ensures that the
+padding itself is not compressed, which would be a waste of time.
 
 
 Map files
