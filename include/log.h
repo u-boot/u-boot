@@ -372,7 +372,7 @@ enum log_filter_flags {
  *	new filter, and must be provided when removing a previously added
  *	filter.
  * @flags: Flags for this filter (LOGFF_...)
- * @cat_list: List of categories to allow (terminated by LOGC_none). If empty
+ * @cat_list: List of categories to allow (terminated by %LOGC_END). If empty
  *	then all categories are permitted. Up to LOGF_MAX_CATEGORIES entries
  *	can be provided
  * @max_level: Maximum log level to allow
@@ -450,7 +450,7 @@ int do_log_test(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
  *
  * @drv_name: Driver name to add the filter to (since each driver only has a
  *	single device)
- * @cat_list: List of categories to allow (terminated by LOGC_none). If empty
+ * @cat_list: List of categories to allow (terminated by %LOGC_END). If empty
  *	then all categories are permitted. Up to LOGF_MAX_CATEGORIES entries
  *	can be provided
  * @max_level: Maximum log level to allow
