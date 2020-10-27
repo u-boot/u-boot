@@ -86,7 +86,10 @@ int os_open(const char *pathname, int os_flags)
 
 int os_close(int fd)
 {
-	return close(fd);
+	/* Do not close the console input */
+	if (fd)
+		return close(fd);
+	return -1;
 }
 
 int os_unlink(const char *pathname)
