@@ -6,11 +6,11 @@ import pytest
 import signal
 
 @pytest.mark.boardspec('sandbox')
-@pytest.mark.buildconfigspec('sysreset')
-def test_reset(u_boot_console):
-    """Test that the "reset" command exits sandbox process."""
+@pytest.mark.buildconfigspec('sysreset_cmd_poweroff')
+def test_poweroff(u_boot_console):
+    """Test that the "poweroff" command exits sandbox process."""
 
-    u_boot_console.run_command('reset', wait_for_prompt=False)
+    u_boot_console.run_command('poweroff', wait_for_prompt=False)
     assert(u_boot_console.validate_exited())
 
 @pytest.mark.boardspec('sandbox')
