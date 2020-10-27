@@ -14,5 +14,6 @@
 
 /* Declare a new logging test */
 #define LOG_TEST(_name) UNIT_TEST(_name, 0, log_test)
+#define LOG_TEST_FLAGS(_name, _flags) UNIT_TEST(_name, _flags, log_test)
 
 #endif /* __TEST_LOG_H__ */
