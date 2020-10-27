@@ -292,3 +292,70 @@ int log_test_disable(struct unit_test_state *uts)
 	return ret;
 }
 LOG_TEST_FLAGS(log_test_disable, UT_TESTF_CONSOLE_REC);
+
+/* Check denying based on category */
+int log_test_cat_deny(struct unit_test_state *uts)
+{
+	int filt1, filt2;
+	enum log_category_t cat_list[] = {
+		log_uc_cat(UCLASS_SPI), LOGC_END
+	};
+
+	filt1 = log_add_filter("console", cat_list, LOGL_MAX, NULL);
+	ut_assert(filt1 >= 0);
+	filt2 = log_add_filter_flags("console", cat_list, LOGL_MAX, NULL,
+				     LOGFF_DENY);
+	ut_assert(filt2 >= 0);
+
+	ut_assertok(console_record_reset_enable());
+	log_run_cat(UCLASS_SPI);
+	check_log_entries_none();
+
+	ut_assertok(log_remove_filter("console", filt1));
+	ut_assertok(log_remove_filter("console", filt2));
+	return 0;
+}
+LOG_TEST_FLAGS(log_test_cat_deny, UT_TESTF_CONSOLE_REC);
+
+/* Check denying based on file */
+int log_test_file_deny(struct unit_test_state *uts)
+{
+	int filt1, filt2;
+
+	filt1 = log_add_filter("console", NULL, LOGL_MAX, "file");
+	ut_assert(filt1 >= 0);
+	filt2 = log_add_filter_flags("console", NULL, LOGL_MAX, "file",
+				     LOGFF_DENY);
+	ut_assert(filt2 >= 0);
+
+	ut_assertok(console_record_reset_enable());
+	log_run_file("file");
+	check_log_entries_none();
+
+	ut_assertok(log_remove_filter("console", filt1));
+	ut_assertok(log_remove_filter("console", filt2));
+	return 0;
+}
+LOG_TEST_FLAGS(log_test_file_deny, UT_TESTF_CONSOLE_REC);
+
+/* Check denying based on level */
+int log_test_level_deny(struct unit_test_state *uts)
+{
+	int filt1, filt2;
+
+	filt1 = log_add_filter("console", NULL, LOGL_INFO, NULL);
+	ut_assert(filt1 >= 0);
+	filt2 = log_add_filter_flags("console", NULL, LOGL_WARNING, NULL,
+				     LOGFF_DENY);
+	ut_assert(filt2 >= 0);
+
+	ut_assertok(console_record_reset_enable());
+	log_run();
+	check_log_entries_flags_levels(EXPECT_LOG | EXPECT_DIRECT,
+				       LOGL_WARNING + 1, _LOG_MAX_LEVEL);
+
+	ut_assertok(log_remove_filter("console", filt1));
+	ut_assertok(log_remove_filter("console", filt2));
+	return 0;
+}
+LOG_TEST_FLAGS(log_test_level_deny, UT_TESTF_CONSOLE_REC);
