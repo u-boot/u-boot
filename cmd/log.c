@@ -34,14 +34,20 @@ static enum log_level_t parse_log_level(char *const arg)
 static int do_log_level(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
+	enum log_level_t log_level;
+
 	if (argc > 1) {
-		enum log_level_t log_level = parse_log_level(argv[1]);
+		log_level = parse_log_level(argv[1]);
 
 		if (log_level == LOGL_NONE)
 			return CMD_RET_FAILURE;
 		gd->default_log_level = log_level;
 	} else {
-		printf("Default log level: %d\n", gd->default_log_level);
+		for (log_level = LOGL_FIRST; log_level <= _LOG_MAX_LEVEL;
+		     log_level++)
+			printf("%s%s\n", log_get_level_name(log_level),
+			       log_level == gd->default_log_level ?
+			       " (default)" : "");
 	}
 
 	return CMD_RET_SUCCESS;
@@ -153,7 +159,7 @@ static int do_log_rec(struct cmd_tbl *cmdtp, int flag, int argc,
 
 #ifdef CONFIG_SYS_LONGHELP
 static char log_help_text[] =
-	"level - get/set log level\n"
+	"level [<level>] - get/set log level\n"
 	"categories - list log categories\n"
 	"drivers - list log drivers\n"
 	"log format <fmt> - set log output format. <fmt> is a string where\n"
