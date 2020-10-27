@@ -109,6 +109,7 @@ static const struct udevice_id simple_panel_ids[] = {
 	{ .compatible = "boe,nv140fhmn49" },
 	{ .compatible = "lg,lb070wv8" },
 	{ .compatible = "sharp,lq123p1jx31" },
+	{ .compatible = "boe,nv101wxmn51" },
 	{ }
 };
 
