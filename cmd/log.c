@@ -11,23 +11,40 @@
 
 static char log_fmt_chars[LOGF_COUNT] = "clFLfm";
 
+static enum log_level_t parse_log_level(char *const arg)
+{
+	enum log_level_t ret;
+	ulong level;
+
+	if (!strict_strtoul(arg, 10, &level)) {
+		if (level > _LOG_MAX_LEVEL) {
+			printf("Only log levels <= %d are supported\n",
+			       _LOG_MAX_LEVEL);
+			return LOGL_NONE;
+		}
+		return level;
+	}
+
+	ret = log_get_level_by_name(arg);
+	if (ret == LOGL_NONE)
+		printf("Unknown log level \"%s\"\n", arg);
+	return ret;
+}
+
 static int do_log_level(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
 	if (argc > 1) {
-		long log_level = simple_strtol(argv[1], NULL, 10);
+		enum log_level_t log_level = parse_log_level(argv[1]);
 
-		if (log_level < 0 || log_level > _LOG_MAX_LEVEL) {
-			printf("Only log levels <= %d are supported\n",
-			       _LOG_MAX_LEVEL);
+		if (log_level == LOGL_NONE)
 			return CMD_RET_FAILURE;
-		}
 		gd->default_log_level = log_level;
 	} else {
 		printf("Default log level: %d\n", gd->default_log_level);
 	}
 
-	return 0;
+	return CMD_RET_SUCCESS;
 }
 
 static int do_log_format(struct cmd_tbl *cmdtp, int flag, int argc,
