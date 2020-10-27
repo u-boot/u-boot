@@ -429,6 +429,37 @@ const char *log_get_level_name(enum log_level_t level);
  */
 enum log_level_t log_get_level_by_name(const char *name);
 
+/**
+ * log_device_find_by_name() - Look up a log device by its driver's name
+ *
+ * @drv_name: Name of the driver
+ * @return the log device, or NULL if not found
+ */
+struct log_device *log_device_find_by_name(const char *drv_name);
+
+/**
+ * log_has_cat() - check if a log category exists within a list
+ *
+ * @cat_list: List of categories to check, at most %LOGF_MAX_CATEGORIES entries
+ *	long, terminated by %LC_END if fewer
+ * @cat: Category to search for
+ *
+ * Return: ``true`` if @cat is in @cat_list, else ``false``
+ */
+bool log_has_cat(enum log_category_t cat_list[], enum log_category_t cat);
+
+/**
+ * log_has_file() - check if a file is with a list
+ *
+ * @file_list: List of files to check, separated by comma
+ * @file: File to check for. This string is matched against the end of each
+ *	file in the list, i.e. ignoring any preceding path. The list is
+ *	intended to consist of relative pathnames, e.g. common/main.c,cmd/log.c
+ *
+ * Return: ``true`` if @file is in @file_list, else ``false``
+ */
+bool log_has_file(const char *file_list, const char *file);
+
 /* Log format flags (bit numbers) for gd->log_fmt. See log_fmt_chars */
 enum log_fmt {
 	LOGF_CAT	= 0,
