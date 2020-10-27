@@ -297,3 +297,8 @@ information
 Add a command to add new log records and delete existing records.
 
 Provide additional log() functions - e.g. logc() to specify the category
+
+Logging API
+-----------
+.. kernel-doc:: include/log.h
+   :internal:
