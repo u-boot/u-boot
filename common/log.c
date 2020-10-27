@@ -170,7 +170,11 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
 		if (filt->file_list &&
 		    !log_has_file(filt->file_list, rec->file))
 			continue;
-		return true;
+
+		if (filt->flags & LOGFF_DENY)
+			return false;
+		else
+			return true;
 	}
 
 	return false;
@@ -284,7 +288,11 @@ int log_add_filter_flags(const char *drv_name, enum log_category_t cat_list[],
 		}
 	}
 	filt->filter_num = ldev->next_filter_num++;
-	list_add_tail(&filt->sibling_node, &ldev->filter_head);
+	/* Add deny filters to the beginning of the list */
+	if (flags & LOGFF_DENY)
+		list_add(&filt->sibling_node, &ldev->filter_head);
+	else
+		list_add_tail(&filt->sibling_node, &ldev->filter_head);
 
 	return filt->filter_num;
 

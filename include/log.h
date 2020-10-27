@@ -361,12 +361,21 @@ enum {
 	LOGF_MAX_CATEGORIES = 5,	/* maximum categories per filter */
 };
 
+/**
+ * enum log_filter_flags - Flags which modify a filter
+ */
 enum log_filter_flags {
-	LOGFF_HAS_CAT		= 1 << 0,	/* Filter has a category list */
+	/** @LOGFF_HAS_CAT: Filter has a category list */
+	LOGFF_HAS_CAT	= 1 << 0,
+	/** @LOGFF_DENY: Filter denies matching messages */
+	LOGFF_DENY	= 1 << 1,
 };
 
 /**
  * struct log_filter - criterial to filter out log messages
+ *
+ * If a message matches all criteria, then it is allowed. If LOGFF_DENY is set,
+ * then it is denied instead.
  *
  * @filter_num: Sequence number of this filter.  This is returned when adding a
  *	new filter, and must be provided when removing a previously added
