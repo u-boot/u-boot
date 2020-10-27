@@ -47,6 +47,37 @@ static int do_log_level(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
+static int do_log_categories(struct cmd_tbl *cmdtp, int flag, int argc,
+			     char *const argv[])
+{
+	enum log_category_t cat;
+	const char *name;
+
+	for (cat = LOGC_FIRST; cat < LOGC_COUNT; cat++) {
+		name = log_get_cat_name(cat);
+		/*
+		 * Invalid category names (e.g. <invalid> or <missing>) begin
+		 * with '<'.
+		 */
+		if (name[0] == '<')
+			continue;
+		printf("%s\n", name);
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static int do_log_drivers(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
+{
+	struct log_device *ldev;
+
+	list_for_each_entry(ldev, &gd->log_head, sibling_node)
+		printf("%s\n", ldev->drv->name);
+
+	return CMD_RET_SUCCESS;
+}
+
 static int do_log_format(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
@@ -123,6 +154,8 @@ static int do_log_rec(struct cmd_tbl *cmdtp, int flag, int argc,
 #ifdef CONFIG_SYS_LONGHELP
 static char log_help_text[] =
 	"level - get/set log level\n"
+	"categories - list log categories\n"
+	"drivers - list log drivers\n"
 	"log format <fmt> - set log output format. <fmt> is a string where\n"
 	"\teach letter indicates something that should be displayed:\n"
 	"\tc=category, l=level, F=file, L=line number, f=function, m=msg\n"
@@ -134,6 +167,8 @@ static char log_help_text[] =
 
 U_BOOT_CMD_WITH_SUBCMDS(log, "log system", log_help_text,
 	U_BOOT_SUBCMD_MKENT(level, 2, 1, do_log_level),
+	U_BOOT_SUBCMD_MKENT(categories, 1, 1, do_log_categories),
+	U_BOOT_SUBCMD_MKENT(drivers, 1, 1, do_log_drivers),
 	U_BOOT_SUBCMD_MKENT(format, 2, 1, do_log_format),
 	U_BOOT_SUBCMD_MKENT(rec, 7, 1, do_log_rec),
 );

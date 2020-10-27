@@ -411,8 +411,9 @@ struct log_filter {
  * log_get_cat_name() - Get the name of a category
  *
  * @cat: Category to look up
- * @return category name (which may be a uclass driver name) if found, or
- *	 "<invalid>" if invalid, or "<missing>" if not found
+ * @return: category name (which may be a uclass driver name) if found, or
+ *	   "<invalid>" if invalid, or "<missing>" if not found. All error
+ *	   responses begin with '<'.
  */
 const char *log_get_cat_name(enum log_category_t cat);
 
