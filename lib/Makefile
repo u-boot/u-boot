@@ -106,6 +106,7 @@ obj-y += string.o
 obj-y += tables_csum.o
 obj-y += time.o
 obj-y += hexdump.o
+obj-$(CONFIG_GETOPT) += getopt.o
 obj-$(CONFIG_TRACE) += trace.o
 obj-$(CONFIG_LIB_UUID) += uuid.o
 obj-$(CONFIG_LIB_RAND) += rand.o

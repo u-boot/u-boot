@@ -550,6 +550,11 @@ config SPL_HEXDUMP
 	  This enables functions for printing dumps of binary data in
 	  SPL.
 
+config GETOPT
+	bool "Enable getopt"
+	help
+	  This enables functions for parsing command-line options.
+
 config OF_LIBFDT
 	bool "Enable the FDT library"
 	default y if OF_CONTROL
