@@ -162,11 +162,17 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
 	}
 
 	list_for_each_entry(filt, &ldev->filter_head, sibling_node) {
-		if (rec->level > filt->max_level)
+		if (filt->flags & LOGFF_LEVEL_MIN) {
+			if (rec->level < filt->level)
+				continue;
+		} else if (rec->level > filt->level) {
 			continue;
+		}
+
 		if ((filt->flags & LOGFF_HAS_CAT) &&
 		    !log_has_cat(filt->cat_list, rec->cat))
 			continue;
+
 		if (filt->file_list &&
 		    !log_has_file(filt->file_list, rec->file))
 			continue;
@@ -251,7 +257,7 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 }
 
 int log_add_filter_flags(const char *drv_name, enum log_category_t cat_list[],
-			 enum log_level_t max_level, const char *file_list,
+			 enum log_level_t level, const char *file_list,
 			 int flags)
 {
 	struct log_filter *filt;
@@ -279,7 +285,7 @@ int log_add_filter_flags(const char *drv_name, enum log_category_t cat_list[],
 				break;
 		}
 	}
-	filt->max_level = max_level;
+	filt->level = level;
 	if (file_list) {
 		filt->file_list = strdup(file_list);
 		if (!filt->file_list) {

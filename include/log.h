@@ -369,6 +369,8 @@ enum log_filter_flags {
 	LOGFF_HAS_CAT	= 1 << 0,
 	/** @LOGFF_DENY: Filter denies matching messages */
 	LOGFF_DENY	= 1 << 1,
+	/** @LOGFF_LEVEL_MIN: Filter's level is a minimum, not a maximum */
+	LOGFF_LEVEL_MIN = 1 << 2,
 };
 
 /**
@@ -384,7 +386,7 @@ enum log_filter_flags {
  * @cat_list: List of categories to allow (terminated by %LOGC_END). If empty
  *	then all categories are permitted. Up to LOGF_MAX_CATEGORIES entries
  *	can be provided
- * @max_level: Maximum log level to allow
+ * @level: Maximum (or minimum, if LOGFF_MIN_LEVEL) log level to allow
  * @file_list: List of files to allow, separated by comma. If NULL then all
  *	files are permitted
  * @sibling_node: Next filter in the list of filters for this log device
@@ -393,7 +395,7 @@ struct log_filter {
 	int filter_num;
 	int flags;
 	enum log_category_t cat_list[LOGF_MAX_CATEGORIES];
-	enum log_level_t max_level;
+	enum log_level_t level;
 	const char *file_list;
 	struct list_head sibling_node;
 };
@@ -494,14 +496,14 @@ int do_log_test(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
  * @cat_list: List of categories to allow (terminated by %LOGC_END). If empty
  *	then all categories are permitted. Up to LOGF_MAX_CATEGORIES entries
  *	can be provided
- * @max_level: Maximum log level to allow
+ * @level: Maximum (or minimum, if LOGFF_LEVEL_MIN) log level to allow
  * @file_list: List of files to allow, separated by comma. If NULL then all
  *	files are permitted
  * @return the sequence number of the new filter (>=0) if the filter was added,
  *	or a -ve value on error
  */
 int log_add_filter_flags(const char *drv_name, enum log_category_t cat_list[],
-			 enum log_level_t max_level, const char *file_list,
+			 enum log_level_t level, const char *file_list,
 			 int flags);
 
 /**
