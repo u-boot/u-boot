@@ -72,7 +72,7 @@ static int do_check_log_entries(struct unit_test_state *uts, int flags, int min,
 #define check_log_entries_none() check_log_entries_flags(0)
 
 /* Check a category filter using the first category */
-int log_test_00(struct unit_test_state *uts)
+int log_test_cat_allow(struct unit_test_state *uts)
 {
 	enum log_category_t cat_list[] = {
 		log_uc_cat(UCLASS_MMC), log_uc_cat(UCLASS_SPI),
@@ -94,10 +94,10 @@ int log_test_00(struct unit_test_state *uts)
 	ut_assertok(log_remove_filter("console", filt));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_00, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_cat_allow, UT_TESTF_CONSOLE_REC);
 
 /* Check a category filter that should block log entries */
-int log_test_02(struct unit_test_state *uts)
+int log_test_cat_deny_implicit(struct unit_test_state *uts)
 {
 	enum log_category_t cat_list[] = {
 		log_uc_cat(UCLASS_MMC),  LOGC_NONE, LOGC_END
@@ -114,10 +114,10 @@ int log_test_02(struct unit_test_state *uts)
 	ut_assertok(log_remove_filter("console", filt));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_02, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_cat_deny_implicit, UT_TESTF_CONSOLE_REC);
 
 /* Check passing and failing file filters */
-int log_test_03(struct unit_test_state *uts)
+int log_test_file(struct unit_test_state *uts)
 {
 	int filt;
 
@@ -135,10 +135,10 @@ int log_test_03(struct unit_test_state *uts)
 	ut_assertok(log_remove_filter("console", filt));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_03, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_file, UT_TESTF_CONSOLE_REC);
 
 /* Check a passing file filter (second in list) */
-int log_test_05(struct unit_test_state *uts)
+int log_test_file_second(struct unit_test_state *uts)
 {
 	int filt;
 
@@ -152,10 +152,10 @@ int log_test_05(struct unit_test_state *uts)
 	ut_assertok(log_remove_filter("console", filt));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_05, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_file_second, UT_TESTF_CONSOLE_REC);
 
 /* Check a passing file filter (middle of list) */
-int log_test_06(struct unit_test_state *uts)
+int log_test_file_mid(struct unit_test_state *uts)
 {
 	int filt;
 
@@ -170,10 +170,10 @@ int log_test_06(struct unit_test_state *uts)
 	ut_assertok(log_remove_filter("console", filt));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_06, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_file_mid, UT_TESTF_CONSOLE_REC);
 
 /* Check a log level filter */
-int log_test_07(struct unit_test_state *uts)
+int log_test_level(struct unit_test_state *uts)
 {
 	int filt;
 
@@ -188,10 +188,10 @@ int log_test_07(struct unit_test_state *uts)
 	ut_assertok(log_remove_filter("console", filt));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_07, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_level, UT_TESTF_CONSOLE_REC);
 
 /* Check two filters, one of which passes everything */
-int log_test_08(struct unit_test_state *uts)
+int log_test_double(struct unit_test_state *uts)
 {
 	int filt1, filt2;
 
@@ -208,10 +208,10 @@ int log_test_08(struct unit_test_state *uts)
 	ut_assertok(log_remove_filter("console", filt2));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_08, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_double, UT_TESTF_CONSOLE_REC);
 
 /* Check three filters, which together pass everything */
-int log_test_09(struct unit_test_state *uts)
+int log_test_triple(struct unit_test_state *uts)
 {
 	int filt1, filt2, filt3;
 
@@ -231,9 +231,9 @@ int log_test_09(struct unit_test_state *uts)
 	ut_assertok(log_remove_filter("console", filt3));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_09, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_triple, UT_TESTF_CONSOLE_REC);
 
-int do_log_test_10(struct unit_test_state *uts)
+int do_log_test_helpers(struct unit_test_state *uts)
 {
 	int i;
 
@@ -255,18 +255,18 @@ int do_log_test_10(struct unit_test_state *uts)
 	return 0;
 }
 
-int log_test_10(struct unit_test_state *uts)
+int log_test_helpers(struct unit_test_state *uts)
 {
 	int ret;
 
 	gd->log_fmt = LOGF_TEST;
-	ret = do_log_test_10(uts);
+	ret = do_log_test_helpers(uts);
 	gd->log_fmt = log_get_default_format();
 	return ret;
 }
-LOG_TEST_FLAGS(log_test_10, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_helpers, UT_TESTF_CONSOLE_REC);
 
-int do_log_test_11(struct unit_test_state *uts)
+int do_log_test_disable(struct unit_test_state *uts)
 {
 	ut_assertok(console_record_reset_enable());
 	log_err("default\n");
@@ -282,13 +282,13 @@ int do_log_test_11(struct unit_test_state *uts)
 	return 0;
 }
 
-int log_test_11(struct unit_test_state *uts)
+int log_test_disable(struct unit_test_state *uts)
 {
 	int ret;
 
 	gd->log_fmt = LOGF_TEST;
-	ret = do_log_test_10(uts);
+	ret = do_log_test_disable(uts);
 	gd->log_fmt = log_get_default_format();
 	return ret;
 }
-LOG_TEST_FLAGS(log_test_11, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_disable, UT_TESTF_CONSOLE_REC);
