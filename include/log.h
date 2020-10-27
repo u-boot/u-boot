@@ -477,6 +477,25 @@ enum log_fmt {
 int do_log_test(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 /**
+ * log_add_filter_flags() - Add a new filter to a log device, specifying flags
+ *
+ * @drv_name: Driver name to add the filter to (since each driver only has a
+ *	single device)
+ * @flags: Flags for this filter (LOGFF_...)
+ * @cat_list: List of categories to allow (terminated by %LOGC_END). If empty
+ *	then all categories are permitted. Up to LOGF_MAX_CATEGORIES entries
+ *	can be provided
+ * @max_level: Maximum log level to allow
+ * @file_list: List of files to allow, separated by comma. If NULL then all
+ *	files are permitted
+ * @return the sequence number of the new filter (>=0) if the filter was added,
+ *	or a -ve value on error
+ */
+int log_add_filter_flags(const char *drv_name, enum log_category_t cat_list[],
+			 enum log_level_t max_level, const char *file_list,
+			 int flags);
+
+/**
  * log_add_filter() - Add a new filter to a log device
  *
  * @drv_name: Driver name to add the filter to (since each driver only has a
@@ -490,8 +509,14 @@ int do_log_test(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
  * @return the sequence number of the new filter (>=0) if the filter was added,
  *	or a -ve value on error
  */
-int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
-		   enum log_level_t max_level, const char *file_list);
+static inline int log_add_filter(const char *drv_name,
+				 enum log_category_t cat_list[],
+				 enum log_level_t max_level,
+				 const char *file_list)
+{
+	return log_add_filter_flags(drv_name, cat_list, max_level, file_list,
+				    0);
+}
 
 /**
  * log_remove_filter() - Remove a filter from a log device

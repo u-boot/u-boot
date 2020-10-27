@@ -246,8 +246,9 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 	return 0;
 }
 
-int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
-		   enum log_level_t max_level, const char *file_list)
+int log_add_filter_flags(const char *drv_name, enum log_category_t cat_list[],
+			 enum log_level_t max_level, const char *file_list,
+			 int flags)
 {
 	struct log_filter *filt;
 	struct log_device *ldev;
@@ -261,6 +262,7 @@ int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
 	if (!filt)
 		return -ENOMEM;
 
+	filt->flags = flags;
 	if (cat_list) {
 		filt->flags |= LOGFF_HAS_CAT;
 		for (i = 0; ; i++) {
