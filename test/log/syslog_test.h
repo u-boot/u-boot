@@ -8,8 +8,6 @@
 #ifndef __SYSLOG_TEST_H
 #define __SYSLOG_TEST_H
 
-#define LOGF_TEST (BIT(LOGF_FUNC) | BIT(LOGF_MSG))
-
 /**
  * struct sb_log_env - private data for sandbox ethernet driver
  *

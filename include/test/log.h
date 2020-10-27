@@ -10,6 +10,8 @@
 
 #include <test/test.h>
 
+#define LOGF_TEST (BIT(LOGF_FUNC) | BIT(LOGF_MSG))
+
 /* Declare a new logging test */
 #define LOG_TEST(_name) UNIT_TEST(_name, 0, log_test)
 
