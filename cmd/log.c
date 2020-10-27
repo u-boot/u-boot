@@ -105,7 +105,7 @@ static int do_log_rec(struct cmd_tbl *cmdtp, int flag, int argc,
 
 static struct cmd_tbl log_sub[] = {
 	U_BOOT_CMD_MKENT(level, CONFIG_SYS_MAXARGS, 1, do_log_level, "", ""),
-#ifdef CONFIG_LOG_TEST
+#if CONFIG_IS_ENABLED(LOG_TEST)
 	U_BOOT_CMD_MKENT(test, 2, 1, do_log_test, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(format, CONFIG_SYS_MAXARGS, 1, do_log_format, "", ""),
@@ -133,7 +133,7 @@ static int do_log(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 #ifdef CONFIG_SYS_LONGHELP
 static char log_help_text[] =
 	"level - get/set log level\n"
-#ifdef CONFIG_LOG_TEST
+#if CONFIG_IS_ENABLED(LOG_TEST)
 	"log test - run log tests\n"
 #endif
 	"log format <fmt> - set log output format. <fmt> is a string where\n"
