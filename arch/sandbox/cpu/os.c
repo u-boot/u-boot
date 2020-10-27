@@ -80,6 +80,11 @@ int os_open(const char *pathname, int os_flags)
 		flags |= O_CREAT;
 	if (os_flags & OS_O_TRUNC)
 		flags |= O_TRUNC;
+	/*
+	 * During a cold reset execv() is used to relaunch the U-Boot binary.
+	 * We must ensure that all files are closed in this case.
+	 */
+	flags |= O_CLOEXEC;
 
 	return open(pathname, flags, 0777);
 }
