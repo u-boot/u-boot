@@ -822,3 +822,9 @@ void *os_find_text_base(void)
 
 	return base;
 }
+
+void os_relaunch(char *argv[])
+{
+	execv(argv[0], argv);
+	os_exit(1);
+}

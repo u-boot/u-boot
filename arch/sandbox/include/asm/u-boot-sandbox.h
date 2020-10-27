@@ -84,6 +84,16 @@ void sandbox_set_enable_pci_map(int enable);
  */
 int sandbox_read_fdt_from_file(void);
 
+/**
+ * sandbox_reset() - reset sandbox
+ *
+ * This functions implements the cold reboot of the sandbox. It relaunches the
+ * U-Boot binary with the same command line parameters as the original call.
+ * The PID of the process stays the same. All file descriptors that have not
+ * been opened with O_CLOEXEC stay open including stdin, stdout, stderr.
+ */
+void sandbox_reset(void);
+
 /* Exit sandbox (quit U-Boot) */
 void sandbox_exit(void);
 

@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm/root.h>
 #include <errno.h>
 #include <init.h>
 #include <os.h>
@@ -18,6 +19,8 @@
 #include <linux/ctype.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static char **os_argv;
 
 /* Compare two options so that they can be sorted into alphabetical order */
 static int h_compare_opt(const void *p1, const void *p2)
@@ -403,11 +406,34 @@ void state_show(struct sandbox_state *state)
 	printf("\n");
 }
 
+void sandbox_reset(void)
+{
+	/* Do this here while it still has an effect */
+	os_fd_restore();
+	if (state_uninit())
+		os_exit(2);
+
+	if (dm_uninit())
+		os_exit(2);
+
+	/* Restart U-Boot */
+	os_relaunch(os_argv);
+}
+
 int main(int argc, char *argv[])
 {
 	struct sandbox_state *state;
 	gd_t data;
 	int ret;
+
+	/*
+	 * Copy argv[] so that we can pass the arguments in the original
+	 * sequence when resetting the sandbox.
+	 */
+	os_argv = calloc(argc + 1, sizeof(char *));
+	if (!os_argv)
+		os_exit(1);
+	memcpy(os_argv, argv, sizeof(char *) * (argc + 1));
 
 	memset(&data, '\0', sizeof(data));
 	gd = &data;

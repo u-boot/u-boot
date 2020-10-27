@@ -355,4 +355,19 @@ int os_read_file(const char *name, void **bufp, int *sizep);
  */
 void *os_find_text_base(void);
 
+/**
+ * os_relaunch() - restart the sandbox
+ *
+ * This functions is used to implement the cold reboot of the sand box.
+ * @argv[0] specifies the binary that is started while the calling process
+ * stops immediately. If the new binary cannot be started, the process is
+ * terminated and 1 is set as shell return code.
+ *
+ * The PID of the process stays the same. All file descriptors that have not
+ * been opened with O_CLOEXEC stay open including stdin, stdout, stderr.
+ *
+ * @argv:	NULL terminated list of command line parameters
+ */
+void os_relaunch(char *argv[]);
+
 #endif
