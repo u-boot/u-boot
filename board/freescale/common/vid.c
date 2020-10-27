@@ -485,7 +485,7 @@ int adjust_vdd(ulong vdd_override)
 	u8 vid;
 #endif
 	int vdd_target, vdd_current, vdd_last;
-	int ret, i2caddress;
+	int ret, i2caddress = 0;
 	unsigned long vdd_string_override;
 	char *vdd_string;
 #if defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LX2162A)
