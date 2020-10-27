@@ -13,7 +13,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const char *log_cat_name[] = {
+static const char *const log_cat_name[] = {
 	"none",
 	"arch",
 	"board",
@@ -31,7 +31,7 @@ static const char *log_cat_name[] = {
 _Static_assert(ARRAY_SIZE(log_cat_name) == LOGC_COUNT - LOGC_NONE,
 	       "log_cat_name size");
 
-static const char *log_level_name[] = {
+static const char *const log_level_name[] = {
 	"EMERG",
 	"ALERT",
 	"CRIT",
