@@ -294,7 +294,7 @@ int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
 	if (file_list) {
 		filt->file_list = strdup(file_list);
 		if (!filt->file_list) {
-			ret = ENOMEM;
+			ret = -ENOMEM;
 			goto err;
 		}
 	}
