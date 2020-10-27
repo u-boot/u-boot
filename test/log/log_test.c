@@ -359,3 +359,26 @@ int log_test_level_deny(struct unit_test_state *uts)
 	return 0;
 }
 LOG_TEST_FLAGS(log_test_level_deny, UT_TESTF_CONSOLE_REC);
+
+/* Check matching based on minimum level */
+int log_test_min(struct unit_test_state *uts)
+{
+	int filt1, filt2;
+
+	filt1 = log_add_filter_flags("console", NULL, LOGL_WARNING, NULL,
+				     LOGFF_LEVEL_MIN);
+	ut_assert(filt1 >= 0);
+	filt2 = log_add_filter_flags("console", NULL, LOGL_INFO, NULL,
+				     LOGFF_DENY | LOGFF_LEVEL_MIN);
+	ut_assert(filt2 >= 0);
+
+	ut_assertok(console_record_reset_enable());
+	log_run();
+	check_log_entries_flags_levels(EXPECT_LOG | EXPECT_DIRECT,
+				       LOGL_WARNING, LOGL_INFO - 1);
+
+	ut_assertok(log_remove_filter("console", filt1));
+	ut_assertok(log_remove_filter("console", filt2));
+	return 0;
+}
+LOG_TEST_FLAGS(log_test_min, UT_TESTF_CONSOLE_REC);
