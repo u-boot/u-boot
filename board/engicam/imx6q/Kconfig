@@ -9,4 +9,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "imx6-engicam"
 
+source "board/engicam/common/Kconfig"
+
 endif
