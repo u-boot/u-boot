@@ -266,9 +266,13 @@ static efi_status_t EFIAPI efi_get_time_boottime(
 	time->hour = tm.tm_hour;
 	time->minute = tm.tm_min;
 	time->second = tm.tm_sec;
-	if (tm.tm_isdst)
+	if (tm.tm_isdst > 0)
 		time->daylight =
 			EFI_TIME_ADJUST_DAYLIGHT | EFI_TIME_IN_DAYLIGHT;
+	else if (!tm.tm_isdst)
+		time->daylight = EFI_TIME_ADJUST_DAYLIGHT;
+	else
+		time->daylight = 0;
 	time->timezone = EFI_UNSPECIFIED_TIMEZONE;
 
 	if (capabilities) {
@@ -347,8 +351,17 @@ static efi_status_t EFIAPI efi_set_time_boottime(struct efi_time *time)
 	tm.tm_hour = time->hour;
 	tm.tm_min = time->minute;
 	tm.tm_sec = time->second;
-	tm.tm_isdst = time->daylight ==
-		      (EFI_TIME_ADJUST_DAYLIGHT | EFI_TIME_IN_DAYLIGHT);
+	switch (time->daylight) {
+	case EFI_TIME_ADJUST_DAYLIGHT:
+		tm.tm_isdst = 0;
+		break;
+	case EFI_TIME_ADJUST_DAYLIGHT | EFI_TIME_IN_DAYLIGHT:
+		tm.tm_isdst = 1;
+		break;
+	default:
+		tm.tm_isdst = -1;
+		break;
+	}
 	/* Calculate day of week */
 	rtc_calc_weekday(&tm);
 

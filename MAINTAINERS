@@ -678,6 +678,7 @@ S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-efi.git
 F:	doc/api/efi.rst
 F:	doc/uefi/*
+F:	drivers/rtc/emul_rtc.c
 F:	include/capitalization.h
 F:	include/charset.h
 F:	include/cp1250.h

@@ -63,6 +63,17 @@ config RTC_DS3232
 	  Support for Dallas Semiconductor (now Maxim) DS3232 compatible
 	  Real Time Clock devices.
 
+config RTC_EMULATION
+	bool "Enable emulated RTC"
+	depends on DM_RTC
+	help
+	  On a board without hardware clock this software real time clock can be
+	  used. The build time is used to initialize the RTC. So you will have
+	  to adjust the time either manually using the 'date' command  or use
+	  the 'sntp' to update the RTC with the time from a network time server.
+	  See CONFIG_CMD_SNTP and CONFIG_BOOTP_NTPSERVER. The RTC time is
+	  advanced according to CPU ticks.
+
 config RTC_ISL1208
 	bool "Enable ISL1208 driver"
 	depends on DM_RTC

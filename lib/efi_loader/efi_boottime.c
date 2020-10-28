@@ -6,18 +6,20 @@
  */
 
 #include <common.h>
+#include <bootm.h>
 #include <div64.h>
+#include <dm/device.h>
+#include <dm/root.h>
 #include <efi_loader.h>
 #include <irq_func.h>
 #include <log.h>
 #include <malloc.h>
-#include <time.h>
-#include <linux/libfdt_env.h>
-#include <u-boot/crc.h>
-#include <bootm.h>
 #include <pe.h>
+#include <time.h>
 #include <u-boot/crc.h>
+#include <usb.h>
 #include <watchdog.h>
+#include <linux/libfdt_env.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -1994,7 +1996,10 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 			list_del(&evt->link);
 	}
 
+	if IS_ENABLED(CONFIG_USB_DEVICE)
+		udc_disconnect();
 	board_quiesce_devices();
+	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
 
 	/* Patch out unsupported runtime function */
 	efi_runtime_detach();
