@@ -25,7 +25,6 @@ ulong msm_set_rate(struct clk *clk, ulong rate)
 	case GCC_BLSP1_UART1_APPS_CLK: /*UART1*/
 		/* This clock is already initialized by SBL1 */
 		return 0;
-		break;
 	default:
 		return 0;
 	}
@@ -53,11 +52,9 @@ static int msm_enable(struct clk *clk)
 	case GCC_BLSP1_QUP1_SPI_APPS_CLK: /*SPI1*/
 		/* This clock is already initialized by SBL1 */
 		return 0;
-		break;
 	case GCC_PRNG_AHB_CLK: /*PRNG*/
 		/* This clock is already initialized by SBL1 */
 		return 0;
-		break;
 	default:
 		return 0;
 	}
