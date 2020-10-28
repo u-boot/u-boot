@@ -55,6 +55,14 @@ static int msm_enable(struct clk *clk)
 	case GCC_PRNG_AHB_CLK: /*PRNG*/
 		/* This clock is already initialized by SBL1 */
 		return 0;
+	case GCC_USB3_MASTER_CLK:
+	case GCC_USB3_SLEEP_CLK:
+	case GCC_USB3_MOCK_UTMI_CLK:
+	case GCC_USB2_MASTER_CLK:
+	case GCC_USB2_SLEEP_CLK:
+	case GCC_USB2_MOCK_UTMI_CLK:
+		/* These clocks is already initialized by SBL1 */
+		return 0;
 	default:
 		return -EINVAL;
 	}
