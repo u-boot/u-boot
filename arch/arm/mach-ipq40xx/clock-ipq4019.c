@@ -26,7 +26,7 @@ ulong msm_set_rate(struct clk *clk, ulong rate)
 		/* This clock is already initialized by SBL1 */
 		return 0;
 	default:
-		return 0;
+		return -EINVAL;
 	}
 }
 
@@ -56,7 +56,7 @@ static int msm_enable(struct clk *clk)
 		/* This clock is already initialized by SBL1 */
 		return 0;
 	default:
-		return 0;
+		return -EINVAL;
 	}
 }
 
