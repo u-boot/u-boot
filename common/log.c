@@ -13,7 +13,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const char *log_cat_name[LOGC_COUNT - LOGC_NONE] = {
+static const char *log_cat_name[] = {
 	"none",
 	"arch",
 	"board",
@@ -28,7 +28,10 @@ static const char *log_cat_name[LOGC_COUNT - LOGC_NONE] = {
 	"acpi",
 };
 
-static const char *log_level_name[LOGL_COUNT] = {
+_Static_assert(ARRAY_SIZE(log_cat_name) == LOGC_COUNT - LOGC_NONE,
+	       "log_cat_name size");
+
+static const char *log_level_name[] = {
 	"EMERG",
 	"ALERT",
 	"CRIT",
@@ -41,6 +44,9 @@ static const char *log_level_name[LOGL_COUNT] = {
 	"IO",
 };
 
+_Static_assert(ARRAY_SIZE(log_level_name) == LOGL_COUNT, "log_level_name size");
+
+/* All error responses MUST begin with '<' */
 const char *log_get_cat_name(enum log_category_t cat)
 {
 	const char *name;
@@ -191,32 +197,33 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
  * log_dispatch() - Send a log record to all log devices for processing
  *
  * The log record is sent to each log device in turn, skipping those which have
- * filters which block the record
+ * filters which block the record.
  *
- * @rec: Log record to dispatch
- * @return 0 (meaning success)
+ * All log messages created while processing log record @rec are ignored.
+ *
+ * @rec:	log record to dispatch
+ * Return:	0 msg sent, 1 msg not sent while already dispatching another msg
  */
 static int log_dispatch(struct log_rec *rec)
 {
 	struct log_device *ldev;
-	static int processing_msg;
 
 	/*
 	 * When a log driver writes messages (e.g. via the network stack) this
 	 * may result in further generated messages. We cannot process them here
 	 * as this might result in infinite recursion.
 	 */
-	if (processing_msg)
-		return 0;
+	if (gd->processing_msg)
+		return 1;
 
 	/* Emit message */
-	processing_msg = 1;
+	gd->processing_msg = true;
 	list_for_each_entry(ldev, &gd->log_head, sibling_node) {
 		if ((ldev->flags & LOGDF_ENABLE) &&
 		    log_passes_filters(ldev, rec))
 			ldev->drv->emit(ldev, rec);
 	}
-	processing_msg = 0;
+	gd->processing_msg = false;
 	return 0;
 }
 
@@ -226,6 +233,12 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 	char buf[CONFIG_SYS_CBSIZE];
 	struct log_rec rec;
 	va_list args;
+
+	/* Check for message continuation */
+	if (cat == LOGC_CONT)
+		cat = gd->logc_prev;
+	if (level == LOGL_CONT)
+		level = gd->logl_prev;
 
 	rec.cat = cat;
 	rec.level = level & LOGL_LEVEL_MASK;
@@ -242,7 +255,10 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 			gd->log_drop_count++;
 		return -ENOSYS;
 	}
-	log_dispatch(&rec);
+	if (!log_dispatch(&rec)) {
+		gd->logc_prev = cat;
+		gd->logl_prev = level;
+	}
 
 	return 0;
 }
@@ -382,6 +398,8 @@ int log_init(void)
 	if (!gd->default_log_level)
 		gd->default_log_level = CONFIG_LOG_DEFAULT_LEVEL;
 	gd->log_fmt = log_get_default_format();
+	gd->logc_prev = LOGC_NONE;
+	gd->logl_prev = LOGL_INFO;
 
 	return 0;
 }

@@ -363,6 +363,26 @@ struct global_data {
 	 * &enum log_fmt defines the bits of the bit mask.
 	 */
 	int log_fmt;
+
+	/**
+	 * @processing_msg: a log message is being processed
+	 *
+	 * This flag is used to suppress the creation of additional messages
+	 * while another message is being processed.
+	 */
+	bool processing_msg;
+	/**
+	 * @logc_prev: logging category of previous message
+	 *
+	 * This value is used as logging category for continuation messages.
+	 */
+	int logc_prev;
+	/**
+	 * @logl_pref: logging level of the previous message
+	 *
+	 * This value is used as logging level for continuation messages.
+	 */
+	int logl_prev;
 #endif
 #if CONFIG_IS_ENABLED(BLOBLIST)
 	/**

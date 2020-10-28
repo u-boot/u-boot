@@ -38,6 +38,9 @@ There are a number logging levels available, in increasing order of verbosity:
 * LOGL_DEBUG_CONTENT - Debug message showing full message content
 * LOGL_DEBUG_IO - Debug message showing hardware I/O access
 
+To continue a log message in a separate call of function log() use
+
+* LOGL_CONT - Use same log level as in previous call
 
 Logging category
 ----------------
@@ -56,6 +59,9 @@ The following main categories are defined:
 * LOGC_DT - Related to device tree control
 * LOGC_EFI - Related to EFI implementation
 
+To continue a log message in a separate call of function log() use
+
+* LOGC_CONT - Use same category as in previous call
 
 Enabling logging
 ----------------
