@@ -2,6 +2,11 @@ if ROCKCHIP_PX30
 
 config TARGET_EVB_PX30
 	bool "EVB_PX30"
+	help
+	  This target config option used for below listed px30 boards.
+
+	  EVB_PX30:
+	  * EVB_PX30 is an evaluation board for Rockchip PX30.
 
 config TARGET_ODROID_GO2
 	bool "ODROID_GO2"
