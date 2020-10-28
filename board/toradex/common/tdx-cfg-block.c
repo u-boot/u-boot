@@ -423,12 +423,6 @@ static int get_cfgblock_interactive(void)
 		tdx_hw_tag.prodid = COLIBRI_IMX7D;
 	else if (!strcmp("imx7s", soc))
 		tdx_hw_tag.prodid = COLIBRI_IMX7S;
-	else if (is_cpu_type(MXC_CPU_IMX8MM))
-		tdx_hw_tag.prodid = VERDIN_IMX8MMQ_WIFI_BT_IT;
-	else if (is_cpu_type(MXC_CPU_IMX8MMDL))
-		tdx_hw_tag.prodid = VERDIN_IMX8MMDL;
-	else if (is_cpu_type(MXC_CPU_IMX8MN))
-		tdx_hw_tag.prodid = VERDIN_IMX8MNQ_WIFI_BT;
 	else if (is_cpu_type(MXC_CPU_IMX8QM)) {
 		if (it == 'y' || it == 'Y') {
 			if (wb == 'y' || wb == 'Y')
@@ -464,18 +458,16 @@ static int get_cfgblock_interactive(void)
 				tdx_hw_tag.prodid = COLIBRI_IMX8DX;
 		}
 #endif
+	} else if (is_cpu_type(MXC_CPU_IMX8MMDL)) {
+		if (wb == 'y' || wb == 'Y')
+			tdx_hw_tag.prodid = VERDIN_IMX8MMDL_WIFI_BT_IT;
+		else
+			tdx_hw_tag.prodid = VERDIN_IMX8MMDL;
 	} else if (is_cpu_type(MXC_CPU_IMX8MM)) {
-		if (is_cpu_type(MXC_CPU_IMX8MMDL)) {
-			if (wb == 'y' || wb == 'Y')
-				tdx_hw_tag.prodid = VERDIN_IMX8MMDL_WIFI_BT_IT;
-			else
-				tdx_hw_tag.prodid = VERDIN_IMX8MMDL;
-		} else {
-			if (wb == 'y' || wb == 'Y')
-				tdx_hw_tag.prodid = VERDIN_IMX8MMQ_WIFI_BT_IT;
-			else
-				tdx_hw_tag.prodid = VERDIN_IMX8MMQ_IT;
-		}
+		if (wb == 'y' || wb == 'Y')
+			tdx_hw_tag.prodid = VERDIN_IMX8MMQ_WIFI_BT_IT;
+		else
+			tdx_hw_tag.prodid = VERDIN_IMX8MMQ_IT;
 	} else if (is_cpu_type(MXC_CPU_IMX8MN)) {
 		tdx_hw_tag.prodid = VERDIN_IMX8MNQ_WIFI_BT;
 	} else if (is_cpu_type(MXC_CPU_IMX8MP)) {
