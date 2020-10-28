@@ -1081,6 +1081,12 @@ config CMD_MTD
 	help
 	  MTD commands support.
 
+config CMD_MUX
+	bool "mux"
+	depends on MULTIPLEXER
+	help
+	 List, select, and deselect mux controllers on the fly.
+
 config CMD_NAND
 	bool "nand"
 	default y if NAND_SUNXI

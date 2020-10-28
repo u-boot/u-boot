@@ -46,6 +46,7 @@
 #include <miiphy.h>
 #endif
 #include <mmc.h>
+#include <mux.h>
 #include <nand.h>
 #include <of_live.h>
 #include <onenand_uboot.h>
@@ -337,6 +338,17 @@ static int initr_dm_devices(void)
 
 	if (IS_ENABLED(CONFIG_TIMER_EARLY)) {
 		ret = dm_timer_init();
+		if (ret)
+			return ret;
+	}
+
+	if (IS_ENABLED(CONFIG_MULTIPLEXER)) {
+		/*
+		 * Initialize the multiplexer controls to their default state.
+		 * This must be done early as other drivers may unknowingly
+		 * rely on it.
+		 */
+		ret = dm_mux_init();
 		if (ret)
 			return ret;
 	}
