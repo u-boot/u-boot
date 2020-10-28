@@ -123,6 +123,9 @@ To build rk3399 boards::
 Flashing
 --------
 
+1. Package the image with U-Boot TPL/SPL
+-----------------------------------------
+
 SD Card
 ^^^^^^^
 
@@ -187,6 +190,39 @@ Copy SPI boot images into SD card and boot from SD::
         sf erase 0x60000 +$filesize
         sf write $kernel_addr_r 0x60000 ${filesize}
 
+2. Package the image with Rockchip miniloader
+---------------------------------------------
+
+Image package with Rockchip miniloader requires robin [1].
+
+Create idbloader.img
+
+.. code-block:: none
+
+  cd u-boot
+  ./tools/mkimage -n px30 -T rksd -d rkbin/bin/rk33/px30_ddr_333MHz_v1.15.bin idbloader.img
+  cat rkbin/bin/rk33/px30_miniloader_v1.22.bin >> idbloader.img
+  sudo dd if=idbloader.img of=/dev/sda seek=64
+
+Create trust.img
+
+.. code-block:: none
+
+  cd rkbin
+  ./tools/trust_merger RKTRUST/PX30TRUST.ini
+  sudo dd if=trust.img of=/dev/sda seek=24576
+
+Create uboot.img
+
+.. code-block:: none
+
+  rbink/tools/loaderimage --pack --uboot u-boot-dtb.bin uboot.img 0x200000
+  sudo dd if=uboot.img of=/dev/sda seek=16384
+
+Note:
+1. 0x200000 is load address and it's an optional in some platforms.
+2. rkbin binaries are kept on updating, so would recommend to use the latest versions.
+
 TODO
 ----
 
@@ -195,5 +231,7 @@ TODO
 - Document SPI flash boot
 - Add missing SoC's with it boards list
 
+[1] https://github.com/rockchip-linux/rkbin
+
 .. Jagan Teki <jagan@amarulasolutions.com>
-.. Tuesday 02 June 2020 12:18:57 AM IST
+.. Wednesday 28 October 2020 06:47:26 PM IST
