@@ -93,7 +93,6 @@ u8 qixis_esdhc_detect_quirk(void);
 #define AQ_PHY_ADDR3		0x02
 #define AQ_PHY_ADDR4		0x03
 
-#define CORTINA_NO_FW_UPLOAD
 #define CORTINA_PHY_ADDR1	0x0
 
 #define INPHI_PHY_ADDR1		0x0
