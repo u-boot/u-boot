@@ -10,8 +10,21 @@
 #include <errno.h>
 #include <dfu.h>
 
-int dfu_tftp_write(char *dfu_entity_name, unsigned int addr, unsigned int len,
-		   char *interface, char *devstring)
+/**
+ * dfu_write_by_name() - write data to DFU medium
+ * @dfu_entity_name:    Name of DFU entity to write
+ * @addr:               Address of data buffer to write
+ * @len:                Number of bytes
+ * @interface:          Destination DFU medium (e.g. "mmc")
+ * @devstring:          Instance number of destination DFU medium (e.g. "1")
+ *
+ * This function is storing data received on DFU supported medium which
+ * is specified by @dfu_entity_name.
+ *
+ * Return:              0 - on success, error code - otherwise
+ */
+int dfu_write_by_name(char *dfu_entity_name, unsigned int addr,
+		      unsigned int len, char *interface, char *devstring)
 {
 	char *s, *sb;
 	int alt_setting_num, ret;
@@ -44,7 +57,7 @@ int dfu_tftp_write(char *dfu_entity_name, unsigned int addr, unsigned int len,
 	free(sb);
 	if (alt_setting_num < 0) {
 		pr_err("Alt setting [%d] to write not found!",
-		      alt_setting_num);
+		       alt_setting_num);
 		ret = -ENODEV;
 		goto done;
 	}

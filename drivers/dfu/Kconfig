@@ -14,8 +14,13 @@ config DFU_OVER_TFTP
 	depends on NET
 
 if DFU
+config DFU_WRITE_ALT
+	bool
+	default n
+
 config DFU_TFTP
 	bool "DFU via TFTP"
+	select DFU_WRITE_ALT
 	select DFU_OVER_TFTP
 	help
 	  This option allows performing update of DFU-managed medium with data
