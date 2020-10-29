@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014-2015 Freescale Semiconductor
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  */
 
 #include <common.h>
@@ -186,7 +186,8 @@ static void erratum_a008997(void)
 	out_be16((phy) + SCFG_USB_PHY_RX_OVRD_IN_HI, USB_PHY_RX_EQ_VAL_4)
 
 #elif defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LS1088A) || \
-	defined(CONFIG_ARCH_LS1028A) || defined(CONFIG_ARCH_LX2160A)
+	defined(CONFIG_ARCH_LS1028A) || defined(CONFIG_ARCH_LX2160A) || \
+	defined(CONFIG_ARCH_LX2162A)
 
 #define PROGRAM_USB_PHY_RX_OVRD_IN_HI(phy)	\
 	out_le16((phy) + DCSR_USB_PHY_RX_OVRD_IN_HI, USB_PHY_RX_EQ_VAL_1); \
@@ -222,7 +223,7 @@ static void erratum_a009007(void)
 #if defined(CONFIG_FSL_LSCH3)
 static void erratum_a050106(void)
 {
-#if defined(CONFIG_ARCH_LX2160A)
+#if defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LX2162A)
 	void __iomem *dcsr = (void __iomem *)DCSR_BASE;
 
 	PROGRAM_USB_PHY_RX_OVRD_IN_HI(dcsr + DCSR_USB_PHY1);
@@ -392,7 +393,8 @@ void fsl_lsch3_early_init_f(void)
 #endif
 
 #if defined(CONFIG_ARCH_LS1088A) || defined(CONFIG_ARCH_LS1028A) || \
-	defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LX2160A)
+	defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LX2160A) || \
+	defined(CONFIG_ARCH_LX2162A)
 	set_icids();
 #endif
 }
