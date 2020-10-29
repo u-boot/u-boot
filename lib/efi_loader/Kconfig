@@ -27,6 +27,10 @@ config EFI_LOADER
 
 if EFI_LOADER
 
+config EFI_SETUP_EARLY
+	bool
+	default n
+
 choice
 	prompt "Store for non-volatile UEFI variables"
 	default EFI_VARIABLE_FILE_STORE

@@ -73,6 +73,9 @@
 #if defined(CONFIG_GPIO_HOG)
 #include <asm/gpio.h>
 #endif
+#ifdef CONFIG_EFI_SETUP_EARLY
+#include <efi_loader.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -889,6 +892,9 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 #if defined(CONFIG_PRAM)
 	initr_mem,
+#endif
+#ifdef CONFIG_EFI_SETUP_EARLY
+	(init_fnc_t)efi_init_obj_list,
 #endif
 	run_main_loop,
 };
