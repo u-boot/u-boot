@@ -22,6 +22,8 @@
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/types.h>
+#include <dm/uclass.h>
+#include <dm/read.h>
 
 #include "pxa3xx_nand.h"
 
@@ -416,6 +418,14 @@ static struct nand_ecclayout ecc_layout_8KB_bch8bit = {
 
 /* convert nano-seconds to nand flash controller clock cycles */
 #define ns2cycle(ns, clk)	(int)((ns) * (clk / 1000000) / 1000)
+
+static const struct udevice_id pxa3xx_nand_dt_ids[] = {
+	{
+		.compatible = "marvell,mvebu-pxa3xx-nand",
+		.data = PXA3XX_NAND_VARIANT_ARMADA370,
+	},
+	{}
+};
 
 static enum pxa3xx_nand_variant pxa3xx_nand_get_variant(void)
 {
@@ -1809,74 +1819,52 @@ fail_disable_clk:
 	return ret;
 }
 
-static int pxa3xx_nand_probe_dt(struct pxa3xx_nand_info *info)
+static int pxa3xx_nand_probe_dt(struct udevice *dev, struct pxa3xx_nand_info *info)
 {
 	struct pxa3xx_nand_platform_data *pdata;
-	const void *blob = gd->fdt_blob;
-	int node = -1;
 
 	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
 	if (!pdata)
 		return -ENOMEM;
 
-	/* Get address decoding nodes from the FDT blob */
-	do {
-		node = fdt_node_offset_by_compatible(blob, node,
-						     "marvell,mvebu-pxa3xx-nand");
-		if (node < 0)
-			break;
+	info->mmio_base = dev_read_addr_ptr(dev);
 
-		/* Bypass disabeld nodes */
-		if (!fdtdec_get_is_enabled(blob, node))
-			continue;
+	pdata->num_cs = dev_read_u32_default(dev, "num-cs", 1);
+	if (pdata->num_cs != 1) {
+		pr_err("pxa3xx driver supports single CS only\n");
+		return -EINVAL;
+	}
 
-		/* Get the first enabled NAND controler base address */
-		info->mmio_base =
-			(void __iomem *)fdtdec_get_addr_size_auto_noparent(
-					blob, node, "reg", 0, NULL, true);
+	if (dev_read_bool(dev, "nand-enable-arbiter"))
+		pdata->enable_arbiter = 1;
 
-		pdata->num_cs = fdtdec_get_int(blob, node, "num-cs", 1);
-		if (pdata->num_cs != 1) {
-			pr_err("pxa3xx driver supports single CS only\n");
-			break;
-		}
+	if (dev_read_bool(dev, "nand-keep-config"))
+		pdata->keep_config = 1;
 
-		if (fdtdec_get_bool(blob, node, "nand-enable-arbiter"))
-			pdata->enable_arbiter = 1;
+	/*
+	 * ECC parameters.
+	 * If these are not set, they will be selected according
+	 * to the detected flash type.
+	 */
+	/* ECC strength */
+	pdata->ecc_strength = dev_read_u32_default(dev, "nand-ecc-strength", 0);
 
-		if (fdtdec_get_bool(blob, node, "nand-keep-config"))
-			pdata->keep_config = 1;
+	/* ECC step size */
+	pdata->ecc_step_size = dev_read_u32_default(dev, "nand-ecc-step-size",
+			0);
 
-		/*
-		 * ECC parameters.
-		 * If these are not set, they will be selected according
-		 * to the detected flash type.
-		 */
-		/* ECC strength */
-		pdata->ecc_strength = fdtdec_get_int(blob, node,
-						     "nand-ecc-strength", 0);
+	info->pdata = pdata;
 
-		/* ECC step size */
-		pdata->ecc_step_size = fdtdec_get_int(blob, node,
-						      "nand-ecc-step-size", 0);
-
-		info->pdata = pdata;
-
-		/* Currently support only a single NAND controller */
-		return 0;
-
-	} while (node >= 0);
-
-	return -EINVAL;
+	return 0;
 }
 
-static int pxa3xx_nand_probe(struct pxa3xx_nand_info *info)
+static int pxa3xx_nand_probe(struct udevice *dev)
 {
-	struct mtd_info *mtd = &info->controller.active->mtd;
 	struct pxa3xx_nand_platform_data *pdata;
 	int ret, cs, probe_success;
+	struct pxa3xx_nand_info *info = dev_get_priv(dev);
 
-	ret = pxa3xx_nand_probe_dt(info);
+	ret = pxa3xx_nand_probe_dt(dev, info);
 	if (ret)
 		return ret;
 
@@ -1884,7 +1872,7 @@ static int pxa3xx_nand_probe(struct pxa3xx_nand_info *info)
 
 	ret = alloc_nand_resource(info);
 	if (ret) {
-		dev_err(mtd->dev, "alloc nand resource failed\n");
+		dev_err(dev, "alloc nand resource failed\n");
 		return ret;
 	}
 
@@ -1918,22 +1906,24 @@ static int pxa3xx_nand_probe(struct pxa3xx_nand_info *info)
 	return 0;
 }
 
-/*
- * Main initialization routine
- */
+U_BOOT_DRIVER(pxa3xx_nand) = {
+	.name = "pxa3xx-nand",
+	.id = UCLASS_MTD,
+	.of_match = pxa3xx_nand_dt_ids,
+	.probe = pxa3xx_nand_probe,
+	.priv_auto_alloc_size = sizeof(struct pxa3xx_nand_info) +
+		sizeof(struct pxa3xx_nand_host) * CONFIG_SYS_MAX_NAND_DEVICE,
+};
+
 void board_nand_init(void)
 {
-	struct pxa3xx_nand_info *info;
-	struct pxa3xx_nand_host *host;
+	struct udevice *dev;
 	int ret;
 
-	info = kzalloc(sizeof(*info) +
-		       sizeof(*host) * CONFIG_SYS_MAX_NAND_DEVICE,
-		       GFP_KERNEL);
-	if (!info)
-		return;
-
-	ret = pxa3xx_nand_probe(info);
-	if (ret)
-		return;
+	ret = uclass_get_device_by_driver(UCLASS_MTD,
+			DM_GET_DRIVER(pxa3xx_nand), &dev);
+	if (ret && ret != -ENODEV) {
+		pr_err("Failed to initialize %s. (error %d)\n", dev->name,
+			   ret);
+	}
 }
