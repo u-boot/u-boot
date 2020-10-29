@@ -1768,7 +1768,7 @@ static int alloc_nand_resource(struct pxa3xx_nand_info *info)
 	struct pxa3xx_nand_host *host;
 	struct nand_chip *chip = NULL;
 	struct mtd_info *mtd;
-	int ret, cs;
+	int cs;
 
 	pdata = info->pdata;
 	if (pdata->num_cs <= 0)
@@ -1804,19 +1804,13 @@ static int alloc_nand_resource(struct pxa3xx_nand_info *info)
 	/* Allocate a buffer to allow flash detection */
 	info->buf_size = INIT_BUFFER_SIZE;
 	info->data_buff = kmalloc(info->buf_size, GFP_KERNEL);
-	if (info->data_buff == NULL) {
-		ret = -ENOMEM;
-		goto fail_disable_clk;
-	}
+	if (info->data_buff == NULL)
+		return -ENOMEM;
 
 	/* initialize all interrupts to be disabled */
 	disable_int(info, NDSR_MASK);
 
 	return 0;
-
-	kfree(info->data_buff);
-fail_disable_clk:
-	return ret;
 }
 
 static int pxa3xx_nand_probe_dt(struct udevice *dev, struct pxa3xx_nand_info *info)
