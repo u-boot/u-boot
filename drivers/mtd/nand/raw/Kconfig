@@ -195,6 +195,9 @@ endif
 config NAND_PXA3XX
 	bool "Support for NAND on PXA3xx and Armada 370/XP/38x"
 	select SYS_NAND_SELF_INIT
+	select DM_MTD
+	select REGMAP
+	select SYSCON
 	imply CMD_NAND
 	help
 	  This enables the driver for the NAND flash device found on
