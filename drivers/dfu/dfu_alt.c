@@ -76,3 +76,50 @@ done:
 
 	return ret;
 }
+
+/**
+ * dfu_write_by_alt() - write data to DFU medium
+ * @dfu_alt_num:        DFU alt setting number
+ * @addr:               Address of data buffer to write
+ * @len:                Number of bytes
+ * @interface:          Destination DFU medium (e.g. "mmc")
+ * @devstring:          Instance number of destination DFU medium (e.g. "1")
+ *
+ * This function is storing data received on DFU supported medium which
+ * is specified by @dfu_alt_name.
+ *
+ * Return:              0 - on success, error code - otherwise
+ */
+int dfu_write_by_alt(int dfu_alt_num, void *addr, unsigned int len,
+		     char *interface, char *devstring)
+{
+	struct dfu_entity *dfu;
+	int ret;
+
+	debug("%s: alt: %d addr: 0x%p len: %d device: %s:%s\n", __func__,
+	      dfu_alt_num, addr, len, interface, devstring);
+
+	ret = dfu_init_env_entities(interface, devstring);
+	if (ret)
+		goto done;
+
+	if (dfu_alt_num < 0) {
+		pr_err("Invalid alt number: %d", dfu_alt_num);
+		ret = -ENODEV;
+		goto done;
+	}
+
+	dfu = dfu_get_entity(dfu_alt_num);
+	if (!dfu) {
+		pr_err("DFU entity for alt: %d not found!", dfu_alt_num);
+		ret = -ENODEV;
+		goto done;
+	}
+
+	ret = dfu_write_from_mem_addr(dfu, (void *)(uintptr_t)addr, len);
+
+done:
+	dfu_free_entities();
+
+	return ret;
+}

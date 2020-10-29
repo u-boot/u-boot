@@ -496,6 +496,7 @@ static inline int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr,
 }
 #endif
 
+#if CONFIG_IS_ENABLED(DFU_WRITE_ALT)
 /**
  * dfu_write_by_name() - write data to DFU medium
  * @dfu_entity_name:	Name of DFU entity to write
@@ -509,13 +510,36 @@ static inline int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr,
  *
  * Return:		0 - on success, error code - otherwise
  */
-#if CONFIG_IS_ENABLED(DFU_WRITE_ALT)
 int dfu_write_by_name(char *dfu_entity_name, void *addr,
 		      unsigned int len, char *interface, char *devstring);
+
+/**
+ * dfu_write_by_alt() - write data to DFU medium
+ * @dfu_alt_num:	DFU alt setting number
+ * @addr:		Address of data buffer to write
+ * @len:		Number of bytes
+ * @interface:		Destination DFU medium (e.g. "mmc")
+ * @devstring:		Instance number of destination DFU medium (e.g. "1")
+ *
+ * This function is storing data received on DFU supported medium which
+ * is specified by @dfu_alt_name.
+ *
+ * Return:		0 - on success, error code - otherwise
+ */
+int dfu_write_by_alt(int dfu_alt_num, void *addr, unsigned int len,
+		     char *interface, char *devstring);
 #else
 static inline int dfu_write_by_name(char *dfu_entity_name, void *addr,
 				    unsigned int len, char *interface,
 				    char *devstring)
+{
+	puts("write support for DFU not available!\n");
+	return -ENOSYS;
+}
+
+static inline int dfu_write_by_alt(int dfu_alt_num, void *addr,
+				   unsigned int len, char *interface,
+				   char *devstring)
 {
 	puts("write support for DFU not available!\n");
 	return -ENOSYS;
