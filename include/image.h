@@ -1602,4 +1602,16 @@ struct fit_loadable_tbl {
 		.handler = _handler, \
 	}
 
+/**
+ * fit_update - update storage with FIT image
+ * @fit:        Pointer to FIT image
+ *
+ * Update firmware on storage using FIT image as input.
+ * The storage area to be update will be identified by the name
+ * in FIT and matching it to "dfu_alt_info" variable.
+ *
+ * Return:      0 on success, non-zero otherwise
+ */
+int fit_update(const void *fit);
+
 #endif	/* __IMAGE_H__ */
