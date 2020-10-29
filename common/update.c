@@ -324,7 +324,8 @@ got_update_file:
 			}
 		} else if (fit_image_check_type(fit, noffset,
 						IH_TYPE_FIRMWARE)) {
-			ret = dfu_write_by_name(fit_image_name, update_addr,
+			ret = dfu_write_by_name(fit_image_name,
+						(void *)update_addr,
 						update_size, interface,
 						devstring);
 			if (ret)

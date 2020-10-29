@@ -507,10 +507,10 @@ static inline int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr,
  * Return:		0 - on success, error code - otherwise
  */
 #if CONFIG_IS_ENABLED(DFU_WRITE_ALT)
-int dfu_write_by_name(char *dfu_entity_name, unsigned int addr,
+int dfu_write_by_name(char *dfu_entity_name, void *addr,
 		      unsigned int len, char *interface, char *devstring);
 #else
-static inline int dfu_write_by_name(char *dfu_entity_name, unsigned int addr,
+static inline int dfu_write_by_name(char *dfu_entity_name, void *addr,
 				    unsigned int len, char *interface,
 				    char *devstring)
 {

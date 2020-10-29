@@ -23,14 +23,14 @@
  *
  * Return:              0 - on success, error code - otherwise
  */
-int dfu_write_by_name(char *dfu_entity_name, unsigned int addr,
+int dfu_write_by_name(char *dfu_entity_name, void *addr,
 		      unsigned int len, char *interface, char *devstring)
 {
 	char *s, *sb;
 	int alt_setting_num, ret;
 	struct dfu_entity *dfu;
 
-	debug("%s: name: %s addr: 0x%x len: %d device: %s:%s\n", __func__,
+	debug("%s: name: %s addr: 0x%p len: %d device: %s:%s\n", __func__,
 	      dfu_entity_name, addr, len, interface, devstring);
 
 	ret = dfu_init_env_entities(interface, devstring);
@@ -69,7 +69,7 @@ int dfu_write_by_name(char *dfu_entity_name, unsigned int addr,
 		goto done;
 	}
 
-	ret = dfu_write_from_mem_addr(dfu, (void *)(uintptr_t)addr, len);
+	ret = dfu_write_from_mem_addr(dfu, (void *)addr, len);
 
 done:
 	dfu_free_entities();
