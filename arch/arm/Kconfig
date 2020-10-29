@@ -1620,6 +1620,16 @@ config TARGET_LS1046AFRWY
 	  development platform that supports the QorIQ LS1046A
 	  Layerscape Architecture processor.
 
+config TARGET_SL28
+	bool "Support sl28"
+	select ARCH_LS1028A
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select SUPPORT_SPL
+	select BINMAN
+	help
+	  Support for Kontron SMARC-sAL28 board.
+
 config TARGET_COLIBRI_PXA270
 	bool "Support colibri_pxa270"
 	select CPU_PXA
@@ -1998,6 +2008,7 @@ source "board/hisilicon/hikey/Kconfig"
 source "board/hisilicon/hikey960/Kconfig"
 source "board/hisilicon/poplar/Kconfig"
 source "board/isee/igep003x/Kconfig"
+source "board/kontron/sl28/Kconfig"
 source "board/myir/mys_6ulx/Kconfig"
 source "board/spear/spear300/Kconfig"
 source "board/spear/spear310/Kconfig"

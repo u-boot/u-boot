@@ -396,6 +396,19 @@ static int fsl_pcie_init_atmu(struct fsl_pcie *pcie)
 	return 0;
 }
 
+static void fsl_pcie_dbi_read_only_reg_write_enable(struct fsl_pcie *pcie,
+						    bool enable)
+{
+	u32 val;
+
+	fsl_pcie_hose_read_config_dword(pcie, DBI_RO_WR_EN, &val);
+	if (enable)
+		val |= 1;
+	else
+		val &= ~1;
+	fsl_pcie_hose_write_config_dword(pcie, DBI_RO_WR_EN, val);
+}
+
 static int fsl_pcie_init_port(struct fsl_pcie *pcie)
 {
 	ccsr_fsl_pci_t *regs = pcie->regs;
@@ -470,7 +483,7 @@ static int fsl_pcie_init_port(struct fsl_pcie *pcie)
 	 * Set to 0 to protect the read-only registers.
 	 */
 #ifdef CONFIG_SYS_FSL_ERRATUM_A007815
-	clrbits_be32(&regs->dbi_ro_wr_en, 0x01);
+	fsl_pcie_dbi_read_only_reg_write_enable(pcie, false);
 #endif
 
 	/*
@@ -504,13 +517,12 @@ static int fsl_pcie_init_port(struct fsl_pcie *pcie)
 
 static int fsl_pcie_fixup_classcode(struct fsl_pcie *pcie)
 {
-	ccsr_fsl_pci_t *regs = pcie->regs;
 	u32 classcode_reg;
 	u32 val;
 
 	if (pcie->block_rev >= PEX_IP_BLK_REV_3_0) {
 		classcode_reg = PCI_CLASS_REVISION;
-		setbits_be32(&regs->dbi_ro_wr_en, 0x01);
+		fsl_pcie_dbi_read_only_reg_write_enable(pcie, true);
 	} else {
 		classcode_reg = CSR_CLASSCODE;
 	}
@@ -521,7 +533,7 @@ static int fsl_pcie_fixup_classcode(struct fsl_pcie *pcie)
 	fsl_pcie_hose_write_config_dword(pcie, classcode_reg, val);
 
 	if (pcie->block_rev >= PEX_IP_BLK_REV_3_0)
-		clrbits_be32(&regs->dbi_ro_wr_en, 0x01);
+		fsl_pcie_dbi_read_only_reg_write_enable(pcie, false);
 
 	return 0;
 }

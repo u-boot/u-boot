@@ -1,0 +1,18 @@
+if TARGET_SL28
+
+config SYS_BOARD
+	default "sl28"
+
+config SYS_VENDOR
+	default "kontron"
+
+config SYS_SOC
+	default "fsl-layerscape"
+
+config SYS_CONFIG_NAME
+	default "kontron_sl28"
+
+config SYS_TEXT_BASE
+	default 0x96000000
+
+endif

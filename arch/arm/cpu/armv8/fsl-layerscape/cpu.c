@@ -1147,15 +1147,15 @@ int arch_early_init_r(void)
 	 * EC*_PMUX(rgmii) bits in RCW.
 	 * e.g. dpmac 17 and 18 in LX2160A can be configured as SGMII from
 	 * serdes bits and as RGMII via EC1_PMUX/EC2_PMUX bits
-	 * Now if a dpmac is enabled by serdes bits then it takes precedence
-	 * over EC*_PMUX bits. i.e. in LX2160A if we select serdes protocol
-	 * that configures dpmac17 as SGMII and set the EC1_PMUX as RGMII,
-	 * then the dpmac is SGMII and not RGMII.
+	 * Now if a dpmac is enabled as RGMII through ECx_PMUX then it takes
+	 * precedence over SerDes protocol. i.e. in LX2160A if we select serdes
+	 * protocol that configures dpmac17 as SGMII and set the EC1_PMUX as
+	 * RGMII, then the dpmac is RGMII and not SGMII.
 	 *
-	 * Therefore, move the fsl_rgmii_init after fsl_serdes_init. in
-	 * fsl_rgmii_init function of SOC, we will check if the dpmac is enabled
-	 * or not? if it is (fsl_serdes_init has already enabled the dpmac),
-	 * then don't enable it.
+	 * Therefore, even thought fsl_rgmii_init is after fsl_serdes_init
+	 * function of SOC, the dpmac will be enabled as RGMII even if it was
+	 * also enabled before as SGMII. If ECx_PMUX is not configured for
+	 * RGMII, DPMAC will remain configured as SGMII from fsl_serdes_init().
 	 */
 	fsl_rgmii_init();
 #endif

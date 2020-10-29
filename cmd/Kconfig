@@ -1074,6 +1074,14 @@ config CMD_CLONE
 	  initial flashing by external block device without network
 	  or usb support.
 
+config CMD_OPTEE_RPMB
+	bool "Enable read/write support on RPMB via OPTEE"
+	depends on SUPPORT_EMMC_RPMB && OPTEE
+	help
+	  Enable the commands for reading, writing persistent named values
+	  in the Replay Protection Memory Block partition in eMMC by
+	  using Persistent Objects in OPTEE
+
 config CMD_MTD
 	bool "mtd"
 	depends on MTD

@@ -179,6 +179,18 @@ config PCIE_LAYERSCAPE_RC
 	  configured to Root Complex mode by clearing the corresponding bit of
 	  RCW[HOST_AGT_PEX].
 
+config PCI_IOMMU_EXTRA_MAPPINGS
+	bool "Support for specifying extra IOMMU mappings for PCI"
+	depends on PCIE_LAYERSCAPE_RC
+	help
+	  Enable support for specifying extra IOMMU mappings for PCI
+	  controllers through a special env var called "pci_iommu_extra" or
+	  through a device tree property named "pci-iommu-extra" placed in
+	  the node describing the PCI controller.
+	  The intent is to cover SR-IOV scenarios which need mappings for VFs
+	  and PCI hot-plug scenarios. More documentation can be found under:
+	    arch/arm/cpu/armv8/fsl-layerscape/doc/README.pci_iommu_extra
+
 config PCIE_LAYERSCAPE_EP
 	bool "Layerscape PCIe Endpoint mode support"
 	depends on DM_PCI
