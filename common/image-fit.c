@@ -791,17 +791,18 @@ static int fit_image_get_address(const void *fit, int noffset, char *name,
 		return -1;
 	}
 
-	if (len > sizeof(ulong)) {
-		printf("Unsupported %s address size\n", name);
-		return -1;
-	}
-
 	cell_len = len >> 2;
 	/* Use load64 to avoid compiling warning for 32-bit target */
 	while (cell_len--) {
 		load64 = (load64 << 32) | uimage_to_cpu(*cell);
 		cell++;
 	}
+
+	if (len > sizeof(ulong) && (uint32_t)(load64 >> 32)) {
+		printf("Unsupported %s address size\n", name);
+		return -1;
+	}
+
 	*load = (ulong)load64;
 
 	return 0;

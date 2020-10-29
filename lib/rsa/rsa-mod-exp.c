@@ -321,7 +321,7 @@ int rsa_mod_exp_sw(const uint8_t *sig, uint32_t sig_len,
  *        pow_mod calculation required for zynq is bit different from
  *        pw_mod above here, hence defined zynq specific routine.
  */
-int zynq_pow_mod(u32 *keyptr, u32 *inout)
+int zynq_pow_mod(uint32_t *keyptr, uint32_t *inout)
 {
 	u32 *result, *ptr;
 	uint i;

@@ -9,7 +9,6 @@
 #include <init.h>
 #include <log.h>
 #include <spl.h>
-#include <generated/dt.h>
 
 #include <asm/io.h>
 #include <asm/spl.h>
@@ -86,16 +85,3 @@ void spl_board_prepare_for_boot(void)
 	ps7_post_config();
 	debug("SPL bye\n");
 }
-
-#ifdef CONFIG_SPL_LOAD_FIT
-int board_fit_config_name_match(const char *name)
-{
-	/* Just empty function now - can't decide what to choose */
-	debug("%s: Check %s, default %s\n", __func__, name, DEVICE_TREE);
-
-	if (!strcmp(name, DEVICE_TREE))
-		return 0;
-
-	return -1;
-}
-#endif

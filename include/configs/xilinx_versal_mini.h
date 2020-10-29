@@ -10,7 +10,6 @@
 #ifndef __CONFIG_VERSAL_MINI_H
 #define __CONFIG_VERSAL_MINI_H
 
-
 #define CONFIG_EXTRA_ENV_SETTINGS
 
 #include <configs/xilinx_versal.h>
