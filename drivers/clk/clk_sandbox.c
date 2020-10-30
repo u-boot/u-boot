@@ -124,8 +124,8 @@ static const struct udevice_id sandbox_clk_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(clk_sandbox) = {
-	.name		= "clk_sandbox",
+U_BOOT_DRIVER(sandbox_clk) = {
+	.name		= "sandbox_clk",
 	.id		= UCLASS_CLK,
 	.of_match	= sandbox_clk_ids,
 	.ops		= &sandbox_clk_ops,

@@ -33,7 +33,6 @@ class Entry_blob(Entry):
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)
         self._filename = fdt_util.GetString(self._node, 'filename', self.etype)
-        self.compress = fdt_util.GetString(self._node, 'compress', 'none')
 
     def ObtainContents(self):
         self._filename = self.GetDefaultFilename()
@@ -47,12 +46,6 @@ class Entry_blob(Entry):
 
         self.ReadBlobContents()
         return True
-
-    def CompressData(self, indata):
-        if self.compress != 'none':
-            self.uncomp_size = len(indata)
-        data = tools.Compress(indata, self.compress)
-        return data
 
     def ReadBlobContents(self):
         """Read blob contents into memory

@@ -54,6 +54,13 @@ VAL_PREFIX = 'dtv_'
 #     phandles is len(args). This is a list of integers.
 PhandleInfo = collections.namedtuple('PhandleInfo', ['max_args', 'args'])
 
+# Holds a single phandle link, allowing a C struct value to be assigned to point
+# to a device
+#
+# var_node: C variable to assign (e.g. 'dtv_mmc.clocks[0].node')
+# dev_name: Name of device to assign to (e.g. 'clock')
+PhandleLink = collections.namedtuple('PhandleLink', ['var_node', 'dev_name'])
+
 
 def conv_name_to_c(name):
     """Convert a device-tree name to a C identifier
@@ -136,7 +143,8 @@ class DtbPlatdata(object):
     Properties:
         _fdt: Fdt object, referencing the device tree
         _dtb_fname: Filename of the input device tree binary file
-        _valid_nodes: A list of Node object with compatible strings
+        _valid_nodes: A list of Node object with compatible strings. The list
+            is ordered by conv_name_to_c(node.name)
         _include_disabled: true to include nodes marked status = "disabled"
         _outfile: The current output file (sys.stdout or a real file)
         _warning_disabled: true to disable warnings about driver names not found
@@ -146,7 +154,6 @@ class DtbPlatdata(object):
             key: Driver alias declared with
                 U_BOOT_DRIVER_ALIAS(driver_alias, driver_name)
             value: Driver name declared with U_BOOT_DRIVER(driver_name)
-        _links: List of links to be included in dm_populate_phandle_data()
         _drivers_additional: List of additional drivers to use during scanning
     """
     def __init__(self, dtb_fname, include_disabled, warning_disabled,
@@ -160,7 +167,6 @@ class DtbPlatdata(object):
         self._lines = []
         self._drivers = []
         self._driver_aliases = {}
-        self._links = []
         self._drivers_additional = drivers_additional
 
     def get_normalized_compat_name(self, node):
@@ -359,23 +365,24 @@ class DtbPlatdata(object):
         """
         self._fdt = fdt.FdtScan(self._dtb_fname)
 
-    def scan_node(self, root):
+    def scan_node(self, root, valid_nodes):
         """Scan a node and subnodes to build a tree of node and phandle info
 
         This adds each node to self._valid_nodes.
 
         Args:
             root: Root node for scan
+            valid_nodes: List of Node objects to add to
         """
         for node in root.subnodes:
             if 'compatible' in node.props:
                 status = node.props.get('status')
                 if (not self._include_disabled and not status or
                         status.value != 'disabled'):
-                    self._valid_nodes.append(node)
+                    valid_nodes.append(node)
 
             # recurse to handle any subnodes
-            self.scan_node(node)
+            self.scan_node(node, valid_nodes)
 
     def scan_tree(self):
         """Scan the device tree for useful information
@@ -384,8 +391,12 @@ class DtbPlatdata(object):
             _valid_nodes: A list of nodes we wish to consider include in the
                 platform data
         """
-        self._valid_nodes = []
-        return self.scan_node(self._fdt.GetRoot())
+        valid_nodes = []
+        self.scan_node(self._fdt.GetRoot(), valid_nodes)
+        self._valid_nodes = sorted(valid_nodes,
+                                   key=lambda x: conv_name_to_c(x.name))
+        for idx, node in enumerate(self._valid_nodes):
+            node.idx = idx
 
     @staticmethod
     def get_num_cells(node):
@@ -458,8 +469,15 @@ class DtbPlatdata(object):
 
         Once the widest property is determined, all other properties are
         updated to match that width.
+
+        Returns:
+            dict containing structures:
+                key (str): Node name, as a C identifier
+                value: dict containing structure fields:
+                    key (str): Field name
+                    value: Prop object with field information
         """
-        structs = {}
+        structs = collections.OrderedDict()
         for node in self._valid_nodes:
             node_name, _ = self.get_normalized_compat_name(node)
             fields = {}
@@ -528,6 +546,14 @@ class DtbPlatdata(object):
         This writes out the body of a header file consisting of structure
         definitions for node in self._valid_nodes. See the documentation in
         doc/driver-model/of-plat.rst for more information.
+
+        Args:
+            structs: dict containing structures:
+                key (str): Node name, as a C identifier
+                value: dict containing structure fields:
+                    key (str): Field name
+                    value: Prop object with field information
+
         """
         self.out_header()
         self.out('#include <stdbool.h>\n')
@@ -560,8 +586,51 @@ class DtbPlatdata(object):
         Args:
             node: node to output
         """
+        def _output_list(node, prop):
+            """Output the C code for a devicetree property that holds a list
+
+            Args:
+                node (fdt.Node): Node to output
+                prop (fdt.Prop): Prop to output
+            """
+            self.buf('{')
+            vals = []
+            # For phandles, output a reference to the platform data
+            # of the target node.
+            info = self.get_phandle_argc(prop, node.name)
+            if info:
+                # Process the list as pairs of (phandle, id)
+                pos = 0
+                item = 0
+                for args in info.args:
+                    phandle_cell = prop.value[pos]
+                    phandle = fdt_util.fdt32_to_cpu(phandle_cell)
+                    target_node = self._fdt.phandle_to_node[phandle]
+                    name = conv_name_to_c(target_node.name)
+                    arg_values = []
+                    for i in range(args):
+                        arg_values.append(
+                            str(fdt_util.fdt32_to_cpu(prop.value[pos + 1 + i])))
+                    pos += 1 + args
+                    vals.append('\t{%d, {%s}}' % (target_node.idx,
+                                                  ', '.join(arg_values)))
+                    item += 1
+                for val in vals:
+                    self.buf('\n\t\t%s,' % val)
+            else:
+                for val in prop.value:
+                    vals.append(get_value(prop.type, val))
+
+                # Put 8 values per line to avoid very long lines.
+                for i in range(0, len(vals), 8):
+                    if i:
+                        self.buf(',\n\t\t')
+                    self.buf(', '.join(vals[i:i + 8]))
+            self.buf('}')
+
         struct_name, _ = self.get_normalized_compat_name(node)
         var_name = conv_name_to_c(node.name)
+        self.buf('/* Node %s index %d */\n' % (node.path, node.idx))
         self.buf('static struct %s%s %s%s = {\n' %
                  (STRUCT_PREFIX, struct_name, VAL_PREFIX, var_name))
         for pname in sorted(node.props):
@@ -573,46 +642,7 @@ class DtbPlatdata(object):
 
             # Special handling for lists
             if isinstance(prop.value, list):
-                self.buf('{')
-                vals = []
-                # For phandles, output a reference to the platform data
-                # of the target node.
-                info = self.get_phandle_argc(prop, node.name)
-                if info:
-                    # Process the list as pairs of (phandle, id)
-                    pos = 0
-                    item = 0
-                    for args in info.args:
-                        phandle_cell = prop.value[pos]
-                        phandle = fdt_util.fdt32_to_cpu(phandle_cell)
-                        target_node = self._fdt.phandle_to_node[phandle]
-                        name = conv_name_to_c(target_node.name)
-                        arg_values = []
-                        for i in range(args):
-                            arg_values.append(str(fdt_util.fdt32_to_cpu(prop.value[pos + 1 + i])))
-                        pos += 1 + args
-                        # node member is filled with NULL as the real value
-                        # will be update at run-time during dm_init_and_scan()
-                        # by dm_populate_phandle_data()
-                        vals.append('\t{NULL, {%s}}' % (', '.join(arg_values)))
-                        var_node = '%s%s.%s[%d].node' % \
-                                    (VAL_PREFIX, var_name, member_name, item)
-                        # Save the the link information to be use to define
-                        # dm_populate_phandle_data()
-                        self._links.append({'var_node': var_node, 'dev_name': name})
-                        item += 1
-                    for val in vals:
-                        self.buf('\n\t\t%s,' % val)
-                else:
-                    for val in prop.value:
-                        vals.append(get_value(prop.type, val))
-
-                    # Put 8 values per line to avoid very long lines.
-                    for i in range(0, len(vals), 8):
-                        if i:
-                            self.buf(',\n\t\t')
-                        self.buf(', '.join(vals[i:i + 8]))
-                self.buf('}')
+                _output_list(node, prop)
             else:
                 self.buf(get_value(prop.type, prop.value))
             self.buf(',\n')
@@ -623,6 +653,10 @@ class DtbPlatdata(object):
         self.buf('\t.name\t\t= "%s",\n' % struct_name)
         self.buf('\t.platdata\t= &%s%s,\n' % (VAL_PREFIX, var_name))
         self.buf('\t.platdata_size\t= sizeof(%s%s),\n' % (VAL_PREFIX, var_name))
+        idx = -1
+        if node.parent and node.parent in self._valid_nodes:
+            idx = node.parent.idx
+        self.buf('\t.parent_idx\t= %d,\n' % idx)
         self.buf('};\n')
         self.buf('\n')
 
@@ -639,6 +673,9 @@ class DtbPlatdata(object):
         information.
         """
         self.out_header()
+        self.out('/* Allow use of U_BOOT_DEVICE() in this file */\n')
+        self.out('#define DT_PLATDATA_C\n')
+        self.out('\n')
         self.out('#include <common.h>\n')
         self.out('#include <dm.h>\n')
         self.out('#include <dt-structs.h>\n')
@@ -660,9 +697,6 @@ class DtbPlatdata(object):
         # nodes using DM_GET_DEVICE
         # dtv_dmc_at_xxx.clocks[0].node = DM_GET_DEVICE(clock_controller_at_xxx)
         self.buf('void dm_populate_phandle_data(void) {\n')
-        for l in self._links:
-            self.buf('\t%s = DM_GET_DEVICE(%s);\n' %
-                     (l['var_node'], l['dev_name']))
         self.buf('}\n')
 
         self.out(''.join(self.get_buf()))

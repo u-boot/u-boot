@@ -227,7 +227,7 @@ def pytest_configure(config):
         console = u_boot_console_exec_attach.ConsoleExecAttach(log, ubconfig)
 
 re_ut_test_list = re.compile(r'_u_boot_list_2_(.*)_test_2_\1_test_(.*)\s*$')
-def generate_ut_subtest(metafunc, fixture_name):
+def generate_ut_subtest(metafunc, fixture_name, sym_path):
     """Provide parametrization for a ut_subtest fixture.
 
     Determines the set of unit tests built into a U-Boot binary by parsing the
@@ -237,12 +237,13 @@ def generate_ut_subtest(metafunc, fixture_name):
     Args:
         metafunc: The pytest test function.
         fixture_name: The fixture name to test.
+        sym_path: Relative path to the symbol file with preceding '/'
+            (e.g. '/u-boot.sym')
 
     Returns:
         Nothing.
     """
-
-    fn = console.config.build_dir + '/u-boot.sym'
+    fn = console.config.build_dir + sym_path
     try:
         with open(fn, 'rt') as f:
             lines = f.readlines()
@@ -317,10 +318,12 @@ def pytest_generate_tests(metafunc):
     Returns:
         Nothing.
     """
-
     for fn in metafunc.fixturenames:
         if fn == 'ut_subtest':
-            generate_ut_subtest(metafunc, fn)
+            generate_ut_subtest(metafunc, fn, '/u-boot.sym')
+            continue
+        if fn == 'ut_spl_subtest':
+            generate_ut_subtest(metafunc, fn, '/spl/u-boot-spl.sym')
             continue
         generate_config(metafunc, fn)
 

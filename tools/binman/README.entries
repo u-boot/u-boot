@@ -299,7 +299,7 @@ Entry: files: Entry containing a set of files
 
 Properties / Entry arguments:
     - pattern: Filename pattern to match the files to include
-    - compress: Compression algorithm to use:
+    - files-compress: Compression algorithm to use:
         none: No compression
         lz4: Use lz4 compression (via 'lz4' command-line utility)
 
@@ -406,6 +406,10 @@ The 'default' property, if present, will be automatically set to the name
 if of configuration whose devicetree matches the 'default-dt' entry
 argument, e.g. with '-a default-dt=sun50i-a64-pine64-lts'.
 
+Available substitutions for '@' property values are:
+
+    DEFAULT-SEQ  Sequence number of the default fdt,as provided by the
+                 'default-dt' entry argument
 
 Properties (in the 'fit' node itself):
     fit,external-offset: Indicates that the contents of the FIT are external
@@ -739,6 +743,16 @@ placed at offset 'RESET_VECTOR_ADDRESS - 0xffc'.
 
 
 
+Entry: scp: Entry containing a System Control Processor (SCP) firmware blob
+---------------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - scp-path: Filename of file to read into the entry, typically scp.bin
+
+This entry holds firmware for an external platform-specific coprocessor.
+
+
+
 Entry: section: Entry that contains other entries
 -------------------------------------------------
 
@@ -875,6 +889,15 @@ Properties / Entry arguments:
 
 This is the U-Boot ELF image. It does not include a device tree but can be
 relocated to any address for execution.
+
+
+
+Entry: u-boot-env: An entry which contains a U-Boot environment
+---------------------------------------------------------------
+
+Properties / Entry arguments:
+    - filename: File containing the environment text, with each line in the
+        form var=value
 
 
 

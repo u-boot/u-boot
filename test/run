@@ -28,7 +28,7 @@ fi
 
 # Run tests which require sandbox_spl
 run_test "sandbox_spl" ./test/py/test.py --bd sandbox_spl --build \
-		-k 'test_ofplatdata or test_handoff'
+		-k 'test_ofplatdata or test_handoff or test_spl'
 
 if [ -z "$tools_only" ]; then
 	# Run tests for the flat-device-tree version of sandbox. This is a special

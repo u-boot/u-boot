@@ -40,10 +40,24 @@ config DM_WARN
 	depends on DM
 	default y
 	help
+	  Enable this to see warnings related to driver model.
+
+	  Warnings may help with debugging, such as when expected devices do
+	  not bind correctly. If the option is disabled, dm_warn() is compiled
+	  out - it will do nothing when called.
+
+config SPL_DM_WARN
+	bool "Enable warnings in driver model wuth SPL"
+	depends on SPL_DM
+	help
+	  Enable this to see warnings related to driver model in SPL
+
 	  The dm_warn() function can use up quite a bit of space for its
 	  strings. By default this is disabled for SPL builds to save space.
-	  This will cause dm_warn() to be compiled out - it will do nothing
-	  when called.
+
+	  Warnings may help with debugging, such as when expected devices do
+	  not bind correctly. If the option is disabled, dm_warn() is compiled
+	  out - it will do nothing when called.
 
 config DM_DEBUG
 	bool "Enable debug messages in driver model core"

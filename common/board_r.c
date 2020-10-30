@@ -296,20 +296,21 @@ static int initr_noncached(void)
 }
 #endif
 
-#ifdef CONFIG_OF_LIVE
 static int initr_of_live(void)
 {
-	int ret;
+	if (CONFIG_IS_ENABLED(OF_LIVE)) {
+		int ret;
 
-	bootstage_start(BOOTSTAGE_ID_ACCUM_OF_LIVE, "of_live");
-	ret = of_live_build(gd->fdt_blob, (struct device_node **)&gd->of_root);
-	bootstage_accum(BOOTSTAGE_ID_ACCUM_OF_LIVE);
-	if (ret)
-		return ret;
+		bootstage_start(BOOTSTAGE_ID_ACCUM_OF_LIVE, "of_live");
+		ret = of_live_build(gd->fdt_blob,
+				    (struct device_node **)gd_of_root_ptr());
+		bootstage_accum(BOOTSTAGE_ID_ACCUM_OF_LIVE);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
-#endif
 
 #ifdef CONFIG_DM
 static int initr_dm(void)
@@ -713,9 +714,7 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
 	initr_noncached,
 #endif
-#ifdef CONFIG_OF_LIVE
 	initr_of_live,
-#endif
 #ifdef CONFIG_DM
 	initr_dm,
 #endif

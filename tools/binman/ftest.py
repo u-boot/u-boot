@@ -70,6 +70,7 @@ VBLOCK_DATA           = b'vblk'
 FILES_DATA            = (b"sorry I'm late\nOh, don't bother apologising, I'm " +
                          b"sorry you're alive\n")
 COMPRESS_DATA         = b'compress xxxxxxxxxxxxxxxxxxxxxx data'
+COMPRESS_DATA_BIG     = COMPRESS_DATA * 2
 REFCODE_DATA          = b'refcode'
 FSP_M_DATA            = b'fsp_m'
 FSP_S_DATA            = b'fsp_s'
@@ -175,6 +176,7 @@ class TestFunctional(unittest.TestCase):
                         os.path.join(cls._indir, 'files'))
 
         TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
+        TestFunctional._MakeInputFile('compress_big', COMPRESS_DATA_BIG)
         TestFunctional._MakeInputFile('bl31.bin', ATF_BL31_DATA)
         TestFunctional._MakeInputFile('scp.bin', SCP_DATA)
 
@@ -785,9 +787,9 @@ class TestFunctional(unittest.TestCase):
 
     def testPackExtra(self):
         """Test that extra packing feature works as expected"""
-        retcode = self._DoTestFile('009_pack_extra.dts')
+        data, _, _, out_dtb_fname = self._DoReadFileDtb('009_pack_extra.dts',
+                                                        update_dtb=True)
 
-        self.assertEqual(0, retcode)
         self.assertIn('image', control.images)
         image = control.images['image']
         entries = image.GetEntries()
@@ -799,33 +801,81 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(0, entry.offset)
         self.assertEqual(3, entry.pad_before)
         self.assertEqual(3 + 5 + len(U_BOOT_DATA), entry.size)
+        self.assertEqual(U_BOOT_DATA, entry.data)
+        self.assertEqual(tools.GetBytes(0, 3) + U_BOOT_DATA +
+                         tools.GetBytes(0, 5), data[:entry.size])
+        pos = entry.size
 
         # Second u-boot has an aligned size, but it has no effect
         self.assertIn('u-boot-align-size-nop', entries)
         entry = entries['u-boot-align-size-nop']
-        self.assertEqual(12, entry.offset)
-        self.assertEqual(4, entry.size)
+        self.assertEqual(pos, entry.offset)
+        self.assertEqual(len(U_BOOT_DATA), entry.size)
+        self.assertEqual(U_BOOT_DATA, entry.data)
+        self.assertEqual(U_BOOT_DATA, data[pos:pos + entry.size])
+        pos += entry.size
 
         # Third u-boot has an aligned size too
         self.assertIn('u-boot-align-size', entries)
         entry = entries['u-boot-align-size']
-        self.assertEqual(16, entry.offset)
+        self.assertEqual(pos, entry.offset)
         self.assertEqual(32, entry.size)
+        self.assertEqual(U_BOOT_DATA, entry.data)
+        self.assertEqual(U_BOOT_DATA + tools.GetBytes(0, 32 - len(U_BOOT_DATA)),
+                         data[pos:pos + entry.size])
+        pos += entry.size
 
         # Fourth u-boot has an aligned end
         self.assertIn('u-boot-align-end', entries)
         entry = entries['u-boot-align-end']
         self.assertEqual(48, entry.offset)
         self.assertEqual(16, entry.size)
+        self.assertEqual(U_BOOT_DATA, entry.data[:len(U_BOOT_DATA)])
+        self.assertEqual(U_BOOT_DATA + tools.GetBytes(0, 16 - len(U_BOOT_DATA)),
+                         data[pos:pos + entry.size])
+        pos += entry.size
 
         # Fifth u-boot immediately afterwards
         self.assertIn('u-boot-align-both', entries)
         entry = entries['u-boot-align-both']
         self.assertEqual(64, entry.offset)
         self.assertEqual(64, entry.size)
+        self.assertEqual(U_BOOT_DATA, entry.data[:len(U_BOOT_DATA)])
+        self.assertEqual(U_BOOT_DATA + tools.GetBytes(0, 64 - len(U_BOOT_DATA)),
+                         data[pos:pos + entry.size])
 
         self.CheckNoGaps(entries)
         self.assertEqual(128, image.size)
+
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['size', 'offset', 'image-pos'])
+        expected = {
+            'image-pos': 0,
+            'offset': 0,
+            'size': 128,
+
+            'u-boot:image-pos': 0,
+            'u-boot:offset': 0,
+            'u-boot:size': 3 + 5 + len(U_BOOT_DATA),
+
+            'u-boot-align-size-nop:image-pos': 12,
+            'u-boot-align-size-nop:offset': 12,
+            'u-boot-align-size-nop:size': 4,
+
+            'u-boot-align-size:image-pos': 16,
+            'u-boot-align-size:offset': 16,
+            'u-boot-align-size:size': 32,
+
+            'u-boot-align-end:image-pos': 48,
+            'u-boot-align-end:offset': 48,
+            'u-boot-align-end:size': 16,
+
+            'u-boot-align-both:image-pos': 64,
+            'u-boot-align-both:offset': 64,
+            'u-boot-align-both:size': 64,
+            }
+        self.assertEqual(expected, props)
 
     def testPackAlignPowerOf2(self):
         """Test that invalid entry alignment is detected"""
@@ -970,8 +1020,9 @@ class TestFunctional(unittest.TestCase):
         """Test that the end-at-4gb property checks for offset boundaries"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('028_pack_4gb_outside.dts')
-        self.assertIn("Node '/binman/u-boot': Offset 0x0 (0) is outside "
-                      "the section starting at 0xffffffe0 (4294967264)",
+        self.assertIn("Node '/binman/u-boot': Offset 0x0 (0) size 0x4 (4) "
+                      "is outside the section '/binman' starting at "
+                      '0xffffffe0 (4294967264) of size 0x20 (32)',
                       str(e.exception))
 
     def testPackX86Rom(self):
@@ -1761,6 +1812,20 @@ class TestFunctional(unittest.TestCase):
         props = self._GetPropTree(dtb, ['size', 'uncomp-size'])
         orig = self._decompress(data)
         self.assertEquals(COMPRESS_DATA, orig)
+
+        # Do a sanity check on various fields
+        image = control.images['image']
+        entries = image.GetEntries()
+        self.assertEqual(1, len(entries))
+
+        entry = entries['blob']
+        self.assertEqual(COMPRESS_DATA, entry.uncomp_data)
+        self.assertEqual(len(COMPRESS_DATA), entry.uncomp_size)
+        orig = self._decompress(entry.data)
+        self.assertEqual(orig, entry.uncomp_data)
+
+        self.assertEqual(image.data, entry.data)
+
         expected = {
             'blob:uncomp-size': len(COMPRESS_DATA),
             'blob:size': len(data),
@@ -1961,7 +2026,7 @@ class TestFunctional(unittest.TestCase):
         self.assertTrue(os.path.exists(map_fname))
         map_data = tools.ReadFile(map_fname, binary=False)
         self.assertEqual('''ImagePos    Offset      Size  Name
-<none>    00000000  00000007  main-section
+<none>    00000000  00000008  main-section
 <none>     00000000  00000004  u-boot
 <none>     00000003  00000004  u-boot-align
 ''', map_data)
@@ -3530,11 +3595,38 @@ class TestFunctional(unittest.TestCase):
 
     def testPadInSections(self):
         """Test pad-before, pad-after for entries in sections"""
-        data = self._DoReadFile('166_pad_in_sections.dts')
+        data, _, _, out_dtb_fname = self._DoReadFileDtb(
+            '166_pad_in_sections.dts', update_dtb=True)
         expected = (U_BOOT_DATA + tools.GetBytes(ord('!'), 12) +
                     U_BOOT_DATA + tools.GetBytes(ord('!'), 6) +
                     U_BOOT_DATA)
         self.assertEqual(expected, data)
+
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['size', 'image-pos', 'offset'])
+        expected = {
+            'image-pos': 0,
+            'offset': 0,
+            'size': 12 + 6 + 3 * len(U_BOOT_DATA),
+
+            'section:image-pos': 0,
+            'section:offset': 0,
+            'section:size': 12 + 6 + 3 * len(U_BOOT_DATA),
+
+            'section/before:image-pos': 0,
+            'section/before:offset': 0,
+            'section/before:size': len(U_BOOT_DATA),
+
+            'section/u-boot:image-pos': 4,
+            'section/u-boot:offset': 4,
+            'section/u-boot:size': 12 + len(U_BOOT_DATA) + 6,
+
+            'section/after:image-pos': 26,
+            'section/after:offset': 26,
+            'section/after:size': len(U_BOOT_DATA),
+            }
+        self.assertEqual(expected, props)
 
     def testFitImageSubentryAlignment(self):
         """Test relative alignability of FIT image subentries"""
@@ -3737,20 +3829,315 @@ class TestFunctional(unittest.TestCase):
     def testEnvironmentNoSize(self):
         """Test that a missing 'size' property is detected"""
         with self.assertRaises(ValueError) as e:
-            data = self._DoTestFile('175_env_no_size.dts')
+            self._DoTestFile('175_env_no_size.dts')
         self.assertIn("'u-boot-env' entry must have a size property",
                       str(e.exception))
 
     def testEnvironmentTooSmall(self):
         """Test handling of an environment that does not fit"""
         with self.assertRaises(ValueError) as e:
-            data = self._DoTestFile('176_env_too_small.dts')
+            self._DoTestFile('176_env_too_small.dts')
 
         # checksum, start byte, environment with \0 terminator, final \0
         need = 4 + 1 + len(ENV_DATA) + 1 + 1
         short = need - 0x8
         self.assertIn("too small to hold data (need %#x more bytes)" % short,
                       str(e.exception))
+
+    def testSkipAtStart(self):
+        """Test handling of skip-at-start section"""
+        data = self._DoReadFile('177_skip_at_start.dts')
+        self.assertEqual(U_BOOT_DATA, data)
+
+        image = control.images['image']
+        entries = image.GetEntries()
+        section = entries['section']
+        self.assertEqual(0, section.offset)
+        self.assertEqual(len(U_BOOT_DATA), section.size)
+        self.assertEqual(U_BOOT_DATA, section.GetData())
+
+        entry = section.GetEntries()['u-boot']
+        self.assertEqual(16, entry.offset)
+        self.assertEqual(len(U_BOOT_DATA), entry.size)
+        self.assertEqual(U_BOOT_DATA, entry.data)
+
+    def testSkipAtStartPad(self):
+        """Test handling of skip-at-start section with padded entry"""
+        data = self._DoReadFile('178_skip_at_start_pad.dts')
+        before = tools.GetBytes(0, 8)
+        after = tools.GetBytes(0, 4)
+        all = before + U_BOOT_DATA + after
+        self.assertEqual(all, data)
+
+        image = control.images['image']
+        entries = image.GetEntries()
+        section = entries['section']
+        self.assertEqual(0, section.offset)
+        self.assertEqual(len(all), section.size)
+        self.assertEqual(all, section.GetData())
+
+        entry = section.GetEntries()['u-boot']
+        self.assertEqual(16, entry.offset)
+        self.assertEqual(len(all), entry.size)
+        self.assertEqual(U_BOOT_DATA, entry.data)
+
+    def testSkipAtStartSectionPad(self):
+        """Test handling of skip-at-start section with padding"""
+        data = self._DoReadFile('179_skip_at_start_section_pad.dts')
+        before = tools.GetBytes(0, 8)
+        after = tools.GetBytes(0, 4)
+        all = before + U_BOOT_DATA + after
+        self.assertEqual(all, data)
+
+        image = control.images['image']
+        entries = image.GetEntries()
+        section = entries['section']
+        self.assertEqual(0, section.offset)
+        self.assertEqual(len(all), section.size)
+        self.assertEqual(U_BOOT_DATA, section.data)
+        self.assertEqual(all, section.GetPaddedData())
+
+        entry = section.GetEntries()['u-boot']
+        self.assertEqual(16, entry.offset)
+        self.assertEqual(len(U_BOOT_DATA), entry.size)
+        self.assertEqual(U_BOOT_DATA, entry.data)
+
+    def testSectionPad(self):
+        """Testing padding with sections"""
+        data = self._DoReadFile('180_section_pad.dts')
+        expected = (tools.GetBytes(ord('&'), 3) +
+                    tools.GetBytes(ord('!'), 5) +
+                    U_BOOT_DATA +
+                    tools.GetBytes(ord('!'), 1) +
+                    tools.GetBytes(ord('&'), 2))
+        self.assertEqual(expected, data)
+
+    def testSectionAlign(self):
+        """Testing alignment with sections"""
+        data = self._DoReadFileDtb('181_section_align.dts', map=True)[0]
+        expected = (b'\0' +                         # fill section
+                    tools.GetBytes(ord('&'), 1) +   # padding to section align
+                    b'\0' +                         # fill section
+                    tools.GetBytes(ord('!'), 3) +   # padding to u-boot align
+                    U_BOOT_DATA +
+                    tools.GetBytes(ord('!'), 4) +   # padding to u-boot size
+                    tools.GetBytes(ord('!'), 4))    # padding to section size
+        self.assertEqual(expected, data)
+
+    def testCompressImage(self):
+        """Test compression of the entire image"""
+        self._CheckLz4()
+        data, _, _, out_dtb_fname = self._DoReadFileDtb(
+            '182_compress_image.dts', use_real_dtb=True, update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['offset', 'image-pos', 'size',
+                                        'uncomp-size'])
+        orig = self._decompress(data)
+        self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, orig)
+
+        # Do a sanity check on various fields
+        image = control.images['image']
+        entries = image.GetEntries()
+        self.assertEqual(2, len(entries))
+
+        entry = entries['blob']
+        self.assertEqual(COMPRESS_DATA, entry.data)
+        self.assertEqual(len(COMPRESS_DATA), entry.size)
+
+        entry = entries['u-boot']
+        self.assertEqual(U_BOOT_DATA, entry.data)
+        self.assertEqual(len(U_BOOT_DATA), entry.size)
+
+        self.assertEqual(len(data), image.size)
+        self.assertEqual(COMPRESS_DATA + U_BOOT_DATA, image.uncomp_data)
+        self.assertEqual(len(COMPRESS_DATA + U_BOOT_DATA), image.uncomp_size)
+        orig = self._decompress(image.data)
+        self.assertEqual(orig, image.uncomp_data)
+
+        expected = {
+            'blob:offset': 0,
+            'blob:size': len(COMPRESS_DATA),
+            'u-boot:offset': len(COMPRESS_DATA),
+            'u-boot:size': len(U_BOOT_DATA),
+            'uncomp-size': len(COMPRESS_DATA + U_BOOT_DATA),
+            'offset': 0,
+            'image-pos': 0,
+            'size': len(data),
+            }
+        self.assertEqual(expected, props)
+
+    def testCompressImageLess(self):
+        """Test compression where compression reduces the image size"""
+        self._CheckLz4()
+        data, _, _, out_dtb_fname = self._DoReadFileDtb(
+            '183_compress_image_less.dts', use_real_dtb=True, update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['offset', 'image-pos', 'size',
+                                        'uncomp-size'])
+        orig = self._decompress(data)
+
+        self.assertEquals(COMPRESS_DATA + COMPRESS_DATA + U_BOOT_DATA, orig)
+
+        # Do a sanity check on various fields
+        image = control.images['image']
+        entries = image.GetEntries()
+        self.assertEqual(2, len(entries))
+
+        entry = entries['blob']
+        self.assertEqual(COMPRESS_DATA_BIG, entry.data)
+        self.assertEqual(len(COMPRESS_DATA_BIG), entry.size)
+
+        entry = entries['u-boot']
+        self.assertEqual(U_BOOT_DATA, entry.data)
+        self.assertEqual(len(U_BOOT_DATA), entry.size)
+
+        self.assertEqual(len(data), image.size)
+        self.assertEqual(COMPRESS_DATA_BIG + U_BOOT_DATA, image.uncomp_data)
+        self.assertEqual(len(COMPRESS_DATA_BIG + U_BOOT_DATA),
+                         image.uncomp_size)
+        orig = self._decompress(image.data)
+        self.assertEqual(orig, image.uncomp_data)
+
+        expected = {
+            'blob:offset': 0,
+            'blob:size': len(COMPRESS_DATA_BIG),
+            'u-boot:offset': len(COMPRESS_DATA_BIG),
+            'u-boot:size': len(U_BOOT_DATA),
+            'uncomp-size': len(COMPRESS_DATA_BIG + U_BOOT_DATA),
+            'offset': 0,
+            'image-pos': 0,
+            'size': len(data),
+            }
+        self.assertEqual(expected, props)
+
+    def testCompressSectionSize(self):
+        """Test compression of a section with a fixed size"""
+        self._CheckLz4()
+        data, _, _, out_dtb_fname = self._DoReadFileDtb(
+            '184_compress_section_size.dts', use_real_dtb=True, update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['offset', 'image-pos', 'size',
+                                        'uncomp-size'])
+        orig = self._decompress(data)
+        self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, orig)
+        expected = {
+            'section/blob:offset': 0,
+            'section/blob:size': len(COMPRESS_DATA),
+            'section/u-boot:offset': len(COMPRESS_DATA),
+            'section/u-boot:size': len(U_BOOT_DATA),
+            'section:offset': 0,
+            'section:image-pos': 0,
+            'section:uncomp-size': len(COMPRESS_DATA + U_BOOT_DATA),
+            'section:size': 0x30,
+            'offset': 0,
+            'image-pos': 0,
+            'size': 0x30,
+            }
+        self.assertEqual(expected, props)
+
+    def testCompressSection(self):
+        """Test compression of a section with no fixed size"""
+        self._CheckLz4()
+        data, _, _, out_dtb_fname = self._DoReadFileDtb(
+            '185_compress_section.dts', use_real_dtb=True, update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['offset', 'image-pos', 'size',
+                                        'uncomp-size'])
+        orig = self._decompress(data)
+        self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, orig)
+        expected = {
+            'section/blob:offset': 0,
+            'section/blob:size': len(COMPRESS_DATA),
+            'section/u-boot:offset': len(COMPRESS_DATA),
+            'section/u-boot:size': len(U_BOOT_DATA),
+            'section:offset': 0,
+            'section:image-pos': 0,
+            'section:uncomp-size': len(COMPRESS_DATA + U_BOOT_DATA),
+            'section:size': len(data),
+            'offset': 0,
+            'image-pos': 0,
+            'size': len(data),
+            }
+        self.assertEqual(expected, props)
+
+    def testCompressExtra(self):
+        """Test compression of a section with no fixed size"""
+        self._CheckLz4()
+        data, _, _, out_dtb_fname = self._DoReadFileDtb(
+            '186_compress_extra.dts', use_real_dtb=True, update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['offset', 'image-pos', 'size',
+                                        'uncomp-size'])
+
+        base = data[len(U_BOOT_DATA):]
+        self.assertEquals(U_BOOT_DATA, base[:len(U_BOOT_DATA)])
+        rest = base[len(U_BOOT_DATA):]
+
+        # Check compressed data
+        section1 = self._decompress(rest)
+        expect1 = tools.Compress(COMPRESS_DATA + U_BOOT_DATA, 'lz4')
+        self.assertEquals(expect1, rest[:len(expect1)])
+        self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, section1)
+        rest1 = rest[len(expect1):]
+
+        section2 = self._decompress(rest1)
+        expect2 = tools.Compress(COMPRESS_DATA + COMPRESS_DATA, 'lz4')
+        self.assertEquals(expect2, rest1[:len(expect2)])
+        self.assertEquals(COMPRESS_DATA + COMPRESS_DATA, section2)
+        rest2 = rest1[len(expect2):]
+
+        expect_size = (len(U_BOOT_DATA) + len(U_BOOT_DATA) + len(expect1) +
+                       len(expect2) + len(U_BOOT_DATA))
+        #self.assertEquals(expect_size, len(data))
+
+        #self.assertEquals(U_BOOT_DATA, rest2)
+
+        self.maxDiff = None
+        expected = {
+            'u-boot:offset': 0,
+            'u-boot:image-pos': 0,
+            'u-boot:size': len(U_BOOT_DATA),
+
+            'base:offset': len(U_BOOT_DATA),
+            'base:image-pos': len(U_BOOT_DATA),
+            'base:size': len(data) - len(U_BOOT_DATA),
+            'base/u-boot:offset': 0,
+            'base/u-boot:image-pos': len(U_BOOT_DATA),
+            'base/u-boot:size': len(U_BOOT_DATA),
+            'base/u-boot2:offset': len(U_BOOT_DATA) + len(expect1) +
+                len(expect2),
+            'base/u-boot2:image-pos': len(U_BOOT_DATA) * 2 + len(expect1) +
+                len(expect2),
+            'base/u-boot2:size': len(U_BOOT_DATA),
+
+            'base/section:offset': len(U_BOOT_DATA),
+            'base/section:image-pos': len(U_BOOT_DATA) * 2,
+            'base/section:size': len(expect1),
+            'base/section:uncomp-size': len(COMPRESS_DATA + U_BOOT_DATA),
+            'base/section/blob:offset': 0,
+            'base/section/blob:size': len(COMPRESS_DATA),
+            'base/section/u-boot:offset': len(COMPRESS_DATA),
+            'base/section/u-boot:size': len(U_BOOT_DATA),
+
+            'base/section2:offset': len(U_BOOT_DATA) + len(expect1),
+            'base/section2:image-pos': len(U_BOOT_DATA) * 2 + len(expect1),
+            'base/section2:size': len(expect2),
+            'base/section2:uncomp-size': len(COMPRESS_DATA + COMPRESS_DATA),
+            'base/section2/blob:offset': 0,
+            'base/section2/blob:size': len(COMPRESS_DATA),
+            'base/section2/blob2:offset': len(COMPRESS_DATA),
+            'base/section2/blob2:size': len(COMPRESS_DATA),
+
+            'offset': 0,
+            'image-pos': 0,
+            'size': len(data),
+            }
+        self.assertEqual(expected, props)
 
 
 if __name__ == "__main__":

@@ -94,4 +94,15 @@ enum {
 	TEST_DEVRES_SIZE3	= 37,
 };
 
+/**
+ * dm_test_main() - Run driver model tests
+ *
+ * Run all the available driver model tests, or a selection
+ *
+ * @test_name: Name of single test to run (e.g. "dm_test_fdt_pre_reloc" or just
+ *	"fdt_pre_reloc"), or NULL to run all
+ * @return 0 if all tests passed, 1 if not
+ */
+int dm_test_main(const char *test_name);
+
 #endif /* __TEST_TEST_H */

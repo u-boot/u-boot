@@ -365,14 +365,23 @@ static int sandbox_cmdline_cb_log_level(struct sandbox_state *state,
 SANDBOX_CMDLINE_OPT_SHORT(log_level, 'L', 1,
 			  "Set log level (0=panic, 7=debug)");
 
-static int sandbox_cmdline_cb_show_of_platdata(struct sandbox_state *state,
-					       const char *arg)
+static int sandbox_cmdline_cb_unittests(struct sandbox_state *state,
+					const char *arg)
 {
-	state->show_of_platdata = true;
+	state->run_unittests = true;
 
 	return 0;
 }
-SANDBOX_CMDLINE_OPT(show_of_platdata, 0, "Show of-platdata in SPL");
+SANDBOX_CMDLINE_OPT_SHORT(unittests, 'u', 0, "Run unit tests");
+
+static int sandbox_cmdline_cb_select_unittests(struct sandbox_state *state,
+					       const char *arg)
+{
+	state->select_unittests = arg;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(select_unittests, 'k', 1, "Select unit tests to run");
 
 static void setup_ram_buf(struct sandbox_state *state)
 {

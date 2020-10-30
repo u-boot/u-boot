@@ -129,6 +129,15 @@ class Prop:
         specific.
         """
         if newprop.type < self.type:
+            # Special handling to convert an int into bytes
+            if self.type == TYPE_INT and newprop.type == TYPE_BYTE:
+                if type(self.value) == list:
+                    new_value = []
+                    for val in self.value:
+                        new_value += [tools.ToChar(by) for by in val]
+                else:
+                    new_value = [tools.ToChar(by) for by in self.value]
+                self.value = new_value
             self.type = newprop.type
 
         if type(newprop.value) == list and type(self.value) != list:

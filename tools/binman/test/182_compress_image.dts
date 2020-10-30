@@ -3,9 +3,12 @@
 
 / {
 	binman {
-		files {
-			pattern = "files/*.dat";
-			files-compress = "lz4";
+		compress = "lz4";
+		blob {
+			filename = "compress";
+		};
+
+		u-boot {
 		};
 	};
 };

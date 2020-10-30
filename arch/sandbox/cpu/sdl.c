@@ -127,7 +127,8 @@ int sandbox_sdl_init_display(int width, int height, int log2_bpp,
 	sdl.pitch = sdl.width * sdl.depth / 8;
 	SDL_Window *screen = SDL_CreateWindow("U-Boot", SDL_WINDOWPOS_UNDEFINED,
 					      SDL_WINDOWPOS_UNDEFINED,
-					      sdl.vis_width, sdl.vis_height, 0);
+					      sdl.vis_width, sdl.vis_height,
+					      SDL_WINDOW_RESIZABLE);
 	if (!screen) {
 		printf("Unable to initialise SDL screen: %s\n",
 		       SDL_GetError());

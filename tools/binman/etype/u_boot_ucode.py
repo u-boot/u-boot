@@ -81,6 +81,7 @@ class Entry_u_boot_ucode(Entry_blob):
             if fdt_entry:
                 break
         if not fdt_entry:
+            self.data = b''
             return True
         if not fdt_entry.ready:
             return False

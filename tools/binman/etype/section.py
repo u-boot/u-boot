@@ -16,6 +16,7 @@ from binman.entry import Entry
 from dtoc import fdt_util
 from patman import tools
 from patman import tout
+from patman.tools import ToHexSize
 
 
 class Entry_section(Entry):
@@ -56,7 +57,7 @@ class Entry_section(Entry):
         self._end_4gb = False
 
     def ReadNode(self):
-        """Read properties from the image node"""
+        """Read properties from the section node"""
         super().ReadNode()
         self._pad_byte = fdt_util.GetInt(self._node, 'pad-byte', 0)
         self._sort = fdt_util.GetBool(self._node, 'sort-by-offset')
@@ -135,32 +136,113 @@ class Entry_section(Entry):
         for entry in self._entries.values():
             entry.ExpandEntries()
 
-    def AddMissingProperties(self):
+    def AddMissingProperties(self, have_image_pos):
         """Add new properties to the device tree as needed for this entry"""
-        super().AddMissingProperties()
+        super().AddMissingProperties(have_image_pos)
+        if self.compress != 'none':
+            have_image_pos = False
         for entry in self._entries.values():
-            entry.AddMissingProperties()
+            entry.AddMissingProperties(have_image_pos)
 
     def ObtainContents(self):
         return self.GetEntryContents()
 
-    def GetData(self):
+    def GetPaddedDataForEntry(self, entry, entry_data):
+        """Get the data for an entry including any padding
+
+        Gets the entry data and uses the section pad-byte value to add padding
+        before and after as defined by the pad-before and pad-after properties.
+        This does not consider alignment.
+
+        Args:
+            entry: Entry to check
+
+        Returns:
+            Contents of the entry along with any pad bytes before and
+            after it (bytes)
+        """
+        pad_byte = (entry._pad_byte if isinstance(entry, Entry_section)
+                    else self._pad_byte)
+
+        data = b''
+        # Handle padding before the entry
+        if entry.pad_before:
+            data += tools.GetBytes(self._pad_byte, entry.pad_before)
+
+        # Add in the actual entry data
+        data += entry_data
+
+        # Handle padding after the entry
+        if entry.pad_after:
+            data += tools.GetBytes(self._pad_byte, entry.pad_after)
+
+        if entry.size:
+            data += tools.GetBytes(pad_byte, entry.size - len(data))
+
+        self.Detail('GetPaddedDataForEntry: size %s' % ToHexSize(self.data))
+
+        return data
+
+    def _BuildSectionData(self):
+        """Build the contents of a section
+
+        This places all entries at the right place, dealing with padding before
+        and after entries. It does not do padding for the section itself (the
+        pad-before and pad-after properties in the section items) since that is
+        handled by the parent section.
+
+        Returns:
+            Contents of the section (bytes)
+        """
         section_data = b''
 
         for entry in self._entries.values():
-            data = entry.GetData()
-            base = self.pad_before + (entry.offset or 0) - self._skip_at_start
-            pad = base - len(section_data) + (entry.pad_before or 0)
+            data = self.GetPaddedDataForEntry(entry, entry.GetData())
+            # Handle empty space before the entry
+            pad = (entry.offset or 0) - self._skip_at_start - len(section_data)
             if pad > 0:
                 section_data += tools.GetBytes(self._pad_byte, pad)
+
+            # Add in the actual entry data
             section_data += data
-        if self.size:
-            pad = self.size - len(section_data)
-            if pad > 0:
-                section_data += tools.GetBytes(self._pad_byte, pad)
+
         self.Detail('GetData: %d entries, total size %#x' %
                     (len(self._entries), len(section_data)))
-        return section_data
+        return self.CompressData(section_data)
+
+    def GetPaddedData(self, data=None):
+        """Get the data for a section including any padding
+
+        Gets the section data and uses the parent section's pad-byte value to
+        add padding before and after as defined by the pad-before and pad-after
+        properties. If this is a top-level section (i.e. an image), this is the
+        same as GetData(), since padding is not supported.
+
+        This does not consider alignment.
+
+        Returns:
+            Contents of the section along with any pad bytes before and
+            after it (bytes)
+        """
+        section = self.section or self
+        if data is None:
+            data = self.GetData()
+        return section.GetPaddedDataForEntry(self, data)
+
+    def GetData(self):
+        """Get the contents of an entry
+
+        This builds the contents of the section, stores this as the contents of
+        the section and returns it
+
+        Returns:
+            bytes content of the section, made up for all all of its subentries.
+            This excludes any padding. If the section is compressed, the
+            compressed data is returned
+        """
+        data = self._BuildSectionData()
+        self.SetContents(data)
+        return data
 
     def GetOffsets(self):
         """Handle entries that want to set the offset/size of other entries
@@ -180,14 +262,25 @@ class Entry_section(Entry):
     def Pack(self, offset):
         """Pack all entries into the section"""
         self._PackEntries()
-        return super().Pack(offset)
+        if self._sort:
+            self._SortEntries()
+        self._ExpandEntries()
+
+        data = self._BuildSectionData()
+        self.SetContents(data)
+
+        self.CheckSize()
+
+        offset = super().Pack(offset)
+        self.CheckEntries()
+        return offset
 
     def _PackEntries(self):
-        """Pack all entries into the image"""
+        """Pack all entries into the section"""
         offset = self._skip_at_start
         for entry in self._entries.values():
             offset = entry.Pack(offset)
-        self.size = self.CheckSize()
+        return offset
 
     def _ExpandEntries(self):
         """Expand any entries that are permitted to"""
@@ -209,21 +302,22 @@ class Entry_section(Entry):
             self._entries[entry._node.name] = entry
 
     def CheckEntries(self):
-        """Check that entries do not overlap or extend outside the image"""
-        if self._sort:
-            self._SortEntries()
-        self._ExpandEntries()
+        """Check that entries do not overlap or extend outside the section"""
+        max_size = self.size if self.uncomp_size is None else self.uncomp_size
+
         offset = 0
         prev_name = 'None'
         for entry in self._entries.values():
-            entry.CheckOffset()
+            entry.CheckEntries()
             if (entry.offset < self._skip_at_start or
                     entry.offset + entry.size > self._skip_at_start +
-                    self.size):
-                entry.Raise("Offset %#x (%d) is outside the section starting "
-                            "at %#x (%d)" %
-                            (entry.offset, entry.offset, self._skip_at_start,
-                             self._skip_at_start))
+                    max_size):
+                entry.Raise('Offset %#x (%d) size %#x (%d) is outside the '
+                            "section '%s' starting at %#x (%d) "
+                            'of size %#x (%d)' %
+                            (entry.offset, entry.offset, entry.size, entry.size,
+                             self._node.path, self._skip_at_start,
+                             self._skip_at_start, max_size, max_size))
             if entry.offset < offset and entry.size:
                 entry.Raise("Offset %#x (%d) overlaps with previous entry '%s' "
                             "ending at %#x (%d)" %
@@ -243,8 +337,9 @@ class Entry_section(Entry):
 
     def SetImagePos(self, image_pos):
         super().SetImagePos(image_pos)
-        for entry in self._entries.values():
-            entry.SetImagePos(image_pos + self.offset)
+        if self.compress == 'none':
+            for entry in self._entries.values():
+                entry.SetImagePos(image_pos + self.offset)
 
     def ProcessContents(self):
         sizes_ok_base = super(Entry_section, self).ProcessContents()
@@ -253,9 +348,6 @@ class Entry_section(Entry):
             if not entry.ProcessContents():
                 sizes_ok = False
         return sizes_ok and sizes_ok_base
-
-    def CheckOffset(self):
-        self.CheckEntries()
 
     def WriteMap(self, fd, indent):
         """Write a map of the section to a .map file
@@ -412,7 +504,7 @@ class Entry_section(Entry):
         return None
 
     def GetEntryContents(self):
-        """Call ObtainContents() for the section
+        """Call ObtainContents() for each entry in the section
         """
         todo = self._entries.values()
         for passnum in range(3):
@@ -454,18 +546,13 @@ class Entry_section(Entry):
             for name, info in offset_dict.items():
                 self._SetEntryOffsetSize(name, *info)
 
-
     def CheckSize(self):
-        """Check that the image contents does not exceed its size, etc."""
-        contents_size = 0
-        for entry in self._entries.values():
-            contents_size = max(contents_size, entry.offset + entry.size)
-
-        contents_size -= self._skip_at_start
+        contents_size = len(self.data)
 
         size = self.size
         if not size:
-            size = self.pad_before + contents_size + self.pad_after
+            data = self.GetPaddedData(self.data)
+            size = len(data)
             size = tools.Align(size, self.align_size)
 
         if self.size and contents_size > self.size:

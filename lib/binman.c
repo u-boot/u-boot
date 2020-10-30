@@ -43,7 +43,7 @@ static int binman_entry_find_internal(ofnode node, const char *name,
 
 	ret = ofnode_read_u32(node, "image-pos", &entry->image_pos);
 	if (ret)
-		return log_msg_ret("import-pos", ret);
+		return log_msg_ret("image-pos", ret);
 	ret = ofnode_read_u32(node, "size", &entry->size);
 	if (ret)
 		return log_msg_ret("size", ret);
@@ -83,6 +83,11 @@ void binman_set_rom_offset(int rom_offset)
 	binman->rom_offset = rom_offset;
 }
 
+int binman_get_rom_offset(void)
+{
+	return binman->rom_offset;
+}
+
 int binman_init(void)
 {
 	binman = malloc(sizeof(struct binman_info));
@@ -91,6 +96,13 @@ int binman_init(void)
 	binman->image = ofnode_path("/binman");
 	if (!ofnode_valid(binman->image))
 		return log_msg_ret("binman node", -EINVAL);
+	if (ofnode_read_bool(binman->image, "multiple-images")) {
+		ofnode node = ofnode_first_subnode(binman->image);
+
+		if (!ofnode_valid(node))
+			return log_msg_ret("first image", -ENOENT);
+		binman->image = node;
+	}
 	binman->rom_offset = ROM_OFFSET_NONE;
 
 	return 0;

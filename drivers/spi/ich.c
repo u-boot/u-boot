@@ -615,6 +615,7 @@ static int ich_spi_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 	return ret;
 }
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 /**
  * ich_spi_get_basics() - Get basic information about the ICH device
  *
@@ -657,6 +658,7 @@ static int ich_spi_get_basics(struct udevice *bus, bool can_probe,
 
 	return ret;
 }
+#endif
 
 /**
  * ich_get_mmap_bus() - Handle the get_mmap() method for a bus
@@ -946,10 +948,10 @@ static int ich_spi_child_pre_probe(struct udevice *dev)
 static int ich_spi_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ich_spi_platdata *plat = dev_get_platdata(dev);
-	int ret;
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct ich_spi_priv *priv = dev_get_priv(dev);
+	int ret;
 
 	ret = ich_spi_get_basics(dev, true, &priv->pch, &plat->ich_version,
 				 &plat->mmio_base);

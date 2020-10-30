@@ -462,7 +462,7 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
     for image in images.values():
         image.ExpandEntries()
         if update_fdt:
-            image.AddMissingProperties()
+            image.AddMissingProperties(True)
         image.ProcessFdt(dtb)
 
     for dtb_item in state.GetAllFdts():
@@ -513,8 +513,6 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     for pack_pass in range(passes):
         try:
             image.PackEntries()
-            image.CheckSize()
-            image.CheckEntries()
         except Exception as e:
             if write_map:
                 fname = image.WriteMap()

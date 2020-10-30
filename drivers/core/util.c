@@ -11,7 +11,7 @@
 #include <linux/libfdt.h>
 #include <vsprintf.h>
 
-#ifdef CONFIG_DM_WARN
+#if CONFIG_IS_ENABLED(DM_WARN)
 void dm_warn(const char *fmt, ...)
 {
 	va_list args;

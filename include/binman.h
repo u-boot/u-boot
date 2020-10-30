@@ -43,6 +43,13 @@ int binman_entry_map(ofnode parent, const char *name, void **bufp, int *sizep);
 void binman_set_rom_offset(int rom_offset);
 
 /**
+ * binman_get_rom_offset() - Get the ROM memory-map offset
+ *
+ * @returns offset from an image_pos to the memory-mapped address
+ */
+int binman_get_rom_offset(void);
+
+/**
  * binman_entry_find() - Find a binman symbol
  *
  * This searches the binman information in the device tree for a symbol of the

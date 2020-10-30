@@ -37,6 +37,7 @@ controlled by a description in the board device tree.'''
         '3=info, 4=detail, 5=debug')
 
     subparsers = parser.add_subparsers(dest='cmd')
+    subparsers.required = True
 
     build_parser = subparsers.add_parser('build', help='Build firmware image')
     build_parser.add_argument('-a', '--entry-arg', type=str, action='append',

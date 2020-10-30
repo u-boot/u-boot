@@ -237,10 +237,10 @@ class Entry_cbfs(Entry):
             if entry._cbfs_compress:
                 entry.uncomp_size = cfile.memlen
 
-    def AddMissingProperties(self):
-        super().AddMissingProperties()
+    def AddMissingProperties(self, have_image_pos):
+        super().AddMissingProperties(have_image_pos)
         for entry in self._cbfs_entries.values():
-            entry.AddMissingProperties()
+            entry.AddMissingProperties(have_image_pos)
             if entry._cbfs_compress:
                 state.AddZeroProp(entry._node, 'uncomp-size')
                 # Store the 'compress' property, since we don't look at

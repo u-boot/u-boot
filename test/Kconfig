@@ -6,6 +6,16 @@ menuconfig UNIT_TEST
 	  This does not require sandbox to be included, but it is most
 	  often used there.
 
+config SPL_UNIT_TEST
+	bool "Unit tests in SPL"
+	# We need to be able to unbind devices for tests to work
+	select SPL_DM_DEVICE_REMOVE
+	help
+	  Select this to enable unit tests in SPL. Most test are designed for
+	  running in U-Boot proper, but some are intended for SPL, such as
+	  of-platdata and SPL handover. To run these tests with the sandbox_spl
+	  board, use the -u (unit test) option.
+
 config UT_LIB
 	bool "Unit tests for library functions"
 	depends on UNIT_TEST

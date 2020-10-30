@@ -146,7 +146,7 @@ class Image(section.Entry_section):
         fname = tools.GetOutputFilename(self._filename)
         tout.Info("Writing image to '%s'" % fname)
         with open(fname, 'wb') as fd:
-            data = self.GetData()
+            data = self.GetPaddedData()
             fd.write(data)
         tout.Info("Wrote %#x bytes" % len(data))
 

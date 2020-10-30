@@ -66,12 +66,6 @@ strictly necessary. Notable problems include:
      normally also supports device tree it must use #ifdef to separate
      out this code, since the structures are only available in SPL.
 
-   - Correct relations between nodes are not implemented. This means that
-     parent/child relations (like bus device iteration) do not work yet.
-     Some phandles (those that are recognised as such) are converted into
-     a pointer to struct driver_info. This pointer can be used to access
-     the referenced device.
-
 
 How it works
 ------------
@@ -134,10 +128,14 @@ the following C struct declaration:
             fdt32_t         vmmc_supply;
     };
 
-and the following device declaration:
+and the following device declarations:
 
 .. code-block:: c
 
+    /* Node /clock-controller@ff760000 index 0 */
+    ...
+
+    /* Node /dwmmc@ff0c0000 index 2 */
     static struct dtd_rockchip_rk3288_dw_mshc dtv_dwmmc_at_ff0c0000 = {
             .fifo_depth             = 0x100,
             .cap_sd_highspeed       = true,
@@ -145,10 +143,10 @@ and the following device declaration:
             .clock_freq_min_max     = {0x61a80, 0x8f0d180},
             .vmmc_supply            = 0xb,
             .num_slots              = 0x1,
-            .clocks                 = {{NULL, 456},
-                                       {NULL, 68},
-                                       {NULL, 114},
-                                       {NULL, 118}},
+            .clocks                 = {{0, 456},
+                                       {0, 68},
+                                       {0, 114},
+                                       {0, 118}},
             .cap_mmc_highspeed      = true,
             .disable_wp             = true,
             .bus_width              = 0x4,
@@ -161,13 +159,10 @@ and the following device declaration:
             .name           = "rockchip_rk3288_dw_mshc",
             .platdata       = &dtv_dwmmc_at_ff0c0000,
             .platdata_size  = sizeof(dtv_dwmmc_at_ff0c0000),
+            .parent_idx     = -1,
     };
 
     void dm_populate_phandle_data(void) {
-            dtv_dwmmc_at_ff0c0000.clocks[0].node = DM_GET_DEVICE(clock_controller_at_ff760000);
-            dtv_dwmmc_at_ff0c0000.clocks[1].node = DM_GET_DEVICE(clock_controller_at_ff760000);
-            dtv_dwmmc_at_ff0c0000.clocks[2].node = DM_GET_DEVICE(clock_controller_at_ff760000);
-            dtv_dwmmc_at_ff0c0000.clocks[3].node = DM_GET_DEVICE(clock_controller_at_ff760000);
     }
 
 The device is then instantiated at run-time and the platform data can be
@@ -192,6 +187,13 @@ each 'compatible' string.
 In order to make this a bit more flexible U_BOOT_DRIVER_ALIAS macro can be
 used to declare an alias for a driver name, typically a 'compatible' string.
 This macro produces no code, but it is by dtoc tool.
+
+The parent_idx is the index of the parent driver_info structure within its
+linker list (instantiated by the U_BOOT_DEVICE() macro). This is used to support
+dev_get_parent(). The dm_populate_phandle_data() is included to allow for
+fix-ups required by dtoc. It is not currently used. The values in 'clocks' are
+the index of the driver_info for the target device followed by any phandle
+arguments. This is used to support device_get_by_driver_info_idx().
 
 During the build process dtoc parses both U_BOOT_DRIVER and U_BOOT_DRIVER_ALIAS
 to build a list of valid driver names and driver aliases. If the 'compatible'
@@ -339,12 +341,7 @@ spl/dt-platdata.c. It additionally contains the definition of
 dm_populate_phandle_data() which is responsible of filling the phandle
 information by adding references to U_BOOT_DEVICE by using DM_GET_DEVICE
 
-The beginnings of a libfdt Python module are provided. So far this only
-implements a subset of the features.
-
-The 'swig' tool is needed to build the libfdt Python module. If this is not
-found then the Python model is not used and a fallback is used instead, which
-makes use of fdtget.
+The pylibfdt Python module is used to access the devicetree.
 
 
 Credits
@@ -357,11 +354,10 @@ Future work
 -----------
 - Consider programmatically reading binding files instead of device tree
   contents
-- Complete the phandle feature
-- Move to using a full Python libfdt module
 
 
 .. Simon Glass <sjg@chromium.org>
 .. Google, Inc
 .. 6/6/16
 .. Updated Independence Day 2016
+.. Updated 1st October 2020
