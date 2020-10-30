@@ -219,7 +219,7 @@ size_t u16_strlen(const void *in);
 size_t u16_strsize(const void *in);
 
 /**
- * u16_strlen - count non-zero words
+ * u16_strnlen() - count non-zero words
  *
  * This function matches wscnlen_s() if the -fshort-wchar compiler flag is set.
  * In the EFI context we explicitly need a function handling u16 strings.
