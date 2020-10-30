@@ -170,9 +170,8 @@ def send(args):
     ok = ok and gitutil.CheckSuppressCCConfig()
 
     its_a_go = ok or args.ignore_errors
-    if its_a_go:
-        email_patches(
-            col, series, cover_fname, patch_files, args.process_tags,
-            its_a_go, args.ignore_bad_tags, args.add_maintainers,
-            args.limit, args.dry_run, args.in_reply_to, args.thread,
-            args.smtp_server)
+    email_patches(
+        col, series, cover_fname, patch_files, args.process_tags,
+        its_a_go, args.ignore_bad_tags, args.add_maintainers,
+        args.limit, args.dry_run, args.in_reply_to, args.thread,
+        args.smtp_server)
