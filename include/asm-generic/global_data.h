@@ -378,7 +378,7 @@ struct global_data {
 	 */
 	int logc_prev;
 	/**
-	 * @logl_pref: logging level of the previous message
+	 * @logl_prev: logging level of the previous message
 	 *
 	 * This value is used as logging level for continuation messages.
 	 */
