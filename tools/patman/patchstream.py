@@ -4,11 +4,13 @@
 
 """Handles parsing a stream of commits/emails from 'git log' or other source"""
 
+import collections
 import datetime
 import io
 import math
 import os
 import re
+import queue
 import shutil
 import tempfile
 
@@ -51,6 +53,12 @@ RE_SPACE_BEFORE_TAB = re.compile('^[+].* \t')
 # Match indented lines for changes
 RE_LEADING_WHITESPACE = re.compile(r'^\s')
 
+# Detect a 'diff' line
+RE_DIFF = re.compile(r'^>.*diff --git a/(.*) b/(.*)$')
+
+# Detect a context line, like '> @@ -153,8 +153,13 @@ CheckPatch
+RE_LINE = re.compile(r'>.*@@ \-(\d+),\d+ \+(\d+),\d+ @@ *(.*)')
+
 # States we can be in - can we use range() and still have comments?
 STATE_MSG_HEADER = 0        # Still in the message header
 STATE_PATCH_SUBJECT = 1     # In patch subject (first line of log for a commit)
@@ -81,6 +89,14 @@ class PatchStream:
         self.blank_count = 0             # Number of blank lines stored up
         self.state = STATE_MSG_HEADER    # What state are we in?
         self.commit = None               # Current commit
+        self.snippets = []               # List of unquoted test blocks
+        self.cur_diff = None             # Last 'diff' line seen (str)
+        self.cur_line = None             # Last context (@@) line seen (str)
+        self.recent_diff= None           # 'diff' line for current snippet (str)
+        self.recent_line= None           # '@@' line for current snippet (str)
+        self.recent_quoted = collections.deque([], 5)
+        self.recent_unquoted = queue.Queue()
+        self.was_quoted = None
 
     @staticmethod
     def process_text(text, is_comment=False):
@@ -176,6 +192,10 @@ class PatchStream:
             self.skip_blank = True
             self.section = []
 
+        self.cur_diff = None
+        self.recent_diff = None
+        self.recent_line = None
+
     def _parse_version(self, value, line):
         """Parse a version from a *-changes tag
 
@@ -208,6 +228,47 @@ class PatchStream:
         elif self.in_change == 'Commit':
             self.commit.AddChange(self.change_version, change)
         self.change_lines = []
+
+    def _finalise_snippet(self):
+        """Finish off a snippet and add it to the list
+
+        This is called when we get to the end of a snippet, i.e. the we enter
+        the next block of quoted text:
+
+            This is a comment from someone.
+
+            Something else
+
+            > Now we have some code          <----- end of snippet
+            > more code
+
+            Now a comment about the above code
+
+        This adds the snippet to our list
+        """
+        quoted_lines = []
+        while self.recent_quoted:
+            quoted_lines.append(self.recent_quoted.popleft())
+        unquoted_lines = []
+        valid = False
+        while not self.recent_unquoted.empty():
+            text = self.recent_unquoted.get()
+            if not (text.startswith('On ') and text.endswith('wrote:')):
+                unquoted_lines.append(text)
+            if text:
+                valid = True
+        if valid:
+            lines = []
+            if self.recent_diff:
+                lines.append('> File: %s' % self.recent_diff)
+            if self.recent_line:
+                out = '> Line: %s / %s' % self.recent_line[:2]
+                if self.recent_line[2]:
+                    out += ': %s' % self.recent_line[2]
+                lines.append(out)
+            lines += quoted_lines + unquoted_lines
+            if lines:
+                self.snippets.append(lines)
 
     def process_line(self, line):
         """Process a single line of a patch file or commit log
@@ -254,6 +315,8 @@ class PatchStream:
         cover_match = RE_COVER.match(line)
         signoff_match = RE_SIGNOFF.match(line)
         leading_whitespace_match = RE_LEADING_WHITESPACE.match(line)
+        diff_match = RE_DIFF.match(line)
+        line_match = RE_LINE.match(line)
         tag_match = None
         if self.state == STATE_PATCH_HEADER:
             tag_match = RE_TAG.match(line)
@@ -443,6 +506,27 @@ class PatchStream:
             out = [line]
             self.linenum += 1
             self.skip_blank = False
+
+            if diff_match:
+                self.cur_diff = diff_match.group(1)
+
+            # If this is quoted, keep recent lines
+            if not diff_match and self.linenum > 1 and line:
+                if line.startswith('>'):
+                    if not self.was_quoted:
+                        self._finalise_snippet()
+                        self.recent_line = None
+                    if not line_match:
+                        self.recent_quoted.append(line)
+                    self.was_quoted = True
+                    self.recent_diff = self.cur_diff
+                else:
+                    self.recent_unquoted.put(line)
+                    self.was_quoted = False
+
+            if line_match:
+                self.recent_line = line_match.groups()
+
             if self.state == STATE_DIFFS:
                 pass
 
@@ -466,6 +550,7 @@ class PatchStream:
 
     def finalise(self):
         """Close out processing of this patch stream"""
+        self._finalise_snippet()
         self._finalise_change()
         self._close_commit()
         if self.lines_after_test:

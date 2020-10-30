@@ -1043,3 +1043,86 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.assertEqual('Reviewed-by: %s' % self.fred, next(lines))
         self.assertEqual('Reviewed-by: %s' % self.mary, next(lines))
         self.assertEqual('Tested-by: %s' % self.leb, next(lines))
+
+    def testParseSnippets(self):
+        """Test parsing of review snippets"""
+        text = '''Hi Fred,
+
+This is a comment from someone.
+
+Something else
+
+On some recent date, Fred wrote:
+> This is why I wrote the patch
+> so here it is
+
+Now a comment about the commit message
+A little more to say
+
+Even more
+
+> diff --git a/file.c b/file.c
+> Some more code
+> Code line 2
+> Code line 3
+> Code line 4
+> Code line 5
+> Code line 6
+> Code line 7
+> Code line 8
+> Code line 9
+
+And another comment
+
+> @@ -153,8 +143,13 @@ def CheckPatch(fname, show_types=False):
+>  further down on the file
+>  and more code
+> +Addition here
+> +Another addition here
+>  codey
+>  more codey
+
+and another thing in same file
+
+> @@ -253,8 +243,13 @@
+>  with no function context
+
+one more thing
+
+> diff --git a/tools/patman/main.py b/tools/patman/main.py
+> +line of code
+now a very long comment in a different file
+line2
+line3
+line4
+line5
+line6
+line7
+line8
+'''
+        pstrm = PatchStream.process_text(text, True)
+        self.assertEqual([], pstrm.commit.warn)
+
+        # We expect to the filename and up to 5 lines of code context before
+        # each comment. The 'On xxx wrote:' bit should be removed.
+        self.assertEqual(
+            [['Hi Fred,',
+              'This is a comment from someone.',
+              'Something else'],
+             ['> This is why I wrote the patch',
+              '> so here it is',
+              'Now a comment about the commit message',
+              'A little more to say', 'Even more'],
+             ['> File: file.c', '> Code line 5', '> Code line 6',
+              '> Code line 7', '> Code line 8', '> Code line 9',
+              'And another comment'],
+             ['> File: file.c',
+              '> Line: 153 / 143: def CheckPatch(fname, show_types=False):',
+              '>  and more code', '> +Addition here', '> +Another addition here',
+              '>  codey', '>  more codey', 'and another thing in same file'],
+             ['> File: file.c', '> Line: 253 / 243',
+              '>  with no function context', 'one more thing'],
+             ['> File: tools/patman/main.py', '> +line of code',
+              'now a very long comment in a different file',
+              'line2', 'line3', 'line4', 'line5', 'line6', 'line7', 'line8']],
+            pstrm.snippets)
