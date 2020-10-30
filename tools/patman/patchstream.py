@@ -2,6 +2,8 @@
 # Copyright (c) 2011 The Chromium OS Authors.
 #
 
+"""Handles parsing a stream of commits/emails from 'git log' or other source"""
+
 import datetime
 import math
 import os
@@ -15,8 +17,8 @@ from patman import gitutil
 from patman.series import Series
 
 # Tags that we detect and remove
-re_remove = re.compile('^BUG=|^TEST=|^BRANCH=|^Review URL:'
-    '|Reviewed-on:|Commit-\w*:')
+re_remove = re.compile(r'^BUG=|^TEST=|^BRANCH=|^Review URL:'
+                       r'|Reviewed-on:|Commit-\w*:')
 
 # Lines which are allowed after a TEST= line
 re_allowed_after_test = re.compile('^Signed-off-by:')
@@ -46,7 +48,7 @@ re_commit = re.compile('^commit ([0-9a-f]*)$')
 re_space_before_tab = re.compile('^[+].* \t')
 
 # Match indented lines for changes
-re_leading_whitespace = re.compile('^\s')
+re_leading_whitespace = re.compile(r'^\s')
 
 # States we can be in - can we use range() and still have comments?
 STATE_MSG_HEADER = 0        # Still in the message header
@@ -149,7 +151,7 @@ class PatchStream:
             return int(value)
         except ValueError as str:
             raise ValueError("%s: Cannot decode version info '%s'" %
-                (self.commit.hash, line))
+                             (self.commit.hash, line))
 
     def FinalizeChange(self):
         """Finalize a (multi-line) change and add it to the series or commit"""
@@ -271,7 +273,7 @@ class PatchStream:
 
         # If we are not in a section, it is an unexpected END
         elif line == 'END':
-                raise ValueError("'END' wihout section")
+            raise ValueError("'END' wihout section")
 
         # Detect the commit subject
         elif not is_blank and self.state == STATE_PATCH_SUBJECT:
@@ -336,8 +338,9 @@ class PatchStream:
             value = change_id_match.group(1)
             if self.is_log:
                 if self.commit.change_id:
-                    raise ValueError("%s: Two Change-Ids: '%s' vs. '%s'" %
-                        (self.commit.hash, self.commit.change_id, value))
+                    raise ValueError(
+                        "%s: Two Change-Ids: '%s' vs. '%s'" % self.commit.hash,
+                        self.commit.change_id, value)
                 self.commit.change_id = value
             self.skip_blank = True
 
@@ -353,7 +356,7 @@ class PatchStream:
                 self.change_version = self.ParseVersion(value, line)
             else:
                 self.warn.append('Line %d: Ignoring Commit-%s' %
-                    (self.linenum, name))
+                                 (self.linenum, name))
 
         # Detect the start of a new commit
         elif commit_match:
@@ -376,7 +379,7 @@ class PatchStream:
         # Suppress duplicate signoffs
         elif signoff_match:
             if (self.is_log or not self.commit or
-                self.commit.CheckDuplicateSignoff(signoff_match.group(1))):
+                    self.commit.CheckDuplicateSignoff(signoff_match.group(1))):
                 out = [line]
 
         # Well that means this is an ordinary line
@@ -385,7 +388,7 @@ class PatchStream:
             m = re_space_before_tab.match(line)
             if m:
                 self.warn.append('Line %d/%d has space before tab' %
-                    (self.linenum, m.start()))
+                                 (self.linenum, m.start()))
 
             # OK, we have a valid non-blank line
             out = [line]
@@ -418,7 +421,7 @@ class PatchStream:
         self.CloseCommit()
         if self.lines_after_test:
             self.warn.append('Found %d lines after TEST=' %
-                    self.lines_after_test)
+                             self.lines_after_test)
 
     def WriteMessageId(self, outfd):
         """Write the Message-Id into the output.
@@ -494,7 +497,7 @@ class PatchStream:
                 else:
                     if self.blank_count and (line == '-- ' or match):
                         self.warn.append("Found possible blank line(s) at "
-                                "end of file '%s'" % last_fname)
+                                         "end of file '%s'" % last_fname)
                     outfd.write('+\n' * self.blank_count)
                     outfd.write(line + '\n')
                     self.blank_count = 0
@@ -502,7 +505,7 @@ class PatchStream:
 
 
 def GetMetaDataForList(commit_range, git_dir=None, count=None,
-                       series = None, allow_overwrite=False):
+                       series=None, allow_overwrite=False):
     """Reads out patch series metadata from the commits
 
     This does a 'git log' on the relevant commits and pulls out the tags we
