@@ -212,40 +212,39 @@ class TestFunctional(unittest.TestCase):
         cc_lines = open(cc_file, encoding='utf-8').read().splitlines()
         os.remove(cc_file)
 
-        lines = out[0].getvalue().splitlines()
-        self.assertEqual('Cleaned %s patches' % len(series.commits), lines[0])
-        self.assertEqual('Change log missing for v2', lines[1])
-        self.assertEqual('Change log missing for v3', lines[2])
-        self.assertEqual('Change log for unknown version v4', lines[3])
-        self.assertEqual("Alias 'pci' not found", lines[4])
-        self.assertIn('Dry run', lines[5])
-        self.assertIn('Send a total of %d patches' % count, lines[7])
-        line = 8
-        for i in range(len(series.commits)):
-            self.assertEqual('   %s' % args[i], lines[line + 0])
-            line += 1
-            while 'Cc:' in lines[line]:
-                line += 1
-        self.assertEqual('To:	  u-boot@lists.denx.de', lines[line])
-        self.assertEqual('Cc:	  %s' % tools.FromUnicode(stefan),
-                         lines[line + 1])
-        self.assertEqual('Version:  3', lines[line + 2])
-        self.assertEqual('Prefix:\t  RFC', lines[line + 3])
-        self.assertEqual('Cover: 4 lines', lines[line + 4])
-        line += 5
-        self.assertEqual('      Cc:  %s' % self.fred, lines[line + 0])
+        lines = iter(out[0].getvalue().splitlines())
+        self.assertEqual('Cleaned %s patches' % len(series.commits),
+                         next(lines))
+        self.assertEqual('Change log missing for v2', next(lines))
+        self.assertEqual('Change log missing for v3', next(lines))
+        self.assertEqual('Change log for unknown version v4', next(lines))
+        self.assertEqual("Alias 'pci' not found", next(lines))
+        self.assertIn('Dry run', next(lines))
+        self.assertEqual('', next(lines))
+        self.assertIn('Send a total of %d patches' % count, next(lines))
+        prev = next(lines)
+        for i, commit in enumerate(series.commits):
+            self.assertEqual('   %s' % args[i], prev)
+            while True:
+                prev = next(lines)
+                if 'Cc:' not in prev:
+                    break
+        self.assertEqual('To:	  u-boot@lists.denx.de', prev)
+        self.assertEqual('Cc:	  %s' % tools.FromUnicode(stefan), next(lines))
+        self.assertEqual('Version:  3', next(lines))
+        self.assertEqual('Prefix:\t  RFC', next(lines))
+        self.assertEqual('Cover: 4 lines', next(lines))
+        self.assertEqual('      Cc:  %s' % self.fred, next(lines))
         self.assertEqual('      Cc:  %s' % tools.FromUnicode(self.leb),
-                         lines[line + 1])
-        self.assertEqual('      Cc:  %s' % tools.FromUnicode(mel),
-                         lines[line + 2])
-        self.assertEqual('      Cc:  %s' % rick, lines[line + 3])
+                         next(lines))
+        self.assertEqual('      Cc:  %s' % tools.FromUnicode(mel), next(lines))
+        self.assertEqual('      Cc:  %s' % rick, next(lines))
         expected = ('Git command: git send-email --annotate '
                     '--in-reply-to="%s" --to "u-boot@lists.denx.de" '
                     '--cc "%s" --cc-cmd "%s --cc-cmd %s" %s %s'
                     % (in_reply_to, stefan, sys.argv[0], cc_file, cover_fname,
                        ' '.join(args)))
-        line += 4
-        self.assertEqual(expected, tools.ToUnicode(lines[line]))
+        self.assertEqual(expected, tools.ToUnicode(next(lines)))
 
         self.assertEqual(('%s %s\0%s' % (args[0], rick, stefan)),
                          tools.ToUnicode(cc_lines[0]))
