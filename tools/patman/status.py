@@ -3,8 +3,9 @@
 # Copyright 2020 Google LLC
 #
 """Talks to the patchwork service to figure out what patches have been reviewed
-and commented on. Allows creation of a new branch based on the old but with the
-review tags collected from patchwork.
+and commented on. Provides a way to display review tags and comments.
+Allows creation of a new branch based on the old but with the review tags
+collected from patchwork.
 """
 
 import collections
@@ -124,6 +125,25 @@ class Patch(dict):
             self.seq = 1
             self.count = 1
 
+
+class Review:
+    """Represents a single review email collected in Patchwork
+
+    Patches can attract multiple reviews. Each consists of an author/date and
+    a variable number of 'snippets', which are groups of quoted and unquoted
+    text.
+    """
+    def __init__(self, meta, snippets):
+        """Create new Review object
+
+        Args:
+            meta (str): Text containing review author and date
+            snippets (list): List of snippets in th review, each a list of text
+                lines
+        """
+        self.meta = ' : '.join([line for line in meta.splitlines() if line])
+        self.snippets = snippets
+
 def compare_with_series(series, patches):
     """Compare a list of patches with a series it came from
 
@@ -241,7 +261,8 @@ def collect_patches(series, series_id, rest_api=call_rest_api):
     patches = sorted(patches, key=lambda x: x.seq)
     return patches
 
-def find_new_responses(new_rtag_list, seq, cmt, patch, rest_api=call_rest_api):
+def find_new_responses(new_rtag_list, review_list, seq, cmt, patch,
+                       rest_api=call_rest_api):
     """Find new rtags collected by patchwork that we don't know about
 
     This is designed to be run in parallel, once for each commit/patch
@@ -252,6 +273,9 @@ def find_new_responses(new_rtag_list, seq, cmt, patch, rest_api=call_rest_api):
                 key: Response tag (e.g. 'Reviewed-by')
                 value: Set of people who gave that response, each a name/email
                     string
+        review_list (list): New reviews are written to review_list[seq]
+            list, each a
+                List of reviews for the patch, each a Review
         seq (int): Position in new_rtag_list to update
         cmt (Commit): Commit object for this commit
         patch (Patch): Corresponding Patch object for this patch
@@ -271,8 +295,13 @@ def find_new_responses(new_rtag_list, seq, cmt, patch, rest_api=call_rest_api):
 
     data = rest_api('patches/%s/comments/' % patch.id)
 
+    reviews = []
     for comment in data:
         pstrm = PatchStream.process_text(comment['content'], True)
+        if pstrm.snippets:
+            submitter = comment['submitter']
+            person = '%s <%s>' % (submitter['name'], submitter['email'])
+            reviews.append(Review(person, pstrm.snippets))
         for response, people in pstrm.commit.rtags.items():
             rtags[response].update(people)
 
@@ -286,6 +315,7 @@ def find_new_responses(new_rtag_list, seq, cmt, patch, rest_api=call_rest_api):
             if is_new:
                 new_rtags[tag].add(who)
     new_rtag_list[seq] = new_rtags
+    review_list[seq] = reviews
 
 def show_responses(rtags, indent, is_new):
     """Show rtags collected
@@ -302,8 +332,9 @@ def show_responses(rtags, indent, is_new):
     """
     col = terminal.Color()
     count = 0
-    for tag, people in rtags.items():
-        for who in people:
+    for tag in sorted(rtags.keys()):
+        people = rtags[tag]
+        for who in sorted(people):
             terminal.Print(indent + '%s %s: ' % ('+' if is_new else ' ', tag),
                            newline=False, colour=col.GREEN, bright=is_new)
             terminal.Print(who, colour=col.WHITE, bright=is_new)
@@ -376,7 +407,8 @@ def create_branch(series, new_rtag_list, branch, dest_branch, overwrite,
     return num_added
 
 def check_patchwork_status(series, series_id, branch, dest_branch, force,
-                           rest_api=call_rest_api, test_repo=None):
+                           show_comments, rest_api=call_rest_api,
+                           test_repo=None):
     """Check the status of a series on Patchwork
 
     This finds review tags and comments for a series in Patchwork, displaying
@@ -388,6 +420,7 @@ def check_patchwork_status(series, series_id, branch, dest_branch, force,
         branch (str): Existing branch to update, or None
         dest_branch (str): Name of new branch to create, or None
         force (bool): True to force overwriting dest_branch if it exists
+        show_comments (bool): True to show the comments on each patch
         rest_api (function): API function to call to access Patchwork, for
             testing
         test_repo (pygit2.Repository): Repo to use (use None unless testing)
@@ -396,6 +429,7 @@ def check_patchwork_status(series, series_id, branch, dest_branch, force,
     col = terminal.Color()
     count = len(series.commits)
     new_rtag_list = [None] * count
+    review_list = [None] * count
 
     patch_for_commit, _, warnings = compare_with_series(series, patches)
     for warn in warnings:
@@ -405,8 +439,8 @@ def check_patchwork_status(series, series_id, branch, dest_branch, force,
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
         futures = executor.map(
-            find_new_responses, repeat(new_rtag_list), range(count),
-            series.commits, patch_list, repeat(rest_api))
+            find_new_responses, repeat(new_rtag_list), repeat(review_list),
+            range(count), series.commits, patch_list, repeat(rest_api))
     for fresponse in futures:
         if fresponse:
             raise fresponse.exception()
@@ -425,6 +459,15 @@ def check_patchwork_status(series, series_id, branch, dest_branch, force,
         indent = ' ' * 2
         show_responses(base_rtags, indent, False)
         num_to_add += show_responses(new_rtags, indent, True)
+        if show_comments:
+            for review in review_list[seq]:
+                terminal.Print('Review: %s' % review.meta, colour=col.RED)
+                for snippet in review.snippets:
+                    for line in snippet:
+                        quoted = line.startswith('>')
+                        terminal.Print('    %s' % line,
+                                       colour=col.MAGENTA if quoted else None)
+                    terminal.Print()
 
     terminal.Print("%d new response%s available in patchwork%s" %
                    (num_to_add, 's' if num_to_add != 1 else '',

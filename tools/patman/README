@@ -14,6 +14,7 @@ This tool is a Python script which:
 It also has some Patchwork features:
 - shows review tags from Patchwork so you can update your local patches
 - pulls these down into a new branch on request
+- lists comments received on a series
 
 It is intended to automate patch creation and make it a less
 error-prone process. It is useful for U-Boot and Linux work so far,
@@ -400,6 +401,8 @@ end. You can check that this worked with:
 
 which should show that there are no new responses compared to this new branch.
 
+There is also a -C option to list the comments received for each patch.
+
 
 Example Work Flow
 =================
@@ -484,17 +487,33 @@ people on the list don't see your secret info.
 Of course patches often attract comments and you need to make some updates.
 Let's say one person sent comments and you get an Acked-by: on one patch.
 Also, the patch on the list that you were waiting for has been merged,
-so you can drop your wip commit. So you resync with upstream:
+so you can drop your wip commit.
+
+Take a look on patchwork and find out the URL of the series. This will be
+something like http://patchwork.ozlabs.org/project/uboot/list/?series=187331
+Add this to a tag in your top commit:
+
+   Series-link: http://patchwork.ozlabs.org/project/uboot/list/?series=187331
+
+You can use then patman to collect the Acked-by tag to the correct commit,
+creating a new 'version 2' branch for us-cmd:
+
+    patman status -d us-cmd2
+    git checkout us-cmd2
+
+You can look at the comments in Patchwork or with:
+
+    patman status -C
+
+Then you can resync with upstream:
 
     git fetch origin		(or whatever upstream is called)
     git rebase origin/master
 
-and use git rebase -i to edit the commits, dropping the wip one. You add
-the ack tag to one commit:
+and use git rebase -i to edit the commits, dropping the wip one.
 
-    Acked-by: Heiko Schocher <hs@denx.de>
-
-update the Series-cc: in the top commit:
+Then update the Series-cc: in the top commit to add the person who reviewed
+the v1 series:
 
     Series-cc: bfin, marex, Heiko Schocher <hs@denx.de>
 
@@ -533,7 +552,9 @@ so to send them:
 
 and it will create and send the version 2 series.
 
-General points:
+
+General points
+==============
 
 1. When you change back to the us-cmd branch days or weeks later all your
 information is still there, safely stored in the commits. You don't need
@@ -613,3 +634,4 @@ a bad thing.
 Simon Glass <sjg@chromium.org>
 v1, v2, 19-Oct-11
 revised v3 24-Nov-11
+revised v4 Independence Day 2020, with Patchwork integration

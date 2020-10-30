@@ -92,6 +92,8 @@ AddCommonArgs(test_parser)
 
 status = subparsers.add_parser('status',
                                help='Check status of patches in patchwork')
+status.add_argument('-C', '--show-comments', action='store_true',
+                    help='Show comments from each patch')
 status.add_argument('-d', '--dest-branch', type=str,
                     help='Name of branch to create with collected responses')
 status.add_argument('-f', '--force', action='store_true',
@@ -171,7 +173,8 @@ elif args.cmd == 'status':
     ret_code = 0
     try:
         control.patchwork_status(args.branch, args.count, args.start, args.end,
-                                 args.dest_branch, args.force)
+                                 args.dest_branch, args.force,
+                                 args.show_comments)
     except Exception as e:
         terminal.Print('patman: %s: %s' % (type(e).__name__, e),
                        colour=terminal.Color.RED)

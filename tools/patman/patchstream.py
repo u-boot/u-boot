@@ -89,11 +89,12 @@ class PatchStream:
         self.blank_count = 0             # Number of blank lines stored up
         self.state = STATE_MSG_HEADER    # What state are we in?
         self.commit = None               # Current commit
-        self.snippets = []               # List of unquoted test blocks
+        # List of unquoted test blocks, each a list of str lines
+        self.snippets = []
         self.cur_diff = None             # Last 'diff' line seen (str)
         self.cur_line = None             # Last context (@@) line seen (str)
-        self.recent_diff= None           # 'diff' line for current snippet (str)
-        self.recent_line= None           # '@@' line for current snippet (str)
+        self.recent_diff = None          # 'diff' line for current snippet (str)
+        self.recent_line = None          # '@@' line for current snippet (str)
         self.recent_quoted = collections.deque([], 5)
         self.recent_unquoted = queue.Queue()
         self.was_quoted = None

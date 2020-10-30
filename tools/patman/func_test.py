@@ -857,15 +857,16 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.patches = [patch1, patch2]
         count = 2
         new_rtag_list = [None] * count
+        review_list = [None, None]
 
         # Check that the tags are picked up on the first patch
-        status.find_new_responses(new_rtag_list, 0, commit1, patch1,
-                                  self._fake_patchwork2)
+        status.find_new_responses(new_rtag_list, review_list, 0, commit1,
+                                  patch1, self._fake_patchwork2)
         self.assertEqual(new_rtag_list[0], {'Reviewed-by': {self.joe}})
 
         # Now the second patch
-        status.find_new_responses(new_rtag_list, 1, commit2, patch2,
-                                  self._fake_patchwork2)
+        status.find_new_responses(new_rtag_list, review_list, 1, commit2,
+                                  patch2, self._fake_patchwork2)
         self.assertEqual(new_rtag_list[1], {
             'Reviewed-by': {self.mary, self.fred},
             'Tested-by': {self.leb}})
@@ -874,16 +875,16 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         # 'new' tags when scanning comments
         new_rtag_list = [None] * count
         commit1.rtags = {'Reviewed-by': {self.joe}}
-        status.find_new_responses(new_rtag_list, 0, commit1, patch1,
-                                  self._fake_patchwork2)
+        status.find_new_responses(new_rtag_list, review_list, 0, commit1,
+                                  patch1, self._fake_patchwork2)
         self.assertEqual(new_rtag_list[0], {})
 
         # For the second commit, add Ed and Fred, so only Mary should be left
         commit2.rtags = {
             'Tested-by': {self.leb},
             'Reviewed-by': {self.fred}}
-        status.find_new_responses(new_rtag_list, 1, commit2, patch2,
-                                  self._fake_patchwork2)
+        status.find_new_responses(new_rtag_list, review_list, 1, commit2,
+                                  patch2, self._fake_patchwork2)
         self.assertEqual(new_rtag_list[1], {'Reviewed-by': {self.mary}})
 
         # Check that the output patches expectations:
@@ -898,7 +899,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         series = Series()
         series.commits = [commit1, commit2]
         terminal.SetPrintTestMode()
-        status.check_patchwork_status(series, '1234', None, None, False,
+        status.check_patchwork_status(series, '1234', None, None, False, False,
                                       self._fake_patchwork2)
         lines = iter(terminal.GetPrintTestLines())
         col = terminal.Color()
@@ -914,16 +915,16 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.assertEqual(terminal.PrintLine('  2 Subject 2', col.BLUE),
                          next(lines))
         self.assertEqual(
-            terminal.PrintLine('    Tested-by: ', col.GREEN, newline=False,
-                               bright=False),
-            next(lines))
-        self.assertEqual(terminal.PrintLine(self.leb, col.WHITE, bright=False),
-                         next(lines))
-        self.assertEqual(
             terminal.PrintLine('    Reviewed-by: ', col.GREEN, newline=False,
                                bright=False),
             next(lines))
         self.assertEqual(terminal.PrintLine(self.fred, col.WHITE, bright=False),
+                         next(lines))
+        self.assertEqual(
+            terminal.PrintLine('    Tested-by: ', col.GREEN, newline=False,
+                               bright=False),
+            next(lines))
+        self.assertEqual(terminal.PrintLine(self.leb, col.WHITE, bright=False),
                          next(lines))
         self.assertEqual(
             terminal.PrintLine('  + Reviewed-by: ', col.GREEN, newline=False),
@@ -1010,7 +1011,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
 
         terminal.SetPrintTestMode()
         status.check_patchwork_status(series, '1234', branch, dest_branch,
-                                      False, self._fake_patchwork3, repo)
+                                      False, False, self._fake_patchwork3, repo)
         lines = terminal.GetPrintTestLines()
         self.assertEqual(12, len(lines))
         self.assertEqual(
@@ -1044,6 +1045,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.assertEqual('Reviewed-by: %s' % self.mary, next(lines))
         self.assertEqual('Tested-by: %s' % self.leb, next(lines))
 
+    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
     def testParseSnippets(self):
         """Test parsing of review snippets"""
         text = '''Hi Fred,
@@ -1126,3 +1128,159 @@ line8
               'now a very long comment in a different file',
               'line2', 'line3', 'line4', 'line5', 'line6', 'line7', 'line8']],
             pstrm.snippets)
+
+    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
+    def testReviewSnippets(self):
+        """Test showing of review snippets"""
+        def _to_submitter(who):
+            m_who = re.match('(.*) <(.*)>', who)
+            return {
+                'name': m_who.group(1),
+                'email': m_who.group(2)
+                }
+
+        commit1 = Commit('abcd')
+        commit1.subject = 'Subject 1'
+        commit2 = Commit('ef12')
+        commit2.subject = 'Subject 2'
+
+        patch1 = status.Patch('1')
+        patch1.parse_subject('[1/2] Subject 1')
+        patch1.name = patch1.raw_subject
+        patch1.content = 'This is my patch content'
+        comment1a = {'submitter': _to_submitter(self.joe),
+                     'content': '''Hi Fred,
+
+On some date Fred wrote:
+
+> diff --git a/file.c b/file.c
+> Some code
+> and more code
+
+Here is my comment above the above...
+
+
+Reviewed-by: %s
+''' % self.joe}
+
+        patch1.comments = [comment1a]
+
+        patch2 = status.Patch('2')
+        patch2.parse_subject('[2/2] Subject 2')
+        patch2.name = patch2.raw_subject
+        patch2.content = 'Some other patch content'
+        comment2a = {
+            'content': 'Reviewed-by: %s\nTested-by: %s\n' %
+                       (self.mary, self.leb)}
+        comment2b = {'submitter': _to_submitter(self.fred),
+                     'content': '''Hi Fred,
+
+On some date Fred wrote:
+
+> diff --git a/tools/patman/commit.py b/tools/patman/commit.py
+> @@ -41,6 +41,9 @@ class Commit:
+>          self.rtags = collections.defaultdict(set)
+>          self.warn = []
+>
+> +    def __str__(self):
+> +        return self.subject
+> +
+>      def AddChange(self, version, info):
+>          """Add a new change line to the change list for a version.
+>
+A comment
+
+Reviewed-by: %s
+''' % self.fred}
+        patch2.comments = [comment2a, comment2b]
+
+        # This test works by setting up commits and patch for use by the fake
+        # Rest API function _fake_patchwork2(). It calls various functions in
+        # the status module after setting up tags in the commits, checking that
+        # things behaves as expected
+        self.commits = [commit1, commit2]
+        self.patches = [patch1, patch2]
+
+        # Check that the output patches expectations:
+        #   1 Subject 1
+        #     Reviewed-by: Joe Bloggs <joe@napierwallies.co.nz>
+        #   2 Subject 2
+        #     Tested-by: Lord Edmund Blackaddër <weasel@blackadder.org>
+        #     Reviewed-by: Fred Bloggs <f.bloggs@napier.net>
+        #   + Reviewed-by: Mary Bloggs <mary@napierwallies.co.nz>
+        # 1 new response available in patchwork
+
+        series = Series()
+        series.commits = [commit1, commit2]
+        terminal.SetPrintTestMode()
+        status.check_patchwork_status(series, '1234', None, None, False, True,
+                                      self._fake_patchwork2)
+        lines = iter(terminal.GetPrintTestLines())
+        col = terminal.Color()
+        self.assertEqual(terminal.PrintLine('  1 Subject 1', col.BLUE),
+                         next(lines))
+        self.assertEqual(
+            terminal.PrintLine('  + Reviewed-by: ', col.GREEN, newline=False),
+            next(lines))
+        self.assertEqual(terminal.PrintLine(self.joe, col.WHITE), next(lines))
+
+        self.assertEqual(terminal.PrintLine('Review: %s' % self.joe, col.RED),
+                         next(lines))
+        self.assertEqual(terminal.PrintLine('    Hi Fred,', None), next(lines))
+        self.assertEqual(terminal.PrintLine('', None), next(lines))
+        self.assertEqual(terminal.PrintLine('    > File: file.c', col.MAGENTA),
+                         next(lines))
+        self.assertEqual(terminal.PrintLine('    > Some code', col.MAGENTA),
+                         next(lines))
+        self.assertEqual(terminal.PrintLine('    > and more code', col.MAGENTA),
+                         next(lines))
+        self.assertEqual(terminal.PrintLine(
+            '    Here is my comment above the above...', None), next(lines))
+        self.assertEqual(terminal.PrintLine('', None), next(lines))
+
+        self.assertEqual(terminal.PrintLine('  2 Subject 2', col.BLUE),
+                         next(lines))
+        self.assertEqual(
+            terminal.PrintLine('  + Reviewed-by: ', col.GREEN, newline=False),
+            next(lines))
+        self.assertEqual(terminal.PrintLine(self.fred, col.WHITE),
+                         next(lines))
+        self.assertEqual(
+            terminal.PrintLine('  + Reviewed-by: ', col.GREEN, newline=False),
+            next(lines))
+        self.assertEqual(terminal.PrintLine(self.mary, col.WHITE),
+                         next(lines))
+        self.assertEqual(
+            terminal.PrintLine('  + Tested-by: ', col.GREEN, newline=False),
+            next(lines))
+        self.assertEqual(terminal.PrintLine(self.leb, col.WHITE),
+                         next(lines))
+
+        self.assertEqual(terminal.PrintLine('Review: %s' % self.fred, col.RED),
+                         next(lines))
+        self.assertEqual(terminal.PrintLine('    Hi Fred,', None), next(lines))
+        self.assertEqual(terminal.PrintLine('', None), next(lines))
+        self.assertEqual(terminal.PrintLine(
+            '    > File: tools/patman/commit.py', col.MAGENTA), next(lines))
+        self.assertEqual(terminal.PrintLine(
+            '    > Line: 41 / 41: class Commit:', col.MAGENTA), next(lines))
+        self.assertEqual(terminal.PrintLine(
+            '    > +        return self.subject', col.MAGENTA), next(lines))
+        self.assertEqual(terminal.PrintLine(
+            '    > +', col.MAGENTA), next(lines))
+        self.assertEqual(
+            terminal.PrintLine('    >      def AddChange(self, version, info):',
+                               col.MAGENTA),
+            next(lines))
+        self.assertEqual(terminal.PrintLine(
+            '    >          """Add a new change line to the change list for a version.',
+            col.MAGENTA), next(lines))
+        self.assertEqual(terminal.PrintLine(
+            '    >', col.MAGENTA), next(lines))
+        self.assertEqual(terminal.PrintLine(
+            '    A comment', None), next(lines))
+        self.assertEqual(terminal.PrintLine('', None), next(lines))
+
+        self.assertEqual(terminal.PrintLine(
+            '4 new responses available in patchwork (use -d to write them to a new branch)',
+            None), next(lines))
