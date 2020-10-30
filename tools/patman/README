@@ -533,12 +533,10 @@ Most of these are indicated by a TODO in the code.
 
 It would be nice if this could handle the In-reply-to side of things.
 
-The tests are incomplete, as is customary. Use the --test flag to run them,
-and make sure you are in the tools/patman directory first:
+The tests are incomplete, as is customary. Use the 'test' subcommand to run
+them:
 
-    $ cd /path/to/u-boot
-    $ cd tools/patman
-    $ ./patman --test
+    $ tools/patman/patman test
 
 Error handling doesn't always produce friendly error messages - e.g.
 putting an incorrect tag in a commit may provide a confusing message.
