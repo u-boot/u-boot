@@ -319,6 +319,24 @@ int env_import(const char *buf, int check, int flags);
 int env_export(struct environment_s *env_out);
 
 /**
+ * env_check_redund() - check the two redundant environments
+ *   and find out, which is the valid one.
+ *
+ * @buf1: First environment (struct environemnt_s *)
+ * @buf1_read_fail: 0 if buf1 is valid, non-zero if invalid
+ * @buf2: Second environment (struct environemnt_s *)
+ * @buf2_read_fail: 0 if buf2 is valid, non-zero if invalid
+ * @return 0 if OK,
+ *	-EIO if no environment is valid,
+ *	-EINVAL if read of second entry is good
+ *	-ENOENT if read of first entry is good
+ *	-ENOMSG if the CRC was bad
+ */
+
+int env_check_redund(const char *buf1, int buf1_read_fail,
+		     const char *buf2, int buf2_read_fail);
+
+/**
  * env_import_redund() - Select and import one of two redundant environments
  *
  * @buf1: First environment (struct environemnt_s *)

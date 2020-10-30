@@ -13,7 +13,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const char *log_cat_name[] = {
+static const char *const log_cat_name[] = {
 	"none",
 	"arch",
 	"board",
@@ -31,7 +31,7 @@ static const char *log_cat_name[] = {
 _Static_assert(ARRAY_SIZE(log_cat_name) == LOGC_COUNT - LOGC_NONE,
 	       "log_cat_name size");
 
-static const char *log_level_name[] = {
+static const char *const log_level_name[] = {
 	"EMERG",
 	"ALERT",
 	"CRIT",
@@ -99,7 +99,7 @@ enum log_level_t log_get_level_by_name(const char *name)
 	return LOGL_NONE;
 }
 
-static struct log_device *log_device_find_by_name(const char *drv_name)
+struct log_device *log_device_find_by_name(const char *drv_name)
 {
 	struct log_device *ldev;
 
@@ -111,15 +111,7 @@ static struct log_device *log_device_find_by_name(const char *drv_name)
 	return NULL;
 }
 
-/**
- * log_has_cat() - check if a log category exists within a list
- *
- * @cat_list: List of categories to check, at most LOGF_MAX_CATEGORIES entries
- *	long, terminated by LC_END if fewer
- * @cat: Category to search for
- * @return true if @cat is in @cat_list, else false
- */
-static bool log_has_cat(enum log_category_t cat_list[], enum log_category_t cat)
+bool log_has_cat(enum log_category_t cat_list[], enum log_category_t cat)
 {
 	int i;
 
@@ -131,16 +123,7 @@ static bool log_has_cat(enum log_category_t cat_list[], enum log_category_t cat)
 	return false;
 }
 
-/**
- * log_has_file() - check if a file is with a list
- *
- * @file_list: List of files to check, separated by comma
- * @file: File to check for. This string is matched against the end of each
- *	file in the list, i.e. ignoring any preceding path. The list is
- *	intended to consist of relative pathnames, e.g. common/main.c,cmd/log.c
- * @return true if @file is in @file_list, else false
- */
-static bool log_has_file(const char *file_list, const char *file)
+bool log_has_file(const char *file_list, const char *file)
 {
 	int file_len = strlen(file);
 	const char *s, *p;
@@ -179,15 +162,25 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
 	}
 
 	list_for_each_entry(filt, &ldev->filter_head, sibling_node) {
-		if (rec->level > filt->max_level)
+		if (filt->flags & LOGFF_LEVEL_MIN) {
+			if (rec->level < filt->level)
+				continue;
+		} else if (rec->level > filt->level) {
 			continue;
+		}
+
 		if ((filt->flags & LOGFF_HAS_CAT) &&
 		    !log_has_cat(filt->cat_list, rec->cat))
 			continue;
+
 		if (filt->file_list &&
 		    !log_has_file(filt->file_list, rec->file))
 			continue;
-		return true;
+
+		if (filt->flags & LOGFF_DENY)
+			return false;
+		else
+			return true;
 	}
 
 	return false;
@@ -263,8 +256,9 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 	return 0;
 }
 
-int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
-		   enum log_level_t max_level, const char *file_list)
+int log_add_filter_flags(const char *drv_name, enum log_category_t cat_list[],
+			 enum log_level_t level, const char *file_list,
+			 int flags)
 {
 	struct log_filter *filt;
 	struct log_device *ldev;
@@ -278,6 +272,7 @@ int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
 	if (!filt)
 		return -ENOMEM;
 
+	filt->flags = flags;
 	if (cat_list) {
 		filt->flags |= LOGFF_HAS_CAT;
 		for (i = 0; ; i++) {
@@ -290,16 +285,20 @@ int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
 				break;
 		}
 	}
-	filt->max_level = max_level;
+	filt->level = level;
 	if (file_list) {
 		filt->file_list = strdup(file_list);
 		if (!filt->file_list) {
-			ret = ENOMEM;
+			ret = -ENOMEM;
 			goto err;
 		}
 	}
 	filt->filter_num = ldev->next_filter_num++;
-	list_add_tail(&filt->sibling_node, &ldev->filter_head);
+	/* Add deny filters to the beginning of the list */
+	if (flags & LOGFF_DENY)
+		list_add(&filt->sibling_node, &ldev->filter_head);
+	else
+		list_add_tail(&filt->sibling_node, &ldev->filter_head);
 
 	return filt->filter_num;
 
