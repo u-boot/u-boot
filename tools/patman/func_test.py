@@ -13,10 +13,13 @@ import sys
 import tempfile
 import unittest
 
+
+from patman.commit import Commit
 from patman import control
 from patman import gitutil
 from patman import patchstream
 from patman.patchstream import PatchStream
+from patman.series import Series
 from patman import settings
 from patman import terminal
 from patman import tools
@@ -25,6 +28,7 @@ from patman.test_util import capture_sys_output
 try:
     import pygit2
     HAVE_PYGIT2 = True
+    from patman import status
 except ModuleNotFoundError:
     HAVE_PYGIT2 = False
 
@@ -36,6 +40,8 @@ class TestFunctional(unittest.TestCase):
     fred = 'Fred Bloggs <f.bloggs@napier.net>'
     joe = 'Joe Bloggs <joe@napierwallies.co.nz>'
     mary = 'Mary Bloggs <mary@napierwallies.co.nz>'
+    commits = None
+    patches = None
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp(prefix='patman.')
@@ -44,6 +50,7 @@ class TestFunctional(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
+        terminal.SetPrintTestMode(False)
 
     @staticmethod
     def _get_path(fname):
@@ -607,3 +614,311 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
                 str(exc.exception))
         finally:
             os.chdir(orig_dir)
+
+    @staticmethod
+    def _fake_patchwork(subpath):
+        """Fake Patchwork server for the function below
+
+        This handles accessing a series, providing a list consisting of a
+        single patch
+        """
+        re_series = re.match(r'series/(\d*)/$', subpath)
+        if re_series:
+            series_num = re_series.group(1)
+            if series_num == '1234':
+                return {'patches': [
+                    {'id': '1', 'name': 'Some patch'}]}
+        raise ValueError('Fake Patchwork does not understand: %s' % subpath)
+
+    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
+    def testStatusMismatch(self):
+        """Test Patchwork patches not matching the series"""
+        series = Series()
+
+        with capture_sys_output() as (_, err):
+            status.collect_patches(series, 1234, self._fake_patchwork)
+        self.assertIn('Warning: Patchwork reports 1 patches, series has 0',
+                      err.getvalue())
+
+    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
+    def testStatusReadPatch(self):
+        """Test handling a single patch in Patchwork"""
+        series = Series()
+        series.commits = [Commit('abcd')]
+
+        patches = status.collect_patches(series, 1234, self._fake_patchwork)
+        self.assertEqual(1, len(patches))
+        patch = patches[0]
+        self.assertEqual('1', patch.id)
+        self.assertEqual('Some patch', patch.raw_subject)
+
+    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
+    def testParseSubject(self):
+        """Test parsing of the patch subject"""
+        patch = status.Patch('1')
+
+        # Simple patch not in a series
+        patch.parse_subject('Testing')
+        self.assertEqual('Testing', patch.raw_subject)
+        self.assertEqual('Testing', patch.subject)
+        self.assertEqual(1, patch.seq)
+        self.assertEqual(1, patch.count)
+        self.assertEqual(None, patch.prefix)
+        self.assertEqual(None, patch.version)
+
+        # First patch in a series
+        patch.parse_subject('[1/2] Testing')
+        self.assertEqual('[1/2] Testing', patch.raw_subject)
+        self.assertEqual('Testing', patch.subject)
+        self.assertEqual(1, patch.seq)
+        self.assertEqual(2, patch.count)
+        self.assertEqual(None, patch.prefix)
+        self.assertEqual(None, patch.version)
+
+        # Second patch in a series
+        patch.parse_subject('[2/2] Testing')
+        self.assertEqual('Testing', patch.subject)
+        self.assertEqual(2, patch.seq)
+        self.assertEqual(2, patch.count)
+        self.assertEqual(None, patch.prefix)
+        self.assertEqual(None, patch.version)
+
+        # RFC patch
+        patch.parse_subject('[RFC,3/7] Testing')
+        self.assertEqual('Testing', patch.subject)
+        self.assertEqual(3, patch.seq)
+        self.assertEqual(7, patch.count)
+        self.assertEqual('RFC', patch.prefix)
+        self.assertEqual(None, patch.version)
+
+        # Version patch
+        patch.parse_subject('[v2,3/7] Testing')
+        self.assertEqual('Testing', patch.subject)
+        self.assertEqual(3, patch.seq)
+        self.assertEqual(7, patch.count)
+        self.assertEqual(None, patch.prefix)
+        self.assertEqual('v2', patch.version)
+
+        # All fields
+        patch.parse_subject('[RESEND,v2,3/7] Testing')
+        self.assertEqual('Testing', patch.subject)
+        self.assertEqual(3, patch.seq)
+        self.assertEqual(7, patch.count)
+        self.assertEqual('RESEND', patch.prefix)
+        self.assertEqual('v2', patch.version)
+
+        # RFC only
+        patch.parse_subject('[RESEND] Testing')
+        self.assertEqual('Testing', patch.subject)
+        self.assertEqual(1, patch.seq)
+        self.assertEqual(1, patch.count)
+        self.assertEqual('RESEND', patch.prefix)
+        self.assertEqual(None, patch.version)
+
+    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
+    def testCompareSeries(self):
+        """Test operation of compare_with_series()"""
+        commit1 = Commit('abcd')
+        commit1.subject = 'Subject 1'
+        commit2 = Commit('ef12')
+        commit2.subject = 'Subject 2'
+        commit3 = Commit('3456')
+        commit3.subject = 'Subject 2'
+
+        patch1 = status.Patch('1')
+        patch1.subject = 'Subject 1'
+        patch2 = status.Patch('2')
+        patch2.subject = 'Subject 2'
+        patch3 = status.Patch('3')
+        patch3.subject = 'Subject 2'
+
+        series = Series()
+        series.commits = [commit1]
+        patches = [patch1]
+        patch_for_commit, commit_for_patch, warnings = (
+            status.compare_with_series(series, patches))
+        self.assertEqual(1, len(patch_for_commit))
+        self.assertEqual(patch1, patch_for_commit[0])
+        self.assertEqual(1, len(commit_for_patch))
+        self.assertEqual(commit1, commit_for_patch[0])
+
+        series.commits = [commit1]
+        patches = [patch1, patch2]
+        patch_for_commit, commit_for_patch, warnings = (
+            status.compare_with_series(series, patches))
+        self.assertEqual(1, len(patch_for_commit))
+        self.assertEqual(patch1, patch_for_commit[0])
+        self.assertEqual(1, len(commit_for_patch))
+        self.assertEqual(commit1, commit_for_patch[0])
+        self.assertEqual(["Cannot find commit for patch 2 ('Subject 2')"],
+                         warnings)
+
+        series.commits = [commit1, commit2]
+        patches = [patch1]
+        patch_for_commit, commit_for_patch, warnings = (
+            status.compare_with_series(series, patches))
+        self.assertEqual(1, len(patch_for_commit))
+        self.assertEqual(patch1, patch_for_commit[0])
+        self.assertEqual(1, len(commit_for_patch))
+        self.assertEqual(commit1, commit_for_patch[0])
+        self.assertEqual(["Cannot find patch for commit 2 ('Subject 2')"],
+                         warnings)
+
+        series.commits = [commit1, commit2, commit3]
+        patches = [patch1, patch2]
+        patch_for_commit, commit_for_patch, warnings = (
+            status.compare_with_series(series, patches))
+        self.assertEqual(2, len(patch_for_commit))
+        self.assertEqual(patch1, patch_for_commit[0])
+        self.assertEqual(patch2, patch_for_commit[1])
+        self.assertEqual(1, len(commit_for_patch))
+        self.assertEqual(commit1, commit_for_patch[0])
+        self.assertEqual(["Cannot find patch for commit 3 ('Subject 2')",
+                          "Multiple commits match patch 2 ('Subject 2'):\n"
+                          '   Subject 2\n   Subject 2'],
+                         warnings)
+
+        series.commits = [commit1, commit2]
+        patches = [patch1, patch2, patch3]
+        patch_for_commit, commit_for_patch, warnings = (
+            status.compare_with_series(series, patches))
+        self.assertEqual(1, len(patch_for_commit))
+        self.assertEqual(patch1, patch_for_commit[0])
+        self.assertEqual(2, len(commit_for_patch))
+        self.assertEqual(commit1, commit_for_patch[0])
+        self.assertEqual(["Multiple patches match commit 2 ('Subject 2'):\n"
+                          '   Subject 2\n   Subject 2',
+                          "Cannot find commit for patch 3 ('Subject 2')"],
+                         warnings)
+
+    def _fake_patchwork2(self, subpath):
+        """Fake Patchwork server for the function below
+
+        This handles accessing series, patches and comments, providing the data
+        in self.patches to the caller
+        """
+        re_series = re.match(r'series/(\d*)/$', subpath)
+        re_patch = re.match(r'patches/(\d*)/$', subpath)
+        re_comments = re.match(r'patches/(\d*)/comments/$', subpath)
+        if re_series:
+            series_num = re_series.group(1)
+            if series_num == '1234':
+                return {'patches': self.patches}
+        elif re_patch:
+            patch_num = int(re_patch.group(1))
+            patch = self.patches[patch_num - 1]
+            return patch
+        elif re_comments:
+            patch_num = int(re_comments.group(1))
+            patch = self.patches[patch_num - 1]
+            return patch.comments
+        raise ValueError('Fake Patchwork does not understand: %s' % subpath)
+
+    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
+    def testFindNewResponses(self):
+        """Test operation of find_new_responses()"""
+        commit1 = Commit('abcd')
+        commit1.subject = 'Subject 1'
+        commit2 = Commit('ef12')
+        commit2.subject = 'Subject 2'
+
+        patch1 = status.Patch('1')
+        patch1.parse_subject('[1/2] Subject 1')
+        patch1.name = patch1.raw_subject
+        patch1.content = 'This is my patch content'
+        comment1a = {'content': 'Reviewed-by: %s\n' % self.joe}
+
+        patch1.comments = [comment1a]
+
+        patch2 = status.Patch('2')
+        patch2.parse_subject('[2/2] Subject 2')
+        patch2.name = patch2.raw_subject
+        patch2.content = 'Some other patch content'
+        comment2a = {
+            'content': 'Reviewed-by: %s\nTested-by: %s\n' %
+                       (self.mary, self.leb)}
+        comment2b = {'content': 'Reviewed-by: %s' % self.fred}
+        patch2.comments = [comment2a, comment2b]
+
+        # This test works by setting up commits and patch for use by the fake
+        # Rest API function _fake_patchwork2(). It calls various functions in
+        # the status module after setting up tags in the commits, checking that
+        # things behaves as expected
+        self.commits = [commit1, commit2]
+        self.patches = [patch1, patch2]
+        count = 2
+        new_rtag_list = [None] * count
+
+        # Check that the tags are picked up on the first patch
+        status.find_new_responses(new_rtag_list, 0, commit1, patch1,
+                                  self._fake_patchwork2)
+        self.assertEqual(new_rtag_list[0], {'Reviewed-by': {self.joe}})
+
+        # Now the second patch
+        status.find_new_responses(new_rtag_list, 1, commit2, patch2,
+                                  self._fake_patchwork2)
+        self.assertEqual(new_rtag_list[1], {
+            'Reviewed-by': {self.mary, self.fred},
+            'Tested-by': {self.leb}})
+
+        # Now add some tags to the commit, which means they should not appear as
+        # 'new' tags when scanning comments
+        new_rtag_list = [None] * count
+        commit1.rtags = {'Reviewed-by': {self.joe}}
+        status.find_new_responses(new_rtag_list, 0, commit1, patch1,
+                                  self._fake_patchwork2)
+        self.assertEqual(new_rtag_list[0], {})
+
+        # For the second commit, add Ed and Fred, so only Mary should be left
+        commit2.rtags = {
+            'Tested-by': {self.leb},
+            'Reviewed-by': {self.fred}}
+        status.find_new_responses(new_rtag_list, 1, commit2, patch2,
+                                  self._fake_patchwork2)
+        self.assertEqual(new_rtag_list[1], {'Reviewed-by': {self.mary}})
+
+        # Check that the output patches expectations:
+        #   1 Subject 1
+        #     Reviewed-by: Joe Bloggs <joe@napierwallies.co.nz>
+        #   2 Subject 2
+        #     Tested-by: Lord Edmund Blackaddër <weasel@blackadder.org>
+        #     Reviewed-by: Fred Bloggs <f.bloggs@napier.net>
+        #   + Reviewed-by: Mary Bloggs <mary@napierwallies.co.nz>
+        # 1 new response available in patchwork
+
+        series = Series()
+        series.commits = [commit1, commit2]
+        terminal.SetPrintTestMode()
+        status.check_patchwork_status(series, '1234', self._fake_patchwork2)
+        lines = iter(terminal.GetPrintTestLines())
+        col = terminal.Color()
+        self.assertEqual(terminal.PrintLine('  1 Subject 1', col.BLUE),
+                         next(lines))
+        self.assertEqual(
+            terminal.PrintLine('    Reviewed-by: ', col.GREEN, newline=False,
+                               bright=False),
+            next(lines))
+        self.assertEqual(terminal.PrintLine(self.joe, col.WHITE, bright=False),
+                         next(lines))
+
+        self.assertEqual(terminal.PrintLine('  2 Subject 2', col.BLUE),
+                         next(lines))
+        self.assertEqual(
+            terminal.PrintLine('    Tested-by: ', col.GREEN, newline=False,
+                               bright=False),
+            next(lines))
+        self.assertEqual(terminal.PrintLine(self.leb, col.WHITE, bright=False),
+                         next(lines))
+        self.assertEqual(
+            terminal.PrintLine('    Reviewed-by: ', col.GREEN, newline=False,
+                               bright=False),
+            next(lines))
+        self.assertEqual(terminal.PrintLine(self.fred, col.WHITE, bright=False),
+                         next(lines))
+        self.assertEqual(
+            terminal.PrintLine('  + Reviewed-by: ', col.GREEN, newline=False),
+            next(lines))
+        self.assertEqual(terminal.PrintLine(self.mary, col.WHITE),
+                         next(lines))
+        self.assertEqual(terminal.PrintLine(
+            '1 new response available in patchwork', None), next(lines))

@@ -11,6 +11,8 @@ This tool is a Python script which:
 - Runs the patches through checkpatch.pl and its own checks
 - Optionally emails them out to selected people
 
+It also shows review tags from Patchwork so you can update your local patches.
+
 It is intended to automate patch creation and make it a less
 error-prone process. It is useful for U-Boot and Linux work so far,
 since it uses the checkpatch.pl script.
@@ -350,6 +352,38 @@ Cover-letter-cc: <list of addresses>
 
 These people will get the cover letter even if they are not on the To/Cc
 list for any of the patches.
+
+
+Patchwork Integration
+=====================
+
+Patman has a very basic integration with Patchwork. If you point patman to
+your series on patchwork it can show you what new reviews have appears since
+you sent your series.
+
+To set this up, add a Series-link tag to one of the commits in your series
+(see above).
+
+Then you can type
+
+    patman status
+
+and patman will show you each patch and what review tags have been collected,
+for example:
+
+...
+ 21 x86: mtrr: Update the command to use the new mtrr
+    Reviewed-by: Wolfgang Wallner <wolfgang.wallner@br-automation.com>
+  + Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+ 22 x86: mtrr: Restructure so command execution is in
+    Reviewed-by: Wolfgang Wallner <wolfgang.wallner@br-automation.com>
+  + Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+...
+
+This shows that patch 21 and 22 were sent out with one review but have since
+attracted another review each. If the series needs changes, you can update
+these commits with the new review tag before sending the next version of the
+series.
 
 
 Example Work Flow

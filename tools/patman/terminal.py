@@ -34,14 +34,22 @@ class PrintLine:
         newline: True to output a newline after the text
         colour: Text colour to use
     """
-    def __init__(self, text, newline, colour):
+    def __init__(self, text, colour, newline=True, bright=True):
         self.text = text
         self.newline = newline
         self.colour = colour
+        self.bright = bright
+
+    def __eq__(self, other):
+        return (self.text == other.text and
+                self.newline == other.newline and
+                self.colour == other.colour and
+                self.bright == other.bright)
 
     def __str__(self):
-        return 'newline=%s, colour=%s, text=%s' % (self.newline, self.colour,
-                self.text)
+        return ("newline=%s, colour=%s, bright=%d, text='%s'" %
+                (self.newline, self.colour, self.bright, self.text))
+
 
 def CalcAsciiLen(text):
     """Calculate the length of a string, ignoring any ANSI sequences
@@ -136,7 +144,7 @@ def Print(text='', newline=True, colour=None, limit_to_line=False, bright=True):
     global last_print_len
 
     if print_test_mode:
-        print_test_list.append(PrintLine(text, newline, colour))
+        print_test_list.append(PrintLine(text, colour, newline, bright))
     else:
         if colour:
             col = Color()
@@ -159,11 +167,12 @@ def PrintClear():
         print('\r%s\r' % (' '* last_print_len), end='', flush=True)
         last_print_len = None
 
-def SetPrintTestMode():
+def SetPrintTestMode(enable=True):
     """Go into test mode, where all printing is recorded"""
     global print_test_mode
 
-    print_test_mode = True
+    print_test_mode = enable
+    GetPrintTestLines()
 
 def GetPrintTestLines():
     """Get a list of all lines output through Print()

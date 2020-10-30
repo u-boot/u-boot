@@ -175,3 +175,49 @@ def send(args):
         its_a_go, args.ignore_bad_tags, args.add_maintainers,
         args.limit, args.dry_run, args.in_reply_to, args.thread,
         args.smtp_server)
+
+def patchwork_status(branch, count, start, end):
+    """Check the status of patches in patchwork
+
+    This finds the series in patchwork using the Series-link tag, checks for new
+    comments / review tags and displays them
+
+    Args:
+        branch (str): Branch to create patches from (None = current)
+        count (int): Number of patches to produce, or -1 to produce patches for
+            the current branch back to the upstream commit
+        start (int): Start partch to use (0=first / top of branch)
+        end (int): End patch to use (0=last one in series, 1=one before that,
+            etc.)
+
+    Raises:
+        ValueError: if the branch has no Series-link value
+    """
+    if count == -1:
+        # Work out how many patches to send if we can
+        count = (gitutil.CountCommitsToBranch(branch) - start)
+
+    series = patchstream.get_metadata(branch, start, count - end)
+    warnings = 0
+    for cmt in series.commits:
+        if cmt.warn:
+            print('%d warnings for %s:' % (len(cmt.warn), cmt.hash))
+            for warn in cmt.warn:
+                print('\t', warn)
+                warnings += 1
+            print
+    if warnings:
+        raise ValueError('Please fix warnings before running status')
+    links = series.get('links')
+    if not links:
+        raise ValueError("Branch has no Series-links value")
+
+    # Find the link without a version number (we don't support versions yet)
+    found = [link for link in links.split() if not ':' in link]
+    if not found:
+        raise ValueError('Series-links has no current version (without :)')
+
+    # Import this here to avoid failing on other commands if the dependencies
+    # are not present
+    from patman import status
+    status.check_patchwork_status(series, found[0])
