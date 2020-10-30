@@ -90,9 +90,10 @@ class PatchStream:
         are scanning a 'git log'.
 
         Args:
-            line: Source line containing tag (useful for debug/error messages)
-            name: Tag name (part after 'Series-')
-            value: Tag value (part after 'Series-xxx: ')
+            line (str): Source line containing tag (useful for debug/error
+                messages)
+            name (str): Tag name (part after 'Series-')
+            value (str): Tag value (part after 'Series-xxx: ')
         """
         if name == 'notes':
             self.in_section = name
@@ -106,7 +107,7 @@ class PatchStream:
         When a Commit-xxx tag is detected, we come here to record it.
 
         Args:
-            name: Tag name (part after 'Commit-')
+            name (str): Tag name (part after 'Commit-')
         """
         if name == 'notes':
             self.in_section = 'commit-' + name
@@ -116,8 +117,9 @@ class PatchStream:
         """Add a response tag to the current commit
 
         Args:
-            key: rtag type (e.g. 'Reviewed-by')
-            who: Person who gave that rtag, e.g. 'Fred Bloggs <fred@bloggs.org>'
+            rtag_type (str): rtag type (e.g. 'Reviewed-by')
+            who (str): Person who gave that rtag, e.g.
+                 'Fred Bloggs <fred@bloggs.org>'
         """
         self.commit.AddRtag(rtag_type, who)
 
@@ -139,11 +141,14 @@ class PatchStream:
         """Parse a version from a *-changes tag
 
         Args:
-            value: Tag value (part after 'xxx-changes: '
-            line: Source line containing tag
+            value (str): Tag value (part after 'xxx-changes: '
+            line (str): Source line containing tag
 
         Returns:
-            The version as an integer
+            int: The version as an integer
+
+        Raises:
+            ValueError: the value cannot be converted
         """
         try:
             return int(value)
@@ -184,10 +189,14 @@ class PatchStream:
                 don't want, and add things we think are required.
 
         Args:
-            line: text line to process
+            line (str): text line to process
 
         Returns:
-            list of output lines, or [] if nothing should be output
+            list: list of output lines, or [] if nothing should be output
+
+        Raises:
+            ValueError: a fatal error occurred while parsing, e.g. an END
+                without a starting tag, or two commits with two change IDs
         """
         # Initially we have no output. Prepare the input line string
         out = []
@@ -428,7 +437,7 @@ class PatchStream:
         and the prefix.
 
         Args:
-            outfd: Output stream file object
+            outfd (io.IOBase): Output stream file object
         """
         if not self.commit.change_id:
             return
@@ -468,8 +477,8 @@ class PatchStream:
         This is used to process patch files one at a time.
 
         Args:
-            infd: Input stream file object
-            outfd: Output stream file object
+            infd (io.IOBase): Input stream file object
+            outfd (io.IOBase): Output stream file object
         """
         # Extract the filename from each diff, for nice warnings
         fname = None
@@ -510,14 +519,15 @@ def get_metadata_for_list(commit_range, git_dir=None, count=None,
     are interested in.
 
     Args:
-        commit_range: Range of commits to count (e.g. 'HEAD..base')
-        git_dir: Path to git repositiory (None to use default)
-        count: Number of commits to list, or None for no limit
-        series: Series object to add information into. By default a new series
+        commit_range (str): Range of commits to count (e.g. 'HEAD..base')
+        git_dir (str): Path to git repositiory (None to use default)
+        count (int): Number of commits to list, or None for no limit
+        series (Series): Object to add information into. By default a new series
             is started.
-        allow_overwrite: Allow tags to overwrite an existing tag
+        allow_overwrite (bool): Allow tags to overwrite an existing tag
+
     Returns:
-        A Series object containing information about the commits.
+        Series: Object containing information about the commits.
     """
     if not series:
         series = Series()
@@ -538,9 +548,12 @@ def get_metadata(branch, start, count):
     are interested in.
 
     Args:
-        branch: Branch to use (None for current branch)
-        start: Commit to start from: 0=branch HEAD, 1=next one, etc.
-        count: Number of commits to list
+        branch (str): Branch to use (None for current branch)
+        start (int): Commit to start from: 0=branch HEAD, 1=next one, etc.
+        count (int): Number of commits to list
+
+    Returns:
+        Series: Object containing information about the commits.
     """
     return get_metadata_for_list(
         '%s~%d' % (branch if branch else 'HEAD', start), None, count)
@@ -550,6 +563,9 @@ def get_metadata_for_test(text):
 
     Args:
         text:
+
+    Returns:
+        Series: Object containing information about the commits.
     """
     series = Series()
     pst = PatchStream(series, is_log=True)
@@ -567,11 +583,13 @@ def fix_patch(backup_dir, fname, series, cmt):
     A backup file is put into backup_dir (if not None).
 
     Args:
-        fname: Filename to patch file to process
-        series: Series information about this patch set
-        cmt: Commit object for this patch file
+        backup_dir (str): Path to directory to use to backup the file
+        fname (str): Filename to patch file to process
+        series (Series): Series information about this patch set
+        cmt (Commit): Commit object for this patch file
+
     Return:
-        A list of errors, or [] if all ok.
+        list: A list of errors, each str, or [] if all ok.
     """
     handle, tmpname = tempfile.mkstemp()
     outfd = os.fdopen(handle, 'w', encoding='utf-8')
@@ -594,8 +612,8 @@ def fix_patches(series, fnames):
     The patch files are processed in place, and overwritten.
 
     Args:
-        series: The series object
-        fnames: List of patch files to process
+        series (Series): The Series object
+        fnames (:type: list of str): List of patch files to process
     """
     # Current workflow creates patches, so we shouldn't need a backup
     backup_dir = None  #tempfile.mkdtemp('clean-patch')
@@ -617,9 +635,9 @@ def insert_cover_letter(fname, series, count):
     """Inserts a cover letter with the required info into patch 0
 
     Args:
-        fname: Input / output filename of the cover letter file
-        series: Series object
-        count: Number of patches in the series
+        fname (str): Input / output filename of the cover letter file
+        series (Series): Series object
+        count (int): Number of patches in the series
     """
     fil = open(fname, 'r')
     lines = fil.readlines()
