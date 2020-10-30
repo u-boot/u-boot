@@ -191,12 +191,12 @@ class TestFunctional(unittest.TestCase):
         }
 
         text = self._get_text('test01.txt')
-        series = patchstream.GetMetaDataForTest(text)
+        series = patchstream.get_metadata_for_test(text)
         cover_fname, args = self._create_patches_for_test(series)
         with capture_sys_output() as out:
-            patchstream.FixPatches(series, args)
+            patchstream.fix_patches(series, args)
             if cover_fname and series.get('cover'):
-                patchstream.InsertCoverLetter(cover_fname, series, count)
+                patchstream.insert_cover_letter(cover_fname, series, count)
             series.DoChecks()
             cc_file = series.MakeCcFile(process_tags, cover_fname,
                                         not ignore_bad_tags, add_maintainers,

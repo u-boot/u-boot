@@ -54,14 +54,14 @@ def prepare_patches(col, branch, count, start, end, ignore_binary):
 
     # Read the metadata from the commits
     to_do = count - end
-    series = patchstream.GetMetaData(branch, start, to_do)
+    series = patchstream.get_metadata(branch, start, to_do)
     cover_fname, patch_files = gitutil.CreatePatches(
         branch, start, to_do, ignore_binary, series)
 
     # Fix up the patch files to our liking, and insert the cover letter
-    patchstream.FixPatches(series, patch_files)
+    patchstream.fix_patches(series, patch_files)
     if cover_fname and series.get('cover'):
-        patchstream.InsertCoverLetter(cover_fname, series, to_do)
+        patchstream.insert_cover_letter(cover_fname, series, to_do)
     return series, cover_fname, patch_files
 
 def check_patches(series, patch_files, run_checkpatch, verbose):
