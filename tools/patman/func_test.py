@@ -4,15 +4,12 @@
 # Copyright 2017 Google, Inc
 #
 
-import contextlib
 import os
 import re
 import shutil
 import sys
 import tempfile
 import unittest
-
-from io import StringIO
 
 from patman import control
 from patman import gitutil
@@ -27,19 +24,6 @@ try:
     HAVE_PYGIT2 = True
 except ModuleNotFoundError:
     HAVE_PYGIT2 = False
-
-
-@contextlib.contextmanager
-def capture():
-    oldout, olderr = sys.stdout, sys.stderr
-    try:
-        out = [StringIO(), StringIO()]
-        sys.stdout, sys.stderr = out
-        yield out
-    finally:
-        sys.stdout, sys.stderr = oldout, olderr
-        out[0] = out[0].getvalue()
-        out[1] = out[1].getvalue()
 
 
 class TestFunctional(unittest.TestCase):
@@ -169,7 +153,7 @@ class TestFunctional(unittest.TestCase):
         text = self.GetText('test01.txt')
         series = patchstream.GetMetaDataForTest(text)
         cover_fname, args = self.CreatePatchesForTest(series)
-        with capture() as out:
+        with capture_sys_output() as out:
             patchstream.FixPatches(series, args)
             if cover_fname and series.get('cover'):
                 patchstream.InsertCoverLetter(cover_fname, series, count)
@@ -184,7 +168,7 @@ class TestFunctional(unittest.TestCase):
         cc_lines = open(cc_file, encoding='utf-8').read().splitlines()
         os.remove(cc_file)
 
-        lines = out[0].splitlines()
+        lines = out[0].getvalue().splitlines()
         self.assertEqual('Cleaned %s patches' % len(series.commits), lines[0])
         self.assertEqual('Change log missing for v2', lines[1])
         self.assertEqual('Change log missing for v3', lines[2])
