@@ -68,11 +68,14 @@ config RTC_EMULATION
 	depends on DM_RTC
 	help
 	  On a board without hardware clock this software real time clock can be
-	  used. The build time is used to initialize the RTC. So you will have
-	  to adjust the time either manually using the 'date' command  or use
-	  the 'sntp' to update the RTC with the time from a network time server.
-	  See CONFIG_CMD_SNTP and CONFIG_BOOTP_NTPSERVER. The RTC time is
-	  advanced according to CPU ticks.
+	  used. The initial time may be provided via the environment variable
+	  'rtc_emul_epoch' as a decimal string indicating seconds since
+	  1970-01-01. If the environment variable is missing, the build time is
+	  used to initialize the RTC. The time can be adjusted manually via the
+	  'date' command or the 'sntp' command can be used to update the RTC
+	  with the time from a network time server. See CONFIG_CMD_SNTP and
+	  CONFIG_BOOTP_NTPSERVER. The RTC time is advanced according to CPU
+	  ticks.
 
 config RTC_ISL1208
 	bool "Enable ISL1208 driver"
