@@ -41,6 +41,9 @@ class Commit:
         self.rtags = collections.defaultdict(set)
         self.warn = []
 
+    def __str__(self):
+        return self.subject
+
     def AddChange(self, version, info):
         """Add a new change line to the change list for a version.
 
