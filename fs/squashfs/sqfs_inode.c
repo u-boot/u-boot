@@ -49,7 +49,7 @@ int sqfs_inode_size(struct squashfs_base_inode *inode, u32 blk_size)
 			return sizeof(*ldir);
 
 		di = ldir->index;
-		while (l < i_count + 1) {
+		while (l < i_count) {
 			sz = get_unaligned_le32(&di->size) + 1;
 			index_list_size += sz;
 			di = (void *)di + sizeof(*di) + sz;
@@ -57,7 +57,7 @@ int sqfs_inode_size(struct squashfs_base_inode *inode, u32 blk_size)
 		}
 
 		return sizeof(*ldir) + index_list_size +
-			(i_count + 1) * SQFS_DIR_INDEX_BASE_LENGTH;
+			i_count * SQFS_DIR_INDEX_BASE_LENGTH;
 	}
 
 	case SQFS_LREG_TYPE: {
