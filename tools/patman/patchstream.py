@@ -665,12 +665,13 @@ def fix_patches(series, fnames):
         cmt.count = count
         result = fix_patch(backup_dir, fname, series, cmt)
         if result:
-            print('%d warnings for %s:' % (len(result), fname))
+            print('%d warning%s for %s:' %
+                  (len(result), 's' if len(result) > 1 else '', fname))
             for warn in result:
-                print('\t', warn)
-            print
+                print('\t%s' % warn)
+            print()
         count += 1
-    print('Cleaned %d patches' % count)
+    print('Cleaned %d patch%s' % (count, 'es' if count > 1 else ''))
 
 def insert_cover_letter(fname, series, count):
     """Inserts a cover letter with the required info into patch 0
