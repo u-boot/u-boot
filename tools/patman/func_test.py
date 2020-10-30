@@ -4,6 +4,8 @@
 # Copyright 2017 Google, Inc
 #
 
+"""Functional tests for checking that patman behaves correctly"""
+
 import os
 import re
 import shutil
@@ -27,6 +29,7 @@ except ModuleNotFoundError:
 
 
 class TestFunctional(unittest.TestCase):
+    """Functional tests for checking that patman behaves correctly"""
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp(prefix='patman.')
         self.gitdir = os.path.join(self.tmpdir, 'git')
@@ -36,33 +39,69 @@ class TestFunctional(unittest.TestCase):
         shutil.rmtree(self.tmpdir)
 
     @staticmethod
-    def GetPath(fname):
+    def _get_path(fname):
+        """Get the path to a test file
+
+        Args:
+            fname (str): Filename to obtain
+
+        Returns:
+            str: Full path to file in the test directory
+        """
         return os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
                             'test', fname)
 
     @classmethod
-    def GetText(self, fname):
-        return open(self.GetPath(fname), encoding='utf-8').read()
+    def _get_text(cls, fname):
+        """Read a file as text
+
+        Args:
+            fname (str): Filename to read
+
+        Returns:
+            str: Contents of file
+        """
+        return open(cls._get_path(fname), encoding='utf-8').read()
 
     @classmethod
-    def GetPatchName(self, subject):
+    def _get_patch_name(cls, subject):
+        """Get the filename of a patch given its subject
+
+        Args:
+            subject (str): Patch subject
+
+        Returns:
+            str: Filename for that patch
+        """
         fname = re.sub('[ :]', '-', subject)
         return fname.replace('--', '-')
 
-    def CreatePatchesForTest(self, series):
+    def _create_patches_for_test(self, series):
+        """Create patch files for use by tests
+
+        This copies patch files from the test directory as needed by the series
+
+        Args:
+            series (Series): Series containing commits to convert
+
+        Returns:
+            tuple:
+                str: Cover-letter filename, or None if none
+                fname_list: list of str, each a patch filename
+        """
         cover_fname = None
         fname_list = []
         for i, commit in enumerate(series.commits):
-            clean_subject = self.GetPatchName(commit.subject)
+            clean_subject = self._get_patch_name(commit.subject)
             src_fname = '%04d-%s.patch' % (i + 1, clean_subject[:52])
             fname = os.path.join(self.tmpdir, src_fname)
-            shutil.copy(self.GetPath(src_fname), fname)
+            shutil.copy(self._get_path(src_fname), fname)
             fname_list.append(fname)
         if series.get('cover'):
             src_fname = '0000-cover-letter.patch'
             cover_fname = os.path.join(self.tmpdir, src_fname)
             fname = os.path.join(self.tmpdir, src_fname)
-            shutil.copy(self.GetPath(src_fname), fname)
+            shutil.copy(self._get_path(src_fname), fname)
 
         return cover_fname, fname_list
 
@@ -137,7 +176,8 @@ class TestFunctional(unittest.TestCase):
         stefan = b'Stefan Br\xc3\xbcns <stefan.bruens@rwth-aachen.de>'.decode('utf-8')
         rick = 'Richard III <richard@palace.gov>'
         mel = b'Lord M\xc3\xablchett <clergy@palace.gov>'.decode('utf-8')
-        ed = b'Lond Edmund Blackadd\xc3\xabr <weasel@blackadder.org'.decode('utf-8')
+        leb = (b'Lond Edmund Blackadd\xc3\xabr <weasel@blackadder.org'.
+               decode('utf-8'))
         fred = 'Fred Bloggs <f.bloggs@napier.net>'
         add_maintainers = [stefan, rick]
         dry_run = True
@@ -146,13 +186,13 @@ class TestFunctional(unittest.TestCase):
         settings.alias = {
             'fdt': ['simon'],
             'u-boot': ['u-boot@lists.denx.de'],
-            'simon': [ed],
+            'simon': [leb],
             'fred': [fred],
         }
 
-        text = self.GetText('test01.txt')
+        text = self._get_text('test01.txt')
         series = patchstream.GetMetaDataForTest(text)
-        cover_fname, args = self.CreatePatchesForTest(series)
+        cover_fname, args = self._create_patches_for_test(series)
         with capture_sys_output() as out:
             patchstream.FixPatches(series, args)
             if cover_fname and series.get('cover'):
@@ -177,7 +217,7 @@ class TestFunctional(unittest.TestCase):
         self.assertIn('Dry run', lines[5])
         self.assertIn('Send a total of %d patches' % count, lines[7])
         line = 8
-        for i, commit in enumerate(series.commits):
+        for i in range(len(series.commits)):
             self.assertEqual('   %s' % args[i], lines[line + 0])
             line += 1
             while 'Cc:' in lines[line]:
@@ -190,7 +230,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual('Cover: 4 lines', lines[line + 4])
         line += 5
         self.assertEqual('      Cc:  %s' % fred, lines[line + 0])
-        self.assertEqual('      Cc:  %s' % tools.FromUnicode(ed),
+        self.assertEqual('      Cc:  %s' % tools.FromUnicode(leb),
                          lines[line + 1])
         self.assertEqual('      Cc:  %s' % tools.FromUnicode(mel),
                          lines[line + 2])
@@ -206,7 +246,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(('%s %s\0%s' % (args[0], rick, stefan)),
                          tools.ToUnicode(cc_lines[0]))
         self.assertEqual(
-            '%s %s\0%s\0%s\0%s' % (args[1], fred, ed, rick, stefan),
+            '%s %s\0%s\0%s\0%s' % (args[1], fred, leb, rick, stefan),
             tools.ToUnicode(cc_lines[1]))
 
         expected = '''
@@ -311,7 +351,7 @@ Changes in v2:
             'second' has base as upstream and three more: video, serial, bootm
 
         Returns:
-            pygit2 repository
+            pygit2.Repository: repository
         """
         repo = pygit2.init_repository(self.gitdir)
         self.repo = repo
@@ -319,8 +359,8 @@ Changes in v2:
 
         author = pygit2.Signature('Test user', 'test@email.com')
         committer = author
-        commit = repo.create_commit('HEAD', author, committer,
-                                    'Created master', new_tree, [])
+        _ = repo.create_commit('HEAD', author, committer, 'Created master',
+                               new_tree, [])
 
         self.make_commit_with_file('Initial commit', '''
 Add a README
