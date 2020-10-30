@@ -551,6 +551,54 @@ class PatchStream:
                     self.blank_count = 0
         self.finalise()
 
+def insert_tags(msg, tags_to_emit):
+    """Add extra tags to a commit message
+
+    The tags are added after an existing block of tags if found, otherwise at
+    the end.
+
+    Args:
+        msg (str): Commit message
+        tags_to_emit (list): List of tags to emit, each a str
+
+    Returns:
+        (str) new message
+    """
+    out = []
+    done = False
+    emit_tags = False
+    for line in msg.splitlines():
+        if not done:
+            signoff_match = RE_SIGNOFF.match(line)
+            tag_match = RE_TAG.match(line)
+            if tag_match or signoff_match:
+                emit_tags = True
+            if emit_tags and not tag_match and not signoff_match:
+                out += tags_to_emit
+                emit_tags = False
+                done = True
+        out.append(line)
+    if not done:
+        out.append('')
+        out += tags_to_emit
+    return '\n'.join(out)
+
+def get_list(commit_range, git_dir=None, count=None):
+    """Get a log of a list of comments
+
+    This returns the output of 'git log' for the selected commits
+
+    Args:
+        commit_range (str): Range of commits to count (e.g. 'HEAD..base')
+        git_dir (str): Path to git repositiory (None to use default)
+        count (int): Number of commits to list, or None for no limit
+
+    Returns
+        str: String containing the contents of the git log
+    """
+    params = gitutil.LogCmd(commit_range, reverse=True, count=count,
+                            git_dir=git_dir)
+    return command.RunPipe([params], capture=True).stdout
 
 def get_metadata_for_list(commit_range, git_dir=None, count=None,
                           series=None, allow_overwrite=False):
@@ -573,9 +621,7 @@ def get_metadata_for_list(commit_range, git_dir=None, count=None,
     if not series:
         series = Series()
     series.allow_overwrite = allow_overwrite
-    params = gitutil.LogCmd(commit_range, reverse=True, count=count,
-                            git_dir=git_dir)
-    stdout = command.RunPipe([params], capture=True).stdout
+    stdout = get_list(commit_range, git_dir, count)
     pst = PatchStream(series, is_log=True)
     for line in stdout.splitlines():
         pst.process_line(line)

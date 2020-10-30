@@ -3,15 +3,19 @@
 # Copyright 2020 Google LLC
 #
 """Talks to the patchwork service to figure out what patches have been reviewed
-and commented on.
+and commented on. Allows creation of a new branch based on the old but with the
+review tags collected from patchwork.
 """
 
 import collections
 import concurrent.futures
 from itertools import repeat
 import re
+
+import pygit2
 import requests
 
+from patman import patchstream
 from patman.patchstream import PatchStream
 from patman import terminal
 from patman import tout
@@ -306,7 +310,73 @@ def show_responses(rtags, indent, is_new):
             count += 1
     return count
 
-def check_patchwork_status(series, series_id, rest_api=call_rest_api):
+def create_branch(series, new_rtag_list, branch, dest_branch, overwrite,
+                  repo=None):
+    """Create a new branch with review tags added
+
+    Args:
+        series (Series): Series object for the existing branch
+        new_rtag_list (list): List of review tags to add, one for each commit,
+                each a dict:
+            key: Response tag (e.g. 'Reviewed-by')
+            value: Set of people who gave that response, each a name/email
+                string
+        branch (str): Existing branch to update
+        dest_branch (str): Name of new branch to create
+        overwrite (bool): True to force overwriting dest_branch if it exists
+        repo (pygit2.Repository): Repo to use (use None unless testing)
+
+    Returns:
+        int: Total number of review tags added across all commits
+
+    Raises:
+        ValueError: if the destination branch name is the same as the original
+            branch, or it already exists and @overwrite is False
+    """
+    if branch == dest_branch:
+        raise ValueError(
+            'Destination branch must not be the same as the original branch')
+    if not repo:
+        repo = pygit2.Repository('.')
+    count = len(series.commits)
+    new_br = repo.branches.get(dest_branch)
+    if new_br:
+        if not overwrite:
+            raise ValueError("Branch '%s' already exists (-f to overwrite)" %
+                             dest_branch)
+        new_br.delete()
+    if not branch:
+        branch = 'HEAD'
+    target = repo.revparse_single('%s~%d' % (branch, count))
+    repo.branches.local.create(dest_branch, target)
+
+    num_added = 0
+    for seq in range(count):
+        parent = repo.branches.get(dest_branch)
+        cherry = repo.revparse_single('%s~%d' % (branch, count - seq - 1))
+
+        repo.merge_base(cherry.oid, parent.target)
+        base_tree = cherry.parents[0].tree
+
+        index = repo.merge_trees(base_tree, parent, cherry)
+        tree_id = index.write_tree(repo)
+
+        lines = []
+        if new_rtag_list[seq]:
+            for tag, people in new_rtag_list[seq].items():
+                for who in people:
+                    lines.append('%s: %s' % (tag, who))
+                    num_added += 1
+        message = patchstream.insert_tags(cherry.message.rstrip(),
+                                          sorted(lines))
+
+        repo.create_commit(
+            parent.name, cherry.author, cherry.committer, message, tree_id,
+            [parent.target])
+    return num_added
+
+def check_patchwork_status(series, series_id, branch, dest_branch, force,
+                           rest_api=call_rest_api, test_repo=None):
     """Check the status of a series on Patchwork
 
     This finds review tags and comments for a series in Patchwork, displaying
@@ -315,8 +385,12 @@ def check_patchwork_status(series, series_id, rest_api=call_rest_api):
     Args:
         series (Series): Series object for the existing branch
         series_id (str): Patch series ID number
+        branch (str): Existing branch to update, or None
+        dest_branch (str): Name of new branch to create, or None
+        force (bool): True to force overwriting dest_branch if it exists
         rest_api (function): API function to call to access Patchwork, for
             testing
+        test_repo (pygit2.Repository): Repo to use (use None unless testing)
     """
     patches = collect_patches(series, series_id, rest_api)
     col = terminal.Color()
@@ -352,5 +426,14 @@ def check_patchwork_status(series, series_id, rest_api=call_rest_api):
         show_responses(base_rtags, indent, False)
         num_to_add += show_responses(new_rtags, indent, True)
 
-    terminal.Print("%d new response%s available in patchwork" %
-                   (num_to_add, 's' if num_to_add != 1 else ''))
+    terminal.Print("%d new response%s available in patchwork%s" %
+                   (num_to_add, 's' if num_to_add != 1 else '',
+                    '' if dest_branch
+                    else ' (use -d to write them to a new branch)'))
+
+    if dest_branch:
+        num_added = create_branch(series, new_rtag_list, branch,
+                                  dest_branch, force, test_repo)
+        terminal.Print(
+            "%d response%s added from patchwork into new branch '%s'" %
+            (num_added, 's' if num_added != 1 else '', dest_branch))

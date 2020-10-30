@@ -11,11 +11,13 @@ This tool is a Python script which:
 - Runs the patches through checkpatch.pl and its own checks
 - Optionally emails them out to selected people
 
-It also shows review tags from Patchwork so you can update your local patches.
+It also has some Patchwork features:
+- shows review tags from Patchwork so you can update your local patches
+- pulls these down into a new branch on request
 
 It is intended to automate patch creation and make it a less
 error-prone process. It is useful for U-Boot and Linux work so far,
-since it uses the checkpatch.pl script.
+since they use the checkpatch.pl script.
 
 It is configured almost entirely by tags it finds in your commits.
 This means that you can work on a number of different branches at
@@ -384,6 +386,19 @@ This shows that patch 21 and 22 were sent out with one review but have since
 attracted another review each. If the series needs changes, you can update
 these commits with the new review tag before sending the next version of the
 series.
+
+To automatically pull into these tags into a new branch, use the -d option:
+
+    patman status -d mtrr4
+
+This will create a new 'mtrr4' branch which is the same as your current branch
+but has the new review tags in it. The tags are added in alphabetic order and
+are placed immediately after any existing ack/review/test/fixes tags, or at the
+end. You can check that this worked with:
+
+    patman -b mtrr4 status
+
+which should show that there are no new responses compared to this new branch.
 
 
 Example Work Flow

@@ -403,7 +403,16 @@ with some I2C-related things in it''')
         self.make_commit_with_file('spi: SPI fixes', '''
 SPI needs some fixes
 and here they are
-''', 'spi.c', '''Some fixes for SPI in this
+
+Signed-off-by: %s
+
+Series-to: u-boot
+Commit-notes:
+title of the series
+This is the cover letter for the series
+with various details
+END
+''' % self.leb, 'spi.c', '''Some fixes for SPI in this
 file to make SPI work
 better than before''')
         first_target = repo.revparse_single('HEAD')
@@ -889,7 +898,8 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         series = Series()
         series.commits = [commit1, commit2]
         terminal.SetPrintTestMode()
-        status.check_patchwork_status(series, '1234', self._fake_patchwork2)
+        status.check_patchwork_status(series, '1234', None, None, False,
+                                      self._fake_patchwork2)
         lines = iter(terminal.GetPrintTestLines())
         col = terminal.Color()
         self.assertEqual(terminal.PrintLine('  1 Subject 1', col.BLUE),
@@ -921,4 +931,115 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.assertEqual(terminal.PrintLine(self.mary, col.WHITE),
                          next(lines))
         self.assertEqual(terminal.PrintLine(
-            '1 new response available in patchwork', None), next(lines))
+            '1 new response available in patchwork (use -d to write them to a new branch)',
+            None), next(lines))
+
+    def _fake_patchwork3(self, subpath):
+        """Fake Patchwork server for the function below
+
+        This handles accessing series, patches and comments, providing the data
+        in self.patches to the caller
+        """
+        re_series = re.match(r'series/(\d*)/$', subpath)
+        re_patch = re.match(r'patches/(\d*)/$', subpath)
+        re_comments = re.match(r'patches/(\d*)/comments/$', subpath)
+        if re_series:
+            series_num = re_series.group(1)
+            if series_num == '1234':
+                return {'patches': self.patches}
+        elif re_patch:
+            patch_num = int(re_patch.group(1))
+            patch = self.patches[patch_num - 1]
+            return patch
+        elif re_comments:
+            patch_num = int(re_comments.group(1))
+            patch = self.patches[patch_num - 1]
+            return patch.comments
+        raise ValueError('Fake Patchwork does not understand: %s' % subpath)
+
+    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
+    def testCreateBranch(self):
+        """Test operation of create_branch()"""
+        repo = self.make_git_tree()
+        branch = 'first'
+        dest_branch = 'first2'
+        count = 2
+        gitdir = os.path.join(self.gitdir, '.git')
+
+        # Set up the test git tree. We use branch 'first' which has two commits
+        # in it
+        series = patchstream.get_metadata_for_list(branch, gitdir, count)
+        self.assertEqual(2, len(series.commits))
+
+        patch1 = status.Patch('1')
+        patch1.parse_subject('[1/2] %s' % series.commits[0].subject)
+        patch1.name = patch1.raw_subject
+        patch1.content = 'This is my patch content'
+        comment1a = {'content': 'Reviewed-by: %s\n' % self.joe}
+
+        patch1.comments = [comment1a]
+
+        patch2 = status.Patch('2')
+        patch2.parse_subject('[2/2] %s' % series.commits[1].subject)
+        patch2.name = patch2.raw_subject
+        patch2.content = 'Some other patch content'
+        comment2a = {
+            'content': 'Reviewed-by: %s\nTested-by: %s\n' %
+                       (self.mary, self.leb)}
+        comment2b = {
+            'content': 'Reviewed-by: %s' % self.fred}
+        patch2.comments = [comment2a, comment2b]
+
+        # This test works by setting up patches for use by the fake Rest API
+        # function _fake_patchwork3(). The fake patch comments above should
+        # result in new review tags that are collected and added to the commits
+        # created in the destination branch.
+        self.patches = [patch1, patch2]
+        count = 2
+
+        # Expected output:
+        #   1 i2c: I2C things
+        #   + Reviewed-by: Joe Bloggs <joe@napierwallies.co.nz>
+        #   2 spi: SPI fixes
+        #   + Reviewed-by: Fred Bloggs <f.bloggs@napier.net>
+        #   + Reviewed-by: Mary Bloggs <mary@napierwallies.co.nz>
+        #   + Tested-by: Lord Edmund Blackaddër <weasel@blackadder.org>
+        # 4 new responses available in patchwork
+        # 4 responses added from patchwork into new branch 'first2'
+        # <unittest.result.TestResult run=8 errors=0 failures=0>
+
+        terminal.SetPrintTestMode()
+        status.check_patchwork_status(series, '1234', branch, dest_branch,
+                                      False, self._fake_patchwork3, repo)
+        lines = terminal.GetPrintTestLines()
+        self.assertEqual(12, len(lines))
+        self.assertEqual(
+            "4 responses added from patchwork into new branch 'first2'",
+            lines[11].text)
+
+        # Check that the destination branch has the new tags
+        new_series = patchstream.get_metadata_for_list(dest_branch, gitdir,
+                                                       count)
+        self.assertEqual(
+            {'Reviewed-by': {self.joe}},
+            new_series.commits[0].rtags)
+        self.assertEqual(
+            {'Tested-by': {self.leb},
+             'Reviewed-by': {self.fred, self.mary}},
+            new_series.commits[1].rtags)
+
+        # Now check the actual test of the first commit message. We expect to
+        # see the new tags immediately below the old ones.
+        stdout = patchstream.get_list(dest_branch, count=count, git_dir=gitdir)
+        lines = iter([line.strip() for line in stdout.splitlines()
+                      if '-by:' in line])
+
+        # First patch should have the review tag
+        self.assertEqual('Reviewed-by: %s' % self.joe, next(lines))
+
+        # Second patch should have the sign-off then the tested-by and two
+        # reviewed-by tags
+        self.assertEqual('Signed-off-by: %s' % self.leb, next(lines))
+        self.assertEqual('Reviewed-by: %s' % self.fred, next(lines))
+        self.assertEqual('Reviewed-by: %s' % self.mary, next(lines))
+        self.assertEqual('Tested-by: %s' % self.leb, next(lines))

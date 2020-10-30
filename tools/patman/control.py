@@ -176,11 +176,11 @@ def send(args):
         args.limit, args.dry_run, args.in_reply_to, args.thread,
         args.smtp_server)
 
-def patchwork_status(branch, count, start, end):
+def patchwork_status(branch, count, start, end, dest_branch, force):
     """Check the status of patches in patchwork
 
     This finds the series in patchwork using the Series-link tag, checks for new
-    comments / review tags and displays them
+    review tags, displays then and creates a new branch with the review tags.
 
     Args:
         branch (str): Branch to create patches from (None = current)
@@ -189,6 +189,9 @@ def patchwork_status(branch, count, start, end):
         start (int): Start partch to use (0=first / top of branch)
         end (int): End patch to use (0=last one in series, 1=one before that,
             etc.)
+        dest_branch (str): Name of new branch to create with the updated tags
+            (None to not create a branch)
+        force (bool): With dest_branch, force overwriting an existing branch
 
     Raises:
         ValueError: if the branch has no Series-link value
@@ -220,4 +223,4 @@ def patchwork_status(branch, count, start, end):
     # Import this here to avoid failing on other commands if the dependencies
     # are not present
     from patman import status
-    status.check_patchwork_status(series, found[0])
+    status.check_patchwork_status(series, found[0], branch, dest_branch, force)
