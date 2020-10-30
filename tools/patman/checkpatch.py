@@ -95,6 +95,7 @@ def CheckPatch(fname, verbose=False, show_types=False):
     re_check = re.compile('CHECK:%s (.*)' % type_name)
     re_file = re.compile('#\d+: FILE: ([^:]*):(\d+):')
     re_note = re.compile('NOTE: (.*)')
+    re_new_file = re.compile('new file mode .*')
     indent = ' ' * 6
     for line in result.stdout.splitlines():
         if verbose:
@@ -111,8 +112,10 @@ def CheckPatch(fname, verbose=False, show_types=False):
         # Skip lines which quote code
         if line.startswith(indent):
             continue
-        # Skip code quotes and #<n>
-        if line.startswith('+') or line.startswith('#'):
+        # Skip code quotes
+        if line.startswith('+'):
+            continue
+        if re_new_file.match(line):
             continue
         match = re_stats_full.match(line)
         if not match:
