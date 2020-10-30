@@ -17,38 +17,38 @@ from patman import gitutil
 from patman.series import Series
 
 # Tags that we detect and remove
-re_remove = re.compile(r'^BUG=|^TEST=|^BRANCH=|^Review URL:'
+RE_REMOVE = re.compile(r'^BUG=|^TEST=|^BRANCH=|^Review URL:'
                        r'|Reviewed-on:|Commit-\w*:')
 
 # Lines which are allowed after a TEST= line
-re_allowed_after_test = re.compile('^Signed-off-by:')
+RE_ALLOWED_AFTER_TEST = re.compile('^Signed-off-by:')
 
 # Signoffs
-re_signoff = re.compile('^Signed-off-by: *(.*)')
+RE_SIGNOFF = re.compile('^Signed-off-by: *(.*)')
 
 # Cover letter tag
-re_cover = re.compile('^Cover-([a-z-]*): *(.*)')
+RE_COVER = re.compile('^Cover-([a-z-]*): *(.*)')
 
 # Patch series tag
-re_series_tag = re.compile('^Series-([a-z-]*): *(.*)')
+RE_SERIES_TAG = re.compile('^Series-([a-z-]*): *(.*)')
 
 # Change-Id will be used to generate the Message-Id and then be stripped
-re_change_id = re.compile('^Change-Id: *(.*)')
+RE_CHANGE_ID = re.compile('^Change-Id: *(.*)')
 
 # Commit series tag
-re_commit_tag = re.compile('^Commit-([a-z-]*): *(.*)')
+RE_COMMIT_TAG = re.compile('^Commit-([a-z-]*): *(.*)')
 
 # Commit tags that we want to collect and keep
-re_tag = re.compile('^(Tested-by|Acked-by|Reviewed-by|Patch-cc|Fixes): (.*)')
+RE_TAG = re.compile('^(Tested-by|Acked-by|Reviewed-by|Patch-cc|Fixes): (.*)')
 
 # The start of a new commit in the git log
-re_commit = re.compile('^commit ([0-9a-f]*)$')
+RE_COMMIT = re.compile('^commit ([0-9a-f]*)$')
 
 # We detect these since checkpatch doesn't always do it
-re_space_before_tab = re.compile('^[+].* \t')
+RE_SPACE_BEFORE_TAB = re.compile('^[+].* \t')
 
 # Match indented lines for changes
-re_leading_whitespace = re.compile(r'^\s')
+RE_LEADING_WHITESPACE = re.compile(r'^\s')
 
 # States we can be in - can we use range() and still have comments?
 STATE_MSG_HEADER = 0        # Still in the message header
@@ -195,22 +195,22 @@ class PatchStream:
         out = []
         line = line.rstrip('\n')
 
-        commit_match = re_commit.match(line) if self.is_log else None
+        commit_match = RE_COMMIT.match(line) if self.is_log else None
 
         if self.is_log:
             if line[:4] == '    ':
                 line = line[4:]
 
         # Handle state transition and skipping blank lines
-        series_tag_match = re_series_tag.match(line)
-        change_id_match = re_change_id.match(line)
-        commit_tag_match = re_commit_tag.match(line)
-        cover_match = re_cover.match(line)
-        signoff_match = re_signoff.match(line)
-        leading_whitespace_match = re_leading_whitespace.match(line)
+        series_tag_match = RE_SERIES_TAG.match(line)
+        change_id_match = RE_CHANGE_ID.match(line)
+        commit_tag_match = RE_COMMIT_TAG.match(line)
+        cover_match = RE_COVER.match(line)
+        signoff_match = RE_SIGNOFF.match(line)
+        leading_whitespace_match = RE_LEADING_WHITESPACE.match(line)
         tag_match = None
         if self.state == STATE_PATCH_HEADER:
-            tag_match = re_tag.match(line)
+            tag_match = RE_TAG.match(line)
         is_blank = not line.strip()
         if is_blank:
             if (self.state == STATE_MSG_HEADER
@@ -280,7 +280,7 @@ class PatchStream:
             self.commit.subject = line
 
         # Detect the tags we want to remove, and skip blank lines
-        elif re_remove.match(line) and not commit_tag_match:
+        elif RE_REMOVE.match(line) and not commit_tag_match:
             self.skip_blank = True
 
             # TEST= should be the last thing in the commit, so remove
@@ -385,7 +385,7 @@ class PatchStream:
         # Well that means this is an ordinary line
         else:
             # Look for space before tab
-            m = re_space_before_tab.match(line)
+            m = RE_SPACE_BEFORE_TAB.match(line)
             if m:
                 self.warn.append('Line %d/%d has space before tab' %
                                  (self.linenum, m.start()))
@@ -410,7 +410,7 @@ class PatchStream:
                     out += self.commit.notes
                 out += [''] + log
             elif self.found_test:
-                if not re_allowed_after_test.match(line):
+                if not RE_ALLOWED_AFTER_TEST.match(line):
                     self.lines_after_test += 1
 
         return out
