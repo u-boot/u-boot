@@ -150,8 +150,6 @@
 /* environment organization */
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
 
-#define CONFIG_IMX_THERMAL
-
 #define CONFIG_IOMUX_LPSR
 
 #define CONFIG_SOFT_SPI

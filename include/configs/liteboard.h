@@ -141,6 +141,4 @@
 #define CONFIG_ETHPRIME			"FEC"
 #endif
 
-#define CONFIG_IMX_THERMAL
-
 #endif

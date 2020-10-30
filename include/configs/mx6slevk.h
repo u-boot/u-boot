@@ -132,6 +132,4 @@
 
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 
-#define CONFIG_IMX_THERMAL
-
 #endif				/* __CONFIG_H */

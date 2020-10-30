@@ -35,7 +35,6 @@
 #define CONFIG_SPI_FLASH_SST
 
 /* Thermal support */
-#define CONFIG_IMX_THERMAL
 
 /* I2C Configs */
 #define CONFIG_SYS_I2C

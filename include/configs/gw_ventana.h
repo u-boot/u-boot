@@ -32,16 +32,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
 
-/* Init Functions */
-
-/* Driver Model */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_DM_THERMAL
-#endif
-
-/* Thermal */
-#define CONFIG_IMX_THERMAL
-
 /* Serial */
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 
