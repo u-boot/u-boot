@@ -417,6 +417,7 @@ Series for my board
 This series implements support
 for my glorious board.
 END
+Series-links: 183237
 ''', 'serial.c', '''The code for the
 serial driver is here''')
         self.make_commit_with_file('bootm: Make it boot', '''

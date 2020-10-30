@@ -16,7 +16,7 @@ from patman import tools
 
 # Series-xxx tags that we understand
 valid_series = ['to', 'cc', 'version', 'changes', 'prefix', 'notes', 'name',
-                'cover_cc', 'process_log']
+                'cover_cc', 'process_log', 'links']
 
 class Series(dict):
     """Holds information about a patch series, including all tags.

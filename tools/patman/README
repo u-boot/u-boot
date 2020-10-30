@@ -187,6 +187,21 @@ Series-name: name
 	patman does not yet use it, but it is convenient to put the branch
 	name here to help you keep track of multiple upstreaming efforts.
 
+Series-links: [id | version:id]...
+	Set the ID of the series in patchwork. You can set this after you send
+	out the series and look in patchwork for the resulting series. The
+	URL you want is the one for the series itself, not any particular patch.
+	E.g. for http://patchwork.ozlabs.org/project/uboot/list/?series=187331
+	the series ID is 187331. This property can have a list of series IDs,
+	one for each version of the series, e.g.
+
+	   Series-links: 1:187331 2:188434 189372
+
+	Patman always uses the one without a version, since it assumes this is
+	the latest one. When this tag is provided, patman can compare your local
+	branch against patchwork to see what new reviews your series has
+	collected ('patman status').
+
 Cover-letter:
 This is the patch set title
 blah blah
