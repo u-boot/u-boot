@@ -86,6 +86,8 @@ AddCommonArgs(send)
 send.add_argument('patchfiles', nargs='*')
 
 test_parser = subparsers.add_parser('test', help='Run tests')
+test_parser.add_argument('testname', type=str, default=None, nargs='?',
+                         help="Specify the test to run")
 AddCommonArgs(test_parser)
 
 # Parse options twice: first to get the project and second to handle
@@ -111,15 +113,23 @@ if args.cmd == 'test':
 
     sys.argv = [sys.argv[0]]
     result = unittest.TestResult()
+    suite = unittest.TestSuite()
+    loader = unittest.TestLoader()
     for module in (test_checkpatch.TestPatch, func_test.TestFunctional):
-        suite = unittest.TestLoader().loadTestsFromTestCase(module)
-        suite.run(result)
+        if args.testname:
+            try:
+                suite.addTests(loader.loadTestsFromName(args.testname, module))
+            except AttributeError:
+                continue
+        else:
+            suite.addTests(loader.loadTestsFromTestCase(module))
+    suite.run(result)
 
     for module in ['gitutil', 'settings', 'terminal']:
         suite = doctest.DocTestSuite(module)
         suite.run(result)
 
-    sys.exit(test_util.ReportResult('patman', None, result))
+    sys.exit(test_util.ReportResult('patman', args.testname, result))
 
 # Process commits, produce patches files, check them, email them
 elif args.cmd == 'send':

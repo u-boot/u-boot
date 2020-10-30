@@ -33,6 +33,9 @@ class TestFunctional(unittest.TestCase):
     """Functional tests for checking that patman behaves correctly"""
     leb = (b'Lord Edmund Blackadd\xc3\xabr <weasel@blackadder.org>'.
            decode('utf-8'))
+    fred = 'Fred Bloggs <f.bloggs@napier.net>'
+    joe = 'Joe Bloggs <joe@napierwallies.co.nz>'
+    mary = 'Mary Bloggs <mary@napierwallies.co.nz>'
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp(prefix='patman.')
@@ -180,7 +183,6 @@ class TestFunctional(unittest.TestCase):
         stefan = b'Stefan Br\xc3\xbcns <stefan.bruens@rwth-aachen.de>'.decode('utf-8')
         rick = 'Richard III <richard@palace.gov>'
         mel = b'Lord M\xc3\xablchett <clergy@palace.gov>'.decode('utf-8')
-        fred = 'Fred Bloggs <f.bloggs@napier.net>'
         add_maintainers = [stefan, rick]
         dry_run = True
         in_reply_to = mel
@@ -189,7 +191,7 @@ class TestFunctional(unittest.TestCase):
             'fdt': ['simon'],
             'u-boot': ['u-boot@lists.denx.de'],
             'simon': [self.leb],
-            'fred': [fred],
+            'fred': [self.fred],
         }
 
         text = self._get_text('test01.txt')
@@ -231,7 +233,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual('Prefix:\t  RFC', lines[line + 3])
         self.assertEqual('Cover: 4 lines', lines[line + 4])
         line += 5
-        self.assertEqual('      Cc:  %s' % fred, lines[line + 0])
+        self.assertEqual('      Cc:  %s' % self.fred, lines[line + 0])
         self.assertEqual('      Cc:  %s' % tools.FromUnicode(self.leb),
                          lines[line + 1])
         self.assertEqual('      Cc:  %s' % tools.FromUnicode(mel),
@@ -248,7 +250,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(('%s %s\0%s' % (args[0], rick, stefan)),
                          tools.ToUnicode(cc_lines[0]))
         self.assertEqual(
-            '%s %s\0%s\0%s\0%s' % (args[1], fred, self.leb, rick, stefan),
+            '%s %s\0%s\0%s\0%s' % (args[1], self.fred, self.leb, rick, stefan),
             tools.ToUnicode(cc_lines[1]))
 
         expected = '''
@@ -487,12 +489,103 @@ complicated as possible''')
         text = '''This is a patch
 
 Signed-off-by: Terminator
-Reviewed-by: Joe Bloggs <joe@napierwallies.co.nz>
-Reviewed-by: Mary Bloggs <mary@napierwallies.co.nz>
+Reviewed-by: %s
+Reviewed-by: %s
 Tested-by: %s
-''' % self.leb
+''' % (self.joe, self.mary, self.leb)
         pstrm = PatchStream.process_text(text)
         self.assertEqual(pstrm.commit.rtags, {
-            'Reviewed-by': {'Mary Bloggs <mary@napierwallies.co.nz>',
-                            'Joe Bloggs <joe@napierwallies.co.nz>'},
+            'Reviewed-by': {self.joe, self.mary},
             'Tested-by': {self.leb}})
+
+    def testMissingEnd(self):
+        """Test a missing END tag"""
+        text = '''This is a patch
+
+Cover-letter:
+This is the title
+missing END after this line
+Signed-off-by: Fred
+'''
+        pstrm = PatchStream.process_text(text)
+        self.assertEqual(["Missing 'END' in section 'cover'"],
+                         pstrm.commit.warn)
+
+    def testMissingBlankLine(self):
+        """Test a missing blank line after a tag"""
+        text = '''This is a patch
+
+Series-changes: 2
+- First line of changes
+- Missing blank line after this line
+Signed-off-by: Fred
+'''
+        pstrm = PatchStream.process_text(text)
+        self.assertEqual(["Missing 'blank line' in section 'Series-changes'"],
+                         pstrm.commit.warn)
+
+    def testInvalidCommitTag(self):
+        """Test an invalid Commit-xxx tag"""
+        text = '''This is a patch
+
+Commit-fred: testing
+'''
+        pstrm = PatchStream.process_text(text)
+        self.assertEqual(["Line 3: Ignoring Commit-fred"], pstrm.commit.warn)
+
+    def testSelfTest(self):
+        """Test a tested by tag by this user"""
+        test_line = 'Tested-by: %s@napier.com' % os.getenv('USER')
+        text = '''This is a patch
+
+%s
+''' % test_line
+        pstrm = PatchStream.process_text(text)
+        self.assertEqual(["Ignoring '%s'" % test_line], pstrm.commit.warn)
+
+    def testSpaceBeforeTab(self):
+        """Test a space before a tab"""
+        text = '''This is a patch
+
++ \tSomething
+'''
+        pstrm = PatchStream.process_text(text)
+        self.assertEqual(["Line 3/0 has space before tab"], pstrm.commit.warn)
+
+    def testLinesAfterTest(self):
+        """Test detecting lines after TEST= line"""
+        text = '''This is a patch
+
+TEST=sometest
+more lines
+here
+'''
+        pstrm = PatchStream.process_text(text)
+        self.assertEqual(["Found 2 lines after TEST="], pstrm.commit.warn)
+
+    def testBlankLineAtEnd(self):
+        """Test detecting a blank line at the end of a file"""
+        text = '''This is a patch
+
+diff --git a/lib/fdtdec.c b/lib/fdtdec.c
+index c072e54..942244f 100644
+--- a/lib/fdtdec.c
++++ b/lib/fdtdec.c
+@@ -1200,7 +1200,8 @@ int fdtdec_setup_mem_size_base(void)
+ 	}
+
+ 	gd->ram_size = (phys_size_t)(res.end - res.start + 1);
+-	debug("%s: Initial DRAM size %llx\n", __func__, (u64)gd->ram_size);
++	debug("%s: Initial DRAM size %llx\n", __func__,
++	      (unsigned long long)gd->ram_size);
++
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+
+--
+2.7.4
+
+ '''
+        pstrm = PatchStream.process_text(text)
+        self.assertEqual(
+            ["Found possible blank line(s) at end of file 'lib/fdtdec.c'"],
+            pstrm.commit.warn)
