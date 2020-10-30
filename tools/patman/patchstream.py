@@ -64,7 +64,7 @@ class PatchStream:
     unwanted tags or inject additional ones. These correspond to the two
     phases of processing.
     """
-    def __init__(self, series, name=None, is_log=False):
+    def __init__(self, series, is_log=False):
         self.skip_blank = False          # True to skip a single blank line
         self.found_test = False          # Found a TEST= line
         self.lines_after_test = 0        # Number of lines found after TEST=
@@ -100,15 +100,13 @@ class PatchStream:
         if self.is_log:
             self.series.AddTag(self.commit, line, name, value)
 
-    def _add_to_commit(self, line, name, value):
+    def _add_to_commit(self, name):
         """Add a new Commit-xxx tag.
 
         When a Commit-xxx tag is detected, we come here to record it.
 
         Args:
-            line: Source line containing tag (useful for debug/error messages)
             name: Tag name (part after 'Commit-')
-            value: Tag value (part after 'Commit-xxx: ')
         """
         if name == 'notes':
             self.in_section = 'commit-' + name
@@ -349,7 +347,7 @@ class PatchStream:
             name = commit_tag_match.group(1)
             value = commit_tag_match.group(2)
             if name == 'notes':
-                self._add_to_commit(line, name, value)
+                self._add_to_commit(name)
                 self.skip_blank = True
             elif name == 'changes':
                 self.in_change = 'Commit'
