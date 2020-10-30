@@ -30,12 +30,6 @@ static int emul_rtc_get(struct udevice *dev, struct rtc_time *time)
 	struct emul_rtc *priv = dev_get_priv(dev);
 	u64 now;
 
-	if (!priv->offset_us) {
-		/* Use the build date as initial time */
-		priv->offset_us = U_BOOT_EPOCH * 1000000ULL - timer_get_us();
-		priv->isdst = -1;
-	}
-
 	now = timer_get_us() + priv->offset_us;
 	do_div(now, 1000000);
 	rtc_to_tm(now, time);
@@ -63,6 +57,17 @@ static int emul_rtc_set(struct udevice *dev, const struct rtc_time *time)
 	return 0;
 }
 
+int emul_rtc_probe(struct udevice *dev)
+{
+	struct emul_rtc *priv = dev_get_priv(dev);
+
+	/* Use the build date as initial time */
+	priv->offset_us = U_BOOT_EPOCH * 1000000ULL - timer_get_us();
+	priv->isdst = -1;
+
+	return 0;
+}
+
 static const struct rtc_ops emul_rtc_ops = {
 	.get = emul_rtc_get,
 	.set = emul_rtc_set,
@@ -72,6 +77,7 @@ U_BOOT_DRIVER(rtc_emul) = {
 	.name	= "rtc_emul",
 	.id	= UCLASS_RTC,
 	.ops	= &emul_rtc_ops,
+	.probe	= emul_rtc_probe,
 	.priv_auto_alloc_size = sizeof(struct emul_rtc),
 };
 
