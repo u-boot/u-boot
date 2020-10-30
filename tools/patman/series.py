@@ -59,6 +59,9 @@ class Series(dict):
             line: Source line containing tag (useful for debug/error messages)
             name: Tag name (part after 'Series-')
             value: Tag value (part after 'Series-xxx: ')
+
+        Returns:
+            String warning if something went wrong, else None
         """
         # If we already have it, then add to our list
         name = name.replace('-', '_')
@@ -78,9 +81,10 @@ class Series(dict):
             else:
                 self[name] = value
         else:
-            raise ValueError("In %s: line '%s': Unknown 'Series-%s': valid "
+            return ("In %s: line '%s': Unknown 'Series-%s': valid "
                         "options are %s" % (commit.hash, line, name,
                             ', '.join(valid_series)))
+        return None
 
     def AddCommit(self, commit):
         """Add a commit into our list of commits

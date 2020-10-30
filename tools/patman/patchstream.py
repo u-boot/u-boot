@@ -114,7 +114,9 @@ class PatchStream:
             self.in_section = name
             self.skip_blank = False
         if self.is_log:
-            self.series.AddTag(self.commit, line, name, value)
+            warn = self.series.AddTag(self.commit, line, name, value)
+            if warn:
+                self.commit.warn.append(warn)
 
     def _add_to_commit(self, name):
         """Add a new Commit-xxx tag.
