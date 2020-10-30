@@ -5,6 +5,7 @@
 """Handles parsing a stream of commits/emails from 'git log' or other source"""
 
 import datetime
+import io
 import math
 import os
 import re
@@ -80,6 +81,28 @@ class PatchStream:
         self.blank_count = 0             # Number of blank lines stored up
         self.state = STATE_MSG_HEADER    # What state are we in?
         self.commit = None               # Current commit
+
+    @staticmethod
+    def process_text(text, is_comment=False):
+        """Process some text through this class using a default Commit/Series
+
+        Args:
+            text (str): Text to parse
+            is_comment (bool): True if this is a comment rather than a patch.
+                If True, PatchStream doesn't expect a patch subject at the
+                start, but jumps straight into the body
+
+        Returns:
+            PatchStream: object with results
+        """
+        pstrm = PatchStream(Series())
+        pstrm.commit = commit.Commit(None)
+        infd = io.StringIO(text)
+        outfd = io.StringIO()
+        if is_comment:
+            pstrm.state = STATE_PATCH_HEADER
+        pstrm.process_stream(infd, outfd)
+        return pstrm
 
     def _add_warn(self, warn):
         """Add a new warning to report to the user about the current commit

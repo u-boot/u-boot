@@ -31,6 +31,9 @@ except ModuleNotFoundError:
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for checking that patman behaves correctly"""
+    leb = (b'Lord Edmund Blackadd\xc3\xabr <weasel@blackadder.org>'.
+           decode('utf-8'))
+
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp(prefix='patman.')
         self.gitdir = os.path.join(self.tmpdir, 'git')
@@ -177,8 +180,6 @@ class TestFunctional(unittest.TestCase):
         stefan = b'Stefan Br\xc3\xbcns <stefan.bruens@rwth-aachen.de>'.decode('utf-8')
         rick = 'Richard III <richard@palace.gov>'
         mel = b'Lord M\xc3\xablchett <clergy@palace.gov>'.decode('utf-8')
-        leb = (b'Lond Edmund Blackadd\xc3\xabr <weasel@blackadder.org'.
-               decode('utf-8'))
         fred = 'Fred Bloggs <f.bloggs@napier.net>'
         add_maintainers = [stefan, rick]
         dry_run = True
@@ -187,7 +188,7 @@ class TestFunctional(unittest.TestCase):
         settings.alias = {
             'fdt': ['simon'],
             'u-boot': ['u-boot@lists.denx.de'],
-            'simon': [leb],
+            'simon': [self.leb],
             'fred': [fred],
         }
 
@@ -231,7 +232,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual('Cover: 4 lines', lines[line + 4])
         line += 5
         self.assertEqual('      Cc:  %s' % fred, lines[line + 0])
-        self.assertEqual('      Cc:  %s' % tools.FromUnicode(leb),
+        self.assertEqual('      Cc:  %s' % tools.FromUnicode(self.leb),
                          lines[line + 1])
         self.assertEqual('      Cc:  %s' % tools.FromUnicode(mel),
                          lines[line + 2])
@@ -247,7 +248,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(('%s %s\0%s' % (args[0], rick, stefan)),
                          tools.ToUnicode(cc_lines[0]))
         self.assertEqual(
-            '%s %s\0%s\0%s\0%s' % (args[1], fred, leb, rick, stefan),
+            '%s %s\0%s\0%s\0%s' % (args[1], fred, self.leb, rick, stefan),
             tools.ToUnicode(cc_lines[1]))
 
         expected = '''
@@ -480,3 +481,18 @@ complicated as possible''')
             self.assertEqual(2, len(patch_files))
         finally:
             os.chdir(orig_dir)
+
+    def testTags(self):
+        """Test collection of tags in a patchstream"""
+        text = '''This is a patch
+
+Signed-off-by: Terminator
+Reviewed-by: Joe Bloggs <joe@napierwallies.co.nz>
+Reviewed-by: Mary Bloggs <mary@napierwallies.co.nz>
+Tested-by: %s
+''' % self.leb
+        pstrm = PatchStream.process_text(text)
+        self.assertEqual(pstrm.commit.rtags, {
+            'Reviewed-by': {'Mary Bloggs <mary@napierwallies.co.nz>',
+                            'Joe Bloggs <joe@napierwallies.co.nz>'},
+            'Tested-by': {self.leb}})
