@@ -24,20 +24,20 @@ from patman.test_util import capture_sys_output
 
 try:
     import pygit2
-    HAVE_PYGIT2= True
+    HAVE_PYGIT2 = True
 except ModuleNotFoundError:
     HAVE_PYGIT2 = False
 
 
 @contextlib.contextmanager
 def capture():
-    oldout,olderr = sys.stdout, sys.stderr
+    oldout, olderr = sys.stdout, sys.stderr
     try:
-        out=[StringIO(), StringIO()]
-        sys.stdout,sys.stderr = out
+        out = [StringIO(), StringIO()]
+        sys.stdout, sys.stderr = out
         yield out
     finally:
-        sys.stdout,sys.stderr = oldout, olderr
+        sys.stdout, sys.stderr = oldout, olderr
         out[0] = out[0].getvalue()
         out[1] = out[1].getvalue()
 
@@ -160,10 +160,10 @@ class TestFunctional(unittest.TestCase):
         in_reply_to = mel
         count = 2
         settings.alias = {
-                'fdt': ['simon'],
-                'u-boot': ['u-boot@lists.denx.de'],
-                'simon': [ed],
-                'fred': [fred],
+            'fdt': ['simon'],
+            'u-boot': ['u-boot@lists.denx.de'],
+            'simon': [ed],
+            'fred': [fred],
         }
 
         text = self.GetText('test01.txt')
@@ -177,9 +177,9 @@ class TestFunctional(unittest.TestCase):
             cc_file = series.MakeCcFile(process_tags, cover_fname,
                                         not ignore_bad_tags, add_maintainers,
                                         None)
-            cmd = gitutil.EmailPatches(series, cover_fname, args,
-                    dry_run, not ignore_bad_tags, cc_file,
-                    in_reply_to=in_reply_to, thread=None)
+            cmd = gitutil.EmailPatches(
+                series, cover_fname, args, dry_run, not ignore_bad_tags,
+                cc_file, in_reply_to=in_reply_to, thread=None)
             series.ShowActions(args, cmd, process_tags)
         cc_lines = open(cc_file, encoding='utf-8').read().splitlines()
         os.remove(cc_file)
@@ -221,8 +221,9 @@ class TestFunctional(unittest.TestCase):
 
         self.assertEqual(('%s %s\0%s' % (args[0], rick, stefan)),
                          tools.ToUnicode(cc_lines[0]))
-        self.assertEqual(('%s %s\0%s\0%s\0%s' % (args[1], fred, ed, rick,
-                                     stefan)), tools.ToUnicode(cc_lines[1]))
+        self.assertEqual(
+            '%s %s\0%s\0%s\0%s' % (args[1], fred, ed, rick, stefan),
+            tools.ToUnicode(cc_lines[1]))
 
         expected = '''
 This is a test of how the cover
@@ -256,8 +257,8 @@ Simon Glass (2):
 '''
         lines = open(cover_fname, encoding='utf-8').read().splitlines()
         self.assertEqual(
-                'Subject: [RFC PATCH v3 0/2] test: A test patch series',
-                lines[3])
+            'Subject: [RFC PATCH v3 0/2] test: A test patch series',
+            lines[3])
         self.assertEqual(expected.splitlines(), lines[7:])
 
         for i, fname in enumerate(args):
@@ -310,7 +311,7 @@ Changes in v2:
         tools.WriteFile(path, text, binary=False)
         index = self.repo.index
         index.add(fname)
-        author =  pygit2.Signature('Test user', 'test@email.com')
+        author = pygit2.Signature('Test user', 'test@email.com')
         committer = author
         tree = index.write_tree()
         message = subject + '\n' + body
@@ -335,7 +336,7 @@ Changes in v2:
         author = pygit2.Signature('Test user', 'test@email.com')
         committer = author
         commit = repo.create_commit('HEAD', author, committer,
-                                         'Created master', new_tree, [])
+                                    'Created master', new_tree, [])
 
         self.make_commit_with_file('Initial commit', '''
 Add a README
