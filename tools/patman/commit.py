@@ -27,6 +27,7 @@ class Commit:
         rtags: Response tags (e.g. Reviewed-by) collected by the commit, dict:
             key: rtag type (e.g. 'Reviewed-by')
             value: Set of people who gave that rtag, each a name/email string
+        warn: List of warnings for this commit, each a str
     """
     def __init__(self, hash):
         self.hash = hash
@@ -38,6 +39,7 @@ class Commit:
         self.notes = []
         self.change_id = None
         self.rtags = collections.defaultdict(set)
+        self.warn = []
 
     def AddChange(self, version, info):
         """Add a new change line to the change list for a version.
