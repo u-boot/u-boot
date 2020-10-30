@@ -149,7 +149,7 @@ class PatchStream:
         """
         try:
             return int(value)
-        except ValueError as str:
+        except ValueError:
             raise ValueError("%s: Cannot decode version info '%s'" %
                              (self.commit.hash, line))
 
@@ -385,10 +385,10 @@ class PatchStream:
         # Well that means this is an ordinary line
         else:
             # Look for space before tab
-            m = RE_SPACE_BEFORE_TAB.match(line)
-            if m:
+            mat = RE_SPACE_BEFORE_TAB.match(line)
+            if mat:
                 self.warn.append('Line %d/%d has space before tab' %
-                                 (self.linenum, m.start()))
+                                 (self.linenum, mat.start()))
 
             # OK, we have a valid non-blank line
             out = [line]
@@ -527,10 +527,10 @@ def get_metadata_for_list(commit_range, git_dir=None, count=None,
     params = gitutil.LogCmd(commit_range, reverse=True, count=count,
                             git_dir=git_dir)
     stdout = command.RunPipe([params], capture=True).stdout
-    ps = PatchStream(series, is_log=True)
+    pst = PatchStream(series, is_log=True)
     for line in stdout.splitlines():
-        ps.process_line(line)
-    ps.finalise()
+        pst.process_line(line)
+    pst.finalise()
     return series
 
 def get_metadata(branch, start, count):
@@ -554,13 +554,13 @@ def get_metadata_for_test(text):
         text:
     """
     series = Series()
-    ps = PatchStream(series, is_log=True)
+    pst = PatchStream(series, is_log=True)
     for line in text.splitlines():
-        ps.process_line(line)
-    ps.finalise()
+        pst.process_line(line)
+    pst.finalise()
     return series
 
-def fix_patch(backup_dir, fname, series, commit):
+def fix_patch(backup_dir, fname, series, cmt):
     """Fix up a patch file, by adding/removing as required.
 
     We remove our tags from the patch file, insert changes lists, etc.
@@ -571,16 +571,16 @@ def fix_patch(backup_dir, fname, series, commit):
     Args:
         fname: Filename to patch file to process
         series: Series information about this patch set
-        commit: Commit object for this patch file
+        cmt: Commit object for this patch file
     Return:
         A list of errors, or [] if all ok.
     """
     handle, tmpname = tempfile.mkstemp()
     outfd = os.fdopen(handle, 'w', encoding='utf-8')
     infd = open(fname, 'r', encoding='utf-8')
-    ps = PatchStream(series)
-    ps.commit = commit
-    ps.process_stream(infd, outfd)
+    pst = PatchStream(series)
+    pst.commit = cmt
+    pst.process_stream(infd, outfd)
     infd.close()
     outfd.close()
 
@@ -588,7 +588,7 @@ def fix_patch(backup_dir, fname, series, commit):
     if backup_dir:
         shutil.copy(fname, os.path.join(backup_dir, os.path.basename(fname)))
     shutil.move(tmpname, fname)
-    return ps.warn
+    return pst.warn
 
 def fix_patches(series, fnames):
     """Fix up a list of patches identified by filenames
@@ -603,10 +603,10 @@ def fix_patches(series, fnames):
     backup_dir = None  #tempfile.mkdtemp('clean-patch')
     count = 0
     for fname in fnames:
-        commit = series.commits[count]
-        commit.patch = fname
-        commit.count = count
-        result = fix_patch(backup_dir, fname, series, commit)
+        cmt = series.commits[count]
+        cmt.patch = fname
+        cmt.count = count
+        result = fix_patch(backup_dir, fname, series, cmt)
         if result:
             print('%d warnings for %s:' % (len(result), fname))
             for warn in result:
@@ -623,11 +623,11 @@ def insert_cover_letter(fname, series, count):
         series: Series object
         count: Number of patches in the series
     """
-    fd = open(fname, 'r')
-    lines = fd.readlines()
-    fd.close()
+    fil = open(fname, 'r')
+    lines = fil.readlines()
+    fil.close()
 
-    fd = open(fname, 'w')
+    fil = open(fname, 'w')
     text = series.cover
     prefix = series.GetPatchPrefix()
     for line in lines:
@@ -647,5 +647,5 @@ def insert_cover_letter(fname, series, count):
             # Now the change list
             out = series.MakeChangeLog(None)
             line += '\n' + '\n'.join(out)
-        fd.write(line)
-    fd.close()
+        fil.write(line)
+    fil.close()
