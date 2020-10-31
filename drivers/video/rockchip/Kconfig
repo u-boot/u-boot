@@ -22,7 +22,7 @@ menuconfig VIDEO_ROCKCHIP
 config VIDEO_ROCKCHIP_MAX_XRES
         int "Maximum horizontal resolution (for memory allocation purposes)"
 	depends on VIDEO_ROCKCHIP
-	default 3840 if ROCKCHIP_RK3399 && DISPLAY_ROCKCHIP_HDMI
+	default 3840 if DISPLAY_ROCKCHIP_HDMI
 	default 1920
 	help
 	  The maximum horizontal resolution to support for the framebuffer.
@@ -32,7 +32,7 @@ config VIDEO_ROCKCHIP_MAX_XRES
 config VIDEO_ROCKCHIP_MAX_YRES
         int "Maximum vertical resolution (for memory allocation purposes)"
 	depends on VIDEO_ROCKCHIP
-	default 2160 if ROCKCHIP_RK3399 && DISPLAY_ROCKCHIP_HDMI
+	default 2160 if DISPLAY_ROCKCHIP_HDMI
 	default 1080
 	help
 	  The maximum vertical resolution to support for the framebuffer.

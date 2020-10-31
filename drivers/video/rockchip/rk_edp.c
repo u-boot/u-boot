@@ -559,6 +559,12 @@ static int rk_edp_link_train_ce(struct rk_edp_priv *edp)
 	channel_eq = 0;
 	for (tries = 0; tries < 5; tries++) {
 		rk_edp_set_link_training(edp, edp->train_set);
+		ret = rk_edp_dpcd_write(regs, DPCD_TRAINING_LANE0_SET,
+					edp->train_set,
+					edp->link_train.lane_count);
+		if (ret)
+			return ret;
+
 		udelay(400);
 
 		if (rk_edp_dpcd_read_link_status(edp, status) < 0) {

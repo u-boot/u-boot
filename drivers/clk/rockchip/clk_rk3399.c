@@ -233,6 +233,10 @@ enum {
 	DCLK_VOP_DIV_CON_MASK           = 0xff,
 	DCLK_VOP_DIV_CON_SHIFT          = 0,
 
+	/* CLKSEL_CON57 */
+	PCLK_ALIVE_DIV_CON_SHIFT        = 0,
+	PCLK_ALIVE_DIV_CON_MASK         = 0x1f << PCLK_ALIVE_DIV_CON_SHIFT,
+
 	/* CLKSEL_CON58 */
 	CLK_SPI_PLL_SEL_WIDTH = 1,
 	CLK_SPI_PLL_SEL_MASK = ((1 < CLK_SPI_PLL_SEL_WIDTH) - 1),
@@ -867,6 +871,17 @@ static ulong rk3399_ddr_set_clk(struct rockchip_cru *cru,
 	return set_rate;
 }
 
+static ulong rk3399_alive_get_clk(struct rockchip_cru *cru)
+{
+        u32 div, val;
+
+        val = readl(&cru->clksel_con[57]);
+        div = (val & PCLK_ALIVE_DIV_CON_MASK) >>
+	       PCLK_ALIVE_DIV_CON_SHIFT;
+
+        return DIV_TO_RATE(GPLL_HZ, div);
+}
+
 static ulong rk3399_saradc_get_clk(struct rockchip_cru *cru)
 {
 	u32 div, val;
@@ -935,6 +950,10 @@ static ulong rk3399_clk_get_rate(struct clk *clk)
 	case ACLK_HDCP:
 	case ACLK_GIC_PRE:
 	case PCLK_DDR:
+		break;
+	case PCLK_ALIVE:
+	case PCLK_WDT:
+		rate = rk3399_alive_get_clk(priv->cru);
 		break;
 	default:
 		log_debug("Unknown clock %lu\n", clk->id);
@@ -1502,6 +1521,7 @@ static ulong rk3399_pmuclk_get_rate(struct clk *clk)
 	case PLL_PPLL:
 		return PPLL_HZ;
 	case PCLK_RKPWM_PMU:
+	case PCLK_WDT_M0_PMU:
 		rate = rk3399_pwm_get_clk(priv->pmucru);
 		break;
 	case SCLK_I2C0_PMU:

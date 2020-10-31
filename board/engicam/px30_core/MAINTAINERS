@@ -1,0 +1,13 @@
+PX30-Core-CTOUCH2.0
+M:	Jagan Teki <jagan@amarulasolutions.com>
+M:	Suniel Mahesh <sunil@amarulasolutions.com>
+S:	Maintained
+F:	configs/px30-core-ctouch2-px30_defconfig
+
+PX30-Core-EDIMM2.2
+M:	Jagan Teki <jagan@amarulasolutions.com>
+M:	Suniel Mahesh <sunil@amarulasolutions.com>
+S:	Maintained
+F:	board/engicam/px30_core
+F:	include/configs/px30_core.h
+F:	configs/px30-core-edimm2.2-px30_defconfig
