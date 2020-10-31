@@ -394,9 +394,9 @@ int misc_init_r(void)
 	char buf[12];
 	u8 state;
 
-	/* reset lp5523 led */
+	/* disable lp5523 led */
 	if (i2c_get_chip_for_busnum(1, 0x32, 1, &dev) == 0)
-		dm_i2c_reg_write(dev, 0x3d, 0xff);
+		dm_i2c_reg_write(dev, 0x00, 0x00);
 
 	/* initialize twl4030 power managment */
 	twl4030_power_init();
