@@ -2,7 +2,9 @@
 #
 # (C) Copyright 2012 The Chromium Authors
 
+ifneq ($(CONFIG_SANDBOX),)
 obj-$(CONFIG_$(SPL_)CMDLINE) += bloblist.o
+endif
 obj-$(CONFIG_$(SPL_)CMDLINE) += cmd/
 obj-$(CONFIG_$(SPL_)CMDLINE) += cmd_ut.o
 obj-$(CONFIG_$(SPL_)CMDLINE) += command_ut.o
