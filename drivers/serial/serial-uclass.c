@@ -12,6 +12,7 @@
 #include <serial.h>
 #include <stdio_dev.h>
 #include <watchdog.h>
+#include <asm/global_data.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
 #include <dm/of_access.h>

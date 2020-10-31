@@ -7,6 +7,7 @@
 #include <cpu_func.h>
 #include <hang.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/pl310.h>
 #include <asm/u-boot.h>

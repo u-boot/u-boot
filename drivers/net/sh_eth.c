@@ -20,6 +20,7 @@
 #include <asm/cache.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 
 #ifdef CONFIG_DM_ETH

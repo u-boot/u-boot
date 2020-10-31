@@ -7,6 +7,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/system.h>
 #include <asm/cache.h>
 #include <linux/compiler.h>

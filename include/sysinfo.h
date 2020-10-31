@@ -4,6 +4,8 @@
  * Mario Six,  Guntermann & Drunck GmbH, mario.six@gdsys.cc
  */
 
+struct udevice;
+
 /*
  * This uclass encapsulates hardware methods to gather information about a
  * sysinfo or a specific device such as hard-wired GPIOs on GPIO expanders,

@@ -17,6 +17,7 @@
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/arch/hardware.h>
+#include <asm/global_data.h>
 #include <asm/ti-common/davinci_nand.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/arch/pinmux_defs.h>

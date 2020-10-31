@@ -11,6 +11,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <syscon.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/cru_rk3308.h>
 #include <asm/arch-rockchip/clock.h>

@@ -12,6 +12,7 @@
 #include <linux/err.h>
 #include <dm/uclass.h>
 #include <asm/arch/scu_ast2600.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -10,6 +10,7 @@
 #include <fdtdec.h>
 #include <log.h>
 #include <remoteproc.h>
+#include <asm/global_data.h>
 #include <mach/psc_defs.h>
 
 DECLARE_GLOBAL_DATA_PTR;

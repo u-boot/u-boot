@@ -15,6 +15,8 @@
  * from the original reiser fs code, as found in the linux kernel.
  */
 
+#include <compiler.h>
+
 #ifndef __BYTE_ORDER
 #if defined(__LITTLE_ENDIAN) && !defined(__BIG_ENDIAN)
 #define __BYTE_ORDER __LITTLE_ENDIAN

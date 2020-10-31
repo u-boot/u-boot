@@ -12,6 +12,7 @@
 #include <log.h>
 #include <spl.h>
 #include <asm/cpu.h>
+#include <asm/global_data.h>
 #include <asm/mtrr.h>
 #include <asm/processor.h>
 #include <asm-generic/sections.h>

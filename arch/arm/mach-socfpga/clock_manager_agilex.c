@@ -11,6 +11,7 @@
 #include <malloc.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/system_manager.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dt-bindings/clock/agilex-clock.h>
 

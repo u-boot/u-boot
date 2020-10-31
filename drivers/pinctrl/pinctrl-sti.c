@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <regmap.h>
 #include <syscon.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/pinctrl.h>
 #include <linux/bug.h>

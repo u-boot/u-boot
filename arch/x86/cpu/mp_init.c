@@ -14,6 +14,7 @@
 #include <qfw.h>
 #include <asm/atomic.h>
 #include <asm/cpu.h>
+#include <asm/global_data.h>
 #include <asm/interrupt.h>
 #include <asm/io.h>
 #include <asm/lapic.h>

@@ -18,6 +18,7 @@
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru.h>
 #include <asm/arch-rockchip/hardware.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3399-cru.h>

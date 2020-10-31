@@ -36,6 +36,7 @@
 #include <xilinx.h>
 #endif
 
+#include <asm/global_data.h>
 #include <u-boot/md5.h>
 #include <u-boot/sha1.h>
 #include <linux/errno.h>

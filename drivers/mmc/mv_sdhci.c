@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <malloc.h>
 #include <sdhci.h>
+#include <asm/global_data.h>
 #include <linux/mbus.h>
 
 #define MVSDH_NAME "mv_sdh"

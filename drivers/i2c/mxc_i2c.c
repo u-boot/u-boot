@@ -18,6 +18,7 @@
 #include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <linux/delay.h>
 #include <linux/errno.h>

@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <dm/of_access.h>
 #include <mapmem.h>
+#include <asm/global_data.h>
 #include <asm/types.h>
 #include <asm/io.h>
 #include <linux/ioport.h>

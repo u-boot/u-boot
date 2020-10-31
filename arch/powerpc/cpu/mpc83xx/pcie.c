@@ -10,6 +10,7 @@
 #include <common.h>
 #include <pci.h>
 #include <mpc83xx.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/delay.h>
 

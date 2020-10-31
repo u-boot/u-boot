@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <clk.h>
 #include <dm.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <serial.h>

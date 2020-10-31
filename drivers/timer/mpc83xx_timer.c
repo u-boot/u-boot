@@ -14,6 +14,7 @@
 #include <time.h>
 #include <timer.h>
 #include <watchdog.h>
+#include <asm/global_data.h>
 #include <asm/ptrace.h>
 #include <linux/bitops.h>
 

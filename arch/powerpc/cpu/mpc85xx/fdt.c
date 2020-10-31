@@ -11,6 +11,7 @@
 #include <env.h>
 #include <log.h>
 #include <time.h>
+#include <asm/global_data.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <asm/processor.h>

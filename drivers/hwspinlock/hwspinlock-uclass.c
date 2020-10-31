@@ -11,6 +11,7 @@
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>
 #include <linux/compat.h>
+#include <asm/global_data.h>
 
 static inline const struct hwspinlock_ops *
 hwspinlock_dev_ops(struct udevice *dev)

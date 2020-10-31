@@ -9,6 +9,8 @@
 #include <asm/cache.h>
 #include <linux/dma-direction.h>
 
+struct udevice;
+
 struct scsi_cmd {
 	unsigned char		cmd[16];					/* command				   */
 	/* for request sense */

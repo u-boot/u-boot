@@ -60,6 +60,7 @@
 #include <edid.h>
 #include <env.h>
 #include <errno.h>
+#include <fdtdec.h>
 #include <linux/ctype.h>
 
 #include "videomodes.h"

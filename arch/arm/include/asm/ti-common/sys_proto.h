@@ -6,6 +6,8 @@
 #ifndef _TI_COMMON_SYS_PROTO_H_
 #define _TI_COMMON_SYS_PROTO_H_
 
+#include <asm/global_data.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_ARCH_OMAP2PLUS

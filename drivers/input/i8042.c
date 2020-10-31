@@ -14,6 +14,7 @@
 #include <input.h>
 #include <keyboard.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/delay.h>
 

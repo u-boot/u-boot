@@ -6,6 +6,7 @@
  * Author: Fabio Estevam <festevam@gmail.com>
  */
 
+#include <common.h>
 #include <env.h>
 #include <init.h>
 #include <net.h>
@@ -15,6 +16,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/mach-imx/video.h>
@@ -22,7 +24,6 @@
 #include <asm/io.h>
 #include <linux/delay.h>
 #include <linux/sizes.h>
-#include <common.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <phy.h>

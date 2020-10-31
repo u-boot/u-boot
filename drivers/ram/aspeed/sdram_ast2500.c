@@ -13,6 +13,7 @@
 #include <ram.h>
 #include <regmap.h>
 #include <reset.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/scu_ast2500.h>
 #include <asm/arch/sdram_ast2500.h>

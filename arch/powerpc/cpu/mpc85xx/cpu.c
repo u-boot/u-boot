@@ -20,6 +20,7 @@
 #include <command.h>
 #include <fsl_esdhc.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/mmu.h>
 #include <fsl_ifc.h>

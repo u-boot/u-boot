@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <watchdog.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <serial.h>
 #include <linux/compiler.h>

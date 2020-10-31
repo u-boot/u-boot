@@ -7,6 +7,7 @@
 #include <asm-offsets.h>
 #include <mpc83xx.h>
 #include <ioports.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <fsl_qe.h>

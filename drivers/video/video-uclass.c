@@ -14,6 +14,7 @@
 #include <video.h>
 #include <video_console.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <dm/lists.h>
 #include <dm/device_compat.h>
 #include <dm/device-internal.h>

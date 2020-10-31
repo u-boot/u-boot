@@ -18,6 +18,7 @@
 #include <net.h>
 #include <netdev.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 #include <power/regulator.h>
 

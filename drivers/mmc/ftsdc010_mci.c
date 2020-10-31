@@ -15,6 +15,7 @@
 #include <malloc.h>
 #include <part.h>
 #include <mmc.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/errno.h>

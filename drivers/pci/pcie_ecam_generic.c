@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <pci.h>
+#include <asm/global_data.h>
 
 #include <asm/io.h>
 

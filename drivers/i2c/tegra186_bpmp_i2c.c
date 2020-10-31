@@ -9,6 +9,7 @@
 #include <log.h>
 #include <misc.h>
 #include <asm/arch-tegra/bpmp_abi.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;

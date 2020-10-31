@@ -8,6 +8,7 @@
 #include <malloc.h>
 #include <errno.h>
 #include <netdev.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 #include <linux/compiler.h>

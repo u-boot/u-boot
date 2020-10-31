@@ -1,6 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 #ifndef _UFS_H
 #define _UFS_H
+
+struct udevice;
+
 /**
  * ufs_probe() - initialize all devices in the UFS uclass
  *

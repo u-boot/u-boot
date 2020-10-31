@@ -21,6 +21,7 @@
 #include <mapmem.h>
 #include <linux/libfdt.h>
 #include <serial.h>
+#include <asm/global_data.h>
 #include <asm/sections.h>
 #include <linux/ctype.h>
 #include <linux/lzo.h>

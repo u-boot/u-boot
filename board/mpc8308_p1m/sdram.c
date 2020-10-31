@@ -10,6 +10,7 @@
 #include <common.h>
 #include <init.h>
 #include <mpc83xx.h>
+#include <asm/global_data.h>
 
 #include <asm/bitops.h>
 #include <asm/io.h>

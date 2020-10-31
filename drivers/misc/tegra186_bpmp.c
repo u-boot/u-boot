@@ -8,6 +8,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <time.h>
+#include <asm/global_data.h>
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <mailbox.h>

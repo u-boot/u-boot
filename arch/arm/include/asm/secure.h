@@ -2,6 +2,7 @@
 #define __ASM_SECURE_H
 
 #include <config.h>
+#include <asm/global_data.h>
 
 #define __secure __attribute__ ((section ("._secure.text")))
 #define __secure_data __attribute__ ((section ("._secure.data")))

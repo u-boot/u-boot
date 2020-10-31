@@ -10,6 +10,7 @@
 #include <log.h>
 #include <os.h>
 #include <spl.h>
+#include <asm/global_data.h>
 #include <asm/spl.h>
 #include <asm/state.h>
 #include <test/test.h>

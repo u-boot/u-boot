@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <memalign.h>
 #include <miiphy.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 
 #include "dm_qe_uec.h"

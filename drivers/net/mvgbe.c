@@ -18,6 +18,7 @@
 #include <malloc.h>
 #include <miiphy.h>
 #include <wait_bit.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/delay.h>
 #include <linux/errno.h>

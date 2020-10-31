@@ -18,6 +18,7 @@
 #include <dm/uclass-internal.h>
 #include <dm/util.h>
 #include <power-domain.h>
+#include <asm/global_data.h>
 
 int device_chld_unbind(struct udevice *dev, struct driver *drv)
 {

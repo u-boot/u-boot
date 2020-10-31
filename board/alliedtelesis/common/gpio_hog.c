@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;

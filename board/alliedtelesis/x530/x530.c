@@ -10,6 +10,7 @@
 #include <i2c.h>
 #include <init.h>
 #include <wdt.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <linux/bitops.h>
 #include <linux/mbus.h>

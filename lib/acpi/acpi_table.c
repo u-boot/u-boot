@@ -13,6 +13,7 @@
 #include <tables_csum.h>
 #include <version.h>
 #include <acpi/acpi_table.h>
+#include <asm/global_data.h>
 #include <dm/acpi.h>
 
 int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags)

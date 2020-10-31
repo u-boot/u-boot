@@ -21,6 +21,7 @@
 #include <spi.h>
 #include <spi-mem.h>
 #include <reset.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

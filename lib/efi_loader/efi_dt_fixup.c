@@ -8,6 +8,7 @@
 #include <common.h>
 #include <efi_dt_fixup.h>
 #include <efi_loader.h>
+#include <fdtdec.h>
 #include <mapmem.h>
 
 const efi_guid_t efi_guid_dt_fixup_protocol = EFI_DT_FIXUP_PROTOCOL_GUID;

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <dm/test.h>
+#include <asm/global_data.h>
 
 /* Records the last testbus device that was removed */
 static struct udevice *testbus_removed;

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/bitops.h>

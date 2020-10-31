@@ -10,6 +10,7 @@
 #include <fsl_lpuart.h>
 #include <log.h>
 #include <watchdog.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <serial.h>
 #include <dm/device_compat.h>

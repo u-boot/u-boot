@@ -8,6 +8,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <asm/global_data.h>
 #include <dm/uclass.h>
 #include <dt-bindings/clock/mt7628-clk.h>
 #include <linux/io.h>

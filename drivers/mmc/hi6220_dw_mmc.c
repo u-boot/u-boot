@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

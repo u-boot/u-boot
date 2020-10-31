@@ -10,6 +10,7 @@
 #include <div64.h>
 #include <time.h>
 #include <wait_bit.h>
+#include <asm/global_data.h>
 #include <dm/lists.h>
 #include <asm/io.h>
 #include <linux/bitops.h>

@@ -10,6 +10,7 @@
 #include <init.h>
 #include <net.h>
 #include <asm/bitops.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/fsl_mpc83xx_serdes.h>
 #include <spd_sdram.h>

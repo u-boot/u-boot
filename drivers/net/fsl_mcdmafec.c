@@ -18,6 +18,7 @@
 #include <config.h>
 #include <net.h>
 #include <miiphy.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 #include <linux/mii.h>
 #include <asm/immap.h>

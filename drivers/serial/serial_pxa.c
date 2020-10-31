@@ -23,6 +23,7 @@
 #include <hang.h>
 #include <asm/arch/pxa-regs.h>
 #include <asm/arch/regs-uart.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <dm/platform_data/serial_pxa.h>

@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <asm/bitops.h>
+#include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <asm/fsl_law.h>
 #include <asm/io.h>

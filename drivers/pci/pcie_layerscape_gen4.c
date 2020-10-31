@@ -10,6 +10,7 @@
 #include <log.h>
 #include <asm/arch/fsl_serdes.h>
 #include <pci.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <malloc.h>

@@ -14,6 +14,7 @@
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <spi_flash.h>
+#include <asm/global_data.h>
 #include "../common/qixis.h"
 #include "t208xqds_qixis.h"
 #include "../common/spl.h"

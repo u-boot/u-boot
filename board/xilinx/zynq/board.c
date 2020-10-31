@@ -16,6 +16,7 @@
 #include <watchdog.h>
 #include <wdt.h>
 #include <zynqpl.h>
+#include <asm/global_data.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include "../common/board.h"

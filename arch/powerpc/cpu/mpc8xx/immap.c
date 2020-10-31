@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <asm/global_data.h>
 
 #include <asm/immap_8xx.h>
 #include <asm/cpm_8xx.h>

@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/sci/sci.h>

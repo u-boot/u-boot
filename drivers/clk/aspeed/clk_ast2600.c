@@ -10,6 +10,7 @@
 #include <dm/lists.h>
 #include <linux/delay.h>
 #include <asm/arch/scu_ast2600.h>
+#include <asm/global_data.h>
 #include <dt-bindings/clock/ast2600-clock.h>
 #include <dt-bindings/reset/ast2600-reset.h>
 

@@ -7,6 +7,8 @@
 #ifndef __CPU_H
 #define __CPU_H
 
+struct udevice;
+
 /**
  * struct cpu_plat - platform data for a CPU
  * @cpu_id:	   Platform-specific way of identifying the CPU.

@@ -11,6 +11,7 @@
 #include <test/test.h>
 #include <test/suites.h>
 #include <test/ut.h>
+#include <asm/global_data.h>
 #include <linux/printk.h>
 
 #define BUFFSIZE 64

@@ -14,6 +14,7 @@
 #include <spl.h>
 #include <image.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <asm/mach-types.h>
 

@@ -11,6 +11,8 @@
 #include <asm/atomic.h>
 #include <asm/cache.h>
 
+struct udevice;
+
 enum {
 	/* Indicates that the function should run on all CPUs */
 	MP_SELECT_ALL	= -1,

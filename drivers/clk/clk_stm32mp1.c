@@ -17,6 +17,7 @@
 #include <time.h>
 #include <vsprintf.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <dt-bindings/clock/stm32mp1-clksrc.h>

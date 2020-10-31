@@ -19,6 +19,7 @@
 #include <hang.h>
 #include <lmb.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <dm/root.h>
 #include <env.h>
 #include <image.h>

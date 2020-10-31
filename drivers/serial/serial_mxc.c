@@ -9,6 +9,7 @@
 #include <watchdog.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
+#include <asm/global_data.h>
 #include <dm/platform_data/serial_mxc.h>
 #include <serial.h>
 #include <linux/compiler.h>

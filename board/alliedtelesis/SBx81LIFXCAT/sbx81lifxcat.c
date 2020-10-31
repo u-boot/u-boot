@@ -10,6 +10,7 @@
 #include <net.h>
 #include <netdev.h>
 #include <led.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <asm/arch/cpu.h>

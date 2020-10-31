@@ -3,6 +3,7 @@
  * Copyright (C) 2016-2017 Intel Corporation
  */
 
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/fpga_manager.h>
 #include <asm/arch/misc.h>

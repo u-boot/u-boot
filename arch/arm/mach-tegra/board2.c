@@ -12,6 +12,7 @@
 #include <log.h>
 #include <ns16550.h>
 #include <usb.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/board.h>

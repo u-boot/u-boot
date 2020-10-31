@@ -9,6 +9,7 @@
 #include <command.h>
 #include <cpu_func.h>
 #include <env.h>
+#include <asm/global_data.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
 #include <asm/addrspace.h>

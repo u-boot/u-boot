@@ -379,6 +379,8 @@ bool ofnode_read_bool(ofnode node, const char *propname);
 ofnode ofnode_find_subnode(ofnode node, const char *subnode_name);
 
 #if CONFIG_IS_ENABLED(DM_INLINE_OFNODE)
+#include <asm/global_data.h>
+
 static inline bool ofnode_is_enabled(ofnode node)
 {
 	if (ofnode_is_np(node)) {

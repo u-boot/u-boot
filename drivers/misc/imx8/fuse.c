@@ -9,6 +9,7 @@
 #include <fuse.h>
 #include <asm/arch/sci/sci.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <linux/arm-smccc.h>
 
 DECLARE_GLOBAL_DATA_PTR;

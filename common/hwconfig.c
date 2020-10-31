@@ -15,6 +15,7 @@
 #include <exports.h>
 #include <hwconfig.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <linux/types.h>
 #include <linux/string.h>
 #else

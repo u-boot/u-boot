@@ -15,6 +15,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/gpio.h>
 #include <netdev.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/platform_data/serial_pl01x.h>
 

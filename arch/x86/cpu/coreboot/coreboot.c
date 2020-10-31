@@ -10,6 +10,7 @@
 #include <fdtdec.h>
 #include <init.h>
 #include <usb.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>

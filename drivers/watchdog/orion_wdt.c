@@ -17,6 +17,7 @@
 #include <clk.h>
 #include <log.h>
 #include <wdt.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/kernel.h>
 #include <asm/io.h>

@@ -19,6 +19,7 @@
 #include <fm_eth.h>
 #include <asm/io.h>
 #include <exports.h>
+#include <asm/global_data.h>
 #include <asm/arch/fsl_serdes.h>
 #include <fsl-mc/fsl_mc.h>
 #include <fsl-mc/ldpaa_wriop.h>

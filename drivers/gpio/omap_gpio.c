@@ -20,6 +20,7 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <dm/device-internal.h>

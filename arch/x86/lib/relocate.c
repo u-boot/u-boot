@@ -17,6 +17,7 @@
 #include <common.h>
 #include <log.h>
 #include <relocate.h>
+#include <asm/global_data.h>
 #include <asm/u-boot-x86.h>
 #include <asm/sections.h>
 #include <elf.h>

@@ -11,6 +11,7 @@
 #include <bootstage.h>
 #include <dm.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/mrccache.h>
 #include <asm/fsp/fsp_infoheader.h>
 #include <asm/fsp2/fsp_api.h>

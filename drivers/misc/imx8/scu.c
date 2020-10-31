@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <dm/lists.h>

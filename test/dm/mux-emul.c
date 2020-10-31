@@ -9,6 +9,7 @@
 #include <mux-internal.h>
 #include <dm/test.h>
 #include <test/ut.h>
+#include <asm/global_data.h>
 
 struct mux_emul_priv {
 	u32 state;

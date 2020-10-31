@@ -3,6 +3,8 @@
 #ifndef __PXE_UTILS_H
 #define __PXE_UTILS_H
 
+#include <linux/list.h>
+
 /*
  * A note on the pxe file parser.
  *

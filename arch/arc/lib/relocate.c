@@ -7,6 +7,7 @@
 #include <elf.h>
 #include <log.h>
 #include <asm-generic/sections.h>
+#include <asm/global_data.h>
 
 extern ulong __image_copy_start;
 extern ulong __ivt_start;

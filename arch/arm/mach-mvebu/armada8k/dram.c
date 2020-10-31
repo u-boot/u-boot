@@ -6,6 +6,7 @@
 #include <common.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <asm/global_data.h>
 #include <asm/ptrace.h>
 #include <asm/system.h>
 #include <linux/sizes.h>

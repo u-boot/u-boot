@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <log.h>
 #include <time.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <linux/bitfield.h>
 #include <linux/bitops.h>

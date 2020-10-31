@@ -6,6 +6,7 @@
 #include <common.h>
 #include <clock_legacy.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <asm/io.h>

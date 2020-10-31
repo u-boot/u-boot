@@ -12,6 +12,7 @@
 #include <fdtdec.h>
 #include <log.h>
 #include <asm/cpu.h>
+#include <asm/global_data.h>
 #include <asm/irq.h>
 #include <asm/ioapic.h>
 #include <asm/lapic.h>

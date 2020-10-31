@@ -11,6 +11,7 @@
 #include <log.h>
 #include <panel.h>
 #include <regmap.h>
+#include <asm/global_data.h>
 #include "rk_mipi.h"
 #include <syscon.h>
 #include <asm/gpio.h>

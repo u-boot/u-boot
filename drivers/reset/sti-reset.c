@@ -13,6 +13,7 @@
 #include <reset-uclass.h>
 #include <regmap.h>
 #include <syscon.h>
+#include <asm/global_data.h>
 #include <dt-bindings/reset/stih407-resets.h>
 #include <linux/bitops.h>
 

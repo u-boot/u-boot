@@ -22,6 +22,7 @@
 #include <linux/io.h>
 #include <linux/sizes.h>
 #include "sh_mmcif.h"
+#include <asm/global_data.h>
 
 #define DRIVER_NAME	"sh_mmcif"
 

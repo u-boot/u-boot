@@ -21,6 +21,7 @@
 #include <config.h>
 #include <malloc.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>

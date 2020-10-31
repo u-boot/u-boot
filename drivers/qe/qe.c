@@ -9,6 +9,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <command.h>
+#include <asm/global_data.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <linux/immap_qe.h>

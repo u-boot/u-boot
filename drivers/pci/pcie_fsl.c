@@ -13,6 +13,7 @@
 #include <pci.h>
 #include <asm/fsl_pci.h>
 #include <asm/fsl_serdes.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/delay.h>
 #include "pcie_fsl.h"

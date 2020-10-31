@@ -16,6 +16,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <spi.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>

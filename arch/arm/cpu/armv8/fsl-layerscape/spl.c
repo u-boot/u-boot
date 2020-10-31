@@ -12,6 +12,7 @@
 #include <log.h>
 #include <spl.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <fsl_ifc.h>
 #include <i2c.h>

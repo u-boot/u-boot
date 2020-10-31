@@ -20,6 +20,8 @@
 #define QE_DATAONLY_BASE	0
 #define QE_DATAONLY_SIZE	(QE_MURAM_SIZE - QE_DATAONLY_BASE)
 
+struct udevice;
+
 /* QE threads SNUM
 */
 typedef enum qe_snum_state {

@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <fdt_support.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/device-internal.h>
 

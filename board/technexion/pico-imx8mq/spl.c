@@ -11,6 +11,7 @@
 #include <asm/arch/ddr.h>
 #include <asm/arch/imx8mq_pins.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/mach-imx/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>

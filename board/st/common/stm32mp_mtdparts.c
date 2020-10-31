@@ -14,6 +14,7 @@
 #include <tee.h>
 #include <asm/arch/stm32prog.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 
 #define MTDPARTS_LEN		256
 #define MTDIDS_LEN		128

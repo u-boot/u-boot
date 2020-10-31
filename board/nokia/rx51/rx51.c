@@ -30,6 +30,7 @@
 #include <twl4030.h>
 #include <i2c.h>
 #include <video_fb.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/setup.h>
 #include <asm/bitops.h>

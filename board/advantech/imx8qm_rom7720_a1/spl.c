@@ -9,6 +9,7 @@
 #include <log.h>
 #include <spl.h>
 #include <fsl_esdhc.h>
+#include <asm/global_data.h>
 
 #include <asm/io.h>
 #include <asm/gpio.h>

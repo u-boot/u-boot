@@ -29,6 +29,7 @@
 #include <log.h>
 #include <spi.h>
 #include <spi-mem.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>

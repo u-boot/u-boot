@@ -20,6 +20,7 @@
 #include <linux/bug.h>
 #include <linux/clk-provider.h>
 #include <linux/err.h>
+#include <asm/global_data.h>
 
 static inline const struct clk_ops *clk_dev_ops(struct udevice *dev)
 {

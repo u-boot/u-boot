@@ -9,6 +9,7 @@
 #include <fdt_support.h>
 #include <fsl_ddr_sdram.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>

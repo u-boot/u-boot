@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <log.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <asm/state.h>
 #include <dm/test.h>
 #include <dm/root.h>

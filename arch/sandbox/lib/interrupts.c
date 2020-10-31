@@ -9,6 +9,7 @@
 #include <efi_loader.h>
 #include <irq_func.h>
 #include <os.h>
+#include <asm/global_data.h>
 #include <asm-generic/signal.h>
 #include <asm/u-boot-sandbox.h>
 

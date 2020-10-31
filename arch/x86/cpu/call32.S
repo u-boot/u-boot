@@ -4,7 +4,6 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <asm/global_data.h>
 #include <asm/msr-index.h>
 #include <asm/processor-flags.h>
 

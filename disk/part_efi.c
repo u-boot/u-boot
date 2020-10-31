@@ -15,6 +15,7 @@
 #include <part.h>
 #include <uuid.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/unaligned.h>
 #include <command.h>
 #include <fdtdec.h>

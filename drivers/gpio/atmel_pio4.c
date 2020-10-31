@@ -11,6 +11,7 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <asm/arch/hardware.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <linux/bitops.h>
 #include <mach/gpio.h>

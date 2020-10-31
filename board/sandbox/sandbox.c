@@ -11,6 +11,7 @@
 #include <init.h>
 #include <led.h>
 #include <os.h>
+#include <asm/global_data.h>
 #include <asm/test.h>
 #include <asm/u-boot-sandbox.h>
 

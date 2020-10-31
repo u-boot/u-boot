@@ -8,6 +8,7 @@
 #include <efi_loader.h>
 #include <env.h>
 #include <fdtdec.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

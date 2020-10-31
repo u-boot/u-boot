@@ -15,6 +15,7 @@
 #include <asm/cpu.h>
 #include <asm/cpu_common.h>
 #include <asm/cpu_x86.h>
+#include <asm/global_data.h>
 #include <asm/msr.h>
 #include <asm/msr-index.h>
 #include <asm/mtrr.h>

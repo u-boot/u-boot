@@ -23,6 +23,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/psu_init_gpl.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/ptrace.h>
 #include <dm/device.h>

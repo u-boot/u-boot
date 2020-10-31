@@ -10,6 +10,8 @@
 
 #include <asm/types.h>
 
+struct udevice;
+
 enum {
 	I2C_TIMEOUT_USEC = 10000,	/* Wait time for completion */
 	I2C_FIFO_DEPTH = 8,		/* I2C fifo depth */

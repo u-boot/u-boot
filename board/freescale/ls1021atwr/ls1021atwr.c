@@ -11,6 +11,7 @@
 #include <i2c.h>
 #include <init.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/immap_ls102xa.h>
 #include <asm/arch/clock.h>

@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <fsl_ddr_sdram.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

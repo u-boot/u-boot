@@ -12,6 +12,7 @@
 #include <lmb.h>
 #include <log.h>
 #include <mapmem.h>
+#include <asm/global_data.h>
 #include <linux/kernel.h>
 #include <linux/sizes.h>
 

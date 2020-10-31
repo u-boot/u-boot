@@ -10,16 +10,16 @@
 #ifndef __INIT_H_
 #define __INIT_H_	1
 
-#include <linux/types.h>
-
-struct global_data;
-
 #ifndef __ASSEMBLY__		/* put C only stuff in this section */
+
+#include <linux/types.h>
 
 /* Avoid using CONFIG_EFI_STUB directly as we may boot from other loaders */
 #ifdef CONFIG_EFI_STUB
 #define ll_boot_init()	false
 #else
+#include <asm/global_data.h>
+
 #define ll_boot_init()	(!(gd->flags & GD_FLG_SKIP_LL_INIT))
 #endif
 

@@ -7,6 +7,7 @@
 #include <common.h>
 #include <clock_legacy.h>
 #include <cpu_func.h>
+#include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <asm/io.h>
 #include <asm/processor.h>

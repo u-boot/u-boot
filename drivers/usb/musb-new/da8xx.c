@@ -23,6 +23,7 @@
 #include <asm/arch/da8xx-usb.h>
 #include <linux/delay.h>
 #include <linux/usb/otg.h>
+#include <asm/global_data.h>
 #include <asm/omap_musb.h>
 #include <generic-phy.h>
 #include "linux-compat.h"

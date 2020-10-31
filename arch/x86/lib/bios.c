@@ -6,6 +6,7 @@
  * Copyright (C) 2009-2010 coresystems GmbH
  */
 #include <common.h>
+#include <compiler.h>
 #include <bios_emul.h>
 #include <irq_func.h>
 #include <log.h>

@@ -15,6 +15,7 @@
 #include <net.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/omap_common.h>

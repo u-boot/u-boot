@@ -13,6 +13,7 @@
 #include <init.h>
 #include <malloc.h>
 #include <dm.h>
+#include <asm/global_data.h>
 #include <dm/platform_data/serial_sh.h>
 #include <env_internal.h>
 #include <asm/processor.h>

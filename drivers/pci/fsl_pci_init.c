@@ -9,6 +9,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <asm/fsl_serdes.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;

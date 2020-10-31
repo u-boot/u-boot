@@ -16,6 +16,7 @@
 #include <malloc.h>
 #include <sort.h>
 #include <spl.h>
+#include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <linux/libfdt.h>
 

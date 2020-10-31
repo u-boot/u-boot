@@ -29,6 +29,7 @@
 #include <malloc.h>
 #include <memalign.h>
 #include <nand.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/bitops.h>

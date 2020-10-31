@@ -19,6 +19,7 @@
 #ifdef CONFIG_ARMV7_NONSEC
 #include <asm/armv7.h>
 #endif
+#include <asm/global_data.h>
 #include <asm/psci.h>
 #include <asm/spin_table.h>
 

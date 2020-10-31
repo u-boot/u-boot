@@ -10,6 +10,7 @@
 #include <pci.h>
 #include <pci_ids.h>
 #include <phy.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/ctype.h>
 #include <linux/delay.h>

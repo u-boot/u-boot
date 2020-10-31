@@ -9,6 +9,7 @@
 #include <init.h>
 #include <malloc.h>
 #include <asm/arch/clk.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

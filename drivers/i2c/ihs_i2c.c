@@ -13,6 +13,7 @@
 #include <gdsys_fpga.h>
 #endif
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/unaligned.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>

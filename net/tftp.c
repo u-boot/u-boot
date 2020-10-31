@@ -14,6 +14,7 @@
 #include <log.h>
 #include <mapmem.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <net/tftp.h>
 #include "bootp.h"
 #ifdef CONFIG_SYS_DIRECT_FLASH_TFTP

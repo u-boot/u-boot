@@ -10,6 +10,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <generic-phy.h>
 #include <reset.h>

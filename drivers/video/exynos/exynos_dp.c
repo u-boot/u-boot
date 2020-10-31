@@ -11,6 +11,7 @@
 #include <display.h>
 #include <fdtdec.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <malloc.h>

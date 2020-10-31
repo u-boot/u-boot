@@ -11,6 +11,7 @@
 #include <i2c.h>
 #include <init.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <linux/mtd/st_smi.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>

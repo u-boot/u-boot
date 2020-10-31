@@ -8,6 +8,7 @@
 #include <common.h>
 #include <errno.h>
 #include <dm.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <dm/of_access.h>

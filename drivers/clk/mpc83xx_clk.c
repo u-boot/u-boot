@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <log.h>
 #include <vsprintf.h>
+#include <asm/global_data.h>
 #include <dm/lists.h>
 #include <dt-bindings/clk/mpc83xx-clk.h>
 #include <asm/arch/soc.h>

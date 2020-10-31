@@ -8,6 +8,7 @@
 #include <common.h>
 #include <hang.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <asm/arch/sci/sci.h>

@@ -9,6 +9,7 @@
 #include <common.h>
 #include <init.h>
 #include <mvmfp.h>
+#include <asm/global_data.h>
 #include <asm/mach-types.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/mfp.h>

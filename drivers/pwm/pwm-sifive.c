@@ -18,6 +18,7 @@
 #include <dm.h>
 #include <pwm.h>
 #include <regmap.h>
+#include <asm/global_data.h>
 #include <linux/io.h>
 #include <linux/log2.h>
 #include <linux/bitfield.h>

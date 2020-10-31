@@ -9,6 +9,9 @@
 
 /* Device 0:0.0 PCI configuration space */
 #include <linux/bitops.h>
+
+struct udevice;
+
 #define MCHBAR		0x48
 
 /* RAPL Package Power Limit register under MCHBAR */

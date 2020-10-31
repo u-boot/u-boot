@@ -10,6 +10,7 @@
 #include <console.h>
 #include <env_internal.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <asm/spl.h>
 #include <malloc.h>
 #include <ns16550.h>

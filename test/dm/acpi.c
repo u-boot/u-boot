@@ -17,6 +17,7 @@
 #include <acpi/acpigen.h>
 #include <acpi/acpi_device.h>
 #include <acpi/acpi_table.h>
+#include <asm/global_data.h>
 #include <dm/acpi.h>
 #include <dm/test.h>
 #include <test/ut.h>

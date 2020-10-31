@@ -4,10 +4,9 @@
  *               Wenyou.Yang <wenyou.yang@atmel.com>
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <clk-uclass.h>
-#include <common.h>
-
 #include "pmc.h"
 
 static int at91_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
