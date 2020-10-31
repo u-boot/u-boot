@@ -202,6 +202,8 @@ int board_init(void)
 {
 	/* in SRAM or SDRAM, finish GPMC */
 	gpmc_init();
+	/* Enable the clks & power */
+	per_clocks_enable();
 	/* boot param addr */
 	gd->bd->bi_boot_params = OMAP34XX_SDRC_CS0 + 0x100;
 	return 0;
