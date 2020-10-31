@@ -1030,7 +1030,7 @@ again:
 	 */
 	stripe_nr = stripe_nr / map->stripe_len;
 
-	stripe_offset = stripe_nr * map->stripe_len;
+	stripe_offset = stripe_nr * (u64)map->stripe_len;
 	BUG_ON(offset < stripe_offset);
 
 	/* stripe_offset is the offset of this block in its stripe*/
@@ -1103,7 +1103,7 @@ again:
 			rot = stripe_nr % map->num_stripes;
 
 			/* Fill in the logical address of each stripe */
-			tmp = stripe_nr * nr_data_stripes(map);
+			tmp = (u64)stripe_nr * nr_data_stripes(map);
 
 			for (i = 0; i < nr_data_stripes(map); i++)
 				raid_map[(i+rot) % map->num_stripes] =
