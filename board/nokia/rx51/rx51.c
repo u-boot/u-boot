@@ -200,8 +200,23 @@ static void reuse_atags(void)
  */
 int board_init(void)
 {
+#if defined(CONFIG_CMD_ONENAND)
+	const u32 gpmc_regs_onenandrx51[GPMC_MAX_REG] = {
+		ONENAND_GPMC_CONFIG1_RX51,
+		ONENAND_GPMC_CONFIG2_RX51,
+		ONENAND_GPMC_CONFIG3_RX51,
+		ONENAND_GPMC_CONFIG4_RX51,
+		ONENAND_GPMC_CONFIG5_RX51,
+		ONENAND_GPMC_CONFIG6_RX51,
+		0
+	};
+#endif
 	/* in SRAM or SDRAM, finish GPMC */
 	gpmc_init();
+#if defined(CONFIG_CMD_ONENAND)
+	enable_gpmc_cs_config(gpmc_regs_onenandrx51, &gpmc_cfg->cs[0],
+			      CONFIG_SYS_ONENAND_BASE, GPMC_SIZE_256M);
+#endif
 	/* Enable the clks & power */
 	per_clocks_enable();
 	/* boot param addr */
