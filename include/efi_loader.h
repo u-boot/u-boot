@@ -804,6 +804,9 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 /* runtime implementation of memcpy() */
 void efi_memcpy_runtime(void *dest, const void *src, size_t n);
 
+/* commonly used helper function */
+u16 *efi_create_indexed_name(u16 *buffer, const char *name, unsigned int index);
+
 #else /* CONFIG_IS_ENABLED(EFI_LOADER) */
 
 /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */

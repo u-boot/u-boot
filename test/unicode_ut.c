@@ -8,6 +8,7 @@
 #include <common.h>
 #include <charset.h>
 #include <command.h>
+#include <efi_loader.h>
 #include <errno.h>
 #include <log.h>
 #include <malloc.h>
@@ -593,6 +594,24 @@ static int unicode_test_u16_strsize(struct unit_test_state *uts)
 	return 0;
 }
 UNICODE_TEST(unicode_test_u16_strsize);
+
+#ifdef CONFIG_EFI_LOADER
+static int unicode_test_efi_create_indexed_name(struct unit_test_state *uts)
+{
+	u16 buf[16];
+	u16 const expected[] = L"Capsule0AF9";
+	u16 *pos;
+
+	memset(buf, 0xeb, sizeof(buf));
+	pos = efi_create_indexed_name(buf, "Capsule", 0x0af9);
+
+	ut_asserteq_mem(expected, buf, sizeof(expected));
+	ut_asserteq(pos - buf, u16_strnlen(buf, SIZE_MAX));
+
+	return 0;
+}
+UNICODE_TEST(unicode_test_efi_create_indexed_name);
+#endif
 
 int do_ut_unicode(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

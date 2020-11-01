@@ -599,9 +599,15 @@ endmenu
 
 menu "Update support"
 
+config UPDATE_COMMON
+	bool
+	default n
+	select DFU_WRITE_ALT
+
 config UPDATE_TFTP
 	bool "Auto-update using fitImage via TFTP"
 	depends on FIT
+	select UPDATE_COMMON
 	help
 	  This option allows performing update of NOR with data in fitImage
 	  sent via TFTP boot.
@@ -615,6 +621,15 @@ config UPDATE_TFTP_MSEC_MAX
 	int "Delay in mSec to wait for the TFTP server during auto-update"
 	default 100
 	depends on UPDATE_TFTP
+
+config UPDATE_FIT
+	bool "Firmware update using fitImage"
+	depends on FIT
+	depends on DFU
+	select UPDATE_COMMON
+	help
+	  This option allows performing update of DFU-capable storage with
+	  data in fitImage.
 
 config ANDROID_AB
 	bool "Android A/B updates"
