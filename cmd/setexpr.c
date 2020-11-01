@@ -58,9 +58,6 @@ static ulong get_arg(char *s, int w)
 
 #include <slre.h>
 
-#define SLRE_BUFSZ	16384
-#define SLRE_PATSZ	4096
-
 /*
  * memstr - Find the first substring in memory
  * @s1: The string to be searched
@@ -83,13 +80,24 @@ static char *memstr(const char *s1, int l1, const char *s2, int l2)
 	return NULL;
 }
 
-static char *substitute(char *string,	/* string buffer */
-			int *slen,	/* current string length */
-			int ssize,	/* string bufer size */
-			const char *old,/* old (replaced) string */
-			int olen,	/* length of old string */
-			const char *new,/* new (replacement) string */
-			int nlen)	/* length of new string */
+/**
+ * substitute() - Substitute part of one string with another
+ *
+ * This updates @string so that the first occurrence of @old is replaced with
+ * @new
+ *
+ * @string: String buffer containing string to update at the start
+ * @slen: Pointer to current string length, updated on success
+ * @ssize: Size of string buffer
+ * @old: Old string to find in the buffer (no terminator needed)
+ * @olen: Length of @old excluding terminator
+ * @new: New string to replace @old with
+ * @nlen: Length of @new excluding terminator
+ * @return pointer to immediately after the copied @new in @string, or NULL if
+ *	no replacement took place
+ */
+static char *substitute(char *string, int *slen, int ssize,
+			const char *old, int olen, const char *new, int nlen)
 {
 	char *p = memstr(string, *slen, old, olen);
 
@@ -118,7 +126,7 @@ static char *substitute(char *string,	/* string buffer */
 		memmove(p + nlen, p + olen, tail);
 	}
 
-	/* insert substitue */
+	/* insert substitute */
 	memcpy(p, new, nlen);
 
 	*slen += nlen - olen;
@@ -126,52 +134,33 @@ static char *substitute(char *string,	/* string buffer */
 	return p + nlen;
 }
 
-/*
- * Perform regex operations on a environment variable
+/**
+ * regex_sub() - Replace a regex pattern with a string
  *
- * Returns 0 if OK, 1 in case of errors.
+ * @data: Buffer containing the string to update
+ * @data_size: Size of buffer (must be large enough for the new string)
+ * @nbuf: Back-reference buffer
+ * @nbuf_size: Size of back-reference buffer (must be larger enough for @s plus
+ *	all back-reference expansions)
+ * @r: Regular expression to find
+ * @s: String to replace with
+ * @global: true to replace all matches in @data, false to replace just the
+ *	first
+ * @return 0 if OK, 1 on error
  */
-static int regex_sub(const char *name,
-	const char *r, const char *s, const char *t,
-	int global)
+static int regex_sub(char *data, uint data_size, char *nbuf, uint nbuf_size,
+		     const char *r, const char *s, bool global)
 {
 	struct slre slre;
-	char data[SLRE_BUFSZ];
 	char *datap = data;
-	const char *value;
 	int res, len, nlen, loop;
-
-	if (name == NULL)
-		return 1;
 
 	if (slre_compile(&slre, r) == 0) {
 		printf("Error compiling regex: %s\n", slre.err_str);
 		return 1;
 	}
 
-	if (t == NULL) {
-		value = env_get(name);
-
-		if (value == NULL) {
-			printf("## Error: variable \"%s\" not defined\n", name);
-			return 1;
-		}
-		t = value;
-	}
-
-	debug("REGEX on %s=%s\n", name, t);
-	debug("REGEX=\"%s\", SUBST=\"%s\", GLOBAL=%d\n",
-		r, s ? s : "<NULL>", global);
-
-	len = strlen(t);
-	if (len + 1 > SLRE_BUFSZ) {
-		printf("## error: subst buffer overflow: have %d, need %d\n",
-			SLRE_BUFSZ, len + 1);
-		return 1;
-	}
-
-	strcpy(data, t);
-
+	len = strlen(data);
 	if (s == NULL)
 		nlen = 0;
 	else
@@ -179,7 +168,6 @@ static int regex_sub(const char *name,
 
 	for (loop = 0;; loop++) {
 		struct cap caps[slre.num_caps + 2];
-		char nbuf[SLRE_PATSZ];
 		const char *old;
 		char *np;
 		int i, olen;
@@ -199,7 +187,7 @@ static int regex_sub(const char *name,
 
 		if (res == 0) {
 			if (loop == 0) {
-				printf("%s: No match\n", t);
+				printf("%s: No match\n", data);
 				return 1;
 			} else {
 				break;
@@ -208,17 +196,15 @@ static int regex_sub(const char *name,
 
 		debug("## MATCH ## %s\n", data);
 
-		if (s == NULL) {
-			printf("%s=%s\n", name, t);
+		if (!s)
 			return 1;
-		}
 
 		old = caps[0].ptr;
 		olen = caps[0].len;
 
-		if (nlen + 1 >= SLRE_PATSZ) {
+		if (nlen + 1 >= nbuf_size) {
 			printf("## error: pattern buffer overflow: have %d, need %d\n",
-				SLRE_BUFSZ, nlen + 1);
+			       nbuf_size, nlen + 1);
 			return 1;
 		}
 		strcpy(nbuf, s);
@@ -263,7 +249,7 @@ static int regex_sub(const char *name,
 					break;
 
 				np = substitute(np, &nlen,
-					SLRE_PATSZ,
+					nbuf_size,
 					backref, 2,
 					caps[i].ptr, caps[i].len);
 
@@ -273,9 +259,8 @@ static int regex_sub(const char *name,
 		}
 		debug("## SUBST(2) ## %s\n", nbuf);
 
-		datap = substitute(datap, &len, SLRE_BUFSZ,
-				old, olen,
-				nbuf, nlen);
+		datap = substitute(datap, &len, data_size, old, olen,
+				   nbuf, nlen);
 
 		if (datap == NULL)
 			return 1;
@@ -288,6 +273,61 @@ static int regex_sub(const char *name,
 			break;
 	}
 	debug("## FINAL (now env_set()) :  %s\n", data);
+
+	return 0;
+}
+
+#define SLRE_BUFSZ	16384
+#define SLRE_PATSZ	4096
+
+/*
+ * Perform regex operations on a environment variable
+ *
+ * Returns 0 if OK, 1 in case of errors.
+ */
+static int regex_sub_var(const char *name, const char *r, const char *s,
+			 const char *t, int global)
+{
+	struct slre slre;
+	char data[SLRE_BUFSZ];
+	char nbuf[SLRE_PATSZ];
+	const char *value;
+	int len;
+	int ret;
+
+	if (!name)
+		return 1;
+
+	if (slre_compile(&slre, r) == 0) {
+		printf("Error compiling regex: %s\n", slre.err_str);
+		return 1;
+	}
+
+	if (!t) {
+		value = env_get(name);
+		if (!value) {
+			printf("## Error: variable \"%s\" not defined\n", name);
+			return 1;
+		}
+		t = value;
+	}
+
+	debug("REGEX on %s=%s\n", name, t);
+	debug("REGEX=\"%s\", SUBST=\"%s\", GLOBAL=%d\n", r, s ? s : "<NULL>",
+	      global);
+
+	len = strlen(t);
+	if (len + 1 > SLRE_BUFSZ) {
+		printf("## error: subst buffer overflow: have %d, need %d\n",
+		       SLRE_BUFSZ, len + 1);
+		return 1;
+	}
+
+	strcpy(data, t);
+
+	ret = regex_sub(data, SLRE_BUFSZ, nbuf, SLRE_PATSZ, r, s, global);
+	if (ret)
+		return 1;
 
 	printf("%s=%s\n", name, data);
 
@@ -331,10 +371,10 @@ static int do_setexpr(struct cmd_tbl *cmdtp, int flag, int argc,
 	 * with 5 args, "t" will be NULL
 	 */
 	if (strcmp(argv[2], "gsub") == 0)
-		return regex_sub(argv[1], argv[3], argv[4], argv[5], 1);
+		return regex_sub_var(argv[1], argv[3], argv[4], argv[5], 1);
 
 	if (strcmp(argv[2], "sub") == 0)
-		return regex_sub(argv[1], argv[3], argv[4], argv[5], 0);
+		return regex_sub_var(argv[1], argv[3], argv[4], argv[5], 0);
 #endif
 
 	/* standard operators: "setexpr name val1 op val2" */
