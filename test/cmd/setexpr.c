@@ -45,7 +45,7 @@ static int setexpr_test_int(struct unit_test_state *uts)
 	ut_assertok(run_command("setexpr.l fred 0", 0));
 	ut_asserteq_str("0", env_get("fred"));
 	ut_assertok(run_command("setexpr.l fred *0", 0));
-	ut_asserteq_str("ffffffff3456789a", env_get("fred"));
+	ut_asserteq_str("3456789a", env_get("fred"));
 
 	/* 64-bit */
 	*(u64 *)buf = 0x456789abcdef0123;
@@ -58,7 +58,7 @@ static int setexpr_test_int(struct unit_test_state *uts)
 	ut_assertok(run_command("setexpr fred 0", 0));
 	ut_asserteq_str("0", env_get("fred"));
 	ut_assertok(run_command("setexpr fred *0", 0));
-	ut_asserteq_str("456789abcdef0123", env_get("fred"));
+	ut_asserteq_str("cdef0123", env_get("fred"));
 
 	unmap_sysmem(buf);
 
@@ -90,7 +90,7 @@ static int setexpr_test_plus(struct unit_test_state *uts)
 	*(u32 *)buf = 0x3456789a;
 	*(u32 *)(buf + 0x10) = 0xc3384235;
 	ut_assertok(run_command("setexpr.l fred *0 + *10", 0));
-	ut_asserteq_str("fffffffef78ebacf", env_get("fred"));
+	ut_asserteq_str("f78ebacf", env_get("fred"));
 
 	/* 64-bit */
 	*(u64 *)buf = 0x456789abcdef0123;
@@ -100,7 +100,7 @@ static int setexpr_test_plus(struct unit_test_state *uts)
 
 	/* default */
 	ut_assertok(run_command("setexpr fred *0 + *10", 0));
-	ut_asserteq_str("8eeebc2f407393a6", env_get("fred"));
+	ut_asserteq_str("1407393a6", env_get("fred"));
 
 	unmap_sysmem(buf);
 
@@ -121,14 +121,14 @@ static int setexpr_test_oper(struct unit_test_state *uts)
 
 	/* Quote | to avoid confusing hush */
 	ut_assertok(run_command("setexpr fred *0 \"|\" *10", 0));
-	ut_asserteq_str("ffffffff00561234", env_get("fred"));
+	ut_asserteq_str("561234", env_get("fred"));
 
 	*(u32 *)buf = 0x561200;
 	*(u32 *)(buf + 0x10) = 0x1234;
 
 	/* Quote & to avoid confusing hush */
 	ut_assertok(run_command("setexpr.l fred *0 \"&\" *10", 0));
-	ut_asserteq_str("ffffffff00001200", env_get("fred"));
+	ut_asserteq_str("1200", env_get("fred"));
 
 	ut_assertok(run_command("setexpr.l fred *0 ^ *10", 0));
 	ut_asserteq_str("560034", env_get("fred"));
@@ -137,13 +137,13 @@ static int setexpr_test_oper(struct unit_test_state *uts)
 	ut_asserteq_str("55ffcc", env_get("fred"));
 
 	ut_assertok(run_command("setexpr.l fred *0 * *10", 0));
-	ut_asserteq_str("ffa9dbd21ebfa800", env_get("fred"));
+	ut_asserteq_str("61ebfa800", env_get("fred"));
 
 	ut_assertok(run_command("setexpr.l fred *0 / *10", 0));
-	ut_asserteq_str("1", env_get("fred"));
+	ut_asserteq_str("4ba", env_get("fred"));
 
 	ut_assertok(run_command("setexpr.l fred *0 % *10", 0));
-	ut_asserteq_str("55ffcc", env_get("fred"));
+	ut_asserteq_str("838", env_get("fred"));
 
 	unmap_sysmem(buf);
 

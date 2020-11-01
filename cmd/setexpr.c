@@ -39,6 +39,10 @@ static ulong get_arg(char *s, int w)
 			unmap_sysmem(p);
 			return val;
 		case 4:
+			p = map_sysmem(addr, sizeof(u32));
+			val = *(u32 *)p;
+			unmap_sysmem(p);
+			return val;
 		default:
 			p = map_sysmem(addr, sizeof(ulong));
 			val = *p;
