@@ -166,12 +166,10 @@ static int setexpr_test_regex(struct unit_test_state *uts)
 
 	/* Global substitution */
 	ut_assertok(run_command("setenv fred 'this is a test'", 0));
-	if (0) {
-		/* Causes a crash at present due to a bug in setexpr */
-		ut_assertok(run_command("setexpr fred gsub is us", 0));
-		val = env_get("fred");
-		ut_asserteq_str("thus us a test", val);
-	}
+	ut_assertok(run_command("setexpr fred gsub is us", 0));
+	val = env_get("fred");
+	ut_asserteq_str("thus us a test", val);
+
 	/* Global substitution */
 	ut_assertok(run_command("setenv fred 'this is a test'", 0));
 	ut_assertok(run_command("setenv mary 'this is a test'", 0));
@@ -195,14 +193,9 @@ static int setexpr_test_regex_inc(struct unit_test_state *uts)
 	buf = map_sysmem(0, BUF_SIZE);
 
 	ut_assertok(run_command("setenv fred 'this is a test'", 0));
-	if (0) {
-		/* Causes a crash at present due to a bug in setexpr */
-		ut_assertok(run_command("setexpr fred gsub is much_longer_string",
-					0));
-		val = env_get("fred");
-		ut_asserteq_str("thmuch_longer_string much_longer_string a test",
-				val);
-	}
+	ut_assertok(run_command("setexpr fred gsub is much_longer_string", 0));
+	val = env_get("fred");
+	ut_asserteq_str("thmuch_longer_string much_longer_string a test", val);
 	unmap_sysmem(buf);
 
 	return 0;
@@ -234,9 +227,6 @@ static int setexpr_test_sub(struct unit_test_state *uts)
 	ut_assertok(setexpr_regex_sub(buf, BUF_SIZE, nbuf, BUF_SIZE, "is",
 				      "us it is longer", true));
 	ut_asserteq_str("thus it is longer us it is longer a test", buf);
-
-	/* The following checks fail at present due to a bug in setexpr */
-	return 0;
 	for (i = BUF_SIZE; i < 0x1000; i++) {
 		ut_assertf(buf[i] == (char)i,
 			   "buf byte at %x should be %02x, got %02x)\n",

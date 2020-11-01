@@ -155,11 +155,11 @@ int setexpr_regex_sub(char *data, uint data_size, char *nbuf, uint nbuf_size,
 
 		(void) memset(caps, 0, sizeof(caps));
 
-		res = slre_match(&slre, datap, len, caps);
+		res = slre_match(&slre, datap, len - (datap - data), caps);
 
 		debug("Result: %d\n", res);
 
-		for (i = 0; i < slre.num_caps; i++) {
+		for (i = 0; i <= slre.num_caps; i++) {
 			if (caps[i].len > 0) {
 				debug("Substring %d: [%.*s]\n", i,
 					caps[i].len, caps[i].ptr);
@@ -231,7 +231,7 @@ int setexpr_regex_sub(char *data, uint data_size, char *nbuf, uint nbuf_size,
 					break;
 
 				np = substitute(np, &nlen,
-					nbuf_size,
+					nbuf_size - (np - nbuf),
 					backref, 2,
 					caps[i].ptr, caps[i].len);
 
@@ -241,8 +241,8 @@ int setexpr_regex_sub(char *data, uint data_size, char *nbuf, uint nbuf_size,
 		}
 		debug("## SUBST(2) ## %s\n", nbuf);
 
-		datap = substitute(datap, &len, data_size, old, olen,
-				   nbuf, nlen);
+		datap = substitute(datap, &len, data_size - (datap - data),
+				   old, olen, nbuf, nlen);
 
 		if (datap == NULL)
 			return 1;
