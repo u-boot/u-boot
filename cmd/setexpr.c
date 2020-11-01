@@ -147,11 +147,6 @@ int setexpr_regex_sub(char *data, uint data_size, char *nbuf, uint nbuf_size,
 	}
 
 	len = strlen(data);
-	if (s == NULL)
-		nlen = 0;
-	else
-		nlen = strlen(s);
-
 	for (loop = 0;; loop++) {
 		struct cap caps[slre.num_caps + 2];
 		const char *old;
@@ -187,6 +182,7 @@ int setexpr_regex_sub(char *data, uint data_size, char *nbuf, uint nbuf_size,
 
 		old = caps[0].ptr;
 		olen = caps[0].len;
+		nlen = strlen(s);
 
 		if (nlen + 1 >= nbuf_size) {
 			printf("## error: pattern buffer overflow: have %d, need %d\n",
