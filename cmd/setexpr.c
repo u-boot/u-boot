@@ -15,8 +15,19 @@
 #include <log.h>
 #include <mapmem.h>
 
-static ulong get_arg(char *s, int w)
+/**
+ * struct expr_arg: Holds an argument to an expression
+ *
+ * @ival: Integer value (if width is not CMD_DATA_SIZE_STR)
+ */
+struct expr_arg {
+	ulong ival;
+};
+
+static int get_arg(char *s, int w, struct expr_arg *argp)
 {
+	struct expr_arg arg;
+
 	/*
 	 * If the parameter starts with a '*' then assume it is a pointer to
 	 * the value we want.
@@ -32,26 +43,33 @@ static ulong get_arg(char *s, int w)
 			p = map_sysmem(addr, sizeof(uchar));
 			val = (ulong)*(uchar *)p;
 			unmap_sysmem(p);
-			return val;
+			arg.ival = val;
+			break;
 		case 2:
 			p = map_sysmem(addr, sizeof(ushort));
 			val = (ulong)*(ushort *)p;
 			unmap_sysmem(p);
-			return val;
+			arg.ival = val;
+			break;
 		case 4:
 			p = map_sysmem(addr, sizeof(u32));
 			val = *(u32 *)p;
 			unmap_sysmem(p);
-			return val;
+			arg.ival = val;
+			break;
 		default:
 			p = map_sysmem(addr, sizeof(ulong));
 			val = *p;
 			unmap_sysmem(p);
-			return val;
+			arg.ival = val;
+			break;
 		}
 	} else {
-		return simple_strtoul(s, NULL, 16);
+		arg.ival = simple_strtoul(s, NULL, 16);
 	}
+	*argp = arg;
+
+	return 0;
 }
 
 #ifdef CONFIG_REGEX
@@ -321,7 +339,7 @@ static int regex_sub_var(const char *name, const char *r, const char *s,
 static int do_setexpr(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
-	ulong a, b;
+	struct expr_arg aval, bval;
 	ulong value;
 	int w;
 
@@ -339,13 +357,12 @@ static int do_setexpr(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	w = cmd_get_data_size(argv[0], 4);
 
-	a = get_arg(argv[2], w);
+	if (get_arg(argv[2], w, &aval))
+		return CMD_RET_FAILURE;
 
 	/* plain assignment: "setexpr name value" */
-	if (argc == 3) {
-		env_set_hex(argv[1], a);
-		return 0;
-	}
+	if (argc == 3)
+		return env_set_hex(argv[1], aval.ival);
 
 	/* 5 or 6 args (6 args only with [g]sub) */
 #ifdef CONFIG_REGEX
@@ -367,39 +384,45 @@ static int do_setexpr(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (strlen(argv[3]) != 1)
 		return CMD_RET_USAGE;
 
-	b = get_arg(argv[4], w);
+	if (get_arg(argv[4], w, &bval))
+		return CMD_RET_FAILURE;
 
-	switch (argv[3][0]) {
-	case '|':
-		value = a | b;
-		break;
-	case '&':
-		value = a & b;
-		break;
-	case '+':
-		value = a + b;
-		break;
-	case '^':
-		value = a ^ b;
-		break;
-	case '-':
-		value = a - b;
-		break;
-	case '*':
-		value = a * b;
-		break;
-	case '/':
-		value = a / b;
-		break;
-	case '%':
-		value = a % b;
-		break;
-	default:
-		printf("invalid op\n");
-		return 1;
+	if (w != CMD_DATA_SIZE_STR) {
+		ulong a = aval.ival;
+		ulong b = bval.ival;
+
+		switch (argv[3][0]) {
+		case '|':
+			value = a | b;
+			break;
+		case '&':
+			value = a & b;
+			break;
+		case '+':
+			value = a + b;
+			break;
+		case '^':
+			value = a ^ b;
+			break;
+		case '-':
+			value = a - b;
+			break;
+		case '*':
+			value = a * b;
+			break;
+		case '/':
+			value = a / b;
+			break;
+		case '%':
+			value = a % b;
+			break;
+		default:
+			printf("invalid op\n");
+			return 1;
+		}
+
+		env_set_hex(argv[1], value);
 	}
-
-	env_set_hex(argv[1], value);
 
 	return 0;
 }
