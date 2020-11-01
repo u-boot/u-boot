@@ -151,6 +151,64 @@ static int setexpr_test_oper(struct unit_test_state *uts)
 }
 SETEXPR_TEST(setexpr_test_oper, UT_TESTF_CONSOLE_REC);
 
+/* Test 'setexpr' command with regex */
+static int setexpr_test_regex(struct unit_test_state *uts)
+{
+	char *buf, *val;
+
+	buf = map_sysmem(0, BUF_SIZE);
+
+	/* Single substitution */
+	ut_assertok(run_command("setenv fred 'this is a test'", 0));
+	ut_assertok(run_command("setexpr fred sub is us", 0));
+	val = env_get("fred");
+	ut_asserteq_str("thus is a test", val);
+
+	/* Global substitution */
+	ut_assertok(run_command("setenv fred 'this is a test'", 0));
+	if (0) {
+		/* Causes a crash at present due to a bug in setexpr */
+		ut_assertok(run_command("setexpr fred gsub is us", 0));
+		val = env_get("fred");
+		ut_asserteq_str("thus us a test", val);
+	}
+	/* Global substitution */
+	ut_assertok(run_command("setenv fred 'this is a test'", 0));
+	ut_assertok(run_command("setenv mary 'this is a test'", 0));
+	ut_assertok(run_command("setexpr fred gsub is us \"${mary}\"", 0));
+	val = env_get("fred");
+	ut_asserteq_str("thus us a test", val);
+	val = env_get("mary");
+	ut_asserteq_str("this is a test", val);
+
+	unmap_sysmem(buf);
+
+	return 0;
+}
+SETEXPR_TEST(setexpr_test_regex, UT_TESTF_CONSOLE_REC);
+
+/* Test 'setexpr' command with regex replacement that expands the string */
+static int setexpr_test_regex_inc(struct unit_test_state *uts)
+{
+	char *buf, *val;
+
+	buf = map_sysmem(0, BUF_SIZE);
+
+	ut_assertok(run_command("setenv fred 'this is a test'", 0));
+	if (0) {
+		/* Causes a crash at present due to a bug in setexpr */
+		ut_assertok(run_command("setexpr fred gsub is much_longer_string",
+					0));
+		val = env_get("fred");
+		ut_asserteq_str("thmuch_longer_string much_longer_string a test",
+				val);
+	}
+	unmap_sysmem(buf);
+
+	return 0;
+}
+SETEXPR_TEST(setexpr_test_regex_inc, UT_TESTF_CONSOLE_REC);
+
 int do_ut_setexpr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test,
