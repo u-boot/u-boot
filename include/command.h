@@ -183,6 +183,23 @@ extern int do_env_set_efi(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[]);
 #endif
 
+/**
+ * setexpr_regex_sub() - Replace a regex pattern with a string
+ *
+ * @data: Buffer containing the string to update
+ * @data_size: Size of buffer (must be large enough for the new string)
+ * @nbuf: Back-reference buffer
+ * @nbuf_size: Size of back-reference buffer (must be larger enough for @s plus
+ *	all back-reference expansions)
+ * @r: Regular expression to find
+ * @s: String to replace with
+ * @global: true to replace all matches in @data, false to replace just the
+ *	first
+ * @return 0 if OK, 1 on error
+ */
+int setexpr_regex_sub(char *data, uint data_size, char *nbuf, uint nbuf_size,
+		      const char *r, const char *s, bool global);
+
 /*
  * Error codes that commands return to cmd_process(). We use the standard 0
  * and 1 for success and failure, but add one more case - failure with a

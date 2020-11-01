@@ -134,22 +134,8 @@ static char *substitute(char *string, int *slen, int ssize,
 	return p + nlen;
 }
 
-/**
- * regex_sub() - Replace a regex pattern with a string
- *
- * @data: Buffer containing the string to update
- * @data_size: Size of buffer (must be large enough for the new string)
- * @nbuf: Back-reference buffer
- * @nbuf_size: Size of back-reference buffer (must be larger enough for @s plus
- *	all back-reference expansions)
- * @r: Regular expression to find
- * @s: String to replace with
- * @global: true to replace all matches in @data, false to replace just the
- *	first
- * @return 0 if OK, 1 on error
- */
-static int regex_sub(char *data, uint data_size, char *nbuf, uint nbuf_size,
-		     const char *r, const char *s, bool global)
+int setexpr_regex_sub(char *data, uint data_size, char *nbuf, uint nbuf_size,
+		      const char *r, const char *s, bool global)
 {
 	struct slre slre;
 	char *datap = data;
@@ -325,7 +311,8 @@ static int regex_sub_var(const char *name, const char *r, const char *s,
 
 	strcpy(data, t);
 
-	ret = regex_sub(data, SLRE_BUFSZ, nbuf, SLRE_PATSZ, r, s, global);
+	ret = setexpr_regex_sub(data, SLRE_BUFSZ, nbuf, SLRE_PATSZ, r, s,
+				global);
 	if (ret)
 		return 1;
 

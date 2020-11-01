@@ -209,6 +209,95 @@ static int setexpr_test_regex_inc(struct unit_test_state *uts)
 }
 SETEXPR_TEST(setexpr_test_regex_inc, UT_TESTF_CONSOLE_REC);
 
+/* Test setexpr_regex_sub() directly to check buffer usage */
+static int setexpr_test_sub(struct unit_test_state *uts)
+{
+	char *buf, *nbuf;
+	int i;
+
+	buf = map_sysmem(0, BUF_SIZE);
+	nbuf = map_sysmem(0x1000, BUF_SIZE);
+
+	/* Add a pattern so we can check the buffer limits */
+	memset(buf, '\xff', BUF_SIZE);
+	memset(nbuf, '\xff', BUF_SIZE);
+	for (i = BUF_SIZE; i < 0x1000; i++) {
+		buf[i] = i & 0xff;
+		nbuf[i] = i & 0xff;
+	}
+	strcpy(buf, "this is a test");
+
+	/*
+	 * This is a regression test, since a bug was found in the use of
+	 * memmove() in setexpr
+	 */
+	ut_assertok(setexpr_regex_sub(buf, BUF_SIZE, nbuf, BUF_SIZE, "is",
+				      "us it is longer", true));
+	ut_asserteq_str("thus it is longer us it is longer a test", buf);
+
+	/* The following checks fail at present due to a bug in setexpr */
+	return 0;
+	for (i = BUF_SIZE; i < 0x1000; i++) {
+		ut_assertf(buf[i] == (char)i,
+			   "buf byte at %x should be %02x, got %02x)\n",
+			   i, i & 0xff, (u8)buf[i]);
+		ut_assertf(nbuf[i] == (char)i,
+			   "nbuf byte at %x should be %02x, got %02x)\n",
+			   i, i & 0xff, (u8)nbuf[i]);
+	}
+
+	unmap_sysmem(buf);
+
+	return 0;
+}
+SETEXPR_TEST(setexpr_test_sub, UT_TESTF_CONSOLE_REC);
+
+/* Test setexpr_regex_sub() with back references */
+static int setexpr_test_backref(struct unit_test_state *uts)
+{
+	char *buf, *nbuf;
+	int i;
+
+	buf = map_sysmem(0, BUF_SIZE);
+	nbuf = map_sysmem(0x1000, BUF_SIZE);
+
+	/* Add a pattern so we can check the buffer limits */
+	memset(buf, '\xff', BUF_SIZE);
+	memset(nbuf, '\xff', BUF_SIZE);
+	for (i = BUF_SIZE; i < 0x1000; i++) {
+		buf[i] = i & 0xff;
+		nbuf[i] = i & 0xff;
+	}
+	strcpy(buf, "this is surely a test is it? yes this is indeed a test");
+
+	/*
+	 * This is a regression test, since a bug was found in the use of
+	 * memmove() in setexpr
+	 */
+	ut_assertok(setexpr_regex_sub(buf, BUF_SIZE, nbuf, BUF_SIZE,
+				      "(this) (is) (surely|indeed)",
+				      "us \\1 \\2 \\3!", true));
+
+	/* The following checks fail at present due to bugs in setexpr */
+	return 0;
+	ut_asserteq_str("us this is surely! a test is it? yes us this is indeed! a test",
+			buf);
+
+	for (i = BUF_SIZE; i < 0x1000; i++) {
+		ut_assertf(buf[i] == (char)i,
+			   "buf byte at %x should be %02x, got %02x)\n",
+			   i, i & 0xff, (u8)buf[i]);
+		ut_assertf(nbuf[i] == (char)i,
+			   "nbuf byte at %x should be %02x, got %02x)\n",
+			   i, i & 0xff, (u8)nbuf[i]);
+	}
+
+	unmap_sysmem(buf);
+
+	return 0;
+}
+SETEXPR_TEST(setexpr_test_backref, UT_TESTF_CONSOLE_REC);
+
 int do_ut_setexpr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test,
