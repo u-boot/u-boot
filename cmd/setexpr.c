@@ -13,15 +13,21 @@
 #include <command.h>
 #include <env.h>
 #include <log.h>
+#include <malloc.h>
 #include <mapmem.h>
+#include <linux/sizes.h>
 
 /**
  * struct expr_arg: Holds an argument to an expression
  *
  * @ival: Integer value (if width is not CMD_DATA_SIZE_STR)
+ * @sval: String value (if width is CMD_DATA_SIZE_STR)
  */
 struct expr_arg {
-	ulong ival;
+	union {
+		ulong ival;
+		char *sval;
+	};
 };
 
 static int get_arg(char *s, int w, struct expr_arg *argp)
@@ -36,6 +42,8 @@ static int get_arg(char *s, int w, struct expr_arg *argp)
 		ulong *p;
 		ulong addr;
 		ulong val;
+		int len;
+		char *str;
 
 		addr = simple_strtoul(&s[1], NULL, 16);
 		switch (w) {
@@ -51,6 +59,21 @@ static int get_arg(char *s, int w, struct expr_arg *argp)
 			unmap_sysmem(p);
 			arg.ival = val;
 			break;
+		case CMD_DATA_SIZE_STR:
+			p = map_sysmem(addr, SZ_64K);
+
+			/* Maximum string length of 64KB plus terminator */
+			len = strnlen((char *)p, SZ_64K) + 1;
+			str = malloc(len);
+			if (!str) {
+				printf("Out of memory\n");
+				return -ENOMEM;
+			}
+			memcpy(str, p, len);
+			str[len - 1] = '\0';
+			unmap_sysmem(p);
+			arg.sval = str;
+			break;
 		case 4:
 			p = map_sysmem(addr, sizeof(u32));
 			val = *(u32 *)p;
@@ -65,6 +88,8 @@ static int get_arg(char *s, int w, struct expr_arg *argp)
 			break;
 		}
 	} else {
+		if (w == CMD_DATA_SIZE_STR)
+			return -EINVAL;
 		arg.ival = simple_strtoul(s, NULL, 16);
 	}
 	*argp = arg;
@@ -341,6 +366,7 @@ static int do_setexpr(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	struct expr_arg aval, bval;
 	ulong value;
+	int ret = 0;
 	int w;
 
 	/*
@@ -361,8 +387,16 @@ static int do_setexpr(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 
 	/* plain assignment: "setexpr name value" */
-	if (argc == 3)
-		return env_set_hex(argv[1], aval.ival);
+	if (argc == 3) {
+		if (w == CMD_DATA_SIZE_STR) {
+			ret = env_set(argv[1], aval.sval);
+			free(aval.sval);
+		} else {
+			ret = env_set_hex(argv[1], aval.ival);
+		}
+
+		return ret;
+	}
 
 	/* 5 or 6 args (6 args only with [g]sub) */
 #ifdef CONFIG_REGEX
@@ -384,10 +418,38 @@ static int do_setexpr(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (strlen(argv[3]) != 1)
 		return CMD_RET_USAGE;
 
-	if (get_arg(argv[4], w, &bval))
+	if (get_arg(argv[4], w, &bval)) {
+		if (w == CMD_DATA_SIZE_STR)
+			free(aval.sval);
 		return CMD_RET_FAILURE;
+	}
 
-	if (w != CMD_DATA_SIZE_STR) {
+	if (w == CMD_DATA_SIZE_STR) {
+		int len;
+		char *str;
+
+		switch (argv[3][0]) {
+		case '+':
+			len = strlen(aval.sval) + strlen(bval.sval) + 1;
+			str = malloc(len);
+			if (!str) {
+				printf("Out of memory\n");
+				ret = CMD_RET_FAILURE;
+			} else {
+				/* These were copied out and checked earlier */
+				strcpy(str, aval.sval);
+				strcat(str, bval.sval);
+				ret = env_set(argv[1], str);
+				if (ret)
+					printf("Could not set var\n");
+				free(str);
+			}
+			break;
+		default:
+			printf("invalid op\n");
+			ret = 1;
+		}
+	} else {
 		ulong a = aval.ival;
 		ulong b = bval.ival;
 
@@ -424,15 +486,21 @@ static int do_setexpr(struct cmd_tbl *cmdtp, int flag, int argc,
 		env_set_hex(argv[1], value);
 	}
 
-	return 0;
+	if (w == CMD_DATA_SIZE_STR) {
+		free(aval.sval);
+		free(bval.sval);
+	}
+
+	return ret;
 }
 
 U_BOOT_CMD(
 	setexpr, 6, 0, do_setexpr,
 	"set environment variable as the result of eval expression",
-	"[.b, .w, .l] name [*]value1 <op> [*]value2\n"
+	"[.b, .w, .l, .s] name [*]value1 <op> [*]value2\n"
 	"    - set environment variable 'name' to the result of the evaluated\n"
 	"      expression specified by <op>.  <op> can be &, |, ^, +, -, *, /, %\n"
+	"      (for strings only + is supported)\n"
 	"      size argument is only meaningful if value1 and/or value2 are\n"
 	"      memory addresses (*)\n"
 	"setexpr[.b, .w, .l] name [*]value\n"

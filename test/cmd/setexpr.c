@@ -287,6 +287,92 @@ static int setexpr_test_backref(struct unit_test_state *uts)
 }
 SETEXPR_TEST(setexpr_test_backref, UT_TESTF_CONSOLE_REC);
 
+/* Test 'setexpr' command with setting strings */
+static int setexpr_test_str(struct unit_test_state *uts)
+{
+	ulong start_mem;
+	char *buf;
+
+	buf = map_sysmem(0, BUF_SIZE);
+	memset(buf, '\xff', BUF_SIZE);
+
+	/*
+	 * Set 'fred' to the same length as we expect to get below, to avoid a
+	 * new allocation in 'setexpr'. That way we can check for memory leaks.
+	 */
+	ut_assertok(env_set("fred", "x"));
+	start_mem = ut_check_free();
+	strcpy(buf, "hello");
+	ut_asserteq(1, run_command("setexpr.s fred 0", 0));
+	ut_assertok(ut_check_delta(start_mem));
+
+	start_mem = ut_check_free();
+	ut_assertok(env_set("fred", "12345"));
+	ut_assertok(run_command("setexpr.s fred *0", 0));
+	ut_asserteq_str("hello", env_get("fred"));
+	ut_assertok(ut_check_delta(start_mem));
+
+	unmap_sysmem(buf);
+
+	return 0;
+}
+SETEXPR_TEST(setexpr_test_str, UT_TESTF_CONSOLE_REC);
+
+
+/* Test 'setexpr' command with concatenating strings */
+static int setexpr_test_str_oper(struct unit_test_state *uts)
+{
+	ulong start_mem;
+	char *buf;
+
+	buf = map_sysmem(0, BUF_SIZE);
+	memset(buf, '\xff', BUF_SIZE);
+	strcpy(buf, "hello");
+	strcpy(buf + 0x10, " there");
+
+	ut_assertok(console_record_reset_enable());
+	start_mem = ut_check_free();
+	ut_asserteq(1, run_command("setexpr.s fred *0 * *10", 0));
+	ut_assertok(ut_check_delta(start_mem));
+	ut_assert_nextline("invalid op");
+	ut_assert_console_end();
+
+	/*
+	 * Set 'fred' to the same length as we expect to get below, to avoid a
+	 * new allocation in 'setexpr'. That way we can check for memory leaks.
+	 */
+	ut_assertok(env_set("fred", "12345012345"));
+	start_mem = ut_check_free();
+	ut_assertok(run_command("setexpr.s fred *0 + *10", 0));
+	ut_asserteq_str("hello there", env_get("fred"));
+	ut_assertok(ut_check_delta(start_mem));
+
+	unmap_sysmem(buf);
+
+	return 0;
+}
+SETEXPR_TEST(setexpr_test_str_oper, UT_TESTF_CONSOLE_REC);
+
+/* Test 'setexpr' command with a string that is too long */
+static int setexpr_test_str_long(struct unit_test_state *uts)
+{
+	const int size = 128 << 10;  /* setexpr strings are a max of 64KB */
+	char *buf, *val;
+
+	buf = map_sysmem(0, size);
+	memset(buf, 'a', size);
+
+	/* String should be truncated to 64KB */
+	ut_assertok(run_command("setexpr.s fred *0", 0));
+	val = env_get("fred");
+	ut_asserteq(64 << 10, strlen(val));
+
+	unmap_sysmem(buf);
+
+	return 0;
+}
+SETEXPR_TEST(setexpr_test_str_long, UT_TESTF_CONSOLE_REC);
+
 int do_ut_setexpr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test,
