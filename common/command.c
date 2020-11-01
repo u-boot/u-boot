@@ -475,13 +475,13 @@ int cmd_get_data_size(char* arg, int default_size)
 		case 'l':
 			return 4;
 		case 's':
-			return -2;
+			return CMD_DATA_SIZE_STR;
 		case 'q':
 			if (MEM_SUPPORT_64BIT_DATA)
 				return 8;
 			/* no break */
 		default:
-			return -1;
+			return CMD_DATA_SIZE_ERR;
 		}
 	}
 	return default_size;
