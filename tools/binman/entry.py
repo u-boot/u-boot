@@ -245,7 +245,7 @@ class Entry(object):
         state.SetInt(self._node, 'size', self.size)
         base = self.section.GetRootSkipAtStart() if self.section else 0
         if self.image_pos is not None:
-            state.SetInt(self._node, 'image-pos', self.image_pos)
+            state.SetInt(self._node, 'image-pos', self.image_pos - base)
         if self.GetImage().allow_repack:
             if self.orig_offset is not None:
                 state.SetInt(self._node, 'orig-offset', self.orig_offset, True)
