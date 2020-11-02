@@ -393,6 +393,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 
 	if (delete) {
 		/* EFI_NOT_FOUND has been handled before */
+		attributes = var->attr;
 		ret = EFI_SUCCESS;
 	} else if (append) {
 		u16 *old_data = var->name;
