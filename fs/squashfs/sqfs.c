@@ -821,22 +821,37 @@ int sqfs_opendir(const char *filename, struct fs_dir_stream **dirsp)
 	if (!dirs)
 		return -EINVAL;
 
+	/* these should be set to NULL to prevent dangling pointers */
+	dirs->dir_header = NULL;
+	dirs->entry = NULL;
+	dirs->table = NULL;
+	dirs->inode_table = NULL;
+	dirs->dir_table = NULL;
+
 	ret = sqfs_read_inode_table(&inode_table);
-	if (ret)
-		return -EINVAL;
+	if (ret) {
+		ret = -EINVAL;
+		goto free_dirs;
+	}
 
 	metablks_count = sqfs_read_directory_table(&dir_table, &pos_list);
-	if (metablks_count < 1)
-		return -EINVAL;
+	if (metablks_count < 1) {
+		ret = -EINVAL;
+		goto free_inode_table;
+	}
 
 	/* Tokenize filename */
 	token_count = sqfs_count_tokens(filename);
-	if (token_count < 0)
-		return -EINVAL;
+	if (token_count < 0) {
+		ret = -EINVAL;
+		goto free_inode_table;
+	}
 
 	path = strdup(filename);
-	if (!path)
-		return -ENOMEM;
+	if (!path) {
+		ret = -EINVAL;
+		goto free_inode_table;
+	}
 
 	token_list = malloc(token_count * sizeof(char *));
 	if (!token_list) {
@@ -882,6 +897,12 @@ free_tokens:
 	free(pos_list);
 free_path:
 	free(path);
+free_inode_table:
+	if (ret)
+		free(inode_table);
+free_dirs:
+	if (ret)
+		free(dirs);
 
 	return ret;
 }
