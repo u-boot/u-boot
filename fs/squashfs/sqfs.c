@@ -1326,6 +1326,14 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 
 	*actread = 0;
 
+	if (offset) {
+		/*
+		 * TODO: implement reading at an offset in file
+		 */
+		printf("Error: reading at a specific offset in a squashfs file is not supported yet.\n");
+		return -EINVAL;
+	}
+
 	/*
 	 * sqfs_opendir will uncompress inode and directory tables, and will
 	 * return a pointer to the directory that contains the requested file.
@@ -1465,12 +1473,12 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 
 			if ((*actread + dest_len) > len)
 				dest_len = len - *actread;
-			memcpy(buf + offset + *actread, datablock, dest_len);
+			memcpy(buf + *actread, datablock, dest_len);
 			*actread += dest_len;
 		} else {
 			if ((*actread + table_size) > len)
 				table_size = len - *actread;
-			memcpy(buf + offset + *actread, data, table_size);
+			memcpy(buf + *actread, data, table_size);
 			*actread += table_size;
 		}
 
@@ -1522,7 +1530,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 			goto out;
 		}
 
-		for (j = offset + *actread; j < finfo.size; j++) {
+		for (j = *actread; j < finfo.size; j++) {
 			memcpy(buf + j, &fragment_block[finfo.offset + j], 1);
 			(*actread)++;
 		}
@@ -1532,7 +1540,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 	} else if (finfo.frag && !finfo.comp) {
 		fragment_block = (void *)fragment + table_offset;
 
-		for (j = offset + *actread; j < finfo.size; j++) {
+		for (j = *actread; j < finfo.size; j++) {
 			memcpy(buf + j, &fragment_block[finfo.offset + j], 1);
 			(*actread)++;
 		}
