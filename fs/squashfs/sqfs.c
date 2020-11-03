@@ -722,6 +722,8 @@ static int sqfs_read_directory_table(unsigned char **dir_table, u32 **pos_list)
 	unsigned long dest_len = 0;
 	bool compressed;
 
+	*dir_table = NULL;
+	*pos_list = NULL;
 	/* DIRECTORY TABLE */
 	table_size = get_unaligned_le64(&sblk->fragment_table_start) -
 		get_unaligned_le64(&sblk->directory_table_start);
@@ -736,35 +738,31 @@ static int sqfs_read_directory_table(unsigned char **dir_table, u32 **pos_list)
 		return -ENOMEM;
 
 	if (sqfs_disk_read(start, n_blks, dtb) < 0)
-		goto free_dtb;
+		goto out;
 
 	/* Parse directory table (metadata block) header */
 	ret = sqfs_read_metablock(dtb, table_offset, &compressed, &src_len);
 	if (ret)
-		goto free_dtb;
+		goto out;
 
 	/* Calculate total size to store the whole decompressed table */
 	metablks_count = sqfs_count_metablks(dtb, table_offset, table_size);
 	if (metablks_count < 1)
-		goto free_dtb;
+		goto out;
 
 	*dir_table = malloc(metablks_count * SQFS_METADATA_BLOCK_SIZE);
 	if (!*dir_table)
-		goto free_dtb;
+		goto out;
 
 	*pos_list = malloc(metablks_count * sizeof(u32));
-	if (!*pos_list) {
-		free(*dir_table);
-		goto free_dtb;
-	}
+	if (!*pos_list)
+		goto out;
 
 	ret = sqfs_get_metablk_pos(*pos_list, dtb, table_offset,
 				   metablks_count);
 	if (ret) {
 		metablks_count = -1;
-		free(*dir_table);
-		free(*pos_list);
-		goto free_dtb;
+		goto out;
 	}
 
 	src_table = dtb + table_offset + SQFS_HEADER_SIZE;
@@ -780,8 +778,7 @@ static int sqfs_read_directory_table(unsigned char **dir_table, u32 **pos_list)
 					      &dest_len, src_table, src_len);
 			if (ret) {
 				metablks_count = -1;
-				free(*dir_table);
-				goto free_dtb;
+				goto out;
 			}
 
 			if (dest_len < SQFS_METADATA_BLOCK_SIZE) {
@@ -803,7 +800,13 @@ static int sqfs_read_directory_table(unsigned char **dir_table, u32 **pos_list)
 		src_table += src_len + SQFS_HEADER_SIZE;
 	}
 
-free_dtb:
+out:
+	if (metablks_count < 1) {
+		free(*dir_table);
+		free(*pos_list);
+		*dir_table = NULL;
+		*pos_list = NULL;
+	}
 	free(dtb);
 
 	return metablks_count;
