@@ -1415,6 +1415,8 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 		}
 
 		finfo.size = len;
+	} else {
+		len = finfo.size;
 	}
 
 	if (datablk_count) {
@@ -1461,9 +1463,13 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 			if (ret)
 				goto out;
 
+			if ((*actread + dest_len) > len)
+				dest_len = len - *actread;
 			memcpy(buf + offset + *actread, datablock, dest_len);
 			*actread += dest_len;
 		} else {
+			if ((*actread + table_size) > len)
+				table_size = len - *actread;
 			memcpy(buf + offset + *actread, data, table_size);
 			*actread += table_size;
 		}
@@ -1471,6 +1477,8 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 		data_offset += table_size;
 		free(data_buffer);
 		data_buffer = NULL;
+		if (*actread >= len)
+			break;
 	}
 
 	/*
