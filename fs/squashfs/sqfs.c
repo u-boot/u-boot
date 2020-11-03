@@ -1336,6 +1336,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 			break;
 
 		free(dirs->entry);
+		dirs->entry = NULL;
 	}
 
 	if (ret) {
