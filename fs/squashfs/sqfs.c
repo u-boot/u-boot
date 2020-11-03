@@ -359,7 +359,7 @@ static char *sqfs_get_abs_path(const char *base, const char *rel)
 	if (ret)
 		goto free_r_tokens;
 
-	sqfs_tokenize(rel_tokens, rc, rel);
+	ret = sqfs_tokenize(rel_tokens, rc, rel);
 	if (ret)
 		goto free_r_tokens;
 
