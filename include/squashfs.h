@@ -19,6 +19,7 @@ int sqfs_probe(struct blk_desc *fs_dev_desc,
 int sqfs_read(const char *filename, void *buf, loff_t offset,
 	      loff_t len, loff_t *actread);
 int sqfs_size(const char *filename, loff_t *size);
+int sqfs_exists(const char *filename);
 void sqfs_close(void);
 void sqfs_closedir(struct fs_dir_stream *dirs);
 
