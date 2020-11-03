@@ -1557,7 +1557,6 @@ int sqfs_size(const char *filename, loff_t *size)
 	 */
 	ret = sqfs_opendir(dir, &dirsp);
 	if (ret) {
-		sqfs_closedir(dirsp);
 		ret = -EINVAL;
 		goto free_strings;
 	}
