@@ -287,6 +287,7 @@ static struct fstype_info fstypes[] = {
 	{
 		.fstype = FS_TYPE_SQUASHFS,
 		.name = "squashfs",
+		.null_dev_desc_ok = false,
 		.probe = sqfs_probe,
 		.opendir = sqfs_opendir,
 		.readdir = sqfs_readdir,
@@ -295,6 +296,12 @@ static struct fstype_info fstypes[] = {
 		.size = sqfs_size,
 		.close = sqfs_close,
 		.closedir = sqfs_closedir,
+		.exists = fs_exists_unsupported,
+		.uuid = fs_uuid_unsupported,
+		.write = fs_write_unsupported,
+		.ln = fs_ln_unsupported,
+		.unlink = fs_unlink_unsupported,
+		.mkdir = fs_mkdir_unsupported,
 	},
 #endif
 	{
