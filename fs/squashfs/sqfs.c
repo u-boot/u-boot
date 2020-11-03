@@ -1085,7 +1085,7 @@ int sqfs_probe(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition
 
 	ret = sqfs_read_sblk(&sblk);
 	if (ret)
-		return ret;
+		goto error;
 
 	/* Make sure it has a valid SquashFS magic number*/
 	if (get_unaligned_le32(&sblk->s_magic) != SQFS_MAGIC_NUMBER) {
