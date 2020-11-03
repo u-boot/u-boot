@@ -1459,6 +1459,8 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 		}
 
 		data_offset += table_size;
+		free(data_buffer);
+		data_buffer = NULL;
 	}
 
 	free(finfo.blk_sizes);
