@@ -1341,7 +1341,6 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 	if (ret) {
 		printf("File not found.\n");
 		*actread = 0;
-		sqfs_closedir(dirsp);
 		ret = -ENOENT;
 		goto free_paths;
 	}
@@ -1532,6 +1531,7 @@ free_datablk:
 free_paths:
 	free(file);
 	free(dir);
+	sqfs_closedir(dirsp);
 
 	return ret;
 }
