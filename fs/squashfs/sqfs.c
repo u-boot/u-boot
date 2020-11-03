@@ -1569,6 +1569,7 @@ int sqfs_size(const char *filename, loff_t *size)
 		if (!ret)
 			break;
 		free(dirs->entry);
+		dirs->entry = NULL;
 	}
 
 	if (ret) {
@@ -1582,6 +1583,7 @@ int sqfs_size(const char *filename, loff_t *size)
 	ipos = sqfs_find_inode(dirs->inode_table, i_number, sblk->inodes,
 			       sblk->block_size);
 	free(dirs->entry);
+	dirs->entry = NULL;
 
 	base = (struct squashfs_base_inode *)ipos;
 	switch (get_unaligned_le16(&base->inode_type)) {
