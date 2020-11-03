@@ -106,6 +106,10 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	int block, offset, ret;
 	u16 header;
 
+	metadata_buffer = NULL;
+	entries = NULL;
+	table = NULL;
+
 	if (inode_fragment_index >= get_unaligned_le32(&sblk->fragments))
 		return -EINVAL;
 
@@ -117,12 +121,14 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 
 	/* Allocate a proper sized buffer to store the fragment index table */
 	table = malloc_cache_aligned(n_blks * ctxt.cur_dev->blksz);
-	if (!table)
-		return -ENOMEM;
+	if (!table) {
+		ret = -ENOMEM;
+		goto out;
+	}
 
 	if (sqfs_disk_read(start, n_blks, table) < 0) {
-		free(table);
-		return -EINVAL;
+		ret = -EINVAL;
+		goto out;
 	}
 
 	block = SQFS_FRAGMENT_INDEX(inode_fragment_index);
@@ -142,12 +148,12 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	metadata_buffer = malloc_cache_aligned(n_blks * ctxt.cur_dev->blksz);
 	if (!metadata_buffer) {
 		ret = -ENOMEM;
-		goto free_table;
+		goto out;
 	}
 
 	if (sqfs_disk_read(start, n_blks, metadata_buffer) < 0) {
 		ret = -EINVAL;
-		goto free_buffer;
+		goto out;
 	}
 
 	/* Every metadata block starts with a 16-bit header */
@@ -156,13 +162,13 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 
 	if (!metadata || !header) {
 		ret = -ENOMEM;
-		goto free_buffer;
+		goto out;
 	}
 
 	entries = malloc(SQFS_METADATA_BLOCK_SIZE);
 	if (!entries) {
 		ret = -ENOMEM;
-		goto free_buffer;
+		goto out;
 	}
 
 	if (SQFS_COMPRESSED_METADATA(header)) {
@@ -172,7 +178,7 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 				      src_len);
 		if (ret) {
 			ret = -EINVAL;
-			goto free_entries;
+			goto out;
 		}
 	} else {
 		memcpy(entries, metadata, SQFS_METADATA_SIZE(header));
@@ -181,11 +187,9 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	*e = entries[offset];
 	ret = SQFS_COMPRESSED_BLOCK(e->size);
 
-free_entries:
+out:
 	free(entries);
-free_buffer:
 	free(metadata_buffer);
-free_table:
 	free(table);
 
 	return ret;
