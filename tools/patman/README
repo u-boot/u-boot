@@ -208,6 +208,12 @@ Series-links: [id | version:id]...
 	branch against patchwork to see what new reviews your series has
 	collected ('patman status').
 
+Series-patchwork-url: url
+	This allows specifying the Patchwork URL for a branch. This overrides
+	both the setting files and the command-line argument. The URL should
+	include the protocol and web site, with no trailing slash, for example
+	'https://patchwork.ozlabs.org/project'
+
 Cover-letter:
 This is the patch set title
 blah blah

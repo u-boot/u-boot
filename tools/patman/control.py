@@ -196,7 +196,8 @@ def patchwork_status(branch, count, start, end, dest_branch, force,
         force (bool): With dest_branch, force overwriting an existing branch
         show_comments (bool): True to display snippets from the comments
             provided by reviewers
-        url (str): URL of patchwork server, e.g. 'https://patchwork.ozlabs.org'
+        url (str): URL of patchwork server, e.g. 'https://patchwork.ozlabs.org'.
+            This is ignored if the series provides a Series-patchwork-url tag.
 
     Raises:
         ValueError: if the branch has no Series-link value
@@ -224,6 +225,10 @@ def patchwork_status(branch, count, start, end, dest_branch, force,
     found = [link for link in links.split() if not ':' in link]
     if not found:
         raise ValueError('Series-links has no current version (without :)')
+
+    # Allow the series to override the URL
+    if 'patchwork_url' in series:
+        url = series.patchwork_url
 
     # Import this here to avoid failing on other commands if the dependencies
     # are not present
