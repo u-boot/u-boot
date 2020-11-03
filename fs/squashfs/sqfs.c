@@ -434,13 +434,19 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 {
 	struct squashfs_super_block *sblk = ctxt.sblk;
 	char *path, *target, **sym_tokens, *res, *rem;
-	int j, ret, new_inode_number, offset;
+	int j, ret = 0, new_inode_number, offset;
 	struct squashfs_symlink_inode *sym;
 	struct squashfs_ldir_inode *ldir;
 	struct squashfs_dir_inode *dir;
 	struct fs_dir_stream *dirsp;
 	struct fs_dirent *dent;
 	unsigned char *table;
+
+	res = NULL;
+	rem = NULL;
+	path = NULL;
+	target = NULL;
+	sym_tokens = NULL;
 
 	dirsp = (struct fs_dir_stream *)dirs;
 
@@ -477,7 +483,8 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 	for (j = 0; j < token_count; j++) {
 		if (!sqfs_is_dir(get_unaligned_le16(&dir->inode_type))) {
 			printf("** Cannot find directory. **\n");
-			return -EINVAL;
+			ret = -EINVAL;
+			goto out;
 		}
 
 		while (!sqfs_readdir(dirsp, &dent)) {
@@ -490,7 +497,8 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 
 		if (ret) {
 			printf("** Cannot find directory. **\n");
-			return -EINVAL;
+			ret = -EINVAL;
+			goto out;
 		}
 
 		/* Redefine inode as the found token */
@@ -507,40 +515,63 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 			sym = (struct squashfs_symlink_inode *)table;
 			/* Get first j + 1 tokens */
 			path = sqfs_concat_tokens(token_list, j + 1);
+			if (!path) {
+				ret = -ENOMEM;
+				goto out;
+			}
 			/* Resolve for these tokens */
 			target = sqfs_resolve_symlink(sym, path);
+			if (!target) {
+				ret = -ENOMEM;
+				goto out;
+			}
 			/* Join remaining tokens */
 			rem = sqfs_concat_tokens(token_list + j + 1, token_count -
 						 j - 1);
+			if (!rem) {
+				ret = -ENOMEM;
+				goto out;
+			}
 			/* Concatenate remaining tokens and symlink's target */
 			res = malloc(strlen(rem) + strlen(target) + 1);
+			if (!res) {
+				ret = -ENOMEM;
+				goto out;
+			}
 			strcpy(res, target);
 			res[strlen(target)] = '/';
 			strcpy(res + strlen(target) + 1, rem);
 			token_count = sqfs_count_tokens(res);
 
-			if (token_count < 0)
-				return -EINVAL;
+			if (token_count < 0) {
+				ret = -EINVAL;
+				goto out;
+			}
 
 			sym_tokens = malloc(token_count * sizeof(char *));
-			if (!sym_tokens)
-				return -EINVAL;
+			if (!sym_tokens) {
+				ret = -EINVAL;
+				goto out;
+			}
 
 			/* Fill tokens list */
 			ret = sqfs_tokenize(sym_tokens, token_count, res);
-			if (ret)
-				return -EINVAL;
+			if (ret) {
+				ret = -EINVAL;
+				goto out;
+			}
 			free(dirs->entry);
 			dirs->entry = NULL;
 
 			ret = sqfs_search_dir(dirs, sym_tokens, token_count,
 					      m_list, m_count);
-			return ret;
+			goto out;
 		} else if (!sqfs_is_dir(get_unaligned_le16(&dir->inode_type))) {
 			printf("** Cannot find directory. **\n");
 			free(dirs->entry);
 			dirs->entry = NULL;
-			return -EINVAL;
+			ret = -EINVAL;
+			goto out;
 		}
 
 		/* Check if it is an extended dir. */
@@ -560,7 +591,8 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 			printf("Empty directory.\n");
 			free(dirs->entry);
 			dirs->entry = NULL;
-			return SQFS_EMPTY_DIR;
+			ret = SQFS_EMPTY_DIR;
+			goto out;
 		}
 
 		dirs->table += SQFS_DIR_HEADER_SIZE;
@@ -579,7 +611,13 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 	else
 		memcpy(&dirs->i_ldir, ldir, sizeof(*ldir));
 
-	return 0;
+out:
+	free(res);
+	free(rem);
+	free(path);
+	free(target);
+	free(sym_tokens);
+	return ret;
 }
 
 /*
