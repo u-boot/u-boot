@@ -393,10 +393,12 @@ static int env_sf_init(void)
 	return env_sf_init_early();
 #endif
 	/*
-	 * we must return with 0 if there is nothing done,
-	 * else env_set_inited() get not called in env_init()
+	 * return here -ENOENT, so env_init()
+	 * can set the init bit and later if no
+	 * other Environment storage is defined
+	 * can set the default environment
 	 */
-	return 0;
+	return -ENOENT;
 }
 
 U_BOOT_ENV_LOCATION(sf) = {
