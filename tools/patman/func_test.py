@@ -248,7 +248,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual('      Cc:  %s' % rick, next(lines))
         expected = ('Git command: git send-email --annotate '
                     '--in-reply-to="%s" --to "u-boot@lists.denx.de" '
-                    '--cc "%s" --cc-cmd "%s --cc-cmd %s" %s %s'
+                    '--cc "%s" --cc-cmd "%s send --cc-cmd %s" %s %s'
                     % (in_reply_to, stefan, sys.argv[0], cc_file, cover_fname,
                        ' '.join(args)))
         self.assertEqual(expected, tools.ToUnicode(next(lines)))
