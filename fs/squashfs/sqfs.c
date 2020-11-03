@@ -1089,15 +1089,27 @@ static int sqfs_split_path(char **file, char **dir, const char *path)
 	char *dirc, *basec, *bname, *dname, *tmp_path;
 	int ret = 0;
 
+	*file = NULL;
+	*dir = NULL;
+	dirc = NULL;
+	basec = NULL;
+	bname = NULL;
+	dname = NULL;
+	tmp_path = NULL;
+
 	/* check for first slash in path*/
 	if (path[0] == '/') {
 		tmp_path = strdup(path);
-		if (!tmp_path)
-			return -ENOMEM;
+		if (!tmp_path) {
+			ret = -ENOMEM;
+			goto out;
+		}
 	} else {
 		tmp_path = malloc(strlen(path) + 2);
-		if (!tmp_path)
-			return -ENOMEM;
+		if (!tmp_path) {
+			ret = -ENOMEM;
+			goto out;
+		}
 		tmp_path[0] = '/';
 		strcpy(tmp_path + 1, path);
 	}
@@ -1106,13 +1118,13 @@ static int sqfs_split_path(char **file, char **dir, const char *path)
 	dirc = strdup(tmp_path);
 	if (!dirc) {
 		ret = -ENOMEM;
-		goto free_tmp;
+		goto out;
 	}
 
 	basec = strdup(tmp_path);
 	if (!basec) {
 		ret = -ENOMEM;
-		goto free_dirc;
+		goto out;
 	}
 
 	dname = sqfs_dirname(dirc);
@@ -1122,14 +1134,14 @@ static int sqfs_split_path(char **file, char **dir, const char *path)
 
 	if (!*file) {
 		ret = -ENOMEM;
-		goto free_basec;
+		goto out;
 	}
 
 	if (*dname == '\0') {
 		*dir = malloc(2);
 		if (!*dir) {
 			ret = -ENOMEM;
-			goto free_basec;
+			goto out;
 		}
 
 		(*dir)[0] = '/';
@@ -1138,15 +1150,19 @@ static int sqfs_split_path(char **file, char **dir, const char *path)
 		*dir = strdup(dname);
 		if (!*dir) {
 			ret = -ENOMEM;
-			goto free_basec;
+			goto out;
 		}
 	}
 
-free_basec:
+out:
+	if (ret) {
+		free(*file);
+		free(*dir);
+		*dir = NULL;
+		*file = NULL;
+	}
 	free(basec);
-free_dirc:
 	free(dirc);
-free_tmp:
 	free(tmp_path);
 
 	return ret;
