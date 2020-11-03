@@ -485,6 +485,7 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 			if (!ret)
 				break;
 			free(dirs->entry);
+			dirs->entry = NULL;
 		}
 
 		if (ret) {
@@ -530,6 +531,7 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 			if (ret)
 				return -EINVAL;
 			free(dirs->entry);
+			dirs->entry = NULL;
 
 			ret = sqfs_search_dir(dirs, sym_tokens, token_count,
 					      m_list, m_count);
@@ -537,6 +539,7 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 		} else if (!sqfs_is_dir(get_unaligned_le16(&dir->inode_type))) {
 			printf("** Cannot find directory. **\n");
 			free(dirs->entry);
+			dirs->entry = NULL;
 			return -EINVAL;
 		}
 
@@ -556,6 +559,7 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 		if (sqfs_is_empty_dir(table)) {
 			printf("Empty directory.\n");
 			free(dirs->entry);
+			dirs->entry = NULL;
 			return SQFS_EMPTY_DIR;
 		}
 
@@ -564,6 +568,7 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 		dirs->entry_count = dirs->dir_header->count + 1;
 		dirs->size -= SQFS_DIR_HEADER_SIZE;
 		free(dirs->entry);
+		dirs->entry = NULL;
 	}
 
 	offset = sqfs_dir_offset(table, m_list, m_count);
