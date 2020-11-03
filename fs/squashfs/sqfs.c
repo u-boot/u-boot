@@ -812,9 +812,9 @@ free_dtb:
 int sqfs_opendir(const char *filename, struct fs_dir_stream **dirsp)
 {
 	unsigned char *inode_table = NULL, *dir_table = NULL;
-	int j, token_count, ret = 0, metablks_count;
+	int j, token_count = 0, ret = 0, metablks_count;
 	struct squashfs_dir_stream *dirs;
-	char **token_list, *path;
+	char **token_list = NULL, *path = NULL;
 	u32 *pos_list = NULL;
 
 	dirs = malloc(sizeof(*dirs));
@@ -831,38 +831,38 @@ int sqfs_opendir(const char *filename, struct fs_dir_stream **dirsp)
 	ret = sqfs_read_inode_table(&inode_table);
 	if (ret) {
 		ret = -EINVAL;
-		goto free_dirs;
+		goto out;
 	}
 
 	metablks_count = sqfs_read_directory_table(&dir_table, &pos_list);
 	if (metablks_count < 1) {
 		ret = -EINVAL;
-		goto free_inode_table;
+		goto out;
 	}
 
 	/* Tokenize filename */
 	token_count = sqfs_count_tokens(filename);
 	if (token_count < 0) {
 		ret = -EINVAL;
-		goto free_inode_table;
+		goto out;
 	}
 
 	path = strdup(filename);
 	if (!path) {
 		ret = -EINVAL;
-		goto free_inode_table;
+		goto out;
 	}
 
 	token_list = malloc(token_count * sizeof(char *));
 	if (!token_list) {
 		ret = -EINVAL;
-		goto free_path;
+		goto out;
 	}
 
 	/* Fill tokens list */
 	ret = sqfs_tokenize(token_list, token_count, path);
 	if (ret)
-		goto free_tokens;
+		goto out;
 	/*
 	 * ldir's (extended directory) size is greater than dir, so it works as
 	 * a general solution for the malloc size, since 'i' is a union.
@@ -872,7 +872,7 @@ int sqfs_opendir(const char *filename, struct fs_dir_stream **dirsp)
 	ret = sqfs_search_dir(dirs, token_list, token_count, pos_list,
 			      metablks_count);
 	if (ret)
-		goto free_tokens;
+		goto out;
 
 	if (le16_to_cpu(dirs->i_dir.inode_type) == SQFS_DIR_TYPE)
 		dirs->size = le16_to_cpu(dirs->i_dir.file_size);
@@ -890,19 +890,16 @@ int sqfs_opendir(const char *filename, struct fs_dir_stream **dirsp)
 
 	*dirsp = (struct fs_dir_stream *)dirs;
 
-free_tokens:
+out:
 	for (j = 0; j < token_count; j++)
 		free(token_list[j]);
 	free(token_list);
 	free(pos_list);
-free_path:
 	free(path);
-free_inode_table:
-	if (ret)
+	if (ret) {
 		free(inode_table);
-free_dirs:
-	if (ret)
 		free(dirs);
+	}
 
 	return ret;
 }
