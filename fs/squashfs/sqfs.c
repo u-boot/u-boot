@@ -731,6 +731,7 @@ static int sqfs_read_inode_table(unsigned char **inode_table)
 					      src_table, src_len);
 			if (ret) {
 				free(*inode_table);
+				*inode_table = NULL;
 				goto free_itb;
 			}
 
