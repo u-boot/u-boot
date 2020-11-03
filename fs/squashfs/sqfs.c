@@ -1305,8 +1305,8 @@ static int sqfs_get_lregfile_info(struct squashfs_lreg_inode *lreg,
 int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 	      loff_t *actread)
 {
-	char *dir, *fragment_block, *datablock = NULL, *data_buffer = NULL;
-	char *fragment, *file, *resolved, *data;
+	char *dir = NULL, *fragment_block, *datablock = NULL, *data_buffer = NULL;
+	char *fragment = NULL, *file = NULL, *resolved, *data;
 	u64 start, n_blks, table_size, data_offset, table_offset;
 	int ret, j, i_number, datablk_count = 0;
 	struct squashfs_super_block *sblk = ctxt.sblk;
@@ -1331,7 +1331,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 	sqfs_split_path(&file, &dir, filename);
 	ret = sqfs_opendir(dir, &dirsp);
 	if (ret) {
-		goto free_paths;
+		goto out;
 	}
 
 	dirs = (struct squashfs_dir_stream *)dirsp;
@@ -1350,7 +1350,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 		printf("File not found.\n");
 		*actread = 0;
 		ret = -ENOENT;
-		goto free_paths;
+		goto out;
 	}
 
 	i_number = dirs->dir_header->inode_number + dirs->entry->inode_offset;
@@ -1365,7 +1365,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 						      sblk->block_size);
 		if (datablk_count < 0) {
 			ret = -EINVAL;
-			goto free_paths;
+			goto out;
 		}
 
 		memcpy(finfo.blk_sizes, ipos + sizeof(*reg),
@@ -1378,7 +1378,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 						       sblk->block_size);
 		if (datablk_count < 0) {
 			ret = -EINVAL;
-			goto free_paths;
+			goto out;
 		}
 
 		memcpy(finfo.blk_sizes, ipos + sizeof(*lreg),
@@ -1390,7 +1390,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 		resolved = sqfs_resolve_symlink(symlink, filename);
 		ret = sqfs_read(resolved, buf, offset, len, actread);
 		free(resolved);
-		goto free_paths;
+		goto out;
 	case SQFS_BLKDEV_TYPE:
 	case SQFS_CHRDEV_TYPE:
 	case SQFS_LBLKDEV_TYPE:
@@ -1402,14 +1402,14 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 	default:
 		printf("Unsupported entry type\n");
 		ret = -EINVAL;
-		goto free_paths;
+		goto out;
 	}
 
 	/* If the user specifies a length, check its sanity */
 	if (len) {
 		if (len > finfo.size) {
 			ret = -EINVAL;
-			goto free_paths;
+			goto out;
 		}
 
 		finfo.size = len;
@@ -1420,7 +1420,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 		datablock = malloc(get_unaligned_le32(&sblk->block_size));
 		if (!datablock) {
 			ret = -ENOMEM;
-			goto free_paths;
+			goto out;
 		}
 	}
 
@@ -1435,7 +1435,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 
 		if (!data_buffer) {
 			ret = -ENOMEM;
-			goto free_datablk;
+			goto out;
 		}
 
 		ret = sqfs_disk_read(start, n_blks, data_buffer);
@@ -1446,7 +1446,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 			 * image with mksquashfs's -b <block_size> option.
 			 */
 			printf("Error: too many data blocks to be read.\n");
-			goto free_buffer;
+			goto out;
 		}
 
 		data = data_buffer + table_offset;
@@ -1457,7 +1457,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 			ret = sqfs_decompress(&ctxt, datablock, &dest_len,
 					      data, table_size);
 			if (ret)
-				goto free_buffer;
+				goto out;
 
 			memcpy(buf + offset + *actread, datablock, dest_len);
 			*actread += dest_len;
@@ -1471,14 +1471,12 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 		data_buffer = NULL;
 	}
 
-	free(finfo.blk_sizes);
-
 	/*
 	 * There is no need to continue if the file is not fragmented.
 	 */
 	if (!finfo.frag) {
 		ret = 0;
-		goto free_buffer;
+		goto out;
 	}
 
 	start = frag_entry.start / ctxt.cur_dev->blksz;
@@ -1490,12 +1488,12 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 
 	if (!fragment) {
 		ret = -ENOMEM;
-		goto free_buffer;
+		goto out;
 	}
 
 	ret = sqfs_disk_read(start, n_blks, fragment);
 	if (ret < 0)
-		goto free_fragment;
+		goto out;
 
 	/* File compressed and fragmented */
 	if (finfo.frag && finfo.comp) {
@@ -1503,7 +1501,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 		fragment_block = malloc(dest_len);
 		if (!fragment_block) {
 			ret = -ENOMEM;
-			goto free_fragment;
+			goto out;
 		}
 
 		ret = sqfs_decompress(&ctxt, fragment_block, &dest_len,
@@ -1511,7 +1509,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 				      frag_entry.size);
 		if (ret) {
 			free(fragment_block);
-			goto free_fragment;
+			goto out;
 		}
 
 		for (j = offset + *actread; j < finfo.size; j++) {
@@ -1530,17 +1528,15 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 		}
 	}
 
-free_fragment:
+out:
 	free(fragment);
-free_buffer:
-	if (datablk_count)
+	if (datablk_count) {
 		free(data_buffer);
-free_datablk:
-	if (datablk_count)
 		free(datablock);
-free_paths:
+	}
 	free(file);
 	free(dir);
+	free(finfo.blk_sizes);
 	sqfs_closedir(dirsp);
 
 	return ret;
