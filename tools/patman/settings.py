@@ -7,6 +7,7 @@ try:
 except:
     import ConfigParser
 
+import argparse
 import os
 import re
 
@@ -216,10 +217,10 @@ nxp = Zhikang Zhang <zhikang.zhang@nxp.com>
 ''' % (name, email), file=f)
     f.close();
 
-def _UpdateDefaults(parser, config):
+def _UpdateDefaults(main_parser, config):
     """Update the given OptionParser defaults based on config.
 
-    We'll walk through all of the settings from the parser
+    We'll walk through all of the settings from all parsers.
     For each setting we'll look for a default in the option parser.
     If it's found we'll update the option parser default.
 
@@ -228,13 +229,24 @@ def _UpdateDefaults(parser, config):
     say.
 
     Args:
-        parser: An instance of an OptionParser whose defaults will be
+        parser: An instance of an ArgumentParser whose defaults will be
             updated.
         config: An instance of _ProjectConfigParser that we will query
             for settings.
     """
-    defaults = parser.parse_known_args()[0]
-    defaults = vars(defaults)
+    # Find all the parsers and subparsers
+    parsers = [main_parser]
+    parsers += [subparser for action in main_parser._actions
+                  if isinstance(action, argparse._SubParsersAction)
+                  for _, subparser in action.choices.items()]
+
+    # Collect the defaults from each parser
+    defaults = {}
+    for parser in parsers:
+        pdefs = parser.parse_known_args()[0]
+        defaults.update(vars(pdefs))
+
+    # Go through the settings and collect defaults
     for name, val in config.items('settings'):
         if name in defaults:
             default_val = defaults[name]
@@ -242,10 +254,14 @@ def _UpdateDefaults(parser, config):
                 val = config.getboolean('settings', name)
             elif isinstance(default_val, int):
                 val = config.getint('settings', name)
+            elif isinstance(default_val, str):
+                val = config.get('settings', name)
             defaults[name] = val
         else:
             print("WARNING: Unknown setting %s" % name)
-        parser.set_defaults(**defaults)
+
+    # Set all the defaults (this propagates through all subparsers)
+    main_parser.set_defaults(**defaults)
 
 def _ReadAliasFile(fname):
     """Read in the U-Boot git alias file if it exists.
