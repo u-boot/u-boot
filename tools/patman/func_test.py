@@ -625,11 +625,15 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
             os.chdir(orig_dir)
 
     @staticmethod
-    def _fake_patchwork(subpath):
+    def _fake_patchwork(url, subpath):
         """Fake Patchwork server for the function below
 
         This handles accessing a series, providing a list consisting of a
         single patch
+
+        Args:
+            url (str): URL of patchwork server
+            subpath (str): URL subpath to use
         """
         re_series = re.match(r'series/(\d*)/$', subpath)
         if re_series:
@@ -645,7 +649,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         series = Series()
 
         with capture_sys_output() as (_, err):
-            status.collect_patches(series, 1234, self._fake_patchwork)
+            status.collect_patches(series, 1234, None, self._fake_patchwork)
         self.assertIn('Warning: Patchwork reports 1 patches, series has 0',
                       err.getvalue())
 
@@ -655,7 +659,8 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         series = Series()
         series.commits = [Commit('abcd')]
 
-        patches = status.collect_patches(series, 1234, self._fake_patchwork)
+        patches = status.collect_patches(series, 1234, None,
+                                         self._fake_patchwork)
         self.assertEqual(1, len(patches))
         patch = patches[0]
         self.assertEqual('1', patch.id)
@@ -800,11 +805,15 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
                           "Cannot find commit for patch 3 ('Subject 2')"],
                          warnings)
 
-    def _fake_patchwork2(self, subpath):
+    def _fake_patchwork2(self, url, subpath):
         """Fake Patchwork server for the function below
 
         This handles accessing series, patches and comments, providing the data
         in self.patches to the caller
+
+        Args:
+            url (str): URL of patchwork server
+            subpath (str): URL subpath to use
         """
         re_series = re.match(r'series/(\d*)/$', subpath)
         re_patch = re.match(r'patches/(\d*)/$', subpath)
@@ -861,12 +870,12 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
 
         # Check that the tags are picked up on the first patch
         status.find_new_responses(new_rtag_list, review_list, 0, commit1,
-                                  patch1, self._fake_patchwork2)
+                                  patch1, None, self._fake_patchwork2)
         self.assertEqual(new_rtag_list[0], {'Reviewed-by': {self.joe}})
 
         # Now the second patch
         status.find_new_responses(new_rtag_list, review_list, 1, commit2,
-                                  patch2, self._fake_patchwork2)
+                                  patch2, None, self._fake_patchwork2)
         self.assertEqual(new_rtag_list[1], {
             'Reviewed-by': {self.mary, self.fred},
             'Tested-by': {self.leb}})
@@ -876,7 +885,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         new_rtag_list = [None] * count
         commit1.rtags = {'Reviewed-by': {self.joe}}
         status.find_new_responses(new_rtag_list, review_list, 0, commit1,
-                                  patch1, self._fake_patchwork2)
+                                  patch1, None, self._fake_patchwork2)
         self.assertEqual(new_rtag_list[0], {})
 
         # For the second commit, add Ed and Fred, so only Mary should be left
@@ -884,7 +893,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
             'Tested-by': {self.leb},
             'Reviewed-by': {self.fred}}
         status.find_new_responses(new_rtag_list, review_list, 1, commit2,
-                                  patch2, self._fake_patchwork2)
+                                  patch2, None, self._fake_patchwork2)
         self.assertEqual(new_rtag_list[1], {'Reviewed-by': {self.mary}})
 
         # Check that the output patches expectations:
@@ -900,7 +909,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         series.commits = [commit1, commit2]
         terminal.SetPrintTestMode()
         status.check_patchwork_status(series, '1234', None, None, False, False,
-                                      self._fake_patchwork2)
+                                      None, self._fake_patchwork2)
         lines = iter(terminal.GetPrintTestLines())
         col = terminal.Color()
         self.assertEqual(terminal.PrintLine('  1 Subject 1', col.BLUE),
@@ -935,11 +944,15 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
             '1 new response available in patchwork (use -d to write them to a new branch)',
             None), next(lines))
 
-    def _fake_patchwork3(self, subpath):
+    def _fake_patchwork3(self, url, subpath):
         """Fake Patchwork server for the function below
 
         This handles accessing series, patches and comments, providing the data
         in self.patches to the caller
+
+        Args:
+            url (str): URL of patchwork server
+            subpath (str): URL subpath to use
         """
         re_series = re.match(r'series/(\d*)/$', subpath)
         re_patch = re.match(r'patches/(\d*)/$', subpath)
@@ -1011,7 +1024,8 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
 
         terminal.SetPrintTestMode()
         status.check_patchwork_status(series, '1234', branch, dest_branch,
-                                      False, False, self._fake_patchwork3, repo)
+                                      False, False, None, self._fake_patchwork3,
+                                      repo)
         lines = terminal.GetPrintTestLines()
         self.assertEqual(12, len(lines))
         self.assertEqual(
@@ -1214,7 +1228,7 @@ Reviewed-by: %s
         series.commits = [commit1, commit2]
         terminal.SetPrintTestMode()
         status.check_patchwork_status(series, '1234', None, None, False, True,
-                                      self._fake_patchwork2)
+                                      None, self._fake_patchwork2)
         lines = iter(terminal.GetPrintTestLines())
         col = terminal.Color()
         self.assertEqual(terminal.PrintLine('  1 Subject 1', col.BLUE),

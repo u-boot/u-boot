@@ -179,7 +179,8 @@ elif args.cmd == 'status':
     try:
         control.patchwork_status(args.branch, args.count, args.start, args.end,
                                  args.dest_branch, args.force,
-                                 args.show_comments)
+                                 args.show_comments,
+                                 'https://patchwork.ozlabs.org')
     except Exception as e:
         terminal.Print('patman: %s: %s' % (type(e).__name__, e),
                        colour=terminal.Color.RED)
