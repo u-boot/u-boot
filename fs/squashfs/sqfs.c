@@ -1090,8 +1090,8 @@ int sqfs_probe(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition
 	/* Make sure it has a valid SquashFS magic number*/
 	if (get_unaligned_le32(&sblk->s_magic) != SQFS_MAGIC_NUMBER) {
 		printf("Bad magic number for SquashFS image.\n");
-		ctxt.cur_dev = NULL;
-		return -EINVAL;
+		ret = -EINVAL;
+		goto error;
 	}
 
 	ctxt.sblk = sblk;
@@ -1099,12 +1099,16 @@ int sqfs_probe(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition
 	ret = sqfs_decompressor_init(&ctxt);
 
 	if (ret) {
-		ctxt.cur_dev = NULL;
-		free(ctxt.sblk);
-		return -EINVAL;
+		ret = -EINVAL;
+		goto error;
 	}
 
 	return 0;
+error:
+	ctxt.cur_dev = NULL;
+	free(ctxt.sblk);
+	ctxt.sblk = NULL;
+	return ret;
 }
 
 static char *sqfs_basename(char *path)
