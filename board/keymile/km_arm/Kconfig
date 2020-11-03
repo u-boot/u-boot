@@ -58,8 +58,12 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
+	select USB
+	select USB_EHCI_HCD
+	select USB_EHCI_MARVELL
 	imply CMD_CRAMFS
 	imply CMD_DIAG
 	imply FS_CRAMFS
+	imply CMD_USB
 
 endif
