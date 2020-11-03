@@ -680,6 +680,11 @@ config OID_REGISTRY
 	help
 	  Enable fast lookup object identifier registry.
 
+config SMBIOS_PARSER
+	bool "SMBIOS parser"
+	help
+	  A simple parser for SMBIOS data.
+
 source lib/efi/Kconfig
 source lib/efi_loader/Kconfig
 source lib/optee/Kconfig
