@@ -43,6 +43,9 @@ parser.add_argument('-D', '--debug', action='store_true',
 parser.add_argument('-p', '--project', default=project.DetectProject(),
                     help="Project name; affects default option values and "
                     "aliases [default: %(default)s]")
+parser.add_argument('-P', '--patchwork-url',
+                    default='https://patchwork.ozlabs.org',
+                    help='URL of patchwork server [default: %(default)s]')
 parser.add_argument('-s', '--start', dest='start', type=int,
     default=0, help='Commit to start creating patches from (0 = HEAD)')
 parser.add_argument('-v', '--verbose', action='store_true', dest='verbose',
@@ -179,8 +182,7 @@ elif args.cmd == 'status':
     try:
         control.patchwork_status(args.branch, args.count, args.start, args.end,
                                  args.dest_branch, args.force,
-                                 args.show_comments,
-                                 'https://patchwork.ozlabs.org')
+                                 args.show_comments, args.patchwork_url)
     except Exception as e:
         terminal.Print('patman: %s: %s' % (type(e).__name__, e),
                        colour=terminal.Color.RED)

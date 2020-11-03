@@ -113,6 +113,7 @@ ignore_errors: True
 process_tags: False
 verbose: True
 smtp_server: /path/to/sendmail
+patchwork_server: https://patchwork.ozlabs.org
 
 <<<
 
