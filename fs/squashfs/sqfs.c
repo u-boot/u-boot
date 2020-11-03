@@ -1323,7 +1323,6 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 	sqfs_split_path(&file, &dir, filename);
 	ret = sqfs_opendir(dir, &dirsp);
 	if (ret) {
-		sqfs_closedir(dirsp);
 		goto free_paths;
 	}
 
