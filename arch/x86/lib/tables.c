@@ -68,10 +68,8 @@ int write_tables(void)
 {
 	u32 rom_table_start = ROM_TABLE_ADDR;
 	u32 rom_table_end;
-#ifdef CONFIG_SEABIOS
 	u32 high_table, table_size;
 	struct memory_area cfg_tables[ARRAY_SIZE(table_list) + 1];
-#endif
 	int i;
 
 	debug("Writing tables to %x:\n", rom_table_start);
@@ -81,30 +79,32 @@ int write_tables(void)
 		rom_table_end = table->write(rom_table_start);
 		rom_table_end = ALIGN(rom_table_end, ROM_TABLE_ALIGN);
 
-#ifdef CONFIG_SEABIOS
-		table_size = rom_table_end - rom_table_start;
-		high_table = (u32)high_table_malloc(table_size);
-		if (high_table) {
-			table->write(high_table);
+		if (IS_ENABLED(CONFIG_SEABIOS)) {
+			table_size = rom_table_end - rom_table_start;
+			high_table = (u32)(ulong)high_table_malloc(table_size);
+			if (high_table) {
+				table->write(high_table);
 
-			cfg_tables[i].start = high_table;
-			cfg_tables[i].size = table_size;
-		} else {
-			printf("%d: no memory for configuration tables\n", i);
-			return -ENOSPC;
+				cfg_tables[i].start = high_table;
+				cfg_tables[i].size = table_size;
+			} else {
+				printf("%d: no memory for configuration tables\n",
+				       i);
+				return -ENOSPC;
+			}
 		}
-#endif
 
 		debug("- wrote '%s' to %x, end %x\n", table->name,
 		      rom_table_start, rom_table_end);
 		rom_table_start = rom_table_end;
 	}
 
-#ifdef CONFIG_SEABIOS
-	/* make sure the last item is zero */
-	cfg_tables[i].size = 0;
-	write_coreboot_table(CB_TABLE_ADDR, cfg_tables);
-#endif
+	if (IS_ENABLED(CONFIG_SEABIOS)) {
+		/* make sure the last item is zero */
+		cfg_tables[i].size = 0;
+		write_coreboot_table(CB_TABLE_ADDR, cfg_tables);
+	}
+
 	debug("- done writing tables\n");
 
 	return 0;
