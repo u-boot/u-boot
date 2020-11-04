@@ -48,7 +48,7 @@
 
 #define CONFIG_LOADADDR	0x12000000
 
-#ifdef CONFIG_NFS_CMD
+#ifdef CONFIG_CMD_NFS
 #define NETWORKBOOT \
         "setnetworkboot=" \
                 "setenv ipaddr 172.16.2.10; setenv serverip 172.16.2.20; " \
@@ -130,7 +130,7 @@
 #define CONFIG_USBBOOTCOMMAND \
 	"echo Unsupported; " \
 
-#ifdef CONFIG_NFS_CMD
+#ifdef CONFIG_CMD_NFS
 #define CONFIG_BOOTCOMMAND CONFIG_NETWORKBOOTCOMMAND
 #elif CONFIG_CMD_USB
 #define CONFIG_BOOTCOMMAND CONFIG_USBBOOTCOMMAND
