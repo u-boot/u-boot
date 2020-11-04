@@ -43,7 +43,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int confidx;  /* Default to generic. */
+#define VPD_PRODUCT_B850 1
+#define VPD_PRODUCT_B650 2
+#define VPD_PRODUCT_B450 3
+
+static int productid;  /* Default to generic. */
 static struct vpd_cache vpd;
 
 #define NC_PAD_CTRL (PAD_CTL_PUS_100K_UP |	\
@@ -112,7 +116,7 @@ static void do_enable_hdmi(struct display_info_t const *dev)
 
 static int is_b850v3(void)
 {
-	return confidx == 3;
+	return productid == VPD_PRODUCT_B850;
 }
 
 static int detect_lcd(struct display_info_t const *dev)
@@ -299,9 +303,6 @@ int overwrite_console(void)
 #define VPD_TYPE_INVALID 0x00
 #define VPD_BLOCK_NETWORK 0x20
 #define VPD_BLOCK_HWID 0x44
-#define VPD_PRODUCT_B850 1
-#define VPD_PRODUCT_B650 2
-#define VPD_PRODUCT_B450 3
 #define VPD_HAS_MAC1 0x1
 #define VPD_HAS_MAC2 0x2
 #define VPD_MAC_ADDRESS_LENGTH 6
@@ -397,28 +398,13 @@ int board_early_init_f(void)
 	return 0;
 }
 
-static void set_confidx(const struct vpd_cache* vpd)
-{
-	switch (vpd->product_id) {
-	case VPD_PRODUCT_B450:
-		confidx = 1;
-		break;
-	case VPD_PRODUCT_B650:
-		confidx = 2;
-		break;
-	case VPD_PRODUCT_B850:
-		confidx = 3;
-		break;
-	}
-}
-
 int board_init(void)
 {
 	if (!read_i2c_vpd(&vpd, vpd_callback)) {
 		int ret, rescan;
 
 		vpd.is_read = true;
-		set_confidx(&vpd);
+		productid = vpd.product_id;
 
 		ret = fdtdec_resetup(&rescan);
 		if (!ret && rescan) {
