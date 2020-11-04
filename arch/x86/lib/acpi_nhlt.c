@@ -285,25 +285,26 @@ static void nhlt_free_resources(struct nhlt *nhlt)
 }
 
 struct cursor {
+	u8 *start;
 	u8 *buf;
 };
 
 static void ser8(struct cursor *cur, uint val)
 {
 	*cur->buf = val;
-	cur->buf += sizeof(val);
+	cur->buf += sizeof(u8);
 }
 
 static void ser16(struct cursor *cur, uint val)
 {
 	put_unaligned_le16(val, cur->buf);
-	cur->buf += sizeof(val);
+	cur->buf += sizeof(u16);
 }
 
 static void ser32(struct cursor *cur, uint val)
 {
 	put_unaligned_le32(val, cur->buf);
-	cur->buf += sizeof(val);
+	cur->buf += sizeof(u32);
 }
 
 static void serblob(struct cursor *cur, void *from, size_t sz)
@@ -315,12 +316,14 @@ static void serblob(struct cursor *cur, void *from, size_t sz)
 static void serialise_specific_config(struct nhlt_specific_config *cfg,
 				      struct cursor *cur)
 {
+	log_debug("%zx\n", cur->buf - cur->start);
 	ser32(cur, cfg->size);
 	serblob(cur, cfg->capabilities, cfg->size);
 }
 
 static void serialise_waveform(struct nhlt_waveform *wave, struct cursor *cur)
 {
+	log_debug("%zx\n", cur->buf - cur->start);
 	ser16(cur, wave->tag);
 	ser16(cur, wave->num_channels);
 	ser32(cur, wave->samples_per_second);
@@ -338,6 +341,7 @@ static void serialise_waveform(struct nhlt_waveform *wave, struct cursor *cur)
 
 static void serialise_format(struct nhlt_format *fmt, struct cursor *cur)
 {
+	log_debug("%zx\n", cur->buf - cur->start);
 	serialise_waveform(&fmt->waveform, cur);
 	serialise_specific_config(&fmt->config, cur);
 }
@@ -346,6 +350,7 @@ static void serialise_endpoint(struct nhlt_endpoint *endp, struct cursor *cur)
 {
 	int i;
 
+	log_debug("%zx\n", cur->buf - cur->start);
 	ser32(cur, endp->length);
 	ser8(cur, endp->link_type);
 	ser8(cur, endp->instance_id);
@@ -405,10 +410,12 @@ int nhlt_serialise_oem_overrides(struct acpi_ctx *ctx, struct nhlt *nhlt,
 	header->oem_revision = oem_revision;
 
 	cur.buf = (void *)(header + 1);
+	cur.start = (void *)header;
 	nhlt_serialise_endpoints(nhlt, &cur);
 
 	header->checksum = table_compute_checksum(header, sz);
 	nhlt_free_resources(nhlt);
+	assert(cur.buf - cur.start == sz);
 
 	ret = acpi_add_table(ctx, ctx->current);
 	if (ret)
