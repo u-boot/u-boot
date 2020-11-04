@@ -384,6 +384,7 @@ static iomux_v3_cfg_t const misc_pads[] = {
 	MX6_PAD_GPIO_9__WDOG1_B         | MUX_PAD_CTRL(NC_PAD_CTRL),
 };
 #define SUS_S3_OUT	IMX_GPIO_NR(4, 11)
+#define PWGIN_IN	IMX_GPIO_NR(4, 14)
 #define WIFI_EN	IMX_GPIO_NR(6, 14)
 
 int board_early_init_f(void)
@@ -415,6 +416,9 @@ int board_init(void)
 
 	gpio_request(SUS_S3_OUT, "sus_s3_out");
 	gpio_direction_output(SUS_S3_OUT, 1);
+
+	gpio_request(PWGIN_IN, "pwgin_in");
+	gpio_direction_input(PWGIN_IN);
 
 	gpio_request(WIFI_EN, "wifi_en");
 	gpio_direction_output(WIFI_EN, 1);
@@ -465,6 +469,17 @@ void pmic_init(void)
 	}
 }
 
+static void detect_boot_cause(void)
+{
+	const char *cause = "POR";
+
+	if (is_b850v3())
+		if (!gpio_get_value(PWGIN_IN))
+			cause = "PM_WDOG";
+
+	env_set("bootcause", cause);
+}
+
 int board_late_init(void)
 {
 	process_vpd(&vpd);
@@ -477,6 +492,8 @@ int board_late_init(void)
 		env_set("videoargs", "video=DP-1:1024x768@60 video=HDMI-A-1:1024x768@60");
 	else
 		env_set("videoargs", "video=LVDS-1:1024x768@65");
+
+	detect_boot_cause();
 
 	/* board specific pmic init */
 	pmic_init();

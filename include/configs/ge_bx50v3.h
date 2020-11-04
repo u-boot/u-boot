@@ -56,7 +56,7 @@
                 "setenv netmask 255.255.255.0; setenv ethaddr ca:fe:de:ca:f0:11; " \
                 "setenv bootargs root=/dev/nfs nfsroot=${nfsserver}:/srv/nfs/,v3,tcp rw rootwait" \
                 "setenv bootargs $bootargs ip=${ipaddr}:${nfsserver}:${gatewayip}:${netmask}::eth0:off " \
-                "setenv bootargs $bootargs cma=128M bootcause=POR ${videoargs} " \
+                "setenv bootargs $bootargs cma=128M bootcause=${bootcause} ${videoargs} " \
                 "setenv bootargs $bootargs systemd.mask=helix-network-defaults.service " \
                 "setenv bootargs $bootargs watchdog.handle_boot_enabled=1\0" \
         "networkboot=" \
@@ -74,7 +74,6 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	NETWORKBOOT \
-	"bootcause=POR\0" \
 	"image=/boot/fitImage\0" \
 	"dev=mmc\0" \
 	"devnum=2\0" \
@@ -104,7 +103,6 @@
 		"setenv partnum 1; run hasfirstboot || setenv partnum 2; " \
 		"run hasfirstboot || setenv partnum 0; " \
 		"if test ${partnum} != 0; then " \
-			"setenv bootcause REVERT; " \
 			"run swappartitions loadimage doboot; " \
 		"fi; " \
 		"run failbootcmd\0" \
