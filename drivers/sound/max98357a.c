@@ -69,7 +69,7 @@ static int max98357a_acpi_fill_ssdt(const struct udevice *dev,
 	acpigen_write_name(ctx, "_CRS");
 	acpigen_write_resourcetemplate_header(ctx);
 	ret = acpi_device_write_gpio_desc(ctx, &priv->sdmode_gpio);
-	if (ret)
+	if (ret < 0)
 		return log_msg_ret("gpio", ret);
 	acpigen_write_resourcetemplate_footer(ctx);
 
