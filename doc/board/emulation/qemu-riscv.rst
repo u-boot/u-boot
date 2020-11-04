@@ -105,3 +105,11 @@ configurations are:
 
     qemu-system-riscv64 -nographic -machine virt -bios spl/u-boot-spl \
     -device loader,file=u-boot.itb,addr=0x80200000
+
+An attached disk can be emulated by adding::
+
+    -device ich9-ahci,id=ahci \
+    -drive if=none,file=riscv64.img,format=raw,id=mydisk \
+    -device ide-hd,drive=mydisk,bus=ahci.0
+
+You will have to run 'scsi scan' to use it.
