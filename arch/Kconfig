@@ -4,6 +4,9 @@ config CREATE_ARCH_SYMLINK
 config HAVE_ARCH_IOREMAP
 	bool
 
+config NEEDS_MANUAL_RELOC
+	bool
+
 choice
 	prompt "Architecture select"
 	default SANDBOX
@@ -26,12 +29,14 @@ config ARM
 config M68K
 	bool "M68000 architecture"
 	select HAVE_PRIVATE_LIBGCC
+	select NEEDS_MANUAL_RELOC
 	select SYS_BOOT_GET_CMDLINE
 	select SYS_BOOT_GET_KBD
 	select SUPPORT_OF_CONTROL
 
 config MICROBLAZE
 	bool "MicroBlaze architecture"
+	select NEEDS_MANUAL_RELOC
 	select SUPPORT_OF_CONTROL
 	imply CMD_IRQ
 
