@@ -767,7 +767,7 @@ int acpi_write_dbg2_pci_uart(struct acpi_ctx *ctx, struct udevice *dev,
 	 * 32-bits each. This is only for debugging so it is not a big deal.
 	 */
 	addr = dm_pci_read_bar32(dev, 0);
-	printf("UART addr %lx\n", (ulong)addr);
+	log_debug("UART addr %lx\n", (ulong)addr);
 
 	memset(&address, '\0', sizeof(address));
 	address.space_id = ACPI_ADDRESS_SPACE_MEMORY;
