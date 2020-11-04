@@ -343,6 +343,23 @@ config ARCH_FIXUP_FDT_MEMORY
 	  used for booting OS with different memory setup where the part of
 	  the memory location should be used for different purpose.
 
+config CHROMEOS
+	bool "Support booting Chrome OS"
+	help
+	  Chrome OS requires U-Boot to set up a table indicating the boot mode
+	  (e.g. Developer mode) and a few other things. Enable this if you are
+	  booting on a Chromebook to avoid getting an error about an invalid
+	  firmware ID.
+
+config CHROMEOS_VBOOT
+	bool "Support Chrome OS verified boot"
+	help
+	  This is intended to enable the full Chrome OS verified boot support
+	  in U-Boot. It is not actually implemented in the U-Boot source code
+	  at present, so this option is always set to 'n'. It allows
+	  distinguishing between booting Chrome OS in a basic way (developer
+	  mode) and a full boot.
+
 endmenu		# Boot images
 
 menu "Boot timing"
