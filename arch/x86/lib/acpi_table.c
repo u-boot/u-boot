@@ -646,14 +646,17 @@ ulong write_acpi_tables(ulong start_addr)
 	acpi_inc_align(ctx, madt->header.length);
 	acpi_add_table(ctx, madt);
 
-	debug("ACPI:    * TCPA\n");
-	tcpa = (struct acpi_tcpa *)ctx->current;
-	ret = acpi_create_tcpa(tcpa);
-	if (ret) {
-		log_warning("Failed to create TCPA table (err=%d)\n", ret);
-	} else {
-		acpi_inc_align(ctx, tcpa->header.length);
-		acpi_add_table(ctx, tcpa);
+	if (IS_ENABLED(CONFIG_TPM_V1)) {
+		debug("ACPI:    * TCPA\n");
+		tcpa = (struct acpi_tcpa *)ctx->current;
+		ret = acpi_create_tcpa(tcpa);
+		if (ret) {
+			log_warning("Failed to create TCPA table (err=%d)\n",
+				    ret);
+		} else {
+			acpi_inc_align(ctx, tcpa->header.length);
+			acpi_add_table(ctx, tcpa);
+		}
 	}
 
 	debug("ACPI:    * CSRT\n");
