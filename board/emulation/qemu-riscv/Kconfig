@@ -29,12 +29,15 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select GENERIC_RISCV
 	select SUPPORT_SPL
+	imply AHCI
 	imply SMP
 	imply BOARD_LATE_INIT
+	imply PCI_INIT_R
 	imply SPL_RAM_SUPPORT
 	imply SPL_RAM_DEVICE
 	imply CMD_PCI
 	imply CMD_POWEROFF
+	imply CMD_SCSI
 	imply CMD_PING
 	imply CMD_EXT2
 	imply CMD_EXT4
@@ -43,11 +46,15 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply DOS_PARTITION
 	imply ISO_PARTITION
 	imply EFI_PARTITION
+	imply SCSI_AHCI
+	imply AHCI_PCI
 	imply E1000
 	imply NVME
 	imply PCI
 	imply DM_PCI
 	imply PCIE_ECAM_GENERIC
+	imply SCSI
+	imply DM_SCSI
 	imply SYS_NS16550
 	imply SIFIVE_SERIAL
 	imply SYSRESET
