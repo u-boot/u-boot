@@ -19,8 +19,7 @@
 #define SUNXI_BOOTED_FROM_MMC0_HIGH	0x10
 #define SUNXI_BOOTED_FROM_MMC2_HIGH	0x12
 
-
-#define is_boot0_magic(addr)	(memcmp((void *)addr, BOOT0_MAGIC, 8) == 0)
+#define is_boot0_magic(addr)	(memcmp((void *)(addr), BOOT0_MAGIC, 8) == 0)
 
 uint32_t sunxi_get_boot_device(void);
 
