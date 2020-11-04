@@ -31,6 +31,7 @@
 #include <asm/arch/timestamp.h>
 #endif
 #include <linux/compiler.h>
+#include <linux/ctype.h>
 #include <linux/libfdt.h>
 
 /*
@@ -175,10 +176,18 @@ static const char *get_kernel_version(struct boot_params *params,
 {
 	struct setup_header *hdr = &params->hdr;
 	int bootproto;
+	const char *s, *end;
 
 	bootproto = get_boot_protocol(hdr, false);
 	if (bootproto < 0x0200 || hdr->setup_sects < 15)
 		return NULL;
+
+	/* sanity-check the kernel version in case it is missing */
+	for (s = kernel_base + hdr->kernel_version + 0x200, end = s + 0x100; *s;
+	     s++) {
+		if (!isprint(*s))
+			return NULL;
+	}
 
 	return kernel_base + hdr->kernel_version + 0x200;
 }
