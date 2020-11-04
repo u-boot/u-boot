@@ -494,7 +494,7 @@ void acpi_create_ssdt(struct acpi_ctx *ctx, struct acpi_table_header *ssdt,
  */
 ulong write_acpi_tables(ulong start_addr)
 {
-	struct acpi_ctx sctx, *ctx = &sctx;
+	struct acpi_ctx *ctx;
 	struct acpi_facs *facs;
 	struct acpi_table_header *dsdt;
 	struct acpi_fadt *fadt;
@@ -508,6 +508,11 @@ ulong write_acpi_tables(ulong start_addr)
 	ulong addr;
 	int ret;
 	int i;
+
+	ctx = calloc(1, sizeof(*ctx));
+	if (!ctx)
+		return log_msg_ret("mem", -ENOMEM);
+	gd->acpi_ctx = ctx;
 
 	start = map_sysmem(start_addr, 0);
 
