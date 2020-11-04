@@ -212,13 +212,13 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 
 	/* determine size of setup */
 	if (0 == hdr->setup_sects) {
-		printf("Setup Sectors = 0 (defaulting to 4)\n");
+		log_warning("Setup Sectors = 0 (defaulting to 4)\n");
 		setup_size = 5 * 512;
 	} else {
 		setup_size = (hdr->setup_sects + 1) * 512;
 	}
 
-	printf("Setup Size = 0x%8.8lx\n", (ulong)setup_size);
+	log_debug("Setup Size = 0x%8.8lx\n", (ulong)setup_size);
 
 	if (setup_size > SETUP_MAX_SIZE)
 		printf("Error: Setup is too large (%d bytes)\n", setup_size);
@@ -226,8 +226,8 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 	/* determine boot protocol version */
 	bootproto = get_boot_protocol(hdr, true);
 
-	printf("Using boot protocol version %x.%02x\n",
-	       (bootproto & 0xff00) >> 8, bootproto & 0xff);
+	log_debug("Using boot protocol version %x.%02x\n",
+		  (bootproto & 0xff00) >> 8, bootproto & 0xff);
 
 	version = get_kernel_version(params, image);
 	if (version)
@@ -420,7 +420,8 @@ static int do_zboot_load(struct cmd_tbl *cmdtp, int flag, int argc,
 		struct boot_params *from = (struct boot_params *)state.base_ptr;
 
 		base_ptr = (struct boot_params *)DEFAULT_SETUP_BASE;
-		printf("Building boot_params at 0x%8.8lx\n", (ulong)base_ptr);
+		log_debug("Building boot_params at 0x%8.8lx\n",
+			  (ulong)base_ptr);
 		memset(base_ptr, '\0', sizeof(*base_ptr));
 		base_ptr->hdr = from->hdr;
 	} else {
