@@ -68,6 +68,7 @@ struct nhlt_endpoint *nhlt_add_endpoint(struct nhlt *nhlt, int link_type,
 	endp->device_type = device_type;
 	endp->direction = dir;
 	endp->virtual_bus_id = DEFAULT_VIRTUAL_BUS_ID;
+	endp->num_formats = 0;
 
 	nhlt->num_endpoints++;
 
@@ -395,7 +396,7 @@ int nhlt_serialise_oem_overrides(struct acpi_ctx *ctx, struct nhlt *nhlt,
 	/* Create header */
 	header = (void *)ctx->current;
 	memset(header, '\0', sizeof(struct acpi_table_header));
-	acpi_fill_header(header, "NHLT");
+	memcpy(header->signature, "NHLT", 4);
 	header->length = sz;
 	header->revision = acpi_get_table_revision(ACPITAB_NHLT);
 
@@ -408,6 +409,7 @@ int nhlt_serialise_oem_overrides(struct acpi_ctx *ctx, struct nhlt *nhlt,
 		memcpy(header->oem_table_id, oem_table_id, oem_table_id_len);
 	}
 	header->oem_revision = oem_revision;
+	memcpy(header->aslc_id, ASLC_ID, 4);
 
 	cur.buf = (void *)(header + 1);
 	cur.start = (void *)header;
