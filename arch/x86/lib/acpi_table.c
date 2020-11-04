@@ -470,8 +470,9 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 	header->checksum = table_compute_checksum((void *)spcr, header->length);
 }
 
-void acpi_create_ssdt(struct acpi_ctx *ctx, struct acpi_table_header *ssdt,
-		      const char *oem_table_id)
+static int acpi_create_ssdt(struct acpi_ctx *ctx,
+			    struct acpi_table_header *ssdt,
+			    const char *oem_table_id)
 {
 	memset((void *)ssdt, '\0', sizeof(struct acpi_table_header));
 
@@ -484,9 +485,19 @@ void acpi_create_ssdt(struct acpi_ctx *ctx, struct acpi_table_header *ssdt,
 
 	acpi_fill_ssdt(ctx);
 
-	/* (Re)calculate length and checksum. */
+	/* (Re)calculate length and checksum */
 	ssdt->length = ctx->current - (void *)ssdt;
 	ssdt->checksum = table_compute_checksum((void *)ssdt, ssdt->length);
+	log_debug("SSDT at %p, length %x\n", ssdt, ssdt->length);
+
+	/* Drop the table if it is empty */
+	if (ssdt->length == sizeof(struct acpi_table_header)) {
+		ctx->current = ssdt;
+		return -ENOENT;
+	}
+	acpi_align(ctx);
+
+	return 0;
 }
 
 /*
@@ -596,11 +607,8 @@ ulong write_acpi_tables(ulong start_addr)
 
 	debug("ACPI:     * SSDT\n");
 	ssdt = (struct acpi_table_header *)ctx->current;
-	acpi_create_ssdt(ctx, ssdt, OEM_TABLE_ID);
-	if (ssdt->length > sizeof(struct acpi_table_header)) {
-		acpi_inc_align(ctx, ssdt->length);
+	if (!acpi_create_ssdt(ctx, ssdt, OEM_TABLE_ID))
 		acpi_add_table(ctx, ssdt);
-	}
 
 	debug("ACPI:    * MCFG\n");
 	mcfg = ctx->current;
