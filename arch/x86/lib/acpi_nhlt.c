@@ -390,7 +390,7 @@ int nhlt_serialise_oem_overrides(struct acpi_ctx *ctx, struct nhlt *nhlt,
 	size_t oem_table_id_len;
 	int ret;
 
-	log_info("ACPI:    * NHLT\n");
+	log_debug("ACPI:    * NHLT\n");
 	sz = nhlt_current_size(nhlt);
 
 	/* Create header */
