@@ -69,20 +69,8 @@
 # define CONFIG_SYS_MAX_FLASH_SECT	512
 #endif /* !FLASH */
 
-#define XILINX_USE_ICACHE 1
-#define XILINX_USE_DCACHE 1
-
-#if defined(XILINX_USE_ICACHE)
-# define CONFIG_ICACHE
-#else
-# undef CONFIG_ICACHE
-#endif
-
-#if defined(XILINX_USE_DCACHE)
-# define CONFIG_DCACHE
-#else
-# undef CONFIG_DCACHE
-#endif
+#define CONFIG_ICACHE
+#define CONFIG_DCACHE
 
 #ifndef XILINX_DCACHE_BYTE_SIZE
 #define XILINX_DCACHE_BYTE_SIZE	32768
