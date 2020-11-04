@@ -8,7 +8,12 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include "../board/xilinx/microblaze-generic/xparameters.h"
+/* Microblaze is microblaze_0 */
+#define XILINX_FSL_NUMBER	3
+
+/* Flash Memory is FLASH_2Mx32 */
+#define XILINX_FLASH_START	0x2c000000
+#define XILINX_FLASH_SIZE	0x00800000
 
 /* MicroBlaze CPU */
 #define	MICROBLAZE_V5		1
