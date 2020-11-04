@@ -226,6 +226,15 @@ void acpi_dump_items(enum acpi_dump_option option);
  */
 int acpi_get_path(const struct udevice *dev, char *out_path, int maxlen);
 
+/**
+ * acpi_reset_items() - Reset the list of ACPI items to empty
+ *
+ * This list keeps track of DSDT and SSDT items that are generated
+ * programmatically. The 'acpi items' command shows the list. Use this function
+ * to empty the list, before writing new items.
+ */
+void acpi_reset_items(void);
+
 #endif /* __ACPI__ */
 
 #endif

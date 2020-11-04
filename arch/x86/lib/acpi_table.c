@@ -531,6 +531,7 @@ ulong write_acpi_tables(ulong start_addr)
 
 	debug("ACPI: Writing ACPI tables at %lx\n", start_addr);
 
+	acpi_reset_items();
 	acpi_setup_base_tables(ctx, start);
 
 	debug("ACPI:    * FACS\n");
