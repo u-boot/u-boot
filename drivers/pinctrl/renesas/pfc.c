@@ -50,10 +50,6 @@ struct sh_pfc_pinctrl {
 	struct sh_pfc *pfc;
 
 	struct sh_pfc_pin_config *configs;
-
-	const char *func_prop_name;
-	const char *groups_prop_name;
-	const char *pins_prop_name;
 };
 
 struct sh_pfc_pin_range {
