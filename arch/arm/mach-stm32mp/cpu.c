@@ -226,8 +226,8 @@ static void early_enable_caches(void)
 
 	if (IS_ENABLED(CONFIG_SPL_BUILD))
 		mmu_set_region_dcache_behaviour(
-			ALIGN(STM32_SYSRAM_BASE, MMU_SECTION_SIZE),
-			round_up(STM32_SYSRAM_SIZE, MMU_SECTION_SIZE),
+			ALIGN_DOWN(STM32_SYSRAM_BASE, MMU_SECTION_SIZE),
+			ALIGN(STM32_SYSRAM_SIZE, MMU_SECTION_SIZE),
 			DCACHE_DEFAULT_OPTION);
 	else
 		mmu_set_region_dcache_behaviour(STM32_DDR_BASE,
