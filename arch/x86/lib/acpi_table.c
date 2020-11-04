@@ -505,6 +505,7 @@ static int acpi_create_ssdt(struct acpi_ctx *ctx,
  */
 ulong write_acpi_tables(ulong start_addr)
 {
+	const int thl = sizeof(struct acpi_table_header);
 	struct acpi_ctx *ctx;
 	struct acpi_facs *facs;
 	struct acpi_table_header *dsdt;
@@ -516,6 +517,7 @@ ulong write_acpi_tables(ulong start_addr)
 	struct acpi_csrt *csrt;
 	struct acpi_spcr *spcr;
 	void *start;
+	int aml_len;
 	ulong addr;
 	int ret;
 	int i;
@@ -541,21 +543,28 @@ ulong write_acpi_tables(ulong start_addr)
 	dsdt = ctx->current;
 
 	/* Put the table header first */
-	memcpy(dsdt, &AmlCode, sizeof(struct acpi_table_header));
-	acpi_inc(ctx, sizeof(struct acpi_table_header));
+	memcpy(dsdt, &AmlCode, thl);
+	acpi_inc(ctx, thl);
+	log_debug("DSDT starts at %p, hdr ends at %p\n", dsdt, ctx->current);
 
 	/* If the table is not empty, allow devices to inject things */
-	if (dsdt->length >= sizeof(struct acpi_table_header))
+	aml_len = dsdt->length - thl;
+	if (aml_len) {
+		void *base = ctx->current;
+
 		acpi_inject_dsdt(ctx);
+		log_debug("Added %x bytes from inject_dsdt, now at %p\n",
+			  ctx->current - base, ctx->current);
+		log_debug("Copy AML code size %x to %p\n", aml_len,
+			  ctx->current);
+		memcpy(ctx->current, AmlCode + thl, aml_len);
+		acpi_inc(ctx, aml_len);
+	}
 
-	/* Copy in the AML code itself if any (after the header) */
-	memcpy(ctx->current,
-	       (char *)&AmlCode + sizeof(struct acpi_table_header),
-	       dsdt->length - sizeof(struct acpi_table_header));
-
-	acpi_inc(ctx, dsdt->length - sizeof(struct acpi_table_header));
 	dsdt->length = ctx->current - (void *)dsdt;
 	acpi_align(ctx);
+	log_debug("Updated DSDT length to %x, total %x\n", dsdt->length,
+		  ctx->current - (void *)dsdt);
 
 	if (!IS_ENABLED(CONFIG_ACPI_GNVS_EXTERNAL)) {
 		/* Pack GNVS into the ACPI table area */
