@@ -637,6 +637,15 @@ config FDT_FIXUP_PARTITIONS
 menu "System tables"
 	depends on (!EFI && !SYS_COREBOOT) || (ARM && EFI_LOADER)
 
+config BLOBLIST_TABLES
+	bool "Put tables in a bloblist"
+	depends on X86
+	help
+	  Normally tables are placed at address 0xf0000 and can be up to 64KB
+	  long. With this option, tables are instead placed in the bloblist
+	  with a pointer from 0xf0000. The size can then be larger and the
+	  tables can be placed high in memory.
+
 config GENERATE_SMBIOS_TABLE
 	bool "Generate an SMBIOS (System Management BIOS) table"
 	default y
