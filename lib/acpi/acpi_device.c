@@ -422,7 +422,7 @@ int acpi_device_add_power_res(struct acpi_ctx *ctx, u32 tx_state_val,
 
 	/* Method (_ON, 0, Serialized) */
 	acpigen_write_method_serialized(ctx, "_ON", 0);
-	if (reset_gpio) {
+	if (has_reset) {
 		ret = acpigen_set_enable_tx_gpio(ctx, tx_state_val, dw0_read,
 						 dw0_write, &reset, true);
 		if (ret)
