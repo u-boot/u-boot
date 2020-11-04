@@ -12,10 +12,13 @@
  * linux/Documentation/i386/boot.txt
  */
 
+#define LOG_CATEGORY	LOGC_BOOT
+
 #include <common.h>
 #include <command.h>
 #include <env.h>
 #include <irq_func.h>
+#include <log.h>
 #include <malloc.h>
 #include <acpi/acpi_table.h>
 #include <asm/io.h>
@@ -292,6 +295,7 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	struct setup_header *hdr = &setup_base->hdr;
 	int bootproto = get_boot_protocol(hdr, false);
 
+	log_debug("Setup E820 entries\n");
 	setup_base->e820_entries = install_e820_map(
 		ARRAY_SIZE(setup_base->e820_map), setup_base->e820_map);
 
@@ -317,6 +321,7 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	}
 
 	if (cmd_line) {
+		log_debug("Setup cmdline\n");
 		if (bootproto >= 0x0202) {
 			hdr->cmd_line_ptr = (uintptr_t)cmd_line;
 		} else if (bootproto >= 0x0200) {
@@ -340,6 +345,7 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	if (IS_ENABLED(CONFIG_GENERATE_ACPI_TABLE))
 		setup_base->acpi_rsdp_addr = acpi_get_rsdp_addr();
 
+	log_debug("Setup devicetree\n");
 	setup_device_tree(hdr, (const void *)env_get_hex("fdtaddr", 0));
 	setup_video(&setup_base->screen_info);
 
