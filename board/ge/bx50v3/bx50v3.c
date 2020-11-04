@@ -50,21 +50,6 @@ static struct vpd_cache vpd;
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |	\
 	PAD_CTL_HYS)
 
-#define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP | PAD_CTL_PUE |	\
-	PAD_CTL_SPEED_HIGH | PAD_CTL_DSE_48ohm | PAD_CTL_SRE_FAST)
-
-#define ENET_CLK_PAD_CTRL (PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_120ohm | PAD_CTL_SRE_FAST)
-
-#define ENET_RX_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE | \
-	PAD_CTL_SPEED_HIGH   | PAD_CTL_SRE_FAST)
-
-#define I2C_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |	\
-	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
-
-#define I2C_PAD MUX_PAD_CTRL(I2C_PAD_CTRL)
-
 int dram_init(void)
 {
 	gd->ram_size = imx_ddr_size();
