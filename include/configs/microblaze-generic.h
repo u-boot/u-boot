@@ -67,24 +67,6 @@
 # define CONFIG_SYS_MAX_FLASH_BANKS	1
 /* max number of sectors on one chip */
 # define CONFIG_SYS_MAX_FLASH_SECT	512
-/* hardware flash protection */
-/* use buffered writes (20x faster) */
-# ifdef	RAMENV
-# else	/* FLASH && !RAMENV */
-/* 128K(one sector) for env */
-# endif /* FLASH && !RAMBOOT */
-#else /* !FLASH */
-
-#ifdef SPIFLASH
-# ifdef	RAMENV
-# else	/* SPIFLASH && !RAMENV */
-/* 128K(two sectors) for env */
-/* Warning: adjust the offset in respect of other flash content and size */
-# endif /* SPIFLASH && !RAMBOOT */
-#else /* !SPIFLASH */
-
-/* ENV in RAM */
-#endif /* !SPIFLASH */
 #endif /* !FLASH */
 
 #define XILINX_USE_ICACHE 1
@@ -110,12 +92,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-
-#if defined(CONFIG_MTD_PARTITIONS)
-/* MTD partitions */
-
-/* default mtd partition table */
-#endif
 
 /* size of console buffer */
 #define	CONFIG_SYS_CBSIZE	512
