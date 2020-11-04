@@ -54,6 +54,14 @@
 		recovery-gpios = <&gpio_nw (-1) GPIO_ACTIVE_LOW>;
 		write-protect-gpios = <&gpio_nw GPIO_75 GPIO_ACTIVE_HIGH>;
 		phase-enforce-gpios = <&gpio_n GPIO_10 GPIO_ACTIVE_HIGH>;
+		smbios {
+			manufacturer = "Google";
+			product = "Coral";
+			version = "rev2";
+			serial = "123456789";
+			sku = "sku3";
+			family = "Google_Coral";
+		};
 	};
 
 	config {
