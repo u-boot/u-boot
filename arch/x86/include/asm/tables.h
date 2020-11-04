@@ -49,8 +49,10 @@ void table_fill_string(char *dest, const char *src, size_t n, char pad);
  * This writes x86 configuration tables, including PIRQ routing table,
  * Multi-Processor table and ACPI table. Whether a specific type of
  * configuration table is written is controlled by a Kconfig option.
+ *
+ * @return 0 if OK, -ENOSPC if table too large
  */
-void write_tables(void);
+int write_tables(void);
 
 /**
  * write_pirq_routing_table() - Write PIRQ routing table

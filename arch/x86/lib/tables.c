@@ -64,7 +64,7 @@ void table_fill_string(char *dest, const char *src, size_t n, char pad)
 		dest[i] = pad;
 }
 
-void write_tables(void)
+int write_tables(void)
 {
 	u32 rom_table_start = ROM_TABLE_ADDR;
 	u32 rom_table_end;
@@ -91,6 +91,7 @@ void write_tables(void)
 			cfg_tables[i].size = table_size;
 		} else {
 			printf("%d: no memory for configuration tables\n", i);
+			return -ENOSPC;
 		}
 #endif
 
@@ -105,4 +106,6 @@ void write_tables(void)
 	write_coreboot_table(CB_TABLE_ADDR, cfg_tables);
 #endif
 	debug("- done writing tables\n");
+
+	return 0;
 }
