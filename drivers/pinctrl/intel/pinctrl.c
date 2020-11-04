@@ -154,7 +154,7 @@ static int pinctrl_get_device(uint pad, struct udevice **devp)
 			return 0;
 		}
 	}
-	printf("pad %d not found\n", pad);
+	log_debug("pad %d not found\n", pad);
 
 	return -ENOTBLK;
 }
