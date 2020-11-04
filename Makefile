@@ -1309,7 +1309,7 @@ init_sp_bss_offset_check: u-boot.dtb FORCE
 	fi
 endif
 
-shell_cmd = { $(echo-cmd) $(cmd_$(1)); }
+shell_cmd = { $(call echo-cmd,$(1)) $(cmd_$(1)); }
 
 quiet_cmd_objcopy_uboot = OBJCOPY $@
 cmd_objcopy_uboot = $(cmd_objcopy) && $(call shell_cmd,static_rela,$<,$@,$(CONFIG_SYS_TEXT_BASE)) || rm -f $@
