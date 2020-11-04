@@ -1,7 +1,7 @@
 #ifndef _LINUX_BITOPS_H
 #define _LINUX_BITOPS_H
 
-#ifndef USE_HOSTCC
+#if !defined(USE_HOSTCC) && !defined(__ASSEMBLY__)
 
 #include <asm/types.h>
 #include <asm-generic/bitsperlong.h>
@@ -218,6 +218,6 @@ static inline void generic_clear_bit(int nr, volatile unsigned long *addr)
 	*p &= ~mask;
 }
 
-#endif /* !USE_HOSTCC */
+#endif /* !USE_HOSTCC && !__ASSEMBLY__ */
 
 #endif
