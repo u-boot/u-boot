@@ -740,6 +740,14 @@ Note that this is a development feature only. It is not intended for use in
 production environments. Also it is not currently part of the automated tests
 so may break in the future.
 
+SMBIOS tables
+-------------
+
+To generate SMBIOS tables in U-Boot, for use by the OS, enable the
+CONFIG_GENERATE_SMBIOS_TABLE option. The easiest way to provide the values to
+use is via the device tree. For details see
+device-tree-bindings/sysinfo/smbios.txt
+
 TODO List
 ---------
 - Audio
