@@ -36,7 +36,6 @@ enum uclass_id {
 	UCLASS_AUDIO_CODEC,	/* Audio codec with control and data path */
 	UCLASS_AXI,		/* AXI bus */
 	UCLASS_BLK,		/* Block device */
-	UCLASS_BOARD,		/* Device information from hardware */
 	UCLASS_BOOTCOUNT,       /* Bootcount backing store */
 	UCLASS_BUTTON,		/* Button */
 	UCLASS_CACHE,		/* Cache controller */
@@ -107,6 +106,7 @@ enum uclass_id {
 	UCLASS_SPI_GENERIC,	/* Generic SPI flash target */
 	UCLASS_SPMI,		/* System Power Management Interface bus */
 	UCLASS_SYSCON,		/* System configuration device */
+	UCLASS_SYSINFO,		/* Device information from hardware */
 	UCLASS_SYSRESET,	/* System reset device */
 	UCLASS_TEE,		/* Trusted Execution Environment device */
 	UCLASS_THERMAL,		/* Thermal sensor */

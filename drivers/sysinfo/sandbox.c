@@ -6,11 +6,11 @@
 
 #include <common.h>
 #include <dm.h>
-#include <board.h>
+#include <sysinfo.h>
 
 #include "sandbox.h"
 
-struct board_sandbox_priv {
+struct sysinfo_sandbox_priv {
 	bool called_detect;
 	int test_i1;
 	int test_i2;
@@ -19,9 +19,9 @@ struct board_sandbox_priv {
 char vacation_spots[][64] = {"R'lyeh", "Dreamlands", "Plateau of Leng",
 			     "Carcosa", "Yuggoth", "The Nameless City"};
 
-int board_sandbox_detect(struct udevice *dev)
+int sysinfo_sandbox_detect(struct udevice *dev)
 {
-	struct board_sandbox_priv *priv = dev_get_priv(dev);
+	struct sysinfo_sandbox_priv *priv = dev_get_priv(dev);
 
 	priv->called_detect = true;
 	priv->test_i2 = 100;
@@ -29,9 +29,9 @@ int board_sandbox_detect(struct udevice *dev)
 	return 0;
 }
 
-int board_sandbox_get_bool(struct udevice *dev, int id, bool *val)
+int sysinfo_sandbox_get_bool(struct udevice *dev, int id, bool *val)
 {
-	struct board_sandbox_priv *priv = dev_get_priv(dev);
+	struct sysinfo_sandbox_priv *priv = dev_get_priv(dev);
 
 	switch (id) {
 	case BOOL_CALLED_DETECT:
@@ -43,9 +43,9 @@ int board_sandbox_get_bool(struct udevice *dev, int id, bool *val)
 	return -ENOENT;
 }
 
-int board_sandbox_get_int(struct udevice *dev, int id, int *val)
+int sysinfo_sandbox_get_int(struct udevice *dev, int id, int *val)
 {
-	struct board_sandbox_priv *priv = dev_get_priv(dev);
+	struct sysinfo_sandbox_priv *priv = dev_get_priv(dev);
 
 	switch (id) {
 	case INT_TEST1:
@@ -63,9 +63,9 @@ int board_sandbox_get_int(struct udevice *dev, int id, int *val)
 	return -ENOENT;
 }
 
-int board_sandbox_get_str(struct udevice *dev, int id, size_t size, char *val)
+int sysinfo_sandbox_get_str(struct udevice *dev, int id, size_t size, char *val)
 {
-	struct board_sandbox_priv *priv = dev_get_priv(dev);
+	struct sysinfo_sandbox_priv *priv = dev_get_priv(dev);
 	int i1 = priv->test_i1;
 	int i2 = priv->test_i2;
 	int index = (i1 * i2) % ARRAY_SIZE(vacation_spots);
@@ -80,28 +80,28 @@ int board_sandbox_get_str(struct udevice *dev, int id, size_t size, char *val)
 	return -ENOENT;
 }
 
-static const struct udevice_id board_sandbox_ids[] = {
-	{ .compatible = "sandbox,board_sandbox" },
+static const struct udevice_id sysinfo_sandbox_ids[] = {
+	{ .compatible = "sandbox,sysinfo-sandbox" },
 	{ /* sentinel */ }
 };
 
-static const struct board_ops board_sandbox_ops = {
-	.detect = board_sandbox_detect,
-	.get_bool = board_sandbox_get_bool,
-	.get_int = board_sandbox_get_int,
-	.get_str = board_sandbox_get_str,
+static const struct sysinfo_ops sysinfo_sandbox_ops = {
+	.detect = sysinfo_sandbox_detect,
+	.get_bool = sysinfo_sandbox_get_bool,
+	.get_int = sysinfo_sandbox_get_int,
+	.get_str = sysinfo_sandbox_get_str,
 };
 
-int board_sandbox_probe(struct udevice *dev)
+int sysinfo_sandbox_probe(struct udevice *dev)
 {
 	return 0;
 }
 
-U_BOOT_DRIVER(board_sandbox) = {
-	.name           = "board_sandbox",
-	.id             = UCLASS_BOARD,
-	.of_match       = board_sandbox_ids,
-	.ops		= &board_sandbox_ops,
-	.priv_auto_alloc_size = sizeof(struct board_sandbox_priv),
-	.probe          = board_sandbox_probe,
+U_BOOT_DRIVER(sysinfo_sandbox) = {
+	.name           = "sysinfo_sandbox",
+	.id             = UCLASS_SYSINFO,
+	.of_match       = sysinfo_sandbox_ids,
+	.ops		= &sysinfo_sandbox_ops,
+	.priv_auto_alloc_size = sizeof(struct sysinfo_sandbox_priv),
+	.probe          = sysinfo_sandbox_probe,
 };

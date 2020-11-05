@@ -2,6 +2,6 @@
 #
 # (C) Copyright 2017
 # Mario Six,  Guntermann & Drunck GmbH, mario.six@gdsys.cc
-obj-y += board-uclass.o
-obj-$(CONFIG_BOARD_GAZERBEAM) += gazerbeam.o
-obj-$(CONFIG_BOARD_SANDBOX) += sandbox.o
+obj-y += sysinfo-uclass.o
+obj-$(CONFIG_SYSINFO_GAZERBEAM) += gazerbeam.o
+obj-$(CONFIG_SYSINFO_SANDBOX) += sandbox.o

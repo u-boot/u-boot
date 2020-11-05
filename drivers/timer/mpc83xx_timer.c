@@ -5,12 +5,12 @@
  */
 
 #include <common.h>
-#include <board.h>
 #include <clk.h>
 #include <dm.h>
 #include <irq_func.h>
 #include <log.h>
 #include <status_led.h>
+#include <sysinfo.h>
 #include <time.h>
 #include <timer.h>
 #include <watchdog.h>
@@ -97,7 +97,7 @@ int interrupt_init(void)
 {
 	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	struct udevice *csb;
-	struct udevice *board;
+	struct udevice *sysinfo;
 	struct udevice *timer;
 	struct mpc83xx_timer_priv *timer_priv;
 	struct clk clock;
@@ -112,12 +112,12 @@ int interrupt_init(void)
 
 	timer_priv = dev_get_priv(timer);
 
-	if (board_get(&board)) {
-		debug("%s: board device could not be fetched.\n", __func__);
+	if (sysinfo_get(&sysinfo)) {
+		debug("%s: sysinfo device could not be fetched.\n", __func__);
 		return -ENOENT;
 	}
 
-	ret = uclass_get_device_by_phandle(UCLASS_SIMPLE_BUS, board,
+	ret = uclass_get_device_by_phandle(UCLASS_SIMPLE_BUS, sysinfo,
 					   "csb", &csb);
 	if (ret) {
 		debug("%s: Could not retrieve CSB device (error: %d)",

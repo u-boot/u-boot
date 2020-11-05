@@ -6,23 +6,23 @@
 
 /*
  * This uclass encapsulates hardware methods to gather information about a
- * board or a specific device such as hard-wired GPIOs on GPIO expanders,
+ * sysinfo or a specific device such as hard-wired GPIOs on GPIO expanders,
  * read-only data in flash ICs, or similar.
  *
  * The interface offers functions to read the usual standard data types (bool,
  * int, string) from the device, each of which is identified by a static
  * numeric ID (which will usually be defined as a enum in a header file).
  *
- * If for example the board had a read-only serial number flash IC, we could
+ * If for example the sysinfo had a read-only serial number flash IC, we could
  * call
  *
- * ret = board_detect(dev);
+ * ret = sysinfo_detect(dev);
  * if (ret) {
- *	debug("board device not found.");
+ *	debug("sysinfo device not found.");
  *	return ret;
  * }
  *
- * ret = board_get_int(dev, ID_SERIAL_NUMBER, &serial);
+ * ret = sysinfo_get_int(dev, ID_SERIAL_NUMBER, &serial);
  * if (ret) {
  *	debug("Error when reading serial number from device.");
  *	return ret;
@@ -31,8 +31,8 @@
  * to read the serial number.
  */
 
-#if CONFIG_IS_ENABLED(BOARD)
-struct board_ops {
+#if CONFIG_IS_ENABLED(SYSINFO)
+struct sysinfo_ops {
 	/**
 	 * detect() - Run the hardware info detection procedure for this
 	 *	      device.
@@ -50,7 +50,7 @@ struct board_ops {
 	/**
 	 * get_bool() - Read a specific bool data value that describes the
 	 *		hardware setup.
-	 * @dev:	The board instance to gather the data.
+	 * @dev:	The sysinfo instance to gather the data.
 	 * @id:		A unique identifier for the bool value to be read.
 	 * @val:	Pointer to a buffer that receives the value read.
 	 *
@@ -61,7 +61,7 @@ struct board_ops {
 	/**
 	 * get_int() - Read a specific int data value that describes the
 	 *	       hardware setup.
-	 * @dev:       The board instance to gather the data.
+	 * @dev:       The sysinfo instance to gather the data.
 	 * @id:        A unique identifier for the int value to be read.
 	 * @val:       Pointer to a buffer that receives the value read.
 	 *
@@ -72,7 +72,7 @@ struct board_ops {
 	/**
 	 * get_str() - Read a specific string data value that describes the
 	 *	       hardware setup.
-	 * @dev:	The board instance to gather the data.
+	 * @dev:	The sysinfo instance to gather the data.
 	 * @id:		A unique identifier for the string value to be read.
 	 * @size:	The size of the buffer to receive the string data.
 	 * @val:	Pointer to a buffer that receives the value read.
@@ -87,7 +87,7 @@ struct board_ops {
 	 * detection. A classic use-case would when DTBOs are used to describe
 	 * additionnal daughter cards.
 	 *
-	 * @dev:	The board instance to gather the data.
+	 * @dev:	The sysinfo instance to gather the data.
 	 * @index:	Index of the image. Starts at 0 and gets incremented
 	 *		after each call to this function.
 	 * @type:	The type of image. For example, "fdt" for DTBs
@@ -100,70 +100,70 @@ struct board_ops {
 				const char *type, const char **strp);
 };
 
-#define board_get_ops(dev)	((struct board_ops *)(dev)->driver->ops)
+#define sysinfo_get_ops(dev)	((struct sysinfo_ops *)(dev)->driver->ops)
 
 /**
- * board_detect() - Run the hardware info detection procedure for this device.
+ * sysinfo_detect() - Run the hardware info detection procedure for this device.
  *
  * @dev:	The device containing the information
  *
  * Return: 0 if OK, -ve on error.
  */
-int board_detect(struct udevice *dev);
+int sysinfo_detect(struct udevice *dev);
 
 /**
- * board_get_bool() - Read a specific bool data value that describes the
+ * sysinfo_get_bool() - Read a specific bool data value that describes the
  *		      hardware setup.
- * @dev:	The board instance to gather the data.
+ * @dev:	The sysinfo instance to gather the data.
  * @id:		A unique identifier for the bool value to be read.
  * @val:	Pointer to a buffer that receives the value read.
  *
  * Return: 0 if OK, -ve on error.
  */
-int board_get_bool(struct udevice *dev, int id, bool *val);
+int sysinfo_get_bool(struct udevice *dev, int id, bool *val);
 
 /**
- * board_get_int() - Read a specific int data value that describes the
+ * sysinfo_get_int() - Read a specific int data value that describes the
  *		     hardware setup.
- * @dev:	The board instance to gather the data.
+ * @dev:	The sysinfo instance to gather the data.
  * @id:		A unique identifier for the int value to be read.
  * @val:	Pointer to a buffer that receives the value read.
  *
  * Return: 0 if OK, -ve on error.
  */
-int board_get_int(struct udevice *dev, int id, int *val);
+int sysinfo_get_int(struct udevice *dev, int id, int *val);
 
 /**
- * board_get_str() - Read a specific string data value that describes the
+ * sysinfo_get_str() - Read a specific string data value that describes the
  *		     hardware setup.
- * @dev:	The board instance to gather the data.
+ * @dev:	The sysinfo instance to gather the data.
  * @id:		A unique identifier for the string value to be read.
  * @size:	The size of the buffer to receive the string data.
  * @val:	Pointer to a buffer that receives the value read.
  *
  * Return: 0 if OK, -ve on error.
  */
-int board_get_str(struct udevice *dev, int id, size_t size, char *val);
+int sysinfo_get_str(struct udevice *dev, int id, size_t size, char *val);
 
 /**
- * board_get() - Return the board device for the board in question.
- * @devp: Pointer to structure to receive the board device.
+ * sysinfo_get() - Return the sysinfo device for the sysinfo in question.
+ * @devp: Pointer to structure to receive the sysinfo device.
  *
- * Since there can only be at most one board instance, the API can supply a
+ * Since there can only be at most one sysinfo instance, the API can supply a
  * function that returns the unique device. This is especially useful for use
- * in board files.
+ * in sysinfo files.
  *
  * Return: 0 if OK, -ve on error.
  */
-int board_get(struct udevice **devp);
+int sysinfo_get(struct udevice **devp);
 
 /**
- * board_get_fit_loadable - Get the name of an image to load from FIT
+ * sysinfo_get_fit_loadable - Get the name of an image to load from FIT
  * This function can be used to provide the image names based on runtime
  * detection. A classic use-case would when DTBOs are used to describe
  * additionnal daughter cards.
  *
- * @dev:	The board instance to gather the data.
+ * @dev:	The sysinfo instance to gather the data.
  * @index:	Index of the image. Starts at 0 and gets incremented
  *		after each call to this function.
  * @type:	The type of image. For example, "fdt" for DTBs
@@ -173,39 +173,39 @@ int board_get(struct udevice **devp);
  * Return: 0 if OK, -ENOENT if no loadable is available else -ve on
  * error.
  */
-int board_get_fit_loadable(struct udevice *dev, int index,
-			   const char *type, const char **strp);
+int sysinfo_get_fit_loadable(struct udevice *dev, int index, const char *type,
+			     const char **strp);
 
 #else
 
-static inline int board_detect(struct udevice *dev)
+static inline int sysinfo_detect(struct udevice *dev)
 {
 	return -ENOSYS;
 }
 
-static inline int board_get_bool(struct udevice *dev, int id, bool *val)
+static inline int sysinfo_get_bool(struct udevice *dev, int id, bool *val)
 {
 	return -ENOSYS;
 }
 
-static inline int board_get_int(struct udevice *dev, int id, int *val)
+static inline int sysinfo_get_int(struct udevice *dev, int id, int *val)
 {
 	return -ENOSYS;
 }
 
-static inline int board_get_str(struct udevice *dev, int id, size_t size,
-				char *val)
+static inline int sysinfo_get_str(struct udevice *dev, int id, size_t size,
+				  char *val)
 {
 	return -ENOSYS;
 }
 
-static inline int board_get(struct udevice **devp)
+static inline int sysinfo_get(struct udevice **devp)
 {
 	return -ENOSYS;
 }
 
-static inline int board_get_fit_loadable(struct udevice *dev, int index,
-					 const char *type, const char **strp)
+static inline int sysinfo_get_fit_loadable(struct udevice *dev, int index,
+					   const char *type, const char **strp)
 {
 	return -ENOSYS;
 }

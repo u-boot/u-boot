@@ -6,7 +6,6 @@
  */
 
 #include <common.h>
-#include <board.h>
 #include <command.h>
 #include <dm.h>
 #include <env.h>
@@ -15,11 +14,12 @@
 #include <init.h>
 #include <miiphy.h>
 #include <misc.h>
+#include <sysinfo.h>
 #include <tpm-v1.h>
 #include <video_osd.h>
 
 #include "../common/ihs_mdio.h"
-#include "../../../drivers/board/gazerbeam.h"
+#include "../../../drivers/sysinfo/gazerbeam.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -43,22 +43,22 @@ static int get_tpm(struct udevice **devp)
 
 int board_early_init_r(void)
 {
-	struct udevice *board;
+	struct udevice *sysinfo;
 	struct udevice *serdes;
 	int mc = 0;
 	int con = 0;
 
-	if (board_get(&board))
-		puts("Could not find board information device.\n");
+	if (sysinfo_get(&sysinfo))
+		puts("Could not find sysinfo information device.\n");
 
 	/* Initialize serdes */
-	uclass_get_device_by_phandle(UCLASS_MISC, board, "serdes", &serdes);
+	uclass_get_device_by_phandle(UCLASS_MISC, sysinfo, "serdes", &serdes);
 
-	if (board_detect(board))
+	if (sysinfo_detect(sysinfo))
 		puts("Device information detection failed.\n");
 
-	board_get_int(board, BOARD_MULTICHANNEL, &mc);
-	board_get_int(board, BOARD_VARIANT, &con);
+	sysinfo_get_int(sysinfo, BOARD_MULTICHANNEL, &mc);
+	sysinfo_get_int(sysinfo, BOARD_VARIANT, &con);
 
 	if (mc == 2 || mc == 1)
 		dev_disable_by_path("/immr@e0000000/i2c@3100/pca9698@22");
@@ -84,18 +84,18 @@ int board_early_init_r(void)
 	return 0;
 }
 
-int checkboard(void)
+int checksysinfo(void)
 {
-	struct udevice *board;
+	struct udevice *sysinfo;
 	char *s = env_get("serial#");
 	int mc = 0;
 	int con = 0;
 
-	if (board_get(&board))
-		puts("Could not find board information device.\n");
+	if (sysinfo_get(&sysinfo))
+		puts("Could not find sysinfo information device.\n");
 
-	board_get_int(board, BOARD_MULTICHANNEL, &mc);
-	board_get_int(board, BOARD_VARIANT, &con);
+	sysinfo_get_int(sysinfo, BOARD_MULTICHANNEL, &mc);
+	sysinfo_get_int(sysinfo, BOARD_VARIANT, &con);
 
 	puts("Board: Gazerbeam ");
 	printf("%s ", mc == 4 ? "MC4" : mc == 2 ? "MC2" : "SC");
@@ -123,20 +123,22 @@ int last_stage_init(void)
 {
 	int fpga_hw_rev = 0;
 	int i;
-	struct udevice *board;
+	struct udevice *sysinfo;
 	struct udevice *osd;
 	struct video_osd_info osd_info;
 	struct udevice *tpm;
 	int ret;
 
-	if (board_get(&board))
-		puts("Could not find board information device.\n");
+	if (sysinfo_get(&sysinfo))
+		puts("Could not find sysinfo information device.\n");
 
-	if (board) {
-		int res = board_get_int(board, BOARD_HWVERSION, &fpga_hw_rev);
+	if (sysinfo) {
+		int res = sysinfo_get_int(sysinfo, BOARD_HWVERSION,
+					  &fpga_hw_rev);
 
 		if (res)
-			printf("Could not determind FPGA HW revision (res = %d)\n", res);
+			printf("Could not determind FPGA HW revision (res = %d)\n",
+			       res);
 	}
 
 	env_set_ulong("fpga_hw_rev", fpga_hw_rev);
@@ -154,7 +156,8 @@ int last_stage_init(void)
 
 			snprintf(name, sizeof(name), "rxaui%d", i);
 			/* Disable RXAUI polarity inversion */
-			ret = uclass_get_device_by_phandle(UCLASS_MISC, board, name, &rxaui);
+			ret = uclass_get_device_by_phandle(UCLASS_MISC, sysinfo,
+							   name, &rxaui);
 			if (!ret)
 				misc_set_enabled(rxaui, false);
 		}

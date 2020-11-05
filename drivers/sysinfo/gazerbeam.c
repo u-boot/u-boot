@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
-#include <board.h>
+#include <sysinfo.h>
 #include <i2c.h>
 #include <log.h>
 #include <asm/gpio.h>
@@ -27,16 +27,16 @@ static const int SC_GPIO_NO;
 static const int CON_GPIO_NO = 1;
 
 /**
- * struct board_gazerbeam_priv - Private data structure for the gazerbeam board
- *				 driver.
- * @reset_gpios:  GPIOs for the board's reset GPIOs.
- * @var_gpios:	  GPIOs for the board's hardware variant GPIOs
- * @ver_gpios:	  GPIOs for the board's hardware version GPIOs
- * @variant:	  Container for the board's hardware variant (CON/CPU)
- * @multichannel: Container for the board's multichannel variant (MC4/MC2/SC)
- * @hwversion:	  Container for the board's hardware version
+ * struct sysinfo_gazerbeam_priv - Private data structure for the gazerbeam
+ *	sysinfo driver
+ * @reset_gpios:  GPIOs for the sysinfo's reset GPIOs.
+ * @var_gpios:	  GPIOs for the sysinfo's hardware variant GPIOs
+ * @ver_gpios:	  GPIOs for the sysinfo's hardware version GPIOs
+ * @variant:	  Container for the sysinfo's hardware variant (CON/CPU)
+ * @multichannel: Container for the sysinfo's multichannel variant (MC4/MC2/SC)
+ * @hwversion:	  Container for the sysinfo's hardware version
  */
-struct board_gazerbeam_priv {
+struct sysinfo_gazerbeam_priv {
 	struct gpio_desc reset_gpios[2];
 	struct gpio_desc var_gpios[2];
 	struct gpio_desc ver_gpios[4];
@@ -46,19 +46,19 @@ struct board_gazerbeam_priv {
 };
 
 /**
- * _read_board_variant_data() - Read variant information from the hardware.
- * @dev: The board device for which to determine the multichannel and device
+ * _read_sysinfo_variant_data() - Read variant information from the hardware.
+ * @dev: The sysinfo device for which to determine the multichannel and device
  *	 type information.
  *
- * The data read from the board's hardware (mostly hard-wired GPIOs) is stored
+ * The data read from the sysinfo's hardware (mostly hard-wired GPIOs) is stored
  * in the private data structure of the driver to be used by other driver
  * methods.
  *
  * Return: 0 if OK, -ve on error.
  */
-static int _read_board_variant_data(struct udevice *dev)
+static int _read_sysinfo_variant_data(struct udevice *dev)
 {
-	struct board_gazerbeam_priv *priv = dev_get_priv(dev);
+	struct sysinfo_gazerbeam_priv *priv = dev_get_priv(dev);
 	struct udevice *i2c_bus;
 	struct udevice *dummy;
 	char *listname;
@@ -129,10 +129,10 @@ static int _read_board_variant_data(struct udevice *dev)
 }
 
 /**
- * _read_hwversion() - Read the hardware version from the board.
- * @dev: The board device for which to read the hardware version.
+ * _read_hwversion() - Read the hardware version from the sysinfo.
+ * @dev: The sysinfo device for which to read the hardware version.
  *
- * The hardware version read from the board (from hard-wired GPIOs) is stored
+ * The hardware version read from the sysinfo (from hard-wired GPIOs) is stored
  * in the private data structure of the driver to be used by other driver
  * methods.
  *
@@ -140,7 +140,7 @@ static int _read_board_variant_data(struct udevice *dev)
  */
 static int _read_hwversion(struct udevice *dev)
 {
-	struct board_gazerbeam_priv *priv = dev_get_priv(dev);
+	struct sysinfo_gazerbeam_priv *priv = dev_get_priv(dev);
 	int res;
 
 	res = gpio_request_list_by_name(dev, "ver-gpios", priv->ver_gpios,
@@ -172,11 +172,11 @@ static int _read_hwversion(struct udevice *dev)
 	return 0;
 }
 
-static int board_gazerbeam_detect(struct udevice *dev)
+static int sysinfo_gazerbeam_detect(struct udevice *dev)
 {
 	int res;
 
-	res = _read_board_variant_data(dev);
+	res = _read_sysinfo_variant_data(dev);
 	if (res) {
 		debug("%s: Error reading multichannel variant (err = %d)\n",
 		      dev->name, res);
@@ -193,9 +193,9 @@ static int board_gazerbeam_detect(struct udevice *dev)
 	return 0;
 }
 
-static int board_gazerbeam_get_int(struct udevice *dev, int id, int *val)
+static int sysinfo_gazerbeam_get_int(struct udevice *dev, int id, int *val)
 {
-	struct board_gazerbeam_priv *priv = dev_get_priv(dev);
+	struct sysinfo_gazerbeam_priv *priv = dev_get_priv(dev);
 
 	switch (id) {
 	case BOARD_MULTICHANNEL:
@@ -215,19 +215,19 @@ static int board_gazerbeam_get_int(struct udevice *dev, int id, int *val)
 	return 0;
 }
 
-static const struct udevice_id board_gazerbeam_ids[] = {
-	{ .compatible = "gdsys,board_gazerbeam" },
+static const struct udevice_id sysinfo_gazerbeam_ids[] = {
+	{ .compatible = "gdsys,sysinfo-gazerbeam" },
 	{ /* sentinel */ }
 };
 
-static const struct board_ops board_gazerbeam_ops = {
-	.detect = board_gazerbeam_detect,
-	.get_int = board_gazerbeam_get_int,
+static const struct sysinfo_ops sysinfo_gazerbeam_ops = {
+	.detect = sysinfo_gazerbeam_detect,
+	.get_int = sysinfo_gazerbeam_get_int,
 };
 
-static int board_gazerbeam_probe(struct udevice *dev)
+static int sysinfo_gazerbeam_probe(struct udevice *dev)
 {
-	struct board_gazerbeam_priv *priv = dev_get_priv(dev);
+	struct sysinfo_gazerbeam_priv *priv = dev_get_priv(dev);
 	int gpio_num, i;
 
 	gpio_num = gpio_request_list_by_name(dev, "reset-gpios",
@@ -255,11 +255,11 @@ static int board_gazerbeam_probe(struct udevice *dev)
 	return 0;
 }
 
-U_BOOT_DRIVER(board_gazerbeam) = {
-	.name           = "board_gazerbeam",
-	.id             = UCLASS_BOARD,
-	.of_match       = board_gazerbeam_ids,
-	.ops		= &board_gazerbeam_ops,
-	.priv_auto_alloc_size = sizeof(struct board_gazerbeam_priv),
-	.probe          = board_gazerbeam_probe,
+U_BOOT_DRIVER(sysinfo_gazerbeam) = {
+	.name           = "sysinfo_gazerbeam",
+	.id             = UCLASS_SYSINFO,
+	.of_match       = sysinfo_gazerbeam_ids,
+	.ops		= &sysinfo_gazerbeam_ops,
+	.priv_auto_alloc_size = sizeof(struct sysinfo_gazerbeam_priv),
+	.probe          = sysinfo_gazerbeam_probe,
 };
