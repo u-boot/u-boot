@@ -85,7 +85,14 @@ void arch_preboot_os(void);
  */
 void board_preboot_os(void);
 
-/* Adjust the 'bootargs' to ensure that Linux boots silently, if required */
-void fixup_silent_linux(void);
+/*
+ * fixup_silent_linux() - Process fix-ups for the command line
+ *
+ * Updates the 'bootargs' envvar as required. This handles making Linux boot
+ * silently if requested ('silent_linux' envvar)
+ *
+ * @return 0 if OK, -ENOMEM if out of memory
+ */
+int fixup_silent_linux(void);
 
 #endif

@@ -23,26 +23,26 @@ static int bootm_test_silent_var(struct unit_test_state *uts)
 	/* 'silent_linux' not set should do nothing */
 	env_set("silent_linux", NULL);
 	env_set("bootargs", CONSOLE_STR);
-	fixup_silent_linux();
+	ut_assertok(fixup_silent_linux());
 	ut_asserteq_str(CONSOLE_STR, env_get("bootargs"));
 
 	env_set("bootargs", NULL);
-	fixup_silent_linux();
+	ut_assertok(fixup_silent_linux());
 	ut_assertnull(env_get("bootargs"));
 
 	ut_assertok(env_set("silent_linux", "no"));
 	env_set("bootargs", CONSOLE_STR);
-	fixup_silent_linux();
+	ut_assertok(fixup_silent_linux());
 	ut_asserteq_str(CONSOLE_STR, env_get("bootargs"));
 
 	ut_assertok(env_set("silent_linux", "yes"));
 	env_set("bootargs", CONSOLE_STR);
-	fixup_silent_linux();
+	ut_assertok(fixup_silent_linux());
 	ut_asserteq_str("console=", env_get("bootargs"));
 
 	/* Empty buffer should still add the string */
 	env_set("bootargs", NULL);
-	fixup_silent_linux();
+	ut_assertok(fixup_silent_linux());
 	ut_asserteq_str("console=", env_get("bootargs"));
 
 	return 0;

@@ -468,7 +468,7 @@ ulong bootm_disable_interrupts(void)
 #define CONSOLE_ARG     "console="
 #define CONSOLE_ARG_LEN (sizeof(CONSOLE_ARG) - 1)
 
-void fixup_silent_linux(void)
+int fixup_silent_linux(void)
 {
 	char *buf;
 	const char *env_val;
@@ -477,7 +477,7 @@ void fixup_silent_linux(void)
 
 	if (!IS_ENABLED(CONFIG_SILENT_CONSOLE) &&
 	    !IS_ENABLED(CONFIG_SILENT_U_BOOT_ONLY))
-		return;
+		return 0;
 	cmdline = env_get("bootargs");
 
 	/*
@@ -489,9 +489,9 @@ void fixup_silent_linux(void)
 	 */
 	want_silent = env_get_yesno("silent_linux");
 	if (want_silent == 0)
-		return;
+		return 0;
 	else if (want_silent == -1 && !(gd->flags & GD_FLG_SILENT))
-		return;
+		return 0;
 
 	debug("before silent fix-up: %s\n", cmdline);
 	if (cmdline && (cmdline[0] != '\0')) {
@@ -501,7 +501,7 @@ void fixup_silent_linux(void)
 		buf = malloc(strlen(cmdline) + 1 + CONSOLE_ARG_LEN + 1);
 		if (!buf) {
 			debug("%s: out of memory\n", __func__);
-			return;
+			return -ENOSPC;
 		}
 
 		if (start) {
@@ -525,6 +525,8 @@ void fixup_silent_linux(void)
 	env_set("bootargs", env_val);
 	debug("after silent fix-up: %s\n", env_val);
 	free(buf);
+
+	return 0;
 }
 
 /**
@@ -629,8 +631,14 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (!ret && (states & BOOTM_STATE_OS_BD_T))
 		ret = boot_fn(BOOTM_STATE_OS_BD_T, argc, argv, images);
 	if (!ret && (states & BOOTM_STATE_OS_PREP)) {
-		if (images->os.os == IH_OS_LINUX)
-			fixup_silent_linux();
+		if (images->os.os == IH_OS_LINUX) {
+			ret = fixup_silent_linux();
+			if (ret) {
+				printf("Cmdline setup failed (err=%d)\n", ret);
+				ret = CMD_RET_FAILURE;
+				goto err;
+			}
+		}
 		ret = boot_fn(BOOTM_STATE_OS_PREP, argc, argv, images);
 	}
 
