@@ -93,6 +93,22 @@ void arch_preboot_os(void);
 void board_preboot_os(void);
 
 /*
+ * bootm_process_cmdline() - Process fix-ups for the command line
+ *
+ * This handles: making Linux boot silently if requested ('silent_linux' envvar)
+ *
+ * @maxlen must provide enough space for the string being processed plus the
+ * resulting string
+ *
+ * @buf: buffer holding commandline string to adjust
+ * @maxlen: Maximum length of buffer at @buf (including \0)
+ * @flags: Flags to control what happens (see bootm_cmdline_t)
+ * @return 0 if OK, -ENOMEM if out of memory, -ENOSPC if the commandline is too
+ *	long
+ */
+int bootm_process_cmdline(char *buf, int maxlen, int flags);
+
+/**
  * bootm_process_cmdline_env() - Process fix-ups for the command line
  *
  * Updates the 'bootargs' envvar as required. This handles making Linux boot

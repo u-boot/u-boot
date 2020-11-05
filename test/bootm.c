@@ -15,33 +15,117 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define BOOTM_TEST(_name, _flags)	UNIT_TEST(_name, _flags, bootm_test)
 
+enum {
+	BUF_SIZE	= 1024,
+};
+
 #define CONSOLE_STR	"console=/dev/ttyS0"
+
+/* Test cmdline processing where nothing happens */
+static int bootm_test_nop(struct unit_test_state *uts)
+{
+	char buf[BUF_SIZE];
+
+	*buf = '\0';
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, true));
+	ut_asserteq_str("", buf);
+
+	strcpy(buf, "test");
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, true));
+	ut_asserteq_str("test", buf);
+
+	return 0;
+}
+BOOTM_TEST(bootm_test_nop, 0);
+
+/* Test cmdline processing when out of space */
+static int bootm_test_nospace(struct unit_test_state *uts)
+{
+	char buf[BUF_SIZE];
+
+	/* Zero buffer size */
+	*buf = '\0';
+	ut_asserteq(-ENOSPC, bootm_process_cmdline(buf, 0, true));
+
+	/* Buffer string not terminated */
+	memset(buf, 'a', BUF_SIZE);
+	ut_asserteq(-ENOSPC, bootm_process_cmdline(buf, BUF_SIZE, true));
+
+	/* Not enough space to copy string */
+	memset(buf, '\0', BUF_SIZE);
+	memset(buf, 'a', BUF_SIZE / 2);
+	ut_asserteq(-ENOSPC, bootm_process_cmdline(buf, BUF_SIZE, true));
+
+	/* Just enough space */
+	memset(buf, '\0', BUF_SIZE);
+	memset(buf, 'a', BUF_SIZE / 2 - 1);
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, true));
+
+	return 0;
+}
+BOOTM_TEST(bootm_test_nospace, 0);
+
+/* Test silent processing */
+static int bootm_test_silent(struct unit_test_state *uts)
+{
+	char buf[BUF_SIZE];
+
+	/* 'silent_linux' not set should do nothing */
+	env_set("silent_linux", NULL);
+	strcpy(buf, CONSOLE_STR);
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SILENT));
+	ut_asserteq_str(CONSOLE_STR, buf);
+
+	ut_assertok(env_set("silent_linux", "no"));
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SILENT));
+	ut_asserteq_str(CONSOLE_STR, buf);
+
+	ut_assertok(env_set("silent_linux", "yes"));
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SILENT));
+	ut_asserteq_str("console=", buf);
+
+	/* Empty buffer should still add the string */
+	*buf = '\0';
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SILENT));
+	ut_asserteq_str("console=", buf);
+
+	/* Check nothing happens when do_silent is false */
+	*buf = '\0';
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, 0));
+	ut_asserteq_str("", buf);
+
+	/* Not enough space */
+	*buf = '\0';
+	ut_asserteq(-ENOSPC, bootm_process_cmdline(buf, 8, BOOTM_CL_SILENT));
+
+	/* Just enough space */
+	*buf = '\0';
+	ut_assertok(bootm_process_cmdline(buf, 9, BOOTM_CL_SILENT));
+
+	/* add at end */
+	strcpy(buf, "something");
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SILENT));
+	ut_asserteq_str("something console=", buf);
+
+	/* change at start */
+	strcpy(buf, CONSOLE_STR " something");
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SILENT));
+	ut_asserteq_str("console= something", buf);
+
+	return 0;
+}
+BOOTM_TEST(bootm_test_silent, 0);
 
 /* Test silent processing in the bootargs variable */
 static int bootm_test_silent_var(struct unit_test_state *uts)
 {
-	/* 'silent_linux' not set should do nothing */
-	env_set("silent_linux", NULL);
-	env_set("bootargs", CONSOLE_STR);
-	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SILENT));
-	ut_asserteq_str(CONSOLE_STR, env_get("bootargs"));
-
 	env_set("bootargs", NULL);
+	env_set("silent_linux", NULL);
 	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SILENT));
 	ut_assertnull(env_get("bootargs"));
 
-	ut_assertok(env_set("silent_linux", "no"));
 	env_set("bootargs", CONSOLE_STR);
-	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SILENT));
-	ut_asserteq_str(CONSOLE_STR, env_get("bootargs"));
-
-	ut_assertok(env_set("silent_linux", "yes"));
-	env_set("bootargs", CONSOLE_STR);
-	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SILENT));
-	ut_asserteq_str("console=", env_get("bootargs"));
-
-	/* Empty buffer should still add the string */
-	env_set("bootargs", NULL);
+	env_set("silent_linux", "yes");
 	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SILENT));
 	ut_asserteq_str("console=", env_get("bootargs"));
 

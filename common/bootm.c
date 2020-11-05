@@ -542,6 +542,22 @@ static int fixup_silent_linux(char *buf, int maxlen)
 	return 0;
 }
 
+int bootm_process_cmdline(char *buf, int maxlen, int flags)
+{
+	int ret;
+
+	/* Check config first to enable compiler to eliminate code */
+	if (IS_ENABLED(CONFIG_SILENT_CONSOLE) &&
+	    !IS_ENABLED(CONFIG_SILENT_U_BOOT_ONLY) &&
+	    (flags & BOOTM_CL_SILENT)) {
+		ret = fixup_silent_linux(buf, maxlen);
+		if (ret)
+			return log_msg_ret("silent", ret);
+	}
+
+	return 0;
+}
+
 int bootm_process_cmdline_env(int flags)
 {
 	const int maxlen = MAX_CMDLINE_SIZE;
@@ -566,7 +582,7 @@ int bootm_process_cmdline_env(int flags)
 		strcpy(buf, env);
 	else
 		*buf = '\0';
-	ret = fixup_silent_linux(buf, maxlen);
+	ret = bootm_process_cmdline(buf, maxlen, flags);
 	if (!ret) {
 		ret = env_set("bootargs", buf);
 
