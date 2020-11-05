@@ -9,8 +9,6 @@
 
 /* Do boardspecific init for all boards */
 
-#define CONFIG_JFFS2_CMDLINE
-
 /* EEprom support 24C08, 24C16, 24C64 */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3  /* 8 Byte write page */
