@@ -199,7 +199,7 @@ config PANEL
 
 config SIMPLE_PANEL
 	bool "Enable simple panel support"
-	depends on PANEL
+	depends on PANEL && BACKLIGHT
 	default y
 	help
 	  This turns on a simple panel driver that enables a compatible
