@@ -173,12 +173,15 @@ static int smbios_write_type1(ulong *current, int handle, ofnode node)
 						  CONFIG_SMBIOS_MANUFACTURER);
 	t->product_name = smbios_add_prop_default(t->eos, node, "product",
 						  CONFIG_SMBIOS_PRODUCT_NAME);
+	t->version = smbios_add_prop(t->eos, node, "version");
 	if (serial_str) {
 		t->serial_number = smbios_add_string(t->eos, serial_str);
 		strncpy((char *)t->uuid, serial_str, sizeof(t->uuid));
 	} else {
 		t->serial_number = smbios_add_prop(t->eos, node, "serial");
 	}
+	t->sku_number = smbios_add_prop(t->eos, node, "sku");
+	t->family = smbios_add_prop(t->eos, node, "family");
 
 	len = t->length + smbios_string_table_len(t->eos);
 	*current += len;
@@ -199,6 +202,7 @@ static int smbios_write_type2(ulong *current, int handle, ofnode node)
 						  CONFIG_SMBIOS_MANUFACTURER);
 	t->product_name = smbios_add_prop_default(t->eos, node, "product",
 						  CONFIG_SMBIOS_PRODUCT_NAME);
+	t->asset_tag_number = smbios_add_prop(t->eos, node, "asset-tag");
 	t->feature_flags = SMBIOS_BOARD_FEATURE_HOSTING;
 	t->board_type = SMBIOS_BOARD_MOTHERBOARD;
 
