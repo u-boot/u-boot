@@ -465,8 +465,8 @@ ulong bootm_disable_interrupts(void)
 	return iflag;
 }
 
-#define CONSOLE_ARG     "console="
-#define CONSOLE_ARG_LEN (sizeof(CONSOLE_ARG) - 1)
+#define CONSOLE_ARG		"console="
+#define CONSOLE_ARG_SIZE	sizeof(CONSOLE_ARG)
 
 int bootm_process_cmdline_env(bool do_silent)
 {
@@ -500,7 +500,7 @@ int bootm_process_cmdline_env(bool do_silent)
 		char *start = strstr(cmdline, CONSOLE_ARG);
 
 		/* Allocate space for maximum possible new command line */
-		buf = malloc(strlen(cmdline) + 1 + CONSOLE_ARG_LEN + 1);
+		buf = malloc(strlen(cmdline) + 1 + CONSOLE_ARG_SIZE);
 		if (!buf) {
 			debug("%s: out of memory\n", __func__);
 			return -ENOSPC;
@@ -508,13 +508,14 @@ int bootm_process_cmdline_env(bool do_silent)
 
 		if (start) {
 			char *end = strchr(start, ' ');
-			int num_start_bytes = start - cmdline + CONSOLE_ARG_LEN;
+			int start_bytes;
 
-			strncpy(buf, cmdline, num_start_bytes);
+			start_bytes = start - cmdline + CONSOLE_ARG_SIZE - 1;
+			strncpy(buf, cmdline, start_bytes);
 			if (end)
-				strcpy(buf + num_start_bytes, end);
+				strcpy(buf + start_bytes, end);
 			else
-				buf[num_start_bytes] = '\0';
+				buf[start_bytes] = '\0';
 		} else {
 			sprintf(buf, "%s %s", cmdline, CONSOLE_ARG);
 		}
