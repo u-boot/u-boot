@@ -1646,6 +1646,20 @@ static int fsl_esdhc_set_enhanced_strobe(struct udevice *dev)
 }
 #endif
 
+static int fsl_esdhc_wait_dat0(struct udevice *dev, int state,
+				int timeout_us)
+{
+	int ret;
+	u32 tmp;
+	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
+	struct fsl_esdhc *regs = priv->esdhc_regs;
+
+	ret = readx_poll_timeout(esdhc_read32, &regs->prsstat, tmp,
+				!!(tmp & PRSSTAT_DAT0) == !!state,
+				timeout_us);
+	return ret;
+}
+
 static const struct dm_mmc_ops fsl_esdhc_ops = {
 	.get_cd		= fsl_esdhc_get_cd,
 	.send_cmd	= fsl_esdhc_send_cmd,
@@ -1656,6 +1670,7 @@ static const struct dm_mmc_ops fsl_esdhc_ops = {
 #if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
 	.set_enhanced_strobe = fsl_esdhc_set_enhanced_strobe,
 #endif
+	.wait_dat0 = fsl_esdhc_wait_dat0,
 };
 #endif
 
