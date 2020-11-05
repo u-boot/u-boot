@@ -85,4 +85,7 @@ void arch_preboot_os(void);
  */
 void board_preboot_os(void);
 
+/* Adjust the 'bootargs' to ensure that Linux boots silently, if required */
+void fixup_silent_linux(void);
+
 #endif

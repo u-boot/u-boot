@@ -465,17 +465,20 @@ ulong bootm_disable_interrupts(void)
 	return iflag;
 }
 
-#if defined(CONFIG_SILENT_CONSOLE) && !defined(CONFIG_SILENT_U_BOOT_ONLY)
-
 #define CONSOLE_ARG     "console="
 #define CONSOLE_ARG_LEN (sizeof(CONSOLE_ARG) - 1)
 
-static void fixup_silent_linux(void)
+void fixup_silent_linux(void)
 {
 	char *buf;
 	const char *env_val;
-	char *cmdline = env_get("bootargs");
+	char *cmdline;
 	int want_silent;
+
+	if (!IS_ENABLED(CONFIG_SILENT_CONSOLE) &&
+	    !IS_ENABLED(CONFIG_SILENT_U_BOOT_ONLY))
+		return;
+	cmdline = env_get("bootargs");
 
 	/*
 	 * Only fix cmdline when requested. The environment variable can be:
@@ -523,7 +526,6 @@ static void fixup_silent_linux(void)
 	debug("after silent fix-up: %s\n", env_val);
 	free(buf);
 }
-#endif /* CONFIG_SILENT_CONSOLE */
 
 /**
  * Execute selected states of the bootm command.
@@ -627,10 +629,8 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (!ret && (states & BOOTM_STATE_OS_BD_T))
 		ret = boot_fn(BOOTM_STATE_OS_BD_T, argc, argv, images);
 	if (!ret && (states & BOOTM_STATE_OS_PREP)) {
-#if defined(CONFIG_SILENT_CONSOLE) && !defined(CONFIG_SILENT_U_BOOT_ONLY)
 		if (images->os.os == IH_OS_LINUX)
 			fixup_silent_linux();
-#endif
 		ret = boot_fn(BOOTM_STATE_OS_PREP, argc, argv, images);
 	}
 
