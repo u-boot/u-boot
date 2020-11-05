@@ -658,6 +658,9 @@ config GENERATE_SMBIOS_TABLE
 
 	  Check http://www.dmtf.org/standards/smbios for details.
 
+	  See also SMBIOS_SYSINFO which allows SMBIOS values to be provided in
+	  the devicetree.
+
 config SMBIOS_MANUFACTURER
 	string "SMBIOS Manufacturer"
 	depends on GENERATE_SMBIOS_TABLE

@@ -22,4 +22,12 @@ config SYSINFO_SANDBOX
 	help
 	  Support querying device information for the Sandbox boards.
 
+config SYSINFO_SMBIOS
+	bool "Provide a default sysinfo driver for SMBIOS information"
+	help
+	  Some boards want to specify the manufacturer or product name but do
+	  not need to have their own sysinfo driver. This includes a default
+	  one which provides a way to specify this SMBIOS information in the
+	  devicetree, without needing any board-specific functionality.
+
 endif
