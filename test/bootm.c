@@ -23,26 +23,26 @@ static int bootm_test_silent_var(struct unit_test_state *uts)
 	/* 'silent_linux' not set should do nothing */
 	env_set("silent_linux", NULL);
 	env_set("bootargs", CONSOLE_STR);
-	ut_assertok(bootm_process_cmdline_env(true));
+	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SILENT));
 	ut_asserteq_str(CONSOLE_STR, env_get("bootargs"));
 
 	env_set("bootargs", NULL);
-	ut_assertok(bootm_process_cmdline_env(true));
+	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SILENT));
 	ut_assertnull(env_get("bootargs"));
 
 	ut_assertok(env_set("silent_linux", "no"));
 	env_set("bootargs", CONSOLE_STR);
-	ut_assertok(bootm_process_cmdline_env(true));
+	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SILENT));
 	ut_asserteq_str(CONSOLE_STR, env_get("bootargs"));
 
 	ut_assertok(env_set("silent_linux", "yes"));
 	env_set("bootargs", CONSOLE_STR);
-	ut_assertok(bootm_process_cmdline_env(true));
+	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SILENT));
 	ut_asserteq_str("console=", env_get("bootargs"));
 
 	/* Empty buffer should still add the string */
 	env_set("bootargs", NULL);
-	ut_assertok(bootm_process_cmdline_env(true));
+	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SILENT));
 	ut_asserteq_str("console=", env_get("bootargs"));
 
 	return 0;

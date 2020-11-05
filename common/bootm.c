@@ -542,16 +542,17 @@ static int fixup_silent_linux(char *buf, int maxlen)
 	return 0;
 }
 
-int bootm_process_cmdline_env(bool do_silent)
+int bootm_process_cmdline_env(int flags)
 {
 	const int maxlen = MAX_CMDLINE_SIZE;
+	bool do_silent;
 	const char *env;
 	char *buf;
 	int ret;
 
 	/* First check if any action is needed */
 	do_silent = IS_ENABLED(CONFIG_SILENT_CONSOLE) &&
-	    !IS_ENABLED(CONFIG_SILENT_U_BOOT_ONLY) && do_silent;
+	    !IS_ENABLED(CONFIG_SILENT_U_BOOT_ONLY) && (flags & BOOTM_CL_SILENT);
 	if (!do_silent)
 		return 0;
 
@@ -685,7 +686,8 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (!ret && (states & BOOTM_STATE_OS_BD_T))
 		ret = boot_fn(BOOTM_STATE_OS_BD_T, argc, argv, images);
 	if (!ret && (states & BOOTM_STATE_OS_PREP)) {
-		ret = bootm_process_cmdline_env(images->os.os == IH_OS_LINUX);
+		ret = bootm_process_cmdline_env(images->os.os == IH_OS_LINUX ?
+						BOOTM_CL_SILENT : 0);
 		if (ret) {
 			printf("Cmdline setup failed (err=%d)\n", ret);
 			ret = CMD_RET_FAILURE;
