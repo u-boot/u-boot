@@ -468,7 +468,7 @@ ulong bootm_disable_interrupts(void)
 #define CONSOLE_ARG     "console="
 #define CONSOLE_ARG_LEN (sizeof(CONSOLE_ARG) - 1)
 
-int fixup_silent_linux(void)
+int bootm_process_cmdline_env(void)
 {
 	char *buf;
 	const char *env_val;
@@ -632,7 +632,7 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 		ret = boot_fn(BOOTM_STATE_OS_BD_T, argc, argv, images);
 	if (!ret && (states & BOOTM_STATE_OS_PREP)) {
 		if (images->os.os == IH_OS_LINUX) {
-			ret = fixup_silent_linux();
+			ret = bootm_process_cmdline_env();
 			if (ret) {
 				printf("Cmdline setup failed (err=%d)\n", ret);
 				ret = CMD_RET_FAILURE;
