@@ -19,6 +19,7 @@
 #include <net.h>
 #include <asm/cache.h>
 #include <asm/io.h>
+#include <linux/sizes.h>
 #if defined(CONFIG_CMD_USB)
 #include <usb.h>
 #endif
@@ -34,6 +35,8 @@
 /* use 8MByte as default max gunzip size */
 #define CONFIG_SYS_BOOTM_LEN	0x800000
 #endif
+
+#define MAX_CMDLINE_SIZE	SZ_4K
 
 #define IH_INITRD_ARCH IH_ARCH_DEFAULT
 
@@ -468,20 +471,31 @@ ulong bootm_disable_interrupts(void)
 #define CONSOLE_ARG		"console="
 #define CONSOLE_ARG_SIZE	sizeof(CONSOLE_ARG)
 
-int bootm_process_cmdline_env(bool do_silent)
+/**
+ * fixup_silent_linux() - Handle silencing the linux boot if required
+ *
+ * This uses the silent_linux envvar to control whether to add/set a "console="
+ * parameter to the command line
+ *
+ * @buf: Buffer containing the string to process
+ * @maxlen: Maximum length of buffer
+ * @return 0 if OK, -ENOSPC if @maxlen is too small
+ */
+static int fixup_silent_linux(char *buf, int maxlen)
 {
-	char *buf;
-	const char *env_val;
-	char *cmdline;
 	int want_silent;
+	char *cmdline;
+	int size;
 
-	/* First check if any action is needed */
-	do_silent = IS_ENABLED(CONFIG_SILENT_CONSOLE) &&
-	    !IS_ENABLED(CONFIG_SILENT_U_BOOT_ONLY) && do_silent;
-	if (!do_silent)
-		return 0;
-	cmdline = env_get("bootargs");
-
+	/*
+	 * Move the input string to the end of buffer. The output string will be
+	 * built up at the start.
+	 */
+	size = strlen(buf) + 1;
+	if (size * 2 > maxlen)
+		return -ENOSPC;
+	cmdline = buf + maxlen - size;
+	memmove(cmdline, buf, size);
 	/*
 	 * Only fix cmdline when requested. The environment variable can be:
 	 *
@@ -496,15 +510,12 @@ int bootm_process_cmdline_env(bool do_silent)
 		return 0;
 
 	debug("before silent fix-up: %s\n", cmdline);
-	if (cmdline && (cmdline[0] != '\0')) {
+	if (*cmdline) {
 		char *start = strstr(cmdline, CONSOLE_ARG);
 
-		/* Allocate space for maximum possible new command line */
-		buf = malloc(strlen(cmdline) + 1 + CONSOLE_ARG_SIZE);
-		if (!buf) {
-			debug("%s: out of memory\n", __func__);
+		/* Check space for maximum possible new command line */
+		if (size + CONSOLE_ARG_SIZE > maxlen)
 			return -ENOSPC;
-		}
 
 		if (start) {
 			char *end = strchr(start, ' ');
@@ -519,15 +530,55 @@ int bootm_process_cmdline_env(bool do_silent)
 		} else {
 			sprintf(buf, "%s %s", cmdline, CONSOLE_ARG);
 		}
-		env_val = buf;
+		if (buf + strlen(buf) >= cmdline)
+			return -ENOSPC;
 	} else {
-		buf = NULL;
-		env_val = CONSOLE_ARG;
+		if (maxlen < sizeof(CONSOLE_ARG))
+			return -ENOSPC;
+		strcpy(buf, CONSOLE_ARG);
 	}
+	debug("after silent fix-up: %s\n", buf);
 
-	env_set("bootargs", env_val);
-	debug("after silent fix-up: %s\n", env_val);
+	return 0;
+}
+
+int bootm_process_cmdline_env(bool do_silent)
+{
+	const int maxlen = MAX_CMDLINE_SIZE;
+	const char *env;
+	char *buf;
+	int ret;
+
+	/* First check if any action is needed */
+	do_silent = IS_ENABLED(CONFIG_SILENT_CONSOLE) &&
+	    !IS_ENABLED(CONFIG_SILENT_U_BOOT_ONLY) && do_silent;
+	if (!do_silent)
+		return 0;
+
+	env = env_get("bootargs");
+	if (env && strlen(env) >= maxlen)
+		return -E2BIG;
+	buf = malloc(maxlen);
+	if (!buf)
+		return -ENOMEM;
+	if (env)
+		strcpy(buf, env);
+	else
+		*buf = '\0';
+	ret = fixup_silent_linux(buf, maxlen);
+	if (!ret) {
+		ret = env_set("bootargs", buf);
+
+		/*
+		 * If buf is "" and bootargs does not exist, this will produce
+		 * an error trying to delete bootargs. Ignore it
+		 */
+		if (ret == -ENOENT)
+			ret = 0;
+	}
 	free(buf);
+	if (ret)
+		return log_msg_ret("env", ret);
 
 	return 0;
 }
