@@ -472,7 +472,7 @@ int hdelete_r(const char *key, struct hsearch_data *htab, int flag)
 	idx = hsearch_r(e, ENV_FIND, &ep, htab, 0);
 	if (idx == 0) {
 		__set_errno(ESRCH);
-		return 0;	/* not found */
+		return -ENOENT;	/* not found */
 	}
 
 	/* Check for permission */
@@ -481,7 +481,7 @@ int hdelete_r(const char *key, struct hsearch_data *htab, int flag)
 		debug("change_ok() rejected deleting variable "
 			"%s, skipping it!\n", key);
 		__set_errno(EPERM);
-		return 0;
+		return -EPERM;
 	}
 
 	/* If there is a callback, call it */
@@ -490,12 +490,12 @@ int hdelete_r(const char *key, struct hsearch_data *htab, int flag)
 		debug("callback() rejected deleting variable "
 			"%s, skipping it!\n", key);
 		__set_errno(EINVAL);
-		return 0;
+		return -EINVAL;
 	}
 
 	_hdelete(key, htab, ep, idx);
 
-	return 1;
+	return 0;
 }
 
 #if !(defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_SAVEENV))
@@ -917,7 +917,7 @@ int himport_r(struct hsearch_data *htab,
 			if (!drop_var_from_set(name, nvars, localvars))
 				continue;
 
-			if (hdelete_r(name, htab, flag) == 0)
+			if (hdelete_r(name, htab, flag))
 				debug("DELETE ERROR ##############################\n");
 
 			continue;
@@ -979,7 +979,7 @@ int himport_r(struct hsearch_data *htab,
 		 * b) if the variable was not present in current env, we notify
 		 *    it might be a typo
 		 */
-		if (hdelete_r(localvars[i], htab, flag) == 0)
+		if (hdelete_r(localvars[i], htab, flag))
 			printf("WARNING: '%s' neither in running nor in imported env!\n", localvars[i]);
 		else
 			printf("WARNING: '%s' not in imported env, deleting it!\n", localvars[i]);

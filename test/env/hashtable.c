@@ -80,7 +80,7 @@ static int htab_create_delete(struct unit_test_state *uts,
 		ut_asserteq_str(key, ritem->key);
 		ut_asserteq_str(key, ritem->data);
 
-		ut_asserteq(1, hdelete_r(key, htab, 0));
+		ut_asserteq(0, hdelete_r(key, htab, 0));
 	}
 
 	return 0;
