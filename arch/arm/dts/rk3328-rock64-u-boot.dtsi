@@ -9,6 +9,27 @@
 	chosen {
 		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &emmc;
 	};
+
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "pine64";
+				product = "rock64_rk3328";
+			};
+
+			baseboard {
+				manufacturer = "pine64";
+				product = "rock64_rk3328";
+			};
+
+			chassis {
+				manufacturer = "pine64";
+				product = "rock64_rk3328";
+			};
+		};
+	};
 };
 
 &gpio0 {
