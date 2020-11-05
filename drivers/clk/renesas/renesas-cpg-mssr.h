@@ -14,9 +14,15 @@
 #define __DRIVERS_CLK_RENESAS_CPG_MSSR__
 
 #include <linux/bitops.h>
+
+enum clk_reg_layout {
+	CLK_REG_LAYOUT_RCAR_GEN2_AND_GEN3 = 0,
+};
+
 struct cpg_mssr_info {
 	const struct cpg_core_clk	*core_clk;
 	unsigned int			core_clk_size;
+	enum clk_reg_layout		reg_layout;
 	const struct mssr_mod_clk	*mod_clk;
 	unsigned int			mod_clk_size;
 	const struct mstp_stop_table	*mstp_table;
