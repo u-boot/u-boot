@@ -6,6 +6,29 @@
 
 #include "meson-gx-u-boot.dtsi"
 
+/ {
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "Hardkernel Co., Ltd.";
+				product = "ODROID-C2";
+			};
+
+			baseboard {
+				manufacturer = "Hardkernel Co., Ltd.";
+				product = "ODROID-C2";
+			};
+
+			chassis {
+				manufacturer = "Hardkernel Co., Ltd.";
+				product = "ODROID-C2";
+			};
+		};
+	};
+};
+
 &usb0 {
 	status = "disabled";
 };
