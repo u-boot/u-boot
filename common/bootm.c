@@ -468,15 +468,17 @@ ulong bootm_disable_interrupts(void)
 #define CONSOLE_ARG     "console="
 #define CONSOLE_ARG_LEN (sizeof(CONSOLE_ARG) - 1)
 
-int bootm_process_cmdline_env(void)
+int bootm_process_cmdline_env(bool do_silent)
 {
 	char *buf;
 	const char *env_val;
 	char *cmdline;
 	int want_silent;
 
-	if (!IS_ENABLED(CONFIG_SILENT_CONSOLE) &&
-	    !IS_ENABLED(CONFIG_SILENT_U_BOOT_ONLY))
+	/* First check if any action is needed */
+	do_silent = IS_ENABLED(CONFIG_SILENT_CONSOLE) &&
+	    !IS_ENABLED(CONFIG_SILENT_U_BOOT_ONLY) && do_silent;
+	if (!do_silent)
 		return 0;
 	cmdline = env_get("bootargs");
 
@@ -631,13 +633,11 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (!ret && (states & BOOTM_STATE_OS_BD_T))
 		ret = boot_fn(BOOTM_STATE_OS_BD_T, argc, argv, images);
 	if (!ret && (states & BOOTM_STATE_OS_PREP)) {
-		if (images->os.os == IH_OS_LINUX) {
-			ret = bootm_process_cmdline_env();
-			if (ret) {
-				printf("Cmdline setup failed (err=%d)\n", ret);
-				ret = CMD_RET_FAILURE;
-				goto err;
-			}
+		ret = bootm_process_cmdline_env(images->os.os == IH_OS_LINUX);
+		if (ret) {
+			printf("Cmdline setup failed (err=%d)\n", ret);
+			ret = CMD_RET_FAILURE;
+			goto err;
 		}
 		ret = boot_fn(BOOTM_STATE_OS_PREP, argc, argv, images);
 	}

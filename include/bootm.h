@@ -91,8 +91,9 @@ void board_preboot_os(void);
  * Updates the 'bootargs' envvar as required. This handles making Linux boot
  * silently if requested ('silent_linux' envvar)
  *
+ * @do_silent: Process bootargs for silent console
  * @return 0 if OK, -ENOMEM if out of memory
  */
-int bootm_process_cmdline_env(void);
+int bootm_process_cmdline_env(bool do_silent);
 
 #endif
