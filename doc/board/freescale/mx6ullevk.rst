@@ -1,26 +1,37 @@
+.. SPDX-License-Identifier: GPL-2.0+
+
+mx6ullevk
+=========
+
 How to use U-Boot on Freescale MX6ULL 14x14 EVK
-----------------------------------------------
+-----------------------------------------------
 
 - First make sure you have installed the dtc package (device tree compiler):
 
-$ sudo apt-get install device-tree-compiler
+.. code-block:: bash
+
+   $ sudo apt-get install device-tree-compiler
 
 - Build U-Boot for MX6ULL 14x14 EVK:
 
-$ make mrproper
-$ make mx6ull_14x14_evk_defconfig
-$ make
+.. code-block:: bash
+
+   $ make mrproper
+   $ make mx6ull_14x14_evk_defconfig
+   $ make
 
 This generates the u-boot-dtb.imx image in the current directory.
 
 - Flash the u-boot-dtb.imx image into the micro SD card:
 
-$ sudo dd if=u-boot-dtb.imx of=/dev/sdb bs=1K seek=1 && sync
+.. code-block:: bash
 
-- Jumper settings:
+   $ sudo dd if=u-boot-dtb.imx of=/dev/sdb bs=1K seek=1 conv=notrunc && sync
 
-SW601: 0 0 1 0
-Sw602: 1 0
+- Jumper settings::
+
+   SW601: 0 0 1 0
+   Sw602: 1 0
 
 Where 0 means bottom position and 1 means top position (from the switch label
 numbers reference).

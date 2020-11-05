@@ -223,12 +223,13 @@ int print_cpuinfo(void)
 		ret = thermal_get_temp(thermal_dev, &cpu_tmp);
 
 		if (!ret)
-			printf(" at %dC\n", cpu_tmp);
+			printf(" at %dC", cpu_tmp);
 		else
 			debug(" - invalid sensor data\n");
 	} else {
 		debug(" - invalid sensor device\n");
 	}
+	puts("\n");
 #endif
 
 	printf("Reset cause: %s\n", get_reset_cause());

@@ -110,9 +110,9 @@ static const size_t HEADER_BLOCK_ECC_LEN = 4;
 
 static const u8 ECC_BLOCK_ID = 0xFF;
 
-static int vpd_reader(size_t size, u8 *data, struct vpd_cache *userdata,
-		      int (*fn)(struct vpd_cache *, u8 id, u8 version, u8 type,
-				size_t size, u8 const *data))
+int vpd_reader(size_t size, u8 *data, struct vpd_cache *userdata,
+	       int (*fn)(struct vpd_cache *, u8 id, u8 version, u8 type,
+			 size_t size, u8 const *data))
 {
 	if (size < HEADER_BLOCK_LEN || !data || !fn)
 		return -EINVAL;
@@ -200,9 +200,9 @@ static int vpd_reader(size_t size, u8 *data, struct vpd_cache *userdata,
 	}
 }
 
-int read_vpd(struct vpd_cache *cache,
-	     int (*process_block)(struct vpd_cache *, u8 id, u8 version,
-				  u8 type, size_t size, u8 const *data))
+int read_i2c_vpd(struct vpd_cache *cache,
+		 int (*process_block)(struct vpd_cache *, u8 id, u8 version,
+				      u8 type, size_t size, u8 const *data))
 {
 	struct udevice *dev;
 	int ret;

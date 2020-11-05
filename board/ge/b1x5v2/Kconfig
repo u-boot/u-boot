@@ -1,17 +1,13 @@
-
-if TARGET_MX53PPD
+if TARGET_GE_B1X5V2
 
 config SYS_BOARD
-	default "mx53ppd"
+	default "b1x5v2"
 
 config SYS_VENDOR
 	default "ge"
 
-config SYS_SOC
-	default "mx5"
-
 config SYS_CONFIG_NAME
-	default "mx53ppd"
+	default "ge_b1x5v2"
 
 source "board/ge/common/Kconfig"
 

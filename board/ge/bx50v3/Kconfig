@@ -15,4 +15,6 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "ge_bx50v3"
 
+source "board/ge/common/Kconfig"
+
 endif

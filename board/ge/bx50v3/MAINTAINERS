@@ -1,9 +1,14 @@
-GE_BX50V3 BOARD
+GE BX50V3 BOARD
 M:	Ian Ray <ian.ray@ge.com>
+M:	Sebastian Reichel <sebastian.reichel@collabora.com>
 S:	Maintained
+F:	arch/arm/dts/imx6q-b450v3.dts
+F:	arch/arm/dts/imx6q-b650v3.dts
+F:	arch/arm/dts/imx6q-b850v3.dts
+F:	arch/arm/dts/imx6q-bx50v3*
 F:	board/ge/bx50v3/
-F:	include/configs/ge_bx50v3.h
-F:	configs/ge_bx50v3_defconfig
 F:	configs/ge_b450v3_defconfig
 F:	configs/ge_b650v3_defconfig
 F:	configs/ge_b850v3_defconfig
+F:	configs/ge_bx50v3_defconfig
+F:	include/configs/ge_bx50v3.h

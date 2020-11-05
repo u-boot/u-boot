@@ -1341,7 +1341,7 @@ int do_mx6_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 #if defined(CONFIG_MX6Q) || defined(CONFIG_MX6D) || defined(CONFIG_MX6DL) || \
-	defined(CONFIG_MX6S)
+	defined(CONFIG_MX6S) || defined(CONFIG_MX6QDL)
 static void disable_ldb_di_clock_sources(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;

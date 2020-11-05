@@ -14,6 +14,7 @@
 #include <dm/device.h>
 #include <errno.h>
 #include <fuse.h>
+#include <linux/delay.h>
 #include <malloc.h>
 #include <thermal.h>
 

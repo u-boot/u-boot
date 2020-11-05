@@ -21,18 +21,19 @@ config WATCHDOG_TIMEOUT_MSECS
 config HW_WATCHDOG
 	bool
 
-config WATCHDOG_RESET_DISABLE
-	bool "Disable reset watchdog"
-	help
-	  Disable reset watchdog, which can let WATCHDOG_RESET invalid, so
-	  that the watchdog will not be fed in u-boot.
-
 config IMX_WATCHDOG
 	bool "Enable Watchdog Timer support for IMX and LSCH2 of NXP"
 	select HW_WATCHDOG if !WDT
 	help
 	  Select this to enable the IMX and LSCH2 of Layerscape watchdog
 	  driver.
+
+config WATCHDOG_RESET_DISABLE
+	bool "Disable reset watchdog"
+	depends on IMX_WATCHDOG
+	help
+	  Disable reset watchdog, which can let WATCHDOG_RESET invalid, so
+	  that the watchdog will not be fed in u-boot.
 
 config OMAP_WATCHDOG
 	bool "TI OMAP watchdog driver"

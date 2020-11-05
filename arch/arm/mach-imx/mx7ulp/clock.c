@@ -333,7 +333,7 @@ void hab_caam_clock_enable(unsigned char enable)
 int do_mx7_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
-	u32 addr = 0;
+
 	u32 freq;
 	freq = decode_pll(PLL_A7_SPLL);
 	printf("PLL_A7_SPLL    %8d MHz\n", freq / 1000000);
@@ -342,7 +342,7 @@ int do_mx7_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
 	printf("PLL_A7_APLL    %8d MHz\n", freq / 1000000);
 
 	freq = decode_pll(PLL_USB);
-	printf("PLL_USB    %8d MHz\n", freq / 1000000);
+	printf("PLL_USB        %8d MHz\n", freq / 1000000);
 
 	printf("\n");
 
@@ -356,8 +356,6 @@ int do_mx7_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
 	printf("USDHC2     %8d kHz\n", mxc_get_clock(MXC_ESDHC2_CLK) / 1000);
 	printf("I2C4       %8d kHz\n", mxc_get_clock(MXC_I2C_CLK) / 1000);
 
-	addr = (u32) clock_init;
-	printf("[%s] addr = 0x%08X\r\n", __func__, addr);
 	scg_a7_info();
 
 	return 0;
