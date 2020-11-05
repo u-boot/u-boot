@@ -191,10 +191,10 @@ static int do_tpm_get_capability(struct cmd_tbl *cmdtp, int flag, int argc,
 	for (i = 0; i < count; i++) {
 		printf("Property 0x");
 		for (j = 0; j < 4; j++)
-			printf("%02x", data[(i * 8) + j]);
+			printf("%02x", data[(i * 8) + j + sizeof(u32)]);
 		printf(": 0x");
 		for (j = 4; j < 8; j++)
-			printf("%02x", data[(i * 8) + j]);
+			printf("%02x", data[(i * 8) + j + sizeof(u32)]);
 		printf("\n");
 	}
 

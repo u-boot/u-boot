@@ -184,10 +184,10 @@ u32 tpm2_get_capability(struct udevice *dev, u32 capability, u32 property,
 	/*
 	 * In the response buffer, the properties are located after the:
 	 * tag (u16), response size (u32), response code (u32),
-	 * YES/NO flag (u8), TPM_CAP (u32) and TPMU_CAPABILITIES (u32).
+	 * YES/NO flag (u8), TPM_CAP (u32).
 	 */
 	properties_off = sizeof(u16) + sizeof(u32) + sizeof(u32) +
-			 sizeof(u8) + sizeof(u32) + sizeof(u32);
+			 sizeof(u8) + sizeof(u32);
 	memcpy(buf, &response[properties_off], response_len - properties_off);
 
 	return 0;
