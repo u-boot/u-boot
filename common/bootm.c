@@ -7,6 +7,7 @@
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <bootstage.h>
+#include <cli.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <errno.h>
@@ -542,6 +543,33 @@ static int fixup_silent_linux(char *buf, int maxlen)
 	return 0;
 }
 
+/**
+ * process_subst() - Handle substitution of ${...} fields in the environment
+ *
+ * Handle variable substitution in the provided buffer
+ *
+ * @buf: Buffer containing the string to process
+ * @maxlen: Maximum length of buffer
+ * @return 0 if OK, -ENOSPC if @maxlen is too small
+ */
+static int process_subst(char *buf, int maxlen)
+{
+	char *cmdline;
+	int size;
+	int ret;
+
+	/* Move to end of buffer */
+	size = strlen(buf) + 1;
+	cmdline = buf + maxlen - size;
+	if (buf + size > cmdline)
+		return -ENOSPC;
+	memmove(cmdline, buf, size);
+
+	ret = cli_simple_process_macros(cmdline, buf, cmdline - buf);
+
+	return ret;
+}
+
 int bootm_process_cmdline(char *buf, int maxlen, int flags)
 {
 	int ret;
@@ -551,6 +579,11 @@ int bootm_process_cmdline(char *buf, int maxlen, int flags)
 	    !IS_ENABLED(CONFIG_SILENT_U_BOOT_ONLY) &&
 	    (flags & BOOTM_CL_SILENT)) {
 		ret = fixup_silent_linux(buf, maxlen);
+		if (ret)
+			return log_msg_ret("silent", ret);
+	}
+	if (IS_ENABLED(CONFIG_BOOTARGS_SUBST) && (flags & BOOTM_CL_SUBST)) {
+		ret = process_subst(buf, maxlen);
 		if (ret)
 			return log_msg_ret("silent", ret);
 	}
@@ -569,7 +602,7 @@ int bootm_process_cmdline_env(int flags)
 	/* First check if any action is needed */
 	do_silent = IS_ENABLED(CONFIG_SILENT_CONSOLE) &&
 	    !IS_ENABLED(CONFIG_SILENT_U_BOOT_ONLY) && (flags & BOOTM_CL_SILENT);
-	if (!do_silent)
+	if (!do_silent && !IS_ENABLED(CONFIG_BOOTARGS_SUBST))
 		return 0;
 
 	env = env_get("bootargs");
@@ -702,8 +735,7 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (!ret && (states & BOOTM_STATE_OS_BD_T))
 		ret = boot_fn(BOOTM_STATE_OS_BD_T, argc, argv, images);
 	if (!ret && (states & BOOTM_STATE_OS_PREP)) {
-		ret = bootm_process_cmdline_env(images->os.os == IH_OS_LINUX ?
-						BOOTM_CL_SILENT : 0);
+		ret = bootm_process_cmdline_env(images->os.os == IH_OS_LINUX);
 		if (ret) {
 			printf("Cmdline setup failed (err=%d)\n", ret);
 			ret = CMD_RET_FAILURE;

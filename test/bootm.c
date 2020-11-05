@@ -116,22 +116,126 @@ static int bootm_test_silent(struct unit_test_state *uts)
 }
 BOOTM_TEST(bootm_test_silent, 0);
 
+/* Test substitution processing */
+static int bootm_test_subst(struct unit_test_state *uts)
+{
+	char buf[BUF_SIZE];
+
+	/* try with an unset variable */
+	ut_assertok(env_set("var", NULL));
+	strcpy(buf, "some${var}thing");
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SUBST));
+	ut_asserteq_str("something", buf);
+
+	/* Replace with shorter string */
+	ut_assertok(env_set("var", "bb"));
+	strcpy(buf, "some${var}thing");
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SUBST));
+	ut_asserteq_str("somebbthing", buf);
+
+	/* Replace with same-length string */
+	ut_assertok(env_set("var", "abc"));
+	strcpy(buf, "some${var}thing");
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SUBST));
+	ut_asserteq_str("someabcthing", buf);
+
+	/* Replace with longer string */
+	ut_assertok(env_set("var", "abcde"));
+	strcpy(buf, "some${var}thing");
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SUBST));
+	ut_asserteq_str("someabcdething", buf);
+
+	/* Check it is case sensitive */
+	ut_assertok(env_set("VAR", NULL));
+	strcpy(buf, "some${VAR}thing");
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SUBST));
+	ut_asserteq_str("something", buf);
+
+	/* Check too long - need 12 bytes for each string */
+	strcpy(buf, "some${var}thing");
+	ut_asserteq(-ENOSPC,
+		    bootm_process_cmdline(buf, 12 * 2 - 1, BOOTM_CL_SUBST));
+
+	/* Check just enough space */
+	strcpy(buf, "some${var}thing");
+	ut_assertok(bootm_process_cmdline(buf, 16 * 2, BOOTM_CL_SUBST));
+	ut_asserteq_str("someabcdething", buf);
+
+	/*
+	 * Check the substition string being too long. This results in a string
+	 * of 12 (13 bytes). We need enough space for that plus the original
+	 * "a${var}c" string of 9 bytes. So 12 + 9 = 21 bytes.
+	 */
+	ut_assertok(env_set("var", "1234567890"));
+	strcpy(buf, "a${var}c");
+	ut_asserteq(-ENOSPC, bootm_process_cmdline(buf, 21, BOOTM_CL_SUBST));
+
+	strcpy(buf, "a${var}c");
+	ut_asserteq(0, bootm_process_cmdline(buf, 22, BOOTM_CL_SUBST));
+
+	/* Check multiple substitutions */
+	ut_assertok(env_set("var", "abc"));
+	strcpy(buf, "some${var}thing${bvar}else");
+	ut_asserteq(0, bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SUBST));
+	ut_asserteq_str("someabcthingelse", buf);
+
+	/* Check multiple substitutions */
+	ut_assertok(env_set("bvar", "123"));
+	strcpy(buf, "some${var}thing${bvar}else");
+	ut_asserteq(0, bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SUBST));
+	ut_asserteq_str("someabcthing123else", buf);
+
+	return 0;
+}
+BOOTM_TEST(bootm_test_subst, 0);
+
 /* Test silent processing in the bootargs variable */
 static int bootm_test_silent_var(struct unit_test_state *uts)
 {
 	env_set("bootargs", NULL);
-	env_set("silent_linux", NULL);
-	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SILENT));
+	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SUBST));
 	ut_assertnull(env_get("bootargs"));
 
-	env_set("bootargs", CONSOLE_STR);
-	env_set("silent_linux", "yes");
-	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SILENT));
-	ut_asserteq_str("console=", env_get("bootargs"));
+	ut_assertok(env_set("bootargs", "some${var}thing"));
+	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SUBST));
+	ut_asserteq_str("something", env_get("bootargs"));
 
 	return 0;
 }
 BOOTM_TEST(bootm_test_silent_var, 0);
+
+/* Test substitution processing in the bootargs variable */
+static int bootm_test_subst_var(struct unit_test_state *uts)
+{
+	env_set("bootargs", NULL);
+	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SILENT));
+	ut_asserteq_str("console=", env_get("bootargs"));
+
+	ut_assertok(env_set("var", "abc"));
+	ut_assertok(env_set("bootargs", "some${var}thing"));
+	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SILENT));
+	ut_asserteq_str("some${var}thing console=", env_get("bootargs"));
+
+	return 0;
+}
+BOOTM_TEST(bootm_test_subst_var, 0);
+
+/* Test substitution and silent console processing in the bootargs variable */
+static int bootm_test_subst_both(struct unit_test_state *uts)
+{
+	ut_assertok(env_set("silent_linux", "yes"));
+	env_set("bootargs", NULL);
+	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_ALL));
+	ut_asserteq_str("console=", env_get("bootargs"));
+
+	ut_assertok(env_set("bootargs", "some${var}thing " CONSOLE_STR));
+	ut_assertok(env_set("var", "1234567890"));
+	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_ALL));
+	ut_asserteq_str("some1234567890thing console=", env_get("bootargs"));
+
+	return 0;
+}
+BOOTM_TEST(bootm_test_subst_both, 0);
 
 int do_ut_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

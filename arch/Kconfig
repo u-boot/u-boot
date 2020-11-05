@@ -147,6 +147,7 @@ config SANDBOX
 	imply CMD_PMC
 	imply CMD_CLONE
 	imply SILENT_CONSOLE
+	imply BOOTARGS_SUBST
 
 config SH
 	bool "SuperH architecture"

@@ -865,6 +865,23 @@ config BOOTARGS
 	  CONFIG_BOOTARGS goes into the environment value "bootargs". Note that
 	  this value will also override the "chosen" node in FDT blob.
 
+config BOOTARGS_SUBST
+	bool "Support substituting strings in boot arguments"
+	help
+	  This allows substituting string values in the boot arguments. These
+	  are applied after the commandline has been built.
+
+	  One use for this is to insert the root-disk UUID into the command
+	  line where bootargs contains "root=${uuid}"
+
+		setenv bootargs "console= root=${uuid}"
+		# Set the 'uuid' environment variable
+		part uuid mmc 2:2 uuid
+
+		# Command-line substitution will put the real uuid into the
+		# kernel command line
+		bootm
+
 config USE_BOOTCOMMAND
 	bool "Enable a default value for bootcmd"
 	help
