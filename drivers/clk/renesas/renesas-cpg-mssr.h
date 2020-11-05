@@ -37,6 +37,10 @@ struct cpg_mssr_info {
 	unsigned int			clk_extal_usb_id;
 	unsigned int			pll0_div;
 	const void			*(*get_pll_config)(const u32 cpg_mode);
+	const u16			*status_regs;
+	const u16			*control_regs;
+	const u16			*reset_regs;
+	const u16			*reset_clear_regs;
 };
 
 /*
@@ -124,5 +128,53 @@ int renesas_clk_get_parent(struct clk *clk, struct cpg_mssr_info *info,
 int renesas_clk_endisable(struct clk *clk, void __iomem *base,
 			  struct cpg_mssr_info *info, bool enable);
 int renesas_clk_remove(void __iomem *base, struct cpg_mssr_info *info);
+
+/*
+ * Module Standby and Software Reset register offets.
+ *
+ * If the registers exist, these are valid for SH-Mobile, R-Mobile,
+ * R-Car Gen2, R-Car Gen3, and RZ/G1.
+ * These are NOT valid for R-Car Gen1 and RZ/A1!
+ */
+
+/*
+ * Module Stop Status Register offsets
+ */
+
+static const u16 mstpsr[] = {
+	0x030, 0x038, 0x040, 0x048, 0x04C, 0x03C, 0x1C0, 0x1C4,
+	0x9A0, 0x9A4, 0x9A8, 0x9AC,
+};
+
+/*
+ * System Module Stop Control Register offsets
+ */
+
+static const u16 smstpcr[] = {
+	0x130, 0x134, 0x138, 0x13C, 0x140, 0x144, 0x148, 0x14C,
+	0x990, 0x994, 0x998, 0x99C,
+};
+
+/*
+ * Software Reset Register offsets
+ */
+
+static const u16 srcr[] = {
+	0x0A0, 0x0A8, 0x0B0, 0x0B8, 0x0BC, 0x0C4, 0x1C8, 0x1CC,
+	0x920, 0x924, 0x928, 0x92C,
+};
+
+/* Realtime Module Stop Control Register offsets */
+#define RMSTPCR(i)	((i) < 8 ? smstpcr[i] - 0x20 : smstpcr[i] - 0x10)
+
+/* Modem Module Stop Control Register offsets (r8a73a4) */
+#define MMSTPCR(i)	(smstpcr[i] + 0x20)
+
+/* Software Reset Clearing Register offsets */
+
+static const u16 srstclr[] = {
+	0x940, 0x944, 0x948, 0x94C, 0x950, 0x954, 0x958, 0x95C,
+	0x960, 0x964, 0x968, 0x96C,
+};
 
 #endif /* __DRIVERS_CLK_RENESAS_CPG_MSSR__ */
