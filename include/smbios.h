@@ -8,6 +8,8 @@
 #ifndef _SMBIOS_H_
 #define _SMBIOS_H_
 
+#include <dm/ofnode.h>
+
 /* SMBIOS spec version implemented */
 #define SMBIOS_MAJOR_VER	3
 #define SMBIOS_MINOR_VER	0
@@ -222,9 +224,10 @@ static inline void fill_smbios_header(void *table, int type,
  *
  * @addr:	start address to write the structure
  * @handle:	the structure's handle, a unique 16-bit number
+ * @node:	node containing the information to write (ofnode_null() if none)
  * @return:	size of the structure
  */
-typedef int (*smbios_write_type)(ulong *addr, int handle);
+typedef int (*smbios_write_type)(ulong *addr, int handle, ofnode node);
 
 /**
  * write_smbios_table() - Write SMBIOS table
