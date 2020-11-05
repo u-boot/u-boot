@@ -11,6 +11,8 @@
 /include/ "rtc.dtsi"
 /include/ "tsc_timer.dtsi"
 
+#include "smbios.dtsi"
+
 / {
 	model = "Google Link";
 	compatible = "google,link", "intel,celeron-ivybridge";

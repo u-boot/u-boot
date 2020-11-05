@@ -13,6 +13,8 @@
 #include "rtc.dtsi"
 #include "tsc_timer.dtsi"
 
+#include "smbios.dtsi"
+
 / {
 	config {
 		silent_console = <0>;

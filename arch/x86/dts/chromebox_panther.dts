@@ -6,6 +6,8 @@
 /include/ "rtc.dtsi"
 /include/ "tsc_timer.dtsi"
 
+#include "smbios.dtsi"
+
 / {
 	model = "Google Panther";
 	compatible = "google,panther", "intel,haswell";
