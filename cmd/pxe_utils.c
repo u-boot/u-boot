@@ -322,7 +322,8 @@ static int label_localboot(struct pxe_label *label)
 	if (label->append) {
 		char bootargs[CONFIG_SYS_CBSIZE];
 
-		cli_simple_process_macros(label->append, bootargs);
+		cli_simple_process_macros(label->append, bootargs,
+					  sizeof(bootargs));
 		env_set("bootargs", bootargs);
 	}
 
@@ -430,7 +431,8 @@ static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 		strcat(bootargs, ip_str);
 		strcat(bootargs, mac_str);
 
-		cli_simple_process_macros(bootargs, finalbootargs);
+		cli_simple_process_macros(bootargs, finalbootargs,
+					  sizeof(finalbootargs));
 		env_set("bootargs", finalbootargs);
 		printf("append: %s\n", finalbootargs);
 	}
