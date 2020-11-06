@@ -217,7 +217,7 @@ int fru_capture(unsigned long addr)
 
 	hdr = (struct fru_common_hdr *)addr;
 
-	memcpy((void *)&fru_data.hdr, (void *)hdr,
+	memcpy((void *)&fru_data, (void *)hdr,
 	       sizeof(struct fru_common_hdr));
 
 	fru_data.captured = true;

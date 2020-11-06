@@ -53,9 +53,9 @@ struct fru_board_data {
 };
 
 struct fru_table {
-	bool captured;
 	struct fru_common_hdr hdr;
 	struct fru_board_data brd;
+	bool captured;
 };
 
 #define FRU_TYPELEN_CODE_MASK	0xC0
