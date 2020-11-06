@@ -2,6 +2,9 @@
 /*
  * Copyright (C) 2019, STMicroelectronics - All Rights Reserved
  */
+
+#define LOG_CATEGORY UCLASS_RTC
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
