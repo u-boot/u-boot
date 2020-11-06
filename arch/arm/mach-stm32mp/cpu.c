@@ -2,6 +2,9 @@
 /*
  * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
  */
+
+#define LOG_CATEGORY LOGC_ARCH
+
 #include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
@@ -463,8 +466,8 @@ static void setup_boot_mode(void)
 	struct udevice *dev;
 	int alias;
 
-	pr_debug("%s: boot_ctx=0x%x => boot_mode=%x, instance=%d forced=%x\n",
-		 __func__, boot_ctx, boot_mode, instance, forced_mode);
+	log_debug("%s: boot_ctx=0x%x => boot_mode=%x, instance=%d forced=%x\n",
+		  __func__, boot_ctx, boot_mode, instance, forced_mode);
 	switch (boot_mode & TAMP_BOOT_DEVICE_MASK) {
 	case BOOT_SERIAL_UART:
 		if (instance > ARRAY_SIZE(serial_addr))
@@ -510,7 +513,7 @@ static void setup_boot_mode(void)
 		env_set("boot_instance", "0");
 		break;
 	default:
-		pr_debug("unexpected boot mode = %x\n", boot_mode);
+		log_debug("unexpected boot mode = %x\n", boot_mode);
 		break;
 	}
 
@@ -537,7 +540,7 @@ static void setup_boot_mode(void)
 	case BOOT_NORMAL:
 		break;
 	default:
-		pr_debug("unexpected forced boot mode = %x\n", forced_mode);
+		log_debug("unexpected forced boot mode = %x\n", forced_mode);
 		break;
 	}
 
@@ -577,14 +580,13 @@ __weak int setup_mac_address(void)
 		enetaddr[i] = ((uint8_t *)&otp)[i];
 
 	if (!is_valid_ethaddr(enetaddr)) {
-		pr_err("invalid MAC address in OTP %pM\n", enetaddr);
+		log_err("invalid MAC address in OTP %pM\n", enetaddr);
 		return -EINVAL;
 	}
-	pr_debug("OTP MAC address = %pM\n", enetaddr);
+	log_debug("OTP MAC address = %pM\n", enetaddr);
 	ret = eth_env_set_enetaddr("ethaddr", enetaddr);
 	if (ret)
-		pr_err("Failed to set mac address %pM from OTP: %d\n",
-		       enetaddr, ret);
+		log_err("Failed to set mac address %pM from OTP: %d\n", enetaddr, ret);
 #endif
 
 	return 0;
