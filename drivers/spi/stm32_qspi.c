@@ -7,6 +7,8 @@
  * STM32 QSPI driver
  */
 
+#define LOG_CATEGORY UCLASS_SPI
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
@@ -136,7 +138,7 @@ static int _stm32_qspi_wait_for_not_busy(struct stm32_qspi_priv *priv)
 				 !(sr & STM32_QSPI_SR_BUSY),
 				 STM32_BUSY_TIMEOUT_US);
 	if (ret)
-		pr_err("busy timeout (stat:%#x)\n", sr);
+		log_err("busy timeout (stat:%#x)\n", sr);
 
 	return ret;
 }
@@ -154,9 +156,9 @@ static int _stm32_qspi_wait_cmd(struct stm32_qspi_priv *priv,
 				 sr & STM32_QSPI_SR_TCF,
 				 STM32_QSPI_CMD_TIMEOUT_US);
 	if (ret) {
-		pr_err("cmd timeout (stat:%#x)\n", sr);
+		log_err("cmd timeout (stat:%#x)\n", sr);
 	} else if (readl(&priv->regs->sr) & STM32_QSPI_SR_TEF) {
-		pr_err("transfer error (stat:%#x)\n", sr);
+		log_err("transfer error (stat:%#x)\n", sr);
 		ret = -EIO;
 	}
 
@@ -198,7 +200,7 @@ static int _stm32_qspi_poll(struct stm32_qspi_priv *priv,
 					 sr & STM32_QSPI_SR_FTF,
 					 STM32_QSPI_FIFO_TIMEOUT_US);
 		if (ret) {
-			pr_err("fifo timeout (len:%d stat:%#x)\n", len, sr);
+			log_err("fifo timeout (len:%d stat:%#x)\n", len, sr);
 			return ret;
 		}
 
@@ -246,10 +248,10 @@ static int stm32_qspi_exec_op(struct spi_slave *slave,
 	u8 mode = STM32_QSPI_CCR_IND_WRITE;
 	int timeout, ret;
 
-	debug("%s: cmd:%#x mode:%d.%d.%d.%d addr:%#llx len:%#x\n",
-	      __func__, op->cmd.opcode, op->cmd.buswidth, op->addr.buswidth,
-	      op->dummy.buswidth, op->data.buswidth,
-	      op->addr.val, op->data.nbytes);
+	dev_dbg(slave->dev, "cmd:%#x mode:%d.%d.%d.%d addr:%#llx len:%#x\n",
+		op->cmd.opcode, op->cmd.buswidth, op->addr.buswidth,
+		op->dummy.buswidth, op->data.buswidth,
+		op->addr.val, op->data.nbytes);
 
 	ret = _stm32_qspi_wait_for_not_busy(priv);
 	if (ret)
@@ -320,7 +322,7 @@ abort:
 	writel(STM32_QSPI_FCR_CTCF, &priv->regs->fcr);
 
 	if (ret || timeout)
-		pr_err("%s ret:%d abort timeout:%d\n", __func__, ret, timeout);
+		dev_err(slave->dev, "ret:%d abort timeout:%d\n", ret, timeout);
 
 	return ret;
 }
@@ -353,8 +355,8 @@ static int stm32_qspi_probe(struct udevice *bus)
 	if (priv->mm_size > STM32_QSPI_MAX_MMAP_SZ)
 		return -EINVAL;
 
-	debug("%s: regs=<0x%p> mapped=<0x%p> mapped_size=<0x%lx>\n",
-	      __func__, priv->regs, priv->mm_base, priv->mm_size);
+	dev_dbg(bus, "regs=<0x%p> mapped=<0x%p> mapped_size=<0x%lx>\n",
+		priv->regs, priv->mm_base, priv->mm_size);
 
 	ret = clk_get_by_index(bus, 0, &clk);
 	if (ret < 0)
@@ -475,8 +477,8 @@ static int stm32_qspi_set_speed(struct udevice *bus, uint speed)
 			STM32_QSPI_DCR_CSHT_MASK << STM32_QSPI_DCR_CSHT_SHIFT,
 			csht << STM32_QSPI_DCR_CSHT_SHIFT);
 
-	debug("%s: regs=%p, speed=%d\n", __func__, priv->regs,
-	      (qspi_clk / (prescaler + 1)));
+	dev_dbg(bus, "regs=%p, speed=%d\n", priv->regs,
+		(qspi_clk / (prescaler + 1)));
 
 	return 0;
 }
@@ -485,6 +487,7 @@ static int stm32_qspi_set_mode(struct udevice *bus, uint mode)
 {
 	struct stm32_qspi_priv *priv = dev_get_priv(bus);
 	int ret;
+	const char *str_rx, *str_tx;
 
 	ret = _stm32_qspi_wait_for_not_busy(priv);
 	if (ret)
@@ -500,21 +503,22 @@ static int stm32_qspi_set_mode(struct udevice *bus, uint mode)
 	if (mode & SPI_CS_HIGH)
 		return -ENODEV;
 
-	debug("%s: regs=%p, mode=%d rx: ", __func__, priv->regs, mode);
-
 	if (mode & SPI_RX_QUAD)
-		debug("quad, tx: ");
+		str_rx = "quad";
 	else if (mode & SPI_RX_DUAL)
-		debug("dual, tx: ");
+		str_rx = "dual";
 	else
-		debug("single, tx: ");
+		str_rx = "single";
 
 	if (mode & SPI_TX_QUAD)
-		debug("quad\n");
+		str_tx = "quad";
 	else if (mode & SPI_TX_DUAL)
-		debug("dual\n");
+		str_tx = "dual";
 	else
-		debug("single\n");
+		str_tx = "single";
+
+	dev_dbg(bus, "regs=%p, mode=%d rx: %s, tx: %s\n",
+		priv->regs, mode, str_rx, str_tx);
 
 	return 0;
 }
