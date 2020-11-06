@@ -2,6 +2,9 @@
 /*
  * Copyright (C) 2019, STMicroelectronics - All Rights Reserved
  */
+
+#define LOG_CATEGORY UCLASS_RAM
+
 #include <common.h>
 #include <console.h>
 #include <init.h>
@@ -197,8 +200,8 @@ static u32 databus(u32 *address)
 
 		/* Read it back (immediately is okay for this test). */
 		read_value = readl(address);
-		debug("%x: %x <=> %x\n",
-		      (u32)address, read_value, pattern);
+		log_debug("%x: %x <=> %x\n",
+			  (u32)address, read_value, pattern);
 
 		if (read_value != pattern)
 			return pattern;
@@ -252,8 +255,8 @@ static u32 *addressbus(u32 *address, u32 nb_bytes)
 
 	for (offset = 1; (offset & mask) != 0; offset <<= 1) {
 		read_value = readl(&address[offset]);
-		debug("%x: %x <=> %x\n",
-		      (u32)&address[offset], read_value, pattern);
+		log_debug("%x: %x <=> %x\n",
+			  (u32)&address[offset], read_value, pattern);
 		if (read_value != pattern)
 			return &address[offset];
 	}
@@ -363,8 +366,8 @@ static enum test_result databuswalk0(struct stm32mp1_ddrctl *ctl,
 			data = readl(addr + 4 * i);
 			if (~(1 << i) !=  data) {
 				error |= 1 << i;
-				debug("%x: error %x expected %x => error:%x\n",
-				      addr + 4 * i, data, ~(1 << i), error);
+				log_debug("%x: error %x expected %x => error:%x\n",
+					  addr + 4 * i, data, ~(1 << i), error);
 			}
 		}
 		if (test_loop_end(&loop, nb_loop, 1000))
@@ -403,8 +406,8 @@ static enum test_result databuswalk1(struct stm32mp1_ddrctl *ctl,
 			data = readl(addr + 4 * i);
 			if ((1 << i) !=  data) {
 				error |= 1 << i;
-				debug("%x: error %x expected %x => error:%x\n",
-				      addr + 4 * i, data, (1 << i), error);
+				log_debug("%x: error %x expected %x => error:%x\n",
+					  addr + 4 * i, data, (1 << i), error);
 			}
 		}
 		if (test_loop_end(&loop, nb_loop, 1000))
