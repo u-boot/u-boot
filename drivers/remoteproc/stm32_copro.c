@@ -2,7 +2,8 @@
 /*
  * Copyright (C) 2019, STMicroelectronics - All Rights Reserved
  */
-#define pr_fmt(fmt) "%s: " fmt, __func__
+#define LOG_CATEGORY UCLASS_REMOTEPROC
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
