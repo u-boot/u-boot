@@ -66,7 +66,7 @@
 		       };
 		};
 
-		qspi: quadspi@A0001000 {
+		qspi: spi@A0001000 {
 			compatible = "st,stm32f469-qspi";
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -220,7 +220,7 @@
 		};
 	};
 
-	usart3_pins_a: usart3@0	{
+	usart3_pins_a: usart3-0	{
 		u-boot,dm-pre-reloc;
 		pins1 {
 			u-boot,dm-pre-reloc;
@@ -245,7 +245,7 @@
 
 &qspi {
 	reg = <0xA0001000 0x1000>, <0x90000000 0x1000000>;
-	flash0: n25q128a {
+	flash0: n25q128a@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "jedec,spi-nor";
