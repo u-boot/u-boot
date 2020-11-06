@@ -92,7 +92,7 @@ int authenticate_os_container(ulong addr)
 					    sizeof(struct container_hdr) +
 					    i * sizeof(struct boot_img_t));
 
-		debug("img %d, dst 0x%x, src 0x%x, size 0x%x\n",
+		debug("img %d, dst 0x%x, src 0x%lux, size 0x%x\n",
 		      i, (uint32_t) img->dst, img->offset + addr, img->size);
 
 		memcpy((void *)img->dst, (const void *)(img->offset + addr),
