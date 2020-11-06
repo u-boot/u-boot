@@ -217,3 +217,7 @@
 		};
 	};
 };
+
+&timer5 {
+	u-boot,dm-pre-reloc;
+};

@@ -235,14 +235,6 @@
 	u-boot,dm-pre-reloc;
 };
 
-&rcc {
-	u-boot,dm-pre-reloc;
-};
-
-&syscfg {
-	u-boot,dm-pre-reloc;
-};
-
 &qspi {
 	reg = <0xA0001000 0x1000>, <0x90000000 0x1000000>;
 	flash0: n25q128a@0 {
@@ -254,4 +246,16 @@
 		spi-rx-bus-width = <4>;
 		reg = <0>;
 	};
+};
+
+&rcc {
+	u-boot,dm-pre-reloc;
+};
+
+&syscfg {
+	u-boot,dm-pre-reloc;
+};
+
+&timer5 {
+	u-boot,dm-pre-reloc;
 };

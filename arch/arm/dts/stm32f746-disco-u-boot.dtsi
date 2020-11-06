@@ -239,7 +239,3 @@
 		reg = <0>;
 	};
 };
-
-&timer5 {
-	u-boot,dm-pre-reloc;
-};

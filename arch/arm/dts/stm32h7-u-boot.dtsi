@@ -218,3 +218,7 @@
 &sdmmc1 {
 	compatible = "st,stm32-sdmmc2", "arm,pl18x", "arm,primecell";
 };
+
+&timer5 {
+	u-boot,dm-pre-reloc;
+};

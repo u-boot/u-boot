@@ -192,3 +192,7 @@
 &rcc {
 	u-boot,dm-pre-reloc;
 };
+
+&timer5 {
+	u-boot,dm-pre-reloc;
+};
