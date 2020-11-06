@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <env.h>
 #include <env_internal.h>
+#include <log.h>
 #include <mtd.h>
 #include <mtd_node.h>
 #include <tee.h>
@@ -117,7 +118,7 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 	for (uclass_first_device(UCLASS_MTD, &dev);
 	     dev;
 	     uclass_next_device(&dev)) {
-		pr_debug("mtd device = %s\n", dev->name);
+		log_debug("mtd device = %s\n", dev->name);
 	}
 
 	if (nor || nand) {
@@ -163,5 +164,5 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 	mtd_initialized = true;
 	*mtdids = ids;
 	*mtdparts = parts;
-	debug("%s:mtdids=%s & mtdparts=%s\n", __func__, ids, parts);
+	log_debug("mtdids=%s & mtdparts=%s\n", ids, parts);
 }

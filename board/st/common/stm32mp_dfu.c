@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <dfu.h>
 #include <env.h>
+#include <log.h>
 #include <memalign.h>
 #include <misc.h>
 #include <mtd.h>
@@ -199,7 +200,7 @@ static int dfu_pmic_read(u64 offset, u8 *buffer, long *size)
 		ret = 0;
 	}
 #else
-	pr_err("PMIC update not supported");
+	log_err("PMIC update not supported");
 	ret = -EOPNOTSUPP;
 #endif
 
