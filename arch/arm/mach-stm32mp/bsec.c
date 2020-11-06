@@ -3,6 +3,8 @@
  * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
  */
 
+#define LOG_CATEGORY UCLASS_MISC
+
 #include <common.h>
 #include <dm.h>
 #include <log.h>
@@ -10,6 +12,7 @@
 #include <asm/io.h>
 #include <asm/arch/bsec.h>
 #include <asm/arch/stm32mp1_smc.h>
+#include <dm/device_compat.h>
 #include <linux/arm-smccc.h>
 #include <linux/iopoll.h>
 
@@ -160,7 +163,7 @@ static int bsec_power_safmem(u32 base, bool power)
  * @otp: otp number (0 - BSEC_OTP_MAX_VALUE)
  * Return: 0 if no error
  */
-static int bsec_shadow_register(u32 base, u32 otp)
+static int bsec_shadow_register(struct udevice *dev, u32 base, u32 otp)
 {
 	u32 val;
 	int ret;
@@ -168,7 +171,8 @@ static int bsec_shadow_register(u32 base, u32 otp)
 
 	/* check if shadowing of otp is locked */
 	if (bsec_read_SR_lock(base, otp))
-		pr_debug("bsec : OTP %d is locked and refreshed with 0\n", otp);
+		dev_dbg(dev, "OTP %d is locked and refreshed with 0\n",
+			otp);
 
 	/* check if safemem is power up */
 	val = readl(base + BSEC_OTP_STATUS_OFF);
@@ -203,7 +207,7 @@ static int bsec_shadow_register(u32 base, u32 otp)
  * @otp: otp number (0 - BSEC_OTP_MAX_VALUE)
  * Return: 0 if no error
  */
-static int bsec_read_shadow(u32 base, u32 *val, u32 otp)
+static int bsec_read_shadow(struct udevice *dev, u32 base, u32 *val, u32 otp)
 {
 	*val = readl(base + BSEC_OTP_DATA_OFF + otp * sizeof(u32));
 
@@ -217,11 +221,11 @@ static int bsec_read_shadow(u32 base, u32 *val, u32 otp)
  * @otp: otp number (0 - BSEC_OTP_MAX_VALUE)
  * Return: 0 if no error
  */
-static int bsec_write_shadow(u32 base, u32 val, u32 otp)
+static int bsec_write_shadow(struct udevice *dev, u32 base, u32 val, u32 otp)
 {
 	/* check if programming of otp is locked */
 	if (bsec_read_SW_lock(base, otp))
-		pr_debug("bsec : OTP %d is lock, write will be ignore\n", otp);
+		dev_dbg(dev, "OTP %d is lock, write will be ignore\n", otp);
 
 	writel(val, base + BSEC_OTP_DATA_OFF + otp * sizeof(u32));
 
@@ -236,16 +240,16 @@ static int bsec_write_shadow(u32 base, u32 val, u32 otp)
  * after the function the otp data is not refreshed in shadow
  * Return: 0 if no error
  */
-static int bsec_program_otp(long base, u32 val, u32 otp)
+static int bsec_program_otp(struct udevice *dev, long base, u32 val, u32 otp)
 {
 	u32 ret;
 	bool power_up = false;
 
 	if (bsec_read_SP_lock(base, otp))
-		pr_debug("bsec : OTP %d locked, prog will be ignore\n", otp);
+		dev_dbg(dev, "OTP %d locked, prog will be ignore\n", otp);
 
 	if (readl(base + BSEC_OTP_LOCK_OFF) & (1 << BSEC_LOCK_PROGRAM))
-		pr_debug("bsec : Global lock, prog will be ignore\n");
+		dev_dbg(dev, "Global lock, prog will be ignore\n");
 
 	/* check if safemem is power up */
 	if (!(readl(base + BSEC_OTP_STATUS_OFF) & BSEC_MODE_PWR_MASK)) {
@@ -298,21 +302,21 @@ static int stm32mp_bsec_read_otp(struct udevice *dev, u32 *val, u32 otp)
 	plat = dev_get_plat(dev);
 
 	/* read current shadow value */
-	ret = bsec_read_shadow(plat->base, &tmp_data, otp);
+	ret = bsec_read_shadow(dev, plat->base, &tmp_data, otp);
 	if (ret)
 		return ret;
 
 	/* copy otp in shadow */
-	ret = bsec_shadow_register(plat->base, otp);
+	ret = bsec_shadow_register(dev, plat->base, otp);
 	if (ret)
 		return ret;
 
-	ret = bsec_read_shadow(plat->base, val, otp);
+	ret = bsec_read_shadow(dev, plat->base, val, otp);
 	if (ret)
 		return ret;
 
 	/* restore shadow value */
-	ret = bsec_write_shadow(plat->base, tmp_data, otp);
+	ret = bsec_write_shadow(dev, plat->base, tmp_data, otp);
 
 	return ret;
 }
@@ -328,7 +332,7 @@ static int stm32mp_bsec_read_shadow(struct udevice *dev, u32 *val, u32 otp)
 
 	plat = dev_get_plat(dev);
 
-	return bsec_read_shadow(plat->base, val, otp);
+	return bsec_read_shadow(dev, plat->base, val, otp);
 }
 
 static int stm32mp_bsec_read_lock(struct udevice *dev, u32 *val, u32 otp)
@@ -352,7 +356,7 @@ static int stm32mp_bsec_write_otp(struct udevice *dev, u32 val, u32 otp)
 
 	plat = dev_get_plat(dev);
 
-	return bsec_program_otp(plat->base, val, otp);
+	return bsec_program_otp(dev, plat->base, val, otp);
 
 }
 
@@ -367,7 +371,7 @@ static int stm32mp_bsec_write_shadow(struct udevice *dev, u32 val, u32 otp)
 
 	plat = dev_get_plat(dev);
 
-	return bsec_write_shadow(plat->base, val, otp);
+	return bsec_write_shadow(dev, plat->base, val, otp);
 }
 
 static int stm32mp_bsec_write_lock(struct udevice *dev, u32 val, u32 otp)
@@ -497,7 +501,7 @@ static int stm32mp_bsec_probe(struct udevice *dev)
 
 		for (otp = 57; otp <= BSEC_OTP_MAX_VALUE; otp++)
 			if (!bsec_read_SR_lock(plat->base, otp))
-				bsec_shadow_register(plat->base, otp);
+				bsec_shadow_register(dev, plat->base, otp);
 	}
 
 	return 0;
@@ -527,7 +531,7 @@ bool bsec_dbgswenable(void)
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
 					  DM_DRIVER_GET(stm32mp_bsec), &dev);
 	if (ret || !dev) {
-		pr_debug("bsec driver not available\n");
+		log_debug("bsec driver not available\n");
 		return false;
 	}
 
