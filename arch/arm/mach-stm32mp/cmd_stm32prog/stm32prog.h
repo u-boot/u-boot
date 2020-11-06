@@ -172,7 +172,7 @@ char *stm32prog_get_error(struct stm32prog_data *data);
 	if (data->phase != PHASE_RESET) { \
 		sprintf(data->error, args); \
 		data->phase = PHASE_RESET; \
-		pr_err("Error: %s\n", data->error); } \
+		log_err("Error: %s\n", data->error); } \
 	}
 
 /* Main function */

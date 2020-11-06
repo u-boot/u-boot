@@ -56,7 +56,7 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 		link = LINK_SERIAL;
 
 	if (link == LINK_UNDEFINED) {
-		pr_err("not supported link=%s\n", argv[1]);
+		log_err("not supported link=%s\n", argv[1]);
 		return CMD_RET_USAGE;
 	}
 
@@ -90,7 +90,7 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 	data = (struct stm32prog_data *)malloc(sizeof(*data));
 
 	if (!data) {
-		pr_err("Alloc failed.");
+		log_err("Alloc failed.");
 		return CMD_RET_FAILURE;
 	}
 	stm32prog_data = data;
