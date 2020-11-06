@@ -3,6 +3,8 @@
  * Copyright (C) 2019, STMicroelectronics - All Rights Reserved
  */
 
+#define LOG_CATEGORY UCLASS_WDT
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
@@ -10,6 +12,7 @@
 #include <syscon.h>
 #include <wdt.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/iopoll.h>
 
@@ -77,7 +80,7 @@ static int stm32mp_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 				 val & (SR_PVU | SR_RVU), CONFIG_SYS_HZ);
 
 	if (ret < 0) {
-		pr_err("Updating IWDG registers timeout");
+		dev_err(dev, "Updating IWDG registers timeout");
 		return -ETIMEDOUT;
 	}
 
@@ -90,7 +93,7 @@ static int stm32mp_wdt_probe(struct udevice *dev)
 	struct clk clk;
 	int ret;
 
-	debug("IWDG init\n");
+	dev_dbg(dev, "IWDG init\n");
 
 	priv->base = dev_read_addr(dev);
 	if (priv->base == FDT_ADDR_T_NONE)
@@ -112,7 +115,7 @@ static int stm32mp_wdt_probe(struct udevice *dev)
 
 	priv->wdt_clk_rate = clk_get_rate(&clk);
 
-	debug("IWDG init done\n");
+	dev_dbg(dev, "IWDG init done\n");
 
 	return 0;
 }
