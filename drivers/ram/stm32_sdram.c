@@ -4,6 +4,8 @@
  * Author(s): Vikas Manocha, <vikas.manocha@st.com> for STMicroelectronics.
  */
 
+#define LOG_CATEGORY UCLASS_RAM
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
@@ -272,7 +274,7 @@ static int stm32_fmc_of_to_plat(struct udevice *dev)
 	ret = dev_read_phandle_with_args(dev, "st,syscfg", NULL, 0, 0,
 						 &args);
 	if (ret) {
-		dev_dbg(dev, "%s: can't find syscon device (%d)\n", __func__, ret);
+		dev_dbg(dev, "can't find syscon device (%d)\n", ret);
 	} else {
 		syscfg_base = (u32 *)ofnode_get_addr(args.node);
 
@@ -281,7 +283,7 @@ static int stm32_fmc_of_to_plat(struct udevice *dev)
 			/* set memory mapping selection */
 			clrsetbits_le32(syscfg_base, MEM_MODE_MASK, mem_remap);
 		} else {
-			dev_dbg(dev, "%s: cannot find st,mem_remap property\n", __func__);
+			dev_dbg(dev, "cannot find st,mem_remap property\n");
 		}
 		
 		swp_fmc = dev_read_u32_default(dev, "st,swp_fmc", NOT_FOUND);
@@ -289,7 +291,7 @@ static int stm32_fmc_of_to_plat(struct udevice *dev)
 			/* set fmc swapping selection */
 			clrsetbits_le32(syscfg_base, SWP_FMC_MASK, swp_fmc << SWP_FMC_OFFSET);
 		} else {
-			dev_dbg(dev, "%s: cannot find st,swp_fmc property\n", __func__);
+			dev_dbg(dev, "cannot find st,swp_fmc property\n");
 		}
 
 		dev_dbg(dev, "syscfg %x = %x\n", (u32)syscfg_base, *syscfg_base);
@@ -348,7 +350,7 @@ static int stm32_fmc_of_to_plat(struct udevice *dev)
 	}
 
 	params->no_sdram_banks = bank;
-	debug("%s, no of banks = %d\n", __func__, params->no_sdram_banks);
+	dev_dbg(dev, "no of banks = %d\n", params->no_sdram_banks);
 
 	return 0;
 }
