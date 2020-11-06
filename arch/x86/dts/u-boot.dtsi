@@ -138,6 +138,10 @@
 		filename = CONFIG_FSP_FILE_S;
 	};
 #endif
+	private_files: private-files {
+		type = "files";
+		pattern = "*.dat";
+	};
 #ifdef CONFIG_HAVE_CMC
 	intel-cmc {
 		filename = CONFIG_CMC_FILE;

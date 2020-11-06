@@ -189,7 +189,7 @@ static const struct udevice_id p2sb_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(p2sb_drv) = {
+U_BOOT_DRIVER(intel_p2sb) = {
 	.name		= "intel_p2sb",
 	.id		= UCLASS_P2SB,
 	.of_match	= p2sb_ids,

@@ -202,7 +202,6 @@ int southbridge_inject_dsdt(const struct udevice *dev, struct acpi_ctx *ctx)
 				   (void **)&gnvs);
 	if (ret)
 		return log_msg_ret("bloblist", ret);
-	memset(gnvs, '\0', sizeof(*gnvs));
 
 	ret = acpi_create_gnvs(gnvs);
 	if (ret)

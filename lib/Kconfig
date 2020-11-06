@@ -637,6 +637,15 @@ config FDT_FIXUP_PARTITIONS
 menu "System tables"
 	depends on (!EFI && !SYS_COREBOOT) || (ARM && EFI_LOADER)
 
+config BLOBLIST_TABLES
+	bool "Put tables in a bloblist"
+	depends on X86
+	help
+	  Normally tables are placed at address 0xf0000 and can be up to 64KB
+	  long. With this option, tables are instead placed in the bloblist
+	  with a pointer from 0xf0000. The size can then be larger and the
+	  tables can be placed high in memory.
+
 config GENERATE_SMBIOS_TABLE
 	bool "Generate an SMBIOS (System Management BIOS) table"
 	default y
@@ -649,21 +658,8 @@ config GENERATE_SMBIOS_TABLE
 
 	  Check http://www.dmtf.org/standards/smbios for details.
 
-config SMBIOS_MANUFACTURER
-	string "SMBIOS Manufacturer"
-	depends on GENERATE_SMBIOS_TABLE
-	default SYS_VENDOR
-	help
-	  The board manufacturer to store in SMBIOS structures.
-	  Change this to override the default one (CONFIG_SYS_VENDOR).
-
-config SMBIOS_PRODUCT_NAME
-	string "SMBIOS Product Name"
-	depends on GENERATE_SMBIOS_TABLE
-	default SYS_BOARD
-	help
-	  The product name to store in SMBIOS structures.
-	  Change this to override the default one (CONFIG_SYS_BOARD).
+	  See also SMBIOS_SYSINFO which allows SMBIOS values to be provided in
+	  the devicetree.
 
 endmenu
 
@@ -679,6 +675,11 @@ config OID_REGISTRY
 	bool
 	help
 	  Enable fast lookup object identifier registry.
+
+config SMBIOS_PARSER
+	bool "SMBIOS parser"
+	help
+	  A simple parser for SMBIOS data.
 
 source lib/efi/Kconfig
 source lib/efi_loader/Kconfig

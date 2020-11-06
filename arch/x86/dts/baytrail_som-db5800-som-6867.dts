@@ -16,6 +16,8 @@
 /include/ "rtc.dtsi"
 /include/ "tsc_timer.dtsi"
 
+#include "smbios.dtsi"
+
 / {
 	model = "Advantech SOM-DB5800-SOM-6867";
 	compatible = "advantech,som-db5800-som-6867", "intel,baytrail";

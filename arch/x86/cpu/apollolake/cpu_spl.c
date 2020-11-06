@@ -114,26 +114,6 @@ static int fast_spi_cache_bios_region(void)
 	return 0;
 }
 
-static void enable_pm_timer_emulation(struct udevice *pmc)
-{
-	struct acpi_pmc_upriv *upriv = dev_get_uclass_priv(pmc);
-	msr_t msr;
-
-	/*
-	 * The derived frequency is calculated as follows:
-	 *    (CTC_FREQ * msr[63:32]) >> 32 = target frequency.
-	 *
-	 * Back-solve the multiplier so the 3.579545MHz ACPI timer frequency is
-	 * used.
-	 */
-	msr.hi = (3579545ULL << 32) / CTC_FREQ;
-
-	/* Set PM1 timer IO port and enable */
-	msr.lo = EMULATE_PM_TMR_EN | (upriv->acpi_base + R_ACPI_PM1_TMR);
-	debug("PM timer %x %x\n", msr.hi, msr.lo);
-	msr_write(MSR_EMULATE_PM_TIMER, msr);
-}
-
 static void google_chromeec_ioport_range(uint *out_basep, uint *out_sizep)
 {
 	uint base;

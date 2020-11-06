@@ -14,6 +14,8 @@
 /include/ "rtc.dtsi"
 /include/ "tsc_timer.dtsi"
 
+#include "smbios.dtsi"
+
 / {
 	model = "Intel Cherry Hill";
 	compatible = "intel,cherryhill", "intel,braswell";

@@ -16,7 +16,7 @@
 #include <dm.h>
 #include <misc.h>
 #include <regmap.h>
-#include <board.h>
+#include <sysinfo.h>
 
 #include "../../../drivers/misc/gdsys_soc.h"
 #include "../../../drivers/misc/gdsys_ioep.h"
@@ -506,11 +506,11 @@ int do_ioloop(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 int do_iodev(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct udevice *ioep = NULL;
-	struct udevice *board;
+	struct udevice *sysinfo;
 	char name[8];
 	int ret;
 
-	if (board_get(&board))
+	if (sysinfo_get(&sysinfo))
 		return CMD_RET_FAILURE;
 
 	if (argc > 1) {
@@ -518,7 +518,8 @@ int do_iodev(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 		snprintf(name, sizeof(name), "ioep%d", i);
 
-		ret = uclass_get_device_by_phandle(UCLASS_MISC, board, name, &ioep);
+		ret = uclass_get_device_by_phandle(UCLASS_MISC, sysinfo, name,
+						   &ioep);
 
 		if (ret || !ioep) {
 			printf("Invalid IOEP %d\n", i);
@@ -532,7 +533,8 @@ int do_iodev(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		while (1) {
 			snprintf(name, sizeof(name), "ioep%d", i);
 
-			ret = uclass_get_device_by_phandle(UCLASS_MISC, board, name, &ioep);
+			ret = uclass_get_device_by_phandle(UCLASS_MISC, sysinfo,
+							   name, &ioep);
 
 			if (ret || !ioep)
 				break;

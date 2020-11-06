@@ -133,7 +133,7 @@ static const struct udevice_id apl_lpc_ids[] = {
 };
 
 /* All pads are LPC already configured by the hostbridge, so no probing here */
-U_BOOT_DRIVER(apl_lpc_drv) = {
+U_BOOT_DRIVER(intel_apl_lpc) = {
 	.name		= "intel_apl_lpc",
 	.id		= UCLASS_LPC,
 	.of_match	= apl_lpc_ids,

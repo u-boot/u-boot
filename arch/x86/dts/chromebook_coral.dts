@@ -9,7 +9,7 @@
 /include/ "rtc.dtsi"
 /include/ "tsc_timer.dtsi"
 
-#ifdef CONFIG_CHROMEOS
+#ifdef CONFIG_CHROMEOS_VBOOT
 #include "chromeos-x86.dtsi"
 #include "flashmap-x86-ro.dtsi"
 #include "flashmap-16mb-rw.dtsi"
@@ -54,6 +54,14 @@
 		recovery-gpios = <&gpio_nw (-1) GPIO_ACTIVE_LOW>;
 		write-protect-gpios = <&gpio_nw GPIO_75 GPIO_ACTIVE_HIGH>;
 		phase-enforce-gpios = <&gpio_n GPIO_10 GPIO_ACTIVE_HIGH>;
+		smbios {
+			manufacturer = "Google";
+			product = "Coral";
+			version = "rev2";
+			serial = "123456789";
+			sku = "sku3";
+			family = "Google_Coral";
+		};
 	};
 
 	config {
@@ -718,8 +726,6 @@
 
 	fsps,ish-enable = <0>;
 	fsps,enable-sata = <0>;
-	fsps,pcie-root-port-en = [00 00 00 00 00 01];
-	fsps,pcie-rp-hot-plug = [00 00 00 00 00 01];
 	fsps,i2c6-enable = <I2CX_ENABLE_DISABLED>;
 	fsps,i2c7-enable = <I2CX_ENABLE_DISABLED>;
 	fsps,hsuart3-enable = <HSUARTX_ENABLE_DISABLED>;

@@ -88,8 +88,8 @@ static const struct udevice_id apl_syscon_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(syscon_intel_punit) = {
-	.name		= "intel_punit_syscon",
+U_BOOT_DRIVER(intel_apl_punit) = {
+	.name		= "intel_apl_punit",
 	.id		= UCLASS_SYSCON,
 	.of_match	= apl_syscon_ids,
 	.probe		= apl_punit_probe,

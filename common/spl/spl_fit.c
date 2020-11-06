@@ -6,13 +6,13 @@
 
 #include <common.h>
 #include <errno.h>
-#include <board.h>
 #include <fpga.h>
 #include <gzip.h>
 #include <image.h>
 #include <log.h>
 #include <malloc.h>
 #include <spl.h>
+#include <sysinfo.h>
 #include <asm/cache.h>
 #include <linux/libfdt.h>
 
@@ -74,7 +74,7 @@ static int spl_fit_get_image_name(const void *fit, int images,
 				  const char *type, int index,
 				  const char **outname)
 {
-	struct udevice *board;
+	struct udevice *sysinfo;
 	const char *name, *str;
 	__maybe_unused int node;
 	int conf_node;
@@ -110,19 +110,20 @@ static int spl_fit_get_image_name(const void *fit, int images,
 		}
 	}
 
-	if (!found && !board_get(&board)) {
+	if (!found && CONFIG_IS_ENABLED(SYSINFO) && !sysinfo_get(&sysinfo)) {
 		int rc;
 		/*
-		 * no string in the property for this index. Check if the board
-		 * level code can supply one.
+		 * no string in the property for this index. Check if the
+		 * sysinfo-level code can supply one.
 		 */
-		rc = board_get_fit_loadable(board, index - i - 1, type, &str);
+		rc = sysinfo_get_fit_loadable(sysinfo, index - i - 1, type,
+					      &str);
 		if (rc && rc != -ENOENT)
 			return rc;
 
 		if (!rc) {
 			/*
-			 * The board provided a name for a loadable.
+			 * The sysinfo provided a name for a loadable.
 			 * Try to match it against the description properties
 			 * first. If no matching node is found, use it as a
 			 * node name.

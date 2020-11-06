@@ -243,8 +243,8 @@ static const struct udevice_id cros_ec_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(cros_ec_lpc) = {
-	.name		= "cros_ec_lpc",
+U_BOOT_DRIVER(google_cros_ec_lpc) = {
+	.name		= "google_cros_ec_lpc",
 	.id		= UCLASS_CROS_EC,
 	.of_match	= cros_ec_ids,
 	.probe		= cros_ec_probe,

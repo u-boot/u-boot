@@ -1,11 +1,11 @@
-gdsys Gazerbeam board driver
+gdsys Gazerbeam sysinfo driver
 
 This driver provides capabilities to access the gdsys Gazerbeam board's device
 information. Furthermore, phandles to some internal devices are provided for
 the board files.
 
 Required properties:
-- compatible:  should be "gdsys,board_gazerbeam"
+- compatible:  should be "gdsys,sysinfo-gazerbeam"
 - csb:         phandle to the board's coherent system bus (CSB) device node
 - rxaui[0-3]:  phandles to the rxaui control device nodes
 - fpga[0-1]:   phandles to the board's gdsys FPGA device nodes
@@ -17,8 +17,8 @@ Required properties:
 Example:
 
 
-board {
-	compatible = "gdsys,board_gazerbeam";
+sysinfo {
+	compatible = "gdsys,sysinfo-gazerbeam";
 	csb = <&board_soc>;
 	serdes = <&SERDES>;
 	rxaui0 = <&RXAUI0>;

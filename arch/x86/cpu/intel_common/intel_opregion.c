@@ -42,7 +42,7 @@ static int locate_vbt(char **vbtp, int *sizep)
 		return -EINVAL;
 	}
 
-	log_info("Found a VBT of %u bytes\n", size);
+	log_debug("Found a VBT of %u bytes\n", size);
 	*sizep = size;
 	*vbtp = vbt_data;
 

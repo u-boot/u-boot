@@ -193,8 +193,8 @@ static const struct udevice_id intel_intel_gpio_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(gpio_intel) = {
-	.name	= "gpio_intel",
+U_BOOT_DRIVER(intel_gpio) = {
+	.name	= "intel_gpio",
 	.id	= UCLASS_GPIO,
 	.of_match = intel_intel_gpio_ids,
 	.ops	= &gpio_intel_ops,

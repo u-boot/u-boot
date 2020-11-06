@@ -13,6 +13,9 @@
 #include <asm/cpu_x86.h>
 #include <asm/intel_acpi.h>
 #include <asm/msr.h>
+#include <asm/mtrr.h>
+#include <asm/arch/cpu.h>
+#include <asm/arch/iomap.h>
 #include <dm/acpi.h>
 
 #define CSTATE_RES(address_space, width, offset, address)		\
@@ -86,6 +89,86 @@ static int acpi_cpu_fill_ssdt(const struct udevice *dev, struct acpi_ctx *ctx)
 	return 0;
 }
 
+static void update_fixed_mtrrs(void)
+{
+	native_write_msr(MTRR_FIX_64K_00000_MSR,
+			 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK),
+			 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+	native_write_msr(MTRR_FIX_16K_80000_MSR,
+			 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK),
+			 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+	native_write_msr(MTRR_FIX_4K_E0000_MSR,
+			 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK),
+			 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+	native_write_msr(MTRR_FIX_4K_E8000_MSR,
+			 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK),
+			 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+	native_write_msr(MTRR_FIX_4K_F0000_MSR,
+			 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK),
+			 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+	native_write_msr(MTRR_FIX_4K_F8000_MSR,
+			 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK),
+			 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+}
+
+static void setup_core_msrs(void)
+{
+	wrmsrl(MSR_PMG_CST_CONFIG_CONTROL,
+	       PKG_C_STATE_LIMIT_C2_MASK | CORE_C_STATE_LIMIT_C10_MASK |
+	       IO_MWAIT_REDIRECT_MASK | CST_CFG_LOCK_MASK);
+	/* Power Management I/O base address for I/O trapping to C-states */
+	wrmsrl(MSR_PMG_IO_CAPTURE_ADR, ACPI_PMIO_CST_REG |
+	       (PMG_IO_BASE_CST_RNG_BLK_SIZE << 16));
+	/* Disable C1E */
+	msr_clrsetbits_64(MSR_POWER_CTL, 0x2, 0);
+	/* Disable support for MONITOR and MWAIT instructions */
+	msr_clrsetbits_64(MSR_IA32_MISC_ENABLE, MISC_ENABLE_MWAIT, 0);
+	/*
+	 * Enable and Lock the Advanced Encryption Standard (AES-NI)
+	 * feature register
+	 */
+	msr_clrsetbits_64(MSR_FEATURE_CONFIG, FEATURE_CONFIG_RESERVED_MASK,
+			  FEATURE_CONFIG_LOCK);
+
+	update_fixed_mtrrs();
+}
+
+static int soc_core_init(void)
+{
+	struct udevice *pmc;
+	int ret;
+
+	/* Clear out pending MCEs */
+	cpu_mca_configure();
+
+	/* Set core MSRs */
+	setup_core_msrs();
+	/*
+	 * Enable ACPI PM timer emulation, which also lets microcode know
+	 * location of ACPI_BASE_ADDRESS. This also enables other features
+	 * implemented in microcode.
+	 */
+	ret = uclass_first_device_err(UCLASS_ACPI_PMC, &pmc);
+	if (ret)
+		return log_msg_ret("PMC", ret);
+	enable_pm_timer_emulation(pmc);
+
+	return 0;
+}
+
+static int cpu_apl_probe(struct udevice *dev)
+{
+	if (gd->flags & GD_FLG_RELOC) {
+		int ret;
+
+		ret = soc_core_init();
+		if (ret)
+			return log_ret(ret);
+	}
+
+	return 0;
+}
+
 struct acpi_ops apl_cpu_acpi_ops = {
 	.fill_ssdt	= acpi_cpu_fill_ssdt,
 };
@@ -102,11 +185,12 @@ static const struct udevice_id cpu_x86_apl_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(cpu_x86_apl_drv) = {
-	.name		= "cpu_x86_apl",
+U_BOOT_DRIVER(intel_apl_cpu) = {
+	.name		= "intel_apl_cpu",
 	.id		= UCLASS_CPU,
 	.of_match	= cpu_x86_apl_ids,
 	.bind		= cpu_x86_bind,
+	.probe		= cpu_apl_probe,
 	.ops		= &cpu_x86_apl_ops,
 	ACPI_OPS_PTR(&apl_cpu_acpi_ops)
 	.flags		= DM_FLAG_PRE_RELOC,

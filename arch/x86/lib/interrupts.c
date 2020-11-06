@@ -131,8 +131,11 @@ void do_irq(int hw_irq)
 int do_irqinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 #if !CONFIG_IS_ENABLED(X86_64)
+	struct idt_ptr ptr;
 	int irq;
 
+	interrupt_read_idt(&ptr);
+	printf("IDT at %lx, size %x\n", ptr.address, ptr.size);
 	printf("Spurious IRQ: %u, last unknown IRQ: %d\n",
 			spurious_irq_cnt, spurious_irq);
 

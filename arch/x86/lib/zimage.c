@@ -12,10 +12,13 @@
  * linux/Documentation/i386/boot.txt
  */
 
+#define LOG_CATEGORY	LOGC_BOOT
+
 #include <common.h>
 #include <command.h>
 #include <env.h>
 #include <irq_func.h>
+#include <log.h>
 #include <malloc.h>
 #include <acpi/acpi_table.h>
 #include <asm/io.h>
@@ -28,6 +31,7 @@
 #include <asm/arch/timestamp.h>
 #endif
 #include <linux/compiler.h>
+#include <linux/ctype.h>
 #include <linux/libfdt.h>
 
 /*
@@ -172,10 +176,18 @@ static const char *get_kernel_version(struct boot_params *params,
 {
 	struct setup_header *hdr = &params->hdr;
 	int bootproto;
+	const char *s, *end;
 
 	bootproto = get_boot_protocol(hdr, false);
 	if (bootproto < 0x0200 || hdr->setup_sects < 15)
 		return NULL;
+
+	/* sanity-check the kernel version in case it is missing */
+	for (s = kernel_base + hdr->kernel_version + 0x200, end = s + 0x100; *s;
+	     s++) {
+		if (!isprint(*s))
+			return NULL;
+	}
 
 	return kernel_base + hdr->kernel_version + 0x200;
 }
@@ -200,13 +212,13 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 
 	/* determine size of setup */
 	if (0 == hdr->setup_sects) {
-		printf("Setup Sectors = 0 (defaulting to 4)\n");
+		log_warning("Setup Sectors = 0 (defaulting to 4)\n");
 		setup_size = 5 * 512;
 	} else {
 		setup_size = (hdr->setup_sects + 1) * 512;
 	}
 
-	printf("Setup Size = 0x%8.8lx\n", (ulong)setup_size);
+	log_debug("Setup Size = 0x%8.8lx\n", (ulong)setup_size);
 
 	if (setup_size > SETUP_MAX_SIZE)
 		printf("Error: Setup is too large (%d bytes)\n", setup_size);
@@ -214,8 +226,8 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 	/* determine boot protocol version */
 	bootproto = get_boot_protocol(hdr, true);
 
-	printf("Using boot protocol version %x.%02x\n",
-	       (bootproto & 0xff00) >> 8, bootproto & 0xff);
+	log_debug("Using boot protocol version %x.%02x\n",
+		  (bootproto & 0xff00) >> 8, bootproto & 0xff);
 
 	version = get_kernel_version(params, image);
 	if (version)
@@ -292,6 +304,7 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	struct setup_header *hdr = &setup_base->hdr;
 	int bootproto = get_boot_protocol(hdr, false);
 
+	log_debug("Setup E820 entries\n");
 	setup_base->e820_entries = install_e820_map(
 		ARRAY_SIZE(setup_base->e820_map), setup_base->e820_map);
 
@@ -317,6 +330,7 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	}
 
 	if (cmd_line) {
+		log_debug("Setup cmdline\n");
 		if (bootproto >= 0x0202) {
 			hdr->cmd_line_ptr = (uintptr_t)cmd_line;
 		} else if (bootproto >= 0x0200) {
@@ -340,6 +354,7 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	if (IS_ENABLED(CONFIG_GENERATE_ACPI_TABLE))
 		setup_base->acpi_rsdp_addr = acpi_get_rsdp_addr();
 
+	log_debug("Setup devicetree\n");
 	setup_device_tree(hdr, (const void *)env_get_hex("fdtaddr", 0));
 	setup_video(&setup_base->screen_info);
 
@@ -405,7 +420,8 @@ static int do_zboot_load(struct cmd_tbl *cmdtp, int flag, int argc,
 		struct boot_params *from = (struct boot_params *)state.base_ptr;
 
 		base_ptr = (struct boot_params *)DEFAULT_SETUP_BASE;
-		printf("Building boot_params at 0x%8.8lx\n", (ulong)base_ptr);
+		log_debug("Building boot_params at 0x%8.8lx\n",
+			  (ulong)base_ptr);
 		memset(base_ptr, '\0', sizeof(*base_ptr));
 		base_ptr->hdr = from->hdr;
 	} else {

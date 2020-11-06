@@ -470,8 +470,9 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 	header->checksum = table_compute_checksum((void *)spcr, header->length);
 }
 
-void acpi_create_ssdt(struct acpi_ctx *ctx, struct acpi_table_header *ssdt,
-		      const char *oem_table_id)
+static int acpi_create_ssdt(struct acpi_ctx *ctx,
+			    struct acpi_table_header *ssdt,
+			    const char *oem_table_id)
 {
 	memset((void *)ssdt, '\0', sizeof(struct acpi_table_header));
 
@@ -484,9 +485,19 @@ void acpi_create_ssdt(struct acpi_ctx *ctx, struct acpi_table_header *ssdt,
 
 	acpi_fill_ssdt(ctx);
 
-	/* (Re)calculate length and checksum. */
+	/* (Re)calculate length and checksum */
 	ssdt->length = ctx->current - (void *)ssdt;
 	ssdt->checksum = table_compute_checksum((void *)ssdt, ssdt->length);
+	log_debug("SSDT at %p, length %x\n", ssdt, ssdt->length);
+
+	/* Drop the table if it is empty */
+	if (ssdt->length == sizeof(struct acpi_table_header)) {
+		ctx->current = ssdt;
+		return -ENOENT;
+	}
+	acpi_align(ctx);
+
+	return 0;
 }
 
 /*
@@ -494,7 +505,8 @@ void acpi_create_ssdt(struct acpi_ctx *ctx, struct acpi_table_header *ssdt,
  */
 ulong write_acpi_tables(ulong start_addr)
 {
-	struct acpi_ctx sctx, *ctx = &sctx;
+	const int thl = sizeof(struct acpi_table_header);
+	struct acpi_ctx *ctx;
 	struct acpi_facs *facs;
 	struct acpi_table_header *dsdt;
 	struct acpi_fadt *fadt;
@@ -505,14 +517,21 @@ ulong write_acpi_tables(ulong start_addr)
 	struct acpi_csrt *csrt;
 	struct acpi_spcr *spcr;
 	void *start;
+	int aml_len;
 	ulong addr;
 	int ret;
 	int i;
+
+	ctx = calloc(1, sizeof(*ctx));
+	if (!ctx)
+		return log_msg_ret("mem", -ENOMEM);
+	gd->acpi_ctx = ctx;
 
 	start = map_sysmem(start_addr, 0);
 
 	debug("ACPI: Writing ACPI tables at %lx\n", start_addr);
 
+	acpi_reset_items();
 	acpi_setup_base_tables(ctx, start);
 
 	debug("ACPI:    * FACS\n");
@@ -525,21 +544,28 @@ ulong write_acpi_tables(ulong start_addr)
 	dsdt = ctx->current;
 
 	/* Put the table header first */
-	memcpy(dsdt, &AmlCode, sizeof(struct acpi_table_header));
-	acpi_inc(ctx, sizeof(struct acpi_table_header));
+	memcpy(dsdt, &AmlCode, thl);
+	acpi_inc(ctx, thl);
+	log_debug("DSDT starts at %p, hdr ends at %p\n", dsdt, ctx->current);
 
 	/* If the table is not empty, allow devices to inject things */
-	if (dsdt->length >= sizeof(struct acpi_table_header))
+	aml_len = dsdt->length - thl;
+	if (aml_len) {
+		void *base = ctx->current;
+
 		acpi_inject_dsdt(ctx);
+		log_debug("Added %x bytes from inject_dsdt, now at %p\n",
+			  ctx->current - base, ctx->current);
+		log_debug("Copy AML code size %x to %p\n", aml_len,
+			  ctx->current);
+		memcpy(ctx->current, AmlCode + thl, aml_len);
+		acpi_inc(ctx, aml_len);
+	}
 
-	/* Copy in the AML code itself if any (after the header) */
-	memcpy(ctx->current,
-	       (char *)&AmlCode + sizeof(struct acpi_table_header),
-	       dsdt->length - sizeof(struct acpi_table_header));
-
-	acpi_inc(ctx, dsdt->length - sizeof(struct acpi_table_header));
 	dsdt->length = ctx->current - (void *)dsdt;
 	acpi_align(ctx);
+	log_debug("Updated DSDT length to %x, total %x\n", dsdt->length,
+		  ctx->current - (void *)dsdt);
 
 	if (!IS_ENABLED(CONFIG_ACPI_GNVS_EXTERNAL)) {
 		/* Pack GNVS into the ACPI table area */
@@ -591,11 +617,8 @@ ulong write_acpi_tables(ulong start_addr)
 
 	debug("ACPI:     * SSDT\n");
 	ssdt = (struct acpi_table_header *)ctx->current;
-	acpi_create_ssdt(ctx, ssdt, OEM_TABLE_ID);
-	if (ssdt->length > sizeof(struct acpi_table_header)) {
-		acpi_inc_align(ctx, ssdt->length);
+	if (!acpi_create_ssdt(ctx, ssdt, OEM_TABLE_ID))
 		acpi_add_table(ctx, ssdt);
-	}
 
 	debug("ACPI:    * MCFG\n");
 	mcfg = ctx->current;
@@ -623,14 +646,17 @@ ulong write_acpi_tables(ulong start_addr)
 	acpi_inc_align(ctx, madt->header.length);
 	acpi_add_table(ctx, madt);
 
-	debug("ACPI:    * TCPA\n");
-	tcpa = (struct acpi_tcpa *)ctx->current;
-	ret = acpi_create_tcpa(tcpa);
-	if (ret) {
-		log_warning("Failed to create TCPA table (err=%d)\n", ret);
-	} else {
-		acpi_inc_align(ctx, tcpa->header.length);
-		acpi_add_table(ctx, tcpa);
+	if (IS_ENABLED(CONFIG_TPM_V1)) {
+		debug("ACPI:    * TCPA\n");
+		tcpa = (struct acpi_tcpa *)ctx->current;
+		ret = acpi_create_tcpa(tcpa);
+		if (ret) {
+			log_warning("Failed to create TCPA table (err=%d)\n",
+				    ret);
+		} else {
+			acpi_inc_align(ctx, tcpa->header.length);
+			acpi_add_table(ctx, tcpa);
+		}
 	}
 
 	debug("ACPI:    * CSRT\n");
@@ -741,7 +767,7 @@ int acpi_write_dbg2_pci_uart(struct acpi_ctx *ctx, struct udevice *dev,
 	 * 32-bits each. This is only for debugging so it is not a big deal.
 	 */
 	addr = dm_pci_read_bar32(dev, 0);
-	printf("UART addr %lx\n", (ulong)addr);
+	log_debug("UART addr %lx\n", (ulong)addr);
 
 	memset(&address, '\0', sizeof(address));
 	address.space_id = ACPI_ADDRESS_SPACE_MEMORY;

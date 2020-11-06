@@ -396,7 +396,7 @@ static const struct udevice_id apl_hostbridge_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(apl_hostbridge_drv) = {
+U_BOOT_DRIVER(intel_apl_hostbridge) = {
 	.name		= "intel_apl_hostbridge",
 	.id		= UCLASS_NORTHBRIDGE,
 	.of_match	= apl_hostbridge_ids,

@@ -24,6 +24,7 @@
 #include <membuff.h>
 #include <linux/list.h>
 
+struct acpi_ctx;
 struct driver_rt;
 
 typedef struct global_data gd_t;
@@ -420,6 +421,12 @@ struct global_data {
 	 */
 	struct udevice *watchdog_dev;
 #endif
+#ifdef CONFIG_GENERATE_ACPI_TABLE
+	/**
+	 * @acpi_ctx: ACPI context pointer
+	 */
+	struct acpi_ctx *acpi_ctx;
+#endif
 };
 
 /**
@@ -450,6 +457,12 @@ struct global_data {
 #else
 #define gd_set_dm_driver_rt(dyn)
 #define gd_dm_driver_rt()		NULL
+#endif
+
+#ifdef CONFIG_GENERATE_ACPI_TABLE
+#define gd_acpi_ctx()		gd->acpi_ctx
+#else
+#define gd_acpi_ctx()		NULL
 #endif
 
 /**

@@ -67,7 +67,7 @@ static int snapshot_polarities(struct udevice *dev)
 	reg_start = start / IRQS_PER_IPC;
 	reg_end = DIV_ROUND_UP(end, IRQS_PER_IPC);
 
-	log_info("ITSS IRQ Polarities snapshot %p\n", priv->irq_snapshot);
+	log_debug("ITSS IRQ Polarities snapshot %p\n", priv->irq_snapshot);
 	for (i = reg_start; i < reg_end; i++) {
 		uint reg = PCR_ITSS_IPC0_CONF + sizeof(u32) * i;
 
@@ -89,11 +89,11 @@ static void show_polarities(struct udevice *dev, const char *msg)
 {
 	int i;
 
-	log_info("ITSS IRQ Polarities %s:\n", msg);
+	log_debug("ITSS IRQ Polarities %s:\n", msg);
 	for (i = 0; i < NUM_IPC_REGS; i++) {
 		uint reg = PCR_ITSS_IPC0_CONF + sizeof(u32) * i;
 
-		log_info("IPC%d: 0x%08x\n", i, pcr_read32(dev, reg));
+		log_debug("IPC%d: 0x%08x\n", i, pcr_read32(dev, reg));
 	}
 }
 
@@ -115,7 +115,7 @@ static int restore_polarities(struct udevice *dev)
 	       sizeof(priv->irq_snapshot));
 
 	show_polarities(dev, "Before");
-	log_info("priv->irq_snapshot %p\n", priv->irq_snapshot);
+	log_debug("priv->irq_snapshot %p\n", priv->irq_snapshot);
 
 	reg_start = start / IRQS_PER_IPC;
 	reg_end = DIV_ROUND_UP(end, IRQS_PER_IPC);
@@ -235,7 +235,7 @@ static const struct udevice_id itss_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(itss_drv) = {
+U_BOOT_DRIVER(intel_itss) = {
 	.name		= "intel_itss",
 	.id		= UCLASS_IRQ,
 	.of_match	= itss_ids,

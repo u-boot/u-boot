@@ -1,5 +1,25 @@
 // SPDX-License-Identifier: GPL-2.0+
 
+/ {
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				product = "uDPU";
+			};
+
+			baseboard {
+				product = "uDPU";
+			};
+
+			chassis {
+				product = "uDPU";
+			};
+		};
+	};
+};
+
 &spi0 {
 	u-boot,dm-pre-reloc;
 

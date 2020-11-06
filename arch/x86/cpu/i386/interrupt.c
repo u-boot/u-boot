@@ -180,16 +180,11 @@ struct idt_entry {
 	u16	base_high;
 } __packed;
 
-struct desc_ptr {
-	unsigned short size;
-	unsigned long address;
-} __packed;
-
 struct idt_entry idt[256] __aligned(16);
 
-struct desc_ptr idt_ptr;
+struct idt_ptr idt_ptr;
 
-static inline void load_idt(const struct desc_ptr *dtr)
+static inline void load_idt(const struct idt_ptr *dtr)
 {
 	asm volatile("cs lidt %0" : : "m" (*dtr));
 }
@@ -230,6 +225,11 @@ int cpu_init_interrupts(void)
 	load_idt(&idt_ptr);
 
 	return 0;
+}
+
+void interrupt_read_idt(struct idt_ptr *ptr)
+{
+	asm volatile("sidt %0" : : "m" (*ptr));
 }
 
 void *x86_get_idt(void)

@@ -482,8 +482,8 @@ static const struct udevice_id tsc_timer_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(tsc_timer) = {
-	.name	= "tsc_timer",
+U_BOOT_DRIVER(x86_tsc_timer) = {
+	.name	= "x86_tsc_timer",
 	.id	= UCLASS_TIMER,
 	.of_match = tsc_timer_ids,
 	.probe = tsc_timer_probe,

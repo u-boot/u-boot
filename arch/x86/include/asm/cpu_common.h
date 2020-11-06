@@ -184,4 +184,13 @@ int cpu_get_max_turbo_ratio(void);
  */
 int cpu_get_cores_per_package(void);
 
+/**
+ * cpu_mca_configure() - Set up machine-check exceptions ready for use
+ *
+ * These allow the SoC to report errors while running. See here for details:
+ *
+ * https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/machine-check-exceptions-debug-paper.pdf
+ */
+void cpu_mca_configure(void);
+
 #endif

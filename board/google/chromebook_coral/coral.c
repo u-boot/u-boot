@@ -150,7 +150,7 @@ static const struct udevice_id coral_ids[] = {
 
 U_BOOT_DRIVER(coral_drv) = {
 	.name		= "coral",
-	.id		= UCLASS_BOARD,
+	.id		= UCLASS_SYSINFO,
 	.of_match	= coral_ids,
 	ACPI_OPS_PTR(&coral_acpi_ops)
 };

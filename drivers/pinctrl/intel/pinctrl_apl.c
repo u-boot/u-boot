@@ -174,7 +174,7 @@ static const struct udevice_id apl_gpio_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(apl_pinctrl_drv) = {
+U_BOOT_DRIVER(intel_apl_pinctrl) = {
 	.name		= "intel_apl_pinctrl",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= apl_gpio_ids,

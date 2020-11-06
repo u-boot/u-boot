@@ -96,6 +96,7 @@ enum log_category_t {
 	LOGC_DEVRES,
 	/** @LOGC_ACPI: Advanced Configuration and Power Interface (ACPI) */
 	LOGC_ACPI,
+	LOGC_BOOT,	/* Related to boot process / boot image processing */
 
 	/** @LOGC_COUNT: Number of log categories */
 	LOGC_COUNT,

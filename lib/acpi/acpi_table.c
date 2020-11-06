@@ -183,8 +183,8 @@ int acpi_add_table(struct acpi_ctx *ctx, void *table)
 	return 0;
 }
 
-static void acpi_write_rsdp(struct acpi_rsdp *rsdp, struct acpi_rsdt *rsdt,
-			    struct acpi_xsdt *xsdt)
+void acpi_write_rsdp(struct acpi_rsdp *rsdp, struct acpi_rsdt *rsdt,
+		     struct acpi_xsdt *xsdt)
 {
 	memset(rsdp, 0, sizeof(struct acpi_rsdp));
 

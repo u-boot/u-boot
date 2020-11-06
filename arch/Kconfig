@@ -198,6 +198,8 @@ config X86
 	imply RTC_MC146818
 	imply IRQ
 	imply ACPIGEN if !QEMU
+	imply SYSINFO if GENERATE_SMBIOS_TABLE
+	imply SYSINFO_SMBIOS if GENERATE_SMBIOS_TABLE
 
 	# Thing to enable for when SPL/TPL are enabled: SPL
 	imply SPL_DM

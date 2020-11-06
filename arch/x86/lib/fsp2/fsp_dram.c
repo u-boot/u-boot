@@ -4,6 +4,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY LOGC_ARCH
+
 #include <common.h>
 #include <handoff.h>
 #include <init.h>
@@ -35,7 +37,7 @@ int dram_init(void)
 		ret = fsp_memory_init(s3wake,
 			      IS_ENABLED(CONFIG_APL_BOOT_FROM_FAST_SPI_FLASH));
 		if (ret) {
-			debug("Memory init failed (err=%x)\n", ret);
+			log_debug("Memory init failed (err=%x)\n", ret);
 			return ret;
 		}
 
@@ -60,7 +62,7 @@ int dram_init(void)
 		struct spl_handoff *ho = gd->spl_handoff;
 
 		if (!ho) {
-			debug("No SPL handoff found\n");
+			log_debug("No SPL handoff found\n");
 			return -ESTRPIPE;
 		}
 		gd->ram_size = ho->ram_size;
@@ -81,6 +83,8 @@ ulong board_get_usable_ram_top(ulong total_size)
 
 #if CONFIG_IS_ENABLED(HANDOFF)
 	struct spl_handoff *ho = gd->spl_handoff;
+
+	log_debug("usable_ram_top = %lx\n", ho->arch.usable_ram_top);
 
 	return ho->arch.usable_ram_top;
 #endif

@@ -65,6 +65,21 @@ int arch_write_sci_irq_select(uint scis)
 	return 0;
 }
 
+/**
+ * chromeos_init_acpi() - Initialise basic data to boot Chrome OS
+ *
+ * This tells Chrome OS to boot in developer mode
+ *
+ * @cros: Structure to initialise
+ */
+static void chromeos_init_acpi(struct chromeos_acpi_gnvs *cros)
+{
+	cros->active_main_fw = 1;
+	cros->active_main_fw = 1; /* A */
+	cros->switches = CHSW_DEVELOPER_SWITCH;
+	cros->main_fw_type = 2; /* Developer */
+}
+
 int acpi_create_gnvs(struct acpi_global_nvs *gnvs)
 {
 	struct udevice *cpu;
@@ -75,11 +90,9 @@ int acpi_create_gnvs(struct acpi_global_nvs *gnvs)
 
 	/* TODO(sjg@chromium.org): Add the console log to gnvs->cbmc */
 
-#ifdef CONFIG_CHROMEOS
-	/* Initialise Verified Boot data */
-	chromeos_init_acpi(&gnvs->chromeos);
-	gnvs->chromeos.vbt2 = ACTIVE_ECFW_RO;
-#endif
+	if (IS_ENABLED(CONFIG_CHROMEOS))
+		chromeos_init_acpi(&gnvs->chromeos);
+
 	/* Set unknown wake source */
 	gnvs->pm1i = ~0ULL;
 
@@ -91,6 +104,8 @@ int acpi_create_gnvs(struct acpi_global_nvs *gnvs)
 		if (ret > 0)
 			gnvs->pcnt = ret;
 	}
+
+	gnvs->dpte = 1;
 
 	return 0;
 }

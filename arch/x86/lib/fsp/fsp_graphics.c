@@ -139,7 +139,7 @@ static int fsp_video_acpi_write_tables(const struct udevice *dev,
 	struct igd_opregion *opregion;
 	int ret;
 
-	printf("ACPI:    * IGD OpRegion\n");
+	log_debug("ACPI:    * IGD OpRegion\n");
 	opregion = (struct igd_opregion *)ctx->current;
 
 	ret = intel_gma_init_igd_opregion((struct udevice *)dev, opregion);
