@@ -3,6 +3,8 @@
  * Copyright (C) 2017-2020 STMicroelectronics - All Rights Reserved
  */
 
+#define LOG_CATEGORY UCLASS_PINCTRL
+
 #include <common.h>
 #include <dm.h>
 #include <hwspinlock.h>
@@ -256,8 +258,8 @@ static int stm32_pinctrl_probe(struct udevice *dev)
 	/* hwspinlock property is optional, just log the error */
 	ret = hwspinlock_get_by_index(dev, 0, &priv->hws);
 	if (ret)
-		debug("%s: hwspinlock_get_by_index may have failed (%d)\n",
-		      __func__, ret);
+		dev_dbg(dev, "hwspinlock_get_by_index may have failed (%d)\n",
+			ret);
 
 	return 0;
 }
@@ -305,8 +307,7 @@ static int prep_gpio_dsc(struct stm32_gpio_dsc *gpio_dsc, u32 port_pin)
 {
 	gpio_dsc->port = (port_pin & 0x1F000) >> 12;
 	gpio_dsc->pin = (port_pin & 0x0F00) >> 8;
-	debug("%s: GPIO:port= %d, pin= %d\n", __func__, gpio_dsc->port,
-	      gpio_dsc->pin);
+	log_debug("GPIO:port= %d, pin= %d\n", gpio_dsc->port, gpio_dsc->pin);
 
 	return 0;
 }
@@ -347,9 +348,9 @@ static int prep_gpio_ctl(struct stm32_gpio_ctl *gpio_ctl, u32 gpio_fn,
 	else
 		gpio_ctl->pupd = STM32_GPIO_PUPD_NO;
 
-	debug("%s: gpio fn= %d, slew-rate= %x, op type= %x, pull-upd is = %x\n",
-	      __func__,  gpio_fn, gpio_ctl->speed, gpio_ctl->otype,
-	     gpio_ctl->pupd);
+	log_debug("gpio fn= %d, slew-rate= %x, op type= %x, pull-upd is = %x\n",
+		  gpio_fn, gpio_ctl->speed, gpio_ctl->otype,
+		  gpio_ctl->pupd);
 
 	return 0;
 }
@@ -373,7 +374,7 @@ static int stm32_pinctrl_config(ofnode node)
 		if (rv < 0)
 			return rv;
 		len = rv / sizeof(pin_mux[0]);
-		debug("%s: no of pinmux entries= %d\n", __func__, len);
+		log_debug("No of pinmux entries= %d\n", len);
 		if (len > MAX_PINS_ONE_IP)
 			return -EINVAL;
 		rv = ofnode_read_u32_array(subnode, "pinmux", pin_mux, len);
@@ -382,7 +383,7 @@ static int stm32_pinctrl_config(ofnode node)
 		for (i = 0; i < len; i++) {
 			struct gpio_desc desc;
 
-			debug("%s: pinmux = %x\n", __func__, *(pin_mux + i));
+			log_debug("pinmux = %x\n", *(pin_mux + i));
 			prep_gpio_dsc(&gpio_dsc, *(pin_mux + i));
 			prep_gpio_ctl(&gpio_ctl, *(pin_mux + i), subnode);
 			rv = uclass_get_device_by_seq(UCLASS_GPIO,
@@ -392,7 +393,7 @@ static int stm32_pinctrl_config(ofnode node)
 				return rv;
 			desc.offset = gpio_dsc.pin;
 			rv = stm32_gpio_config(&desc, &gpio_ctl);
-			debug("%s: rv = %d\n\n", __func__, rv);
+			log_debug("rv = %d\n\n", rv);
 			if (rv)
 				return rv;
 		}
@@ -408,7 +409,7 @@ static int stm32_pinctrl_bind(struct udevice *dev)
 	int ret;
 
 	dev_for_each_subnode(node, dev) {
-		debug("%s: bind %s\n", __func__, ofnode_get_name(node));
+		dev_dbg(dev, "bind %s\n", ofnode_get_name(node));
 
 		ofnode_get_property(node, "gpio-controller", &ret);
 		if (ret < 0)
@@ -424,7 +425,7 @@ static int stm32_pinctrl_bind(struct udevice *dev)
 		if (ret)
 			return ret;
 
-		debug("%s: bind %s\n", __func__, name);
+		dev_dbg(dev, "bind %s\n", name);
 	}
 
 	return 0;
@@ -448,7 +449,7 @@ static int stm32_pinctrl_set_state_simple(struct udevice *dev,
 	if (!list)
 		return -EINVAL;
 
-	debug("%s: periph->name = %s\n", __func__, periph->name);
+	dev_dbg(dev, "periph->name = %s\n", periph->name);
 
 	size /= sizeof(*list);
 	for (i = 0; i < size; i++) {
@@ -456,7 +457,8 @@ static int stm32_pinctrl_set_state_simple(struct udevice *dev,
 
 		config_node = ofnode_get_by_phandle(phandle);
 		if (!ofnode_valid(config_node)) {
-			pr_err("prop pinctrl-0 index %d invalid phandle\n", i);
+			dev_err(periph,
+				"prop pinctrl-0 index %d invalid phandle\n", i);
 			return -EINVAL;
 		}
 
