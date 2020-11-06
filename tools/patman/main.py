@@ -86,7 +86,19 @@ AddCommonArgs(send)
 send.add_argument('patchfiles', nargs='*')
 
 test_parser = subparsers.add_parser('test', help='Run tests')
+test_parser.add_argument('testname', type=str, default=None, nargs='?',
+                         help="Specify the test to run")
 AddCommonArgs(test_parser)
+
+status = subparsers.add_parser('status',
+                               help='Check status of patches in patchwork')
+status.add_argument('-C', '--show-comments', action='store_true',
+                    help='Show comments from each patch')
+status.add_argument('-d', '--dest-branch', type=str,
+                    help='Name of branch to create with collected responses')
+status.add_argument('-f', '--force', action='store_true',
+                    help='Force overwriting an existing branch')
+AddCommonArgs(status)
 
 # Parse options twice: first to get the project and second to handle
 # defaults properly (which depends on project).
@@ -111,15 +123,23 @@ if args.cmd == 'test':
 
     sys.argv = [sys.argv[0]]
     result = unittest.TestResult()
+    suite = unittest.TestSuite()
+    loader = unittest.TestLoader()
     for module in (test_checkpatch.TestPatch, func_test.TestFunctional):
-        suite = unittest.TestLoader().loadTestsFromTestCase(module)
-        suite.run(result)
+        if args.testname:
+            try:
+                suite.addTests(loader.loadTestsFromName(args.testname, module))
+            except AttributeError:
+                continue
+        else:
+            suite.addTests(loader.loadTestsFromTestCase(module))
+    suite.run(result)
 
     for module in ['gitutil', 'settings', 'terminal']:
         suite = doctest.DocTestSuite(module)
         suite.run(result)
 
-    sys.exit(test_util.ReportResult('patman', None, result))
+    sys.exit(test_util.ReportResult('patman', args.testname, result))
 
 # Process commits, produce patches files, check them, email them
 elif args.cmd == 'send':
@@ -147,3 +167,19 @@ elif args.cmd == 'send':
 
     else:
         control.send(args)
+
+# Check status of patches in patchwork
+elif args.cmd == 'status':
+    ret_code = 0
+    try:
+        control.patchwork_status(args.branch, args.count, args.start, args.end,
+                                 args.dest_branch, args.force,
+                                 args.show_comments)
+    except Exception as e:
+        terminal.Print('patman: %s: %s' % (type(e).__name__, e),
+                       colour=terminal.Color.RED)
+        if args.debug:
+            print()
+            traceback.print_exc()
+        ret_code = 1
+    sys.exit(ret_code)

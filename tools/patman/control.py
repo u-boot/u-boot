@@ -54,14 +54,14 @@ def prepare_patches(col, branch, count, start, end, ignore_binary):
 
     # Read the metadata from the commits
     to_do = count - end
-    series = patchstream.GetMetaData(branch, start, to_do)
+    series = patchstream.get_metadata(branch, start, to_do)
     cover_fname, patch_files = gitutil.CreatePatches(
         branch, start, to_do, ignore_binary, series)
 
     # Fix up the patch files to our liking, and insert the cover letter
-    patchstream.FixPatches(series, patch_files)
+    patchstream.fix_patches(series, patch_files)
     if cover_fname and series.get('cover'):
-        patchstream.InsertCoverLetter(cover_fname, series, to_do)
+        patchstream.insert_cover_letter(cover_fname, series, to_do)
     return series, cover_fname, patch_files
 
 def check_patches(series, patch_files, run_checkpatch, verbose):
@@ -170,9 +170,62 @@ def send(args):
     ok = ok and gitutil.CheckSuppressCCConfig()
 
     its_a_go = ok or args.ignore_errors
-    if its_a_go:
-        email_patches(
-            col, series, cover_fname, patch_files, args.process_tags,
-            its_a_go, args.ignore_bad_tags, args.add_maintainers,
-            args.limit, args.dry_run, args.in_reply_to, args.thread,
-            args.smtp_server)
+    email_patches(
+        col, series, cover_fname, patch_files, args.process_tags,
+        its_a_go, args.ignore_bad_tags, args.add_maintainers,
+        args.limit, args.dry_run, args.in_reply_to, args.thread,
+        args.smtp_server)
+
+def patchwork_status(branch, count, start, end, dest_branch, force,
+                     show_comments):
+    """Check the status of patches in patchwork
+
+    This finds the series in patchwork using the Series-link tag, checks for new
+    comments and review tags, displays then and creates a new branch with the
+    review tags.
+
+    Args:
+        branch (str): Branch to create patches from (None = current)
+        count (int): Number of patches to produce, or -1 to produce patches for
+            the current branch back to the upstream commit
+        start (int): Start partch to use (0=first / top of branch)
+        end (int): End patch to use (0=last one in series, 1=one before that,
+            etc.)
+        dest_branch (str): Name of new branch to create with the updated tags
+            (None to not create a branch)
+        force (bool): With dest_branch, force overwriting an existing branch
+        show_comments (bool): True to display snippets from the comments
+            provided by reviewers
+
+    Raises:
+        ValueError: if the branch has no Series-link value
+    """
+    if count == -1:
+        # Work out how many patches to send if we can
+        count = (gitutil.CountCommitsToBranch(branch) - start)
+
+    series = patchstream.get_metadata(branch, start, count - end)
+    warnings = 0
+    for cmt in series.commits:
+        if cmt.warn:
+            print('%d warnings for %s:' % (len(cmt.warn), cmt.hash))
+            for warn in cmt.warn:
+                print('\t', warn)
+                warnings += 1
+            print
+    if warnings:
+        raise ValueError('Please fix warnings before running status')
+    links = series.get('links')
+    if not links:
+        raise ValueError("Branch has no Series-links value")
+
+    # Find the link without a version number (we don't support versions yet)
+    found = [link for link in links.split() if not ':' in link]
+    if not found:
+        raise ValueError('Series-links has no current version (without :)')
+
+    # Import this here to avoid failing on other commands if the dependencies
+    # are not present
+    from patman import status
+    status.check_patchwork_status(series, found[0], branch, dest_branch, force,
+                                  show_comments)

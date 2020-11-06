@@ -93,8 +93,9 @@ def CheckPatch(fname, verbose=False, show_types=False):
     re_error = re.compile('ERROR:%s (.*)' % type_name)
     re_warning = re.compile(emacs_prefix + 'WARNING:%s (.*)' % type_name)
     re_check = re.compile('CHECK:%s (.*)' % type_name)
-    re_file = re.compile('#\d+: FILE: ([^:]*):(\d+):')
+    re_file = re.compile('#(\d+): (FILE: ([^:]*):(\d+):)?')
     re_note = re.compile('NOTE: (.*)')
+    re_new_file = re.compile('new file mode .*')
     indent = ' ' * 6
     for line in result.stdout.splitlines():
         if verbose:
@@ -111,8 +112,10 @@ def CheckPatch(fname, verbose=False, show_types=False):
         # Skip lines which quote code
         if line.startswith(indent):
             continue
-        # Skip code quotes and #<n>
-        if line.startswith('+') or line.startswith('#'):
+        # Skip code quotes
+        if line.startswith('+'):
+            continue
+        if re_new_file.match(line):
             continue
         match = re_stats_full.match(line)
         if not match:
@@ -150,8 +153,13 @@ def CheckPatch(fname, verbose=False, show_types=False):
             item['msg'] = check_match.group(2)
             item['type'] = 'check'
         elif file_match:
-            item['file'] = file_match.group(1)
-            item['line'] = int(file_match.group(2))
+            err_fname = file_match.group(3)
+            if err_fname:
+                item['file'] = err_fname
+                item['line'] = int(file_match.group(4))
+            else:
+                item['file'] = '<patch>'
+                item['line'] = int(file_match.group(1))
         elif subject_match:
             item['file'] = '<patch subject>'
             item['line'] = None

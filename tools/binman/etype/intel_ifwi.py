@@ -71,7 +71,7 @@ class Entry_intel_ifwi(Entry_blob_ext):
 
         for entry in self._ifwi_entries.values():
             # First get the input data and put it in a file
-            data = entry.GetData()
+            data = entry.GetPaddedData()
             uniq = self.GetUniqueName()
             input_fname = tools.GetOutputFilename('input.%s' % uniq)
             tools.WriteFile(input_fname, data)

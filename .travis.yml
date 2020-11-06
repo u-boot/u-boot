@@ -26,6 +26,7 @@ addons:
     - python3-sphinx
     - python3-virtualenv
     - python3-pip
+    - python3-pygit2
     - swig
     - libpython-dev
     - iasl

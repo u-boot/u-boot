@@ -37,7 +37,9 @@ static int dm_test_sysreset_base(struct unit_test_state *uts)
 	/* Device 2 is the cold sysreset device */
 	ut_assertok(uclass_get_device(UCLASS_SYSRESET, 2, &dev));
 	ut_asserteq(-ENOSYS, sysreset_request(dev, SYSRESET_WARM));
+	state->sysreset_allowed[SYSRESET_COLD] = false;
 	ut_asserteq(-EACCES, sysreset_request(dev, SYSRESET_COLD));
+	state->sysreset_allowed[SYSRESET_COLD] = true;
 	state->sysreset_allowed[SYSRESET_POWER] = false;
 	ut_asserteq(-EACCES, sysreset_request(dev, SYSRESET_POWER));
 	state->sysreset_allowed[SYSRESET_POWER] = true;
@@ -71,22 +73,25 @@ static int dm_test_sysreset_walk(struct unit_test_state *uts)
 	struct sandbox_state *state = state_get_current();
 
 	/* If we generate a power sysreset, we will exit sandbox! */
+	state->sysreset_allowed[SYSRESET_WARM] = false;
+	state->sysreset_allowed[SYSRESET_COLD] = false;
 	state->sysreset_allowed[SYSRESET_POWER] = false;
 	state->sysreset_allowed[SYSRESET_POWER_OFF] = false;
 	ut_asserteq(-EACCES, sysreset_walk(SYSRESET_WARM));
 	ut_asserteq(-EACCES, sysreset_walk(SYSRESET_COLD));
 	ut_asserteq(-EACCES, sysreset_walk(SYSRESET_POWER));
+	ut_asserteq(-EACCES, sysreset_walk(SYSRESET_POWER_OFF));
 
 	/*
 	 * Enable cold system reset - this should make cold system reset work,
 	 * plus a warm system reset should be promoted to cold, since this is
 	 * the next step along.
 	 */
-	state->sysreset_allowed[SYSRESET_COLD] = true;
+	state->sysreset_allowed[SYSRESET_WARM] = true;
 	ut_asserteq(-EINPROGRESS, sysreset_walk(SYSRESET_WARM));
-	ut_asserteq(-EINPROGRESS, sysreset_walk(SYSRESET_COLD));
+	ut_asserteq(-EACCES, sysreset_walk(SYSRESET_COLD));
 	ut_asserteq(-EACCES, sysreset_walk(SYSRESET_POWER));
-	state->sysreset_allowed[SYSRESET_COLD] = false;
+	state->sysreset_allowed[SYSRESET_COLD] = true;
 	state->sysreset_allowed[SYSRESET_POWER] = true;
 
 	return 0;

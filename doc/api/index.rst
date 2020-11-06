@@ -12,6 +12,7 @@ U-Boot API documentation
    linker_lists
    pinctrl
    rng
+   sandbox
    serial
    timer
    unicode

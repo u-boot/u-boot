@@ -245,7 +245,7 @@ class Entry(object):
         state.SetInt(self._node, 'size', self.size)
         base = self.section.GetRootSkipAtStart() if self.section else 0
         if self.image_pos is not None:
-            state.SetInt(self._node, 'image-pos', self.image_pos)
+            state.SetInt(self._node, 'image-pos', self.image_pos - base)
         if self.GetImage().allow_repack:
             if self.orig_offset is not None:
                 state.SetInt(self._node, 'orig-offset', self.orig_offset, True)
@@ -455,6 +455,22 @@ class Entry(object):
         """
         self.Detail('GetData: size %s' % ToHexSize(self.data))
         return self.data
+
+    def GetPaddedData(self, data=None):
+        """Get the data for an entry including any padding
+
+        Gets the entry data and uses its section's pad-byte value to add padding
+        before and after as defined by the pad-before and pad-after properties.
+
+        This does not consider alignment.
+
+        Returns:
+            Contents of the entry along with any pad bytes before and
+            after it (bytes)
+        """
+        if data is None:
+            data = self.GetData()
+        return self.section.GetPaddedDataForEntry(self, data)
 
     def GetOffsets(self):
         """Get the offsets for siblings

@@ -276,14 +276,14 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
                                                       options.branch)
             upstream_commit = gitutil.GetUpstream(options.git_dir,
                                                   options.branch)
-            series = patchstream.GetMetaDataForList(upstream_commit,
+            series = patchstream.get_metadata_for_list(upstream_commit,
                 options.git_dir, 1, series=None, allow_overwrite=True)
 
-            series = patchstream.GetMetaDataForList(range_expr,
+            series = patchstream.get_metadata_for_list(range_expr,
                     options.git_dir, None, series, allow_overwrite=True)
         else:
             # Honour the count
-            series = patchstream.GetMetaDataForList(options.branch,
+            series = patchstream.get_metadata_for_list(options.branch,
                     options.git_dir, count, series=None, allow_overwrite=True)
     else:
         series = None

@@ -148,15 +148,15 @@ Signed-off-by: Simon Glass <sjg@chromium.org>
         expfd.write(expected)
         expfd.close()
 
-        # Normally by the time we call FixPatch we've already collected
+        # Normally by the time we call fix_patch we've already collected
         # metadata.  Here, we haven't, but at least fake up something.
-        # Set the "count" to -1 which tells FixPatch to use a bogus/fixed
+        # Set the "count" to -1 which tells fix_patch to use a bogus/fixed
         # time for generating the Message-Id.
         com = commit.Commit('')
         com.change_id = 'I80fe1d0c0b7dd10aa58ce5bb1d9290b6664d5413'
         com.count = -1
 
-        patchstream.FixPatch(None, inname, series.Series(), com)
+        patchstream.fix_patch(None, inname, series.Series(), com)
 
         rc = os.system('diff -u %s %s' % (inname, expname))
         self.assertEqual(rc, 0)

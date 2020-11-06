@@ -103,7 +103,7 @@ int binman_init(void)
 			return log_msg_ret("first image", -ENOENT);
 		binman->image = node;
 	}
-	binman->rom_offset = ROM_OFFSET_NONE;
-
+	binman_set_rom_offset(ROM_OFFSET_NONE);
+\
 	return 0;
 }

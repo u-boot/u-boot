@@ -66,9 +66,13 @@ def CountCommitsToBranch(branch):
         rev_range = '%s..%s' % (us, branch)
     else:
         rev_range = '@{upstream}..'
-    pipe = [LogCmd(rev_range, oneline=True), ['wc', '-l']]
-    stdout = command.RunPipe(pipe, capture=True, oneline=True).stdout
-    patch_count = int(stdout)
+    pipe = [LogCmd(rev_range, oneline=True)]
+    result = command.RunPipe(pipe, capture=True, capture_stderr=True,
+                             oneline=True, raise_on_error=False)
+    if result.return_code:
+        raise ValueError('Failed to determine upstream: %s' %
+                         result.stderr.strip())
+    patch_count = len(result.stdout.splitlines())
     return patch_count
 
 def NameRevision(commit_hash):
