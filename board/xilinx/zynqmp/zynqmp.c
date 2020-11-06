@@ -189,6 +189,10 @@ static const struct {
 	char *name;
 } zynqmp_svd_devices[] = {
 	{
+		.id = 0x04714093,
+		.name = "xck24"
+	},
+	{
 		.id = 0x04724093,
 		.name = "xck26",
 	},
