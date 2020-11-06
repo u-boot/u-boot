@@ -14,6 +14,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/image.h>
 #include <console.h>
+#include <cpu_func.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
