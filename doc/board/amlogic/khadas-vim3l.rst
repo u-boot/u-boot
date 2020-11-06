@@ -48,6 +48,8 @@ Then power-cycle the board.
 U-Boot compilation
 ------------------
 
+.. code-block:: bash
+
     $ export CROSS_COMPILE=aarch64-none-elf-
     $ make khadas-vim3l_defconfig
     $ make
@@ -74,15 +76,16 @@ the git tree published by the board vendor:
 
     $ cd vim3l-u-boot
     $ make kvim3l_defconfig
-    $ make
+    $ make CROSS_COMPILE=aarch64-none-elf-
     $ export UBOOTDIR=$PWD
 
- Go back to mainline U-Boot source tree then :
+Go back to mainline U-Boot source tree then :
 
 .. code-block:: bash
 
     $ mkdir fip
 
+    $ wget https://github.com/BayLibre/u-boot/releases/download/v2017.11-libretech-cc/blx_fix_g12a.sh -O fip/blx_fix.sh
     $ cp $UBOOTDIR/build/scp_task/bl301.bin fip/
     $ cp $UBOOTDIR/build/board/khadas/kvim3l/firmware/acs.bin fip/
     $ cp $UBOOTDIR/fip/g12a/bl2.bin fip/
@@ -99,7 +102,7 @@ the git tree published by the board vendor:
     $ cp $UBOOTDIR/fip/g12a/aml_ddr.fw fip/
     $ cp u-boot.bin fip/bl33.bin
 
-    $ sh fip/blx_fix.sh \
+    $ bash fip/blx_fix.sh \
     	fip/bl30.bin \
     	fip/zero_tmp \
     	fip/bl30_zero.bin \
@@ -108,7 +111,7 @@ the git tree published by the board vendor:
     	fip/bl30_new.bin \
     	bl30
 
-    $ sh fip/blx_fix.sh \
+    $ bash fip/blx_fix.sh \
     	fip/bl2.bin \
     	fip/zero_tmp \
     	fip/bl2_zero.bin \

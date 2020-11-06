@@ -69,6 +69,8 @@
 	func(DHCP, dhcp, na)
 #endif
 
+#include <config_distro_bootcmd.h>
+
 #ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"stdin=" STDIN_CFG "\0" \
@@ -83,6 +85,5 @@
 	BOOTENV
 #endif
 
-#include <config_distro_bootcmd.h>
 
 #endif /* __MESON64_CONFIG_H */
