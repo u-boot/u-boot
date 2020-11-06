@@ -54,7 +54,7 @@ static int stm32_rcc_bind(struct udevice *dev)
 		return -ENOENT;
 	}
 
-	ret = device_bind_with_driver_data(dev, drv, rcc_clk->drv_name,
+	ret = device_bind_with_driver_data(dev, drv, dev->name,
 					   rcc_clk->soc,
 					   dev_ofnode(dev), &child);
 
@@ -67,7 +67,7 @@ static int stm32_rcc_bind(struct udevice *dev)
 		return -ENOENT;
 	}
 
-	return device_bind_with_driver_data(dev, drv, "stm32_rcc_reset",
+	return device_bind_with_driver_data(dev, drv, dev->name,
 					    rcc_clk->soc,
 					    dev_ofnode(dev), &child);
 }
