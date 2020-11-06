@@ -4,6 +4,8 @@
  * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
+#define LOG_CATEGORY UCLASS_MMC
+
 #include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
@@ -13,6 +15,7 @@
 #include <malloc.h>
 #include <asm/bitops.h>
 #include <asm/cache.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>
@@ -200,10 +203,11 @@ struct stm32_sdmmc2_ctx {
 #define SDMMC_CMD_TIMEOUT		0xFFFFFFFF
 #define SDMMC_BUSYD0END_TIMEOUT_US	2000000
 
-static void stm32_sdmmc2_start_data(struct stm32_sdmmc2_priv *priv,
+static void stm32_sdmmc2_start_data(struct udevice *dev,
 				    struct mmc_data *data,
 				    struct stm32_sdmmc2_ctx *ctx)
 {
+	struct stm32_sdmmc2_priv *priv = dev_get_priv(dev);
 	u32 data_ctrl, idmabase0;
 
 	/* Configure the SDMMC DPSM (Data Path State Machine) */
@@ -241,10 +245,11 @@ static void stm32_sdmmc2_start_data(struct stm32_sdmmc2_priv *priv,
 	writel(SDMMC_IDMACTRL_IDMAEN, priv->base + SDMMC_IDMACTRL);
 }
 
-static void stm32_sdmmc2_start_cmd(struct stm32_sdmmc2_priv *priv,
+static void stm32_sdmmc2_start_cmd(struct udevice *dev,
 				   struct mmc_cmd *cmd, u32 cmd_param,
 				   struct stm32_sdmmc2_ctx *ctx)
 {
+	struct stm32_sdmmc2_priv *priv = dev_get_priv(dev);
 	u32 timeout = 0;
 
 	if (readl(priv->base + SDMMC_CMD) & SDMMC_CMD_CPSMEN)
@@ -290,10 +295,11 @@ static void stm32_sdmmc2_start_cmd(struct stm32_sdmmc2_priv *priv,
 	writel(cmd_param, priv->base + SDMMC_CMD);
 }
 
-static int stm32_sdmmc2_end_cmd(struct stm32_sdmmc2_priv *priv,
+static int stm32_sdmmc2_end_cmd(struct udevice *dev,
 				struct mmc_cmd *cmd,
 				struct stm32_sdmmc2_ctx *ctx)
 {
+	struct stm32_sdmmc2_priv *priv = dev_get_priv(dev);
 	u32 mask = SDMMC_STA_CTIMEOUT;
 	u32 status;
 	int ret;
@@ -311,22 +317,22 @@ static int stm32_sdmmc2_end_cmd(struct stm32_sdmmc2_priv *priv,
 				 10000);
 
 	if (ret < 0) {
-		debug("%s: timeout reading SDMMC_STA register\n", __func__);
+		dev_dbg(dev, "timeout reading SDMMC_STA register\n");
 		ctx->dpsm_abort = true;
 		return ret;
 	}
 
 	/* Check status */
 	if (status & SDMMC_STA_CTIMEOUT) {
-		debug("%s: error SDMMC_STA_CTIMEOUT (0x%x) for cmd %d\n",
-		      __func__, status, cmd->cmdidx);
+		dev_dbg(dev, "error SDMMC_STA_CTIMEOUT (0x%x) for cmd %d\n",
+			status, cmd->cmdidx);
 		ctx->dpsm_abort = true;
 		return -ETIMEDOUT;
 	}
 
 	if (status & SDMMC_STA_CCRCFAIL && cmd->resp_type & MMC_RSP_CRC) {
-		debug("%s: error SDMMC_STA_CCRCFAIL (0x%x) for cmd %d\n",
-		      __func__, status, cmd->cmdidx);
+		dev_dbg(dev, "error SDMMC_STA_CCRCFAIL (0x%x) for cmd %d\n",
+			status, cmd->cmdidx);
 		ctx->dpsm_abort = true;
 		return -EILSEQ;
 	}
@@ -350,15 +356,15 @@ static int stm32_sdmmc2_end_cmd(struct stm32_sdmmc2_priv *priv,
 						 SDMMC_BUSYD0END_TIMEOUT_US);
 
 			if (ret < 0) {
-				debug("%s: timeout reading SDMMC_STA\n",
-				      __func__);
+				dev_dbg(dev, "timeout reading SDMMC_STA\n");
 				ctx->dpsm_abort = true;
 				return ret;
 			}
 
 			if (status & SDMMC_STA_DTIMEOUT) {
-				debug("%s: error SDMMC_STA_DTIMEOUT (0x%x)\n",
-				      __func__, status);
+				dev_dbg(dev,
+					"error SDMMC_STA_DTIMEOUT (0x%x)\n",
+					status);
 				ctx->dpsm_abort = true;
 				return -ETIMEDOUT;
 			}
@@ -368,11 +374,12 @@ static int stm32_sdmmc2_end_cmd(struct stm32_sdmmc2_priv *priv,
 	return 0;
 }
 
-static int stm32_sdmmc2_end_data(struct stm32_sdmmc2_priv *priv,
+static int stm32_sdmmc2_end_data(struct udevice *dev,
 				 struct mmc_cmd *cmd,
 				 struct mmc_data *data,
 				 struct stm32_sdmmc2_ctx *ctx)
 {
+	struct stm32_sdmmc2_priv *priv = dev_get_priv(dev);
 	u32 mask = SDMMC_STA_DCRCFAIL | SDMMC_STA_DTIMEOUT |
 		   SDMMC_STA_IDMATE | SDMMC_STA_DATAEND;
 	u32 status;
@@ -394,37 +401,37 @@ static int stm32_sdmmc2_end_data(struct stm32_sdmmc2_priv *priv,
 		invalidate_dcache_range(ctx->cache_start, ctx->cache_end);
 
 	if (status & SDMMC_STA_DCRCFAIL) {
-		debug("%s: error SDMMC_STA_DCRCFAIL (0x%x) for cmd %d\n",
-		      __func__, status, cmd->cmdidx);
+		dev_dbg(dev, "error SDMMC_STA_DCRCFAIL (0x%x) for cmd %d\n",
+			status, cmd->cmdidx);
 		if (readl(priv->base + SDMMC_DCOUNT))
 			ctx->dpsm_abort = true;
 		return -EILSEQ;
 	}
 
 	if (status & SDMMC_STA_DTIMEOUT) {
-		debug("%s: error SDMMC_STA_DTIMEOUT (0x%x) for cmd %d\n",
-		      __func__, status, cmd->cmdidx);
+		dev_dbg(dev, "error SDMMC_STA_DTIMEOUT (0x%x) for cmd %d\n",
+			status, cmd->cmdidx);
 		ctx->dpsm_abort = true;
 		return -ETIMEDOUT;
 	}
 
 	if (status & SDMMC_STA_TXUNDERR) {
-		debug("%s: error SDMMC_STA_TXUNDERR (0x%x) for cmd %d\n",
-		      __func__, status, cmd->cmdidx);
+		dev_dbg(dev, "error SDMMC_STA_TXUNDERR (0x%x) for cmd %d\n",
+			status, cmd->cmdidx);
 		ctx->dpsm_abort = true;
 		return -EIO;
 	}
 
 	if (status & SDMMC_STA_RXOVERR) {
-		debug("%s: error SDMMC_STA_RXOVERR (0x%x) for cmd %d\n",
-		      __func__, status, cmd->cmdidx);
+		dev_dbg(dev, "error SDMMC_STA_RXOVERR (0x%x) for cmd %d\n",
+			status, cmd->cmdidx);
 		ctx->dpsm_abort = true;
 		return -EIO;
 	}
 
 	if (status & SDMMC_STA_IDMATE) {
-		debug("%s: error SDMMC_STA_IDMATE (0x%x) for cmd %d\n",
-		      __func__, status, cmd->cmdidx);
+		dev_dbg(dev, "error SDMMC_STA_IDMATE (0x%x) for cmd %d\n",
+			status, cmd->cmdidx);
 		ctx->dpsm_abort = true;
 		return -EIO;
 	}
@@ -448,19 +455,18 @@ retry_cmd:
 
 	if (data) {
 		ctx.data_length = data->blocks * data->blocksize;
-		stm32_sdmmc2_start_data(priv, data, &ctx);
+		stm32_sdmmc2_start_data(dev, data, &ctx);
 	}
 
-	stm32_sdmmc2_start_cmd(priv, cmd, cmdat, &ctx);
+	stm32_sdmmc2_start_cmd(dev, cmd, cmdat, &ctx);
 
-	debug("%s: send cmd %d data: 0x%x @ 0x%x\n",
-	      __func__, cmd->cmdidx,
-	      data ? ctx.data_length : 0, (unsigned int)data);
+	dev_dbg(dev, "send cmd %d data: 0x%x @ 0x%x\n",
+		cmd->cmdidx, data ? ctx.data_length : 0, (unsigned int)data);
 
-	ret = stm32_sdmmc2_end_cmd(priv, cmd, &ctx);
+	ret = stm32_sdmmc2_end_cmd(dev, cmd, &ctx);
 
 	if (data && !ret)
-		ret = stm32_sdmmc2_end_data(priv, cmd, data, &ctx);
+		ret = stm32_sdmmc2_end_data(dev, cmd, data, &ctx);
 
 	/* Clear flags */
 	writel(SDMMC_ICR_STATIC_FLAGS, priv->base + SDMMC_ICR);
@@ -478,26 +484,24 @@ retry_cmd:
 		stop_cmd.cmdarg = 0;
 		stop_cmd.resp_type = MMC_RSP_R1b;
 
-		debug("%s: send STOP command to abort dpsm treatments\n",
-		      __func__);
+		dev_dbg(dev, "send STOP command to abort dpsm treatments\n");
 
 		ctx.data_length = 0;
 
-		stm32_sdmmc2_start_cmd(priv, &stop_cmd,
+		stm32_sdmmc2_start_cmd(dev, &stop_cmd,
 				       SDMMC_CMD_CMDSTOP, &ctx);
-		stm32_sdmmc2_end_cmd(priv, &stop_cmd, &ctx);
+		stm32_sdmmc2_end_cmd(dev, &stop_cmd, &ctx);
 
 		writel(SDMMC_ICR_STATIC_FLAGS, priv->base + SDMMC_ICR);
 	}
 
 	if ((ret != -ETIMEDOUT) && (ret != 0) && retry) {
-		printf("%s: cmd %d failed, retrying ...\n",
-		       __func__, cmd->cmdidx);
+		dev_err(dev, "cmd %d failed, retrying ...\n", cmd->cmdidx);
 		retry--;
 		goto retry_cmd;
 	}
 
-	debug("%s: end for CMD %d, ret = %d\n", __func__, cmd->cmdidx, ret);
+	dev_dbg(dev, "end for CMD %d, ret = %d\n", cmd->cmdidx, ret);
 
 	return ret;
 }
@@ -579,8 +583,8 @@ static int stm32_sdmmc2_set_ios(struct udevice *dev)
 	u32 sys_clock = clk_get_rate(&priv->clk);
 	u32 clk = 0;
 
-	debug("%s: bus_with = %d, clock = %d\n", __func__,
-	      mmc->bus_width, mmc->clock);
+	dev_dbg(dev, "bus_with = %d, clock = %d\n",
+		mmc->bus_width, mmc->clock);
 
 	if (mmc->clk_disable)
 		stm32_sdmmc2_pwrcycle(priv);
@@ -616,7 +620,7 @@ static int stm32_sdmmc2_getcd(struct udevice *dev)
 {
 	struct stm32_sdmmc2_priv *priv = dev_get_priv(dev);
 
-	debug("stm32_sdmmc2_getcd called\n");
+	dev_dbg(dev, "%s called\n", __func__);
 
 	if (dm_gpio_is_valid(&priv->cd_gpio))
 		return dm_gpio_get_value(&priv->cd_gpio);
