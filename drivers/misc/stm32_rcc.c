@@ -4,6 +4,8 @@
  * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
+#define LOG_CATEGORY UCLASS_NOP
+
 #include <common.h>
 #include <dm.h>
 #include <log.h>
@@ -45,10 +47,10 @@ static int stm32_rcc_bind(struct udevice *dev)
 		(struct stm32_rcc_clk *)dev_get_driver_data(dev);
 	int ret;
 
-	debug("%s(dev=%p)\n", __func__, dev);
+	dev_dbg(dev, "RCC bind\n");
 	drv = lists_driver_lookup_name(rcc_clk->drv_name);
 	if (!drv) {
-		debug("Cannot find driver '%s'\n", rcc_clk->drv_name);
+		dev_err(dev, "Cannot find driver '%s'\n", rcc_clk->drv_name);
 		return -ENOENT;
 	}
 
