@@ -30,6 +30,12 @@ config ARMADA_38X
 	select ARMADA_32BIT
 	select HAVE_MVEBU_EFUSE
 
+config ARMADA_38X_HS_IMPEDANCE_THRESH
+	hex  "Armada 38x USB 2.0 High-Speed Impedance Threshold (0x0 - 0x7)"
+	depends on ARMADA_38X
+	default 0x6
+	range 0x0 0x7
+
 config ARMADA_XP
 	bool
 	select ARMADA_32BIT

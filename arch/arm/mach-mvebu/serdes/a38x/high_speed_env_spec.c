@@ -677,9 +677,9 @@ struct op_params usb2_power_up_params[] = {
 	{0xc200c, 0x0 /*NA*/, 0xf000, {0x1000}, 0, 0},
 	{0xc400c, 0x0 /*NA*/, 0xf000, {0x1000}, 0, 0},
 	/* Change the High speed impedance threshold */
-	{0xc0008, 0x0 /*NA*/, 0x700, {0x600}, 0, 0},
-	{0xc2008, 0x0 /*NA*/, 0x700, {0x600}, 0, 0},
-	{0xc4008, 0x0 /*NA*/, 0x700, {0x600}, 0, 0},
+	{0xc0008, 0x0 /*NA*/, 0x700, {CONFIG_ARMADA_38X_HS_IMPEDANCE_THRESH << 8}, 0, 0},
+	{0xc2008, 0x0 /*NA*/, 0x700, {CONFIG_ARMADA_38X_HS_IMPEDANCE_THRESH << 8}, 0, 0},
+	{0xc4008, 0x0 /*NA*/, 0x700, {CONFIG_ARMADA_38X_HS_IMPEDANCE_THRESH << 8}, 0, 0},
 	/* Change the squelch level of the receiver to meet the receiver electrical measurements (squelch and receiver sensitivity tests) */
 	{0xc0014, 0x0 /*NA*/, 0xf, {0x8}, 0, 0},
 	{0xc2014, 0x0 /*NA*/, 0xf, {0x8}, 0, 0},
