@@ -5,6 +5,7 @@
 # Written by Simon Glass <sjg@chromium.org>
 #
 
+from enum import IntEnum
 import struct
 import sys
 
@@ -22,7 +23,25 @@ from patman import tools
 # so it is fairly efficient.
 
 # A list of types we support
-(TYPE_BYTE, TYPE_INT, TYPE_STRING, TYPE_BOOL, TYPE_INT64) = range(5)
+class Type(IntEnum):
+    (BYTE, INT, STRING, BOOL, INT64) = range(5)
+
+    def is_wider_than(self, other):
+        """Check if another type is 'wider' than this one
+
+        A wider type is one that holds more information than an earlier one,
+        similar to the concept of type-widening in C.
+
+        This uses a simple arithmetic comparison, since type values are in order
+        from narrowest (BYTE) to widest (INT64).
+
+        Args:
+            other: Other type to compare against
+
+        Return:
+            True if the other type is wider
+        """
+        return self.value > other.value
 
 def CheckErr(errnum, msg):
     if errnum:
@@ -41,9 +60,9 @@ def BytesToValue(data):
             Type of data
             Data, either a single element or a list of elements. Each element
             is one of:
-                TYPE_STRING: str/bytes value from the property
-                TYPE_INT: a byte-swapped integer stored as a 4-byte str/bytes
-                TYPE_BYTE: a byte stored as a single-byte str/bytes
+                Type.STRING: str/bytes value from the property
+                Type.INT: a byte-swapped integer stored as a 4-byte str/bytes
+                Type.BYTE: a byte stored as a single-byte str/bytes
     """
     data = bytes(data)
     size = len(data)
@@ -63,21 +82,21 @@ def BytesToValue(data):
         is_string = False
     if is_string:
         if count == 1: 
-            return TYPE_STRING, strings[0].decode()
+            return Type.STRING, strings[0].decode()
         else:
-            return TYPE_STRING, [s.decode() for s in strings[:-1]]
+            return Type.STRING, [s.decode() for s in strings[:-1]]
     if size % 4:
         if size == 1:
-            return TYPE_BYTE, tools.ToChar(data[0])
+            return Type.BYTE, tools.ToChar(data[0])
         else:
-            return TYPE_BYTE, [tools.ToChar(ch) for ch in list(data)]
+            return Type.BYTE, [tools.ToChar(ch) for ch in list(data)]
     val = []
     for i in range(0, size, 4):
         val.append(data[i:i + 4])
     if size == 4:
-        return TYPE_INT, val[0]
+        return Type.INT, val[0]
     else:
-        return TYPE_INT, val
+        return Type.INT, val
 
 
 class Prop:
@@ -97,7 +116,7 @@ class Prop:
         self.bytes = bytes(data)
         self.dirty = False
         if not data:
-            self.type = TYPE_BOOL
+            self.type = Type.BOOL
             self.value = True
             return
         self.type, self.value = BytesToValue(bytes(data))
@@ -128,9 +147,8 @@ class Prop:
         update the current property to be like the second, since it is less
         specific.
         """
-        if newprop.type < self.type:
-            # Special handling to convert an int into bytes
-            if self.type == TYPE_INT and newprop.type == TYPE_BYTE:
+        if self.type.is_wider_than(newprop.type):
+            if self.type == Type.INT and newprop.type == Type.BYTE:
                 if type(self.value) == list:
                     new_value = []
                     for val in self.value:
@@ -155,11 +173,11 @@ class Prop:
         Returns:
             A single value of the given type
         """
-        if type == TYPE_BYTE:
+        if type == Type.BYTE:
             return chr(0)
-        elif type == TYPE_INT:
+        elif type == Type.INT:
             return struct.pack('>I', 0);
-        elif type == TYPE_STRING:
+        elif type == Type.STRING:
             return ''
         else:
             return True
@@ -184,7 +202,7 @@ class Prop:
         """
         self.bytes = struct.pack('>I', val);
         self.value = self.bytes
-        self.type = TYPE_INT
+        self.type = Type.INT
         self.dirty = True
 
     def SetData(self, bytes):

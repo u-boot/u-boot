@@ -134,13 +134,13 @@ class TestDtoc(unittest.TestCase):
     def test_get_value(self):
         """Test operation of get_value() function"""
         self.assertEqual('0x45',
-                         get_value(fdt.TYPE_INT, struct.pack('>I', 0x45)))
+                         get_value(fdt.Type.INT, struct.pack('>I', 0x45)))
         self.assertEqual('0x45',
-                         get_value(fdt.TYPE_BYTE, struct.pack('<I', 0x45)))
+                         get_value(fdt.Type.BYTE, struct.pack('<I', 0x45)))
         self.assertEqual('0x0',
-                         get_value(fdt.TYPE_BYTE, struct.pack('>I', 0x45)))
-        self.assertEqual('"test"', get_value(fdt.TYPE_STRING, 'test'))
-        self.assertEqual('true', get_value(fdt.TYPE_BOOL, None))
+                         get_value(fdt.Type.BYTE, struct.pack('>I', 0x45)))
+        self.assertEqual('"test"', get_value(fdt.Type.STRING, 'test'))
+        self.assertEqual('true', get_value(fdt.Type.BOOL, None))
 
     def test_get_compat_name(self):
         """Test operation of get_compat_name() function"""

@@ -35,13 +35,13 @@ PROP_IGNORE_LIST = [
     'u-boot,dm-spl',
 ]
 
-# C type declarations for the tyues we support
+# C type declarations for the types we support
 TYPE_NAMES = {
-    fdt.TYPE_INT: 'fdt32_t',
-    fdt.TYPE_BYTE: 'unsigned char',
-    fdt.TYPE_STRING: 'const char *',
-    fdt.TYPE_BOOL: 'bool',
-    fdt.TYPE_INT64: 'fdt64_t',
+    fdt.Type.INT: 'fdt32_t',
+    fdt.Type.BYTE: 'unsigned char',
+    fdt.Type.STRING: 'const char *',
+    fdt.Type.BOOL: 'bool',
+    fdt.Type.INT64: 'fdt64_t',
 }
 
 STRUCT_PREFIX = 'dtd_'
@@ -106,17 +106,17 @@ def get_value(ftype, value):
         type: Data type (fdt_util)
         value: Data value, as a string of bytes
     """
-    if ftype == fdt.TYPE_INT:
+    if ftype == fdt.Type.INT:
         return '%#x' % fdt_util.fdt32_to_cpu(value)
-    elif ftype == fdt.TYPE_BYTE:
+    elif ftype == fdt.Type.BYTE:
         return '%#x' % tools.ToByte(value[0])
-    elif ftype == fdt.TYPE_STRING:
+    elif ftype == fdt.Type.STRING:
         # Handle evil ACPI backslashes by adding another backslash before them.
         # So "\\_SB.GPO0" in the device tree effectively stays like that in C
         return '"%s"' % value.replace('\\', '\\\\')
-    elif ftype == fdt.TYPE_BOOL:
+    elif ftype == fdt.Type.BOOL:
         return 'true'
-    elif ftype == fdt.TYPE_INT64:
+    elif ftype == fdt.Type.INT64:
         return '%#x' % value
 
 def get_compat_name(node):
@@ -435,7 +435,7 @@ class DtbPlatdata(object):
             na, ns = self.get_num_cells(node)
             total = na + ns
 
-            if reg.type != fdt.TYPE_INT:
+            if reg.type != fdt.Type.INT:
                 raise ValueError("Node '%s' reg property is not an int" %
                                  node.name)
             if len(reg.value) % total:
@@ -445,7 +445,7 @@ class DtbPlatdata(object):
             reg.na = na
             reg.ns = ns
             if na != 1 or ns != 1:
-                reg.type = fdt.TYPE_INT64
+                reg.type = fdt.Type.INT64
                 i = 0
                 new_value = []
                 val = reg.value
