@@ -22,8 +22,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-
 /*
  *
  *   serial_buf: A buffer that holds keyboard characters for the
@@ -122,9 +120,8 @@ static int sandbox_serial_pending(struct udevice *dev, bool input)
 		return 0;
 
 	os_usleep(100);
-#ifndef CONFIG_SPL_BUILD
-	video_sync_all();
-#endif
+	if (!IS_ENABLED(CONFIG_SPL_BUILD))
+		video_sync_all();
 	if (next_index == serial_buf_read)
 		return 1;	/* buffer full */
 
@@ -146,7 +143,6 @@ static int sandbox_serial_getc(struct udevice *dev)
 	serial_buf_read = increment_buffer_index(serial_buf_read);
 	return result;
 }
-#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
 
 #ifdef CONFIG_DEBUG_UART_SANDBOX
 
@@ -211,7 +207,6 @@ static int sandbox_serial_getinfo(struct udevice *dev,
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
 static const char * const ansi_colour[] = {
 	"black", "red", "green", "yellow", "blue", "megenta", "cyan",
 	"white",
@@ -277,5 +272,3 @@ U_BOOT_DEVICE(serial_sandbox_non_fdt) = {
 	.platdata = &platdata_non_fdt,
 };
 #endif
-
-#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
