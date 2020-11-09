@@ -237,27 +237,26 @@ class TestFunctional(unittest.TestCase):
                 if 'Cc:' not in prev:
                     break
         self.assertEqual('To:	  u-boot@lists.denx.de', prev)
-        self.assertEqual('Cc:	  %s' % tools.FromUnicode(stefan), next(lines))
+        self.assertEqual('Cc:	  %s' % stefan, next(lines))
         self.assertEqual('Version:  3', next(lines))
         self.assertEqual('Prefix:\t  RFC', next(lines))
         self.assertEqual('Cover: 4 lines', next(lines))
         self.assertEqual('      Cc:  %s' % self.fred, next(lines))
-        self.assertEqual('      Cc:  %s' % tools.FromUnicode(self.leb),
+        self.assertEqual('      Cc:  %s' % self.leb,
                          next(lines))
-        self.assertEqual('      Cc:  %s' % tools.FromUnicode(mel), next(lines))
+        self.assertEqual('      Cc:  %s' % mel, next(lines))
         self.assertEqual('      Cc:  %s' % rick, next(lines))
         expected = ('Git command: git send-email --annotate '
                     '--in-reply-to="%s" --to "u-boot@lists.denx.de" '
                     '--cc "%s" --cc-cmd "%s send --cc-cmd %s" %s %s'
                     % (in_reply_to, stefan, sys.argv[0], cc_file, cover_fname,
                        ' '.join(args)))
-        self.assertEqual(expected, tools.ToUnicode(next(lines)))
+        self.assertEqual(expected, next(lines))
 
-        self.assertEqual(('%s %s\0%s' % (args[0], rick, stefan)),
-                         tools.ToUnicode(cc_lines[0]))
+        self.assertEqual(('%s %s\0%s' % (args[0], rick, stefan)), cc_lines[0])
         self.assertEqual(
             '%s %s\0%s\0%s\0%s' % (args[1], self.fred, self.leb, rick, stefan),
-            tools.ToUnicode(cc_lines[1]))
+            cc_lines[1])
 
         expected = '''
 This is a test of how the cover

@@ -414,8 +414,6 @@ def WriteFile(fname, data, binary=True):
 def GetBytes(byte, size):
     """Get a string of bytes of a given size
 
-    This handles the unfortunate different between Python 2 and Python 2.
-
     Args:
         byte: Numeric byte value to use
         size: Size of bytes/string to return
@@ -423,43 +421,7 @@ def GetBytes(byte, size):
     Returns:
         A bytes type with 'byte' repeated 'size' times
     """
-    if sys.version_info[0] >= 3:
-        data = bytes([byte]) * size
-    else:
-        data = chr(byte) * size
-    return data
-
-def ToUnicode(val):
-    """Make sure a value is a unicode string
-
-    This allows some amount of compatibility between Python 2 and Python3. For
-    the former, it returns a unicode object.
-
-    Args:
-        val: string or unicode object
-
-    Returns:
-        unicode version of val
-    """
-    if sys.version_info[0] >= 3:
-        return val
-    return val if isinstance(val, unicode) else val.decode('utf-8')
-
-def FromUnicode(val):
-    """Make sure a value is a non-unicode string
-
-    This allows some amount of compatibility between Python 2 and Python3. For
-    the former, it converts a unicode object to a string.
-
-    Args:
-        val: string or unicode object
-
-    Returns:
-        non-unicode version of val
-    """
-    if sys.version_info[0] >= 3:
-        return val
-    return val if isinstance(val, str) else val.encode('utf-8')
+    return bytes([byte]) * size
 
 def ToByte(ch):
     """Convert a character to an ASCII value
@@ -506,12 +468,9 @@ def ToBytes(string):
         string: string to convert
 
     Returns:
-        Python 3: A bytes type
-        Python 2: A string type
+        A bytes type
     """
-    if sys.version_info[0] >= 3:
-        return string.encode('utf-8')
-    return string
+    return string.encode('utf-8')
 
 def ToString(bval):
     """Convert a bytes type into a str type

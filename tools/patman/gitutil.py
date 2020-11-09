@@ -383,7 +383,6 @@ def BuildEmailList(in_list, tag=None, alias=None, raise_on_error=True):
         raw += LookupEmail(item, alias, raise_on_error=raise_on_error)
     result = []
     for item in raw:
-        item = tools.FromUnicode(item)
         if not item in result:
             result.append(item)
     if tag:
@@ -494,7 +493,7 @@ send --cc-cmd cc-fname" cover p1 p2'
     if smtp_server:
         cmd.append('--smtp-server=%s' % smtp_server)
     if in_reply_to:
-        cmd.append('--in-reply-to="%s"' % tools.FromUnicode(in_reply_to))
+        cmd.append('--in-reply-to="%s"' % in_reply_to)
     if thread:
         cmd.append('--thread')
 

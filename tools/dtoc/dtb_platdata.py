@@ -109,7 +109,8 @@ def get_value(ftype, value):
     if ftype == fdt.Type.INT:
         return '%#x' % fdt_util.fdt32_to_cpu(value)
     elif ftype == fdt.Type.BYTE:
-        return '%#x' % tools.ToByte(value[0])
+        ch = value[0]
+        return '%#x' % ord(ch) if type(ch) == str else ch
     elif ftype == fdt.Type.STRING:
         # Handle evil ACPI backslashes by adding another backslash before them.
         # So "\\_SB.GPO0" in the device tree effectively stays like that in C
