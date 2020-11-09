@@ -55,12 +55,27 @@
 		write-protect-gpios = <&gpio_nw GPIO_75 GPIO_ACTIVE_HIGH>;
 		phase-enforce-gpios = <&gpio_n GPIO_10 GPIO_ACTIVE_HIGH>;
 		smbios {
-			manufacturer = "Google";
-			product = "Coral";
-			version = "rev2";
-			serial = "123456789";
-			sku = "sku3";
-			family = "Google_Coral";
+			/* Type 1 table */
+			system {
+				manufacturer = "Google";
+				product = "Coral";
+				version = "rev2";
+				serial = "123456789";
+				sku = "sku3";
+				family = "Google_Coral";
+			};
+
+			/* Type 2 table */
+			baseboard {
+				manufacturer = "Google";
+				product = "Coral";
+				asset-tag = "ABC123";
+			};
+
+			/* Type 3 table */
+			chassis {
+				manufacturer = "Google";
+			};
 		};
 	};
 
