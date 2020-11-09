@@ -19,10 +19,10 @@ static int do_conitrace(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* Empty input buffer */
 	while (tstc())
-		getc();
+		getchar();
 
 	for (;;) {
-		int c = getc();
+		int c = getchar();
 
 		if (first && (c == 'x' || c == 'X'))
 			break;
