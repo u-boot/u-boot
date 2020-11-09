@@ -21,24 +21,18 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/*
- *
- *   serial_buf: A buffer that holds keyboard characters for the
- *		 Sandbox U-Boot.
- *
- * invariants:
- *   serial_buf_write		 == serial_buf_read -> empty buffer
- *   (serial_buf_write + 1) % 16 == serial_buf_read -> full buffer
- */
-static unsigned char serial_buf[16];
-static unsigned int serial_buf_write;
-static unsigned int serial_buf_read;
-
 struct sandbox_serial_platdata {
 	int colour;	/* Text colour to use for output, -1 for none */
 };
 
+/**
+ * struct sandbox_serial_priv - Private data for this driver
+ *
+ * @buf: holds input characters available to be read by this driver
+ */
 struct sandbox_serial_priv {
+	struct membuff buf;
+	char serial_buf[16];
 	bool start_of_line;
 };
 
@@ -71,6 +65,7 @@ static int sandbox_serial_probe(struct udevice *dev)
 
 	if (state->term_raw != STATE_TERM_RAW)
 		disable_ctrlc(1);
+	membuff_init(&priv->buf, priv->serial_buf, sizeof(priv->serial_buf));
 
 	return 0;
 }
@@ -104,16 +99,12 @@ static int sandbox_serial_putc(struct udevice *dev, const char ch)
 	return 0;
 }
 
-static unsigned int increment_buffer_index(unsigned int index)
-{
-	return (index + 1) % ARRAY_SIZE(serial_buf);
-}
-
 static int sandbox_serial_pending(struct udevice *dev, bool input)
 {
-	const unsigned int next_index =
-		increment_buffer_index(serial_buf_write);
+	struct sandbox_serial_priv *priv = dev_get_priv(dev);
 	ssize_t count;
+	char *data;
+	int avail;
 
 	if (!input)
 		return 0;
@@ -121,26 +112,25 @@ static int sandbox_serial_pending(struct udevice *dev, bool input)
 	os_usleep(100);
 	if (!IS_ENABLED(CONFIG_SPL_BUILD))
 		video_sync_all();
-	if (next_index == serial_buf_read)
+	avail = membuff_putraw(&priv->buf, 100, false, &data);
+	if (!avail)
 		return 1;	/* buffer full */
 
-	count = os_read(0, &serial_buf[serial_buf_write], 1);
-	if (count == 1)
-		serial_buf_write = next_index;
+	count = os_read(0, data, avail);
+	if (count > 0)
+		membuff_putraw(&priv->buf, count, true, &data);
 
-	return serial_buf_write != serial_buf_read;
+	return membuff_avail(&priv->buf);
 }
 
 static int sandbox_serial_getc(struct udevice *dev)
 {
-	int result;
+	struct sandbox_serial_priv *priv = dev_get_priv(dev);
 
 	if (!sandbox_serial_pending(dev, true))
 		return -EAGAIN;	/* buffer empty */
 
-	result = serial_buf[serial_buf_read];
-	serial_buf_read = increment_buffer_index(serial_buf_read);
-	return result;
+	return membuff_getbyte(&priv->buf);
 }
 
 #ifdef CONFIG_DEBUG_UART_SANDBOX
