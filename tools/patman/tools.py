@@ -423,21 +423,6 @@ def GetBytes(byte, size):
     """
     return bytes([byte]) * size
 
-def ToByte(ch):
-    """Convert a character to an ASCII value
-
-    This is useful because in Python 2 bytes is an alias for str, but in
-    Python 3 they are separate types. This function converts the argument to
-    an ASCII value in either case.
-
-    Args:
-        ch: A string (Python 2) or byte (Python 3) value
-
-    Returns:
-        integer ASCII value for ch
-    """
-    return ord(ch) if type(ch) == str else ch
-
 def ToChar(byte):
     """Convert a byte to a character
 
