@@ -12,7 +12,6 @@
 #include <common.h>
 #include <console.h>
 #include <dm.h>
-#include <fdtdec.h>
 #include <lcd.h>
 #include <os.h>
 #include <serial.h>
@@ -221,8 +220,7 @@ static int sandbox_serial_ofdata_to_platdata(struct udevice *dev)
 	if (CONFIG_IS_ENABLED(OF_PLATDATA))
 		return 0;
 	plat->colour = -1;
-	colour = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
-			     "sandbox,text-colour", NULL);
+	colour = dev_read_string(dev, "sandbox,text-colour");
 	if (colour) {
 		for (i = 0; i < ARRAY_SIZE(ansi_colour); i++) {
 			if (!strcmp(colour, ansi_colour[i])) {
