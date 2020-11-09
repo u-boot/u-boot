@@ -423,29 +423,6 @@ def GetBytes(byte, size):
     """
     return bytes([byte]) * size
 
-def ToChar(byte):
-    """Convert a byte to a character
-
-    This is useful because in Python 2 bytes is an alias for str, but in
-    Python 3 they are separate types. This function converts an ASCII value to
-    a value with the appropriate type in either case.
-
-    Args:
-        byte: A byte or str value
-    """
-    return chr(byte) if type(byte) != str else byte
-
-def ToChars(byte_list):
-    """Convert a list of bytes to a str/bytes type
-
-    Args:
-        byte_list: List of ASCII values representing the string
-
-    Returns:
-        string made by concatenating all the ASCII values
-    """
-    return ''.join([chr(byte) for byte in byte_list])
-
 def ToBytes(string):
     """Convert a str type into a bytes type
 

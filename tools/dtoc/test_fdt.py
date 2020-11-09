@@ -46,7 +46,7 @@ def _GetPropertyValue(dtb, node, prop_name):
     # Add 12, which is sizeof(struct fdt_property), to get to start of data
     offset = prop.GetOffset() + 12
     data = dtb.GetContents()[offset:offset + len(prop.value)]
-    return prop, [tools.ToChar(x) for x in data]
+    return prop, [chr(x) for x in data]
 
 
 class TestFdt(unittest.TestCase):
