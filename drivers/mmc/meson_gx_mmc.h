@@ -9,6 +9,11 @@
 #include <mmc.h>
 #include <linux/bitops.h>
 
+enum meson_gx_mmc_compatible {
+	MMC_COMPATIBLE_GX,
+	MMC_COMPATIBLE_SM1,
+};
+
 #define SDIO_PORT_A			0
 #define SDIO_PORT_B			1
 #define SDIO_PORT_C			2
