@@ -4,4 +4,5 @@
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  */
 
+#include "meson-sm1-u-boot.dtsi"
 #include "meson-khadas-vim3-u-boot.dtsi"
