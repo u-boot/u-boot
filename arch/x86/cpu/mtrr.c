@@ -158,7 +158,7 @@ int mtrr_commit(bool do_caches)
 
 	/* Clear the ones that are unused */
 	debug("clear\n");
-	for (; i < MTRR_MAX_COUNT; i++)
+	for (; i < mtrr_get_var_count(); i++)
 		wrmsrl(MTRR_PHYS_MASK_MSR(i), 0);
 	debug("close\n");
 	mtrr_close(&state, do_caches);
