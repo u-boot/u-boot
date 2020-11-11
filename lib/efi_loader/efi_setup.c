@@ -156,6 +156,13 @@ efi_status_t efi_init_obj_list(void)
 		if (ret != EFI_SUCCESS)
 			goto out;
 	}
+
+	if (IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL)) {
+		ret = efi_tcg2_register();
+		if (ret != EFI_SUCCESS)
+			goto out;
+	}
+
 	/* Initialize variable services */
 	ret = efi_init_variables();
 	if (ret != EFI_SUCCESS)
