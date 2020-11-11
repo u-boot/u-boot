@@ -8,8 +8,11 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <env.h>
 #include <env_internal.h>
+#include <hang.h>
+#include <init.h>
 #include <malloc.h>
 #include <netdev.h>
 #include <dm.h>
@@ -17,6 +20,8 @@
 #include <asm/processor.h>
 #include <asm/mach-types.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>

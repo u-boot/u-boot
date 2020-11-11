@@ -209,3 +209,14 @@ UCLASS_DRIVER(pci_ep) = {
 	.name		= "pci_ep",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
+
+void pci_ep_init(void)
+{
+	struct udevice *dev;
+
+	for (uclass_first_device_check(UCLASS_PCI_EP, &dev);
+	     dev;
+	     uclass_next_device_check(&dev)) {
+		;
+	}
+}

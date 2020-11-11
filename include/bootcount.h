@@ -59,6 +59,16 @@ int dm_bootcount_set(struct udevice *dev, u32 bootcount);
 
 #endif
 
+/** bootcount_store() - store the current bootcount */
+void bootcount_store(ulong);
+
+/**
+ * bootcount_load() - load the current bootcount
+ *
+ * @return bootcount, read from the appropriate location
+ */
+ulong bootcount_load(void);
+
 #if defined(CONFIG_SPL_BOOTCOUNT_LIMIT) || defined(CONFIG_BOOTCOUNT_LIMIT)
 
 #if !defined(CONFIG_SYS_BOOTCOUNT_LE) && !defined(CONFIG_SYS_BOOTCOUNT_BE)
@@ -127,10 +137,6 @@ static inline void bootcount_inc(void)
 #endif /* !CONFIG_SPL_BUILD */
 }
 
-#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_BOOTCOUNT_LIMIT)
-void bootcount_store(ulong a) {};
-ulong bootcount_load(void) { return 0; }
-#endif /* CONFIG_SPL_BUILD && !CONFIG_SPL_BOOTCOUNT_LIMIT */
 #else
 static inline int bootcount_error(void) { return 0; }
 static inline void bootcount_inc(void) {}

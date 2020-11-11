@@ -8,6 +8,8 @@
 #ifndef __EL6Q_COMMON_CONFIG_H
 #define __EL6Q_COMMON_CONFIG_H
 
+#include <linux/stringify.h>
+
 #define CONFIG_BOARD_NAME		EL6Q
 
 #include "mx6_common.h"
@@ -16,8 +18,6 @@
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
-
-#define CONFIG_MXC_UART
 
 #ifdef CONFIG_SPL
 #include "imx6_spl.h"
@@ -43,8 +43,6 @@
 
 /* Commands */
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 #define CONFIG_MXC_UART_BASE	UART2_BASE
 
 #define CONFIG_BOARD_NAME	EL6Q
@@ -74,10 +72,6 @@
 
 #define CONFIG_ARP_TIMEOUT     200UL
 
-#define CONFIG_SYS_MEMTEST_START       0x10000000
-#define CONFIG_SYS_MEMTEST_END         0x10800000
-#define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
-
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
 
@@ -91,13 +85,5 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* environment organization */
-
-#define CONFIG_ENV_SIZE			(8 * 1024)
-
-#if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_SYS_MMC_ENV_DEV		1
-#define CONFIG_SYS_MMC_ENV_PART		2
-#define CONFIG_ENV_OFFSET		0x0
-#endif
 
 #endif                         /* __EL6Q_COMMON_CONFIG_H */

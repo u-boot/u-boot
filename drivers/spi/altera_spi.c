@@ -9,10 +9,12 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <fdtdec.h>
 #include <spi.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 #define ALTERA_SPI_STATUS_RRDY_MSK	BIT(7)
 #define ALTERA_SPI_CONTROL_SSO_MSK	BIT(10)
@@ -171,7 +173,7 @@ static int altera_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct altera_spi_platdata *plat = dev_get_platdata(bus);
 
-	plat->regs = map_physmem(devfdt_get_addr(bus),
+	plat->regs = map_physmem(dev_read_addr(bus),
 				 sizeof(struct altera_spi_regs),
 				 MAP_NOCACHE);
 

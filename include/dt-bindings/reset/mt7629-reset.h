@@ -6,7 +6,10 @@
 #ifndef _DT_BINDINGS_MTK_RESET_H_
 #define _DT_BINDINGS_MTK_RESET_H_
 
-/* PCIe Subsystem resets */
+/* PCIe/SATA Subsystem resets */
+#define MT7622_SATA_PHY_REG_RST			12
+#define MT7622_SATA_PHY_SW_RST			13
+#define MT7622_SATA_AXI_BUS_RST			15
 #define PCIE1_CORE_RST			19
 #define PCIE1_MMIO_RST			20
 #define PCIE1_HRST			21

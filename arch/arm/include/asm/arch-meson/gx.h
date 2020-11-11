@@ -6,6 +6,10 @@
 #ifndef __GX_H__
 #define __GX_H__
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 #define GX_FIRMWARE_MEM_SIZE	0x1000000
 
 #define GX_AOBUS_BASE		0xc8100000

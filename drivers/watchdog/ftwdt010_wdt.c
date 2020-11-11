@@ -14,6 +14,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <faraday/ftwdt010_wdt.h>

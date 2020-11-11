@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP zc1751-xm017-dc3
  *
- * (C) Copyright 2016 - 2018, Xilinx, Inc.
+ * (C) Copyright 2016 - 2020, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */

@@ -6,11 +6,15 @@
  * Xilinx Zynq Quad-SPI(QSPI) controller driver (master mode only)
  */
 
+#include <clk.h>
 #include <common.h>
 #include <dm.h>
+#include <dm/device_compat.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -45,9 +49,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_QSPI_CR_SS_SHIFT		10	/* Slave select shift */
 
 #define ZYNQ_QSPI_FIFO_DEPTH		63
-#ifndef CONFIG_SYS_ZYNQ_QSPI_WAIT
-#define CONFIG_SYS_ZYNQ_QSPI_WAIT	CONFIG_SYS_HZ/100	/* 10 ms */
-#endif
+#define ZYNQ_QSPI_WAIT			(CONFIG_SYS_HZ / 100)	/* 10 ms */
 
 /* zynq qspi register set */
 struct zynq_qspi_regs {
@@ -105,17 +107,29 @@ static int zynq_qspi_ofdata_to_platdata(struct udevice *bus)
 	plat->regs = (struct zynq_qspi_regs *)fdtdec_get_addr(blob,
 							      node, "reg");
 
-	/* FIXME: Use 166MHz as a suitable default */
-	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",
-					166666666);
-	plat->speed_hz = plat->frequency / 2;
-
-	debug("%s: regs=%p max-frequency=%d\n", __func__,
-	      plat->regs, plat->frequency);
-
 	return 0;
 }
 
+/**
+ * zynq_qspi_init_hw - Initialize the hardware
+ * @priv:	Pointer to the zynq_qspi_priv structure
+ *
+ * The default settings of the QSPI controller's configurable parameters on
+ * reset are
+ *	- Master mode
+ *	- Baud rate divisor is set to 2
+ *	- Threshold value for TX FIFO not full interrupt is set to 1
+ *	- Flash memory interface mode enabled
+ *	- Size of the word to be transferred as 8 bit
+ * This function performs the following actions
+ *	- Disable and clear all the interrupts
+ *	- Enable manual slave select
+ *	- Enable auto start
+ *	- Deselect all the chip select lines
+ *	- Set the size of the word to be transferred as 32 bit
+ *	- Set the little endian mode of TX FIFO and
+ *	- Enable the QSPI controller
+ */
 static void zynq_qspi_init_hw(struct zynq_qspi_priv *priv)
 {
 	struct zynq_qspi_regs *regs = priv->regs;
@@ -159,19 +173,45 @@ static int zynq_qspi_probe(struct udevice *bus)
 {
 	struct zynq_qspi_platdata *plat = dev_get_platdata(bus);
 	struct zynq_qspi_priv *priv = dev_get_priv(bus);
+	struct clk clk;
+	unsigned long clock;
+	int ret;
 
 	priv->regs = plat->regs;
 	priv->fifo_depth = ZYNQ_QSPI_FIFO_DEPTH;
 
+	ret = clk_get_by_name(bus, "ref_clk", &clk);
+	if (ret < 0) {
+		dev_err(bus, "failed to get clock\n");
+		return ret;
+	}
+
+	clock = clk_get_rate(&clk);
+	if (IS_ERR_VALUE(clock)) {
+		dev_err(bus, "failed to get rate\n");
+		return clock;
+	}
+
+	ret = clk_enable(&clk);
+	if (ret && ret != -ENOSYS) {
+		dev_err(bus, "failed to enable clock\n");
+		return ret;
+	}
+
 	/* init the zynq spi hw */
 	zynq_qspi_init_hw(priv);
+
+	plat->frequency = clock;
+	plat->speed_hz = plat->frequency / 2;
+
+	debug("%s: max-frequency=%d\n", __func__, plat->speed_hz);
 
 	return 0;
 }
 
-/*
+/**
  * zynq_qspi_read_data - Copy data to RX buffer
- * @zqspi:	Pointer to the zynq_qspi structure
+ * @priv:	Pointer to the zynq_qspi_priv structure
  * @data:	The 32 bit variable where data is stored
  * @size:	Number of bytes to be copied from data to RX buffer
  */
@@ -214,9 +254,9 @@ static void zynq_qspi_read_data(struct zynq_qspi_priv *priv, u32 data, u8 size)
 		priv->bytes_to_receive = 0;
 }
 
-/*
+/**
  * zynq_qspi_write_data - Copy data from TX buffer
- * @zqspi:	Pointer to the zynq_qspi structure
+ * @priv:	Pointer to the zynq_qspi_priv structure
  * @data:	Pointer to the 32 bit variable where data is to be copied
  * @size:	Number of bytes to be copied from TX buffer to data
  */
@@ -263,6 +303,11 @@ static void zynq_qspi_write_data(struct  zynq_qspi_priv *priv,
 		priv->bytes_to_transfer = 0;
 }
 
+/**
+ * zynq_qspi_chipselect - Select or deselect the chip select line
+ * @priv:	Pointer to the zynq_qspi_priv structure
+ * @is_on:	Select(1) or deselect (0) the chip select line
+ */
 static void zynq_qspi_chipselect(struct  zynq_qspi_priv *priv, int is_on)
 {
 	u32 confr;
@@ -282,9 +327,10 @@ static void zynq_qspi_chipselect(struct  zynq_qspi_priv *priv, int is_on)
 	writel(confr, &regs->cr);
 }
 
-/*
+/**
  * zynq_qspi_fill_tx_fifo - Fills the TX FIFO with as many bytes as possible
- * @zqspi:	Pointer to the zynq_qspi structure
+ * @priv:	Pointer to the zynq_qspi_priv structure
+ * @size:	Number of bytes to be copied to fifo
  */
 static void zynq_qspi_fill_tx_fifo(struct zynq_qspi_priv *priv, u32 size)
 {
@@ -322,9 +368,9 @@ static void zynq_qspi_fill_tx_fifo(struct zynq_qspi_priv *priv, u32 size)
 	}
 }
 
-/*
+/**
  * zynq_qspi_irq_poll - Interrupt service routine of the QSPI controller
- * @zqspi:	Pointer to the zynq_qspi structure
+ * @priv:	Pointer to the zynq_qspi structure
  *
  * This function handles TX empty and Mode Fault interrupts only.
  * On TX empty interrupt this function reads the received data from RX FIFO and
@@ -348,7 +394,7 @@ static int zynq_qspi_irq_poll(struct zynq_qspi_priv *priv)
 	do {
 		status = readl(&regs->isr);
 	} while ((status == 0) &&
-		(get_timer(timeout) < CONFIG_SYS_ZYNQ_QSPI_WAIT));
+		(get_timer(timeout) < ZYNQ_QSPI_WAIT));
 
 	if (status == 0) {
 		printf("zynq_qspi_irq_poll: Timeout!\n");
@@ -410,11 +456,9 @@ static int zynq_qspi_irq_poll(struct zynq_qspi_priv *priv)
 	return 0;
 }
 
-/*
+/**
  * zynq_qspi_start_transfer - Initiates the QSPI transfer
- * @qspi:	Pointer to the spi_device structure
- * @transfer:	Pointer to the spi_transfer structure which provide information
- *		about next transfer parameters
+ * @priv:	Pointer to the zynq_qspi_priv structure
  *
  * This function fills the TX FIFO, starts the QSPI transfer, and waits for the
  * transfer to be completed.

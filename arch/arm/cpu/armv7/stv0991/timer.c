@@ -5,10 +5,13 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <time.h>
 #include <asm/io.h>
 #include <asm/arch-stv0991/hardware.h>
 #include <asm/arch-stv0991/stv0991_cgu.h>
 #include <asm/arch-stv0991/stv0991_gpt.h>
+#include <linux/delay.h>
 
 static struct stv0991_cgu_regs *const stv0991_cgu_regs = \
 				(struct stv0991_cgu_regs *) (CGU_BASE_ADDR);

@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <clk.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <malloc.h>
@@ -12,6 +14,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/sd_emmc.h>
+#include <linux/delay.h>
 #include <linux/log2.h>
 
 static inline void *get_regbase(const struct mmc *mmc)
@@ -225,7 +228,7 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
 	fdt_addr_t addr;
 
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -240,11 +243,22 @@ static int meson_mmc_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct mmc *mmc = &pdata->mmc;
 	struct mmc_config *cfg = &pdata->cfg;
+	struct clk_bulk clocks;
 	uint32_t val;
+	int ret;
+
 #ifdef CONFIG_PWRSEQ
 	struct udevice *pwr_dev;
-	int ret;
 #endif
+
+	/* Enable the clocks feeding the MMC controller */
+	ret = clk_get_bulk(dev, &clocks);
+	if (ret)
+		return ret;
+
+	ret = clk_enable_bulk(&clocks);
+	if (ret)
+		return ret;
 
 	cfg->voltages = MMC_VDD_33_34 | MMC_VDD_32_33 |
 			MMC_VDD_31_32 | MMC_VDD_165_195;

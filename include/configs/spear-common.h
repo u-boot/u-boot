@@ -88,7 +88,6 @@
 /*
  * Default Environment Varible definitions
  */
-#define CONFIG_ENV_OVERWRITE
 
 /*
  * U-Boot Environment placing definitions.
@@ -99,7 +98,6 @@
  * Environment is in serial NOR flash
  */
 #define CONFIG_SYS_MONITOR_LEN			0x00040000
-#define CONFIG_ENV_SECT_SIZE			0x00010000
 #define CONFIG_FSMTDBLK				"/dev/mtdblock3 "
 
 #define CONFIG_BOOTCOMMAND			"bootm 0xf8050000"
@@ -109,21 +107,16 @@
  * Environment is in parallel NOR flash
  */
 #define CONFIG_SYS_MONITOR_LEN			0x00060000
-#define CONFIG_ENV_SECT_SIZE			0x00020000
 #define CONFIG_FSMTDBLK				"/dev/mtdblock3 "
 
 #define CONFIG_BOOTCOMMAND			"cp.b 0x50080000 0x1600000 " \
 						"0x4C0000; bootm 0x1600000"
 #endif
-
-#define CONFIG_ENV_ADDR				(CONFIG_SYS_FLASH_BASE + \
-						CONFIG_SYS_MONITOR_LEN)
 #elif defined(CONFIG_ENV_IS_IN_NAND)
 /*
  * Environment is in NAND
  */
 
-#define CONFIG_ENV_OFFSET			0x60000
 #define CONFIG_ENV_RANGE			0x10000
 #define CONFIG_FSMTDBLK				"/dev/mtdblock7 "
 
@@ -146,7 +139,6 @@
 		"console=ttyAMA0,115200 $(othbootargs);"		\
 	CONFIG_BOOTCOMMAND
 
-#define CONFIG_ENV_SIZE				0x02000
 #define CONFIG_SYS_MONITOR_BASE			CONFIG_SYS_TEXT_BASE
 
 /* Miscellaneous configurable options */
@@ -154,8 +146,6 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 
-#define CONFIG_SYS_MEMTEST_START		0x00800000
-#define CONFIG_SYS_MEMTEST_END			0x04000000
 #define CONFIG_SYS_MALLOC_LEN			(1024*1024)
 #define CONFIG_SYS_LOAD_ADDR			0x00800000
 

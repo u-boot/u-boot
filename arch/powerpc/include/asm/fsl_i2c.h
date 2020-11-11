@@ -14,6 +14,7 @@
 #define _ASM_FSL_I2C_H_
 
 #include <asm/types.h>
+#include <linux/compiler.h>
 
 typedef struct fsl_i2c_base {
 

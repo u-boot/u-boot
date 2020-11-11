@@ -22,22 +22,25 @@
  * Copyright 1997 -- 1999 Martin Mares <mj@atrey.karlin.mff.cuni.cz>
  */
 
+#define LOG_CATEGORY UCLASS_PCI
+
 #include <common.h>
 #include <bios_emul.h>
+#include <bootstage.h>
 #include <dm.h>
 #include <errno.h>
+#include <init.h>
+#include <log.h>
 #include <malloc.h>
 #include <pci.h>
 #include <pci_rom.h>
 #include <vbe.h>
 #include <video.h>
 #include <video_fb.h>
+#include <acpi/acpi_s3.h>
 #include <linux/screen_info.h>
 
-#ifdef CONFIG_X86
-#include <acpi_s3.h>
 DECLARE_GLOBAL_DATA_PTR;
-#endif
 
 __weak bool board_should_run_oprom(struct udevice *dev)
 {
@@ -343,7 +346,16 @@ int vbe_setup_video_priv(struct vesa_mode_info *vesa,
 	default:
 		return -EPROTONOSUPPORT;
 	}
-	plat->base = vesa->phys_base_ptr;
+
+	/* Use double buffering if enabled */
+	if (IS_ENABLED(CONFIG_VIDEO_COPY)) {
+		if (!plat->base)
+			return log_msg_ret("copy", -ENFILE);
+		plat->copy_base = vesa->phys_base_ptr;
+	} else {
+		plat->base = vesa->phys_base_ptr;
+	}
+	log_debug("base = %lx, copy_base = %lx\n", plat->base, plat->copy_base);
 	plat->size = vesa->bytes_per_scanline * vesa->y_resolution;
 
 	return 0;
@@ -371,6 +383,15 @@ int vbe_setup_video(struct udevice *dev, int (*int15_handler)(void))
 
 	ret = vbe_setup_video_priv(&mode_info.vesa, uc_priv, plat);
 	if (ret) {
+		if (ret == -ENFILE) {
+			/*
+			 * See video-uclass.c for how to set up reserved memory
+			 * in your video driver
+			 */
+			log_err("CONFIG_VIDEO_COPY enabled but driver '%s' set up no reserved memory\n",
+				dev->driver->name);
+		}
+
 		debug("No video mode configured\n");
 		return ret;
 	}

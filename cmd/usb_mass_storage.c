@@ -6,15 +6,18 @@
  * Copyright (c) 2015, NVIDIA CORPORATION. All rights reserved.
  */
 
-#include <errno.h>
 #include <common.h>
+#include <blk.h>
 #include <command.h>
 #include <console.h>
+#include <errno.h>
 #include <g_dnl.h>
+#include <malloc.h>
 #include <part.h>
 #include <usb.h>
 #include <usb_mass_storage.h>
 #include <watchdog.h>
+#include <linux/delay.h>
 
 static int ums_read_sector(struct ums *ums_dev,
 			   ulong start, lbaint_t blkcnt, void *buf)
@@ -54,7 +57,7 @@ static int ums_init(const char *devtype, const char *devnums_part_str)
 {
 	char *s, *t, *devnum_part_str, *name;
 	struct blk_desc *block_dev;
-	disk_partition_t info;
+	struct disk_partition info;
 	int partnum;
 	int ret = -1;
 	struct ums *ums_new;
@@ -133,8 +136,8 @@ cleanup:
 	return ret;
 }
 
-static int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
-			       int argc, char * const argv[])
+static int do_usb_mass_storage(struct cmd_tbl *cmdtp, int flag,
+			       int argc, char *const argv[])
 {
 	const char *usb_controller;
 	const char *devtype;
@@ -167,7 +170,7 @@ static int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 		goto cleanup_ums_init;
 	}
 
-	rc = fsg_init(ums, ums_count);
+	rc = fsg_init(ums, ums_count, controller_index);
 	if (rc) {
 		pr_err("fsg_init failed\n");
 		rc = CMD_RET_FAILURE;

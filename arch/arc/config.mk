@@ -9,37 +9,17 @@ CONFIG_SYS_BIG_ENDIAN = 1
 endif
 
 ifdef CONFIG_SYS_LITTLE_ENDIAN
-PLATFORM_LDFLAGS += -EL
+KBUILD_LDFLAGS += -EL
 PLATFORM_CPPFLAGS += -mlittle-endian
 endif
 
 ifdef CONFIG_SYS_BIG_ENDIAN
-PLATFORM_LDFLAGS += -EB
+KBUILD_LDFLAGS += -EB
 PLATFORM_CPPFLAGS += -mbig-endian
 endif
 
 ifdef CONFIG_ARC_MMU_VER
 CONFIG_MMU = 1
-endif
-
-ifdef CONFIG_CPU_ARC750D
-PLATFORM_CPPFLAGS += -mcpu=arc700
-endif
-
-ifdef CONFIG_CPU_ARC770D
-PLATFORM_CPPFLAGS += -mcpu=arc700 -mlock -mswape
-endif
-
-ifdef CONFIG_CPU_ARCEM6
-PLATFORM_CPPFLAGS += -mcpu=arcem
-endif
-
-ifdef CONFIG_CPU_ARCHS34
-PLATFORM_CPPFLAGS += -mcpu=archs
-endif
-
-ifdef CONFIG_CPU_ARCHS38
-PLATFORM_CPPFLAGS += -mcpu=archs
 endif
 
 PLATFORM_CPPFLAGS += -ffixed-r25 -D__ARC__ -gdwarf-2 -mno-sdata

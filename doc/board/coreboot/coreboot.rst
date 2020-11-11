@@ -40,3 +40,13 @@ To enable video you must enable these options in coreboot:
 At present it seems that for Minnowboard Max, coreboot does not pass through
 the video information correctly (it always says the resolution is 0x0). This
 works correctly for link though.
+
+64-bit U-Boot
+-------------
+
+In addition to the 32-bit 'coreboot' build there is a 'coreboot64' build. This
+produces an image which can be booted from coreboot (32-bit). Internally it
+works by using a 32-bit SPL binary to switch to 64-bit for running U-Boot. It
+can be useful for running UEFI applications, for example.
+
+This has only been lightly tested.

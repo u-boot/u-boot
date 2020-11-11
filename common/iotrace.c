@@ -7,7 +7,10 @@
 
 #include <common.h>
 #include <mapmem.h>
+#include <time.h>
 #include <asm/io.h>
+#include <linux/bug.h>
+#include <u-boot/crc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

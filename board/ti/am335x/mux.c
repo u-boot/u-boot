@@ -195,7 +195,7 @@ static struct module_pin_mux rmii1_pin_mux[] = {
 	{-1},
 };
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 static struct module_pin_mux nand_pin_mux[] = {
 	{OFFSET(gpmc_ad0),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD0  */
 	{OFFSET(gpmc_ad1),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD1  */
@@ -360,7 +360,7 @@ void enable_board_pin_mux(void)
 		/* Beaglebone pinmux */
 		configure_module_pin_mux(mii1_pin_mux);
 		configure_module_pin_mux(mmc0_pin_mux);
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 		configure_module_pin_mux(nand_pin_mux);
 #elif defined(CONFIG_NOR)
 		configure_module_pin_mux(bone_norcape_pin_mux);
@@ -376,7 +376,7 @@ void enable_board_pin_mux(void)
 		if (profile & ~PROFILE_2)
 			configure_module_pin_mux(i2c1_pin_mux);
 		/* Profiles 2 & 3 don't have NAND */
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 		if (profile & ~(PROFILE_2 | PROFILE_3))
 			configure_module_pin_mux(nand_pin_mux);
 #endif
@@ -404,7 +404,7 @@ void enable_board_pin_mux(void)
 		}
 		/* Beaglebone LT pinmux */
 		configure_module_pin_mux(mmc0_pin_mux);
-#if defined(CONFIG_NAND) && defined(CONFIG_EMMC_BOOT)
+#if defined(CONFIG_MTD_RAW_NAND) && defined(CONFIG_EMMC_BOOT)
 		configure_module_pin_mux(nand_pin_mux);
 #elif defined(CONFIG_NOR) && defined(CONFIG_EMMC_BOOT)
 		configure_module_pin_mux(bone_norcape_pin_mux);

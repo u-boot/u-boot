@@ -1,0 +1,77 @@
+// SPDX-License-Identifier: GPL-2.0+ or X11
+/*
+ * Copyright (C) 2019 Heiko Schocher <hs@denx.de>
+ */
+
+/ {
+	chosen {
+		u-boot,dm-pre-reloc;
+		stdout-path = &uart1;
+	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+	};
+};
+
+&uart1 {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_gpio {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_uart1 {
+	u-boot,dm-pre-reloc;
+};
+
+&iomuxc {
+	u-boot,dm-pre-reloc;
+};
+
+&aips1 {
+	u-boot,dm-pre-reloc;
+};
+
+&backlight {
+	pwms = <&pwm1 0 300000>;
+	default-brightness-level = <2>;
+};
+
+/*
+ * allow switching write protect / reset pin by gpio,
+ * because "pinctrl-assert-gpios" from &ecspi1 isn't handled by u-boot
+ */
+&gpio2 {
+	u-boot,dm-pre-reloc;
+
+	wp_spi_nor {
+		gpio-hog;
+		output-high;
+		gpios = <15 GPIO_ACTIVE_HIGH>;
+	};
+
+	reset_spi_nor {
+		gpio-hog;
+		output-high;
+		gpios = <28 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&gpio4 {
+	u-boot,dm-pre-reloc;
+};
+
+&ecspi1 {
+	u-boot,dm-pre-reloc;
+};
+
+&flash {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_ecspi1 {
+	u-boot,dm-pre-reloc;
+};

@@ -9,6 +9,8 @@
 #include <atmel_lcd.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
+#include <part.h>
 #include <video.h>
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
@@ -16,6 +18,7 @@
 #include <lcd.h>
 #include <bmp_layout.h>
 #include <atmel_lcdc.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

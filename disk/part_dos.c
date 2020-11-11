@@ -14,10 +14,12 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <command.h>
 #include <ide.h>
 #include <memalign.h>
 #include "part_dos.h"
+#include <part.h>
 
 #ifdef CONFIG_HAVE_BLOCK_DEVICE
 
@@ -45,9 +47,15 @@ static inline int is_extended(int part_type)
 	    part_type == 0x85);
 }
 
-static inline int is_bootable(dos_partition_t *p)
+static int get_bootable(dos_partition_t *p)
 {
-	return (p->sys_ind == 0xef) || (p->boot_ind == 0x80);
+	int ret = 0;
+
+	if (p->sys_ind == 0xef)
+		ret |= PART_EFI_SYSTEM_PARTITION;
+	if (p->boot_ind == 0x80)
+		ret |= PART_BOOTABLE;
+	return ret;
 }
 
 static void print_one_part(dos_partition_t *p, lbaint_t ext_part_sector,
@@ -60,7 +68,7 @@ static void print_one_part(dos_partition_t *p, lbaint_t ext_part_sector,
 		"u\t%08x-%02x\t%02x%s%s\n",
 		part_num, lba_start, lba_size, disksig, part_num, p->sys_ind,
 		(is_extended(p->sys_ind) ? " Extd" : ""),
-		(is_bootable(p) ? " Boot" : ""));
+		(get_bootable(p) ? " Boot" : ""));
 }
 
 static int test_block_type(unsigned char *buffer)
@@ -207,7 +215,7 @@ static void print_partition_extended(struct blk_desc *dev_desc,
 static int part_get_info_extended(struct blk_desc *dev_desc,
 				  lbaint_t ext_part_sector, lbaint_t relative,
 				  int part_num, int which_part,
-				  disk_partition_t *info, unsigned int disksig)
+				  struct disk_partition *info, uint disksig)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 	dos_partition_t *pt;
@@ -258,7 +266,7 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 					      (char *)info->name);
 			/* sprintf(info->type, "%d, pt->sys_ind); */
 			strcpy((char *)info->type, "U-Boot");
-			info->bootable = is_bootable(pt);
+			info->bootable = get_bootable(pt);
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 			sprintf(info->uuid, "%08x-%02x", disksig, part_num);
 #endif
@@ -311,7 +319,7 @@ void part_print_dos(struct blk_desc *dev_desc)
 }
 
 int part_get_info_dos(struct blk_desc *dev_desc, int part,
-		      disk_partition_t *info)
+		      struct disk_partition *info)
 {
 	return part_get_info_extended(dev_desc, 0, 0, 1, part, info, 0);
 }

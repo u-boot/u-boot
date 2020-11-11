@@ -10,6 +10,8 @@
  */
 
 #include <common.h>
+#include <log.h>
+#include <dm/device_compat.h>
 #include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/log2.h>
@@ -53,9 +55,19 @@ static int spi_nor_read_reg(struct spi_nor *nor, u8 code, u8 *val, int len)
 	int ret;
 
 	ret = spi_nor_read_write_reg(nor, &op, val);
-	if (ret < 0)
-		dev_dbg(&flash->spimem->spi->dev, "error %d reading %x\n", ret,
+	if (ret < 0) {
+		/*
+		 * spi_slave does not have a struct udevice member without DM,
+		 * so use the bus and cs instead.
+		 */
+#if CONFIG_IS_ENABLED(DM_SPI)
+		dev_dbg(nor->spi->dev, "error %d reading %x\n", ret,
 			code);
+#else
+		log_debug("spi%u.%u: error %d reading %x\n",
+			  nor->spi->bus, nor->spi->cs, ret, code);
+#endif
+	}
 
 	return ret;
 }
@@ -375,7 +387,7 @@ static const struct flash_info *spi_nor_read_id(struct spi_nor *nor)
 	}
 	dev_dbg(nor->dev, "unrecognized JEDEC id bytes: %02x, %02x, %02x\n",
 		id[0], id[1], id[2]);
-	return ERR_PTR(-ENODEV);
+	return ERR_PTR(-EMEDIUMTYPE);
 }
 
 static int spi_nor_read(struct mtd_info *mtd, loff_t from, size_t len,
@@ -510,7 +522,8 @@ static int spansion_read_cr_quad_enable(struct spi_nor *nor)
 	/* Check current Quad Enable bit value. */
 	ret = read_cr(nor);
 	if (ret < 0) {
-		dev_dbg(dev, "error while reading configuration register\n");
+		dev_dbg(nor->dev,
+			"error while reading configuration register\n");
 		return -EINVAL;
 	}
 
@@ -522,7 +535,7 @@ static int spansion_read_cr_quad_enable(struct spi_nor *nor)
 	/* Keep the current value of the Status Register. */
 	ret = read_sr(nor);
 	if (ret < 0) {
-		dev_dbg(dev, "error while reading status register\n");
+		dev_dbg(nor->dev, "error while reading status register\n");
 		return -EINVAL;
 	}
 	sr_cr[0] = ret;
@@ -731,7 +744,7 @@ int spi_nor_scan(struct spi_nor *nor)
 
 	info = spi_nor_read_id(nor);
 	if (IS_ERR_OR_NULL(info))
-		return -ENOENT;
+		return PTR_ERR(info);
 	/* Parse the Serial Flash Discoverable Parameters table. */
 	ret = spi_nor_init_params(nor, info, &params);
 	if (ret)
@@ -783,7 +796,7 @@ int spi_nor_scan(struct spi_nor *nor)
 	}
 
 	if (nor->addr_width > SPI_NOR_MAX_ADDR_WIDTH) {
-		dev_dbg(dev, "address width is too large: %u\n",
+		dev_dbg(nor->dev, "address width is too large: %u\n",
 			nor->addr_width);
 		return -EINVAL;
 	}
@@ -795,10 +808,4 @@ int spi_nor_scan(struct spi_nor *nor)
 		return ret;
 
 	return 0;
-}
-
-/* U-Boot specific functions, need to extend MTD to support these */
-int spi_flash_cmd_get_sw_write_prot(struct spi_nor *nor)
-{
-	return -ENOTSUPP;
 }

@@ -6,8 +6,10 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <net.h>
 #include <malloc.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <linux/immap_qe.h>
@@ -18,12 +20,13 @@
 #include <fsl_qe.h>
 #include <phy.h>
 
+#if !defined(CONFIG_DM_ETH)
 /* Default UTBIPAR SMI address */
 #ifndef CONFIG_UTBIPAR_INIT_TBIPA
 #define CONFIG_UTBIPAR_INIT_TBIPA 0x1F
 #endif
 
-static uec_info_t uec_info[] = {
+static struct uec_inf uec_info[] = {
 #ifdef CONFIG_UEC_ETH1
 	STD_UEC_INFO(1),	/* UEC1 */
 #endif
@@ -54,13 +57,13 @@ static uec_info_t uec_info[] = {
 
 static struct eth_device *devlist[MAXCONTROLLERS];
 
-static int uec_mac_enable(uec_private_t *uec, comm_dir_e mode)
+static int uec_mac_enable(struct uec_priv *uec, comm_dir_e mode)
 {
 	uec_t		*uec_regs;
 	u32		maccfg1;
 
 	if (!uec) {
-		printf("%s: uec not initial\n", __FUNCTION__);
+		printf("%s: uec not initial\n", __func__);
 		return -EINVAL;
 	}
 	uec_regs = uec->uec_regs;
@@ -82,13 +85,13 @@ static int uec_mac_enable(uec_private_t *uec, comm_dir_e mode)
 	return 0;
 }
 
-static int uec_mac_disable(uec_private_t *uec, comm_dir_e mode)
+static int uec_mac_disable(struct uec_priv *uec, comm_dir_e mode)
 {
 	uec_t		*uec_regs;
 	u32		maccfg1;
 
 	if (!uec) {
-		printf("%s: uec not initial\n", __FUNCTION__);
+		printf("%s: uec not initial\n", __func__);
 		return -EINVAL;
 	}
 	uec_regs = uec->uec_regs;
@@ -110,14 +113,14 @@ static int uec_mac_disable(uec_private_t *uec, comm_dir_e mode)
 	return 0;
 }
 
-static int uec_graceful_stop_tx(uec_private_t *uec)
+static int uec_graceful_stop_tx(struct uec_priv *uec)
 {
 	ucc_fast_t		*uf_regs;
 	u32			cecr_subblock;
 	u32			ucce;
 
 	if (!uec || !uec->uccf) {
-		printf("%s: No handle passed.\n", __FUNCTION__);
+		printf("%s: No handle passed.\n", __func__);
 		return -EINVAL;
 	}
 
@@ -130,30 +133,30 @@ static int uec_graceful_stop_tx(uec_private_t *uec)
 	cecr_subblock =
 		 ucc_fast_get_qe_cr_subblock(uec->uec_info->uf_info.ucc_num);
 	qe_issue_cmd(QE_GRACEFUL_STOP_TX, cecr_subblock,
-			 (u8)QE_CR_PROTOCOL_ETHERNET, 0);
+		     (u8)QE_CR_PROTOCOL_ETHERNET, 0);
 
 	/* Wait for command to complete */
 	do {
 		ucce = in_be32(&uf_regs->ucce);
-	} while (! (ucce & UCCE_GRA));
+	} while (!(ucce & UCCE_GRA));
 
 	uec->grace_stopped_tx = 1;
 
 	return 0;
 }
 
-static int uec_graceful_stop_rx(uec_private_t *uec)
+static int uec_graceful_stop_rx(struct uec_priv *uec)
 {
 	u32		cecr_subblock;
 	u8		ack;
 
 	if (!uec) {
-		printf("%s: No handle passed.\n", __FUNCTION__);
+		printf("%s: No handle passed.\n", __func__);
 		return -EINVAL;
 	}
 
 	if (!uec->p_rx_glbl_pram) {
-		printf("%s: No init rx global parameter\n", __FUNCTION__);
+		printf("%s: No init rx global parameter\n", __func__);
 		return -EINVAL;
 	}
 
@@ -168,66 +171,66 @@ static int uec_graceful_stop_rx(uec_private_t *uec)
 		cecr_subblock =
 		 ucc_fast_get_qe_cr_subblock(uec->uec_info->uf_info.ucc_num);
 		qe_issue_cmd(QE_GRACEFUL_STOP_RX, cecr_subblock,
-				 (u8)QE_CR_PROTOCOL_ETHERNET, 0);
+			     (u8)QE_CR_PROTOCOL_ETHERNET, 0);
 		ack = uec->p_rx_glbl_pram->rxgstpack;
-	} while (! (ack & GRACEFUL_STOP_ACKNOWLEDGE_RX ));
+	} while (!(ack & GRACEFUL_STOP_ACKNOWLEDGE_RX));
 
 	uec->grace_stopped_rx = 1;
 
 	return 0;
 }
 
-static int uec_restart_tx(uec_private_t *uec)
+static int uec_restart_tx(struct uec_priv *uec)
 {
 	u32		cecr_subblock;
 
 	if (!uec || !uec->uec_info) {
-		printf("%s: No handle passed.\n", __FUNCTION__);
+		printf("%s: No handle passed.\n", __func__);
 		return -EINVAL;
 	}
 
 	cecr_subblock =
 	 ucc_fast_get_qe_cr_subblock(uec->uec_info->uf_info.ucc_num);
 	qe_issue_cmd(QE_RESTART_TX, cecr_subblock,
-			 (u8)QE_CR_PROTOCOL_ETHERNET, 0);
+		     (u8)QE_CR_PROTOCOL_ETHERNET, 0);
 
 	uec->grace_stopped_tx = 0;
 
 	return 0;
 }
 
-static int uec_restart_rx(uec_private_t *uec)
+static int uec_restart_rx(struct uec_priv *uec)
 {
 	u32		cecr_subblock;
 
 	if (!uec || !uec->uec_info) {
-		printf("%s: No handle passed.\n", __FUNCTION__);
+		printf("%s: No handle passed.\n", __func__);
 		return -EINVAL;
 	}
 
 	cecr_subblock =
 	 ucc_fast_get_qe_cr_subblock(uec->uec_info->uf_info.ucc_num);
 	qe_issue_cmd(QE_RESTART_RX, cecr_subblock,
-			 (u8)QE_CR_PROTOCOL_ETHERNET, 0);
+		     (u8)QE_CR_PROTOCOL_ETHERNET, 0);
 
 	uec->grace_stopped_rx = 0;
 
 	return 0;
 }
 
-static int uec_open(uec_private_t *uec, comm_dir_e mode)
+static int uec_open(struct uec_priv *uec, comm_dir_e mode)
 {
-	ucc_fast_private_t	*uccf;
+	struct ucc_fast_priv	*uccf;
 
 	if (!uec || !uec->uccf) {
-		printf("%s: No handle passed.\n", __FUNCTION__);
+		printf("%s: No handle passed.\n", __func__);
 		return -EINVAL;
 	}
 	uccf = uec->uccf;
 
 	/* check if the UCC number is in range. */
 	if (uec->uec_info->uf_info.ucc_num >= UCC_MAX_NUM) {
-		printf("%s: ucc_num out of range.\n", __FUNCTION__);
+		printf("%s: ucc_num out of range.\n", __func__);
 		return -EINVAL;
 	}
 
@@ -238,36 +241,33 @@ static int uec_open(uec_private_t *uec, comm_dir_e mode)
 	ucc_fast_enable(uccf, mode);
 
 	/* RISC microcode start */
-	if ((mode & COMM_DIR_TX) && uec->grace_stopped_tx) {
+	if ((mode & COMM_DIR_TX) && uec->grace_stopped_tx)
 		uec_restart_tx(uec);
-	}
-	if ((mode & COMM_DIR_RX) && uec->grace_stopped_rx) {
+	if ((mode & COMM_DIR_RX) && uec->grace_stopped_rx)
 		uec_restart_rx(uec);
-	}
 
 	return 0;
 }
 
-static int uec_stop(uec_private_t *uec, comm_dir_e mode)
+static int uec_stop(struct uec_priv *uec, comm_dir_e mode)
 {
 	if (!uec || !uec->uccf) {
-		printf("%s: No handle passed.\n", __FUNCTION__);
+		printf("%s: No handle passed.\n", __func__);
 		return -EINVAL;
 	}
 
 	/* check if the UCC number is in range. */
 	if (uec->uec_info->uf_info.ucc_num >= UCC_MAX_NUM) {
-		printf("%s: ucc_num out of range.\n", __FUNCTION__);
+		printf("%s: ucc_num out of range.\n", __func__);
 		return -EINVAL;
 	}
 	/* Stop any transmissions */
-	if ((mode & COMM_DIR_TX) && !uec->grace_stopped_tx) {
+	if ((mode & COMM_DIR_TX) && !uec->grace_stopped_tx)
 		uec_graceful_stop_tx(uec);
-	}
+
 	/* Stop any receptions */
-	if ((mode & COMM_DIR_RX) && !uec->grace_stopped_rx) {
+	if ((mode & COMM_DIR_RX) && !uec->grace_stopped_rx)
 		uec_graceful_stop_rx(uec);
-	}
 
 	/* Disable the UCC fast */
 	ucc_fast_disable(uec->uccf, mode);
@@ -278,13 +278,13 @@ static int uec_stop(uec_private_t *uec, comm_dir_e mode)
 	return 0;
 }
 
-static int uec_set_mac_duplex(uec_private_t *uec, int duplex)
+static int uec_set_mac_duplex(struct uec_priv *uec, int duplex)
 {
 	uec_t		*uec_regs;
 	u32		maccfg2;
 
 	if (!uec) {
-		printf("%s: uec not initial\n", __FUNCTION__);
+		printf("%s: uec not initial\n", __func__);
 		return -EINVAL;
 	}
 	uec_regs = uec->uec_regs;
@@ -304,8 +304,8 @@ static int uec_set_mac_duplex(uec_private_t *uec, int duplex)
 	return 0;
 }
 
-static int uec_set_mac_if_mode(uec_private_t *uec,
-		phy_interface_t if_mode, int speed)
+static int uec_set_mac_if_mode(struct uec_priv *uec,
+			       phy_interface_t if_mode, int speed)
 {
 	phy_interface_t		enet_if_mode;
 	uec_t			*uec_regs;
@@ -313,7 +313,7 @@ static int uec_set_mac_if_mode(uec_private_t *uec,
 	u32			maccfg2;
 
 	if (!uec) {
-		printf("%s: uec not initial\n", __FUNCTION__);
+		printf("%s: uec not initial\n", __func__);
 		return -EINVAL;
 	}
 
@@ -327,66 +327,62 @@ static int uec_set_mac_if_mode(uec_private_t *uec,
 	upsmr &= ~(UPSMR_RPM | UPSMR_TBIM | UPSMR_R10M | UPSMR_RMM);
 
 	switch (speed) {
-		case SPEED_10:
-			maccfg2 |= MACCFG2_INTERFACE_MODE_NIBBLE;
-			switch (enet_if_mode) {
-				case PHY_INTERFACE_MODE_MII:
-					break;
-				case PHY_INTERFACE_MODE_RGMII:
-					upsmr |= (UPSMR_RPM | UPSMR_R10M);
-					break;
-				case PHY_INTERFACE_MODE_RMII:
-					upsmr |= (UPSMR_R10M | UPSMR_RMM);
-					break;
-				default:
-					return -EINVAL;
-					break;
-			}
+	case SPEED_10:
+		maccfg2 |= MACCFG2_INTERFACE_MODE_NIBBLE;
+		switch (enet_if_mode) {
+		case PHY_INTERFACE_MODE_MII:
 			break;
-		case SPEED_100:
-			maccfg2 |= MACCFG2_INTERFACE_MODE_NIBBLE;
-			switch (enet_if_mode) {
-				case PHY_INTERFACE_MODE_MII:
-					break;
-				case PHY_INTERFACE_MODE_RGMII:
-					upsmr |= UPSMR_RPM;
-					break;
-				case PHY_INTERFACE_MODE_RMII:
-					upsmr |= UPSMR_RMM;
-					break;
-				default:
-					return -EINVAL;
-					break;
-			}
+		case PHY_INTERFACE_MODE_RGMII:
+			upsmr |= (UPSMR_RPM | UPSMR_R10M);
 			break;
-		case SPEED_1000:
-			maccfg2 |= MACCFG2_INTERFACE_MODE_BYTE;
-			switch (enet_if_mode) {
-				case PHY_INTERFACE_MODE_GMII:
-					break;
-				case PHY_INTERFACE_MODE_TBI:
-					upsmr |= UPSMR_TBIM;
-					break;
-				case PHY_INTERFACE_MODE_RTBI:
-					upsmr |= (UPSMR_RPM | UPSMR_TBIM);
-					break;
-				case PHY_INTERFACE_MODE_RGMII_RXID:
-				case PHY_INTERFACE_MODE_RGMII_TXID:
-				case PHY_INTERFACE_MODE_RGMII_ID:
-				case PHY_INTERFACE_MODE_RGMII:
-					upsmr |= UPSMR_RPM;
-					break;
-				case PHY_INTERFACE_MODE_SGMII:
-					upsmr |= UPSMR_SGMM;
-					break;
-				default:
-					return -EINVAL;
-					break;
-			}
+		case PHY_INTERFACE_MODE_RMII:
+			upsmr |= (UPSMR_R10M | UPSMR_RMM);
 			break;
 		default:
 			return -EINVAL;
+		}
+		break;
+	case SPEED_100:
+		maccfg2 |= MACCFG2_INTERFACE_MODE_NIBBLE;
+		switch (enet_if_mode) {
+		case PHY_INTERFACE_MODE_MII:
 			break;
+		case PHY_INTERFACE_MODE_RGMII:
+			upsmr |= UPSMR_RPM;
+			break;
+		case PHY_INTERFACE_MODE_RMII:
+			upsmr |= UPSMR_RMM;
+			break;
+		default:
+			return -EINVAL;
+		}
+		break;
+	case SPEED_1000:
+		maccfg2 |= MACCFG2_INTERFACE_MODE_BYTE;
+		switch (enet_if_mode) {
+		case PHY_INTERFACE_MODE_GMII:
+			break;
+		case PHY_INTERFACE_MODE_TBI:
+			upsmr |= UPSMR_TBIM;
+			break;
+		case PHY_INTERFACE_MODE_RTBI:
+			upsmr |= (UPSMR_RPM | UPSMR_TBIM);
+			break;
+		case PHY_INTERFACE_MODE_RGMII_RXID:
+		case PHY_INTERFACE_MODE_RGMII_TXID:
+		case PHY_INTERFACE_MODE_RGMII_ID:
+		case PHY_INTERFACE_MODE_RGMII:
+			upsmr |= UPSMR_RPM;
+			break;
+		case PHY_INTERFACE_MODE_SGMII:
+			upsmr |= UPSMR_SGMM;
+			break;
+		default:
+			return -EINVAL;
+		}
+		break;
+	default:
+		return -EINVAL;
 	}
 
 	out_be32(&uec_regs->maccfg2, maccfg2);
@@ -405,9 +401,10 @@ static int init_mii_management_configuration(uec_mii_t *uec_mii_regs)
 	out_be32(&uec_mii_regs->miimcfg, miimcfg);
 
 	/* Wait until the bus is free */
-	while ((in_be32(&uec_mii_regs->miimcfg) & MIIMIND_BUSY) && timeout--);
+	while ((in_be32(&uec_mii_regs->miimcfg) & MIIMIND_BUSY) && timeout--)
+		;
 	if (timeout <= 0) {
-		printf("%s: The MII Bus is stuck!", __FUNCTION__);
+		printf("%s: The MII Bus is stuck!", __func__);
 		return -ETIMEDOUT;
 	}
 
@@ -416,13 +413,13 @@ static int init_mii_management_configuration(uec_mii_t *uec_mii_regs)
 
 static int init_phy(struct eth_device *dev)
 {
-	uec_private_t		*uec;
+	struct uec_priv		*uec;
 	uec_mii_t		*umii_regs;
 	struct uec_mii_info	*mii_info;
 	struct phy_info		*curphy;
 	int			err;
 
-	uec = (uec_private_t *)dev->priv;
+	uec = (struct uec_priv *)dev->priv;
 	umii_regs = uec->uec_mii_regs;
 
 	uec->oldlink = 0;
@@ -436,11 +433,10 @@ static int init_phy(struct eth_device *dev)
 	}
 	memset(mii_info, 0, sizeof(*mii_info));
 
-	if (uec->uec_info->uf_info.eth_type == GIGA_ETH) {
+	if (uec->uec_info->uf_info.eth_type == GIGA_ETH)
 		mii_info->speed = SPEED_1000;
-	} else {
+	else
 		mii_info->speed = SPEED_100;
-	}
 
 	mii_info->duplex = DUPLEX_FULL;
 	mii_info->pause = 0;
@@ -496,15 +492,14 @@ bus_fail:
 
 static void adjust_link(struct eth_device *dev)
 {
-	uec_private_t		*uec = (uec_private_t *)dev->priv;
+	struct uec_priv		*uec = (struct uec_priv *)dev->priv;
 	struct uec_mii_info	*mii_info = uec->mii_info;
 
-	extern void change_phy_interface_mode(struct eth_device *dev,
-				 phy_interface_t mode, int speed);
-
 	if (mii_info->link) {
-		/* Now we make sure that we can be in full duplex mode.
-		* If not, we operate in half-duplex mode. */
+		/*
+		 * Now we make sure that we can be in full duplex mode.
+		 * If not, we operate in half-duplex mode.
+		 */
 		if (mii_info->duplex != uec->oldduplex) {
 			if (!(mii_info->duplex)) {
 				uec_set_mac_duplex(uec, DUPLEX_HALF);
@@ -524,16 +519,16 @@ static void adjust_link(struct eth_device *dev)
 				case SPEED_1000:
 					break;
 				case SPEED_100:
-					printf ("switching to rgmii 100\n");
+					printf("switching to rgmii 100\n");
 					mode = PHY_INTERFACE_MODE_RGMII;
 					break;
 				case SPEED_10:
-					printf ("switching to rgmii 10\n");
+					printf("switching to rgmii 10\n");
 					mode = PHY_INTERFACE_MODE_RGMII;
 					break;
 				default:
 					printf("%s: Ack,Speed(%d)is illegal\n",
-						dev->name, mii_info->speed);
+					       dev->name, mii_info->speed);
 					break;
 				}
 			}
@@ -564,12 +559,12 @@ static void adjust_link(struct eth_device *dev)
 
 static void phy_change(struct eth_device *dev)
 {
-	uec_private_t	*uec = (uec_private_t *)dev->priv;
+	struct uec_priv	*uec = (struct uec_priv *)dev->priv;
 
 #if defined(CONFIG_ARCH_P1021) || defined(CONFIG_ARCH_P1025)
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 
-	/* QE9 and QE12 need to be set for enabling QE MII managment signals */
+	/* QE9 and QE12 need to be set for enabling QE MII management signals */
 	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE9);
 	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE12);
 #endif
@@ -602,14 +597,14 @@ static int uec_miiphy_find_dev_by_name(const char *devname)
 	int i;
 
 	for (i = 0; i < MAXCONTROLLERS; i++) {
-		if (strncmp(devname, devlist[i]->name, strlen(devname)) == 0) {
+		if (strncmp(devname, devlist[i]->name, strlen(devname)) == 0)
 			break;
-		}
 	}
 
 	/* If device cannot be found, returns -1 */
 	if (i == MAXCONTROLLERS) {
-		debug ("%s: device %s not found in devlist\n", __FUNCTION__, devname);
+		debug("%s: device %s not found in devlist\n", __func__,
+		      devname);
 		i = -1;
 	}
 
@@ -627,13 +622,12 @@ static int uec_miiphy_read(struct mii_dev *bus, int addr, int devad, int reg)
 	unsigned short value = 0;
 	int devindex = 0;
 
-	if (bus->name == NULL) {
-		debug("%s: NULL pointer given\n", __FUNCTION__);
+	if (!bus->name) {
+		debug("%s: NULL pointer given\n", __func__);
 	} else {
 		devindex = uec_miiphy_find_dev_by_name(bus->name);
-		if (devindex >= 0) {
+		if (devindex >= 0)
 			value = uec_read_phy_reg(devlist[devindex], addr, reg);
-		}
 	}
 	return value;
 }
@@ -649,36 +643,37 @@ static int uec_miiphy_write(struct mii_dev *bus, int addr, int devad, int reg,
 {
 	int devindex = 0;
 
-	if (bus->name == NULL) {
-		debug("%s: NULL pointer given\n", __FUNCTION__);
+	if (!bus->name) {
+		debug("%s: NULL pointer given\n", __func__);
 	} else {
 		devindex = uec_miiphy_find_dev_by_name(bus->name);
-		if (devindex >= 0) {
+		if (devindex >= 0)
 			uec_write_phy_reg(devlist[devindex], addr, reg, value);
-		}
 	}
 	return 0;
 }
 #endif
 
-static int uec_set_mac_address(uec_private_t *uec, u8 *mac_addr)
+static int uec_set_mac_address(struct uec_priv *uec, u8 *mac_addr)
 {
 	uec_t		*uec_regs;
 	u32		mac_addr1;
 	u32		mac_addr2;
 
 	if (!uec) {
-		printf("%s: uec not initial\n", __FUNCTION__);
+		printf("%s: uec not initial\n", __func__);
 		return -EINVAL;
 	}
 
 	uec_regs = uec->uec_regs;
 
-	/* if a station address of 0x12345678ABCD, perform a write to
-	MACSTNADDR1 of 0xCDAB7856,
-	MACSTNADDR2 of 0x34120000 */
+	/*
+	 * if a station address of 0x12345678ABCD, perform a write to
+	 * MACSTNADDR1 of 0xCDAB7856,
+	 * MACSTNADDR2 of 0x34120000
+	 */
 
-	mac_addr1 = (mac_addr[5] << 24) | (mac_addr[4] << 16) | \
+	mac_addr1 = (mac_addr[5] << 24) | (mac_addr[4] << 16) |
 			(mac_addr[3] << 8)  | (mac_addr[2]);
 	out_be32(&uec_regs->macstnaddr1, mac_addr1);
 
@@ -688,31 +683,31 @@ static int uec_set_mac_address(uec_private_t *uec, u8 *mac_addr)
 	return 0;
 }
 
-static int uec_convert_threads_num(uec_num_of_threads_e threads_num,
-					 int *threads_num_ret)
+static int uec_convert_threads_num(enum uec_num_of_threads threads_num,
+				   int *threads_num_ret)
 {
 	int	num_threads_numerica;
 
 	switch (threads_num) {
-		case UEC_NUM_OF_THREADS_1:
-			num_threads_numerica = 1;
-			break;
-		case UEC_NUM_OF_THREADS_2:
-			num_threads_numerica = 2;
-			break;
-		case UEC_NUM_OF_THREADS_4:
-			num_threads_numerica = 4;
-			break;
-		case UEC_NUM_OF_THREADS_6:
-			num_threads_numerica = 6;
-			break;
-		case UEC_NUM_OF_THREADS_8:
-			num_threads_numerica = 8;
-			break;
-		default:
-			printf("%s: Bad number of threads value.",
-				 __FUNCTION__);
-			return -EINVAL;
+	case UEC_NUM_OF_THREADS_1:
+		num_threads_numerica = 1;
+		break;
+	case UEC_NUM_OF_THREADS_2:
+		num_threads_numerica = 2;
+		break;
+	case UEC_NUM_OF_THREADS_4:
+		num_threads_numerica = 4;
+		break;
+	case UEC_NUM_OF_THREADS_6:
+		num_threads_numerica = 6;
+		break;
+	case UEC_NUM_OF_THREADS_8:
+		num_threads_numerica = 8;
+		break;
+	default:
+		printf("%s: Bad number of threads value.",
+		       __func__);
+		return -EINVAL;
 	}
 
 	*threads_num_ret = num_threads_numerica;
@@ -720,9 +715,9 @@ static int uec_convert_threads_num(uec_num_of_threads_e threads_num,
 	return 0;
 }
 
-static void uec_init_tx_parameter(uec_private_t *uec, int num_threads_tx)
+static void uec_init_tx_parameter(struct uec_priv *uec, int num_threads_tx)
 {
-	uec_info_t	*uec_info;
+	struct uec_inf	*uec_info;
 	u32		end_bd;
 	u8		bmrx = 0;
 	int		i;
@@ -730,14 +725,14 @@ static void uec_init_tx_parameter(uec_private_t *uec, int num_threads_tx)
 	uec_info = uec->uec_info;
 
 	/* Alloc global Tx parameter RAM page */
-	uec->tx_glbl_pram_offset = qe_muram_alloc(
-				sizeof(uec_tx_global_pram_t),
-				 UEC_TX_GLOBAL_PRAM_ALIGNMENT);
-	uec->p_tx_glbl_pram = (uec_tx_global_pram_t *)
+	uec->tx_glbl_pram_offset =
+		qe_muram_alloc(sizeof(struct uec_tx_global_pram),
+			       UEC_TX_GLOBAL_PRAM_ALIGNMENT);
+	uec->p_tx_glbl_pram = (struct uec_tx_global_pram *)
 				qe_muram_addr(uec->tx_glbl_pram_offset);
 
 	/* Zero the global Tx prameter RAM */
-	memset(uec->p_tx_glbl_pram, 0, sizeof(uec_tx_global_pram_t));
+	memset(uec->p_tx_glbl_pram, 0, sizeof(struct uec_tx_global_pram));
 
 	/* Init global Tx parameter RAM */
 
@@ -745,10 +740,10 @@ static void uec_init_tx_parameter(uec_private_t *uec, int num_threads_tx)
 	out_be16(&uec->p_tx_glbl_pram->temoder, TEMODER_INIT_VALUE);
 
 	/* SQPTR */
-	uec->send_q_mem_reg_offset = qe_muram_alloc(
-				sizeof(uec_send_queue_qd_t),
-				 UEC_SEND_QUEUE_QUEUE_DESCRIPTOR_ALIGNMENT);
-	uec->p_send_q_mem_reg = (uec_send_queue_mem_region_t *)
+	uec->send_q_mem_reg_offset =
+		qe_muram_alloc(sizeof(struct uec_send_queue_qd),
+			       UEC_SEND_QUEUE_QUEUE_DESCRIPTOR_ALIGNMENT);
+	uec->p_send_q_mem_reg = (struct uec_send_queue_mem_region *)
 				qe_muram_addr(uec->send_q_mem_reg_offset);
 	out_be32(&uec->p_tx_glbl_pram->sqptr, uec->send_q_mem_reg_offset);
 
@@ -756,9 +751,9 @@ static void uec_init_tx_parameter(uec_private_t *uec, int num_threads_tx)
 	end_bd = (u32)uec->p_tx_bd_ring + (uec_info->tx_bd_ring_len - 1)
 					 * SIZEOFBD;
 	out_be32(&uec->p_send_q_mem_reg->sqqd[0].bd_ring_base,
-				 (u32)(uec->p_tx_bd_ring));
+		 (u32)(uec->p_tx_bd_ring));
 	out_be32(&uec->p_send_q_mem_reg->sqqd[0].last_bd_completed_address,
-						 end_bd);
+		 end_bd);
 
 	/* Scheduler Base Pointer, we have only one Tx queue, no need it */
 	out_be32(&uec->p_tx_glbl_pram->schedulerbasepointer, 0);
@@ -771,54 +766,57 @@ static void uec_init_tx_parameter(uec_private_t *uec, int num_threads_tx)
 	out_be32(&uec->p_tx_glbl_pram->tstate, ((u32)(bmrx) << BMR_SHIFT));
 
 	/* IPH_Offset */
-	for (i = 0; i < MAX_IPH_OFFSET_ENTRY; i++) {
+	for (i = 0; i < MAX_IPH_OFFSET_ENTRY; i++)
 		out_8(&uec->p_tx_glbl_pram->iphoffset[i], 0);
-	}
 
 	/* VTAG table */
-	for (i = 0; i < UEC_TX_VTAG_TABLE_ENTRY_MAX; i++) {
+	for (i = 0; i < UEC_TX_VTAG_TABLE_ENTRY_MAX; i++)
 		out_be32(&uec->p_tx_glbl_pram->vtagtable[i], 0);
-	}
 
 	/* TQPTR */
-	uec->thread_dat_tx_offset = qe_muram_alloc(
-		num_threads_tx * sizeof(uec_thread_data_tx_t) +
-		 32 *(num_threads_tx == 1), UEC_THREAD_DATA_ALIGNMENT);
+	uec->thread_dat_tx_offset =
+		qe_muram_alloc(num_threads_tx *
+			       sizeof(struct uec_thread_data_tx) +
+			       32 * (num_threads_tx == 1),
+			       UEC_THREAD_DATA_ALIGNMENT);
 
-	uec->p_thread_data_tx = (uec_thread_data_tx_t *)
+	uec->p_thread_data_tx = (struct uec_thread_data_tx *)
 				qe_muram_addr(uec->thread_dat_tx_offset);
 	out_be32(&uec->p_tx_glbl_pram->tqptr, uec->thread_dat_tx_offset);
 }
 
-static void uec_init_rx_parameter(uec_private_t *uec, int num_threads_rx)
+static void uec_init_rx_parameter(struct uec_priv *uec, int num_threads_rx)
 {
 	u8	bmrx = 0;
 	int	i;
-	uec_82xx_address_filtering_pram_t	*p_af_pram;
+	struct uec_82xx_add_filtering_pram	*p_af_pram;
 
 	/* Allocate global Rx parameter RAM page */
-	uec->rx_glbl_pram_offset = qe_muram_alloc(
-		sizeof(uec_rx_global_pram_t), UEC_RX_GLOBAL_PRAM_ALIGNMENT);
-	uec->p_rx_glbl_pram = (uec_rx_global_pram_t *)
+	uec->rx_glbl_pram_offset =
+		qe_muram_alloc(sizeof(struct uec_rx_global_pram),
+			       UEC_RX_GLOBAL_PRAM_ALIGNMENT);
+	uec->p_rx_glbl_pram = (struct uec_rx_global_pram *)
 				qe_muram_addr(uec->rx_glbl_pram_offset);
 
 	/* Zero Global Rx parameter RAM */
-	memset(uec->p_rx_glbl_pram, 0, sizeof(uec_rx_global_pram_t));
+	memset(uec->p_rx_glbl_pram, 0, sizeof(struct uec_rx_global_pram));
 
 	/* Init global Rx parameter RAM */
-	/* REMODER, Extended feature mode disable, VLAN disable,
-	 LossLess flow control disable, Receive firmware statisic disable,
-	 Extended address parsing mode disable, One Rx queues,
-	 Dynamic maximum/minimum frame length disable, IP checksum check
-	 disable, IP address alignment disable
-	*/
+	/*
+	 * REMODER, Extended feature mode disable, VLAN disable,
+	 * LossLess flow control disable, Receive firmware statisic disable,
+	 * Extended address parsing mode disable, One Rx queues,
+	 * Dynamic maximum/minimum frame length disable, IP checksum check
+	 * disable, IP address alignment disable
+	 */
 	out_be32(&uec->p_rx_glbl_pram->remoder, REMODER_INIT_VALUE);
 
 	/* RQPTR */
-	uec->thread_dat_rx_offset = qe_muram_alloc(
-			num_threads_rx * sizeof(uec_thread_data_rx_t),
-			 UEC_THREAD_DATA_ALIGNMENT);
-	uec->p_thread_data_rx = (uec_thread_data_rx_t *)
+	uec->thread_dat_rx_offset =
+		qe_muram_alloc(num_threads_rx *
+			       sizeof(struct uec_thread_data_rx),
+			       UEC_THREAD_DATA_ALIGNMENT);
+	uec->p_thread_data_rx = (struct uec_thread_data_rx *)
 				qe_muram_addr(uec->thread_dat_rx_offset);
 	out_be32(&uec->p_rx_glbl_pram->rqptr, uec->thread_dat_rx_offset);
 
@@ -839,16 +837,16 @@ static void uec_init_rx_parameter(uec_private_t *uec, int num_threads_rx)
 	out_be16(&uec->p_rx_glbl_pram->mrblr, MAX_RXBUF_LEN);
 
 	/* RBDQPTR */
-	uec->rx_bd_qs_tbl_offset = qe_muram_alloc(
-				sizeof(uec_rx_bd_queues_entry_t) + \
-				sizeof(uec_rx_prefetched_bds_t),
-				 UEC_RX_BD_QUEUES_ALIGNMENT);
-	uec->p_rx_bd_qs_tbl = (uec_rx_bd_queues_entry_t *)
+	uec->rx_bd_qs_tbl_offset =
+		qe_muram_alloc(sizeof(struct uec_rx_bd_queues_entry) +
+			       sizeof(struct uec_rx_pref_bds),
+			       UEC_RX_BD_QUEUES_ALIGNMENT);
+	uec->p_rx_bd_qs_tbl = (struct uec_rx_bd_queues_entry *)
 				qe_muram_addr(uec->rx_bd_qs_tbl_offset);
 
 	/* Zero it */
-	memset(uec->p_rx_bd_qs_tbl, 0, sizeof(uec_rx_bd_queues_entry_t) + \
-					sizeof(uec_rx_prefetched_bds_t));
+	memset(uec->p_rx_bd_qs_tbl, 0, sizeof(struct uec_rx_bd_queues_entry) +
+	       sizeof(struct uec_rx_pref_bds));
 	out_be32(&uec->p_rx_glbl_pram->rbdqptr, uec->rx_bd_qs_tbl_offset);
 	out_be32(&uec->p_rx_bd_qs_tbl->externalbdbaseptr,
 		 (u32)uec->p_rx_bd_ring);
@@ -866,9 +864,8 @@ static void uec_init_rx_parameter(uec_private_t *uec, int num_threads_rx)
 	/* L2QT */
 	out_be32(&uec->p_rx_glbl_pram->l2qt, 0);
 	/* L3QT */
-	for (i = 0; i < 8; i++)	{
+	for (i = 0; i < 8; i++)
 		out_be32(&uec->p_rx_glbl_pram->l3qt[i], 0);
-	}
 
 	/* VLAN_TYPE */
 	out_be16(&uec->p_rx_glbl_pram->vlantype, 0x8100);
@@ -876,7 +873,7 @@ static void uec_init_rx_parameter(uec_private_t *uec, int num_threads_rx)
 	out_be16(&uec->p_rx_glbl_pram->vlantci, 0);
 
 	/* Clear PQ2 style address filtering hash table */
-	p_af_pram = (uec_82xx_address_filtering_pram_t *) \
+	p_af_pram = (struct uec_82xx_add_filtering_pram *)
 			uec->p_rx_glbl_pram->addressfiltering;
 
 	p_af_pram->iaddr_h = 0;
@@ -885,30 +882,33 @@ static void uec_init_rx_parameter(uec_private_t *uec, int num_threads_rx)
 	p_af_pram->gaddr_l = 0;
 }
 
-static int uec_issue_init_enet_rxtx_cmd(uec_private_t *uec,
-					 int thread_tx, int thread_rx)
+static int uec_issue_init_enet_rxtx_cmd(struct uec_priv *uec,
+					int thread_tx, int thread_rx)
 {
-	uec_init_cmd_pram_t		*p_init_enet_param;
+	struct uec_init_cmd_pram		*p_init_enet_param;
 	u32				init_enet_param_offset;
-	uec_info_t			*uec_info;
+	struct uec_inf			*uec_info;
+	struct ucc_fast_inf			*uf_info;
 	int				i;
 	int				snum;
-	u32				init_enet_offset;
+	u32				off;
 	u32				entry_val;
 	u32				command;
 	u32				cecr_subblock;
 
 	uec_info = uec->uec_info;
+	uf_info = &uec_info->uf_info;
 
 	/* Allocate init enet command parameter */
-	uec->init_enet_param_offset = qe_muram_alloc(
-					sizeof(uec_init_cmd_pram_t), 4);
+	uec->init_enet_param_offset =
+		qe_muram_alloc(sizeof(struct uec_init_cmd_pram), 4);
 	init_enet_param_offset = uec->init_enet_param_offset;
-	uec->p_init_enet_param = (uec_init_cmd_pram_t *)
+	uec->p_init_enet_param = (struct uec_init_cmd_pram *)
 				qe_muram_addr(uec->init_enet_param_offset);
 
 	/* Zero init enet command struct */
-	memset((void *)uec->p_init_enet_param, 0, sizeof(uec_init_cmd_pram_t));
+	memset((void *)uec->p_init_enet_param, 0,
+	       sizeof(struct uec_init_cmd_pram));
 
 	/* Init the command struct */
 	p_init_enet_param = uec->p_init_enet_param;
@@ -930,21 +930,21 @@ static int uec_issue_init_enet_rxtx_cmd(uec_private_t *uec,
 
 	/* Init Rx threads */
 	for (i = 0; i < (thread_rx + 1); i++) {
-		if ((snum = qe_get_snum()) < 0) {
-			printf("%s can not get snum\n", __FUNCTION__);
+		snum = qe_get_snum();
+		if (snum < 0) {
+			printf("%s can not get snum\n", __func__);
 			return -ENOMEM;
 		}
 
-		if (i==0) {
-			init_enet_offset = 0;
+		if (i == 0) {
+			off = 0;
 		} else {
-			init_enet_offset = qe_muram_alloc(
-					sizeof(uec_thread_rx_pram_t),
-					 UEC_THREAD_RX_PRAM_ALIGNMENT);
+			off = qe_muram_alloc(sizeof(struct uec_thread_rx_pram),
+					     UEC_THREAD_RX_PRAM_ALIGNMENT);
 		}
 
 		entry_val = ((u32)snum << ENET_INIT_PARAM_SNUM_SHIFT) |
-				 init_enet_offset | (u32)uec_info->risc_rx;
+				 off | (u32)uec_info->risc_rx;
 		p_init_enet_param->rxthread[i] = entry_val;
 	}
 
@@ -954,16 +954,17 @@ static int uec_issue_init_enet_rxtx_cmd(uec_private_t *uec,
 
 	/* Init Tx threads */
 	for (i = 0; i < thread_tx; i++) {
-		if ((snum = qe_get_snum()) < 0)	{
-			printf("%s can not get snum\n", __FUNCTION__);
+		snum = qe_get_snum();
+		if (snum  < 0)	{
+			printf("%s can not get snum\n", __func__);
 			return -ENOMEM;
 		}
 
-		init_enet_offset = qe_muram_alloc(sizeof(uec_thread_tx_pram_t),
-						 UEC_THREAD_TX_PRAM_ALIGNMENT);
+		off = qe_muram_alloc(sizeof(struct uec_thread_tx_pram),
+				     UEC_THREAD_TX_PRAM_ALIGNMENT);
 
 		entry_val = ((u32)snum << ENET_INIT_PARAM_SNUM_SHIFT) |
-				 init_enet_offset | (u32)uec_info->risc_tx;
+				 off | (u32)uec_info->risc_tx;
 		p_init_enet_param->txthread[i] = entry_val;
 	}
 
@@ -971,19 +972,18 @@ static int uec_issue_init_enet_rxtx_cmd(uec_private_t *uec,
 
 	/* Issue QE command */
 	command = QE_INIT_TX_RX;
-	cecr_subblock =	ucc_fast_get_qe_cr_subblock(
-				uec->uec_info->uf_info.ucc_num);
-	qe_issue_cmd(command, cecr_subblock, (u8) QE_CR_PROTOCOL_ETHERNET,
-						 init_enet_param_offset);
+	cecr_subblock =	ucc_fast_get_qe_cr_subblock(uf_info->ucc_num);
+	qe_issue_cmd(command, cecr_subblock, (u8)QE_CR_PROTOCOL_ETHERNET,
+		     init_enet_param_offset);
 
 	return 0;
 }
 
-static int uec_startup(uec_private_t *uec)
+static int uec_startup(struct uec_priv *uec)
 {
-	uec_info_t			*uec_info;
-	ucc_fast_info_t			*uf_info;
-	ucc_fast_private_t		*uccf;
+	struct uec_inf			*uec_info;
+	struct ucc_fast_inf		*uf_info;
+	struct ucc_fast_priv		*uccf;
 	ucc_fast_t			*uf_regs;
 	uec_t				*uec_regs;
 	int				num_threads_tx;
@@ -991,37 +991,37 @@ static int uec_startup(uec_private_t *uec)
 	u32				utbipar;
 	u32				length;
 	u32				align;
-	qe_bd_t				*bd;
+	struct buffer_descriptor	*bd;
 	u8				*buf;
 	int				i;
 
 	if (!uec || !uec->uec_info) {
-		printf("%s: uec or uec_info not initial\n", __FUNCTION__);
+		printf("%s: uec or uec_info not initial\n", __func__);
 		return -EINVAL;
 	}
 
 	uec_info = uec->uec_info;
-	uf_info = &(uec_info->uf_info);
+	uf_info = &uec_info->uf_info;
 
 	/* Check if Rx BD ring len is illegal */
-	if ((uec_info->rx_bd_ring_len < UEC_RX_BD_RING_SIZE_MIN) || \
-		(uec_info->rx_bd_ring_len % UEC_RX_BD_RING_SIZE_ALIGNMENT)) {
+	if (uec_info->rx_bd_ring_len < UEC_RX_BD_RING_SIZE_MIN ||
+	    (uec_info->rx_bd_ring_len % UEC_RX_BD_RING_SIZE_ALIGNMENT)) {
 		printf("%s: Rx BD ring len must be multiple of 4, and > 8.\n",
-			 __FUNCTION__);
+		       __func__);
 		return -EINVAL;
 	}
 
 	/* Check if Tx BD ring len is illegal */
 	if (uec_info->tx_bd_ring_len < UEC_TX_BD_RING_SIZE_MIN) {
 		printf("%s: Tx BD ring length must not be smaller than 2.\n",
-			 __FUNCTION__);
+		       __func__);
 		return -EINVAL;
 	}
 
 	/* Check if MRBLR is illegal */
-	if ((MAX_RXBUF_LEN == 0) || (MAX_RXBUF_LEN  % UEC_MRBLR_ALIGNMENT)) {
+	if (MAX_RXBUF_LEN == 0 || MAX_RXBUF_LEN  % UEC_MRBLR_ALIGNMENT) {
 		printf("%s: max rx buffer length must be mutliple of 128.\n",
-			 __FUNCTION__);
+		       __func__);
 		return -EINVAL;
 	}
 
@@ -1031,7 +1031,7 @@ static int uec_startup(uec_private_t *uec)
 
 	/* Init UCC fast */
 	if (ucc_fast_init(uf_info, &uccf)) {
-		printf("%s: failed to init ucc fast\n", __FUNCTION__);
+		printf("%s: failed to init ucc fast\n", __func__);
 		return -ENOMEM;
 	}
 
@@ -1040,13 +1040,13 @@ static int uec_startup(uec_private_t *uec)
 
 	/* Convert the Tx threads number */
 	if (uec_convert_threads_num(uec_info->num_threads_tx,
-					 &num_threads_tx)) {
+				    &num_threads_tx)) {
 		return -EINVAL;
 	}
 
 	/* Convert the Rx threads number */
 	if (uec_convert_threads_num(uec_info->num_threads_rx,
-					 &num_threads_rx)) {
+				    &num_threads_rx)) {
 		return -EINVAL;
 	}
 
@@ -1068,13 +1068,14 @@ static int uec_startup(uec_private_t *uec)
 	out_be32(&uec_regs->maccfg2, MACCFG2_INIT_VALUE);
 
 	/* Setup MAC interface mode */
-	uec_set_mac_if_mode(uec, uec_info->enet_interface_type, uec_info->speed);
+	uec_set_mac_if_mode(uec, uec_info->enet_interface_type,
+			    uec_info->speed);
 
 	/* Setup MII management base */
 #ifndef CONFIG_eTSEC_MDIO_BUS
 	uec->uec_mii_regs = (uec_mii_t *)(&uec_regs->miimcfg);
 #else
-	uec->uec_mii_regs = (uec_mii_t *) CONFIG_MIIM_ADDRESS;
+	uec->uec_mii_regs = (uec_mii_t *)CONFIG_MIIM_ADDRESS;
 #endif
 
 	/* Setup MII master clock source */
@@ -1091,16 +1092,16 @@ static int uec_startup(uec_private_t *uec)
 	out_be32(&uec_regs->utbipar, utbipar);
 
 	/* Configure the TBI for SGMII operation */
-	if ((uec->uec_info->enet_interface_type == PHY_INTERFACE_MODE_SGMII) &&
-	   (uec->uec_info->speed == SPEED_1000)) {
+	if (uec->uec_info->enet_interface_type == PHY_INTERFACE_MODE_SGMII &&
+	    uec->uec_info->speed == SPEED_1000) {
 		uec_write_phy_reg(uec->dev, uec_regs->utbipar,
-			ENET_TBI_MII_ANA, TBIANA_SETTINGS);
+				  ENET_TBI_MII_ANA, TBIANA_SETTINGS);
 
 		uec_write_phy_reg(uec->dev, uec_regs->utbipar,
-			ENET_TBI_MII_TBICON, TBICON_CLK_SELECT);
+				  ENET_TBI_MII_TBICON, TBICON_CLK_SELECT);
 
 		uec_write_phy_reg(uec->dev, uec_regs->utbipar,
-			ENET_TBI_MII_CR, TBICR_SETTINGS);
+				  ENET_TBI_MII_CR, TBICR_SETTINGS);
 	}
 
 	/* Allocate Tx BDs */
@@ -1147,29 +1148,29 @@ static int uec_startup(uec_private_t *uec)
 	memset((void *)(uec->rx_buf_offset), 0, length + align);
 
 	/* Init TxBD ring */
-	bd = (qe_bd_t *)uec->p_tx_bd_ring;
-	uec->txBd = bd;
+	bd = (struct buffer_descriptor *)uec->p_tx_bd_ring;
+	uec->tx_bd = bd;
 
 	for (i = 0; i < uec_info->tx_bd_ring_len; i++) {
 		BD_DATA_CLEAR(bd);
 		BD_STATUS_SET(bd, 0);
 		BD_LENGTH_SET(bd, 0);
-		bd ++;
+		bd++;
 	}
-	BD_STATUS_SET((--bd), TxBD_WRAP);
+	BD_STATUS_SET((--bd), TX_BD_WRAP);
 
 	/* Init RxBD ring */
-	bd = (qe_bd_t *)uec->p_rx_bd_ring;
-	uec->rxBd = bd;
+	bd = (struct buffer_descriptor *)uec->p_rx_bd_ring;
+	uec->rx_bd = bd;
 	buf = uec->p_rx_buf;
 	for (i = 0; i < uec_info->rx_bd_ring_len; i++) {
 		BD_DATA_SET(bd, buf);
 		BD_LENGTH_SET(bd, 0);
-		BD_STATUS_SET(bd, RxBD_EMPTY);
+		BD_STATUS_SET(bd, RX_BD_EMPTY);
 		buf += MAX_RXBUF_LEN;
-		bd ++;
+		bd++;
 	}
-	BD_STATUS_SET((--bd), RxBD_WRAP | RxBD_EMPTY);
+	BD_STATUS_SET((--bd), RX_BD_WRAP | RX_BD_EMPTY);
 
 	/* Init global Tx parameter RAM */
 	uec_init_tx_parameter(uec, num_threads_tx);
@@ -1180,29 +1181,32 @@ static int uec_startup(uec_private_t *uec)
 	/* Init ethernet Tx and Rx parameter command */
 	if (uec_issue_init_enet_rxtx_cmd(uec, num_threads_tx,
 					 num_threads_rx)) {
-		printf("%s issue init enet cmd failed\n", __FUNCTION__);
+		printf("%s issue init enet cmd failed\n", __func__);
 		return -ENOMEM;
 	}
 
 	return 0;
 }
 
-static int uec_init(struct eth_device* dev, bd_t *bd)
+static int uec_init(struct eth_device *dev, struct bd_info *bd)
 {
-	uec_private_t		*uec;
+	struct uec_priv		*uec;
 	int			err, i;
 	struct phy_info         *curphy;
 #if defined(CONFIG_ARCH_P1021) || defined(CONFIG_ARCH_P1025)
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #endif
 
-	uec = (uec_private_t *)dev->priv;
+	uec = (struct uec_priv *)dev->priv;
 
-	if (uec->the_first_run == 0) {
+	if (!uec->the_first_run) {
 #if defined(CONFIG_ARCH_P1021) || defined(CONFIG_ARCH_P1025)
-	/* QE9 and QE12 need to be set for enabling QE MII managment signals */
-	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE9);
-	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE12);
+		/*
+		 * QE9 and QE12 need to be set for enabling QE MII
+		 * management signals
+		 */
+		setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE9);
+		setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE12);
 #endif
 
 		err = init_phy(dev);
@@ -1228,7 +1232,7 @@ static int uec_init(struct eth_device* dev, bd_t *bd)
 			err = curphy->read_status(uec->mii_info);
 			if (!(((i-- > 0) && !uec->mii_info->link) || err))
 				break;
-			udelay(100000);
+			mdelay(100);
 		} while (1);
 
 #if defined(CONFIG_ARCH_P1021) || defined(CONFIG_ARCH_P1025)
@@ -1246,11 +1250,10 @@ static int uec_init(struct eth_device* dev, bd_t *bd)
 	/* Set up the MAC address */
 	if (dev->enetaddr[0] & 0x01) {
 		printf("%s: MacAddress is multcast address\n",
-			 __FUNCTION__);
+		       __func__);
 		return -1;
 	}
 	uec_set_mac_address(uec, dev->enetaddr);
-
 
 	err = uec_open(uec, COMM_DIR_RX_AND_TX);
 	if (err) {
@@ -1260,30 +1263,31 @@ static int uec_init(struct eth_device* dev, bd_t *bd)
 
 	phy_change(dev);
 
-	return (uec->mii_info->link ? 0 : -1);
+	return uec->mii_info->link ? 0 : -1;
 }
 
-static void uec_halt(struct eth_device* dev)
+static void uec_halt(struct eth_device *dev)
 {
-	uec_private_t	*uec = (uec_private_t *)dev->priv;
+	struct uec_priv	*uec = (struct uec_priv *)dev->priv;
+
 	uec_stop(uec, COMM_DIR_RX_AND_TX);
 }
 
 static int uec_send(struct eth_device *dev, void *buf, int len)
 {
-	uec_private_t		*uec;
-	ucc_fast_private_t	*uccf;
-	volatile qe_bd_t	*bd;
+	struct uec_priv		*uec;
+	struct ucc_fast_priv	*uccf;
+	struct buffer_descriptor	*bd;
 	u16			status;
 	int			i;
 	int			result = 0;
 
-	uec = (uec_private_t *)dev->priv;
+	uec = (struct uec_priv *)dev->priv;
 	uccf = uec->uccf;
-	bd = uec->txBd;
+	bd = uec->tx_bd;
 
 	/* Find an empty TxBD */
-	for (i = 0; bd->status & TxBD_READY; i++) {
+	for (i = 0; BD_STATUS(bd) & TX_BD_READY; i++) {
 		if (i > 0x100000) {
 			printf("%s: tx buffer not ready\n", dev->name);
 			return result;
@@ -1293,16 +1297,16 @@ static int uec_send(struct eth_device *dev, void *buf, int len)
 	/* Init TxBD */
 	BD_DATA_SET(bd, buf);
 	BD_LENGTH_SET(bd, len);
-	status = bd->status;
+	status = BD_STATUS(bd);
 	status &= BD_WRAP;
-	status |= (TxBD_READY | TxBD_LAST);
+	status |= (TX_BD_READY | TX_BD_LAST);
 	BD_STATUS_SET(bd, status);
 
 	/* Tell UCC to transmit the buffer */
 	ucc_fast_transmit_on_demand(uccf);
 
 	/* Wait for buffer to be transmitted */
-	for (i = 0; bd->status & TxBD_READY; i++) {
+	for (i = 0; BD_STATUS(bd) & TX_BD_READY; i++) {
 		if (i > 0x100000) {
 			printf("%s: tx error\n", dev->name);
 			return result;
@@ -1311,25 +1315,25 @@ static int uec_send(struct eth_device *dev, void *buf, int len)
 
 	/* Ok, the buffer be transimitted */
 	BD_ADVANCE(bd, status, uec->p_tx_bd_ring);
-	uec->txBd = bd;
+	uec->tx_bd = bd;
 	result = 1;
 
 	return result;
 }
 
-static int uec_recv(struct eth_device* dev)
+static int uec_recv(struct eth_device *dev)
 {
-	uec_private_t		*uec = dev->priv;
-	volatile qe_bd_t	*bd;
+	struct uec_priv		*uec = dev->priv;
+	struct buffer_descriptor	*bd;
 	u16			status;
 	u16			len;
 	u8			*data;
 
-	bd = uec->rxBd;
-	status = bd->status;
+	bd = uec->rx_bd;
+	status = BD_STATUS(bd);
 
-	while (!(status & RxBD_EMPTY)) {
-		if (!(status & RxBD_ERROR)) {
+	while (!(status & RX_BD_EMPTY)) {
+		if (!(status & RX_BD_ERROR)) {
 			data = BD_DATA(bd);
 			len = BD_LENGTH(bd);
 			net_process_received_packet(data, len);
@@ -1338,20 +1342,20 @@ static int uec_recv(struct eth_device* dev)
 		}
 		status &= BD_CLEAN;
 		BD_LENGTH_SET(bd, 0);
-		BD_STATUS_SET(bd, status | RxBD_EMPTY);
+		BD_STATUS_SET(bd, status | RX_BD_EMPTY);
 		BD_ADVANCE(bd, status, uec->p_rx_bd_ring);
-		status = bd->status;
+		status = BD_STATUS(bd);
 	}
-	uec->rxBd = bd;
+	uec->rx_bd = bd;
 
 	return 1;
 }
 
-int uec_initialize(bd_t *bis, uec_info_t *uec_info)
+int uec_initialize(struct bd_info *bis, struct uec_inf *uec_info)
 {
 	struct eth_device	*dev;
 	int			i;
-	uec_private_t		*uec;
+	struct uec_priv		*uec;
 	int			err;
 
 	dev = (struct eth_device *)malloc(sizeof(struct eth_device));
@@ -1360,11 +1364,11 @@ int uec_initialize(bd_t *bis, uec_info_t *uec_info)
 	memset(dev, 0, sizeof(struct eth_device));
 
 	/* Allocate the UEC private struct */
-	uec = (uec_private_t *)malloc(sizeof(uec_private_t));
-	if (!uec) {
+	uec = (struct uec_priv *)malloc(sizeof(struct uec_priv));
+	if (!uec)
 		return -ENOMEM;
-	}
-	memset(uec, 0, sizeof(uec_private_t));
+
+	memset(uec, 0, sizeof(struct uec_priv));
 
 	/* Adjust uec_info */
 #if (MAX_QE_RISC == 4)
@@ -1393,13 +1397,14 @@ int uec_initialize(bd_t *bis, uec_info_t *uec_info)
 
 	err = uec_startup(uec);
 	if (err) {
-		printf("%s: Cannot configure net device, aborting.",dev->name);
+		printf("%s: Cannot configure net device, aborting.", dev->name);
 		return err;
 	}
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	int retval;
 	struct mii_dev *mdiodev = mdio_alloc();
+
 	if (!mdiodev)
 		return -ENOMEM;
 	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
@@ -1414,7 +1419,7 @@ int uec_initialize(bd_t *bis, uec_info_t *uec_info)
 	return 1;
 }
 
-int uec_eth_init(bd_t *bis, uec_info_t *uecs, int num)
+int uec_eth_init(struct bd_info *bis, struct uec_inf *uecs, int num)
 {
 	int i;
 
@@ -1424,7 +1429,8 @@ int uec_eth_init(bd_t *bis, uec_info_t *uecs, int num)
 	return 0;
 }
 
-int uec_standard_init(bd_t *bis)
+int uec_standard_init(struct bd_info *bis)
 {
 	return uec_eth_init(bis, uec_info, ARRAY_SIZE(uec_info));
 }
+#endif

@@ -18,19 +18,19 @@ choice
 
 config TQMA6Q
 	bool "TQMa6Q / TQMa6D"
-	select MX6Q
+	depends on MX6Q
 	help
 	  select TQMa6Q / TQMa6D with i.MX6Q/D and 1GiB DRAM
 
 config TQMA6DL
 	bool "TQMa6DL"
-	select MX6DL
+	depends on MX6DL
 	help
 	  select TQMa6DL with i.MX6DL and 1GiB DRAM
 
 config TQMA6S
 	bool "TQMa6S"
-	select MX6S
+	depends on MX6S
 	help
 	  select TQMa6S with i.MX6S and 512 MiB DRAM
 
@@ -63,6 +63,17 @@ choice
 
 config MBA6
 	bool "TQMa6 on MBa6 Starterkit"
+	select DM_ETH
+	select USB
+	select DM_USB
+	select CMD_USB
+	select USB_STORAGE
+	select USB_HOST_ETHER
+	select USB_ETHER_SMSC95XX
+	select PHYLIB
+	select PHY_MICREL
+	select PHY_MICREL_KSZ90X1
+	select MXC_UART
 	help
 	  Select the MBa6 starterkit. This features a GigE Phy, USB, SD-Card
 	  etc.
@@ -73,6 +84,10 @@ config WRU4
 	  Select the OHB Systems AG WRU-IV baseboard.
 
 endchoice
+
+config SYS_TEXT_BASE
+	default 0x2fc00000 if TQMA6S
+	default 0x4fc00000 if TQMA6Q || TQMA6DL
 
 config IMX_CONFIG
 	default "board/tqc/tqma6/tqma6q.cfg" if TQMA6Q

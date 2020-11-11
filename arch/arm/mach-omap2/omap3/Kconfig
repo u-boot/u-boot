@@ -61,7 +61,10 @@ config TARGET_OMAP3_EVM
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	select OMAP3_GPIO_2
 	select OMAP3_GPIO_3
+	select OMAP3_GPIO_5
+	select OMAP3_GPIO_6
 	imply CMD_DM
 
 config TARGET_OMAP3_IGEP00X0
@@ -84,13 +87,6 @@ config TARGET_OMAP3_OVERO
 	select OMAP3_GPIO_4
 	select OMAP3_GPIO_5
 	select OMAP3_GPIO_6
-	imply CMD_DM
-
-config TARGET_OMAP3_ZOOM1
-	bool "TI Zoom1"
-	select DM
-	select DM_GPIO
-	select DM_SERIAL
 	imply CMD_DM
 
 config TARGET_AM3517_CRANE
@@ -126,13 +122,6 @@ config TARGET_TAO3530
 	select OMAP3_GPIO_4
 	select OMAP3_GPIO_5
 	select OMAP3_GPIO_6
-
-config TARGET_OMAP3_CAIRO
-	bool "QUIPOS CAIRO"
-	select DM
-	select DM_GPIO
-	select DM_SERIAL
-	imply CMD_DM
 
 config TARGET_SNIPER
 	bool "LG Optimus Black"
@@ -174,19 +163,14 @@ config SYS_SOC
 
 source "board/logicpd/am3517evm/Kconfig"
 source "board/ti/beagle/Kconfig"
-source "board/compulab/cm_t35/Kconfig"
 source "board/timll/devkit8000/Kconfig"
 source "board/ti/evm/Kconfig"
 source "board/isee/igep00x0/Kconfig"
-source "board/overo/Kconfig"
-source "board/logicpd/zoom1/Kconfig"
 source "board/ti/am3517crane/Kconfig"
-source "board/pandora/Kconfig"
 source "board/corscience/tricorder/Kconfig"
 source "board/logicpd/omap3som/Kconfig"
 source "board/nokia/rx51/Kconfig"
 source "board/technexion/tao3530/Kconfig"
-source "board/quipos/cairo/Kconfig"
 source "board/lg/sniper/Kconfig"
 
 endif

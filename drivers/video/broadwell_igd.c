@@ -7,7 +7,10 @@
 
 #include <common.h>
 #include <bios_emul.h>
+#include <bootstage.h>
 #include <dm.h>
+#include <init.h>
+#include <log.h>
 #include <vbe.h>
 #include <video.h>
 #include <asm/cpu.h>
@@ -17,6 +20,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/iomap.h>
 #include <asm/arch/pch.h>
+#include <linux/delay.h>
 #include "i915_reg.h"
 
 struct broadwell_igd_priv {
@@ -660,6 +664,7 @@ static int broadwell_igd_probe(struct udevice *dev)
 	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	bool is_broadwell;
+	ulong fbbase;
 	int ret;
 
 	if (!ll_boot_init()) {
@@ -686,7 +691,8 @@ static int broadwell_igd_probe(struct udevice *dev)
 		return ret;
 
 	/* Use write-combining for the graphics memory, 256MB */
-	ret = mtrr_add_request(MTRR_TYPE_WRCOMB, plat->base, 256 << 20);
+	fbbase = IS_ENABLED(CONFIG_VIDEO_COPY) ? plat->copy_base : plat->base;
+	ret = mtrr_add_request(MTRR_TYPE_WRCOMB, fbbase, 256 << 20);
 	if (!ret)
 		ret = mtrr_commit(true);
 	if (ret && ret != -ENOSYS) {
@@ -748,6 +754,17 @@ static int broadwell_igd_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+static int broadwell_igd_bind(struct udevice *dev)
+{
+	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+
+	/* Set the maximum supported resolution */
+	uc_plat->size = 2560 * 1600 * 4;
+	log_debug("%s: Frame buffer size %x\n", __func__, uc_plat->size);
+
+	return 0;
+}
+
 static const struct video_ops broadwell_igd_ops = {
 };
 
@@ -762,6 +779,7 @@ U_BOOT_DRIVER(broadwell_igd) = {
 	.of_match = broadwell_igd_ids,
 	.ops	= &broadwell_igd_ops,
 	.ofdata_to_platdata = broadwell_igd_ofdata_to_platdata,
+	.bind	= broadwell_igd_bind,
 	.probe	= broadwell_igd_probe,
 	.priv_auto_alloc_size	= sizeof(struct broadwell_igd_priv),
 	.platdata_auto_alloc_size	= sizeof(struct broadwell_igd_plat),

@@ -66,8 +66,8 @@ static int confirm_prog(void)
 	return 0;
 }
 
-static int do_stm32key(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_stm32key(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	u32 addr;
 	const char *op = argc >= 2 ? argv[1] : NULL;

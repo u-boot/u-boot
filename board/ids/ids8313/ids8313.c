@@ -12,8 +12,12 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
+#include <init.h>
 #include <mpc83xx.h>
 #include <spi.h>
+#include <asm/bitops.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -139,7 +143,7 @@ int dram_init(void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 

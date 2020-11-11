@@ -8,20 +8,23 @@
 
 #include <common.h>
 #include <command.h>
+#include <init.h>
 #include <pci.h>
 #include <asm/fsl_pci.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <asm/fsl_serdes.h>
 #include <linux/errno.h>
 
+#include "../common/qrio.h"
 #include "kmp204x.h"
 
 #define PROM_SEL_L	11
 /* control the PROM_SEL_L signal*/
 static void toggle_fpga_eeprom_bus(bool cpu_own)
 {
-	qrio_gpio_direction_output(GPIO_A, PROM_SEL_L, !cpu_own);
+	qrio_gpio_direction_output(QRIO_GPIO_A, PROM_SEL_L, !cpu_own);
 }
 
 #define CONF_SEL_L	10
@@ -39,17 +42,17 @@ int trigger_fpga_config(void)
 	toggle_fpga_eeprom_bus(false);
 
 	/* assert CONF_SEL_L to be able to drive FPGA_PROG_L */
-	qrio_gpio_direction_output(GPIO_A, CONF_SEL_L, 0);
+	qrio_gpio_direction_output(QRIO_GPIO_A, CONF_SEL_L, 0);
 
 	/* trigger the config start */
-	qrio_gpio_direction_output(GPIO_A, FPGA_PROG_L, 0);
+	qrio_gpio_direction_output(QRIO_GPIO_A, FPGA_PROG_L, 0);
 
 	/* small delay for INIT_L line */
 	udelay(10);
 
 	/* wait for FPGA_INIT to be asserted */
 	do {
-		init_l = qrio_get_gpio(GPIO_A, FPGA_INIT_L);
+		init_l = qrio_get_gpio(QRIO_GPIO_A, FPGA_INIT_L);
 		if (timeout-- == 0) {
 			printf("FPGA_INIT timeout\n");
 			ret = -EFAULT;
@@ -59,7 +62,7 @@ int trigger_fpga_config(void)
 	} while (init_l);
 
 	/* deassert FPGA_PROG, config should start */
-	qrio_set_gpio(GPIO_A, FPGA_PROG_L, 1);
+	qrio_set_gpio(QRIO_GPIO_A, FPGA_PROG_L, 1);
 
 	return ret;
 }
@@ -73,7 +76,7 @@ static int wait_for_fpga_config(void)
 
 	printf("PCIe FPGA config:");
 	do {
-		done = qrio_get_gpio(GPIO_A, FPGA_DONE);
+		done = qrio_get_gpio(QRIO_GPIO_A, FPGA_DONE);
 		if (timeout-- == 0) {
 			printf(" FPGA_DONE timeout\n");
 			ret = -EFAULT;
@@ -86,7 +89,7 @@ static int wait_for_fpga_config(void)
 
 err_out:
 	/* deactive CONF_SEL and give the CPU conf EEPROM access */
-	qrio_set_gpio(GPIO_A, CONF_SEL_L, 1);
+	qrio_set_gpio(QRIO_GPIO_A, CONF_SEL_L, 1);
 	toggle_fpga_eeprom_bus(true);
 
 	return ret;
@@ -116,7 +119,7 @@ void pci_init_board(void)
 	fsl_pcie_init_board(0);
 }
 
-void pci_of_setup(void *blob, bd_t *bd)
+void pci_of_setup(void *blob, struct bd_info *bd)
 {
 	FT_FSL_PCI_SETUP;
 }

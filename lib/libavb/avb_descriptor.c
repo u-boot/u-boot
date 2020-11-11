@@ -6,6 +6,8 @@
 #include "avb_descriptor.h"
 #include "avb_util.h"
 #include "avb_vbmeta_image.h"
+#include <log.h>
+#include <malloc.h>
 
 bool avb_descriptor_validate_and_byteswap(const AvbDescriptor* src,
                                           AvbDescriptor* dest) {

@@ -5,10 +5,12 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <usb.h>
 #include <errno.h>
 #include <wait_bit.h>
 #include <linux/compiler.h>
+#include <linux/delay.h>
 #include <usb/ehci-ci.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
@@ -380,6 +382,14 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	if (index > 3)
 		return -EINVAL;
 
+	if (CONFIG_IS_ENABLED(IMX_MODULE_FUSE)) {
+		if (usb_fused((ulong)ehci)) {
+			printf("SoC fuse indicates USB@0x%lx is unavailable.\n",
+			       (ulong)ehci);
+			return	-ENODEV;
+		}
+	}
+
 	ret = ehci_mx6_common_init(ehci, index);
 	if (ret)
 		return ret;
@@ -437,8 +447,8 @@ static int mx6_init_after_reset(struct ehci_ctrl *dev)
 		ret = regulator_set_enable(priv->vbus_supply,
 					   (type == USB_INIT_DEVICE) ?
 					   false : true);
-		if (ret) {
-			puts("Error enabling VBUS supply\n");
+		if (ret && ret != -ENOSYS) {
+			printf("Error enabling VBUS supply (ret=%i)\n", ret);
 			return ret;
 		}
 	}
@@ -463,7 +473,7 @@ static const struct ehci_ops mx6_ehci_ops = {
 static int ehci_usb_phy_mode(struct udevice *dev)
 {
 	struct usb_platdata *plat = dev_get_platdata(dev);
-	void *__iomem addr = (void *__iomem)devfdt_get_addr(dev);
+	void *__iomem addr = dev_read_addr_ptr(dev);
 	void *__iomem phy_ctrl, *__iomem phy_status;
 	const void *blob = gd->fdt_blob;
 	int offset = dev_of_offset(dev), phy_off;
@@ -513,7 +523,7 @@ static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 	struct usb_platdata *plat = dev_get_platdata(dev);
 	enum usb_dr_mode dr_mode;
 
-	dr_mode = usb_get_dr_mode(dev_of_offset(dev));
+	dr_mode = usb_get_dr_mode(dev->node);
 
 	switch (dr_mode) {
 	case USB_DR_MODE_HOST:
@@ -570,12 +580,20 @@ static int ehci_usb_bind(struct udevice *dev)
 static int ehci_usb_probe(struct udevice *dev)
 {
 	struct usb_platdata *plat = dev_get_platdata(dev);
-	struct usb_ehci *ehci = (struct usb_ehci *)devfdt_get_addr(dev);
+	struct usb_ehci *ehci = dev_read_addr_ptr(dev);
 	struct ehci_mx6_priv_data *priv = dev_get_priv(dev);
 	enum usb_init_type type = plat->init_type;
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
 	int ret;
+
+	if (CONFIG_IS_ENABLED(IMX_MODULE_FUSE)) {
+		if (usb_fused((ulong)ehci)) {
+			printf("SoC fuse indicates USB@0x%lx is unavailable.\n",
+			       (ulong)ehci);
+			return -ENODEV;
+		}
+	}
 
 	priv->ehci = ehci;
 	priv->portnr = dev->seq;
@@ -596,8 +614,8 @@ static int ehci_usb_probe(struct udevice *dev)
 		ret = regulator_set_enable(priv->vbus_supply,
 					   (type == USB_INIT_DEVICE) ?
 					   false : true);
-		if (ret) {
-			puts("Error enabling VBUS supply\n");
+		if (ret && ret != -ENOSYS) {
+			printf("Error enabling VBUS supply (ret=%i)\n", ret);
 			return ret;
 		}
 	}

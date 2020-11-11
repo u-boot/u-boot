@@ -6,12 +6,16 @@
 #define DEBUG
 
 #include <common.h>
+#include <command.h>
+#include <env.h>
+#include <log.h>
 
 static const char test_cmd[] = "setenv list 1\n setenv list ${list}2; "
 		"setenv list ${list}3\0"
 		"setenv list ${list}4";
 
-static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_ut_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	printf("%s: Testing commands\n", __func__);
 	run_command("env default -f -a", 0);

@@ -42,3 +42,19 @@
 &i2c0 {
 	u-boot,dm-spl;
 };
+
+&l4_wkup {
+	u-boot,dm-spl;
+};
+
+&scm {
+	u-boot,dm-spl;
+};
+
+&scm_conf {
+	u-boot,dm-spl;
+};
+
+&ethphy0 {
+	u-boot,dm-spl;
+};

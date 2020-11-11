@@ -9,6 +9,10 @@
 #include <linux/sizes.h>
 #include <asm/arch/timer.h>
 
+#ifndef __ASSEMBLY__
+#include <asm/arch/base.h>
+#endif
+
 #if defined(CONFIG_TARGET_RPI_2) || defined(CONFIG_TARGET_RPI_3_32B)
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
@@ -51,8 +55,6 @@
 					 CONFIG_SYS_SDRAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_MALLOC_LEN		SZ_4M
-#define CONFIG_SYS_MEMTEST_START	0x00100000
-#define CONFIG_SYS_MEMTEST_END		0x00200000
 #define CONFIG_LOADADDR			0x00200000
 
 #ifdef CONFIG_ARM64
@@ -70,11 +72,29 @@
 #define CONFIG_TFTP_TSIZE
 #endif
 
+/* DFU over USB/UDC */
+#ifdef CONFIG_CMD_DFU
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_1M
+#define CONFIG_SYS_DFU_MAX_FILE_SIZE	SZ_2M
+
+#ifdef CONFIG_ARM64
+#define KERNEL_FILENAME		"Image"
+#else
+#define KERNEL_FILENAME		"zImage"
+#endif
+
+#define ENV_DFU_SETTINGS \
+	"dfu_alt_info=u-boot.bin fat 0 1;uboot.env fat 0 1;" \
+		      "config.txt fat 0 1;" \
+		      KERNEL_FILENAME " fat 0 1\0"
+#else
+#define ENV_DFU_SETTINGS ""
+#endif
+
 /* Console configuration */
 #define CONFIG_SYS_CBSIZE		1024
 
 /* Environment */
-#define CONFIG_ENV_SIZE			SZ_16K
 #define CONFIG_SYS_LOAD_ADDR		0x1000000
 
 /* Shell */
@@ -185,6 +205,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"dhcpuboot=usb start; dhcp u-boot.uimg; bootm\0" \
 	ENV_DEVICE_SETTINGS \
+	ENV_DFU_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
 	BOOTENV
 

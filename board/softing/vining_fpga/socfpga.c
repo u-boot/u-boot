@@ -4,11 +4,16 @@
  */
 
 #include <common.h>
+#include <eeprom.h>
 #include <env.h>
+#include <init.h>
+#include <net.h>
+#include <status_led.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <i2c.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

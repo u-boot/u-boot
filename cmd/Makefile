@@ -8,20 +8,23 @@ ifndef CONFIG_SPL_BUILD
 obj-y += boot.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-y += help.o
+obj-y += panic.o
 obj-y += version.o
 
 # command
+obj-$(CONFIG_CMD_ACPI) += acpi.o
 obj-$(CONFIG_CMD_AES) += aes.o
 obj-$(CONFIG_CMD_AB_SELECT) += ab_select.o
 obj-$(CONFIG_CMD_ADC) += adc.o
 obj-$(CONFIG_CMD_ARMFLASH) += armflash.o
-obj-y += blk_common.o
+obj-$(CONFIG_HAVE_BLOCK_DEVICE) += blk_common.o
 obj-$(CONFIG_CMD_SOURCE) += source.o
 obj-$(CONFIG_CMD_BCB) += bcb.o
 obj-$(CONFIG_CMD_BDI) += bdinfo.o
 obj-$(CONFIG_CMD_BEDBUG) += bedbug.o
 obj-$(CONFIG_CMD_BIND) += bind.o
 obj-$(CONFIG_CMD_BINOP) += binop.o
+obj-$(CONFIG_CMD_BLOBLIST) += bloblist.o
 obj-$(CONFIG_CMD_BLOCK_CACHE) += blkcache.o
 obj-$(CONFIG_CMD_BMP) += bmp.o
 obj-$(CONFIG_CMD_BOOTCOUNT) += bootcount.o
@@ -31,6 +34,7 @@ obj-$(CONFIG_CMD_BOOTSTAGE) += bootstage.o
 obj-$(CONFIG_CMD_BOOTZ) += bootz.o
 obj-$(CONFIG_CMD_BOOTI) += booti.o
 obj-$(CONFIG_CMD_BTRFS) += btrfs.o
+obj-$(CONFIG_CMD_BUTTON) += button.o
 obj-$(CONFIG_CMD_CACHE) += cache.o
 obj-$(CONFIG_CMD_CBFS) += cbfs.o
 obj-$(CONFIG_CMD_CLK) += clk.o
@@ -47,7 +51,8 @@ obj-$(CONFIG_CMD_SOUND) += sound.o
 ifdef CONFIG_POST
 obj-$(CONFIG_CMD_DIAG) += diag.o
 endif
-obj-$(CONFIG_CMD_DTIMG) += dtimg.o
+obj-$(CONFIG_CMD_ADTIMG) += adtimg.o
+obj-$(CONFIG_CMD_ABOOTIMG) += abootimg.o
 obj-$(CONFIG_CMD_ECHO) += echo.o
 obj-$(CONFIG_ENV_IS_IN_EEPROM) += eeprom.o
 obj-$(CONFIG_CMD_EEPROM) += eeprom.o
@@ -58,9 +63,8 @@ obj-$(CONFIG_HUSH_PARSER) += exit.o
 obj-$(CONFIG_CMD_EXT4) += ext4.o
 obj-$(CONFIG_CMD_EXT2) += ext2.o
 obj-$(CONFIG_CMD_FAT) += fat.o
-obj-$(CONFIG_CMD_FDC) += fdc.o
 obj-$(CONFIG_CMD_FDT) += fdt.o
-obj-$(CONFIG_CMD_FITUPD) += fitupd.o
+obj-$(CONFIG_CMD_SQUASHFS) += sqfs.o
 obj-$(CONFIG_CMD_FLASH) += flash.o
 obj-$(CONFIG_CMD_FPGA) += fpga.o
 obj-$(CONFIG_CMD_FPGAD) += fpgad.o
@@ -83,20 +87,26 @@ obj-$(CONFIG_CMD_LED) += led.o
 obj-$(CONFIG_CMD_LICENSE) += license.o
 obj-y += load.o
 obj-$(CONFIG_CMD_LOG) += log.o
+obj-$(CONFIG_CMD_LSBLK) += lsblk.o
 obj-$(CONFIG_ID_EEPROM) += mac.o
 obj-$(CONFIG_CMD_MD5SUM) += md5sum.o
 obj-$(CONFIG_CMD_MEMORY) += mem.o
 obj-$(CONFIG_CMD_IO) += io.o
 obj-$(CONFIG_CMD_MFSL) += mfsl.o
 obj-$(CONFIG_CMD_MII) += mii.o
-ifdef CONFIG_PHYLIB
-obj-$(CONFIG_CMD_MII) += mdio.o
-endif
 obj-$(CONFIG_CMD_MISC) += misc.o
+obj-$(CONFIG_CMD_MDIO) += mdio.o
+obj-$(CONFIG_CMD_SLEEP) += sleep.o
 obj-$(CONFIG_CMD_MMC) += mmc.o
+obj-$(CONFIG_CMD_OPTEE_RPMB) += optee_rpmb.o
 obj-$(CONFIG_MP) += mp.o
 obj-$(CONFIG_CMD_MTD) += mtd.o
 obj-$(CONFIG_CMD_MTDPARTS) += mtdparts.o
+obj-$(CONFIG_CMD_CLONE) += clone.o
+ifneq ($(CONFIG_CMD_NAND)$(CONFIG_CMD_SF),)
+obj-y += legacy-mtd-utils.o
+endif
+obj-$(CONFIG_CMD_MUX) += mux.o
 obj-$(CONFIG_CMD_NAND) += nand.o
 obj-$(CONFIG_CMD_NET) += net.o
 obj-$(CONFIG_CMD_NVEDIT_EFI) += nvedit_efi.o
@@ -108,14 +118,18 @@ ifdef CONFIG_PCI
 obj-$(CONFIG_CMD_PCI) += pci.o
 endif
 obj-$(CONFIG_CMD_PINMUX) += pinmux.o
-obj-$(CONFIG_CMD_PXE) += pxe.o
+obj-$(CONFIG_CMD_PMC) += pmc.o
+obj-$(CONFIG_CMD_PSTORE) += pstore.o
+obj-$(CONFIG_CMD_PXE) += pxe.o pxe_utils.o
 obj-$(CONFIG_CMD_WOL) += wol.o
 obj-$(CONFIG_CMD_QFW) += qfw.o
 obj-$(CONFIG_CMD_READ) += read.o
 obj-$(CONFIG_CMD_REGINFO) += reginfo.o
 obj-$(CONFIG_CMD_REISER) += reiser.o
 obj-$(CONFIG_CMD_REMOTEPROC) += remoteproc.o
+obj-$(CONFIG_CMD_RNG) += rng.o
 obj-$(CONFIG_CMD_ROCKUSB) += rockusb.o
+obj-$(CONFIG_CMD_RTC) += rtc.o
 obj-$(CONFIG_SANDBOX) += host.o
 obj-$(CONFIG_CMD_SATA) += sata.o
 obj-$(CONFIG_CMD_NVME) += nvme.o
@@ -127,8 +141,10 @@ obj-$(CONFIG_CMD_SETEXPR) += setexpr.o
 obj-$(CONFIG_CMD_SPI) += spi.o
 obj-$(CONFIG_CMD_STRINGS) += strings.o
 obj-$(CONFIG_CMD_SMC) += smccc.o
+obj-$(CONFIG_CMD_SYSBOOT) += sysboot.o pxe_utils.o
 obj-$(CONFIG_CMD_TERMINAL) += terminal.o
 obj-$(CONFIG_CMD_TIME) += time.o
+obj-$(CONFIG_CMD_TIMER) += timer.o
 obj-$(CONFIG_CMD_TRACE) += trace.o
 obj-$(CONFIG_HUSH_PARSER) += test.o
 obj-$(CONFIG_CMD_TPM) += tpm-common.o
@@ -140,6 +156,7 @@ obj-$(CONFIG_CMD_TSI148) += tsi148.o
 obj-$(CONFIG_CMD_UBI) += ubi.o
 obj-$(CONFIG_CMD_UBIFS) += ubifs.o
 obj-$(CONFIG_CMD_UNIVERSE) += universe.o
+obj-$(CONFIG_CMD_UNLZ4) += unlz4.o
 obj-$(CONFIG_CMD_UNZIP) += unzip.o
 obj-$(CONFIG_CMD_VIRTIO) += virtio.o
 obj-$(CONFIG_CMD_WDT) += wdt.o
@@ -163,6 +180,7 @@ obj-$(CONFIG_CMD_DFU) += dfu.o
 obj-$(CONFIG_CMD_GPT) += gpt.o
 obj-$(CONFIG_CMD_ETHSW) += ethsw.o
 obj-$(CONFIG_CMD_AXI) += axi.o
+obj-$(CONFIG_CMD_PVBLOCK) += pvblock.o
 
 # Power
 obj-$(CONFIG_CMD_PMIC) += pmic.o
@@ -180,8 +198,12 @@ obj-$(CONFIG_X86) += x86/
 obj-$(CONFIG_ARCH_MVEBU) += mvebu/
 endif # !CONFIG_SPL_BUILD
 
+obj-$(CONFIG_$(SPL_)CMD_TLV_EEPROM) += tlv_eeprom.o
+
 # core command
 obj-y += nvedit.o
+
+obj-$(CONFIG_CMD_BCM_EXT_UTILS) += broadcom/
 
 obj-$(CONFIG_TI_COMMON_CMD_OPTIONS) += ti/
 

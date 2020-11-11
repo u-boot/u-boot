@@ -25,6 +25,8 @@ The following are the mandatory properties:
 			                       K3 AM65x SoCs
 			    "ti,j721e-r5fss" for R5F clusters/subsystems on
 			                       K3 J721E SoCs
+			    "ti,j7200-r5fss" for R5F clusters/subsystems on
+			                       K3 J7200 SoCs
 - power-domains:	Should contain a phandle to a PM domain provider node
 			and an args specifier containing the R5FSS device id
 			value. This property is as per the binding,
@@ -56,6 +58,7 @@ The following are the mandatory properties:
 - compatible:		Should be one of the following,
 			    "ti,am654-r5f" for the R5F cores in K3 AM65x SoCs
 			    "ti,j721e-r5f" for the R5F cores in K3 J721E SOCs
+			    "ti,j7200-r5f" for the R5F cores in K3 J7200 SOCs
 - reg:			Should contain an entry for each value in 'reg-names'.
 			Each entry should have the memory region's start address
 			and the size of the region, the representation matching
@@ -79,7 +82,7 @@ The following are the mandatory properties:
 			specifier. Please refer to the following reset bindings
 			for the reset argument specifier,
 			Documentation/devicetree/bindings/reset/ti,sci-reset.txt
-			    for AM65x and J721E SoCs
+			    for AM65x, J721E and J7200 SoCs
 
 Optional properties:
 --------------------

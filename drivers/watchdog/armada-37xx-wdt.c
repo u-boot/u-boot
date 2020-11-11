@@ -11,6 +11,7 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <dm/device_compat.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

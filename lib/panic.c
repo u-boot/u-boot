@@ -10,9 +10,11 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #if !defined(CONFIG_PANIC_HANG)
 #include <command.h>
 #endif
+#include <linux/delay.h>
 
 static void panic_finish(void) __attribute__ ((noreturn));
 

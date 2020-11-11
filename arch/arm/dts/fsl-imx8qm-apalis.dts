@@ -12,8 +12,8 @@
 #include "fsl-imx8qm-apalis-u-boot.dtsi"
 
 / {
-	model = "Toradex Apalis iMX8QM";
-	compatible = "toradex,apalis-imx8qm", "fsl,imx8qm";
+	model = "Toradex Apalis iMX8";
+	compatible = "toradex,apalis-imx8", "fsl,imx8qm";
 
 	chosen {
 		bootargs = "console=ttyLP1,115200 earlycon=lpuart32,0x5a070000,115200";
@@ -38,7 +38,7 @@
 		    <&pinctrl_qspi1a_gpios>, <&pinctrl_sata1_act>,
 		    <&pinctrl_sim0_gpios>, <&pinctrl_usdhc1_gpios>;
 
-	apalis-imx8qm {
+	apalis-imx8 {
 		pinctrl_gpio12: gpio12grp {
 			fsl,pins = <
 				/* Apalis GPIO1 */

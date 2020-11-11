@@ -39,7 +39,7 @@
 	"u-boot.img fat 1 1;" \
 	"uEnv.txt fat 1 1\0"
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define DFU_ALT_INFO_NAND \
 	"dfu_alt_info_nand=" \
 	"SPL part 0 1;" \

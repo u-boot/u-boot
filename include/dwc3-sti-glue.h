@@ -8,6 +8,7 @@
 #define __DWC3_STI_UBOOT_H_
 
 /* glue registers */
+#include <linux/bitops.h>
 #define CLKRST_CTRL		0x00
 #define AUX_CLK_EN		BIT(0)
 #define SW_PIPEW_RESET_N	BIT(4)

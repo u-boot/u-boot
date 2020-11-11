@@ -11,12 +11,16 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <env.h>
+#include <init.h>
 #include <pci.h>
+#include <uuid.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <ioports.h>
 #include <flash.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <asm/io.h>
@@ -104,25 +108,26 @@ int misc_init_r (void)
 		/*
 		 * Re-do flash protection upon new addresses
 		 */
-		flash_protect (FLAG_PROTECT_CLEAR,
-			       gd->bd->bi_flashstart, 0xffffffff,
-			       &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
+		flash_protect(FLAG_PROTECT_CLEAR,
+			      gd->bd->bi_flashstart, 0xffffffff,
+			      &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
 
 		/* Monitor protection ON by default */
-		flash_protect (FLAG_PROTECT_SET,
-			       CONFIG_SYS_MONITOR_BASE, CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
-			       &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
+		flash_protect(FLAG_PROTECT_SET,
+			      CONFIG_SYS_MONITOR_BASE, CONFIG_SYS_MONITOR_BASE +
+			      monitor_flash_len - 1,
+			      &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
 
 		/* Environment protection ON by default */
-		flash_protect (FLAG_PROTECT_SET,
-			       CONFIG_ENV_ADDR,
-			       CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1,
-			       &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
+		flash_protect(FLAG_PROTECT_SET,
+			      CONFIG_ENV_ADDR,
+			      CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1,
+			      &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
 
 		/* Redundant environment protection ON by default */
-		flash_protect (FLAG_PROTECT_SET,
-			       CONFIG_ENV_ADDR_REDUND,
-			       CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1,
+		flash_protect(FLAG_PROTECT_SET,
+			      CONFIG_ENV_ADDR_REDUND,
+			      CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1,
 			       &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
 	}
 
@@ -165,11 +170,11 @@ void local_bus_init (void)
 
 	/* Init UPMA for FPGA access */
 	out_be32 (&lbc->mamr, 0x44440); /* Use a customer-supplied value */
-	upmconfig (UPMA, (uint *)UPMTableA, sizeof(UPMTableA)/sizeof(int));
+	upmconfig(UPMA, (uint *)UPMTableA, sizeof(UPMTableA) / sizeof(int));
 
 	/* Init UPMB for Lime controller access */
 	out_be32 (&lbc->mbmr, 0x444440); /* Use a customer-supplied value */
-	upmconfig (UPMB, (uint *)UPMTableB, sizeof(UPMTableB)/sizeof(int));
+	upmconfig(UPMB, (uint *)UPMTableB, sizeof(UPMTableB) / sizeof(int));
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_R
@@ -188,7 +193,7 @@ int board_early_init_r (void)
 #endif /* CONFIG_BOARD_EARLY_INIT_R */
 
 #ifdef CONFIG_OF_BOARD_SETUP
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	u32 val[12];
 	int rc, i = 0;

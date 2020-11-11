@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
@@ -20,6 +21,7 @@
 #include <linux/errno.h>
 #include <asm/spi.h>
 #include <asm/state.h>
+#include <dm/acpi.h>
 #include <dm/device-internal.h>
 
 #ifndef CONFIG_SPI_IDLE_VAL
@@ -145,8 +147,8 @@ static const struct udevice_id sandbox_spi_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(spi_sandbox) = {
-	.name	= "spi_sandbox",
+U_BOOT_DRIVER(sandbox_spi) = {
+	.name	= "sandbox_spi",
 	.id	= UCLASS_SPI,
 	.of_match = sandbox_spi_ids,
 	.ops	= &sandbox_spi_ops,

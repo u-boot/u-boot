@@ -5,6 +5,8 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <log.h>
 #include <dm/uclass.h>
 #include <env.h>
 #include <fdtdec.h>
@@ -16,6 +18,7 @@
 #include <zynqpl.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include "../common/board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -30,6 +33,14 @@ int board_late_init(void)
 	const char *mode;
 	char *new_targets;
 	char *env_targets;
+
+	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
+		debug("Saved variables - Skipping\n");
+		return 0;
+	}
+
+	if (!CONFIG_IS_ENABLED(ENV_VARS_UBOOT_RUNTIME_CONFIG))
+		return 0;
 
 	switch ((zynq_slcr_get_boot_mode()) & ZYNQ_BM_MASK) {
 	case ZYNQ_BM_QSPI:
@@ -49,7 +60,7 @@ int board_late_init(void)
 		env_set("modeboot", "sdboot");
 		break;
 	case ZYNQ_BM_JTAG:
-		mode = "pxe dhcp";
+		mode = "jtag pxe dhcp";
 		env_set("modeboot", "jtagboot");
 		break;
 	default:
@@ -75,7 +86,7 @@ int board_late_init(void)
 
 	env_set("boot_targets", new_targets);
 
-	return 0;
+	return board_late_init_xilinx();
 }
 
 #if !defined(CONFIG_SYS_SDRAM_BASE) && !defined(CONFIG_SYS_SDRAM_SIZE)

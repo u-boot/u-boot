@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <smem.h>
 #include <dm/test.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 /* Basic test of the smem uclass */
@@ -23,5 +24,5 @@ static int dm_test_smem_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_smem_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_smem_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 

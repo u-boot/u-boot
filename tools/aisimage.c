@@ -10,7 +10,6 @@
 
 #define IS_FNC_EXEC(c)	(cmd_table[c].AIS_cmd == AIS_CMD_FNLOAD)
 #define WORD_ALIGN0	4
-#define WORD_ALIGN(len) (((len)+WORD_ALIGN0-1) & ~(WORD_ALIGN0-1))
 #define MAX_CMD_BUFFER	4096
 
 static uint32_t ais_img_size;
@@ -202,8 +201,9 @@ static uint32_t *ais_alloc_buffer(struct image_tool_params *params)
 	 * is not left to the main program, because after the datafile
 	 * the header must be terminated with the Jump & Close command.
 	 */
-	ais_img_size = WORD_ALIGN(sbuf.st_size) + MAX_CMD_BUFFER;
-	ptr = (uint32_t *)malloc(WORD_ALIGN(sbuf.st_size) + MAX_CMD_BUFFER);
+	ais_img_size = ALIGN(sbuf.st_size, WORD_ALIGN0) + MAX_CMD_BUFFER;
+	ptr = (uint32_t *)malloc(ALIGN(sbuf.st_size, WORD_ALIGN0)
+			+ MAX_CMD_BUFFER);
 	if (!ptr) {
 		fprintf(stderr, "%s: malloc return failure: %s\n",
 			params->cmdname, strerror(errno));
@@ -242,7 +242,7 @@ static uint32_t *ais_copy_image(struct image_tool_params *params,
 	*aisptr++ = params->ep;
 	*aisptr++ = sbuf.st_size;
 	memcpy((void *)aisptr, ptr, sbuf.st_size);
-	aisptr += WORD_ALIGN(sbuf.st_size) / sizeof(uint32_t);
+	aisptr += ALIGN(sbuf.st_size, WORD_ALIGN0) / sizeof(uint32_t);
 
 	(void) munmap((void *)ptr, sbuf.st_size);
 	(void) close(dfd);

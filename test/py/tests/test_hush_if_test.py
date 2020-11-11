@@ -7,6 +7,10 @@ import os
 import os.path
 import pytest
 
+# TODO: These tests should be converted to a C test.
+# For more information please take a look at the thread
+# https://lists.denx.de/pipermail/u-boot/2019-October/388732.html
+
 pytestmark = pytest.mark.buildconfigspec('hush_parser')
 
 # The list of "if test" conditions to test.
@@ -51,6 +55,33 @@ subtests = (
     ('test 456 -ge 123', True),
     ('test 123 -ge 123', True),
     ('test 123 -ge 456', False),
+
+    # Octal tests
+
+    ('test 010 -eq 010', True),
+    ('test 010 -eq 011', False),
+
+    ('test 010 -ne 011', True),
+    ('test 010 -ne 010', False),
+
+    # Hexadecimal tests
+
+    ('test 0x2000000 -gt 0x2000001', False),
+    ('test 0x2000000 -gt 0x2000000', False),
+    ('test 0x2000000 -gt 0x1ffffff', True),
+
+    # Mixed tests
+
+    ('test 010 -eq 10', False),
+    ('test 010 -ne 10', True),
+    ('test 0xa -eq 10', True),
+    ('test 0xa -eq 012', True),
+
+    ('test 2000000 -gt 0x1ffffff', False),
+    ('test 0x2000000 -gt 1ffffff', True),
+    ('test 0x2000000 -lt 1ffffff', False),
+    ('test 0x2000000 -eq 2000000', False),
+    ('test 0x2000000 -ne 2000000', True),
 
     ('test -z ""', True),
     ('test -z "aaa"', False),

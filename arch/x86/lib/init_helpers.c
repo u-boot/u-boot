@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <linux/errno.h>
 #include <asm/mtrr.h>
 
@@ -28,6 +29,9 @@ int init_cache_f_r(void)
 		if (ret && ret != -ENOSYS)
 			return ret;
 	}
+
+	if (!ll_boot_init())
+		return 0;
 
 	/* Initialise the CPU cache(s) */
 	return init_cache();

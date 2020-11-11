@@ -6,11 +6,15 @@
  */
 
 #include <common.h>
+#include <log.h>
+#include <malloc.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <clk-uclass.h>
 #include <clk.h>
 #include <asm/arch/sys_proto.h>
 #include <dm.h>
+#include <linux/err.h>
 
 static const resource_size_t zynqmp_crf_apb_clkc_base = 0xfd1a0020;
 static const resource_size_t zynqmp_crl_apb_clkc_base = 0xff5e0020;
@@ -706,7 +710,7 @@ static const struct udevice_id zynqmp_clk_ids[] = {
 };
 
 U_BOOT_DRIVER(zynqmp_clk) = {
-	.name = "zynqmp-clk",
+	.name = "zynqmp_clk",
 	.id = UCLASS_CLK,
 	.of_match = zynqmp_clk_ids,
 	.probe = zynqmp_clk_probe,

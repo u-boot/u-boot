@@ -21,8 +21,11 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <mmc.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -49,15 +52,9 @@ struct mxsmmc_priv {
 #include <dm/read.h>
 #include <dt-structs.h>
 
-#ifdef CONFIG_MX28
-#define dtd_fsl_imx_mmc dtd_fsl_imx28_mmc
-#else /* CONFIG_MX23 */
-#define dtd_fsl_imx_mmc dtd_fsl_imx23_mmc
-#endif
-
 struct mxsmmc_platdata {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_fsl_imx_mmc dtplat;
+	struct dtd_fsl_imx23_mmc dtplat;
 #endif
 	struct mmc_config cfg;
 	struct mmc mmc;
@@ -159,7 +156,8 @@ static const struct mmc_ops mxsmmc_ops = {
 	.init		= mxsmmc_init,
 };
 
-int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int), int (*cd)(int))
+int mxsmmc_initialize(struct bd_info *bis, int id, int (*wp)(int),
+		      int (*cd)(int))
 {
 	struct mmc *mmc = NULL;
 	struct mxsmmc_priv *priv = NULL;
@@ -578,7 +576,7 @@ static int mxsmmc_probe(struct udevice *dev)
 	debug("%s: probe\n", __func__);
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_fsl_imx_mmc *dtplat = &plat->dtplat;
+	struct dtd_fsl_imx23_mmc *dtplat = &plat->dtplat;
 	struct phandle_1_arg *p1a = &dtplat->clocks[0];
 
 	priv->buswidth = dtplat->bus_width;
@@ -708,12 +706,8 @@ static const struct udevice_id mxsmmc_ids[] = {
 };
 #endif
 
-U_BOOT_DRIVER(mxsmmc) = {
-#ifdef CONFIG_MX28
-	.name = "fsl_imx28_mmc",
-#else /* CONFIG_MX23 */
+U_BOOT_DRIVER(fsl_imx23_mmc) = {
 	.name = "fsl_imx23_mmc",
-#endif
 	.id	= UCLASS_MMC,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = mxsmmc_ids,
@@ -728,4 +722,5 @@ U_BOOT_DRIVER(mxsmmc) = {
 	.platdata_auto_alloc_size = sizeof(struct mxsmmc_platdata),
 };
 
+U_BOOT_DRIVER_ALIAS(fsl_imx23_mmc, fsl_imx28_mmc)
 #endif /* CONFIG_DM_MMC */

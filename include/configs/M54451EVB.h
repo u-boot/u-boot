@@ -13,6 +13,8 @@
 #ifndef _M54451EVB_H
 #define _M54451EVB_H
 
+#include <linux/stringify.h>
+
 /*
  * High Level Configuration Options
  * (easy to change)
@@ -34,17 +36,11 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /* Network configuration */
-#define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC
 #	define CONFIG_MII_INIT		1
 #	define CONFIG_SYS_DISCOVER_PHY
 #	define CONFIG_SYS_RX_ETH_BUFFER	8
 #	define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-
-#	define CONFIG_SYS_FEC0_PINMUX	0
-#	define CONFIG_SYS_FEC0_MIIBASE	CONFIG_SYS_FEC0_IOBASE
-#	define MCFFEC_TOUT_LOOP 50000
-
 #	define CONFIG_ETHPRIME		"FEC0"
 #	define CONFIG_IPADDR		192.162.1.2
 #	define CONFIG_NETMASK		255.255.255.0
@@ -103,7 +99,6 @@
 
 /* Timer */
 #define CONFIG_MCFTMR
-#undef CONFIG_MCFPIT
 
 /* I2c */
 #define CONFIG_SYS_I2C
@@ -159,9 +154,6 @@
 #define CONFIG_SYS_SDRAM_MODE		0x008D0000
 #define CONFIG_SYS_SDRAM_DRV_STRENGTH	0x44
 
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE + 0x400
-#define CONFIG_SYS_MEMTEST_END		((CONFIG_SYS_SDRAM_SIZE - 3) << 20)
-
 #ifdef CONFIG_CF_SBF
 #	define CONFIG_SERIAL_BOOT
 #	define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_TEXT_BASE + 0x400)
@@ -185,16 +177,6 @@
  * Environment is not embedded in u-boot. First time runing may have env
  * crc error warning if there is no correct environment on the flash.
  */
-#if defined(CONFIG_SYS_STMICRO_BOOT)
-#	define CONFIG_ENV_OFFSET		0x20000
-#	define CONFIG_ENV_SIZE		0x2000
-#	define CONFIG_ENV_SECT_SIZE	0x10000
-#else
-#	define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x40000)
-#	define CONFIG_ENV_SIZE		0x2000
-#	define CONFIG_ENV_SECT_SIZE	0x20000
-#endif
-#undef CONFIG_ENV_OVERWRITE
 
 /* FLASH organization */
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_CS0_BASE

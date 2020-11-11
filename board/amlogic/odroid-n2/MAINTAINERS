@@ -1,0 +1,9 @@
+ODROID-N2
+M:	Neil Armstrong <narmstrong@baylibre.com>
+S:	Maintained
+L:	u-boot-amlogic@groups.io
+F:	board/amlogic/odroid-n2/
+F:	configs/odroid-n2_defconfig
+F:	configs/odroid-c4_defconfig
+F:	doc/board/amlogic/odroid-n2.rst
+F:	doc/board/amlogic/odroid-c4.rst

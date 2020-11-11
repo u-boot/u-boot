@@ -6,6 +6,9 @@
 #ifndef SC_PAD_API_H
 #define SC_PAD_API_H
 
+/* Defines for type widths */
+#define SC_PAD_MUX_W            3U    /* Width of mux parameter */
+
 /* Defines for sc_pad_config_t */
 #define SC_PAD_CONFIG_NORMAL	0U	/* Normal */
 #define SC_PAD_CONFIG_OD	1U	/* Open Drain */

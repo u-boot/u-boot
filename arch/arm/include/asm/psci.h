@@ -18,6 +18,10 @@
 #ifndef __ARM_PSCI_H__
 #define __ARM_PSCI_H__
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 #define ARM_PSCI_VER_1_0		(0x00010000)
 #define ARM_PSCI_VER_0_2		(0x00000002)
 
@@ -64,6 +68,7 @@
 #define ARM_PSCI_0_2_FN64_AFFINITY_INFO		ARM_PSCI_0_2_FN64(4)
 #define ARM_PSCI_0_2_FN64_MIGRATE		ARM_PSCI_0_2_FN64(5)
 #define ARM_PSCI_0_2_FN64_MIGRATE_INFO_UP_CPU	ARM_PSCI_0_2_FN64(7)
+#define ARM_PSCI_0_2_FN64_SYSTEM_RESET2		ARM_PSCI_0_2_FN64(18)
 
 /* PSCI 1.0 interface */
 #define ARM_PSCI_1_0_FN_PSCI_FEATURES		ARM_PSCI_0_2_FN(10)
@@ -90,8 +95,12 @@
 #define PSCI_AFFINITY_LEVEL_OFF		1
 #define PSCI_AFFINITY_LEVEL_ON_PENDING	2
 
+#define PSCI_RESET2_TYPE_VENDOR_SHIFT	31
+#define PSCI_RESET2_TYPE_VENDOR		BIT(PSCI_RESET2_TYPE_VENDOR_SHIFT)
+
 #ifndef __ASSEMBLY__
 #include <asm/types.h>
+#include <linux/bitops.h>
 
 /* These 3 helper functions assume cpu < CONFIG_ARMV7_PSCI_NR_CPUS */
 u32 psci_get_target_pc(int cpu);

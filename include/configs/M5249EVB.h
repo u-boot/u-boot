@@ -31,16 +31,7 @@
  */
 #undef CONFIG_BOOTP_BOOTFILESIZE
 
-/*
- * Command line configuration.
- */
-
-#define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device	*/
-
 #define CONFIG_SYS_LOAD_ADDR		0x200000	/* default load address */
-
-#define CONFIG_SYS_MEMTEST_START	0x400
-#define CONFIG_SYS_MEMTEST_END		0x380000
 
 /*
  * Clock configuration: enable only one of the following options
@@ -70,10 +61,6 @@
 #define LDS_BOARD_TEXT \
 	. = DEFINED(env_offset) ? env_offset : .; \
 	env/embedded.o(.text);
-
-#define CONFIG_ENV_OFFSET		0x4000	/* Address of Environment Sector*/
-#define CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
-#define CONFIG_ENV_SECT_SIZE	0x2000 /* see README - env sector total size	*/
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration

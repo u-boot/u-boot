@@ -23,6 +23,7 @@
 #include <ext_common.h>
 #include <ext4fs.h>
 #include <malloc.h>
+#include <asm/cache.h>
 #include <linux/errno.h>
 #if defined(CONFIG_EXT4_WRITE)
 #include "ext4_journal.h"

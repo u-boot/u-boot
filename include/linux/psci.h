@@ -91,8 +91,8 @@
 unsigned long invoke_psci_fn(unsigned long a0, unsigned long a1,
 			     unsigned long a2, unsigned long a3);
 #else
-unsigned long invoke_psci_fn(unsigned long a0, unsigned long a1,
-			     unsigned long a2, unsigned long a3)
+static inline unsigned long invoke_psci_fn(unsigned long a0, unsigned long a1,
+					   unsigned long a2, unsigned long a3)
 {
 	return PSCI_RET_DISABLED;
 }

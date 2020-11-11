@@ -29,7 +29,6 @@
 #define CONFIG_SYS_NAND_BASE			0xD2000000
 
 /* Ethernet PHY configuration */
-#define CONFIG_PHY_NATSEMI
 
 /* Environment Settings */
 #define CONFIG_EXTRA_ENV_SETTINGS              CONFIG_EXTRA_ENV_USBTTY

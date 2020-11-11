@@ -9,6 +9,9 @@
 #include <clk.h>
 #include <cpu.h>
 #include <dm.h>
+#include <log.h>
+#include <vsprintf.h>
+#include <linux/bitops.h>
 
 #include "mpc83xx_cpu.h"
 
@@ -57,7 +60,7 @@ static inline u32 get_spridr(void)
  * determine_type() - Determine CPU family of MPC83xx device
  * @dev: CPU device from which to read CPU family from
  */
-static inline void determine_family(struct udevice *dev)
+static inline void determine_family(const struct udevice *dev)
 {
 	struct mpc83xx_cpu_priv *priv = dev_get_priv(dev);
 	/* Upper 12 bits of PARTID field (bits 0-23 in SPRIDR) */
@@ -92,7 +95,7 @@ static inline void determine_family(struct udevice *dev)
  * determine_type() - Determine CPU type of MPC83xx device
  * @dev: CPU device from which to read CPU type from
  */
-static inline void determine_type(struct udevice *dev)
+static inline void determine_type(const struct udevice *dev)
 {
 	struct mpc83xx_cpu_priv *priv = dev_get_priv(dev);
 	/* Upper 16 bits of PVR (Processor Version Register) */
@@ -166,7 +169,7 @@ static inline void determine_type(struct udevice *dev)
  * determine_e300_type() - Determine e300 core type of MPC83xx device
  * @dev: CPU device from which to read e300 core type from
  */
-static inline void determine_e300_type(struct udevice *dev)
+static inline void determine_e300_type(const struct udevice *dev)
 {
 	struct mpc83xx_cpu_priv *priv = dev_get_priv(dev);
 	/* Upper 16 bits of PVR (Processor Version Register) */
@@ -195,7 +198,7 @@ static inline void determine_e300_type(struct udevice *dev)
  * determine_revid() - Determine revision ID of CPU device
  * @dev: CPU device from which to read revision ID
  */
-static inline void determine_revid(struct udevice *dev)
+static inline void determine_revid(const struct udevice *dev)
 {
 	struct mpc83xx_cpu_priv *priv = dev_get_priv(dev);
 	u32 REVID_MAJOR_MASK;
@@ -218,7 +221,7 @@ static inline void determine_revid(struct udevice *dev)
  * determine_cpu_data() - Determine CPU information from hardware
  * @dev: CPU device from which to read information
  */
-static void determine_cpu_data(struct udevice *dev)
+static void determine_cpu_data(const struct udevice *dev)
 {
 	struct mpc83xx_cpu_priv *priv = dev_get_priv(dev);
 	const u32 E_FLAG_MASK = 0x00010000;
@@ -236,7 +239,7 @@ static void determine_cpu_data(struct udevice *dev)
 	priv->is_e_processor = !bitfield_extract_by_mask(spridr, E_FLAG_MASK);
 }
 
-static int mpc83xx_cpu_get_desc(struct udevice *dev, char *buf, int size)
+static int mpc83xx_cpu_get_desc(const struct udevice *dev, char *buf, int size)
 {
 	struct mpc83xx_cpu_priv *priv = dev_get_priv(dev);
 	struct clk core_clk;
@@ -245,14 +248,14 @@ static int mpc83xx_cpu_get_desc(struct udevice *dev, char *buf, int size)
 	char csb_freq[32];
 	int ret;
 
-	ret = clk_get_by_index(dev, 0, &core_clk);
+	ret = clk_get_by_index((struct udevice *)dev, 0, &core_clk);
 	if (ret) {
 		debug("%s: Failed to get core clock (err = %d)\n",
 		      dev->name, ret);
 		return ret;
 	}
 
-	ret = clk_get_by_index(dev, 1, &csb_clk);
+	ret = clk_get_by_index((struct udevice *)dev, 1, &csb_clk);
 	if (ret) {
 		debug("%s: Failed to get CSB clock (err = %d)\n",
 		      dev->name, ret);
@@ -275,13 +278,14 @@ static int mpc83xx_cpu_get_desc(struct udevice *dev, char *buf, int size)
 	return 0;
 }
 
-static int mpc83xx_cpu_get_info(struct udevice *dev, struct cpu_info *info)
+static int mpc83xx_cpu_get_info(const struct udevice *dev,
+				struct cpu_info *info)
 {
 	struct clk clock;
 	int ret;
 	ulong freq;
 
-	ret = clk_get_by_index(dev, 0, &clock);
+	ret = clk_get_by_index((struct udevice *)dev, 0, &clock);
 	if (ret) {
 		debug("%s: Failed to get core clock (err = %d)\n",
 		      dev->name, ret);
@@ -300,13 +304,14 @@ static int mpc83xx_cpu_get_info(struct udevice *dev, struct cpu_info *info)
 	return 0;
 }
 
-static int mpc83xx_cpu_get_count(struct udevice *dev)
+static int mpc83xx_cpu_get_count(const struct udevice *dev)
 {
 	/* We have one e300cX core */
 	return 1;
 }
 
-static int mpc83xx_cpu_get_vendor(struct udevice *dev, char *buf, int size)
+static int mpc83xx_cpu_get_vendor(const struct udevice *dev, char *buf,
+				  int size)
 {
 	snprintf(buf, size, "NXP");
 

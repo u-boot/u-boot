@@ -19,27 +19,32 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <efi_loader.h>
+#include <irq_func.h>
 #include <asm/proc-armv/ptrace.h>
+#include <asm/ptrace.h>
 #include <asm/u-boot-arm.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int interrupt_init (void)
+int interrupt_init(void)
 {
 	/*
 	 * setup up stacks if necessary
 	 */
 	IRQ_STACK_START_IN = gd->irq_sp + 8;
 
+	enable_interrupts();
+
 	return 0;
 }
 
-void enable_interrupts (void)
+void enable_interrupts(void)
 {
 	return;
 }
-int disable_interrupts (void)
+int disable_interrupts(void)
 {
 	return 0;
 }
@@ -47,7 +52,7 @@ int disable_interrupts (void)
 void bad_mode (void)
 {
 	panic ("Resetting CPU ...\n");
-	reset_cpu (0);
+	reset_cpu(0);
 }
 
 static void show_efi_loaded_images(struct pt_regs *regs)

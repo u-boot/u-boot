@@ -1,6 +1,9 @@
 #include <common.h>
+#include <command.h>
 #include <console.h>
+#include <linux/delay.h>
 #include "e1000.h"
+#include <malloc.h>
 #include <linux/compiler.h>
 
 /*-----------------------------------------------------------------------
@@ -314,8 +317,8 @@ static int e1000_spi_eeprom_program(struct e1000_hw *hw,
 	return 0;
 }
 
-static int do_e1000_spi_show(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
-		int argc, char * const argv[])
+static int do_e1000_spi_show(struct cmd_tbl *cmdtp, struct e1000_hw *hw,
+			     int argc, char *const argv[])
 {
 	unsigned int length = 0;
 	u16 i, offset = 0;
@@ -383,8 +386,8 @@ static int do_e1000_spi_show(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 	return 0;
 }
 
-static int do_e1000_spi_dump(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
-		int argc, char * const argv[])
+static int do_e1000_spi_dump(struct cmd_tbl *cmdtp, struct e1000_hw *hw,
+			     int argc, char *const argv[])
 {
 	unsigned int length;
 	u16 offset;
@@ -428,8 +431,8 @@ static int do_e1000_spi_dump(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 	return 0;
 }
 
-static int do_e1000_spi_program(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
-		int argc, char * const argv[])
+static int do_e1000_spi_program(struct cmd_tbl *cmdtp, struct e1000_hw *hw,
+				int argc, char *const argv[])
 {
 	unsigned int length;
 	const void *source;
@@ -463,8 +466,8 @@ static int do_e1000_spi_program(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 	return 0;
 }
 
-static int do_e1000_spi_checksum(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
-		int argc, char * const argv[])
+static int do_e1000_spi_checksum(struct cmd_tbl *cmdtp, struct e1000_hw *hw,
+				 int argc, char *const argv[])
 {
 	uint16_t i, length, checksum = 0, checksum_reg;
 	uint16_t *buffer;
@@ -539,8 +542,8 @@ static int do_e1000_spi_checksum(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 	return 0;
 }
 
-int do_e1000_spi(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
-		int argc, char * const argv[])
+int do_e1000_spi(struct cmd_tbl *cmdtp, struct e1000_hw *hw,
+		 int argc, char *const argv[])
 {
 	if (argc < 1) {
 		cmd_usage(cmdtp);

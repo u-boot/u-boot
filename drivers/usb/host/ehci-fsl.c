@@ -9,9 +9,11 @@
 
 #include <common.h>
 #include <env.h>
+#include <log.h>
 #include <pci.h>
 #include <usb.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <usb/ehci-ci.h>
 #include <hwconfig.h>
 #include <fsl_usb.h>
@@ -103,7 +105,7 @@ static int ehci_fsl_probe(struct udevice *dev)
 	/*
 	 * Get the base address for EHCI controller from the device node
 	 */
-	priv->hcd_base = devfdt_get_addr(dev);
+	priv->hcd_base = dev_read_addr(dev);
 	if (priv->hcd_base == FDT_ADDR_T_NONE) {
 		debug("Can't get the EHCI register base address\n");
 		return -ENXIO;

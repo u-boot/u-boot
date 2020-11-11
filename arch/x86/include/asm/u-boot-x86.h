@@ -43,6 +43,14 @@ int x86_cpu_reinit_f(void);
  */
 int x86_cpu_init_tpl(void);
 
+/**
+ * cpu_reinit_fpu() - Reinit the FPU if something is wrong with it
+ *
+ * The FSP-M code can leave registers in use in the FPU. This functions reinits
+ * it so that the FPU can be used safely
+ */
+void cpu_reinit_fpu(void);
+
 int cpu_init_f(void);
 void setup_gdt(struct global_data *id, u64 *gdt_addr);
 /*
@@ -74,8 +82,6 @@ int default_print_cpuinfo(void);
 
 /* Set up a UART which can be used with printch(), printhex8(), etc. */
 int setup_internal_uart(int enable);
-
-void setup_pcat_compatibility(void);
 
 void isa_unmap_rom(u32 addr);
 u32 isa_map_rom(u32 bus_addr, int size);

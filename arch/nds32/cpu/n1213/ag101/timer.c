@@ -9,8 +9,13 @@
  */
 #ifndef CONFIG_TIMER
 #include <common.h>
+#include <init.h>
+#include <irq_func.h>
+#include <log.h>
+#include <time.h>
 #include <asm/io.h>
 #include <faraday/fttmr010.h>
+#include <linux/delay.h>
 
 static ulong timestamp;
 static ulong lastdec;

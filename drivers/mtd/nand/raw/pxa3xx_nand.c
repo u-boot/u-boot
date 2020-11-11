@@ -10,12 +10,22 @@
 #include <malloc.h>
 #include <fdtdec.h>
 #include <nand.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
+#include <linux/bitops.h>
+#include <linux/bug.h>
+#include <linux/delay.h>
+#include <linux/err.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/types.h>
+#include <syscon.h>
+#include <regmap.h>
+#include <dm/uclass.h>
+#include <dm/read.h>
 
 #include "pxa3xx_nand.h"
 
@@ -111,6 +121,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define EXT_CMD_TYPE_LAST_RW	1 /* Last naked read/write */
 #define EXT_CMD_TYPE_MONO	0 /* Monolithic read/write */
 
+/* System control register and bit to enable NAND on some SoCs */
+#define GENCONF_SOC_DEVICE_MUX	0x208
+#define GENCONF_SOC_DEVICE_MUX_NFC_EN BIT(0)
+
 /*
  * This should be large enough to read 'ONFI' and 'JEDEC'.
  * Let's use 7 bytes, which is the maximum ID count supported
@@ -151,6 +165,7 @@ enum {
 enum pxa3xx_nand_variant {
 	PXA3XX_NAND_VARIANT_PXA,
 	PXA3XX_NAND_VARIANT_ARMADA370,
+	PXA3XX_NAND_VARIANT_ARMADA_8K,
 };
 
 struct pxa3xx_nand_host {
@@ -411,10 +426,21 @@ static struct nand_ecclayout ecc_layout_8KB_bch8bit = {
 /* convert nano-seconds to nand flash controller clock cycles */
 #define ns2cycle(ns, clk)	(int)((ns) * (clk / 1000000) / 1000)
 
-static enum pxa3xx_nand_variant pxa3xx_nand_get_variant(void)
+static const struct udevice_id pxa3xx_nand_dt_ids[] = {
+	{
+		.compatible = "marvell,mvebu-pxa3xx-nand",
+		.data = PXA3XX_NAND_VARIANT_ARMADA370,
+	},
+	{
+		.compatible = "marvell,armada-8k-nand-controller",
+		.data = PXA3XX_NAND_VARIANT_ARMADA_8K,
+	},
+	{}
+};
+
+static enum pxa3xx_nand_variant pxa3xx_nand_get_variant(struct udevice *dev)
 {
-	/* We only support the Armada 370/XP/38x for now */
-	return PXA3XX_NAND_VARIANT_ARMADA370;
+	return dev_get_driver_data(dev);
 }
 
 static void pxa3xx_nand_set_timing(struct pxa3xx_nand_host *host,
@@ -506,7 +532,7 @@ static int pxa3xx_nand_init_timings(struct pxa3xx_nand_host *host)
 		}
 
 		if (i == ntypes) {
-			dev_err(&info->pdev->dev, "Error: timings not found\n");
+			dev_err(mtd->dev, "Error: timings not found\n");
 			return -EINVAL;
 		}
 
@@ -597,7 +623,7 @@ static void drain_fifo(struct pxa3xx_nand_info *info, void *data, int len)
 			ts = get_timer(0);
 			while (!(nand_readl(info, NDSR) & NDSR_RDDREQ)) {
 				if (get_timer(ts) > TIMEOUT_DRAIN_FIFO) {
-					dev_err(&info->pdev->dev,
+					dev_err(info->controller.active->mtd.dev,
 						"Timeout on RDDREQ while draining the FIFO\n");
 					return;
 				}
@@ -636,7 +662,7 @@ static void handle_data_pio(struct pxa3xx_nand_info *info)
 				DIV_ROUND_UP(info->step_spare_size, 4));
 		break;
 	case STATE_PIO_READING:
-		if (info->step_chunk_size)
+		if (data_len)
 			drain_fifo(info,
 				   info->data_buff + info->data_buff_pos,
 				   DIV_ROUND_UP(data_len, 4));
@@ -650,8 +676,8 @@ static void handle_data_pio(struct pxa3xx_nand_info *info)
 				   DIV_ROUND_UP(info->step_spare_size, 4));
 		break;
 	default:
-		dev_err(&info->pdev->dev, "%s: invalid state %d\n", __func__,
-				info->state);
+		dev_err(info->controller.active->mtd.dev,
+			"%s: invalid state %d\n", __func__, info->state);
 		BUG();
 	}
 
@@ -691,7 +717,8 @@ static irqreturn_t pxa3xx_nand_irq(struct pxa3xx_nand_info *info)
 		info->retcode = ERR_UNCORERR;
 	if (status & NDSR_CORERR) {
 		info->retcode = ERR_CORERR;
-		if (info->variant == PXA3XX_NAND_VARIANT_ARMADA370 &&
+		if ((info->variant == PXA3XX_NAND_VARIANT_ARMADA370 ||
+			 info->variant == PXA3XX_NAND_VARIANT_ARMADA_8K) &&
 		    info->ecc_bch)
 			info->ecc_err_cnt = NDSR_ERR_CNT(status);
 		else
@@ -746,7 +773,8 @@ static irqreturn_t pxa3xx_nand_irq(struct pxa3xx_nand_info *info)
 		nand_writel(info, NDCB0, info->ndcb2);
 
 		/* NDCB3 register is available in NFCv2 (Armada 370/XP SoC) */
-		if (info->variant == PXA3XX_NAND_VARIANT_ARMADA370)
+		if (info->variant == PXA3XX_NAND_VARIANT_ARMADA370 ||
+			info->variant == PXA3XX_NAND_VARIANT_ARMADA_8K)
 			nand_writel(info, NDCB0, info->ndcb3);
 	}
 
@@ -1021,7 +1049,7 @@ static int prepare_set_command(struct pxa3xx_nand_info *info, int command,
 
 	default:
 		exec_cmd = 0;
-		dev_err(&info->pdev->dev, "non-supported command %x\n",
+		dev_err(mtd->dev, "non-supported command %x\n",
 			command);
 		break;
 	}
@@ -1081,7 +1109,7 @@ static void nand_cmdfunc(struct mtd_info *mtd, unsigned command,
 				break;
 
 			if (get_timer(ts) > CHIP_DELAY_TIMEOUT) {
-				dev_err(&info->pdev->dev, "Wait timeout!!!\n");
+				dev_err(mtd->dev, "Wait timeout!!!\n");
 				return;
 			}
 		}
@@ -1174,7 +1202,7 @@ static void nand_cmdfunc_extended(struct mtd_info *mtd,
 				break;
 
 			if (get_timer(ts) > CHIP_DELAY_TIMEOUT) {
-				dev_err(&info->pdev->dev, "Wait timeout!!!\n");
+				dev_err(mtd->dev, "Wait timeout!!!\n");
 				return;
 			}
 		}
@@ -1420,7 +1448,7 @@ static int pxa3xx_nand_waitfunc(struct mtd_info *mtd, struct nand_chip *this)
 				break;
 
 			if (get_timer(ts) > CHIP_DELAY_TIMEOUT) {
-				dev_err(&info->pdev->dev, "Ready timeout!!!\n");
+				dev_err(mtd->dev, "Ready timeout!!!\n");
 				return NAND_STATUS_FAIL;
 			}
 		}
@@ -1627,7 +1655,7 @@ static int pxa_ecc_init(struct pxa3xx_nand_info *info,
 		ecc->strength = 16;
 
 	} else {
-		dev_err(&info->pdev->dev,
+		dev_err(info->controller.active->mtd.dev,
 			"ECC strength %d at page size %d is not supported\n",
 			strength, page_size);
 		return -ENODEV;
@@ -1653,15 +1681,15 @@ static int pxa3xx_nand_scan(struct mtd_info *mtd)
 			return ret;
 		ret = pxa3xx_nand_sensing(host);
 		if (ret) {
-			dev_info(&info->pdev->dev,
-				 "There is no chip on cs %d!\n",
+			dev_info(mtd->dev, "There is no chip on cs %d!\n",
 				 info->cs);
 			return ret;
 		}
 	}
 
 	/* Device detection must be done with ECC disabled */
-	if (info->variant == PXA3XX_NAND_VARIANT_ARMADA370)
+	if (info->variant == PXA3XX_NAND_VARIANT_ARMADA370 ||
+		info->variant == PXA3XX_NAND_VARIANT_ARMADA_8K)
 		nand_writel(info, NDECCCTRL, 0x0);
 
 	if (nand_scan_ident(mtd, 1, NULL))
@@ -1670,7 +1698,7 @@ static int pxa3xx_nand_scan(struct mtd_info *mtd)
 	if (!pdata->keep_config) {
 		ret = pxa3xx_nand_init_timings(host);
 		if (ret) {
-			dev_err(&info->pdev->dev,
+			dev_err(mtd->dev,
 				"Failed to set timings: %d\n", ret);
 			return ret;
 		}
@@ -1711,10 +1739,11 @@ static int pxa3xx_nand_scan(struct mtd_info *mtd)
 	 * (aka split) command handling,
 	 */
 	if (mtd->writesize > info->chunk_size) {
-		if (info->variant == PXA3XX_NAND_VARIANT_ARMADA370) {
+		if (info->variant == PXA3XX_NAND_VARIANT_ARMADA370 ||
+			info->variant == PXA3XX_NAND_VARIANT_ARMADA_8K) {
 			chip->cmdfunc = nand_cmdfunc_extended;
 		} else {
-			dev_err(&info->pdev->dev,
+			dev_err(mtd->dev,
 				"unsupported page size on this variant\n");
 			return -ENODEV;
 		}
@@ -1747,19 +1776,19 @@ static int pxa3xx_nand_scan(struct mtd_info *mtd)
 	return nand_scan_tail(mtd);
 }
 
-static int alloc_nand_resource(struct pxa3xx_nand_info *info)
+static int alloc_nand_resource(struct udevice *dev, struct pxa3xx_nand_info *info)
 {
 	struct pxa3xx_nand_platform_data *pdata;
 	struct pxa3xx_nand_host *host;
 	struct nand_chip *chip = NULL;
 	struct mtd_info *mtd;
-	int ret, cs;
+	int cs;
 
 	pdata = info->pdata;
 	if (pdata->num_cs <= 0)
 		return -ENODEV;
 
-	info->variant = pxa3xx_nand_get_variant();
+	info->variant = pxa3xx_nand_get_variant(dev);
 	for (cs = 0; cs < pdata->num_cs; cs++) {
 		chip = (struct nand_chip *)
 			((u8 *)&info[1] + sizeof(*host) * cs);
@@ -1789,96 +1818,87 @@ static int alloc_nand_resource(struct pxa3xx_nand_info *info)
 	/* Allocate a buffer to allow flash detection */
 	info->buf_size = INIT_BUFFER_SIZE;
 	info->data_buff = kmalloc(info->buf_size, GFP_KERNEL);
-	if (info->data_buff == NULL) {
-		ret = -ENOMEM;
-		goto fail_disable_clk;
-	}
+	if (info->data_buff == NULL)
+		return -ENOMEM;
 
 	/* initialize all interrupts to be disabled */
 	disable_int(info, NDSR_MASK);
 
-	return 0;
+	/*
+	 * Some SoCs like A7k/A8k need to enable manually the NAND
+	 * controller to avoid being bootloader dependent. This is done
+	 * through the use of a single bit in the System Functions registers.
+	 */
+	if (pxa3xx_nand_get_variant(dev) == PXA3XX_NAND_VARIANT_ARMADA_8K) {
+		struct regmap *sysctrl_base = syscon_regmap_lookup_by_phandle(
+				dev, "marvell,system-controller");
+		u32 reg;
 
-	kfree(info->data_buff);
-fail_disable_clk:
-	return ret;
+		if (IS_ERR(sysctrl_base))
+			return PTR_ERR(sysctrl_base);
+
+		regmap_read(sysctrl_base, GENCONF_SOC_DEVICE_MUX, &reg);
+		reg |= GENCONF_SOC_DEVICE_MUX_NFC_EN;
+		regmap_write(sysctrl_base, GENCONF_SOC_DEVICE_MUX, reg);
+	}
+
+	return 0;
 }
 
-static int pxa3xx_nand_probe_dt(struct pxa3xx_nand_info *info)
+static int pxa3xx_nand_probe_dt(struct udevice *dev, struct pxa3xx_nand_info *info)
 {
 	struct pxa3xx_nand_platform_data *pdata;
-	const void *blob = gd->fdt_blob;
-	int node = -1;
 
 	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
 	if (!pdata)
 		return -ENOMEM;
 
-	/* Get address decoding nodes from the FDT blob */
-	do {
-		node = fdt_node_offset_by_compatible(blob, node,
-						     "marvell,mvebu-pxa3xx-nand");
-		if (node < 0)
-			break;
+	info->mmio_base = dev_read_addr_ptr(dev);
 
-		/* Bypass disabeld nodes */
-		if (!fdtdec_get_is_enabled(blob, node))
-			continue;
+	pdata->num_cs = dev_read_u32_default(dev, "num-cs", 1);
+	if (pdata->num_cs != 1) {
+		pr_err("pxa3xx driver supports single CS only\n");
+		return -EINVAL;
+	}
 
-		/* Get the first enabled NAND controler base address */
-		info->mmio_base =
-			(void __iomem *)fdtdec_get_addr_size_auto_noparent(
-					blob, node, "reg", 0, NULL, true);
+	if (dev_read_bool(dev, "nand-enable-arbiter"))
+		pdata->enable_arbiter = 1;
 
-		pdata->num_cs = fdtdec_get_int(blob, node, "num-cs", 1);
-		if (pdata->num_cs != 1) {
-			pr_err("pxa3xx driver supports single CS only\n");
-			break;
-		}
+	if (dev_read_bool(dev, "nand-keep-config"))
+		pdata->keep_config = 1;
 
-		if (fdtdec_get_bool(blob, node, "nand-enable-arbiter"))
-			pdata->enable_arbiter = 1;
+	/*
+	 * ECC parameters.
+	 * If these are not set, they will be selected according
+	 * to the detected flash type.
+	 */
+	/* ECC strength */
+	pdata->ecc_strength = dev_read_u32_default(dev, "nand-ecc-strength", 0);
 
-		if (fdtdec_get_bool(blob, node, "nand-keep-config"))
-			pdata->keep_config = 1;
+	/* ECC step size */
+	pdata->ecc_step_size = dev_read_u32_default(dev, "nand-ecc-step-size",
+			0);
 
-		/*
-		 * ECC parameters.
-		 * If these are not set, they will be selected according
-		 * to the detected flash type.
-		 */
-		/* ECC strength */
-		pdata->ecc_strength = fdtdec_get_int(blob, node,
-						     "nand-ecc-strength", 0);
+	info->pdata = pdata;
 
-		/* ECC step size */
-		pdata->ecc_step_size = fdtdec_get_int(blob, node,
-						      "nand-ecc-step-size", 0);
-
-		info->pdata = pdata;
-
-		/* Currently support only a single NAND controller */
-		return 0;
-
-	} while (node >= 0);
-
-	return -EINVAL;
+	return 0;
 }
 
-static int pxa3xx_nand_probe(struct pxa3xx_nand_info *info)
+static int pxa3xx_nand_probe(struct udevice *dev)
 {
 	struct pxa3xx_nand_platform_data *pdata;
 	int ret, cs, probe_success;
+	struct pxa3xx_nand_info *info = dev_get_priv(dev);
 
-	ret = pxa3xx_nand_probe_dt(info);
+	ret = pxa3xx_nand_probe_dt(dev, info);
 	if (ret)
 		return ret;
 
 	pdata = info->pdata;
 
-	ret = alloc_nand_resource(info);
+	ret = alloc_nand_resource(dev, info);
 	if (ret) {
-		dev_err(&pdev->dev, "alloc nand resource failed\n");
+		dev_err(dev, "alloc nand resource failed\n");
 		return ret;
 	}
 
@@ -1895,7 +1915,7 @@ static int pxa3xx_nand_probe(struct pxa3xx_nand_info *info)
 		info->cs = cs;
 		ret = pxa3xx_nand_scan(mtd);
 		if (ret) {
-			dev_info(&pdev->dev, "failed to scan nand at cs %d\n",
+			dev_info(mtd->dev, "failed to scan nand at cs %d\n",
 				 cs);
 			continue;
 		}
@@ -1912,22 +1932,24 @@ static int pxa3xx_nand_probe(struct pxa3xx_nand_info *info)
 	return 0;
 }
 
-/*
- * Main initialization routine
- */
+U_BOOT_DRIVER(pxa3xx_nand) = {
+	.name = "pxa3xx-nand",
+	.id = UCLASS_MTD,
+	.of_match = pxa3xx_nand_dt_ids,
+	.probe = pxa3xx_nand_probe,
+	.priv_auto_alloc_size = sizeof(struct pxa3xx_nand_info) +
+		sizeof(struct pxa3xx_nand_host) * CONFIG_SYS_MAX_NAND_DEVICE,
+};
+
 void board_nand_init(void)
 {
-	struct pxa3xx_nand_info *info;
-	struct pxa3xx_nand_host *host;
+	struct udevice *dev;
 	int ret;
 
-	info = kzalloc(sizeof(*info) +
-		       sizeof(*host) * CONFIG_SYS_MAX_NAND_DEVICE,
-		       GFP_KERNEL);
-	if (!info)
-		return;
-
-	ret = pxa3xx_nand_probe(info);
-	if (ret)
-		return;
+	ret = uclass_get_device_by_driver(UCLASS_MTD,
+			DM_GET_DRIVER(pxa3xx_nand), &dev);
+	if (ret && ret != -ENODEV) {
+		pr_err("Failed to initialize %s. (error %d)\n", dev->name,
+			   ret);
+	}
 }

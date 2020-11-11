@@ -22,9 +22,6 @@
 #define CONFIG_EHCI_IS_TDI
 
 /* Environment in SPI NOR flash */
-#define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
-#define CONFIG_ENV_OFFSET		((1 << 20) - CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB */
 
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 

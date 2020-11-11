@@ -7,7 +7,11 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <efi_loader.h>
+#include <init.h>
+#include <time.h>
+#include <linux/delay.h>
 
 #include <asm/arch/clock.h>
 #include <asm/arch/display.h>
@@ -612,35 +616,6 @@ static void sunxi_lcdc_backlight_enable(void)
 		gpio_direction_output(pin, PWM_ON);
 }
 
-static void sunxi_ctfb_mode_to_display_timing(const struct ctfb_res_modes *mode,
-					      struct display_timing *timing)
-{
-	timing->pixelclock.typ = mode->pixclock_khz * 1000;
-
-	timing->hactive.typ = mode->xres;
-	timing->hfront_porch.typ = mode->right_margin;
-	timing->hback_porch.typ = mode->left_margin;
-	timing->hsync_len.typ = mode->hsync_len;
-
-	timing->vactive.typ = mode->yres;
-	timing->vfront_porch.typ = mode->lower_margin;
-	timing->vback_porch.typ = mode->upper_margin;
-	timing->vsync_len.typ = mode->vsync_len;
-
-	timing->flags = 0;
-
-	if (mode->sync & FB_SYNC_HOR_HIGH_ACT)
-		timing->flags |= DISPLAY_FLAGS_HSYNC_HIGH;
-	else
-		timing->flags |= DISPLAY_FLAGS_HSYNC_LOW;
-	if (mode->sync & FB_SYNC_VERT_HIGH_ACT)
-		timing->flags |= DISPLAY_FLAGS_VSYNC_HIGH;
-	else
-		timing->flags |= DISPLAY_FLAGS_VSYNC_LOW;
-	if (mode->vmode == FB_VMODE_INTERLACED)
-		timing->flags |= DISPLAY_FLAGS_INTERLACED;
-}
-
 static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode,
 				      bool for_ext_vga_dac)
 {
@@ -670,7 +645,7 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode,
 	lcdc_pll_set(ccm, 0, mode->pixclock_khz, &clk_div, &clk_double,
 		     sunxi_is_composite());
 
-	sunxi_ctfb_mode_to_display_timing(mode, &timing);
+	video_ctfb_mode_to_display_timing(mode, &timing);
 	lcdc_tcon0_mode_set(lcdc, &timing, clk_div, for_ext_vga_dac,
 			    sunxi_display.depth, CONFIG_VIDEO_LCD_DCLK_PHASE);
 }
@@ -686,7 +661,7 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	struct display_timing timing;
 
-	sunxi_ctfb_mode_to_display_timing(mode, &timing);
+	video_ctfb_mode_to_display_timing(mode, &timing);
 	lcdc_tcon1_mode_set(lcdc, &timing, use_portd_hvsync,
 			    sunxi_is_composite());
 
@@ -1011,7 +986,6 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 static const char *sunxi_get_mon_desc(enum sunxi_monitor monitor)
 {
 	switch (monitor) {
-	case sunxi_monitor_none:		return "none";
 	case sunxi_monitor_dvi:			return "dvi";
 	case sunxi_monitor_hdmi:		return "hdmi";
 	case sunxi_monitor_lcd:			return "lcd";
@@ -1020,8 +994,9 @@ static const char *sunxi_get_mon_desc(enum sunxi_monitor monitor)
 	case sunxi_monitor_composite_ntsc:	return "composite-ntsc";
 	case sunxi_monitor_composite_pal_m:	return "composite-pal-m";
 	case sunxi_monitor_composite_pal_nc:	return "composite-pal-nc";
+	case sunxi_monitor_none:		/* fall through */
+	default:				return "none";
 	}
-	return NULL; /* never reached */
 }
 
 ulong board_get_usable_ram_top(ulong total_size)
@@ -1222,10 +1197,8 @@ void *video_hw_init(void)
 	sunxi_engines_init();
 
 #ifdef CONFIG_EFI_LOADER
-	efi_add_memory_map(gd->fb_base,
-			   ALIGN(sunxi_display.fb_size, EFI_PAGE_SIZE) >>
-			   EFI_PAGE_SHIFT,
-			   EFI_RESERVED_MEMORY_TYPE, false);
+	efi_add_memory_map(gd->fb_base, sunxi_display.fb_size,
+			   EFI_RESERVED_MEMORY_TYPE);
 #endif
 
 	fb_dma_addr = gd->fb_base - CONFIG_SYS_SDRAM_BASE;

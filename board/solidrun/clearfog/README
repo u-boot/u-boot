@@ -20,12 +20,6 @@ of "/dev/sdX" here!
 Install U-Boot on eMMC:
 -----------------------
 
-The ROM loads the bootloader from eMMC first boot partition at offset 0. This
-is unlike load from SD card that is at offset 512. As a result, the offset of
-the main U-Boot image on the eMMC boot partition changes. Set
-CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR to 0x140 for SPL to load U-Boot from
-the correct location.
-
 To make SPL load the main U-Boot image from the eMMC boot partition enable
 eMMC boot acknowledgement and boot partition with the following U-Boot
 command:

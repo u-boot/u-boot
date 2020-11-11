@@ -15,6 +15,8 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
+#include <flash.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
@@ -261,7 +263,7 @@ static void taurus_macb_hw_init(void)
 #endif
 
 #ifdef CONFIG_GENERIC_ATMEL_MCI
-int board_mmc_init(bd_t *bd)
+int board_mmc_init(struct bd_info *bd)
 {
 	at91_mci_hw_init();
 
@@ -384,8 +386,8 @@ static int upgrade_failure_fallback(void)
 	return 0;
 }
 
-static int do_upgrade_available(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_upgrade_available(struct cmd_tbl *cmdtp, int flag, int argc,
+				char *const argv[])
 {
 	unsigned long upgrade_available = 0;
 	unsigned long boot_retry = 0;

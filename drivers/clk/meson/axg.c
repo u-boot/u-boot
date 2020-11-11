@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/arch/clock-axg.h>
 #include <asm/io.h>
 #include <clk-uclass.h>
@@ -14,7 +15,9 @@
 #include <syscon.h>
 #include <div64.h>
 #include <dt-bindings/clock/axg-clkc.h>
+#include <linux/bitops.h>
 #include "clk_meson.h"
+#include <linux/err.h>
 
 #define XTAL_RATE 24000000
 
@@ -289,6 +292,13 @@ static int meson_clk_probe(struct udevice *dev)
 	priv->map = syscon_node_to_regmap(dev_get_parent(dev)->node);
 	if (IS_ERR(priv->map))
 		return PTR_ERR(priv->map);
+
+	/*
+	 * Depending on the boot src, the state of the MMC clock might
+	 * be different. Reset it to make sure we won't get stuck
+	 */
+	regmap_write(priv->map, HHI_NAND_CLK_CNTL, 0);
+	regmap_write(priv->map, HHI_SD_EMMC_CLK_CNTL, 0);
 
 	debug("meson-clk-axg: probed\n");
 

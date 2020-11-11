@@ -4,8 +4,8 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
 #include <spl.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/kernel.h>
 

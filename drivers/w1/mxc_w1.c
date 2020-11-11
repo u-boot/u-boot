@@ -20,6 +20,9 @@
 #include <asm/arch/clock.h>
 #include <common.h>
 #include <dm.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/io.h>
 #include <w1.h>
 
@@ -168,7 +171,7 @@ static int mxc_w1_ofdata_to_platdata(struct udevice *dev)
 	struct mxc_w1_pdata *pdata = dev_get_platdata(dev);
 	fdt_addr_t addr;
 
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

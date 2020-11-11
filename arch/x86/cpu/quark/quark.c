@@ -4,7 +4,10 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <init.h>
 #include <mmc.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/ioapic.h>
 #include <asm/irq.h>
@@ -15,6 +18,7 @@
 #include <asm/arch/device.h>
 #include <asm/arch/msg_port.h>
 #include <asm/arch/quark.h>
+#include <linux/delay.h>
 
 static void quark_setup_mtrr(void)
 {
@@ -359,7 +363,7 @@ int arch_misc_init(void)
 	return 0;
 }
 
-void board_final_cleanup(void)
+void board_final_init(void)
 {
 	struct quark_rcba *rcba;
 	u32 base, val;

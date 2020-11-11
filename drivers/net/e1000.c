@@ -30,11 +30,18 @@ tested on both gig copper and gig fiber boards
  */
 
 #include <common.h>
+#include <command.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
+#include <malloc.h>
 #include <memalign.h>
+#include <net.h>
 #include <pci.h>
+#include <linux/delay.h>
 #include "e1000.h"
+#include <asm/cache.h>
 
 #define TOUT_LOOP   100000
 
@@ -1636,6 +1643,11 @@ e1000_reset_hw(struct e1000_hw *hw)
 	E1000_WRITE_REG(hw, RCTL, 0);
 	E1000_WRITE_REG(hw, TCTL, E1000_TCTL_PSP);
 	E1000_WRITE_FLUSH(hw);
+
+	if (hw->mac_type == e1000_igb) {
+		E1000_WRITE_REG(hw, RXPBS, I210_RXPBSIZE_DEFAULT);
+		E1000_WRITE_REG(hw, TXPBS, I210_TXPBSIZE_DEFAULT);
+	}
 
 	/* The tbi_compatibility_on Flag must be cleared when Rctl is cleared. */
 	hw->tbi_compatibility_on = false;
@@ -5627,7 +5639,7 @@ e1000_disable(struct eth_device *nic)
 INIT - set up ethernet interface(s)
 ***************************************************************************/
 static int
-e1000_init(struct eth_device *nic, bd_t *bis)
+e1000_init(struct eth_device *nic, struct bd_info *bis)
 {
 	struct e1000_hw *hw = nic->priv;
 
@@ -5693,7 +5705,7 @@ PROBE - Look for an adapter, this routine's visible to the outside
 You should omit the last argument struct pci_device * for a non-PCI NIC
 ***************************************************************************/
 int
-e1000_initialize(bd_t * bis)
+e1000_initialize(struct bd_info * bis)
 {
 	unsigned int i;
 	pci_dev_t devno;
@@ -5757,8 +5769,8 @@ struct e1000_hw *e1000_find_card(unsigned int cardnum)
 #endif /* !CONFIG_DM_ETH */
 
 #ifdef CONFIG_CMD_E1000
-static int do_e1000(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_e1000(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	unsigned char *mac = NULL;
 #ifdef CONFIG_DM_ETH

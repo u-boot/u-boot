@@ -7,6 +7,7 @@
 #include <common.h>
 #include <backlight.h>
 #include <dm.h>
+#include <log.h>
 #include <panel.h>
 #include <asm/gpio.h>
 #include <power/regulator.h>
@@ -105,6 +106,7 @@ static const struct udevice_id simple_panel_ids[] = {
 	{ .compatible = "auo,b133xtn01" },
 	{ .compatible = "auo,b116xw03" },
 	{ .compatible = "auo,b133htn01" },
+	{ .compatible = "boe,nv140fhmn49" },
 	{ .compatible = "lg,lb070wv8" },
 	{ }
 };

@@ -11,7 +11,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 #define CONFIG_SYS_TCLK		166666667
 #define CONFIG_SYS_KWD_CONFIG	$(CONFIG_BOARDDIR)/kwbimage.cfg
-#define CONFIG_BUILD_TARGET	"u-boot.kwb"
 
 /* additions for new ARM relocation support */
 #define CONFIG_SYS_SDRAM_BASE	0x00000000
@@ -30,13 +29,6 @@
 #define CONFIG_SYS_NS16550_COM1		KW_UART0_BASE
 
 #define CONFIG_SYS_MAX_NAND_DEVICE     1
-/*
- * Serial Port configuration
- * The following definitions let you select what serial you want to use
- * for your console driver.
- */
-
-#define CONFIG_CONS_INDEX	1	/* Console on UART0 */
 
 /*
  *  Environment variables configurations
@@ -45,9 +37,6 @@
 #define CONFIG_ENV_SPI_CS		0
 #define CONFIG_ENV_SPI_MAX_HZ		20000000	/* 20Mhz */
 #define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
-#define CONFIG_ENV_SECT_SIZE		0x40000		/* 256K */
-#define CONFIG_ENV_SIZE			0x01000
-#define CONFIG_ENV_OFFSET		0xC0000
 
 /*
  * U-Boot bootcode configuration
@@ -72,8 +61,6 @@
 /*
  * Other required minimal configurations
  */
-#define CONFIG_SYS_MEMTEST_START 0x00400000	/* 4M */
-#define CONFIG_SYS_MEMTEST_END	0x007fffff	/* (_8M - 1) */
 #define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
 
 /*

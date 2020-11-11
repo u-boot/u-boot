@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <env_flags.h>
 #include <ethsw.h>
+#include <net.h>
 
 static const char *ethsw_name;
 
@@ -864,7 +865,7 @@ static int keyword_match_mac_addr(enum ethsw_keyword_id key_id, int argc,
 		return 0;
 	}
 
-	eth_parse_enetaddr(argv[*argc_nr + 1], parsed_cmd->ethaddr);
+	string_to_enetaddr(argv[*argc_nr + 1], parsed_cmd->ethaddr);
 
 	if (is_broadcast_ethaddr(parsed_cmd->ethaddr)) {
 		memset(parsed_cmd->ethaddr, 0xFF, sizeof(parsed_cmd->ethaddr));
@@ -999,7 +1000,7 @@ static void cmd_keywords_check(struct ethsw_command_def *parsed_cmd,
 }
 
 /* find all the keywords in the command */
-static int keywords_find(int argc, char * const argv[],
+static int keywords_find(int argc, char *const argv[],
 			 struct ethsw_command_def *parsed_cmd)
 {
 	int i;
@@ -1064,7 +1065,8 @@ static void command_def_init(struct ethsw_command_def *parsed_cmd)
 }
 
 /* function to interpret commands starting with "ethsw " */
-static int do_ethsw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_ethsw(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	struct ethsw_command_def parsed_cmd;
 	int rc = CMD_RET_SUCCESS;

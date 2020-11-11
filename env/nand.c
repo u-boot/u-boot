@@ -23,17 +23,13 @@
 #include <nand.h>
 #include <search.h>
 #include <errno.h>
+#include <u-boot/crc.h>
 
 #if defined(CONFIG_CMD_SAVEENV) && defined(CONFIG_CMD_NAND) && \
 		!defined(CONFIG_SPL_BUILD)
 #define CMD_SAVEENV
 #elif defined(CONFIG_ENV_OFFSET_REDUND) && !defined(CONFIG_SPL_BUILD)
 #error CONFIG_ENV_OFFSET_REDUND must have CONFIG_CMD_SAVEENV & CONFIG_CMD_NAND
-#endif
-
-#if defined(CONFIG_ENV_SIZE_REDUND) &&	\
-	(CONFIG_ENV_SIZE_REDUND != CONFIG_ENV_SIZE)
-#error CONFIG_ENV_SIZE_REDUND should be the same as CONFIG_ENV_SIZE
 #endif
 
 #ifndef CONFIG_ENV_RANGE
@@ -335,7 +331,7 @@ static int env_nand_load(void)
 	read2_fail = readenv(CONFIG_ENV_OFFSET_REDUND, (u_char *) tmp_env2);
 
 	ret = env_import_redund((char *)tmp_env1, read1_fail, (char *)tmp_env2,
-				read2_fail);
+				read2_fail, H_EXTERNAL);
 
 done:
 	free(tmp_env1);
@@ -376,7 +372,7 @@ static int env_nand_load(void)
 		return -EIO;
 	}
 
-	return env_import(buf, 1);
+	return env_import(buf, 1, H_EXTERNAL);
 #endif /* ! ENV_IS_EMBEDDED */
 
 	return 0;

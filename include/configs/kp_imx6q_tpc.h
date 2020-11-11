@@ -27,8 +27,6 @@
 /* FEC ethernet */
 #define CONFIG_ARP_TIMEOUT		200UL
 
-#define CONFIG_SYS_MMC_ENV_DEV		1 /* 0 = SDHC2, 1 = SDHC4 (eMMC) */
-
 /* USB Configs */
 #ifdef CONFIG_CMD_USB
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
@@ -40,9 +38,6 @@
 #endif
 
 /* Watchdog */
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_LOADADDR			0x12000000
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
@@ -126,8 +121,5 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment */
-#define CONFIG_ENV_SIZE	(SZ_8K)
-#define CONFIG_ENV_OFFSET       0x100000
-#define CONFIG_ENV_OFFSET_REDUND (CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 
 #endif	/* __KP_IMX6Q_TPC_IMX6_CONFIG_H_ */

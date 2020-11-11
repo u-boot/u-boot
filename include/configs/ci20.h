@@ -25,8 +25,6 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	0x400000
 #define CONFIG_SYS_LOAD_ADDR		0x81000000
 #define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
-#define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		0x88000000
 
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
@@ -40,13 +38,6 @@
 #define DM9000_IO			CONFIG_DM9000_BASE
 #define DM9000_DATA			(CONFIG_DM9000_BASE + 2)
 
-/* Environment */
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_SIZE			(32 << 10)
-#define CONFIG_ENV_OFFSET		((14 + 512) << 10)
-#define CONFIG_ENV_OVERWRITE
-
-/* Command line configuration. */
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
 #define CONFIG_SYS_MAXARGS	32		/* Max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE

@@ -12,6 +12,8 @@
 #ifndef __CONFIG_CGTQMX6EVAL_H
 #define __CONFIG_CGTQMX6EVAL_H
 
+#include <linux/stringify.h>
+
 #include "mx6_common.h"
 
 #define CONFIG_MACH_TYPE	4122
@@ -23,7 +25,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 
 /* MMC Configs */
@@ -59,10 +60,6 @@
 #define CONFIG_USBD_HS
 
 /* Framebuffer */
-#define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IMX_HDMI
@@ -79,14 +76,12 @@
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_ETHPRIME			"FEC"
 #define CONFIG_FEC_MXC_PHYADDR		6
-#define CONFIG_PHY_ATHEROS
 
 /* Command definition */
 
 #define CONFIG_MXC_UART_BASE	UART2_BASE
 #define CONSOLE_DEV	"ttymxc1"
 #define CONFIG_MMCROOT		"/dev/mmcblk0p2"
-#define CONFIG_SYS_MMC_ENV_DEV		0
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
@@ -188,10 +183,6 @@
 		"fi; " \
 	"else run netboot; fi"
 
-#define CONFIG_SYS_MEMTEST_START       0x10000000
-#define CONFIG_SYS_MEMTEST_END	       0x10010000
-#define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
-
 /* Physical Memory Map */
 #define PHYS_SDRAM		       MMDC0_ARB_BASE_ADDR
 
@@ -203,18 +194,5 @@
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
-/* Environment organization */
-#if defined (CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
-
-#define CONFIG_ENV_SIZE			(8 * 1024)
-
-#if defined(CONFIG_ENV_IS_IN_SPI_FLASH)
-#define CONFIG_ENV_OFFSET		(768 * 1024)
-#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
-#endif
 
 #endif			       /* __CONFIG_CGTQMX6EVAL_H */

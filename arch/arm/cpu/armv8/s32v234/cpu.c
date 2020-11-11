@@ -4,11 +4,15 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <init.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
 #include <asm/arch/mc_me_regs.h>
+#include <linux/bitops.h>
 #include "cpu.h"
 
 u32 cpu_mask(void)

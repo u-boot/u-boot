@@ -20,10 +20,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	12
 #define CONFIG_SYS_MAX_FLASH_BANKS	2
 
-#define CONFIG_ENV_OFFSET		(256 << 10)
-#define CONFIG_ENV_SECT_SIZE		(128 << 10)
-#define CONFIG_ENV_SIZE			(8 << 10)
-
 #define CONFIG_RED_LED			110
 #define CONFIG_GREEN_LED		109
 
@@ -47,9 +43,5 @@
 	"bootargs_romfs=uclinux.physaddr=0x08180000 root=/dev/mtdblock0\0" \
 	"bootcmd_romfs=setenv bootargs ${bootargs} ${bootargs_romfs};" \
 	"bootm 0x08044000 - 0x08042000\0"
-
-/*
- * Command line configuration.
- */
 
 #endif /* __CONFIG_H */

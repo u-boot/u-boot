@@ -1,0 +1,67 @@
+if ROCKCHIP_PX30
+
+config TARGET_EVB_PX30
+	bool "EVB_PX30"
+	help
+	  This target config option used for below listed px30 boards.
+
+	  EVB_PX30:
+	  * EVB_PX30 is an evaluation board for Rockchip PX30.
+
+config TARGET_ODROID_GO2
+	bool "ODROID_GO2"
+
+config TARGET_PX30_CORE
+	bool "Engicam PX30.Core"
+	help
+	  PX30.Core EDIMM2.2:
+	  * PX30.Core is an EDIMM SOM based on Rockchip PX30 from Engicam.
+	  * EDIMM2.2 is a Form Factor Capacitive Evaluation Board from Engicam.
+	  * PX30.Core needs to mount on top of EDIMM2.2 for creating complete
+	    PX30.Core EDIMM2.2 Starter Kit.
+
+	  PX30.Core CTOUCH2:
+	  * PX30.Core is an EDIMM SOM based on Rockchip PX30 from Engicam.
+	  * CTOUCH2.0 is a general purpose Carrier board with capacitive
+	    touch interface support.
+	  * PX30.Core needs to mount on top of CTOUCH2.0 for creating complete
+	    PX30.Core C.TOUCH Carrier board.
+
+config ROCKCHIP_BOOT_MODE_REG
+	default 0xff010200
+
+config SYS_SOC
+	default "px30"
+
+config SYS_MALLOC_F_LEN
+	default 0x400
+
+config SPL_SERIAL_SUPPORT
+	default y
+
+config TPL_LDSCRIPT
+	default "arch/arm/mach-rockchip/u-boot-tpl-v8.lds"
+
+config TPL_TEXT_BASE
+	default 0xff0e1000
+
+config TPL_MAX_SIZE
+	default 10240
+
+config TPL_STACK
+	default 0xff0e4fff
+
+config DEBUG_UART_CHANNEL
+	int "Mux channel to use for debug UART2/UART3"
+	depends on DEBUG_UART_BOARD_INIT
+	default 0
+	help
+	  UART2 and UART3 can use two different set of pins to route the output.
+	  For using the UART for early debugging the route to use needs
+	  to be declared (0 or 1).
+
+source "board/engicam/px30_core/Kconfig"
+source "board/hardkernel/odroid_go2/Kconfig"
+source "board/rockchip/evb_px30/Kconfig"
+
+endif

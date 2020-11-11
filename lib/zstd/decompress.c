@@ -23,6 +23,7 @@
 #include "huf.h"
 #include "mem.h" /* low level memory routines */
 #include "zstd_internal.h"
+#include <malloc.h>
 #include <linux/kernel.h>
 #include <linux/compat.h>
 #include <linux/string.h> /* memcpy, memmove, memset */

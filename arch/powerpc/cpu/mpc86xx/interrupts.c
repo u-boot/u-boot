@@ -15,12 +15,16 @@
  */
 
 #include <common.h>
+#include <irq_func.h>
+#include <log.h>
 #include <mpc86xx.h>
 #include <command.h>
+#include <time.h>
 #include <asm/processor.h>
 #ifdef CONFIG_POST
 #include <post.h>
 #endif
+#include <asm/ptrace.h>
 
 void interrupt_init_cpu(unsigned *decrementer_count)
 {
@@ -98,7 +102,7 @@ void irq_free_handler(int vec)
 /*
  * irqinfo - print information about PCI devices,not implemented.
  */
-int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_irqinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	return 0;
 }
@@ -108,5 +112,5 @@ int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  */
 void external_interrupt(struct pt_regs *regs)
 {
-	puts("external_interrupt (oops!)\n");
+	puts("external_interrupt(oops!)\n");
 }

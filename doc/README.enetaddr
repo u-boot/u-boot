@@ -76,12 +76,12 @@ To assist in the management of these layers, a few helper functions exist.  You
 should use these rather than attempt to do any kind of parsing/manipulation
 yourself as many common errors have arisen in the past.
 
-	* void eth_parse_enetaddr(const char *addr, uchar *enetaddr);
+	* void string_to_enetaddr(const char *addr, uchar *enetaddr);
 
 Convert a string representation of a MAC address to the binary version.
 char *addr = "00:11:22:33:44:55";
 uchar enetaddr[6];
-eth_parse_enetaddr(addr, enetaddr);
+string_to_enetaddr(addr, enetaddr);
 /* enetaddr now equals { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55 } */
 
 	* int eth_env_get_enetaddr(char *name, uchar *enetaddr);

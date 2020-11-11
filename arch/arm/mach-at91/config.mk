@@ -4,6 +4,6 @@ endif
 
 ifeq ($(CONFIG_CPU_V7A),y)
 ifndef CONFIG_SPL_BUILD
-ALL-y	+= u-boot.img
+INPUTS-y	+= u-boot.img
 endif
 endif

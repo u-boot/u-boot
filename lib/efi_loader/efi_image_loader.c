@@ -7,9 +7,17 @@
  *  Copyright (c) 2016 Alexander Graf
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <common.h>
+#include <cpu_func.h>
 #include <efi_loader.h>
+#include <log.h>
+#include <malloc.h>
 #include <pe.h>
+#include <sort.h>
+#include <crypto/pkcs7_parser.h>
+#include <linux/err.h>
 
 const efi_guid_t efi_global_variable_guid = EFI_GLOBAL_VARIABLE_GUID;
 const efi_guid_t efi_guid_device_path = EFI_DEVICE_PATH_PROTOCOL_GUID;
@@ -148,14 +156,14 @@ static efi_status_t efi_loader_relocate(const IMAGE_BASE_RELOCATION *rel,
 			case IMAGE_REL_BASED_RISCV_LOW12S:
 				/* We know that we're 4k aligned */
 				if (delta & 0xfff) {
-					printf("Unsupported reloc offset\n");
+					log_err("Unsupported reloc offset\n");
 					return EFI_LOAD_ERROR;
 				}
 				break;
 #endif
 			default:
-				printf("Unknown Relocation off %x type %x\n",
-				       offset, type);
+				log_err("Unknown Relocation off %x type %x\n",
+					offset, type);
 				return EFI_LOAD_ERROR;
 			}
 			relocs++;
@@ -197,13 +205,475 @@ static void efi_set_code_and_data_type(
 		loaded_image_info->image_data_type = EFI_RUNTIME_SERVICES_DATA;
 		break;
 	default:
-		printf("%s: invalid image type: %u\n", __func__, image_type);
+		log_err("invalid image type: %u\n", image_type);
 		/* Let's assume it is an application */
 		loaded_image_info->image_code_type = EFI_LOADER_CODE;
 		loaded_image_info->image_data_type = EFI_LOADER_DATA;
 		break;
 	}
 }
+
+#ifdef CONFIG_EFI_SECURE_BOOT
+/**
+ * cmp_pe_section() - compare virtual addresses of two PE image sections
+ * @arg1:	pointer to pointer to first section header
+ * @arg2:	pointer to pointer to second section header
+ *
+ * Compare the virtual addresses of two sections of an portable executable.
+ * The arguments are defined as const void * to allow usage with qsort().
+ *
+ * Return:	-1 if the virtual address of arg1 is less than that of arg2,
+ *		0 if the virtual addresses are equal, 1 if the virtual address
+ *		of arg1 is greater than that of arg2.
+ */
+static int cmp_pe_section(const void *arg1, const void *arg2)
+{
+	const IMAGE_SECTION_HEADER *section1, *section2;
+
+	section1 = *((const IMAGE_SECTION_HEADER **)arg1);
+	section2 = *((const IMAGE_SECTION_HEADER **)arg2);
+
+	if (section1->VirtualAddress < section2->VirtualAddress)
+		return -1;
+	else if (section1->VirtualAddress == section2->VirtualAddress)
+		return 0;
+	else
+		return 1;
+}
+
+/**
+ * efi_image_parse() - parse a PE image
+ * @efi:	Pointer to image
+ * @len:	Size of @efi
+ * @regp:	Pointer to a list of regions
+ * @auth:	Pointer to a pointer to authentication data in PE
+ * @auth_len:	Size of @auth
+ *
+ * Parse image binary in PE32(+) format, assuming that sanity of PE image
+ * has been checked by a caller.
+ * On success, an address of authentication data in @efi and its size will
+ * be returned in @auth and @auth_len, respectively.
+ *
+ * Return:	true on success, false on error
+ */
+bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
+		     WIN_CERTIFICATE **auth, size_t *auth_len)
+{
+	struct efi_image_regions *regs;
+	IMAGE_DOS_HEADER *dos;
+	IMAGE_NT_HEADERS32 *nt;
+	IMAGE_SECTION_HEADER *sections, **sorted;
+	int num_regions, num_sections, i;
+	int ctidx = IMAGE_DIRECTORY_ENTRY_SECURITY;
+	u32 align, size, authsz, authoff;
+	size_t bytes_hashed;
+
+	dos = (void *)efi;
+	nt = (void *)(efi + dos->e_lfanew);
+	authoff = 0;
+	authsz = 0;
+
+	/*
+	 * Count maximum number of regions to be digested.
+	 * We don't have to have an exact number here.
+	 * See efi_image_region_add()'s in parsing below.
+	 */
+	num_regions = 3; /* for header */
+	num_regions += nt->FileHeader.NumberOfSections;
+	num_regions++; /* for extra */
+
+	regs = calloc(sizeof(*regs) + sizeof(struct image_region) * num_regions,
+		      1);
+	if (!regs)
+		goto err;
+	regs->max = num_regions;
+
+	/*
+	 * Collect data regions for hash calculation
+	 * 1. File headers
+	 */
+	if (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC) {
+		IMAGE_NT_HEADERS64 *nt64 = (void *)nt;
+		IMAGE_OPTIONAL_HEADER64 *opt = &nt64->OptionalHeader;
+
+		/* Skip CheckSum */
+		efi_image_region_add(regs, efi, &opt->CheckSum, 0);
+		if (nt64->OptionalHeader.NumberOfRvaAndSizes <= ctidx) {
+			efi_image_region_add(regs,
+					     &opt->Subsystem,
+					     efi + opt->SizeOfHeaders, 0);
+		} else {
+			/* Skip Certificates Table */
+			efi_image_region_add(regs,
+					     &opt->Subsystem,
+					     &opt->DataDirectory[ctidx], 0);
+			efi_image_region_add(regs,
+					     &opt->DataDirectory[ctidx] + 1,
+					     efi + opt->SizeOfHeaders, 0);
+
+			authoff = opt->DataDirectory[ctidx].VirtualAddress;
+			authsz = opt->DataDirectory[ctidx].Size;
+		}
+
+		bytes_hashed = opt->SizeOfHeaders;
+		align = opt->FileAlignment;
+	} else if (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
+		IMAGE_OPTIONAL_HEADER32 *opt = &nt->OptionalHeader;
+
+		/* Skip CheckSum */
+		efi_image_region_add(regs, efi, &opt->CheckSum, 0);
+		if (nt->OptionalHeader.NumberOfRvaAndSizes <= ctidx) {
+			efi_image_region_add(regs,
+					     &opt->Subsystem,
+					     efi + opt->SizeOfHeaders, 0);
+		} else {
+			/* Skip Certificates Table */
+			efi_image_region_add(regs, &opt->Subsystem,
+					     &opt->DataDirectory[ctidx], 0);
+			efi_image_region_add(regs,
+					     &opt->DataDirectory[ctidx] + 1,
+					     efi + opt->SizeOfHeaders, 0);
+
+			authoff = opt->DataDirectory[ctidx].VirtualAddress;
+			authsz = opt->DataDirectory[ctidx].Size;
+		}
+
+		bytes_hashed = opt->SizeOfHeaders;
+		align = opt->FileAlignment;
+	} else {
+		EFI_PRINT("%s: Invalid optional header magic %x\n", __func__,
+			  nt->OptionalHeader.Magic);
+		goto err;
+	}
+
+	/* 2. Sections */
+	num_sections = nt->FileHeader.NumberOfSections;
+	sections = (void *)((uint8_t *)&nt->OptionalHeader +
+			    nt->FileHeader.SizeOfOptionalHeader);
+	sorted = calloc(sizeof(IMAGE_SECTION_HEADER *), num_sections);
+	if (!sorted) {
+		EFI_PRINT("%s: Out of memory\n", __func__);
+		goto err;
+	}
+
+	/*
+	 * Make sure the section list is in ascending order.
+	 */
+	for (i = 0; i < num_sections; i++)
+		sorted[i] = &sections[i];
+	qsort(sorted, num_sections, sizeof(sorted[0]), cmp_pe_section);
+
+	for (i = 0; i < num_sections; i++) {
+		if (!sorted[i]->SizeOfRawData)
+			continue;
+
+		size = (sorted[i]->SizeOfRawData + align - 1) & ~(align - 1);
+		efi_image_region_add(regs, efi + sorted[i]->PointerToRawData,
+				     efi + sorted[i]->PointerToRawData + size,
+				     0);
+		EFI_PRINT("section[%d](%s): raw: 0x%x-0x%x, virt: %x-%x\n",
+			  i, sorted[i]->Name,
+			  sorted[i]->PointerToRawData,
+			  sorted[i]->PointerToRawData + size,
+			  sorted[i]->VirtualAddress,
+			  sorted[i]->VirtualAddress
+			    + sorted[i]->Misc.VirtualSize);
+
+		bytes_hashed += size;
+	}
+	free(sorted);
+
+	/* 3. Extra data excluding Certificates Table */
+	if (bytes_hashed + authsz < len) {
+		EFI_PRINT("extra data for hash: %zu\n",
+			  len - (bytes_hashed + authsz));
+		efi_image_region_add(regs, efi + bytes_hashed,
+				     efi + len - authsz, 0);
+	}
+
+	/* Return Certificates Table */
+	if (authsz) {
+		if (len < authoff + authsz) {
+			EFI_PRINT("%s: Size for auth too large: %u >= %zu\n",
+				  __func__, authsz, len - authoff);
+			goto err;
+		}
+		if (authsz < sizeof(*auth)) {
+			EFI_PRINT("%s: Size for auth too small: %u < %zu\n",
+				  __func__, authsz, sizeof(*auth));
+			goto err;
+		}
+		*auth = efi + authoff;
+		*auth_len = authsz;
+		EFI_PRINT("WIN_CERTIFICATE: 0x%x, size: 0x%x\n", authoff,
+			  authsz);
+	} else {
+		*auth = NULL;
+		*auth_len = 0;
+	}
+
+	*regp = regs;
+
+	return true;
+
+err:
+	free(regs);
+
+	return false;
+}
+
+/**
+ * efi_image_unsigned_authenticate() - authenticate unsigned image with
+ * SHA256 hash
+ * @regs:	List of regions to be verified
+ *
+ * If an image is not signed, it doesn't have a signature. In this case,
+ * its message digest is calculated and it will be compared with one of
+ * hash values stored in signature databases.
+ *
+ * Return:	true if authenticated, false if not
+ */
+static bool efi_image_unsigned_authenticate(struct efi_image_regions *regs)
+{
+	struct efi_signature_store *db = NULL, *dbx = NULL;
+	bool ret = false;
+
+	dbx = efi_sigstore_parse_sigdb(L"dbx");
+	if (!dbx) {
+		EFI_PRINT("Getting signature database(dbx) failed\n");
+		goto out;
+	}
+
+	db = efi_sigstore_parse_sigdb(L"db");
+	if (!db) {
+		EFI_PRINT("Getting signature database(db) failed\n");
+		goto out;
+	}
+
+	/* try black-list first */
+	if (efi_signature_lookup_digest(regs, dbx)) {
+		EFI_PRINT("Image is not signed and its digest found in \"dbx\"\n");
+		goto out;
+	}
+
+	/* try white-list */
+	if (efi_signature_lookup_digest(regs, db))
+		ret = true;
+	else
+		EFI_PRINT("Image is not signed and its digest not found in \"db\" or \"dbx\"\n");
+
+out:
+	efi_sigstore_free(db);
+	efi_sigstore_free(dbx);
+
+	return ret;
+}
+
+/**
+ * efi_image_authenticate() - verify a signature of signed image
+ * @efi:	Pointer to image
+ * @efi_size:	Size of @efi
+ *
+ * A signed image should have its signature stored in a table of its PE header.
+ * So if an image is signed and only if if its signature is verified using
+ * signature databases, an image is authenticated.
+ * If an image is not signed, its validity is checked by using
+ * efi_image_unsigned_authenticated().
+ * TODO:
+ * When AuditMode==0, if the image's signature is not found in
+ * the authorized database, or is found in the forbidden database,
+ * the image will not be started and instead, information about it
+ * will be placed in this table.
+ * When AuditMode==1, an EFI_IMAGE_EXECUTION_INFO element is created
+ * in the EFI_IMAGE_EXECUTION_INFO_TABLE for every certificate found
+ * in the certificate table of every image that is validated.
+ *
+ * Return:	true if authenticated, false if not
+ */
+static bool efi_image_authenticate(void *efi, size_t efi_size)
+{
+	struct efi_image_regions *regs = NULL;
+	WIN_CERTIFICATE *wincerts = NULL, *wincert;
+	size_t wincerts_len;
+	struct pkcs7_message *msg = NULL;
+	struct efi_signature_store *db = NULL, *dbx = NULL;
+	void *new_efi = NULL;
+	u8 *auth, *wincerts_end;
+	size_t new_efi_size, auth_size;
+	bool ret = false;
+
+	EFI_PRINT("%s: Enter, %d\n", __func__, ret);
+
+	if (!efi_secure_boot_enabled())
+		return true;
+
+	/*
+	 * Size must be 8-byte aligned and the trailing bytes must be
+	 * zero'ed. Otherwise hash value may be incorrect.
+	 */
+	if (efi_size & 0x7) {
+		new_efi_size = (efi_size + 0x7) & ~0x7ULL;
+		new_efi = calloc(new_efi_size, 1);
+		if (!new_efi)
+			return false;
+		memcpy(new_efi, efi, efi_size);
+		efi = new_efi;
+		efi_size = new_efi_size;
+	}
+
+	if (!efi_image_parse(efi, efi_size, &regs, &wincerts,
+			     &wincerts_len)) {
+		EFI_PRINT("Parsing PE executable image failed\n");
+		goto err;
+	}
+
+	if (!wincerts) {
+		/* The image is not signed */
+		ret = efi_image_unsigned_authenticate(regs);
+
+		goto err;
+	}
+
+	/*
+	 * verify signature using db and dbx
+	 */
+	db = efi_sigstore_parse_sigdb(L"db");
+	if (!db) {
+		EFI_PRINT("Getting signature database(db) failed\n");
+		goto err;
+	}
+
+	dbx = efi_sigstore_parse_sigdb(L"dbx");
+	if (!dbx) {
+		EFI_PRINT("Getting signature database(dbx) failed\n");
+		goto err;
+	}
+
+	if (efi_signature_lookup_digest(regs, dbx)) {
+		EFI_PRINT("Image's digest was found in \"dbx\"\n");
+		goto err;
+	}
+
+	/*
+	 * go through WIN_CERTIFICATE list
+	 * NOTE:
+	 * We may have multiple signatures either as WIN_CERTIFICATE's
+	 * in PE header, or as pkcs7 SignerInfo's in SignedData.
+	 * So the verification policy here is:
+	 *   - Success if, at least, one of signatures is verified
+	 *   - unless signature is rejected explicitly with its digest.
+	 */
+
+	for (wincert = wincerts, wincerts_end = (u8 *)wincerts + wincerts_len;
+	     (u8 *)wincert < wincerts_end;
+	     wincert = (WIN_CERTIFICATE *)
+			((u8 *)wincert + ALIGN(wincert->dwLength, 8))) {
+		if ((u8 *)wincert + sizeof(*wincert) >= wincerts_end)
+			break;
+
+		if (wincert->dwLength <= sizeof(*wincert)) {
+			EFI_PRINT("dwLength too small: %u < %zu\n",
+				  wincert->dwLength, sizeof(*wincert));
+			continue;
+		}
+
+		EFI_PRINT("WIN_CERTIFICATE_TYPE: 0x%x\n",
+			  wincert->wCertificateType);
+
+		auth = (u8 *)wincert + sizeof(*wincert);
+		auth_size = wincert->dwLength - sizeof(*wincert);
+		if (wincert->wCertificateType == WIN_CERT_TYPE_EFI_GUID) {
+			if (auth + sizeof(efi_guid_t) >= wincerts_end)
+				break;
+
+			if (auth_size <= sizeof(efi_guid_t)) {
+				EFI_PRINT("dwLength too small: %u < %zu\n",
+					  wincert->dwLength, sizeof(*wincert));
+				continue;
+			}
+			if (guidcmp(auth, &efi_guid_cert_type_pkcs7)) {
+				EFI_PRINT("Certificate type not supported: %pUl\n",
+					  auth);
+				continue;
+			}
+
+			auth += sizeof(efi_guid_t);
+			auth_size -= sizeof(efi_guid_t);
+		} else if (wincert->wCertificateType
+				!= WIN_CERT_TYPE_PKCS_SIGNED_DATA) {
+			EFI_PRINT("Certificate type not supported\n");
+			continue;
+		}
+
+		msg = pkcs7_parse_message(auth, auth_size);
+		if (IS_ERR(msg)) {
+			EFI_PRINT("Parsing image's signature failed\n");
+			msg = NULL;
+			continue;
+		}
+
+		/*
+		 * NOTE:
+		 * UEFI specification defines two signature types possible
+		 * in signature database:
+		 * a. x509 certificate, where a signature in image is
+		 *    a message digest encrypted by RSA public key
+		 *    (EFI_CERT_X509_GUID)
+		 * b. bare hash value of message digest
+		 *    (EFI_CERT_SHAxxx_GUID)
+		 *
+		 * efi_signature_verify() handles case (a), while
+		 * efi_signature_lookup_digest() handles case (b).
+		 *
+		 * There is a third type:
+		 * c. message digest of a certificate
+		 *    (EFI_CERT_X509_SHAAxxx_GUID)
+		 * This type of signature is used only in revocation list
+		 * (dbx) and handled as part of efi_signatgure_verify().
+		 */
+		/* try black-list first */
+		if (efi_signature_verify_one(regs, msg, dbx)) {
+			EFI_PRINT("Signature was rejected by \"dbx\"\n");
+			continue;
+		}
+
+		if (!efi_signature_check_signers(msg, dbx)) {
+			EFI_PRINT("Signer(s) in \"dbx\"\n");
+			continue;
+		}
+
+		/* try white-list */
+		if (efi_signature_verify(regs, msg, db, dbx)) {
+			ret = true;
+			break;
+		}
+
+		EFI_PRINT("Signature was not verified by \"db\"\n");
+
+		if (efi_signature_lookup_digest(regs, db)) {
+			ret = true;
+			break;
+		}
+
+		EFI_PRINT("Image's digest was not found in \"db\" or \"dbx\"\n");
+	}
+
+err:
+	efi_sigstore_free(db);
+	efi_sigstore_free(dbx);
+	pkcs7_free_message(msg);
+	free(regs);
+	free(new_efi);
+
+	EFI_PRINT("%s: Exit, %d\n", __func__, ret);
+	return ret;
+}
+#else
+static bool efi_image_authenticate(void *efi, size_t efi_size)
+{
+	return true;
+}
+#endif /* CONFIG_EFI_SECURE_BOOT */
 
 /**
  * efi_load_pe() - relocate EFI binary
@@ -213,10 +683,12 @@ static void efi_set_code_and_data_type(
  *
  * @handle:		loaded image handle
  * @efi:		pointer to the EFI binary
+ * @efi_size:		size of @efi binary
  * @loaded_image_info:	loaded image protocol
  * Return:		status code
  */
-efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
+			 void *efi, size_t efi_size,
 			 struct efi_loaded_image *loaded_image_info)
 {
 	IMAGE_NT_HEADERS32 *nt;
@@ -231,17 +703,38 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 	uint64_t image_base;
 	unsigned long virt_size = 0;
 	int supported = 0;
+	efi_status_t ret;
+
+	/* Sanity check for a file header */
+	if (efi_size < sizeof(*dos)) {
+		log_err("Truncated DOS Header\n");
+		ret = EFI_LOAD_ERROR;
+		goto err;
+	}
 
 	dos = efi;
 	if (dos->e_magic != IMAGE_DOS_SIGNATURE) {
-		printf("%s: Invalid DOS Signature\n", __func__);
-		return EFI_LOAD_ERROR;
+		log_err("Invalid DOS Signature\n");
+		ret = EFI_LOAD_ERROR;
+		goto err;
+	}
+
+	/*
+	 * Check if the image section header fits into the file. Knowing that at
+	 * least one section header follows we only need to check for the length
+	 * of the 64bit header which is longer than the 32bit header.
+	 */
+	if (efi_size < dos->e_lfanew + sizeof(IMAGE_NT_HEADERS64)) {
+		log_err("Invalid offset for Extended Header\n");
+		ret = EFI_LOAD_ERROR;
+		goto err;
 	}
 
 	nt = (void *) ((char *)efi + dos->e_lfanew);
 	if (nt->Signature != IMAGE_NT_SIGNATURE) {
-		printf("%s: Invalid NT Signature\n", __func__);
-		return EFI_LOAD_ERROR;
+		log_err("Invalid NT Signature\n");
+		ret = EFI_LOAD_ERROR;
+		goto err;
 	}
 
 	for (i = 0; machines[i]; i++)
@@ -251,16 +744,32 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 		}
 
 	if (!supported) {
-		printf("%s: Machine type 0x%04x is not supported\n",
-		       __func__, nt->FileHeader.Machine);
-		return EFI_LOAD_ERROR;
+		log_err("Machine type 0x%04x is not supported\n",
+			nt->FileHeader.Machine);
+		ret = EFI_LOAD_ERROR;
+		goto err;
 	}
 
-	/* Calculate upper virtual address boundary */
 	num_sections = nt->FileHeader.NumberOfSections;
 	sections = (void *)&nt->OptionalHeader +
 			    nt->FileHeader.SizeOfOptionalHeader;
 
+	if (efi_size < ((void *)sections + sizeof(sections[0]) * num_sections
+			- efi)) {
+		log_err("Invalid number of sections: %d\n", num_sections);
+		ret = EFI_LOAD_ERROR;
+		goto err;
+	}
+
+	/* Authenticate an image */
+	if (efi_image_authenticate(efi, efi_size)) {
+		handle->auth_status = EFI_IMAGE_AUTH_PASSED;
+	} else {
+		handle->auth_status = EFI_IMAGE_AUTH_FAILED;
+		log_err("Image not authenticated\n");
+	}
+
+	/* Calculate upper virtual address boundary */
 	for (i = num_sections - 1; i >= 0; i--) {
 		IMAGE_SECTION_HEADER *sec = &sections[i];
 		virt_size = max_t(unsigned long, virt_size,
@@ -277,9 +786,9 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 		efi_reloc = efi_alloc(virt_size,
 				      loaded_image_info->image_code_type);
 		if (!efi_reloc) {
-			printf("%s: Could not allocate %lu bytes\n",
-			       __func__, virt_size);
-			return EFI_OUT_OF_RESOURCES;
+			log_err("Out of memory\n");
+			ret = EFI_OUT_OF_RESOURCES;
+			goto err;
 		}
 		handle->entry = efi_reloc + opt->AddressOfEntryPoint;
 		rel_size = opt->DataDirectory[rel_idx].Size;
@@ -293,24 +802,27 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 		efi_reloc = efi_alloc(virt_size,
 				      loaded_image_info->image_code_type);
 		if (!efi_reloc) {
-			printf("%s: Could not allocate %lu bytes\n",
-			       __func__, virt_size);
-			return EFI_OUT_OF_RESOURCES;
+			log_err("Out of memory\n");
+			ret = EFI_OUT_OF_RESOURCES;
+			goto err;
 		}
 		handle->entry = efi_reloc + opt->AddressOfEntryPoint;
 		rel_size = opt->DataDirectory[rel_idx].Size;
 		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
 		virt_size = ALIGN(virt_size, opt->SectionAlignment);
 	} else {
-		printf("%s: Invalid optional header magic %x\n", __func__,
-		       nt->OptionalHeader.Magic);
-		return EFI_LOAD_ERROR;
+		log_err("Invalid optional header magic %x\n",
+			nt->OptionalHeader.Magic);
+		ret = EFI_LOAD_ERROR;
+		goto err;
 	}
 
 	/* Copy PE headers */
-	memcpy(efi_reloc, efi, sizeof(*dos) + sizeof(*nt)
-	       + nt->FileHeader.SizeOfOptionalHeader
-	       + num_sections * sizeof(IMAGE_SECTION_HEADER));
+	memcpy(efi_reloc, efi,
+	       sizeof(*dos)
+		 + sizeof(*nt)
+		 + nt->FileHeader.SizeOfOptionalHeader
+		 + num_sections * sizeof(IMAGE_SECTION_HEADER));
 
 	/* Load sections into RAM */
 	for (i = num_sections - 1; i >= 0; i--) {
@@ -327,7 +839,8 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 				(unsigned long)image_base) != EFI_SUCCESS) {
 		efi_free_pages((uintptr_t) efi_reloc,
 			       (virt_size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT);
-		return EFI_LOAD_ERROR;
+		ret = EFI_LOAD_ERROR;
+		goto err;
 	}
 
 	/* Flush cache */
@@ -339,5 +852,11 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 	loaded_image_info->image_base = efi_reloc;
 	loaded_image_info->image_size = virt_size;
 
-	return EFI_SUCCESS;
+	if (handle->auth_status == EFI_IMAGE_AUTH_PASSED)
+		return EFI_SUCCESS;
+	else
+		return EFI_SECURITY_VIOLATION;
+
+err:
+	return ret;
 }

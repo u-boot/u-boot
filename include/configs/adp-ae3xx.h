@@ -21,7 +21,6 @@
 
 #define CONFIG_ARCH_MAP_SYSMEM
 
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_BOOTP_SERVERIP
 
 #ifdef CONFIG_SKIP_LOWLEVEL_INIT
@@ -112,8 +111,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x300000
 
 /* memtest works on 63 MB in DRAM */
-#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_0
-#define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_0 + 0x03F00000)
 
 /*
  * Static memory controller configuration
@@ -201,10 +198,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /* environments */
-#define CONFIG_ENV_SECT_SIZE		0x1000
-#define CONFIG_ENV_OFFSET		0x140000
-#define CONFIG_ENV_SIZE			8192
-#define CONFIG_ENV_OVERWRITE
 
 
 /* SPI FLASH */

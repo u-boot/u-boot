@@ -9,9 +9,10 @@
 #include <virtio.h>
 #include <virtio_ring.h>
 #include <dm/device-internal.h>
-#include <dm/uclass-internal.h>
 #include <dm/root.h>
 #include <dm/test.h>
+#include <dm/uclass-internal.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 /* Basic test of the virtio uclass */
@@ -22,9 +23,11 @@ static int dm_test_virtio_base(struct unit_test_state *uts)
 
 	/* check probe success */
 	ut_assertok(uclass_first_device(UCLASS_VIRTIO, &bus));
+	ut_assertnonnull(bus);
 
 	/* check the child virtio-blk device is bound */
 	ut_assertok(device_find_first_child(bus, &dev));
+	ut_assertnonnull(dev);
 	ut_assertok(strcmp(dev->name, "virtio-blk#0"));
 
 	/* check driver status */
@@ -33,7 +36,7 @@ static int dm_test_virtio_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_virtio_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_virtio_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test all of the virtio uclass ops */
 static int dm_test_virtio_all_ops(struct unit_test_state *uts)
@@ -49,15 +52,18 @@ static int dm_test_virtio_all_ops(struct unit_test_state *uts)
 
 	/* check probe success */
 	ut_assertok(uclass_first_device(UCLASS_VIRTIO, &bus));
+	ut_assertnonnull(bus);
 
 	/* check the child virtio-blk device is bound */
 	ut_assertok(device_find_first_child(bus, &dev));
+	ut_assertnonnull(dev);
 
 	/*
 	 * fake the virtio device probe by filling in uc_priv->vdev
 	 * which is used by virtio_find_vqs/virtio_del_vqs.
 	 */
 	uc_priv = dev_get_uclass_priv(bus);
+	ut_assertnonnull(uc_priv);
 	uc_priv->vdev = dev;
 
 	/* test virtio_xxx APIs */
@@ -79,7 +85,7 @@ static int dm_test_virtio_all_ops(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_virtio_all_ops, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_virtio_all_ops, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test of the virtio driver that does not have required driver ops */
 static int dm_test_virtio_missing_ops(struct unit_test_state *uts)
@@ -97,7 +103,7 @@ static int dm_test_virtio_missing_ops(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_virtio_missing_ops, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_virtio_missing_ops, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test removal of virtio device driver */
 static int dm_test_virtio_remove(struct unit_test_state *uts)
@@ -106,9 +112,11 @@ static int dm_test_virtio_remove(struct unit_test_state *uts)
 
 	/* check probe success */
 	ut_assertok(uclass_first_device(UCLASS_VIRTIO, &bus));
+	ut_assertnonnull(bus);
 
 	/* check the child virtio-blk device is bound */
 	ut_assertok(device_find_first_child(bus, &dev));
+	ut_assertnonnull(dev);
 
 	/* set driver status to VIRTIO_CONFIG_S_DRIVER_OK */
 	ut_assertok(virtio_set_status(dev, VIRTIO_CONFIG_S_DRIVER_OK));
@@ -119,4 +127,4 @@ static int dm_test_virtio_remove(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_virtio_remove, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_virtio_remove, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

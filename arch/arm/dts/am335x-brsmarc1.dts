@@ -59,6 +59,7 @@
 		/*backlight = <&tps_bl>; */
 		compatible = "ti,tilcdc,panel";
 		status = "okay";
+		u-boot,dm-pre-reloc;
 
 		panel-info {
 			ac-bias		= <255>;
@@ -266,12 +267,14 @@
 };
 
 &cpsw_emac0 {
+	phy_id = <&davinci_mdio>, <1>;
 	phy-handle = <&ethphy0>;
 	phy-mode = "rmii";
 	ti,ledcr = <0x0480>;
 };
 
 &cpsw_emac1 {
+	phy_id = <&davinci_mdio>, <3>;
 	phy-handle = <&ethphy1>;
 	phy-mode = "rmii";
 	ti,ledcr = <0x0480>;

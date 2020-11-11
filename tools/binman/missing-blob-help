@@ -1,0 +1,19 @@
+# This file contains help messages for missing external blobs. Each message has
+# a tag (MUST be just lower-case text, digits and hyphens) starting in column 1,
+# followed by a colon (:) to indicate its start. The message can include any
+# number of lines, including blank lines.
+#
+# When looking for a tag, Binman uses the value of 'missing-msg' for the entry,
+# the entry name or the entry type, in that order
+
+atf-bl31:
+See the documentation for your board. You may need to build ARM Trusted
+Firmware and build with BL31=/path/to/bl31.bin
+
+atf-bl31-sunxi:
+Please read the section on ARM Trusted Firmware (ATF) in
+board/sunxi/README.sunxi64
+
+scp-sunxi:
+SCP firmware is required for system suspend, but is otherwise optional.
+Please read the section on SCP firmware in board/sunxi/README.sunxi64

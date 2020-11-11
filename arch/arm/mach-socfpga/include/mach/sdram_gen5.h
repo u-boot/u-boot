@@ -146,24 +146,51 @@ struct socfpga_sdram_rw_mgr_config {
 	u8	lfsr_wr_rd_dm_bank_0_nop;
 	u8	lfsr_wr_rd_dm_bank_0_wait;
 	u8	lfsr_wr_rd_dm_bank_0_wl_1;
-	u8	mrs0_dll_reset;
-	u8	mrs0_dll_reset_mirr;
-	u8	mrs0_user;
-	u8	mrs0_user_mirr;
-	u8	mrs1;
+	union {
+		u8	mrs0_dll_reset;
+		u8	mr_dll_reset;
+	};
+	union {
+		u8	mrs0_dll_reset_mirr;
+		u8	emr_ocd_enable;
+	};
+	union {
+		u8	mrs0_user;
+		u8	mr_user;
+	};
+	union {
+		u8	mrs0_user_mirr;
+		u8	mr_calib;
+	};
+	union {
+		u8	mrs1;
+		u8	emr;
+	};
+	union {
+		u8	mrs2;
+		u8	emr2;
+	};
+	union {
+		u8	mrs3;
+		u8	emr3;
+	};
 	u8	mrs1_mirr;
-	u8	mrs2;
 	u8	mrs2_mirr;
-	u8	mrs3;
 	u8	mrs3_mirr;
 	u8	precharge_all;
 	u8	read_b2b;
 	u8	read_b2b_wait1;
 	u8	read_b2b_wait2;
-	u8	refresh_all;
+	union {
+		u8	refresh;
+		u8	refresh_all;
+	};
 	u8	rreturn;
 	u8	sgle_read;
-	u8	zqcl;
+	union {
+		u8	zqcl;
+		u8	nop;
+	};
 
 	u8	true_mem_data_mask_width;
 	u8	mem_address_mirroring;
@@ -199,6 +226,7 @@ struct socfpga_sdram_io_config {
 
 struct socfpga_sdram_misc_config {
 	u32	reg_file_init_seq_signature;
+	u16	afi_clk_freq;
 	u8	afi_rate_ratio;
 	u8	calib_lfifo_offset;
 	u8	calib_vfifo_offset;

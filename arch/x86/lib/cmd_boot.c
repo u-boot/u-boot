@@ -22,7 +22,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 unsigned long do_go_exec(ulong (*entry)(int, char * const []),
-			 int argc, char * const argv[])
+			 int argc, char *const argv[])
 {
 	unsigned long ret = 0;
 	char **argv_tmp;

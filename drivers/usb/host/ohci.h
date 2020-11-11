@@ -11,6 +11,7 @@
  * e.g. PCI controllers need this
  */
 
+#include <asm/cache.h>
 #include <asm/io.h>
 
 #ifdef CONFIG_SYS_OHCI_SWAP_REG_ACCESS

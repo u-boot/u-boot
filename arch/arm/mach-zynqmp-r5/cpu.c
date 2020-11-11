@@ -4,16 +4,16 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <init.h>
 #include <asm/armv7_mpu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 struct mpu_region_config region_config[] = {
-	{ 0x00000000, REGION_0, XN_DIS, PRIV_RW_USR_RW,
-	  O_I_WB_RD_WR_ALLOC, REGION_1GB },
-	{ 0x20000000, REGION_1, XN_EN, PRIV_RO_USR_RO,
-	  O_I_WB_RD_WR_ALLOC, REGION_512MB },
-	{ 0x40000000, REGION_2, XN_EN, PRIV_RO_USR_RO,
+	{ 0x00000000, REGION_0, XN_EN, PRIV_RW_USR_RW,
+	  SHARED_WRITE_BUFFERED, REGION_4GB },
+	{ 0x00000000, REGION_1, XN_DIS, PRIV_RW_USR_RW,
 	  O_I_WB_RD_WR_ALLOC, REGION_1GB },
 };
 
@@ -21,8 +21,7 @@ int arch_cpu_init(void)
 {
 	gd->cpu_clk = CONFIG_CPU_FREQ_HZ;
 
-	setup_mpu_regions(region_config, sizeof(region_config) /
-			  sizeof(struct mpu_region_config));
+	setup_mpu_regions(region_config, ARRAY_SIZE(region_config));
 
 	return 0;
 }

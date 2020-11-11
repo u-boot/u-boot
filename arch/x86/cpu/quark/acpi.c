@@ -4,7 +4,7 @@
  */
 
 #include <common.h>
-#include <asm/acpi_table.h>
+#include <acpi/acpi_table.h>
 #include <asm/tables.h>
 #include <asm/arch/global_nvs.h>
 #include <asm/arch/iomap.h>
@@ -133,8 +133,10 @@ void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 	header->checksum = table_compute_checksum(fadt, header->length);
 }
 
-void acpi_create_gnvs(struct acpi_global_nvs *gnvs)
+int acpi_create_gnvs(struct acpi_global_nvs *gnvs)
 {
 	/* quark is a uni-processor */
 	gnvs->pcnt = 1;
+
+	return 0;
 }

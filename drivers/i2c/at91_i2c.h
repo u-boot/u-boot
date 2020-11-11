@@ -1,6 +1,7 @@
 #ifndef _AT91_I2C_H
 #define _AT91_I2C_H
 
+#include <linux/bitops.h>
 #define	TWI_CR_START		BIT(0)	/* Send a Start Condition */
 #define	TWI_CR_MSEN		BIT(2)	/* Master Transfer Enable */
 #define	TWI_CR_STOP		BIT(1)	/* Send a Stop Condition */

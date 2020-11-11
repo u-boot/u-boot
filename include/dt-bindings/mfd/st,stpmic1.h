@@ -43,4 +43,8 @@
 #define IT_SWIN_F	30
 #define IT_SWIN_R	31
 
+/* BUCK MODES definitions */
+#define STPMIC1_BUCK_MODE_NORMAL 0
+#define STPMIC1_BUCK_MODE_LP 2
+
 #endif /* __DT_BINDINGS_STPMIC1_H__ */

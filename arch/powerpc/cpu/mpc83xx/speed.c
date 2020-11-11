@@ -9,8 +9,10 @@
 #ifndef CONFIG_CLK_MPC83XX
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <mpc83xx.h>
 #include <command.h>
+#include <vsprintf.h>
 #include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -521,7 +523,8 @@ int get_serial_clock(void)
 	return get_bus_freq(0);
 }
 
-static int do_clocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_clocks(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	char buf[32];
 

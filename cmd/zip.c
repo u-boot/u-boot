@@ -7,8 +7,9 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <gzip.h>
 
-static int do_zip(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_zip(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	unsigned long src, dst;
 	unsigned long src_len, dst_len = ~0UL;

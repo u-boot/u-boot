@@ -27,12 +27,8 @@
 #define CONFIG_SYS_NONCACHED_MEMORY	SZ_1M
 
 /* Environment */
-#define CONFIG_ENV_SIZE			SZ_4K
-/* Allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 /* Preloader -> Uboot */
-#define CONFIG_SYS_UBOOT_START		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE + SZ_2M - \
 					 GENERATED_GBL_DATA_SIZE)
 
@@ -47,17 +43,30 @@
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 
 /* This is needed for kernel booting */
-#define FDT_HIGH			"fdt_high=0xac000000\0"
+#define FDT_HIGH			"0xac000000"
 
-/* Extra environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS	\
-	FDT_HIGH
+#define ENV_MEM_LAYOUT_SETTINGS				\
+	"fdt_high=" FDT_HIGH "\0"			\
+	"kernel_addr_r=0x84000000\0"			\
+	"fdt_addr_r=" FDT_HIGH "\0"			\
+	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0"
 
 /* Ethernet */
 #define CONFIG_IPADDR			192.168.1.1
 #define CONFIG_SERVERIP			192.168.1.2
 
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_OFFSET		0x100000
+#ifdef CONFIG_DISTRO_DEFAULTS
+
+#define BOOT_TARGET_DEVICES(func)	\
+		func(MMC, mmc, 1)
+
+#include <config_distro_bootcmd.h>
+
+/* Extra environment variables */
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+	ENV_MEM_LAYOUT_SETTINGS		\
+	BOOTENV
+
+#endif /* ifdef CONFIG_DISTRO_DEFAULTS*/
 
 #endif

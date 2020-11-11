@@ -36,8 +36,8 @@
 #endif /* CONFIG_LED_STATUS5 */
 
 void status_led_init(void);
-void status_led_tick (unsigned long timestamp);
-void status_led_set  (int led, int state);
+void status_led_tick(unsigned long timestamp);
+void status_led_set(int led, int state);
 
 /*****  MVS v1  **********************************************************/
 #if (defined(CONFIG_MVS) && CONFIG_MVS < 2)

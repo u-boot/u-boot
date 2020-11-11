@@ -7,6 +7,7 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <init.h>
 #include <dm/platform_data/net_ethoc.h>
 #include <env.h>
 #include <linux/ctype.h>
@@ -45,14 +46,6 @@ const char *description = "";
 int checkboard(void)
 {
 	printf("Board: %s: %sTensilica bitstream\n", board, description);
-	return 0;
-}
-
-int dram_init_banksize(void)
-{
-	gd->bd->bi_memstart = PHYSADDR(CONFIG_SYS_SDRAM_BASE);
-	gd->bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
-
 	return 0;
 }
 

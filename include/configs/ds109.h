@@ -19,31 +19,16 @@
  */
 #define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
 
-/*
- * Commands configuration
- */
-#define CONFIG_CMD_EXT2
-
-/*
- * mv-plug-common.h should be defined after CMD configs since it used them
- * to enable certain macros
- */
 #include "mv-plug-common.h"
 
 /*
  *  Environment variables configurations
  */
-#ifdef CONFIG_SPI_FLASH
-#define CONFIG_ENV_SECT_SIZE		0x10000	/* 64k */
-#endif
 
 /*
  * max 4k env size is enough, but in case of nand
  * it has to be rounded to sector size
  */
-#define CONFIG_ENV_SIZE			0x10000
-#define CONFIG_ENV_ADDR			0x3d0000
-#define CONFIG_ENV_OFFSET		0x3d0000 /* env starts here */
 
 /*
  * Default environment variables

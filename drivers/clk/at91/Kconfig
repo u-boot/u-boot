@@ -54,3 +54,10 @@ config AT91_GENERIC_CLK
 	  that may be different from the system clock. This second
 	  clock is the generic clock (GCLK) and is managed by
 	  the PMC via PMC_PCR register.
+
+config AT91_SAM9X60_PLL
+	bool "PLL support for SAM9X60 SoCs"
+	depends on CLK_AT91
+	help
+	  This option is used to enable the AT91 SAM9X60's PLL clock
+	  driver.

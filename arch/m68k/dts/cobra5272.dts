@@ -20,3 +20,6 @@
 	status = "okay";
 };
 
+&fec0 {
+	status = "okay";
+};

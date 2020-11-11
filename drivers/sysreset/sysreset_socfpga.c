@@ -10,9 +10,10 @@
 #include <sysreset.h>
 #include <asm/io.h>
 #include <asm/arch/reset_manager.h>
+#include <linux/bitops.h>
 
 struct socfpga_sysreset_data {
-	struct socfpga_reset_manager *rstmgr_base;
+	void __iomem *rstmgr_base;
 };
 
 static int socfpga_sysreset_request(struct udevice *dev,
@@ -23,11 +24,11 @@ static int socfpga_sysreset_request(struct udevice *dev,
 	switch (type) {
 	case SYSRESET_WARM:
 		writel(BIT(RSTMGR_CTRL_SWWARMRSTREQ_LSB),
-		       &data->rstmgr_base->ctrl);
+		       data->rstmgr_base + RSTMGR_CTRL);
 		break;
 	case SYSRESET_COLD:
 		writel(BIT(RSTMGR_CTRL_SWCOLDRSTREQ_LSB),
-		       &data->rstmgr_base->ctrl);
+		       data->rstmgr_base + RSTMGR_CTRL);
 		break;
 	default:
 		return -EPROTONOSUPPORT;
@@ -39,7 +40,7 @@ static int socfpga_sysreset_probe(struct udevice *dev)
 {
 	struct socfpga_sysreset_data *data = dev_get_priv(dev);
 
-	data->rstmgr_base = devfdt_get_addr_ptr(dev);
+	data->rstmgr_base = dev_read_addr_ptr(dev);
 	return 0;
 }
 

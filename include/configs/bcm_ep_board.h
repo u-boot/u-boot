@@ -36,13 +36,8 @@
  */
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* Serial Info */
 #define CONFIG_SYS_NS16550_SERIAL
-
-#define CONFIG_ENV_SIZE			0x2000
 
 /* console configuration */
 #define CONFIG_SYS_CBSIZE		1024	/* Console buffer size */

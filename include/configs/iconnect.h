@@ -20,29 +20,11 @@
  */
 #define CONFIG_MACH_TYPE	MACH_TYPE_ICONNECT
 
-/*
- * Compression configuration
- */
-#define CONFIG_BZIP2
-
-/*
- * Commands configuration
- */
-
-/*
- * mv-common.h should be defined after CMD configs since it used them
- * to enable certain macros
- */
 #include "mv-common.h"
 
 /*
  * Environment variables configuration
  */
-#ifdef CONFIG_CMD_NAND
-#define CONFIG_ENV_SECT_SIZE	0x20000
-#endif
-#define CONFIG_ENV_SIZE		0x20000
-#define CONFIG_ENV_OFFSET	0x80000
 
 /*
  * Default environment variables

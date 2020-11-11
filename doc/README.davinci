@@ -37,11 +37,15 @@ Bootloaders
 ===============
 
 For DA850 an SPL (secondary program loader, see doc/README.SPL) is provided
-to load U-Boot directly from SPI flash. The SPL takes care of the low level
+to load U-Boot from SPI flash, MMC or NAND. The SPL takes care of the low level
 initialization.
 
-The SPL is built as u-boot.ais for all DA850 defconfigs. The resulting
-image file can be programmed to the SPI flash of the DA850 EVM/LCDK.
+The SPL is built as u-boot.ais for all DA850 defconfigs except those booting
+from NOR flash. The resulting image file can be programmed to the SPI flash
+of the DA850 EVM/LCDK.
+
+Devices that support booting from NOR utilize execute in place (XIP) and do
+not require SPL to perform low level initialization.
 
 Environment Variables
 =====================

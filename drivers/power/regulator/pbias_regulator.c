@@ -7,6 +7,9 @@
 #include <common.h>
 #include <errno.h>
 #include <dm.h>
+#include <log.h>
+#include <linux/delay.h>
+#include <linux/err.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
 #include <regmap.h>

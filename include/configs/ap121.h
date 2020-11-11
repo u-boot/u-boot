@@ -30,16 +30,10 @@
 					"mtdparts default;" \
 					"bootm 0x9f650000"
 
-#define CONFIG_ENV_OFFSET               0x40000
-#define CONFIG_ENV_SECT_SIZE            0x10000
-#define CONFIG_ENV_SIZE                 0x10000
-
 /* Miscellaneous configurable options */
 
 /*
  * Diagnostics
  */
-#define CONFIG_SYS_MEMTEST_START        0x80100000
-#define CONFIG_SYS_MEMTEST_END          0x83f00000
 
 #endif  /* __CONFIG_H */

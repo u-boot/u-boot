@@ -11,6 +11,7 @@
 #include <asm/arch/ccu.h>
 #include <dt-bindings/clock/sun8i-v3s-ccu.h>
 #include <dt-bindings/reset/sun8i-v3s-ccu.h>
+#include <linux/bitops.h>
 
 static struct ccu_clk_gate v3s_gates[] = {
 	[CLK_BUS_MMC0]		= GATE(0x060, BIT(8)),

@@ -6,8 +6,12 @@
 #include <clk.h>
 #include <common.h>
 #include <dm.h>
+#include <init.h>
+#include <log.h>
 #include <asm/arch-rockchip/clock.h>
 #include <dt-bindings/clock/rk3288-cru.h>
+#include <linux/delay.h>
+#include <linux/err.h>
 #include <power/regulator.h>
 
 /*
@@ -67,7 +71,7 @@ static int veyron_init(void)
 }
 #endif
 
-int board_early_init_f(void)
+int board_early_init_r(void)
 {
 	struct udevice *dev;
 	int ret;

@@ -7,12 +7,16 @@
 
 #include <config.h>
 #include <common.h>
+#include <log.h>
 #include <watchdog.h>
 #include <command.h>
 #include <mmc.h>
 #include <clk.h>
 #include <dm.h>
 #include <malloc.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/compat.h>
 #include <linux/io.h>
@@ -676,7 +680,7 @@ static int sh_mmcif_dm_probe(struct udevice *dev)
 	fdt_addr_t base;
 	int ret;
 
-	base = devfdt_get_addr(dev);
+	base = dev_read_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

@@ -10,8 +10,10 @@
  */
 
 #include <common.h>
+#include <bootcount.h>
 #include <env.h>
 #include <errno.h>
+#include <init.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
@@ -148,7 +150,7 @@ int board_init(void)
 	hw_watchdog_init();
 #endif
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 	gpmc_init();
 #endif
 	return 0;

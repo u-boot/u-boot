@@ -64,8 +64,8 @@ config FASTBOOT_USB_DEV
 
 config FASTBOOT_FLASH
 	bool "Enable FASTBOOT FLASH command"
-	default y if ARCH_SUNXI
-	depends on MMC || (NAND && CMD_MTDPARTS)
+	default y if ARCH_SUNXI || ARCH_ROCKCHIP
+	depends on MMC || (MTD_RAW_NAND && CMD_MTDPARTS)
 	select IMAGE_SPARSE
 	help
 	  The fastboot protocol includes a "flash" command for writing
@@ -82,13 +82,14 @@ config FASTBOOT_FLASH_MMC
 
 config FASTBOOT_FLASH_NAND
 	bool "FASTBOOT on NAND"
-	depends on NAND && CMD_MTDPARTS
+	depends on MTD_RAW_NAND && CMD_MTDPARTS
 
 endchoice
 
 config FASTBOOT_FLASH_MMC_DEV
 	int "Define FASTBOOT MMC FLASH default device"
 	depends on FASTBOOT_FLASH_MMC
+	default 0 if ARCH_ROCKCHIP
 	default 0 if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA = -1
 	default 1 if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA != -1
 	help
@@ -102,6 +103,36 @@ config FASTBOOT_FLASH_NAND_TRIMFFS
 	help
 	  When flashing NAND enable the DROP_FFS flag to drop trailing all-0xff
 	  pages.
+
+config FASTBOOT_MMC_BOOT1_SUPPORT
+	bool "Enable EMMC_BOOT1 flash/erase"
+	depends on FASTBOOT_FLASH_MMC && EFI_PARTITION && ARCH_MEDIATEK
+	help
+	  The fastboot "flash" and "erase" commands normally does operations
+	  on EMMC userdata. Define this to enable the special commands to
+	  flash/erase EMMC_BOOT1.
+	  The default target name for updating EMMC_BOOT1 is "mmc0boot0".
+
+config FASTBOOT_MMC_BOOT1_NAME
+	string "Target name for updating EMMC_BOOT1"
+	depends on FASTBOOT_MMC_BOOT1_SUPPORT
+	default "mmc0boot0"
+	help
+	  The fastboot "flash" and "erase" commands support operations on
+	  EMMC_BOOT1. This occurs when the specified "EMMC_BOOT1 name" on
+	  the "fastboot flash" and "fastboot erase" commands match the value
+	  defined here.
+	  The default target name for updating EMMC_BOOT1 is "mmc0boot0".
+
+config FASTBOOT_MMC_USER_NAME
+	string "Target name for erasing EMMC_USER"
+	depends on FASTBOOT_FLASH_MMC && EFI_PARTITION && ARCH_MEDIATEK
+	default "mmc0"
+	help
+	  The fastboot "erase" command supports erasing EMMC_USER. This occurs
+	  when the specified "EMMC_USER name" on the "fastboot erase" commands
+	  match the value defined here.
+	  The default target name for erasing EMMC_USER is "mmc0".
 
 config FASTBOOT_GPT_NAME
 	string "Target name for updating GPT"
@@ -133,6 +164,18 @@ config FASTBOOT_CMD_OEM_FORMAT
 	  Add support for the "oem format" command from a client. This
 	  relies on the env variable partitions to contain the list of
 	  partitions as required by the gpt command.
+
+config FASTBOOT_USE_BCB_SET_REBOOT_FLAG
+	bool "Use BCB by fastboot to set boot reason"
+	depends on CMD_BCB && !ARCH_MESON && !ARCH_ROCKCHIP && !TARGET_KC1 && \
+	  !TARGET_SNIPER && !TARGET_AM57XX_EVM && !TARGET_DRA7XX_EVM
+	default y
+	help
+	  Fastboot could implement setting of reboot reason in a generic fashion
+	  via BCB commands. BCB commands are able to write reboot reason into
+	  command field of boot control block. In general case it is sufficient
+	  implementation if your platform supports BCB commands and doesn't
+	  require any specific reboot reason handling.
 
 endif # FASTBOOT
 

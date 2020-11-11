@@ -4,10 +4,10 @@
 #
 
 ifndef CONFIG_SPL
-ALL-y += u-boot.stm32
+INPUTS-y += u-boot.stm32
 else
 ifdef CONFIG_SPL_BUILD
-ALL-y += u-boot-spl.stm32
+INPUTS-y += u-boot-spl.stm32
 endif
 endif
 

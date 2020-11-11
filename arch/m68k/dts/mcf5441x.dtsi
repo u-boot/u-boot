@@ -9,6 +9,8 @@
 	aliases {
 		serial0 = &uart0;
 		spi0 = &dspi0;
+		fec0 = &fec0;
+		fec1 = &fec1;
 	};
 
 	soc {
@@ -81,6 +83,24 @@
 			spi-max-frequency = <50000000>;
 			num-cs = <4>;
 			spi-mode = <0>;
+			status = "disabled";
+		};
+
+		fec0: ethernet@fc0d4000 {
+			compatible = "fsl,mcf-fec";
+			reg = <0xfc0d4000 0x4000>;
+			mii-base = <0>;
+			max-speed = <100>;
+			timeout-loop = <50000>;
+			status = "disabled";
+		};
+
+		fec1: ethernet@fc0d8000 {
+			compatible = "fsl,mcf-fec";
+			reg = <0xfc0d8000 0x4000>;
+			mii-base = <1>;
+			max-speed = <100>;
+			timeout-loop = <50000>;
 			status = "disabled";
 		};
 	};

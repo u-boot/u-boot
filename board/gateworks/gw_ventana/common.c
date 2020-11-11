@@ -5,6 +5,8 @@
  * Author: Tim Harvey <tharvey@gateworks.com>
  */
 
+#include <common.h>
+#include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
@@ -13,6 +15,7 @@
 #include <env.h>
 #include <fsl_esdhc_imx.h>
 #include <hwconfig.h>
+#include <linux/delay.h>
 #include <power/pmic.h>
 #include <power/ltc3676_pmic.h>
 #include <power/pfuze100_pmic.h>
@@ -1660,7 +1663,7 @@ void setup_pmic(void)
 #ifdef CONFIG_FSL_ESDHC_IMX
 static struct fsl_esdhc_cfg usdhc_cfg[2];
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	struct ventana_board_info ventana_info;
 	int board_type = read_eeprom(CONFIG_I2C_GSC, &ventana_info);

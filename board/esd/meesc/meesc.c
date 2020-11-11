@@ -11,6 +11,10 @@
 
 #include <common.h>
 #include <env.h>
+#include <init.h>
+#include <net.h>
+#include <serial.h>
+#include <vsprintf.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/mach-types.h>
@@ -142,7 +146,7 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int rc = 0;
 #ifdef CONFIG_MACB

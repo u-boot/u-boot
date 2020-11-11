@@ -55,7 +55,7 @@ static void do_print_trace(void)
 	}
 }
 
-static int do_set_buffer(int argc, char * const argv[])
+static int do_set_buffer(int argc, char *const argv[])
 {
 	ulong addr = 0, size = 0;
 
@@ -71,7 +71,7 @@ static int do_set_buffer(int argc, char * const argv[])
 	return 0;
 }
 
-static int do_set_region(int argc, char * const argv[])
+static int do_set_region(int argc, char *const argv[])
 {
 	ulong addr = 0, size = 0;
 
@@ -87,7 +87,7 @@ static int do_set_region(int argc, char * const argv[])
 	return 0;
 }
 
-int do_iotrace(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_iotrace(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	const char *cmd = argc < 2 ? NULL : argv[1];
 

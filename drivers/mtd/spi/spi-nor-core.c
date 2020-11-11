@@ -10,6 +10,11 @@
  */
 
 #include <common.h>
+#include <log.h>
+#include <dm.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/log2.h>
@@ -54,8 +59,7 @@ static int spi_nor_read_reg(struct spi_nor *nor, u8 code, u8 *val, int len)
 
 	ret = spi_nor_read_write_reg(nor, &op, val);
 	if (ret < 0)
-		dev_dbg(&flash->spimem->spi->dev, "error %d reading %x\n", ret,
-			code);
+		dev_dbg(nor->dev, "error %d reading %x\n", ret, code);
 
 	return ret;
 }
@@ -251,6 +255,8 @@ static u8 spi_nor_convert_3to4_read(u8 opcode)
 		{ SPINOR_OP_READ_1_2_2,	SPINOR_OP_READ_1_2_2_4B },
 		{ SPINOR_OP_READ_1_1_4,	SPINOR_OP_READ_1_1_4_4B },
 		{ SPINOR_OP_READ_1_4_4,	SPINOR_OP_READ_1_4_4_4B },
+		{ SPINOR_OP_READ_1_1_8,	SPINOR_OP_READ_1_1_8_4B },
+		{ SPINOR_OP_READ_1_8_8,	SPINOR_OP_READ_1_8_8_4B },
 
 		{ SPINOR_OP_READ_1_1_1_DTR,	SPINOR_OP_READ_1_1_1_DTR_4B },
 		{ SPINOR_OP_READ_1_2_2_DTR,	SPINOR_OP_READ_1_2_2_DTR_4B },
@@ -267,6 +273,8 @@ static u8 spi_nor_convert_3to4_program(u8 opcode)
 		{ SPINOR_OP_PP,		SPINOR_OP_PP_4B },
 		{ SPINOR_OP_PP_1_1_4,	SPINOR_OP_PP_1_1_4_4B },
 		{ SPINOR_OP_PP_1_4_4,	SPINOR_OP_PP_1_4_4_4B },
+		{ SPINOR_OP_PP_1_1_8,	SPINOR_OP_PP_1_1_8_4B },
+		{ SPINOR_OP_PP_1_8_8,	SPINOR_OP_PP_1_8_8_4B },
 	};
 
 	return spi_nor_convert_opcode(opcode, spi_nor_3to4_program,
@@ -319,6 +327,7 @@ static int set_4byte(struct spi_nor *nor, const struct flash_info *info,
 	case SNOR_MFR_MICRON:
 		/* Some Micron need WREN command; all will accept it */
 		need_wren = true;
+	case SNOR_MFR_ISSI:
 	case SNOR_MFR_MACRONIX:
 	case SNOR_MFR_WINBOND:
 		if (need_wren)
@@ -545,6 +554,9 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 
 	dev_dbg(nor->dev, "at 0x%llx, len %lld\n", (long long)instr->addr,
 		(long long)instr->len);
+
+	if (!instr->len)
+		return 0;
 
 	div_u64_rem(instr->len, mtd->erasesize, &rem);
 	if (rem)
@@ -1224,7 +1236,16 @@ static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len,
 	size_t page_offset, page_remain, i;
 	ssize_t ret;
 
+#ifdef CONFIG_SPI_FLASH_SST
+	/* sst nor chips use AAI word program */
+	if (nor->info->flags & SST_WRITE)
+		return sst_write(mtd, to, len, retlen, buf);
+#endif
+
 	dev_dbg(nor->dev, "to 0x%08x, len %zd\n", (u32)to, len);
+
+	if (!len)
+		return 0;
 
 	for (i = 0; i < len; ) {
 		ssize_t written;
@@ -1234,11 +1255,8 @@ static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len,
 		 * If page_size is a power of two, the offset can be quickly
 		 * calculated with an AND operation. On the other cases we
 		 * need to do a modulus operation (more expensive).
-		 * Power of two numbers have only one bit set and we can use
-		 * the instruction hweight32 to detect if we need to do a
-		 * modulus (do_div()) or not.
 		 */
-		if (hweight32(nor->page_size) == 1) {
+		if (is_power_of_2(nor->page_size)) {
 			page_offset = addr & (nor->page_size - 1);
 		} else {
 			u64 aux = addr;
@@ -1274,7 +1292,7 @@ write_err:
 	return ret;
 }
 
-#ifdef CONFIG_SPI_FLASH_MACRONIX
+#if defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_ISSI)
 /**
  * macronix_quad_enable() - set QE bit in Status Register.
  * @nor:	pointer to a 'struct spi_nor'
@@ -1364,7 +1382,8 @@ static int spansion_read_cr_quad_enable(struct spi_nor *nor)
 	/* Check current Quad Enable bit value. */
 	ret = read_cr(nor);
 	if (ret < 0) {
-		dev_dbg(dev, "error while reading configuration register\n");
+		dev_dbg(nor->dev,
+			"error while reading configuration register\n");
 		return -EINVAL;
 	}
 
@@ -1376,7 +1395,7 @@ static int spansion_read_cr_quad_enable(struct spi_nor *nor)
 	/* Keep the current value of the Status Register. */
 	ret = read_sr(nor);
 	if (ret < 0) {
-		dev_dbg(dev, "error while reading status register\n");
+		dev_dbg(nor->dev, "error while reading status register\n");
 		return -EINVAL;
 	}
 	sr_cr[0] = ret;
@@ -1588,6 +1607,7 @@ struct sfdp_parameter_header {
 
 #define SFDP_BFPT_ID		0xff00	/* Basic Flash Parameter Table */
 #define SFDP_SECTOR_MAP_ID	0xff81	/* Sector Map Table */
+#define SFDP_SST_ID		0x01bf	/* Manufacturer specific Table */
 
 #define SFDP_SIGNATURE		0x50444653U
 #define SFDP_JESD216_MAJOR	1
@@ -1950,7 +1970,7 @@ static int spi_nor_parse_bfpt(struct spi_nor *nor,
 		params->quad_enable = spansion_no_read_cr_quad_enable;
 		break;
 #endif
-#ifdef CONFIG_SPI_FLASH_MACRONIX
+#if defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_ISSI)
 	case BFPT_DWORD15_QER_SR1_BIT6:
 		params->quad_enable = macronix_quad_enable;
 		break;
@@ -1965,6 +1985,34 @@ static int spi_nor_parse_bfpt(struct spi_nor *nor,
 	}
 
 	return 0;
+}
+
+/**
+ * spi_nor_parse_microchip_sfdp() - parse the Microchip manufacturer specific
+ * SFDP table.
+ * @nor:		pointer to a 'struct spi_nor'.
+ * @param_header:	pointer to the SFDP parameter header.
+ *
+ * Return: 0 on success, -errno otherwise.
+ */
+static int
+spi_nor_parse_microchip_sfdp(struct spi_nor *nor,
+			     const struct sfdp_parameter_header *param_header)
+{
+	size_t size;
+	u32 addr;
+	int ret;
+
+	size = param_header->length * sizeof(u32);
+	addr = SFDP_PARAM_HEADER_PTP(param_header);
+
+	nor->manufacturer_sfdp = devm_kmalloc(nor->dev, size, GFP_KERNEL);
+	if (!nor->manufacturer_sfdp)
+		return -ENOMEM;
+
+	ret = spi_nor_read_sfdp(nor, addr, size, nor->manufacturer_sfdp);
+
+	return ret;
 }
 
 /**
@@ -2030,7 +2078,8 @@ static int spi_nor_parse_sfdp(struct spi_nor *nor,
 		err = spi_nor_read_sfdp(nor, sizeof(header),
 					psize, param_headers);
 		if (err < 0) {
-			dev_err(dev, "failed to read SFDP parameter headers\n");
+			dev_err(nor->dev,
+				"failed to read SFDP parameter headers\n");
 			goto exit;
 		}
 	}
@@ -2060,15 +2109,30 @@ static int spi_nor_parse_sfdp(struct spi_nor *nor,
 
 		switch (SFDP_PARAM_HEADER_ID(param_header)) {
 		case SFDP_SECTOR_MAP_ID:
-			dev_info(dev, "non-uniform erase sector maps are not supported yet.\n");
+			dev_info(nor->dev,
+				 "non-uniform erase sector maps are not supported yet.\n");
+			break;
+
+		case SFDP_SST_ID:
+			err = spi_nor_parse_microchip_sfdp(nor, param_header);
 			break;
 
 		default:
 			break;
 		}
 
-		if (err)
-			goto exit;
+		if (err) {
+			dev_warn(nor->dev,
+				 "Failed to parse optional parameter table: %04x\n",
+				 SFDP_PARAM_HEADER_ID(param_header));
+			/*
+			 * Let's not drop all information we extracted so far
+			 * if optional table parsers fail. In case of failing,
+			 * each optional parser is responsible to roll back to
+			 * the previously known spi_nor data.
+			 */
+			err = 0;
+		}
 	}
 
 exit:
@@ -2121,6 +2185,13 @@ static int spi_nor_init_params(struct spi_nor *nor,
 					  SNOR_PROTO_1_1_4);
 	}
 
+	if (info->flags & SPI_NOR_OCTAL_READ) {
+		params->hwcaps.mask |= SNOR_HWCAPS_READ_1_1_8;
+		spi_nor_set_read_settings(&params->reads[SNOR_CMD_READ_1_1_8],
+					  0, 8, SPINOR_OP_READ_1_1_8,
+					  SNOR_PROTO_1_1_8);
+	}
+
 	/* Page Program settings. */
 	params->hwcaps.mask |= SNOR_HWCAPS_PP;
 	spi_nor_set_pp_settings(&params->page_programs[SNOR_CMD_PP],
@@ -2136,8 +2207,9 @@ static int spi_nor_init_params(struct spi_nor *nor,
 	if (params->hwcaps.mask & (SNOR_HWCAPS_READ_QUAD |
 				   SNOR_HWCAPS_PP_QUAD)) {
 		switch (JEDEC_MFR(info)) {
-#ifdef CONFIG_SPI_FLASH_MACRONIX
+#if defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_ISSI)
 		case SNOR_MFR_MACRONIX:
+		case SNOR_MFR_ISSI:
 			params->quad_enable = macronix_quad_enable;
 			break;
 #endif
@@ -2399,7 +2471,7 @@ static int spi_nor_init(struct spi_nor *nor)
 		 * designer) that this is bad.
 		 */
 		if (nor->flags & SNOR_F_BROKEN_RESET)
-			printf("enabling reset hack; may not recover from unexpected reboots\n");
+			debug("enabling reset hack; may not recover from unexpected reboots\n");
 		set_4byte(nor, nor->info, 1);
 	}
 
@@ -2428,7 +2500,14 @@ int spi_nor_scan(struct spi_nor *nor)
 	nor->read_reg = spi_nor_read_reg;
 	nor->write_reg = spi_nor_write_reg;
 
-	if (spi->mode & SPI_RX_QUAD) {
+	if (spi->mode & SPI_RX_OCTAL) {
+		hwcaps.mask |= SNOR_HWCAPS_READ_1_1_8;
+
+		if (spi->mode & SPI_TX_OCTAL)
+			hwcaps.mask |= (SNOR_HWCAPS_READ_1_8_8 |
+					SNOR_HWCAPS_PP_1_1_8 |
+					SNOR_HWCAPS_PP_1_8_8);
+	} else if (spi->mode & SPI_RX_QUAD) {
 		hwcaps.mask |= SNOR_HWCAPS_READ_1_1_4;
 
 		if (spi->mode & SPI_TX_QUAD)
@@ -2459,6 +2538,7 @@ int spi_nor_scan(struct spi_nor *nor)
 	mtd->size = params.size;
 	mtd->_erase = spi_nor_erase;
 	mtd->_read = spi_nor_read;
+	mtd->_write = spi_nor_write;
 
 #if defined(CONFIG_SPI_FLASH_STMICRO) || defined(CONFIG_SPI_FLASH_SST)
 	/* NOR protection support for STmicro/Micron chips and similar */
@@ -2482,13 +2562,7 @@ int spi_nor_scan(struct spi_nor *nor)
 		nor->flash_unlock = sst26_unlock;
 		nor->flash_is_locked = sst26_is_locked;
 	}
-
-	/* sst nor chips use AAI word program */
-	if (info->flags & SST_WRITE)
-		mtd->_write = sst_write;
-	else
 #endif
-		mtd->_write = spi_nor_write;
 
 	if (info->flags & USE_FSR)
 		nor->flags |= SNOR_F_USE_FSR;
@@ -2543,7 +2617,7 @@ int spi_nor_scan(struct spi_nor *nor)
 	}
 
 	if (nor->addr_width > SPI_NOR_MAX_ADDR_WIDTH) {
-		dev_dbg(dev, "address width is too large: %u\n",
+		dev_dbg(nor->dev, "address width is too large: %u\n",
 			nor->addr_width);
 		return -EINVAL;
 	}
@@ -2568,15 +2642,4 @@ int spi_nor_scan(struct spi_nor *nor)
 #endif
 
 	return 0;
-}
-
-/* U-Boot specific functions, need to extend MTD to support these */
-int spi_flash_cmd_get_sw_write_prot(struct spi_nor *nor)
-{
-	int sr = read_sr(nor);
-
-	if (sr < 0)
-		return sr;
-
-	return (sr >> 2) & 7;
 }

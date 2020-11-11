@@ -14,10 +14,12 @@
 #include <exports.h>
 #include <fat.h>
 #include <fs.h>
+#include <log.h>
 #include <asm/byteorder.h>
 #include <part.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <asm/cache.h>
 #include <linux/compiler.h>
 #include <linux/ctype.h>
 
@@ -35,7 +37,7 @@ static void downcase(char *str, size_t len)
 }
 
 static struct blk_desc *cur_dev;
-static disk_partition_t cur_part_info;
+static struct disk_partition cur_part_info;
 
 #define DOS_BOOT_MAGIC_OFFSET	0x1fe
 #define DOS_FS_TYPE_OFFSET	0x36
@@ -56,7 +58,7 @@ static int disk_read(__u32 block, __u32 nr_blocks, void *buf)
 	return ret;
 }
 
-int fat_set_blk_dev(struct blk_desc *dev_desc, disk_partition_t *info)
+int fat_set_blk_dev(struct blk_desc *dev_desc, struct disk_partition *info)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 
@@ -87,7 +89,7 @@ int fat_set_blk_dev(struct blk_desc *dev_desc, disk_partition_t *info)
 
 int fat_register_device(struct blk_desc *dev_desc, int part_no)
 {
-	disk_partition_t info;
+	struct disk_partition info;
 
 	/* First close any currently found FAT filesystem */
 	cur_dev = NULL;
@@ -276,7 +278,10 @@ get_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer, unsigned long size)
 		}
 	} else {
 		idx = size / mydata->sect_size;
-		ret = disk_read(startsect, idx, buffer);
+		if (idx == 0)
+			ret = 0;
+		else
+			ret = disk_read(startsect, idx, buffer);
 		if (ret != idx) {
 			debug("Error reading data (got %d)\n", ret);
 			return -1;
@@ -869,6 +874,14 @@ static dir_entry *extract_vfat_name(fat_itr *itr)
 			return NULL;
 	}
 
+	/*
+	 * We are now at the short file name entry.
+	 * If it is marked as deleted, just skip it.
+	 */
+	if (dent->name[0] == DELETED_FLAG ||
+	    dent->name[0] == aRING)
+		return NULL;
+
 	itr->l_name[n] = '\0';
 
 	chksum = mkcksum(dent->name, dent->ext);
@@ -898,6 +911,16 @@ static int fat_itr_next(fat_itr *itr)
 
 	itr->name = NULL;
 
+	/*
+	 * One logical directory entry consist of following slots:
+	 *				name[0]	Attributes
+	 *   dent[N - N]: LFN[N - 1]	N|0x40	ATTR_VFAT
+	 *   ...
+	 *   dent[N - 2]: LFN[1]	2	ATTR_VFAT
+	 *   dent[N - 1]: LFN[0]	1	ATTR_VFAT
+	 *   dent[N]:     SFN			ATTR_ARCH
+	 */
+
 	while (1) {
 		dent = next_dent(itr);
 		if (!dent)
@@ -910,7 +933,17 @@ static int fat_itr_next(fat_itr *itr)
 		if (dent->attr & ATTR_VOLUME) {
 			if ((dent->attr & ATTR_VFAT) == ATTR_VFAT &&
 			    (dent->name[0] & LAST_LONG_ENTRY_MASK)) {
+				/* long file name */
 				dent = extract_vfat_name(itr);
+				/*
+				 * If succeeded, dent has a valid short file
+				 * name entry for the current entry.
+				 * If failed, itr points to a current bogus
+				 * entry. So after fetching a next one,
+				 * it may have a short file name entry
+				 * for this bogus entry so that we can still
+				 * check for a short name.
+				 */
 				if (!dent)
 					continue;
 				itr->name = itr->l_name;
@@ -921,6 +954,7 @@ static int fat_itr_next(fat_itr *itr)
 			}
 		}
 
+		/* short file name */
 		break;
 	}
 

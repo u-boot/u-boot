@@ -14,6 +14,9 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <time.h>
+#include <linux/delay.h>
 
 #include <asm/io.h>
 #include <asm/arch/hardware.h>

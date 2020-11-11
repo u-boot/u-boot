@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2008-2016 Freescale Semiconductor, Inc.
- * Copyright 2017-2018 NXP Semiconductor
+ * Copyright 2017-2020 NXP Semiconductor
  */
 
 /*
@@ -15,6 +15,8 @@
 #include <fsl_errata.h>
 #include <fsl_ddr.h>
 #include <fsl_immap.h>
+#include <log.h>
+#include <asm/bitops.h>
 #include <asm/io.h>
 #if defined(CONFIG_FSL_LSCH2) || defined(CONFIG_FSL_LSCH3) || \
 	defined(CONFIG_ARM)
@@ -2361,38 +2363,6 @@ compute_fsl_memctl_config_regs(const unsigned int ctrl_num,
 	unsigned int ip_rev = 0;
 	unsigned int unq_mrs_en = 0;
 	int cs_en = 1;
-#ifdef CONFIG_SYS_FSL_ERRATUM_A009942
-	unsigned int ddr_freq;
-#endif
-#if (defined(CONFIG_SYS_FSL_ERRATUM_A008378) && \
-	defined(CONFIG_SYS_FSL_DDRC_GEN4)) || \
-	defined(CONFIG_SYS_FSL_ERRATUM_A009942)
-	struct ccsr_ddr __iomem *ddrc;
-
-	switch (ctrl_num) {
-	case 0:
-		ddrc = (void *)CONFIG_SYS_FSL_DDR_ADDR;
-		break;
-#if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 1)
-	case 1:
-		ddrc = (void *)CONFIG_SYS_FSL_DDR2_ADDR;
-		break;
-#endif
-#if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 2)
-	case 2:
-		ddrc = (void *)CONFIG_SYS_FSL_DDR3_ADDR;
-		break;
-#endif
-#if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 3)
-	case 3:
-		ddrc = (void *)CONFIG_SYS_FSL_DDR4_ADDR;
-		break;
-#endif
-	default:
-		printf("%s unexpected ctrl_num = %u\n", __func__, ctrl_num);
-		return 1;
-	}
-#endif
 
 	memset(ddr, 0, sizeof(fsl_ddr_cfg_regs_t));
 
@@ -2613,31 +2583,7 @@ compute_fsl_memctl_config_regs(const unsigned int ctrl_num,
 		ddr->debug[2] |= 0x00000200;	/* set bit 22 */
 #endif
 
-#if defined(CONFIG_SYS_FSL_ERRATUM_A008378) && defined(CONFIG_SYS_FSL_DDRC_GEN4)
-	/* Erratum applies when accumulated ECC is used, or DBI is enabled */
-#define IS_ACC_ECC_EN(v) ((v) & 0x4)
-#define IS_DBI(v) ((((v) >> 12) & 0x3) == 0x2)
-	if (has_erratum_a008378()) {
-		if (IS_ACC_ECC_EN(ddr->ddr_sdram_cfg) ||
-		    IS_DBI(ddr->ddr_sdram_cfg_3)) {
-			ddr->debug[28] = ddr_in32(&ddrc->debug[28]);
-			ddr->debug[28] |= (0x9 << 20);
-		}
-	}
-#endif
-
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009942
-	ddr_freq = get_ddr_freq(ctrl_num) / 1000000;
-	ddr->debug[28] |= ddr_in32(&ddrc->debug[28]);
-	ddr->debug[28] &= 0xff0fff00;
-	if (ddr_freq <= 1333)
-		ddr->debug[28] |= 0x0080006a;
-	else if (ddr_freq <= 1600)
-		ddr->debug[28] |= 0x0070006f;
-	else if (ddr_freq <= 1867)
-		ddr->debug[28] |= 0x00700076;
-	else if (ddr_freq <= 2133)
-		ddr->debug[28] |= 0x0060007b;
 	if (popts->cpo_sample)
 		ddr->debug[28] = (ddr->debug[28] & 0xffffff00) |
 				  popts->cpo_sample;

@@ -6,10 +6,12 @@
  */
 
 #include <hexdump.h>
+#include <malloc.h>
 #include <ubi_uboot.h>
 #include "ubi.h"
 #ifndef __UBOOT__
 #include <linux/debugfs.h>
+#include <linux/err.h>
 #include <linux/uaccess.h>
 #include <linux/module.h>
 #endif

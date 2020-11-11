@@ -18,14 +18,18 @@
 
 #include <common.h>
 #include <errno.h>
+#include <log.h>
 #include <asm/byteorder.h>
 #include <asm/system.h>
 #include <asm/mach-types.h>
 #include <asm/unaligned.h>
+#include <dm/devres.h>
+#include <linux/bug.h>
 #include <linux/compat.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/arch/pxa.h>
+#include <linux/delay.h>
 
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>

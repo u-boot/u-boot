@@ -70,15 +70,12 @@
 /* malloc() len */
 #define CONFIG_SYS_MALLOC_LEN		(0x10000 + 512 * 1024)
 /* memtest start address */
-#define CONFIG_SYS_MEMTEST_START	0xA0000000
-#define CONFIG_SYS_MEMTEST_END		0xA1000000	/* 16MB RAM test */
 #define PHYS_SDRAM_1		0xA0000000	/* DDR Start */
 #define PHYS_SDRAM_1_SIZE	0x08000000	/* DDR size 128MB */
 
 /*
  * Serial Driver info
  */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /*
@@ -95,10 +92,7 @@
 		CONFIG_SYS_FLASH_SECT_SZ)
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN		0x40000		/* Reserve 256KiB */
-#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
 /* Address and size of Redundant Environment Sector	*/
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 
 /*
  * Ethernet

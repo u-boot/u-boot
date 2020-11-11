@@ -4,8 +4,11 @@
  */
 
 #include <common.h>
+#include <hang.h>
+#include <log.h>
 #include <asm/io.h>
-#include <linux/libfdt.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 #include "../gadget/dwc2_udc_otg_priv.h"
 
@@ -71,8 +74,8 @@ void otg_phy_init(struct dwc2_udc *dev)
 
 	for (i = 0; i < ARRAY_SIZE(rockchip_usb2_phy_dt_ids); i++) {
 		of_id = &rockchip_usb2_phy_dt_ids[i];
-		if (fdt_node_check_compatible(gd->fdt_blob, pdata->phy_of_node,
-					      of_id->compatible) == 0) {
+		if (ofnode_device_is_compatible(pdata->phy_of_node,
+						of_id->compatible)){
 			phy_cfg = (struct rockchip_usb2_phy_cfg *)of_id->data;
 			break;
 		}

@@ -11,7 +11,7 @@
 #include <efi_selftest.h>
 
 #define EFI_ST_MAX_DATA_SIZE 16
-#define EFI_ST_MAX_VARNAME_SIZE 40
+#define EFI_ST_MAX_VARNAME_SIZE 80
 
 static struct efi_boot_services *boottime;
 static struct efi_runtime_services *runtime;
@@ -155,8 +155,14 @@ static int execute(void)
 			return EFI_ST_FAILURE;
 		}
 		if (!memcmp(&guid, &guid_vendor0, sizeof(efi_guid_t)) &&
-		    !efi_st_strcmp_16_8(varname, "efi_st_var0"))
+		    !efi_st_strcmp_16_8(varname, "efi_st_var0")) {
 			flag |= 1;
+			if (len != 24) {
+				efi_st_error("GetNextVariableName report wrong length %u, expected 24\n",
+					     (unsigned int)len);
+				return EFI_ST_FAILURE;
+			}
+		}
 		if (!memcmp(&guid, &guid_vendor1, sizeof(efi_guid_t)) &&
 		    !efi_st_strcmp_16_8(varname, "efi_st_var1"))
 			flag |= 2;

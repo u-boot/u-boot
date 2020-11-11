@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
 #include <dm/device-internal.h>
@@ -85,11 +86,14 @@ int dm_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev->parent;
+	struct dm_spi_ops *ops = spi_get_ops(bus);
 
 	if (bus->uclass->uc_drv->id != UCLASS_SPI)
 		return -EOPNOTSUPP;
+	if (!ops->xfer)
+		return -ENOSYS;
 
-	return spi_get_ops(bus)->xfer(dev, bitlen, dout, din, flags);
+	return ops->xfer(dev, bitlen, dout, din, flags);
 }
 
 int dm_spi_get_mmap(struct udevice *dev, ulong *map_basep, uint *map_sizep,
@@ -167,21 +171,25 @@ static int spi_post_probe(struct udevice *bus)
 #endif
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	struct dm_spi_ops *ops = spi_get_ops(bus);
+	static int reloc_done;
 
-	if (ops->claim_bus)
-		ops->claim_bus += gd->reloc_off;
-	if (ops->release_bus)
-		ops->release_bus += gd->reloc_off;
-	if (ops->set_wordlen)
-		ops->set_wordlen += gd->reloc_off;
-	if (ops->xfer)
-		ops->xfer += gd->reloc_off;
-	if (ops->set_speed)
-		ops->set_speed += gd->reloc_off;
-	if (ops->set_mode)
-		ops->set_mode += gd->reloc_off;
-	if (ops->cs_info)
-		ops->cs_info += gd->reloc_off;
+	if (!reloc_done) {
+		if (ops->claim_bus)
+			ops->claim_bus += gd->reloc_off;
+		if (ops->release_bus)
+			ops->release_bus += gd->reloc_off;
+		if (ops->set_wordlen)
+			ops->set_wordlen += gd->reloc_off;
+		if (ops->xfer)
+			ops->xfer += gd->reloc_off;
+		if (ops->set_speed)
+			ops->set_speed += gd->reloc_off;
+		if (ops->set_mode)
+			ops->set_mode += gd->reloc_off;
+		if (ops->cs_info)
+			ops->cs_info += gd->reloc_off;
+		reloc_done++;
+	}
 #endif
 
 	return 0;
@@ -217,7 +225,32 @@ int spi_chip_select(struct udevice *dev)
 
 int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp)
 {
+	struct dm_spi_ops *ops;
+	struct spi_cs_info info;
 	struct udevice *dev;
+	int ret;
+
+	/*
+	 * Ask the driver. For the moment we don't have CS info.
+	 * When we do we could provide the driver with a helper function
+	 * to figure out what chip selects are valid, or just handle the
+	 * request.
+	 */
+	ops = spi_get_ops(bus);
+	if (ops->cs_info) {
+		ret = ops->cs_info(bus, cs, &info);
+	} else {
+		/*
+		 * We could assume there is at least one valid chip select.
+		 * The driver didn't care enough to tell us.
+		 */
+		ret = 0;
+	}
+
+	if (ret) {
+		printf("Invalid cs %d (err=%d)\n", cs, ret);
+		return ret;
+	}
 
 	for (device_find_first_child(bus, &dev); dev;
 	     device_find_next_child(&dev)) {
@@ -252,7 +285,6 @@ int spi_cs_is_valid(unsigned int busnum, unsigned int cs)
 int spi_cs_info(struct udevice *bus, uint cs, struct spi_cs_info *info)
 {
 	struct spi_cs_info local_info;
-	struct dm_spi_ops *ops;
 	int ret;
 
 	if (!info)
@@ -261,24 +293,7 @@ int spi_cs_info(struct udevice *bus, uint cs, struct spi_cs_info *info)
 	/* If there is a device attached, return it */
 	info->dev = NULL;
 	ret = spi_find_chip_select(bus, cs, &info->dev);
-	if (!ret)
-		return 0;
-
-	/*
-	 * Otherwise ask the driver. For the moment we don't have CS info.
-	 * When we do we could provide the driver with a helper function
-	 * to figure out what chip selects are valid, or just handle the
-	 * request.
-	 */
-	ops = spi_get_ops(bus);
-	if (ops->cs_info)
-		return ops->cs_info(bus, cs, info);
-
-	/*
-	 * We could assume there is at least one valid chip select.
-	 * The driver didn't care enough to tell us.
-	 */
-	return 0;
+	return ret == -ENODEV ? 0 : ret;
 }
 
 int spi_find_bus_and_cs(int busnum, int cs, struct udevice **busp,
@@ -309,6 +324,7 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 {
 	struct udevice *bus, *dev;
 	struct dm_spi_slave_platdata *plat;
+	struct spi_slave *slave;
 	bool created = false;
 	int ret;
 
@@ -364,19 +380,20 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 		slave->dev = dev;
 	}
 
-	plat = dev_get_parent_platdata(dev);
+	slave = dev_get_parent_priv(dev);
 
-	/* get speed and mode from platdata when available */
-	if (plat->max_hz) {
-		speed = plat->max_hz;
-		mode = plat->mode;
+	/*
+	 * In case the operation speed is not yet established by
+	 * dm_spi_claim_bus() ensure the bus is configured properly.
+	 */
+	if (!slave->speed) {
+		ret = spi_claim_bus(slave);
+		if (ret)
+			goto err;
 	}
-	ret = spi_set_speed_mode(bus, speed, mode);
-	if (ret)
-		goto err;
 
 	*busp = bus;
-	*devp = dev_get_parent_priv(dev);
+	*devp = slave;
 	debug("%s: bus=%p, slave=%p\n", __func__, bus, *devp);
 
 	return 0;
@@ -445,6 +462,9 @@ int spi_slave_ofdata_to_platdata(struct udevice *dev,
 	case 4:
 		mode |= SPI_TX_QUAD;
 		break;
+	case 8:
+		mode |= SPI_TX_OCTAL;
+		break;
 	default:
 		warn_non_spl("spi-tx-bus-width %d not supported\n", value);
 		break;
@@ -460,6 +480,9 @@ int spi_slave_ofdata_to_platdata(struct udevice *dev,
 	case 4:
 		mode |= SPI_RX_QUAD;
 		break;
+	case 8:
+		mode |= SPI_RX_OCTAL;
+		break;
 	default:
 		warn_non_spl("spi-rx-bus-width %d not supported\n", value);
 		break;
@@ -474,7 +497,7 @@ UCLASS_DRIVER(spi) = {
 	.id		= UCLASS_SPI,
 	.name		= "spi",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.post_bind	= dm_scan_fdt_dev,
 #endif
 	.post_probe	= spi_post_probe,

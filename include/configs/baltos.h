@@ -28,7 +28,7 @@
 /* FIT support */
 #define CONFIG_SYS_BOOTM_LEN         SZ_64M
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 
 #define NANDARGS \
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
@@ -214,7 +214,7 @@
 /* SPL */
 #ifndef CONFIG_NOR_BOOT
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
 					 CONFIG_SYS_NAND_PAGE_SIZE)
@@ -251,7 +251,7 @@
 #define CONFIG_AM335X_USB1_MODE MUSB_OTG
 
 /* NAND support */
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define GPMC_NAND_ECC_LP_x8_LAYOUT	1
 #endif
 

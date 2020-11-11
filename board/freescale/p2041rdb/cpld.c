@@ -87,7 +87,7 @@ static void cpld_dump_regs(void)
 }
 #endif
 
-int cpld_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int cpld_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int rc = 0;
 

@@ -57,7 +57,7 @@ extern char *stdio_names[MAX_FILES];
 /*
  * PROTOTYPES
  */
-int	stdio_register (struct stdio_dev * dev);
+int stdio_register(struct stdio_dev *dev);
 int stdio_register_dev(struct stdio_dev *dev, struct stdio_dev **devp);
 
 /**
@@ -82,35 +82,28 @@ int stdio_add_devices(void);
  */
 int stdio_init(void);
 
-void	stdio_print_current_devices(void);
-#if CONFIG_IS_ENABLED(SYS_STDIO_DEREGISTER)
+void stdio_print_current_devices(void);
 int stdio_deregister(const char *devname, int force);
-int stdio_deregister_dev(struct stdio_dev *dev, int force);
-#endif
-struct list_head* stdio_get_list(void);
-struct stdio_dev* stdio_get_by_name(const char* name);
-struct stdio_dev* stdio_clone(struct stdio_dev *dev);
 
-#ifdef CONFIG_LCD
-int	drv_lcd_init (void);
-#endif
-#if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
-int	drv_video_init (void);
-#endif
-#ifdef CONFIG_KEYBOARD
-int	drv_keyboard_init (void);
-#endif
-#ifdef CONFIG_USB_TTY
-int	drv_usbtty_init (void);
-#endif
-#ifdef CONFIG_NETCONSOLE
-int	drv_nc_init (void);
-#endif
-#ifdef CONFIG_JTAG_CONSOLE
-int drv_jtag_console_init (void);
-#endif
-#ifdef CONFIG_CBMEM_CONSOLE
+/**
+ * stdio_deregister_dev() - deregister the device "devname".
+ *
+ * @dev: Stdio device to deregister
+ * @force: true to force deregistration even if in use
+ *
+ * returns 0 on success, -EBUSY if device is assigned
+ */
+int stdio_deregister_dev(struct stdio_dev *dev, int force);
+struct list_head *stdio_get_list(void);
+struct stdio_dev *stdio_get_by_name(const char *name);
+struct stdio_dev *stdio_clone(struct stdio_dev *dev);
+
+int drv_lcd_init(void);
+int drv_video_init(void);
+int drv_keyboard_init(void);
+int drv_usbtty_init(void);
+int drv_nc_init(void);
+int drv_jtag_console_init(void);
 int cbmemc_init(void);
-#endif
 
 #endif

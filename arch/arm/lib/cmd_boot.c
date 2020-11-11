@@ -32,7 +32,7 @@
  *    instructions, otherwise a fault occurs."
  */
 unsigned long do_go_exec(ulong (*entry)(int, char * const []),
-			 int argc, char * const argv[])
+			 int argc, char *const argv[])
 {
 	ulong addr = (ulong)entry | 1;
 	entry = (void *)addr;

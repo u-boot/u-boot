@@ -72,11 +72,12 @@ SECTIONS
 	. = ALIGN(4);
 
 	_end = .;
+	_image_binary_end = .;
 
 	.bss : {
 		__bss_start = .;
 		*(.bss*)
-		. = ALIGN(4);
+		. = ALIGN(8);
 		__bss_end = .;
 	} > .bss_mem
 }

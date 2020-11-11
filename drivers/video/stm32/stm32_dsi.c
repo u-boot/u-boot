@@ -12,6 +12,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <dsi_host.h>
+#include <log.h>
 #include <mipi_dsi.h>
 #include <panel.h>
 #include <reset.h>
@@ -20,6 +21,9 @@
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
+#include <dm/lists.h>
+#include <linux/bitops.h>
 #include <linux/iopoll.h>
 #include <power/regulator.h>
 
@@ -267,7 +271,6 @@ static int dsi_get_lane_mbps(void *priv_data, struct display_timing *timings,
 	u32 val;
 
 	/* Update lane capabilities according to hw version */
-	dsi->hw_version = dsi_read(dsi, DSI_VERSION) & VERSION;
 	dsi->lane_min_kbps = LANE_MIN_KBPS;
 	dsi->lane_max_kbps = LANE_MAX_KBPS;
 	if (dsi->hw_version == HWVER_131) {
@@ -350,11 +353,13 @@ static int stm32_dsi_attach(struct udevice *dev)
 
 	mplat = dev_get_platdata(priv->panel);
 	mplat->device = &priv->device;
+	device->lanes = mplat->lanes;
+	device->format = mplat->format;
+	device->mode_flags = mplat->mode_flags;
 
 	ret = panel_get_display_timing(priv->panel, &timings);
 	if (ret) {
-		ret = fdtdec_decode_display_timing(gd->fdt_blob,
-						   dev_of_offset(priv->panel),
+		ret = ofnode_decode_display_timing(dev_ofnode(priv->panel),
 						   0, &timings);
 		if (ret) {
 			dev_err(dev, "decode display timing error %d\n", ret);
@@ -397,6 +402,18 @@ static int stm32_dsi_set_backlight(struct udevice *dev, int percent)
 	}
 
 	return 0;
+}
+
+static int stm32_dsi_bind(struct udevice *dev)
+{
+	int ret;
+
+	ret = device_bind_driver_to_node(dev, "dw_mipi_dsi", "dsihost",
+					 dev_ofnode(dev), NULL);
+	if (ret)
+		return ret;
+
+	return dm_scan_fdt_dev(dev);
 }
 
 static int stm32_dsi_probe(struct udevice *dev)
@@ -459,6 +476,15 @@ static int stm32_dsi_probe(struct udevice *dev)
 	/* Reset */
 	reset_deassert(&rst);
 
+	/* check hardware version */
+	priv->hw_version = dsi_read(priv, DSI_VERSION) & VERSION;
+	if (priv->hw_version != HWVER_130 &&
+	    priv->hw_version != HWVER_131) {
+		dev_err(dev, "DSI version 0x%x not supported\n", priv->hw_version);
+		ret = -ENODEV;
+		goto err_clk;
+	}
+
 	return 0;
 err_clk:
 	clk_disable(&clk);
@@ -483,7 +509,7 @@ U_BOOT_DRIVER(stm32_dsi) = {
 	.name				= "stm32-display-dsi",
 	.id				= UCLASS_VIDEO_BRIDGE,
 	.of_match			= stm32_dsi_ids,
-	.bind				= dm_scan_fdt_dev,
+	.bind				= stm32_dsi_bind,
 	.probe				= stm32_dsi_probe,
 	.ops				= &stm32_dsi_ops,
 	.priv_auto_alloc_size		= sizeof(struct stm32_dsi_priv),

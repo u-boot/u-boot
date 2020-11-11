@@ -90,7 +90,6 @@
 /* SPL */
 
 /* Network. */
-#define CONFIG_PHY_ATHEROS
 
 /* NAND support */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
@@ -116,7 +115,6 @@
 #undef CONFIG_SYS_NAND_U_BOOT_OFFS
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x200000
 
-#define CONFIG_ENV_OFFSET		0x300000 /* environment starts here */
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #ifdef CONFIG_SPL_OS_BOOT

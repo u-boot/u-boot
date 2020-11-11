@@ -15,11 +15,13 @@
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <pci.h>
 #include <pci_tegra.h>
 #include <power-domain.h>
 #include <reset.h>
+#include <linux/delay.h>
 
 #include <asm/io.h>
 #include <asm/gpio.h>
@@ -308,7 +310,7 @@ static int tegra_pcie_conf_address(struct tegra_pcie *pcie, pci_dev_t bdf,
 	}
 }
 
-static int pci_tegra_read_config(struct udevice *bus, pci_dev_t bdf,
+static int pci_tegra_read_config(const struct udevice *bus, pci_dev_t bdf,
 				 uint offset, ulong *valuep,
 				 enum pci_size_t size)
 {

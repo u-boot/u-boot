@@ -160,22 +160,20 @@ config TARGET_TB100
 	bool "Support tb100"
 
 config TARGET_NSIM
-	bool "Support standalone nSIM & Free nSIM"
+	bool "Support ARC simulation & prototyping platforms"
 
 config TARGET_AXS101
 	bool "Support Synopsys Designware SDP board AXS101"
-	select BOUNCE_BUFFER if CMD_NAND
 
 config TARGET_AXS103
 	bool "Support Synopsys Designware SDP board AXS103"
-	select BOUNCE_BUFFER if CMD_NAND
 
 config TARGET_EMSDP
 	bool "Synopsys EM Software Development Platform"
 	select CPU_ARCEM6
 
 config TARGET_HSDK
-	bool "Support Synpsys HS DevelopmentKit board"
+	bool "Support Synopsys HSDK or HSDK-4xD board"
 
 config TARGET_IOT_DEVKIT
 	bool "Synopsys Brite IoT Development kit"
@@ -184,10 +182,10 @@ config TARGET_IOT_DEVKIT
 endchoice
 
 source "board/abilis/tb100/Kconfig"
-source "board/synopsys/Kconfig"
 source "board/synopsys/axs10x/Kconfig"
 source "board/synopsys/emsdp/Kconfig"
 source "board/synopsys/hsdk/Kconfig"
 source "board/synopsys/iot_devkit/Kconfig"
+source "board/synopsys/nsim/Kconfig"
 
 endmenu

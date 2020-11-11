@@ -7,6 +7,8 @@
 
 #include <config.h>
 #include <common.h>
+#include <log.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/dp_info.h>

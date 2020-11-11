@@ -4,10 +4,13 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dwmmc.h>
+#include <init.h>
 #include <malloc.h>
 #include <asm/arcregs.h>
 #include "axs10x.h"
+#include <asm/cache.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

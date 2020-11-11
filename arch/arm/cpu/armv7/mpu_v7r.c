@@ -8,9 +8,11 @@
 
 #include <common.h>
 #include <command.h>
+#include <cpu_func.h>
 #include <asm/armv7.h>
 #include <asm/system.h>
 #include <asm/barriers.h>
+#include <linux/bitops.h>
 #include <linux/compiler.h>
 
 #include <asm/armv7_mpu.h>

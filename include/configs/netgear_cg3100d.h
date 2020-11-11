@@ -6,4 +6,3 @@
 #include <configs/bmips_common.h>
 #include <configs/bmips_bcm3380.h>
 
-#define CONFIG_ENV_SIZE	SZ_8K

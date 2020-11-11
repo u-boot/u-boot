@@ -38,6 +38,21 @@
 		#size-cells = <1>;
 		ranges;
 
+		smcc: memory-controller@e000e000 {
+			#address-cells = <1>;
+			#size-cells = <1>;
+			clock-names = "memclk", "apb_pclk";
+			clocks = <&clkc 11>, <&clkc 44>;
+			compatible = "arm,pl353-smc-r2p1", "arm,primecell";
+			ranges;
+			reg = <0xe000e000 0x1000>;
+
+			nand0: flash@e1000000 {
+				compatible = "arm,pl353-nand-r2p1";
+				reg = <0xe1000000 0x1000000>;
+			};
+		};
+
 		slcr: slcr@f8000000 {
 			u-boot,dm-pre-reloc;
 			#address-cells = <1>;

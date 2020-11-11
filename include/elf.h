@@ -9,7 +9,7 @@
 #ifndef _ELF_H
 #define _ELF_H
 
-#ifndef __ASSEMBLER__
+#ifndef __ASSEMBLY__
 #include "compiler.h"
 
 /* This version doesn't work for 64-bit ABIs - Erik */
@@ -690,8 +690,12 @@ unsigned long elf_hash(const unsigned char *name);
 #define R_RISCV_64		2
 #define R_RISCV_RELATIVE	3
 
-#ifndef __ASSEMBLER__
+#ifndef __ASSEMBLY__
 int valid_elf_image(unsigned long addr);
+unsigned long load_elf64_image_phdr(unsigned long addr);
+unsigned long load_elf64_image_shdr(unsigned long addr);
+unsigned long load_elf_image_phdr(unsigned long addr);
+unsigned long load_elf_image_shdr(unsigned long addr);
 #endif
 
 #endif /* _ELF_H */

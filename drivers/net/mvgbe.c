@@ -13,20 +13,22 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <net.h>
 #include <malloc.h>
 #include <miiphy.h>
 #include <wait_bit.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/types.h>
 #include <asm/system.h>
 #include <asm/byteorder.h>
 #include <asm/arch/cpu.h>
 
-#if defined(CONFIG_KIRKWOOD)
+#if defined(CONFIG_ARCH_KIRKWOOD)
 #include <asm/arch/soc.h>
-#elif defined(CONFIG_ORION5X)
+#elif defined(CONFIG_ARCH_ORION5X)
 #include <asm/arch/orion5x.h>
 #endif
 
@@ -819,7 +821,7 @@ error1:
 }
 
 #ifndef CONFIG_DM_ETH
-int mvgbe_initialize(bd_t *bis)
+int mvgbe_initialize(struct bd_info *bis)
 {
 	struct mvgbe_device *dmvgbe;
 	struct eth_device *dev;
@@ -995,7 +997,7 @@ static int mvgbe_ofdata_to_platdata(struct udevice *dev)
 	int pnode;
 	unsigned long addr;
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	pdata->phy_interface = -1;
 
 	pnode = fdt_node_offset_by_compatible(blob, node,

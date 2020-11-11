@@ -5,9 +5,14 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <net.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/io.h>
 #include <miiphy.h>
 #include <netdev.h>
+#include <status_led.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>

@@ -9,6 +9,10 @@
  * @brief PFE utility commands
  */
 
+#include <common.h>
+#include <command.h>
+#include <log.h>
+#include <linux/delay.h>
 #include <net/pfe_eth/pfe_eth.h>
 
 static inline void pfe_command_help(void)
@@ -16,7 +20,7 @@ static inline void pfe_command_help(void)
 	printf("Usage: pfe [pe | status | expt ] <options>\n");
 }
 
-static void pfe_command_pe(int argc, char * const argv[])
+static void pfe_command_pe(int argc, char *const argv[])
 {
 	if (argc >= 3 && strcmp(argv[2], "pmem") == 0) {
 		if (argc >= 4 && strcmp(argv[3], "read") == 0) {
@@ -271,7 +275,7 @@ static void  bmu(int id, void *base)
 #define PEMBOX_ADDR_TMU		0x290
 #define	PESTATUS_ADDR_UTIL	0x0
 
-static void pfe_pe_status(int argc, char * const argv[])
+static void pfe_pe_status(int argc, char *const argv[])
 {
 	int do_clear = 0;
 	u32 id;
@@ -336,7 +340,7 @@ static void pfe_pe_status(int argc, char * const argv[])
 	}
 }
 
-static void pfe_command_status(int argc, char * const argv[])
+static void pfe_command_status(int argc, char *const argv[])
 {
 	if (argc >= 3 && strcmp(argv[2], "pe") == 0) {
 		pfe_pe_status(argc, argv);
@@ -370,7 +374,7 @@ static const char *register_names[EXPT_REG_COUNT] = {
 		" r12", " r13", " r14", " r15"
 };
 
-static void pfe_command_expt(int argc, char * const argv[])
+static void pfe_command_expt(int argc, char *const argv[])
 {
 	unsigned int id, i, val, addr;
 
@@ -414,7 +418,7 @@ static void send_dummy_pkt_to_hif(void)
 	writel(buf, TMU_PHY_INQ_PKTINFO);
 }
 
-static void pfe_command_stop(int argc, char * const argv[])
+static void pfe_command_stop(int argc, char *const argv[])
 {
 	int pfe_pe_id, hif_stop_loop = 10;
 	u32 rx_status;
@@ -462,8 +466,8 @@ static void pfe_command_stop(int argc, char * const argv[])
 }
 #endif
 
-static int pfe_command(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int pfe_command(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	if (argc == 1 || strcmp(argv[1], "help") == 0) {
 		pfe_command_help();

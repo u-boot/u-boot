@@ -1,0 +1,98 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2020, Cortina Access Inc.
+ */
+
+/dts-v1/;
+
+/ {
+   #address-cells = <2>;
+   #size-cells = <1>;
+
+	mmc0: mmc@f4400000 {
+		compatible = "cortina,ca-mmc";
+		reg = <0x0 0xf4400000 0x1000>;
+		bus-width = <4>;
+		sd_dll_ctrl = <0xf43200e8>;
+		io_drv_ctrl = <0xf432004c>;
+	};
+
+	gpio0: gpio-controller@0xf4329280  {
+		compatible = "cortina,ca-gpio";
+		reg = <0x0 0xf4329280 0x24>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		status = "okay";
+	};
+	gpio1: gpio-controller@0xf43292a4  {
+		compatible = "cortina,ca-gpio";
+		reg = <0x0 0xf43292a4 0x24>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		status = "disabled";
+	};
+
+	watchdog: watchdog@0xf432901c {
+		compatible = "cortina,ca-wdt";
+		reg = <0x0 0xf432901c 0x34>,
+		      <0x0 0xf4320020 0x04>;
+		status = "okay";
+	};
+
+	uart0: serial@0xf4329148  {
+		u-boot,dm-pre-reloc;
+		compatible = "cortina,ca-uart";
+		reg = <0x0 0xf4329148 0x30>;
+		status = "okay";
+	};
+
+	i2c: i2c@f4329120 {
+		compatible = "cortina,ca-i2c";
+		reg = <0x0 0xf4329120 0x28>;
+		clock-frequency = <400000>;
+	};
+
+	sflash: sflash-controller@f4324000 {
+		#address-cells = <2>;
+		#size-cells = <1>;
+		compatible = "cortina,ca-sflash";
+		reg = <0x0 0xf4324000 0x50>;
+		reg-names = "sflash-regs";
+		flash@0 {
+			compatible = "jedec,spi-nor";
+			spi-rx-bus-width = <1>;
+			spi-max-frequency = <108000000>;
+		};
+	};
+
+	leds: led-controller@f43200f0 {
+		compatible = "cortina,ca-leds";
+		reg = <0x0 0xf43200f0 0x40>;
+
+		cortina,blink-rate1 = <256>;
+		cortina,blink-rate2 = <512>;
+
+		led@0 {
+			pin = <0>;
+			active-low;
+			blink-sel =<0>;
+			port = <0>;
+			off-event = <0>;
+			label = "led0";
+		};
+
+		led@1 {
+			pin = <1>;
+			active-low;
+			blink-sel =<1>;
+			label = "led1";
+		};
+
+		led@2 {
+			pin = <2>;
+			active-low;
+			label = "led2";
+		};
+
+	};
+};

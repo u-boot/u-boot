@@ -1447,37 +1447,37 @@
 				atmel,nb-banks = <2>;
 			};
 
-			ep10: endpoint@10 {
+			ep10: endpoint@a {
 				reg = <10>;
 				atmel,fifo-size = <1024>;
 				atmel,nb-banks = <2>;
 			};
 
-			ep11: endpoint@11 {
+			ep11: endpoint@b {
 				reg = <11>;
 				atmel,fifo-size = <1024>;
 				atmel,nb-banks = <2>;
 			};
 
-			ep12: endpoint@12 {
+			ep12: endpoint@c {
 				reg = <12>;
 				atmel,fifo-size = <1024>;
 				atmel,nb-banks = <2>;
 			};
 
-			ep13: endpoint@13 {
+			ep13: endpoint@d {
 				reg = <13>;
 				atmel,fifo-size = <1024>;
 				atmel,nb-banks = <2>;
 			};
 
-			ep14: endpoint@14 {
+			ep14: endpoint@e {
 				reg = <14>;
 				atmel,fifo-size = <1024>;
 				atmel,nb-banks = <2>;
 			};
 
-			ep15: endpoint@15 {
+			ep15: endpoint@f {
 				reg = <15>;
 				atmel,fifo-size = <1024>;
 				atmel,nb-banks = <2>;

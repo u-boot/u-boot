@@ -8,12 +8,16 @@
  */
 
 #include <common.h>
+#include <command.h>
+#include <fs.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux-mx53.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <i2c.h>
 #include <mmc.h>
@@ -44,7 +48,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return 1;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	int ret = 0;
 

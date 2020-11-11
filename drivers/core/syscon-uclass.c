@@ -4,24 +4,32 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY UCLASS_SYSCON
+
 #include <common.h>
+#include <log.h>
 #include <syscon.h>
 #include <dm.h>
 #include <errno.h>
 #include <regmap.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <linux/err.h>
 
 /*
  * Caution:
- * This API requires the given device has alerady been bound to syscon driver.
- * For example,
+ * This API requires the given device has already been bound to the syscon
+ * driver. For example,
+ *
  *    compatible = "syscon", "simple-mfd";
+ *
  * works, but
+ *
  *    compatible = "simple-mfd", "syscon";
- * does not.  The behavior is different from Linux.
+ *
+ * does not. The behavior is different from Linux.
  */
 struct regmap *syscon_get_regmap(struct udevice *dev)
 {
@@ -64,7 +72,7 @@ static int syscon_probe_by_ofnode(ofnode node, struct udevice **devp)
 
 	/* found node with "syscon" compatible, not bounded to SYSCON UCLASS */
 	if (!ofnode_device_is_compatible(node, "syscon")) {
-		dev_dbg(dev, "invalid compatible for syscon device\n");
+		log_debug("invalid compatible for syscon device\n");
 		return -EINVAL;
 	}
 
@@ -128,22 +136,15 @@ struct regmap *syscon_regmap_lookup_by_phandle(struct udevice *dev,
 
 int syscon_get_by_driver_data(ulong driver_data, struct udevice **devp)
 {
-	struct udevice *dev;
-	struct uclass *uc;
 	int ret;
 
 	*devp = NULL;
-	ret = uclass_get(UCLASS_SYSCON, &uc);
+
+	ret = uclass_first_device_drvdata(UCLASS_SYSCON, driver_data, devp);
 	if (ret)
 		return ret;
-	uclass_foreach_dev(dev, uc) {
-		if (dev->driver_data == driver_data) {
-			*devp = dev;
-			return device_probe(dev);
-		}
-	}
 
-	return -ENODEV;
+	return 0;
 }
 
 struct regmap *syscon_get_regmap_by_driver_data(ulong driver_data)

@@ -82,13 +82,13 @@ void status_led_init(void)
 	status_led_init_done = 1;
 }
 
-void status_led_tick (ulong timestamp)
+void status_led_tick(ulong timestamp)
 {
 	led_dev_t *ld;
 	int i;
 
 	if (!status_led_init_done)
-		status_led_init ();
+		status_led_init();
 
 	for (i = 0, ld = led_dev; i < MAX_LED_DEV; i++, ld++) {
 
@@ -103,7 +103,7 @@ void status_led_tick (ulong timestamp)
 	}
 }
 
-void status_led_set (int led, int state)
+void status_led_set(int led, int state)
 {
 	led_dev_t *ld;
 
@@ -111,7 +111,7 @@ void status_led_set (int led, int state)
 		return;
 
 	if (!status_led_init_done)
-		status_led_init ();
+		status_led_init();
 
 	ld = &led_dev[led];
 

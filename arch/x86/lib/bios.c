@@ -7,6 +7,8 @@
  */
 #include <common.h>
 #include <bios_emul.h>
+#include <irq_func.h>
+#include <log.h>
 #include <vbe.h>
 #include <linux/linkage.h>
 #include <asm/cache.h>

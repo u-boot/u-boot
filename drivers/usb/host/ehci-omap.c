@@ -11,13 +11,19 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <usb.h>
+#include <linux/delay.h>
 #include <usb/ulpi.h>
 #include <errno.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/ehci.h>
 #include <asm/ehci-omap.h>
+#include <dm.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
+#include <power/regulator.h>
 
 #include "ehci.h"
 
@@ -177,9 +183,17 @@ int omap_ehci_hcd_stop(void)
  * Based on "drivers/usb/host/ehci-omap.c" from Linux 3.1
  * See there for additional Copyrights.
  */
+#if !CONFIG_IS_ENABLED(DM_USB) || !CONFIG_IS_ENABLED(OF_CONTROL)
+
 int omap_ehci_hcd_init(int index, struct omap_usbhs_board_data *usbhs_pdata,
 		       struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
+	*hccr = (struct ehci_hccr *)(OMAP_EHCI_BASE);
+	*hcor = (struct ehci_hcor *)(OMAP_EHCI_BASE + 0x10);
+#else
+int omap_ehci_hcd_init(int index, struct omap_usbhs_board_data *usbhs_pdata)
+{
+#endif
 	int ret;
 	unsigned int i, reg = 0, rev = 0;
 
@@ -286,9 +300,114 @@ int omap_ehci_hcd_init(int index, struct omap_usbhs_board_data *usbhs_pdata,
 		if (is_ehci_phy_mode(usbhs_pdata->port_mode[i]))
 			omap_ehci_soft_phy_reset(i);
 
-	*hccr = (struct ehci_hccr *)(OMAP_EHCI_BASE);
-	*hcor = (struct ehci_hcor *)(OMAP_EHCI_BASE + 0x10);
-
 	debug("OMAP EHCI init done\n");
 	return 0;
 }
+
+#if CONFIG_IS_ENABLED(DM_USB)
+
+static struct omap_usbhs_board_data usbhs_bdata = {
+	.port_mode[0] = OMAP_USBHS_PORT_MODE_UNUSED,
+	.port_mode[1] = OMAP_USBHS_PORT_MODE_UNUSED,
+	.port_mode[2] = OMAP_USBHS_PORT_MODE_UNUSED,
+};
+
+static void omap_usbhs_set_mode(u8 index, const char *mode)
+{
+	if (!strcmp(mode, "ehci-phy"))
+		usbhs_bdata.port_mode[index] = OMAP_EHCI_PORT_MODE_PHY;
+	else if (!strcmp(mode, "ehci-tll"))
+		usbhs_bdata.port_mode[index] = OMAP_EHCI_PORT_MODE_TLL;
+	else if (!strcmp(mode, "ehci-hsic"))
+		usbhs_bdata.port_mode[index] = OMAP_EHCI_PORT_MODE_HSIC;
+}
+
+static int omap_usbhs_probe(struct udevice *dev)
+{
+	u8 i;
+	const char *mode;
+	char prop[11];
+
+	/* Go through each port portX-mode to determing phy mode */
+	for (i = 0; i < OMAP_HS_USB_PORTS; i++) {
+		snprintf(prop, sizeof(prop), "port%d-mode", i + 1);
+		mode = dev_read_string(dev, prop);
+
+		/* If the portX-mode exists, set the mode */
+		if (mode)
+			omap_usbhs_set_mode(i, mode);
+	}
+
+	return omap_ehci_hcd_init(0, &usbhs_bdata);
+}
+
+static const struct udevice_id omap_usbhs_dt_ids[] = {
+	{ .compatible = "ti,usbhs-host" },
+	{ }
+};
+
+U_BOOT_DRIVER(usb_omaphs_host) = {
+	.name	= "usbhs-host",
+	.id	= UCLASS_SIMPLE_BUS,
+	.of_match = omap_usbhs_dt_ids,
+	.probe	= omap_usbhs_probe,
+	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+};
+
+struct ehci_omap_priv_data {
+	struct ehci_ctrl ctrl;
+	struct omap_ehci *ehci;
+#ifdef CONFIG_DM_REGULATOR
+	struct udevice *vbus_supply;
+#endif
+	enum usb_init_type init_type;
+	int portnr;
+	struct phy phy[OMAP_HS_USB_PORTS];
+	int nports;
+};
+
+static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
+{
+	struct usb_platdata *plat = dev_get_platdata(dev);
+
+	plat->init_type = USB_INIT_HOST;
+
+	return 0;
+}
+
+static int omap_ehci_probe(struct udevice *dev)
+{
+	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct ehci_omap_priv_data *priv = dev_get_priv(dev);
+	struct ehci_hccr *hccr;
+	struct ehci_hcor *hcor;
+
+	priv->ehci = dev_read_addr_ptr(dev);
+	priv->portnr = dev->seq;
+	priv->init_type = plat->init_type;
+
+	hccr = (struct ehci_hccr *)&priv->ehci->hccapbase;
+	hcor = (struct ehci_hcor *)&priv->ehci->usbcmd;
+
+	return ehci_register(dev, hccr, hcor, NULL, 0, USB_INIT_HOST);
+}
+
+static const struct udevice_id omap_ehci_dt_ids[] = {
+	{ .compatible = "ti,ehci-omap" },
+	{ }
+};
+
+U_BOOT_DRIVER(usb_omap_ehci) = {
+	.name	= "omap-ehci",
+	.id	= UCLASS_USB,
+	.of_match = omap_ehci_dt_ids,
+	.probe = omap_ehci_probe,
+	.ofdata_to_platdata = ehci_usb_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
+	.priv_auto_alloc_size = sizeof(struct ehci_omap_priv_data),
+	.remove = ehci_deregister,
+	.ops	= &ehci_usb_ops,
+	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+};
+
+#endif

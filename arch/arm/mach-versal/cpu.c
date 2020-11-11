@@ -5,10 +5,13 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/armv8/mmu.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/cache.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -81,6 +84,15 @@ void mem_map_fill(void)
 		if (!gd->bd->bi_dram[i].size)
 			break;
 
+#if defined(CONFIG_VERSAL_NO_DDR)
+		if (gd->bd->bi_dram[i].start < 0x80000000UL ||
+		    gd->bd->bi_dram[i].start > 0x100000000UL) {
+			printf("Ignore caches over %llx/%llx\n",
+			       gd->bd->bi_dram[i].start,
+			       gd->bd->bi_dram[i].size);
+			continue;
+		}
+#endif
 		versal_mem_map[banks].virt = gd->bd->bi_dram[i].start;
 		versal_mem_map[banks].phys = gd->bd->bi_dram[i].start;
 		versal_mem_map[banks].size = gd->bd->bi_dram[i].size;
@@ -98,7 +110,7 @@ u64 get_page_table_size(void)
 }
 
 #if defined(CONFIG_SYS_MEM_RSVD_FOR_MMU)
-int reserve_mmu(void)
+int arm_reserve_mmu(void)
 {
 	tcm_init(TCM_LOCK);
 	gd->arch.tlb_size = PGTABLE_SIZE;

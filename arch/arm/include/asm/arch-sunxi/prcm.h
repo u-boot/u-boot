@@ -202,7 +202,7 @@
 #ifndef __ASSEMBLY__
 #include <linux/compiler.h>
 
-struct __packed sunxi_prcm_reg {
+struct sunxi_prcm_reg {
 	u32 cpus_cfg;		/* 0x000 */
 	u8 res0[0x8];		/* 0x004 */
 	u32 apb0_ratio;		/* 0x00c */

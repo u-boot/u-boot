@@ -5,7 +5,9 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <net.h>
 #include <linux/compiler.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <asm/io.h>
 
@@ -364,7 +366,7 @@ static void xgmac_hwmacaddr(struct eth_device *dev)
 	writel(macaddr[0], &regs->macaddr[0].lo);
 }
 
-static int xgmac_init(struct eth_device *dev, bd_t * bis)
+static int xgmac_init(struct eth_device *dev, struct bd_info * bis)
 {
 	struct xgmac_regs *regs = (struct xgmac_regs *)dev->iobase;
 	struct calxeda_eth_dev *priv = dev->priv;

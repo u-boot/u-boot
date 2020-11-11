@@ -155,6 +155,8 @@ typedef struct _IMAGE_SECTION_HEADER {
 	uint32_t Characteristics;
 } IMAGE_SECTION_HEADER, *PIMAGE_SECTION_HEADER;
 
+/* Indices for Optional Header Data Directories */
+#define IMAGE_DIRECTORY_ENTRY_SECURITY		4
 #define IMAGE_DIRECTORY_ENTRY_BASERELOC         5
 
 typedef struct _IMAGE_BASE_RELOCATION
@@ -251,5 +253,21 @@ typedef struct _IMAGE_RELOCATION
 #define IMAGE_REL_AMD64_SREL32          0x000E
 #define IMAGE_REL_AMD64_PAIR            0x000F
 #define IMAGE_REL_AMD64_SSPAN32         0x0010
+
+/* certificate appended to PE image */
+typedef struct _WIN_CERTIFICATE {
+	uint32_t dwLength;
+	uint16_t wRevision;
+	uint16_t wCertificateType;
+	uint8_t bCertificate[];
+} WIN_CERTIFICATE, *LPWIN_CERTIFICATE;
+
+/* Definitions for the contents of the certs data block */
+#define WIN_CERT_TYPE_PKCS_SIGNED_DATA	0x0002
+#define WIN_CERT_TYPE_EFI_OKCS115	0x0EF0
+#define WIN_CERT_TYPE_EFI_GUID		0x0EF1
+
+#define WIN_CERT_REVISION_1_0		0x0100
+#define WIN_CERT_REVISION_2_0		0x0200
 
 #endif /* _PE_H */

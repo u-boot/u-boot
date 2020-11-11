@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <image.h>
+#include <init.h>
 #include <asm/io.h>
 #include <led.h>
 #include <miiphy.h>

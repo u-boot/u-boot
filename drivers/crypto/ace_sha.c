@@ -5,6 +5,8 @@
  */
 #include <common.h>
 #include "ace_sha.h"
+#include <log.h>
+#include <rand.h>
 
 #ifdef CONFIG_SHA_HW_ACCEL
 #include <u-boot/sha256.h>

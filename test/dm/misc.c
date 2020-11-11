@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <dm/test.h>
 #include <misc.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 static int dm_test_misc(struct unit_test_state *uts)
@@ -25,24 +26,24 @@ static int dm_test_misc(struct unit_test_state *uts)
 	ut_asserteq(5, misc_write(dev, 4, "WRITE", 5));
 	ut_asserteq(9, misc_read(dev, 0, buf, 9));
 
-	ut_assertok(memcmp(buf, "TESTWRITE", 9));
+	ut_asserteq_mem(buf, "TESTWRITE", 9);
 
 	/* Call tests */
 
 	id = 0;
 	ut_assertok(misc_call(dev, 0, &id, 4, buf, 16));
-	ut_assertok(memcmp(buf, "Zero", 4));
+	ut_asserteq_mem(buf, "Zero", 4);
 
 	id = 2;
 	ut_assertok(misc_call(dev, 0, &id, 4, buf, 16));
-	ut_assertok(memcmp(buf, "Two", 3));
+	ut_asserteq_mem(buf, "Two", 3);
 
 	ut_assertok(misc_call(dev, 1, &id, 4, buf, 16));
-	ut_assertok(memcmp(buf, "Forty-two", 9));
+	ut_asserteq_mem(buf, "Forty-two", 9);
 
 	id = 1;
 	ut_assertok(misc_call(dev, 1, &id, 4, buf, 16));
-	ut_assertok(memcmp(buf, "Forty-one", 9));
+	ut_asserteq_mem(buf, "Forty-one", 9);
 
 	/* IOCTL tests */
 
@@ -80,4 +81,4 @@ static int dm_test_misc(struct unit_test_state *uts)
 	return 0;
 }
 
-DM_TEST(dm_test_misc, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_misc, UT_TESTF_SCAN_FDT);

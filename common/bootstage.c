@@ -10,7 +10,11 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
+#include <hang.h>
+#include <log.h>
 #include <malloc.h>
+#include <sort.h>
 #include <spl.h>
 #include <linux/compiler.h>
 #include <linux/libfdt.h>

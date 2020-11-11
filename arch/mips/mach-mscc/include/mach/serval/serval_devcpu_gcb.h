@@ -6,6 +6,7 @@
 #ifndef _MSCC_SERVAL_DEVCPU_GCB_H_
 #define _MSCC_SERVAL_DEVCPU_GCB_H_
 
+#include <linux/bitops.h>
 #define CHIP_ID                                           0x0
 
 #define PERF_GPR                                          0x4

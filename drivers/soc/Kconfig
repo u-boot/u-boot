@@ -1,5 +1,21 @@
 menu "SOC (System On Chip) specific Drivers"
 
+config SOC_DEVICE
+	bool "Enable SoC Device ID drivers using Driver Model"
+	help
+	  This allows drivers to be provided for SoCs to help in identifying
+	  the SoC in use and matching SoC attributes for selecting SoC
+	  specific data. This is useful for other device drivers that may
+	  need different parameters or quirks enabled depending on the
+	  specific device variant in use.
+
+config SOC_DEVICE_TI_K3
+	depends on SOC_DEVICE
+	bool "Enable SoC Device ID driver for TI K3 SoCs"
+	help
+	  This allows Texas Instruments Keystone 3 SoCs to identify
+	  specifics about the SoC in use.
+
 source "drivers/soc/ti/Kconfig"
 
 endmenu

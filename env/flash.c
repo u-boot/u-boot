@@ -13,10 +13,13 @@
 #include <command.h>
 #include <env.h>
 #include <env_internal.h>
+#include <flash.h>
+#include <log.h>
 #include <linux/stddef.h>
 #include <malloc.h>
 #include <search.h>
 #include <errno.h>
+#include <u-boot/crc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -26,11 +29,6 @@ DECLARE_GLOBAL_DATA_PTR;
 # elif defined(CONFIG_ENV_ADDR_REDUND)
 #  error CONFIG_ENV_ADDR_REDUND must have CONFIG_CMD_SAVEENV & CONFIG_CMD_FLASH
 # endif
-#endif
-
-#if defined(CONFIG_ENV_SIZE_REDUND) &&	\
-	(CONFIG_ENV_SIZE_REDUND < CONFIG_ENV_SIZE)
-#error CONFIG_ENV_SIZE_REDUND should not be less then CONFIG_ENV_SIZE
 #endif
 
 /* TODO(sjg@chromium.org): Figure out all these special cases */
@@ -353,7 +351,7 @@ static int env_flash_load(void)
 		     "reading environment; recovered successfully\n\n");
 #endif /* CONFIG_ENV_ADDR_REDUND */
 
-	return env_import((char *)flash_addr, 1);
+	return env_import((char *)flash_addr, 1, H_EXTERNAL);
 }
 #endif /* LOADENV */
 

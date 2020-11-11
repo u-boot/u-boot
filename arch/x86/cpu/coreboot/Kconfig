@@ -24,5 +24,7 @@ config SYS_COREBOOT
 	imply CMD_CBFS
 	imply FS_CBFS
 	imply CBMEM_CONSOLE
+	imply X86_TSC_READ_BASE
+	select BINMAN if X86_64
 
 endif

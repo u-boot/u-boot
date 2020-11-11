@@ -11,9 +11,12 @@
 #include <common.h>
 #include <cpsw.h>
 #include <dm.h>
+#include <env.h>
 #include <env_internal.h>
 #include <errno.h>
 #include <i2c.h>
+#include <init.h>
+#include <led.h>
 #include <miiphy.h>
 #include <panel.h>
 #include <power/tps65217.h>
@@ -180,7 +183,7 @@ int board_init(void)
 
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 	gpmc_init();
 #endif
 	return 0;
@@ -232,6 +235,9 @@ err:
 
 int board_late_init(void)
 {
+#ifdef CONFIG_LED_GPIO
+	led_default_state();
+#endif
 	set_bootmode_env();
 	return 0;
 }

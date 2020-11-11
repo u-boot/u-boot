@@ -20,7 +20,10 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <watchdog.h>
+#include <dm/devres.h>
+#include <linux/bitops.h>
 #include <linux/compat.h>
 #include <linux/mtd/mtd.h>
 #include "linux/mtd/flashchip.h"

@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/imx-regs.h>
@@ -24,6 +25,7 @@
 #include <i2c.h>
 #include <mmc.h>
 #include <spl.h>
+#include <linux/delay.h>
 
 #define ENET_PAD_CTRL							\
 	(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |	\
@@ -491,7 +493,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return 1; /* eMMC/uSDHC4 is always present */
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	SETUP_IOMUX_PADS(usdhc4_pads);
 	usdhc_cfg[0].esdhc_base = USDHC4_BASE_ADDR;

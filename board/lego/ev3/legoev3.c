@@ -14,6 +14,7 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <init.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/arch/hardware.h>

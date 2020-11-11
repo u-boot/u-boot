@@ -4,7 +4,7 @@
  * Ивайло Димитров <freemangordon@abv.bg>
  *
  * (C) Copyright 2011-2012
- * Pali Rohár <pali.rohar@gmail.com>
+ * Pali Rohár <pali@kernel.org>
  *
  * (C) Copyright 2010
  * Alistair Buxton <a.j.buxton@gmail.com>
@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <init.h>
 #include <watchdog.h>
 #include <malloc.h>
 #include <twl4030.h>
@@ -69,18 +70,12 @@ static struct tag_omap omap[] = {
 	OMAP_TAG_GPIO_SWITCH_CONFIG("sleep_ind", 0xa2, 0x2, 0x2, 0x0),
 	OMAP_TAG_GPIO_SWITCH_CONFIG("slide", GPIO_SLIDE, 0x0, 0x0, 0x0),
 	OMAP_TAG_WLAN_CX3110X_CONFIG(0x25, 0xff, 87, 42, -1),
-	OMAP_TAG_PARTITION_CONFIG(PART1_NAME, PART1_SIZE * PART1_MULL,
-			PART1_OFFS, PART1_MASK),
-	OMAP_TAG_PARTITION_CONFIG(PART2_NAME, PART2_SIZE * PART2_MULL,
-			PART2_OFFS, PART2_MASK),
-	OMAP_TAG_PARTITION_CONFIG(PART3_NAME, PART3_SIZE * PART3_MULL,
-			PART3_OFFS, PART3_MASK),
-	OMAP_TAG_PARTITION_CONFIG(PART4_NAME, PART4_SIZE * PART4_MULL,
-			PART4_OFFS, PART4_MASK),
-	OMAP_TAG_PARTITION_CONFIG(PART5_NAME, PART5_SIZE * PART5_MULL,
-			PART5_OFFS, PART5_MASK),
-	OMAP_TAG_PARTITION_CONFIG(PART6_NAME, PART6_SIZE * PART6_MULL,
-			PART6_OFFS, PART6_MASK),
+	OMAP_TAG_PARTITION_CONFIG("bootloader", 128 * 1024, 0x00000000, 0x00000003),
+	OMAP_TAG_PARTITION_CONFIG("config", 384 * 1024, 0x00020000, 0x00000000),
+	OMAP_TAG_PARTITION_CONFIG("log", 256 * 1024, 0x00080000, 0x00000000),
+	OMAP_TAG_PARTITION_CONFIG("kernel", 2 * 1024*1024, 0x000c0000, 0x00000000),
+	OMAP_TAG_PARTITION_CONFIG("initfs", 2 * 1024*1024, 0x002c0000, 0x00000000),
+	OMAP_TAG_PARTITION_CONFIG("rootfs", 257280 * 1024, 0x004c0000, 0x00000000),
 	OMAP_TAG_BOOT_REASON_CONFIG("pwr_key"),
 	OMAP_TAG_VERSION_STR_CONFIG("product", "RX-51"),
 	OMAP_TAG_VERSION_STR_CONFIG("hw-build", "2101"),
@@ -93,6 +88,7 @@ static char *boot_reason_ptr;
 static char *hw_build_ptr;
 static char *nolo_version_ptr;
 static char *boot_mode_ptr;
+static int serial_was_console_enabled;
 
 /*
  * Routine: init_omap_tags
@@ -148,6 +144,13 @@ static void reuse_omap_atags(struct tag_omap *t)
 				memset(boot_mode_ptr, 0, 12);
 				strcpy(boot_mode_ptr, version);
 			}
+			break;
+		case OMAP_TAG_UART:
+			if (t->u.uart.enabled_uarts)
+				serial_was_console_enabled = 1;
+			break;
+		case OMAP_TAG_SERIAL_CONSOLE:
+			serial_was_console_enabled = 1;
 			break;
 		default:
 			break;
@@ -239,10 +242,17 @@ void setup_board_tags(struct tag **in_params)
 		return;
 
 	str = env_get("setup_console_atag");
-	if (str && str[0] == '1')
-		setup_console_atag = 1;
-	else
-		setup_console_atag = 0;
+	if (str && str[0]) {
+		if (str[0] == '1')
+			setup_console_atag = 1;
+		else
+			setup_console_atag = 0;
+	} else {
+		if (serial_was_console_enabled)
+			setup_console_atag = 1;
+		else
+			setup_console_atag = 0;
+	}
 
 	setup_boot_reason_atag = env_get("setup_boot_reason_atag");
 	setup_boot_mode_atag = env_get("setup_boot_mode_atag");
@@ -662,7 +672,7 @@ int rx51_kp_getc(struct stdio_dev *sdev)
  * Routine: board_mmc_init
  * Description: Initialize mmc devices.
  */
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	omap_mmc_init(0, 0, 0, -1, -1);
 	omap_mmc_init(1, 0, 0, -1, -1);

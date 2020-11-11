@@ -27,11 +27,11 @@
 /* Private data for the clock driver - used by rockchip_get_cru() */
 struct rk3288_clk_priv {
 	struct rk3288_grf *grf;
-	struct rk3288_cru *cru;
+	struct rockchip_cru *cru;
 	ulong rate;
 };
 
-struct rk3288_cru {
+struct rockchip_cru {
 	struct rk3288_pll {
 		u32 con0;
 		u32 con1;
@@ -51,14 +51,14 @@ struct rk3288_cru {
 	u32 cru_glb_cnt_th;
 	u32 cru_glb_rst_con;
 	u32 reserved3;
-	u32 cru_glb_rst_st;
+	u32 glb_rst_st;
 	u32 reserved4;
 	u32 cru_sdmmc_con[2];
 	u32 cru_sdio0_con[2];
 	u32 cru_sdio1_con[2];
 	u32 cru_emmc_con[2];
 };
-check_member(rk3288_cru, cru_emmc_con[1], 0x021c);
+check_member(rockchip_cru, cru_emmc_con[1], 0x021c);
 
 /* CRU_CLKSEL11_CON */
 enum {
@@ -225,18 +225,6 @@ enum {
 
 	CLKF_SHIFT		= 0,
 	CLKF_MASK		= 0x1fff << CLKF_SHIFT,
-};
-
-/* CRU_GLB_RST_ST */
-enum {
-	GLB_POR_RST,
-	FST_GLB_RST_ST		= BIT(0),
-	SND_GLB_RST_ST		= BIT(1),
-	FST_GLB_TSADC_RST_ST	= BIT(2),
-	SND_GLB_TSADC_RST_ST	= BIT(3),
-	FST_GLB_WDT_RST_ST	= BIT(4),
-	SND_GLB_WDT_RST_ST	= BIT(5),
-	GLB_RST_ST_MASK		= GENMASK(5, 0),
 };
 
 #endif

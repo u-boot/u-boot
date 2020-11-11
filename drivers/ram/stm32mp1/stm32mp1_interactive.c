@@ -4,9 +4,11 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <console.h>
 #include <cli.h>
 #include <clk.h>
+#include <log.h>
 #include <malloc.h>
 #include <ram.h>
 #include <reset.h>
@@ -106,7 +108,7 @@ static void stm32mp1_do_usage(void)
 		"help                       displays help\n"
 		"info                       displays DDR information\n"
 		"info  <param> <val>        changes DDR information\n"
-		"      with <param> = step, name, size or speed\n"
+		"      with <param> = step, name, size, speed or cal\n"
 		"freq                       displays the DDR PHY frequency in kHz\n"
 		"freq  <freq>               changes the DDR PHY frequency\n"
 		"param [type|reg]           prints input parameters\n"
@@ -150,7 +152,7 @@ static bool stm32mp1_check_step(enum stm32mp1_ddr_interact_step step,
 static void stm32mp1_do_info(struct ddr_info *priv,
 			     struct stm32mp1_ddr_config *config,
 			     enum stm32mp1_ddr_interact_step step,
-			     int argc, char * const argv[])
+			     int argc, char *const argv[])
 {
 	unsigned long value;
 	static char *ddr_name;
@@ -160,6 +162,7 @@ static void stm32mp1_do_info(struct ddr_info *priv,
 		printf("name = %s\n", config->info.name);
 		printf("size = 0x%x\n", config->info.size);
 		printf("speed = %d kHz\n", config->info.speed);
+		printf("cal = %d\n", config->p_cal_present);
 		return;
 	}
 
@@ -208,11 +211,21 @@ static void stm32mp1_do_info(struct ddr_info *priv,
 		}
 		return;
 	}
+	if (!strcmp(argv[1], "cal")) {
+		if (strict_strtoul(argv[2], 10, &value) < 0 ||
+		    (value != 0 && value != 1)) {
+			printf("invalid value %s\n", argv[2]);
+		} else {
+			config->p_cal_present = value;
+			printf("cal = %d\n", config->p_cal_present);
+		}
+		return;
+	}
 	printf("argument %s invalid\n", argv[1]);
 }
 
 static bool stm32mp1_do_freq(struct ddr_info *priv,
-			     int argc, char * const argv[])
+			     int argc, char *const argv[])
 {
 	unsigned long ddrphy_clk;
 
@@ -235,7 +248,7 @@ static bool stm32mp1_do_freq(struct ddr_info *priv,
 
 static void stm32mp1_do_param(enum stm32mp1_ddr_interact_step step,
 			      const struct stm32mp1_ddr_config *config,
-			      int argc, char * const argv[])
+			      int argc, char *const argv[])
 {
 	switch (argc) {
 	case 1:
@@ -255,7 +268,7 @@ static void stm32mp1_do_param(enum stm32mp1_ddr_interact_step step,
 }
 
 static void stm32mp1_do_print(struct ddr_info *priv,
-			      int argc, char * const argv[])
+			      int argc, char *const argv[])
 {
 	switch (argc) {
 	case 1:
@@ -270,7 +283,7 @@ static void stm32mp1_do_print(struct ddr_info *priv,
 }
 
 static int stm32mp1_do_step(enum stm32mp1_ddr_interact_step step,
-			    int argc, char * const argv[])
+			    int argc, char *const argv[])
 {
 	int i;
 	unsigned long value;
@@ -367,7 +380,6 @@ bool stm32mp1_ddr_interactive(void *priv,
 			      enum stm32mp1_ddr_interact_step step,
 			      const struct stm32mp1_ddr_config *config)
 {
-	const char *prompt = "DDR>";
 	char buffer[CONFIG_SYS_CBSIZE];
 	char *argv[CONFIG_SYS_MAXARGS + 1];	/* NULL terminated */
 	int argc;
@@ -382,7 +394,7 @@ bool stm32mp1_ddr_interactive(void *priv,
 		unsigned long start = get_timer(0);
 
 		while (1) {
-			if (tstc() && (getc() == 'd')) {
+			if (tstc() && (getchar() == 'd')) {
 				next_step = STEP_DDR_RESET;
 				break;
 			}
@@ -403,13 +415,12 @@ bool stm32mp1_ddr_interactive(void *priv,
 	}
 
 	printf("%d:%s\n", step, step_str[step]);
-	printf("%s\n", prompt);
 
 	if (next_step > step)
 		return false;
 
 	while (next_step == step) {
-		cli_readline_into_buffer(prompt, buffer, 0);
+		cli_readline_into_buffer("DDR>", buffer, 0);
 		argc = cli_simple_parse_line(buffer, argv);
 		if (!argc)
 			continue;

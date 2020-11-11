@@ -57,12 +57,6 @@
 						"saveenv; " \
 						"fi; "
 
-/* Autoboot options */
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT	\
-	"Enter passphrase to stop autoboot, booting in %d seconds\n"
-#define CONFIG_AUTOBOOT_STOP_STR "123"
-
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 
@@ -73,9 +67,6 @@
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 4 * SZ_1M)
-
-/* Allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 /* NAND support */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
@@ -241,9 +232,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_MEMTEST_START	0x80010000
-#define CONFIG_SYS_MEMTEST_END		0x87C00000
-
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /* Physical memory map */
@@ -258,13 +246,5 @@
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
-#ifdef CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_SECT_SIZE	(SZ_128K)
-#define CONFIG_ENV_SIZE		(SZ_8K)
-#define CONFIG_ENV_OFFSET	0x200000
-#define CONFIG_ENV_SIZE_REDUND	(SZ_8K)
-#define CONFIG_ENV_OFFSET_REDUND	0x220000
-#endif
 
 #endif /* __CONFIG_H */

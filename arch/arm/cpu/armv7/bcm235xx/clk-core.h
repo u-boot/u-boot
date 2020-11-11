@@ -4,6 +4,7 @@
  */
 
 #include <linux/stddef.h>
+#include <linux/stringify.h>
 
 #ifdef CONFIG_CLK_DEBUG
 #undef writel

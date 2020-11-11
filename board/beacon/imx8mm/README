@@ -1,0 +1,37 @@
+U-Boot for the Beacon EmbeddedWorks Devkit
+
+Quick Start
+===========
+- Build the ARM Trusted firmware binary
+- Get ddr firmware
+- Build U-Boot
+- Boot
+
+Get and Build the ARM Trusted firmware
+======================================
+Note: $(srctree) is U-Boot source directory
+
+$ git clone https://source.codeaurora.org/external/imx/imx-atf
+$ git checkout imx_4.19.35_1.0.0
+$ make PLAT=imx8mm bl31 ARCH=arm CROSS_COMPILE=aarch64-linux-gnu-
+$ cp build/imx8mm/release/bl31.bin $(srctree)
+
+Get the DDR firmware
+====================
+$ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.5.bin
+$ chmod +x firmware-imx-8.5.bin
+$ ./firmware-imx-8.5
+$ cp firmware-imx-8.5/firmware/ddr/synopsys/lpddr4*.bin $(srctree)
+
+Build U-Boot
+============
+$ make imx8mm_beacon_defconfig
+$ make flash.bin CROSS_COMPILE=aarch64-linux-gnu- ATF_LOAD_ADDR=0x920000
+
+Burn U-Boot to microSD Card
+===========================
+$ sudo dd if=flash.bin of=/dev/sd[x] bs=1024 seek=33
+
+Boot
+====
+Set Boot switch to SD boot

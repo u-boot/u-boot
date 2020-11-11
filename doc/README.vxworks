@@ -2,6 +2,7 @@
 #
 # Copyright (C) 2013, Miao Yan <miao.yan@windriver.com>
 # Copyright (C) 2015-2018, Bin Meng <bmeng.cn@gmail.com>
+# Copyright (C) 2019, Lihua Zhao <lihua.zhao@windriver.com>
 
 VxWorks Support
 ===============
@@ -24,6 +25,15 @@ From VxWorks 7, VxWorks starts adopting device tree as its hardware description
 mechanism (for PowerPC and ARM), thus requiring boot interface changes.
 This section will describe the new interface.
 
+Since VxWorks 7 SR0640 release, VxWorks starts using Linux compatible standard
+DTB for some boards. With that, the exact same bootm flow as used by Linux is
+used, which includes board-specific DTB fix up. To keep backward compatibility,
+only when the least significant bit of flags in bootargs is set, the standard
+DTB will be used. Otherwise it falls back to the legacy bootm flow.
+
+For legacy bootm flow, make sure the least significant bit of flags in bootargs
+is cleared. The calling convention is described below:
+
 For PowerPC, the calling convention of the new VxWorks entry point conforms to
 the ePAPR standard, which is shown below (see ePAPR for more details):
 
@@ -32,6 +42,9 @@ the ePAPR standard, which is shown below (see ePAPR for more details):
 For ARM, the calling convention is shown below:
 
     void (*kernel_entry)(void *fdt_addr)
+
+When using the Linux compatible standard DTB, the calling convention of VxWorks
+entry point is exactly the same as the Linux kernel.
 
 When booting a VxWorks 7 kernel (uImage format), the parameters passed to bootm
 is like below:

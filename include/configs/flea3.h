@@ -47,11 +47,7 @@
 /*
  * UART (console)
  */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART3_BASE
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 /*
  * Command definition
@@ -78,9 +74,6 @@
 #define CONFIG_SYS_CBSIZE	512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	32	/* max number of command args */
-
-#define CONFIG_SYS_MEMTEST_START	0	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x10000
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
@@ -112,15 +105,7 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 
-#define CONFIG_ENV_SECT_SIZE	(64 * 1024)
-#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
-
 /* Address and size of Redundant Environment Sector	*/
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
-
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + \
-				CONFIG_SYS_MONITOR_LEN)
 
 /*
  * CFI FLASH driver setup

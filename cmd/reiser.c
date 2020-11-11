@@ -30,12 +30,12 @@
 #define PRINTF(fmt,args...)
 #endif
 
-int do_reiserls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_reiserls(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *filename = "/";
 	int dev, part;
 	struct blk_desc *dev_desc = NULL;
-	disk_partition_t info;
+	struct disk_partition info;
 
 	if (argc < 3)
 		return CMD_RET_USAGE;
@@ -76,12 +76,12 @@ U_BOOT_CMD(
 /******************************************************************************
  * Reiserfs boot command intepreter. Derived from diskboot
  */
-int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_reiserload(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *filename = NULL;
 	int dev, part;
 	ulong addr = 0, filelen;
-	disk_partition_t info;
+	struct disk_partition info;
 	struct blk_desc *dev_desc = NULL;
 	unsigned long count;
 	char *addr_str;
@@ -154,7 +154,7 @@ int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	/* Loading ok, update default load address */
-	load_addr = addr;
+	image_load_addr = addr;
 
 	printf ("\n%ld bytes read\n", filelen);
 	env_set_hex("filesize", filelen);

@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2011 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  *	Andy Fleming <afleming@gmail.com>
  *
  * This file pretty much stolen from Linux's mii.h/ethtool.h/phy.h
@@ -8,6 +9,8 @@
 
 #ifndef _PHY_INTERFACE_H
 #define _PHY_INTERFACE_H
+
+#include <string.h>
 
 typedef enum {
 	PHY_INTERFACE_MODE_MII,
@@ -31,6 +34,9 @@ typedef enum {
 	PHY_INTERFACE_MODE_XLAUI,
 	PHY_INTERFACE_MODE_CAUI2,
 	PHY_INTERFACE_MODE_CAUI4,
+	PHY_INTERFACE_MODE_NCSI,
+	PHY_INTERFACE_MODE_XFI,
+	PHY_INTERFACE_MODE_USXGMII,
 	PHY_INTERFACE_MODE_NONE,	/* Must be last */
 
 	PHY_INTERFACE_MODE_COUNT,
@@ -58,7 +64,19 @@ static const char * const phy_interface_strings[] = {
 	[PHY_INTERFACE_MODE_XLAUI]		= "xlaui4",
 	[PHY_INTERFACE_MODE_CAUI2]		= "caui2",
 	[PHY_INTERFACE_MODE_CAUI4]		= "caui4",
+	[PHY_INTERFACE_MODE_NCSI]		= "NC-SI",
+	[PHY_INTERFACE_MODE_XFI]		= "xfi",
+	[PHY_INTERFACE_MODE_USXGMII]		= "usxgmii",
 	[PHY_INTERFACE_MODE_NONE]		= "",
+};
+
+/* Backplane modes:
+ * are considered a sub-type of phy_interface_t: XGMII
+ * and are specified in "phy-connection-type" with one of the following strings
+ */
+static const char * const backplane_mode_strings[] = {
+	"10gbase-kr",
+	"40gbase-kr4",
 };
 
 static inline const char *phy_string_for_interface(phy_interface_t i)
@@ -68,6 +86,19 @@ static inline const char *phy_string_for_interface(phy_interface_t i)
 		i = PHY_INTERFACE_MODE_NONE;
 
 	return phy_interface_strings[i];
+}
+
+static inline bool is_backplane_mode(const char *phyconn)
+{
+	int i;
+
+	if (!phyconn)
+		return false;
+	for (i = 0; i < ARRAY_SIZE(backplane_mode_strings); i++) {
+		if (!strcmp(phyconn, backplane_mode_strings[i]))
+			return true;
+	}
+	return false;
 }
 
 #endif /* _PHY_INTERFACE_H */

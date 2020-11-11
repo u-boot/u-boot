@@ -14,6 +14,8 @@
 #include <dm.h>
 #include <i2c.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 struct rcar_iic_priv {
 	void __iomem		*base;
@@ -248,7 +250,7 @@ static int rcar_iic_probe(struct udevice *dev)
 
 	rcar_iic_finish(dev);
 
-	return rcar_iic_set_speed(dev, 100000);
+	return rcar_iic_set_speed(dev, I2C_SPEED_STANDARD_RATE);
 }
 
 static const struct dm_i2c_ops rcar_iic_ops = {

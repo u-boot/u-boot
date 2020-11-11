@@ -6,9 +6,11 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define ROCKCHIP_DEVICE_SETTINGS
-#include <configs/rk3288_common.h>
+#define ROCKCHIP_DEVICE_SETTINGS \
+		"stdin=serial,usbkbd\0" \
+		"stdout=serial,vidconsole\0" \
+		"stderr=serial,vidconsole\0"
 
-#define CONFIG_SYS_MMC_ENV_DEV 0
+#include <configs/rk3288_common.h>
 
 #endif

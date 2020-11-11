@@ -9,6 +9,8 @@
 #include <dm.h>
 #include <display.h>
 #include <i2c.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 /*
  * TDA19988 uses paged registers. We encode the page# in the upper

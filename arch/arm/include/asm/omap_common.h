@@ -10,9 +10,11 @@
 
 #ifndef __ASSEMBLY__
 
-#include <common.h>
+#include <linux/types.h>
 
 #define NUM_SYS_CLKS	7
+
+struct bd_info;
 
 struct prcm_regs {
 	/* cm1.ckgen */
@@ -683,9 +685,9 @@ void omap_die_id(unsigned int *die_id);
 void gpi2c_init(void);
 
 /* Common FDT Fixups */
-int ft_hs_disable_rng(void *fdt, bd_t *bd);
-int ft_hs_fixup_dram(void *fdt, bd_t *bd);
-int ft_hs_add_tee(void *fdt, bd_t *bd);
+int ft_hs_disable_rng(void *fdt, struct bd_info *bd);
+int ft_hs_fixup_dram(void *fdt, struct bd_info *bd);
+int ft_hs_add_tee(void *fdt, struct bd_info *bd);
 
 /* ABB */
 #define OMAP_ABB_NOMINAL_OPP		0

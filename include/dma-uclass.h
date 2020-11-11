@@ -58,14 +58,14 @@ struct dma_ops {
 	 */
 	int (*request)(struct dma *dma);
 	/**
-	 * free - Free a previously requested dma.
+	 * rfree - Free a previously requested dma.
 	 *
 	 * This is the implementation of the client dma_free() API.
 	 *
 	 * @dma: The DMA to free.
 	 * @return 0 if OK, or a negative error code.
 	 */
-	int (*free)(struct dma *dma);
+	int (*rfree)(struct dma *dma);
 	/**
 	 * enable() - Enable a DMA Channel.
 	 *
@@ -108,6 +108,17 @@ struct dma_ops {
 	 * @return zero on success, or -ve error code.
 	 */
 	int (*send)(struct dma *dma, void *src, size_t len, void *metadata);
+	/**
+	 * get_cfg() - Get DMA channel configuration for client's use
+	 *
+	 * @dma:    The DMA Channel to manipulate
+	 * @cfg_id: DMA provider specific ID to identify what
+	 *          configuration data client needs
+	 * @data:   Pointer to store pointer to DMA driver specific
+	 *          configuration data for the given cfg_id (output param)
+	 * @return zero on success, or -ve error code.
+	 */
+	int (*get_cfg)(struct dma *dma, u32 cfg_id, void **data);
 #endif /* CONFIG_DMA_CHANNELS */
 	/**
 	 * transfer() - Issue a DMA transfer. The implementation must

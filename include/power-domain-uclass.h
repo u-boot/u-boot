@@ -54,14 +54,14 @@ struct power_domain_ops {
 	 */
 	int (*request)(struct power_domain *power_domain);
 	/**
-	 * free - Free a previously requested power domain.
+	 * rfree - Free a previously requested power domain.
 	 *
 	 * This is the implementation of the client power_domain_free() API.
 	 *
 	 * @power_domain:	The power domain to free.
 	 * @return 0 if OK, or a negative error code.
 	 */
-	int (*free)(struct power_domain *power_domain);
+	int (*rfree)(struct power_domain *power_domain);
 	/**
 	 * on - Power on a power domain.
 	 *

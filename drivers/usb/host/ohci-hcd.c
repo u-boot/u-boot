@@ -28,9 +28,12 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/byteorder.h>
 #include <dm.h>
 #include <errno.h>
+#include <asm/cache.h>
+#include <linux/delay.h>
 
 #if defined(CONFIG_PCI_OHCI)
 # include <pci.h>

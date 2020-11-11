@@ -8,11 +8,14 @@
  */
 
 #include <common.h>
-#include <linux/ctype.h>
+#include <command.h>
+#include <console.h>
+#include <log.h>
 #include <dm.h>
 #include <video.h>
 #include <video_console.h>
 #include <video_font.h>		/* Bitmap font for code page 437 */
+#include <linux/ctype.h>
 
 /*
  * Structure to describe a console color
@@ -139,23 +142,31 @@ u32 vid_console_color(struct video_priv *priv, unsigned int idx)
 {
 	switch (priv->bpix) {
 	case VIDEO_BPP16:
-		return ((colors[idx].r >> 3) << 11) |
-		       ((colors[idx].g >> 2) <<  5) |
-		       ((colors[idx].b >> 3) <<  0);
+		if (CONFIG_IS_ENABLED(VIDEO_BPP16)) {
+			return ((colors[idx].r >> 3) << 11) |
+			       ((colors[idx].g >> 2) <<  5) |
+			       ((colors[idx].b >> 3) <<  0);
+		}
+		break;
 	case VIDEO_BPP32:
-		return (colors[idx].r << 16) |
-		       (colors[idx].g <<  8) |
-		       (colors[idx].b <<  0);
+		if (CONFIG_IS_ENABLED(VIDEO_BPP32)) {
+			return (colors[idx].r << 16) |
+			       (colors[idx].g <<  8) |
+			       (colors[idx].b <<  0);
+		}
+		break;
 	default:
-		/*
-		 * For unknown bit arrangements just support
-		 * black and white.
-		 */
-		if (idx)
-			return 0xffffff; /* white */
-		else
-			return 0x000000; /* black */
+		break;
 	}
+
+	/*
+	 * For unknown bit arrangements just support
+	 * black and white.
+	 */
+	if (idx)
+		return 0xffffff; /* white */
+
+	return 0x000000; /* black */
 }
 
 static char *parsenum(char *s, int *num)
@@ -546,16 +557,31 @@ int vidconsole_put_string(struct udevice *dev, const char *str)
 static void vidconsole_putc(struct stdio_dev *sdev, const char ch)
 {
 	struct udevice *dev = sdev->priv;
+	int ret;
 
-	vidconsole_put_char(dev, ch);
+	ret = vidconsole_put_char(dev, ch);
+	if (ret) {
+#ifdef DEBUG
+		console_puts_select_stderr(true, "[vc err: putc]");
+#endif
+	}
 	video_sync(dev->parent, false);
 }
 
 static void vidconsole_puts(struct stdio_dev *sdev, const char *s)
 {
 	struct udevice *dev = sdev->priv;
+	int ret;
 
-	vidconsole_put_string(dev, s);
+	ret = vidconsole_put_string(dev, s);
+	if (ret) {
+#ifdef DEBUG
+		char str[30];
+
+		snprintf(str, sizeof(str), "[vc err: puts %d]", ret);
+		console_puts_select_stderr(true, str);
+#endif
+	}
 	video_sync(dev->parent, false);
 }
 
@@ -603,6 +629,23 @@ UCLASS_DRIVER(vidconsole) = {
 	.per_device_auto_alloc_size	= sizeof(struct vidconsole_priv),
 };
 
+#ifdef CONFIG_VIDEO_COPY
+int vidconsole_sync_copy(struct udevice *dev, void *from, void *to)
+{
+	struct udevice *vid = dev_get_parent(dev);
+
+	return video_sync_copy(vid, from, to);
+}
+
+int vidconsole_memmove(struct udevice *dev, void *dst, const void *src,
+		       int size)
+{
+	memmove(dst, src, size);
+	return vidconsole_sync_copy(dev, dst, dst + size);
+}
+#endif
+
+#if CONFIG_IS_ENABLED(CMD_VIDCONSOLE)
 void vidconsole_position_cursor(struct udevice *dev, unsigned col, unsigned row)
 {
 	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
@@ -612,10 +655,11 @@ void vidconsole_position_cursor(struct udevice *dev, unsigned col, unsigned row)
 	col *= priv->x_charsize;
 	row *= priv->y_charsize;
 	priv->xcur_frac = VID_TO_POS(min_t(short, col, vid_priv->xsize - 1));
+	priv->xstart_frac = priv->xcur_frac;
 	priv->ycur = min_t(short, row, vid_priv->ysize - 1);
 }
 
-static int do_video_setcursor(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_video_setcursor(struct cmd_tbl *cmdtp, int flag, int argc,
 			      char *const argv[])
 {
 	unsigned int col, row;
@@ -633,7 +677,7 @@ static int do_video_setcursor(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int do_video_puts(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_video_puts(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
 	struct udevice *dev;
@@ -663,3 +707,4 @@ U_BOOT_CMD(
 	"print string on video framebuffer",
 	"    <string>"
 );
+#endif /* CONFIG_IS_ENABLED(CMD_VIDCONSOLE) */

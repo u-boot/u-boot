@@ -1,0 +1,12 @@
+if BOARD_MT7628_RFB
+
+config SYS_BOARD
+	default "mt7628"
+
+config SYS_VENDOR
+	default "mediatek"
+
+config SYS_CONFIG_NAME
+	default "mt7628"
+
+endif

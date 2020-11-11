@@ -10,9 +10,7 @@
 #include "mx6_common.h"
 
 /* Falcon Mode */
-#define CONFIG_CMD_SPL
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x18000000
-#define CONFIG_CMD_SPL_WRITE_SIZE	(44 * SZ_1K)
 
 /* Falcon Mode - MMC support */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x3F00
@@ -30,9 +28,10 @@
  * 0x020000 - 0x120000 : SPI.u-boot (1MiB)
  * 0x120000 - 0x130000 : SPI.u-boot-env1 (64KiB)
  * 0x130000 - 0x140000 : SPI.u-boot-env2 (64KiB)
- * 0x140000 - 0x540000 : SPI.swupdate-kernel-FIT (4MiB)
- * 0x540000 - 0x1540000 : SPI.swupdate-initramfs  (16MiB)
- * 0x1540000 - 0x1640000 : SPI.factory  (1MiB)
+ * 0x140000 - 0x740000 : SPI.swupdate-kernel-FIT (6MiB)
+ * 0x740000 - 0x1B40000 : SPI.swupdate-initramfs  (20MiB)
+ * 0x1B40000 - 0x1F00000 : SPI.reserved (3840KiB)
+ * 0x1F00000 - 0x2000000 : SPI.factory  (1MiB)
  */
 
 /* SPI Flash Configs */
@@ -64,10 +63,6 @@
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	2
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_BAUDRATE			115200
 
 #ifndef CONFIG_BOOTCOMMAND
 #define CONFIG_BOOTCOMMAND "if run check_em_pad; then " \
@@ -348,13 +343,7 @@
 
 /* ENV config */
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SIZE		(SZ_64K)
 /* The 0x120000 value corresponds to above SPI-NOR memory MAP */
-#define CONFIG_ENV_OFFSET		(0x120000)
-#define CONFIG_ENV_SECT_SIZE		(SZ_64K)
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + \
-						CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 #endif
 
 #define CONFIG_MXC_USB_PORTSC           (PORT_PTS_UTMI | PORT_PTS_PTW)

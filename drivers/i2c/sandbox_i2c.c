@@ -9,7 +9,9 @@
 #include <dm.h>
 #include <errno.h>
 #include <i2c.h>
+#include <log.h>
 #include <asm/test.h>
+#include <dm/acpi.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
 
@@ -72,7 +74,8 @@ static int sandbox_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 		* 400KHz for reads.
 		*/
 		is_read = nmsgs > 1;
-		if (i2c->speed_hz > (is_read ? 400000 : 100000)) {
+		if (i2c->speed_hz > (is_read ? I2C_SPEED_FAST_RATE :
+				I2C_SPEED_STANDARD_RATE)) {
 			debug("%s: Max speed exceeded\n", __func__);
 			return -EINVAL;
 		}
@@ -90,8 +93,8 @@ static const struct udevice_id sandbox_i2c_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(i2c_sandbox) = {
-	.name	= "i2c_sandbox",
+U_BOOT_DRIVER(sandbox_i2c) = {
+	.name	= "sandbox_i2c",
 	.id	= UCLASS_I2C,
 	.of_match = sandbox_i2c_ids,
 	.ops	= &sandbox_i2c_ops,

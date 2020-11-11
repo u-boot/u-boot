@@ -4,8 +4,12 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
+#include <flash.h>
+#include <init.h>
 #include <malloc.h>
+#include <net.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/mmc.h>
@@ -140,7 +144,7 @@ static void set_mac_to_sh_eth_register(int channel, char *mac_string)
 	unsigned char mac[6];
 	unsigned long val;
 
-	eth_parse_enetaddr(mac_string, mac);
+	string_to_enetaddr(mac_string, mac);
 
 	if (!channel)
 		ether = ETHER0_MAC_BASE;
@@ -159,7 +163,7 @@ static void set_mac_to_sh_giga_eth_register(int channel, char *mac_string)
 	unsigned char mac[6];
 	unsigned long val;
 
-	eth_parse_enetaddr(mac_string, mac);
+	string_to_enetaddr(mac_string, mac);
 
 	if (!channel)
 		ether = GETHER0_MAC_BASE;
@@ -229,7 +233,7 @@ int board_init(void)
 	return 0;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	return mmcif_mmc_init();
 }
@@ -341,7 +345,7 @@ int board_late_init(void)
 	return 0;
 }
 
-int do_sh_g200(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_sh_g200(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct gctrl_regs *gctrl = GCTRL_BASE;
 	unsigned long graofst;
@@ -360,7 +364,7 @@ U_BOOT_CMD(
 );
 
 #ifdef CONFIG_DEPRECATED
-int do_write_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_write_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int i, ret;
 	char mac_string[256];

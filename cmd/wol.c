@@ -14,7 +14,7 @@
 #if defined(CONFIG_CMD_WOL)
 void wol_set_timeout(ulong);
 
-int do_wol(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_wol(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	/* Validate arguments */
 	if (argc < 2)

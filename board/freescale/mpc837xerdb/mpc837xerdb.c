@@ -9,12 +9,15 @@
 #include <env.h>
 #include <hwconfig.h>
 #include <i2c.h>
+#include <init.h>
+#include <asm/bitops.h>
 #include <asm/io.h>
 #include <asm/fsl_mpc83xx_serdes.h>
 #include <fdt_support.h>
 #include <spd_sdram.h>
 #include <vsc7385.h>
 #include <fsl_esdhc.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -167,7 +170,7 @@ int board_early_init_f(void)
 }
 
 #ifdef CONFIG_FSL_ESDHC
-int board_mmc_init(bd_t *bd)
+int board_mmc_init(struct bd_info *bd)
 {
 	struct immap __iomem *im = (struct immap __iomem *)CONFIG_SYS_IMMR;
 	char buffer[HWCONFIG_BUFFER_SIZE] = {0};
@@ -208,7 +211,7 @@ int misc_init_r(void)
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);

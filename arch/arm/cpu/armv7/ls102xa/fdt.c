@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
+#include <net.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <asm/io.h>
@@ -80,7 +82,7 @@ void ft_fixup_enet_phy_connect_type(void *fdt)
 	}
 }
 
-void ft_cpu_setup(void *blob, bd_t *bd)
+void ft_cpu_setup(void *blob, struct bd_info *bd)
 {
 	int off;
 	int val;

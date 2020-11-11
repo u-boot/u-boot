@@ -11,6 +11,7 @@
 #include <common.h>
 #include <debug_uart.h>
 #include <errno.h>
+#include <malloc.h>
 #include <linux/err.h>
 #include <linux/types.h>
 #include <efi.h>

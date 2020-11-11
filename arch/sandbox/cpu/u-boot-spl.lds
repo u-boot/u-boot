@@ -16,8 +16,6 @@ SECTIONS
 	__u_boot_sandbox_option_start = .;
 	_u_boot_sandbox_getopt : { KEEP(*(.u_boot_sandbox_getopt)) }
 	__u_boot_sandbox_option_end = .;
-
-	__bss_start = .;
 }
 
-INSERT BEFORE .data;
+INSERT AFTER .data;

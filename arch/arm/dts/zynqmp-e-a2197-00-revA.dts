@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx Versal a2197 RevA System Controller
  *
- * (C) Copyright 2019, Xilinx, Inc.
+ * (C) Copyright 2019 - 2020, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
@@ -131,7 +131,7 @@
 	status = "okay";
 	no-1-8-v;
 	disable-wp;
-	xlnx,mio_bank = <1>;
+	xlnx,mio-bank = <1>;
 };
 
 &gem0 {
@@ -162,9 +162,9 @@
 		  "", "", "", "", "", /* 65 - 69 */
 		  "", "", "", "", "", /* 70 - 74 */
 		  "", "ETH_MDC", "ETH_MDIO", /* 75 - 77, MIO end and EMIO start */
-		  "", "", /* 78 - 79 */
-		  "", "", "", "", "", /* 80 - 84 */
-		  "", "", "", "", "", /* 85 -89 */
+		  "SYSCTLR_VERSAL_MODE0", "SYSCTLR_VERSAL_MODE1", /* 78 - 79 */
+		  "SYSCTLR_VERSAL_MODE2", "SYSCTLR_VERSAL_MODE3", "SYSCTLR_POR_B_LS", "", "", /* 80 - 84 */
+		  "", "", "", "", "", /* 85 - 89 */
 		  "", "", "", "", "", /* 90 - 94 */
 		  "", "", "", "", "", /* 95 - 99 */
 		  "", "", "", "", "", /* 100 - 104 */
@@ -198,9 +198,6 @@
 			#size-cells = <0>;
 			reg = <0>;
 			/* u152 IR35215 0x16/0x46 vcc_soc */
-			/* u160 IRPS5401 0x17/0x47 */
-			/* u167 IRPS5401 0x1c/0x4c */
-			/* u175 IRPS5401 0x1d/0x4d */
 			/* u179 ir38164 0x19/0x49 vcco_500 */
 			/* u181 ir38164 0x1a/0x4a vcco_501 */
 			/* u183 ir38164 0x1b/0x4b vcco_502 */
@@ -209,6 +206,19 @@
 			/* u189 ir38164 0x20/0x50 mgtyavtt */
 			/* u194 ir38164 0x13/0x43 vdd1_1v8_lp4 */
 			/* u195 ir38164 0x14/0x44 vdd2_1v8_lp4 */
+
+			irps5401_47: irps5401@47 { /* IRPS5401 - u160 */
+				compatible = "infineon,irps5401";
+				reg = <0x47>; /* pmbus / i2c 0x17 */
+			};
+			irps5401_4c: irps5401@4c { /* IRPS5401 - u167 */
+				compatible = "infineon,irps5401";
+				reg = <0x4c>; /* pmbus / i2c 0x1c */
+			};
+			irps5401_4d: irps5401@4d { /* IRPS5401 - u175 */
+				compatible = "infineon,irps5401";
+				reg = <0x4d>; /* pmbus / i2c 0x1d */
+			};
 		};
 		i2c@1 { /* PMBUS1_INA226 */
 			#address-cells = <1>;
@@ -220,16 +230,16 @@
 				#io-channel-cells = <1>;
 				label = "ina226-vccint";
 				reg = <0x40>;
-				shunt-resistor = <5000>; /* R440 */
-				/* 0.78V @ 32A 1 of 6 Phases*/
+				shunt-resistor = <500>; /* R440 */
+				/* 0.80V @ 32A 1 of 6 Phases*/
 			};
 			vcc_soc: ina226@41 { /* u161 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
 				label = "ina226-vcc-soc";
 				reg = <0x41>;
-				shunt-resistor = <2000>; /* R1186 */
-				/* 0.78V @ 18A */
+				shunt-resistor = <500>; /* R1702 */
+				/* 0.80V @ 18A */
 			};
 			vcc_pmc: ina226@42 { /* u163 */
 				compatible = "ti,ina226";
@@ -411,14 +421,14 @@
 				temperature-stability = <50>;
 				factory-fout = <156250000>;
 				clock-frequency = <156250000>;
-				clock-output-names = "si570_hsdp_clk";
+				clock-output-names = "si570_zsfp_clk";
 			};
 		};
 		i2c@6 { /* USER_SI570_1 */
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <6>;
-			si570_user1_clk: clock-generator@5d { /* u205 */
+			si570_user1: clock-generator@5d { /* u205 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
 				reg = <0x5f>;
@@ -500,7 +510,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <4>;
-			si570_ddr_dimm2: clock-generator@60 { /* u3 */
+			si570_lpddr4clk2: clock-generator@60 { /* u3 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
 				reg = <0x60>;
@@ -514,7 +524,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <5>;
-			si570_lpddr4: clock-generator@60 { /* u4 */
+			si570_lpddr4clk1: clock-generator@60 { /* u4 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
 				reg = <0x60>;
@@ -543,6 +553,31 @@
 			#size-cells = <0>;
 			reg = <7>;
 		};
+	};
+	i2c-mux@75 { /* u214 */
+		compatible = "nxp,pca9548";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x75>;
+		i2c@0 { /* SFP0_IIC */
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0>;
+			/* SFP0 */
+		};
+		i2c@1 { /* SFP1_IIC */
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <1>;
+			/* SFP1 */
+		};
+		i2c@2 { /* QSFP1_I2C */
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <2>;
+			/* QSFP1 */
+		};
+		/* 3 - 7 unused */
 	};
 };
 

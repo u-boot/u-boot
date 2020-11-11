@@ -25,16 +25,9 @@
 #define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
 /* memtest works on */
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x5E00000)
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
 
-/* select serial console configuration */
-
-/* Console configuration */
-
 #define CONFIG_BOOTCOMMAND		"run autoboot"
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
 					- GENERATED_GBL_DATA_SIZE)
@@ -42,12 +35,6 @@
 #define CONFIG_SYS_MEM_TOP_HIDE	(1 << 20)	/* ram console */
 
 #define CONFIG_SYS_MONITOR_BASE	0x00000000
-
-#define CONFIG_SYS_MMC_ENV_DEV		CONFIG_MMC_DEFAULT_DEV
-#define CONFIG_ENV_SIZE			4096
-#define CONFIG_ENV_OFFSET		((32 - 4) << 10) /* 32KiB - 4KiB */
-
-#define CONFIG_ENV_OVERWRITE
 
 /* Tizen - partitions definitions */
 #define PARTS_CSA		"csa-mmc"
@@ -103,7 +90,7 @@
 	"boottrace=setenv opts initcall_debug; run bootcmd\0" \
 	"verify=n\0" \
 	"rootfstype=ext4\0" \
-	"console=" CONFIG_DEFAULT_CONSOLE \
+	"console=console=ttySAC2,115200n8\0" \
 	"kernelname=uImage\0" \
 	"loaduimage=ext4load mmc ${mmcdev}:${mmcbootpart} 0x40007FC0 " \
 		"${kernelname}\0" \
@@ -169,10 +156,8 @@
 #define LCD_BPP                 LCD_COLOR16
 
 /* LCD */
-#define CONFIG_BMP_16BPP
 #define CONFIG_FB_ADDR		0x52504000
 #define CONFIG_EXYNOS_MIPI_DSIM
-#define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 160 * 4) + 54)
 
 #endif	/* __CONFIG_H */

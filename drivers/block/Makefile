@@ -6,7 +6,7 @@
 obj-$(CONFIG_$(SPL_)BLK) += blk-uclass.o
 
 ifndef CONFIG_$(SPL_)BLK
-obj-y += blk_legacy.o
+obj-$(CONFIG_HAVE_BLOCK_DEVICE) += blk_legacy.o
 endif
 
 ifndef CONFIG_SPL_BUILD

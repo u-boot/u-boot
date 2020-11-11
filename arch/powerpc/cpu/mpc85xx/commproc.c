@@ -22,6 +22,7 @@
  * currently no deallocator for this memory.
  */
 #include <common.h>
+#include <asm-offsets.h>
 #include <asm/cpm_85xx.h>
 
 DECLARE_GLOBAL_DATA_PTR;

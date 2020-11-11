@@ -12,10 +12,26 @@
 	u-boot,dm-spl;
 };
 
+&gpio0 {
+	u-boot,dm-spl;
+};
+
 &ahci0 {
 	u-boot,dm-spl;
 };
 
 &ahci1 {
 	u-boot,dm-spl;
+};
+
+&i2c0 {
+	u-boot,dm-spl;
+
+	eeprom@52 {
+		u-boot,dm-spl;
+	};
+
+	eeprom@53 {
+		u-boot,dm-spl;
+	};
 };

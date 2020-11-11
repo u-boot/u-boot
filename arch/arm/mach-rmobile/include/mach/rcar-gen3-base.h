@@ -79,6 +79,7 @@
 
 #ifndef __ASSEMBLY__
 #include <asm/types.h>
+#include <linux/bitops.h>
 
 /* RWDT */
 struct rcar_rwdt {

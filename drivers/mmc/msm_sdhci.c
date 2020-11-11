@@ -10,6 +10,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <malloc.h>
 #include <sdhci.h>
 #include <wait_bit.h>
 #include <asm/io.h>
@@ -141,6 +142,10 @@ static int msm_sdc_probe(struct udevice *dev)
 		writel(caps, host->ioaddr + SDHCI_VENDOR_SPEC_CAPABILITIES0);
 	}
 
+	ret = mmc_of_parse(dev, &plat->cfg);
+	if (ret)
+		return ret;
+
 	host->mmc = &plat->mmc;
 	host->mmc->dev = dev;
 	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 0);
@@ -170,7 +175,7 @@ static int msm_ofdata_to_platdata(struct udevice *dev)
 	int node = dev_of_offset(dev);
 
 	host->name = strdup(dev->name);
-	host->ioaddr = (void *)devfdt_get_addr(dev);
+	host->ioaddr = dev_read_addr_ptr(dev);
 	host->bus_width = fdtdec_get_int(gd->fdt_blob, node, "bus-width", 4);
 	host->index = fdtdec_get_uint(gd->fdt_blob, node, "index", 0);
 	priv->base = (void *)fdtdec_get_addr_size_auto_parent(gd->fdt_blob,

@@ -55,11 +55,15 @@
 #include "pbl_crc32.h"
 #include "imagetool.h"
 #include "mkimage.h"
+#include <u-boot/crc.h>
 
 #include <image.h>
 
 #define HEADER_OFFSET	0x40
 #define VALIDATION_WORD	0x31305341
+
+/* Minimum and default entry point offset */
+#define ENTRY_POINT_OFFSET	0x14
 
 static uint8_t buffer_v0[0x10000];
 static uint8_t buffer_v1[0x40000];
@@ -119,8 +123,10 @@ static uint16_t sfp_hdr_checksum(uint8_t *buf, unsigned char ver)
 }
 
 static void sfp_build_header(uint8_t *buf, uint8_t ver, uint8_t flags,
-			     uint32_t length_bytes)
+			     uint32_t length_bytes,
+			     struct image_tool_params *params)
 {
+	uint32_t entry_offset = params->eflag ? params->ep : ENTRY_POINT_OFFSET;
 	struct socfpga_header_v0 header_v0 = {
 		.validation	= cpu_to_le32(VALIDATION_WORD),
 		.version	= 0,
@@ -135,7 +141,8 @@ static void sfp_build_header(uint8_t *buf, uint8_t ver, uint8_t flags,
 		.flags		= flags,
 		.header_u8	= cpu_to_le16(sizeof(header_v1)),
 		.length_u8	= cpu_to_le32(length_bytes),
-		.entry_offset	= cpu_to_le32(0x14),	/* Trampoline offset */
+		/* Trampoline offset */
+		.entry_offset	= cpu_to_le32(entry_offset),
 		.zero		= 0,
 	};
 
@@ -197,15 +204,16 @@ static int sfp_verify_header(const uint8_t *buf, uint8_t *ver)
 
 /* Sign the buffer and return the signed buffer size */
 static int sfp_sign_buffer(uint8_t *buf, uint8_t ver, uint8_t flags,
-			   int len, int pad_64k)
+			   int len, int pad_64k,
+			   struct image_tool_params *params)
 {
 	uint32_t calc_crc;
 
 	/* Align the length up */
-	len = (len + 3) & ~3;
+	len = ALIGN(len, 4);
 
 	/* Build header, adding 4 bytes to length to hold the CRC32. */
-	sfp_build_header(buf + HEADER_OFFSET, ver, flags, len + 4);
+	sfp_build_header(buf + HEADER_OFFSET, ver, flags, len + 4, params);
 
 	/* Calculate and apply the CRC */
 	calc_crc = ~pbl_crc32(0, (char *)buf, len);
@@ -274,8 +282,28 @@ static void socfpgaimage_print_header(const void *ptr)
 		printf("Not a sane SOCFPGA preloader\n");
 }
 
-static int socfpgaimage_check_params(struct image_tool_params *params)
+static int socfpgaimage_check_params_v0(struct image_tool_params *params)
 {
+	/* Not sure if we should be accepting fflags */
+	return	(params->dflag && (params->fflag || params->lflag)) ||
+		(params->fflag && (params->dflag || params->lflag)) ||
+		(params->lflag && (params->dflag || params->fflag));
+}
+
+static int socfpgaimage_check_params_v1(struct image_tool_params *params)
+{
+	/*
+	 * If the entry point is specified, ensure it is >= ENTRY_POINT_OFFSET
+	 * and it is 4 bytes aligned.
+	 */
+	if (params->eflag && (params->ep < ENTRY_POINT_OFFSET ||
+			      params->ep % 4 != 0)) {
+		fprintf(stderr,
+			"Error: Entry point must be greater than 0x%x.\n",
+			ENTRY_POINT_OFFSET);
+		return -1;
+	}
+
 	/* Not sure if we should be accepting fflags */
 	return	(params->dflag && (params->fflag || params->lflag)) ||
 		(params->fflag && (params->dflag || params->lflag)) ||
@@ -342,7 +370,8 @@ static int socfpgaimage_vrec_header_v1(struct image_tool_params *params,
 	return sfp_vrec_header(params, tparams, 1);
 }
 
-static void sfp_set_header(void *ptr, unsigned char ver)
+static void sfp_set_header(void *ptr, unsigned char ver,
+			   struct image_tool_params *params)
 {
 	uint8_t *buf = (uint8_t *)ptr;
 
@@ -356,19 +385,19 @@ static void sfp_set_header(void *ptr, unsigned char ver)
 	memmove(buf, buf + sfp_fake_header_size(data_size, ver), data_size);
 	memset(buf + data_size, 0, sfp_fake_header_size(data_size, ver));
 
-	sfp_sign_buffer(buf, ver, 0, data_size, 0);
+	sfp_sign_buffer(buf, ver, 0, data_size, 0, params);
 }
 
 static void socfpgaimage_set_header_v0(void *ptr, struct stat *sbuf, int ifd,
 				       struct image_tool_params *params)
 {
-	sfp_set_header(ptr, 0);
+	sfp_set_header(ptr, 0, params);
 }
 
 static void socfpgaimage_set_header_v1(void *ptr, struct stat *sbuf, int ifd,
 				       struct image_tool_params *params)
 {
-	sfp_set_header(ptr, 1);
+	sfp_set_header(ptr, 1, params);
 }
 
 U_BOOT_IMAGE_TYPE(
@@ -376,7 +405,7 @@ U_BOOT_IMAGE_TYPE(
 	"Altera SoCFPGA Cyclone V / Arria V image support",
 	0, /* This will be modified by vrec_header() */
 	(void *)buffer_v0,
-	socfpgaimage_check_params,
+	socfpgaimage_check_params_v0,
 	socfpgaimage_verify_header,
 	socfpgaimage_print_header,
 	socfpgaimage_set_header_v0,
@@ -391,7 +420,7 @@ U_BOOT_IMAGE_TYPE(
 	"Altera SoCFPGA Arria10 image support",
 	0, /* This will be modified by vrec_header() */
 	(void *)buffer_v1,
-	socfpgaimage_check_params,
+	socfpgaimage_check_params_v1,
 	socfpgaimage_verify_header,
 	socfpgaimage_print_header,
 	socfpgaimage_set_header_v1,

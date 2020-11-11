@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <pci.h>
 #include <asm/fsl_pci.h>
 #include <asm/fsl_serdes.h>
@@ -64,7 +65,7 @@ void pci_init_board(void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-void ft_board_pci_setup(void *blob, bd_t *bd)
+void ft_board_pci_setup(void *blob, struct bd_info *bd)
 {
 	FT_FSL_PCI_SETUP;
 }

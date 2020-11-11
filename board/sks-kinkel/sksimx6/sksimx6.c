@@ -3,10 +3,15 @@
  * Copyright (C) 2016 Stefano Babic <sbabic@denx.de>
  */
 
+#include <common.h>
+#include <command.h>
+#include <init.h>
+#include <net.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
@@ -134,7 +139,7 @@ void setup_iomux_enet(void)
 
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	uint32_t base = IMX_FEC_BASE;
 	struct mii_dev *bus = NULL;
@@ -209,7 +214,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return ret;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	int ret;
 

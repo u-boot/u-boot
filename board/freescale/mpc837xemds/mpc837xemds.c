@@ -7,10 +7,14 @@
 #include <common.h>
 #include <hwconfig.h>
 #include <i2c.h>
+#include <init.h>
+#include <net.h>
+#include <asm/bitops.h>
 #include <asm/io.h>
 #include <asm/fsl_mpc83xx_serdes.h>
 #include <spd_sdram.h>
 #include <tsec.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <fsl_esdhc.h>
@@ -60,7 +64,7 @@ int board_early_init_f(void)
 }
 
 #ifdef CONFIG_FSL_ESDHC
-int board_mmc_init(bd_t *bd)
+int board_mmc_init(struct bd_info *bd)
 {
 	struct immap __iomem *im = (struct immap __iomem *)CONFIG_SYS_IMMR;
 	u8 *bcsr = (u8 *)CONFIG_SYS_BCSR;
@@ -81,7 +85,7 @@ int board_mmc_init(bd_t *bd)
 #endif
 
 #if defined(CONFIG_TSEC1) || defined(CONFIG_TSEC2)
-int board_eth_init(bd_t *bd)
+int board_eth_init(struct bd_info *bd)
 {
 	struct fsl_pq_mdio_info mdio_info;
 	struct tsec_info_struct tsec_info[2];
@@ -137,7 +141,7 @@ int board_eth_init(bd_t *bd)
 	return tsec_eth_init(bd, tsec_info, num);
 }
 
-static void __ft_tsec_fixup(void *blob, bd_t *bd, const char *alias,
+static void __ft_tsec_fixup(void *blob, struct bd_info *bd, const char *alias,
 			    int phy_addr)
 {
 	const u32 *ph;
@@ -182,7 +186,7 @@ static void __ft_tsec_fixup(void *blob, bd_t *bd, const char *alias,
 	}
 }
 
-static void ft_tsec_fixup(void *blob, bd_t *bd)
+static void ft_tsec_fixup(void *blob, struct bd_info *bd)
 {
 	struct immap __iomem *im = (struct immap __iomem *)CONFIG_SYS_IMMR;
 	u32 rcwh = in_be32(&im->reset.rcwh);
@@ -201,7 +205,7 @@ static void ft_tsec_fixup(void *blob, bd_t *bd)
 #endif
 }
 #else
-static inline void ft_tsec_fixup(void *blob, bd_t *bd) {}
+static inline void ft_tsec_fixup(void *blob, struct bd_info *bd) {}
 #endif /* defined(CONFIG_TSEC1) || defined(CONFIG_TSEC2) */
 
 int board_early_init_r(void)
@@ -308,7 +312,7 @@ int board_pci_host_broken(void)
 	return 0;
 }
 
-static void ft_pci_fixup(void *blob, bd_t *bd)
+static void ft_pci_fixup(void *blob, struct bd_info *bd)
 {
 	const char *status = "broken (no arbiter)";
 	int off;
@@ -331,7 +335,7 @@ static void ft_pci_fixup(void *blob, bd_t *bd)
 #endif
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 	ft_tsec_fixup(blob, bd);

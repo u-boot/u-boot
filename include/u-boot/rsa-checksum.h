@@ -10,6 +10,7 @@
 #include <image.h>
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
+#include <u-boot/sha512.h>
 
 /**
  * hash_calculate() - Calculate hash over the data

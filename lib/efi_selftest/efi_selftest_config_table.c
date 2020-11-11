@@ -9,6 +9,7 @@
  */
 
 #include <efi_selftest.h>
+#include <u-boot/crc.h>
 
 static const struct efi_system_table *sys_table;
 static struct efi_boot_services *boottime;

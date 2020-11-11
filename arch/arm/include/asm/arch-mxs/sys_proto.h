@@ -11,7 +11,8 @@
 
 #include <asm/mach-imx/sys_proto.h>
 
-int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int), int (*cd)(int));
+int mxsmmc_initialize(struct bd_info *bis, int id, int (*wp)(int),
+		      int (*cd)(int));
 
 #ifdef CONFIG_SPL_BUILD
 

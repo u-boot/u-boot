@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
@@ -13,6 +14,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <i2c.h>
+#include <dm/device_compat.h>
 
 #define LPI2C_FIFO_SIZE 4
 #define LPI2C_NACK_TOUT_MS 1
@@ -95,7 +97,8 @@ static int bus_i2c_wait_for_tx_ready(struct imx_lpi2c_reg *regs)
 
 static int bus_i2c_send(struct udevice *bus, u8 *txbuf, int len)
 {
-	struct imx_lpi2c_reg *regs = (struct imx_lpi2c_reg *)devfdt_get_addr(bus);
+	struct imx_lpi2c_bus *i2c_bus = dev_get_priv(bus);
+	struct imx_lpi2c_reg *regs = (struct imx_lpi2c_reg *)(i2c_bus->base);
 	lpi2c_status_t result = LPI2C_SUCESS;
 
 	/* empty tx */
@@ -116,7 +119,8 @@ static int bus_i2c_send(struct udevice *bus, u8 *txbuf, int len)
 
 static int bus_i2c_receive(struct udevice *bus, u8 *rxbuf, int len)
 {
-	struct imx_lpi2c_reg *regs = (struct imx_lpi2c_reg *)devfdt_get_addr(bus);
+	struct imx_lpi2c_bus *i2c_bus = dev_get_priv(bus);
+	struct imx_lpi2c_reg *regs = (struct imx_lpi2c_reg *)(i2c_bus->base);
 	lpi2c_status_t result = LPI2C_SUCESS;
 	u32 val;
 	ulong start_time = get_timer(0);
@@ -160,8 +164,8 @@ static int bus_i2c_receive(struct udevice *bus, u8 *rxbuf, int len)
 static int bus_i2c_start(struct udevice *bus, u8 addr, u8 dir)
 {
 	lpi2c_status_t result;
-	struct imx_lpi2c_reg *regs =
-		(struct imx_lpi2c_reg *)devfdt_get_addr(bus);
+	struct imx_lpi2c_bus *i2c_bus = dev_get_priv(bus);
+	struct imx_lpi2c_reg *regs = (struct imx_lpi2c_reg *)(i2c_bus->base);
 	u32 val;
 
 	result = imx_lpci2c_check_busy_bus(regs);
@@ -169,7 +173,7 @@ static int bus_i2c_start(struct udevice *bus, u8 addr, u8 dir)
 		debug("i2c: start check busy bus: 0x%x\n", result);
 
 		/* Try to init the lpi2c then check the bus busy again */
-		bus_i2c_init(bus, 100000);
+		bus_i2c_init(bus, I2C_SPEED_STANDARD_RATE);
 		result = imx_lpci2c_check_busy_bus(regs);
 		if (result) {
 			printf("i2c: Error check busy bus: 0x%x\n", result);
@@ -197,8 +201,8 @@ static int bus_i2c_start(struct udevice *bus, u8 addr, u8 dir)
 static int bus_i2c_stop(struct udevice *bus)
 {
 	lpi2c_status_t result;
-	struct imx_lpi2c_reg *regs =
-		(struct imx_lpi2c_reg *)devfdt_get_addr(bus);
+	struct imx_lpi2c_bus *i2c_bus = dev_get_priv(bus);
+	struct imx_lpi2c_reg *regs = (struct imx_lpi2c_reg *)(i2c_bus->base);
 	u32 status;
 	ulong start_time;
 
@@ -269,7 +273,7 @@ u32 __weak imx_get_i2cclk(u32 i2c_num)
 static int bus_i2c_set_bus_speed(struct udevice *bus, int speed)
 {
 	struct imx_lpi2c_bus *i2c_bus = dev_get_priv(bus);
-	struct imx_lpi2c_reg *regs;
+	struct imx_lpi2c_reg *regs = (struct imx_lpi2c_reg *)(i2c_bus->base);
 	u32 val;
 	u32 preescale = 0, best_pre = 0, clkhi = 0;
 	u32 best_clkhi = 0, abs_error = 0, rate;
@@ -277,8 +281,6 @@ static int bus_i2c_set_bus_speed(struct udevice *bus, int speed)
 	u32 clock_rate;
 	bool mode;
 	int i;
-
-	regs = (struct imx_lpi2c_reg *)devfdt_get_addr(bus);
 
 	if (IS_ENABLED(CONFIG_CLK)) {
 		clock_rate = clk_get_rate(&i2c_bus->per_clk);
@@ -346,11 +348,11 @@ static int bus_i2c_set_bus_speed(struct udevice *bus, int speed)
 
 static int bus_i2c_init(struct udevice *bus, int speed)
 {
-	struct imx_lpi2c_reg *regs;
 	u32 val;
 	int ret;
 
-	regs = (struct imx_lpi2c_reg *)devfdt_get_addr(bus);
+	struct imx_lpi2c_bus *i2c_bus = dev_get_priv(bus);
+	struct imx_lpi2c_reg *regs = (struct imx_lpi2c_reg *)(i2c_bus->base);
 	/* reset peripheral */
 	writel(LPI2C_MCR_RST_MASK, &regs->mcr);
 	writel(0x0, &regs->mcr);
@@ -388,13 +390,13 @@ static int imx_lpi2c_probe_chip(struct udevice *bus, u32 chip,
 	result = bus_i2c_start(bus, chip, 0);
 	if (result) {
 		bus_i2c_stop(bus);
-		bus_i2c_init(bus, 100000);
+		bus_i2c_init(bus, I2C_SPEED_STANDARD_RATE);
 		return result;
 	}
 
 	result = bus_i2c_stop(bus);
 	if (result)
-		bus_i2c_init(bus, 100000);
+		bus_i2c_init(bus, I2C_SPEED_STANDARD_RATE);
 
 	return result;
 }
@@ -445,7 +447,7 @@ static int imx_lpi2c_probe(struct udevice *bus)
 
 	i2c_bus->driver_data = dev_get_driver_data(bus);
 
-	addr = devfdt_get_addr(bus);
+	addr = dev_read_addr(bus);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -489,7 +491,7 @@ static int imx_lpi2c_probe(struct udevice *bus)
 			return ret;
 	}
 
-	ret = bus_i2c_init(bus, 100000);
+	ret = bus_i2c_init(bus, I2C_SPEED_STANDARD_RATE);
 	if (ret < 0)
 		return ret;
 

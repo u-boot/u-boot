@@ -3,15 +3,18 @@
  * Copyright (C) 2017 The Android Open Source Project
  */
 
+#include <common.h>
 #include <android_ab.h>
 #include <command.h>
+#include <env.h>
+#include <part.h>
 
-static int do_ab_select(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_ab_select(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	int ret;
 	struct blk_desc *dev_desc;
-	disk_partition_t part_info;
+	struct disk_partition part_info;
 	char slot[2];
 
 	if (argc != 4)

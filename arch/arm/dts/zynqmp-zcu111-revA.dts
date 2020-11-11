@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP ZCU111
  *
- * (C) Copyright 2017 - 2018, Xilinx, Inc.
+ * (C) Copyright 2017 - 2020, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
@@ -51,14 +51,14 @@
 			label = "sw19";
 			gpios = <&gpio 22 GPIO_ACTIVE_HIGH>;
 			linux,code = <KEY_DOWN>;
-			gpio-key,wakeup;
+			wakeup-source;
 			autorepeat;
 		};
 	};
 
 	leds {
 		compatible = "gpio-leds";
-		heartbeat_led {
+		heartbeat-led {
 			label = "heartbeat";
 			gpios = <&gpio 23 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "heartbeat";
@@ -327,18 +327,15 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <2>;
-			irps5401_43: irps54012@43 { /* IRPS5401 - u53 check these */
-				#clock-cells = <0>;
+			irps5401_43: irps5401@43 { /* IRPS5401 - u53 check these */
 				compatible = "infineon,irps5401";
 				reg = <0x43>;
 			};
-			irps5401_44: irps54012@44 { /* IRPS5401 - u55 */
-				#clock-cells = <0>;
+			irps5401_44: irps5401@44 { /* IRPS5401 - u55 */
 				compatible = "infineon,irps5401";
 				reg = <0x44>;
 			};
-			irps5401_45: irps54012@45 { /* IRPS5401 - u57 */
-				#clock-cells = <0>;
+			irps5401_45: irps5401@45 { /* IRPS5401 - u57 */
 				compatible = "infineon,irps5401";
 				reg = <0x45>;
 			};
@@ -525,19 +522,19 @@
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <4>; /* FIXME also DUAL configuration possible */
 		spi-max-frequency = <108000000>; /* Based on DC1 spec */
-		partition@qspi-fsbl-uboot { /* for testing purpose */
+		partition@0 { /* for testing purpose */
 			label = "qspi-fsbl-uboot";
 			reg = <0x0 0x100000>;
 		};
-		partition@qspi-linux { /* for testing purpose */
+		partition@100000 { /* for testing purpose */
 			label = "qspi-linux";
 			reg = <0x100000 0x500000>;
 		};
-		partition@qspi-device-tree { /* for testing purpose */
+		partition@600000 { /* for testing purpose */
 			label = "qspi-device-tree";
 			reg = <0x600000 0x20000>;
 		};
-		partition@qspi-rootfs { /* for testing purpose */
+		partition@620000 { /* for testing purpose */
 			label = "qspi-rootfs";
 			reg = <0x620000 0x5E0000>;
 		};
@@ -566,9 +563,12 @@
 /* SD1 with level shifter */
 &sdhci1 {
 	status = "okay";
-	no-1-8-v;
 	disable-wp;
-	xlnx,mio_bank = <1>;
+	/*
+	 * This property should be removed for supporting UHS mode
+	 */
+	no-1-8-v;
+	xlnx,mio-bank = <1>;
 };
 
 &serdes {

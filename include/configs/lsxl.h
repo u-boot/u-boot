@@ -32,14 +32,6 @@
 
 #define CONFIG_KIRKWOOD_GPIO
 
-/*
- * Commands configuration
- */
-
-/*
- * mv-common.h should be defined after CMD configs since it used them
- * to enable certain macros
- */
 #include "mv-common.h"
 
 /* loading initramfs images without uimage header */
@@ -50,11 +42,7 @@
 #ifdef CONFIG_SPI_FLASH
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT	8
-#define CONFIG_ENV_SECT_SIZE		0x10000 /* 64K */
 #endif
-
-#define CONFIG_ENV_SIZE			0x10000 /* 64k */
-#define CONFIG_ENV_OFFSET		0x70000 /* env starts here */
 
 /*
  * Default environment variables

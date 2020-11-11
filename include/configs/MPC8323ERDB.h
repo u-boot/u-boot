@@ -9,6 +9,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 /*
  * High Level Configuration Options
  */
@@ -85,8 +87,6 @@
  * Memory test
  */
 #undef CONFIG_SYS_DRAM_TEST		/* memory test, takes time */
-#define CONFIG_SYS_MEMTEST_START	0x00030000	/* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x03f00000
 
 /*
  * The reserved memory
@@ -172,7 +172,6 @@
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCI_SKIP_HOST_BRIDGE
 
-#undef CONFIG_EEPRO100
 #undef CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID	0x1957	/* Freescale */
 
@@ -211,15 +210,6 @@
 /*
  * Environment
  */
-#ifndef CONFIG_SYS_RAMBOOT
-	#define CONFIG_ENV_ADDR		\
-			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
-	#define CONFIG_ENV_SECT_SIZE	0x20000
-	#define CONFIG_ENV_SIZE		0x2000
-#else
-	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
-	#define CONFIG_ENV_SIZE		0x2000
-#endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
@@ -228,10 +218,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-
-/*
- * Command line configuration.
- */
 
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 
@@ -256,7 +242,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_HAS_ETH0		/* add support for "ethaddr" */
 #define CONFIG_HAS_ETH1		/* add support for "eth1addr" */

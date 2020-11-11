@@ -23,6 +23,20 @@ config PWM_IMX
 	help
 	  This PWM is found i.MX27 and later i.MX SoCs.
 
+config PWM_MESON
+	bool "Enable support for Amlogic Meson SoCs PWM"
+	depends on DM_PWM
+	help
+	  This PWM is found on Amlogic Meson SoCs. It supports a
+	  programmable period and duty cycle for 2 independant channels.
+
+config PWM_MTK
+	bool "Enable support for MediaTek PWM"
+	depends on DM_PWM
+	help
+	  This PWM is found on MT7622, MT7623, and MT7629. It supports a
+	  programmable period and duty cycle.
+
 config PWM_ROCKCHIP
 	bool "Enable support for the Rockchip PWM"
 	depends on DM_PWM
@@ -39,6 +53,12 @@ config PWM_SANDBOX
 	  records the settings passed into it, but otherwise does nothing
 	  useful. The PWM can be enabled but is not connected to any outputs
 	  so this is not very useful.
+
+config PWM_SIFIVE
+	bool "Enable support for SiFive PWM"
+	depends on DM_PWM
+	help
+	  This PWM is found SiFive's FU540 and other SoCs.
 
 config PWM_TEGRA
 	bool "Enable support for the Tegra PWM"

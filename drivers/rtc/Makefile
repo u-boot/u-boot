@@ -7,7 +7,6 @@
 obj-$(CONFIG_$(SPL_TPL_)DM_RTC) += rtc-uclass.o
 
 obj-$(CONFIG_RTC_AT91SAM9_RTT) += at91sam9_rtt.o
-obj-y += date.o
 obj-y += rtc-lib.o
 obj-$(CONFIG_RTC_DAVINCI) += davinci.o
 obj-$(CONFIG_RTC_DS1302) += ds1302.o
@@ -22,6 +21,8 @@ obj-$(CONFIG_RTC_DS1556) += ds1556.o
 obj-$(CONFIG_RTC_DS164x) += ds164x.o
 obj-$(CONFIG_RTC_DS174x) += ds174x.o
 obj-$(CONFIG_RTC_DS3231) += ds3231.o
+obj-$(CONFIG_RTC_DS3232) += ds3232.o
+obj-$(CONFIG_RTC_EMULATION) += emul_rtc.o
 obj-$(CONFIG_RTC_FTRTC010) += ftrtc010.o
 obj-$(CONFIG_SANDBOX) += i2c_rtc_emul.o
 obj-$(CONFIG_RTC_IMXDI) += imxdi.o

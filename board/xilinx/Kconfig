@@ -41,9 +41,43 @@ config XILINX_PS_INIT_FILE
 endif
 
 config XILINX_OF_BOARD_DTB_ADDR
-	hex
+	hex "Default DTB pickup address"
 	default 0x1000 if ARCH_VERSAL
 	default 0x100000 if ARCH_ZYNQ || ARCH_ZYNQMP
-	depends on OF_BOARD
+	depends on OF_BOARD || OF_SEPARATE
 	help
 	  Offset in the memory where the board configuration DTB is placed.
+
+config BOOT_SCRIPT_OFFSET
+	hex "Boot script offset"
+	depends on ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL || MICROBLAZE
+	default 0xFC0000 if ARCH_ZYNQ || MICROBLAZE
+	default 0x3E80000 if ARCH_ZYNQMP
+	default 0x7F80000 if ARCH_VERSAL
+	help
+	   Specifies distro boot script offset in NAND/QSPI/NOR flash.
+
+config ZYNQ_MAC_IN_EEPROM
+	bool "Reading MAC address from EEPROM"
+	help
+	  Enable this option if your MAC address is saved in eeprom and
+	  xlnx,eeprom DT property in chosen node points to it.
+
+if ZYNQ_MAC_IN_EEPROM
+
+config ZYNQ_GEM_I2C_MAC_OFFSET
+	hex "Set the I2C MAC offset"
+	default 0x0
+	depends on DM_I2C
+	help
+	  Set the MAC offset for i2C.
+
+endif
+
+config CMD_FRU
+	bool "FRU information for product"
+	help
+	  This option enables FRU commands to capture and display FRU
+	  information present in the device. The FRU Information is used
+	  to primarily to provide "inventory" information about the boards
+	  that the FRU Information Device is located on.

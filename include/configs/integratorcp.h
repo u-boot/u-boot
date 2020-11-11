@@ -27,9 +27,6 @@
 #define CONFIG_SMC91111_BASE    0xC8000000
 #undef CONFIG_SMC91111_EXT_PHY
 
-/*
- * Command line configuration.
- */
 #define CONFIG_BOOTCOMMAND "tftpboot ; bootm"
 #define CONFIG_SERVERIP 192.168.1.100
 #define CONFIG_IPADDR 192.168.1.104
@@ -52,22 +49,16 @@
  */
 #if ( PHYS_FLASH_SIZE == 0x04000000 )
 
-#define CONFIG_ENV_ADDR		0x27F00000
 #define CONFIG_SYS_MONITOR_BASE	0x27F40000
 
 #elif (PHYS_FLASH_SIZE == 0x02000000 )
 
-#define CONFIG_ENV_ADDR		0x25F00000
 #define CONFIG_SYS_MONITOR_BASE	0x25F40000
 
 #else
 
-#define CONFIG_ENV_ADDR		0x24F00000
 #define CONFIG_SYS_MONITOR_BASE	0x27F40000
 
 #endif
-
-#define CONFIG_ENV_SECT_SIZE	0x40000		/* 256KB */
-#define CONFIG_ENV_SIZE		8192		/* 8KB */
 
 #endif /* __CONFIG_H */

@@ -85,7 +85,7 @@ typedef unsigned int		u_int;
 typedef unsigned long		u_long;
 
 /* sysv */
-typedef unsigned char		unchar;
+typedef unsigned char		uchar;
 typedef unsigned short		ushort;
 typedef unsigned int		uint;
 typedef unsigned long		ulong;
@@ -162,5 +162,9 @@ struct ustat {
 
 #define DECLARE_BITMAP(name, bits) \
 	unsigned long name[BITS_TO_LONGS(bits)]
+
+typedef volatile unsigned long	vu_long;
+typedef volatile unsigned short vu_short;
+typedef volatile unsigned char	vu_char;
 
 #endif /* _LINUX_TYPES_H */

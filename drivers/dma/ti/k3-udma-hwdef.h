@@ -12,6 +12,7 @@
 #ifndef K3_NAVSS_UDMA_HWDEF_H_
 #define K3_NAVSS_UDMA_HWDEF_H_
 
+#include <linux/bitops.h>
 #define UDMA_PSIL_DST_THREAD_ID_OFFSET 0x8000
 
 /* Global registers */

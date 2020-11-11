@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/mrccache.h>
 #include <asm/post.h>
 

@@ -27,16 +27,11 @@
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
 
 /* memtest works on */
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x5000000)
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x4800000)
-
-/* select serial console configuration */
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_TRATS
 
 #define CONFIG_BOOTCOMMAND		"run autoboot"
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
 					- GENERATED_GBL_DATA_SIZE)
@@ -47,12 +42,6 @@
 
 #define CONFIG_BOOTBLOCK		"10"
 #define CONFIG_ENV_COMMON_BOOT		"${console} ${meminfo}"
-
-#define CONFIG_SYS_MMC_ENV_DEV		CONFIG_MMC_DEFAULT_DEV
-#define CONFIG_ENV_SIZE			4096
-#define CONFIG_ENV_OFFSET		((32 - 4) << 10) /* 32KiB - 4KiB */
-
-#define CONFIG_ENV_OVERWRITE
 
 /* Tizen - partitions definitions */
 #define PARTS_CSA		"csa-mmc"
@@ -120,7 +109,7 @@
 	"mmcoops=mmc read 0 0x40000000 0x40 8; md 0x40000000 0x400\0" \
 	"verify=n\0" \
 	"rootfstype=ext4\0" \
-	"console=" CONFIG_DEFAULT_CONSOLE \
+	"console=console=ttySAC2,115200n8\0" \
 	"meminfo=crashkernel=32M@0x50000000\0" \
 	"nfsroot=/nfsroot/arm\0" \
 	"bootblock=" CONFIG_BOOTBLOCK "\0" \
@@ -186,10 +175,8 @@
 #define LCD_BPP			LCD_COLOR16
 
 /* LCD */
-#define CONFIG_BMP_16BPP
 #define CONFIG_FB_ADDR		0x52504000
 #define CONFIG_EXYNOS_MIPI_DSIM
-#define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE  ((500 * 160 * 4) + 54)
 
 #endif	/* __CONFIG_H */

@@ -8,7 +8,10 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <time.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 #define UBOOT_CNTR	0	/* counter to use for uboot timer */
 
@@ -164,7 +167,7 @@ unsigned long long get_ticks(void)
  * This function is derived from PowerPC code (timebase clock frequency).
  * On ARM it returns the number of timer ticks per second.
  */
-ulong get_tbclk (void)
+ulong get_tbclk(void)
 {
 	return (ulong)CONFIG_SYS_HZ;
 }

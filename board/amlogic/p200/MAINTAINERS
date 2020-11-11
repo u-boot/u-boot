@@ -7,3 +7,6 @@ F:	board/amlogic/p200/
 F:	configs/nanopi-k2_defconfig
 F:	configs/odroid-c2_defconfig
 F:	configs/p200_defconfig
+F:	doc/board/amlogic/p200.rst
+F:	doc/board/amlogic/nanopi-k2.rst
+F:	doc/board/amlogic/odroid-c2.rst

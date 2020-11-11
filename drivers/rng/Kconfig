@@ -1,0 +1,49 @@
+config DM_RNG
+	bool "Driver support for Random Number Generator devices"
+	depends on DM
+	help
+	  Enable driver model for random number generator(rng) devices.
+	  This interface is used to initialise the rng device and to
+	  read the random seed from the device.
+
+if DM_RNG
+
+config RNG_MESON
+	bool "Amlogic Meson Random Number Generator support"
+	depends on ARCH_MESON
+	default y
+	help
+	  Enable support for hardware random number generator
+	  of Amlogic Meson SoCs.
+
+config RNG_SANDBOX
+	bool "Sandbox random number generator"
+	depends on SANDBOX
+	default y
+	help
+	  Enable random number generator for sandbox. This is an
+	  emulation of a rng device.
+
+config RNG_MSM
+	bool "Qualcomm SoCs Random Number Generator support"
+	depends on DM_RNG
+	help
+	  This driver provides support for the Random Number
+	  Generator hardware found on Qualcomm SoCs.
+
+config RNG_STM32MP1
+	bool "Enable random number generator for STM32MP1"
+	depends on ARCH_STM32MP
+	default n
+	help
+	  Enable STM32MP1 rng driver.
+
+config RNG_ROCKCHIP
+	bool "Enable random number generator for rockchip crypto rng"
+	depends on ARCH_ROCKCHIP && DM_RNG
+	default n
+	help
+	  Enable random number generator for rockchip.This driver is
+	  support rng module of crypto v1 and crypto v2.
+
+endif

@@ -10,6 +10,7 @@
 #include <command.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <rtc.h>
 #include <asm/io.h>
 #include <asm/types.h>

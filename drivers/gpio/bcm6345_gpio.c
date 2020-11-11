@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 struct bcm6345_gpio_priv {
 	void __iomem *reg_dirout;

@@ -4,16 +4,22 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <init.h>
+#include <log.h>
 #include <malloc.h>
 #include <wait_bit.h>
 #include <watchdog.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/fpga_manager.h>
 #include <asm/arch/misc.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/sdram.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/kernel.h>
 
 DECLARE_GLOBAL_DATA_PTR;

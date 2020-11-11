@@ -176,9 +176,9 @@ static int execute(void)
 	/* Check memory reservation for the device tree */
 	if (fdt_addr &&
 	    find_in_memory_map(map_size, memory_map, desc_size, fdt_addr,
-			       EFI_BOOT_SERVICES_DATA) != EFI_ST_SUCCESS) {
+			       EFI_ACPI_RECLAIM_MEMORY) != EFI_ST_SUCCESS) {
 		efi_st_error
-			("Device tree not marked as boot services data\n");
+			("Device tree not marked as ACPI reclaim memory\n");
 		return EFI_ST_FAILURE;
 	}
 	return EFI_ST_SUCCESS;

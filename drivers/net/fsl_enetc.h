@@ -7,6 +7,7 @@
 #ifndef _ENETC_H
 #define _ENETC_H
 
+#include <linux/bitops.h>
 #define enetc_dbg(dev, fmt, args...)	debug("%s:" fmt, dev->name, ##args)
 
 /* PCI function IDs */
@@ -154,6 +155,7 @@ struct enetc_priv {
 
 	int if_type;
 	struct mii_dev imdio;
+	struct phy_device *phy;
 };
 
 /* register accessors */
@@ -225,5 +227,8 @@ int enetc_mdio_read_priv(struct enetc_mdio_priv *priv, int addr, int devad,
 			 int reg);
 int enetc_mdio_write_priv(struct enetc_mdio_priv *priv, int addr, int devad,
 			  int reg, u16 val);
+
+/* sets up primary MAC addresses in DT/IERB */
+void fdt_fixup_enetc_mac(void *blob);
 
 #endif /* _ENETC_H */

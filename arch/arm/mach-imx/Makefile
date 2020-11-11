@@ -27,7 +27,7 @@ endif
 obj-$(CONFIG_GPT_TIMER) += timer.o
 obj-$(CONFIG_SYS_I2C_MXC) += i2c-mxv7.o
 endif
-ifeq ($(SOC),$(filter $(SOC),mx7 mx6 mxs imx8m imx8))
+ifeq ($(SOC),$(filter $(SOC),mx7 mx6 mxs imx8m imx8 imxrt))
 obj-y	+= misc.o
 obj-$(CONFIG_SPL_BUILD)	+= spl.o
 endif
@@ -218,7 +218,7 @@ endif
 
 targets += $(addprefix ../../../,SPL spl/u-boot-spl.cfgout u-boot-dtb.cfgout u-boot.cfgout u-boot.uim spl/u-boot-nand-spl.imx)
 
-obj-$(CONFIG_ARM64) += lowlevel.o sip.o
+obj-$(CONFIG_ARM64) += lowlevel.o
 
 obj-$(CONFIG_MX5) += mx5/
 obj-$(CONFIG_MX6) += mx6/
@@ -226,5 +226,6 @@ obj-$(CONFIG_MX7) += mx7/
 obj-$(CONFIG_ARCH_MX7ULP) += mx7ulp/
 obj-$(CONFIG_IMX8M) += imx8m/
 obj-$(CONFIG_ARCH_IMX8) += imx8/
+obj-$(CONFIG_ARCH_IMXRT) += imxrt/
 
 obj-$(CONFIG_SPL_BOOTROM_SUPPORT) += spl_imx_romapi.o

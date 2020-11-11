@@ -11,5 +11,7 @@ obj-y	+= stack.o
 obj-y	+= traps.o
 
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
+obj-$(CONFIG_CMD_GO) += boot.o
+obj-$(CONFIG_SPL_BUILD) += spl.o
 
 lib-$(CONFIG_USE_PRIVATE_LIBGCC) += ashldi3.o ashrdi3.o lshrdi3.o

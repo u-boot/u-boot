@@ -10,6 +10,9 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <log.h>
+#include <malloc.h>
 #include <pci.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>
@@ -17,6 +20,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <dm.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 #include <errno.h>
 #include <asm/arch/sys_proto.h>
@@ -747,7 +751,7 @@ void pci_init_board(void)
 	imx_pcie_init();
 }
 #else
-static int imx_pcie_dm_read_config(struct udevice *dev, pci_dev_t bdf,
+static int imx_pcie_dm_read_config(const struct udevice *dev, pci_dev_t bdf,
 				   uint offset, ulong *value,
 				   enum pci_size_t size)
 {
@@ -814,6 +818,7 @@ static const struct dm_pci_ops imx_pcie_ops = {
 
 static const struct udevice_id imx_pcie_ids[] = {
 	{ .compatible = "fsl,imx6q-pcie" },
+	{ .compatible = "fsl,imx6sx-pcie" },
 	{ }
 };
 

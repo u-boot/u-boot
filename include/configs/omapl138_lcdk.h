@@ -23,7 +23,7 @@
 #define CONFIG_SYS_TIMERBASE		DAVINCI_TIMER0_BASE
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
 #define CONFIG_SYS_HZ			1000
-#define CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 
 /*
  * Memory Info
@@ -37,10 +37,8 @@
 #define CONFIG_SPL_BSS_MAX_SIZE 0x1080000
 
 /* memtest start addr */
-#define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM_1 + 0x2000000)
 
 /* memtest will be run on 16MB */
-#define CONFIG_SYS_MEMTEST_END 	(PHYS_SDRAM_1 + 0x2000000 + 16*1024*1024)
 
 #define CONFIG_SYS_DA850_SYSCFG_SUSPSRC (	\
 	DAVINCI_SYSCFG_SUSPSRC_TIMER0 |		\
@@ -116,9 +114,7 @@
 /*
  * Flash & Environment
  */
-#ifdef CONFIG_NAND
-#define CONFIG_ENV_OFFSET		0x0 /* Block 0--not used by bootcode */
-#define CONFIG_ENV_SIZE			(128 << 9)
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
 #define	CONFIG_SYS_NAND_PAGE_2K
 #define CONFIG_SYS_NAND_CS		3
@@ -149,9 +145,6 @@
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	10
 #define CONFIG_SYS_NAND_OOBSIZE		64
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_NAND_LOAD
 #endif
 
@@ -159,10 +152,6 @@
  * Network & Ethernet Configuration
  */
 #ifdef CONFIG_DRIVER_TI_EMAC
-#undef	CONFIG_DRIVER_TI_EMAC_USE_RMII
-#define CONFIG_BOOTP_DEFAULT
-#define CONFIG_BOOTP_DNS2
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT	10
 #endif
 
@@ -214,13 +203,6 @@
 #endif
 
 /* SD/MMC */
-
-#ifdef CONFIG_ENV_IS_IN_MMC
-#undef CONFIG_ENV_SIZE
-#undef CONFIG_ENV_OFFSET
-#define CONFIG_ENV_SIZE		(16 << 10)	/* 16 KiB */
-#define CONFIG_ENV_OFFSET	(51 << 9)	/* Sector 51 */
-#endif
 
 /* defines for SPL */
 #define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_TEXT_BASE - \

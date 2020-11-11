@@ -12,20 +12,19 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 /*
  * High Level Configuration Options
  */
 #define CONFIG_E300		1
 
 #define CONFIG_PCI_INDIRECT_BRIDGE 1
-#define CONFIG_FSL_ELBC		1
 
 /*
  * On-board devices
  *
  */
-#define CONFIG_SYS_MEMTEST_START	0x00001000
-#define CONFIG_SYS_MEMTEST_END		0x07000000
 
 /*
  * Device configurations
@@ -195,14 +194,7 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_ADDR		\
-			(CONFIG_SYS_FLASH_BASE + CONFIG_SYS_MONITOR_LEN)
-#define CONFIG_ENV_SECT_SIZE	0x20000	/* 128K(one sector) for env */
-#define CONFIG_ENV_SIZE		0x4000
 /* Address and size of Redundant Environment Sector */
-#define CONFIG_ENV_OFFSET_REDUND	\
-			(CONFIG_ENV_OFFSET + CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
@@ -211,10 +203,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-
-/*
- * Command line configuration.
- */
 
 /*
  * Miscellaneous configurable options

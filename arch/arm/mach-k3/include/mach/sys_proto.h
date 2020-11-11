@@ -16,4 +16,7 @@ int do_board_detect(void);
 void release_resources_for_core_shutdown(void);
 int fdt_disable_node(void *blob, char *node_path);
 
+bool soc_is_j721e(void);
+bool soc_is_j7200(void);
+
 #endif

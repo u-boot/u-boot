@@ -1,0 +1,6 @@
+BEACON_RZG2M BOARD
+M:	Adam Ford <aford173@gmail.com>
+S:	Maintained
+F:	board/beacon/beacon-rzg2m/
+F:	include/configs/beacon-rzg2m.h
+F:	configs/r8a774a1_beacon_defconfig

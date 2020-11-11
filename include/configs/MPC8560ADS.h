@@ -17,6 +17,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/delay.h>
+
 /* High Level Configuration Options */
 #define CONFIG_CPM2		1	/* has CPM2 */
 
@@ -28,7 +30,6 @@
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #undef CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */
-#define CONFIG_ENV_OVERWRITE
 #define CONFIG_RESET_PHY_R	1	/* Call reset_phy() */
 
 /*
@@ -56,9 +57,6 @@
 #define CONFIG_BTB			/* toggle branch predition */
 
 #define CONFIG_SYS_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions */
-
-#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x00400000
 
 #define CONFIG_SYS_CCSRBAR		0xe0000000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
@@ -113,8 +111,6 @@
 #endif
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO
-
-#undef CONFIG_CLOCKS_IN_MHZ
 
 /*
  * Local Bus Definitions
@@ -234,8 +230,6 @@
 #define CONFIG_SYS_PCI1_IO_SIZE	0x100000	/* 1M */
 
 #if defined(CONFIG_PCI)
-#undef CONFIG_EEPRO100
-#undef CONFIG_TULIP
 
 #if !defined(CONFIG_PCI_PNP)
     #define PCI_ENET0_IOADDR	0xe0000000
@@ -288,8 +282,6 @@
   #define FETH3_RST		0x80
 #endif					/* CONFIG_ETHER_INDEX */
 
-#define CONFIG_BITBANGMII		/* bit-bang MII PHY management */
-
 /*
  * GPIO pins used for bit-banged MII communications
  */
@@ -315,14 +307,6 @@
 /*
  * Environment
  */
-#ifndef CONFIG_SYS_RAMBOOT
-  #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x40000)
-  #define CONFIG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
-  #define CONFIG_ENV_SIZE		0x2000
-#else
-  #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
-  #define CONFIG_ENV_SIZE		0x2000
-#endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */

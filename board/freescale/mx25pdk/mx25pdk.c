@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/imx-regs.h>
@@ -14,6 +15,7 @@
 #include <mmc.h>
 #include <fsl_esdhc_imx.h>
 #include <i2c.h>
+#include <linux/delay.h>
 #include <power/pmic.h>
 #include <fsl_pmic.h>
 #include <mc34704.h>
@@ -161,7 +163,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return !gpio_get_value(CARD_DETECT);
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	static const iomux_v3_cfg_t sdhc1_pads[] = {
 		NEW_PAD_CTRL(MX25_PAD_SD1_CMD__SD1_CMD, NO_PAD_CTRL),

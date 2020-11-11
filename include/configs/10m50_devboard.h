@@ -62,19 +62,10 @@
  * (which is common practice).
  */
 
-#define CONFIG_ENV_SIZE			0x10000	/* 64k, 1 sector */
-#define CONFIG_ENV_OVERWRITE		/* Serial change Ok	*/
-#define CONFIG_ENV_ADDR			(0xf4000000 + CONFIG_SYS_MONITOR_LEN)
-
 /*
  * MISC
  */
 #define CONFIG_SYS_LOAD_ADDR		0xcc000000	/* Half of RAM */
 #define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MONITOR_BASE - \
-					 CONFIG_ENV_SIZE - \
-					 CONFIG_SYS_MALLOC_LEN -	\
-					 0x10000)
 
 #endif /* __CONFIG_H */

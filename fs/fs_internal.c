@@ -5,19 +5,23 @@
  * Derived from code in ext4/dev.c, which was based on reiserfs/dev.c
  */
 
+#define LOG_CATEGORY LOGC_CORE
+
 #include <common.h>
+#include <blk.h>
 #include <compiler.h>
+#include <log.h>
 #include <part.h>
 #include <memalign.h>
 
-int fs_devread(struct blk_desc *blk, disk_partition_t *partition,
+int fs_devread(struct blk_desc *blk, struct disk_partition *partition,
 	       lbaint_t sector, int byte_offset, int byte_len, char *buf)
 {
 	unsigned block_len;
 	int log2blksz;
 	ALLOC_CACHE_ALIGN_BUFFER(char, sec_buf, (blk ? blk->blksz : 0));
 	if (blk == NULL) {
-		printf("** Invalid Block Device Descriptor (NULL)\n");
+		log_err("** Invalid Block Device Descriptor (NULL)\n");
 		return 0;
 	}
 	log2blksz = blk->log2blksz;
@@ -25,8 +29,8 @@ int fs_devread(struct blk_desc *blk, disk_partition_t *partition,
 	/* Check partition boundaries */
 	if ((sector + ((byte_offset + byte_len - 1) >> log2blksz))
 	    >= partition->size) {
-		printf("%s read outside partition " LBAFU "\n", __func__,
-		       sector);
+		log_err("%s read outside partition " LBAFU "\n", __func__,
+			sector);
 		return 0;
 	}
 
@@ -34,14 +38,14 @@ int fs_devread(struct blk_desc *blk, disk_partition_t *partition,
 	sector += byte_offset >> log2blksz;
 	byte_offset &= blk->blksz - 1;
 
-	debug(" <" LBAFU ", %d, %d>\n", sector, byte_offset, byte_len);
+	log_debug(" <" LBAFU ", %d, %d>\n", sector, byte_offset, byte_len);
 
 	if (byte_offset != 0) {
 		int readlen;
 		/* read first part which isn't aligned with start of sector */
 		if (blk_dread(blk, partition->start + sector, 1,
 			      (void *)sec_buf) != 1) {
-			printf(" ** %s read error **\n", __func__);
+			log_err(" ** %s read error **\n", __func__);
 			return 0;
 		}
 		readlen = min((int)blk->blksz - byte_offset,
@@ -71,7 +75,7 @@ int fs_devread(struct blk_desc *blk, disk_partition_t *partition,
 	if (blk_dread(blk, partition->start + sector,
 		      block_len >> log2blksz, (void *)buf) !=
 			block_len >> log2blksz) {
-		printf(" ** %s read error - block\n", __func__);
+		log_err(" ** %s read error - block\n", __func__);
 		return 0;
 	}
 	block_len = byte_len & ~(blk->blksz - 1);
@@ -83,7 +87,7 @@ int fs_devread(struct blk_desc *blk, disk_partition_t *partition,
 		/* read rest of data which are not in whole sector */
 		if (blk_dread(blk, partition->start + sector, 1,
 			      (void *)sec_buf) != 1) {
-			printf("* %s read error - last part\n", __func__);
+			log_err("* %s read error - last part\n", __func__);
 			return 0;
 		}
 		memcpy(buf, sec_buf, byte_len);

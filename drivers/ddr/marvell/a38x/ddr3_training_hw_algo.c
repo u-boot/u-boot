@@ -11,7 +11,7 @@
 #define VREF_MAX_INDEX			7
 #define MAX_VALUE			(1024 - 1)
 #define MIN_VALUE			(-MAX_VALUE)
-#define GET_RD_SAMPLE_DELAY(data, cs)	((data >> rd_sample_mask[cs]) & 0xf)
+#define GET_RD_SAMPLE_DELAY(data, cs)	((data >> rd_sample_mask[cs]) & 0x1f)
 
 u32 ca_delay;
 int ddr3_tip_centr_skip_min_win_check = 0;
@@ -91,8 +91,8 @@ int ddr3_tip_write_additional_odt_setting(u32 dev_num, u32 if_id)
 			min_read_sample = read_sample[cs_num];
 	}
 
-	min_read_sample = min_read_sample - 1;
-	max_read_sample = max_read_sample + 4 + (max_phase + 1) / 2 + 1;
+	min_read_sample = min_read_sample + 2;
+	max_read_sample = max_read_sample + 7 + (max_phase + 1) / 2 + 1;
 	if (min_read_sample >= 0xf)
 		min_read_sample = 0xf;
 	if (max_read_sample >= 0x1f)

@@ -788,8 +788,13 @@ struct mallinfo {
 
 */
 
-/* #define USE_DL_PREFIX */
-
+/*
+ * Rename the U-Boot alloc functions so that sandbox can still use the system
+ * ones
+ */
+#ifdef CONFIG_SANDBOX
+#define USE_DL_PREFIX
+#endif
 
 /*
 
@@ -892,6 +897,21 @@ void malloc_simple_info(void);
 # define pvALLOc		dlpvalloc
 # define mALLINFo	dlmallinfo
 # define mALLOPt		dlmallopt
+
+/* Ensure that U-Boot actually uses these too */
+#define calloc dlcalloc
+#define free(ptr) dlfree(ptr)
+#define malloc(x) dlmalloc(x)
+#define memalign dlmemalign
+#define realloc dlrealloc
+#define valloc dlvalloc
+#define pvalloc dlpvalloc
+#define mallinfo() dlmallinfo()
+#define mallopt dlmallopt
+#define malloc_trim dlmalloc_trim
+#define malloc_usable_size dlmalloc_usable_size
+#define malloc_stats dlmalloc_stats
+
 # else /* USE_DL_PREFIX */
 # define cALLOc		calloc
 # define fREe		free

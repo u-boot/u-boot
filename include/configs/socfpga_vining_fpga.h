@@ -18,9 +18,6 @@
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
 /* Ethernet on SoC (EMAC) */
-#if defined(CONFIG_CMD_NET)
-#define CONFIG_BOOTP_SEND_HOSTNAME
-#endif
 
 /* Extra Environment */
 #define CONFIG_HOSTNAME			"socfpga_vining_fpga"
@@ -194,12 +191,6 @@
 		"else echo \"Unsupported boot mode: \"${bootmode} ; "	\
 		"fi\0"							\
 		"socfpga_legacy_reset_compat=1\0"
-
-#define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
-#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
-#define CONFIG_ENV_OFFSET		0x100000
-#define CONFIG_ENV_OFFSET_REDUND	\
-	(CONFIG_ENV_OFFSET + CONFIG_ENV_SECT_SIZE)
 
 /* Support changing the prompt string */
 #define CONFIG_CMDLINE_PS_SUPPORT

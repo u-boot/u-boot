@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 
 int board_early_init_r(void)
 {

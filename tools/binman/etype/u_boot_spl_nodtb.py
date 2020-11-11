@@ -5,8 +5,8 @@
 # Entry-type module for 'u-boot-nodtb.bin'
 #
 
-from entry import Entry
-from blob import Entry_blob
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
 class Entry_u_boot_spl_nodtb(Entry_blob):
     """SPL binary without device tree appended
@@ -22,7 +22,7 @@ class Entry_u_boot_spl_nodtb(Entry_blob):
     both SPL and the device tree).
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def GetDefaultFilename(self):
         return 'spl/u-boot-spl-nodtb.bin'

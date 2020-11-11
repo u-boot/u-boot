@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <asm/cache.h>
 
 #if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 void enable_caches(void)

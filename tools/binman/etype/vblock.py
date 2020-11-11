@@ -9,10 +9,10 @@
 from collections import OrderedDict
 import os
 
-from entry import Entry, EntryArg
+from binman.entry import Entry, EntryArg
 
-import fdt_util
-import tools
+from dtoc import fdt_util
+from patman import tools
 
 class Entry_vblock(Entry):
     """An entry which contains a Chromium OS verified boot block
@@ -36,7 +36,7 @@ class Entry_vblock(Entry):
     and kernel are genuine.
     """
     def __init__(self, section, etype, node):
-        Entry.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self.content = fdt_util.GetPhandleList(self._node, 'content')
         if not self.content:
             self.Raise("Vblock must have a 'content' property")

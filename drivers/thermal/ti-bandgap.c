@@ -26,7 +26,7 @@
 
 struct ti_bandgap {
 	ulong			base;
-	int			temperature;	/* in mili degree celsius */
+	uint			adc_val;
 };
 
 /*
@@ -162,8 +162,8 @@ static int ti_bandgap_get_temp(struct udevice *dev,  int *temp)
 {
 	struct ti_bandgap *bgp = dev_get_priv(dev);
 
-	bgp->temperature = 0x3ff & readl(bgp->base + CTRL_CORE_TEMP_SENSOR_MPU);
-	*temp = dra752_adc_to_temp[bgp->temperature - DRA752_ADC_START_VALUE];
+	bgp->adc_val = 0x3ff & readl(bgp->base + CTRL_CORE_TEMP_SENSOR_MPU);
+	*temp = dra752_adc_to_temp[bgp->adc_val - DRA752_ADC_START_VALUE];
 
 	return 0;
 }

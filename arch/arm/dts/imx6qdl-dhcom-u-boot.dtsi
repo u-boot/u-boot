@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: (GPL-2.0+)
+/*
+ * Copyright (C) 2020 Harald Seiler <hws@denx.de>
+ */
+
+&reg_usb_otg_vbus {
+	gpio = <&gpio3 31 GPIO_ACTIVE_HIGH>;
+	enable-active-high;
+};

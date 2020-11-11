@@ -6,6 +6,9 @@
 
 #include <common.h>
 #include <command.h>
+#include <irq_func.h>
+#include <cpu_func.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/processor.h>
 
@@ -26,14 +29,14 @@ int cleanup_before_linux (void)
 	return 0;
 }
 
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	disable_interrupts();
-	reset_cpu (0);
+	reset_cpu(0);
 	return 0;
 }
 
-int cpu_eth_init(bd_t *bis)
+int cpu_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_SH_ETHER
 	sh_eth_initialize(bis);

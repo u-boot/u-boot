@@ -1,0 +1,78 @@
+config CMD_STBOARD
+	bool "stboard - command for OTP board information"
+	depends on ARCH_STM32MP
+	default y if TARGET_ST_STM32MP15x
+	help
+	  This compile the stboard command to
+	  read and write the board in the OTP.
+
+config MTDPARTS_NAND0_BOOT
+	string "mtd boot partitions for nand0"
+	default "2m(fsbl),2m(ssbl1),2m(ssbl2)"
+	depends on SYS_MTDPARTS_RUNTIME && ARCH_STM32MP
+	help
+	  This define the partitions of nand0 used to build mtparts dynamically
+	  for boot from nand0.
+	  Each partition need to be aligned with the device erase block size,
+	  512KB is the max size for the NAND supported by stm32mp1 platform.
+
+config MTDPARTS_NAND0_TEE
+	string "mtd tee partitions for nand0"
+	default "512k(teeh),512k(teed),512k(teex)"
+	depends on SYS_MTDPARTS_RUNTIME && ARCH_STM32MP
+	help
+	  This define the tee partitions added in mtparts dynamically
+	  when tee is supported with boot from nand0.
+	  Each partition need to be aligned with the device erase block size,
+	  512KB is the max size for the NAND supported by stm32mp1 platform.
+
+config MTDPARTS_NOR0_BOOT
+	string "mtd boot partitions for nor0"
+	default "256k(fsbl1),256k(fsbl2),2m(ssbl),512k(u-boot-env)"
+	depends on SYS_MTDPARTS_RUNTIME && ARCH_STM32MP
+	help
+	  This define the partitions of nand0 used to build mtparts dynamically
+	  for boot from nor0.
+	  Each partition need to be aligned with the device erase block size,
+	  with 256KB we support all the NOR.
+	  U-Boot env partition (512kB) use 2 erase block for redundancy.
+
+config MTDPARTS_NOR0_TEE
+	string "mtd tee partitions for nor0"
+	default "256k(teeh),512k(teed),256k(teex)"
+	depends on SYS_MTDPARTS_RUNTIME && ARCH_STM32MP
+	help
+	  This define the tee partitions added in mtparts dynamically
+	  when tee is supported with boot from nor0.
+
+config MTDPARTS_SPINAND0_BOOT
+	string "mtd boot partitions for spi-nand0"
+	default "2m(fsbl),2m(ssbl1),2m(ssbl2)"
+	depends on SYS_MTDPARTS_RUNTIME && ARCH_STM32MP
+	help
+	  This define the partitions of nand0 used to build mtparts dynamically
+	  for boot from spi-nand0,
+	  512KB is the max size for the NAND supported by stm32mp1 platform.
+
+config MTDPARTS_SPINAND0_TEE
+	string "mtd tee partitions for spi-nand0"
+	default "512k(teeh),512k(teed),512k(teex)"
+	depends on SYS_MTDPARTS_RUNTIME && ARCH_STM32MP
+	help
+	  This define the tee partitions added in mtparts dynamically
+	  when tee is supported with boot from spi-nand0,
+	  512KB is the max size for the NAND supported by stm32mp1 platform.
+
+config DFU_ALT_RAM0
+	string "dfu for ram0"
+	default "uImage ram 0xc2000000 0x2000000;devicetree.dtb ram 0xc4000000 0x100000;uramdisk.image.gz ram 0xc4400000 0x10000000"
+	depends on ARCH_STM32MP && SET_DFU_ALT_INFO
+	help
+	  This defines the partitions of ram used to build dfu dynamically.
+
+config TYPEC_STUSB160X
+	tristate "STMicroelectronics STUSB160X Type-C controller driver"
+	depends on DM_I2C
+	help
+	  Say Y if your system has STMicroelectronics STUSB160X Type-C port
+	  controller.

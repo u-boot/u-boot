@@ -8,6 +8,8 @@
 
 #include <common.h>
 #include <env.h>
+#include <init.h>
+#include <net.h>
 #include <spl.h>
 #include <asm/cache.h>
 #include <asm/io.h>
@@ -25,13 +27,13 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 	gpmc_init();
 #endif
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;

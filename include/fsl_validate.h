@@ -8,8 +8,9 @@
 
 #include <fsl_sec.h>
 #include <fsl_sec_mon.h>
-#include <command.h>
 #include <linux/types.h>
+
+struct cmd_tbl;
 
 #define WORD_SIZE 4
 
@@ -212,7 +213,7 @@ struct fsl_secboot_sg_table {
 
 /* ESBC global structure.
  * Data to be used across verification of different images.
- * Stores follwoing Data:
+ * Stores following Data:
  * IE Table
  */
 struct fsl_secboot_glb {
@@ -261,15 +262,14 @@ struct fsl_secboot_img_priv {
 	uint32_t img_size;	/* ESBC Image Size */
 };
 
-int do_esbc_halt(cmd_tbl_t *cmdtp, int flag, int argc,
-				char * const argv[]);
+int do_esbc_halt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 int fsl_secboot_validate(uintptr_t haddr, char *arg_hash_str,
 	uintptr_t *img_addr_ptr);
-int fsl_secboot_blob_encap(cmd_tbl_t *cmdtp, int flag, int argc,
-	char * const argv[]);
-int fsl_secboot_blob_decap(cmd_tbl_t *cmdtp, int flag, int argc,
-	char * const argv[]);
+int fsl_secboot_blob_encap(struct cmd_tbl *cmdtp, int flag, int argc,
+			   char *const argv[]);
+int fsl_secboot_blob_decap(struct cmd_tbl *cmdtp, int flag, int argc,
+			   char *const argv[]);
 
 int fsl_check_boot_mode_secure(void);
 int fsl_setenv_chain_of_trust(void);

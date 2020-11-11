@@ -40,10 +40,24 @@ config DM_WARN
 	depends on DM
 	default y
 	help
+	  Enable this to see warnings related to driver model.
+
+	  Warnings may help with debugging, such as when expected devices do
+	  not bind correctly. If the option is disabled, dm_warn() is compiled
+	  out - it will do nothing when called.
+
+config SPL_DM_WARN
+	bool "Enable warnings in driver model wuth SPL"
+	depends on SPL_DM
+	help
+	  Enable this to see warnings related to driver model in SPL
+
 	  The dm_warn() function can use up quite a bit of space for its
 	  strings. By default this is disabled for SPL builds to save space.
-	  This will cause dm_warn() to be compiled out - it will do nothing
-	  when called.
+
+	  Warnings may help with debugging, such as when expected devices do
+	  not bind correctly. If the option is disabled, dm_warn() is compiled
+	  out - it will do nothing when called.
 
 config DM_DEBUG
 	bool "Enable debug messages in driver model core"
@@ -195,6 +209,13 @@ config SPL_SIMPLE_BUS
 	  Supports the 'simple-bus' driver, which is used on some systems
 	  in SPL.
 
+config SIMPLE_PM_BUS
+	bool "Support simple-pm-bus driver"
+	depends on DM && OF_CONTROL && CLK && POWER_DOMAIN
+	help
+	  Supports the 'simple-pm-bus' driver, which is used for busses that
+	  have power domains and/or clocks which need to be enabled before use.
+
 config OF_TRANSLATE
 	bool "Translate addresses using fdt_translate_address"
 	depends on DM && OF_CONTROL
@@ -260,5 +281,34 @@ config OF_ISA_BUS
 config DM_DEV_READ_INLINE
 	bool
 	default y if !OF_LIVE
+
+config ACPIGEN
+	bool "Support ACPI table generation in driver model"
+	default y if SANDBOX || (GENERATE_ACPI_TABLE && !QEMU)
+	help
+	  This option enables generation of ACPI tables using driver-model
+	  devices. It adds a new operation struct to each driver, to support
+	  things like generating device-specific tables and returning the ACPI
+	  name of a device.
+
+config INTEL_ACPIGEN
+	bool "Support ACPI table generation for Intel SoCs"
+	depends on ACPIGEN
+	help
+	  This option adds some functions used for programatic generation of
+	  ACPI tables on Intel SoCs. This provides features for writing CPU
+	  information such as P states and T stages. Also included is a way
+	  to create a GNVS table and set it up.
+
+config BOUNCE_BUFFER
+	bool "Include bounce buffer API"
+	help
+	  Some peripherals support DMA from a subset of physically
+	  addressable memory only.  To support such peripherals, the
+	  bounce buffer API uses a temporary buffer: it copies data
+	  to/from DMA regions while managing cache operations.
+
+	  A second possible use of bounce buffers is their ability to
+	  provide aligned buffers for DMA operations.
 
 endmenu

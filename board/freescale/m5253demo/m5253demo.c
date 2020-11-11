@@ -8,9 +8,12 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <net.h>
 #include <asm/immap.h>
 #include <netdev.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -136,7 +139,7 @@ void ide_set_reset(int idereset)
 
 
 #ifdef CONFIG_DRIVER_DM9000
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return dm9000_initialize(bis);
 }

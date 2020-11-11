@@ -5,15 +5,23 @@
  */
 
 #include <clk.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <fdt_support.h>
-#include <linux/io.h>
-#include <linux/iopoll.h>
+#include <log.h>
+#include <malloc.h>
 #include <miiphy.h>
 #include <net.h>
 #include <regmap.h>
 #include <reset.h>
 #include <syscon.h>
+#include <asm/cache.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
+#include <linux/err.h>
+#include <linux/io.h>
+#include <linux/iopoll.h>
 
 #define AVE_GRST_DELAY_MSEC	40
 #define AVE_MIN_XMITSIZE	60
@@ -738,7 +746,7 @@ static int ave_ofdata_to_platdata(struct udevice *dev)
 	if (!priv->data)
 		return -EINVAL;
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	pdata->phy_interface = -1;
 	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
 			       NULL);

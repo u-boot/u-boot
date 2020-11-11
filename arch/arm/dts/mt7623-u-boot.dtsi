@@ -1,0 +1,29 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2019 MediaTek Inc.
+ * Author: Sam Shih <sam.shih@mediatek.com>
+ */
+
+&topckgen {
+	u-boot,dm-pre-reloc;
+};
+
+&topckgen {
+	u-boot,dm-pre-reloc;
+};
+
+&pericfg {
+	u-boot,dm-pre-reloc;
+};
+
+&timer0 {
+	u-boot,dm-pre-reloc;
+};
+
+&apmixedsys {
+	u-boot,dm-pre-reloc;
+};
+
+&uart2 {
+	u-boot,dm-pre-reloc;
+};

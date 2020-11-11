@@ -21,13 +21,14 @@
 	aliases {
 		ethernet0 = &fec1;
 		ethernet1 = &fec2;
-		gpio0 = &gpio1;
-		gpio1 = &gpio2;
-		gpio2 = &gpio3;
-		gpio3 = &gpio4;
-		gpio4 = &gpio5;
-		gpio5 = &gpio6;
-		gpio6 = &gpio7;
+		gpio0 = &gpio0;
+		gpio1 = &gpio1;
+		gpio2 = &gpio2;
+		gpio3 = &gpio3;
+		gpio4 = &gpio4;
+		gpio5 = &gpio5;
+		gpio6 = &gpio6;
+		gpio7 = &gpio7;
 		serial0 = &lpuart0;
 		serial1 = &lpuart1;
 		serial2 = &lpuart2;
@@ -88,7 +89,7 @@
 
 		pd_lsio: PD_LSIO {
 			compatible = "nxp,imx8-pd";
-			reg = <SC_R_LAST>;
+			reg = <SC_R_NONE>;
 			#power-domain-cells = <0>;
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -137,7 +138,7 @@
 
 		pd_conn: PD_CONN {
 			compatible = "nxp,imx8-pd";
-			reg = <SC_R_LAST>;
+			reg = <SC_R_NONE>;
 			#power-domain-cells = <0>;
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -173,7 +174,7 @@
 
 		pd_dma: PD_DMA {
 			compatible = "nxp,imx8-pd";
-			reg = <SC_R_LAST>;
+			reg = <SC_R_NONE>;
 			#power-domain-cells = <0>;
 			#address-cells = <1>;
 			#size-cells = <0>;

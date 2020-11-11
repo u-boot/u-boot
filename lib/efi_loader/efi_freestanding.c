@@ -47,7 +47,7 @@ void *memmove(void *dest, const void *src, size_t n)
 	u8 *d = dest;
 	const u8 *s = src;
 
-	if (d >= s) {
+	if (d <= s) {
 		for (; n; --n)
 			*d++ = *s++;
 	} else {
@@ -87,4 +87,36 @@ void *memset(void *s, int c, size_t n)
 	for (; n; --n)
 		*d++ = c;
 	return s;
+}
+
+/**
+ * __cyg_profile_func_enter() - record function entry
+ *
+ * This is called on every function entry when compiling with
+ * -finstrument-functions.
+ *
+ * We do nothing here.
+ *
+ * @param func_ptr	Pointer to function being entered
+ * @param caller	Pointer to function which called this function
+ */
+void __attribute__((no_instrument_function))
+__cyg_profile_func_enter(void *func_ptr, void *caller)
+{
+}
+
+/**
+ * __cyg_profile_func_exit() - record function exit
+ *
+ * This is called on every function exit when compiling with
+ * -finstrument-functions.
+ *
+ * We do nothing here.
+ *
+ * @param func_ptr	Pointer to function being entered
+ * @param caller	Pointer to function which called this function
+ */
+void __attribute__((no_instrument_function))
+__cyg_profile_func_exit(void *func_ptr, void *caller)
+{
 }

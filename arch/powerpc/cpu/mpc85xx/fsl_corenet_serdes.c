@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <env.h>
+#include <log.h>
+#include <time.h>
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
 #include <hwconfig.h>
 #endif
@@ -13,6 +15,7 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <asm/fsl_law.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include "fsl_corenet_serdes.h"
 

@@ -19,16 +19,18 @@
 };
 
 &qspi {
-	bus-num = <0>;
 	status = "okay";
 
-	qflash0: mt25qu512abb8esf@0 {
+	mt25qu512a0: flash@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <50000000>;
 		reg = <0>;
 	};
 
 };
 
+&i2c0 {
+	status = "okay";
+};

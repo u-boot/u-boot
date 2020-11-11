@@ -4,31 +4,30 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
+#include <linux/bitfield.h>
 #include <linux/io.h>
 #include <linux/types.h>
 
 #include "sg-regs.h"
 #include "soc-info.h"
 
-static unsigned int __uniphier_get_revision_field(unsigned int mask,
-						  unsigned int shift)
-{
-	u32 revision = readl(sg_base + SG_REVISION);
-
-	return (revision >> shift) & mask;
-}
-
 unsigned int uniphier_get_soc_id(void)
 {
-	return __uniphier_get_revision_field(0xff, 16);
+	u32 rev = readl(sg_base + SG_REVISION);
+
+	return FIELD_GET(SG_REVISION_TYPE_MASK, rev);
 }
 
 unsigned int uniphier_get_soc_model(void)
 {
-	return __uniphier_get_revision_field(0x7, 8);
+	u32 rev = readl(sg_base + SG_REVISION);
+
+	return FIELD_GET(SG_REVISION_MODEL_MASK, rev);
 }
 
 unsigned int uniphier_get_soc_revision(void)
 {
-	return __uniphier_get_revision_field(0x1f, 0);
+	u32 rev = readl(sg_base + SG_REVISION);
+
+	return FIELD_GET(SG_REVISION_REV_MASK, rev);
 }

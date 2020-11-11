@@ -8,6 +8,10 @@
 #ifndef _ASM_ARCH_IMX8M_CLOCK_H
 #define _ASM_ARCH_IMX8M_CLOCK_H
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 enum pll_clocks {
 	ANATOP_ARM_PLL,
 	ANATOP_GPU_PLL,
@@ -153,6 +157,7 @@ enum clk_root_src {
 	EXT_CLK_3,
 	EXT_CLK_4,
 	OSC_27M_CLK,
+	ARM_A53_ALT_CLK,
 };
 
 /* CCGR index */
@@ -311,7 +316,7 @@ enum clk_src_index {
 #define FRAC_PLL_LOCK_MASK		BIT(31)
 #define FRAC_PLL_CLKE_MASK		BIT(21)
 #define FRAC_PLL_PD_MASK		BIT(19)
-#define FRAC_PLL_REFCLK_SEL_MASK	BIT(16)
+#define FRAC_PLL_REFCLK_SEL_MASK	(0x3 << 16)
 #define FRAC_PLL_LOCK_SEL_MASK		BIT(15)
 #define FRAC_PLL_BYPASS_MASK		BIT(14)
 #define FRAC_PLL_COUNTCLK_SEL_MASK	BIT(13)
@@ -353,10 +358,10 @@ enum clk_src_index {
 #define SSCG_PLL_LOCK_SEL_MASK		BIT(3)
 #define SSCG_PLL_COUNTCLK_SEL_MASK	BIT(2)
 #define SSCG_PLL_REFCLK_SEL_MASK	0x3
-#define SSCG_PLL_REFCLK_SEL_OSC_25M	(0 << 16)
-#define SSCG_PLL_REFCLK_SEL_OSC_27M	BIT(16)
-#define SSCG_PLL_REFCLK_SEL_HDMI_PHY_27M (2 << 16)
-#define SSCG_PLL_REFCLK_SEL_CLK_PN	(3 << 16)
+#define SSCG_PLL_REFCLK_SEL_OSC_25M	(0)
+#define SSCG_PLL_REFCLK_SEL_OSC_27M	(1)
+#define SSCG_PLL_REFCLK_SEL_HDMI_PHY_27M (2)
+#define SSCG_PLL_REFCLK_SEL_CLK_PN	(3)
 
 #define SSCG_PLL_SSDS_MASK		BIT(8)
 #define SSCG_PLL_SSMD_MASK		(0x7 << 5)
@@ -419,7 +424,7 @@ enum clk_src_index {
 
 enum frac_pll_out_val {
 	FRAC_PLL_OUT_1000M,
-	FRAC_PLL_OUT_1600M,
+	FRAC_PLL_OUT_800M,
 };
 
 void init_nand_clk(void);

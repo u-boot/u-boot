@@ -73,7 +73,7 @@ static struct module_pin_mux gpio5_7_pin_mux[] = {
 	{-1},
 };
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 static struct module_pin_mux nand_pin_mux[] = {
 	{OFFSET(gpmc_ad0),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD0 */
 	{OFFSET(gpmc_ad1),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD1 */
@@ -128,18 +128,18 @@ void enable_board_pin_mux(void)
 	if (board_is_evm()) {
 		configure_module_pin_mux(gpio5_7_pin_mux);
 		configure_module_pin_mux(rgmii1_pin_mux);
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 		configure_module_pin_mux(nand_pin_mux);
 #endif
 	} else if (board_is_sk() || board_is_idk()) {
 		configure_module_pin_mux(rgmii1_pin_mux);
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 		printf("Error: NAND flash not present on this board\n");
 #endif
 		configure_module_pin_mux(qspi_pin_mux);
 	} else if (board_is_eposevm()) {
 		configure_module_pin_mux(rmii1_pin_mux);
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 		configure_module_pin_mux(nand_pin_mux);
 #else
 		configure_module_pin_mux(qspi_pin_mux);

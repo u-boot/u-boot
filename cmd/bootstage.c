@@ -4,16 +4,18 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
+#include <command.h>
 
-static int do_bootstage_report(cmd_tbl_t *cmdtp, int flag, int argc,
-			       char * const argv[])
+static int do_bootstage_report(struct cmd_tbl *cmdtp, int flag, int argc,
+			       char *const argv[])
 {
 	bootstage_report();
 
 	return 0;
 }
 
-static int get_base_size(int argc, char * const argv[], ulong *basep,
+static int get_base_size(int argc, char *const argv[], ulong *basep,
 			 ulong *sizep)
 {
 	char *endp;
@@ -34,8 +36,8 @@ static int get_base_size(int argc, char * const argv[], ulong *basep,
 	return 0;
 }
 
-static int do_bootstage_stash(cmd_tbl_t *cmdtp, int flag, int argc,
-			      char * const argv[])
+static int do_bootstage_stash(struct cmd_tbl *cmdtp, int flag, int argc,
+			      char *const argv[])
 {
 	ulong base, size;
 	int ret;
@@ -57,7 +59,7 @@ static int do_bootstage_stash(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static cmd_tbl_t cmd_bootstage_sub[] = {
+static struct cmd_tbl cmd_bootstage_sub[] = {
 	U_BOOT_CMD_MKENT(report, 2, 1, do_bootstage_report, "", ""),
 	U_BOOT_CMD_MKENT(stash, 4, 0, do_bootstage_stash, "", ""),
 	U_BOOT_CMD_MKENT(unstash, 4, 0, do_bootstage_stash, "", ""),
@@ -66,10 +68,10 @@ static cmd_tbl_t cmd_bootstage_sub[] = {
 /*
  * Process a bootstage sub-command
  */
-static int do_boostage(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_boostage(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
-	cmd_tbl_t *c;
+	struct cmd_tbl *c;
 
 	/* Strip off leading 'bootstage' command argument */
 	argc--;

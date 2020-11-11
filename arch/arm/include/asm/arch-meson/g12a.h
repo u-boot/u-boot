@@ -7,6 +7,10 @@
 #ifndef __G12A_H__
 #define __G12A_H__
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 #define G12A_AOBUS_BASE			0xff800000
 #define G12A_PERIPHS_BASE		0xff634400
 #define G12A_HIU_BASE			0xff63c000

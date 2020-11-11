@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <asm/unaligned.h>
 #include <errno.h>
+#include <linux/bitops.h>
 #include <mach/jz4780.h>
 #include <wait_bit.h>
 

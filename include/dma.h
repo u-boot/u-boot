@@ -9,6 +9,7 @@
 #ifndef _DMA_H_
 #define _DMA_H_
 
+#include <linux/bitops.h>
 #include <linux/errno.h>
 #include <linux/types.h>
 
@@ -290,8 +291,21 @@ int dma_receive(struct dma *dma, void **dst, void *metadata);
  * @return zero on success, or -ve error code.
  */
 int dma_send(struct dma *dma, void *src, size_t len, void *metadata);
+
+/**
+ * dma_get_cfg() - Get DMA channel configuration for client's use
+ *
+ * @dma:      The DMA Channel to manipulate
+ * @cfg_id:   DMA provider specific ID to identify what
+ *            configuration data client needs
+ * @cfg_data: Pointer to store pointer to DMA driver specific
+ *            configuration data for the given cfg_id (output param)
+ * @return zero on success, or -ve error code.
+ */
+int dma_get_cfg(struct dma *dma, u32 cfg_id, void **cfg_data);
 #endif /* CONFIG_DMA_CHANNELS */
 
+#if CONFIG_IS_ENABLED(DMA)
 /*
  * dma_get_device - get a DMA device which supports transfer
  * type of transfer_type
@@ -315,5 +329,15 @@ int dma_get_device(u32 transfer_type, struct udevice **devp);
 	     transferred and on failure return error code.
  */
 int dma_memcpy(void *dst, void *src, size_t len);
+#else
+static inline int dma_get_device(u32 transfer_type, struct udevice **devp)
+{
+	return -ENOSYS;
+}
 
+static inline int dma_memcpy(void *dst, void *src, size_t len)
+{
+	return -ENOSYS;
+}
+#endif /* CONFIG_DMA */
 #endif	/* _DMA_H_ */

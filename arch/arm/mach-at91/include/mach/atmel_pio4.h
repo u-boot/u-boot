@@ -9,6 +9,7 @@
 
 #ifndef __ASSEMBLY__
 
+#include <linux/bitops.h>
 struct atmel_pio4_port {
 	u32 mskr;		/* 0x00 PIO Mask Register */
 	u32 cfgr;		/* 0x04 PIO Configuration Register */

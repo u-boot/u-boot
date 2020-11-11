@@ -7,12 +7,20 @@
  */
 
 #ifndef __UBOOT__
+#include <log.h>
+#include <dm/devres.h>
 #include <linux/dmaengine.h>
 #include <linux/pm_runtime.h>
 #include "internals.h"
 #else
+#include <common.h>
+#include <dm.h>
+#include <errno.h>
+#include <malloc.h>
+#include <spi.h>
 #include <spi.h>
 #include <spi-mem.h>
+#include <dm/device_compat.h>
 #endif
 
 #ifndef __UBOOT__
@@ -123,6 +131,12 @@ static int spi_check_buswidth_req(struct spi_slave *slave, u8 buswidth, bool tx)
 			return 0;
 
 		break;
+	case 8:
+		if ((tx && (mode & SPI_TX_OCTAL)) ||
+		    (!tx && (mode & SPI_RX_OCTAL)))
+			return 0;
+
+		break;
 
 	default:
 		break;
@@ -145,7 +159,7 @@ bool spi_mem_default_supports_op(struct spi_slave *slave,
 	    spi_check_buswidth_req(slave, op->dummy.buswidth, true))
 		return false;
 
-	if (op->data.nbytes &&
+	if (op->data.dir != SPI_MEM_NO_DATA &&
 	    spi_check_buswidth_req(slave, op->data.buswidth,
 				   op->data.dir == SPI_MEM_DATA_OUT))
 		return false;

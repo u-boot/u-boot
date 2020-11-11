@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <ioports.h>
@@ -66,7 +67,7 @@ int is_core_disabled(int nr) {
 	return 0;
 }
 
-int cpu_release(u32 nr, int argc, char * const argv[])
+int cpu_release(u32 nr, int argc, char *const argv[])
 {
 	/* dummy function so common/cmd_mp.c will build
 	 * should be implemented in the future */

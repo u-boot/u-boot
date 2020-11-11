@@ -7,11 +7,14 @@
 #include <clk.h>
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <power-domain-uclass.h>
 #include <regmap.h>
 #include <syscon.h>
 #include <asm/io.h>
 #include <asm/processor.h>
+#include <linux/bitops.h>
+#include <linux/err.h>
 #include <linux/iopoll.h>
 
 #include <dt-bindings/power/mt7623-power.h>
@@ -60,6 +63,7 @@
 #define DCM_TOP_EN		BIT(0)
 
 enum scp_domain_type {
+	SCPSYS_MT7622,
 	SCPSYS_MT7623,
 	SCPSYS_MT7629,
 };
@@ -328,6 +332,7 @@ static int mtk_power_domain_hook(struct udevice *dev)
 	case SCPSYS_MT7623:
 		scpd->data = scp_domain_mt7623;
 		break;
+	case SCPSYS_MT7622:
 	case SCPSYS_MT7629:
 		scpd->data = scp_domain_mt7629;
 		break;
@@ -379,6 +384,10 @@ static int mtk_power_domain_probe(struct udevice *dev)
 
 static const struct udevice_id mtk_power_domain_ids[] = {
 	{
+		.compatible = "mediatek,mt7622-scpsys",
+		.data = SCPSYS_MT7622,
+	},
+	{
 		.compatible = "mediatek,mt7623-scpsys",
 		.data = SCPSYS_MT7623,
 	},
@@ -390,7 +399,7 @@ static const struct udevice_id mtk_power_domain_ids[] = {
 };
 
 struct power_domain_ops mtk_power_domain_ops = {
-	.free = scpsys_power_free,
+	.rfree = scpsys_power_free,
 	.off = scpsys_power_off,
 	.on = scpsys_power_on,
 	.request = scpsys_power_request,

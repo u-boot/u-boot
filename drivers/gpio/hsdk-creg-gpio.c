@@ -9,11 +9,13 @@
  * warranty of any kind, whether express or implied.
  */
 
+#include <log.h>
 #include <asm-generic/gpio.h>
 #include <asm/io.h>
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <linux/bitops.h>
 #include <linux/printk.h>
 
 #define DRV_NAME	"gpio_creg"
@@ -81,7 +83,7 @@ static int hsdk_creg_gpio_probe(struct udevice *dev)
 	u32 shift, bit_per_gpio, activate, deactivate, gpio_count;
 	const u8 *defaults;
 
-	hcg->regs = (u32 *)devfdt_get_addr_ptr(dev);
+	hcg->regs = dev_read_addr_ptr(dev);
 	gpio_count = dev_read_u32_default(dev, "gpio-count", 1);
 	shift = dev_read_u32_default(dev, "gpio-first-shift", 0);
 	bit_per_gpio = dev_read_u32_default(dev, "gpio-bit-per-line", 1);

@@ -50,14 +50,24 @@
 #define outw(x, addr)	((void)writew(x, addr))
 #define outl(x, addr)	((void)writel(x, addr))
 
-/* Some #definitions to keep strange Xilinx code happy */
-#define in_8(addr)	readb(addr)
-#define in_be16(addr)	readw(addr)
-#define in_be32(addr)	readl(addr)
+#define out_arch(type, endian, addr, x)	\
+		 __raw_write##type(cpu_to_##endian(x), addr)
+#define in_arch(type, endian, addr)	\
+		endian##_to_cpu(__raw_read##type(addr))
+
+#define out_le16(addr, x)	out_arch(w, le16, addr, x)
+#define out_le32(addr, x)	out_arch(l, le32, addr, x)
+
+#define in_le16(addr)		in_arch(w, le16, addr)
+#define in_le32(addr)		in_arch(l, le32, addr)
+
+#define in_8(addr)		readb(addr)
+#define in_be16(addr)		in_arch(w, be16, addr)
+#define in_be32(addr)		in_arch(l, be32, addr)
 
 #define out_8(addr, x)		outb(x, addr)
-#define out_be16(addr, x)	outw(x, addr)
-#define out_be32(addr, x)	outl(x, addr)
+#define out_be16(addr, x)	out_arch(w, be16, addr, x)
+#define out_be32(addr, x)	out_arch(l, be32, addr, x)
 
 #define inb_p(port)		inb((port))
 #define outb_p(val, port)	outb((val), (port))

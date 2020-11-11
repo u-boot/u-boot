@@ -58,5 +58,5 @@ If you are using of-platdata (e.g. CONFIG_SPL_OF_PLATDATA), check that the
 driver name is the same as the first compatible string in the device tree (with
 invalid-variable characters converted to underscore).
 
-If you are really stuck, #define DEBUG at the top of lists.c should show you
-what is going on.
+If you are really stuck, putting '#define LOG_DEBUG' at the top of
+drivers/core/lists.c should show you what is going on.

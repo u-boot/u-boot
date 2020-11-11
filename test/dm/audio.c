@@ -8,6 +8,7 @@
 #include <audio_codec.h>
 #include <dm.h>
 #include <dm/test.h>
+#include <test/test.h>
 #include <test/ut.h>
 #include <asm/test.h>
 
@@ -31,4 +32,4 @@ static int dm_test_audio(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_audio, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_audio, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

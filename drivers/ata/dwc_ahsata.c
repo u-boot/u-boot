@@ -6,19 +6,25 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <blk.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <dwc_ahsata.h>
 #include <fis.h>
 #include <libata.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <part.h>
 #include <sata.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/sata.h>
 #include <linux/bitops.h>
 #include <linux/ctype.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include "dwc_ahsata_priv.h"
 
@@ -222,7 +228,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 
 		/* Wait for COMINIT bit 26 (DIAG_X) in SERR */
 		timeout = 1000;
-		while (!(readl(&port_mmio->serr) | SATA_PORT_SERR_DIAG_X)
+		while (!(readl(&port_mmio->serr) & SATA_PORT_SERR_DIAG_X)
 			&& --timeout)
 			;
 		if (timeout <= 0) {
@@ -449,7 +455,6 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 
 	mem = (u32)malloc(AHCI_PORT_PRIV_DMA_SZ + 1024);
 	if (!mem) {
-		free(pp);
 		printf("No mem for table!\n");
 		return -ENOMEM;
 	}
@@ -846,6 +851,9 @@ static int ahci_init_one(int pdev)
 	struct ahci_uc_priv *uc_priv = NULL;
 
 	uc_priv = malloc(sizeof(struct ahci_uc_priv));
+	if (!uc_priv)
+		return -ENOMEM;
+
 	memset(uc_priv, 0, sizeof(struct ahci_uc_priv));
 	uc_priv->dev = pdev;
 
@@ -870,6 +878,8 @@ static int ahci_init_one(int pdev)
 	return 0;
 
 err_out:
+	if (uc_priv)
+		free(uc_priv);
 	return rc;
 }
 
@@ -912,6 +922,9 @@ int reset_sata(int dev)
 	setbits_le32(&host_mmio->ghc, SATA_HOST_GHC_HR);
 	while (readl(&host_mmio->ghc) & SATA_HOST_GHC_HR)
 		udelay(100);
+
+	free(uc_priv);
+	memset(&sata_dev_desc[dev], 0, sizeof(struct blk_desc));
 
 	return 0;
 }

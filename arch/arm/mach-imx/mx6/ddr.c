@@ -5,6 +5,9 @@
  */
 
 #include <common.h>
+#include <hang.h>
+#include <log.h>
+#include <linux/delay.h>
 #include <linux/types.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/mx6-ddr.h>
@@ -214,14 +217,14 @@ int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	writel(esdmisc_val, &mmdc0->mdref);
 	writel(zq_val, &mmdc0->mpzqhwctrl);
 
-	debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08X\n",
+	debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08x\n",
 	      readl(&mmdc0->mpwldectrl0));
-	debug("\tMMDC_MPWLDECTRL1 after write level cal: 0x%08X\n",
+	debug("\tMMDC_MPWLDECTRL1 after write level cal: 0x%08x\n",
 	      readl(&mmdc0->mpwldectrl1));
 	if (sysinfo->dsize == 2) {
-		debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08X\n",
+		debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08x\n",
 		      readl(&mmdc1->mpwldectrl0));
-		debug("\tMMDC_MPWLDECTRL1 after write level cal: 0x%08X\n",
+		debug("\tMMDC_MPWLDECTRL1 after write level cal: 0x%08x\n",
 		      readl(&mmdc1->mpwldectrl1));
 	}
 
@@ -245,12 +248,50 @@ int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	return errors;
 }
 
+static void mmdc_set_sdqs(bool set)
+{
+	struct mx6sdl_iomux_ddr_regs *mx6sdl_ddr_iomux =
+		(struct mx6sdl_iomux_ddr_regs *)MX6SDL_IOM_DDR_BASE;
+	struct mx6dq_iomux_ddr_regs *mx6dq_ddr_iomux =
+		(struct mx6dq_iomux_ddr_regs *)MX6DQ_IOM_DDR_BASE;
+	struct mx6sx_iomux_ddr_regs *mx6sx_ddr_iomux =
+		(struct mx6sx_iomux_ddr_regs *)MX6SX_IOM_DDR_BASE;
+	struct mx6sl_iomux_ddr_regs *mx6sl_ddr_iomux =
+		(struct mx6sl_iomux_ddr_regs *)MX6SL_IOM_DDR_BASE;
+	struct mx6ul_iomux_ddr_regs *mx6ul_ddr_iomux =
+		(struct mx6ul_iomux_ddr_regs *)MX6UL_IOM_DDR_BASE;
+	int i, sdqs_cnt;
+	u32 sdqs;
+
+	if (is_mx6sx()) {
+		sdqs = (u32)(&mx6sx_ddr_iomux->dram_sdqs0);
+		sdqs_cnt = 2;
+	} else if (is_mx6sl()) {
+		sdqs = (u32)(&mx6sl_ddr_iomux->dram_sdqs0);
+		sdqs_cnt = 2;
+	} else if (is_mx6ul() || is_mx6ull()) {
+		sdqs = (u32)(&mx6ul_ddr_iomux->dram_sdqs0);
+		sdqs_cnt = 2;
+	} else if (is_mx6sdl()) {
+		sdqs = (u32)(&mx6sdl_ddr_iomux->dram_sdqs0);
+		sdqs_cnt = 8;
+	} else {	/* MX6DQ */
+		sdqs = (u32)(&mx6dq_ddr_iomux->dram_sdqs0);
+		sdqs_cnt = 8;
+	}
+
+	for (i = 0; i < sdqs_cnt; i++) {
+		if (set)
+			setbits_le32(sdqs + (4 * i), 0x7000);
+		else
+			clrbits_le32(sdqs + (4 * i), 0x7000);
+	}
+}
+
 int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 {
 	struct mmdc_p_regs *mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
 	struct mmdc_p_regs *mmdc1 = (struct mmdc_p_regs *)MMDC_P1_BASE_ADDR;
-	struct mx6dq_iomux_ddr_regs *mx6_ddr_iomux =
-		(struct mx6dq_iomux_ddr_regs *)MX6DQ_IOM_DDR_BASE;
 	bool cs0_enable;
 	bool cs1_enable;
 	bool cs0_enable_initial;
@@ -272,14 +313,7 @@ int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	setbits_le32(&mmdc0->mapsr, 0x1);
 
 	/* set DQS pull ups */
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs0, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs1, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs2, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs3, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs4, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs5, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs6, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs7, 0x7000);
+	mmdc_set_sdqs(true);
 
 	/* Save old RALAT and WALAT values */
 	esdmisc_val = readl(&mmdc0->mdmisc);
@@ -524,14 +558,7 @@ int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	writel(esdmisc_val, &mmdc0->mdmisc);
 
 	/* Clear DQS pull ups */
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs0, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs1, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs2, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs3, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs4, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs5, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs6, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs7, 0x7000);
+	mmdc_set_sdqs(false);
 
 	/* Re-enable SDE (chip selects) if they were set initially */
 	if (cs1_enable_initial)
@@ -557,20 +584,20 @@ int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	 */
 	debug("MMDC registers updated from calibration\n");
 	debug("Read DQS gating calibration:\n");
-	debug("\tMPDGCTRL0 PHY0 = 0x%08X\n", readl(&mmdc0->mpdgctrl0));
-	debug("\tMPDGCTRL1 PHY0 = 0x%08X\n", readl(&mmdc0->mpdgctrl1));
+	debug("\tMPDGCTRL0 PHY0 = 0x%08x\n", readl(&mmdc0->mpdgctrl0));
+	debug("\tMPDGCTRL1 PHY0 = 0x%08x\n", readl(&mmdc0->mpdgctrl1));
 	if (sysinfo->dsize == 2) {
-		debug("\tMPDGCTRL0 PHY1 = 0x%08X\n", readl(&mmdc1->mpdgctrl0));
-		debug("\tMPDGCTRL1 PHY1 = 0x%08X\n", readl(&mmdc1->mpdgctrl1));
+		debug("\tMPDGCTRL0 PHY1 = 0x%08x\n", readl(&mmdc1->mpdgctrl0));
+		debug("\tMPDGCTRL1 PHY1 = 0x%08x\n", readl(&mmdc1->mpdgctrl1));
 	}
 	debug("Read calibration:\n");
-	debug("\tMPRDDLCTL PHY0 = 0x%08X\n", readl(&mmdc0->mprddlctl));
+	debug("\tMPRDDLCTL PHY0 = 0x%08x\n", readl(&mmdc0->mprddlctl));
 	if (sysinfo->dsize == 2)
-		debug("\tMPRDDLCTL PHY1 = 0x%08X\n", readl(&mmdc1->mprddlctl));
+		debug("\tMPRDDLCTL PHY1 = 0x%08x\n", readl(&mmdc1->mprddlctl));
 	debug("Write calibration:\n");
-	debug("\tMPWRDLCTL PHY0 = 0x%08X\n", readl(&mmdc0->mpwrdlctl));
+	debug("\tMPWRDLCTL PHY0 = 0x%08x\n", readl(&mmdc0->mpwrdlctl));
 	if (sysinfo->dsize == 2)
-		debug("\tMPWRDLCTL PHY1 = 0x%08X\n", readl(&mmdc1->mpwrdlctl));
+		debug("\tMPWRDLCTL PHY1 = 0x%08x\n", readl(&mmdc1->mpwrdlctl));
 
 	/*
 	 * Registers below are for debugging purposes.  These print out
@@ -935,6 +962,27 @@ void mx6sdl_dram_iocfg(unsigned width,
 		mmdc1->entry = value;					  \
 	} while (0)
 
+/* see BOOT_CFG3 description Table 5-4. EIM Boot Fusemap */
+#define BOOT_CFG3_DDR_MASK	0x30
+#define BOOT_CFG3_EXT_DDR_MASK	0x33
+
+#define DDR_MMAP_NOC_SINGLE	0
+#define DDR_MMAP_NOC_DUAL	0x31
+
+/* NoC ACTIVATE shifts */
+#define NOC_RD_SHIFT		0
+#define NOC_FAW_PERIOD_SHIFT	4
+#define NOC_FAW_BANKS_SHIFT	10
+
+/* NoC DdrTiming shifts */
+#define NOC_ACT_TO_ACT_SHIFT	0
+#define NOC_RD_TO_MISS_SHIFT	6
+#define NOC_WR_TO_MISS_SHIFT	12
+#define NOC_BURST_LEN_SHIFT	18
+#define NOC_RD_TO_WR_SHIFT	21
+#define NOC_WR_TO_RD_SHIFT	26
+#define NOC_BW_RATIO_SHIFT	31
+
 /*
  * According JESD209-2B-LPDDR2: Table 103
  * WL: write latency
@@ -1224,6 +1272,8 @@ void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 {
 	volatile struct mmdc_p_regs *mmdc0;
 	volatile struct mmdc_p_regs *mmdc1;
+	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
+	u8 soc_boot_cfg3 = (readl(&src_regs->sbmr1) >> 16) & 0xff;
 	u32 val;
 	u8 tcke, tcksrx, tcksre, txpdll, taofpd, taonpd, trrd;
 	u8 todtlon, taxpd, tanpd, tcwl, txp, tfaw, tcl;
@@ -1515,6 +1565,79 @@ void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 
 	/* Step 12: Configure and activate periodic refresh */
 	mmdc0->mdref = (sysinfo->refsel << 14) | (sysinfo->refr << 11);
+
+	/*
+	 * Step 13: i.MX6DQP only: If the NoC scheduler is enabled,
+	 * configure it and disable MMDC arbitration/reordering (see EB828)
+	 */
+	if (is_mx6dqp() &&
+	    ((soc_boot_cfg3 & BOOT_CFG3_DDR_MASK) == DDR_MMAP_NOC_SINGLE ||
+	    (soc_boot_cfg3 & BOOT_CFG3_EXT_DDR_MASK) == DDR_MMAP_NOC_DUAL)) {
+		struct mx6dqp_noc_sched_regs *noc_sched =
+			(struct mx6dqp_noc_sched_regs *)MX6DQP_NOC_SCHED_BASE;
+
+		/*
+		 * These values are fixed based on integration parameters and
+		 * should not be modified
+		 */
+		noc_sched->rlat = 0x00000040;
+		noc_sched->ipu1 = 0x00000020;
+		noc_sched->ipu2 = 0x00000020;
+
+		noc_sched->activate = (1 << NOC_FAW_BANKS_SHIFT) |
+				      (tfaw << NOC_FAW_PERIOD_SHIFT) |
+				      (trrd << NOC_RD_SHIFT);
+		noc_sched->ddrtiming = (((sysinfo->dsize == 1) ? 1 : 0)
+					 << NOC_BW_RATIO_SHIFT) |
+				       ((tcwl + twtr) << NOC_WR_TO_RD_SHIFT) |
+				       ((tcl - tcwl + 2) << NOC_RD_TO_WR_SHIFT) |
+				       (4 << NOC_BURST_LEN_SHIFT) | /* BL8 */
+				       ((tcwl + twr + trp + trcd)
+					 << NOC_WR_TO_MISS_SHIFT) |
+				       ((trtp + trp + trcd - 4)
+					 << NOC_RD_TO_MISS_SHIFT) |
+				       (trc << NOC_ACT_TO_ACT_SHIFT);
+
+		if (sysinfo->dsize == 2) {
+			if (ddr3_cfg->coladdr == 10) {
+				if (ddr3_cfg->rowaddr == 15 &&
+				    sysinfo->ncs == 2)
+					noc_sched->ddrconf = 4;
+				else
+					noc_sched->ddrconf = 0;
+			} else if (ddr3_cfg->coladdr == 11) {
+				noc_sched->ddrconf = 1;
+			}
+		} else {
+			if (ddr3_cfg->coladdr == 9) {
+				if (ddr3_cfg->rowaddr == 13)
+					noc_sched->ddrconf = 2;
+				else if (ddr3_cfg->rowaddr == 14)
+					noc_sched->ddrconf = 15;
+			} else if (ddr3_cfg->coladdr == 10) {
+				if (ddr3_cfg->rowaddr == 14 &&
+				    sysinfo->ncs == 2)
+					noc_sched->ddrconf = 14;
+				else if (ddr3_cfg->rowaddr == 15 &&
+					 sysinfo->ncs == 2)
+					noc_sched->ddrconf = 9;
+				else
+					noc_sched->ddrconf = 3;
+			} else if (ddr3_cfg->coladdr == 11) {
+				if (ddr3_cfg->rowaddr == 15 &&
+				    sysinfo->ncs == 2)
+					noc_sched->ddrconf = 4;
+				else
+					noc_sched->ddrconf = 0;
+			} else if (ddr3_cfg->coladdr == 12) {
+				if (ddr3_cfg->rowaddr == 14)
+					noc_sched->ddrconf = 1;
+			}
+		}
+
+		/* Disable MMDC arbitration/reordering */
+		mmdc0->maarcr = 0x14420000;
+	}
 
 	/* Step 13: Deassert config request - init complete */
 	mmdc0->mdscr = 0x00000000;

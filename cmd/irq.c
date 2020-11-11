@@ -6,9 +6,10 @@
 #include <common.h>
 #include <config.h>
 #include <command.h>
+#include <irq_func.h>
 
-static int do_interrupts(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char * const argv[])
+static int do_interrupts(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 
 	if (argc != 2)
@@ -30,7 +31,7 @@ U_BOOT_CMD(
 );
 
 /* Implemented in $(CPU)/interrupts.c */
-int do_irqinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+int do_irqinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 U_BOOT_CMD(
 	irqinfo,    1,    1,     do_irqinfo,

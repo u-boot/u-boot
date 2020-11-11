@@ -22,7 +22,7 @@ The main change is that the arch/<arch>/lib/board.c file is removed in
 favour of common/board_f.c (for pre-relocation init) and common/board_r.c
 (for post-relocation init).
 
-Related to this, the global_data and bd_t structures now have a core set of
+Related to this, the global_data and bd_info structures now have a core set of
 fields which are common to all architectures. Architecture-specific fields
 have been moved to separate structures.
 

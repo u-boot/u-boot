@@ -31,8 +31,6 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS       6       /* 64 byte pages */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS   10      /* take up to 10 msec */
 
-#define CONFIG_PHY_NATSEMI
-
 #define CONFIG_FACTORYSET
 
 /* Watchdog */
@@ -109,10 +107,7 @@
 
 #if defined(CONFIG_VIDEO)
 #define CONFIG_VIDEO_DA8XX
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_SPLASH_SCREEN_ALIGN
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO
 #define DA8XX_LCD_CNTL_BASE	LCD_CNTL_BASE
 

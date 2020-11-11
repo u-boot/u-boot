@@ -9,6 +9,10 @@
 #ifndef _ASM_X86_MSR_INDEX_H
 #define _ASM_X86_MSR_INDEX_H
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 /* CPU model specific register (MSR) numbers */
 
 /* x86-64 specific MSRs */
@@ -64,12 +68,24 @@
 #define MSR_BSEL_CR_OVERCLOCK_CONTROL	0x000000cd
 #define MSR_PLATFORM_INFO		0x000000ce
 #define MSR_PMG_CST_CONFIG_CONTROL	0x000000e2
-#define SINGLE_PCTL			(1 << 11)
+/* Set MSR_PMG_CST_CONFIG_CONTROL[3:0] for Package C-State limit */
+#define   PKG_C_STATE_LIMIT_C2_MASK	BIT(1)
+/* Set MSR_PMG_CST_CONFIG_CONTROL[7:4] for Core C-State limit*/
+#define   CORE_C_STATE_LIMIT_C10_MASK	0x70
+/* Set MSR_PMG_CST_CONFIG_CONTROL[10] to IO redirect to MWAIT */
+#define   IO_MWAIT_REDIRECT_MASK	BIT(10)
+/* Set MSR_PMG_CST_CONFIG_CONTROL[15] to lock CST_CFG [0-15] bits */
+#define   CST_CFG_LOCK_MASK		BIT(15)
+#define   SINGLE_PCTL			BIT(11)
+
+/* ACPI PMIO Offset to C-state register */
+#define ACPI_PMIO_CST_REG	(ACPI_BASE_ADDRESS + 0x14)
 
 #define MSR_MTRRcap			0x000000fe
 #define MSR_IA32_BBL_CR_CTL		0x00000119
 #define MSR_IA32_BBL_CR_CTL3		0x0000011e
 #define MSR_POWER_MISC			0x00000120
+#define  FLUSH_DL1_L2			(1 << 8)
 #define ENABLE_ULFM_AUTOCM_MASK		(1 << 2)
 #define ENABLE_INDP_AUTOCM_MASK		(1 << 3)
 
@@ -77,6 +93,10 @@
 #define  EMULATE_DELAY_OFFSET_VALUE	20
 #define  EMULATE_PM_TMR_EN		(1 << 16)
 #define  EMULATE_DELAY_VALUE		0x13
+
+#define MSR_FEATURE_CONFIG	0x13c
+#define   FEATURE_CONFIG_RESERVED_MASK	0x3ULL
+#define   FEATURE_CONFIG_LOCK	(1 << 0)
 
 #define MSR_IA32_SYSENTER_CS		0x00000174
 #define MSR_IA32_SYSENTER_ESP		0x00000175
@@ -241,10 +261,17 @@
 #define  PKG_POWER_LIMIT_CLAMP		(1 << 16)
 #define  PKG_POWER_LIMIT_TIME_SHIFT	17
 #define  PKG_POWER_LIMIT_TIME_MASK	0x7f
+/*
+ * For Mobile, RAPL default PL1 time window value set to 28 seconds.
+ * RAPL time window calculation defined as follows:
+ * Time Window = (float)((1+X/4)*(2*^Y), X Corresponds to [23:22],
+ * Y to [21:17] in MSR 0x610. 28 sec is equal to 0x6e.
+ */
+#define  MB_POWER_LIMIT1_TIME_DEFAULT	0x6e
 
 #define MSR_PKG_ENERGY_STATUS		0x00000611
 #define MSR_PKG_PERF_STATUS		0x00000613
-#define MSR_PKG_POWER_INFO		0x00000614
+#define MSR_PKG_POWER_SKU		0x614
 
 #define MSR_DRAM_POWER_LIMIT		0x00000618
 #define MSR_DRAM_ENERGY_STATUS		0x00000619
@@ -441,6 +468,9 @@
 #define MSR_AMD_PERF_CTL		0xc0010062
 
 #define MSR_PMG_CST_CONFIG_CTL		0x000000e2
+/* CST Range (R/W) IO port block size */
+#define PMG_IO_BASE_CST_RNG_BLK_SIZE	0x5
+
 #define MSR_PMG_IO_CAPTURE_ADR		0x000000e4
 #define MSR_IA32_MPERF			0x000000e7
 #define MSR_IA32_APERF			0x000000e8

@@ -9,16 +9,13 @@
  */
 #include <common.h>
 #include <command.h>
-#include <s_record.h>
-#include <net.h>
-#include <ata.h>
-#include <asm/io.h>
 #include <mapmem.h>
-#include <part.h>
 #include <fat.h>
 #include <fs.h>
+#include <part.h>
+#include <asm/cache.h>
 
-int do_fat_size(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_fat_size(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	return do_size(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }
@@ -31,7 +28,7 @@ U_BOOT_CMD(
 	"      and determine its size."
 );
 
-int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_fat_fsload(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	return do_load(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }
@@ -52,7 +49,8 @@ U_BOOT_CMD(
 	"      be printed and performance will suffer for the load."
 );
 
-static int do_fat_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_fat_ls(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	return do_ls(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }
@@ -64,12 +62,12 @@ U_BOOT_CMD(
 	"    - list files from 'dev' on 'interface' in a 'directory'"
 );
 
-static int do_fat_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char * const argv[])
+static int do_fat_fsinfo(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 	int dev, part;
 	struct blk_desc *dev_desc;
-	disk_partition_t info;
+	struct disk_partition info;
 
 	if (argc < 2) {
 		printf("usage: fatinfo <interface> [<dev[:part]>]\n");
@@ -97,51 +95,10 @@ U_BOOT_CMD(
 );
 
 #ifdef CONFIG_FAT_WRITE
-static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_fat_fswrite(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
-	loff_t size;
-	int ret;
-	unsigned long addr;
-	unsigned long count;
-	long offset;
-	struct blk_desc *dev_desc = NULL;
-	disk_partition_t info;
-	int dev = 0;
-	int part = 1;
-	void *buf;
-
-	if (argc < 5)
-		return cmd_usage(cmdtp);
-
-	part = blk_get_device_part_str(argv[1], argv[2], &dev_desc, &info, 1);
-	if (part < 0)
-		return 1;
-
-	dev = dev_desc->devnum;
-
-	if (fat_set_blk_dev(dev_desc, &info) != 0) {
-		printf("\n** Unable to use %s %d:%d for fatwrite **\n",
-			argv[1], dev, part);
-		return 1;
-	}
-	addr = simple_strtoul(argv[3], NULL, 16);
-	count = (argc <= 5) ? 0 : simple_strtoul(argv[5], NULL, 16);
-	/* offset should be a hex, but "-1" is allowed */
-	offset = (argc <= 6) ? 0 : simple_strtol(argv[6], NULL, 16);
-
-	buf = map_sysmem(addr, count);
-	ret = file_fat_write(argv[4], buf, offset, count, &size);
-	unmap_sysmem(buf);
-	if (ret < 0) {
-		printf("\n** Unable to write \"%s\" from %s %d:%d **\n",
-			argv[4], argv[1], dev, part);
-		return 1;
-	}
-
-	printf("%llu bytes written\n", size);
-
-	return 0;
+	return do_save(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }
 
 U_BOOT_CMD(
@@ -152,7 +109,8 @@ U_BOOT_CMD(
 	"      to 'dev' on 'interface'"
 );
 
-static int do_fat_rm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_fat_rm(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	return do_rm(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }
@@ -164,8 +122,8 @@ U_BOOT_CMD(
 	"    - delete a file from 'dev' on 'interface'"
 );
 
-static int do_fat_mkdir(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_fat_mkdir(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	return do_mkdir(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }

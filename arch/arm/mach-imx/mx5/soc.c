@@ -7,9 +7,11 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/cache.h>
 
 #include <linux/errno.h>
 #include <asm/io.h>
@@ -85,10 +87,27 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 #endif
 
 #ifdef CONFIG_MX53
+#define IMX53_SRTC_LPGR_PERSIST_SECONDARY_BOOT	BIT(30)
+
 void boot_mode_apply(unsigned cfg_val)
 {
-	writel(cfg_val, &((struct srtc_regs *)SRTC_BASE_ADDR)->lpgr);
+	void *lpgr = &((struct srtc_regs *)SRTC_BASE_ADDR)->lpgr;
+
+	if (cfg_val == MAKE_CFGVAL_PRIMARY_BOOT)
+		clrbits_le32(lpgr, IMX53_SRTC_LPGR_PERSIST_SECONDARY_BOOT);
+	else if (cfg_val == MAKE_CFGVAL_SECONDARY_BOOT)
+		setbits_le32(lpgr, IMX53_SRTC_LPGR_PERSIST_SECONDARY_BOOT);
+	else
+		writel(cfg_val, lpgr);
 }
+
+int boot_mode_getprisec(void)
+{
+	void *lpgr = &((struct srtc_regs *)SRTC_BASE_ADDR)->lpgr;
+
+	return !!(readl(lpgr) & IMX53_SRTC_LPGR_PERSIST_SECONDARY_BOOT);
+}
+
 /*
  * cfg_val will be used for
  * Boot_cfg3[7:0]:Boot_cfg2[7:0]:Boot_cfg1[7:0]
@@ -110,6 +129,8 @@ const struct boot_mode soc_boot_modes[] = {
 	{"esdhc2",	MAKE_CFGVAL(0x40, 0x20, 0x08, 0x12)},
 	{"esdhc3",	MAKE_CFGVAL(0x40, 0x20, 0x10, 0x12)},
 	{"esdhc4",	MAKE_CFGVAL(0x40, 0x20, 0x18, 0x12)},
+	{"primary",	MAKE_CFGVAL_PRIMARY_BOOT},
+	{"secondary",	MAKE_CFGVAL_SECONDARY_BOOT},
 	{NULL,		0},
 };
 #endif

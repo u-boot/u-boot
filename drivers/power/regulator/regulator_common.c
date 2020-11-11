@@ -4,23 +4,24 @@
  * Sven Schwermer <sven.svenschwermer@disruptive-technologies.com>
  */
 
-#include "regulator_common.h"
 #include <common.h>
+#include <dm.h>
+#include <log.h>
+#include <linux/delay.h>
 #include <power/regulator.h>
+
+#include "regulator_common.h"
 
 int regulator_common_ofdata_to_platdata(struct udevice *dev,
 	struct regulator_common_platdata *dev_pdata, const char *enable_gpio_name)
 {
 	struct gpio_desc *gpio;
-	struct dm_regulator_uclass_platdata *uc_pdata;
 	int flags = GPIOD_IS_OUT;
 	int ret;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
-
 	if (!dev_read_bool(dev, "enable-active-high"))
 		flags |= GPIOD_ACTIVE_LOW;
-	if (uc_pdata->boot_on)
+	if (dev_read_bool(dev, "regulator-boot-on"))
 		flags |= GPIOD_IS_OUT_ACTIVE;
 
 	/* Get optional enable GPIO desc */
@@ -37,7 +38,11 @@ int regulator_common_ofdata_to_platdata(struct udevice *dev,
 	dev_pdata->startup_delay_us = dev_read_u32_default(dev,
 							"startup-delay-us", 0);
 	dev_pdata->off_on_delay_us =
+		dev_read_u32_default(dev, "off-on-delay-us", 0);
+	if (!dev_pdata->off_on_delay_us) {
+		dev_pdata->off_on_delay_us =
 			dev_read_u32_default(dev, "u-boot,off-on-delay-us", 0);
+	}
 
 	return 0;
 }

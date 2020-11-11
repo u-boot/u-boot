@@ -23,9 +23,10 @@
 
 #ifndef __ASSEMBLY__
 
-typedef struct bd_info {
-	unsigned long	bi_memstart;	/* start of DRAM memory */
-	phys_size_t	bi_memsize;	/* size	 of DRAM memory in bytes */
+#include <asm/types.h>
+#include <linux/types.h>
+
+struct bd_info {
 	unsigned long	bi_flashstart;	/* start of FLASH memory */
 	unsigned long	bi_flashsize;	/* size	 of FLASH memory */
 	unsigned long	bi_flashoffset; /* reserved area for startup monitor */
@@ -58,7 +59,6 @@ typedef struct bd_info {
 	unsigned long	bi_vco;		/* VCO Out from PLL, in MHz */
 #endif
 #if defined(CONFIG_M68K)
-	unsigned long	bi_ipbfreq;	/* IPB Bus Freq, in MHz */
 	unsigned long	bi_pcifreq;	/* PCI Bus Freq, in MHz */
 #endif
 #if defined(CONFIG_EXTRA_CLOCK)
@@ -66,32 +66,13 @@ typedef struct bd_info {
 	unsigned long bi_vcofreq;	/* vco Freq in MHz */
 	unsigned long bi_flbfreq;	/* Flexbus Freq in MHz */
 #endif
-
-#ifdef CONFIG_HAS_ETH1
-	unsigned char   bi_enet1addr[6];	/* OLD: see README.enetaddr */
-#endif
-#ifdef CONFIG_HAS_ETH2
-	unsigned char	bi_enet2addr[6];	/* OLD: see README.enetaddr */
-#endif
-#ifdef CONFIG_HAS_ETH3
-	unsigned char   bi_enet3addr[6];	/* OLD: see README.enetaddr */
-#endif
-#ifdef CONFIG_HAS_ETH4
-	unsigned char   bi_enet4addr[6];	/* OLD: see README.enetaddr */
-#endif
-#ifdef CONFIG_HAS_ETH5
-	unsigned char   bi_enet5addr[6];	/* OLD: see README.enetaddr */
-#endif
-
 	ulong	        bi_arch_number;	/* unique id for this board */
 	ulong	        bi_boot_params;	/* where this board expects params */
-#ifdef CONFIG_NR_DRAM_BANKS
 	struct {			/* RAM configuration */
 		phys_addr_t start;
 		phys_size_t size;
 	} bi_dram[CONFIG_NR_DRAM_BANKS];
-#endif /* CONFIG_NR_DRAM_BANKS */
-} bd_t;
+};
 
 #endif /* __ASSEMBLY__ */
 

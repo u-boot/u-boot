@@ -12,6 +12,9 @@
 #include <asm/io.h>
 #include <asm/unaligned.h>
 #include <errno.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <mach/jz4780.h>
 #include <wait_bit.h>
 
@@ -447,7 +450,7 @@ static int jz_mmc_ofdata_to_platdata(struct udevice *dev)
 	struct mmc_config *cfg;
 	int ret;
 
-	priv->regs = map_physmem(devfdt_get_addr(dev), 0x100, MAP_NOCACHE);
+	priv->regs = map_physmem(dev_read_addr(dev), 0x100, MAP_NOCACHE);
 	cfg = &plat->cfg;
 
 	cfg->name = "MSC";

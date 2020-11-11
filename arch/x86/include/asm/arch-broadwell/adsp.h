@@ -10,6 +10,7 @@
 #ifndef __ASM_ARCH_BROADWELL_ADSP_H
 #define __ASM_ARCH_BROADWELL_ADSP_H
 
+#include <linux/bitops.h>
 #define ADSP_PCI_IRQ			23
 #define ADSP_ACPI_IRQ			3
 #define  ADSP_ACPI_IRQEN		BIT(3)

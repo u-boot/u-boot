@@ -147,7 +147,6 @@
 /* NAND: SPL related configs */
 
 /* USB configuration */
-#define CONFIG_ARCH_MISC_INIT
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_HOST
 
@@ -161,14 +160,9 @@
 #endif
 
 #if defined(CONFIG_ENV_IS_IN_NAND)
-#define CONFIG_ENV_OFFSET_REDUND	0x001e0000
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
-#else
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #endif
 
 /* Network. */
-#define CONFIG_PHY_SMSC
 
 #endif	/* ! __CONFIG_CHILIBOARD_H */

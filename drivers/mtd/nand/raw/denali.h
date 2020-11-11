@@ -10,7 +10,6 @@
 #include <linux/bitops.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/types.h>
-#include <reset.h>
 
 #define DEVICE_RESET				0x0
 #define     DEVICE_RESET__BANK(bank)			BIT(bank)
@@ -316,13 +315,13 @@ struct denali_nand_info {
 	void (*host_write)(struct denali_nand_info *denali, u32 addr, u32 data);
 	void (*setup_dma)(struct denali_nand_info *denali, dma_addr_t dma_addr,
 			  int page, int write);
-	struct reset_ctl_bulk resets;
 };
 
 #define DENALI_CAP_HW_ECC_FIXUP			BIT(0)
 #define DENALI_CAP_DMA_64BIT			BIT(1)
 
 int denali_calc_ecc_bytes(int step_size, int strength);
+int denali_wait_reset_complete(struct denali_nand_info *denali);
 int denali_init(struct denali_nand_info *denali);
 
 #endif /* __DENALI_H__ */

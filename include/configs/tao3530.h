@@ -51,9 +51,6 @@
  */
 #define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* commands to include */
 
 #define CONFIG_SYS_I2C
@@ -131,10 +128,7 @@
 
 /* turn on command-line edit/hist/auto */
 
-#define CONFIG_SYS_MEMTEST_START	(0x82000000)		/* memtest */
 								/* defaults */
-#define CONFIG_SYS_MEMTEST_END		(0x83FFFFFF)		/* 64MB */
-#define CONFIG_SYS_MEMTEST_SCRATCH	(0x81000000)	/* dummy address */
 
 #define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0)	/* default */
 							/* load address */
@@ -169,7 +163,6 @@
 #define ONENAND_ENV_OFFSET		0x260000 /* environment starts here */
 
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)
-#define CONFIG_ENV_ADDR			CONFIG_ENV_OFFSET
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
@@ -190,12 +183,7 @@
 
 /* Defines for SPL */
 
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
-
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_ECC
 
 /* NAND boot config */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE

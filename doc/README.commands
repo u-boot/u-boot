@@ -3,7 +3,7 @@ Command definition
 
 Commands are added to U-Boot by creating a new command structure.
 This is done by first including command.h, then using the U_BOOT_CMD() or the
-U_BOOT_CMD_COMPLETE macro to fill in a cmd_tbl_t struct.
+U_BOOT_CMD_COMPLETE macro to fill in a struct cmd_tbl struct.
 
 U_BOOT_CMD(name, maxargs, repeatable, command, "usage", "help")
 U_BOOT_CMD_COMPLETE(name, maxargs, repeatable, command, "usage, "help", comp)
@@ -31,7 +31,7 @@ comp:		Pointer to the completion function. May be NULL.
 Sub-command definition
 ----------------------
 
-Likewise an array of cmd_tbl_t holding sub-commands can be created using either
+Likewise an array of struct cmd_tbl holding sub-commands can be created using either
 of the following macros:
 
 * U_BOOT_CMD_MKENT(name, maxargs, repeatable, command, "usage", "help")
@@ -40,14 +40,14 @@ of the following macros:
 
 This table has to be evaluated in the command function of the main command, e.g.
 
-    static cmd_tbl_t cmd_sub[] = {
+    static struct cmd_tbl cmd_sub[] = {
         U_BOOT_CMD_MKENT(foo, CONFIG_SYS_MAXARGS, 1, do_foo, "", ""),
         U_BOOT_CMD_MKENT(bar, CONFIG_SYS_MAXARGS, 1, do_bar, "", ""),
     };
 
-    static int do_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+    static int do_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
     {
-        cmd_tbl_t *cp;
+        struct cmd_tbl *cp;
 
         if (argc < 2)
                 return CMD_RET_USAGE;
@@ -68,7 +68,7 @@ Command function
 ----------------
 
 The command function pointer has to be of type
-int (*cmd)(struct cmd_tbl_s *cmdtp, int flag, int argc, const char *argv[]);
+int (*cmd)(struct cmd_tbl *cmdtp, int flag, int argc, const char *argv[]);
 
 cmdtp:		Table entry describing the command (see above).
 
@@ -83,9 +83,9 @@ argv:		Arguments.
 
 Allowable return value are:
 
-CMD_SUCCESS	The command was successfully executed.
+CMD_RET_SUCCESS	The command was successfully executed.
 
-CMD_FAILURE	The command failed.
+CMD_RET_FAILURE	The command failed.
 
 CMD_RET_USAGE	The command was called with invalid parameters. This value
 		leads to the display of the usage string.
@@ -134,3 +134,53 @@ by writing in u-boot.lds ($(srctree)/board/boardname/u-boot.lds) these
 	.u_boot_list : {
 		KEEP(*(SORT(.u_boot_list*)));
 	}
+
+Writing tests
+-------------
+
+All new commands should have tests. Tests for existing commands are very
+welcome.
+
+It is fairly easy to write a test for a command. Enable it in sandbox, and
+then add code that runs the command and checks the output.
+
+Here is an example:
+
+/* Test 'acpi items' command */
+static int dm_test_acpi_cmd_items(struct unit_test_state *uts)
+{
+	struct acpi_ctx ctx;
+	void *buf;
+
+	buf = malloc(BUF_SIZE);
+	ut_assertnonnull(buf);
+
+	ctx.current = buf;
+	ut_assertok(acpi_fill_ssdt(&ctx));
+	console_record_reset();
+	run_command("acpi items", 0);
+	ut_assert_nextline("dev 'acpi-test', type 1, size 2");
+	ut_assert_nextline("dev 'acpi-test2', type 1, size 2");
+	ut_assert_console_end();
+
+	ctx.current = buf;
+	ut_assertok(acpi_inject_dsdt(&ctx));
+	console_record_reset();
+	run_command("acpi items", 0);
+	ut_assert_nextline("dev 'acpi-test', type 2, size 2");
+	ut_assert_nextline("dev 'acpi-test2', type 2, size 2");
+	ut_assert_console_end();
+
+	console_record_reset();
+	run_command("acpi items -d", 0);
+	ut_assert_nextline("dev 'acpi-test', type 2, size 2");
+	ut_assert_nextlines_are_dump(2);
+	ut_assert_nextline("%s", "");
+	ut_assert_nextline("dev 'acpi-test2', type 2, size 2");
+	ut_assert_nextlines_are_dump(2);
+	ut_assert_nextline("%s", "");
+	ut_assert_console_end();
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_cmd_items, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

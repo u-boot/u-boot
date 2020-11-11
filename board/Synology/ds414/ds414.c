@@ -5,10 +5,12 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <miiphy.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <linux/bitops.h>
 #include <linux/mbus.h>
 
 #include "../drivers/ddr/marvell/axp/ddr3_hw_training.h"

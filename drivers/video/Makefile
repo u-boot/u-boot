@@ -4,17 +4,18 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
 ifdef CONFIG_DM
+obj-$(CONFIG_BACKLIGHT) += backlight-uclass.o
 obj-$(CONFIG_BACKLIGHT_GPIO) += backlight_gpio.o
 obj-$(CONFIG_BACKLIGHT_PWM) += pwm_backlight.o
 obj-$(CONFIG_CONSOLE_NORMAL) += console_normal.o
 obj-$(CONFIG_CONSOLE_ROTATION) += console_rotate.o
 obj-$(CONFIG_CONSOLE_TRUETYPE) += console_truetype.o fonts/
 obj-$(CONFIG_DISPLAY) += display-uclass.o
-obj-$(CONFIG_DM_VIDEO) += backlight-uclass.o
 obj-$(CONFIG_VIDEO_MIPI_DSI) += dsi-host-uclass.o
-obj-$(CONFIG_DM_VIDEO) += panel-uclass.o simple_panel.o
 obj-$(CONFIG_DM_VIDEO) += video-uclass.o vidconsole-uclass.o
 obj-$(CONFIG_DM_VIDEO) += video_bmp.o
+obj-$(CONFIG_PANEL) += panel-uclass.o
+obj-$(CONFIG_SIMPLE_PANEL) += simple_panel.o
 endif
 
 obj-${CONFIG_EXYNOS_FB} += exynos/
@@ -61,6 +62,7 @@ obj-${CONFIG_VIDEO_MIPI_DSI} += mipi_dsi.o
 obj-$(CONFIG_VIDEO_MVEBU) += mvebu_lcd.o
 obj-$(CONFIG_VIDEO_MX3) += mx3fb.o videomodes.o
 obj-$(CONFIG_VIDEO_MXS) += mxsfb.o videomodes.o
+obj-$(CONFIG_VIDEO_NX) += nexell_display.o videomodes.o nexell/
 obj-$(CONFIG_VIDEO_OMAP3) += omap3_dss.o
 obj-$(CONFIG_VIDEO_DSI_HOST_SANDBOX) += sandbox_dsi_host.o
 obj-$(CONFIG_VIDEO_SANDBOX_SDL) += sandbox_sdl.o

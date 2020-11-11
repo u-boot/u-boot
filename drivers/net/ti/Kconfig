@@ -14,6 +14,12 @@ config DRIVER_TI_EMAC
 	help
 	   Support for davinci emac
 
+config DRIVER_TI_EMAC_USE_RMII
+	depends on DRIVER_TI_EMAC
+	bool "Use RMII"
+	help
+	  Configure the TI EMAC driver to use RMII
+
 config DRIVER_TI_KEYSTONE_NET
 	bool "TI Keystone 2 Ethernet"
 	help

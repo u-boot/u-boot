@@ -30,8 +30,14 @@ obj-$(CONFIG_ARMV8_SPIN_TABLE) += spin_table.o spin_table_v8.o
 endif
 obj-$(CONFIG_$(SPL_)ARMV8_SEC_FIRMWARE_SUPPORT) += sec_firmware.o sec_firmware_asm.o
 
+ifdef CONFIG_SPL_BUILD
+obj-$(CONFIG_SPL_RECOVER_DATA_SECTION) += spl_data.o
+endif
+
 obj-$(CONFIG_FSL_LAYERSCAPE) += fsl-layerscape/
 obj-$(CONFIG_S32V234) += s32v234/
 obj-$(CONFIG_TARGET_HIKEY) += hisilicon/
 obj-$(CONFIG_ARMV8_PSCI) += psci.o
 obj-$(CONFIG_ARCH_SUNXI) += lowlevel_init.o
+obj-$(CONFIG_TARGET_BCMNS3) += bcmns3/
+obj-$(CONFIG_XEN) += xen/

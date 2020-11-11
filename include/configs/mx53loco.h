@@ -24,7 +24,6 @@
 
 #define CONFIG_REVISION_TAG
 
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* MMC Configs */
@@ -57,9 +56,6 @@
 #define CONFIG_POWER_FSL_MC13892
 #define CONFIG_SYS_DIALOG_PMIC_I2C_ADDR	0x48
 #define CONFIG_SYS_FSL_PMIC_I2C_ADDR	0x8
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 /* Command definition */
 
@@ -142,9 +138,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 
-#define CONFIG_SYS_MEMTEST_START       0x70000000
-#define CONFIG_SYS_MEMTEST_END         0x70010000
-
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /* Physical Memory Map */
@@ -164,7 +157,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment starts at 768k = 768 * 1024 = 786432 */
-#define CONFIG_ENV_OFFSET		786432
 /*
  * Detect overlap between U-Boot image and environment area in build-time
  *
@@ -175,8 +167,6 @@
  * write the direct value here
  */
 #define CONFIG_BOARD_SIZE_LIMIT		785408
-#define CONFIG_ENV_SIZE        (8 * 1024)
-#define CONFIG_SYS_MMC_ENV_DEV 0
 
 #ifdef CONFIG_CMD_SATA
 	#define CONFIG_SYS_SATA_MAX_DEVICE      1
@@ -186,9 +176,6 @@
 #endif
 
 /* Framebuffer and LCD */
-#define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 
 #endif				/* __CONFIG_H */

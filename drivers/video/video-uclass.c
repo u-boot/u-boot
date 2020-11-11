@@ -4,11 +4,16 @@
  */
 
 #include <common.h>
+#include <console.h>
+#include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
+#include <malloc.h>
 #include <mapmem.h>
 #include <stdio_dev.h>
 #include <video.h>
 #include <video_console.h>
+#include <asm/cache.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
@@ -40,6 +45,19 @@
  * text to the video device.
  */
 DECLARE_GLOBAL_DATA_PTR;
+
+/**
+ * struct video_uc_priv - Information for the video uclass
+ *
+ * @video_ptr: Current allocation position of the video framebuffer pointer.
+ *	While binding devices after relocation, this points to the next
+ *	available address to use for a device's framebuffer. It starts at
+ *	gd->video_top and works downwards, running out of space when it hits
+ *	gd->video_bottom.
+ */
+struct video_uc_priv {
+	ulong video_ptr;
+};
 
 void video_set_flush_dcache(struct udevice *dev, bool flush)
 {
@@ -79,7 +97,13 @@ int video_reserve(ulong *addrp)
 		debug("%s: Reserving %lx bytes at %lx for video device '%s'\n",
 		      __func__, size, *addrp, dev->name);
 	}
+
+	/* Allocate space for PCI video devices in case there were not bound */
+	if (*addrp == gd->video_top)
+		*addrp -= CONFIG_VIDEO_PCI_DEFAULT_FB_SIZE;
+
 	gd->video_bottom = *addrp;
+	gd->fb_base = *addrp;
 	debug("Video frame buffers from %lx to %lx\n", gd->video_bottom,
 	      gd->video_top);
 
@@ -89,28 +113,34 @@ int video_reserve(ulong *addrp)
 int video_clear(struct udevice *dev)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
+	int ret;
 
 	switch (priv->bpix) {
-	case VIDEO_BPP16: {
-		u16 *ppix = priv->fb;
-		u16 *end = priv->fb + priv->fb_size;
+	case VIDEO_BPP16:
+		if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+			u16 *ppix = priv->fb;
+			u16 *end = priv->fb + priv->fb_size;
 
-		while (ppix < end)
-			*ppix++ = priv->colour_bg;
-		break;
-	}
-	case VIDEO_BPP32: {
-		u32 *ppix = priv->fb;
-		u32 *end = priv->fb + priv->fb_size;
+			while (ppix < end)
+				*ppix++ = priv->colour_bg;
+			break;
+		}
+	case VIDEO_BPP32:
+		if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+			u32 *ppix = priv->fb;
+			u32 *end = priv->fb + priv->fb_size;
 
-		while (ppix < end)
-			*ppix++ = priv->colour_bg;
-		break;
-	}
+			while (ppix < end)
+				*ppix++ = priv->colour_bg;
+			break;
+		}
 	default:
 		memset(priv->fb, priv->colour_bg, priv->fb_size);
 		break;
 	}
+	ret = video_sync_copy(dev, priv->fb, priv->fb + priv->fb_size);
+	if (ret)
+		return ret;
 
 	return 0;
 }
@@ -120,14 +150,14 @@ void video_set_default_colors(struct udevice *dev, bool invert)
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 	int fore, back;
 
-#ifdef CONFIG_SYS_WHITE_ON_BLACK
-	/* White is used when switching to bold, use light gray here */
-	fore = VID_LIGHT_GRAY;
-	back = VID_BLACK;
-#else
-	fore = VID_BLACK;
-	back = VID_WHITE;
-#endif
+	if (CONFIG_IS_ENABLED(SYS_WHITE_ON_BLACK)) {
+		/* White is used when switching to bold, use light gray here */
+		fore = VID_LIGHT_GRAY;
+		back = VID_BLACK;
+	} else {
+		fore = VID_BLACK;
+		back = VID_WHITE;
+	}
 	if (invert) {
 		int temp;
 
@@ -194,6 +224,59 @@ int video_get_ysize(struct udevice *dev)
 	return priv->ysize;
 }
 
+#ifdef CONFIG_VIDEO_COPY
+int video_sync_copy(struct udevice *dev, void *from, void *to)
+{
+	struct video_priv *priv = dev_get_uclass_priv(dev);
+
+	if (priv->copy_fb) {
+		long offset, size;
+
+		/* Find the offset of the first byte to copy */
+		if ((ulong)to > (ulong)from) {
+			size = to - from;
+			offset = from - priv->fb;
+		} else {
+			size = from - to;
+			offset = to - priv->fb;
+		}
+
+		/*
+		 * Allow a bit of leeway for valid requests somewhere near the
+		 * frame buffer
+		 */
+		if (offset < -priv->fb_size || offset > 2 * priv->fb_size) {
+#ifdef DEBUG
+			char str[80];
+
+			snprintf(str, sizeof(str),
+				 "[sync_copy fb=%p, from=%p, to=%p, offset=%lx]",
+				 priv->fb, from, to, offset);
+			console_puts_select_stderr(true, str);
+#endif
+			return -EFAULT;
+		}
+
+		/*
+		 * Silently crop the memcpy. This allows callers to avoid doing
+		 * this themselves. It is common for the end pointer to go a
+		 * few lines after the end of the frame buffer, since most of
+		 * the update algorithms terminate a line after their last write
+		 */
+		if (offset + size > priv->fb_size) {
+			size = priv->fb_size - offset;
+		} else if (offset < 0) {
+			size += offset;
+			offset = 0;
+		}
+
+		memcpy(priv->copy_fb + offset, priv->fb + offset, size);
+	}
+
+	return 0;
+}
+#endif
+
 /* Set up the colour map */
 static int video_pre_probe(struct udevice *dev)
 {
@@ -231,6 +314,9 @@ static int video_post_probe(struct udevice *dev)
 		priv->line_length = priv->xsize * VNBYTES(priv->bpix);
 
 	priv->fb_size = priv->line_length * priv->ysize;
+
+	if (IS_ENABLED(CONFIG_VIDEO_COPY) && plat->copy_base)
+		priv->copy_fb = map_sysmem(plat->copy_base, plat->size);
 
 	/* Set up colors  */
 	video_set_default_colors(dev, false);
@@ -283,12 +369,21 @@ static int video_post_probe(struct udevice *dev)
 /* Post-relocation, allocate memory for the frame buffer */
 static int video_post_bind(struct udevice *dev)
 {
-	ulong addr = gd->video_top;
+	struct video_uc_priv *uc_priv;
+	ulong addr;
 	ulong size;
 
 	/* Before relocation there is nothing to do here */
 	if (!(gd->flags & GD_FLG_RELOC))
 		return 0;
+
+	/* Set up the video pointer, if this is the first device */
+	uc_priv = dev->uclass->priv;
+	if (!uc_priv->video_ptr)
+		uc_priv->video_ptr = gd->video_top;
+
+	/* Allocate framebuffer space for this device */
+	addr = uc_priv->video_ptr;
 	size = alloc_fb(dev, &addr);
 	if (addr < gd->video_bottom) {
 		/* Device tree node may need the 'u-boot,dm-pre-reloc' or
@@ -300,7 +395,7 @@ static int video_post_bind(struct udevice *dev)
 	}
 	debug("%s: Claiming %lx bytes at %lx for video device '%s'\n",
 	      __func__, size, addr, dev->name);
-	gd->video_bottom = addr;
+	uc_priv->video_ptr = addr;
 
 	return 0;
 }
@@ -313,6 +408,7 @@ UCLASS_DRIVER(video) = {
 	.pre_probe	= video_pre_probe,
 	.post_probe	= video_post_probe,
 	.pre_remove	= video_pre_remove,
+	.priv_auto_alloc_size	= sizeof(struct video_uc_priv),
 	.per_device_auto_alloc_size	= sizeof(struct video_priv),
 	.per_device_platdata_auto_alloc_size = sizeof(struct video_uc_platdata),
 };

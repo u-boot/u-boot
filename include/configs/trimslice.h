@@ -23,9 +23,7 @@
 /* SPI */
 
 /* Environment in SPI */
-#define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
 /* 1MiB flash, environment located as high as possible */
-#define CONFIG_ENV_OFFSET		(SZ_1M - CONFIG_ENV_SIZE)
 
 #include "tegra-common-post.h"
 

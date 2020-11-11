@@ -7,6 +7,11 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/sizes.h>
+
+/* For booting Linux, use the first 6MB of memory */
+#define CONFIG_SYS_BOOTMAPSZ		SZ_4M + SZ_2M
+
 #define CONFIG_SYS_FLASH_BASE		0x08000000
 #define CONFIG_SYS_INIT_SP_ADDR		0x20050000
 
@@ -24,13 +29,10 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	8
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 
-#define CONFIG_ENV_SIZE			(8 << 10)
-
 #define CONFIG_STM32_FLASH
 
 #define CONFIG_DW_GMAC_DEFAULT_DMA_PBL	(8)
 #define CONFIG_DW_ALTDESCRIPTOR
-#define CONFIG_PHY_SMSC
 
 #define CONFIG_SYS_HZ_CLOCK		1000000	/* Timer is clocked at 1MHz */
 
@@ -50,18 +52,12 @@
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 			"kernel_addr_r=0xC0008000\0"		\
 			"fdtfile=stm32f746-disco.dtb\0"	\
-			"fdt_addr_r=0xC0500000\0"		\
-			"scriptaddr=0xC0008000\0"		\
-			"pxefile_addr_r=0xC0008000\0" \
-			"fdt_high=0xffffffffffffffff\0"		\
-			"initrd_high=0xffffffffffffffff\0"	\
-			"ramdisk_addr_r=0xC0600000\0"		\
+			"fdt_addr_r=0xC0408000\0"		\
+			"scriptaddr=0xC0418000\0"		\
+			"pxefile_addr_r=0xC0428000\0" \
+			"ramdisk_addr_r=0xC0438000\0"		\
 			BOOTENV
 
-/*
- * Command line configuration.
- */
-#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_DISPLAY_BOARDINFO
 
 /* For SPL */
@@ -80,13 +76,5 @@
 /* For SPL ends */
 
 /* For splashcreen */
-#ifdef CONFIG_DM_VIDEO
-#define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_BMP_16BPP
-#define CONFIG_BMP_24BPP
-#define CONFIG_BMP_32BPP
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_SPLASH_SCREEN_ALIGN
-#endif
 
 #endif /* __CONFIG_H */

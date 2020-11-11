@@ -6,6 +6,13 @@ U-Boot API documentation
 .. toctree::
    :maxdepth: 2
 
+   dfu
    efi
+   getopt
    linker_lists
+   pinctrl
+   rng
+   sandbox
    serial
+   timer
+   unicode

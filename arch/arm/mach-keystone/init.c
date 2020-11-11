@@ -7,12 +7,16 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <init.h>
 #include <ns16550.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/msmc.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/psc_defs.h>
+#include <linux/bitops.h>
 
 #define MAX_PCI_PORTS		2
 enum pci_mode	{

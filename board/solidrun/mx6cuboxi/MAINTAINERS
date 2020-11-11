@@ -1,4 +1,5 @@
 MX6CUBOXI BOARD
+M:	Baruch Siach <baruch@tkos.co.il>
 M:	Fabio Estevam <fabio.estevam@nxp.com>
 S:	Maintained
 F:	board/solidrun/mx6cuboxi/

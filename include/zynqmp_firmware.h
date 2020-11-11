@@ -62,6 +62,23 @@ enum pm_api_id {
 	PM_API_MAX,
 };
 
+enum pm_query_id {
+	PM_QID_INVALID = 0,
+	PM_QID_CLOCK_GET_NAME = 1,
+	PM_QID_CLOCK_GET_TOPOLOGY = 2,
+	PM_QID_CLOCK_GET_FIXEDFACTOR_PARAMS = 3,
+	PM_QID_CLOCK_GET_PARENTS = 4,
+	PM_QID_CLOCK_GET_ATTRIBUTES = 5,
+	PM_QID_PINCTRL_GET_NUM_PINS = 6,
+	PM_QID_PINCTRL_GET_NUM_FUNCTIONS = 7,
+	PM_QID_PINCTRL_GET_NUM_FUNCTION_GROUPS = 8,
+	PM_QID_PINCTRL_GET_FUNCTION_NAME = 9,
+	PM_QID_PINCTRL_GET_FUNCTION_GROUPS = 10,
+	PM_QID_PINCTRL_GET_PIN_GROUPS = 11,
+	PM_QID_CLOCK_GET_NUM_CLOCKS = 12,
+	PM_QID_CLOCK_GET_MAX_DIVISOR = 13,
+};
+
 #define PM_SIP_SVC      0xc2000000
 
 #define ZYNQMP_PM_VERSION_MAJOR         1
@@ -76,6 +93,15 @@ enum pm_api_id {
 #define ZYNQMP_PM_VERSION_INVALID       ~0
 
 #define PMUFW_V1_0      ((1 << ZYNQMP_PM_VERSION_MAJOR_SHIFT) | 0)
+
+/*
+ * Return payload size
+ * Not every firmware call expects the same amount of return bytes, however the
+ * firmware driver always copies 5 bytes from RX buffer to the ret_payload
+ * buffer. Therefore allocating with this defined value is recommended to avoid
+ * overflows.
+ */
+#define PAYLOAD_ARG_CNT	5U
 
 unsigned int zynqmp_firmware_version(void);
 void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size);

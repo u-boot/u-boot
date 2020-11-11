@@ -7,8 +7,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <usb.h>
 #include <net.h>
+#include <linux/delay.h>
 #include <linux/mii.h>
 #include "usb_ether.h"
 #include <malloc.h>
@@ -507,7 +509,7 @@ static int asix_send_common(struct ueth_data *dev,
 /*
  * Asix callbacks
  */
-static int asix_init(struct eth_device *eth, bd_t *bd)
+static int asix_init(struct eth_device *eth, struct bd_info *bd)
 {
 	struct ueth_data *dev = (struct ueth_data *)eth->priv;
 	struct asix_private *dev_priv = (struct asix_private *)dev->dev_priv;

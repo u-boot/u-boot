@@ -5,10 +5,14 @@
 
 #include <common.h>
 #include <handoff.h>
+#include <init.h>
+#include <log.h>
 #include <asm/fsp/fsp_support.h>
 #include <asm/e820.h>
 #include <asm/mrccache.h>
+#include <asm/mtrr.h>
 #include <asm/post.h>
+#include <dm/ofnode.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -37,8 +41,57 @@ int fsp_scan_for_ram_size(void)
 
 int dram_init_banksize(void)
 {
+	efi_guid_t fsp = FSP_HOB_RESOURCE_OWNER_FSP_GUID;
+	const struct hob_header *hdr;
+	struct hob_res_desc *res_desc;
+	phys_addr_t mtrr_top;
+	phys_addr_t low_end;
+	uint bank;
+
+	if (!ll_boot_init()) {
+		gd->bd->bi_dram[0].start = 0;
+		gd->bd->bi_dram[0].size = gd->ram_size;
+
+		mtrr_add_request(MTRR_TYPE_WRBACK, 0, gd->ram_size);
+		return 0;
+	}
+
+	low_end = 0;	/* top of low memory usable by U-Boot */
+	mtrr_top = 0;	/* top of low memory (even if reserved) */
+	for (bank = 1, hdr = gd->arch.hob_list;
+	     bank < CONFIG_NR_DRAM_BANKS && !end_of_hob(hdr);
+	     hdr = get_next_hob(hdr)) {
+		if (hdr->type != HOB_TYPE_RES_DESC)
+			continue;
+		res_desc = (struct hob_res_desc *)hdr;
+		if (!guidcmp(&res_desc->owner, &fsp))
+			low_end = res_desc->phys_start;
+		if (res_desc->type != RES_SYS_MEM &&
+		    res_desc->type != RES_MEM_RESERVED)
+			continue;
+		if (res_desc->phys_start < (1ULL << 32)) {
+			mtrr_top = max(mtrr_top,
+				       res_desc->phys_start + res_desc->len);
+		} else {
+			gd->bd->bi_dram[bank].start = res_desc->phys_start;
+			gd->bd->bi_dram[bank].size = res_desc->len;
+			mtrr_add_request(MTRR_TYPE_WRBACK, res_desc->phys_start,
+					 res_desc->len);
+			log_debug("ram %llx %llx\n",
+				  gd->bd->bi_dram[bank].start,
+				  gd->bd->bi_dram[bank].size);
+		}
+	}
+
+	/* Add the memory below 4GB */
 	gd->bd->bi_dram[0].start = 0;
-	gd->bd->bi_dram[0].size = gd->ram_size;
+	gd->bd->bi_dram[0].size = low_end;
+
+	/*
+	 * Set up an MTRR to the top of low, reserved memory. This is necessary
+	 * for graphics to run at full speed in U-Boot.
+	 */
+	mtrr_add_request(MTRR_TYPE_WRBACK, 0, mtrr_top);
 
 	return 0;
 }
@@ -49,6 +102,8 @@ unsigned int install_e820_map(unsigned int max_entries,
 	unsigned int num_entries = 0;
 	const struct hob_header *hdr;
 	struct hob_res_desc *res_desc;
+	const fdt64_t *prop;
+	int size;
 
 	hdr = gd->arch.hob_list;
 
@@ -74,17 +129,35 @@ unsigned int install_e820_map(unsigned int max_entries,
 	entries[num_entries].type = E820_RESERVED;
 	num_entries++;
 
-#ifdef CONFIG_HAVE_ACPI_RESUME
-	/*
-	 * Everything between U-Boot's stack and ram top needs to be
-	 * reserved in order for ACPI S3 resume to work.
-	 */
-	entries[num_entries].addr = gd->start_addr_sp - CONFIG_STACK_SIZE;
-	entries[num_entries].size = gd->ram_top - gd->start_addr_sp +
-		CONFIG_STACK_SIZE;
-	entries[num_entries].type = E820_RESERVED;
-	num_entries++;
-#endif
+	if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME)) {
+		ulong stack_size;
+
+		stack_size = CONFIG_IS_ENABLED(HAVE_ACPI_RESUME,
+					       (CONFIG_STACK_SIZE_RESUME), (0));
+		/*
+		 * Everything between U-Boot's stack and ram top needs to be
+		 * reserved in order for ACPI S3 resume to work.
+		 */
+		entries[num_entries].addr = gd->start_addr_sp - stack_size;
+		entries[num_entries].size = gd->ram_top - gd->start_addr_sp +
+			stack_size;
+		entries[num_entries].type = E820_RESERVED;
+		num_entries++;
+	}
+
+	prop = ofnode_read_chosen_prop("e820-entries", &size);
+	if (prop) {
+		int count = size / (sizeof(u64) * 3);
+		int i;
+
+		if (num_entries + count >= max_entries)
+			return -ENOSPC;
+		for (i = 0; i < count; i++, num_entries++, prop += 3) {
+			entries[num_entries].addr = fdt64_to_cpu(prop[0]);
+			entries[num_entries].size = fdt64_to_cpu(prop[1]);
+			entries[num_entries].type = fdt64_to_cpu(prop[2]);
+		}
+	}
 
 	return num_entries;
 }
@@ -92,7 +165,7 @@ unsigned int install_e820_map(unsigned int max_entries,
 #if CONFIG_IS_ENABLED(HANDOFF) && IS_ENABLED(CONFIG_USE_HOB)
 int handoff_arch_save(struct spl_handoff *ho)
 {
-	ho->arch.usable_ram_top = fsp_get_usable_lowmem_top(gd->arch.hob_list);
+	ho->arch.usable_ram_top = gd->bd->bi_dram[0].size;
 	ho->arch.hob_list = gd->arch.hob_list;
 
 	return 0;

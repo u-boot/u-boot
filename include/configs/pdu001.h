@@ -13,11 +13,9 @@
 #include <configs/ti_am335x_common.h>
 
 /* Using 32K of volatile storage for environment */
-#define CONFIG_ENV_SIZE		0x4000
 
 #define MACH_TYPE_PDU001	5075
 #define CONFIG_MACH_TYPE	MACH_TYPE_PDU001
-#define CONFIG_BOARD_LATE_INIT
 
 /* Clock Defines */
 #define V_OSCK			24000000  /* Clock output from T2 */
@@ -75,6 +73,5 @@
 #define CONFIG_SYS_NS16550_COM4	UART3_BASE
 #define CONFIG_SYS_NS16550_COM5	UART4_BASE
 #define CONFIG_SYS_NS16550_COM6	UART5_BASE
-#define CONFIG_BAUDRATE		115200
 
 #endif	/* ! __CONFIG_PDU001_H */

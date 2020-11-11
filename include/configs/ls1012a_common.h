@@ -10,6 +10,7 @@
 
 #include <asm/arch/config.h>
 #include <asm/arch/stream_id_lsch2.h>
+#include <linux/sizes.h>
 
 #define CONFIG_SYS_CLK_FREQ		125000000
 
@@ -34,34 +35,14 @@
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(5 * SZ_1M)
+
+/* PFE */
+#define CONFIG_SYS_FMAN_FW_ADDR		0x400d0000
+#define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x300000
 
 /*SPI device */
-#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_TFABOOT)
-#define CONFIG_SYS_FMAN_FW_ADDR		0x400d0000
-#define CONFIG_SPI_FLASH_SPANSION
-#define CONFIG_FSL_SPI_INTERFACE
-#define CONFIG_SF_DATAFLASH
-
-#define QSPI0_AMBA_BASE		0x40000000
-#define CONFIG_SPI_FLASH_SPANSION
-
-#define FSL_QSPI_FLASH_SIZE		SZ_64M
-#define FSL_QSPI_FLASH_NUM		2
-
-/*
- * Environment
- */
-#define CONFIG_ENV_OVERWRITE
-
-#define CONFIG_ENV_SIZE			0x40000          /* 256KB */
-#ifdef CONFIG_TFABOOT
-#define CONFIG_ENV_OFFSET		0x500000        /* 5MB */
-#else
-#define CONFIG_ENV_OFFSET		0x300000        /* 3MB */
-#endif
-#define CONFIG_ENV_SECT_SIZE		0x40000
-#endif
+#define CONFIG_SYS_FSL_QSPI_BASE	0x40000000
 
 /* SATA */
 #define CONFIG_SCSI_AHCI_PLAT
@@ -74,7 +55,12 @@
 						CONFIG_SYS_SCSI_MAX_LUN)
 
 /* I2C */
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
+#else
+#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
+#define CONFIG_I2C_DEFAULT_BUS_NUMBER 0
+#endif
 
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE     1
@@ -101,11 +87,11 @@
 	"verify=no\0"				\
 	"loadaddr=0x80100000\0"			\
 	"kernel_addr=0x100000\0"		\
-	"fdt_high=0xffffffffffffffff\0"		\
 	"initrd_high=0xffffffffffffffff\0"	\
 	"kernel_start=0x1000000\0"		\
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
+	"bootm_size=0x10000000\0"		\
 
 #undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT

@@ -11,9 +11,12 @@
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <log.h>
+#include <malloc.h>
 #include <reset.h>
 #include <asm/io.h>
 #include <dm/device.h>
+#include <linux/bitops.h>
 
 #define USBH_SETUP_PORT1_EN	BIT(0)
 

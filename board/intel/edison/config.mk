@@ -10,7 +10,7 @@ cmd_mkalign_eds =							\
 	dd if=$^ of=$@ bs=4k seek=1 2>/dev/null &&			\
 	mv $@ $^
 
-ALL-y += u-boot-align.bin
+INPUTS-y += u-boot-align.bin
 u-boot-align.bin: u-boot.bin
 	$(call if_changed,mkalign_eds)
 

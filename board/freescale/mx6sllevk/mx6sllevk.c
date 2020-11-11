@@ -3,6 +3,7 @@
  * Copyright (C) 2016 Freescale Semiconductor, Inc.
  */
 
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>
@@ -56,7 +57,7 @@ int power_init_board(void)
 	u32 switch_num = 6;
 	u32 offset = PFUZE100_SW1CMODE;
 
-	ret = pmic_get("pfuze100", &dev);
+	ret = pmic_get("pfuze100@08", &dev);
 	if (ret == -ENODEV)
 		return 0;
 

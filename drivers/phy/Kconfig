@@ -84,6 +84,13 @@ config BCM6368_USBH_PHY
 	help
 	  Support for the Broadcom MIPS BCM6368 USBH PHY.
 
+config BCM_SR_PCIE_PHY
+	bool "Broadcom Stingray PCIe PHY driver"
+	depends on PHY
+	help
+	  Enable this to support the Broadcom Stingray PCIe PHY
+	  If unsure, say N.
+
 config PHY_DA8XX_USB
 	tristate "TI DA8xx USB PHY Driver"
 	depends on PHY && ARCH_DAVINCI
@@ -125,6 +132,12 @@ config STI_USB_PHY
 	  used by USB2 and USB3 Host controllers available on
 	  STiH407 SoC families.
 
+config PHY_QCOM_IPQ4019_USB
+	tristate "Qualcomm IPQ4019 USB PHY driver"
+	depends on PHY && ARCH_IPQ40XX
+	help
+	  Support for the USB PHY-s on Qualcomm IPQ40xx SoC-s.
+
 config PHY_RCAR_GEN2
 	tristate "Renesas R-Car Gen2 USB PHY"
 	depends on PHY && RCAR_GEN2
@@ -154,9 +167,17 @@ config PHY_STM32_USBPHYC
 	  between an HS USB OTG controller and an HS USB Host controller,
 	  selected by an USB switch.
 
+config MESON_GXBB_USB_PHY
+	bool "Amlogic Meson GXBB USB PHY"
+	depends on PHY && ARCH_MESON && MESON_GXBB
+	imply REGMAP
+	help
+	  This is the generic phy driver for the Amlogic Meson GXBB
+	  USB2 PHY.
+
 config MESON_GXL_USB_PHY
 	bool "Amlogic Meson GXL USB PHYs"
-	depends on PHY && ARCH_MESON && (MESON_GXL || MESON_GXM)
+	depends on PHY && ARCH_MESON && (MESON_GXL || MESON_GXM || MESON_AXG)
 	imply REGMAP
 	help
 	  This is the generic phy driver for the Amlogic Meson GXL
@@ -217,4 +238,5 @@ config PHY_MTK_TPHY
 	  multi-ports is first version, otherwise is second veriosn,
 	  so you can easily distinguish them by banks layout.
 
+source "drivers/phy/rockchip/Kconfig"
 endmenu

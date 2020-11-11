@@ -6,6 +6,8 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <hang.h>
+#include <log.h>
 #include <dt-bindings/memory/rk3368-dmc.h>
 #include <dt-structs.h>
 #include <ram.h>
@@ -17,7 +19,10 @@
 #include <asm/arch-rockchip/grf_rk3368.h>
 #include <asm/arch-rockchip/ddr_rk3368.h>
 #include <asm/arch-rockchip/sdram.h>
-#include <asm/arch-rockchip/sdram_common.h>
+#include <asm/arch-rockchip/sdram_rk3288.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
+#include <linux/err.h>
 
 struct dram_info {
 	struct ram_info info;
@@ -987,7 +992,7 @@ static const struct udevice_id rk3368_dmc_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(dmc_rk3368) = {
+U_BOOT_DRIVER(rockchip_rk3368_dmc) = {
 	.name = "rockchip_rk3368_dmc",
 	.id = UCLASS_RAM,
 	.of_match = rk3368_dmc_ids,

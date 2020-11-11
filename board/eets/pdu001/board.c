@@ -12,6 +12,8 @@
 #include <common.h>
 #include <env.h>
 #include <errno.h>
+#include <init.h>
+#include <log.h>
 #include <spl.h>
 #include <i2c.h>
 #include <watchdog.h>

@@ -13,6 +13,8 @@
 #include <asm/io.h>
 #include <i2c.h>
 #include <k3-avs.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <power/regulator.h>
 
 #define AM6_VTM_DEVINFO(i)	(priv->base + 0x100 + 0x20 * (i))
@@ -190,6 +192,10 @@ int k3_avs_notify_freq(int dev_id, int clk_id, u32 freq)
 	struct k3_avs_privdata *priv = k3_avs_priv;
 	struct vd_data *vd;
 
+	/* Driver may not be probed yet */
+	if (!priv)
+		return -EINVAL;
+
 	for (vd = priv->vd_config->vds; vd->id >= 0; vd++) {
 		if (vd->dev_id != dev_id || vd->clk_id != clk_id)
 			continue;
@@ -311,15 +317,15 @@ static struct vd_data am654_vd_data[] = {
 		.opp = AM6_OPP_NOM,
 		.opps = {
 			[AM6_OPP_NOM] = {
-				.volt = 1000000,
+				.volt = 1100000,
 				.freq = 800000000,
 			},
 			[AM6_OPP_OD] = {
-				.volt = 1100000,
+				.volt = 1200000,
 				.freq = 1000000000,
 			},
 			[AM6_OPP_TURBO] = {
-				.volt = 1220000,
+				.volt = 1240000,
 				.freq = 1100000000,
 			},
 		},
@@ -331,15 +337,15 @@ static struct vd_data am654_vd_data[] = {
 		.clk_id = 0, /* ARM clock */
 		.opps = {
 			[AM6_OPP_NOM] = {
-				.volt = 1000000,
+				.volt = 1100000,
 				.freq = 800000000,
 			},
 			[AM6_OPP_OD] = {
-				.volt = 1100000,
+				.volt = 1200000,
 				.freq = 1000000000,
 			},
 			[AM6_OPP_TURBO] = {
-				.volt = 1220000,
+				.volt = 1240000,
 				.freq = 1100000000,
 			},
 		},

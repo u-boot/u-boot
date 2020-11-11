@@ -23,7 +23,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_KM_BOARD_NAME    "kmtepr2"
 #define CONFIG_HOSTNAME         "kmtepr2"
 
 /* include common defines/options for all Keymile boards */

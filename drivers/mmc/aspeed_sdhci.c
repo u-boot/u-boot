@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <malloc.h>
 #include <sdhci.h>
+#include <linux/err.h>
 
 struct aspeed_sdhci_plat {
 	struct mmc_config cfg;
@@ -33,7 +34,7 @@ static int aspeed_sdhci_probe(struct udevice *dev)
 		goto free;
 
 	host->name = dev->name;
-	host->ioaddr = (void *)devfdt_get_addr(dev);
+	host->ioaddr = dev_read_addr_ptr(dev);
 
 	max_clk = clk_get_rate(&clk);
 	if (IS_ERR_VALUE(max_clk)) {

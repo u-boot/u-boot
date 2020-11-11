@@ -5,7 +5,6 @@
 
 extra-y        := hello_world
 extra-$(CONFIG_SMC91111)           += smc91111_eeprom
-extra-$(CONFIG_SMC911X)            += smc911x_eeprom
 extra-$(CONFIG_SPI_FLASH_ATMEL)    += atmel_df_pow2
 extra-$(CONFIG_PPC)                += sched
 
@@ -55,7 +54,7 @@ $(LIB):	$(LIBOBJS) FORCE
 	$(call if_changed,link_lib)
 
 quiet_cmd_link_elf = LD      $@
-      cmd_link_elf = $(LD) $(LDFLAGS) $(LDFLAGS_STANDALONE) -g  \
+      cmd_link_elf = $(LD) $(KBUILD_LDFLAGS) $(LDFLAGS_STANDALONE) -g  \
 		     -o $@ -e $(SYM_PREFIX)$(@F) $< $(LIB) $(PLATFORM_LIBGCC)
 
 $(ELF): $(obj)/%: $(obj)/%.o $(LIB) FORCE

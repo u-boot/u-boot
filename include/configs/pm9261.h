@@ -193,9 +193,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR			0x22000000
 
-#define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
-#define CONFIG_SYS_MEMTEST_END			0x23e00000
-
 #undef CONFIG_SYS_USE_DATAFLASH_CS0
 #undef CONFIG_SYS_USE_NANDFLASH
 #define CONFIG_SYS_USE_FLASH	1
@@ -203,9 +200,6 @@
 #ifdef CONFIG_SYS_USE_DATAFLASH_CS0
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
-#define CONFIG_ENV_OFFSET	0x4200
-#define CONFIG_ENV_SIZE		0x4200
-#define CONFIG_ENV_SECT_SIZE	0x210
 #define CONFIG_BOOTCOMMAND	"sf probe 0; " \
 				"sf read 0x22000000 0x84000 0x210000; " \
 				"bootm 0x22000000"
@@ -213,18 +207,9 @@
 #elif defined(CONFIG_SYS_USE_NANDFLASH) /* CONFIG_SYS_USE_NANDFLASH */
 
 /* bootstrap + u-boot + env + linux in nandflash */
-#define CONFIG_ENV_OFFSET		0x60000
-#define CONFIG_ENV_OFFSET_REDUND	0x80000
-#define CONFIG_ENV_SIZE			0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0xA0000 0x200000; bootm"
 
 #elif defined (CONFIG_SYS_USE_FLASH)
-
-#define CONFIG_ENV_OFFSET	0x40000
-#define CONFIG_ENV_SECT_SIZE	0x10000
-#define	CONFIG_ENV_SIZE		0x10000
-#define CONFIG_ENV_OVERWRITE	1
-
 /* JFFS Partition offset set */
 #define CONFIG_SYS_JFFS2_FIRST_BANK	0
 #define CONFIG_SYS_JFFS2_NUM_BANKS	1

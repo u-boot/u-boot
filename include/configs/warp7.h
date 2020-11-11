@@ -107,9 +107,6 @@
 		   "fi; " \
 	   "fi"
 
-#define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x20000000)
-
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
 
@@ -125,25 +122,29 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
+/*
+ * Environment starts at CONFIG_ENV_OFFSET= 0xC0000 = 768k = 768*1024 = 786432
+ *
+ * Detect overlap between U-Boot image and environment area in build-time
+ *
+ * CONFIG_BOARD_SIZE_LIMIT = CONFIG_ENV_OFFSET - u-boot.imx offset
+ * CONFIG_BOARD_SIZE_LIMIT = 768k - 1k = 767k = 785408
+ *
+ * Currently CONFIG_BOARD_SIZE_LIMIT does not handle expressions, so
+ * write the direct value here
+ */
+#define CONFIG_BOARD_SIZE_LIMIT		785408
+
 /* I2C configs */
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /* environment organization */
-#define CONFIG_ENV_SIZE			SZ_8K
 
-#define CONFIG_ENV_OFFSET		(8 * SZ_64K)
 #define CONFIG_SYS_FSL_USDHC_NUM	1
 
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_SYS_MMC_ENV_PART		0
-
-/* USB Configs */
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS		0
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 1 /* Only OTG1 port enabled */
 
 #define CONFIG_IMX_THERMAL
 

@@ -12,9 +12,6 @@
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	1
 #define CONFIG_SYS_SDRAM_SIZE		0x40000000
-#define CONFIG_CMD_MEMINFO
-#define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		0x9fffffff
 
 /*  MMC  */
 #ifdef CONFIG_MMC
@@ -32,14 +29,10 @@
 #define CONFIG_SYS_SCSI_MAX_LUN			1
 #define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 						CONFIG_SYS_SCSI_MAX_LUN)
-#define CONFIG_CMD_MEMINFO
-#define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		0x9fffffff
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"verify=no\0"				\
-	"fdt_high=0xffffffffffffffff\0"		\
 	"initrd_high=0xffffffffffffffff\0"	\
 	"fdt_addr=0x00f00000\0"			\
 	"kernel_addr=0x01000000\0"		\
@@ -53,6 +46,7 @@
 	"load_addr=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
 	"kernelheader_size=0x40000\0"		\
+	"bootm_size=0x10000000\0"		\
 	"console=ttyS0,115200\0"		\
 	BOOTENV					\
 	"boot_scripts=ls1012ardb_boot.scr\0"	\
@@ -85,7 +79,7 @@
 	"installer=load mmc 0:2 $load_addr "	\
 		   "/flex_installer_arm64.itb; "	\
 		   "bootm $load_addr#$board\0"	\
-	"qspi_bootcmd=echo Trying load from qspi..;"	\
+	"qspi_bootcmd=pfe stop; echo Trying load from qspi..;"	\
 		"sf probe && sf read $load_addr "	\
 		"$kernel_addr $kernel_size; env exists secureboot "	\
 		"&& sf read $kernelheader_addr_r $kernelheader_addr "	\

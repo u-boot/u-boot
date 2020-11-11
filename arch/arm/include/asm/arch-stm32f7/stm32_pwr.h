@@ -5,6 +5,11 @@
  */
 
 #ifndef __STM32_PWR_H_
+#define __STM32_PWR_H_
+
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
 
 /*
  * Offsets of some PWR registers

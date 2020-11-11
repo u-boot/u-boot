@@ -8,6 +8,22 @@ menuconfig NET
 
 if NET
 
+config PROT_UDP
+	bool "Enable generic udp framework"
+	help
+	  Enable a generic udp framework that allows defining a custom
+	  handler for udp protocol.
+
+config BOOTP_SEND_HOSTNAME
+	bool "Send hostname to DNS server"
+	help
+	  Some DHCP servers are capable to do a dynamic update of a
+	  DNS server. To do this, they need the hostname of the DHCP
+	  requester.
+	  If CONFIG_BOOTP_SEND_HOSTNAME is defined, the content
+          of the "hostname" environment variable is passed as
+          option 12 to the DHCP server.
+
 config NET_RANDOM_ETHADDR
 	bool "Random ethaddr if unset"
 	help
@@ -29,10 +45,33 @@ config IP_DEFRAG
 	  Selecting this will enable IP datagram reassembly according
 	  to the algorithm in RFC815.
 
+config NET_MAXDEFRAG
+	int "Size of buffer used for IP datagram reassembly"
+	depends on IP_DEFRAG
+	default 16384
+	range 1024 65536
+	help
+	  This defines the size of the statically allocated buffer
+	  used for reassembly, and thus an upper bound for the size of
+	  IP datagrams that can be received.
+
 config TFTP_BLOCKSIZE
 	int "TFTP block size"
-	default 512
+	default 1468
 	help
 	  Default TFTP block size.
+	  The MTU is typically 1500 for ethernet, so a TFTP block of
+	  1468 (MTU minus eth.hdrs) provides a good throughput with
+	  almost-MTU block sizes.
+	  You can also activate CONFIG_IP_DEFRAG to set a larger block.
+
+config TFTP_WINDOWSIZE
+	int "TFTP window size"
+	default 1
+	help
+	  Default TFTP window size.
+	  RFC7440 defines an optional window size of transmits,
+	  before an ack response is required.
+	  The default TFTP implementation implies a window size of 1.
 
 endif   # if NET

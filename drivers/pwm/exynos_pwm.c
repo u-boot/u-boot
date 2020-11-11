@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <pwm.h>
 #include <asm/io.h>
 #include <asm/arch/clk.h>
@@ -91,7 +92,7 @@ static int exynos_pwm_ofdata_to_platdata(struct udevice *dev)
 {
 	struct exynos_pwm_priv *priv = dev_get_priv(dev);
 
-	priv->regs = (struct s5p_timer *)devfdt_get_addr(dev);
+	priv->regs = dev_read_addr_ptr(dev);
 
 	return 0;
 }

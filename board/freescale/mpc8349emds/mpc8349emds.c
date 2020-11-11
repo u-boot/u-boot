@@ -5,8 +5,11 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
+#include <init.h>
 #include <ioports.h>
 #include <mpc83xx.h>
+#include <asm/bitops.h>
 #include <asm/mpc8349_pci.h>
 #include <i2c.h>
 #include <spi.h>
@@ -16,6 +19,7 @@
 #else
 #include <spd_sdram.h>
 #endif
+#include <linux/delay.h>
 
 #if defined(CONFIG_OF_LIBFDT)
 #include <linux/libfdt.h>
@@ -285,7 +289,7 @@ void spi_cs_deactivate(struct spi_slave *slave)
 #endif
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 #ifdef CONFIG_PCI

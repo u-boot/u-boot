@@ -3,11 +3,14 @@
  * Copyright (c) 2019, Linaro Limited
  */
 
+#include <log.h>
+#include <malloc.h>
 #include <asm/io.h>
 #include <common.h>
 #include <dm.h>
 #include <dt-bindings/reset/ti-syscon.h>
 #include <reset-uclass.h>
+#include <linux/bitops.h>
 
 struct hisi_reset_priv {
 	void __iomem *base;
@@ -72,7 +75,7 @@ static int hisi_reset_of_xlate(struct reset_ctl *rst,
 static const struct reset_ops hisi_reset_reset_ops = {
 	.of_xlate = hisi_reset_of_xlate,
 	.request = hisi_reset_request,
-	.free = hisi_reset_free,
+	.rfree = hisi_reset_free,
 	.rst_assert = hisi_reset_assert,
 	.rst_deassert = hisi_reset_deassert,
 };

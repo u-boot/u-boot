@@ -4,6 +4,12 @@ config MTD_PARTITIONS
 	bool
 
 config MTD
+	bool "Enable MTD layer"
+	help
+	  Enable the MTD stack, necessary to interact with NAND, NOR,
+	  SPI-NOR, SPI-NAND, OneNAND, etc.
+
+config DM_MTD
 	bool "Enable Driver Model for MTD drivers"
 	depends on DM
 	help
@@ -16,11 +22,12 @@ config MTD_NOR_FLASH
 	help
 	  Enable support for parallel NOR flash.
 
-config MTD_DEVICE
-	bool "Enable MTD Device for NAND and ONENAND devices"
+config SYS_MTDPARTS_RUNTIME
+	bool "Allow MTDPARTS to be configured at runtime"
+	depends on MTD
 	help
-	  Adds the MTD device infrastructure from the Linux kernel.
-	  Needed for mtdparts command support.
+	  This option allows to call the function board_mtdparts_default to
+	  dynamically build the variables mtdids and mtdparts at runtime.
 
 config FLASH_CFI_DRIVER
 	bool "Enable CFI Flash driver"
@@ -34,7 +41,7 @@ config FLASH_CFI_DRIVER
 
 config CFI_FLASH
 	bool "Enable Driver Model for CFI Flash driver"
-	depends on MTD
+	depends on DM_MTD
 	help
 	  The Common Flash Interface specification was developed by Intel,
 	  AMD and other flash manufactures. It provides a universal method
@@ -73,7 +80,7 @@ config SYS_FLASH_CFI
 
 config ALTERA_QSPI
 	bool "Altera Generic Quad SPI Controller"
-	depends on MTD
+	depends on DM_MTD
 	help
 	  This enables access to Altera EPCQ/EPCS flash chips using the
 	  Altera Generic Quad SPI Controller. The controller converts SPI
@@ -82,16 +89,16 @@ config ALTERA_QSPI
 
 config FLASH_PIC32
 	bool "Microchip PIC32 Flash driver"
-	depends on MACH_PIC32 && MTD
+	depends on MACH_PIC32 && DM_MTD
 	help
 	  This enables access to Microchip PIC32 internal non-CFI flash
 	  chips through PIC32 Non-Volatile-Memory Controller.
 
 config RENESAS_RPC_HF
-	bool "Renesas RCar Gen3 RPC Hyperflash driver"
-	depends on RCAR_GEN3 && MTD
+	bool "Renesas RCar Gen3 RPC HyperFlash driver"
+	depends on RCAR_GEN3 && DM_MTD
 	help
-	  This enables access to Hyperflash memory through the Renesas
+	  This enables access to HyperFlash memory through the Renesas
 	  RCar Gen3 RPC controller.
 
 config HBMC_AM654

@@ -4,6 +4,10 @@
  */
 #include <common.h>
 #include <debug_uart.h>
+#include <hang.h>
+#include <image.h>
+#include <init.h>
+#include <log.h>
 #include <spl.h>
 
 #include <asm/io.h>
@@ -29,7 +33,7 @@ void board_init_f(ulong dummy)
 void spl_board_init(void)
 {
 	preloader_console_init();
-#if defined(CONFIG_ARCH_EARLY_INIT_R) && defined(CONFIG_SPL_FPGA_SUPPORT)
+#if defined(CONFIG_ARCH_EARLY_INIT_R) && defined(CONFIG_SPL_FPGA)
 	arch_early_init_r();
 #endif
 	board_init();
@@ -43,7 +47,6 @@ u32 spl_boot_device(void)
 	switch ((zynq_slcr_get_boot_mode()) & ZYNQ_BM_MASK) {
 #ifdef CONFIG_SPL_SPI_SUPPORT
 	case ZYNQ_BM_QSPI:
-		puts("qspi boot\n");
 		mode = BOOT_DEVICE_SPI;
 		break;
 #endif
@@ -55,7 +58,6 @@ u32 spl_boot_device(void)
 		break;
 #ifdef CONFIG_SPL_MMC_SUPPORT
 	case ZYNQ_BM_SD:
-		puts("mmc boot\n");
 		mode = BOOT_DEVICE_MMC1;
 		break;
 #endif
@@ -83,13 +85,3 @@ void spl_board_prepare_for_boot(void)
 	ps7_post_config();
 	debug("SPL bye\n");
 }
-
-#ifdef CONFIG_SPL_LOAD_FIT
-int board_fit_config_name_match(const char *name)
-{
-	/* Just empty function now - can't decide what to choose */
-	debug("%s: %s\n", __func__, name);
-
-	return 0;
-}
-#endif

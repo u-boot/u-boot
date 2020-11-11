@@ -40,11 +40,11 @@ The minimal QEMU command line to get U-Boot up and running is:
 
 - For 32-bit RISC-V::
 
-    qemu-system-riscv32 -nographic -machine virt -kernel u-boot
+    qemu-system-riscv32 -nographic -machine virt -bios u-boot
 
 - For 64-bit RISC-V::
 
-    qemu-system-riscv64 -nographic -machine virt -kernel u-boot
+    qemu-system-riscv64 -nographic -machine virt -bios u-boot
 
 The commands above create targets with 128MiB memory by default.
 A freely configurable amount of RAM can be created via the '-m'
@@ -56,7 +56,7 @@ For instructions on how to run U-Boot in supervisor mode on QEMU
 with OpenSBI, see the documentation available with OpenSBI:
 https://github.com/riscv/opensbi/blob/master/docs/platform/qemu_virt.md
 
-These have been tested in QEMU 3.0.0.
+These have been tested in QEMU 5.0.0.
 
 Running U-Boot SPL
 ------------------
@@ -98,10 +98,10 @@ configurations are:
 
 - For 32-bit RISC-V::
 
-    qemu-system-riscv32 -nographic -machine virt -kernel spl/u-boot-spl \
+    qemu-system-riscv32 -nographic -machine virt -bios spl/u-boot-spl \
     -device loader,file=u-boot.itb,addr=0x80200000
 
 - For 64-bit RISC-V::
 
-    qemu-system-riscv64 -nographic -machine virt -kernel spl/u-boot-spl \
+    qemu-system-riscv64 -nographic -machine virt -bios spl/u-boot-spl \
     -device loader,file=u-boot.itb,addr=0x80200000

@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0+
+//
+// Copyright (C) 2020 TQ-Systems GmbH
+
+&ethphy {
+	rxdv-skew-ps = <180>;
+	txen-skew-ps = <120>;
+	rxd3-skew-ps = <180>;
+	rxd2-skew-ps = <180>;
+	rxd1-skew-ps = <180>;
+	rxd0-skew-ps = <180>;
+	txd3-skew-ps = <120>;
+	txd2-skew-ps = <0>;
+	txd1-skew-ps = <180>;
+	txd0-skew-ps = <360>;
+	txc-skew-ps = <1860>;
+	rxc-skew-ps = <1860>;
+};

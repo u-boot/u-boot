@@ -6,6 +6,10 @@
 #ifndef __ASM_ARCH_IMX8_IOMUX_H__
 #define __ASM_ARCH_IMX8_IOMUX_H__
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 /*
  * We use 64bits value for iomux settings.
  * High 32bits are used for padring register value,

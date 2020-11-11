@@ -5,9 +5,12 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <log.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 #define LOCK		0
 #define SPLIT		1
@@ -220,7 +223,7 @@ void initialize_tcm(bool mode)
 	}
 }
 
-int cpu_release(u32 nr, int argc, char * const argv[])
+int cpu_release(u32 nr, int argc, char *const argv[])
 {
 	if (nr >= ZYNQMP_CORE_APU0 && nr <= ZYNQMP_CORE_APU3) {
 		u64 boot_addr = simple_strtoull(argv[0], NULL, 16);

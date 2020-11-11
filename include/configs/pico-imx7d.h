@@ -29,17 +29,6 @@
 
 #define CONFIG_MXC_UART_BASE		UART5_IPS_BASE_ADDR
 
-/* Network */
-#define CONFIG_FEC_MXC
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#define CONFIG_ETHPRIME			"FEC"
-#define CONFIG_FEC_MXC_PHYADDR		1
-
-#define CONFIG_PHY_ATHEROS
-
-/* ENET1 */
-#define IMX_FEC_BASE			ENET_IPS_BASE_ADDR
-
 /* MMC Config */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
@@ -119,9 +108,7 @@
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
-
-#define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x20000000)
+#include <linux/stringify.h>
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
@@ -156,18 +143,12 @@
 #ifdef CONFIG_DM_VIDEO
 #define CONFIG_VIDEO_MXS
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_BMP_16BPP
-#define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO
 #endif
 
 /* FLASH and environment organization */
-#define CONFIG_ENV_SIZE			SZ_8K
 
 /* Environment starts at 768k = 768 * 1024 = 786432 */
-#define CONFIG_ENV_OFFSET		786432
 /*
  * Detect overlap between U-Boot image and environment area in build-time
  *
@@ -180,9 +161,6 @@
 #define CONFIG_BOARD_SIZE_LIMIT		715776
 
 #define CONFIG_SYS_FSL_USDHC_NUM		2
-
-#define CONFIG_SYS_MMC_ENV_DEV			0
-#define CONFIG_SYS_MMC_ENV_PART		0
 
 /* USB Configs */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET

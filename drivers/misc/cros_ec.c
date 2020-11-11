@@ -18,11 +18,14 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <flash.h>
 #include <i2c.h>
 #include <cros_ec.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
@@ -313,7 +316,7 @@ static int send_command(struct cros_ec_dev *dev, uint cmd, int cmd_version,
  * @param din_len       Maximum size of response in bytes
  * @return number of bytes in response, or -ve on error
  */
-static int ec_command_inptr(struct udevice *dev, uint8_t cmd,
+static int ec_command_inptr(struct udevice *dev, uint cmd,
 			    int cmd_version, const void *dout, int dout_len,
 			    uint8_t **dinp, int din_len)
 {
@@ -408,6 +411,21 @@ int cros_ec_scan_keyboard(struct udevice *dev, struct mbkp_keyscan *scan)
  	if (ec_command(dev, EC_CMD_MKBP_STATE, 0, NULL, 0, scan,
 		       sizeof(scan->data)) != sizeof(scan->data))
 		return -1;
+
+	return 0;
+}
+
+int cros_ec_get_next_event(struct udevice *dev,
+			   struct ec_response_get_next_event *event)
+{
+	int ret;
+
+	ret = ec_command(dev, EC_CMD_GET_NEXT_EVENT, 0, NULL, 0,
+			 event, sizeof(*event));
+	if (ret < 0)
+		return ret;
+	else if (ret != sizeof(*event))
+		return -EC_RES_INVALID_RESPONSE;
 
 	return 0;
 }

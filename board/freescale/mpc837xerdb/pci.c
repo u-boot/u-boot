@@ -4,9 +4,11 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <mpc83xx.h>
 #include <pci.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 static struct pci_region pci_regions[] = {
 	{

@@ -70,6 +70,7 @@ enum tpm2_handles {
  * @TPM2_CC_DAM_RESET: TPM2_DictionaryAttackLockReset().
  * @TPM2_CC_DAM_PARAMETERS: TPM2_DictionaryAttackParameters().
  * @TPM2_CC_GET_CAPABILITY: TPM2_GetCapibility().
+ * @TPM2_CC_GET_RANDOM: TPM2_GetRandom().
  * @TPM2_CC_PCR_READ: TPM2_PCR_Read().
  * @TPM2_CC_PCR_EXTEND: TPM2_PCR_Extend().
  * @TPM2_CC_PCR_SETAUTHVAL: TPM2_PCR_SetAuthValue().
@@ -85,6 +86,7 @@ enum tpm2_command_codes {
 	TPM2_CC_DAM_PARAMETERS	= 0x013A,
 	TPM2_CC_NV_READ         = 0x014E,
 	TPM2_CC_GET_CAPABILITY	= 0x017A,
+	TPM2_CC_GET_RANDOM      = 0x017B,
 	TPM2_CC_PCR_READ	= 0x017E,
 	TPM2_CC_PCR_EXTEND	= 0x0182,
 	TPM2_CC_PCR_SETAUTHVAL	= 0x0183,
@@ -159,6 +161,37 @@ enum tpm_index_attrs {
 				TPMA_NV_AUTHREAD | TPMA_NV_POLICYREAD,
 	TPMA_NV_MASK_WRITE	= TPMA_NV_PPWRITE | TPMA_NV_OWNERWRITE |
 					TPMA_NV_AUTHWRITE | TPMA_NV_POLICYWRITE,
+};
+
+enum {
+	TPM_ACCESS_VALID		= 1 << 7,
+	TPM_ACCESS_ACTIVE_LOCALITY	= 1 << 5,
+	TPM_ACCESS_REQUEST_PENDING	= 1 << 2,
+	TPM_ACCESS_REQUEST_USE		= 1 << 1,
+	TPM_ACCESS_ESTABLISHMENT	= 1 << 0,
+};
+
+enum {
+	TPM_STS_FAMILY_SHIFT		= 26,
+	TPM_STS_FAMILY_MASK		= 0x3 << TPM_STS_FAMILY_SHIFT,
+	TPM_STS_FAMILY_TPM2		= 1 << TPM_STS_FAMILY_SHIFT,
+	TPM_STS_RESE_TESTABLISMENT_BIT	= 1 << 25,
+	TPM_STS_COMMAND_CANCEL		= 1 << 24,
+	TPM_STS_BURST_COUNT_SHIFT	= 8,
+	TPM_STS_BURST_COUNT_MASK	= 0xffff << TPM_STS_BURST_COUNT_SHIFT,
+	TPM_STS_VALID			= 1 << 7,
+	TPM_STS_COMMAND_READY		= 1 << 6,
+	TPM_STS_GO			= 1 << 5,
+	TPM_STS_DATA_AVAIL		= 1 << 4,
+	TPM_STS_DATA_EXPECT		= 1 << 3,
+	TPM_STS_SELF_TEST_DONE		= 1 << 2,
+	TPM_STS_RESPONSE_RETRY		= 1 << 1,
+};
+
+enum {
+	TPM_CMD_COUNT_OFFSET	= 2,
+	TPM_CMD_ORDINAL_OFFSET	= 6,
+	TPM_MAX_BUF_SIZE	= 1260,
 };
 
 /**
@@ -307,5 +340,16 @@ u32 tpm2_pcr_setauthpolicy(struct udevice *dev, const char *pw,
 u32 tpm2_pcr_setauthvalue(struct udevice *dev, const char *pw,
 			  const ssize_t pw_sz, u32 index, const char *key,
 			  const ssize_t key_sz);
+
+/**
+ * Issue a TPM2_GetRandom command.
+ *
+ * @dev		TPM device
+ * @param data		output buffer for the random bytes
+ * @param count		size of output buffer
+ *
+ * @return return code of the operation
+ */
+u32 tpm2_get_random(struct udevice *dev, void *data, u32 count);
 
 #endif /* __TPM_V2_H */

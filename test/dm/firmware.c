@@ -8,6 +8,7 @@
 #include <syscon.h>
 #include <asm/test.h>
 #include <dm/test.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 /* Base test of firmware probe */
@@ -19,4 +20,4 @@ static int dm_test_firmware_probe(struct unit_test_state *uts)
 					      "sandbox-firmware", &dev));
 	return 0;
 }
-DM_TEST(dm_test_firmware_probe, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_firmware_probe, UT_TESTF_SCAN_FDT);

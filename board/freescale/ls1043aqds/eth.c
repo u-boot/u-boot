@@ -5,6 +5,8 @@
  */
 
 #include <common.h>
+#include <log.h>
+#include <net.h>
 #include <asm/io.h>
 #include <netdev.h>
 #include <fdt_support.h>
@@ -292,7 +294,7 @@ void fdt_fixup_board_enet(void *fdt)
 	}
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_FMAN_ENET
 	int i, idx, lane, slot, interface;

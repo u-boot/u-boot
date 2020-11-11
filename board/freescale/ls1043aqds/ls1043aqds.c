@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2015 Freescale Semiconductor, Inc.
+ * Copyright 2019-2020 NXP
  */
 
 #include <common.h>
 #include <i2c.h>
 #include <fdt_support.h>
 #include <fsl_ddr_sdram.h>
+#include <init.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
@@ -46,6 +49,10 @@ enum {
 #define CFG_UART_MUX_MASK	0x6
 #define CFG_UART_MUX_SHIFT	1
 #define CFG_LPUART_EN		0x1
+
+#ifdef CONFIG_SYS_I2C_EARLY_INIT
+void i2c_early_init_f(void);
+#endif
 
 #ifdef CONFIG_TFABOOT
 struct ifc_regs ifc_cfg_nor_boot[CONFIG_SYS_FSL_IFC_BANK_COUNT] = {
@@ -271,11 +278,24 @@ unsigned long get_board_ddr_clk(void)
 	return 66666666;
 }
 
-int select_i2c_ch_pca9547(u8 ch)
+int select_i2c_ch_pca9547(u8 ch, int bus_num)
 {
 	int ret;
 
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev;
+
+	ret = i2c_get_chip_for_busnum(bus_num, I2C_MUX_PCA_ADDR_PRI,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       bus_num);
+		return ret;
+	}
+	ret = dm_i2c_write(dev, 0, &ch, 1);
+#else
 	ret = i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &ch, 1);
+#endif
 	if (ret) {
 		puts("PCA: failed to select proper channel\n");
 		return ret;
@@ -290,8 +310,10 @@ int dram_init(void)
 	 * When resuming from deep sleep, the I2C channel may not be
 	 * in the default channel. So, switch to the default channel
 	 * before accessing DDR SPD.
+	 *
+	 * PCA9547 mount on I2C1 bus
 	 */
-	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, 0);
 	fsl_initdram();
 #if (!defined(CONFIG_SPL) && !defined(CONFIG_TFABOOT)) || \
 	defined(CONFIG_SPL_BUILD)
@@ -304,16 +326,83 @@ int dram_init(void)
 
 int i2c_multiplexer_select_vid_channel(u8 channel)
 {
-	return select_i2c_ch_pca9547(channel);
+	return select_i2c_ch_pca9547(channel, 0);
 }
 
 void board_retimer_init(void)
 {
 	u8 reg;
+	int bus_num = 0;
 
 	/* Retimer is connected to I2C1_CH7_CH5 */
-	select_i2c_ch_pca9547(I2C_MUX_CH7);
+	select_i2c_ch_pca9547(I2C_MUX_CH7, bus_num);
 	reg = I2C_MUX_CH5;
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev;
+	int ret;
+
+	ret = i2c_get_chip_for_busnum(bus_num, I2C_MUX_PCA_ADDR_SEC,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       bus_num);
+		return;
+	}
+	dm_i2c_write(dev, 0, &reg, 1);
+
+	/* Access to Control/Shared register */
+	ret = i2c_get_chip_for_busnum(bus_num, I2C_RETIMER_ADDR,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       bus_num);
+		return;
+	}
+
+	reg = 0x0;
+	dm_i2c_write(dev, 0xff, &reg, 1);
+
+	/* Read device revision and ID */
+	dm_i2c_read(dev, 1, &reg, 1);
+	debug("Retimer version id = 0x%x\n", reg);
+
+	/* Enable Broadcast. All writes target all channel register sets */
+	reg = 0x0c;
+	dm_i2c_write(dev, 0xff, &reg, 1);
+
+	/* Reset Channel Registers */
+	dm_i2c_read(dev, 0, &reg, 1);
+	reg |= 0x4;
+	dm_i2c_write(dev, 0, &reg, 1);
+
+	/* Enable override divider select and Enable Override Output Mux */
+	dm_i2c_read(dev, 9, &reg, 1);
+	reg |= 0x24;
+	dm_i2c_write(dev, 9, &reg, 1);
+
+	/* Select VCO Divider to full rate (000) */
+	dm_i2c_read(dev, 0x18, &reg, 1);
+	reg &= 0x8f;
+	dm_i2c_write(dev, 0x18, &reg, 1);
+
+	/* Selects active PFD MUX Input as Re-timed Data (001) */
+	dm_i2c_read(dev, 0x1e, &reg, 1);
+	reg &= 0x3f;
+	reg |= 0x20;
+	dm_i2c_write(dev, 0x1e, &reg, 1);
+
+	/* Set data rate as 10.3125 Gbps */
+	reg = 0x0;
+	dm_i2c_write(dev, 0x60, &reg, 1);
+	reg = 0xb2;
+	dm_i2c_write(dev, 0x61, &reg, 1);
+	reg = 0x90;
+	dm_i2c_write(dev, 0x62, &reg, 1);
+	reg = 0xb3;
+	dm_i2c_write(dev, 0x63, &reg, 1);
+	reg = 0xcd;
+	dm_i2c_write(dev, 0x64, &reg, 1);
+#else
 	i2c_write(I2C_MUX_PCA_ADDR_SEC, 0, 1, &reg, 1);
 
 	/* Access to Control/Shared register */
@@ -360,13 +449,15 @@ void board_retimer_init(void)
 	i2c_write(I2C_RETIMER_ADDR, 0x63, 1, &reg, 1);
 	reg = 0xcd;
 	i2c_write(I2C_RETIMER_ADDR, 0x64, 1, &reg, 1);
+#endif
 
 	/* Return the default channel */
-	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, bus_num);
 }
 
 int board_early_init_f(void)
 {
+	u32 __iomem *cntcr = (u32 *)CONFIG_SYS_FSL_TIMER_ADDR;
 #ifdef CONFIG_HAS_FSL_XHCI_USB
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
 	u32 usb_pwrfault;
@@ -374,6 +465,11 @@ int board_early_init_f(void)
 #ifdef CONFIG_LPUART
 	u8 uart;
 #endif
+
+	/*
+	 * Enable secure system counter for timer
+	 */
+	out_le32(cntcr, 0x1);
 
 #ifdef CONFIG_SYS_I2C_EARLY_INIT
 	i2c_early_init_f();
@@ -457,7 +553,7 @@ int board_init(void)
 	erratum_a010315();
 #endif
 
-	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, 0);
 	board_retimer_init();
 
 #ifdef CONFIG_SYS_FSL_SERDES
@@ -472,7 +568,7 @@ int board_init(void)
 }
 
 #ifdef CONFIG_OF_BOARD_SETUP
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	u64 base[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
@@ -488,7 +584,9 @@ int ft_board_setup(void *blob, bd_t *bd)
 	ft_cpu_setup(blob, bd);
 
 #ifdef CONFIG_SYS_DPAA_FMAN
+#ifndef CONFIG_DM_ETH
 	fdt_fixup_fman_ethernet(blob);
+#endif
 	fdt_fixup_board_enet(blob);
 #endif
 
@@ -525,7 +623,7 @@ u16 flash_read16(void *addr)
 	return (((val) >> 8) & 0x00ff) | (((val) << 8) & 0xff00);
 }
 
-#ifdef CONFIG_TFABOOT
+#if defined(CONFIG_TFABOOT) && defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 void *env_sf_get_env_addr(void)
 {
 	return (void *)(CONFIG_SYS_FSL_QSPI_BASE + CONFIG_ENV_OFFSET);

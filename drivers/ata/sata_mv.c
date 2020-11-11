@@ -33,19 +33,25 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <blk.h>
+#include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
+#include <asm/cache.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <fis.h>
 #include <libata.h>
 #include <malloc.h>
 #include <sata.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <linux/mbus.h>
 
 #include <asm/arch/soc.h>
-#if defined(CONFIG_KIRKWOOD)
+#if defined(CONFIG_ARCH_KIRKWOOD)
 #define SATAHC_BASE		KW_SATA_BASE
 #else
 #define SATAHC_BASE		MVEBU_AXP_SATA_BASE

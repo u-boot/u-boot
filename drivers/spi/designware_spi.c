@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm-generic/gpio.h>
 #include <clk.h>
 #include <dm.h>
@@ -18,6 +19,8 @@
 #include <spi.h>
 #include <fdtdec.h>
 #include <reset.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/compat.h>
 #include <linux/iopoll.h>
 #include <asm/io.h>
@@ -126,7 +129,7 @@ static inline void dw_write(struct dw_spi_priv *priv, u32 offset, u32 val)
 
 static int request_gpio_cs(struct udevice *bus)
 {
-#if defined(CONFIG_DM_GPIO) && !defined(CONFIG_SPL_BUILD)
+#if CONFIG_IS_ENABLED(DM_GPIO) && !defined(CONFIG_SPL_BUILD)
 	struct dw_spi_priv *priv = dev_get_priv(bus);
 	int ret;
 
@@ -154,7 +157,7 @@ static int dw_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct dw_spi_platdata *plat = bus->platdata;
 
-	plat->regs = (struct dw_spi *)devfdt_get_addr(bus);
+	plat->regs = dev_read_addr_ptr(bus);
 
 	/* Use 500KHz as a suitable default */
 	plat->frequency = dev_read_u32_default(bus, "spi-max-frequency",
@@ -373,7 +376,7 @@ static int poll_transfer(struct dw_spi_priv *priv)
  */
 __weak void external_cs_manage(struct udevice *dev, bool on)
 {
-#if defined(CONFIG_DM_GPIO) && !defined(CONFIG_SPL_BUILD)
+#if CONFIG_IS_ENABLED(DM_GPIO) && !defined(CONFIG_SPL_BUILD)
 	struct dw_spi_priv *priv = dev_get_priv(dev->parent);
 
 	if (!dm_gpio_is_valid(&priv->cs_gpio))

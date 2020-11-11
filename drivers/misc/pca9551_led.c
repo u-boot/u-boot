@@ -6,6 +6,7 @@
 #include <common.h>
 #include <errno.h>
 #include <i2c.h>
+#include <status_led.h>
 
 #ifndef CONFIG_PCA9551_I2C_ADDR
 #error "CONFIG_PCA9551_I2C_ADDR not defined!"

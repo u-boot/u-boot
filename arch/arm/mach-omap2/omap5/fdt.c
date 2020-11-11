@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <hang.h>
+#include <log.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <malloc.h>
@@ -27,7 +29,7 @@ static u32 hs_irq_skip[] = {
 	118	/* One interrupt for Crypto DMA by secure world */
 };
 
-static int ft_hs_fixup_crossbar(void *fdt, bd_t *bd)
+static int ft_hs_fixup_crossbar(void *fdt, struct bd_info *bd)
 {
 	const char *path;
 	int offs;
@@ -91,7 +93,7 @@ static int ft_hs_fixup_crossbar(void *fdt, bd_t *bd)
 
 #if ((TI_OMAP5_SECURE_BOOT_RESV_SRAM_SZ != 0) || \
     (CONFIG_SECURE_RUNTIME_RESV_SRAM_SZ != 0))
-static int ft_hs_fixup_sram(void *fdt, bd_t *bd)
+static int ft_hs_fixup_sram(void *fdt, struct bd_info *bd)
 {
 	const char *path;
 	int offs;
@@ -126,10 +128,10 @@ static int ft_hs_fixup_sram(void *fdt, bd_t *bd)
 	return 0;
 }
 #else
-static int ft_hs_fixup_sram(void *fdt, bd_t *bd) { return 0; }
+static int ft_hs_fixup_sram(void *fdt, struct bd_info *bd) { return 0; }
 #endif
 
-static void ft_hs_fixups(void *fdt, bd_t *bd)
+static void ft_hs_fixups(void *fdt, struct bd_info *bd)
 {
 	/* Check we are running on an HS/EMU device type */
 	if (GP_DEVICE != get_device_type()) {
@@ -146,7 +148,7 @@ static void ft_hs_fixups(void *fdt, bd_t *bd)
 	hang();
 }
 #else
-static void ft_hs_fixups(void *fdt, bd_t *bd)
+static void ft_hs_fixups(void *fdt, struct bd_info *bd)
 {
 }
 #endif /* #ifdef CONFIG_TI_SECURE_DEVICE */
@@ -178,6 +180,14 @@ u32 dra7_opp_dsp_clk_rates[NUM_OPPS][OPP_DSP_CLK_NUM] = {
 	{600000000, 600000000, 400000000}, /* OPP_NOM */
 	{700000000, 700000000, 466666667}, /* OPP_OD */
 	{750000000, 750000000, 500000000}, /* OPP_HIGH */
+};
+
+/* DSP clock rates on DRA76x ACD-package based SoCs */
+u32 dra76_opp_dsp_clk_rates[NUM_OPPS][OPP_DSP_CLK_NUM] = {
+	{}, /* OPP_LOW */
+	{600000000, 600000000, 400000000}, /* OPP_NOM */
+	{700000000, 700000000, 466666667}, /* OPP_OD */
+	{850000000, 850000000, 566666667}, /* OPP_HIGH */
 };
 
 /* IVA voltage domain */
@@ -245,7 +255,7 @@ static int ft_fixup_clocks(void *fdt, const char **names, u32 *rates, int num)
 	return 0;
 }
 
-static void ft_opp_clock_fixups(void *fdt, bd_t *bd)
+static void ft_opp_clock_fixups(void *fdt, struct bd_info *bd)
 {
 	const char **clk_names;
 	u32 *clk_rates;
@@ -257,6 +267,10 @@ static void ft_opp_clock_fixups(void *fdt, bd_t *bd)
 	/* fixup DSP clocks */
 	clk_names = dra7_opp_dsp_clk_names;
 	clk_rates = dra7_opp_dsp_clk_rates[get_voltrail_opp(VOLT_EVE)];
+	/* adjust for higher OPP_HIGH clock rate on DRA76xP/DRA77xP SoCs */
+	if (is_dra76x_acd())
+		clk_rates = dra76_opp_dsp_clk_rates[get_voltrail_opp(VOLT_EVE)];
+
 	ret = ft_fixup_clocks(fdt, clk_names, clk_rates, OPP_DSP_CLK_NUM);
 	if (ret) {
 		printf("ft_fixup_clocks failed for DSP voltage domain: %s\n",
@@ -285,7 +299,7 @@ static void ft_opp_clock_fixups(void *fdt, bd_t *bd)
 	}
 }
 #else
-static void ft_opp_clock_fixups(void *fdt, bd_t *bd) { }
+static void ft_opp_clock_fixups(void *fdt, struct bd_info *bd) { }
 #endif /* CONFIG_TARGET_DRA7XX_EVM || CONFIG_TARGET_AM57XX_EVM */
 
 /*
@@ -293,7 +307,7 @@ static void ft_opp_clock_fixups(void *fdt, bd_t *bd) { }
  * fixups should remain in the board files which is where
  * this function should be called from.
  */
-void ft_cpu_setup(void *fdt, bd_t *bd)
+void ft_cpu_setup(void *fdt, struct bd_info *bd)
 {
 	ft_hs_fixups(fdt, bd);
 	ft_opp_clock_fixups(fdt, bd);

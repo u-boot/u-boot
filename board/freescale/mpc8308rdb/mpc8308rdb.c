@@ -7,7 +7,10 @@
 #include <common.h>
 #include <hwconfig.h>
 #include <i2c.h>
+#include <init.h>
+#include <net.h>
 #include <spi.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <pci.h>
@@ -49,7 +52,7 @@ void spi_cs_deactivate(struct spi_slave *slave)
 #endif /* CONFIG_MPC8XXX_SPI */
 
 #ifdef CONFIG_FSL_ESDHC
-int board_mmc_init(bd_t *bd)
+int board_mmc_init(struct bd_info *bd)
 {
 	return fsl_esdhc_mmc_init(bd);
 }
@@ -158,7 +161,7 @@ int misc_init_r(void)
 	return 0;
 }
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 	fsl_fdt_fixup_dr_usb(blob, bd);
@@ -168,7 +171,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 }
 #endif
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int rv, num_if = 0;
 

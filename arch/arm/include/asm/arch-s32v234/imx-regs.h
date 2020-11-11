@@ -323,6 +323,6 @@ struct mscm_ir {
 	u32 ipcie[4];		/* Interconnect Parity Checking Injection Enable Register       */
 };
 
-#endif /* __ASSEMBLER__ */
+#endif /* __ASSEMBLY__ */
 
 #endif /* __ASM_ARCH_IMX_REGS_H__ */

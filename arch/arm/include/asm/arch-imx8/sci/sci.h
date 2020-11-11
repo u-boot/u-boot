@@ -6,6 +6,7 @@
 #ifndef _SC_SCI_H
 #define _SC_SCI_H
 
+#include <log.h>
 #include <asm/arch/sci/types.h>
 #include <asm/arch/sci/svc/misc/api.h>
 #include <asm/arch/sci/svc/pad/api.h>
@@ -72,6 +73,7 @@ int sc_pm_set_clock_parent(sc_ipc_t ipc, sc_rsrc_t resource, sc_pm_clk_t clk,
 int sc_pm_cpu_start(sc_ipc_t ipc, sc_rsrc_t resource, sc_bool_t enable,
 		    sc_faddr_t address);
 sc_bool_t sc_pm_is_partition_started(sc_ipc_t ipc, sc_rm_pt_t pt);
+int sc_pm_resource_reset(sc_ipc_t ipc, sc_rsrc_t resource);
 
 /* MISC API */
 int sc_misc_set_control(sc_ipc_t ipc, sc_rsrc_t resource,
@@ -80,6 +82,7 @@ int sc_misc_get_control(sc_ipc_t ipc, sc_rsrc_t resource, sc_ctrl_t ctrl,
 			u32 *val);
 void sc_misc_get_boot_dev(sc_ipc_t ipc, sc_rsrc_t *boot_dev);
 void sc_misc_boot_status(sc_ipc_t ipc, sc_misc_boot_status_t status);
+int sc_misc_get_boot_container(sc_ipc_t ipc, u8 *idx);
 void sc_misc_build_info(sc_ipc_t ipc, u32 *build, u32 *commit);
 int sc_misc_otp_fuse_read(sc_ipc_t ipc, u32 word, u32 *val);
 int sc_misc_get_temp(sc_ipc_t ipc, sc_rsrc_t resource, sc_misc_temp_t temp,
@@ -108,6 +111,7 @@ int sc_rm_get_resource_owner(sc_ipc_t ipc, sc_rsrc_t resource,
 
 /* PAD API */
 int sc_pad_set(sc_ipc_t ipc, sc_pad_t pad, u32 val);
+int sc_pad_get(sc_ipc_t ipc, sc_pad_t pad, uint32_t *val);
 
 /* SMMU API */
 int sc_rm_set_master_sid(sc_ipc_t ipc, sc_rsrc_t resource, sc_rm_sid_t sid);
@@ -122,5 +126,13 @@ void sc_seco_build_info(sc_ipc_t ipc, u32 *version, u32 *commit);
 int sc_seco_get_event(sc_ipc_t ipc, u8 idx, u32 *event);
 int sc_seco_gen_key_blob(sc_ipc_t ipc, u32 id, sc_faddr_t load_addr,
 			 sc_faddr_t export_addr, u16 max_size);
+int sc_seco_get_mp_key(sc_ipc_t ipc, sc_faddr_t dst_addr, u16 dst_size);
+int sc_seco_update_mpmr(sc_ipc_t ipc, sc_faddr_t addr, u8 size, u8 lock);
+int sc_seco_get_mp_sign(sc_ipc_t ipc, sc_faddr_t msg_addr,
+			u16 msg_size, sc_faddr_t dst_addr, u16 dst_size);
+int sc_seco_secvio_dgo_config(sc_ipc_t ipc, u8 id, u8 access, u32 *data);
+int sc_seco_secvio_config(sc_ipc_t ipc, u8 id, u8 access,
+			  u32 *data0, u32 *data1, u32 *data2, u32 *data3,
+			  u32 *data4, u8 size);
 
 #endif

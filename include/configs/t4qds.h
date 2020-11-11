@@ -28,8 +28,6 @@
 #define CONFIG_SRIO1			/* SRIO port 1 */
 #define CONFIG_SRIO2			/* SRIO port 2 */
 
-#define CONFIG_ENV_OVERWRITE
-
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */
@@ -42,21 +40,13 @@
 
 #define CONFIG_ENABLE_36BIT_PHYS
 
-#define CONFIG_ADDR_MAP
-#define CONFIG_SYS_NUM_ADDR_MAP		64	/* number of TLB1 entries */
-
-#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00400000
-
 /*
  *  Config the L3 Cache as L3 SRAM
  */
 #define CONFIG_SYS_INIT_L3_ADDR		0xFFFC0000
 #define CONFIG_SYS_L3_SIZE		(512 << 10)
 #define CONFIG_SPL_GD_ADDR		(CONFIG_SYS_INIT_L3_ADDR + 32 * 1024)
-#ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_ENV_ADDR			(CONFIG_SPL_GD_ADDR + 4 * 1024)
-#endif
+#define SPL_ENV_ADDR			(CONFIG_SPL_GD_ADDR + 4 * 1024)
 #define CONFIG_SPL_RELOC_MALLOC_ADDR	(CONFIG_SPL_GD_ADDR + 12 * 1024)
 #define CONFIG_SPL_RELOC_MALLOC_SIZE	(50 << 10)
 #define CONFIG_SPL_RELOC_STACK		(CONFIG_SPL_GD_ADDR + 64 * 1024)
@@ -215,10 +205,6 @@
  */
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
-
-/*
- * Command line configuration.
- */
 
 /*
  * Miscellaneous configurable options

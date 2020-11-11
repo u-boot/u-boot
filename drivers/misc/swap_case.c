@@ -9,6 +9,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <pci.h>
 #include <asm/test.h>
 #include <linux/ctype.h>
@@ -51,7 +52,7 @@ struct swap_case_priv {
 	char mem_text[MEM_TEXT_SIZE];
 };
 
-static int sandbox_swap_case_use_ea(struct udevice *dev)
+static int sandbox_swap_case_use_ea(const struct udevice *dev)
 {
 	return !!ofnode_get_property(dev->node, "use-ea", NULL);
 }
@@ -82,7 +83,7 @@ static const u32 ea_regs[] = {
 	PCI_CAP_EA_SIZE_HI,
 };
 
-static int sandbox_swap_case_read_ea(struct udevice *emul, uint offset,
+static int sandbox_swap_case_read_ea(const struct udevice *emul, uint offset,
 				     ulong *valuep, enum pci_size_t size)
 {
 	u32 reg;
@@ -95,8 +96,9 @@ static int sandbox_swap_case_read_ea(struct udevice *emul, uint offset,
 	return 0;
 }
 
-static int sandbox_swap_case_read_config(struct udevice *emul, uint offset,
-					 ulong *valuep, enum pci_size_t size)
+static int sandbox_swap_case_read_config(const struct udevice *emul,
+					 uint offset, ulong *valuep,
+					 enum pci_size_t size)
 {
 	struct swap_case_platdata *plat = dev_get_platdata(emul);
 

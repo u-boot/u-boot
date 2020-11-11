@@ -5,6 +5,8 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
@@ -226,7 +228,7 @@ struct fsl_esdhc_cfg usdhc_cfg[2] = {
 	{USDHC4_BASE_ADDR},
 };
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	int ret;
 	u32 index = 0;
@@ -279,7 +281,7 @@ static void backlight_lcd_off(void)
 	gpio_direction_output(gpio, 0);
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	uint32_t base = IMX_FEC_BASE;
 	struct mii_dev *bus = NULL;

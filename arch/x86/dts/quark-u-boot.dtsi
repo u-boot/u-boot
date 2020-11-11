@@ -6,11 +6,9 @@
 #include <u-boot.dtsi>
 
 #ifdef CONFIG_ROM_SIZE
-/ {
-	binman {
-		u-boot-with-ucode-ptr {
-			optional-ucode;
-		};
+&rom {
+	u-boot-with-ucode-ptr {
+		optional-ucode;
 	};
 };
 #endif

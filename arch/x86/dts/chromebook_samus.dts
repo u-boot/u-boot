@@ -9,7 +9,9 @@
 /include/ "rtc.dtsi"
 /include/ "tsc_timer.dtsi"
 
-#ifdef CONFIG_CHROMEOS
+#include "smbios.dtsi"
+
+#ifdef CONFIG_CHROMEOS_VBOOT
 #include "chromeos-x86.dtsi"
 #include "flashmap-x86-ro.dtsi"
 #include "flashmap-8mb-rw.dtsi"

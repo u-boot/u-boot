@@ -4,6 +4,11 @@
  */
 
 #include <common.h>
+#include <command.h>
+#include <cpu_func.h>
+#include <hang.h>
+#include <asm/cache.h>
+#include <init.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <fdtdec.h>
@@ -21,6 +26,10 @@
 #include <asm/pl310.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+phys_addr_t socfpga_clkmgr_base __section(".data");
+phys_addr_t socfpga_rstmgr_base __section(".data");
+phys_addr_t socfpga_sysmgr_base __section(".data");
 
 #ifdef CONFIG_SYS_L2_PL310
 static const struct pl310_regs *const pl310 =
@@ -145,6 +154,8 @@ void socfpga_fpga_add(void *fpga_desc)
 
 int arch_cpu_init(void)
 {
+	socfpga_get_managers_addr();
+
 #ifdef CONFIG_HW_WATCHDOG
 	/*
 	 * In case the watchdog is enabled, make sure to (re-)configure it
@@ -168,7 +179,8 @@ int arch_cpu_init(void)
 }
 
 #ifndef CONFIG_SPL_BUILD
-static int do_bridge(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_bridge(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	unsigned int mask = ~0;
 
@@ -202,3 +214,63 @@ U_BOOT_CMD(bridge, 3, 1, do_bridge,
 );
 
 #endif
+
+static int socfpga_get_base_addr(const char *compat, phys_addr_t *base)
+{
+	const void *blob = gd->fdt_blob;
+	struct fdt_resource r;
+	int node;
+	int ret;
+
+	node = fdt_node_offset_by_compatible(blob, -1, compat);
+	if (node < 0)
+		return node;
+
+	if (!fdtdec_get_is_enabled(blob, node))
+		return -ENODEV;
+
+	ret = fdt_get_resource(blob, node, "reg", 0, &r);
+	if (ret)
+		return ret;
+
+	*base = (phys_addr_t)r.start;
+
+	return 0;
+}
+
+void socfpga_get_managers_addr(void)
+{
+	int ret;
+
+	ret = socfpga_get_base_addr("altr,rst-mgr", &socfpga_rstmgr_base);
+	if (ret)
+		hang();
+
+	ret = socfpga_get_base_addr("altr,sys-mgr", &socfpga_sysmgr_base);
+	if (ret)
+		hang();
+
+#ifdef CONFIG_TARGET_SOCFPGA_AGILEX
+	ret = socfpga_get_base_addr("intel,agilex-clkmgr",
+				    &socfpga_clkmgr_base);
+#else
+	ret = socfpga_get_base_addr("altr,clk-mgr", &socfpga_clkmgr_base);
+#endif
+	if (ret)
+		hang();
+}
+
+phys_addr_t socfpga_get_rstmgr_addr(void)
+{
+	return socfpga_rstmgr_base;
+}
+
+phys_addr_t socfpga_get_sysmgr_addr(void)
+{
+	return socfpga_sysmgr_base;
+}
+
+phys_addr_t socfpga_get_clkmgr_addr(void)
+{
+	return socfpga_clkmgr_base;
+}

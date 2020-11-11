@@ -6,10 +6,12 @@
 
 #include <common.h>
 #include <dm.h>
-#include <dm/test.h>
-#include <misc.h>
-#include <test/ut.h>
+#include <log.h>
 #include <miiphy.h>
+#include <misc.h>
+#include <dm/test.h>
+#include <test/test.h>
+#include <test/ut.h>
 
 /* macros copied over from mdio_sandbox.c */
 #define SANDBOX_PHY_ADDR	5
@@ -53,4 +55,4 @@ static int dm_test_mdio(struct unit_test_state *uts)
 	return 0;
 }
 
-DM_TEST(dm_test_mdio, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_mdio, UT_TESTF_SCAN_FDT);

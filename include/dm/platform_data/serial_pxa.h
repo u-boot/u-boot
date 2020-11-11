@@ -17,7 +17,7 @@
 #define FFUART_INDEX	1
 #define STUART_INDEX	2
 #elif CONFIG_CPU_PXA25X
-#define UART_CLK_BASE	(1 << 4)	/* HWUART */
+#define UART_CLK_BASE	BIT(4)	/* HWUART */
 #define UART_CLK_REG	CKEN
 #define HWUART_INDEX	0
 #define STUART_INDEX	1
@@ -42,9 +42,9 @@
 /*
  * struct pxa_serial_platdata - information about a PXA port
  *
- * @base:               Uart port base register address
- * @port:               Uart port index, for cpu with pinmux for uart / gpio
- * baudrtatre:          Uart port baudrate
+ * @base:	Uart port base register address
+ * @port:	Uart port index, for cpu with pinmux for uart / gpio
+ * baudrtatre:	Uart port baudrate
  */
 struct pxa_serial_platdata {
 	struct pxa_uart_regs *base;

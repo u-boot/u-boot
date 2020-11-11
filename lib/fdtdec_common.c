@@ -9,6 +9,7 @@
 
 #ifndef USE_HOSTCC
 #include <common.h>
+#include <log.h>
 #include <linux/libfdt.h>
 #include <fdtdec.h>
 #else
@@ -52,4 +53,15 @@ unsigned int fdtdec_get_uint(const void *blob, int node, const char *prop_name,
 	}
 	debug("(not found)\n");
 	return default_val;
+}
+
+int fdtdec_get_child_count(const void *blob, int node)
+{
+	int subnode;
+	int num = 0;
+
+	fdt_for_each_subnode(subnode, blob, node)
+		num++;
+
+	return num;
 }

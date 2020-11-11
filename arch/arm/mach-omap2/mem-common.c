@@ -25,7 +25,7 @@ const struct gpmc *gpmc_cfg = (struct gpmc *)GPMC_BASE;
 
 #if defined(CONFIG_NOR)
 char gpmc_cs0_flash = MTD_DEV_TYPE_NOR;
-#elif defined(CONFIG_NAND) || defined(CONFIG_CMD_NAND)
+#elif defined(CONFIG_MTD_RAW_NAND) || defined(CONFIG_CMD_NAND)
 char gpmc_cs0_flash = MTD_DEV_TYPE_NAND;
 #elif defined(CONFIG_CMD_ONENAND)
 char gpmc_cs0_flash = MTD_DEV_TYPE_ONENAND;
@@ -93,7 +93,7 @@ void set_gpmc_cs0(int flash_type)
 		STNOR_GPMC_CONFIG7
 	};
 #endif
-#if defined(CONFIG_NAND) || defined(CONFIG_CMD_NAND)
+#if defined(CONFIG_MTD_RAW_NAND) || defined(CONFIG_CMD_NAND)
 	const u32 gpmc_regs_nand[GPMC_MAX_REG] = {
 		M_NAND_GPMC_CONFIG1,
 		M_NAND_GPMC_CONFIG2,
@@ -128,7 +128,7 @@ void set_gpmc_cs0(int flash_type)
 		                                              GPMC_SIZE_16M)));
 		break;
 #endif
-#if defined(CONFIG_NAND) || defined(CONFIG_CMD_NAND)
+#if defined(CONFIG_MTD_RAW_NAND) || defined(CONFIG_CMD_NAND)
 	case MTD_DEV_TYPE_NAND:
 		gpmc_regs = gpmc_regs_nand;
 		base = CONFIG_SYS_NAND_BASE;

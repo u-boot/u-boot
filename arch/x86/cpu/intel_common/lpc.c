@@ -12,6 +12,7 @@
 #include <asm/intel_regs.h>
 #include <asm/io.h>
 #include <asm/lpc_common.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

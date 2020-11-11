@@ -3,10 +3,16 @@
  * Copyright (c) 2019, Linaro Limited
  */
 
+#include <cpu_func.h>
+#include <log.h>
+#include <malloc.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <common.h>
 #include <console.h>
+#include <linux/bitops.h>
 #include <linux/bug.h>
+#include <linux/delay.h>
 #include <linux/mii.h>
 #include <miiphy.h>
 #include <net.h>

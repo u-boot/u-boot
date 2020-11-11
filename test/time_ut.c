@@ -7,6 +7,8 @@
 #include <common.h>
 #include <command.h>
 #include <errno.h>
+#include <time.h>
+#include <linux/delay.h>
 
 static int test_get_timer(void)
 {
@@ -116,7 +118,7 @@ static int test_udelay(void)
 	return 0;
 }
 
-int do_ut_time(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_ut_time(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int ret = 0;
 

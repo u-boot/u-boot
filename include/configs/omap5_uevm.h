@@ -31,8 +31,6 @@
 #define CONFIG_SYS_NS16550_COM3		UART3_BASE
 
 /* MMC ENV related defines */
-#define CONFIG_SYS_MMC_ENV_DEV		1	/* SLOT2: eMMC(1) */
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 
 /* Enhance our eMMC support / experience. */
 #define CONFIG_HSMMC2_8BIT

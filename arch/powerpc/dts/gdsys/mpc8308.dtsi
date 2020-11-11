@@ -17,6 +17,7 @@
 /dts-v1/;
 
 #include <dt-bindings/memory/mpc83xx-sdram.h>
+#include <dt-bindings/clk/mpc83xx-clk.h>
 
 / {
 	compatible = "fsl,mpc8308rdb";
@@ -48,6 +49,11 @@
 			bus-frequency = <0>;		// from bootloader
 			clock-frequency = <0>;		// from bootloader
 		};
+	};
+
+	socclocks: clocks {
+		compatible = "fsl,mpc8308-clk";
+		#clock-cells = <1>;
 	};
 
 	board_lbc: localbus@e0005000 {
@@ -173,6 +179,7 @@
 			reg = <0x7000 0x1000>;
 			interrupts = <16 0x8>;
 			interrupt-parent = <&ipic>;
+			clocks = <&socclocks MPC83XX_CLK_CSB>;
 			mode = "cpu";
 		};
 

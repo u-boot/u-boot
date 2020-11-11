@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <i2c.h>
+#include <log.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 
@@ -75,7 +76,9 @@ UCLASS_DRIVER(i2c_emul) = {
 UCLASS_DRIVER(i2c_emul_parent) = {
 	.id		= UCLASS_I2C_EMUL_PARENT,
 	.name		= "i2c_emul_parent",
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.post_bind	= dm_scan_fdt_dev,
+#endif
 };
 
 static const struct udevice_id i2c_emul_parent_ids[] = {

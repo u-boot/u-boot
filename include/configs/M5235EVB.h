@@ -29,16 +29,11 @@
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-#define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC
 #	define CONFIG_MII_INIT		1
 #	define CONFIG_SYS_DISCOVER_PHY
 #	define CONFIG_SYS_RX_ETH_BUFFER	8
 #	define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-
-#	define CONFIG_SYS_FEC0_PINMUX		0
-#	define CONFIG_SYS_FEC0_MIIBASE		CONFIG_SYS_FEC0_IOBASE
-#	define MCFFEC_TOUT_LOOP		50000
 /* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
 #	ifndef CONFIG_SYS_DISCOVER_PHY
 #		define FECDUPLEX	FULL
@@ -52,7 +47,6 @@
 
 /* Timer */
 #define CONFIG_MCFTMR
-#undef CONFIG_MCFPIT
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -118,9 +112,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_SDRAM_SIZE		16	/* SDRAM size in MB */
 
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE + 0x400
-#define CONFIG_SYS_MEMTEST_END		((CONFIG_SYS_SDRAM_SIZE - 3) << 20)
-
 #define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_FLASH_BASE + 0x400)
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
 
@@ -159,16 +150,6 @@
 #define LDS_BOARD_TEXT \
 	. = DEFINED(env_offset) ? env_offset : .; \
 	env/embedded.o(.text);
-
-#ifdef NORFLASH_PS32BIT
-#	define CONFIG_ENV_OFFSET		(0x8000)
-#	define CONFIG_ENV_SIZE		0x4000
-#	define CONFIG_ENV_SECT_SIZE	0x4000
-#else
-#	define CONFIG_ENV_OFFSET		(0x4000)
-#	define CONFIG_ENV_SIZE		0x2000
-#	define CONFIG_ENV_SECT_SIZE	0x2000
-#endif
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

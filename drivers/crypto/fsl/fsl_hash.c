@@ -5,6 +5,8 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include "jobdesc.h"
@@ -12,6 +14,7 @@
 #include "jr.h"
 #include "fsl_hash.h"
 #include <hw_sha.h>
+#include <asm/cache.h>
 #include <linux/errno.h>
 
 #define CRYPTO_MAX_ALG_NAME	80
@@ -83,7 +86,7 @@ static int caam_hash_update(void *hash_ctx, const void *buf,
 			    unsigned int size, int is_last,
 			    enum caam_hash_algos caam_algo)
 {
-	uint32_t final = 0;
+	uint32_t final;
 	phys_addr_t addr = virt_to_phys((void *)buf);
 	struct sha_ctx *ctx = hash_ctx;
 

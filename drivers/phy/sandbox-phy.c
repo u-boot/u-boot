@@ -8,6 +8,8 @@
 #include <dm.h>
 #include <generic-phy.h>
 
+#define DRIVER_DATA 0x12345678
+
 struct sandbox_phy_priv {
 	bool initialized;
 	bool on;
@@ -71,6 +73,14 @@ static int sandbox_phy_exit(struct phy *phy)
 	return 0;
 }
 
+static int sandbox_phy_bind(struct udevice *dev)
+{
+	if (dev_get_driver_data(dev) != DRIVER_DATA)
+		return -ENODATA;
+
+	return 0;
+}
+
 static int sandbox_phy_probe(struct udevice *dev)
 {
 	struct sandbox_phy_priv *priv = dev_get_priv(dev);
@@ -90,13 +100,19 @@ static struct phy_ops sandbox_phy_ops = {
 };
 
 static const struct udevice_id sandbox_phy_ids[] = {
-	{ .compatible = "sandbox,phy" },
+	{ .compatible = "sandbox,phy_no_driver_data",
+	},
+
+	{ .compatible = "sandbox,phy",
+	  .data = DRIVER_DATA
+	},
 	{ }
 };
 
 U_BOOT_DRIVER(phy_sandbox) = {
 	.name		= "phy_sandbox",
 	.id		= UCLASS_PHY,
+	.bind		= sandbox_phy_bind,
 	.of_match	= sandbox_phy_ids,
 	.ops		= &sandbox_phy_ops,
 	.probe		= sandbox_phy_probe,

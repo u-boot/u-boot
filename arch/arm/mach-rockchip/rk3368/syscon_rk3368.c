@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <syscon.h>
 #include <asm/arch-rockchip/clock.h>
 

@@ -24,22 +24,16 @@
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-/*
- * Command line configuration.
- */
 #define CONFIG_BOOTCOMMAND	""
 
 /* Flash settings */
 #define CONFIG_SYS_FLASH_SIZE		0x02000000 /* 32 MiB */
 #define CONFIG_SYS_MAX_FLASH_SECT	128
-#define CONFIG_ENV_SIZE			32768
 
 /*-----------------------------------------------------------------------
  * PCI definitions
  */
 
-#define CONFIG_TULIP
-#define CONFIG_EEPRO100
 #define CONFIG_SYS_RX_ETH_BUFFER	8	/* use 8 rx buffer on eepro100	*/
 
 /*-----------------------------------------------------------------------

@@ -7,6 +7,10 @@
 #ifndef _STM32_SYSCFG_H
 #define _STM32_SYSCFG_H
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 struct stm32_syscfg_regs {
 	u32 memrmp;
 	u32 pmc;

@@ -4,12 +4,14 @@
  * Copyright (C) 2011, 2013 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  *
  * NOTE: This driver should be converted to driver model before June 2017.
- * Please see doc/driver-model/i2c-howto.txt for instructions.
+ * Please see doc/driver-model/i2c-howto.rst for instructions.
  */
 
 #include <common.h>
 #include <i2c.h>
+#include <log.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

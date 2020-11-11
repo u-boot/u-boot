@@ -12,6 +12,8 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9g45_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
@@ -270,7 +272,7 @@ int dram_init(void)
 }
 
 #ifndef CONFIG_DM_ETH
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int rc = 0;
 #ifdef CONFIG_MACB

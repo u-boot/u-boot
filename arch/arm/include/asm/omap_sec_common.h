@@ -8,8 +8,6 @@
 #ifndef	_OMAP_SEC_COMMON_H_
 #define	_OMAP_SEC_COMMON_H_
 
-#include <common.h>
-
 /*
  * Invoke secure ROM API on high-security (HS) device variants. It formats
  * the variable argument list into the format expected by the ROM code before

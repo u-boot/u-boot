@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  */
 
 /*
@@ -10,6 +11,8 @@
 #ifndef __T2080RDB_H
 #define __T2080RDB_H
 
+#include <linux/stringify.h>
+
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
 #define CONFIG_FSL_SATA_V2
 
@@ -17,14 +20,8 @@
 #define CONFIG_SYS_BOOK3E_HV	/* Category E.HV supported */
 #define CONFIG_ENABLE_36BIT_PHYS
 
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_ADDR_MAP 1
-#define CONFIG_SYS_NUM_ADDR_MAP 64 /* number of TLB1 entries */
-#endif
-
 #define CONFIG_SYS_FSL_CPC	/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC	CONFIG_SYS_NUM_DDR_CTLRS
-#define CONFIG_ENV_OVERWRITE
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t208xrdb/t2080_pbi.cfg
@@ -40,7 +37,7 @@
 #define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
 #endif
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(768 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
@@ -99,31 +96,6 @@
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
 
-#define CONFIG_SYS_MEMTEST_START	0x00200000 /* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00400000
-
-#if defined(CONFIG_SPIFLASH)
-#define CONFIG_ENV_SIZE		0x2000	   /* 8KB */
-#define CONFIG_ENV_OFFSET	0x100000   /* 1MB */
-#define CONFIG_ENV_SECT_SIZE	0x10000
-#elif defined(CONFIG_SDCARD)
-#define CONFIG_SYS_MMC_ENV_DEV	0
-#define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_OFFSET	(512 * 0x800)
-#elif defined(CONFIG_NAND)
-#define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_OFFSET	(2 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
-#define CONFIG_ENV_ADDR		0xffe20000
-#define CONFIG_ENV_SIZE		0x2000
-#elif defined(CONFIG_ENV_IS_NOWHERE)
-#define CONFIG_ENV_SIZE		0x2000
-#else
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
-#endif
-
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
 unsigned long get_board_ddr_clk(void);
@@ -138,9 +110,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_INIT_L3_ADDR		0xFFFC0000
 #define CONFIG_SYS_L3_SIZE		(512 << 10)
 #define CONFIG_SPL_GD_ADDR		(CONFIG_SYS_INIT_L3_ADDR + 32 * 1024)
-#ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_ENV_ADDR			(CONFIG_SPL_GD_ADDR + 4 * 1024)
-#endif
+#define SPL_ENV_ADDR			(CONFIG_SPL_GD_ADDR + 4 * 1024)
 #define CONFIG_SPL_RELOC_MALLOC_ADDR	(CONFIG_SPL_GD_ADDR + 12 * 1024)
 #define CONFIG_SPL_RELOC_MALLOC_SIZE	(50 << 10)
 #define CONFIG_SPL_RELOC_STACK		(CONFIG_SPL_GD_ADDR + 64 * 1024)
@@ -271,7 +241,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(512 * 1024)
 
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NAND_CSPR_EXT
 #define CONFIG_SYS_CSPR0		CONFIG_SYS_NAND_CSPR
 #define CONFIG_SYS_AMASK0		CONFIG_SYS_NAND_AMASK
@@ -352,8 +322,8 @@ unsigned long get_board_ddr_clk(void);
 /*
  * I2C
  */
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_FSL
 #define CONFIG_SYS_FSL_I2C_SLAVE   0x7F
 #define CONFIG_SYS_FSL_I2C2_SLAVE  0x7F
 #define CONFIG_SYS_FSL_I2C3_SLAVE  0x7F
@@ -366,6 +336,13 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_FSL_I2C2_SPEED  100000
 #define CONFIG_SYS_FSL_I2C3_SPEED  100000
 #define CONFIG_SYS_FSL_I2C4_SPEED  100000
+#else
+#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
+#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
+#endif
+
+#define CONFIG_SYS_I2C_FSL
+
 #define I2C_MUX_PCA_ADDR_PRI	0x77 /* I2C bus multiplexer,primary */
 #define I2C_MUX_PCA_ADDR_SEC1	0x75 /* I2C bus multiplexer,secondary 1 */
 #define I2C_MUX_PCA_ADDR_SEC2	0x76 /* I2C bus multiplexer,secondary 2 */
@@ -521,7 +498,6 @@ unsigned long get_board_ddr_clk(void);
  * env is stored at 0x100000, sector size is 0x10000, ucode is stored after
  * env, so we got 0x110000.
  */
-#define CONFIG_SYS_CORTINA_FW_IN_SPIFLASH
 #define CONFIG_SYS_FMAN_FW_ADDR		0x110000
 #define CONFIG_CORTINA_FW_ADDR		0x120000
 
@@ -531,12 +507,10 @@ unsigned long get_board_ddr_clk(void);
  * about 1MB (2048 blocks), Env is stored after the image, and the env size is
  * 0x2000 (16 blocks), 8 + 2048 + 16 = 2072, enlarge it to 2080.
  */
-#define CONFIG_SYS_CORTINA_FW_IN_MMC
 #define CONFIG_SYS_FMAN_FW_ADDR		(512 * 0x820)
 #define CONFIG_CORTINA_FW_ADDR		(512 * 0x8a0)
 
-#elif defined(CONFIG_NAND)
-#define CONFIG_SYS_CORTINA_FW_IN_NAND
+#elif defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_FMAN_FW_ADDR		(3 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #define CONFIG_CORTINA_FW_ADDR		(4 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
@@ -547,11 +521,9 @@ unsigned long get_board_ddr_clk(void);
  * slave SRIO or PCIE outbound window->master inbound window->
  * master LAW->the ucode address in master's memory space.
  */
-#define CONFIG_SYS_CORTINA_FW_IN_REMOTE
 #define CONFIG_SYS_FMAN_FW_ADDR		0xFFE00000
 #define CONFIG_CORTINA_FW_ADDR		0xFFE10000
 #else
-#define CONFIG_SYS_CORTINA_FW_IN_NOR
 #define CONFIG_SYS_FMAN_FW_ADDR		0xEFF00000
 #define CONFIG_CORTINA_FW_ADDR		0xEFE00000
 #endif
@@ -560,8 +532,6 @@ unsigned long get_board_ddr_clk(void);
 #endif /* CONFIG_NOBQFMAN */
 
 #ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_PHY_CORTINA
-#define CONFIG_PHY_REALTEK
 #define CONFIG_CORTINA_FW_LENGTH	0x40000
 #define RGMII_PHY1_ADDR		0x01  /* RealTek RTL8211E */
 #define RGMII_PHY2_ADDR		0x02

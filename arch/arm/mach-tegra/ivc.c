@@ -4,8 +4,10 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/ivc.h>
+#include <linux/bug.h>
 
 #define TEGRA_IVC_ALIGN 64
 
@@ -122,11 +124,11 @@ static inline int tegra_ivc_channel_empty(struct tegra_ivc *ivc,
 {
 	/*
 	 * This function performs multiple checks on the same values with
-	 * security implications, so create snapshots with ACCESS_ONCE() to
+	 * security implications, so create snapshots with READ_ONCE() to
 	 * ensure that these checks use the same values.
 	 */
-	uint32_t w_count = ACCESS_ONCE(ch->w_count);
-	uint32_t r_count = ACCESS_ONCE(ch->r_count);
+	uint32_t w_count = READ_ONCE(ch->w_count);
+	uint32_t r_count = READ_ONCE(ch->r_count);
 
 	/*
 	 * Perform an over-full check to prevent denial of service attacks where
@@ -151,14 +153,14 @@ static inline int tegra_ivc_channel_full(struct tegra_ivc *ivc,
 	 * Invalid cases where the counters indicate that the queue is over
 	 * capacity also appear full.
 	 */
-	return (ACCESS_ONCE(ch->w_count) - ACCESS_ONCE(ch->r_count)) >=
+	return (READ_ONCE(ch->w_count) - READ_ONCE(ch->r_count)) >=
 	       ivc->nframes;
 }
 
 static inline void tegra_ivc_advance_rx(struct tegra_ivc *ivc)
 {
-	ACCESS_ONCE(ivc->rx_channel->r_count) =
-			ACCESS_ONCE(ivc->rx_channel->r_count) + 1;
+	WRITE_ONCE(ivc->rx_channel->r_count,
+		   READ_ONCE(ivc->rx_channel->r_count) + 1);
 
 	if (ivc->r_pos == ivc->nframes - 1)
 		ivc->r_pos = 0;
@@ -168,8 +170,8 @@ static inline void tegra_ivc_advance_rx(struct tegra_ivc *ivc)
 
 static inline void tegra_ivc_advance_tx(struct tegra_ivc *ivc)
 {
-	ACCESS_ONCE(ivc->tx_channel->w_count) =
-			ACCESS_ONCE(ivc->tx_channel->w_count) + 1;
+	WRITE_ONCE(ivc->tx_channel->w_count,
+		   READ_ONCE(ivc->tx_channel->w_count) + 1);
 
 	if (ivc->w_pos == ivc->nframes - 1)
 		ivc->w_pos = 0;
@@ -230,7 +232,7 @@ static inline uint32_t tegra_ivc_channel_avail_count(struct tegra_ivc *ivc,
 	 * comment in tegra_ivc_channel_empty() for an explanation about
 	 * special over-full considerations.
 	 */
-	return ACCESS_ONCE(ch->w_count) - ACCESS_ONCE(ch->r_count);
+	return READ_ONCE(ch->w_count) - READ_ONCE(ch->r_count);
 }
 
 int tegra_ivc_read_get_next_frame(struct tegra_ivc *ivc, void **frame)
@@ -356,7 +358,7 @@ int tegra_ivc_channel_notified(struct tegra_ivc *ivc)
 	/* Copy the receiver's state out of shared memory. */
 	offset = offsetof(struct tegra_ivc_channel_header, w_count);
 	tegra_ivc_invalidate_counter(ivc, ivc->rx_channel, offset);
-	peer_state = ACCESS_ONCE(ivc->rx_channel->state);
+	peer_state = READ_ONCE(ivc->rx_channel->state);
 
 	if (peer_state == ivc_state_sync) {
 		/*

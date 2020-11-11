@@ -293,6 +293,7 @@ const struct pinmux_bias_reg *
 sh_pfc_pin_to_bias_reg(const struct sh_pfc *pfc, unsigned int pin,
 		       unsigned int *bit);
 
+extern const struct sh_pfc_soc_info r8a774a1_pinmux_info;
 extern const struct sh_pfc_soc_info r8a7790_pinmux_info;
 extern const struct sh_pfc_soc_info r8a7791_pinmux_info;
 extern const struct sh_pfc_soc_info r8a7792_pinmux_info;
@@ -672,4 +673,5 @@ extern const struct sh_pfc_soc_info r8a77995_pinmux_info;
  */
 #define RCAR_GP_PIN(bank, pin)		(((bank) * 32) + (pin))
 
+#include <linux/bug.h>
 #endif /* __SH_PFC_H */

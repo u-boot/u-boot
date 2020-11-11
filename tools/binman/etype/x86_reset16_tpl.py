@@ -5,8 +5,8 @@
 # Entry-type module for the 16-bit x86 reset code for U-Boot
 #
 
-from entry import Entry
-from blob import Entry_blob
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
 class Entry_x86_reset16_tpl(Entry_blob):
     """x86 16-bit reset code for U-Boot
@@ -23,7 +23,7 @@ class Entry_x86_reset16_tpl(Entry_blob):
     For 32-bit U-Boot, the 'x86_reset_tpl' entry type is used instead.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def GetDefaultFilename(self):
         return 'tpl/u-boot-x86-reset16-tpl.bin'

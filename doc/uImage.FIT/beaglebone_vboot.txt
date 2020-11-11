@@ -67,7 +67,6 @@ or if you just installed gcc-arm-linux-gnueabi then it might be
 
 b. Configure and build U-Boot with verified boot enabled:
 
-   export ARCH=arm
    export UBOOT=/path/to/u-boot
    cd $UBOOT
    # You can add -j10 if you have 10 CPUs to make it faster

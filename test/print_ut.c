@@ -7,9 +7,11 @@
 
 #include <common.h>
 #if CONFIG_IS_ENABLED(EFI_LOADER) && !defined(API_BUILD)
+#include <command.h>
 #include <efi_api.h>
 #endif
 #include <display_options.h>
+#include <log.h>
 #include <version.h>
 
 #define FAKE_BUILD_TAG	"jenkins-u-boot-denx_uboot_dm-master-build-aarch64" \
@@ -68,7 +70,7 @@ static void efi_ut_print(void)
 #endif
 }
 
-static int do_ut_print(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_ut_print(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
 	char big_str[400];

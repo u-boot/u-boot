@@ -13,7 +13,6 @@
 #ifndef _EMIF_H_
 #define _EMIF_H_
 #include <asm/types.h>
-#include <common.h>
 #include <asm/io.h>
 
 /* Base address */

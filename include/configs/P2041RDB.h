@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2011-2012 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  */
 
 /*
@@ -45,34 +46,14 @@
 #define CONFIG_SRIO_PCIE_BOOT_MASTER
 #define CONFIG_SYS_DPAA_RMAN		/* RMan */
 
-#define CONFIG_ENV_OVERWRITE
-
 #if defined(CONFIG_SPIFLASH)
-	#define CONFIG_ENV_SIZE                 0x2000          /* 8KB */
-	#define CONFIG_ENV_OFFSET               0x100000        /* 1MB */
-	#define CONFIG_ENV_SECT_SIZE            0x10000
 #elif defined(CONFIG_SDCARD)
 	#define CONFIG_FSL_FIXED_MMC_LOCATION
-	#define CONFIG_SYS_MMC_ENV_DEV          0
-	#define CONFIG_ENV_SIZE			0x2000
-	#define CONFIG_ENV_OFFSET		(512 * 1658)
-#elif defined(CONFIG_NAND)
-#define CONFIG_ENV_SIZE			CONFIG_SYS_NAND_BLOCK_SIZE
-#define CONFIG_ENV_OFFSET		(7 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
-#define CONFIG_ENV_ADDR		0xffe20000
-#define CONFIG_ENV_SIZE		0x2000
-#elif defined(CONFIG_ENV_IS_NOWHERE)
-#define CONFIG_ENV_SIZE		0x2000
-#else
-	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE \
-			- CONFIG_ENV_SECT_SIZE)
-	#define CONFIG_ENV_SIZE		0x2000
-	#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
 #endif
 
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(unsigned long dummy);
+#include <linux/stringify.h>
 #endif
 #define CONFIG_SYS_CLK_FREQ	get_board_sys_clk(0)
 
@@ -86,14 +67,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_ENABLE_36BIT_PHYS
 
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_ADDR_MAP
-#define CONFIG_SYS_NUM_ADDR_MAP		64	/* number of TLB1 entries */
-#endif
-
 #define CONFIG_POST CONFIG_SYS_POST_MEMORY	/* test POST memory test */
-#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00400000
 
 /*
  *  Config the L3 Cache as L3 SRAM
@@ -221,7 +195,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 			       | OR_FCM_TRLX \
 			       | OR_FCM_EHTR)
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_BR0_PRELIM  CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Address */
 #define CONFIG_SYS_OR0_PRELIM  CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
 #define CONFIG_SYS_BR1_PRELIM  CONFIG_SYS_FLASH_BR_PRELIM /* NOR Base Address */
@@ -285,14 +259,20 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
 
 /* I2C */
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_FSL
 #define CONFIG_SYS_FSL_I2C_SPEED	400000
 #define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
 #define CONFIG_SYS_FSL_I2C_OFFSET	0x118000
 #define CONFIG_SYS_FSL_I2C2_SPEED	400000
 #define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
 #define CONFIG_SYS_FSL_I2C2_OFFSET	0x118100
+#else
+#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
+#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
+#endif
+#define CONFIG_SYS_I2C_FSL
+
 
 /*
  * RapidIO
@@ -419,7 +399,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
  * 0x2000 (16 blocks), 8 + 1650 + 16 = 1674, enlarge it to 1680.
  */
 #define CONFIG_SYS_FMAN_FW_ADDR	(512 * 1680)
-#elif defined(CONFIG_NAND)
+#elif defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_FMAN_FW_ADDR	(8 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 /*
@@ -435,12 +415,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #endif
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
-
-#ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_PHYLIB_10G
-#define CONFIG_PHY_VITESSE
-#define CONFIG_PHY_TERANETICS
-#endif
 
 #ifdef CONFIG_PCI
 #if !defined(CONFIG_DM_PCI)
@@ -501,10 +475,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
  */
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
-
-/*
- * Command line configuration.
- */
 
 /*
 * USB

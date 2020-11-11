@@ -23,8 +23,6 @@
 #undef CONFIG_MPC83XX_PCI2		/* support for 2nd PCI controller */
 
 #undef CONFIG_SYS_DRAM_TEST		/* memory test, takes time */
-#define CONFIG_SYS_MEMTEST_START	0x00000000	/* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x00100000
 
 /*
  * DDR Setup
@@ -182,8 +180,6 @@
 
 #if defined(CONFIG_PCI)
 
-#undef CONFIG_EEPRO100
-#undef CONFIG_TULIP
 
 #if !defined(CONFIG_PCI_PNP)
 	#define PCI_ENET0_IOADDR	0xFIXME
@@ -223,17 +219,7 @@
  * Environment
  */
 #ifndef CONFIG_SYS_RAMBOOT
-	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x40000)
-	#define CONFIG_ENV_SECT_SIZE	0x20000	/* 128K(one sector) for env */
-	#define CONFIG_ENV_SIZE		0x2000
-
 /* Address and size of Redundant Environment Sector	*/
-#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
-
-#else
-	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
-	#define CONFIG_ENV_SIZE		0x2000
 #endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
@@ -243,10 +229,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-
-/*
- * Command line configuration.
- */
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
@@ -280,7 +262,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_OVERWRITE
 
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_HAS_ETH0

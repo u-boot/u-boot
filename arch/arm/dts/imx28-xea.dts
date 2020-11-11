@@ -1,0 +1,112 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2019
+ * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
+ *
+ * SPDX-License-Identifier:     GPL-2.0+ or X11
+ *
+ */
+
+/dts-v1/;
+
+#include "imx28.dtsi"
+
+/ {
+	model = "Liebherr (LWE) XEA i.MX28 Board";
+	compatible = "lwe,xea", "fsl,imx28";
+
+	aliases {
+		spi3 = &ssp3;
+	};
+
+	memory@40000000 {
+		device_type = "memory";
+		reg = <0x40000000 0x10000000>;
+	};
+
+	reg_3p3v: regulator-3p3v {
+		compatible = "regulator-fixed";
+		regulator-name = "3P3V";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	reg_fec_3v3: regulator-fec-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "fec-3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio0 0 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-boot-on;
+	};
+};
+
+&mac0 {
+	phy-mode = "rmii";
+	pinctrl-names = "default";
+	pinctrl-0 = <&mac0_pins_a>;
+	phy-supply = <&reg_fec_3v3>;
+	phy-reset-gpios = <&gpio2 13 GPIO_ACTIVE_LOW>;
+	phy-reset-duration = <1>;
+	phy-reset-post-delay = <1>;
+	status = "okay";
+
+	fixed-link {
+	      speed = <100>;
+	      full-duplex;
+	};
+};
+
+&ssp0 {
+	compatible = "fsl,imx28-mmc";
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc0_8bit_pins_a>;
+	bus-width = <8>;
+	vmmc-supply = <&reg_3p3v>;
+	non-removable;
+	status = "okay";
+};
+
+&ssp3 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	compatible = "fsl,imx28-spi";
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi3_pins_b>;
+	status = "okay";
+	spi-max-frequency = <40000000>;
+	num-cs = <2>;
+
+	flash0: s25fl256s@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <40000000>;
+		reg = <0>;
+
+		partition@0 {
+			label = "SPL (spi)";
+			reg = <0x0 0x10000>;
+			read-only;
+		};
+		partition@1 {
+			label = "u-boot (spi)";
+			reg = <0x10000 0x70000>;
+			read-only;
+		};
+		partition@2 {
+			label = "uboot-env (spi)";
+			reg = <0x80000 0x20000>;
+		};
+		partition@3 {
+			label = "kernel (spi)";
+			reg = <0x100000 0x400000>;
+		};
+		partition@4 {
+			label = "swupdate (spi)";
+			reg = <0x50000 0x800000>;
+		};
+	};
+};

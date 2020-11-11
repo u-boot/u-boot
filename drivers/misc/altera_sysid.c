@@ -44,7 +44,7 @@ void display_sysid(void)
 	printf("SYSID: %08x, %s", sysid[0], asc);
 }
 
-int do_sysid(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_sysid(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	display_sysid();
 	return 0;
@@ -73,7 +73,7 @@ static int altera_sysid_ofdata_to_platdata(struct udevice *dev)
 {
 	struct altera_sysid_platdata *plat = dev_get_platdata(dev);
 
-	plat->regs = map_physmem(devfdt_get_addr(dev),
+	plat->regs = map_physmem(dev_read_addr(dev),
 				 sizeof(struct altera_sysid_regs),
 				 MAP_NOCACHE);
 

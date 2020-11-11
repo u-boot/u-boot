@@ -5,6 +5,10 @@
  * Copyright (C) 2012-2017 Texas Instruments Incorporated, <www.ti.com>
  */
 
+#include <cpu_func.h>
+#include <env.h>
+#include <init.h>
+#include <log.h>
 #include <asm/arch/hardware.h>
 #include <asm/cache.h>
 #include <asm/emif.h>
@@ -274,8 +278,8 @@ static int is_ecc_enabled(void)
 		(ecc_ctrl & EMIF_ECC_REG_RMW_EN_MASK);
 }
 
-static int do_ddr_test(cmd_tbl_t *cmdtp,
-		       int flag, int argc, char * const argv[])
+static int do_ddr_test(struct cmd_tbl *cmdtp,
+		       int flag, int argc, char *const argv[])
 {
 	u32 start_addr, end_addr, size, ecc_err;
 

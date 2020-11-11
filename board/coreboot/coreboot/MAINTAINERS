@@ -4,3 +4,10 @@ S:	Maintained
 F:	board/coreboot/coreboot/
 F:	include/configs/chromebook_link.h
 F:	configs/coreboot_defconfig
+
+COREBOOT64 BOARD
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+F:	board/coreboot/coreboot/
+F:	include/configs/chromebook_link.h
+F:	configs/coreboot64_defconfig

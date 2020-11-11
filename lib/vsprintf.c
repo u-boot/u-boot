@@ -2,6 +2,8 @@
  *  linux/lib/vsprintf.c
  *
  *  Copyright (C) 1991, 1992  Linus Torvalds
+ * (C) Copyright 2000-2009
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
 /* vsprintf.c -- Lars Wirzenius & Linus Torvalds. */
@@ -17,12 +19,12 @@
 #include <div64.h>
 #include <hexdump.h>
 #include <stdarg.h>
+#include <uuid.h>
+#include <vsprintf.h>
 #include <linux/ctype.h>
 #include <linux/err.h>
 #include <linux/types.h>
 #include <linux/string.h>
-
-#define noinline __attribute__((noinline))
 
 /* we use this so that we can do without the ctype library */
 #define is_digit(c)	((c) >= '0' && (c) <= '9')
@@ -317,7 +319,6 @@ static char *device_path_string(char *buf, char *end, void *dp, int field_width,
 #endif
 #endif
 
-#ifdef CONFIG_CMD_NET
 static char *mac_address_string(char *buf, char *end, u8 *addr, int field_width,
 				int precision, int flags)
 {
@@ -379,7 +380,6 @@ static char *ip4_addr_string(char *buf, char *end, u8 *addr, int field_width,
 	return string(buf, end, ip4_addr, field_width, precision,
 		      flags & ~SPECIAL);
 }
-#endif
 
 #ifdef CONFIG_LIB_UUID
 /*
@@ -471,7 +471,6 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 			break;
 		}
 		break;
-#ifdef CONFIG_CMD_NET
 	case 'm':
 		flags |= SPECIAL;
 		/* Fallthrough */
@@ -490,7 +489,6 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 					       precision, flags);
 		flags &= ~SPECIAL;
 		break;
-#endif
 #ifdef CONFIG_LIB_UUID
 	case 'U':
 		return uuid_string(buf, end, ptr, field_width, precision,
@@ -872,4 +870,20 @@ bool str2long(const char *p, ulong *num)
 
 	*num = simple_strtoul(p, &endptr, 16);
 	return *p != '\0' && *endptr == '\0';
+}
+
+char *strmhz(char *buf, unsigned long hz)
+{
+	long l, n;
+	long m;
+
+	n = DIV_ROUND_CLOSEST(hz, 1000) / 1000L;
+	l = sprintf(buf, "%ld", n);
+
+	hz -= n * 1000000L;
+	m = DIV_ROUND_CLOSEST(hz, 1000L);
+	if (m != 0)
+		sprintf(buf + l, ".%03ld", m);
+
+	return buf;
 }

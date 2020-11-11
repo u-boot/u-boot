@@ -25,6 +25,7 @@
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <u-boot/crc.h>
 #include <unistd.h>
 #include <dirent.h>
 
@@ -111,6 +112,7 @@ struct environment {
 	unsigned char *flags;
 	char *data;
 	enum flag_scheme flag_scheme;
+	int dirty;
 };
 
 static struct environment environment = {
@@ -505,6 +507,9 @@ int fw_env_flush(struct env_opts *opts)
 	if (!opts)
 		opts = &default_opts;
 
+	if (!environment.dirty)
+		return 0;
+
 	/*
 	 * Update CRC
 	 */
@@ -550,7 +555,8 @@ int fw_env_write(char *name, char *value)
 
 	deleting = (oldval && !(value && strlen(value)));
 	creating = (!oldval && (value && strlen(value)));
-	overwriting = (oldval && (value && strlen(value)));
+	overwriting = (oldval && (value && strlen(value) &&
+				  strcmp(oldval, value)));
 
 	/* check for permission */
 	if (deleting) {
@@ -590,6 +596,7 @@ int fw_env_write(char *name, char *value)
 		/* Nothing to do */
 		return 0;
 
+	environment.dirty = 1;
 	if (deleting || overwriting) {
 		if (*++nxt == '\0') {
 			*env = '\0';
@@ -939,9 +946,15 @@ static int flash_read_buf(int dev, int fd, void *buf, size_t count,
 		lseek(fd, blockstart + block_seek, SEEK_SET);
 
 		rc = read(fd, buf + processed, readlen);
-		if (rc != readlen) {
+		if (rc == -1) {
 			fprintf(stderr, "Read error on %s: %s\n",
 				DEVNAME(dev), strerror(errno));
+			return -1;
+		}
+		if (rc != readlen) {
+			fprintf(stderr,
+				"Read error on %s: Attempted to read %zd bytes but got %d\n",
+				DEVNAME(dev), readlen, rc);
 			return -1;
 		}
 #ifdef DEBUG
@@ -982,6 +995,7 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 				   of the data */
 	loff_t blockstart;	/* running start of the current block -
 				   MEMGETBADBLOCK needs 64 bits */
+	int was_locked = 0;	/* flash lock flag */
 	int rc;
 
 	/*
@@ -1067,6 +1081,12 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 	}
 
 	erase.length = erasesize;
+	if (DEVTYPE(dev) != MTD_ABSENT) {
+		was_locked = ioctl(fd, MEMISLOCKED, &erase);
+		/* treat any errors as unlocked flash */
+		if (was_locked < 0)
+			was_locked = 0;
+	}
 
 	/* This only runs once on NOR flash and SPI-dataflash */
 	while (processed < write_total) {
@@ -1086,7 +1106,8 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 
 		if (DEVTYPE(dev) != MTD_ABSENT) {
 			erase.start = blockstart;
-			ioctl(fd, MEMUNLOCK, &erase);
+			if (was_locked)
+				ioctl(fd, MEMUNLOCK, &erase);
 			/* These do not need an explicit erase cycle */
 			if (DEVTYPE(dev) != MTD_DATAFLASH)
 				if (ioctl(fd, MEMERASE, &erase) != 0) {
@@ -1114,8 +1135,10 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 			return -1;
 		}
 
-		if (DEVTYPE(dev) != MTD_ABSENT)
-			ioctl(fd, MEMLOCK, &erase);
+		if (DEVTYPE(dev) != MTD_ABSENT) {
+			if (was_locked)
+				ioctl(fd, MEMLOCK, &erase);
+		}
 
 		processed += erasesize;
 		block_seek = 0;
@@ -1136,7 +1159,9 @@ static int flash_flag_obsolete(int dev, int fd, off_t offset)
 	int rc;
 	struct erase_info_user erase;
 	char tmp = ENV_REDUND_OBSOLETE;
+	int was_locked;	/* flash lock flag */
 
+	was_locked = ioctl(fd, MEMISLOCKED, &erase);
 	erase.start = DEVOFFSET(dev);
 	erase.length = DEVESIZE(dev);
 	/* This relies on the fact, that ENV_REDUND_OBSOLETE == 0 */
@@ -1146,9 +1171,11 @@ static int flash_flag_obsolete(int dev, int fd, off_t offset)
 			DEVNAME(dev));
 		return rc;
 	}
-	ioctl(fd, MEMUNLOCK, &erase);
+	if (was_locked)
+		ioctl(fd, MEMUNLOCK, &erase);
 	rc = write(fd, &tmp, sizeof(tmp));
-	ioctl(fd, MEMLOCK, &erase);
+	if (was_locked)
+		ioctl(fd, MEMLOCK, &erase);
 	if (rc < 0)
 		perror("Could not set obsolete flag");
 
@@ -1439,6 +1466,7 @@ int fw_env_open(struct env_opts *opts)
 				"Warning: Bad CRC, using default environment\n");
 			memcpy(environment.data, default_environment,
 			       sizeof(default_environment));
+			environment.dirty = 1;
 		}
 	} else {
 		flag0 = *environment.flags;
@@ -1492,6 +1520,16 @@ int fw_env_open(struct env_opts *opts)
 		crc1_ok = (crc1 == redundant->crc);
 		flag1 = redundant->flags;
 
+		/*
+		 * environment.data still points to ((struct
+		 * env_image_redundant *)addr0)->data. If the two
+		 * environments differ, or one has bad crc, force a
+		 * write-out by marking the environment dirty.
+		 */
+		if (memcmp(environment.data, redundant->data, ENV_SIZE) ||
+		    !crc0_ok || !crc1_ok)
+			environment.dirty = 1;
+
 		if (crc0_ok && !crc1_ok) {
 			dev_current = 0;
 		} else if (!crc0_ok && crc1_ok) {
@@ -1501,6 +1539,7 @@ int fw_env_open(struct env_opts *opts)
 				"Warning: Bad CRC, using default environment\n");
 			memcpy(environment.data, default_environment,
 			       sizeof(default_environment));
+			environment.dirty = 1;
 			dev_current = 0;
 		} else {
 			switch (environment.flag_scheme) {
@@ -1628,6 +1667,9 @@ static int check_device_config(int dev)
 			goto err;
 		}
 		DEVTYPE(dev) = mtdinfo.type;
+		if (DEVESIZE(dev) == 0 && ENVSECTORS(dev) == 0 &&
+		    mtdinfo.type == MTD_NORFLASH)
+			DEVESIZE(dev) = mtdinfo.erasesize;
 		if (DEVESIZE(dev) == 0)
 			/* Assume the erase size is the same as the env-size */
 			DEVESIZE(dev) = ENVSIZE(dev);

@@ -16,6 +16,9 @@
 
 #include <common.h>
 #include <command.h>
+#include <cpu_func.h>
+#include <irq_func.h>
+#include <asm/cache.h>
 #include <asm/system.h>
 
 static void cache_flush(void);
@@ -29,7 +32,7 @@ int cleanup_before_linux (void)
 	 * we turn off caches etc ...
 	 */
 
-	disable_interrupts ();
+	disable_interrupts();
 
 	/* turn off I/D-cache */
 	icache_disable();

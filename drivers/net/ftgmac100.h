@@ -13,6 +13,7 @@
 #define __FTGMAC100_H
 
 /* The registers offset table of ftgmac100 */
+#include <linux/bitops.h>
 struct ftgmac100 {
 	unsigned int	isr;		/* 0x00 */
 	unsigned int	ier;		/* 0x04 */

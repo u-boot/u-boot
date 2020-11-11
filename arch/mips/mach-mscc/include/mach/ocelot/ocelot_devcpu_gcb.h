@@ -6,6 +6,7 @@
 #ifndef _MSCC_OCELOT_DEVCPU_GCB_H_
 #define _MSCC_OCELOT_DEVCPU_GCB_H_
 
+#include <linux/bitops.h>
 #define PERF_SOFT_RST                                     0x8
 
 #define PERF_SOFT_RST_SOFT_NON_CFG_RST                    BIT(2)

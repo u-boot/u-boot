@@ -15,7 +15,11 @@
 #define SR_SIE		_AC(0x00000002, UL) /* Supervisor Interrupt Enable */
 #define SR_SPIE		_AC(0x00000020, UL) /* Previous Supervisor IE */
 #define SR_SPP		_AC(0x00000100, UL) /* Previously Supervisor */
+#ifdef CONFIG_RISCV_PRIV_1_9
+#define SR_PUM		_AC(0x00040000, UL) /* Protect User Memory Access */
+#else
 #define SR_SUM		_AC(0x00040000, UL) /* Supervisor User Memory Access */
+#endif
 
 #define SR_FS		_AC(0x00006000, UL) /* Floating-point Status */
 #define SR_FS_OFF	_AC(0x00000000, UL)
@@ -29,6 +33,22 @@
 #define SR_XS_CLEAN	_AC(0x00010000, UL)
 #define SR_XS_DIRTY	_AC(0x00018000, UL)
 
+#ifdef CONFIG_RISCV_PRIV_1_9
+#define SR_VM		_AC(0x1F000000, UL) /* Virtualization Management */
+#define SR_VM_MODE_BARE	_AC(0x00000000, UL) /* No translation or protection */
+#define SR_VM_MODE_BB	_AC(0x01000000, UL) /* Single base-and-bound */
+/* Separate instruction and data base-and-bound */
+#define SR_VM_MODE_BBID	_AC(0x02000000, UL)
+#ifndef CONFIG_64BIT
+#define SR_VM_MODE_32	_AC(0x08000000, UL)
+#define SR_VM_MODE	SR_VM_MODE_32
+#else
+#define SR_VM_MODE_39	_AC(0x09000000, UL)
+#define SR_VM_MODE_48	_AC(0x0A000000, UL)
+#define SR_VM_MODE	SR_VM_MODE_39
+#endif
+#endif
+
 #ifndef CONFIG_64BIT
 #define SR_SD		_AC(0x80000000, UL) /* FS/XS dirty */
 #else
@@ -36,6 +56,7 @@
 #endif
 
 /* SATP flags */
+#ifndef CONFIG_RISCV_PRIV_1_9
 #ifndef CONFIG_64BIT
 #define SATP_PPN	_AC(0x003FFFFF, UL)
 #define SATP_MODE_32	_AC(0x80000000, UL)
@@ -44,6 +65,7 @@
 #define SATP_PPN	_AC(0x00000FFFFFFFFFFF, UL)
 #define SATP_MODE_39	_AC(0x8000000000000000, UL)
 #define SATP_MODE	SATP_MODE_39
+#endif
 #endif
 
 /* SCAUSE */
@@ -88,17 +110,35 @@
 #define CSR_SCAUSE		0x142
 #define CSR_STVAL		0x143
 #define CSR_SIP			0x144
+#ifdef CONFIG_RISCV_PRIV_1_9
+#define CSR_SPTBR		0x180
+#else
 #define CSR_SATP		0x180
+#endif
 #define CSR_MSTATUS		0x300
 #define CSR_MISA		0x301
 #define CSR_MIE			0x304
 #define CSR_MTVEC		0x305
+#ifdef CONFIG_RISCV_PRIV_1_9
+#define CSR_MUCOUNTEREN         0x320
+#define CSR_MSCOUNTEREN         0x321
+#define CSR_MHCOUNTEREN         0x322
+#else
 #define CSR_MCOUNTEREN		0x306
+#endif
 #define CSR_MSCRATCH		0x340
 #define CSR_MEPC		0x341
 #define CSR_MCAUSE		0x342
 #define CSR_MTVAL		0x343
 #define CSR_MIP			0x344
+#ifdef CONFIG_RISCV_PRIV_1_9
+#define CSR_MBASE		0x380
+#define CSR_MBOUND		0x381
+#define CSR_MIBASE		0x382
+#define CSR_MIBOUND		0x383
+#define CSR_MDBASE		0x384
+#define CSR_MDBOUND		0x385
+#endif
 #define CSR_CYCLEH		0xc80
 #define CSR_TIMEH		0xc81
 #define CSR_INSTRETH		0xc82

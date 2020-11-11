@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
 #include <os.h>
@@ -43,7 +44,6 @@ enum sandbox_sf_state {
 	SF_WRITE_STATUS, /* write the flash's status register */
 };
 
-#if CONFIG_IS_ENABLED(LOG)
 static const char *sandbox_sf_state_name(enum sandbox_sf_state state)
 {
 	static const char * const states[] = {
@@ -52,7 +52,6 @@ static const char *sandbox_sf_state_name(enum sandbox_sf_state state)
 	};
 	return states[state];
 }
-#endif /* LOG */
 
 /* Bits for the status register */
 #define STAT_WIP	(1 << 0)

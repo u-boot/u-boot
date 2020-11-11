@@ -6,8 +6,11 @@
 
 #include <common.h>
 #include <bloblist.h>
+#include <cpu_func.h>
 #include <debug_uart.h>
 #include <handoff.h>
+#include <init.h>
+#include <log.h>
 #include <asm/mtrr.h>
 
 int misc_init_r(void)
@@ -50,14 +53,12 @@ void board_debug_uart_init(void)
 
 int dram_init_banksize(void)
 {
-#ifdef CONFIG_NR_DRAM_BANKS
 	struct spl_handoff *ho;
 
 	ho = bloblist_find(BLOBLISTT_SPL_HANDOFF, sizeof(*ho));
 	if (!ho)
 		return log_msg_ret("Missing SPL hand-off info", -ENOENT);
 	handoff_load_dram_banks(ho);
-#endif
 
 	return 0;
 }

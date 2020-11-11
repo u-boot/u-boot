@@ -12,6 +12,7 @@
 #include <common.h>
 #include <display.h>
 #include <dm.h>
+#include <log.h>
 #include <regmap.h>
 #include <video_osd.h>
 #include <asm/gpio.h>

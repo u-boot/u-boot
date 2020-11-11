@@ -3,9 +3,9 @@
  * Copyright (C) 2016 Socionext Inc.
  */
 
-#include <common.h>
 #include <spl.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/io.h>
 
 #include "../init.h"

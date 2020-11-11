@@ -8,6 +8,4 @@
 
 #include <configs/rk3368_common.h>
 
-#define CONFIG_CONSOLE_SCROLL_LINES		10
-
 #endif

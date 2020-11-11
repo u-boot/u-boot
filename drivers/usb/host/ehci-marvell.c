@@ -6,16 +6,18 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <usb.h>
+#include <linux/delay.h>
 #include "ehci.h"
 #include <linux/mbus.h>
 #include <asm/arch/cpu.h>
 #include <dm.h>
 
-#if defined(CONFIG_KIRKWOOD)
+#if defined(CONFIG_ARCH_KIRKWOOD)
 #include <asm/arch/soc.h>
-#elif defined(CONFIG_ORION5X)
+#elif defined(CONFIG_ARCH_ORION5X)
 #include <asm/arch/orion5x.h>
 #endif
 
@@ -107,7 +109,7 @@ static int ehci_mvebu_probe(struct udevice *dev)
 	/*
 	 * Get the base address for EHCI controller from the device node
 	 */
-	priv->hcd_base = devfdt_get_addr(dev);
+	priv->hcd_base = dev_read_addr(dev);
 	if (priv->hcd_base == FDT_ADDR_T_NONE) {
 		debug("Can't get the EHCI register base address\n");
 		return -ENXIO;

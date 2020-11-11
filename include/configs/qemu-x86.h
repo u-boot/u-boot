@@ -22,11 +22,6 @@
 #include <config_distro_bootcmd.h>
 #include <configs/x86-common.h>
 
-#undef CONFIG_ENV_SIZE
-#define CONFIG_ENV_SIZE			SZ_256K
-
-#define CONFIG_PREBOOT "pci enum"
-
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
 
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,i8042-kbd\0" \

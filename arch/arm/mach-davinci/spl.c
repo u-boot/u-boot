@@ -5,6 +5,8 @@
  */
 #include <common.h>
 #include <config.h>
+#include <hang.h>
+#include <init.h>
 #include <spl.h>
 #include <asm/u-boot.h>
 #include <asm/utils.h>

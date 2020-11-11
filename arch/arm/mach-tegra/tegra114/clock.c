@@ -7,6 +7,8 @@
 /* Tegra114 Clock control functions */
 
 #include <common.h>
+#include <init.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sysctr.h>
@@ -15,6 +17,7 @@
 #include <asm/arch-tegra/timer.h>
 #include <div64.h>
 #include <fdtdec.h>
+#include <linux/delay.h>
 
 /*
  * Clock types that we can use as a source. The Tegra114 has muxes for the

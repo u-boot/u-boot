@@ -8,6 +8,7 @@
 #include <asm/eth-raw-os.h>
 #include <dm.h>
 #include <errno.h>
+#include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 

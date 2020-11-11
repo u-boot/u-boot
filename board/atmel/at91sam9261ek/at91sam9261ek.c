@@ -7,6 +7,8 @@
 
 #include <common.h>
 #include <debug_uart.h>
+#include <init.h>
+#include <vsprintf.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9261.h>
 #include <asm/arch/at91sam9261_matrix.h>
@@ -263,7 +265,7 @@ int board_init(void)
 }
 
 #ifdef CONFIG_DRIVER_DM9000
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return dm9000_initialize(bis);
 }

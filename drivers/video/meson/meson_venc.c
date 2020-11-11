@@ -6,7 +6,12 @@
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  */
 
+#include <common.h>
+#include <dm.h>
 #include <edid.h>
+#include <fdtdec.h>
+#include <log.h>
+#include <asm/io.h>
 #include "meson_vpu.h"
 
 enum {

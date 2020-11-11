@@ -20,13 +20,11 @@ obj-y += reset.o
 endif
 
 obj-$(CONFIG_MICRO_SUPPORT_CARD) += micro-support-card.o
-obj-y += pinctrl-glue.o
 obj-$(CONFIG_MMC) += mmc-first-dev.o
 obj-y += fdt-fixup.o
 
 endif
 
-obj-y += sbc/
 obj-y += soc-info.o
 obj-y += boot-device/
 obj-y += clk/

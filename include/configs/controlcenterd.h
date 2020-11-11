@@ -26,6 +26,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 #ifdef CONFIG_SDCARD
 #define CONFIG_RAMBOOT_SDCARD
 #endif
@@ -38,11 +40,6 @@
 #define CONFIG_CONTROLCENTERD
 
 #define CONFIG_ENABLE_36BIT_PHYS
-
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_ADDR_MAP
-#define CONFIG_SYS_NUM_ADDR_MAP		16	/* number of TLB1 entries */
-#endif
 
 #define CONFIG_L2_CACHE
 #define CONFIG_BTB
@@ -120,9 +117,6 @@
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
-
-#define CONFIG_SYS_MEMTEST_START	0x00000000
-#define CONFIG_SYS_MEMTEST_END		0x3fffffff
 
 #ifdef CONFIG_TRAILBLAZER
 #define CONFIG_SPD_EEPROM
@@ -272,20 +266,9 @@
  * Environment
  */
 #if defined(CONFIG_TRAILBLAZER)
-#define CONFIG_ENV_SIZE		0x2000		/* 8KB */
-#elif defined(CONFIG_RAMBOOT_SPIFLASH)
-#define CONFIG_ENV_SIZE		0x2000		/* 8KB */
-#define CONFIG_ENV_OFFSET	0x100000	/* 1MB */
-#define CONFIG_ENV_SECT_SIZE	0x10000
 #elif defined(CONFIG_RAMBOOT_SDCARD)
 #define CONFIG_FSL_FIXED_MMC_LOCATION
-#define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_SYS_MMC_ENV_DEV	0
 #endif
-
-/*
- * Command line configuration.
- */
 
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 

@@ -19,9 +19,6 @@
 #define CONFIG_TEGRA_ENABLE_UARTA
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_SYS_MMC_ENV_PART		2
-#define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 
 /* SPI */
 #define CONFIG_SPI_FLASH_SIZE		(4 << 20)

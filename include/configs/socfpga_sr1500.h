@@ -28,10 +28,6 @@
 #define CONFIG_SYS_BOOTCOUNT_BE
 
 /* Environment setting for SPI flash */
-#define CONFIG_ENV_SECT_SIZE	(64 * 1024)
-#define CONFIG_ENV_SIZE		(16 * 1024)
-#define CONFIG_ENV_OFFSET	0x000e0000
-#define CONFIG_ENV_OFFSET_REDUND (CONFIG_ENV_OFFSET + CONFIG_ENV_SECT_SIZE)
 
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>

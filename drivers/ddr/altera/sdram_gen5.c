@@ -6,6 +6,8 @@
 #include <dm.h>
 #include <errno.h>
 #include <div64.h>
+#include <init.h>
+#include <log.h>
 #include <ram.h>
 #include <reset.h>
 #include <watchdog.h>
@@ -13,7 +15,9 @@
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/sdram.h>
 #include <asm/arch/system_manager.h>
+#include <asm/bitops.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 
 #include "sequencer.h"
 
@@ -39,9 +43,6 @@ struct sdram_prot_rule {
 	u32	lo_prot_id;
 	u32	hi_prot_id;
 };
-
-static struct socfpga_system_manager *sysmgr_regs =
-	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 
 static unsigned long sdram_calculate_size(struct socfpga_sdr_ctrl *sdr_ctrl);
 
@@ -436,8 +437,10 @@ static void sdr_load_regs(struct socfpga_sdr_ctrl *sdr_ctrl,
 	debug("Configuring DRAMODT\n");
 	writel(cfg->dram_odt, &sdr_ctrl->dram_odt);
 
-	debug("Configuring EXTRATIME1\n");
-	writel(cfg->extratime1, &sdr_ctrl->extratime1);
+	if (dram_is_ddr(3)) {
+		debug("Configuring EXTRATIME1\n");
+		writel(cfg->extratime1, &sdr_ctrl->extratime1);
+	}
 }
 
 /**
@@ -455,12 +458,14 @@ int sdram_mmr_init_full(struct socfpga_sdr_ctrl *sdr_ctrl,
 			SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB;
 	int ret;
 
-	writel(rows, &sysmgr_regs->iswgrp_handoff[4]);
+	writel(rows,
+	       socfpga_get_sysmgr_addr() + SYSMGR_ISWGRP_HANDOFF_OFFSET(4));
 
 	sdr_load_regs(sdr_ctrl, cfg);
 
 	/* saving this value to SYSMGR.ISWGRP.HANDOFF.FPGA2SDR */
-	writel(cfg->fpgaport_rst, &sysmgr_regs->iswgrp_handoff[3]);
+	writel(cfg->fpgaport_rst,
+	       socfpga_get_sysmgr_addr() + SYSMGR_ISWGRP_HANDOFF_OFFSET(3));
 
 	/* only enable if the FPGA is programmed */
 	if (fpgamgr_test_fpga_ready()) {
@@ -516,7 +521,8 @@ static unsigned long sdram_calculate_size(struct socfpga_sdr_ctrl *sdr_ctrl)
 	 * since the FB specifies we modify ROWBITs to work around SDRAM
 	 * controller issue.
 	 */
-	row = readl(&sysmgr_regs->iswgrp_handoff[4]);
+	row = readl(socfpga_get_sysmgr_addr() +
+		    SYSMGR_ISWGRP_HANDOFF_OFFSET(4));
 	if (row == 0)
 		row = rowbits;
 	/*
@@ -626,7 +632,7 @@ static int altera_gen5_sdram_get_info(struct udevice *dev,
 	return 0;
 }
 
-static struct ram_ops altera_gen5_sdram_ops = {
+static const struct ram_ops altera_gen5_sdram_ops = {
 	.get_info = altera_gen5_sdram_get_info,
 };
 

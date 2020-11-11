@@ -7,6 +7,8 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <init.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/armada100.h>
 

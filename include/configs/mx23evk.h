@@ -19,14 +19,8 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Environment */
-#define CONFIG_ENV_OVERWRITE
 
 /* Environment is in MMC */
-#if defined(CONFIG_CMD_MMC) && defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_ENV_OFFSET	(256 * 1024)
-#define CONFIG_ENV_SIZE		(16 * 1024)
-#define CONFIG_SYS_MMC_ENV_DEV	0
-#endif
 
 /* USB */
 #ifdef	CONFIG_CMD_USB
@@ -37,10 +31,6 @@
 /* Framebuffer support */
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_BMP_16BPP
-#define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(512 << 10)
 #endif
 

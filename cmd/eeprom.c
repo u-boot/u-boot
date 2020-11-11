@@ -22,8 +22,10 @@
 #include <common.h>
 #include <config.h>
 #include <command.h>
+#include <eeprom.h>
 #include <i2c.h>
 #include <eeprom_layout.h>
+#include <linux/delay.h>
 
 #ifndef	CONFIG_SYS_I2C_SPEED
 #define	CONFIG_SYS_I2C_SPEED	50000
@@ -60,7 +62,7 @@
 #endif
 
 #if defined(CONFIG_DM_I2C)
-int eeprom_i2c_bus;
+static int eeprom_i2c_bus;
 #endif
 
 __weak int eeprom_write_enable(unsigned dev_addr, int state)
@@ -236,7 +238,7 @@ static int parse_numeric_param(char *str)
  * @returns:	number of arguments parsed or CMD_RET_USAGE if error
  */
 static int parse_i2c_bus_addr(int *i2c_bus, ulong *i2c_addr, int argc,
-			      char * const argv[], int argc_no_bus_addr)
+			      char *const argv[], int argc_no_bus_addr)
 {
 	int argc_no_bus = argc_no_bus_addr + 1;
 	int argc_bus_addr = argc_no_bus_addr + 2;
@@ -307,7 +309,7 @@ static int eeprom_execute_command(enum eeprom_action action, int i2c_bus,
 {
 	int rcode = 0;
 	const char *const fmt =
-		"\nEEPROM @0x%lX %s: addr %08lx  off %04lx  count %ld ... ";
+		"\nEEPROM @0x%lX %s: addr 0x%08lx  off 0x%04lx  count %ld ... ";
 #ifdef CONFIG_CMD_EEPROM_LAYOUT
 	struct eeprom_layout layout;
 #endif
@@ -354,7 +356,7 @@ static int eeprom_execute_command(enum eeprom_action action, int i2c_bus,
 }
 
 #define NEXT_PARAM(argc, index)	{ (argc)--; (index)++; }
-int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int layout_ver = LAYOUT_VERSION_AUTODETECT;
 	enum eeprom_action action = EEPROM_ACTION_INVALID;

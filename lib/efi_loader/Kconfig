@@ -1,15 +1,24 @@
 config EFI_LOADER
 	bool "Support running UEFI applications"
-	depends on (ARM || X86 || RISCV || SANDBOX) && OF_LIBFDT
+	depends on OF_LIBFDT && ( \
+		ARM && (SYS_CPU = arm1136 || \
+			SYS_CPU = arm1176 || \
+			SYS_CPU = armv7   || \
+			SYS_CPU = armv8)  || \
+		X86 || RISCV || SANDBOX)
 	# We need EFI_STUB_64BIT to be set on x86_64 with EFI_STUB
 	depends on !EFI_STUB || !X86_64 || EFI_STUB_64BIT
 	# We need EFI_STUB_32BIT to be set on x86_32 with EFI_STUB
 	depends on !EFI_STUB || !X86 || X86_64 || EFI_STUB_32BIT
-	default y
+	default y if !ARM || SYS_CPU = armv7 || SYS_CPU = armv8
 	select LIB_UUID
 	select HAVE_BLOCK_DEVICE
 	select REGEX
 	imply CFB_CONSOLE_ANSI
+	imply FAT
+	imply FAT_WRITE
+	imply USB_KEYBOARD_FN_KEYS
+	imply VIDEO_ANSI
 	help
 	  Select this option if you want to run UEFI applications (like GNU
 	  GRUB or iPXE) on top of U-Boot. If this option is enabled, U-Boot
@@ -17,6 +26,56 @@ config EFI_LOADER
 	  reuse U-Boot's device drivers.
 
 if EFI_LOADER
+
+config EFI_SETUP_EARLY
+	bool
+	default n
+
+choice
+	prompt "Store for non-volatile UEFI variables"
+	default EFI_VARIABLE_FILE_STORE
+	help
+	  Select where non-volatile UEFI variables shall be stored.
+
+config EFI_VARIABLE_FILE_STORE
+	bool "Store non-volatile UEFI variables as file"
+	depends on FAT_WRITE
+	help
+	  Select this option if you want non-volatile UEFI variables to be
+	  stored as file /ubootefi.var on the EFI system partition.
+
+config EFI_MM_COMM_TEE
+	bool "UEFI variables storage service via OP-TEE"
+	depends on OPTEE
+	help
+	  If OP-TEE is present and running StandAloneMM, dispatch all UEFI
+	  variable related operations to that. The application will verify,
+	  authenticate and store the variables on an RPMB.
+
+endchoice
+
+config EFI_VARIABLES_PRESEED
+	bool "Initial values for UEFI variables"
+	depends on EFI_VARIABLE_FILE_STORE
+	help
+	  Include a file with the initial values for non-volatile UEFI variables
+	  into the U-Boot binary. If this configuration option is set, changes
+	  to authentication related variables (PK, KEK, db, dbx) are not
+	  allowed.
+
+if EFI_VARIABLES_PRESEED
+
+config EFI_VAR_SEED_FILE
+	string "File with initial values of non-volatile UEFI variables"
+	default ubootefi.var
+	help
+	  File with initial values of non-volatile UEFI variables. The file must
+	  be in the same format as the storage in the EFI system partition. The
+	  easiest way to create it is by setting the non-volatile variables in
+	  U-Boot. If a relative file path is used, it is relative to the source
+	  directory.
+
+endif
 
 config EFI_GET_TIME
 	bool "GetTime() runtime service"
@@ -109,10 +168,54 @@ config EFI_HAVE_RUNTIME_RESET
 
 config EFI_GRUB_ARM32_WORKAROUND
 	bool "Workaround for GRUB on 32bit ARM"
+	default n if ARCH_QEMU
 	default y
 	depends on ARM && !ARM64
 	help
 	  GRUB prior to version 2.04 requires U-Boot to disable caches. This
 	  workaround currently is also needed on systems with caches that
 	  cannot be managed via CP15.
+
+config EFI_RNG_PROTOCOL
+	bool "EFI_RNG_PROTOCOL support"
+	depends on DM_RNG
+	default y
+	help
+	  Provide a EFI_RNG_PROTOCOL implementation using the hardware random
+	  number generator of the platform.
+
+config EFI_LOAD_FILE2_INITRD
+	bool "EFI_FILE_LOAD2_PROTOCOL for Linux initial ramdisk"
+	default n
+	help
+	  Expose a EFI_FILE_LOAD2_PROTOCOL that the Linux UEFI stub can
+	  use to load the initial ramdisk. Once this is enabled using
+	  initrd=<ramdisk> will stop working.
+
+config EFI_INITRD_FILESPEC
+	string "initramfs path"
+	default "host 0:1 initrd"
+	depends on EFI_LOAD_FILE2_INITRD
+	help
+	  Full path of the initramfs file, e.g. mmc 0:2 initramfs.cpio.gz.
+
+config EFI_SECURE_BOOT
+	bool "Enable EFI secure boot support"
+	depends on EFI_LOADER
+	select SHA256
+	select RSA
+	select RSA_VERIFY_WITH_PKEY
+	select IMAGE_SIGN_INFO
+	select ASYMMETRIC_KEY_TYPE
+	select ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	select X509_CERTIFICATE_PARSER
+	select PKCS7_MESSAGE_PARSER
+	select PKCS7_VERIFY
+	default n
+	help
+	  Select this option to enable EFI secure boot support.
+	  Once SecureBoot mode is enforced, any EFI binary can run only if
+	  it is signed with a trusted key. To do that, you need to install,
+	  at least, PK, KEK and db.
+
 endif

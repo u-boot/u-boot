@@ -7,6 +7,9 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <hang.h>
+#include <init.h>
 #include <malloc.h>
 #include <netdev.h>
 #include <dm.h>
@@ -26,15 +29,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void s_init(void)
-{
-}
-
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 int board_init(void)
 {
 	/* adress of boot parameters */
@@ -44,23 +38,10 @@ int board_init(void)
 }
 
 #define RST_BASE	0xE6160000
-#define RST_CA57RESCNT	(RST_BASE + 0x40)
 #define RST_CA53RESCNT	(RST_BASE + 0x44)
-#define RST_RSTOUTCR	(RST_BASE + 0x58)
-#define RST_CA57_CODE	0xA5A5000F
 #define RST_CA53_CODE	0x5A5A000F
 
 void reset_cpu(ulong addr)
 {
-	unsigned long midr, cputype;
-
-	asm volatile("mrs %0, midr_el1" : "=r" (midr));
-	cputype = (midr >> 4) & 0xfff;
-
-	if (cputype == 0xd03)
-		writel(RST_CA53_CODE, RST_CA53RESCNT);
-	else if (cputype == 0xd07)
-		writel(RST_CA57_CODE, RST_CA57RESCNT);
-	else
-		hang();
+	writel(RST_CA53_CODE, RST_CA53RESCNT);
 }

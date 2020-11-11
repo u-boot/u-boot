@@ -28,7 +28,7 @@ CONFIGURING
 
 
 Please refer to u-boot README (general info, u-boot-x-x-x/README),
-to u-boot-x-x-x/doc/README.COBRA5272 and
+to u-boot-x-x-x/board/cobra5272/README and
 to the comments in u-boot-x-x-x/include/configs/cobra5272.h
 
 Configuring u-boot is done by commenting/uncommenting preprocessor defines.

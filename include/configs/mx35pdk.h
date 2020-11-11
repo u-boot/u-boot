@@ -59,11 +59,7 @@
 /*
  * UART (console)
  */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 /*
  * Command definition
@@ -92,9 +88,6 @@
 /*
  * Miscellaneous configurable options
  */
-
-#define CONFIG_SYS_MEMTEST_START	0	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x10000
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
@@ -128,19 +121,7 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 
-#define CONFIG_ENV_SECT_SIZE	(128 * 1024)
-#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
-
 /* Address and size of Redundant Environment Sector	*/
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
-
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + \
-				CONFIG_SYS_MONITOR_LEN)
-
-#if defined(CONFIG_FSL_ENV_IN_NAND)
-	#define CONFIG_ENV_OFFSET       (1024 * 1024)
-#endif
 
 /*
  * CFI FLASH driver setup

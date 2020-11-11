@@ -7,10 +7,13 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <thermal.h>
 #include <dm/device-internal.h>
 #include <dm/device.h>
 #include <asm/arch/sci/sci.h>
+#include <linux/delay.h>
+#include <linux/libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -58,13 +61,15 @@ int imx_sc_thermal_get_temp(struct udevice *dev, int *temp)
 		return ret;
 
 	while (cpu_temp >= pdata->alert) {
-		printf("CPU Temperature (%dC) has beyond alert (%dC), close to critical (%dC)",
+		printf("CPU Temperature (%dC) beyond alert (%dC), close to critical (%dC)",
 		       cpu_temp, pdata->alert, pdata->critical);
 		puts(" waiting...\n");
 		mdelay(pdata->polling_delay);
 		ret = read_temperature(dev, &cpu_temp);
 		if (ret)
 			return ret;
+		if (cpu_temp >= pdata->alert && !pdata->alert)
+			break;
 	}
 
 	*temp = cpu_temp / 1000;
@@ -179,12 +184,20 @@ static int imx_sc_thermal_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+static const sc_rsrc_t imx8qm_sensor_rsrc[] = {
+	SC_R_A53, SC_R_A72, SC_R_GPU_0_PID0, SC_R_GPU_1_PID0,
+	SC_R_DRC_0, SC_R_DRC_1, SC_R_VPU_PID0, SC_R_PMIC_0,
+	SC_R_PMIC_1, SC_R_PMIC_2,
+};
+
 static const sc_rsrc_t imx8qxp_sensor_rsrc[] = {
 	SC_R_SYSTEM, SC_R_DRC_0, SC_R_PMIC_0,
 	SC_R_PMIC_1, SC_R_PMIC_2,
 };
 
 static const struct udevice_id imx_sc_thermal_ids[] = {
+	{ .compatible = "nxp,imx8qm-sc-tsens", .data =
+		(ulong)&imx8qm_sensor_rsrc, },
 	{ .compatible = "nxp,imx8qxp-sc-tsens", .data =
 		(ulong)&imx8qxp_sensor_rsrc, },
 	{ }

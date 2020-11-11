@@ -4,9 +4,13 @@
  */
 
 #include <common.h>
+#include <image.h>
+#include <init.h>
 #include <asm/io.h>
 #include <led.h>
 #include <miiphy.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 enum {
 	BOARD_TYPE_PCB110 = 0xAABBCE00,

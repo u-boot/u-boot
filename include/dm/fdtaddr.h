@@ -21,7 +21,7 @@ struct udevice;
  *
  * @return addr
  */
-fdt_addr_t devfdt_get_addr(struct udevice *dev);
+fdt_addr_t devfdt_get_addr(const struct udevice *dev);
 
 /**
  * devfdt_get_addr_ptr() - Return pointer to the address of the reg property
@@ -31,7 +31,7 @@ fdt_addr_t devfdt_get_addr(struct udevice *dev);
  *
  * @return Pointer to addr, or NULL if there is no such property
  */
-void *devfdt_get_addr_ptr(struct udevice *dev);
+void *devfdt_get_addr_ptr(const struct udevice *dev);
 
 /**
  * devfdt_remap_addr() - Return pointer to the memory-mapped I/O address
@@ -41,7 +41,7 @@ void *devfdt_get_addr_ptr(struct udevice *dev);
  *
  * @return Pointer to addr, or NULL if there is no such property
  */
-void *devfdt_remap_addr(struct udevice *dev);
+void *devfdt_remap_addr(const struct udevice *dev);
 
 /**
  * devfdt_remap_addr_index() - Return indexed pointer to the memory-mapped
@@ -53,7 +53,7 @@ void *devfdt_remap_addr(struct udevice *dev);
  *
  * @return Pointer to addr, or NULL if there is no such property
  */
-void *devfdt_remap_addr_index(struct udevice *dev, int index);
+void *devfdt_remap_addr_index(const struct udevice *dev, int index);
 
 /**
  * devfdt_remap_addr_name() - Get the reg property of a device, indexed by
@@ -66,7 +66,7 @@ void *devfdt_remap_addr_index(struct udevice *dev, int index);
  *
  * @return Pointer to addr, or NULL if there is no such property
  */
-void *devfdt_remap_addr_name(struct udevice *dev, const char *name);
+void *devfdt_remap_addr_name(const struct udevice *dev, const char *name);
 
 /**
  * devfdt_map_physmem() - Read device address from reg property of the
@@ -79,7 +79,7 @@ void *devfdt_remap_addr_name(struct udevice *dev, const char *name);
  * @return  mapped address, or NULL if the device does not have reg
  *          property.
  */
-void *devfdt_map_physmem(struct udevice *dev, unsigned long size);
+void *devfdt_map_physmem(const struct udevice *dev, unsigned long size);
 
 /**
  * devfdt_get_addr_index() - Get the indexed reg property of a device
@@ -90,7 +90,7 @@ void *devfdt_map_physmem(struct udevice *dev, unsigned long size);
  *
  * @return addr
  */
-fdt_addr_t devfdt_get_addr_index(struct udevice *dev, int index);
+fdt_addr_t devfdt_get_addr_index(const struct udevice *dev, int index);
 
 /**
  * devfdt_get_addr_size_index() - Get the indexed reg property of a device
@@ -105,8 +105,8 @@ fdt_addr_t devfdt_get_addr_index(struct udevice *dev, int index);
  *
  * @return addr
  */
-fdt_addr_t devfdt_get_addr_size_index(struct udevice *dev, int index,
-				   fdt_size_t *size);
+fdt_addr_t devfdt_get_addr_size_index(const struct udevice *dev, int index,
+				      fdt_size_t *size);
 
 /**
  * devfdt_get_addr_name() - Get the reg property of a device, indexed by name
@@ -118,7 +118,7 @@ fdt_addr_t devfdt_get_addr_size_index(struct udevice *dev, int index,
  *
  * @return addr
  */
-fdt_addr_t devfdt_get_addr_name(struct udevice *dev, const char *name);
+fdt_addr_t devfdt_get_addr_name(const struct udevice *dev, const char *name);
 
 /**
  * devfdt_get_addr_size_name() - Get the reg property and its size for a device,
@@ -135,8 +135,8 @@ fdt_addr_t devfdt_get_addr_name(struct udevice *dev, const char *name);
  *
  * @return addr
  */
-fdt_addr_t devfdt_get_addr_size_name(struct udevice *dev, const char *name,
-				     fdt_size_t *size);
+fdt_addr_t devfdt_get_addr_size_name(const struct udevice *dev,
+				     const char *name, fdt_size_t *size);
 
 /**
  * devfdt_get_addr_pci() - Read an address and handle PCI address translation
@@ -144,6 +144,6 @@ fdt_addr_t devfdt_get_addr_size_name(struct udevice *dev, const char *name,
  * @dev: Device to read from
  * @return address or FDT_ADDR_T_NONE if not found
  */
-fdt_addr_t devfdt_get_addr_pci(struct udevice *dev);
+fdt_addr_t devfdt_get_addr_pci(const struct udevice *dev);
 
 #endif

@@ -9,9 +9,11 @@
 
 #define FCB_FINGERPRINT		0x20424346      /* 'FCB' */
 #define FCB_VERSION_1		0x01000000
+#define FCB_FINGERPRINT_OFF	0x4		/* FCB fingerprint offset*/
 
-#define DBBT_FINGERPRINT2	0x54424244	/* 'DBBT' */
+#define DBBT_FINGERPRINT	0x54424244	/* 'DBBT' */
 #define DBBT_VERSION_1		0x01000000
+#define DBBT_FINGERPRINT_OFF	0x4		/* DBBT fingerprint offset*/
 
 struct dbbt_block {
 	u32 checksum;	/* reserved on i.MX6 */

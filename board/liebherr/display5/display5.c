@@ -6,6 +6,9 @@
 
 #include <common.h>
 #include <dm.h>
+#include <fdt_support.h>
+#include <init.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
@@ -22,8 +25,8 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <i2c.h>
+#include <linux/delay.h>
 
-#include <dm.h>
 #include <dm/platform_data/serial_mxc.h>
 #include <dm/platdata.h>
 
@@ -132,7 +135,7 @@ int overwrite_console(void)
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	fdt_fixup_ethernet(blob);
 	return 0;

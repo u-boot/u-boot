@@ -9,6 +9,8 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
+#include <image.h>
 #include <asm/byteorder.h>
 #include <asm/zimage.h>
 
@@ -49,7 +51,8 @@ static unsigned long sh_check_cmd_arg(char *cmdline, char *key, int base)
 	return val;
 }
 
-int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char *const argv[],
+		   bootm_headers_t *images)
 {
 	/* Linux kernel load address */
 	void (*kernel) (void) = (void (*)(void))images->ep;

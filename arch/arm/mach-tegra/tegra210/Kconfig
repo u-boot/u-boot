@@ -35,6 +35,12 @@ config TARGET_P2571
 	help
 	  P2571 is a P2530 married to a P1963 I/O board
 
+config TARGET_P3450_0000
+	bool "NVIDIA Jetson Nano Developer Kit"
+	select BOARD_LATE_INIT
+	help
+	  P3450-0000 is a P3448 CPU board married to a P3449 I/O board.
+
 endchoice
 
 config SYS_SOC
@@ -44,5 +50,6 @@ source "board/nvidia/e2220-1170/Kconfig"
 source "board/nvidia/p2371-0000/Kconfig"
 source "board/nvidia/p2371-2180/Kconfig"
 source "board/nvidia/p2571/Kconfig"
+source "board/nvidia/p3450-0000/Kconfig"
 
 endif

@@ -10,6 +10,8 @@
 
 #include <common.h>
 #include <command.h>
+#include <init.h>
+#include <vsprintf.h>
 #include <linux/stringify.h>
 #include <asm/global_data.h>
 #include <asm/cache.h>

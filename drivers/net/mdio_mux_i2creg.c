@@ -6,6 +6,7 @@
 
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <miiphy.h>
 #include <i2c.h>
 

@@ -6,9 +6,11 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <misc.h>
 #include <stm32_rcc.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 
 struct stm32_rcc_clk stm32_rcc_clk_f42x = {

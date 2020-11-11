@@ -13,11 +13,6 @@
 #define CONFIG_SYS_SDRAM_BASE			PHYS_SDRAM_1
 #define PHYS_SDRAM_1_SIZE			0x00198000
 
-#define CONFIG_ENV_SIZE				0x10000
-#define CONFIG_ENV_SECT_SIZE			CONFIG_ENV_SIZE
-#define CONFIG_ENV_OFFSET			0x30000
-#define CONFIG_ENV_ADDR				\
-	(PHYS_SDRAM_1_SIZE - CONFIG_ENV_SIZE)
 #define CONFIG_SYS_MALLOC_LEN			(CONFIG_ENV_SIZE + 16 * 1024)
 
 /* user interface */
@@ -39,9 +34,6 @@
 
 /* Command support defines */
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
-
-#define CONFIG_SYS_MEMTEST_START               0x0000
-#define CONFIG_SYS_MEMTEST_END                 1024*1024
 
 /* Misc configuration */
 

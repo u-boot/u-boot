@@ -8,9 +8,11 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <watchdog.h>
 #include <command.h>
 #include <asm/processor.h>
+#include <asm/ptrace.h>
 
 
 extern void _exc_handler(void);

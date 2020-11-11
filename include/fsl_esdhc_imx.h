@@ -203,7 +203,8 @@
 #define ESDHC_STD_TUNING_EN             BIT(24)
 /* NOTE: the minimum valid tuning start tap for mx6sl is 1 */
 #define ESDHC_TUNING_START_TAP_DEFAULT	0x1
-#define ESDHC_TUNING_START_TAP_MASK	0xff
+#define ESDHC_TUNING_START_TAP_MASK	0x7f
+#define ESDHC_TUNING_CMD_CRC_CHECK_DISABLE	BIT(7)
 #define ESDHC_TUNING_STEP_MASK		0x00070000
 #define ESDHC_TUNING_STEP_SHIFT		16
 
@@ -258,12 +259,12 @@ struct fsl_esdhc_cfg {
 #endif
 
 #ifdef CONFIG_FSL_ESDHC_IMX
-int fsl_esdhc_mmc_init(bd_t *bis);
-int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg);
-void fdt_fixup_esdhc(void *blob, bd_t *bd);
+int fsl_esdhc_mmc_init(struct bd_info *bis);
+int fsl_esdhc_initialize(struct bd_info *bis, struct fsl_esdhc_cfg *cfg);
+void fdt_fixup_esdhc(void *blob, struct bd_info *bd);
 #else
-static inline int fsl_esdhc_mmc_init(bd_t *bis) { return -ENOSYS; }
-static inline void fdt_fixup_esdhc(void *blob, bd_t *bd) {}
+static inline int fsl_esdhc_mmc_init(struct bd_info *bis) { return -ENOSYS; }
+static inline void fdt_fixup_esdhc(void *blob, struct bd_info *bd) {}
 #endif /* CONFIG_FSL_ESDHC_IMX */
 void __noreturn mmc_boot(void);
 void mmc_spl_load_image(uint32_t offs, unsigned int size, void *vdst);

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/fsl_serdes.h>
 #include <asm/immap_85xx.h>
@@ -15,7 +16,7 @@
 
 #include "../common/fman.h"
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_FMAN_ENET
 	struct memac_mdio_info memac_mdio_info;

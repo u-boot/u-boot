@@ -11,10 +11,12 @@
 #include <div64.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <serial.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <asm/types.h>
+#include <linux/err.h>
 
 struct mtk_serial_regs {
 	u32 rbr;

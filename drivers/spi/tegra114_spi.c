@@ -7,10 +7,14 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
+#include <time.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch-tegra/clk_rst.h>
 #include <spi.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include "tegra_spi.h"
 
 /* COMMAND1 */

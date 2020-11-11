@@ -17,15 +17,7 @@
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_ENABLE_36BIT_PHYS
-
-#define CONFIG_ADDR_MAP
-#define CONFIG_SYS_NUM_ADDR_MAP		16	/* number of TLB1 entries */
-
-#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00400000
 
 /* Needed to fill the ccsrbar pointer */
 
@@ -107,13 +99,8 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 /*
  * Environment
  */
-#define CONFIG_ENV_SIZE		0x2000
 
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
-
-/*
- * Command line configuration.
- */
 
 /*
  * Miscellaneous configurable options

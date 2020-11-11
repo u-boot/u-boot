@@ -18,7 +18,7 @@ static void rkimage_set_header(void *buf, struct stat *sbuf, int ifd,
 	memcpy(buf, rkcommon_get_spl_hdr(params), RK_SPL_HDR_SIZE);
 
 	if (rkcommon_need_rc4_spl(params))
-		rkcommon_rc4_encode_spl(buf, 4, params->file_size);
+		rkcommon_rc4_encode_spl(buf, 0, params->file_size);
 }
 
 static int rkimage_check_image_type(uint8_t type)

@@ -29,6 +29,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <nand.h>
 #include <dm/uclass.h>

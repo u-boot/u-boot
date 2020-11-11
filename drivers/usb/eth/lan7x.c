@@ -4,9 +4,11 @@
  */
 
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <miiphy.h>
 #include <memalign.h>
+#include <net.h>
 #include <usb.h>
 #include <linux/ethtool.h>
 #include <linux/mii.h>

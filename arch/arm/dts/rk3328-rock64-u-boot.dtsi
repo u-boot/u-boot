@@ -9,8 +9,67 @@
 	chosen {
 		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &emmc;
 	};
+
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "pine64";
+				product = "rock64_rk3328";
+			};
+
+			baseboard {
+				manufacturer = "pine64";
+				product = "rock64_rk3328";
+			};
+
+			chassis {
+				manufacturer = "pine64";
+				product = "rock64_rk3328";
+			};
+		};
+	};
+};
+
+&gpio0 {
+	u-boot,dm-spl;
+};
+
+&pinctrl {
+	u-boot,dm-spl;
+};
+
+&sdmmc0m1_gpio {
+	u-boot,dm-spl;
+};
+
+&pcfg_pull_up_4ma {
+	u-boot,dm-spl;
 };
 
 &usb_host0_xhci {
+	vbus-supply = <&vcc_host_5v>;
 	status = "okay";
+};
+
+/*
+ * This makes XHCI responsible for toggling VBUS. This is needed to work
+ * around an issue where either XHCI only works with USB 2.0 or OTG doesn't
+ * work, depending on how VBUS is configured. Having USB 3.0 seems better.
+ */
+&vcc_host_5v {
+	/delete-property/ regulator-always-on;
+	/delete-property/ regulator-boot-on;
+};
+
+/* Need this and all the pinctrl/gpio stuff above to set pinmux */
+&vcc_sd {
+	u-boot,dm-spl;
+};
+
+&spi0 {
+	spi_flash: spiflash@0 {
+		u-boot,dm-pre-reloc;
+	};
 };

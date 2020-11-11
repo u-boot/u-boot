@@ -59,21 +59,14 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x22000000	/* load address */
 
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		0x23e00000
-
 #ifdef CONFIG_NAND_BOOT
 /* bootstrap + u-boot + env in nandflash */
-#define CONFIG_ENV_OFFSET		0x140000
-#define CONFIG_ENV_OFFSET_REDUND	0x100000
-#define CONFIG_ENV_SIZE			0x20000
 
 #define CONFIG_BOOTCOMMAND						\
 	"nand read 0x70000000 0x200000 0x300000;"			\
 	"bootm 0x70000000"
 #elif CONFIG_SD_BOOT
 /* bootstrap + u-boot + env + linux in mmc */
-#define CONFIG_ENV_SIZE		0x4000
 
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x71000000 dtb; " \
 				"fatload mmc 0:1 0x72000000 zImage; " \
@@ -99,13 +92,9 @@
 #define CONFIG_SYS_SPL_MALLOC_START	0x70080000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x00080000
 
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 
 #elif CONFIG_NAND_BOOT
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_NAND_SOFTECC
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x40000
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	0x80000

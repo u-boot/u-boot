@@ -27,7 +27,6 @@
 
 #define CONFIG_BOOT_RETRY_TIME	-1
 #define CONFIG_RESET_TO_RETRY
-#define CONFIG_SPLASH_SCREEN
 
 #define CONFIG_HW_WATCHDOG
 
@@ -38,17 +37,10 @@
  * Environment is in the second sector of the first 256k of flash	*
  *----------------------------------------------------------------------*/
 
-#define CONFIG_ENV_ADDR		0xFF040000
-#define CONFIG_ENV_SECT_SIZE	0x00020000
-
 /*
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-
-/*
- * Command line configuration.
- */
 
 #define CONFIG_MCFTMR
 
@@ -57,8 +49,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x20000
 
-#define CONFIG_SYS_MEMTEST_START	0x100000
-#define CONFIG_SYS_MEMTEST_END		0x400000
 /*#define CONFIG_SYS_DRAM_TEST		1 */
 #undef CONFIG_SYS_DRAM_TEST
 
@@ -76,17 +66,13 @@
  * Network								*
  *----------------------------------------------------------------------*/
 
-#define CONFIG_MCFFEC
+#ifdef CONFIG_MCFFEC
 #define CONFIG_MII_INIT			1
 #define CONFIG_SYS_DISCOVER_PHY
 #define CONFIG_SYS_RX_ETH_BUFFER	8
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-
-#define CONFIG_SYS_FEC0_PINMUX		0
-#define CONFIG_SYS_FEC0_MIIBASE		CONFIG_SYS_FEC0_IOBASE
-#define MCFFEC_TOUT_LOOP		50000
-
 #define CONFIG_OVERWRITE_ETHADDR_ONCE
+#endif
 
 /*-------------------------------------------------------------------------
  * Low Level Configuration Settings
@@ -226,9 +212,6 @@
  * VIDEO configuration
  */
 
-#ifdef CONFIG_VIDEO
-#define CONFIG_VIDEO_VCXK			1
-
 #define CONFIG_SYS_VCXK_DEFAULT_LINEALIGN	2
 #define	CONFIG_SYS_VCXK_DOUBLEBUFFERED		1
 #define CONFIG_SYS_VCXK_BASE			CONFIG_SYS_CS2_BASE
@@ -249,6 +232,5 @@
 #define CONFIG_SYS_VCXK_INVERT_DDR		MCFGPIO_DDRE
 #define CONFIG_SYS_VCXK_INVERT_PIN		MCFGPIO_PORT2
 
-#endif /* CONFIG_VIDEO */
 #endif	/* _CONFIG_M5282EVB_H */
 /*---------------------------------------------------------------------*/

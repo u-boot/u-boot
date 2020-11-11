@@ -154,16 +154,28 @@ void dm_mdio_probe_devices(void);
 /**
  * dm_mdio_phy_connect - Wrapper over phy_connect for DM MDIO
  *
- * @dev: mdio dev
- * @addr: PHY address on MDIO bus
+ * @mdiodev: mdio device the PHY is accesible on
+ * @phyaddr: PHY address on MDIO bus
  * @ethdev: ethernet device to connect to the PHY
  * @interface: MAC-PHY protocol
  *
  * @return pointer to phy_device, or 0 on error
  */
-struct phy_device *dm_mdio_phy_connect(struct udevice *dev, int addr,
+struct phy_device *dm_mdio_phy_connect(struct udevice *mdiodev, int phyaddr,
 				       struct udevice *ethdev,
 				       phy_interface_t interface);
+
+/**
+ * dm_eth_phy_connect - Connect an Eth device to a PHY based on device tree
+ *
+ * Picks up the DT phy-handle and phy-mode from ethernet device node and
+ * connects the ethernet device to the linked PHY.
+ *
+ * @ethdev: ethernet device
+ *
+ * @return pointer to phy_device, or 0 on error
+ */
+struct phy_device *dm_eth_phy_connect(struct udevice *ethdev);
 
 #endif
 

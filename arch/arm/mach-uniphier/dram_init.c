@@ -5,13 +5,14 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
+#include <init.h>
 #include <linux/errno.h>
 #include <linux/io.h>
 #include <linux/kernel.h>
 #include <linux/printk.h>
 #include <linux/sizes.h>
 #include <asm/global_data.h>
+#include <asm/u-boot.h>
 
 #include "init.h"
 #include "sg-regs.h"
@@ -248,12 +249,7 @@ int dram_init(void)
 
 		max_size = (1ULL << 32) - dram_map[i].base;
 
-		if (dram_map[i].size > max_size) {
-			gd->ram_size += max_size;
-			break;
-		}
-
-		gd->ram_size += dram_map[i].size;
+		gd->ram_size = min(dram_map[i].size, max_size);
 
 		if (!valid_bank_found)
 			gd->ram_base = dram_map[i].base;

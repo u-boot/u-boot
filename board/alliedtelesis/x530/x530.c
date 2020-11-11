@@ -8,8 +8,10 @@
 #include <dm.h>
 #include <env.h>
 #include <i2c.h>
+#include <init.h>
 #include <wdt.h>
 #include <asm/gpio.h>
+#include <linux/bitops.h>
 #include <linux/mbus.h>
 #include <linux/io.h>
 #include <asm/arch/cpu.h>
@@ -66,7 +68,11 @@ static struct mv_ddr_topology_map board_topology_map = {
 	BUS_MASK_32BIT_ECC,		/* subphys mask */
 	MV_DDR_CFG_DEFAULT,		/* ddr configuration data source */
 	{ {0} },			/* raw spd data */
-	{0}				/* timing parameters */
+	{0},				/* timing parameters */
+	{ {0} },			/* electrical configuration */
+	{0},				/* electrical parameters */
+	0,				/* Clock enable mask */
+	160				/* Clock delay */
 };
 
 struct mv_ddr_topology_map *mv_ddr_topology_map_get(void)

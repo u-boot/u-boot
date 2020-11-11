@@ -83,13 +83,16 @@ base_fdt = '''
 /dts-v1/;
 
 / {
-        model = "Sandbox Verified Boot Test";
-        compatible = "sandbox";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	model = "Sandbox Verified Boot Test";
+	compatible = "sandbox";
 
 	reset@0 {
 		compatible = "sandbox,reset";
+		reg = <0>;
 	};
-
 };
 '''
 

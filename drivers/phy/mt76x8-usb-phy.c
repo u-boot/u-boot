@@ -10,9 +10,11 @@
 #include <common.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <log.h>
 #include <reset.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 
 #define OFS_U2_PHY_AC0			0x800
 #define USBPLL_FBDIV_S			16

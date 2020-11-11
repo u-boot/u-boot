@@ -11,9 +11,11 @@
 
 #include <common.h>
 #include <clk.h>
+#include <log.h>
 #include <malloc.h>
 #include <part.h>
 #include <mmc.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/errno.h>
 #include <asm/byteorder.h>
@@ -393,7 +395,7 @@ static int ftsdc010_mmc_ofdata_to_platdata(struct udevice *dev)
 	struct ftsdc_priv *priv = dev_get_priv(dev);
 	struct ftsdc010_chip *chip = &priv->chip;
 	chip->name = dev->name;
-	chip->ioaddr = (void *)devfdt_get_addr(dev);
+	chip->ioaddr = dev_read_addr_ptr(dev);
 	chip->buswidth = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					"bus-width", 4);
 	chip->priv = dev;
@@ -437,7 +439,7 @@ static int ftsdc010_mmc_probe(struct udevice *dev)
 	chip->priv = dev;
 	chip->dev_index = 1;
 	memcpy(priv->minmax, dtplat->clock_freq_min_max, sizeof(priv->minmax));
-	ret = clk_get_by_index_platdata(dev, 0, dtplat->clocks, &priv->clk);
+	ret = clk_get_by_driver_info(dev, dtplat->clocks, &priv->clk);
 	if (ret < 0)
 		return ret;
 #endif

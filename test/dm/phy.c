@@ -7,7 +7,9 @@
 #include <common.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <log.h>
 #include <dm/test.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 /* Base test of the phy uclass */
@@ -45,13 +47,13 @@ static int dm_test_phy_base(struct unit_test_state *uts)
 	ut_assert(phy2.dev != phy3.dev);
 
 	/* Try to get a non-existing phy */
-	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_PHY, 3, &dev));
+	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_PHY, 4, &dev));
 	ut_asserteq(-ENODATA, generic_phy_get_by_name(parent,
 					"phy_not_existing", &phy1_method1));
 
 	return 0;
 }
-DM_TEST(dm_test_phy_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_phy_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test of the phy uclass using the sandbox phy driver operations */
 static int dm_test_phy_ops(struct unit_test_state *uts)
@@ -109,4 +111,37 @@ static int dm_test_phy_ops(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_phy_ops, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_phy_ops, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_phy_bulk(struct unit_test_state *uts)
+{
+	struct phy_bulk phys;
+	struct udevice *parent;
+
+	/* test normal operations */
+	ut_assertok(uclass_get_device_by_name(UCLASS_SIMPLE_BUS,
+					      "gen_phy_user1", &parent));
+
+	ut_assertok(generic_phy_get_bulk(parent, &phys));
+	ut_asserteq(2, phys.count);
+
+	ut_asserteq(0, generic_phy_init_bulk(&phys));
+	ut_asserteq(0, generic_phy_power_on_bulk(&phys));
+	ut_asserteq(0, generic_phy_power_off_bulk(&phys));
+	ut_asserteq(0, generic_phy_exit_bulk(&phys));
+
+	/* has a known problem phy */
+	ut_assertok(uclass_get_device_by_name(UCLASS_SIMPLE_BUS,
+					      "gen_phy_user", &parent));
+
+	ut_assertok(generic_phy_get_bulk(parent, &phys));
+	ut_asserteq(3, phys.count);
+
+	ut_asserteq(0, generic_phy_init_bulk(&phys));
+	ut_asserteq(-EIO, generic_phy_power_on_bulk(&phys));
+	ut_asserteq(-EIO, generic_phy_power_off_bulk(&phys));
+	ut_asserteq(0, generic_phy_exit_bulk(&phys));
+
+	return 0;
+}
+DM_TEST(dm_test_phy_bulk, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

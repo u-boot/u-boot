@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/pinctrl.h>
 #include <dm/read.h>
 #include <regmap.h>

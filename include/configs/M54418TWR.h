@@ -13,6 +13,8 @@
 #ifndef _M54418TWR_H
 #define _M54418TWR_H
 
+#include <linux/stringify.h>
+
 /*
  * High Level Configuration Options
  * (easy to change)
@@ -46,7 +48,6 @@
 #endif
 
 /* Network configuration */
-#define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC
 #define CONFIG_MII_INIT		1
 #define CONFIG_SYS_DISCOVER_PHY
@@ -54,14 +55,6 @@
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 #define CONFIG_SYS_TX_ETH_BUFFER	2
 #define CONFIG_HAS_ETH1
-
-#define CONFIG_SYS_FEC0_PINMUX		0
-#define CONFIG_SYS_FEC0_MIIBASE	CONFIG_SYS_FEC0_IOBASE
-#define CONFIG_SYS_FEC1_PINMUX		0
-#define CONFIG_SYS_FEC1_MIIBASE	CONFIG_SYS_FEC0_MIIBASE
-#define MCFFEC_TOUT_LOOP		50000
-#define CONFIG_SYS_FEC0_PHYADDR	0
-#define CONFIG_SYS_FEC1_PHYADDR	1
 
 #define CONFIG_ETHPRIME	"FEC0"
 #define CONFIG_IPADDR		192.168.1.2
@@ -137,7 +130,6 @@
 
 /* Timer */
 #define CONFIG_MCFTMR
-#undef CONFIG_MCFPIT
 
 /* I2c */
 #undef CONFIG_SYS_FSL_I2C
@@ -188,8 +180,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define CONFIG_SYS_SDRAM_SIZE		128	/* SDRAM size in MB */
 
-#define CONFIG_SYS_MEMTEST_START	(CONFIG_SYS_SDRAM_BASE + 0x400)
-#define CONFIG_SYS_MEMTEST_END		((CONFIG_SYS_SDRAM_SIZE - 3) << 20)
 #define CONFIG_SYS_DRAM_TEST
 
 #if defined(CONFIG_CF_SBF) || defined(CONFIG_SYS_NAND_BOOT)
@@ -220,22 +210,6 @@
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
  */
-#if !defined(CONFIG_SERIAL_BOOT)  /*MRAM boot*/
-#define CONFIG_ENV_ADDR		(0x40000 - 0x1000) /*MRAM size 40000*/
-#define CONFIG_ENV_SIZE		0x1000
-#endif
-
-#if defined(CONFIG_CF_SBF)
-#define CONFIG_ENV_OFFSET		0x40000
-#define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_SECT_SIZE		0x10000
-#endif
-#if defined(CONFIG_SYS_NAND_BOOT)
-#define CONFIG_ENV_OFFSET	0x80000
-#define CONFIG_ENV_SIZE	0x20000
-#define CONFIG_ENV_SECT_SIZE	0x20000
-#endif
-#undef CONFIG_ENV_OVERWRITE
 
 /* FLASH organization */
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_CS0_BASE

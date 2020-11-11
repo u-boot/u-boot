@@ -38,26 +38,13 @@
 #define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg
 #define CONFIG_KM_DISABLE_PCIE
 
-/* KM_NUSA / KM_SUGP1 */
-#elif defined(CONFIG_KM_NUSA) || defined(CONFIG_KM_SUGP1)
+/* KM_NUSA */
+#elif defined(CONFIG_KM_NUSA)
 
-# if defined(CONFIG_KM_NUSA)
 #define CONFIG_HOSTNAME			"kmnusa"
-# elif defined(CONFIG_KM_SUGP1)
-#define CONFIG_HOSTNAME			"kmsugp1"
-#define KM_PCIE_RESET_MPP7
-#endif
 
 #undef CONFIG_SYS_KWD_CONFIG
 #define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg
-
-/* KM_MGCOGE3UN */
-#elif defined(CONFIG_KM_MGCOGE3UN)
-#define CONFIG_HOSTNAME			"mgcoge3un"
-#undef CONFIG_SYS_KWD_CONFIG
-#define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage-memphis.cfg
-#define CONFIG_KM_BOARD_EXTRA_ENV	"waitforne=true\0"
-#define CONFIG_KM_DISABLE_PCIE
 
 /* KMCOGE5UN */
 #elif defined(CONFIG_KM_COGE5UN)
@@ -66,9 +53,9 @@
 #define CONFIG_HOSTNAME			"kmcoge5un"
 #define CONFIG_KM_DISABLE_PCIE
 
-/* KM_SUV31 */
-#elif defined(CONFIG_KM_SUV31)
-#define CONFIG_HOSTNAME			"kmsuv31"
+/* KM_SUSE2 */
+#elif defined(CONFIG_KM_SUSE2)
+#define CONFIG_HOSTNAME			"kmsuse2"
 #undef CONFIG_SYS_KWD_CONFIG
 #define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg
 #define CONFIG_KM_UBI_PART_BOOT_OPTS		",2048"
@@ -113,7 +100,7 @@
 
 #ifdef CONFIG_KM_PIGGY4_88E6061
 /*
- * Some keymile boards like mgcoge3un have their PIGGY4 connected via
+ * Some keymile boards like mgcoge5un have their PIGGY4 connected via
  * an Marvell 88E6061 simple switch.
  * In this case we have to change the default settings for the
  * ethernet phy connected to the kirkwood.

@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <errno.h>
 #include <dfu.h>
 
@@ -27,9 +28,9 @@ static int dfu_transfer_medium_ram(enum dfu_op op, struct dfu_entity *dfu,
 	}
 
 	if (op == DFU_OP_WRITE)
-		memcpy(dfu->data.ram.start + offset, buf, *len);
+		memcpy(map_sysmem(dfu->data.ram.start + offset, 0), buf, *len);
 	else
-		memcpy(buf, dfu->data.ram.start + offset, *len);
+		memcpy(buf, map_sysmem(dfu->data.ram.start + offset, 0), *len);
 
 	return 0;
 }
@@ -73,7 +74,7 @@ int dfu_fill_entity_ram(struct dfu_entity *dfu, char *devstr, char *s)
 	}
 
 	dfu->layout = DFU_RAM_ADDR;
-	dfu->data.ram.start = (void *)simple_strtoul(argv[1], NULL, 16);
+	dfu->data.ram.start = simple_strtoul(argv[1], NULL, 16);
 	dfu->data.ram.size = simple_strtoul(argv[2], NULL, 16);
 
 	dfu->write_medium = dfu_write_medium_ram;

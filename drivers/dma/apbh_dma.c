@@ -7,8 +7,12 @@
  *
  * Based on code from LTIB:
  * Copyright (C) 2010 Freescale Semiconductor, Inc. All Rights Reserved.
+ * Copyright 2017 NXP
+ *
  */
 
+#include <cpu_func.h>
+#include <asm/cache.h>
 #include <linux/list.h>
 
 #include <common.h>
@@ -87,7 +91,7 @@ void mxs_dma_flush_desc(struct mxs_dma_desc *desc)
 	uint32_t addr;
 	uint32_t size;
 
-	addr = (uint32_t)desc;
+	addr = (uintptr_t)desc;
 	size = roundup(sizeof(struct mxs_dma_desc), MXS_DMA_ALIGNMENT);
 
 	flush_dcache_range(addr, addr + size);
@@ -214,16 +218,17 @@ static int mxs_dma_reset(int channel)
 #if defined(CONFIG_MX23)
 	uint32_t setreg = (uint32_t)(&apbh_regs->hw_apbh_ctrl0_set);
 	uint32_t offset = APBH_CTRL0_RESET_CHANNEL_OFFSET;
-#elif (defined(CONFIG_MX28) || defined(CONFIG_MX6) || defined(CONFIG_MX7))
-	uint32_t setreg = (uint32_t)(&apbh_regs->hw_apbh_channel_ctrl_set);
-	uint32_t offset = APBH_CHANNEL_CTRL_RESET_CHANNEL_OFFSET;
+#elif defined(CONFIG_MX28) || defined(CONFIG_MX6) || defined(CONFIG_MX7) || \
+	defined(CONFIG_IMX8) || defined(CONFIG_IMX8M)
+	u32 setreg = (uintptr_t)(&apbh_regs->hw_apbh_channel_ctrl_set);
+	u32 offset = APBH_CHANNEL_CTRL_RESET_CHANNEL_OFFSET;
 #endif
 
 	ret = mxs_dma_validate_chan(channel);
 	if (ret)
 		return ret;
 
-	writel(1 << (channel + offset), setreg);
+	writel(1 << (channel + offset), (uintptr_t)setreg);
 
 	return 0;
 }

@@ -34,8 +34,8 @@
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"bootm_size=0x10000000\0" \
-	"fdt_addr_r=0x13000000\0" \
-	"ramdisk_addr_r=0x14000000\0" \
+	"fdt_addr_r=0x14000000\0" \
+	"ramdisk_addr_r=0x14080000\0" \
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
 	"ramdisk_file=rootfs.cpio.uboot\0" \
 	"boot_fdt=try\0" \
@@ -116,10 +116,6 @@
 
 #define CONFIG_ARP_TIMEOUT     200UL
 
-#define CONFIG_SYS_MEMTEST_START       0x10000000
-#define CONFIG_SYS_MEMTEST_END         0x10010000
-#define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
-
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
 #define CONFIG_SYS_SDRAM_BASE          PHYS_SDRAM
@@ -132,9 +128,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment organization */
-#define CONFIG_ENV_SIZE               (1024 * 1024)
-#define CONFIG_ENV_OFFSET             0x400000
-#define CONFIG_ENV_SECT_SIZE          CONFIG_ENV_SIZE
 
 /* NAND stuff */
 #define CONFIG_SYS_MAX_NAND_DEVICE     1

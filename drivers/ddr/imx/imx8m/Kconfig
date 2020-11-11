@@ -29,4 +29,11 @@ config SAVED_DRAM_TIMING_BASE
 	  info into memory for low power use. OCRAM_S is used for this
 	  purpose on i.MX8MM.
 	default 0x180000
+
+config IMX8M_DRAM_INLINE_ECC
+	bool "imx8mp inline ECC"
+	depends on IMX8MP && IMX8M_LPDDR4
+	help
+	  Select this config if you want to use inline ecc feature for
+	  imx8mp-evk board.
 endmenu

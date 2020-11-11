@@ -32,7 +32,6 @@ SECTIONS
 
 	. = ALIGN(4);
 	.data : {
-		__global_pointer$ = . + 0x800;
 		*(.data*)
 	}
 	. = ALIGN(4);
@@ -82,7 +81,7 @@ SECTIONS
 	.bss : {
 		__bss_start = .;
 		*(.bss*)
-		. = ALIGN(4);
+		. = ALIGN(8);
 		__bss_end = .;
 	}
 }

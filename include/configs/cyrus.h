@@ -6,6 +6,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 #if !defined(CONFIG_ARCH_P5020) && !defined(CONFIG_ARCH_P5040)
 #error Must call Cyrus CONFIG with a specific CPU enabled.
 #endif
@@ -46,13 +48,8 @@
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
-#define CONFIG_ENV_OVERWRITE
-
 #if defined(CONFIG_SDCARD)
 #define CONFIG_FSL_FIXED_MMC_LOCATION
-#define CONFIG_SYS_MMC_ENV_DEV          0
-#define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_ENV_OFFSET		(512 * 1658)
 #endif
 
 /*
@@ -70,15 +67,8 @@
 
 #define CONFIG_ENABLE_36BIT_PHYS
 
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_ADDR_MAP
-#define CONFIG_SYS_NUM_ADDR_MAP		64	/* number of TLB1 entries */
-#endif
-
 /* test POST memory test */
 #undef CONFIG_POST
-#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00400000
 
 /*
  *  Config the L3 Cache as L3 SRAM

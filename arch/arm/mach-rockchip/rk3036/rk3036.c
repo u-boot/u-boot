@@ -2,6 +2,9 @@
 /*
  * (C) Copyright 2019 Rockchip Electronics Co., Ltd
  */
+
+#include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/grf_rk3036.h>
 #include <asm/arch-rockchip/hardware.h>
@@ -43,7 +46,7 @@ void board_debug_uart_init(void)
 #if !CONFIG_IS_ENABLED(RAM)
 /*
  * When CONFIG_RAM is enabled, the dram_init() function is implemented
- * in sdram_common.c.
+ * in sdram.c.
  */
 int dram_init(void)
 {

@@ -5,6 +5,8 @@
  */
 
 #include <clk.h>
+#include <log.h>
+#include <malloc.h>
 #include <dm/device.h>
 
 #include "clk-lib.h"

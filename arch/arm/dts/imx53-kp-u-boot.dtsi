@@ -5,6 +5,13 @@
  * SPDX-License-Identifier:     GPL-2.0+ or X11
  */
 
+&fec {
+	fixed-link { /* RMII fixed link for both HSC|DDC */
+		speed = <100>;
+		full-duplex;
+	};
+};
+
 &pmic {
 	u-boot,i2c-transaction-bytes = <3>;
 };

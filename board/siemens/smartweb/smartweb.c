@@ -17,6 +17,8 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9_sdramc.h>
 #include <asm/arch/at91sam9260_matrix.h>
@@ -181,7 +183,7 @@ int dram_init(void)
 
 #ifndef CONFIG_DM_ETH
 #ifdef CONFIG_MACB
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC0, 0x00);
 }

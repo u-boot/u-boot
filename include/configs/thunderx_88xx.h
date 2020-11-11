@@ -25,9 +25,6 @@
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
 
-#define CONFIG_SYS_MEMTEST_START	MEM_BASE
-#define CONFIG_SYS_MEMTEST_END		(MEM_BASE + PHYS_SDRAM_1_SIZE)
-
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
 
@@ -61,7 +58,6 @@
 					"fdt_high=0x9fffffff\0"
 
 /* Do not preserve environment */
-#define CONFIG_ENV_SIZE			0x1000
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */

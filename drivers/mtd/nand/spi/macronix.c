@@ -6,9 +6,11 @@
  */
 
 #ifndef __UBOOT__
+#include <malloc.h>
 #include <linux/device.h>
 #include <linux/kernel.h>
 #endif
+#include <linux/bug.h>
 #include <linux/mtd/spinand.h>
 
 #define SPINAND_MFR_MACRONIX		0xC2
@@ -47,7 +49,7 @@ static int mx35lfxge4ab_ooblayout_free(struct mtd_info *mtd, int section,
 
 static const struct mtd_ooblayout_ops mx35lfxge4ab_ooblayout = {
 	.ecc = mx35lfxge4ab_ooblayout_ecc,
-	.free = mx35lfxge4ab_ooblayout_free,
+	.rfree = mx35lfxge4ab_ooblayout_free,
 };
 
 static int mx35lf1ge4ab_get_eccsr(struct spinand_device *spinand, u8 *eccsr)

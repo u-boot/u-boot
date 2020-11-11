@@ -6,11 +6,11 @@
 # Licensed to PSF under a Contributor Agreement.
 # See http://www.python.org/2.4/license for licensing details.
 
-"""Subprocress execution
+"""Subprocess execution
 
 This module holds a subclass of subprocess.Popen with our own required
 features, mainly that we get access to the subprocess output while it
-is running rather than just at the end. This makes it easiler to show
+is running rather than just at the end. This makes it easier to show
 progress information and filter output in real time.
 """
 

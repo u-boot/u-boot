@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP ZCU216
  *
- * (C) Copyright 2017 - 2019, Xilinx, Inc.
+ * (C) Copyright 2017 - 2020, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
@@ -50,7 +50,7 @@
 			label = "sw19";
 			gpios = <&gpio 22 GPIO_ACTIVE_HIGH>;
 			linux,code = <KEY_DOWN>;
-			gpio-key,wakeup;
+			wakeup-source;
 			autorepeat;
 		};
 	};
@@ -253,7 +253,7 @@
 				#io-channel-cells = <1>;
 				label = "ina226-vccint-io-bram-ps";
 				reg = <0x41>;
-				shunt-resistor = <2000>;
+				shunt-resistor = <5000>;
 			};
 			vcc1v8: ina226@42 { /* u60 */
 				compatible = "ti,ina226";
@@ -302,7 +302,7 @@
 				#io-channel-cells = <1>;
 				label = "ina226-vccint-ams";
 				reg = <0x49>;
-				shunt-resistor = <2000>;
+				shunt-resistor = <5000>;
 			};
 			dac_avtt: ina226@4a { /* u59 */
 				compatible = "ti,ina226";
@@ -355,13 +355,11 @@
 			/* u112 - ir38164 0x13/0x43 */
 			/* u123 - ir38164 0x1c/0x4c */
 
-			irps5401_44: irps54012@44 { /* IRPS5401 - u53 */
-				#clock-cells = <0>;
+			irps5401_44: irps5401@44 { /* IRPS5401 - u53 */
 				compatible = "infineon,irps5401";
 				reg = <0x44>; /* i2c addr 0x14 */
 			};
-			irps5401_45: irps54012@45 { /* IRPS5401 - u55 */
-				#clock-cells = <0>;
+			irps5401_45: irps5401@45 { /* IRPS5401 - u55 */
 				compatible = "infineon,irps5401";
 				reg = <0x45>; /* i2c addr 0x15 */
 			};
@@ -401,7 +399,7 @@
 			 * 768B - 1024B address 0x57
 			 */
 			eeprom: eeprom@54 { /* u21 */
-				compatible = "atmel,24c08";
+				compatible = "atmel,24c128";
 				reg = <0x54>;
 			};
 		};
@@ -567,7 +565,11 @@
 &sdhci1 {
 	status = "okay";
 	disable-wp;
-	xlnx,mio_bank = <1>;
+	/*
+	 * This property should be removed for supporting UHS mode
+	 */
+	no-1-8-v;
+	xlnx,mio-bank = <1>;
 };
 
 &serdes {

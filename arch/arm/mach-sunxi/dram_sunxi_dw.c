@@ -9,10 +9,13 @@
  * (C) Copyright 2015      Jens Kuske <jenskuske@gmail.com>
  */
 #include <common.h>
+#include <init.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/dram.h>
 #include <asm/arch/cpu.h>
+#include <linux/delay.h>
 #include <linux/kconfig.h>
 
 static void mctl_phy_init(u32 val)
@@ -60,6 +63,8 @@ enum {
 	MBUS_PORT_CSI           = 5,
 	MBUS_PORT_NAND          = 6,
 	MBUS_PORT_SS            = 7,
+	MBUS_PORT_DE_V3S        = 8,
+	MBUS_PORT_DE_CFD_V3S    = 9,
 	MBUS_PORT_TS            = 8,
 	MBUS_PORT_DI            = 9,
 	MBUS_PORT_DE            = 10,
@@ -76,15 +81,15 @@ enum {
 	MBUS_QOS_HIGHEST
 };
 
-inline void mbus_configure_port(u8 port,
-				bool bwlimit,
-				bool priority,
-				u8 qos,         /* MBUS_QOS_LOWEST .. MBUS_QOS_HIGEST */
-				u8 waittime,    /* 0 .. 0xf */
-				u8 acs,         /* 0 .. 0xff */
-				u16 bwl0,       /* 0 .. 0xffff, bandwidth limit in MB/s */
-				u16 bwl1,
-				u16 bwl2)
+static inline void mbus_configure_port(u8 port,
+				       bool bwlimit,
+				       bool priority,
+				       u8 qos,         /* MBUS_QOS_LOWEST .. MBUS_QOS_HIGEST */
+				       u8 waittime,    /* 0 .. 0xf */
+				       u8 acs,         /* 0 .. 0xff */
+				       u16 bwl0,       /* 0 .. 0xffff, bandwidth limit in MB/s */
+				       u16 bwl1,
+				       u16 bwl2)
 {
 	struct sunxi_mctl_com_reg * const mctl_com =
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
@@ -129,6 +134,29 @@ static void mctl_set_master_priority_h3(void)
 	MBUS_CONF(    DI,  true,    HIGH, 0, 1024,  256,   64);
 	MBUS_CONF(    DE,  true, HIGHEST, 3, 8192, 6120, 1024);
 	MBUS_CONF(DE_CFD,  true,    HIGH, 0, 1024,  288,   64);
+}
+
+static void mctl_set_master_priority_v3s(void)
+{
+	struct sunxi_mctl_com_reg * const mctl_com =
+			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
+
+	/* enable bandwidth limit windows and set windows size 1us */
+	writel((1 << 16) | (400 << 0), &mctl_com->bwcr);
+
+	/* set cpu high priority */
+	writel(0x00000001, &mctl_com->mapr);
+
+	MBUS_CONF(       CPU,  true, HIGHEST, 0,  160,  100,   80);
+	MBUS_CONF(       GPU,  true,    HIGH, 0, 1792, 1536,    0);
+	MBUS_CONF(    UNUSED,  true, HIGHEST, 0,  256,  128,   80);
+	MBUS_CONF(       DMA,  true,    HIGH, 0,  256,  100,    0);
+	MBUS_CONF(        VE,  true,    HIGH, 0, 2048, 1600,    0);
+	MBUS_CONF(       CSI,  true, HIGHEST, 0,  384,  256,    0);
+	MBUS_CONF(      NAND,  true,    HIGH, 0,  100,   50,    0);
+	MBUS_CONF(        SS,  true,    HIGH, 0,  384,  256,    0);
+	MBUS_CONF(    DE_V3S, false,    HIGH, 0, 8192, 4096,    0);
+	MBUS_CONF(DE_CFD_V3S,  true,    HIGH, 0,  640,  256,    0);
 }
 
 static void mctl_set_master_priority_a64(void)
@@ -227,6 +255,9 @@ static void mctl_set_master_priority(uint16_t socid)
 	switch (socid) {
 	case SOCID_H3:
 		mctl_set_master_priority_h3();
+		return;
+	case SOCID_V3S:
+		mctl_set_master_priority_v3s();
 		return;
 	case SOCID_A64:
 		mctl_set_master_priority_a64();
@@ -331,6 +362,28 @@ static void mctl_h3_zq_calibration_quirk(struct dram_para *para)
 	}
 }
 
+static void mctl_v3s_zq_calibration_quirk(struct dram_para *para)
+{
+	struct sunxi_mctl_ctl_reg * const mctl_ctl =
+			(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
+
+	u32 reg_val;
+
+	clrsetbits_le32(&mctl_ctl->zqcr, 0xffffff,
+			CONFIG_DRAM_ZQ & 0xffffff);
+	mctl_phy_init(PIR_ZCAL);
+
+	reg_val = readl(&mctl_ctl->zqdr[0]);
+	reg_val &= (0x1f << 16) | (0x1f << 0);
+	reg_val |= reg_val << 8;
+	writel(reg_val, &mctl_ctl->zqdr[0]);
+
+	reg_val = readl(&mctl_ctl->zqdr[1]);
+	reg_val &= (0x1f << 16) | (0x1f << 0);
+	reg_val |= reg_val << 8;
+	writel(reg_val, &mctl_ctl->zqdr[1]);
+}
+
 static void mctl_set_cr(uint16_t socid, struct dram_para *para)
 {
 	struct sunxi_mctl_com_reg * const mctl_com =
@@ -388,7 +441,7 @@ static void mctl_sys_init(uint16_t socid, struct dram_para *para)
 				CCM_DRAMCLK_CFG_DIV(1) |
 				CCM_DRAMCLK_CFG_SRC_PLL11 |
 				CCM_DRAMCLK_CFG_UPD);
-	} else if (socid == SOCID_H3 || socid == SOCID_H5) {
+	} else if (socid == SOCID_H3 || socid == SOCID_H5 || socid == SOCID_V3S) {
 		clock_set_pll5(CONFIG_DRAM_CLK * 2 * 1000000, false);
 		clrsetbits_le32(&ccm->dram_clk_cfg,
 				CCM_DRAMCLK_CFG_DIV_MASK |
@@ -471,6 +524,13 @@ static int mctl_channel_init(uint16_t socid, struct dram_para *para)
 		/* dphy & aphy phase select 270 degree */
 		clrsetbits_le32(&mctl_ctl->pgcr[2], (0x3 << 10) | (0x3 << 8),
 				(0x1 << 10) | (0x2 << 8));
+	} else if (socid == SOCID_V3S) {
+		/* dx ddr_clk & hdr_clk dynamic mode */
+		clrbits_le32(&mctl_ctl->pgcr[0], (0x3 << 14) | (0x3 << 12));
+
+		/* dphy & aphy phase select 270 degree */
+		clrsetbits_le32(&mctl_ctl->pgcr[2], (0x3 << 10) | (0x3 << 8),
+				(0x1 << 10) | (0x1 << 8));
 	} else if (socid == SOCID_A64 || socid == SOCID_H5) {
 		/* dphy & aphy phase select ? */
 		clrsetbits_le32(&mctl_ctl->pgcr[2], (0x3 << 10) | (0x3 << 8),
@@ -503,7 +563,12 @@ static int mctl_channel_init(uint16_t socid, struct dram_para *para)
 	mctl_set_bit_delays(para);
 	udelay(50);
 
-	if (socid == SOCID_H3) {
+	if (socid == SOCID_V3S) {
+		mctl_v3s_zq_calibration_quirk(para);
+
+		mctl_phy_init(PIR_PLLINIT | PIR_DCAL | PIR_PHYRST |
+			      PIR_DRAMRST | PIR_DRAMINIT | PIR_QSGATE);
+	} else if (socid == SOCID_H3) {
 		mctl_h3_zq_calibration_quirk(para);
 
 		mctl_phy_init(PIR_PLLINIT | PIR_DCAL | PIR_PHYRST |
@@ -567,7 +632,7 @@ static int mctl_channel_init(uint16_t socid, struct dram_para *para)
 	udelay(10);
 
 	/* set PGCR3, CKE polarity */
-	if (socid == SOCID_H3)
+	if (socid == SOCID_H3 || socid == SOCID_V3S)
 		writel(0x00aa0060, &mctl_ctl->pgcr[3]);
 	else if (socid == SOCID_A64 || socid == SOCID_H5 || socid == SOCID_R40)
 		writel(0xc0aa0060, &mctl_ctl->pgcr[3]);
@@ -628,6 +693,22 @@ static void mctl_auto_detect_dram_size(uint16_t socid, struct dram_para *para)
 	 {  0,  0,  0,  0,  0,  0,  0,  0,  0, 10, 10 },	\
 	 {  0,  0,  0,  0,  0,  0,  0,  0,  0,  6,  6 }}
 #define SUN8I_H3_AC_DELAYS					\
+	{  0,  0,  0,  0,  0,  0,  0,  0,			\
+	   0,  0,  0,  0,  0,  0,  0,  0,			\
+	   0,  0,  0,  0,  0,  0,  0,  0,			\
+	   0,  0,  0,  0,  0,  0,  0      }
+
+#define SUN8I_V3S_DX_READ_DELAYS					\
+	{{  8,  8,  8,  8,  8,  8,  8,  8,  8,  0,  0 },	\
+	 {  7,  7,  7,  7,  7,  7,  7,  7,  7,  0,  0 },	\
+	 {  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	\
+	 {  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }}
+#define SUN8I_V3S_DX_WRITE_DELAYS				\
+	{{  0,  0,  0,  0,  0,  0,  0,  0,  0,  4,  4 },	\
+	 {  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  2 },	\
+	 {  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	\
+	 {  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }}
+#define SUN8I_V3S_AC_DELAYS					\
 	{  0,  0,  0,  0,  0,  0,  0,  0,			\
 	   0,  0,  0,  0,  0,  0,  0,  0,			\
 	   0,  0,  0,  0,  0,  0,  0,  0,			\
@@ -699,6 +780,10 @@ unsigned long sunxi_dram_init(void)
 		.dx_read_delays  = SUN8I_H3_DX_READ_DELAYS,
 		.dx_write_delays = SUN8I_H3_DX_WRITE_DELAYS,
 		.ac_delays	 = SUN8I_H3_AC_DELAYS,
+#elif defined(CONFIG_MACH_SUN8I_V3S)
+		.dx_read_delays  = SUN8I_V3S_DX_READ_DELAYS,
+		.dx_write_delays = SUN8I_V3S_DX_WRITE_DELAYS,
+		.ac_delays	 = SUN8I_V3S_AC_DELAYS,
 #elif defined(CONFIG_MACH_SUN8I_R40)
 		.dx_read_delays  = SUN8I_R40_DX_READ_DELAYS,
 		.dx_write_delays = SUN8I_R40_DX_WRITE_DELAYS,
@@ -725,8 +810,7 @@ unsigned long sunxi_dram_init(void)
 	/* Currently we cannot support R40 with dual rank memory */
 	para.dual_rank = 0;
 #elif defined(CONFIG_MACH_SUN8I_V3S)
-	/* TODO: set delays and mbus priority for V3s */
-	uint16_t socid = SOCID_H3;
+	uint16_t socid = SOCID_V3S;
 #elif defined(CONFIG_MACH_SUN50I)
 	uint16_t socid = SOCID_A64;
 #elif defined(CONFIG_MACH_SUN50I_H5)

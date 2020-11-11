@@ -7,10 +7,12 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <log.h>
 #include <regmap.h>
 #include <syscon.h>
 #include <asm/io.h>
 #include <dm/root.h>
+#include <linux/bitops.h>
 
 #include <dt-bindings/clock/stm32h7-clks.h>
 

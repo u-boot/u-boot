@@ -5,11 +5,17 @@
  */
 
 #include <common.h>
-#include <board.h>
 #include <clk.h>
 #include <dm.h>
+#include <irq_func.h>
+#include <log.h>
+#include <status_led.h>
+#include <sysinfo.h>
+#include <time.h>
 #include <timer.h>
 #include <watchdog.h>
+#include <asm/ptrace.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -91,7 +97,7 @@ int interrupt_init(void)
 {
 	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	struct udevice *csb;
-	struct udevice *board;
+	struct udevice *sysinfo;
 	struct udevice *timer;
 	struct mpc83xx_timer_priv *timer_priv;
 	struct clk clock;
@@ -106,12 +112,12 @@ int interrupt_init(void)
 
 	timer_priv = dev_get_priv(timer);
 
-	if (board_get(&board)) {
-		debug("%s: board device could not be fetched.\n", __func__);
+	if (sysinfo_get(&sysinfo)) {
+		debug("%s: sysinfo device could not be fetched.\n", __func__);
 		return -ENOENT;
 	}
 
-	ret = uclass_get_device_by_phandle(UCLASS_SIMPLE_BUS, board,
+	ret = uclass_get_device_by_phandle(UCLASS_SIMPLE_BUS, sysinfo,
 					   "csb", &csb);
 	if (ret) {
 		debug("%s: Could not retrieve CSB device (error: %d)",
@@ -171,10 +177,6 @@ void timer_interrupt(struct pt_regs *regs)
 #ifdef CONFIG_LED_STATUS
 	status_led_tick(priv->timestamp);
 #endif /* CONFIG_LED_STATUS */
-
-#ifdef CONFIG_SHOW_ACTIVITY
-	board_show_activity(priv->timestamp);
-#endif /* CONFIG_SHOW_ACTIVITY */
 }
 
 void wait_ticks(ulong ticks)
@@ -185,7 +187,7 @@ void wait_ticks(ulong ticks)
 		WATCHDOG_RESET();
 }
 
-static int mpc83xx_timer_get_count(struct udevice *dev, u64 *count)
+static u64 mpc83xx_timer_get_count(struct udevice *dev)
 {
 	u32 tbu, tbl;
 
@@ -199,9 +201,7 @@ static int mpc83xx_timer_get_count(struct udevice *dev, u64 *count)
 		tbl = mftb();
 	} while (tbu != mftbu());
 
-	*count = (tbu * 0x10000ULL) + tbl;
-
-	return 0;
+	return (tbu * 0x10000ULL) + tbl;
 }
 
 static int mpc83xx_timer_probe(struct udevice *dev)

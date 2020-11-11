@@ -2,4 +2,4 @@
 #
 # Copyright (C) 2019 Intel Corporation <www.intel.com>
 
-obj-y	+= start.o slimbootloader.o
+obj-y	+= slimbootloader.o

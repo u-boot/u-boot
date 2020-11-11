@@ -6,6 +6,7 @@
  */
 
 #include "imx8image.h"
+#include <image.h>
 
 static int p_idx;
 static int sector_size;

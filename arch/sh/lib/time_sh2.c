@@ -8,8 +8,11 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <time.h>
 #include <asm/io.h>
 #include <asm/processor.h>
+#include <linux/delay.h>
 
 #define CMT_CMCSR_INIT	0x0001	/* PCLK/32 */
 #define CMT_CMCSR_CALIB 0x0000

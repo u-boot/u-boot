@@ -9,9 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_ENV_SECT_SIZE	0x10000
-#define CONFIG_ENV_OFFSET	(-0x10000)
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(ROMUSB, romusb, na)  \
 	func(MMC, mmc, 0) \

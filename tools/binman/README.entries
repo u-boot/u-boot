@@ -11,6 +11,20 @@ features to produce new behaviours.
 
 
 
+Entry: atf-bl31: Entry containing an ARM Trusted Firmware (ATF) BL31 blob
+-------------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - atf-bl31-path: Filename of file to read into entry. This is typically
+        called bl31.bin or bl31.elf
+
+This entry holds the run-time firmware, typically started by U-Boot SPL.
+See the U-Boot README for your architecture or board for how to use it. See
+https://github.com/ARM-software/arm-trusted-firmware for more information
+about ATF.
+
+
+
 Entry: blob: Entry containing an arbitrary binary blob
 ------------------------------------------------------
 
@@ -42,12 +56,25 @@ obtained from the list of available device-tree files, managed by the
 
 
 
+Entry: blob-ext: Entry containing an externally built binary blob
+-----------------------------------------------------------------
+
+Note: This should not be used by itself. It is normally used as a parent
+class by other entry types.
+
+If the file providing this blob is missing, binman can optionally ignore it
+and produce a broken image with a warning.
+
+See 'blob' for Properties / Entry arguments.
+
+
+
 Entry: blob-named-by-arg: A blob entry which gets its filename property from its subclass
 -----------------------------------------------------------------------------------------
 
 Properties / Entry arguments:
     - <xxx>-path: Filename containing the contents of this entry (optional,
-        defaults to 0)
+        defaults to None)
 
 where <xxx> is the blob_fname argument to the constructor.
 
@@ -272,7 +299,7 @@ Entry: files: Entry containing a set of files
 
 Properties / Entry arguments:
     - pattern: Filename pattern to match the files to include
-    - compress: Compression algorithm to use:
+    - files-compress: Compression algorithm to use:
         none: No compression
         lz4: Use lz4 compression (via 'lz4' command-line utility)
 
@@ -295,6 +322,100 @@ You can often achieve the same effect using the pad-byte property of the
 overall image, in that the space between entries will then be padded with
 that byte. But this entry is sometimes useful for explicitly setting the
 byte value of a region.
+
+
+
+Entry: fit: Entry containing a FIT
+----------------------------------
+
+This calls mkimage to create a FIT (U-Boot Flat Image Tree) based on the
+input provided.
+
+Nodes for the FIT should be written out in the binman configuration just as
+they would be in a file passed to mkimage.
+
+For example, this creates an image containing a FIT with U-Boot SPL:
+
+    binman {
+        fit {
+            description = "Test FIT";
+            fit,fdt-list = "of-list";
+
+            images {
+                kernel@1 {
+                    description = "SPL";
+                    os = "u-boot";
+                    type = "rkspi";
+                    arch = "arm";
+                    compression = "none";
+                    load = <0>;
+                    entry = <0>;
+
+                    u-boot-spl {
+                    };
+                };
+            };
+        };
+    };
+
+U-Boot supports creating fdt and config nodes automatically. To do this,
+pass an of-list property (e.g. -a of-list=file1 file2). This tells binman
+that you want to generates nodes for two files: file1.dtb and file2.dtb
+The fit,fdt-list property (see above) indicates that of-list should be used.
+If the property is missing you will get an error.
+
+Then add a 'generator node', a node with a name starting with '@':
+
+    images {
+        @fdt-SEQ {
+            description = "fdt-NAME";
+            type = "flat_dt";
+            compression = "none";
+        };
+    };
+
+This tells binman to create nodes fdt-1 and fdt-2 for each of your two
+files. All the properties you specify will be included in the node. This
+node acts like a template to generate the nodes. The generator node itself
+does not appear in the output - it is replaced with what binman generates.
+
+You can create config nodes in a similar way:
+
+    configurations {
+        default = "@config-DEFAULT-SEQ";
+        @config-SEQ {
+            description = "NAME";
+            firmware = "atf";
+            loadables = "uboot";
+            fdt = "fdt-SEQ";
+        };
+    };
+
+This tells binman to create nodes config-1 and config-2, i.e. a config for
+each of your two files.
+
+Available substitutions for '@' nodes are:
+
+    SEQ    Sequence number of the generated fdt (1, 2, ...)
+    NAME   Name of the dtb as provided (i.e. without adding '.dtb')
+
+Note that if no devicetree files are provided (with '-a of-list' as above)
+then no nodes will be generated.
+
+The 'default' property, if present, will be automatically set to the name
+if of configuration whose devicetree matches the 'default-dt' entry
+argument, e.g. with '-a default-dt=sun50i-a64-pine64-lts'.
+
+Available substitutions for '@' property values are:
+
+    DEFAULT-SEQ  Sequence number of the default fdt,as provided by the
+                 'default-dt' entry argument
+
+Properties (in the 'fit' node itself):
+    fit,external-offset: Indicates that the contents of the FIT are external
+        and provides the external offset. This is passsed to mkimage via
+        the -E and -p flags.
+
 
 
 
@@ -519,7 +640,7 @@ Properties / Entry arguments:
 
 This file contains code used by the SoC that is required to make it work.
 The Management Engine is like a background task that runs things that are
-not clearly documented, but may include keyboard, deplay and network
+not clearly documented, but may include keyboard, display and network
 access. For platform that use ME it is not possible to disable it. U-Boot
 does not directly execute code in the ME binary.
 
@@ -587,15 +708,48 @@ See README.x86 for information about Intel binary blobs.
 
 
 
+Entry: mkimage: Entry containing a binary produced by mkimage
+-------------------------------------------------------------
+
+Properties / Entry arguments:
+    - datafile: Filename for -d argument
+    - args: Other arguments to pass
+
+The data passed to mkimage is collected from subnodes of the mkimage node,
+e.g.:
+
+    mkimage {
+        args = "-n test -T imximage";
+
+        u-boot-spl {
+        };
+    };
+
+This calls mkimage to create an imximage with u-boot-spl.bin as the input
+file. The output from mkimage then becomes part of the image produced by
+binman.
+
+
+
 Entry: powerpc-mpc85xx-bootpg-resetvec: PowerPC mpc85xx bootpg + resetvec code for U-Boot
 -----------------------------------------------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of u-boot-br.bin (default 'u-boot-br.bin')
 
-This enrty is valid for PowerPC mpc85xx cpus. This entry holds
+This entry is valid for PowerPC mpc85xx cpus. This entry holds
 'bootpg + resetvec' code for PowerPC mpc85xx CPUs which needs to be
 placed at offset 'RESET_VECTOR_ADDRESS - 0xffc'.
+
+
+
+Entry: scp: Entry containing a System Control Processor (SCP) firmware blob
+---------------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - scp-path: Filename of file to read into the entry, typically scp.bin
+
+This entry holds firmware for an external platform-specific coprocessor.
 
 
 
@@ -614,6 +768,11 @@ Properties / Entry arguments: (see binman README for more information)
         file, since the first 16 bytes are skipped when writing.
     name-prefix: Adds a prefix to the name of every entry in the section
         when writing out the map
+
+Properties:
+    allow_missing: True if this section permits external blobs to be
+        missing their contents. The second will produce an image but of
+        course it will not work.
 
 Since a section is also an entry, it inherits all the properies of entries
 too.
@@ -730,6 +889,15 @@ Properties / Entry arguments:
 
 This is the U-Boot ELF image. It does not include a device tree but can be
 relocated to any address for execution.
+
+
+
+Entry: u-boot-env: An entry which contains a U-Boot environment
+---------------------------------------------------------------
+
+Properties / Entry arguments:
+    - filename: File containing the environment text, with each line in the
+        form var=value
 
 
 
@@ -971,7 +1139,7 @@ Entry: u-boot-with-ucode-ptr: U-Boot with embedded microcode pointer
 --------------------------------------------------------------------
 
 Properties / Entry arguments:
-    - filename: Filename of u-boot-nodtb.dtb (default 'u-boot-nodtb.dtb')
+    - filename: Filename of u-boot-nodtb.bin (default 'u-boot-nodtb.bin')
     - optional-ucode: boolean property to make microcode optional. If the
         u-boot.bin image does not include microcode, no error will
         be generated.

@@ -11,4 +11,14 @@
 	chosen {
 		stdout-path = &uart1;
 	};
+
+	ethernet@2c000000 {
+		compatible = "smsc,lan9221","smsc,lan9115";
+		reg = <0x2c000000 0xff>;
+		bank-width = <2>;
+		vddvario-supply = <&vddvario>;
+		vdd33a-supply = <&vdd33a>;
+		reg-io-width = <4>;
+		smsc,save-mac-address;
+	};
 };

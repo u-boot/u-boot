@@ -9,9 +9,11 @@
 #include <common.h>
 #include <dm.h>
 #include <dt-structs.h>
+#include <log.h>
 #include <ns16550.h>
 #include <serial.h>
 #include <clk.h>
+#include <linux/err.h>
 
 #ifndef CONFIG_SYS_NS16550_CLK
 #define CONFIG_SYS_NS16550_CLK  0

@@ -6,7 +6,11 @@
  */
 
 #include <common.h>
+#include <image.h>
+#include <init.h>
+#include <serial.h>
 #include <spl.h>
+#include <linux/delay.h>
 
 #include <asm/io.h>
 #include <asm/gpio.h>

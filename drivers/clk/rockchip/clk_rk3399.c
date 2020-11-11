@@ -9,15 +9,19 @@
 #include <dm.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <log.h>
+#include <malloc.h>
 #include <mapmem.h>
 #include <syscon.h>
 #include <bitfield.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
-#include <asm/arch-rockchip/cru_rk3399.h>
+#include <asm/arch-rockchip/cru.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3399-cru.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 struct rk3399_clk_plat {
@@ -229,6 +233,10 @@ enum {
 	DCLK_VOP_DIV_CON_MASK           = 0xff,
 	DCLK_VOP_DIV_CON_SHIFT          = 0,
 
+	/* CLKSEL_CON57 */
+	PCLK_ALIVE_DIV_CON_SHIFT        = 0,
+	PCLK_ALIVE_DIV_CON_MASK         = 0x1f << PCLK_ALIVE_DIV_CON_SHIFT,
+
 	/* CLKSEL_CON58 */
 	CLK_SPI_PLL_SEL_WIDTH = 1,
 	CLK_SPI_PLL_SEL_MASK = ((1 < CLK_SPI_PLL_SEL_WIDTH) - 1),
@@ -418,7 +426,7 @@ static int pll_para_config(u32 freq_hz, struct pll_div *div)
 	return 0;
 }
 
-void rk3399_configure_cpu_l(struct rk3399_cru *cru,
+void rk3399_configure_cpu_l(struct rockchip_cru *cru,
 			    enum apll_l_frequencies apll_l_freq)
 {
 	u32 aclkm_div;
@@ -453,7 +461,7 @@ void rk3399_configure_cpu_l(struct rk3399_cru *cru,
 		     atclk_div << ATCLK_CORE_L_DIV_SHIFT);
 }
 
-void rk3399_configure_cpu_b(struct rk3399_cru *cru,
+void rk3399_configure_cpu_b(struct rockchip_cru *cru,
 			    enum apll_b_frequencies apll_b_freq)
 {
 	u32 aclkm_div;
@@ -505,7 +513,7 @@ void rk3399_configure_cpu_b(struct rk3399_cru *cru,
 #define I2C_PMUCLK_REG_VALUE(bus, clk_div) \
 	((clk_div - 1) << CLK_I2C ##bus## _DIV_CON_SHIFT)
 
-static ulong rk3399_i2c_get_clk(struct rk3399_cru *cru, ulong clk_id)
+static ulong rk3399_i2c_get_clk(struct rockchip_cru *cru, ulong clk_id)
 {
 	u32 div, con;
 
@@ -542,7 +550,7 @@ static ulong rk3399_i2c_get_clk(struct rk3399_cru *cru, ulong clk_id)
 	return DIV_TO_RATE(GPLL_HZ, div);
 }
 
-static ulong rk3399_i2c_set_clk(struct rk3399_cru *cru, ulong clk_id, uint hz)
+static ulong rk3399_i2c_set_clk(struct rockchip_cru *cru, ulong clk_id, uint hz)
 {
 	int src_clk_div;
 
@@ -619,7 +627,7 @@ static const struct spi_clkreg spi_clkregs[] = {
 		.sel_shift = CLK_SPI5_PLL_SEL_SHIFT, },
 };
 
-static ulong rk3399_spi_get_clk(struct rk3399_cru *cru, ulong clk_id)
+static ulong rk3399_spi_get_clk(struct rockchip_cru *cru, ulong clk_id)
 {
 	const struct spi_clkreg *spiclk = NULL;
 	u32 div, val;
@@ -641,7 +649,7 @@ static ulong rk3399_spi_get_clk(struct rk3399_cru *cru, ulong clk_id)
 	return DIV_TO_RATE(GPLL_HZ, div);
 }
 
-static ulong rk3399_spi_set_clk(struct rk3399_cru *cru, ulong clk_id, uint hz)
+static ulong rk3399_spi_set_clk(struct rockchip_cru *cru, ulong clk_id, uint hz)
 {
 	const struct spi_clkreg *spiclk = NULL;
 	int src_clk_div;
@@ -668,7 +676,7 @@ static ulong rk3399_spi_set_clk(struct rk3399_cru *cru, ulong clk_id, uint hz)
 	return rk3399_spi_get_clk(cru, clk_id);
 }
 
-static ulong rk3399_vop_set_clk(struct rk3399_cru *cru, ulong clk_id, u32 hz)
+static ulong rk3399_vop_set_clk(struct rockchip_cru *cru, ulong clk_id, u32 hz)
 {
 	struct pll_div vpll_config = {0};
 	int aclk_vop = 198 * MHz;
@@ -712,7 +720,7 @@ static ulong rk3399_vop_set_clk(struct rk3399_cru *cru, ulong clk_id, u32 hz)
 	return hz;
 }
 
-static ulong rk3399_mmc_get_clk(struct rk3399_cru *cru, uint clk_id)
+static ulong rk3399_mmc_get_clk(struct rockchip_cru *cru, uint clk_id)
 {
 	u32 div, con;
 
@@ -724,7 +732,7 @@ static ulong rk3399_mmc_get_clk(struct rk3399_cru *cru, uint clk_id)
 		div = 2;
 		break;
 	case SCLK_EMMC:
-		con = readl(&cru->clksel_con[21]);
+		con = readl(&cru->clksel_con[22]);
 		div = 1;
 		break;
 	default:
@@ -739,7 +747,7 @@ static ulong rk3399_mmc_get_clk(struct rk3399_cru *cru, uint clk_id)
 		return DIV_TO_RATE(GPLL_HZ, div);
 }
 
-static ulong rk3399_mmc_set_clk(struct rk3399_cru *cru,
+static ulong rk3399_mmc_set_clk(struct rockchip_cru *cru,
 				ulong clk_id, ulong set_rate)
 {
 	int src_clk_div;
@@ -792,7 +800,7 @@ static ulong rk3399_mmc_set_clk(struct rk3399_cru *cru,
 	return rk3399_mmc_get_clk(cru, clk_id);
 }
 
-static ulong rk3399_gmac_set_clk(struct rk3399_cru *cru, ulong rate)
+static ulong rk3399_gmac_set_clk(struct rockchip_cru *cru, ulong rate)
 {
 	ulong ret;
 
@@ -817,7 +825,7 @@ static ulong rk3399_gmac_set_clk(struct rk3399_cru *cru, ulong rate)
 }
 
 #define PMUSGRF_DDR_RGN_CON16 0xff330040
-static ulong rk3399_ddr_set_clk(struct rk3399_cru *cru,
+static ulong rk3399_ddr_set_clk(struct rockchip_cru *cru,
 				ulong set_rate)
 {
 	struct pll_div dpll_cfg;
@@ -863,7 +871,18 @@ static ulong rk3399_ddr_set_clk(struct rk3399_cru *cru,
 	return set_rate;
 }
 
-static ulong rk3399_saradc_get_clk(struct rk3399_cru *cru)
+static ulong rk3399_alive_get_clk(struct rockchip_cru *cru)
+{
+        u32 div, val;
+
+        val = readl(&cru->clksel_con[57]);
+        div = (val & PCLK_ALIVE_DIV_CON_MASK) >>
+	       PCLK_ALIVE_DIV_CON_SHIFT;
+
+        return DIV_TO_RATE(GPLL_HZ, div);
+}
+
+static ulong rk3399_saradc_get_clk(struct rockchip_cru *cru)
 {
 	u32 div, val;
 
@@ -874,7 +893,7 @@ static ulong rk3399_saradc_get_clk(struct rk3399_cru *cru)
 	return DIV_TO_RATE(OSC_HZ, div);
 }
 
-static ulong rk3399_saradc_set_clk(struct rk3399_cru *cru, uint hz)
+static ulong rk3399_saradc_set_clk(struct rockchip_cru *cru, uint hz)
 {
 	int src_clk_div;
 
@@ -931,6 +950,10 @@ static ulong rk3399_clk_get_rate(struct clk *clk)
 	case ACLK_HDCP:
 	case ACLK_GIC_PRE:
 	case PCLK_DDR:
+		break;
+	case PCLK_ALIVE:
+	case PCLK_WDT:
+		rate = rk3399_alive_get_clk(priv->cru);
 		break;
 	default:
 		log_debug("Unknown clock %lu\n", clk->id);
@@ -993,6 +1016,16 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 	case DCLK_VOP1:
 		ret = rk3399_vop_set_clk(priv->cru, clk->id, rate);
 		break;
+	case ACLK_VOP1:
+	case HCLK_VOP1:
+	case HCLK_SD:
+	case SCLK_UPHY0_TCPDCORE:
+	case SCLK_UPHY1_TCPDCORE:
+		/**
+		 * assigned-clocks handling won't require for vopl, so
+		 * return 0 to satisfy clk_set_defaults during device probe.
+		 */
+		return 0;
 	case SCLK_DDRCLK:
 		ret = rk3399_ddr_set_clk(priv->cru, rate);
 		break;
@@ -1062,16 +1095,206 @@ static int __maybe_unused rk3399_clk_set_parent(struct clk *clk,
 	return -ENOENT;
 }
 
+static int rk3399_clk_enable(struct clk *clk)
+{
+	struct rk3399_clk_priv *priv = dev_get_priv(clk->dev);
+
+	switch (clk->id) {
+	case SCLK_MAC:
+		rk_clrreg(&priv->cru->clkgate_con[5], BIT(5));
+		break;
+	case SCLK_MAC_RX:
+		rk_clrreg(&priv->cru->clkgate_con[5], BIT(8));
+		break;
+	case SCLK_MAC_TX:
+		rk_clrreg(&priv->cru->clkgate_con[5], BIT(9));
+		break;
+	case SCLK_MACREF:
+		rk_clrreg(&priv->cru->clkgate_con[5], BIT(7));
+		break;
+	case SCLK_MACREF_OUT:
+		rk_clrreg(&priv->cru->clkgate_con[5], BIT(6));
+		break;
+	case SCLK_USB2PHY0_REF:
+		rk_clrreg(&priv->cru->clkgate_con[6], BIT(5));
+		break;
+	case SCLK_USB2PHY1_REF:
+		rk_clrreg(&priv->cru->clkgate_con[6], BIT(6));
+		break;
+	case ACLK_GMAC:
+		rk_clrreg(&priv->cru->clkgate_con[32], BIT(0));
+		break;
+	case PCLK_GMAC:
+		rk_clrreg(&priv->cru->clkgate_con[32], BIT(2));
+		break;
+	case SCLK_USB3OTG0_REF:
+		rk_clrreg(&priv->cru->clkgate_con[12], BIT(1));
+		break;
+	case SCLK_USB3OTG1_REF:
+		rk_clrreg(&priv->cru->clkgate_con[12], BIT(2));
+		break;
+	case SCLK_USB3OTG0_SUSPEND:
+		rk_clrreg(&priv->cru->clkgate_con[12], BIT(3));
+		break;
+	case SCLK_USB3OTG1_SUSPEND:
+		rk_clrreg(&priv->cru->clkgate_con[12], BIT(4));
+		break;
+	case ACLK_USB3OTG0:
+		rk_clrreg(&priv->cru->clkgate_con[30], BIT(1));
+		break;
+	case ACLK_USB3OTG1:
+		rk_clrreg(&priv->cru->clkgate_con[30], BIT(2));
+		break;
+	case ACLK_USB3_RKSOC_AXI_PERF:
+		rk_clrreg(&priv->cru->clkgate_con[30], BIT(3));
+		break;
+	case ACLK_USB3:
+		rk_clrreg(&priv->cru->clkgate_con[12], BIT(0));
+		break;
+	case ACLK_USB3_GRF:
+		rk_clrreg(&priv->cru->clkgate_con[30], BIT(4));
+		break;
+	case HCLK_HOST0:
+		rk_clrreg(&priv->cru->clksel_con[20], BIT(5));
+		break;
+	case HCLK_HOST0_ARB:
+		rk_clrreg(&priv->cru->clksel_con[20], BIT(6));
+		break;
+	case HCLK_HOST1:
+		rk_clrreg(&priv->cru->clksel_con[20], BIT(7));
+		break;
+	case HCLK_HOST1_ARB:
+		rk_clrreg(&priv->cru->clksel_con[20], BIT(8));
+		break;
+	case SCLK_UPHY0_TCPDPHY_REF:
+		rk_clrreg(&priv->cru->clkgate_con[13], BIT(4));
+		break;
+	case SCLK_UPHY0_TCPDCORE:
+		rk_clrreg(&priv->cru->clkgate_con[13], BIT(5));
+		break;
+	case SCLK_UPHY1_TCPDPHY_REF:
+		rk_clrreg(&priv->cru->clkgate_con[13], BIT(6));
+		break;
+	case SCLK_UPHY1_TCPDCORE:
+		rk_clrreg(&priv->cru->clkgate_con[13], BIT(7));
+		break;
+	case SCLK_PCIEPHY_REF:
+		rk_clrreg(&priv->cru->clksel_con[18], BIT(10));
+		break;
+	default:
+		debug("%s: unsupported clk %ld\n", __func__, clk->id);
+		return -ENOENT;
+	}
+
+	return 0;
+}
+
+static int rk3399_clk_disable(struct clk *clk)
+{
+	struct rk3399_clk_priv *priv = dev_get_priv(clk->dev);
+
+	switch (clk->id) {
+	case SCLK_MAC:
+		rk_setreg(&priv->cru->clkgate_con[5], BIT(5));
+		break;
+	case SCLK_MAC_RX:
+		rk_setreg(&priv->cru->clkgate_con[5], BIT(8));
+		break;
+	case SCLK_MAC_TX:
+		rk_setreg(&priv->cru->clkgate_con[5], BIT(9));
+		break;
+	case SCLK_MACREF:
+		rk_setreg(&priv->cru->clkgate_con[5], BIT(7));
+		break;
+	case SCLK_MACREF_OUT:
+		rk_setreg(&priv->cru->clkgate_con[5], BIT(6));
+		break;
+	case SCLK_USB2PHY0_REF:
+		rk_setreg(&priv->cru->clkgate_con[6], BIT(5));
+		break;
+	case SCLK_USB2PHY1_REF:
+		rk_setreg(&priv->cru->clkgate_con[6], BIT(6));
+		break;
+	case ACLK_GMAC:
+		rk_setreg(&priv->cru->clkgate_con[32], BIT(0));
+		break;
+	case PCLK_GMAC:
+		rk_setreg(&priv->cru->clkgate_con[32], BIT(2));
+		break;
+	case SCLK_USB3OTG0_REF:
+		rk_setreg(&priv->cru->clkgate_con[12], BIT(1));
+		break;
+	case SCLK_USB3OTG1_REF:
+		rk_setreg(&priv->cru->clkgate_con[12], BIT(2));
+		break;
+	case SCLK_USB3OTG0_SUSPEND:
+		rk_setreg(&priv->cru->clkgate_con[12], BIT(3));
+		break;
+	case SCLK_USB3OTG1_SUSPEND:
+		rk_setreg(&priv->cru->clkgate_con[12], BIT(4));
+		break;
+	case ACLK_USB3OTG0:
+		rk_setreg(&priv->cru->clkgate_con[30], BIT(1));
+		break;
+	case ACLK_USB3OTG1:
+		rk_setreg(&priv->cru->clkgate_con[30], BIT(2));
+		break;
+	case ACLK_USB3_RKSOC_AXI_PERF:
+		rk_setreg(&priv->cru->clkgate_con[30], BIT(3));
+		break;
+	case ACLK_USB3:
+		rk_setreg(&priv->cru->clkgate_con[12], BIT(0));
+		break;
+	case ACLK_USB3_GRF:
+		rk_setreg(&priv->cru->clkgate_con[30], BIT(4));
+		break;
+	case HCLK_HOST0:
+		rk_setreg(&priv->cru->clksel_con[20], BIT(5));
+		break;
+	case HCLK_HOST0_ARB:
+		rk_setreg(&priv->cru->clksel_con[20], BIT(6));
+		break;
+	case HCLK_HOST1:
+		rk_setreg(&priv->cru->clksel_con[20], BIT(7));
+		break;
+	case HCLK_HOST1_ARB:
+		rk_setreg(&priv->cru->clksel_con[20], BIT(8));
+		break;
+	case SCLK_UPHY0_TCPDPHY_REF:
+		rk_setreg(&priv->cru->clkgate_con[13], BIT(4));
+		break;
+	case SCLK_UPHY0_TCPDCORE:
+		rk_setreg(&priv->cru->clkgate_con[13], BIT(5));
+		break;
+	case SCLK_UPHY1_TCPDPHY_REF:
+		rk_setreg(&priv->cru->clkgate_con[13], BIT(6));
+		break;
+	case SCLK_UPHY1_TCPDCORE:
+		rk_setreg(&priv->cru->clkgate_con[13], BIT(7));
+		break;
+	case SCLK_PCIEPHY_REF:
+		rk_clrreg(&priv->cru->clksel_con[18], BIT(10));
+		break;
+	default:
+		debug("%s: unsupported clk %ld\n", __func__, clk->id);
+		return -ENOENT;
+	}
+
+	return 0;
+}
+
 static struct clk_ops rk3399_clk_ops = {
 	.get_rate = rk3399_clk_get_rate,
 	.set_rate = rk3399_clk_set_rate,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.set_parent = rk3399_clk_set_parent,
 #endif
+	.enable = rk3399_clk_enable,
+	.disable = rk3399_clk_disable,
 };
 
 #ifdef CONFIG_SPL_BUILD
-static void rkclk_init(struct rk3399_cru *cru)
+static void rkclk_init(struct rockchip_cru *cru)
 {
 	u32 aclk_div;
 	u32 hclk_div;
@@ -1188,15 +1411,15 @@ static int rk3399_clk_bind(struct udevice *dev)
 		debug("Warning: No sysreset driver: ret=%d\n", ret);
 	} else {
 		priv = malloc(sizeof(struct sysreset_reg));
-		priv->glb_srst_fst_value = offsetof(struct rk3399_cru,
+		priv->glb_srst_fst_value = offsetof(struct rockchip_cru,
 						    glb_srst_fst_value);
-		priv->glb_srst_snd_value = offsetof(struct rk3399_cru,
+		priv->glb_srst_snd_value = offsetof(struct rockchip_cru,
 						    glb_srst_snd_value);
 		sys_child->priv = priv;
 	}
 
-#if CONFIG_IS_ENABLED(CONFIG_RESET_ROCKCHIP)
-	ret = offsetof(struct rk3399_cru, softrst_con[0]);
+#if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
+	ret = offsetof(struct rockchip_cru, softrst_con[0]);
 	ret = rockchip_reset_bind(dev, ret, 21);
 	if (ret)
 		debug("Warning: software reset driver bind faile\n");
@@ -1298,6 +1521,7 @@ static ulong rk3399_pmuclk_get_rate(struct clk *clk)
 	case PLL_PPLL:
 		return PPLL_HZ;
 	case PCLK_RKPWM_PMU:
+	case PCLK_WDT_M0_PMU:
 		rate = rk3399_pwm_get_clk(priv->pmucru);
 		break;
 	case SCLK_I2C0_PMU:
@@ -1388,7 +1612,7 @@ static int rk3399_pmuclk_ofdata_to_platdata(struct udevice *dev)
 
 static int rk3399_pmuclk_bind(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(CONFIG_RESET_ROCKCHIP)
+#if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
 	int ret;
 
 	ret = offsetof(struct rk3399_pmucru, pmucru_softrst_con[0]);

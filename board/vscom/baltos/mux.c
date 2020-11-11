@@ -112,7 +112,7 @@ void enable_board_pin_mux()
 	configure_module_pin_mux(rmii1_pin_mux);
 	configure_module_pin_mux(mmc0_pin_mux);
 
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 	configure_module_pin_mux(nand_pin_mux);
 #endif
 }

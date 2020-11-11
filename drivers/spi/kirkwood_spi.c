@@ -9,14 +9,28 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
 #include <asm/io.h>
 #include <asm/arch/soc.h>
-#ifdef CONFIG_KIRKWOOD
+#ifdef CONFIG_ARCH_KIRKWOOD
 #include <asm/arch/mpp.h>
 #endif
 #include <asm/arch-mvebu/spi.h>
+
+struct mvebu_spi_dev {
+	bool			is_errata_50mhz_ac;
+};
+
+struct mvebu_spi_platdata {
+	struct kwspi_registers *spireg;
+	bool is_errata_50mhz_ac;
+};
+
+struct mvebu_spi_priv {
+	struct kwspi_registers *spireg;
+};
 
 static void _spi_cs_activate(struct kwspi_registers *reg)
 {
@@ -92,132 +106,6 @@ static int _spi_xfer(struct kwspi_registers *reg, unsigned int bitlen,
 
 	return 0;
 }
-
-#ifndef CONFIG_DM_SPI
-
-static struct kwspi_registers *spireg =
-	(struct kwspi_registers *)MVEBU_SPI_BASE;
-
-#ifdef CONFIG_KIRKWOOD
-static u32 cs_spi_mpp_back[2];
-#endif
-
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-				unsigned int max_hz, unsigned int mode)
-{
-	struct spi_slave *slave;
-	u32 data;
-#ifdef CONFIG_KIRKWOOD
-	static const u32 kwspi_mpp_config[2][2] = {
-		{ MPP0_SPI_SCn, 0 }, /* if cs == 0 */
-		{ MPP7_SPI_SCn, 0 } /* if cs != 0 */
-	};
-#endif
-
-	if (!spi_cs_is_valid(bus, cs))
-		return NULL;
-
-	slave = spi_alloc_slave_base(bus, cs);
-	if (!slave)
-		return NULL;
-
-	writel(KWSPI_SMEMRDY, &spireg->ctrl);
-
-	/* calculate spi clock prescaller using max_hz */
-	data = ((CONFIG_SYS_TCLK / 2) / max_hz) + 0x10;
-	data = data < KWSPI_CLKPRESCL_MIN ? KWSPI_CLKPRESCL_MIN : data;
-	data = data > KWSPI_CLKPRESCL_MASK ? KWSPI_CLKPRESCL_MASK : data;
-
-	/* program spi clock prescaller using max_hz */
-	writel(KWSPI_ADRLEN_3BYTE | data, &spireg->cfg);
-	debug("data = 0x%08x\n", data);
-
-	writel(KWSPI_SMEMRDIRQ, &spireg->irq_cause);
-	writel(KWSPI_IRQMASK, &spireg->irq_mask);
-
-#ifdef CONFIG_KIRKWOOD
-	/* program mpp registers to select  SPI_CSn */
-	kirkwood_mpp_conf(kwspi_mpp_config[cs ? 1 : 0], cs_spi_mpp_back);
-#endif
-
-	return slave;
-}
-
-void spi_free_slave(struct spi_slave *slave)
-{
-#ifdef CONFIG_KIRKWOOD
-	kirkwood_mpp_conf(cs_spi_mpp_back, NULL);
-#endif
-	free(slave);
-}
-
-__attribute__((weak)) int board_spi_claim_bus(struct spi_slave *slave)
-{
-	return 0;
-}
-
-int spi_claim_bus(struct spi_slave *slave)
-{
-	return board_spi_claim_bus(slave);
-}
-
-__attribute__((weak)) void board_spi_release_bus(struct spi_slave *slave)
-{
-}
-
-void spi_release_bus(struct spi_slave *slave)
-{
-	board_spi_release_bus(slave);
-}
-
-#ifndef CONFIG_SPI_CS_IS_VALID
-/*
- * you can define this function board specific
- * define above CONFIG in board specific config file and
- * provide the function in board specific src file
- */
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	return bus == 0 && (cs == 0 || cs == 1);
-}
-#endif
-
-void spi_init(void)
-{
-}
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	_spi_cs_activate(spireg);
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	_spi_cs_deactivate(spireg);
-}
-
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
-	     const void *dout, void *din, unsigned long flags)
-{
-	return _spi_xfer(spireg, bitlen, dout, din, flags);
-}
-
-#else
-
-/* Here now the DM part */
-
-struct mvebu_spi_dev {
-	bool			is_errata_50mhz_ac;
-};
-
-struct mvebu_spi_platdata {
-	struct kwspi_registers *spireg;
-	bool is_errata_50mhz_ac;
-};
-
-struct mvebu_spi_priv {
-	struct kwspi_registers *spireg;
-};
 
 static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
 {
@@ -348,7 +236,7 @@ static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
 	const struct mvebu_spi_dev *drvdata =
 		(struct mvebu_spi_dev *)dev_get_driver_data(bus);
 
-	plat->spireg = (struct kwspi_registers *)devfdt_get_addr(bus);
+	plat->spireg = dev_read_addr_ptr(bus);
 	plat->is_errata_50mhz_ac = drvdata->is_errata_50mhz_ac;
 
 	return 0;
@@ -412,4 +300,3 @@ U_BOOT_DRIVER(mvebu_spi) = {
 	.priv_auto_alloc_size = sizeof(struct mvebu_spi_priv),
 	.probe = mvebu_spi_probe,
 };
-#endif

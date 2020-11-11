@@ -246,8 +246,8 @@ static const struct udevice_id rtc_mc146818_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(rtc_mc146818) = {
-	.name = "rtc_mc146818",
+U_BOOT_DRIVER(motorola_mc146818) = {
+	.name = "motorola_mc146818",
 	.id = UCLASS_RTC,
 	.of_match = rtc_mc146818_ids,
 	.probe = rtc_mc146818_probe,

@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <dm.h>
@@ -82,7 +83,8 @@ static void cpld_write(struct udevice *dev, u8 addr, u32 data)
 	dm_gpio_set_value(&priv->sstbz, 1);
 }
 
-static int do_cpld(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_cpld(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	struct udevice *dev;
 	u32 addr, val;

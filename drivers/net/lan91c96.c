@@ -48,6 +48,7 @@
 #include <command.h>
 #include <env.h>
 #include <malloc.h>
+#include <linux/delay.h>
 #include "lan91c96.h"
 #include <net.h>
 #include <linux/compiler.h>
@@ -113,7 +114,7 @@
  . print a warning and set the environment and other globals with the default.
  . If an EEPROM is present it really should be consulted.
 */
-static int smc_get_ethaddr(bd_t *bd, struct eth_device *dev);
+static int smc_get_ethaddr(struct bd_info *bd, struct eth_device *dev);
 static int get_rom_mac(struct eth_device *dev, unsigned char *v_rom_mac);
 
 /* ------------------------------------------------------------
@@ -211,7 +212,7 @@ static void smc_reset(struct eth_device *dev)
 	SMC_SELECT_BANK(dev, 0);
 	SMC_outw(dev, LAN91C96_RCR_SOFT_RST, LAN91C96_RCR);
 
-	udelay (10);
+	udelay(10);
 
 	/* Disable transmit and receive functionality */
 	SMC_outw(dev, 0, LAN91C96_RCR);
@@ -438,7 +439,7 @@ static int smc_send_packet(struct eth_device *dev, void *packet,
 
 		/* wait for MMU getting ready (low) */
 		while (SMC_inw(dev, LAN91C96_MMU) & LAN91C96_MMUCR_NO_BUSY)
-			udelay (10);
+			udelay(10);
 
 		PRINTK2("MMU ready\n");
 
@@ -455,7 +456,7 @@ static int smc_send_packet(struct eth_device *dev, void *packet,
 
 		/* wait for MMU getting ready (low) */
 		while (SMC_inw(dev, LAN91C96_MMU) & LAN91C96_MMUCR_NO_BUSY)
-			udelay (10);
+			udelay(10);
 
 		PRINTK2 ("MMU ready\n");
 	}
@@ -470,7 +471,7 @@ static int smc_send_packet(struct eth_device *dev, void *packet,
  * Set up everything, reset the card, etc ..
  *
  */
-static int smc_open(bd_t *bd, struct eth_device *dev)
+static int smc_open(struct bd_info *bd, struct eth_device *dev)
 {
 	int i, err;			/* used to set hw ethernet address */
 
@@ -600,13 +601,13 @@ static int smc_rcv(struct eth_device *dev)
 	}
 
 	while (SMC_inw(dev, LAN91C96_MMU) & LAN91C96_MMUCR_NO_BUSY)
-		udelay (1);		/* Wait until not busy */
+		udelay(1);		/* Wait until not busy */
 
 	/*  error or good, tell the card to get rid of this packet */
 	SMC_outw(dev, LAN91C96_MMUCR_RELEASE_RX, LAN91C96_MMU);
 
 	while (SMC_inw(dev, LAN91C96_MMU) & LAN91C96_MMUCR_NO_BUSY)
-		udelay (1);		/* Wait until not busy */
+		udelay(1);		/* Wait until not busy */
 
 	if (!is_error) {
 		/* Pass the packet up to the protocol layers. */
@@ -673,7 +674,7 @@ static void print_packet(byte *buf, int length)
 }
 #endif /* SMC_DEBUG > 2 */
 
-static int  lan91c96_init(struct eth_device *dev, bd_t *bd)
+static int  lan91c96_init(struct eth_device *dev, struct bd_info *bd)
 {
 	return smc_open(bd, dev);
 }
@@ -700,7 +701,7 @@ static int lan91c96_send(struct eth_device *dev, void *packet,
  * found, the environment takes precedence.
  */
 
-static int smc_get_ethaddr(bd_t *bd, struct eth_device *dev)
+static int smc_get_ethaddr(struct bd_info *bd, struct eth_device *dev)
 {
 	uchar v_mac[6];
 

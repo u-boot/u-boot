@@ -84,5 +84,5 @@ spl/u-boot-spl.scif: spl/u-boot-spl.srec spl/u-boot-spl.bin
 
 # if srec_cat is present build u-boot-spl.scif by default
 has_srec_cat = $(call try-run,srec_cat -VERSion,y,n)
-ALL-$(has_srec_cat) += u-boot-spl.scif
+INPUTS-$(has_srec_cat) += u-boot-spl.scif
 CLEAN_FILES += u-boot-spl.scif

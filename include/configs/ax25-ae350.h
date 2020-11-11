@@ -7,10 +7,19 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#ifdef CONFIG_SPL
+#define CONFIG_SPL_MAX_SIZE		0x00100000
+#define CONFIG_SPL_BSS_START_ADDR	0x04000000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x00100000
+
+#ifdef CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.itb"
+#endif
+#endif
+
 /*
  * CPU and Board Configuration Options
  */
-#define CONFIG_BOOTP_SEND_HOSTNAME
 
 /*
  * Miscellaneous configurable options
@@ -74,8 +83,6 @@
 /*
  * memtest works on 512 MB in DRAM
  */
-#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_0
-#define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_0 + PHYS_SDRAM_0_SIZE)
 
 /*
  * FLASH and environment organization
@@ -113,8 +120,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /* environments */
-#define CONFIG_ENV_SECT_SIZE		0x1000
-#define CONFIG_ENV_OVERWRITE
 
 /* SPI FLASH */
 
@@ -130,7 +135,6 @@
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)
 
 /* When we use RAM as ENV */
-#define CONFIG_ENV_SIZE 0x2000
 
 /* Enable distro boot */
 #define BOOT_TARGET_DEVICES(func) \

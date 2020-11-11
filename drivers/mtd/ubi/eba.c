@@ -29,8 +29,11 @@
  */
 
 #ifndef __UBOOT__
+#include <log.h>
+#include <dm/devres.h>
 #include <linux/slab.h>
 #include <linux/crc32.h>
+#include <u-boot/crc.h>
 #else
 #include <ubi_uboot.h>
 #endif

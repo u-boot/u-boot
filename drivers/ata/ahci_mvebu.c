@@ -6,6 +6,7 @@
 #include <common.h>
 #include <ahci.h>
 #include <dm.h>
+#include <log.h>
 
 /*
  * Dummy implementation that can be overwritten by a board
@@ -38,7 +39,7 @@ static int mvebu_ahci_probe(struct udevice *dev)
 	 */
 	board_ahci_enable();
 
-	ahci_probe_scsi(dev, (ulong)devfdt_get_addr_ptr(dev));
+	ahci_probe_scsi(dev, dev_read_addr(dev));
 
 	return 0;
 }

@@ -8,12 +8,15 @@
  */
 
 #include <common.h>
+#include <log.h>
+#include <malloc.h>
 #include <asm/io.h>
 #include <bitfield.h>
 #include <dm.h>
 #include <errno.h>
 #include <generic-phy.h>
 #include <regmap.h>
+#include <linux/delay.h>
 #include <power/regulator.h>
 #include <reset.h>
 #include <clk.h>

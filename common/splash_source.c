@@ -7,11 +7,13 @@
 
 #include <common.h>
 #include <bmp_layout.h>
+#include <command.h>
 #include <env.h>
 #include <errno.h>
 #include <fs.h>
 #include <fdt_support.h>
 #include <image.h>
+#include <log.h>
 #include <nand.h>
 #include <sata.h>
 #include <spi.h>

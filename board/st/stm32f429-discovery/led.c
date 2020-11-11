@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <status_led.h>
 #include <asm-generic/gpio.h>
 
 void coloured_LED_init(void)

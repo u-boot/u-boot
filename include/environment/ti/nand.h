@@ -5,7 +5,7 @@
  * Environment variable definitions for NAND on TI boards.
  */
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define NANDARGS \
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \

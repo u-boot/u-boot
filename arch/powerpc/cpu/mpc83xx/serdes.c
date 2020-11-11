@@ -14,6 +14,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/fsl_mpc83xx_serdes.h>
+#include <linux/delay.h>
 
 /* SerDes registers */
 #define FSL_SRDSCR0_OFFS		0x0

@@ -12,6 +12,9 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
+#include <net.h>
+#include <linux/delay.h>
 #include <linux/mii.h>
 #include <malloc.h>
 #include <memalign.h>
@@ -583,7 +586,7 @@ static int mcs7830_recv_common(struct ueth_data *ueth, uint8_t *buf)
  * ensures that the link is up and subsequent send() and recv() calls can
  * exchange ethernet frames
  */
-static int mcs7830_init(struct eth_device *eth, bd_t *bd)
+static int mcs7830_init(struct eth_device *eth, struct bd_info *bd)
 {
 	struct ueth_data *dev = eth->priv;
 

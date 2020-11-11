@@ -6,9 +6,11 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <mailbox-uclass.h>
+#include <dm/device_compat.h>
 #include <mach/sys_proto.h>
 #include <linux/ioport.h>
 #include <linux/io.h>
@@ -22,10 +24,12 @@
 struct ipi_int_regs {
 	u32 trig; /* 0x0  */
 	u32 obs;  /* 0x4  */
-	u32 ist;  /* 0x8  */
-	u32 imr;  /* 0xC  */
-	u32 ier;  /* 0x10 */
-	u32 idr;  /* 0x14 */
+	u32 dummy0;
+	u32 dummy1;
+	u32 isr;  /* 0x10  */
+	u32 imr;  /* 0x14  */
+	u32 ier;  /* 0x18 */
+	u32 idr;  /* 0x1C */
 };
 
 #define ipi_int_apu ((struct ipi_int_regs *)IPI_INT_REG_BASE_APU)
@@ -52,7 +56,7 @@ static int zynqmp_ipi_send(struct mbox_chan *chan, const void *data)
 
 	/* Wait until observation bit is cleared */
 	ret = wait_for_bit_le32(&ipi_int_apu->obs, IPI_BIT_MASK_PMU0, false,
-				100, false);
+				1000, false);
 
 	debug("%s, send %ld bytes\n", __func__, msg->len);
 	return ret;
@@ -64,6 +68,10 @@ static int zynqmp_ipi_recv(struct mbox_chan *chan, void *data)
 	struct zynqmp_ipi *zynqmp = dev_get_priv(chan->dev);
 	u32 *mbx = (u32 *)zynqmp->local_res_regs;
 
+	/*
+	 * PMU Firmware does not trigger IPI interrupt for API call responses so
+	 * there is no need to check ISR flags
+	 */
 	for (size_t i = 0; i < msg->len; i++)
 		msg->buf[i] = readl(&mbx[i]);
 
@@ -125,7 +133,7 @@ struct mbox_ops zynqmp_ipi_mbox_ops = {
 };
 
 U_BOOT_DRIVER(zynqmp_ipi) = {
-	.name = "zynqmp-ipi",
+	.name = "zynqmp_ipi",
 	.id = UCLASS_MAILBOX,
 	.of_match = zynqmp_ipi_ids,
 	.probe = zynqmp_ipi_probe,

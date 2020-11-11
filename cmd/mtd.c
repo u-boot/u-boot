@@ -14,6 +14,8 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <mtd.h>
+#include <dm/devres.h>
+#include <linux/err.h>
 
 #include <linux/ctype.h>
 
@@ -193,8 +195,8 @@ static bool mtd_oob_write_is_empty(struct mtd_oob_ops *op)
 	return true;
 }
 
-static int do_mtd_list(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_mtd_list(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	struct mtd_info *mtd;
 	int dev_nb = 0;
@@ -238,7 +240,8 @@ static int mtd_special_write_oob(struct mtd_info *mtd, u64 off,
 	return ret;
 }
 
-static int do_mtd_io(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mtd_io(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	bool dump, read, raw, woob, write_empty_pages, has_pages = false;
 	u64 start_off, off, len, remaining, default_len;
@@ -380,14 +383,14 @@ out_put_mtd:
 	return ret;
 }
 
-static int do_mtd_erase(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_mtd_erase(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	struct erase_info erase_op = {};
 	struct mtd_info *mtd;
 	u64 off, len;
 	bool scrub;
-	int ret;
+	int ret = 0;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -423,22 +426,22 @@ static int do_mtd_erase(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	erase_op.mtd = mtd;
 	erase_op.addr = off;
-	erase_op.len = len;
+	erase_op.len = mtd->erasesize;
 	erase_op.scrub = scrub;
 
-	while (erase_op.len) {
+	while (len) {
 		ret = mtd_erase(mtd, &erase_op);
 
-		/* Abort if its not a bad block error */
-		if (ret != -EIO)
-			break;
+		if (ret) {
+			/* Abort if its not a bad block error */
+			if (ret != -EIO)
+				break;
+			printf("Skipping bad block at 0x%08llx\n",
+			       erase_op.addr);
+		}
 
-		printf("Skipping bad block at 0x%08llx\n", erase_op.fail_addr);
-
-		/* Skip bad block and continue behind it */
-		erase_op.len -= erase_op.fail_addr - erase_op.addr;
-		erase_op.len -= mtd->erasesize;
-		erase_op.addr = erase_op.fail_addr + mtd->erasesize;
+		len -= mtd->erasesize;
+		erase_op.addr += mtd->erasesize;
 	}
 
 	if (ret && ret != -EIO)
@@ -452,8 +455,8 @@ out_put_mtd:
 	return ret;
 }
 
-static int do_mtd_bad(cmd_tbl_t *cmdtp, int flag, int argc,
-		      char * const argv[])
+static int do_mtd_bad(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	struct mtd_info *mtd;
 	loff_t off;
@@ -483,7 +486,7 @@ out_put_mtd:
 }
 
 #ifdef CONFIG_AUTO_COMPLETE
-static int mtd_name_complete(int argc, char * const argv[], char last_char,
+static int mtd_name_complete(int argc, char *const argv[], char last_char,
 			     int maxv, char *cmdv[])
 {
 	int len = 0, n_found = 0;

@@ -75,9 +75,8 @@ static int phytium_pci_skip_dev(pci_dev_t parent)
  * code. Otherwise the address to access will be written to the pointer pointed
  * to by @paddress.
  */
-static int pci_phytium_conf_address(struct udevice *bus, pci_dev_t bdf,
-				    uint offset,
-				    void **paddress)
+static int pci_phytium_conf_address(const struct udevice *bus, pci_dev_t bdf,
+				    uint offset, void **paddress)
 {
 	struct phytium_pcie *pcie = dev_get_priv(bus);
 	void *addr;
@@ -119,7 +118,7 @@ static int pci_phytium_conf_address(struct udevice *bus, pci_dev_t bdf,
  * space of the device identified by the bus, device & function numbers in @bdf
  * on the PCI bus @bus.
  */
-static int pci_phytium_read_config(struct udevice *bus, pci_dev_t bdf,
+static int pci_phytium_read_config(const struct udevice *bus, pci_dev_t bdf,
 				   uint offset, ulong *valuep,
 				   enum pci_size_t size)
 {

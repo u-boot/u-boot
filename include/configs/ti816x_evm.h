@@ -12,7 +12,6 @@
 #include <configs/ti_armv7_omap.h>
 #include <asm/arch/omap.h>
 
-#define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_MACH_TYPE		MACH_TYPE_TI8168EVM
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
@@ -28,8 +27,6 @@
 /* Clock Defines */
 #define V_OSCK          24000000    /* Clock output from T2 */
 #define V_SCLK          (V_OSCK >> 1)
-
-#define CONFIG_CMD_ASKENV
 
 #define CONFIG_MAX_RAM_BANK_SIZE	(2048 << 20)	/* 2048MB */
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
@@ -50,7 +47,6 @@
 #define CONFIG_SYS_NS16550_COM1     0x48024000  /* Base EVM has UART2 */
 
 /* allow overwriting serial config and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 
 /*
@@ -84,8 +80,6 @@
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x000c0000
-#define CONFIG_ENV_OFFSET		0x001c0000
-#define CONFIG_ENV_OFFSET_REDUND	0x001e0000
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
 
 /* SPL */
@@ -93,8 +87,6 @@
 #define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
 					 CONFIG_SPL_TEXT_BASE)
 
-#define CONFIG_BOOTP_DNS2
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT	10
 
 /* Since SPL did pll and ddr initialization for us,

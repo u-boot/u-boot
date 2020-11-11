@@ -7,8 +7,10 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <asm/io.h>
 #include <dm/pinctrl.h>
+#include <linux/bitops.h>
 #include <mach/pic32.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -220,6 +222,31 @@ static void pic32_eth_pin_config(struct udevice *dev)
 	pic32_pinconfig_set(priv, configs, ARRAY_SIZE(configs));
 }
 
+static void pic32_sdhci_pin_config(struct udevice *dev)
+{
+	struct pic32_pinctrl_priv *priv = dev_get_priv(dev);
+	const struct pic32_pin_config configs[] = {
+		/* SDWP - H2 */
+		PIN_CONFIG(PIC32_PORT_H, 2, PIN_CONFIG_PIC32_DIGITAL),
+		/* SDCD - A0 */
+		PIN_CONFIG(PIC32_PORT_A, 0, PIN_CONFIG_PIC32_DIGITAL),
+		/* SDCMD - D4 */
+		PIN_CONFIG(PIC32_PORT_D, 4, PIN_CONFIG_PIC32_DIGITAL),
+		/* SDCK - A6 */
+		PIN_CONFIG(PIC32_PORT_A, 6, PIN_CONFIG_PIC32_DIGITAL),
+		/* SDDATA0 - G13 */
+		PIN_CONFIG(PIC32_PORT_G, 13, PIN_CONFIG_PIC32_DIGITAL),
+		/* SDDATA1 - G12 */
+		PIN_CONFIG(PIC32_PORT_G, 12, PIN_CONFIG_PIC32_DIGITAL),
+		/* SDDATA2 - G14 */
+		PIN_CONFIG(PIC32_PORT_G, 14, PIN_CONFIG_PIC32_DIGITAL),
+		/* SDDATA3 - A7 */
+		PIN_CONFIG(PIC32_PORT_A, 7, PIN_CONFIG_PIC32_DIGITAL),
+	};
+
+	pic32_pinconfig_set(priv, configs, ARRAY_SIZE(configs));
+}
+
 static int pic32_pinctrl_request(struct udevice *dev, int func, int flags)
 {
 	struct pic32_pinctrl_priv *priv = dev_get_priv(dev);
@@ -237,6 +264,9 @@ static int pic32_pinctrl_request(struct udevice *dev, int func, int flags)
 		break;
 	case PERIPH_ID_ETH:
 		pic32_eth_pin_config(dev);
+		break;
+	case PERIPH_ID_SDHCI:
+		pic32_sdhci_pin_config(dev);
 		break;
 	default:
 		debug("%s: unknown-unhandled case\n", __func__);

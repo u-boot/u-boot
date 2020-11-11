@@ -3,9 +3,6 @@
 # Copyright (c) 2016 Google, Inc
 #
 
-from __future__ import print_function
-
-import command
 import glob
 import os
 import shutil
@@ -13,7 +10,8 @@ import struct
 import sys
 import tempfile
 
-import tout
+from patman import command
+from patman import tout
 
 # Output directly (generally this is temporary)
 outdir = None
@@ -116,14 +114,16 @@ def SetInputDirs(dirname):
     indir = dirname
     tout.Debug("Using input directories %s" % indir)
 
-def GetInputFilename(fname):
+def GetInputFilename(fname, allow_missing=False):
     """Return a filename for use as input.
 
     Args:
         fname: Filename to use for new file
+        allow_missing: True if the filename can be missing
 
     Returns:
-        The full path of the filename, within the input directory
+        The full path of the filename, within the input directory, or
+        None on error
     """
     if not indir or fname[:1] == '/':
         return fname
@@ -132,6 +132,8 @@ def GetInputFilename(fname):
         if os.path.exists(pathname):
             return pathname
 
+    if allow_missing:
+        return None
     raise ValueError("Filename '%s' not found in input path (%s) (cwd='%s')" %
                      (fname, ','.join(indir), os.getcwd()))
 
@@ -186,6 +188,120 @@ def PathHasFile(path_spec, fname):
             return True
     return False
 
+def GetHostCompileTool(name):
+    """Get the host-specific version for a compile tool
+
+    This checks the environment variables that specify which version of
+    the tool should be used (e.g. ${HOSTCC}).
+
+    The following table lists the host-specific versions of the tools
+    this function resolves to:
+
+        Compile Tool  | Host version
+        --------------+----------------
+        as            |  ${HOSTAS}
+        ld            |  ${HOSTLD}
+        cc            |  ${HOSTCC}
+        cpp           |  ${HOSTCPP}
+        c++           |  ${HOSTCXX}
+        ar            |  ${HOSTAR}
+        nm            |  ${HOSTNM}
+        ldr           |  ${HOSTLDR}
+        strip         |  ${HOSTSTRIP}
+        objcopy       |  ${HOSTOBJCOPY}
+        objdump       |  ${HOSTOBJDUMP}
+        dtc           |  ${HOSTDTC}
+
+    Args:
+        name: Command name to run
+
+    Returns:
+        host_name: Exact command name to run instead
+        extra_args: List of extra arguments to pass
+    """
+    host_name = None
+    extra_args = []
+    if name in ('as', 'ld', 'cc', 'cpp', 'ar', 'nm', 'ldr', 'strip',
+                'objcopy', 'objdump', 'dtc'):
+        host_name, *host_args = env.get('HOST' + name.upper(), '').split(' ')
+    elif name == 'c++':
+        host_name, *host_args = env.get('HOSTCXX', '').split(' ')
+
+    if host_name:
+        return host_name, extra_args
+    return name, []
+
+def GetTargetCompileTool(name, cross_compile=None):
+    """Get the target-specific version for a compile tool
+
+    This first checks the environment variables that specify which
+    version of the tool should be used (e.g. ${CC}). If those aren't
+    specified, it checks the CROSS_COMPILE variable as a prefix for the
+    tool with some substitutions (e.g. "${CROSS_COMPILE}gcc" for cc).
+
+    The following table lists the target-specific versions of the tools
+    this function resolves to:
+
+        Compile Tool  | First choice   | Second choice
+        --------------+----------------+----------------------------
+        as            |  ${AS}         | ${CROSS_COMPILE}as
+        ld            |  ${LD}         | ${CROSS_COMPILE}ld.bfd
+                      |                |   or ${CROSS_COMPILE}ld
+        cc            |  ${CC}         | ${CROSS_COMPILE}gcc
+        cpp           |  ${CPP}        | ${CROSS_COMPILE}gcc -E
+        c++           |  ${CXX}        | ${CROSS_COMPILE}g++
+        ar            |  ${AR}         | ${CROSS_COMPILE}ar
+        nm            |  ${NM}         | ${CROSS_COMPILE}nm
+        ldr           |  ${LDR}        | ${CROSS_COMPILE}ldr
+        strip         |  ${STRIP}      | ${CROSS_COMPILE}strip
+        objcopy       |  ${OBJCOPY}    | ${CROSS_COMPILE}objcopy
+        objdump       |  ${OBJDUMP}    | ${CROSS_COMPILE}objdump
+        dtc           |  ${DTC}        | (no CROSS_COMPILE version)
+
+    Args:
+        name: Command name to run
+
+    Returns:
+        target_name: Exact command name to run instead
+        extra_args: List of extra arguments to pass
+    """
+    env = dict(os.environ)
+
+    target_name = None
+    extra_args = []
+    if name in ('as', 'ld', 'cc', 'cpp', 'ar', 'nm', 'ldr', 'strip',
+                'objcopy', 'objdump', 'dtc'):
+        target_name, *extra_args = env.get(name.upper(), '').split(' ')
+    elif name == 'c++':
+        target_name, *extra_args = env.get('CXX', '').split(' ')
+
+    if target_name:
+        return target_name, extra_args
+
+    if cross_compile is None:
+        cross_compile = env.get('CROSS_COMPILE', '')
+    if not cross_compile:
+        return name, []
+
+    if name in ('as', 'ar', 'nm', 'ldr', 'strip', 'objcopy', 'objdump'):
+        target_name = cross_compile + name
+    elif name == 'ld':
+        try:
+            if Run(cross_compile + 'ld.bfd', '-v'):
+                target_name = cross_compile + 'ld.bfd'
+        except:
+            target_name = cross_compile + 'ld'
+    elif name == 'cc':
+        target_name = cross_compile + 'gcc'
+    elif name == 'cpp':
+        target_name = cross_compile + 'gcc'
+        extra_args = ['-E']
+    elif name == 'c++':
+        target_name = cross_compile + 'g++'
+    else:
+        target_name = name
+    return target_name, extra_args
+
 def Run(name, *args, **kwargs):
     """Run a tool with some arguments
 
@@ -196,16 +312,27 @@ def Run(name, *args, **kwargs):
     Args:
         name: Command name to run
         args: Arguments to the tool
+        for_host: True to resolve the command to the version for the host
+        for_target: False to run the command as-is, without resolving it
+                   to the version for the compile target
 
     Returns:
         CommandResult object
     """
     try:
         binary = kwargs.get('binary')
+        for_host = kwargs.get('for_host', False)
+        for_target = kwargs.get('for_target', not for_host)
         env = None
         if tool_search_paths:
             env = dict(os.environ)
             env['PATH'] = ':'.join(tool_search_paths) + ':' + env['PATH']
+        if for_target:
+            name, extra_args = GetTargetCompileTool(name)
+            args = tuple(extra_args) + args
+        elif for_host:
+            name, extra_args = GetHostCompileTool(name)
+            args = tuple(extra_args) + args
         all_args = (name,) + args
         result = command.RunPipe([all_args], capture=True, capture_stderr=True,
                                  env=env, raise_on_error=False, binary=binary)
@@ -272,7 +399,7 @@ def ReadFile(fname, binary=True):
                    #(fname, len(data), len(data)))
     return data
 
-def WriteFile(fname, data):
+def WriteFile(fname, data, binary=True):
     """Write data into a file.
 
     Args:
@@ -281,7 +408,7 @@ def WriteFile(fname, data):
     """
     #self._out.Info("Write file '%s' size %d (%#0x)" %
                    #(fname, len(data), len(data)))
-    with open(Filename(fname), 'wb') as fd:
+    with open(Filename(fname), binary and 'wb' or 'w') as fd:
         fd.write(data)
 
 def GetBytes(byte, size):

@@ -6,8 +6,6 @@
 #ifndef _ASM_ARCH_SCG_H
 #define _ASM_ARCH_SCG_H
 
-#include <common.h>
-
 #ifdef CONFIG_CLK_DEBUG
 #define clk_debug(fmt, args...)	printf(fmt, ##args)
 #else
@@ -331,7 +329,6 @@ u32 decode_pll(enum pll_clocks pll);
 void scg_a7_rccr_init(void);
 void scg_a7_spll_init(void);
 void scg_a7_ddrclk_init(void);
-void scg_a7_apll_init(void);
 void scg_a7_firc_init(void);
 void scg_a7_nicclk_init(void);
 void scg_a7_sys_clk_sel(enum scg_sys_src clk);

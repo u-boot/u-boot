@@ -12,8 +12,11 @@
 #include <common.h>
 #include <env.h>
 #include <dm.h>
+#include <hash.h>
+#include <log.h>
 #include <dm/uclass-internal.h>
 #include <misc.h>
+#include <u-boot/crc.h>
 #include <u-boot/sha256.h>
 
 #include <asm/arch-rockchip/misc.h>
@@ -29,7 +32,7 @@ int rockchip_setup_macaddr(void)
 
 	/* Only generate a MAC address, if none is set in the environment */
 	if (env_get("ethaddr"))
-		return -1;
+		return 0;
 
 	if (!cpuid) {
 		debug("%s: could not retrieve 'cpuid#'\n", __func__);
@@ -57,13 +60,18 @@ int rockchip_cpuid_from_efuse(const u32 cpuid_offset,
 			      const u32 cpuid_length,
 			      u8 *cpuid)
 {
-#if CONFIG_IS_ENABLED(ROCKCHIP_EFUSE)
+#if CONFIG_IS_ENABLED(ROCKCHIP_EFUSE) || CONFIG_IS_ENABLED(ROCKCHIP_OTP)
 	struct udevice *dev;
 	int ret;
 
 	/* retrieve the device */
+#if CONFIG_IS_ENABLED(ROCKCHIP_EFUSE)
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
 					  DM_GET_DRIVER(rockchip_efuse), &dev);
+#elif CONFIG_IS_ENABLED(ROCKCHIP_OTP)
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
+					  DM_GET_DRIVER(rockchip_otp), &dev);
+#endif
 	if (ret) {
 		debug("%s: could not find efuse device\n", __func__);
 		return -1;
@@ -86,6 +94,7 @@ int rockchip_cpuid_set(const u8 *cpuid, const u32 cpuid_length)
 	char cpuid_str[cpuid_length * 2 + 1];
 	u64 serialno;
 	char serialno_str[17];
+	const char *oldid;
 	int i;
 
 	memset(cpuid_str, 0, sizeof(cpuid_str));
@@ -107,8 +116,16 @@ int rockchip_cpuid_set(const u8 *cpuid, const u32 cpuid_length)
 	serialno |= (u64)crc32_no_comp(serialno, high, 8) << 32;
 	snprintf(serialno_str, sizeof(serialno_str), "%016llx", serialno);
 
+	oldid = env_get("cpuid#");
+	if (oldid && strcmp(oldid, cpuid_str) != 0)
+		printf("cpuid: value %s present in env does not match hardware %s\n",
+		       oldid, cpuid_str);
+
 	env_set("cpuid#", cpuid_str);
-	env_set("serial#", serialno_str);
+
+	/* Only generate serial# when none is set yet */
+	if (!env_get("serial#"))
+		env_set("serial#", serialno_str);
 
 	return 0;
 }

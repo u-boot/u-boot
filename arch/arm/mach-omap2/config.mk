@@ -18,9 +18,9 @@ ifeq ($(CONFIG_TI_SECURE_DEVICE),y) # Refer to README.ti-secure for more info
 # For booting spl from QSPI or NOR use
 # u-boot-spl_HS_X-LOADER
 ifeq ($(CONFIG_OMAP54XX),y)
-ALL-y += u-boot-spl_HS_MLO
-ALL-y += u-boot-spl_HS_ULO
-ALL-y += u-boot-spl_HS_X-LOADER
+INPUTS-y += u-boot-spl_HS_MLO
+INPUTS-y += u-boot-spl_HS_ULO
+INPUTS-y += u-boot-spl_HS_X-LOADER
 endif
 # On AM43XX:
 #
@@ -30,8 +30,8 @@ endif
 # For booting spl from all other media use
 # u-boot-spl_HS_ISSW
 ifeq ($(CONFIG_AM43XX),y)
-ALL-y += u-boot-spl_HS_SPI_X-LOADER
-ALL-y += u-boot-spl_HS_ISSW
+INPUTS-y += u-boot-spl_HS_SPI_X-LOADER
+INPUTS-y += u-boot-spl_HS_ISSW
 endif
 # On AM33XX:
 #
@@ -47,21 +47,21 @@ endif
 # For booting spl over UART, USB, or Ethernet use
 # u-boot-spl_HS_2ND
 ifeq ($(CONFIG_AM33XX),y)
-ALL-y += u-boot-spl_HS_SPI_X-LOADER
-ALL-y += u-boot-spl_HS_X-LOADER
-ALL-y += u-boot-spl_HS_MLO
-ALL-y += u-boot-spl_HS_2ND
+INPUTS-y += u-boot-spl_HS_SPI_X-LOADER
+INPUTS-y += u-boot-spl_HS_X-LOADER
+INPUTS-y += u-boot-spl_HS_MLO
+INPUTS-y += u-boot-spl_HS_2ND
 endif
 else
-ALL-y += MLO
+INPUTS-y += MLO
 ifeq ($(CONFIG_AM33XX),y)
-ALL-y += MLO.byteswap
+INPUTS-y += MLO.byteswap
 endif
 endif
 else
 ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
-ALL-$(CONFIG_QSPI_BOOT) += u-boot_HS_XIP_X-LOADER
-ALL-$(CONFIG_SPL_LOAD_FIT) += u-boot_HS.img
+INPUTS-$(CONFIG_QSPI_BOOT) += u-boot_HS_XIP_X-LOADER
+INPUTS-$(CONFIG_SPL_LOAD_FIT) += u-boot_HS.img
 endif
-ALL-y += u-boot.img
+INPUTS-y += u-boot.img
 endif

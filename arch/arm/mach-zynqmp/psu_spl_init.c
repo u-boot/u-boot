@@ -7,6 +7,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/psu_init_gpl.h>
+#include <linux/delay.h>
 
 #define PSU_MASK_POLL_TIME 1100000
 
@@ -76,4 +77,13 @@ __weak int psu_init(void)
 	 * board/xilinx/zynqmp/(platform)/psu_init_gpl.c, if it exists.
 	 */
 	return -1;
+}
+
+__weak unsigned long psu_post_config_data(void)
+{
+	/*
+	 * This function is overridden by the one in
+	 * board/xilinx/zynqmp/(platform)/psu_init_gpl.c, if it exists.
+	 */
+	return 0;
 }

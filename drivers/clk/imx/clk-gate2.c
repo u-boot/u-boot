@@ -19,9 +19,11 @@
 #include <malloc.h>
 #include <clk-uclass.h>
 #include <dm/device.h>
+#include <dm/devres.h>
 #include <linux/clk-provider.h>
 #include <clk.h>
 #include "clk.h"
+#include <linux/err.h>
 
 #define UBOOT_DM_CLK_IMX_GATE2 "imx_clk_gate2"
 
@@ -37,7 +39,7 @@ struct clk_gate2 {
 
 static int clk_gate2_enable(struct clk *clk)
 {
-	struct clk_gate2 *gate = to_clk_gate2(dev_get_clk_ptr(clk->dev));
+	struct clk_gate2 *gate = to_clk_gate2(clk);
 	u32 reg;
 
 	reg = readl(gate->reg);
@@ -50,7 +52,7 @@ static int clk_gate2_enable(struct clk *clk)
 
 static int clk_gate2_disable(struct clk *clk)
 {
-	struct clk_gate2 *gate = to_clk_gate2(dev_get_clk_ptr(clk->dev));
+	struct clk_gate2 *gate = to_clk_gate2(clk);
 	u32 reg;
 
 	reg = readl(gate->reg);

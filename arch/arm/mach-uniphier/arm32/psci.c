@@ -4,7 +4,7 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
+#include <cpu_func.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/io.h>
@@ -15,6 +15,7 @@
 #include <asm/processor.h>
 #include <asm/psci.h>
 #include <asm/secure.h>
+#include <asm/system.h>
 
 #include "../debug.h"
 #include "../soc-info.h"

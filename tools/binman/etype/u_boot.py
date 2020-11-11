@@ -5,8 +5,8 @@
 # Entry-type module for U-Boot binary
 #
 
-from entry import Entry
-from blob import Entry_blob
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
 class Entry_u_boot(Entry_blob):
     """U-Boot flat binary
@@ -26,7 +26,7 @@ class Entry_u_boot(Entry_blob):
     in the binman README for more information.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def GetDefaultFilename(self):
         return 'u-boot.bin'

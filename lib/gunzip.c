@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <command.h>
 #include <console.h>
 #include <div64.h>
@@ -12,6 +13,7 @@
 #include <image.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <u-boot/crc.h>
 #include <watchdog.h>
 #include <u-boot/zlib.h>
 

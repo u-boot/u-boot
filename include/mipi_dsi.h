@@ -16,6 +16,7 @@
 #define MIPI_DSI_H
 
 #include <mipi_display.h>
+#include <linux/bitops.h>
 
 struct mipi_dsi_host;
 struct mipi_dsi_device;
@@ -96,6 +97,20 @@ struct mipi_dsi_host_ops {
 };
 
 /**
+ * struct mipi_dsi_phy_timing - DSI host phy timings
+ * @data_hs2lp: High Speed to Low Speed Data Transition Time
+ * @data_lp2hs: Low Speed to High Speed Data Transition Time
+ * @clk_hs2lp: High Speed to Low Speed Clock Transition Time
+ * @clk_lp2hs: Low Speed to High Speed Clock Transition Time
+ */
+struct mipi_dsi_phy_timing {
+	u16 data_hs2lp;
+	u16 data_lp2hs;
+	u16 clk_hs2lp;
+	u16 clk_lp2hs;
+};
+
+/**
  * struct mipi_dsi_phy_ops - DSI host physical operations
  * @init: initialized host physical part
  * @get_lane_mbps: get lane bitrate per lane (mbps)
@@ -106,6 +121,9 @@ struct mipi_dsi_phy_ops {
 	int (*get_lane_mbps)(void *priv_data, struct display_timing *timings,
 			     u32 lanes, u32 format, unsigned int *lane_mbps);
 	void (*post_set_mode)(void *priv_data,  unsigned long mode_flags);
+	int (*get_timing)(void *priv_data, unsigned int lane_mbps,
+			  struct mipi_dsi_phy_timing *timing);
+	void (*get_esc_clk_rate)(void *priv_data, unsigned int *esc_clk_rate);
 };
 
 /**
@@ -220,9 +238,15 @@ static inline int mipi_dsi_pixel_format_to_bpp(enum mipi_dsi_pixel_format fmt)
 /**
  * struct mipi_dsi_panel_plat - DSI panel platform data
  * @device: DSI peripheral device
+ * @lanes: number of active data lanes
+ * @format: pixel format for video mode
+ * @mode_flags: DSI operation mode related flags
  */
 struct mipi_dsi_panel_plat {
 	struct mipi_dsi_device *device;
+	unsigned int lanes;
+	enum mipi_dsi_pixel_format format;
+	unsigned long mode_flags;
 };
 
 /**

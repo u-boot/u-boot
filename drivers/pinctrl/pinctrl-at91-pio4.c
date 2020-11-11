@@ -9,6 +9,7 @@
 #include <common.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/err.h>
 #include <mach/atmel_pio4.h>
@@ -157,7 +158,7 @@ static int atmel_pinctrl_probe(struct udevice *dev)
 	fdt_addr_t addr_base;
 
 	dev = dev_get_parent(dev);
-	addr_base = devfdt_get_addr(dev);
+	addr_base = dev_read_addr(dev);
 	if (addr_base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -168,6 +169,7 @@ static int atmel_pinctrl_probe(struct udevice *dev)
 
 static const struct udevice_id atmel_pinctrl_match[] = {
 	{ .compatible = "atmel,sama5d2-pinctrl" },
+	{ .compatible = "microchip,sama7g5-pinctrl" },
 	{}
 };
 

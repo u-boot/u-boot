@@ -1,10 +1,16 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2019 NXP
  */
 
 #include <common.h>
+#include <clock_legacy.h>
+#include <command.h>
+#include <fdt_support.h>
 #include <i2c.h>
+#include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/immap_ls102xa.h>
 #include <asm/arch/clock.h>
@@ -14,7 +20,6 @@
 #include <hwconfig.h>
 #include <mmc.h>
 #include <fsl_csu.h>
-#include <fsl_esdhc.h>
 #include <fsl_ifc.h>
 #include <fsl_immap.h>
 #include <netdev.h>
@@ -23,6 +28,7 @@
 #include <fsl_sec.h>
 #include <fsl_devdis.h>
 #include <spl.h>
+#include <linux/delay.h>
 #include "../common/sleep.h"
 #ifdef CONFIG_U_QE
 #include <fsl_qe.h>
@@ -233,20 +239,7 @@ int dram_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_FSL_ESDHC
-struct fsl_esdhc_cfg esdhc_cfg[1] = {
-	{CONFIG_SYS_FSL_ESDHC_ADDR},
-};
-
-int board_mmc_init(bd_t *bis)
-{
-	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-
-	return fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
-}
-#endif
-
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return pci_eth_init(bis);
 }
@@ -458,14 +451,37 @@ void board_init_f(ulong dummy)
 /* program the regulator (MC34VR500) to support deep sleep */
 void ls1twr_program_regulator(void)
 {
-	unsigned int i2c_bus;
 	u8 i2c_device_id;
 
 #define LS1TWR_I2C_BUS_MC34VR500	1
 #define MC34VR500_ADDR			0x8
 #define MC34VR500_DEVICEID		0x4
 #define MC34VR500_DEVICEID_MASK		0x0f
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev;
+	int ret;
 
+	ret = i2c_get_chip_for_busnum(LS1TWR_I2C_BUS_MC34VR500, MC34VR500_ADDR,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       LS1TWR_I2C_BUS_MC34VR500);
+		return;
+	}
+	i2c_device_id = dm_i2c_reg_read(dev, 0x0) &
+					MC34VR500_DEVICEID_MASK;
+	if (i2c_device_id != MC34VR500_DEVICEID) {
+		printf("The regulator (MC34VR500) does not exist. The device does not support deep sleep.\n");
+		return;
+	}
+
+	dm_i2c_reg_write(dev, 0x31, 0x4);
+	dm_i2c_reg_write(dev, 0x4d, 0x4);
+	dm_i2c_reg_write(dev, 0x6d, 0x38);
+	dm_i2c_reg_write(dev, 0x6f, 0x37);
+	dm_i2c_reg_write(dev, 0x71, 0x30);
+#else
+	unsigned int i2c_bus;
 	i2c_bus = i2c_get_bus_num();
 	i2c_set_bus_num(LS1TWR_I2C_BUS_MC34VR500);
 	i2c_device_id = i2c_reg_read(MC34VR500_ADDR, 0x0) &
@@ -482,6 +498,7 @@ void ls1twr_program_regulator(void)
 	i2c_reg_write(MC34VR500_ADDR, 0x71, 0x30);
 
 	i2c_set_bus_num(i2c_bus);
+#endif
 }
 #endif
 
@@ -553,7 +570,7 @@ void board_sleep_prepare(void)
 }
 #endif
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 
@@ -597,8 +614,8 @@ static void convert_flash_bank(char bank)
 	cpld_data->system_rst = CONFIG_RESET;
 }
 
-static int flash_bank_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int flash_bank_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	if (argc != 2)
 		return CMD_RET_USAGE;
@@ -618,8 +635,8 @@ U_BOOT_CMD(
 	"bank[0-upper bank/1-lower bank] (e.g. boot_bank 0)"
 );
 
-static int cpld_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int cpld_reset_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
 
@@ -677,8 +694,8 @@ static void print_serdes_mux(void)
 		printf("B.\n");
 }
 
-static int serdes_mux_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int serdes_mux_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	if (argc != 2)
 		return CMD_RET_USAGE;

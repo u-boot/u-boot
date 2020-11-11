@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <log.h>
 #include <net.h>
 #include <net/tftp.h>
 #include "nfs.h"

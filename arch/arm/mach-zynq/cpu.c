@@ -4,7 +4,10 @@
  * Copyright (C) 2012 Xilinx, Inc. All rights reserved.
  */
 #include <common.h>
+#include <cpu_func.h>
+#include <init.h>
 #include <zynqpl.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
@@ -14,8 +17,7 @@
 #define ZYNQ_SILICON_VER_MASK	0xF0000000
 #define ZYNQ_SILICON_VER_SHIFT	28
 
-#if (defined(CONFIG_FPGA) && !defined(CONFIG_SPL_BUILD)) || \
-    (defined(CONFIG_SPL_FPGA_SUPPORT) && defined(CONFIG_SPL_BUILD))
+#if CONFIG_IS_ENABLED(FPGA)
 xilinx_desc fpga = {
 	.family = xilinx_zynq,
 	.iface = devcfg,
@@ -108,8 +110,7 @@ static int __maybe_unused cpu_desc_id(void)
 #if defined(CONFIG_ARCH_EARLY_INIT_R)
 int arch_early_init_r(void)
 {
-#if (defined(CONFIG_FPGA) && !defined(CONFIG_SPL_BUILD)) || \
-    (defined(CONFIG_SPL_FPGA_SUPPORT) && defined(CONFIG_SPL_BUILD))
+#if CONFIG_IS_ENABLED(FPGA)
 	int cpu_id = cpu_desc_id();
 
 	if (cpu_id < 0)

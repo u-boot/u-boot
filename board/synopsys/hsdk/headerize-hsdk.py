@@ -27,7 +27,7 @@ def calc_check_sum(filename):
 
 
 def arg_verify(uboot_bin_filename, uboot_elf_filename, arc_id):
-    if arc_id not in [0x52, 0x53]:
+    if arc_id not in [0x52, 0x53, 0x54]:
         print("unknown ARC ID: " + hex(arc_id))
         sys.exit(2)
 

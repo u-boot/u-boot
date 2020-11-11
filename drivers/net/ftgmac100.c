@@ -11,11 +11,18 @@
  * Copyright (C) 2018, IBM Corporation.
  */
 
+#include <common.h>
 #include <clk.h>
+#include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
+#include <malloc.h>
 #include <miiphy.h>
 #include <net.h>
 #include <wait_bit.h>
+#include <asm/cache.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
 
@@ -71,8 +78,8 @@ enum ftgmac100_model {
 struct ftgmac100_data {
 	struct ftgmac100 *iobase;
 
-	struct ftgmac100_txdes txdes[PKTBUFSTX];
-	struct ftgmac100_rxdes rxdes[PKTBUFSRX];
+	struct ftgmac100_txdes txdes[PKTBUFSTX] __aligned(ARCH_DMA_MINALIGN);
+	struct ftgmac100_rxdes rxdes[PKTBUFSRX] __aligned(ARCH_DMA_MINALIGN);
 	int tx_index;
 	int rx_index;
 
@@ -309,7 +316,7 @@ static int ftgmac100_start(struct udevice *dev)
 	}
 	priv->txdes[PKTBUFSTX - 1].txdes0 = priv->txdes0_edotr_mask;
 
-	start = (ulong)&priv->txdes[0];
+	start = ((ulong)&priv->txdes[0]) & ~(ARCH_DMA_MINALIGN - 1);
 	end = start + roundup(sizeof(priv->txdes), ARCH_DMA_MINALIGN);
 	flush_dcache_range(start, end);
 
@@ -319,7 +326,7 @@ static int ftgmac100_start(struct udevice *dev)
 	}
 	priv->rxdes[PKTBUFSRX - 1].rxdes0 = priv->rxdes0_edorr_mask;
 
-	start = (ulong)&priv->rxdes[0];
+	start = ((ulong)&priv->rxdes[0]) & ~(ARCH_DMA_MINALIGN - 1);
 	end = start + roundup(sizeof(priv->rxdes), ARCH_DMA_MINALIGN);
 	flush_dcache_range(start, end);
 
@@ -369,7 +376,7 @@ static int ftgmac100_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 	struct ftgmac100_rxdes *curr_des = &priv->rxdes[priv->rx_index];
-	ulong des_start = (ulong)curr_des;
+	ulong des_start = ((ulong)curr_des) & ~(ARCH_DMA_MINALIGN - 1);
 	ulong des_end = des_start +
 		roundup(sizeof(*curr_des), ARCH_DMA_MINALIGN);
 
@@ -391,7 +398,7 @@ static int ftgmac100_recv(struct udevice *dev, int flags, uchar **packetp)
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 	struct ftgmac100_rxdes *curr_des = &priv->rxdes[priv->rx_index];
 	unsigned short rxlen;
-	ulong des_start = (ulong)curr_des;
+	ulong des_start = ((ulong)curr_des) & ~(ARCH_DMA_MINALIGN - 1);
 	ulong des_end = des_start +
 		roundup(sizeof(*curr_des), ARCH_DMA_MINALIGN);
 	ulong data_start = curr_des->rxdes3;
@@ -426,7 +433,7 @@ static int ftgmac100_recv(struct udevice *dev, int flags, uchar **packetp)
 static u32 ftgmac100_read_txdesc(const void *desc)
 {
 	const struct ftgmac100_txdes *txdes = desc;
-	ulong des_start = (ulong)txdes;
+	ulong des_start = ((ulong)txdes) & ~(ARCH_DMA_MINALIGN - 1);
 	ulong des_end = des_start + roundup(sizeof(*txdes), ARCH_DMA_MINALIGN);
 
 	invalidate_dcache_range(des_start, des_end);
@@ -444,7 +451,7 @@ static int ftgmac100_send(struct udevice *dev, void *packet, int length)
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 	struct ftgmac100 *ftgmac100 = priv->iobase;
 	struct ftgmac100_txdes *curr_des = &priv->txdes[priv->tx_index];
-	ulong des_start = (ulong)curr_des;
+	ulong des_start = ((ulong)curr_des) & ~(ARCH_DMA_MINALIGN - 1);
 	ulong des_end = des_start +
 		roundup(sizeof(*curr_des), ARCH_DMA_MINALIGN);
 	ulong data_start;
@@ -510,7 +517,7 @@ static int ftgmac100_ofdata_to_platdata(struct udevice *dev)
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 	const char *phy_mode;
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	pdata->phy_interface = -1;
 	phy_mode = dev_read_string(dev, "phy-mode");
 	if (phy_mode)
@@ -543,6 +550,10 @@ static int ftgmac100_probe(struct udevice *dev)
 	priv->phy_mode = pdata->phy_interface;
 	priv->max_speed = pdata->max_speed;
 	priv->phy_addr = 0;
+
+#ifdef CONFIG_PHY_ADDR
+	priv->phy_addr = CONFIG_PHY_ADDR;
+#endif
 
 	ret = clk_enable_bulk(&priv->clks);
 	if (ret)

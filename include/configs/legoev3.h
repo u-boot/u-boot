@@ -33,10 +33,8 @@
 #define CONFIG_MAX_RAM_BANK_SIZE (512 << 20) /* max size from SPRS586*/
 
 /* memtest start addr */
-#define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM_1 + 0x2000000)
 
 /* memtest will be run on 16MB */
-#define CONFIG_SYS_MEMTEST_END 	(PHYS_SDRAM_1 + 0x2000000 + 16*1024*1024)
 
 /*
  * Serial Driver info
@@ -134,8 +132,6 @@
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS
 #endif
-
-#define CONFIG_ENV_SIZE		(16 << 10)
 
 /* additions for new relocation code, must added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000

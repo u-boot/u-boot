@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <log.h>
 #include <tps6586x.h>
 #include <asm/io.h>
 #include <asm/arch/tegra.h>

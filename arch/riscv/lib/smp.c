@@ -5,37 +5,18 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <asm/barrier.h>
 #include <asm/smp.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/**
- * riscv_send_ipi() - Send inter-processor interrupt (IPI)
- *
- * Platform code must provide this function.
- *
- * @hart: Hart ID of receiving hart
- * @return 0 if OK, -ve on error
- */
-extern int riscv_send_ipi(int hart);
-
-/**
- * riscv_clear_ipi() - Clear inter-processor interrupt (IPI)
- *
- * Platform code must provide this function.
- *
- * @hart: Hart ID of hart to be cleared
- * @return 0 if OK, -ve on error
- */
-extern int riscv_clear_ipi(int hart);
-
-static int send_ipi_many(struct ipi_data *ipi)
+static int send_ipi_many(struct ipi_data *ipi, int wait)
 {
 	ofnode node, cpus;
 	u32 reg;
-	int ret;
+	int ret, pending;
 
 	cpus = ofnode_path("/cpus");
 	if (!ofnode_valid(cpus)) {
@@ -73,10 +54,27 @@ static int send_ipi_many(struct ipi_data *ipi)
 		gd->arch.ipi[reg].arg0 = ipi->arg0;
 		gd->arch.ipi[reg].arg1 = ipi->arg1;
 
+		/*
+		 * Ensure valid only becomes set when the IPI parameters are
+		 * set. An IPI may already be pending on other harts, so we
+		 * need a way to signal that the IPI device has been
+		 * initialized, and that it is ok to call the function.
+		 */
+		__smp_store_release(&gd->arch.ipi[reg].valid, 1);
+
 		ret = riscv_send_ipi(reg);
 		if (ret) {
 			pr_err("Cannot send IPI to hart %d\n", reg);
 			return ret;
+		}
+
+		if (wait) {
+			pending = 1;
+			while (pending) {
+				ret = riscv_get_ipi(reg, &pending);
+				if (ret)
+					return ret;
+			}
 		}
 	}
 
@@ -91,30 +89,37 @@ void handle_ipi(ulong hart)
 	if (hart >= CONFIG_NR_CPUS)
 		return;
 
-	ret = riscv_clear_ipi(hart);
-	if (ret) {
-		pr_err("Cannot clear IPI of hart %ld\n", hart);
+	/*
+	 * If valid is not set, then U-Boot has not requested the IPI. The
+	 * IPI device may not be initialized, so all we can do is wait for
+	 * U-Boot to initialize it and send an IPI
+	 */
+	if (!__smp_load_acquire(&gd->arch.ipi[hart].valid))
 		return;
-	}
-
-	__smp_mb();
 
 	smp_function = (void (*)(ulong, ulong, ulong))gd->arch.ipi[hart].addr;
 	invalidate_icache_all();
 
+	/*
+	 * Clear the IPI to acknowledge the request before jumping to the
+	 * requested function.
+	 */
+	ret = riscv_clear_ipi(hart);
+	if (ret) {
+		pr_err("Cannot clear IPI of hart %ld (error %d)\n", hart, ret);
+		return;
+	}
+
 	smp_function(hart, gd->arch.ipi[hart].arg0, gd->arch.ipi[hart].arg1);
 }
 
-int smp_call_function(ulong addr, ulong arg0, ulong arg1)
+int smp_call_function(ulong addr, ulong arg0, ulong arg1, int wait)
 {
-	int ret = 0;
-	struct ipi_data ipi;
+	struct ipi_data ipi = {
+		.addr = addr,
+		.arg0 = arg0,
+		.arg1 = arg1,
+	};
 
-	ipi.addr = addr;
-	ipi.arg0 = arg0;
-	ipi.arg1 = arg1;
-
-	ret = send_ipi_many(&ipi);
-
-	return ret;
+	return send_ipi_many(&ipi, wait);
 }

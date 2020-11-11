@@ -12,6 +12,10 @@
 #include <dm.h>
 #include <errno.h>
 #include <clk-uclass.h>
+#include <log.h>
+#include <malloc.h>
+#include <dm/device_compat.h>
+#include <linux/err.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <k3-avs.h>
 
@@ -106,8 +110,7 @@ static ulong ti_sci_clk_set_rate(struct clk *clk, ulong rate)
 	k3_avs_notify_freq(clk->id, clk->data, rate);
 #endif
 
-	/* Ask for exact frequency by using same value for min/target/max */
-	ret = cops->set_freq(sci, clk->id, clk->data, rate, rate, rate);
+	ret = cops->set_freq(sci, clk->id, clk->data, 0, rate, ULONG_MAX);
 	if (ret)
 		dev_err(clk->dev, "%s: set_freq failed (%d)\n", __func__, ret);
 
@@ -204,7 +207,7 @@ static const struct udevice_id ti_sci_clk_of_match[] = {
 static struct clk_ops ti_sci_clk_ops = {
 	.of_xlate = ti_sci_clk_of_xlate,
 	.request = ti_sci_clk_request,
-	.free = ti_sci_clk_free,
+	.rfree = ti_sci_clk_free,
 	.get_rate = ti_sci_clk_get_rate,
 	.set_rate = ti_sci_clk_set_rate,
 	.set_parent = ti_sci_clk_set_parent,

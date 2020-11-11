@@ -9,49 +9,101 @@
 #ifndef __LOG_H
 #define __LOG_H
 
+#include <stdio.h>
+#include <linker_lists.h>
 #include <dm/uclass-id.h>
+#include <linux/bitops.h>
 #include <linux/list.h>
 
-/** Log levels supported, ranging from most to least important */
-enum log_level_t {
-	LOGL_EMERG = 0,		/* U-Boot is unstable */
-	LOGL_ALERT,		/* Action must be taken immediately */
-	LOGL_CRIT,		/* Critical conditions */
-	LOGL_ERR,		/* Error that prevents something from working */
-	LOGL_WARNING,		/* Warning may prevent optimial operation */
-	LOGL_NOTICE,		/* Normal but significant condition, printf() */
-	LOGL_INFO,		/* General information message */
-	LOGL_DEBUG,		/* Basic debug-level message */
-	LOGL_DEBUG_CONTENT,	/* Debug message showing full message content */
-	LOGL_DEBUG_IO,		/* Debug message showing hardware I/O access */
+struct cmd_tbl;
 
+/**
+ * enum log_level_t - Log levels supported, ranging from most to least important
+ */
+enum log_level_t {
+	/** @LOGL_EMERG: U-Boot is unstable */
+	LOGL_EMERG = 0,
+	/** @LOGL_ALERT: Action must be taken immediately */
+	LOGL_ALERT,
+	/** @LOGL_CRIT: Critical conditions */
+	LOGL_CRIT,
+	/** @LOGL_ERR: Error that prevents something from working */
+	LOGL_ERR,
+	/** @LOGL_WARNING: Warning may prevent optimial operation */
+	LOGL_WARNING,
+	/** @LOGL_NOTICE: Normal but significant condition, printf() */
+	LOGL_NOTICE,
+	/** @LOGL_INFO: General information message */
+	LOGL_INFO,
+	/** @LOGL_DEBUG: Basic debug-level message */
+	LOGL_DEBUG,
+	/** @LOGL_DEBUG_CONTENT: Debug message showing full message content */
+	LOGL_DEBUG_CONTENT,
+	/** @LOGL_DEBUG_IO: Debug message showing hardware I/O access */
+	LOGL_DEBUG_IO,
+
+	/** @LOGL_COUNT: Total number of valid log levels */
 	LOGL_COUNT,
+	/** @LOGL_NONE: Used to indicate that there is no valid log level */
 	LOGL_NONE,
 
+	/** @LOGL_LEVEL_MASK: Mask for valid log levels */
+	LOGL_LEVEL_MASK = 0xf,
+	/** @LOGL_FORCE_DEBUG: Mask to force output due to LOG_DEBUG */
+	LOGL_FORCE_DEBUG = 0x10,
+
+	/** @LOGL_FIRST: The first, most-important log level */
 	LOGL_FIRST = LOGL_EMERG,
+	/** @LOGL_MAX: The last, least-important log level */
 	LOGL_MAX = LOGL_DEBUG_IO,
+	/** @LOGL_CONT: Use same log level as in previous call */
+	LOGL_CONT = -1,
 };
 
 /**
- * Log categories supported. Most of these correspond to uclasses (i.e.
- * enum uclass_id) but there are also some more generic categories
+ * enum log_category_t - Log categories supported.
+ *
+ * Log categories between %LOGC_FIRST and %LOGC_NONE correspond to uclasses
+ * (i.e. &enum uclass_id), but there are also some more generic categories.
+ *
+ * Remember to update log_cat_name[] after adding a new category.
  */
 enum log_category_t {
+	/** @LOGC_FIRST: First log category */
 	LOGC_FIRST = 0,	/* First part mirrors UCLASS_... */
 
+	/** @LOGC_NONE: Default log category */
 	LOGC_NONE = UCLASS_COUNT,	/* First number is after all uclasses */
-	LOGC_ARCH,	/* Related to arch-specific code */
-	LOGC_BOARD,	/* Related to board-specific code */
-	LOGC_CORE,	/* Related to core features (non-driver-model) */
-	LOGC_DM,	/* Core driver-model */
-	LOGC_DT,	/* Device-tree */
-	LOGC_EFI,	/* EFI implementation */
-	LOGC_ALLOC,	/* Memory allocation */
-	LOGC_SANDBOX,	/* Related to the sandbox board */
-	LOGC_BLOBLIST,	/* Bloblist */
+	/** @LOGC_ARCH: Related to arch-specific code */
+	LOGC_ARCH,
+	/** @LOGC_BOARD: Related to board-specific code */
+	LOGC_BOARD,
+	/** @LOGC_CORE: Related to core features (non-driver-model) */
+	LOGC_CORE,
+	/** @LOGC_DM: Core driver-model */
+	LOGC_DM,
+	/** @LOGC_DT: Device-tree */
+	LOGC_DT,
+	/** @LOGC_EFI: EFI implementation */
+	LOGC_EFI,
+	/** @LOGC_ALLOC: Memory allocation */
+	LOGC_ALLOC,
+	/** @LOGC_SANDBOX: Related to the sandbox board */
+	LOGC_SANDBOX,
+	/** @LOGC_BLOBLIST: Bloblist */
+	LOGC_BLOBLIST,
+	/** @LOGC_DEVRES: Device resources (``devres_...`` functions) */
+	LOGC_DEVRES,
+	/** @LOGC_ACPI: Advanced Configuration and Power Interface (ACPI) */
+	LOGC_ACPI,
+	LOGC_BOOT,	/* Related to boot process / boot image processing */
 
-	LOGC_COUNT,	/* Number of log categories */
-	LOGC_END,	/* Sentinel value for a list of log categories */
+	/** @LOGC_COUNT: Number of log categories */
+	LOGC_COUNT,
+	/** @LOGC_END: Sentinel value for lists of log categories */
+	LOGC_END,
+	/** @LOGC_CONT: Use same category as in previous call */
+	LOGC_CONT = -1,
 };
 
 /* Helper to cast a uclass ID to a log category */
@@ -70,7 +122,7 @@ static inline int log_uc_cat(enum uclass_id id)
  * @func: Function where log record was generated
  * @fmt: printf() format string for log record
  * @...: Optional parameters, according to the format string @fmt
- * @return 0 if log record was emitted, -ve on error
+ * Return: 0 if log record was emitted, -ve on error
  */
 int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 	 int line, const char *func, const char *fmt, ...)
@@ -113,11 +165,11 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
 #define log_io(_fmt...)		log(LOG_CATEGORY, LOGL_DEBUG_IO, ##_fmt)
 #else
 #define _LOG_MAX_LEVEL LOGL_INFO
-#define log_err(_fmt...)	log_nop(LOG_CATEGORY, LOGL_ERR, ##_fmt)
-#define log_warning(_fmt...)	log_nop(LOG_CATEGORY, LOGL_WARNING, ##_fmt)
-#define log_notice(_fmt...)	log_nop(LOG_CATEGORY, LOGL_NOTICE, ##_fmt)
-#define log_info(_fmt...)	log_nop(LOG_CATEGORY, LOGL_INFO, ##_fmt)
-#define log_debug(_fmt...)	log_nop(LOG_CATEGORY, LOGL_DEBUG, ##_fmt)
+#define log_err(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
+#define log_warning(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
+#define log_notice(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
+#define log_info(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
+#define log_debug(_fmt, ...)	debug(_fmt, ##__VA_ARGS__)
 #define log_content(_fmt...)	log_nop(LOG_CATEGORY, \
 					LOGL_DEBUG_CONTENT, ##_fmt)
 #define log_io(_fmt...)		log_nop(LOG_CATEGORY, LOGL_DEBUG_IO, ##_fmt)
@@ -125,7 +177,7 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
 
 #if CONFIG_IS_ENABLED(LOG)
 #ifdef LOG_DEBUG
-#define _LOG_DEBUG	1
+#define _LOG_DEBUG	LOGL_FORCE_DEBUG
 #else
 #define _LOG_DEBUG	0
 #endif
@@ -133,9 +185,11 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
 /* Emit a log record if the level is less that the maximum */
 #define log(_cat, _level, _fmt, _args...) ({ \
 	int _l = _level; \
-	if (CONFIG_IS_ENABLED(LOG) && (_l <= _LOG_MAX_LEVEL || _LOG_DEBUG)) \
-		_log((enum log_category_t)(_cat), _l, __FILE__, __LINE__, \
-		      __func__, \
+	if (CONFIG_IS_ENABLED(LOG) && \
+	    (_LOG_DEBUG != 0 || _l <= _LOG_MAX_LEVEL)) \
+		_log((enum log_category_t)(_cat), \
+		     (enum log_level_t)(_l | _LOG_DEBUG), __FILE__, \
+		     __LINE__, __func__, \
 		      pr_fmt(_fmt), ##_args); \
 	})
 #else
@@ -218,6 +272,20 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 	({ if (!(x) && _DEBUG) \
 		__assert_fail(#x, __FILE__, __LINE__, __func__); })
 
+/*
+ * This one actually gets compiled in even without DEBUG. It doesn't include the
+ * full pathname as it may be huge. Only use this when the user should be
+ * warning, similar to BUG_ON() in linux.
+ *
+ * Return: true if assertion succeeded (condition is true), else false
+ */
+#define assert_noisy(x) \
+	({ bool _val = (x); \
+	if (!_val) \
+		__assert_fail(#x, "?", __LINE__, __func__); \
+	_val; \
+	})
+
 #if CONFIG_IS_ENABLED(LOG) && defined(CONFIG_LOG_ERROR_RETURN)
 /*
  * Log an error return value, possibly with a message. Usage:
@@ -257,8 +325,12 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
  * Memebers marked as 'allocated' are allocated (e.g. via strdup()) by the log
  * system.
  *
+ * TODO(sjg@chromium.org): Compress this struct down a bit to reduce space, e.g.
+ * a single u32 for cat, level, line and force_debug
+ *
  * @cat: Category, representing a uclass or part of U-Boot
  * @level: Severity level, less severe is higher
+ * @force_debug: Force output of debug
  * @file: Name of file where the log record was generated (not allocated)
  * @line: Line number where the log record was generated
  * @func: Function where the log record was generated (not allocated)
@@ -267,6 +339,7 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 struct log_rec {
 	enum log_category_t cat;
 	enum log_level_t level;
+	bool force_debug;
 	const char *file;
 	int line;
 	const char *func;
@@ -275,20 +348,28 @@ struct log_rec {
 
 struct log_device;
 
+enum log_device_flags {
+	LOGDF_ENABLE		= BIT(0),	/* Device is enabled */
+};
+
 /**
  * struct log_driver - a driver which accepts and processes log records
  *
  * @name: Name of driver
+ * @emit: Method to call to emit a log record via this device
+ * @flags: Initial value for flags (use LOGDF_ENABLE to enable on start-up)
  */
 struct log_driver {
 	const char *name;
+
 	/**
-	 * emit() - emit a log record
+	 * @emit: emit a log record
 	 *
 	 * Called by the log system to pass a log record to a particular driver
 	 * for processing. The filter is checked before calling this function.
 	 */
 	int (*emit)(struct log_device *ldev, struct log_rec *rec);
+	unsigned short flags;
 };
 
 /**
@@ -301,12 +382,14 @@ struct log_driver {
  * @next_filter_num: Seqence number of next filter filter added (0=no filters
  *	yet). This increments with each new filter on the device, but never
  *	decrements
+ * @flags: Flags for this filter (enum log_device_flags)
  * @drv: Pointer to driver for this device
  * @filter_head: List of filters for this device
  * @sibling_node: Next device in the list of all devices
  */
 struct log_device {
-	int next_filter_num;
+	unsigned short next_filter_num;
+	unsigned short flags;
 	struct log_driver *drv;
 	struct list_head filter_head;
 	struct list_head sibling_node;
@@ -316,21 +399,32 @@ enum {
 	LOGF_MAX_CATEGORIES = 5,	/* maximum categories per filter */
 };
 
+/**
+ * enum log_filter_flags - Flags which modify a filter
+ */
 enum log_filter_flags {
-	LOGFF_HAS_CAT		= 1 << 0,	/* Filter has a category list */
+	/** @LOGFF_HAS_CAT: Filter has a category list */
+	LOGFF_HAS_CAT	= 1 << 0,
+	/** @LOGFF_DENY: Filter denies matching messages */
+	LOGFF_DENY	= 1 << 1,
+	/** @LOGFF_LEVEL_MIN: Filter's level is a minimum, not a maximum */
+	LOGFF_LEVEL_MIN = 1 << 2,
 };
 
 /**
  * struct log_filter - criterial to filter out log messages
  *
+ * If a message matches all criteria, then it is allowed. If LOGFF_DENY is set,
+ * then it is denied instead.
+ *
  * @filter_num: Sequence number of this filter.  This is returned when adding a
  *	new filter, and must be provided when removing a previously added
  *	filter.
- * @flags: Flags for this filter (LOGFF_...)
- * @cat_list: List of categories to allow (terminated by LOGC_none). If empty
- *	then all categories are permitted. Up to LOGF_MAX_CATEGORIES entries
+ * @flags: Flags for this filter (``LOGFF_...``)
+ * @cat_list: List of categories to allow (terminated by %LOGC_END). If empty
+ *	then all categories are permitted. Up to %LOGF_MAX_CATEGORIES entries
  *	can be provided
- * @max_level: Maximum log level to allow
+ * @level: Maximum (or minimum, if %LOGFF_MIN_LEVEL) log level to allow
  * @file_list: List of files to allow, separated by comma. If NULL then all
  *	files are permitted
  * @sibling_node: Next filter in the list of filters for this log device
@@ -339,7 +433,7 @@ struct log_filter {
 	int filter_num;
 	int flags;
 	enum log_category_t cat_list[LOGF_MAX_CATEGORIES];
-	enum log_level_t max_level;
+	enum log_level_t level;
 	const char *file_list;
 	struct list_head sibling_node;
 };
@@ -347,12 +441,17 @@ struct log_filter {
 #define LOG_DRIVER(_name) \
 	ll_entry_declare(struct log_driver, _name, log_driver)
 
+/* Get a pointer to a given driver */
+#define LOG_GET_DRIVER(__name)						\
+	ll_entry_get(struct log_driver, __name, log_driver)
+
 /**
  * log_get_cat_name() - Get the name of a category
  *
  * @cat: Category to look up
- * @return category name (which may be a uclass driver name) if found, or
- *	 "<invalid>" if invalid, or "<missing>" if not found
+ * Return: category name (which may be a uclass driver name) if found, or
+ *	   "<invalid>" if invalid, or "<missing>" if not found. All error
+ *	   responses begin with '<'.
  */
 const char *log_get_cat_name(enum log_category_t cat);
 
@@ -360,7 +459,7 @@ const char *log_get_cat_name(enum log_category_t cat);
  * log_get_cat_by_name() - Look up a category by name
  *
  * @name: Name to look up
- * @return category ID, or LOGC_NONE if not found
+ * Return: Category, or %LOGC_NONE if not found
  */
 enum log_category_t log_get_cat_by_name(const char *name);
 
@@ -368,7 +467,7 @@ enum log_category_t log_get_cat_by_name(const char *name);
  * log_get_level_name() - Get the name of a log level
  *
  * @level: Log level to look up
- * @return log level name (in ALL CAPS)
+ * Return: Log level name (in ALL CAPS)
  */
 const char *log_get_level_name(enum log_level_t level);
 
@@ -376,9 +475,40 @@ const char *log_get_level_name(enum log_level_t level);
  * log_get_level_by_name() - Look up a log level by name
  *
  * @name: Name to look up
- * @return log level ID, or LOGL_NONE if not found
+ * Return: Log level, or %LOGL_NONE if not found
  */
 enum log_level_t log_get_level_by_name(const char *name);
+
+/**
+ * log_device_find_by_name() - Look up a log device by its driver's name
+ *
+ * @drv_name: Name of the driver
+ * Return: the log device, or %NULL if not found
+ */
+struct log_device *log_device_find_by_name(const char *drv_name);
+
+/**
+ * log_has_cat() - check if a log category exists within a list
+ *
+ * @cat_list: List of categories to check, at most %LOGF_MAX_CATEGORIES entries
+ *	long, terminated by %LC_END if fewer
+ * @cat: Category to search for
+ *
+ * Return: ``true`` if @cat is in @cat_list, else ``false``
+ */
+bool log_has_cat(enum log_category_t cat_list[], enum log_category_t cat);
+
+/**
+ * log_has_file() - check if a file is with a list
+ *
+ * @file_list: List of files to check, separated by comma
+ * @file: File to check for. This string is matched against the end of each
+ *	file in the list, i.e. ignoring any preceding path. The list is
+ *	intended to consist of relative pathnames, e.g. common/main.c,cmd/log.c
+ *
+ * Return: ``true`` if @file is in @file_list, else ``false``
+ */
+bool log_has_file(const char *file_list, const char *file);
 
 /* Log format flags (bit numbers) for gd->log_fmt. See log_fmt_chars */
 enum log_fmt {
@@ -390,29 +520,55 @@ enum log_fmt {
 	LOGF_MSG,
 
 	LOGF_COUNT,
-	LOGF_DEFAULT = (1 << LOGF_FUNC) | (1 << LOGF_MSG),
 	LOGF_ALL = 0x3f,
 };
 
 /* Handle the 'log test' command */
-int do_log_test(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
+int do_log_test(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
+
+/**
+ * log_add_filter_flags() - Add a new filter to a log device, specifying flags
+ *
+ * @drv_name: Driver name to add the filter to (since each driver only has a
+ *	single device)
+ * @flags: Flags for this filter (``LOGFF_...``)
+ * @cat_list: List of categories to allow (terminated by %LOGC_END). If empty
+ *	then all categories are permitted. Up to %LOGF_MAX_CATEGORIES entries
+ *	can be provided
+ * @level: Maximum (or minimum, if %LOGFF_LEVEL_MIN) log level to allow
+ * @file_list: List of files to allow, separated by comma. If NULL then all
+ *	files are permitted
+ * Return:
+ *   the sequence number of the new filter (>=0) if the filter was added, or a
+ *   -ve value on error
+ */
+int log_add_filter_flags(const char *drv_name, enum log_category_t cat_list[],
+			 enum log_level_t level, const char *file_list,
+			 int flags);
 
 /**
  * log_add_filter() - Add a new filter to a log device
  *
  * @drv_name: Driver name to add the filter to (since each driver only has a
  *	single device)
- * @cat_list: List of categories to allow (terminated by LOGC_none). If empty
- *	then all categories are permitted. Up to LOGF_MAX_CATEGORIES entries
+ * @cat_list: List of categories to allow (terminated by %LOGC_END). If empty
+ *	then all categories are permitted. Up to %LOGF_MAX_CATEGORIES entries
  *	can be provided
  * @max_level: Maximum log level to allow
- * @file_list: List of files to allow, separated by comma. If NULL then all
+ * @file_list: List of files to allow, separated by comma. If %NULL then all
  *	files are permitted
- * @return the sequence number of the new filter (>=0) if the filter was added,
- *	or a -ve value on error
+ * Return:
+ *   the sequence number of the new filter (>=0) if the filter was added, or a
+ *   -ve value on error
  */
-int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
-		   enum log_level_t max_level, const char *file_list);
+static inline int log_add_filter(const char *drv_name,
+				 enum log_category_t cat_list[],
+				 enum log_level_t max_level,
+				 const char *file_list)
+{
+	return log_add_filter_flags(drv_name, cat_list, max_level, file_list,
+				    0);
+}
 
 /**
  * log_remove_filter() - Remove a filter from a log device
@@ -420,16 +576,30 @@ int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
  * @drv_name: Driver name to remove the filter from (since each driver only has
  *	a single device)
  * @filter_num: Filter number to remove (as returned by log_add_filter())
- * @return 0 if the filter was removed, -ENOENT if either the driver or the
- *	filter number was not found
+ * Return:
+ *   0 if the filter was removed, -%ENOENT if either the driver or the filter
+ *   number was not found
  */
 int log_remove_filter(const char *drv_name, int filter_num);
+
+/**
+ * log_device_set_enable() - Enable or disable a log device
+ *
+ * Devices are referenced by their driver, so use LOG_GET_DRIVER(name) to pass
+ * the driver to this function. For example if the driver is declared with
+ * LOG_DRIVER(wibble) then pass LOG_GET_DRIVER(wibble) here.
+ *
+ * @drv: Driver of device to enable
+ * @enable: true to enable, false to disable
+ * @return 0 if OK, -ENOENT if the driver was not found
+ */
+int log_device_set_enable(struct log_driver *drv, bool enable);
 
 #if CONFIG_IS_ENABLED(LOG)
 /**
  * log_init() - Set up the log system ready for use
  *
- * @return 0 if OK, -ENOMEM if out of memory
+ * Return: 0 if OK, -%ENOMEM if out of memory
  */
 int log_init(void);
 #else
@@ -438,5 +608,21 @@ static inline int log_init(void)
 	return 0;
 }
 #endif
+
+/**
+ * log_get_default_format() - get default log format
+ *
+ * The default log format is configurable via
+ * %CONFIG_LOGF_FILE, %CONFIG_LOGF_LINE, and %CONFIG_LOGF_FUNC.
+ *
+ * Return:	default log format
+ */
+static inline int log_get_default_format(void)
+{
+	return BIT(LOGF_MSG) |
+	       (IS_ENABLED(CONFIG_LOGF_FILE) ? BIT(LOGF_FILE) : 0) |
+	       (IS_ENABLED(CONFIG_LOGF_LINE) ? BIT(LOGF_LINE) : 0) |
+	       (IS_ENABLED(CONFIG_LOGF_FUNC) ? BIT(LOGF_FUNC) : 0);
+}
 
 #endif

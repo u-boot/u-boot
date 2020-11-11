@@ -28,11 +28,9 @@
 
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-#define CONFIG_AT91_GPIO
 #define CONFIG_AT91_GPIO_PULLUP	1	/* keep pullups on peripheral pins */
 
 /* serial console */
-#define CONFIG_ATMEL_USART
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define	CONFIG_USART_ID			ATMEL_ID_SYS
 
@@ -56,10 +54,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-
-/*
- * Command line configuration.
- */
 
 /* SDRAM */
 #define PHYS_SDRAM_1		ATMEL_BASE_CS1	/* on DDRSDRC1 */
@@ -86,12 +80,8 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x22000000	/* load address */
 
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		0x23e00000
-
 #ifdef CONFIG_SYS_USE_MMC
 /* bootstrap + u-boot + env + linux in mmc */
-#define CONFIG_ENV_SIZE		0x4000
 
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x21000000 dtb; " \
 				"fatload mmc 0:1 0x22000000 zImage; " \
@@ -116,7 +106,6 @@
 #define CONFIG_SYS_SPL_MALLOC_START	0x20080000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x00080000
 
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 
 #define CONFIG_SPL_ATMEL_SIZE

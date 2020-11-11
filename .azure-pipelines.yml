@@ -1,7 +1,8 @@
 variables:
-  windows_vm: vs2015-win2012r2
+  windows_vm: vs2017-win2016
   ubuntu_vm: ubuntu-18.04
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:bionic-20191010-20Oct2019
+  macos_vm: macOS-10.15
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:bionic-20200807-02Sep2020
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -13,36 +14,40 @@ jobs:
     displayName: 'Ensure host tools build for Windows'
     pool:
       vmImage: $(windows_vm)
-    strategy:
-      matrix:
-        i686:
-          MSYS_DIR: msys32
-          BASE_REPO: msys2-ci-base-i686
-        x86_64:
-          MSYS_DIR: msys64
-          BASE_REPO: msys2-ci-base
     steps:
-      - script: |
-          git clone https://github.com/msys2/$(BASE_REPO).git %CD:~0,2%\$(MSYS_DIR)
+      - powershell: |
+          (New-Object Net.WebClient).DownloadFile("https://github.com/msys2/msys2-installer/releases/download/2020-07-20/msys2-base-x86_64-20200720.sfx.exe", "sfx.exe")
         displayName: 'Install MSYS2'
       - script: |
-          set PATH=%CD:~0,2%\$(MSYS_DIR)\usr\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem
-          %CD:~0,2%\$(MSYS_DIR)\usr\bin\pacman --noconfirm -Syyuu
+          sfx.exe -y -o%CD:~0,2%\
+          %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm -Syyuu"
         displayName: 'Update MSYS2'
       - script: |
-          set PATH=%CD:~0,2%\$(MSYS_DIR)\usr\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem
-          %CD:~0,2%\$(MSYS_DIR)\usr\bin\pacman --noconfirm --needed -S make gcc bison diffutils openssl-devel
+          %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm --needed -S make gcc bison flex diffutils openssl-devel"
         displayName: 'Install Toolchain'
       - script: |
-          set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem
           echo make tools-only_defconfig tools-only NO_SDL=1 > build-tools.sh
-          %CD:~0,2%\$(MSYS_DIR)\usr\bin\bash -lc "bash build-tools.sh"
+          %CD:~0,2%\msys64\usr\bin\bash -lc "bash build-tools.sh"
         displayName: 'Build Host Tools'
         env:
           # Tell MSYS2 we need a POSIX emulation layer
           MSYSTEM: MSYS
           # Tell MSYS2 not to ‘cd’ our startup directory to HOME
           CHERE_INVOKING: yes
+
+  - job: tools_only_macOS
+    displayName: 'Ensure host tools build for macOS X'
+    pool:
+      vmImage: $(macos_vm)
+    steps:
+      - script: brew install make
+        displayName: Brew install dependencies
+      - script: |
+          gmake tools-only_config tools-only NO_SDL=1 \
+            HOSTCFLAGS="-I/usr/local/opt/openssl@1.1/include" \
+            HOSTLDFLAGS="-L/usr/local/opt/openssl@1.1/lib" \
+            -j$(sysctl -n hw.logicalcpu)
+        displayName: 'Perform tools-only build'
 
   - job: cppcheck
     displayName: 'Static code analysis with cppcheck'
@@ -52,7 +57,17 @@ jobs:
       image: $(ci_runner_image)
       options: $(container_option)
     steps:
-      - script: cppcheck --force --quiet --inline-suppr .
+      - script: cppcheck -j$(nproc) --force --quiet --inline-suppr .
+
+  - job: htmldocs
+    displayName: 'Build HTML documentation'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: make htmldocs
 
   - job: todo
     displayName: 'Search for TODO within source tree'
@@ -110,7 +125,7 @@ jobs:
           make tools-only_config envtools -j$(nproc)
 
   - job: utils
-    displayName: 'Run binman, buildman, dtoc and patman testsuites'
+    displayName: 'Run binman, buildman, dtoc, Kconfig and patman testsuites'
     pool:
       vmImage: $(ubuntu_vm)
     steps:
@@ -123,22 +138,36 @@ jobs:
           git config --global user.name "Azure Pipelines"
           git config --global user.email bmeng.cn@gmail.com
           export USER=azure
-          virtualenv /tmp/venv
+          virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
-          pip install pyelftools
-          export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/sandbox_spl
+          pip install pyelftools pytest pygit2
+          export UBOOT_TRAVIS_BUILD_DIR=/tmp/sandbox_spl
           export PYTHONPATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt
           export PATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}
-          ./tools/buildman/buildman -o /tmp -P sandbox_spl
+          ./tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w sandbox_spl
           ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test
           ./tools/buildman/buildman -t
           ./tools/dtoc/dtoc -t
-          ./tools/patman/patman --test
+          ./tools/patman/patman test
+          make O=${UBOOT_TRAVIS_BUILD_DIR} testconfig
           EOF
           cat build.sh
           # We cannot use "container" like other jobs above, as buildman
           # seems to hang forever with pre-configured "container" environment
           docker run -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/build.sh
+
+  - job: nokia_rx51_test
+    displayName: 'Run tests for Nokia RX-51 (aka N900)'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: |
+          ./tools/buildman/buildman --fetch-arch arm
+          export PATH=~/.buildman-toolchains/gcc-9.2.0-nolibc/arm-linux-gnueabi/bin/:$PATH
+          test/nokia_rx51_test.sh
 
   - job: test_py
     displayName: 'test.py'
@@ -148,90 +177,106 @@ jobs:
       matrix:
         sandbox:
           TEST_PY_BD: "sandbox"
-          BUILDMAN: "^sandbox$"
         sandbox_clang:
           TEST_PY_BD: "sandbox"
-          BUILDMAN: "^sandbox$"
-          OVERRIDE: "-O clang-7"
+          OVERRIDE: "-O clang-10"
         sandbox_spl:
           TEST_PY_BD: "sandbox_spl"
-          TEST_PY_TEST_SPEC: "test_ofplatdata"
-          BUILDMAN: "^sandbox_spl$"
+          TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"
         sandbox_flattree:
           TEST_PY_BD: "sandbox_flattree"
-          BUILDMAN: "^sandbox_flattree$"
         evb_ast2500:
           TEST_PY_BD: "evb-ast2500"
           TEST_PY_ID: "--id qemu"
-          BUILDMAN: "^evb-ast2500$"
         vexpress_ca15_tc2:
           TEST_PY_BD: "vexpress_ca15_tc2"
           TEST_PY_ID: "--id qemu"
-          BUILDMAN: "^vexpress_ca15_tc2$"
         vexpress_ca9x4:
           TEST_PY_BD: "vexpress_ca9x4"
           TEST_PY_ID: "--id qemu"
-          BUILDMAN: "^vexpress_ca9x4$"
         integratorcp_cm926ejs:
           TEST_PY_BD: "integratorcp_cm926ejs"
           TEST_PY_ID: "--id qemu"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^integratorcp_cm926ejs$"
         qemu_arm:
           TEST_PY_BD: "qemu_arm"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu_arm$"
         qemu_arm64:
           TEST_PY_BD: "qemu_arm64"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu_arm64$"
         qemu_mips:
           TEST_PY_BD: "qemu_mips"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu_mips$"
         qemu_mipsel:
           TEST_PY_BD: "qemu_mipsel"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu_mipsel$"
         qemu_mips64:
           TEST_PY_BD: "qemu_mips64"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu_mips64$"
         qemu_mips64el:
           TEST_PY_BD: "qemu_mips64el"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu_mips64el$"
+        qemu_malta:
+          TEST_PY_BD: "malta"
+          TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep and not efi"
+        qemu_maltael:
+          TEST_PY_BD: "maltael"
+          TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep and not efi"
+        qemu_malta64:
+          TEST_PY_BD: "malta64"
+          TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep and not efi"
+        qemu_malta64el:
+          TEST_PY_BD: "malta64el"
+          TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep and not efi"
         qemu_ppce500:
           TEST_PY_BD: "qemu-ppce500"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu-ppce500$"
+        qemu_riscv32:
+          TEST_PY_BD: "qemu-riscv32"
+          TEST_PY_TEST_SPEC: "not sleep"
         qemu_riscv64:
           TEST_PY_BD: "qemu-riscv64"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu-riscv64$"
+        qemu_riscv32_spl:
+          TEST_PY_BD: "qemu-riscv32_spl"
+          TEST_PY_TEST_SPEC: "not sleep"
+        qemu_riscv64_spl:
+          TEST_PY_BD: "qemu-riscv64_spl"
+          TEST_PY_TEST_SPEC: "not sleep"
         qemu_x86:
           TEST_PY_BD: "qemu-x86"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu-x86$"
         qemu_x86_64:
           TEST_PY_BD: "qemu-x86_64"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu-x86_64$"
-        zynq_zc702:
-          TEST_PY_BD: "zynq_zc702"
+        r2dplus_i82557c:
+          TEST_PY_BD: "r2dplus"
+          TEST_PY_ID: "--id i82557c_qemu"
+        r2dplus_pcnet:
+          TEST_PY_BD: "r2dplus"
+          TEST_PY_ID: "--id pcnet_qemu"
+        r2dplus_rtl8139:
+          TEST_PY_BD: "r2dplus"
+          TEST_PY_ID: "--id rtl8139_qemu"
+        r2dplus_tulip:
+          TEST_PY_BD: "r2dplus"
+          TEST_PY_ID: "--id tulip_qemu"
+        xilinx_zynq_virt:
+          TEST_PY_BD: "xilinx_zynq_virt"
           TEST_PY_ID: "--id qemu"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^zynq_zc702$"
         xilinx_versal_virt:
           TEST_PY_BD: "xilinx_versal_virt"
           TEST_PY_ID: "--id qemu"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^xilinx_versal_virt$"
         xtfpga:
           TEST_PY_BD: "xtfpga"
           TEST_PY_ID: "--id qemu"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^xtfpga$"
     steps:
       - script: |
           cat << EOF > test.sh
@@ -241,7 +286,6 @@ jobs:
           export TEST_PY_BD="${TEST_PY_BD}"
           export TEST_PY_ID="${TEST_PY_ID}"
           export TEST_PY_TEST_SPEC="${TEST_PY_TEST_SPEC}"
-          export BUILDMAN="${BUILDMAN}"
           export OVERRIDE="${OVERRIDE}"
           EOF
           cat << "EOF" >> test.sh
@@ -252,35 +296,33 @@ jobs:
           ln -s travis-ci /tmp/uboot-test-hooks/py/`hostname`
           grub-mkimage --prefix=\"\" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
           grub-mkimage --prefix=\"\" -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
-          mkdir ~/grub2-arm
-          cd ~/grub2-arm; wget -O - http://download.opensuse.org/ports/armv7hl/distribution/leap/42.2/repo/oss/suse/armv7hl/grub2-arm-efi-2.02~beta2-87.1.armv7hl.rpm | rpm2cpio | cpio -di
-          mkdir ~/grub2-arm64
-          cd ~/grub2-arm64; wget -O - http://download.opensuse.org/ports/aarch64/distribution/leap/42.2/repo/oss/suse/aarch64/grub2-arm64-efi-2.02~beta2-87.1.aarch64.rpm | rpm2cpio | cpio -di
+          if [[ "${TEST_PY_BD}" == "qemu-riscv32_spl" ]]; then
+              wget -O - https://github.com/riscv/opensbi/releases/download/v0.8/opensbi-0.8-rv-bin.tar.xz | tar -C /tmp -xJ;
+              export OPENSBI=/tmp/opensbi-0.8-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.bin;
+          fi
+          if [[ "${TEST_PY_BD}" == "qemu-riscv64_spl" ]]; then
+              wget -O - https://github.com/riscv/opensbi/releases/download/v0.8/opensbi-0.8-rv-bin.tar.xz | tar -C /tmp -xJ;
+              export OPENSBI=/tmp/opensbi-0.8-rv-bin/share/opensbi/lp64/generic/firmware/fw_dynamic.bin;
+          fi
           # the below corresponds to .gitlab-ci.yml "script"
           cd ${WORK_DIR}
-          if [[ "${BUILDMAN}" != "" ]]; then
-              ret=0;
-              tools/buildman/buildman -o /tmp -P -E ${BUILDMAN} ${OVERRIDE} || ret=$?;
-              if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-                  tools/buildman/buildman -o /tmp -sdeP ${BUILDMAN};
-                  exit $ret;
-              fi;
-          fi
+          export UBOOT_TRAVIS_BUILD_DIR=/tmp/${TEST_PY_BD};
+          tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e --board ${TEST_PY_BD} ${OVERRIDE}
+          cp ~/grub_x86.efi ${UBOOT_TRAVIS_BUILD_DIR}/
+          cp ~/grub_x64.efi ${UBOOT_TRAVIS_BUILD_DIR}/
+          cp /opt/grub/grubriscv64.efi ${UBOOT_TRAVIS_BUILD_DIR}/grub_riscv64.efi
+          cp /opt/grub/grubriscv32.efi ${UBOOT_TRAVIS_BUILD_DIR}/grub_riscv32.efi
+          cp /opt/grub/grubaa64.efi ${UBOOT_TRAVIS_BUILD_DIR}/grub_arm64.efi
+          cp /opt/grub/grubarm.efi ${UBOOT_TRAVIS_BUILD_DIR}/grub_arm.efi
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
           pip install -r test/py/requirements.txt
-          export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/${TEST_PY_BD};
           export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
           export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
-          if [[ "${TEST_PY_BD}" != "" ]]; then
-              ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID} -k "${TEST_PY_TEST_SPEC:-not a_test_which_does_not_exist}" --build-dir "$UBOOT_TRAVIS_BUILD_DIR";
-              ret=$?;
-              if [[ $ret -ne 0 ]]; then
-                  exit $ret;
-              fi;
-          fi
+          # "${var:+"-k $var"}" expands to "" if $var is empty, "-k $var" if not
+          ./test/py/test.py -ra --bd ${TEST_PY_BD} ${TEST_PY_ID} ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"} --build-dir "$UBOOT_TRAVIS_BUILD_DIR";
           # the below corresponds to .gitlab-ci.yml "after_script"
-          rm -rf ~/grub2* /tmp/uboot-test-hooks /tmp/venv
+          rm -rf /tmp/uboot-test-hooks /tmp/venv
           EOF
           cat test.sh
           # make current directory writeable to uboot user inside the container
@@ -312,19 +354,19 @@ jobs:
         arm_bcm:
           BUILDMAN: "bcm -x mips"
         nxp_arm32:
-          BUILDMAN: "freescale -x powerpc,m68k,aarch64"
-        nxp_aarch64_ls101x:
-          BUILDMAN: "freescale&aarch64&ls101"
-        nxp_aarch64_ls102x:
-          BUILDMAN: "freescale&aarch64&ls102"
-        nxp_aarch64_ls104x:
-          BUILDMAN: "freescale&aarch64&ls104"
-        nxp_aarch64_ls108x:
-          BUILDMAN: "freescale&aarch64&ls108"
-        nxp_aarch64_ls20xx:
-          BUILDMAN: "freescale&aarch64&ls20"
-        nxp_aarch64_lx216x:
-          BUILDMAN: "freescale&aarch64&lx216"
+          BUILDMAN: "freescale -x powerpc,m68k,aarch64,ls101,ls102,ls104,ls108,ls20,lx216"
+        nxp_ls101x:
+          BUILDMAN: "freescale&ls101"
+        nxp_ls102x:
+          BUILDMAN: "freescale&ls102"
+        nxp_ls104x:
+          BUILDMAN: "freescale&ls104"
+        nxp_ls108x:
+          BUILDMAN: "freescale&ls108"
+        nxp_ls20xx:
+          BUILDMAN: "freescale&ls20"
+        nxp_lx216x:
+          BUILDMAN: "freescale&lx216"
         imx6:
           BUILDMAN: "mx6 -x boundary,engicam,freescale,technexion,toradex"
         imx:
@@ -352,7 +394,7 @@ jobs:
         sun50i:
           BUILDMAN: "sun50i"
         arm_catch_all:
-          BUILDMAN: "arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,rockchip,toradex,socfpga,k2,k3,zynq"
+          BUILDMAN: "arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,rk,toradex,socfpga,k2,k3,zynq"
         sandbox_x86:
           BUILDMAN: "sandbox x86"
         technexion:
@@ -390,9 +432,9 @@ jobs:
         uniphier:
           BUILDMAN: "uniphier"
         aarch64_catch_all:
-          BUILDMAN: "aarch64 -x bcm,k3,tegra,ls1,ls2,mvebu,uniphier,sunxi,samsung,rockchip,versal,zynq"
+          BUILDMAN: "aarch64 -x bcm,k3,tegra,ls1,ls2,lx216,mvebu,uniphier,sunxi,samsung,socfpga,rk,versal,zynq"
         rockchip:
-          BUILDMAN: "rockchip"
+          BUILDMAN: "rk"
         sh:
           BUILDMAN: "sh -x arm"
         zynq:
@@ -412,9 +454,9 @@ jobs:
           cat << "EOF" >> build.sh
           if [[ "${BUILDMAN}" != "" ]]; then
               ret=0;
-              tools/buildman/buildman -o /tmp -P -E ${BUILDMAN} ${OVERRIDE} || ret=$?;
-              if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-                  tools/buildman/buildman -o /tmp -sdeP ${BUILDMAN};
+              tools/buildman/buildman -o /tmp -P -W ${BUILDMAN} ${OVERRIDE} || ret=$?;
+              if [[ $ret -ne 0 ]]; then
+                  tools/buildman/buildman -o /tmp -seP ${BUILDMAN};
                   exit $ret;
               fi;
           fi

@@ -11,10 +11,15 @@
 
 #include <config.h>
 #include <common.h>
+#include <cpu_func.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <phy.h>
+#include <linux/delay.h>
+#include <linux/bitops.h>
 
 #include "bcm-sf2-eth.h"
 #include "bcm-sf2-eth-gmac.h"

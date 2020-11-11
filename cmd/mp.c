@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <cpu_func.h>
 
 static int cpu_status_all(void)
 {
@@ -25,7 +26,7 @@ static int cpu_status_all(void)
 }
 
 static int
-cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+cpu_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	unsigned long cpuid;
 

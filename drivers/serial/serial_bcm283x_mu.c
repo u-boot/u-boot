@@ -23,6 +23,7 @@
 #include <serial.h>
 #include <dm/platform_data/serial_bcm283x_mu.h>
 #include <dm/pinctrl.h>
+#include <linux/bitops.h>
 #include <linux/compiler.h>
 
 struct bcm283x_mu_regs {
@@ -70,16 +71,6 @@ static int bcm283x_mu_serial_setbrg(struct udevice *dev, int baudrate)
 out:
 	/* Flush the RX queue - all data in there is bogus */
 	while (bcm283x_mu_serial_getc(dev) != -EAGAIN) ;
-
-	return 0;
-}
-
-static int bcm283x_mu_serial_probe(struct udevice *dev)
-{
-	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
-	struct bcm283x_mu_priv *priv = dev_get_priv(dev);
-
-	priv->regs = (struct bcm283x_mu_regs *)plat->base;
 
 	return 0;
 }
@@ -165,16 +156,22 @@ static bool bcm283x_is_serial_muxed(void)
 	return true;
 }
 
-static int bcm283x_mu_serial_ofdata_to_platdata(struct udevice *dev)
+static int bcm283x_mu_serial_probe(struct udevice *dev)
 {
 	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
+	struct bcm283x_mu_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
 
 	/* Don't spawn the device if it's not muxed */
 	if (!bcm283x_is_serial_muxed())
 		return -ENODEV;
 
-	addr = devfdt_get_addr(dev);
+	/*
+	 * Read the ofdata here rather than in an ofdata_to_platdata() method
+	 * since we need the soc simple-bus to be probed so that the 'ranges'
+	 * property is used.
+	 */
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -187,6 +184,8 @@ static int bcm283x_mu_serial_ofdata_to_platdata(struct udevice *dev)
 	 */
 	plat->skip_init = true;
 
+	priv->regs = (struct bcm283x_mu_regs *)plat->base;
+
 	return 0;
 }
 #endif
@@ -195,11 +194,10 @@ U_BOOT_DRIVER(serial_bcm283x_mu) = {
 	.name = "serial_bcm283x_mu",
 	.id = UCLASS_SERIAL,
 	.of_match = of_match_ptr(bcm283x_mu_serial_id),
-	.ofdata_to_platdata = of_match_ptr(bcm283x_mu_serial_ofdata_to_platdata),
 	.platdata_auto_alloc_size = sizeof(struct bcm283x_mu_serial_platdata),
 	.probe = bcm283x_mu_serial_probe,
 	.ops = &bcm283x_mu_serial_ops,
-#if !CONFIG_IS_ENABLED(OF_CONTROL)
+#if !CONFIG_IS_ENABLED(OF_CONTROL) || CONFIG_IS_ENABLED(OF_BOARD)
 	.flags = DM_FLAG_PRE_RELOC,
 #endif
 	.priv_auto_alloc_size = sizeof(struct bcm283x_mu_priv),

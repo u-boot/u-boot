@@ -9,10 +9,12 @@
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
+#include <malloc.h>
 #include <watchdog.h>
 #include <serial.h>
 #include <debug_uart.h>
 #include <linux/compiler.h>
+#include <linux/delay.h>
 
 #include <asm/io.h>
 #ifdef CONFIG_DM_SERIAL
@@ -266,7 +268,7 @@ static int atmel_serial_probe(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	fdt_addr_t addr_base;
 
-	addr_base = devfdt_get_addr(dev);
+	addr_base = dev_read_addr(dev);
 	if (addr_base == FDT_ADDR_T_NONE)
 		return -ENODEV;
 

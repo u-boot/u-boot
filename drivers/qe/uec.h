@@ -76,8 +76,7 @@
 #define MACCFG2_INIT_VALUE	(MACCFG2_PREL | MACCFG2_RESERVED_1 | \
 				 MACCFG2_LC | MACCFG2_PAD_CRC | MACCFG2_FDX)
 
-/* UEC Event Register
-*/
+/* UEC Event Register */
 #define UCCE_MPD				0x80000000
 #define UCCE_SCAR				0x40000000
 #define UCCE_GRA				0x20000000
@@ -120,26 +119,24 @@
 #define UCCE_OTHER	(UCCE_SCAR | UCCE_GRA  | UCCE_CBPR | UCCE_BSY  | \
 			 UCCE_RXC  | UCCE_TXC  | UCCE_TXE)
 
-/* UEC TEMODR Register
-*/
+/* UEC TEMODR Register */
 #define TEMODER_SCHEDULER_ENABLE		0x2000
 #define TEMODER_IP_CHECKSUM_GENERATE		0x0400
 #define TEMODER_PERFORMANCE_OPTIMIZATION_MODE1	0x0200
 #define TEMODER_RMON_STATISTICS			0x0100
-#define TEMODER_NUM_OF_QUEUES_SHIFT		(15-15)
+#define TEMODER_NUM_OF_QUEUES_SHIFT		(15 - 15)
 
 #define TEMODER_INIT_VALUE			0xc000
 
-/* UEC REMODR Register
-*/
+/* UEC REMODR Register */
 #define REMODER_RX_RMON_STATISTICS_ENABLE	0x00001000
 #define REMODER_RX_EXTENDED_FEATURES		0x80000000
-#define REMODER_VLAN_OPERATION_TAGGED_SHIFT	(31-9 )
-#define REMODER_VLAN_OPERATION_NON_TAGGED_SHIFT	(31-10)
-#define REMODER_RX_QOS_MODE_SHIFT		(31-15)
+#define REMODER_VLAN_OPERATION_TAGGED_SHIFT	(31 - 9)
+#define REMODER_VLAN_OPERATION_NON_TAGGED_SHIFT	(31 - 10)
+#define REMODER_RX_QOS_MODE_SHIFT		(31 - 15)
 #define REMODER_RMON_STATISTICS			0x00001000
 #define REMODER_RX_EXTENDED_FILTERING		0x00000800
-#define REMODER_NUM_OF_QUEUES_SHIFT		(31-23)
+#define REMODER_NUM_OF_QUEUES_SHIFT		(31 - 23)
 #define REMODER_DYNAMIC_MAX_FRAME_LENGTH	0x00000008
 #define REMODER_DYNAMIC_MIN_FRAME_LENGTH	0x00000004
 #define REMODER_IP_CHECKSUM_CHECK		0x00000002
@@ -213,35 +210,31 @@
 #define UESCR_SCOV_SHIFT			(15 - 15)
 
 /****** Tx data struct collection ******/
-/* Tx thread data, each Tx thread has one this struct.
-*/
-typedef struct uec_thread_data_tx {
+/* Tx thread data, each Tx thread has one this struct. */
+struct uec_thread_data_tx {
 	u8   res0[136];
-} __attribute__ ((packed)) uec_thread_data_tx_t;
+} __packed;
 
-/* Tx thread parameter, each Tx thread has one this struct.
-*/
-typedef struct uec_thread_tx_pram {
+/* Tx thread parameter, each Tx thread has one this struct. */
+struct uec_thread_tx_pram {
 	u8   res0[64];
-} __attribute__ ((packed)) uec_thread_tx_pram_t;
+} __packed;
 
-/* Send queue queue-descriptor, each Tx queue has one this QD
-*/
-typedef struct uec_send_queue_qd {
+/* Send queue queue-descriptor, each Tx queue has one this QD */
+struct uec_send_queue_qd {
 	u32    bd_ring_base; /* pointer to BD ring base address */
 	u8     res0[0x8];
 	u32    last_bd_completed_address; /* last entry in BD ring */
 	u8     res1[0x30];
-} __attribute__ ((packed)) uec_send_queue_qd_t;
+} __packed;
 
 /* Send queue memory region */
-typedef struct uec_send_queue_mem_region {
-	uec_send_queue_qd_t   sqqd[MAX_TX_QUEUES];
-} __attribute__ ((packed)) uec_send_queue_mem_region_t;
+struct uec_send_queue_mem_region {
+	struct uec_send_queue_qd   sqqd[MAX_TX_QUEUES];
+} __packed;
 
-/* Scheduler struct
-*/
-typedef struct uec_scheduler {
+/* Scheduler struct */
+struct uec_scheduler {
 	u16  cpucount0;        /* CPU packet counter */
 	u16  cpucount1;        /* CPU packet counter */
 	u16  cecount0;         /* QE  packet counter */
@@ -272,12 +265,11 @@ typedef struct uec_scheduler {
 	u8   oldwfqmask;       /* temporary variable handled by QE */
 	u8   weightfactor[MAX_TX_QUEUES]; /**< weight factor for queues */
 	u32  minw;             /* temporary variable handled by QE */
-	u8   res1[0x70-0x64];
-} __attribute__ ((packed)) uec_scheduler_t;
+	u8   res1[0x70 - 0x64];
+} __packed;
 
-/* Tx firmware counters
-*/
-typedef struct uec_tx_firmware_statistics_pram {
+/* Tx firmware counters */
+struct uec_tx_firmware_statistics_pram {
 	u32  sicoltx;            /* single collision */
 	u32  mulcoltx;           /* multiple collision */
 	u32  latecoltxfr;        /* late collision */
@@ -290,13 +282,12 @@ typedef struct uec_tx_firmware_statistics_pram {
 	u32  txpkts512;          /* total packets(including bad) 512~1023B */
 	u32  txpkts1024;         /* total packets(including bad) 1024~1518B */
 	u32  txpktsjumbo;        /* total packets(including bad)  >1024 */
-} __attribute__ ((packed)) uec_tx_firmware_statistics_pram_t;
+} __packed;
 
-/* Tx global parameter table
-*/
-typedef struct uec_tx_global_pram {
+/* Tx global parameter table */
+struct uec_tx_global_pram {
 	u16  temoder;
-	u8   res0[0x38-0x02];
+	u8   res0[0x38 - 0x02];
 	u32  sqptr;
 	u32  schedulerbasepointer;
 	u32  txrmonbaseptr;
@@ -304,26 +295,22 @@ typedef struct uec_tx_global_pram {
 	u8   iphoffset[MAX_IPH_OFFSET_ENTRY];
 	u32  vtagtable[0x8];
 	u32  tqptr;
-	u8   res2[0x80-0x74];
-} __attribute__ ((packed)) uec_tx_global_pram_t;
-
+	u8   res2[0x80 - 0x74];
+} __packed;
 
 /****** Rx data struct collection ******/
-/* Rx thread data, each Rx thread has one this struct.
-*/
-typedef struct uec_thread_data_rx {
+/* Rx thread data, each Rx thread has one this struct. */
+struct uec_thread_data_rx {
 	u8   res0[40];
-} __attribute__ ((packed)) uec_thread_data_rx_t;
+} __packed;
 
-/* Rx thread parameter, each Rx thread has one this struct.
-*/
-typedef struct uec_thread_rx_pram {
+/* Rx thread parameter, each Rx thread has one this struct. */
+struct uec_thread_rx_pram {
 	u8   res0[128];
-} __attribute__ ((packed)) uec_thread_rx_pram_t;
+} __packed;
 
-/* Rx firmware counters
-*/
-typedef struct uec_rx_firmware_statistics_pram {
+/* Rx firmware counters */
+struct uec_rx_firmware_statistics_pram {
 	u32   frrxfcser;         /* frames with crc error */
 	u32   fraligner;         /* frames with alignment error */
 	u32   inrangelenrxer;    /* in range length error */
@@ -346,44 +333,41 @@ typedef struct uec_rx_firmware_statistics_pram {
 	u32   removevlan;
 	u32   replacevlan;
 	u32   insertvlan;
-} __attribute__ ((packed)) uec_rx_firmware_statistics_pram_t;
+} __packed;
 
-/* Rx interrupt coalescing entry, each Rx queue has one this entry.
-*/
-typedef struct uec_rx_interrupt_coalescing_entry {
+/* Rx interrupt coalescing entry, each Rx queue has one this entry. */
+struct uec_rx_interrupt_coalescing_entry {
 	u32   maxvalue;
 	u32   counter;
-} __attribute__ ((packed)) uec_rx_interrupt_coalescing_entry_t;
+} __packed;
 
-typedef struct uec_rx_interrupt_coalescing_table {
-	uec_rx_interrupt_coalescing_entry_t   entry[MAX_RX_QUEUES];
-} __attribute__ ((packed)) uec_rx_interrupt_coalescing_table_t;
+struct uec_rx_interrupt_coalescing_table {
+	struct uec_rx_interrupt_coalescing_entry   entry[MAX_RX_QUEUES];
+} __packed;
 
-/* RxBD queue entry, each Rx queue has one this entry.
-*/
-typedef struct uec_rx_bd_queues_entry {
+/* RxBD queue entry, each Rx queue has one this entry. */
+struct uec_rx_bd_queues_entry {
 	u32   bdbaseptr;         /* BD base pointer          */
 	u32   bdptr;             /* BD pointer               */
 	u32   externalbdbaseptr; /* external BD base pointer */
 	u32   externalbdptr;     /* external BD pointer      */
-} __attribute__ ((packed)) uec_rx_bd_queues_entry_t;
+} __packed;
 
-/* Rx global paramter table
-*/
-typedef struct uec_rx_global_pram {
+/* Rx global parameter table */
+struct uec_rx_global_pram {
 	u32  remoder;             /* ethernet mode reg. */
 	u32  rqptr;               /* base pointer to the Rx Queues */
 	u32  res0[0x1];
-	u8   res1[0x20-0xC];
+	u8   res1[0x20 - 0xc];
 	u16  typeorlen;
 	u8   res2[0x1];
 	u8   rxgstpack;           /* ack on GRACEFUL STOP RX command */
 	u32  rxrmonbaseptr;       /* Rx RMON statistics base */
-	u8   res3[0x30-0x28];
+	u8   res3[0x30 - 0x28];
 	u32  intcoalescingptr;    /* Interrupt coalescing table pointer */
-	u8   res4[0x36-0x34];
+	u8   res4[0x36 - 0x34];
 	u8   rstate;
-	u8   res5[0x46-0x37];
+	u8   res5[0x46 - 0x37];
 	u16  mrblr;               /* max receive buffer length reg. */
 	u32  rbdqptr;             /* RxBD parameter table description */
 	u16  mflr;                /* max frame length reg. */
@@ -396,17 +380,15 @@ typedef struct uec_rx_global_pram {
 	u16  vlantype;            /* vlan type */
 	u16  vlantci;             /* default vlan tci */
 	u8   addressfiltering[64];/* address filtering data structure */
-	u32  exfGlobalParam;      /* extended filtering global parameters */
-	u8   res6[0x100-0xC4];    /* Initialize to zero */
-} __attribute__ ((packed)) uec_rx_global_pram_t;
+	u32  exf_global_param;      /* extended filtering global parameters */
+	u8   res6[0x100 - 0xc4];    /* Initialize to zero */
+} __packed;
 
 #define GRACEFUL_STOP_ACKNOWLEDGE_RX            0x01
 
-
 /****** UEC common ******/
-/* UCC statistics - hardware counters
-*/
-typedef struct uec_hardware_statistics {
+/* UCC statistics - hardware counters */
+struct uec_hardware_statistics {
 	u32 tx64;
 	u32 tx127;
 	u32 tx255;
@@ -422,11 +404,10 @@ typedef struct uec_hardware_statistics {
 	u32 rbyt;
 	u32 rmca;
 	u32 rbca;
-} __attribute__ ((packed)) uec_hardware_statistics_t;
+} __packed;
 
-/* InitEnet command parameter
-*/
-typedef struct uec_init_cmd_pram {
+/* InitEnet command parameter */
+struct uec_init_cmd_pram {
 	u8   resinit0;
 	u8   resinit1;
 	u8   resinit2;
@@ -440,7 +421,7 @@ typedef struct uec_init_cmd_pram {
 	u32  txglobal;				   /* tx global  */
 	u32  txthread[MAX_ENET_INIT_PARAM_ENTRIES_TX]; /* tx threads */
 	u8   res3[0x1];
-} __attribute__ ((packed)) uec_init_cmd_pram_t;
+} __packed;
 
 #define ENET_INIT_PARAM_RGF_SHIFT		(32 - 4)
 #define ENET_INIT_PARAM_TGF_SHIFT		(32 - 8)
@@ -456,105 +437,96 @@ typedef struct uec_init_cmd_pram {
 #define ENET_INIT_PARAM_MAGIC_RES_INIT3		0x00
 #define ENET_INIT_PARAM_MAGIC_RES_INIT4		0x0400
 
-/* structure representing 82xx Address Filtering Enet Address in PRAM
-*/
-typedef struct uec_82xx_enet_address {
+/* structure representing 82xx Address Filtering Enet Address in PRAM */
+struct uec_82xx_enet_addr {
 	u8   res1[0x2];
 	u16  h;       /* address (MSB) */
 	u16  m;       /* address       */
 	u16  l;       /* address (LSB) */
-} __attribute__ ((packed)) uec_82xx_enet_address_t;
+} __packed;
 
-/* structure representing 82xx Address Filtering PRAM
-*/
-typedef struct uec_82xx_address_filtering_pram {
+/* structure representing 82xx Address Filtering PRAM */
+struct uec_82xx_add_filtering_pram {
 	u32  iaddr_h;        /* individual address filter, high */
 	u32  iaddr_l;        /* individual address filter, low  */
 	u32  gaddr_h;        /* group address filter, high      */
 	u32  gaddr_l;        /* group address filter, low       */
-	uec_82xx_enet_address_t    taddr;
-	uec_82xx_enet_address_t    paddr[4];
-	u8                         res0[0x40-0x38];
-} __attribute__ ((packed)) uec_82xx_address_filtering_pram_t;
+	struct uec_82xx_enet_addr    taddr;
+	struct uec_82xx_enet_addr    paddr[4];
+	u8                         res0[0x40 - 0x38];
+} __packed;
 
-/* Buffer Descriptor
-*/
-typedef struct buffer_descriptor {
+/* Buffer Descriptor */
+struct buffer_descriptor {
 	u16 status;
 	u16 len;
 	u32 data;
-} __attribute__ ((packed)) qe_bd_t, *p_bd_t;
+} __packed;
 
-#define	SIZEOFBD		sizeof(qe_bd_t)
+#define	SIZEOFBD	sizeof(struct buffer_descriptor)
 
-/* Common BD flags
-*/
+/* Common BD flags */
 #define BD_WRAP			0x2000
 #define BD_INT			0x1000
 #define BD_LAST			0x0800
 #define BD_CLEAN		0x3000
 
-/* TxBD status flags
-*/
-#define TxBD_READY		0x8000
-#define TxBD_PADCRC		0x4000
-#define TxBD_WRAP		BD_WRAP
-#define TxBD_INT		BD_INT
-#define TxBD_LAST		BD_LAST
-#define TxBD_TXCRC		0x0400
-#define TxBD_DEF		0x0200
-#define TxBD_PP			0x0100
-#define TxBD_LC			0x0080
-#define TxBD_RL			0x0040
-#define TxBD_RC			0x003C
-#define TxBD_UNDERRUN		0x0002
-#define TxBD_TRUNC		0x0001
+/* TxBD status flags */
+#define TX_BD_READY		0x8000
+#define TX_BD_PADCRC		0x4000
+#define TX_BD_WRAP		BD_WRAP
+#define TX_BD_INT		BD_INT
+#define TX_BD_LAST		BD_LAST
+#define TX_BD_TXCRC		0x0400
+#define TX_BD_DEF		0x0200
+#define TX_BD_PP			0x0100
+#define TX_BD_LC			0x0080
+#define TX_BD_RL			0x0040
+#define TX_BD_RC			0x003C
+#define TX_BD_UNDERRUN		0x0002
+#define TX_BD_TRUNC		0x0001
 
-#define TxBD_ERROR		(TxBD_UNDERRUN | TxBD_TRUNC)
+#define TX_BD_ERROR		(TX_BD_UNDERRUN | TX_BD_TRUNC)
 
-/* RxBD status flags
-*/
-#define RxBD_EMPTY		0x8000
-#define RxBD_OWNER		0x4000
-#define RxBD_WRAP		BD_WRAP
-#define RxBD_INT		BD_INT
-#define RxBD_LAST		BD_LAST
-#define RxBD_FIRST		0x0400
-#define RxBD_CMR		0x0200
-#define RxBD_MISS		0x0100
-#define RxBD_BCAST		0x0080
-#define RxBD_MCAST		0x0040
-#define RxBD_LG			0x0020
-#define RxBD_NO			0x0010
-#define RxBD_SHORT		0x0008
-#define RxBD_CRCERR		0x0004
-#define RxBD_OVERRUN		0x0002
-#define RxBD_IPCH		0x0001
+/* RxBD status flags */
+#define RX_BD_EMPTY		0x8000
+#define RX_BD_OWNER		0x4000
+#define RX_BD_WRAP		BD_WRAP
+#define RX_BD_INT		BD_INT
+#define RX_BD_LAST		BD_LAST
+#define RX_BD_FIRST		0x0400
+#define RX_BD_CMR		0x0200
+#define RX_BD_MISS		0x0100
+#define RX_BD_BCAST		0x0080
+#define RX_BD_MCAST		0x0040
+#define RX_BD_LG			0x0020
+#define RX_BD_NO			0x0010
+#define RX_BD_SHORT		0x0008
+#define RX_BD_CRCERR		0x0004
+#define RX_BD_OVERRUN		0x0002
+#define RX_BD_IPCH		0x0001
 
-#define RxBD_ERROR		(RxBD_LG | RxBD_NO | RxBD_SHORT | \
-				 RxBD_CRCERR | RxBD_OVERRUN)
+#define RX_BD_ERROR		(RX_BD_LG | RX_BD_NO | RX_BD_SHORT | \
+				 RX_BD_CRCERR | RX_BD_OVERRUN)
 
-/* BD access macros
-*/
-#define BD_STATUS(_bd)			(((p_bd_t)(_bd))->status)
-#define BD_STATUS_SET(_bd, _val)	(((p_bd_t)(_bd))->status = _val)
-#define BD_LENGTH(_bd)			(((p_bd_t)(_bd))->len)
-#define BD_LENGTH_SET(_bd, _val)	(((p_bd_t)(_bd))->len = _val)
-#define BD_DATA_CLEAR(_bd)		(((p_bd_t)(_bd))->data = 0)
-#define BD_IS_DATA(_bd)			(((p_bd_t)(_bd))->data)
-#define BD_DATA(_bd)			((u8 *)(((p_bd_t)(_bd))->data))
-#define BD_DATA_SET(_bd, _data)		(((p_bd_t)(_bd))->data = (u32)(_data))
-#define BD_ADVANCE(_bd,_status,_base)	\
-	(((_status) & BD_WRAP) ? (_bd) = ((p_bd_t)(_base)) : ++(_bd))
+/* BD access macros */
+#define BD_STATUS(_bd)		(in_be16(&((_bd)->status)))
+#define BD_STATUS_SET(_bd, _v)	(out_be16(&((_bd)->status), _v))
+#define BD_LENGTH(_bd)		(in_be16(&((_bd)->len)))
+#define BD_LENGTH_SET(_bd, _v)	(out_be16(&((_bd)->len), _v))
+#define BD_DATA_CLEAR(_bd)	(out_be32(&((_bd)->data), 0))
+#define BD_DATA(_bd)		((u8 *)(((_bd)->data)))
+#define BD_DATA_SET(_bd, _data)	(out_be32(&((_bd)->data), (u32)_data))
+#define BD_ADVANCE(_bd, _status, _base)	\
+	(((_status) & BD_WRAP) ? (_bd) = \
+	 ((struct buffer_descriptor *)(_base)) : ++(_bd))
 
-/* Rx Prefetched BDs
-*/
-typedef struct uec_rx_prefetched_bds {
-    qe_bd_t   bd[MAX_PREFETCHED_BDS]; /* prefetched bd */
-} __attribute__ ((packed)) uec_rx_prefetched_bds_t;
+/* Rx Prefetched BDs */
+struct uec_rx_pref_bds {
+	struct buffer_descriptor   bd[MAX_PREFETCHED_BDS]; /* prefetched bd */
+} __packed;
 
-/* Alignments
- */
+/* Alignments */
 #define UEC_RX_GLOBAL_PRAM_ALIGNMENT				64
 #define UEC_TX_GLOBAL_PRAM_ALIGNMENT				64
 #define UEC_THREAD_RX_PRAM_ALIGNMENT				128
@@ -581,25 +553,8 @@ typedef struct uec_rx_prefetched_bds {
 #define UEC_RX_BD_RING_SIZE_MIN					8
 #define UEC_TX_BD_RING_SIZE_MIN					2
 
-/* Ethernet speed
-*/
-typedef enum enet_speed {
-	ENET_SPEED_10BT,   /* 10 Base T */
-	ENET_SPEED_100BT,  /* 100 Base T */
-	ENET_SPEED_1000BT  /* 1000 Base T */
-} enet_speed_e;
-
-/* Ethernet Address Type.
-*/
-typedef enum enet_addr_type {
-	ENET_ADDR_TYPE_INDIVIDUAL,
-	ENET_ADDR_TYPE_GROUP,
-	ENET_ADDR_TYPE_BROADCAST
-} enet_addr_type_e;
-
-/* TBI / MII Set Register
-*/
-typedef enum enet_tbi_mii_reg {
+/* TBI / MII Set Register */
+enum enet_tbi_mii_reg {
 	ENET_TBI_MII_CR        = 0x00,
 	ENET_TBI_MII_SR        = 0x01,
 	ENET_TBI_MII_ANA       = 0x04,
@@ -610,7 +565,7 @@ typedef enum enet_tbi_mii_reg {
 	ENET_TBI_MII_EXST      = 0x0F,
 	ENET_TBI_MII_JD        = 0x10,
 	ENET_TBI_MII_TBICON    = 0x11
-} enet_tbi_mii_reg_e;
+};
 
 /* TBI MDIO register bit fields*/
 #define TBICON_CLK_SELECT	0x0020
@@ -637,18 +592,16 @@ typedef enum enet_tbi_mii_reg {
 		| TBICR_SPEED1_SET \
 		)
 
-/* UEC number of threads
-*/
-typedef enum uec_num_of_threads {
+/* UEC number of threads */
+enum uec_num_of_threads {
 	UEC_NUM_OF_THREADS_1  = 0x1,  /* 1 */
 	UEC_NUM_OF_THREADS_2  = 0x2,  /* 2 */
 	UEC_NUM_OF_THREADS_4  = 0x0,  /* 4 */
 	UEC_NUM_OF_THREADS_6  = 0x3,  /* 6 */
 	UEC_NUM_OF_THREADS_8  = 0x4   /* 8 */
-} uec_num_of_threads_e;
+};
 
-/* UEC initialization info struct
-*/
+/* UEC initialization info struct */
 #define STD_UEC_INFO(num) \
 {			\
 	.uf_info		= {	\
@@ -668,10 +621,10 @@ typedef enum uec_num_of_threads {
 	.speed			= CONFIG_SYS_UEC##num##_INTERFACE_SPEED, \
 }
 
-typedef struct uec_info {
-	ucc_fast_info_t			uf_info;
-	uec_num_of_threads_e		num_threads_tx;
-	uec_num_of_threads_e		num_threads_rx;
+struct uec_inf {
+	struct ucc_fast_inf		uf_info;
+	enum uec_num_of_threads		num_threads_tx;
+	enum uec_num_of_threads		num_threads_rx;
 	unsigned int			risc_tx;
 	unsigned int			risc_rx;
 	u16				rx_bd_ring_len;
@@ -679,39 +632,37 @@ typedef struct uec_info {
 	u8				phy_address;
 	phy_interface_t			enet_interface_type;
 	int				speed;
-} uec_info_t;
+};
 
-/* UEC driver initialized info
-*/
+/* UEC driver initialized info */
 #define MAX_RXBUF_LEN			1536
 #define MAX_FRAME_LEN			1518
 #define MIN_FRAME_LEN			64
 #define MAX_DMA1_LEN			1520
 #define MAX_DMA2_LEN			1520
 
-/* UEC driver private struct
-*/
-typedef struct uec_private {
-	uec_info_t			*uec_info;
-	ucc_fast_private_t		*uccf;
+/* UEC driver private struct */
+struct uec_priv {
+	struct uec_inf			*uec_info;
+	struct ucc_fast_priv		*uccf;
 	struct eth_device		*dev;
 	uec_t				*uec_regs;
 	uec_mii_t			*uec_mii_regs;
 	/* enet init command parameter */
-	uec_init_cmd_pram_t		*p_init_enet_param;
+	struct uec_init_cmd_pram		*p_init_enet_param;
 	u32				init_enet_param_offset;
-	/* Rx and Tx paramter */
-	uec_rx_global_pram_t		*p_rx_glbl_pram;
+	/* Rx and Tx parameter */
+	struct uec_rx_global_pram		*p_rx_glbl_pram;
 	u32				rx_glbl_pram_offset;
-	uec_tx_global_pram_t		*p_tx_glbl_pram;
+	struct uec_tx_global_pram		*p_tx_glbl_pram;
 	u32				tx_glbl_pram_offset;
-	uec_send_queue_mem_region_t	*p_send_q_mem_reg;
+	struct uec_send_queue_mem_region	*p_send_q_mem_reg;
 	u32				send_q_mem_reg_offset;
-	uec_thread_data_tx_t		*p_thread_data_tx;
+	struct uec_thread_data_tx		*p_thread_data_tx;
 	u32				thread_dat_tx_offset;
-	uec_thread_data_rx_t		*p_thread_data_rx;
+	struct uec_thread_data_rx		*p_thread_data_rx;
 	u32				thread_dat_rx_offset;
-	uec_rx_bd_queues_entry_t	*p_rx_bd_qs_tbl;
+	struct uec_rx_bd_queues_entry	*p_rx_bd_qs_tbl;
 	u32				rx_bd_qs_tbl_offset;
 	/* BDs specific */
 	u8				*p_tx_bd_ring;
@@ -720,8 +671,8 @@ typedef struct uec_private {
 	u32				rx_bd_ring_offset;
 	u8				*p_rx_buf;
 	u32				rx_buf_offset;
-	volatile qe_bd_t		*txBd;
-	volatile qe_bd_t		*rxBd;
+	struct buffer_descriptor	*tx_bd;
+	struct buffer_descriptor	*rx_bd;
 	/* Status */
 	int				mac_tx_enabled;
 	int				mac_rx_enabled;
@@ -733,9 +684,9 @@ typedef struct uec_private {
 	int				oldspeed;
 	int				oldduplex;
 	int				oldlink;
-} uec_private_t;
+};
 
-int uec_initialize(bd_t *bis, uec_info_t *uec_info);
-int uec_eth_init(bd_t *bis, uec_info_t *uecs, int num);
-int uec_standard_init(bd_t *bis);
+int uec_initialize(struct bd_info *bis, struct uec_inf *uec_info);
+int uec_eth_init(struct bd_info *bis, struct uec_inf *uecs, int num);
+int uec_standard_init(struct bd_info *bis);
 #endif /* __UEC_H__ */

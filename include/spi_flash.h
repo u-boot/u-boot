@@ -9,9 +9,10 @@
 #ifndef _SPI_FLASH_H_
 #define _SPI_FLASH_H_
 
-#include <dm.h>	/* Because we dereference struct udevice here */
 #include <linux/types.h>
 #include <linux/mtd/spi-nor.h>
+
+struct udevice;
 
 /* by default ENV use the same parameters than SF command */
 #ifndef CONFIG_ENV_SPI_BUS
@@ -34,25 +35,12 @@ struct dm_spi_flash_ops {
 	int (*write)(struct udevice *dev, u32 offset, size_t len,
 		     const void *buf);
 	int (*erase)(struct udevice *dev, u32 offset, size_t len);
-	/**
-	 * get_sw_write_prot() - Check state of software write-protect feature
-	 *
-	 * SPI flash chips can lock a region of the flash defined by a
-	 * 'protected area'. This function checks if this protected area is
-	 * defined.
-	 *
-	 * @dev:	SPI flash device
-	 * @return 0 if no region is write-protected, 1 if a region is
-	 *	write-protected, -ENOSYS if the driver does not implement this,
-	 *	other -ve value on error
-	 */
-	int (*get_sw_write_prot)(struct udevice *dev);
 };
 
 /* Access the serial operations for a device */
 #define sf_get_ops(dev) ((struct dm_spi_flash_ops *)(dev)->driver->ops)
 
-#ifdef CONFIG_DM_SPI_FLASH
+#if CONFIG_IS_ENABLED(DM_SPI_FLASH)
 /**
  * spi_flash_read_dm() - Read data from SPI flash
  *
@@ -89,18 +77,16 @@ int spi_flash_write_dm(struct udevice *dev, u32 offset, size_t len,
 int spi_flash_erase_dm(struct udevice *dev, u32 offset, size_t len);
 
 /**
- * spl_flash_get_sw_write_prot() - Check state of software write-protect feature
+ * spi_flash_std_probe() - Probe a SPI flash device
  *
- * SPI flash chips can lock a region of the flash defined by a
- * 'protected area'. This function checks if this protected area is
- * defined.
+ * This is the standard internal method for probing a SPI flash device to
+ * determine its type. It can be used in chip-specific drivers which need to
+ * do this, typically with of-platdata
  *
- * @dev:	SPI flash device
- * @return 0 if no region is write-protected, 1 if a region is
- *	write-protected, -ENOSYS if the driver does not implement this,
- *	other -ve value on error
+ * @dev: SPI-flash device to probe
+ * @return 0 if OK, -ve on error
  */
-int spl_flash_get_sw_write_prot(struct udevice *dev);
+int spi_flash_std_probe(struct udevice *dev);
 
 int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
 			   unsigned int max_hz, unsigned int spi_mode,

@@ -7,6 +7,10 @@
 #ifndef _PMC_H_
 #define _PMC_H_
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 /* Power Management Controller (APBDEV_PMC_) registers */
 struct pmc_ctlr {
 	uint pmc_cntrl;			/* _CNTRL_0, offset 00 */

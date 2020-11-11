@@ -13,6 +13,7 @@
 
 #include "yaffs_checkptrw.h"
 #include "yaffs_getblockinfo.h"
+#include <dm/devres.h>
 
 static int yaffs2_checkpt_space_ok(struct yaffs_dev *dev)
 {

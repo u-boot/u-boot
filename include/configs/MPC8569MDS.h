@@ -16,7 +16,6 @@
 #define CONFIG_FSL_PCI_INIT	1	/* use common fsl pci init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-#define CONFIG_ENV_OVERWRITE
 
 #ifndef __ASSEMBLY__
 extern unsigned long get_clock_freq(void);
@@ -46,9 +45,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
 #define CONFIG_HWCONFIG
-
-#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00400000
 
 /*
  * Config the L2 Cache as L2 SRAM
@@ -111,8 +107,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_DDR_ERR_INT_EN       0x0000000d
 #define CONFIG_SYS_DDR_ERR_DIS          0x00000000
 #define CONFIG_SYS_DDR_SBE              0x00010000
-
-#undef CONFIG_CLOCKS_IN_MHZ
 
 /*
  * Local Bus Definitions
@@ -399,8 +393,6 @@ extern unsigned long get_clock_freq(void);
 #endif /* CONFIG_QE */
 
 #if defined(CONFIG_PCI)
-#undef CONFIG_EEPRO100
-#undef CONFIG_TULIP
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
@@ -409,12 +401,6 @@ extern unsigned long get_clock_freq(void);
 /*
  * Environment
  */
-#if defined(CONFIG_SYS_RAMBOOT)
-#else
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SECT_SIZE	0x20000	/* 128K(one sector) for env */
-#define CONFIG_ENV_SIZE		0x2000
-#endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */

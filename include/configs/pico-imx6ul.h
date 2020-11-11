@@ -36,7 +36,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M) /* Increase due to DFU */
 
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART6_BASE_ADDR
 
 /* MMC Configs */
@@ -111,9 +110,7 @@
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
-
-#define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		CONFIG_SYS_MEMTEST_START + SZ_128M
+#include <linux/stringify.h>
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
@@ -135,9 +132,7 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /* environment organization */
-#define CONFIG_ENV_SIZE			SZ_8K
 /* Environment starts at 768k = 768 * 1024 = 786432 */
-#define CONFIG_ENV_OFFSET		786432
 /*
  * Detect overlap between U-Boot image and environment area in build-time
  *
@@ -149,17 +144,9 @@
  */
 #define CONFIG_BOARD_SIZE_LIMIT		715776
 
-
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_SYS_MMC_ENV_PART		0
-
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_MXS
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_BMP_16BPP
-#define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO
 #define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
 #endif

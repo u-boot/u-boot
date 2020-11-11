@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <irq_func.h>
 #include <mpc83xx.h>
 #include <command.h>
 
@@ -95,7 +96,7 @@ void ecc_print_status(void)
 	       ddr->capture_attributes & ECC_CAPT_ATTR_VLD);
 }
 
-int do_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+int do_ecc(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 #ifdef CONFIG_SYS_FSL_DDR2

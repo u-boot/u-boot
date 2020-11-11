@@ -88,6 +88,7 @@ _start:
 	/* Clear the interrupt vectors */
 	lidt	blank_idt_ptr
 
+#ifdef CONFIG_USE_EARLY_BOARD_INIT
 	/*
 	 * Critical early platform init - generally not used, we prefer init
 	 * to happen later when we have a console, in case something goes
@@ -96,6 +97,8 @@ _start:
 	jmp	early_board_init
 .globl early_board_init_ret
 early_board_init_ret:
+#endif
+
 	post_code(POST_START)
 
 	/* Initialise Cache-As-RAM */
@@ -124,6 +127,7 @@ car_init_ret:
 #endif
 #else
 	/*
+	 * Instructions for FSP1, but not FSP2:
 	 * U-Boot enters here twice. For the first time it comes from
 	 * car_init_done() with esp points to a temporary stack and esi
 	 * set to zero. For the second time it comes from fsp_init_done()

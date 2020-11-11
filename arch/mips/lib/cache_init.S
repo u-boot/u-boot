@@ -79,6 +79,21 @@
 	.set	pop
 	.endm
 
+	/*
+	 * The changing of Kernel mode cacheability must be done from KSEG1.
+	 * If the code is executing from KSEG0, jump to KSEG1 during the execution
+	 * of change_k0_cca. change_k0_cca itself clears all hazards when returning.
+	 */
+	.macro change_k0_cca_kseg1 mode
+	PTR_LA	t0, change_k0_cca
+	li	t1, CPHYSADDR(~0)
+	and	t0, t0, t1
+	PTR_LI	t1, CKSEG1
+	or	t0, t0, t1
+	li	a0, \mode
+	jalr	t0
+	.endm
+
 /*
  * mips_cache_reset - low level initialisation of the primary caches
  *
@@ -317,18 +332,9 @@ l1_init:
 	sync
 
 	/*
-	 * Enable use of the I-cache by setting Config.K0. The code for this
-	 * must be executed from KSEG1. Jump from KSEG0 to KSEG1 to do this.
-	 * Jump back to KSEG0 after caches are enabled and insert an
-	 * instruction hazard barrier.
+	 * Enable use of the I-cache by setting Config.K0.
 	 */
-	PTR_LA		t0, change_k0_cca
-	li		t1, CPHYSADDR(~0)
-	and		t0, t0, t1
-	PTR_LI		t1, CKSEG1
-	or		t0, t0, t1
-	li		a0, CONF_CM_CACHABLE_NONCOHERENT
-	jalr.hb		t0
+	change_k0_cca_kseg1 CONF_CM_CACHABLE_NONCOHERENT
 
 	/*
 	 * then initialize D-cache.
@@ -388,9 +394,7 @@ l2_unbypass:
 	beqz		t0, 2f
 
 	/* Change Config.K0 to a coherent CCA */
-	PTR_LA		t0, change_k0_cca
-	li		a0, CONF_CM_CACHABLE_COW
-	jalr		t0
+	change_k0_cca_kseg1 CONF_CM_CACHABLE_COW
 
 	/*
 	 * Join the coherent domain such that the caches of this core are kept
@@ -413,6 +417,12 @@ return:
 	sync
 	jr	R_RETURN
 	END(mips_cache_reset)
+
+LEAF(mips_cache_disable)
+	move	R_RETURN, ra
+	change_k0_cca_kseg1 CONF_CM_UNCACHED
+	jr	R_RETURN
+	END(mips_cache_disable)
 
 LEAF(change_k0_cca)
 	mfc0		t0, CP0_CONFIG

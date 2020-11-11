@@ -13,6 +13,7 @@
 #include <env.h>
 #include <i2c.h>
 #include "kp_id_rev.h"
+#include <net.h>
 
 static int eeprom_has_been_read;
 static struct id_eeprom eeprom;

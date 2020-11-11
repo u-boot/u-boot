@@ -20,8 +20,6 @@
  * Memory test
  * TODO: Migrate!
  */
-#define CONFIG_SYS_MEMTEST_START	0x00001000 /* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x07e00000
 
 /*
  * The reserved memory
@@ -55,12 +53,6 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + \
-				 CONFIG_SYS_MONITOR_LEN)
-#define CONFIG_ENV_SECT_SIZE	0x10000 /* 64K(one sector) for env */
-#define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
@@ -88,7 +80,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1

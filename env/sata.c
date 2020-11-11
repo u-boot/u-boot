@@ -16,7 +16,7 @@
 #include <sata.h>
 #include <search.h>
 
-#if defined(CONFIG_ENV_SIZE_REDUND) || defined(CONFIG_ENV_OFFSET_REDUND)
+#if defined(CONFIG_ENV_OFFSET_REDUND)
 #error ENV REDUND not supported
 #endif
 
@@ -111,7 +111,7 @@ static void env_sata_load(void)
 		return -EIO;
 	}
 
-	return env_import(buf, 1);
+	return env_import(buf, 1, H_EXTERNAL);
 }
 
 U_BOOT_ENV_LOCATION(sata) = {

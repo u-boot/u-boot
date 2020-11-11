@@ -9,4 +9,6 @@ void except_vec_ejtag_debug(void);
 
 int arch_misc_init(void);
 
+void trap_restore(void);
+
 #endif /* _U_BOOT_MIPS_H_ */

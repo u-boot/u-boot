@@ -9,10 +9,12 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
 #include <serial.h>
+#include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

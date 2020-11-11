@@ -20,8 +20,12 @@
  * Linus Walleij <linus.walleij@linaro.org>
  */
 #include <common.h>
+#include <init.h>
+#include <log.h>
 #include <pci.h>
 #include <asm/io.h>
+#include <linux/bug.h>
+#include <linux/delay.h>
 #include "integrator-sc.h"
 #include "pci_v3.h"
 

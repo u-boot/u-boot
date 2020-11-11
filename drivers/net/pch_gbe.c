@@ -6,11 +6,15 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
+#include <malloc.h>
 #include <asm/io.h>
 #include <pci.h>
 #include <miiphy.h>
+#include <linux/delay.h>
 #include "pch_gbe.h"
 
 #if !defined(CONFIG_PHYLIB)

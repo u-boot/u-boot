@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <pci.h>
 
 #define FDT_DEV_INFO_CELLS	4
@@ -39,7 +40,7 @@ static int sandbox_pci_write_config(struct udevice *bus, pci_dev_t devfn,
 	return ops->write_config(emul, offset, value, size);
 }
 
-static int sandbox_pci_read_config(struct udevice *bus, pci_dev_t devfn,
+static int sandbox_pci_read_config(const struct udevice *bus, pci_dev_t devfn,
 				   uint offset, ulong *valuep,
 				   enum pci_size_t size)
 {

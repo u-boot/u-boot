@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <fdtdec.h>
 #include <linux/libfdt.h>
 #include <malloc.h>
@@ -297,8 +298,8 @@ static int check_carveout(void)
 	return 0;
 }
 
-static int do_test_fdtdec(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int do_test_fdtdec(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	/* basic tests */
 	CHECKOK(run_test("", "", ""));

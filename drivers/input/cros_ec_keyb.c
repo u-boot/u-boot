@@ -12,6 +12,7 @@
 #include <input.h>
 #include <keyboard.h>
 #include <key_matrix.h>
+#include <log.h>
 #include <stdio_dev.h>
 
 enum {
@@ -46,15 +47,35 @@ static int check_for_keys(struct udevice *dev, struct key_matrix_key *keys,
 	struct key_matrix_key *key;
 	static struct mbkp_keyscan last_scan;
 	static bool last_scan_valid;
-	struct mbkp_keyscan scan;
+	struct ec_response_get_next_event event;
+	struct mbkp_keyscan *scan = (struct mbkp_keyscan *)
+				    &event.data.key_matrix;
 	unsigned int row, col, bit, data;
 	int num_keys;
+	int ret;
 
-	if (cros_ec_scan_keyboard(dev->parent, &scan)) {
-		debug("%s: keyboard scan failed\n", __func__);
+	/* Get pending MKBP event. It may not be a key matrix event. */
+	do {
+		ret = cros_ec_get_next_event(dev->parent, &event);
+		/* The EC has no events for us at this time. */
+		if (ret == -EC_RES_UNAVAILABLE)
+			return -EIO;
+		else if (ret)
+			break;
+	} while (event.event_type != EC_MKBP_EVENT_KEY_MATRIX);
+
+	/* Try the old command if the EC doesn't support the above. */
+	if (ret == -EC_RES_INVALID_COMMAND) {
+		if (cros_ec_scan_keyboard(dev->parent, scan)) {
+			debug("%s: keyboard scan failed\n", __func__);
+			return -EIO;
+		}
+	} else if (ret) {
+		debug("%s: Error getting next MKBP event. (%d)\n",
+		      __func__, ret);
 		return -EIO;
 	}
-	*samep = last_scan_valid && !memcmp(&last_scan, &scan, sizeof(scan));
+	*samep = last_scan_valid && !memcmp(&last_scan, scan, sizeof(*scan));
 
 	/*
 	 * This is a bit odd. The EC has no way to tell us that it has run
@@ -63,14 +84,14 @@ static int check_for_keys(struct udevice *dev, struct key_matrix_key *keys,
 	 * that this scan is the same as the last.
 	 */
 	last_scan_valid = true;
-	memcpy(&last_scan, &scan, sizeof(last_scan));
+	memcpy(&last_scan, scan, sizeof(last_scan));
 
 	for (col = num_keys = bit = 0; col < priv->matrix.num_cols;
 			col++) {
 		for (row = 0; row < priv->matrix.num_rows; row++) {
 			unsigned int mask = 1 << (bit & 7);
 
-			data = scan.data[bit / 8];
+			data = scan->data[bit / 8];
 			if ((data & mask) && num_keys < max_count) {
 				key = keys + num_keys++;
 				key->row = row;
@@ -224,8 +245,8 @@ static const struct udevice_id cros_ec_kbd_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(cros_ec_kbd) = {
-	.name	= "cros_ec_kbd",
+U_BOOT_DRIVER(google_cros_ec_keyb) = {
+	.name	= "google_cros_ec_keyb",
 	.id	= UCLASS_KEYBOARD,
 	.of_match = cros_ec_kbd_ids,
 	.probe = cros_ec_kbd_probe,

@@ -12,6 +12,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
+#include <malloc.h>
 #include <serial.h>
 #include <watchdog.h>
 #include <asm/io.h>
@@ -60,6 +61,7 @@ struct msm_serial_data {
 	phys_addr_t base;
 	unsigned chars_cnt; /* number of buffered chars */
 	uint32_t chars_buf; /* buffered chars */
+	uint32_t clk_bit_rate; /* data mover mode bit rate register value */
 };
 
 static int msm_serial_fetch(struct udevice *dev)
@@ -189,7 +191,7 @@ static int msm_uart_clk_init(struct udevice *dev)
 
 static void uart_dm_init(struct msm_serial_data *priv)
 {
-	writel(UART_DM_CLK_RX_TX_BIT_RATE, priv->base + UARTDM_CSR);
+	writel(priv->clk_bit_rate, priv->base + UARTDM_CSR);
 	writel(0x0, priv->base + UARTDM_MR1);
 	writel(MSM_BOOT_UART_DM_8_N_1_MODE, priv->base + UARTDM_MR2);
 	writel(MSM_BOOT_UART_DM_CMD_RESET_RX, priv->base + UARTDM_CR);
@@ -218,9 +220,12 @@ static int msm_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	struct msm_serial_data *priv = dev_get_priv(dev);
 
-	priv->base = devfdt_get_addr(dev);
+	priv->base = dev_read_addr(dev);
 	if (priv->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
+
+	priv->clk_bit_rate = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), 
+							"bit-rate", UART_DM_CLK_RX_TX_BIT_RATE);
 
 	return 0;
 }

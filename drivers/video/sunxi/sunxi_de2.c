@@ -12,6 +12,8 @@
 #include <efi_loader.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
+#include <log.h>
+#include <part.h>
 #include <video.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -19,6 +21,7 @@
 #include <asm/arch/display2.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
+#include <linux/bitops.h>
 #include "simplefb_common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -224,9 +227,9 @@ static int sunxi_de2_init(struct udevice *dev, ulong fbbase,
 
 #ifdef CONFIG_EFI_LOADER
 	efi_add_memory_map(fbbase,
-			   ALIGN(timing.hactive.typ * timing.vactive.typ *
-			   (1 << l2bpp) / 8, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT,
-			   EFI_RESERVED_MEMORY_TYPE, false);
+			   timing.hactive.typ * timing.vactive.typ *
+			   (1 << l2bpp) / 8,
+			   EFI_RESERVED_MEMORY_TYPE);
 #endif
 
 	return 0;

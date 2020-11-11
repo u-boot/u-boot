@@ -10,6 +10,8 @@
  */
 
 #include <common.h>
+#include <command.h>
+#include <log.h>
 #include <malloc.h>
 #include <linux/types.h>
 #include <linux/list.h>
@@ -120,7 +122,8 @@ static void pmic_list_names(void)
 	}
 }
 
-static int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_pmic(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	u32 ret, reg, val;
 	char *cmd, *name;

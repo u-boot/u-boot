@@ -6,7 +6,9 @@
 #ifndef _ASM_ARCH_CRU_RV1108_H
 #define _ASM_ARCH_CRU_RV1108_H
 
-#include <common.h>
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
 
 #define OSC_HZ		(24 * 1000 * 1000)
 

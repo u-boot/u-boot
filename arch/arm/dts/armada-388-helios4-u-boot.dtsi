@@ -14,10 +14,25 @@
 
 &spi1 {
 	u-boot,dm-spl;
+	spi-flash@0 {
+		u-boot,dm-spl;
+	};
 };
 
 &w25q32 {
 	status = "okay";
+	u-boot,dm-spl;
+};
+
+&gpio0 {
+	u-boot,dm-spl;
+};
+
+&ahci0 {
+	u-boot,dm-spl;
+};
+
+&ahci1 {
 	u-boot,dm-spl;
 };
 

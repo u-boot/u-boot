@@ -1,4 +1,5 @@
 #include <common.h>
+#include <command.h>
 #include <console.h> /* ctrlc */
 #include <asm/io.h>
 
@@ -89,7 +90,7 @@ void hydra_initialize(void)
 #define REFL_PATTERN (0xdededede)
 #define REFL_PATTERN_INV (~REFL_PATTERN)
 
-int do_hydrate(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_hydrate(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	uint k = 0;
 	void __iomem *pcie2_base = (void __iomem *)(MVEBU_REG_PCIE_BASE +

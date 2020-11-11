@@ -1,6 +1,7 @@
 /*
  * Internal Definitions
  */
+#include <linux/stringify.h>
 #define BOOTFLASH_START	0xF0000000
 
 /*
@@ -60,16 +61,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	512 /* max num of sects on one chip */
 #define CONFIG_SYS_FLASH_BANKS_LIST { CONFIG_SYS_FLASH_BASE }
 
-/*
- * Serial Port
- */
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	1
-#define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
-
-#define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_IMMR + 0x4500)
-#define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR + 0x4600)
-
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_NUM_I2C_BUSES	4
@@ -105,29 +96,12 @@
  */
 
 #ifndef CONFIG_SYS_RAMBOOT
-#ifndef CONFIG_ENV_ADDR
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + \
-					CONFIG_SYS_MONITOR_LEN)
-#endif
-#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env */
-#ifndef CONFIG_ENV_OFFSET
-#define CONFIG_ENV_OFFSET	(CONFIG_SYS_MONITOR_LEN)
-#endif
-
 /* Address and size of Redundant Environment Sector	*/
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + \
-						CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
-
-#else /* CFG_SYS_RAMBOOT */
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
-#define CONFIG_ENV_SIZE		0x2000
 #endif /* CFG_SYS_RAMBOOT */
 
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_OVERWRITE
 #ifndef CONFIG_KM_DEF_ENV		/* if not set by keymile-common.h */
 #define CONFIG_KM_DEF_ENV "km-common=empty\0"
 #endif

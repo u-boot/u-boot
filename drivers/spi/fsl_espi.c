@@ -3,18 +3,29 @@
  * eSPI controller driver.
  *
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  * Author: Mingkai Hu (Mingkai.hu@freescale.com)
+ *	   Chuanhua Han (chuanhua.han@nxp.com)
  */
 
 #include <common.h>
+#include <log.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 #include <malloc.h>
 #include <spi.h>
 #include <asm/immap_85xx.h>
+#include <dm.h>
+#include <errno.h>
+#include <fdtdec.h>
+#include <dm/platform_data/fsl_espi.h>
 
 struct fsl_spi_slave {
 	struct spi_slave slave;
 	ccsr_espi_t	*espi;
+	u32		speed_hz;
+	unsigned int	cs;
 	unsigned int	div16;
 	unsigned int	pm;
 	int		tx_timeout;
@@ -27,6 +38,9 @@ struct fsl_spi_slave {
 
 #define to_fsl_spi_slave(s) container_of(s, struct fsl_spi_slave, slave)
 #define US_PER_SECOND		1000000UL
+
+/* default SCK frequency, unit: HZ */
+#define FSL_ESPI_DEFAULT_SCK_FREQ   10000000
 
 #define ESPI_MAX_CS_NUM		4
 #define ESPI_FIFO_WIDTH_BIT	32
@@ -62,116 +76,27 @@ struct fsl_spi_slave {
 
 #define ESPI_MAX_DATA_TRANSFER_LEN 0xFFF0
 
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-		unsigned int max_hz, unsigned int mode)
-{
-	struct fsl_spi_slave *fsl;
-	sys_info_t sysinfo;
-	unsigned long spibrg = 0;
-	unsigned long spi_freq = 0;
-	unsigned char pm = 0;
-
-	if (!spi_cs_is_valid(bus, cs))
-		return NULL;
-
-	fsl = spi_alloc_slave(struct fsl_spi_slave, bus, cs);
-	if (!fsl)
-		return NULL;
-
-	fsl->espi = (void *)(CONFIG_SYS_MPC85xx_ESPI_ADDR);
-	fsl->mode = mode;
-	fsl->max_transfer_length = ESPI_MAX_DATA_TRANSFER_LEN;
-
-	/* Set eSPI BRG clock source */
-	get_sys_info(&sysinfo);
-	spibrg = sysinfo.freq_systembus / 2;
-	fsl->div16 = 0;
-	if ((spibrg / max_hz) > 32) {
-		fsl->div16 = ESPI_CSMODE_DIV16;
-		pm = spibrg / (max_hz * 16 * 2);
-		if (pm > 16) {
-			pm = 16;
-			debug("Requested speed is too low: %d Hz, %ld Hz "
-				"is used.\n", max_hz, spibrg / (32 * 16));
-		}
-	} else
-		pm = spibrg / (max_hz * 2);
-	if (pm)
-		pm--;
-	fsl->pm = pm;
-
-	if (fsl->div16)
-		spi_freq = spibrg / ((pm + 1) * 2 * 16);
-	else
-		spi_freq = spibrg / ((pm + 1) * 2);
-
-	/* set tx_timeout to 10 times of one espi FIFO entry go out */
-	fsl->tx_timeout = DIV_ROUND_UP((US_PER_SECOND * ESPI_FIFO_WIDTH_BIT
-				* 10), spi_freq);
-
-	return &fsl->slave;
-}
-
-void spi_free_slave(struct spi_slave *slave)
-{
-	struct fsl_spi_slave *fsl = to_fsl_spi_slave(slave);
-	free(fsl);
-}
-
-int spi_claim_bus(struct spi_slave *slave)
+void fsl_spi_cs_activate(struct spi_slave *slave, uint cs)
 {
 	struct fsl_spi_slave *fsl = to_fsl_spi_slave(slave);
 	ccsr_espi_t *espi = fsl->espi;
-	unsigned char pm = fsl->pm;
-	unsigned int cs = slave->cs;
-	unsigned int mode =  fsl->mode;
-	unsigned int div16 = fsl->div16;
-	int i;
+	unsigned int com = 0;
+	size_t data_len = fsl->data_len;
 
-	debug("%s: bus:%i cs:%i\n", __func__, slave->bus, cs);
-
-	/* Enable eSPI interface */
-	out_be32(&espi->mode, ESPI_MODE_RXTHR(3)
-			| ESPI_MODE_TXTHR(4) | ESPI_MODE_EN);
-
-	out_be32(&espi->event, 0xffffffff); /* Clear all eSPI events */
-	out_be32(&espi->mask, 0x00000000); /* Mask  all eSPI interrupts */
-
-	/* Init CS mode interface */
-	for (i = 0; i < ESPI_MAX_CS_NUM; i++)
-		out_be32(&espi->csmode[i], ESPI_CSMODE_INIT_VAL);
-
-	out_be32(&espi->csmode[cs], in_be32(&espi->csmode[cs]) &
-		~(ESPI_CSMODE_PM(0xF) | ESPI_CSMODE_DIV16
-		| ESPI_CSMODE_CI_INACTIVEHIGH | ESPI_CSMODE_CP_BEGIN_EDGCLK
-		| ESPI_CSMODE_REV_MSB_FIRST | ESPI_CSMODE_LEN(0xF)));
-
-	/* Set eSPI BRG clock source */
-	out_be32(&espi->csmode[cs], in_be32(&espi->csmode[cs])
-		| ESPI_CSMODE_PM(pm) | div16);
-
-	/* Set eSPI mode */
-	if (mode & SPI_CPHA)
-		out_be32(&espi->csmode[cs], in_be32(&espi->csmode[cs])
-			| ESPI_CSMODE_CP_BEGIN_EDGCLK);
-	if (mode & SPI_CPOL)
-		out_be32(&espi->csmode[cs], in_be32(&espi->csmode[cs])
-			| ESPI_CSMODE_CI_INACTIVEHIGH);
-
-	/* Character bit order: msb first */
-	out_be32(&espi->csmode[cs], in_be32(&espi->csmode[cs])
-		| ESPI_CSMODE_REV_MSB_FIRST);
-
-	/* Character length in bits, between 0x3~0xf, i.e. 4bits~16bits */
-	out_be32(&espi->csmode[cs], in_be32(&espi->csmode[cs])
-		| ESPI_CSMODE_LEN(7));
-
-	return 0;
+	com &= ~(ESPI_COM_CS(0x3) | ESPI_COM_TRANLEN(0xFFFF));
+	com |= ESPI_COM_CS(cs);
+	com |= ESPI_COM_TRANLEN(data_len - 1);
+	out_be32(&espi->com, com);
 }
 
-void spi_release_bus(struct spi_slave *slave)
+void fsl_spi_cs_deactivate(struct spi_slave *slave)
 {
+	struct fsl_spi_slave *fsl = to_fsl_spi_slave(slave);
+	ccsr_espi_t *espi = fsl->espi;
 
+	/* clear the RXCNT and TXCNT */
+	out_be32(&espi->mode, in_be32(&espi->mode) & (~ESPI_MODE_EN));
+	out_be32(&espi->mode, in_be32(&espi->mode) | ESPI_MODE_EN);
 }
 
 static void fsl_espi_tx(struct fsl_spi_slave *fsl, const void *dout)
@@ -204,7 +129,8 @@ static void fsl_espi_tx(struct fsl_spi_slave *fsl, const void *dout)
 		debug("***spi_xfer:...Tx timeout! event = %08x\n", event);
 }
 
-static int fsl_espi_rx(struct fsl_spi_slave *fsl, void *din, unsigned int bytes)
+static int fsl_espi_rx(struct fsl_spi_slave *fsl, void *din,
+		       unsigned int bytes)
 {
 	ccsr_espi_t *espi = fsl->espi;
 	unsigned int tmpdin, rx_times;
@@ -236,10 +162,17 @@ static int fsl_espi_rx(struct fsl_spi_slave *fsl, void *din, unsigned int bytes)
 	return bytes;
 }
 
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *data_out,
-		void *data_in, unsigned long flags)
+void  espi_release_bus(struct fsl_spi_slave *fsl)
 {
-	struct fsl_spi_slave *fsl = to_fsl_spi_slave(slave);
+	/* Disable the SPI hardware */
+	 out_be32(&fsl->espi->mode,
+		  in_be32(&fsl->espi->mode) & (~ESPI_MODE_EN));
+}
+
+int espi_xfer(struct fsl_spi_slave *fsl,  uint cs, unsigned int bitlen,
+	      const void *data_out, void *data_in, unsigned long flags)
+{
+	struct spi_slave *slave = &fsl->slave;
 	ccsr_espi_t *espi = fsl->espi;
 	unsigned int event, rx_bytes;
 	const void *dout = NULL;
@@ -258,13 +191,14 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *data_out,
 	max_tran_len = fsl->max_transfer_length;
 	switch (flags) {
 	case SPI_XFER_BEGIN:
-		cmd_len = fsl->cmd_len = data_len;
+		cmd_len = data_len;
+		fsl->cmd_len = cmd_len;
 		memcpy(cmd_buf, data_out, cmd_len);
 		return 0;
 	case 0:
 	case SPI_XFER_END:
 		if (bitlen == 0) {
-			spi_cs_deactivate(slave);
+			fsl_spi_cs_deactivate(slave);
 			return 0;
 		}
 		buf_len = 2 * cmd_len + min(data_len, (size_t)max_tran_len);
@@ -304,7 +238,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *data_out,
 		num_blks = DIV_ROUND_UP(tran_len + cmd_len, 4);
 		num_bytes = (tran_len + cmd_len) % 4;
 		fsl->data_len = tran_len + cmd_len;
-		spi_cs_activate(slave);
+		fsl_spi_cs_activate(slave, cs);
 
 		/* Clear all eSPI events */
 		out_be32(&espi->event , 0xffffffff);
@@ -347,37 +281,304 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *data_out,
 				*(int *)buffer += tran_len;
 			}
 		}
-		spi_cs_deactivate(slave);
+		fsl_spi_cs_deactivate(slave);
 	}
 
 	free(buffer);
 	return 0;
 }
 
+void espi_claim_bus(struct fsl_spi_slave *fsl, unsigned int cs)
+{
+	ccsr_espi_t *espi = fsl->espi;
+	unsigned char pm = fsl->pm;
+	unsigned int mode =  fsl->mode;
+	unsigned int div16 = fsl->div16;
+	int i;
+
+	/* Enable eSPI interface */
+	out_be32(&espi->mode, ESPI_MODE_RXTHR(3)
+			| ESPI_MODE_TXTHR(4) | ESPI_MODE_EN);
+
+	out_be32(&espi->event, 0xffffffff); /* Clear all eSPI events */
+	out_be32(&espi->mask, 0x00000000); /* Mask  all eSPI interrupts */
+
+	/* Init CS mode interface */
+	for (i = 0; i < ESPI_MAX_CS_NUM; i++)
+		out_be32(&espi->csmode[i], ESPI_CSMODE_INIT_VAL);
+
+	out_be32(&espi->csmode[cs], in_be32(&espi->csmode[cs]) &
+		~(ESPI_CSMODE_PM(0xF) | ESPI_CSMODE_DIV16
+		| ESPI_CSMODE_CI_INACTIVEHIGH | ESPI_CSMODE_CP_BEGIN_EDGCLK
+		| ESPI_CSMODE_REV_MSB_FIRST | ESPI_CSMODE_LEN(0xF)));
+
+	/* Set eSPI BRG clock source */
+	out_be32(&espi->csmode[cs], in_be32(&espi->csmode[cs])
+		| ESPI_CSMODE_PM(pm) | div16);
+
+	/* Set eSPI mode */
+	if (mode & SPI_CPHA)
+		out_be32(&espi->csmode[cs], in_be32(&espi->csmode[cs])
+			| ESPI_CSMODE_CP_BEGIN_EDGCLK);
+	if (mode & SPI_CPOL)
+		out_be32(&espi->csmode[cs], in_be32(&espi->csmode[cs])
+			| ESPI_CSMODE_CI_INACTIVEHIGH);
+
+	/* Character bit order: msb first */
+	out_be32(&espi->csmode[cs], in_be32(&espi->csmode[cs])
+		| ESPI_CSMODE_REV_MSB_FIRST);
+
+	/* Character length in bits, between 0x3~0xf, i.e. 4bits~16bits */
+	out_be32(&espi->csmode[cs], in_be32(&espi->csmode[cs])
+		| ESPI_CSMODE_LEN(7));
+}
+
+void espi_setup_slave(struct fsl_spi_slave *fsl)
+{
+	unsigned int max_hz;
+	sys_info_t sysinfo;
+	unsigned long spibrg = 0;
+	unsigned long spi_freq = 0;
+	unsigned char pm = 0;
+
+	max_hz = fsl->speed_hz;
+
+	get_sys_info(&sysinfo);
+	spibrg = sysinfo.freq_systembus / 2;
+	fsl->div16 = 0;
+	if ((spibrg / max_hz) > 32) {
+		fsl->div16 = ESPI_CSMODE_DIV16;
+		pm = spibrg / (max_hz * 16 * 2);
+		if (pm > 16) {
+			pm = 16;
+			debug("max_hz is too low: %d Hz, %ld Hz is used.\n",
+			      max_hz, spibrg / (32 * 16));
+		}
+	} else {
+		pm = spibrg / (max_hz * 2);
+	}
+	if (pm)
+		pm--;
+	fsl->pm = pm;
+
+	if (fsl->div16)
+		spi_freq = spibrg / ((pm + 1) * 2 * 16);
+	else
+		spi_freq = spibrg / ((pm + 1) * 2);
+
+	/* set tx_timeout to 10 times of one espi FIFO entry go out */
+	fsl->tx_timeout = DIV_ROUND_UP((US_PER_SECOND * ESPI_FIFO_WIDTH_BIT
+				* 10), spi_freq);/* Set eSPI BRG clock source */
+}
+
+#if !CONFIG_IS_ENABLED(DM_SPI)
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
 	return bus == 0 && cs < ESPI_MAX_CS_NUM;
 }
 
-void spi_cs_activate(struct spi_slave *slave)
+struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
+				  unsigned int max_hz, unsigned int mode)
 {
-	struct fsl_spi_slave *fsl = to_fsl_spi_slave(slave);
-	ccsr_espi_t *espi = fsl->espi;
-	unsigned int com = 0;
-	size_t data_len = fsl->data_len;
+	struct fsl_spi_slave *fsl;
 
-	com &= ~(ESPI_COM_CS(0x3) | ESPI_COM_TRANLEN(0xFFFF));
-	com |= ESPI_COM_CS(slave->cs);
-	com |= ESPI_COM_TRANLEN(data_len - 1);
-	out_be32(&espi->com, com);
+	if (!spi_cs_is_valid(bus, cs))
+		return NULL;
+
+	fsl = spi_alloc_slave(struct fsl_spi_slave, bus, cs);
+	if (!fsl)
+		return NULL;
+
+	fsl->espi = (void *)(CONFIG_SYS_MPC85xx_ESPI_ADDR);
+	fsl->mode = mode;
+	fsl->max_transfer_length = ESPI_MAX_DATA_TRANSFER_LEN;
+	fsl->speed_hz = max_hz;
+
+	espi_setup_slave(fsl);
+
+	return &fsl->slave;
 }
 
-void spi_cs_deactivate(struct spi_slave *slave)
+void spi_free_slave(struct spi_slave *slave)
 {
 	struct fsl_spi_slave *fsl = to_fsl_spi_slave(slave);
-	ccsr_espi_t *espi = fsl->espi;
 
-	/* clear the RXCNT and TXCNT */
-	out_be32(&espi->mode, in_be32(&espi->mode) & (~ESPI_MODE_EN));
-	out_be32(&espi->mode, in_be32(&espi->mode) | ESPI_MODE_EN);
+	free(fsl);
 }
+
+int spi_claim_bus(struct spi_slave *slave)
+{
+	struct fsl_spi_slave *fsl = to_fsl_spi_slave(slave);
+
+	espi_claim_bus(fsl, slave->cs);
+
+	return 0;
+}
+
+void spi_release_bus(struct spi_slave *slave)
+{
+	struct fsl_spi_slave *fsl = to_fsl_spi_slave(slave);
+
+	espi_release_bus(fsl);
+}
+
+int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
+	     void *din, unsigned long flags)
+{
+	struct fsl_spi_slave *fsl = (struct fsl_spi_slave *)slave;
+
+	return espi_xfer(fsl, slave->cs, bitlen, dout, din, flags);
+}
+#else
+static void __espi_set_speed(struct fsl_spi_slave *fsl)
+{
+	espi_setup_slave(fsl);
+
+	/* Set eSPI BRG clock source */
+	out_be32(&fsl->espi->csmode[fsl->cs],
+		 in_be32(&fsl->espi->csmode[fsl->cs])
+			 | ESPI_CSMODE_PM(fsl->pm) | fsl->div16);
+}
+
+static void __espi_set_mode(struct fsl_spi_slave *fsl)
+{
+	/* Set eSPI mode */
+	if (fsl->mode & SPI_CPHA)
+		out_be32(&fsl->espi->csmode[fsl->cs],
+			 in_be32(&fsl->espi->csmode[fsl->cs])
+				| ESPI_CSMODE_CP_BEGIN_EDGCLK);
+	if (fsl->mode & SPI_CPOL)
+		out_be32(&fsl->espi->csmode[fsl->cs],
+			 in_be32(&fsl->espi->csmode[fsl->cs])
+				| ESPI_CSMODE_CI_INACTIVEHIGH);
+}
+
+static int fsl_espi_claim_bus(struct udevice *dev)
+{
+	struct udevice *bus = dev->parent;
+	struct fsl_spi_slave  *fsl =  dev_get_priv(bus);
+
+	espi_claim_bus(fsl, fsl->cs);
+
+	return 0;
+}
+
+static int fsl_espi_release_bus(struct udevice *dev)
+{
+	struct udevice *bus = dev->parent;
+	struct fsl_spi_slave *fsl = dev_get_priv(bus);
+
+	espi_release_bus(fsl);
+
+	return 0;
+}
+
+static int fsl_espi_xfer(struct udevice *dev, unsigned int bitlen,
+			 const void *dout, void *din, unsigned long flags)
+{
+	struct udevice *bus = dev->parent;
+	struct fsl_spi_slave *fsl = dev_get_priv(bus);
+
+	return espi_xfer(fsl, fsl->cs, bitlen, dout, din, flags);
+}
+
+static int fsl_espi_set_speed(struct udevice *bus, uint speed)
+{
+	struct fsl_spi_slave *fsl = dev_get_priv(bus);
+
+	debug("%s speed %u\n", __func__, speed);
+	fsl->speed_hz = speed;
+
+	__espi_set_speed(fsl);
+
+	return 0;
+}
+
+static int fsl_espi_set_mode(struct udevice *bus, uint mode)
+{
+	struct fsl_spi_slave *fsl = dev_get_priv(bus);
+
+	debug("%s mode %u\n", __func__, mode);
+	fsl->mode = mode;
+
+	__espi_set_mode(fsl);
+
+	return 0;
+}
+
+static int fsl_espi_child_pre_probe(struct udevice *dev)
+{
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct udevice *bus = dev->parent;
+	struct fsl_spi_slave *fsl = dev_get_priv(bus);
+
+	debug("%s cs %u\n", __func__, slave_plat->cs);
+	fsl->cs = slave_plat->cs;
+
+	return 0;
+}
+
+static int fsl_espi_probe(struct udevice *bus)
+{
+	struct fsl_espi_platdata *plat = dev_get_platdata(bus);
+	struct fsl_spi_slave *fsl = dev_get_priv(bus);
+
+	fsl->espi = (ccsr_espi_t *)((u32)plat->regs_addr);
+	fsl->max_transfer_length = ESPI_MAX_DATA_TRANSFER_LEN;
+	fsl->speed_hz = plat->speed_hz;
+
+	debug("%s probe done, bus-num %d.\n", bus->name, bus->seq);
+
+	return 0;
+}
+
+static const struct dm_spi_ops fsl_espi_ops = {
+	.claim_bus	= fsl_espi_claim_bus,
+	.release_bus	= fsl_espi_release_bus,
+	.xfer		= fsl_espi_xfer,
+	.set_speed	= fsl_espi_set_speed,
+	.set_mode	= fsl_espi_set_mode,
+};
+
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+static int fsl_espi_ofdata_to_platdata(struct udevice *bus)
+{
+	fdt_addr_t addr;
+	struct fsl_espi_platdata   *plat = bus->platdata;
+	const void *blob = gd->fdt_blob;
+	int node = dev_of_offset(bus);
+
+	addr = dev_read_addr(bus);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	plat->regs_addr = lower_32_bits(addr);
+	plat->speed_hz = fdtdec_get_int(blob, node, "spi-max-frequency",
+					FSL_ESPI_DEFAULT_SCK_FREQ);
+
+	debug("ESPI: regs=%p, max-frequency=%d\n",
+	      &plat->regs_addr, plat->speed_hz);
+
+	return 0;
+}
+
+static const struct udevice_id fsl_espi_ids[] = {
+	{ .compatible = "fsl,mpc8536-espi" },
+	{ }
+};
+#endif
+
+U_BOOT_DRIVER(fsl_espi) = {
+	.name	= "fsl_espi",
+	.id	= UCLASS_SPI,
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+	.of_match = fsl_espi_ids,
+	.ofdata_to_platdata = fsl_espi_ofdata_to_platdata,
+#endif
+	.ops	= &fsl_espi_ops,
+	.platdata_auto_alloc_size = sizeof(struct fsl_espi_platdata),
+	.priv_auto_alloc_size = sizeof(struct fsl_spi_slave),
+	.probe	= fsl_espi_probe,
+	.child_pre_probe = fsl_espi_child_pre_probe,
+};
+#endif

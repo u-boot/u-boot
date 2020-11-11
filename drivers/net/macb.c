@@ -4,7 +4,10 @@
  */
 #include <common.h>
 #include <clk.h>
+#include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
+#include <linux/delay.h>
 
 /*
  * The u-boot networking stack is a little weird.  It seems like the
@@ -37,7 +40,7 @@
 
 #include <linux/mii.h>
 #include <asm/io.h>
-#include <asm/dma-mapping.h>
+#include <linux/dma-mapping.h>
 #include <asm/arch/clk.h>
 #include <linux/errno.h>
 
@@ -164,7 +167,8 @@ static int gem_is_gigabit_capable(struct macb_device *macb)
 	return macb_is_gem(macb) && !cpu_is_sama5d2() && !cpu_is_sama5d4();
 }
 
-static void macb_mdio_write(struct macb_device *macb, u8 reg, u16 value)
+static void macb_mdio_write(struct macb_device *macb, u8 phy_adr, u8 reg,
+			    u16 value)
 {
 	unsigned long netctl;
 	unsigned long netstat;
@@ -176,7 +180,7 @@ static void macb_mdio_write(struct macb_device *macb, u8 reg, u16 value)
 
 	frame = (MACB_BF(SOF, 1)
 		 | MACB_BF(RW, 1)
-		 | MACB_BF(PHYA, macb->phy_addr)
+		 | MACB_BF(PHYA, phy_adr)
 		 | MACB_BF(REGA, reg)
 		 | MACB_BF(CODE, 2)
 		 | MACB_BF(DATA, value));
@@ -191,7 +195,7 @@ static void macb_mdio_write(struct macb_device *macb, u8 reg, u16 value)
 	macb_writel(macb, NCR, netctl);
 }
 
-static u16 macb_mdio_read(struct macb_device *macb, u8 reg)
+static u16 macb_mdio_read(struct macb_device *macb, u8 phy_adr, u8 reg)
 {
 	unsigned long netctl;
 	unsigned long netstat;
@@ -203,7 +207,7 @@ static u16 macb_mdio_read(struct macb_device *macb, u8 reg)
 
 	frame = (MACB_BF(SOF, 1)
 		 | MACB_BF(RW, 2)
-		 | MACB_BF(PHYA, macb->phy_addr)
+		 | MACB_BF(PHYA, phy_adr)
 		 | MACB_BF(REGA, reg)
 		 | MACB_BF(CODE, 2));
 	macb_writel(macb, MAN, frame);
@@ -239,11 +243,8 @@ int macb_miiphy_read(struct mii_dev *bus, int phy_adr, int devad, int reg)
 	struct macb_device *macb = to_macb(dev);
 #endif
 
-	if (macb->phy_addr != phy_adr)
-		return -1;
-
 	arch_get_mdio_control(bus->name);
-	value = macb_mdio_read(macb, reg);
+	value = macb_mdio_read(macb, phy_adr, reg);
 
 	return value;
 }
@@ -259,11 +260,8 @@ int macb_miiphy_write(struct mii_dev *bus, int phy_adr, int devad, int reg,
 	struct macb_device *macb = to_macb(dev);
 #endif
 
-	if (macb->phy_addr != phy_adr)
-		return -1;
-
 	arch_get_mdio_control(bus->name);
-	macb_mdio_write(macb, reg, value);
+	macb_mdio_write(macb, phy_adr, reg, value);
 
 	return 0;
 }
@@ -331,8 +329,6 @@ static int _macb_send(struct macb_device *macb, const char *name, void *packet,
 	macb->tx_ring[tx_head].addr = paddr;
 	barrier();
 	macb_flush_ring_desc(macb, TX);
-	/* Do we need check paddr and length is dcache line aligned? */
-	flush_dcache_range(paddr, paddr + ALIGN(length, ARCH_DMA_MINALIGN));
 	macb_writel(macb, NCR, MACB_BIT(TE) | MACB_BIT(RE) | MACB_BIT(TSTART));
 
 	/*
@@ -348,7 +344,7 @@ static int _macb_send(struct macb_device *macb, const char *name, void *packet,
 		udelay(1);
 	}
 
-	dma_unmap_single(packet, length, paddr);
+	dma_unmap_single(paddr, length, DMA_TO_DEVICE);
 
 	if (i <= MACB_TX_TIMEOUT) {
 		if (ctrl & MACB_BIT(TX_UNDERRUN))
@@ -450,13 +446,13 @@ static void macb_phy_reset(struct macb_device *macb, const char *name)
 	u16 status, adv;
 
 	adv = ADVERTISE_CSMA | ADVERTISE_ALL;
-	macb_mdio_write(macb, MII_ADVERTISE, adv);
+	macb_mdio_write(macb, macb->phy_addr, MII_ADVERTISE, adv);
 	printf("%s: Starting autonegotiation...\n", name);
-	macb_mdio_write(macb, MII_BMCR, (BMCR_ANENABLE
+	macb_mdio_write(macb, macb->phy_addr, MII_BMCR, (BMCR_ANENABLE
 					 | BMCR_ANRESTART));
 
 	for (i = 0; i < MACB_AUTONEG_TIMEOUT / 100; i++) {
-		status = macb_mdio_read(macb, MII_BMSR);
+		status = macb_mdio_read(macb, macb->phy_addr, MII_BMSR);
 		if (status & BMSR_ANEGCOMPLETE)
 			break;
 		udelay(100);
@@ -477,7 +473,7 @@ static int macb_phy_find(struct macb_device *macb, const char *name)
 	/* Search for PHY... */
 	for (i = 0; i < 32; i++) {
 		macb->phy_addr = i;
-		phy_id = macb_mdio_read(macb, MII_PHYSID1);
+		phy_id = macb_mdio_read(macb, macb->phy_addr, MII_PHYSID1);
 		if (phy_id != 0xffff) {
 			printf("%s: PHY present at %d\n", name, i);
 			return 0;
@@ -595,7 +591,7 @@ static int macb_phy_init(struct macb_device *macb, const char *name)
 		return ret;
 
 	/* Check if the PHY is up to snuff... */
-	phy_id = macb_mdio_read(macb, MII_PHYSID1);
+	phy_id = macb_mdio_read(macb, macb->phy_addr, MII_PHYSID1);
 	if (phy_id == 0xffff) {
 		printf("%s: No PHY present\n", name);
 		return -ENODEV;
@@ -618,13 +614,13 @@ static int macb_phy_init(struct macb_device *macb, const char *name)
 	phy_config(macb->phydev);
 #endif
 
-	status = macb_mdio_read(macb, MII_BMSR);
+	status = macb_mdio_read(macb, macb->phy_addr, MII_BMSR);
 	if (!(status & BMSR_LSTATUS)) {
 		/* Try to re-negotiate if we don't have link already. */
 		macb_phy_reset(macb, name);
 
 		for (i = 0; i < MACB_AUTONEG_TIMEOUT / 100; i++) {
-			status = macb_mdio_read(macb, MII_BMSR);
+			status = macb_mdio_read(macb, macb->phy_addr, MII_BMSR);
 			if (status & BMSR_LSTATUS) {
 				/*
 				 * Delay a bit after the link is established,
@@ -645,7 +641,7 @@ static int macb_phy_init(struct macb_device *macb, const char *name)
 
 	/* First check for GMAC and that it is GiB capable */
 	if (gem_is_gigabit_capable(macb)) {
-		lpa = macb_mdio_read(macb, MII_STAT1000);
+		lpa = macb_mdio_read(macb, macb->phy_addr, MII_STAT1000);
 
 		if (lpa & (LPA_1000FULL | LPA_1000HALF | LPA_1000XFULL |
 					LPA_1000XHALF)) {
@@ -679,8 +675,8 @@ static int macb_phy_init(struct macb_device *macb, const char *name)
 	}
 
 	/* fall back for EMAC checking */
-	adv = macb_mdio_read(macb, MII_ADVERTISE);
-	lpa = macb_mdio_read(macb, MII_LPA);
+	adv = macb_mdio_read(macb, macb->phy_addr, MII_ADVERTISE);
+	lpa = macb_mdio_read(macb, macb->phy_addr, MII_LPA);
 	media = mii_nway_result(lpa & adv);
 	speed = (media & (ADVERTISE_100FULL | ADVERTISE_100HALF)
 		 ? 1 : 0);
@@ -813,7 +809,7 @@ static int _macb_init(struct macb_device *macb, const char *name)
 	macb->next_rx_tail = 0;
 
 #ifdef CONFIG_MACB_ZYNQ
-	macb_writel(macb, DMACFG, MACB_ZYNQ_GEM_DMACR_INIT);
+	gem_writel(macb, DMACFG, MACB_ZYNQ_GEM_DMACR_INIT);
 #endif
 
 	macb_writel(macb, RBQP, macb->rx_ring_dma);
@@ -1060,7 +1056,7 @@ static int macb_recv(struct eth_device *netdev)
 	}
 }
 
-static int macb_init(struct eth_device *netdev, bd_t *bd)
+static int macb_init(struct eth_device *netdev, struct bd_info *bd)
 {
 	struct macb_device *macb = to_macb(netdev);
 

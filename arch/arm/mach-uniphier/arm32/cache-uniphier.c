@@ -5,7 +5,7 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
+#include <cpu_func.h>
 #include <linux/io.h>
 #include <linux/kernel.h>
 #include <asm/armv7.h>

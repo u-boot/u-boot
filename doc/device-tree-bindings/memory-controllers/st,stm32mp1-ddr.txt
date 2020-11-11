@@ -129,6 +129,8 @@ phyc attributes:
 		MR3
 
 - st,phy-cal	: phy cal depending of calibration or tuning of DDR
+	This parameter is optional; when it is absent the built-in PHY
+	calibration is done.
 	for STM32MP15x: 12 values are requested in this order
 		DX0DLLCR
 		DX0DQTR

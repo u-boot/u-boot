@@ -4,7 +4,7 @@
  * Ивайло Димитров <freemangordon@abv.bg>
  *
  * (C) Copyright 2011-2012
- * Pali Rohár <pali.rohar@gmail.com>
+ * Pali Rohár <pali@kernel.org>
  *
  * (C) Copyright 2008
  * Dirk Behme <dirk.behme@gmail.com>

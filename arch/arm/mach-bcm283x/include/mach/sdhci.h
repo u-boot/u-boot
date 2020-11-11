@@ -6,7 +6,10 @@
 #ifndef _BCM2835_SDHCI_H_
 #define _BCM2835_SDHCI_H_
 
-#define BCM2835_SDHCI_BASE (CONFIG_BCM283x_BASE + 0x00300000)
+#include <asm/arch/base.h>
+
+#define BCM2835_SDHCI_PHYSADDR ({ BUG_ON(!rpi_bcm283x_base); \
+				  rpi_bcm283x_base + 0x00300000; })
 
 int bcm2835_sdhci_init(u32 regbase, u32 emmc_freq);
 

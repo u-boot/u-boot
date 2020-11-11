@@ -11,8 +11,14 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/gpio.h>
 #include <asm/arch/gpio.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
+#include <linux/bitops.h>
+#include <linux/bug.h>
+#include <linux/delay.h>
 
 #include <malloc.h>
 #include <nand.h>
@@ -418,7 +424,8 @@ static int pmecc_err_location(struct mtd_info *mtd)
 	}
 
 	if (!timeout) {
-		dev_err(host->dev, "atmel_nand : Timeout to calculate PMECC error location\n");
+		dev_err(mtd->dev,
+			"Timeout to calculate PMECC error location\n");
 		return -1;
 	}
 
@@ -458,7 +465,8 @@ static void pmecc_correct_data(struct mtd_info *mtd, uint8_t *buf, uint8_t *ecc,
 			*(buf + byte_pos) ^= (1 << bit_pos);
 
 			pos = sector_num * host->pmecc_sector_size + byte_pos;
-			dev_dbg(host->dev, "Bit flip in data area, byte_pos: %d, bit_pos: %d, 0x%02x -> 0x%02x\n",
+			dev_dbg(mtd->dev,
+				"Bit flip in data area, byte_pos: %d, bit_pos: %d, 0x%02x -> 0x%02x\n",
 				pos, bit_pos, err_byte, *(buf + byte_pos));
 		} else {
 			/* Bit flip in OOB area */
@@ -468,7 +476,8 @@ static void pmecc_correct_data(struct mtd_info *mtd, uint8_t *buf, uint8_t *ecc,
 			ecc[tmp] ^= (1 << bit_pos);
 
 			pos = tmp + nand_chip->ecc.layout->eccpos[0];
-			dev_dbg(host->dev, "Bit flip in OOB, oob_byte_pos: %d, bit_pos: %d, 0x%02x -> 0x%02x\n",
+			dev_dbg(mtd->dev,
+				"Bit flip in OOB, oob_byte_pos: %d, bit_pos: %d, 0x%02x -> 0x%02x\n",
 				pos, bit_pos, err_byte, ecc[tmp]);
 		}
 
@@ -510,7 +519,7 @@ normal_check:
 
 			err_nbr = pmecc_err_location(mtd);
 			if (err_nbr == -1) {
-				dev_err(host->dev, "PMECC: Too many errors\n");
+				dev_err(mtd->dev, "PMECC: Too many errors\n");
 				mtd->ecc_stats.failed++;
 				return -EBADMSG;
 			} else {
@@ -554,7 +563,7 @@ static int atmel_nand_pmecc_read_page(struct mtd_info *mtd,
 	}
 
 	if (!timeout) {
-		dev_err(host->dev, "atmel_nand : Timeout to read PMECC page\n");
+		dev_err(mtd->dev, "Timeout to read PMECC page\n");
 		return -1;
 	}
 
@@ -594,7 +603,8 @@ static int atmel_nand_pmecc_write_page(struct mtd_info *mtd,
 	}
 
 	if (!timeout) {
-		dev_err(host->dev, "atmel_nand : Timeout to read PMECC status, fail to write PMECC in oob\n");
+		dev_err(mtd->dev,
+			"Timeout to read PMECC status, fail to write PMECC in oob\n");
 		goto out;
 	}
 
@@ -707,7 +717,8 @@ static int pmecc_choose_ecc(struct atmel_nand_host *host,
 
 	if (*cap == 0 && *sector_size == 0) {
 		/* Non-ONFI compliant */
-		dev_info(host->dev, "NAND chip is not ONFI compliant, assume ecc_bits is 2 in 512 bytes\n");
+		dev_info(chip->mtd.dev,
+			 "NAND chip is not ONFI compliant, assume ecc_bits is 2 in 512 bytes\n");
 		*cap = 2;
 		*sector_size = 512;
 	}
@@ -829,17 +840,20 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 	 * from ONFI.
 	 */
 	if (pmecc_choose_ecc(host, nand, &cap, &sector_size)) {
-		dev_err(host->dev, "Required ECC %d bits in %d bytes not supported!\n",
+		dev_err(mtd->dev,
+			"Required ECC %d bits in %d bytes not supported!\n",
 			cap, sector_size);
 		return -EINVAL;
 	}
 
 	if (cap > host->pmecc_corr_cap)
-		dev_info(host->dev, "WARNING: Using different ecc correct bits(%d bit) from Nand ONFI ECC reqirement (%d bit).\n",
-				host->pmecc_corr_cap, cap);
+		dev_info(mtd->dev,
+			 "WARNING: Using different ecc correct bits(%d bit) from Nand ONFI ECC reqirement (%d bit).\n",
+			 host->pmecc_corr_cap, cap);
 	if (sector_size < host->pmecc_sector_size)
-		dev_info(host->dev, "WARNING: Using different ecc correct sector size (%d bytes) from Nand ONFI ECC reqirement (%d bytes).\n",
-				host->pmecc_sector_size, sector_size);
+		dev_info(mtd->dev,
+			 "WARNING: Using different ecc correct sector size (%d bytes) from Nand ONFI ECC reqirement (%d bytes).\n",
+			 host->pmecc_sector_size, sector_size);
 #else	/* CONFIG_SYS_NAND_ONFI_DETECTION */
 	host->pmecc_corr_cap = CONFIG_PMECC_CAP;
 	host->pmecc_sector_size = CONFIG_PMECC_SECTOR_SIZE;
@@ -871,7 +885,7 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 #if defined(NO_GALOIS_TABLE_IN_ROM)
 	pmecc_galois_table = create_lookup_table(host->pmecc_sector_size);
 	if (!pmecc_galois_table) {
-		dev_err(host->dev, "out of memory\n");
+		dev_err(mtd->dev, "out of memory\n");
 		return -ENOMEM;
 	}
 
@@ -903,13 +917,14 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 				       host->pmecc_sector_number;
 
 		if (nand->ecc.bytes > MTD_MAX_ECCPOS_ENTRIES_LARGE) {
-			dev_err(host->dev, "too large eccpos entries. max support ecc.bytes is %d\n",
-					MTD_MAX_ECCPOS_ENTRIES_LARGE);
+			dev_err(mtd->dev,
+				"too large eccpos entries. max support ecc.bytes is %d\n",
+				MTD_MAX_ECCPOS_ENTRIES_LARGE);
 			return -EINVAL;
 		}
 
 		if (nand->ecc.bytes > mtd->oobsize - PMECC_OOB_RESERVED_BYTES) {
-			dev_err(host->dev, "No room for ECC bytes\n");
+			dev_err(mtd->dev, "No room for ECC bytes\n");
 			return -EINVAL;
 		}
 		pmecc_config_ecc_layout(&atmel_pmecc_oobinfo,
@@ -920,7 +935,8 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 	case 512:
 	case 1024:
 		/* TODO */
-		dev_err(host->dev, "Unsupported page size for PMECC, use Software ECC\n");
+		dev_err(mtd->dev,
+			"Unsupported page size for PMECC, use Software ECC\n");
 	default:
 		/* page size not handled by HW ECC */
 		/* switching back to soft ECC */
@@ -934,7 +950,8 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 
 	/* Allocate data for PMECC computation */
 	if (pmecc_data_alloc(host)) {
-		dev_err(host->dev, "Cannot allocate memory for PMECC computation!\n");
+		dev_err(mtd->dev,
+			"Cannot allocate memory for PMECC computation!\n");
 		return -ENOMEM;
 	}
 
@@ -945,7 +962,7 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 
 	/* Check the PMECC ip version */
 	host->pmecc_version = pmecc_readl(host->pmerrloc, version);
-	dev_dbg(host->dev, "PMECC IP version is: %x\n", host->pmecc_version);
+	dev_dbg(mtd->dev, "PMECC IP version is: %x\n", host->pmecc_version);
 
 	atmel_pmecc_core_init(mtd);
 
@@ -1108,8 +1125,8 @@ static int atmel_nand_correct(struct mtd_info *mtd, u_char *dat,
 		/* it doesn't seems to be a freshly
 		 * erased block.
 		 * We can't correct so many errors */
-		dev_warn(host->dev, "atmel_nand : multiple errors detected."
-				" Unable to correct.\n");
+		dev_warn(mtd->dev,
+			 "multiple errors detected. Unable to correct.\n");
 		return -EBADMSG;
 	}
 
@@ -1118,15 +1135,14 @@ static int atmel_nand_correct(struct mtd_info *mtd, u_char *dat,
 		/* there's nothing much to do here.
 		 * the bit error is on the ECC itself.
 		 */
-		dev_warn(host->dev, "atmel_nand : one bit error on ECC code."
-				" Nothing to correct\n");
+		dev_warn(mtd->dev,
+			 "one bit error on ECC code. Nothing to correct\n");
 		return 0;
 	}
 
-	dev_warn(host->dev, "atmel_nand : one bit error on data."
-			" (word offset in the page :"
-			" 0x%x bit offset : 0x%x)\n",
-			ecc_word, ecc_bit);
+	dev_warn(mtd->dev,
+		 "one bit error on data. (word offset in the page : 0x%x bit offset : 0x%x)\n",
+		 ecc_word, ecc_bit);
 	/* correct the error */
 	if (nand_chip->options & NAND_BUSWIDTH_16) {
 		/* 16 bits words */
@@ -1135,7 +1151,7 @@ static int atmel_nand_correct(struct mtd_info *mtd, u_char *dat,
 		/* 8 bits words */
 		dat[ecc_word] ^= (1 << ecc_bit);
 	}
-	dev_warn(host->dev, "atmel_nand : error corrected\n");
+	dev_warn(mtd->dev, "error corrected\n");
 	return 1;
 }
 
@@ -1505,7 +1521,6 @@ void board_nand_init(void)
 	int i;
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
 		if (atmel_nand_chip_init(i, base_addr[i]))
-			dev_err(host->dev, "atmel_nand: Fail to initialize #%d chip",
-				i);
+			log_err("atmel_nand: Fail to initialize #%d chip", i);
 }
 #endif /* CONFIG_SPL_BUILD */

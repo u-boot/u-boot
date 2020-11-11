@@ -29,8 +29,6 @@
 #define CONFIG_SYS_MALLOC_LEN		SZ_1M
 #define CONFIG_SYS_SDRAM_BASE		EMC_DYCS0_BASE
 #define CONFIG_SYS_SDRAM_SIZE		SZ_128M
-#define CONFIG_SYS_MEMTEST_START	(CONFIG_SYS_SDRAM_BASE + SZ_32K)
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_TEXT_BASE - SZ_1M)
 
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_32K)
 
@@ -46,7 +44,6 @@
  * Ethernet Driver
  */
 
-#define CONFIG_PHY_SMSC
 #define CONFIG_LPC32XX_ETH
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 /* FIXME: remove "Waiting for PHY auto negotiation to complete..." message */
@@ -108,18 +105,8 @@
 #define CONFIG_LPC32XX_GPIO
 
 /*
- * SSP/SPI/DISPLAY
- */
-
-#define CONFIG_LPC32XX_SSP_TIMEOUT 100000
-/*
  * Environment
  */
-
-#define CONFIG_ENV_SIZE			0x00020000
-#define CONFIG_ENV_OFFSET		0x00100000
-#define CONFIG_ENV_OFFSET_REDUND	0x00120000
-#define CONFIG_ENV_ADDR			0x80000100
 
 /*
  * Boot Linux
@@ -141,8 +128,6 @@
 /* Use the framework and generic lib */
 /* SPL will use serial */
 /* SPL will load U-Boot from NAND offset 0x40000 */
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_BASE
 #define CONFIG_SYS_NAND_U_BOOT_OFFS  0x00040000
 #define CONFIG_SPL_PAD_TO 0x20000
 /* U-Boot will be 0x40000 bytes, loaded and run at CONFIG_SYS_TEXT_BASE */

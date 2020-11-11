@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  */
 
 #ifndef __LS1046AFRWY_H__
@@ -96,20 +96,18 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_OVERWRITE
-
-#define CONFIG_SYS_MMC_ENV_DEV		0
-
-#define CONFIG_ENV_SIZE			0x2000		/* 8KB */
-#define CONFIG_ENV_OFFSET		0x500000	/* 5MB */
-#define CONFIG_ENV_SECT_SIZE		0x40000		/* 256KB */
 #define CONFIG_SYS_FSL_QSPI_BASE	0x40000000
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_FSL_QSPI_BASE + \
-					 CONFIG_ENV_OFFSET)
+
+#ifndef CONFIG_SPL_BUILD
+#undef BOOT_TARGET_DEVICES
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0) \
+	func(DHCP, dhcp, na)
+#endif
 
 /* FMan */
 #ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_FMAN_ENET
 
 #define QSGMII_PORT1_PHY_ADDR		0x1c
 #define QSGMII_PORT2_PHY_ADDR		0x1d
@@ -120,12 +118,6 @@
 
 #define CONFIG_ETHPRIME			"FM1@DTSEC3"
 
-#endif
-
-/* QSPI device */
-#ifdef CONFIG_FSL_QSPI
-#define FSL_QSPI_FLASH_SIZE		SZ_64M
-#define FSL_QSPI_FLASH_NUM		1
 #endif
 
 #undef CONFIG_BOOTCOMMAND

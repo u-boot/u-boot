@@ -4,17 +4,27 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
+#include <command.h>
 #include <spl.h>
 #include <stdio.h>
+#include <linux/bitops.h>
+#include <linux/bug.h>
+#include <linux/errno.h>
 #include <linux/io.h>
 #include <linux/log2.h>
 
 #include "../init.h"
-#include "../sbc/sbc-regs.h"
 #include "../sg-regs.h"
 #include "../soc-info.h"
 #include "boot-device.h"
+
+#define SBBASE0			0x58c00100
+#define SBBASE_BANK_ENABLE		BIT(0)
+
+static int uniphier_sbc_boot_is_swapped(void)
+{
+	return !(readl(SBBASE0) & SBBASE_BANK_ENABLE);
+}
 
 struct uniphier_boot_device_info {
 	unsigned int soc_id;
@@ -205,7 +215,8 @@ int uniphier_boot_from_backend(void)
 
 #ifndef CONFIG_SPL_BUILD
 
-static int do_pinmon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_pinmon(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	const struct uniphier_boot_device_info *info;
 	u32 pinmon;

@@ -72,7 +72,6 @@
 #define CONFIG_SYS_SPL_MALLOC_SIZE	(1024 * 1024)
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION		1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME			"u-boot.img"
 
 #define CONFIG_SYS_CBSIZE	512
@@ -95,8 +94,6 @@
 /*
  * Environment
  */
-
-#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"kernel_addr_r=0x82000000\0" \
@@ -141,11 +138,5 @@
 	"mmc dev ${boot_mmc_dev}; " \
 	"mmc read ${kernel_addr_r} ${boot_mmc_start} ${boot_mmc_size} && " \
 	"bootm ${kernel_addr_r};"
-
-/*
- * Defaults
- */
-
-#include <config_defaults.h>
 
 #endif

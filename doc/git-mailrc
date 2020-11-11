@@ -15,8 +15,10 @@ alias abrodkin       Alexey Brodkin <alexey.brodkin@synopsys.com>
 alias afleming       Andy Fleming <afleming@gmail.com>
 alias ag             Anatolij Gustschin <agust@denx.de>
 alias agraf          Alexander Graf <agraf@csgraf.de>
+alias alexnemirovsky Alex Nemirovsky <alex.nemirovsky@cortina-access.com>
 alias alisonwang     Alison Wang <alison.wang@nxp.com>
 alias angelo_ts      Angelo Dureghello <angelo@sysam.it>
+alias apritzel       Andre Przywara <andre.przywara@arm.com>
 alias bmeng          Bin Meng <bmeng.cn@gmail.com>
 alias danielschwierzeck Daniel Schwierzeck <daniel.schwierzeck@gmail.com>
 alias dinh           Dinh Nguyen <dinguyen@kernel.org>
@@ -28,13 +30,13 @@ alias jagan          Jagan Teki <jagan@amarulasolutions.com>
 alias jhersh         Joe Hershberger <joe.hershberger@ni.com>
 alias kevery         Kever Yang <kever.yang@rock-chips.com>
 alias leyfoon        Ley Foon Tan <ley.foon.tan@intel.com>
+alias lokeshvutla    Lokesh Vutla <lokeshvutla@ti.com>
 alias lukma          Lukasz Majewski <lukma@denx.de>
 alias macpaul        Macpaul Lin <macpaul@andestech.com>
 alias marex          Marek Vasut <marex@denx.de>
 alias mariosix       Mario Six <mario.six@gdsys.cc>
 alias masahiro       Masahiro Yamada <yamada.masahiro@socionext.com>
 alias mateusz        Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
-alias maxime         Maxime Ripard <maxime.ripard@free-electrons.com>
 alias mbrugger       Matthias Brugger <mbrugger@suse.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
 alias prom           Minkyu Kang <mk7.kang@samsung.com>
@@ -56,6 +58,7 @@ alias arc            uboot, abrodkin
 
 alias arm            uboot, trini
 alias at91           uboot, abiessmann
+alias cortina        uboot, alexnemirovsky
 alias davinci        ti
 alias imx            uboot, sbabic
 alias kirkwood       uboot, stroese
@@ -67,10 +70,10 @@ alias s5pc           samsung
 alias samsung        uboot, prom
 alias snapdragon     uboot, mateusz
 alias socfpga        uboot, marex, dinh, simongoldschmidt, leyfoon
-alias sunxi          uboot, jagan, maxime
+alias sunxi          uboot, jagan, apritzel
 alias tegra          uboot, sjg, Tom Warren <twarren@nvidia.com>, Stephen Warren <swarren@nvidia.com>
 alias tegra2         tegra
-alias ti             uboot, trini
+alias ti             uboot, lokeshvutla
 alias uniphier       uboot, masahiro
 alias zynq           uboot, monstr
 alias rockchip       uboot, sjg, kevery, ptomsich

@@ -8,6 +8,7 @@
 #include <command.h>
 #include <asm/arch/pmic_bus.h>
 #include <axp_pmic.h>
+#include <linux/delay.h>
 
 #ifdef CONFIG_AXP_ALDO3_VOLT_SLOPE_08
 #  define AXP209_VRC_SLOPE AXP209_VRC_LDO3_800uV_uS
@@ -229,7 +230,7 @@ int axp_init(void)
 	return 0;
 }
 
-int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_poweroff(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	pmic_bus_write(AXP209_SHUTDOWN, AXP209_POWEROFF);
 

@@ -30,6 +30,12 @@ config USB_XHCI_DWC3_OF_SIMPLE
 	  Support USB2/3 functionality in simple SoC integrations with
 	  USB controller based on the DesignWare USB3 IP Core.
 
+config USB_XHCI_MTK
+	bool "Support for MediaTek on-chip xHCI USB controller"
+	depends on ARCH_MEDIATEK
+	help
+	  Enables support for the on-chip xHCI controller on MediaTek SoCs.
+
 config USB_XHCI_MVEBU
 	bool "MVEBU USB 3.0 support"
 	default y
@@ -40,21 +46,21 @@ config USB_XHCI_MVEBU
 	  SoCs, which includes Armada8K, Armada3700 and other Armada
 	  family SoCs.
 
+config USB_XHCI_OCTEON
+	bool "Support for Marvell Octeon family on-chip xHCI USB controller"
+	depends on ARCH_OCTEON
+	default y
+	help
+	  Enables support for the on-chip xHCI controller on Marvell Octeon
+	  family SoCs. This is a driver for the dwc3 to provide the glue logic
+	  to configure the controller.
+
 config USB_XHCI_PCI
 	bool "Support for PCI-based xHCI USB controller"
 	depends on DM_USB
 	default y if X86
 	help
 	  Enables support for the PCI-based xHCI controller.
-
-config USB_XHCI_ROCKCHIP
-	bool "Support for Rockchip on-chip xHCI USB controller"
-	depends on ARCH_ROCKCHIP
-	depends on DM_REGULATOR
-	depends on DM_USB
-	default y
-	help
-	  Enables support for the on-chip xHCI controller on Rockchip SoCs.
 
 config USB_XHCI_RCAR
 	bool "Renesas RCar USB 3.0 support"
@@ -88,6 +94,14 @@ config USB_XHCI_FSL
 	depends on !SPL_NO_USB
 	help
 	  Enables support for the on-chip xHCI controller on NXP Layerscape SoCs.
+
+config USB_XHCI_BRCM
+	bool "Broadcom USB3 Host XHCI controller"
+	depends on DM_USB
+	help
+	  USB controller based on the Broadcom USB3 IP Core.
+	  Supports USB2/3 functionality.
+
 endif # USB_XHCI_HCD
 
 config USB_EHCI_HCD
@@ -121,7 +135,7 @@ config USB_EHCI_ATMEL
 
 config USB_EHCI_MARVELL
 	bool "Support for Marvell on-chip EHCI USB controller"
-	depends on ARCH_MVEBU || KIRKWOOD || ORION5X
+	depends on ARCH_MVEBU || ARCH_KIRKWOOD || ARCH_ORION5X
 	default y
 	---help---
 	  Enables support for the on-chip EHCI controller on MVEBU SoCs.
@@ -189,14 +203,13 @@ config USB_EHCI_PCI
 
 config USB_EHCI_TEGRA
 	bool "Support for NVIDIA Tegra on-chip EHCI USB controller"
-	depends on TEGRA
+	depends on ARCH_TEGRA
 	---help---
 	  Enable support for Tegra on-chip EHCI USB controller
 
 config USB_EHCI_ZYNQ
 	bool "Support for Xilinx Zynq on-chip EHCI USB controller"
-	depends on ARCH_ZYNQ
-	default y
+	default y if ARCH_ZYNQ
 	---help---
 	  Enable support for Zynq on-chip EHCI USB controller
 

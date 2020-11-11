@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * This file is part of the coreboot project.
- *
  * Copyright (C) 2011 The ChromiumOS Authors.  All rights reserved.
+ *
+ * Modified from the coreboot version
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <asm/arch/timestamp.h>
 #include <asm/arch/sysinfo.h>
 #include <linux/compiler.h>

@@ -39,6 +39,18 @@ obj-y	+= wrap_pinmux_config_s10.o
 obj-y	+= wrap_pll_config_s10.o
 endif
 
+ifdef CONFIG_TARGET_SOCFPGA_AGILEX
+obj-y	+= clock_manager_agilex.o
+obj-y	+= mailbox_s10.o
+obj-y	+= misc_s10.o
+obj-y	+= mmu-arm64_s10.o
+obj-y	+= reset_manager_s10.o
+obj-y	+= system_manager_s10.o
+obj-y	+= timer_s10.o
+obj-y	+= wrap_pinmux_config_s10.o
+obj-y	+= wrap_pll_config_s10.o
+endif
+
 ifdef CONFIG_SPL_BUILD
 ifdef CONFIG_TARGET_SOCFPGA_GEN5
 obj-y	+= spl_gen5.o
@@ -51,7 +63,12 @@ ifdef CONFIG_TARGET_SOCFPGA_ARRIA10
 obj-y	+= spl_a10.o
 endif
 ifdef CONFIG_TARGET_SOCFPGA_STRATIX10
+obj-y	+= firewall.o
 obj-y	+= spl_s10.o
+endif
+ifdef CONFIG_TARGET_SOCFPGA_AGILEX
+obj-y	+= firewall.o
+obj-y	+= spl_agilex.o
 endif
 endif
 

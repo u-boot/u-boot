@@ -13,6 +13,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 /*** Arcturus FirmWare Environment */
 
 #define MAX_SERIAL_SIZE 15
@@ -30,9 +32,6 @@
 #define FWENV_TYPE	FWENV_NOR_FLASH
 
 #if (FWENV_TYPE == FWENV_MMC)
-#ifndef CONFIG_SYS_MMC_ENV_DEV
-#define CONFIG_SYS_MMC_ENV_DEV 1
-#endif
 #define FWENV_ADDR1 -1
 #define FWENV_ADDR2 -1
 #define FWENV_ADDR3 -1
@@ -146,8 +145,6 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif
 
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_LBA48
 
@@ -163,9 +160,6 @@
 #define CONFIG_BTB
 
 #define CONFIG_ENABLE_36BIT_PHYS
-
-#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x1fffffff
 
 #define CONFIG_SYS_CCSRBAR		0xffe00000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
@@ -227,8 +221,6 @@
 #define CONFIG_SYS_DDR_MODE_1		0x40461520
 #define CONFIG_SYS_DDR_MODE_2		0x8000c000
 #define CONFIG_SYS_DDR_INTERVAL		0x0C300000
-
-#undef CONFIG_CLOCKS_IN_MHZ
 
 /*
  * Memory map
@@ -370,50 +362,9 @@
 /*
  * Environment
  */
-#ifdef CONFIG_ENV_FIT_UCBOOT
-
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x20000)
-#define CONFIG_ENV_SIZE		0x20000
-#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
-
-#else
-
-
-#ifdef CONFIG_RAMBOOT_SPIFLASH
-
-#define CONFIG_ENV_SIZE		0x3000		/* 12KB */
-#define CONFIG_ENV_OFFSET	0x2000		/* 8KB */
-#define CONFIG_ENV_SECT_SIZE	0x1000
-
-#if defined(CONFIG_SYS_REDUNDAND_ENVIRONMENT)
-/* Address and size of Redundant Environment Sector	*/
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
-#endif
-
-#elif defined(CONFIG_RAMBOOT_SDCARD)
+#if !defined(CONFIG_ENV_FIT_UCBOOT) && defined(CONFIG_RAMBOOT_SDCARD)
 #define CONFIG_FSL_FIXED_MMC_LOCATION
-#define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_SYS_MMC_ENV_DEV	0
-
-#elif defined(CONFIG_SYS_RAMBOOT)
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
-#define CONFIG_ENV_SIZE		0x2000
-
-#else
-#define CONFIG_ENV_BASE		(CONFIG_SYS_FLASH_BASE)
-#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
-#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_ADDR		(CONFIG_ENV_BASE + 0xC0000)
-#if defined(CONFIG_SYS_REDUNDAND_ENVIRONMENT)
-/* Address and size of Redundant Environment Sector	*/
-#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 #endif
-
-#endif
-
-#endif	/* CONFIG_ENV_FIT_UCBOOT */
 
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */

@@ -10,7 +10,9 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/platform_data/net_ethoc.h>
 #include <linux/io.h>
 #include <malloc.h>
@@ -688,7 +690,7 @@ static int ethoc_ofdata_to_platdata(struct udevice *dev)
 	struct ethoc_eth_pdata *pdata = dev_get_platdata(dev);
 	fdt_addr_t addr;
 
-	pdata->eth_pdata.iobase = devfdt_get_addr(dev);
+	pdata->eth_pdata.iobase = dev_read_addr(dev);
 	addr = devfdt_get_addr_index(dev, 1);
 	if (addr != FDT_ADDR_T_NONE)
 		pdata->packet_base = addr;
@@ -754,7 +756,7 @@ U_BOOT_DRIVER(ethoc) = {
 
 #else
 
-static int ethoc_init(struct eth_device *dev, bd_t *bd)
+static int ethoc_init(struct eth_device *dev, struct bd_info *bd)
 {
 	struct ethoc *priv = (struct ethoc *)dev->priv;
 

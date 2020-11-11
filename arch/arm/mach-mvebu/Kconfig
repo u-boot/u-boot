@@ -91,6 +91,7 @@ choice
 config TARGET_CLEARFOG
 	bool "Support ClearFog"
 	select 88F6820
+	select BOARD_LATE_INIT
 
 config TARGET_HELIOS4
 	bool "Support Helios4"
@@ -164,8 +165,8 @@ config TARGET_DB_XC3_24G4XG
 	bool "Support DB-XC3-24G4XG"
 	select 98DX3336
 
-config TARGET_CRS305_1G_4S
-	bool "Support CRS305-1G-4S"
+config TARGET_CRS3XX_98DX3236
+	bool "Support CRS3XX-98DX3236"
 	select 98DX3236
 
 endchoice
@@ -187,7 +188,7 @@ config SYS_BOARD
 	default "a38x" if TARGET_CONTROLCENTERDC
 	default "x530" if TARGET_X530
 	default "db-xc3-24g4xg" if TARGET_DB_XC3_24G4XG
-	default "crs305-1g-4s" if TARGET_CRS305_1G_4S
+	default "crs3xx-98dx3236" if TARGET_CRS3XX_98DX3236
 
 config SYS_CONFIG_NAME
 	default "clearfog" if TARGET_CLEARFOG
@@ -206,7 +207,7 @@ config SYS_CONFIG_NAME
 	default "controlcenterdc" if TARGET_CONTROLCENTERDC
 	default "x530" if TARGET_X530
 	default "db-xc3-24g4xg" if TARGET_DB_XC3_24G4XG
-	default "crs305-1g-4s" if TARGET_CRS305_1G_4S
+	default "crs3xx-98dx3236" if TARGET_CRS3XX_98DX3236
 
 config SYS_VENDOR
 	default "Marvell" if TARGET_DB_MV784MP_GP
@@ -224,20 +225,32 @@ config SYS_VENDOR
 	default "CZ.NIC" if TARGET_TURRIS_MOX
 	default "gdsys" if TARGET_CONTROLCENTERDC
 	default "alliedtelesis" if TARGET_X530
-	default "mikrotik" if TARGET_CRS305_1G_4S
+	default "mikrotik" if TARGET_CRS3XX_98DX3236
 
 config SYS_SOC
 	default "mvebu"
 
 choice
 	prompt "Boot method"
+	depends on SPL
 
 config MVEBU_SPL_BOOT_DEVICE_SPI
 	bool "SPI NOR flash"
+	imply ENV_IS_IN_SPI_FLASH
+	select SPL_DM_SPI
+	select SPL_SPI_FLASH_SUPPORT
+	select SPL_SPI_LOAD
+	select SPL_SPI_SUPPORT
 
 config MVEBU_SPL_BOOT_DEVICE_MMC
 	bool "SDIO/MMC card"
+	imply ENV_IS_IN_MMC
+	# GPIO needed for eMMC/SD card presence detection
+	select SPL_DM_GPIO
+	select SPL_DM_MMC
+	select SPL_GPIO_SUPPORT
 	select SPL_LIBDISK_SUPPORT
+	select SPL_MMC_SUPPORT
 
 config MVEBU_SPL_BOOT_DEVICE_SATA
 	bool "SATA"
@@ -278,5 +291,7 @@ config SECURED_MODE_CSK_INDEX
 	int "Index of active CSK"
 	default 0
 	depends on SECURED_MODE_IMAGE
+
+source "board/solidrun/clearfog/Kconfig"
 
 endif

@@ -8,6 +8,9 @@
  */
 
 #include <common.h>
+#include <flash.h>
+#include <init.h>
+#include <irq_func.h>
 
 #include <asm/immap.h>
 

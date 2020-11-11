@@ -6,7 +6,9 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #if !(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+#include <asm/cache.h>
 static inline unsigned long CACHE_SET(unsigned char cache)
 {
 	if (cache == ICACHE)

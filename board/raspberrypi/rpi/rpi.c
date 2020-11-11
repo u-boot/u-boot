@@ -10,6 +10,7 @@
 #include <efi_loader.h>
 #include <fdt_support.h>
 #include <fdt_simplefb.h>
+#include <init.h>
 #include <lcd.h>
 #include <memalign.h>
 #include <mmc.h>
@@ -27,8 +28,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* From lowlevel_init.S */
-extern unsigned long fw_dtb_pointer;
+/* Assigned in lowlevel_init.S
+ * Push the variable into the .data section so that it
+ * does not get cleared later.
+ */
+unsigned long __section(".data") fw_dtb_pointer;
 
 /* TODO(sjg@chromium.org): Move these to the msg.c file */
 struct msg_get_arm_mem {
@@ -248,51 +252,6 @@ static uint32_t rev_scheme;
 static uint32_t rev_type;
 static const struct rpi_model *model;
 
-#ifdef CONFIG_ARM64
-#ifndef CONFIG_BCM2711
-static struct mm_region bcm283x_mem_map[] = {
-	{
-		.virt = 0x00000000UL,
-		.phys = 0x00000000UL,
-		.size = 0x3f000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_INNER_SHARE
-	}, {
-		.virt = 0x3f000000UL,
-		.phys = 0x3f000000UL,
-		.size = 0x01000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
-			 PTE_BLOCK_NON_SHARE |
-			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
-		/* List terminator */
-		0,
-	}
-};
-#else
-static struct mm_region bcm283x_mem_map[] = {
-	{
-		.virt = 0x00000000UL,
-		.phys = 0x00000000UL,
-		.size = 0xfe000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_INNER_SHARE
-	}, {
-		.virt = 0xfe000000UL,
-		.phys = 0xfe000000UL,
-		.size = 0x01800000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
-			 PTE_BLOCK_NON_SHARE |
-			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
-		/* List terminator */
-		0,
-	}
-};
-#endif
-struct mm_region *mem_map = bcm283x_mem_map;
-#endif
-
 int dram_init(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(struct msg_get_arm_mem, msg, 1);
@@ -313,13 +272,16 @@ int dram_init(void)
 }
 
 #ifdef CONFIG_OF_BOARD
-#ifdef CONFIG_BCM2711
 int dram_init_banksize(void)
 {
-	return fdtdec_decode_ram_size(gd->fdt_blob, NULL, 0, NULL,
-				     (phys_size_t *)&gd->ram_size, gd->bd);
+	int ret;
+
+	ret = fdtdec_setup_memory_banksize();
+	if (ret)
+		return ret;
+
+	return fdtdec_setup_mem_size_base();
 }
-#endif
 #endif
 
 static void set_fdtfile(void)
@@ -516,7 +478,7 @@ void *board_fdt_blob_setup(void)
 	return (void *)fw_dtb_pointer;
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	/*
 	 * For now, we simply always add the simplefb DT node. Later, we
@@ -527,7 +489,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 #ifdef CONFIG_EFI_LOADER
 	/* Reserve the spin table */
-	efi_add_memory_map(0, 1, EFI_RESERVED_MEMORY_TYPE, 0);
+	efi_add_memory_map(0, CONFIG_RPI_EFI_NR_SPIN_PAGES << EFI_PAGE_SHIFT,
+			   EFI_RESERVED_MEMORY_TYPE);
 #endif
 
 	return 0;

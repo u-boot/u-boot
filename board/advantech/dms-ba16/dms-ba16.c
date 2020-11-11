@@ -5,10 +5,13 @@
  * Copyright 2012 Freescale Semiconductor, Inc.
  */
 
+#include <init.h>
+#include <net.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/mxc_i2c.h>
@@ -251,7 +254,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return ret;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	int ret;
 	int i;
@@ -449,7 +452,7 @@ int overwrite_console(void)
 	return 1;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	setup_iomux_enet();
 	setup_pcie();

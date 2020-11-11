@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <usb.h>
 
 int board_early_init_r(void)

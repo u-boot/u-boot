@@ -5,8 +5,8 @@
 # Entry-type module for the 16-bit x86 start-up code for U-Boot TPL
 #
 
-from entry import Entry
-from blob import Entry_blob
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
 class Entry_x86_start16_tpl(Entry_blob):
     """x86 16-bit start-up code for TPL
@@ -26,7 +26,7 @@ class Entry_x86_start16_tpl(Entry_blob):
     may be used instead.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def GetDefaultFilename(self):
         return 'tpl/u-boot-x86-start16-tpl.bin'

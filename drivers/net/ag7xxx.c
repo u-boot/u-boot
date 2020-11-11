@@ -7,11 +7,18 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <miiphy.h>
 #include <malloc.h>
+#include <net.h>
+#include <asm/cache.h>
+#include <linux/bitops.h>
 #include <linux/compiler.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/mii.h>
 #include <wait_bit.h>
@@ -1249,7 +1256,7 @@ static int ag7xxx_eth_ofdata_to_platdata(struct udevice *dev)
 	const char *phy_mode;
 	int ret;
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	pdata->phy_interface = -1;
 
 	/* Decoding of convoluted PHY wiring on Atheros MIPS. */

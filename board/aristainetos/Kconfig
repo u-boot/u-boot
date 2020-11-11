@@ -1,29 +1,47 @@
-if TARGET_ARISTAINETOS
-
-config SYS_BOARD
-	default "aristainetos"
-
-config SYS_CONFIG_NAME
-	default "aristainetos"
-
-endif
-
 if TARGET_ARISTAINETOS2
 
+source "board/aristainetos/common/Kconfig"
+
 config SYS_BOARD
 	default "aristainetos"
 
-config SYS_CONFIG_NAME
-	default "aristainetos2"
+config SYS_BOARD_VERSION
+	default 2
 
 endif
 
 if TARGET_ARISTAINETOS2B
 
+source "board/aristainetos/common/Kconfig"
+
 config SYS_BOARD
 	default "aristainetos"
 
-config SYS_CONFIG_NAME
-	default "aristainetos2b"
+config SYS_BOARD_VERSION
+	default 3
+
+endif
+
+if TARGET_ARISTAINETOS2BCSL
+
+source "board/aristainetos/common/Kconfig"
+
+config SYS_BOARD
+	default "aristainetos"
+
+config SYS_BOARD_VERSION
+	default 4
+
+endif
+
+if TARGET_ARISTAINETOS2C
+
+source "board/aristainetos/common/Kconfig"
+
+config SYS_BOARD
+	default "aristainetos"
+
+config SYS_BOARD_VERSION
+	default 5
 
 endif

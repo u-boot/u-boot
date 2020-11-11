@@ -5,6 +5,12 @@
  */
 
 #include <common.h>
+#include <command.h>
+#include <cpu_func.h>
+#include <hang.h>
+#include <image.h>
+#include <init.h>
+#include <log.h>
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/mach-imx/iomux-v3.h>
@@ -111,13 +117,4 @@ void board_init_f(ulong dummy)
 	spl_dram_init();
 
 	board_init_r(NULL, 0);
-}
-
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	puts("resetting ...\n");
-
-	reset_cpu(WDOG1_BASE_ADDR);
-
-	return 0;
 }

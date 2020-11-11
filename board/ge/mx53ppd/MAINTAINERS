@@ -1,7 +1,9 @@
-MX53PPD BOARD
+GE PPD BOARD
 M:	Antti Mäentausta <antti.maentausta@ge.com>
-M:	Martyn Welch <martyn.welch@collabora.co.uk>
+M:	Ian Ray <ian.ray@ge.com>
+M:	Sebastian Reichel <sebastian.reichel@collabora.com>
 S:	Maintained
-F:	board/freescale/mx53ppd/
-F:	include/configs/mx53ppd.h
+F:	arch/arm/dts/imx53-ppd*
+F:	board/ge/mx53ppd/
 F:	configs/mx53ppd_defconfig
+F:	include/configs/mx53ppd.h

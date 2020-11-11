@@ -8,7 +8,9 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <command.h>
+#include <log.h>
 #include <asm/io.h>
 #include <fsl_diu_fb.h>
 #include "../common/pixis.h"

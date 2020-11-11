@@ -11,8 +11,10 @@
 #include <dm.h>
 #include <i2c.h>
 #include <i2s.h>
+#include <log.h>
 #include <sound.h>
 #include <asm/gpio.h>
+#include <linux/delay.h>
 #include "maxim_codec.h"
 #include "max98090.h"
 

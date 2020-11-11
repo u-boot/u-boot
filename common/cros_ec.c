@@ -12,6 +12,7 @@
 #include <cros_ec.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 
 struct udevice *board_get_cros_ec_dev(void)
 {

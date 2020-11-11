@@ -6,6 +6,7 @@
 #ifndef __DRIVERS_PINCTRL_ROCKCHIP_H
 #define __DRIVERS_PINCTRL_ROCKCHIP_H
 
+#include <linux/bitops.h>
 #include <linux/types.h>
 
 /**
@@ -16,6 +17,7 @@
 #define IOMUX_SOURCE_PMU	BIT(2)
 #define IOMUX_UNROUTED		BIT(3)
 #define IOMUX_WIDTH_3BIT	BIT(4)
+#define IOMUX_8WIDTH_2BIT	BIT(5)
 
 /**
  * Defined some common pins constants

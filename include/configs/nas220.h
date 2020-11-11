@@ -37,25 +37,11 @@
 #define MV88E1116_RGMII_TXTM_CTRL	(1 << 4)
 #define MV88E1116_RGMII_RXTM_CTRL	(1 << 5)
 
-/*
- * Commands configuration
- */
-
-/*
- * mv-common.h should be defined after CMD configs since it used them
- * to enable certain macros
- */
 #include "mv-common.h"
 
 /*
  *  Environment variables configurations
  */
-#ifdef CONFIG_CMD_NAND
-#define CONFIG_ENV_SECT_SIZE 0x10000
-#endif
-
-#define CONFIG_ENV_SIZE	0x10000
-#define CONFIG_ENV_OFFSET 0xa0000
 
 /*
  * Default environment variables

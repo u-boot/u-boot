@@ -5,45 +5,26 @@
  * Copyright (C) 2009-2010, Intel Corporation and its suppliers.
  */
 
+#include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <nand.h>
+#include <asm/cache.h>
+#include <asm/dma-mapping.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <linux/bitfield.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/dma-direction.h>
+#include <linux/dma-mapping.h>
+#include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/io.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>
 
 #include "denali.h"
-
-static dma_addr_t dma_map_single(void *dev, void *ptr, size_t size,
-				 enum dma_data_direction dir)
-{
-	unsigned long addr = (unsigned long)ptr;
-
-	size = ALIGN(size, ARCH_DMA_MINALIGN);
-
-	if (dir == DMA_FROM_DEVICE)
-		invalidate_dcache_range(addr, addr + size);
-	else
-		flush_dcache_range(addr, addr + size);
-
-	return addr;
-}
-
-static void dma_unmap_single(void *dev, dma_addr_t addr, size_t size,
-			     enum dma_data_direction dir)
-{
-	size = ALIGN(size, ARCH_DMA_MINALIGN);
-
-	if (dir != DMA_TO_DEVICE)
-		invalidate_dcache_range(addr, addr + size);
-}
-
-static int dma_mapping_error(void *dev, dma_addr_t addr)
-{
-	return 0;
-}
 
 #define DENALI_NAND_NAME    "denali-nand"
 
@@ -564,7 +545,7 @@ static int denali_dma_xfer(struct denali_nand_info *denali, void *buf,
 	enum dma_data_direction dir = write ? DMA_TO_DEVICE : DMA_FROM_DEVICE;
 	int ret = 0;
 
-	dma_addr = dma_map_single(denali->dev, buf, size, dir);
+	dma_addr = dma_map_single(buf, size, dir);
 	if (dma_mapping_error(denali->dev, dma_addr)) {
 		dev_dbg(denali->dev, "Failed to DMA-map buffer. Trying PIO.\n");
 		return denali_pio_xfer(denali, buf, size, page, raw, write);
@@ -605,7 +586,7 @@ static int denali_dma_xfer(struct denali_nand_info *denali, void *buf,
 
 	iowrite32(0, denali->reg + DMA_ENABLE);
 
-	dma_unmap_single(denali->dev, dma_addr, size, dir);
+	dma_unmap_single(dma_addr, size, dir);
 
 	if (irq_status & INTR__ERASED_PAGE)
 		memset(buf, 0xff, size);
@@ -1097,16 +1078,24 @@ static void denali_hw_init(struct denali_nand_info *denali)
 		denali->revision = swab16(ioread32(denali->reg + REVISION));
 
 	/*
-	 * tell driver how many bit controller will skip before writing
-	 * ECC code in OOB. This is normally used for bad block marker
+	 * Set how many bytes should be skipped before writing data in OOB.
+	 * If a platform requests a non-zero value, set it to the register.
+	 * Otherwise, read the value out, expecting it has already been set up
+	 * by firmware.
 	 */
-	denali->oob_skip_bytes = CONFIG_NAND_DENALI_SPARE_AREA_SKIP_BYTES;
-	iowrite32(denali->oob_skip_bytes, denali->reg + SPARE_AREA_SKIP_BYTES);
+	if (denali->oob_skip_bytes)
+		iowrite32(denali->oob_skip_bytes,
+			  denali->reg + SPARE_AREA_SKIP_BYTES);
+	else
+		denali->oob_skip_bytes = ioread32(denali->reg +
+						  SPARE_AREA_SKIP_BYTES);
+
 	denali_detect_max_banks(denali);
 	iowrite32(0x0F, denali->reg + RB_PIN_ENABLED);
 	iowrite32(CHIP_EN_DONT_CARE__FLAG, denali->reg + CHIP_ENABLE_DONT_CARE);
 
 	iowrite32(0xffff, denali->reg + SPARE_AREA_MARKER);
+	iowrite32(WRITE_PROTECT__FLAG, denali->reg + WRITE_PROTECT);
 }
 
 int denali_calc_ecc_bytes(int step_size, int strength)
@@ -1177,7 +1166,7 @@ static int denali_ooblayout_free(struct mtd_info *mtd, int section,
 
 static const struct mtd_ooblayout_ops denali_ooblayout_ops = {
 	.ecc = denali_ooblayout_ecc,
-	.free = denali_ooblayout_free,
+	.rfree = denali_ooblayout_free,
 };
 
 static int denali_multidev_fixup(struct denali_nand_info *denali)
@@ -1227,6 +1216,17 @@ static int denali_multidev_fixup(struct denali_nand_info *denali)
 	chip->ecc.bytes <<= 1;
 	chip->ecc.strength <<= 1;
 	denali->oob_skip_bytes <<= 1;
+
+	return 0;
+}
+
+int denali_wait_reset_complete(struct denali_nand_info *denali)
+{
+	u32 irq_status;
+
+	irq_status = denali_wait_for_irq(denali, INTR__RST_COMP);
+	if (!(irq_status & INTR__RST_COMP))
+		return -EIO;
 
 	return 0;
 }

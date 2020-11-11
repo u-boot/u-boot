@@ -8,6 +8,7 @@
  */
 
 #include <env_callback.h>
+#include <linux/stringify.h>
 
 #ifdef DEFAULT_ENV_INSTANCE_EMBEDDED
 env_t embedded_environment __UBOOT_ENV_SECTION__(environment) = {
@@ -81,9 +82,6 @@ const uchar default_environment[] = {
 #endif
 #ifdef	CONFIG_LOADADDR
 	"loadaddr="	__stringify(CONFIG_LOADADDR)	"\0"
-#endif
-#ifdef	CONFIG_CLOCKS_IN_MHZ
-	"clocks_in_mhz=1\0"
 #endif
 #if defined(CONFIG_PCI_BOOTDELAY) && (CONFIG_PCI_BOOTDELAY > 0)
 	"pcidelay="	__stringify(CONFIG_PCI_BOOTDELAY)"\0"

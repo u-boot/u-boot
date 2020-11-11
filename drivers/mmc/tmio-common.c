@@ -6,12 +6,15 @@
 
 #include <common.h>
 #include <clk.h>
+#include <cpu_func.h>
 #include <fdtdec.h>
 #include <mmc.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <dm/pinctrl.h>
 #include <linux/compat.h>
-#include <linux/dma-direction.h>
+#include <linux/delay.h>
+#include <linux/dma-mapping.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
 #include <power/regulator.h>
@@ -73,26 +76,6 @@ void tmio_sd_writel(struct tmio_sd_priv *priv,
 			writew(val >> 16, priv->regbase + (reg >> 1) + 2);
 	} else
 		writel(val, priv->regbase + reg);
-}
-
-static dma_addr_t __dma_map_single(void *ptr, size_t size,
-				   enum dma_data_direction dir)
-{
-	unsigned long addr = (unsigned long)ptr;
-
-	if (dir == DMA_FROM_DEVICE)
-		invalidate_dcache_range(addr, addr + size);
-	else
-		flush_dcache_range(addr, addr + size);
-
-	return addr;
-}
-
-static void __dma_unmap_single(dma_addr_t addr, size_t size,
-			       enum dma_data_direction dir)
-{
-	if (dir != DMA_TO_DEVICE)
-		invalidate_dcache_range(addr, addr + size);
 }
 
 static int tmio_sd_check_error(struct udevice *dev, struct mmc_cmd *cmd)
@@ -361,7 +344,7 @@ static int tmio_sd_dma_xfer(struct udevice *dev, struct mmc_data *data)
 
 	tmio_sd_writel(priv, tmp, TMIO_SD_DMA_MODE);
 
-	dma_addr = __dma_map_single(buf, len, dir);
+	dma_addr = dma_map_single(buf, len, dir);
 
 	tmio_sd_dma_start(priv, dma_addr);
 
@@ -370,20 +353,22 @@ static int tmio_sd_dma_xfer(struct udevice *dev, struct mmc_data *data)
 	if (poll_flag == TMIO_SD_DMA_INFO1_END_RD)
 		udelay(1);
 
-	__dma_unmap_single(dma_addr, len, dir);
+	dma_unmap_single(dma_addr, len, dir);
 
 	return ret;
 }
 
 /* check if the address is DMA'able */
-static bool tmio_sd_addr_is_dmaable(const char *src)
+static bool tmio_sd_addr_is_dmaable(struct mmc_data *data)
 {
-	uintptr_t addr = (uintptr_t)src;
+	uintptr_t addr = (uintptr_t)data->src;
 
 	if (!IS_ALIGNED(addr, TMIO_SD_DMA_MINALIGN))
 		return false;
 
 #if defined(CONFIG_RCAR_GEN3)
+	if (!(data->flags & MMC_DATA_READ) && !IS_ALIGNED(addr, 128))
+		return false;
 	/* Gen3 DMA has 32bit limit */
 	if (addr >> 32)
 		return false;
@@ -498,7 +483,7 @@ int tmio_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	if (data) {
 		/* use DMA if the HW supports it and the buffer is aligned */
 		if (priv->caps & TMIO_SD_CAP_DMA_INTERNAL &&
-		    tmio_sd_addr_is_dmaable(data->src))
+		    tmio_sd_addr_is_dmaable(data))
 			ret = tmio_sd_dma_xfer(dev, data);
 		else
 			ret = tmio_sd_pio_xfer(dev, cmd, data);
@@ -737,7 +722,7 @@ int tmio_sd_probe(struct udevice *dev, u32 quirks)
 	ulong mclk;
 	int ret;
 
-	base = devfdt_get_addr(dev);
+	base = dev_read_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

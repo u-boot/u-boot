@@ -6,12 +6,14 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <fsl_ddr_sdram.h>
 #include <asm/processor.h>
 #include <fsl_immap.h>
 #include <fsl_ddr.h>
 #include <asm/arch/clock.h>
+#include <linux/delay.h>
 
 #if (CONFIG_CHIP_SELECTS_PER_CTRL > 4)
 #error Invalid setting for CONFIG_CHIP_SELECTS_PER_CTRL

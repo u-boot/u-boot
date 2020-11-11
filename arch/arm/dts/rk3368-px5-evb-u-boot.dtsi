@@ -58,6 +58,8 @@
 };
 
 &emmc {
+	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
+	u-boot,spl-fifo-mode;
 	u-boot,dm-pre-reloc;
 };
 

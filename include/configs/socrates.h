@@ -51,8 +51,6 @@
 #define CONFIG_SYS_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions	*/
 
 #undef	CONFIG_SYS_DRAM_TEST			/* memory test, takes time	*/
-#define CONFIG_SYS_MEMTEST_START	0x00400000
-#define CONFIG_SYS_MEMTEST_END		0x00C00000
 
 #define CONFIG_SYS_CCSRBAR		0xE0000000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
@@ -187,12 +185,6 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env	*/
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - \
-				CONFIG_ENV_SECT_SIZE - CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE		0x4000
-#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR - CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/

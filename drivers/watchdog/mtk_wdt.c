@@ -8,8 +8,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <hang.h>
 #include <wdt.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 #define MTK_WDT_MODE			0x00
 #define MTK_WDT_LENGTH			0x04
@@ -142,6 +144,7 @@ static const struct wdt_ops mtk_wdt_ops = {
 
 static const struct udevice_id mtk_wdt_ids[] = {
 	{ .compatible = "mediatek,wdt"},
+	{ .compatible = "mediatek,mt6589-wdt"},
 	{}
 };
 

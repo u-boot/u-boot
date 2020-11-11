@@ -107,8 +107,6 @@
  * Memory test
  */
 #undef CONFIG_SYS_DRAM_TEST		/* memory test, takes time */
-#define CONFIG_SYS_MEMTEST_START	0x00040000 /* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x00140000
 
 /*
  * The reserved memory
@@ -133,8 +131,6 @@
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000 /* Size of used area in RAM */
 #define CONFIG_SYS_GBL_DATA_OFFSET	\
 			(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_FSL_ELBC		1
 
 /*
  * FLASH on the Local Bus
@@ -242,7 +238,6 @@ extern int board_pci_host_broken(void);
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 
-#undef CONFIG_EEPRO100
 #undef CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1957	/* Freescale */
 #endif /* CONFIG_PCI */
@@ -299,15 +294,6 @@ extern int board_pci_host_broken(void);
 /*
  * Environment
  */
-#ifndef CONFIG_SYS_RAMBOOT
-	#define CONFIG_ENV_ADDR		\
-			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
-	#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env */
-	#define CONFIG_ENV_SIZE		0x2000
-#else
-	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
-	#define CONFIG_ENV_SIZE		0x2000
-#endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
@@ -316,10 +302,6 @@ extern int board_pci_host_broken(void);
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-
-/*
- * Command line configuration.
- */
 
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 
@@ -348,8 +330,6 @@ extern int board_pci_host_broken(void);
 /*
  * Environment Configuration
  */
-
-#define CONFIG_ENV_OVERWRITE
 
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_HAS_ETH0

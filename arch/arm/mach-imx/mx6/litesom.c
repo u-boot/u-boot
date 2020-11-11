@@ -4,6 +4,7 @@
  * Copyright (C) 2016 Grinn
  */
 
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/imx-regs.h>
@@ -17,6 +18,7 @@
 #include <asm/io.h>
 #include <common.h>
 #include <fsl_esdhc_imx.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 #include <mmc.h>
 
@@ -54,7 +56,7 @@ static struct fsl_esdhc_cfg emmc_cfg = {USDHC2_BASE_ADDR, 0, 8};
 
 #define EMMC_PWR_GPIO	IMX_GPIO_NR(4, 10)
 
-int litesom_mmc_init(bd_t *bis)
+int litesom_mmc_init(struct bd_info *bis)
 {
 	int ret;
 

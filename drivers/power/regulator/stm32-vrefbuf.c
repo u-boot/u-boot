@@ -10,6 +10,8 @@
 #include <clk.h>
 #include <dm.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/iopoll.h>
 #include <linux/kernel.h>
 #include <power/regulator.h>
@@ -41,8 +43,20 @@ static int stm32_vrefbuf_set_enable(struct udevice *dev, bool enable)
 	u32 val;
 	int ret;
 
-	clrsetbits_le32(priv->base + STM32_VREFBUF_CSR, STM32_HIZ | STM32_ENVR,
-			enable ? STM32_ENVR : STM32_HIZ);
+	if (enable && !(readl(priv->base + STM32_VREFBUF_CSR) & STM32_ENVR)) {
+		/*
+		 * There maybe an overshoot:
+		 * - when disabling, then re-enabling vrefbuf too quickly
+		 * - or upon platform reset as external capacitor maybe slow
+		 *   discharging (VREFBUF is HiZ at reset by default).
+		 * So force active discharge (HiZ=0) for 1ms before enabling.
+		 */
+		clrbits_le32(priv->base + STM32_VREFBUF_CSR, STM32_HIZ);
+		udelay(1000);
+	}
+
+	clrsetbits_le32(priv->base + STM32_VREFBUF_CSR, STM32_ENVR,
+			enable ? STM32_ENVR : 0);
 	if (!enable)
 		return 0;
 

@@ -18,6 +18,7 @@
 
 #include <efi.h>
 #include <charset.h>
+#include <pe.h>
 
 #ifdef CONFIG_EFI_LOADER
 #include <asm/setjmp.h>
@@ -56,6 +57,16 @@ typedef u16 efi_form_id_t;
 #define TPL_HIGH_LEVEL		0x1F
 
 struct efi_event;
+
+/* OsIndicationsSupported flags */
+#define EFI_OS_INDICATIONS_BOOT_TO_FW_UI		    0x0000000000000001
+#define EFI_OS_INDICATIONS_TIMESTAMP_REVOCATION		    0x0000000000000002
+#define EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED  0x0000000000000004
+#define EFI_OS_INDICATIONS_FMP_CAPSULE_SUPPORTED	    0x0000000000000008
+#define EFI_OS_INDICATIONS_CAPSULE_RESULT_VAR_SUPPORTED	    0x0000000000000010
+#define EFI_OS_INDICATIONS_START_OS_RECOVERY		    0x0000000000000020
+#define EFI_OS_INDICATIONS_START_PLATFORM_RECOVERY	    0x0000000000000040
+#define EFI_OS_INDICATIONS_JSON_CONFIG_DATA_REFRESH	    0x0000000000000080
 
 /* EFI Boot Services table */
 #define EFI_BOOT_SERVICES_SIGNATURE 0x56524553544f4f42
@@ -207,11 +218,11 @@ enum efi_reset_type {
 #define CAPSULE_FLAGS_INITIATE_RESET		0x00040000
 
 struct efi_capsule_header {
-	efi_guid_t *capsule_guid;
+	efi_guid_t capsule_guid;
 	u32 header_size;
 	u32 flags;
 	u32 capsule_image_size;
-};
+} __packed;
 
 #define EFI_RT_SUPPORTED_GET_TIME			0x0001
 #define EFI_RT_SUPPORTED_SET_TIME			0x0002
@@ -227,6 +238,20 @@ struct efi_capsule_header {
 #define EFI_RT_SUPPORTED_UPDATE_CAPSULE			0x0800
 #define EFI_RT_SUPPORTED_QUERY_CAPSULE_CAPABILITIES	0x1000
 #define EFI_RT_SUPPORTED_QUERY_VARIABLE_INFO		0x2000
+
+#define EFI_RT_PROPERTIES_TABLE_GUID \
+	EFI_GUID(0xeb66918a, 0x7eef, 0x402a, 0x84, 0x2e, \
+		 0x93, 0x1d, 0x21, 0xc3, 0x8a, 0xe9)
+
+#define EFI_RT_PROPERTIES_TABLE_VERSION	0x1
+
+struct efi_rt_properties_table {
+	u16 version;
+	u16 length;
+	u32 runtime_services_supported;
+};
+
+#define EFI_OPTIONAL_PTR	0x00000001
 
 struct efi_runtime_services {
 	struct efi_table_hdr hdr;
@@ -250,7 +275,7 @@ struct efi_runtime_services {
 					    efi_uintn_t *data_size, void *data);
 	efi_status_t (EFIAPI *get_next_variable_name)(
 			efi_uintn_t *variable_name_size,
-			u16 *variable_name, const efi_guid_t *vendor);
+			u16 *variable_name, efi_guid_t *vendor);
 	efi_status_t (EFIAPI *set_variable)(u16 *variable_name,
 					    const efi_guid_t *vendor,
 					    u32 attributes,
@@ -307,6 +332,10 @@ struct efi_runtime_services {
 	EFI_GUID(0x8be4df61, 0x93ca, 0x11d2, 0xaa, 0x0d, \
 		 0x00, 0xe0, 0x98, 0x03, 0x2b, 0x8c)
 
+#define EFI_IMAGE_SECURITY_DATABASE_GUID \
+	EFI_GUID(0xd719b2cb, 0x3d3a, 0x4596, 0xa3, 0xbc, \
+		 0xda, 0xd0, 0x0e, 0x67, 0x65, 0x6f)
+
 #define EFI_FDT_GUID \
 	EFI_GUID(0xb1b621d5, 0xf19c, 0x41a5, \
 		 0x83, 0x0b, 0xd9, 0x15, 0x2c, 0x69, 0xaa, 0xe0)
@@ -318,6 +347,14 @@ struct efi_runtime_services {
 #define SMBIOS_TABLE_GUID \
 	EFI_GUID(0xeb9d2d31, 0x2d88, 0x11d3,  \
 		 0x9a, 0x16, 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)
+
+#define EFI_LOAD_FILE_PROTOCOL_GUID \
+	EFI_GUID(0x56ec3091, 0x954c, 0x11d2, \
+		 0x8e, 0x3f, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+
+#define EFI_LOAD_FILE2_PROTOCOL_GUID \
+	EFI_GUID(0x4006c0c1, 0xfcb3, 0x403e, \
+		 0x99, 0x6d, 0x4a, 0x6c, 0x87, 0x24, 0xe0, 0x6d)
 
 struct efi_configuration_table {
 	efi_guid_t guid;
@@ -422,6 +459,7 @@ struct efi_device_path_acpi_path {
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB		0x05
 #  define DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR	0x0b
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB_CLASS	0x0f
+#  define DEVICE_PATH_SUB_TYPE_MSG_SATA		0x12
 #  define DEVICE_PATH_SUB_TYPE_MSG_NVME		0x17
 #  define DEVICE_PATH_SUB_TYPE_MSG_SD		0x1a
 #  define DEVICE_PATH_SUB_TYPE_MSG_MMC		0x1d
@@ -443,6 +481,13 @@ struct efi_device_path_usb {
 	struct efi_device_path dp;
 	u8 parent_port_number;
 	u8 usb_interface;
+} __packed;
+
+struct efi_device_path_sata {
+	struct efi_device_path dp;
+	u16 hba_port;
+	u16 port_multiplier_port;
+	u16 logical_unit_number;
 } __packed;
 
 struct efi_device_path_mac_addr {
@@ -474,6 +519,7 @@ struct efi_device_path_nvme {
 #define DEVICE_PATH_TYPE_MEDIA_DEVICE		0x04
 #  define DEVICE_PATH_SUB_TYPE_HARD_DRIVE_PATH	0x01
 #  define DEVICE_PATH_SUB_TYPE_CDROM_PATH	0x02
+#  define DEVICE_PATH_SUB_TYPE_VENDOR_PATH	0x03
 #  define DEVICE_PATH_SUB_TYPE_FILE_PATH	0x04
 
 struct efi_device_path_hard_drive_path {
@@ -1607,6 +1653,14 @@ struct efi_unicode_collation_protocol {
 	char *supported_languages;
 };
 
+struct efi_load_file_protocol {
+	efi_status_t (EFIAPI *load_file)(struct efi_load_file_protocol *this,
+					 struct efi_device_path *file_path,
+					 bool boot_policy,
+					 efi_uintn_t *buffer_size,
+					 void *buffer);
+};
+
 /* Boot manager load options */
 #define LOAD_OPTION_ACTIVE		0x00000001
 #define LOAD_OPTION_FORCE_RECONNECT	0x00000002
@@ -1615,5 +1669,114 @@ struct efi_unicode_collation_protocol {
 #define LOAD_OPTION_CATEGORY		0x00001F00
 #define LOAD_OPTION_CATEGORY_BOOT	0x00000000
 #define LOAD_OPTION_CATEGORY_APP	0x00000100
+
+/*
+ * System Resource Table
+ */
+/* Firmware Type Definitions */
+#define ESRT_FW_TYPE_UNKNOWN		0x00000000
+#define ESRT_FW_TYPE_SYSTEMFIRMWARE	0x00000001
+#define ESRT_FW_TYPE_DEVICEFIRMWARE	0x00000002
+#define ESRT_FW_TYPE_UEFIDRIVER		0x00000003
+
+/* Last Attempt Status Values */
+#define LAST_ATTEMPT_STATUS_SUCCESS			0x00000000
+#define LAST_ATTEMPT_STATUS_ERROR_UNSUCCESSFUL		0x00000001
+#define LAST_ATTEMPT_STATUS_ERROR_INSUFFICIENT_RESOURCES 0x00000002
+#define LAST_ATTEMPT_STATUS_ERROR_INCORRECT_VERSION	0x00000003
+#define LAST_ATTEMPT_STATUS_ERROR_INVALID_FORMAT	0x00000004
+#define LAST_ATTEMPT_STATUS_ERROR_AUTH_ERROR		0x00000005
+#define LAST_ATTEMPT_STATUS_ERROR_PWR_EVT_AC		0x00000006
+#define LAST_ATTEMPT_STATUS_ERROR_PWR_EVT_BATT		0x00000007
+#define LAST_ATTEMPT_STATUS_ERROR_UNSATISFIED_DEPENDENCIES 0x00000008
+
+/*
+ * The LastAttemptStatus values of 0x1000 - 0x4000 are reserved for vendor
+ * usage.
+ */
+#define LAST_ATTEMPT_STATUS_ERROR_UNSUCCESSFUL_VENDOR_RANGE_MIN 0x00001000
+#define LAST_ATTEMPT_STATUS_ERROR_UNSUCCESSFUL_VENDOR_RANGE_MAX 0x00004000
+
+/* Certificate types in signature database */
+#define EFI_CERT_SHA256_GUID \
+	EFI_GUID(0xc1c41626, 0x504c, 0x4092, 0xac, 0xa9, \
+		 0x41, 0xf9, 0x36, 0x93, 0x43, 0x28)
+#define EFI_CERT_RSA2048_GUID \
+	EFI_GUID(0x3c5766e8, 0x269c, 0x4e34, 0xaa, 0x14, \
+		 0xed, 0x77, 0x6e, 0x85, 0xb3, 0xb6)
+#define EFI_CERT_X509_GUID \
+	EFI_GUID(0xa5c059a1, 0x94e4, 0x4aa7, 0x87, 0xb5, \
+		 0xab, 0x15, 0x5c, 0x2b, 0xf0, 0x72)
+#define EFI_CERT_X509_SHA256_GUID \
+	EFI_GUID(0x3bd2a492, 0x96c0, 0x4079, 0xb4, 0x20, \
+		 0xfc, 0xf9, 0x8e, 0xf1, 0x03, 0xed)
+#define EFI_CERT_TYPE_PKCS7_GUID \
+	EFI_GUID(0x4aafd29d, 0x68df, 0x49ee, 0x8a, 0xa9, \
+		 0x34, 0x7d, 0x37, 0x56, 0x65, 0xa7)
+
+/**
+ * win_certificate_uefi_guid - A certificate that encapsulates
+ * a GUID-specific signature
+ *
+ * @hdr:	Windows certificate header
+ * @cert_type:	Certificate type
+ * @cert_data:	Certificate data
+ */
+struct win_certificate_uefi_guid {
+	WIN_CERTIFICATE	hdr;
+	efi_guid_t	cert_type;
+	u8		cert_data[];
+} __attribute__((__packed__));
+
+/**
+ * efi_variable_authentication_2 - A time-based authentication method
+ * descriptor
+ *
+ * This structure describes an authentication information for
+ * a variable with EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS
+ * and should be included as part of a variable's value.
+ * Only EFI_CERT_TYPE_PKCS7_GUID is accepted.
+ *
+ * @time_stamp:	Descriptor's time stamp
+ * @auth_info:	Authentication info
+ */
+struct efi_variable_authentication_2 {
+	struct efi_time			 time_stamp;
+	struct win_certificate_uefi_guid auth_info;
+} __attribute__((__packed__));
+
+/**
+ * efi_signature_data - A format of signature
+ *
+ * This structure describes a single signature in signature database.
+ *
+ * @signature_owner:	Signature owner
+ * @signature_data:	Signature data
+ */
+struct efi_signature_data {
+	efi_guid_t	signature_owner;
+	u8		signature_data[];
+} __attribute__((__packed__));
+
+/**
+ * efi_signature_list - A format of signature database
+ *
+ * This structure describes a list of signatures with the same type.
+ * An authenticated variable's value is a concatenation of one or more
+ * efi_signature_list's.
+ *
+ * @signature_type:		Signature type
+ * @signature_list_size:	Size of signature list
+ * @signature_header_size:	Size of signature header
+ * @signature_size:		Size of signature
+ */
+struct efi_signature_list {
+	efi_guid_t	signature_type;
+	u32		signature_list_size;
+	u32		signature_header_size;
+	u32		signature_size;
+/*	u8		signature_header[signature_header_size]; */
+/*	struct efi_signature_data signatures[...][signature_size]; */
+} __attribute__((__packed__));
 
 #endif

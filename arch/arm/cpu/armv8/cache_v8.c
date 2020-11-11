@@ -8,6 +8,10 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <hang.h>
+#include <log.h>
+#include <asm/cache.h>
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
 
@@ -553,7 +557,7 @@ static u64 set_one_region(u64 start, u64 size, u64 attrs, bool flag, int level)
 void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 				     enum dcache_option option)
 {
-	u64 attrs = PMD_ATTRINDX(option);
+	u64 attrs = PMD_ATTRINDX(option >> 2);
 	u64 real_start = start;
 	u64 real_size = size;
 

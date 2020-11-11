@@ -11,6 +11,10 @@
 #include <dm.h>
 #include <env.h>
 #include <errno.h>
+#include <image.h>
+#include <init.h>
+#include <malloc.h>
+#include <net.h>
 #include <spl.h>
 #include <serial.h>
 #include <asm/arch/cpu.h>
@@ -32,6 +36,8 @@
 #include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <power/tps65217.h>
 #include <power/tps65910.h>
 #include <env_internal.h>
@@ -627,7 +633,7 @@ static struct clk_synth cdce913_data = {
 #define MAX_CPSW_SLAVES	2
 
 /* At the moment, we do not want to stop booting for any failures here */
-int ft_board_setup(void *fdt, bd_t *bd)
+int ft_board_setup(void *fdt, struct bd_info *bd)
 {
 	const char *slave_path, *enet_name;
 	int enetnode, slavenode, phynode;
@@ -709,7 +715,7 @@ int board_init(void)
 #endif
 
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
-#if defined(CONFIG_NOR) || defined(CONFIG_NAND)
+#if defined(CONFIG_NOR) || defined(CONFIG_MTD_RAW_NAND)
 	gpmc_init();
 #endif
 
@@ -906,7 +912,6 @@ struct cpsw_platform_data am335_eth_data = {
 	.slaves			= 2,
 	.slave_data		= slave_data,
 	.ale_entries		= 1024,
-	.bd_ram_ofs		= 0x2000,
 	.mac_control		= 0x20,
 	.active_slave		= 0,
 	.mdio_base		= 0x4a101000,

@@ -15,8 +15,7 @@
  *
  * TODO:
  * 1. Support PCA957X_TYPE
- * 2. Support 24 gpio pins
- * 3. Support Polarity Inversion
+ * 2. Support Polarity Inversion
  */
 
 #include <common.h>
@@ -27,7 +26,9 @@
 #include <malloc.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <linux/bitops.h>
 
 #define PCA953X_INPUT           0
 #define PCA953X_OUTPUT          1
@@ -118,6 +119,10 @@ static int pca953x_read_regs(struct udevice *dev, int reg, u8 *val)
 		ret = dm_i2c_read(dev, reg, val, 1);
 	} else if (info->gpio_count <= 16) {
 		ret = dm_i2c_read(dev, reg << 1, val, info->bank_count);
+	} else if (info->gpio_count <= 24) {
+		/* Auto increment */
+		ret = dm_i2c_read(dev, (reg << 2) | 0x80, val,
+				  info->bank_count);
 	} else if (info->gpio_count == 40) {
 		/* Auto increment */
 		ret = dm_i2c_read(dev, (reg << 3) | 0x80, val,
@@ -139,6 +144,10 @@ static int pca953x_write_regs(struct udevice *dev, int reg, u8 *val)
 		ret = dm_i2c_write(dev, reg, val, 1);
 	} else if (info->gpio_count <= 16) {
 		ret = dm_i2c_write(dev, reg << 1, val, info->bank_count);
+	} else if (info->gpio_count <= 24) {
+		/* Auto increment */
+		ret = dm_i2c_write(dev, (reg << 2) | 0x80, val,
+				   info->bank_count);
 	} else if (info->gpio_count == 40) {
 		/* Auto increment */
 		ret = dm_i2c_write(dev, (reg << 3) | 0x80, val, info->bank_count);

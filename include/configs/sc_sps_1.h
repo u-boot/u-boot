@@ -19,18 +19,12 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Environment */
-#define CONFIG_ENV_SIZE			(16 * 1024)
 
 /* Environment is in MMC */
-#if defined(CONFIG_CMD_MMC) && defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_ENV_OFFSET		(256 * 1024)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
 
 /* FEC Ethernet on SoC */
 #ifdef CONFIG_CMD_NET
 #define CONFIG_FEC_MXC
-#define CONFIG_PHY_SMSC
 #endif
 
 /* USB */

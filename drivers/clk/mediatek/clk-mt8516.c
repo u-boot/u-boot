@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <asm/io.h>
 #include <dt-bindings/clock/mt8516-clk.h>
+#include <linux/bitops.h>
 
 #include "clk-mtk.h"
 

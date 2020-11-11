@@ -19,7 +19,7 @@ The following actions are taken if "silent" is set at boot time:
  - When the console devices have been initialized, "stdout" and
    "stderr" are set to "nulldev", so subsequent messages are
    suppressed automatically. Make sure to enable "nulldev" by
-   #defining CONFIG_SYS_DEVICE_NULLDEV in your board config file.
+   enabling CONFIG_SYS_DEVICE_NULLDEV in your board defconfig file.
 
  - When booting a linux kernel, the "bootargs" are fixed up so that
    the argument "console=" will be in the command line, no matter how

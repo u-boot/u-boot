@@ -7,6 +7,8 @@
  * Author: Adrian Hunter
  */
 
+#include <log.h>
+#include <dm/devres.h>
 #include <linux/err.h>
 #include "ubifs.h"
 

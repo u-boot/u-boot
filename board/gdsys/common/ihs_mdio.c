@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <linux/delay.h>
 
 #include <miiphy.h>
 #ifdef CONFIG_GDSYS_LEGACY_DRIVERS

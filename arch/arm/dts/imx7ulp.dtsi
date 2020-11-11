@@ -16,10 +16,12 @@
 	interrupt-parent = <&intc>;
 
 	aliases {
-		gpio0 = &gpio0;
-		gpio1 = &gpio1;
-		gpio2 = &gpio2;
-		gpio3 = &gpio3;
+		gpio0 = &gpio4;
+		gpio1 = &gpio5;
+		gpio2 = &gpio0;
+		gpio3 = &gpio1;
+		gpio4 = &gpio2;
+		gpio5 = &gpio3;
 		mmc0 = &usdhc0;
 		mmc1 = &usdhc1;
 		serial0 = &lpuart4;
@@ -27,10 +29,12 @@
 		serial2 = &lpuart6;
 		serial3 = &lpuart7;
 		usbphy0 = &usbphy1;
+		usb0 = &usbotg1;
 		i2c4 = &lpi2c4;
 		i2c5 = &lpi2c5;
 		i2c6 = &lpi2c6;
 		i2c7 = &lpi2c7;
+		spi0 = &qspi1;
 	};
 
 	cpus {
@@ -501,6 +505,22 @@
 			compatible = "fsl,imx7ulp-iomuxc-1";
 			reg = <0x40ac0000 0x1000>;
 			fsl,mux_mask = <0xf00>;
+		};
+
+		gpio4: gpio@4103f000 {
+			compatible = "fsl,imx7ulp-gpio";
+			reg = <0x4103f000 0x1000 0x4100F000 0x40>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-ranges = <&iomuxc 0 0 32>;
+		};
+
+		gpio5: gpio@41040000 {
+			compatible = "fsl,imx7ulp-gpio";
+			reg = <0x41040000 0x1000 0x4100F040 0x40>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-ranges = <&iomuxc 0 32 32>;
 		};
 
 		gpio0: gpio@40ae0000 {

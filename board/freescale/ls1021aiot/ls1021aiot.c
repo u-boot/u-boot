@@ -4,15 +4,19 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
+#include <fdt_support.h>
+#include <init.h>
+#include <net.h>
 #include <asm/arch/immap_ls102xa.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/ls102xa_stream_id.h>
+#include <linux/delay.h>
 
 #include <asm/arch/ls102xa_devdis.h>
 #include <asm/arch/ls102xa_soc.h>
 #include <fsl_csu.h>
-#include <fsl_esdhc.h>
 #include <fsl_immap.h>
 #include <netdev.h>
 #include <fsl_mdio.h>
@@ -103,22 +107,8 @@ int dram_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_FSL_ESDHC
-struct fsl_esdhc_cfg esdhc_cfg[1] = {
-	{CONFIG_SYS_FSL_ESDHC_ADDR},
-};
-
-int board_mmc_init(bd_t *bis)
-{
-	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-
-	return fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
-}
-
-#endif
-
 #ifdef CONFIG_TSEC_ENET
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	struct fsl_pq_mdio_info mdio_info;
 	struct tsec_info_struct tsec_info[4];
@@ -225,7 +215,7 @@ int misc_init_r(void)
 }
 #endif
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 

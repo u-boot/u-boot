@@ -5,10 +5,13 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/pinctrl.h>
 #include <regmap.h>
 #include <syscon.h>
 #include <fdtdec.h>
+#include <linux/bitops.h>
+#include <linux/libfdt.h>
 
 #include "pinctrl-rockchip.h"
 
@@ -539,7 +542,8 @@ static struct rockchip_pin_ctrl *rockchip_pinctrl_get_soc_data(struct udevice *d
 			 * 4bit iomux'es are spread over two registers.
 			 */
 			inc = (iom->type & (IOMUX_WIDTH_4BIT |
-					    IOMUX_WIDTH_3BIT)) ? 8 : 4;
+					    IOMUX_WIDTH_3BIT |
+					    IOMUX_8WIDTH_2BIT)) ? 8 : 4;
 			if (iom->type & IOMUX_SOURCE_PMU)
 				pmu_offs += inc;
 			else

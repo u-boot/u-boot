@@ -3,6 +3,8 @@
  * (C) Copyright 2016 Vasily Khoruzhick <anarsoul@gmail.com>
  */
 
+#include <cpu_func.h>
+#include <asm/cache.h>
 #include <linux/types.h>
 #include <common.h>
 

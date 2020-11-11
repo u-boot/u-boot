@@ -22,7 +22,7 @@
 		serial0 = &serial0;
 		serial1 = &serial1;
 		serial2 = &serial2;
-		serial3 = &serial3;
+		serial3 = &serialsc;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
@@ -30,6 +30,7 @@
 		i2c5 = &i2c5;
 		i2c6 = &i2c6;
 		usb0 = &usb0;
+		ethernet0 = &eth;
 	};
 
 	memory@80000000 {
@@ -39,6 +40,10 @@
 };
 
 &ethsc {
+	interrupts = <2 8>;
+};
+
+&serialsc {
 	interrupts = <2 8>;
 };
 
@@ -84,7 +89,7 @@
 };
 
 &mdio {
-	ethphy: ethphy@0 {
+	ethphy: ethernet-phy@0 {
 		reg = <0>;
 	};
 };

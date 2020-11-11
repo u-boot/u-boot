@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <init.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/immap_85xx.h>
@@ -15,7 +16,7 @@
 #include <fdt_support.h>
 #include <pca953x.h>
 
-extern void ft_board_pci_setup(void *blob, bd_t *bd);
+extern void ft_board_pci_setup(void *blob, struct bd_info *bd);
 
 static void flash_cs_fixup(void)
 {
@@ -69,7 +70,7 @@ int board_early_init_r(void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 #ifdef CONFIG_PCI
 	ft_board_pci_setup(blob, bd);

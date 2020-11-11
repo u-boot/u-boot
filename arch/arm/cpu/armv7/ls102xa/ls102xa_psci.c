@@ -6,6 +6,7 @@
  */
 
 #include <config.h>
+#include <cpu_func.h>
 #include <asm/io.h>
 #include <asm/psci.h>
 #include <asm/arch/immap_ls102xa.h>

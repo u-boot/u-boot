@@ -16,6 +16,7 @@
 #include <cros_ec.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <spi.h>
 
 int cros_ec_spi_packet(struct udevice *udev, int out_bytes, int in_bytes)
@@ -183,8 +184,8 @@ static const struct udevice_id cros_ec_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(cros_ec_spi) = {
-	.name		= "cros_ec_spi",
+U_BOOT_DRIVER(google_cros_ec_spi) = {
+	.name		= "google_cros_ec_spi",
 	.id		= UCLASS_CROS_EC,
 	.of_match	= cros_ec_ids,
 	.probe		= cros_ec_probe,

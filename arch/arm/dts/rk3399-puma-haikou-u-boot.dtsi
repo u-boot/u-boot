@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+#include "rk3399-u-boot.dtsi"
+
+#ifdef CONFIG_TARGET_PUMA_RK3399_RAM_DDR3_1333
+#include "rk3399-sdram-ddr3-1333.dtsi"
+#endif
+#ifdef CONFIG_TARGET_PUMA_RK3399_RAM_DDR3_1600
+#include "rk3399-sdram-ddr3-1600.dtsi"
+#endif
+#ifdef CONFIG_TARGET_PUMA_RK3399_RAM_DDR3_1866
+#include "rk3399-sdram-ddr3-1866.dtsi"
+#endif
+
+/ {
+	config {
+		u-boot,spl-payload-offset = <0x40000>; /* @ 256KB */
+		u-boot,mmc-env-offset = <0x4000>;      /* @  16KB */
+		u-boot,efi-partition-entries-offset = <0x200000>; /* 2MB */
+		u-boot,boot-led = "module_led";
+		sysreset-gpio = <&gpio1 RK_PA6 GPIO_ACTIVE_HIGH>;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+		u-boot,spl-boot-order = \
+			"same-as-spl", &norflash, &sdhci, &sdmmc;
+	};
+
+	aliases {
+		spi0 = &spi1;
+		spi1 = &spi5;
+	};
+
+	/*
+	 * The Qseven BIOS_DISABLE signal on the RK3399-Q7 keeps the on-module
+	 * eMMC and SPI flash powered-down initially (in fact it keeps the
+	 * reset signal asserted).  Even though it is an enable signal, we
+	 * model this as a regulator.
+	 */
+	bios_enable: bios_enable {
+		compatible = "regulator-fixed";
+		u-boot,dm-pre-reloc;
+		regulator-name = "bios_enable";
+		enable-active-high;
+		gpio = <&gpio3 RK_PD5 GPIO_ACTIVE_LOW>;
+		regulator-always-on;
+		regulator-boot-on;
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+	};
+};
+
+&gpio1 {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio3 {
+	u-boot,dm-pre-reloc;
+};
+
+&norflash {
+	u-boot,dm-pre-reloc;
+};

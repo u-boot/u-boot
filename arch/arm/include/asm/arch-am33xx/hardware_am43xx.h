@@ -10,6 +10,10 @@
 #ifndef __AM43XX_HARDWARE_AM43XX_H
 #define __AM43XX_HARDWARE_AM43XX_H
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 /* Module base addresses */
 
 /* L3 Fast Configuration Bandwidth Limiter Base Address */

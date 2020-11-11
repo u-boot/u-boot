@@ -3,7 +3,6 @@
  * Copyright (C) 2016 Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
 #include <debug_uart.h>
 #include <linux/io.h>
 #include <linux/serial_reg.h>

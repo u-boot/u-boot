@@ -6,12 +6,15 @@
 
 #include <common.h>
 #include <errno.h>
+#include <log.h>
+#include <malloc.h>
 #include <wait_bit.h>
 #include <dm.h>
 #include <reset-uclass.h>
 #include <regmap.h>
 #include <syscon.h>
 #include <dt-bindings/reset/stih407-resets.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -298,7 +301,7 @@ static int sti_reset_deassert(struct reset_ctl *reset_ctl)
 
 struct reset_ops sti_reset_ops = {
 	.request = sti_reset_request,
-	.free = sti_reset_free,
+	.rfree = sti_reset_free,
 	.rst_assert = sti_reset_assert,
 	.rst_deassert = sti_reset_deassert,
 };

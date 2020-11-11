@@ -27,23 +27,13 @@
 #define S5P_CHECK_DIDLE			0xBAD00000
 #define S5P_CHECK_LPA			0xABAD0000
 
-/* select serial console configuration */
-#define EXYNOS4_DEFAULT_UART_OFFSET	0x010000
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* MMC SPL */
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define COPY_BL2_FNPTR_ADDR	0x00002488
 
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0 40007000 uImage; bootm 40007000"
 
-/* Miscellaneous configurable options */
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 /* memtest works on */
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x6000000)
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
 
 /* SMDKV310 has 4 bank of DRAM */
@@ -64,11 +54,8 @@
 /* MIU (Memory Interleaving Unit) */
 #define CONFIG_MIU_2BIT_INTERLEAVED
 
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_SIZE			(16 << 10)	/* 16 KB */
 #define RESERVE_BLOCK_SIZE		(512)
 #define BL1_SIZE			(16 << 10) /*16 K reserved for BL1*/
-#define CONFIG_ENV_OFFSET		(RESERVE_BLOCK_SIZE + BL1_SIZE)
 
 #define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
 

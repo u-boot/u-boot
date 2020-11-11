@@ -9,8 +9,11 @@
 #include <command.h>
 #include <config.h>
 #include <fat.h>
+#include <log.h>
+#include <malloc.h>
 #include <asm/byteorder.h>
 #include <part.h>
+#include <asm/cache.h>
 #include <linux/ctype.h>
 #include <div64.h>
 #include <linux/math64.h>
@@ -47,8 +50,11 @@ static int disk_write(__u32 block, __u32 nr_blocks, void *buf)
 	return ret;
 }
 
-/*
- * Set short name in directory entry
+/**
+ * set_name() - set short name in directory entry
+ *
+ * @dirent:	directory entry
+ * @filename:	long file name
  */
 static void set_name(dir_entry *dirent, const char *filename)
 {
@@ -63,7 +69,8 @@ static void set_name(dir_entry *dirent, const char *filename)
 	if (len == 0)
 		return;
 
-	strcpy(s_name, filename);
+	strncpy(s_name, filename, VFAT_MAXLEN_BYTES - 1);
+	s_name[VFAT_MAXLEN_BYTES - 1] = '\0';
 	uppercase(s_name, len);
 
 	period = strchr(s_name, '.');
@@ -84,6 +91,11 @@ static void set_name(dir_entry *dirent, const char *filename)
 		memcpy(dirent->name, s_name, period_location);
 	} else {
 		memcpy(dirent->name, s_name, 6);
+		/*
+		 * TODO: Translating two long names with the same first six
+		 *       characters to the same short name is utterly wrong.
+		 *       Short names must be unique.
+		 */
 		dirent->name[6] = '~';
 		dirent->name[7] = '1';
 	}
@@ -488,8 +500,6 @@ flush_dir(fat_itr *itr)
 			   nsects * mydata->sect_size);
 }
 
-static __u8 tmpbuf_cluster[MAX_CLUSTSIZE] __aligned(ARCH_DMA_MINALIGN);
-
 /*
  * Read and modify data on existing and consecutive cluster blocks
  */
@@ -497,6 +507,7 @@ static int
 get_set_cluster(fsdata *mydata, __u32 clustnum, loff_t pos, __u8 *buffer,
 		loff_t size, loff_t *gotsize)
 {
+	static u8 *tmpbuf_cluster;
 	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
 	__u32 startsect;
 	loff_t wsize;
@@ -505,6 +516,12 @@ get_set_cluster(fsdata *mydata, __u32 clustnum, loff_t pos, __u8 *buffer,
 	*gotsize = 0;
 	if (!size)
 		return 0;
+
+	if (!tmpbuf_cluster) {
+		tmpbuf_cluster = memalign(ARCH_DMA_MINALIGN, MAX_CLUSTSIZE);
+		if (!tmpbuf_cluster)
+			return -1;
+	}
 
 	assert(pos < bytesperclust);
 	startsect = clust_to_sect(mydata, clustnum);
@@ -794,6 +811,8 @@ set_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos, __u8 *buffer,
 
 			newclust = get_fatent(mydata, endclust);
 
+			if (newclust != endclust + 1)
+				break;
 			if (IS_LAST_CLUST(newclust, mydata->fatsize))
 				break;
 			if (CHECK_CLUST(newclust, mydata->fatsize)) {
@@ -811,7 +830,9 @@ set_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos, __u8 *buffer,
 			offset = 0;
 		else
 			offset = pos - cur_pos;
-		wsize = min(cur_pos + actsize, filesize) - pos;
+		wsize = min_t(unsigned long long, actsize, filesize - cur_pos);
+		wsize -= offset;
+
 		if (get_set_cluster(mydata, curclust, offset,
 				    buffer, wsize, &actsize)) {
 			printf("Error get-and-setting cluster\n");
@@ -823,8 +844,6 @@ set_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos, __u8 *buffer,
 
 		if (filesize <= cur_pos)
 			break;
-
-		/* CHECK: newclust = get_fatent(mydata, endclust); */
 
 		if (IS_LAST_CLUST(newclust, mydata->fatsize))
 			/* no more clusters */

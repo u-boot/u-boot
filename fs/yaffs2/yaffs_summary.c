@@ -28,6 +28,7 @@
 #include "yaffs_nand.h"
 #include "yaffs_getblockinfo.h"
 #include "yaffs_bitmap.h"
+#include <dm/devres.h>
 
 /*
  * The summary is built up in an array of summary tags.

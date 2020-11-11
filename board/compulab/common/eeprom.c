@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <eeprom.h>
 #include <i2c.h>
 #include <eeprom_layout.h>
 #include <eeprom_field.h>

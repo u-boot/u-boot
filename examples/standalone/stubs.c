@@ -2,6 +2,8 @@
 #include <exports.h>
 #include <linux/compiler.h>
 
+struct cmd_tbl;
+
 #define FO(x) offsetof(struct jt_funcs, x)
 
 #if defined(CONFIG_X86)

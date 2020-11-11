@@ -7,6 +7,7 @@
 
 #ifndef __ASSEMBLY__
 /* Hardware Page Table Entry */
+#include <linux/bitops.h>
 typedef struct _PTE {
 #ifdef CONFIG_PPC64BRIDGE
 	unsigned long long vsid:52;

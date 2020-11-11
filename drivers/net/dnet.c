@@ -9,6 +9,8 @@
  */
 
 #include <common.h>
+#include <log.h>
+#include <linux/delay.h>
 
 #ifndef CONFIG_DNET_AUTONEG_TIMEOUT
 #define CONFIG_DNET_AUTONEG_TIMEOUT	5000000	/* default value */
@@ -310,7 +312,7 @@ static int dnet_phy_init(struct dnet_device *dnet)
 	}
 }
 
-static int dnet_init(struct eth_device *netdev, bd_t *bd)
+static int dnet_init(struct eth_device *netdev, struct bd_info *bd)
 {
 	struct dnet_device *dnet = to_dnet(netdev);
 	u32 config;

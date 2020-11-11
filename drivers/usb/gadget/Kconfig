@@ -39,6 +39,7 @@ if USB_GADGET
 config USB_GADGET_MANUFACTURER
 	string "Vendor name of the USB device"
 	default "Allwinner Technology" if ARCH_SUNXI
+	default "Rockchip" if ARCH_ROCKCHIP
 	default "U-Boot"
 	help
 	  Vendor name of the USB device emulated, reported to the host device.
@@ -47,6 +48,7 @@ config USB_GADGET_MANUFACTURER
 config USB_GADGET_VENDOR_NUM
 	hex "Vendor ID of the USB device"
 	default 0x1f3a if ARCH_SUNXI
+	default 0x2207 if ARCH_ROCKCHIP
 	default 0x0
 	help
 	  Vendor ID of the USB device emulated, reported to the host device.
@@ -56,6 +58,11 @@ config USB_GADGET_VENDOR_NUM
 config USB_GADGET_PRODUCT_NUM
 	hex "Product ID of the USB device"
 	default 0x1010 if ARCH_SUNXI
+	default 0x310a if ROCKCHIP_RK3036
+	default 0x310c if ROCKCHIP_RK3128
+	default 0x320a if ROCKCHIP_RK3229 || ROCKCHIP_RK3288
+	default 0x330a if ROCKCHIP_RK3328
+	default 0x330c if ROCKCHIP_RK3399
 	default 0x0
 	help
 	  Product ID of the USB device emulated, reported to the host device.
@@ -98,6 +105,12 @@ config CI_UDC
 	  Say Y here to enable device controller functionality of the
 	  ChipIdea driver.
 
+config USB_GADGET_MAX3420
+	bool "MAX3420 USB Over SPI"
+	depends on DM_SPI
+	help
+	  MAX3420, from MAXIM, implements USB-over-SPI Full-Speed device controller.
+
 config USB_GADGET_VBUS_DRAW
 	int "Maximum VBUS Power usage (2-500 mA)"
 	range 2 500
@@ -114,6 +127,10 @@ config USB_GADGET_VBUS_DRAW
 
 	   This value will be used except for system-specific gadget
 	   drivers that have more specific information.
+
+config SDP_LOADADDR
+	hex "Default load address at SDP_WRITE and SDP_JUMP"
+	default 0
 
 # Selected by UDC drivers that support high-speed operation.
 config USB_GADGET_DUALSPEED

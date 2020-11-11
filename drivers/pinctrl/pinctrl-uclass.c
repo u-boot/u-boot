@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <malloc.h>
+#include <dm/device_compat.h>
 #include <linux/libfdt.h>
 #include <linux/err.h>
 #include <linux/list.h>
@@ -14,18 +16,6 @@
 #include <dm/of_access.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-int pinctrl_decode_pin_config(const void *blob, int node)
-{
-	int flags = 0;
-
-	if (fdtdec_get_bool(blob, node, "bias-pull-up"))
-		flags |= 1 << PIN_CONFIG_BIAS_PULL_UP;
-	else if (fdtdec_get_bool(blob, node, "bias-pull-down"))
-		flags |= 1 << PIN_CONFIG_BIAS_PULL_DOWN;
-
-	return flags;
-}
 
 #if CONFIG_IS_ENABLED(PINCTRL_FULL)
 /**

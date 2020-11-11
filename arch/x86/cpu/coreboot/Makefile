@@ -11,8 +11,14 @@
 # (C) Copyright 2002
 # Daniel Engström, Omicron Ceti AB, daniel@omicron.se.
 
+ifndef CONFIG_SPL
 obj-y += car.o
+endif
+ifdef CONFIG_SPL_BUILD
+obj-y += coreboot_spl.o
+else
+obj-y += sdram.o
+endif
 obj-y += coreboot.o
 obj-y += tables.o
-obj-y += sdram.o
 obj-y += timestamp.o

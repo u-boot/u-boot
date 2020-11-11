@@ -153,38 +153,11 @@
 /*
  * Environment
  */
-#ifndef SPL_NO_ENV
-#define CONFIG_ENV_OVERWRITE
-#endif
-
-#ifdef CONFIG_TFABOOT
-#define CONFIG_SYS_MMC_ENV_DEV		0
-
-#define CONFIG_ENV_SIZE			0x2000		/* 8KB */
-#define CONFIG_ENV_OFFSET		0x500000	/* 5MB */
-#define CONFIG_ENV_SECT_SIZE		0x40000		/* 256KB */
 #define CONFIG_SYS_FSL_QSPI_BASE        0x40000000
-#define CONFIG_ENV_ADDR CONFIG_SYS_FSL_QSPI_BASE + CONFIG_ENV_OFFSET
-#else
-#if defined(CONFIG_SD_BOOT)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_OFFSET		(3 * 1024 * 1024)
-#define CONFIG_ENV_SIZE			0x2000
-#else
-#define CONFIG_ENV_SIZE			0x2000		/* 8KB */
-#define CONFIG_ENV_OFFSET		0x300000	/* 3MB */
-#define CONFIG_ENV_SECT_SIZE		0x40000		/* 256KB */
-#endif
-#endif
 
 #define AQR105_IRQ_MASK			0x80000000
 /* FMan */
 #ifndef SPL_NO_FMAN
-
-#ifdef CONFIG_NET
-#define CONFIG_PHY_REALTEK
-#endif
-
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define RGMII_PHY1_ADDR			0x1
 #define RGMII_PHY2_ADDR			0x2
@@ -199,15 +172,6 @@
 #define CONFIG_ETHPRIME			"FM1@DTSEC3"
 #endif
 
-#endif
-
-/* QSPI device */
-#ifndef SPL_NO_QSPI
-#ifdef CONFIG_FSL_QSPI
-#define CONFIG_SPI_FLASH_SPANSION
-#define FSL_QSPI_FLASH_SIZE		(1 << 26)
-#define FSL_QSPI_FLASH_NUM		2
-#endif
 #endif
 
 #ifndef SPL_NO_MISC

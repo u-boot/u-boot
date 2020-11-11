@@ -3,6 +3,7 @@
  * Copyright (C) 2014 Soeren Moch <smoch@web.de>
  */
 
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>

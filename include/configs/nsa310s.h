@@ -15,23 +15,9 @@
 #define CONFIG_KW88F6702		1	/* SOC Name */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
-/* compression configuration */
-#define CONFIG_BZIP2
-
-/* commands configuration */
-
-/*
- * mv-common.h should be defined after CMD configs since it used them
- * to enable certain macros
- */
 #include "mv-common.h"
 
 /* environment variables configuration */
-#ifdef CONFIG_CMD_NAND
-#define CONFIG_ENV_SECT_SIZE	0x20000
-#endif
-#define CONFIG_ENV_SIZE		0x20000
-#define CONFIG_ENV_OFFSET	0xe0000
 
 /* default environment variables */
 #define CONFIG_BOOTCOMMAND \
@@ -54,7 +40,6 @@
 
 /* Ethernet driver configuration */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_NETCONSOLE
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	1
 #define CONFIG_RESET_PHY_R

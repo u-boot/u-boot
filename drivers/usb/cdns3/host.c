@@ -9,9 +9,10 @@
  *          Pawel Laszczak <pawell@cadence.com>
  */
 #include <dm.h>
+#include <dm/devres.h>
 #include <linux/compat.h>
 #include <usb.h>
-#include "../host/xhci.h"
+#include <usb/xhci.h>
 
 #include "core.h"
 #include "drd.h"

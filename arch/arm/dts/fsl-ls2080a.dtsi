@@ -26,6 +26,12 @@
 		interrupts = <1 9 0x4>;
 	};
 
+	gic_lpi_base: syscon@0x80000000 {
+		compatible = "gic-lpi-base";
+		reg = <0x0 0x80000000 0x0 0x100000>;
+		max-gic-redistributors = <8>;
+	};
+
 	timer {
 		compatible = "arm,armv8-timer";
 		interrupts = <1 13 0x8>, /* Physical Secure PPI, active-low */
@@ -48,12 +54,6 @@
 		reg = <0x0 0x21c0600 0x0 0x100>;
 		clock-frequency = <0>; 	/* Updated by bootloader */
 		interrupts = <0 32 0x1>; /* edge triggered */
-	};
-
-	fsl_mc: fsl-mc@80c000000 {
-		compatible = "fsl,qoriq-mc";
-		reg = <0x00000008 0x0c000000 0 0x40>,	 /* MC portal base */
-		      <0x00000000 0x08340000 0 0x40000>; /* MC control reg */
 	};
 
 	i2c0: i2c@2000000 {
@@ -102,13 +102,13 @@
 	};
 
 	qspi: quadspi@1550000 {
-		compatible = "fsl,vf610-qspi";
+		compatible = "fsl,ls2080a-qspi";
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x0 0x20c0000 0x0 0x10000>,
 			<0x0 0x20000000 0x0 0x10000000>;
 		reg-names = "QuadSPI", "QuadSPI-memory";
-		num-cs = <4>;
+		status = "disabled";
 	};
 
 	esdhc: esdhc@0 {
@@ -200,4 +200,88 @@
 			status = "disabled";
 	};
 
+	fsl_mc: fsl-mc@80c000000 {
+		compatible = "fsl,qoriq-mc", "simple-mfd";
+		reg = <0x00000008 0x0c000000 0 0x40>,    /* MC portal base */
+		      <0x00000000 0x08340000 0 0x40000>; /* MC control reg */
+		#address-cells = <3>;
+		#size-cells = <1>;
+
+		/*
+		 * Region type 0x0 - MC portals
+		 * Region type 0x1 - QBMAN portals
+		 */
+		ranges = <0x0 0x0 0x0 0x8 0x0c000000 0x4000000
+			0x1 0x0 0x0 0x8 0x18000000 0x8000000>;
+
+		dpmacs {
+			compatible = "simple-mfd";
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			dpmac1: dpmac@1 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x1>;
+				status = "disabled";
+			};
+
+			dpmac2: dpmac@2 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x2>;
+				status = "disabled";
+			};
+
+			dpmac3: dpmac@3 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x3>;
+				status = "disabled";
+			};
+
+			dpmac4: dpmac@4 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x4>;
+				status = "disabled";
+			};
+
+			dpmac5: dpmac@5 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x5>;
+				status = "disabled";
+			};
+
+			dpmac6: dpmac@6 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x6>;
+				status = "disabled";
+			};
+
+			dpmac7: dpmac@7 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x7>;
+				status = "disabled";
+			};
+
+			dpmac8: dpmac@8 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x8>;
+				status = "disabled";
+			};
+		};
+	};
+
+	emdio1: mdio@8B96000 {
+		compatible = "fsl,ls-mdio";
+		reg = <0x0 0x8B96000 0x0 0x1000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+	};
+
+	emdio2: mdio@8B97000 {
+		compatible = "fsl,ls-mdio";
+		reg = <0x0 0x8B97000 0x0 0x1000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+	};
 };

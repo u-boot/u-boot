@@ -70,6 +70,8 @@ def pytest_addoption(parser):
         help='U-Boot board identity/instance')
     parser.addoption('--build', default=False, action='store_true',
         help='Compile U-Boot before running tests')
+    parser.addoption('--buildman', default=False, action='store_true',
+        help='Use buildman to build U-Boot (assuming --build is given)')
     parser.addoption('--gdbserver', default=None,
         help='Run sandbox under gdbserver. The argument is the channel '+
         'over which gdbserver should communicate, e.g. localhost:1234')
@@ -83,6 +85,26 @@ def pytest_configure(config):
     Returns:
         Nothing.
     """
+    def parse_config(conf_file):
+        """Parse a config file, loading it into the ubconfig container
+
+        Args:
+            conf_file: Filename to load (within build_dir)
+
+        Raises
+            Exception if the file does not exist
+        """
+        dot_config = build_dir + '/' + conf_file
+        if not os.path.exists(dot_config):
+            raise Exception(conf_file + ' does not exist; ' +
+                            'try passing --build option?')
+
+        with open(dot_config, 'rt') as f:
+            ini_str = '[root]\n' + f.read()
+            ini_sio = io.StringIO(ini_str)
+            parser = configparser.RawConfigParser()
+            parser.read_file(ini_sio)
+            ubconfig.buildconfig.update(parser.items('root'))
 
     global log
     global console
@@ -120,16 +142,26 @@ def pytest_configure(config):
     log = multiplexed_log.Logfile(result_dir + '/test-log.html')
 
     if config.getoption('build'):
-        if build_dir != source_dir:
-            o_opt = 'O=%s' % build_dir
+        if config.getoption('buildman'):
+            if build_dir != source_dir:
+                dest_args = ['-o', build_dir, '-w']
+            else:
+                dest_args = ['-i']
+            cmds = (['buildman', '--board', board_type] + dest_args,)
+            name = 'buildman'
         else:
-            o_opt = ''
-        cmds = (
-            ['make', o_opt, '-s', board_type + '_defconfig'],
-            ['make', o_opt, '-s', '-j8'],
-        )
-        with log.section('make'):
-            runner = log.get_runner('make', sys.stdout)
+            if build_dir != source_dir:
+                o_opt = 'O=%s' % build_dir
+            else:
+                o_opt = ''
+            cmds = (
+                ['make', o_opt, '-s', board_type + '_defconfig'],
+                ['make', o_opt, '-s', '-j{}'.format(os.cpu_count())],
+            )
+            name = 'make'
+
+        with log.section(name):
+            runner = log.get_runner(name, sys.stdout)
             for cmd in cmds:
                 runner.run(cmd, cwd=source_dir)
             runner.close()
@@ -157,18 +189,13 @@ def pytest_configure(config):
 
     ubconfig.buildconfig = dict()
 
-    for conf_file in ('.config', 'include/autoconf.mk'):
-        dot_config = build_dir + '/' + conf_file
-        if not os.path.exists(dot_config):
-            raise Exception(conf_file + ' does not exist; ' +
-                'try passing --build option?')
-
-        with open(dot_config, 'rt') as f:
-            ini_str = '[root]\n' + f.read()
-            ini_sio = io.StringIO(ini_str)
-            parser = configparser.RawConfigParser()
-            parser.read_file(ini_sio)
-            ubconfig.buildconfig.update(parser.items('root'))
+    # buildman -k puts autoconf.mk in the rootdir, so handle this as well
+    # as the standard U-Boot build which leaves it in include/autoconf.mk
+    parse_config('.config')
+    if os.path.exists(build_dir + '/' + 'autoconf.mk'):
+        parse_config('autoconf.mk')
+    else:
+        parse_config('include/autoconf.mk')
 
     ubconfig.test_py_dir = test_py_dir
     ubconfig.source_dir = source_dir
@@ -200,7 +227,7 @@ def pytest_configure(config):
         console = u_boot_console_exec_attach.ConsoleExecAttach(log, ubconfig)
 
 re_ut_test_list = re.compile(r'_u_boot_list_2_(.*)_test_2_\1_test_(.*)\s*$')
-def generate_ut_subtest(metafunc, fixture_name):
+def generate_ut_subtest(metafunc, fixture_name, sym_path):
     """Provide parametrization for a ut_subtest fixture.
 
     Determines the set of unit tests built into a U-Boot binary by parsing the
@@ -210,12 +237,13 @@ def generate_ut_subtest(metafunc, fixture_name):
     Args:
         metafunc: The pytest test function.
         fixture_name: The fixture name to test.
+        sym_path: Relative path to the symbol file with preceding '/'
+            (e.g. '/u-boot.sym')
 
     Returns:
         Nothing.
     """
-
-    fn = console.config.build_dir + '/u-boot.sym'
+    fn = console.config.build_dir + sym_path
     try:
         with open(fn, 'rt') as f:
             lines = f.readlines()
@@ -290,10 +318,12 @@ def pytest_generate_tests(metafunc):
     Returns:
         Nothing.
     """
-
     for fn in metafunc.fixturenames:
         if fn == 'ut_subtest':
-            generate_ut_subtest(metafunc, fn)
+            generate_ut_subtest(metafunc, fn, '/u-boot.sym')
+            continue
+        if fn == 'ut_spl_subtest':
+            generate_ut_subtest(metafunc, fn, '/spl/u-boot-spl.sym')
             continue
         generate_config(metafunc, fn)
 
@@ -457,7 +487,7 @@ def setup_buildconfigspec(item):
         option = options.args[0]
         if not ubconfig.buildconfig.get('config_' + option.lower(), None):
             pytest.skip('.config feature "%s" not enabled' % option.lower())
-    for option in item.iter_markers('notbuildconfigspec'):
+    for options in item.iter_markers('notbuildconfigspec'):
         option = options.args[0]
         if ubconfig.buildconfig.get('config_' + option.lower(), None):
             pytest.skip('.config feature "%s" enabled' % option.lower())

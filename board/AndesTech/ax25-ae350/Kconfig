@@ -21,9 +21,18 @@ config ENV_SIZE
 config ENV_OFFSET
 	default 0x140000 if ENV_IS_IN_SPI_FLASH
 
+config SPL_TEXT_BASE
+	default 0x800000
+
+config SPL_OPENSBI_LOAD_ADDR
+	default 0x01000000
+
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select RISCV_NDS
+	select SUPPORT_SPL
 	imply SMP
+	imply SPL_RAM_SUPPORT
+	imply SPL_RAM_DEVICE
 
 endif

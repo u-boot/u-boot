@@ -6,8 +6,11 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <regmap.h>
 #include <syscon.h>
+#include <asm/io.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/err.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
 
@@ -26,7 +29,7 @@ struct stm32mp_pwr_reg_info {
 };
 
 struct stm32mp_pwr_priv {
-	struct regmap *regmap;
+	fdt_addr_t base;
 };
 
 static int stm32mp_pwr_write(struct udevice *dev, uint reg,
@@ -38,7 +41,9 @@ static int stm32mp_pwr_write(struct udevice *dev, uint reg,
 	if (len != 4)
 		return -EINVAL;
 
-	return regmap_write(priv->regmap, STM32MP_PWR_CR3, val);
+	writel(val, priv->base + STM32MP_PWR_CR3);
+
+	return 0;
 }
 
 static int stm32mp_pwr_read(struct udevice *dev, uint reg, uint8_t *buff,
@@ -49,21 +54,18 @@ static int stm32mp_pwr_read(struct udevice *dev, uint reg, uint8_t *buff,
 	if (len != 4)
 		return -EINVAL;
 
-	return regmap_read(priv->regmap, STM32MP_PWR_CR3, (u32 *)buff);
+	*(u32 *)buff = readl(priv->base + STM32MP_PWR_CR3);
+
+	return 0;
 }
 
 static int stm32mp_pwr_ofdata_to_platdata(struct udevice *dev)
 {
 	struct stm32mp_pwr_priv *priv = dev_get_priv(dev);
-	struct regmap *regmap;
 
-	regmap = syscon_get_regmap_by_driver_data(STM32MP_SYSCON_PWR);
-	if (IS_ERR(regmap)) {
-		pr_err("%s: unable to find regmap (%ld)\n", __func__,
-		       PTR_ERR(regmap));
-		return PTR_ERR(regmap);
-	}
-	priv->regmap = regmap;
+	priv->base = dev_read_addr(dev);
+	if (priv->base == FDT_ADDR_T_NONE)
+		return -EINVAL;
 
 	return 0;
 }

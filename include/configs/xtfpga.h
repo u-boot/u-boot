@@ -71,8 +71,6 @@
 #define CONFIG_SYS_BOOTPARAMS_LEN	(64  << 10)
 
 /* Memory test is destructive so default must not overlap vectors or U-Boot*/
-#define CONFIG_SYS_MEMTEST_START	MEMADDR(0x01000000)
-#define CONFIG_SYS_MEMTEST_END		MEMADDR(0x02000000)
 
 /* Load address for stand-alone applications.
  * MEMADDR cannot be used here, because the definition needs to be
@@ -220,8 +218,6 @@
  * Put environment in top block (64kB)
  * Another option would be to put env. in 2nd param block offs 8KB, size 8KB
  */
-#define CONFIG_ENV_OFFSET    (CONFIG_SYS_FLASH_SIZE - CONFIG_SYS_FLASH_SECT_SZ)
-#define CONFIG_ENV_SIZE	     CONFIG_SYS_FLASH_SECT_SZ
 
 /* print 'E' for empty sector on flinfo */
 #define CONFIG_SYS_FLASH_EMPTY_INFO

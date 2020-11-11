@@ -1,12 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2019 NXP
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
-
-#define CONFIG_ARMV7_PSCI_1_0
 
 #define CONFIG_ARMV7_SECURE_BASE	OCRAM_BASE_S_ADDR
 
@@ -331,7 +330,12 @@ unsigned long get_board_ddr_clk(void);
 /*
  * I2C
  */
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
+#else
+#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
+#define CONFIG_I2C_DEFAULT_BUS_NUMBER 0
+#endif
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
 #define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
@@ -356,22 +360,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * MMC
  */
-
-/* SPI */
-#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-/* QSPI */
-#define QSPI0_AMBA_BASE			0x40000000
-#define FSL_QSPI_FLASH_SIZE		(1 << 24)
-#define FSL_QSPI_FLASH_NUM		2
-
-/* DSPI */
-
-/* DM SPI */
-#if defined(CONFIG_FSL_DSPI) || defined(CONFIG_FSL_QSPI)
-#define CONFIG_DM_SPI_FLASH
-#define CONFIG_SPI_FLASH_DATAFLASH
-#endif
-#endif
 
 /*
  * Video
@@ -413,8 +401,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_ETHPRIME			"eTSEC1"
 
-#define CONFIG_PHY_REALTEK
-
 #define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1
 #define CONFIG_HAS_ETH2
@@ -454,13 +440,11 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_LPUART
 #define CONFIG_EXTRA_ENV_SETTINGS       \
 	"bootargs=root=/dev/ram0 rw console=ttyLP0,115200\0" \
-	"fdt_high=0xffffffff\0"         \
 	"initrd_high=0xffffffff\0"      \
 	"hwconfig=fsl_ddr:ctlr_intlv=null,bank_intlv=null\0"
 #else
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"bootargs=root=/dev/ram0 rw console=ttyS0,115200\0" \
-	"fdt_high=0xffffffff\0"		\
 	"initrd_high=0xffffffff\0"      \
 	"hwconfig=fsl_ddr:ctlr_intlv=null,bank_intlv=null\0"
 #endif
@@ -468,9 +452,7 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Miscellaneous configurable options
  */
-
-#define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		0x9fffffff
+#define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
 
 #define CONFIG_SYS_LOAD_ADDR		0x82000000
 
@@ -490,24 +472,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Environment
  */
-#define CONFIG_ENV_OVERWRITE
-
-#if defined(CONFIG_SD_BOOT)
-#define CONFIG_ENV_OFFSET		0x300000
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_SIZE			0x2000
-#elif defined(CONFIG_QSPI_BOOT)
-#define CONFIG_ENV_SIZE			0x2000          /* 8KB */
-#define CONFIG_ENV_OFFSET		0x300000        /* 3MB */
-#define CONFIG_ENV_SECT_SIZE		0x10000
-#elif defined(CONFIG_NAND_BOOT)
-#define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_ENV_OFFSET		(10 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#else
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x300000)
-#define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_ENV_SECT_SIZE		0x20000 /* 128K (one sector) */
-#endif
 
 #include <asm/fsl_secure_boot.h>
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20) /* Increase max gunzip size */

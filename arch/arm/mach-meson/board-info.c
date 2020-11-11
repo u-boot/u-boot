@@ -5,11 +5,14 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <linux/bitfield.h>
 #include <regmap.h>
 #include <syscon.h>
+#include <linux/bitops.h>
+#include <linux/err.h>
 
 #define AO_SEC_SD_CFG8		0xe0
 #define AO_SEC_SOCINFO_OFFSET	AO_SEC_SD_CFG8

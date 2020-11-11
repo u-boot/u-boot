@@ -10,7 +10,18 @@
 #ifndef __INIT_H_
 #define __INIT_H_	1
 
+#include <linux/types.h>
+
+struct global_data;
+
 #ifndef __ASSEMBLY__		/* put C only stuff in this section */
+
+/* Avoid using CONFIG_EFI_STUB directly as we may boot from other loaders */
+#ifdef CONFIG_EFI_STUB
+#define ll_boot_init()	false
+#else
+#define ll_boot_init()	(!(gd->flags & GD_FLG_SKIP_LL_INIT))
+#endif
 
 /*
  * Function Prototypes
@@ -65,6 +76,17 @@ int mach_cpu_init(void);
  */
 int arch_fsp_init(void);
 
+/**
+ * arch_fsp_init() - perform post-relocation firmware support package init
+ *
+ * Where U-Boot relies on binary blobs to handle part of the system init, this
+ * function can be used to set up the blobs. This is used on some Intel
+ * platforms.
+ *
+ * Return: 0
+ */
+int arch_fsp_init_r(void);
+
 int dram_init(void);
 
 /**
@@ -83,6 +105,11 @@ int dram_init(void);
  * Return: 0 if OK, -ve on error
  */
 int dram_init_banksize(void);
+
+long get_ram_size(long *base, long size);
+phys_size_t get_effective_memsize(void);
+
+int testdram(void);
 
 /**
  * arch_reserve_stacks() - Reserve all necessary stacks
@@ -103,6 +130,40 @@ int dram_init_banksize(void);
 int arch_reserve_stacks(void);
 
 /**
+ * arch_reserve_mmu() - Reserve memory for MMU TLB table
+ *
+ * Architecture-specific routine for reserving memory for the MMU TLB table.
+ * This is used in generic board init sequence in common/board_f.c.
+ *
+ * If an implementation is not provided, it will just be a nop stub.
+ *
+ * Return: 0 if OK
+ */
+int arch_reserve_mmu(void);
+
+/**
+ * arch_setup_bdinfo() - Architecture dependent boardinfo setup
+ *
+ * Architecture-specific routine for populating various boardinfo fields of
+ * gd->bd. It is called during the generic board init sequence.
+ *
+ * If an implementation is not provided, it will just be a nop stub.
+ *
+ * Return: 0 if OK
+ */
+int arch_setup_bdinfo(void);
+
+/**
+ * setup_bdinfo() - Generic boardinfo setup
+ *
+ * Routine for populating various generic boardinfo fields of
+ * gd->bd. It is called during the generic board init sequence.
+ *
+ * Return: 0 if OK
+ */
+int setup_bdinfo(void);
+
+/**
  * init_cache_f_r() - Turn on the cache in preparation for relocation
  *
  * Return: 0 if OK, -ve on error
@@ -118,7 +179,6 @@ int init_cache_f_r(void);
 int print_cpuinfo(void);
 #endif
 int timer_init(void);
-int reserve_mmu(void);
 int misc_init_f(void);
 
 #if defined(CONFIG_DTB_RESELECT)
@@ -149,6 +209,8 @@ ulong board_init_f_alloc_reserve(ulong top);
  */
 void board_init_f_init_reserve(ulong base);
 
+struct global_data;
+
 /**
  * arch_setup_gd() - Set up the global_data pointer
  * @gd_ptr: Pointer to global data
@@ -160,10 +222,11 @@ void board_init_f_init_reserve(ulong base);
  *
  *    gd = gd_ptr;
  */
-void arch_setup_gd(gd_t *gd_ptr);
+void arch_setup_gd(struct global_data *gd_ptr);
 
 /* common/board_r.c */
-void board_init_r(gd_t *id, ulong dest_addr) __attribute__ ((noreturn));
+void board_init_r(struct global_data *id, ulong dest_addr)
+	__attribute__ ((noreturn));
 
 int cpu_init_r(void);
 int last_stage_init(void);
@@ -172,6 +235,7 @@ int set_cpu_clk_info(void);
 int update_flash_size(int flash_size);
 int arch_early_init_r(void);
 void pci_init(void);
+void pci_ep_init(void);
 int misc_init_r(void);
 #if defined(CONFIG_VID)
 int init_func_vid(void);
@@ -180,6 +244,54 @@ int init_func_vid(void);
 /* common/board_info.c */
 int checkboard(void);
 int show_board_info(void);
+
+/**
+ * Get the uppermost pointer that is valid to access
+ *
+ * Some systems may not map all of their address space. This function allows
+ * boards to indicate what their highest support pointer value is for DRAM
+ * access.
+ *
+ * @param total_size	Size of U-Boot (unused?)
+ */
+ulong board_get_usable_ram_top(ulong total_size);
+
+int board_early_init_f(void);
+
+/* manipulate the U-Boot fdt before its relocation */
+int board_fix_fdt(void *rw_fdt_blob);
+int board_late_init(void);
+int board_postclk_init(void); /* after clocks/timebase, before env/serial */
+int board_early_init_r(void);
+
+/* TODO(sjg@chromium.org): Drop this when DM_PCI migration is completed */
+void pci_init_board(void);
+
+void trap_init(unsigned long reloc_addr);
+
+/**
+ * main_loop() - Enter the main loop of U-Boot
+ *
+ * This normally runs the command line.
+ */
+void main_loop(void);
+
+#if defined(CONFIG_ARM)
+void relocate_code(ulong addr_moni);
+#else
+void relocate_code(ulong start_addr_sp, struct global_data *new_gd,
+		   ulong relocaddr)
+	__attribute__ ((noreturn));
+#endif
+
+/* Print a numeric value (for use in arch_print_bdinfo()) */
+void bdinfo_print_num(const char *name, ulong value);
+
+/* Print a clock speed in MHz */
+void bdinfo_print_mhz(const char *name, unsigned long hz);
+
+/* Show arch-specific information for the 'bd' command */
+void arch_print_bdinfo(void);
 
 #endif	/* __ASSEMBLY__ */
 /* Put only stuff here that the assembler can digest */

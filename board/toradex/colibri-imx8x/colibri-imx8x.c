@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <init.h>
 
 #include <asm/arch/clock.h>
 #include <asm/arch/imx8-pins.h>
@@ -100,11 +102,6 @@ int board_init(void)
 	return 0;
 }
 
-void detail_board_ddr_info(void)
-{
-	puts("\nDDR    ");
-}
-
 /*
  * Board specific reset that is system reset.
  */
@@ -114,7 +111,7 @@ void reset_cpu(ulong addr)
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	return ft_common_board_setup(blob, bd);
 }

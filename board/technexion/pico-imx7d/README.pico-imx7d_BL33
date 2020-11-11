@@ -4,7 +4,7 @@ The boot sequence is ATF -> OPTEE -> U-Boot -> Linux. U-Boot is in non-secure
 world in this case.
 
 - Build u-boot
-    Set environment variable of CROSS_COMPILE for your toolchain and ARCH=arm
+    Set environment variable of CROSS_COMPILE for your toolchain
     $ make pico-imx7d_bl33_defconfig
     $ make all
 

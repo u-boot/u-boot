@@ -6,6 +6,10 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <log.h>
+#include <malloc.h>
+#include <part.h>
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
@@ -16,6 +20,7 @@
 #include <video.h>
 #include <wait_bit.h>
 #include <atmel_hlcdc.h>
+#include <linux/bug.h>
 
 #if defined(CONFIG_LCD_LOGO)
 #include <bmp_logo.h>
@@ -502,7 +507,7 @@ static int atmel_hlcdc_ofdata_to_platdata(struct udevice *dev)
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 
-	priv->regs = (struct atmel_hlcd_regs *)devfdt_get_addr(dev);
+	priv->regs = dev_read_addr_ptr(dev);
 	if (!priv->regs) {
 		debug("%s: No display controller address\n", __func__);
 		return -EINVAL;

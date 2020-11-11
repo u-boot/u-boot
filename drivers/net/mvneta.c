@@ -13,12 +13,20 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
 #include <net.h>
 #include <netdev.h>
 #include <config.h>
 #include <malloc.h>
+#include <asm/cache.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
+#include <linux/bitops.h>
+#include <linux/bug.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <phy.h>
 #include <miiphy.h>
@@ -275,7 +283,7 @@ struct mvneta_port {
 	int init;
 	int phyaddr;
 	struct phy_device *phydev;
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	struct gpio_desc phy_reset_gpio;
 #endif
 	struct mii_dev *bus;
@@ -617,9 +625,9 @@ static void mvneta_port_down(struct mvneta_port *pp)
 	count = 0;
 	do {
 		if (count++ >= MVNETA_RX_DISABLE_TIMEOUT_MSEC) {
-			netdev_warn(pp->dev,
-				    "TIMEOUT for RX stopped ! rx_queue_cmd: 0x08%x\n",
-				    val);
+			dev_warn(pp->phydev->dev,
+				 "TIMEOUT for RX stopped ! rx_queue_cmd: 0x08%x\n",
+				 val);
 			break;
 		}
 		mdelay(1);
@@ -640,9 +648,9 @@ static void mvneta_port_down(struct mvneta_port *pp)
 	count = 0;
 	do {
 		if (count++ >= MVNETA_TX_DISABLE_TIMEOUT_MSEC) {
-			netdev_warn(pp->dev,
-				    "TIMEOUT for TX stopped status=0x%08x\n",
-				    val);
+			dev_warn(pp->phydev->dev,
+				 "TIMEOUT for TX stopped status=0x%08x\n",
+				 val);
 			break;
 		}
 		mdelay(1);
@@ -656,9 +664,9 @@ static void mvneta_port_down(struct mvneta_port *pp)
 	count = 0;
 	do {
 		if (count++ >= MVNETA_TX_FIFO_EMPTY_TIMEOUT) {
-			netdev_warn(pp->dev,
-				    "TX FIFO empty timeout status=0x08%x\n",
-				    val);
+			dev_warn(pp->phydev->dev,
+				 "TX FIFO empty timeout status=0x08%x\n",
+				 val);
 			break;
 		}
 		mdelay(1);
@@ -941,28 +949,32 @@ static void mvneta_rx_error(struct mvneta_port *pp,
 	u32 status = rx_desc->status;
 
 	if (!mvneta_rxq_desc_is_first_last(status)) {
-		netdev_err(pp->dev,
-			   "bad rx status %08x (buffer oversize), size=%d\n",
-			   status, rx_desc->data_size);
+		dev_err(pp->phydev->dev,
+			"bad rx status %08x (buffer oversize), size=%d\n",
+			status, rx_desc->data_size);
 		return;
 	}
 
 	switch (status & MVNETA_RXD_ERR_CODE_MASK) {
 	case MVNETA_RXD_ERR_CRC:
-		netdev_err(pp->dev, "bad rx status %08x (crc error), size=%d\n",
-			   status, rx_desc->data_size);
+		dev_err(pp->phydev->dev,
+			"bad rx status %08x (crc error), size=%d\n", status,
+			rx_desc->data_size);
 		break;
 	case MVNETA_RXD_ERR_OVERRUN:
-		netdev_err(pp->dev, "bad rx status %08x (overrun error), size=%d\n",
-			   status, rx_desc->data_size);
+		dev_err(pp->phydev->dev,
+			"bad rx status %08x (overrun error), size=%d\n", status,
+			rx_desc->data_size);
 		break;
 	case MVNETA_RXD_ERR_LEN:
-		netdev_err(pp->dev, "bad rx status %08x (max frame length error), size=%d\n",
-			   status, rx_desc->data_size);
+		dev_err(pp->phydev->dev,
+			"bad rx status %08x (max frame length error), size=%d\n",
+			status, rx_desc->data_size);
 		break;
 	case MVNETA_RXD_ERR_RESOURCE:
-		netdev_err(pp->dev, "bad rx status %08x (resource error), size=%d\n",
-			   status, rx_desc->data_size);
+		dev_err(pp->phydev->dev,
+			"bad rx status %08x (resource error), size=%d\n",
+			status, rx_desc->data_size);
 		break;
 	}
 }
@@ -1119,8 +1131,8 @@ static int mvneta_setup_rxqs(struct mvneta_port *pp)
 	for (queue = 0; queue < rxq_number; queue++) {
 		int err = mvneta_rxq_init(pp, &pp->rxqs[queue]);
 		if (err) {
-			netdev_err(pp->dev, "%s: can't create rxq=%d\n",
-				   __func__, queue);
+			dev_err(pp->phydev->dev, "%s: can't create rxq=%d\n",
+				__func__, queue);
 			mvneta_cleanup_rxqs(pp);
 			return err;
 		}
@@ -1137,8 +1149,8 @@ static int mvneta_setup_txqs(struct mvneta_port *pp)
 	for (queue = 0; queue < txq_number; queue++) {
 		int err = mvneta_txq_init(pp, &pp->txqs[queue]);
 		if (err) {
-			netdev_err(pp->dev, "%s: can't create txq=%d\n",
-				   __func__, queue);
+			dev_err(pp->phydev->dev, "%s: can't create txq=%d\n",
+				__func__, queue);
 			mvneta_cleanup_txqs(pp);
 			return err;
 		}
@@ -1394,7 +1406,7 @@ static int mvneta_init(struct udevice *dev)
 
 	err = mvneta_init2(pp);
 	if (err < 0) {
-		dev_err(&pdev->dev, "can't init eth hal\n");
+		dev_err(dev, "can't init eth hal\n");
 		return err;
 	}
 
@@ -1402,7 +1414,7 @@ static int mvneta_init(struct udevice *dev)
 
 	err = mvneta_port_power_up(pp, pp->phy_interface);
 	if (err < 0) {
-		dev_err(&pdev->dev, "can't power up port\n");
+		dev_err(dev, "can't power up port\n");
 		return err;
 	}
 
@@ -1753,7 +1765,7 @@ static int mvneta_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	gpio_request_by_name(dev, "phy-reset-gpios", 0,
 			     &pp->phy_reset_gpio, GPIOD_IS_OUT);
 
@@ -1788,7 +1800,7 @@ static int mvneta_ofdata_to_platdata(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	const char *phy_mode;
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 
 	/* Get phy-mode / phy_interface from DT */
 	pdata->phy_interface = -1;

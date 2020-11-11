@@ -38,8 +38,6 @@
  * for your console driver.
  */
 
-#define CONFIG_CONS_INDEX	1	/*Console on UART0 */
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
@@ -56,9 +54,6 @@
 /*
  *  Environment variables configurations
  */
-#define CONFIG_ENV_SECT_SIZE		0x40000		/* 256K */
-#define CONFIG_ENV_SIZE			0x02000
-#define CONFIG_ENV_OFFSET		0xc0000		/* env starts here - 768K */
 
 /*
  * U-Boot bootcode configuration
@@ -83,20 +78,16 @@
 /*
  * Other required minimal configurations
  */
-#define CONFIG_SYS_MEMTEST_START 0x00400000	/* 4M */
-#define CONFIG_SYS_MEMTEST_END	0x007fffff	/*(_8M -1) */
 #define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
 
 /*
  * Ethernet Driver configuration
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_NETCONSOLE	/* include NetConsole support */
 #define CONFIG_NET_MULTI	/* specify more that one ports available */
 #define CONFIG_MVGBE	/* Enable kirkwood Gbe Controller Driver */
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable a single port */
 #define CONFIG_PHY_BASE_ADR	0x01
-#define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
 #endif /* CONFIG_CMD_NET */
 
 #define CONFIG_SYS_LOAD_ADDR  0x1000000      /* default location for tftp and bootm */

@@ -99,6 +99,15 @@
 				device-name = "cps-mdio";
 			};
 
+			cps_xmdio: mdio@12a600 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "marvell,xmdio";
+				reg = <0x12a600 0x16>;
+				status = "disabled";
+				device-name = "cps-xmdio";
+			};
+
 			cps_syscon0: system-controller@440000 {
 				compatible = "marvell,cp110-system-controller0",
 					     "syscon";
@@ -256,6 +265,22 @@
 				      <0x440420 0x4>,		/* usb-cfg */
 				      <0x440440 0x4>;		/* utmi-cfg */
 				utmi-port = <UTMI_PHY_TO_USB3_HOST0>;
+				status = "disabled";
+			};
+
+			cps_nand: nand@720000 {
+				compatible = "marvell,armada-8k-nand-controller",
+					"marvell,armada370-nand-controller";
+				reg = <0x720000 0x54>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				interrupts = <GIC_SPI 115 IRQ_TYPE_LEVEL_HIGH>;
+				clock-names = "core", "reg";
+				clocks = <&cps_syscon0 1 2>,
+					 <&cps_syscon0 1 17>;
+				marvell,system-controller = <&cps_syscon0>;
+				nand-enable-arbiter;
+				num-cs = <1>;
 				status = "disabled";
 			};
 		};

@@ -7,9 +7,11 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/ptrace.h>
 
 /* General purpose timers bitfields */
 #define GPTCR_SWR       (1<<15)	/* Software reset */

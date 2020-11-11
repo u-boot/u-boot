@@ -4,9 +4,12 @@
 **/
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
+#include <init.h>
 #include <malloc.h>
 #include <errno.h>
+#include <net.h>
 #include <linux/compiler.h>
 
 #include <cavium/atf.h>
@@ -113,7 +116,7 @@ void reset_cpu(ulong addr)
 /*
  * Board specific ethernet initialization routine.
  */
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int rc = 0;
 

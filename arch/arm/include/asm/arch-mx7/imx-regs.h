@@ -225,6 +225,7 @@
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/mach-imx/regs-lcdif.h>
 #include <asm/types.h>
+#include <linux/bitops.h>
 
 extern void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 
@@ -273,6 +274,7 @@ struct src {
 
 #define SRC_DDRC_RCR_DDRC_CORE_RST_OFFSET	1
 #define SRC_DDRC_RCR_DDRC_CORE_RST_MASK		(1 << 1)
+#define SRC_DDRC_RCR_DDRC_PRST_MASK		(1 << 0)
 
 /* GPR0 Bit Fields */
 #define IOMUXC_GPR_GPR0_DMAREQ_MUX_SEL0_MASK     0x1u
@@ -1223,5 +1225,5 @@ struct bootrom_sw_info {
 	u32 reserved_3[3];
 };
 
-#endif /* __ASSEMBLER__*/
+#endif /* __ASSEMBLY__ */
 #endif /* __ASM_ARCH_MX7_IMX_REGS_H__ */

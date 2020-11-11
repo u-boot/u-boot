@@ -2,8 +2,6 @@
 # Copyright (c) 2011 The Chromium OS Authors.
 #
 
-from __future__ import print_function
-
 try:
     import configparser as ConfigParser
 except:
@@ -12,9 +10,8 @@ except:
 import os
 import re
 
-import command
-import gitutil
-import tools
+from patman import command
+from patman import tools
 
 """Default settings per-project.
 
@@ -36,10 +33,7 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
     - Merge general default settings/aliases with project-specific ones.
 
     # Sample config used for tests below...
-    >>> try:
-    ...     from StringIO import StringIO
-    ... except ImportError:
-    ...     from io import StringIO
+    >>> from io import StringIO
     >>> sample_config = '''
     ... [alias]
     ... me: Peter P. <likesspiders@example.com>
@@ -190,7 +184,7 @@ def ReadGitAliases(fname):
 
     fd.close()
 
-def CreatePatmanConfigFile(config_fname):
+def CreatePatmanConfigFile(gitutil, config_fname):
     """Creates a config file under $(HOME)/.patman if it can't find one.
 
     Args:
@@ -239,17 +233,19 @@ def _UpdateDefaults(parser, config):
         config: An instance of _ProjectConfigParser that we will query
             for settings.
     """
-    defaults = parser.get_default_values()
+    defaults = parser.parse_known_args()[0]
+    defaults = vars(defaults)
     for name, val in config.items('settings'):
-        if hasattr(defaults, name):
-            default_val = getattr(defaults, name)
+        if name in defaults:
+            default_val = defaults[name]
             if isinstance(default_val, bool):
                 val = config.getboolean('settings', name)
             elif isinstance(default_val, int):
                 val = config.getint('settings', name)
-            parser.set_default(name, val)
+            defaults[name] = val
         else:
             print("WARNING: Unknown setting %s" % name)
+        parser.set_defaults(**defaults)
 
 def _ReadAliasFile(fname):
     """Read in the U-Boot git alias file if it exists.
@@ -306,7 +302,7 @@ def GetItems(config, section):
     except:
         raise
 
-def Setup(parser, project_name, config_fname=''):
+def Setup(gitutil, parser, project_name, config_fname=''):
     """Set up the settings module by reading config files.
 
     Args:
@@ -323,7 +319,7 @@ def Setup(parser, project_name, config_fname=''):
 
     if not os.path.exists(config_fname):
         print("No config file found ~/.patman\nCreating one...\n")
-        CreatePatmanConfigFile(config_fname)
+        CreatePatmanConfigFile(gitutil, config_fname)
 
     config.read(config_fname)
 

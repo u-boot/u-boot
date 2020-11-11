@@ -5,10 +5,13 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <log.h>
 #include <asm/arch/sys_proto.h>
 #include <memalign.h>
 #include <versalpl.h>
 #include <zynqmp_firmware.h>
+#include <asm/cache.h>
 
 static ulong versal_align_dma_buffer(ulong *buf, u32 len)
 {
@@ -29,7 +32,7 @@ static int versal_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	ulong bin_buf;
 	int ret;
 	u32 buf_lo, buf_hi;
-	u32 ret_payload[5];
+	u32 ret_payload[PAYLOAD_ARG_CNT];
 
 	bin_buf = versal_align_dma_buffer((ulong *)buf, bsize);
 
@@ -42,7 +45,7 @@ static int versal_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	ret = xilinx_pm_request(VERSAL_PM_LOAD_PDI, VERSAL_PM_PDI_TYPE, buf_lo,
 				buf_hi, 0, ret_payload);
 	if (ret)
-		puts("PL FPGA LOAD fail\n");
+		printf("PL FPGA LOAD failed with err: 0x%08x\n", ret);
 
 	return ret;
 }

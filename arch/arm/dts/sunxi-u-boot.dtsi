@@ -1,18 +1,101 @@
 #include <config.h>
 
+#ifdef CONFIG_MACH_SUN50I_H6
+#define BL31_ADDR 0x104000
+#define  SCP_ADDR 0x114000
+#else
+#define BL31_ADDR  0x44000
+#define  SCP_ADDR  0x50000
+#endif
+
 / {
 	aliases {
 		mmc1 = &mmc2;
 	};
 
-	binman {
+	binman: binman {
+		multiple-images;
+	};
+};
+
+&binman {
+	u-boot-sunxi-with-spl {
 		filename = "u-boot-sunxi-with-spl.bin";
 		pad-byte = <0xff>;
+
 		blob {
 			filename = "spl/sunxi-spl.bin";
 		};
+
+#ifdef CONFIG_ARM64
+		fit {
+			description = "Configuration to load ATF before U-Boot";
+			#address-cells = <1>;
+			fit,fdt-list = "of-list";
+
+			images {
+				uboot {
+					description = "U-Boot (64-bit)";
+					type = "standalone";
+					os = "u-boot";
+					arch = "arm64";
+					compression = "none";
+					load = <0x4a000000>;
+
+					u-boot-nodtb {
+					};
+				};
+
+				atf {
+					description = "ARM Trusted Firmware";
+					type = "firmware";
+					os = "arm-trusted-firmware";
+					arch = "arm64";
+					compression = "none";
+					load = <BL31_ADDR>;
+					entry = <BL31_ADDR>;
+
+					atf-bl31 {
+						filename = "bl31.bin";
+						missing-msg = "atf-bl31-sunxi";
+					};
+				};
+
+				scp {
+					description = "SCP firmware";
+					type = "firmware";
+					arch = "or1k";
+					compression = "none";
+					load = <SCP_ADDR>;
+
+					scp {
+						filename = "scp.bin";
+						missing-msg = "scp-sunxi";
+					};
+				};
+
+				@fdt-SEQ {
+					description = "NAME";
+					type = "flat_dt";
+					compression = "none";
+				};
+			};
+
+			configurations {
+				default = "config-1";
+
+				@config-SEQ {
+					description = "NAME";
+					firmware = "atf";
+					loadables = "scp", "uboot";
+					fdt = "fdt-SEQ";
+				};
+			};
+		};
+#else
 		u-boot-img {
 			offset = <CONFIG_SPL_PAD_TO>;
 		};
+#endif
 	};
 };

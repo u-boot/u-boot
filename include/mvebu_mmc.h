@@ -269,6 +269,6 @@ struct mvebu_mmc_cfg {
  * Functions prototypes
  */
 
-int mvebu_mmc_init(bd_t *bis);
+int mvebu_mmc_init(struct bd_info *bis);
 
 #endif /* __MVEBU_MMC_H__ */

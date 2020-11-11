@@ -4,7 +4,6 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
 obj-y	:= board.o
-obj-y	+= ../common/board.o
 
 ifneq ($(CONFIG_XILINX_PS_INIT_FILE),"")
 PS_INIT_FILE := $(shell cd $(srctree); readlink -f $(CONFIG_XILINX_PS_INIT_FILE))
@@ -13,8 +12,13 @@ spl/board/xilinx/zynq/ps_init_gpl.o board/xilinx/zynq/ps_init_gpl.o: $(PS_INIT_F
 	$(CC) $(c_flags) -I $(srctree)/$(src) -c -o $@ $^
 endif
 
+DEVICE_TREE ?= $(CONFIG_DEFAULT_DEVICE_TREE:"%"=%)
+ifeq ($(DEVICE_TREE),)
+DEVICE_TREE := unset
+endif
+
 ifeq ($(init-objs),)
-hw-platform-y :=$(shell echo $(CONFIG_DEFAULT_DEVICE_TREE))
+hw-platform-y :=$(shell echo $(DEVICE_TREE))
 init-objs := $(if $(wildcard $(srctree)/$(src)/$(hw-platform-y)/ps7_init_gpl.c),\
 	$(hw-platform-y)/ps7_init_gpl.o)
 endif

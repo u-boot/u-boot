@@ -4,6 +4,8 @@
  * Copyright (C) 2019 Parthiban Nallathambi <parthitce@gmail.com>
  */
 
+#include <init.h>
+#include <net.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/mx6-pins.h>
@@ -139,7 +141,7 @@ static void setup_iomux_fec(int fec_id)
 						 ARRAY_SIZE(fec2_pads));
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int ret = 0;
 

@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <elf.h>
+#include <log.h>
 #include <asm-generic/sections.h>
 
 extern ulong __image_copy_start;

@@ -23,18 +23,10 @@
  */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE - 0x00200000)
 
-/*
- * Commands configuration
- */
-/*
- * mv-common.h should be defined after CMD configs since it used them
- * to enable certain macros
- */
 #include "mv-common.h"
 
 /*
  * Environment variables configurations
  */
-#define CONFIG_ENV_SIZE	0x20000	/* 64k */
 
 #endif	/* __CONFIG_ASPENITE_H */

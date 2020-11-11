@@ -121,6 +121,7 @@ void print_reginfo(void);
 void interrupt_init_cpu(unsigned *);
 void timer_interrupt_cpu(struct pt_regs *);
 unsigned long search_exception_table(unsigned long addr);
+void upmconfig(uint upm, uint *table, uint size);
 
 #endif /* !__ASSEMBLY__ */
 

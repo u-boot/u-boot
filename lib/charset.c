@@ -104,7 +104,7 @@ static u8 read_console(void *data)
 {
 	int ch;
 
-	ch = getc();
+	ch = getchar();
 	if (ch < 0)
 		ch = 0;
 	return ch;
@@ -377,6 +377,11 @@ size_t u16_strnlen(const u16 *in, size_t count)
 	size_t i;
 	for (i = 0; count-- && in[i]; i++);
 	return i;
+}
+
+size_t u16_strsize(const void *in)
+{
+	return (u16_strlen(in) + 1) * sizeof(u16);
 }
 
 u16 *u16_strcpy(u16 *dest, const u16 *src)

@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2002-2010
+ * Copyright 2020 NXP
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
@@ -14,9 +15,7 @@
 struct arch_global_data {
 #if defined(CONFIG_FSL_ESDHC)
 	u32 sdhc_clk;
-#if defined(CONFIG_FSL_ESDHC_ADAPTER_IDENT)
-	u8 sdhc_adapter;
-#endif
+	u32 sdhc_per_clk;
 #endif
 #if defined(CONFIG_MPC8xx)
 	unsigned long brg_clk;

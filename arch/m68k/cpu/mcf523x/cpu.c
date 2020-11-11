@@ -9,6 +9,9 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <net.h>
+#include <vsprintf.h>
 #include <watchdog.h>
 #include <command.h>
 #include <netdev.h>
@@ -18,7 +21,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	ccm_t *ccm = (ccm_t *) MMAP_CCM;
 
@@ -102,10 +105,10 @@ int watchdog_init(void)
 #if defined(CONFIG_MCFFEC)
 /* Default initializations for MCFFEC controllers.  To override,
  * create a board-specific function called:
- * 	int board_eth_init(bd_t *bis)
+ * 	int board_eth_init(struct bd_info *bis)
  */
 
-int cpu_eth_init(bd_t *bis)
+int cpu_eth_init(struct bd_info *bis)
 {
 	return mcffec_initialize(bis);
 }

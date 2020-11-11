@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux-vf610.h>
@@ -16,6 +17,7 @@
 #include <env.h>
 #include <led.h>
 #include <miiphy.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

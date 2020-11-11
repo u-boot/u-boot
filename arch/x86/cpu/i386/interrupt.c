@@ -13,12 +13,17 @@
 #include <common.h>
 #include <dm.h>
 #include <efi_loader.h>
+#include <hang.h>
+#include <init.h>
+#include <irq.h>
+#include <irq_func.h>
 #include <asm/control_regs.h>
 #include <asm/i8259.h>
 #include <asm/interrupt.h>
 #include <asm/io.h>
 #include <asm/lapic.h>
 #include <asm/processor-flags.h>
+#include <asm/ptrace.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -175,16 +180,11 @@ struct idt_entry {
 	u16	base_high;
 } __packed;
 
-struct desc_ptr {
-	unsigned short size;
-	unsigned long address;
-} __packed;
-
 struct idt_entry idt[256] __aligned(16);
 
-struct desc_ptr idt_ptr;
+struct idt_ptr idt_ptr;
 
-static inline void load_idt(const struct desc_ptr *dtr)
+static inline void load_idt(const struct idt_ptr *dtr)
 {
 	asm volatile("cs lidt %0" : : "m" (*dtr));
 }
@@ -227,6 +227,11 @@ int cpu_init_interrupts(void)
 	return 0;
 }
 
+void interrupt_read_idt(struct idt_ptr *ptr)
+{
+	asm volatile("sidt %0" : : "m" (*ptr));
+}
+
 void *x86_get_idt(void)
 {
 	return &idt_ptr;
@@ -260,8 +265,11 @@ int interrupt_init(void)
 	struct udevice *dev;
 	int ret;
 
+	if (!ll_boot_init())
+		return 0;
+
 	/* Try to set up the interrupt router, but don't require one */
-	ret = uclass_first_device_err(UCLASS_IRQ, &dev);
+	ret = irq_first_device_type(X86_IRQT_BASE, &dev);
 	if (ret && ret != -ENODEV)
 		return ret;
 
@@ -291,8 +299,7 @@ int interrupt_init(void)
 	 * TODO(sjg@chromium.org): But we don't handle these correctly when
 	 * booted from EFI.
 	 */
-	if (ll_boot_init())
-		enable_interrupts();
+	enable_interrupts();
 #endif
 
 	return 0;

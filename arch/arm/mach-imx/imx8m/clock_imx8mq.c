@@ -6,14 +6,18 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <errno.h>
+#include <linux/delay.h>
 #include <linux/iopoll.h>
 
 static struct anamix_pll *ana_pll = (struct anamix_pll *)ANATOP_BASE_ADDR;
+
+static u32 get_root_clk(enum clk_root_index clock_id);
 
 static u32 decode_frac_pll(enum clk_root_src frac_pll)
 {
@@ -275,6 +279,8 @@ static u32 get_root_src_clk(enum clk_root_src root_src)
 	case SYSTEM_PLL2_50M_CLK:
 	case SYSTEM_PLL3_CLK:
 		return decode_sscg_pll(root_src);
+	case ARM_A53_ALT_CLK:
+		return get_root_clk(ARM_A53_CLK_ROOT);
 	default:
 		return 0;
 	}
@@ -322,20 +328,37 @@ int enable_i2c_clk(unsigned char enable, unsigned int i2c_num)
 	return 0;
 }
 
+u32 get_arm_core_clk(void)
+{
+	enum clk_root_src root_src;
+	u32 root_src_clk;
+
+	if (clock_get_src(CORE_SEL_CFG, &root_src) < 0)
+		return 0;
+
+	root_src_clk = get_root_src_clk(root_src);
+
+	return root_src_clk;
+}
+
 unsigned int mxc_get_clock(enum mxc_clock clk)
 {
 	u32 val;
 
-	if (clk == MXC_ARM_CLK)
-		return get_root_clk(ARM_A53_CLK_ROOT);
-
-	if (clk == MXC_IPG_CLK) {
+	switch (clk) {
+	case MXC_ARM_CLK:
+		return get_arm_core_clk();
+	case MXC_IPG_CLK:
 		clock_get_target_val(IPG_CLK_ROOT, &val);
 		val = val & 0x3;
 		return get_root_clk(AHB_CLK_ROOT) / (val + 1);
+	case MXC_ESDHC_CLK:
+		return get_root_clk(USDHC1_CLK_ROOT);
+	case MXC_ESDHC2_CLK:
+		return get_root_clk(USDHC2_CLK_ROOT);
+	default:
+		return get_root_clk(clk);
 	}
-
-	return get_root_clk(clk);
 }
 
 u32 imx_get_uartclk(void)
@@ -370,28 +393,6 @@ void init_wdog_clk(void)
 	clock_enable(CCGR_WDOG3, 1);
 }
 
-void init_usb_clk(void)
-{
-	if (!is_usb_boot()) {
-		clock_enable(CCGR_USB_CTRL1, 0);
-		clock_enable(CCGR_USB_CTRL2, 0);
-		clock_enable(CCGR_USB_PHY1, 0);
-		clock_enable(CCGR_USB_PHY2, 0);
-		/* 500MHz */
-		clock_set_target_val(USB_BUS_CLK_ROOT, CLK_ROOT_ON |
-				     CLK_ROOT_SOURCE_SEL(1));
-		/* 100MHz */
-		clock_set_target_val(USB_CORE_REF_CLK_ROOT, CLK_ROOT_ON |
-				     CLK_ROOT_SOURCE_SEL(1));
-		/* 100MHz */
-		clock_set_target_val(USB_PHY_REF_CLK_ROOT, CLK_ROOT_ON |
-				     CLK_ROOT_SOURCE_SEL(1));
-		clock_enable(CCGR_USB_CTRL1, 1);
-		clock_enable(CCGR_USB_CTRL2, 1);
-		clock_enable(CCGR_USB_PHY1, 1);
-		clock_enable(CCGR_USB_PHY2, 1);
-	}
-}
 
 void init_nand_clk(void)
 {
@@ -446,15 +447,13 @@ void init_clk_usdhc(u32 index)
 	case 0:
 		clock_enable(CCGR_USDHC1, 0);
 		clock_set_target_val(USDHC1_CLK_ROOT, CLK_ROOT_ON |
-				     CLK_ROOT_SOURCE_SEL(1) |
-				     CLK_ROOT_POST_DIV(CLK_ROOT_POST_DIV2));
+				     CLK_ROOT_SOURCE_SEL(1));
 		clock_enable(CCGR_USDHC1, 1);
 		return;
 	case 1:
 		clock_enable(CCGR_USDHC2, 0);
 		clock_set_target_val(USDHC2_CLK_ROOT, CLK_ROOT_ON |
-				     CLK_ROOT_SOURCE_SEL(1) |
-				     CLK_ROOT_POST_DIV(CLK_ROOT_POST_DIV2));
+				     CLK_ROOT_SOURCE_SEL(1));
 		clock_enable(CCGR_USDHC2, 1);
 		return;
 	default:
@@ -654,10 +653,10 @@ void dram_pll_init(ulong pll_val)
 		;
 }
 
-int frac_pll_init(u32 pll, enum frac_pll_out_val val)
+static int frac_pll_init(u32 pll, enum frac_pll_out_val val)
 {
 	void __iomem *pll_cfg0, __iomem *pll_cfg1;
-	u32 val_cfg0, val_cfg1;
+	u32 val_cfg0, val_cfg1, divq;
 	int ret;
 
 	switch (pll) {
@@ -665,14 +664,17 @@ int frac_pll_init(u32 pll, enum frac_pll_out_val val)
 		pll_cfg0 = &ana_pll->arm_pll_cfg0;
 		pll_cfg1 = &ana_pll->arm_pll_cfg1;
 
-		if (val == FRAC_PLL_OUT_1000M)
+		if (val == FRAC_PLL_OUT_1000M) {
 			val_cfg1 = FRAC_PLL_INT_DIV_CTL_VAL(49);
-		else
+			divq = 0;
+		} else {
 			val_cfg1 = FRAC_PLL_INT_DIV_CTL_VAL(79);
+			divq = 1;
+		}
 		val_cfg0 = FRAC_PLL_CLKE_MASK | FRAC_PLL_REFCLK_SEL_OSC_25M |
 			FRAC_PLL_LOCK_SEL_MASK | FRAC_PLL_NEWDIV_VAL_MASK |
 			FRAC_PLL_REFCLK_DIV_VAL(4) |
-			FRAC_PLL_OUTPUT_DIV_VAL(0);
+			FRAC_PLL_OUTPUT_DIV_VAL(divq);
 		break;
 	default:
 		return -EINVAL;
@@ -695,77 +697,6 @@ int frac_pll_init(u32 pll, enum frac_pll_out_val val)
 	return 0;
 }
 
-int sscg_pll_init(u32 pll)
-{
-	void __iomem *pll_cfg0, __iomem *pll_cfg1, __iomem *pll_cfg2;
-	u32 val_cfg0, val_cfg1, val_cfg2, val;
-	u32 bypass1_mask = 0x20, bypass2_mask = 0x10;
-	int ret;
-
-	switch (pll) {
-	case ANATOP_SYSTEM_PLL1:
-		pll_cfg0 = &ana_pll->sys_pll1_cfg0;
-		pll_cfg1 = &ana_pll->sys_pll1_cfg1;
-		pll_cfg2 = &ana_pll->sys_pll1_cfg2;
-		/* 800MHz */
-		val_cfg2 = SSCG_PLL_FEEDBACK_DIV_F1_VAL(3) |
-			SSCG_PLL_FEEDBACK_DIV_F2_VAL(3);
-		val_cfg1 = 0;
-		val_cfg0 = SSCG_PLL_CLKE_MASK | SSCG_PLL_DIV2_CLKE_MASK |
-			SSCG_PLL_DIV3_CLKE_MASK | SSCG_PLL_DIV4_CLKE_MASK |
-			SSCG_PLL_DIV5_CLKE_MASK | SSCG_PLL_DIV6_CLKE_MASK |
-			SSCG_PLL_DIV8_CLKE_MASK | SSCG_PLL_DIV10_CLKE_MASK |
-			SSCG_PLL_DIV20_CLKE_MASK | SSCG_PLL_LOCK_SEL_MASK |
-			SSCG_PLL_REFCLK_SEL_OSC_25M;
-		break;
-	case ANATOP_SYSTEM_PLL2:
-		pll_cfg0 = &ana_pll->sys_pll2_cfg0;
-		pll_cfg1 = &ana_pll->sys_pll2_cfg1;
-		pll_cfg2 = &ana_pll->sys_pll2_cfg2;
-		/* 1000MHz */
-		val_cfg2 = SSCG_PLL_FEEDBACK_DIV_F1_VAL(3) |
-			SSCG_PLL_FEEDBACK_DIV_F2_VAL(4);
-		val_cfg1 = 0;
-		val_cfg0 = SSCG_PLL_CLKE_MASK | SSCG_PLL_DIV2_CLKE_MASK |
-			SSCG_PLL_DIV3_CLKE_MASK | SSCG_PLL_DIV4_CLKE_MASK |
-			SSCG_PLL_DIV5_CLKE_MASK | SSCG_PLL_DIV6_CLKE_MASK |
-			SSCG_PLL_DIV8_CLKE_MASK | SSCG_PLL_DIV10_CLKE_MASK |
-			SSCG_PLL_DIV20_CLKE_MASK | SSCG_PLL_LOCK_SEL_MASK |
-			SSCG_PLL_REFCLK_SEL_OSC_25M;
-		break;
-	case ANATOP_SYSTEM_PLL3:
-		pll_cfg0 = &ana_pll->sys_pll3_cfg0;
-		pll_cfg1 = &ana_pll->sys_pll3_cfg1;
-		pll_cfg2 = &ana_pll->sys_pll3_cfg2;
-		/* 800MHz */
-		val_cfg2 = SSCG_PLL_FEEDBACK_DIV_F1_VAL(3) |
-			SSCG_PLL_FEEDBACK_DIV_F2_VAL(3);
-		val_cfg1 = 0;
-		val_cfg0 = SSCG_PLL_PLL3_CLKE_MASK |  SSCG_PLL_LOCK_SEL_MASK |
-			SSCG_PLL_REFCLK_SEL_OSC_25M;
-		break;
-	default:
-		return -EINVAL;
-	}
-
-	/*bypass*/
-	setbits_le32(pll_cfg0, bypass1_mask | bypass2_mask);
-	/* set value */
-	writel(val_cfg2, pll_cfg2);
-	writel(val_cfg1, pll_cfg1);
-	/*unbypass1 and wait 70us */
-	writel(val_cfg0 | bypass2_mask, pll_cfg1);
-
-	__udelay(70);
-
-	/* unbypass2 and wait lock */
-	writel(val_cfg0, pll_cfg1);
-	ret = readl_poll_timeout(pll_cfg0, val, val & SSCG_PLL_LOCK_MASK, 1);
-	if (ret)
-		printf("%s timeout\n", __func__);
-
-	return ret;
-}
 
 int clock_init(void)
 {
@@ -779,17 +710,14 @@ int clock_init(void)
 	 * We set ARM clock to 1Ghz for consumer, 800Mhz for industrial
 	 */
 	grade = get_cpu_temp_grade(NULL, NULL);
-	if (!grade) {
+	if (!grade)
 		frac_pll_init(ANATOP_ARM_PLL, FRAC_PLL_OUT_1000M);
-		clock_set_target_val(ARM_A53_CLK_ROOT, CLK_ROOT_ON |
-			     CLK_ROOT_SOURCE_SEL(1) |
-			     CLK_ROOT_POST_DIV(CLK_ROOT_POST_DIV1));
-	} else {
-		frac_pll_init(ANATOP_ARM_PLL, FRAC_PLL_OUT_1600M);
-		clock_set_target_val(ARM_A53_CLK_ROOT, CLK_ROOT_ON |
-			     CLK_ROOT_SOURCE_SEL(1) |
-			     CLK_ROOT_POST_DIV(CLK_ROOT_POST_DIV2));
-	}
+	else
+		frac_pll_init(ANATOP_ARM_PLL, FRAC_PLL_OUT_800M);
+
+	/* Bypass CCM A53 ROOT, Switch to ARM PLL -> MUX-> CPU */
+	clock_set_target_val(CORE_SEL_CFG, CLK_ROOT_SOURCE_SEL(1));
+
 	/*
 	 * According to ANAMIX SPEC
 	 * sys pll1 fixed at 800MHz
@@ -829,13 +757,15 @@ int clock_init(void)
  * Dump some clockes.
  */
 #ifndef CONFIG_SPL_BUILD
-int do_imx8m_showclocks(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_imx8m_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
+			       char *const argv[])
 {
 	u32 freq;
 
 	freq = decode_frac_pll(ARM_PLL_CLK);
 	printf("ARM_PLL    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(DRAM_PLL1_CLK);
+	printf("DRAM_PLL    %8d MHz\n", freq / 1000000);
 	freq = decode_sscg_pll(SYSTEM_PLL1_800M_CLK);
 	printf("SYS_PLL1_800    %8d MHz\n", freq / 1000000);
 	freq = decode_sscg_pll(SYSTEM_PLL1_400M_CLK);

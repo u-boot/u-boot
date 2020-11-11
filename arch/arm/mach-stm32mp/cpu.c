@@ -4,14 +4,20 @@
  */
 #include <common.h>
 #include <clk.h>
+#include <cpu_func.h>
 #include <debug_uart.h>
 #include <env.h>
+#include <init.h>
+#include <log.h>
 #include <misc.h>
+#include <net.h>
 #include <asm/io.h>
+#include <asm/arch/bsec.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
+#include <linux/bitops.h>
 
 /* RCC register */
 #define RCC_TZCR		(STM32_RCC_BASE + 0x00)
@@ -34,7 +40,9 @@
 #define TAMP_CR1		(STM32_TAMP_BASE + 0x00)
 
 #define PWR_CR1			(STM32_PWR_BASE + 0x00)
+#define PWR_MCUCR		(STM32_PWR_BASE + 0x14)
 #define PWR_CR1_DBP		BIT(8)
+#define PWR_MCUCR_SBF		BIT(6)
 
 /* DBGMCU register */
 #define DBGMCU_IDC		(STM32_DBGMCU_BASE + 0x00)
@@ -58,12 +66,6 @@
 #define BOOTROM_INSTANCE_MASK	 GENMASK(31, 16)
 #define BOOTROM_INSTANCE_SHIFT	16
 
-/* BSEC OTP index */
-#define BSEC_OTP_RPN	1
-#define BSEC_OTP_SERIAL	13
-#define BSEC_OTP_PKG	16
-#define BSEC_OTP_MAC	57
-
 /* Device Part Number (RPN) = OTP_DATA1 lower 8 bits */
 #define RPN_SHIFT	0
 #define RPN_MASK	GENMASK(7, 0)
@@ -78,8 +80,14 @@
 #define PKG_SHIFT	27
 #define PKG_MASK	GENMASK(2, 0)
 
+/*
+ * early TLB into the .data section so that it not get cleared
+ * with 16kB allignment (see TTBR0_BASE_ADDR_MASK)
+ */
+u8 early_tlb[PGTABLE_SIZE] __section(".data") __aligned(0x4000);
+
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
-#ifndef CONFIG_STM32MP1_TRUSTED
+#ifndef CONFIG_TFABOOT
 static void security_init(void)
 {
 	/* Disable the backup domain write protection */
@@ -139,21 +147,31 @@ static void security_init(void)
 	writel(BIT(0), RCC_MP_AHB5ENSETR);
 	writel(0x0, GPIOZ_SECCFGR);
 }
-#endif /* CONFIG_STM32MP1_TRUSTED */
+#endif /* CONFIG_TFABOOT */
 
 /*
  * Debug init
  */
 static void dbgmcu_init(void)
 {
-	setbits_le32(RCC_DBGCFGR, RCC_DBGCFGR_DBGCKEN);
+	/*
+	 * Freeze IWDG2 if Cortex-A7 is in debug mode
+	 * done in TF-A for TRUSTED boot and
+	 * DBGMCU access is controlled by BSEC_DENABLE.DBGSWENABLE
+	*/
+	if (!IS_ENABLED(CONFIG_TFABOOT) && bsec_dbgswenable()) {
+		setbits_le32(RCC_DBGCFGR, RCC_DBGCFGR_DBGCKEN);
+		setbits_le32(DBGMCU_APB4FZ1, DBGMCU_APB4FZ1_IWDG2);
+	}
+}
 
-	/* Freeze IWDG2 if Cortex-A7 is in debug mode */
-	setbits_le32(DBGMCU_APB4FZ1, DBGMCU_APB4FZ1_IWDG2);
+void spl_board_init(void)
+{
+	dbgmcu_init();
 }
 #endif /* !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD) */
 
-#if !defined(CONFIG_STM32MP1_TRUSTED) && \
+#if !defined(CONFIG_TFABOOT) && \
 	(!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
 /* get bootmode from ROM code boot context: saved in TAMP register */
 static void update_bootmode(void)
@@ -190,21 +208,55 @@ u32 get_bootmode(void)
 }
 
 /*
+ * initialize the MMU and activate cache in SPL or in U-Boot pre-reloc stage
+ * MMU/TLB is updated in enable_caches() for U-Boot after relocation
+ * or is deactivated in U-Boot entry function start.S::cpu_init_cp15
+ */
+static void early_enable_caches(void)
+{
+	/* I-cache is already enabled in start.S: cpu_init_cp15 */
+
+	if (CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+		return;
+
+	gd->arch.tlb_size = PGTABLE_SIZE;
+	gd->arch.tlb_addr = (unsigned long)&early_tlb;
+
+	dcache_enable();
+
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		mmu_set_region_dcache_behaviour(
+			ALIGN(STM32_SYSRAM_BASE, MMU_SECTION_SIZE),
+			round_up(STM32_SYSRAM_SIZE, MMU_SECTION_SIZE),
+			DCACHE_DEFAULT_OPTION);
+	else
+		mmu_set_region_dcache_behaviour(STM32_DDR_BASE,
+						CONFIG_DDR_CACHEABLE_SIZE,
+						DCACHE_DEFAULT_OPTION);
+}
+
+/*
  * Early system init
  */
 int arch_cpu_init(void)
 {
 	u32 boot_mode;
 
+	early_enable_caches();
+
 	/* early armv7 timer init: needed for polling */
 	timer_init();
 
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
-	dbgmcu_init();
-#ifndef CONFIG_STM32MP1_TRUSTED
+#ifndef CONFIG_TFABOOT
 	security_init();
 	update_bootmode();
 #endif
+	/* Reset Coprocessor state unless it wakes up from Standby power mode */
+	if (!(readl(PWR_MCUCR) & PWR_MCUCR_SBF)) {
+		writel(TAMP_COPRO_STATE_OFF, TAMP_COPRO_STATE);
+		writel(0, TAMP_COPRO_RSC_TBL_ADDRESS);
+	}
 #endif
 
 	boot_mode = get_bootmode();
@@ -212,7 +264,7 @@ int arch_cpu_init(void)
 	if ((boot_mode & TAMP_BOOT_DEVICE_MASK) == BOOT_SERIAL_UART)
 		gd->flags |= GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE;
 #if defined(CONFIG_DEBUG_UART) && \
-	!defined(CONFIG_STM32MP1_TRUSTED) && \
+	!defined(CONFIG_TFABOOT) && \
 	(!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
 	else
 		debug_uart_init();
@@ -223,15 +275,35 @@ int arch_cpu_init(void)
 
 void enable_caches(void)
 {
-	/* Enable D-cache. I-cache is already enabled in start.S */
+	/* I-cache is already enabled in start.S: icache_enable() not needed */
+
+	/* deactivate the data cache, early enabled in arch_cpu_init() */
+	dcache_disable();
+	/*
+	 * update MMU after relocation and enable the data cache
+	 * warning: the TLB location udpated in board_f.c::reserve_mmu
+	 */
 	dcache_enable();
 }
 
 static u32 read_idc(void)
 {
-	setbits_le32(RCC_DBGCFGR, RCC_DBGCFGR_DBGCKEN);
+	/* DBGMCU access is controlled by BSEC_DENABLE.DBGSWENABLE */
+	if (bsec_dbgswenable()) {
+		setbits_le32(RCC_DBGCFGR, RCC_DBGCFGR_DBGCKEN);
 
-	return readl(DBGMCU_IDC);
+		return readl(DBGMCU_IDC);
+	}
+
+	if (CONFIG_IS_ENABLED(STM32MP15x))
+		return CPU_DEV_STM32MP15; /* STM32MP15x and unknown revision */
+	else
+		return 0x0;
+}
+
+u32 get_cpu_dev(void)
+{
+	return (read_idc() & DBGMCU_IDC_DEV_ID_MASK) >> DBGMCU_IDC_DEV_ID_SHIFT;
 }
 
 u32 get_cpu_rev(void)
@@ -264,11 +336,7 @@ static u32 get_cpu_rpn(void)
 
 u32 get_cpu_type(void)
 {
-	u32 id;
-
-	id = (read_idc() & DBGMCU_IDC_DEV_ID_MASK) >> DBGMCU_IDC_DEV_ID_SHIFT;
-
-	return (id << 16) | get_cpu_rpn();
+	return (get_cpu_dev() << 16) | get_cpu_rpn();
 }
 
 /* Get Package options from OTP */
@@ -277,24 +345,41 @@ u32 get_cpu_package(void)
 	return get_otp(BSEC_OTP_PKG, PKG_SHIFT, PKG_MASK);
 }
 
-#if defined(CONFIG_DISPLAY_CPUINFO)
-int print_cpuinfo(void)
+void get_soc_name(char name[SOC_NAME_SIZE])
 {
 	char *cpu_s, *cpu_r, *pkg;
 
 	/* MPUs Part Numbers */
 	switch (get_cpu_type()) {
+	case CPU_STM32MP157Fxx:
+		cpu_s = "157F";
+		break;
+	case CPU_STM32MP157Dxx:
+		cpu_s = "157D";
+		break;
 	case CPU_STM32MP157Cxx:
 		cpu_s = "157C";
 		break;
 	case CPU_STM32MP157Axx:
 		cpu_s = "157A";
 		break;
+	case CPU_STM32MP153Fxx:
+		cpu_s = "153F";
+		break;
+	case CPU_STM32MP153Dxx:
+		cpu_s = "153D";
+		break;
 	case CPU_STM32MP153Cxx:
 		cpu_s = "153C";
 		break;
 	case CPU_STM32MP153Axx:
 		cpu_s = "153A";
+		break;
+	case CPU_STM32MP151Fxx:
+		cpu_s = "151F";
+		break;
+	case CPU_STM32MP151Dxx:
+		cpu_s = "151D";
 		break;
 	case CPU_STM32MP151Cxx:
 		cpu_s = "151C";
@@ -334,12 +419,24 @@ int print_cpuinfo(void)
 	case CPU_REVB:
 		cpu_r = "B";
 		break;
+	case CPU_REVZ:
+		cpu_r = "Z";
+		break;
 	default:
 		cpu_r = "?";
 		break;
 	}
 
-	printf("CPU: STM32MP%s%s Rev.%s\n", cpu_s, pkg, cpu_r);
+	snprintf(name, SOC_NAME_SIZE, "STM32MP%s%s Rev.%s", cpu_s, pkg, cpu_r);
+}
+
+#if defined(CONFIG_DISPLAY_CPUINFO)
+int print_cpuinfo(void)
+{
+	char name[SOC_NAME_SIZE];
+
+	get_soc_name(name);
+	printf("CPU: %s\n", name);
 
 	return 0;
 }
@@ -404,6 +501,10 @@ static void setup_boot_mode(void)
 		env_set("boot_device", "nand");
 		env_set("boot_instance", "0");
 		break;
+	case BOOT_FLASH_SPINAND:
+		env_set("boot_device", "spi-nand");
+		env_set("boot_instance", "0");
+		break;
 	case BOOT_FLASH_NOR:
 		env_set("boot_device", "nor");
 		env_set("boot_instance", "0");
@@ -448,7 +549,7 @@ static void setup_boot_mode(void)
  * If there is no MAC address in the environment, then it will be initialized
  * (silently) from the value in the OTP.
  */
-static int setup_mac_address(void)
+__weak int setup_mac_address(void)
 {
 #if defined(CONFIG_NET)
 	int ret;
@@ -480,8 +581,8 @@ static int setup_mac_address(void)
 		return -EINVAL;
 	}
 	pr_debug("OTP MAC address = %pM\n", enetaddr);
-	ret = !eth_env_set_enetaddr("ethaddr", enetaddr);
-	if (!ret)
+	ret = eth_env_set_enetaddr("ethaddr", enetaddr);
+	if (ret)
 		pr_err("Failed to set mac address %pM from OTP: %d\n",
 		       enetaddr, ret);
 #endif

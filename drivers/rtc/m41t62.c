@@ -19,8 +19,11 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <log.h>
 #include <rtc.h>
 #include <i2c.h>
+#include <linux/log2.h>
+#include <linux/delay.h>
 
 #define M41T62_REG_SSEC	0
 #define M41T62_REG_SEC	1
@@ -46,7 +49,13 @@
 #define M41T62_ALMON_SQWE	(1 << 6)	/* SQWE: SQW Enable Bit */
 #define M41T62_ALHOUR_HT	(1 << 6)	/* HT: Halt Update Bit */
 #define M41T62_FLAGS_AF		(1 << 6)	/* AF: Alarm Flag Bit */
+#define M41T62_FLAGS_OF		(1 << 2)	/* OF: Oscillator Flag Bit */
 #define M41T62_FLAGS_BATT_LOW	(1 << 4)	/* BL: Battery Low Bit */
+
+#define M41T62_WDAY_SQW_FREQ_MASK	0xf0
+#define M41T62_WDAY_SQW_FREQ_SHIFT	4
+
+#define M41T62_SQW_MAX_FREQ	32768
 
 #define M41T62_FEATURE_HT	(1 << 0)
 #define M41T62_FEATURE_BL	(1 << 1)
@@ -138,21 +147,140 @@ static int m41t62_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 	return 0;
 }
 
-static int m41t62_rtc_reset(struct udevice *dev)
+static int m41t62_sqw_enable(struct udevice *dev, bool enable)
 {
 	u8 val;
+	int ret;
+
+	ret = dm_i2c_read(dev, M41T62_REG_ALARM_MON, &val, sizeof(val));
+	if (ret)
+		return ret;
+
+	if (enable)
+		val |= M41T62_ALMON_SQWE;
+	else
+		val &= ~M41T62_ALMON_SQWE;
+
+	return dm_i2c_write(dev, M41T62_REG_ALARM_MON, &val, sizeof(val));
+}
+
+static int m41t62_sqw_set_rate(struct udevice *dev, unsigned int rate)
+{
+	u8 val, newval, sqwrateval;
+	int ret;
+
+	if (rate >= M41T62_SQW_MAX_FREQ)
+		sqwrateval = 1;
+	else if (rate >= M41T62_SQW_MAX_FREQ / 4)
+		sqwrateval = 2;
+	else if (rate)
+		sqwrateval = 15 - ilog2(rate);
+
+	ret = dm_i2c_read(dev, M41T62_REG_WDAY, &val, sizeof(val));
+	if (ret)
+		return ret;
+
+	newval = val;
+	newval &= ~M41T62_WDAY_SQW_FREQ_MASK;
+	newval |= (sqwrateval << M41T62_WDAY_SQW_FREQ_SHIFT);
+
+	/*
+	 * Try to avoid writing unchanged values. Writing to this register
+	 * will reset the internal counter pipeline and thus affect system
+	 * time.
+	 */
+	if (newval == val)
+		return 0;
+
+	return dm_i2c_write(dev, M41T62_REG_WDAY, &newval, sizeof(newval));
+}
+
+static int m41t62_rtc_restart_osc(struct udevice *dev)
+{
+	u8 val;
+	int ret;
+
+	/* 0. check if oscillator failure happened */
+	ret = dm_i2c_read(dev, M41T62_REG_FLAGS, &val, sizeof(val));
+	if (ret)
+		return ret;
+	if (!(val & M41T62_FLAGS_OF))
+		return 0;
+
+	ret = dm_i2c_read(dev, M41T62_REG_SEC, &val, sizeof(val));
+	if (ret)
+		return ret;
+
+	/* 1. Set stop bit */
+	val |= M41T62_SEC_ST;
+	ret = dm_i2c_write(dev, M41T62_REG_ALARM_HOUR, &val, sizeof(val));
+	if (ret)
+		return ret;
+
+	/* 2. Clear stop bit */
+	val &= ~M41T62_SEC_ST;
+	ret = dm_i2c_write(dev, M41T62_REG_ALARM_HOUR, &val, sizeof(val));
+	if (ret)
+		return ret;
+
+	/* 3. wait 4 seconds */
+	mdelay(4000);
+
+	ret = dm_i2c_read(dev, M41T62_REG_FLAGS, &val, sizeof(val));
+	if (ret)
+		return ret;
+
+	/* 4. clear M41T62_FLAGS_OF bit */
+	val &= ~M41T62_FLAGS_OF;
+	ret = dm_i2c_write(dev, M41T62_REG_FLAGS, &val, sizeof(val));
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static int m41t62_rtc_clear_ht(struct udevice *dev)
+{
+	u8 val;
+	int ret;
 
 	/*
 	 * M41T82: Make sure HT (Halt Update) bit is cleared.
 	 * This bit is 0 in M41T62 so its save to clear it always.
 	 */
 
-	int ret = dm_i2c_read(dev, M41T62_REG_ALARM_HOUR, &val, sizeof(val));
-
+	ret = dm_i2c_read(dev, M41T62_REG_ALARM_HOUR, &val, sizeof(val));
+	if (ret)
+		return ret;
 	val &= ~M41T80_ALHOUR_HT;
-	ret |= dm_i2c_write(dev, M41T62_REG_ALARM_HOUR, &val, sizeof(val));
+	ret = dm_i2c_write(dev, M41T62_REG_ALARM_HOUR, &val, sizeof(val));
+	if (ret)
+		return ret;
 
-	return ret;
+	return 0;
+}
+
+static int m41t62_rtc_reset(struct udevice *dev)
+{
+	int ret;
+
+	ret = m41t62_rtc_restart_osc(dev);
+	if (ret)
+		return ret;
+
+	ret = m41t62_rtc_clear_ht(dev);
+	if (ret)
+		return ret;
+
+	/*
+	 * Some boards feed the square wave as clock input into
+	 * the SoC. This enables a 32.768kHz square wave, which is
+	 * also the hardware default after power-loss.
+	 */
+	ret = m41t62_sqw_set_rate(dev, 32768);
+	if (ret)
+		return ret;
+	return m41t62_sqw_enable(dev, true);
 }
 
 /*
@@ -161,7 +289,7 @@ static int m41t62_rtc_reset(struct udevice *dev)
  */
 static int m41t62_rtc_probe(struct udevice *dev)
 {
-	return m41t62_rtc_reset(dev);
+	return m41t62_rtc_clear_ht(dev);
 }
 
 static const struct rtc_ops m41t62_rtc_ops = {
@@ -173,6 +301,7 @@ static const struct rtc_ops m41t62_rtc_ops = {
 static const struct udevice_id m41t62_rtc_ids[] = {
 	{ .compatible = "st,m41t62" },
 	{ .compatible = "st,m41t82" },
+	{ .compatible = "st,m41st87" },
 	{ .compatible = "microcrystal,rv4162" },
 	{ }
 };

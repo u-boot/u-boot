@@ -3,6 +3,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/at91_sfr.h>
 #include <asm/arch/sama5d3_smc.h>
@@ -101,7 +102,7 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int rc = 0;
 

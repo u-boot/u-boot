@@ -8,8 +8,8 @@
 #include <common.h>
 #include <command.h>
 
-static int do_unaligned(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_unaligned(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	/*
 	 * The LDRD instruction requires the data source to be four byte aligned
@@ -23,15 +23,15 @@ static int do_unaligned(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_FAILURE;
 }
 
-static int do_breakpoint(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char * const argv[])
+static int do_breakpoint(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 	asm volatile ("BKPT #123\n");
 	return CMD_RET_FAILURE;
 }
 
-static int do_undefined(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_undefined(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	/*
 	 * 0xe7f...f.	is undefined in ARM mode
@@ -41,7 +41,7 @@ static int do_undefined(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_FAILURE;
 }
 
-static cmd_tbl_t cmd_sub[] = {
+static struct cmd_tbl cmd_sub[] = {
 	U_BOOT_CMD_MKENT(breakpoint, CONFIG_SYS_MAXARGS, 1, do_breakpoint,
 			 "", ""),
 	U_BOOT_CMD_MKENT(unaligned, CONFIG_SYS_MAXARGS, 1, do_unaligned,

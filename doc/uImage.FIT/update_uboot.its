@@ -15,7 +15,7 @@
 			data = /incbin/("./u-boot.bin");
 			compression = "none";
 			type = "firmware";
-			load = <FFFC0000>;
+			load = <0xFFFC0000>;
 			hash-1 {
 				algo = "sha1";
 			};

@@ -6,29 +6,33 @@
 #define pr_fmt(fmt) "udma: " fmt
 
 #include <common.h>
+#include <cpu_func.h>
+#include <log.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/bitops.h>
 #include <malloc.h>
-#include <asm/dma-mapping.h>
+#include <linux/bitops.h>
+#include <linux/dma-mapping.h>
 #include <dm.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <dm/read.h>
 #include <dm/of_access.h>
 #include <dma.h>
 #include <dma-uclass.h>
 #include <linux/delay.h>
-#include <dt-bindings/dma/k3-udma.h>
+#include <linux/bitmap.h>
+#include <linux/err.h>
 #include <linux/soc/ti/k3-navss-ringacc.h>
 #include <linux/soc/ti/cppi5.h>
 #include <linux/soc/ti/ti-udma.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 
 #include "k3-udma-hwdef.h"
+#include "k3-psil-priv.h"
 
-#if BITS_PER_LONG == 64
-#define RINGACC_RING_USE_PROXY	(0)
-#else
-#define RINGACC_RING_USE_PROXY	(1)
-#endif
+#define K3_UDMA_MAX_RFLOWS 1024
 
 struct udma_chan;
 
@@ -55,18 +59,54 @@ struct udma_rchan {
 	void __iomem *reg_rt;
 
 	int id;
-	struct k3_nav_ring *fd_ring; /* Free Descriptor ring */
-	struct k3_nav_ring *r_ring; /* Receive ring*/
+};
+
+#define UDMA_FLAG_PDMA_ACC32		BIT(0)
+#define UDMA_FLAG_PDMA_BURST		BIT(1)
+#define UDMA_FLAG_TDTYPE		BIT(2)
+
+struct udma_match_data {
+	u32 psil_base;
+	bool enable_memcpy_support;
+	u32 flags;
+	u32 statictr_z_mask;
+	u32 rchan_oes_offset;
+
+	u8 tpl_levels;
+	u32 level_start_idx[];
 };
 
 struct udma_rflow {
 	int id;
+
+	struct k3_nav_ring *fd_ring; /* Free Descriptor ring */
+	struct k3_nav_ring *r_ring; /* Receive ring*/
+};
+
+enum udma_rm_range {
+	RM_RANGE_TCHAN = 0,
+	RM_RANGE_RCHAN,
+	RM_RANGE_RFLOW,
+	RM_RANGE_LAST,
+};
+
+struct udma_tisci_rm {
+	const struct ti_sci_handle *tisci;
+	const struct ti_sci_rm_udmap_ops *tisci_udmap_ops;
+	u32  tisci_dev_id;
+
+	/* tisci information for PSI-L thread pairing/unpairing */
+	const struct ti_sci_rm_psil_ops *tisci_psil_ops;
+	u32  tisci_navss_dev_id;
+
+	struct ti_sci_resource *rm_ranges[RM_RANGE_LAST];
 };
 
 struct udma_dev {
-	struct device *dev;
+	struct udevice *dev;
 	void __iomem *mmrs[MMR_LAST];
 
+	struct udma_tisci_rm tisci_rm;
 	struct k3_nav_ringacc *ringacc;
 
 	u32 features;
@@ -78,21 +118,38 @@ struct udma_dev {
 	unsigned long *tchan_map;
 	unsigned long *rchan_map;
 	unsigned long *rflow_map;
+	unsigned long *rflow_map_reserved;
 
 	struct udma_tchan *tchans;
 	struct udma_rchan *rchans;
 	struct udma_rflow *rflows;
 
+	struct udma_match_data *match_data;
+
 	struct udma_chan *channels;
 	u32 psil_base;
 
 	u32 ch_count;
-	const struct ti_sci_handle *tisci;
-	const struct ti_sci_rm_udmap_ops *tisci_udmap_ops;
-	const struct ti_sci_rm_psil_ops *tisci_psil_ops;
-	u32  tisci_dev_id;
-	u32  tisci_navss_dev_id;
-	bool is_coherent;
+};
+
+struct udma_chan_config {
+	u32 psd_size; /* size of Protocol Specific Data */
+	u32 metadata_size; /* (needs_epib ? 16:0) + psd_size */
+	u32 hdesc_size; /* Size of a packet descriptor in packet mode */
+	int remote_thread_id;
+	u32 atype;
+	u32 src_thread;
+	u32 dst_thread;
+	enum psil_endpoint_type ep_type;
+	enum udma_tp_level channel_tpl; /* Channel Throughput Level */
+
+	enum dma_direction dir;
+
+	unsigned int pkt_mode:1; /* TR or packet */
+	unsigned int needs_epib:1; /* EPIB is needed for the communication or not */
+	unsigned int enable_acc32:1;
+	unsigned int enable_burst:1;
+	unsigned int notdpkt:1; /* Suppress sending TDC packet */
 };
 
 struct udma_chan {
@@ -103,22 +160,15 @@ struct udma_chan {
 	struct udma_rchan *rchan;
 	struct udma_rflow *rflow;
 
+	struct ti_udma_drv_chan_cfg_data cfg_data;
+
 	u32 bcnt; /* number of bytes completed since the start of the channel */
 
-	bool pkt_mode; /* TR or packet */
-	bool needs_epib; /* EPIB is needed for the communication or not */
-	u32 psd_size; /* size of Protocol Specific Data */
-	u32 metadata_size; /* (needs_epib ? 16:0) + psd_size */
-	int slave_thread_id;
-	u32 src_thread;
-	u32 dst_thread;
-	u32 static_tr_type;
+	struct udma_chan_config config;
 
 	u32 id;
-	enum dma_direction dir;
 
 	struct cppi5_host_desc_t *desc_tx;
-	u32 hdesc_size;
 	bool in_use;
 	void	*desc_rx;
 	u32	num_rx_bufs;
@@ -200,19 +250,25 @@ static inline void udma_rchanrt_write(struct udma_rchan *rchan,
 static inline int udma_navss_psil_pair(struct udma_dev *ud, u32 src_thread,
 				       u32 dst_thread)
 {
+	struct udma_tisci_rm *tisci_rm = &ud->tisci_rm;
+
 	dst_thread |= UDMA_PSIL_DST_THREAD_ID_OFFSET;
-	return ud->tisci_psil_ops->pair(ud->tisci,
-					ud->tisci_navss_dev_id,
-					src_thread, dst_thread);
+
+	return tisci_rm->tisci_psil_ops->pair(tisci_rm->tisci,
+					      tisci_rm->tisci_navss_dev_id,
+					      src_thread, dst_thread);
 }
 
 static inline int udma_navss_psil_unpair(struct udma_dev *ud, u32 src_thread,
 					 u32 dst_thread)
 {
+	struct udma_tisci_rm *tisci_rm = &ud->tisci_rm;
+
 	dst_thread |= UDMA_PSIL_DST_THREAD_ID_OFFSET;
-	return ud->tisci_psil_ops->unpair(ud->tisci,
-					  ud->tisci_navss_dev_id,
-					  src_thread, dst_thread);
+
+	return tisci_rm->tisci_psil_ops->unpair(tisci_rm->tisci,
+						tisci_rm->tisci_navss_dev_id,
+						src_thread, dst_thread);
 }
 
 static inline char *udma_get_dir_text(enum dma_direction dir)
@@ -238,7 +294,7 @@ static inline bool udma_is_chan_running(struct udma_chan *uc)
 	u32 trt_ctl = 0;
 	u32 rrt_ctl = 0;
 
-	switch (uc->dir) {
+	switch (uc->config.dir) {
 	case DMA_DEV_TO_MEM:
 		rrt_ctl = udma_rchanrt_read(uc->rchan, UDMA_RCHAN_RT_CTL_REG);
 		pr_debug("%s: rrt_ctl: 0x%08x (peer: 0x%08x)\n",
@@ -267,19 +323,14 @@ static inline bool udma_is_chan_running(struct udma_chan *uc)
 	return false;
 }
 
-static int udma_is_coherent(struct udma_chan *uc)
-{
-	return uc->ud->is_coherent;
-}
-
 static int udma_pop_from_ring(struct udma_chan *uc, dma_addr_t *addr)
 {
 	struct k3_nav_ring *ring = NULL;
 	int ret = -ENOENT;
 
-	switch (uc->dir) {
+	switch (uc->config.dir) {
 	case DMA_DEV_TO_MEM:
-		ring = uc->rchan->r_ring;
+		ring = uc->rflow->r_ring;
 		break;
 	case DMA_MEM_TO_DEV:
 		ring = uc->tchan->tc_ring;
@@ -302,10 +353,10 @@ static void udma_reset_rings(struct udma_chan *uc)
 	struct k3_nav_ring *ring1 = NULL;
 	struct k3_nav_ring *ring2 = NULL;
 
-	switch (uc->dir) {
+	switch (uc->config.dir) {
 	case DMA_DEV_TO_MEM:
-		ring1 = uc->rchan->fd_ring;
-		ring2 = uc->rchan->r_ring;
+		ring1 = uc->rflow->fd_ring;
+		ring2 = uc->rflow->r_ring;
 		break;
 	case DMA_MEM_TO_DEV:
 		ring1 = uc->tchan->t_ring;
@@ -364,7 +415,7 @@ static inline int udma_stop_hard(struct udma_chan *uc)
 {
 	pr_debug("%s: ENTER (chan%d)\n", __func__, uc->id);
 
-	switch (uc->dir) {
+	switch (uc->config.dir) {
 	case DMA_DEV_TO_MEM:
 		udma_rchanrt_write(uc->rchan, UDMA_RCHAN_RT_PEER_RT_EN_REG, 0);
 		udma_rchanrt_write(uc->rchan, UDMA_RCHAN_RT_CTL_REG, 0);
@@ -390,9 +441,8 @@ static int udma_start(struct udma_chan *uc)
 	if (udma_is_chan_running(uc))
 		goto out;
 
-	pr_debug("%s: chan:%d dir:%s (static_tr_type: %d)\n",
-		 __func__, uc->id, udma_get_dir_text(uc->dir),
-		 uc->static_tr_type);
+	pr_debug("%s: chan:%d dir:%s\n",
+		 __func__, uc->id, udma_get_dir_text(uc->config.dir));
 
 	/* Make sure that we clear the teardown bit, if it is set */
 	udma_stop_hard(uc);
@@ -400,7 +450,7 @@ static int udma_start(struct udma_chan *uc)
 	/* Reset all counters */
 	udma_reset_counters(uc);
 
-	switch (uc->dir) {
+	switch (uc->config.dir) {
 	case DMA_DEV_TO_MEM:
 		udma_rchanrt_write(uc->rchan, UDMA_RCHAN_RT_CTL_REG,
 				   UDMA_CHAN_RT_CTL_EN);
@@ -426,9 +476,9 @@ static int udma_start(struct udma_chan *uc)
 
 		pr_debug("%s(tx): RT_CTL:0x%08x PEER RT_ENABLE:0x%08x\n",
 			 __func__,
-			 udma_rchanrt_read(uc->rchan,
+			 udma_tchanrt_read(uc->tchan,
 					   UDMA_TCHAN_RT_CTL_REG),
-			 udma_rchanrt_read(uc->rchan,
+			 udma_tchanrt_read(uc->tchan,
 					   UDMA_TCHAN_RT_PEER_RT_EN_REG));
 		break;
 	case DMA_MEM_TO_MEM:
@@ -502,10 +552,10 @@ static inline void udma_stop_dev2mem(struct udma_chan *uc, bool sync)
 static inline int udma_stop(struct udma_chan *uc)
 {
 	pr_debug("%s: chan:%d dir:%s\n",
-		 __func__, uc->id, udma_get_dir_text(uc->dir));
+		 __func__, uc->id, udma_get_dir_text(uc->config.dir));
 
 	udma_reset_counters(uc);
-	switch (uc->dir) {
+	switch (uc->config.dir) {
 	case DMA_DEV_TO_MEM:
 		udma_stop_dev2mem(uc, true);
 		break;
@@ -535,6 +585,28 @@ static void udma_poll_completion(struct udma_chan *uc, dma_addr_t *paddr)
 	}
 }
 
+static struct udma_rflow *__udma_reserve_rflow(struct udma_dev *ud, int id)
+{
+	DECLARE_BITMAP(tmp, K3_UDMA_MAX_RFLOWS);
+
+	if (id >= 0) {
+		if (test_bit(id, ud->rflow_map)) {
+			dev_err(ud->dev, "rflow%d is in use\n", id);
+			return ERR_PTR(-ENOENT);
+		}
+	} else {
+		bitmap_or(tmp, ud->rflow_map, ud->rflow_map_reserved,
+			  ud->rflow_cnt);
+
+		id = find_next_zero_bit(tmp, ud->rflow_cnt, ud->rchan_cnt);
+		if (id >= ud->rflow_cnt)
+			return ERR_PTR(-ENOENT);
+	}
+
+	__set_bit(id, ud->rflow_map);
+	return &ud->rflows[id];
+}
+
 #define UDMA_RESERVE_RESOURCE(res)					\
 static struct udma_##res *__udma_reserve_##res(struct udma_dev *ud,	\
 					       int id)			\
@@ -557,7 +629,6 @@ static struct udma_##res *__udma_reserve_##res(struct udma_dev *ud,	\
 
 UDMA_RESERVE_RESOURCE(tchan);
 UDMA_RESERVE_RESOURCE(rchan);
-UDMA_RESERVE_RESOURCE(rflow);
 
 static int udma_get_tchan(struct udma_chan *uc)
 {
@@ -719,25 +790,18 @@ static int udma_alloc_tx_resources(struct udma_chan *uc)
 	if (ret)
 		return ret;
 
-	uc->tchan->t_ring = k3_nav_ringacc_request_ring(
-				ud->ringacc, uc->tchan->id,
-				RINGACC_RING_USE_PROXY);
-	if (!uc->tchan->t_ring) {
+	ret = k3_nav_ringacc_request_rings_pair(ud->ringacc, uc->tchan->id, -1,
+						&uc->tchan->t_ring,
+						&uc->tchan->tc_ring);
+	if (ret) {
 		ret = -EBUSY;
 		goto err_tx_ring;
-	}
-
-	uc->tchan->tc_ring = k3_nav_ringacc_request_ring(
-				ud->ringacc, -1, RINGACC_RING_USE_PROXY);
-	if (!uc->tchan->tc_ring) {
-		ret = -EBUSY;
-		goto err_txc_ring;
 	}
 
 	memset(&ring_cfg, 0, sizeof(ring_cfg));
 	ring_cfg.size = 16;
 	ring_cfg.elm_size = K3_NAV_RINGACC_RING_ELSIZE_8;
-	ring_cfg.mode = K3_NAV_RINGACC_RING_MODE_MESSAGE;
+	ring_cfg.mode = K3_NAV_RINGACC_RING_MODE_RING;
 
 	ret = k3_nav_ringacc_ring_cfg(uc->tchan->t_ring, &ring_cfg);
 	ret |= k3_nav_ringacc_ring_cfg(uc->tchan->tc_ring, &ring_cfg);
@@ -750,7 +814,6 @@ static int udma_alloc_tx_resources(struct udma_chan *uc)
 err_ringcfg:
 	k3_nav_ringacc_ring_free(uc->tchan->tc_ring);
 	uc->tchan->tc_ring = NULL;
-err_txc_ring:
 	k3_nav_ringacc_ring_free(uc->tchan->t_ring);
 	uc->tchan->t_ring = NULL;
 err_tx_ring:
@@ -764,12 +827,15 @@ static void udma_free_rx_resources(struct udma_chan *uc)
 	if (!uc->rchan)
 		return;
 
-	k3_nav_ringacc_ring_free(uc->rchan->fd_ring);
-	k3_nav_ringacc_ring_free(uc->rchan->r_ring);
-	uc->rchan->fd_ring = NULL;
-	uc->rchan->r_ring = NULL;
+        if (uc->rflow) {
+		k3_nav_ringacc_ring_free(uc->rflow->fd_ring);
+		k3_nav_ringacc_ring_free(uc->rflow->r_ring);
+		uc->rflow->fd_ring = NULL;
+		uc->rflow->r_ring = NULL;
 
-	udma_put_rflow(uc);
+		udma_put_rflow(uc);
+	}
+
 	udma_put_rchan(uc);
 }
 
@@ -777,6 +843,7 @@ static int udma_alloc_rx_resources(struct udma_chan *uc)
 {
 	struct k3_nav_ring_cfg ring_cfg;
 	struct udma_dev *ud = uc->ud;
+	struct udma_rflow *rflow;
 	int fd_ring_id;
 	int ret;
 
@@ -785,7 +852,7 @@ static int udma_alloc_rx_resources(struct udma_chan *uc)
 		return ret;
 
 	/* For MEM_TO_MEM we don't need rflow or rings */
-	if (uc->dir == DMA_MEM_TO_MEM)
+	if (uc->config.dir == DMA_MEM_TO_MEM)
 		return 0;
 
 	ret = udma_get_rflow(uc, uc->rchan->id);
@@ -796,40 +863,31 @@ static int udma_alloc_rx_resources(struct udma_chan *uc)
 
 	fd_ring_id = ud->tchan_cnt + ud->echan_cnt + uc->rchan->id;
 
-	uc->rchan->fd_ring = k3_nav_ringacc_request_ring(
-				ud->ringacc, fd_ring_id,
-				RINGACC_RING_USE_PROXY);
-	if (!uc->rchan->fd_ring) {
+	rflow = uc->rflow;
+	ret = k3_nav_ringacc_request_rings_pair(ud->ringacc, fd_ring_id, -1,
+						&rflow->fd_ring, &rflow->r_ring);
+	if (ret) {
 		ret = -EBUSY;
 		goto err_rx_ring;
-	}
-
-	uc->rchan->r_ring = k3_nav_ringacc_request_ring(
-				ud->ringacc, -1, RINGACC_RING_USE_PROXY);
-	if (!uc->rchan->r_ring) {
-		ret = -EBUSY;
-		goto err_rxc_ring;
 	}
 
 	memset(&ring_cfg, 0, sizeof(ring_cfg));
 	ring_cfg.size = 16;
 	ring_cfg.elm_size = K3_NAV_RINGACC_RING_ELSIZE_8;
-	ring_cfg.mode = K3_NAV_RINGACC_RING_MODE_MESSAGE;
+	ring_cfg.mode = K3_NAV_RINGACC_RING_MODE_RING;
 
-	ret = k3_nav_ringacc_ring_cfg(uc->rchan->fd_ring, &ring_cfg);
-	ret |= k3_nav_ringacc_ring_cfg(uc->rchan->r_ring, &ring_cfg);
-
+	ret = k3_nav_ringacc_ring_cfg(rflow->fd_ring, &ring_cfg);
+	ret |= k3_nav_ringacc_ring_cfg(rflow->r_ring, &ring_cfg);
 	if (ret)
 		goto err_ringcfg;
 
 	return 0;
 
 err_ringcfg:
-	k3_nav_ringacc_ring_free(uc->rchan->r_ring);
-	uc->rchan->r_ring = NULL;
-err_rxc_ring:
-	k3_nav_ringacc_ring_free(uc->rchan->fd_ring);
-	uc->rchan->fd_ring = NULL;
+	k3_nav_ringacc_ring_free(rflow->r_ring);
+	rflow->r_ring = NULL;
+	k3_nav_ringacc_ring_free(rflow->fd_ring);
+	rflow->fd_ring = NULL;
 err_rx_ring:
 	udma_put_rflow(uc);
 err_rflow:
@@ -843,10 +901,11 @@ static int udma_alloc_tchan_sci_req(struct udma_chan *uc)
 	struct udma_dev *ud = uc->ud;
 	int tc_ring = k3_nav_ringacc_get_ring_id(uc->tchan->tc_ring);
 	struct ti_sci_msg_rm_udmap_tx_ch_cfg req;
+	struct udma_tisci_rm *tisci_rm = &ud->tisci_rm;
 	u32 mode;
 	int ret;
 
-	if (uc->pkt_mode)
+	if (uc->config.pkt_mode)
 		mode = TI_SCI_RM_UDMAP_CHAN_TYPE_PKT_PBRR;
 	else
 		mode = TI_SCI_RM_UDMAP_CHAN_TYPE_3RDP_BCOPY_PBRR;
@@ -854,18 +913,18 @@ static int udma_alloc_tchan_sci_req(struct udma_chan *uc)
 	req.valid_params = TI_SCI_MSG_VALUE_RM_UDMAP_CH_CHAN_TYPE_VALID |
 			TI_SCI_MSG_VALUE_RM_UDMAP_CH_FETCH_SIZE_VALID |
 			TI_SCI_MSG_VALUE_RM_UDMAP_CH_CQ_QNUM_VALID;
-	req.nav_id = ud->tisci_dev_id;
+	req.nav_id = tisci_rm->tisci_dev_id;
 	req.index = uc->tchan->id;
 	req.tx_chan_type = mode;
-	if (uc->dir == DMA_MEM_TO_MEM)
+	if (uc->config.dir == DMA_MEM_TO_MEM)
 		req.tx_fetch_size = sizeof(struct cppi5_desc_hdr_t) >> 2;
 	else
-		req.tx_fetch_size = cppi5_hdesc_calc_size(uc->needs_epib,
-							  uc->psd_size,
+		req.tx_fetch_size = cppi5_hdesc_calc_size(uc->config.needs_epib,
+							  uc->config.psd_size,
 							  0) >> 2;
 	req.txcq_qnum = tc_ring;
 
-	ret = ud->tisci_udmap_ops->tx_ch_cfg(ud->tisci, &req);
+	ret = tisci_rm->tisci_udmap_ops->tx_ch_cfg(tisci_rm->tisci, &req);
 	if (ret)
 		dev_err(ud->dev, "tisci tx alloc failed %d\n", ret);
 
@@ -875,49 +934,49 @@ static int udma_alloc_tchan_sci_req(struct udma_chan *uc)
 static int udma_alloc_rchan_sci_req(struct udma_chan *uc)
 {
 	struct udma_dev *ud = uc->ud;
-	int fd_ring = k3_nav_ringacc_get_ring_id(uc->rchan->fd_ring);
-	int rx_ring = k3_nav_ringacc_get_ring_id(uc->rchan->r_ring);
+	int fd_ring = k3_nav_ringacc_get_ring_id(uc->rflow->fd_ring);
+	int rx_ring = k3_nav_ringacc_get_ring_id(uc->rflow->r_ring);
 	int tc_ring = k3_nav_ringacc_get_ring_id(uc->tchan->tc_ring);
 	struct ti_sci_msg_rm_udmap_rx_ch_cfg req = { 0 };
 	struct ti_sci_msg_rm_udmap_flow_cfg flow_req = { 0 };
+	struct udma_tisci_rm *tisci_rm = &ud->tisci_rm;
 	u32 mode;
 	int ret;
 
-	if (uc->pkt_mode)
+	if (uc->config.pkt_mode)
 		mode = TI_SCI_RM_UDMAP_CHAN_TYPE_PKT_PBRR;
 	else
 		mode = TI_SCI_RM_UDMAP_CHAN_TYPE_3RDP_BCOPY_PBRR;
 
 	req.valid_params = TI_SCI_MSG_VALUE_RM_UDMAP_CH_FETCH_SIZE_VALID |
 			TI_SCI_MSG_VALUE_RM_UDMAP_CH_CQ_QNUM_VALID |
-			TI_SCI_MSG_VALUE_RM_UDMAP_CH_CHAN_TYPE_VALID;
-	req.nav_id = ud->tisci_dev_id;
+			TI_SCI_MSG_VALUE_RM_UDMAP_CH_CHAN_TYPE_VALID |
+			TI_SCI_MSG_VALUE_RM_UDMAP_CH_RX_FLOWID_START_VALID |
+			TI_SCI_MSG_VALUE_RM_UDMAP_CH_RX_FLOWID_CNT_VALID;
+	req.nav_id = tisci_rm->tisci_dev_id;
 	req.index = uc->rchan->id;
 	req.rx_chan_type = mode;
-	if (uc->dir == DMA_MEM_TO_MEM) {
+	if (uc->config.dir == DMA_MEM_TO_MEM) {
 		req.rx_fetch_size = sizeof(struct cppi5_desc_hdr_t) >> 2;
 		req.rxcq_qnum = tc_ring;
 	} else {
-		req.rx_fetch_size = cppi5_hdesc_calc_size(uc->needs_epib,
-							  uc->psd_size,
+		req.rx_fetch_size = cppi5_hdesc_calc_size(uc->config.needs_epib,
+							  uc->config.psd_size,
 							  0) >> 2;
 		req.rxcq_qnum = rx_ring;
 	}
-	if (uc->rflow->id != uc->rchan->id && uc->dir != DMA_MEM_TO_MEM) {
+	if (uc->rflow->id != uc->rchan->id && uc->config.dir != DMA_MEM_TO_MEM) {
 		req.flowid_start = uc->rflow->id;
 		req.flowid_cnt = 1;
-		req.valid_params |=
-			TI_SCI_MSG_VALUE_RM_UDMAP_CH_RX_FLOWID_START_VALID |
-			TI_SCI_MSG_VALUE_RM_UDMAP_CH_RX_FLOWID_CNT_VALID;
 	}
 
-	ret = ud->tisci_udmap_ops->rx_ch_cfg(ud->tisci, &req);
+	ret = tisci_rm->tisci_udmap_ops->rx_ch_cfg(tisci_rm->tisci, &req);
 	if (ret) {
 		dev_err(ud->dev, "tisci rx %u cfg failed %d\n",
 			uc->rchan->id, ret);
 		return ret;
 	}
-	if (uc->dir == DMA_MEM_TO_MEM)
+	if (uc->config.dir == DMA_MEM_TO_MEM)
 		return ret;
 
 	flow_req.valid_params =
@@ -936,15 +995,15 @@ static int udma_alloc_rchan_sci_req(struct udma_chan *uc)
 			TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_FDQ3_QNUM_VALID |
 			TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_PS_LOCATION_VALID;
 
-	flow_req.nav_id = ud->tisci_dev_id;
+	flow_req.nav_id = tisci_rm->tisci_dev_id;
 	flow_req.flow_index = uc->rflow->id;
 
-	if (uc->needs_epib)
+	if (uc->config.needs_epib)
 		flow_req.rx_einfo_present = 1;
 	else
 		flow_req.rx_einfo_present = 0;
 
-	if (uc->psd_size)
+	if (uc->config.psd_size)
 		flow_req.rx_psinfo_present = 1;
 	else
 		flow_req.rx_psinfo_present = 0;
@@ -962,7 +1021,8 @@ static int udma_alloc_rchan_sci_req(struct udma_chan *uc)
 	flow_req.rx_fdq3_qnum = fd_ring;
 	flow_req.rx_ps_location = 0;
 
-	ret = ud->tisci_udmap_ops->rx_flow_cfg(ud->tisci, &flow_req);
+	ret = tisci_rm->tisci_udmap_ops->rx_flow_cfg(tisci_rm->tisci,
+						     &flow_req);
 	if (ret)
 		dev_err(ud->dev, "tisci rx %u flow %u cfg failed %d\n",
 			uc->rchan->id, uc->rflow->id, ret);
@@ -976,11 +1036,12 @@ static int udma_alloc_chan_resources(struct udma_chan *uc)
 	int ret;
 
 	pr_debug("%s: chan:%d as %s\n",
-		 __func__, uc->id, udma_get_dir_text(uc->dir));
+		 __func__, uc->id, udma_get_dir_text(uc->config.dir));
 
-	switch (uc->dir) {
+	switch (uc->config.dir) {
 	case DMA_MEM_TO_MEM:
 		/* Non synchronized - mem to mem type of transfer */
+		uc->config.pkt_mode = false;
 		ret = udma_get_chan_pair(uc);
 		if (ret)
 			return ret;
@@ -993,8 +1054,8 @@ static int udma_alloc_chan_resources(struct udma_chan *uc)
 		if (ret)
 			goto err_free_res;
 
-		uc->src_thread = ud->psil_base + uc->tchan->id;
-		uc->dst_thread = (ud->psil_base + uc->rchan->id) | 0x8000;
+		uc->config.src_thread = ud->psil_base + uc->tchan->id;
+		uc->config.dst_thread = (ud->psil_base + uc->rchan->id) | 0x8000;
 		break;
 	case DMA_MEM_TO_DEV:
 		/* Slave transfer synchronized - mem to dev (TX) trasnfer */
@@ -1002,10 +1063,9 @@ static int udma_alloc_chan_resources(struct udma_chan *uc)
 		if (ret)
 			goto err_free_res;
 
-		uc->src_thread = ud->psil_base + uc->tchan->id;
-		uc->dst_thread = uc->slave_thread_id;
-		if (!(uc->dst_thread & 0x8000))
-			uc->dst_thread |= 0x8000;
+		uc->config.src_thread = ud->psil_base + uc->tchan->id;
+		uc->config.dst_thread = uc->config.remote_thread_id;
+		uc->config.dst_thread |= 0x8000;
 
 		break;
 	case DMA_DEV_TO_MEM:
@@ -1014,19 +1074,19 @@ static int udma_alloc_chan_resources(struct udma_chan *uc)
 		if (ret)
 			goto err_free_res;
 
-		uc->src_thread = uc->slave_thread_id;
-		uc->dst_thread = (ud->psil_base + uc->rchan->id) | 0x8000;
+		uc->config.src_thread = uc->config.remote_thread_id;
+		uc->config.dst_thread = (ud->psil_base + uc->rchan->id) | 0x8000;
 
 		break;
 	default:
 		/* Can not happen */
 		pr_debug("%s: chan:%d invalid direction (%u)\n",
-			 __func__, uc->id, uc->dir);
+			 __func__, uc->id, uc->config.dir);
 		return -EINVAL;
 	}
 
 	/* We have channel indexes and rings */
-	if (uc->dir == DMA_MEM_TO_MEM) {
+	if (uc->config.dir == DMA_MEM_TO_MEM) {
 		ret = udma_alloc_tchan_sci_req(uc);
 		if (ret)
 			goto err_free_res;
@@ -1036,7 +1096,7 @@ static int udma_alloc_chan_resources(struct udma_chan *uc)
 			goto err_free_res;
 	} else {
 		/* Slave transfer */
-		if (uc->dir == DMA_MEM_TO_DEV) {
+		if (uc->config.dir == DMA_MEM_TO_DEV) {
 			ret = udma_alloc_tchan_sci_req(uc);
 			if (ret)
 				goto err_free_res;
@@ -1057,7 +1117,7 @@ static int udma_alloc_chan_resources(struct udma_chan *uc)
 	}
 
 	/* PSI-L pairing */
-	ret = udma_navss_psil_pair(ud, uc->src_thread, uc->dst_thread);
+	ret = udma_navss_psil_pair(ud, uc->config.src_thread, uc->config.dst_thread);
 	if (ret) {
 		dev_err(ud->dev, "k3_nav_psil_request_link fail\n");
 		goto err_free_res;
@@ -1068,24 +1128,26 @@ static int udma_alloc_chan_resources(struct udma_chan *uc)
 err_free_res:
 	udma_free_tx_resources(uc);
 	udma_free_rx_resources(uc);
-	uc->slave_thread_id = -1;
+	uc->config.remote_thread_id = -1;
 	return ret;
 }
 
 static void udma_free_chan_resources(struct udma_chan *uc)
 {
-	/* Some configuration to UDMA-P channel: disable, reset, whatever */
+	/* Hard reset UDMA channel */
+	udma_stop_hard(uc);
+	udma_reset_counters(uc);
 
 	/* Release PSI-L pairing */
-	udma_navss_psil_unpair(uc->ud, uc->src_thread, uc->dst_thread);
+	udma_navss_psil_unpair(uc->ud, uc->config.src_thread, uc->config.dst_thread);
 
 	/* Reset the rings for a new start */
 	udma_reset_rings(uc);
 	udma_free_tx_resources(uc);
 	udma_free_rx_resources(uc);
 
-	uc->slave_thread_id = -1;
-	uc->dir = DMA_MEM_TO_MEM;
+	uc->config.remote_thread_id = -1;
+	uc->config.dir = DMA_MEM_TO_MEM;
 }
 
 static int udma_get_mmrs(struct udevice *dev)
@@ -1103,16 +1165,134 @@ static int udma_get_mmrs(struct udevice *dev)
 	return 0;
 }
 
-#define UDMA_MAX_CHANNELS	192
+static int udma_setup_resources(struct udma_dev *ud)
+{
+	struct udevice *dev = ud->dev;
+	int ch_count, i;
+	u32 cap2, cap3;
+	struct ti_sci_resource_desc *rm_desc;
+	struct ti_sci_resource *rm_res;
+	struct udma_tisci_rm *tisci_rm = &ud->tisci_rm;
+	static const char * const range_names[] = { "ti,sci-rm-range-tchan",
+						    "ti,sci-rm-range-rchan",
+						    "ti,sci-rm-range-rflow" };
 
+	cap2 = udma_read(ud->mmrs[MMR_GCFG], 0x28);
+	cap3 = udma_read(ud->mmrs[MMR_GCFG], 0x2c);
+
+	ud->rflow_cnt = cap3 & 0x3fff;
+	ud->tchan_cnt = cap2 & 0x1ff;
+	ud->echan_cnt = (cap2 >> 9) & 0x1ff;
+	ud->rchan_cnt = (cap2 >> 18) & 0x1ff;
+	ch_count  = ud->tchan_cnt + ud->rchan_cnt;
+
+	ud->tchan_map = devm_kmalloc_array(dev, BITS_TO_LONGS(ud->tchan_cnt),
+					   sizeof(unsigned long), GFP_KERNEL);
+	ud->tchans = devm_kcalloc(dev, ud->tchan_cnt, sizeof(*ud->tchans),
+				  GFP_KERNEL);
+	ud->rchan_map = devm_kmalloc_array(dev, BITS_TO_LONGS(ud->rchan_cnt),
+					   sizeof(unsigned long), GFP_KERNEL);
+	ud->rchans = devm_kcalloc(dev, ud->rchan_cnt, sizeof(*ud->rchans),
+				  GFP_KERNEL);
+	ud->rflow_map = devm_kmalloc_array(dev, BITS_TO_LONGS(ud->rflow_cnt),
+					   sizeof(unsigned long), GFP_KERNEL);
+	ud->rflow_map_reserved = devm_kcalloc(dev, BITS_TO_LONGS(ud->rflow_cnt),
+					      sizeof(unsigned long),
+					      GFP_KERNEL);
+	ud->rflows = devm_kcalloc(dev, ud->rflow_cnt, sizeof(*ud->rflows),
+				  GFP_KERNEL);
+
+	if (!ud->tchan_map || !ud->rchan_map || !ud->rflow_map ||
+	    !ud->rflow_map_reserved || !ud->tchans || !ud->rchans ||
+	    !ud->rflows)
+		return -ENOMEM;
+
+	/*
+	 * RX flows with the same Ids as RX channels are reserved to be used
+	 * as default flows if remote HW can't generate flow_ids. Those
+	 * RX flows can be requested only explicitly by id.
+	 */
+	bitmap_set(ud->rflow_map_reserved, 0, ud->rchan_cnt);
+
+	/* Get resource ranges from tisci */
+	for (i = 0; i < RM_RANGE_LAST; i++)
+		tisci_rm->rm_ranges[i] =
+			devm_ti_sci_get_of_resource(tisci_rm->tisci, dev,
+						    tisci_rm->tisci_dev_id,
+						    (char *)range_names[i]);
+
+	/* tchan ranges */
+	rm_res = tisci_rm->rm_ranges[RM_RANGE_TCHAN];
+	if (IS_ERR(rm_res)) {
+		bitmap_zero(ud->tchan_map, ud->tchan_cnt);
+	} else {
+		bitmap_fill(ud->tchan_map, ud->tchan_cnt);
+		for (i = 0; i < rm_res->sets; i++) {
+			rm_desc = &rm_res->desc[i];
+			bitmap_clear(ud->tchan_map, rm_desc->start,
+				     rm_desc->num);
+		}
+	}
+
+	/* rchan and matching default flow ranges */
+	rm_res = tisci_rm->rm_ranges[RM_RANGE_RCHAN];
+	if (IS_ERR(rm_res)) {
+		bitmap_zero(ud->rchan_map, ud->rchan_cnt);
+		bitmap_zero(ud->rflow_map, ud->rchan_cnt);
+	} else {
+		bitmap_fill(ud->rchan_map, ud->rchan_cnt);
+		bitmap_fill(ud->rflow_map, ud->rchan_cnt);
+		for (i = 0; i < rm_res->sets; i++) {
+			rm_desc = &rm_res->desc[i];
+			bitmap_clear(ud->rchan_map, rm_desc->start,
+				     rm_desc->num);
+			bitmap_clear(ud->rflow_map, rm_desc->start,
+				     rm_desc->num);
+		}
+	}
+
+	/* GP rflow ranges */
+	rm_res = tisci_rm->rm_ranges[RM_RANGE_RFLOW];
+	if (IS_ERR(rm_res)) {
+		bitmap_clear(ud->rflow_map, ud->rchan_cnt,
+			     ud->rflow_cnt - ud->rchan_cnt);
+	} else {
+		bitmap_set(ud->rflow_map, ud->rchan_cnt,
+			   ud->rflow_cnt - ud->rchan_cnt);
+		for (i = 0; i < rm_res->sets; i++) {
+			rm_desc = &rm_res->desc[i];
+			bitmap_clear(ud->rflow_map, rm_desc->start,
+				     rm_desc->num);
+		}
+	}
+
+	ch_count -= bitmap_weight(ud->tchan_map, ud->tchan_cnt);
+	ch_count -= bitmap_weight(ud->rchan_map, ud->rchan_cnt);
+	if (!ch_count)
+		return -ENODEV;
+
+	ud->channels = devm_kcalloc(dev, ch_count, sizeof(*ud->channels),
+				    GFP_KERNEL);
+	if (!ud->channels)
+		return -ENOMEM;
+
+	dev_info(dev,
+		 "Channels: %d (tchan: %u, echan: %u, rchan: %u, rflow: %u)\n",
+		 ch_count, ud->tchan_cnt, ud->echan_cnt, ud->rchan_cnt,
+		 ud->rflow_cnt);
+
+	return ch_count;
+}
 static int udma_probe(struct udevice *dev)
 {
 	struct dma_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct udma_dev *ud = dev_get_priv(dev);
 	int i, ret;
-	u32 cap2, cap3;
 	struct udevice *tmp;
 	struct udevice *tisci_dev = NULL;
+	struct udma_tisci_rm *tisci_rm = &ud->tisci_rm;
+	ofnode navss_ofnode = ofnode_get_parent(dev_ofnode(dev));
+
 
 	ret = udma_get_mmrs(dev);
 	if (ret)
@@ -1124,85 +1304,47 @@ static int udma_probe(struct udevice *dev)
 	if (IS_ERR(ud->ringacc))
 		return PTR_ERR(ud->ringacc);
 
-	ud->psil_base = dev_read_u32_default(dev, "ti,psil-base", 0);
-	if (!ud->psil_base) {
-		dev_info(dev,
-			 "Missing ti,psil-base property, using %d.\n", ret);
+	ud->match_data = (void *)dev_get_driver_data(dev);
+	ud->psil_base = ud->match_data->psil_base;
+
+	ret = uclass_get_device_by_phandle(UCLASS_FIRMWARE, dev,
+					   "ti,sci", &tisci_dev);
+	if (ret) {
+		debug("Failed to get TISCI phandle (%d)\n", ret);
+		tisci_rm->tisci = NULL;
 		return -EINVAL;
 	}
+	tisci_rm->tisci = (struct ti_sci_handle *)
+			  (ti_sci_get_handle_from_sysfw(tisci_dev));
 
-	ret = uclass_get_device_by_name(UCLASS_FIRMWARE, "dmsc", &tisci_dev);
+	tisci_rm->tisci_dev_id = -1;
+	ret = dev_read_u32(dev, "ti,sci-dev-id", &tisci_rm->tisci_dev_id);
 	if (ret) {
-		debug("TISCI RA RM get failed (%d)\n", ret);
-		ud->tisci = NULL;
-		return 0;
-	}
-	ud->tisci = (struct ti_sci_handle *)
-			 (ti_sci_get_handle_from_sysfw(tisci_dev));
-
-	ret = dev_read_u32_default(dev, "ti,sci", 0);
-	if (!ret) {
-		dev_err(dev, "TISCI RA RM disabled\n");
-		ud->tisci = NULL;
+		dev_err(dev, "ti,sci-dev-id read failure %d\n", ret);
+		return ret;
 	}
 
-	if (ud->tisci) {
-		ofnode navss_ofnode = ofnode_get_parent(dev_ofnode(dev));
-
-		ud->tisci_dev_id = -1;
-		ret = dev_read_u32(dev, "ti,sci-dev-id", &ud->tisci_dev_id);
-		if (ret) {
-			dev_err(dev, "ti,sci-dev-id read failure %d\n", ret);
-			return ret;
-		}
-
-		ud->tisci_navss_dev_id = -1;
-		ret = ofnode_read_u32(navss_ofnode, "ti,sci-dev-id",
-				      &ud->tisci_navss_dev_id);
-		if (ret) {
-			dev_err(dev, "navss sci-dev-id read failure %d\n", ret);
-			return ret;
-		}
-
-		ud->tisci_udmap_ops = &ud->tisci->ops.rm_udmap_ops;
-		ud->tisci_psil_ops = &ud->tisci->ops.rm_psil_ops;
+	tisci_rm->tisci_navss_dev_id = -1;
+	ret = ofnode_read_u32(navss_ofnode, "ti,sci-dev-id",
+			      &tisci_rm->tisci_navss_dev_id);
+	if (ret) {
+		dev_err(dev, "navss sci-dev-id read failure %d\n", ret);
+		return ret;
 	}
 
-	ud->is_coherent = dev_read_bool(dev, "dma-coherent");
+	tisci_rm->tisci_udmap_ops = &tisci_rm->tisci->ops.rm_udmap_ops;
+	tisci_rm->tisci_psil_ops = &tisci_rm->tisci->ops.rm_psil_ops;
 
-	cap2 = udma_read(ud->mmrs[MMR_GCFG], 0x28);
-	cap3 = udma_read(ud->mmrs[MMR_GCFG], 0x2c);
-
-	ud->rflow_cnt = cap3 & 0x3fff;
-	ud->tchan_cnt = cap2 & 0x1ff;
-	ud->echan_cnt = (cap2 >> 9) & 0x1ff;
-	ud->rchan_cnt = (cap2 >> 18) & 0x1ff;
-	ud->ch_count  = ud->tchan_cnt + ud->rchan_cnt;
+	ud->dev = dev;
+	ud->ch_count = udma_setup_resources(ud);
+	if (ud->ch_count <= 0)
+		return ud->ch_count;
 
 	dev_info(dev,
 		 "Number of channels: %u (tchan: %u, echan: %u, rchan: %u dev-id %u)\n",
 		 ud->ch_count, ud->tchan_cnt, ud->echan_cnt, ud->rchan_cnt,
-		 ud->tisci_dev_id);
+		 tisci_rm->tisci_dev_id);
 	dev_info(dev, "Number of rflows: %u\n", ud->rflow_cnt);
-
-	ud->channels = devm_kcalloc(dev, ud->ch_count, sizeof(*ud->channels),
-				    GFP_KERNEL);
-	ud->tchan_map = devm_kcalloc(dev, BITS_TO_LONGS(ud->tchan_cnt),
-				     sizeof(unsigned long), GFP_KERNEL);
-	ud->tchans = devm_kcalloc(dev, ud->tchan_cnt,
-				  sizeof(*ud->tchans), GFP_KERNEL);
-	ud->rchan_map = devm_kcalloc(dev, BITS_TO_LONGS(ud->rchan_cnt),
-				     sizeof(unsigned long), GFP_KERNEL);
-	ud->rchans = devm_kcalloc(dev, ud->rchan_cnt,
-				  sizeof(*ud->rchans), GFP_KERNEL);
-	ud->rflow_map = devm_kcalloc(dev, BITS_TO_LONGS(ud->rflow_cnt),
-				     sizeof(unsigned long), GFP_KERNEL);
-	ud->rflows = devm_kcalloc(dev, ud->rflow_cnt,
-				  sizeof(*ud->rflows), GFP_KERNEL);
-
-	if (!ud->channels || !ud->tchan_map || !ud->rchan_map ||
-	    !ud->rflow_map || !ud->tchans || !ud->rchans || !ud->rflows)
-		return -ENOMEM;
 
 	for (i = 0; i < ud->tchan_cnt; i++) {
 		struct udma_tchan *tchan = &ud->tchans[i];
@@ -1229,10 +1371,10 @@ static int udma_probe(struct udevice *dev)
 
 		uc->ud = ud;
 		uc->id = i;
-		uc->slave_thread_id = -1;
+		uc->config.remote_thread_id = -1;
 		uc->tchan = NULL;
 		uc->rchan = NULL;
-		uc->dir = DMA_MEM_TO_MEM;
+		uc->config.dir = DMA_MEM_TO_MEM;
 		sprintf(uc->name, "UDMA chan%d\n", i);
 		if (!i)
 			uc->in_use = true;
@@ -1248,6 +1390,14 @@ static int udma_probe(struct udevice *dev)
 	uc_priv->supported = DMA_SUPPORTS_MEM_TO_MEM | DMA_SUPPORTS_MEM_TO_DEV;
 
 	return ret;
+}
+
+static int udma_push_to_ring(struct k3_nav_ring *ring, void *elem)
+{
+	u64 addr = 0;
+
+	memcpy(&addr, &elem, sizeof(elem));
+	return k3_nav_ringacc_ring_push(ring, &addr);
 }
 
 static int *udma_prep_dma_memcpy(struct udma_chan *uc, dma_addr_t dest,
@@ -1337,13 +1487,11 @@ static int *udma_prep_dma_memcpy(struct udma_chan *uc, dma_addr_t dest,
 
 	cppi5_tr_csf_set(&tr_req[num_tr - 1].flags, CPPI5_TR_CSF_EOP);
 
-	if (!udma_is_coherent(uc)) {
-		flush_dcache_range((u64)tr_desc,
-				   ALIGN((u64)tr_desc + desc_size,
-					 ARCH_DMA_MINALIGN));
-	}
+	flush_dcache_range((unsigned long)tr_desc,
+			   ALIGN((unsigned long)tr_desc + desc_size,
+				 ARCH_DMA_MINALIGN));
 
-	k3_nav_ringacc_ring_push(uc->tchan->t_ring, &tr_desc);
+	udma_push_to_ring(uc->tchan->t_ring, tr_desc);
 
 	return 0;
 }
@@ -1373,6 +1521,7 @@ static int udma_transfer(struct udevice *dev, int direction,
 static int udma_request(struct dma *dma)
 {
 	struct udma_dev *ud = dev_get_priv(dma->dev);
+	struct udma_chan_config *ucc;
 	struct udma_chan *uc;
 	unsigned long dummy;
 	int ret;
@@ -1383,33 +1532,35 @@ static int udma_request(struct dma *dma)
 	}
 
 	uc = &ud->channels[dma->id];
+	ucc = &uc->config;
 	ret = udma_alloc_chan_resources(uc);
 	if (ret) {
 		dev_err(dma->dev, "alloc dma res failed %d\n", ret);
 		return -EINVAL;
 	}
 
-	uc->hdesc_size = cppi5_hdesc_calc_size(uc->needs_epib,
-					       uc->psd_size, 0);
-	uc->hdesc_size = ALIGN(uc->hdesc_size, ARCH_DMA_MINALIGN);
-
-	if (uc->dir == DMA_MEM_TO_DEV) {
-		uc->desc_tx = dma_alloc_coherent(uc->hdesc_size, &dummy);
-		memset(uc->desc_tx, 0, uc->hdesc_size);
+	if (uc->config.dir == DMA_MEM_TO_DEV) {
+		uc->desc_tx = dma_alloc_coherent(ucc->hdesc_size, &dummy);
+		memset(uc->desc_tx, 0, ucc->hdesc_size);
 	} else {
 		uc->desc_rx = dma_alloc_coherent(
-				uc->hdesc_size * UDMA_RX_DESC_NUM, &dummy);
-		memset(uc->desc_rx, 0, uc->hdesc_size * UDMA_RX_DESC_NUM);
+				ucc->hdesc_size * UDMA_RX_DESC_NUM, &dummy);
+		memset(uc->desc_rx, 0, ucc->hdesc_size * UDMA_RX_DESC_NUM);
 	}
 
 	uc->in_use = true;
 	uc->desc_rx_cur = 0;
 	uc->num_rx_bufs = 0;
 
+	if (uc->config.dir == DMA_DEV_TO_MEM) {
+		uc->cfg_data.flow_id_base = uc->rflow->id;
+		uc->cfg_data.flow_id_cnt = 1;
+	}
+
 	return 0;
 }
 
-static int udma_free(struct dma *dma)
+static int udma_rfree(struct dma *dma)
 {
 	struct udma_dev *ud = dev_get_priv(dma->dev);
 	struct udma_chan *uc;
@@ -1486,7 +1637,7 @@ static int udma_send(struct dma *dma, void *src, size_t len, void *metadata)
 	}
 	uc = &ud->channels[dma->id];
 
-	if (uc->dir != DMA_MEM_TO_DEV)
+	if (uc->config.dir != DMA_MEM_TO_DEV)
 		return -EINVAL;
 
 	tc_ring_id = k3_nav_ringacc_get_ring_id(uc->tchan->tc_ring);
@@ -1496,8 +1647,8 @@ static int udma_send(struct dma *dma, void *src, size_t len, void *metadata)
 	cppi5_hdesc_reset_hbdesc(desc_tx);
 
 	cppi5_hdesc_init(desc_tx,
-			 uc->needs_epib ? CPPI5_INFO0_HDESC_EPIB_PRESENT : 0,
-			 uc->psd_size);
+			 uc->config.needs_epib ? CPPI5_INFO0_HDESC_EPIB_PRESENT : 0,
+			 uc->config.psd_size);
 	cppi5_hdesc_set_pktlen(desc_tx, len);
 	cppi5_hdesc_attach_buf(desc_tx, dma_src, len, dma_src, len);
 	cppi5_desc_set_pktids(&desc_tx->hdr, uc->id, 0x3fff);
@@ -1506,16 +1657,14 @@ static int udma_send(struct dma *dma, void *src, size_t len, void *metadata)
 	cppi5_hdesc_set_pkttype(desc_tx, packet_data.pkt_type);
 	cppi5_desc_set_tags_ids(&desc_tx->hdr, 0, packet_data.dest_tag);
 
-	if (!udma_is_coherent(uc)) {
-		flush_dcache_range((u64)dma_src,
-				   ALIGN((u64)dma_src + len,
-					 ARCH_DMA_MINALIGN));
-		flush_dcache_range((u64)desc_tx,
-				   ALIGN((u64)desc_tx + uc->hdesc_size,
-					 ARCH_DMA_MINALIGN));
-	}
+	flush_dcache_range((unsigned long)dma_src,
+			   ALIGN((unsigned long)dma_src + len,
+				 ARCH_DMA_MINALIGN));
+	flush_dcache_range((unsigned long)desc_tx,
+			   ALIGN((unsigned long)desc_tx + uc->config.hdesc_size,
+				 ARCH_DMA_MINALIGN));
 
-	ret = k3_nav_ringacc_ring_push(uc->tchan->t_ring, &uc->desc_tx);
+	ret = udma_push_to_ring(uc->tchan->t_ring, uc->desc_tx);
 	if (ret) {
 		dev_err(dma->dev, "TX dma push fail ch_id %lu %d\n",
 			dma->id, ret);
@@ -1530,6 +1679,7 @@ static int udma_send(struct dma *dma, void *src, size_t len, void *metadata)
 static int udma_receive(struct dma *dma, void **dst, void *metadata)
 {
 	struct udma_dev *ud = dev_get_priv(dma->dev);
+	struct udma_chan_config *ucc;
 	struct cppi5_host_desc_t *desc_rx;
 	dma_addr_t buf_dma;
 	struct udma_chan *uc;
@@ -1542,13 +1692,14 @@ static int udma_receive(struct dma *dma, void **dst, void *metadata)
 		return -EINVAL;
 	}
 	uc = &ud->channels[dma->id];
+	ucc = &uc->config;
 
-	if (uc->dir != DMA_DEV_TO_MEM)
+	if (uc->config.dir != DMA_DEV_TO_MEM)
 		return -EINVAL;
 	if (!uc->num_rx_bufs)
 		return -EINVAL;
 
-	ret = k3_nav_ringacc_ring_pop(uc->rchan->r_ring, &desc_rx);
+	ret = k3_nav_ringacc_ring_pop(uc->rflow->r_ring, &desc_rx);
 	if (ret && ret != -ENODATA) {
 		dev_err(dma->dev, "rx dma fail ch_id:%lu %d\n", dma->id, ret);
 		return ret;
@@ -1557,19 +1708,15 @@ static int udma_receive(struct dma *dma, void **dst, void *metadata)
 	}
 
 	/* invalidate cache data */
-	if (!udma_is_coherent(uc)) {
-		invalidate_dcache_range((ulong)desc_rx,
-					(ulong)(desc_rx + uc->hdesc_size));
-	}
+	invalidate_dcache_range((ulong)desc_rx,
+				(ulong)(desc_rx + ucc->hdesc_size));
 
 	cppi5_hdesc_get_obuf(desc_rx, &buf_dma, &buf_dma_len);
 	pkt_len = cppi5_hdesc_get_pktlen(desc_rx);
 
 	/* invalidate cache data */
-	if (!udma_is_coherent(uc)) {
-		invalidate_dcache_range((ulong)buf_dma,
-					(ulong)(buf_dma + buf_dma_len));
-	}
+	invalidate_dcache_range((ulong)buf_dma,
+				(ulong)(buf_dma + buf_dma_len));
 
 	cppi5_desc_get_tags_ids(&desc_rx->hdr, &port_id, NULL);
 
@@ -1581,10 +1728,10 @@ static int udma_receive(struct dma *dma, void **dst, void *metadata)
 
 static int udma_of_xlate(struct dma *dma, struct ofnode_phandle_args *args)
 {
+	struct udma_chan_config *ucc;
 	struct udma_dev *ud = dev_get_priv(dma->dev);
 	struct udma_chan *uc = &ud->channels[0];
-	ofnode chconf_node, slave_node;
-	char prop[50];
+	struct psil_endpoint_config *ep_config;
 	u32 val;
 
 	for (val = 0; val < ud->ch_count; val++) {
@@ -1596,48 +1743,40 @@ static int udma_of_xlate(struct dma *dma, struct ofnode_phandle_args *args)
 	if (val == ud->ch_count)
 		return -EBUSY;
 
-	uc->dir = DMA_DEV_TO_MEM;
-	if (args->args[2] == UDMA_DIR_TX)
-		uc->dir = DMA_MEM_TO_DEV;
+	ucc = &uc->config;
+	ucc->remote_thread_id = args->args[0];
+	if (ucc->remote_thread_id & K3_PSIL_DST_THREAD_ID_OFFSET)
+		ucc->dir = DMA_MEM_TO_DEV;
+	else
+		ucc->dir = DMA_DEV_TO_MEM;
 
-	slave_node = ofnode_get_by_phandle(args->args[0]);
-	if (!ofnode_valid(slave_node)) {
-		dev_err(ud->dev, "slave node is missing\n");
-		return -EINVAL;
+	ep_config = psil_get_ep_config(ucc->remote_thread_id);
+	if (IS_ERR(ep_config)) {
+		dev_err(ud->dev, "No configuration for psi-l thread 0x%04x\n",
+			uc->config.remote_thread_id);
+		ucc->dir = DMA_MEM_TO_MEM;
+		ucc->remote_thread_id = -1;
+		return false;
 	}
 
-	snprintf(prop, sizeof(prop), "ti,psil-config%u", args->args[1]);
-	chconf_node = ofnode_find_subnode(slave_node, prop);
-	if (!ofnode_valid(chconf_node)) {
-		dev_err(ud->dev, "Channel configuration node is missing\n");
-		return -EINVAL;
-	}
+	ucc->pkt_mode = ep_config->pkt_mode;
+	ucc->channel_tpl = ep_config->channel_tpl;
+	ucc->notdpkt = ep_config->notdpkt;
+	ucc->ep_type = ep_config->ep_type;
 
-	if (!ofnode_read_u32(chconf_node, "linux,udma-mode", &val)) {
-		if (val == UDMA_PKT_MODE)
-			uc->pkt_mode = true;
-	}
+	ucc->needs_epib = ep_config->needs_epib;
+	ucc->psd_size = ep_config->psd_size;
+	ucc->metadata_size = (ucc->needs_epib ? CPPI5_INFO0_HDESC_EPIB_SIZE : 0) + ucc->psd_size;
 
-	if (!ofnode_read_u32(chconf_node, "statictr-type", &val))
-		uc->static_tr_type = val;
-
-	uc->needs_epib = ofnode_read_bool(chconf_node, "ti,needs-epib");
-	if (!ofnode_read_u32(chconf_node, "ti,psd-size", &val))
-		uc->psd_size = val;
-	uc->metadata_size = (uc->needs_epib ? 16 : 0) + uc->psd_size;
-
-	if (ofnode_read_u32(slave_node, "ti,psil-base", &val)) {
-		dev_err(ud->dev, "ti,psil-base is missing\n");
-		return -EINVAL;
-	}
-
-	uc->slave_thread_id = val + args->args[1];
+	ucc->hdesc_size = cppi5_hdesc_calc_size(ucc->needs_epib,
+						ucc->psd_size, 0);
+	ucc->hdesc_size = ALIGN(ucc->hdesc_size, ARCH_DMA_MINALIGN);
 
 	dma->id = uc->id;
 	pr_debug("Allocated dma chn:%lu epib:%d psdata:%u meta:%u thread_id:%x\n",
-		 dma->id, uc->needs_epib,
-		 uc->psd_size, uc->metadata_size,
-		 uc->slave_thread_id);
+		 dma->id, ucc->needs_epib,
+		 ucc->psd_size, ucc->metadata_size,
+		 ucc->remote_thread_id);
 
 	return 0;
 }
@@ -1656,31 +1795,29 @@ int udma_prepare_rcv_buf(struct dma *dma, void *dst, size_t size)
 	}
 	uc = &ud->channels[dma->id];
 
-	if (uc->dir != DMA_DEV_TO_MEM)
+	if (uc->config.dir != DMA_DEV_TO_MEM)
 		return -EINVAL;
 
 	if (uc->num_rx_bufs >= UDMA_RX_DESC_NUM)
 		return -EINVAL;
 
 	desc_num = uc->desc_rx_cur % UDMA_RX_DESC_NUM;
-	desc_rx = uc->desc_rx + (desc_num * uc->hdesc_size);
+	desc_rx = uc->desc_rx + (desc_num * uc->config.hdesc_size);
 	dma_dst = (dma_addr_t)dst;
 
 	cppi5_hdesc_reset_hbdesc(desc_rx);
 
 	cppi5_hdesc_init(desc_rx,
-			 uc->needs_epib ? CPPI5_INFO0_HDESC_EPIB_PRESENT : 0,
-			 uc->psd_size);
+			 uc->config.needs_epib ? CPPI5_INFO0_HDESC_EPIB_PRESENT : 0,
+			 uc->config.psd_size);
 	cppi5_hdesc_set_pktlen(desc_rx, size);
 	cppi5_hdesc_attach_buf(desc_rx, dma_dst, size, dma_dst, size);
 
-	if (!udma_is_coherent(uc)) {
-		flush_dcache_range((u64)desc_rx,
-				   ALIGN((u64)desc_rx + uc->hdesc_size,
-					 ARCH_DMA_MINALIGN));
-	}
+	flush_dcache_range((unsigned long)desc_rx,
+			   ALIGN((unsigned long)desc_rx + uc->config.hdesc_size,
+				 ARCH_DMA_MINALIGN));
 
-	k3_nav_ringacc_ring_push(uc->rchan->fd_ring, &desc_rx);
+	udma_push_to_ring(uc->rflow->fd_ring, desc_rx);
 
 	uc->num_rx_bufs++;
 	uc->desc_rx_cur++;
@@ -1688,21 +1825,106 @@ int udma_prepare_rcv_buf(struct dma *dma, void *dst, size_t size)
 	return 0;
 }
 
+static int udma_get_cfg(struct dma *dma, u32 id, void **data)
+{
+	struct udma_dev *ud = dev_get_priv(dma->dev);
+	struct udma_chan *uc;
+
+	if (dma->id >= (ud->rchan_cnt + ud->tchan_cnt)) {
+		dev_err(dma->dev, "invalid dma ch_id %lu\n", dma->id);
+		return -EINVAL;
+	}
+
+	switch (id) {
+	case TI_UDMA_CHAN_PRIV_INFO:
+		uc = &ud->channels[dma->id];
+		*data = &uc->cfg_data;
+		return 0;
+	}
+
+	return -EINVAL;
+}
+
 static const struct dma_ops udma_ops = {
 	.transfer	= udma_transfer,
 	.of_xlate	= udma_of_xlate,
 	.request	= udma_request,
-	.free		= udma_free,
+	.rfree		= udma_rfree,
 	.enable		= udma_enable,
 	.disable	= udma_disable,
 	.send		= udma_send,
 	.receive	= udma_receive,
 	.prepare_rcv_buf = udma_prepare_rcv_buf,
+	.get_cfg	= udma_get_cfg,
+};
+
+static struct udma_match_data am654_main_data = {
+	.psil_base = 0x1000,
+	.enable_memcpy_support = true,
+	.statictr_z_mask = GENMASK(11, 0),
+	.rchan_oes_offset = 0x200,
+	.tpl_levels = 2,
+	.level_start_idx = {
+		[0] = 8, /* Normal channels */
+		[1] = 0, /* High Throughput channels */
+	},
+};
+
+static struct udma_match_data am654_mcu_data = {
+	.psil_base = 0x6000,
+	.enable_memcpy_support = true,
+	.statictr_z_mask = GENMASK(11, 0),
+	.rchan_oes_offset = 0x200,
+	.tpl_levels = 2,
+	.level_start_idx = {
+		[0] = 2, /* Normal channels */
+		[1] = 0, /* High Throughput channels */
+	},
+};
+
+static struct udma_match_data j721e_main_data = {
+	.psil_base = 0x1000,
+	.enable_memcpy_support = true,
+	.flags = UDMA_FLAG_PDMA_ACC32 | UDMA_FLAG_PDMA_BURST | UDMA_FLAG_TDTYPE,
+	.statictr_z_mask = GENMASK(23, 0),
+	.rchan_oes_offset = 0x400,
+	.tpl_levels = 3,
+	.level_start_idx = {
+		[0] = 16, /* Normal channels */
+		[1] = 4, /* High Throughput channels */
+		[2] = 0, /* Ultra High Throughput channels */
+	},
+};
+
+static struct udma_match_data j721e_mcu_data = {
+	.psil_base = 0x6000,
+	.enable_memcpy_support = true,
+	.flags = UDMA_FLAG_PDMA_ACC32 | UDMA_FLAG_PDMA_BURST | UDMA_FLAG_TDTYPE,
+	.statictr_z_mask = GENMASK(23, 0),
+	.rchan_oes_offset = 0x400,
+	.tpl_levels = 2,
+	.level_start_idx = {
+		[0] = 2, /* Normal channels */
+		[1] = 0, /* High Throughput channels */
+	},
 };
 
 static const struct udevice_id udma_ids[] = {
-	{ .compatible = "ti,k3-navss-udmap" },
-	{ }
+	{
+		.compatible = "ti,am654-navss-main-udmap",
+		.data = (ulong)&am654_main_data,
+	},
+	{
+		.compatible = "ti,am654-navss-mcu-udmap",
+		.data = (ulong)&am654_mcu_data,
+	}, {
+		.compatible = "ti,j721e-navss-main-udmap",
+		.data = (ulong)&j721e_main_data,
+	}, {
+		.compatible = "ti,j721e-navss-mcu-udmap",
+		.data = (ulong)&j721e_mcu_data,
+	},
+	{ /* Sentinel */ },
 };
 
 U_BOOT_DRIVER(ti_edma3) = {

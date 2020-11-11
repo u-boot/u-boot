@@ -10,10 +10,16 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <irq_func.h>
+#include <net.h>
+#include <time.h>
+#include <vsprintf.h>
 #include <watchdog.h>
 #include <command.h>
 #include <mpc83xx.h>
 #include <asm/processor.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <tsec.h>
 #include <netdev.h>
@@ -118,19 +124,12 @@ int checkcpu(void)
 #endif
 
 #ifndef CONFIG_SYSRESET
-int
-do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	ulong msr;
-#ifndef MPC83xx_RESET
-	ulong addr;
-#endif
-
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	puts("Resetting the board.\n");
-
-#ifdef MPC83xx_RESET
 
 	/* Interrupts and MMU off */
 	msr = mfmsr();
@@ -150,24 +149,6 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 	/* perform reset, only one bit */
 	immap->reset.rcr = RCR_SWHR;
-
-#else	/* ! MPC83xx_RESET */
-
-	immap->reset.rmr = RMR_CSRE;    /* Checkstop Reset enable */
-
-	/* Interrupts and MMU off */
-	msr = mfmsr();
-	msr &= ~(MSR_ME | MSR_EE | MSR_IR | MSR_DR);
-	mtmsr(msr);
-
-	/*
-	 * Trying to execute the next instruction at a non-existing address
-	 * should cause a machine check, resulting in reset
-	 */
-	addr = CONFIG_SYS_RESET_ADDRESS;
-
-	((void (*)(void)) addr) ();
-#endif	/* MPC83xx_RESET */
 
 	return 1;
 }
@@ -194,7 +175,7 @@ void watchdog_reset (void)
 	immr->wdt.swsrr = 0xaa39;
 
 	if (re_enable)
-		enable_interrupts ();
+		enable_interrupts();
 }
 #endif
 
@@ -203,7 +184,7 @@ void watchdog_reset (void)
  * Initializes on-chip ethernet controllers.
  * to override, implement board_eth_init()
  */
-int cpu_eth_init(bd_t *bis)
+int cpu_eth_init(struct bd_info *bis)
 {
 #if defined(CONFIG_UEC_ETH)
 	uec_standard_init(bis);
@@ -220,7 +201,7 @@ int cpu_eth_init(bd_t *bis)
  * Initializes on-chip MMC controllers.
  * to override, implement board_mmc_init()
  */
-int cpu_mmc_init(bd_t *bis)
+int cpu_mmc_init(struct bd_info *bis)
 {
 #ifdef CONFIG_FSL_ESDHC
 	return fsl_esdhc_mmc_init(bis);

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <fdt_support.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
@@ -24,7 +25,8 @@
 #define LS1046A_PORSR1_REG 0x1EE0000
 #define BOOT_SRC_SD        0x20000000
 #define BOOT_SRC_MASK	   0xFF800000
-#define BOARD_REV_GPIO		13
+#define BOARD_REV_GPIO_SHIFT	17
+#define BOARD_REV_MASK     0x03
 #define USB2_SEL_MASK	   0x00000100
 
 #define BYTE_SWAP_32(word)  ((((word) & 0xff000000) >> 24) |  \
@@ -35,11 +37,24 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int select_i2c_ch_pca9547(u8 ch)
+int select_i2c_ch_pca9547(u8 ch, int bus_num)
 {
 	int ret;
 
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev;
+
+	ret = i2c_get_chip_for_busnum(bus_num, I2C_MUX_PCA_ADDR_PRI,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       bus_num);
+		return ret;
+	}
+	ret = dm_i2c_write(dev, 0, &ch, 1);
+#else
 	ret = i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &ch, 1);
+#endif
 	if (ret) {
 		puts("PCA: failed to select proper channel\n");
 		return ret;
@@ -87,10 +102,14 @@ int board_early_init_f(void)
 
 static inline uint8_t get_board_version(void)
 {
-	u8 val;
 	struct ccsr_gpio *pgpio = (void *)(GPIO2_BASE_ADDR);
 
-	val = (in_le32(&pgpio->gpdat) >> BOARD_REV_GPIO) & 0x03;
+	/* GPIO 13 and GPIO 14 are used for Board Rev */
+	u32 gpio_val = ((in_be32(&pgpio->gpdat) >> BOARD_REV_GPIO_SHIFT))
+				& BOARD_REV_MASK;
+
+	/* GPIOs' are 0..31 in Big Endiness, swap GPIO 13 and GPIO 14 */
+	u8 val = ((gpio_val >> 1) | (gpio_val << 1)) & BOARD_REV_MASK;
 
 	return val;
 }
@@ -144,7 +163,7 @@ val = (in_le32(SMMU_SCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
 	sec_init();
 #endif
 
-	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, 0);
 	return 0;
 }
 
@@ -199,7 +218,7 @@ int misc_init_r(void)
 }
 #endif
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	u64 base[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
@@ -214,7 +233,9 @@ int ft_board_setup(void *blob, bd_t *bd)
 	ft_cpu_setup(blob, bd);
 
 #ifdef CONFIG_SYS_DPAA_FMAN
+#ifndef CONFIG_DM_ETH
 	fdt_fixup_fman_ethernet(blob);
+#endif
 #endif
 
 	fdt_fixup_icid(blob);

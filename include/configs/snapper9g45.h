@@ -31,8 +31,6 @@
 					 GENERATED_GBL_DATA_SIZE)
 
 /* Mem test settings */
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + (1024 * 1024))
 
 /* NAND Flash */
 #define CONFIG_SYS_NAND_ECC_BASE	ATMEL_BASE_ECC
@@ -62,11 +60,9 @@
 
 /* GPIOs and IO expander */
 #define CONFIG_ATMEL_LEGACY
-#define CONFIG_AT91_GPIO
 #define CONFIG_AT91_GPIO_PULLUP		1
 
 /* UARTs/Serial console */
-#define CONFIG_ATMEL_USART
 
 /* Boot options */
 #define CONFIG_SYS_LOAD_ADDR		0x23000000
@@ -74,7 +70,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /* Environment settings */
-#define CONFIG_ENV_OVERWRITE
 
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 	"ethaddr=00:00:00:00:00:00\0" \
@@ -100,10 +95,5 @@
 
 /* U-Boot memory settings */
 #define CONFIG_SYS_MALLOC_LEN		(1 << 20)
-
-/* Command line configuration */
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_CACHE
 
 #endif /* __CONFIG_H */

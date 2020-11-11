@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <wdt.h>
 #include <clk.h>
 #include <asm/io.h>

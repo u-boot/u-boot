@@ -2,4 +2,4 @@
 #
 # Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
 
-obj-y	+= start.o payload.o
+obj-y	+= payload.o

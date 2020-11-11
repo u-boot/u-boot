@@ -16,34 +16,61 @@
 #include <dm/root.h>
 #include <dm/util.h>
 
-static int do_dm_dump_all(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int do_dm_dump_all(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	dm_dump_all();
 
 	return 0;
 }
 
-static int do_dm_dump_uclass(cmd_tbl_t *cmdtp, int flag, int argc,
-			     char * const argv[])
+static int do_dm_dump_uclass(struct cmd_tbl *cmdtp, int flag, int argc,
+			     char *const argv[])
 {
 	dm_dump_uclass();
 
 	return 0;
 }
 
-static int do_dm_dump_devres(cmd_tbl_t *cmdtp, int flag, int argc,
-			     char * const argv[])
+static int do_dm_dump_devres(struct cmd_tbl *cmdtp, int flag, int argc,
+			     char *const argv[])
 {
 	dm_dump_devres();
 
 	return 0;
 }
 
-static cmd_tbl_t test_commands[] = {
+static int do_dm_dump_drivers(struct cmd_tbl *cmdtp, int flag, int argc,
+			      char *const argv[])
+{
+	dm_dump_drivers();
+
+	return 0;
+}
+
+static int do_dm_dump_driver_compat(struct cmd_tbl *cmdtp, int flag, int argc,
+				    char * const argv[])
+{
+	dm_dump_driver_compat();
+
+	return 0;
+}
+
+static int do_dm_dump_static_driver_info(struct cmd_tbl *cmdtp, int flag, int argc,
+					 char * const argv[])
+{
+	dm_dump_static_driver_info();
+
+	return 0;
+}
+
+static struct cmd_tbl test_commands[] = {
 	U_BOOT_CMD_MKENT(tree, 0, 1, do_dm_dump_all, "", ""),
 	U_BOOT_CMD_MKENT(uclass, 1, 1, do_dm_dump_uclass, "", ""),
 	U_BOOT_CMD_MKENT(devres, 1, 1, do_dm_dump_devres, "", ""),
+	U_BOOT_CMD_MKENT(drivers, 1, 1, do_dm_dump_drivers, "", ""),
+	U_BOOT_CMD_MKENT(compat, 1, 1, do_dm_dump_driver_compat, "", ""),
+	U_BOOT_CMD_MKENT(static, 1, 1, do_dm_dump_static_driver_info, "", ""),
 };
 
 static __maybe_unused void dm_reloc(void)
@@ -56,9 +83,9 @@ static __maybe_unused void dm_reloc(void)
 	}
 }
 
-static int do_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_dm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	cmd_tbl_t *test_cmd;
+	struct cmd_tbl *test_cmd;
 	int ret;
 
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
@@ -84,5 +111,8 @@ U_BOOT_CMD(
 	"Driver model low level access",
 	"tree          Dump driver model tree ('*' = activated)\n"
 	"dm uclass        Dump list of instances for each uclass\n"
-	"dm devres        Dump list of device resources for each device"
+	"dm devres        Dump list of device resources for each device\n"
+	"dm drivers       Dump list of drivers with uclass and instances\n"
+	"dm compat        Dump list of drivers with compatibility strings\n"
+	"dm static        Dump list of drivers with static platform data"
 );

@@ -5,7 +5,10 @@
  * Andreas Bießmann <andreas.biessmann@corscience.de>
  */
 #include <common.h>
+#include <command.h>
+#include <eeprom.h>
 #include <i2c.h>
+#include <u-boot/crc.h>
 
 #include "tricorder-eeprom.h"
 
@@ -184,7 +187,7 @@ int tricorder_eeprom_write(unsigned devaddr, const char *name,
 	return ret;
 }
 
-int do_tricorder_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_tricorder_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *argv[])
 {
 	if (argc == 3) {
 		ulong dev_addr = simple_strtoul(argv[2], NULL, 16);

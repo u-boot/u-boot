@@ -128,4 +128,69 @@ void cpu_set_eist(bool eist_status);
  */
 void cpu_set_p_state_to_turbo_ratio(void);
 
+/**
+ * cpu_get_coord_type() - Get the type of coordination for P-State transition
+ *
+ * See ACPI spec v6.3 section 8.4.6.5 _PSD (P-State Dependency)
+ *
+ * @return HW_ALL (always)
+ */
+int cpu_get_coord_type(void);
+
+/**
+ * cpu_get_min_ratio() - get minimum support frequency ratio for CPU
+ *
+ * @return minimum ratio
+ */
+int cpu_get_min_ratio(void);
+
+/**
+ * cpu_get_max_ratio() - get nominal TDP ration or max non-turbo ratio
+ *
+ * If a nominal TDP ratio is available, it is returned. Otherwise this returns
+ * the  maximum non-turbo frequency ratio for this processor
+ *
+ * @return max ratio
+ */
+int cpu_get_max_ratio(void);
+
+/**
+ * cpu_get_bus_clock_khz() - Get the bus clock frequency in KHz
+ *
+ * This is the value the clock ratio is multiplied with
+ *
+ * @return bus-block frequency in KHz
+ */
+int cpu_get_bus_clock_khz(void);
+
+/**
+ * cpu_get_power_max() - Get maximum CPU TDP
+ *
+ * @return maximum CPU TDP (Thermal-design power) in mW
+ */
+int cpu_get_power_max(void);
+
+/**
+ * cpu_get_max_turbo_ratio() - Get maximum turbo ratio
+ *
+ * @return maximum ratio
+ */
+int cpu_get_max_turbo_ratio(void);
+
+/**
+ * cpu_get_cores_per_package() - Get the number of CPU cores in each package
+ *
+ * @return number of cores
+ */
+int cpu_get_cores_per_package(void);
+
+/**
+ * cpu_mca_configure() - Set up machine-check exceptions ready for use
+ *
+ * These allow the SoC to report errors while running. See here for details:
+ *
+ * https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/machine-check-exceptions-debug-paper.pdf
+ */
+void cpu_mca_configure(void);
+
 #endif

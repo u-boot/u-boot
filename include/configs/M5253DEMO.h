@@ -6,6 +6,8 @@
 #ifndef _M5253DEMO_H
 #define _M5253DEMO_H
 
+#include <linux/stringify.h>
+
 #define CONFIG_MCFTMR
 
 #define CONFIG_MCFUART
@@ -17,21 +19,10 @@
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
  */
-#ifdef CONFIG_MONITOR_IS_IN_RAM
-#	define CONFIG_ENV_OFFSET		0x4000
-#	define CONFIG_ENV_SECT_SIZE	0x1000
-#else
-#	define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x4000)
-#	define CONFIG_ENV_SECT_SIZE	0x1000
-#endif
 
 #define LDS_BOARD_TEXT \
 	. = DEFINED(env_offset) ? env_offset : .; \
 	env/embedded.o(.text*);
-
-/*
- * Command line configuration.
- */
 
 #ifdef CONFIG_IDE
 /* ATA */
@@ -90,9 +81,6 @@
 #define CONFIG_SYS_I2C_PINMUX_SET	(0)
 
 #define CONFIG_SYS_LOAD_ADDR		0x00100000
-
-#define CONFIG_SYS_MEMTEST_START	0x400
-#define CONFIG_SYS_MEMTEST_END		0x380000
 
 #undef CONFIG_SYS_PLL_BYPASS		/* bypass PLL for test purpose */
 #define CONFIG_SYS_FAST_CLK

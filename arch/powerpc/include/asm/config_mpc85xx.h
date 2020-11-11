@@ -331,9 +331,6 @@
 #define CONFIG_SYS_FMAN_V3
 #define CONFIG_FM_PLAT_CLK_DIV	1
 #define CONFIG_SYS_FM1_CLK		CONFIG_FM_PLAT_CLK_DIV
-#define CONFIG_SYS_SDHC_CLK		0/* Select SDHC CLK begining from PLL1
-					    per rcw field value */
-#define CONFIG_SYS_SDHC_CLK_2_PLL	/* Select SDHC CLK from 2 PLLs */
 #define CONFIG_SYS_FM_MURAM_SIZE	0x30000
 #define CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
 #define CONFIG_SYS_FSL_TBCLK_DIV	16
@@ -362,8 +359,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #define CONFIG_SYS_FSL_IFC_BANK_COUNT	8
 #define CONFIG_SYS_FM1_CLK		0
-#define CONFIG_SYS_SDHC_CLK		0/* Select SDHC CLK begining from PLL1
-					    per rcw field value */
 #define CONFIG_QBMAN_CLK_DIV		1
 #define CONFIG_SYS_FM_MURAM_SIZE	0x30000
 #define CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
@@ -402,9 +397,6 @@
 #define CONFIG_PME_PLAT_CLK_DIV		1
 #define CONFIG_SYS_PME_CLK		CONFIG_PME_PLAT_CLK_DIV
 #define CONFIG_SYS_FM1_CLK		0
-#define CONFIG_SYS_SDHC_CLK		1/* Select SDHC CLK begining from PLL2
-					    per rcw field value */
-#define CONFIG_SYS_SDHC_CLK_2_PLL	/* Select SDHC CLK from 2 PLLs */
 #define CONFIG_SYS_FSL_IFC_BANK_COUNT	8
 #define CONFIG_SYS_FMAN_V3
 #define CONFIG_SYS_FM_MURAM_SIZE	0x28000

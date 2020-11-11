@@ -11,9 +11,6 @@
 /*
  * Include additional files required for supporting different operating systems
  */
-#ifdef __MINGW32__
-#include "mingw_support.h"
-#endif
 
 #if defined(__APPLE__) && __DARWIN_C_LEVEL < 200809L
 #include "getline.h"

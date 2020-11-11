@@ -9,6 +9,7 @@
 #ifndef __LINUX_CDNS3_DRD
 #define __LINUX_CDNS3_DRD
 
+#include <linux/bitops.h>
 #include <linux/types.h>
 #include <linux/usb/otg.h>
 #include "core.h"

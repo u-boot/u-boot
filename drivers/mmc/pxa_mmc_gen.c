@@ -2,14 +2,20 @@
 /*
  * Copyright (C) 2010 Marek Vasut <marek.vasut@gmail.com>
  *
+ * Modified to add driver model (DM) support
+ * Copyright (C) 2019 Marcel Ziswiler <marcel@ziswiler.com>
+ *
  * Loosely based on the old code and Linux's PXA MMC driver
  */
 
 #include <common.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/regs-mmc.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
+#include <dm.h>
+#include <dm/platform_data/pxa_mmc_gen.h>
 #include <malloc.h>
 #include <mmc.h>
 
@@ -95,7 +101,7 @@ static int pxa_mmc_stop_clock(struct mmc *mmc)
 }
 
 static int pxa_mmc_start_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
-				uint32_t cmdat)
+			     uint32_t cmdat)
 {
 	struct pxa_mmc_priv *priv = mmc->priv;
 	struct pxa_mmc_regs *regs = priv->regs;
@@ -142,7 +148,7 @@ static int pxa_mmc_cmd_done(struct mmc *mmc, struct mmc_cmd *cmd)
 {
 	struct pxa_mmc_priv *priv = mmc->priv;
 	struct pxa_mmc_regs *regs = priv->regs;
-	uint32_t a, b, c;
+	u32 a, b, c;
 	int i;
 	int stat;
 
@@ -151,7 +157,7 @@ static int pxa_mmc_cmd_done(struct mmc *mmc, struct mmc_cmd *cmd)
 
 	/*
 	 * Linux says:
-	 * Did I mention this is Sick.  We always need to
+	 * Did I mention this is Sick. We always need to
 	 * discard the upper 8 bits of the first 16-bit word.
 	 */
 	a = readl(&regs->res) & 0xffff;
@@ -163,13 +169,13 @@ static int pxa_mmc_cmd_done(struct mmc *mmc, struct mmc_cmd *cmd)
 	}
 
 	/* The command response didn't arrive */
-	if (stat & MMC_STAT_TIME_OUT_RESPONSE)
+	if (stat & MMC_STAT_TIME_OUT_RESPONSE) {
 		return -ETIMEDOUT;
-	else if (stat & MMC_STAT_RES_CRC_ERROR
-			&& cmd->resp_type & MMC_RSP_CRC) {
-#ifdef	PXAMMC_CRC_SKIP
-		if (cmd->resp_type & MMC_RSP_136
-				&& cmd->response[0] & (1 << 31))
+	} else if (stat & MMC_STAT_RES_CRC_ERROR &&
+		   cmd->resp_type & MMC_RSP_CRC) {
+#ifdef PXAMMC_CRC_SKIP
+		if (cmd->resp_type & MMC_RSP_136 &&
+		    cmd->response[0] & (1 << 31))
 			printf("Ignoring CRC, this may be dangerous!\n");
 		else
 #endif
@@ -184,8 +190,8 @@ static int pxa_mmc_do_read_xfer(struct mmc *mmc, struct mmc_data *data)
 {
 	struct pxa_mmc_priv *priv = mmc->priv;
 	struct pxa_mmc_regs *regs = priv->regs;
-	uint32_t len;
-	uint32_t *buf = (uint32_t *)data->dest;
+	u32 len;
+	u32 *buf = (uint32_t *)data->dest;
 	int size;
 	int ret;
 
@@ -201,7 +207,6 @@ static int pxa_mmc_do_read_xfer(struct mmc *mmc, struct mmc_data *data)
 			/* Read data into the buffer */
 			while (size--)
 				*buf++ = readl(&regs->rxfifo);
-
 		}
 
 		if (readl(&regs->stat) & MMC_STAT_ERRORS)
@@ -220,8 +225,8 @@ static int pxa_mmc_do_write_xfer(struct mmc *mmc, struct mmc_data *data)
 {
 	struct pxa_mmc_priv *priv = mmc->priv;
 	struct pxa_mmc_regs *regs = priv->regs;
-	uint32_t len;
-	uint32_t *buf = (uint32_t *)data->src;
+	u32 len;
+	u32 *buf = (uint32_t *)data->src;
 	int size;
 	int ret;
 
@@ -258,12 +263,11 @@ static int pxa_mmc_do_write_xfer(struct mmc *mmc, struct mmc_data *data)
 	return 0;
 }
 
-static int pxa_mmc_request(struct mmc *mmc, struct mmc_cmd *cmd,
-				struct mmc_data *data)
+static int pxa_mmc_send_cmd_common(struct pxa_mmc_priv *priv, struct mmc *mmc,
+				   struct mmc_cmd *cmd, struct mmc_data *data)
 {
-	struct pxa_mmc_priv *priv = mmc->priv;
 	struct pxa_mmc_regs *regs = priv->regs;
-	uint32_t cmdat = 0;
+	u32 cmdat = 0;
 	int ret;
 
 	/* Stop the controller */
@@ -312,12 +316,11 @@ static int pxa_mmc_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	return 0;
 }
 
-static int pxa_mmc_set_ios(struct mmc *mmc)
+static int pxa_mmc_set_ios_common(struct pxa_mmc_priv *priv, struct mmc *mmc)
 {
-	struct pxa_mmc_priv *priv = mmc->priv;
 	struct pxa_mmc_regs *regs = priv->regs;
-	uint32_t tmp;
-	uint32_t pxa_mmc_clock;
+	u32 tmp;
+	u32 pxa_mmc_clock;
 
 	if (!mmc->clock) {
 		pxa_mmc_stop_clock(mmc);
@@ -345,9 +348,8 @@ static int pxa_mmc_set_ios(struct mmc *mmc)
 	return 0;
 }
 
-static int pxa_mmc_init(struct mmc *mmc)
+static int pxa_mmc_init_common(struct pxa_mmc_priv *priv, struct mmc *mmc)
 {
-	struct pxa_mmc_priv *priv = mmc->priv;
 	struct pxa_mmc_regs *regs = priv->regs;
 
 	/* Make sure the clock are stopped */
@@ -361,8 +363,32 @@ static int pxa_mmc_init(struct mmc *mmc)
 
 	/* Mask all interrupts */
 	writel(~(MMC_I_MASK_TXFIFO_WR_REQ | MMC_I_MASK_RXFIFO_RD_REQ),
-		&regs->i_mask);
+	       &regs->i_mask);
+
 	return 0;
+}
+
+#if !CONFIG_IS_ENABLED(DM_MMC)
+static int pxa_mmc_init(struct mmc *mmc)
+{
+	struct pxa_mmc_priv *priv = mmc->priv;
+
+	return pxa_mmc_init_common(priv, mmc);
+}
+
+static int pxa_mmc_request(struct mmc *mmc, struct mmc_cmd *cmd,
+			   struct mmc_data *data)
+{
+	struct pxa_mmc_priv *priv = mmc->priv;
+
+	return pxa_mmc_send_cmd_common(priv, mmc, cmd, data);
+}
+
+static int pxa_mmc_set_ios(struct mmc *mmc)
+{
+	struct pxa_mmc_priv *priv = mmc->priv;
+
+	return pxa_mmc_set_ios_common(priv, mmc);
 }
 
 static const struct mmc_ops pxa_mmc_ops = {
@@ -385,7 +411,7 @@ int pxa_mmc_register(int card_index)
 {
 	struct mmc *mmc;
 	struct pxa_mmc_priv *priv;
-	uint32_t reg;
+	u32 reg;
 	int ret = -ENOMEM;
 
 	priv = malloc(sizeof(struct pxa_mmc_priv));
@@ -404,7 +430,7 @@ int pxa_mmc_register(int card_index)
 	default:
 		ret = -EINVAL;
 		printf("PXA MMC: Invalid MMC controller ID (card_index = %d)\n",
-			card_index);
+		       card_index);
 		goto err1;
 	}
 
@@ -419,7 +445,7 @@ int pxa_mmc_register(int card_index)
 #endif
 
 	mmc = mmc_create(&pxa_mmc_cfg, priv);
-	if (mmc == NULL)
+	if (!mmc)
 		goto err1;
 
 	return 0;
@@ -429,3 +455,82 @@ err1:
 err0:
 	return ret;
 }
+#else /* !CONFIG_IS_ENABLED(DM_MMC) */
+static int pxa_mmc_probe(struct udevice *dev)
+{
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct pxa_mmc_plat *plat = dev_get_platdata(dev);
+	struct mmc_config *cfg = &plat->cfg;
+	struct mmc *mmc = &plat->mmc;
+	struct pxa_mmc_priv *priv = dev_get_priv(dev);
+	u32 reg;
+
+	upriv->mmc = mmc;
+
+	cfg->b_max	= CONFIG_SYS_MMC_MAX_BLK_COUNT;
+	cfg->f_max	= PXAMMC_MAX_SPEED;
+	cfg->f_min	= PXAMMC_MIN_SPEED;
+	cfg->host_caps	= PXAMMC_HOST_CAPS;
+	cfg->name	= dev->name;
+	cfg->voltages	= MMC_VDD_32_33 | MMC_VDD_33_34;
+
+	mmc->priv = priv;
+
+	priv->regs = plat->base;
+
+#ifndef	CONFIG_CPU_MONAHANS	/* PXA2xx */
+	reg = readl(CKEN);
+	reg |= CKEN12_MMC;
+	writel(reg, CKEN);
+#else				/* PXA3xx */
+	reg = readl(CKENA);
+	reg |= CKENA_12_MMC0 | CKENA_13_MMC1;
+	writel(reg, CKENA);
+#endif
+
+	return pxa_mmc_init_common(priv, mmc);
+}
+
+static int pxa_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
+			    struct mmc_data *data)
+{
+	struct pxa_mmc_plat *plat = dev_get_platdata(dev);
+	struct pxa_mmc_priv *priv = dev_get_priv(dev);
+
+	return pxa_mmc_send_cmd_common(priv, &plat->mmc, cmd, data);
+}
+
+static int pxa_mmc_set_ios(struct udevice *dev)
+{
+	struct pxa_mmc_plat *plat = dev_get_platdata(dev);
+	struct pxa_mmc_priv *priv = dev_get_priv(dev);
+
+	return pxa_mmc_set_ios_common(priv, &plat->mmc);
+}
+
+static const struct dm_mmc_ops pxa_mmc_ops = {
+	.get_cd			= NULL,
+	.send_cmd		= pxa_mmc_send_cmd,
+	.set_ios		= pxa_mmc_set_ios,
+};
+
+#if CONFIG_IS_ENABLED(BLK)
+static int pxa_mmc_bind(struct udevice *dev)
+{
+	struct pxa_mmc_plat *plat = dev_get_platdata(dev);
+
+	return mmc_bind(dev, &plat->mmc, &plat->cfg);
+}
+#endif
+
+U_BOOT_DRIVER(pxa_mmc) = {
+#if CONFIG_IS_ENABLED(BLK)
+	.bind	= pxa_mmc_bind,
+#endif
+	.id	= UCLASS_MMC,
+	.name	= "pxa_mmc",
+	.ops	= &pxa_mmc_ops,
+	.priv_auto_alloc_size = sizeof(struct pxa_mmc_priv),
+	.probe	= pxa_mmc_probe,
+};
+#endif /* !CONFIG_IS_ENABLED(DM_MMC) */

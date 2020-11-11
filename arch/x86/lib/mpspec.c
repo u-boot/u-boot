@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <asm/cpu.h>
 #include <asm/irq.h>
 #include <asm/ioapic.h>

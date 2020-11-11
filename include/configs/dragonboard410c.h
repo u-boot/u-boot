@@ -69,7 +69,6 @@ REFLASH(dragonboard/u-boot.img, 8)\
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"reflash="CONFIG_ENV_REFLASH"\0"\
 	"loadaddr=0x81000000\0" \
-	"fdt_high=0xffffffffffffffff\0" \
 	"initrd_high=0xffffffffffffffff\0" \
 	"linux_image=Image\0" \
 	"kernel_addr_r=0x81000000\0"\
@@ -79,10 +78,6 @@ REFLASH(dragonboard/u-boot.img, 8)\
 	"scriptaddr=0x90000000\0"\
 	"pxefile_addr_r=0x90100000\0"\
 	BOOTENV
-
-#define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_SYS_MMC_ENV_DEV		0	/* mmc0 = emmc, mmc1 = sd */
-#define CONFIG_SYS_MMC_ENV_PART 2 /* Set env partition to BOOT2 partition */
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_8M)

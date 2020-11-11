@@ -8,10 +8,12 @@
 #include <display.h>
 #include <dm.h>
 #include <edid.h>
+#include <log.h>
 #include <asm/io.h>
 #include <dw_hdmi.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
+#include <linux/bitops.h>
 #include <power/regulator.h>
 #include <clk.h>
 #include <linux/delay.h>

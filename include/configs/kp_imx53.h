@@ -24,9 +24,6 @@
 #define CONFIG_SYS_EEPROM_BUS_NUM 1
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* Command definition */
 #define CONFIG_LOADADDR		0x72000000	/* loadaddr env var */
 
@@ -97,10 +94,5 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* environment organization */
-#define CONFIG_ENV_OFFSET      (SZ_1M)
-#define CONFIG_ENV_SIZE        (SZ_8K)
-#define CONFIG_ENV_SIZE_REDUND CONFIG_ENV_SIZE
-#define CONFIG_ENV_OFFSET_REDUND        (CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_SYS_MMC_ENV_DEV 0
 
 #endif				/* __CONFIG_H_ */

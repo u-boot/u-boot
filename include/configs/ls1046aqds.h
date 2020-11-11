@@ -41,20 +41,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SPI_FLASH_EON		/* cs2 */
 #endif
 
-/* QSPI */
-#if defined(CONFIG_TFABOOT) ||	\
-	defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#ifdef CONFIG_FSL_QSPI
-#define CONFIG_SPI_FLASH_SPANSION
-#define FSL_QSPI_FLASH_SIZE		(1 << 24)
-#define FSL_QSPI_FLASH_NUM		2
-#endif
-#endif
-
 #ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_PHY_VITESSE
-#define CONFIG_PHY_REALTEK
-#define CONFIG_PHYLIB_10G
 #define RGMII_PHY1_ADDR		0x1
 #define RGMII_PHY2_ADDR		0x2
 #define SGMII_CARD_PORT1_PHY_ADDR 0x1C
@@ -412,9 +399,6 @@ unsigned long get_board_ddr_clk(void);
  * Miscellaneous configurable options
  */
 
-#define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		0x9fffffff
-
 #define CONFIG_SYS_HZ			1000
 
 #define CONFIG_SYS_INIT_SP_OFFSET \
@@ -425,51 +409,32 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Environment
  */
-#define CONFIG_ENV_OVERWRITE
-
-#ifdef CONFIG_TFABOOT
-#define CONFIG_SYS_MMC_ENV_DEV		0
-
-#define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_ENV_OFFSET		0x500000        /* 5MB */
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x500000)
-#define CONFIG_ENV_SECT_SIZE		0x20000
-#else
-#ifdef CONFIG_NAND_BOOT
-#define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_ENV_OFFSET		(12 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#elif defined(CONFIG_SD_BOOT)
-#define CONFIG_ENV_OFFSET		(3 * 1024 * 1024)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_SIZE			0x2000
-#elif defined(CONFIG_QSPI_BOOT)
-#define CONFIG_ENV_SIZE			0x2000          /* 8KB */
-#define CONFIG_ENV_OFFSET		0x300000        /* 3MB */
-#define CONFIG_ENV_SECT_SIZE		0x10000
-#else
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x300000)
-#define CONFIG_ENV_SECT_SIZE		0x20000
-#define CONFIG_ENV_SIZE			0x20000
-#endif
-#endif
 
 #define CONFIG_CMDLINE_TAG
 
 #undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT
-#define QSPI_NOR_BOOTCOMMAND		"sf probe && sf read $kernel_load "    \
-					"e0000 f00000 && bootm $kernel_load"
-#define IFC_NOR_BOOTCOMMAND		"cp.b $kernel_start $kernel_load "     \
-					"$kernel_size && bootm $kernel_load"
-#define SD_BOOTCOMMAND		"mmc info; mmc read $kernel_load"     \
-					"$kernel_addr_sd $kernel_size_sd && bootm $kernel_load"
+#define IFC_NAND_BOOTCOMMAND "run distro_bootcmd; run nand_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;;"
+#define QSPI_NOR_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd"	\
+			   "env exists secureboot && esbc_halt;;"
+#define IFC_NOR_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;;"
+#define SD_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;;"
 #else
-#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#define CONFIG_BOOTCOMMAND		"sf probe && sf read $kernel_load "    \
-					"e0000 f00000 && bootm $kernel_load"
+#if defined(CONFIG_QSPI_BOOT)
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;;"
+#elif defined(CONFIG_NAND_BOOT)
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run nand_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;;"
+#elif defined(CONFIG_SD_BOOT)
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;;"
 #else
-#define CONFIG_BOOTCOMMAND		"cp.b $kernel_start $kernel_load "     \
-					"$kernel_size && bootm $kernel_load"
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;;"
 #endif
 #endif
 

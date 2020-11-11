@@ -66,13 +66,6 @@ strictly necessary. Notable problems include:
      normally also supports device tree it must use #ifdef to separate
      out this code, since the structures are only available in SPL.
 
-   - Correct relations between nodes are not implemented. This means that
-     parent/child relations (like bus device iteration) do not work yet.
-     Some phandles (those that are recognised as such) are converted into
-     a pointer to platform data. This pointer can potentially be used to
-     access the referenced device (by searching for the pointer value).
-     This feature is not yet implemented, however.
-
 
 How it works
 ------------
@@ -135,10 +128,14 @@ the following C struct declaration:
             fdt32_t         vmmc_supply;
     };
 
-and the following device declaration:
+and the following device declarations:
 
 .. code-block:: c
 
+    /* Node /clock-controller@ff760000 index 0 */
+    ...
+
+    /* Node /dwmmc@ff0c0000 index 2 */
     static struct dtd_rockchip_rk3288_dw_mshc dtv_dwmmc_at_ff0c0000 = {
             .fifo_depth             = 0x100,
             .cap_sd_highspeed       = true,
@@ -146,10 +143,10 @@ and the following device declaration:
             .clock_freq_min_max     = {0x61a80, 0x8f0d180},
             .vmmc_supply            = 0xb,
             .num_slots              = 0x1,
-            .clocks                 = {{&dtv_clock_controller_at_ff760000, 456},
-                                       {&dtv_clock_controller_at_ff760000, 68},
-                                       {&dtv_clock_controller_at_ff760000, 114},
-                                       {&dtv_clock_controller_at_ff760000, 118}},
+            .clocks                 = {{0, 456},
+                                       {0, 68},
+                                       {0, 114},
+                                       {0, 118}},
             .cap_mmc_highspeed      = true,
             .disable_wp             = true,
             .bus_width              = 0x4,
@@ -162,7 +159,11 @@ and the following device declaration:
             .name           = "rockchip_rk3288_dw_mshc",
             .platdata       = &dtv_dwmmc_at_ff0c0000,
             .platdata_size  = sizeof(dtv_dwmmc_at_ff0c0000),
+            .parent_idx     = -1,
     };
+
+    void dm_populate_phandle_data(void) {
+    }
 
 The device is then instantiated at run-time and the platform data can be
 accessed using:
@@ -182,6 +183,24 @@ via U_BOOT_DRIVER(). This effectively means that a U_BOOT_DRIVER() with a
 'name' corresponding to the devicetree 'compatible' string (after converting
 it to a valid name for C) is needed, so a dedicated driver is required for
 each 'compatible' string.
+
+In order to make this a bit more flexible U_BOOT_DRIVER_ALIAS macro can be
+used to declare an alias for a driver name, typically a 'compatible' string.
+This macro produces no code, but it is by dtoc tool.
+
+The parent_idx is the index of the parent driver_info structure within its
+linker list (instantiated by the U_BOOT_DEVICE() macro). This is used to support
+dev_get_parent(). The dm_populate_phandle_data() is included to allow for
+fix-ups required by dtoc. It is not currently used. The values in 'clocks' are
+the index of the driver_info for the target device followed by any phandle
+arguments. This is used to support device_get_by_driver_info_idx().
+
+During the build process dtoc parses both U_BOOT_DRIVER and U_BOOT_DRIVER_ALIAS
+to build a list of valid driver names and driver aliases. If the 'compatible'
+string used for a device does not not match a valid driver name, it will be
+checked against the list of driver aliases in order to get the right driver
+name to use. If in this step there is no match found a warning is issued to
+avoid run-time failures.
 
 Where a node has multiple compatible strings, a #define is used to make them
 equivalent, e.g.:
@@ -269,7 +288,7 @@ For example:
     };
 
     U_BOOT_DRIVER(mmc_drv) = {
-            .name           = "vendor_mmc",  /* matches compatible string */
+            .name           = "mmc_drv",
             .id             = UCLASS_MMC,
             .of_match       = mmc_ids,
             .ofdata_to_platdata = mmc_ofdata_to_platdata,
@@ -278,6 +297,13 @@ For example:
             .platdata_auto_alloc_size = sizeof(struct mmc_platdata),
     };
 
+    U_BOOT_DRIVER_ALIAS(mmc_drv, vendor_mmc) /* matches compatible string */
+
+Note that struct mmc_platdata is defined in the C file, not in a header. This
+is to avoid needing to include dt-structs.h in a header file. The idea is to
+keep the use of each of-platdata struct to the smallest possible code area.
+There is just one driver C file for each struct, that can convert from the
+of-platdata struct to the standard one used by the driver.
 
 In the case where SPL_OF_PLATDATA is enabled, platdata_auto_alloc_size is
 still used to allocate space for the platform data. This is different from
@@ -311,14 +337,11 @@ prevents them being used inadvertently. All usage must be bracketed with
 #if CONFIG_IS_ENABLED(OF_PLATDATA).
 
 The dt-platdata.c file contains the device declarations and is is built in
-spl/dt-platdata.c.
+spl/dt-platdata.c. It additionally contains the definition of
+dm_populate_phandle_data() which is responsible of filling the phandle
+information by adding references to U_BOOT_DEVICE by using DM_GET_DEVICE
 
-The beginnings of a libfdt Python module are provided. So far this only
-implements a subset of the features.
-
-The 'swig' tool is needed to build the libfdt Python module. If this is not
-found then the Python model is not used and a fallback is used instead, which
-makes use of fdtget.
+The pylibfdt Python module is used to access the devicetree.
 
 
 Credits
@@ -331,11 +354,10 @@ Future work
 -----------
 - Consider programmatically reading binding files instead of device tree
   contents
-- Complete the phandle feature
-- Move to using a full Python libfdt module
 
 
 .. Simon Glass <sjg@chromium.org>
 .. Google, Inc
 .. 6/6/16
 .. Updated Independence Day 2016
+.. Updated 1st October 2020

@@ -8,6 +8,8 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <vsprintf.h>
 #include <linux/sizes.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
@@ -130,7 +132,7 @@ int board_init(void)
 }
 
 #ifdef CONFIG_DRIVER_DM9000
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return dm9000_initialize(bis);
 }

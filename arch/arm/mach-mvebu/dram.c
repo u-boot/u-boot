@@ -7,6 +7,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
@@ -280,16 +281,6 @@ int dram_init(void)
 		if (size > MVEBU_SDRAM_SIZE_MAX)
 			size = MVEBU_SDRAM_SIZE_MAX;
 	}
-
-	for (; i < CONFIG_NR_DRAM_BANKS; i++) {
-		/* If above loop terminated prematurely, we need to set
-		 * remaining banks' start address & size as 0. Otherwise other
-		 * u-boot functions and Linux kernel gets wrong values which
-		 * could result in crash */
-		gd->bd->bi_dram[i].start = 0;
-		gd->bd->bi_dram[i].size = 0;
-	}
-
 
 	if (ecc_enabled())
 		dram_ecc_scrubbing();

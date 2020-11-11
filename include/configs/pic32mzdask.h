@@ -19,9 +19,6 @@
 /*----------------------------------------------------------------------
  * Memory Layout
  */
-#define CONFIG_SYS_SRAM_BASE		0x80000000
-#define CONFIG_SYS_SRAM_SIZE		0x00080000 /* 512K */
-
 /* Initial RAM for temporary stack, global data */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x10000
 #define CONFIG_SYS_INIT_RAM_ADDR	\
@@ -42,8 +39,6 @@
 #define CONFIG_SYS_FDT_ADDR		0x89d00000
 
 /* Memory Test */
-#define CONFIG_SYS_MEMTEST_START	0x88000000
-#define CONFIG_SYS_MEMTEST_END		0x88080000
 
 /*----------------------------------------------------------------------
  * Commands
@@ -57,7 +52,6 @@
 /*-----------------------------------------------------------------------
  * Networking Configuration
  */
-#define CONFIG_PHY_SMSC
 #define CONFIG_SYS_RX_ETH_BUFFER	8
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_ARP_TIMEOUT		500 /* millisec */
@@ -74,7 +68,6 @@
 /* -------------------------------------------------
  * Environment
  */
-#define CONFIG_ENV_SIZE		0x4000
 
 /* ---------------------------------------------------------------------
  * Board boot configuration

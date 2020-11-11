@@ -18,8 +18,8 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif
 
+#include <linux/stringify.h>
 #define CONFIG_PCI_INDIRECT_BRIDGE
-#define CONFIG_FSL_ELBC 1
 
 /*
  * On-board devices
@@ -29,9 +29,6 @@
  */
 #define CONFIG_VSC7385_ENET
 #define CONFIG_TSEC2
-
-#define CONFIG_SYS_MEMTEST_START	0x00001000
-#define CONFIG_SYS_MEMTEST_END		0x07f00000
 
 /* Early revs of this board will lock up hard when attempting
  * to access the PMC registers, unless a JTAG debugger is
@@ -266,15 +263,7 @@
  * Environment
  */
 #if !defined(CONFIG_SYS_RAMBOOT)
-	#define CONFIG_ENV_ADDR		\
-			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
-	#define CONFIG_ENV_SECT_SIZE	0x10000	/* 64K(one sector) for env */
-	#define CONFIG_ENV_SIZE		0x2000
-
 /* Address and size of Redundant Environment Sector */
-#else
-	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
-	#define CONFIG_ENV_SIZE		0x2000
 #endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
@@ -284,10 +273,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-
-/*
- * Command line configuration.
- */
 
 /*
  * Miscellaneous configurable options
@@ -319,7 +304,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_NETDEV		"eth1"
 

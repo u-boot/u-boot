@@ -13,6 +13,7 @@
 #include <div64.h>
 #include <fdtdec.h>
 #include <i2c.h>
+#include <log.h>
 #include <sound.h>
 #include <asm/gpio.h>
 #include "i2s.h"

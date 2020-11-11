@@ -3,6 +3,8 @@
  * Copyright 2016 Freescale Semiconductor, Inc.
  */
 #include <common.h>
+#include <fdt_support.h>
+#include <net.h>
 #include <asm/io.h>
 #include <netdev.h>
 #include <fm_eth.h>
@@ -12,7 +14,7 @@
 
 #include "../common/fman.h"
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_FMAN_ENET
 	int i;

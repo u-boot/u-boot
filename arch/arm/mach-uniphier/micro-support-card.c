@@ -1,38 +1,58 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2012-2015 Panasonic Corporation
- * Copyright (C) 2015-2016 Socionext Inc.
+ * Copyright (C) 2015-2020 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
+#include <dm.h>
+#include <fdt_support.h>
 #include <linux/ctype.h>
+#include <linux/delay.h>
 #include <linux/io.h>
+#include <asm/global_data.h>
 
 #include "micro-support-card.h"
 
-#define MICRO_SUPPORT_CARD_BASE		0x43f00000
-#define SMC911X_BASE			((MICRO_SUPPORT_CARD_BASE) + 0x00000)
-#define LED_BASE			((MICRO_SUPPORT_CARD_BASE) + 0x90000)
-#define NS16550A_BASE			((MICRO_SUPPORT_CARD_BASE) + 0xb0000)
-#define MICRO_SUPPORT_CARD_RESET	((MICRO_SUPPORT_CARD_BASE) + 0xd0034)
-#define MICRO_SUPPORT_CARD_REVISION	((MICRO_SUPPORT_CARD_BASE) + 0xd00E0)
+#define SMC911X_OFFSET			0x00000
+#define LED_OFFSET			0x90000
+#define NS16550A_OFFSET			0xb0000
+#define MICRO_SUPPORT_CARD_RESET	0xd0034
+#define MICRO_SUPPORT_CARD_REVISION	0xd00e0
 
 static bool support_card_found;
+static void __iomem *support_card_base;
 
 static void support_card_detect(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	const void *fdt = gd->fdt_blob;
 	int offset;
+	u64 addr, addr2;
 
 	offset = fdt_node_offset_by_compatible(fdt, 0, "smsc,lan9118");
 	if (offset < 0)
 		return;
 
+	addr = fdt_get_base_address(fdt, offset);
+	if (addr == OF_BAD_ADDR)
+		return;
+	addr -= SMC911X_OFFSET;
+
 	offset = fdt_node_offset_by_compatible(fdt, 0, "ns16550a");
 	if (offset < 0)
 		return;
+
+	addr2 = fdt_get_base_address(fdt, offset);
+	if (addr2 == OF_BAD_ADDR)
+		return;
+	addr2 -= NS16550A_OFFSET;
+
+	/* sanity check */
+	if (addr != addr2)
+		return;
+
+	support_card_base = ioremap(addr, 0x100000);
 
 	support_card_found = true;
 }
@@ -45,19 +65,19 @@ static void support_card_detect(void)
  */
 static void support_card_reset_deassert(void)
 {
-	writel(0x00010000, MICRO_SUPPORT_CARD_RESET);
+	writel(0x00010000, support_card_base + MICRO_SUPPORT_CARD_RESET);
 }
 
 static void support_card_reset(void)
 {
-	writel(0x00020003, MICRO_SUPPORT_CARD_RESET);
+	writel(0x00020003, support_card_base + MICRO_SUPPORT_CARD_RESET);
 }
 
 static int support_card_show_revision(void)
 {
 	u32 revision;
 
-	revision = readl(MICRO_SUPPORT_CARD_REVISION);
+	revision = readl(support_card_base + MICRO_SUPPORT_CARD_REVISION);
 	revision &= 0xff;
 
 	/* revision 3.6.x card changed the revision format */
@@ -70,6 +90,17 @@ static int support_card_show_revision(void)
 
 void support_card_init(void)
 {
+	struct udevice *dev;
+	int ret;
+
+	/* The system bus must be initialized for access to the support card. */
+	ret = uclass_get_device_by_driver(UCLASS_SIMPLE_BUS,
+					  DM_GET_DRIVER(uniphier_system_bus_driver),
+					  &dev);
+	if (ret)
+		return;
+
+	/* Check DT to see if this board has the support card. */
 	support_card_detect();
 
 	if (!support_card_found)
@@ -84,114 +115,6 @@ void support_card_init(void)
 	support_card_reset_deassert();
 
 	support_card_show_revision();
-}
-
-#if defined(CONFIG_SMC911X)
-#include <netdev.h>
-
-int board_eth_init(bd_t *bis)
-{
-	if (!support_card_found)
-		return 0;
-
-	return smc911x_initialize(0, SMC911X_BASE);
-}
-#endif
-
-#if defined(CONFIG_MTD_NOR_FLASH)
-
-#include <mtd/cfi_flash.h>
-
-struct memory_bank {
-	phys_addr_t base;
-	unsigned long size;
-};
-
-static int mem_is_flash(const struct memory_bank *mem)
-{
-	const int loop = 128;
-	u32 *scratch_addr;
-	u32 saved_value;
-	int ret = 1;
-	int i;
-
-	/* just in case, use the tail of the memory bank */
-	scratch_addr = map_physmem(mem->base + mem->size - sizeof(u32) * loop,
-				   sizeof(u32) * loop, MAP_NOCACHE);
-
-	for (i = 0; i < loop; i++, scratch_addr++) {
-		saved_value = readl(scratch_addr);
-		writel(~saved_value, scratch_addr);
-		if (readl(scratch_addr) != saved_value) {
-			/* We assume no memory or SRAM here. */
-			writel(saved_value, scratch_addr);
-			ret = 0;
-			break;
-		}
-	}
-
-	unmap_physmem(scratch_addr, MAP_NOCACHE);
-
-	return ret;
-}
-
-/* {address, size} */
-static const struct memory_bank memory_banks[] = {
-	{0x42000000, 0x01f00000},
-};
-
-static const struct memory_bank
-*flash_banks_list[CONFIG_SYS_MAX_FLASH_BANKS_DETECT];
-
-phys_addr_t cfi_flash_bank_addr(int i)
-{
-	return flash_banks_list[i]->base;
-}
-
-unsigned long cfi_flash_bank_size(int i)
-{
-	return flash_banks_list[i]->size;
-}
-
-static void detect_num_flash_banks(void)
-{
-	const struct memory_bank *memory_bank, *end;
-
-	cfi_flash_num_flash_banks = 0;
-
-	memory_bank = memory_banks;
-	end = memory_bank + ARRAY_SIZE(memory_banks);
-
-	for (; memory_bank < end; memory_bank++) {
-		if (cfi_flash_num_flash_banks >=
-		    CONFIG_SYS_MAX_FLASH_BANKS_DETECT)
-			break;
-
-		if (mem_is_flash(memory_bank)) {
-			flash_banks_list[cfi_flash_num_flash_banks] =
-								memory_bank;
-
-			debug("flash bank found: base = 0x%lx, size = 0x%lx\n",
-			      (unsigned long)memory_bank->base,
-			      (unsigned long)memory_bank->size);
-			cfi_flash_num_flash_banks++;
-		}
-	}
-
-	debug("number of flash banks: %d\n", cfi_flash_num_flash_banks);
-}
-#else /* CONFIG_MTD_NOR_FLASH */
-static void detect_num_flash_banks(void)
-{
-};
-#endif /* CONFIG_MTD_NOR_FLASH */
-
-void support_card_late_init(void)
-{
-	if (!support_card_found)
-		return;
-
-	detect_num_flash_banks();
 }
 
 static const u8 ledval_num[] = {
@@ -264,5 +187,5 @@ void led_puts(const char *s)
 			s++;
 	}
 
-	writel(~val, LED_BASE);
+	writel(~val, support_card_base + LED_OFFSET);
 }

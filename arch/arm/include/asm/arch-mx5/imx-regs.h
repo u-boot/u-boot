@@ -557,6 +557,6 @@ struct pwm_regs {
 	u32	cnr;
 };
 
-#endif /* __ASSEMBLER__*/
+#endif /* __ASSEMBLY__ */
 
 #endif				/* __ASM_ARCH_MX5_IMX_REGS_H__ */

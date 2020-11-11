@@ -7,7 +7,7 @@
 #ifndef _ASM_MRCCACHE_H
 #define _ASM_MRCCACHE_H
 
-#define MRC_DATA_ALIGN		0x1000
+#define MRC_DATA_ALIGN		0x100
 #define MRC_DATA_SIGNATURE	(('M' << 0) | ('R' << 8) | \
 				 ('C' << 16) | ('D'<<24))
 
@@ -27,6 +27,14 @@ struct mrc_region {
 	u32	length;
 };
 
+/* Types of MRC data */
+enum mrc_type_t {
+	MRC_TYPE_NORMAL,
+	MRC_TYPE_VAR,
+
+	MRC_TYPE_COUNT,
+};
+
 struct udevice;
 
 /**
@@ -39,21 +47,6 @@ struct udevice;
  * @return pointer to latest record, or NULL if none
  */
 struct mrc_data_container *mrccache_find_current(struct mrc_region *entry);
-
-/**
- * mrccache_update() - update the MRC cache with a new record
- *
- * This writes a new record to the end of the MRC cache region. If the new
- * record is the same as the latest record then the write is skipped
- *
- * @sf:		SPI flash to write to
- * @entry:	Position and size of MRC cache in SPI flash
- * @cur:	Record to write
- * @return 0 if updated, -EEXIST if the record is the same as the latest
- * record, -EINVAL if the record is not valid, other error if SPI write failed
- */
-int mrccache_update(struct udevice *sf, struct mrc_region *entry,
-		    struct mrc_data_container *cur);
 
 /**
  * mrccache_reserve() - reserve MRC data on the stack
@@ -73,25 +66,20 @@ int mrccache_reserve(void);
  * mrccache_get_region() - get MRC region on the SPI flash
  *
  * This gets MRC region whose offset and size are described in the device tree
- * as a subnode to the SPI flash. If a non-NULL device pointer is supplied,
- * this also probes the SPI flash device and returns its device pointer for
- * the caller to use later.
+ * as a subnode to the SPI flash. This tries to find the SPI flash device
+ * (without probing it), falling back to looking for the devicetree node if
+ * driver model is not inited or the SPI flash is not found.
  *
- * Be careful when calling this routine with a non-NULL device pointer:
- * - driver model initialization must be complete
- * - calling in the pre-relocation phase may bring some side effects during
- *   the SPI flash device probe (eg: for SPI controllers on a PCI bus, it
- *   triggers PCI bus enumeration during which insufficient memory issue
- *   might be exposed and it causes subsequent SPI flash probe fails).
- *
- * @devp:	Returns pointer to the SPI flash device
+ * @type:	Type of MRC data to use
+ * @devp:	Returns pointer to the SPI flash device, if found
  * @entry:	Position and size of MRC cache in SPI flash
  * @return 0 if success, -ENOENT if SPI flash node does not exist in the
  * device tree, -EPERM if MRC region subnode does not exist in the device
  * tree, -EINVAL if MRC region properties format is incorrect, other error
  * if SPI flash probe failed.
  */
-int mrccache_get_region(struct udevice **devp, struct mrc_region *entry);
+int mrccache_get_region(enum mrc_type_t type, struct udevice **devp,
+			struct mrc_region *entry);
 
 /**
  * mrccache_save() - save MRC data to the SPI flash

@@ -1,6 +1,7 @@
 /* $Id$ */
 
 #include <common.h>
+#include <asm/ptrace.h>
 
 #include <linux/ctype.h>
 #include <bedbug/bedbug.h>

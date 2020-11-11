@@ -30,6 +30,8 @@
  */
 
 #include <common.h>
+#include <command.h>
+#include <irq_func.h>
 #include <asm/interrupt.h>
 
 #if !CONFIG_IS_ENABLED(X86_64)
@@ -126,11 +128,14 @@ void do_irq(int hw_irq)
 #endif
 
 #if defined(CONFIG_CMD_IRQ)
-int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_irqinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 #if !CONFIG_IS_ENABLED(X86_64)
+	struct idt_ptr ptr;
 	int irq;
 
+	interrupt_read_idt(&ptr);
+	printf("IDT at %lx, size %x\n", ptr.address, ptr.size);
 	printf("Spurious IRQ: %u, last unknown IRQ: %d\n",
 			spurious_irq_cnt, spurious_irq);
 

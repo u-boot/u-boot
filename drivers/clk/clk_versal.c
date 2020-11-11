@@ -5,6 +5,10 @@
  */
 
 #include <common.h>
+#include <log.h>
+#include <asm/cache.h>
+#include <asm/ptrace.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/bitfield.h>
 #include <malloc.h>
@@ -13,6 +17,7 @@
 #include <dm.h>
 #include <asm/arch/sys_proto.h>
 #include <zynqmp_firmware.h>
+#include <linux/err.h>
 
 #define MAX_PARENT			100
 #define MAX_NODES			6
@@ -63,23 +68,6 @@
 #define CLOCK_NODE_TYPE_DIV	4
 #define CLOCK_NODE_TYPE_GATE	6
 
-enum pm_query_id {
-	PM_QID_INVALID,
-	PM_QID_CLOCK_GET_NAME,
-	PM_QID_CLOCK_GET_TOPOLOGY,
-	PM_QID_CLOCK_GET_FIXEDFACTOR_PARAMS,
-	PM_QID_CLOCK_GET_PARENTS,
-	PM_QID_CLOCK_GET_ATTRIBUTES,
-	PM_QID_PINCTRL_GET_NUM_PINS,
-	PM_QID_PINCTRL_GET_NUM_FUNCTIONS,
-	PM_QID_PINCTRL_GET_NUM_FUNCTION_GROUPS,
-	PM_QID_PINCTRL_GET_FUNCTION_NAME,
-	PM_QID_PINCTRL_GET_FUNCTION_GROUPS,
-	PM_QID_PINCTRL_GET_PIN_GROUPS,
-	PM_QID_CLOCK_GET_NUM_CLOCKS,
-	PM_QID_CLOCK_GET_MAX_DIVISOR,
-};
-
 enum clk_type {
 	CLK_TYPE_OUTPUT,
 	CLK_TYPE_EXTERNAL,
@@ -112,7 +100,6 @@ struct versal_clk_priv {
 	struct versal_clock *clk;
 };
 
-static ulong alt_ref_clk;
 static ulong pl_alt_ref_clk;
 static ulong ref_clk;
 
@@ -501,6 +488,9 @@ static u64 versal_clock_calc(u32 clk_id)
 	     NODE_CLASS_MASK) == NODE_SUBCLASS_CLOCK_REF)
 		return versal_clock_ref(clk_id);
 
+	if (!parent_id)
+		return 0;
+
 	clk_rate = versal_clock_calc(parent_id);
 
 	if (versal_clock_div(clk_id)) {
@@ -524,7 +514,7 @@ static int versal_clock_get_rate(u32 clk_id, u64 *clk_rate)
 	     NODE_CLASS_MASK) == NODE_SUBCLASS_CLOCK_OUT &&
 	    ((clk_id >> NODE_CLASS_SHIFT) &
 	     NODE_CLASS_MASK) == NODE_CLASS_CLOCK) {
-		if (!versal_clock_gate(clk_id))
+		if (!versal_clock_gate(clk_id) && !versal_clock_mux(clk_id))
 			return -EINVAL;
 		*clk_rate = versal_clock_calc(clk_id);
 		return 0;
@@ -540,8 +530,7 @@ int soc_clk_dump(void)
 
 	printf("\n ****** VERSAL CLOCKS *****\n");
 
-	printf("alt_ref_clk:%ld pl_alt_ref_clk:%ld ref_clk:%ld\n",
-	       alt_ref_clk, pl_alt_ref_clk, ref_clk);
+	printf("pl_alt_ref_clk:%ld ref_clk:%ld\n", pl_alt_ref_clk, ref_clk);
 	for (i = 0; i < clock_max_idx; i++) {
 		debug("%s\n", clock[i].clk_name);
 		ret = versal_get_clock_type(i, &type);
@@ -569,6 +558,12 @@ static void versal_get_clock_info(void)
 			continue;
 
 		clock[i].valid = attr & CLK_VALID_MASK;
+
+		/* skip query for Invalid clock */
+		ret = versal_is_valid_clock(i);
+		if (ret != CLK_VALID_MASK)
+			continue;
+
 		clock[i].type = ((attr >> CLK_TYPE_SHIFT) & 0x1) ?
 				CLK_TYPE_EXTERNAL : CLK_TYPE_OUTPUT;
 		nodetype = (attr >> NODE_TYPE_SHIFT) & NODE_CLASS_MASK;
@@ -652,10 +647,6 @@ static int versal_clk_probe(struct udevice *dev)
 	struct versal_clk_priv *priv = dev_get_priv(dev);
 
 	debug("%s\n", __func__);
-
-	ret = versal_clock_get_freq_by_name("alt_ref_clk", dev, &alt_ref_clk);
-	if (ret < 0)
-		return -EINVAL;
 
 	ret = versal_clock_get_freq_by_name("pl_alt_ref_clk",
 					    dev, &pl_alt_ref_clk);

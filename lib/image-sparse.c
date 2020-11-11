@@ -36,11 +36,14 @@
 
 #include <config.h>
 #include <common.h>
+#include <blk.h>
 #include <image-sparse.h>
 #include <div64.h>
+#include <log.h>
 #include <malloc.h>
 #include <part.h>
 #include <sparse_format.h>
+#include <asm/cache.h>
 
 #include <linux/math64.h>
 

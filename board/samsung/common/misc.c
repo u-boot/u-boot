@@ -5,9 +5,11 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
 #include <lcd.h>
 #include <libtizen.h>
+#include <linux/delay.h>
 #include <samsung/misc.h>
 #include <errno.h>
 #include <version.h>
@@ -261,7 +263,7 @@ static int mode_leave_menu(int mode)
 	char *exit_option;
 	char *exit_reset = "reset";
 	char *exit_back = "back";
-	cmd_tbl_t *cmd;
+	struct cmd_tbl *cmd;
 	int cmd_result;
 	int leave;
 

@@ -7,13 +7,18 @@
 #include <dm.h>
 #include <errno.h>
 #include <i2c.h>
+#include <log.h>
 #include <malloc.h>
+#include <acpi/acpi_device.h>
+#include <dm/acpi.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 #include <asm/gpio.h>
 #endif
+#include <linux/delay.h>
+#include "acpi_i2c.h"
 
 #define I2C_MAX_OFFSET_LEN	4
 
@@ -52,16 +57,19 @@ void i2c_dump_msgs(struct i2c_msg *msg, int nmsgs)
 static int i2c_setup_offset(struct dm_i2c_chip *chip, uint offset,
 			    uint8_t offset_buf[], struct i2c_msg *msg)
 {
-	int offset_len;
+	int offset_len = chip->offset_len;
 
 	msg->addr = chip->chip_addr;
+	if (chip->chip_addr_offset_mask)
+		msg->addr |= (offset >> (8 * offset_len)) &
+			chip->chip_addr_offset_mask;
 	msg->flags = chip->flags & DM_I2C_CHIP_10BIT ? I2C_M_TEN : 0;
 	msg->len = chip->offset_len;
 	msg->buf = offset_buf;
-	if (!chip->offset_len)
+	if (!offset_len)
 		return -EADDRNOTAVAIL;
-	assert(chip->offset_len <= I2C_MAX_OFFSET_LEN);
-	offset_len = chip->offset_len;
+	assert(offset_len <= I2C_MAX_OFFSET_LEN);
+
 	while (offset_len--)
 		*offset_buf++ = offset >> (8 * offset_len);
 
@@ -83,7 +91,7 @@ static int i2c_read_bytewise(struct udevice *dev, uint offset,
 		if (i2c_setup_offset(chip, offset + i, offset_buf, msg))
 			return -EINVAL;
 		ptr = msg + 1;
-		ptr->addr = chip->chip_addr;
+		ptr->addr = msg->addr;
 		ptr->flags = msg->flags | I2C_M_RD;
 		ptr->len = 1;
 		ptr->buf = &buffer[i];
@@ -139,7 +147,7 @@ int dm_i2c_read(struct udevice *dev, uint offset, uint8_t *buffer, int len)
 		ptr++;
 
 	if (len) {
-		ptr->addr = chip->chip_addr;
+		ptr->addr = msg->addr;
 		ptr->flags = chip->flags & DM_I2C_CHIP_10BIT ? I2C_M_TEN : 0;
 		ptr->flags |= I2C_M_RD;
 		ptr->len = len;
@@ -323,7 +331,8 @@ int i2c_get_chip(struct udevice *bus, uint chip_addr, uint offset_len,
 		struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
 		int ret;
 
-		if (chip->chip_addr == chip_addr) {
+		if (chip->chip_addr == (chip_addr &
+					~chip->chip_addr_offset_mask)) {
 			ret = device_probe(dev);
 			debug("found, ret=%d\n", ret);
 			if (ret)
@@ -452,7 +461,7 @@ int i2c_set_chip_offset_len(struct udevice *dev, uint offset_len)
 	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
 
 	if (offset_len > I2C_MAX_OFFSET_LEN)
-		return -EINVAL;
+		return log_ret(-EINVAL);
 	chip->offset_len = offset_len;
 
 	return 0;
@@ -465,7 +474,23 @@ int i2c_get_chip_offset_len(struct udevice *dev)
 	return chip->offset_len;
 }
 
-#ifdef CONFIG_DM_GPIO
+int i2c_set_chip_addr_offset_mask(struct udevice *dev, uint mask)
+{
+	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+
+	chip->chip_addr_offset_mask = mask;
+
+	return 0;
+}
+
+uint i2c_get_chip_addr_offset_mask(struct udevice *dev)
+{
+	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+
+	return chip->chip_addr_offset_mask;
+}
+
+#if CONFIG_IS_ENABLED(DM_GPIO)
 static void i2c_gpio_set_pin(struct gpio_desc *pin, int bit)
 {
 	if (bit)
@@ -481,35 +506,53 @@ static int i2c_gpio_get_pin(struct gpio_desc *pin)
 	return dm_gpio_get_value(pin);
 }
 
-static int i2c_deblock_gpio_loop(struct gpio_desc *sda_pin,
-				 struct gpio_desc *scl_pin)
+int i2c_deblock_gpio_loop(struct gpio_desc *sda_pin,
+			  struct gpio_desc *scl_pin,
+			  unsigned int scl_count,
+			  unsigned int start_count,
+			  unsigned int delay)
 {
-	int counter = 9;
-	int ret = 0;
+	int i, ret = -EREMOTEIO;
 
 	i2c_gpio_set_pin(sda_pin, 1);
 	i2c_gpio_set_pin(scl_pin, 1);
-	udelay(5);
+	udelay(delay);
 
 	/*  Toggle SCL until slave release SDA */
-	while (counter-- >= 0) {
+	for (; scl_count; --scl_count) {
 		i2c_gpio_set_pin(scl_pin, 1);
-		udelay(5);
+		udelay(delay);
 		i2c_gpio_set_pin(scl_pin, 0);
-		udelay(5);
-		if (i2c_gpio_get_pin(sda_pin))
+		udelay(delay);
+		if (i2c_gpio_get_pin(sda_pin)) {
+			ret = 0;
 			break;
+		}
+	}
+
+	if (!ret && start_count) {
+		for (i = 0; i < start_count; i++) {
+			/* Send start condition */
+			udelay(delay);
+			i2c_gpio_set_pin(sda_pin, 1);
+			udelay(delay);
+			i2c_gpio_set_pin(scl_pin, 1);
+			udelay(delay);
+			i2c_gpio_set_pin(sda_pin, 0);
+			udelay(delay);
+			i2c_gpio_set_pin(scl_pin, 0);
+		}
 	}
 
 	/* Then, send I2C stop */
 	i2c_gpio_set_pin(sda_pin, 0);
-	udelay(5);
+	udelay(delay);
 
 	i2c_gpio_set_pin(scl_pin, 1);
-	udelay(5);
+	udelay(delay);
 
 	i2c_gpio_set_pin(sda_pin, 1);
-	udelay(5);
+	udelay(delay);
 
 	if (!i2c_gpio_get_pin(sda_pin) || !i2c_gpio_get_pin(scl_pin))
 		ret = -EREMOTEIO;
@@ -541,7 +584,7 @@ static int i2c_deblock_gpio(struct udevice *bus)
 		goto out_no_pinctrl;
 	}
 
-	ret0 = i2c_deblock_gpio_loop(&gpios[PIN_SDA], &gpios[PIN_SCL]);
+	ret0 = i2c_deblock_gpio_loop(&gpios[PIN_SDA], &gpios[PIN_SCL], 9, 0, 5);
 
 	ret = pinctrl_select_state(bus, "default");
 	if (ret) {
@@ -561,7 +604,7 @@ static int i2c_deblock_gpio(struct udevice *bus)
 {
 	return -ENOSYS;
 }
-#endif // CONFIG_DM_GPIO
+#endif /* DM_GPIO */
 
 int i2c_deblock(struct udevice *bus)
 {
@@ -585,7 +628,7 @@ int i2c_chip_ofdata_to_platdata(struct udevice *dev, struct dm_i2c_chip *chip)
 	if (addr == -1) {
 		debug("%s: I2C Node '%s' has no 'reg' property %s\n", __func__,
 		      dev_read_name(dev), dev->name);
-		return -EINVAL;
+		return log_ret(-EINVAL);
 	}
 	chip->chip_addr = addr;
 
@@ -621,7 +664,8 @@ static int i2c_post_probe(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct dm_i2c_bus *i2c = dev_get_uclass_priv(dev);
 
-	i2c->speed_hz = dev_read_u32_default(dev, "clock-frequency", 100000);
+	i2c->speed_hz = dev_read_u32_default(dev, "clock-frequency",
+					     I2C_SPEED_STANDARD_RATE);
 
 	return dm_i2c_set_bus_speed(dev, i2c->speed_hz);
 #else
@@ -679,11 +723,10 @@ int i2c_uclass_init(struct uclass *class)
 		return -ENOMEM;
 
 	/* Get the last allocated alias. */
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-	priv->max_id = dev_read_alias_highest_id("i2c");
-#else
-	priv->max_id = -1;
-#endif
+	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA))
+		priv->max_id = dev_read_alias_highest_id("i2c");
+	else
+		priv->max_id = -1;
 
 	debug("%s: highest alias id is %d\n", __func__, priv->max_id);
 
@@ -709,7 +752,21 @@ UCLASS_DRIVER(i2c_generic) = {
 	.name		= "i2c_generic",
 };
 
+static const struct udevice_id generic_chip_i2c_ids[] = {
+	{ .compatible = "i2c-chip", .data = I2C_DEVICE_GENERIC },
+#if CONFIG_IS_ENABLED(ACPIGEN)
+	{ .compatible = "hid-over-i2c", .data = I2C_DEVICE_HID_OVER_I2C },
+#endif
+	{ }
+};
+
 U_BOOT_DRIVER(i2c_generic_chip_drv) = {
 	.name		= "i2c_generic_chip_drv",
 	.id		= UCLASS_I2C_GENERIC,
+	.of_match	= generic_chip_i2c_ids,
+#if CONFIG_IS_ENABLED(ACPIGEN)
+	.ofdata_to_platdata	= acpi_i2c_ofdata_to_platdata,
+	.priv_auto_alloc_size	= sizeof(struct acpi_i2c_priv),
+#endif
+	ACPI_OPS_PTR(&acpi_i2c_ops)
 };

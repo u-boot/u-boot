@@ -262,7 +262,7 @@ o config-1
   - loadables : Unit name containing a list of additional binaries to be
     loaded at their given locations.  "loadables" is a comma-separated list
     of strings. U-Boot will load each binary at its given start-address and
-    may optionaly invoke additional post-processing steps on this binary based
+    may optionally invoke additional post-processing steps on this binary based
     on its component image node type.
   - compatible : The root compatible string of the U-Boot device tree that
     this configuration shall automatically match when CONFIG_FIT_BEST_MATCH is
@@ -303,6 +303,11 @@ mkimage to enable 'data-position'.
 Normal kernel FIT image has data embedded within FIT structure. U-Boot image
 for SPL boot has external data. Existence of 'data-offset' can be used to
 identify which format is used.
+
+For FIT image with external data, it would be better to align each blob of data
+to block(512 byte) for block device, so that we don't need to do the copy when
+read the image data in SPL. Pass '-B 0x200' to mkimage to align the FIT
+structure and data to 512 byte, other values available for other align size.
 
 9) Examples
 -----------

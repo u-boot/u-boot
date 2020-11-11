@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <rtc.h>
 #include <pci.h>
 #include <asm/intel_regs.h>

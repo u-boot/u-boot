@@ -20,6 +20,14 @@
 int imx6_pcie_toggle_power(void);
 int imx6_pcie_toggle_reset(void);
 
+enum ldo_reg {
+	LDO_ARM,
+	LDO_SOC,
+	LDO_PU,
+};
+
+int set_ldo_voltage(enum ldo_reg ldo, u32 mv);
+
 /**
  * iomuxc_set_rgmii_io_voltage - set voltage level of RGMII/USB pins
  *

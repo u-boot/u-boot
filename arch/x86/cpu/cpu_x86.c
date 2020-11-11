@@ -26,7 +26,7 @@ int cpu_x86_bind(struct udevice *dev)
 	return 0;
 }
 
-int cpu_x86_get_vendor(struct udevice *dev, char *buf, int size)
+int cpu_x86_get_vendor(const struct udevice *dev, char *buf, int size)
 {
 	const char *vendor = cpu_vendor_name(gd->arch.x86_vendor);
 
@@ -38,7 +38,7 @@ int cpu_x86_get_vendor(struct udevice *dev, char *buf, int size)
 	return 0;
 }
 
-int cpu_x86_get_desc(struct udevice *dev, char *buf, int size)
+int cpu_x86_get_desc(const struct udevice *dev, char *buf, int size)
 {
 	char *ptr;
 
@@ -52,7 +52,7 @@ int cpu_x86_get_desc(struct udevice *dev, char *buf, int size)
 	return 0;
 }
 
-static int cpu_x86_get_count(struct udevice *dev)
+int cpu_x86_get_count(const struct udevice *dev)
 {
 	int node, cpu;
 	int num = 0;

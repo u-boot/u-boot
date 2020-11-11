@@ -72,7 +72,7 @@ CYGACC_COMM_IF_GETC_TIMEOUT (char chan, char *c)
     }
   if (tstc ())
     {
-      *c = getc ();
+      *c = getchar();
       return 1;
     }
   return 0;

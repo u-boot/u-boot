@@ -4,9 +4,11 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+#include <dm/root.h>
 #include <dm/uclass-internal.h>
 
 static int bind_by_class_index(const char *uclass, int index,
@@ -150,8 +152,8 @@ static int bind_by_node_path(const char *path, const char *drv_name)
 	}
 
 	ofnode = ofnode_path(path);
-	ret = device_bind_with_driver_data(parent, drv, ofnode_get_name(ofnode),
-					   0, ofnode, &dev);
+	ret = lists_bind_fdt(parent, ofnode, &dev, false);
+
 	if (!dev || ret) {
 		printf("Unable to bind. err:%d\n", ret);
 		return ret;
@@ -194,8 +196,8 @@ static int unbind_by_node_path(const char *path)
 	return 0;
 }
 
-static int do_bind_unbind(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int do_bind_unbind(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	int ret = 0;
 	bool bind;

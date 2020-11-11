@@ -3,22 +3,27 @@
  * Toradex Colibri PXA270 Support
  *
  * Copyright (C) 2010 Marek Vasut <marek.vasut@gmail.com>
- * Copyright (C) 2016 Marcel Ziswiler <marcel.ziswiler@toradex.com>
+ * Copyright (C) 2016-2019 Marcel Ziswiler <marcel.ziswiler@toradex.com>
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
+#include <init.h>
+#include <net.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/pxa.h>
 #include <asm/arch/regs-mmc.h>
 #include <asm/arch/regs-uart.h>
 #include <asm/io.h>
 #include <dm/platdata.h>
+#include <dm/platform_data/pxa_mmc_gen.h>
 #include <dm/platform_data/serial_pxa.h>
 #include <netdev.h>
 #include <serial.h>
 #include <usb.h>
 #include <asm/mach-types.h>
+#include <linux/delay.h>
 #include "../common/tdx-common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -32,7 +37,7 @@ int board_init(void)
 	/* arch number of Toradex Colibri PXA270 */
 	gd->bd->bi_arch_number = MACH_TYPE_COLIBRI;
 
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = 0xa0000100;
 
 	return 0;
@@ -46,7 +51,7 @@ int checkboard(void)
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	return ft_common_board_setup(blob, bd);
 }
@@ -82,7 +87,7 @@ int board_usb_init(int index, enum usb_init_type init)
 	writel(readl(UHCRHDA) | 0x100, UHCRHDA);
 
 	/* Set port power control mask bits, only 3 ports. */
-	writel(readl(UHCRHDB) | (0x7<<17), UHCRHDB);
+	writel(readl(UHCRHDB) | (0x7 << 17), UHCRHDB);
 
 	/* enable port 2 */
 	writel(readl(UP2OCR) | UP2OCR_HXOE | UP2OCR_HXS |
@@ -106,24 +111,33 @@ void usb_board_stop(void)
 	udelay(10);
 
 	writel(readl(CKEN) & ~CKEN10_USBHOST, CKEN);
-
-	return;
 }
 #endif
 
 #ifdef CONFIG_DRIVER_DM9000
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return dm9000_initialize(bis);
 }
 #endif
 
 #ifdef	CONFIG_CMD_MMC
-int board_mmc_init(bd_t *bis)
+#if !CONFIG_IS_ENABLED(DM_MMC)
+int board_mmc_init(struct bd_info *bis)
 {
 	pxa_mmc_register(0);
 	return 0;
 }
+#else /* !CONFIG_IS_ENABLED(DM_MMC) */
+static const struct pxa_mmc_plat mmc_platdata = {
+	.base = (struct pxa_mmc_regs *)MMC0_BASE,
+};
+
+U_BOOT_DEVICE(pxa_mmcs) = {
+	.name = "pxa_mmc",
+	.platdata = &mmc_platdata,
+};
+#endif /* !CONFIG_IS_ENABLED(DM_MMC) */
 #endif
 
 static const struct pxa_serial_platdata serial_platdata = {

@@ -7,11 +7,13 @@
  *
  * Based on code from LTIB:
  * Copyright 2008-2010 Freescale Semiconductor, Inc. All Rights Reserved.
+ * Copyright 2020 NXP
  */
 
 #ifndef __DMA_H__
 #define __DMA_H__
 
+#include <asm/cache.h>
 #include <linux/list.h>
 #include <linux/compiler.h>
 
@@ -53,7 +55,7 @@ enum {
 	MXS_DMA_CHANNEL_AHB_APBH_RESERVED1,
 	MXS_MAX_DMA_CHANNELS,
 };
-#elif defined(CONFIG_MX6) || defined(CONFIG_MX7)
+#else
 enum {
 	MXS_DMA_CHANNEL_AHB_APBH_GPMI0 = 0,
 	MXS_DMA_CHANNEL_AHB_APBH_GPMI1,
@@ -95,13 +97,13 @@ enum {
 #define	MXS_DMA_DESC_BYTES_OFFSET	16
 
 struct mxs_dma_cmd {
-	unsigned long		next;
-	unsigned long		data;
+	u32		next;
+	u32		data;
 	union {
-		dma_addr_t	address;
-		unsigned long	alternate;
+		u32	address;
+		u32	alternate;
 	};
-	unsigned long		pio_words[DMA_PIO_WORDS];
+	u32		pio_words[DMA_PIO_WORDS];
 };
 
 /*
@@ -117,7 +119,7 @@ struct mxs_dma_cmd {
 struct mxs_dma_desc {
 	struct mxs_dma_cmd	cmd;
 	unsigned int		flags;
-	dma_addr_t		address;
+	u32			address;
 	void			*buffer;
 	struct list_head	node;
 } __aligned(MXS_DMA_ALIGNMENT);

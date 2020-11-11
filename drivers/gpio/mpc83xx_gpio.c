@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <mpc83xx.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

@@ -18,14 +18,21 @@
  * IPI data structure. The hart ID is inserted by the hart handling the IPI and
  * calling the function.
  *
+ * @valid is used to determine whether a sent IPI originated from U-Boot. It is
+ * initialized to zero by board_init_f_alloc_reserve. When U-Boot sends its
+ * first IPI, it is set to 1. This prevents already-pending IPIs not sent by
+ * U-Boot from being taken.
+ *
  * @addr: Address of function
  * @arg0: First argument of function
  * @arg1: Second argument of function
+ * @valid: Whether this IPI is valid
  */
 struct ipi_data {
 	ulong addr;
 	ulong arg0;
 	ulong arg1;
+	unsigned int valid;
 };
 
 /**
@@ -46,8 +53,52 @@ void handle_ipi(ulong hart);
  * @addr: Address of function
  * @arg0: First argument of function
  * @arg1: Second argument of function
+ * @wait: Wait for harts to acknowledge request
  * @return 0 if OK, -ve on error
  */
-int smp_call_function(ulong addr, ulong arg0, ulong arg1);
+int smp_call_function(ulong addr, ulong arg0, ulong arg1, int wait);
+
+/**
+ * riscv_init_ipi() - Initialize inter-process interrupt (IPI) driver
+ *
+ * Platform code must provide this function. This function is called once after
+ * the cpu driver is initialized. No other riscv_*_ipi() calls will be made
+ * before this function is called.
+ *
+ * @return 0 if OK, -ve on error
+ */
+int riscv_init_ipi(void);
+
+/**
+ * riscv_send_ipi() - Send inter-processor interrupt (IPI)
+ *
+ * Platform code must provide this function.
+ *
+ * @hart: Hart ID of receiving hart
+ * @return 0 if OK, -ve on error
+ */
+int riscv_send_ipi(int hart);
+
+/**
+ * riscv_clear_ipi() - Clear inter-processor interrupt (IPI)
+ *
+ * Platform code must provide this function.
+ *
+ * @hart: Hart ID of hart to be cleared
+ * @return 0 if OK, -ve on error
+ */
+int riscv_clear_ipi(int hart);
+
+/**
+ * riscv_get_ipi() - Get status of inter-processor interrupt (IPI)
+ *
+ * Platform code must provide this function.
+ *
+ * @hart: Hart ID of hart to be checked
+ * @pending: Pointer to variable with result of the check,
+ *           1 if IPI is pending, 0 otherwise
+ * @return 0 if OK, -ve on error
+ */
+int riscv_get_ipi(int hart, int *pending);
 
 #endif

@@ -41,17 +41,11 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Memory Test */
-#define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE/2)
-#define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE)
 
 /* Serial Info */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* No NOR flash present */
-#define CONFIG_ENV_OFFSET      (6 * 64 * 1024)
-#define CONFIG_ENV_SIZE        (8 * 1024)
-#define CONFIG_SYS_MMC_ENV_DEV		0
 
 /* U-Boot general configuration */
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size  */
@@ -61,7 +55,6 @@
 /* Ethernet */
 #define CONFIG_FEC_MXC
 #define CONFIG_FEC_MXC_PHYADDR		0x1f
-#define CONFIG_ENV_OVERWRITE
 
 /* ESDHC driver */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	IMX_MMC_SDHC1_BASE
@@ -85,7 +78,6 @@
 
 /* Fuse API support */
 #define CONFIG_FSL_IIM
-#define CONFIG_CMD_FUSE
 
 /* Ethernet Configs */
 

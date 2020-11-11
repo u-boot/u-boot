@@ -4,13 +4,16 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <pci.h>
+#include <vsprintf.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/immap_85xx.h>
 #include <fsl_ddr_sdram.h>
 #include <ioports.h>
 #include <spd_sdram.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 
@@ -400,7 +403,7 @@ pci_init_board(void)
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 void
-ft_pci_setup(void *blob, bd_t *bd)
+ft_pci_setup(void *blob, struct bd_info *bd)
 {
 	int node, tmp[2];
 	const char *path;

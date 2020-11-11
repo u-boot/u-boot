@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <linux/libfdt.h>
 #include <power/act8846_pmic.h>
 #include <power/pmic.h>

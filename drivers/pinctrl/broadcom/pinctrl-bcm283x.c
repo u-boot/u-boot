@@ -14,6 +14,7 @@
 #include <config.h>
 #include <errno.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/pinctrl.h>
 #include <dm/root.h>
 #include <dm/device-internal.h>
@@ -62,7 +63,7 @@ static int bcm2835_gpio_get_func_id(struct udevice *dev, unsigned int gpio)
 int bcm283x_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
 	u32 pin_arr[MAX_PINS_PER_BANK];
-	u32 function;
+	int function;
 	int i, len, pin_count = 0;
 
 	if (!dev_read_prop(config, "brcm,pins", &len) || !len ||
@@ -99,26 +100,29 @@ static int bcm283x_pinctrl_get_gpio_mux(struct udevice *dev, int banknum,
 
 static const struct udevice_id bcm2835_pinctrl_id[] = {
 	{.compatible = "brcm,bcm2835-gpio"},
+	{.compatible = "brcm,bcm2711-gpio"},
 	{}
 };
 
-int bcm283x_pinctl_probe(struct udevice *dev)
+int bcm283x_pinctl_ofdata_to_platdata(struct udevice *dev)
 {
 	struct bcm283x_pinctrl_priv *priv;
-	int ret;
-	struct udevice *pdev;
 
 	priv = dev_get_priv(dev);
-	if (!priv) {
-		debug("%s: Failed to get private\n", __func__);
-		return -EINVAL;
-	}
 
 	priv->base_reg = dev_read_addr_ptr(dev);
-	if (priv->base_reg == (void *)FDT_ADDR_T_NONE) {
+	if (!priv->base_reg) {
 		debug("%s: Failed to get base address\n", __func__);
 		return -EINVAL;
 	}
+
+	return 0;
+}
+
+int bcm283x_pinctl_probe(struct udevice *dev)
+{
+	int ret;
+	struct udevice *pdev;
 
 	/* Create GPIO device as well */
 	ret = device_bind(dev, lists_driver_lookup_name("gpio_bcm2835"),
@@ -145,10 +149,11 @@ U_BOOT_DRIVER(pinctrl_bcm283x) = {
 	.name		= "bcm283x_pinctrl",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= of_match_ptr(bcm2835_pinctrl_id),
+	.ofdata_to_platdata = bcm283x_pinctl_ofdata_to_platdata,
 	.priv_auto_alloc_size = sizeof(struct bcm283x_pinctrl_priv),
 	.ops		= &bcm283x_pinctrl_ops,
 	.probe		= bcm283x_pinctl_probe,
-#if !CONFIG_IS_ENABLED(OF_CONTROL)
+#if CONFIG_IS_ENABLED(OF_BOARD)
 	.flags		= DM_FLAG_PRE_RELOC,
 #endif
 };

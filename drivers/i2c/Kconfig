@@ -71,6 +71,14 @@ config SYS_I2C_AT91
 	  i2c-gpio driver unless your system can cope with this limitation.
 	  Binding info: doc/device-tree-bindings/i2c/i2c-at91.txt
 
+config SYS_I2C_IPROC
+	bool "Broadcom I2C driver"
+	depends on DM_I2C
+	help
+	  Broadcom I2C driver.
+	  Add support for Broadcom I2C driver.
+	  Say yes here to to enable the Broadco I2C driver.
+
 config SYS_I2C_FSL
        bool "Freescale I2C bus driver"
        depends on DM_I2C
@@ -80,10 +88,18 @@ config SYS_I2C_FSL
 
 config SYS_I2C_CADENCE
 	tristate "Cadence I2C Controller"
-	depends on DM_I2C && (ARCH_ZYNQ || ARM64)
+	depends on DM_I2C
 	help
 	  Say yes here to select Cadence I2C Host Controller. This controller is
 	  e.g. used by Xilinx Zynq.
+
+config SYS_I2C_CA
+	tristate "Cortina-Access I2C Controller"
+	depends on DM_I2C && CORTINA_PLATFORM
+	default n
+	help
+	  Add support for the Cortina Access I2C host controller.
+	  Say yes here to select Cortina-Access I2C Host Controller.
 
 config SYS_I2C_DAVINCI
 	bool "Davinci I2C Controller"
@@ -317,6 +333,15 @@ config SYS_MXC_I2C8_SLAVE
 	 MXC I2C8 Slave
 endif
 
+config SYS_I2C_NEXELL
+	bool "Nexell I2C driver"
+	depends on DM_I2C
+	help
+	  Add support for the Nexell I2C driver. This is used with various
+	  Nexell parts such as S5Pxx18 series SoCs. All chips
+	  have several I2C ports and all are provided, controlled by the
+	  device tree.
+
 config SYS_I2C_OMAP24XX
 	bool "TI OMAP2+ I2C driver"
 	depends on ARCH_OMAP2PLUS || ARCH_K3
@@ -366,6 +391,16 @@ config SYS_I2C_SANDBOX
 	  bus. Devices can be attached to the bus using the device tree
 	  which specifies the driver to use.  See sandbox.dts as an example.
 
+config SYS_I2C_OCTEON
+	bool "Octeon II/III/TX/TX2 I2C driver"
+	depends on (ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2) && DM_I2C
+	default y
+	help
+	  Add support for the Marvell Octeon I2C driver. This is used with
+	  various Octeon parts such as Octeon II/III and OcteonTX/TX2. All
+	  chips have several I2C ports and all are provided, controlled by
+	  the device tree.
+
 config SYS_I2C_S3C24X0
 	bool "Samsung I2C driver"
 	depends on ARCH_EXYNOS4 && DM_I2C
@@ -394,7 +429,7 @@ config SYS_I2C_STM32F7
 
 config SYS_I2C_TEGRA
 	bool "NVIDIA Tegra internal I2C controller"
-	depends on TEGRA
+	depends on ARCH_TEGRA
 	help
 	  Support for NVIDIA I2C controller available in Tegra SoCs.
 

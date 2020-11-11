@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2018 NXP
+ * Copyright 2018, 2020 NXP
  */
 #include <common.h>
 #include <phy.h>
@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
+#include <linux/mii.h>
 
 u32 dpmac_to_devdisr[] = {
 	[WRIOP1_DPMAC1] = FSL_CHASSIS3_DEVDISR2_DPMAC1,
@@ -56,7 +57,7 @@ phy_interface_t wriop_dpmac_enet_if(int dpmac_id, int lane_prtcl)
 {
 	enum srds_prtcl;
 
-	if (is_device_disabled(dpmac_id + 1))
+	if (is_device_disabled(dpmac_id))
 		return PHY_INTERFACE_MODE_NONE;
 
 	if (lane_prtcl >= SGMII1 && lane_prtcl <= SGMII18)
@@ -91,7 +92,7 @@ void fsl_rgmii_init(void)
 		& FSL_CHASSIS3_EC1_REGSR_PRTCL_MASK;
 	ec >>= FSL_CHASSIS3_EC1_REGSR_PRTCL_SHIFT;
 
-	if (!ec && (wriop_is_enabled_dpmac(17) == -ENODEV))
+	if (!ec)
 		wriop_init_dpmac_enet_if(17, PHY_INTERFACE_MODE_RGMII_ID);
 #endif
 
@@ -100,7 +101,7 @@ void fsl_rgmii_init(void)
 		& FSL_CHASSIS3_EC2_REGSR_PRTCL_MASK;
 	ec >>= FSL_CHASSIS3_EC2_REGSR_PRTCL_SHIFT;
 
-	if (!ec && (wriop_is_enabled_dpmac(18) == -ENODEV))
+	if (!ec)
 		wriop_init_dpmac_enet_if(18, PHY_INTERFACE_MODE_RGMII_ID);
 #endif
 }

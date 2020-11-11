@@ -18,8 +18,10 @@ Optional properties:
 - dmas: DMA specifiers (see: dma/stm32-mdma.txt)
 - dma-names: Must be "tx", "rx" and "ecc"
 
-Optional children nodes:
-Children nodes represent the available NAND chips.
+* NAND device bindings:
+
+Required properties:
+- reg: describes the CS lines assigned to the NAND device.
 
 Optional properties:
 - nand-on-flash-bbt: see nand.txt

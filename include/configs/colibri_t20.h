@@ -27,13 +27,14 @@
 #define CONFIG_TEGRA_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
-/* Environment in NAND, 64K is a bit excessive but erase block is 512K anyway */
-#define CONFIG_ENV_OFFSET		(SZ_2M)
-#undef CONFIG_ENV_SIZE		/* undef size from tegra20-common.h */
-#define CONFIG_ENV_SIZE			(SZ_64K)
+#define UBOOT_UPDATE \
+	"update_uboot=nand erase.part u-boot && " \
+		"nand write ${loadaddr} u-boot ${filesize}\0" \
 
+/* Environment in NAND, 64K is a bit excessive but erase block is 512K anyway */
 #define BOARD_EXTRA_ENV_SETTINGS \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
+	UBOOT_UPDATE
 
 /* Increase console I/O buffer size */
 #undef CONFIG_SYS_CBSIZE

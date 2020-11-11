@@ -10,15 +10,20 @@
  * files.
  */
 
+#include <image.h>
+#include <log.h>
+#include <malloc.h>
+#include <linux/bitops.h>
 #include <net/pfe_eth/pfe_eth.h>
 #include <net/pfe_eth/pfe_firmware.h>
+#include <spi_flash.h>
 #ifdef CONFIG_CHAIN_OF_TRUST
 #include <fsl_validate.h>
 #endif
 
-#define PFE_FIRMEWARE_FIT_CNF_NAME	"config@1"
+#define PFE_FIRMWARE_FIT_CNF_NAME	"config@1"
 
-static const void *pfe_fit_addr = (void *)CONFIG_SYS_LS_PFE_FW_ADDR;
+static const void *pfe_fit_addr;
 
 /*
  * PFE elf firmware loader.
@@ -99,7 +104,7 @@ static int pfe_get_fw(const void **data,
 	char *desc;
 	int ret = 0;
 
-	conf_node_name = PFE_FIRMEWARE_FIT_CNF_NAME;
+	conf_node_name = PFE_FIRMWARE_FIT_CNF_NAME;
 
 	conf_node_off = fit_conf_get_node(pfe_fit_addr, conf_node_name);
 	if (conf_node_off < 0) {
@@ -159,6 +164,42 @@ static int pfe_fit_check(void)
 	return ret;
 }
 
+int pfe_spi_flash_init(void)
+{
+	struct spi_flash *pfe_flash;
+	struct udevice *new;
+	int ret = 0;
+	void *addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
+
+	if (!addr)
+		return -ENOMEM;
+
+	ret = spi_flash_probe_bus_cs(CONFIG_ENV_SPI_BUS,
+				     CONFIG_ENV_SPI_CS,
+				     CONFIG_ENV_SPI_MAX_HZ,
+				     CONFIG_ENV_SPI_MODE,
+				     &new);
+
+	pfe_flash = dev_get_uclass_priv(new);
+	if (!pfe_flash) {
+		printf("SF: probe for pfe failed\n");
+		free(addr);
+		return -ENODEV;
+	}
+
+	ret = spi_flash_read(pfe_flash,
+			     CONFIG_SYS_LS_PFE_FW_ADDR,
+			     CONFIG_SYS_QE_FMAN_FW_LENGTH,
+			     addr);
+	if (ret)
+		printf("SF: read for pfe failed\n");
+
+	pfe_fit_addr = addr;
+	spi_flash_free(pfe_flash);
+
+	return ret;
+}
+
 /*
  * PFE firmware initialization.
  * Loads different firmware files from FIT image.
@@ -182,6 +223,10 @@ int pfe_firmware_init(void)
 #endif
 	int ret = 0;
 	int fw_count;
+
+	ret = pfe_spi_flash_init();
+	if (ret)
+		goto err;
 
 	ret = pfe_fit_check();
 	if (ret)

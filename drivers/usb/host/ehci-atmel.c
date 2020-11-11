@@ -8,6 +8,8 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <log.h>
+#include <malloc.h>
 #include <usb.h>
 #include <asm/io.h>
 #include <asm/arch/clk.h>
@@ -93,7 +95,7 @@ static int ehci_atmel_probe(struct udevice *dev)
 	/*
 	 * Get the base address for EHCI controller from the device node
 	 */
-	hcd_base = devfdt_get_addr(dev);
+	hcd_base = dev_read_addr(dev);
 	if (hcd_base == FDT_ADDR_T_NONE) {
 		debug("Can't get the EHCI register base address\n");
 		return -ENXIO;

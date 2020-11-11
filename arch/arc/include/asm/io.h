@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright (C) 2013-2014 Synopsys, Inc. All rights reserved.
+ * Copyright (C) 2013-2014, 2020 Synopsys, Inc. All rights reserved.
  */
 
 #ifndef __ASM_ARC_IO_H
@@ -8,6 +8,12 @@
 
 #include <linux/types.h>
 #include <asm/byteorder.h>
+
+/*
+ * Compiler barrier. It prevents compiler from reordering instructions before
+ * and after it. It doesn't prevent HW (CPU) from any reordering though.
+ */
+#define __comp_b()		asm volatile("" : : : "memory")
 
 #ifdef __ARCHS__
 
@@ -45,8 +51,8 @@
 #define __iormb()		rmb()
 #define __iowmb()		wmb()
 #else
-#define __iormb()		asm volatile("" : : : "memory")
-#define __iowmb()		asm volatile("" : : : "memory")
+#define __iormb()		__comp_b()
+#define __iowmb()		__comp_b()
 #endif
 
 static inline void sync(void)
@@ -54,134 +60,117 @@ static inline void sync(void)
 	/* Not yet implemented */
 }
 
-static inline u8 __raw_readb(const volatile void __iomem *addr)
-{
-	u8 b;
+/*
+ * We must use 'volatile' in C-version read/write IO accessors implementation
+ * to avoid merging several reads (writes) into one read (write), or optimizing
+ * them out by compiler.
+ * We must use compiler barriers before and after operation (read or write) so
+ * it won't be reordered by compiler.
+ */
+#define __arch_getb(a)		({ u8  __v; __comp_b(); __v = *(volatile u8  *)(a); __comp_b(); __v; })
+#define __arch_getw(a)		({ u16 __v; __comp_b(); __v = *(volatile u16 *)(a); __comp_b(); __v; })
+#define __arch_getl(a)		({ u32 __v; __comp_b(); __v = *(volatile u32 *)(a); __comp_b(); __v; })
+#define __arch_getq(a)		({ u64 __v; __comp_b(); __v = *(volatile u64 *)(a); __comp_b(); __v; })
 
-	__asm__ __volatile__("ldb%U1	%0, %1\n"
-			     : "=r" (b)
-			     : "m" (*(volatile u8 __force *)addr)
-			     : "memory");
-	return b;
+#define __arch_putb(v, a)	({ __comp_b(); *(volatile u8  *)(a) = (v); __comp_b(); })
+#define __arch_putw(v, a)	({ __comp_b(); *(volatile u16 *)(a) = (v); __comp_b(); })
+#define __arch_putl(v, a)	({ __comp_b(); *(volatile u32 *)(a) = (v); __comp_b(); })
+#define __arch_putq(v, a)	({ __comp_b(); *(volatile u64 *)(a) = (v); __comp_b(); })
+
+
+/*
+ * We add memory barriers for __raw_readX / __raw_writeX accessors same way as
+ * it is done for readX and writeX accessors as lots of U-boot driver uses
+ * __raw_readX / __raw_writeX instead of proper accessor with barrier.
+ */
+#define __raw_writeb(v, c)	({ __iowmb(); __arch_putb(v, c); })
+#define __raw_writew(v, c)	({ __iowmb(); __arch_putw(v, c); })
+#define __raw_writel(v, c)	({ __iowmb(); __arch_putl(v, c); })
+#define __raw_writeq(v, c)	({ __iowmb(); __arch_putq(v, c); })
+
+#define __raw_readb(c)		({ u8  __v = __arch_getb(c); __iormb(); __v; })
+#define __raw_readw(c)		({ u16 __v = __arch_getw(c); __iormb(); __v; })
+#define __raw_readl(c)		({ u32 __v = __arch_getl(c); __iormb(); __v; })
+#define __raw_readq(c)		({ u64 __v = __arch_getq(c); __iormb(); __v; })
+
+
+static inline void __raw_writesb(unsigned long addr, const void *data,
+				 int bytelen)
+{
+	u8 *buf = (uint8_t *)data;
+
+	__iowmb();
+
+	while (bytelen--)
+		__arch_putb(*buf++, addr);
 }
 
-static inline u16 __raw_readw(const volatile void __iomem *addr)
+static inline void __raw_writesw(unsigned long addr, const void *data,
+				 int wordlen)
 {
-	u16 s;
+	u16 *buf = (uint16_t *)data;
 
-	__asm__ __volatile__("ldw%U1	%0, %1\n"
-			     : "=r" (s)
-			     : "m" (*(volatile u16 __force *)addr)
-			     : "memory");
-	return s;
+	__iowmb();
+
+	while (wordlen--)
+		__arch_putw(*buf++, addr);
 }
 
-static inline u32 __raw_readl(const volatile void __iomem *addr)
+static inline void __raw_writesl(unsigned long addr, const void *data,
+				 int longlen)
 {
-	u32 w;
+	u32 *buf = (uint32_t *)data;
 
-	__asm__ __volatile__("ld%U1	%0, %1\n"
-			     : "=r" (w)
-			     : "m" (*(volatile u32 __force *)addr)
-			     : "memory");
-	return w;
+	__iowmb();
+
+	while (longlen--)
+		__arch_putl(*buf++, addr);
 }
 
-static inline void __raw_writeb(u8 b, volatile void __iomem *addr)
+static inline void __raw_readsb(unsigned long addr, void *data, int bytelen)
 {
-	__asm__ __volatile__("stb%U1	%0, %1\n"
-			     :
-			     : "r" (b), "m" (*(volatile u8 __force *)addr)
-			     : "memory");
+	u8 *buf = (uint8_t *)data;
+
+	while (bytelen--)
+		*buf++ = __arch_getb(addr);
+
+	__iormb();
 }
 
-static inline void __raw_writew(u16 s, volatile void __iomem *addr)
+static inline void __raw_readsw(unsigned long addr, void *data, int wordlen)
 {
-	__asm__ __volatile__("stw%U1	%0, %1\n"
-			     :
-			     : "r" (s), "m" (*(volatile u16 __force *)addr)
-			     : "memory");
+	u16 *buf = (uint16_t *)data;
+
+	while (wordlen--)
+		*buf++ = __arch_getw(addr);
+
+	__iormb();
 }
 
-static inline void __raw_writel(u32 w, volatile void __iomem *addr)
+static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 {
-	__asm__ __volatile__("st%U1	%0, %1\n"
-			     :
-			     : "r" (w), "m" (*(volatile u32 __force *)addr)
-			     : "memory");
+	u32 *buf = (uint32_t *)data;
+
+	while (longlen--)
+		*buf++ = __arch_getl(addr);
+
+	__iormb();
 }
 
-static inline int __raw_readsb(unsigned int addr, void *data, int bytelen)
-{
-	__asm__ __volatile__ ("1:ld.di	r8, [r0]\n"
-			      "sub.f	r2, r2, 1\n"
-			      "bnz.d	1b\n"
-			      "stb.ab	r8, [r1, 1]\n"
-			      :
-			      : "r" (addr), "r" (data), "r" (bytelen)
-			      : "r8");
-	return bytelen;
-}
+/*
+ * Relaxed I/O memory access primitives. These follow the Device memory
+ * ordering rules but do not guarantee any ordering relative to Normal memory
+ * accesses.
+ */
+#define readb_relaxed(c)	({ u8  __r = __arch_getb(c); __r; })
+#define readw_relaxed(c)	({ u16 __r = le16_to_cpu((__force __le16)__arch_getw(c)); __r; })
+#define readl_relaxed(c)	({ u32 __r = le32_to_cpu((__force __le32)__arch_getl(c)); __r; })
+#define readq_relaxed(c)	({ u64 __r = le64_to_cpu((__force __le64)__arch_getq(c)); __r; })
 
-static inline int __raw_readsw(unsigned int addr, void *data, int wordlen)
-{
-	__asm__ __volatile__ ("1:ld.di	r8, [r0]\n"
-			      "sub.f	r2, r2, 1\n"
-			      "bnz.d	1b\n"
-			      "stw.ab	r8, [r1, 2]\n"
-			      :
-			      : "r" (addr), "r" (data), "r" (wordlen)
-			      : "r8");
-	return wordlen;
-}
-
-static inline int __raw_readsl(unsigned int addr, void *data, int longlen)
-{
-	__asm__ __volatile__ ("1:ld.di	r8, [r0]\n"
-			      "sub.f	r2, r2, 1\n"
-			      "bnz.d	1b\n"
-			      "st.ab	r8, [r1, 4]\n"
-			      :
-			      : "r" (addr), "r" (data), "r" (longlen)
-			      : "r8");
-	return longlen;
-}
-
-static inline int __raw_writesb(unsigned int addr, void *data, int bytelen)
-{
-	__asm__ __volatile__ ("1:ldb.ab	r8, [r1, 1]\n"
-			      "sub.f	r2, r2, 1\n"
-			      "bnz.d	1b\n"
-			      "st.di	r8, [r0, 0]\n"
-			      :
-			      : "r" (addr), "r" (data), "r" (bytelen)
-			      : "r8");
-	return bytelen;
-}
-
-static inline int __raw_writesw(unsigned int addr, void *data, int wordlen)
-{
-	__asm__ __volatile__ ("1:ldw.ab	r8, [r1, 2]\n"
-			      "sub.f	r2, r2, 1\n"
-			      "bnz.d	1b\n"
-			      "st.ab.di	r8, [r0, 0]\n"
-			      :
-			      : "r" (addr), "r" (data), "r" (wordlen)
-			      : "r8");
-	return wordlen;
-}
-
-static inline int __raw_writesl(unsigned int addr, void *data, int longlen)
-{
-	__asm__ __volatile__ ("1:ld.ab	r8, [r1, 4]\n"
-			      "sub.f	r2, r2, 1\n"
-			      "bnz.d	1b\n"
-			      "st.ab.di	r8, [r0, 0]\n"
-			      :
-			      : "r" (addr), "r" (data), "r" (longlen)
-			      : "r8");
-	return longlen;
-}
+#define writeb_relaxed(v, c)	((void)__arch_putb((v), (c)))
+#define writew_relaxed(v, c)	((void)__arch_putw((__force u16)cpu_to_le16(v), (c)))
+#define writel_relaxed(v, c)	((void)__arch_putl((__force u32)cpu_to_le32(v), (c)))
+#define writeq_relaxed(v, c)	((void)__arch_putq((__force u64)cpu_to_le64(v), (c)))
 
 /*
  * MMIO can also get buffered/optimized in micro-arch, so barriers needed
@@ -195,32 +184,15 @@ static inline int __raw_writesl(unsigned int addr, void *data, int longlen)
  *
  * http://lkml.kernel.org/r/20150622133656.GG1583@arm.com
  */
-#define readb(c)		({ u8  __v = readb_relaxed(c); __iormb(); __v; })
-#define readw(c)		({ u16 __v = readw_relaxed(c); __iormb(); __v; })
-#define readl(c)		({ u32 __v = readl_relaxed(c); __iormb(); __v; })
+#define readb(c)	({ u8  __v = readb_relaxed(c); __iormb(); __v; })
+#define readw(c)	({ u16 __v = readw_relaxed(c); __iormb(); __v; })
+#define readl(c)	({ u32 __v = readl_relaxed(c); __iormb(); __v; })
+#define readq(c)	({ u64 __v = readq_relaxed(c); __iormb(); __v; })
 
-#define writeb(v,c)		({ __iowmb(); writeb_relaxed(v,c); })
-#define writew(v,c)		({ __iowmb(); writew_relaxed(v,c); })
-#define writel(v,c)		({ __iowmb(); writel_relaxed(v,c); })
-
-/*
- * Relaxed API for drivers which can handle barrier ordering themselves
- *
- * Also these are defined to perform little endian accesses.
- * To provide the typical device register semantics of fixed endian,
- * swap the byte order for Big Endian
- *
- * http://lkml.kernel.org/r/201603100845.30602.arnd@arndb.de
- */
-#define readb_relaxed(c)	__raw_readb(c)
-#define readw_relaxed(c) ({ u16 __r = le16_to_cpu((__force __le16) \
-					__raw_readw(c)); __r; })
-#define readl_relaxed(c) ({ u32 __r = le32_to_cpu((__force __le32) \
-					__raw_readl(c)); __r; })
-
-#define writeb_relaxed(v,c)	__raw_writeb(v,c)
-#define writew_relaxed(v,c)	__raw_writew((__force u16) cpu_to_le16(v),c)
-#define writel_relaxed(v,c)	__raw_writel((__force u32) cpu_to_le32(v),c)
+#define writeb(v, c)	({ __iowmb(); writeb_relaxed(v, c); })
+#define writew(v, c)	({ __iowmb(); writew_relaxed(v, c); })
+#define writel(v, c)	({ __iowmb(); writel_relaxed(v, c); })
+#define writeq(v, c)	({ __iowmb(); writeq_relaxed(v, c); })
 
 #define out_arch(type, endian, a, v)	__raw_write##type(cpu_to_##endian(v), a)
 #define in_arch(type, endian, a)	endian##_to_cpu(__raw_read##type(a))

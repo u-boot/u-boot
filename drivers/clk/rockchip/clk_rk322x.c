@@ -7,6 +7,8 @@
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
+#include <malloc.h>
 #include <syscon.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
@@ -14,7 +16,10 @@
 #include <asm/arch-rockchip/hardware.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3228-cru.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/log2.h>
+#include <linux/stringify.h>
 
 enum {
 	VCO_MAX_HZ	= 3200U * 1000000,
@@ -508,7 +513,7 @@ static int rk322x_clk_bind(struct udevice *dev)
 		sys_child->priv = priv;
 	}
 
-#if CONFIG_IS_ENABLED(CONFIG_RESET_ROCKCHIP)
+#if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
 	ret = offsetof(struct rk322x_cru, cru_softrst_con[0]);
 	ret = rockchip_reset_bind(dev, ret, 9);
 	if (ret)

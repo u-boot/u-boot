@@ -9,6 +9,7 @@
 #define __SOC_TI_K3_NAVSS_RINGACC_API_H_
 
 #include <dm/ofnode.h>
+#include <linux/bitops.h>
 
 /**
  * enum k3_nav_ring_mode - &struct k3_nav_ring_cfg mode
@@ -99,6 +100,10 @@ struct k3_nav_ring_cfg {
 struct k3_nav_ring *k3_nav_ringacc_request_ring(struct k3_nav_ringacc *ringacc,
 						int id, u32 flags);
 
+int k3_nav_ringacc_request_rings_pair(struct k3_nav_ringacc *ringacc,
+				      int fwd_id, int compl_id,
+				      struct k3_nav_ring **fwd_ring,
+				      struct k3_nav_ring **compl_ring);
 /**
  * k3_nav_ringacc_get_dev - get pointer on RA device
  * @ringacc: pointer on RA

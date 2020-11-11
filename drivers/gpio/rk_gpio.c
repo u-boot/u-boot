@@ -172,8 +172,8 @@ static const struct udevice_id rockchip_gpio_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(gpio_rockchip) = {
-	.name	= "gpio_rockchip",
+U_BOOT_DRIVER(rockchip_gpio_bank) = {
+	.name	= "rockchip_gpio_bank",
 	.id	= UCLASS_GPIO,
 	.of_match = rockchip_gpio_ids,
 	.ops	= &gpio_rockchip_ops,

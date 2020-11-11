@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <i2c.h>
+#include <log.h>
 #include <dm/lists.h>
 #include <power/as3722.h>
 #include <power/pmic.h>

@@ -21,7 +21,7 @@ config DM_KEYBOARD
 	  input and update LEDs if the keyboard has them.
 
 config SPL_DM_KEYBOARD
-	bool "Enable driver model keyboard support"
+	bool "Enable driver model keyboard support for SPL"
 	depends on SPL_DM
 	help
 	  This adds a uclass for keyboards and implements keyboard support
@@ -30,7 +30,7 @@ config SPL_DM_KEYBOARD
 	  input and update LEDs if the keyboard has them.
 
 config TPL_DM_KEYBOARD
-	bool "Enable driver model keyboard support"
+	bool "Enable driver model keyboard support for TPL"
 	depends on TPL_DM
 	help
 	  This adds a uclass for keyboards and implements keyboard support

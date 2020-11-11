@@ -8,6 +8,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 /*
  * High Level Configuration Options
  */
@@ -132,8 +134,6 @@
  * Memory test
  */
 #undef CONFIG_SYS_DRAM_TEST		/* memory test, takes time */
-#define CONFIG_SYS_MEMTEST_START	0x00040000 /* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x0ef70010
 
 /*
  * The reserved memory
@@ -157,8 +157,6 @@
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000 /* Size of used area in RAM */
 #define CONFIG_SYS_GBL_DATA_OFFSET	\
 			(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_FSL_ELBC		1
 
 /*
  * FLASH on the Local Bus
@@ -315,15 +313,6 @@
 /*
  * Environment
  */
-#ifndef CONFIG_SYS_RAMBOOT
-	#define CONFIG_ENV_ADDR		\
-			(CONFIG_SYS_MONITOR_BASE+CONFIG_SYS_MONITOR_LEN)
-	#define CONFIG_ENV_SECT_SIZE	0x10000	/* 64K (one sector) for env */
-	#define CONFIG_ENV_SIZE		0x4000
-#else
-	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE-0x1000)
-	#define CONFIG_ENV_SIZE		0x2000
-#endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
@@ -332,10 +321,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-
-/*
- * Command line configuration.
- */
 
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 
@@ -364,7 +349,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_HAS_FSL_DR_USB
 #define CONFIG_USB_EHCI_FSL

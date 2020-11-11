@@ -21,6 +21,6 @@ struct rtc_regs {
 	u32 dayr;
 	u32 dayalarm;
 };
-#endif /* __ASSEMBLY__*/
+#endif /* __ASSEMBLY__ */
 
 #endif	/* __MX28_REGS_RTC_H__ */

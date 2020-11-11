@@ -12,6 +12,8 @@
 #include <asm/byteorder.h>
 #include <fs.h>
 
+struct disk_partition;
+
 /* Maximum Long File Name length supported here is 128 UTF-16 code units */
 #define VFAT_MAXLEN_BYTES	256 /* Maximum LFN buffer in bytes */
 #define VFAT_MAXSEQ		9   /* Up to 9 of 13 2-byte UTF-16 entries */
@@ -193,7 +195,7 @@ int fat_size(const char *filename, loff_t *size);
 int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
 		     loff_t maxsize, loff_t *actread);
 int file_fat_read(const char *filename, void *buffer, int maxsize);
-int fat_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info);
+int fat_set_blk_dev(struct blk_desc *rbdd, struct disk_partition *info);
 int fat_register_device(struct blk_desc *dev_desc, int part_no);
 
 int file_fat_write(const char *filename, void *buf, loff_t offset, loff_t len,

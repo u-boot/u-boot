@@ -7,7 +7,10 @@
 
 #include <common.h>
 #include <console.h>
+#include <flash.h>
 #include <hwconfig.h>
+#include <init.h>
+#include <log.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
@@ -20,6 +23,7 @@
 #include <spd_sdram.h>
 #include <i2c.h>
 #include <ioports.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <fsl_esdhc.h>
@@ -304,7 +308,8 @@ local_bus_init(void)
 	out_be32(&lbc->lcrr, (u32)in_be32(&lbc->lcrr)| 0x00030000);
 }
 
-static void fdt_board_disable_serial(void *blob, bd_t *bd, const char *alias)
+static void fdt_board_disable_serial(void *blob, struct bd_info *bd,
+				     const char *alias)
 {
 	const char *status = "disabled";
 	int off;
@@ -349,7 +354,7 @@ static int esdhc_disables_uart0(void)
 	       hwconfig_subarg_cmp("esdhc", "mode", "4-bits");
 }
 
-static void fdt_board_fixup_qe_uart(void *blob, bd_t *bd)
+static void fdt_board_fixup_qe_uart(void *blob, struct bd_info *bd)
 {
 	u8 *bcsr = (u8 *)CONFIG_SYS_BCSR_BASE;
 	const char *devtype = "serial";
@@ -396,7 +401,7 @@ static void fdt_board_fixup_qe_uart(void *blob, bd_t *bd)
 
 #ifdef CONFIG_FSL_ESDHC
 
-int board_mmc_init(bd_t *bd)
+int board_mmc_init(struct bd_info *bd)
 {
 	struct ccsr_gur *gur = (struct ccsr_gur *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 	u8 *bcsr = (u8 *)CONFIG_SYS_BCSR_BASE;
@@ -437,7 +442,7 @@ int board_mmc_init(bd_t *bd)
 	return fsl_esdhc_mmc_init(bd);
 }
 
-static void fdt_board_fixup_esdhc(void *blob, bd_t *bd)
+static void fdt_board_fixup_esdhc(void *blob, struct bd_info *bd)
 {
 	const char *status = "disabled";
 	int off = -1;
@@ -477,10 +482,10 @@ static void fdt_board_fixup_esdhc(void *blob, bd_t *bd)
 	}
 }
 #else
-static inline void fdt_board_fixup_esdhc(void *blob, bd_t *bd) {}
+static inline void fdt_board_fixup_esdhc(void *blob, struct bd_info *bd) {}
 #endif
 
-static void fdt_board_fixup_qe_usb(void *blob, bd_t *bd)
+static void fdt_board_fixup_qe_usb(void *blob, struct bd_info *bd)
 {
 	u8 *bcsr = (u8 *)CONFIG_SYS_BCSR_BASE;
 
@@ -514,7 +519,7 @@ void pci_init_board(void)
 #endif /* CONFIG_PCI */
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 #if defined(CONFIG_SYS_UCC_RMII_MODE)
 	int nodeoff, off, err;

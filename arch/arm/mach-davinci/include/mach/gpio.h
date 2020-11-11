@@ -18,7 +18,7 @@
 #define davinci_gpio_bank67 ((struct davinci_gpio *)DAVINCI_GPIO_BANK67)
 #define davinci_gpio_bank8 ((struct davinci_gpio *)DAVINCI_GPIO_BANK8)
 
-#ifndef CONFIG_DM_GPIO
+#if !CONFIG_IS_ENABLED(DM_GPIO)
 #define gpio_status()		gpio_info()
 #endif
 #define GPIO_NAME_SIZE		20

@@ -10,6 +10,9 @@
  */
 
 #include <common.h>
+#include <command.h>
+#include <hang.h>
+#include <linux/delay.h>
 #include <linux/types.h>
 #include <api_public.h>
 
@@ -30,7 +33,7 @@ void __udelay(unsigned long usec)
 	ub_udelay(usec);
 }
 
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	ub_reset();
 	return 0;
@@ -41,7 +44,7 @@ void *malloc (size_t len)
 	return NULL;
 }
 
-void hang (void)
+void hang(void)
 {
 	while (1) ;
 }

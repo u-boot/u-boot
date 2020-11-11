@@ -6,9 +6,12 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <pci.h>
 #include <asm/pci.h>
 #include <asm/pirq_routing.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static u8 pirq_get_next_free_irq(struct udevice *dev, u8 *pirq, u16 bitmap,
 				 bool irq_already_routed[])
@@ -130,4 +133,12 @@ u32 copy_pirq_routing_table(u32 addr, struct irq_routing_table *rt)
 	}
 
 	return addr + rt->size;
+}
+
+ulong write_pirq_routing_table(ulong addr)
+{
+	if (!gd->arch.pirq_routing_table)
+		return addr;
+
+	return copy_pirq_routing_table(addr, gd->arch.pirq_routing_table);
 }

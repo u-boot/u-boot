@@ -17,8 +17,12 @@
 
 #include <common.h>
 #include <div64.h>
+#include <init.h>
+#include <time.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/ptrace.h>
+#include <linux/delay.h>
 
 /* General purpose timers bitfields */
 #define GPTCR_SWR		(1 << 15)	/* Software reset	*/

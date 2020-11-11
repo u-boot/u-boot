@@ -20,11 +20,9 @@
 #undef CONFIG_SYS_NAND_ECCPOS
 #undef CONFIG_SYS_NAND_U_BOOT_OFFS
 #undef CONFIG_SYS_ENV_SECT_SIZE
-#undef CONFIG_ENV_OFFSET
 #undef CONFIG_NAND_OMAP_ECCSCHEME
 #define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH16_CODE_HW
 
-#define CONFIG_ENV_OFFSET       0x980000
 #define CONFIG_SYS_ENV_SECT_SIZE       (512 << 10)     /* 512 KiB */
 #define CONFIG_SYS_NAND_PAGE_SIZE       4096
 #define CONFIG_SYS_NAND_OOBSIZE         224
@@ -95,8 +93,6 @@
 #define EEPROM_ADDR_DDR3 0x90
 #define EEPROM_ADDR_CHIP 0x120
 
-#define CONFIG_PHY_SMSC
-
 #define CONFIG_FACTORYSET
 
 /* use both define to compile a SPL compliance test  */
@@ -111,8 +107,6 @@
 #endif
 
 /* Define own nand partitions */
-#define CONFIG_ENV_OFFSET_REDUND	0xB80000
-#define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 #define CONFIG_ENV_RANGE		(4 * CONFIG_SYS_ENV_SECT_SIZE)
 
 

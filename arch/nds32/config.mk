@@ -8,10 +8,6 @@
 # Macpaul Lin, Andes Technology Corporation <macpaul@andestech.com>
 #
 
-ifeq ($(CROSS_COMPILE),)
-CROSS_COMPILE := nds32le-linux-
-endif
-
 CONFIG_STANDALONE_LOAD_ADDR = 0x300000
 LDFLAGS_STANDALONE	+= -T $(srctree)/examples/standalone/nds32.lds
 

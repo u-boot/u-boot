@@ -7,18 +7,6 @@ file.
 
 ---------------------------
 
-What:	Remove unused CONFIG_SYS_MEMTEST_START/END
-When:	Release v2013.10
-
-Why:	As the 'mtest' command is no longer default, a number of platforms
-	have not opted to turn the command back on and thus provide unused
-	defines (which are likely to be propagated to new platforms from
-	copy/paste).  Remove these defines when unused.
-
-Who:	Tom Rini <trini@ti.com>
-
----------------------------
-
 What:	Users of the legacy miiphy_* code
 When:	undetermined
 

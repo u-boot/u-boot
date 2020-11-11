@@ -73,9 +73,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR			0x22000000
 
-#define CONFIG_SYS_MEMTEST_START		CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END			0x23e00000
-
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
 #define CONFIG_BOOTCOMMAND	"nboot 21000000 0"
 #define CONFIG_EXTRA_ENV_SETTINGS \

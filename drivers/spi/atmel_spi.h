@@ -3,6 +3,7 @@
  */
 
 /* Register offsets */
+#include <linux/bitops.h>
 #define ATMEL_SPI_CR			0x0000
 #define ATMEL_SPI_MR			0x0004
 #define ATMEL_SPI_RDR			0x0008
@@ -78,23 +79,8 @@
 #define ATMEL_SPI_BITS_15		7
 #define ATMEL_SPI_BITS_16		8
 
-struct atmel_spi_slave {
-	struct spi_slave slave;
-	void		*regs;
-	u32		mr;
-};
-
-static inline struct atmel_spi_slave *to_atmel_spi(struct spi_slave *slave)
-{
-	return container_of(slave, struct atmel_spi_slave, slave);
-}
-
 /* Register access macros */
 #define spi_readl(as, reg)					\
 	readl(as->regs + ATMEL_SPI_##reg)
 #define spi_writel(as, reg, value)				\
 	writel(value, as->regs + ATMEL_SPI_##reg)
-
-#if !defined(CONFIG_SYS_SPI_WRITE_TOUT)
-#define CONFIG_SYS_SPI_WRITE_TOUT	(5 * CONFIG_SYS_HZ)
-#endif

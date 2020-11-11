@@ -8,7 +8,7 @@
 #define EXPORT_FUNC(a, b, c, ...)
 #endif
 	EXPORT_FUNC(get_version, unsigned long, get_version, void)
-	EXPORT_FUNC(getc, int, getc, void)
+	EXPORT_FUNC(getchar, int, getc, void)
 	EXPORT_FUNC(tstc, int, tstc, void)
 	EXPORT_FUNC(putc, void, putc, const char)
 	EXPORT_FUNC(puts, void, puts, const char *)
@@ -29,7 +29,7 @@
 	EXPORT_FUNC(udelay, void, udelay, unsigned long)
 	EXPORT_FUNC(get_timer, unsigned long, get_timer, unsigned long)
 	EXPORT_FUNC(vprintf, int, vprintf, const char *, va_list)
-	EXPORT_FUNC(do_reset, int, do_reset, cmd_tbl_t *,
+	EXPORT_FUNC(do_reset, int, do_reset, struct cmd_tbl *,
 		    int , int , char * const [])
 	EXPORT_FUNC(env_get, char  *, env_get, const char*)
 	EXPORT_FUNC(env_set, int, env_set, const char *, const char *)

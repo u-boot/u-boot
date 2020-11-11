@@ -3,24 +3,15 @@ if ARCH_UNIPHIER
 config SYS_CONFIG_NAME
 	default "uniphier"
 
-config ARCH_UNIPHIER_32BIT
-	bool
+choice
+        prompt "UniPhier SoC select"
+
+config ARCH_UNIPHIER_V7_MULTI
+	bool "UniPhier V7 SoCs"
 	select ARCH_SUPPORT_PSCI
 	select ARMV7_NONSEC
 	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
-
-choice
-        prompt "UniPhier SoC select"
-        default ARCH_UNIPHIER_V7_MULTI
-
-config ARCH_UNIPHIER_LD4_SLD8
-	bool "UniPhier LD4/sLD8 SoCs"
-	select ARCH_UNIPHIER_32BIT
-
-config ARCH_UNIPHIER_V7_MULTI
-	bool "UniPhier Pro4/Pro5/PXs2/LD6b SoCs"
-	select ARCH_UNIPHIER_32BIT
 
 config ARCH_UNIPHIER_V8_MULTI
 	bool "UniPhier V8 SoCs"
@@ -32,32 +23,38 @@ endchoice
 
 config ARCH_UNIPHIER_LD4
 	bool "Enable UniPhier LD4 SoC support"
-	depends on ARCH_UNIPHIER_LD4_SLD8
+	depends on ARCH_UNIPHIER_V7_MULTI
+	depends on !SPL || SPL_TEXT_BASE = 0x00040000
 	default y
 
 config ARCH_UNIPHIER_SLD8
 	bool "Enable UniPhier sLD8 SoC support"
-	depends on ARCH_UNIPHIER_LD4_SLD8
+	depends on ARCH_UNIPHIER_V7_MULTI
+	depends on !SPL || SPL_TEXT_BASE = 0x00040000
 	default y
 
 config ARCH_UNIPHIER_PRO4
 	bool "Enable UniPhier Pro4 SoC support"
 	depends on ARCH_UNIPHIER_V7_MULTI
+	depends on !SPL || SPL_TEXT_BASE = 0x00100000
 	default y
 
 config ARCH_UNIPHIER_PRO5
 	bool "Enable UniPhier Pro5 SoC support"
 	depends on ARCH_UNIPHIER_V7_MULTI
+	depends on !SPL || SPL_TEXT_BASE = 0x00100000
 	default y
 
 config ARCH_UNIPHIER_PXS2
 	bool "Enable UniPhier Pxs2 SoC support"
 	depends on ARCH_UNIPHIER_V7_MULTI
+	depends on !SPL || SPL_TEXT_BASE = 0x00100000
 	default y
 
 config ARCH_UNIPHIER_LD6B
 	bool "Enable UniPhier LD6b SoC support"
 	depends on ARCH_UNIPHIER_V7_MULTI
+	depends on !SPL || SPL_TEXT_BASE = 0x00100000
 	default y
 
 config ARCH_UNIPHIER_LD11
@@ -78,7 +75,7 @@ config ARCH_UNIPHIER_PXS3
 
 config CACHE_UNIPHIER
 	bool "Enable the UniPhier L2 cache controller"
-	depends on ARCH_UNIPHIER_32BIT
+	depends on ARCH_UNIPHIER_V7_MULTI
 	default y
 	select SYS_CACHE_SHIFT_7
 	help
@@ -86,6 +83,7 @@ config CACHE_UNIPHIER
 
 config MICRO_SUPPORT_CARD
 	bool "Use Micro Support Card"
+	depends on UNIPHIER_SYSTEM_BUS
 	help
 	  This option provides support for the expansion board, available
 	  on some UniPhier reference boards.
@@ -118,5 +116,5 @@ config CMD_DDRMPHY_DUMP
 	  training; it is useful for the evaluation of DDR Multi PHY training.
 
 config SYS_SOC
-	default "uniphier-v7" if ARCH_UNIPHIER_LD4_SLD8 || ARCH_UNIPHIER_V7_MULTI
+	default "uniphier-v7" if ARCH_UNIPHIER_V7_MULTI
 endif

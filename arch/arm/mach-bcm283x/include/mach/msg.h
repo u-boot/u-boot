@@ -48,4 +48,11 @@ int bcm2835_set_video_params(int *widthp, int *heightp, int depth_bpp,
 			     int pixel_order, int alpha_mode, ulong *fb_basep,
 			     ulong *fb_sizep, int *pitchp);
 
+/**
+ * bcm2711_load_vl805_firmware() - get vl805's firmware loaded
+ *
+ * @return 0 if OK, -EIO on error
+ */
+int bcm2711_notify_vl805_reset(void);
+
 #endif

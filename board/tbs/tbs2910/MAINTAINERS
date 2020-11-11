@@ -4,4 +4,5 @@ S:	Maintained
 F:	arch/arm/dts/imx6q-tbs2910.dts
 F:	board/tbs/tbs2910/
 F:	configs/tbs2910_defconfig
+F:	doc/board/tbs/
 F:	include/configs/tbs2910.h

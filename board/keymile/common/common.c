@@ -17,6 +17,7 @@
 #include <netdev.h>
 #include <asm/io.h>
 #include <linux/ctype.h>
+#include <linux/delay.h>
 
 #if defined(CONFIG_POST)
 #include "post.h"
@@ -143,7 +144,7 @@ void i2c_init_board(void)
 #endif
 
 #if defined(CONFIG_KM_COMMON_ETH_INIT)
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	if (ethernet_present())
 		return cpu_eth_init(bis);
@@ -157,8 +158,8 @@ int board_eth_init(bd_t *bis)
  * read out the board id and the hw key from the intventory EEPROM and set
  * this values as environment variables.
  */
-static int do_setboardid(cmd_tbl_t *cmdtp, int flag, int argc,
-				char *const argv[])
+static int do_setboardid(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 	unsigned char buf[32];
 	char *p;
@@ -203,8 +204,8 @@ U_BOOT_CMD(km_setboardid, 1, 0, do_setboardid, "setboardid", "read out bid and "
  *				application and in the init scripts (?)
  *	return 0 in case of match, 1 if not match or error
  */
-static int do_checkboardidhwk(cmd_tbl_t *cmdtp, int flag, int argc,
-			char *const argv[])
+static int do_checkboardidhwk(struct cmd_tbl *cmdtp, int flag, int argc,
+			      char *const argv[])
 {
 	unsigned long ivmbid = 0, ivmhwkey = 0;
 	unsigned long envbid = 0, envhwkey = 0;
@@ -344,8 +345,8 @@ U_BOOT_CMD(km_checkbidhwk, 2, 0, do_checkboardidhwk,
  *  if the testpin of the board is asserted, return 1
  *  *	else return 0
  */
-static int do_checktestboot(cmd_tbl_t *cmdtp, int flag, int argc,
-			char *const argv[])
+static int do_checktestboot(struct cmd_tbl *cmdtp, int flag, int argc,
+			    char *const argv[])
 {
 	int testpin = 0;
 	char *s = NULL;
