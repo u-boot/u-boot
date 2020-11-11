@@ -407,4 +407,21 @@ void *os_find_text_base(void);
  */
 void os_relaunch(char *argv[]);
 
+/**
+ * os_setup_signal_handlers() - setup signal handlers
+ *
+ * Install signal handlers for SIGBUS and SIGSEGV.
+ *
+ * Return:	0 for success
+ */
+int os_setup_signal_handlers(void);
+
+/**
+ * os_signal_action() - handle a signal
+ *
+ * @sig:	signal
+ * @pc:		program counter
+ */
+void os_signal_action(int sig, unsigned long pc);
+
 #endif
