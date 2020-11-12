@@ -812,6 +812,29 @@ F:	drivers/spi/ca_sflash.c
 F:	drivers/i2c/i2c-cortina.c
 F:	drivers/i2c/i2c-cortina.h
 
+MIPS MEDIATEK
+M:	Weijie Gao <weijie.gao@mediatek.com>
+R:	GSS_MTK_Uboot_upstream <GSS_MTK_Uboot_upstream@mediatek.com>
+S:	Maintained
+F:	arch/mips/mach-mtmips/
+F:	arch/mips/dts/mt7620.dtsi
+F:	arch/mips/dts/mt7620-u-boot.dtsi
+F:	include/configs/mt7620.h
+F:	include/dt-bindings/clock/mt7620-clk.h
+F:	include/dt-bindings/clock/mt7628-clk.h
+F:	include/dt-bindings/reset/mt7620-reset.h
+F:	include/dt-bindings/reset/mt7628-reset.h
+F:	drivers/clk/mtmips/
+F:	drivers/pinctrl/mtmips/
+F:	drivers/gpio/mt7620_gpio.c
+F:	drivers/net/mt7620-eth.c
+F:	drivers/phy/mt7620-usb-phy.c
+F:	drivers/reset/reset-mtmips.c
+F:	drivers/serial/serial_mt7620.c
+F:	drivers/spi/mt7620_spi.c
+F:	drivers/sysreset/sysreset_resetctl.c
+F:	drivers/watchdog/mt7620_wdt.c
+
 MIPS MSCC
 M:	Gregory CLEMENT <gregory.clement@bootlin.com>
 M:	Lars Povlsen <lars.povlsen@microchip.com>
