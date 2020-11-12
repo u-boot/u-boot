@@ -471,6 +471,14 @@ config MPC83XX_SPISEL_BOOT
 
 	  This pin is typically used as spi chip select to a spi nor flash.
 
+config MT7620_GPIO
+	bool "MediaTek MT7620 GPIO driver"
+	depends on DM_GPIO && SOC_MT7620
+	default y
+	help
+	  Device model driver for GPIO controller present in MediaTek MT7620
+	  and earlier SoCs.
+
 config MT7621_GPIO
 	bool "MediaTek MT7621 GPIO driver"
 	depends on DM_GPIO && SOC_MT7628
