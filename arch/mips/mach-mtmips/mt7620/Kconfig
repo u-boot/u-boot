@@ -1,0 +1,54 @@
+
+if SOC_MT7620
+
+config DEBUG_UART_BOARD_INIT
+	default y
+
+choice
+	prompt "Board select"
+
+endchoice
+
+choice
+	prompt "CPU frequency select"
+	default CPU_FREQ_580MHZ
+
+config CPU_FREQ_480MHZ
+	bool "480MHz"
+
+config CPU_FREQ_500MHZ
+	bool "500MHz"
+
+config CPU_FREQ_520MHZ
+	bool "520MHz"
+
+config CPU_FREQ_540MHZ
+	bool "540MHz"
+
+config CPU_FREQ_560MHZ
+	bool "560MHz"
+
+config CPU_FREQ_580MHZ
+	bool "580MHz"
+
+config CPU_FREQ_600MHZ
+	bool "600MHz"
+
+config CPU_FREQ_620MHZ
+	bool "620MHz"
+
+endchoice
+
+config CPU_FREQ_MULTI
+	int
+	range 0 7
+	default 0 if CPU_FREQ_480MHZ
+	default 1 if CPU_FREQ_500MHZ
+	default 2 if CPU_FREQ_520MHZ
+	default 3 if CPU_FREQ_540MHZ
+	default 4 if CPU_FREQ_560MHZ
+	default 5 if CPU_FREQ_580MHZ
+	default 6 if CPU_FREQ_600MHZ
+	default 7 if CPU_FREQ_620MHZ
+
+endif
