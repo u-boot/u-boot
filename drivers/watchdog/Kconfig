@@ -134,6 +134,13 @@ config WDT_MPC8xx
 	help
 	  Select this to enable mpc8xx watchdog timer
 
+config WDT_MT7620
+	bool "MediaTek MT7620 watchdog timer support"
+	depends on WDT && SOC_MT7620
+	help
+	  Select this to enable watchdog timer on MediaTek MT7620 and earlier
+	  SoC chips.
+
 config WDT_MT7621
 	bool "MediaTek MT7621 watchdog timer support"
 	depends on WDT && SOC_MT7628
