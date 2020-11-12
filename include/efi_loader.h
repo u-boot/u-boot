@@ -59,6 +59,9 @@ extern efi_handle_t efi_root;
 /* Set to EFI_SUCCESS when initialized */
 extern efi_status_t efi_obj_list_initialized;
 
+/* Flag used by the selftest to avoid detaching devices in ExitBootServices() */
+extern bool efi_st_keep_devices;
+
 /* EFI system partition */
 extern struct efi_system_partition {
 	enum if_type if_type;

@@ -38,6 +38,9 @@ LIST_HEAD(efi_event_queue);
 /* Flag to disable timer activity in ExitBootServices() */
 static bool timers_enabled = true;
 
+/* Flag used by the selftest to avoid detaching devices in ExitBootServices() */
+bool efi_st_keep_devices;
+
 /* List of all events registered by RegisterProtocolNotify() */
 LIST_HEAD(efi_register_notify_events);
 
@@ -1996,10 +1999,12 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 			list_del(&evt->link);
 	}
 
-	if IS_ENABLED(CONFIG_USB_DEVICE)
-		udc_disconnect();
-	board_quiesce_devices();
-	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
+	if (!efi_st_keep_devices) {
+		if IS_ENABLED(CONFIG_USB_DEVICE)
+			udc_disconnect();
+		board_quiesce_devices();
+		dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
+	}
 
 	/* Patch out unsupported runtime function */
 	efi_runtime_detach();
