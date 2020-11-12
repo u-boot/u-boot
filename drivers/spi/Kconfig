@@ -210,6 +210,13 @@ config MSCC_BB_SPI
 	  Enable MSCC bitbang SPI driver. This driver can be used on
 	  MSCC SOCs.
 
+config MT7620_SPI
+	bool "MediaTek MT7620 SPI driver"
+	depends on SOC_MT7620
+	help
+	  Enable the MT7620 SPI driver. This driver can be used to access
+	  generic SPI devices on MediaTek MT7620 SoC.
+
 config MT7621_SPI
 	bool "MediaTek MT7621 SPI driver"
 	depends on SOC_MT7628
