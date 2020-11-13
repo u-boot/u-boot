@@ -335,7 +335,7 @@ static int get_random_data(void *data, int size)
 	ret = clock_gettime(CLOCK_MONOTONIC, &date);
 	if (ret < 0) {
 		printf("%s: clock_gettime has failed (err=%d, str=%s)\n",
-		       __func__, ret, strerror(ret));
+		       __func__, ret, strerror(errno));
 		goto out;
 	}
 
