@@ -153,11 +153,11 @@ static const char k210_pc_group_names[][3] = {
 	[0] = "A0",
 	[1] = "A1",
 	[2] = "A2",
-	[3] = "B0",
-	[4] = "B1",
-	[5] = "B2",
-	[6] = "C0",
-	[7] = "C1",
+	[3] = "B3",
+	[4] = "B4",
+	[5] = "B5",
+	[6] = "C6",
+	[7] = "C7",
 };
 
 static int k210_pc_get_groups_count(struct udevice *dev)
