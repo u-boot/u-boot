@@ -438,8 +438,8 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <4>;
-			si5328: clock-generator@69 { /* SI5328 - u48 */
-				compatible = "silabs,si5328";
+			si5382: clock-generator@69 { /* SI5382 - u48 */
+				compatible = "silabs,si5382";
 				reg = <0x69>;
 			};
 		};
