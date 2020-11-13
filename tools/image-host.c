@@ -339,10 +339,10 @@ static int get_random_data(void *data, int size)
 		goto out;
 	}
 
-	srand(date.tv_nsec);
+	srandom(date.tv_nsec);
 
 	for (i = 0; i < size; i++) {
-		*tmp = rand() & 0xff;
+		*tmp = random() & 0xff;
 		tmp++;
 	}
 
