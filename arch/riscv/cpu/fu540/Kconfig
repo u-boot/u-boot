@@ -35,6 +35,8 @@ config SIFIVE_FU540
 	imply SIFIVE_OTP
 	imply DM_PWM
 	imply PWM_SIFIVE
+	imply DM_I2C
+	imply SYS_I2C_OCORES
 
 if ENV_IS_IN_SPI_FLASH
 
