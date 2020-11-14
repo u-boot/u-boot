@@ -723,7 +723,7 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
 			goto out;
 		}
 		/* Check for renaming */
-		new_file_name = malloc(utf16_utf8_strlen(info->file_name));
+		new_file_name = malloc(utf16_utf8_strlen(info->file_name) + 1);
 		if (!new_file_name) {
 			ret = EFI_OUT_OF_RESOURCES;
 			goto out;

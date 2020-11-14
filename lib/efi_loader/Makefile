@@ -53,6 +53,7 @@ obj-$(CONFIG_NET) += efi_net.o
 obj-$(CONFIG_GENERATE_ACPI_TABLE) += efi_acpi.o
 obj-$(CONFIG_GENERATE_SMBIOS_TABLE) += efi_smbios.o
 obj-$(CONFIG_EFI_RNG_PROTOCOL) += efi_rng.o
+obj-$(CONFIG_EFI_TCG2_PROTOCOL) += efi_tcg2.o
 obj-$(CONFIG_EFI_LOAD_FILE2_INITRD) += efi_load_initrd.o
 obj-y += efi_signature.o
 

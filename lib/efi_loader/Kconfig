@@ -184,6 +184,13 @@ config EFI_RNG_PROTOCOL
 	  Provide a EFI_RNG_PROTOCOL implementation using the hardware random
 	  number generator of the platform.
 
+config EFI_TCG2_PROTOCOL
+	bool "EFI_TCG2_PROTOCOL support"
+	depends on TPM_V2
+	help
+	  Provide a EFI_TCG2_PROTOCOL implementation using the TPM hardware
+	  of the platform.
+
 config EFI_LOAD_FILE2_INITRD
 	bool "EFI_FILE_LOAD2_PROTOCOL for Linux initial ramdisk"
 	default n

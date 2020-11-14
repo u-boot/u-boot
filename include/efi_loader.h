@@ -59,6 +59,9 @@ extern efi_handle_t efi_root;
 /* Set to EFI_SUCCESS when initialized */
 extern efi_status_t efi_obj_list_initialized;
 
+/* Flag used by the selftest to avoid detaching devices in ExitBootServices() */
+extern bool efi_st_keep_devices;
+
 /* EFI system partition */
 extern struct efi_system_partition {
 	enum if_type if_type;
@@ -405,6 +408,8 @@ efi_status_t efi_console_register(void);
 efi_status_t efi_disk_register(void);
 /* Called by efi_init_obj_list() to install EFI_RNG_PROTOCOL */
 efi_status_t efi_rng_register(void);
+/* Called by efi_init_obj_list() to install EFI_TCG2_PROTOCOL */
+efi_status_t efi_tcg2_register(void);
 /* Create handles and protocols for the partitions of a block device */
 int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 			       const char *if_typename, int diskid,

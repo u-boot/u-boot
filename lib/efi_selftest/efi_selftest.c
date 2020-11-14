@@ -38,6 +38,9 @@ void efi_st_exit_boot_services(void)
 	efi_status_t ret;
 	struct efi_mem_desc *memory_map;
 
+	/* Do not detach devices in ExitBootServices. We need the console. */
+	efi_st_keep_devices = true;
+
 	ret = boottime->get_memory_map(&map_size, NULL, &map_key, &desc_size,
 				       &desc_version);
 	if (ret != EFI_BUFFER_TOO_SMALL) {
