@@ -90,6 +90,9 @@ void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 			net_set_state(NETLOOP_SUCCESS);
 		return;
 	case ICMP_ECHO_REQUEST:
+		if (net_ip.s_addr == 0)
+			return;
+
 		eth_hdr_size = net_update_ether(et, et->et_src, PROT_IP);
 
 		debug_cond(DEBUG_DEV_PKT,
