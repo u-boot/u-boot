@@ -25,13 +25,16 @@
 #define debug_trace(fmt, b...)
 #endif
 
+/* Timeout waiting for a flash erase command to complete */
+static const int CROS_EC_CMD_TIMEOUT_MS = 5000;
+
 static int wait_for_sync(struct cros_ec_dev *dev)
 {
 	unsigned long start;
 
 	start = get_timer(0);
 	while (inb(EC_LPC_ADDR_HOST_CMD) & EC_LPC_STATUS_BUSY_MASK) {
-		if (get_timer(start) > 1000) {
+		if (get_timer(start) > CROS_EC_CMD_TIMEOUT_MS) {
 			debug("%s: Timeout waiting for CROS_EC sync\n",
 			      __func__);
 			return -1;

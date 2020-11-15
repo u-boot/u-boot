@@ -452,8 +452,8 @@ class PatchStream:
             if self.is_log:
                 if self.commit.change_id:
                     raise ValueError(
-                        "%s: Two Change-Ids: '%s' vs. '%s'" % self.commit.hash,
-                        self.commit.change_id, value)
+                        "%s: Two Change-Ids: '%s' vs. '%s'" %
+                        (self.commit.hash, self.commit.change_id, value))
                 self.commit.change_id = value
             self.skip_blank = True
 

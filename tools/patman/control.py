@@ -177,7 +177,7 @@ def send(args):
         args.smtp_server)
 
 def patchwork_status(branch, count, start, end, dest_branch, force,
-                     show_comments):
+                     show_comments, url):
     """Check the status of patches in patchwork
 
     This finds the series in patchwork using the Series-link tag, checks for new
@@ -196,6 +196,8 @@ def patchwork_status(branch, count, start, end, dest_branch, force,
         force (bool): With dest_branch, force overwriting an existing branch
         show_comments (bool): True to display snippets from the comments
             provided by reviewers
+        url (str): URL of patchwork server, e.g. 'https://patchwork.ozlabs.org'.
+            This is ignored if the series provides a Series-patchwork-url tag.
 
     Raises:
         ValueError: if the branch has no Series-link value
@@ -224,8 +226,12 @@ def patchwork_status(branch, count, start, end, dest_branch, force,
     if not found:
         raise ValueError('Series-links has no current version (without :)')
 
+    # Allow the series to override the URL
+    if 'patchwork_url' in series:
+        url = series.patchwork_url
+
     # Import this here to avoid failing on other commands if the dependencies
     # are not present
     from patman import status
     status.check_patchwork_status(series, found[0], branch, dest_branch, force,
-                                  show_comments)
+                                  show_comments, url)

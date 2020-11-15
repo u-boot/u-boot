@@ -455,21 +455,21 @@ def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
     >>> EmailPatches(series, 'cover', ['p1', 'p2'], True, True, 'cc-fname', \
             False, alias)
     'git send-email --annotate --to "f.bloggs@napier.co.nz" --cc \
-"m.poppins@cloud.net" --cc-cmd "./patman --cc-cmd cc-fname" cover p1 p2'
+"m.poppins@cloud.net" --cc-cmd "./patman send --cc-cmd cc-fname" cover p1 p2'
     >>> EmailPatches(series, None, ['p1'], True, True, 'cc-fname', False, \
             alias)
     'git send-email --annotate --to "f.bloggs@napier.co.nz" --cc \
-"m.poppins@cloud.net" --cc-cmd "./patman --cc-cmd cc-fname" p1'
+"m.poppins@cloud.net" --cc-cmd "./patman send --cc-cmd cc-fname" p1'
     >>> series['cc'] = ['all']
     >>> EmailPatches(series, 'cover', ['p1', 'p2'], True, True, 'cc-fname', \
             True, alias)
     'git send-email --annotate --to "this-is-me@me.com" --cc-cmd "./patman \
---cc-cmd cc-fname" cover p1 p2'
+send --cc-cmd cc-fname" cover p1 p2'
     >>> EmailPatches(series, 'cover', ['p1', 'p2'], True, True, 'cc-fname', \
             False, alias)
     'git send-email --annotate --to "f.bloggs@napier.co.nz" --cc \
 "f.bloggs@napier.co.nz" --cc "j.bloggs@napier.co.nz" --cc \
-"m.poppins@cloud.net" --cc-cmd "./patman --cc-cmd cc-fname" cover p1 p2'
+"m.poppins@cloud.net" --cc-cmd "./patman send --cc-cmd cc-fname" cover p1 p2'
 
     # Restore argv[0] since we clobbered it.
     >>> sys.argv[0] = _old_argv0
@@ -500,7 +500,7 @@ def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
 
     cmd += to
     cmd += cc
-    cmd += ['--cc-cmd', '"%s --cc-cmd %s"' % (sys.argv[0], cc_fname)]
+    cmd += ['--cc-cmd', '"%s send --cc-cmd %s"' % (sys.argv[0], cc_fname)]
     if cover_fname:
         cmd.append(cover_fname)
     cmd += args
