@@ -55,7 +55,6 @@ int board_init(void)
 {
 	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;
 	gd->bd->bi_arch_number = MACH_TYPE_VEXPRESS;
-	gd->flags = 0;
 
 	icache_enable();
 	flash__init();
