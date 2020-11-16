@@ -67,7 +67,7 @@ int fit_find_config_node(const void *fdt)
 		if (board_fit_config_name_match(name))
 			continue;
 
-		debug("Selecting config '%s'", name);
+		debug("Selecting config '%s'\n", name);
 
 		return node;
 	}
