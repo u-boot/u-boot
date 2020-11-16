@@ -3,14 +3,16 @@
  * (C) Copyright 2016 Carlo Caione <carlo@caione.org>
  */
 
-#ifndef __SD_EMMC_H__
-#define __SD_EMMC_H__
+#ifndef __MESON_GX_MMC_H__
+#define __MESON_GX_MMC_H__
 
 #include <mmc.h>
-#ifndef __ASSEMBLY__
 #include <linux/bitops.h>
-#endif
 
+enum meson_gx_mmc_compatible {
+	MMC_COMPATIBLE_GX,
+	MMC_COMPATIBLE_SM1,
+};
 
 #define SDIO_PORT_A			0
 #define SDIO_PORT_B			1
