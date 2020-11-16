@@ -2657,6 +2657,7 @@ int onenand_probe(struct mtd_info *mtd)
 	else
 		mtd->size = this->chipsize;
 
+	mtd->type = ONENAND_IS_MLC(this) ? MTD_MLCNANDFLASH : MTD_NANDFLASH;
 	mtd->flags = MTD_CAP_NANDFLASH;
 	mtd->_erase = onenand_erase;
 	mtd->_read_oob = onenand_read_oob;

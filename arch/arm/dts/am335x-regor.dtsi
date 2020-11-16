@@ -1,0 +1,202 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2019 Phytec Messtechnik GmbH
+ * Author: Teresa Remmet <t.remmet@phytec.de>
+ *
+ */
+
+/ {
+	model = "Phytec AM335x phyBOARD-REGOR";
+	compatible = "phytec,am335x-regor", "phytec,am335x-phycore-som", "ti,am33xx";
+
+	vcc3v3: fixedregulator@1 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-boot-on;
+	};
+
+	/* User IO */
+	user_leds: user_leds {
+		compatible = "gpio-leds";
+		pinctrl-names = "default";
+		pinctrl-0 = <&user_leds_pins>;
+
+		run_stop-led {
+			gpios = <&gpio2 22 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "gpio";
+			default-state = "off";
+		};
+
+		error-led {
+			gpios = <&gpio3 15 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "gpio";
+			default-state = "off";
+		};
+	};
+};
+
+/* User Leds */
+&am33xx_pinmux {
+	user_leds_pins: pinmux_user_leds {
+		pinctrl-single,pins = <
+			AM33XX_IOPAD(0x8E0, PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* lcd_hsync.gpio2_22 */
+			AM33XX_IOPAD(0x994, PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* mcasp0_fsx.gpio3_15 */
+		>;
+	};
+};
+
+/* CAN Busses */
+&am33xx_pinmux {
+	dcan1_pins: pinmux_dcan1 {
+		pinctrl-single,pins = <
+			AM33XX_IOPAD(0x968, PIN_OUTPUT_PULLUP | MUX_MODE2)	/* uart0_ctsn.d_can1_tx */
+			AM33XX_IOPAD(0x96C, PIN_INPUT_PULLUP | MUX_MODE2)	/* uart0_rtsn.d_can1_rx */
+		>;
+	};
+};
+
+&dcan1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&dcan1_pins>;
+	status = "okay";
+};
+
+/* Ethernet */
+&am33xx_pinmux {
+	ethernet1_pins: pinmux_ethernet1 {
+		pinctrl-single,pins = <
+			AM33XX_IOPAD(0x840, PIN_OUTPUT | MUX_MODE1)		/* gpmc_a0.mii2_txen */
+			AM33XX_IOPAD(0x844, PIN_INPUT_PULLDOWN | MUX_MODE1)	/* gpmc_a1.mii2_rxdv */
+			AM33XX_IOPAD(0x848, PIN_OUTPUT | MUX_MODE1)		/* gpmc_a2.mii2_txd3 */
+			AM33XX_IOPAD(0x84C, PIN_OUTPUT | MUX_MODE1)		/* gpmc_a3.mii2_txd2 */
+			AM33XX_IOPAD(0x850, PIN_OUTPUT | MUX_MODE1)		/* gpmc_a4.mii2_txd1 */
+			AM33XX_IOPAD(0x854, PIN_OUTPUT | MUX_MODE1)		/* gpmc_a5.mii2_txd0 */
+			AM33XX_IOPAD(0x858, PIN_INPUT_PULLDOWN | MUX_MODE1)	/* gpmc_a6.mii2_txclk */
+			AM33XX_IOPAD(0x85C, PIN_INPUT_PULLDOWN | MUX_MODE1)	/* gpmc_a7.mii2_rxclk */
+			AM33XX_IOPAD(0x860, PIN_INPUT_PULLDOWN | MUX_MODE1)	/* gpmc_a8.mii2_rxd3 */
+			AM33XX_IOPAD(0x864, PIN_INPUT_PULLDOWN | MUX_MODE1)	 /* gpmc_a9.mii2_rxd2 */
+			AM33XX_IOPAD(0x868, PIN_INPUT_PULLDOWN | MUX_MODE1)	/* gpmc_a10.mii2_rxd1 */
+			AM33XX_IOPAD(0x86C, PIN_INPUT_PULLDOWN | MUX_MODE1)	/* gpmc_a11.mii2_rxd0 */
+			AM33XX_IOPAD(0x874, PIN_INPUT_PULLDOWN | MUX_MODE1)	/* gpmc_wpn.mii2_rxerr */
+			AM33XX_IOPAD(0x878, PIN_INPUT_PULLDOWN | MUX_MODE1)	/* gpmc_ben1.mii2_col */
+		>;
+	};
+};
+
+&cpsw_emac1 {
+	phy-handle = <&phy1>;
+	phy-mode = "mii";
+	dual_emac_res_vlan = <2>;
+};
+
+&davinci_mdio {
+	phy1: ethernet-phy@1 {
+		reg = <1>;
+	};
+};
+
+&mac {
+	slaves = <2>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&ethernet0_pins &ethernet1_pins>;
+	dual_emac = <1>;
+};
+
+/* GPIOs */
+&am33xx_pinmux {
+	pinctrl-names = "default";
+	pinctrl-0 = <&user_gpios_pins>;
+
+	user_gpios_pins: pinmux_user_gpios {
+		pinctrl-single,pins = <
+			/* DIGIN 1-4 */
+			AM33XX_IOPAD(0x82C, PIN_INPUT | MUX_MODE7)		/* gpmc_ad11.gpio0_27 */
+			AM33XX_IOPAD(0x828, PIN_INPUT | MUX_MODE7)		/* gpmc_ad10.gpio0_26 */
+			AM33XX_IOPAD(0x824, PIN_INPUT | MUX_MODE7)		/* gpmc_ad9.gpio0_23 */
+			AM33XX_IOPAD(0x820, PIN_INPUT | MUX_MODE7)		/* gpmc_ad8.gpio0_22 */
+			/* DIGOUT 1-4 */
+			AM33XX_IOPAD(0x83C, PIN_OUTPUT | MUX_MODE7)		/* gpmc_ad15.gpio1_15 */
+			AM33XX_IOPAD(0x838, PIN_OUTPUT | MUX_MODE7)		/* gpmc_ad14.gpio1_14 */
+			AM33XX_IOPAD(0x834, PIN_OUTPUT | MUX_MODE7)		/* gpmc_ad13.gpio1_13 */
+			AM33XX_IOPAD(0x830, PIN_OUTPUT | MUX_MODE7)		/* gpmc_ad12.gpio1_12 */
+		>;
+	};
+};
+
+/* MMC */
+&am33xx_pinmux {
+	mmc1_pins: pinmux_mmc1 {
+		pinctrl-single,pins = <
+			AM33XX_IOPAD(0x8F0, PIN_INPUT_PULLUP | MUX_MODE0)
+			AM33XX_IOPAD(0x8F4, PIN_INPUT_PULLUP | MUX_MODE0)
+			AM33XX_IOPAD(0x8F8, PIN_INPUT_PULLUP | MUX_MODE0)
+			AM33XX_IOPAD(0x8FC, PIN_INPUT_PULLUP | MUX_MODE0)
+			AM33XX_IOPAD(0x900, PIN_INPUT_PULLUP | MUX_MODE0)
+			AM33XX_IOPAD(0x904, PIN_INPUT_PULLUP | MUX_MODE0)
+			AM33XX_IOPAD(0x960, PIN_INPUT_PULLUP | MUX_MODE7)	/* spi0_cs1.mmc0_sdcd */
+		>;
+	};
+};
+
+&mmc1 {
+	vmmc-supply = <&vcc3v3>;
+	bus-width = <4>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc1_pins>;
+	cd-gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
+	status = "okay";
+};
+
+/* RTC */
+&i2c_rtc {
+	status = "okay";
+};
+
+/* UARTs */
+&am33xx_pinmux {
+	uart0_pins: pinmux_uart0 {
+		pinctrl-single,pins = <
+			AM33XX_IOPAD(0x970, PIN_INPUT_PULLUP | MUX_MODE0)
+			AM33XX_IOPAD(0x974, PIN_OUTPUT_PULLDOWN | MUX_MODE0)
+		>;
+	};
+
+	uart2_pins: pinmux_uart2 {
+		pinctrl-single,pins = <
+			AM33XX_IOPAD(0x92C, PIN_INPUT_PULLUP | MUX_MODE1)	/* mii1_tx_clk.uart2_rxd */
+			AM33XX_IOPAD(0x930, PIN_OUTPUT_PULLDOWN | MUX_MODE1)	/* mii1_rx_clk.uart2_txd */
+		>;
+	};
+};
+
+&uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart0_pins>;
+	status = "okay";
+};
+
+&uart2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart2_pins>;
+	status = "okay";
+};
+
+/* RS485 - UART1 */
+&am33xx_pinmux {
+	uart1_rs485_pins: pinmux_uart1_rs485_pins {
+		pinctrl-single,pins = <
+			AM33XX_IOPAD(0x980, PIN_INPUT_PULLUP | MUX_MODE0)
+			AM33XX_IOPAD(0x984, PIN_OUTPUT_PULLDOWN | MUX_MODE0)
+			AM33XX_IOPAD(0x97C, PIN_OUTPUT_PULLUP | MUX_MODE0)
+		>;
+	};
+};
+
+&uart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart1_rs485_pins>;
+	status = "okay";
+	linux,rs485-enabled-at-boot-time;
+};

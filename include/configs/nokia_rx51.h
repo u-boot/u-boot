@@ -75,14 +75,6 @@
 #define CONFIG_USBD_MANUFACTURER	"Nokia"
 #define CONFIG_USBD_PRODUCT_NAME	"N900"
 
-/* commands to include */
-
-#define CONFIG_SYS_I2C
-
-/*
- * TWL4030
- */
-
 #define GPIO_SLIDE			71
 
 /*
@@ -230,10 +222,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 	"run emmcboot;" \
 	"run attachboot;" \
 	"echo"
-
-/*
- * Miscellaneous configurable options
- */
 
 /* default load address */
 #define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0)

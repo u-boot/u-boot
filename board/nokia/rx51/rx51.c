@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <env.h>
 #include <init.h>
 #include <watchdog.h>
@@ -33,6 +34,7 @@
 #include <asm/setup.h>
 #include <asm/bitops.h>
 #include <asm/mach-types.h>
+#include <asm/omap_i2c.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
@@ -198,8 +200,25 @@ static void reuse_atags(void)
  */
 int board_init(void)
 {
+#if defined(CONFIG_CMD_ONENAND)
+	const u32 gpmc_regs_onenandrx51[GPMC_MAX_REG] = {
+		ONENAND_GPMC_CONFIG1_RX51,
+		ONENAND_GPMC_CONFIG2_RX51,
+		ONENAND_GPMC_CONFIG3_RX51,
+		ONENAND_GPMC_CONFIG4_RX51,
+		ONENAND_GPMC_CONFIG5_RX51,
+		ONENAND_GPMC_CONFIG6_RX51,
+		0
+	};
+#endif
 	/* in SRAM or SDRAM, finish GPMC */
 	gpmc_init();
+#if defined(CONFIG_CMD_ONENAND)
+	enable_gpmc_cs_config(gpmc_regs_onenandrx51, &gpmc_cfg->cs[0],
+			      CONFIG_SYS_ONENAND_BASE, GPMC_SIZE_256M);
+#endif
+	/* Enable the clks & power */
+	per_clocks_enable();
 	/* boot param addr */
 	gd->bd->bi_boot_params = OMAP34XX_SDRC_CS0 + 0x100;
 	return 0;
@@ -386,14 +405,13 @@ static void omap3_update_aux_cr_secure_rx51(u32 set_bits, u32 clear_bits)
  */
 int misc_init_r(void)
 {
+	struct udevice *dev;
 	char buf[12];
 	u8 state;
 
-	/* reset lp5523 led */
-	i2c_set_bus_num(1);
-	state = 0xff;
-	i2c_write(0x32, 0x3d, 1, &state, 1);
-	i2c_set_bus_num(0);
+	/* disable lp5523 led */
+	if (i2c_get_chip_for_busnum(1, 0x32, 1, &dev) == 0)
+		dm_i2c_reg_write(dev, 0x00, 0x00);
 
 	/* initialize twl4030 power managment */
 	twl4030_power_init();
@@ -626,8 +644,8 @@ int rx51_kp_tstc(struct stdio_dev *sdev)
 			continue;
 
 		/* read the key state */
-		i2c_read(TWL4030_CHIP_KEYPAD,
-			TWL4030_KEYPAD_FULL_CODE_7_0, 1, keys, 8);
+		twl4030_i2c_read(TWL4030_CHIP_KEYPAD,
+				 TWL4030_KEYPAD_FULL_CODE_7_0, keys, 8);
 
 		/* cut out modifier keys from the keystate */
 		mods = keys[4] >> 4;
@@ -684,3 +702,15 @@ void board_mmc_power_init(void)
 	twl4030_power_mmc_init(0);
 	twl4030_power_mmc_init(1);
 }
+
+static const struct omap_i2c_platdata rx51_i2c[] = {
+	{ I2C_BASE1, 2200000, OMAP_I2C_REV_V1 },
+	{ I2C_BASE2, 100000, OMAP_I2C_REV_V1 },
+	{ I2C_BASE3, 400000, OMAP_I2C_REV_V1 },
+};
+
+U_BOOT_DEVICES(rx51_i2c) = {
+	{ "i2c_omap", &rx51_i2c[0] },
+	{ "i2c_omap", &rx51_i2c[1] },
+	{ "i2c_omap", &rx51_i2c[2] },
+};

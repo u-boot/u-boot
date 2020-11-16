@@ -32,6 +32,7 @@ CONFIG_SPL_FIT_IMAGE_POST_PROCESS=y
 # CONFIG_USE_SPL_FIT_GENERATOR is not set
 CONFIG_OF_BOARD_SETUP=y
 CONFIG_BOOTCOMMAND="run findfdt; run envboot; run init_${boot}; run get_fit_${boot}; run get_overlaystring; run run_fit"
+CONFIG_LOGLEVEL=7
 CONFIG_CONSOLE_MUX=y
 CONFIG_SPL_SYS_MALLOC_SIMPLE=y
 CONFIG_SPL_STACK_R=y

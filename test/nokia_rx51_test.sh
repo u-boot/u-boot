@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
 # SPDX-License-Identifier: GPL-2.0+
 # (C) 2020 Pali Rohár <pali@kernel.org>
 
@@ -157,7 +157,7 @@ setenv bootmenu_1;
 setenv bootmenu_delay 1;
 setenv bootdelay 1;
 EOF
-./mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n bootmenu -d bootmenu_emmc bootmenu_emmc.scr
+./mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n bootmenu_emmc -d bootmenu_emmc bootmenu_emmc.scr
 
 # Generate bootmenu for OneNAND booting
 cat > bootmenu_nand << EOF
@@ -166,7 +166,7 @@ setenv bootmenu_1;
 setenv bootmenu_delay 1;
 setenv bootdelay 1;
 EOF
-./mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n bootmenu -d bootmenu_nand bootmenu_nand.scr
+./mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n bootmenu_nand -d bootmenu_nand bootmenu_nand.scr
 
 # Generate combined image from u-boot and Maemo fiasco kernel
 dd if=kernel_2.6.28/boot/zImage-2.6.28-20103103+0m5.fiasco of=zImage-2.6.28-omap1 skip=95 bs=1
@@ -214,10 +214,11 @@ rm -f qemu_ram.log
 qemu_pid=$!
 tail -F qemu_ram.log &
 tail_pid=$!
-{ sleep 300 || true; kill -9 $qemu_pid $tail_pid 2>/dev/null || true; } &
+sleep 300 &
 sleep_pid=$!
-wait $qemu_pid || true
-kill -9 $tail_pid $sleep_pid 2>/dev/null || true
+wait -n $sleep_pid $qemu_pid || true
+kill -9 $tail_pid $sleep_pid $qemu_pid 2>/dev/null || true
+wait || true
 
 # Run MTD image in qemu and wait for 300s if kernel from eMMC is correctly booted
 rm -f qemu_emmc.log
@@ -225,10 +226,11 @@ rm -f qemu_emmc.log
 qemu_pid=$!
 tail -F qemu_emmc.log &
 tail_pid=$!
-{ sleep 300 || true; kill -9 $qemu_pid $tail_pid 2>/dev/null || true; } &
+sleep 300 &
 sleep_pid=$!
-wait $qemu_pid || true
-kill -9 $tail_pid $sleep_pid 2>/dev/null || true
+wait -n $sleep_pid $qemu_pid || true
+kill -9 $tail_pid $sleep_pid $qemu_pid 2>/dev/null || true
+wait || true
 
 # Run MTD image in qemu and wait for 300s if kernel from OneNAND is correctly booted
 rm -f qemu_nand.log
@@ -236,10 +238,11 @@ rm -f qemu_nand.log
 qemu_pid=$!
 tail -F qemu_nand.log &
 tail_pid=$!
-{ sleep 300 || true; kill -9 $qemu_pid $tail_pid 2>/dev/null || true; } &
+sleep 300 &
 sleep_pid=$!
-wait $qemu_pid || true
-kill -9 $tail_pid $sleep_pid 2>/dev/null || true
+wait -n $sleep_pid $qemu_pid || true
+kill -9 $tail_pid $sleep_pid $qemu_pid 2>/dev/null || true
+wait || true
 
 echo
 echo "============================="
