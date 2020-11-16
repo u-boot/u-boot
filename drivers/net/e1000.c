@@ -45,12 +45,6 @@ tested on both gig copper and gig fiber boards
 
 #define TOUT_LOOP   100000
 
-#ifdef CONFIG_DM_ETH
-#define virt_to_bus(devno, v)	dm_pci_virt_to_mem(devno, (void *) (v))
-#else
-#define virt_to_bus(devno, v)	pci_virt_to_mem(devno, (void *) (v))
-#endif
-
 #define E1000_DEFAULT_PCI_PBA	0x00000030
 #define E1000_DEFAULT_PCIE_PBA	0x000a0026
 
@@ -5385,7 +5379,7 @@ static int _e1000_transmit(struct e1000_hw *hw, void *txpacket, int length)
 	txp = tx_base + tx_tail;
 	tx_tail = (tx_tail + 1) % 8;
 
-	txp->buffer_addr = cpu_to_le64(virt_to_bus(hw->pdev, nv_packet));
+	txp->buffer_addr = cpu_to_le64(virt_to_phys(nv_packet));
 	txp->lower.data = cpu_to_le32(hw->txd_cmd | length);
 	txp->upper.data = 0;
 
