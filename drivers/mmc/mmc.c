@@ -2170,7 +2170,7 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 					err = mmc_execute_tuning(mmc,
 								 mwt->tuning);
 					if (err) {
-						pr_debug("tuning failed\n");
+						pr_debug("tuning failed : %d\n", err);
 						goto error;
 					}
 				}
@@ -2191,7 +2191,7 @@ error:
 		}
 	}
 
-	pr_err("unable to select a mode\n");
+	pr_err("unable to select a mode : %d\n", err);
 
 	return -ENOTSUPP;
 }
@@ -2721,7 +2721,7 @@ static int mmc_power_on(struct mmc *mmc)
 		int ret = regulator_set_enable(mmc->vmmc_supply, true);
 
 		if (ret) {
-			puts("Error enabling VMMC supply\n");
+			printf("Error enabling VMMC supply : %d\n", ret);
 			return ret;
 		}
 	}
@@ -2737,7 +2737,7 @@ static int mmc_power_off(struct mmc *mmc)
 		int ret = regulator_set_enable(mmc->vmmc_supply, false);
 
 		if (ret) {
-			pr_debug("Error disabling VMMC supply\n");
+			pr_debug("Error disabling VMMC supply : %d\n", ret);
 			return ret;
 		}
 	}
@@ -2841,7 +2841,7 @@ retry:
 
 		if (err) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-			pr_err("Card did not respond to voltage select!\n");
+			pr_err("Card did not respond to voltage select! : %d\n", err);
 #endif
 			return -EOPNOTSUPP;
 		}
