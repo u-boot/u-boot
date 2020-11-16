@@ -30,6 +30,52 @@ DECLARE_GLOBAL_DATA_PTR;
 #define properties_offset (offsetof(struct tpml_tagged_tpm_property, tpm_property) + \
 			   offsetof(struct tpms_tagged_property, value))
 
+struct {
+	u16 hash_alg;
+	u32 hash_mask;
+} hash_algo_list[] = {
+	{
+		TPM2_ALG_SHA1,
+		EFI_TCG2_BOOT_HASH_ALG_SHA1,
+	},
+	{
+		TPM2_ALG_SHA256,
+		EFI_TCG2_BOOT_HASH_ALG_SHA256,
+	},
+	{
+		TPM2_ALG_SHA384,
+		EFI_TCG2_BOOT_HASH_ALG_SHA384,
+	},
+	{
+		TPM2_ALG_SHA512,
+		EFI_TCG2_BOOT_HASH_ALG_SHA512,
+	},
+	{
+		TPM2_ALG_SM3_256,
+		EFI_TCG2_BOOT_HASH_ALG_SM3_256,
+	},
+};
+
+#define MAX_HASH_COUNT ARRAY_SIZE(hash_algo_list)
+/**
+ * alg_to_mask - Get a TCG hash mask for algorithms
+ *
+ * @hash_alg: TCG defined algorithm
+ *
+ * @Return: TCG hashing algorithm bitmaps, 0 if the algorithm is not supported
+ */
+static u32 alg_to_mask(u16 hash_alg)
+{
+	int i;
+
+	for (i = 0; i < MAX_HASH_COUNT; i++) {
+		if (hash_algo_list[i].hash_alg == hash_alg)
+			return hash_algo_list[i].hash_mask;
+	}
+
+	return 0;
+}
+
 const efi_guid_t efi_guid_tcg2_protocol = EFI_TCG2_PROTOCOL_GUID;
 
 /**
@@ -44,10 +90,12 @@ const efi_guid_t efi_guid_tcg2_protocol = EFI_TCG2_PROTOCOL_GUID;
  */
 __weak efi_status_t platform_get_tpm2_device(struct udevice **dev)
 {
-	for_each_tpm_device((*dev)) {
+	for_each_tpm_device(*dev) {
+		/* Only support TPMv2 devices */
 		if (tpm_get_version(*dev) == TPM_V2)
 			return EFI_SUCCESS;
 	}
+
 	return EFI_NOT_FOUND;
 }
 
@@ -242,36 +290,14 @@ static int tpm2_get_pcr_info(struct udevice *dev, u32 *supported_pcr,
 	}
 
 	for (i = 0; i < pcrs.count; i++) {
-		switch (pcrs.selection[i].hash) {
-		case TPM2_ALG_SHA1:
-			 *supported_pcr |= EFI_TCG2_BOOT_HASH_ALG_SHA1;
+		u32 hash_mask = alg_to_mask(pcrs.selection[i].hash);
+
+		if (hash_mask) {
+			*supported_pcr |= hash_mask;
 			if (is_active_pcr(&pcrs.selection[i]))
-				*active_pcr |= EFI_TCG2_BOOT_HASH_ALG_SHA1;
-			break;
-		case TPM2_ALG_SHA256:
-			*supported_pcr |= EFI_TCG2_BOOT_HASH_ALG_SHA256;
-			if (is_active_pcr(&pcrs.selection[i]))
-				*active_pcr |= EFI_TCG2_BOOT_HASH_ALG_SHA256;
-			break;
-		case TPM2_ALG_SHA384:
-			*supported_pcr |= EFI_TCG2_BOOT_HASH_ALG_SHA384;
-			if (is_active_pcr(&pcrs.selection[i]))
-				*active_pcr |= EFI_TCG2_BOOT_HASH_ALG_SHA384;
-			break;
-		case TPM2_ALG_SHA512:
-			*supported_pcr |= EFI_TCG2_BOOT_HASH_ALG_SHA512;
-			if (is_active_pcr(&pcrs.selection[i]))
-				*active_pcr |= EFI_TCG2_BOOT_HASH_ALG_SHA512;
-			break;
-		case TPM2_ALG_SM3_256:
-			*supported_pcr |= EFI_TCG2_BOOT_HASH_ALG_SM3_256;
-			if (is_active_pcr(&pcrs.selection[i]))
-				*active_pcr |= EFI_TCG2_BOOT_HASH_ALG_SM3_256;
-			break;
-		default:
-			EFI_PRINT("Unknown algorithm %x\n",
-				  pcrs.selection[i].hash);
-			break;
+				*active_pcr |= hash_mask;
+		} else {
+			EFI_PRINT("Unknown algorithm %x\n", pcrs.selection[i].hash);
 		}
 	}
 
@@ -283,7 +309,7 @@ out:
 }
 
 /**
- * get_capability() - protocol capability information and state information
+ * efi_tcg2_get_capability() - protocol capability information and state information
  *
  * @this:		TCG2 protocol instance
  * @capability:		caller allocated memory with size field to the size of
@@ -292,8 +318,8 @@ out:
  * Return:	status code
  */
 static efi_status_t EFIAPI
-get_capability(struct efi_tcg2_protocol *this,
-	       struct efi_tcg2_boot_service_capability *capability)
+efi_tcg2_get_capability(struct efi_tcg2_protocol *this,
+			struct efi_tcg2_boot_service_capability *capability)
 {
 	struct udevice *dev;
 	efi_status_t efi_ret;
@@ -381,7 +407,8 @@ out:
 }
 
 /**
- * get_eventlog() - retrieve the the address of an event log and its last entry
+ * efi_tcg2_get_eventlog() -	retrieve the the address of an event log and its
+ *				last entry
  *
  * @this:			TCG2 protocol instance
  * @log_format:			type of event log format
@@ -395,15 +422,16 @@ out:
  * Return:	status code
  */
 static efi_status_t EFIAPI
-get_eventlog(struct efi_tcg2_protocol *this,
-	     efi_tcg_event_log_format log_format, u64 *event_log_location,
-	     u64 *event_log_last_entry, bool *event_log_truncated)
+efi_tcg2_get_eventlog(struct efi_tcg2_protocol *this,
+		      efi_tcg_event_log_format log_format,
+		      u64 *event_log_location, u64 *event_log_last_entry,
+		      bool *event_log_truncated)
 {
 	return EFI_UNSUPPORTED;
 }
 
 /**
- * hash_log_extend_event()- extend and optionally log events
+ * efi_tcg2_hash_log_extend_event() - extend and optionally log events
  *
  * @this:			TCG2 protocol instance
  * @flags:			bitmap providing additional information on the
@@ -418,15 +446,15 @@ get_eventlog(struct efi_tcg2_protocol *this,
  * Return:	status code
  */
 static efi_status_t EFIAPI
-hash_log_extend_event(struct efi_tcg2_protocol *this, u64 flags,
-		      u64 data_to_hash, u64 data_to_hash_len,
-		      struct efi_tcg2_event *efi_tcg_event)
+efi_tcg2_hash_log_extend_event(struct efi_tcg2_protocol *this, u64 flags,
+			       u64 data_to_hash, u64 data_to_hash_len,
+			       struct efi_tcg2_event *efi_tcg_event)
 {
 	return EFI_UNSUPPORTED;
 }
 
 /**
- * submit_command() - Send command to the TPM
+ * efi_tcg2_submit_command() - Send command to the TPM
  *
  * @this:			TCG2 protocol instance
  * @input_param_block_size:	size of the TPM input parameter block
@@ -437,15 +465,15 @@ hash_log_extend_event(struct efi_tcg2_protocol *this, u64 flags,
  * Return:	status code
  */
 efi_status_t EFIAPI
-submit_command(struct efi_tcg2_protocol *this, u32 input_param_block_size,
-	       u8 *input_param_block, u32 output_param_block_size,
-	       u8 *output_param_block)
+efi_tcg2_submit_command(struct efi_tcg2_protocol *this,
+			u32 input_param_block_size, u8 *input_param_block,
+			u32 output_param_block_size, u8 *output_param_block)
 {
 	return EFI_UNSUPPORTED;
 }
 
 /**
- * get_active_pcr_banks() - returns the currently active PCR banks
+ * efi_tcg2_get_active_pcr_banks() - returns the currently active PCR banks
  *
  * @this:			TCG2 protocol instance
  * @active_pcr_banks:		pointer for receiving the bitmap of currently
@@ -454,13 +482,14 @@ submit_command(struct efi_tcg2_protocol *this, u32 input_param_block_size,
  * Return:	status code
  */
 efi_status_t EFIAPI
-get_active_pcr_banks(struct efi_tcg2_protocol *this, u32 *active_pcr_banks)
+efi_tcg2_get_active_pcr_banks(struct efi_tcg2_protocol *this,
+			      u32 *active_pcr_banks)
 {
 	return EFI_UNSUPPORTED;
 }
 
 /**
- * set_active_pcr_banks() - sets the currently active PCR banks
+ * efi_tcg2_set_active_pcr_banks() - sets the currently active PCR banks
  *
  * @this:			TCG2 protocol instance
  * @active_pcr_banks:		bitmap of the requested active PCR banks
@@ -468,14 +497,15 @@ get_active_pcr_banks(struct efi_tcg2_protocol *this, u32 *active_pcr_banks)
  * Return:	status code
  */
 efi_status_t EFIAPI
-set_active_pcr_banks(struct efi_tcg2_protocol *this, u32 active_pcr_banks)
+efi_tcg2_set_active_pcr_banks(struct efi_tcg2_protocol *this,
+			      u32 active_pcr_banks)
 {
 	return EFI_UNSUPPORTED;
 }
 
 /**
- * get_result_of_set_active_pcr_banks() - retrieves the result of a previous
- *					  set_active_pcr_banks()
+ * efi_tcg2_get_result_of_set_active_pcr_banks() - retrieve result for previous
+ *						   set_active_pcr_banks()
  *
  * @this:			TCG2 protocol instance
  * @operation_present:		non-zero value to indicate a
@@ -486,20 +516,20 @@ set_active_pcr_banks(struct efi_tcg2_protocol *this, u32 active_pcr_banks)
  * Return:	status code
  */
 efi_status_t EFIAPI
-get_result_of_set_active_pcr_banks(struct efi_tcg2_protocol *this,
-				   u32 *operation_present, u32 *response)
+efi_tcg2_get_result_of_set_active_pcr_banks(struct efi_tcg2_protocol *this,
+					    u32 *operation_present, u32 *response)
 {
 	return EFI_UNSUPPORTED;
 }
 
 static const struct efi_tcg2_protocol efi_tcg2_protocol = {
-	.get_capability = get_capability,
-	.get_eventlog = get_eventlog,
-	.hash_log_extend_event = hash_log_extend_event,
-	.submit_command = submit_command,
-	.get_active_pcr_banks = get_active_pcr_banks,
-	.set_active_pcr_banks = set_active_pcr_banks,
-	.get_result_of_set_active_pcr_banks = get_result_of_set_active_pcr_banks,
+	.get_capability = efi_tcg2_get_capability,
+	.get_eventlog = efi_tcg2_get_eventlog,
+	.hash_log_extend_event = efi_tcg2_hash_log_extend_event,
+	.submit_command = efi_tcg2_submit_command,
+	.get_active_pcr_banks = efi_tcg2_get_active_pcr_banks,
+	.set_active_pcr_banks = efi_tcg2_set_active_pcr_banks,
+	.get_result_of_set_active_pcr_banks = efi_tcg2_get_result_of_set_active_pcr_banks,
 };
 
 /**
@@ -513,18 +543,12 @@ efi_status_t efi_tcg2_register(void)
 {
 	efi_status_t ret;
 	struct udevice *dev;
-	enum tpm_version tpm_ver;
 
 	ret = platform_get_tpm2_device(&dev);
-	if (ret != EFI_SUCCESS)
-		return EFI_SUCCESS;
-
-	tpm_ver = tpm_get_version(dev);
-	if (tpm_ver != TPM_V2) {
-		log_warning("Only TPMv2 supported for EFI_TCG2_PROTOCOL\n");
+	if (ret != EFI_SUCCESS) {
+		log_warning("Unable to find TPMv2 device\n");
 		return EFI_SUCCESS;
 	}
-
 	ret = efi_add_protocol(efi_root, &efi_guid_tcg2_protocol,
 			       (void *)&efi_tcg2_protocol);
 	if (ret != EFI_SUCCESS)
