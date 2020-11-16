@@ -107,6 +107,16 @@ extra_header_fields:
 	.quad	0				/* ExceptionTable */
 	.quad	0				/* CertificationTable */
 	.quad	0				/* BaseRelocationTable */
+	.quad	0				/* Debug */
+	.quad	0				/* Architecture */
+	.quad	0				/* Global Ptr */
+	.quad	0				/* TLS Table */
+	.quad	0				/* Load Config Table */
+	.quad	0				/* Bound Import */
+	.quad	0				/* IAT */
+	.quad	0				/* Delay Import Descriptor */
+	.quad	0				/* CLR Runtime Header */
+	.quad	0				/* Reserved */
 
 	/* Section table */
 section_table:
