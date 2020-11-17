@@ -20,9 +20,8 @@ config DFU_WRITE_ALT
 
 config DFU_TFTP
 	bool "DFU via TFTP"
-	select DFU_WRITE_ALT
-	select DFU_OVER_TFTP
 	select UPDATE_COMMON
+	select DFU_OVER_TFTP
 	help
 	  This option allows performing update of DFU-managed medium with data
 	  sent via TFTP boot.
