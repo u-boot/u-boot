@@ -55,8 +55,9 @@
 
 #define K210_PC_MODE_IN   (K210_PC_IE | K210_PC_ST)
 #define K210_PC_MODE_OUT  (K210_PC_DRIVE_7 | K210_PC_OE)
-#define K210_PC_MODE_I2C  (K210_PC_MODE_IN | K210_PC_IE_INV | K210_PC_SL | \
-			   K210_PC_OE | K210_PC_OE_INV | K210_PC_PU)
+#define K210_PC_MODE_I2C  (K210_PC_MODE_IN | K210_PC_SL | K210_PC_OE | \
+			   K210_PC_PU)
+#define K210_PC_MODE_SCCB (K210_PC_MODE_I2C | K210_PC_OE_INV | K210_PC_IE_INV)
 #define K210_PC_MODE_SPI  (K210_PC_MODE_IN | K210_PC_IE_INV | \
 			   K210_PC_MODE_OUT | K210_PC_OE_INV)
 #define K210_PC_MODE_GPIO (K210_PC_MODE_IN | K210_PC_MODE_OUT)
@@ -152,11 +153,11 @@ static const char k210_pc_group_names[][3] = {
 	[0] = "A0",
 	[1] = "A1",
 	[2] = "A2",
-	[3] = "B0",
-	[4] = "B1",
-	[5] = "B2",
-	[6] = "C0",
-	[7] = "C1",
+	[3] = "B3",
+	[4] = "B4",
+	[5] = "B5",
+	[6] = "C6",
+	[7] = "C7",
 };
 
 static int k210_pc_get_groups_count(struct udevice *dev)
@@ -176,6 +177,7 @@ enum k210_pc_mode_id {
 	K210_PC_DEFAULT_IN_TIE,
 	K210_PC_DEFAULT_OUT,
 	K210_PC_DEFAULT_I2C,
+	K210_PC_DEFAULT_SCCB,
 	K210_PC_DEFAULT_SPI,
 	K210_PC_DEFAULT_GPIO,
 	K210_PC_DEFAULT_INT13,
@@ -189,6 +191,7 @@ static const u32 k210_pc_mode_id_to_mode[] = {
 	[K210_PC_DEFAULT_IN_TIE] = K210_PC_MODE_IN,
 	DEFAULT(OUT),
 	DEFAULT(I2C),
+	DEFAULT(SCCB),
 	DEFAULT(SPI),
 	DEFAULT(GPIO),
 	[K210_PC_DEFAULT_INT13] = K210_PC_MODE_IN | K210_PC_PU,
@@ -362,8 +365,8 @@ static const struct k210_pcf_info k210_pcf_infos[] = {
 	FUNC(DVP_D5,         IN),
 	FUNC(DVP_D6,         IN),
 	FUNC(DVP_D7,         IN),
-	FUNC(SCCB_SCLK,      I2C),
-	FUNC(SCCB_SDA,       I2C),
+	FUNC(SCCB_SCLK,      SCCB),
+	FUNC(SCCB_SDA,       SCCB),
 	FUNC(UART1_CTS,      IN),
 	FUNC(UART1_DSR,      IN),
 	FUNC(UART1_DCD,      IN),

@@ -18,7 +18,7 @@ Pin configuration nodes are documented in pinctrl-bindings.txt
 Required properties for pin-configuration nodes or sub-nodes are:
 - groups: list of power groups to which the configuration applies. Valid groups
   are:
-	A0, A1, A2, B0, B1, B2, C0, C1
+	A0, A1, A2, B3, B4, B5, C6, C7
   (either this or "pinmux" must be specified)
 - pinmux: integer array representing pin multiplexing configuration. In addition
   to the 256 standard functions, each pin can also output the direction
