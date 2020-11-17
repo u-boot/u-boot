@@ -155,6 +155,10 @@ static efi_status_t efi_init_os_indications(void)
 		os_indications_supported |=
 			EFI_OS_INDICATIONS_CAPSULE_RESULT_VAR_SUPPORTED;
 
+	if (IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK))
+		os_indications_supported |=
+			EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED;
+
 	return efi_set_variable_int(L"OsIndicationsSupported",
 				    &efi_global_variable_guid,
 				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
@@ -282,6 +286,10 @@ efi_status_t efi_init_obj_list(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
+	/* Execute capsules after reboot */
+	if (IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK) &&
+	    !IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK_EARLY))
+		ret = efi_launch_capsules();
 out:
 	efi_obj_list_initialized = ret;
 	return ret;
