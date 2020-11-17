@@ -100,9 +100,9 @@ static efi_status_t efi_init_secure_boot(void)
 
 	ret = efi_set_variable_int(L"SignatureSupport",
 				   &efi_global_variable_guid,
+				   EFI_VARIABLE_READ_ONLY |
 				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
-				   EFI_VARIABLE_RUNTIME_ACCESS |
-				   EFI_VARIABLE_READ_ONLY,
+				   EFI_VARIABLE_RUNTIME_ACCESS,
 				   sizeof(signature_types),
 				   &signature_types, false);
 	if (ret != EFI_SUCCESS)
@@ -118,13 +118,59 @@ static efi_status_t efi_init_secure_boot(void)
 #endif /* CONFIG_EFI_SECURE_BOOT */
 
 /**
+ * efi_init_capsule - initialize capsule update state
+ *
+ * Return:	status code
+ */
+static efi_status_t efi_init_capsule(void)
+{
+	efi_status_t ret = EFI_SUCCESS;
+
+	if (IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_UPDATE)) {
+		ret = efi_set_variable_int(L"CapsuleMax",
+					   &efi_guid_capsule_report,
+					   EFI_VARIABLE_READ_ONLY |
+					   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+					   EFI_VARIABLE_RUNTIME_ACCESS,
+					   22, L"CapsuleFFFF", false);
+		if (ret != EFI_SUCCESS)
+			printf("EFI: cannot initialize CapsuleMax variable\n");
+	}
+
+	return ret;
+}
+
+/**
+ * efi_init_os_indications() - indicate supported features for OS requests
+ *
+ * Set the OsIndicationsSupported variable.
+ *
+ * Return:	status code
+ */
+static efi_status_t efi_init_os_indications(void)
+{
+	u64 os_indications_supported = 0;
+
+	if (IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT))
+		os_indications_supported |=
+			EFI_OS_INDICATIONS_CAPSULE_RESULT_VAR_SUPPORTED;
+
+	return efi_set_variable_int(L"OsIndicationsSupported",
+				    &efi_global_variable_guid,
+				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				    EFI_VARIABLE_RUNTIME_ACCESS |
+				    EFI_VARIABLE_READ_ONLY,
+				    sizeof(os_indications_supported),
+				    &os_indications_supported, false);
+}
+
+/**
  * efi_init_obj_list() - Initialize and populate EFI object list
  *
  * Return:	status code
  */
 efi_status_t efi_init_obj_list(void)
 {
-	u64 os_indications_supported = 0; /* None */
 	efi_status_t ret = EFI_SUCCESS;
 
 	/* Initialize once only */
@@ -168,13 +214,7 @@ efi_status_t efi_init_obj_list(void)
 		goto out;
 
 	/* Indicate supported features */
-	ret = efi_set_variable_int(L"OsIndicationsSupported",
-				   &efi_global_variable_guid,
-				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
-				   EFI_VARIABLE_RUNTIME_ACCESS |
-				   EFI_VARIABLE_READ_ONLY,
-				   sizeof(os_indications_supported),
-				   &os_indications_supported, false);
+	ret = efi_init_os_indications();
 	if (ret != EFI_SUCCESS)
 		goto out;
 
@@ -230,6 +270,10 @@ efi_status_t efi_init_obj_list(void)
 		goto out;
 #endif
 	ret = efi_watchdog_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = efi_init_capsule();
 	if (ret != EFI_SUCCESS)
 		goto out;
 
