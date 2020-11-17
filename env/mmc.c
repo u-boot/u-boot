@@ -42,7 +42,7 @@ static inline int mmc_offset_try_partition(const char *str, int copy, s64 *val)
 		if (ret < 0)
 			return ret;
 
-		if (!strncmp((const char *)info.name, str, sizeof(str)))
+		if (!strncmp((const char *)info.name, str, sizeof(info.name)))
 			break;
 	}
 
