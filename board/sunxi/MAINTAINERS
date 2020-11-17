@@ -451,6 +451,11 @@ M:	Icenowy Zheng <icenowy@aosc.io>
 S:	Maintained
 F:	configs/pine_h64_defconfig
 
+PINEPHONE BOARD
+M:	Samuel Holland <samuel@sholland.org>
+S:	Maintained
+F:	configs/pinephone_defconfig
+
 R16 EVB PARROT BOARD
 M:	Quentin Schulz <quentin.schulz@free-electrons.com>
 S:	Maintained

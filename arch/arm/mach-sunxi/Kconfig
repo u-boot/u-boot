@@ -253,7 +253,7 @@ config MACH_SUN8I_R40
 	select PHY_SUN4I_USB
 
 config MACH_SUN8I_V3S
-	bool "sun8i (Allwinner V3s)"
+	bool "sun8i (Allwinner V3/V3s/S3/S3L)"
 	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
@@ -363,7 +363,6 @@ choice
 config SUNXI_DRAM_DDR3_1333
 	bool "DDR3 1333"
 	select SUNXI_DRAM_DDR3
-	depends on !MACH_SUN8I_V3S
 	---help---
 	This option is the original only supported memory type, which suits
 	many H3/H5/A64 boards available now.
@@ -1009,5 +1008,12 @@ config PINE64_DT_SELECTION
 	  512MiB DRAM, and Pine A64+ has 1GiB or 2GiB. By selecting this
 	  option, the device tree selection code specific to Pine64 which
 	  utilizes the DRAM size will be enabled.
+
+config PINEPHONE_DT_SELECTION
+	bool "Enable PinePhone device tree selection code"
+	depends on MACH_SUN50I
+	help
+	  Enable this option to automatically select the device tree for the
+	  correct PinePhone hardware revision during boot.
 
 endif

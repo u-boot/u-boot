@@ -27,6 +27,7 @@
 #include <asm/arch/dram.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
+#include <asm/arch/prcm.h>
 #include <asm/arch/spl.h>
 #include <linux/delay.h>
 #include <u-boot/crc.h>
@@ -100,6 +101,10 @@ void i2c_init_board(void)
 #elif defined(CONFIG_MACH_SUN6I)
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(14), SUN6I_GPH_TWI0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(15), SUN6I_GPH_TWI0);
+	clock_twi_onoff(0, 1);
+#elif defined(CONFIG_MACH_SUN8I_V3S)
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(6), SUN8I_V3S_GPB_TWI0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(7), SUN8I_V3S_GPB_TWI0);
 	clock_twi_onoff(0, 1);
 #elif defined(CONFIG_MACH_SUN8I)
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(2), SUN8I_GPH_TWI0);
@@ -317,6 +322,17 @@ static struct boot_file_head * get_spl_header(uint8_t req_version)
 	}
 
 	return spl;
+}
+
+static const char *get_spl_dt_name(void)
+{
+	struct boot_file_head *spl = get_spl_header(SPL_DT_HEADER_VERSION);
+
+	/* Check if there is a DT name stored in the SPL header. */
+	if (spl != INVALID_SPL_HEADER && spl->dt_name_offset)
+		return (char *)spl + spl->dt_name_offset;
+
+	return NULL;
 }
 
 int dram_init(void)
@@ -843,6 +859,7 @@ static void setup_environment(const void *fdt)
 
 int misc_init_r(void)
 {
+	const char *spl_dt_name;
 	uint boot;
 
 	env_set("fel_booted", NULL);
@@ -859,6 +876,16 @@ int misc_init_r(void)
 		env_set("mmc_bootdev", "0");
 	} else if (boot == BOOT_DEVICE_MMC2) {
 		env_set("mmc_bootdev", "1");
+	}
+
+	/* Set fdtfile to match the FIT configuration chosen in SPL. */
+	spl_dt_name = get_spl_dt_name();
+	if (spl_dt_name) {
+		char *prefix = IS_ENABLED(CONFIG_ARM64) ? "allwinner/" : "";
+		char str[64];
+
+		snprintf(str, sizeof(str), "%s%s.dtb", prefix, spl_dt_name);
+		env_set("fdtfile", str);
 	}
 
 	setup_environment(gd->fdt_blob);
@@ -889,33 +916,72 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 }
 
 #ifdef CONFIG_SPL_LOAD_FIT
+
+static void set_spl_dt_name(const char *name)
+{
+	struct boot_file_head *spl = get_spl_header(SPL_ENV_HEADER_VERSION);
+
+	if (spl == INVALID_SPL_HEADER)
+		return;
+
+	/* Promote the header version for U-Boot proper, if needed. */
+	if (spl->spl_signature[3] < SPL_DT_HEADER_VERSION)
+		spl->spl_signature[3] = SPL_DT_HEADER_VERSION;
+
+	strcpy((char *)&spl->string_pool, name);
+	spl->dt_name_offset = offsetof(struct boot_file_head, string_pool);
+}
+
 int board_fit_config_name_match(const char *name)
 {
-	struct boot_file_head *spl = get_spl_header(SPL_DT_HEADER_VERSION);
-	const char *cmp_str = (const char *)spl;
+	const char *best_dt_name = get_spl_dt_name();
+	int ret;
 
-	/* Check if there is a DT name stored in the SPL header and use that. */
-	if (spl != INVALID_SPL_HEADER && spl->dt_name_offset) {
-		cmp_str += spl->dt_name_offset;
-	} else {
 #ifdef CONFIG_DEFAULT_DEVICE_TREE
-		cmp_str = CONFIG_DEFAULT_DEVICE_TREE;
-#else
-		return 0;
+	if (best_dt_name == NULL)
+		best_dt_name = CONFIG_DEFAULT_DEVICE_TREE;
 #endif
-	};
 
+	if (best_dt_name == NULL) {
+		/* No DT name was provided, so accept the first config. */
+		return 0;
+	}
 #ifdef CONFIG_PINE64_DT_SELECTION
-/* Differentiate the two Pine64 board DTs by their DRAM size. */
-	if (strstr(name, "-pine64") && strstr(cmp_str, "-pine64")) {
-		if ((gd->ram_size > 512 * 1024 * 1024))
-			return !strstr(name, "plus");
-		else
-			return !!strstr(name, "plus");
-	} else {
-		return strcmp(name, cmp_str);
+	if (strstr(best_dt_name, "-pine64-plus")) {
+		/* Differentiate the Pine A64 boards by their DRAM size. */
+		if ((gd->ram_size == 512 * 1024 * 1024))
+			best_dt_name = "sun50i-a64-pine64";
 	}
 #endif
-	return strcmp(name, cmp_str);
+#ifdef CONFIG_PINEPHONE_DT_SELECTION
+	if (strstr(best_dt_name, "-pinephone")) {
+		/* Differentiate the PinePhone revisions by GPIO inputs. */
+		prcm_apb0_enable(PRCM_APB0_GATE_PIO);
+		sunxi_gpio_set_pull(SUNXI_GPL(6), SUNXI_GPIO_PULL_UP);
+		sunxi_gpio_set_cfgpin(SUNXI_GPL(6), SUNXI_GPIO_INPUT);
+		udelay(100);
+
+		/* PL6 is pulled low by the modem on v1.2. */
+		if (gpio_get_value(SUNXI_GPL(6)) == 0)
+			best_dt_name = "sun50i-a64-pinephone-1.2";
+		else
+			best_dt_name = "sun50i-a64-pinephone-1.1";
+
+		sunxi_gpio_set_cfgpin(SUNXI_GPL(6), SUNXI_GPIO_DISABLE);
+		sunxi_gpio_set_pull(SUNXI_GPL(6), SUNXI_GPIO_PULL_DISABLE);
+		prcm_apb0_disable(PRCM_APB0_GATE_PIO);
+	}
+#endif
+
+	ret = strcmp(name, best_dt_name);
+
+	/*
+	 * If one of the FIT configurations matches the most accurate DT name,
+	 * update the SPL header to provide that DT name to U-Boot proper.
+	 */
+	if (ret == 0)
+		set_spl_dt_name(best_dt_name);
+
+	return ret;
 }
 #endif
