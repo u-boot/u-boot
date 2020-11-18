@@ -25,4 +25,27 @@ config SL28_SPL_LOADS_ATF_BL31
 	  Enable this to load a BL31 image by the SPL. You have to
 	  provde a bl31.bin in u-boot's root directory.
 
+if SL28_SPL_LOADS_ATF_BL31
+
+config SL28_BL31_ENTRY_ADDR
+	hex "Entry point of the BL31 image"
+	default 0xfbe00000
+
+endif
+
+config SL28_SPL_LOADS_OPTEE_BL32
+	bool "SPL loads OP-TEE Trusted OS as BL32"
+	depends on SL28_SPL_LOADS_ATF_BL31
+	help
+	  Enable this to load a BL32 image by the SPL. You have to
+	  provde a tee.bin in u-boot's root directory.
+
+if SL28_SPL_LOADS_OPTEE_BL32
+
+config SL28_BL32_ENTRY_ADDR
+	hex "Entry point of the BL32 image"
+	default 0xfc000000
+
+endif
+
 endif

@@ -50,6 +50,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	u64 base[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
 	int nbanks = CONFIG_NR_DRAM_BANKS;
+	int node;
 	int i;
 
 	ft_cpu_setup(blob, bd);
@@ -63,6 +64,12 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	fdt_fixup_memory_banks(blob, base, size, nbanks);
 
 	fdt_fixup_icid(blob);
+
+	if (CONFIG_IS_ENABLED(SL28_SPL_LOADS_OPTEE_BL32)) {
+		node = fdt_node_offset_by_compatible(blob, -1, "linaro,optee-tz");
+		if (node)
+			fdt_set_node_status(blob, node, FDT_STATUS_OKAY, 0);
+	}
 
 	return 0;
 }

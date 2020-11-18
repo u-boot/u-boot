@@ -138,6 +138,42 @@
 };
 #endif
 
+#ifdef CONFIG_SL28_SPL_LOADS_OPTEE_BL32
+&binman {
+	fit {
+		images {
+			bl32 {
+				description = "OP-TEE Trusted OS (bl32)";
+				type = "firmware";
+				arch = "arm";
+				os = "tee";
+				compression = "none";
+				load = <CONFIG_SL28_BL32_ENTRY_ADDR>;
+				entry = <CONFIG_SL28_BL32_ENTRY_ADDR>;
+
+				blob-ext {
+					filename = "tee.bin";
+				};
+			};
+		};
+
+		configurations {
+			conf-1 {
+				loadables = "uboot", "bl32";
+			};
+
+			conf-2 {
+				loadables = "uboot", "bl32";
+			};
+
+			conf-3 {
+				loadables = "uboot", "bl32";
+			};
+		};
+	};
+};
+#endif
+
 &i2c0 {
 	rtc: rtc@32 {
 	};
