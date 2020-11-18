@@ -564,6 +564,41 @@ struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl32_entry,
 struct bl31_params *bl2_plat_get_bl31_params_default(uintptr_t bl32_entry,
 						     uintptr_t bl33_entry,
 						     uintptr_t fdt_addr);
+
+/**
+ * bl2_plat_get_bl31_params_v2() - return params for bl31
+ * @bl32_entry:	address of BL32 executable (secure)
+ * @bl33_entry:	address of BL33 executable (non secure)
+ * @fdt_addr:	address of Flat Device Tree
+ *
+ * This function does the same as bl2_plat_get_bl31_params() except that is is
+ * used for the new LOAD_IMAGE_V2 option, which uses a slightly different
+ * method to pass the parameters.
+ *
+ * Return: bl31 params structure pointer
+ */
+struct bl_params *bl2_plat_get_bl31_params_v2(uintptr_t bl32_entry,
+					      uintptr_t bl33_entry,
+					      uintptr_t fdt_addr);
+
+/**
+ * bl2_plat_get_bl31_params_v2_default() - prepare params for bl31.
+ * @bl32_entry:	address of BL32 executable (secure)
+ * @bl33_entry:	address of BL33 executable (non secure)
+ * @fdt_addr:	address of Flat Device Tree
+ *
+ * This is the default implementation of bl2_plat_get_bl31_params_v2(). It
+ * prepares the linked list of the bl31 params, populates the image types and
+ * set the entry points for bl32 and bl33 (if available).
+ *
+ * NOTE: The memory is statically allocated, thus this function should be
+ * called only once. All subsequent calls will overwrite any changes.
+ *
+ * Return: bl31 params structure pointer
+ */
+struct bl_params *bl2_plat_get_bl31_params_v2_default(uintptr_t bl32_entry,
+						      uintptr_t bl33_entry,
+						      uintptr_t fdt_addr);
 /**
  * spl_optee_entry - entry function for optee
  *

@@ -14,8 +14,14 @@
 #define ATF_PARAM_EP		0x01
 #define ATF_PARAM_IMAGE_BINARY	0x02
 #define ATF_PARAM_BL31		0x03
+#define ATF_PARAM_BL_PARAMS	0x05
 
 #define ATF_VERSION_1	0x01
+#define ATF_VERSION_2	0x02
+
+#define ATF_BL31_IMAGE_ID	0x03
+#define ATF_BL32_IMAGE_ID	0x04
+#define ATF_BL33_IMAGE_ID	0x05
 
 #define ATF_EP_SECURE	0x0
 #define ATF_EP_NON_SECURE	0x1
@@ -121,6 +127,9 @@ struct atf_image_info {
 	struct param_header h;
 	uintptr_t image_base;   /* physical address of base of image */
 	uint32_t image_size;    /* bytes read from image file */
+#if CONFIG_IS_ENABLED(ATF_LOAD_IMAGE_V2)
+	uint32_t image_max_size;
+#endif
 };
 
 /*****************************************************************************
@@ -162,6 +171,27 @@ struct bl31_params {
 	struct atf_image_info *bl33_image_info;
 };
 
+/* BL image node in the BL image execution sequence */
+struct bl_params_node {
+	unsigned int image_id;
+	struct atf_image_info *image_info;
+	struct entry_point_info *ep_info;
+	struct bl_params_node *next_params_info;
+};
+
+/*
+ * BL image head node in the BL image execution sequence
+ * It is also used to pass information to next BL image.
+ */
+struct bl_params {
+	struct param_header h;
+	struct bl_params_node *head;
+};
+
+#define for_each_bl_params_node(bl_params, node) \
+	for ((node) = (bl_params)->head; \
+	     (node); \
+	     (node) = (node)->next_params_info)
 
 #endif /*__ASSEMBLY__ */
 
