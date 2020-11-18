@@ -80,21 +80,18 @@
 				conf-1 {
 					description = "fsl-ls1028a-kontron-sl28";
 					firmware = "uboot";
-					loadables = "uboot";
 					fdt = "fdt-1";
 				};
 
 				conf-2 {
 					description = "fsl-ls1028a-kontron-sl28-var3";
 					firmware = "uboot";
-					loadables = "uboot";
 					fdt = "fdt-2";
 				};
 
 				conf-3 {
 					description = "fsl-ls1028a-kontron-sl28-var4";
 					firmware = "uboot";
-					loadables = "uboot";
 					fdt = "fdt-3";
 				};
 			};
