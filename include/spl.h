@@ -526,25 +526,44 @@ int spl_ymodem_load_image(struct spl_image_info *spl_image,
 void spl_invoke_atf(struct spl_image_info *spl_image);
 
 /**
- * bl2_plat_get_bl31_params() - prepare params for bl31.
- * @bl32_entry	address of BL32 executable (secure)
- * @bl33_entry	address of BL33 executable (non secure)
- * @fdt_addr	address of Flat Device Tree
+ * bl2_plat_get_bl31_params() - return params for bl31.
+ * @bl32_entry:	address of BL32 executable (secure)
+ * @bl33_entry:	address of BL33 executable (non secure)
+ * @fdt_addr:	address of Flat Device Tree
  *
- * This function assigns a pointer to the memory that the platform has kept
- * aside to pass platform specific and trusted firmware related information
- * to BL31. This memory is allocated by allocating memory to
- * bl2_to_bl31_params_mem structure which is a superset of all the
- * structure whose information is passed to BL31
- * NOTE: This function should be called only once and should be done
- * before generating params to BL31
+ * This is a weak function which might be overridden by the board code. By
+ * default it will just call bl2_plat_get_bl31_params_default().
  *
- * @return bl31 params structure pointer
+ * If you just want to manipulate or add some parameters, you can override
+ * this function, call bl2_plat_get_bl31_params_default and operate on the
+ * returned bl31 params.
+ *
+ * Return: bl31 params structure pointer
  */
 struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl32_entry,
 					     uintptr_t bl33_entry,
 					     uintptr_t fdt_addr);
 
+/**
+ * bl2_plat_get_bl31_params_default() - prepare params for bl31.
+ * @bl32_entry:	address of BL32 executable (secure)
+ * @bl33_entry:	address of BL33 executable (non secure)
+ * @fdt_addr:	address of Flat Device Tree
+ *
+ * This is the default implementation of bl2_plat_get_bl31_params(). It assigns
+ * a pointer to the memory that the platform has kept aside to pass platform
+ * specific and trusted firmware related information to BL31. This memory is
+ * allocated by allocating memory to bl2_to_bl31_params_mem structure which is
+ * a superset of all the structure whose information is passed to BL31
+ *
+ * NOTE: The memory is statically allocated, thus this function should be
+ * called only once. All subsequent calls will overwrite any changes.
+ *
+ * Return: bl31 params structure pointer
+ */
+struct bl31_params *bl2_plat_get_bl31_params_default(uintptr_t bl32_entry,
+						     uintptr_t bl33_entry,
+						     uintptr_t fdt_addr);
 /**
  * spl_optee_entry - entry function for optee
  *

@@ -18,9 +18,9 @@
 #include <spl.h>
 #include <asm/cache.h>
 
-__weak struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl32_entry,
-						    uintptr_t bl33_entry,
-						    uintptr_t fdt_addr)
+struct bl31_params *bl2_plat_get_bl31_params_default(uintptr_t bl32_entry,
+						     uintptr_t bl33_entry,
+						     uintptr_t fdt_addr)
 {
 	static struct bl2_to_bl31_params_mem bl31_params_mem;
 	struct bl31_params *bl2_to_bl31_params;
@@ -75,6 +75,14 @@ __weak struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl32_entry,
 		       ATF_PARAM_IMAGE_BINARY, ATF_VERSION_1, 0);
 
 	return bl2_to_bl31_params;
+}
+
+__weak struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl32_entry,
+						    uintptr_t bl33_entry,
+						    uintptr_t fdt_addr)
+{
+	return bl2_plat_get_bl31_params_default(bl32_entry, bl33_entry,
+						fdt_addr);
 }
 
 static inline void raw_write_daif(unsigned int daif)
