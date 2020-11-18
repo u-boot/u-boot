@@ -15,4 +15,14 @@ config SYS_CONFIG_NAME
 config SYS_TEXT_BASE
 	default 0x96000000
 
+config SL28_SPL_LOADS_ATF_BL31
+	bool "SPL loads BL31 of the ARM Trusted Firmware"
+	select SPL_ATF
+	select SPL_ATF_LOAD_IMAGE_V2
+	select ARMV8_SEC_FIRMWARE_SUPPORT
+	select SEC_FIRMWARE_ARMV8_PSCI
+	help
+	  Enable this to load a BL31 image by the SPL. You have to
+	  provde a bl31.bin in u-boot's root directory.
+
 endif
