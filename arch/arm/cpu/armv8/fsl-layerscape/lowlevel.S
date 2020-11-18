@@ -192,6 +192,7 @@ ENTRY(lowlevel_init)
 #endif
 
 	/* Initialize GIC Secure Bank Status */
+#if !defined(CONFIG_SPL_BUILD)
 #if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
 	branch_if_slave x0, 1f
 	bl	get_gic_offset
@@ -203,6 +204,7 @@ ENTRY(lowlevel_init)
 #elif defined(CONFIG_GICV2)
 	bl	get_gic_offset
 	bl	gic_init_secure_percpu
+#endif
 #endif
 #endif
 
