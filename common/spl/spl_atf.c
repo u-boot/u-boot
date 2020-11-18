@@ -18,6 +18,17 @@
 #include <spl.h>
 #include <asm/cache.h>
 
+/* Holds all the structures we need for bl31 parameter passing */
+struct bl2_to_bl31_params_mem {
+	struct bl31_params bl31_params;
+	struct atf_image_info bl31_image_info;
+	struct atf_image_info bl32_image_info;
+	struct atf_image_info bl33_image_info;
+	struct entry_point_info bl33_ep_info;
+	struct entry_point_info bl32_ep_info;
+	struct entry_point_info bl31_ep_info;
+};
+
 struct bl31_params *bl2_plat_get_bl31_params_default(uintptr_t bl32_entry,
 						     uintptr_t bl33_entry,
 						     uintptr_t fdt_addr)

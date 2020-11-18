@@ -162,20 +162,6 @@ struct bl31_params {
 	struct atf_image_info *bl33_image_info;
 };
 
-/*******************************************************************************
- * This structure represents the superset of information that is passed to
- * BL31, e.g. while passing control to it from BL2, bl31_params
- * and other platform specific params
- ******************************************************************************/
-struct bl2_to_bl31_params_mem {
-	struct bl31_params bl31_params;
-	struct atf_image_info bl31_image_info;
-	struct atf_image_info bl32_image_info;
-	struct atf_image_info bl33_image_info;
-	struct entry_point_info bl33_ep_info;
-	struct entry_point_info bl32_ep_info;
-	struct entry_point_info bl31_ep_info;
-};
 
 #endif /*__ASSEMBLY__ */
 
