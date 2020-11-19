@@ -701,6 +701,18 @@ struct fat_itr {
 	 */
 	dir_entry *dent;
 	/**
+	 * @dent_rem:		remaining entries after long name start
+	 */
+	int dent_rem;
+	/**
+	 * @dent_clust:		cluster of long name start
+	 */
+	unsigned int dent_clust;
+	/**
+	 * @dent_start:		first directory entry for long name
+	 */
+	dir_entry *dent_start;
+	/**
 	 * @l_name:		long name of current directory entry
 	 */
 	char l_name[VFAT_MAXLEN_BYTES];
@@ -966,9 +978,13 @@ static int fat_itr_next(fat_itr *itr)
 
 	while (1) {
 		dent = next_dent(itr);
-		if (!dent)
+		if (!dent) {
+			itr->dent_start = NULL;
 			return 0;
-
+		}
+		itr->dent_rem = itr->remaining;
+		itr->dent_start = itr->dent;
+		itr->dent_clust = itr->clust;
 		if (dent->name[0] == DELETED_FLAG)
 			continue;
 
