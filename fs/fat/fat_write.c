@@ -1464,7 +1464,7 @@ static int delete_dentry(fat_itr *itr)
 	 *  - find and mark the "new" first invalid entry as name[0]=0x00
 	 */
 	memset(dentptr, 0, sizeof(*dentptr));
-	dentptr->name[0] = 0xe5;
+	dentptr->name[0] = DELETED_FLAG;
 
 	if (flush_dir(itr)) {
 		printf("error: writing directory entry\n");
