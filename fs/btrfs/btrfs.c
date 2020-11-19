@@ -36,7 +36,7 @@ static int show_dir(struct btrfs_root *root, struct extent_buffer *eb,
 	char *target = NULL;
 	char filetime[32];
 	time_t mtime;
-	int ret;
+	int ret = 0;
 
 	btrfs_dir_item_key_to_cpu(eb, di, &key);
 

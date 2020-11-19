@@ -15,6 +15,12 @@ config KM_ENABLE_FULL_DM_DTS_SUPPORT
 	select PHYLIB
 endmenu
 
+config SYS_MEMTEST_START
+	default 0x00100000
+
+config SYS_MEMTEST_END
+	default 0x00f00000
+
 if TARGET_KMETER1
 
 config SYS_BOARD

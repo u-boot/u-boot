@@ -251,7 +251,7 @@ int btrfs_lookup_path(struct btrfs_root *root, u64 ino, const char *filename,
 	const char *cur = filename;
 	u64 next_ino;
 	u8 next_type;
-	u8 type;
+	u8 type = BTRFS_FT_UNKNOWN;
 	int len;
 	int ret = 0;
 
@@ -334,6 +334,10 @@ int btrfs_lookup_path(struct btrfs_root *root, u64 ino, const char *filename,
 next:
 		cur += len;
 	}
+
+	/* We haven't found anything, but still get no error? */
+	if (type == BTRFS_FT_UNKNOWN && !ret)
+		ret = -EUCLEAN;
 
 	if (!ret) {
 		*root_ret = root;

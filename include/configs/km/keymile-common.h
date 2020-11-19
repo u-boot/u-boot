@@ -90,12 +90,12 @@
 		"set_fdthigh cramfsloadkernel flashargs add_default "	\
 		"addpanic boot\0"					\
 	"develop="							\
-		"tftp 200000 scripts/develop-${arch}.txt && "		\
-		"env import -t 200000 ${filesize} && "			\
+		"tftp ${load_addr_r} scripts/develop-${arch}.txt && "	\
+		"env import -t ${load_addr_r} ${filesize} && "		\
 		"run setup_debug_env\0"					\
 	"ramfs="							\
-		"tftp 200000 scripts/ramfs-${arch}.txt && "		\
-		"env import -t 200000 ${filesize} && "			\
+		"tftp ${load_addr_r} scripts/ramfs-${arch}.txt && "	\
+		"env import -t ${load_addr_r} ${filesize} && "		\
 		"run setup_debug_env\0"					\
 	""
 

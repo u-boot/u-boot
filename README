@@ -3832,16 +3832,8 @@ when your kernel is intended to use an initial ramdisk:
 	Load Address: 0x00000000
 	Entry Point:  0x00000000
 
-The "dumpimage" is a tool to disassemble images built by mkimage. Its "-i"
-option performs the converse operation of the mkimage's second form (the "-d"
-option). Given an image built by mkimage, the dumpimage extracts a "data file"
-from the image:
-
-	tools/dumpimage -i image -T type -p position data_file
-	  -i ==> extract from the 'image' a specific 'data_file'
-	  -T ==> set image type to 'type'
-	  -p ==> 'position' (starting at 0) of the 'data_file' inside the 'image'
-
+The "dumpimage" tool can be used to disassemble or list the contents of images
+built by mkimage. See dumpimage's help output (-h) for details.
 
 Installing a Linux Image:
 -------------------------

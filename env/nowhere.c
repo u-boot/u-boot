@@ -30,7 +30,7 @@ static int env_nowhere_init(void)
 static int env_nowhere_load(void)
 {
 	/*
-	 * for SPL, set env_valid = ENV_INVALID is enougth as env_get_char()
+	 * for SPL, set env_valid = ENV_INVALID is enough as env_get_char()
 	 * return the default env if env_get is used
 	 * and SPL don't used env_import to reduce its size
 	 * For U-Boot proper, import the default environment to allow reload.
