@@ -248,7 +248,7 @@ typedef int	wait_queue_head_t;
 #define spin_lock_init(lock) do {} while (0)
 #define spin_lock(lock) do {} while (0)
 #define spin_unlock(lock) do {} while (0)
-#define spin_lock_irqsave(lock, flags) do { debug("%lu\n", flags); } while (0)
+#define spin_lock_irqsave(lock, flags) do {} while (0)
 #define spin_unlock_irqrestore(lock, flags) do { flags = 0; } while (0)
 
 #define DEFINE_MUTEX(...)
