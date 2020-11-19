@@ -29,7 +29,7 @@
 #include <errno.h>
 #include <mtd/cfi_flash.h>
 
-#ifdef CONFIG_DFU_TFTP
+#if defined(CONFIG_DFU_TFTP) || defined(CONFIG_UPDATE_TFTP)
 /* env variable holding the location of the update file */
 #define UPDATE_FILE_ENV		"updatefile"
 
@@ -99,7 +99,6 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 
 	return rv;
 }
-#endif /* CONFIG_DFU_TFTP */
 
 #ifdef CONFIG_MTD_NOR_FLASH
 static int update_flash_protect(int prot, ulong addr_first, ulong addr_last)
@@ -216,6 +215,7 @@ static int update_flash(ulong addr_source, ulong addr_first, ulong size)
 #endif
 	return 0;
 }
+#endif /* CONFIG_DFU_TFTP || CONFIG_UPDATE_TFTP */
 
 static int update_fit_getparams(const void *fit, int noffset, ulong *addr,
 						ulong *fladdr, ulong *size)
@@ -233,7 +233,7 @@ static int update_fit_getparams(const void *fit, int noffset, ulong *addr,
 	return 0;
 }
 
-#ifdef CONFIG_DFU_TFTP
+#if defined(CONFIG_DFU_TFTP) || defined(CONFIG_UPDATE_TFTP)
 int update_tftp(ulong addr, char *interface, char *devstring)
 {
 	char *filename, *env_addr, *fit_image_name;
@@ -340,7 +340,7 @@ next_node:
 
 	return ret;
 }
-#endif /* CONFIG_DFU_UPDATE */
+#endif /* CONFIG_DFU_UPDATE || CONFIG_UPDATE_TFTP */
 
 #ifdef CONFIG_UPDATE_FIT
 /**
