@@ -1445,27 +1445,91 @@ exit:
 	return count;
 }
 
-static int delete_dentry(fat_itr *itr)
+/**
+ * delete_single_dentry() - delete a single directory entry
+ *
+ * @itr:	directory iterator
+ * Return:	0 for success
+ */
+static int delete_single_dentry(fat_itr *itr)
+{
+	struct dir_entry *dent = itr->dent;
+
+	memset(dent, 0, sizeof(*dent));
+	dent->name[0] = DELETED_FLAG;
+
+	if (!itr->remaining) {
+		if (flush_dir(itr)) {
+			printf("error: writing directory entry\n");
+			return -EIO;
+		}
+	}
+	return 0;
+}
+
+/**
+ * delete_long_name() - delete long name directory entries
+ *
+ * @itr:	directory iterator
+ * Return:	0 for success
+ */
+static int delete_long_name(fat_itr *itr)
+{
+	struct dir_entry *dent = itr->dent;
+	int seqn = itr->dent->name[0] & ~LAST_LONG_ENTRY_MASK;
+
+	while (seqn--) {
+		int ret;
+
+		ret = delete_single_dentry(itr);
+		if (ret)
+			return ret;
+		dent = next_dent(itr);
+		if (!dent)
+			return -EIO;
+	}
+	return 0;
+}
+
+/**
+ * delete_dentry_long() - remove directory entry
+ *
+ * @itr:	directory iterator
+ * Return:	0 for success
+ */
+static int delete_dentry_long(fat_itr *itr)
 {
 	fsdata *mydata = itr->fsdata;
-	dir_entry *dentptr = itr->dent;
+	dir_entry *dent = itr->dent;
 
 	/* free cluster blocks */
-	clear_fatent(mydata, START(dentptr));
+	clear_fatent(mydata, START(dent));
 	if (flush_dirty_fat_buffer(mydata) < 0) {
 		printf("Error: flush fat buffer\n");
 		return -EIO;
 	}
+	/* Position to first directory entry for long name */
+	if (itr->clust != itr->dent_clust) {
+		int ret;
 
-	/*
-	 * update a directory entry
-	 * TODO:
-	 *  - long file name support
-	 *  - find and mark the "new" first invalid entry as name[0]=0x00
-	 */
-	memset(dentptr, 0, sizeof(*dentptr));
-	dentptr->name[0] = DELETED_FLAG;
+		ret = fat_move_to_cluster(itr, itr->dent_clust);
+		if (ret)
+			return ret;
+	}
+	itr->dent = itr->dent_start;
+	itr->remaining = itr->dent_rem;
+	dent = itr->dent_start;
+	/* Delete long name */
+	if ((dent->attr & ATTR_VFAT) == ATTR_VFAT &&
+	    (dent->name[0] & LAST_LONG_ENTRY_MASK)) {
+		int ret;
 
+		ret = delete_long_name(itr);
+		if (ret)
+			return ret;
+	}
+	/* Delete short name */
+	delete_single_dentry(itr);
 	if (flush_dir(itr)) {
 		printf("error: writing directory entry\n");
 		return -EIO;
@@ -1535,7 +1599,7 @@ int fat_unlink(const char *filename)
 		}
 	}
 
-	ret = delete_dentry(itr);
+	ret = delete_dentry_long(itr);
 
 exit:
 	free(fsdata.fatbuf);
