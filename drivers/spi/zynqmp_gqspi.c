@@ -561,10 +561,8 @@ static int zynqmp_qspi_fill_tx_fifo(struct zynqmp_qspi_priv *priv, u32 size)
 				data |= GENMASK(31, 16);
 				break;
 			case 3:
-				data = *((u16 *)buf);
-				buf += 2;
-				data |= (*((u8 *)buf) << 16);
-				buf += 1;
+				data = *buf;
+				buf += 3;
 				data |= GENMASK(31, 24);
 				break;
 			}
