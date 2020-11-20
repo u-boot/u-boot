@@ -18,7 +18,7 @@ config DM_REGULATOR
 
 config SPL_DM_REGULATOR
 	bool "Enable regulators for SPL"
-	depends on DM_REGULATOR
+	depends on DM_REGULATOR && SPL_POWER_SUPPORT
 	---help---
 	Regulators are seldom needed in SPL. Even if they are accessed, some
 	code space can be saved by accessing the PMIC registers directly.
