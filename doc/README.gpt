@@ -267,6 +267,8 @@ Some strings can be also used at the place of known GUID :
 	           (0657FD6D-A4AB-43C4-84E5-0933C84B4F4F)
 	"lvm"    = PARTITION_LINUX_LVM_GUID
 	           (E6D6D379-F507-44C2-A23C-238F2A3DF928)
+	"u-boot-env"      = PARTITION_U_BOOT_ENVIRONMENT
+	                    (3DE21764-95BD-54BD-A5C3-4ABE786F38A8)
 
     "uuid_disk=...;name=u-boot,size=60MiB,uuid=...;
 	name=kernel,size=60MiB,uuid=...,type=linux;"

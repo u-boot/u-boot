@@ -96,7 +96,8 @@ static const struct {
 	{"linux",	PARTITION_LINUX_FILE_SYSTEM_DATA_GUID},
 	{"raid",	PARTITION_LINUX_RAID_GUID},
 	{"swap",	PARTITION_LINUX_SWAP_GUID},
-	{"lvm",		PARTITION_LINUX_LVM_GUID}
+	{"lvm",		PARTITION_LINUX_LVM_GUID},
+	{"u-boot-env",	PARTITION_U_BOOT_ENVIRONMENT},
 };
 
 /*
