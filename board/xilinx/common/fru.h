@@ -50,12 +50,16 @@ struct fru_board_data {
 	/* Xilinx custom fields */
 	u8 rev_type_len;
 	u8 rev[FRU_BOARD_MAX_LEN];
+	u8 pcie_type_len;
+	u8 pcie[FRU_BOARD_MAX_LEN];
+	u8 uuid_type_len;
+	u8 uuid[FRU_BOARD_MAX_LEN];
 };
 
 struct fru_table {
-	bool captured;
 	struct fru_common_hdr hdr;
 	struct fru_board_data brd;
+	bool captured;
 };
 
 #define FRU_TYPELEN_CODE_MASK	0xC0

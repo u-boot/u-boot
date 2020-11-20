@@ -8,23 +8,13 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include "../board/xilinx/microblaze-generic/xparameters.h"
+/* Microblaze is microblaze_0 */
+#define XILINX_FSL_NUMBER	3
 
 /* MicroBlaze CPU */
 #define	MICROBLAZE_V5		1
 
 #define CONFIG_SYS_BOOTM_LEN	(64 * 1024 * 1024)
-
-/* linear and spi flash memory */
-#ifdef XILINX_FLASH_START
-#define	FLASH
-#undef	SPIFLASH
-#undef	RAMENV	/* hold environment in flash */
-#else
-#undef	FLASH
-#undef	SPIFLASH
-#define	RAMENV	/* hold environment in RAM */
-#endif
 
 /* uart */
 /* The following table includes the supported baudrates */
@@ -40,67 +30,17 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_TEXT_BASE - \
 					 CONFIG_SYS_MALLOC_F_LEN)
 
-/*
- * CFI flash memory layout - Example
- * CONFIG_SYS_FLASH_BASE = 0x2200_0000;
- * CONFIG_SYS_FLASH_SIZE = 0x0080_0000;	  8MB
- *
- * SECT_SIZE = 0x20000;			128kB is one sector
- * CONFIG_ENV_SIZE = SECT_SIZE;		128kB environment store
- *
- * 0x2200_0000	CONFIG_SYS_FLASH_BASE
- *					FREE		256kB
- * 0x2204_0000	CONFIG_ENV_ADDR
- *					ENV_AREA	128kB
- * 0x2206_0000
- *					FREE
- * 0x2280_0000	CONFIG_SYS_FLASH_BASE + CONFIG_SYS_FLASH_SIZE
- *
- */
-
-#ifdef FLASH
-# define CONFIG_SYS_FLASH_BASE		XILINX_FLASH_START
-# define CONFIG_SYS_FLASH_SIZE		XILINX_FLASH_SIZE
+#ifdef CONFIG_CFI_FLASH
 /* ?empty sector */
 # define CONFIG_SYS_FLASH_EMPTY_INFO	1
 /* max number of memory banks */
 # define CONFIG_SYS_MAX_FLASH_BANKS	1
 /* max number of sectors on one chip */
-# define CONFIG_SYS_MAX_FLASH_SECT	512
-/* hardware flash protection */
-/* use buffered writes (20x faster) */
-# ifdef	RAMENV
-# else	/* FLASH && !RAMENV */
-/* 128K(one sector) for env */
-# endif /* FLASH && !RAMBOOT */
-#else /* !FLASH */
-
-#ifdef SPIFLASH
-# ifdef	RAMENV
-# else	/* SPIFLASH && !RAMENV */
-/* 128K(two sectors) for env */
-/* Warning: adjust the offset in respect of other flash content and size */
-# endif /* SPIFLASH && !RAMBOOT */
-#else /* !SPIFLASH */
-
-/* ENV in RAM */
-#endif /* !SPIFLASH */
-#endif /* !FLASH */
-
-#define XILINX_USE_ICACHE 1
-#define XILINX_USE_DCACHE 1
-
-#if defined(XILINX_USE_ICACHE)
-# define CONFIG_ICACHE
-#else
-# undef CONFIG_ICACHE
+# define CONFIG_SYS_MAX_FLASH_SECT	2048
 #endif
 
-#if defined(XILINX_USE_DCACHE)
-# define CONFIG_DCACHE
-#else
-# undef CONFIG_DCACHE
-#endif
+#define CONFIG_ICACHE
+#define CONFIG_DCACHE
 
 #ifndef XILINX_DCACHE_BYTE_SIZE
 #define XILINX_DCACHE_BYTE_SIZE	32768
@@ -110,12 +50,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-
-#if defined(CONFIG_MTD_PARTITIONS)
-/* MTD partitions */
-
-/* default mtd partition table */
-#endif
 
 /* size of console buffer */
 #define	CONFIG_SYS_CBSIZE	512
@@ -194,15 +128,12 @@
 
 /* SPL part */
 
-#ifdef CONFIG_SYS_FLASH_BASE
-# define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_FLASH_BASE
-#endif
+#define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_TEXT_BASE
 
 /* for booting directly linux */
+#define CONFIG_SYS_FDT_BASE		(CONFIG_SYS_TEXT_BASE + \
+					0x40000)
 
-#define CONFIG_SYS_FDT_BASE		(CONFIG_SYS_FLASH_BASE + \
-					 0x40000)
-#define CONFIG_SYS_FDT_SIZE		(16 << 10)
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_TEXT_BASE + \
 					 0x1000000)
 

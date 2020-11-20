@@ -163,11 +163,14 @@ static int fru_parse_board(unsigned long addr)
 {
 	u8 i, type;
 	int len;
-	u8 *data, *term;
+	u8 *data, *term, *limit;
 
 	memcpy(&fru_data.brd.ver, (void *)addr, 6);
 	addr += 6;
 	data = (u8 *)&fru_data.brd.manufacturer_type_len;
+
+	/* Record max structure limit not to write data over allocated space */
+	limit = data + sizeof(struct fru_board_data);
 
 	for (i = 0; ; i++, data += FRU_BOARD_MAX_LEN) {
 		len = fru_check_type_len(*(u8 *)addr, fru_data.brd.lang_code,
@@ -178,6 +181,9 @@ static int fru_parse_board(unsigned long addr)
 		if (len == -EINVAL)
 			break;
 
+		/* Stop when amount of chars is more then fields to record */
+		if (data + len > limit)
+			break;
 		/* This record type/len field */
 		*data++ = *(u8 *)addr;
 
@@ -217,7 +223,7 @@ int fru_capture(unsigned long addr)
 
 	hdr = (struct fru_common_hdr *)addr;
 
-	memcpy((void *)&fru_data.hdr, (void *)hdr,
+	memcpy((void *)&fru_data, (void *)hdr,
 	       sizeof(struct fru_common_hdr));
 
 	fru_data.captured = true;
