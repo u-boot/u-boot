@@ -14,6 +14,8 @@
 	aliases {
 		serial2 = &main_uart0;
 		ethernet0 = &cpsw_port1;
+		usb0 = &usb0;
+		usb1 = &usb1;
 	};
 };
 
