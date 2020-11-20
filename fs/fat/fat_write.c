@@ -8,25 +8,140 @@
 #include <common.h>
 #include <command.h>
 #include <config.h>
+#include <div64.h>
 #include <fat.h>
 #include <log.h>
 #include <malloc.h>
-#include <asm/byteorder.h>
 #include <part.h>
+#include <rand.h>
+#include <asm/byteorder.h>
 #include <asm/cache.h>
 #include <linux/ctype.h>
-#include <div64.h>
 #include <linux/math64.h>
 #include "fat.c"
 
-static void uppercase(char *str, int len)
+/* Characters that may only be used in long file names */
+static const char LONG_ONLY_CHARS[] = "+,;=[]";
+
+/**
+ * str2fat() - convert string to valid FAT name characters
+ *
+ * Stop when reaching end of @src or a period.
+ * Ignore spaces.
+ * Replace characters that may only be used in long names by underscores.
+ * Convert lower case characters to upper case.
+ *
+ * To avoid assumptions about the code page we do not use characters
+ * above 0x7f for the short name.
+ *
+ * @dest:	destination buffer
+ * @src:	source buffer
+ * @length:	size of destination buffer
+ * Return:	number of bytes in destination buffer
+ */
+static int str2fat(char *dest, char *src, int length)
 {
 	int i;
 
-	for (i = 0; i < len; i++) {
-		*str = toupper(*str);
-		str++;
+	for (i = 0; i < length; ++src) {
+		char c = *src;
+
+		if (!c || c == '.')
+			break;
+		if (c == ' ')
+			continue;
+		if (strchr(LONG_ONLY_CHARS, c) || c > 0x7f)
+			c = '_';
+		else if (c >= 'a' && c <= 'z')
+			c &= 0xdf;
+		dest[i] = c;
+		++i;
 	}
+	return i;
+}
+
+/**
+ * set_name() - set short name in directory entry
+ *
+ * The function determines if the @filename is a valid short name.
+ * In this case no long name is needed.
+ *
+ * If a long name is needed, a short name is constructed.
+ *
+ * @dirent:	directory entry
+ * @filename:	long file name
+ * Return:	number of directory entries needed, negative on error
+ */
+static int set_name(dir_entry *dirent, const char *filename)
+{
+	char *period;
+	char *pos;
+	int period_location;
+	char buf[13];
+	int i;
+
+	if (!filename)
+		return -EIO;
+
+	/* Initialize buffers */
+	memset(dirent->name, ' ', sizeof(dirent->name));
+	memset(dirent->ext, ' ', sizeof(dirent->ext));
+
+	/* Convert filename to upper case short name */
+	period = strrchr(filename, '.');
+	pos = (char *)filename;
+	if (*pos == '.') {
+		pos = period + 1;
+		period = 0;
+	}
+	if (period)
+		str2fat(dirent->ext, period + 1, sizeof(dirent->ext));
+	period_location = str2fat(dirent->name, pos, sizeof(dirent->name));
+	if (period_location < 0)
+		return period_location;
+	if (*dirent->name == ' ')
+		*dirent->name = '_';
+	/* 0xe5 signals a deleted directory entry. Replace it by 0x05. */
+	if (*dirent->name == 0xe5)
+		*dirent->name = 0x05;
+
+	/* If filename and short name are the same, quit. */
+	sprintf(buf, "%.*s.%.3s", period_location, dirent->name, dirent->ext);
+	if (!strcmp(buf, filename))
+		return 1;
+
+	/* Construct an indexed short name */
+	for (i = 1; i < 0x200000; ++i) {
+		int suffix_len;
+		int suffix_start;
+		int j;
+
+		/* To speed up the search use random numbers */
+		if (i < 10) {
+			j = i;
+		} else {
+			j = 30 - fls(i);
+			j = 10 + (rand() >> j);
+		}
+		sprintf(buf, "~%d", j);
+		suffix_len = strlen(buf);
+		suffix_start = 8 - suffix_len;
+		if (suffix_start > period_location)
+			suffix_start = period_location;
+		memcpy(dirent->name + suffix_start, buf, suffix_len);
+		if (*dirent->ext != ' ')
+			sprintf(buf, "%.*s.%.3s", suffix_start + suffix_len,
+				dirent->name, dirent->ext);
+		else
+			sprintf(buf, "%.*s", suffix_start + suffix_len,
+				dirent->name);
+		debug("short name: %s\n", buf);
+		/* TODO: Check that the short name does not exist yet. */
+
+		/* Each long name directory entry takes 13 characters. */
+		return (strlen(filename) + 25) / 13;
+	}
+	return -EIO;
 }
 
 static int total_sector;
@@ -48,67 +163,6 @@ static int disk_write(__u32 block, __u32 nr_blocks, void *buf)
 		return -1;
 
 	return ret;
-}
-
-/**
- * set_name() - set short name in directory entry
- *
- * @dirent:	directory entry
- * @filename:	long file name
- */
-static void set_name(dir_entry *dirent, const char *filename)
-{
-	char s_name[VFAT_MAXLEN_BYTES];
-	char *period;
-	int period_location, len, i, ext_num;
-
-	if (filename == NULL)
-		return;
-
-	len = strlen(filename);
-	if (len == 0)
-		return;
-
-	strncpy(s_name, filename, VFAT_MAXLEN_BYTES - 1);
-	s_name[VFAT_MAXLEN_BYTES - 1] = '\0';
-	uppercase(s_name, len);
-
-	period = strchr(s_name, '.');
-	if (period == NULL) {
-		period_location = len;
-		ext_num = 0;
-	} else {
-		period_location = period - s_name;
-		ext_num = len - period_location - 1;
-	}
-
-	/* Pad spaces when the length of file name is shorter than eight */
-	if (period_location < 8) {
-		memcpy(dirent->name, s_name, period_location);
-		for (i = period_location; i < 8; i++)
-			dirent->name[i] = ' ';
-	} else if (period_location == 8) {
-		memcpy(dirent->name, s_name, period_location);
-	} else {
-		memcpy(dirent->name, s_name, 6);
-		/*
-		 * TODO: Translating two long names with the same first six
-		 *       characters to the same short name is utterly wrong.
-		 *       Short names must be unique.
-		 */
-		dirent->name[6] = '~';
-		dirent->name[7] = '1';
-	}
-
-	if (ext_num < 3) {
-		memcpy(dirent->ext, s_name + period_location + 1, ext_num);
-		for (i = ext_num; i < 3; i++)
-			dirent->ext[i] = ' ';
-	} else
-		memcpy(dirent->ext, s_name + period_location + 1, 3);
-
-	debug("name : %s\n", dirent->name);
-	debug("ext : %s\n", dirent->ext);
 }
 
 /*
@@ -1181,13 +1235,15 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 
 		memset(itr->dent, 0, sizeof(*itr->dent));
 
-		/* Calculate checksum for short name */
-		set_name(itr->dent, filename);
-
-		/* Set long name entries */
-		if (fill_dir_slot(itr, filename)) {
-			ret = -EIO;
+		/* Check if long name is needed */
+		ret = set_name(itr->dent, filename);
+		if (ret < 0)
 			goto exit;
+		if (ret > 1) {
+			/* Set long name entries */
+			ret = fill_dir_slot(itr, filename);
+			if (ret)
+				goto exit;
 		}
 
 		/* Set short name entry */
@@ -1441,9 +1497,16 @@ int fat_mkdir(const char *new_dirname)
 
 		memset(itr->dent, 0, sizeof(*itr->dent));
 
-		/* Set short name to set alias checksum field in dir_slot */
-		set_name(itr->dent, dirname);
-		fill_dir_slot(itr, dirname);
+		/* Check if long name is needed */
+		ret = set_name(itr->dent, dirname);
+		if (ret < 0)
+			goto exit;
+		if (ret > 1) {
+			/* Set long name entries */
+			ret = fill_dir_slot(itr, dirname);
+			if (ret)
+				goto exit;
+		}
 
 		/* Set attribute as archive for regular file */
 		fill_dentry(itr->fsdata, itr->dent, dirname, 0, 0,
