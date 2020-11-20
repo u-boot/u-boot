@@ -270,7 +270,7 @@
 &usb0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&usb0_pins_default>;
-	dr_mode = "peripheral";
+	dr_mode = "host";
 	u-boot,dm-spl;
 };
 
