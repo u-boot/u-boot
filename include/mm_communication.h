@@ -43,7 +43,7 @@
  * To avoid confusion in interpreting frames, the communication buffer should
  * always begin with efi_mm_communicate_header.
  */
-struct efi_mm_communicate_header {
+struct __packed efi_mm_communicate_header {
 	efi_guid_t header_guid;
 	size_t     message_len;
 	u8         data[];
