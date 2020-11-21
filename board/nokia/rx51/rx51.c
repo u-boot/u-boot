@@ -704,9 +704,9 @@ void board_mmc_power_init(void)
 }
 
 static const struct omap_i2c_platdata rx51_i2c[] = {
-	{ I2C_BASE1, 2200000, OMAP_I2C_REV_V1 },
+	{ I2C_BASE1, 100000, OMAP_I2C_REV_V1 },
 	{ I2C_BASE2, 100000, OMAP_I2C_REV_V1 },
-	{ I2C_BASE3, 400000, OMAP_I2C_REV_V1 },
+	{ I2C_BASE3, 100000, OMAP_I2C_REV_V1 },
 };
 
 U_BOOT_DEVICES(rx51_i2c) = {
