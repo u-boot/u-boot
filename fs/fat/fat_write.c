@@ -278,12 +278,16 @@ name11_12:
 static int new_dir_table(fat_itr *itr);
 static int flush_dir(fat_itr *itr);
 
-/*
- * Fill dir_slot entries with appropriate name, id, and attr
- * 'itr' will point to a next entry
+/**
+ * fill_dir_slot() - fill directory entries for long name
+ *
+ * @itr:	directory iterator
+ * @l_name:	long name
+ * @shortname:	short name
+ * Return:	0 for success, -errno otherwise
  */
 static int
-fill_dir_slot(fat_itr *itr, const char *l_name)
+fill_dir_slot(fat_itr *itr, const char *l_name, const char *shortname)
 {
 	__u8 temp_dir_slot_buffer[MAX_LFN_SLOT * sizeof(dir_slot)];
 	dir_slot *slotptr = (dir_slot *)temp_dir_slot_buffer;
@@ -291,7 +295,7 @@ fill_dir_slot(fat_itr *itr, const char *l_name)
 	int idx = 0, ret;
 
 	/* Get short file name checksum value */
-	checksum = mkcksum(itr->dent->name, itr->dent->ext);
+	checksum = mkcksum(shortname, shortname + 8);
 
 	do {
 		memset(slotptr, 0x00, sizeof(dir_slot));
@@ -317,7 +321,7 @@ fill_dir_slot(fat_itr *itr, const char *l_name)
 		if (!fat_itr_next(itr) && !itr->dent)
 			if ((itr->is_root && itr->fsdata->fatsize != 32) ||
 			    new_dir_table(itr))
-				return -1;
+				return -EIO;
 	}
 
 	return 0;
@@ -1241,7 +1245,7 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 			goto exit;
 		if (ret > 1) {
 			/* Set long name entries */
-			ret = fill_dir_slot(itr, filename);
+			ret = fill_dir_slot(itr, filename, itr->dent->name);
 			if (ret)
 				goto exit;
 		}
@@ -1503,7 +1507,7 @@ int fat_mkdir(const char *new_dirname)
 			goto exit;
 		if (ret > 1) {
 			/* Set long name entries */
-			ret = fill_dir_slot(itr, dirname);
+			ret = fill_dir_slot(itr, dirname, itr->dent->name);
 			if (ret)
 				goto exit;
 		}
