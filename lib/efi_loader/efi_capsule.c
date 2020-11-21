@@ -336,6 +336,8 @@ static efi_status_t efi_capsule_update_firmware(
 	struct efi_firmware_management_capsule_header *capsule;
 	struct efi_firmware_management_capsule_image_header *image;
 	size_t capsule_size;
+	size_t image_capsule_size;
+	size_t hardware_instance_size;
 	void *image_binary, *vendor_code;
 	efi_handle_t *handles;
 	efi_uintn_t no_handles;
@@ -378,7 +380,9 @@ static efi_status_t efi_capsule_update_firmware(
 
 		image = (void *)capsule + capsule->item_offset_list[item];
 
-		if (image->version != 0x00000003) {
+		if (image->version != 0x00000001 &&
+		    image->version != 0x00000002 &&
+		    image->version != 0x00000003) {
 			ret = EFI_UNSUPPORTED;
 			goto out;
 		}
@@ -396,8 +400,20 @@ static efi_status_t efi_capsule_update_firmware(
 			goto out;
 		}
 
-		/* do update */
-		image_binary = (void *)image + sizeof(*image);
+		/* do it */
+		hardware_instance_size = sizeof(image->update_hardware_instance);
+		image_capsule_size = sizeof(image->image_capsule_support);
+		if (image->version == 0x1) {
+			image_binary = (void *)image +
+				(sizeof(*image) - (hardware_instance_size
+						   + image_capsule_size));
+		} else if (image->version == 0x2) {
+			image_binary = (void *)image +
+				(sizeof(*image) - image_capsule_size);
+		} else {
+			image_binary = (void *)image + sizeof(*image);
+		}
+
 		vendor_code = image_binary + image->update_image_size;
 
 		abort_reason = NULL;
