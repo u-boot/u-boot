@@ -258,7 +258,7 @@ static int flush_dirty_fat_buffer(fsdata *mydata)
  * @count:	number of directory entries to find
  * Return:	0 on success or negative error number
  */
-static int __maybe_unused fat_find_empty_dentries(fat_itr *itr, int count)
+static int fat_find_empty_dentries(fat_itr *itr, int count)
 {
 	unsigned int cluster;
 	dir_entry *dent;
@@ -421,11 +421,9 @@ fill_dir_slot(fat_itr *itr, const char *l_name, const char *shortname)
 		if (itr->remaining == 0)
 			flush_dir(itr);
 
-		/* allocate a cluster for more entries */
-		if (!next_dent(itr) && !itr->dent)
-			if ((itr->is_root && itr->fsdata->fatsize != 32) ||
-			    new_dir_table(itr))
-				return -EIO;
+		next_dent(itr);
+		if (!itr->dent)
+			return -EIO;
 	}
 
 	return 0;
@@ -1339,6 +1337,7 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 	} else {
 		/* Create a new file */
 		char shortname[SHORT_NAME_SIZE];
+		int ndent;
 
 		if (itr->is_root) {
 			/* root dir cannot have "." or ".." */
@@ -1362,10 +1361,15 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 		}
 
 		/* Check if long name is needed */
-		ret = set_name(itr, filename, shortname);
-		if (ret < 0)
+		ndent = set_name(itr, filename, shortname);
+		if (ndent < 0) {
+			ret = ndent;
 			goto exit;
-		if (ret > 1) {
+		}
+		ret = fat_find_empty_dentries(itr, ndent);
+		if (ret)
+			goto exit;
+		if (ndent > 1) {
 			/* Set long name entries */
 			ret = fill_dir_slot(itr, filename, shortname);
 			if (ret)
@@ -1607,6 +1611,7 @@ int fat_mkdir(const char *new_dirname)
 		goto exit;
 	} else {
 		char shortname[SHORT_NAME_SIZE];
+		int ndent;
 
 		if (itr->is_root) {
 			/* root dir cannot have "." or ".." */
@@ -1624,10 +1629,15 @@ int fat_mkdir(const char *new_dirname)
 		}
 
 		/* Check if long name is needed */
-		ret = set_name(itr, dirname, shortname);
-		if (ret < 0)
+		ndent = set_name(itr, dirname, shortname);
+		if (ndent < 0) {
+			ret = ndent;
 			goto exit;
-		if (ret > 1) {
+		}
+		ret = fat_find_empty_dentries(itr, ndent);
+		if (ret)
+			goto exit;
+		if (ndent > 1) {
 			/* Set long name entries */
 			ret = fill_dir_slot(itr, dirname, shortname);
 			if (ret)
