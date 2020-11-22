@@ -21,6 +21,7 @@
 #include "fat.c"
 
 static dir_entry *find_directory_entry(fat_itr *itr, char *filename);
+static int new_dir_table(fat_itr *itr);
 
 /* Characters that may only be used in long file names */
 static const char LONG_ONLY_CHARS[] = "+,;=[]";
@@ -250,6 +251,66 @@ static int flush_dirty_fat_buffer(fsdata *mydata)
 	return 0;
 }
 
+/**
+ * fat_find_empty_dentries() - find a sequence of available directory entries
+ *
+ * @itr:	directory iterator
+ * @count:	number of directory entries to find
+ * Return:	0 on success or negative error number
+ */
+static int __maybe_unused fat_find_empty_dentries(fat_itr *itr, int count)
+{
+	unsigned int cluster;
+	dir_entry *dent;
+	int remaining;
+	unsigned int n = 0;
+	int ret;
+
+	ret = fat_move_to_cluster(itr, itr->start_clust);
+	if (ret)
+		return ret;
+
+	for (;;) {
+		if (!itr->dent) {
+			log_debug("Not enough directory entries available\n");
+			return -ENOSPC;
+		}
+		switch (itr->dent->name[0]) {
+		case 0x00:
+		case DELETED_FLAG:
+			if (!n) {
+				/* Remember first deleted directory entry */
+				cluster = itr->clust;
+				dent = itr->dent;
+				remaining = itr->remaining;
+			}
+			++n;
+			if (n == count)
+				goto out;
+			break;
+		default:
+			n = 0;
+			break;
+		}
+
+		next_dent(itr);
+		if (!itr->dent &&
+		    (!itr->is_root || itr->fsdata->fatsize == 32) &&
+		    new_dir_table(itr))
+			return -ENOSPC;
+	}
+out:
+	/* Position back to first directory entry */
+	if (itr->clust != cluster) {
+		ret = fat_move_to_cluster(itr, cluster);
+		if (ret)
+			return ret;
+	}
+	itr->dent = dent;
+	itr->remaining = remaining;
+	return 0;
+}
+
 /*
  * Set the file name information from 'name' into 'slotptr',
  */
@@ -319,7 +380,6 @@ name11_12:
 	return 1;
 }
 
-static int new_dir_table(fat_itr *itr);
 static int flush_dir(fat_itr *itr);
 
 /**
