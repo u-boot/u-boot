@@ -734,7 +734,7 @@ static int fat_itr_root(fat_itr *itr, fsdata *fsdata)
 		return -ENXIO;
 
 	itr->fsdata = fsdata;
-	itr->start_clust = 0;
+	itr->start_clust = fsdata->root_cluster;
 	itr->clust = fsdata->root_cluster;
 	itr->next_clust = fsdata->root_cluster;
 	itr->dent = NULL;
@@ -778,6 +778,7 @@ static void fat_itr_child(fat_itr *itr, fat_itr *parent)
 	} else {
 		itr->clust = parent->fsdata->root_cluster;
 		itr->next_clust = parent->fsdata->root_cluster;
+		itr->start_clust = parent->fsdata->root_cluster;
 		itr->is_root = 1;
 	}
 	itr->dent = NULL;
@@ -1067,6 +1068,7 @@ static int fat_itr_resolve(fat_itr *itr, const char *path, unsigned type)
 			/* point back to itself */
 			itr->clust = itr->fsdata->root_cluster;
 			itr->next_clust = itr->fsdata->root_cluster;
+			itr->start_clust = itr->fsdata->root_cluster;
 			itr->dent = NULL;
 			itr->remaining = 0;
 			itr->last_cluster = 0;
