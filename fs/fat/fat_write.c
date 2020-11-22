@@ -362,7 +362,7 @@ fill_dir_slot(fat_itr *itr, const char *l_name, const char *shortname)
 			flush_dir(itr);
 
 		/* allocate a cluster for more entries */
-		if (!fat_itr_next(itr) && !itr->dent)
+		if (!next_dent(itr) && !itr->dent)
 			if ((itr->is_root && itr->fsdata->fatsize != 32) ||
 			    new_dir_table(itr))
 				return -EIO;
