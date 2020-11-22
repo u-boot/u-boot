@@ -94,6 +94,8 @@ struct dwc2_usbotg_reg {
 #define B_VALOEN			BIT(6)
 #define A_VALOVAL			BIT(5)
 #define A_VALOEN			BIT(4)
+#define VB_VALOVAL			BIT(3)
+#define VB_VALOEN			BIT(2)
 
 /* DWC2_UDC_OTG_GOTINT */
 #define GOTGINT_SES_END_DET		(1<<2)

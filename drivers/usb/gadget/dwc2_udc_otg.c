@@ -1014,6 +1014,9 @@ static int dwc2_udc_otg_ofdata_to_platdata(struct udevice *dev)
 	platdata->force_b_session_valid =
 		dev_read_bool(dev, "u-boot,force-b-session-valid");
 
+	platdata->force_vbus_detection =
+		dev_read_bool(dev, "u-boot,force-vbus-detection");
+
 	/* force platdata according compatible */
 	drvdata = dev_get_driver_data(dev);
 	if (drvdata) {
@@ -1045,7 +1048,7 @@ static int dwc2_udc_otg_reset_init(struct udevice *dev,
 	int ret;
 
 	ret = reset_get_bulk(dev, resets);
-	if (ret == -ENOTSUPP)
+	if (ret == -ENOTSUPP || ret == -ENOENT)
 		return 0;
 
 	if (ret)
@@ -1106,30 +1109,44 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	if (CONFIG_IS_ENABLED(DM_REGULATOR) &&
-	    platdata->activate_stm_id_vb_detection &&
-	    !platdata->force_b_session_valid) {
-		ret = device_get_supply_regulator(dev, "usb33d-supply",
-						  &priv->usb33d_supply);
-		if (ret) {
-			dev_err(dev, "can't get voltage level detector supply\n");
-			return ret;
+	if (platdata->activate_stm_id_vb_detection) {
+		if (CONFIG_IS_ENABLED(DM_REGULATOR) &&
+		    (!platdata->force_b_session_valid ||
+		     platdata->force_vbus_detection)) {
+			ret = device_get_supply_regulator(dev, "usb33d-supply",
+							  &priv->usb33d_supply);
+			if (ret) {
+				dev_err(dev, "can't get voltage level detector supply\n");
+				return ret;
+			}
+			ret = regulator_set_enable(priv->usb33d_supply, true);
+			if (ret) {
+				dev_err(dev, "can't enable voltage level detector supply\n");
+				return ret;
+			}
 		}
-		ret = regulator_set_enable(priv->usb33d_supply, true);
-		if (ret) {
-			dev_err(dev, "can't enable voltage level detector supply\n");
-			return ret;
-		}
-		/* Enable vbus sensing */
-		setbits_le32(&usbotg_reg->ggpio,
-			     GGPIO_STM32_OTG_GCCFG_VBDEN |
-			     GGPIO_STM32_OTG_GCCFG_IDEN);
-	}
 
-	if (platdata->force_b_session_valid)
-		/* Override B session bits : value and enable */
-		setbits_le32(&usbotg_reg->gotgctl,
-			     A_VALOEN | A_VALOVAL | B_VALOEN | B_VALOVAL);
+		if (platdata->force_b_session_valid &&
+		    !platdata->force_vbus_detection) {
+			/* Override VBUS detection: enable then value*/
+			setbits_le32(&usbotg_reg->gotgctl, VB_VALOEN);
+			setbits_le32(&usbotg_reg->gotgctl, VB_VALOVAL);
+		} else {
+			/* Enable VBUS sensing */
+			setbits_le32(&usbotg_reg->ggpio,
+				     GGPIO_STM32_OTG_GCCFG_VBDEN);
+		}
+		if (platdata->force_b_session_valid) {
+			/* Override B session bits: enable then value */
+			setbits_le32(&usbotg_reg->gotgctl, A_VALOEN | B_VALOEN);
+			setbits_le32(&usbotg_reg->gotgctl,
+				     A_VALOVAL | B_VALOVAL);
+		} else {
+			/* Enable ID detection */
+			setbits_le32(&usbotg_reg->ggpio,
+				     GGPIO_STM32_OTG_GCCFG_IDEN);
+		}
+	}
 
 	ret = dwc2_udc_probe(platdata);
 	if (ret)
