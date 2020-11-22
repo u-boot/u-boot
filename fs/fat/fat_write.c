@@ -1191,7 +1191,8 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 		}
 
 		/* Set short name entry */
-		fill_dentry(itr->fsdata, itr->dent, filename, 0, size, 0x20);
+		fill_dentry(itr->fsdata, itr->dent, filename, 0, size,
+			    ATTR_ARCH);
 
 		retdent = itr->dent;
 	}
