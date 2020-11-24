@@ -1468,7 +1468,11 @@ int fat_mkdir(const char *new_dirname)
 	memcpy(dotdent[1].name, "..      ", 8);
 	memcpy(dotdent[1].ext, "   ", 3);
 	dotdent[1].attr = ATTR_DIR | ATTR_ARCH;
-	set_start_cluster(mydata, &dotdent[1], itr->start_clust);
+
+	if (itr->is_root)
+		set_start_cluster(mydata, &dotdent[1], 0);
+	else
+		set_start_cluster(mydata, &dotdent[1], itr->start_clust);
 
 	ret = set_contents(mydata, retdent, 0, (__u8 *)dotdent,
 			   bytesperclust, &actwrite);
