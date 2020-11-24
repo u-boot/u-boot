@@ -805,25 +805,31 @@ static int fit_config_get_hash_list(void *fit, int conf_noffset,
 	image_count = 0;
 	for (iname = prop; iname < end; iname += strlen(iname) + 1) {
 		int image_noffset;
+		int index, max_index;
 
-		image_noffset = fit_conf_get_prop_node(fit, conf_noffset,
-						       iname);
-		if (image_noffset < 0) {
-			printf("Failed to find image '%s' in  configuration '%s/%s'\n",
-			       iname, conf_name, sig_name);
-			if (allow_missing)
-				continue;
+		max_index = fdt_stringlist_count(fit, conf_noffset, iname);
 
-			return -ENOENT;
+		for (index = 0; index < max_index; index++) {
+			image_noffset = fit_conf_get_prop_node_index(fit, conf_noffset,
+								     iname, index);
+
+			if (image_noffset < 0) {
+				printf("Failed to find image '%s' in  configuration '%s/%s'\n",
+				       iname, conf_name, sig_name);
+				if (allow_missing)
+					continue;
+
+				return -ENOENT;
+			}
+
+			ret = fit_config_add_hash(fit, conf_name,
+						  sig_name, node_inc,
+						  iname, image_noffset);
+			if (ret < 0)
+				return ret;
+
+			image_count++;
 		}
-
-		ret = fit_config_add_hash(fit, conf_name,
-					  sig_name, node_inc,
-					  iname, image_noffset);
-		if (ret < 0)
-			return ret;
-
-		image_count++;
 	}
 
 	if (!image_count) {
