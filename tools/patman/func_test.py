@@ -475,7 +475,7 @@ complicated as possible''')
             with capture_sys_output() as _:
                 _, cover_fname, patch_files = control.prepare_patches(
                     col, branch=None, count=-1, start=0, end=0,
-                    ignore_binary=False)
+                    ignore_binary=False, signoff=True)
             self.assertIsNone(cover_fname)
             self.assertEqual(2, len(patch_files))
 
@@ -484,7 +484,7 @@ complicated as possible''')
             with capture_sys_output() as _:
                 _, cover_fname, patch_files = control.prepare_patches(
                     col, branch='second', count=-1, start=0, end=0,
-                    ignore_binary=False)
+                    ignore_binary=False, signoff=True)
             self.assertIsNotNone(cover_fname)
             self.assertEqual(3, len(patch_files))
 
@@ -492,7 +492,7 @@ complicated as possible''')
             with capture_sys_output() as _:
                 _, cover_fname, patch_files = control.prepare_patches(
                     col, branch='second', count=-1, start=0, end=1,
-                    ignore_binary=False)
+                    ignore_binary=False, signoff=True)
             self.assertIsNotNone(cover_fname)
             self.assertEqual(2, len(patch_files))
         finally:
