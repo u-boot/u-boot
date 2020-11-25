@@ -43,11 +43,8 @@ Build Procedure
         In order to prevent this, the required device-tree MUST be set during compilation.
         All device-tree files are located in ./arch/arm/dts/ folder.
 
-	For the EspressoBin board with populated eMMC device use
-		# make DEVICE_TREE=armada-3720-espressobin-emmc
-
-	For other DB boards (MacchiatoBin, EspressoBin without soldered eMMC and 3700 DB board)
-	compile u-boot with just default device-tree from defconfig using:
+	For other DB boards (MacchiatoBin, EspressoBin and 3700 DB board) compile u-boot with
+	just default device-tree from defconfig using:
 
 		# make
 
