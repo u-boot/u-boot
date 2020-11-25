@@ -48,15 +48,15 @@ static const char * const pinmux_mode[PINMUX_MODE_COUNT] = {
 	"alt function",
 };
 
-static const char * const pinmux_output[] = {
-	[STM32_GPIO_PUPD_NO] = "bias-disable",
-	[STM32_GPIO_PUPD_UP] = "bias-pull-up",
-	[STM32_GPIO_PUPD_DOWN] = "bias-pull-down",
+static const char * const pinmux_bias[] = {
+	[STM32_GPIO_PUPD_NO] = "",
+	[STM32_GPIO_PUPD_UP] = "pull-up",
+	[STM32_GPIO_PUPD_DOWN] = "pull-down",
 };
 
 static const char * const pinmux_input[] = {
-	[STM32_GPIO_OTYPE_PP] = "drive-push-pull",
-	[STM32_GPIO_OTYPE_OD] = "drive-open-drain",
+	[STM32_GPIO_OTYPE_PP] = "push-pull",
+	[STM32_GPIO_OTYPE_OD] = "open-drain",
 };
 
 static int stm32_pinctrl_get_af(struct udevice *dev, unsigned int offset)
@@ -213,6 +213,7 @@ static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
 	dev_dbg(dev, "selector = %d gpio_idx = %d mode = %d\n",
 		selector, gpio_idx, mode);
 	priv = dev_get_priv(gpio_dev);
+	pupd = (readl(&priv->regs->pupdr) >> (gpio_idx * 2)) & PUPD_MASK;
 
 
 	switch (mode) {
@@ -224,20 +225,19 @@ static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
 		break;
 	case GPIOF_FUNC:
 		af_num = stm32_pinctrl_get_af(gpio_dev, gpio_idx);
-		snprintf(buf, size, "%s %d", pinmux_mode[mode], af_num);
+		snprintf(buf, size, "%s %d %s", pinmux_mode[mode], af_num,
+			 pinmux_bias[pupd]);
 		break;
 	case GPIOF_OUTPUT:
-		pupd = (readl(&priv->regs->pupdr) >> (gpio_idx * 2)) &
-		       PUPD_MASK;
 		snprintf(buf, size, "%s %s %s",
-			 pinmux_mode[mode], pinmux_output[pupd],
+			 pinmux_mode[mode], pinmux_bias[pupd],
 			 label ? label : "");
 		break;
 	case GPIOF_INPUT:
 		otype = (readl(&priv->regs->otyper) >> gpio_idx) & OTYPE_MSK;
-		snprintf(buf, size, "%s %s %s",
+		snprintf(buf, size, "%s %s %s %s",
 			 pinmux_mode[mode], pinmux_input[otype],
-			 label ? label : "");
+			 pinmux_bias[pupd], label ? label : "");
 		break;
 	}
 

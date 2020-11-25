@@ -212,11 +212,11 @@ static int stm32_gpio_set_dir_flags(struct udevice *dev, unsigned int offset,
 
 	} else if (flags & GPIOD_IS_IN) {
 		stm32_gpio_set_moder(regs, idx, STM32_GPIO_MODE_IN);
-		if (flags & GPIOD_PULL_UP)
-			stm32_gpio_set_pupd(regs, idx, STM32_GPIO_PUPD_UP);
-		else if (flags & GPIOD_PULL_DOWN)
-			stm32_gpio_set_pupd(regs, idx, STM32_GPIO_PUPD_DOWN);
 	}
+	if (flags & GPIOD_PULL_UP)
+		stm32_gpio_set_pupd(regs, idx, STM32_GPIO_PUPD_UP);
+	else if (flags & GPIOD_PULL_DOWN)
+		stm32_gpio_set_pupd(regs, idx, STM32_GPIO_PUPD_DOWN);
 
 	return 0;
 }
@@ -243,16 +243,16 @@ static int stm32_gpio_get_dir_flags(struct udevice *dev, unsigned int offset,
 		break;
 	case STM32_GPIO_MODE_IN:
 		dir_flags |= GPIOD_IS_IN;
-		switch (stm32_gpio_get_pupd(regs, idx)) {
-		case STM32_GPIO_PUPD_UP:
-			dir_flags |= GPIOD_PULL_UP;
-			break;
-		case STM32_GPIO_PUPD_DOWN:
-			dir_flags |= GPIOD_PULL_DOWN;
-			break;
-		default:
-			break;
-		}
+		break;
+	default:
+		break;
+	}
+	switch (stm32_gpio_get_pupd(regs, idx)) {
+	case STM32_GPIO_PUPD_UP:
+		dir_flags |= GPIOD_PULL_UP;
+		break;
+	case STM32_GPIO_PUPD_DOWN:
+		dir_flags |= GPIOD_PULL_DOWN;
 		break;
 	default:
 		break;

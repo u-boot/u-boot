@@ -26,7 +26,6 @@
 			interrupt-names = "macirq", "eth_wake_irq";
 			snps,pbl = <8>;
 			snps,mixed-burst;
-			dma-ranges;
 			pinctrl-0 = <&ethernet_mii>;
 			phy-mode = "rmii";
 			phy-handle = <&phy0>;
@@ -43,7 +42,7 @@
 			};
 		};
 
-		qspi: quadspi@A0001000 {
+		qspi: spi@A0001000 {
 			compatible = "st,stm32f469-qspi";
 			#address-cells = <1>;
 			#size-cells = <0>;

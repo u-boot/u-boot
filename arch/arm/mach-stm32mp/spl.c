@@ -55,6 +55,7 @@ u32 spl_mmc_boot_mode(const u32 boot_device)
 	return MMCSD_MODE_RAW;
 }
 
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 int spl_mmc_boot_partition(const u32 boot_device)
 {
 	switch (boot_device) {
@@ -66,6 +67,7 @@ int spl_mmc_boot_partition(const u32 boot_device)
 		return -EINVAL;
 	}
 }
+#endif
 
 #ifdef CONFIG_SPL_DISPLAY_PRINT
 void spl_display_print(void)

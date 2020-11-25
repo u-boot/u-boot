@@ -123,7 +123,7 @@
 };
 
 &pinctrl {
-	usart1_pins_a: usart1@0	{
+	usart1_pins_a: usart1-0	{
 		u-boot,dm-pre-reloc;
 		pins1 {
 			u-boot,dm-pre-reloc;
@@ -190,5 +190,9 @@
 };
 
 &rcc {
+	u-boot,dm-pre-reloc;
+};
+
+&timer5 {
 	u-boot,dm-pre-reloc;
 };

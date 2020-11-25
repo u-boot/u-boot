@@ -45,6 +45,8 @@ Required properties:
 - #phy-cells: see phy-bindings.txt in the same directory, must be <0> for PHY
   port#1 and must be <1> for PHY port#2, to select USB controller
 
+Optional properties:
+- vbus-supply: phandle to the regulator providing 5V vbus to the USB connector
 
 Example:
 		usbphyc: usb-phy@5a006000 {

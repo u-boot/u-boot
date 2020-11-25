@@ -159,6 +159,13 @@
 	u-boot,dm-pre-proper;
 };
 
+/* temp = waiting kernel update */
+&m4_rproc {
+	resets = <&rcc MCU_R>,
+		 <&rcc MCU_HOLD_BOOT_R>;
+	reset-names = "mcu_rst", "hold_boot";
+};
+
 &pinctrl {
 	u-boot,dm-pre-reloc;
 };
