@@ -827,11 +827,22 @@ const char *env_ext4_get_intf(void)
 
 const char *env_ext4_get_dev_part(void)
 {
+	static char *const env_dev_part =
+#ifdef CONFIG_ENV_EXT4_DEVICE_AND_PART
+		CONFIG_ENV_EXT4_DEVICE_AND_PART;
+#else
+		"";
+#endif
 	static char *const dev_part[] = {"0:auto", "1:auto", "2:auto"};
+
+	if (strlen(env_dev_part) > 0)
+		return env_dev_part;
+
 	u32 bootmode = get_bootmode();
 
 	return dev_part[(bootmode & TAMP_BOOT_INSTANCE_MASK) - 1];
 }
+
 int mmc_get_env_dev(void)
 {
 	u32 bootmode = get_bootmode();
