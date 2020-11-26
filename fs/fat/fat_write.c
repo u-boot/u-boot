@@ -1154,10 +1154,12 @@ static void fill_dentry(fsdata *mydata, dir_entry *dentptr,
 	memcpy(dentptr->name, shortname, SHORT_NAME_SIZE);
 }
 
-/*
- * Find a directory entry based on filename or start cluster number
- * If the directory entry is not found,
- * the new position for writing a directory entry will be returned
+/**
+ * find_directory_entry() - find a directory entry by filename
+ *
+ * @itr:	directory iterator
+ * @filename:	name of file to find
+ * Return:	directory entry or NULL
  */
 static dir_entry *find_directory_entry(fat_itr *itr, char *filename)
 {
@@ -1179,13 +1181,6 @@ static dir_entry *find_directory_entry(fat_itr *itr, char *filename)
 		else
 			return itr->dent;
 	}
-
-	/* allocate a cluster for more entries */
-	if (!itr->dent &&
-	    (!itr->is_root || itr->fsdata->fatsize == 32) &&
-	    new_dir_table(itr))
-		/* indicate that allocating dent failed */
-		itr->dent = NULL;
 
 	return NULL;
 }
@@ -1346,12 +1341,6 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 				ret = -EINVAL;
 				goto exit;
 			}
-		}
-
-		if (!itr->dent) {
-			printf("Error: allocating new dir entry\n");
-			ret = -EIO;
-			goto exit;
 		}
 
 		if (pos) {
@@ -1620,12 +1609,6 @@ int fat_mkdir(const char *new_dirname)
 				ret = -EINVAL;
 				goto exit;
 			}
-		}
-
-		if (!itr->dent) {
-			printf("Error: allocating new dir entry\n");
-			ret = -EIO;
-			goto exit;
 		}
 
 		/* Check if long name is needed */
