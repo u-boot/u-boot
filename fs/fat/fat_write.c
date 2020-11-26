@@ -738,17 +738,32 @@ static int find_empty_cluster(fsdata *mydata)
 	return entry;
 }
 
-/*
- * Allocate a cluster for additional directory entries
+/**
+ * new_dir_table() - allocate a cluster for additional directory entries
+ *
+ * @itr:	directory iterator
+ * Return:	0 on success, -EIO otherwise
  */
 static int new_dir_table(fat_itr *itr)
 {
 	fsdata *mydata = itr->fsdata;
 	int dir_newclust = 0;
+	int dir_oldclust = itr->clust;
 	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
 
 	dir_newclust = find_empty_cluster(mydata);
-	set_fatent_value(mydata, itr->clust, dir_newclust);
+
+	/*
+	 * Flush before updating FAT to ensure valid directory structure
+	 * in case of failure.
+	 */
+	itr->clust = dir_newclust;
+	itr->next_clust = dir_newclust;
+	memset(itr->block, 0x00, bytesperclust);
+	if (flush_dir(itr))
+		return -EIO;
+
+	set_fatent_value(mydata, dir_oldclust, dir_newclust);
 	if (mydata->fatsize == 32)
 		set_fatent_value(mydata, dir_newclust, 0xffffff8);
 	else if (mydata->fatsize == 16)
@@ -756,13 +771,8 @@ static int new_dir_table(fat_itr *itr)
 	else if (mydata->fatsize == 12)
 		set_fatent_value(mydata, dir_newclust, 0xff8);
 
-	itr->clust = dir_newclust;
-	itr->next_clust = dir_newclust;
-
 	if (flush_dirty_fat_buffer(mydata) < 0)
-		return -1;
-
-	memset(itr->block, 0x00, bytesperclust);
+		return -EIO;
 
 	itr->dent = (dir_entry *)itr->block;
 	itr->last_cluster = 1;
