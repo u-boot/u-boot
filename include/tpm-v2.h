@@ -309,11 +309,14 @@ u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
  *
  * @dev		TPM device
  * @index	Index of the PCR
+ * @algorithm	Algorithm used, defined in 'enum tpm2_algorithms'
  * @digest	Value representing the event to be recorded
+ * @digest_len  len of the hash
  *
  * @return code of the operation
  */
-u32 tpm2_pcr_extend(struct udevice *dev, u32 index, const uint8_t *digest);
+u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
+		    const u8 *digest, u32 digest_len);
 
 /**
  * Issue a TPM2_PCR_Read command.
