@@ -36,3 +36,14 @@ def test_log_format(u_boot_console):
         run_with_format('FLfm', 'file.c:123-func() msg')
         run_with_format('lm', 'NOTICE. msg')
         run_with_format('m', 'msg')
+
+@pytest.mark.buildconfigspec('debug_uart')
+@pytest.mark.boardspec('sandbox')
+def test_log_dropped(u_boot_console):
+    """Test dropped 'log' message when debug_uart is activated"""
+
+    cons = u_boot_console
+    cons.restart_uboot()
+    output = cons.get_spawn_output().replace('\r', '')
+    assert 'sandbox: starting...' in output
+    assert (not 'debug: main' in output)

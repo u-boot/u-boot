@@ -9,6 +9,7 @@
 #include <efi_loader.h>
 #include <errno.h>
 #include <init.h>
+#include <log.h>
 #include <os.h>
 #include <cli.h>
 #include <sort.h>
@@ -485,6 +486,10 @@ int main(int argc, char *argv[])
 	 * relocated by the OS before sandbox is entered.
 	 */
 	gd->reloc_off = (ulong)gd->arch.text_base;
+
+	/* sandbox test: log functions called before log_init in board_init_f */
+	log_info("sandbox: starting...\n");
+	log_debug("debug: %s\n", __func__);
 
 	/* Do pre- and post-relocation init */
 	board_init_f(0);
