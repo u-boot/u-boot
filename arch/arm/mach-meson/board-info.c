@@ -187,3 +187,15 @@ int show_board_info(void)
 
 	return 0;
 }
+
+int meson_get_soc_rev(char *buff, size_t buff_len)
+{
+	unsigned int socinfo;
+
+	socinfo = get_socinfo();
+	if (!socinfo)
+		return -1;
+
+	/* Write SoC info */
+	return snprintf(buff, buff_len, "%x", socinfo_to_minor(socinfo));
+}
