@@ -519,6 +519,10 @@ void putc(const char c)
 {
 	if (!gd)
 		return;
+#ifdef CONFIG_CONSOLE_RECORD
+	if ((gd->flags & GD_FLG_RECORD) && gd->console_out.start)
+		membuff_putbyte((struct membuff *)&gd->console_out, c);
+#endif
 #ifdef CONFIG_SANDBOX
 	/* sandbox can send characters to stdout before it has a console */
 	if (!(gd->flags & GD_FLG_SERIAL_READY)) {
@@ -532,10 +536,6 @@ void putc(const char c)
 		printch(c);
 		return;
 	}
-#endif
-#ifdef CONFIG_CONSOLE_RECORD
-	if ((gd->flags & GD_FLG_RECORD) && gd->console_out.start)
-		membuff_putbyte((struct membuff *)&gd->console_out, c);
 #endif
 #ifdef CONFIG_SILENT_CONSOLE
 	if (gd->flags & GD_FLG_SILENT) {
@@ -567,6 +567,10 @@ void puts(const char *s)
 {
 	if (!gd)
 		return;
+#ifdef CONFIG_CONSOLE_RECORD
+	if ((gd->flags & GD_FLG_RECORD) && gd->console_out.start)
+		membuff_put((struct membuff *)&gd->console_out, s, strlen(s));
+#endif
 #ifdef CONFIG_SANDBOX
 	/* sandbox can send characters to stdout before it has a console */
 	if (!(gd->flags & GD_FLG_SERIAL_READY)) {
@@ -583,10 +587,6 @@ void puts(const char *s)
 		}
 		return;
 	}
-#endif
-#ifdef CONFIG_CONSOLE_RECORD
-	if ((gd->flags & GD_FLG_RECORD) && gd->console_out.start)
-		membuff_put((struct membuff *)&gd->console_out, s, strlen(s));
 #endif
 #ifdef CONFIG_SILENT_CONSOLE
 	if (gd->flags & GD_FLG_SILENT) {
