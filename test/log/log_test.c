@@ -52,6 +52,7 @@ static int do_log_run(struct unit_test_state *uts, int cat, const char *file)
 #define EXPECT_DIRECT BIT(1)
 #define EXPECT_EXTRA BIT(2)
 #define EXPECT_FORCE BIT(3)
+#define EXPECT_DEBUG BIT(4)
 
 static int do_check_log_entries(struct unit_test_state *uts, int flags, int min,
 				int max)
@@ -63,6 +64,10 @@ static int do_check_log_entries(struct unit_test_state *uts, int flags, int min,
 			ut_assert_nextline("do_log_run() log %d", i);
 		if (flags & EXPECT_DIRECT)
 			ut_assert_nextline("func() _log %d", i);
+		if (flags & EXPECT_DEBUG) {
+			ut_assert_nextline("log %d", i);
+			ut_assert_nextline("_log %d", i);
+		}
 	}
 	if (flags & EXPECT_EXTRA)
 		for (; i <= LOGL_MAX ; i++)
@@ -71,6 +76,8 @@ static int do_check_log_entries(struct unit_test_state *uts, int flags, int min,
 	for (i = LOGL_FIRST; i < LOGL_COUNT; i++) {
 		if (flags & EXPECT_FORCE)
 			ut_assert_nextline("func() _log force %d", i);
+		if (flags & EXPECT_DEBUG)
+			ut_assert_nextline("_log force %d", i);
 	}
 
 	ut_assert_console_end();
@@ -413,6 +420,7 @@ int log_test_dropped(struct unit_test_state *uts)
 	log_run();
 
 	ut_asserteq(gd->log_drop_count, 3 * (LOGL_COUNT - LOGL_FIRST - 1));
+	check_log_entries_flags_levels(EXPECT_DEBUG, LOGL_FIRST, CONFIG_LOG_DEFAULT_LEVEL);
 
 	gd->flags |= GD_FLG_LOG_READY;
 	gd->log_drop_count = 0;
