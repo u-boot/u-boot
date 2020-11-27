@@ -630,8 +630,10 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		tftp_cur_block++;
 		tftp_cur_block %= TFTP_SEQUENCE_SIZE;
 
-		if (tftp_state == STATE_SEND_RRQ)
+		if (tftp_state == STATE_SEND_RRQ) {
 			debug("Server did not acknowledge any options!\n");
+			tftp_next_ack = tftp_windowsize;
+		}
 
 		if (tftp_state == STATE_SEND_RRQ || tftp_state == STATE_OACK ||
 		    tftp_state == STATE_RECV_WRQ) {
