@@ -131,7 +131,7 @@ static void print_board_model(void)
 	printf("Model: %s\n", model ? model : "Unknown");
 }
 
-int show_board_info(void)
+static unsigned int get_socinfo(void)
 {
 	struct regmap *regmap;
 	int nodeoffset, ret;
@@ -163,8 +163,20 @@ int show_board_info(void)
 		return 0;
 	}
 
+	return socinfo;
+}
+
+int show_board_info(void)
+{
+	unsigned int socinfo;
+
 	/* print board information */
 	print_board_model();
+
+	socinfo = get_socinfo();
+	if (!socinfo)
+		return 0;
+
 	printf("SoC:   Amlogic Meson %s (%s) Revision %x:%x (%x:%x)\n",
 	       socinfo_to_soc_id(socinfo),
 	       socinfo_to_package_id(socinfo),
