@@ -246,6 +246,15 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 
 	if (!(gd->flags & GD_FLG_LOG_READY)) {
 		gd->log_drop_count++;
+
+		/* display dropped traces with console puts and DEBUG_UART */
+		if (rec.level <= CONFIG_LOG_DEFAULT_LEVEL || rec.force_debug) {
+			va_start(args, fmt);
+			vsnprintf(buf, sizeof(buf), fmt, args);
+			puts(buf);
+			va_end(args);
+		}
+
 		return -ENOSYS;
 	}
 	va_start(args, fmt);
