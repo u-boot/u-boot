@@ -15,30 +15,38 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* emit some sample log records in different ways, for testing */
-static int do_log_run(int cat, const char *file)
+static int do_log_run(struct unit_test_state *uts, int cat, const char *file)
 {
 	int i;
+	int ret, expected_ret;
+
+	if (gd->flags & GD_FLG_LOG_READY)
+		expected_ret = 0;
+	else
+		expected_ret = -ENOSYS;
 
 	gd->log_fmt = LOGF_TEST;
 	debug("debug\n");
 	for (i = LOGL_FIRST; i < LOGL_COUNT; i++) {
 		log(cat, i, "log %d\n", i);
-		_log(log_uc_cat(cat), i, file, 100 + i, "func", "_log %d\n",
-		     i);
+		ret = _log(log_uc_cat(cat), i, file, 100 + i,
+			   "func", "_log %d\n", i);
+		ut_asserteq(ret, expected_ret);
 	}
 	/* test with LOGL_COUNT flag */
 	for (i = LOGL_FIRST; i < LOGL_COUNT; i++) {
-		_log(log_uc_cat(cat), i | LOGL_FORCE_DEBUG, file, 100 + i,
-		     "func", "_log force %d\n", i);
+		ret = _log(log_uc_cat(cat), i | LOGL_FORCE_DEBUG, file, 100 + i,
+			   "func", "_log force %d\n", i);
+		ut_asserteq(ret, expected_ret);
 	}
 
 	gd->log_fmt = log_get_default_format();
 	return 0;
 }
 
-#define log_run_cat(cat) do_log_run(cat, "file")
-#define log_run_file(file) do_log_run(UCLASS_SPI, file)
-#define log_run() do_log_run(UCLASS_SPI, "file")
+#define log_run_cat(cat) do_log_run(uts, cat, "file")
+#define log_run_file(file) do_log_run(uts, UCLASS_SPI, file)
+#define log_run() do_log_run(uts, UCLASS_SPI, "file")
 
 #define EXPECT_LOG BIT(0)
 #define EXPECT_DIRECT BIT(1)
@@ -393,3 +401,22 @@ int log_test_min(struct unit_test_state *uts)
 	return 0;
 }
 LOG_TEST_FLAGS(log_test_min, UT_TESTF_CONSOLE_REC);
+
+/* Check dropped traces */
+int log_test_dropped(struct unit_test_state *uts)
+{
+	/* force LOG not ready */
+	gd->flags &= ~(GD_FLG_LOG_READY);
+	gd->log_drop_count = 0;
+
+	ut_assertok(console_record_reset_enable());
+	log_run();
+
+	ut_asserteq(gd->log_drop_count, 3 * (LOGL_COUNT - LOGL_FIRST - 1));
+
+	gd->flags |= GD_FLG_LOG_READY;
+	gd->log_drop_count = 0;
+
+	return 0;
+}
+LOG_TEST_FLAGS(log_test_dropped, UT_TESTF_CONSOLE_REC);
