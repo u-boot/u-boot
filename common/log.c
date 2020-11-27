@@ -228,6 +228,9 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 	struct log_rec rec;
 	va_list args;
 
+	if (!gd)
+		return -ENOSYS;
+
 	/* Check for message continuation */
 	if (cat == LOGC_CONT)
 		cat = gd->logc_prev;
@@ -240,15 +243,15 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 	rec.file = file;
 	rec.line = line;
 	rec.func = func;
+
+	if (!(gd->flags & GD_FLG_LOG_READY)) {
+		gd->log_drop_count++;
+		return -ENOSYS;
+	}
 	va_start(args, fmt);
 	vsnprintf(buf, sizeof(buf), fmt, args);
 	va_end(args);
 	rec.msg = buf;
-	if (!gd || !(gd->flags & GD_FLG_LOG_READY)) {
-		if (gd)
-			gd->log_drop_count++;
-		return -ENOSYS;
-	}
 	if (!log_dispatch(&rec)) {
 		gd->logc_prev = cat;
 		gd->logl_prev = level;
