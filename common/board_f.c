@@ -767,11 +767,10 @@ static int initf_bootstage(void)
 
 static int initf_console_record(void)
 {
-#if defined(CONFIG_CONSOLE_RECORD) && CONFIG_VAL(SYS_MALLOC_F_LEN)
-	return console_record_init();
-#else
+	if (IS_ENABLED(CONFIG_CONSOLE_RECORD_INIT_F))
+		return console_record_init();
+
 	return 0;
-#endif
 }
 
 static int initf_dm(void)
