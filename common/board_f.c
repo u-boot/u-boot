@@ -514,21 +514,21 @@ static int reserve_global_data(void)
 
 static int reserve_fdt(void)
 {
-#ifndef CONFIG_OF_EMBED
-	/*
-	 * If the device tree is sitting immediately above our image then we
-	 * must relocate it. If it is embedded in the data section, then it
-	 * will be relocated with other data.
-	 */
-	if (gd->fdt_blob) {
-		gd->fdt_size = ALIGN(fdt_totalsize(gd->fdt_blob), 32);
+	if (!IS_ENABLED(CONFIG_OF_EMBED)) {
+		/*
+		 * If the device tree is sitting immediately above our image
+		 * then we must relocate it. If it is embedded in the data
+		 * section, then it will be relocated with other data.
+		 */
+		if (gd->fdt_blob) {
+			gd->fdt_size = ALIGN(fdt_totalsize(gd->fdt_blob), 32);
 
-		gd->start_addr_sp = reserve_stack_aligned(gd->fdt_size);
-		gd->new_fdt = map_sysmem(gd->start_addr_sp, gd->fdt_size);
-		debug("Reserving %lu Bytes for FDT at: %08lx\n",
-		      gd->fdt_size, gd->start_addr_sp);
+			gd->start_addr_sp = reserve_stack_aligned(gd->fdt_size);
+			gd->new_fdt = map_sysmem(gd->start_addr_sp, gd->fdt_size);
+			debug("Reserving %lu Bytes for FDT at: %08lx\n",
+			      gd->fdt_size, gd->start_addr_sp);
+		}
 	}
-#endif
 
 	return 0;
 }
@@ -616,14 +616,15 @@ static int init_post(void)
 
 static int reloc_fdt(void)
 {
-#ifndef CONFIG_OF_EMBED
-	if (gd->flags & GD_FLG_SKIP_RELOC)
-		return 0;
-	if (gd->new_fdt) {
-		memcpy(gd->new_fdt, gd->fdt_blob, fdt_totalsize(gd->fdt_blob));
-		gd->fdt_blob = gd->new_fdt;
+	if (!IS_ENABLED(CONFIG_OF_EMBED)) {
+		if (gd->flags & GD_FLG_SKIP_RELOC)
+			return 0;
+		if (gd->new_fdt) {
+			memcpy(gd->new_fdt, gd->fdt_blob,
+			       fdt_totalsize(gd->fdt_blob));
+			gd->fdt_blob = gd->new_fdt;
+		}
 	}
-#endif
 
 	return 0;
 }
