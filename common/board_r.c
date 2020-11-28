@@ -206,14 +206,6 @@ static int initr_addr_map(void)
 }
 #endif
 
-#ifdef CONFIG_POST
-static int initr_post_backlog(void)
-{
-	post_output_backlog();
-	return 0;
-}
-#endif
-
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
 static int initr_unlock_ram_in_cache(void)
 {
@@ -746,7 +738,7 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	INIT_FUNC_WATCHDOG_RESET
 #ifdef CONFIG_POST
-	initr_post_backlog,
+	post_output_backlog,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
 #if defined(CONFIG_PCI) && defined(CONFIG_SYS_EARLY_PCI_INIT)
