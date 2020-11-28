@@ -1842,7 +1842,7 @@ U_BOOT_DRIVER(pci_generic_drv) = {
 	.of_match	= pci_generic_ids,
 };
 
-void pci_init(void)
+int pci_init(void)
 {
 	struct udevice *bus;
 
@@ -1855,4 +1855,6 @@ void pci_init(void)
 	     uclass_next_device_check(&bus)) {
 		;
 	}
+
+	return 0;
 }

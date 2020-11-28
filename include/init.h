@@ -187,6 +187,18 @@ int cpu_secondary_init_r(void);
 int pci_ep_init(void);
 
 /**
+ * pci_init() - Enumerate pci devices
+ *
+ * It is called during the generic post-relocation init sequence to enumerate
+ * pci buses. This is needed, for instance, in the case of DM PCI-based
+ * Ethernet devices, which will not be detected without having the enumeration
+ * performed earlier.
+ *
+ * Return: 0 if OK
+ */
+int pci_init(void);
+
+/**
  * init_cache_f_r() - Turn on the cache in preparation for relocation
  *
  * Return: 0 if OK, -ve on error
@@ -257,7 +269,6 @@ int mac_read_from_eeprom(void);
 int set_cpu_clk_info(void);
 int update_flash_size(int flash_size);
 int arch_early_init_r(void);
-void pci_init(void);
 int misc_init_r(void);
 #if defined(CONFIG_VID)
 int init_func_vid(void);

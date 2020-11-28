@@ -214,16 +214,6 @@ static int initr_unlock_ram_in_cache(void)
 }
 #endif
 
-#ifdef CONFIG_PCI
-static int initr_pci(void)
-{
-	if (IS_ENABLED(CONFIG_PCI_INIT_R))
-		pci_init();
-
-	return 0;
-}
-#endif
-
 static int initr_barrier(void)
 {
 #ifdef CONFIG_PPC
@@ -732,12 +722,12 @@ static init_fnc_t init_sequence_r[] = {
 	post_output_backlog,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
-#if defined(CONFIG_PCI) && defined(CONFIG_SYS_EARLY_PCI_INIT)
+#if defined(CONFIG_PCI_INIT_R) && defined(CONFIG_SYS_EARLY_PCI_INIT)
 	/*
 	 * Do early PCI configuration _before_ the flash gets initialised,
 	 * because PCU resources are crucial for flash access on some boards.
 	 */
-	initr_pci,
+	pci_init,
 #endif
 #ifdef CONFIG_ARCH_EARLY_INIT_R
 	arch_early_init_r,
@@ -776,11 +766,11 @@ static init_fnc_t init_sequence_r[] = {
 	mac_read_from_eeprom,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
-#if defined(CONFIG_PCI) && !defined(CONFIG_SYS_EARLY_PCI_INIT)
+#if defined(CONFIG_PCI_INIT_R) && !defined(CONFIG_SYS_EARLY_PCI_INIT)
 	/*
 	 * Do pci configuration
 	 */
-	initr_pci,
+	pci_init,
 #endif
 	stdio_add_devices,
 	initr_jumptable,
