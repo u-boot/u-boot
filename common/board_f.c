@@ -503,14 +503,6 @@ static int reserve_board(void)
 	return 0;
 }
 
-static int setup_machine(void)
-{
-#ifdef CONFIG_MACH_TYPE
-	gd->bd->bi_arch_number = CONFIG_MACH_TYPE; /* board id for Linux */
-#endif
-	return 0;
-}
-
 static int reserve_global_data(void)
 {
 	gd->start_addr_sp = reserve_stack_aligned(sizeof(gd_t));
@@ -604,6 +596,10 @@ int setup_bdinfo(void)
 		bd->bi_sramstart = CONFIG_SYS_SRAM_BASE; /* start of SRAM */
 		bd->bi_sramsize = CONFIG_SYS_SRAM_SIZE;  /* size  of SRAM */
 	}
+
+#ifdef CONFIG_MACH_TYPE
+	bd->bi_arch_number = CONFIG_MACH_TYPE; /* board id for Linux */
+#endif
 
 	return arch_setup_bdinfo();
 }
@@ -916,7 +912,6 @@ static const init_fnc_t init_sequence_f[] = {
 	reserve_uboot,
 	reserve_malloc,
 	reserve_board,
-	setup_machine,
 	reserve_global_data,
 	reserve_fdt,
 	reserve_bootstage,
