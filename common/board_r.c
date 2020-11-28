@@ -428,14 +428,6 @@ static int initr_mmc(void)
 }
 #endif
 
-#ifdef CONFIG_XEN
-static int initr_xen(void)
-{
-	xen_init();
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_PVBLOCK
 static int initr_pvblock(void)
 {
@@ -743,7 +735,7 @@ static init_fnc_t init_sequence_r[] = {
 	initr_mmc,
 #endif
 #ifdef CONFIG_XEN
-	initr_xen,
+	xen_init,
 #endif
 #ifdef CONFIG_PVBLOCK
 	initr_pvblock,
