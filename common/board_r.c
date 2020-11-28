@@ -91,21 +91,8 @@ __weak int board_flash_wp_on(void)
 	return 0;
 }
 
-__weak void cpu_secondary_init_r(void)
+__weak int cpu_secondary_init_r(void)
 {
-}
-
-static int initr_secondary_cpu(void)
-{
-	/*
-	 * after non-volatile devices & environment is setup and cpu code have
-	 * another round to deal with any initialization that might require
-	 * full access to the environment or loading of some image (firmware)
-	 * from a non-volatile device
-	 */
-	/* TODO: maybe define this for all archs? */
-	cpu_secondary_init_r();
-
 	return 0;
 }
 
@@ -801,7 +788,7 @@ static init_fnc_t init_sequence_r[] = {
 	initr_malloc_bootparams,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
-	initr_secondary_cpu,
+	cpu_secondary_init_r,
 #if defined(CONFIG_ID_EEPROM) || defined(CONFIG_SYS_I2C_MAC_OFFSET)
 	mac_read_from_eeprom,
 #endif

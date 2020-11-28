@@ -164,6 +164,20 @@ int arch_setup_bdinfo(void);
 int setup_bdinfo(void);
 
 /**
+ * cpu_secondary_init_r() - CPU-specific secondary initialization
+ *
+ * After non-volatile devices, environment and cpu code are setup, have
+ * another round to deal with any initialization that might require
+ * full access to the environment or loading of some image (firmware)
+ * from a non-volatile device.
+ *
+ * It is called during the generic post-relocation init sequence.
+ *
+ * Return: 0 if OK
+ */
+int cpu_secondary_init_r(void);
+
+/**
  * init_cache_f_r() - Turn on the cache in preparation for relocation
  *
  * Return: 0 if OK, -ve on error
