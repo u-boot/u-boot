@@ -44,6 +44,7 @@ enum sh_pfc_model {
 
 struct sh_pfc_pin_config {
 	u32 type;
+	const char *name;
 };
 
 struct sh_pfc_pinctrl {
@@ -487,14 +488,21 @@ static int sh_pfc_gpio_request_enable(struct udevice *dev,
 	idx = sh_pfc_get_pin_index(pfc, pin->pin);
 	cfg = &pmx->configs[idx];
 
-	if (cfg->type != PINMUX_TYPE_NONE)
+	if (cfg->type != PINMUX_TYPE_NONE) {
+		if (!strcmp(cfg->name, pin->name))
+			return 0;
+
+		dev_err(pfc->dev, "Pin already used as %s\n",
+			cfg->name);
 		return -EBUSY;
+	}
 
 	ret = sh_pfc_config_mux(pfc, pin->enum_id, PINMUX_TYPE_GPIO);
 	if (ret)
 		return ret;
 
 	cfg->type = PINMUX_TYPE_GPIO;
+	cfg->name = "gpio";
 
 	return 0;
 }
@@ -524,6 +532,7 @@ static int sh_pfc_gpio_disable_free(struct udevice *dev,
 	cfg = &pmx->configs[idx];
 
 	cfg->type = PINMUX_TYPE_NONE;
+	cfg->name = "none";
 
 	return 0;
 }
@@ -537,11 +546,25 @@ static int sh_pfc_pinctrl_pin_set(struct udevice *dev, unsigned pin_selector,
 	const struct sh_pfc_pin *pin = &priv->pfc.info->pins[pin_selector];
 	int idx = sh_pfc_get_pin_index(pfc, pin->pin);
 	struct sh_pfc_pin_config *cfg = &pmx->configs[idx];
+	int ret;
 
-	if (cfg->type != PINMUX_TYPE_NONE)
+	if (cfg->type != PINMUX_TYPE_NONE) {
+		if (!strcmp(cfg->name, pin->name))
+			return 0;
+
+		dev_err(pfc->dev, "Pin already used as %s\n",
+			cfg->name);
 		return -EBUSY;
+	}
 
-	return sh_pfc_config_mux(pfc, pin->enum_id, PINMUX_TYPE_FUNCTION);
+	ret = sh_pfc_config_mux(pfc, pin->enum_id, PINMUX_TYPE_FUNCTION);
+	if (ret)
+		return ret;
+
+	cfg->type = PINMUX_TYPE_FUNCTION;
+	cfg->name = "function";
+
+	return 0;
 }
 
 static int sh_pfc_pinctrl_group_set(struct udevice *dev, unsigned group_selector,
@@ -551,23 +574,41 @@ static int sh_pfc_pinctrl_group_set(struct udevice *dev, unsigned group_selector
 	struct sh_pfc_pinctrl *pmx = &priv->pmx;
 	struct sh_pfc *pfc = &priv->pfc;
 	const struct sh_pfc_pin_group *grp = &priv->pfc.info->groups[group_selector];
+	bool grp_pins_configured = true;
+	struct sh_pfc_pin_config *cfg;
 	unsigned int i;
 	int ret = 0;
+	int idx;
 
 	for (i = 0; i < grp->nr_pins; ++i) {
-		int idx = sh_pfc_get_pin_index(pfc, grp->pins[i]);
-		struct sh_pfc_pin_config *cfg = &pmx->configs[idx];
+		idx = sh_pfc_get_pin_index(pfc, grp->pins[i]);
+		cfg = &pmx->configs[idx];
 
 		if (cfg->type != PINMUX_TYPE_NONE) {
+			if (!strcmp(cfg->name, grp->name))
+				continue;
+
+			dev_err(pfc->dev, "Pin already used as %s\n",
+				cfg->name);
 			ret = -EBUSY;
 			goto done;
+		} else {
+			grp_pins_configured = false;
 		}
 	}
+
+	if (grp_pins_configured)
+		return 0;
 
 	for (i = 0; i < grp->nr_pins; ++i) {
 		ret = sh_pfc_config_mux(pfc, grp->mux[i], PINMUX_TYPE_FUNCTION);
 		if (ret < 0)
 			break;
+
+		idx = sh_pfc_get_pin_index(pfc, grp->pins[i]);
+		cfg = &pmx->configs[idx];
+		cfg->type = PINMUX_TYPE_FUNCTION;
+		cfg->name = priv->pfc.info->groups[group_selector].name;
 	}
 
 done:
@@ -804,6 +845,7 @@ static int sh_pfc_map_pins(struct sh_pfc *pfc, struct sh_pfc_pinctrl *pmx)
 	for (i = 0; i < pfc->info->nr_pins; ++i) {
 		struct sh_pfc_pin_config *cfg = &pmx->configs[i];
 		cfg->type = PINMUX_TYPE_NONE;
+		cfg->name = "none";
 	}
 
 	return 0;
