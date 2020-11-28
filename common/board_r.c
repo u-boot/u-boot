@@ -182,20 +182,10 @@ static int initr_reloc_global_data(void)
 	return 0;
 }
 
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_MIPS)
-static int initr_trap(void)
+__weak int arch_initr_trap(void)
 {
-	/*
-	 * Setup trap handlers
-	 */
-#if defined(CONFIG_PPC)
-	trap_init(gd->relocaddr);
-#else
-	trap_init(CONFIG_SYS_SDRAM_BASE);
-#endif
 	return 0;
 }
-#endif
 
 #ifdef CONFIG_ADDR_MAP
 static int initr_addr_map(void)
@@ -669,9 +659,7 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	initr_manual_reloc_cmdtable,
 #endif
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_MIPS)
-	initr_trap,
-#endif
+	arch_initr_trap,
 #ifdef CONFIG_ADDR_MAP
 	initr_addr_map,
 #endif

@@ -300,7 +300,15 @@ int board_early_init_r(void);
 /* TODO(sjg@chromium.org): Drop this when DM_PCI migration is completed */
 void pci_init_board(void);
 
-void trap_init(unsigned long reloc_addr);
+/**
+ * arch_initr_trap() - Init traps
+ *
+ * Arch specific routine for initializing traps. It is called during the
+ * generic board init sequence, after relocation.
+ *
+ * Return: 0 if OK
+ */
+int arch_initr_trap(void);
 
 /**
  * main_loop() - Enter the main loop of U-Boot
