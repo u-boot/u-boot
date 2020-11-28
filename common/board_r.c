@@ -534,14 +534,6 @@ static int initr_scsi(void)
 }
 #endif
 
-#ifdef CONFIG_BITBANGMII
-static int initr_bbmii(void)
-{
-	bb_miiphy_init();
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_CMD_NET
 static int initr_net(void)
 {
@@ -783,7 +775,7 @@ static init_fnc_t init_sequence_r[] = {
 	initr_scsi,
 #endif
 #ifdef CONFIG_BITBANGMII
-	initr_bbmii,
+	bb_miiphy_init,
 #endif
 #ifdef CONFIG_PCI_ENDPOINT
 	pci_ep_init,
