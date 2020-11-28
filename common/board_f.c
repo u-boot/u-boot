@@ -765,14 +765,6 @@ static int initf_bootstage(void)
 	return 0;
 }
 
-static int initf_console_record(void)
-{
-	if (IS_ENABLED(CONFIG_CONSOLE_RECORD_INIT_F))
-		return console_record_init();
-
-	return 0;
-}
-
 static int initf_dm(void)
 {
 #if defined(CONFIG_DM) && CONFIG_VAL(SYS_MALLOC_F_LEN)
@@ -829,7 +821,9 @@ static const init_fnc_t init_sequence_f[] = {
 	bloblist_init,
 #endif
 	setup_spl_handoff,
-	initf_console_record,
+#if defined(CONFIG_CONSOLE_RECORD_INIT_F)
+	console_record_init,
+#endif
 #if defined(CONFIG_HAVE_FSP)
 	arch_fsp_init,
 #endif
