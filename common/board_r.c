@@ -242,14 +242,6 @@ static int initr_malloc(void)
 	return 0;
 }
 
-#ifdef CONFIG_SYS_NONCACHED_MEMORY
-static int initr_noncached(void)
-{
-	noncached_init();
-	return 0;
-}
-#endif
-
 static int initr_of_live(void)
 {
 	if (CONFIG_IS_ENABLED(OF_LIVE)) {
@@ -668,7 +660,7 @@ static init_fnc_t init_sequence_r[] = {
 	console_record_init,
 #endif
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
-	initr_noncached,
+	noncached_init,
 #endif
 	initr_of_live,
 #ifdef CONFIG_DM
