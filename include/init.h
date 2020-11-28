@@ -178,6 +178,15 @@ int setup_bdinfo(void);
 int cpu_secondary_init_r(void);
 
 /**
+ * pci_ep_init() - Initialize pci endpoint devices
+ *
+ * It is called during the generic post-relocation init sequence.
+ *
+ * Return: 0 if OK
+ */
+int pci_ep_init(void);
+
+/**
  * init_cache_f_r() - Turn on the cache in preparation for relocation
  *
  * Return: 0 if OK, -ve on error
@@ -249,7 +258,6 @@ int set_cpu_clk_info(void);
 int update_flash_size(int flash_size);
 int arch_early_init_r(void);
 void pci_init(void);
-void pci_ep_init(void);
 int misc_init_r(void);
 #if defined(CONFIG_VID)
 int init_func_vid(void);

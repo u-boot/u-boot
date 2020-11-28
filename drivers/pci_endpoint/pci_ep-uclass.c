@@ -210,7 +210,7 @@ UCLASS_DRIVER(pci_ep) = {
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
 
-void pci_ep_init(void)
+int pci_ep_init(void)
 {
 	struct udevice *dev;
 
@@ -219,4 +219,6 @@ void pci_ep_init(void)
 	     uclass_next_device_check(&dev)) {
 		;
 	}
+
+	return 0;
 }
