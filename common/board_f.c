@@ -775,11 +775,12 @@ static int initf_dm(void)
 	bootstage_accum(BOOTSTAGE_ID_ACCUM_DM_F);
 	if (ret)
 		return ret;
-#endif
-#ifdef CONFIG_TIMER_EARLY
-	ret = dm_timer_init();
-	if (ret)
-		return ret;
+
+	if (IS_ENABLED(CONFIG_TIMER_EARLY)) {
+		ret = dm_timer_init();
+		if (ret)
+			return ret;
+	}
 #endif
 
 	return 0;
