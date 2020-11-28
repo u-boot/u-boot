@@ -342,6 +342,13 @@ config SYS_I2C_NEXELL
 	  have several I2C ports and all are provided, controlled by the
 	  device tree.
 
+config SYS_I2C_OCORES
+	bool "ocores I2C driver"
+	depends on DM_I2C
+	help
+	  Add support for ocores I2C controller. For details see
+	  https://opencores.org/projects/i2c
+
 config SYS_I2C_OMAP24XX
 	bool "TI OMAP2+ I2C driver"
 	depends on ARCH_OMAP2PLUS || ARCH_K3
