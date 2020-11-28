@@ -490,12 +490,6 @@ static int initr_malloc_bootparams(void)
 }
 #endif
 
-static int initr_jumptable(void)
-{
-	jumptable_init();
-	return 0;
-}
-
 #if defined(CONFIG_API)
 static int initr_api(void)
 {
@@ -757,7 +751,7 @@ static init_fnc_t init_sequence_r[] = {
 	pci_init,
 #endif
 	stdio_add_devices,
-	initr_jumptable,
+	jumptable_init,
 #ifdef CONFIG_API
 	initr_api,
 #endif
