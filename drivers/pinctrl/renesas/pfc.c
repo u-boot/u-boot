@@ -449,6 +449,30 @@ static const char *sh_pfc_pinctrl_get_group_name(struct udevice *dev,
 	return priv->pfc.info->groups[selector].name;
 }
 
+static int sh_pfc_pinctrl_get_pin_muxing(struct udevice *dev,
+					 unsigned int selector,
+					 char *buf, int size)
+{
+	struct sh_pfc_pinctrl_priv *priv = dev_get_priv(dev);
+	struct sh_pfc_pinctrl *pmx = &priv->pmx;
+	struct sh_pfc *pfc = &priv->pfc;
+	struct sh_pfc_pin_config *cfg;
+	const struct sh_pfc_pin *pin;
+	int idx;
+
+	pin = &priv->pfc.info->pins[selector];
+	if (!pin) {
+		snprintf(buf, size, "Unknown");
+		return -EINVAL;
+	}
+
+	idx = sh_pfc_get_pin_index(pfc, pin->pin);
+	cfg = &pmx->configs[idx];
+	snprintf(buf, size, "%s", cfg->name);
+
+	return 0;
+}
+
 static int sh_pfc_pinctrl_get_functions_count(struct udevice *dev)
 {
 	struct sh_pfc_pinctrl_priv *priv = dev_get_priv(dev);
@@ -815,6 +839,7 @@ static struct pinctrl_ops sh_pfc_pinctrl_ops = {
 	.get_pin_name		= sh_pfc_pinctrl_get_pin_name,
 	.get_groups_count	= sh_pfc_pinctrl_get_groups_count,
 	.get_group_name		= sh_pfc_pinctrl_get_group_name,
+	.get_pin_muxing		= sh_pfc_pinctrl_get_pin_muxing,
 	.get_functions_count	= sh_pfc_pinctrl_get_functions_count,
 	.get_function_name	= sh_pfc_pinctrl_get_function_name,
 
