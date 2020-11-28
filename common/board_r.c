@@ -282,15 +282,6 @@ static int initr_malloc(void)
 	return 0;
 }
 
-static int initr_console_record(void)
-{
-#if defined(CONFIG_CONSOLE_RECORD)
-	return console_record_init();
-#else
-	return 0;
-#endif
-}
-
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
 static int initr_noncached(void)
 {
@@ -713,7 +704,9 @@ static init_fnc_t init_sequence_r[] = {
 	initr_malloc,
 	log_init,
 	initr_bootstage,	/* Needs malloc() but has its own timer */
-	initr_console_record,
+#if defined(CONFIG_CONSOLE_RECORD)
+	console_record_init,
+#endif
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
 	initr_noncached,
 #endif
