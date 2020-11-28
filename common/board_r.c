@@ -490,15 +490,6 @@ static int initr_malloc_bootparams(void)
 }
 #endif
 
-#if defined(CONFIG_API)
-static int initr_api(void)
-{
-	/* Initialize API */
-	api_init();
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_CMD_NET
 static int initr_ethaddr(void)
 {
@@ -753,7 +744,7 @@ static init_fnc_t init_sequence_r[] = {
 	stdio_add_devices,
 	jumptable_init,
 #ifdef CONFIG_API
-	initr_api,
+	api_init,
 #endif
 	console_init_r,		/* fully init console as a device */
 #ifdef CONFIG_DISPLAY_BOARDINFO_LATE

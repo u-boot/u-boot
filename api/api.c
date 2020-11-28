@@ -642,7 +642,7 @@ int syscall(int call, int *retval, ...)
 	return 1;
 }
 
-void api_init(void)
+int api_init(void)
 {
 	struct api_signature *sig;
 
@@ -679,7 +679,7 @@ void api_init(void)
 	sig = malloc(sizeof(struct api_signature));
 	if (sig == NULL) {
 		printf("API: could not allocate memory for the signature!\n");
-		return;
+		return -ENOMEM;
 	}
 
 	env_set_hex("api_address", (unsigned long)sig);
@@ -691,6 +691,8 @@ void api_init(void)
 	sig->checksum = crc32(0, (unsigned char *)sig,
 			      sizeof(struct api_signature));
 	debugf("syscall entry: 0x%lX\n", (unsigned long)sig->syscall);
+
+	return 0;
 }
 
 void platform_set_mr(struct sys_info *si, unsigned long start, unsigned long size,
