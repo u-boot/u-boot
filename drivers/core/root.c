@@ -248,13 +248,12 @@ int dm_scan_fdt_dev(struct udevice *dev)
 				gd->flags & GD_FLG_RELOC ? false : true);
 }
 
-int dm_scan_fdt(const void *blob, bool pre_reloc_only)
+int dm_scan_fdt(bool pre_reloc_only)
 {
 	return dm_scan_fdt_node(gd->dm_root, ofnode_root(), pre_reloc_only);
 }
 
-static int dm_scan_fdt_ofnode_path(const void *blob, const char *path,
-				   bool pre_reloc_only)
+static int dm_scan_fdt_ofnode_path(const char *path, bool pre_reloc_only)
 {
 	ofnode node;
 
@@ -272,7 +271,7 @@ int dm_extended_scan_fdt(const void *blob, bool pre_reloc_only)
 		"/firmware"
 	};
 
-	ret = dm_scan_fdt(blob, pre_reloc_only);
+	ret = dm_scan_fdt(pre_reloc_only);
 	if (ret) {
 		debug("dm_scan_fdt() failed: %d\n", ret);
 		return ret;
@@ -280,7 +279,7 @@ int dm_extended_scan_fdt(const void *blob, bool pre_reloc_only)
 
 	/* Some nodes aren't devices themselves but may contain some */
 	for (i = 0; i < ARRAY_SIZE(nodes); i++) {
-		ret = dm_scan_fdt_ofnode_path(blob, nodes[i], pre_reloc_only);
+		ret = dm_scan_fdt_ofnode_path(nodes[i], pre_reloc_only);
 		if (ret) {
 			debug("dm_scan_fdt() scan for %s failed: %d\n",
 			      nodes[i], ret);

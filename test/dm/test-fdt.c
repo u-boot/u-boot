@@ -308,7 +308,7 @@ static int dm_test_fdt_pre_reloc(struct unit_test_state *uts)
 	struct uclass *uc;
 	int ret;
 
-	ret = dm_scan_fdt(gd->fdt_blob, true);
+	ret = dm_scan_fdt(true);
 	ut_assert(!ret);
 
 	ret = uclass_get(UCLASS_TEST_FDT, &uc);

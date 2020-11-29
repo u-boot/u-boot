@@ -486,7 +486,7 @@ static int dm_test_leak(struct unit_test_state *uts)
 		dm_leak_check_start(uts);
 
 		ut_assertok(dm_scan_platdata(false));
-		ut_assertok(dm_scan_fdt(gd->fdt_blob, false));
+		ut_assertok(dm_scan_fdt(false));
 
 		/* Scanning the uclass is enough to probe all the devices */
 		for (id = UCLASS_ROOT; id < UCLASS_COUNT; id++) {

@@ -213,7 +213,7 @@ int dm_test_main(const char *test_name)
 	ut_assertok(dm_init(CONFIG_IS_ENABLED(OF_LIVE)));
 	dm_scan_platdata(false);
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA))
-		dm_scan_fdt(gd->fdt_blob, false);
+		dm_scan_fdt(false);
 
 	return uts->fail_count ? CMD_RET_FAILURE : 0;
 }
