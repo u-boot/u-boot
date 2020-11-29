@@ -181,8 +181,8 @@ int ocelot_pinctrl_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = device_bind_offset(dev, &ocelot_gpio_driver, "ocelot-gpio", NULL,
-				 dev_of_offset(dev), NULL);
+	ret = device_bind(dev, &ocelot_gpio_driver, "ocelot-gpio", NULL,
+			  dev_ofnode(dev), NULL);
 
 	return ret;
 }

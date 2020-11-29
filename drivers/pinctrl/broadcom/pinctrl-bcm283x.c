@@ -125,9 +125,8 @@ int bcm283x_pinctl_probe(struct udevice *dev)
 	struct udevice *pdev;
 
 	/* Create GPIO device as well */
-	ret = device_bind_offset(dev, lists_driver_lookup_name("gpio_bcm2835"),
-				 "gpio_bcm2835", NULL, dev_of_offset(dev),
-				 &pdev);
+	ret = device_bind(dev, lists_driver_lookup_name("gpio_bcm2835"),
+			  "gpio_bcm2835", NULL, dev_ofnode(dev), &pdev);
 	if (ret) {
 		/*
 		 * While we really want the pinctrl driver to work to make

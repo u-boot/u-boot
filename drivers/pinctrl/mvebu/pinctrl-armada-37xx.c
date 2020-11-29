@@ -547,13 +547,14 @@ static int armada_37xx_gpiochip_register(struct udevice *parent,
 	int subnode;
 	char *name;
 
-	/* Lookup GPIO driver */
+	/* FIXME: Should not need to lookup GPIO uclass */
 	drv = lists_uclass_lookup(UCLASS_GPIO);
 	if (!drv) {
 		puts("Cannot find GPIO driver\n");
 		return -ENOENT;
 	}
 
+	/* FIXME: Use livtree and check the result of device_bind() below */
 	fdt_for_each_subnode(subnode, blob, node) {
 		if (fdtdec_get_bool(blob, subnode, "gpio-controller")) {
 			ret = 0;
@@ -567,9 +568,8 @@ static int armada_37xx_gpiochip_register(struct udevice *parent,
 	sprintf(name, "armada-37xx-gpio");
 
 	/* Create child device UCLASS_GPIO and bind it */
-	device_bind_offset(parent, &armada_37xx_gpio_driver, name, NULL,
-			   subnode, &dev);
-	dev_set_of_offset(dev, subnode);
+	device_bind(parent, &armada_37xx_gpio_driver, name, NULL,
+		    offset_to_ofnode(subnode), &dev);
 
 	return 0;
 }

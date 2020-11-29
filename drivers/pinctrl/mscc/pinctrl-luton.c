@@ -165,8 +165,8 @@ int luton_pinctrl_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = device_bind_offset(dev, &luton_gpio_driver, "luton-gpio", NULL,
-				 dev_of_offset(dev), NULL);
+	ret = device_bind(dev, &luton_gpio_driver, "luton-gpio", NULL,
+			  dev_ofnode(dev), NULL);
 
 	return 0;
 }

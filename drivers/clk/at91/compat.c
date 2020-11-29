@@ -62,34 +62,30 @@ static int at91_pmc_core_probe(struct udevice *dev)
  */
 int at91_clk_sub_device_bind(struct udevice *dev, const char *drv_name)
 {
-	const void *fdt = gd->fdt_blob;
-	int offset = dev_of_offset(dev);
+	ofnode parent = dev_ofnode(dev);
+	ofnode node;
 	bool pre_reloc_only = !(gd->flags & GD_FLG_RELOC);
 	const char *name;
 	int ret;
 
-	for (offset = fdt_first_subnode(fdt, offset);
-	     offset > 0;
-	     offset = fdt_next_subnode(fdt, offset)) {
-		if (pre_reloc_only &&
-		    !ofnode_pre_reloc(offset_to_ofnode(offset)))
+	ofnode_for_each_subnode(node, parent) {
+		if (pre_reloc_only && !ofnode_pre_reloc(node))
 			continue;
 		/*
 		 * If this node has "compatible" property, this is not
 		 * a clock sub-node, but a normal device. skip.
 		 */
-		fdt_get_property(fdt, offset, "compatible", &ret);
-		if (ret >= 0)
+		if (ofnode_read_prop(node, "compatible", NULL))
 			continue;
 
 		if (ret != -FDT_ERR_NOTFOUND)
 			return ret;
 
-		name = fdt_get_name(fdt, offset, NULL);
+		name = ofnode_get_name(node);
 		if (!name)
 			return -EINVAL;
-		ret = device_bind_driver_to_node(dev, drv_name, name,
-					offset_to_ofnode(offset), NULL);
+		ret = device_bind_driver_to_node(dev, drv_name, name, node,
+						 NULL);
 		if (ret)
 			return ret;
 	}

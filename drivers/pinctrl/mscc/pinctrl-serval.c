@@ -209,8 +209,8 @@ static int serval_pinctrl_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = device_bind_offset(dev, &serval_gpio_driver, "serval-gpio", NULL,
-				 dev_of_offset(dev), NULL);
+	ret = device_bind(dev, &serval_gpio_driver, "serval-gpio", NULL,
+			  dev_ofnode(dev), NULL);
 
 	if (ret)
 		return ret;

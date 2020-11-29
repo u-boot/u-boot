@@ -5477,8 +5477,8 @@ static int mvpp2_base_bind(struct udevice *parent)
 		sprintf(name, "mvpp2-%d", id);
 
 		/* Create child device UCLASS_ETH and bind it */
-		device_bind_offset(parent, &mvpp2_driver, name, plat, subnode, &dev);
-		dev_set_of_offset(dev, subnode);
+		device_bind(parent, &mvpp2_driver, name, plat,
+			    offset_to_ofnode(subnode), &dev);
 	}
 
 	return 0;

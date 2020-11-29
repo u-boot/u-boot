@@ -157,8 +157,8 @@ static int gpio_mediatek_bind(struct udevice *parent)
 		plat->gpio_count = MTK_BANK_WIDTH;
 		plat->bank = bank;
 
-		ret = device_bind_offset(parent, parent->driver,
-					 plat->bank_name, plat, -1, &dev);
+		ret = device_bind(parent, parent->driver, plat->bank_name, plat,
+				  ofnode_null(), &dev);
 		if (ret)
 			return ret;
 
