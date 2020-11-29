@@ -46,6 +46,37 @@
 #define dbg_ep0(lvl,fmt,args...)
 #endif
 
+__maybe_unused static char *usbd_device_states[] = {
+	"STATE_INIT",
+	"STATE_CREATED",
+	"STATE_ATTACHED",
+	"STATE_POWERED",
+	"STATE_DEFAULT",
+	"STATE_ADDRESSED",
+	"STATE_CONFIGURED",
+	"STATE_UNKNOWN",
+};
+
+#define USBD_DEVICE_STATE(x) (((unsigned int)x <= STATE_UNKNOWN) ? usbd_device_states[x] : "UNKNOWN")
+
+__maybe_unused static char *usbd_device_requests[] = {
+	"GET STATUS",		/* 0 */
+	"CLEAR FEATURE",	/* 1 */
+	"RESERVED",		/* 2 */
+	"SET FEATURE",		/* 3 */
+	"RESERVED",		/* 4 */
+	"SET ADDRESS",		/* 5 */
+	"GET DESCRIPTOR",	/* 6 */
+	"SET DESCRIPTOR",	/* 7 */
+	"GET CONFIGURATION",	/* 8 */
+	"SET CONFIGURATION",	/* 9 */
+	"GET INTERFACE",	/* 10 */
+	"SET INTERFACE",	/* 11 */
+	"SYNC FRAME",		/* 12 */
+};
+
+#define USBD_DEVICE_REQUESTS(x) (((unsigned int)x <= USB_REQ_SYNCH_FRAME) ? usbd_device_requests[x] : "UNKNOWN")
+
 /* EP0 Configuration Set ********************************************************************* */
 
 
