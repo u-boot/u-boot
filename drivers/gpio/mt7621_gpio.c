@@ -158,11 +158,10 @@ static int gpio_mediatek_bind(struct udevice *parent)
 		plat->bank = bank;
 
 		ret = device_bind(parent, parent->driver, plat->bank_name, plat,
-				  ofnode_null(), &dev);
+				  node, &dev);
 		if (ret)
 			return ret;
 
-		dev->node = node;
 		bank++;
 	}
 

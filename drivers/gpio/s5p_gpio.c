@@ -333,11 +333,9 @@ static int gpio_exynos_bind(struct udevice *parent)
 
 		plat->bank_name = fdt_get_name(blob, node, NULL);
 		ret = device_bind(parent, parent->driver, plat->bank_name, plat,
-				  ofnode_null(), &dev);
+				  offset_to_ofnode(node), &dev);
 		if (ret)
 			return ret;
-
-		dev_set_of_offset(dev, node);
 
 		reg = dev_read_addr(dev);
 		if (reg != FDT_ADDR_T_NONE)

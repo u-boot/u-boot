@@ -191,10 +191,9 @@ static int tegra186_gpio_bind(struct udevice *parent)
 		plat->regs = &(regs[ctlr_data->ports[port].offset / 4]);
 
 		ret = device_bind(parent, parent->driver, plat->name, plat,
-				  ofnode_null(), &dev);
+				  dev_ofnode(parent), &dev);
 		if (ret)
 			return ret;
-		dev_set_of_offset(dev, dev_of_offset(parent));
 	}
 
 	return 0;

@@ -422,7 +422,6 @@ int meson_pinctrl_probe(struct udevice *dev)
 	/* Create child device UCLASS_GPIO and bind it */
 	device_bind(dev, priv->data->gpio_driver, name, NULL,
 		    offset_to_ofnode(gpio), &gpio_dev);
-	dev_set_of_offset(gpio_dev, gpio);
 
 	return 0;
 }
