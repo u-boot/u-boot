@@ -345,6 +345,17 @@ const char *ofnode_read_string(ofnode node, const char *propname);
  */
 int ofnode_read_u32_array(ofnode node, const char *propname,
 			  u32 *out_values, size_t sz);
+/**
+ * ofnode_is_enabled() - Checks whether a node is enabled.
+ * This looks for a 'status' property. If this exists, then returns true if
+ * the status is 'okay' and false otherwise. If there is no status property,
+ * it returns true on the assumption that anything mentioned should be enabled
+ * by default.
+ *
+ * @node: node to examine
+ * @return false (not enabled) or true (enabled)
+ */
+bool ofnode_is_enabled(ofnode node);
 
 /**
  * ofnode_read_bool() - read a boolean value from a property
