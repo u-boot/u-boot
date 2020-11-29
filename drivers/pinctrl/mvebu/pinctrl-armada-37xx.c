@@ -567,8 +567,8 @@ static int armada_37xx_gpiochip_register(struct udevice *parent,
 	sprintf(name, "armada-37xx-gpio");
 
 	/* Create child device UCLASS_GPIO and bind it */
-	device_bind(parent, &armada_37xx_gpio_driver, name, NULL, subnode,
-		    &dev);
+	device_bind_offset(parent, &armada_37xx_gpio_driver, name, NULL,
+			   subnode, &dev);
 	dev_set_of_offset(dev, subnode);
 
 	return 0;

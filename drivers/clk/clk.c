@@ -36,7 +36,7 @@ int clk_register(struct clk *clk, const char *drv_name,
 		return -ENOENT;
 	}
 
-	ret = device_bind(parent, drv, name, NULL, -1, &clk->dev);
+	ret = device_bind_offset(parent, drv, name, NULL, -1, &clk->dev);
 	if (ret) {
 		printf("%s: CLK: %s driver bind error [%d]!\n", __func__, name,
 		       ret);

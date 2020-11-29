@@ -48,7 +48,7 @@
  * If regulator-name property is not provided, node name will be chosen.
  *
  * Regulator bind:
- * For each regulator device, the device_bind() should be called with passed
+ * For each regulator device, the device_bind_offset() should be called with passed
  * device tree offset. This is required for this uclass's '.post_bind' method,
  * which does the scan on the device node, for the 'regulator-name' constraint.
  * If the parent is not a PMIC device, and the child is not bind by function:

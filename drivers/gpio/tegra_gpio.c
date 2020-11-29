@@ -360,8 +360,9 @@ static int gpio_tegra_bind(struct udevice *parent)
 			plat->base_gpio = TEGRA_GPIOS_PER_PORT * base_port;
 			plat->port_name = gpio_port_name(base_port);
 
-			ret = device_bind(parent, parent->driver,
-					  plat->port_name, plat, -1, &dev);
+			ret = device_bind_offset(parent, parent->driver,
+						 plat->port_name, plat, -1,
+						 &dev);
 			if (ret)
 				return ret;
 			dev_set_of_offset(dev, dev_of_offset(parent));

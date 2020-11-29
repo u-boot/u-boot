@@ -305,8 +305,8 @@ static int gpio_sunxi_bind(struct udevice *parent)
 		plat->bank_name = gpio_bank_name(soc_data->start + bank);
 		plat->gpio_count = SUNXI_GPIOS_PER_BANK;
 
-		ret = device_bind(parent, parent->driver,
-					plat->bank_name, plat, -1, &dev);
+		ret = device_bind_offset(parent, parent->driver,
+					 plat->bank_name, plat, -1, &dev);
 		if (ret)
 			return ret;
 		dev_set_of_offset(dev, dev_of_offset(parent));

@@ -299,8 +299,8 @@ static int jr2_pinctrl_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = device_bind(dev, &jr2_gpio_driver, "jr2-gpio", NULL,
-			  dev_of_offset(dev), NULL);
+	ret = device_bind_offset(dev, &jr2_gpio_driver, "jr2-gpio", NULL,
+				 dev_of_offset(dev), NULL);
 
 	if (ret)
 		return ret;

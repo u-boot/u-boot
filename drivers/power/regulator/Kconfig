@@ -11,7 +11,7 @@ config DM_REGULATOR
 	- 'include/power/regulator.h'
 	- 'drivers/power/pmic/pmic-uclass.c'
 	- 'drivers/power/pmic/regulator-uclass.c'
-	It's important to call the device_bind() with the proper node offset,
+	It's important to call the device_bind_offset() with the proper node offset,
 	when binding the regulator devices. The pmic_bind_childs() can be used
 	for this purpose if PMIC I/O driver is implemented or dm_scan_fdt_dev()
 	otherwise. Detailed information can be found in the header file.

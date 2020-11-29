@@ -332,8 +332,8 @@ static int gpio_exynos_bind(struct udevice *parent)
 			return -ENOMEM;
 
 		plat->bank_name = fdt_get_name(blob, node, NULL);
-		ret = device_bind(parent, parent->driver,
-				  plat->bank_name, plat, -1, &dev);
+		ret = device_bind_offset(parent, parent->driver,
+					 plat->bank_name, plat, -1, &dev);
 		if (ret)
 			return ret;
 
