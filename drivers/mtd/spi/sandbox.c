@@ -538,7 +538,7 @@ int sandbox_sf_bind_emul(struct sandbox_state *state, int busnum, int cs,
 	str = strdup(name);
 	if (!str)
 		return -ENOMEM;
-	ret = device_bind_ofnode(bus, drv, str, NULL, node, &emul);
+	ret = device_bind(bus, drv, str, NULL, node, &emul);
 	if (ret) {
 		free(str);
 		printf("Cannot create emul device for spec '%s' (err=%d)\n",

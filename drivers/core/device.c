@@ -240,9 +240,9 @@ int device_bind_offset(struct udevice *parent, const struct driver *drv,
 				  offset_to_ofnode(of_offset), 0, devp);
 }
 
-int device_bind_ofnode(struct udevice *parent, const struct driver *drv,
-		       const char *name, void *platdata, ofnode node,
-		       struct udevice **devp)
+int device_bind(struct udevice *parent, const struct driver *drv,
+		const char *name, void *platdata, ofnode node,
+		struct udevice **devp)
 {
 	return device_bind_common(parent, drv, name, platdata, 0, node, 0,
 				  devp);

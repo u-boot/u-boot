@@ -40,9 +40,9 @@ int device_bind_offset(struct udevice *parent, const struct driver *drv,
 		       const char *name, void *platdata, int of_offset,
 		       struct udevice **devp);
 
-int device_bind_ofnode(struct udevice *parent, const struct driver *drv,
-		       const char *name, void *platdata, ofnode node,
-		       struct udevice **devp);
+int device_bind(struct udevice *parent, const struct driver *drv,
+		const char *name, void *platdata, ofnode node,
+		struct udevice **devp);
 
 /**
  * device_bind_with_driver_data() - Create a device and bind it to a driver

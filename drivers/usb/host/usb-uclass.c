@@ -581,8 +581,8 @@ static int usb_find_and_bind_driver(struct udevice *parent,
 			 * find another driver. For now this doesn't seem
 			 * necesssary, so just bind the first match.
 			 */
-			ret = device_bind_ofnode(parent, drv, drv->name, NULL,
-						 node, &dev);
+			ret = device_bind(parent, drv, drv->name, NULL, node,
+					  &dev);
 			if (ret)
 				goto error;
 			debug("%s: Match found: %s\n", __func__, drv->name);

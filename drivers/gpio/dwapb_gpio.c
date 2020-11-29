@@ -202,8 +202,8 @@ static int gpio_dwapb_bind(struct udevice *dev)
 			}
 		}
 
-		ret = device_bind_ofnode(dev, dev->driver, plat->name,
-					 plat, node, &subdev);
+		ret = device_bind(dev, dev->driver, plat->name, plat, node,
+				  &subdev);
 		if (ret)
 			return ret;
 

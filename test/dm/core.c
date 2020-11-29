@@ -1052,8 +1052,8 @@ static int dm_test_inactive_child(struct unit_test_state *uts)
 	 */
 	ut_asserteq(-ENODEV, device_find_first_inactive_child(parent,
 							UCLASS_TEST, &dev1));
-	ut_assertok(device_bind_ofnode(parent, DM_GET_DRIVER(test_drv),
-				       "test_child", 0, ofnode_null(), &dev1));
+	ut_assertok(device_bind(parent, DM_GET_DRIVER(test_drv),
+				"test_child", 0, ofnode_null(), &dev1));
 
 	ut_assertok(device_find_first_inactive_child(parent, UCLASS_TEST,
 						     &dev2));

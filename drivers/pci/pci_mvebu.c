@@ -501,8 +501,8 @@ static int mvebu_pcie_bind(struct udevice *parent)
 			return -ENOMEM;
 
 		/* Create child device UCLASS_PCI and bind it */
-		device_bind_ofnode(parent, &pcie_mvebu_drv, pcie->name, pcie,
-				   subnode, &dev);
+		device_bind(parent, &pcie_mvebu_drv, pcie->name, pcie, subnode,
+			    &dev);
 	}
 
 	return 0;

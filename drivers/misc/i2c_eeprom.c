@@ -131,8 +131,8 @@ static int i2c_eeprom_std_bind(struct udevice *dev)
 		if (!name)
 			continue;
 
-		device_bind_ofnode(dev, DM_GET_DRIVER(i2c_eeprom_partition),
-				   name, NULL, partition, NULL);
+		device_bind(dev, DM_GET_DRIVER(i2c_eeprom_partition), name,
+			    NULL, partition, NULL);
 	}
 
 	return 0;
