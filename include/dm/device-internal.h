@@ -16,7 +16,7 @@ struct device_node;
 struct udevice;
 
 /**
- * device_bind_offset() - Create a device and bind it to a driver
+ * device_bind() - Create a device and bind it to a driver
  *
  * Called to set up a new device attached to a driver. The device will either
  * have platdata, or a device tree node which can be used to create the
@@ -31,15 +31,11 @@ struct udevice;
  * @platdata: Pointer to data for this device - the structure is device-
  * specific but may include the device's I/O address, etc.. This is NULL for
  * devices which use device tree.
- * @of_offset: Offset of device tree node for this device. This is -1 for
- * devices which don't use device tree.
+ * @ofnode: Devicetree node for this device. This is ofnode_null() for
+ * devices which don't use devicetree or don't have a node.
  * @devp: if non-NULL, returns a pointer to the bound device
  * @return 0 if OK, -ve on error
  */
-int device_bind_offset(struct udevice *parent, const struct driver *drv,
-		const char *name, void *platdata, int of_offset,
-		struct udevice **devp);
-
 int device_bind(struct udevice *parent, const struct driver *drv,
 		const char *name, void *platdata, ofnode node,
 		struct udevice **devp);
