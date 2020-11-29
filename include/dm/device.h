@@ -177,11 +177,6 @@ static inline int dev_of_offset(const struct udevice *dev)
 	return ofnode_to_offset(dev->node);
 }
 
-static inline void dev_set_of_offset(struct udevice *dev, int of_offset)
-{
-	dev->node = offset_to_ofnode(of_offset);
-}
-
 static inline bool dev_has_of_node(struct udevice *dev)
 {
 	return ofnode_valid(dev->node);
