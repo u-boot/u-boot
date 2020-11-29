@@ -218,6 +218,18 @@ static inline ofnode ofnode_null(void)
 	return node;
 }
 
+static inline ofnode ofnode_root(void)
+{
+	ofnode node;
+
+	if (of_live_active())
+		node.np = gd_of_root();
+	else
+		node.of_offset = 0;
+
+	return node;
+}
+
 /**
  * ofnode_read_u32() - Read a 32-bit integer from a property
  *

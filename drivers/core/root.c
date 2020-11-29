@@ -147,12 +147,8 @@ int dm_init(bool of_live)
 	ret = device_bind_by_name(NULL, false, &root_info, &DM_ROOT_NON_CONST);
 	if (ret)
 		return ret;
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-	if (CONFIG_IS_ENABLED(OF_LIVE) && of_live)
-		DM_ROOT_NON_CONST->node = np_to_ofnode(gd_of_root());
-	else
-		DM_ROOT_NON_CONST->node = offset_to_ofnode(0);
-#endif
+	if (CONFIG_IS_ENABLED(OF_CONTROL))
+		DM_ROOT_NON_CONST->node = ofnode_root();
 	ret = device_probe(DM_ROOT_NON_CONST);
 	if (ret)
 		return ret;
