@@ -70,10 +70,12 @@
 
 /* USB device configuration */
 #define CONFIG_USB_DEVICE
+#define CONFIG_USB_TTY
 #define CONFIG_USBD_VENDORID		0x0421
-#define CONFIG_USBD_PRODUCTID		0x01c8
+#define CONFIG_USBD_PRODUCTID_CDCACM	0x01c8
+#define CONFIG_USBD_PRODUCTID_GSERIAL	0x01c8
 #define CONFIG_USBD_MANUFACTURER	"Nokia"
-#define CONFIG_USBD_PRODUCT_NAME	"N900"
+#define CONFIG_USBD_PRODUCT_NAME	"N900 (U-Boot)"
 
 #define GPIO_SLIDE			71
 
@@ -108,15 +110,9 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 /* Environment information */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"usbtty=cdc_acm\0" \
-	"stdin=serial,vga\0" \
-	"stdout=serial,vga\0" \
-	"stderr=serial,vga\0" \
-	"setcon=setenv stdin ${con};" \
-		"setenv stdout ${con};" \
-		"setenv stderr ${con}\0" \
-	"sercon=setenv con serial; run setcon\0" \
-	"usbcon=setenv con usbtty; run setcon\0" \
-	"vgacon=setenv con vga; run setcon\0" \
+	"stdin=usbtty,serial,vga\0" \
+	"stdout=usbtty,serial,vga\0" \
+	"stderr=usbtty,serial,vga\0" \
 	"slide=gpio input " __stringify(GPIO_SLIDE) "\0" \
 	"switchmmc=mmc dev ${mmcnum}\0" \
 	"kernaddr=0x82008000\0" \
@@ -198,9 +194,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 #define CONFIG_POSTBOOTMENU \
 	"echo;" \
 	"echo Extra commands:;" \
-	"echo run sercon - Use serial port for control.;" \
-	"echo run usbcon - Use usbtty for control.;" \
-	"echo run vgacon - Use framebuffer/keyboard.;" \
 	"echo run sdboot - Boot from SD card slot.;" \
 	"echo run emmcboot - Boot internal eMMC memory.;" \
 	"echo run attachboot - Boot attached kernel image.;" \
