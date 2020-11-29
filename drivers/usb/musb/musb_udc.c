@@ -629,7 +629,7 @@ static void musb_peri_ep0(void)
 static void musb_peri_rx_ep(unsigned int ep)
 {
 	u16 peri_rxcount;
-	u8 peri_rxcsr = readw(&musbr->ep[ep].epN.rxcsr);
+	u16 peri_rxcsr = readw(&musbr->ep[ep].epN.rxcsr);
 
 	if (!(peri_rxcsr & MUSB_RXCSR_RXPKTRDY)) {
 		if (debug_level > 0)
