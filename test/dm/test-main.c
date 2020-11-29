@@ -94,7 +94,7 @@ static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 		ut_assertok(do_autoprobe(uts));
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA) &&
 	    (test->flags & UT_TESTF_SCAN_FDT))
-		ut_assertok(dm_extended_scan_fdt(gd->fdt_blob, false));
+		ut_assertok(dm_extended_scan(false));
 
 	/*
 	 * Silence the console and rely on console recording to get

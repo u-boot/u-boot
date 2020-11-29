@@ -262,7 +262,7 @@ static int dm_scan_fdt_ofnode_path(const char *path, bool pre_reloc_only)
 	return dm_scan_fdt_node(gd->dm_root, node, pre_reloc_only);
 }
 
-int dm_extended_scan_fdt(const void *blob, bool pre_reloc_only)
+int dm_extended_scan(bool pre_reloc_only)
 {
 	int ret, i;
 	const char * const nodes[] = {
@@ -315,9 +315,9 @@ int dm_init_and_scan(bool pre_reloc_only)
 	}
 
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
-		ret = dm_extended_scan_fdt(gd->fdt_blob, pre_reloc_only);
+		ret = dm_extended_scan(pre_reloc_only);
 		if (ret) {
-			debug("dm_extended_scan_dt() failed: %d\n", ret);
+			debug("dm_extended_scan() failed: %d\n", ret);
 			return ret;
 		}
 	}
