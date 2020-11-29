@@ -260,9 +260,8 @@ fill_dir_slot(fat_itr *itr, const char *l_name)
 			flush_dir(itr);
 
 		/* allocate a cluster for more entries */
-		if (!fat_itr_next(itr))
-			if (!itr->dent &&
-			    (!itr->is_root || itr->fsdata->fatsize == 32) &&
+		if (!fat_itr_next(itr) && !itr->dent)
+			if ((itr->is_root && itr->fsdata->fatsize != 32) ||
 			    new_dir_table(itr))
 				return -1;
 	}
@@ -1192,7 +1191,8 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 		}
 
 		/* Set short name entry */
-		fill_dentry(itr->fsdata, itr->dent, filename, 0, size, 0x20);
+		fill_dentry(itr->fsdata, itr->dent, filename, 0, size,
+			    ATTR_ARCH);
 
 		retdent = itr->dent;
 	}

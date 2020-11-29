@@ -926,8 +926,7 @@ static int fat_itr_next(fat_itr *itr)
 		if (!dent)
 			return 0;
 
-		if (dent->name[0] == DELETED_FLAG ||
-		    dent->name[0] == aRING)
+		if (dent->name[0] == DELETED_FLAG)
 			continue;
 
 		if (dent->attr & ATTR_VOLUME) {
