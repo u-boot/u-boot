@@ -70,7 +70,9 @@ struct fsl_esdhc {
 	uint	sdtimingctl;	/* SD timing control register */
 	char    reserved8[20];	/* reserved */
 	uint	dllcfg0;	/* DLL config 0 register */
-	char    reserved9[680];	/* reserved */
+	char	reserved9[12];	/* reserved */
+	uint	dllstat0;	/* DLL status 0 register */
+	char    reserved10[664];/* reserved */
 	uint    esdhcctl;	/* eSDHC control register */
 };
 
@@ -617,9 +619,11 @@ static void esdhc_exit_hs400(struct fsl_esdhc_priv *priv)
 	esdhc_tuning_block_enable(priv, false);
 }
 
-static void esdhc_set_timing(struct fsl_esdhc_priv *priv, enum bus_mode mode)
+static int esdhc_set_timing(struct fsl_esdhc_priv *priv, enum bus_mode mode)
 {
 	struct fsl_esdhc *regs = priv->esdhc_regs;
+	ulong start;
+	u32 val;
 
 	/* Exit HS400 mode before setting any other mode */
 	if (esdhc_read32(&regs->tbctl) & HS400_MODE &&
@@ -640,17 +644,33 @@ static void esdhc_set_timing(struct fsl_esdhc_priv *priv, enum bus_mode mode)
 			esdhc_setbits32(&regs->dllcfg0, DLL_FREQ_SEL);
 
 		esdhc_setbits32(&regs->dllcfg0, DLL_ENABLE);
+
+		esdhc_setbits32(&regs->dllcfg0, DLL_RESET);
+		udelay(1);
+		esdhc_clrbits32(&regs->dllcfg0, DLL_RESET);
+
+		start = get_timer(0);
+		val = DLL_STS_SLV_LOCK;
+		while (!(esdhc_read32(&regs->dllstat0) & val)) {
+			if (get_timer(start) > 1000) {
+				printf("fsl_esdhc: delay chain lock timeout\n");
+				return -ETIMEDOUT;
+			}
+		}
+
 		esdhc_setbits32(&regs->tbctl, HS400_WNDW_ADJUST);
 
 		esdhc_clock_control(priv, false);
 		esdhc_flush_async_fifo(priv);
 	}
 	esdhc_clock_control(priv, true);
+	return 0;
 }
 
 static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 {
 	struct fsl_esdhc *regs = priv->esdhc_regs;
+	int ret;
 
 	if (priv->is_sdhc_per_clk) {
 		/* Select to use peripheral clock */
@@ -667,7 +687,9 @@ static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 		set_sysctl(priv, mmc, mmc->clock);
 
 	/* Set timing */
-	esdhc_set_timing(priv, mmc->selected_mode);
+	ret = esdhc_set_timing(priv, mmc->selected_mode);
+	if (ret)
+		return ret;
 
 	/* Set the bus width */
 	esdhc_clrbits32(&regs->proctl, PROCTL_DTW_4 | PROCTL_DTW_8);
@@ -715,7 +737,7 @@ static int esdhc_init_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 	esdhc_setbits32(&regs->sysctl, SYSCTL_HCKEN | SYSCTL_IPGEN);
 
 	/* Set the initial clock speed */
-	mmc_set_clock(mmc, 400000, MMC_CLK_ENABLE);
+	set_sysctl(priv, mmc, 400000);
 
 	/* Disable the BRR and BWR bits in IRQSTAT */
 	esdhc_clrbits32(&regs->irqstaten, IRQSTATEN_BRR | IRQSTATEN_BWR);
