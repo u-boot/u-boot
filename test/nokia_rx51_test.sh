@@ -150,6 +150,15 @@ fakeroot sh -c '
 '
 /usr/sbin/ubinize -o ubi.img -p 128KiB -m 2048 -s 512 ubi.ini
 
+# Generate bootmenu for U-Boot serial console testing
+cat > bootmenu_uboot << EOF
+setenv bootmenu_0 'Serial console test=echo; echo "Testing serial console"; echo; echo "Successfully booted"; echo; poweroff';
+setenv bootmenu_1;
+setenv bootmenu_delay 1;
+setenv bootdelay 1;
+EOF
+./mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n bootmenu_uboot -d bootmenu_uboot bootmenu_uboot.scr
+
 # Generate bootmenu for eMMC booting
 cat > bootmenu_emmc << EOF
 setenv bootmenu_0 'uImage-2.6.28-omap1 from eMMC=setenv mmcnum 1; setenv mmcpart 1; setenv mmctype fat; setenv bootargs; setenv setup_omap_atag 1; setenv mmckernfile uImage-2.6.28-omap1; run trymmckernboot';
@@ -177,6 +186,11 @@ dd if=kernel_2.6.28/boot/zImage-2.6.28-20103103+0m5.fiasco of=zImage-2.6.28-omap
 cp u-boot.bin combined_hack.bin
 dd if=uImage-2.6.28-omap1 of=combined_hack.bin bs=1024 seek=$((2048-2))
 
+# Generate FAT32 eMMC image for U-Boot serial console testing
+truncate -s 50MiB emmc_uboot.img
+mformat -m 0xf8 -F -h 4 -s 16 -c 1 -t $((50*1024*1024/(4*16*512))) :: -i emmc_uboot.img
+mcopy bootmenu_uboot.scr ::/bootmenu.scr -i emmc_uboot.img
+
 # Generate FAT32 eMMC image for eMMC booting
 truncate -s 50MiB emmc_emmc.img
 mformat -m 0xf8 -F -h 4 -s 16 -c 1 -t $((50*1024*1024/(4*16*512))) :: -i emmc_emmc.img
@@ -187,6 +201,10 @@ mcopy bootmenu_emmc.scr ::/bootmenu.scr -i emmc_emmc.img
 truncate -s 50MiB emmc_nand.img
 mformat -m 0xf8 -F -h 4 -s 16 -c 1 -t $((50*1024*1024/(4*16*512))) :: -i emmc_nand.img
 mcopy bootmenu_nand.scr ::/bootmenu.scr -i emmc_nand.img
+
+# Generate MTD image for U-Boot serial console testing
+rm -f mtd_uboot.img
+./qflasher -v -x xloader-qemu.bin -s secondary-qemu.bin -k u-boot.bin -m rx51 -o mtd_uboot.img
 
 # Generate MTD image for RAM booting from bootloader nolo images, compiled image and rootfs image
 rm -f mtd_ram.img
@@ -207,6 +225,18 @@ echo "======================================================"
 echo "========== Running test images in n900 qemu =========="
 echo "======================================================"
 echo
+
+# Run MTD image in qemu and wait for 300s if U-Boot prints testing string to serial console and poweroff
+rm -f qemu_uboot.log
+./qemu-system-arm -M n900 -mtdblock mtd_uboot.img -sd emmc_uboot.img -serial /dev/stdout -display none > qemu_uboot.log &
+qemu_pid=$!
+tail -F qemu_uboot.log &
+tail_pid=$!
+sleep 300 &
+sleep_pid=$!
+wait -n $sleep_pid $qemu_pid || true
+kill -9 $tail_pid $sleep_pid $qemu_pid 2>/dev/null || true
+wait || true
 
 # Run MTD image in qemu and wait for 300s if kernel from RAM is correctly booted
 rm -f qemu_ram.log
@@ -250,13 +280,14 @@ echo "========== Results =========="
 echo "============================="
 echo
 
+if grep -q 'Successfully booted' qemu_uboot.log; then echo "U-Boot serial console is working"; else echo "U-Boot serial console test failed"; fi
 if grep -q 'Successfully booted' qemu_ram.log; then echo "Kernel was successfully booted from RAM"; else echo "Failed to boot kernel from RAM"; fi
 if grep -q 'Successfully booted' qemu_emmc.log; then echo "Kernel was successfully booted from eMMC"; else echo "Failed to boot kernel from eMMC"; fi
 if grep -q 'Successfully booted' qemu_nand.log; then echo "Kernel was successfully booted from OneNAND"; else echo "Failed to boot kernel from OneNAND"; fi
 
 echo
 
-if grep -q 'Successfully booted' qemu_ram.log && grep -q 'Successfully booted' qemu_emmc.log && grep -q 'Successfully booted' qemu_nand.log; then
+if grep -q 'Successfully booted' qemu_uboot.log && grep -q 'Successfully booted' qemu_ram.log && grep -q 'Successfully booted' qemu_emmc.log && grep -q 'Successfully booted' qemu_nand.log; then
 	echo "All tests passed"
 	exit 0
 else
