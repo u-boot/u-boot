@@ -816,6 +816,8 @@ void efi_memcpy_runtime(void *dest, const void *src, size_t n);
 /* commonly used helper function */
 u16 *efi_create_indexed_name(u16 *buffer, const char *name, unsigned int index);
 
+extern const struct efi_firmware_management_protocol efi_fmp_fit;
+
 /* Capsule update */
 efi_status_t EFIAPI efi_update_capsule(
 		struct efi_capsule_header **capsule_header_array,
