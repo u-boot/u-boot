@@ -16,6 +16,9 @@
 #if (CONFIG_SYS_BOARD_VERSION == 5)
 #define CONFIG_MXC_UART_BASE	UART2_BASE
 #define CONSOLE_DEV	"ttymxc1"
+#elif (CONFIG_SYS_BOARD_VERSION == 6)
+#define CONFIG_MXC_UART_BASE	UART1_BASE
+#define CONSOLE_DEV	"ttymxc0"
 #endif
 
 #define CONFIG_FEC_XCV_TYPE		RGMII
@@ -94,6 +97,12 @@
 	"dead=while true; do; " \
 		"led led_red on; sleep 1;" \
 		"led led_red off; sleep 1;" \
+	"done\0"
+#elif (CONFIG_SYS_BOARD_VERSION == 6)
+#define CONFIG_EXTRA_ENV_BOARD_SETTINGS \
+	"dead=while true; do; " \
+		"led led_red on; led led_red2 on; sleep 1;" \
+		"led led_red off; led led_red2 off;; sleep 1;" \
 	"done\0"
 #endif
 

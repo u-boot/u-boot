@@ -139,6 +139,17 @@ config TARGET_ARISTAINETOS2C
 	imply CMD_SATA
 	imply CMD_DM
 
+config TARGET_ARISTAINETOS2CCSLB
+	bool "Support aristainetos2-revC CSL"
+	depends on MX6DL
+	select BOARD_LATE_INIT
+	select SYS_I2C_MXC
+	select MXC_UART
+	select FEC_MXC
+	select DM
+	imply CMD_SATA
+	imply CMD_DM
+
 config TARGET_CGTQMX6EVAL
 	bool "cgtqmx6eval"
 	depends on MX6QDL
