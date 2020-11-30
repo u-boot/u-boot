@@ -643,13 +643,6 @@ dtb-$(CONFIG_MX53) += imx53-cx9020.dtb \
 
 ifneq ($(CONFIG_MX6DL)$(CONFIG_MX6QDL)$(CONFIG_MX6S),)
 dtb-y += \
-	imx6dl-aristainetos2_4.dtb \
-	imx6dl-aristainetos2_7.dtb \
-	imx6dl-aristainetos2b_4.dtb \
-	imx6dl-aristainetos2b_7.dtb \
-	imx6dl-aristainetos2b_csl_4.dtb \
-	imx6dl-aristainetos2b_csl_7.dtb \
-	imx6dl-aristainetos2c_4.dtb \
 	imx6dl-aristainetos2c_7.dtb \
 	imx6dl-brppt2.dtb \
 	imx6dl-cubox-i.dtb \

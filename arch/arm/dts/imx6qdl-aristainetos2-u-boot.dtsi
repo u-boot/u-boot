@@ -50,28 +50,6 @@
 	};
 };
 
-&iomuxc {
-	pinctrl-0 = <&pinctrl_gpio &pinctrl_gpio_fix>;
-	u-boot,dm-pre-reloc;
-
-	pinctrl_gpio_fix: gpiofixgrp {
-		/*
-		 * usdhc2 has a levelshifter on the carrier board Rev. DV1,
-		 * that will automatically detect the driving direction.
-		 * During initialisation this isn't working correctly,
-		 * which causes DAT3 to be driven low towards the SD-card.
-		 * This causes a SD-card enetring the SPI-Mode
-		 * and therefore getting inaccessible until next power cycle.
-		 * As workaround we drive the DAT3 line as GPIO and set it high.
-		 * This makes usdhc2 unusable in u-boot, but works for the
-		 * initialisation in Linux
-		 */
-		fsl,pins = <
-			MX6QDL_PAD_SD2_DAT3__GPIO1_IO12	0x20000
-		>;
-	};
-};
-
 &gpio1 {
 	usdhc_fix {
 		gpio-hog;

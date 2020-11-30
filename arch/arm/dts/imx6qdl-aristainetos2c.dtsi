@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0)
 /*
- * support for the imx6 based aristainetos2c board
+ * support for the imx6 based aristainetos2c+2d boards
  *
  * Copyright (C) 2019 Heiko Schocher <hs@denx.de>
  * Copyright (C) 2015 Heiko Schocher <hs@denx.de>
@@ -76,6 +76,14 @@
 	tpm@20 {
 		compatible = "infineon,slb9645tt";
 		reg = <0x20>;
+	};
+};
+
+&gpio7 {
+	eMMC_reset {
+		gpio-hog;
+		output-high;
+		gpios = <8 GPIO_ACTIVE_HIGH>;
 	};
 };
 
@@ -172,6 +180,8 @@
 			MX6QDL_PAD_EIM_A21__GPIO2_IO17		0x4001b0b0
 			/* TPM Reset */
 			MX6QDL_PAD_EIM_A20__GPIO2_IO18		0x4001b0b0
+			/* eMMC Reset# */
+			MX6QDL_PAD_SD3_RST__GPIO7_IO08		0x4001b0b0
 		>;
 	};
 
