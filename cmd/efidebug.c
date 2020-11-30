@@ -278,6 +278,10 @@ static const struct {
 		"Runtime properties",
 		EFI_RT_PROPERTIES_TABLE_GUID,
 	},
+	{
+		"TCG2 Final Events Table",
+		EFI_TCG2_FINAL_EVENTS_TABLE_GUID,
+	},
 };
 
 /**
