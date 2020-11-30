@@ -19,11 +19,13 @@
 #include <sdhci.h>
 #include <zynqmp_tap_delay.h>
 
-#define SDHCI_ARASAN_ITAPDLY_REGISTER   0xF0F8
-#define SDHCI_ARASAN_OTAPDLY_REGISTER   0xF0FC
-#define SDHCI_ITAPDLY_CHGWIN            0x200
-#define SDHCI_ITAPDLY_ENABLE            0x100
-#define SDHCI_OTAPDLY_ENABLE            0x40
+#define SDHCI_ARASAN_ITAPDLY_REGISTER	0xF0F8
+#define SDHCI_ARASAN_ITAPDLY_SEL_MASK	0xFF
+#define SDHCI_ARASAN_OTAPDLY_REGISTER	0xF0FC
+#define SDHCI_ARASAN_OTAPDLY_SEL_MASK	0x3F
+#define SDHCI_ITAPDLY_CHGWIN		0x200
+#define SDHCI_ITAPDLY_ENABLE		0x100
+#define SDHCI_OTAPDLY_ENABLE		0x40
 
 #define SDHCI_TUNING_LOOP_COUNT		40
 #define MMC_BANK2			0x2
@@ -297,6 +299,7 @@ static int sdhci_versal_sdcardclk_set_phase(struct sdhci_host *host,
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	u8 tap_delay, tap_max = 0;
 	int timing = mode2timing[mmc->selected_mode];
+	u32 regval;
 
 	/*
 	 * This is applicable for SDHCI_SPEC_300 and above
@@ -329,16 +332,16 @@ static int sdhci_versal_sdcardclk_set_phase(struct sdhci_host *host,
 
 	tap_delay = (degrees * tap_max) / 360;
 
-	/* Set the Clock Phase */
-	if (tap_delay) {
-		u32 regval;
+	/* Limit output tap_delay value to 6 bits */
+	tap_delay &= SDHCI_ARASAN_OTAPDLY_SEL_MASK;
 
-		regval = sdhci_readl(host, SDHCI_ARASAN_OTAPDLY_REGISTER);
-		regval |= SDHCI_OTAPDLY_ENABLE;
-		sdhci_writel(host, regval, SDHCI_ARASAN_OTAPDLY_REGISTER);
-		regval |= tap_delay;
-		sdhci_writel(host, regval, SDHCI_ARASAN_OTAPDLY_REGISTER);
-	}
+	/* Set the Clock Phase */
+	regval = sdhci_readl(host, SDHCI_ARASAN_OTAPDLY_REGISTER);
+	regval |= SDHCI_OTAPDLY_ENABLE;
+	sdhci_writel(host, regval, SDHCI_ARASAN_OTAPDLY_REGISTER);
+	regval &= ~SDHCI_ARASAN_OTAPDLY_SEL_MASK;
+	regval |= tap_delay;
+	sdhci_writel(host, regval, SDHCI_ARASAN_OTAPDLY_REGISTER);
 
 	return 0;
 }
@@ -358,6 +361,7 @@ static int sdhci_versal_sampleclk_set_phase(struct sdhci_host *host,
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	u8 tap_delay, tap_max = 0;
 	int timing = mode2timing[mmc->selected_mode];
+	u32 regval;
 
 	/*
 	 * This is applicable for SDHCI_SPEC_300 and above
@@ -390,20 +394,20 @@ static int sdhci_versal_sampleclk_set_phase(struct sdhci_host *host,
 
 	tap_delay = (degrees * tap_max) / 360;
 
-	/* Set the Clock Phase */
-	if (tap_delay) {
-		u32 regval;
+	/* Limit input tap_delay value to 8 bits */
+	tap_delay &= SDHCI_ARASAN_ITAPDLY_SEL_MASK;
 
-		regval = sdhci_readl(host, SDHCI_ARASAN_ITAPDLY_REGISTER);
-		regval |= SDHCI_ITAPDLY_CHGWIN;
-		sdhci_writel(host, regval, SDHCI_ARASAN_ITAPDLY_REGISTER);
-		regval |= SDHCI_ITAPDLY_ENABLE;
-		sdhci_writel(host, regval, SDHCI_ARASAN_ITAPDLY_REGISTER);
-		regval |= tap_delay;
-		sdhci_writel(host, regval, SDHCI_ARASAN_ITAPDLY_REGISTER);
-		regval &= ~SDHCI_ITAPDLY_CHGWIN;
-		sdhci_writel(host, regval, SDHCI_ARASAN_ITAPDLY_REGISTER);
-	}
+	/* Set the Clock Phase */
+	regval = sdhci_readl(host, SDHCI_ARASAN_ITAPDLY_REGISTER);
+	regval |= SDHCI_ITAPDLY_CHGWIN;
+	sdhci_writel(host, regval, SDHCI_ARASAN_ITAPDLY_REGISTER);
+	regval |= SDHCI_ITAPDLY_ENABLE;
+	sdhci_writel(host, regval, SDHCI_ARASAN_ITAPDLY_REGISTER);
+	regval &= ~SDHCI_ARASAN_ITAPDLY_SEL_MASK;
+	regval |= tap_delay;
+	sdhci_writel(host, regval, SDHCI_ARASAN_ITAPDLY_REGISTER);
+	regval &= ~SDHCI_ITAPDLY_CHGWIN;
+	sdhci_writel(host, regval, SDHCI_ARASAN_ITAPDLY_REGISTER);
 
 	return 0;
 }
