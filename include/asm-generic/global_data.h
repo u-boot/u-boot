@@ -196,7 +196,7 @@ struct global_data {
 	 */
 	struct list_head uclass_root;
 # if CONFIG_IS_ENABLED(OF_PLATDATA)
-        /** Dynamic info about the driver */
+	/** @dm_driver_rt: Dynamic info about the driver */
 	struct driver_rt *dm_driver_rt;
 # endif
 #endif
