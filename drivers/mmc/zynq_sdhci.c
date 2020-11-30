@@ -223,7 +223,10 @@ static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 
 	tap_delay = (degrees * tap_max) / 360;
 
-	arasan_zynqmp_set_tapdelay(priv->deviceid, 0, tap_delay);
+	/* Limit output tap_delay value to 6 bits */
+	tap_delay &= SDHCI_ARASAN_OTAPDLY_SEL_MASK;
+
+	arasan_zynqmp_set_out_tapdelay(priv->deviceid, tap_delay);
 
 	return 0;
 }
@@ -276,7 +279,10 @@ static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 
 	tap_delay = (degrees * tap_max) / 360;
 
-	arasan_zynqmp_set_tapdelay(priv->deviceid, tap_delay, 0);
+	/* Limit input tap_delay value to 8 bits */
+	tap_delay &= SDHCI_ARASAN_ITAPDLY_SEL_MASK;
+
+	arasan_zynqmp_set_in_tapdelay(priv->deviceid, tap_delay);
 
 	return 0;
 }
