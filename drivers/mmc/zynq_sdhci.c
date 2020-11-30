@@ -195,9 +195,7 @@ static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 	 * ZynqMP does not set phase for <=25MHz clock.
 	 * If degrees is zero, no need to do anything.
 	 */
-	if (host->version < SDHCI_SPEC_300 ||
-	    timing == MMC_TIMING_LEGACY ||
-	    timing == MMC_TIMING_UHS_SDR12 || !degrees)
+	if (SDHCI_GET_VERSION(host) < SDHCI_SPEC_300)
 		return 0;
 
 	switch (timing) {
@@ -250,9 +248,7 @@ static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 	 * ZynqMP does not set phase for <=25MHz clock.
 	 * If degrees is zero, no need to do anything.
 	 */
-	if (host->version < SDHCI_SPEC_300 ||
-	    timing == MMC_TIMING_LEGACY ||
-	    timing == MMC_TIMING_UHS_SDR12 || !degrees)
+	if (SDHCI_GET_VERSION(host) < SDHCI_SPEC_300)
 		return 0;
 
 	switch (timing) {
@@ -304,9 +300,7 @@ static int sdhci_versal_sdcardclk_set_phase(struct sdhci_host *host,
 	 * Versal does not set phase for <=25MHz clock.
 	 * If degrees is zero, no need to do anything.
 	 */
-	if (host->version < SDHCI_SPEC_300 ||
-	    timing == MMC_TIMING_LEGACY ||
-	    timing == MMC_TIMING_UHS_SDR12 || !degrees)
+	if (SDHCI_GET_VERSION(host) < SDHCI_SPEC_300)
 		return 0;
 
 	switch (timing) {
@@ -367,9 +361,7 @@ static int sdhci_versal_sampleclk_set_phase(struct sdhci_host *host,
 	 * Versal does not set phase for <=25MHz clock.
 	 * If degrees is zero, no need to do anything.
 	 */
-	if (host->version < SDHCI_SPEC_300 ||
-	    timing == MMC_TIMING_LEGACY ||
-	    timing == MMC_TIMING_UHS_SDR12 || !degrees)
+	if (SDHCI_GET_VERSION(host) < SDHCI_SPEC_300)
 		return 0;
 
 	switch (timing) {
