@@ -180,7 +180,7 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
  *
  * @host:		Pointer to the sdhci_host structure.
  * @degrees		The clock phase shift between 0 - 359.
- * Return: 0 on success and error value on error
+ * Return: 0
  */
 static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 					    int degrees)
@@ -188,7 +188,6 @@ static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 	struct arasan_sdhci_priv *priv = dev_get_priv(host->mmc->dev);
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	u8 tap_delay, tap_max = 0;
-	int ret;
 	int timing = mode2timing[mmc->selected_mode];
 
 	/*
@@ -226,7 +225,7 @@ static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 
 	arasan_zynqmp_set_tapdelay(priv->deviceid, 0, tap_delay);
 
-	return ret;
+	return 0;
 }
 
 /**
@@ -236,7 +235,7 @@ static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
  *
  * @host:		Pointer to the sdhci_host structure.
  * @degrees		The clock phase shift between 0 - 359.
- * Return: 0 on success and error value on error
+ * Return: 0
  */
 static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 					    int degrees)
@@ -244,7 +243,6 @@ static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 	struct arasan_sdhci_priv *priv = dev_get_priv(host->mmc->dev);
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	u8 tap_delay, tap_max = 0;
-	int ret;
 	int timing = mode2timing[mmc->selected_mode];
 
 	/*
@@ -282,7 +280,7 @@ static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 
 	arasan_zynqmp_set_tapdelay(priv->deviceid, tap_delay, 0);
 
-	return ret;
+	return 0;
 }
 
 /**
@@ -292,14 +290,13 @@ static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
  *
  * @host:		Pointer to the sdhci_host structure.
  * @degrees		The clock phase shift between 0 - 359.
- * Return: 0 on success and error value on error
+ * Return: 0
  */
 static int sdhci_versal_sdcardclk_set_phase(struct sdhci_host *host,
 					    int degrees)
 {
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	u8 tap_delay, tap_max = 0;
-	int ret;
 	int timing = mode2timing[mmc->selected_mode];
 
 	/*
@@ -346,7 +343,7 @@ static int sdhci_versal_sdcardclk_set_phase(struct sdhci_host *host,
 		sdhci_writel(host, regval, SDHCI_ARASAN_OTAPDLY_REGISTER);
 	}
 
-	return ret;
+	return 0;
 }
 
 /**
@@ -356,14 +353,13 @@ static int sdhci_versal_sdcardclk_set_phase(struct sdhci_host *host,
  *
  * @host:		Pointer to the sdhci_host structure.
  * @degrees		The clock phase shift between 0 - 359.
- * Return: 0 on success and error value on error
+ * Return: 0
  */
 static int sdhci_versal_sampleclk_set_phase(struct sdhci_host *host,
 					    int degrees)
 {
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	u8 tap_delay, tap_max = 0;
-	int ret;
 	int timing = mode2timing[mmc->selected_mode];
 
 	/*
@@ -414,7 +410,7 @@ static int sdhci_versal_sampleclk_set_phase(struct sdhci_host *host,
 		sdhci_writel(host, regval, SDHCI_ARASAN_ITAPDLY_REGISTER);
 	}
 
-	return ret;
+	return 0;
 }
 
 static void arasan_sdhci_set_tapdelay(struct sdhci_host *host)
