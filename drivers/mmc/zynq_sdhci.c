@@ -531,6 +531,11 @@ static void arasan_sdhci_set_control_reg(struct sdhci_host *host)
 		reg = sdhci_readw(host, SDHCI_HOST_CONTROL2);
 		reg |= SDHCI_CTRL_VDD_180;
 		sdhci_writew(host, reg, SDHCI_HOST_CONTROL2);
+		/*
+		 * 5ms delay is required as per SD3.0 spec while switching
+		 * voltage to 1.8v
+		 */
+		mdelay(5);
 	}
 
 	if (mmc->selected_mode > SD_HS &&

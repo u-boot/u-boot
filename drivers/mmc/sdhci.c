@@ -578,7 +578,7 @@ static int sdhci_set_ios(struct mmc *mmc)
 		sdhci_set_clock(mmc, mmc->clock);
 
 	if (mmc->clk_disable)
-		sdhci_set_clock(mmc, 0);
+		return sdhci_set_clock(mmc, 0);
 
 	/* Set bus width */
 	ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
@@ -608,22 +608,9 @@ static int sdhci_set_ios(struct mmc *mmc)
 
 	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
 
-	if (IS_SD(mmc) && host->version >= SDHCI_SPEC_300) {
-		/* Disable SD Clock */
-		ctrl = sdhci_readw(host, SDHCI_CLOCK_CONTROL);
-		ctrl &= ~SDHCI_CLOCK_CARD_EN;
-		sdhci_writew(host, ctrl, SDHCI_CLOCK_CONTROL);
-
+	if (IS_SD(mmc) && SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 		if (host->ops && host->ops->set_control_reg)
 			host->ops->set_control_reg(host);
-
-		/* Set preset value enable */
-		ctrl = sdhci_readw(host, SDHCI_HOST_CONTROL2);
-		ctrl |= SDHCI_CTRL_PRESET_VAL_ENABLE;
-		sdhci_writew(host, ctrl, SDHCI_HOST_CONTROL2);
-
-		/* Re-enable SD Clock */
-		sdhci_set_clock(mmc, mmc->clock);
 	}
 
 	/* If available, call the driver specific "post" set_ios() function */
