@@ -178,11 +178,11 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 /**
  * sdhci_zynqmp_sdcardclk_set_phase - Set the SD Output Clock Tap Delays
  *
- * Set the SD Output Clock Tap Delays for Output path
- *
  * @host:		Pointer to the sdhci_host structure.
- * @degrees		The clock phase shift between 0 - 359.
+ * @degrees:		The clock phase shift between 0 - 359.
  * Return: 0
+ *
+ * Set the SD Output Clock Tap Delays for Output path
  */
 static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 					    int degrees)
@@ -234,11 +234,11 @@ static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 /**
  * sdhci_zynqmp_sampleclk_set_phase - Set the SD Input Clock Tap Delays
  *
- * Set the SD Input Clock Tap Delays for Input path
- *
  * @host:		Pointer to the sdhci_host structure.
- * @degrees		The clock phase shift between 0 - 359.
+ * @degrees:		The clock phase shift between 0 - 359.
  * Return: 0
+ *
+ * Set the SD Input Clock Tap Delays for Input path
  */
 static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 					    int degrees)
@@ -290,11 +290,11 @@ static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 /**
  * sdhci_versal_sdcardclk_set_phase - Set the SD Output Clock Tap Delays
  *
- * Set the SD Output Clock Tap Delays for Output path
- *
  * @host:		Pointer to the sdhci_host structure.
- * @degrees		The clock phase shift between 0 - 359.
+ * @degrees:		The clock phase shift between 0 - 359.
  * Return: 0
+ *
+ * Set the SD Output Clock Tap Delays for Output path
  */
 static int sdhci_versal_sdcardclk_set_phase(struct sdhci_host *host,
 					    int degrees)
@@ -352,11 +352,11 @@ static int sdhci_versal_sdcardclk_set_phase(struct sdhci_host *host,
 /**
  * sdhci_versal_sampleclk_set_phase - Set the SD Input Clock Tap Delays
  *
- * Set the SD Input Clock Tap Delays for Input path
- *
  * @host:		Pointer to the sdhci_host structure.
- * @degrees		The clock phase shift between 0 - 359.
+ * @degrees:		The clock phase shift between 0 - 359.
  * Return: 0
+ *
+ * Set the SD Input Clock Tap Delays for Input path
  */
 static int sdhci_versal_sampleclk_set_phase(struct sdhci_host *host,
 					    int degrees)
@@ -464,9 +464,9 @@ static void arasan_dt_read_clk_phase(struct udevice *dev, unsigned char timing,
 /**
  * arasan_dt_parse_clk_phases - Read Tap Delay values from DT
  *
- * Called at initialization to parse the values of Tap Delays.
- *
  * @dev:                Pointer to our struct udevice.
+ *
+ * Called at initialization to parse the values of Tap Delays.
  */
 static void arasan_dt_parse_clk_phases(struct udevice *dev)
 {
