@@ -228,12 +228,11 @@ static int read_record(char *buf, ulong len)
 			*p = c;
 		}
 
-	    /* Check for the console hangup (if any different from serial) */
-	    if (gd->jt->getc != getchar) {
-		if (ctrlc()) {
-		    return (-1);
+		/* Check for the console hangup (if any different from serial) */
+		if (gd->jt->getc != getchar) {
+			if (ctrlc())
+				return (-1);
 		}
-	    }
 	}
 
 	/* line too long - truncate */
