@@ -2724,5 +2724,5 @@ U_BOOT_DRIVER(octeon_ddr) = {
 	.of_match = octeon_ids,
 	.ops = &octeon_ops,
 	.probe = octeon_ddr_probe,
-	.platdata_auto_alloc_size = sizeof(struct ddr_priv),
+	.priv_auto_alloc_size = sizeof(struct ddr_priv),
 };

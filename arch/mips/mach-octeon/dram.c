@@ -33,7 +33,7 @@ int dram_init(void)
 			return ret;
 		}
 
-		gd->ram_size = min_t(size_t, ram.size, UBOOT_RAM_SIZE_MAX);
+		gd->ram_size = ram.size;
 		debug("SDRAM base=%lx, size=%lx\n",
 		      (unsigned long)ram.base, (unsigned long)ram.size);
 	} else {
@@ -70,6 +70,11 @@ void board_add_ram_info(int use_default)
 		printf(" (");
 		print_size(ram.size, " total)");
 	}
+}
+
+phys_size_t get_effective_memsize(void)
+{
+	return UBOOT_RAM_SIZE_MAX;
 }
 
 ulong board_get_usable_ram_top(ulong total_size)
