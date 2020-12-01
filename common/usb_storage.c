@@ -431,8 +431,8 @@ static int us_one_transfer(struct us_data *us, int pipe, char *buf, int length)
 					return 0;
 				}
 				/* if our try counter reaches 0, bail out */
-					debug(" %ld, data %d\n",
-					      us->pusb_dev->status, partial);
+				debug(" %ld, data %d\n",
+				      us->pusb_dev->status, partial);
 				if (!maxtry--)
 						return result;
 			}
