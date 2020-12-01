@@ -50,12 +50,16 @@ struct arasan_sdhci_priv {
 
 #if defined(CONFIG_ARCH_ZYNQMP) || defined(CONFIG_ARCH_VERSAL)
 /* Default settings for ZynqMP Clock Phases */
-const u32 zynqmp_iclk_phases[] = {0, 63, 63, 0, 63,  0,   0, 183, 54,  0, 0};
-const u32 zynqmp_oclk_phases[] = {0, 72, 60, 0, 60, 72, 135, 48, 72, 135, 0};
+static const u32 zynqmp_iclk_phases[] = {0, 63, 63, 0, 63,  0,
+					 0, 183, 54,  0, 0};
+static const u32 zynqmp_oclk_phases[] = {0, 72, 60, 0, 60, 72,
+					 135, 48, 72, 135, 0};
 
 /* Default settings for Versal Clock Phases */
-const u32 versal_iclk_phases[] = {0, 132, 132, 0, 132, 0, 0, 162, 90, 0, 0};
-const u32 versal_oclk_phases[] = {0,  60, 48, 0, 48, 72, 90, 36, 60, 90, 0};
+static const u32 versal_iclk_phases[] = {0, 132, 132, 0, 132,
+					 0, 0, 162, 90, 0, 0};
+static const u32 versal_oclk_phases[] = {0,  60, 48, 0, 48, 72,
+					 90, 36, 60, 90, 0};
 
 static const u8 mode2timing[] = {
 	[MMC_LEGACY] = MMC_TIMING_LEGACY,
@@ -546,8 +550,8 @@ static void arasan_sdhci_set_control_reg(struct sdhci_host *host)
 		sdhci_set_uhs_timing(host);
 }
 
-const struct sdhci_ops arasan_ops = {
-	.platform_execute_tuning = &arasan_sdhci_execute_tuning,
+static const struct sdhci_ops arasan_ops = {
+	.platform_execute_tuning	= &arasan_sdhci_execute_tuning,
 	.set_delay = &arasan_sdhci_set_tapdelay,
 	.set_control_reg = &arasan_sdhci_set_control_reg,
 };
