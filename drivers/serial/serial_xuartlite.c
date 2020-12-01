@@ -147,7 +147,7 @@ static inline void _debug_uart_init(void)
 
 	uart_out32(&regs->control, 0);
 	uart_out32(&regs->control, ULITE_CONTROL_RST_RX | ULITE_CONTROL_RST_TX);
-	uart_in32(&regs->status);
+	ret = uart_in32(&regs->status);
 	/* Endianness detection */
 	if ((ret & SR_TX_FIFO_EMPTY) != SR_TX_FIFO_EMPTY) {
 		little_endian = true;
