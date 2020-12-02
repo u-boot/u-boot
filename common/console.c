@@ -1029,11 +1029,6 @@ done:
 
 	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
 
-#if 0
-	/* If nothing usable installed, use only the initial console */
-	if ((stdio_devices[stdin] == NULL) && (stdio_devices[stdout] == NULL))
-		return 0;
-#endif
 	print_pre_console_buffer(flushpoint);
 	return 0;
 }
@@ -1105,11 +1100,6 @@ int console_init_r(void)
 
 	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
 
-#if 0
-	/* If nothing usable installed, use only the initial console */
-	if ((stdio_devices[stdin] == NULL) && (stdio_devices[stdout] == NULL))
-		return 0;
-#endif
 	print_pre_console_buffer(flushpoint);
 	return 0;
 }
