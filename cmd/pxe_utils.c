@@ -451,11 +451,14 @@ static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 
 	/*
 	 * fdt usage is optional:
-	 * It handles the following scenarios. All scenarios are exclusive
+	 * It handles the following scenarios.
 	 *
-	 * Scenario 1: If fdt_addr_r specified and "fdt" label is defined in
-	 * pxe file, retrieve fdt blob from server. Pass fdt_addr_r to bootm,
-	 * and adjust argc appropriately.
+	 * Scenario 1: If fdt_addr_r specified and "fdt" or "fdtdir" label is
+	 * defined in pxe file, retrieve fdt blob from server. Pass fdt_addr_r to
+	 * bootm, and adjust argc appropriately.
+	 *
+	 * If retrieve fails and no exact fdt blob is specified in pxe file with
+	 * "fdt" label, try Scenario 2.
 	 *
 	 * Scenario 2: If there is an fdt_addr specified, pass it along to
 	 * bootm, and adjust argc appropriately.
@@ -521,9 +524,13 @@ static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 
 			free(fdtfilefree);
 			if (err < 0) {
-				printf("Skipping %s for failure retrieving fdt\n",
-				       label->name);
-				goto cleanup;
+				bootm_argv[3] = NULL;
+
+				if (label->fdt) {
+					printf("Skipping %s for failure retrieving FDT\n",
+					       label->name);
+					goto cleanup;
+				}
 			}
 		} else {
 			bootm_argv[3] = NULL;

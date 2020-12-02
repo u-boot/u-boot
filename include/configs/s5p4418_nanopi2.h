@@ -102,10 +102,6 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#ifdef CONFIG_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#endif
-
 /*-----------------------------------------------------------------------
  * Etc Command definition
  */

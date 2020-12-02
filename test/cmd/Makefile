@@ -4,3 +4,4 @@
 
 obj-y += mem.o
 obj-$(CONFIG_CMD_MEM_SEARCH) += mem_search.o
+obj-y += setexpr.o

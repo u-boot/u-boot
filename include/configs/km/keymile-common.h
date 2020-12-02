@@ -184,9 +184,9 @@
 	"cramfsloadfdt="						\
 		"cramfsload ${fdt_addr_r} "				\
 		"fdt_0x${IVM_BoardId}_0x${IVM_HWKey}.dtb\0"		\
-	"fdt_addr_r="__stringify(CONFIG_KM_FDT_ADDR) "\0"		\
+	"fdt_addr_r=" __stringify(CONFIG_KM_FDT_ADDR) "\0"		\
 	"init=/sbin/init-overlay.sh\0"					\
-	"load_addr_r="__stringify(CONFIG_KM_KERNEL_ADDR) "\0"		\
+	"load_addr_r=" __stringify(CONFIG_KM_KERNEL_ADDR) "\0"		\
 	"load=tftpboot ${load_addr_r} ${u-boot}\0"			\
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"					\
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\

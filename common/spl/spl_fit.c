@@ -558,6 +558,16 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	if (spl_load_simple_fit_skip_processing())
 		return 0;
 
+	if (IS_ENABLED(CONFIG_SPL_FIT_SIGNATURE)) {
+		int conf_offset = fit_find_config_node(fit);
+
+		printf("## Checking hash(es) for config %s ... ",
+		       fit_get_name(fit, conf_offset, NULL));
+		if (fit_config_verify(fit, conf_offset))
+			return -EPERM;
+		puts("OK\n");
+	}
+
 	/* find the node holding the images information */
 	images = fdt_path_offset(fit, FIT_IMAGES_PATH);
 	if (images < 0) {

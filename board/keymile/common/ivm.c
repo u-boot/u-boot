@@ -46,28 +46,27 @@ static int ivm_set_value(char *name, char *value)
 {
 	char tempbuf[256];
 
-	if (value != NULL) {
+	if (value) {
 		sprintf(tempbuf, "%s=%s", name, value);
 		return set_local_var(tempbuf, 0);
-	} else {
-		unset_local_var(name);
 	}
+	unset_local_var(name);
 	return 0;
 }
 
 static int ivm_get_value(unsigned char *buf, int len, char *name, int off,
-				int check)
+			 int check)
 {
 	unsigned short	val;
 	unsigned char	valbuf[30];
 
-	if ((buf[off + 0] != buf[off + 2]) &&
-	    (buf[off + 2] != buf[off + 4])) {
+	if (buf[off + 0] != buf[off + 2] &&
+	    buf[off + 2] != buf[off + 4]) {
 		printf("%s Error corrupted %s\n", __func__, name);
 		val = -1;
 	} else {
 		val = buf[off + 0] + (buf[off + 1] << 8);
-		if ((val == 0) && (check == 1))
+		if (val == 0 && check == 1)
 			val = -1;
 	}
 	sprintf((char *)valbuf, "%x", val);
@@ -98,9 +97,9 @@ static char convert_char(char c)
 }
 
 static int ivm_findinventorystring(int type,
-					unsigned char *const string,
-					unsigned long maxlen,
-					unsigned char *buf)
+				   unsigned char *const string,
+				   unsigned long maxlen,
+				   unsigned char *buf)
 {
 	int xcode = 0;
 	unsigned long cr = 0;
@@ -133,12 +132,12 @@ static int ivm_findinventorystring(int type,
 	 */
 	if (addr < INVENTORYDATASIZE) {
 		/* Copy the IVM string in the corresponding string */
-		for (; (buf[addr] != '\r')			&&
-			((buf[addr] != ';') ||  (!stop))	&&
-			(size < (maxlen - 1)			&&
-			(addr < INVENTORYDATASIZE)); addr++) {
+		for (; (buf[addr] != '\r')		&&
+		     ((buf[addr] != ';') ||  (!stop))	&&
+		     (size < (maxlen - 1)		&&
+		     (addr < INVENTORYDATASIZE)); addr++) {
 			size += sprintf((char *)string + size, "%c",
-						convert_char (buf[addr]));
+					convert_char (buf[addr]));
 		}
 
 		/*
@@ -176,12 +175,12 @@ static int ivm_check_crc(unsigned char *buf, int block)
 	unsigned long	crceeprom;
 
 	crc = ivm_calc_crc(buf, CONFIG_SYS_IVM_EEPROM_PAGE_LEN - 2);
-	crceeprom = (buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN - 1] + \
+	crceeprom = (buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN - 1] +
 			buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN - 2] * 256);
 	if (crc != crceeprom) {
 		if (block == 0)
-			printf("Error CRC Block: %d EEprom: calculated: \
-			%lx EEprom: %lx\n", block, crc, crceeprom);
+			printf("Error CRC Block: %d EEprom: calculated: %lx EEprom: %lx\n",
+			       block, crc, crceeprom);
 		return -1;
 	}
 	return 0;
@@ -189,7 +188,7 @@ static int ivm_check_crc(unsigned char *buf, int block)
 
 /* take care of the possible MAC address offset and the IVM content offset */
 static int process_mac(unsigned char *valbuf, unsigned char *buf,
-				int offset, bool unique)
+		       int offset, bool unique)
 {
 	unsigned char mac[6];
 	unsigned long val = (buf[4] << 16) + (buf[5] << 8) + buf[6];
@@ -197,9 +196,9 @@ static int process_mac(unsigned char *valbuf, unsigned char *buf,
 	/* use an intermediate buffer, to not change IVM content
 	 * MAC address is at offset 1
 	 */
-	memcpy(mac, buf+1, 6);
+	memcpy(mac, buf + 1, 6);
 
-	/* MAC adress can be set to locally administred, this is only allowed
+	/* MAC address can be set to locally administred, this is only allowed
 	 * for interfaces which have now connection to the outside. For these
 	 * addresses we need to set the second bit in the first byte.
 	 */
@@ -222,7 +221,7 @@ static int ivm_analyze_block2(unsigned char *buf, int len)
 	unsigned char	valbuf[MAC_STR_SZ];
 	unsigned long	count;
 
-	/* IVM_MAC Adress begins at offset 1 */
+	/* IVM_MAC Address begins at offset 1 */
 	sprintf((char *)valbuf, "%pM", buf + 1);
 	ivm_set_value("IVM_MacAddress", (char *)valbuf);
 	/* IVM_MacCount */
@@ -247,9 +246,9 @@ int ivm_analyze_eeprom(unsigned char *buf, int len)
 		return -1;
 
 	ivm_get_value(buf, CONFIG_SYS_IVM_EEPROM_PAGE_LEN,
-			"IVM_BoardId", 0, 1);
+		      "IVM_BoardId", 0, 1);
 	val = ivm_get_value(buf, CONFIG_SYS_IVM_EEPROM_PAGE_LEN,
-			"IVM_HWKey", 6, 1);
+			    "IVM_HWKey", 6, 1);
 	if (val != 0xffff) {
 		sprintf((char *)valbuf, "%x", ((val / 100) % 10));
 		ivm_set_value("IVM_HWVariant", (char *)valbuf);
@@ -257,7 +256,7 @@ int ivm_analyze_eeprom(unsigned char *buf, int len)
 		ivm_set_value("IVM_HWVersion", (char *)valbuf);
 	}
 	ivm_get_value(buf, CONFIG_SYS_IVM_EEPROM_PAGE_LEN,
-		"IVM_Functions", 12, 0);
+		      "IVM_Functions", 12, 0);
 
 	GET_STRING("IVM_Symbol", IVM_POS_SYMBOL_ONLY, 8)
 	GET_STRING("IVM_DeviceName", IVM_POS_SHORT_TEXT, 64)
@@ -269,7 +268,7 @@ int ivm_analyze_eeprom(unsigned char *buf, int len)
 		while (i < len) {
 			if (tmp[i] == ';') {
 				ivm_set_value("IVM_ShortText",
-					(char *)&tmp[i + 1]);
+					      (char *)&tmp[i + 1]);
 				break;
 			}
 			i++;
@@ -292,7 +291,7 @@ int ivm_analyze_eeprom(unsigned char *buf, int len)
 	if (ivm_check_crc(&buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN * 2], 2) != 0)
 		return 0;
 	ivm_analyze_block2(&buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN * 2],
-		CONFIG_SYS_IVM_EEPROM_PAGE_LEN);
+			   CONFIG_SYS_IVM_EEPROM_PAGE_LEN);
 
 	return 0;
 }
@@ -305,22 +304,23 @@ static int ivm_populate_env(unsigned char *buf, int len, int mac_address_offset)
 	/* do we have the page 2 filled ? if not return */
 	if (ivm_check_crc(buf, 2))
 		return 0;
-	page2 = &buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN*2];
+	page2 = &buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN * 2];
 
-#ifndef CONFIG_KMTEGR1
-	/* if an offset is defined, add it */
-	process_mac(valbuf, page2, mac_address_offset, true);
-	env_set((char *)"ethaddr", (char *)valbuf);
-#else
-/* KMTEGR1 has a special setup. eth0 has no connection to the outside and
- * gets an locally administred MAC address, eth1 is the debug interface and
- * gets the official MAC address from the IVM
- */
-	process_mac(valbuf, page2, mac_address_offset, false);
-	env_set((char *)"ethaddr", (char *)valbuf);
-	process_mac(valbuf, page2, mac_address_offset, true);
-	env_set((char *)"eth1addr", (char *)valbuf);
-#endif
+	if (!IS_ENABLED(CONFIG_KMTEGR1)) {
+		/* if an offset is defined, add it */
+		process_mac(valbuf, page2, mac_address_offset, true);
+		env_set((char *)"ethaddr", (char *)valbuf);
+	} else {
+		/* KMTEGR1 has a special setup. eth0 has no connection to the
+		 * outside and gets an locally administred MAC address, eth1 is
+		 * the debug interface and gets the official MAC address from
+		 * the IVM
+		 */
+		process_mac(valbuf, page2, mac_address_offset, false);
+		env_set((char *)"ethaddr", (char *)valbuf);
+		process_mac(valbuf, page2, mac_address_offset, true);
+		env_set((char *)"eth1addr", (char *)valbuf);
+	}
 
 	return 0;
 }
