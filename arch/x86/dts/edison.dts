@@ -16,7 +16,7 @@
 
 / {
 	model = "Intel Edison";
-	compatible = "intel,edison";
+	compatible = "intel,edison", "intel,tangier";
 
 	aliases {
 		serial0 = &serial0;
