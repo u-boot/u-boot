@@ -107,6 +107,14 @@
 
 	usb: usb@f9100000 {
 		compatible = "intel,tangier-dwc3";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		dwc3: dwc3 {
+			reg = <0xf9100000 0x100000>;
+			maximum-speed = "high-speed";
+			dr_mode = "peripheral";
+		};
 	};
 
 	watchdog: wdt@0 {

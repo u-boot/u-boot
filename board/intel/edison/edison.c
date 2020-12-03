@@ -3,15 +3,10 @@
  * Copyright (c) 2017 Intel Corporation
  */
 #include <common.h>
-#include <dwc3-uboot.h>
 #include <env.h>
 #include <init.h>
 #include <mmc.h>
 #include <u-boot/md5.h>
-#include <usb.h>
-#include <watchdog.h>
-
-#include <linux/usb/gadget.h>
 
 #include <asm/cache.h>
 #include <asm/pmu.h>
@@ -25,36 +20,6 @@ int board_early_init_r(void)
 {
 	pmu_turn_power(PMU_LSS_TANGIER_SDIO0_01, true);
 	return 0;
-}
-
-static struct dwc3_device dwc3_device_data = {
-	.maximum_speed = USB_SPEED_HIGH,
-	.base = CONFIG_SYS_USB_OTG_BASE,
-	.dr_mode = USB_DR_MODE_PERIPHERAL,
-	.index = 0,
-};
-
-int usb_gadget_handle_interrupts(int controller_index)
-{
-	dwc3_uboot_handle_interrupt(controller_index);
-	WATCHDOG_RESET();
-	return 0;
-}
-
-int board_usb_init(int index, enum usb_init_type init)
-{
-	if (index == 0 && init == USB_INIT_DEVICE)
-		return dwc3_uboot_init(&dwc3_device_data);
-	return -EINVAL;
-}
-
-int board_usb_cleanup(int index, enum usb_init_type init)
-{
-	if (index == 0 && init == USB_INIT_DEVICE) {
-		dwc3_uboot_exit(index);
-		return 0;
-	}
-	return -EINVAL;
 }
 
 static void assign_serial(void)
