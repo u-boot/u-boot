@@ -315,7 +315,7 @@ static int fastboot_add(struct usb_configuration *c)
 	status = usb_add_function(c, &f_fb->usb_function);
 	if (status) {
 		free(f_fb);
-		fastboot_func = f_fb;
+		fastboot_func = NULL;
 	}
 
 	return status;
