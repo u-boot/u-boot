@@ -35,14 +35,14 @@ struct pl031_platdata {
 
 static inline u32 pl031_read_reg(struct udevice *dev, int reg)
 {
-	struct pl031_platdata *pdata = dev_get_platdata(dev);
+	struct pl031_platdata *pdata = dev_get_plat(dev);
 
 	return readl(pdata->base + reg);
 }
 
 static inline u32 pl031_write_reg(struct udevice *dev, int reg, u32 value)
 {
-	struct pl031_platdata *pdata = dev_get_platdata(dev);
+	struct pl031_platdata *pdata = dev_get_plat(dev);
 
 	return writel(value, pdata->base + reg);
 }
@@ -124,7 +124,7 @@ static const struct udevice_id pl031_ids[] = {
 
 static int pl031_ofdata_to_platdata(struct udevice *dev)
 {
-	struct pl031_platdata *pdata = dev_get_platdata(dev);
+	struct pl031_platdata *pdata = dev_get_plat(dev);
 
 	pdata->base = dev_read_addr(dev);
 

@@ -481,7 +481,7 @@ static int fsl_dspi_child_pre_probe(struct udevice *dev)
 
 static int fsl_dspi_probe(struct udevice *bus)
 {
-	struct fsl_dspi_platdata *plat = dev_get_platdata(bus);
+	struct fsl_dspi_platdata *plat = dev_get_plat(bus);
 	struct fsl_dspi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_bus *dm_spi_bus;
 	uint mcr_cfg_val;

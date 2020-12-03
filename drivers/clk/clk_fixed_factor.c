@@ -18,7 +18,7 @@ struct clk_fixed_factor {
 };
 
 #define to_clk_fixed_factor(dev)	\
-	((struct clk_fixed_factor *)dev_get_platdata(dev))
+	((struct clk_fixed_factor *)dev_get_plat(dev))
 
 static ulong clk_fixed_factor_get_rate(struct clk *clk)
 {

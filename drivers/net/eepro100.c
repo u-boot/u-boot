@@ -900,7 +900,7 @@ int eepro100_initialize(struct bd_info *bis)
 #else	/* DM_ETH */
 static int eepro100_start(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct eepro100_priv *priv = dev_get_priv(dev);
 
 	memcpy(priv->enetaddr, plat->enetaddr, sizeof(plat->enetaddr));
@@ -962,7 +962,7 @@ static int eepro100_bind(struct udevice *dev)
 
 static int eepro100_probe(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct eepro100_priv *priv = dev_get_priv(dev);
 	u16 command, status;
 	u32 iobase;

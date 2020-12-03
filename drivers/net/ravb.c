@@ -306,7 +306,7 @@ static void ravb_rx_desc_init(struct ravb_priv *eth)
 static int ravb_phy_config(struct udevice *dev)
 {
 	struct ravb_priv *eth = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct phy_device *phydev;
 	int mask = 0xffffffff, reg;
 
@@ -346,7 +346,7 @@ static int ravb_phy_config(struct udevice *dev)
 static int ravb_write_hwaddr(struct udevice *dev)
 {
 	struct ravb_priv *eth = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	unsigned char *mac = pdata->enetaddr;
 
 	writel((mac[0] << 24) | (mac[1] << 16) | (mac[2] << 8) | mac[3],
@@ -373,7 +373,7 @@ static int ravb_mac_init(struct ravb_priv *eth)
 static int ravb_dmac_init(struct udevice *dev)
 {
 	struct ravb_priv *eth = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	int ret = 0;
 
 	/* Set CONFIG mode */
@@ -474,7 +474,7 @@ static void ravb_stop(struct udevice *dev)
 
 static int ravb_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ravb_priv *eth = dev_get_priv(dev);
 	struct ofnode_phandle_args phandle_args;
 	struct mii_dev *mdiodev;
@@ -644,7 +644,7 @@ static const struct eth_ops ravb_ops = {
 
 int ravb_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *phy_mode;
 	const fdt32_t *cell;
 	int ret = 0;

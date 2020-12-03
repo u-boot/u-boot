@@ -102,7 +102,7 @@ static const struct dm_gpio_ops gpio_bcm2835_ops = {
 static int bcm2835_gpio_probe(struct udevice *dev)
 {
 	struct bcm2835_gpios *gpios = dev_get_priv(dev);
-	struct bcm2835_gpio_platdata *plat = dev_get_platdata(dev);
+	struct bcm2835_gpio_platdata *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	uc_priv->bank_name = "GPIO";
@@ -118,7 +118,7 @@ static int bcm2835_gpio_probe(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static int bcm2835_gpio_ofdata_to_platdata(struct udevice *dev)
 {
-	struct bcm2835_gpio_platdata *plat = dev_get_platdata(dev);
+	struct bcm2835_gpio_platdata *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);

@@ -522,7 +522,7 @@ static const struct dm_gpio_ops gpio_davinci_ops = {
 static int davinci_gpio_probe(struct udevice *dev)
 {
 	struct davinci_gpio_bank *bank = dev_get_priv(dev);
-	struct davinci_gpio_platdata *plat = dev_get_platdata(dev);
+	struct davinci_gpio_platdata *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
@@ -542,7 +542,7 @@ static const struct udevice_id davinci_gpio_ids[] = {
 
 static int davinci_gpio_ofdata_to_platdata(struct udevice *dev)
 {
-	struct davinci_gpio_platdata *plat = dev_get_platdata(dev);
+	struct davinci_gpio_platdata *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);

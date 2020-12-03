@@ -31,7 +31,7 @@ static int dm_test_of_platdata_props(struct unit_test_state *uts)
 	ut_asserteq_str("sandbox_clk_test", dev->name);
 
 	ut_assertok(uclass_next_device_err(&dev));
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	ut_assert(plat->boolval);
 	ut_asserteq(1, plat->intval);
 	ut_asserteq(4, ARRAY_SIZE(plat->intarray));
@@ -54,7 +54,7 @@ static int dm_test_of_platdata_props(struct unit_test_state *uts)
 	ut_asserteq_str("", plat->stringarray[2]);
 
 	ut_assertok(uclass_next_device_err(&dev));
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	ut_assert(!plat->boolval);
 	ut_asserteq(3, plat->intval);
 	ut_asserteq(5, plat->intarray[0]);
@@ -74,14 +74,14 @@ static int dm_test_of_platdata_props(struct unit_test_state *uts)
 	ut_asserteq_str("message", plat->stringarray[2]);
 
 	ut_assertok(uclass_next_device_err(&dev));
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	ut_assert(!plat->boolval);
 	ut_asserteq_str("one", plat->stringarray[0]);
 	ut_asserteq_str("", plat->stringarray[1]);
 	ut_asserteq_str("", plat->stringarray[2]);
 
 	ut_assertok(uclass_next_device_err(&dev));
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	ut_assert(!plat->boolval);
 	ut_asserteq_str("spl", plat->stringarray[0]);
 
@@ -181,7 +181,7 @@ static int dm_test_of_platdata_phandle(struct unit_test_state *uts)
 
 	ut_assertok(uclass_first_device_err(UCLASS_MISC, &dev));
 	ut_asserteq_str("sandbox_clk_test", dev->name);
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 
 	ut_assertok(device_get_by_driver_info_idx(plat->clocks[0].idx, &clk));
 	ut_asserteq_str("fixed_clock", clk->name);

@@ -348,7 +348,7 @@ int board_init(void)
 
 		uclass_find_first_device(UCLASS_VIDEO, &dev);
 		if (dev) {
-			struct atmel_lcd_platdata *plat = dev_get_platdata(dev);
+			struct atmel_lcd_platdata *plat = dev_get_plat(dev);
 
 			plat->timing_index = 1;
 		}

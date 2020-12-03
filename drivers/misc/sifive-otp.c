@@ -100,7 +100,7 @@ struct sifive_otp_platdata {
 static int sifive_otp_read(struct udevice *dev, int offset,
 			   void *buf, int size)
 {
-	struct sifive_otp_platdata *plat = dev_get_platdata(dev);
+	struct sifive_otp_platdata *plat = dev_get_plat(dev);
 	struct sifive_otp_regs *regs = (struct sifive_otp_regs *)plat->regs;
 
 	/* Check if offset and size are multiple of BYTES_PER_FUSE */
@@ -162,7 +162,7 @@ static int sifive_otp_read(struct udevice *dev, int offset,
 static int sifive_otp_write(struct udevice *dev, int offset,
 			    const void *buf, int size)
 {
-	struct sifive_otp_platdata *plat = dev_get_platdata(dev);
+	struct sifive_otp_platdata *plat = dev_get_plat(dev);
 	struct sifive_otp_regs *regs = (struct sifive_otp_regs *)plat->regs;
 
 	/* Check if offset and size are multiple of BYTES_PER_FUSE */
@@ -241,7 +241,7 @@ static int sifive_otp_write(struct udevice *dev, int offset,
 
 static int sifive_otp_ofdata_to_platdata(struct udevice *dev)
 {
-	struct sifive_otp_platdata *plat = dev_get_platdata(dev);
+	struct sifive_otp_platdata *plat = dev_get_plat(dev);
 	int ret;
 
 	plat->regs = dev_read_addr_ptr(dev);

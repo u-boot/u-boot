@@ -53,7 +53,7 @@ static int sandbox_p2sb_emul_read_config(const struct udevice *emul,
 					 uint offset, ulong *valuep,
 					 enum pci_size_t size)
 {
-	struct p2sb_emul_platdata *plat = dev_get_platdata(emul);
+	struct p2sb_emul_platdata *plat = dev_get_plat(emul);
 
 	switch (offset) {
 	case PCI_COMMAND:
@@ -106,7 +106,7 @@ static int sandbox_p2sb_emul_read_config(const struct udevice *emul,
 static int sandbox_p2sb_emul_write_config(struct udevice *emul, uint offset,
 					  ulong value, enum pci_size_t size)
 {
-	struct p2sb_emul_platdata *plat = dev_get_platdata(emul);
+	struct p2sb_emul_platdata *plat = dev_get_plat(emul);
 
 	switch (offset) {
 	case PCI_COMMAND:
@@ -134,7 +134,7 @@ static int sandbox_p2sb_emul_write_config(struct udevice *emul, uint offset,
 static int sandbox_p2sb_emul_find_bar(struct udevice *emul, unsigned int addr,
 				      int *barnump, unsigned int *offsetp)
 {
-	struct p2sb_emul_platdata *plat = dev_get_platdata(emul);
+	struct p2sb_emul_platdata *plat = dev_get_plat(emul);
 	int barnum;
 
 	for (barnum = 0; barnum < ARRAY_SIZE(barinfo); barnum++) {

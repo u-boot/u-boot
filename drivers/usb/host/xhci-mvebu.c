@@ -40,7 +40,7 @@ __weak int board_xhci_enable(fdt_addr_t base)
 
 static int xhci_usb_probe(struct udevice *dev)
 {
-	struct mvebu_xhci_platdata *plat = dev_get_platdata(dev);
+	struct mvebu_xhci_platdata *plat = dev_get_plat(dev);
 	struct mvebu_xhci *ctx = dev_get_priv(dev);
 	struct xhci_hcor *hcor;
 	int len, ret;
@@ -67,7 +67,7 @@ static int xhci_usb_probe(struct udevice *dev)
 
 static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
 {
-	struct mvebu_xhci_platdata *plat = dev_get_platdata(dev);
+	struct mvebu_xhci_platdata *plat = dev_get_plat(dev);
 
 	/*
 	 * Get the base address for XHCI controller from the device node

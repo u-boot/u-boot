@@ -258,7 +258,7 @@ struct da8xx_musb_platdata {
 
 static int da8xx_musb_ofdata_to_platdata(struct udevice *dev)
 {
-	struct da8xx_musb_platdata *plat = dev_get_platdata(dev);
+	struct da8xx_musb_platdata *plat = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 
@@ -282,7 +282,7 @@ static int da8xx_musb_ofdata_to_platdata(struct udevice *dev)
 static int da8xx_musb_probe(struct udevice *dev)
 {
 	struct musb_host_data *host = dev_get_priv(dev);
-	struct da8xx_musb_platdata *plat = dev_get_platdata(dev);
+	struct da8xx_musb_platdata *plat = dev_get_plat(dev);
 	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
 	struct omap_musb_board_data *otg_board_data;
 	int ret;

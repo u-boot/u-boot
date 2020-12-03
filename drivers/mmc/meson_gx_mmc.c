@@ -243,7 +243,7 @@ static const struct dm_mmc_ops meson_dm_mmc_ops = {
 
 static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 {
-	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
+	struct meson_mmc_platdata *pdata = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);
@@ -257,7 +257,7 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 
 static int meson_mmc_probe(struct udevice *dev)
 {
-	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
+	struct meson_mmc_platdata *pdata = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct mmc *mmc = &pdata->mmc;
 	struct mmc_config *cfg = &pdata->cfg;
@@ -320,7 +320,7 @@ static int meson_mmc_probe(struct udevice *dev)
 
 int meson_mmc_bind(struct udevice *dev)
 {
-	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
+	struct meson_mmc_platdata *pdata = dev_get_plat(dev);
 
 	return mmc_bind(dev, &pdata->mmc, &pdata->cfg);
 }

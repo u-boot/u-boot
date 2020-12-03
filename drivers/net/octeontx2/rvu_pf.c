@@ -20,7 +20,7 @@ extern struct udevice *rvu_af_dev;
 int rvu_pf_init(struct rvu_pf *rvu)
 {
 	struct nix *nix;
-	struct eth_pdata *pdata = dev_get_platdata(rvu->dev);
+	struct eth_pdata *pdata = dev_get_plat(rvu->dev);
 
 	debug("%s: Allocating nix lf\n", __func__);
 	nix = nix_lf_alloc(rvu->dev);

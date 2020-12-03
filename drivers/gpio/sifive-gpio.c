@@ -15,7 +15,7 @@
 
 static int sifive_gpio_probe(struct udevice *dev)
 {
-	struct sifive_gpio_platdata *plat = dev_get_platdata(dev);
+	struct sifive_gpio_platdata *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	char name[18], *str;
 
@@ -49,7 +49,7 @@ static void sifive_update_gpio_reg(void *bptr, u32 offset, bool value)
 
 static int sifive_gpio_direction_input(struct udevice *dev, u32 offset)
 {
-	struct sifive_gpio_platdata *plat = dev_get_platdata(dev);
+	struct sifive_gpio_platdata *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	if (offset > uc_priv->gpio_count)
@@ -65,7 +65,7 @@ static int sifive_gpio_direction_input(struct udevice *dev, u32 offset)
 static int sifive_gpio_direction_output(struct udevice *dev, u32 offset,
 					int value)
 {
-	struct sifive_gpio_platdata *plat = dev_get_platdata(dev);
+	struct sifive_gpio_platdata *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	if (offset > uc_priv->gpio_count)
@@ -83,7 +83,7 @@ static int sifive_gpio_direction_output(struct udevice *dev, u32 offset,
 
 static int sifive_gpio_get_value(struct udevice *dev, u32 offset)
 {
-	struct sifive_gpio_platdata *plat = dev_get_platdata(dev);
+	struct sifive_gpio_platdata *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	int val;
 	int dir;
@@ -104,7 +104,7 @@ static int sifive_gpio_get_value(struct udevice *dev, u32 offset)
 
 static int sifive_gpio_set_value(struct udevice *dev, u32 offset, int value)
 {
-	struct sifive_gpio_platdata *plat = dev_get_platdata(dev);
+	struct sifive_gpio_platdata *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	if (offset > uc_priv->gpio_count)
@@ -117,7 +117,7 @@ static int sifive_gpio_set_value(struct udevice *dev, u32 offset, int value)
 
 static int sifive_gpio_get_function(struct udevice *dev, unsigned int offset)
 {
-	struct sifive_gpio_platdata *plat = dev_get_platdata(dev);
+	struct sifive_gpio_platdata *plat = dev_get_plat(dev);
 	u32	outdir, indir, val;
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
@@ -156,7 +156,7 @@ static const struct dm_gpio_ops sifive_gpio_ops = {
 
 static int sifive_gpio_ofdata_to_platdata(struct udevice *dev)
 {
-	struct sifive_gpio_platdata *plat = dev_get_platdata(dev);
+	struct sifive_gpio_platdata *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);

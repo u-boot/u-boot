@@ -393,7 +393,7 @@ static void sb_eth_stop(struct udevice *dev)
 
 static int sb_eth_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	debug("eth_sandbox %s: Write HW ADDR - %pM\n", dev->name,
 	      pdata->enetaddr);
@@ -416,7 +416,7 @@ static int sb_eth_remove(struct udevice *dev)
 
 static int sb_eth_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct eth_sandbox_priv *priv = dev_get_priv(dev);
 	const u8 *mac;
 

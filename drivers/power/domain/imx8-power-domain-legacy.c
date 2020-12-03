@@ -116,7 +116,7 @@ static int imx8_power_domain_on(struct power_domain *power_domain)
 			return err;
 	}
 
-	pdata = (struct imx8_power_domain_platdata *)dev_get_platdata(dev);
+	pdata = (struct imx8_power_domain_platdata *)dev_get_plat(dev);
 	ppriv = (struct imx8_power_domain_priv *)dev_get_priv(dev);
 
 	debug("%s(power_domain=%s) resource_id %d\n", __func__, dev->name,
@@ -155,7 +155,7 @@ static int imx8_power_domain_off_node(struct power_domain *power_domain)
 	sc_err_t ret;
 
 	ppriv = dev_get_priv(dev);
-	pdata = dev_get_platdata(dev);
+	pdata = dev_get_plat(dev);
 
 	debug("%s, %s, state_on %d\n", __func__, dev->name, ppriv->state_on);
 
@@ -208,7 +208,7 @@ static int imx8_power_domain_off_parentnodes(struct power_domain *power_domain)
 
 	if (device_get_uclass_id(parent) == UCLASS_POWER_DOMAIN) {
 		pdata =
-		(struct imx8_power_domain_platdata *)dev_get_platdata(parent);
+		(struct imx8_power_domain_platdata *)dev_get_plat(parent);
 		ppriv = (struct imx8_power_domain_priv *)dev_get_priv(parent);
 
 		debug("%s, %s, state_on %d\n", __func__, parent->name,
@@ -343,7 +343,7 @@ static int imx8_power_domain_probe(struct udevice *dev)
 static int imx8_power_domain_ofdata_to_platdata(struct udevice *dev)
 {
 	int reg;
-	struct imx8_power_domain_platdata *pdata = dev_get_platdata(dev);
+	struct imx8_power_domain_platdata *pdata = dev_get_plat(dev);
 
 	reg = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "reg", -1);
 	if (reg == -1) {

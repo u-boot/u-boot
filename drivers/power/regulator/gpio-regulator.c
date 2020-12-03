@@ -33,7 +33,7 @@ static int gpio_regulator_ofdata_to_platdata(struct udevice *dev)
 	int ret, count, i, j;
 	u32 states_array[GPIO_REGULATOR_MAX_STATES * 2];
 
-	dev_pdata = dev_get_platdata(dev);
+	dev_pdata = dev_get_plat(dev);
 	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata)
 		return -ENXIO;
@@ -80,7 +80,7 @@ static int gpio_regulator_ofdata_to_platdata(struct udevice *dev)
 static int gpio_regulator_get_value(struct udevice *dev)
 {
 	struct dm_regulator_uclass_plat *uc_pdata;
-	struct gpio_regulator_platdata *dev_pdata = dev_get_platdata(dev);
+	struct gpio_regulator_platdata *dev_pdata = dev_get_plat(dev);
 	int enable;
 
 	if (!dev_pdata->gpio.dev)
@@ -101,7 +101,7 @@ static int gpio_regulator_get_value(struct udevice *dev)
 
 static int gpio_regulator_set_value(struct udevice *dev, int uV)
 {
-	struct gpio_regulator_platdata *dev_pdata = dev_get_platdata(dev);
+	struct gpio_regulator_platdata *dev_pdata = dev_get_plat(dev);
 	int ret;
 	bool enable;
 
@@ -127,13 +127,13 @@ static int gpio_regulator_set_value(struct udevice *dev, int uV)
 
 static int gpio_regulator_get_enable(struct udevice *dev)
 {
-	struct gpio_regulator_platdata *dev_pdata = dev_get_platdata(dev);
+	struct gpio_regulator_platdata *dev_pdata = dev_get_plat(dev);
 	return regulator_common_get_enable(dev, &dev_pdata->common);
 }
 
 static int gpio_regulator_set_enable(struct udevice *dev, bool enable)
 {
-	struct gpio_regulator_platdata *dev_pdata = dev_get_platdata(dev);
+	struct gpio_regulator_platdata *dev_pdata = dev_get_plat(dev);
 	return regulator_common_set_enable(dev, &dev_pdata->common, enable);
 }
 

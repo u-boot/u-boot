@@ -1568,7 +1568,7 @@ error_enable:
 
 static int tegra_dp_ofdata_to_platdata(struct udevice *dev)
 {
-	struct tegra_dp_plat *plat = dev_get_platdata(dev);
+	struct tegra_dp_plat *plat = dev_get_plat(dev);
 
 	plat->base = dev_read_addr(dev);
 
@@ -1594,7 +1594,7 @@ static const struct dm_display_ops dp_tegra_ops = {
 
 static int dp_tegra_probe(struct udevice *dev)
 {
-	struct tegra_dp_plat *plat = dev_get_platdata(dev);
+	struct tegra_dp_plat *plat = dev_get_plat(dev);
 	struct tegra_dp_priv *priv = dev_get_priv(dev);
 	struct display_plat *disp_uc_plat = dev_get_uclass_plat(dev);
 

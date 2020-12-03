@@ -428,7 +428,7 @@ static struct phy_ops sun4i_usb_phy_ops = {
 
 static int sun4i_usb_phy_probe(struct udevice *dev)
 {
-	struct sun4i_usb_phy_plat *plat = dev_get_platdata(dev);
+	struct sun4i_usb_phy_plat *plat = dev_get_plat(dev);
 	struct sun4i_usb_phy_data *data = dev_get_priv(dev);
 	int i, ret;
 

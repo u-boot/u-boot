@@ -85,7 +85,7 @@ static int pcf8575_i2c_read_le16(struct udevice *dev)
 
 static int pcf8575_direction_input(struct udevice *dev, unsigned offset)
 {
-	struct pcf8575_chip *plat = dev_get_platdata(dev);
+	struct pcf8575_chip *plat = dev_get_plat(dev);
 	int status;
 
 	plat->out |= BIT(offset);
@@ -97,7 +97,7 @@ static int pcf8575_direction_input(struct udevice *dev, unsigned offset)
 static int pcf8575_direction_output(struct udevice *dev,
 				    unsigned int offset, int value)
 {
-	struct pcf8575_chip *plat = dev_get_platdata(dev);
+	struct pcf8575_chip *plat = dev_get_plat(dev);
 	int ret;
 
 	if (value)
@@ -127,7 +127,7 @@ static int pcf8575_set_value(struct udevice *dev, unsigned int offset,
 
 static int pcf8575_ofdata_platdata(struct udevice *dev)
 {
-	struct pcf8575_chip *plat = dev_get_platdata(dev);
+	struct pcf8575_chip *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	int n_latch;

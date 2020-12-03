@@ -55,7 +55,7 @@ const char *get_imx8_rev(u32 rev)
 
 static void set_core_data(struct udevice *dev)
 {
-	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+	struct cpu_imx_platdata *plat = dev_get_plat(dev);
 
 	if (device_is_compatible(dev, "arm,cortex-a35")) {
 		plat->cpu_rsrc = SC_R_A35;
@@ -102,7 +102,7 @@ static int cpu_imx_get_temp(struct cpu_imx_platdata *plat)
 
 int cpu_imx_get_desc(const struct udevice *dev, char *buf, int size)
 {
-	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+	struct cpu_imx_platdata *plat = dev_get_plat(dev);
 	int ret, temp;
 
 	if (size < 100)
@@ -128,7 +128,7 @@ int cpu_imx_get_desc(const struct udevice *dev, char *buf, int size)
 
 static int cpu_imx_get_info(const struct udevice *dev, struct cpu_info *info)
 {
-	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+	struct cpu_imx_platdata *plat = dev_get_plat(dev);
 
 	info->cpu_freq = plat->freq_mhz * 1000;
 	info->features = BIT(CPU_FEAT_L1_CACHE) | BIT(CPU_FEAT_MMU);
@@ -165,7 +165,7 @@ static int cpu_imx_get_vendor(const struct udevice *dev,  char *buf, int size)
 
 static int cpu_imx_is_current(struct udevice *dev)
 {
-	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+	struct cpu_imx_platdata *plat = dev_get_plat(dev);
 
 	if (plat->mpidr == (read_mpidr() & 0xffff))
 		return 1;
@@ -190,7 +190,7 @@ static const struct udevice_id cpu_imx8_ids[] = {
 
 static ulong imx8_get_cpu_rate(struct udevice *dev)
 {
-	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+	struct cpu_imx_platdata *plat = dev_get_plat(dev);
 	ulong rate;
 	int ret;
 
@@ -206,7 +206,7 @@ static ulong imx8_get_cpu_rate(struct udevice *dev)
 
 static int imx8_cpu_probe(struct udevice *dev)
 {
-	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+	struct cpu_imx_platdata *plat = dev_get_plat(dev);
 	u32 cpurev;
 
 	set_core_data(dev);

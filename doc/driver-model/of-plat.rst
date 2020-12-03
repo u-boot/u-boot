@@ -171,7 +171,7 @@ accessed using:
 .. code-block:: c
 
     struct udevice *dev;
-    struct dtd_rockchip_rk3288_dw_mshc *plat = dev_get_platdata(dev);
+    struct dtd_rockchip_rk3288_dw_mshc *plat = dev_get_plat(dev);
 
 This avoids the code overhead of converting the device tree data to
 platform data in the driver. The ofdata_to_platdata() method should
@@ -258,7 +258,7 @@ For example:
     {
     #if !CONFIG_IS_ENABLED(OF_PLATDATA)
             /* Decode the device tree data */
-            struct mmc_platdata *plat = dev_get_platdata(dev);
+            struct mmc_platdata *plat = dev_get_plat(dev);
             const void *blob = gd->fdt_blob;
             int node = dev_of_offset(dev);
 
@@ -270,7 +270,7 @@ For example:
 
     static int mmc_probe(struct udevice *dev)
     {
-            struct mmc_platdata *plat = dev_get_platdata(dev);
+            struct mmc_platdata *plat = dev_get_plat(dev);
 
     #if CONFIG_IS_ENABLED(OF_PLATDATA)
             /* Decode the of-platdata from the C structures */

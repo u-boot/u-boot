@@ -54,7 +54,7 @@ struct atmel_sdhci_plat {
 static int atmel_sdhci_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct atmel_sdhci_plat *plat = dev_get_platdata(dev);
+	struct atmel_sdhci_plat *plat = dev_get_plat(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	u32 max_clk;
 	struct clk clk;
@@ -111,7 +111,7 @@ static int atmel_sdhci_probe(struct udevice *dev)
 
 static int atmel_sdhci_bind(struct udevice *dev)
 {
-	struct atmel_sdhci_plat *plat = dev_get_platdata(dev);
+	struct atmel_sdhci_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }

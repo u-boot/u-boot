@@ -1278,7 +1278,7 @@ static void mtk_eth_stop(struct udevice *dev)
 
 static int mtk_eth_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct mtk_eth_priv *priv = dev_get_priv(dev);
 	unsigned char *mac = pdata->enetaddr;
 	u32 macaddr_lsb, macaddr_msb;
@@ -1358,7 +1358,7 @@ static int mtk_eth_free_pkt(struct udevice *dev, uchar *packet, int length)
 
 static int mtk_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct mtk_eth_priv *priv = dev_get_priv(dev);
 	ulong iobase = pdata->iobase;
 	int ret;
@@ -1409,7 +1409,7 @@ static int mtk_eth_remove(struct udevice *dev)
 
 static int mtk_eth_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct mtk_eth_priv *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args args;
 	struct regmap *regmap;

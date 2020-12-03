@@ -287,7 +287,7 @@ static void ftgmac100_stop(struct udevice *dev)
 
 static int ftgmac100_start(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 	struct ftgmac100 *ftgmac100 = priv->iobase;
 	struct phy_device *phydev = priv->phydev;
@@ -505,7 +505,7 @@ static int ftgmac100_send(struct udevice *dev, void *packet, int length)
 
 static int ftgmac100_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 
 	return ftgmac100_set_mac(priv, pdata->enetaddr);
@@ -513,7 +513,7 @@ static int ftgmac100_write_hwaddr(struct udevice *dev)
 
 static int ftgmac100_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 	const char *phy_mode;
 
@@ -542,7 +542,7 @@ static int ftgmac100_ofdata_to_platdata(struct udevice *dev)
 
 static int ftgmac100_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 	int ret;
 

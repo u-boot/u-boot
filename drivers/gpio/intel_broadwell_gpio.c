@@ -117,7 +117,7 @@ static int broadwell_gpio_get_function(struct udevice *dev, unsigned offset)
 
 static int broadwell_gpio_probe(struct udevice *dev)
 {
-	struct broadwell_bank_platdata *plat = dev_get_platdata(dev);
+	struct broadwell_bank_platdata *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct broadwell_bank_priv *priv = dev_get_priv(dev);
 	struct udevice *pinctrl;
@@ -141,7 +141,7 @@ static int broadwell_gpio_probe(struct udevice *dev)
 
 static int broadwell_gpio_ofdata_to_platdata(struct udevice *dev)
 {
-	struct broadwell_bank_platdata *plat = dev_get_platdata(dev);
+	struct broadwell_bank_platdata *plat = dev_get_plat(dev);
 	u32 gpiobase;
 	int bank;
 	int ret;

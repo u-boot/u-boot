@@ -414,7 +414,7 @@ static int omap3_spi_set_wordlen(struct udevice *dev, unsigned int wordlen)
 static int omap3_spi_probe(struct udevice *dev)
 {
 	struct omap3_spi_priv *priv = dev_get_priv(dev);
-	struct omap3_spi_plat *plat = dev_get_platdata(dev);
+	struct omap3_spi_plat *plat = dev_get_plat(dev);
 
 	priv->regs = plat->regs;
 	priv->pin_dir = plat->pin_dir;
@@ -482,7 +482,7 @@ static int omap3_spi_ofdata_to_platdata(struct udevice *dev)
 {
 	struct omap2_mcspi_platform_config *data =
 		(struct omap2_mcspi_platform_config *)dev_get_driver_data(dev);
-	struct omap3_spi_plat *plat = dev_get_platdata(dev);
+	struct omap3_spi_plat *plat = dev_get_plat(dev);
 
 	plat->regs = (struct mcspi *)(dev_read_addr(dev) + data->regs_offset);
 

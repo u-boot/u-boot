@@ -22,7 +22,7 @@ static struct in_addr arp_ip;
 static int sb_eth_raw_start(struct udevice *dev)
 {
 	struct eth_sandbox_raw_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	int ret;
 
 	debug("eth_sandbox_raw: Start\n");
@@ -65,7 +65,7 @@ static int sb_eth_raw_send(struct udevice *dev, void *packet, int length)
 
 static int sb_eth_raw_recv(struct udevice *dev, int flags, uchar **packetp)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct eth_sandbox_raw_priv *priv = dev_get_priv(dev);
 	int retval = 0;
 	int length;
@@ -134,7 +134,7 @@ static void sb_eth_raw_stop(struct udevice *dev)
 
 static int sb_eth_raw_read_rom_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	net_random_ethaddr(pdata->enetaddr);
 
@@ -151,7 +151,7 @@ static const struct eth_ops sb_eth_raw_ops = {
 
 static int sb_eth_raw_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct eth_sandbox_raw_priv *priv = dev_get_priv(dev);
 	const char *ifname;
 	int ret;

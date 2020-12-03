@@ -755,7 +755,7 @@ static void bcm2835_add_host(struct bcm2835_host *host)
 
 static int bcm2835_probe(struct udevice *dev)
 {
-	struct bcm2835_plat *plat = dev_get_platdata(dev);
+	struct bcm2835_plat *plat = dev_get_plat(dev);
 	struct bcm2835_host *host = dev_get_priv(dev);
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
@@ -795,7 +795,7 @@ static const struct dm_mmc_ops bcm2835_ops = {
 
 static int bcm2835_bind(struct udevice *dev)
 {
-	struct bcm2835_plat *plat = dev_get_platdata(dev);
+	struct bcm2835_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }

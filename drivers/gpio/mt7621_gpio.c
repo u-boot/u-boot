@@ -51,7 +51,7 @@ static u32 reg_offs(struct mediatek_gpio_platdata *plat, int reg)
 
 static int mediatek_gpio_get_value(struct udevice *dev, unsigned int offset)
 {
-	struct mediatek_gpio_platdata *plat = dev_get_platdata(dev);
+	struct mediatek_gpio_platdata *plat = dev_get_plat(dev);
 
 	return !!(ioread32(mediatek_gpio_membase +
 			   reg_offs(plat, GPIO_REG_DATA)) & BIT(offset));
@@ -60,7 +60,7 @@ static int mediatek_gpio_get_value(struct udevice *dev, unsigned int offset)
 static int mediatek_gpio_set_value(struct udevice *dev, unsigned int offset,
 				   int value)
 {
-	struct mediatek_gpio_platdata *plat = dev_get_platdata(dev);
+	struct mediatek_gpio_platdata *plat = dev_get_plat(dev);
 
 	iowrite32(BIT(offset), mediatek_gpio_membase +
 		  reg_offs(plat, value ? GPIO_REG_DSET : GPIO_REG_DCLR));
@@ -70,7 +70,7 @@ static int mediatek_gpio_set_value(struct udevice *dev, unsigned int offset,
 
 static int mediatek_gpio_direction_input(struct udevice *dev, unsigned int offset)
 {
-	struct mediatek_gpio_platdata *plat = dev_get_platdata(dev);
+	struct mediatek_gpio_platdata *plat = dev_get_plat(dev);
 
 	clrbits_le32(mediatek_gpio_membase + reg_offs(plat, GPIO_REG_CTRL),
 		     BIT(offset));
@@ -81,7 +81,7 @@ static int mediatek_gpio_direction_input(struct udevice *dev, unsigned int offse
 static int mediatek_gpio_direction_output(struct udevice *dev, unsigned int offset,
 					  int value)
 {
-	struct mediatek_gpio_platdata *plat = dev_get_platdata(dev);
+	struct mediatek_gpio_platdata *plat = dev_get_plat(dev);
 
 	setbits_le32(mediatek_gpio_membase + reg_offs(plat, GPIO_REG_CTRL),
 		     BIT(offset));
@@ -92,7 +92,7 @@ static int mediatek_gpio_direction_output(struct udevice *dev, unsigned int offs
 
 static int mediatek_gpio_get_function(struct udevice *dev, unsigned int offset)
 {
-	struct mediatek_gpio_platdata *plat = dev_get_platdata(dev);
+	struct mediatek_gpio_platdata *plat = dev_get_plat(dev);
 	u32 t;
 
 	t = ioread32(mediatek_gpio_membase + reg_offs(plat, GPIO_REG_CTRL));
@@ -112,7 +112,7 @@ static const struct dm_gpio_ops gpio_mediatek_ops = {
 
 static int gpio_mediatek_probe(struct udevice *dev)
 {
-	struct mediatek_gpio_platdata *plat = dev_get_platdata(dev);
+	struct mediatek_gpio_platdata *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	/* Tell the uclass how many GPIOs we have */

@@ -35,7 +35,7 @@ static bool bcm283x_is_serial_muxed(void)
 
 static int bcm283x_pl011_serial_probe(struct udevice *dev)
 {
-	struct pl01x_serial_platdata *plat = dev_get_platdata(dev);
+	struct pl01x_serial_platdata *plat = dev_get_plat(dev);
 	int ret;
 
 	/* Don't spawn the device if it's not muxed */

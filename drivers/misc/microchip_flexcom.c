@@ -23,7 +23,7 @@ struct microchip_flexcom_platdata {
 
 static int microchip_flexcom_ofdata_to_platdata(struct udevice *dev)
 {
-	struct microchip_flexcom_platdata *plat = dev_get_platdata(dev);
+	struct microchip_flexcom_platdata *plat = dev_get_plat(dev);
 	int ret;
 
 	plat->regs = map_physmem(dev_read_addr(dev),

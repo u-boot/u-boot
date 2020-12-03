@@ -497,7 +497,7 @@ static int luton_initialize(struct luton_private *priv)
 static int luton_write_hwaddr(struct udevice *dev)
 {
 	struct luton_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	mscc_mac_table_add(priv->regs[ANA], luton_regs_ana_table,
 			   pdata->enetaddr, PGID_UNICAST);
@@ -510,7 +510,7 @@ static int luton_write_hwaddr(struct udevice *dev)
 static int luton_start(struct udevice *dev)
 {
 	struct luton_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const unsigned char mac[ETH_ALEN] = { 0xff, 0xff, 0xff, 0xff, 0xff,
 					      0xff };
 	int ret;

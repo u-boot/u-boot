@@ -41,7 +41,7 @@ struct sata_platdata {
 
 static void broadwell_sata_init(struct udevice *dev)
 {
-	struct sata_platdata *plat = dev_get_platdata(dev);
+	struct sata_platdata *plat = dev_get_plat(dev);
 	u32 reg32;
 	u8 *abar;
 	u16 reg16;
@@ -211,7 +211,7 @@ static void broadwell_sata_init(struct udevice *dev)
 
 static int broadwell_sata_enable(struct udevice *dev)
 {
-	struct sata_platdata *plat = dev_get_platdata(dev);
+	struct sata_platdata *plat = dev_get_plat(dev);
 	struct gpio_desc desc;
 	u16 map;
 	int ret;
@@ -234,7 +234,7 @@ static int broadwell_sata_enable(struct udevice *dev)
 
 static int broadwell_sata_ofdata_to_platdata(struct udevice *dev)
 {
-	struct sata_platdata *plat = dev_get_platdata(dev);
+	struct sata_platdata *plat = dev_get_plat(dev);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 

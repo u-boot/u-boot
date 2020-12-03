@@ -179,7 +179,7 @@ static int nexell_dwmmc_ofdata_to_platdata(struct udevice *dev)
 
 static int nexell_dwmmc_probe(struct udevice *dev)
 {
-	struct nexell_mmc_plat *plat = dev_get_platdata(dev);
+	struct nexell_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct nexell_dwmmc_priv *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -214,7 +214,7 @@ static int nexell_dwmmc_probe(struct udevice *dev)
 
 static int nexell_dwmmc_bind(struct udevice *dev)
 {
-	struct nexell_mmc_plat *plat = dev_get_platdata(dev);
+	struct nexell_mmc_plat *plat = dev_get_plat(dev);
 
 	return dwmci_bind(dev, &plat->mmc, &plat->cfg);
 }

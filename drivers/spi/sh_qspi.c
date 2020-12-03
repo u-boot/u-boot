@@ -302,7 +302,7 @@ static int sh_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 			const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev->parent;
-	struct sh_qspi_slave *ss = dev_get_platdata(bus);
+	struct sh_qspi_slave *ss = dev_get_plat(bus);
 
 	return sh_qspi_xfer_common(ss, bitlen, dout, din, flags);
 }
@@ -321,7 +321,7 @@ static int sh_qspi_set_mode(struct udevice *dev, uint mode)
 
 static int sh_qspi_probe(struct udevice *dev)
 {
-	struct sh_qspi_slave *ss = dev_get_platdata(dev);
+	struct sh_qspi_slave *ss = dev_get_plat(dev);
 
 	sh_qspi_init(ss);
 
@@ -330,7 +330,7 @@ static int sh_qspi_probe(struct udevice *dev)
 
 static int sh_qspi_ofdata_to_platdata(struct udevice *dev)
 {
-	struct sh_qspi_slave *plat = dev_get_platdata(dev);
+	struct sh_qspi_slave *plat = dev_get_plat(dev);
 
 	plat->regs = (struct sh_qspi_regs *)dev_read_addr(dev);
 

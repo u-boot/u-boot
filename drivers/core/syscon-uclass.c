@@ -56,7 +56,7 @@ static int syscon_pre_probe(struct udevice *dev)
 	 * using OF_PLATDATA will need to ensure that this is true.
 	 */
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct syscon_base_platdata *plat = dev_get_platdata(dev);
+	struct syscon_base_platdata *plat = dev_get_plat(dev);
 
 	return regmap_init_mem_platdata(dev, plat->reg, ARRAY_SIZE(plat->reg),
 					&priv->regmap);

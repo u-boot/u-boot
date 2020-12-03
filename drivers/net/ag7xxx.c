@@ -588,7 +588,7 @@ static void ag7xxx_eth_stop(struct udevice *dev)
  */
 static int ag7xxx_eth_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ar7xxx_eth_priv *priv = dev_get_priv(dev);
 	unsigned char *mac = pdata->enetaddr;
 	u32 macid_lo, macid_hi;
@@ -1197,7 +1197,7 @@ static int ag7xxx_get_phy_iface_offset(struct udevice *dev)
 
 static int ag7xxx_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ar7xxx_eth_priv *priv = dev_get_priv(dev);
 	void __iomem *iobase, *phyiobase;
 	int ret, phyreg;
@@ -1252,7 +1252,7 @@ static const struct eth_ops ag7xxx_eth_ops = {
 
 static int ag7xxx_eth_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *phy_mode;
 	int ret;
 

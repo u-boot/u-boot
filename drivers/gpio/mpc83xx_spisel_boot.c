@@ -63,7 +63,7 @@ static int mpc83xx_spisel_boot_get_function(struct udevice *dev, uint gpio)
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static int mpc83xx_spisel_boot_ofdata_to_platdata(struct udevice *dev)
 {
-	struct mpc8xxx_gpio_plat *plat = dev_get_platdata(dev);
+	struct mpc8xxx_gpio_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 	u32 reg[2];
 
@@ -81,7 +81,7 @@ static int mpc83xx_spisel_boot_ofdata_to_platdata(struct udevice *dev)
 static int mpc83xx_spisel_boot_platdata_to_priv(struct udevice *dev)
 {
 	struct mpc83xx_spisel_boot *priv = dev_get_priv(dev);
-	struct mpc8xxx_gpio_plat *plat = dev_get_platdata(dev);
+	struct mpc8xxx_gpio_plat *plat = dev_get_plat(dev);
 	unsigned long size = plat->size;
 	ulong driver_data = dev_get_driver_data(dev);
 

@@ -5186,7 +5186,7 @@ static int mvpp2_send(struct udevice *dev, void *packet, int length)
 
 static int mvpp2_start(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct mvpp2_port *port = dev_get_priv(dev);
 
 	/* Load current MAC address */

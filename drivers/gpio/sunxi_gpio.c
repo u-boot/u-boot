@@ -158,7 +158,7 @@ int sunxi_name_to_gpio(const char *name)
 
 static int sunxi_gpio_direction_input(struct udevice *dev, unsigned offset)
 {
-	struct sunxi_gpio_platdata *plat = dev_get_platdata(dev);
+	struct sunxi_gpio_platdata *plat = dev_get_plat(dev);
 
 	sunxi_gpio_set_cfgbank(plat->regs, offset, SUNXI_GPIO_INPUT);
 
@@ -168,7 +168,7 @@ static int sunxi_gpio_direction_input(struct udevice *dev, unsigned offset)
 static int sunxi_gpio_direction_output(struct udevice *dev, unsigned offset,
 				       int value)
 {
-	struct sunxi_gpio_platdata *plat = dev_get_platdata(dev);
+	struct sunxi_gpio_platdata *plat = dev_get_plat(dev);
 	u32 num = GPIO_NUM(offset);
 
 	sunxi_gpio_set_cfgbank(plat->regs, offset, SUNXI_GPIO_OUTPUT);
@@ -179,7 +179,7 @@ static int sunxi_gpio_direction_output(struct udevice *dev, unsigned offset,
 
 static int sunxi_gpio_get_value(struct udevice *dev, unsigned offset)
 {
-	struct sunxi_gpio_platdata *plat = dev_get_platdata(dev);
+	struct sunxi_gpio_platdata *plat = dev_get_plat(dev);
 	u32 num = GPIO_NUM(offset);
 	unsigned dat;
 
@@ -192,7 +192,7 @@ static int sunxi_gpio_get_value(struct udevice *dev, unsigned offset)
 static int sunxi_gpio_set_value(struct udevice *dev, unsigned offset,
 				int value)
 {
-	struct sunxi_gpio_platdata *plat = dev_get_platdata(dev);
+	struct sunxi_gpio_platdata *plat = dev_get_plat(dev);
 	u32 num = GPIO_NUM(offset);
 
 	clrsetbits_le32(&plat->regs->dat, 1 << num, value ? (1 << num) : 0);
@@ -201,7 +201,7 @@ static int sunxi_gpio_set_value(struct udevice *dev, unsigned offset,
 
 static int sunxi_gpio_get_function(struct udevice *dev, unsigned offset)
 {
-	struct sunxi_gpio_platdata *plat = dev_get_platdata(dev);
+	struct sunxi_gpio_platdata *plat = dev_get_plat(dev);
 	int func;
 
 	func = sunxi_gpio_get_cfgbank(plat->regs, offset);
@@ -260,7 +260,7 @@ static char *gpio_bank_name(int bank)
 
 static int gpio_sunxi_probe(struct udevice *dev)
 {
-	struct sunxi_gpio_platdata *plat = dev_get_platdata(dev);
+	struct sunxi_gpio_platdata *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	/* Tell the uclass how many GPIOs we have */

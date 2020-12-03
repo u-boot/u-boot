@@ -472,7 +472,7 @@ static int fm_eth_open(struct udevice *dev)
 #ifndef CONFIG_DM_ETH
 	struct fm_eth *fm_eth = dev->priv;
 #else
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct fm_eth *fm_eth = dev_get_priv(dev);
 #endif
 	unsigned char *enetaddr;

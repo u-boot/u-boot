@@ -87,7 +87,7 @@ static int pfe_eth_write_hwaddr(struct udevice *dev)
 {
 	struct pfe_eth_dev *priv = dev_get_priv(dev);
 	struct gemac_s *gem = priv->gem;
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	uchar *mac = pdata->enetaddr;
 
 	writel((mac[0] << 24) + (mac[1] << 16) + (mac[2] << 8) + mac[3],
@@ -215,7 +215,7 @@ static int pfe_eth_probe(struct udevice *dev)
 {
 	struct pfe_eth_dev *priv = dev_get_priv(dev);
 	struct pfe_ddr_address pfe_addr;
-	struct pfe_eth_pdata *pdata = dev_get_platdata(dev);
+	struct pfe_eth_pdata *pdata = dev_get_plat(dev);
 	int ret = 0;
 	static int init_done;
 
@@ -266,7 +266,7 @@ static int pfe_eth_probe(struct udevice *dev)
 
 static int pfe_eth_bind(struct udevice *dev)
 {
-	struct pfe_eth_pdata *pdata = dev_get_platdata(dev);
+	struct pfe_eth_pdata *pdata = dev_get_plat(dev);
 	char name[20];
 
 	sprintf(name, "pfe_eth%u", pdata->pfe_eth_pdata_mac.phy_interface);

@@ -411,7 +411,7 @@ done:
 static int mmc_spi_probe(struct udevice *dev)
 {
 	struct mmc_spi_priv *priv = dev_get_priv(dev);
-	struct mmc_spi_plat *plat = dev_get_platdata(dev);
+	struct mmc_spi_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	char *name;
 
@@ -446,7 +446,7 @@ static int mmc_spi_probe(struct udevice *dev)
 
 static int mmc_spi_bind(struct udevice *dev)
 {
-	struct mmc_spi_plat *plat = dev_get_platdata(dev);
+	struct mmc_spi_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }

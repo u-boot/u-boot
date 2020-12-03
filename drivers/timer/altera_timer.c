@@ -65,7 +65,7 @@ static int altera_timer_probe(struct udevice *dev)
 
 static int altera_timer_ofdata_to_platdata(struct udevice *dev)
 {
-	struct altera_timer_platdata *plat = dev_get_platdata(dev);
+	struct altera_timer_platdata *plat = dev_get_plat(dev);
 
 	plat->regs = map_physmem(dev_read_addr(dev),
 				 sizeof(struct altera_timer_regs),

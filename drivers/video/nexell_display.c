@@ -536,7 +536,7 @@ static int nx_display_probe(struct udevice *dev)
 {
 	struct video_uc_platdata *uc_plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct nx_display_platdata *plat = dev_get_platdata(dev);
+	struct nx_display_platdata *plat = dev_get_plat(dev);
 	static GraphicDevice *graphic_device;
 	char addr[64];
 

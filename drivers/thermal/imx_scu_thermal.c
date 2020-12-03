@@ -33,7 +33,7 @@ static int read_temperature(struct udevice *dev, int *temp)
 
 	sc_rsrc_t *sensor_rsrc = (sc_rsrc_t *)dev_get_driver_data(dev);
 
-	struct imx_sc_thermal_plat *pdata = dev_get_platdata(dev);
+	struct imx_sc_thermal_plat *pdata = dev_get_plat(dev);
 
 	if (!temp)
 		return -EINVAL;
@@ -52,7 +52,7 @@ static int read_temperature(struct udevice *dev, int *temp)
 
 int imx_sc_thermal_get_temp(struct udevice *dev, int *temp)
 {
-	struct imx_sc_thermal_plat *pdata = dev_get_platdata(dev);
+	struct imx_sc_thermal_plat *pdata = dev_get_plat(dev);
 	int cpu_temp = 0;
 	int ret;
 
@@ -89,7 +89,7 @@ static int imx_sc_thermal_probe(struct udevice *dev)
 
 static int imx_sc_thermal_bind(struct udevice *dev)
 {
-	struct imx_sc_thermal_plat *pdata = dev_get_platdata(dev);
+	struct imx_sc_thermal_plat *pdata = dev_get_plat(dev);
 	int reg, ret;
 	int offset;
 	const char *name;
@@ -128,7 +128,7 @@ static int imx_sc_thermal_bind(struct udevice *dev)
 
 static int imx_sc_thermal_ofdata_to_platdata(struct udevice *dev)
 {
-	struct imx_sc_thermal_plat *pdata = dev_get_platdata(dev);
+	struct imx_sc_thermal_plat *pdata = dev_get_plat(dev);
 	struct fdtdec_phandle_args args;
 	const char *type;
 	int ret;

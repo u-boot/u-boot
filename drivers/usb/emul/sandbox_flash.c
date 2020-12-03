@@ -297,7 +297,7 @@ static int handle_ufi_command(struct sandbox_flash_plat *plat,
 static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 			      unsigned long pipe, void *buff, int len)
 {
-	struct sandbox_flash_plat *plat = dev_get_platdata(dev);
+	struct sandbox_flash_plat *plat = dev_get_plat(dev);
 	struct sandbox_flash_priv *priv = dev_get_priv(dev);
 	int ep = usb_pipeendpoint(pipe);
 	struct umass_bbb_cbw *cbw = buff;
@@ -368,7 +368,7 @@ err:
 
 static int sandbox_flash_ofdata_to_platdata(struct udevice *dev)
 {
-	struct sandbox_flash_plat *plat = dev_get_platdata(dev);
+	struct sandbox_flash_plat *plat = dev_get_plat(dev);
 
 	plat->pathname = dev_read_string(dev, "sandbox,filepath");
 
@@ -377,7 +377,7 @@ static int sandbox_flash_ofdata_to_platdata(struct udevice *dev)
 
 static int sandbox_flash_bind(struct udevice *dev)
 {
-	struct sandbox_flash_plat *plat = dev_get_platdata(dev);
+	struct sandbox_flash_plat *plat = dev_get_plat(dev);
 	struct usb_string *fs;
 
 	fs = plat->flash_strings;
@@ -393,7 +393,7 @@ static int sandbox_flash_bind(struct udevice *dev)
 
 static int sandbox_flash_probe(struct udevice *dev)
 {
-	struct sandbox_flash_plat *plat = dev_get_platdata(dev);
+	struct sandbox_flash_plat *plat = dev_get_plat(dev);
 	struct sandbox_flash_priv *priv = dev_get_priv(dev);
 
 	priv->fd = os_open(plat->pathname, OS_O_RDONLY);

@@ -453,7 +453,7 @@ static int altera_tse_write_hwaddr(struct udevice *dev)
 {
 	struct altera_tse_priv *priv = dev_get_priv(dev);
 	struct alt_tse_mac *mac_dev = priv->mac_dev;
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	u8 *hwaddr = pdata->enetaddr;
 	u32 mac_lo, mac_hi;
 
@@ -575,7 +575,7 @@ static const struct tse_ops tse_msgdma_ops = {
 
 static int altera_tse_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct altera_tse_priv *priv = dev_get_priv(dev);
 	void *blob = (void *)gd->fdt_blob;
 	int node = dev_of_offset(dev);
@@ -674,7 +674,7 @@ static int altera_tse_probe(struct udevice *dev)
 
 static int altera_tse_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *phy_mode;
 
 	pdata->phy_interface = -1;

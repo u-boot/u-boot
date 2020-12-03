@@ -401,7 +401,7 @@ int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp)
 	if (ret)
 		return ret;
 
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	plat->init_type = USB_INIT_DEVICE;
 	ret = device_probe(dev);
 	if (ret)

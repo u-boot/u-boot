@@ -746,7 +746,7 @@ ulong sata_read(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
 static ulong sata_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		       void *buffer)
 {
-	struct fsl_ata_priv *priv = dev_get_platdata(dev);
+	struct fsl_ata_priv *priv = dev_get_plat(dev);
 	fsl_sata_t *sata = priv->fsl_sata;
 #endif
 	u32 rc;
@@ -768,7 +768,7 @@ ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, const void *buffer)
 static ulong sata_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			const void *buffer)
 {
-	struct fsl_ata_priv *priv = dev_get_platdata(dev);
+	struct fsl_ata_priv *priv = dev_get_plat(dev);
 	fsl_sata_t *sata = priv->fsl_sata;
 #endif
 	u32 rc;
@@ -809,7 +809,7 @@ int scan_sata(int dev)
 static int scan_sata(struct udevice *dev)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(dev);
-	struct fsl_ata_priv *priv = dev_get_platdata(dev);
+	struct fsl_ata_priv *priv = dev_get_plat(dev);
 	fsl_sata_t *sata = priv->fsl_sata;
 #endif
 
@@ -969,7 +969,7 @@ static int fsl_ata_probe(struct udevice *dev)
 			continue;
 		}
 
-		blk_priv = dev_get_platdata(blk);
+		blk_priv = dev_get_plat(blk);
 		blk_priv->fsl_sata = priv->fsl_sata;
 		/* Scan SATA port */
 		ret = scan_sata(blk);

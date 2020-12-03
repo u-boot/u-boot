@@ -59,7 +59,7 @@ struct efi_blk_platdata {
 static ulong efi_bl_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			 void *buffer)
 {
-	struct efi_blk_platdata *plat = dev_get_platdata(dev);
+	struct efi_blk_platdata *plat = dev_get_plat(dev);
 	struct efi_block_io *io = plat->io;
 	efi_status_t ret;
 
@@ -88,7 +88,7 @@ static ulong efi_bl_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 static ulong efi_bl_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			  const void *buffer)
 {
-	struct efi_blk_platdata *plat = dev_get_platdata(dev);
+	struct efi_blk_platdata *plat = dev_get_plat(dev);
 	struct efi_block_io *io = plat->io;
 	efi_status_t ret;
 
@@ -169,7 +169,7 @@ static int efi_bl_bind(efi_handle_t handle, void *interface)
 	/* Set the DM_FLAG_NAME_ALLOCED flag to avoid a memory leak */
 	device_set_name_alloced(bdev);
 
-	plat = dev_get_platdata(bdev);
+	plat = dev_get_plat(bdev);
 	plat->handle = handle;
 	plat->io = interface;
 

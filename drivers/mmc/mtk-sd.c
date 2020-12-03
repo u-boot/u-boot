@@ -885,7 +885,7 @@ static void msdc_set_mclk(struct udevice *dev,
 
 static int msdc_ops_set_ios(struct udevice *dev)
 {
-	struct msdc_plat *plat = dev_get_platdata(dev);
+	struct msdc_plat *plat = dev_get_plat(dev);
 	struct msdc_host *host = dev_get_priv(dev);
 	struct mmc *mmc = &plat->mmc;
 	uint clock = mmc->clock;
@@ -1031,7 +1031,7 @@ static inline void msdc_set_data_delay(struct msdc_host *host, u32 value)
 
 static int hs400_tune_response(struct udevice *dev, u32 opcode)
 {
-	struct msdc_plat *plat = dev_get_platdata(dev);
+	struct msdc_plat *plat = dev_get_plat(dev);
 	struct msdc_host *host = dev_get_priv(dev);
 	struct mmc *mmc = &plat->mmc;
 	u32 cmd_delay  = 0;
@@ -1081,7 +1081,7 @@ static int hs400_tune_response(struct udevice *dev, u32 opcode)
 
 static int msdc_tune_response(struct udevice *dev, u32 opcode)
 {
-	struct msdc_plat *plat = dev_get_platdata(dev);
+	struct msdc_plat *plat = dev_get_plat(dev);
 	struct msdc_host *host = dev_get_priv(dev);
 	struct mmc *mmc = &plat->mmc;
 	u32 rise_delay = 0, fall_delay = 0;
@@ -1185,7 +1185,7 @@ skip_internal:
 
 static int msdc_tune_data(struct udevice *dev, u32 opcode)
 {
-	struct msdc_plat *plat = dev_get_platdata(dev);
+	struct msdc_plat *plat = dev_get_plat(dev);
 	struct msdc_host *host = dev_get_priv(dev);
 	struct mmc *mmc = &plat->mmc;
 	u32 rise_delay = 0, fall_delay = 0;
@@ -1276,7 +1276,7 @@ skip_fall:
  */
 static int msdc_tune_together(struct udevice *dev, u32 opcode)
 {
-	struct msdc_plat *plat = dev_get_platdata(dev);
+	struct msdc_plat *plat = dev_get_plat(dev);
 	struct msdc_host *host = dev_get_priv(dev);
 	struct mmc *mmc = &plat->mmc;
 	u32 rise_delay = 0, fall_delay = 0;
@@ -1334,7 +1334,7 @@ skip_fall:
 
 static int msdc_execute_tuning(struct udevice *dev, uint opcode)
 {
-	struct msdc_plat *plat = dev_get_platdata(dev);
+	struct msdc_plat *plat = dev_get_plat(dev);
 	struct msdc_host *host = dev_get_priv(dev);
 	struct mmc *mmc = &plat->mmc;
 	int ret = 0;
@@ -1511,7 +1511,7 @@ static void msdc_ungate_clock(struct msdc_host *host)
 static int msdc_drv_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct msdc_plat *plat = dev_get_platdata(dev);
+	struct msdc_plat *plat = dev_get_plat(dev);
 	struct msdc_host *host = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
 
@@ -1547,7 +1547,7 @@ static int msdc_drv_probe(struct udevice *dev)
 
 static int msdc_ofdata_to_platdata(struct udevice *dev)
 {
-	struct msdc_plat *plat = dev_get_platdata(dev);
+	struct msdc_plat *plat = dev_get_plat(dev);
 	struct msdc_host *host = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
 	fdt_addr_t base, top_base;
@@ -1598,7 +1598,7 @@ static int msdc_ofdata_to_platdata(struct udevice *dev)
 
 static int msdc_drv_bind(struct udevice *dev)
 {
-	struct msdc_plat *plat = dev_get_platdata(dev);
+	struct msdc_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }

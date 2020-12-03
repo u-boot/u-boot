@@ -506,7 +506,7 @@ static int bcm6368_mdio_init(const char *name, struct bcm6368_eth_priv *priv)
 
 static int bcm6368_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct bcm6368_eth_priv *priv = dev_get_priv(dev);
 	int num_ports, ret, i;
 	ofnode node;

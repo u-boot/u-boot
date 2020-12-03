@@ -121,7 +121,7 @@ static void zynq_spi_init_hw(struct zynq_spi_priv *priv)
 
 static int zynq_spi_probe(struct udevice *bus)
 {
-	struct zynq_spi_platdata *plat = dev_get_platdata(bus);
+	struct zynq_spi_platdata *plat = dev_get_plat(bus);
 	struct zynq_spi_priv *priv = dev_get_priv(bus);
 	struct clk clk;
 	unsigned long clock;

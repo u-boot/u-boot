@@ -30,7 +30,7 @@ struct x86_sysreset_platdata {
  */
 int pch_sysreset_power_off(struct udevice *dev)
 {
-	struct x86_sysreset_platdata *plat = dev_get_platdata(dev);
+	struct x86_sysreset_platdata *plat = dev_get_plat(dev);
 	struct pch_pmbase_info pm;
 	u32 reg32;
 	int ret;
@@ -130,7 +130,7 @@ void __efi_runtime EFIAPI efi_reset_system(
 
 static int x86_sysreset_probe(struct udevice *dev)
 {
-	struct x86_sysreset_platdata *plat = dev_get_platdata(dev);
+	struct x86_sysreset_platdata *plat = dev_get_plat(dev);
 
 	/* Locate the PCH if there is one. It isn't essential */
 	uclass_first_device(UCLASS_PCH, &plat->pch);

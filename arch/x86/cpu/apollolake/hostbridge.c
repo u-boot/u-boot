@@ -158,7 +158,7 @@ static const struct nhlt_endp_descriptor dmic_4ch_descriptors[] = {
 
 static int apl_hostbridge_early_init_pinctrl(struct udevice *dev)
 {
-	struct apl_hostbridge_platdata *plat = dev_get_platdata(dev);
+	struct apl_hostbridge_platdata *plat = dev_get_plat(dev);
 	struct udevice *pinctrl;
 	int ret;
 
@@ -172,7 +172,7 @@ static int apl_hostbridge_early_init_pinctrl(struct udevice *dev)
 
 static int apl_hostbridge_early_init(struct udevice *dev)
 {
-	struct apl_hostbridge_platdata *plat = dev_get_platdata(dev);
+	struct apl_hostbridge_platdata *plat = dev_get_plat(dev);
 	u32 region_size;
 	ulong base;
 	u32 reg;
@@ -223,7 +223,7 @@ static int apl_hostbridge_early_init(struct udevice *dev)
 
 static int apl_hostbridge_ofdata_to_platdata(struct udevice *dev)
 {
-	struct apl_hostbridge_platdata *plat = dev_get_platdata(dev);
+	struct apl_hostbridge_platdata *plat = dev_get_plat(dev);
 	struct udevice *pinctrl;
 	int ret;
 

@@ -318,7 +318,7 @@ out:
 #ifdef CONFIG_DM_ETH
 static int ftmac100_start(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct ftmac100_data *priv = dev_get_priv(dev);
 
 	return _ftmac100_init(priv, plat->enetaddr);
@@ -360,7 +360,7 @@ static int ftmac100_free_pkt(struct udevice *dev, uchar *packet, int length)
 
 int ftmac100_read_rom_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	eth_env_get_enetaddr("ethaddr", pdata->enetaddr);
 	return 0;
 }
@@ -396,7 +396,7 @@ static const char *dtbmacaddr(u32 ifno)
 static int ftmac100_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ftmac100_data *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *mac;
 	pdata->iobase = dev_read_addr(dev);
 	priv->iobase = pdata->iobase;

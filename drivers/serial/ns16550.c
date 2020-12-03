@@ -519,7 +519,7 @@ int ns16550_serial_probe(struct udevice *dev)
 	if (!ret)
 		reset_deassert_bulk(&reset_bulk);
 
-	com_port->plat = dev_get_platdata(dev);
+	com_port->plat = dev_get_plat(dev);
 	NS16550_init(com_port, -1);
 
 	return 0;

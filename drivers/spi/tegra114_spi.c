@@ -124,7 +124,7 @@ static int tegra114_spi_ofdata_to_platdata(struct udevice *bus)
 
 static int tegra114_spi_probe(struct udevice *bus)
 {
-	struct tegra_spi_platdata *plat = dev_get_platdata(bus);
+	struct tegra_spi_platdata *plat = dev_get_plat(bus);
 	struct tegra114_spi_priv *priv = dev_get_priv(bus);
 	struct spi_regs *regs;
 	ulong rate;
@@ -181,7 +181,7 @@ static int tegra114_spi_probe(struct udevice *bus)
 static void spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct tegra_spi_platdata *pdata = dev_get_platdata(bus);
+	struct tegra_spi_platdata *pdata = dev_get_plat(bus);
 	struct tegra114_spi_priv *priv = dev_get_priv(bus);
 
 	/* If it's too soon to do another transaction, wait */
@@ -205,7 +205,7 @@ static void spi_cs_activate(struct udevice *dev)
 static void spi_cs_deactivate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct tegra_spi_platdata *pdata = dev_get_platdata(bus);
+	struct tegra_spi_platdata *pdata = dev_get_plat(bus);
 	struct tegra114_spi_priv *priv = dev_get_priv(bus);
 
 	setbits_le32(&priv->regs->command1, SPI_CMD1_CS_SW_VAL);

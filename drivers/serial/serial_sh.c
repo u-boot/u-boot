@@ -169,7 +169,7 @@ static int sh_serial_getc(struct udevice *dev)
 
 static int sh_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct sh_serial_platdata *plat = dev_get_platdata(dev);
+	struct sh_serial_platdata *plat = dev_get_plat(dev);
 	struct uart_port *priv = dev_get_priv(dev);
 
 	sh_serial_setbrg_generic(priv, plat->clk, baudrate);
@@ -179,7 +179,7 @@ static int sh_serial_setbrg(struct udevice *dev, int baudrate)
 
 static int sh_serial_probe(struct udevice *dev)
 {
-	struct sh_serial_platdata *plat = dev_get_platdata(dev);
+	struct sh_serial_platdata *plat = dev_get_plat(dev);
 	struct uart_port *priv = dev_get_priv(dev);
 
 	priv->membase	= (unsigned char *)plat->base;
@@ -209,7 +209,7 @@ static const struct udevice_id sh_serial_id[] ={
 
 static int sh_serial_ofdata_to_platdata(struct udevice *dev)
 {
-	struct sh_serial_platdata *plat = dev_get_platdata(dev);
+	struct sh_serial_platdata *plat = dev_get_plat(dev);
 	struct clk sh_serial_clk;
 	fdt_addr_t addr;
 	int ret;

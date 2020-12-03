@@ -297,7 +297,7 @@ static u32 call_err_to_res(u32 call_err)
 
 static u32 do_call_with_arg(struct udevice *dev, struct optee_msg_arg *arg)
 {
-	struct optee_pdata *pdata = dev_get_platdata(dev);
+	struct optee_pdata *pdata = dev_get_plat(dev);
 	struct rpc_param param = { .a0 = OPTEE_SMC_CALL_WITH_ARG };
 	void *page_list = NULL;
 
@@ -609,7 +609,7 @@ static optee_invoke_fn *get_invoke_func(struct udevice *dev)
 
 static int optee_ofdata_to_platdata(struct udevice *dev)
 {
-	struct optee_pdata *pdata = dev_get_platdata(dev);
+	struct optee_pdata *pdata = dev_get_plat(dev);
 
 	pdata->invoke_fn = get_invoke_func(dev);
 	if (IS_ERR(pdata->invoke_fn))
@@ -620,7 +620,7 @@ static int optee_ofdata_to_platdata(struct udevice *dev)
 
 static int optee_probe(struct udevice *dev)
 {
-	struct optee_pdata *pdata = dev_get_platdata(dev);
+	struct optee_pdata *pdata = dev_get_plat(dev);
 	u32 sec_caps;
 
 	if (!is_optee_api(pdata->invoke_fn)) {

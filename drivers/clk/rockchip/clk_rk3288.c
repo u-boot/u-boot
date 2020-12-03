@@ -975,7 +975,7 @@ static int rk3288_clk_probe(struct udevice *dev)
 		return PTR_ERR(priv->grf);
 #ifdef CONFIG_SPL_BUILD
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct rk3288_clk_plat *plat = dev_get_platdata(dev);
+	struct rk3288_clk_plat *plat = dev_get_plat(dev);
 
 	priv->cru = map_sysmem(plat->dtd.reg[0], plat->dtd.reg[1]);
 #endif

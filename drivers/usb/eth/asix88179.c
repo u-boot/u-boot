@@ -857,7 +857,7 @@ static int ax88179_free_pkt(struct udevice *dev, uchar *packet, int packet_len)
 
 int ax88179_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct asix_private *priv = dev_get_priv(dev);
 	struct ueth_data *ueth = &priv->ueth;
 
@@ -866,7 +866,7 @@ int ax88179_write_hwaddr(struct udevice *dev)
 
 static int ax88179_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct asix_private *priv = dev_get_priv(dev);
 	struct usb_device *usb_dev;
 	int ret;

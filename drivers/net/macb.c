@@ -1169,7 +1169,7 @@ static void macb_stop(struct udevice *dev)
 
 static int macb_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct macb_device *macb = dev_get_priv(dev);
 
 	return _macb_write_hwaddr(macb, plat->enetaddr);
@@ -1222,7 +1222,7 @@ static const struct macb_config default_gem_config = {
 
 static int macb_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct macb_device *macb = dev_get_priv(dev);
 	const char *phy_mode;
 	int ret;
@@ -1295,7 +1295,7 @@ int __weak macb_late_eth_ofdata_to_platdata(struct udevice *dev)
 
 static int macb_eth_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	pdata->iobase = (phys_addr_t)dev_remap_addr(dev);
 	if (!pdata->iobase)

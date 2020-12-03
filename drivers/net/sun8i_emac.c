@@ -255,7 +255,7 @@ static int sun8i_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 static int sun8i_eth_write_hwaddr(struct udevice *dev)
 {
 	struct emac_eth_dev *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	uchar *mac_id = pdata->enetaddr;
 	u32 macid_lo, macid_hi;
 
@@ -712,7 +712,7 @@ static int sun8i_mdio_reset(struct mii_dev *bus)
 {
 	struct udevice *dev = bus->priv;
 	struct emac_eth_dev *priv = dev_get_priv(dev);
-	struct sun8i_eth_pdata *pdata = dev_get_platdata(dev);
+	struct sun8i_eth_pdata *pdata = dev_get_plat(dev);
 	int ret;
 
 	if (!dm_gpio_is_valid(&priv->reset_gpio))
@@ -799,7 +799,7 @@ static void sun8i_emac_eth_stop(struct udevice *dev)
 
 static int sun8i_emac_eth_probe(struct udevice *dev)
 {
-	struct sun8i_eth_pdata *sun8i_pdata = dev_get_platdata(dev);
+	struct sun8i_eth_pdata *sun8i_pdata = dev_get_plat(dev);
 	struct eth_pdata *pdata = &sun8i_pdata->eth_pdata;
 	struct emac_eth_dev *priv = dev_get_priv(dev);
 	int ret;
@@ -863,7 +863,7 @@ static int sun8i_handle_internal_phy(struct udevice *dev, struct emac_eth_dev *p
 
 static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 {
-	struct sun8i_eth_pdata *sun8i_pdata = dev_get_platdata(dev);
+	struct sun8i_eth_pdata *sun8i_pdata = dev_get_plat(dev);
 	struct eth_pdata *pdata = &sun8i_pdata->eth_pdata;
 	struct emac_eth_dev *priv = dev_get_priv(dev);
 	const char *phy_mode;

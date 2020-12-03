@@ -202,7 +202,7 @@ static int sandbox_keyb_interrupt(struct udevice *dev, struct usb_device *udev,
 
 static int sandbox_keyb_bind(struct udevice *dev)
 {
-	struct sandbox_keyb_plat *plat = dev_get_platdata(dev);
+	struct sandbox_keyb_plat *plat = dev_get_plat(dev);
 	struct usb_string *fs;
 
 	fs = plat->keyb_strings;

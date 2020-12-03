@@ -261,7 +261,7 @@ static struct pfuze100_regulator_desc *se_desc(struct pfuze100_regulator_desc *d
 static int pfuze100_regulator_probe(struct udevice *dev)
 {
 	struct dm_regulator_uclass_plat *uc_pdata;
-	struct pfuze100_regulator_platdata *plat = dev_get_platdata(dev);
+	struct pfuze100_regulator_platdata *plat = dev_get_plat(dev);
 	struct pfuze100_regulator_desc *desc;
 
 	switch (dev_get_driver_data(dev_get_parent(dev))) {
@@ -315,7 +315,7 @@ static int pfuze100_regulator_probe(struct udevice *dev)
 static int pfuze100_regulator_mode(struct udevice *dev, int op, int *opmode)
 {
 	int val;
-	struct pfuze100_regulator_platdata *plat = dev_get_platdata(dev);
+	struct pfuze100_regulator_platdata *plat = dev_get_plat(dev);
 	struct pfuze100_regulator_desc *desc = plat->desc;
 
 	if (op == PMIC_OP_GET) {
@@ -449,7 +449,7 @@ static int pfuze100_regulator_val(struct udevice *dev, int op, int *uV)
 {
 	int i;
 	int val;
-	struct pfuze100_regulator_platdata *plat = dev_get_platdata(dev);
+	struct pfuze100_regulator_platdata *plat = dev_get_plat(dev);
 	struct pfuze100_regulator_desc *desc = plat->desc;
 	struct dm_regulator_uclass_plat *uc_pdata =
 		dev_get_uclass_plat(dev);

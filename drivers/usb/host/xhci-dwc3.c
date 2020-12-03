@@ -117,7 +117,7 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	struct xhci_hccr *hccr;
 	struct dwc3 *dwc3_reg;
 	enum usb_dr_mode dr_mode;
-	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);
+	struct xhci_dwc3_platdata *plat = dev_get_plat(dev);
 	const char *phy;
 	u32 reg;
 	int ret;
@@ -167,7 +167,7 @@ static int xhci_dwc3_probe(struct udevice *dev)
 
 static int xhci_dwc3_remove(struct udevice *dev)
 {
-	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);
+	struct xhci_dwc3_platdata *plat = dev_get_plat(dev);
 
 	dwc3_shutdown_phy(dev, &plat->phys);
 

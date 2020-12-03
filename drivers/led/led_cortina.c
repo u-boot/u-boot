@@ -136,7 +136,7 @@ static int ca_led_ofdata_to_platdata(struct udevice *dev)
 
 	/* Top-level LED node */
 	if (!uc_plat->label) {
-		struct cortina_led_platdata *plt = dev_get_platdata(dev);
+		struct cortina_led_platdata *plt = dev_get_plat(dev);
 
 		plt->rate1 =
 			dev_read_u32_default(dev, "Cortina,blink-rate1", 256);
@@ -169,7 +169,7 @@ static int cortina_led_probe(struct udevice *dev)
 
 	/* Top-level LED node */
 	if (!uc_plat->label) {
-		struct cortina_led_platdata *plat = dev_get_platdata(dev);
+		struct cortina_led_platdata *plat = dev_get_plat(dev);
 		u32 reg_value, val;
 		u16 rate1, rate2;
 

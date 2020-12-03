@@ -54,7 +54,7 @@ struct exynos_xhci {
 
 static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
 {
-	struct exynos_xhci_platdata *plat = dev_get_platdata(dev);
+	struct exynos_xhci_platdata *plat = dev_get_plat(dev);
 	const void *blob = gd->fdt_blob;
 	unsigned int node;
 	int depth;
@@ -205,7 +205,7 @@ static void exynos_xhci_core_exit(struct exynos_xhci *exynos)
 
 static int xhci_usb_probe(struct udevice *dev)
 {
-	struct exynos_xhci_platdata *plat = dev_get_platdata(dev);
+	struct exynos_xhci_platdata *plat = dev_get_plat(dev);
 	struct exynos_xhci *ctx = dev_get_priv(dev);
 	struct xhci_hcor *hcor;
 	int ret;

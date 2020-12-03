@@ -27,7 +27,7 @@ struct atmel_pit_platdata {
 
 static u64 atmel_pit_get_count(struct udevice *dev)
 {
-	struct atmel_pit_platdata *plat = dev_get_platdata(dev);
+	struct atmel_pit_platdata *plat = dev_get_plat(dev);
 	struct atmel_pit_regs *const regs = plat->regs;
 	u32 val = readl(&regs->value_image);
 
@@ -36,7 +36,7 @@ static u64 atmel_pit_get_count(struct udevice *dev)
 
 static int atmel_pit_probe(struct udevice *dev)
 {
-	struct atmel_pit_platdata *plat = dev_get_platdata(dev);
+	struct atmel_pit_platdata *plat = dev_get_plat(dev);
 	struct atmel_pit_regs *const regs = plat->regs;
 	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct clk clk;
@@ -60,7 +60,7 @@ static int atmel_pit_probe(struct udevice *dev)
 
 static int atmel_pit_ofdata_to_platdata(struct udevice *dev)
 {
-	struct atmel_pit_platdata *plat = dev_get_platdata(dev);
+	struct atmel_pit_platdata *plat = dev_get_plat(dev);
 
 	plat->regs = dev_read_addr_ptr(dev);
 

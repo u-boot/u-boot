@@ -287,7 +287,7 @@ static const struct ehci_ops mx5_ehci_ops = {
 
 static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 {
-	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct usb_platdata *plat = dev_get_plat(dev);
 	const char *mode;
 
 	mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "dr_mode", NULL);
@@ -305,7 +305,7 @@ static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 
 static int ehci_usb_probe(struct udevice *dev)
 {
-	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct usb_platdata *plat = dev_get_plat(dev);
 	struct usb_ehci *ehci = dev_read_addr_ptr(dev);
 	struct ehci_mx5_priv_data *priv = dev_get_priv(dev);
 	enum usb_init_type type = plat->init_type;

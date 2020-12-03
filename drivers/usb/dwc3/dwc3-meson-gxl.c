@@ -196,7 +196,7 @@ static int dwc3_meson_gxl_usb_init(struct dwc3_meson_gxl *priv)
 
 int dwc3_meson_gxl_force_mode(struct udevice *dev, enum usb_dr_mode mode)
 {
-	struct dwc3_meson_gxl *priv = dev_get_platdata(dev);
+	struct dwc3_meson_gxl *priv = dev_get_plat(dev);
 
 	if (!priv)
 		return -EINVAL;
@@ -295,7 +295,7 @@ static int dwc3_meson_gxl_clk_init(struct dwc3_meson_gxl *priv)
 
 static int dwc3_meson_gxl_probe(struct udevice *dev)
 {
-	struct dwc3_meson_gxl *priv = dev_get_platdata(dev);
+	struct dwc3_meson_gxl *priv = dev_get_plat(dev);
 	int ret, i;
 
 	priv->dev = dev;
@@ -384,7 +384,7 @@ err_phy_init:
 
 static int dwc3_meson_gxl_remove(struct udevice *dev)
 {
-	struct dwc3_meson_gxl *priv = dev_get_platdata(dev);
+	struct dwc3_meson_gxl *priv = dev_get_plat(dev);
 	int i;
 
 	reset_release_all(&priv->reset, 1);

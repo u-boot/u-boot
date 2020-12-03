@@ -572,7 +572,7 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 
 static int sunxi_mmc_set_ios(struct udevice *dev)
 {
-	struct sunxi_mmc_plat *plat = dev_get_platdata(dev);
+	struct sunxi_mmc_plat *plat = dev_get_plat(dev);
 	struct sunxi_mmc_priv *priv = dev_get_priv(dev);
 
 	return sunxi_mmc_set_ios_common(priv, &plat->mmc);
@@ -581,7 +581,7 @@ static int sunxi_mmc_set_ios(struct udevice *dev)
 static int sunxi_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 			      struct mmc_data *data)
 {
-	struct sunxi_mmc_plat *plat = dev_get_platdata(dev);
+	struct sunxi_mmc_plat *plat = dev_get_plat(dev);
 	struct sunxi_mmc_priv *priv = dev_get_priv(dev);
 
 	return sunxi_mmc_send_cmd_common(priv, &plat->mmc, cmd, data);
@@ -608,7 +608,7 @@ static const struct dm_mmc_ops sunxi_mmc_ops = {
 static int sunxi_mmc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct sunxi_mmc_plat *plat = dev_get_platdata(dev);
+	struct sunxi_mmc_plat *plat = dev_get_plat(dev);
 	struct sunxi_mmc_priv *priv = dev_get_priv(dev);
 	struct reset_ctl_bulk reset_bulk;
 	struct clk gate_clk;
@@ -682,7 +682,7 @@ static int sunxi_mmc_probe(struct udevice *dev)
 
 static int sunxi_mmc_bind(struct udevice *dev)
 {
-	struct sunxi_mmc_plat *plat = dev_get_platdata(dev);
+	struct sunxi_mmc_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }

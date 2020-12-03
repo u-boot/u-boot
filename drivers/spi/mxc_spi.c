@@ -512,7 +512,7 @@ void spi_release_bus(struct spi_slave *slave)
 
 static int mxc_spi_probe(struct udevice *bus)
 {
-	struct mxc_spi_slave *mxcs = dev_get_platdata(bus);
+	struct mxc_spi_slave *mxcs = dev_get_plat(bus);
 	int node = dev_of_offset(bus);
 	const void *blob = gd->fdt_blob;
 	int ret;
@@ -550,7 +550,7 @@ static int mxc_spi_probe(struct udevice *bus)
 static int mxc_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		const void *dout, void *din, unsigned long flags)
 {
-	struct mxc_spi_slave *mxcs = dev_get_platdata(dev->parent);
+	struct mxc_spi_slave *mxcs = dev_get_plat(dev->parent);
 
 
 	return mxc_spi_xfer_internal(mxcs, bitlen, dout, din, flags);
@@ -558,7 +558,7 @@ static int mxc_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int mxc_spi_claim_bus(struct udevice *dev)
 {
-	struct mxc_spi_slave *mxcs = dev_get_platdata(dev->parent);
+	struct mxc_spi_slave *mxcs = dev_get_plat(dev->parent);
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 
 	mxcs->dev = dev;
@@ -579,7 +579,7 @@ static int mxc_spi_set_speed(struct udevice *bus, uint speed)
 
 static int mxc_spi_set_mode(struct udevice *bus, uint mode)
 {
-	struct mxc_spi_slave *mxcs = dev_get_platdata(bus);
+	struct mxc_spi_slave *mxcs = dev_get_plat(bus);
 
 	mxcs->mode = mode;
 	mxcs->ss_pol = (mode & SPI_CS_HIGH) ? 1 : 0;

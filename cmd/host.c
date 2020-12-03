@@ -91,7 +91,7 @@ static int do_host_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		struct host_block_dev *host_dev;
 
 #ifdef CONFIG_BLK
-		host_dev = dev_get_platdata(blk_dev->bdev);
+		host_dev = dev_get_plat(blk_dev->bdev);
 #else
 		host_dev = blk_dev->priv;
 #endif

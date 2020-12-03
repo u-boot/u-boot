@@ -299,7 +299,7 @@ static int ave_mdiobus_write(struct mii_dev *bus,
 static int ave_adjust_link(struct ave_private *priv)
 {
 	struct phy_device *phydev = priv->phydev;
-	struct eth_pdata *pdata = dev_get_platdata(phydev->dev);
+	struct eth_pdata *pdata = dev_get_plat(phydev->dev);
 	u32 val, txcr, rxcr, rxcr_org;
 	u16 rmt_adv = 0, lcl_adv = 0;
 	u8 cap;
@@ -516,7 +516,7 @@ static int ave_start(struct udevice *dev)
 static int ave_write_hwaddr(struct udevice *dev)
 {
 	struct ave_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	u8 *mac = pdata->enetaddr;
 
 	writel(mac[0] | mac[1] << 8 | mac[2] << 16 | mac[3] << 24,
@@ -734,7 +734,7 @@ static int ave_pxs3_get_pinmode(struct ave_private *priv)
 
 static int ave_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ave_private *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args args;
 	const char *phy_mode;
@@ -826,7 +826,7 @@ out_clk_free:
 
 static int ave_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ave_private *priv = dev_get_priv(dev);
 	int ret, nc, nr;
 

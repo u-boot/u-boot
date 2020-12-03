@@ -34,7 +34,7 @@ static unsigned long host_block_read(struct udevice *dev,
 				     unsigned long start, lbaint_t blkcnt,
 				     void *buffer)
 {
-	struct host_block_dev *host_dev = dev_get_platdata(dev);
+	struct host_block_dev *host_dev = dev_get_plat(dev);
 	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 
 #else
@@ -65,7 +65,7 @@ static unsigned long host_block_write(struct udevice *dev,
 				      unsigned long start, lbaint_t blkcnt,
 				      const void *buffer)
 {
-	struct host_block_dev *host_dev = dev_get_platdata(dev);
+	struct host_block_dev *host_dev = dev_get_plat(dev);
 	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 #else
 static unsigned long host_block_write(struct blk_desc *block_dev,
@@ -133,7 +133,7 @@ int host_dev_bind(int devnum, char *filename)
 	if (ret)
 		goto err_file;
 
-	host_dev = dev_get_platdata(dev);
+	host_dev = dev_get_plat(dev);
 	host_dev->fd = fd;
 	host_dev->filename = fname;
 

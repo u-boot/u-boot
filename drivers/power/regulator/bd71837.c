@@ -274,7 +274,7 @@ static int vrange_find_selector(struct bd71837_vrange *r, int val,
 static int bd71837_get_enable(struct udevice *dev)
 {
 	int val;
-	struct bd71837_platdata *plat = dev_get_platdata(dev);
+	struct bd71837_platdata *plat = dev_get_plat(dev);
 
 	/*
 	 * boot critical regulators on bd71837 must not be controlled by sw
@@ -298,7 +298,7 @@ static int bd71837_get_enable(struct udevice *dev)
 static int bd71837_set_enable(struct udevice *dev, bool enable)
 {
 	int val = 0;
-	struct bd71837_platdata *plat = dev_get_platdata(dev);
+	struct bd71837_platdata *plat = dev_get_plat(dev);
 
 	/*
 	 * boot critical regulators on bd71837 must not be controlled by sw
@@ -321,7 +321,7 @@ static int bd71837_set_value(struct udevice *dev, int uvolt)
 	unsigned int range;
 	int i;
 	int found = 0;
-	struct bd71837_platdata *plat = dev_get_platdata(dev);
+	struct bd71837_platdata *plat = dev_get_plat(dev);
 
 	/*
 	 * An under/overshooting may occur if voltage is changed for other
@@ -369,7 +369,7 @@ static int bd71837_get_value(struct udevice *dev)
 {
 	unsigned int reg, range;
 	unsigned int tmp;
-	struct bd71837_platdata *plat = dev_get_platdata(dev);
+	struct bd71837_platdata *plat = dev_get_plat(dev);
 	int i;
 
 	reg = pmic_reg_read(dev->parent, plat->volt_reg);
@@ -399,7 +399,7 @@ static int bd71837_get_value(struct udevice *dev)
 
 static int bd71837_regulator_probe(struct udevice *dev)
 {
-	struct bd71837_platdata *plat = dev_get_platdata(dev);
+	struct bd71837_platdata *plat = dev_get_plat(dev);
 	int i, ret;
 	struct dm_regulator_uclass_plat *uc_pdata;
 	int type;

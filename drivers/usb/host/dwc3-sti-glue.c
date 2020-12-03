@@ -102,7 +102,7 @@ static void sti_dwc3_glue_init(struct sti_dwc3_glue_platdata *plat)
 
 static int sti_dwc3_glue_ofdata_to_platdata(struct udevice *dev)
 {
-	struct sti_dwc3_glue_platdata *plat = dev_get_platdata(dev);
+	struct sti_dwc3_glue_platdata *plat = dev_get_plat(dev);
 	struct udevice *syscon;
 	struct regmap *regmap;
 	int ret;
@@ -150,7 +150,7 @@ static int sti_dwc3_glue_ofdata_to_platdata(struct udevice *dev)
 
 static int sti_dwc3_glue_bind(struct udevice *dev)
 {
-	struct sti_dwc3_glue_platdata *plat = dev_get_platdata(dev);
+	struct sti_dwc3_glue_platdata *plat = dev_get_plat(dev);
 	ofnode node, dwc3_node;
 
 	/* Find snps,dwc3 node from subnode */
@@ -175,7 +175,7 @@ static int sti_dwc3_glue_bind(struct udevice *dev)
 
 static int sti_dwc3_glue_probe(struct udevice *dev)
 {
-	struct sti_dwc3_glue_platdata *plat = dev_get_platdata(dev);
+	struct sti_dwc3_glue_platdata *plat = dev_get_plat(dev);
 	int ret;
 
 	/* deassert both powerdown and softreset */
@@ -216,7 +216,7 @@ softreset_err:
 
 static int sti_dwc3_glue_remove(struct udevice *dev)
 {
-	struct sti_dwc3_glue_platdata *plat = dev_get_platdata(dev);
+	struct sti_dwc3_glue_platdata *plat = dev_get_plat(dev);
 	int ret;
 
 	/* assert both powerdown and softreset */

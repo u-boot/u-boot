@@ -125,7 +125,7 @@ static int xlnx_wwdt_start(struct udevice *dev, u64 timeout, ulong flags)
 static int xlnx_wwdt_probe(struct udevice *dev)
 {
 	int ret;
-	struct xlnx_wwdt_platdata *plat = dev_get_platdata(dev);
+	struct xlnx_wwdt_platdata *plat = dev_get_plat(dev);
 	struct xlnx_wwdt_priv *wdt = dev_get_priv(dev);
 
 	dev_dbg(dev, "%s: Probing wdt%u\n", __func__, dev->seq);
@@ -147,7 +147,7 @@ static int xlnx_wwdt_probe(struct udevice *dev)
 
 static int xlnx_wwdt_ofdata_to_platdata(struct udevice *dev)
 {
-	struct xlnx_wwdt_platdata *plat = dev_get_platdata(dev);
+	struct xlnx_wwdt_platdata *plat = dev_get_plat(dev);
 
 	plat->enable_once = dev_read_u32_default(dev, "xlnx,wdt-enable-once",
 						 0);

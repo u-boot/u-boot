@@ -1108,7 +1108,7 @@ static int eqos_adjust_link(struct udevice *dev)
 
 static int eqos_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	uint32_t val;
 
@@ -1152,7 +1152,7 @@ static int eqos_write_hwaddr(struct udevice *dev)
 
 static int eqos_read_rom_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 #ifdef CONFIG_ARCH_IMX8M
 	imx_get_mac_from_fuse(dev->req_seq, pdata->enetaddr);

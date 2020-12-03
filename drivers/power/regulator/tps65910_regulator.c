@@ -141,7 +141,7 @@ static int tps65910_regulator_get_value(struct udevice *dev,
 					const struct regulator_props *rgp)
 {
 	int sel, val, vout;
-	struct tps65910_regulator_pdata *pdata = dev_get_platdata(dev);
+	struct tps65910_regulator_pdata *pdata = dev_get_plat(dev);
 	int vin = pdata->supply;
 
 	val = pmic_reg_read(dev->parent, rgp->reg);
@@ -156,7 +156,7 @@ static int tps65910_regulator_get_value(struct udevice *dev,
 
 static int tps65910_ldo_get_value(struct udevice *dev)
 {
-	struct tps65910_regulator_pdata *pdata = dev_get_platdata(dev);
+	struct tps65910_regulator_pdata *pdata = dev_get_plat(dev);
 	int vin;
 
 	if (!pdata)
@@ -194,7 +194,7 @@ static int tps65910_regulator_set_value(struct udevice *dev,
 {
 	int val;
 	int sel = 0;
-	struct tps65910_regulator_pdata *pdata = dev_get_platdata(dev);
+	struct tps65910_regulator_pdata *pdata = dev_get_plat(dev);
 
 	do {
 		/* we only allow exact voltage matches */
@@ -216,7 +216,7 @@ static int tps65910_regulator_set_value(struct udevice *dev,
 
 static int tps65910_ldo_set_value(struct udevice *dev, int uV)
 {
-	struct tps65910_regulator_pdata *pdata = dev_get_platdata(dev);
+	struct tps65910_regulator_pdata *pdata = dev_get_plat(dev);
 	int vin = pdata->supply;
 
 	switch (pdata->unit) {
@@ -249,7 +249,7 @@ static int tps65910_ldo_set_value(struct udevice *dev, int uV)
 static int tps65910_get_enable(struct udevice *dev)
 {
 	int reg, val;
-	struct tps65910_regulator_pdata *pdata = dev_get_platdata(dev);
+	struct tps65910_regulator_pdata *pdata = dev_get_plat(dev);
 
 	reg = get_ctrl_reg_from_unit_addr(pdata->unit);
 	if (reg < 0)
@@ -267,7 +267,7 @@ static int tps65910_set_enable(struct udevice *dev, bool enable)
 {
 	int reg;
 	uint clr, set;
-	struct tps65910_regulator_pdata *pdata = dev_get_platdata(dev);
+	struct tps65910_regulator_pdata *pdata = dev_get_plat(dev);
 
 	reg = get_ctrl_reg_from_unit_addr(pdata->unit);
 	if (reg < 0)
@@ -305,7 +305,7 @@ static int buck_get_vdd1_vdd2_value(struct udevice *dev, int reg_vdd)
 
 static int tps65910_buck_get_value(struct udevice *dev)
 {
-	struct tps65910_regulator_pdata *pdata = dev_get_platdata(dev);
+	struct tps65910_regulator_pdata *pdata = dev_get_plat(dev);
 
 	switch (pdata->unit) {
 	case TPS65910_UNIT_VIO:
@@ -324,7 +324,7 @@ static int buck_set_vdd1_vdd2_value(struct udevice *dev, int uV)
 	int ret, reg_vdd, gain;
 	int val;
 	struct dm_regulator_uclass_plat *uc_pdata;
-	struct tps65910_regulator_pdata *pdata = dev_get_platdata(dev);
+	struct tps65910_regulator_pdata *pdata = dev_get_plat(dev);
 
 	switch (pdata->unit) {
 	case TPS65910_UNIT_VDD1:
@@ -369,7 +369,7 @@ static int buck_set_vdd1_vdd2_value(struct udevice *dev, int uV)
 
 static int tps65910_buck_set_value(struct udevice *dev, int uV)
 {
-	struct tps65910_regulator_pdata *pdata = dev_get_platdata(dev);
+	struct tps65910_regulator_pdata *pdata = dev_get_plat(dev);
 
 	if (pdata->unit == TPS65910_UNIT_VIO)
 		return tps65910_regulator_set_value(dev, &smps_props_vio, uV);
@@ -380,7 +380,7 @@ static int tps65910_buck_set_value(struct udevice *dev, int uV)
 static int tps65910_boost_get_value(struct udevice *dev)
 {
 	int vout;
-	struct tps65910_regulator_pdata *pdata = dev_get_platdata(dev);
+	struct tps65910_regulator_pdata *pdata = dev_get_plat(dev);
 
 	vout = (pdata->supply >= 3000000) ? 5000000 : 0;
 	return vout;
@@ -391,7 +391,7 @@ static int tps65910_regulator_ofdata_to_platdata(struct udevice *dev)
 	struct udevice *supply;
 	int ret;
 	const char *supply_name;
-	struct tps65910_regulator_pdata *pdata = dev_get_platdata(dev);
+	struct tps65910_regulator_pdata *pdata = dev_get_plat(dev);
 
 	pdata->unit = dev_get_driver_data(dev);
 	if (pdata->unit > TPS65910_UNIT_VMMC)

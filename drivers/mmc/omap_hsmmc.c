@@ -180,7 +180,7 @@ static inline struct omap_hsmmc_data *omap_hsmmc_get_data(struct mmc *mmc)
 static inline struct mmc_config *omap_hsmmc_get_cfg(struct mmc *mmc)
 {
 #if CONFIG_IS_ENABLED(DM_MMC)
-	struct omap_hsmmc_plat *plat = dev_get_platdata(mmc->dev);
+	struct omap_hsmmc_plat *plat = dev_get_plat(mmc->dev);
 	return &plat->cfg;
 #else
 	return &((struct omap_hsmmc_data *)mmc->priv)->cfg;
@@ -1900,7 +1900,7 @@ __weak const struct mmc_platform_fixups *platform_fixups_mmc(uint32_t addr)
 
 static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 {
-	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
+	struct omap_hsmmc_plat *plat = dev_get_plat(dev);
 	struct omap_mmc_of_data *of_data = (void *)dev_get_driver_data(dev);
 
 	struct mmc_config *cfg = &plat->cfg;
@@ -1949,14 +1949,14 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 
 static int omap_hsmmc_bind(struct udevice *dev)
 {
-	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
+	struct omap_hsmmc_plat *plat = dev_get_plat(dev);
 	plat->mmc = calloc(1, sizeof(struct mmc));
 	return mmc_bind(dev, plat->mmc, &plat->cfg);
 }
 #endif
 static int omap_hsmmc_probe(struct udevice *dev)
 {
-	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
+	struct omap_hsmmc_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct omap_hsmmc_data *priv = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;

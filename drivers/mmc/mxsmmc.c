@@ -310,7 +310,7 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 static int
 mxsmmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd, struct mmc_data *data)
 {
-	struct mxsmmc_platdata *plat = dev_get_platdata(dev);
+	struct mxsmmc_platdata *plat = dev_get_plat(dev);
 	struct mxsmmc_priv *priv = dev_get_priv(dev);
 	struct mxs_ssp_regs *ssp_regs = priv->regs;
 	struct mmc *mmc = &plat->mmc;
@@ -490,7 +490,7 @@ mxsmmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd, struct mmc_data *data)
 
 static int mxsmmc_get_cd(struct udevice *dev)
 {
-	struct mxsmmc_platdata *plat = dev_get_platdata(dev);
+	struct mxsmmc_platdata *plat = dev_get_plat(dev);
 	struct mxsmmc_priv *priv = dev_get_priv(dev);
 	struct mxs_ssp_regs *ssp_regs = priv->regs;
 
@@ -502,7 +502,7 @@ static int mxsmmc_get_cd(struct udevice *dev)
 
 static int mxsmmc_set_ios(struct udevice *dev)
 {
-	struct mxsmmc_platdata *plat = dev_get_platdata(dev);
+	struct mxsmmc_platdata *plat = dev_get_plat(dev);
 	struct mxsmmc_priv *priv = dev_get_priv(dev);
 	struct mxs_ssp_regs *ssp_regs = priv->regs;
 	struct mmc *mmc = &plat->mmc;
@@ -567,7 +567,7 @@ static int mxsmmc_init(struct udevice *dev)
 static int mxsmmc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct mxsmmc_platdata *plat = dev_get_platdata(dev);
+	struct mxsmmc_platdata *plat = dev_get_plat(dev);
 	struct mxsmmc_priv *priv = dev_get_priv(dev);
 	struct blk_desc *bdesc;
 	struct mmc *mmc;
@@ -653,7 +653,7 @@ static int mxsmmc_probe(struct udevice *dev)
 #if CONFIG_IS_ENABLED(BLK)
 static int mxsmmc_bind(struct udevice *dev)
 {
-	struct mxsmmc_platdata *plat = dev_get_platdata(dev);
+	struct mxsmmc_platdata *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }

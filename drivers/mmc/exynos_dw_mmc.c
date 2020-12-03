@@ -263,7 +263,7 @@ int exynos_dwmmc_init(const void *blob)
 #ifdef CONFIG_DM_MMC
 static int exynos_dwmmc_probe(struct udevice *dev)
 {
-	struct exynos_mmc_plat *plat = dev_get_platdata(dev);
+	struct exynos_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct dwmci_exynos_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -288,7 +288,7 @@ static int exynos_dwmmc_probe(struct udevice *dev)
 
 static int exynos_dwmmc_bind(struct udevice *dev)
 {
-	struct exynos_mmc_plat *plat = dev_get_platdata(dev);
+	struct exynos_mmc_plat *plat = dev_get_plat(dev);
 
 	return dwmci_bind(dev, &plat->mmc, &plat->cfg);
 }

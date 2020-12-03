@@ -122,7 +122,7 @@ static int sandbox_sf_probe(struct udevice *dev)
 	struct sandbox_spi_flash *sbsf = dev_get_priv(dev);
 	size_t len, idname_len;
 	const struct flash_info *data;
-	struct sandbox_spi_flash_plat_data *pdata = dev_get_platdata(dev);
+	struct sandbox_spi_flash_plat_data *pdata = dev_get_plat(dev);
 	struct sandbox_state *state = state_get_current();
 	struct dm_spi_slave_platdata *slave_plat;
 	struct udevice *bus = dev->parent;
@@ -500,7 +500,7 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 
 int sandbox_sf_ofdata_to_platdata(struct udevice *dev)
 {
-	struct sandbox_spi_flash_plat_data *pdata = dev_get_platdata(dev);
+	struct sandbox_spi_flash_plat_data *pdata = dev_get_plat(dev);
 
 	pdata->filename = dev_read_string(dev, "sandbox,filename");
 	pdata->device_name = dev_read_string(dev, "compatible");

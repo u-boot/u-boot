@@ -418,7 +418,7 @@ static void arm_pl180_mmc_init(struct pl180_mmc_host *host)
 
 static int arm_pl180_mmc_probe(struct udevice *dev)
 {
-	struct arm_pl180_mmc_plat *pdata = dev_get_platdata(dev);
+	struct arm_pl180_mmc_plat *pdata = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct mmc *mmc = &pdata->mmc;
 	struct pl180_mmc_host *host = dev->priv;
@@ -486,7 +486,7 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 
 int arm_pl180_mmc_bind(struct udevice *dev)
 {
-	struct arm_pl180_mmc_plat *plat = dev_get_platdata(dev);
+	struct arm_pl180_mmc_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }

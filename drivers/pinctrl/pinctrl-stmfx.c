@@ -293,7 +293,7 @@ static int stmfx_pinctrl_conf_set(struct udevice *dev, unsigned int pin,
 				  unsigned int param, unsigned int arg)
 {
 	int ret, dir;
-	struct stmfx_pinctrl *plat = dev_get_platdata(dev);
+	struct stmfx_pinctrl *plat = dev_get_plat(dev);
 
 	dir = stmfx_gpio_get_function(plat->gpio, pin);
 
@@ -334,7 +334,7 @@ static int stmfx_pinctrl_conf_set(struct udevice *dev, unsigned int pin,
 
 static int stmfx_pinctrl_get_pins_count(struct udevice *dev)
 {
-	struct stmfx_pinctrl *plat = dev_get_platdata(dev);
+	struct stmfx_pinctrl *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv;
 
 	uc_priv = dev_get_uclass_priv(plat->gpio);
@@ -390,7 +390,7 @@ static int stmfx_pinctrl_get_pin_muxing(struct udevice *dev,
 					unsigned int selector,
 					char *buf, int size)
 {
-	struct stmfx_pinctrl *plat = dev_get_platdata(dev);
+	struct stmfx_pinctrl *plat = dev_get_plat(dev);
 	int func;
 
 	func = stmfx_gpio_get_function(plat->gpio, selector);
@@ -406,7 +406,7 @@ static int stmfx_pinctrl_get_pin_muxing(struct udevice *dev,
 
 static int stmfx_pinctrl_bind(struct udevice *dev)
 {
-	struct stmfx_pinctrl *plat = dev_get_platdata(dev);
+	struct stmfx_pinctrl *plat = dev_get_plat(dev);
 
 	/* subnode name is not explicit: use father name */
 	device_set_name(dev, dev->parent->name);
@@ -418,7 +418,7 @@ static int stmfx_pinctrl_bind(struct udevice *dev)
 
 static int stmfx_pinctrl_probe(struct udevice *dev)
 {
-	struct stmfx_pinctrl *plat = dev_get_platdata(dev);
+	struct stmfx_pinctrl *plat = dev_get_plat(dev);
 
 	return device_probe(plat->gpio);
 };

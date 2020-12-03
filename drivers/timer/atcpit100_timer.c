@@ -70,7 +70,7 @@ struct atcpit_timer_platdata {
 
 static u64 atcpit_timer_get_count(struct udevice *dev)
 {
-	struct atcpit_timer_platdata *plat = dev_get_platdata(dev);
+	struct atcpit_timer_platdata *plat = dev_get_plat(dev);
 	u32 val;
 	val = ~(REG32_TMR(CH_CNT(1))+0xffffffff);
 	return timer_conv_64(val);
@@ -78,7 +78,7 @@ static u64 atcpit_timer_get_count(struct udevice *dev)
 
 static int atcpit_timer_probe(struct udevice *dev)
 {
-	struct atcpit_timer_platdata *plat = dev_get_platdata(dev);
+	struct atcpit_timer_platdata *plat = dev_get_plat(dev);
 	REG32_TMR(CH_REL(1)) = 0xffffffff;
 	REG32_TMR(CH_CTL(1)) = APB_CLK|TMR_32;
 	REG32_TMR(CH_EN) |= CH_TMR_EN(1 , 0);
@@ -87,7 +87,7 @@ static int atcpit_timer_probe(struct udevice *dev)
 
 static int atcpit_timer_ofdata_to_platdata(struct udevice *dev)
 {
-	struct atcpit_timer_platdata *plat = dev_get_platdata(dev);
+	struct atcpit_timer_platdata *plat = dev_get_plat(dev);
 	plat->regs = map_physmem(dev_read_addr(dev), 0x100 , MAP_NOCACHE);
 	return 0;
 }

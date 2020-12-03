@@ -166,7 +166,7 @@ static const struct sdhci_ops bcm2835_ops = {
 
 static int bcm2835_sdhci_bind(struct udevice *dev)
 {
-	struct bcm2835_sdhci_plat *plat = dev_get_platdata(dev);
+	struct bcm2835_sdhci_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -174,7 +174,7 @@ static int bcm2835_sdhci_bind(struct udevice *dev)
 static int bcm2835_sdhci_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct bcm2835_sdhci_plat *plat = dev_get_platdata(dev);
+	struct bcm2835_sdhci_plat *plat = dev_get_plat(dev);
 	struct bcm2835_sdhci_host *priv = dev_get_priv(dev);
 	struct sdhci_host *host = &priv->host;
 	fdt_addr_t base;

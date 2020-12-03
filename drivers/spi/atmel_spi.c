@@ -121,7 +121,7 @@ struct atmel_spi_priv {
 static int atmel_spi_claim_bus(struct udevice *dev)
 {
 	struct udevice *bus = dev_get_parent(dev);
-	struct atmel_spi_platdata *bus_plat = dev_get_platdata(bus);
+	struct atmel_spi_platdata *bus_plat = dev_get_plat(bus);
 	struct atmel_spi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 	struct at91_spi *reg_base = bus_plat->regs;
@@ -161,7 +161,7 @@ static int atmel_spi_claim_bus(struct udevice *dev)
 static int atmel_spi_release_bus(struct udevice *dev)
 {
 	struct udevice *bus = dev_get_parent(dev);
-	struct atmel_spi_platdata *bus_plat = dev_get_platdata(bus);
+	struct atmel_spi_platdata *bus_plat = dev_get_plat(bus);
 
 	writel(ATMEL_SPI_CR_SPIDIS, &bus_plat->regs->cr);
 
@@ -202,7 +202,7 @@ static int atmel_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			  const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev_get_parent(dev);
-	struct atmel_spi_platdata *bus_plat = dev_get_platdata(bus);
+	struct atmel_spi_platdata *bus_plat = dev_get_plat(bus);
 	struct at91_spi *reg_base = bus_plat->regs;
 
 	u32 len_tx, len_rx, len;
@@ -344,7 +344,7 @@ static int atmel_spi_enable_clk(struct udevice *bus)
 
 static int atmel_spi_probe(struct udevice *bus)
 {
-	struct atmel_spi_platdata *bus_plat = dev_get_platdata(bus);
+	struct atmel_spi_platdata *bus_plat = dev_get_plat(bus);
 	int ret;
 
 	ret = atmel_spi_enable_clk(bus);

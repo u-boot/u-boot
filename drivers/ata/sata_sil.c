@@ -492,7 +492,7 @@ ulong sata_read(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
 static ulong sata_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		       void *buffer)
 {
-	struct sil_sata_priv *priv = dev_get_platdata(dev);
+	struct sil_sata_priv *priv = dev_get_plat(dev);
 	int port_number = priv->port_num;
 	struct sil_sata *sata = priv->sil_sata_desc[port_number];
 #endif
@@ -517,7 +517,7 @@ ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, const void *buffer)
 ulong sata_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		 const void *buffer)
 {
-	struct sil_sata_priv *priv = dev_get_platdata(dev);
+	struct sil_sata_priv *priv = dev_get_plat(dev);
 	int port_number = priv->port_num;
 	struct sil_sata *sata = priv->sil_sata_desc[port_number];
 #endif
@@ -542,7 +542,7 @@ static int sil_init_sata(int dev)
 #else
 static int sil_init_sata(struct udevice *uc_dev, int dev)
 {
-	struct sil_sata_priv *priv = dev_get_platdata(uc_dev);
+	struct sil_sata_priv *priv = dev_get_plat(uc_dev);
 #endif
 	struct sil_sata *sata;
 	void *port;
@@ -709,7 +709,7 @@ int scan_sata(int dev)
 static int scan_sata(struct udevice *blk_dev, int dev)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(blk_dev);
-	struct sil_sata_priv *priv = dev_get_platdata(blk_dev);
+	struct sil_sata_priv *priv = dev_get_plat(blk_dev);
 	struct sil_sata *sata = priv->sil_sata_desc[dev];
 #endif
 	unsigned char serial[ATA_ID_SERNO_LEN + 1];

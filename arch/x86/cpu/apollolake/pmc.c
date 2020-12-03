@@ -111,7 +111,7 @@ static int apl_global_reset_set_enable(struct udevice *dev, bool enable)
 int apl_pmc_ofdata_to_uc_platdata(struct udevice *dev)
 {
 	struct acpi_pmc_upriv *upriv = dev_get_uclass_priv(dev);
-	struct apl_pmc_platdata *plat = dev_get_platdata(dev);
+	struct apl_pmc_platdata *plat = dev_get_plat(dev);
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	u32 base[6];
@@ -169,7 +169,7 @@ int apl_pmc_ofdata_to_uc_platdata(struct udevice *dev)
 static int enable_pmcbar(struct udevice *dev)
 {
 	struct acpi_pmc_upriv *upriv = dev_get_uclass_priv(dev);
-	struct apl_pmc_platdata *priv = dev_get_platdata(dev);
+	struct apl_pmc_platdata *priv = dev_get_plat(dev);
 	pci_dev_t pmc = priv->bdf;
 
 	/*

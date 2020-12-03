@@ -3014,7 +3014,7 @@ static int sdram_init(struct dram_info *dram,
 static int rk3399_dmc_ofdata_to_platdata(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct rockchip_dmc_plat *plat = dev_get_platdata(dev);
+	struct rockchip_dmc_plat *plat = dev_get_plat(dev);
 	int ret;
 
 	ret = dev_read_u32_array(dev, "rockchip,sdram-params",
@@ -3036,7 +3036,7 @@ static int rk3399_dmc_ofdata_to_platdata(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 static int conv_of_platdata(struct udevice *dev)
 {
-	struct rockchip_dmc_plat *plat = dev_get_platdata(dev);
+	struct rockchip_dmc_plat *plat = dev_get_plat(dev);
 	struct dtd_rockchip_rk3399_dmc *dtplat = &plat->dtplat;
 	int ret;
 
@@ -3067,7 +3067,7 @@ static const struct sdram_rk3399_ops rk3399_ops = {
 static int rk3399_dmc_init(struct udevice *dev)
 {
 	struct dram_info *priv = dev_get_priv(dev);
-	struct rockchip_dmc_plat *plat = dev_get_platdata(dev);
+	struct rockchip_dmc_plat *plat = dev_get_plat(dev);
 	int ret;
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3399_sdram_params *params = &plat->sdram_params;

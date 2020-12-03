@@ -615,7 +615,7 @@ static int ks8851_recv(struct udevice *dev, int flags, uchar **packetp)
 static int ks8851_write_hwaddr(struct udevice *dev)
 {
 	struct ks_net *ks = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	ks8851_mll_write_hwaddr_common(ks, pdata->enetaddr);
 
@@ -625,7 +625,7 @@ static int ks8851_write_hwaddr(struct udevice *dev)
 static int ks8851_read_rom_hwaddr(struct udevice *dev)
 {
 	struct ks_net *ks = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	u16 addrl, addrm, addrh;
 
 	/* No EEPROM means no valid MAC address. */
@@ -668,7 +668,7 @@ static int ks8851_probe(struct udevice *dev)
 static int ks8851_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ks_net *ks = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	pdata->iobase = dev_read_addr(dev);
 	ks->iobase = pdata->iobase;

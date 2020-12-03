@@ -213,7 +213,7 @@ static int spi_rx_tx(struct exynos_spi_priv *priv, int todo,
 static void spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct exynos_spi_platdata *pdata = dev_get_platdata(bus);
+	struct exynos_spi_platdata *pdata = dev_get_plat(bus);
 	struct exynos_spi_priv *priv = dev_get_priv(bus);
 
 	/* If it's too soon to do another transaction, wait */
@@ -239,7 +239,7 @@ static void spi_cs_activate(struct udevice *dev)
 static void spi_cs_deactivate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct exynos_spi_platdata *pdata = dev_get_platdata(bus);
+	struct exynos_spi_platdata *pdata = dev_get_plat(bus);
 	struct exynos_spi_priv *priv = dev_get_priv(bus);
 
 	setbits_le32(&priv->regs->cs_reg, SPI_SLAVE_SIG_INACT);
@@ -280,7 +280,7 @@ static int exynos_spi_ofdata_to_platdata(struct udevice *bus)
 
 static int exynos_spi_probe(struct udevice *bus)
 {
-	struct exynos_spi_platdata *plat = dev_get_platdata(bus);
+	struct exynos_spi_platdata *plat = dev_get_plat(bus);
 	struct exynos_spi_priv *priv = dev_get_priv(bus);
 
 	priv->regs = plat->regs;

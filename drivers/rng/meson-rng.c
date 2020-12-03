@@ -26,7 +26,7 @@ struct meson_rng_platdata {
  */
 static int meson_rng_read(struct udevice *dev, void *data, size_t len)
 {
-	struct meson_rng_platdata *pdata = dev_get_platdata(dev);
+	struct meson_rng_platdata *pdata = dev_get_plat(dev);
 	char *buffer = (char *)data;
 
 	while (len) {
@@ -52,7 +52,7 @@ static int meson_rng_read(struct udevice *dev, void *data, size_t len)
  */
 static int meson_rng_probe(struct udevice *dev)
 {
-	struct meson_rng_platdata *pdata = dev_get_platdata(dev);
+	struct meson_rng_platdata *pdata = dev_get_plat(dev);
 	int err;
 
 	err = clk_enable(&pdata->clk);
@@ -70,7 +70,7 @@ static int meson_rng_probe(struct udevice *dev)
  */
 static int meson_rng_remove(struct udevice *dev)
 {
-	struct meson_rng_platdata *pdata = dev_get_platdata(dev);
+	struct meson_rng_platdata *pdata = dev_get_plat(dev);
 
 	return clk_disable(&pdata->clk);
 }
@@ -83,7 +83,7 @@ static int meson_rng_remove(struct udevice *dev)
  */
 static int meson_rng_ofdata_to_platdata(struct udevice *dev)
 {
-	struct meson_rng_platdata *pdata = dev_get_platdata(dev);
+	struct meson_rng_platdata *pdata = dev_get_plat(dev);
 	int err;
 
 	pdata->base = dev_read_addr(dev);

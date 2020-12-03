@@ -442,7 +442,7 @@ static const struct sdhci_ops xenon_sdhci_ops = {
 
 static int xenon_sdhci_probe(struct udevice *dev)
 {
-	struct xenon_sdhci_plat *plat = dev_get_platdata(dev);
+	struct xenon_sdhci_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct xenon_sdhci_priv *priv = dev_get_priv(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
@@ -545,7 +545,7 @@ static int xenon_sdhci_ofdata_to_platdata(struct udevice *dev)
 
 static int xenon_sdhci_bind(struct udevice *dev)
 {
-	struct xenon_sdhci_plat *plat = dev_get_platdata(dev);
+	struct xenon_sdhci_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }

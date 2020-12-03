@@ -145,7 +145,7 @@ static void virtio_net_stop(struct udevice *dev)
 static int virtio_net_write_hwaddr(struct udevice *dev)
 {
 	struct virtio_dev_priv *uc_priv = dev_get_uclass_priv(dev->parent);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	int i;
 
 	/*
@@ -166,7 +166,7 @@ static int virtio_net_write_hwaddr(struct udevice *dev)
 
 static int virtio_net_read_rom_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	if (!pdata)
 		return -ENOSYS;

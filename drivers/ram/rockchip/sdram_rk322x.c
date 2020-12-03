@@ -716,7 +716,7 @@ out:
 static int rk322x_dmc_ofdata_to_platdata(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct rk322x_sdram_params *params = dev_get_platdata(dev);
+	struct rk322x_sdram_params *params = dev_get_plat(dev);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	int ret;
@@ -756,7 +756,7 @@ static int rk322x_dmc_ofdata_to_platdata(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 static int conv_of_platdata(struct udevice *dev)
 {
-	struct rk322x_sdram_params *plat = dev_get_platdata(dev);
+	struct rk322x_sdram_params *plat = dev_get_plat(dev);
 	struct dtd_rockchip_rk322x_dmc *of_plat = &plat->of_plat;
 	int ret;
 
@@ -780,7 +780,7 @@ static int conv_of_platdata(struct udevice *dev)
 static int rk322x_dmc_probe(struct udevice *dev)
 {
 #ifdef CONFIG_TPL_BUILD
-	struct rk322x_sdram_params *plat = dev_get_platdata(dev);
+	struct rk322x_sdram_params *plat = dev_get_plat(dev);
 	int ret;
 	struct udevice *dev_clk;
 #endif

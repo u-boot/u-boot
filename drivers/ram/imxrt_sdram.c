@@ -224,7 +224,7 @@ static int imxrt_sdram_ipcmd(struct imxrt_semc_regs *regs, u32 mem_addr,
 
 int imxrt_sdram_init(struct udevice *dev)
 {
-	struct imxrt_sdram_params *params = dev_get_platdata(dev);
+	struct imxrt_sdram_params *params = dev_get_plat(dev);
 	struct imxrt_sdram_mux *mux = params->sdram_mux;
 	struct imxrt_sdram_control *ctrl = params->sdram_control;
 	struct imxrt_sdram_timing *time = params->sdram_timing;
@@ -304,7 +304,7 @@ int imxrt_sdram_init(struct udevice *dev)
 
 static int imxrt_semc_ofdata_to_platdata(struct udevice *dev)
 {
-	struct imxrt_sdram_params *params = dev_get_platdata(dev);
+	struct imxrt_sdram_params *params = dev_get_plat(dev);
 	ofnode bank_node;
 	u8 bank = 0;
 
@@ -389,7 +389,7 @@ static int imxrt_semc_ofdata_to_platdata(struct udevice *dev)
 
 static int imxrt_semc_probe(struct udevice *dev)
 {
-	struct imxrt_sdram_params *params = dev_get_platdata(dev);
+	struct imxrt_sdram_params *params = dev_get_plat(dev);
 	int ret;
 	fdt_addr_t addr;
 

@@ -68,7 +68,7 @@ void fdt_fixup_enetc_mac(void *blob)
 		    strcmp(dev->driver->name, ENETC_DRIVER_NAME))
 			continue;
 
-		pdata = dev_get_platdata(dev);
+		pdata = dev_get_plat(dev);
 		ppdata = dev_get_parent_plat(dev);
 		devfn = PCI_FUNC(ppdata->devfn);
 
@@ -367,7 +367,7 @@ static int enetc_ls1028a_write_hwaddr(struct udevice *dev)
 {
 	struct pci_child_platdata *ppdata = dev_get_parent_plat(dev);
 	const int devfn_to_pf[] = {0, 1, 2, -1, -1, -1, 3};
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	int devfn = PCI_FUNC(ppdata->devfn);
 	u8 *addr = plat->enetaddr;
 	u32 lower, upper;
@@ -391,7 +391,7 @@ static int enetc_ls1028a_write_hwaddr(struct udevice *dev)
 
 static int enetc_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct enetc_priv *priv = dev_get_priv(dev);
 	u8 *addr = plat->enetaddr;
 

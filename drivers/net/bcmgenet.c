@@ -236,7 +236,7 @@ static void bcmgenet_umac_reset(struct bcmgenet_eth_priv *priv)
 static int bcmgenet_gmac_write_hwaddr(struct udevice *dev)
 {
 	struct bcmgenet_eth_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	uchar *addr = pdata->enetaddr;
 	u32 reg;
 
@@ -619,7 +619,7 @@ static int bcmgenet_interface_set(struct bcmgenet_eth_priv *priv)
 
 static int bcmgenet_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct bcmgenet_eth_priv *priv = dev_get_priv(dev);
 	ofnode mdio_node;
 	const char *name;
@@ -687,7 +687,7 @@ static const struct eth_ops bcmgenet_gmac_eth_ops = {
 
 static int bcmgenet_eth_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct bcmgenet_eth_priv *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args phy_node;
 	const char *phy_mode;

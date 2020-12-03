@@ -599,7 +599,7 @@ struct usb_hub_device {
 /**
  * struct usb_platdata - Platform data about a USB controller
  *
- * Given a USB controller (UCLASS_USB) dev this is dev_get_platdata(dev)
+ * Given a USB controller (UCLASS_USB) dev this is dev_get_plat(dev)
  */
 struct usb_platdata {
 	enum usb_init_type init_type;

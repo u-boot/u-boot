@@ -236,7 +236,7 @@ static u32 calc_vocalib_pll(u32 pllm, u32 pllglob)
 static void clk_basic_init(struct udevice *dev,
 			   const struct cm_config * const cfg)
 {
-	struct socfpga_clk_platdata *plat = dev_get_platdata(dev);
+	struct socfpga_clk_platdata *plat = dev_get_plat(dev);
 	u32 vcocalib;
 
 	if (!cfg)
@@ -585,7 +585,7 @@ static u32 clk_get_emac_clk_hz(struct socfpga_clk_platdata *plat, u32 emac_id)
 
 static ulong socfpga_clk_get_rate(struct clk *clk)
 {
-	struct socfpga_clk_platdata *plat = dev_get_platdata(clk->dev);
+	struct socfpga_clk_platdata *plat = dev_get_plat(clk->dev);
 
 	switch (clk->id) {
 	case AGILEX_MPU_CLK:
@@ -630,7 +630,7 @@ static int socfpga_clk_probe(struct udevice *dev)
 
 static int socfpga_clk_ofdata_to_platdata(struct udevice *dev)
 {
-	struct socfpga_clk_platdata *plat = dev_get_platdata(dev);
+	struct socfpga_clk_platdata *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);

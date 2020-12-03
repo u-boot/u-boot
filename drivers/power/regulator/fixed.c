@@ -19,7 +19,7 @@ static int fixed_regulator_ofdata_to_platdata(struct udevice *dev)
 	struct dm_regulator_uclass_plat *uc_pdata;
 	struct regulator_common_platdata *dev_pdata;
 
-	dev_pdata = dev_get_platdata(dev);
+	dev_pdata = dev_get_plat(dev);
 	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata)
 		return -ENXIO;
@@ -63,12 +63,12 @@ static int fixed_regulator_get_current(struct udevice *dev)
 
 static int fixed_regulator_get_enable(struct udevice *dev)
 {
-	return regulator_common_get_enable(dev, dev_get_platdata(dev));
+	return regulator_common_get_enable(dev, dev_get_plat(dev));
 }
 
 static int fixed_regulator_set_enable(struct udevice *dev, bool enable)
 {
-	return regulator_common_set_enable(dev, dev_get_platdata(dev), enable);
+	return regulator_common_set_enable(dev, dev_get_plat(dev), enable);
 }
 
 static const struct dm_regulator_ops fixed_regulator_ops = {

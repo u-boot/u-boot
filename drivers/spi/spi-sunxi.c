@@ -407,7 +407,7 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int sun4i_spi_set_speed(struct udevice *dev, uint speed)
 {
-	struct sun4i_spi_platdata *plat = dev_get_platdata(dev);
+	struct sun4i_spi_platdata *plat = dev_get_plat(dev);
 	struct sun4i_spi_priv *priv = dev_get_priv(dev);
 	unsigned int div;
 	u32 reg;
@@ -483,7 +483,7 @@ static const struct dm_spi_ops sun4i_spi_ops = {
 
 static int sun4i_spi_probe(struct udevice *bus)
 {
-	struct sun4i_spi_platdata *plat = dev_get_platdata(bus);
+	struct sun4i_spi_platdata *plat = dev_get_plat(bus);
 	struct sun4i_spi_priv *priv = dev_get_priv(bus);
 	int ret;
 
@@ -516,7 +516,7 @@ static int sun4i_spi_probe(struct udevice *bus)
 
 static int sun4i_spi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct sun4i_spi_platdata *plat = dev_get_platdata(bus);
+	struct sun4i_spi_platdata *plat = dev_get_plat(bus);
 	int node = dev_of_offset(bus);
 
 	plat->base = dev_read_addr(bus);

@@ -956,7 +956,7 @@ static int veyron_init(struct dram_info *priv)
 static int setup_sdram(struct udevice *dev)
 {
 	struct dram_info *priv = dev_get_priv(dev);
-	struct rk3288_sdram_params *params = dev_get_platdata(dev);
+	struct rk3288_sdram_params *params = dev_get_plat(dev);
 
 # ifdef CONFIG_ROCKCHIP_FAST_SPL
 	if (priv->is_veyron) {
@@ -974,7 +974,7 @@ static int setup_sdram(struct udevice *dev)
 static int rk3288_dmc_ofdata_to_platdata(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct rk3288_sdram_params *params = dev_get_platdata(dev);
+	struct rk3288_sdram_params *params = dev_get_plat(dev);
 	int ret;
 
 	/* Rk3288 supports dual-channel, set default channel num to 2 */
@@ -1017,7 +1017,7 @@ static int rk3288_dmc_ofdata_to_platdata(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 static int conv_of_platdata(struct udevice *dev)
 {
-	struct rk3288_sdram_params *plat = dev_get_platdata(dev);
+	struct rk3288_sdram_params *plat = dev_get_plat(dev);
 	struct dtd_rockchip_rk3288_dmc *of_plat = &plat->of_plat;
 	int ret;
 
@@ -1042,7 +1042,7 @@ static int rk3288_dmc_probe(struct udevice *dev)
 {
 #if defined(CONFIG_TPL_BUILD) || \
 	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
-	struct rk3288_sdram_params *plat = dev_get_platdata(dev);
+	struct rk3288_sdram_params *plat = dev_get_plat(dev);
 	struct udevice *dev_clk;
 	struct regmap *map;
 	int ret;

@@ -520,7 +520,7 @@ static int fsl_espi_child_pre_probe(struct udevice *dev)
 
 static int fsl_espi_probe(struct udevice *bus)
 {
-	struct fsl_espi_platdata *plat = dev_get_platdata(bus);
+	struct fsl_espi_platdata *plat = dev_get_plat(bus);
 	struct fsl_spi_slave *fsl = dev_get_priv(bus);
 
 	fsl->espi = (ccsr_espi_t *)((u32)plat->regs_addr);

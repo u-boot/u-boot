@@ -18,7 +18,7 @@ struct pic32_sdhci_plat {
 static int pic32_sdhci_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct pic32_sdhci_plat *plat = dev_get_platdata(dev);
+	struct pic32_sdhci_plat *plat = dev_get_plat(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 
 	struct clk clk;
@@ -71,7 +71,7 @@ static int pic32_sdhci_probe(struct udevice *dev)
 
 static int pic32_sdhci_bind(struct udevice *dev)
 {
-	struct pic32_sdhci_plat *plat = dev_get_platdata(dev);
+	struct pic32_sdhci_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }

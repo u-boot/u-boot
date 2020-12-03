@@ -35,7 +35,7 @@ struct sti_sdhci_plat {
  */
 static int sti_mmc_core_config(struct udevice *dev)
 {
-	struct sti_sdhci_plat *plat = dev_get_platdata(dev);
+	struct sti_sdhci_plat *plat = dev_get_plat(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	int ret;
 
@@ -71,7 +71,7 @@ static int sti_mmc_core_config(struct udevice *dev)
 static int sti_sdhci_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct sti_sdhci_plat *plat = dev_get_platdata(dev);
+	struct sti_sdhci_plat *plat = dev_get_plat(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	int ret;
 
@@ -126,7 +126,7 @@ static int sti_sdhci_ofdata_to_platdata(struct udevice *dev)
 
 static int sti_sdhci_bind(struct udevice *dev)
 {
-	struct sti_sdhci_plat *plat = dev_get_platdata(dev);
+	struct sti_sdhci_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }

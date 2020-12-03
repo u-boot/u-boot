@@ -53,9 +53,9 @@ static int dwc3_generic_probe(struct udevice *dev,
 			      struct dwc3_generic_priv *priv)
 {
 	int rc;
-	struct dwc3_generic_plat *plat = dev_get_platdata(dev);
+	struct dwc3_generic_plat *plat = dev_get_plat(dev);
 	struct dwc3 *dwc3 = &priv->dwc3;
-	struct dwc3_glue_data *glue = dev_get_platdata(dev->parent);
+	struct dwc3_glue_data *glue = dev_get_plat(dev->parent);
 
 	dwc3->dev = dev;
 	dwc3->maximum_speed = plat->maximum_speed;
@@ -107,7 +107,7 @@ static int dwc3_generic_remove(struct udevice *dev,
 
 static int dwc3_generic_ofdata_to_platdata(struct udevice *dev)
 {
-	struct dwc3_generic_plat *plat = dev_get_platdata(dev);
+	struct dwc3_generic_plat *plat = dev_get_plat(dev);
 	ofnode node = dev->node;
 
 	plat->base = dev_read_addr(dev);
@@ -238,7 +238,7 @@ enum dwc3_omap_utmi_mode {
 	u32 utmi_mode;
 	u32 utmi_status_offset = USBOTGSS_UTMI_OTG_STATUS;
 
-	struct dwc3_glue_data *glue = dev_get_platdata(dev);
+	struct dwc3_glue_data *glue = dev_get_plat(dev);
 	void *base = map_physmem(glue->regs, 0x10000, MAP_NOCACHE);
 
 	if (device_is_compatible(dev, "ti,am437x-dwc3"))
@@ -390,7 +390,7 @@ static int dwc3_glue_clk_init(struct udevice *dev,
 static int dwc3_glue_probe(struct udevice *dev)
 {
 	struct dwc3_glue_ops *ops = (struct dwc3_glue_ops *)dev_get_driver_data(dev);
-	struct dwc3_glue_data *glue = dev_get_platdata(dev);
+	struct dwc3_glue_data *glue = dev_get_plat(dev);
 	struct udevice *child = NULL;
 	int index = 0;
 	int ret;
@@ -430,7 +430,7 @@ static int dwc3_glue_probe(struct udevice *dev)
 
 static int dwc3_glue_remove(struct udevice *dev)
 {
-	struct dwc3_glue_data *glue = dev_get_platdata(dev);
+	struct dwc3_glue_data *glue = dev_get_plat(dev);
 
 	reset_release_bulk(&glue->resets);
 

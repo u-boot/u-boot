@@ -285,7 +285,7 @@ static const struct dm_gpio_ops gpio_omap_ops = {
 static int omap_gpio_probe(struct udevice *dev)
 {
 	struct gpio_bank *bank = dev_get_priv(dev);
-	struct omap_gpio_platdata *plat = dev_get_platdata(dev);
+	struct omap_gpio_platdata *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	char name[18], *str;
 
@@ -302,7 +302,7 @@ static int omap_gpio_probe(struct udevice *dev)
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 static int omap_gpio_bind(struct udevice *dev)
 {
-	struct omap_gpio_platdata *plat = dev_get_platdata(dev);
+	struct omap_gpio_platdata *plat = dev_get_plat(dev);
 	fdt_addr_t base_addr;
 
 	if (plat)
@@ -344,7 +344,7 @@ static const struct udevice_id omap_gpio_ids[] = {
 
 static int omap_gpio_ofdata_to_platdata(struct udevice *dev)
 {
-	struct omap_gpio_platdata *plat = dev_get_platdata(dev);
+	struct omap_gpio_platdata *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);

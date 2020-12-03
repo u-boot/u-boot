@@ -79,7 +79,7 @@ static const struct display_timing default_timing = {
 static void otm8009a_dcs_write_buf(struct udevice *dev, const void *data,
 				   size_t len)
 {
-	struct mipi_dsi_panel_plat *plat = dev_get_platdata(dev);
+	struct mipi_dsi_panel_plat *plat = dev_get_plat(dev);
 	struct mipi_dsi_device *device = plat->device;
 
 	if (mipi_dsi_dcs_write_buffer(device, data, len) < 0)
@@ -89,7 +89,7 @@ static void otm8009a_dcs_write_buf(struct udevice *dev, const void *data,
 static void otm8009a_dcs_write_buf_hs(struct udevice *dev, const void *data,
 				      size_t len)
 {
-	struct mipi_dsi_panel_plat *plat = dev_get_platdata(dev);
+	struct mipi_dsi_panel_plat *plat = dev_get_plat(dev);
 	struct mipi_dsi_device *device = plat->device;
 
 	/* data will be sent in dsi hs mode (ie. no lpm) */
@@ -124,7 +124,7 @@ static void otm8009a_dcs_write_buf_hs(struct udevice *dev, const void *data,
 
 static int otm8009a_init_sequence(struct udevice *dev)
 {
-	struct mipi_dsi_panel_plat *plat = dev_get_platdata(dev);
+	struct mipi_dsi_panel_plat *plat = dev_get_plat(dev);
 	struct mipi_dsi_device *device = plat->device;
 	int ret;
 
@@ -255,7 +255,7 @@ static int otm8009a_init_sequence(struct udevice *dev)
 
 static int otm8009a_panel_enable_backlight(struct udevice *dev)
 {
-	struct mipi_dsi_panel_plat *plat = dev_get_platdata(dev);
+	struct mipi_dsi_panel_plat *plat = dev_get_plat(dev);
 	struct mipi_dsi_device *device = plat->device;
 	int ret;
 
@@ -323,7 +323,7 @@ static int otm8009a_panel_ofdata_to_platdata(struct udevice *dev)
 static int otm8009a_panel_probe(struct udevice *dev)
 {
 	struct otm8009a_panel_priv *priv = dev_get_priv(dev);
-	struct mipi_dsi_panel_plat *plat = dev_get_platdata(dev);
+	struct mipi_dsi_panel_plat *plat = dev_get_plat(dev);
 	int ret;
 
 	if (IS_ENABLED(CONFIG_DM_REGULATOR) && priv->reg) {

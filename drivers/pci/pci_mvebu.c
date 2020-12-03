@@ -143,7 +143,7 @@ static int mvebu_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 				  uint offset, ulong *valuep,
 				  enum pci_size_t size)
 {
-	struct mvebu_pcie *pcie = dev_get_platdata(bus);
+	struct mvebu_pcie *pcie = dev_get_plat(bus);
 	int local_bus = PCI_BUS(pcie->dev);
 	int local_dev = PCI_DEV(pcie->dev);
 	u32 reg;
@@ -187,7 +187,7 @@ static int mvebu_pcie_write_config(struct udevice *bus, pci_dev_t bdf,
 				   uint offset, ulong value,
 				   enum pci_size_t size)
 {
-	struct mvebu_pcie *pcie = dev_get_platdata(bus);
+	struct mvebu_pcie *pcie = dev_get_plat(bus);
 	int local_bus = PCI_BUS(pcie->dev);
 	int local_dev = PCI_DEV(pcie->dev);
 	u32 data;
@@ -277,7 +277,7 @@ static void mvebu_pcie_setup_wins(struct mvebu_pcie *pcie)
 
 static int mvebu_pcie_probe(struct udevice *dev)
 {
-	struct mvebu_pcie *pcie = dev_get_platdata(dev);
+	struct mvebu_pcie *pcie = dev_get_plat(dev);
 	struct udevice *ctlr = pci_get_controller(dev);
 	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
 	static int bus;
@@ -412,7 +412,7 @@ static int mvebu_get_tgt_attr(ofnode node, int devfn,
 
 static int mvebu_pcie_ofdata_to_platdata(struct udevice *dev)
 {
-	struct mvebu_pcie *pcie = dev_get_platdata(dev);
+	struct mvebu_pcie *pcie = dev_get_plat(dev);
 	int ret = 0;
 
 	/* Get port number, lane number and memory target / attr */

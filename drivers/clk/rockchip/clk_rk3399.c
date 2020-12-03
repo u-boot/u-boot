@@ -1378,7 +1378,7 @@ static int rk3399_clk_probe(struct udevice *dev)
 	bool init_clocks = false;
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct rk3399_clk_plat *plat = dev_get_platdata(dev);
+	struct rk3399_clk_plat *plat = dev_get_plat(dev);
 
 	priv->cru = map_sysmem(plat->dtd.reg[0], plat->dtd.reg[1]);
 #endif
@@ -1599,7 +1599,7 @@ static int rk3399_pmuclk_probe(struct udevice *dev)
 #endif
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct rk3399_pmuclk_plat *plat = dev_get_platdata(dev);
+	struct rk3399_pmuclk_plat *plat = dev_get_plat(dev);
 
 	priv->pmucru = map_sysmem(plat->dtd.reg[0], plat->dtd.reg[1]);
 #endif

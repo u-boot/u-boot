@@ -264,7 +264,7 @@ static int ich_spi_exec_op_swseq(struct spi_slave *slave,
 				 const struct spi_mem_op *op)
 {
 	struct udevice *bus = dev_get_parent(slave->dev);
-	struct ich_spi_platdata *plat = dev_get_platdata(bus);
+	struct ich_spi_platdata *plat = dev_get_plat(bus);
 	struct ich_spi_priv *ctlr = dev_get_priv(bus);
 	uint16_t control;
 	int16_t opcode_index;
@@ -602,7 +602,7 @@ static int ich_spi_exec_op_hwseq(struct spi_slave *slave,
 static int ich_spi_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 {
 	struct udevice *bus = dev_get_parent(slave->dev);
-	struct ich_spi_platdata *plat = dev_get_platdata(bus);
+	struct ich_spi_platdata *plat = dev_get_plat(bus);
 	int ret;
 
 	bootstage_start(BOOTSTAGE_ID_ACCUM_SPI, "fast_spi");
@@ -706,7 +706,7 @@ static int ich_get_mmap_bus(struct udevice *bus, ulong *map_basep,
 						   offsetp);
 	}
 #else
-	struct ich_spi_platdata *plat = dev_get_platdata(bus);
+	struct ich_spi_platdata *plat = dev_get_plat(bus);
 
 	/*
 	 * We cannot rely on plat->bdf being set up yet since this method can
@@ -758,7 +758,7 @@ static int ich_spi_adjust_size(struct spi_slave *slave, struct spi_mem_op *op)
 
 static int ich_protect_lockdown(struct udevice *dev)
 {
-	struct ich_spi_platdata *plat = dev_get_platdata(dev);
+	struct ich_spi_platdata *plat = dev_get_plat(dev);
 	struct ich_spi_priv *priv = dev_get_priv(dev);
 	int ret = -ENOSYS;
 
@@ -792,7 +792,7 @@ static int ich_init_controller(struct udevice *dev,
 			       struct ich_spi_priv *ctlr)
 {
 	if (spl_phase() == PHASE_TPL) {
-		struct ich_spi_platdata *plat = dev_get_platdata(dev);
+		struct ich_spi_platdata *plat = dev_get_plat(dev);
 		int ret;
 
 		ret = fast_spi_early_init(plat->bdf, plat->mmio_base);
@@ -871,7 +871,7 @@ static int ich_cache_bios_region(struct udevice *dev)
 
 static int ich_spi_probe(struct udevice *dev)
 {
-	struct ich_spi_platdata *plat = dev_get_platdata(dev);
+	struct ich_spi_platdata *plat = dev_get_plat(dev);
 	struct ich_spi_priv *priv = dev_get_priv(dev);
 	int ret;
 
@@ -924,7 +924,7 @@ static int ich_spi_set_mode(struct udevice *bus, uint mode)
 static int ich_spi_child_pre_probe(struct udevice *dev)
 {
 	struct udevice *bus = dev_get_parent(dev);
-	struct ich_spi_platdata *plat = dev_get_platdata(bus);
+	struct ich_spi_platdata *plat = dev_get_plat(bus);
 	struct ich_spi_priv *priv = dev_get_priv(bus);
 	struct spi_slave *slave = dev_get_parent_priv(dev);
 
@@ -947,7 +947,7 @@ static int ich_spi_child_pre_probe(struct udevice *dev)
 
 static int ich_spi_ofdata_to_platdata(struct udevice *dev)
 {
-	struct ich_spi_platdata *plat = dev_get_platdata(dev);
+	struct ich_spi_platdata *plat = dev_get_plat(dev);
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct ich_spi_priv *priv = dev_get_priv(dev);

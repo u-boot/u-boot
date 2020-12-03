@@ -517,7 +517,7 @@ fail:
 	return ret;
 }
 
-void *dev_get_platdata(const struct udevice *dev)
+void *dev_get_plat(const struct udevice *dev)
 {
 	if (!dev) {
 		dm_warn("%s: null device\n", __func__);

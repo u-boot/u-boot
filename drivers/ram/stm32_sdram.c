@@ -161,7 +161,7 @@ struct stm32_sdram_params {
 
 int stm32_sdram_init(struct udevice *dev)
 {
-	struct stm32_sdram_params *params = dev_get_platdata(dev);
+	struct stm32_sdram_params *params = dev_get_plat(dev);
 	struct stm32_sdram_control *control;
 	struct stm32_sdram_timing *timing;
 	struct stm32_fmc_regs *regs = params->base;
@@ -258,7 +258,7 @@ int stm32_sdram_init(struct udevice *dev)
 
 static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
 {
-	struct stm32_sdram_params *params = dev_get_platdata(dev);
+	struct stm32_sdram_params *params = dev_get_plat(dev);
 	struct bank_params *bank_params;
 	struct ofnode_phandle_args args;
 	u32 *syscfg_base;
@@ -355,7 +355,7 @@ static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
 
 static int stm32_fmc_probe(struct udevice *dev)
 {
-	struct stm32_sdram_params *params = dev_get_platdata(dev);
+	struct stm32_sdram_params *params = dev_get_plat(dev);
 	int ret;
 	fdt_addr_t addr;
 

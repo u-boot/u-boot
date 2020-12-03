@@ -124,7 +124,7 @@ struct dm_mmc_ops ca_dwmci_dm_ops;
 
 static int ca_dwmmc_probe(struct udevice *dev)
 {
-	struct ca_mmc_plat *plat = dev_get_platdata(dev);
+	struct ca_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct ca_dwmmc_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -148,7 +148,7 @@ static int ca_dwmmc_probe(struct udevice *dev)
 
 static int ca_dwmmc_bind(struct udevice *dev)
 {
-	struct ca_mmc_plat *plat = dev_get_platdata(dev);
+	struct ca_mmc_plat *plat = dev_get_plat(dev);
 
 	return dwmci_bind(dev, &plat->mmc, &plat->cfg);
 }

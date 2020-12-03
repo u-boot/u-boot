@@ -107,7 +107,7 @@ static int _uart_zynq_serial_putc(struct uart_zynq *regs, const char c)
 
 static int zynq_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct zynq_uart_platdata *plat = dev_get_platdata(dev);
+	struct zynq_uart_platdata *plat = dev_get_plat(dev);
 	unsigned long clock;
 
 	int ret;
@@ -139,7 +139,7 @@ static int zynq_serial_setbrg(struct udevice *dev, int baudrate)
 
 static int zynq_serial_probe(struct udevice *dev)
 {
-	struct zynq_uart_platdata *plat = dev_get_platdata(dev);
+	struct zynq_uart_platdata *plat = dev_get_plat(dev);
 	struct uart_zynq *regs = plat->regs;
 	u32 val;
 
@@ -155,7 +155,7 @@ static int zynq_serial_probe(struct udevice *dev)
 
 static int zynq_serial_getc(struct udevice *dev)
 {
-	struct zynq_uart_platdata *plat = dev_get_platdata(dev);
+	struct zynq_uart_platdata *plat = dev_get_plat(dev);
 	struct uart_zynq *regs = plat->regs;
 
 	if (readl(&regs->channel_sts) & ZYNQ_UART_SR_RXEMPTY)
@@ -166,14 +166,14 @@ static int zynq_serial_getc(struct udevice *dev)
 
 static int zynq_serial_putc(struct udevice *dev, const char ch)
 {
-	struct zynq_uart_platdata *plat = dev_get_platdata(dev);
+	struct zynq_uart_platdata *plat = dev_get_plat(dev);
 
 	return _uart_zynq_serial_putc(plat->regs, ch);
 }
 
 static int zynq_serial_pending(struct udevice *dev, bool input)
 {
-	struct zynq_uart_platdata *plat = dev_get_platdata(dev);
+	struct zynq_uart_platdata *plat = dev_get_plat(dev);
 	struct uart_zynq *regs = plat->regs;
 
 	if (input)
@@ -184,7 +184,7 @@ static int zynq_serial_pending(struct udevice *dev, bool input)
 
 static int zynq_serial_ofdata_to_platdata(struct udevice *dev)
 {
-	struct zynq_uart_platdata *plat = dev_get_platdata(dev);
+	struct zynq_uart_platdata *plat = dev_get_plat(dev);
 
 	plat->regs = (struct uart_zynq *)dev_read_addr(dev);
 	if (IS_ERR(plat->regs))

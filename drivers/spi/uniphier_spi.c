@@ -383,7 +383,7 @@ static int uniphier_spi_ofdata_to_platdata(struct udevice *bus)
 
 static int uniphier_spi_probe(struct udevice *bus)
 {
-	struct uniphier_spi_platdata *plat = dev_get_platdata(bus);
+	struct uniphier_spi_platdata *plat = dev_get_plat(bus);
 	struct uniphier_spi_priv *priv = dev_get_priv(bus);
 
 	priv->base = plat->base;

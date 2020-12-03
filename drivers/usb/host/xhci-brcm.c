@@ -30,7 +30,7 @@ struct brcm_xhci_platdata {
 
 static int xhci_brcm_probe(struct udevice *dev)
 {
-	struct brcm_xhci_platdata *plat = dev_get_platdata(dev);
+	struct brcm_xhci_platdata *plat = dev_get_plat(dev);
 	struct xhci_hcor *hcor;
 	struct xhci_hccr *hcd;
 	int len, ret = 0;
@@ -71,7 +71,7 @@ static int xhci_brcm_probe(struct udevice *dev)
 
 static int xhci_brcm_deregister(struct udevice *dev)
 {
-	struct brcm_xhci_platdata *plat = dev_get_platdata(dev);
+	struct brcm_xhci_platdata *plat = dev_get_plat(dev);
 
 	/* Restore the default values for AXI read and write attributes */
 	writel(plat->awcache, plat->hc_base + DRD2U3H_XHC_REGS_AXIWRA);

@@ -93,7 +93,7 @@ static int dw_mdio_reset(struct mii_dev *bus)
 {
 	struct udevice *dev = bus->priv;
 	struct dw_eth_dev *priv = dev_get_priv(dev);
-	struct dw_eth_pdata *pdata = dev_get_platdata(dev);
+	struct dw_eth_pdata *pdata = dev_get_plat(dev);
 	int ret;
 
 	if (!dm_gpio_is_valid(&priv->reset_gpio))
@@ -610,7 +610,7 @@ int designware_initialize(ulong base_addr, u32 interface)
 #ifdef CONFIG_DM_ETH
 static int designware_eth_start(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 	int ret;
 
@@ -654,7 +654,7 @@ void designware_eth_stop(struct udevice *dev)
 
 int designware_eth_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 
 	return _dw_write_hwaddr(priv, pdata->enetaddr);
@@ -678,7 +678,7 @@ static int designware_eth_bind(struct udevice *dev)
 
 int designware_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 	u32 iobase = pdata->iobase;
 	ulong ioaddr;
@@ -813,7 +813,7 @@ const struct eth_ops designware_eth_ops = {
 
 int designware_eth_ofdata_to_platdata(struct udevice *dev)
 {
-	struct dw_eth_pdata *dw_pdata = dev_get_platdata(dev);
+	struct dw_eth_pdata *dw_pdata = dev_get_plat(dev);
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 #endif

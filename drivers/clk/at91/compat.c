@@ -45,7 +45,7 @@ U_BOOT_DRIVER(at91_pmc) = {
 
 static int at91_pmc_core_probe(struct udevice *dev)
 {
-	struct pmc_platdata *plat = dev_get_platdata(dev);
+	struct pmc_platdata *plat = dev_get_plat(dev);
 
 	dev = dev_get_parent(dev);
 
@@ -115,7 +115,7 @@ int at91_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
 int at91_clk_probe(struct udevice *dev)
 {
 	struct udevice *dev_periph_container, *dev_pmc;
-	struct pmc_platdata *plat = dev_get_platdata(dev);
+	struct pmc_platdata *plat = dev_get_plat(dev);
 
 	dev_periph_container = dev_get_parent(dev);
 	dev_pmc = dev_get_parent(dev_periph_container);
@@ -191,7 +191,7 @@ U_BOOT_DRIVER(at91_master_clk) = {
 /* Main osc clock specific code. */
 static int main_osc_clk_enable(struct clk *clk)
 {
-	struct pmc_platdata *plat = dev_get_platdata(clk->dev);
+	struct pmc_platdata *plat = dev_get_plat(clk->dev);
 	struct at91_pmc *pmc = plat->reg_base;
 
 	if (readl(&pmc->sr) & AT91_PMC_MOSCSELS)
@@ -232,7 +232,7 @@ U_BOOT_DRIVER(at91sam9x5_main_osc_clk) = {
 /* PLLA clock specific code. */
 static int plla_clk_enable(struct clk *clk)
 {
-	struct pmc_platdata *plat = dev_get_platdata(clk->dev);
+	struct pmc_platdata *plat = dev_get_plat(clk->dev);
 	struct at91_pmc *pmc = plat->reg_base;
 
 	if (readl(&pmc->sr) & AT91_PMC_LOCKA)
@@ -278,7 +278,7 @@ static int at91_plladiv_clk_enable(struct clk *clk)
 
 static ulong at91_plladiv_clk_get_rate(struct clk *clk)
 {
-	struct pmc_platdata *plat = dev_get_platdata(clk->dev);
+	struct pmc_platdata *plat = dev_get_plat(clk->dev);
 	struct at91_pmc *pmc = plat->reg_base;
 	struct clk source;
 	ulong clk_rate;
@@ -297,7 +297,7 @@ static ulong at91_plladiv_clk_get_rate(struct clk *clk)
 
 static ulong at91_plladiv_clk_set_rate(struct clk *clk, ulong rate)
 {
-	struct pmc_platdata *plat = dev_get_platdata(clk->dev);
+	struct pmc_platdata *plat = dev_get_plat(clk->dev);
 	struct at91_pmc *pmc = plat->reg_base;
 	struct clk source;
 	ulong parent_rate;
@@ -401,7 +401,7 @@ static ulong system_clk_set_rate(struct clk *clk, ulong rate)
 
 static int system_clk_enable(struct clk *clk)
 {
-	struct pmc_platdata *plat = dev_get_platdata(clk->dev);
+	struct pmc_platdata *plat = dev_get_plat(clk->dev);
 	struct at91_pmc *pmc = plat->reg_base;
 	u32 mask;
 
@@ -483,7 +483,7 @@ U_BOOT_DRIVER(sam9x5_periph_clk) = {
 
 static int periph_clk_enable(struct clk *clk)
 {
-	struct pmc_platdata *plat = dev_get_platdata(clk->dev);
+	struct pmc_platdata *plat = dev_get_plat(clk->dev);
 	struct at91_pmc *pmc = plat->reg_base;
 	enum periph_clk_type clk_type;
 	void *addr;
@@ -552,7 +552,7 @@ U_BOOT_DRIVER(clk_periph) = {
 
 static int utmi_clk_enable(struct clk *clk)
 {
-	struct pmc_platdata *plat = dev_get_platdata(clk->dev);
+	struct pmc_platdata *plat = dev_get_plat(clk->dev);
 	struct at91_pmc *pmc = plat->reg_base;
 	struct clk clk_dev;
 	ulong clk_rate;
@@ -640,7 +640,7 @@ static struct clk_ops utmi_clk_ops = {
 
 static int utmi_clk_ofdata_to_platdata(struct udevice *dev)
 {
-	struct pmc_platdata *plat = dev_get_platdata(dev);
+	struct pmc_platdata *plat = dev_get_plat(dev);
 	struct udevice *syscon;
 
 	uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
@@ -681,7 +681,7 @@ U_BOOT_DRIVER(at91sam9x5_utmi_clk) = {
 
 static ulong sama5d4_h32mx_clk_get_rate(struct clk *clk)
 {
-	struct pmc_platdata *plat = dev_get_platdata(clk->dev);
+	struct pmc_platdata *plat = dev_get_plat(clk->dev);
 	struct at91_pmc *pmc = plat->reg_base;
 	ulong rate = gd->arch.mck_rate_hz;
 
@@ -754,7 +754,7 @@ struct generic_clk_priv {
 
 static ulong generic_clk_get_rate(struct clk *clk)
 {
-	struct pmc_platdata *plat = dev_get_platdata(clk->dev);
+	struct pmc_platdata *plat = dev_get_plat(clk->dev);
 	struct at91_pmc *pmc = plat->reg_base;
 	struct clk parent;
 	ulong clk_rate;
@@ -782,7 +782,7 @@ static ulong generic_clk_get_rate(struct clk *clk)
 
 static ulong generic_clk_set_rate(struct clk *clk, ulong rate)
 {
-	struct pmc_platdata *plat = dev_get_platdata(clk->dev);
+	struct pmc_platdata *plat = dev_get_plat(clk->dev);
 	struct at91_pmc *pmc = plat->reg_base;
 	struct generic_clk_priv *priv = dev_get_priv(clk->dev);
 	struct clk parent, best_parent;
@@ -895,7 +895,7 @@ struct at91_usb_clk_priv {
 
 static ulong at91_usb_clk_get_rate(struct clk *clk)
 {
-	struct pmc_platdata *plat = dev_get_platdata(clk->dev);
+	struct pmc_platdata *plat = dev_get_plat(clk->dev);
 	struct at91_pmc *pmc = plat->reg_base;
 	struct clk source;
 	u32 tmp, usbdiv;
@@ -916,7 +916,7 @@ static ulong at91_usb_clk_get_rate(struct clk *clk)
 
 static ulong at91_usb_clk_set_rate(struct clk *clk, ulong rate)
 {
-	struct pmc_platdata *plat = dev_get_platdata(clk->dev);
+	struct pmc_platdata *plat = dev_get_plat(clk->dev);
 	struct at91_pmc *pmc = plat->reg_base;
 	struct at91_usb_clk_priv *priv = dev_get_priv(clk->dev);
 	struct clk source, best_source;

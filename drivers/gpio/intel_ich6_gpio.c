@@ -95,7 +95,7 @@ static int _ich6_gpio_set_direction(uint16_t base, unsigned offset, int dir)
 
 static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 {
-	struct ich6_bank_platdata *plat = dev_get_platdata(dev);
+	struct ich6_bank_platdata *plat = dev_get_plat(dev);
 	u32 gpiobase;
 	int offset;
 	int ret;
@@ -119,7 +119,7 @@ static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 
 static int ich6_gpio_probe(struct udevice *dev)
 {
-	struct ich6_bank_platdata *plat = dev_get_platdata(dev);
+	struct ich6_bank_platdata *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct ich6_bank_priv *bank = dev_get_priv(dev);
 	const void *prop;

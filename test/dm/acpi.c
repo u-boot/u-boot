@@ -53,7 +53,7 @@ static int testacpi_write_tables(const struct udevice *dev,
 
 static int testacpi_get_name(const struct udevice *dev, char *out_name)
 {
-	struct testacpi_platdata *plat = dev_get_platdata(dev);
+	struct testacpi_platdata *plat = dev_get_plat(dev);
 
 	if (plat->return_error)
 		return -EINVAL;
@@ -442,13 +442,13 @@ static int dm_test_acpi_device_path(struct unit_test_state *uts)
 			buf);
 
 	/* Test handling of a device which doesn't produce a name */
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	plat->no_name = true;
 	ut_assertok(acpi_device_path(child, buf, sizeof(buf)));
 	ut_asserteq_str("\\_SB." ACPI_TEST_CHILD_NAME, buf);
 
 	/* Test handling of a device which returns an error */
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	plat->return_error = true;
 	ut_asserteq(-EINVAL, acpi_device_path(child, buf, sizeof(buf)));
 

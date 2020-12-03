@@ -74,7 +74,7 @@ int do_demo_list(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		printf("entry %d - instance %08x, ops %08x, plat %08x\n",
 		       i++, (uint)map_to_sysmem(dev),
 		       (uint)map_to_sysmem(dev->driver->ops),
-		       (uint)map_to_sysmem(dev_get_platdata(dev)));
+		       (uint)map_to_sysmem(dev_get_plat(dev)));
 	}
 
 	return cmd_process_error(cmdtp, ret);

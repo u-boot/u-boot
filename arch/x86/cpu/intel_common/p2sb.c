@@ -57,7 +57,7 @@ struct p2sb_platdata {
  */
 static int p2sb_early_init(struct udevice *dev)
 {
-	struct p2sb_platdata *plat = dev_get_platdata(dev);
+	struct p2sb_platdata *plat = dev_get_plat(dev);
 	pci_dev_t pdev = plat->bdf;
 
 	/*
@@ -93,7 +93,7 @@ static int p2sb_spl_init(struct udevice *dev)
 int p2sb_ofdata_to_platdata(struct udevice *dev)
 {
 	struct p2sb_uc_priv *upriv = dev_get_uclass_priv(dev);
-	struct p2sb_platdata *plat = dev_get_platdata(dev);
+	struct p2sb_platdata *plat = dev_get_plat(dev);
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	int ret;

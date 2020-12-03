@@ -5795,7 +5795,7 @@ static int do_e1000(struct cmd_tbl *cmdtp, int flag, int argc,
 	e1000_name(name, cardnum);
 	ret = uclass_get_device_by_name(UCLASS_ETH, name, &dev);
 	if (!ret) {
-		plat = dev_get_platdata(dev);
+		plat = dev_get_plat(dev);
 		mac = plat->enetaddr;
 	}
 #else
@@ -5844,7 +5844,7 @@ U_BOOT_CMD(
 #ifdef CONFIG_DM_ETH
 static int e1000_eth_start(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct e1000_hw *hw = dev_get_priv(dev);
 
 	return _e1000_init(hw, plat->enetaddr);
@@ -5890,7 +5890,7 @@ static int e1000_free_pkt(struct udevice *dev, uchar *packet, int length)
 
 static int e1000_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct e1000_hw *hw = dev_get_priv(dev);
 	int ret;
 

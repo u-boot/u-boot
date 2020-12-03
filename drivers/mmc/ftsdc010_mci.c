@@ -424,7 +424,7 @@ static int ftsdc010_mmc_ofdata_to_platdata(struct udevice *dev)
 
 static int ftsdc010_mmc_probe(struct udevice *dev)
 {
-	struct ftsdc010_plat *plat = dev_get_platdata(dev);
+	struct ftsdc010_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct ftsdc_priv *priv = dev_get_priv(dev);
 	struct ftsdc010_chip *chip = &priv->chip;
@@ -459,7 +459,7 @@ static int ftsdc010_mmc_probe(struct udevice *dev)
 
 int ftsdc010_mmc_bind(struct udevice *dev)
 {
-	struct ftsdc010_plat *plat = dev_get_platdata(dev);
+	struct ftsdc010_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }

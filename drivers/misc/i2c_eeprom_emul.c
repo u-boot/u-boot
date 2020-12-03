@@ -36,14 +36,14 @@ struct sandbox_i2c_flash {
 void sandbox_i2c_eeprom_set_test_mode(struct udevice *dev,
 				      enum sandbox_i2c_eeprom_test_mode mode)
 {
-	struct sandbox_i2c_flash_plat_data *plat = dev_get_platdata(dev);
+	struct sandbox_i2c_flash_plat_data *plat = dev_get_plat(dev);
 
 	plat->test_mode = mode;
 }
 
 void sandbox_i2c_eeprom_set_offset_len(struct udevice *dev, int offset_len)
 {
-	struct sandbox_i2c_flash_plat_data *plat = dev_get_platdata(dev);
+	struct sandbox_i2c_flash_plat_data *plat = dev_get_plat(dev);
 
 	plat->offset_len = offset_len;
 }
@@ -51,7 +51,7 @@ void sandbox_i2c_eeprom_set_offset_len(struct udevice *dev, int offset_len)
 void sandbox_i2c_eeprom_set_chip_addr_offset_mask(struct udevice *dev,
 						  uint mask)
 {
-	struct sandbox_i2c_flash_plat_data *plat = dev_get_platdata(dev);
+	struct sandbox_i2c_flash_plat_data *plat = dev_get_plat(dev);
 
 	plat->chip_addr_offset_mask = mask;
 }
@@ -74,7 +74,7 @@ static int sandbox_i2c_eeprom_xfer(struct udevice *emul, struct i2c_msg *msg,
 				  int nmsgs)
 {
 	struct sandbox_i2c_flash *priv = dev_get_priv(emul);
-	struct sandbox_i2c_flash_plat_data *plat = dev_get_platdata(emul);
+	struct sandbox_i2c_flash_plat_data *plat = dev_get_plat(emul);
 	uint offset = msg->addr & plat->chip_addr_offset_mask;
 
 	debug("\n%s\n", __func__);
@@ -151,7 +151,7 @@ struct dm_i2c_ops sandbox_i2c_emul_ops = {
 
 static int sandbox_i2c_eeprom_ofdata_to_platdata(struct udevice *dev)
 {
-	struct sandbox_i2c_flash_plat_data *plat = dev_get_platdata(dev);
+	struct sandbox_i2c_flash_plat_data *plat = dev_get_plat(dev);
 
 	plat->size = dev_read_u32_default(dev, "sandbox,size", 32);
 	plat->filename = dev_read_string(dev, "sandbox,filename");
@@ -169,7 +169,7 @@ static int sandbox_i2c_eeprom_ofdata_to_platdata(struct udevice *dev)
 
 static int sandbox_i2c_eeprom_probe(struct udevice *dev)
 {
-	struct sandbox_i2c_flash_plat_data *plat = dev_get_platdata(dev);
+	struct sandbox_i2c_flash_plat_data *plat = dev_get_plat(dev);
 	struct sandbox_i2c_flash *priv = dev_get_priv(dev);
 
 	priv->data = calloc(1, plat->size);

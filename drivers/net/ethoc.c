@@ -647,7 +647,7 @@ static inline int ethoc_phy_init(struct ethoc *priv, void *dev)
 
 static int ethoc_write_hwaddr(struct udevice *dev)
 {
-	struct ethoc_eth_pdata *pdata = dev_get_platdata(dev);
+	struct ethoc_eth_pdata *pdata = dev_get_plat(dev);
 	struct ethoc *priv = dev_get_priv(dev);
 	u8 *mac = pdata->eth_pdata.enetaddr;
 
@@ -687,7 +687,7 @@ static void ethoc_stop(struct udevice *dev)
 
 static int ethoc_ofdata_to_platdata(struct udevice *dev)
 {
-	struct ethoc_eth_pdata *pdata = dev_get_platdata(dev);
+	struct ethoc_eth_pdata *pdata = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	pdata->eth_pdata.iobase = dev_read_addr(dev);
@@ -699,7 +699,7 @@ static int ethoc_ofdata_to_platdata(struct udevice *dev)
 
 static int ethoc_probe(struct udevice *dev)
 {
-	struct ethoc_eth_pdata *pdata = dev_get_platdata(dev);
+	struct ethoc_eth_pdata *pdata = dev_get_plat(dev);
 	struct ethoc *priv = dev_get_priv(dev);
 
 	priv->iobase = ioremap(pdata->eth_pdata.iobase, ETHOC_IOSIZE);

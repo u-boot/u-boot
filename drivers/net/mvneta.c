@@ -896,7 +896,7 @@ static void mvneta_mac_addr_set(struct mvneta_port *pp, unsigned char *addr,
 static int mvneta_write_hwaddr(struct udevice *dev)
 {
 	mvneta_mac_addr_set(dev_get_priv(dev),
-		((struct eth_pdata *)dev_get_platdata(dev))->enetaddr,
+		((struct eth_pdata *)dev_get_plat(dev))->enetaddr,
 		rxq_def);
 
 	return 0;
@@ -1397,7 +1397,7 @@ static int mvneta_port_power_up(struct mvneta_port *pp, int phy_mode)
 /* Device initialization routine */
 static int mvneta_init(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct mvneta_port *pp = dev_get_priv(dev);
 	int err;
 
@@ -1690,7 +1690,7 @@ static int mvneta_recv(struct udevice *dev, int flags, uchar **packetp)
 
 static int mvneta_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct mvneta_port *pp = dev_get_priv(dev);
 	void *blob = (void *)gd->fdt_blob;
 	int node = dev_of_offset(dev);
@@ -1797,7 +1797,7 @@ static const struct eth_ops mvneta_ops = {
 
 static int mvneta_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *phy_mode;
 
 	pdata->iobase = dev_read_addr(dev);

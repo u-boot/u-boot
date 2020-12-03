@@ -151,7 +151,7 @@ struct omap2430_musb_platdata {
 
 static int omap2430_musb_ofdata_to_platdata(struct udevice *dev)
 {
-	struct omap2430_musb_platdata *plat = dev_get_platdata(dev);
+	struct omap2430_musb_platdata *plat = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 
@@ -218,7 +218,7 @@ static int omap2430_musb_probe(struct udevice *dev)
 #else
 	struct musb *musbp;
 #endif
-	struct omap2430_musb_platdata *plat = dev_get_platdata(dev);
+	struct omap2430_musb_platdata *plat = dev_get_plat(dev);
 	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
 	struct omap_musb_board_data *otg_board_data;
 	int ret = 0;

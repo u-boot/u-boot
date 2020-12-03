@@ -50,7 +50,7 @@ static int hi6220_dwmmc_ofdata_to_platdata(struct udevice *dev)
 
 static int hi6220_dwmmc_probe(struct udevice *dev)
 {
-	struct hi6220_dwmmc_plat *plat = dev_get_platdata(dev);
+	struct hi6220_dwmmc_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct hi6220_dwmmc_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -74,7 +74,7 @@ static int hi6220_dwmmc_probe(struct udevice *dev)
 
 static int hi6220_dwmmc_bind(struct udevice *dev)
 {
-	struct hi6220_dwmmc_plat *plat = dev_get_platdata(dev);
+	struct hi6220_dwmmc_plat *plat = dev_get_plat(dev);
 	int ret;
 
 	ret = dwmci_bind(dev, &plat->mmc, &plat->cfg);

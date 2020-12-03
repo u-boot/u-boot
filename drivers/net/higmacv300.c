@@ -128,7 +128,7 @@ struct higmac_priv {
 
 static int higmac_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct higmac_priv *priv = dev_get_priv(dev);
 	unsigned char *mac = pdata->enetaddr;
 	u32 val;

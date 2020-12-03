@@ -47,7 +47,7 @@ static int ehci_usb_probe(struct udevice *dev)
 {
 	struct msm_ehci_priv *p = dev_get_priv(dev);
 	struct usb_ehci *ehci = p->ehci;
-	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct usb_platdata *plat = dev_get_plat(dev);
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
 	int ret;

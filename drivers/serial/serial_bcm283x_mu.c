@@ -55,7 +55,7 @@ static int bcm283x_mu_serial_getc(struct udevice *dev);
 
 static int bcm283x_mu_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
+	struct bcm283x_mu_serial_platdata *plat = dev_get_plat(dev);
 	struct bcm283x_mu_priv *priv = dev_get_priv(dev);
 	struct bcm283x_mu_regs *regs = priv->regs;
 	u32 divider;
@@ -158,7 +158,7 @@ static bool bcm283x_is_serial_muxed(void)
 
 static int bcm283x_mu_serial_probe(struct udevice *dev)
 {
-	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
+	struct bcm283x_mu_serial_platdata *plat = dev_get_plat(dev);
 	struct bcm283x_mu_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
 

@@ -478,7 +478,7 @@ int davinci_mmc_init(struct bd_info *bis, struct davinci_mmc *host)
 static int davinci_mmc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct davinci_mmc_plat *plat = dev_get_platdata(dev);
+	struct davinci_mmc_plat *plat = dev_get_plat(dev);
 	struct davinci_mmc_priv *priv = dev_get_priv(dev);
 
 	priv->reg_base = plat->reg_base;
@@ -495,7 +495,7 @@ static int davinci_mmc_probe(struct udevice *dev)
 
 static int davinci_mmc_bind(struct udevice *dev)
 {
-	struct davinci_mmc_plat *plat = dev_get_platdata(dev);
+	struct davinci_mmc_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -503,7 +503,7 @@ static int davinci_mmc_bind(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static int davinci_mmc_ofdata_to_platdata(struct udevice *dev)
 {
-	struct davinci_mmc_plat *plat = dev_get_platdata(dev);
+	struct davinci_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_config *cfg = &plat->cfg;
 
 	plat->reg_base = (struct davinci_mmc_regs *)dev_read_addr(dev);

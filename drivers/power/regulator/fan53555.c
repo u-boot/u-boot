@@ -102,7 +102,7 @@ struct fan53555_priv {
 
 static int fan53555_regulator_ofdata_to_platdata(struct udevice *dev)
 {
-	struct fan53555_platdata *dev_pdata = dev_get_platdata(dev);
+	struct fan53555_platdata *dev_pdata = dev_get_plat(dev);
 	struct dm_regulator_uclass_plat *uc_pdata =
 		dev_get_uclass_plat(dev);
 	u32 sleep_vsel;
@@ -136,7 +136,7 @@ static int fan53555_regulator_ofdata_to_platdata(struct udevice *dev)
 
 static int fan53555_regulator_get_value(struct udevice *dev)
 {
-	struct fan53555_platdata *pdata = dev_get_platdata(dev);
+	struct fan53555_platdata *pdata = dev_get_plat(dev);
 	struct fan53555_priv *priv = dev_get_priv(dev);
 	int reg;
 	int voltage;
@@ -153,7 +153,7 @@ static int fan53555_regulator_get_value(struct udevice *dev)
 
 static int fan53555_regulator_set_value(struct udevice *dev, int uV)
 {
-	struct fan53555_platdata *pdata = dev_get_platdata(dev);
+	struct fan53555_platdata *pdata = dev_get_plat(dev);
 	struct fan53555_priv *priv = dev_get_priv(dev);
 	u8 vol;
 

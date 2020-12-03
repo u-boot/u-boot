@@ -511,7 +511,7 @@ static int ldpaa_get_dpmac_state(struct ldpaa_eth_priv *priv,
 #ifdef CONFIG_DM_ETH
 static int ldpaa_eth_open(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct ldpaa_eth_priv *priv = dev_get_priv(dev);
 #else
 static int ldpaa_eth_open(struct eth_device *net_dev, struct bd_info *bd)

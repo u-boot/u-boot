@@ -685,7 +685,7 @@ static int pvblock_blk_bind(struct udevice *udev)
 static int pvblock_blk_probe(struct udevice *udev)
 {
 	struct blkfront_dev *blk_dev = dev_get_priv(udev);
-	struct blkfront_platdata *plat = dev_get_platdata(udev);
+	struct blkfront_platdata *plat = dev_get_plat(udev);
 	struct blk_desc *desc = dev_get_uclass_plat(udev);
 	int ret, devid;
 

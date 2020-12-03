@@ -263,7 +263,7 @@ static int dw_spi_reset(struct udevice *bus)
 
 static int dw_spi_probe(struct udevice *bus)
 {
-	struct dw_spi_platdata *plat = dev_get_platdata(bus);
+	struct dw_spi_platdata *plat = dev_get_plat(bus);
 	struct dw_spi_priv *priv = dev_get_priv(bus);
 	int ret;
 

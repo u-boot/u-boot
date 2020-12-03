@@ -333,7 +333,7 @@ static int zynqmp_qspi_set_speed(struct udevice *bus, uint speed)
 
 static int zynqmp_qspi_probe(struct udevice *bus)
 {
-	struct zynqmp_qspi_platdata *plat = dev_get_platdata(bus);
+	struct zynqmp_qspi_platdata *plat = dev_get_plat(bus);
 	struct zynqmp_qspi_priv *priv = dev_get_priv(bus);
 	struct clk clk;
 	unsigned long clock;

@@ -32,7 +32,7 @@ struct mvebu_platdata {
 
 static int mvebu_serial_putc(struct udevice *dev, const char ch)
 {
-	struct mvebu_platdata *plat = dev_get_platdata(dev);
+	struct mvebu_platdata *plat = dev_get_plat(dev);
 	void __iomem *base = plat->base;
 
 	while (readl(base + UART_STATUS_REG) & UART_STATUS_TXFIFO_FULL)
@@ -45,7 +45,7 @@ static int mvebu_serial_putc(struct udevice *dev, const char ch)
 
 static int mvebu_serial_getc(struct udevice *dev)
 {
-	struct mvebu_platdata *plat = dev_get_platdata(dev);
+	struct mvebu_platdata *plat = dev_get_plat(dev);
 	void __iomem *base = plat->base;
 
 	while (!(readl(base + UART_STATUS_REG) & UART_STATUS_RX_RDY))
@@ -56,7 +56,7 @@ static int mvebu_serial_getc(struct udevice *dev)
 
 static int mvebu_serial_pending(struct udevice *dev, bool input)
 {
-	struct mvebu_platdata *plat = dev_get_platdata(dev);
+	struct mvebu_platdata *plat = dev_get_plat(dev);
 	void __iomem *base = plat->base;
 
 	if (readl(base + UART_STATUS_REG) & UART_STATUS_RX_RDY)
@@ -67,7 +67,7 @@ static int mvebu_serial_pending(struct udevice *dev, bool input)
 
 static int mvebu_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct mvebu_platdata *plat = dev_get_platdata(dev);
+	struct mvebu_platdata *plat = dev_get_plat(dev);
 	void __iomem *base = plat->base;
 
 	/*
@@ -87,7 +87,7 @@ static int mvebu_serial_setbrg(struct udevice *dev, int baudrate)
 
 static int mvebu_serial_probe(struct udevice *dev)
 {
-	struct mvebu_platdata *plat = dev_get_platdata(dev);
+	struct mvebu_platdata *plat = dev_get_plat(dev);
 	void __iomem *base = plat->base;
 
 	/* reset FIFOs */
@@ -102,7 +102,7 @@ static int mvebu_serial_probe(struct udevice *dev)
 
 static int mvebu_serial_ofdata_to_platdata(struct udevice *dev)
 {
-	struct mvebu_platdata *plat = dev_get_platdata(dev);
+	struct mvebu_platdata *plat = dev_get_plat(dev);
 
 	plat->base = dev_read_addr_ptr(dev);
 

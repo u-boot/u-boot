@@ -89,7 +89,7 @@ static int pl022_is_supported(struct pl022_spi_slave *ps)
 
 static int pl022_spi_probe(struct udevice *bus)
 {
-	struct pl022_spi_pdata *plat = dev_get_platdata(bus);
+	struct pl022_spi_pdata *plat = dev_get_plat(bus);
 	struct pl022_spi_slave *ps = dev_get_priv(bus);
 
 	ps->base = ioremap(plat->addr, plat->size);

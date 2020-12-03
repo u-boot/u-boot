@@ -27,7 +27,7 @@ const char *at91_cpu_get_name(void)
 
 int at91_cpu_get_desc(const struct udevice *dev, char *buf, int size)
 {
-	struct at91_cpu_platdata *plat = dev_get_platdata(dev);
+	struct at91_cpu_platdata *plat = dev_get_plat(dev);
 
 	snprintf(buf, size, "%s\n"
 		 "Crystal frequency: %8lu MHz\n"
@@ -41,7 +41,7 @@ int at91_cpu_get_desc(const struct udevice *dev, char *buf, int size)
 
 static int at91_cpu_get_info(const struct udevice *dev, struct cpu_info *info)
 {
-	struct at91_cpu_platdata *plat = dev_get_platdata(dev);
+	struct at91_cpu_platdata *plat = dev_get_plat(dev);
 
 	info->cpu_freq = plat->cpufreq_mhz * 1000000;
 	info->features = BIT(CPU_FEAT_L1_CACHE);
@@ -75,7 +75,7 @@ static const struct udevice_id at91_cpu_ids[] = {
 
 static int at91_cpu_probe(struct udevice *dev)
 {
-	struct at91_cpu_platdata *plat = dev_get_platdata(dev);
+	struct at91_cpu_platdata *plat = dev_get_plat(dev);
 	struct clk clk;
 	ulong rate;
 	int ret;

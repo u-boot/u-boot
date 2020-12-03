@@ -269,7 +269,7 @@ static int atmel_fb_lcd_probe(struct udevice *dev)
 
 static int atmel_fb_ofdata_to_platdata(struct udevice *dev)
 {
-	struct atmel_lcd_platdata *plat = dev_get_platdata(dev);
+	struct atmel_lcd_platdata *plat = dev_get_plat(dev);
 	struct atmel_fb_priv *priv = dev_get_priv(dev);
 	struct display_timing *timing = &priv->timing;
 	const void *blob = gd->fdt_blob;

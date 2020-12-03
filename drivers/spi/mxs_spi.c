@@ -311,7 +311,7 @@ int mxs_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int mxs_spi_probe(struct udevice *bus)
 {
-	struct mxs_spi_platdata *plat = dev_get_platdata(bus);
+	struct mxs_spi_platdata *plat = dev_get_plat(bus);
 	struct mxs_spi_priv *priv = dev_get_priv(bus);
 	int ret;
 

@@ -241,7 +241,7 @@ struct gpio_hog_data {
 
 static int gpio_hog_ofdata_to_platdata(struct udevice *dev)
 {
-	struct gpio_hog_data *plat = dev_get_platdata(dev);
+	struct gpio_hog_data *plat = dev_get_plat(dev);
 	const char *nodename;
 	int ret;
 
@@ -272,7 +272,7 @@ static int gpio_hog_ofdata_to_platdata(struct udevice *dev)
 
 static int gpio_hog_probe(struct udevice *dev)
 {
-	struct gpio_hog_data *plat = dev_get_platdata(dev);
+	struct gpio_hog_data *plat = dev_get_plat(dev);
 	struct gpio_hog_priv *priv = dev_get_priv(dev);
 	int ret;
 

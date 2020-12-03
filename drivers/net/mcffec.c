@@ -518,7 +518,7 @@ static const struct eth_ops mcffec_ops = {
  */
 static int mcffec_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct fec_info_s *info = dev->priv;
 	int node = dev_of_offset(dev);
 	int retval, fec_idx;
@@ -586,7 +586,7 @@ static int mcffec_remove(struct udevice *dev)
  */
 static int mcffec_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const u32 *val;
 
 	pdata->iobase = dev_read_addr(dev);

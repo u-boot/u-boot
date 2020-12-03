@@ -54,7 +54,7 @@ static void uart_out32(void __iomem *addr, u32 val)
 
 static int uartlite_serial_putc(struct udevice *dev, const char ch)
 {
-	struct uartlite_platdata *plat = dev_get_platdata(dev);
+	struct uartlite_platdata *plat = dev_get_plat(dev);
 	struct uartlite *regs = plat->regs;
 
 	if (uart_in32(&regs->status) & SR_TX_FIFO_FULL)
@@ -67,7 +67,7 @@ static int uartlite_serial_putc(struct udevice *dev, const char ch)
 
 static int uartlite_serial_getc(struct udevice *dev)
 {
-	struct uartlite_platdata *plat = dev_get_platdata(dev);
+	struct uartlite_platdata *plat = dev_get_plat(dev);
 	struct uartlite *regs = plat->regs;
 
 	if (!(uart_in32(&regs->status) & SR_RX_FIFO_VALID_DATA))
@@ -78,7 +78,7 @@ static int uartlite_serial_getc(struct udevice *dev)
 
 static int uartlite_serial_pending(struct udevice *dev, bool input)
 {
-	struct uartlite_platdata *plat = dev_get_platdata(dev);
+	struct uartlite_platdata *plat = dev_get_plat(dev);
 	struct uartlite *regs = plat->regs;
 
 	if (input)
@@ -89,7 +89,7 @@ static int uartlite_serial_pending(struct udevice *dev, bool input)
 
 static int uartlite_serial_probe(struct udevice *dev)
 {
-	struct uartlite_platdata *plat = dev_get_platdata(dev);
+	struct uartlite_platdata *plat = dev_get_plat(dev);
 	struct uartlite *regs = plat->regs;
 	int ret;
 
@@ -108,7 +108,7 @@ static int uartlite_serial_probe(struct udevice *dev)
 
 static int uartlite_serial_ofdata_to_platdata(struct udevice *dev)
 {
-	struct uartlite_platdata *plat = dev_get_platdata(dev);
+	struct uartlite_platdata *plat = dev_get_plat(dev);
 
 	plat->regs = dev_read_addr_ptr(dev);
 

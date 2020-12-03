@@ -425,7 +425,7 @@ static int axi_ethernet_init(struct axidma_priv *priv)
 
 static int axiemac_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct axidma_priv *priv = dev_get_priv(dev);
 	struct axi_regs *regs = priv->iobase;
 
@@ -728,7 +728,7 @@ static const struct eth_ops axi_emac_ops = {
 
 static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct axidma_priv *priv = dev_get_priv(dev);
 	int node = dev_of_offset(dev);
 	int offset = 0;

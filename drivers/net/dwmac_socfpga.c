@@ -27,7 +27,7 @@ struct dwmac_socfpga_platdata {
 
 static int dwmac_socfpga_ofdata_to_platdata(struct udevice *dev)
 {
-	struct dwmac_socfpga_platdata *pdata = dev_get_platdata(dev);
+	struct dwmac_socfpga_platdata *pdata = dev_get_plat(dev);
 	struct regmap *regmap;
 	struct ofnode_phandle_args args;
 	void *range;
@@ -66,7 +66,7 @@ static int dwmac_socfpga_ofdata_to_platdata(struct udevice *dev)
 
 static int dwmac_socfpga_probe(struct udevice *dev)
 {
-	struct dwmac_socfpga_platdata *pdata = dev_get_platdata(dev);
+	struct dwmac_socfpga_platdata *pdata = dev_get_plat(dev);
 	struct eth_pdata *edata = &pdata->dw_eth_pdata.eth_pdata;
 	struct reset_ctl_bulk reset_bulk;
 	int ret;

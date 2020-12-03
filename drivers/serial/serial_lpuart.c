@@ -146,7 +146,7 @@ static bool is_lpuart32(struct udevice *dev)
 static void _lpuart_serial_setbrg(struct udevice *dev,
 				  int baudrate)
 {
-	struct lpuart_serial_platdata *plat = dev_get_platdata(dev);
+	struct lpuart_serial_platdata *plat = dev_get_plat(dev);
 	struct lpuart_fsl *base = plat->reg;
 	u32 clk;
 	u16 sbr;
@@ -206,7 +206,7 @@ static int _lpuart_serial_tstc(struct lpuart_serial_platdata *plat)
  */
 static int _lpuart_serial_init(struct udevice *dev)
 {
-	struct lpuart_serial_platdata *plat = dev_get_platdata(dev);
+	struct lpuart_serial_platdata *plat = dev_get_plat(dev);
 	struct lpuart_fsl *base = (struct lpuart_fsl *)plat->reg;
 	u8 ctrl;
 
@@ -235,7 +235,7 @@ static int _lpuart_serial_init(struct udevice *dev)
 static void _lpuart32_serial_setbrg_7ulp(struct udevice *dev,
 					 int baudrate)
 {
-	struct lpuart_serial_platdata *plat = dev_get_platdata(dev);
+	struct lpuart_serial_platdata *plat = dev_get_plat(dev);
 	struct lpuart_fsl_reg32 *base = plat->reg;
 	u32 sbr, osr, baud_diff, tmp_osr, tmp_sbr, tmp_diff, tmp;
 	u32 clk;
@@ -304,7 +304,7 @@ static void _lpuart32_serial_setbrg_7ulp(struct udevice *dev,
 static void _lpuart32_serial_setbrg(struct udevice *dev,
 				    int baudrate)
 {
-	struct lpuart_serial_platdata *plat = dev_get_platdata(dev);
+	struct lpuart_serial_platdata *plat = dev_get_plat(dev);
 	struct lpuart_fsl_reg32 *base = plat->reg;
 	u32 clk;
 	u32 sbr;
@@ -386,7 +386,7 @@ static int _lpuart32_serial_tstc(struct lpuart_serial_platdata *plat)
  */
 static int _lpuart32_serial_init(struct udevice *dev)
 {
-	struct lpuart_serial_platdata *plat = dev_get_platdata(dev);
+	struct lpuart_serial_platdata *plat = dev_get_plat(dev);
 	struct lpuart_fsl_reg32 *base = (struct lpuart_fsl_reg32 *)plat->reg;
 	u32 val, tx_fifo_size;
 
@@ -428,7 +428,7 @@ static int _lpuart32_serial_init(struct udevice *dev)
 
 static int lpuart_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct lpuart_serial_platdata *plat = dev_get_platdata(dev);
+	struct lpuart_serial_platdata *plat = dev_get_plat(dev);
 
 	if (is_lpuart32(dev)) {
 		if (plat->devtype == DEV_MX7ULP || plat->devtype == DEV_IMX8 ||

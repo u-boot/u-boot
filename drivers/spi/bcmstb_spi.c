@@ -96,7 +96,7 @@ struct bcmstb_spi_priv {
 
 static int bcmstb_spi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct bcmstb_spi_platdata *plat = dev_get_platdata(bus);
+	struct bcmstb_spi_platdata *plat = dev_get_plat(bus);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 	int ret = 0;
@@ -159,7 +159,7 @@ static void bcmstb_spi_clear_interrupt(void *base, u32 mask)
 
 static int bcmstb_spi_probe(struct udevice *bus)
 {
-	struct bcmstb_spi_platdata *plat = dev_get_platdata(bus);
+	struct bcmstb_spi_platdata *plat = dev_get_plat(bus);
 	struct bcmstb_spi_priv *priv = dev_get_priv(bus);
 
 	priv->regs = plat->base[HIF_MSPI];

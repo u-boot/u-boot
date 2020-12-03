@@ -195,7 +195,7 @@ static int conv_of_platdata(struct udevice *dev)
 static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct rockchip_spi_platdata *plat = dev_get_platdata(bus);
+	struct rockchip_spi_platdata *plat = dev_get_plat(bus);
 	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	int ret;
 
@@ -253,7 +253,7 @@ static int rockchip_spi_calc_modclk(ulong max_freq)
 
 static int rockchip_spi_probe(struct udevice *bus)
 {
-	struct rockchip_spi_platdata *plat = dev_get_platdata(bus);
+	struct rockchip_spi_platdata *plat = dev_get_plat(bus);
 	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	int ret;
 

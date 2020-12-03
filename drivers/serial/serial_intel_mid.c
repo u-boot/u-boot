@@ -33,7 +33,7 @@ static void mid_writel(struct ns16550_platdata *plat, int offset, int value)
 
 static int mid_serial_probe(struct udevice *dev)
 {
-	struct ns16550_platdata *plat = dev_get_platdata(dev);
+	struct ns16550_platdata *plat = dev_get_plat(dev);
 
 	/*
 	 * Initialize fractional divider correctly for Intel Edison

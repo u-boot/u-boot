@@ -122,7 +122,7 @@ static int tegra30_spi_ofdata_to_platdata(struct udevice *bus)
 
 static int tegra30_spi_probe(struct udevice *bus)
 {
-	struct tegra_spi_platdata *plat = dev_get_platdata(bus);
+	struct tegra_spi_platdata *plat = dev_get_plat(bus);
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
 
 	priv->regs = (struct spi_regs *)plat->base;
@@ -167,7 +167,7 @@ static int tegra30_spi_claim_bus(struct udevice *dev)
 static void spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct tegra_spi_platdata *pdata = dev_get_platdata(bus);
+	struct tegra_spi_platdata *pdata = dev_get_plat(bus);
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
 
 	/* If it's too soon to do another transaction, wait */
@@ -186,7 +186,7 @@ static void spi_cs_activate(struct udevice *dev)
 static void spi_cs_deactivate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct tegra_spi_platdata *pdata = dev_get_platdata(bus);
+	struct tegra_spi_platdata *pdata = dev_get_plat(bus);
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
 
 	/* CS is negated on Tegra, so drive a 0 to get a 1 */

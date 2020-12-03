@@ -142,7 +142,7 @@ static int coldfire_serial_pending(struct udevice *dev, bool input)
 
 static int coldfire_ofdata_to_platdata(struct udevice *dev)
 {
-	struct coldfire_serial_platdata *plat = dev_get_platdata(dev);
+	struct coldfire_serial_platdata *plat = dev_get_plat(dev);
 	fdt_addr_t addr_base;
 
 	addr_base = dev_read_addr(dev);

@@ -143,7 +143,7 @@ static int apl_pinctrl_ofdata_to_platdata(struct udevice *dev)
 	int i;
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct apl_gpio_platdata *plat = dev_get_platdata(dev);
+	struct apl_gpio_platdata *plat = dev_get_plat(dev);
 	int ret;
 
 	/*

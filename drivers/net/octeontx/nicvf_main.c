@@ -105,7 +105,7 @@ static int nicvf_check_pf_ready(struct nicvf *nic)
 static void  nicvf_handle_mbx_intr(struct nicvf *nic)
 {
 	union nic_mbx mbx = {};
-	struct eth_pdata *pdata = dev_get_platdata(nic->dev);
+	struct eth_pdata *pdata = dev_get_plat(nic->dev);
 	u64 *mbx_data;
 	u64 mbx_addr;
 	int i;
@@ -165,7 +165,7 @@ static void  nicvf_handle_mbx_intr(struct nicvf *nic)
 static int nicvf_hw_set_mac_addr(struct nicvf *nic, struct udevice *dev)
 {
 	union nic_mbx mbx = {};
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	mbx.mac.msg = NIC_MBOX_MSG_SET_MAC;
 	mbx.mac.vf_id = nic->vf_id;
@@ -445,7 +445,7 @@ int nicvf_open(struct udevice *dev)
 int nicvf_write_hwaddr(struct udevice *dev)
 {
 	unsigned char ethaddr[ARP_HLEN];
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct nicvf *nic = dev_get_priv(dev);
 
 	/* If lower level firmware fails to set proper MAC
@@ -484,7 +484,7 @@ static void nicvf_probe_mdio_devices(void)
 int nicvf_initialize(struct udevice *dev)
 {
 	struct nicvf *nicvf = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	int    ret = 0, bgx, lmac;
 	char   name[16];
 	unsigned char ethaddr[ARP_HLEN];

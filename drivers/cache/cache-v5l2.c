@@ -73,7 +73,7 @@ struct v5l2_plat {
 
 static int v5l2_enable(struct udevice *dev)
 {
-	struct v5l2_plat *plat = dev_get_platdata(dev);
+	struct v5l2_plat *plat = dev_get_plat(dev);
 	volatile struct l2cache *regs = plat->regs;
 
 	if (regs)
@@ -84,7 +84,7 @@ static int v5l2_enable(struct udevice *dev)
 
 static int v5l2_disable(struct udevice *dev)
 {
-	struct v5l2_plat *plat = dev_get_platdata(dev);
+	struct v5l2_plat *plat = dev_get_plat(dev);
 	volatile struct l2cache *regs = plat->regs;
 	u8 hart = gd->arch.boot_hart;
 	void __iomem *cctlcmd = (void __iomem *)CCTL_CMD_REG(regs, hart);
@@ -106,7 +106,7 @@ static int v5l2_disable(struct udevice *dev)
 
 static int v5l2_ofdata_to_platdata(struct udevice *dev)
 {
-	struct v5l2_plat *plat = dev_get_platdata(dev);
+	struct v5l2_plat *plat = dev_get_plat(dev);
 	struct l2cache *regs;
 
 	regs = (struct l2cache *)dev_read_addr(dev);
@@ -130,7 +130,7 @@ static int v5l2_ofdata_to_platdata(struct udevice *dev)
 
 static int v5l2_probe(struct udevice *dev)
 {
-	struct v5l2_plat *plat = dev_get_platdata(dev);
+	struct v5l2_plat *plat = dev_get_plat(dev);
 	struct l2cache *regs = plat->regs;
 	u32 ctl_val;
 

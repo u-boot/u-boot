@@ -28,7 +28,7 @@ struct shape_data {
 /* Crazy little function to draw shapes on the console */
 static int shape_hello(struct udevice *dev, int ch)
 {
-	const struct dm_demo_pdata *pdata = dev_get_platdata(dev);
+	const struct dm_demo_pdata *pdata = dev_get_plat(dev);
 	struct shape_data *data = dev_get_priv(dev);
 	static const struct shape {
 		int start;
@@ -142,7 +142,7 @@ static const struct demo_ops shape_ops = {
 
 static int shape_ofdata_to_platdata(struct udevice *dev)
 {
-	struct dm_demo_pdata *pdata = dev_get_platdata(dev);
+	struct dm_demo_pdata *pdata = dev_get_plat(dev);
 	int ret;
 
 	/* Parse the data that is common with all demo devices */

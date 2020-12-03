@@ -281,7 +281,7 @@ __weak struct serial_device *default_serial_console(void)
 
 int pl01x_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct pl01x_serial_platdata *plat = dev_get_platdata(dev);
+	struct pl01x_serial_platdata *plat = dev_get_plat(dev);
 	struct pl01x_priv *priv = dev_get_priv(dev);
 
 	if (!plat->skip_init) {
@@ -294,7 +294,7 @@ int pl01x_serial_setbrg(struct udevice *dev, int baudrate)
 
 int pl01x_serial_probe(struct udevice *dev)
 {
-	struct pl01x_serial_platdata *plat = dev_get_platdata(dev);
+	struct pl01x_serial_platdata *plat = dev_get_plat(dev);
 	struct pl01x_priv *priv = dev_get_priv(dev);
 
 	priv->regs = (struct pl01x_regs *)plat->base;
@@ -350,7 +350,7 @@ static const struct udevice_id pl01x_serial_id[] ={
 
 int pl01x_serial_ofdata_to_platdata(struct udevice *dev)
 {
-	struct pl01x_serial_platdata *plat = dev_get_platdata(dev);
+	struct pl01x_serial_platdata *plat = dev_get_plat(dev);
 	struct clk clk;
 	fdt_addr_t addr;
 	int ret;

@@ -71,7 +71,7 @@ static int altera_sysid_read(struct udevice *dev,
 
 static int altera_sysid_ofdata_to_platdata(struct udevice *dev)
 {
-	struct altera_sysid_platdata *plat = dev_get_platdata(dev);
+	struct altera_sysid_platdata *plat = dev_get_plat(dev);
 
 	plat->regs = map_physmem(dev_read_addr(dev),
 				 sizeof(struct altera_sysid_regs),

@@ -27,7 +27,7 @@ struct dtd_rockchip_rk3288_uart *dtplat, s_dtplat;
 
 static int rockchip_serial_probe(struct udevice *dev)
 {
-	struct rockchip_uart_platdata *plat = dev_get_platdata(dev);
+	struct rockchip_uart_platdata *plat = dev_get_plat(dev);
 
 	/* Create some new platform data for the standard driver */
 	plat->plat.base = plat->dtplat.reg[0];

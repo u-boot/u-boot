@@ -356,7 +356,7 @@ static int gtt_poll(struct broadwell_igd_priv *priv, u32 reg, u32 mask,
 
 static void igd_setup_panel(struct udevice *dev)
 {
-	struct broadwell_igd_plat *plat = dev_get_platdata(dev);
+	struct broadwell_igd_plat *plat = dev_get_plat(dev);
 	struct broadwell_igd_priv *priv = dev_get_priv(dev);
 	u32 reg32;
 
@@ -398,7 +398,7 @@ static void igd_setup_panel(struct udevice *dev)
 
 static int igd_cdclk_init_haswell(struct udevice *dev)
 {
-	struct broadwell_igd_plat *plat = dev_get_platdata(dev);
+	struct broadwell_igd_plat *plat = dev_get_plat(dev);
 	struct broadwell_igd_priv *priv = dev_get_priv(dev);
 	int cdclk = plat->cdclk;
 	u16 devid;
@@ -472,7 +472,7 @@ err:
 
 static int igd_cdclk_init_broadwell(struct udevice *dev)
 {
-	struct broadwell_igd_plat *plat = dev_get_platdata(dev);
+	struct broadwell_igd_plat *plat = dev_get_plat(dev);
 	struct broadwell_igd_priv *priv = dev_get_priv(dev);
 	int cdclk = plat->cdclk;
 	u32 dpdiv, lpcll, pwctl, cdset;
@@ -567,7 +567,7 @@ u8 systemagent_revision(struct udevice *bus)
 
 static int igd_pre_init(struct udevice *dev, bool is_broadwell)
 {
-	struct broadwell_igd_plat *plat = dev_get_platdata(dev);
+	struct broadwell_igd_plat *plat = dev_get_plat(dev);
 	struct broadwell_igd_priv *priv = dev_get_priv(dev);
 	u32 rp1_gfx_freq;
 	int ret;
@@ -708,7 +708,7 @@ static int broadwell_igd_probe(struct udevice *dev)
 
 static int broadwell_igd_ofdata_to_platdata(struct udevice *dev)
 {
-	struct broadwell_igd_plat *plat = dev_get_platdata(dev);
+	struct broadwell_igd_plat *plat = dev_get_plat(dev);
 	struct broadwell_igd_priv *priv = dev_get_priv(dev);
 	int node = dev_of_offset(dev);
 	const void *blob = gd->fdt_blob;

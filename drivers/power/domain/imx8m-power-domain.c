@@ -32,7 +32,7 @@ static int imx8m_power_domain_on(struct power_domain *power_domain)
 	struct udevice *dev = power_domain->dev;
 	struct imx8m_power_domain_platdata *pdata;
 
-	pdata = dev_get_platdata(dev);
+	pdata = dev_get_plat(dev);
 
 	if (pdata->resource_id < 0)
 		return -EINVAL;
@@ -50,7 +50,7 @@ static int imx8m_power_domain_off(struct power_domain *power_domain)
 {
 	struct udevice *dev = power_domain->dev;
 	struct imx8m_power_domain_platdata *pdata;
-	pdata = dev_get_platdata(dev);
+	pdata = dev_get_plat(dev);
 
 	if (pdata->resource_id < 0)
 		return -EINVAL;
@@ -106,7 +106,7 @@ static int imx8m_power_domain_probe(struct udevice *dev)
 
 static int imx8m_power_domain_ofdata_to_platdata(struct udevice *dev)
 {
-	struct imx8m_power_domain_platdata *pdata = dev_get_platdata(dev);
+	struct imx8m_power_domain_platdata *pdata = dev_get_plat(dev);
 
 	pdata->resource_id = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					    "reg", -1);

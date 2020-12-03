@@ -43,7 +43,7 @@ struct socfpga_a10_clk_platdata {
 
 static int socfpga_a10_clk_get_upstream(struct clk *clk, struct clk **upclk)
 {
-	struct socfpga_a10_clk_platdata *plat = dev_get_platdata(clk->dev);
+	struct socfpga_a10_clk_platdata *plat = dev_get_plat(clk->dev);
 	u32 reg, maxval;
 
 	if (plat->clks.count == 0)
@@ -84,7 +84,7 @@ static int socfpga_a10_clk_get_upstream(struct clk *clk, struct clk **upclk)
 
 static int socfpga_a10_clk_endisable(struct clk *clk, bool enable)
 {
-	struct socfpga_a10_clk_platdata *plat = dev_get_platdata(clk->dev);
+	struct socfpga_a10_clk_platdata *plat = dev_get_plat(clk->dev);
 	struct clk *upclk = NULL;
 	int ret;
 
@@ -120,7 +120,7 @@ static int socfpga_a10_clk_disable(struct clk *clk)
 
 static ulong socfpga_a10_clk_get_rate(struct clk *clk)
 {
-	struct socfpga_a10_clk_platdata *plat = dev_get_platdata(clk->dev);
+	struct socfpga_a10_clk_platdata *plat = dev_get_plat(clk->dev);
 	struct clk *upclk = NULL;
 	ulong rate = 0, reg, numer, denom;
 	int ret;
@@ -190,7 +190,7 @@ static struct clk_ops socfpga_a10_clk_ops = {
  */
 static void socfpga_a10_handoff_workaround(struct udevice *dev)
 {
-	struct socfpga_a10_clk_platdata *plat = dev_get_platdata(dev);
+	struct socfpga_a10_clk_platdata *plat = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
 	struct clk_bulk	*bulk = &plat->clks;
 	int i, ret, offset = dev_of_offset(dev);
@@ -274,7 +274,7 @@ static int socfpga_a10_clk_bind(struct udevice *dev)
 
 static int socfpga_a10_clk_probe(struct udevice *dev)
 {
-	struct socfpga_a10_clk_platdata *plat = dev_get_platdata(dev);
+	struct socfpga_a10_clk_platdata *plat = dev_get_plat(dev);
 	struct socfpga_a10_clk_platdata *pplat;
 	struct udevice *pdev;
 	const void *fdt = gd->fdt_blob;
@@ -291,7 +291,7 @@ static int socfpga_a10_clk_probe(struct udevice *dev)
 		if (!pdev)
 			return -ENODEV;
 
-		pplat = dev_get_platdata(pdev);
+		pplat = dev_get_plat(pdev);
 		if (!pplat)
 			return -EINVAL;
 
@@ -321,7 +321,7 @@ static int socfpga_a10_clk_probe(struct udevice *dev)
 
 static int socfpga_a10_ofdata_to_platdata(struct udevice *dev)
 {
-	struct socfpga_a10_clk_platdata *plat = dev_get_platdata(dev);
+	struct socfpga_a10_clk_platdata *plat = dev_get_plat(dev);
 	unsigned int divreg[3], gatereg[2];
 	int ret;
 

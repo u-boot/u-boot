@@ -87,7 +87,7 @@ static int msm_sdc_clk_init(struct udevice *dev)
 static int msm_sdc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct msm_sdhc_plat *plat = dev_get_platdata(dev);
+	struct msm_sdhc_plat *plat = dev_get_plat(dev);
 	struct msm_sdhc *prv = dev_get_priv(dev);
 	struct sdhci_host *host = &prv->host;
 	u32 core_version, core_minor, core_major;
@@ -189,7 +189,7 @@ static int msm_ofdata_to_platdata(struct udevice *dev)
 
 static int msm_sdc_bind(struct udevice *dev)
 {
-	struct msm_sdhc_plat *plat = dev_get_platdata(dev);
+	struct msm_sdhc_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }

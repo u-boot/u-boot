@@ -34,7 +34,7 @@ struct rockchip_sdhc {
 static int arasan_sdhci_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct rockchip_sdhc_plat *plat = dev_get_platdata(dev);
+	struct rockchip_sdhc_plat *plat = dev_get_plat(dev);
 	struct rockchip_sdhc *prv = dev_get_priv(dev);
 	struct sdhci_host *host = &prv->host;
 	int max_frequency, ret;
@@ -96,7 +96,7 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 
 static int rockchip_sdhci_bind(struct udevice *dev)
 {
-	struct rockchip_sdhc_plat *plat = dev_get_platdata(dev);
+	struct rockchip_sdhc_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }

@@ -90,7 +90,7 @@ static int atftmr_timer_probe(struct udevice *dev)
 
 static int atftme_timer_ofdata_to_platdata(struct udevice *dev)
 {
-	struct atftmr_timer_platdata *plat = dev_get_platdata(dev);
+	struct atftmr_timer_platdata *plat = dev_get_plat(dev);
 	plat->regs = map_physmem(dev_read_addr(dev),
 				 sizeof(struct atftmr_timer_regs),
 				 MAP_NOCACHE);

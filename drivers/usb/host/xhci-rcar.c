@@ -76,7 +76,7 @@ static int xhci_rcar_download_fw(struct rcar_xhci *ctx, const u32 *fw_data,
 
 static int xhci_rcar_probe(struct udevice *dev)
 {
-	struct rcar_xhci_platdata *plat = dev_get_platdata(dev);
+	struct rcar_xhci_platdata *plat = dev_get_plat(dev);
 	struct rcar_xhci *ctx = dev_get_priv(dev);
 	struct xhci_hcor *hcor;
 	int len, ret;
@@ -122,7 +122,7 @@ err_clk:
 static int xhci_rcar_deregister(struct udevice *dev)
 {
 	int ret;
-	struct rcar_xhci_platdata *plat = dev_get_platdata(dev);
+	struct rcar_xhci_platdata *plat = dev_get_plat(dev);
 
 	ret = xhci_deregister(dev);
 
@@ -134,7 +134,7 @@ static int xhci_rcar_deregister(struct udevice *dev)
 
 static int xhci_rcar_ofdata_to_platdata(struct udevice *dev)
 {
-	struct rcar_xhci_platdata *plat = dev_get_platdata(dev);
+	struct rcar_xhci_platdata *plat = dev_get_plat(dev);
 
 	plat->hcd_base = dev_read_addr(dev);
 	if (plat->hcd_base == FDT_ADDR_T_NONE) {

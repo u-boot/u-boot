@@ -55,7 +55,7 @@ struct rk_gmac_ops {
 
 static int gmac_rockchip_ofdata_to_platdata(struct udevice *dev)
 {
-	struct gmac_rockchip_platdata *pdata = dev_get_platdata(dev);
+	struct gmac_rockchip_platdata *pdata = dev_get_plat(dev);
 	const char *string;
 
 	string = dev_read_string(dev, "clock_in_out");
@@ -555,10 +555,10 @@ static void rv1108_gmac_set_to_rmii(struct gmac_rockchip_platdata *pdata)
 
 static int gmac_rockchip_probe(struct udevice *dev)
 {
-	struct gmac_rockchip_platdata *pdata = dev_get_platdata(dev);
+	struct gmac_rockchip_platdata *pdata = dev_get_plat(dev);
 	struct rk_gmac_ops *ops =
 		(struct rk_gmac_ops *)dev_get_driver_data(dev);
-	struct dw_eth_pdata *dw_pdata = dev_get_platdata(dev);
+	struct dw_eth_pdata *dw_pdata = dev_get_plat(dev);
 	struct eth_pdata *eth_pdata = &dw_pdata->eth_pdata;
 	struct clk clk;
 	ulong rate;
@@ -664,7 +664,7 @@ static int gmac_rockchip_probe(struct udevice *dev)
 
 static int gmac_rockchip_eth_start(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 	struct rk_gmac_ops *ops =
 		(struct rk_gmac_ops *)dev_get_driver_data(dev);

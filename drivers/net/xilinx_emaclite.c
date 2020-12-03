@@ -322,7 +322,7 @@ static int setup_phy(struct udevice *dev)
 static int emaclite_start(struct udevice *dev)
 {
 	struct xemaclite *emaclite = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct emaclite_regs *regs = emaclite->regs;
 
 	debug("EmacLite Initialization Started\n");
@@ -595,7 +595,7 @@ static const struct eth_ops emaclite_ops = {
 
 static int emaclite_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct xemaclite *emaclite = dev_get_priv(dev);
 	int offset = 0;
 

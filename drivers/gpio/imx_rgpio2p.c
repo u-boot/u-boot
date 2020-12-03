@@ -132,7 +132,7 @@ static const struct dm_gpio_ops imx_rgpio2p_ops = {
 static int imx_rgpio2p_probe(struct udevice *dev)
 {
 	struct imx_rgpio2p_data *bank = dev_get_priv(dev);
-	struct imx_rgpio2p_plat *plat = dev_get_platdata(dev);
+	struct imx_rgpio2p_plat *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	int banknum;
 	char name[18], *str;

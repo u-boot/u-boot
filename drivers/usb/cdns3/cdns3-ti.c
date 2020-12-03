@@ -87,7 +87,7 @@ static inline void cdns_ti_writel(struct cdns_ti *data, u32 offset, u32 value)
 
 static int cdns_ti_probe(struct udevice *dev)
 {
-	struct cdns_ti *data = dev_get_platdata(dev);
+	struct cdns_ti *data = dev_get_plat(dev);
 	struct clk usb2_refclk;
 	int modestrap_mode;
 	unsigned long rate;
@@ -167,7 +167,7 @@ static int cdns_ti_probe(struct udevice *dev)
 
 static int cdns_ti_remove(struct udevice *dev)
 {
-	struct cdns_ti *data = dev_get_platdata(dev);
+	struct cdns_ti *data = dev_get_plat(dev);
 	u32 reg;
 
 	/* put device back to RESET*/

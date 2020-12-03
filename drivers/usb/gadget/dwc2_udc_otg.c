@@ -982,7 +982,7 @@ static void dwc2_phy_shutdown(struct udevice *dev, struct phy_bulk *phys)
 
 static int dwc2_udc_otg_ofdata_to_platdata(struct udevice *dev)
 {
-	struct dwc2_plat_otg_data *plat = dev_get_platdata(dev);
+	struct dwc2_plat_otg_data *plat = dev_get_plat(dev);
 	ulong drvdata;
 	void (*set_params)(struct dwc2_plat_otg_data *data);
 	int ret;
@@ -1090,7 +1090,7 @@ static int dwc2_udc_otg_clk_init(struct udevice *dev,
 
 static int dwc2_udc_otg_probe(struct udevice *dev)
 {
-	struct dwc2_plat_otg_data *plat = dev_get_platdata(dev);
+	struct dwc2_plat_otg_data *plat = dev_get_plat(dev);
 	struct dwc2_priv_data *priv = dev_get_priv(dev);
 	struct dwc2_usbotg_reg *usbotg_reg =
 		(struct dwc2_usbotg_reg *)plat->regs_otg;
@@ -1194,7 +1194,7 @@ U_BOOT_DRIVER(dwc2_udc_otg) = {
 
 int dwc2_udc_B_session_valid(struct udevice *dev)
 {
-	struct dwc2_plat_otg_data *plat = dev_get_platdata(dev);
+	struct dwc2_plat_otg_data *plat = dev_get_plat(dev);
 	struct dwc2_usbotg_reg *usbotg_reg =
 		(struct dwc2_usbotg_reg *)plat->regs_otg;
 

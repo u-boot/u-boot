@@ -77,7 +77,7 @@ void apl_uart_init(pci_dev_t bdf, ulong base)
 
 static int apl_ns16550_probe(struct udevice *dev)
 {
-	struct ns16550_platdata *plat = dev_get_platdata(dev);
+	struct ns16550_platdata *plat = dev_get_plat(dev);
 
 	if (!CONFIG_IS_ENABLED(PCI))
 		apl_uart_init(plat->bdf, plat->base);
@@ -88,7 +88,7 @@ static int apl_ns16550_probe(struct udevice *dev)
 static int apl_ns16550_ofdata_to_platdata(struct udevice *dev)
 {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_intel_apl_ns16550 *dtplat = dev_get_platdata(dev);
+	struct dtd_intel_apl_ns16550 *dtplat = dev_get_plat(dev);
 	struct ns16550_platdata *plat;
 
 	/*

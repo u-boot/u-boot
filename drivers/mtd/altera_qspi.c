@@ -106,7 +106,7 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 {
 	struct mtd_info *mtd = info->mtd;
 	struct udevice *dev = mtd->dev;
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_platdata *pdata = dev_get_plat(dev);
 	ulong base = (ulong)pdata->base;
 	loff_t to = addr - base;
 	size_t retlen;
@@ -135,7 +135,7 @@ unsigned long flash_init(void)
 static int altera_qspi_erase(struct mtd_info *mtd, struct erase_info *instr)
 {
 	struct udevice *dev = mtd->dev;
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_platdata *pdata = dev_get_plat(dev);
 	struct altera_qspi_regs *regs = pdata->regs;
 	size_t addr = instr->addr;
 	size_t len = instr->len;
@@ -197,7 +197,7 @@ static int altera_qspi_read(struct mtd_info *mtd, loff_t from, size_t len,
 			    size_t *retlen, u_char *buf)
 {
 	struct udevice *dev = mtd->dev;
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_platdata *pdata = dev_get_plat(dev);
 
 	memcpy_fromio(buf, pdata->base + from, len);
 	*retlen = len;
@@ -209,7 +209,7 @@ static int altera_qspi_write(struct mtd_info *mtd, loff_t to, size_t len,
 			     size_t *retlen, const u_char *buf)
 {
 	struct udevice *dev = mtd->dev;
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_platdata *pdata = dev_get_plat(dev);
 	struct altera_qspi_regs *regs = pdata->regs;
 	u32 stat;
 
@@ -235,7 +235,7 @@ static void altera_qspi_get_locked_range(struct mtd_info *mtd, loff_t *ofs,
 					 uint64_t *len)
 {
 	struct udevice *dev = mtd->dev;
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_platdata *pdata = dev_get_plat(dev);
 	struct altera_qspi_regs *regs = pdata->regs;
 	int shift0 = ffs(QUADSPI_SR_BP2_0) - 1;
 	int shift3 = ffs(QUADSPI_SR_BP3) - 1 - 3;
@@ -257,7 +257,7 @@ static void altera_qspi_get_locked_range(struct mtd_info *mtd, loff_t *ofs,
 static int altera_qspi_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 {
 	struct udevice *dev = mtd->dev;
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_platdata *pdata = dev_get_plat(dev);
 	struct altera_qspi_regs *regs = pdata->regs;
 	u32 sector_start, sector_end;
 	u32 num_sectors;
@@ -291,7 +291,7 @@ static int altera_qspi_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 static int altera_qspi_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 {
 	struct udevice *dev = mtd->dev;
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_platdata *pdata = dev_get_plat(dev);
 	struct altera_qspi_regs *regs = pdata->regs;
 	u32 mem_op;
 
@@ -304,7 +304,7 @@ static int altera_qspi_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 
 static int altera_qspi_probe(struct udevice *dev)
 {
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_platdata *pdata = dev_get_plat(dev);
 	struct altera_qspi_regs *regs = pdata->regs;
 	unsigned long base = (unsigned long)pdata->base;
 	struct mtd_info *mtd;
@@ -348,7 +348,7 @@ static int altera_qspi_probe(struct udevice *dev)
 
 static int altera_qspi_ofdata_to_platdata(struct udevice *dev)
 {
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_platdata *pdata = dev_get_plat(dev);
 	void *blob = (void *)gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	const char *list, *end;

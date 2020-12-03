@@ -146,7 +146,7 @@ static int mvebu_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			  const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev->parent;
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_platdata *plat = dev_get_plat(bus);
 	struct spi_reg *reg = plat->spireg;
 	unsigned int bytelen;
 	int ret;
@@ -186,7 +186,7 @@ static int mvebu_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_platdata *plat = dev_get_plat(bus);
 	struct spi_reg *reg = plat->spireg;
 	u32 data, prescale;
 
@@ -207,7 +207,7 @@ static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
 
 static int mvebu_spi_set_mode(struct udevice *bus, uint mode)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_platdata *plat = dev_get_plat(bus);
 	struct spi_reg *reg = plat->spireg;
 
 	/*
@@ -229,7 +229,7 @@ static int mvebu_spi_set_mode(struct udevice *bus, uint mode)
 
 static int mvebu_spi_probe(struct udevice *bus)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_platdata *plat = dev_get_plat(bus);
 	struct spi_reg *reg = plat->spireg;
 	u32 data;
 	int ret;
@@ -281,7 +281,7 @@ static int mvebu_spi_probe(struct udevice *bus)
 
 static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_platdata *plat = dev_get_plat(bus);
 	int ret;
 
 	plat->spireg = dev_read_addr_ptr(bus);
@@ -297,7 +297,7 @@ static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
 
 static int mvebu_spi_remove(struct udevice *bus)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_platdata *plat = dev_get_plat(bus);
 
 	clk_free(&plat->clk);
 

@@ -46,7 +46,7 @@ struct pmc_emul_priv {
 static int sandbox_pmc_emul_read_config(const struct udevice *emul, uint offset,
 					ulong *valuep, enum pci_size_t size)
 {
-	struct pmc_emul_platdata *plat = dev_get_platdata(emul);
+	struct pmc_emul_platdata *plat = dev_get_plat(emul);
 
 	switch (offset) {
 	case PCI_COMMAND:
@@ -99,7 +99,7 @@ static int sandbox_pmc_emul_read_config(const struct udevice *emul, uint offset,
 static int sandbox_pmc_emul_write_config(struct udevice *emul, uint offset,
 					 ulong value, enum pci_size_t size)
 {
-	struct pmc_emul_platdata *plat = dev_get_platdata(emul);
+	struct pmc_emul_platdata *plat = dev_get_plat(emul);
 
 	switch (offset) {
 	case PCI_COMMAND:
@@ -127,7 +127,7 @@ static int sandbox_pmc_emul_write_config(struct udevice *emul, uint offset,
 static int sandbox_pmc_emul_find_bar(struct udevice *emul, unsigned int addr,
 				     int *barnump, unsigned int *offsetp)
 {
-	struct pmc_emul_platdata *plat = dev_get_platdata(emul);
+	struct pmc_emul_platdata *plat = dev_get_plat(emul);
 	int barnum;
 
 	for (barnum = 0; barnum < ARRAY_SIZE(barinfo); barnum++) {

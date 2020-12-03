@@ -368,7 +368,7 @@ struct ehci_omap_priv_data {
 
 static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 {
-	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct usb_platdata *plat = dev_get_plat(dev);
 
 	plat->init_type = USB_INIT_HOST;
 
@@ -377,7 +377,7 @@ static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 
 static int omap_ehci_probe(struct udevice *dev)
 {
-	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct usb_platdata *plat = dev_get_plat(dev);
 	struct ehci_omap_priv_data *priv = dev_get_priv(dev);
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;

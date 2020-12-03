@@ -415,7 +415,7 @@ static int fec_set_hwaddr(struct eth_device *dev)
 {
 #ifdef CONFIG_DM_ETH
 	struct fec_priv *fec = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	uchar *mac = pdata->enetaddr;
 #else
 	uchar *mac = dev->enetaddr;
@@ -1272,7 +1272,7 @@ int fecmxc_register_mii_postcall(struct eth_device *dev, int (*cb)(int))
 static int fecmxc_read_rom_hwaddr(struct udevice *dev)
 {
 	struct fec_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	return fec_get_hwaddr(priv->dev_id, pdata->enetaddr);
 }
@@ -1351,7 +1351,7 @@ static void fec_gpio_reset(struct fec_priv *priv)
 
 static int fecmxc_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct fec_priv *priv = dev_get_priv(dev);
 	struct mii_dev *bus = NULL;
 	uint32_t start;
@@ -1530,7 +1530,7 @@ static int fecmxc_remove(struct udevice *dev)
 static int fecmxc_ofdata_to_platdata(struct udevice *dev)
 {
 	int ret = 0;
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct fec_priv *priv = dev_get_priv(dev);
 	const char *phy_mode;
 

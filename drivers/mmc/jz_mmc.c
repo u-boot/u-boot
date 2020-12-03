@@ -446,7 +446,7 @@ static const struct dm_mmc_ops jz_msc_ops = {
 static int jz_mmc_ofdata_to_platdata(struct udevice *dev)
 {
 	struct jz_mmc_priv *priv = dev_get_priv(dev);
-	struct jz_mmc_plat *plat = dev_get_platdata(dev);
+	struct jz_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_config *cfg;
 	int ret;
 
@@ -473,7 +473,7 @@ static int jz_mmc_ofdata_to_platdata(struct udevice *dev)
 
 static int jz_mmc_bind(struct udevice *dev)
 {
-	struct jz_mmc_plat *plat = dev_get_platdata(dev);
+	struct jz_mmc_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -482,7 +482,7 @@ static int jz_mmc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct jz_mmc_priv *priv = dev_get_priv(dev);
-	struct jz_mmc_plat *plat = dev_get_platdata(dev);
+	struct jz_mmc_plat *plat = dev_get_plat(dev);
 
 	plat->mmc.priv = priv;
 	upriv->mmc = &plat->mmc;

@@ -890,7 +890,7 @@ static void rtl8169_common_start(pci_dev_t dev, unsigned char *enetaddr,
 #ifdef CONFIG_DM_ETH
 static int rtl8169_eth_start(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct rtl8169_private *priv = dev_get_priv(dev);
 
 	rtl8169_common_start(dev, plat->enetaddr, priv->iobase);
@@ -953,7 +953,7 @@ static void rtl_halt(struct eth_device *dev)
 #ifdef CONFIG_DM_ETH
 static int rtl8169_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	unsigned int i;
 
 	RTL_W8(Cfg9346, Cfg9346_Unlock);
@@ -1189,7 +1189,7 @@ static int rtl8169_eth_probe(struct udevice *dev)
 {
 	struct pci_child_platdata *pplat = dev_get_parent_plat(dev);
 	struct rtl8169_private *priv = dev_get_priv(dev);
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	u32 iobase;
 	int region;
 	int ret;

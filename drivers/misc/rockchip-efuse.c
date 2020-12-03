@@ -86,7 +86,7 @@ U_BOOT_CMD(
 static int rockchip_rk3399_efuse_read(struct udevice *dev, int offset,
 				      void *buf, int size)
 {
-	struct rockchip_efuse_platdata *plat = dev_get_platdata(dev);
+	struct rockchip_efuse_platdata *plat = dev_get_plat(dev);
 	struct rockchip_efuse_regs *efuse =
 		(struct rockchip_efuse_regs *)plat->base;
 
@@ -139,7 +139,7 @@ static const struct misc_ops rockchip_efuse_ops = {
 
 static int rockchip_efuse_ofdata_to_platdata(struct udevice *dev)
 {
-	struct rockchip_efuse_platdata *plat = dev_get_platdata(dev);
+	struct rockchip_efuse_platdata *plat = dev_get_plat(dev);
 
 	plat->base = dev_read_addr_ptr(dev);
 	return 0;

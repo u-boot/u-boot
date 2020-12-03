@@ -851,7 +851,7 @@ static void esdhc_stop_tuning(struct mmc *mmc)
 
 static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
 {
-	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
+	struct fsl_esdhc_plat *plat = dev_get_plat(dev);
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 	struct mmc *mmc = &plat->mmc;
@@ -1474,7 +1474,7 @@ static int fsl_esdhc_ofdata_to_platdata(struct udevice *dev)
 static int fsl_esdhc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
+	struct fsl_esdhc_plat *plat = dev_get_plat(dev);
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
 	struct esdhc_soc_data *data =
 		(struct esdhc_soc_data *)dev_get_driver_data(dev);
@@ -1617,7 +1617,7 @@ static int fsl_esdhc_get_cd(struct udevice *dev)
 static int fsl_esdhc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 			      struct mmc_data *data)
 {
-	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
+	struct fsl_esdhc_plat *plat = dev_get_plat(dev);
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
 
 	return esdhc_send_cmd_common(priv, &plat->mmc, cmd, data);
@@ -1625,7 +1625,7 @@ static int fsl_esdhc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 
 static int fsl_esdhc_set_ios(struct udevice *dev)
 {
-	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
+	struct fsl_esdhc_plat *plat = dev_get_plat(dev);
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
 
 	return esdhc_set_ios_common(priv, &plat->mmc);
@@ -1691,7 +1691,7 @@ static const struct udevice_id fsl_esdhc_ids[] = {
 #if CONFIG_IS_ENABLED(BLK)
 static int fsl_esdhc_bind(struct udevice *dev)
 {
-	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
+	struct fsl_esdhc_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }

@@ -351,7 +351,7 @@ static int stm32_dsi_attach(struct udevice *dev)
 		return ret;
 	}
 
-	mplat = dev_get_platdata(priv->panel);
+	mplat = dev_get_plat(priv->panel);
 	mplat->device = &priv->device;
 	device->lanes = mplat->lanes;
 	device->format = mplat->format;

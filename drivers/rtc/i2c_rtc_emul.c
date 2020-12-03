@@ -50,7 +50,7 @@ struct sandbox_i2c_rtc {
 long sandbox_i2c_rtc_set_offset(struct udevice *dev, bool use_system_time,
 				int offset)
 {
-	struct sandbox_i2c_rtc_plat_data *plat = dev_get_platdata(dev);
+	struct sandbox_i2c_rtc_plat_data *plat = dev_get_plat(dev);
 	long old_offset;
 
 	old_offset = plat->offset;
@@ -63,7 +63,7 @@ long sandbox_i2c_rtc_set_offset(struct udevice *dev, bool use_system_time,
 
 long sandbox_i2c_rtc_get_set_base_time(struct udevice *dev, long base_time)
 {
-	struct sandbox_i2c_rtc_plat_data *plat = dev_get_platdata(dev);
+	struct sandbox_i2c_rtc_plat_data *plat = dev_get_plat(dev);
 	long old_base_time;
 
 	old_base_time = plat->base_time;
@@ -75,7 +75,7 @@ long sandbox_i2c_rtc_get_set_base_time(struct udevice *dev, long base_time)
 
 static void reset_time(struct udevice *dev)
 {
-	struct sandbox_i2c_rtc_plat_data *plat = dev_get_platdata(dev);
+	struct sandbox_i2c_rtc_plat_data *plat = dev_get_plat(dev);
 	struct rtc_time now;
 
 	os_localtime(&now);
@@ -86,7 +86,7 @@ static void reset_time(struct udevice *dev)
 
 static int sandbox_i2c_rtc_get(struct udevice *dev, struct rtc_time *time)
 {
-	struct sandbox_i2c_rtc_plat_data *plat = dev_get_platdata(dev);
+	struct sandbox_i2c_rtc_plat_data *plat = dev_get_plat(dev);
 	struct rtc_time tm_now;
 	long now;
 
@@ -104,7 +104,7 @@ static int sandbox_i2c_rtc_get(struct udevice *dev, struct rtc_time *time)
 
 static int sandbox_i2c_rtc_set(struct udevice *dev, const struct rtc_time *time)
 {
-	struct sandbox_i2c_rtc_plat_data *plat = dev_get_platdata(dev);
+	struct sandbox_i2c_rtc_plat_data *plat = dev_get_plat(dev);
 	struct rtc_time tm_now;
 	long now;
 
@@ -122,7 +122,7 @@ static int sandbox_i2c_rtc_set(struct udevice *dev, const struct rtc_time *time)
 /* Update the current time in the registers */
 static int sandbox_i2c_rtc_prepare_read(struct udevice *emul)
 {
-	struct sandbox_i2c_rtc_plat_data *plat = dev_get_platdata(emul);
+	struct sandbox_i2c_rtc_plat_data *plat = dev_get_plat(emul);
 	struct rtc_time time;
 	int ret;
 
@@ -143,7 +143,7 @@ static int sandbox_i2c_rtc_prepare_read(struct udevice *emul)
 
 static int sandbox_i2c_rtc_complete_write(struct udevice *emul)
 {
-	struct sandbox_i2c_rtc_plat_data *plat = dev_get_platdata(emul);
+	struct sandbox_i2c_rtc_plat_data *plat = dev_get_plat(emul);
 	struct rtc_time time;
 	int ret;
 
@@ -165,7 +165,7 @@ static int sandbox_i2c_rtc_complete_write(struct udevice *emul)
 static int sandbox_i2c_rtc_xfer(struct udevice *emul, struct i2c_msg *msg,
 				int nmsgs)
 {
-	struct sandbox_i2c_rtc_plat_data *plat = dev_get_platdata(emul);
+	struct sandbox_i2c_rtc_plat_data *plat = dev_get_plat(emul);
 	uint offset = 0;
 	int ret;
 

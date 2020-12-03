@@ -102,7 +102,7 @@ static int rockchip_otp_ecc_enable(struct rockchip_otp_platdata *otp,
 static int rockchip_px30_otp_read(struct udevice *dev, int offset,
 				  void *buf, int size)
 {
-	struct rockchip_otp_platdata *otp = dev_get_platdata(dev);
+	struct rockchip_otp_platdata *otp = dev_get_plat(dev);
 	u8 *buffer = buf;
 	int ret = 0;
 
@@ -147,7 +147,7 @@ static const struct misc_ops rockchip_otp_ops = {
 
 static int rockchip_otp_ofdata_to_platdata(struct udevice *dev)
 {
-	struct rockchip_otp_platdata *otp = dev_get_platdata(dev);
+	struct rockchip_otp_platdata *otp = dev_get_plat(dev);
 
 	otp->base = dev_read_addr_ptr(dev);
 

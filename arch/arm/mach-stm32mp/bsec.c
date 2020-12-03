@@ -295,7 +295,7 @@ static int stm32mp_bsec_read_otp(struct udevice *dev, u32 *val, u32 otp)
 				 STM32_SMC_READ_OTP,
 				 otp, 0, val);
 
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 
 	/* read current shadow value */
 	ret = bsec_read_shadow(plat->base, &tmp_data, otp);
@@ -326,14 +326,14 @@ static int stm32mp_bsec_read_shadow(struct udevice *dev, u32 *val, u32 otp)
 				 STM32_SMC_READ_SHADOW,
 				 otp, 0, val);
 
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 
 	return bsec_read_shadow(plat->base, val, otp);
 }
 
 static int stm32mp_bsec_read_lock(struct udevice *dev, u32 *val, u32 otp)
 {
-	struct stm32mp_bsec_platdata *plat = dev_get_platdata(dev);
+	struct stm32mp_bsec_platdata *plat = dev_get_plat(dev);
 
 	/* return OTP permanent write lock status */
 	*val = bsec_read_lock(plat->base + BSEC_WRLOCK_OFF, otp);
@@ -350,7 +350,7 @@ static int stm32mp_bsec_write_otp(struct udevice *dev, u32 val, u32 otp)
 				      STM32_SMC_PROG_OTP,
 				      otp, val);
 
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 
 	return bsec_program_otp(plat->base, val, otp);
 
@@ -365,7 +365,7 @@ static int stm32mp_bsec_write_shadow(struct udevice *dev, u32 val, u32 otp)
 				      STM32_SMC_WRITE_SHADOW,
 				      otp, val);
 
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 
 	return bsec_write_shadow(plat->base, val, otp);
 }
@@ -475,7 +475,7 @@ static const struct misc_ops stm32mp_bsec_ops = {
 
 static int stm32mp_bsec_ofdata_to_platdata(struct udevice *dev)
 {
-	struct stm32mp_bsec_platdata *plat = dev_get_platdata(dev);
+	struct stm32mp_bsec_platdata *plat = dev_get_plat(dev);
 
 	plat->base = (u32)dev_read_addr_ptr(dev);
 
@@ -493,7 +493,7 @@ static int stm32mp_bsec_probe(struct udevice *dev)
 	 */
 
 	if (!IS_ENABLED(CONFIG_TFABOOT) && !IS_ENABLED(CONFIG_SPL_BUILD)) {
-		plat = dev_get_platdata(dev);
+		plat = dev_get_plat(dev);
 
 		for (otp = 57; otp <= BSEC_OTP_MAX_VALUE; otp++)
 			if (!bsec_read_SR_lock(plat->base, otp))
@@ -531,7 +531,7 @@ bool bsec_dbgswenable(void)
 		return false;
 	}
 
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	if (readl(plat->base + BSEC_DENABLE_OFF) & BSEC_DENABLE_DBGSWENABLE)
 		return true;
 

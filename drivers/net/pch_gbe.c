@@ -68,7 +68,7 @@ static int pch_gbe_mac_write(struct pch_gbe_regs *mac_regs, u8 *addr)
 static int pch_gbe_reset(struct udevice *dev)
 {
 	struct pch_gbe_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct pch_gbe_regs *mac_regs = priv->mac_regs;
 	ulong start;
 
@@ -412,7 +412,7 @@ static int pch_gbe_mdio_init(const char *name, struct pch_gbe_regs *mac_regs)
 static int pch_gbe_phy_init(struct udevice *dev)
 {
 	struct pch_gbe_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct phy_device *phydev;
 	int mask = 0xffffffff;
 
@@ -436,7 +436,7 @@ static int pch_gbe_phy_init(struct udevice *dev)
 static int pch_gbe_probe(struct udevice *dev)
 {
 	struct pch_gbe_priv *priv;
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	void *iobase;
 	int err;
 

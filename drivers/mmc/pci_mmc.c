@@ -31,7 +31,7 @@ struct pci_mmc_priv {
 static int pci_mmc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct pci_mmc_plat *plat = dev_get_platdata(dev);
+	struct pci_mmc_plat *plat = dev_get_plat(dev);
 	struct pci_mmc_priv *priv = dev_get_priv(dev);
 	struct sdhci_host *host = &priv->host;
 	int ret;
@@ -61,7 +61,7 @@ static int pci_mmc_ofdata_to_platdata(struct udevice *dev)
 
 static int pci_mmc_bind(struct udevice *dev)
 {
-	struct pci_mmc_plat *plat = dev_get_platdata(dev);
+	struct pci_mmc_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }

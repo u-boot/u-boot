@@ -133,7 +133,7 @@ static int socfpga_dwmmc_ofdata_to_platdata(struct udevice *dev)
 static int socfpga_dwmmc_probe(struct udevice *dev)
 {
 #ifdef CONFIG_BLK
-	struct socfpga_dwmci_plat *plat = dev_get_platdata(dev);
+	struct socfpga_dwmci_plat *plat = dev_get_plat(dev);
 #endif
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct dwmci_socfpga_priv_data *priv = dev_get_priv(dev);
@@ -165,7 +165,7 @@ static int socfpga_dwmmc_probe(struct udevice *dev)
 static int socfpga_dwmmc_bind(struct udevice *dev)
 {
 #ifdef CONFIG_BLK
-	struct socfpga_dwmci_plat *plat = dev_get_platdata(dev);
+	struct socfpga_dwmci_plat *plat = dev_get_plat(dev);
 	int ret;
 
 	ret = dwmci_bind(dev, &plat->mmc, &plat->cfg);

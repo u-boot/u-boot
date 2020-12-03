@@ -270,7 +270,7 @@ static int phywrite(struct zynq_gem_priv *priv, u32 phy_addr,
 static int zynq_gem_setup_mac(struct udevice *dev)
 {
 	u32 i, macaddrlow, macaddrhigh;
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	struct zynq_gem_regs *regs = priv->iobase;
 
@@ -635,7 +635,7 @@ __weak int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 
 static int zynq_gem_read_rom_mac(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	if (!pdata)
 		return -ENOSYS;
@@ -745,7 +745,7 @@ static const struct eth_ops zynq_gem_ops = {
 
 static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args phandle_args;
 	const char *phy_mode;

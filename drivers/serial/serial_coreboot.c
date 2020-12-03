@@ -13,7 +13,7 @@
 
 static int coreboot_ofdata_to_platdata(struct udevice *dev)
 {
-	struct ns16550_platdata *plat = dev_get_platdata(dev);
+	struct ns16550_platdata *plat = dev_get_plat(dev);
 	struct cb_serial *cb_info = lib_sysinfo.serial;
 
 	plat->base = cb_info->baseaddr;

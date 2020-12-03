@@ -680,7 +680,7 @@ static const struct dm_mmc_ops tegra_mmc_ops = {
 static int tegra_mmc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct tegra_mmc_plat *plat = dev_get_platdata(dev);
+	struct tegra_mmc_plat *plat = dev_get_plat(dev);
 	struct tegra_mmc_priv *priv = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
 	int bus_width, ret;
@@ -749,7 +749,7 @@ static int tegra_mmc_probe(struct udevice *dev)
 
 static int tegra_mmc_bind(struct udevice *dev)
 {
-	struct tegra_mmc_plat *plat = dev_get_platdata(dev);
+	struct tegra_mmc_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }

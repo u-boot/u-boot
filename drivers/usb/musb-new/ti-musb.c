@@ -33,7 +33,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void ti_musb_set_phy_power(struct udevice *dev, u8 on)
 {
-	struct ti_musb_platdata *plat = dev_get_platdata(dev);
+	struct ti_musb_platdata *plat = dev_get_plat(dev);
 
 	if (!plat->ctrl_mod_base)
 		return;
@@ -79,7 +79,7 @@ static int ti_musb_get_usb_index(int node)
 
 static int ti_musb_ofdata_to_platdata(struct udevice *dev)
 {
-	struct ti_musb_platdata *plat = dev_get_platdata(dev);
+	struct ti_musb_platdata *plat = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	int phys;
@@ -147,7 +147,7 @@ static int ti_musb_ofdata_to_platdata(struct udevice *dev)
 static int ti_musb_host_probe(struct udevice *dev)
 {
 	struct musb_host_data *host = dev_get_priv(dev);
-	struct ti_musb_platdata *plat = dev_get_platdata(dev);
+	struct ti_musb_platdata *plat = dev_get_plat(dev);
 	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
 	int ret;
 
@@ -178,7 +178,7 @@ static int ti_musb_host_remove(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static int ti_musb_host_ofdata_to_platdata(struct udevice *dev)
 {
-	struct ti_musb_platdata *plat = dev_get_platdata(dev);
+	struct ti_musb_platdata *plat = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	int ret;
@@ -216,7 +216,7 @@ struct ti_musb_peripheral {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static int ti_musb_peripheral_ofdata_to_platdata(struct udevice *dev)
 {
-	struct ti_musb_platdata *plat = dev_get_platdata(dev);
+	struct ti_musb_platdata *plat = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	int ret;
@@ -244,7 +244,7 @@ int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 static int ti_musb_peripheral_probe(struct udevice *dev)
 {
 	struct ti_musb_peripheral *priv = dev_get_priv(dev);
-	struct ti_musb_platdata *plat = dev_get_platdata(dev);
+	struct ti_musb_platdata *plat = dev_get_plat(dev);
 	int ret;
 
 	priv->periph = musb_init_controller(&plat->plat,

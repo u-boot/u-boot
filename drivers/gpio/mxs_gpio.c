@@ -235,7 +235,7 @@ static const struct dm_gpio_ops gpio_mxs_ops = {
 
 static int mxs_gpio_probe(struct udevice *dev)
 {
-	struct mxs_gpio_platdata *plat = dev_get_platdata(dev);
+	struct mxs_gpio_platdata *plat = dev_get_plat(dev);
 	struct mxs_gpio_priv *priv = dev_get_priv(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	char name[16], *str;

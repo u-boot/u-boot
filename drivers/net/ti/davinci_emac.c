@@ -112,7 +112,7 @@ phy_t				phy[CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT];
 
 static int davinci_emac_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	unsigned long		mac_hi;
 	unsigned long		mac_lo;
 

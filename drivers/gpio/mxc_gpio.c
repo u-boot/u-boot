@@ -281,7 +281,7 @@ static const struct dm_gpio_ops gpio_mxc_ops = {
 static int mxc_gpio_probe(struct udevice *dev)
 {
 	struct mxc_bank_info *bank = dev_get_priv(dev);
-	struct mxc_gpio_plat *plat = dev_get_platdata(dev);
+	struct mxc_gpio_plat *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	int banknum;
 	char name[18], *str;
@@ -309,7 +309,7 @@ static int mxc_gpio_probe(struct udevice *dev)
 
 static int mxc_gpio_ofdata_to_platdata(struct udevice *dev)
 {
-	struct mxc_gpio_plat *plat = dev_get_platdata(dev);
+	struct mxc_gpio_plat *plat = dev_get_plat(dev);
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		fdt_addr_t addr;
 		addr = dev_read_addr(dev);

@@ -865,7 +865,7 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
     CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
     CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
-	struct tmio_sd_plat *plat = dev_get_platdata(dev);
+	struct tmio_sd_plat *plat = dev_get_plat(dev);
 
 	/* HS400 is not supported on H3 ES1.x and M3W ES1.0, ES1.1 */
 	if (((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&

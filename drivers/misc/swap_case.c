@@ -100,7 +100,7 @@ static int sandbox_swap_case_read_config(const struct udevice *emul,
 					 uint offset, ulong *valuep,
 					 enum pci_size_t size)
 {
-	struct swap_case_platdata *plat = dev_get_platdata(emul);
+	struct swap_case_platdata *plat = dev_get_plat(emul);
 
 	/*
 	 * The content of the EA capability structure is handled elsewhere to
@@ -200,7 +200,7 @@ static int sandbox_swap_case_read_config(const struct udevice *emul,
 static int sandbox_swap_case_write_config(struct udevice *emul, uint offset,
 					  ulong value, enum pci_size_t size)
 {
-	struct swap_case_platdata *plat = dev_get_platdata(emul);
+	struct swap_case_platdata *plat = dev_get_plat(emul);
 
 	switch (offset) {
 	case PCI_COMMAND:
@@ -228,7 +228,7 @@ static int sandbox_swap_case_write_config(struct udevice *emul, uint offset,
 static int sandbox_swap_case_find_bar(struct udevice *emul, unsigned int addr,
 				      int *barnump, unsigned int *offsetp)
 {
-	struct swap_case_platdata *plat = dev_get_platdata(emul);
+	struct swap_case_platdata *plat = dev_get_plat(emul);
 	int barnum;
 
 	for (barnum = 0; barnum < ARRAY_SIZE(barinfo); barnum++) {

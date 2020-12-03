@@ -144,7 +144,7 @@ struct clk_fixed_rate {
 	unsigned long fixed_rate;
 };
 
-#define to_clk_fixed_rate(dev)	((struct clk_fixed_rate *)dev_get_platdata(dev))
+#define to_clk_fixed_rate(dev)	((struct clk_fixed_rate *)dev_get_plat(dev))
 
 struct clk_composite {
 	struct clk	clk;

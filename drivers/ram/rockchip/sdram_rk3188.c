@@ -809,7 +809,7 @@ error:
 static int setup_sdram(struct udevice *dev)
 {
 	struct dram_info *priv = dev_get_priv(dev);
-	struct rk3188_sdram_params *params = dev_get_platdata(dev);
+	struct rk3188_sdram_params *params = dev_get_plat(dev);
 
 	return sdram_init(priv, params);
 }
@@ -817,7 +817,7 @@ static int setup_sdram(struct udevice *dev)
 static int rk3188_dmc_ofdata_to_platdata(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct rk3188_sdram_params *params = dev_get_platdata(dev);
+	struct rk3188_sdram_params *params = dev_get_plat(dev);
 	int ret;
 
 	/* rk3188 supports only one-channel */
@@ -855,7 +855,7 @@ static int rk3188_dmc_ofdata_to_platdata(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 static int conv_of_platdata(struct udevice *dev)
 {
-	struct rk3188_sdram_params *plat = dev_get_platdata(dev);
+	struct rk3188_sdram_params *plat = dev_get_plat(dev);
 	struct dtd_rockchip_rk3188_dmc *of_plat = &plat->of_plat;
 	int ret;
 
@@ -879,7 +879,7 @@ static int conv_of_platdata(struct udevice *dev)
 static int rk3188_dmc_probe(struct udevice *dev)
 {
 #ifdef CONFIG_SPL_BUILD
-	struct rk3188_sdram_params *plat = dev_get_platdata(dev);
+	struct rk3188_sdram_params *plat = dev_get_plat(dev);
 	struct regmap *map;
 	struct udevice *dev_clk;
 	int ret;

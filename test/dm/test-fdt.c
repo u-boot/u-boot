@@ -40,7 +40,7 @@ static const struct test_ops test_ops = {
 
 static int testfdt_ofdata_to_platdata(struct udevice *dev)
 {
-	struct dm_test_pdata *pdata = dev_get_platdata(dev);
+	struct dm_test_pdata *pdata = dev_get_plat(dev);
 
 	pdata->ping_add = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					"ping-add", -1);
@@ -132,7 +132,7 @@ struct dm_testprobe_pdata {
 
 static int testprobe_drv_probe(struct udevice *dev)
 {
-	struct dm_testprobe_pdata *pdata = dev_get_platdata(dev);
+	struct dm_testprobe_pdata *pdata = dev_get_plat(dev);
 
 	return pdata->probe_err;
 }
@@ -167,7 +167,7 @@ struct dm_testdevres_priv {
 
 static int testdevres_drv_bind(struct udevice *dev)
 {
-	struct dm_testdevres_pdata *pdata = dev_get_platdata(dev);
+	struct dm_testdevres_pdata *pdata = dev_get_plat(dev);
 
 	pdata->ptr = devm_kmalloc(dev, TEST_DEVRES_SIZE, 0);
 
@@ -445,7 +445,7 @@ static int dm_test_first_next_device(struct unit_test_state *uts)
 
 	/* Remove them and try again, with an error on the second one */
 	ut_assertok(uclass_get_device(UCLASS_TEST_PROBE, 1, &dev));
-	pdata = dev_get_platdata(dev);
+	pdata = dev_get_plat(dev);
 	pdata->probe_err = -ENOMEM;
 	device_remove(parent, DM_REMOVE_NORMAL);
 	ut_assertok(uclass_first_device(UCLASS_TEST_PROBE, &dev));
@@ -454,7 +454,7 @@ static int dm_test_first_next_device(struct unit_test_state *uts)
 
 	/* Now an error on the first one */
 	ut_assertok(uclass_get_device(UCLASS_TEST_PROBE, 0, &dev));
-	pdata = dev_get_platdata(dev);
+	pdata = dev_get_plat(dev);
 	pdata->probe_err = -ENOENT;
 	device_remove(parent, DM_REMOVE_NORMAL);
 	ut_asserteq(-ENOENT, uclass_first_device(UCLASS_TEST_PROBE, &dev));
@@ -541,21 +541,21 @@ static int dm_test_first_next_ok_device(struct unit_test_state *uts)
 	ut_assertok(check_devices(uts, devlist, 0));
 
 	/* Remove them and try again, with an error on the second one */
-	pdata = dev_get_platdata(devlist[1]);
+	pdata = dev_get_plat(devlist[1]);
 	pdata->probe_err = -ENOENT - 1;
 	device_remove(parent, DM_REMOVE_NORMAL);
 	ut_assertok(check_devices(uts, devlist, 1 << 1));
 
 	/* Now an error on the first one */
-	pdata = dev_get_platdata(devlist[0]);
+	pdata = dev_get_plat(devlist[0]);
 	pdata->probe_err = -ENOENT - 0;
 	device_remove(parent, DM_REMOVE_NORMAL);
 	ut_assertok(check_devices(uts, devlist, 3 << 0));
 
 	/* Now errors on all */
-	pdata = dev_get_platdata(devlist[2]);
+	pdata = dev_get_plat(devlist[2]);
 	pdata->probe_err = -ENOENT - 2;
-	pdata = dev_get_platdata(devlist[3]);
+	pdata = dev_get_plat(devlist[3]);
 	pdata->probe_err = -ENOENT - 3;
 	device_remove(parent, DM_REMOVE_NORMAL);
 	ut_assertok(check_devices(uts, devlist, 0xf << 0));

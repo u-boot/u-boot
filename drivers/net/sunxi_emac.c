@@ -535,7 +535,7 @@ static int sunxi_emac_board_setup(struct udevice *dev,
 
 static int sunxi_emac_eth_start(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	return _sunxi_emac_eth_init(dev->priv, pdata->enetaddr);
 }
@@ -565,7 +565,7 @@ static void sunxi_emac_eth_stop(struct udevice *dev)
 
 static int sunxi_emac_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct emac_eth_dev *priv = dev_get_priv(dev);
 	int ret;
 
@@ -593,7 +593,7 @@ static const struct eth_ops sunxi_emac_eth_ops = {
 
 static int sunxi_emac_eth_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	pdata->iobase = dev_read_addr(dev);
 

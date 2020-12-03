@@ -343,7 +343,7 @@ static int coldfire_spi_set_mode(struct udevice *bus, uint mode)
 
 static int coldfire_spi_probe(struct udevice *bus)
 {
-	struct coldfire_spi_platdata *plat = dev_get_platdata(bus);
+	struct coldfire_spi_platdata *plat = dev_get_plat(bus);
 	struct coldfire_spi_priv *cfspi = dev_get_priv(bus);
 	struct dspi *dspi = cfspi->regs;
 	int i;

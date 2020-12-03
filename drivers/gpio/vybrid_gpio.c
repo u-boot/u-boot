@@ -93,7 +93,7 @@ static const struct dm_gpio_ops gpio_vybrid_ops = {
 static int vybrid_gpio_probe(struct udevice *dev)
 {
 	struct vybrid_gpios *gpios = dev_get_priv(dev);
-	struct vybrid_gpio_platdata *plat = dev_get_platdata(dev);
+	struct vybrid_gpio_platdata *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	uc_priv->bank_name = plat->port_name;
@@ -106,7 +106,7 @@ static int vybrid_gpio_probe(struct udevice *dev)
 
 static int vybrid_gpio_odata_to_platdata(struct udevice *dev)
 {
-	struct vybrid_gpio_platdata *plat = dev_get_platdata(dev);
+	struct vybrid_gpio_platdata *plat = dev_get_plat(dev);
 	fdt_addr_t base_addr;
 
 	base_addr = dev_read_addr(dev);

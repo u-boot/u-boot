@@ -161,7 +161,7 @@ static int altera_spi_set_mode(struct udevice *bus, uint mode)
 
 static int altera_spi_probe(struct udevice *bus)
 {
-	struct altera_spi_platdata *plat = dev_get_platdata(bus);
+	struct altera_spi_platdata *plat = dev_get_plat(bus);
 	struct altera_spi_priv *priv = dev_get_priv(bus);
 
 	priv->regs = plat->regs;
@@ -171,7 +171,7 @@ static int altera_spi_probe(struct udevice *bus)
 
 static int altera_spi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct altera_spi_platdata *plat = dev_get_platdata(bus);
+	struct altera_spi_platdata *plat = dev_get_plat(bus);
 
 	plat->regs = map_physmem(dev_read_addr(bus),
 				 sizeof(struct altera_spi_regs),

@@ -230,7 +230,7 @@ static u32 fu540_ddr_get_dram_class(volatile u32 *ctl)
 static int fu540_ddr_setup(struct udevice *dev)
 {
 	struct fu540_ddr_info *priv = dev_get_priv(dev);
-	struct sifive_dmc_plat *plat = dev_get_platdata(dev);
+	struct sifive_dmc_plat *plat = dev_get_plat(dev);
 	struct fu540_ddr_params *params = &plat->ddr_params;
 	volatile u32 *denali_ctl =  priv->ctl->denali_ctl;
 	volatile u32 *denali_phy =  priv->phy->denali_phy;

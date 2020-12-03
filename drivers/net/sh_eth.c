@@ -744,7 +744,7 @@ static int sh_ether_write_hwaddr(struct udevice *dev)
 	struct sh_ether_priv *priv = dev_get_priv(dev);
 	struct sh_eth_dev *eth = &priv->shdev;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	sh_eth_write_hwaddr(port_info, pdata->enetaddr);
 
@@ -754,7 +754,7 @@ static int sh_ether_write_hwaddr(struct udevice *dev)
 static int sh_eth_phy_config(struct udevice *dev)
 {
 	struct sh_ether_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct sh_eth_dev *eth = &priv->shdev;
 	int ret = 0;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
@@ -776,7 +776,7 @@ static int sh_eth_phy_config(struct udevice *dev)
 static int sh_ether_start(struct udevice *dev)
 {
 	struct sh_ether_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct sh_eth_dev *eth = &priv->shdev;
 	int ret;
 
@@ -808,7 +808,7 @@ static void sh_ether_stop(struct udevice *dev)
 
 static int sh_ether_probe(struct udevice *udev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(udev);
+	struct eth_pdata *pdata = dev_get_plat(udev);
 	struct sh_ether_priv *priv = dev_get_priv(udev);
 	struct sh_eth_dev *eth = &priv->shdev;
 	struct ofnode_phandle_args phandle_args;
@@ -913,7 +913,7 @@ static const struct eth_ops sh_ether_ops = {
 
 int sh_ether_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *phy_mode;
 	const fdt32_t *cell;
 	int ret = 0;

@@ -406,7 +406,7 @@ static int rpc_spi_bind(struct udevice *parent)
 
 static int rpc_spi_probe(struct udevice *dev)
 {
-	struct rpc_spi_platdata *plat = dev_get_platdata(dev);
+	struct rpc_spi_platdata *plat = dev_get_plat(dev);
 	struct rpc_spi_priv *priv = dev_get_priv(dev);
 
 	priv->regs = plat->regs;
@@ -419,7 +419,7 @@ static int rpc_spi_probe(struct udevice *dev)
 
 static int rpc_spi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct rpc_spi_platdata *plat = dev_get_platdata(bus);
+	struct rpc_spi_platdata *plat = dev_get_plat(bus);
 
 	plat->regs = dev_read_addr_index(bus, 0);
 	plat->extr = dev_read_addr_index(bus, 1);

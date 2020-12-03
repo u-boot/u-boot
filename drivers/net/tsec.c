@@ -562,7 +562,7 @@ static int tsec_init(struct udevice *dev)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 #ifdef CONFIG_DM_ETH
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 #else
 	struct eth_device *pdata = dev;
 #endif
@@ -799,7 +799,7 @@ int tsec_standard_init(struct bd_info *bis)
 #else /* CONFIG_DM_ETH */
 int tsec_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct tsec_private *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args phandle_args;
 	u32 tbiaddr = CONFIG_SYS_TBIPA_VALUE;

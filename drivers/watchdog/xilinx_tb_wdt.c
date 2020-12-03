@@ -34,7 +34,7 @@ struct xlnx_wdt_platdata {
 static int xlnx_wdt_reset(struct udevice *dev)
 {
 	u32 reg;
-	struct xlnx_wdt_platdata *plat = dev_get_platdata(dev);
+	struct xlnx_wdt_platdata *plat = dev_get_plat(dev);
 
 	debug("%s ", __func__);
 
@@ -51,7 +51,7 @@ static int xlnx_wdt_reset(struct udevice *dev)
 static int xlnx_wdt_stop(struct udevice *dev)
 {
 	u32 reg;
-	struct xlnx_wdt_platdata *plat = dev_get_platdata(dev);
+	struct xlnx_wdt_platdata *plat = dev_get_plat(dev);
 
 	if (plat->enable_once) {
 		debug("Can't stop Xilinx watchdog.\n");
@@ -71,7 +71,7 @@ static int xlnx_wdt_stop(struct udevice *dev)
 
 static int xlnx_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 {
-	struct xlnx_wdt_platdata *plat = dev_get_platdata(dev);
+	struct xlnx_wdt_platdata *plat = dev_get_plat(dev);
 
 	debug("%s:\n", __func__);
 
@@ -92,7 +92,7 @@ static int xlnx_wdt_probe(struct udevice *dev)
 
 static int xlnx_wdt_ofdata_to_platdata(struct udevice *dev)
 {
-	struct xlnx_wdt_platdata *plat = dev_get_platdata(dev);
+	struct xlnx_wdt_platdata *plat = dev_get_plat(dev);
 
 	plat->regs = (struct watchdog_regs *)dev_read_addr(dev);
 	if (IS_ERR(plat->regs))

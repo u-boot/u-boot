@@ -285,14 +285,14 @@ struct driver {
 #define U_BOOT_DRIVER_ALIAS(__name, __alias)
 
 /**
- * dev_get_platdata() - Get the platform data for a device
+ * dev_get_plat() - Get the platform data for a device
  *
  * This checks that dev is not NULL, but no other checks for now
  *
  * @dev		Device to check
  * @return platform data, or NULL if none
  */
-void *dev_get_platdata(const struct udevice *dev);
+void *dev_get_plat(const struct udevice *dev);
 
 /**
  * dev_get_parent_plat() - Get the parent platform data for a device

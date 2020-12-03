@@ -207,7 +207,7 @@ static int usb_stor_probe_device(struct usb_device *udev)
 	 * is shared by all LUNs (block devices) attached to this mass storage
 	 * device.
 	 */
-	data = dev_get_platdata(udev->dev);
+	data = dev_get_plat(udev->dev);
 	if (!usb_storage_probe(udev, 0, data))
 		return 0;
 	max_lun = usb_get_max_lun(data);
