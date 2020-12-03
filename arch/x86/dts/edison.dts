@@ -105,6 +105,10 @@
 		reg = <0xff009000 0x1000>;
 	};
 
+	usb: usb@f9100000 {
+		compatible = "intel,tangier-dwc3";
+	};
+
 	watchdog: wdt@0 {
 		compatible = "intel,tangier-wdt";
 	};

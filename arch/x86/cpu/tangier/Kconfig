@@ -10,8 +10,11 @@ config INTEL_TANGIER
 	imply MMC_SDHCI
 	imply MMC_SDHCI_SDMA
 	imply MMC_SDHCI_TANGIER
+	imply MISC
 	imply USB
+	imply USB_XHCI_HCD
 	imply USB_DWC3
+	imply USB_DWC3_GENERIC
 
 if INTEL_TANGIER
 
