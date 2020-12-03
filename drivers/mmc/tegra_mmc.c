@@ -771,6 +771,6 @@ U_BOOT_DRIVER(tegra_mmc_drv) = {
 	.bind		= tegra_mmc_bind,
 	.probe		= tegra_mmc_probe,
 	.ops		= &tegra_mmc_ops,
-	.platdata_auto	= sizeof(struct tegra_mmc_plat),
+	.plat_auto	= sizeof(struct tegra_mmc_plat),
 	.priv_auto	= sizeof(struct tegra_mmc_priv),
 };

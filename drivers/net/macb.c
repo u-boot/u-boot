@@ -1336,7 +1336,7 @@ U_BOOT_DRIVER(eth_macb) = {
 	.remove	= macb_eth_remove,
 	.ops	= &macb_eth_ops,
 	.priv_auto	= sizeof(struct macb_device),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 #endif
 

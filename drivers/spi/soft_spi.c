@@ -228,7 +228,7 @@ static const struct dm_spi_ops soft_spi_ops = {
 
 static int soft_spi_ofdata_to_platdata(struct udevice *dev)
 {
-	struct soft_spi_platdata *plat = dev->platdata;
+	struct soft_spi_platdata *plat = dev->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 
@@ -240,7 +240,7 @@ static int soft_spi_ofdata_to_platdata(struct udevice *dev)
 static int soft_spi_probe(struct udevice *dev)
 {
 	struct spi_slave *slave = dev_get_parent_priv(dev);
-	struct soft_spi_platdata *plat = dev->platdata;
+	struct soft_spi_platdata *plat = dev->plat;
 	int cs_flags, clk_flags;
 	int ret;
 
@@ -281,7 +281,7 @@ U_BOOT_DRIVER(soft_spi) = {
 	.of_match = soft_spi_ids,
 	.ops	= &soft_spi_ops,
 	.ofdata_to_platdata = soft_spi_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct soft_spi_platdata),
+	.plat_auto	= sizeof(struct soft_spi_platdata),
 	.priv_auto	= sizeof(struct soft_spi_priv),
 	.probe	= soft_spi_probe,
 };

@@ -210,7 +210,7 @@ int acpi_i2c_ofdata_to_platdata(struct udevice *dev)
 /* Use name specified in priv or build one from I2C address */
 static int acpi_i2c_get_name(const struct udevice *dev, char *out_name)
 {
-	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+	struct dm_i2c_chip *chip = dev_get_parent_plat(dev);
 	struct acpi_i2c_priv *priv = dev_get_priv(dev);
 
 	snprintf(out_name, ACPI_NAME_MAX,

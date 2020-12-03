@@ -805,7 +805,7 @@ U_BOOT_DRIVER(eth_ks2_slave) = {
 	.remove	= ks2_eth_remove,
 	.ops	= &ks2_eth_ops,
 	.priv_auto	= sizeof(struct ks2_eth_priv),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 
@@ -818,6 +818,6 @@ U_BOOT_DRIVER(eth_ks2) = {
 	.remove	= ks2_eth_remove,
 	.ops	= &ks2_eth_ops,
 	.priv_auto	= sizeof(struct ks2_eth_priv),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

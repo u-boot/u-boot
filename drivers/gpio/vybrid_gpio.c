@@ -133,5 +133,5 @@ U_BOOT_DRIVER(gpio_vybrid) = {
 	.ofdata_to_platdata = vybrid_gpio_odata_to_platdata,
 	.probe	= vybrid_gpio_probe,
 	.priv_auto	= sizeof(struct vybrid_gpios),
-	.platdata_auto	= sizeof(struct vybrid_gpio_platdata),
+	.plat_auto	= sizeof(struct vybrid_gpio_platdata),
 };

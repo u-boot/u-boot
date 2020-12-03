@@ -740,7 +740,7 @@ int designware_eth_probe(struct udevice *dev)
 #ifdef CONFIG_DM_PCI
 	/*
 	 * If we are on PCI bus, either directly attached to a PCI root port,
-	 * or via a PCI bridge, fill in platdata before we probe the hardware.
+	 * or via a PCI bridge, fill in plat before we probe the hardware.
 	 */
 	if (device_is_on_pci_bus(dev)) {
 		dm_pci_read_config32(dev, PCI_BASE_ADDRESS_0, &iobase);
@@ -874,7 +874,7 @@ U_BOOT_DRIVER(eth_designware) = {
 	.remove	= designware_eth_remove,
 	.ops	= &designware_eth_ops,
 	.priv_auto	= sizeof(struct dw_eth_dev),
-	.platdata_auto	= sizeof(struct dw_eth_pdata),
+	.plat_auto	= sizeof(struct dw_eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 

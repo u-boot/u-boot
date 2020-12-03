@@ -808,7 +808,7 @@ int scan_sata(int dev)
 #else
 static int scan_sata(struct udevice *dev)
 {
-	struct blk_desc *desc = dev_get_uclass_platdata(dev);
+	struct blk_desc *desc = dev_get_uclass_plat(dev);
 	struct fsl_ata_priv *priv = dev_get_platdata(dev);
 	fsl_sata_t *sata = priv->fsl_sata;
 #endif
@@ -900,7 +900,7 @@ U_BOOT_DRIVER(sata_fsl_driver) = {
 	.name = "sata_fsl_blk",
 	.id = UCLASS_BLK,
 	.ops = &sata_fsl_blk_ops,
-	.platdata_auto	= sizeof(struct fsl_ata_priv),
+	.plat_auto	= sizeof(struct fsl_ata_priv),
 };
 
 static int fsl_ata_ofdata_to_platdata(struct udevice *dev)

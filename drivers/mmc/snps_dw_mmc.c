@@ -196,5 +196,5 @@ U_BOOT_DRIVER(snps_dwmmc_drv) = {
 	.bind				= snps_dwmmc_bind,
 	.probe				= snps_dwmmc_probe,
 	.priv_auto		= sizeof(struct snps_dwmci_priv_data),
-	.platdata_auto	= sizeof(struct snps_dwmci_plat),
+	.plat_auto	= sizeof(struct snps_dwmci_plat),
 };

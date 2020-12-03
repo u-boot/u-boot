@@ -605,5 +605,5 @@ U_BOOT_DRIVER(serval) = {
 	.remove				= serval_remove,
 	.ops				= &serval_ops,
 	.priv_auto		= sizeof(struct serval_private),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

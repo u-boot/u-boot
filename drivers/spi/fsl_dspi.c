@@ -448,7 +448,7 @@ static int fsl_dspi_cfg_speed(struct fsl_dspi_priv *priv, uint speed)
 
 static int fsl_dspi_child_pre_probe(struct udevice *dev)
 {
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 	struct fsl_dspi_priv *priv = dev_get_priv(dev->parent);
 	u32 cs_sck_delay = 0, sck_cs_delay = 0;
 	unsigned char pcssck = 0, cssck = 0;
@@ -522,7 +522,7 @@ static int fsl_dspi_claim_bus(struct udevice *dev)
 	struct fsl_dspi_priv *priv;
 	struct udevice *bus = dev->parent;
 	struct dm_spi_slave_platdata *slave_plat =
-		dev_get_parent_platdata(dev);
+		dev_get_parent_plat(dev);
 
 	priv = dev_get_priv(bus);
 
@@ -553,7 +553,7 @@ static int fsl_dspi_release_bus(struct udevice *dev)
 	struct udevice *bus = dev->parent;
 	struct fsl_dspi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_slave_platdata *slave_plat =
-		dev_get_parent_platdata(dev);
+		dev_get_parent_plat(dev);
 
 	/* halt module */
 	dspi_halt(priv, 1);
@@ -576,7 +576,7 @@ static int fsl_dspi_bind(struct udevice *bus)
 static int fsl_dspi_ofdata_to_platdata(struct udevice *bus)
 {
 	fdt_addr_t addr;
-	struct fsl_dspi_platdata *plat = bus->platdata;
+	struct fsl_dspi_platdata *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -608,7 +608,7 @@ static int fsl_dspi_xfer(struct udevice *dev, unsigned int bitlen,
 		const void *dout, void *din, unsigned long flags)
 {
 	struct fsl_dspi_priv *priv;
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 	struct udevice *bus;
 
 	bus = dev->parent;
@@ -660,7 +660,7 @@ U_BOOT_DRIVER(fsl_dspi) = {
 	.of_match = fsl_dspi_ids,
 	.ops	= &fsl_dspi_ops,
 	.ofdata_to_platdata = fsl_dspi_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct fsl_dspi_platdata),
+	.plat_auto	= sizeof(struct fsl_dspi_platdata),
 	.priv_auto	= sizeof(struct fsl_dspi_priv),
 	.probe	= fsl_dspi_probe,
 	.child_pre_probe = fsl_dspi_child_pre_probe,

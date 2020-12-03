@@ -240,7 +240,7 @@ U_BOOT_DRIVER(serial_sh) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = of_match_ptr(sh_serial_id),
 	.ofdata_to_platdata = of_match_ptr(sh_serial_ofdata_to_platdata),
-	.platdata_auto	= sizeof(struct sh_serial_platdata),
+	.plat_auto	= sizeof(struct sh_serial_platdata),
 	.probe	= sh_serial_probe,
 	.ops	= &sh_serial_ops,
 #if !CONFIG_IS_ENABLED(OF_CONTROL)

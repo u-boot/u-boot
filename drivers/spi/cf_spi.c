@@ -115,7 +115,7 @@ static int coldfire_spi_claim_bus(struct udevice *dev)
 	struct coldfire_spi_priv *cfspi = dev_get_priv(bus);
 	struct dspi *dspi = cfspi->regs;
 	struct dm_spi_slave_platdata *slave_plat =
-		dev_get_parent_platdata(dev);
+		dev_get_parent_plat(dev);
 
 	if ((in_be32(&dspi->sr) & DSPI_SR_TXRXS) != DSPI_SR_TXRXS)
 		return -1;
@@ -134,7 +134,7 @@ static int coldfire_spi_release_bus(struct udevice *dev)
 	struct coldfire_spi_priv *cfspi = dev_get_priv(bus);
 	struct dspi *dspi = cfspi->regs;
 	struct dm_spi_slave_platdata *slave_plat =
-		dev_get_parent_platdata(dev);
+		dev_get_parent_plat(dev);
 
 	/* Clear FIFO */
 	clrbits_be32(&dspi->mcr, DSPI_MCR_CTXF | DSPI_MCR_CRXF);
@@ -150,7 +150,7 @@ static int coldfire_spi_xfer(struct udevice *dev, unsigned int bitlen,
 {
 	struct udevice *bus = dev_get_parent(dev);
 	struct coldfire_spi_priv *cfspi = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 	u16 *spi_rd16 = NULL, *spi_wr16 = NULL;
 	u8 *spi_rd = NULL, *spi_wr = NULL;
 	static u32 ctrl;
@@ -387,7 +387,7 @@ static int coldfire_spi_probe(struct udevice *bus)
 static int coldfire_dspi_ofdata_to_platdata(struct udevice *bus)
 {
 	fdt_addr_t addr;
-	struct coldfire_spi_platdata *plat = bus->platdata;
+	struct coldfire_spi_platdata *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 	int *ctar, len;
@@ -452,7 +452,7 @@ U_BOOT_DRIVER(coldfire_spi) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = coldfire_spi_ids,
 	.ofdata_to_platdata = coldfire_dspi_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct coldfire_spi_platdata),
+	.plat_auto	= sizeof(struct coldfire_spi_platdata),
 #endif
 	.probe = coldfire_spi_probe,
 	.ops = &coldfire_spi_ops,

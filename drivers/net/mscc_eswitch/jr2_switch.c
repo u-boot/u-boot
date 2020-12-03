@@ -965,5 +965,5 @@ U_BOOT_DRIVER(jr2) = {
 	.remove				= jr2_remove,
 	.ops				= &jr2_ops,
 	.priv_auto		= sizeof(struct jr2_private),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

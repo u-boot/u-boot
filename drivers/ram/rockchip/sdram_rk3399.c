@@ -3181,6 +3181,6 @@ U_BOOT_DRIVER(dmc_rk3399) = {
 	.priv_auto	= sizeof(struct dram_info),
 #if defined(CONFIG_TPL_BUILD) || \
 	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
-	.platdata_auto	= sizeof(struct rockchip_dmc_plat),
+	.plat_auto	= sizeof(struct rockchip_dmc_plat),
 #endif
 };

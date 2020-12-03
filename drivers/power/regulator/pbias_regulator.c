@@ -179,9 +179,9 @@ static const struct pbias_reg_info *pbias_reg_infos[] = {
 static int pbias_regulator_probe(struct udevice *dev)
 {
 	const struct pbias_reg_info **p = pbias_reg_infos;
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	while (*p) {
 		int rc;

@@ -390,7 +390,7 @@ static int do_i2c_write(struct cmd_tbl *cmdtp, int flag, int argc,
 		ret = i2c_set_chip_offset_len(dev, alen);
 	if (ret)
 		return i2c_report_err(ret, I2C_ERR_WRITE);
-	i2c_chip = dev_get_parent_platdata(dev);
+	i2c_chip = dev_get_parent_plat(dev);
 	if (!i2c_chip)
 		return i2c_report_err(ret, I2C_ERR_WRITE);
 #endif
@@ -1707,7 +1707,7 @@ static void show_bus(struct udevice *bus)
 	for (device_find_first_child(bus, &dev);
 	     dev;
 	     device_find_next_child(&dev)) {
-		struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+		struct dm_i2c_chip *chip = dev_get_parent_plat(dev);
 
 		printf("   %02x: %s, offset len %x, flags %x\n",
 		       chip->chip_addr, dev->name, chip->offset_len,

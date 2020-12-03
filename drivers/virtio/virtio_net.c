@@ -234,6 +234,6 @@ U_BOOT_DRIVER(virtio_net) = {
 	.remove = virtio_reset,
 	.ops	= &virtio_net_ops,
 	.priv_auto	= sizeof(struct virtio_net_priv),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags	= DM_FLAG_ACTIVE_DMA,
 };

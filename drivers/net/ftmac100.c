@@ -441,7 +441,7 @@ U_BOOT_DRIVER(ftmac100) = {
 	.probe	= ftmac100_probe,
 	.ops	= &ftmac100_ops,
 	.priv_auto	= sizeof(struct ftmac100_data),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif

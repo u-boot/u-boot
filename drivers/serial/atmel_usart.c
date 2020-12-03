@@ -262,7 +262,7 @@ static int atmel_serial_enable_clk(struct udevice *dev)
 
 static int atmel_serial_probe(struct udevice *dev)
 {
-	struct atmel_serial_platdata *plat = dev->platdata;
+	struct atmel_serial_platdata *plat = dev->plat;
 	struct atmel_serial_priv *priv = dev_get_priv(dev);
 	int ret;
 #if CONFIG_IS_ENABLED(OF_CONTROL)
@@ -304,7 +304,7 @@ U_BOOT_DRIVER(serial_atmel) = {
 	.id	= UCLASS_SERIAL,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match = atmel_serial_ids,
-	.platdata_auto	= sizeof(struct atmel_serial_platdata),
+	.plat_auto	= sizeof(struct atmel_serial_platdata),
 #endif
 	.probe = atmel_serial_probe,
 	.ops	= &atmel_serial_ops,

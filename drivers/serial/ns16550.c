@@ -498,7 +498,7 @@ static int ns16550_serial_assign_base(struct ns16550_platdata *plat, ulong base)
 
 int ns16550_serial_probe(struct udevice *dev)
 {
-	struct ns16550_platdata *plat = dev->platdata;
+	struct ns16550_platdata *plat = dev->plat;
 	struct NS16550 *const com_port = dev_get_priv(dev);
 	struct reset_ctl_bulk reset_bulk;
 	fdt_addr_t addr;
@@ -506,7 +506,7 @@ int ns16550_serial_probe(struct udevice *dev)
 
 	/*
 	 * If we are on PCI bus, either directly attached to a PCI root port,
-	 * or via a PCI bridge, assign platdata->base before probing hardware.
+	 * or via a PCI bridge, assign plat->base before probing hardware.
 	 */
 	if (device_is_on_pci_bus(dev)) {
 		addr = devfdt_get_addr_pci(dev);
@@ -535,7 +535,7 @@ enum {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 {
-	struct ns16550_platdata *plat = dev->platdata;
+	struct ns16550_platdata *plat = dev->plat;
 	const u32 port_type = dev_get_driver_data(dev);
 	fdt_addr_t addr;
 	struct clk clk;
@@ -611,7 +611,7 @@ U_BOOT_DRIVER(ns16550_serial) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = ns16550_serial_ids,
 	.ofdata_to_platdata = ns16550_serial_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct ns16550_platdata),
+	.plat_auto	= sizeof(struct ns16550_platdata),
 #endif
 	.priv_auto	= sizeof(struct NS16550),
 	.probe = ns16550_serial_probe,

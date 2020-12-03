@@ -425,7 +425,7 @@ static const struct cpu_ops bmips_cpu_ops = {
 /* BMIPS CPU driver */
 int bmips_cpu_bind(struct udevice *dev)
 {
-	struct cpu_platdata *plat = dev_get_parent_platdata(dev);
+	struct cpu_platdata *plat = dev_get_parent_plat(dev);
 
 	plat->cpu_id = dev_read_u32_default(dev, "reg", -1);
 	plat->device_id = read_c0_prid();

@@ -404,9 +404,9 @@ static struct nx_display_dev *nx_display_setup(void)
 		      __func__);
 		return NULL;
 	}
-	plat = dev_get_uclass_platdata(dev);
+	plat = dev_get_uclass_plat(dev);
 	if (!dev) {
-		debug("%s(): dev_get_uclass_platdata(dev) == NULL --> return NULL\n",
+		debug("%s(): dev_get_uclass_plat(dev) == NULL --> return NULL\n",
 		      __func__);
 		return NULL;
 	}
@@ -534,7 +534,7 @@ __weak void lcd_enable(void)
 
 static int nx_display_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+	struct video_uc_platdata *uc_plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct nx_display_platdata *plat = dev_get_platdata(dev);
 	static GraphicDevice *graphic_device;
@@ -619,7 +619,7 @@ static int nx_display_probe(struct udevice *dev)
 
 static int nx_display_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
 
 	debug("%s()\n", __func__);
 
@@ -643,7 +643,7 @@ U_BOOT_DRIVER(nexell_display) = {
 	.name = "nexell-display",
 	.id = UCLASS_VIDEO,
 	.of_match = nx_display_ids,
-	.platdata_auto	=
+	.plat_auto	=
 	    sizeof(struct nx_display_platdata),
 	.bind = nx_display_bind,
 	.probe = nx_display_probe,

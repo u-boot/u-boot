@@ -25,7 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int testfdt_drv_ping(struct udevice *dev, int pingval, int *pingret)
 {
-	const struct dm_test_pdata *pdata = dev->platdata;
+	const struct dm_test_pdata *pdata = dev->plat;
 	struct dm_test_priv *priv = dev_get_priv(dev);
 
 	*pingret = pingval + pdata->ping_add;
@@ -87,7 +87,7 @@ U_BOOT_DRIVER(testfdt_drv) = {
 	.probe	= testfdt_drv_probe,
 	.ops	= &test_ops,
 	.priv_auto	= sizeof(struct dm_test_priv),
-	.platdata_auto	= sizeof(struct dm_test_pdata),
+	.plat_auto	= sizeof(struct dm_test_pdata),
 };
 
 static const struct udevice_id testfdt1_ids[] = {
@@ -105,7 +105,7 @@ U_BOOT_DRIVER(testfdt1_drv) = {
 	.probe	= testfdt_drv_probe,
 	.ops	= &test_ops,
 	.priv_auto	= sizeof(struct dm_test_priv),
-	.platdata_auto	= sizeof(struct dm_test_pdata),
+	.plat_auto	= sizeof(struct dm_test_pdata),
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
@@ -147,7 +147,7 @@ U_BOOT_DRIVER(testprobe_drv) = {
 	.of_match	= testprobe_ids,
 	.id	= UCLASS_TEST_PROBE,
 	.probe	= testprobe_drv_probe,
-	.platdata_auto	= sizeof(struct dm_testprobe_pdata),
+	.plat_auto	= sizeof(struct dm_testprobe_pdata),
 };
 
 UCLASS_DRIVER(testprobe) = {
@@ -204,7 +204,7 @@ U_BOOT_DRIVER(testdevres_drv) = {
 	.bind	= testdevres_drv_bind,
 	.ofdata_to_platdata	= testdevres_drv_ofdata_to_platdata,
 	.probe	= testdevres_drv_probe,
-	.platdata_auto	= sizeof(struct dm_testdevres_pdata),
+	.plat_auto	= sizeof(struct dm_testdevres_pdata),
 	.priv_auto	= sizeof(struct dm_testdevres_priv),
 };
 
@@ -232,7 +232,7 @@ int dm_check_devices(struct unit_test_state *uts, int num_devices)
 
 		/*
 		 * Get the 'ping-expect' property, which tells us what the
-		 * ping add should be. We don't use the platdata because we
+		 * ping add should be. We don't use the plat because we
 		 * want to test the code that sets that up
 		 * (testfdt_drv_probe()).
 		 */
@@ -271,7 +271,7 @@ static int dm_test_fdt(struct unit_test_state *uts)
 		ret = uclass_find_device(UCLASS_TEST_FDT, i, &dev);
 		ut_assert(!ret);
 		ut_assert(!dev_get_priv(dev));
-		ut_assert(dev->platdata);
+		ut_assert(dev->plat);
 	}
 
 	ut_assertok(dm_check_devices(uts, num_devices));

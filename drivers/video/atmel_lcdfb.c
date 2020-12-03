@@ -245,7 +245,7 @@ ulong calc_fbsize(void)
 #ifdef CONFIG_DM_VIDEO
 static int atmel_fb_lcd_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+	struct video_uc_platdata *uc_plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct atmel_fb_priv *priv = dev_get_priv(dev);
 	struct display_timing *timing = &priv->timing;
@@ -285,7 +285,7 @@ static int atmel_fb_ofdata_to_platdata(struct udevice *dev)
 
 static int atmel_fb_lcd_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+	struct video_uc_platdata *uc_plat = dev_get_uclass_plat(dev);
 
 	uc_plat->size = LCD_MAX_WIDTH * LCD_MAX_HEIGHT *
 			(1 << VIDEO_BPP16) / 8;
@@ -306,7 +306,7 @@ U_BOOT_DRIVER(atmel_fb) = {
 	.bind	= atmel_fb_lcd_bind,
 	.ofdata_to_platdata	= atmel_fb_ofdata_to_platdata,
 	.probe	= atmel_fb_lcd_probe,
-	.platdata_auto	= sizeof(struct atmel_lcd_platdata),
+	.plat_auto	= sizeof(struct atmel_lcd_platdata),
 	.priv_auto	= sizeof(struct atmel_fb_priv),
 };
 #endif

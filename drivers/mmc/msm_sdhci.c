@@ -209,5 +209,5 @@ U_BOOT_DRIVER(msm_sdc_drv) = {
 	.probe		= msm_sdc_probe,
 	.remove		= msm_sdc_remove,
 	.priv_auto	= sizeof(struct msm_sdhc),
-	.platdata_auto	= sizeof(struct msm_sdhc_plat),
+	.plat_auto	= sizeof(struct msm_sdhc_plat),
 };

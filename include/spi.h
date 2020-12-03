@@ -48,8 +48,8 @@ struct dm_spi_bus {
  * struct dm_spi_platdata - platform data for all SPI slaves
  *
  * This describes a SPI slave, a child device of the SPI bus. To obtain this
- * struct from a spi_slave, use dev_get_parent_platdata(dev) or
- * dev_get_parent_platdata(slave->dev).
+ * struct from a spi_slave, use dev_get_parent_plat(dev) or
+ * dev_get_parent_plat(slave->dev).
  *
  * This data is immuatable. Each time the device is probed, @max_hz and @mode
  * will be copied to struct spi_slave.
@@ -566,12 +566,12 @@ int spi_find_bus_and_cs(int busnum, int cs, struct udevice **busp,
  * is automatically bound on this chip select with requested speed and mode.
  *
  * Ths new slave device is probed ready for use with the speed and mode
- * from platdata when available or the requested values.
+ * from plat when available or the requested values.
  *
  * @busnum:	SPI bus number
  * @cs:		Chip select to look for
- * @speed:	SPI speed to use for this slave when not available in platdata
- * @mode:	SPI mode to use for this slave when not available in platdata
+ * @speed:	SPI speed to use for this slave when not available in plat
+ * @mode:	SPI mode to use for this slave when not available in plat
  * @drv_name:	Name of driver to attach to this chip select
  * @dev_name:	Name of the new device thus created
  * @busp:	Returns bus device

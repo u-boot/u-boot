@@ -1026,7 +1026,7 @@ static int rk_edp_remove(struct udevice *dev)
 
 static int rk_edp_probe(struct udevice *dev)
 {
-	struct display_plat *uc_plat = dev_get_uclass_platdata(dev);
+	struct display_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct rk_edp_priv *priv = dev_get_priv(dev);
 	struct rk3288_edp *regs = priv->regs;
 	struct clk clk;

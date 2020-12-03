@@ -68,7 +68,7 @@ __weak uint32_t board_map_oprom_vendev(uint32_t vendev)
 
 static int pci_rom_probe(struct udevice *dev, struct pci_rom_header **hdrp)
 {
-	struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
+	struct pci_child_platdata *pplat = dev_get_parent_plat(dev);
 	struct pci_rom_header *rom_header;
 	struct pci_rom_data *rom_data;
 	u16 rom_vendor, rom_device;
@@ -236,7 +236,7 @@ void setup_video(struct screen_info *screen_info)
 int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 			int exec_method)
 {
-	struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
+	struct pci_child_platdata *pplat = dev_get_parent_plat(dev);
 	struct pci_rom_header *rom = NULL, *ram = NULL;
 	int vesa_mode = -1;
 	bool emulate, alloced;
@@ -363,7 +363,7 @@ int vbe_setup_video_priv(struct vesa_mode_info *vesa,
 
 int vbe_setup_video(struct udevice *dev, int (*int15_handler)(void))
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	int ret;
 

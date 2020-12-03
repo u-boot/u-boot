@@ -148,5 +148,5 @@ U_BOOT_DRIVER(mmc_sandbox) = {
 	.bind		= sandbox_mmc_bind,
 	.unbind		= sandbox_mmc_unbind,
 	.probe		= sandbox_mmc_probe,
-	.platdata_auto	= sizeof(struct sandbox_mmc_plat),
+	.plat_auto	= sizeof(struct sandbox_mmc_plat),
 };

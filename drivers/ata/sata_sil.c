@@ -708,7 +708,7 @@ int scan_sata(int dev)
 #else
 static int scan_sata(struct udevice *blk_dev, int dev)
 {
-	struct blk_desc *desc = dev_get_uclass_platdata(blk_dev);
+	struct blk_desc *desc = dev_get_uclass_plat(blk_dev);
 	struct sil_sata_priv *priv = dev_get_platdata(blk_dev);
 	struct sil_sata *sata = priv->sil_sata_desc[dev];
 #endif
@@ -772,7 +772,7 @@ U_BOOT_DRIVER(sata_sil_driver) = {
 	.name = "sata_sil_blk",
 	.id = UCLASS_BLK,
 	.ops = &sata_sil_blk_ops,
-	.platdata_auto	= sizeof(struct sil_sata_priv),
+	.plat_auto	= sizeof(struct sil_sata_priv),
 };
 
 static int sil_unbind_device(struct udevice *dev)

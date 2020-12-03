@@ -27,14 +27,14 @@ struct gpio_regulator_platdata {
 
 static int gpio_regulator_ofdata_to_platdata(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	struct gpio_regulator_platdata *dev_pdata;
 	struct gpio_desc *gpio;
 	int ret, count, i, j;
 	u32 states_array[GPIO_REGULATOR_MAX_STATES * 2];
 
 	dev_pdata = dev_get_platdata(dev);
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata)
 		return -ENXIO;
 
@@ -79,14 +79,14 @@ static int gpio_regulator_ofdata_to_platdata(struct udevice *dev)
 
 static int gpio_regulator_get_value(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	struct gpio_regulator_platdata *dev_pdata = dev_get_platdata(dev);
 	int enable;
 
 	if (!dev_pdata->gpio.dev)
 		return -ENOSYS;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	if (uc_pdata->min_uV > uc_pdata->max_uV) {
 		debug("Invalid constraints for: %s\n", uc_pdata->name);
 		return -EINVAL;
@@ -155,5 +155,5 @@ U_BOOT_DRIVER(gpio_regulator) = {
 	.ops = &gpio_regulator_ops,
 	.of_match = gpio_regulator_ids,
 	.ofdata_to_platdata = gpio_regulator_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct gpio_regulator_platdata),
+	.plat_auto	= sizeof(struct gpio_regulator_platdata),
 };

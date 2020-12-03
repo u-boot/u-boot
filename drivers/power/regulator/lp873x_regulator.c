@@ -24,9 +24,9 @@ static int lp873x_buck_enable(struct udevice *dev, int op, bool *enable)
 {
 	int ret;
 	unsigned int adr;
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	adr = uc_pdata->ctrl_reg;
 
 	ret = pmic_reg_read(dev->parent, adr);
@@ -87,9 +87,9 @@ static int lp873x_buck_val(struct udevice *dev, int op, int *uV)
 {
 	unsigned int hex, adr;
 	int ret;
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	if (op == PMIC_OP_GET)
 		*uV = 0;
@@ -126,9 +126,9 @@ static int lp873x_ldo_enable(struct udevice *dev, int op, bool *enable)
 {
 	int ret;
 	unsigned int adr;
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	adr = uc_pdata->ctrl_reg;
 
 	ret = pmic_reg_read(dev->parent, adr);
@@ -182,12 +182,12 @@ static int lp873x_ldo_val(struct udevice *dev, int op, int *uV)
 	unsigned int hex, adr;
 	int ret;
 
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
 	if (op == PMIC_OP_GET)
 		*uV = 0;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	adr = uc_pdata->volt_reg;
 
@@ -219,9 +219,9 @@ static int lp873x_ldo_val(struct udevice *dev, int op, int *uV)
 
 static int lp873x_ldo_probe(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	uc_pdata->type = REGULATOR_TYPE_LDO;
 
 	int idx = dev->driver_data;
@@ -272,10 +272,10 @@ static int ldo_set_enable(struct udevice *dev, bool enable)
 
 static int lp873x_buck_probe(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	int idx;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	uc_pdata->type = REGULATOR_TYPE_BUCK;
 
 	idx = dev->driver_data;

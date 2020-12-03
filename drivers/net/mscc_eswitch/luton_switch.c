@@ -738,5 +738,5 @@ U_BOOT_DRIVER(luton) = {
 	.remove	  = luton_remove,
 	.ops	  = &luton_ops,
 	.priv_auto	= sizeof(struct luton_private),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

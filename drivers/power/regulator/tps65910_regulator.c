@@ -323,7 +323,7 @@ static int buck_set_vdd1_vdd2_value(struct udevice *dev, int uV)
 {
 	int ret, reg_vdd, gain;
 	int val;
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	struct tps65910_regulator_pdata *pdata = dev_get_platdata(dev);
 
 	switch (pdata->unit) {
@@ -336,7 +336,7 @@ static int buck_set_vdd1_vdd2_value(struct udevice *dev, int uV)
 	default:
 		return -EINVAL;
 	}
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	/* check setpoint is within limits */
 	if (uV < uc_pdata->min_uV) {
@@ -424,7 +424,7 @@ U_BOOT_DRIVER(tps65910_boost) = {
 	.name = TPS65910_BOOST_DRIVER,
 	.id = UCLASS_REGULATOR,
 	.ops = &tps65910_boost_ops,
-	.platdata_auto	= sizeof(struct tps65910_regulator_pdata),
+	.plat_auto	= sizeof(struct tps65910_regulator_pdata),
 	.ofdata_to_platdata = tps65910_regulator_ofdata_to_platdata,
 };
 
@@ -439,7 +439,7 @@ U_BOOT_DRIVER(tps65910_buck) = {
 	.name = TPS65910_BUCK_DRIVER,
 	.id = UCLASS_REGULATOR,
 	.ops = &tps65910_buck_ops,
-	.platdata_auto	= sizeof(struct tps65910_regulator_pdata),
+	.plat_auto	= sizeof(struct tps65910_regulator_pdata),
 	.ofdata_to_platdata = tps65910_regulator_ofdata_to_platdata,
 };
 
@@ -454,6 +454,6 @@ U_BOOT_DRIVER(tps65910_ldo) = {
 	.name = TPS65910_LDO_DRIVER,
 	.id = UCLASS_REGULATOR,
 	.ops = &tps65910_ldo_ops,
-	.platdata_auto	= sizeof(struct tps65910_regulator_pdata),
+	.plat_auto	= sizeof(struct tps65910_regulator_pdata),
 	.ofdata_to_platdata = tps65910_regulator_ofdata_to_platdata,
 };

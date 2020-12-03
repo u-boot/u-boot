@@ -20,13 +20,13 @@
  * available). U-Boot's driver model uses device tree for configuration.
  *
  * @name:	Driver name
- * @platdata:	Driver-specific platform data
+ * @plat:	Driver-specific platform data
  * @platdata_size: Size of platform data structure
  * @parent_idx:	Index of the parent driver_info structure
  */
 struct driver_info {
 	const char *name;
-	const void *platdata;
+	const void *plat;
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	unsigned short platdata_size;
 	short parent_idx;
@@ -57,7 +57,7 @@ struct driver_rt {
  * available). U-Boot's driver model uses device tree for configuration.
  *
  * When of-platdata is in use, U_BOOT_DEVICE() cannot be used outside of the
- * dt-platdata.c file created by dtoc
+ * dt-plat.c file created by dtoc
  */
 #if CONFIG_IS_ENABLED(OF_PLATDATA) && !defined(DT_PLATDATA_C)
 #define U_BOOT_DEVICE(__name)	_Static_assert(false, \

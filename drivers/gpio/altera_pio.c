@@ -117,6 +117,6 @@ U_BOOT_DRIVER(altera_pio) = {
 	.of_match	= altera_pio_ids,
 	.ops		= &altera_pio_ops,
 	.ofdata_to_platdata = altera_pio_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct altera_pio_platdata),
+	.plat_auto	= sizeof(struct altera_pio_platdata),
 	.probe		= altera_pio_probe,
 };

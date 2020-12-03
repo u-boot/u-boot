@@ -456,7 +456,7 @@ static int virtio_pci_bind(struct udevice *udev)
 
 static int virtio_pci_probe(struct udevice *udev)
 {
-	struct pci_child_platdata *pplat = dev_get_parent_platdata(udev);
+	struct pci_child_platdata *pplat = dev_get_parent_plat(udev);
 	struct virtio_dev_priv *uc_priv = dev_get_uclass_priv(udev);
 	struct virtio_pci_priv *priv = dev_get_priv(udev);
 	u16 subvendor;

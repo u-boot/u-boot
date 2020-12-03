@@ -1015,6 +1015,6 @@ U_BOOT_DRIVER(renesas_sdhi) = {
 	.bind = tmio_sd_bind,
 	.probe = renesas_sdhi_probe,
 	.priv_auto	= sizeof(struct tmio_sd_priv),
-	.platdata_auto	= sizeof(struct tmio_sd_plat),
+	.plat_auto	= sizeof(struct tmio_sd_plat),
 	.ops = &renesas_sdhi_ops,
 };

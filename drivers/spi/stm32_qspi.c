@@ -400,7 +400,7 @@ static int stm32_qspi_probe(struct udevice *bus)
 static int stm32_qspi_claim_bus(struct udevice *dev)
 {
 	struct stm32_qspi_priv *priv = dev_get_priv(dev->parent);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 	int slave_cs = slave_plat->cs;
 
 	if (slave_cs >= STM32_QSPI_MAX_CHIP)

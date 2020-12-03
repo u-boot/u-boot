@@ -167,7 +167,7 @@ static int p2sb_remove(struct udevice *dev)
 static int p2sb_child_post_bind(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct p2sb_child_platdata *pplat = dev_get_parent_platdata(dev);
+	struct p2sb_child_platdata *pplat = dev_get_parent_plat(dev);
 	int ret;
 	u32 pid;
 
@@ -197,8 +197,8 @@ U_BOOT_DRIVER(intel_p2sb) = {
 	.remove		= p2sb_remove,
 	.ops		= &p2sb_ops,
 	.ofdata_to_platdata = p2sb_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct p2sb_platdata),
-	.per_child_platdata_auto	=
+	.plat_auto	= sizeof(struct p2sb_platdata),
+	.per_child_plat_auto	=
 		sizeof(struct p2sb_child_platdata),
 	.child_post_bind = p2sb_child_post_bind,
 	.flags		= DM_FLAG_OS_PREPARE,

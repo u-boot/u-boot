@@ -115,7 +115,7 @@ enum eth_state_t {
  * @enetaddr: The Ethernet MAC address that is loaded from EEPROM or env
  * @phy_interface: PHY interface to use - see PHY_INTERFACE_MODE_...
  * @max_speed: Maximum speed of Ethernet connection supported by MAC
- * @priv_pdata: device specific platdata
+ * @priv_pdata: device specific plat
  */
 struct eth_pdata {
 	phys_addr_t iobase;

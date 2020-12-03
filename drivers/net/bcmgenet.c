@@ -733,6 +733,6 @@ U_BOOT_DRIVER(eth_bcmgenet) = {
 	.probe  = bcmgenet_eth_probe,
 	.ops    = &bcmgenet_gmac_eth_ops,
 	.priv_auto	= sizeof(struct bcmgenet_eth_priv),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

@@ -27,7 +27,7 @@
 
 static int cadence_spi_write_speed(struct udevice *bus, uint hz)
 {
-	struct cadence_spi_platdata *plat = bus->platdata;
+	struct cadence_spi_platdata *plat = bus->plat;
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
 
 	cadence_qspi_apb_config_baudrate_div(priv->regbase,
@@ -130,7 +130,7 @@ static int spi_calibration(struct udevice *bus, uint hz)
 
 static int cadence_spi_set_speed(struct udevice *bus, uint hz)
 {
-	struct cadence_spi_platdata *plat = bus->platdata;
+	struct cadence_spi_platdata *plat = bus->plat;
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
 	int err;
 
@@ -165,7 +165,7 @@ static int cadence_spi_set_speed(struct udevice *bus, uint hz)
 
 static int cadence_spi_probe(struct udevice *bus)
 {
-	struct cadence_spi_platdata *plat = bus->platdata;
+	struct cadence_spi_platdata *plat = bus->plat;
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
 	struct clk clk;
 	int ret;
@@ -212,7 +212,7 @@ static int cadence_spi_remove(struct udevice *dev)
 
 static int cadence_spi_set_mode(struct udevice *bus, uint mode)
 {
-	struct cadence_spi_platdata *plat = bus->platdata;
+	struct cadence_spi_platdata *plat = bus->plat;
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
 
 	/* Disable QSPI */
@@ -235,7 +235,7 @@ static int cadence_spi_mem_exec_op(struct spi_slave *spi,
 				   const struct spi_mem_op *op)
 {
 	struct udevice *bus = spi->dev->parent;
-	struct cadence_spi_platdata *plat = bus->platdata;
+	struct cadence_spi_platdata *plat = bus->plat;
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
 	void *base = priv->regbase;
 	int err = 0;
@@ -284,7 +284,7 @@ static int cadence_spi_mem_exec_op(struct spi_slave *spi,
 
 static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct cadence_spi_platdata *plat = bus->platdata;
+	struct cadence_spi_platdata *plat = bus->plat;
 	ofnode subnode;
 
 	plat->regbase = (void *)devfdt_get_addr_index(bus, 0);
@@ -354,7 +354,7 @@ U_BOOT_DRIVER(cadence_spi) = {
 	.of_match = cadence_spi_ids,
 	.ops = &cadence_spi_ops,
 	.ofdata_to_platdata = cadence_spi_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct cadence_spi_platdata),
+	.plat_auto	= sizeof(struct cadence_spi_platdata),
 	.priv_auto	= sizeof(struct cadence_spi_priv),
 	.probe = cadence_spi_probe,
 	.remove = cadence_spi_remove,

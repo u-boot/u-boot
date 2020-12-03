@@ -513,7 +513,7 @@ U_BOOT_DRIVER(stm32mp_bsec) = {
 	.id = UCLASS_MISC,
 	.of_match = stm32mp_bsec_ids,
 	.ofdata_to_platdata = stm32mp_bsec_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct stm32mp_bsec_platdata),
+	.plat_auto	= sizeof(struct stm32mp_bsec_platdata),
 	.ops = &stm32mp_bsec_ops,
 	.probe = stm32mp_bsec_probe,
 };

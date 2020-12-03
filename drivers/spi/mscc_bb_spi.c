@@ -117,7 +117,7 @@ int mscc_bb_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		     const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev_get_parent(dev);
-	struct dm_spi_slave_platdata *plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *plat = dev_get_parent_plat(dev);
 	struct mscc_bb_priv *priv = dev_get_priv(bus);
 	u32             i, count;
 	const u8	*txd = dout;

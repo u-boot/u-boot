@@ -53,7 +53,7 @@ int rk_lvds_enable(struct udevice *dev, int panel_bpp,
 		   const struct display_timing *edid)
 {
 	struct rk_lvds_priv *priv = dev_get_priv(dev);
-	struct display_plat *uc_plat = dev_get_uclass_platdata(dev);
+	struct display_plat *uc_plat = dev_get_uclass_plat(dev);
 	int ret = 0;
 	unsigned int val = 0;
 

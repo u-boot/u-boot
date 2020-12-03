@@ -46,7 +46,7 @@ static const struct imx_thermal_plat imx6_thermal_plat = {
 
 U_BOOT_DEVICE(imx6_thermal) = {
 	.name = "imx_thermal",
-	.platdata = &imx6_thermal_plat,
+	.plat = &imx6_thermal_plat,
 };
 #endif
 

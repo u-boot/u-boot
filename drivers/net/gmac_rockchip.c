@@ -760,6 +760,6 @@ U_BOOT_DRIVER(eth_gmac_rockchip) = {
 	.probe	= gmac_rockchip_probe,
 	.ops	= &gmac_rockchip_eth_ops,
 	.priv_auto	= sizeof(struct dw_eth_dev),
-	.platdata_auto	= sizeof(struct gmac_rockchip_platdata),
+	.plat_auto	= sizeof(struct gmac_rockchip_platdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

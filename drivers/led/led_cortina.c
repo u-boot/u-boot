@@ -132,7 +132,7 @@ static const struct led_ops cortina_led_ops = {
 
 static int ca_led_ofdata_to_platdata(struct udevice *dev)
 {
-	struct led_uc_plat *uc_plat = dev_get_uclass_platdata(dev);
+	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 
 	/* Top-level LED node */
 	if (!uc_plat->label) {
@@ -165,22 +165,22 @@ static int ca_led_ofdata_to_platdata(struct udevice *dev)
 
 static int cortina_led_probe(struct udevice *dev)
 {
-	struct led_uc_plat *uc_plat = dev_get_uclass_platdata(dev);
+	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 
 	/* Top-level LED node */
 	if (!uc_plat->label) {
-		struct cortina_led_platdata *platdata = dev_get_platdata(dev);
+		struct cortina_led_platdata *plat = dev_get_platdata(dev);
 		u32 reg_value, val;
 		u16 rate1, rate2;
 
-		if (!platdata->ctrl_regs)
+		if (!plat->ctrl_regs)
 			return -EINVAL;
 
 		reg_value = 0;
 		reg_value |= LED_CLK_POLARITY;
 
-		rate1 = platdata->rate1;
-		rate2 = platdata->rate2;
+		rate1 = plat->rate1;
+		rate2 = plat->rate2;
 
 		val = rate1 / 16 - 1;
 		rate1 = val > LED_MAX_HW_BLINK ?
@@ -194,7 +194,7 @@ static int cortina_led_probe(struct udevice *dev)
 		reg_value |= (rate2 & LED_BLINK_RATE2_MASK) <<
 					LED_BLINK_RATE2_SHIFT;
 
-		cortina_led_write(platdata->ctrl_regs, reg_value);
+		cortina_led_write(plat->ctrl_regs, reg_value);
 
 	} else {
 		struct cortina_led_cfg *priv = dev_get_priv(dev);
@@ -273,7 +273,7 @@ static int cortina_led_bind(struct udevice *parent)
 						 node, &dev);
 		if (ret)
 			return ret;
-		uc_plat = dev_get_uclass_platdata(dev);
+		uc_plat = dev_get_uclass_plat(dev);
 		uc_plat->label = label;
 	}
 
@@ -292,7 +292,7 @@ U_BOOT_DRIVER(cortina_led) = {
 	.ofdata_to_platdata = ca_led_ofdata_to_platdata,
 	.bind = cortina_led_bind,
 	.probe = cortina_led_probe,
-	.platdata_auto	= sizeof(struct cortina_led_platdata),
+	.plat_auto	= sizeof(struct cortina_led_platdata),
 	.priv_auto	= sizeof(struct cortina_led_cfg),
 	.ops = &cortina_led_ops,
 };

@@ -43,7 +43,7 @@ bool meson_vpu_is_compatible(struct meson_vpu_priv *priv,
 
 static int meson_vpu_setup_mode(struct udevice *dev, struct udevice *disp)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+	struct video_uc_platdata *uc_plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct display_timing timing;
 	bool is_cvbs = false;
@@ -138,7 +138,7 @@ static int meson_vpu_probe(struct udevice *dev)
 
 static int meson_vpu_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
 
 	plat->size = VPU_MAX_WIDTH * VPU_MAX_HEIGHT *
 		(1 << VPU_MAX_LOG2_BPP) / 8;

@@ -667,7 +667,7 @@ static int ich_spi_get_basics(struct udevice *bus, bool can_probe,
  * 1. Using of-platdata, in which case we have the BDF and can access the
  *	registers by reading the BAR
  * 2. Not using of-platdata, but still with a SPI controller that is on its own
- * PCI PDF. In this case we read the BDF from the parent platdata and again get
+ * PCI PDF. In this case we read the BDF from the parent plat and again get
  *	the registers by reading the BAR
  * 3. Using a SPI controller that is a child of the PCH, in which case we try
  *	to find the registers by asking the PCH. This only works if the PCH has
@@ -687,7 +687,7 @@ static int ich_get_mmap_bus(struct udevice *bus, ulong *map_basep,
 	if (device_is_on_pci_bus(bus)) {
 		struct pci_child_platdata *pplat;
 
-		pplat = dev_get_parent_platdata(bus);
+		pplat = dev_get_parent_plat(bus);
 		spi_bdf = pplat->devfn;
 	} else {
 		enum ich_version ich_version;
@@ -1005,7 +1005,7 @@ U_BOOT_DRIVER(intel_fast_spi) = {
 	.of_match = ich_spi_ids,
 	.ops	= &ich_spi_ops,
 	.ofdata_to_platdata = ich_spi_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct ich_spi_platdata),
+	.plat_auto	= sizeof(struct ich_spi_platdata),
 	.priv_auto	= sizeof(struct ich_spi_priv),
 	.child_pre_probe = ich_spi_child_pre_probe,
 	.probe	= ich_spi_probe,

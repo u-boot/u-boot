@@ -14,7 +14,7 @@ struct simple_bus_plat {
 
 fdt_addr_t simple_bus_translate(struct udevice *dev, fdt_addr_t addr)
 {
-	struct simple_bus_plat *plat = dev_get_uclass_platdata(dev);
+	struct simple_bus_plat *plat = dev_get_uclass_plat(dev);
 
 	if (addr >= plat->base && addr < plat->base + plat->size)
 		addr = (addr - plat->base) + plat->target;
@@ -32,7 +32,7 @@ static int simple_bus_post_bind(struct udevice *dev)
 
 	ret = dev_read_u32_array(dev, "ranges", cell, ARRAY_SIZE(cell));
 	if (!ret) {
-		struct simple_bus_plat *plat = dev_get_uclass_platdata(dev);
+		struct simple_bus_plat *plat = dev_get_uclass_plat(dev);
 
 		plat->base = cell[0];
 		plat->target = cell[1];
@@ -47,7 +47,7 @@ UCLASS_DRIVER(simple_bus) = {
 	.id		= UCLASS_SIMPLE_BUS,
 	.name		= "simple_bus",
 	.post_bind	= simple_bus_post_bind,
-	.per_device_platdata_auto	= sizeof(struct simple_bus_plat),
+	.per_device_plat_auto	= sizeof(struct simple_bus_plat),
 };
 
 static const struct udevice_id generic_simple_bus_ids[] = {

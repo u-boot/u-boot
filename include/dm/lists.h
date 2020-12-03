@@ -16,7 +16,7 @@
  * lists_driver_lookup_name() - Return u_boot_driver corresponding to name
  *
  * This function returns a pointer to a driver given its name. This is used
- * for binding a driver given its name and platdata.
+ * for binding a driver given its name and plat.
  *
  * @name: Name of driver to look up
  * @return pointer to driver, or NULL if not found

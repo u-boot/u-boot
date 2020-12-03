@@ -146,7 +146,7 @@ int usb_stor_info(void)
 	for (blk_first_device(IF_TYPE_USB, &dev);
 	     dev;
 	     blk_next_device(&dev)) {
-		struct blk_desc *desc = dev_get_uclass_platdata(dev);
+		struct blk_desc *desc = dev_get_uclass_plat(dev);
 
 		printf("  Device %d: ", desc->devnum);
 		dev_print(desc);
@@ -203,7 +203,7 @@ static int usb_stor_probe_device(struct usb_device *udev)
 	debug("\n\nProbing for storage\n");
 #if CONFIG_IS_ENABLED(BLK)
 	/*
-	 * We store the us_data in the mass storage device's platdata. It
+	 * We store the us_data in the mass storage device's plat. It
 	 * is shared by all LUNs (block devices) attached to this mass storage
 	 * device.
 	 */
@@ -225,7 +225,7 @@ static int usb_stor_probe_device(struct usb_device *udev)
 			return ret;
 		}
 
-		blkdev = dev_get_uclass_platdata(dev);
+		blkdev = dev_get_uclass_plat(dev);
 		blkdev->target = 0xff;
 		blkdev->lun = lun;
 
@@ -1147,7 +1147,7 @@ static unsigned long usb_stor_read(struct blk_desc *block_dev, lbaint_t blknr,
 		return 0;
 	/* Setup  device */
 #if CONFIG_IS_ENABLED(BLK)
-	block_dev = dev_get_uclass_platdata(dev);
+	block_dev = dev_get_uclass_plat(dev);
 	udev = dev_get_parent_priv(dev_get_parent(dev));
 	debug("\nusb_read: udev %d\n", block_dev->devnum);
 #else
@@ -1231,7 +1231,7 @@ static unsigned long usb_stor_write(struct blk_desc *block_dev, lbaint_t blknr,
 
 	/* Setup  device */
 #if CONFIG_IS_ENABLED(BLK)
-	block_dev = dev_get_uclass_platdata(dev);
+	block_dev = dev_get_uclass_plat(dev);
 	udev = dev_get_parent_priv(dev_get_parent(dev));
 	debug("\nusb_read: udev %d\n", block_dev->devnum);
 #else
@@ -1529,7 +1529,7 @@ U_BOOT_DRIVER(usb_mass_storage) = {
 	.of_match = usb_mass_storage_ids,
 	.probe = usb_mass_storage_probe,
 #if CONFIG_IS_ENABLED(BLK)
-	.platdata_auto	= sizeof(struct us_data),
+	.plat_auto	= sizeof(struct us_data),
 #endif
 };
 

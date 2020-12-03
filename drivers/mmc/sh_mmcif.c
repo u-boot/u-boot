@@ -744,7 +744,7 @@ U_BOOT_DRIVER(sh_mmcif_mmc) = {
 	.bind			= sh_mmcif_dm_bind,
 	.probe			= sh_mmcif_dm_probe,
 	.priv_auto	= sizeof(struct sh_mmcif_host),
-	.platdata_auto	= sizeof(struct sh_mmcif_plat),
+	.plat_auto	= sizeof(struct sh_mmcif_plat),
 	.ops			= &sh_mmcif_dm_ops,
 };
 #endif

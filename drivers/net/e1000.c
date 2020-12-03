@@ -5941,7 +5941,7 @@ U_BOOT_DRIVER(eth_e1000) = {
 	.probe	= e1000_eth_probe,
 	.ops	= &e1000_eth_ops,
 	.priv_auto	= sizeof(struct e1000_hw),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 U_BOOT_PCI_DEVICE(eth_e1000, e1000_supported);

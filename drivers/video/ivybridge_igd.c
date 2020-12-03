@@ -753,7 +753,7 @@ static int gma_func0_init(struct udevice *dev)
 
 static int bd82x6x_video_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
 	ulong fbbase;
 	void *gtt_bar;
 	int ret, rev;
@@ -781,7 +781,7 @@ static int bd82x6x_video_probe(struct udevice *dev)
 
 static int bd82x6x_video_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+	struct video_uc_platdata *uc_plat = dev_get_uclass_plat(dev);
 
 	/* Set the maximum supported resolution */
 	uc_plat->size = 2560 * 1600 * 4;

@@ -167,5 +167,5 @@ U_BOOT_DRIVER(ca_dwmmc_drv) = {
 	.ops		= &ca_dwmci_dm_ops,
 	.probe		= ca_dwmmc_probe,
 	.priv_auto	= sizeof(struct ca_dwmmc_priv_data),
-	.platdata_auto	= sizeof(struct ca_mmc_plat),
+	.plat_auto	= sizeof(struct ca_mmc_plat),
 };

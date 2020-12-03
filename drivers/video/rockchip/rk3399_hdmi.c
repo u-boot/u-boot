@@ -23,7 +23,7 @@ static int rk3399_hdmi_enable(struct udevice *dev, int panel_bpp,
 			      const struct display_timing *edid)
 {
 	struct rk_hdmi_priv *priv = dev_get_priv(dev);
-	struct display_plat *uc_plat = dev_get_uclass_platdata(dev);
+	struct display_plat *uc_plat = dev_get_uclass_plat(dev);
 	int vop_id = uc_plat->source_id;
 	struct rk3399_grf_regs *grf = priv->grf;
 

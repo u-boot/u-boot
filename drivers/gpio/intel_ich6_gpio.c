@@ -237,5 +237,5 @@ U_BOOT_DRIVER(gpio_ich6) = {
 	.ofdata_to_platdata	= gpio_ich6_ofdata_to_platdata,
 	.probe	= ich6_gpio_probe,
 	.priv_auto	= sizeof(struct ich6_bank_priv),
-	.platdata_auto	= sizeof(struct ich6_bank_platdata),
+	.plat_auto	= sizeof(struct ich6_bank_platdata),
 };

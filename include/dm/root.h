@@ -33,7 +33,7 @@ void dm_fixup_for_gd_move(struct global_data *new_gd);
 /**
  * dm_scan_platdata() - Scan all platform data and bind drivers
  *
- * This scans all available platdata and creates drivers for each
+ * This scans all available plat and creates drivers for each
  *
  * @pre_reloc_only: If true, bind only drivers with the DM_FLAG_PRE_RELOC
  * flag. If false bind all drivers.

@@ -661,7 +661,7 @@ static int broadwell_igd_int15_handler(void)
 
 static int broadwell_igd_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	bool is_broadwell;
 	ulong fbbase;
@@ -756,7 +756,7 @@ static int broadwell_igd_ofdata_to_platdata(struct udevice *dev)
 
 static int broadwell_igd_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+	struct video_uc_platdata *uc_plat = dev_get_uclass_plat(dev);
 
 	/* Set the maximum supported resolution */
 	uc_plat->size = 2560 * 1600 * 4;
@@ -782,5 +782,5 @@ U_BOOT_DRIVER(broadwell_igd) = {
 	.bind	= broadwell_igd_bind,
 	.probe	= broadwell_igd_probe,
 	.priv_auto	= sizeof(struct broadwell_igd_priv),
-	.platdata_auto	= sizeof(struct broadwell_igd_plat),
+	.plat_auto	= sizeof(struct broadwell_igd_plat),
 };

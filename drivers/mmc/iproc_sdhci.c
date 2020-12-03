@@ -248,5 +248,5 @@ U_BOOT_DRIVER(iproc_sdhci_drv) = {
 	.bind = iproc_sdhci_bind,
 	.probe = iproc_sdhci_probe,
 	.priv_auto	= sizeof(struct sdhci_host),
-	.platdata_auto	= sizeof(struct iproc_sdhci_plat),
+	.plat_auto	= sizeof(struct iproc_sdhci_plat),
 };

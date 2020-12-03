@@ -471,7 +471,7 @@ static struct driver pcie_mvebu_drv = {
 	.ops			= &mvebu_pcie_ops,
 	.probe			= mvebu_pcie_probe,
 	.ofdata_to_platdata	= mvebu_pcie_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct mvebu_pcie),
+	.plat_auto	= sizeof(struct mvebu_pcie),
 };
 
 /*

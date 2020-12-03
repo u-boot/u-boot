@@ -32,7 +32,7 @@ static int print_remoteproc_list(void)
 		struct dm_rproc_uclass_pdata *uc_pdata;
 		const struct dm_rproc_ops *ops = rproc_get_ops(dev);
 
-		uc_pdata = dev_get_uclass_platdata(dev);
+		uc_pdata = dev_get_uclass_plat(dev);
 
 		/* Do not print if rproc is not probed */
 		if (!(dev->flags & DM_FLAG_ACTIVATED))

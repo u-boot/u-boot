@@ -34,7 +34,7 @@ struct altera_timer_platdata {
 
 static u64 altera_timer_get_count(struct udevice *dev)
 {
-	struct altera_timer_platdata *plat = dev->platdata;
+	struct altera_timer_platdata *plat = dev->plat;
 	struct altera_timer_regs *const regs = plat->regs;
 	u32 val;
 
@@ -49,7 +49,7 @@ static u64 altera_timer_get_count(struct udevice *dev)
 
 static int altera_timer_probe(struct udevice *dev)
 {
-	struct altera_timer_platdata *plat = dev->platdata;
+	struct altera_timer_platdata *plat = dev->plat;
 	struct altera_timer_regs *const regs = plat->regs;
 
 	writel(0, &regs->status);
@@ -88,7 +88,7 @@ U_BOOT_DRIVER(altera_timer) = {
 	.id	= UCLASS_TIMER,
 	.of_match = altera_timer_ids,
 	.ofdata_to_platdata = altera_timer_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct altera_timer_platdata),
+	.plat_auto	= sizeof(struct altera_timer_platdata),
 	.probe = altera_timer_probe,
 	.ops	= &altera_timer_ops,
 };

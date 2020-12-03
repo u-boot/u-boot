@@ -84,10 +84,10 @@ static int enable_sequence(struct udevice *dev, int seq)
 	switch (seq) {
 	case 0:
 		if (priv->reg) {
-			__maybe_unused struct dm_regulator_uclass_platdata
+			__maybe_unused struct dm_regulator_uclass_plat
 				*plat;
 
-			plat = dev_get_uclass_platdata(priv->reg);
+			plat = dev_get_uclass_plat(priv->reg);
 			log_debug("Enable '%s', regulator '%s'/'%s'\n",
 				  dev->name, priv->reg->name, plat->name);
 			ret = regulator_set_enable(priv->reg, true);

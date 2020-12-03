@@ -67,6 +67,6 @@ U_BOOT_DRIVER(clk_fixed_factor) = {
 	.id = UCLASS_CLK,
 	.of_match = clk_fixed_factor_match,
 	.ofdata_to_platdata = clk_fixed_factor_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct clk_fixed_factor),
+	.plat_auto	= sizeof(struct clk_fixed_factor),
 	.ops = &clk_fixed_factor_ops,
 };

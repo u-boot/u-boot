@@ -95,7 +95,7 @@ struct tegra_spi_slave {
 
 static int tegra30_spi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct tegra_spi_platdata *plat = bus->platdata;
+	struct tegra_spi_platdata *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -314,7 +314,7 @@ static int tegra30_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int tegra30_spi_set_speed(struct udevice *bus, uint speed)
 {
-	struct tegra_spi_platdata *plat = bus->platdata;
+	struct tegra_spi_platdata *plat = bus->plat;
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
 
 	if (speed > plat->frequency)
@@ -373,7 +373,7 @@ U_BOOT_DRIVER(tegra30_spi) = {
 	.of_match = tegra30_spi_ids,
 	.ops	= &tegra30_spi_ops,
 	.ofdata_to_platdata = tegra30_spi_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct tegra_spi_platdata),
+	.plat_auto	= sizeof(struct tegra_spi_platdata),
 	.priv_auto	= sizeof(struct tegra30_spi_priv),
 	.probe	= tegra30_spi_probe,
 };

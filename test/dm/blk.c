@@ -139,7 +139,7 @@ static int dm_test_blk_devnum(struct unit_test_state *uts)
 		 * Check that the block device devnum matches its parent's
 		 * sequence number
 		 */
-		desc = dev_get_uclass_platdata(dev);
+		desc = dev_get_uclass_plat(dev);
 		ut_asserteq(desc->devnum, i);
 	}
 

@@ -132,7 +132,7 @@ U_BOOT_DRIVER(serial_uartlite) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = uartlite_serial_ids,
 	.ofdata_to_platdata = uartlite_serial_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct uartlite_platdata),
+	.plat_auto	= sizeof(struct uartlite_platdata),
 	.probe = uartlite_serial_probe,
 	.ops	= &uartlite_serial_ops,
 };

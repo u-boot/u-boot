@@ -137,6 +137,6 @@ U_BOOT_DRIVER(rtc_pl031) = {
 	.of_match = pl031_ids,
 	.probe	= pl031_probe,
 	.ofdata_to_platdata = pl031_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct pl031_platdata),
+	.plat_auto	= sizeof(struct pl031_platdata),
 	.ops	= &pl031_ops,
 };

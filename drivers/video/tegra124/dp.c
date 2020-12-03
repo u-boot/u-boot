@@ -1596,7 +1596,7 @@ static int dp_tegra_probe(struct udevice *dev)
 {
 	struct tegra_dp_plat *plat = dev_get_platdata(dev);
 	struct tegra_dp_priv *priv = dev_get_priv(dev);
-	struct display_plat *disp_uc_plat = dev_get_uclass_platdata(dev);
+	struct display_plat *disp_uc_plat = dev_get_uclass_plat(dev);
 
 	priv->regs = (struct dpaux_ctlr *)plat->base;
 	priv->enabled = false;
@@ -1620,5 +1620,5 @@ U_BOOT_DRIVER(dp_tegra) = {
 	.probe	= dp_tegra_probe,
 	.ops	= &dp_tegra_ops,
 	.priv_auto	= sizeof(struct tegra_dp_priv),
-	.platdata_auto	= sizeof(struct tegra_dp_plat),
+	.plat_auto	= sizeof(struct tegra_dp_plat),
 };

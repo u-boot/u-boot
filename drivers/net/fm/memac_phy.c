@@ -298,7 +298,7 @@ U_BOOT_DRIVER(fman_mdio) = {
 	.remove = fm_mdio_remove,
 	.ops = &fm_mdio_ops,
 	.priv_auto	= sizeof(struct fm_mdio_priv),
-	.platdata_auto	= sizeof(struct mdio_perdev_priv),
+	.plat_auto	= sizeof(struct mdio_perdev_priv),
 };
 #endif /* CONFIG_PHYLIB && CONFIG_DM_MDIO */
 #endif /* CONFIG_DM_ETH */

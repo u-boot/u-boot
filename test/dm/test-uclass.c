@@ -36,7 +36,7 @@ static int test_post_bind(struct udevice *dev)
 	dm_testdrv_op_count[DM_TEST_OP_POST_BIND]++;
 	ut_assert(!device_active(dev));
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	ut_assert(uc_pdata);
 
 	uc_pdata->intval1 = TEST_UC_PDATA_INTVAL1;
@@ -82,7 +82,7 @@ static int test_post_probe(struct udevice *dev)
 	if (&prev->uclass_node != &uc->dev_head) {
 		struct dm_test_uclass_perdev_priv *prev_uc_priv
 				= dev_get_uclass_priv(prev);
-		struct dm_test_pdata *pdata = prev->platdata;
+		struct dm_test_pdata *pdata = prev->plat;
 
 		ut_assert(pdata);
 		ut_assert(prev_uc_priv);
@@ -126,6 +126,6 @@ UCLASS_DRIVER(test) = {
 	.destroy	= test_destroy,
 	.priv_auto	= sizeof(struct dm_test_uclass_priv),
 	.per_device_auto	= sizeof(struct dm_test_uclass_perdev_priv),
-	.per_device_platdata_auto	=
+	.per_device_plat_auto	=
 					sizeof(struct dm_test_perdev_uc_pdata),
 };

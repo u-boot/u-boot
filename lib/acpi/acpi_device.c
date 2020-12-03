@@ -602,7 +602,7 @@ static void acpi_device_write_i2c(struct acpi_ctx *ctx,
 static int acpi_device_set_i2c(const struct udevice *dev, struct acpi_i2c *i2c,
 			       const char *scope)
 {
-	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+	struct dm_i2c_chip *chip = dev_get_parent_plat(dev);
 	struct udevice *bus = dev_get_parent(dev);
 
 	memset(i2c, '\0', sizeof(*i2c));
@@ -727,7 +727,7 @@ static int acpi_device_set_spi(const struct udevice *dev, struct acpi_spi *spi,
 	struct dm_spi_slave_platdata *plat;
 	struct spi_slave *slave = dev_get_parent_priv(dev);
 
-	plat = dev_get_parent_platdata(slave->dev);
+	plat = dev_get_parent_plat(slave->dev);
 	memset(spi, '\0', sizeof(*spi));
 	spi->device_select = plat->cs;
 	spi->device_select_polarity = SPI_POLARITY_LOW;

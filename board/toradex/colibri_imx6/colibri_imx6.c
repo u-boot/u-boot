@@ -1093,5 +1093,5 @@ static struct mxc_serial_platdata mxc_serial_plat = {
 
 U_BOOT_DEVICE(mxc_serial) = {
 	.name = "serial_mxc",
-	.platdata = &mxc_serial_plat,
+	.plat = &mxc_serial_plat,
 };

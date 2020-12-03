@@ -339,7 +339,7 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 {
 	struct udevice *bus = dev->parent;
 	struct sun4i_spi_priv *priv = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 
 	u32 len = bitlen / 8;
 	u32 rx_fifocnt;
@@ -631,7 +631,7 @@ U_BOOT_DRIVER(sun4i_spi) = {
 	.of_match	= sun4i_spi_ids,
 	.ops	= &sun4i_spi_ops,
 	.ofdata_to_platdata	= sun4i_spi_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct sun4i_spi_platdata),
+	.plat_auto	= sizeof(struct sun4i_spi_platdata),
 	.priv_auto	= sizeof(struct sun4i_spi_priv),
 	.probe	= sun4i_spi_probe,
 };

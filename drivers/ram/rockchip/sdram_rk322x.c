@@ -849,7 +849,7 @@ U_BOOT_DRIVER(dmc_rk322x) = {
 	.probe = rk322x_dmc_probe,
 	.priv_auto	= sizeof(struct dram_info),
 #ifdef CONFIG_TPL_BUILD
-	.platdata_auto	= sizeof(struct rk322x_sdram_params),
+	.plat_auto	= sizeof(struct rk322x_sdram_params),
 #endif
 };
 

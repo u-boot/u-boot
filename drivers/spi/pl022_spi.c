@@ -288,7 +288,7 @@ static const struct dm_spi_ops pl022_spi_ops = {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int pl022_spi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct pl022_spi_pdata *plat = bus->platdata;
+	struct pl022_spi_pdata *plat = bus->plat;
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 	struct clk clkdev;
@@ -319,7 +319,7 @@ U_BOOT_DRIVER(pl022_spi) = {
 	.ofdata_to_platdata = pl022_spi_ofdata_to_platdata,
 #endif
 	.ops    = &pl022_spi_ops,
-	.platdata_auto	= sizeof(struct pl022_spi_pdata),
+	.plat_auto	= sizeof(struct pl022_spi_pdata),
 	.priv_auto	= sizeof(struct pl022_spi_slave),
 	.probe  = pl022_spi_probe,
 };

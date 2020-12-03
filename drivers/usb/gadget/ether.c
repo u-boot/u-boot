@@ -2692,7 +2692,7 @@ U_BOOT_DRIVER(eth_usb) = {
 	.probe	= usb_eth_probe,
 	.ops	= &usb_eth_ops,
 	.priv_auto	= sizeof(struct ether_priv),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif /* CONFIG_DM_ETH */

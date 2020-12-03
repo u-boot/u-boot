@@ -607,5 +607,5 @@ U_BOOT_DRIVER(pic32_ethernet) = {
 	.remove			= pic32_eth_remove,
 	.ops			= &pic32_eth_ops,
 	.priv_auto	= sizeof(struct pic32eth_dev),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

@@ -103,7 +103,7 @@ int exynos_adc_probe(struct udevice *dev)
 
 int exynos_adc_ofdata_to_platdata(struct udevice *dev)
 {
-	struct adc_uclass_platdata *uc_pdata = dev_get_uclass_platdata(dev);
+	struct adc_uclass_plat *uc_pdata = dev_get_uclass_plat(dev);
 	struct exynos_adc_priv *priv = dev_get_priv(dev);
 
 	priv->regs = dev_read_addr_ptr(dev);

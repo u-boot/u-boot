@@ -105,7 +105,7 @@ U_BOOT_DRIVER(rvu_pf) = {
 	.remove = rvu_pf_remove,
 	.ops    = &nix_eth_ops,
 	.priv_auto	= sizeof(struct rvu_pf),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 static struct pci_device_id rvu_pf_supported[] = {

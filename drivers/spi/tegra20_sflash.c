@@ -89,7 +89,7 @@ int tegra20_sflash_cs_info(struct udevice *bus, unsigned int cs,
 
 static int tegra20_sflash_ofdata_to_platdata(struct udevice *bus)
 {
-	struct tegra_spi_platdata *plat = bus->platdata;
+	struct tegra_spi_platdata *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -314,7 +314,7 @@ static int tegra20_sflash_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int tegra20_sflash_set_speed(struct udevice *bus, uint speed)
 {
-	struct tegra_spi_platdata *plat = bus->platdata;
+	struct tegra_spi_platdata *plat = bus->plat;
 	struct tegra20_sflash_priv *priv = dev_get_priv(bus);
 
 	if (speed > plat->frequency)
@@ -354,7 +354,7 @@ U_BOOT_DRIVER(tegra20_sflash) = {
 	.of_match = tegra20_sflash_ids,
 	.ops	= &tegra20_sflash_ops,
 	.ofdata_to_platdata = tegra20_sflash_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct tegra_spi_platdata),
+	.plat_auto	= sizeof(struct tegra_spi_platdata),
 	.priv_auto	= sizeof(struct tegra20_sflash_priv),
 	.probe	= tegra20_sflash_probe,
 };

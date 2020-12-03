@@ -34,7 +34,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static int device_bind_common(struct udevice *parent, const struct driver *drv,
-			      const char *name, void *platdata,
+			      const char *name, void *plat,
 			      ulong driver_data, ofnode node,
 			      uint of_platdata_size, struct udevice **devp)
 {
@@ -63,7 +63,7 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 #ifdef CONFIG_DEVRES
 	INIT_LIST_HEAD(&dev->devres_head);
 #endif
-	dev->platdata = platdata;
+	dev->plat = plat;
 	dev->driver_data = driver_data;
 	dev->name = name;
 	dev->node = node;
@@ -96,49 +96,49 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 		}
 	}
 
-	if (drv->platdata_auto) {
-		bool alloc = !platdata;
+	if (drv->plat_auto) {
+		bool alloc = !plat;
 
 		if (CONFIG_IS_ENABLED(OF_PLATDATA)) {
 			if (of_platdata_size) {
 				dev->flags |= DM_FLAG_OF_PLATDATA;
-				if (of_platdata_size < drv->platdata_auto)
+				if (of_platdata_size < drv->plat_auto)
 					alloc = true;
 			}
 		}
 		if (alloc) {
 			dev->flags |= DM_FLAG_ALLOC_PDATA;
-			dev->platdata = calloc(1, drv->platdata_auto);
-			if (!dev->platdata) {
+			dev->plat = calloc(1, drv->plat_auto);
+			if (!dev->plat) {
 				ret = -ENOMEM;
 				goto fail_alloc1;
 			}
-			if (CONFIG_IS_ENABLED(OF_PLATDATA) && platdata) {
-				memcpy(dev->platdata, platdata,
+			if (CONFIG_IS_ENABLED(OF_PLATDATA) && plat) {
+				memcpy(dev->plat, plat,
 				       of_platdata_size);
 			}
 		}
 	}
 
-	size = uc->uc_drv->per_device_platdata_auto;
+	size = uc->uc_drv->per_device_plat_auto;
 	if (size) {
 		dev->flags |= DM_FLAG_ALLOC_UCLASS_PDATA;
-		dev->uclass_platdata = calloc(1, size);
-		if (!dev->uclass_platdata) {
+		dev->uclass_plat = calloc(1, size);
+		if (!dev->uclass_plat) {
 			ret = -ENOMEM;
 			goto fail_alloc2;
 		}
 	}
 
 	if (parent) {
-		size = parent->driver->per_child_platdata_auto;
+		size = parent->driver->per_child_plat_auto;
 		if (!size) {
-			size = parent->uclass->uc_drv->per_child_platdata_auto;
+			size = parent->uclass->uc_drv->per_child_plat_auto;
 		}
 		if (size) {
 			dev->flags |= DM_FLAG_ALLOC_PARENT_PDATA;
-			dev->parent_platdata = calloc(1, size);
-			if (!dev->parent_platdata) {
+			dev->parent_plat = calloc(1, size);
+			if (!dev->parent_plat) {
 				ret = -ENOMEM;
 				goto fail_alloc3;
 			}
@@ -198,19 +198,19 @@ fail_uclass_bind:
 	if (CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)) {
 		list_del(&dev->sibling_node);
 		if (dev->flags & DM_FLAG_ALLOC_PARENT_PDATA) {
-			free(dev->parent_platdata);
-			dev->parent_platdata = NULL;
+			free(dev->parent_plat);
+			dev->parent_plat = NULL;
 		}
 	}
 fail_alloc3:
 	if (dev->flags & DM_FLAG_ALLOC_UCLASS_PDATA) {
-		free(dev->uclass_platdata);
-		dev->uclass_platdata = NULL;
+		free(dev->uclass_plat);
+		dev->uclass_plat = NULL;
 	}
 fail_alloc2:
 	if (dev->flags & DM_FLAG_ALLOC_PDATA) {
-		free(dev->platdata);
-		dev->platdata = NULL;
+		free(dev->plat);
+		dev->plat = NULL;
 	}
 fail_alloc1:
 	devres_release_all(dev);
@@ -230,10 +230,10 @@ int device_bind_with_driver_data(struct udevice *parent,
 }
 
 int device_bind(struct udevice *parent, const struct driver *drv,
-		const char *name, void *platdata, ofnode node,
+		const char *name, void *plat, ofnode node,
 		struct udevice **devp)
 {
-	return device_bind_common(parent, drv, name, platdata, 0, node, 0,
+	return device_bind_common(parent, drv, name, plat, 0, node, 0,
 				  devp);
 }
 
@@ -253,9 +253,8 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	platdata_size = info->platdata_size;
 #endif
-	ret = device_bind_common(parent, drv, info->name,
-				 (void *)info->platdata, 0, ofnode_null(),
-				 platdata_size, devp);
+	ret = device_bind_common(parent, drv, info->name, (void *)info->plat, 0,
+				 ofnode_null(), platdata_size, devp);
 	if (ret)
 		return ret;
 
@@ -526,27 +525,27 @@ void *dev_get_platdata(const struct udevice *dev)
 		return NULL;
 	}
 
-	return dev->platdata;
+	return dev->plat;
 }
 
-void *dev_get_parent_platdata(const struct udevice *dev)
+void *dev_get_parent_plat(const struct udevice *dev)
 {
 	if (!dev) {
 		dm_warn("%s: null device\n", __func__);
 		return NULL;
 	}
 
-	return dev->parent_platdata;
+	return dev->parent_plat;
 }
 
-void *dev_get_uclass_platdata(const struct udevice *dev)
+void *dev_get_uclass_plat(const struct udevice *dev)
 {
 	if (!dev) {
 		dm_warn("%s: null device\n", __func__);
 		return NULL;
 	}
 
-	return dev->uclass_platdata;
+	return dev->uclass_plat;
 }
 
 void *dev_get_priv(const struct udevice *dev)

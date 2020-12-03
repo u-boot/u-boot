@@ -27,7 +27,7 @@ static int get_emul(struct udevice *dev, struct udevice **devp,
 
 	*devp = NULL;
 	*opsp = NULL;
-	plat = dev_get_parent_platdata(dev);
+	plat = dev_get_parent_plat(dev);
 	if (!plat->emul) {
 		ret = i2c_emul_find(dev, &plat->emul);
 		if (ret)

@@ -320,5 +320,5 @@ static struct atmel_serial_platdata at91sam9260_serial_plat = {
 
 U_BOOT_DEVICE(at91sam9260_serial) = {
 	.name	= "serial_atmel",
-	.platdata = &at91sam9260_serial_plat,
+	.plat = &at91sam9260_serial_plat,
 };

@@ -1187,7 +1187,7 @@ int rtl8169_initialize(struct bd_info *bis)
 #ifdef CONFIG_DM_ETH
 static int rtl8169_eth_probe(struct udevice *dev)
 {
-	struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
+	struct pci_child_platdata *pplat = dev_get_parent_plat(dev);
 	struct rtl8169_private *priv = dev_get_priv(dev);
 	struct eth_pdata *plat = dev_get_platdata(dev);
 	u32 iobase;
@@ -1249,7 +1249,7 @@ U_BOOT_DRIVER(eth_rtl8169) = {
 	.probe	= rtl8169_eth_probe,
 	.ops	= &rtl8169_eth_ops,
 	.priv_auto	= sizeof(struct rtl8169_private),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 U_BOOT_PCI_DEVICE(eth_rtl8169, supported);

@@ -608,7 +608,7 @@ struct usb_platdata {
 /**
  * struct usb_dev_platdata - Platform data about a USB device
  *
- * Given a USB device dev this structure is dev_get_parent_platdata(dev).
+ * Given a USB device dev this structure is dev_get_parent_plat(dev).
  * This is used by sandbox to provide emulation data also.
  *
  * @id:		ID used to match this device
@@ -662,7 +662,7 @@ struct usb_bus_priv {
  * struct usb_emul_platdata - platform data about the USB emulator
  *
  * Given a USB emulator (UCLASS_USB_EMUL) 'dev', this is
- * dev_get_uclass_platdata(dev).
+ * dev_get_uclass_plat(dev).
  *
  * @port1:	USB emulator device port number on the parent hub
  */

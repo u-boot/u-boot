@@ -999,5 +999,5 @@ U_BOOT_DRIVER(ave) = {
 	.ofdata_to_platdata = ave_ofdata_to_platdata,
 	.ops	  = &ave_ops,
 	.priv_auto	= sizeof(struct ave_private),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

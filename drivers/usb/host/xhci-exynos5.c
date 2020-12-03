@@ -255,7 +255,7 @@ U_BOOT_DRIVER(usb_xhci) = {
 	.probe = xhci_usb_probe,
 	.remove = xhci_usb_remove,
 	.ops	= &xhci_usb_ops,
-	.platdata_auto	= sizeof(struct exynos_xhci_platdata),
+	.plat_auto	= sizeof(struct exynos_xhci_platdata),
 	.priv_auto	= sizeof(struct exynos_xhci),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };

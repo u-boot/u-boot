@@ -359,5 +359,5 @@ U_BOOT_DRIVER(socfpga_a10_clk) = {
 	.probe		= socfpga_a10_clk_probe,
 	.ofdata_to_platdata = socfpga_a10_ofdata_to_platdata,
 
-	.platdata_auto	= sizeof(struct socfpga_a10_clk_platdata),
+	.plat_auto	= sizeof(struct socfpga_a10_clk_platdata),
 };

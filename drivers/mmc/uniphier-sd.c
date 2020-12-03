@@ -85,6 +85,6 @@ U_BOOT_DRIVER(uniphier_mmc) = {
 	.bind = tmio_sd_bind,
 	.probe = uniphier_sd_probe,
 	.priv_auto	= sizeof(struct tmio_sd_priv),
-	.platdata_auto	= sizeof(struct tmio_sd_plat),
+	.plat_auto	= sizeof(struct tmio_sd_plat),
 	.ops = &uniphier_sd_ops,
 };

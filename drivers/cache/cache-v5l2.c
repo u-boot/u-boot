@@ -182,7 +182,7 @@ U_BOOT_DRIVER(v5l2_cache) = {
 	.of_match = v5l2_cache_ids,
 	.ofdata_to_platdata = v5l2_ofdata_to_platdata,
 	.probe	= v5l2_probe,
-	.platdata_auto	= sizeof(struct v5l2_plat),
+	.plat_auto	= sizeof(struct v5l2_plat),
 	.ops = &v5l2_cache_ops,
 	.flags  = DM_FLAG_PRE_RELOC,
 };

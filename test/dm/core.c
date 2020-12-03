@@ -45,27 +45,27 @@ static const struct dm_test_pdata test_pdata_pre_reloc = {
 
 U_BOOT_DEVICE(dm_test_info1) = {
 	.name = "test_drv",
-	.platdata = &test_pdata[0],
+	.plat = &test_pdata[0],
 };
 
 U_BOOT_DEVICE(dm_test_info2) = {
 	.name = "test_drv",
-	.platdata = &test_pdata[1],
+	.plat = &test_pdata[1],
 };
 
 U_BOOT_DEVICE(dm_test_info3) = {
 	.name = "test_drv",
-	.platdata = &test_pdata[2],
+	.plat = &test_pdata[2],
 };
 
 static struct driver_info driver_info_manual = {
 	.name = "test_manual_drv",
-	.platdata = &test_pdata_manual,
+	.plat = &test_pdata_manual,
 };
 
 static struct driver_info driver_info_pre_reloc = {
 	.name = "test_pre_reloc_drv",
-	.platdata = &test_pdata_pre_reloc,
+	.plat = &test_pdata_pre_reloc,
 };
 
 static struct driver_info driver_info_act_dma = {
@@ -105,7 +105,7 @@ int dm_leak_check_end(struct unit_test_state *uts)
 	return 0;
 }
 
-/* Test that binding with platdata occurs correctly */
+/* Test that binding with plat occurs correctly */
 static int dm_test_autobind(struct unit_test_state *uts)
 {
 	struct dm_test_state *dms = uts->priv;
@@ -140,7 +140,7 @@ static int dm_test_autobind(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_autobind, 0);
 
-/* Test that binding with uclass platdata allocation occurs correctly */
+/* Test that binding with uclass plat allocation occurs correctly */
 static int dm_test_autobind_uclass_pdata_alloc(struct unit_test_state *uts)
 {
 	struct dm_test_perdev_uc_pdata *uc_pdata;
@@ -152,16 +152,16 @@ static int dm_test_autobind_uclass_pdata_alloc(struct unit_test_state *uts)
 
 	/**
 	 * Test if test uclass driver requires allocation for the uclass
-	 * platform data and then check the dev->uclass_platdata pointer.
+	 * platform data and then check the dev->uclass_plat pointer.
 	 */
-	ut_assert(uc->uc_drv->per_device_platdata_auto);
+	ut_assert(uc->uc_drv->per_device_plat_auto);
 
 	for (uclass_find_first_device(UCLASS_TEST, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
 		ut_assertnonnull(dev);
 
-		uc_pdata = dev_get_uclass_platdata(dev);
+		uc_pdata = dev_get_uclass_plat(dev);
 		ut_assert(uc_pdata);
 	}
 
@@ -169,7 +169,7 @@ static int dm_test_autobind_uclass_pdata_alloc(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_autobind_uclass_pdata_alloc, UT_TESTF_SCAN_PDATA);
 
-/* Test that binding with uclass platdata setting occurs correctly */
+/* Test that binding with uclass plat setting occurs correctly */
 static int dm_test_autobind_uclass_pdata_valid(struct unit_test_state *uts)
 {
 	struct dm_test_perdev_uc_pdata *uc_pdata;
@@ -184,7 +184,7 @@ static int dm_test_autobind_uclass_pdata_valid(struct unit_test_state *uts)
 	     uclass_find_next_device(&dev)) {
 		ut_assertnonnull(dev);
 
-		uc_pdata = dev_get_uclass_platdata(dev);
+		uc_pdata = dev_get_uclass_plat(dev);
 		ut_assert(uc_pdata);
 		ut_assert(uc_pdata->intval1 == TEST_UC_PDATA_INTVAL1);
 		ut_assert(uc_pdata->intval2 == TEST_UC_PDATA_INTVAL2);
@@ -255,7 +255,7 @@ static int dm_test_autoprobe(struct unit_test_state *uts)
 		ut_assert(priv);
 		ut_asserteq(expected_base_add, priv->base_add);
 
-		pdata = dev->platdata;
+		pdata = dev->plat;
 		expected_base_add += pdata->ping_add;
 	}
 
@@ -263,7 +263,7 @@ static int dm_test_autoprobe(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_autoprobe, UT_TESTF_SCAN_PDATA);
 
-/* Check that we see the correct platdata in each device */
+/* Check that we see the correct plat in each device */
 static int dm_test_platdata(struct unit_test_state *uts)
 {
 	const struct dm_test_pdata *pdata;
@@ -273,7 +273,7 @@ static int dm_test_platdata(struct unit_test_state *uts)
 	for (i = 0; i < 3; i++) {
 		ut_assertok(uclass_find_device(UCLASS_TEST, i, &dev));
 		ut_assert(dev);
-		pdata = dev->platdata;
+		pdata = dev->plat;
 		ut_assert(pdata->ping_add == test_pdata[i].ping_add);
 	}
 
@@ -400,10 +400,10 @@ int dm_check_operations(struct unit_test_state *uts, struct udevice *dev,
 	int expected;
 	int pingret;
 
-	/* Getting the child device should allocate platdata / priv */
+	/* Getting the child device should allocate plat / priv */
 	ut_assertok(testfdt_ping(dev, 10, &pingret));
 	ut_assert(dev->priv);
-	ut_assert(dev->platdata);
+	ut_assert(dev->plat);
 
 	expected = 10 + base;
 	ut_asserteq(expected, pingret);
@@ -438,7 +438,7 @@ static int dm_test_operations(struct unit_test_state *uts)
 
 		/*
 		 * Get the 'reg' property, which tells us what the ping add
-		 * should be. We don't use the platdata because we want
+		 * should be. We don't use the plat because we want
 		 * to test the code that sets that up (testfdt_drv_probe()).
 		 */
 		base = test_pdata[i].ping_add;
@@ -547,7 +547,7 @@ static int create_children(struct unit_test_state *uts, struct udevice *parent,
 						&driver_info_manual, &dev));
 		pdata = calloc(1, sizeof(*pdata));
 		pdata->ping_add = key + i;
-		dev->platdata = pdata;
+		dev->plat = pdata;
 		if (child)
 			child[i] = dev;
 	}

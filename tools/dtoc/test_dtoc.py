@@ -217,7 +217,7 @@ static struct dtd_sandbox_i2c_test dtv_i2c_at_0 = {
 };
 U_BOOT_DEVICE(i2c_at_0) = {
 \t.name\t\t= "sandbox_i2c_test",
-\t.platdata\t= &dtv_i2c_at_0,
+\t.plat\t= &dtv_i2c_at_0,
 \t.platdata_size\t= sizeof(dtv_i2c_at_0),
 \t.parent_idx\t= -1,
 };
@@ -229,7 +229,7 @@ static struct dtd_sandbox_pmic_test dtv_pmic_at_9 = {
 };
 U_BOOT_DEVICE(pmic_at_9) = {
 \t.name\t\t= "sandbox_pmic_test",
-\t.platdata\t= &dtv_pmic_at_9,
+\t.plat\t= &dtv_pmic_at_9,
 \t.platdata_size\t= sizeof(dtv_pmic_at_9),
 \t.parent_idx\t= 0,
 };
@@ -249,7 +249,7 @@ static struct dtd_sandbox_spl_test dtv_spl_test = {
 };
 U_BOOT_DEVICE(spl_test) = {
 \t.name\t\t= "sandbox_spl_test",
-\t.platdata\t= &dtv_spl_test,
+\t.plat\t= &dtv_spl_test,
 \t.platdata_size\t= sizeof(dtv_spl_test),
 \t.parent_idx\t= -1,
 };
@@ -268,7 +268,7 @@ static struct dtd_sandbox_spl_test dtv_spl_test2 = {
 };
 U_BOOT_DEVICE(spl_test2) = {
 \t.name\t\t= "sandbox_spl_test",
-\t.platdata\t= &dtv_spl_test2,
+\t.plat\t= &dtv_spl_test2,
 \t.platdata_size\t= sizeof(dtv_spl_test2),
 \t.parent_idx\t= -1,
 };
@@ -281,7 +281,7 @@ static struct dtd_sandbox_spl_test dtv_spl_test3 = {
 };
 U_BOOT_DEVICE(spl_test3) = {
 \t.name\t\t= "sandbox_spl_test",
-\t.platdata\t= &dtv_spl_test3,
+\t.plat\t= &dtv_spl_test3,
 \t.platdata_size\t= sizeof(dtv_spl_test3),
 \t.parent_idx\t= -1,
 };
@@ -291,7 +291,7 @@ static struct dtd_sandbox_spl_test_2 dtv_spl_test4 = {
 };
 U_BOOT_DEVICE(spl_test4) = {
 \t.name\t\t= "sandbox_spl_test_2",
-\t.platdata\t= &dtv_spl_test4,
+\t.plat\t= &dtv_spl_test4,
 \t.platdata_size\t= sizeof(dtv_spl_test4),
 \t.parent_idx\t= -1,
 };
@@ -325,7 +325,7 @@ static struct dtd_sandbox_gpio dtv_gpios_at_0 = {
 };
 U_BOOT_DEVICE(gpios_at_0) = {
 \t.name\t\t= "sandbox_gpio",
-\t.platdata\t= &dtv_gpios_at_0,
+\t.plat\t= &dtv_gpios_at_0,
 \t.platdata_size\t= sizeof(dtv_gpios_at_0),
 \t.parent_idx\t= -1,
 };
@@ -357,7 +357,7 @@ static struct dtd_invalid dtv_spl_test = {
 };
 U_BOOT_DEVICE(spl_test) = {
 \t.name\t\t= "invalid",
-\t.platdata\t= &dtv_spl_test,
+\t.plat\t= &dtv_spl_test,
 \t.platdata_size\t= sizeof(dtv_spl_test),
 \t.parent_idx\t= -1,
 };
@@ -392,7 +392,7 @@ static struct dtd_target dtv_phandle2_target = {
 };
 U_BOOT_DEVICE(phandle2_target) = {
 \t.name\t\t= "target",
-\t.platdata\t= &dtv_phandle2_target,
+\t.plat\t= &dtv_phandle2_target,
 \t.platdata_size\t= sizeof(dtv_phandle2_target),
 \t.parent_idx\t= -1,
 };
@@ -403,7 +403,7 @@ static struct dtd_target dtv_phandle3_target = {
 };
 U_BOOT_DEVICE(phandle3_target) = {
 \t.name\t\t= "target",
-\t.platdata\t= &dtv_phandle3_target,
+\t.plat\t= &dtv_phandle3_target,
 \t.platdata_size\t= sizeof(dtv_phandle3_target),
 \t.parent_idx\t= -1,
 };
@@ -414,7 +414,7 @@ static struct dtd_target dtv_phandle_target = {
 };
 U_BOOT_DEVICE(phandle_target) = {
 \t.name\t\t= "target",
-\t.platdata\t= &dtv_phandle_target,
+\t.plat\t= &dtv_phandle_target,
 \t.platdata_size\t= sizeof(dtv_phandle_target),
 \t.parent_idx\t= -1,
 };
@@ -429,7 +429,7 @@ static struct dtd_source dtv_phandle_source = {
 };
 U_BOOT_DEVICE(phandle_source) = {
 \t.name\t\t= "source",
-\t.platdata\t= &dtv_phandle_source,
+\t.plat\t= &dtv_phandle_source,
 \t.platdata_size\t= sizeof(dtv_phandle_source),
 \t.parent_idx\t= -1,
 };
@@ -441,7 +441,7 @@ static struct dtd_source dtv_phandle_source2 = {
 };
 U_BOOT_DEVICE(phandle_source2) = {
 \t.name\t\t= "source",
-\t.platdata\t= &dtv_phandle_source2,
+\t.plat\t= &dtv_phandle_source2,
 \t.platdata_size\t= sizeof(dtv_phandle_source2),
 \t.parent_idx\t= -1,
 };
@@ -479,7 +479,7 @@ static struct dtd_target dtv_phandle_target = {
 };
 U_BOOT_DEVICE(phandle_target) = {
 \t.name\t\t= "target",
-\t.platdata\t= &dtv_phandle_target,
+\t.plat\t= &dtv_phandle_target,
 \t.platdata_size\t= sizeof(dtv_phandle_target),
 \t.parent_idx\t= -1,
 };
@@ -491,7 +491,7 @@ static struct dtd_source dtv_phandle_source2 = {
 };
 U_BOOT_DEVICE(phandle_source2) = {
 \t.name\t\t= "source",
-\t.platdata\t= &dtv_phandle_source2,
+\t.plat\t= &dtv_phandle_source2,
 \t.platdata_size\t= sizeof(dtv_phandle_source2),
 \t.parent_idx\t= -1,
 };
@@ -514,7 +514,7 @@ static struct dtd_target dtv_phandle2_target = {
 };
 U_BOOT_DEVICE(phandle2_target) = {
 \t.name\t\t= "target",
-\t.platdata\t= &dtv_phandle2_target,
+\t.plat\t= &dtv_phandle2_target,
 \t.platdata_size\t= sizeof(dtv_phandle2_target),
 \t.parent_idx\t= -1,
 };
@@ -525,7 +525,7 @@ static struct dtd_target dtv_phandle3_target = {
 };
 U_BOOT_DEVICE(phandle3_target) = {
 \t.name\t\t= "target",
-\t.platdata\t= &dtv_phandle3_target,
+\t.plat\t= &dtv_phandle3_target,
 \t.platdata_size\t= sizeof(dtv_phandle3_target),
 \t.parent_idx\t= -1,
 };
@@ -536,7 +536,7 @@ static struct dtd_target dtv_phandle_target = {
 };
 U_BOOT_DEVICE(phandle_target) = {
 \t.name\t\t= "target",
-\t.platdata\t= &dtv_phandle_target,
+\t.plat\t= &dtv_phandle_target,
 \t.platdata_size\t= sizeof(dtv_phandle_target),
 \t.parent_idx\t= -1,
 };
@@ -551,7 +551,7 @@ static struct dtd_source dtv_phandle_source = {
 };
 U_BOOT_DEVICE(phandle_source) = {
 \t.name\t\t= "source",
-\t.platdata\t= &dtv_phandle_source,
+\t.plat\t= &dtv_phandle_source,
 \t.platdata_size\t= sizeof(dtv_phandle_source),
 \t.parent_idx\t= -1,
 };
@@ -563,7 +563,7 @@ static struct dtd_source dtv_phandle_source2 = {
 };
 U_BOOT_DEVICE(phandle_source2) = {
 \t.name\t\t= "source",
-\t.platdata\t= &dtv_phandle_source2,
+\t.plat\t= &dtv_phandle_source2,
 \t.platdata_size\t= sizeof(dtv_phandle_source2),
 \t.parent_idx\t= -1,
 };
@@ -621,7 +621,7 @@ static struct dtd_test1 dtv_test1 = {
 };
 U_BOOT_DEVICE(test1) = {
 \t.name\t\t= "test1",
-\t.platdata\t= &dtv_test1,
+\t.plat\t= &dtv_test1,
 \t.platdata_size\t= sizeof(dtv_test1),
 \t.parent_idx\t= -1,
 };
@@ -632,7 +632,7 @@ static struct dtd_test2 dtv_test2 = {
 };
 U_BOOT_DEVICE(test2) = {
 \t.name\t\t= "test2",
-\t.platdata\t= &dtv_test2,
+\t.plat\t= &dtv_test2,
 \t.platdata_size\t= sizeof(dtv_test2),
 \t.parent_idx\t= -1,
 };
@@ -643,7 +643,7 @@ static struct dtd_test3 dtv_test3 = {
 };
 U_BOOT_DEVICE(test3) = {
 \t.name\t\t= "test3",
-\t.platdata\t= &dtv_test3,
+\t.plat\t= &dtv_test3,
 \t.platdata_size\t= sizeof(dtv_test3),
 \t.parent_idx\t= -1,
 };
@@ -676,7 +676,7 @@ static struct dtd_test1 dtv_test1 = {
 };
 U_BOOT_DEVICE(test1) = {
 \t.name\t\t= "test1",
-\t.platdata\t= &dtv_test1,
+\t.plat\t= &dtv_test1,
 \t.platdata_size\t= sizeof(dtv_test1),
 \t.parent_idx\t= -1,
 };
@@ -687,7 +687,7 @@ static struct dtd_test2 dtv_test2 = {
 };
 U_BOOT_DEVICE(test2) = {
 \t.name\t\t= "test2",
-\t.platdata\t= &dtv_test2,
+\t.plat\t= &dtv_test2,
 \t.platdata_size\t= sizeof(dtv_test2),
 \t.parent_idx\t= -1,
 };
@@ -723,7 +723,7 @@ static struct dtd_test1 dtv_test1 = {
 };
 U_BOOT_DEVICE(test1) = {
 \t.name\t\t= "test1",
-\t.platdata\t= &dtv_test1,
+\t.plat\t= &dtv_test1,
 \t.platdata_size\t= sizeof(dtv_test1),
 \t.parent_idx\t= -1,
 };
@@ -734,7 +734,7 @@ static struct dtd_test2 dtv_test2 = {
 };
 U_BOOT_DEVICE(test2) = {
 \t.name\t\t= "test2",
-\t.platdata\t= &dtv_test2,
+\t.plat\t= &dtv_test2,
 \t.platdata_size\t= sizeof(dtv_test2),
 \t.parent_idx\t= -1,
 };
@@ -745,7 +745,7 @@ static struct dtd_test3 dtv_test3 = {
 };
 U_BOOT_DEVICE(test3) = {
 \t.name\t\t= "test3",
-\t.platdata\t= &dtv_test3,
+\t.plat\t= &dtv_test3,
 \t.platdata_size\t= sizeof(dtv_test3),
 \t.parent_idx\t= -1,
 };
@@ -781,7 +781,7 @@ static struct dtd_test1 dtv_test1 = {
 };
 U_BOOT_DEVICE(test1) = {
 \t.name\t\t= "test1",
-\t.platdata\t= &dtv_test1,
+\t.plat\t= &dtv_test1,
 \t.platdata_size\t= sizeof(dtv_test1),
 \t.parent_idx\t= -1,
 };
@@ -792,7 +792,7 @@ static struct dtd_test2 dtv_test2 = {
 };
 U_BOOT_DEVICE(test2) = {
 \t.name\t\t= "test2",
-\t.platdata\t= &dtv_test2,
+\t.plat\t= &dtv_test2,
 \t.platdata_size\t= sizeof(dtv_test2),
 \t.parent_idx\t= -1,
 };
@@ -803,7 +803,7 @@ static struct dtd_test3 dtv_test3 = {
 };
 U_BOOT_DEVICE(test3) = {
 \t.name\t\t= "test3",
-\t.platdata\t= &dtv_test3,
+\t.plat\t= &dtv_test3,
 \t.platdata_size\t= sizeof(dtv_test3),
 \t.parent_idx\t= -1,
 };
@@ -854,7 +854,7 @@ static struct dtd_sandbox_spl_test dtv_spl_test = {
 };
 U_BOOT_DEVICE(spl_test) = {
 \t.name\t\t= "sandbox_spl_test",
-\t.platdata\t= &dtv_spl_test,
+\t.plat\t= &dtv_spl_test,
 \t.platdata_size\t= sizeof(dtv_spl_test),
 \t.parent_idx\t= -1,
 };
@@ -865,7 +865,7 @@ static struct dtd_sandbox_spl_test dtv_spl_test2 = {
 };
 U_BOOT_DEVICE(spl_test2) = {
 \t.name\t\t= "sandbox_spl_test",
-\t.platdata\t= &dtv_spl_test2,
+\t.plat\t= &dtv_spl_test2,
 \t.platdata_size\t= sizeof(dtv_spl_test2),
 \t.parent_idx\t= -1,
 };

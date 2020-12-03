@@ -141,7 +141,7 @@ static int gpio_dwapb_reset(struct udevice *dev)
 static int gpio_dwapb_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *priv = dev_get_uclass_priv(dev);
-	struct gpio_dwapb_platdata *plat = dev->platdata;
+	struct gpio_dwapb_platdata *plat = dev->plat;
 
 	if (!plat) {
 		/* Reset on parent device only */

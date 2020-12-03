@@ -673,7 +673,7 @@ int nvme_scan_namespace(void)
 static int nvme_blk_probe(struct udevice *udev)
 {
 	struct nvme_dev *ndev = dev_get_priv(udev->parent);
-	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+	struct blk_desc *desc = dev_get_uclass_plat(udev);
 	struct nvme_ns *ns = dev_get_priv(udev);
 	u8 flbas;
 	struct pci_child_platdata *pplat;
@@ -704,7 +704,7 @@ static int nvme_blk_probe(struct udevice *udev)
 	desc->log2blksz = ns->lba_shift;
 	desc->blksz = 1 << ns->lba_shift;
 	desc->bdev = udev;
-	pplat = dev_get_parent_platdata(udev->parent);
+	pplat = dev_get_parent_plat(udev->parent);
 	sprintf(desc->vendor, "0x%.4x", pplat->vendor);
 	memcpy(desc->product, ndev->serial, sizeof(ndev->serial));
 	memcpy(desc->revision, ndev->firmware_rev, sizeof(ndev->firmware_rev));
@@ -719,7 +719,7 @@ static ulong nvme_blk_rw(struct udevice *udev, lbaint_t blknr,
 	struct nvme_ns *ns = dev_get_priv(udev);
 	struct nvme_dev *dev = ns->dev;
 	struct nvme_command c;
-	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+	struct blk_desc *desc = dev_get_uclass_plat(udev);
 	int status;
 	u64 prp2;
 	u64 total_len = blkcnt << desc->log2blksz;

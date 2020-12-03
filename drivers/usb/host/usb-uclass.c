@@ -575,7 +575,7 @@ static int usb_find_and_bind_driver(struct udevice *parent,
 			drv = entry->driver;
 			/*
 			 * We could pass the descriptor to the driver as
-			 * platdata (instead of NULL) and allow its bind()
+			 * plat (instead of NULL) and allow its bind()
 			 * method to return -ENOENT if it doesn't support this
 			 * device. That way we could continue the search to
 			 * find another driver. For now this doesn't seem
@@ -587,7 +587,7 @@ static int usb_find_and_bind_driver(struct udevice *parent,
 				goto error;
 			debug("%s: Match found: %s\n", __func__, drv->name);
 			dev->driver_data = id->driver_info;
-			plat = dev_get_parent_platdata(dev);
+			plat = dev_get_parent_plat(dev);
 			plat->id = *id;
 			*devp = dev;
 			return 0;
@@ -622,7 +622,7 @@ static int usb_find_child(struct udevice *parent,
 	for (device_find_first_child(parent, &dev);
 	     dev;
 	     device_find_next_child(&dev)) {
-		struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
+		struct usb_dev_platdata *plat = dev_get_parent_plat(dev);
 
 		/* If this device is already in use, skip it */
 		if (device_active(dev))
@@ -707,7 +707,7 @@ int usb_scan_device(struct udevice *parent, int port,
 			return ret;
 		created = true;
 	}
-	plat = dev_get_parent_platdata(dev);
+	plat = dev_get_parent_plat(dev);
 	debug("%s: Probing '%s', plat=%p\n", __func__, dev->name, plat);
 	plat->devnum = udev->devnum;
 	plat->udev = udev;
@@ -770,7 +770,7 @@ int usb_detect_change(void)
 
 static int usb_child_post_bind(struct udevice *dev)
 {
-	struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
+	struct usb_dev_platdata *plat = dev_get_parent_plat(dev);
 	int val;
 
 	if (!dev_of_valid(dev))
@@ -809,7 +809,7 @@ struct udevice *usb_get_bus(struct udevice *dev)
 int usb_child_pre_probe(struct udevice *dev)
 {
 	struct usb_device *udev = dev_get_parent_priv(dev);
-	struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
+	struct usb_dev_platdata *plat = dev_get_parent_plat(dev);
 	int ret;
 
 	if (plat->udev) {
@@ -854,7 +854,7 @@ UCLASS_DRIVER(usb) = {
 	.per_device_auto	= sizeof(struct usb_bus_priv),
 	.child_post_bind = usb_child_post_bind,
 	.child_pre_probe = usb_child_pre_probe,
-	.per_child_platdata_auto	= sizeof(struct usb_dev_platdata),
+	.per_child_plat_auto	= sizeof(struct usb_dev_platdata),
 };
 
 UCLASS_DRIVER(usb_dev_generic) = {

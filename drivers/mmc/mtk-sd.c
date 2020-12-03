@@ -1692,6 +1692,6 @@ U_BOOT_DRIVER(mtk_sd_drv) = {
 	.bind = msdc_drv_bind,
 	.probe = msdc_drv_probe,
 	.ops = &msdc_ops,
-	.platdata_auto	= sizeof(struct msdc_plat),
+	.plat_auto	= sizeof(struct msdc_plat),
 	.priv_auto	= sizeof(struct msdc_host),
 };

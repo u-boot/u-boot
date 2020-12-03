@@ -711,7 +711,7 @@ U_BOOT_DRIVER(altera_tse) = {
 	.of_match = altera_tse_ids,
 	.ops	= &altera_tse_ops,
 	.ofdata_to_platdata = altera_tse_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.priv_auto	= sizeof(struct altera_tse_priv),
 	.probe	= altera_tse_probe,
 };

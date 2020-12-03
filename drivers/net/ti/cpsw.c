@@ -1378,7 +1378,7 @@ U_BOOT_DRIVER(eth_cpsw) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match = cpsw_eth_ids,
 	.ofdata_to_platdata = cpsw_eth_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 #endif
 	.probe	= cpsw_eth_probe,
 	.ops	= &cpsw_eth_ops,

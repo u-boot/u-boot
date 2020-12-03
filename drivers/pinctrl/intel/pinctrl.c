@@ -617,7 +617,7 @@ int intel_pinctrl_ofdata_to_platdata(struct udevice *dev,
 				     const struct pad_community *comm,
 				     int num_cfgs)
 {
-	struct p2sb_child_platdata *pplat = dev_get_parent_platdata(dev);
+	struct p2sb_child_platdata *pplat = dev_get_parent_plat(dev);
 	struct intel_pinctrl_priv *priv = dev_get_priv(dev);
 
 	if (!comm) {

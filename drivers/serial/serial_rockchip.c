@@ -34,7 +34,7 @@ static int rockchip_serial_probe(struct udevice *dev)
 	plat->plat.reg_shift = plat->dtplat.reg_shift;
 	plat->plat.clock = plat->dtplat.clock_frequency;
 	plat->plat.fcr = UART_FCR_DEFVAL;
-	dev->platdata = &plat->plat;
+	dev->plat = &plat->plat;
 
 	return ns16550_serial_probe(dev);
 }
@@ -43,7 +43,7 @@ U_BOOT_DRIVER(rockchip_rk3188_uart) = {
 	.name	= "rockchip_rk3188_uart",
 	.id	= UCLASS_SERIAL,
 	.priv_auto	= sizeof(struct NS16550),
-	.platdata_auto	= sizeof(struct rockchip_uart_platdata),
+	.plat_auto	= sizeof(struct rockchip_uart_platdata),
 	.probe	= rockchip_serial_probe,
 	.ops	= &ns16550_serial_ops,
 	.flags	= DM_FLAG_PRE_RELOC,
@@ -53,7 +53,7 @@ U_BOOT_DRIVER(rockchip_rk3288_uart) = {
 	.name	= "rockchip_rk3288_uart",
 	.id	= UCLASS_SERIAL,
 	.priv_auto	= sizeof(struct NS16550),
-	.platdata_auto	= sizeof(struct rockchip_uart_platdata),
+	.plat_auto	= sizeof(struct rockchip_uart_platdata),
 	.probe	= rockchip_serial_probe,
 	.ops	= &ns16550_serial_ops,
 	.flags	= DM_FLAG_PRE_RELOC,

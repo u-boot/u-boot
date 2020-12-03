@@ -614,6 +614,6 @@ U_BOOT_DRIVER(ftgmac100) = {
 	.remove = ftgmac100_remove,
 	.ops	= &ftgmac100_ops,
 	.priv_auto	= sizeof(struct ftgmac100_data),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };

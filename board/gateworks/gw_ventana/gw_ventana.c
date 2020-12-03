@@ -1377,5 +1377,5 @@ static struct mxc_serial_platdata ventana_mxc_serial_plat = {
 
 U_BOOT_DEVICE(ventana_serial) = {
 	.name   = "serial_mxc",
-	.platdata = &ventana_mxc_serial_plat,
+	.plat = &ventana_mxc_serial_plat,
 };

@@ -157,8 +157,8 @@ and the following device declarations:
 
     U_BOOT_DEVICE(dwmmc_at_ff0c0000) = {
             .name           = "rockchip_rk3288_dw_mshc",
-            .platdata       = &dtv_dwmmc_at_ff0c0000,
-            .platdata_size  = sizeof(dtv_dwmmc_at_ff0c0000),
+            .plat       = &dtv_dwmmc_at_ff0c0000,
+            .plat_size  = sizeof(dtv_dwmmc_at_ff0c0000),
             .parent_idx     = -1,
     };
 
@@ -232,7 +232,7 @@ How to structure your driver
 Drivers should always support device tree as an option. The of-platdata
 feature is intended as a add-on to existing drivers.
 
-Your driver should convert the platdata struct in its probe() method. The
+Your driver should convert the plat struct in its probe() method. The
 existing device tree decoding logic should be kept in the
 ofdata_to_platdata() method and wrapped with #if.
 
@@ -294,7 +294,7 @@ For example:
             .ofdata_to_platdata = mmc_ofdata_to_platdata,
             .probe          = mmc_probe,
             .priv_auto = sizeof(struct mmc_priv),
-            .platdata_auto = sizeof(struct mmc_platdata),
+            .plat_auto = sizeof(struct mmc_platdata),
     };
 
     U_BOOT_DRIVER_ALIAS(mmc_drv, vendor_mmc) /* matches compatible string */
@@ -305,7 +305,7 @@ keep the use of each of-platdata struct to the smallest possible code area.
 There is just one driver C file for each struct, that can convert from the
 of-platdata struct to the standard one used by the driver.
 
-In the case where SPL_OF_PLATDATA is enabled, platdata_auto is
+In the case where SPL_OF_PLATDATA is enabled, plat_auto is
 still used to allocate space for the platform data. This is different from
 the normal behaviour and is triggered by the use of of-platdata (strictly
 speaking it is a non-zero platdata_size which triggers this).
@@ -336,8 +336,8 @@ Otherwise (such as in U-Boot proper) these structs are not available. This
 prevents them being used inadvertently. All usage must be bracketed with
 #if CONFIG_IS_ENABLED(OF_PLATDATA).
 
-The dt-platdata.c file contains the device declarations and is is built in
-spl/dt-platdata.c. It additionally contains the definition of
+The dt-plat.c file contains the device declarations and is is built in
+spl/dt-plat.c. It additionally contains the definition of
 dm_populate_phandle_data() which is responsible of filling the phandle
 information by adding references to U_BOOT_DEVICE by using DM_GET_DEVICE
 

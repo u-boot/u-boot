@@ -495,5 +495,5 @@ U_BOOT_DRIVER(am654_sdhci_drv) = {
 	.bind		= am654_sdhci_bind,
 	.probe		= am654_sdhci_probe,
 	.priv_auto	= sizeof(struct sdhci_host),
-	.platdata_auto	= sizeof(struct am654_sdhci_plat),
+	.plat_auto	= sizeof(struct am654_sdhci_plat),
 };

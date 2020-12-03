@@ -378,7 +378,7 @@ static int omap3_spi_claim_bus(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
 	struct omap3_spi_priv *priv = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 
 	priv->cs = slave_plat->cs;
 	priv->freq = slave_plat->max_hz;
@@ -402,7 +402,7 @@ static int omap3_spi_set_wordlen(struct udevice *dev, unsigned int wordlen)
 {
 	struct udevice *bus = dev->parent;
 	struct omap3_spi_priv *priv = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 
 	priv->cs = slave_plat->cs;
 	priv->wordlen = wordlen;
@@ -507,7 +507,7 @@ U_BOOT_DRIVER(omap3_spi) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap3_spi_ids,
 	.ofdata_to_platdata = omap3_spi_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct omap3_spi_plat),
+	.plat_auto	= sizeof(struct omap3_spi_plat),
 #endif
 	.probe = omap3_spi_probe,
 	.ops    = &omap3_spi_ops,

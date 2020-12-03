@@ -422,5 +422,5 @@ U_BOOT_DRIVER(usb_sandbox_flash) = {
 	.ofdata_to_platdata = sandbox_flash_ofdata_to_platdata,
 	.ops	= &sandbox_usb_flash_ops,
 	.priv_auto	= sizeof(struct sandbox_flash_priv),
-	.platdata_auto	= sizeof(struct sandbox_flash_plat),
+	.plat_auto	= sizeof(struct sandbox_flash_plat),
 };

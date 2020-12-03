@@ -600,7 +600,7 @@ static ulong pvblock_iop(struct udevice *udev, lbaint_t blknr,
 			 lbaint_t blkcnt, void *buffer, int write)
 {
 	struct blkfront_dev *blk_dev = dev_get_priv(udev);
-	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+	struct blk_desc *desc = dev_get_uclass_plat(udev);
 	struct blkfront_aiocb aiocb;
 	lbaint_t blocks_todo;
 	bool unaligned;
@@ -658,7 +658,7 @@ ulong pvblock_blk_write(struct udevice *udev, lbaint_t blknr, lbaint_t blkcnt,
 
 static int pvblock_blk_bind(struct udevice *udev)
 {
-	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+	struct blk_desc *desc = dev_get_uclass_plat(udev);
 	int devnum;
 
 	desc->if_type = IF_TYPE_PVBLOCK;
@@ -685,12 +685,12 @@ static int pvblock_blk_bind(struct udevice *udev)
 static int pvblock_blk_probe(struct udevice *udev)
 {
 	struct blkfront_dev *blk_dev = dev_get_priv(udev);
-	struct blkfront_platdata *platdata = dev_get_platdata(udev);
-	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+	struct blkfront_platdata *plat = dev_get_platdata(udev);
+	struct blk_desc *desc = dev_get_uclass_plat(udev);
 	int ret, devid;
 
-	devid = platdata->devid;
-	free(platdata);
+	devid = plat->devid;
+	free(plat);
 
 	ret = init_blkfront(devid, blk_dev);
 	if (ret < 0)
@@ -737,27 +737,27 @@ static int on_new_vbd(struct udevice *parent, unsigned int devid)
 {
 	struct driver_info info;
 	struct udevice *udev;
-	struct blkfront_platdata *platdata;
+	struct blkfront_platdata *plat;
 	int ret;
 
 	debug("New " DRV_NAME_BLK ", device ID %d\n", devid);
 
-	platdata = malloc(sizeof(struct blkfront_platdata));
-	if (!platdata) {
+	plat = malloc(sizeof(struct blkfront_platdata));
+	if (!plat) {
 		printf("Failed to allocate platform data\n");
 		return -ENOMEM;
 	}
 
-	platdata->devid = devid;
+	plat->devid = devid;
 
 	info.name = DRV_NAME_BLK;
-	info.platdata = platdata;
+	info.plat = plat;
 
 	ret = device_bind_by_name(parent, false, &info, &udev);
 	if (ret < 0) {
 		printf("Failed to bind " DRV_NAME_BLK " to device with ID %d, ret: %d\n",
 		       devid, ret);
-		free(platdata);
+		free(plat);
 	}
 	return ret;
 }
@@ -802,7 +802,7 @@ static void print_pvblock_devices(void)
 	class_name = uclass_get_name(UCLASS_PVBLOCK);
 	for (blk_first_device(IF_TYPE_PVBLOCK, &udev); udev;
 	     blk_next_device(&udev), first = false) {
-		struct blk_desc *desc = dev_get_uclass_platdata(udev);
+		struct blk_desc *desc = dev_get_uclass_plat(udev);
 
 		if (!first)
 			puts(", ");

@@ -44,7 +44,7 @@ int rockchip_saradc_channel_data(struct udevice *dev, int channel,
 				 unsigned int *data)
 {
 	struct rockchip_saradc_priv *priv = dev_get_priv(dev);
-	struct adc_uclass_platdata *uc_pdata = dev_get_uclass_platdata(dev);
+	struct adc_uclass_plat *uc_pdata = dev_get_uclass_plat(dev);
 
 	if (channel != priv->active_channel) {
 		pr_err("Requested channel is not active!");
@@ -119,7 +119,7 @@ int rockchip_saradc_probe(struct udevice *dev)
 
 int rockchip_saradc_ofdata_to_platdata(struct udevice *dev)
 {
-	struct adc_uclass_platdata *uc_pdata = dev_get_uclass_platdata(dev);
+	struct adc_uclass_plat *uc_pdata = dev_get_uclass_plat(dev);
 	struct rockchip_saradc_priv *priv = dev_get_priv(dev);
 	struct rockchip_saradc_data *data;
 

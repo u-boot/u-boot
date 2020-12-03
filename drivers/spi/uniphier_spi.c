@@ -113,7 +113,7 @@ static void uniphier_spi_regdump(struct uniphier_spi_priv *priv)
 static void spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct uniphier_spi_platdata *plat = bus->platdata;
+	struct uniphier_spi_platdata *plat = bus->plat;
 	struct uniphier_spi_priv *priv = dev_get_priv(bus);
 	ulong delay_us;		/* The delay completed so far */
 	u32 val;
@@ -139,7 +139,7 @@ static void spi_cs_activate(struct udevice *dev)
 static void spi_cs_deactivate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct uniphier_spi_platdata *plat = bus->platdata;
+	struct uniphier_spi_platdata *plat = bus->plat;
 	struct uniphier_spi_priv *priv = dev_get_priv(bus);
 	u32 val;
 
@@ -279,7 +279,7 @@ static int uniphier_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int uniphier_spi_set_speed(struct udevice *bus, uint speed)
 {
-	struct uniphier_spi_platdata *plat = bus->platdata;
+	struct uniphier_spi_platdata *plat = bus->plat;
 	struct uniphier_spi_priv *priv = dev_get_priv(bus);
 	u32 val, ckdiv;
 
@@ -364,7 +364,7 @@ static int uniphier_spi_set_mode(struct udevice *bus, uint mode)
 
 static int uniphier_spi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct uniphier_spi_platdata *plat = bus->platdata;
+	struct uniphier_spi_platdata *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -412,7 +412,7 @@ U_BOOT_DRIVER(uniphier_spi) = {
 	.of_match = uniphier_spi_ids,
 	.ops	= &uniphier_spi_ops,
 	.ofdata_to_platdata = uniphier_spi_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct uniphier_spi_platdata),
+	.plat_auto	= sizeof(struct uniphier_spi_platdata),
 	.priv_auto	= sizeof(struct uniphier_spi_priv),
 	.probe	= uniphier_spi_probe,
 };

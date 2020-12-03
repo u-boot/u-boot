@@ -85,7 +85,7 @@ static int apl_flash_probe(struct udevice *dev)
 
 /*
  * Manually set the parent of the SPI flash to SPI, since dtoc doesn't. We also
- * need to allocate the parent_platdata since by the time this function is
+ * need to allocate the parent_plat since by the time this function is
  * called device_bind() has already gone past that step.
  */
 static int apl_flash_bind(struct udevice *dev)
@@ -104,7 +104,7 @@ static int apl_flash_bind(struct udevice *dev)
 		plat = calloc(sizeof(*plat), 1);
 		if (!plat)
 			return -ENOMEM;
-		dev->parent_platdata = plat;
+		dev->parent_plat = plat;
 	}
 
 	return 0;

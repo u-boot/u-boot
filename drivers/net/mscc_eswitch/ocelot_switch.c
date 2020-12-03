@@ -652,5 +652,5 @@ U_BOOT_DRIVER(ocelot) = {
 	.remove	  = ocelot_remove,
 	.ops	  = &ocelot_ops,
 	.priv_auto	= sizeof(struct ocelot_private),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

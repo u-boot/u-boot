@@ -68,7 +68,7 @@ void video_set_flush_dcache(struct udevice *dev, bool flush)
 
 static ulong alloc_fb(struct udevice *dev, ulong *addrp)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
 	ulong base, align, size;
 
 	if (!plat->size)
@@ -301,7 +301,7 @@ static int video_pre_remove(struct udevice *dev)
 /* Set up the display ready for use */
 static int video_post_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 	char name[30], drv[15], *str;
 	const char *drv_name = drv;
@@ -410,5 +410,5 @@ UCLASS_DRIVER(video) = {
 	.pre_remove	= video_pre_remove,
 	.priv_auto	= sizeof(struct video_uc_priv),
 	.per_device_auto	= sizeof(struct video_priv),
-	.per_device_platdata_auto	= sizeof(struct video_uc_platdata),
+	.per_device_plat_auto	= sizeof(struct video_uc_platdata),
 };

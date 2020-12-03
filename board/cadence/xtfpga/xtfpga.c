@@ -106,5 +106,5 @@ static struct ethoc_eth_pdata ethoc_pdata = {
 
 U_BOOT_DEVICE(ethoc) = {
 	.name = "ethoc",
-	.platdata = &ethoc_pdata,
+	.plat = &ethoc_pdata,
 };

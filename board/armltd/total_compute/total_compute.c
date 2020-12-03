@@ -17,7 +17,7 @@ static const struct pl01x_serial_platdata serial_platdata = {
 
 U_BOOT_DEVICE(total_compute_serials) = {
 	.name = "serial_pl01x",
-	.platdata = &serial_platdata,
+	.plat = &serial_platdata,
 };
 
 static struct mm_region total_compute_mem_map[] = {

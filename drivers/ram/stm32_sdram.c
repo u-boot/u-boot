@@ -409,5 +409,5 @@ U_BOOT_DRIVER(stm32_fmc) = {
 	.ops = &stm32_fmc_ops,
 	.ofdata_to_platdata = stm32_fmc_ofdata_to_platdata,
 	.probe = stm32_fmc_probe,
-	.platdata_auto	= sizeof(struct stm32_sdram_params),
+	.plat_auto	= sizeof(struct stm32_sdram_params),
 };

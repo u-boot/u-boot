@@ -154,5 +154,5 @@ U_BOOT_DRIVER(x86_reset) = {
 	.of_match = x86_sysreset_ids,
 	.ops = &x86_sysreset_ops,
 	.probe = x86_sysreset_probe,
-	.platdata_auto	= sizeof(struct x86_sysreset_platdata),
+	.plat_auto	= sizeof(struct x86_sysreset_platdata),
 };

@@ -172,5 +172,5 @@ U_BOOT_DRIVER(rockchip_otp) = {
 	.of_match = rockchip_otp_ids,
 	.ops = &rockchip_otp_ops,
 	.ofdata_to_platdata = rockchip_otp_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct rockchip_otp_platdata),
+	.plat_auto	= sizeof(struct rockchip_otp_platdata),
 };

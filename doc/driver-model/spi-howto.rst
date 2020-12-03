@@ -231,7 +231,7 @@ tree, but we need to tell it the size:
 
 	U_BOOT_DRIVER(spi_exynos) = {
 	...
-		.platdata_auto = sizeof(struct exynos_spi_platdata),
+		.plat_auto = sizeof(struct exynos_spi_platdata),
 
 
 Here is a sample function. It gets a pointer to the platform data and
@@ -241,7 +241,7 @@ fills in the fields from device tree.
 
 	static int exynos_spi_ofdata_to_platdata(struct udevice *bus)
 	{
-		struct exynos_spi_platdata *plat = bus->platdata;
+		struct exynos_spi_platdata *plat = bus->plat;
 		const void *blob = gd->fdt_blob;
 		int node = dev_of_offset(bus);
 
@@ -283,7 +283,7 @@ Specify this data in a U_BOOT_DEVICE() declaration in your board file:
 
 	U_BOOT_DEVICE(board_spi0) = {
 		.name = "exynos_spi",
-		.platdata = &platdata_spi0,
+		.plat = &platdata_spi0,
 	};
 
 You will unfortunately need to put the struct definition into a header file
@@ -437,7 +437,7 @@ Here is an example for the speed part:
 
 	static int exynos_spi_set_speed(struct udevice *bus, uint speed)
 	{
-		struct exynos_spi_platdata *plat = bus->platdata;
+		struct exynos_spi_platdata *plat = bus->plat;
 		struct exynos_spi_priv *priv = dev_get_priv(bus);
 		int ret;
 
@@ -658,7 +658,7 @@ A little note about SPI uclass features
 The SPI uclass keeps some information about each device 'dev' on the bus:
 
    struct dm_spi_slave_platdata:
-     This is device_get_parent_platdata(dev).
+     This is device_get_parent_plat(dev).
      This is where the chip select number is stored, along with
      the default bus speed and mode. It is automatically read
      from the device tree in spi_child_post_bind(). It must not

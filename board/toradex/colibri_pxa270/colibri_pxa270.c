@@ -135,7 +135,7 @@ static const struct pxa_mmc_plat mmc_platdata = {
 
 U_BOOT_DEVICE(pxa_mmcs) = {
 	.name = "pxa_mmc",
-	.platdata = &mmc_platdata,
+	.plat = &mmc_platdata,
 };
 #endif /* !CONFIG_IS_ENABLED(DM_MMC) */
 #endif
@@ -148,5 +148,5 @@ static const struct pxa_serial_platdata serial_platdata = {
 
 U_BOOT_DEVICE(pxa_serials) = {
 	.name = "serial_pxa",
-	.platdata = &serial_platdata,
+	.plat = &serial_platdata,
 };

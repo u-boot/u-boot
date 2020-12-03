@@ -123,8 +123,8 @@ void fix_devices(void)
 	struct driver_info *entry;
 
 	for (entry = dev; entry != dev + n_ents; entry++) {
-		if (entry->platdata)
-			entry->platdata += gd->reloc_off;
+		if (entry->plat)
+			entry->plat += gd->reloc_off;
 	}
 }
 

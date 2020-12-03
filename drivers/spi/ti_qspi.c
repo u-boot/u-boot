@@ -154,7 +154,7 @@ static void ti_qspi_ctrl_mode_mmap(void *ctrl_mod_mmap, int cs, bool enable)
 static int ti_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 			const void *dout, void *din, unsigned long flags)
 {
-	struct dm_spi_slave_platdata *slave = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave = dev_get_parent_plat(dev);
 	struct ti_qspi_priv *priv;
 	struct udevice *bus;
 	uint words = bitlen >> 3; /* fixed 8-bit word length */
@@ -331,7 +331,7 @@ static int ti_qspi_exec_mem_op(struct spi_slave *slave,
 
 	bus = slave->dev->parent;
 	priv = dev_get_priv(bus);
-	slave_plat = dev_get_parent_platdata(slave->dev);
+	slave_plat = dev_get_parent_plat(slave->dev);
 
 	/* Only optimize read path. */
 	if (!op->data.nbytes || op->data.dir != SPI_MEM_DATA_IN ||
@@ -355,7 +355,7 @@ static int ti_qspi_exec_mem_op(struct spi_slave *slave,
 
 static int ti_qspi_claim_bus(struct udevice *dev)
 {
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 	struct ti_qspi_priv *priv;
 	struct udevice *bus;
 
@@ -384,7 +384,7 @@ static int ti_qspi_claim_bus(struct udevice *dev)
 
 static int ti_qspi_release_bus(struct udevice *dev)
 {
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 	struct ti_qspi_priv *priv;
 	struct udevice *bus;
 

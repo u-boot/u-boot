@@ -527,7 +527,7 @@ U_BOOT_DRIVER(ti_da830_mmc) = {
 	.id		= UCLASS_MMC,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match	= davinci_mmc_ids,
-	.platdata_auto	= sizeof(struct davinci_mmc_plat),
+	.plat_auto	= sizeof(struct davinci_mmc_plat),
 	.ofdata_to_platdata = davinci_mmc_ofdata_to_platdata,
 #endif
 #if CONFIG_BLK

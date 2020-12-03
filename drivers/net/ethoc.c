@@ -751,7 +751,7 @@ U_BOOT_DRIVER(ethoc) = {
 	.remove				= ethoc_remove,
 	.ops				= &ethoc_ops,
 	.priv_auto		= sizeof(struct ethoc),
-	.platdata_auto	= sizeof(struct ethoc_eth_pdata),
+	.plat_auto	= sizeof(struct ethoc_eth_pdata),
 };
 
 #else

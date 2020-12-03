@@ -135,9 +135,9 @@ static const struct stm32mp_pwr_reg_info *stm32mp_pwr_reg_infos[] = {
 static int stm32mp_pwr_regulator_probe(struct udevice *dev)
 {
 	const struct stm32mp_pwr_reg_info **p = stm32mp_pwr_reg_infos;
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	while (*p) {
 		int rc;
@@ -172,9 +172,9 @@ static int stm32mp_pwr_regulator_probe(struct udevice *dev)
 
 static int stm32mp_pwr_regulator_set_value(struct udevice *dev, int uV)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata)
 		return -ENXIO;
 
@@ -188,9 +188,9 @@ static int stm32mp_pwr_regulator_set_value(struct udevice *dev, int uV)
 
 static int stm32mp_pwr_regulator_get_value(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata)
 		return -ENXIO;
 

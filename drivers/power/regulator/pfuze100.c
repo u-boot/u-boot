@@ -260,7 +260,7 @@ static struct pfuze100_regulator_desc *se_desc(struct pfuze100_regulator_desc *d
 
 static int pfuze100_regulator_probe(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	struct pfuze100_regulator_platdata *plat = dev_get_platdata(dev);
 	struct pfuze100_regulator_desc *desc;
 
@@ -290,7 +290,7 @@ static int pfuze100_regulator_probe(struct udevice *dev)
 	}
 
 	plat->desc = desc;
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	uc_pdata->type = desc->type;
 	if (uc_pdata->type == REGULATOR_TYPE_BUCK) {
@@ -386,8 +386,8 @@ static int pfuze100_regulator_enable(struct udevice *dev, int op, bool *enable)
 {
 	int val;
 	int ret, on_off;
-	struct dm_regulator_uclass_platdata *uc_pdata =
-		dev_get_uclass_platdata(dev);
+	struct dm_regulator_uclass_plat *uc_pdata =
+		dev_get_uclass_plat(dev);
 
 	if (op == PMIC_OP_GET) {
 		if (!strcmp(dev->name, "vrefddr")) {
@@ -451,8 +451,8 @@ static int pfuze100_regulator_val(struct udevice *dev, int op, int *uV)
 	int val;
 	struct pfuze100_regulator_platdata *plat = dev_get_platdata(dev);
 	struct pfuze100_regulator_desc *desc = plat->desc;
-	struct dm_regulator_uclass_platdata *uc_pdata =
-		dev_get_uclass_platdata(dev);
+	struct dm_regulator_uclass_plat *uc_pdata =
+		dev_get_uclass_plat(dev);
 
 	if (op == PMIC_OP_GET) {
 		*uV = 0;
@@ -572,5 +572,5 @@ U_BOOT_DRIVER(pfuze100_regulator) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &pfuze100_regulator_ops,
 	.probe = pfuze100_regulator_probe,
-	.platdata_auto	= sizeof(struct pfuze100_regulator_platdata),
+	.plat_auto	= sizeof(struct pfuze100_regulator_platdata),
 };

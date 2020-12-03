@@ -296,7 +296,7 @@ U_BOOT_DRIVER(mvebu_spi) = {
 	.of_match = mvebu_spi_ids,
 	.ops = &mvebu_spi_ops,
 	.ofdata_to_platdata = mvebu_spi_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct mvebu_spi_platdata),
+	.plat_auto	= sizeof(struct mvebu_spi_platdata),
 	.priv_auto	= sizeof(struct mvebu_spi_priv),
 	.probe = mvebu_spi_probe,
 };

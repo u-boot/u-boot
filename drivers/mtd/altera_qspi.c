@@ -401,6 +401,6 @@ U_BOOT_DRIVER(altera_qspi) = {
 	.id	= UCLASS_MTD,
 	.of_match = altera_qspi_ids,
 	.ofdata_to_platdata = altera_qspi_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct altera_qspi_platdata),
+	.plat_auto	= sizeof(struct altera_qspi_platdata),
 	.probe	= altera_qspi_probe,
 };

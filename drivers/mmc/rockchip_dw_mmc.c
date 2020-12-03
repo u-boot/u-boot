@@ -177,7 +177,7 @@ U_BOOT_DRIVER(rockchip_rk3288_dw_mshc) = {
 	.bind		= rockchip_dwmmc_bind,
 	.probe		= rockchip_dwmmc_probe,
 	.priv_auto	= sizeof(struct rockchip_dwmmc_priv),
-	.platdata_auto	= sizeof(struct rockchip_mmc_plat),
+	.plat_auto	= sizeof(struct rockchip_mmc_plat),
 };
 
 U_BOOT_DRIVER_ALIAS(rockchip_rk3288_dw_mshc, rockchip_rk3328_dw_mshc)

@@ -615,5 +615,5 @@ U_BOOT_DRIVER(mcffec) = {
 	.remove	= mcffec_remove,
 	.ops	= &mcffec_ops,
 	.priv_auto	= sizeof(struct fec_info_s),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

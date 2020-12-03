@@ -103,7 +103,7 @@ int timer_timebase_fallback(struct udevice *dev)
 	if (!cpu)
 		return -ENODEV;
 
-	cpu_plat = dev_get_parent_platdata(cpu);
+	cpu_plat = dev_get_parent_plat(cpu);
 	if (!cpu_plat)
 		return -ENODEV;
 

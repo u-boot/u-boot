@@ -812,5 +812,5 @@ U_BOOT_DRIVER(zynq_gem) = {
 	.remove	= zynq_gem_remove,
 	.ops	= &zynq_gem_ops,
 	.priv_auto	= sizeof(struct zynq_gem_priv),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

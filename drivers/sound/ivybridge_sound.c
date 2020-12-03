@@ -71,7 +71,7 @@ static int bd82x6x_azalia_probe(struct udevice *dev)
 	dm_pci_clrset_config32(dev, 0xd0, 1U << 31, 0);
 
 	/* Additional step on Panther Point */
-	plat = dev_get_parent_platdata(dev);
+	plat = dev_get_parent_plat(dev);
 	if (plat->device == PCI_DEVICE_ID_INTEL_PANTHERPOINT_HDA)
 		dm_pci_clrset_config32(dev, 0xc4, 0, 1 << 17);
 

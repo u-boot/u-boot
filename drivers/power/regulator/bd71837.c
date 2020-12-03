@@ -401,7 +401,7 @@ static int bd71837_regulator_probe(struct udevice *dev)
 {
 	struct bd71837_platdata *plat = dev_get_platdata(dev);
 	int i, ret;
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	int type;
 	struct bd71837_platdata *init_data;
 	int data_amnt;
@@ -433,7 +433,7 @@ static int bd71837_regulator_probe(struct udevice *dev)
 				 * the initial state matches dt flags and then
 				 * write the SEL bit
 				 */
-				uc_pdata = dev_get_uclass_platdata(dev);
+				uc_pdata = dev_get_uclass_plat(dev);
 				ret = bd71837_set_enable(dev,
 							 !!(uc_pdata->boot_on ||
 							 uc_pdata->always_on));
@@ -466,5 +466,5 @@ U_BOOT_DRIVER(bd71837_regulator) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &bd71837_regulator_ops,
 	.probe = bd71837_regulator_probe,
-	.platdata_auto	= sizeof(struct bd71837_platdata),
+	.plat_auto	= sizeof(struct bd71837_platdata),
 };

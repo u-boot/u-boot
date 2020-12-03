@@ -43,7 +43,7 @@ as drivers in the USB uclass. For example:
 		.probe = tegra_ehci_usb_probe,
 		.remove = tegra_ehci_usb_remove,
 		.ops	= &ehci_usb_ops,
-		.platdata_auto = sizeof(struct usb_platdata),
+		.plat_auto = sizeof(struct usb_platdata),
 		.priv_auto = sizeof(struct fdt_usb),
 		.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 	};
@@ -100,7 +100,7 @@ The following primary data structures are in use:
 
 - struct usb_dev_platdata:
 	This holds platform data for a device. You can access it for a
-	device 'dev' with dev_get_parent_platdata(dev). It holds the device
+	device 'dev' with dev_get_parent_plat(dev). It holds the device
 	address and speed - anything that can be determined before the device
 	driver is actually set up. When probing the bus this structure is
 	used to provide essential information to the device driver.

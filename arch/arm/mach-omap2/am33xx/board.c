@@ -157,7 +157,7 @@ static const struct omap3_spi_plat omap3_spi_pdata = {
 
 U_BOOT_DEVICE(am33xx_spi) = {
 	.name = "omap3_spi",
-	.platdata = &omap3_spi_pdata,
+	.plat = &omap3_spi_pdata,
 };
 #endif
 #endif

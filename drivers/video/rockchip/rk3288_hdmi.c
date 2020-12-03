@@ -25,7 +25,7 @@ static int rk3288_hdmi_enable(struct udevice *dev, int panel_bpp,
 			      const struct display_timing *edid)
 {
 	struct rk_hdmi_priv *priv = dev_get_priv(dev);
-	struct display_plat *uc_plat = dev_get_uclass_platdata(dev);
+	struct display_plat *uc_plat = dev_get_uclass_plat(dev);
 	int vop_id = uc_plat->source_id;
 	struct rk3288_grf *grf = priv->grf;
 
@@ -58,7 +58,7 @@ static int rk3288_hdmi_ofdata_to_platdata(struct udevice *dev)
 
 static int rk3288_clk_config(struct udevice *dev)
 {
-	struct display_plat *uc_plat = dev_get_uclass_platdata(dev);
+	struct display_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct clk clk;
 	int ret;
 

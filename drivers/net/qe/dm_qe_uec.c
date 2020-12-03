@@ -1163,5 +1163,5 @@ U_BOOT_DRIVER(eth_qe_uec) = {
 	.remove = qe_uec_remove,
 	.ops	= &qe_uec_eth_ops,
 	.priv_auto	= sizeof(struct qe_uec_priv),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

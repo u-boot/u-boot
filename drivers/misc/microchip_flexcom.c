@@ -62,5 +62,5 @@ U_BOOT_DRIVER(microchip_flexcom) = {
 	.id	= UCLASS_MISC,
 	.of_match = microchip_flexcom_ids,
 	.ofdata_to_platdata = microchip_flexcom_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct microchip_flexcom_platdata),
+	.plat_auto	= sizeof(struct microchip_flexcom_platdata),
 };

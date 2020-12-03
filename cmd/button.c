@@ -37,7 +37,7 @@ static int list_buttons(void)
 	for (uclass_find_first_device(UCLASS_BUTTON, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
-		struct button_uc_plat *plat = dev_get_uclass_platdata(dev);
+		struct button_uc_plat *plat = dev_get_uclass_plat(dev);
 
 		if (!plat->label)
 			continue;

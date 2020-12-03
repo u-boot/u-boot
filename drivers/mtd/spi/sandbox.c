@@ -138,7 +138,7 @@ static int sandbox_sf_probe(struct udevice *dev)
 			dev->name);
 		return ret;
 	}
-	slave_plat = dev_get_parent_platdata(dev);
+	slave_plat = dev_get_parent_plat(dev);
 	cs = slave_plat->cs;
 	debug("found at cs %d\n", cs);
 
@@ -601,6 +601,6 @@ U_BOOT_DRIVER(sandbox_sf_emul) = {
 	.probe		= sandbox_sf_probe,
 	.remove		= sandbox_sf_remove,
 	.priv_auto	= sizeof(struct sandbox_spi_flash),
-	.platdata_auto	= sizeof(struct sandbox_spi_flash_plat_data),
+	.plat_auto	= sizeof(struct sandbox_spi_flash_plat_data),
 	.ops		= &sandbox_sf_emul_ops,
 };

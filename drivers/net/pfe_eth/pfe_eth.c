@@ -291,5 +291,5 @@ U_BOOT_DRIVER(pfe_eth) = {
 	.remove = pfe_eth_remove,
 	.ops	= &pfe_eth_ops,
 	.priv_auto	= sizeof(struct pfe_eth_dev),
-	.platdata_auto	= sizeof(struct pfe_eth_pdata)
+	.plat_auto	= sizeof(struct pfe_eth_pdata)
 };

@@ -30,7 +30,7 @@ int p2sb_set_hide(struct udevice *dev, bool hide)
 
 void *pcr_reg_address(struct udevice *dev, uint offset)
 {
-	struct p2sb_child_platdata *pplat = dev_get_parent_platdata(dev);
+	struct p2sb_child_platdata *pplat = dev_get_parent_plat(dev);
 	struct udevice *p2sb = dev_get_parent(dev);
 	struct p2sb_uc_priv *upriv = dev_get_uclass_priv(p2sb);
 	uintptr_t reg_addr;
@@ -161,7 +161,7 @@ void pcr_clrsetbits8(struct udevice *dev, uint offset, uint clr, uint set)
 
 int p2sb_get_port_id(struct udevice *dev)
 {
-	struct p2sb_child_platdata *pplat = dev_get_parent_platdata(dev);
+	struct p2sb_child_platdata *pplat = dev_get_parent_plat(dev);
 
 	return pplat->pid;
 }
@@ -184,11 +184,11 @@ int p2sb_set_port_id(struct udevice *dev, int portid)
 		 * We must allocate this, since when the device was bound it did
 		 * not have a parent.
 		 */
-		dev->parent_platdata = malloc(sizeof(*pplat));
-		if (!dev->parent_platdata)
+		dev->parent_plat = malloc(sizeof(*pplat));
+		if (!dev->parent_plat)
 			return -ENOMEM;
 	}
-	pplat = dev_get_parent_platdata(dev);
+	pplat = dev_get_parent_plat(dev);
 	pplat->pid = portid;
 
 	return 0;
@@ -197,7 +197,7 @@ int p2sb_set_port_id(struct udevice *dev, int portid)
 static int p2sb_child_post_bind(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct p2sb_child_platdata *pplat = dev_get_parent_platdata(dev);
+	struct p2sb_child_platdata *pplat = dev_get_parent_plat(dev);
 	int ret;
 	u32 pid;
 
@@ -224,6 +224,6 @@ UCLASS_DRIVER(p2sb) = {
 	.per_device_auto	= sizeof(struct p2sb_uc_priv),
 	.post_bind	= p2sb_post_bind,
 	.child_post_bind = p2sb_child_post_bind,
-	.per_child_platdata_auto	=
+	.per_child_plat_auto	=
 		sizeof(struct p2sb_child_platdata),
 };

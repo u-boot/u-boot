@@ -69,7 +69,7 @@ void fdt_fixup_enetc_mac(void *blob)
 			continue;
 
 		pdata = dev_get_platdata(dev);
-		ppdata = dev_get_parent_platdata(dev);
+		ppdata = dev_get_parent_plat(dev);
 		devfn = PCI_FUNC(ppdata->devfn);
 
 		enetc_set_ierb_primary_mac(dev, devfn, pdata->enetaddr);
@@ -365,7 +365,7 @@ static int enetc_remove(struct udevice *dev)
 
 static int enetc_ls1028a_write_hwaddr(struct udevice *dev)
 {
-	struct pci_child_platdata *ppdata = dev_get_parent_platdata(dev);
+	struct pci_child_platdata *ppdata = dev_get_parent_plat(dev);
 	const int devfn_to_pf[] = {0, 1, 2, -1, -1, -1, 3};
 	struct eth_pdata *plat = dev_get_platdata(dev);
 	int devfn = PCI_FUNC(ppdata->devfn);
@@ -678,7 +678,7 @@ U_BOOT_DRIVER(eth_enetc) = {
 	.remove = enetc_remove,
 	.ops	= &enetc_ops,
 	.priv_auto	= sizeof(struct enetc_priv),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 static struct pci_device_id enetc_ids[] = {

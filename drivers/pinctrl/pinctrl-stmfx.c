@@ -446,7 +446,7 @@ U_BOOT_DRIVER(stmfx_pinctrl) = {
 	.bind = stmfx_pinctrl_bind,
 	.probe = stmfx_pinctrl_probe,
 	.ops = &stmfx_pinctrl_ops,
-	.platdata_auto	= sizeof(struct stmfx_pinctrl),
+	.plat_auto	= sizeof(struct stmfx_pinctrl),
 };
 
 static int stmfx_chip_init(struct udevice *dev)
@@ -454,7 +454,7 @@ static int stmfx_chip_init(struct udevice *dev)
 	u8 id;
 	u8 version[2];
 	int ret;
-	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+	struct dm_i2c_chip *chip = dev_get_parent_plat(dev);
 
 	ret = dm_i2c_reg_read(dev, STMFX_REG_CHIP_ID);
 	if (ret < 0) {

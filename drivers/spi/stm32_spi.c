@@ -407,7 +407,7 @@ static int stm32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 	debug("%s: priv->tx_len=%d priv->rx_len=%d\n", __func__,
 	      priv->tx_len, priv->rx_len);
 
-	slave_plat = dev_get_parent_platdata(slave);
+	slave_plat = dev_get_parent_plat(slave);
 	if (flags & SPI_XFER_BEGIN)
 		stm32_spi_set_cs(bus, slave_plat->cs, false);
 

@@ -443,7 +443,7 @@ static const struct dm_spi_ops mxs_spi_ops = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int mxs_ofdata_to_platdata(struct udevice *bus)
 {
-	struct mxs_spi_platdata *plat = bus->platdata;
+	struct mxs_spi_platdata *plat = bus->plat;
 	u32 prop[2];
 	int ret;
 
@@ -487,7 +487,7 @@ U_BOOT_DRIVER(fsl_imx23_spi) = {
 	.of_match = mxs_spi_ids,
 	.ofdata_to_platdata = mxs_ofdata_to_platdata,
 #endif
-	.platdata_auto	= sizeof(struct mxs_spi_platdata),
+	.plat_auto	= sizeof(struct mxs_spi_platdata),
 	.ops	= &mxs_spi_ops,
 	.priv_auto	= sizeof(struct mxs_spi_priv),
 	.probe	= mxs_spi_probe,

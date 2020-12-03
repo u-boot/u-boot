@@ -307,6 +307,6 @@ U_BOOT_DRIVER(exynos_dwmmc_drv) = {
 	.ops		= &dm_dwmci_ops,
 	.probe		= exynos_dwmmc_probe,
 	.priv_auto	= sizeof(struct dwmci_exynos_priv_data),
-	.platdata_auto	= sizeof(struct exynos_mmc_plat),
+	.plat_auto	= sizeof(struct exynos_mmc_plat),
 };
 #endif

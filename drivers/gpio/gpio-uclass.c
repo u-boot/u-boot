@@ -341,7 +341,7 @@ U_BOOT_DRIVER(gpio_hog) = {
 	.ofdata_to_platdata = gpio_hog_ofdata_to_platdata,
 	.probe = gpio_hog_probe,
 	.priv_auto	= sizeof(struct gpio_hog_priv),
-	.platdata_auto	= sizeof(struct gpio_hog_data),
+	.plat_auto	= sizeof(struct gpio_hog_data),
 };
 #else
 int gpio_hog_lookup_name(const char *name, struct gpio_desc **desc)

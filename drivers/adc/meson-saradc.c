@@ -677,7 +677,7 @@ static int meson_saradc_probe(struct udevice *dev)
 
 int meson_saradc_ofdata_to_platdata(struct udevice *dev)
 {
-	struct adc_uclass_platdata *uc_pdata = dev_get_uclass_platdata(dev);
+	struct adc_uclass_plat *uc_pdata = dev_get_uclass_plat(dev);
 	struct meson_saradc_priv *priv = dev_get_priv(dev);
 
 	priv->data = (struct meson_saradc_data *)dev_get_driver_data(dev);

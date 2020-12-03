@@ -177,7 +177,7 @@ struct zynqmp_qspi_priv {
 
 static int zynqmp_qspi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct zynqmp_qspi_platdata *plat = bus->platdata;
+	struct zynqmp_qspi_platdata *plat = bus->plat;
 
 	debug("%s\n", __func__);
 
@@ -255,7 +255,7 @@ static void zynqmp_qspi_chipselect(struct zynqmp_qspi_priv *priv, int is_on)
 
 void zynqmp_qspi_set_tapdelay(struct udevice *bus, u32 baudrateval)
 {
-	struct zynqmp_qspi_platdata *plat = bus->platdata;
+	struct zynqmp_qspi_platdata *plat = bus->plat;
 	struct zynqmp_qspi_priv *priv = dev_get_priv(bus);
 	struct zynqmp_qspi_regs *regs = priv->regs;
 	u32 tapdlybypass = 0, lpbkdlyadj = 0, datadlyadj = 0, clk_rate;
@@ -295,7 +295,7 @@ void zynqmp_qspi_set_tapdelay(struct udevice *bus, u32 baudrateval)
 
 static int zynqmp_qspi_set_speed(struct udevice *bus, uint speed)
 {
-	struct zynqmp_qspi_platdata *plat = bus->platdata;
+	struct zynqmp_qspi_platdata *plat = bus->plat;
 	struct zynqmp_qspi_priv *priv = dev_get_priv(bus);
 	struct zynqmp_qspi_regs *regs = priv->regs;
 	u32 confr;
@@ -728,7 +728,7 @@ U_BOOT_DRIVER(zynqmp_qspi) = {
 	.of_match = zynqmp_qspi_ids,
 	.ops    = &zynqmp_qspi_ops,
 	.ofdata_to_platdata = zynqmp_qspi_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct zynqmp_qspi_platdata),
+	.plat_auto	= sizeof(struct zynqmp_qspi_platdata),
 	.priv_auto	= sizeof(struct zynqmp_qspi_priv),
 	.probe  = zynqmp_qspi_probe,
 };

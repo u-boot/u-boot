@@ -792,5 +792,5 @@ U_BOOT_DRIVER(axi_emac) = {
 	.remove	= axi_emac_remove,
 	.ops	= &axi_emac_ops,
 	.priv_auto	= sizeof(struct axidma_priv),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

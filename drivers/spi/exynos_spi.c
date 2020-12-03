@@ -253,7 +253,7 @@ static void spi_cs_deactivate(struct udevice *dev)
 
 static int exynos_spi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct exynos_spi_platdata *plat = bus->platdata;
+	struct exynos_spi_platdata *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -368,7 +368,7 @@ static int exynos_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int exynos_spi_set_speed(struct udevice *bus, uint speed)
 {
-	struct exynos_spi_platdata *plat = bus->platdata;
+	struct exynos_spi_platdata *plat = bus->plat;
 	struct exynos_spi_priv *priv = dev_get_priv(bus);
 	int ret;
 
@@ -427,7 +427,7 @@ U_BOOT_DRIVER(exynos_spi) = {
 	.of_match = exynos_spi_ids,
 	.ops	= &exynos_spi_ops,
 	.ofdata_to_platdata = exynos_spi_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct exynos_spi_platdata),
+	.plat_auto	= sizeof(struct exynos_spi_platdata),
 	.priv_auto	= sizeof(struct exynos_spi_priv),
 	.probe	= exynos_spi_probe,
 };

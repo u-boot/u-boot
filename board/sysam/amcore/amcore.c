@@ -115,5 +115,5 @@ static struct coldfire_serial_platdata mcf5307_serial_plat = {
 
 U_BOOT_DEVICE(coldfire_serial) = {
 	.name = "serial_coldfire",
-	.platdata = &mcf5307_serial_plat,
+	.plat = &mcf5307_serial_plat,
 };

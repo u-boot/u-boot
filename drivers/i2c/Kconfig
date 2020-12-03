@@ -11,7 +11,7 @@ config DM_I2C
 	  Enable driver model for I2C. The I2C uclass interface: probe, read,
 	  write and speed, is implemented with the bus drivers operations,
 	  which provide methods for bus setting and data transfer. Each chip
-	  device (bus child) info is kept as parent platdata. The interface
+	  device (bus child) info is kept as parent plat. The interface
 	  is defined in include/i2c.h.
 
 config I2C_CROS_EC_TUNNEL

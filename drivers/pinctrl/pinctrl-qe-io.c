@@ -122,7 +122,7 @@ void qe_config_iopin(u8 port, u8 pin, int dir, int open_drain, int assign)
 #else
 static int qe_io_ofdata_to_platdata(struct udevice *dev)
 {
-	struct qe_io_platdata *plat = dev->platdata;
+	struct qe_io_platdata *plat = dev->plat;
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);
@@ -143,7 +143,7 @@ static int qe_io_ofdata_to_platdata(struct udevice *dev)
  */
 static int par_io_of_config_node(struct udevice *dev, ofnode pio)
 {
-	struct qe_io_platdata *plat = dev->platdata;
+	struct qe_io_platdata *plat = dev->plat;
 	qepio83xx_t *par_io = plat->base;
 	const unsigned int *pio_map;
 	int pio_map_len;
@@ -246,7 +246,7 @@ U_BOOT_DRIVER(par_io_pinctrl) = {
 	.of_match = of_match_ptr(par_io_pinctrl_match),
 	.probe = par_io_pinctrl_probe,
 	.ofdata_to_platdata = qe_io_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct qe_io_platdata),
+	.plat_auto	= sizeof(struct qe_io_platdata),
 	.ops = &par_io_pinctrl_ops,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.flags	= DM_FLAG_PRE_RELOC,

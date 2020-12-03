@@ -162,7 +162,7 @@ extern const struct pinctrl_ops intel_pinctrl_ops;
 int intel_pinctrl_probe(struct udevice *dev);
 
 /**
- * intel_pinctrl_ofdata_to_platdata() - Handle common platdata setup
+ * intel_pinctrl_ofdata_to_platdata() - Handle common plat setup
  *
  * @dev: Pinctrl device
  * @comm: Pad community for this device

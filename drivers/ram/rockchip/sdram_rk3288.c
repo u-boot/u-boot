@@ -1126,6 +1126,6 @@ U_BOOT_DRIVER(rockchip_rk3288_dmc) = {
 	.priv_auto	= sizeof(struct dram_info),
 #if defined(CONFIG_TPL_BUILD) || \
 	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
-	.platdata_auto	= sizeof(struct rk3288_sdram_params),
+	.plat_auto	= sizeof(struct rk3288_sdram_params),
 #endif
 };

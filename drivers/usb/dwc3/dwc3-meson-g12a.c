@@ -469,6 +469,6 @@ U_BOOT_DRIVER(dwc3_generic_wrapper) = {
 	.of_match = dwc3_meson_g12a_ids,
 	.probe = dwc3_meson_g12a_probe,
 	.remove = dwc3_meson_g12a_remove,
-	.platdata_auto	= sizeof(struct dwc3_meson_g12a),
+	.plat_auto	= sizeof(struct dwc3_meson_g12a),
 
 };

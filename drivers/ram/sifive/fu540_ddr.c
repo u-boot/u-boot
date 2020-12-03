@@ -404,6 +404,6 @@ U_BOOT_DRIVER(fu540_ddr) = {
 	.probe = fu540_ddr_probe,
 	.priv_auto	= sizeof(struct fu540_ddr_info),
 #if defined(CONFIG_SPL_BUILD)
-	.platdata_auto	= sizeof(struct sifive_dmc_plat),
+	.plat_auto	= sizeof(struct sifive_dmc_plat),
 #endif
 };

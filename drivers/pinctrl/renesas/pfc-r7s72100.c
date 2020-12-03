@@ -142,6 +142,6 @@ U_BOOT_DRIVER(r7s72100_pfc) = {
 	.id		= UCLASS_PINCTRL,
 	.of_match	= r7s72100_pfc_match,
 	.probe		= r7s72100_pfc_probe,
-	.platdata_auto	= sizeof(struct r7s72100_pfc_platdata),
+	.plat_auto	= sizeof(struct r7s72100_pfc_platdata),
 	.ops		= &r7s72100_pfc_ops,
 };

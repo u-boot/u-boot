@@ -190,5 +190,5 @@ U_BOOT_DRIVER(socfpga_dwmmc_drv) = {
 	.bind		= socfpga_dwmmc_bind,
 	.probe		= socfpga_dwmmc_probe,
 	.priv_auto	= sizeof(struct dwmci_socfpga_priv_data),
-	.platdata_auto	= sizeof(struct socfpga_dwmci_plat),
+	.plat_auto	= sizeof(struct socfpga_dwmci_plat),
 };

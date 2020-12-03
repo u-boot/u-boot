@@ -231,6 +231,6 @@ U_BOOT_DRIVER(sandbox_i2c_rtc_emul) = {
 	.of_match	= sandbox_i2c_rtc_ids,
 	.bind		= sandbox_i2c_rtc_bind,
 	.priv_auto	= sizeof(struct sandbox_i2c_rtc),
-	.platdata_auto	= sizeof(struct sandbox_i2c_rtc_plat_data),
+	.plat_auto	= sizeof(struct sandbox_i2c_rtc_plat_data),
 	.ops		= &sandbox_i2c_rtc_emul_ops,
 };

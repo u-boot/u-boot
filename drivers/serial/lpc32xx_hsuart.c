@@ -85,10 +85,10 @@ static int lpc32xx_serial_init(struct hsuart_regs *hsuart)
 
 static int lpc32xx_hsuart_probe(struct udevice *dev)
 {
-	struct lpc32xx_hsuart_platdata *platdata = dev_get_platdata(dev);
+	struct lpc32xx_hsuart_platdata *plat = dev_get_platdata(dev);
 	struct lpc32xx_hsuart_priv *priv = dev_get_priv(dev);
 
-	priv->hsuart = (struct hsuart_regs *)platdata->base;
+	priv->hsuart = (struct hsuart_regs *)plat->base;
 
 	lpc32xx_serial_init(priv->hsuart);
 

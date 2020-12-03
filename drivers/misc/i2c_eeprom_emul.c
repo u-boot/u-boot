@@ -201,6 +201,6 @@ U_BOOT_DRIVER(sandbox_i2c_emul) = {
 	.probe		= sandbox_i2c_eeprom_probe,
 	.remove		= sandbox_i2c_eeprom_remove,
 	.priv_auto	= sizeof(struct sandbox_i2c_flash),
-	.platdata_auto	= sizeof(struct sandbox_i2c_flash_plat_data),
+	.plat_auto	= sizeof(struct sandbox_i2c_flash_plat_data),
 	.ops		= &sandbox_i2c_emul_ops,
 };

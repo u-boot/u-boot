@@ -569,7 +569,7 @@ U_BOOT_DRIVER(octeontx_vnic) = {
 	.probe	= octeontx_vnic_probe,
 	.ops	= &octeontx_vnic_ops,
 	.priv_auto	= sizeof(struct nicvf),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 static struct pci_device_id octeontx_vnic_supported[] = {

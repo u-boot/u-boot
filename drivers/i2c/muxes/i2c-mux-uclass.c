@@ -36,7 +36,7 @@ struct i2c_mux_bus {
 /* Find out the mux channel number */
 static int i2c_mux_child_post_bind(struct udevice *dev)
 {
-	struct i2c_mux_bus *plat = dev_get_parent_platdata(dev);
+	struct i2c_mux_bus *plat = dev_get_parent_plat(dev);
 	int channel;
 
 	channel = dev_read_u32_default(dev, "reg", -1);
@@ -126,7 +126,7 @@ static int i2c_mux_post_probe(struct udevice *mux)
 
 int i2c_mux_select(struct udevice *dev)
 {
-	struct i2c_mux_bus *plat = dev_get_parent_platdata(dev);
+	struct i2c_mux_bus *plat = dev_get_parent_plat(dev);
 	struct udevice *mux = dev->parent;
 	struct i2c_mux_ops *ops = i2c_mux_get_ops(mux);
 
@@ -138,7 +138,7 @@ int i2c_mux_select(struct udevice *dev)
 
 int i2c_mux_deselect(struct udevice *dev)
 {
-	struct i2c_mux_bus *plat = dev_get_parent_platdata(dev);
+	struct i2c_mux_bus *plat = dev_get_parent_plat(dev);
 	struct udevice *mux = dev->parent;
 	struct i2c_mux_ops *ops = i2c_mux_get_ops(mux);
 
@@ -221,6 +221,6 @@ UCLASS_DRIVER(i2c_mux) = {
 	.post_bind	= i2c_mux_post_bind,
 	.post_probe	= i2c_mux_post_probe,
 	.per_device_auto	= sizeof(struct i2c_mux),
-	.per_child_platdata_auto	= sizeof(struct i2c_mux_bus),
+	.per_child_plat_auto	= sizeof(struct i2c_mux_bus),
 	.child_post_bind = i2c_mux_child_post_bind,
 };

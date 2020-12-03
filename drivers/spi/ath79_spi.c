@@ -59,7 +59,7 @@ static int ath79_spi_xfer(struct udevice *dev, unsigned int bitlen,
 {
 	struct udevice *bus = dev_get_parent(dev);
 	struct ath79_spi_priv *priv = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave = dev_get_parent_plat(dev);
 	u8 *rx = din;
 	const u8 *tx = dout;
 	u8 curbyte, curbitlen, restbits;

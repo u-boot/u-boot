@@ -106,7 +106,7 @@ U_BOOT_DRIVER(atcpit100_timer) = {
 	.id	= UCLASS_TIMER,
 	.of_match = atcpit_timer_ids,
 	.ofdata_to_platdata = atcpit_timer_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct atcpit_timer_platdata),
+	.plat_auto	= sizeof(struct atcpit_timer_platdata),
 	.probe = atcpit_timer_probe,
 	.ops	= &atcpit_timer_ops,
 };

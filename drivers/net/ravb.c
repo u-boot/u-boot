@@ -690,6 +690,6 @@ U_BOOT_DRIVER(eth_ravb) = {
 	.remove		= ravb_remove,
 	.ops		= &ravb_ops,
 	.priv_auto	= sizeof(struct ravb_priv),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
 };

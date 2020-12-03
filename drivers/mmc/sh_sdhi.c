@@ -903,7 +903,7 @@ U_BOOT_DRIVER(sh_sdhi_mmc) = {
 	.bind			= sh_sdhi_dm_bind,
 	.probe			= sh_sdhi_dm_probe,
 	.priv_auto	= sizeof(struct sh_sdhi_host),
-	.platdata_auto	= sizeof(struct sh_sdhi_plat),
+	.plat_auto	= sizeof(struct sh_sdhi_plat),
 	.ops			= &sh_sdhi_dm_ops,
 };
 #endif

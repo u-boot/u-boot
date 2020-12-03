@@ -25,7 +25,7 @@ static int failure(int ret)
 
 static int do_dev(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	const char *name;
 	int ret = -ENXIO;
 
@@ -43,7 +43,7 @@ static int do_dev(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			return CMD_RET_USAGE;
 		}
 
-		uc_pdata = dev_get_uclass_platdata(currdev);
+		uc_pdata = dev_get_uclass_plat(currdev);
 		if (!uc_pdata) {
 			printf("%s: no regulator platform data!\n", currdev->name);
 			return failure(ret);
@@ -56,7 +56,7 @@ static int do_dev(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 }
 
 static int curr_dev_and_platdata(struct udevice **devp,
-				 struct dm_regulator_uclass_platdata **uc_pdata,
+				 struct dm_regulator_uclass_plat **uc_pdata,
 				 bool allow_type_fixed)
 {
 	*devp = NULL;
@@ -69,7 +69,7 @@ static int curr_dev_and_platdata(struct udevice **devp,
 
 	*devp = currdev;
 
-	*uc_pdata = dev_get_uclass_platdata(*devp);
+	*uc_pdata = dev_get_uclass_plat(*devp);
 	if (!*uc_pdata) {
 		pr_err("Regulator: %s - missing platform data!\n", currdev->name);
 		return CMD_RET_FAILURE;
@@ -86,7 +86,7 @@ static int curr_dev_and_platdata(struct udevice **devp,
 static int do_list(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	struct udevice *dev;
 	int ret;
 
@@ -100,7 +100,7 @@ static int do_list(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (ret)
 			continue;
 
-		uc_pdata = dev_get_uclass_platdata(dev);
+		uc_pdata = dev_get_uclass_plat(dev);
 		printf("| %-*.*s| %-*.*s| %s\n",
 		       LIMIT_DEVNAME, LIMIT_DEVNAME, dev->name,
 		       LIMIT_OFNAME, LIMIT_OFNAME, uc_pdata->name,
@@ -143,7 +143,7 @@ static int do_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])
 {
 	struct udevice *dev;
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	struct dm_regulator_mode *modes;
 	const char *parent_uc;
 	int mode_count;
@@ -183,7 +183,7 @@ static int do_info(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 static void do_status_detail(struct udevice *dev,
-			     struct dm_regulator_uclass_platdata *uc_pdata)
+			     struct dm_regulator_uclass_plat *uc_pdata)
 {
 	int current, value, mode;
 	const char *mode_name;
@@ -207,12 +207,12 @@ static void do_status_detail(struct udevice *dev,
 
 static void do_status_line(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *pdata;
+	struct dm_regulator_uclass_plat *pdata;
 	int current, value, mode;
 	const char *mode_name;
 	bool enabled;
 
-	pdata = dev_get_uclass_platdata(dev);
+	pdata = dev_get_uclass_plat(dev);
 	enabled = regulator_get_enable(dev);
 	value = regulator_get_value(dev);
 	current = regulator_get_current(dev);
@@ -237,7 +237,7 @@ static void do_status_line(struct udevice *dev)
 static int do_status(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	struct udevice *dev;
 	int ret;
 
@@ -263,7 +263,7 @@ static int do_value(struct cmd_tbl *cmdtp, int flag, int argc,
 		    char *const argv[])
 {
 	struct udevice *dev;
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	int value;
 	int force;
 	int ret;
@@ -313,7 +313,7 @@ static int do_current(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
 	struct udevice *dev;
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	int current;
 	int ret;
 
@@ -353,7 +353,7 @@ static int do_mode(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])
 {
 	struct udevice *dev;
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	int mode;
 	int ret;
 
@@ -389,7 +389,7 @@ static int do_enable(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
 	struct udevice *dev;
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	int ret;
 
 	ret = curr_dev_and_platdata(&dev, &uc_pdata, true);
@@ -409,7 +409,7 @@ static int do_disable(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
 	struct udevice *dev;
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	int ret;
 
 	ret = curr_dev_and_platdata(&dev, &uc_pdata, true);

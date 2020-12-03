@@ -123,7 +123,7 @@ static int atmel_spi_claim_bus(struct udevice *dev)
 	struct udevice *bus = dev_get_parent(dev);
 	struct atmel_spi_platdata *bus_plat = dev_get_platdata(bus);
 	struct atmel_spi_priv *priv = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 	struct at91_spi *reg_base = bus_plat->regs;
 	u32 cs = slave_plat->cs;
 	u32 freq = priv->freq;
@@ -173,7 +173,7 @@ static void atmel_spi_cs_activate(struct udevice *dev)
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	struct udevice *bus = dev_get_parent(dev);
 	struct atmel_spi_priv *priv = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 	u32 cs = slave_plat->cs;
 
 	if (!dm_gpio_is_valid(&priv->cs_gpios[cs]))
@@ -188,7 +188,7 @@ static void atmel_spi_cs_deactivate(struct udevice *dev)
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	struct udevice *bus = dev_get_parent(dev);
 	struct atmel_spi_priv *priv = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 	u32 cs = slave_plat->cs;
 
 	if (!dm_gpio_is_valid(&priv->cs_gpios[cs]))
@@ -388,7 +388,7 @@ U_BOOT_DRIVER(atmel_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = atmel_spi_ids,
 	.ops	= &atmel_spi_ops,
-	.platdata_auto	= sizeof(struct atmel_spi_platdata),
+	.plat_auto	= sizeof(struct atmel_spi_platdata),
 	.priv_auto	= sizeof(struct atmel_spi_priv),
 	.probe	= atmel_spi_probe,
 };

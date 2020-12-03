@@ -131,7 +131,7 @@ static struct udevice *hub_find_device(struct udevice *hub, int port,
 	     device_find_next_child(&dev)) {
 		struct sandbox_hub_platdata *plat;
 
-		plat = dev_get_parent_platdata(dev);
+		plat = dev_get_parent_plat(dev);
 		if (plat->port == port) {
 			gen_desc = plat->plat.desc_list;
 			gen_desc = usb_emul_find_descriptor(gen_desc,
@@ -304,8 +304,8 @@ static int sandbox_hub_bind(struct udevice *dev)
 
 static int sandbox_child_post_bind(struct udevice *dev)
 {
-	struct sandbox_hub_platdata *plat = dev_get_parent_platdata(dev);
-	struct usb_emul_platdata *emul = dev_get_uclass_platdata(dev);
+	struct sandbox_hub_platdata *plat = dev_get_parent_plat(dev);
+	struct usb_emul_platdata *emul = dev_get_uclass_plat(dev);
 
 	plat->port = dev_read_u32_default(dev, "reg", -1);
 	emul->port1 = plat->port + 1;
@@ -329,7 +329,7 @@ U_BOOT_DRIVER(usb_sandbox_hub) = {
 	.bind	= sandbox_hub_bind,
 	.ops	= &sandbox_usb_hub_ops,
 	.priv_auto	= sizeof(struct sandbox_hub_priv),
-	.per_child_platdata_auto	=
+	.per_child_plat_auto	=
 			sizeof(struct sandbox_hub_platdata),
 	.child_post_bind = sandbox_child_post_bind,
 };

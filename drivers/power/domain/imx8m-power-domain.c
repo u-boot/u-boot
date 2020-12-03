@@ -137,6 +137,6 @@ U_BOOT_DRIVER(imx8m_power_domain) = {
 	.bind = imx8m_power_domain_bind,
 	.probe = imx8m_power_domain_probe,
 	.ofdata_to_platdata = imx8m_power_domain_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct imx8m_power_domain_platdata),
+	.plat_auto	= sizeof(struct imx8m_power_domain_platdata),
 	.ops = &imx8m_power_domain_ops,
 };

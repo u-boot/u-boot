@@ -617,6 +617,6 @@ U_BOOT_DRIVER(rockchip_rk3328_dmc) = {
 	.probe = rk3328_dmc_probe,
 	.priv_auto	= sizeof(struct dram_info),
 #ifdef CONFIG_TPL_BUILD
-	.platdata_auto	= sizeof(struct rockchip_dmc_plat),
+	.plat_auto	= sizeof(struct rockchip_dmc_plat),
 #endif
 };

@@ -727,7 +727,7 @@ static u32 mv_sata_rw_cmd(struct udevice *dev, int port, lbaint_t start,
 static u32 ata_low_level_rw(struct udevice *dev, int port, lbaint_t blknr,
 			    lbaint_t blkcnt, void *buffer, int is_write)
 {
-	struct blk_desc *desc = dev_get_uclass_platdata(dev);
+	struct blk_desc *desc = dev_get_uclass_plat(dev);
 	lbaint_t start, blks;
 	u8 *addr;
 	int max_blks;
@@ -943,7 +943,7 @@ static int sata_mv_init_sata(struct udevice *dev, int port)
 
 static int sata_mv_scan_sata(struct udevice *dev, int port)
 {
-	struct blk_desc *desc = dev_get_uclass_platdata(dev);
+	struct blk_desc *desc = dev_get_uclass_plat(dev);
 	struct mv_priv *priv = dev_get_platdata(dev);
 	unsigned char serial[ATA_ID_SERNO_LEN + 1];
 	unsigned char firmware[ATA_ID_FW_REV_LEN + 1];
@@ -1030,7 +1030,7 @@ U_BOOT_DRIVER(sata_mv_driver) = {
 	.name = "sata_mv_blk",
 	.id = UCLASS_BLK,
 	.ops = &sata_mv_blk_ops,
-	.platdata_auto	= sizeof(struct mv_priv),
+	.plat_auto	= sizeof(struct mv_priv),
 };
 
 static int sata_mv_probe(struct udevice *dev)

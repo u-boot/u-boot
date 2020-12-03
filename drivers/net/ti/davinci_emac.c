@@ -865,5 +865,5 @@ U_BOOT_DRIVER(davinci_emac) = {
 	.of_match	= davinci_emac_ids,
 	.probe		= davinci_emac_probe,
 	.ops		= &davinci_emac_ops,
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

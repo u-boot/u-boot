@@ -92,7 +92,7 @@ static int apl_ns16550_ofdata_to_platdata(struct udevice *dev)
 	struct ns16550_platdata *plat;
 
 	/*
-	 * Convert our platdata to the ns16550's platdata, so we can just use
+	 * Convert our plat to the ns16550's plat, so we can just use
 	 * that driver
 	 */
 	plat = malloc(sizeof(*plat));
@@ -105,7 +105,7 @@ static int apl_ns16550_ofdata_to_platdata(struct udevice *dev)
 	plat->clock = dtplat->clock_frequency;
 	plat->fcr = UART_FCR_DEFVAL;
 	plat->bdf = pci_ofplat_get_devfn(dtplat->reg[0]);
-	dev->platdata = plat;
+	dev->plat = plat;
 #else
 	int ret;
 
@@ -126,7 +126,7 @@ U_BOOT_DRIVER(intel_apl_ns16550) = {
 	.name	= "intel_apl_ns16550",
 	.id	= UCLASS_SERIAL,
 	.of_match = apl_ns16550_serial_ids,
-	.platdata_auto	= sizeof(struct ns16550_platdata),
+	.plat_auto	= sizeof(struct ns16550_platdata),
 	.priv_auto	= sizeof(struct NS16550),
 	.ops	= &ns16550_serial_ops,
 	.ofdata_to_platdata = apl_ns16550_ofdata_to_platdata,

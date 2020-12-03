@@ -484,7 +484,7 @@ void *video_hw_init(void)
 
 static int fsl_dcu_video_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct fb_info fbinfo = { 0 };
 	unsigned int win_x;
@@ -516,7 +516,7 @@ static int fsl_dcu_video_probe(struct udevice *dev)
 
 static int fsl_dcu_video_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
 	unsigned int win_x;
 	unsigned int win_y;
 	unsigned int depth = 0, freq = 0;

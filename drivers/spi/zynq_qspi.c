@@ -100,7 +100,7 @@ struct zynq_qspi_priv {
 
 static int zynq_qspi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct zynq_qspi_platdata *plat = bus->platdata;
+	struct zynq_qspi_platdata *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -560,7 +560,7 @@ static int zynq_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 {
 	struct udevice *bus = dev->parent;
 	struct zynq_qspi_priv *priv = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 
 	priv->cs = slave_plat->cs;
 	priv->tx_buf = dout;
@@ -592,7 +592,7 @@ static int zynq_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
 {
-	struct zynq_qspi_platdata *plat = bus->platdata;
+	struct zynq_qspi_platdata *plat = bus->plat;
 	struct zynq_qspi_priv *priv = dev_get_priv(bus);
 	struct zynq_qspi_regs *regs = priv->regs;
 	uint32_t confr;
@@ -667,7 +667,7 @@ U_BOOT_DRIVER(zynq_qspi) = {
 	.of_match = zynq_qspi_ids,
 	.ops    = &zynq_qspi_ops,
 	.ofdata_to_platdata = zynq_qspi_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct zynq_qspi_platdata),
+	.plat_auto	= sizeof(struct zynq_qspi_platdata),
 	.priv_auto	= sizeof(struct zynq_qspi_priv),
 	.probe  = zynq_qspi_probe,
 };

@@ -772,7 +772,7 @@ U_BOOT_DRIVER(eth_rtl8139) = {
 	.probe	= rtl8139_probe,
 	.ops	= &rtl8139_ops,
 	.priv_auto	= sizeof(struct rtl8139_priv),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 U_BOOT_PCI_DEVICE(eth_rtl8139, supported);

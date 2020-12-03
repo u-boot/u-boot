@@ -730,7 +730,7 @@ static struct mxc_serial_platdata cm_fx6_mxc_serial_plat = {
 
 U_BOOT_DEVICE(cm_fx6_serial) = {
 	.name	= "serial_mxc",
-	.platdata = &cm_fx6_mxc_serial_plat,
+	.plat = &cm_fx6_mxc_serial_plat,
 };
 
 #if CONFIG_IS_ENABLED(AHCI)

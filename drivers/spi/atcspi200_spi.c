@@ -310,7 +310,7 @@ static int atcspi200_spi_set_mode(struct udevice *bus, uint mode)
 static int atcspi200_spi_claim_bus(struct udevice *dev)
 {
 	struct dm_spi_slave_platdata *slave_plat =
-		dev_get_parent_platdata(dev);
+		dev_get_parent_plat(dev);
 	struct udevice *bus = dev->parent;
 	struct nds_spi_slave *ns = dev_get_priv(bus);
 

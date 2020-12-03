@@ -198,7 +198,7 @@ static int find_p2sb_channel(struct udevice *emul, uint offset,
 
 	device_foreach_child(dev, p2sb) {
 		struct p2sb_child_platdata *pplat =
-			 dev_get_parent_platdata(dev);
+			 dev_get_parent_plat(dev);
 
 		log_debug("   - child %s, pid %d, want %d\n", dev->name,
 			  pplat->pid, pid);
@@ -263,7 +263,7 @@ U_BOOT_DRIVER(sandbox_p2sb_emul_emul) = {
 	.of_match	= sandbox_p2sb_emul_ids,
 	.ops		= &sandbox_p2sb_emul_emul_ops,
 	.priv_auto	= sizeof(struct p2sb_emul_priv),
-	.platdata_auto	= sizeof(struct p2sb_emul_platdata),
+	.plat_auto	= sizeof(struct p2sb_emul_platdata),
 };
 
 static struct pci_device_id sandbox_p2sb_emul_supported[] = {

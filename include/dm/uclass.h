@@ -71,15 +71,15 @@ struct udevice;
  * @per_device_auto: Each device can hold private data owned
  * by the uclass. If required this will be automatically allocated if this
  * value is non-zero.
- * @per_device_platdata_auto: Each device can hold platform data
- * owned by the uclass as 'dev->uclass_platdata'. If the value is non-zero,
+ * @per_device_plat_auto: Each device can hold platform data
+ * owned by the uclass as 'dev->uclass_plat'. If the value is non-zero,
  * then this will be automatically allocated.
  * @per_child_auto: Each child device (of a parent in this
  * uclass) can hold parent data for the device/uclass. This value is only
  * used as a fallback if this member is 0 in the driver.
- * @per_child_platdata_auto: A bus likes to store information about
+ * @per_child_plat_auto: A bus likes to store information about
  * its children. If non-zero this is the size of this data, to be allocated
- * in the child device's parent_platdata pointer. This value is only used as
+ * in the child device's parent_plat pointer. This value is only used as
  * a fallback if this member is 0 in the driver.
  * @ops: Uclass operations, providing the consistent interface to devices
  * within the uclass.
@@ -100,9 +100,9 @@ struct uclass_driver {
 	int (*destroy)(struct uclass *class);
 	int priv_auto;
 	int per_device_auto;
-	int per_device_platdata_auto;
+	int per_device_plat_auto;
 	int per_child_auto;
-	int per_child_platdata_auto;
+	int per_child_plat_auto;
 	const void *ops;
 	uint32_t flags;
 };

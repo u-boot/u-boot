@@ -119,6 +119,6 @@ U_BOOT_DRIVER(dwmac_socfpga) = {
 	.probe		= dwmac_socfpga_probe,
 	.ops		= &designware_eth_ops,
 	.priv_auto	= sizeof(struct dw_eth_dev),
-	.platdata_auto	= sizeof(struct dwmac_socfpga_platdata),
+	.plat_auto	= sizeof(struct dwmac_socfpga_platdata),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
 };

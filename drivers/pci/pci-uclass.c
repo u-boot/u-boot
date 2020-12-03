@@ -49,7 +49,7 @@ struct udevice *pci_get_controller(struct udevice *dev)
 
 pci_dev_t dm_pci_get_bdf(const struct udevice *dev)
 {
-	struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
+	struct pci_child_platdata *pplat = dev_get_parent_plat(dev);
 	struct udevice *bus = dev->parent;
 
 	/*
@@ -138,7 +138,7 @@ int pci_bus_find_devfn(const struct udevice *bus, pci_dev_t find_devfn,
 	     device_find_next_child(&dev)) {
 		struct pci_child_platdata *pplat;
 
-		pplat = dev_get_parent_platdata(dev);
+		pplat = dev_get_parent_plat(dev);
 		if (pplat && pplat->devfn == find_devfn) {
 			*devp = dev;
 			return 0;
@@ -165,7 +165,7 @@ static int pci_device_matches_ids(struct udevice *dev,
 	struct pci_child_platdata *pplat;
 	int i;
 
-	pplat = dev_get_parent_platdata(dev);
+	pplat = dev_get_parent_plat(dev);
 	if (!pplat)
 		return -EINVAL;
 	for (i = 0; ids[i].vendor != 0; i++) {
@@ -224,7 +224,7 @@ static int dm_pci_bus_find_device(struct udevice *bus, unsigned int vendor,
 	for (device_find_first_child(bus, &dev);
 	     dev;
 	     device_find_next_child(&dev)) {
-		pplat = dev_get_parent_platdata(dev);
+		pplat = dev_get_parent_plat(dev);
 		if (pplat->vendor == vendor && pplat->device == device) {
 			if (!(*indexp)--) {
 				*devp = dev;
@@ -261,7 +261,7 @@ int dm_pci_find_class(uint find_class, int index, struct udevice **devp)
 	for (pci_find_first_device(&dev);
 	     dev;
 	     pci_find_next_device(&dev)) {
-		struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
+		struct pci_child_platdata *pplat = dev_get_parent_plat(dev);
 
 		if (pplat->class == find_class && !index--) {
 			*devp = dev;
@@ -548,7 +548,7 @@ int pci_auto_config_devices(struct udevice *bus)
 		max_bus = ret;
 		sub_bus = max(sub_bus, max_bus);
 
-		pplat = dev_get_parent_platdata(dev);
+		pplat = dev_get_parent_plat(dev);
 		if (pplat->class == (PCI_CLASS_DISPLAY_VGA << 8))
 			set_vga_bridge_bits(dev);
 	}
@@ -744,7 +744,7 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 
 			/*
 			 * We could pass the descriptor to the driver as
-			 * platdata (instead of NULL) and allow its bind()
+			 * plat (instead of NULL) and allow its bind()
 			 * method to return -ENOENT if it doesn't support this
 			 * device. That way we could continue the search to
 			 * find another driver. For now this doesn't seem
@@ -868,7 +868,7 @@ int pci_bind_bus_devices(struct udevice *bus)
 			return ret;
 
 		/* Update the platform data */
-		pplat = dev_get_parent_platdata(dev);
+		pplat = dev_get_parent_plat(dev);
 		pplat->devfn = PCI_MASK_BUS(bdf);
 		pplat->vendor = vendor;
 		pplat->device = device;
@@ -1085,7 +1085,7 @@ static int pci_uclass_child_post_bind(struct udevice *dev)
 	if (!dev_of_valid(dev))
 		return 0;
 
-	pplat = dev_get_parent_platdata(dev);
+	pplat = dev_get_parent_plat(dev);
 
 	/* Extract vendor id and device id if available */
 	ofnode_read_pci_vendev(dev_ofnode(dev), &pplat->vendor, &pplat->device);
@@ -1523,7 +1523,7 @@ static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
 
 void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
 {
-	struct pci_child_platdata *pdata = dev_get_parent_platdata(dev);
+	struct pci_child_platdata *pdata = dev_get_parent_plat(dev);
 	struct udevice *udev = dev;
 	pci_addr_t pci_bus_addr;
 	u32 bar_response;
@@ -1753,7 +1753,7 @@ int pci_sriov_init(struct udevice *pdev, int vf_en)
 		}
 
 		/* Update the platform data */
-		pplat = dev_get_parent_platdata(dev);
+		pplat = dev_get_parent_plat(dev);
 		pplat->devfn = PCI_MASK_BUS(bdf);
 		pplat->vendor = vendor;
 		pplat->device = device;
@@ -1797,7 +1797,7 @@ UCLASS_DRIVER(pci) = {
 	.post_probe	= pci_uclass_post_probe,
 	.child_post_bind = pci_uclass_child_post_bind,
 	.per_device_auto	= sizeof(struct pci_controller),
-	.per_child_platdata_auto	=
+	.per_child_plat_auto	=
 			sizeof(struct pci_child_platdata),
 };
 

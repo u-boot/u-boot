@@ -69,7 +69,7 @@ static void mxc_spi_cs_activate(struct mxc_spi_slave *mxcs)
 {
 #if CONFIG_IS_ENABLED(DM_SPI)
 	struct udevice *dev = mxcs->dev;
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 
 	u32 cs = slave_plat->cs;
 
@@ -87,7 +87,7 @@ static void mxc_spi_cs_deactivate(struct mxc_spi_slave *mxcs)
 {
 #if CONFIG_IS_ENABLED(DM_SPI)
 	struct udevice *dev = mxcs->dev;
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 
 	u32 cs = slave_plat->cs;
 
@@ -559,7 +559,7 @@ static int mxc_spi_xfer(struct udevice *dev, unsigned int bitlen,
 static int mxc_spi_claim_bus(struct udevice *dev)
 {
 	struct mxc_spi_slave *mxcs = dev_get_platdata(dev->parent);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 
 	mxcs->dev = dev;
 
@@ -605,7 +605,7 @@ U_BOOT_DRIVER(mxc_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = mxc_spi_ids,
 	.ops	= &mxc_spi_ops,
-	.platdata_auto	= sizeof(struct mxc_spi_slave),
+	.plat_auto	= sizeof(struct mxc_spi_slave),
 	.probe	= mxc_spi_probe,
 };
 #endif

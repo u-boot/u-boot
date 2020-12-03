@@ -956,6 +956,6 @@ U_BOOT_DRIVER(rockchip_rk3188_dmc) = {
 	.probe = rk3188_dmc_probe,
 	.priv_auto	= sizeof(struct dram_info),
 #ifdef CONFIG_SPL_BUILD
-	.platdata_auto	= sizeof(struct rk3188_sdram_params),
+	.plat_auto	= sizeof(struct rk3188_sdram_params),
 #endif
 };

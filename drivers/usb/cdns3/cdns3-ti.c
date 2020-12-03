@@ -190,6 +190,6 @@ U_BOOT_DRIVER(cdns_ti) = {
 	.bind = cdns3_bind,
 	.probe = cdns_ti_probe,
 	.remove = cdns_ti_remove,
-	.platdata_auto	= sizeof(struct cdns_ti),
+	.plat_auto	= sizeof(struct cdns_ti),
 	.flags = DM_FLAG_OS_PREPARE,
 };

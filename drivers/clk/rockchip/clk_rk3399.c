@@ -1453,7 +1453,7 @@ U_BOOT_DRIVER(clk_rk3399) = {
 	.bind		= rk3399_clk_bind,
 	.probe		= rk3399_clk_probe,
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	.platdata_auto	= sizeof(struct rk3399_clk_plat),
+	.plat_auto	= sizeof(struct rk3399_clk_plat),
 #endif
 };
 
@@ -1648,6 +1648,6 @@ U_BOOT_DRIVER(rockchip_rk3399_pmuclk) = {
 	.probe		= rk3399_pmuclk_probe,
 	.bind		= rk3399_pmuclk_bind,
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	.platdata_auto	= sizeof(struct rk3399_pmuclk_plat),
+	.plat_auto	= sizeof(struct rk3399_pmuclk_plat),
 #endif
 };

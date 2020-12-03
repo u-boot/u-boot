@@ -126,7 +126,7 @@ U_BOOT_DRIVER(serial_mvebu) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = mvebu_serial_ids,
 	.ofdata_to_platdata = mvebu_serial_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct mvebu_platdata),
+	.plat_auto	= sizeof(struct mvebu_platdata),
 	.probe	= mvebu_serial_probe,
 	.ops	= &mvebu_serial_ops,
 };

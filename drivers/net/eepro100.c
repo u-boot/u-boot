@@ -1010,7 +1010,7 @@ U_BOOT_DRIVER(eth_eepro100) = {
 	.probe	= eepro100_probe,
 	.ops	= &eepro100_ops,
 	.priv_auto	= sizeof(struct eepro100_priv),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 U_BOOT_PCI_DEVICE(eth_eepro100, supported);

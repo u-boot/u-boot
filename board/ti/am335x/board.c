@@ -885,7 +885,7 @@ int board_late_init(void)
 }
 #endif
 
-/* CPSW platdata */
+/* CPSW plat */
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 struct cpsw_slave_data slave_data[] = {
 	{
@@ -929,7 +929,7 @@ struct eth_pdata cpsw_pdata = {
 
 U_BOOT_DEVICE(am335x_eth) = {
 	.name = "eth_cpsw",
-	.platdata = &cpsw_pdata,
+	.plat = &cpsw_pdata,
 };
 #endif
 
@@ -974,7 +974,7 @@ static const struct omap_hsmmc_plat am335x_mmc0_platdata = {
 
 U_BOOT_DEVICE(am335x_mmc0) = {
 	.name = "omap_hsmmc",
-	.platdata = &am335x_mmc0_platdata,
+	.plat = &am335x_mmc0_platdata,
 };
 
 static const struct omap_hsmmc_plat am335x_mmc1_platdata = {
@@ -988,6 +988,6 @@ static const struct omap_hsmmc_plat am335x_mmc1_platdata = {
 
 U_BOOT_DEVICE(am335x_mmc1) = {
 	.name = "omap_hsmmc",
-	.platdata = &am335x_mmc1_platdata,
+	.plat = &am335x_mmc1_platdata,
 };
 #endif

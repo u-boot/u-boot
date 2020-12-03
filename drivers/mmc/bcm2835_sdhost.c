@@ -807,6 +807,6 @@ U_BOOT_DRIVER(bcm2835_sdhost) = {
 	.bind = bcm2835_bind,
 	.probe = bcm2835_probe,
 	.priv_auto	= sizeof(struct bcm2835_host),
-	.platdata_auto	= sizeof(struct bcm2835_plat),
+	.plat_auto	= sizeof(struct bcm2835_plat),
 	.ops = &bcm2835_ops,
 };

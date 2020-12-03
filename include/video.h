@@ -21,7 +21,7 @@ struct udevice;
  * struct video_uc_platdata - uclass platform data for a video device
  *
  * This holds information that the uclass needs to know about each device. It
- * is accessed using dev_get_uclass_platdata(dev). See 'Theory of operation' at
+ * is accessed using dev_get_uclass_plat(dev). See 'Theory of operation' at
  * the top of video-uclass.c for details on how this information is set.
  *
  * @align: Frame-buffer alignment, indicating the memory boundary the frame
@@ -125,7 +125,7 @@ struct video_ops {
  *
  * Note: This function is for internal use.
  *
- * This uses the uclass platdata's @size and @align members to figure out
+ * This uses the uclass plat's @size and @align members to figure out
  * a size and position for each frame buffer as part of the pre-relocation
  * process of determining the post-relocation memory layout.
  *

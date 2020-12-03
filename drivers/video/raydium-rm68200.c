@@ -338,6 +338,6 @@ U_BOOT_DRIVER(rm68200_panel) = {
 	.ops			  = &rm68200_panel_ops,
 	.ofdata_to_platdata	  = rm68200_panel_ofdata_to_platdata,
 	.probe			  = rm68200_panel_probe,
-	.platdata_auto	= sizeof(struct mipi_dsi_panel_plat),
+	.plat_auto	= sizeof(struct mipi_dsi_panel_plat),
 	.priv_auto	= sizeof(struct rm68200_panel_priv),
 };

@@ -92,6 +92,6 @@ U_BOOT_DRIVER(clk_boston) = {
 	.id = UCLASS_CLK,
 	.of_match = clk_boston_match,
 	.ofdata_to_platdata = clk_boston_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct clk_boston),
+	.plat_auto	= sizeof(struct clk_boston),
 	.ops = &clk_boston_ops,
 };

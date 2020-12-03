@@ -29,7 +29,7 @@ the UCLASS_ETH .id field in the U-Boot driver struct:
 		.probe			= eth_ape_probe,
 		.ops			= &eth_ape_ops,
 		.priv_auto	= sizeof(struct eth_ape_priv),
-		.platdata_auto = sizeof(struct eth_ape_pdata),
+		.plat_auto = sizeof(struct eth_ape_pdata),
 		.flags			= DM_FLAG_ALLOC_PRIV_DMA,
 	};
 
@@ -43,7 +43,7 @@ struct eth_ape_pdata contains static platform data, like the MMIO base address,
 a hardware variant, the MAC address. ``struct eth_pdata eth_pdata``
 as the first member of this struct helps to avoid duplicated code.
 If you don't need any more platform data beside the standard member,
-just use sizeof(struct eth_pdata) for the platdata_auto.
+just use sizeof(struct eth_pdata) for the plat_auto.
 
 PCI devices add a line pointing to supported vendor/device ID pairs:
 
@@ -96,7 +96,7 @@ operations.  You often do things here such as resetting the MAC
 and/or PHY, and waiting for the link to autonegotiate.  You should also take
 the opportunity to program the device's MAC address with the enetaddr member
 of the generic struct eth_pdata (which would be the first member of your
-own platdata struct). This allows the rest of U-Boot to dynamically change
+own plat struct). This allows the rest of U-Boot to dynamically change
 the MAC address and have the new settings be respected.
 
 The **send** function does what you think -- transmit the specified packet

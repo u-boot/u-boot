@@ -316,7 +316,7 @@ static int omap_gpio_bind(struct udevice *dev)
 	* TODO:
 	* When every board is converted to driver model and DT is
 	* supported, this can be done by auto-alloc feature, but
-	* not using calloc to alloc memory for platdata.
+	* not using calloc to alloc memory for plat.
 	*
 	* For example am33xx_gpio uses platform data rather than device tree.
 	*
@@ -328,7 +328,7 @@ static int omap_gpio_bind(struct udevice *dev)
 
 	plat->base = base_addr;
 	plat->port_name = fdt_get_name(gd->fdt_blob, dev_of_offset(dev), NULL);
-	dev->platdata = plat;
+	dev->plat = plat;
 
 	return 0;
 }
@@ -363,7 +363,7 @@ U_BOOT_DRIVER(gpio_omap) = {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap_gpio_ids,
 	.ofdata_to_platdata = of_match_ptr(omap_gpio_ofdata_to_platdata),
-	.platdata_auto	= sizeof(struct omap_gpio_platdata),
+	.plat_auto	= sizeof(struct omap_gpio_platdata),
 #endif
 #else
 	.bind   = omap_gpio_bind,

@@ -16,11 +16,11 @@
 
 static int fixed_regulator_ofdata_to_platdata(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	struct regulator_common_platdata *dev_pdata;
 
 	dev_pdata = dev_get_platdata(dev);
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata)
 		return -ENXIO;
 
@@ -31,9 +31,9 @@ static int fixed_regulator_ofdata_to_platdata(struct udevice *dev)
 
 static int fixed_regulator_get_value(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata)
 		return -ENXIO;
 
@@ -47,9 +47,9 @@ static int fixed_regulator_get_value(struct udevice *dev)
 
 static int fixed_regulator_get_current(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata)
 		return -ENXIO;
 
@@ -89,5 +89,5 @@ U_BOOT_DRIVER(regulator_fixed) = {
 	.ops = &fixed_regulator_ops,
 	.of_match = fixed_regulator_ids,
 	.ofdata_to_platdata = fixed_regulator_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct regulator_common_platdata),
+	.plat_auto	= sizeof(struct regulator_common_platdata),
 };

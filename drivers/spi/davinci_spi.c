@@ -334,7 +334,7 @@ static int davinci_spi_set_mode(struct udevice *bus, uint mode)
 static int davinci_spi_claim_bus(struct udevice *dev)
 {
 	struct dm_spi_slave_platdata *slave_plat =
-		dev_get_parent_platdata(dev);
+		dev_get_parent_plat(dev);
 	struct udevice *bus = dev->parent;
 	struct davinci_spi_slave *ds = dev_get_priv(bus);
 
@@ -359,7 +359,7 @@ static int davinci_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			    unsigned long flags)
 {
 	struct dm_spi_slave_platdata *slave =
-		dev_get_parent_platdata(dev);
+		dev_get_parent_plat(dev);
 	struct udevice *bus = dev->parent;
 	struct davinci_spi_slave *ds = dev_get_priv(bus);
 
@@ -383,7 +383,7 @@ static const struct dm_spi_ops davinci_spi_ops = {
 static int davinci_spi_probe(struct udevice *bus)
 {
 	struct davinci_spi_slave *ds = dev_get_priv(bus);
-	struct davinci_spi_platdata *plat = bus->platdata;
+	struct davinci_spi_platdata *plat = bus->plat;
 	ds->regs = plat->regs;
 	ds->num_cs = plat->num_cs;
 
@@ -393,7 +393,7 @@ static int davinci_spi_probe(struct udevice *bus)
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int davinci_ofdata_to_platadata(struct udevice *bus)
 {
-	struct davinci_spi_platdata *plat = bus->platdata;
+	struct davinci_spi_platdata *plat = bus->plat;
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(bus);
@@ -420,7 +420,7 @@ U_BOOT_DRIVER(davinci_spi) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = davinci_spi_ids,
 	.ofdata_to_platdata = davinci_ofdata_to_platadata,
-        .platdata_auto	= sizeof(struct davinci_spi_platdata),
+	.plat_auto	= sizeof(struct davinci_spi_platdata),
 #endif
 	.probe = davinci_spi_probe,
 	.ops = &davinci_spi_ops,

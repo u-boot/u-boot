@@ -87,5 +87,5 @@ U_BOOT_DRIVER(aspeed_sdhci_drv) = {
 	.bind		= aspeed_sdhci_bind,
 	.probe		= aspeed_sdhci_probe,
 	.priv_auto	= sizeof(struct sdhci_host),
-	.platdata_auto	= sizeof(struct aspeed_sdhci_plat),
+	.plat_auto	= sizeof(struct aspeed_sdhci_plat),
 };

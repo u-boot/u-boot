@@ -194,5 +194,5 @@ U_BOOT_DRIVER(eth_sandbox_raw) = {
 	.ofdata_to_platdata = sb_eth_raw_ofdata_to_platdata,
 	.ops	= &sb_eth_raw_ops,
 	.priv_auto	= sizeof(struct eth_sandbox_raw_priv),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

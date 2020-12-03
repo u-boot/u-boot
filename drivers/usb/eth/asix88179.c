@@ -903,7 +903,7 @@ U_BOOT_DRIVER(ax88179_eth) = {
 	.probe = ax88179_eth_probe,
 	.ops = &ax88179_eth_ops,
 	.priv_auto	= sizeof(struct asix_private),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 static const struct usb_device_id ax88179_eth_id_table[] = {

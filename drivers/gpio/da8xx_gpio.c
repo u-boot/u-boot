@@ -560,7 +560,7 @@ U_BOOT_DRIVER(ti_dm6441_gpio) = {
 	.ofdata_to_platdata = of_match_ptr(davinci_gpio_ofdata_to_platdata),
 	.of_match = davinci_gpio_ids,
 	.bind   = dm_scan_fdt_dev,
-	.platdata_auto	= sizeof(struct davinci_gpio_platdata),
+	.plat_auto	= sizeof(struct davinci_gpio_platdata),
 	.probe	= davinci_gpio_probe,
 	.priv_auto	= sizeof(struct davinci_gpio_bank),
 };

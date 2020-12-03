@@ -385,6 +385,6 @@ U_BOOT_DRIVER(pca953x) = {
 	.id		= UCLASS_GPIO,
 	.ops		= &pca953x_ops,
 	.probe		= pca953x_probe,
-	.platdata_auto	= sizeof(struct pca953x_info),
+	.plat_auto	= sizeof(struct pca953x_info),
 	.of_match	= pca953x_ids,
 };

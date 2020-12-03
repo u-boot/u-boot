@@ -1094,7 +1094,7 @@ U_BOOT_DRIVER(i2c_omap) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap_i2c_ids,
 	.ofdata_to_platdata = omap_i2c_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct omap_i2c_platdata),
+	.plat_auto	= sizeof(struct omap_i2c_platdata),
 #endif
 	.probe	= omap_i2c_probe,
 	.priv_auto	= sizeof(struct omap_i2c),

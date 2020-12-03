@@ -39,7 +39,7 @@ static const struct ns16550_platdata serial_omap_platdata = {
 
 U_BOOT_DEVICE(sniper_serial) = {
 	.name = "ns16550_serial",
-	.platdata = &serial_omap_platdata
+	.plat = &serial_omap_platdata
 };
 
 static struct musb_hdrc_config musb_config = {

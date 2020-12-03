@@ -2194,5 +2194,5 @@ U_BOOT_DRIVER(eth_eqos) = {
 	.remove = eqos_remove,
 	.ops = &eqos_ops,
 	.priv_auto	= sizeof(struct eqos_priv),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

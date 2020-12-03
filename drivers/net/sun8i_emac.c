@@ -1005,6 +1005,6 @@ U_BOOT_DRIVER(eth_sun8i_emac) = {
 	.probe  = sun8i_emac_eth_probe,
 	.ops    = &sun8i_emac_eth_ops,
 	.priv_auto	= sizeof(struct emac_eth_dev),
-	.platdata_auto	= sizeof(struct sun8i_eth_pdata),
+	.plat_auto	= sizeof(struct sun8i_eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

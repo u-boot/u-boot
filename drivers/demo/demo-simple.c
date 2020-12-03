@@ -43,5 +43,5 @@ U_BOOT_DRIVER(demo_simple_drv) = {
 	.id	= UCLASS_DEMO,
 	.ofdata_to_platdata = demo_shape_ofdata_to_platdata,
 	.ops	= &simple_ops,
-	.platdata_auto	= sizeof(struct dm_demo_pdata),
+	.plat_auto	= sizeof(struct dm_demo_pdata),
 };

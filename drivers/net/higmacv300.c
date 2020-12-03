@@ -599,5 +599,5 @@ U_BOOT_DRIVER(eth_higmac) = {
 	.remove	= higmac_remove,
 	.ops	= &higmac_ops,
 	.priv_auto	= sizeof(struct higmac_priv),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

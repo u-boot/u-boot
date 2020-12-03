@@ -241,7 +241,7 @@ U_BOOT_DRIVER(serial_stm32) = {
 	.id = UCLASS_SERIAL,
 	.of_match = of_match_ptr(stm32_serial_id),
 	.ofdata_to_platdata = of_match_ptr(stm32_serial_ofdata_to_platdata),
-	.platdata_auto	= sizeof(struct stm32x7_serial_platdata),
+	.plat_auto	= sizeof(struct stm32x7_serial_platdata),
 	.ops = &stm32_serial_ops,
 	.probe = stm32_serial_probe,
 #if !CONFIG_IS_ENABLED(OF_CONTROL)

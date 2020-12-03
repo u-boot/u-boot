@@ -161,7 +161,7 @@ static int fw_get_filesystem_firmware(struct udevice *dev)
 		else
 			ret = -ENODEV;
 	} else {
-		ret = select_fs_dev(dev->platdata);
+		ret = select_fs_dev(dev->plat);
 	}
 
 	if (ret)
@@ -228,7 +228,7 @@ static int fs_loader_ofdata_to_platdata(struct udevice *dev)
 	if (ofnode_valid(fs_loader_node)) {
 		struct device_platdata *plat;
 
-		plat = dev->platdata;
+		plat = dev->plat;
 		if (!ofnode_read_u32_array(fs_loader_node,
 					  "phandlepart",
 					  phandlepart, 2)) {
@@ -250,7 +250,7 @@ static int fs_loader_probe(struct udevice *dev)
 {
 #if CONFIG_IS_ENABLED(DM) && CONFIG_IS_ENABLED(BLK)
 	int ret;
-	struct device_platdata *plat = dev->platdata;
+	struct device_platdata *plat = dev->plat;
 
 	if (plat->phandlepart.phandle) {
 		ofnode node = ofnode_get_by_phandle(plat->phandlepart.phandle);
@@ -285,7 +285,7 @@ U_BOOT_DRIVER(fs_loader) = {
 	.of_match		= fs_loader_ids,
 	.probe			= fs_loader_probe,
 	.ofdata_to_platdata	= fs_loader_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct device_platdata),
+	.plat_auto	= sizeof(struct device_platdata),
 	.priv_auto	= sizeof(struct firmware),
 };
 

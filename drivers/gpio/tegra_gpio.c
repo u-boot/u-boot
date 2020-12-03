@@ -292,7 +292,7 @@ static int gpio_tegra_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct tegra_port_info *priv = dev->priv;
-	struct tegra_gpio_platdata *plat = dev->platdata;
+	struct tegra_gpio_platdata *plat = dev->plat;
 
 	/* Only child devices have ports */
 	if (!plat)
@@ -313,7 +313,7 @@ static int gpio_tegra_probe(struct udevice *dev)
  */
 static int gpio_tegra_bind(struct udevice *parent)
 {
-	struct tegra_gpio_platdata *plat = parent->platdata;
+	struct tegra_gpio_platdata *plat = parent->plat;
 	struct gpio_ctlr *ctlr;
 	int bank_count;
 	int bank;

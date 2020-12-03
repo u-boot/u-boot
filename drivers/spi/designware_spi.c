@@ -155,7 +155,7 @@ static int request_gpio_cs(struct udevice *bus)
 
 static int dw_spi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct dw_spi_platdata *plat = bus->platdata;
+	struct dw_spi_platdata *plat = bus->plat;
 
 	plat->regs = dev_read_addr_ptr(bus);
 
@@ -478,7 +478,7 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int dw_spi_set_speed(struct udevice *bus, uint speed)
 {
-	struct dw_spi_platdata *plat = bus->platdata;
+	struct dw_spi_platdata *plat = bus->plat;
 	struct dw_spi_priv *priv = dev_get_priv(bus);
 	u16 clk_div;
 
@@ -560,7 +560,7 @@ U_BOOT_DRIVER(dw_spi) = {
 	.of_match = dw_spi_ids,
 	.ops = &dw_spi_ops,
 	.ofdata_to_platdata = dw_spi_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct dw_spi_platdata),
+	.plat_auto	= sizeof(struct dw_spi_platdata),
 	.priv_auto	= sizeof(struct dw_spi_priv),
 	.probe = dw_spi_probe,
 	.remove = dw_spi_remove,

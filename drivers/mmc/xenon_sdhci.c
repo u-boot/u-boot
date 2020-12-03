@@ -565,5 +565,5 @@ U_BOOT_DRIVER(xenon_sdhci_drv) = {
 	.bind		= xenon_sdhci_bind,
 	.probe		= xenon_sdhci_probe,
 	.priv_auto	= sizeof(struct xenon_sdhci_priv),
-	.platdata_auto	= sizeof(struct xenon_sdhci_plat),
+	.plat_auto	= sizeof(struct xenon_sdhci_plat),
 };

@@ -463,6 +463,6 @@ U_BOOT_DRIVER(imx_tmu) = {
 	.of_match = imx_tmu_ids,
 	.bind = imx_tmu_bind,
 	.probe	= imx_tmu_probe,
-	.platdata_auto	= sizeof(struct imx_tmu_plat),
+	.plat_auto	= sizeof(struct imx_tmu_plat),
 	.flags  = DM_FLAG_PRE_RELOC,
 };

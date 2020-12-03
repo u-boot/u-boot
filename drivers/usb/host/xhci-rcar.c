@@ -161,7 +161,7 @@ U_BOOT_DRIVER(usb_xhci) = {
 	.ops		= &xhci_usb_ops,
 	.of_match	= xhci_rcar_ids,
 	.ofdata_to_platdata = xhci_rcar_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct rcar_xhci_platdata),
+	.plat_auto	= sizeof(struct rcar_xhci_platdata),
 	.priv_auto	= sizeof(struct rcar_xhci),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
 };

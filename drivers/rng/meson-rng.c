@@ -116,6 +116,6 @@ U_BOOT_DRIVER(meson_rng) = {
 	.ops = &meson_rng_ops,
 	.probe = meson_rng_probe,
 	.remove = meson_rng_remove,
-	.platdata_auto	= sizeof(struct meson_rng_platdata),
+	.plat_auto	= sizeof(struct meson_rng_platdata),
 	.ofdata_to_platdata = meson_rng_ofdata_to_platdata,
 };

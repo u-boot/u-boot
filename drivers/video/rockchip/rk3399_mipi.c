@@ -29,7 +29,7 @@ static int rk_mipi_dsi_source_select(struct udevice *dev)
 {
 	struct rk_mipi_priv *priv = dev_get_priv(dev);
 	struct rk3399_grf_regs *grf = priv->grf;
-	struct display_plat *disp_uc_plat = dev_get_uclass_platdata(dev);
+	struct display_plat *disp_uc_plat = dev_get_uclass_plat(dev);
 
 	/* Select the video source */
 	switch (disp_uc_plat->source_id) {

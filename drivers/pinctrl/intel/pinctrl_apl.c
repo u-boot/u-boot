@@ -160,7 +160,7 @@ static int apl_pinctrl_ofdata_to_platdata(struct udevice *dev)
 		return log_msg_ret("Could not set port id", ret);
 #endif
 	/* Attach this device to its community structure */
-	pplat = dev_get_parent_platdata(dev);
+	pplat = dev_get_parent_plat(dev);
 	for (i = 0; i < ARRAY_SIZE(apl_gpio_communities); i++) {
 		if (apl_gpio_communities[i].port == pplat->pid)
 			comm = &apl_gpio_communities[i];
@@ -185,5 +185,5 @@ U_BOOT_DRIVER(intel_apl_pinctrl) = {
 #endif
 	.ofdata_to_platdata = apl_pinctrl_ofdata_to_platdata,
 	.priv_auto	= sizeof(struct intel_pinctrl_priv),
-	.platdata_auto	= sizeof(struct apl_gpio_platdata),
+	.plat_auto	= sizeof(struct apl_gpio_platdata),
 };

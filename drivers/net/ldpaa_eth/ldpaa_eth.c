@@ -1192,7 +1192,7 @@ U_BOOT_DRIVER(ldpaa_eth) = {
 	.probe = ldpaa_eth_probe,
 	.ops = &ldpaa_eth_ops,
 	.priv_auto	= sizeof(struct ldpaa_eth_priv),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 #else

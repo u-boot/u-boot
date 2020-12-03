@@ -441,5 +441,5 @@ U_BOOT_DRIVER(imxrt_semc) = {
 	.ops = &imxrt_semc_ops,
 	.ofdata_to_platdata = imxrt_semc_ofdata_to_platdata,
 	.probe = imxrt_semc_probe,
-	.platdata_auto	= sizeof(struct imxrt_sdram_params),
+	.plat_auto	= sizeof(struct imxrt_sdram_params),
 };

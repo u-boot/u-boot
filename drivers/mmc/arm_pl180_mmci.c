@@ -552,6 +552,6 @@ U_BOOT_DRIVER(arm_pl180_mmc) = {
 	.ofdata_to_platdata = arm_pl180_mmc_ofdata_to_platdata,
 	.bind = arm_pl180_mmc_bind,
 	.priv_auto	= sizeof(struct pl180_mmc_host),
-	.platdata_auto	= sizeof(struct arm_pl180_mmc_plat),
+	.plat_auto	= sizeof(struct arm_pl180_mmc_plat),
 };
 #endif

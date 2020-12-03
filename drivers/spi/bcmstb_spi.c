@@ -434,6 +434,6 @@ U_BOOT_DRIVER(bcmstb_spi) = {
 	.ops				= &bcmstb_spi_ops,
 	.ofdata_to_platdata		= bcmstb_spi_ofdata_to_platdata,
 	.probe				= bcmstb_spi_probe,
-	.platdata_auto	= sizeof(struct bcmstb_spi_platdata),
+	.plat_auto	= sizeof(struct bcmstb_spi_platdata),
 	.priv_auto		= sizeof(struct bcmstb_spi_priv),
 };

@@ -64,7 +64,7 @@ struct atftmr_timer_platdata {
 
 static u64 atftmr_timer_get_count(struct udevice *dev)
 {
-	struct atftmr_timer_platdata *plat = dev->platdata;
+	struct atftmr_timer_platdata *plat = dev->plat;
 	struct atftmr_timer_regs *const regs = plat->regs;
 	u32 val;
 	val = readl(&regs->t3_counter);
@@ -73,7 +73,7 @@ static u64 atftmr_timer_get_count(struct udevice *dev)
 
 static int atftmr_timer_probe(struct udevice *dev)
 {
-	struct atftmr_timer_platdata *plat = dev->platdata;
+	struct atftmr_timer_platdata *plat = dev->plat;
 	struct atftmr_timer_regs *const regs = plat->regs;
 	u32 cr;
 	writel(0, &regs->t3_load);
@@ -111,7 +111,7 @@ U_BOOT_DRIVER(altera_timer) = {
 	.id	= UCLASS_TIMER,
 	.of_match = ag101p_timer_ids,
 	.ofdata_to_platdata = atftme_timer_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct atftmr_timer_platdata),
+	.plat_auto	= sizeof(struct atftmr_timer_platdata),
 	.probe = atftmr_timer_probe,
 	.ops	= &ag101p_timer_ops,
 };

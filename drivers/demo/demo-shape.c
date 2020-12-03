@@ -194,5 +194,5 @@ U_BOOT_DRIVER(demo_shape_drv) = {
 	.probe = dm_shape_probe,
 	.remove = dm_shape_remove,
 	.priv_auto	= sizeof(struct shape_data),
-	.platdata_auto	= sizeof(struct dm_demo_pdata),
+	.plat_auto	= sizeof(struct dm_demo_pdata),
 };

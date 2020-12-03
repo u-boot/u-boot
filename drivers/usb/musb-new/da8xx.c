@@ -258,43 +258,43 @@ struct da8xx_musb_platdata {
 
 static int da8xx_musb_ofdata_to_platdata(struct udevice *dev)
 {
-	struct da8xx_musb_platdata *platdata = dev_get_platdata(dev);
+	struct da8xx_musb_platdata *plat = dev_get_platdata(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 
-	platdata->base = (void *)dev_read_addr_ptr(dev);
-	platdata->musb_config.multipoint = 1;
-	platdata->musb_config.dyn_fifo = 1;
-	platdata->musb_config.num_eps = 5;
-	platdata->musb_config.ram_bits = 10;
-	platdata->plat.power = fdtdec_get_int(fdt, node, "power", 50);
-	platdata->otg_board_data.interface_type = MUSB_INTERFACE_UTMI;
-	platdata->plat.mode = MUSB_HOST;
-	platdata->otg_board_data.dev = dev;
-	platdata->plat.config = &platdata->musb_config;
-	platdata->plat.platform_ops = &da8xx_ops;
-	platdata->plat.board_data = &platdata->otg_board_data;
-	platdata->otg_board_data.clear_irq = da8xx_musb_clear_irq;
-	platdata->otg_board_data.reset = da8xx_musb_reset;
+	plat->base = (void *)dev_read_addr_ptr(dev);
+	plat->musb_config.multipoint = 1;
+	plat->musb_config.dyn_fifo = 1;
+	plat->musb_config.num_eps = 5;
+	plat->musb_config.ram_bits = 10;
+	plat->plat.power = fdtdec_get_int(fdt, node, "power", 50);
+	plat->otg_board_data.interface_type = MUSB_INTERFACE_UTMI;
+	plat->plat.mode = MUSB_HOST;
+	plat->otg_board_data.dev = dev;
+	plat->plat.config = &plat->musb_config;
+	plat->plat.platform_ops = &da8xx_ops;
+	plat->plat.board_data = &plat->otg_board_data;
+	plat->otg_board_data.clear_irq = da8xx_musb_clear_irq;
+	plat->otg_board_data.reset = da8xx_musb_reset;
 	return 0;
 }
 
 static int da8xx_musb_probe(struct udevice *dev)
 {
 	struct musb_host_data *host = dev_get_priv(dev);
-	struct da8xx_musb_platdata *platdata = dev_get_platdata(dev);
+	struct da8xx_musb_platdata *plat = dev_get_platdata(dev);
 	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
 	struct omap_musb_board_data *otg_board_data;
 	int ret;
 	void *base = dev_read_addr_ptr(dev);
 
 	/* Get the phy info from the device tree */
-	ret = generic_phy_get_by_name(dev, "usb-phy", &platdata->phy);
+	ret = generic_phy_get_by_name(dev, "usb-phy", &plat->phy);
 	if (ret)
 		return ret;
 
 	/* Initialize the phy */
-	ret = generic_phy_init(&platdata->phy);
+	ret = generic_phy_init(&plat->phy);
 	if (ret)
 		return ret;
 
@@ -302,14 +302,14 @@ static int da8xx_musb_probe(struct udevice *dev)
 	lpsc_on(33);
 
 	/* Enable phy */
-	generic_phy_power_on(&platdata->phy);
+	generic_phy_power_on(&plat->phy);
 
 	priv->desc_before_addr = true;
-	otg_board_data = &platdata->otg_board_data;
+	otg_board_data = &plat->otg_board_data;
 
-	host->host = musb_init_controller(&platdata->plat,
+	host->host = musb_init_controller(&plat->plat,
 					  (struct device *)otg_board_data,
-					  platdata->base);
+					  plat->base);
 	if (!host->host) {
 		ret = -ENODEV;
 		goto shutdown; /* Shutdown what we started */
@@ -321,7 +321,7 @@ static int da8xx_musb_probe(struct udevice *dev)
 		return 0;
 shutdown:
 	/* Turn off the phy if we fail */
-	generic_phy_power_off(&platdata->phy);
+	generic_phy_power_off(&plat->phy);
 	lpsc_disable(33);
 	return ret;
 }
@@ -348,6 +348,6 @@ U_BOOT_DRIVER(da8xx_musb) = {
 	.probe = da8xx_musb_probe,
 	.remove = da8xx_musb_remove,
 	.ops = &musb_usb_ops,
-	.platdata_auto	= sizeof(struct da8xx_musb_platdata),
+	.plat_auto	= sizeof(struct da8xx_musb_platdata),
 	.priv_auto	= sizeof(struct musb_host_data),
 };

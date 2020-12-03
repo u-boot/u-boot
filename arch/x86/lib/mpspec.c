@@ -81,7 +81,7 @@ void mp_write_processor(struct mp_config_table *mc)
 	for (uclass_find_first_device(UCLASS_CPU, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
-		struct cpu_platdata *plat = dev_get_parent_platdata(dev);
+		struct cpu_platdata *plat = dev_get_parent_plat(dev);
 		u8 cpuflag = MPC_CPU_EN;
 
 		if (!device_active(dev))

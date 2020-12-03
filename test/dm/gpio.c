@@ -30,7 +30,7 @@ static int dm_test_gpio(struct unit_test_state *uts)
 
 	/*
 	 * We expect to get 4 banks. One is anonymous (just numbered) and
-	 * comes from platdata. The other are named a (20 gpios),
+	 * comes from plat. The other are named a (20 gpios),
 	 * b (10 gpios) and c (10 gpios) and come from the device tree. See
 	 * test/dm/test.dts.
 	 */

@@ -174,5 +174,5 @@ U_BOOT_DRIVER(w1_gpio_drv) = {
 	.of_match			= w1_gpio_id,
 	.ofdata_to_platdata		= w1_gpio_ofdata_to_platdata,
 	.ops				= &w1_gpio_ops,
-	.platdata_auto	= sizeof(struct w1_gpio_pdata),
+	.plat_auto	= sizeof(struct w1_gpio_pdata),
 };

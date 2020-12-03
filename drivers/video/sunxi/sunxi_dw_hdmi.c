@@ -340,7 +340,7 @@ static int sunxi_dw_hdmi_enable(struct udevice *dev, int panel_bpp,
 
 static int sunxi_dw_hdmi_probe(struct udevice *dev)
 {
-	struct display_plat *uc_plat = dev_get_uclass_platdata(dev);
+	struct display_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct sunxi_dw_hdmi_priv *priv = dev_get_priv(dev);
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;

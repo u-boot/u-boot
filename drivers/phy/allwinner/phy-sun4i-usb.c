@@ -646,6 +646,6 @@ U_BOOT_DRIVER(sun4i_usb_phy) = {
 	.of_match = sun4i_usb_phy_ids,
 	.ops = &sun4i_usb_phy_ops,
 	.probe = sun4i_usb_phy_probe,
-	.platdata_auto	= sizeof(struct sun4i_usb_phy_plat[MAX_PHYS]),
+	.plat_auto	= sizeof(struct sun4i_usb_phy_plat[MAX_PHYS]),
 	.priv_auto	= sizeof(struct sun4i_usb_phy_data),
 };

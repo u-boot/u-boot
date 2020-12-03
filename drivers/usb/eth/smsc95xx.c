@@ -1063,7 +1063,7 @@ U_BOOT_DRIVER(smsc95xx_eth) = {
 	.probe = smsc95xx_eth_probe,
 	.ops	= &smsc95xx_eth_ops,
 	.priv_auto	= sizeof(struct smsc95xx_private),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 static const struct usb_device_id smsc95xx_eth_id_table[] = {

@@ -131,6 +131,6 @@ U_BOOT_DRIVER(atmel_sdhci_drv) = {
 	.bind		= atmel_sdhci_bind,
 	.probe		= atmel_sdhci_probe,
 	.priv_auto	= sizeof(struct sdhci_host),
-	.platdata_auto	= sizeof(struct atmel_sdhci_plat),
+	.plat_auto	= sizeof(struct atmel_sdhci_plat),
 };
 #endif

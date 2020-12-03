@@ -826,7 +826,7 @@ static int max3420_udc_probe(struct udevice *dev)
 	uint speed, mode;
 	struct udevice *spid;
 
-	slave_pdata = dev_get_parent_platdata(dev);
+	slave_pdata = dev_get_parent_plat(dev);
 	cs = slave_pdata->cs;
 	speed = slave_pdata->max_hz;
 	mode = slave_pdata->mode;

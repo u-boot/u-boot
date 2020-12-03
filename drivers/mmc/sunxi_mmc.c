@@ -746,7 +746,7 @@ U_BOOT_DRIVER(sunxi_mmc_drv) = {
 	.bind		= sunxi_mmc_bind,
 	.probe		= sunxi_mmc_probe,
 	.ops		= &sunxi_mmc_ops,
-	.platdata_auto	= sizeof(struct sunxi_mmc_plat),
+	.plat_auto	= sizeof(struct sunxi_mmc_plat),
 	.priv_auto	= sizeof(struct sunxi_mmc_priv),
 };
 #endif

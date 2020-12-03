@@ -18,7 +18,7 @@ static int slimbootloader_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	const efi_guid_t guid = SBL_SERIAL_PORT_INFO_GUID;
 	struct sbl_serial_port_info *data;
-	struct ns16550_platdata *plat = dev->platdata;
+	struct ns16550_platdata *plat = dev->plat;
 
 	if (!gd->arch.hob_list)
 		panic("hob list not found!");
@@ -58,7 +58,7 @@ U_BOOT_DRIVER(serial_slimbootloader) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = slimbootloader_serial_ids,
 	.ofdata_to_platdata = slimbootloader_serial_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct ns16550_platdata),
+	.plat_auto	= sizeof(struct ns16550_platdata),
 	.priv_auto	= sizeof(struct NS16550),
 	.probe	= ns16550_serial_probe,
 	.ops	= &ns16550_serial_ops,

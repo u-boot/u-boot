@@ -25,7 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int sdram_mmr_init_full(struct udevice *dev)
 {
-	struct altera_sdram_platdata *plat = dev->platdata;
+	struct altera_sdram_platdata *plat = dev->plat;
 	struct altera_sdram_priv *priv = dev_get_priv(dev);
 	u32 i;
 	int ret;

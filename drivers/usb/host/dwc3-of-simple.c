@@ -102,6 +102,6 @@ U_BOOT_DRIVER(dwc3_of_simple) = {
 	.of_match = dwc3_of_simple_ids,
 	.probe = dwc3_of_simple_probe,
 	.remove = dwc3_of_simple_remove,
-	.platdata_auto	= sizeof(struct dwc3_of_simple),
+	.plat_auto	= sizeof(struct dwc3_of_simple),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

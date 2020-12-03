@@ -547,7 +547,7 @@ static int claim_locality(struct udevice *dev, int loc)
 
 static int cr50_i2c_get_desc(struct udevice *dev, char *buf, int size)
 {
-	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+	struct dm_i2c_chip *chip = dev_get_parent_plat(dev);
 	struct cr50_priv *priv = dev_get_priv(dev);
 
 	return snprintf(buf, size, "cr50 TPM 2.0 (i2c %02x id %x) irq=%d",

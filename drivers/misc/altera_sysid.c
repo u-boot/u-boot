@@ -59,7 +59,7 @@ U_BOOT_CMD(
 static int altera_sysid_read(struct udevice *dev,
 			     int offset, void *buf, int size)
 {
-	struct altera_sysid_platdata *plat = dev->platdata;
+	struct altera_sysid_platdata *plat = dev->plat;
 	struct altera_sysid_regs *const regs = plat->regs;
 	u32 *sysid = buf;
 
@@ -94,6 +94,6 @@ U_BOOT_DRIVER(altera_sysid) = {
 	.id	= UCLASS_MISC,
 	.of_match = altera_sysid_ids,
 	.ofdata_to_platdata = altera_sysid_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct altera_sysid_platdata),
+	.plat_auto	= sizeof(struct altera_sysid_platdata),
 	.ops	= &altera_sysid_ops,
 };

@@ -229,7 +229,7 @@ static void smbios_write_type4_dm(struct smbios_type4 *t, ofnode node)
 
 	uclass_find_first_device(UCLASS_CPU, &cpu);
 	if (cpu) {
-		struct cpu_platdata *plat = dev_get_parent_platdata(cpu);
+		struct cpu_platdata *plat = dev_get_parent_plat(cpu);
 
 		if (plat->family)
 			processor_family = plat->family;

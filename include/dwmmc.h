@@ -256,7 +256,7 @@ static inline u8 dwmci_readb(struct dwmci_host *host, int reg)
  * ...
  *
  * Inside U_BOOT_DRIVER():
- *	.platdata_auto	= sizeof(struct rockchip_mmc_plat),
+ *	.plat_auto	= sizeof(struct rockchip_mmc_plat),
  *
  * To access platform data:
  *	struct rockchip_mmc_plat *plat = dev_get_platdata(dev);

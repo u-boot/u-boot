@@ -244,7 +244,7 @@ static int pic32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 	ulong tbase;
 
 	priv = dev_get_priv(bus);
-	slave_plat = dev_get_parent_platdata(slave);
+	slave_plat = dev_get_parent_plat(slave);
 
 	debug("spi_xfer: bus:%i cs:%i flags:%lx\n",
 	      bus->seq, slave_plat->cs, flags);

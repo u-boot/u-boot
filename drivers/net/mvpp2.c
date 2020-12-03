@@ -5425,7 +5425,7 @@ static struct driver mvpp2_driver = {
 	.remove = mvpp2_remove,
 	.ops	= &mvpp2_ops,
 	.priv_auto	= sizeof(struct mvpp2_port),
-	.platdata_auto	= sizeof(struct eth_pdata),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags	= DM_FLAG_ACTIVE_DMA,
 };
 

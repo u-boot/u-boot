@@ -89,7 +89,7 @@ static int altera_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	struct udevice *bus = dev->parent;
 	struct altera_spi_priv *priv = dev_get_priv(bus);
 	struct altera_spi_regs *const regs = priv->regs;
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
 
 	/* assume spi core configured to do 8 bit transfers */
 	unsigned int bytes = bitlen / 8;
@@ -203,7 +203,7 @@ U_BOOT_DRIVER(altera_spi) = {
 	.of_match = altera_spi_ids,
 	.ops	= &altera_spi_ops,
 	.ofdata_to_platdata = altera_spi_ofdata_to_platdata,
-	.platdata_auto	= sizeof(struct altera_spi_platdata),
+	.plat_auto	= sizeof(struct altera_spi_platdata),
 	.priv_auto	= sizeof(struct altera_spi_priv),
 	.probe	= altera_spi_probe,
 };

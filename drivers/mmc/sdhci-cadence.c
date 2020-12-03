@@ -310,6 +310,6 @@ U_BOOT_DRIVER(sdhci_cdns) = {
 	.bind = sdhci_cdns_bind,
 	.probe = sdhci_cdns_probe,
 	.priv_auto	= sizeof(struct sdhci_host),
-	.platdata_auto	= sizeof(struct sdhci_cdns_plat),
+	.plat_auto	= sizeof(struct sdhci_cdns_plat),
 	.ops = &sdhci_cdns_mmc_ops,
 };
