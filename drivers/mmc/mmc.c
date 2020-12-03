@@ -2062,7 +2062,7 @@ static int mmc_select_hs400es(struct mmc *mmc)
 
 static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 {
-	int err;
+	int err = 0;
 	const struct mode_width_tuning *mwt;
 	const struct ext_csd_bus_width *ecbw;
 
