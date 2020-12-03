@@ -43,11 +43,11 @@ static int bcm283x_pl011_serial_probe(struct udevice *dev)
 		return -ENODEV;
 
 	/*
-	 * Read the ofdata here rather than in an ofdata_to_platdata() method
+	 * Read the ofdata here rather than in an of_to_plat() method
 	 * since we need the soc simple-bus to be probed so that the 'ranges'
 	 * property is used.
 	 */
-	ret = pl01x_serial_ofdata_to_platdata(dev);
+	ret = pl01x_serial_of_to_plat(dev);
 	if (ret)
 		return ret;
 

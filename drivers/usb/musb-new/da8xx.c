@@ -256,7 +256,7 @@ struct da8xx_musb_platdata {
 	struct phy phy;
 };
 
-static int da8xx_musb_ofdata_to_platdata(struct udevice *dev)
+static int da8xx_musb_of_to_plat(struct udevice *dev)
 {
 	struct da8xx_musb_platdata *plat = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
@@ -344,7 +344,7 @@ U_BOOT_DRIVER(da8xx_musb) = {
 	.name	= "da8xx-musb",
 	.id		= UCLASS_USB,
 	.of_match = da8xx_musb_ids,
-	.ofdata_to_platdata = da8xx_musb_ofdata_to_platdata,
+	.of_to_plat = da8xx_musb_of_to_plat,
 	.probe = da8xx_musb_probe,
 	.remove = da8xx_musb_remove,
 	.ops = &musb_usb_ops,

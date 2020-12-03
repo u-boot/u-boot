@@ -89,7 +89,7 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 int device_reparent(struct udevice *dev, struct udevice *new_parent);
 
 /**
- * device_ofdata_to_platdata() - Read platform data for a device
+ * device_of_to_plat() - Read platform data for a device
  *
  * Read platform data for a device (typically from the device tree) so that
  * the information needed to probe the device is present.
@@ -102,7 +102,7 @@ int device_reparent(struct udevice *dev, struct udevice *new_parent);
  * @dev: Pointer to device to process
  * @return 0 if OK, -ve on error
  */
-int device_ofdata_to_platdata(struct udevice *dev);
+int device_of_to_plat(struct udevice *dev);
 
 /**
  * device_probe() - Probe a device, activating it

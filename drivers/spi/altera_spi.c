@@ -169,7 +169,7 @@ static int altera_spi_probe(struct udevice *bus)
 	return 0;
 }
 
-static int altera_spi_ofdata_to_platdata(struct udevice *bus)
+static int altera_spi_of_to_plat(struct udevice *bus)
 {
 	struct altera_spi_platdata *plat = dev_get_plat(bus);
 
@@ -202,7 +202,7 @@ U_BOOT_DRIVER(altera_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = altera_spi_ids,
 	.ops	= &altera_spi_ops,
-	.ofdata_to_platdata = altera_spi_ofdata_to_platdata,
+	.of_to_plat = altera_spi_of_to_plat,
 	.plat_auto	= sizeof(struct altera_spi_platdata),
 	.priv_auto	= sizeof(struct altera_spi_priv),
 	.probe	= altera_spi_probe,

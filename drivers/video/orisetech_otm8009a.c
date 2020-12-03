@@ -295,7 +295,7 @@ static int otm8009a_panel_get_display_timing(struct udevice *dev,
 	return 0;
 }
 
-static int otm8009a_panel_ofdata_to_platdata(struct udevice *dev)
+static int otm8009a_panel_of_to_plat(struct udevice *dev)
 {
 	struct otm8009a_panel_priv *priv = dev_get_priv(dev);
 	int ret;
@@ -364,7 +364,7 @@ U_BOOT_DRIVER(otm8009a_panel) = {
 	.id			  = UCLASS_PANEL,
 	.of_match		  = otm8009a_panel_ids,
 	.ops			  = &otm8009a_panel_ops,
-	.ofdata_to_platdata	  = otm8009a_panel_ofdata_to_platdata,
+	.of_to_plat	  = otm8009a_panel_of_to_plat,
 	.probe			  = otm8009a_panel_probe,
 	.plat_auto	= sizeof(struct mipi_dsi_panel_plat),
 	.priv_auto	= sizeof(struct otm8009a_panel_priv),

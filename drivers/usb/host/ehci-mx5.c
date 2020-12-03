@@ -285,7 +285,7 @@ static const struct ehci_ops mx5_ehci_ops = {
 	.powerup_fixup		= mx5_ehci_powerup_fixup,
 };
 
-static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
+static int ehci_usb_of_to_plat(struct udevice *dev)
 {
 	struct usb_platdata *plat = dev_get_plat(dev);
 	const char *mode;
@@ -363,7 +363,7 @@ U_BOOT_DRIVER(usb_mx5) = {
 	.name	= "ehci_mx5",
 	.id	= UCLASS_USB,
 	.of_match = mx5_usb_ids,
-	.ofdata_to_platdata = ehci_usb_ofdata_to_platdata,
+	.of_to_plat = ehci_usb_of_to_plat,
 	.probe	= ehci_usb_probe,
 	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,

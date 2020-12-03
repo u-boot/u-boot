@@ -120,7 +120,7 @@ void qe_config_iopin(u8 port, u8 pin, int dir, int open_drain, int assign)
 	qe_cfg_iopin(par_io, port, pin, dir, open_drain, assign);
 }
 #else
-static int qe_io_ofdata_to_platdata(struct udevice *dev)
+static int qe_io_of_to_plat(struct udevice *dev)
 {
 	struct qe_io_platdata *plat = dev->plat;
 	fdt_addr_t addr;
@@ -245,7 +245,7 @@ U_BOOT_DRIVER(par_io_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(par_io_pinctrl_match),
 	.probe = par_io_pinctrl_probe,
-	.ofdata_to_platdata = qe_io_ofdata_to_platdata,
+	.of_to_plat = qe_io_of_to_plat,
 	.plat_auto	= sizeof(struct qe_io_platdata),
 	.ops = &par_io_pinctrl_ops,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)

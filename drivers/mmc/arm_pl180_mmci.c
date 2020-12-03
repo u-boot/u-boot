@@ -523,7 +523,7 @@ static const struct dm_mmc_ops arm_pl180_dm_mmc_ops = {
 	.get_cd = dm_mmc_getcd,
 };
 
-static int arm_pl180_mmc_ofdata_to_platdata(struct udevice *dev)
+static int arm_pl180_mmc_of_to_plat(struct udevice *dev)
 {
 	struct pl180_mmc_host *host = dev->priv;
 	fdt_addr_t addr;
@@ -549,7 +549,7 @@ U_BOOT_DRIVER(arm_pl180_mmc) = {
 	.of_match = arm_pl180_mmc_match,
 	.ops = &arm_pl180_dm_mmc_ops,
 	.probe = arm_pl180_mmc_probe,
-	.ofdata_to_platdata = arm_pl180_mmc_ofdata_to_platdata,
+	.of_to_plat = arm_pl180_mmc_of_to_plat,
 	.bind = arm_pl180_mmc_bind,
 	.priv_auto	= sizeof(struct pl180_mmc_host),
 	.plat_auto	= sizeof(struct arm_pl180_mmc_plat),

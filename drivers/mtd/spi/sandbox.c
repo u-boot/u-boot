@@ -498,7 +498,7 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 	return pos == bytes ? 0 : -EIO;
 }
 
-int sandbox_sf_ofdata_to_platdata(struct udevice *dev)
+int sandbox_sf_of_to_plat(struct udevice *dev)
 {
 	struct sandbox_spi_flash_plat_data *pdata = dev_get_plat(dev);
 
@@ -597,7 +597,7 @@ U_BOOT_DRIVER(sandbox_sf_emul) = {
 	.name		= "sandbox_sf_emul",
 	.id		= UCLASS_SPI_EMUL,
 	.of_match	= sandbox_sf_ids,
-	.ofdata_to_platdata = sandbox_sf_ofdata_to_platdata,
+	.of_to_plat = sandbox_sf_of_to_plat,
 	.probe		= sandbox_sf_probe,
 	.remove		= sandbox_sf_remove,
 	.priv_auto	= sizeof(struct sandbox_spi_flash),

@@ -747,7 +747,7 @@ static int ks2_eth_parse_slave_interface(int netcp, int slave,
 	return 0;
 }
 
-static int ks2_sl_eth_ofdata_to_platdata(struct udevice *dev)
+static int ks2_sl_eth_of_to_plat(struct udevice *dev)
 {
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_plat(dev);
@@ -770,7 +770,7 @@ static int ks2_sl_eth_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-static int ks2_eth_ofdata_to_platdata(struct udevice *dev)
+static int ks2_eth_of_to_plat(struct udevice *dev)
 {
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_plat(dev);
@@ -800,7 +800,7 @@ static const struct udevice_id ks2_eth_ids[] = {
 U_BOOT_DRIVER(eth_ks2_slave) = {
 	.name	= "eth_ks2_sl",
 	.id	= UCLASS_ETH,
-	.ofdata_to_platdata = ks2_sl_eth_ofdata_to_platdata,
+	.of_to_plat = ks2_sl_eth_of_to_plat,
 	.probe	= ks2_eth_probe,
 	.remove	= ks2_eth_remove,
 	.ops	= &ks2_eth_ops,
@@ -813,7 +813,7 @@ U_BOOT_DRIVER(eth_ks2) = {
 	.name	= "eth_ks2",
 	.id	= UCLASS_ETH,
 	.of_match = ks2_eth_ids,
-	.ofdata_to_platdata = ks2_eth_ofdata_to_platdata,
+	.of_to_plat = ks2_eth_of_to_plat,
 	.probe	= ks2_eth_probe,
 	.remove	= ks2_eth_remove,
 	.ops	= &ks2_eth_ops,

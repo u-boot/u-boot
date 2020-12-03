@@ -34,7 +34,7 @@ static struct dw_scl_sda_cfg byt_config = {
 /* Have a weak function for now - possibly should be a new uclass */
 __weak void lpss_reset_release(void *regs);
 
-static int designware_i2c_pci_ofdata_to_platdata(struct udevice *dev)
+static int designware_i2c_pci_of_to_plat(struct udevice *dev)
 {
 	struct dw_i2c *priv = dev_get_priv(dev);
 
@@ -71,7 +71,7 @@ static int designware_i2c_pci_ofdata_to_platdata(struct udevice *dev)
 	if (dev_get_driver_data(dev) == INTEL_APL)
 		priv->has_spk_cnt = true;
 
-	return designware_i2c_ofdata_to_platdata(dev);
+	return designware_i2c_of_to_plat(dev);
 }
 
 static int designware_i2c_pci_probe(struct udevice *dev)
@@ -211,7 +211,7 @@ U_BOOT_DRIVER(i2c_designware_pci) = {
 	.id	= UCLASS_I2C,
 	.of_match = designware_i2c_pci_ids,
 	.bind	= designware_i2c_pci_bind,
-	.ofdata_to_platdata	= designware_i2c_pci_ofdata_to_platdata,
+	.of_to_plat	= designware_i2c_pci_of_to_plat,
 	.probe	= designware_i2c_pci_probe,
 	.priv_auto	= sizeof(struct dw_i2c),
 	.remove = designware_i2c_remove,

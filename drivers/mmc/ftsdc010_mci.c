@@ -389,7 +389,7 @@ static void ftsdc_setup_cfg(struct mmc_config *cfg, const char *name, int buswid
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 }
 
-static int ftsdc010_mmc_ofdata_to_platdata(struct udevice *dev)
+static int ftsdc010_mmc_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct ftsdc_priv *priv = dev_get_priv(dev);
@@ -473,7 +473,7 @@ U_BOOT_DRIVER(ftsdc010_mmc) = {
 	.name		= "ftsdc010_mmc",
 	.id		= UCLASS_MMC,
 	.of_match	= ftsdc010_mmc_ids,
-	.ofdata_to_platdata = ftsdc010_mmc_ofdata_to_platdata,
+	.of_to_plat = ftsdc010_mmc_of_to_plat,
 	.ops		= &dm_ftsdc010_mmc_ops,
 	.bind		= ftsdc010_mmc_bind,
 	.probe		= ftsdc010_mmc_probe,

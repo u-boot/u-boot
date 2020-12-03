@@ -521,17 +521,17 @@ int i2c_get_chip_for_busnum(int busnum, int chip_addr, uint offset_len,
 			    struct udevice **devp);
 
 /**
- * i2c_chip_ofdata_to_platdata() - Decode standard I2C platform data
+ * i2c_chip_of_to_plat() - Decode standard I2C platform data
  *
  * This decodes the chip address from a device tree node and puts it into
  * its dm_i2c_chip structure. This should be called in your driver's
- * ofdata_to_platdata() method.
+ * of_to_plat() method.
  *
  * @blob:	Device tree blob
  * @node:	Node offset to read from
  * @spi:	Place to put the decoded information
  */
-int i2c_chip_ofdata_to_platdata(struct udevice *dev, struct dm_i2c_chip *chip);
+int i2c_chip_of_to_plat(struct udevice *dev, struct dm_i2c_chip *chip);
 
 /**
  * i2c_dump_msgs() - Dump a list of I2C messages
@@ -568,7 +568,7 @@ struct udevice *i2c_emul_get_device(struct udevice *emul);
 extern struct acpi_ops i2c_acpi_ops;
 
 /**
- * acpi_i2c_ofdata_to_platdata() - Read properties intended for ACPI
+ * acpi_i2c_of_to_plat() - Read properties intended for ACPI
  *
  * This reads the generic I2C properties from the device tree, so that these
  * can be used to create ACPI information for the device.
@@ -579,7 +579,7 @@ extern struct acpi_ops i2c_acpi_ops;
  * @dev: I2C device to process
  * @return 0 if OK, -EINVAL if acpi,hid is not present
  */
-int acpi_i2c_ofdata_to_platdata(struct udevice *dev);
+int acpi_i2c_of_to_plat(struct udevice *dev);
 
 #ifndef CONFIG_DM_I2C
 

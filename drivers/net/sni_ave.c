@@ -732,7 +732,7 @@ static int ave_pxs3_get_pinmode(struct ave_private *priv)
 	return 0;
 }
 
-static int ave_ofdata_to_platdata(struct udevice *dev)
+static int ave_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ave_private *priv = dev_get_priv(dev);
@@ -996,7 +996,7 @@ U_BOOT_DRIVER(ave) = {
 	.of_match = ave_ids,
 	.probe	  = ave_probe,
 	.remove	  = ave_remove,
-	.ofdata_to_platdata = ave_ofdata_to_platdata,
+	.of_to_plat = ave_of_to_plat,
 	.ops	  = &ave_ops,
 	.priv_auto	= sizeof(struct ave_private),
 	.plat_auto	= sizeof(struct eth_pdata),

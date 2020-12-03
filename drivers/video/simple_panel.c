@@ -48,7 +48,7 @@ static int simple_panel_set_backlight(struct udevice *dev, int percent)
 	return 0;
 }
 
-static int simple_panel_ofdata_to_platdata(struct udevice *dev)
+static int simple_panel_of_to_plat(struct udevice *dev)
 {
 	struct simple_panel_priv *priv = dev_get_priv(dev);
 	int ret;
@@ -116,7 +116,7 @@ U_BOOT_DRIVER(simple_panel) = {
 	.id	= UCLASS_PANEL,
 	.of_match = simple_panel_ids,
 	.ops	= &simple_panel_ops,
-	.ofdata_to_platdata	= simple_panel_ofdata_to_platdata,
+	.of_to_plat	= simple_panel_of_to_plat,
 	.probe		= simple_panel_probe,
 	.priv_auto	= sizeof(struct simple_panel_priv),
 };

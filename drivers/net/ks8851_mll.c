@@ -665,7 +665,7 @@ static int ks8851_probe(struct udevice *dev)
 	return 0;
 }
 
-static int ks8851_ofdata_to_platdata(struct udevice *dev)
+static int ks8851_of_to_plat(struct udevice *dev)
 {
 	struct ks_net *ks = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_plat(dev);
@@ -695,7 +695,7 @@ U_BOOT_DRIVER(ks8851) = {
 	.id		= UCLASS_ETH,
 	.of_match	= ks8851_ids,
 	.bind		= ks8851_bind,
-	.ofdata_to_platdata = ks8851_ofdata_to_platdata,
+	.of_to_plat = ks8851_of_to_plat,
 	.probe		= ks8851_probe,
 	.ops		= &ks8851_ops,
 	.priv_auto	= sizeof(struct ks_net),

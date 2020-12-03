@@ -460,7 +460,7 @@ static int cdns_i2c_xfer(struct udevice *dev, struct i2c_msg *msg,
 	return ret;
 }
 
-static int cdns_i2c_ofdata_to_platdata(struct udevice *dev)
+static int cdns_i2c_of_to_plat(struct udevice *dev)
 {
 	struct i2c_cdns_bus *i2c_bus = dev_get_priv(dev);
 	struct cdns_i2c_platform_data *pdata =
@@ -503,7 +503,7 @@ U_BOOT_DRIVER(cdns_i2c) = {
 	.name = "i2c_cdns",
 	.id = UCLASS_I2C,
 	.of_match = cdns_i2c_of_match,
-	.ofdata_to_platdata = cdns_i2c_ofdata_to_platdata,
+	.of_to_plat = cdns_i2c_of_to_plat,
 	.priv_auto	= sizeof(struct i2c_cdns_bus),
 	.ops = &cdns_i2c_ops,
 };

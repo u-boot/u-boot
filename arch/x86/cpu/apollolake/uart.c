@@ -72,7 +72,7 @@ void apl_uart_init(pci_dev_t bdf, ulong base)
  *
  * When running with of-platdata (generally TPL), the platdata is converted to
  * something that ns16550 expects. When running withoutof-platdata (SPL, U-Boot
- * proper), we use ns16550's ofdata_to_platdata routine.
+ * proper), we use ns16550's of_to_plat routine.
  */
 
 static int apl_ns16550_probe(struct udevice *dev)
@@ -85,7 +85,7 @@ static int apl_ns16550_probe(struct udevice *dev)
 	return ns16550_serial_probe(dev);
 }
 
-static int apl_ns16550_ofdata_to_platdata(struct udevice *dev)
+static int apl_ns16550_of_to_plat(struct udevice *dev)
 {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct dtd_intel_apl_ns16550 *dtplat = dev_get_plat(dev);
@@ -109,7 +109,7 @@ static int apl_ns16550_ofdata_to_platdata(struct udevice *dev)
 #else
 	int ret;
 
-	ret = ns16550_serial_ofdata_to_platdata(dev);
+	ret = ns16550_serial_of_to_plat(dev);
 	if (ret)
 		return ret;
 #endif /* OF_PLATDATA */
@@ -129,6 +129,6 @@ U_BOOT_DRIVER(intel_apl_ns16550) = {
 	.plat_auto	= sizeof(struct ns16550_platdata),
 	.priv_auto	= sizeof(struct NS16550),
 	.ops	= &ns16550_serial_ops,
-	.ofdata_to_platdata = apl_ns16550_ofdata_to_platdata,
+	.of_to_plat = apl_ns16550_of_to_plat,
 	.probe = apl_ns16550_probe,
 };

@@ -443,7 +443,7 @@ static const struct dm_mmc_ops jz_msc_ops = {
 	.set_ios	= jz_mmc_dm_set_ios,
 };
 
-static int jz_mmc_ofdata_to_platdata(struct udevice *dev)
+static int jz_mmc_of_to_plat(struct udevice *dev)
 {
 	struct jz_mmc_priv *priv = dev_get_priv(dev);
 	struct jz_mmc_plat *plat = dev_get_plat(dev);
@@ -498,7 +498,7 @@ U_BOOT_DRIVER(jz_mmc_drv) = {
 	.name			= "jz_mmc",
 	.id			= UCLASS_MMC,
 	.of_match		= jz_mmc_ids,
-	.ofdata_to_platdata	= jz_mmc_ofdata_to_platdata,
+	.of_to_plat	= jz_mmc_of_to_plat,
 	.bind			= jz_mmc_bind,
 	.probe			= jz_mmc_probe,
 	.priv_auto	= sizeof(struct jz_mmc_priv),

@@ -675,7 +675,7 @@ static int meson_saradc_probe(struct udevice *dev)
 	return 0;
 }
 
-int meson_saradc_ofdata_to_platdata(struct udevice *dev)
+int meson_saradc_of_to_plat(struct udevice *dev)
 {
 	struct adc_uclass_plat *uc_pdata = dev_get_uclass_plat(dev);
 	struct meson_saradc_priv *priv = dev_get_priv(dev);
@@ -720,6 +720,6 @@ U_BOOT_DRIVER(meson_saradc) = {
 	.of_match	= meson_saradc_ids,
 	.ops		= &meson_saradc_ops,
 	.probe		= meson_saradc_probe,
-	.ofdata_to_platdata = meson_saradc_ofdata_to_platdata,
+	.of_to_plat = meson_saradc_of_to_plat,
 	.priv_auto	= sizeof(struct meson_saradc_priv),
 };

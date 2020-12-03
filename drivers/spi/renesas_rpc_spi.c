@@ -417,7 +417,7 @@ static int rpc_spi_probe(struct udevice *dev)
 	return 0;
 }
 
-static int rpc_spi_ofdata_to_platdata(struct udevice *bus)
+static int rpc_spi_of_to_plat(struct udevice *bus)
 {
 	struct rpc_spi_platdata *plat = dev_get_plat(bus);
 
@@ -463,7 +463,7 @@ U_BOOT_DRIVER(rpc_spi) = {
 	.id		= UCLASS_SPI,
 	.of_match	= rpc_spi_ids,
 	.ops		= &rpc_spi_ops,
-	.ofdata_to_platdata = rpc_spi_ofdata_to_platdata,
+	.of_to_plat = rpc_spi_of_to_plat,
 	.plat_auto	= sizeof(struct rpc_spi_platdata),
 	.priv_auto	= sizeof(struct rpc_spi_priv),
 	.bind		= rpc_spi_bind,

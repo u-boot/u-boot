@@ -91,7 +91,7 @@ static int altera_jtaguart_probe(struct udevice *dev)
 	return 0;
 }
 
-static int altera_jtaguart_ofdata_to_platdata(struct udevice *dev)
+static int altera_jtaguart_of_to_plat(struct udevice *dev)
 {
 	struct altera_jtaguart_platdata *plat = dev_get_plat(dev);
 
@@ -118,7 +118,7 @@ U_BOOT_DRIVER(altera_jtaguart) = {
 	.name	= "altera_jtaguart",
 	.id	= UCLASS_SERIAL,
 	.of_match = altera_jtaguart_ids,
-	.ofdata_to_platdata = altera_jtaguart_ofdata_to_platdata,
+	.of_to_plat = altera_jtaguart_of_to_plat,
 	.plat_auto	= sizeof(struct altera_jtaguart_platdata),
 	.probe = altera_jtaguart_probe,
 	.ops	= &altera_jtaguart_ops,

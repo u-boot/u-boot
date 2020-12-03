@@ -685,7 +685,7 @@ static void ethoc_stop(struct udevice *dev)
 	ethoc_stop_common(dev_get_priv(dev));
 }
 
-static int ethoc_ofdata_to_platdata(struct udevice *dev)
+static int ethoc_of_to_plat(struct udevice *dev)
 {
 	struct ethoc_eth_pdata *pdata = dev_get_plat(dev);
 	fdt_addr_t addr;
@@ -746,7 +746,7 @@ U_BOOT_DRIVER(ethoc) = {
 	.name				= "ethoc",
 	.id				= UCLASS_ETH,
 	.of_match			= ethoc_ids,
-	.ofdata_to_platdata		= ethoc_ofdata_to_platdata,
+	.of_to_plat		= ethoc_of_to_plat,
 	.probe				= ethoc_probe,
 	.remove				= ethoc_remove,
 	.ops				= &ethoc_ops,

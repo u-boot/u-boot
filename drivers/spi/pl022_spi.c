@@ -286,7 +286,7 @@ static const struct dm_spi_ops pl022_spi_ops = {
 };
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-static int pl022_spi_ofdata_to_platdata(struct udevice *bus)
+static int pl022_spi_of_to_plat(struct udevice *bus)
 {
 	struct pl022_spi_pdata *plat = bus->plat;
 	const void *fdt = gd->fdt_blob;
@@ -316,7 +316,7 @@ U_BOOT_DRIVER(pl022_spi) = {
 	.id     = UCLASS_SPI,
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = pl022_spi_ids,
-	.ofdata_to_platdata = pl022_spi_ofdata_to_platdata,
+	.of_to_plat = pl022_spi_of_to_plat,
 #endif
 	.ops    = &pl022_spi_ops,
 	.plat_auto	= sizeof(struct pl022_spi_pdata),

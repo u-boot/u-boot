@@ -226,7 +226,7 @@ static const struct dm_spi_ops soft_spi_ops = {
 	.set_mode	= soft_spi_set_mode,
 };
 
-static int soft_spi_ofdata_to_platdata(struct udevice *dev)
+static int soft_spi_of_to_plat(struct udevice *dev)
 {
 	struct soft_spi_platdata *plat = dev->plat;
 	const void *blob = gd->fdt_blob;
@@ -280,7 +280,7 @@ U_BOOT_DRIVER(soft_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = soft_spi_ids,
 	.ops	= &soft_spi_ops,
-	.ofdata_to_platdata = soft_spi_ofdata_to_platdata,
+	.of_to_plat = soft_spi_of_to_plat,
 	.plat_auto	= sizeof(struct soft_spi_platdata),
 	.priv_auto	= sizeof(struct soft_spi_priv),
 	.probe	= soft_spi_probe,

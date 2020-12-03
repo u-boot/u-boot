@@ -262,7 +262,7 @@ static int mxs_gpio_probe(struct udevice *dev)
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
-static int mxs_ofdata_to_platdata(struct udevice *dev)
+static int mxs_of_to_plat(struct udevice *dev)
 {
 	struct mxs_gpio_platdata *plat = dev->plat;
 	struct fdtdec_phandle_args args;
@@ -302,7 +302,7 @@ U_BOOT_DRIVER(fsl_imx23_gpio) = {
 	.plat_auto	= sizeof(struct mxs_gpio_platdata),
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = mxs_gpio_ids,
-	.ofdata_to_platdata = mxs_ofdata_to_platdata,
+	.of_to_plat = mxs_of_to_plat,
 #endif
 };
 

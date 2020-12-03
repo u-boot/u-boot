@@ -174,7 +174,7 @@ static int sifive_serial_pending(struct udevice *dev, bool input)
 		return !!(readl(&regs->txfifo) & UART_TXFIFO_FULL);
 }
 
-static int sifive_serial_ofdata_to_platdata(struct udevice *dev)
+static int sifive_serial_of_to_plat(struct udevice *dev)
 {
 	struct sifive_uart_platdata *plat = dev_get_plat(dev);
 
@@ -201,7 +201,7 @@ U_BOOT_DRIVER(serial_sifive) = {
 	.name	= "serial_sifive",
 	.id	= UCLASS_SERIAL,
 	.of_match = sifive_serial_ids,
-	.ofdata_to_platdata = sifive_serial_ofdata_to_platdata,
+	.of_to_plat = sifive_serial_of_to_plat,
 	.plat_auto	= sizeof(struct sifive_uart_platdata),
 	.probe = sifive_serial_probe,
 	.ops	= &sifive_serial_ops,

@@ -176,7 +176,7 @@ static int s5p_serial_pending(struct udevice *dev, bool input)
 		return (ufstat & TX_FIFO_COUNT_MASK) >> TX_FIFO_COUNT_SHIFT;
 }
 
-static int s5p_serial_ofdata_to_platdata(struct udevice *dev)
+static int s5p_serial_of_to_plat(struct udevice *dev)
 {
 	struct s5p_serial_platdata *plat = dev->plat;
 	fdt_addr_t addr;
@@ -207,7 +207,7 @@ U_BOOT_DRIVER(serial_s5p) = {
 	.name	= "serial_s5p",
 	.id	= UCLASS_SERIAL,
 	.of_match = s5p_serial_ids,
-	.ofdata_to_platdata = s5p_serial_ofdata_to_platdata,
+	.of_to_plat = s5p_serial_of_to_plat,
 	.plat_auto	= sizeof(struct s5p_serial_platdata),
 	.probe = s5p_serial_probe,
 	.ops	= &s5p_serial_ops,

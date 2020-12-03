@@ -93,7 +93,7 @@ static int _ich6_gpio_set_direction(uint16_t base, unsigned offset, int dir)
 	return 0;
 }
 
-static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
+static int gpio_ich6_of_to_plat(struct udevice *dev)
 {
 	struct ich6_bank_platdata *plat = dev_get_plat(dev);
 	u32 gpiobase;
@@ -234,7 +234,7 @@ U_BOOT_DRIVER(gpio_ich6) = {
 	.id	= UCLASS_GPIO,
 	.of_match = intel_ich6_gpio_ids,
 	.ops	= &gpio_ich6_ops,
-	.ofdata_to_platdata	= gpio_ich6_ofdata_to_platdata,
+	.of_to_plat	= gpio_ich6_of_to_plat,
 	.probe	= ich6_gpio_probe,
 	.priv_auto	= sizeof(struct ich6_bank_priv),
 	.plat_auto	= sizeof(struct ich6_bank_platdata),

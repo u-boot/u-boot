@@ -473,7 +473,7 @@ static const struct misc_ops stm32mp_bsec_ops = {
 	.write = stm32mp_bsec_write,
 };
 
-static int stm32mp_bsec_ofdata_to_platdata(struct udevice *dev)
+static int stm32mp_bsec_of_to_plat(struct udevice *dev)
 {
 	struct stm32mp_bsec_platdata *plat = dev_get_plat(dev);
 
@@ -512,7 +512,7 @@ U_BOOT_DRIVER(stm32mp_bsec) = {
 	.name = "stm32mp_bsec",
 	.id = UCLASS_MISC,
 	.of_match = stm32mp_bsec_ids,
-	.ofdata_to_platdata = stm32mp_bsec_ofdata_to_platdata,
+	.of_to_plat = stm32mp_bsec_of_to_plat,
 	.plat_auto	= sizeof(struct stm32mp_bsec_platdata),
 	.ops = &stm32mp_bsec_ops,
 	.probe = stm32mp_bsec_probe,

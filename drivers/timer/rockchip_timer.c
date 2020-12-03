@@ -97,7 +97,7 @@ static u64 rockchip_timer_get_count(struct udevice *dev)
 	return ~0ull - cntr;
 }
 
-static int rockchip_clk_ofdata_to_platdata(struct udevice *dev)
+static int rockchip_clk_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rockchip_timer_priv *priv = dev_get_priv(dev);
@@ -169,5 +169,5 @@ U_BOOT_DRIVER(rockchip_rk3368_timer) = {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	.plat_auto	= sizeof(struct rockchip_timer_plat),
 #endif
-	.ofdata_to_platdata = rockchip_clk_ofdata_to_platdata,
+	.of_to_plat = rockchip_clk_of_to_plat,
 };

@@ -14,7 +14,7 @@
 
 #include "regulator_common.h"
 
-static int fixed_regulator_ofdata_to_platdata(struct udevice *dev)
+static int fixed_regulator_of_to_plat(struct udevice *dev)
 {
 	struct dm_regulator_uclass_plat *uc_pdata;
 	struct regulator_common_platdata *dev_pdata;
@@ -26,7 +26,7 @@ static int fixed_regulator_ofdata_to_platdata(struct udevice *dev)
 
 	uc_pdata->type = REGULATOR_TYPE_FIXED;
 
-	return regulator_common_ofdata_to_platdata(dev, dev_pdata, "gpio");
+	return regulator_common_of_to_plat(dev, dev_pdata, "gpio");
 }
 
 static int fixed_regulator_get_value(struct udevice *dev)
@@ -88,6 +88,6 @@ U_BOOT_DRIVER(regulator_fixed) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &fixed_regulator_ops,
 	.of_match = fixed_regulator_ids,
-	.ofdata_to_platdata = fixed_regulator_ofdata_to_platdata,
+	.of_to_plat = fixed_regulator_of_to_plat,
 	.plat_auto	= sizeof(struct regulator_common_platdata),
 };

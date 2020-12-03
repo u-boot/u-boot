@@ -282,7 +282,7 @@ static int cadence_spi_mem_exec_op(struct spi_slave *spi,
 	return err;
 }
 
-static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
+static int cadence_spi_of_to_plat(struct udevice *bus)
 {
 	struct cadence_spi_platdata *plat = bus->plat;
 	ofnode subnode;
@@ -353,7 +353,7 @@ U_BOOT_DRIVER(cadence_spi) = {
 	.id = UCLASS_SPI,
 	.of_match = cadence_spi_ids,
 	.ops = &cadence_spi_ops,
-	.ofdata_to_platdata = cadence_spi_ofdata_to_platdata,
+	.of_to_plat = cadence_spi_of_to_plat,
 	.plat_auto	= sizeof(struct cadence_spi_platdata),
 	.priv_auto	= sizeof(struct cadence_spi_priv),
 	.probe = cadence_spi_probe,

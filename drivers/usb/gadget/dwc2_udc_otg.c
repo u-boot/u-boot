@@ -980,7 +980,7 @@ static void dwc2_phy_shutdown(struct udevice *dev, struct phy_bulk *phys)
 	generic_phy_exit_bulk(phys);
 }
 
-static int dwc2_udc_otg_ofdata_to_platdata(struct udevice *dev)
+static int dwc2_udc_otg_of_to_plat(struct udevice *dev)
 {
 	struct dwc2_plat_otg_data *plat = dev_get_plat(dev);
 	ulong drvdata;
@@ -1185,7 +1185,7 @@ U_BOOT_DRIVER(dwc2_udc_otg) = {
 	.name	= "dwc2-udc-otg",
 	.id	= UCLASS_USB_GADGET_GENERIC,
 	.of_match = dwc2_udc_otg_ids,
-	.ofdata_to_platdata = dwc2_udc_otg_ofdata_to_platdata,
+	.of_to_plat = dwc2_udc_otg_of_to_plat,
 	.probe = dwc2_udc_otg_probe,
 	.remove = dwc2_udc_otg_remove,
 	.plat_auto	= sizeof(struct dwc2_plat_otg_data),

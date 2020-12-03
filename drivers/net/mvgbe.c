@@ -986,7 +986,7 @@ static const struct eth_ops mvgbe_ops = {
 	.write_hwaddr	= mvgbe_write_hwaddr,
 };
 
-static int mvgbe_ofdata_to_platdata(struct udevice *dev)
+static int mvgbe_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct mvgbe_device *dmvgbe = dev_get_priv(dev);
@@ -1038,7 +1038,7 @@ U_BOOT_DRIVER(mvgbe) = {
 	.name	= "mvgbe",
 	.id	= UCLASS_ETH,
 	.of_match = mvgbe_ids,
-	.ofdata_to_platdata = mvgbe_ofdata_to_platdata,
+	.of_to_plat = mvgbe_of_to_plat,
 	.probe	= mvgbe_probe,
 	.ops	= &mvgbe_ops,
 	.priv_auto	= sizeof(struct mvgbe_device),

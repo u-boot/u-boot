@@ -129,7 +129,7 @@ static int pcie_xilinx_write_config(struct udevice *bus, pci_dev_t bdf,
 }
 
 /**
- * pcie_xilinx_ofdata_to_platdata() - Translate from DT to device state
+ * pcie_xilinx_of_to_plat() - Translate from DT to device state
  * @dev: A pointer to the device being operated on
  *
  * Translate relevant data from the device tree pertaining to device @dev into
@@ -138,7 +138,7 @@ static int pcie_xilinx_write_config(struct udevice *bus, pci_dev_t bdf,
  *
  * Return: 0 on success, else -EINVAL
  */
-static int pcie_xilinx_ofdata_to_platdata(struct udevice *dev)
+static int pcie_xilinx_of_to_plat(struct udevice *dev)
 {
 	struct xilinx_pcie *pcie = dev_get_priv(dev);
 	struct fdt_resource reg_res;
@@ -174,6 +174,6 @@ U_BOOT_DRIVER(pcie_xilinx) = {
 	.id			= UCLASS_PCI,
 	.of_match		= pcie_xilinx_ids,
 	.ops			= &pcie_xilinx_ops,
-	.ofdata_to_platdata	= pcie_xilinx_ofdata_to_platdata,
+	.of_to_plat	= pcie_xilinx_of_to_plat,
 	.priv_auto	= sizeof(struct xilinx_pcie),
 };

@@ -219,7 +219,7 @@ int at91_i2c_get_bus_speed(struct udevice *dev)
 	return bus->speed;
 }
 
-static int at91_i2c_ofdata_to_platdata(struct udevice *dev)
+static int at91_i2c_of_to_plat(struct udevice *dev)
 {
 	const void *blob = gd->fdt_blob;
 	struct at91_i2c_bus *bus = dev_get_priv(dev);
@@ -317,7 +317,7 @@ U_BOOT_DRIVER(i2c_at91) = {
 	.id	= UCLASS_I2C,
 	.of_match = at91_i2c_ids,
 	.probe = at91_i2c_probe,
-	.ofdata_to_platdata = at91_i2c_ofdata_to_platdata,
+	.of_to_plat = at91_i2c_of_to_plat,
 	.per_child_auto	= sizeof(struct dm_i2c_chip),
 	.priv_auto	= sizeof(struct at91_i2c_bus),
 	.ops	= &at91_i2c_ops,

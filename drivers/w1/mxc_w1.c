@@ -166,7 +166,7 @@ static u8 mxc_w1_triplet(struct udevice *dev, bool bdir)
 	return retval;
 }
 
-static int mxc_w1_ofdata_to_platdata(struct udevice *dev)
+static int mxc_w1_of_to_plat(struct udevice *dev)
 {
 	struct mxc_w1_pdata *pdata = dev_get_plat(dev);
 	fdt_addr_t addr;
@@ -228,7 +228,7 @@ U_BOOT_DRIVER(mxc_w1_drv) = {
 	.id				= UCLASS_W1,
 	.name				= "mxc_w1_drv",
 	.of_match			= mxc_w1_id,
-	.ofdata_to_platdata		= mxc_w1_ofdata_to_platdata,
+	.of_to_plat		= mxc_w1_of_to_plat,
 	.ops				= &mxc_w1_ops,
 	.plat_auto	= sizeof(struct mxc_w1_pdata),
 	.probe				= mxc_w1_probe,

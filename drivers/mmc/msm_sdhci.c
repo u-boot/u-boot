@@ -167,7 +167,7 @@ static int msm_sdc_remove(struct udevice *dev)
 	return 0;
 }
 
-static int msm_ofdata_to_platdata(struct udevice *dev)
+static int msm_of_to_plat(struct udevice *dev)
 {
 	struct udevice *parent = dev->parent;
 	struct msm_sdhc *priv = dev_get_priv(dev);
@@ -203,7 +203,7 @@ U_BOOT_DRIVER(msm_sdc_drv) = {
 	.name		= "msm_sdc",
 	.id		= UCLASS_MMC,
 	.of_match	= msm_mmc_ids,
-	.ofdata_to_platdata = msm_ofdata_to_platdata,
+	.of_to_plat = msm_of_to_plat,
 	.ops		= &sdhci_ops,
 	.bind		= msm_sdc_bind,
 	.probe		= msm_sdc_probe,

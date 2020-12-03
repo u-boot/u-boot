@@ -861,7 +861,7 @@ static int sun8i_handle_internal_phy(struct udevice *dev, struct emac_eth_dev *p
 	return 0;
 }
 
-static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
+static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 {
 	struct sun8i_eth_pdata *sun8i_pdata = dev_get_plat(dev);
 	struct eth_pdata *pdata = &sun8i_pdata->eth_pdata;
@@ -1001,7 +1001,7 @@ U_BOOT_DRIVER(eth_sun8i_emac) = {
 	.name   = "eth_sun8i_emac",
 	.id     = UCLASS_ETH,
 	.of_match = sun8i_emac_eth_ids,
-	.ofdata_to_platdata = sun8i_emac_eth_ofdata_to_platdata,
+	.of_to_plat = sun8i_emac_eth_of_to_plat,
 	.probe  = sun8i_emac_eth_probe,
 	.ops    = &sun8i_emac_eth_ops,
 	.priv_auto	= sizeof(struct emac_eth_dev),

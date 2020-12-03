@@ -1283,17 +1283,17 @@ static int macb_eth_remove(struct udevice *dev)
 }
 
 /**
- * macb_late_eth_ofdata_to_platdata
+ * macb_late_eth_of_to_plat
  * @dev:	udevice struct
  * Returns 0 when operation success and negative errno number
  * when operation failed.
  */
-int __weak macb_late_eth_ofdata_to_platdata(struct udevice *dev)
+int __weak macb_late_eth_of_to_plat(struct udevice *dev)
 {
 	return 0;
 }
 
-static int macb_eth_ofdata_to_platdata(struct udevice *dev)
+static int macb_eth_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 
@@ -1301,7 +1301,7 @@ static int macb_eth_ofdata_to_platdata(struct udevice *dev)
 	if (!pdata->iobase)
 		return -EINVAL;
 
-	return macb_late_eth_ofdata_to_platdata(dev);
+	return macb_late_eth_of_to_plat(dev);
 }
 
 static const struct macb_config sama5d4_config = {
@@ -1331,7 +1331,7 @@ U_BOOT_DRIVER(eth_macb) = {
 	.name	= "eth_macb",
 	.id	= UCLASS_ETH,
 	.of_match = macb_eth_ids,
-	.ofdata_to_platdata = macb_eth_ofdata_to_platdata,
+	.of_to_plat = macb_eth_of_to_plat,
 	.probe	= macb_eth_probe,
 	.remove	= macb_eth_remove,
 	.ops	= &macb_eth_ops,

@@ -762,7 +762,7 @@ static int designware_i2c_probe_chip(struct udevice *bus, uint chip_addr,
 	return ret;
 }
 
-int designware_i2c_ofdata_to_platdata(struct udevice *bus)
+int designware_i2c_of_to_plat(struct udevice *bus)
 {
 	struct dw_i2c *priv = dev_get_priv(bus);
 	int ret;
@@ -842,7 +842,7 @@ U_BOOT_DRIVER(i2c_designware) = {
 	.name	= "i2c_designware",
 	.id	= UCLASS_I2C,
 	.of_match = designware_i2c_ids,
-	.ofdata_to_platdata = designware_i2c_ofdata_to_platdata,
+	.of_to_plat = designware_i2c_of_to_plat,
 	.probe	= designware_i2c_probe,
 	.priv_auto	= sizeof(struct dw_i2c),
 	.remove = designware_i2c_remove,

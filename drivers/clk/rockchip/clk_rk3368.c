@@ -593,7 +593,7 @@ static int rk3368_clk_probe(struct udevice *dev)
 	return 0;
 }
 
-static int rk3368_clk_ofdata_to_platdata(struct udevice *dev)
+static int rk3368_clk_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3368_clk_priv *priv = dev_get_priv(dev);
@@ -647,7 +647,7 @@ U_BOOT_DRIVER(rockchip_rk3368_cru) = {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	.plat_auto	= sizeof(struct rk3368_clk_plat),
 #endif
-	.ofdata_to_platdata = rk3368_clk_ofdata_to_platdata,
+	.of_to_plat = rk3368_clk_of_to_plat,
 	.ops		= &rk3368_clk_ops,
 	.bind		= rk3368_clk_bind,
 	.probe		= rk3368_clk_probe,

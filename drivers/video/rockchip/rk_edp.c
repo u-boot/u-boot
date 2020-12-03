@@ -1001,7 +1001,7 @@ done:
 	return edid_size;
 }
 
-static int rk_edp_ofdata_to_platdata(struct udevice *dev)
+static int rk_edp_of_to_plat(struct udevice *dev)
 {
 	struct rk_edp_priv *priv = dev_get_priv(dev);
 
@@ -1099,7 +1099,7 @@ U_BOOT_DRIVER(dp_rockchip) = {
 	.id	= UCLASS_DISPLAY,
 	.of_match = rockchip_dp_ids,
 	.ops	= &dp_rockchip_ops,
-	.ofdata_to_platdata	= rk_edp_ofdata_to_platdata,
+	.of_to_plat	= rk_edp_of_to_plat,
 	.probe	= rk_edp_probe,
 	.remove	= rk_edp_remove,
 	.priv_auto	= sizeof(struct rk_edp_priv),

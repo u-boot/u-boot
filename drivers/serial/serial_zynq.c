@@ -182,7 +182,7 @@ static int zynq_serial_pending(struct udevice *dev, bool input)
 		return !!(readl(&regs->channel_sts) & ZYNQ_UART_SR_TXACTIVE);
 }
 
-static int zynq_serial_ofdata_to_platdata(struct udevice *dev)
+static int zynq_serial_of_to_plat(struct udevice *dev)
 {
 	struct zynq_uart_platdata *plat = dev_get_plat(dev);
 
@@ -211,7 +211,7 @@ U_BOOT_DRIVER(serial_zynq) = {
 	.name	= "serial_zynq",
 	.id	= UCLASS_SERIAL,
 	.of_match = zynq_serial_ids,
-	.ofdata_to_platdata = zynq_serial_ofdata_to_platdata,
+	.of_to_plat = zynq_serial_of_to_plat,
 	.plat_auto	= sizeof(struct zynq_uart_platdata),
 	.probe = zynq_serial_probe,
 	.ops	= &zynq_serial_ops,

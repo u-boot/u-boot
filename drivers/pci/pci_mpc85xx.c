@@ -122,7 +122,7 @@ static int mpc85xx_pci_dm_remove(struct udevice *dev)
 	return 0;
 }
 
-static int mpc85xx_pci_ofdata_to_platdata(struct udevice *dev)
+static int mpc85xx_pci_of_to_plat(struct udevice *dev)
 {
 	struct mpc85xx_pci_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
@@ -154,6 +154,6 @@ U_BOOT_DRIVER(mpc85xx_pci) = {
 	.ops			= &mpc85xx_pci_ops,
 	.probe			= mpc85xx_pci_dm_probe,
 	.remove			= mpc85xx_pci_dm_remove,
-	.ofdata_to_platdata	= mpc85xx_pci_ofdata_to_platdata,
+	.of_to_plat	= mpc85xx_pci_of_to_plat,
 	.priv_auto	= sizeof(struct mpc85xx_pci_priv),
 };

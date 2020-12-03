@@ -153,7 +153,7 @@ static int request_gpio_cs(struct udevice *bus)
 	return 0;
 }
 
-static int dw_spi_ofdata_to_platdata(struct udevice *bus)
+static int dw_spi_of_to_plat(struct udevice *bus)
 {
 	struct dw_spi_platdata *plat = bus->plat;
 
@@ -559,7 +559,7 @@ U_BOOT_DRIVER(dw_spi) = {
 	.id = UCLASS_SPI,
 	.of_match = dw_spi_ids,
 	.ops = &dw_spi_ops,
-	.ofdata_to_platdata = dw_spi_ofdata_to_platdata,
+	.of_to_plat = dw_spi_of_to_plat,
 	.plat_auto	= sizeof(struct dw_spi_platdata),
 	.priv_auto	= sizeof(struct dw_spi_priv),
 	.probe = dw_spi_probe,

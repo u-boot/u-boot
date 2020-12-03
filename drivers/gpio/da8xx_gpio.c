@@ -540,7 +540,7 @@ static const struct udevice_id davinci_gpio_ids[] = {
 	{ }
 };
 
-static int davinci_gpio_ofdata_to_platdata(struct udevice *dev)
+static int davinci_gpio_of_to_plat(struct udevice *dev)
 {
 	struct davinci_gpio_platdata *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
@@ -557,7 +557,7 @@ U_BOOT_DRIVER(ti_dm6441_gpio) = {
 	.name	= "ti_dm6441_gpio",
 	.id	= UCLASS_GPIO,
 	.ops	= &gpio_davinci_ops,
-	.ofdata_to_platdata = of_match_ptr(davinci_gpio_ofdata_to_platdata),
+	.of_to_plat = of_match_ptr(davinci_gpio_of_to_plat),
 	.of_match = davinci_gpio_ids,
 	.bind   = dm_scan_fdt_dev,
 	.plat_auto	= sizeof(struct davinci_gpio_platdata),

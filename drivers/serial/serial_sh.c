@@ -207,7 +207,7 @@ static const struct udevice_id sh_serial_id[] ={
 	{}
 };
 
-static int sh_serial_ofdata_to_platdata(struct udevice *dev)
+static int sh_serial_of_to_plat(struct udevice *dev)
 {
 	struct sh_serial_platdata *plat = dev_get_plat(dev);
 	struct clk sh_serial_clk;
@@ -239,7 +239,7 @@ U_BOOT_DRIVER(serial_sh) = {
 	.name	= "serial_sh",
 	.id	= UCLASS_SERIAL,
 	.of_match = of_match_ptr(sh_serial_id),
-	.ofdata_to_platdata = of_match_ptr(sh_serial_ofdata_to_platdata),
+	.of_to_plat = of_match_ptr(sh_serial_of_to_plat),
 	.plat_auto	= sizeof(struct sh_serial_platdata),
 	.probe	= sh_serial_probe,
 	.ops	= &sh_serial_ops,

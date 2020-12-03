@@ -88,7 +88,7 @@ static int atftmr_timer_probe(struct udevice *dev)
 	return 0;
 }
 
-static int atftme_timer_ofdata_to_platdata(struct udevice *dev)
+static int atftme_timer_of_to_plat(struct udevice *dev)
 {
 	struct atftmr_timer_platdata *plat = dev_get_plat(dev);
 	plat->regs = map_physmem(dev_read_addr(dev),
@@ -110,7 +110,7 @@ U_BOOT_DRIVER(altera_timer) = {
 	.name	= "ag101p_timer",
 	.id	= UCLASS_TIMER,
 	.of_match = ag101p_timer_ids,
-	.ofdata_to_platdata = atftme_timer_ofdata_to_platdata,
+	.of_to_plat = atftme_timer_of_to_plat,
 	.plat_auto	= sizeof(struct atftmr_timer_platdata),
 	.probe = atftmr_timer_probe,
 	.ops	= &ag101p_timer_ops,

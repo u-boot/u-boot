@@ -25,7 +25,7 @@ the UCLASS_ETH .id field in the U-Boot driver struct:
 		.name			= "eth_ape",
 		.id			= UCLASS_ETH,
 		.of_match		= eth_ape_ids,
-		.ofdata_to_platdata	= eth_ape_ofdata_to_platdata,
+		.of_to_plat	= eth_ape_of_to_plat,
 		.probe			= eth_ape_probe,
 		.ops			= &eth_ape_ops,
 		.priv_auto	= sizeof(struct eth_ape_priv),

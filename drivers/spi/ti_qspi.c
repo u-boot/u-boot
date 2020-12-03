@@ -452,7 +452,7 @@ static void *map_syscon_chipselects(struct udevice *bus)
 #endif
 }
 
-static int ti_qspi_ofdata_to_platdata(struct udevice *bus)
+static int ti_qspi_of_to_plat(struct udevice *bus)
 {
 	struct ti_qspi_priv *priv = dev_get_priv(bus);
 	const void *blob = gd->fdt_blob;
@@ -504,7 +504,7 @@ U_BOOT_DRIVER(ti_qspi) = {
 	.id	= UCLASS_SPI,
 	.of_match = ti_qspi_ids,
 	.ops	= &ti_qspi_ops,
-	.ofdata_to_platdata = ti_qspi_ofdata_to_platdata,
+	.of_to_plat = ti_qspi_of_to_plat,
 	.priv_auto	= sizeof(struct ti_qspi_priv),
 	.probe	= ti_qspi_probe,
 };

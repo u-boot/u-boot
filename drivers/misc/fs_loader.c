@@ -219,7 +219,7 @@ int request_firmware_into_buf(struct udevice *dev,
 	return ret;
 }
 
-static int fs_loader_ofdata_to_platdata(struct udevice *dev)
+static int fs_loader_of_to_plat(struct udevice *dev)
 {
 	u32 phandlepart[2];
 
@@ -284,7 +284,7 @@ U_BOOT_DRIVER(fs_loader) = {
 	.id			= UCLASS_FS_FIRMWARE_LOADER,
 	.of_match		= fs_loader_ids,
 	.probe			= fs_loader_probe,
-	.ofdata_to_platdata	= fs_loader_ofdata_to_platdata,
+	.of_to_plat	= fs_loader_of_to_plat,
 	.plat_auto	= sizeof(struct device_platdata),
 	.priv_auto	= sizeof(struct firmware),
 };

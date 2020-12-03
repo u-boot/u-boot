@@ -69,7 +69,7 @@ Put this code at the bottom of your existing driver file:
 		return NULL;
 	}
 
-	static int exynos_spi_ofdata_to_platdata(struct udevice *dev)
+	static int exynos_spi_of_to_plat(struct udevice *dev)
 	{
 		return -ENODEV;
 	}
@@ -138,7 +138,7 @@ Put this code at the bottom of your existing driver file:
 		.id	= UCLASS_SPI,
 		.of_match = exynos_spi_ids,
 		.ops	= &exynos_spi_ops,
-		.ofdata_to_platdata = exynos_spi_ofdata_to_platdata,
+		.of_to_plat = exynos_spi_of_to_plat,
 		.probe	= exynos_spi_probe,
 		.remove	= exynos_spi_remove,
 	};
@@ -217,7 +217,7 @@ DM tells you. The name is not quite right. So in this case we would use:
 	};
 
 
-Write ofdata_to_platdata() [for device tree only]
+Write of_to_plat() [for device tree only]
 -------------------------------------------------
 
 This method will convert information in the device tree node into a C
@@ -239,7 +239,7 @@ fills in the fields from device tree.
 
 .. code-block:: c
 
-	static int exynos_spi_ofdata_to_platdata(struct udevice *bus)
+	static int exynos_spi_of_to_plat(struct udevice *bus)
 	{
 		struct exynos_spi_platdata *plat = bus->plat;
 		const void *blob = gd->fdt_blob;

@@ -342,7 +342,7 @@ static const struct udevice_id omap_gpio_ids[] = {
 	{ }
 };
 
-static int omap_gpio_ofdata_to_platdata(struct udevice *dev)
+static int omap_gpio_of_to_plat(struct udevice *dev)
 {
 	struct omap_gpio_platdata *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
@@ -362,7 +362,7 @@ U_BOOT_DRIVER(gpio_omap) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap_gpio_ids,
-	.ofdata_to_platdata = of_match_ptr(omap_gpio_ofdata_to_platdata),
+	.of_to_plat = of_match_ptr(omap_gpio_of_to_plat),
 	.plat_auto	= sizeof(struct omap_gpio_platdata),
 #endif
 #else

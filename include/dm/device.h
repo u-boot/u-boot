@@ -107,7 +107,7 @@ enum {
  * a U_BOOT_DEVICE() macro (in which case plat is non-NULL) or a node
  * in the device tree (in which case of_offset is >= 0). In the latter case
  * we translate the device tree information into plat in a function
- * implemented by the driver ofdata_to_platdata method (called just before the
+ * implemented by the driver of_to_plat method (called just before the
  * probe method if the device has a device tree node.
  *
  * All three of plat, priv and uclass_priv can be allocated by the
@@ -219,7 +219,7 @@ struct udevice_id {
  * @probe: Called to probe a device, i.e. activate it
  * @remove: Called to remove a device, i.e. de-activate it
  * @unbind: Called to unbind a device from its driver
- * @ofdata_to_platdata: Called before probe to decode device tree data
+ * @of_to_plat: Called before probe to decode device tree data
  * @child_post_bind: Called after a new child has been bound
  * @child_pre_probe: Called before a child device is probed. The device has
  * memory allocated but it has not yet been probed.
@@ -254,7 +254,7 @@ struct driver {
 	int (*probe)(struct udevice *dev);
 	int (*remove)(struct udevice *dev);
 	int (*unbind)(struct udevice *dev);
-	int (*ofdata_to_platdata)(struct udevice *dev);
+	int (*of_to_plat)(struct udevice *dev);
 	int (*child_post_bind)(struct udevice *dev);
 	int (*child_pre_probe)(struct udevice *dev);
 	int (*child_post_remove)(struct udevice *dev);
@@ -624,7 +624,7 @@ int device_find_child_by_name(const struct udevice *parent, const char *name,
 /**
  * device_first_child_ofdata_err() - Find the first child and reads its plat
  *
- * The ofdata_to_platdata() method is called on the child before it is returned,
+ * The of_to_plat() method is called on the child before it is returned,
  * but the child is not probed.
  *
  * @parent: Parent to check
@@ -637,7 +637,7 @@ int device_first_child_ofdata_err(struct udevice *parent,
 /*
  * device_next_child_ofdata_err() - Find the next child and read its plat
  *
- * The ofdata_to_platdata() method is called on the child before it is returned,
+ * The of_to_plat() method is called on the child before it is returned,
  * but the child is not probed.
  *
  * @devp: On entry, points to the previous child; on exit returns the child that
@@ -798,19 +798,19 @@ static inline bool device_is_on_pci_bus(const struct udevice *dev)
 	list_for_each_entry(pos, &parent->child_head, sibling_node)
 
 /**
- * device_foreach_child_ofdata_to_platdata() - iterate through children
+ * device_foreach_child_of_to_plat() - iterate through children
  *
  * This stops when it gets an error, with @pos set to the device that failed to
  * read ofdata.
 
  * This creates a for() loop which works through the available children of
  * a device in order from start to end. Device ofdata is read by calling
- * device_ofdata_to_platdata() on each one. The devices are not probed.
+ * device_of_to_plat() on each one. The devices are not probed.
  *
  * @pos: struct udevice * for the current device
  * @parent: parent device to scan
  */
-#define device_foreach_child_ofdata_to_platdata(pos, parent)	\
+#define device_foreach_child_of_to_plat(pos, parent)	\
 	for (int _ret = device_first_child_ofdata_err(parent, &dev); !_ret; \
 	     _ret = device_next_child_ofdata_err(&dev))
 

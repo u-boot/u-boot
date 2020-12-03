@@ -642,7 +642,7 @@ static const struct eth_ops ravb_ops = {
 	.write_hwaddr		= ravb_write_hwaddr,
 };
 
-int ravb_ofdata_to_platdata(struct udevice *dev)
+int ravb_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *phy_mode;
@@ -685,7 +685,7 @@ U_BOOT_DRIVER(eth_ravb) = {
 	.name		= "ravb",
 	.id		= UCLASS_ETH,
 	.of_match	= ravb_ids,
-	.ofdata_to_platdata = ravb_ofdata_to_platdata,
+	.of_to_plat = ravb_of_to_plat,
 	.probe		= ravb_probe,
 	.remove		= ravb_remove,
 	.ops		= &ravb_ops,

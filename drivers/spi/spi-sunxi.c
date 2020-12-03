@@ -514,7 +514,7 @@ static int sun4i_spi_probe(struct udevice *bus)
 	return 0;
 }
 
-static int sun4i_spi_ofdata_to_platdata(struct udevice *bus)
+static int sun4i_spi_of_to_plat(struct udevice *bus)
 {
 	struct sun4i_spi_platdata *plat = dev_get_plat(bus);
 	int node = dev_of_offset(bus);
@@ -630,7 +630,7 @@ U_BOOT_DRIVER(sun4i_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match	= sun4i_spi_ids,
 	.ops	= &sun4i_spi_ops,
-	.ofdata_to_platdata	= sun4i_spi_ofdata_to_platdata,
+	.of_to_plat	= sun4i_spi_of_to_plat,
 	.plat_auto	= sizeof(struct sun4i_spi_platdata),
 	.priv_auto	= sizeof(struct sun4i_spi_priv),
 	.probe	= sun4i_spi_probe,

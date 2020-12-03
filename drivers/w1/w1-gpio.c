@@ -151,7 +151,7 @@ static const struct w1_ops w1_gpio_ops = {
 	.write_byte	= w1_gpio_write_byte,
 };
 
-static int w1_gpio_ofdata_to_platdata(struct udevice *dev)
+static int w1_gpio_of_to_plat(struct udevice *dev)
 {
 	struct w1_gpio_pdata *pdata = dev_get_plat(dev);
 	int ret;
@@ -172,7 +172,7 @@ U_BOOT_DRIVER(w1_gpio_drv) = {
 	.id				= UCLASS_W1,
 	.name				= "w1_gpio_drv",
 	.of_match			= w1_gpio_id,
-	.ofdata_to_platdata		= w1_gpio_ofdata_to_platdata,
+	.of_to_plat		= w1_gpio_of_to_plat,
 	.ops				= &w1_gpio_ops,
 	.plat_auto	= sizeof(struct w1_gpio_pdata),
 };

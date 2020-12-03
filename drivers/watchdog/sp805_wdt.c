@@ -110,7 +110,7 @@ static int sp805_wdt_probe(struct udevice *dev)
 	return 0;
 }
 
-static int sp805_wdt_ofdata_to_platdata(struct udevice *dev)
+static int sp805_wdt_of_to_plat(struct udevice *dev)
 {
 	struct sp805_wdt_priv *priv = dev_get_priv(dev);
 	struct clk clk;
@@ -143,6 +143,6 @@ U_BOOT_DRIVER(sp805_wdt) = {
 	.of_match = sp805_wdt_ids,
 	.probe = sp805_wdt_probe,
 	.priv_auto	= sizeof(struct sp805_wdt_priv),
-	.ofdata_to_platdata = sp805_wdt_ofdata_to_platdata,
+	.of_to_plat = sp805_wdt_of_to_plat,
 	.ops = &sp805_wdt_ops,
 };

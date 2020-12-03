@@ -158,7 +158,7 @@ static int spi_child_post_bind(struct udevice *dev)
 	if (!dev_of_valid(dev))
 		return 0;
 
-	return spi_slave_ofdata_to_platdata(dev, plat);
+	return spi_slave_of_to_plat(dev, plat);
 }
 #endif
 
@@ -431,8 +431,8 @@ void spi_free_slave(struct spi_slave *slave)
 	slave->dev = NULL;
 }
 
-int spi_slave_ofdata_to_platdata(struct udevice *dev,
-				 struct dm_spi_slave_platdata *plat)
+int spi_slave_of_to_plat(struct udevice *dev,
+			 struct dm_spi_slave_platdata *plat)
 {
 	int mode = 0;
 	int value;

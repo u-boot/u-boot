@@ -59,7 +59,7 @@ static int stm32mp_pwr_read(struct udevice *dev, uint reg, uint8_t *buff,
 	return 0;
 }
 
-static int stm32mp_pwr_ofdata_to_platdata(struct udevice *dev)
+static int stm32mp_pwr_of_to_plat(struct udevice *dev)
 {
 	struct stm32mp_pwr_priv *priv = dev_get_priv(dev);
 
@@ -103,7 +103,7 @@ U_BOOT_DRIVER(stm32mp_pwr_pmic) = {
 	.of_match = stm32mp_pwr_ids,
 	.bind = stm32mp_pwr_bind,
 	.ops = &stm32mp_pwr_ops,
-	.ofdata_to_platdata = stm32mp_pwr_ofdata_to_platdata,
+	.of_to_plat = stm32mp_pwr_of_to_plat,
 	.priv_auto	= sizeof(struct stm32mp_pwr_priv),
 };
 

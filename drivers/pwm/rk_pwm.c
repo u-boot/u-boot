@@ -121,7 +121,7 @@ static int rk_pwm_set_enable(struct udevice *dev, uint channel, bool enable)
 	return 0;
 }
 
-static int rk_pwm_ofdata_to_platdata(struct udevice *dev)
+static int rk_pwm_of_to_plat(struct udevice *dev)
 {
 	struct rk_pwm_priv *priv = dev_get_priv(dev);
 
@@ -213,7 +213,7 @@ U_BOOT_DRIVER(rk_pwm) = {
 	.id	= UCLASS_PWM,
 	.of_match = rk_pwm_ids,
 	.ops	= &rk_pwm_ops,
-	.ofdata_to_platdata	= rk_pwm_ofdata_to_platdata,
+	.of_to_plat	= rk_pwm_of_to_plat,
 	.probe		= rk_pwm_probe,
 	.priv_auto	= sizeof(struct rk_pwm_priv),
 };

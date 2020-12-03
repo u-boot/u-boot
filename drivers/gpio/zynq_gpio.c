@@ -388,7 +388,7 @@ static int zynq_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
-static int zynq_gpio_ofdata_to_platdata(struct udevice *dev)
+static int zynq_gpio_of_to_plat(struct udevice *dev)
 {
 	struct zynq_gpio_platdata *plat = dev_get_plat(dev);
 
@@ -405,7 +405,7 @@ U_BOOT_DRIVER(gpio_zynq) = {
 	.id	= UCLASS_GPIO,
 	.ops	= &gpio_zynq_ops,
 	.of_match = zynq_gpio_ids,
-	.ofdata_to_platdata = zynq_gpio_ofdata_to_platdata,
+	.of_to_plat = zynq_gpio_of_to_plat,
 	.probe	= zynq_gpio_probe,
 	.plat_auto	= sizeof(struct zynq_gpio_platdata),
 };

@@ -511,7 +511,7 @@ static int ftgmac100_write_hwaddr(struct udevice *dev)
 	return ftgmac100_set_mac(priv, pdata->enetaddr);
 }
 
-static int ftgmac100_ofdata_to_platdata(struct udevice *dev)
+static int ftgmac100_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ftgmac100_data *priv = dev_get_priv(dev);
@@ -609,7 +609,7 @@ U_BOOT_DRIVER(ftgmac100) = {
 	.name	= "ftgmac100",
 	.id	= UCLASS_ETH,
 	.of_match = ftgmac100_ids,
-	.ofdata_to_platdata = ftgmac100_ofdata_to_platdata,
+	.of_to_plat = ftgmac100_of_to_plat,
 	.probe	= ftgmac100_probe,
 	.remove = ftgmac100_remove,
 	.ops	= &ftgmac100_ops,

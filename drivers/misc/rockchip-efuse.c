@@ -137,7 +137,7 @@ static const struct misc_ops rockchip_efuse_ops = {
 	.read = rockchip_efuse_read,
 };
 
-static int rockchip_efuse_ofdata_to_platdata(struct udevice *dev)
+static int rockchip_efuse_of_to_plat(struct udevice *dev)
 {
 	struct rockchip_efuse_platdata *plat = dev_get_plat(dev);
 
@@ -154,7 +154,7 @@ U_BOOT_DRIVER(rockchip_efuse) = {
 	.name = "rockchip_efuse",
 	.id = UCLASS_MISC,
 	.of_match = rockchip_efuse_ids,
-	.ofdata_to_platdata = rockchip_efuse_ofdata_to_platdata,
+	.of_to_plat = rockchip_efuse_of_to_plat,
 	.plat_auto	= sizeof(struct rockchip_efuse_platdata),
 	.ops = &rockchip_efuse_ops,
 };

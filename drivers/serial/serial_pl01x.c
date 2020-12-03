@@ -348,7 +348,7 @@ static const struct udevice_id pl01x_serial_id[] ={
 #define CONFIG_PL011_CLOCK 0
 #endif
 
-int pl01x_serial_ofdata_to_platdata(struct udevice *dev)
+int pl01x_serial_of_to_plat(struct udevice *dev)
 {
 	struct pl01x_serial_platdata *plat = dev_get_plat(dev);
 	struct clk clk;
@@ -387,7 +387,7 @@ U_BOOT_DRIVER(serial_pl01x) = {
 	.name	= "serial_pl01x",
 	.id	= UCLASS_SERIAL,
 	.of_match = of_match_ptr(pl01x_serial_id),
-	.ofdata_to_platdata = of_match_ptr(pl01x_serial_ofdata_to_platdata),
+	.of_to_plat = of_match_ptr(pl01x_serial_of_to_plat),
 	.plat_auto	= sizeof(struct pl01x_serial_platdata),
 	.probe = pl01x_serial_probe,
 	.ops	= &pl01x_serial_ops,

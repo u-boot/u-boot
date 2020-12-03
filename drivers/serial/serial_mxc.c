@@ -325,7 +325,7 @@ static const struct dm_serial_ops mxc_serial_ops = {
 };
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-static int mxc_serial_ofdata_to_platdata(struct udevice *dev)
+static int mxc_serial_of_to_plat(struct udevice *dev)
 {
 	struct mxc_serial_platdata *plat = dev->plat;
 	fdt_addr_t addr;
@@ -357,7 +357,7 @@ U_BOOT_DRIVER(serial_mxc) = {
 	.id	= UCLASS_SERIAL,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match = mxc_serial_ids,
-	.ofdata_to_platdata = mxc_serial_ofdata_to_platdata,
+	.of_to_plat = mxc_serial_of_to_plat,
 	.plat_auto	= sizeof(struct mxc_serial_platdata),
 #endif
 	.probe = mxc_serial_probe,

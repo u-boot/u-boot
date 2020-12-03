@@ -515,7 +515,7 @@ static int xenon_sdhci_probe(struct udevice *dev)
 	return ret;
 }
 
-static int xenon_sdhci_ofdata_to_platdata(struct udevice *dev)
+static int xenon_sdhci_of_to_plat(struct udevice *dev)
 {
 	struct sdhci_host *host = dev_get_priv(dev);
 	struct xenon_sdhci_priv *priv = dev_get_priv(dev);
@@ -560,7 +560,7 @@ U_BOOT_DRIVER(xenon_sdhci_drv) = {
 	.name		= "xenon_sdhci",
 	.id		= UCLASS_MMC,
 	.of_match	= xenon_sdhci_ids,
-	.ofdata_to_platdata = xenon_sdhci_ofdata_to_platdata,
+	.of_to_plat = xenon_sdhci_of_to_plat,
 	.ops		= &sdhci_ops,
 	.bind		= xenon_sdhci_bind,
 	.probe		= xenon_sdhci_probe,

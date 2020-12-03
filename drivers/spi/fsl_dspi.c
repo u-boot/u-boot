@@ -573,7 +573,7 @@ static int fsl_dspi_bind(struct udevice *bus)
 	return 0;
 }
 
-static int fsl_dspi_ofdata_to_platdata(struct udevice *bus)
+static int fsl_dspi_of_to_plat(struct udevice *bus)
 {
 	fdt_addr_t addr;
 	struct fsl_dspi_platdata *plat = bus->plat;
@@ -659,7 +659,7 @@ U_BOOT_DRIVER(fsl_dspi) = {
 	.id	= UCLASS_SPI,
 	.of_match = fsl_dspi_ids,
 	.ops	= &fsl_dspi_ops,
-	.ofdata_to_platdata = fsl_dspi_ofdata_to_platdata,
+	.of_to_plat = fsl_dspi_of_to_plat,
 	.plat_auto	= sizeof(struct fsl_dspi_platdata),
 	.priv_auto	= sizeof(struct fsl_dspi_priv),
 	.probe	= fsl_dspi_probe,

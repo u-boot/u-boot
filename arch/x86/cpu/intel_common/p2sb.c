@@ -90,7 +90,7 @@ static int p2sb_spl_init(struct udevice *dev)
 	return 0;
 }
 
-int p2sb_ofdata_to_platdata(struct udevice *dev)
+int p2sb_of_to_plat(struct udevice *dev)
 {
 	struct p2sb_uc_priv *upriv = dev_get_uclass_priv(dev);
 	struct p2sb_platdata *plat = dev_get_plat(dev);
@@ -196,7 +196,7 @@ U_BOOT_DRIVER(intel_p2sb) = {
 	.probe		= p2sb_probe,
 	.remove		= p2sb_remove,
 	.ops		= &p2sb_ops,
-	.ofdata_to_platdata = p2sb_ofdata_to_platdata,
+	.of_to_plat = p2sb_of_to_plat,
 	.plat_auto	= sizeof(struct p2sb_platdata),
 	.per_child_plat_auto	=
 		sizeof(struct p2sb_child_platdata),

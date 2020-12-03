@@ -76,12 +76,12 @@ static int meson_rng_remove(struct udevice *dev)
 }
 
 /**
- * meson_rng_ofdata_to_platdata() - transfer device tree data to plaform data
+ * meson_rng_of_to_plat() - transfer device tree data to plaform data
  *
  * @dev:	device
  * Return:	0 if ok
  */
-static int meson_rng_ofdata_to_platdata(struct udevice *dev)
+static int meson_rng_of_to_plat(struct udevice *dev)
 {
 	struct meson_rng_platdata *pdata = dev_get_plat(dev);
 	int err;
@@ -117,5 +117,5 @@ U_BOOT_DRIVER(meson_rng) = {
 	.probe = meson_rng_probe,
 	.remove = meson_rng_remove,
 	.plat_auto	= sizeof(struct meson_rng_platdata),
-	.ofdata_to_platdata = meson_rng_ofdata_to_platdata,
+	.of_to_plat = meson_rng_of_to_plat,
 };

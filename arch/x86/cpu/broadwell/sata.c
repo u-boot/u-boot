@@ -232,7 +232,7 @@ static int broadwell_sata_enable(struct udevice *dev)
 	return 0;
 }
 
-static int broadwell_sata_ofdata_to_platdata(struct udevice *dev)
+static int broadwell_sata_of_to_plat(struct udevice *dev)
 {
 	struct sata_platdata *plat = dev_get_plat(dev);
 	const void *blob = gd->fdt_blob;
@@ -264,7 +264,7 @@ U_BOOT_DRIVER(ahci_broadwell_drv) = {
 	.name		= "ahci_broadwell",
 	.id		= UCLASS_AHCI,
 	.of_match	= broadwell_ahci_ids,
-	.ofdata_to_platdata	= broadwell_sata_ofdata_to_platdata,
+	.of_to_plat	= broadwell_sata_of_to_plat,
 	.probe		= broadwell_sata_probe,
 	.plat_auto	 = sizeof(struct sata_platdata),
 };

@@ -879,7 +879,7 @@ error:
 }
 #endif
 
-static int rk3368_dmc_ofdata_to_platdata(struct udevice *dev)
+static int rk3368_dmc_of_to_plat(struct udevice *dev)
 {
 	int ret = 0;
 
@@ -999,7 +999,7 @@ U_BOOT_DRIVER(rockchip_rk3368_dmc) = {
 	.ops = &rk3368_dmc_ops,
 	.probe = rk3368_dmc_probe,
 	.priv_auto	= sizeof(struct dram_info),
-	.ofdata_to_platdata = rk3368_dmc_ofdata_to_platdata,
+	.of_to_plat = rk3368_dmc_of_to_plat,
 	.probe = rk3368_dmc_probe,
 	.priv_auto	= sizeof(struct dram_info),
 	.plat_auto	= sizeof(struct rk3368_sdram_params),

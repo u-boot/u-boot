@@ -98,7 +98,7 @@ struct zynq_qspi_priv {
 	unsigned cs_change:1;
 };
 
-static int zynq_qspi_ofdata_to_platdata(struct udevice *bus)
+static int zynq_qspi_of_to_plat(struct udevice *bus)
 {
 	struct zynq_qspi_platdata *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
@@ -666,7 +666,7 @@ U_BOOT_DRIVER(zynq_qspi) = {
 	.id     = UCLASS_SPI,
 	.of_match = zynq_qspi_ids,
 	.ops    = &zynq_qspi_ops,
-	.ofdata_to_platdata = zynq_qspi_ofdata_to_platdata,
+	.of_to_plat = zynq_qspi_of_to_plat,
 	.plat_auto	= sizeof(struct zynq_qspi_platdata),
 	.priv_auto	= sizeof(struct zynq_qspi_priv),
 	.probe  = zynq_qspi_probe,

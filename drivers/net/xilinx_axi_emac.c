@@ -726,7 +726,7 @@ static const struct eth_ops axi_emac_ops = {
 	.write_hwaddr		= axiemac_write_hwaddr,
 };
 
-static int axi_emac_ofdata_to_platdata(struct udevice *dev)
+static int axi_emac_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct axidma_priv *priv = dev_get_priv(dev);
@@ -787,7 +787,7 @@ U_BOOT_DRIVER(axi_emac) = {
 	.name	= "axi_emac",
 	.id	= UCLASS_ETH,
 	.of_match = axi_emac_ids,
-	.ofdata_to_platdata = axi_emac_ofdata_to_platdata,
+	.of_to_plat = axi_emac_of_to_plat,
 	.probe	= axi_emac_probe,
 	.remove	= axi_emac_remove,
 	.ops	= &axi_emac_ops,

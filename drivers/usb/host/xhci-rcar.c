@@ -132,7 +132,7 @@ static int xhci_rcar_deregister(struct udevice *dev)
 	return ret;
 }
 
-static int xhci_rcar_ofdata_to_platdata(struct udevice *dev)
+static int xhci_rcar_of_to_plat(struct udevice *dev)
 {
 	struct rcar_xhci_platdata *plat = dev_get_plat(dev);
 
@@ -160,7 +160,7 @@ U_BOOT_DRIVER(usb_xhci) = {
 	.remove		= xhci_rcar_deregister,
 	.ops		= &xhci_usb_ops,
 	.of_match	= xhci_rcar_ids,
-	.ofdata_to_platdata = xhci_rcar_ofdata_to_platdata,
+	.of_to_plat = xhci_rcar_of_to_plat,
 	.plat_auto	= sizeof(struct rcar_xhci_platdata),
 	.priv_auto	= sizeof(struct rcar_xhci),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,

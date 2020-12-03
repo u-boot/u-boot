@@ -743,7 +743,7 @@ static const struct eth_ops zynq_gem_ops = {
 	.read_rom_hwaddr	= zynq_gem_read_rom_mac,
 };
 
-static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
+static int zynq_gem_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
@@ -807,7 +807,7 @@ U_BOOT_DRIVER(zynq_gem) = {
 	.name	= "zynq_gem",
 	.id	= UCLASS_ETH,
 	.of_match = zynq_gem_ids,
-	.ofdata_to_platdata = zynq_gem_ofdata_to_platdata,
+	.of_to_plat = zynq_gem_of_to_plat,
 	.probe	= zynq_gem_probe,
 	.remove	= zynq_gem_remove,
 	.ops	= &zynq_gem_ops,

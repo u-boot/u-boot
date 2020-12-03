@@ -1527,7 +1527,7 @@ static int fecmxc_remove(struct udevice *dev)
 	return 0;
 }
 
-static int fecmxc_ofdata_to_platdata(struct udevice *dev)
+static int fecmxc_of_to_plat(struct udevice *dev)
 {
 	int ret = 0;
 	struct eth_pdata *pdata = dev_get_plat(dev);
@@ -1593,7 +1593,7 @@ U_BOOT_DRIVER(fecmxc_gem) = {
 	.name	= "fecmxc",
 	.id	= UCLASS_ETH,
 	.of_match = fecmxc_ids,
-	.ofdata_to_platdata = fecmxc_ofdata_to_platdata,
+	.of_to_plat = fecmxc_of_to_plat,
 	.probe	= fecmxc_probe,
 	.remove	= fecmxc_remove,
 	.ops	= &fecmxc_ops,

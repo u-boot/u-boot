@@ -1129,7 +1129,7 @@ static int qe_uec_remove(struct udevice *dev)
 	return 0;
 }
 
-static int qe_uec_ofdata_to_platdata(struct udevice *dev)
+static int qe_uec_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *phy_mode;
@@ -1158,7 +1158,7 @@ U_BOOT_DRIVER(eth_qe_uec) = {
 	.name	= QE_UEC_DRIVER_NAME,
 	.id	= UCLASS_ETH,
 	.of_match = qe_uec_ids,
-	.ofdata_to_platdata = qe_uec_ofdata_to_platdata,
+	.of_to_plat = qe_uec_of_to_plat,
 	.probe	= qe_uec_probe,
 	.remove = qe_uec_remove,
 	.ops	= &qe_uec_eth_ops,

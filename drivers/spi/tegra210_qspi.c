@@ -97,7 +97,7 @@ struct tegra210_qspi_priv {
 	int last_transaction_us;
 };
 
-static int tegra210_qspi_ofdata_to_platdata(struct udevice *bus)
+static int tegra210_qspi_of_to_plat(struct udevice *bus)
 {
 	struct tegra_spi_platdata *plat = bus->plat;
 
@@ -422,7 +422,7 @@ U_BOOT_DRIVER(tegra210_qspi) = {
 	.id = UCLASS_SPI,
 	.of_match = tegra210_qspi_ids,
 	.ops = &tegra210_qspi_ops,
-	.ofdata_to_platdata = tegra210_qspi_ofdata_to_platdata,
+	.of_to_plat = tegra210_qspi_of_to_plat,
 	.plat_auto	= sizeof(struct tegra_spi_platdata),
 	.priv_auto	= sizeof(struct tegra210_qspi_priv),
 	.per_child_auto	= sizeof(struct spi_slave),

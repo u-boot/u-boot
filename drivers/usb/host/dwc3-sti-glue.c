@@ -100,7 +100,7 @@ static void sti_dwc3_glue_init(struct sti_dwc3_glue_platdata *plat)
 	setbits_le32(plat->glue_base + CLKRST_CTRL, SW_PIPEW_RESET_N);
 }
 
-static int sti_dwc3_glue_ofdata_to_platdata(struct udevice *dev)
+static int sti_dwc3_glue_of_to_plat(struct udevice *dev)
 {
 	struct sti_dwc3_glue_platdata *plat = dev_get_plat(dev);
 	struct udevice *syscon;
@@ -242,7 +242,7 @@ U_BOOT_DRIVER(dwc3_sti_glue) = {
 	.name = "dwc3_sti_glue",
 	.id = UCLASS_NOP,
 	.of_match = sti_dwc3_glue_ids,
-	.ofdata_to_platdata = sti_dwc3_glue_ofdata_to_platdata,
+	.of_to_plat = sti_dwc3_glue_of_to_plat,
 	.probe = sti_dwc3_glue_probe,
 	.remove = sti_dwc3_glue_remove,
 	.bind = sti_dwc3_glue_bind,

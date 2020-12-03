@@ -122,7 +122,7 @@ static const struct udevice_id pl031_ids[] = {
 	{ }
 };
 
-static int pl031_ofdata_to_platdata(struct udevice *dev)
+static int pl031_of_to_plat(struct udevice *dev)
 {
 	struct pl031_platdata *pdata = dev_get_plat(dev);
 
@@ -136,7 +136,7 @@ U_BOOT_DRIVER(rtc_pl031) = {
 	.id	= UCLASS_RTC,
 	.of_match = pl031_ids,
 	.probe	= pl031_probe,
-	.ofdata_to_platdata = pl031_ofdata_to_platdata,
+	.of_to_plat = pl031_of_to_plat,
 	.plat_auto	= sizeof(struct pl031_platdata),
 	.ops	= &pl031_ops,
 };

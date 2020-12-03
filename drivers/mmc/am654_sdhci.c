@@ -408,7 +408,7 @@ static int am654_sdhci_probe(struct udevice *dev)
 	return 0;
 }
 
-static int am654_sdhci_ofdata_to_platdata(struct udevice *dev)
+static int am654_sdhci_of_to_plat(struct udevice *dev)
 {
 	struct am654_sdhci_plat *plat = dev_get_plat(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
@@ -490,7 +490,7 @@ U_BOOT_DRIVER(am654_sdhci_drv) = {
 	.name		= "am654_sdhci",
 	.id		= UCLASS_MMC,
 	.of_match	= am654_sdhci_ids,
-	.ofdata_to_platdata = am654_sdhci_ofdata_to_platdata,
+	.of_to_plat = am654_sdhci_of_to_plat,
 	.ops		= &sdhci_ops,
 	.bind		= am654_sdhci_bind,
 	.probe		= am654_sdhci_probe,

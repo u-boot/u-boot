@@ -713,7 +713,7 @@ out:
 	return ret;
 }
 
-static int rk322x_dmc_ofdata_to_platdata(struct udevice *dev)
+static int rk322x_dmc_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk322x_sdram_params *params = dev_get_plat(dev);
@@ -844,7 +844,7 @@ U_BOOT_DRIVER(dmc_rk322x) = {
 	.of_match = rk322x_dmc_ids,
 	.ops = &rk322x_dmc_ops,
 #ifdef CONFIG_TPL_BUILD
-	.ofdata_to_platdata = rk322x_dmc_ofdata_to_platdata,
+	.of_to_plat = rk322x_dmc_of_to_plat,
 #endif
 	.probe = rk322x_dmc_probe,
 	.priv_auto	= sizeof(struct dram_info),

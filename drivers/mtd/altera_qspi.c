@@ -346,7 +346,7 @@ static int altera_qspi_probe(struct udevice *dev)
 	return 0;
 }
 
-static int altera_qspi_ofdata_to_platdata(struct udevice *dev)
+static int altera_qspi_of_to_plat(struct udevice *dev)
 {
 	struct altera_qspi_platdata *pdata = dev_get_plat(dev);
 	void *blob = (void *)gd->fdt_blob;
@@ -400,7 +400,7 @@ U_BOOT_DRIVER(altera_qspi) = {
 	.name	= "altera_qspi",
 	.id	= UCLASS_MTD,
 	.of_match = altera_qspi_ids,
-	.ofdata_to_platdata = altera_qspi_ofdata_to_platdata,
+	.of_to_plat = altera_qspi_of_to_plat,
 	.plat_auto	= sizeof(struct altera_qspi_platdata),
 	.probe	= altera_qspi_probe,
 };

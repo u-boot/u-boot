@@ -139,7 +139,7 @@ static int broadwell_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
-static int broadwell_gpio_ofdata_to_platdata(struct udevice *dev)
+static int broadwell_gpio_of_to_plat(struct udevice *dev)
 {
 	struct broadwell_bank_platdata *plat = dev_get_plat(dev);
 	u32 gpiobase;
@@ -182,7 +182,7 @@ U_BOOT_DRIVER(gpio_broadwell) = {
 	.id	= UCLASS_GPIO,
 	.of_match = intel_broadwell_gpio_ids,
 	.ops	= &gpio_broadwell_ops,
-	.ofdata_to_platdata	= broadwell_gpio_ofdata_to_platdata,
+	.of_to_plat	= broadwell_gpio_of_to_plat,
 	.probe	= broadwell_gpio_probe,
 	.priv_auto	= sizeof(struct broadwell_bank_priv),
 	.plat_auto	= sizeof(struct broadwell_bank_platdata),

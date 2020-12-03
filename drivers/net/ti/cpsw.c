@@ -1223,7 +1223,7 @@ static void cpsw_eth_of_parse_slave(struct cpsw_platform_data *data,
 							"max-speed", 0);
 }
 
-static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
+static int cpsw_eth_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct cpsw_platform_data *data;
@@ -1377,7 +1377,7 @@ U_BOOT_DRIVER(eth_cpsw) = {
 	.id	= UCLASS_ETH,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match = cpsw_eth_ids,
-	.ofdata_to_platdata = cpsw_eth_ofdata_to_platdata,
+	.of_to_plat = cpsw_eth_of_to_plat,
 	.plat_auto	= sizeof(struct eth_pdata),
 #endif
 	.probe	= cpsw_eth_probe,

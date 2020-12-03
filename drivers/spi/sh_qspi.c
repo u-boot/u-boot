@@ -328,7 +328,7 @@ static int sh_qspi_probe(struct udevice *dev)
 	return 0;
 }
 
-static int sh_qspi_ofdata_to_platdata(struct udevice *dev)
+static int sh_qspi_of_to_plat(struct udevice *dev)
 {
 	struct sh_qspi_slave *plat = dev_get_plat(dev);
 
@@ -353,7 +353,7 @@ U_BOOT_DRIVER(sh_qspi) = {
 	.id		= UCLASS_SPI,
 	.of_match	= sh_qspi_ids,
 	.ops		= &sh_qspi_ops,
-	.ofdata_to_platdata = sh_qspi_ofdata_to_platdata,
+	.of_to_plat = sh_qspi_of_to_plat,
 	.plat_auto	= sizeof(struct sh_qspi_slave),
 	.probe		= sh_qspi_probe,
 };

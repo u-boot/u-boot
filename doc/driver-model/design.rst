@@ -333,11 +333,11 @@ Briefly, they are:
 
    * bind - make the driver model aware of a device (bind it to its driver)
    * unbind - make the driver model forget the device
-   * ofdata_to_platdata - convert device tree data to plat - see later
+   * of_to_plat - convert device tree data to plat - see later
    * probe - make a device ready for use
    * remove - remove a device so it cannot be used until probed again
 
-The sequence to get a device to work is bind, ofdata_to_platdata (if using
+The sequence to get a device to work is bind, of_to_plat (if using
 device tree) and probe.
 
 
@@ -449,23 +449,23 @@ The easiest way to make this work it to add a few members to the driver:
 .. code-block:: c
 
 	.plat_auto = sizeof(struct dm_test_pdata),
-	.ofdata_to_platdata = testfdt_ofdata_to_platdata,
+	.of_to_plat = testfdt_of_to_plat,
 
 The 'auto' feature allowed space for the plat to be allocated
-and zeroed before the driver's ofdata_to_platdata() method is called. The
-ofdata_to_platdata() method, which the driver write supplies, should parse
+and zeroed before the driver's of_to_plat() method is called. The
+of_to_plat() method, which the driver write supplies, should parse
 the device tree node for this device and place it in dev->plat. Thus
 when the probe method is called later (to set up the device ready for use)
 the platform data will be present.
 
-Note that both methods are optional. If you provide an ofdata_to_platdata
+Note that both methods are optional. If you provide an of_to_plat
 method then it will be called first (during activation). If you provide a
 probe method it will be called next. See Driver Lifecycle below for more
 details.
 
 If you don't want to have the plat automatically allocated then you
 can leave out plat_auto. In this case you can use malloc
-in your ofdata_to_platdata (or probe) method to allocate the required memory,
+in your of_to_plat (or probe) method to allocate the required memory,
 and you should free it in the remove method.
 
 The driver model tree is intended to mirror that of the device tree. The
@@ -690,7 +690,7 @@ Most devices have data in the device tree which they can read to find out the
 base address of hardware registers and parameters relating to driver
 operation. This is called 'ofdata' (Open-Firmware data).
 
-The device's_ofdata_to_platdata() implemnents allocation and reading of
+The device's of_to_plat() implemnents allocation and reading of
 plat. A parent's ofdata is always read before a child.
 
 The steps are:
@@ -719,7 +719,7 @@ The steps are:
    space. The controller can hold information about the USB state of each
    of its children.
 
-   5. If the driver provides an ofdata_to_platdata() method, then this is
+   5. If the driver provides an of_to_plat() method, then this is
    called to convert the device tree data into platform data. This should
    do various calls like dev_read_u32(dev, ...) to access the node and store
    the resulting information into dev->plat. After this point, the device
@@ -728,9 +728,9 @@ The steps are:
    in the plat structure. Typically you will use the
    plat_auto feature to specify the size of the platform data
    structure, and U-Boot will automatically allocate and zero it for you before
-   entry to ofdata_to_platdata(). But if not, you can allocate it yourself in
-   ofdata_to_platdata(). Note that it is preferable to do all the device tree
-   decoding in ofdata_to_platdata() rather than in probe(). (Apart from the
+   entry to of_to_plat(). But if not, you can allocate it yourself in
+   of_to_plat(). Note that it is preferable to do all the device tree
+   decoding in of_to_plat() rather than in probe(). (Apart from the
    ugliness of mixing configuration and run-time data, one day it is possible
    that U-Boot will cache platform data for devices which are regularly
    de/activated).
@@ -744,7 +744,7 @@ the device up.
 
 Having probing separate from ofdata-reading helps deal with of-platdata, where
 the probe() method is common to both DT/of-platdata operation, but the
-ofdata_to_platdata() method is implemented differently.
+of_to_plat() method is implemented differently.
 
 Another case has come up where this separate is useful. Generation of ACPI
 tables uses the of-platdata but does not want to probe the device. Probing
@@ -755,18 +755,18 @@ even be possible to probe the device - e.g. an SD card which is not
 present will cause an error on probe, yet we still must tell Linux about
 the SD card connector in case it is used while Linux is running.
 
-It is important that the ofdata_to_platdata() method does not actually probe
+It is important that the of_to_plat() method does not actually probe
 the device itself. However there are cases where other devices must be probed
-in the ofdata_to_platdata() method. An example is where a device requires a
+in the of_to_plat() method. An example is where a device requires a
 GPIO for it to operate. To select a GPIO obviously requires that the GPIO
 device is probed. This is OK when used by common, core devices such as GPIO,
 clock, interrupts, reset and the like.
 
 If your device relies on its parent setting up a suitable address space, so
 that dev_read_addr() works correctly, then make sure that the parent device
-has its setup code in ofdata_to_platdata(). If it has it in the probe method,
+has its setup code in of_to_plat(). If it has it in the probe method,
 then you cannot call dev_read_addr() from the child device's
-ofdata_to_platdata() method. Move it to probe() instead. Buses like PCI can
+of_to_plat() method. Move it to probe() instead. Buses like PCI can
 fall afoul of this rule.
 
 Activation/probe
@@ -847,7 +847,7 @@ remove it. This performs the probe steps in reverse:
         happens automatically within the driver model core; or
 
       - when plat_auto is 0, both the allocation (in probe()
-        or preferably ofdata_to_platdata()) and the deallocation in remove()
+        or preferably of_to_plat()) and the deallocation in remove()
         are the responsibility of the driver author.
 
    5. The device sequence number is set to -1, meaning that it no longer

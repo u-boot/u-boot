@@ -50,7 +50,7 @@ static int pci_mmc_probe(struct udevice *dev)
 	return sdhci_probe(dev);
 }
 
-static int pci_mmc_ofdata_to_platdata(struct udevice *dev)
+static int pci_mmc_of_to_plat(struct udevice *dev)
 {
 	struct pci_mmc_priv *priv = dev_get_priv(dev);
 
@@ -129,7 +129,7 @@ U_BOOT_DRIVER(pci_mmc) = {
 	.id	= UCLASS_MMC,
 	.of_match = pci_mmc_match,
 	.bind	= pci_mmc_bind,
-	.ofdata_to_platdata	= pci_mmc_ofdata_to_platdata,
+	.of_to_plat	= pci_mmc_of_to_plat,
 	.probe	= pci_mmc_probe,
 	.ops	= &sdhci_ops,
 	.priv_auto	= sizeof(struct pci_mmc_priv),

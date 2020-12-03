@@ -101,7 +101,7 @@ int exynos_adc_probe(struct udevice *dev)
 	return 0;
 }
 
-int exynos_adc_ofdata_to_platdata(struct udevice *dev)
+int exynos_adc_of_to_plat(struct udevice *dev)
 {
 	struct adc_uclass_plat *uc_pdata = dev_get_uclass_plat(dev);
 	struct exynos_adc_priv *priv = dev_get_priv(dev);
@@ -139,6 +139,6 @@ U_BOOT_DRIVER(exynos_adc) = {
 	.of_match	= exynos_adc_ids,
 	.ops		= &exynos_adc_ops,
 	.probe		= exynos_adc_probe,
-	.ofdata_to_platdata = exynos_adc_ofdata_to_platdata,
+	.of_to_plat = exynos_adc_of_to_plat,
 	.priv_auto	= sizeof(struct exynos_adc_priv),
 };

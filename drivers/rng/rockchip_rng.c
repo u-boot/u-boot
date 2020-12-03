@@ -168,7 +168,7 @@ exit:
 	return ret;
 }
 
-static int rockchip_rng_ofdata_to_platdata(struct udevice *dev)
+static int rockchip_rng_of_to_plat(struct udevice *dev)
 {
 	struct rk_rng_platdata *pdata = dev_get_priv(dev);
 
@@ -220,6 +220,6 @@ U_BOOT_DRIVER(rockchip_rng) = {
 	.of_match = rockchip_rng_match,
 	.ops = &rockchip_rng_ops,
 	.probe = rockchip_rng_probe,
-	.ofdata_to_platdata = rockchip_rng_ofdata_to_platdata,
+	.of_to_plat = rockchip_rng_of_to_plat,
 	.priv_auto	= sizeof(struct rk_rng_platdata),
 };

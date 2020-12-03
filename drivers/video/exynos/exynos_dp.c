@@ -877,7 +877,7 @@ static unsigned int exynos_dp_config_video(struct exynos_dp *regs,
 	return ret;
 }
 
-static int exynos_dp_ofdata_to_platdata(struct udevice *dev)
+static int exynos_dp_of_to_plat(struct udevice *dev)
 {
 	struct exynos_dp_priv *priv = dev_get_priv(dev);
 	const void *blob = gd->fdt_blob;
@@ -1080,6 +1080,6 @@ U_BOOT_DRIVER(exynos_dp) = {
 	.id	= UCLASS_DISPLAY,
 	.of_match = exynos_dp_ids,
 	.ops	= &exynos_dp_ops,
-	.ofdata_to_platdata	= exynos_dp_ofdata_to_platdata,
+	.of_to_plat	= exynos_dp_of_to_plat,
 	.priv_auto	= sizeof(struct exynos_dp_priv),
 };

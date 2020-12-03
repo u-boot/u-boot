@@ -386,7 +386,7 @@ static int tps65910_boost_get_value(struct udevice *dev)
 	return vout;
 }
 
-static int tps65910_regulator_ofdata_to_platdata(struct udevice *dev)
+static int tps65910_regulator_of_to_plat(struct udevice *dev)
 {
 	struct udevice *supply;
 	int ret;
@@ -425,7 +425,7 @@ U_BOOT_DRIVER(tps65910_boost) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &tps65910_boost_ops,
 	.plat_auto	= sizeof(struct tps65910_regulator_pdata),
-	.ofdata_to_platdata = tps65910_regulator_ofdata_to_platdata,
+	.of_to_plat = tps65910_regulator_of_to_plat,
 };
 
 static const struct dm_regulator_ops tps65910_buck_ops = {
@@ -440,7 +440,7 @@ U_BOOT_DRIVER(tps65910_buck) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &tps65910_buck_ops,
 	.plat_auto	= sizeof(struct tps65910_regulator_pdata),
-	.ofdata_to_platdata = tps65910_regulator_ofdata_to_platdata,
+	.of_to_plat = tps65910_regulator_of_to_plat,
 };
 
 static const struct dm_regulator_ops tps65910_ldo_ops = {
@@ -455,5 +455,5 @@ U_BOOT_DRIVER(tps65910_ldo) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &tps65910_ldo_ops,
 	.plat_auto	= sizeof(struct tps65910_regulator_pdata),
-	.ofdata_to_platdata = tps65910_regulator_ofdata_to_platdata,
+	.of_to_plat = tps65910_regulator_of_to_plat,
 };

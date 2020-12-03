@@ -48,7 +48,7 @@ struct mpc8xxx_priv {
 
 #define SPI_TIMEOUT	1000
 
-static int mpc8xxx_spi_ofdata_to_platdata(struct udevice *dev)
+static int mpc8xxx_spi_of_to_plat(struct udevice *dev)
 {
 	struct mpc8xxx_priv *priv = dev_get_priv(dev);
 	struct clk clk;
@@ -279,7 +279,7 @@ U_BOOT_DRIVER(mpc8xxx_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = mpc8xxx_spi_ids,
 	.ops	= &mpc8xxx_spi_ops,
-	.ofdata_to_platdata = mpc8xxx_spi_ofdata_to_platdata,
+	.of_to_plat = mpc8xxx_spi_of_to_plat,
 	.probe	= mpc8xxx_spi_probe,
 	.priv_auto	= sizeof(struct mpc8xxx_priv),
 };

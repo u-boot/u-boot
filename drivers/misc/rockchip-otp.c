@@ -145,7 +145,7 @@ static const struct misc_ops rockchip_otp_ops = {
 	.read = rockchip_otp_read,
 };
 
-static int rockchip_otp_ofdata_to_platdata(struct udevice *dev)
+static int rockchip_otp_of_to_plat(struct udevice *dev)
 {
 	struct rockchip_otp_platdata *otp = dev_get_plat(dev);
 
@@ -171,6 +171,6 @@ U_BOOT_DRIVER(rockchip_otp) = {
 	.id = UCLASS_MISC,
 	.of_match = rockchip_otp_ids,
 	.ops = &rockchip_otp_ops,
-	.ofdata_to_platdata = rockchip_otp_ofdata_to_platdata,
+	.of_to_plat = rockchip_otp_of_to_plat,
 	.plat_auto	= sizeof(struct rockchip_otp_platdata),
 };

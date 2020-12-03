@@ -267,7 +267,7 @@ static int atmel_fb_lcd_probe(struct udevice *dev)
 	return 0;
 }
 
-static int atmel_fb_ofdata_to_platdata(struct udevice *dev)
+static int atmel_fb_of_to_plat(struct udevice *dev)
 {
 	struct atmel_lcd_platdata *plat = dev_get_plat(dev);
 	struct atmel_fb_priv *priv = dev_get_priv(dev);
@@ -304,7 +304,7 @@ U_BOOT_DRIVER(atmel_fb) = {
 	.id	= UCLASS_VIDEO,
 	.of_match = atmel_fb_lcd_ids,
 	.bind	= atmel_fb_lcd_bind,
-	.ofdata_to_platdata	= atmel_fb_ofdata_to_platdata,
+	.of_to_plat	= atmel_fb_of_to_plat,
 	.probe	= atmel_fb_lcd_probe,
 	.plat_auto	= sizeof(struct atmel_lcd_platdata),
 	.priv_auto	= sizeof(struct atmel_fb_priv),

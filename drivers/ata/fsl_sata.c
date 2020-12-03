@@ -903,7 +903,7 @@ U_BOOT_DRIVER(sata_fsl_driver) = {
 	.plat_auto	= sizeof(struct fsl_ata_priv),
 };
 
-static int fsl_ata_ofdata_to_platdata(struct udevice *dev)
+static int fsl_ata_of_to_plat(struct udevice *dev)
 {
 	struct fsl_ata_priv *priv = dev_get_priv(dev);
 
@@ -1026,7 +1026,7 @@ U_BOOT_DRIVER(fsl_ahci) = {
 	.id = UCLASS_AHCI,
 	.of_match = fsl_ata_ids,
 	.ops = &sata_fsl_ahci_ops,
-	.ofdata_to_platdata = fsl_ata_ofdata_to_platdata,
+	.of_to_plat = fsl_ata_of_to_plat,
 	.probe	= fsl_ata_probe,
 	.remove = fsl_ata_remove,
 	.priv_auto	= sizeof(struct fsl_ata_priv),

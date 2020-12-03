@@ -1398,7 +1398,7 @@ static int rk3399_clk_probe(struct udevice *dev)
 	return 0;
 }
 
-static int rk3399_clk_ofdata_to_platdata(struct udevice *dev)
+static int rk3399_clk_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3399_clk_priv *priv = dev_get_priv(dev);
@@ -1448,7 +1448,7 @@ U_BOOT_DRIVER(clk_rk3399) = {
 	.id		= UCLASS_CLK,
 	.of_match	= rk3399_clk_ids,
 	.priv_auto	= sizeof(struct rk3399_clk_priv),
-	.ofdata_to_platdata = rk3399_clk_ofdata_to_platdata,
+	.of_to_plat = rk3399_clk_of_to_plat,
 	.ops		= &rk3399_clk_ops,
 	.bind		= rk3399_clk_bind,
 	.probe		= rk3399_clk_probe,
@@ -1610,7 +1610,7 @@ static int rk3399_pmuclk_probe(struct udevice *dev)
 	return 0;
 }
 
-static int rk3399_pmuclk_ofdata_to_platdata(struct udevice *dev)
+static int rk3399_pmuclk_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3399_pmuclk_priv *priv = dev_get_priv(dev);
@@ -1643,7 +1643,7 @@ U_BOOT_DRIVER(rockchip_rk3399_pmuclk) = {
 	.id		= UCLASS_CLK,
 	.of_match	= rk3399_pmuclk_ids,
 	.priv_auto	= sizeof(struct rk3399_pmuclk_priv),
-	.ofdata_to_platdata = rk3399_pmuclk_ofdata_to_platdata,
+	.of_to_plat = rk3399_pmuclk_of_to_plat,
 	.ops		= &rk3399_pmuclk_ops,
 	.probe		= rk3399_pmuclk_probe,
 	.bind		= rk3399_pmuclk_bind,

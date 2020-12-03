@@ -911,7 +911,7 @@ static const struct eth_ops sh_ether_ops = {
 	.write_hwaddr		= sh_ether_write_hwaddr,
 };
 
-int sh_ether_ofdata_to_platdata(struct udevice *dev)
+int sh_ether_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *phy_mode;
@@ -953,7 +953,7 @@ U_BOOT_DRIVER(eth_sh_ether) = {
 	.name		= "sh_ether",
 	.id		= UCLASS_ETH,
 	.of_match	= sh_ether_ids,
-	.ofdata_to_platdata = sh_ether_ofdata_to_platdata,
+	.of_to_plat = sh_ether_of_to_plat,
 	.probe		= sh_ether_probe,
 	.remove		= sh_ether_remove,
 	.ops		= &sh_ether_ops,

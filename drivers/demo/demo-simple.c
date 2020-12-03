@@ -26,7 +26,7 @@ static const struct demo_ops simple_ops = {
 	.hello = simple_hello,
 };
 
-static int demo_shape_ofdata_to_platdata(struct udevice *dev)
+static int demo_shape_of_to_plat(struct udevice *dev)
 {
 	/* Parse the data that is common with all demo devices */
 	return demo_parse_dt(dev);
@@ -41,7 +41,7 @@ U_BOOT_DRIVER(demo_simple_drv) = {
 	.name	= "demo_simple_drv",
 	.of_match = demo_shape_id,
 	.id	= UCLASS_DEMO,
-	.ofdata_to_platdata = demo_shape_ofdata_to_platdata,
+	.of_to_plat = demo_shape_of_to_plat,
 	.ops	= &simple_ops,
 	.plat_auto	= sizeof(struct dm_demo_pdata),
 };

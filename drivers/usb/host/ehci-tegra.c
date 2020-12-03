@@ -812,7 +812,7 @@ static const struct ehci_ops tegra_ehci_ops = {
 	.powerup_fixup		= tegra_ehci_powerup_fixup,
 };
 
-static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
+static int ehci_usb_of_to_plat(struct udevice *dev)
 {
 	struct fdt_usb *priv = dev_get_priv(dev);
 	int ret;
@@ -861,7 +861,7 @@ U_BOOT_DRIVER(usb_ehci) = {
 	.name	= "ehci_tegra",
 	.id	= UCLASS_USB,
 	.of_match = ehci_usb_ids,
-	.ofdata_to_platdata = ehci_usb_ofdata_to_platdata,
+	.of_to_plat = ehci_usb_of_to_plat,
 	.probe = ehci_usb_probe,
 	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,

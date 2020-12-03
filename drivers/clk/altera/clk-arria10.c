@@ -319,7 +319,7 @@ static int socfpga_a10_clk_probe(struct udevice *dev)
 	return 0;
 }
 
-static int socfpga_a10_ofdata_to_platdata(struct udevice *dev)
+static int socfpga_a10_of_to_plat(struct udevice *dev)
 {
 	struct socfpga_a10_clk_platdata *plat = dev_get_plat(dev);
 	unsigned int divreg[3], gatereg[2];
@@ -357,7 +357,7 @@ U_BOOT_DRIVER(socfpga_a10_clk) = {
 	.ops		= &socfpga_a10_clk_ops,
 	.bind		= socfpga_a10_clk_bind,
 	.probe		= socfpga_a10_clk_probe,
-	.ofdata_to_platdata = socfpga_a10_ofdata_to_platdata,
+	.of_to_plat = socfpga_a10_of_to_plat,
 
 	.plat_auto	= sizeof(struct socfpga_a10_clk_platdata),
 };

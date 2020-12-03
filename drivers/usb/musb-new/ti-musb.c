@@ -77,7 +77,7 @@ static int ti_musb_get_usb_index(int node)
 	return -ENOENT;
 }
 
-static int ti_musb_ofdata_to_platdata(struct udevice *dev)
+static int ti_musb_of_to_plat(struct udevice *dev)
 {
 	struct ti_musb_platdata *plat = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
@@ -176,14 +176,14 @@ static int ti_musb_host_remove(struct udevice *dev)
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-static int ti_musb_host_ofdata_to_platdata(struct udevice *dev)
+static int ti_musb_host_of_to_plat(struct udevice *dev)
 {
 	struct ti_musb_platdata *plat = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	int ret;
 
-	ret = ti_musb_ofdata_to_platdata(dev);
+	ret = ti_musb_of_to_plat(dev);
 	if (ret) {
 		pr_err("plat dt parse error\n");
 		return ret;
@@ -199,7 +199,7 @@ U_BOOT_DRIVER(ti_musb_host) = {
 	.name	= "ti-musb-host",
 	.id	= UCLASS_USB,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-	.ofdata_to_platdata = ti_musb_host_ofdata_to_platdata,
+	.of_to_plat = ti_musb_host_of_to_plat,
 #endif
 	.probe = ti_musb_host_probe,
 	.remove = ti_musb_host_remove,
@@ -214,14 +214,14 @@ struct ti_musb_peripheral {
 };
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-static int ti_musb_peripheral_ofdata_to_platdata(struct udevice *dev)
+static int ti_musb_peripheral_of_to_plat(struct udevice *dev)
 {
 	struct ti_musb_platdata *plat = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	int ret;
 
-	ret = ti_musb_ofdata_to_platdata(dev);
+	ret = ti_musb_of_to_plat(dev);
 	if (ret) {
 		pr_err("plat dt parse error\n");
 		return ret;
@@ -272,7 +272,7 @@ U_BOOT_DRIVER(ti_musb_peripheral) = {
 	.name	= "ti-musb-peripheral",
 	.id	= UCLASS_USB_GADGET_GENERIC,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-	.ofdata_to_platdata = ti_musb_peripheral_ofdata_to_platdata,
+	.of_to_plat = ti_musb_peripheral_of_to_plat,
 #endif
 	.probe = ti_musb_peripheral_probe,
 	.remove = ti_musb_peripheral_remove,

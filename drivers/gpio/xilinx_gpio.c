@@ -263,7 +263,7 @@ static int xilinx_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
-static int xilinx_gpio_ofdata_to_platdata(struct udevice *dev)
+static int xilinx_gpio_of_to_plat(struct udevice *dev)
 {
 	struct xilinx_gpio_platdata *plat = dev_get_plat(dev);
 	int is_dual;
@@ -301,7 +301,7 @@ U_BOOT_DRIVER(xilinx_gpio) = {
 	.id = UCLASS_GPIO,
 	.ops = &xilinx_gpio_ops,
 	.of_match = xilinx_gpio_ids,
-	.ofdata_to_platdata = xilinx_gpio_ofdata_to_platdata,
+	.of_to_plat = xilinx_gpio_of_to_plat,
 	.probe = xilinx_gpio_probe,
 	.plat_auto	= sizeof(struct xilinx_gpio_platdata),
 	.priv_auto	= sizeof(struct xilinx_gpio_privdata),

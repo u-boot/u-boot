@@ -478,7 +478,7 @@ static struct omap2_mcspi_platform_config omap4_pdata = {
 	.regs_offset = OMAP4_MCSPI_REG_OFFSET,
 };
 
-static int omap3_spi_ofdata_to_platdata(struct udevice *dev)
+static int omap3_spi_of_to_plat(struct udevice *dev)
 {
 	struct omap2_mcspi_platform_config *data =
 		(struct omap2_mcspi_platform_config *)dev_get_driver_data(dev);
@@ -506,7 +506,7 @@ U_BOOT_DRIVER(omap3_spi) = {
 	.flags	= DM_FLAG_PRE_RELOC,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap3_spi_ids,
-	.ofdata_to_platdata = omap3_spi_ofdata_to_platdata,
+	.of_to_plat = omap3_spi_of_to_plat,
 	.plat_auto	= sizeof(struct omap3_spi_plat),
 #endif
 	.probe = omap3_spi_probe,

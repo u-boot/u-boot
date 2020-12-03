@@ -129,7 +129,7 @@ static int rk_mipi_enable(struct udevice *dev, int panel_bpp,
 	return 0;
 }
 
-static int rk_mipi_ofdata_to_platdata(struct udevice *dev)
+static int rk_mipi_of_to_plat(struct udevice *dev)
 {
 	struct rk_mipi_priv *priv = dev_get_priv(dev);
 
@@ -182,7 +182,7 @@ U_BOOT_DRIVER(rk_mipi_dsi) = {
 	.name	= "rk_mipi_dsi",
 	.id	= UCLASS_DISPLAY,
 	.of_match = rk_mipi_dsi_ids,
-	.ofdata_to_platdata = rk_mipi_ofdata_to_platdata,
+	.of_to_plat = rk_mipi_of_to_plat,
 	.probe	= rk_mipi_probe,
 	.ops	= &rk_mipi_dsi_ops,
 	.priv_auto	  = sizeof(struct rk_mipi_priv),

@@ -541,7 +541,7 @@ static const struct dm_spi_ops fsl_espi_ops = {
 };
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
-static int fsl_espi_ofdata_to_platdata(struct udevice *bus)
+static int fsl_espi_of_to_plat(struct udevice *bus)
 {
 	fdt_addr_t addr;
 	struct fsl_espi_platdata   *plat = bus->plat;
@@ -573,7 +573,7 @@ U_BOOT_DRIVER(fsl_espi) = {
 	.id	= UCLASS_SPI,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = fsl_espi_ids,
-	.ofdata_to_platdata = fsl_espi_ofdata_to_platdata,
+	.of_to_plat = fsl_espi_of_to_plat,
 #endif
 	.ops	= &fsl_espi_ops,
 	.plat_auto	= sizeof(struct fsl_espi_platdata),

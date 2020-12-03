@@ -498,7 +498,7 @@ static int am335x_fb_probe(struct udevice *dev)
 	return 0;
 }
 
-static int am335x_fb_ofdata_to_platdata(struct udevice *dev)
+static int am335x_fb_of_to_plat(struct udevice *dev)
 {
 	struct am335x_fb_priv *priv = dev_get_priv(dev);
 	struct tilcdc_panel_info *panel = &priv->panel;
@@ -611,7 +611,7 @@ U_BOOT_DRIVER(am335x_fb) = {
 	.id = UCLASS_VIDEO,
 	.of_match = am335x_fb_ids,
 	.bind = am335x_fb_bind,
-	.ofdata_to_platdata = am335x_fb_ofdata_to_platdata,
+	.of_to_plat = am335x_fb_of_to_plat,
 	.probe = am335x_fb_probe,
 	.remove = am335x_fb_remove,
 	.priv_auto	= sizeof(struct am335x_fb_priv),

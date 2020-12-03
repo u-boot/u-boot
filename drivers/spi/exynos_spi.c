@@ -251,7 +251,7 @@ static void spi_cs_deactivate(struct udevice *dev)
 	debug("Deactivate CS, bus '%s'\n", bus->name);
 }
 
-static int exynos_spi_ofdata_to_platdata(struct udevice *bus)
+static int exynos_spi_of_to_plat(struct udevice *bus)
 {
 	struct exynos_spi_platdata *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
@@ -426,7 +426,7 @@ U_BOOT_DRIVER(exynos_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = exynos_spi_ids,
 	.ops	= &exynos_spi_ops,
-	.ofdata_to_platdata = exynos_spi_ofdata_to_platdata,
+	.of_to_plat = exynos_spi_of_to_plat,
 	.plat_auto	= sizeof(struct exynos_spi_platdata),
 	.priv_auto	= sizeof(struct exynos_spi_priv),
 	.probe	= exynos_spi_probe,

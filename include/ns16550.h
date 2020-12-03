@@ -241,7 +241,7 @@ void NS16550_reinit(NS16550_t com_port, int baud_divisor);
 int ns16550_calc_divisor(NS16550_t port, int clock, int baudrate);
 
 /**
- * ns16550_serial_ofdata_to_platdata() - convert DT to platform data
+ * ns16550_serial_of_to_plat() - convert DT to platform data
  *
  * Decode a device tree node for an ns16550 device. This includes the
  * register base address and register shift properties. The caller must set
@@ -250,7 +250,7 @@ int ns16550_calc_divisor(NS16550_t port, int clock, int baudrate);
  * @dev:	dev to decode platform data for
  * @return:	0 if OK, -EINVAL on error
  */
-int ns16550_serial_ofdata_to_platdata(struct udevice *dev);
+int ns16550_serial_of_to_plat(struct udevice *dev);
 
 /**
  * ns16550_serial_probe() - probe a serial port

@@ -168,7 +168,7 @@ static const struct udevice_id mv_rtc_ids[] = {
 	{ }
 };
 
-static int mv_rtc_ofdata_to_platdata(struct udevice *dev)
+static int mv_rtc_of_to_plat(struct udevice *dev)
 {
 	struct mvrtc_pdata *pdata = dev_get_plat(dev);
 
@@ -179,7 +179,7 @@ static int mv_rtc_ofdata_to_platdata(struct udevice *dev)
 U_BOOT_DRIVER(rtc_mv) = {
 	.name	= "rtc-mv",
 	.id	= UCLASS_RTC,
-	.ofdata_to_platdata = mv_rtc_ofdata_to_platdata,
+	.of_to_plat = mv_rtc_of_to_plat,
 	.of_match = mv_rtc_ids,
 	.ops	= &mv_rtc_ops,
 };

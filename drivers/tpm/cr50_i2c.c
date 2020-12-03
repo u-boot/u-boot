@@ -637,7 +637,7 @@ enum {
 	LONG_TIMEOUT_MS		= 2000,
 };
 
-static int cr50_i2c_ofdata_to_platdata(struct udevice *dev)
+static int cr50_i2c_of_to_plat(struct udevice *dev)
 {
 	struct tpm_chip_priv *upriv = dev_get_uclass_priv(dev);
 	struct cr50_priv *priv = dev_get_priv(dev);
@@ -725,7 +725,7 @@ U_BOOT_DRIVER(cr50_i2c) = {
 	.id     = UCLASS_TPM,
 	.of_match = cr50_i2c_ids,
 	.ops    = &cr50_i2c_ops,
-	.ofdata_to_platdata	= cr50_i2c_ofdata_to_platdata,
+	.of_to_plat	= cr50_i2c_of_to_plat,
 	.probe	= cr50_i2c_probe,
 	.remove	= cr50_i2c_cleanup,
 	.priv_auto	= sizeof(struct cr50_priv),

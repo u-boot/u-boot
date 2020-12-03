@@ -83,7 +83,7 @@ static int altera_uart_probe(struct udevice *dev)
 	return 0;
 }
 
-static int altera_uart_ofdata_to_platdata(struct udevice *dev)
+static int altera_uart_of_to_plat(struct udevice *dev)
 {
 	struct altera_uart_platdata *plat = dev_get_plat(dev);
 
@@ -111,7 +111,7 @@ U_BOOT_DRIVER(altera_uart) = {
 	.name	= "altera_uart",
 	.id	= UCLASS_SERIAL,
 	.of_match = altera_uart_ids,
-	.ofdata_to_platdata = altera_uart_ofdata_to_platdata,
+	.of_to_plat = altera_uart_of_to_plat,
 	.plat_auto	= sizeof(struct altera_uart_platdata),
 	.probe = altera_uart_probe,
 	.ops	= &altera_uart_ops,

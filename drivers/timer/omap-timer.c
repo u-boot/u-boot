@@ -73,7 +73,7 @@ static int omap_timer_probe(struct udevice *dev)
 	return 0;
 }
 
-static int omap_timer_ofdata_to_platdata(struct udevice *dev)
+static int omap_timer_of_to_plat(struct udevice *dev)
 {
 	struct omap_timer_priv *priv = dev_get_priv(dev);
 
@@ -99,7 +99,7 @@ U_BOOT_DRIVER(omap_timer) = {
 	.name	= "omap_timer",
 	.id	= UCLASS_TIMER,
 	.of_match = omap_timer_ids,
-	.ofdata_to_platdata = omap_timer_ofdata_to_platdata,
+	.of_to_plat = omap_timer_of_to_plat,
 	.priv_auto	= sizeof(struct omap_timer_priv),
 	.probe = omap_timer_probe,
 	.ops	= &omap_timer_ops,

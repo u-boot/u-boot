@@ -922,7 +922,7 @@ static int nxp_fspi_set_mode(struct udevice *bus, uint mode)
 	return 0;
 }
 
-static int nxp_fspi_ofdata_to_platdata(struct udevice *bus)
+static int nxp_fspi_of_to_plat(struct udevice *bus)
 {
 	struct nxp_fspi *f = dev_get_priv(bus);
 #if CONFIG_IS_ENABLED(CLK)
@@ -993,7 +993,7 @@ U_BOOT_DRIVER(nxp_fspi) = {
 	.id	= UCLASS_SPI,
 	.of_match = nxp_fspi_ids,
 	.ops	= &nxp_fspi_ops,
-	.ofdata_to_platdata = nxp_fspi_ofdata_to_platdata,
+	.of_to_plat = nxp_fspi_of_to_plat,
 	.priv_auto	= sizeof(struct nxp_fspi),
 	.probe	= nxp_fspi_probe,
 };

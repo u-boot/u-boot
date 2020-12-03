@@ -1384,7 +1384,7 @@ __weak void init_clk_usdhc(u32 index)
 {
 }
 
-static int fsl_esdhc_ofdata_to_platdata(struct udevice *dev)
+static int fsl_esdhc_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
@@ -1701,7 +1701,7 @@ U_BOOT_DRIVER(fsl_esdhc) = {
 	.name	= "fsl_esdhc",
 	.id	= UCLASS_MMC,
 	.of_match = fsl_esdhc_ids,
-	.ofdata_to_platdata = fsl_esdhc_ofdata_to_platdata,
+	.of_to_plat = fsl_esdhc_of_to_plat,
 	.ops	= &fsl_esdhc_ops,
 #if CONFIG_IS_ENABLED(BLK)
 	.bind	= fsl_esdhc_bind,

@@ -101,7 +101,7 @@ static int msm_gpio_probe(struct udevice *dev)
 	return priv->base == FDT_ADDR_T_NONE ? -EINVAL : 0;
 }
 
-static int msm_gpio_ofdata_to_platdata(struct udevice *dev)
+static int msm_gpio_of_to_plat(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
@@ -126,7 +126,7 @@ U_BOOT_DRIVER(gpio_msm) = {
 	.name	= "gpio_msm",
 	.id	= UCLASS_GPIO,
 	.of_match = msm_gpio_ids,
-	.ofdata_to_platdata = msm_gpio_ofdata_to_platdata,
+	.of_to_plat = msm_gpio_of_to_plat,
 	.probe	= msm_gpio_probe,
 	.ops	= &gpio_msm_ops,
 	.priv_auto	= sizeof(struct msm_gpio_bank),

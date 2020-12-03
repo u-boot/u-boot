@@ -69,8 +69,8 @@ void fix_drivers(void)
 			entry->remove += gd->reloc_off;
 		if (entry->unbind)
 			entry->unbind += gd->reloc_off;
-		if (entry->ofdata_to_platdata)
-			entry->ofdata_to_platdata += gd->reloc_off;
+		if (entry->of_to_plat)
+			entry->of_to_plat += gd->reloc_off;
 		if (entry->child_post_bind)
 			entry->child_post_bind += gd->reloc_off;
 		if (entry->child_pre_probe)

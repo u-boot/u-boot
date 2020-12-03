@@ -154,7 +154,7 @@ static const struct dm_gpio_ops sifive_gpio_ops = {
 	.get_function		= sifive_gpio_get_function,
 };
 
-static int sifive_gpio_ofdata_to_platdata(struct udevice *dev)
+static int sifive_gpio_of_to_plat(struct udevice *dev)
 {
 	struct sifive_gpio_platdata *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
@@ -171,7 +171,7 @@ U_BOOT_DRIVER(gpio_sifive) = {
 	.name	= "gpio_sifive",
 	.id	= UCLASS_GPIO,
 	.of_match = sifive_gpio_match,
-	.ofdata_to_platdata = of_match_ptr(sifive_gpio_ofdata_to_platdata),
+	.of_to_plat = of_match_ptr(sifive_gpio_of_to_plat),
 	.plat_auto	= sizeof(struct sifive_gpio_platdata),
 	.ops	= &sifive_gpio_ops,
 	.probe	= sifive_gpio_probe,

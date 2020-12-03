@@ -148,7 +148,7 @@ static int single_set_state(struct udevice *dev,
 	return len;
 }
 
-static int single_ofdata_to_platdata(struct udevice *dev)
+static int single_of_to_plat(struct udevice *dev)
 {
 	fdt_addr_t addr;
 	u32 of_reg[2];
@@ -192,5 +192,5 @@ U_BOOT_DRIVER(single_pinctrl) = {
 	.of_match = single_pinctrl_match,
 	.ops = &single_pinctrl_ops,
 	.plat_auto	= sizeof(struct single_pdata),
-	.ofdata_to_platdata = single_ofdata_to_platdata,
+	.of_to_plat = single_of_to_plat,
 };

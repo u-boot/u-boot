@@ -69,7 +69,7 @@ static int altera_sysid_read(struct udevice *dev,
 	return 0;
 }
 
-static int altera_sysid_ofdata_to_platdata(struct udevice *dev)
+static int altera_sysid_of_to_plat(struct udevice *dev)
 {
 	struct altera_sysid_platdata *plat = dev_get_plat(dev);
 
@@ -93,7 +93,7 @@ U_BOOT_DRIVER(altera_sysid) = {
 	.name	= "altera_sysid",
 	.id	= UCLASS_MISC,
 	.of_match = altera_sysid_ids,
-	.ofdata_to_platdata = altera_sysid_ofdata_to_platdata,
+	.of_to_plat = altera_sysid_of_to_plat,
 	.plat_auto	= sizeof(struct altera_sysid_platdata),
 	.ops	= &altera_sysid_ops,
 };

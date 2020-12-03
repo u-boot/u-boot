@@ -638,7 +638,7 @@ static struct clk_ops utmi_clk_ops = {
 	.get_rate = utmi_clk_get_rate,
 };
 
-static int utmi_clk_ofdata_to_platdata(struct udevice *dev)
+static int utmi_clk_of_to_plat(struct udevice *dev)
 {
 	struct pmc_platdata *plat = dev_get_plat(dev);
 	struct udevice *syscon;
@@ -667,7 +667,7 @@ U_BOOT_DRIVER(at91sam9x5_utmi_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = utmi_clk_match,
 	.probe = utmi_clk_probe,
-	.ofdata_to_platdata = utmi_clk_ofdata_to_platdata,
+	.of_to_plat = utmi_clk_of_to_plat,
 	.plat_auto	= sizeof(struct pmc_platdata),
 	.ops = &utmi_clk_ops,
 };
@@ -853,7 +853,7 @@ static struct clk_ops generic_clk_ops = {
 	.set_rate = generic_clk_set_rate,
 };
 
-static int generic_clk_ofdata_to_platdata(struct udevice *dev)
+static int generic_clk_of_to_plat(struct udevice *dev)
 {
 	struct generic_clk_priv *priv = dev_get_priv(dev);
 	u32 cells[GENERATED_SOURCE_MAX];
@@ -875,7 +875,7 @@ U_BOOT_DRIVER(generic_clk) = {
 	.name = "generic-clk",
 	.id = UCLASS_CLK,
 	.probe = at91_clk_probe,
-	.ofdata_to_platdata = generic_clk_ofdata_to_platdata,
+	.of_to_plat = generic_clk_of_to_plat,
 	.priv_auto	= sizeof(struct generic_clk_priv),
 	.plat_auto	= sizeof(struct pmc_platdata),
 	.ops = &generic_clk_ops,
@@ -977,7 +977,7 @@ static struct clk_ops at91_usb_clk_ops = {
 	.set_rate = at91_usb_clk_set_rate,
 };
 
-static int at91_usb_clk_ofdata_to_platdata(struct udevice *dev)
+static int at91_usb_clk_of_to_plat(struct udevice *dev)
 {
 	struct at91_usb_clk_priv *priv = dev_get_priv(dev);
 	u32 cells[AT91_USB_CLK_SOURCE_MAX];
@@ -1011,7 +1011,7 @@ U_BOOT_DRIVER(at91_usb_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = at91_usb_clk_match,
 	.probe = at91_usb_clk_probe,
-	.ofdata_to_platdata = at91_usb_clk_ofdata_to_platdata,
+	.of_to_plat = at91_usb_clk_of_to_plat,
 	.priv_auto	= sizeof(struct at91_usb_clk_priv),
 	.plat_auto	= sizeof(struct pmc_platdata),
 	.ops = &at91_usb_clk_ops,

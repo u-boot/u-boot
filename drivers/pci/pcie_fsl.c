@@ -593,7 +593,7 @@ static int fsl_pcie_probe(struct udevice *dev)
 	return 0;
 }
 
-static int fsl_pcie_ofdata_to_platdata(struct udevice *dev)
+static int fsl_pcie_of_to_plat(struct udevice *dev)
 {
 	struct fsl_pcie *pcie = dev_get_priv(dev);
 	struct fsl_pcie_data *info;
@@ -661,7 +661,7 @@ U_BOOT_DRIVER(fsl_pcie) = {
 	.id = UCLASS_PCI,
 	.of_match = fsl_pcie_ids,
 	.ops = &fsl_pcie_ops,
-	.ofdata_to_platdata = fsl_pcie_ofdata_to_platdata,
+	.of_to_plat = fsl_pcie_of_to_plat,
 	.probe = fsl_pcie_probe,
 	.priv_auto	= sizeof(struct fsl_pcie),
 };

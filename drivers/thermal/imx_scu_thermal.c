@@ -126,7 +126,7 @@ static int imx_sc_thermal_bind(struct udevice *dev)
 	return 0;
 }
 
-static int imx_sc_thermal_ofdata_to_platdata(struct udevice *dev)
+static int imx_sc_thermal_of_to_plat(struct udevice *dev)
 {
 	struct imx_sc_thermal_plat *pdata = dev_get_plat(dev);
 	struct fdtdec_phandle_args args;
@@ -210,7 +210,7 @@ U_BOOT_DRIVER(imx_sc_thermal) = {
 	.of_match = imx_sc_thermal_ids,
 	.bind = imx_sc_thermal_bind,
 	.probe	= imx_sc_thermal_probe,
-	.ofdata_to_platdata = imx_sc_thermal_ofdata_to_platdata,
+	.of_to_plat = imx_sc_thermal_of_to_plat,
 	.plat_auto	= sizeof(struct imx_sc_thermal_plat),
 	.flags  = DM_FLAG_PRE_RELOC,
 };

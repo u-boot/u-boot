@@ -410,7 +410,7 @@ static int mvebu_get_tgt_attr(ofnode node, int devfn,
 	return -ENOENT;
 }
 
-static int mvebu_pcie_ofdata_to_platdata(struct udevice *dev)
+static int mvebu_pcie_of_to_plat(struct udevice *dev)
 {
 	struct mvebu_pcie *pcie = dev_get_plat(dev);
 	int ret = 0;
@@ -470,7 +470,7 @@ static struct driver pcie_mvebu_drv = {
 	.id			= UCLASS_PCI,
 	.ops			= &mvebu_pcie_ops,
 	.probe			= mvebu_pcie_probe,
-	.ofdata_to_platdata	= mvebu_pcie_ofdata_to_platdata,
+	.of_to_plat	= mvebu_pcie_of_to_plat,
 	.plat_auto	= sizeof(struct mvebu_pcie),
 };
 

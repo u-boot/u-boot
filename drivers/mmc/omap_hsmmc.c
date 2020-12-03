@@ -1898,7 +1898,7 @@ __weak const struct mmc_platform_fixups *platform_fixups_mmc(uint32_t addr)
 }
 #endif
 
-static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
+static int omap_hsmmc_of_to_plat(struct udevice *dev)
 {
 	struct omap_hsmmc_plat *plat = dev_get_plat(dev);
 	struct omap_mmc_of_data *of_data = (void *)dev_get_driver_data(dev);
@@ -2028,7 +2028,7 @@ U_BOOT_DRIVER(omap_hsmmc) = {
 	.id	= UCLASS_MMC,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap_hsmmc_ids,
-	.ofdata_to_platdata = omap_hsmmc_ofdata_to_platdata,
+	.of_to_plat = omap_hsmmc_of_to_plat,
 	.plat_auto	= sizeof(struct omap_hsmmc_plat),
 #endif
 #ifdef CONFIG_BLK

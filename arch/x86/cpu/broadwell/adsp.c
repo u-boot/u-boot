@@ -122,7 +122,7 @@ static int broadwell_adsp_probe(struct udevice *dev)
 	return 0;
 }
 
-static int broadwell_adsp_ofdata_to_platdata(struct udevice *dev)
+static int broadwell_adsp_of_to_plat(struct udevice *dev)
 {
 	struct broadwell_adsp_priv *priv = dev_get_priv(dev);
 
@@ -142,7 +142,7 @@ static const struct udevice_id broadwell_adsp_ids[] = {
 U_BOOT_DRIVER(broadwell_adsp_drv) = {
 	.name		= "adsp",
 	.id		= UCLASS_SYSCON,
-	.ofdata_to_platdata	= broadwell_adsp_ofdata_to_platdata,
+	.of_to_plat	= broadwell_adsp_of_to_plat,
 	.of_match	= broadwell_adsp_ids,
 	.bind           = dm_scan_fdt_dev,
 	.probe		= broadwell_adsp_probe,

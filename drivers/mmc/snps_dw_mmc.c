@@ -76,7 +76,7 @@ clk_err:
 	return ret;
 }
 
-static int snps_dwmmc_ofdata_to_platdata(struct udevice *dev)
+static int snps_dwmmc_of_to_plat(struct udevice *dev)
 {
 	struct snps_dwmci_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -191,7 +191,7 @@ U_BOOT_DRIVER(snps_dwmmc_drv) = {
 	.name				= "snps_dw_mmc",
 	.id				= UCLASS_MMC,
 	.of_match			= snps_dwmmc_ids,
-	.ofdata_to_platdata		= snps_dwmmc_ofdata_to_platdata,
+	.of_to_plat		= snps_dwmmc_of_to_plat,
 	.ops				= &snps_dwmci_dm_ops,
 	.bind				= snps_dwmmc_bind,
 	.probe				= snps_dwmmc_probe,

@@ -63,7 +63,7 @@ static int altera_timer_probe(struct udevice *dev)
 	return 0;
 }
 
-static int altera_timer_ofdata_to_platdata(struct udevice *dev)
+static int altera_timer_of_to_plat(struct udevice *dev)
 {
 	struct altera_timer_platdata *plat = dev_get_plat(dev);
 
@@ -87,7 +87,7 @@ U_BOOT_DRIVER(altera_timer) = {
 	.name	= "altera_timer",
 	.id	= UCLASS_TIMER,
 	.of_match = altera_timer_ids,
-	.ofdata_to_platdata = altera_timer_ofdata_to_platdata,
+	.of_to_plat = altera_timer_of_to_plat,
 	.plat_auto	= sizeof(struct altera_timer_platdata),
 	.probe = altera_timer_probe,
 	.ops	= &altera_timer_ops,

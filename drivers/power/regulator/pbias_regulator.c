@@ -64,7 +64,7 @@ static int pbias_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 	return regmap_read(priv->regmap, priv->offset, (u32 *)buff);
 }
 
-static int pbias_ofdata_to_platdata(struct udevice *dev)
+static int pbias_of_to_plat(struct udevice *dev)
 {
 	struct pbias_priv *priv = dev_get_priv(dev);
 	struct udevice *syscon;
@@ -129,7 +129,7 @@ U_BOOT_DRIVER(pbias_pmic) = {
 	.of_match = pbias_ids,
 	.bind = pbias_bind,
 	.ops = &pbias_ops,
-	.ofdata_to_platdata = pbias_ofdata_to_platdata,
+	.of_to_plat = pbias_of_to_plat,
 	.priv_auto	= sizeof(struct pbias_priv),
 };
 

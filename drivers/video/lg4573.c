@@ -294,7 +294,7 @@ static const struct dm_display_ops lg4573_lcd_ops = {
 	.enable = lg4573_lcd_enable,
 };
 
-static int lg4573_ofdata_to_platdata(struct udevice *dev)
+static int lg4573_of_to_plat(struct udevice *dev)
 {
 	struct lg4573_lcd_priv *priv = dev_get_priv(dev);
 	int ret;
@@ -323,7 +323,7 @@ U_BOOT_DRIVER(lg4573_lcd) = {
 	.name   = "lg4573",
 	.id     = UCLASS_DISPLAY,
 	.ops    = &lg4573_lcd_ops,
-	.ofdata_to_platdata	= lg4573_ofdata_to_platdata,
+	.of_to_plat	= lg4573_of_to_plat,
 	.of_match = lg4573_ids,
 	.bind   = lg4573_bind,
 	.probe  = lg4573_probe,

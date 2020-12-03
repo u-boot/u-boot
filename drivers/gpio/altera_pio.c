@@ -84,7 +84,7 @@ static int altera_pio_probe(struct udevice *dev)
 	return 0;
 }
 
-static int altera_pio_ofdata_to_platdata(struct udevice *dev)
+static int altera_pio_of_to_plat(struct udevice *dev)
 {
 	struct altera_pio_platdata *plat = dev_get_plat(dev);
 
@@ -116,7 +116,7 @@ U_BOOT_DRIVER(altera_pio) = {
 	.id		= UCLASS_GPIO,
 	.of_match	= altera_pio_ids,
 	.ops		= &altera_pio_ops,
-	.ofdata_to_platdata = altera_pio_ofdata_to_platdata,
+	.of_to_plat = altera_pio_of_to_plat,
 	.plat_auto	= sizeof(struct altera_pio_platdata),
 	.probe		= altera_pio_probe,
 };

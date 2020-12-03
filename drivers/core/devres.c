@@ -23,7 +23,7 @@
 /** enum devres_phase - Shows where resource was allocated
  *
  * DEVRES_PHASE_BIND: In the bind() method
- * DEVRES_PHASE_OFDATA: In the ofdata_to_platdata() method
+ * DEVRES_PHASE_OFDATA: In the of_to_plat() method
  * DEVRES_PHASE_PROBE: In the probe() method
  */
 enum devres_phase {

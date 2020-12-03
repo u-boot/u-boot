@@ -94,7 +94,7 @@ struct bcmstb_spi_priv {
 	void *saved_din_addr;
 };
 
-static int bcmstb_spi_ofdata_to_platdata(struct udevice *bus)
+static int bcmstb_spi_of_to_plat(struct udevice *bus)
 {
 	struct bcmstb_spi_platdata *plat = dev_get_plat(bus);
 	const void *fdt = gd->fdt_blob;
@@ -432,7 +432,7 @@ U_BOOT_DRIVER(bcmstb_spi) = {
 	.id				= UCLASS_SPI,
 	.of_match			= bcmstb_spi_id,
 	.ops				= &bcmstb_spi_ops,
-	.ofdata_to_platdata		= bcmstb_spi_ofdata_to_platdata,
+	.of_to_plat		= bcmstb_spi_of_to_plat,
 	.probe				= bcmstb_spi_probe,
 	.plat_auto	= sizeof(struct bcmstb_spi_platdata),
 	.priv_auto		= sizeof(struct bcmstb_spi_priv),

@@ -143,7 +143,7 @@ static int pinctrl_get_device(uint pad, struct udevice **devp)
 
 	/*
 	 * We have to probe each one of these since the community link is only
-	 * attached in intel_pinctrl_ofdata_to_platdata().
+	 * attached in intel_pinctrl_of_to_plat().
 	 */
 	uclass_foreach_dev_probe(UCLASS_PINCTRL, dev) {
 		struct intel_pinctrl_priv *priv = dev_get_priv(dev);
@@ -613,9 +613,8 @@ int pinctrl_config_pads_for_node(struct udevice *dev, ofnode node)
 	return 0;
 }
 
-int intel_pinctrl_ofdata_to_platdata(struct udevice *dev,
-				     const struct pad_community *comm,
-				     int num_cfgs)
+int intel_pinctrl_of_to_plat(struct udevice *dev,
+			     const struct pad_community *comm, int num_cfgs)
 {
 	struct p2sb_child_platdata *pplat = dev_get_parent_plat(dev);
 	struct intel_pinctrl_priv *priv = dev_get_priv(dev);

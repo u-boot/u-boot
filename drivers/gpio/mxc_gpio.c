@@ -307,7 +307,7 @@ static int mxc_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
-static int mxc_gpio_ofdata_to_platdata(struct udevice *dev)
+static int mxc_gpio_of_to_plat(struct udevice *dev)
 {
 	struct mxc_gpio_plat *plat = dev_get_plat(dev);
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA)) {
@@ -338,7 +338,7 @@ U_BOOT_DRIVER(gpio_mxc) = {
 	.id	= UCLASS_GPIO,
 	.ops	= &gpio_mxc_ops,
 	.probe	= mxc_gpio_probe,
-	.ofdata_to_platdata = mxc_gpio_ofdata_to_platdata,
+	.of_to_plat = mxc_gpio_of_to_plat,
 	.plat_auto	= sizeof(struct mxc_gpio_plat),
 	.priv_auto	= sizeof(struct mxc_bank_info),
 	.of_match = mxc_gpio_ids,

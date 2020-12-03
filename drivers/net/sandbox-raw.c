@@ -149,7 +149,7 @@ static const struct eth_ops sb_eth_raw_ops = {
 	.read_rom_hwaddr	= sb_eth_raw_read_rom_hwaddr,
 };
 
-static int sb_eth_raw_ofdata_to_platdata(struct udevice *dev)
+static int sb_eth_raw_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct eth_sandbox_raw_priv *priv = dev_get_priv(dev);
@@ -191,7 +191,7 @@ U_BOOT_DRIVER(eth_sandbox_raw) = {
 	.name	= "eth_sandbox_raw",
 	.id	= UCLASS_ETH,
 	.of_match = sb_eth_raw_ids,
-	.ofdata_to_platdata = sb_eth_raw_ofdata_to_platdata,
+	.of_to_plat = sb_eth_raw_of_to_plat,
 	.ops	= &sb_eth_raw_ops,
 	.priv_auto	= sizeof(struct eth_sandbox_raw_priv),
 	.plat_auto	= sizeof(struct eth_pdata),

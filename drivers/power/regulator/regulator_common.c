@@ -12,8 +12,9 @@
 
 #include "regulator_common.h"
 
-int regulator_common_ofdata_to_platdata(struct udevice *dev,
-	struct regulator_common_platdata *dev_pdata, const char *enable_gpio_name)
+int regulator_common_of_to_plat(struct udevice *dev,
+				struct regulator_common_platdata *dev_pdata,
+				const char *enable_gpio_name)
 {
 	struct gpio_desc *gpio;
 	int flags = GPIOD_IS_OUT;

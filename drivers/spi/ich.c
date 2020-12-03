@@ -945,7 +945,7 @@ static int ich_spi_child_pre_probe(struct udevice *dev)
 	return 0;
 }
 
-static int ich_spi_ofdata_to_platdata(struct udevice *dev)
+static int ich_spi_of_to_plat(struct udevice *dev)
 {
 	struct ich_spi_platdata *plat = dev_get_plat(dev);
 
@@ -1004,7 +1004,7 @@ U_BOOT_DRIVER(intel_fast_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = ich_spi_ids,
 	.ops	= &ich_spi_ops,
-	.ofdata_to_platdata = ich_spi_ofdata_to_platdata,
+	.of_to_plat = ich_spi_of_to_plat,
 	.plat_auto	= sizeof(struct ich_spi_platdata),
 	.priv_auto	= sizeof(struct ich_spi_priv),
 	.child_pre_probe = ich_spi_child_pre_probe,

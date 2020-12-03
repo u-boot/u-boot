@@ -249,7 +249,7 @@ static int meson_pwm_set_invert(struct udevice *dev, uint channeln, bool polarit
 	return meson_pwm_set_config(dev, channeln, channel->period_ns, channel->duty_ns);
 }
 
-static int meson_pwm_ofdata_to_platdata(struct udevice *dev)
+static int meson_pwm_of_to_plat(struct udevice *dev)
 {
 	struct meson_pwm *priv = dev_get_priv(dev);
 
@@ -522,7 +522,7 @@ U_BOOT_DRIVER(meson_pwm) = {
 	.id	= UCLASS_PWM,
 	.of_match = meson_pwm_ids,
 	.ops	= &meson_pwm_ops,
-	.ofdata_to_platdata = meson_pwm_ofdata_to_platdata,
+	.of_to_plat = meson_pwm_of_to_plat,
 	.probe	 = meson_pwm_probe,
 	.priv_auto	= sizeof(struct meson_pwm),
 };

@@ -140,7 +140,7 @@ static const struct demo_ops shape_ops = {
 	.set_light = set_light,
 };
 
-static int shape_ofdata_to_platdata(struct udevice *dev)
+static int shape_of_to_plat(struct udevice *dev)
 {
 	struct dm_demo_pdata *pdata = dev_get_plat(dev);
 	int ret;
@@ -189,7 +189,7 @@ U_BOOT_DRIVER(demo_shape_drv) = {
 	.name	= "demo_shape_drv",
 	.of_match = demo_shape_id,
 	.id	= UCLASS_DEMO,
-	.ofdata_to_platdata = shape_ofdata_to_platdata,
+	.of_to_plat = shape_of_to_plat,
 	.ops	= &shape_ops,
 	.probe = dm_shape_probe,
 	.remove = dm_shape_remove,

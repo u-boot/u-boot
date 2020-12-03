@@ -89,7 +89,7 @@ static int pwm_regulator_set_voltage(struct udevice *dev, int uvolt)
 	return ret;
 }
 
-static int pwm_regulator_ofdata_to_platdata(struct udevice *dev)
+static int pwm_regulator_of_to_plat(struct udevice *dev)
 {
 	struct pwm_regulator_info *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args args;
@@ -154,6 +154,6 @@ U_BOOT_DRIVER(pwm_regulator) = {
 	.ops = &pwm_regulator_ops,
 	.probe = pwm_regulator_probe,
 	.of_match = pwm_regulator_ids,
-	.ofdata_to_platdata	= pwm_regulator_ofdata_to_platdata,
+	.of_to_plat	= pwm_regulator_of_to_plat,
 	.priv_auto	= sizeof(struct pwm_regulator_info),
 };

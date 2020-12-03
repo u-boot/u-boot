@@ -100,7 +100,7 @@ static int mvebu_serial_probe(struct udevice *dev)
 	return 0;
 }
 
-static int mvebu_serial_ofdata_to_platdata(struct udevice *dev)
+static int mvebu_serial_of_to_plat(struct udevice *dev)
 {
 	struct mvebu_platdata *plat = dev_get_plat(dev);
 
@@ -125,7 +125,7 @@ U_BOOT_DRIVER(serial_mvebu) = {
 	.name	= "serial_mvebu",
 	.id	= UCLASS_SERIAL,
 	.of_match = mvebu_serial_ids,
-	.ofdata_to_platdata = mvebu_serial_ofdata_to_platdata,
+	.of_to_plat = mvebu_serial_of_to_plat,
 	.plat_auto	= sizeof(struct mvebu_platdata),
 	.probe	= mvebu_serial_probe,
 	.ops	= &mvebu_serial_ops,

@@ -61,7 +61,7 @@ static int mpc83xx_spisel_boot_get_function(struct udevice *dev, uint gpio)
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-static int mpc83xx_spisel_boot_ofdata_to_platdata(struct udevice *dev)
+static int mpc83xx_spisel_boot_of_to_plat(struct udevice *dev)
 {
 	struct mpc8xxx_gpio_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
@@ -140,7 +140,7 @@ U_BOOT_DRIVER(spisel_boot_mpc83xx) = {
 	.id	= UCLASS_GPIO,
 	.ops	= &mpc83xx_spisel_boot_ops,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-	.ofdata_to_platdata = mpc83xx_spisel_boot_ofdata_to_platdata,
+	.of_to_plat = mpc83xx_spisel_boot_of_to_plat,
 	.plat_auto	= sizeof(struct mpc8xxx_gpio_plat),
 	.of_match = mpc83xx_spisel_boot_ids,
 #endif

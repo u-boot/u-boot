@@ -660,7 +660,7 @@ static int pcie_advk_remove(struct udevice *dev)
 }
 
 /**
- * pcie_advk_ofdata_to_platdata() - Translate from DT to device state
+ * pcie_advk_of_to_plat() - Translate from DT to device state
  *
  * @dev: A pointer to the device being operated on
  *
@@ -670,7 +670,7 @@ static int pcie_advk_remove(struct udevice *dev)
  *
  * Return: 0 on success, else -EINVAL
  */
-static int pcie_advk_ofdata_to_platdata(struct udevice *dev)
+static int pcie_advk_of_to_plat(struct udevice *dev)
 {
 	struct pcie_advk *pcie = dev_get_priv(dev);
 
@@ -697,7 +697,7 @@ U_BOOT_DRIVER(pcie_advk) = {
 	.id			= UCLASS_PCI,
 	.of_match		= pcie_advk_ids,
 	.ops			= &pcie_advk_ops,
-	.ofdata_to_platdata	= pcie_advk_ofdata_to_platdata,
+	.of_to_plat	= pcie_advk_of_to_plat,
 	.probe			= pcie_advk_probe,
 	.remove			= pcie_advk_remove,
 	.flags			= DM_FLAG_OS_PREPARE,

@@ -628,7 +628,7 @@ static int socfpga_clk_probe(struct udevice *dev)
 	return 0;
 }
 
-static int socfpga_clk_ofdata_to_platdata(struct udevice *dev)
+static int socfpga_clk_of_to_plat(struct udevice *dev)
 {
 	struct socfpga_clk_platdata *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
@@ -657,6 +657,6 @@ U_BOOT_DRIVER(socfpga_agilex_clk) = {
 	.of_match	= socfpga_clk_match,
 	.ops		= &socfpga_clk_ops,
 	.probe		= socfpga_clk_probe,
-	.ofdata_to_platdata = socfpga_clk_ofdata_to_platdata,
+	.of_to_plat = socfpga_clk_of_to_plat,
 	.plat_auto	= sizeof(struct socfpga_clk_platdata),
 };

@@ -1250,7 +1250,7 @@ static const struct eth_ops ag7xxx_eth_ops = {
 	.write_hwaddr		= ag7xxx_eth_write_hwaddr,
 };
 
-static int ag7xxx_eth_ofdata_to_platdata(struct udevice *dev)
+static int ag7xxx_eth_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *phy_mode;
@@ -1287,7 +1287,7 @@ U_BOOT_DRIVER(eth_ag7xxx) = {
 	.name		= "eth_ag7xxx",
 	.id		= UCLASS_ETH,
 	.of_match	= ag7xxx_eth_ids,
-	.ofdata_to_platdata = ag7xxx_eth_ofdata_to_platdata,
+	.of_to_plat = ag7xxx_eth_of_to_plat,
 	.probe		= ag7xxx_eth_probe,
 	.remove		= ag7xxx_eth_remove,
 	.ops		= &ag7xxx_eth_ops,

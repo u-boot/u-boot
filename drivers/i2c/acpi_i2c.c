@@ -174,7 +174,7 @@ int acpi_i2c_fill_ssdt(const struct udevice *dev, struct acpi_ctx *ctx)
 	return 0;
 }
 
-int acpi_i2c_ofdata_to_platdata(struct udevice *dev)
+int acpi_i2c_of_to_plat(struct udevice *dev)
 {
 	struct acpi_i2c_priv *priv = dev_get_priv(dev);
 

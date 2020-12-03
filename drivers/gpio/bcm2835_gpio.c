@@ -116,7 +116,7 @@ static int bcm2835_gpio_probe(struct udevice *dev)
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-static int bcm2835_gpio_ofdata_to_platdata(struct udevice *dev)
+static int bcm2835_gpio_of_to_plat(struct udevice *dev)
 {
 	struct bcm2835_gpio_platdata *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
@@ -133,7 +133,7 @@ static int bcm2835_gpio_ofdata_to_platdata(struct udevice *dev)
 U_BOOT_DRIVER(gpio_bcm2835) = {
 	.name	= "gpio_bcm2835",
 	.id	= UCLASS_GPIO,
-	.ofdata_to_platdata = of_match_ptr(bcm2835_gpio_ofdata_to_platdata),
+	.of_to_plat = of_match_ptr(bcm2835_gpio_of_to_plat),
 	.plat_auto	= sizeof(struct bcm2835_gpio_platdata),
 	.ops	= &gpio_bcm2835_ops,
 	.probe	= bcm2835_gpio_probe,

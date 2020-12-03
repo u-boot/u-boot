@@ -336,7 +336,7 @@ static int tegra_lcd_probe(struct udevice *dev)
 	return 0;
 }
 
-static int tegra_lcd_ofdata_to_platdata(struct udevice *dev)
+static int tegra_lcd_of_to_plat(struct udevice *dev)
 {
 	struct tegra_lcd_priv *priv = dev_get_priv(dev);
 	const void *blob = gd->fdt_blob;
@@ -423,6 +423,6 @@ U_BOOT_DRIVER(tegra_lcd) = {
 	.ops	= &tegra_lcd_ops,
 	.bind	= tegra_lcd_bind,
 	.probe	= tegra_lcd_probe,
-	.ofdata_to_platdata	= tegra_lcd_ofdata_to_platdata,
+	.of_to_plat	= tegra_lcd_of_to_plat,
 	.priv_auto	= sizeof(struct tegra_lcd_priv),
 };

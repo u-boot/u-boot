@@ -93,7 +93,7 @@ static int sbsa_gwdt_probe(struct udevice *dev)
 	return 0;
 }
 
-static int sbsa_gwdt_ofdata_to_platdata(struct udevice *dev)
+static int sbsa_gwdt_of_to_plat(struct udevice *dev)
 {
 	struct sbsa_gwdt_priv *priv = dev_get_priv(dev);
 
@@ -126,6 +126,6 @@ U_BOOT_DRIVER(sbsa_gwdt) = {
 	.of_match = sbsa_gwdt_ids,
 	.probe = sbsa_gwdt_probe,
 	.priv_auto	= sizeof(struct sbsa_gwdt_priv),
-	.ofdata_to_platdata = sbsa_gwdt_ofdata_to_platdata,
+	.of_to_plat = sbsa_gwdt_of_to_plat,
 	.ops = &sbsa_gwdt_ops,
 };

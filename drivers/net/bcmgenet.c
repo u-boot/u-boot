@@ -685,7 +685,7 @@ static const struct eth_ops bcmgenet_gmac_eth_ops = {
 	.stop                   = bcmgenet_gmac_eth_stop,
 };
 
-static int bcmgenet_eth_ofdata_to_platdata(struct udevice *dev)
+static int bcmgenet_eth_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct bcmgenet_eth_priv *priv = dev_get_priv(dev);
@@ -729,7 +729,7 @@ U_BOOT_DRIVER(eth_bcmgenet) = {
 	.name   = "eth_bcmgenet",
 	.id     = UCLASS_ETH,
 	.of_match = bcmgenet_eth_ids,
-	.ofdata_to_platdata = bcmgenet_eth_ofdata_to_platdata,
+	.of_to_plat = bcmgenet_eth_of_to_plat,
 	.probe  = bcmgenet_eth_probe,
 	.ops    = &bcmgenet_gmac_eth_ops,
 	.priv_auto	= sizeof(struct bcmgenet_eth_priv),

@@ -25,7 +25,7 @@ struct gpio_regulator_platdata {
 	int voltages[GPIO_REGULATOR_MAX_STATES];
 };
 
-static int gpio_regulator_ofdata_to_platdata(struct udevice *dev)
+static int gpio_regulator_of_to_plat(struct udevice *dev)
 {
 	struct dm_regulator_uclass_plat *uc_pdata;
 	struct gpio_regulator_platdata *dev_pdata;
@@ -74,7 +74,7 @@ static int gpio_regulator_ofdata_to_platdata(struct udevice *dev)
 		j++;
 	}
 
-	return regulator_common_ofdata_to_platdata(dev, &dev_pdata->common, "enable-gpios");
+	return regulator_common_of_to_plat(dev, &dev_pdata->common, "enable-gpios");
 }
 
 static int gpio_regulator_get_value(struct udevice *dev)
@@ -154,6 +154,6 @@ U_BOOT_DRIVER(gpio_regulator) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &gpio_regulator_ops,
 	.of_match = gpio_regulator_ids,
-	.ofdata_to_platdata = gpio_regulator_ofdata_to_platdata,
+	.of_to_plat = gpio_regulator_of_to_plat,
 	.plat_auto	= sizeof(struct gpio_regulator_platdata),
 };

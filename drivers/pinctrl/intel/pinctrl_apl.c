@@ -136,7 +136,7 @@ static const struct pad_community apl_gpio_communities[] = {
 	},
 };
 
-static int apl_pinctrl_ofdata_to_platdata(struct udevice *dev)
+static int apl_pinctrl_of_to_plat(struct udevice *dev)
 {
 	struct p2sb_child_platdata *pplat;
 	const struct pad_community *comm = NULL;
@@ -166,7 +166,7 @@ static int apl_pinctrl_ofdata_to_platdata(struct udevice *dev)
 			comm = &apl_gpio_communities[i];
 	}
 
-	return intel_pinctrl_ofdata_to_platdata(dev, comm, 2);
+	return intel_pinctrl_of_to_plat(dev, comm, 2);
 }
 
 static const struct udevice_id apl_gpio_ids[] = {
@@ -183,7 +183,7 @@ U_BOOT_DRIVER(intel_apl_pinctrl) = {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.bind		= dm_scan_fdt_dev,
 #endif
-	.ofdata_to_platdata = apl_pinctrl_ofdata_to_platdata,
+	.of_to_plat = apl_pinctrl_of_to_plat,
 	.priv_auto	= sizeof(struct intel_pinctrl_priv),
 	.plat_auto	= sizeof(struct apl_gpio_platdata),
 };

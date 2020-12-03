@@ -261,7 +261,7 @@ static int rm68200_panel_get_display_timing(struct udevice *dev,
 	return 0;
 }
 
-static int rm68200_panel_ofdata_to_platdata(struct udevice *dev)
+static int rm68200_panel_of_to_plat(struct udevice *dev)
 {
 	struct rm68200_panel_priv *priv = dev_get_priv(dev);
 	int ret;
@@ -336,7 +336,7 @@ U_BOOT_DRIVER(rm68200_panel) = {
 	.id			  = UCLASS_PANEL,
 	.of_match		  = rm68200_panel_ids,
 	.ops			  = &rm68200_panel_ops,
-	.ofdata_to_platdata	  = rm68200_panel_ofdata_to_platdata,
+	.of_to_plat	  = rm68200_panel_of_to_plat,
 	.probe			  = rm68200_panel_probe,
 	.plat_auto	= sizeof(struct mipi_dsi_panel_plat),
 	.priv_auto	= sizeof(struct rm68200_panel_priv),

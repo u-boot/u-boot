@@ -93,7 +93,7 @@ struct tegra_spi_slave {
 	struct tegra30_spi_priv *ctrl;
 };
 
-static int tegra30_spi_ofdata_to_platdata(struct udevice *bus)
+static int tegra30_spi_of_to_plat(struct udevice *bus)
 {
 	struct tegra_spi_platdata *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
@@ -372,7 +372,7 @@ U_BOOT_DRIVER(tegra30_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = tegra30_spi_ids,
 	.ops	= &tegra30_spi_ops,
-	.ofdata_to_platdata = tegra30_spi_ofdata_to_platdata,
+	.of_to_plat = tegra30_spi_of_to_plat,
 	.plat_auto	= sizeof(struct tegra_spi_platdata),
 	.priv_auto	= sizeof(struct tegra30_spi_priv),
 	.probe	= tegra30_spi_probe,

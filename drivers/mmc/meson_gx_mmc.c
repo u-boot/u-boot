@@ -241,7 +241,7 @@ static const struct dm_mmc_ops meson_dm_mmc_ops = {
 	.set_ios = meson_dm_mmc_set_ios,
 };
 
-static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
+static int meson_mmc_of_to_plat(struct udevice *dev)
 {
 	struct meson_mmc_platdata *pdata = dev_get_plat(dev);
 	fdt_addr_t addr;
@@ -339,7 +339,7 @@ U_BOOT_DRIVER(meson_mmc) = {
 	.ops = &meson_dm_mmc_ops,
 	.probe = meson_mmc_probe,
 	.bind = meson_mmc_bind,
-	.ofdata_to_platdata = meson_mmc_ofdata_to_platdata,
+	.of_to_plat = meson_mmc_of_to_plat,
 	.plat_auto	= sizeof(struct meson_mmc_platdata),
 };
 

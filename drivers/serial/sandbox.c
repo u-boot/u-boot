@@ -201,7 +201,7 @@ static const char * const ansi_colour[] = {
 	"white",
 };
 
-static int sandbox_serial_ofdata_to_platdata(struct udevice *dev)
+static int sandbox_serial_of_to_plat(struct udevice *dev)
 {
 	struct sandbox_serial_platdata *plat = dev->plat;
 	const char *colour;
@@ -241,7 +241,7 @@ U_BOOT_DRIVER(sandbox_serial) = {
 	.name	= "sandbox_serial",
 	.id	= UCLASS_SERIAL,
 	.of_match = sandbox_serial_ids,
-	.ofdata_to_platdata = sandbox_serial_ofdata_to_platdata,
+	.of_to_plat = sandbox_serial_of_to_plat,
 	.plat_auto	= sizeof(struct sandbox_serial_platdata),
 	.priv_auto	= sizeof(struct sandbox_serial_priv),
 	.probe = sandbox_serial_probe,

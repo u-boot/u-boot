@@ -579,7 +579,7 @@ static int brcm_pcie_probe(struct udevice *dev)
 	return 0;
 }
 
-static int brcm_pcie_ofdata_to_platdata(struct udevice *dev)
+static int brcm_pcie_of_to_plat(struct udevice *dev)
 {
 	struct brcm_pcie *pcie = dev_get_priv(dev);
 	ofnode dn = dev_ofnode(dev);
@@ -618,6 +618,6 @@ U_BOOT_DRIVER(pcie_brcm_base) = {
 	.ops			= &brcm_pcie_ops,
 	.of_match		= brcm_pcie_ids,
 	.probe			= brcm_pcie_probe,
-	.ofdata_to_platdata	= brcm_pcie_ofdata_to_platdata,
+	.of_to_plat	= brcm_pcie_of_to_plat,
 	.priv_auto	= sizeof(struct brcm_pcie),
 };

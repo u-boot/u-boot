@@ -558,7 +558,7 @@ static int higmac_remove(struct udevice *dev)
 	return 0;
 }
 
-static int higmac_ofdata_to_platdata(struct udevice *dev)
+static int higmac_of_to_plat(struct udevice *dev)
 {
 	struct higmac_priv *priv = dev_get_priv(dev);
 	int phyintf = PHY_INTERFACE_MODE_NONE;
@@ -594,7 +594,7 @@ U_BOOT_DRIVER(eth_higmac) = {
 	.name	= "eth_higmac",
 	.id	= UCLASS_ETH,
 	.of_match = higmac_ids,
-	.ofdata_to_platdata = higmac_ofdata_to_platdata,
+	.of_to_plat = higmac_of_to_plat,
 	.probe	= higmac_probe,
 	.remove	= higmac_remove,
 	.ops	= &higmac_ops,

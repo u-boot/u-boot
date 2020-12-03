@@ -53,7 +53,7 @@ struct rk_gmac_ops {
 };
 
 
-static int gmac_rockchip_ofdata_to_platdata(struct udevice *dev)
+static int gmac_rockchip_of_to_plat(struct udevice *dev)
 {
 	struct gmac_rockchip_platdata *pdata = dev_get_plat(dev);
 	const char *string;
@@ -74,7 +74,7 @@ static int gmac_rockchip_ofdata_to_platdata(struct udevice *dev)
 	if (pdata->rx_delay == -ENOENT)
 		pdata->rx_delay = dev_read_u32_default(dev, "rx-delay", 0x10);
 
-	return designware_eth_ofdata_to_platdata(dev);
+	return designware_eth_of_to_plat(dev);
 }
 
 static int px30_gmac_fix_mac_speed(struct dw_eth_dev *priv)
@@ -756,7 +756,7 @@ U_BOOT_DRIVER(eth_gmac_rockchip) = {
 	.name	= "gmac_rockchip",
 	.id	= UCLASS_ETH,
 	.of_match = rockchip_gmac_ids,
-	.ofdata_to_platdata = gmac_rockchip_ofdata_to_platdata,
+	.of_to_plat = gmac_rockchip_of_to_plat,
 	.probe	= gmac_rockchip_probe,
 	.ops	= &gmac_rockchip_eth_ops,
 	.priv_auto	= sizeof(struct dw_eth_dev),

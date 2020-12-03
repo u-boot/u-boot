@@ -617,7 +617,7 @@ int i2c_deblock(struct udevice *bus)
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
-int i2c_chip_ofdata_to_platdata(struct udevice *dev, struct dm_i2c_chip *chip)
+int i2c_chip_of_to_plat(struct udevice *dev, struct dm_i2c_chip *chip)
 {
 	int addr;
 
@@ -680,7 +680,7 @@ static int i2c_child_post_bind(struct udevice *dev)
 
 	if (!dev_of_valid(dev))
 		return 0;
-	return i2c_chip_ofdata_to_platdata(dev, plat);
+	return i2c_chip_of_to_plat(dev, plat);
 #else
 	return 0;
 #endif
@@ -765,7 +765,7 @@ U_BOOT_DRIVER(i2c_generic_chip_drv) = {
 	.id		= UCLASS_I2C_GENERIC,
 	.of_match	= generic_chip_i2c_ids,
 #if CONFIG_IS_ENABLED(ACPIGEN)
-	.ofdata_to_platdata	= acpi_i2c_ofdata_to_platdata,
+	.of_to_plat	= acpi_i2c_of_to_plat,
 	.priv_auto	= sizeof(struct acpi_i2c_priv),
 #endif
 	ACPI_OPS_PTR(&acpi_i2c_ops)

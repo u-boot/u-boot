@@ -3011,7 +3011,7 @@ static int sdram_init(struct dram_info *dram,
 	return 0;
 }
 
-static int rk3399_dmc_ofdata_to_platdata(struct udevice *dev)
+static int rk3399_dmc_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rockchip_dmc_plat *plat = dev_get_plat(dev);
@@ -3175,7 +3175,7 @@ U_BOOT_DRIVER(dmc_rk3399) = {
 	.ops = &rk3399_dmc_ops,
 #if defined(CONFIG_TPL_BUILD) || \
 	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
-	.ofdata_to_platdata = rk3399_dmc_ofdata_to_platdata,
+	.of_to_plat = rk3399_dmc_of_to_plat,
 #endif
 	.probe = rk3399_dmc_probe,
 	.priv_auto	= sizeof(struct dram_info),

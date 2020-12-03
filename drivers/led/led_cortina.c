@@ -130,7 +130,7 @@ static const struct led_ops cortina_led_ops = {
 	.set_state = cortina_led_set_state,
 };
 
-static int ca_led_ofdata_to_platdata(struct udevice *dev)
+static int ca_led_of_to_plat(struct udevice *dev)
 {
 	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 
@@ -289,7 +289,7 @@ U_BOOT_DRIVER(cortina_led) = {
 	.name = "ca-leds",
 	.id = UCLASS_LED,
 	.of_match = ca_led_ids,
-	.ofdata_to_platdata = ca_led_ofdata_to_platdata,
+	.of_to_plat = ca_led_of_to_plat,
 	.bind = cortina_led_bind,
 	.probe = cortina_led_probe,
 	.plat_auto	= sizeof(struct cortina_led_platdata),

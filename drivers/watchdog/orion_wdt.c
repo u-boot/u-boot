@@ -133,7 +133,7 @@ static inline bool save_reg_from_ofdata(struct udevice *dev, int index,
 	return true;
 }
 
-static int orion_wdt_ofdata_to_platdata(struct udevice *dev)
+static int orion_wdt_of_to_plat(struct udevice *dev)
 {
 	struct orion_wdt_priv *priv = dev_get_priv(dev);
 
@@ -187,6 +187,6 @@ U_BOOT_DRIVER(orion_wdt) = {
 	.of_match = orion_wdt_ids,
 	.probe = orion_wdt_probe,
 	.priv_auto	= sizeof(struct orion_wdt_priv),
-	.ofdata_to_platdata = orion_wdt_ofdata_to_platdata,
+	.of_to_plat = orion_wdt_of_to_plat,
 	.ops = &orion_wdt_ops,
 };

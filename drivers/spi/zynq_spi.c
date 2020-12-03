@@ -73,7 +73,7 @@ struct zynq_spi_priv {
 	u32 freq;		/* required frequency */
 };
 
-static int zynq_spi_ofdata_to_platdata(struct udevice *bus)
+static int zynq_spi_of_to_plat(struct udevice *bus)
 {
 	struct zynq_spi_platdata *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
@@ -371,7 +371,7 @@ U_BOOT_DRIVER(zynq_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = zynq_spi_ids,
 	.ops	= &zynq_spi_ops,
-	.ofdata_to_platdata = zynq_spi_ofdata_to_platdata,
+	.of_to_plat = zynq_spi_of_to_plat,
 	.plat_auto	= sizeof(struct zynq_spi_platdata),
 	.priv_auto	= sizeof(struct zynq_spi_priv),
 	.probe	= zynq_spi_probe,

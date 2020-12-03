@@ -384,7 +384,7 @@ static int coldfire_spi_probe(struct udevice *bus)
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
-static int coldfire_dspi_ofdata_to_platdata(struct udevice *bus)
+static int coldfire_dspi_of_to_plat(struct udevice *bus)
 {
 	fdt_addr_t addr;
 	struct coldfire_spi_platdata *plat = bus->plat;
@@ -451,7 +451,7 @@ U_BOOT_DRIVER(coldfire_spi) = {
 	.id = UCLASS_SPI,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = coldfire_spi_ids,
-	.ofdata_to_platdata = coldfire_dspi_ofdata_to_platdata,
+	.of_to_plat = coldfire_dspi_of_to_plat,
 	.plat_auto	= sizeof(struct coldfire_spi_platdata),
 #endif
 	.probe = coldfire_spi_probe,

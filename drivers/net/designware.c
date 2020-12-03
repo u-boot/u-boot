@@ -811,7 +811,7 @@ const struct eth_ops designware_eth_ops = {
 	.write_hwaddr		= designware_eth_write_hwaddr,
 };
 
-int designware_eth_ofdata_to_platdata(struct udevice *dev)
+int designware_eth_of_to_plat(struct udevice *dev)
 {
 	struct dw_eth_pdata *dw_pdata = dev_get_plat(dev);
 #if CONFIG_IS_ENABLED(DM_GPIO)
@@ -868,7 +868,7 @@ U_BOOT_DRIVER(eth_designware) = {
 	.name	= "eth_designware",
 	.id	= UCLASS_ETH,
 	.of_match = designware_eth_ids,
-	.ofdata_to_platdata = designware_eth_ofdata_to_platdata,
+	.of_to_plat = designware_eth_of_to_plat,
 	.bind	= designware_eth_bind,
 	.probe	= designware_eth_probe,
 	.remove	= designware_eth_remove,

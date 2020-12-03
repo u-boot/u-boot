@@ -65,7 +65,7 @@ static int xhci_usb_probe(struct udevice *dev)
 	return xhci_register(dev, ctx->hcd, hcor);
 }
 
-static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
+static int xhci_usb_of_to_plat(struct udevice *dev)
 {
 	struct mvebu_xhci_platdata *plat = dev_get_plat(dev);
 
@@ -92,7 +92,7 @@ U_BOOT_DRIVER(usb_xhci) = {
 	.name	= "xhci_mvebu",
 	.id	= UCLASS_USB,
 	.of_match = xhci_usb_ids,
-	.ofdata_to_platdata = xhci_usb_ofdata_to_platdata,
+	.of_to_plat = xhci_usb_of_to_plat,
 	.probe = xhci_usb_probe,
 	.remove = xhci_deregister,
 	.ops	= &xhci_usb_ops,

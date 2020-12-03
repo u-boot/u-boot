@@ -90,7 +90,7 @@ static int xlnx_wdt_probe(struct udevice *dev)
 	return 0;
 }
 
-static int xlnx_wdt_ofdata_to_platdata(struct udevice *dev)
+static int xlnx_wdt_of_to_plat(struct udevice *dev)
 {
 	struct xlnx_wdt_platdata *plat = dev_get_plat(dev);
 
@@ -124,6 +124,6 @@ U_BOOT_DRIVER(xlnx_wdt) = {
 	.of_match = xlnx_wdt_ids,
 	.probe = xlnx_wdt_probe,
 	.plat_auto	= sizeof(struct xlnx_wdt_platdata),
-	.ofdata_to_platdata = xlnx_wdt_ofdata_to_platdata,
+	.of_to_plat = xlnx_wdt_of_to_plat,
 	.ops = &xlnx_wdt_ops,
 };

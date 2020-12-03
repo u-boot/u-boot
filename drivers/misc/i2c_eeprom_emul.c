@@ -149,7 +149,7 @@ struct dm_i2c_ops sandbox_i2c_emul_ops = {
 	.xfer = sandbox_i2c_eeprom_xfer,
 };
 
-static int sandbox_i2c_eeprom_ofdata_to_platdata(struct udevice *dev)
+static int sandbox_i2c_eeprom_of_to_plat(struct udevice *dev)
 {
 	struct sandbox_i2c_flash_plat_data *plat = dev_get_plat(dev);
 
@@ -197,7 +197,7 @@ U_BOOT_DRIVER(sandbox_i2c_emul) = {
 	.name		= "sandbox_i2c_eeprom_emul",
 	.id		= UCLASS_I2C_EMUL,
 	.of_match	= sandbox_i2c_ids,
-	.ofdata_to_platdata = sandbox_i2c_eeprom_ofdata_to_platdata,
+	.of_to_plat = sandbox_i2c_eeprom_of_to_plat,
 	.probe		= sandbox_i2c_eeprom_probe,
 	.remove		= sandbox_i2c_eeprom_remove,
 	.priv_auto	= sizeof(struct sandbox_i2c_flash),

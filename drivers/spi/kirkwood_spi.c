@@ -230,7 +230,7 @@ static int mvebu_spi_probe(struct udevice *bus)
 	return 0;
 }
 
-static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
+static int mvebu_spi_of_to_plat(struct udevice *bus)
 {
 	struct mvebu_spi_platdata *plat = dev_get_plat(bus);
 	const struct mvebu_spi_dev *drvdata =
@@ -295,7 +295,7 @@ U_BOOT_DRIVER(mvebu_spi) = {
 	.id = UCLASS_SPI,
 	.of_match = mvebu_spi_ids,
 	.ops = &mvebu_spi_ops,
-	.ofdata_to_platdata = mvebu_spi_ofdata_to_platdata,
+	.of_to_plat = mvebu_spi_of_to_plat,
 	.plat_auto	= sizeof(struct mvebu_spi_platdata),
 	.priv_auto	= sizeof(struct mvebu_spi_priv),
 	.probe = mvebu_spi_probe,

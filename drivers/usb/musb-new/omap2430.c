@@ -149,7 +149,7 @@ struct omap2430_musb_platdata {
 	struct omap_musb_board_data otg_board_data;
 };
 
-static int omap2430_musb_ofdata_to_platdata(struct udevice *dev)
+static int omap2430_musb_of_to_plat(struct udevice *dev)
 {
 	struct omap2430_musb_platdata *plat = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
@@ -269,7 +269,7 @@ U_BOOT_DRIVER(omap2430_musb) = {
 	.id		= UCLASS_USB_GADGET_GENERIC,
 #endif
 	.of_match = omap2430_musb_ids,
-	.ofdata_to_platdata = omap2430_musb_ofdata_to_platdata,
+	.of_to_plat = omap2430_musb_of_to_plat,
 	.probe = omap2430_musb_probe,
 	.remove = omap2430_musb_remove,
 #ifdef CONFIG_USB_MUSB_HOST

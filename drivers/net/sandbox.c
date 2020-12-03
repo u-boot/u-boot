@@ -414,7 +414,7 @@ static int sb_eth_remove(struct udevice *dev)
 	return 0;
 }
 
-static int sb_eth_ofdata_to_platdata(struct udevice *dev)
+static int sb_eth_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct eth_sandbox_priv *priv = dev_get_priv(dev);
@@ -443,7 +443,7 @@ U_BOOT_DRIVER(eth_sandbox) = {
 	.name	= "eth_sandbox",
 	.id	= UCLASS_ETH,
 	.of_match = sb_eth_ids,
-	.ofdata_to_platdata = sb_eth_ofdata_to_platdata,
+	.of_to_plat = sb_eth_of_to_plat,
 	.remove	= sb_eth_remove,
 	.ops	= &sb_eth_ops,
 	.priv_auto	= sizeof(struct eth_sandbox_priv),

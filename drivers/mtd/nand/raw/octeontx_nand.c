@@ -2203,7 +2203,7 @@ static const struct pci_device_id octeontx_nfc_pci_id_table[] = {
 	{}
 };
 
-static int octeontx_nand_ofdata_to_platdata(struct udevice *dev)
+static int octeontx_nand_of_to_plat(struct udevice *dev)
 {
 	return 0;
 }
@@ -2217,7 +2217,7 @@ U_BOOT_DRIVER(octeontx_pci_nand) = {
 	.name	= OCTEONTX_NAND_DRIVER_NAME,
 	.id	= UCLASS_MTD,
 	.of_match = of_match_ptr(octeontx_nand_ids),
-	.ofdata_to_platdata = octeontx_nand_ofdata_to_platdata,
+	.of_to_plat = octeontx_nand_of_to_plat,
 	.probe = octeontx_pci_nand_probe,
 	.priv_auto	= sizeof(struct octeontx_nfc),
 	.remove = octeontx_pci_nand_disable,

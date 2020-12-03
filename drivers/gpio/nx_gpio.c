@@ -212,7 +212,7 @@ static int nx_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
-static int nx_gpio_ofdata_to_platdata(struct udevice *dev)
+static int nx_gpio_of_to_plat(struct udevice *dev)
 {
 	struct nx_gpio_platdata *plat = dev_get_plat(dev);
 
@@ -244,7 +244,7 @@ U_BOOT_DRIVER(nx_gpio) = {
 	.id		= UCLASS_GPIO,
 	.of_match	= nx_gpio_ids,
 	.ops		= &nx_gpio_ops,
-	.ofdata_to_platdata = nx_gpio_ofdata_to_platdata,
+	.of_to_plat = nx_gpio_of_to_plat,
 	.plat_auto	= sizeof(struct nx_gpio_platdata),
 	.probe		= nx_gpio_probe,
 };

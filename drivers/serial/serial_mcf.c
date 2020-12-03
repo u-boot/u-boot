@@ -140,7 +140,7 @@ static int coldfire_serial_pending(struct udevice *dev, bool input)
 	return 0;
 }
 
-static int coldfire_ofdata_to_platdata(struct udevice *dev)
+static int coldfire_of_to_plat(struct udevice *dev)
 {
 	struct coldfire_serial_platdata *plat = dev_get_plat(dev);
 	fdt_addr_t addr_base;
@@ -171,7 +171,7 @@ U_BOOT_DRIVER(serial_coldfire) = {
 	.name = "serial_coldfire",
 	.id = UCLASS_SERIAL,
 	.of_match = coldfire_serial_ids,
-	.ofdata_to_platdata = coldfire_ofdata_to_platdata,
+	.of_to_plat = coldfire_of_to_plat,
 	.plat_auto	= sizeof(struct coldfire_serial_platdata),
 	.probe = coldfire_serial_probe,
 	.ops = &coldfire_serial_ops,

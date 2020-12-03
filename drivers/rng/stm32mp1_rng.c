@@ -122,7 +122,7 @@ static int stm32_rng_remove(struct udevice *dev)
 	return stm32_rng_cleanup(pdata);
 }
 
-static int stm32_rng_ofdata_to_platdata(struct udevice *dev)
+static int stm32_rng_of_to_plat(struct udevice *dev)
 {
 	struct stm32_rng_platdata *pdata = dev_get_plat(dev);
 	int err;
@@ -161,5 +161,5 @@ U_BOOT_DRIVER(stm32_rng) = {
 	.probe = stm32_rng_probe,
 	.remove = stm32_rng_remove,
 	.plat_auto	= sizeof(struct stm32_rng_platdata),
-	.ofdata_to_platdata = stm32_rng_ofdata_to_platdata,
+	.of_to_plat = stm32_rng_of_to_plat,
 };

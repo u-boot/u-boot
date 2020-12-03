@@ -491,7 +491,7 @@ static const struct eth_ops mcdmafec_ops = {
 };
 
 /*
- * Boot sequence, called just after mcffec_ofdata_to_platdata,
+ * Boot sequence, called just after mcffec_of_to_plat,
  * as DM way, it replaces old mcffec_initialize.
  */
 static int mcdmafec_probe(struct udevice *dev)
@@ -565,7 +565,7 @@ static int mcdmafec_remove(struct udevice *dev)
 /*
  * Boot sequence, called 1st
  */
-static int mcdmafec_ofdata_to_platdata(struct udevice *dev)
+static int mcdmafec_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	const u32 *val;
@@ -590,7 +590,7 @@ U_BOOT_DRIVER(mcffec) = {
 	.name	= "mcdmafec",
 	.id	= UCLASS_ETH,
 	.of_match = mcdmafec_ids,
-	.ofdata_to_platdata = mcdmafec_ofdata_to_platdata,
+	.of_to_plat = mcdmafec_of_to_plat,
 	.probe	= mcdmafec_probe,
 	.remove	= mcdmafec_remove,
 	.ops	= &mcdmafec_ops,

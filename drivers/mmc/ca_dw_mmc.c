@@ -87,7 +87,7 @@ unsigned int ca_dwmci_get_mmc_clock(struct dwmci_host *host, uint freq)
 	return SD_SCLK_MAX / clk_div / (host->div + 1);
 }
 
-static int ca_dwmmc_ofdata_to_platdata(struct udevice *dev)
+static int ca_dwmmc_of_to_plat(struct udevice *dev)
 {
 	struct ca_dwmmc_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -162,7 +162,7 @@ U_BOOT_DRIVER(ca_dwmmc_drv) = {
 	.name		= "cortina_dwmmc",
 	.id		= UCLASS_MMC,
 	.of_match	= ca_dwmmc_ids,
-	.ofdata_to_platdata = ca_dwmmc_ofdata_to_platdata,
+	.of_to_plat = ca_dwmmc_of_to_plat,
 	.bind		= ca_dwmmc_bind,
 	.ops		= &ca_dwmci_dm_ops,
 	.probe		= ca_dwmmc_probe,

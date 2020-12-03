@@ -511,7 +511,7 @@ static int lpuart_serial_probe(struct udevice *dev)
 		return _lpuart_serial_init(dev);
 }
 
-static int lpuart_serial_ofdata_to_platdata(struct udevice *dev)
+static int lpuart_serial_of_to_plat(struct udevice *dev)
 {
 	struct lpuart_serial_platdata *plat = dev->plat;
 	const void *blob = gd->fdt_blob;
@@ -566,7 +566,7 @@ U_BOOT_DRIVER(serial_lpuart) = {
 	.name	= "serial_lpuart",
 	.id	= UCLASS_SERIAL,
 	.of_match = lpuart_serial_ids,
-	.ofdata_to_platdata = lpuart_serial_ofdata_to_platdata,
+	.of_to_plat = lpuart_serial_of_to_plat,
 	.plat_auto	= sizeof(struct lpuart_serial_platdata),
 	.probe = lpuart_serial_probe,
 	.ops	= &lpuart_serial_ops,

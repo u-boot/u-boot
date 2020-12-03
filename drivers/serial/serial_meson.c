@@ -136,7 +136,7 @@ static int meson_serial_pending(struct udevice *dev, bool input)
 	}
 }
 
-static int meson_serial_ofdata_to_platdata(struct udevice *dev)
+static int meson_serial_of_to_plat(struct udevice *dev)
 {
 	struct meson_serial_platdata *plat = dev->plat;
 	fdt_addr_t addr;
@@ -168,7 +168,7 @@ U_BOOT_DRIVER(serial_meson) = {
 	.of_match	= meson_serial_ids,
 	.probe		= meson_serial_probe,
 	.ops		= &meson_serial_ops,
-	.ofdata_to_platdata = meson_serial_ofdata_to_platdata,
+	.of_to_plat = meson_serial_of_to_plat,
 	.plat_auto	= sizeof(struct meson_serial_platdata),
 };
 

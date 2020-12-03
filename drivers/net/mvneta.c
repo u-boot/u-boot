@@ -1732,7 +1732,7 @@ static int mvneta_probe(struct udevice *dev)
 	else
 		mvneta_conf_mbus_windows(pp);
 
-	/* PHY interface is already decoded in mvneta_ofdata_to_platdata() */
+	/* PHY interface is already decoded in mvneta_of_to_plat() */
 	pp->phy_interface = pdata->phy_interface;
 
 	/* fetch 'fixed-link' property from 'neta' node */
@@ -1795,7 +1795,7 @@ static const struct eth_ops mvneta_ops = {
 	.write_hwaddr	= mvneta_write_hwaddr,
 };
 
-static int mvneta_ofdata_to_platdata(struct udevice *dev)
+static int mvneta_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *phy_mode;
@@ -1827,7 +1827,7 @@ U_BOOT_DRIVER(mvneta) = {
 	.name	= "mvneta",
 	.id	= UCLASS_ETH,
 	.of_match = mvneta_ids,
-	.ofdata_to_platdata = mvneta_ofdata_to_platdata,
+	.of_to_plat = mvneta_of_to_plat,
 	.probe	= mvneta_probe,
 	.ops	= &mvneta_ops,
 	.priv_auto	= sizeof(struct mvneta_port),

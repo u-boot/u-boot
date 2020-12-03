@@ -40,7 +40,7 @@ static int mtk_ahci_bind(struct udevice *dev)
 	return ahci_bind_scsi(dev, &scsi_dev);
 }
 
-static int mtk_ahci_ofdata_to_platdata(struct udevice *dev)
+static int mtk_ahci_of_to_plat(struct udevice *dev)
 {
 	struct mtk_ahci_priv *priv = dev_get_priv(dev);
 
@@ -121,7 +121,7 @@ U_BOOT_DRIVER(mtk_ahci) = {
 	.id	= UCLASS_AHCI,
 	.of_match = mtk_ahci_ids,
 	.bind	= mtk_ahci_bind,
-	.ofdata_to_platdata = mtk_ahci_ofdata_to_platdata,
+	.of_to_plat = mtk_ahci_of_to_plat,
 	.ops	= &scsi_ops,
 	.probe	= mtk_ahci_probe,
 	.priv_auto	= sizeof(struct mtk_ahci_priv),

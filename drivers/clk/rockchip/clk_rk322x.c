@@ -475,7 +475,7 @@ static struct clk_ops rk322x_clk_ops = {
 	.set_parent	= rk322x_clk_set_parent,
 };
 
-static int rk322x_clk_ofdata_to_platdata(struct udevice *dev)
+static int rk322x_clk_of_to_plat(struct udevice *dev)
 {
 	struct rk322x_clk_priv *priv = dev_get_priv(dev);
 
@@ -533,7 +533,7 @@ U_BOOT_DRIVER(rockchip_rk322x_cru) = {
 	.id		= UCLASS_CLK,
 	.of_match	= rk322x_clk_ids,
 	.priv_auto	= sizeof(struct rk322x_clk_priv),
-	.ofdata_to_platdata = rk322x_clk_ofdata_to_platdata,
+	.of_to_plat = rk322x_clk_of_to_plat,
 	.ops		= &rk322x_clk_ops,
 	.bind		= rk322x_clk_bind,
 	.probe		= rk322x_clk_probe,

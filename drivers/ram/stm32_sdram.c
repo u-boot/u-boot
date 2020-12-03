@@ -256,7 +256,7 @@ int stm32_sdram_init(struct udevice *dev)
 	return 0;
 }
 
-static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
+static int stm32_fmc_of_to_plat(struct udevice *dev)
 {
 	struct stm32_sdram_params *params = dev_get_plat(dev);
 	struct bank_params *bank_params;
@@ -407,7 +407,7 @@ U_BOOT_DRIVER(stm32_fmc) = {
 	.id = UCLASS_RAM,
 	.of_match = stm32_fmc_ids,
 	.ops = &stm32_fmc_ops,
-	.ofdata_to_platdata = stm32_fmc_ofdata_to_platdata,
+	.of_to_plat = stm32_fmc_of_to_plat,
 	.probe = stm32_fmc_probe,
 	.plat_auto	= sizeof(struct stm32_sdram_params),
 };

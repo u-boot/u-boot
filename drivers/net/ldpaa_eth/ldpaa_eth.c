@@ -1160,7 +1160,7 @@ static int ldpaa_eth_bind(struct udevice *dev)
 	return 0;
 }
 
-static int ldpaa_eth_ofdata_to_platdata(struct udevice *dev)
+static int ldpaa_eth_of_to_plat(struct udevice *dev)
 {
 	struct ldpaa_eth_priv *priv = dev_get_priv(dev);
 	const char *phy_mode_str;
@@ -1187,7 +1187,7 @@ U_BOOT_DRIVER(ldpaa_eth) = {
 	.name = "ldpaa_eth",
 	.id = UCLASS_ETH,
 	.of_match = ldpaa_eth_of_ids,
-	.ofdata_to_platdata = ldpaa_eth_ofdata_to_platdata,
+	.of_to_plat = ldpaa_eth_of_to_plat,
 	.bind = ldpaa_eth_bind,
 	.probe = ldpaa_eth_probe,
 	.ops = &ldpaa_eth_ops,

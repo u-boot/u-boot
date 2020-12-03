@@ -174,7 +174,7 @@ accessed using:
     struct dtd_rockchip_rk3288_dw_mshc *plat = dev_get_plat(dev);
 
 This avoids the code overhead of converting the device tree data to
-platform data in the driver. The ofdata_to_platdata() method should
+platform data in the driver. The of_to_plat() method should
 therefore do nothing in such a driver.
 
 Note that for the platform data to be matched with a driver, the 'name'
@@ -222,7 +222,7 @@ all the limitations metioned in caveats above.
 
 Therefore it is recommended that the of-platdata structure should be used
 only in the probe() method of your driver. It cannot be used in the
-ofdata_to_platdata() method since this is not called when platform data is
+of_to_plat() method since this is not called when platform data is
 already present.
 
 
@@ -234,7 +234,7 @@ feature is intended as a add-on to existing drivers.
 
 Your driver should convert the plat struct in its probe() method. The
 existing device tree decoding logic should be kept in the
-ofdata_to_platdata() method and wrapped with #if.
+of_to_plat() method and wrapped with #if.
 
 For example:
 
@@ -254,7 +254,7 @@ For example:
             int fifo_depth;
     };
 
-    static int mmc_ofdata_to_platdata(struct udevice *dev)
+    static int mmc_of_to_plat(struct udevice *dev)
     {
     #if !CONFIG_IS_ENABLED(OF_PLATDATA)
             /* Decode the device tree data */
@@ -291,7 +291,7 @@ For example:
             .name           = "mmc_drv",
             .id             = UCLASS_MMC,
             .of_match       = mmc_ids,
-            .ofdata_to_platdata = mmc_ofdata_to_platdata,
+            .of_to_plat = mmc_of_to_plat,
             .probe          = mmc_probe,
             .priv_auto = sizeof(struct mmc_priv),
             .plat_auto = sizeof(struct mmc_platdata),
@@ -313,7 +313,7 @@ speaking it is a non-zero plat_size which triggers this).
 The of-platdata struct contents is copied from the C structure data to the
 start of the newly allocated area. In the case where device tree is used,
 the platform data is allocated, and starts zeroed. In this case the
-ofdata_to_platdata() method should still set up the platform data (and the
+of_to_plat() method should still set up the platform data (and the
 of-platdata struct will not be present).
 
 SPL must use either of-platdata or device tree. Drivers cannot use both at

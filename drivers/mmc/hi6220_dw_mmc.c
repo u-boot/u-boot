@@ -27,7 +27,7 @@ struct hisi_mmc_data {
 	bool use_fifo;
 };
 
-static int hi6220_dwmmc_ofdata_to_platdata(struct udevice *dev)
+static int hi6220_dwmmc_of_to_plat(struct udevice *dev)
 {
 	struct hi6220_dwmmc_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -108,7 +108,7 @@ U_BOOT_DRIVER(hi6220_dwmmc_drv) = {
 	.name = "hi6220_dwmmc",
 	.id = UCLASS_MMC,
 	.of_match = hi6220_dwmmc_ids,
-	.ofdata_to_platdata = hi6220_dwmmc_ofdata_to_platdata,
+	.of_to_plat = hi6220_dwmmc_of_to_plat,
 	.ops = &dm_dwmci_ops,
 	.bind = hi6220_dwmmc_bind,
 	.probe = hi6220_dwmmc_probe,

@@ -535,7 +535,7 @@ static int pcie_dw_mvebu_probe(struct udevice *dev)
 }
 
 /**
- * pcie_dw_mvebu_ofdata_to_platdata() - Translate from DT to device state
+ * pcie_dw_mvebu_of_to_plat() - Translate from DT to device state
  *
  * @dev: A pointer to the device being operated on
  *
@@ -545,7 +545,7 @@ static int pcie_dw_mvebu_probe(struct udevice *dev)
  *
  * Return: 0 on success, else -EINVAL
  */
-static int pcie_dw_mvebu_ofdata_to_platdata(struct udevice *dev)
+static int pcie_dw_mvebu_of_to_plat(struct udevice *dev)
 {
 	struct pcie_dw_mvebu *pcie = dev_get_priv(dev);
 
@@ -578,7 +578,7 @@ U_BOOT_DRIVER(pcie_dw_mvebu) = {
 	.id			= UCLASS_PCI,
 	.of_match		= pcie_dw_mvebu_ids,
 	.ops			= &pcie_dw_mvebu_ops,
-	.ofdata_to_platdata	= pcie_dw_mvebu_ofdata_to_platdata,
+	.of_to_plat	= pcie_dw_mvebu_of_to_plat,
 	.probe			= pcie_dw_mvebu_probe,
 	.priv_auto	= sizeof(struct pcie_dw_mvebu),
 };

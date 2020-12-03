@@ -386,7 +386,7 @@ static int ast2500_sdrammc_probe(struct udevice *dev)
 	return 0;
 }
 
-static int ast2500_sdrammc_ofdata_to_platdata(struct udevice *dev)
+static int ast2500_sdrammc_of_to_plat(struct udevice *dev)
 {
 	struct dram_info *priv = dev_get_priv(dev);
 	struct regmap *map;
@@ -433,7 +433,7 @@ U_BOOT_DRIVER(sdrammc_ast2500) = {
 	.id = UCLASS_RAM,
 	.of_match = ast2500_sdrammc_ids,
 	.ops = &ast2500_sdrammc_ops,
-	.ofdata_to_platdata = ast2500_sdrammc_ofdata_to_platdata,
+	.of_to_plat = ast2500_sdrammc_of_to_plat,
 	.probe = ast2500_sdrammc_probe,
 	.priv_auto	= sizeof(struct dram_info),
 };

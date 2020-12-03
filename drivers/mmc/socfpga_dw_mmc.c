@@ -95,7 +95,7 @@ static int socfpga_dwmmc_get_clk_rate(struct udevice *dev)
 	return 0;
 }
 
-static int socfpga_dwmmc_ofdata_to_platdata(struct udevice *dev)
+static int socfpga_dwmmc_of_to_plat(struct udevice *dev)
 {
 	struct dwmci_socfpga_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -185,7 +185,7 @@ U_BOOT_DRIVER(socfpga_dwmmc_drv) = {
 	.name		= "socfpga_dwmmc",
 	.id		= UCLASS_MMC,
 	.of_match	= socfpga_dwmmc_ids,
-	.ofdata_to_platdata = socfpga_dwmmc_ofdata_to_platdata,
+	.of_to_plat = socfpga_dwmmc_of_to_plat,
 	.ops		= &dm_dwmci_ops,
 	.bind		= socfpga_dwmmc_bind,
 	.probe		= socfpga_dwmmc_probe,

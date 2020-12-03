@@ -613,7 +613,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	return sdhci_probe(dev);
 }
 
-static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
+static int arasan_sdhci_of_to_plat(struct udevice *dev)
 {
 	struct arasan_sdhci_priv *priv = dev_get_priv(dev);
 
@@ -655,7 +655,7 @@ U_BOOT_DRIVER(arasan_sdhci_drv) = {
 	.name		= "arasan_sdhci",
 	.id		= UCLASS_MMC,
 	.of_match	= arasan_sdhci_ids,
-	.ofdata_to_platdata = arasan_sdhci_ofdata_to_platdata,
+	.of_to_plat = arasan_sdhci_of_to_plat,
 	.ops		= &sdhci_ops,
 	.bind		= arasan_sdhci_bind,
 	.probe		= arasan_sdhci_probe,

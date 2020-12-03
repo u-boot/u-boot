@@ -706,7 +706,7 @@ static int broadwell_igd_probe(struct udevice *dev)
 	return 0;
 }
 
-static int broadwell_igd_ofdata_to_platdata(struct udevice *dev)
+static int broadwell_igd_of_to_plat(struct udevice *dev)
 {
 	struct broadwell_igd_plat *plat = dev_get_plat(dev);
 	struct broadwell_igd_priv *priv = dev_get_priv(dev);
@@ -778,7 +778,7 @@ U_BOOT_DRIVER(broadwell_igd) = {
 	.id	= UCLASS_VIDEO,
 	.of_match = broadwell_igd_ids,
 	.ops	= &broadwell_igd_ops,
-	.ofdata_to_platdata = broadwell_igd_ofdata_to_platdata,
+	.of_to_plat = broadwell_igd_of_to_plat,
 	.bind	= broadwell_igd_bind,
 	.probe	= broadwell_igd_probe,
 	.priv_auto	= sizeof(struct broadwell_igd_priv),

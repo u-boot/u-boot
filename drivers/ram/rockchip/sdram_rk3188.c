@@ -814,7 +814,7 @@ static int setup_sdram(struct udevice *dev)
 	return sdram_init(priv, params);
 }
 
-static int rk3188_dmc_ofdata_to_platdata(struct udevice *dev)
+static int rk3188_dmc_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3188_sdram_params *params = dev_get_plat(dev);
@@ -951,7 +951,7 @@ U_BOOT_DRIVER(rockchip_rk3188_dmc) = {
 	.of_match = rk3188_dmc_ids,
 	.ops = &rk3188_dmc_ops,
 #ifdef CONFIG_SPL_BUILD
-	.ofdata_to_platdata = rk3188_dmc_ofdata_to_platdata,
+	.of_to_plat = rk3188_dmc_of_to_plat,
 #endif
 	.probe = rk3188_dmc_probe,
 	.priv_auto	= sizeof(struct dram_info),

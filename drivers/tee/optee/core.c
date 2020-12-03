@@ -607,7 +607,7 @@ static optee_invoke_fn *get_invoke_func(struct udevice *dev)
 	return ERR_PTR(-EINVAL);
 }
 
-static int optee_ofdata_to_platdata(struct udevice *dev)
+static int optee_of_to_plat(struct udevice *dev)
 {
 	struct optee_pdata *pdata = dev_get_plat(dev);
 
@@ -658,7 +658,7 @@ U_BOOT_DRIVER(optee) = {
 	.name = "optee",
 	.id = UCLASS_TEE,
 	.of_match = optee_match,
-	.ofdata_to_platdata = optee_ofdata_to_platdata,
+	.of_to_plat = optee_of_to_plat,
 	.probe = optee_probe,
 	.ops = &optee_ops,
 	.plat_auto	= sizeof(struct optee_pdata),

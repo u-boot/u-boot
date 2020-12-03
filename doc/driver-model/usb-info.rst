@@ -39,7 +39,7 @@ as drivers in the USB uclass. For example:
 		.name	= "ehci_tegra",
 		.id	= UCLASS_USB,
 		.of_match = ehci_usb_ids,
-		.ofdata_to_platdata = ehci_usb_ofdata_to_platdata,
+		.of_to_plat = ehci_usb_of_to_plat,
 		.probe = tegra_ehci_usb_probe,
 		.remove = tegra_ehci_usb_remove,
 		.ops	= &ehci_usb_ops,
@@ -51,7 +51,7 @@ as drivers in the USB uclass. For example:
 Here ehci_usb_ids is used to list the controllers that the driver supports.
 Each has its own data value. Controllers must be in the UCLASS_USB uclass.
 
-The ofdata_to_platdata() method allows the controller driver to grab any
+The of_to_plat() method allows the controller driver to grab any
 necessary settings from the device tree.
 
 The ops here are ehci_usb_ops. All EHCI drivers will use these same ops in

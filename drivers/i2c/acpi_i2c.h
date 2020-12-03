@@ -10,6 +10,6 @@
 
 extern struct acpi_ops acpi_i2c_ops;
 
-int acpi_i2c_ofdata_to_platdata(struct udevice *dev);
+int acpi_i2c_of_to_plat(struct udevice *dev);
 
 #endif

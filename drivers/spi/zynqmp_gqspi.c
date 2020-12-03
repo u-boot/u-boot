@@ -175,7 +175,7 @@ struct zynqmp_qspi_priv {
 	unsigned int cs_change:1;
 };
 
-static int zynqmp_qspi_ofdata_to_platdata(struct udevice *bus)
+static int zynqmp_qspi_of_to_plat(struct udevice *bus)
 {
 	struct zynqmp_qspi_platdata *plat = bus->plat;
 
@@ -727,7 +727,7 @@ U_BOOT_DRIVER(zynqmp_qspi) = {
 	.id     = UCLASS_SPI,
 	.of_match = zynqmp_qspi_ids,
 	.ops    = &zynqmp_qspi_ops,
-	.ofdata_to_platdata = zynqmp_qspi_ofdata_to_platdata,
+	.of_to_plat = zynqmp_qspi_of_to_plat,
 	.plat_auto	= sizeof(struct zynqmp_qspi_platdata),
 	.priv_auto	= sizeof(struct zynqmp_qspi_priv),
 	.probe  = zynqmp_qspi_probe,

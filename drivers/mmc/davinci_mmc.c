@@ -501,7 +501,7 @@ static int davinci_mmc_bind(struct udevice *dev)
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-static int davinci_mmc_ofdata_to_platdata(struct udevice *dev)
+static int davinci_mmc_of_to_plat(struct udevice *dev)
 {
 	struct davinci_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_config *cfg = &plat->cfg;
@@ -528,7 +528,7 @@ U_BOOT_DRIVER(ti_da830_mmc) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match	= davinci_mmc_ids,
 	.plat_auto	= sizeof(struct davinci_mmc_plat),
-	.ofdata_to_platdata = davinci_mmc_ofdata_to_platdata,
+	.of_to_plat = davinci_mmc_of_to_plat,
 #endif
 #if CONFIG_BLK
 	.bind		= davinci_mmc_bind,

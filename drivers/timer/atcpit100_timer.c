@@ -85,7 +85,7 @@ static int atcpit_timer_probe(struct udevice *dev)
 	return 0;
 }
 
-static int atcpit_timer_ofdata_to_platdata(struct udevice *dev)
+static int atcpit_timer_of_to_plat(struct udevice *dev)
 {
 	struct atcpit_timer_platdata *plat = dev_get_plat(dev);
 	plat->regs = map_physmem(dev_read_addr(dev), 0x100 , MAP_NOCACHE);
@@ -105,7 +105,7 @@ U_BOOT_DRIVER(atcpit100_timer) = {
 	.name	= "atcpit100_timer",
 	.id	= UCLASS_TIMER,
 	.of_match = atcpit_timer_ids,
-	.ofdata_to_platdata = atcpit_timer_ofdata_to_platdata,
+	.of_to_plat = atcpit_timer_of_to_plat,
 	.plat_auto	= sizeof(struct atcpit_timer_platdata),
 	.probe = atcpit_timer_probe,
 	.ops	= &atcpit_timer_ops,

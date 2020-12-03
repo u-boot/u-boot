@@ -239,7 +239,7 @@ static int sifive_otp_write(struct udevice *dev, int offset,
 	return size;
 }
 
-static int sifive_otp_ofdata_to_platdata(struct udevice *dev)
+static int sifive_otp_of_to_plat(struct udevice *dev)
 {
 	struct sifive_otp_platdata *plat = dev_get_plat(dev);
 	int ret;
@@ -269,7 +269,7 @@ U_BOOT_DRIVER(sifive_otp) = {
 	.name = "sifive_otp",
 	.id = UCLASS_MISC,
 	.of_match = sifive_otp_ids,
-	.ofdata_to_platdata = sifive_otp_ofdata_to_platdata,
+	.of_to_plat = sifive_otp_of_to_plat,
 	.plat_auto	= sizeof(struct sifive_otp_platdata),
 	.ops = &sifive_otp_ops,
 };

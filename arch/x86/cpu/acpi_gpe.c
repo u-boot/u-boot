@@ -51,7 +51,7 @@ static int acpi_gpe_read_and_clear(struct irq *irq)
 	return ret;
 }
 
-static int acpi_gpe_ofdata_to_platdata(struct udevice *dev)
+static int acpi_gpe_of_to_plat(struct udevice *dev)
 {
 	struct acpi_gpe_priv *priv = dev_get_priv(dev);
 
@@ -107,6 +107,6 @@ U_BOOT_DRIVER(acpi_gpe_drv) = {
 	.id		= UCLASS_IRQ,
 	.of_match	= acpi_gpe_ids,
 	.ops		= &acpi_gpe_ops,
-	.ofdata_to_platdata	= acpi_gpe_ofdata_to_platdata,
+	.of_to_plat	= acpi_gpe_of_to_plat,
 	.priv_auto	= sizeof(struct acpi_gpe_priv),
 };

@@ -372,7 +372,7 @@ static int rcar_gen3_pcie_probe(struct udevice *dev)
 	return 0;
 }
 
-static int rcar_gen3_pcie_ofdata_to_platdata(struct udevice *dev)
+static int rcar_gen3_pcie_of_to_plat(struct udevice *dev)
 {
 	struct rcar_gen3_pcie_priv *priv = dev_get_plat(dev);
 
@@ -399,6 +399,6 @@ U_BOOT_DRIVER(rcar_gen3_pcie) = {
 	.of_match		= rcar_gen3_pcie_ids,
 	.ops			= &rcar_gen3_pcie_ops,
 	.probe			= rcar_gen3_pcie_probe,
-	.ofdata_to_platdata	= rcar_gen3_pcie_ofdata_to_platdata,
+	.of_to_plat	= rcar_gen3_pcie_of_to_plat,
 	.plat_auto	= sizeof(struct rcar_gen3_pcie_priv),
 };

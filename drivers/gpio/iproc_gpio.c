@@ -218,7 +218,7 @@ static int iproc_gpio_get_function(struct udevice *dev, u32 gpio)
 		return GPIOF_INPUT;
 }
 
-static int iproc_gpio_ofdata_to_platdata(struct udevice *dev)
+static int iproc_gpio_of_to_plat(struct udevice *dev)
 {
 	struct iproc_gpio_platdata *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
@@ -285,6 +285,6 @@ U_BOOT_DRIVER(iproc_gpio) = {
 	.id			= UCLASS_GPIO,
 	.of_match		= iproc_gpio_ids,
 	.ops			= &iproc_gpio_ops,
-	.ofdata_to_platdata	= iproc_gpio_ofdata_to_platdata,
+	.of_to_plat	= iproc_gpio_of_to_plat,
 	.plat_auto	= sizeof(struct iproc_gpio_platdata),
 };

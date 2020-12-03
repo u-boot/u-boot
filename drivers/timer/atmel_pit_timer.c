@@ -58,7 +58,7 @@ static int atmel_pit_probe(struct udevice *dev)
 	return 0;
 }
 
-static int atmel_pit_ofdata_to_platdata(struct udevice *dev)
+static int atmel_pit_of_to_plat(struct udevice *dev)
 {
 	struct atmel_pit_platdata *plat = dev_get_plat(dev);
 
@@ -80,7 +80,7 @@ U_BOOT_DRIVER(atmel_pit) = {
 	.name	= "atmel_pit",
 	.id	= UCLASS_TIMER,
 	.of_match = atmel_pit_ids,
-	.ofdata_to_platdata = atmel_pit_ofdata_to_platdata,
+	.of_to_plat = atmel_pit_of_to_plat,
 	.plat_auto	= sizeof(struct atmel_pit_platdata),
 	.probe	= atmel_pit_probe,
 	.ops	= &atmel_pit_ops,

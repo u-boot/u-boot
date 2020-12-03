@@ -178,7 +178,7 @@ static int itss_bind(struct udevice *dev)
 	return 0;
 }
 
-static int itss_ofdata_to_platdata(struct udevice *dev)
+static int itss_of_to_plat(struct udevice *dev)
 {
 	struct itss_priv *priv = dev_get_priv(dev);
 	int ret;
@@ -241,7 +241,7 @@ U_BOOT_DRIVER(intel_itss) = {
 	.of_match	= itss_ids,
 	.ops		= &itss_ops,
 	.bind		= itss_bind,
-	.ofdata_to_platdata = itss_ofdata_to_platdata,
+	.of_to_plat = itss_of_to_plat,
 	.plat_auto	= sizeof(struct itss_platdata),
 	.priv_auto	= sizeof(struct itss_priv),
 };

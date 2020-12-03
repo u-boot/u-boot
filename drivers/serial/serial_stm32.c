@@ -217,7 +217,7 @@ static const struct udevice_id stm32_serial_id[] = {
 	{}
 };
 
-static int stm32_serial_ofdata_to_platdata(struct udevice *dev)
+static int stm32_serial_of_to_plat(struct udevice *dev)
 {
 	struct stm32x7_serial_platdata *plat = dev_get_plat(dev);
 
@@ -240,7 +240,7 @@ U_BOOT_DRIVER(serial_stm32) = {
 	.name = "serial_stm32",
 	.id = UCLASS_SERIAL,
 	.of_match = of_match_ptr(stm32_serial_id),
-	.ofdata_to_platdata = of_match_ptr(stm32_serial_ofdata_to_platdata),
+	.of_to_plat = of_match_ptr(stm32_serial_of_to_plat),
 	.plat_auto	= sizeof(struct stm32x7_serial_platdata),
 	.ops = &stm32_serial_ops,
 	.probe = stm32_serial_probe,

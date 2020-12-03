@@ -517,7 +517,7 @@ static int s3c24x0_i2c_probe(struct udevice *dev, uint chip, uint chip_flags)
 	return ret != I2C_OK;
 }
 
-static int s3c_i2c_ofdata_to_platdata(struct udevice *dev)
+static int s3c_i2c_of_to_plat(struct udevice *dev)
 {
 	const void *blob = gd->fdt_blob;
 	struct s3c24x0_i2c_bus *i2c_bus = dev_get_priv(dev);
@@ -557,7 +557,7 @@ U_BOOT_DRIVER(hs_i2c) = {
 	.name	= "i2c_s3c_hs",
 	.id	= UCLASS_I2C,
 	.of_match = exynos_hs_i2c_ids,
-	.ofdata_to_platdata = s3c_i2c_ofdata_to_platdata,
+	.of_to_plat = s3c_i2c_of_to_plat,
 	.priv_auto	= sizeof(struct s3c24x0_i2c_bus),
 	.ops	= &exynos_hs_i2c_ops,
 };

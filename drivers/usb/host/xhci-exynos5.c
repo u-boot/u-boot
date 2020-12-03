@@ -52,7 +52,7 @@ struct exynos_xhci {
 	struct dwc3 *dwc3_reg;
 };
 
-static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
+static int xhci_usb_of_to_plat(struct udevice *dev)
 {
 	struct exynos_xhci_platdata *plat = dev_get_plat(dev);
 	const void *blob = gd->fdt_blob;
@@ -251,7 +251,7 @@ U_BOOT_DRIVER(usb_xhci) = {
 	.name	= "xhci_exynos",
 	.id	= UCLASS_USB,
 	.of_match = xhci_usb_ids,
-	.ofdata_to_platdata = xhci_usb_ofdata_to_platdata,
+	.of_to_plat = xhci_usb_of_to_plat,
 	.probe = xhci_usb_probe,
 	.remove = xhci_usb_remove,
 	.ops	= &xhci_usb_ops,

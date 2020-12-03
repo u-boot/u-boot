@@ -666,7 +666,7 @@ static const struct dm_mmc_ops mxsmmc_ops = {
 };
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
-static int mxsmmc_ofdata_to_platdata(struct udevice *bus)
+static int mxsmmc_of_to_plat(struct udevice *bus)
 {
 	struct mxsmmc_platdata *plat = bus->plat;
 	u32 prop[2];
@@ -711,7 +711,7 @@ U_BOOT_DRIVER(fsl_imx23_mmc) = {
 	.id	= UCLASS_MMC,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = mxsmmc_ids,
-	.ofdata_to_platdata = mxsmmc_ofdata_to_platdata,
+	.of_to_plat = mxsmmc_of_to_plat,
 #endif
 	.ops	= &mxsmmc_ops,
 #if CONFIG_IS_ENABLED(BLK)

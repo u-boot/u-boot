@@ -50,7 +50,7 @@ static uint rockchip_dwmmc_get_mmc_clk(struct dwmci_host *host, uint freq)
 	return freq;
 }
 
-static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
+static int rockchip_dwmmc_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rockchip_dwmmc_priv *priv = dev_get_priv(dev);
@@ -172,7 +172,7 @@ U_BOOT_DRIVER(rockchip_rk3288_dw_mshc) = {
 	.name		= "rockchip_rk3288_dw_mshc",
 	.id		= UCLASS_MMC,
 	.of_match	= rockchip_dwmmc_ids,
-	.ofdata_to_platdata = rockchip_dwmmc_ofdata_to_platdata,
+	.of_to_plat = rockchip_dwmmc_of_to_plat,
 	.ops		= &dm_dwmci_ops,
 	.bind		= rockchip_dwmmc_bind,
 	.probe		= rockchip_dwmmc_probe,

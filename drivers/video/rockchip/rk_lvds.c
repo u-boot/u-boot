@@ -170,7 +170,7 @@ int rk_lvds_read_timing(struct udevice *dev, struct display_timing *timing)
 	return 0;
 }
 
-static int rk_lvds_ofdata_to_platdata(struct udevice *dev)
+static int rk_lvds_of_to_plat(struct udevice *dev)
 {
 	struct rk_lvds_priv *priv = dev_get_priv(dev);
 	int ret;
@@ -245,7 +245,7 @@ U_BOOT_DRIVER(lvds_rockchip) = {
 	.id	= UCLASS_DISPLAY,
 	.of_match = rockchip_lvds_ids,
 	.ops	= &lvds_rockchip_ops,
-	.ofdata_to_platdata	= rk_lvds_ofdata_to_platdata,
+	.of_to_plat	= rk_lvds_of_to_plat,
 	.probe	= rk_lvds_probe,
 	.priv_auto	= sizeof(struct rk_lvds_priv),
 };

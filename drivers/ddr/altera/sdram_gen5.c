@@ -563,7 +563,7 @@ static unsigned long sdram_calculate_size(struct socfpga_sdr_ctrl *sdr_ctrl)
 	return temp;
 }
 
-static int altera_gen5_sdram_ofdata_to_platdata(struct udevice *dev)
+static int altera_gen5_sdram_of_to_plat(struct udevice *dev)
 {
 	struct altera_gen5_sdram_platdata *plat = dev->plat;
 
@@ -646,7 +646,7 @@ U_BOOT_DRIVER(altera_gen5_sdram) = {
 	.id = UCLASS_RAM,
 	.of_match = altera_gen5_sdram_ids,
 	.ops = &altera_gen5_sdram_ops,
-	.ofdata_to_platdata = altera_gen5_sdram_ofdata_to_platdata,
+	.of_to_plat = altera_gen5_sdram_of_to_plat,
 	.plat_auto	= sizeof(struct altera_gen5_sdram_platdata),
 	.probe = altera_gen5_sdram_probe,
 	.priv_auto	= sizeof(struct altera_gen5_sdram_priv),

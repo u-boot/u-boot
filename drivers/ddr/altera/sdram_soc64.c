@@ -230,7 +230,7 @@ phys_size_t sdram_calculate_size(struct altera_sdram_platdata *plat)
 	return size;
 }
 
-static int altera_sdram_ofdata_to_platdata(struct udevice *dev)
+static int altera_sdram_of_to_plat(struct udevice *dev)
 {
 	struct altera_sdram_platdata *plat = dev->plat;
 	fdt_addr_t addr;
@@ -303,7 +303,7 @@ U_BOOT_DRIVER(altera_sdram) = {
 	.id = UCLASS_RAM,
 	.of_match = altera_sdram_ids,
 	.ops = &altera_sdram_ops,
-	.ofdata_to_platdata = altera_sdram_ofdata_to_platdata,
+	.of_to_plat = altera_sdram_of_to_plat,
 	.plat_auto	= sizeof(struct altera_sdram_platdata),
 	.probe = altera_sdram_probe,
 	.priv_auto	= sizeof(struct altera_sdram_priv),

@@ -366,7 +366,7 @@ err:
 	return 0;
 }
 
-static int sandbox_flash_ofdata_to_platdata(struct udevice *dev)
+static int sandbox_flash_of_to_plat(struct udevice *dev)
 {
 	struct sandbox_flash_plat *plat = dev_get_plat(dev);
 
@@ -419,7 +419,7 @@ U_BOOT_DRIVER(usb_sandbox_flash) = {
 	.of_match = sandbox_usb_flash_ids,
 	.bind	= sandbox_flash_bind,
 	.probe	= sandbox_flash_probe,
-	.ofdata_to_platdata = sandbox_flash_ofdata_to_platdata,
+	.of_to_plat = sandbox_flash_of_to_plat,
 	.ops	= &sandbox_usb_flash_ops,
 	.priv_auto	= sizeof(struct sandbox_flash_priv),
 	.plat_auto	= sizeof(struct sandbox_flash_plat),

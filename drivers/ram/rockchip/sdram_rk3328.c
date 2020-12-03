@@ -548,7 +548,7 @@ static int rk3328_dmc_init(struct udevice *dev)
 	return 0;
 }
 
-static int rk3328_dmc_ofdata_to_platdata(struct udevice *dev)
+static int rk3328_dmc_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rockchip_dmc_plat *plat = dev_get_plat(dev);
@@ -612,7 +612,7 @@ U_BOOT_DRIVER(rockchip_rk3328_dmc) = {
 	.of_match = rk3328_dmc_ids,
 	.ops = &rk3328_dmc_ops,
 #ifdef CONFIG_TPL_BUILD
-	.ofdata_to_platdata = rk3328_dmc_ofdata_to_platdata,
+	.of_to_plat = rk3328_dmc_of_to_plat,
 #endif
 	.probe = rk3328_dmc_probe,
 	.priv_auto	= sizeof(struct dram_info),

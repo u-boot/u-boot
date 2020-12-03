@@ -81,7 +81,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	return sdhci_probe(dev);
 }
 
-static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
+static int arasan_sdhci_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct sdhci_host *host = dev_get_priv(dev);
@@ -110,7 +110,7 @@ U_BOOT_DRIVER(arasan_sdhci_drv) = {
 	.name		= "rockchip_rk3399_sdhci_5_1",
 	.id		= UCLASS_MMC,
 	.of_match	= arasan_sdhci_ids,
-	.ofdata_to_platdata = arasan_sdhci_ofdata_to_platdata,
+	.of_to_plat = arasan_sdhci_of_to_plat,
 	.ops		= &sdhci_ops,
 	.bind		= rockchip_sdhci_bind,
 	.probe		= arasan_sdhci_probe,

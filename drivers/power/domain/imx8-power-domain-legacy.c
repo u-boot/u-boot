@@ -340,7 +340,7 @@ static int imx8_power_domain_probe(struct udevice *dev)
 	return 0;
 }
 
-static int imx8_power_domain_ofdata_to_platdata(struct udevice *dev)
+static int imx8_power_domain_of_to_plat(struct udevice *dev)
 {
 	int reg;
 	struct imx8_power_domain_platdata *pdata = dev_get_plat(dev);
@@ -376,7 +376,7 @@ U_BOOT_DRIVER(imx8_power_domain) = {
 	.of_match = imx8_power_domain_ids,
 	.bind = imx8_power_domain_bind,
 	.probe = imx8_power_domain_probe,
-	.ofdata_to_platdata = imx8_power_domain_ofdata_to_platdata,
+	.of_to_plat = imx8_power_domain_of_to_plat,
 	.plat_auto	= sizeof(struct imx8_power_domain_platdata),
 	.priv_auto	= sizeof(struct imx8_power_domain_priv),
 	.ops = &imx8_power_domain_ops,

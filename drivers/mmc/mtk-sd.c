@@ -1545,7 +1545,7 @@ static int msdc_drv_probe(struct udevice *dev)
 	return 0;
 }
 
-static int msdc_ofdata_to_platdata(struct udevice *dev)
+static int msdc_of_to_plat(struct udevice *dev)
 {
 	struct msdc_plat *plat = dev_get_plat(dev);
 	struct msdc_host *host = dev_get_priv(dev);
@@ -1688,7 +1688,7 @@ U_BOOT_DRIVER(mtk_sd_drv) = {
 	.name = "mtk_sd",
 	.id = UCLASS_MMC,
 	.of_match = msdc_ids,
-	.ofdata_to_platdata = msdc_ofdata_to_platdata,
+	.of_to_plat = msdc_of_to_plat,
 	.bind = msdc_drv_bind,
 	.probe = msdc_drv_probe,
 	.ops = &msdc_ops,

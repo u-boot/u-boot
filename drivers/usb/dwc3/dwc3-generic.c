@@ -105,7 +105,7 @@ static int dwc3_generic_remove(struct udevice *dev,
 	return 0;
 }
 
-static int dwc3_generic_ofdata_to_platdata(struct udevice *dev)
+static int dwc3_generic_of_to_plat(struct udevice *dev)
 {
 	struct dwc3_generic_plat *plat = dev_get_plat(dev);
 	ofnode node = dev->node;
@@ -155,7 +155,7 @@ static int dwc3_generic_peripheral_remove(struct udevice *dev)
 U_BOOT_DRIVER(dwc3_generic_peripheral) = {
 	.name	= "dwc3-generic-peripheral",
 	.id	= UCLASS_USB_GADGET_GENERIC,
-	.ofdata_to_platdata = dwc3_generic_ofdata_to_platdata,
+	.of_to_plat = dwc3_generic_of_to_plat,
 	.probe = dwc3_generic_peripheral_probe,
 	.remove = dwc3_generic_peripheral_remove,
 	.priv_auto	= sizeof(struct dwc3_generic_priv),
@@ -197,7 +197,7 @@ static int dwc3_generic_host_remove(struct udevice *dev)
 U_BOOT_DRIVER(dwc3_generic_host) = {
 	.name	= "dwc3-generic-host",
 	.id	= UCLASS_USB,
-	.ofdata_to_platdata = dwc3_generic_ofdata_to_platdata,
+	.of_to_plat = dwc3_generic_of_to_plat,
 	.probe = dwc3_generic_host_probe,
 	.remove = dwc3_generic_host_remove,
 	.priv_auto	= sizeof(struct dwc3_generic_host_priv),

@@ -362,7 +362,7 @@ static int uniphier_spi_set_mode(struct udevice *bus, uint mode)
 	return 0;
 }
 
-static int uniphier_spi_ofdata_to_platdata(struct udevice *bus)
+static int uniphier_spi_of_to_plat(struct udevice *bus)
 {
 	struct uniphier_spi_platdata *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
@@ -411,7 +411,7 @@ U_BOOT_DRIVER(uniphier_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = uniphier_spi_ids,
 	.ops	= &uniphier_spi_ops,
-	.ofdata_to_platdata = uniphier_spi_ofdata_to_platdata,
+	.of_to_plat = uniphier_spi_of_to_plat,
 	.plat_auto	= sizeof(struct uniphier_spi_platdata),
 	.priv_auto	= sizeof(struct uniphier_spi_priv),
 	.probe	= uniphier_spi_probe,

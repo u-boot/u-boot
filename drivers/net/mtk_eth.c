@@ -1407,7 +1407,7 @@ static int mtk_eth_remove(struct udevice *dev)
 	return 0;
 }
 
-static int mtk_eth_ofdata_to_platdata(struct udevice *dev)
+static int mtk_eth_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct mtk_eth_priv *priv = dev_get_priv(dev);
@@ -1558,7 +1558,7 @@ U_BOOT_DRIVER(mtk_eth) = {
 	.name = "mtk-eth",
 	.id = UCLASS_ETH,
 	.of_match = mtk_eth_ids,
-	.ofdata_to_platdata = mtk_eth_ofdata_to_platdata,
+	.of_to_plat = mtk_eth_of_to_plat,
 	.plat_auto	= sizeof(struct eth_pdata),
 	.probe = mtk_eth_probe,
 	.remove = mtk_eth_remove,

@@ -311,7 +311,7 @@ int pci_octeontx_write_config(struct udevice *bus, pci_dev_t bdf,
 	return ret;
 }
 
-static int pci_octeontx_ofdata_to_platdata(struct udevice *dev)
+static int pci_octeontx_of_to_plat(struct udevice *dev)
 {
 	return 0;
 }
@@ -357,7 +357,7 @@ U_BOOT_DRIVER(pci_octeontx) = {
 	.id	= UCLASS_PCI,
 	.of_match = pci_octeontx_ids,
 	.ops	= &pci_octeontx_ops,
-	.ofdata_to_platdata = pci_octeontx_ofdata_to_platdata,
+	.of_to_plat = pci_octeontx_of_to_plat,
 	.probe	= pci_octeontx_probe,
 	.priv_auto	= sizeof(struct octeontx_pci),
 	.flags = DM_FLAG_PRE_RELOC,

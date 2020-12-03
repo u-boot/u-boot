@@ -87,7 +87,7 @@ int tegra20_sflash_cs_info(struct udevice *bus, unsigned int cs,
 		return 0;
 }
 
-static int tegra20_sflash_ofdata_to_platdata(struct udevice *bus)
+static int tegra20_sflash_of_to_plat(struct udevice *bus)
 {
 	struct tegra_spi_platdata *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
@@ -353,7 +353,7 @@ U_BOOT_DRIVER(tegra20_sflash) = {
 	.id	= UCLASS_SPI,
 	.of_match = tegra20_sflash_ids,
 	.ops	= &tegra20_sflash_ops,
-	.ofdata_to_platdata = tegra20_sflash_ofdata_to_platdata,
+	.of_to_plat = tegra20_sflash_of_to_plat,
 	.plat_auto	= sizeof(struct tegra_spi_platdata),
 	.priv_auto	= sizeof(struct tegra20_sflash_priv),
 	.probe	= tegra20_sflash_probe,

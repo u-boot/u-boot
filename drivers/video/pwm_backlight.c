@@ -182,7 +182,7 @@ static int pwm_backlight_set_brightness(struct udevice *dev, int percent)
 	return 0;
 }
 
-static int pwm_backlight_ofdata_to_platdata(struct udevice *dev)
+static int pwm_backlight_of_to_plat(struct udevice *dev)
 {
 	struct pwm_backlight_priv *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args args;
@@ -263,7 +263,7 @@ U_BOOT_DRIVER(pwm_backlight) = {
 	.id	= UCLASS_PANEL_BACKLIGHT,
 	.of_match = pwm_backlight_ids,
 	.ops	= &pwm_backlight_ops,
-	.ofdata_to_platdata	= pwm_backlight_ofdata_to_platdata,
+	.of_to_plat	= pwm_backlight_of_to_plat,
 	.probe		= pwm_backlight_probe,
 	.priv_auto	= sizeof(struct pwm_backlight_priv),
 };

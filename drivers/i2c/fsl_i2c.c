@@ -573,7 +573,7 @@ static int fsl_i2c_set_bus_speed(struct udevice *bus, uint speed)
 	return __i2c_set_bus_speed(dev->base, speed, dev->i2c_clk);
 }
 
-static int fsl_i2c_ofdata_to_platdata(struct udevice *bus)
+static int fsl_i2c_of_to_plat(struct udevice *bus)
 {
 	struct fsl_i2c_dev *dev = dev_get_priv(bus);
 	struct clk clock;
@@ -649,7 +649,7 @@ U_BOOT_DRIVER(i2c_fsl) = {
 	.id = UCLASS_I2C,
 	.of_match = fsl_i2c_ids,
 	.probe = fsl_i2c_probe,
-	.ofdata_to_platdata = fsl_i2c_ofdata_to_platdata,
+	.of_to_plat = fsl_i2c_of_to_plat,
 	.priv_auto	= sizeof(struct fsl_i2c_dev),
 	.ops = &fsl_i2c_ops,
 };

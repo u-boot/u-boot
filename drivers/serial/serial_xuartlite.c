@@ -106,7 +106,7 @@ static int uartlite_serial_probe(struct udevice *dev)
 	return 0;
 }
 
-static int uartlite_serial_ofdata_to_platdata(struct udevice *dev)
+static int uartlite_serial_of_to_plat(struct udevice *dev)
 {
 	struct uartlite_platdata *plat = dev_get_plat(dev);
 
@@ -131,7 +131,7 @@ U_BOOT_DRIVER(serial_uartlite) = {
 	.name	= "serial_uartlite",
 	.id	= UCLASS_SERIAL,
 	.of_match = uartlite_serial_ids,
-	.ofdata_to_platdata = uartlite_serial_ofdata_to_platdata,
+	.of_to_plat = uartlite_serial_of_to_plat,
 	.plat_auto	= sizeof(struct uartlite_platdata),
 	.probe = uartlite_serial_probe,
 	.ops	= &uartlite_serial_ops,

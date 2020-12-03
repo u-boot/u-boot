@@ -393,7 +393,7 @@ static const char *dtbmacaddr(u32 ifno)
 	return NULL;
 }
 
-static int ftmac100_ofdata_to_platdata(struct udevice *dev)
+static int ftmac100_of_to_plat(struct udevice *dev)
 {
 	struct ftmac100_data *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_plat(dev);
@@ -437,7 +437,7 @@ U_BOOT_DRIVER(ftmac100) = {
 	.id	= UCLASS_ETH,
 	.of_match = ftmac100_ids,
 	.bind	= ftmac100_bind,
-	.ofdata_to_platdata = ftmac100_ofdata_to_platdata,
+	.of_to_plat = ftmac100_of_to_plat,
 	.probe	= ftmac100_probe,
 	.ops	= &ftmac100_ops,
 	.priv_auto	= sizeof(struct ftmac100_data),

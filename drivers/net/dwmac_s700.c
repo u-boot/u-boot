@@ -44,9 +44,9 @@ static int dwmac_s700_probe(struct udevice *dev)
 	return designware_eth_probe(dev);
 }
 
-static int dwmac_s700_ofdata_to_platdata(struct udevice *dev)
+static int dwmac_s700_of_to_plat(struct udevice *dev)
 {
-	return designware_eth_ofdata_to_platdata(dev);
+	return designware_eth_of_to_plat(dev);
 }
 
 static const struct udevice_id dwmac_s700_ids[] = {
@@ -58,7 +58,7 @@ U_BOOT_DRIVER(dwmac_s700) = {
 	.name   = "dwmac_s700",
 	.id     = UCLASS_ETH,
 	.of_match = dwmac_s700_ids,
-	.ofdata_to_platdata = dwmac_s700_ofdata_to_platdata,
+	.of_to_plat = dwmac_s700_of_to_plat,
 	.probe  = dwmac_s700_probe,
 	.ops    = &designware_eth_ops,
 	.priv_auto	= sizeof(struct dw_eth_dev),

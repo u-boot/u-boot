@@ -479,7 +479,7 @@ unsigned long exynos_fimd_calc_fbsize(struct exynos_fb_priv *priv)
 	return priv->vl_col * priv->vl_row * (VNBITS(priv->vl_bpix) / 8);
 }
 
-int exynos_fb_ofdata_to_platdata(struct udevice *dev)
+int exynos_fb_of_to_plat(struct udevice *dev)
 {
 	struct exynos_fb_priv *priv = dev_get_priv(dev);
 	unsigned int node = dev_of_offset(dev);
@@ -715,6 +715,6 @@ U_BOOT_DRIVER(exynos_fb) = {
 	.ops	= &exynos_fb_ops,
 	.bind	= exynos_fb_bind,
 	.probe	= exynos_fb_probe,
-	.ofdata_to_platdata	= exynos_fb_ofdata_to_platdata,
+	.of_to_plat	= exynos_fb_of_to_plat,
 	.priv_auto	= sizeof(struct exynos_fb_priv),
 };

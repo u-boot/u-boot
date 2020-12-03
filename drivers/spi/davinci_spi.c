@@ -419,7 +419,7 @@ U_BOOT_DRIVER(davinci_spi) = {
 	.id = UCLASS_SPI,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = davinci_spi_ids,
-	.ofdata_to_platdata = davinci_ofdata_to_platadata,
+	.of_to_plat = davinci_ofdata_to_platadata,
 	.plat_auto	= sizeof(struct davinci_spi_platdata),
 #endif
 	.probe = davinci_spi_probe,

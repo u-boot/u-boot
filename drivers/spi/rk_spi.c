@@ -192,7 +192,7 @@ static int conv_of_platdata(struct udevice *dev)
 }
 #endif
 
-static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
+static int rockchip_spi_of_to_plat(struct udevice *bus)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rockchip_spi_platdata *plat = dev_get_plat(bus);
@@ -560,7 +560,7 @@ U_BOOT_DRIVER(rockchip_rk3288_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = rockchip_spi_ids,
 	.ops	= &rockchip_spi_ops,
-	.ofdata_to_platdata = rockchip_spi_ofdata_to_platdata,
+	.of_to_plat = rockchip_spi_of_to_plat,
 	.plat_auto	= sizeof(struct rockchip_spi_platdata),
 	.priv_auto	= sizeof(struct rockchip_spi_priv),
 	.probe	= rockchip_spi_probe,

@@ -58,7 +58,7 @@ pci_dev_t dm_pci_get_bdf(const struct udevice *dev)
 	 * will produce a bad BDF>
 	 *
 	 * A common cause of this problem is that this function is called in the
-	 * ofdata_to_platdata() method of @dev. Accessing the PCI bus in that
+	 * of_to_plat() method of @dev. Accessing the PCI bus in that
 	 * method is not allowed, since it has not yet been probed. To fix this,
 	 * move that access to the probe() method of @dev instead.
 	 */

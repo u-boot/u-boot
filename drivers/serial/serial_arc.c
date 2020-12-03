@@ -109,7 +109,7 @@ static const struct udevice_id arc_serial_ids[] = {
 	{ }
 };
 
-static int arc_serial_ofdata_to_platdata(struct udevice *dev)
+static int arc_serial_of_to_plat(struct udevice *dev)
 {
 	struct arc_serial_platdata *plat = dev_get_plat(dev);
 	DECLARE_GLOBAL_DATA_PTR;
@@ -125,7 +125,7 @@ U_BOOT_DRIVER(serial_arc) = {
 	.name	= "serial_arc",
 	.id	= UCLASS_SERIAL,
 	.of_match = arc_serial_ids,
-	.ofdata_to_platdata = arc_serial_ofdata_to_platdata,
+	.of_to_plat = arc_serial_of_to_plat,
 	.plat_auto	= sizeof(struct arc_serial_platdata),
 	.probe = arc_serial_probe,
 	.ops	= &arc_serial_ops,

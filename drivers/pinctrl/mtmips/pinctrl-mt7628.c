@@ -534,7 +534,7 @@ static int mt7628_pinctrl_probe(struct udevice *dev)
 	return ret;
 }
 
-static int mt7628_pinctrl_ofdata_to_platdata(struct udevice *dev)
+static int mt7628_pinctrl_of_to_plat(struct udevice *dev)
 {
 	struct mt7628_pinctrl_priv *priv = dev_get_priv(dev);
 
@@ -578,7 +578,7 @@ U_BOOT_DRIVER(mt7628_pinctrl) = {
 	.name = "mt7628-pinctrl",
 	.id = UCLASS_PINCTRL,
 	.of_match = mt7628_pinctrl_ids,
-	.ofdata_to_platdata = mt7628_pinctrl_ofdata_to_platdata,
+	.of_to_plat = mt7628_pinctrl_of_to_plat,
 	.ops = &mt7628_pinctrl_ops,
 	.probe = mt7628_pinctrl_probe,
 	.priv_auto	= sizeof(struct mt7628_pinctrl_priv),

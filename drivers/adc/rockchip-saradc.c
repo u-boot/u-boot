@@ -117,7 +117,7 @@ int rockchip_saradc_probe(struct udevice *dev)
 	return 0;
 }
 
-int rockchip_saradc_ofdata_to_platdata(struct udevice *dev)
+int rockchip_saradc_of_to_plat(struct udevice *dev)
 {
 	struct adc_uclass_plat *uc_pdata = dev_get_uclass_plat(dev);
 	struct rockchip_saradc_priv *priv = dev_get_priv(dev);
@@ -179,6 +179,6 @@ U_BOOT_DRIVER(rockchip_saradc) = {
 	.of_match	= rockchip_saradc_ids,
 	.ops		= &rockchip_saradc_ops,
 	.probe		= rockchip_saradc_probe,
-	.ofdata_to_platdata = rockchip_saradc_ofdata_to_platdata,
+	.of_to_plat = rockchip_saradc_of_to_plat,
 	.priv_auto	= sizeof(struct rockchip_saradc_priv),
 };

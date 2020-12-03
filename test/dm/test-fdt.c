@@ -38,7 +38,7 @@ static const struct test_ops test_ops = {
 	.ping = testfdt_drv_ping,
 };
 
-static int testfdt_ofdata_to_platdata(struct udevice *dev)
+static int testfdt_of_to_plat(struct udevice *dev)
 {
 	struct dm_test_pdata *pdata = dev_get_plat(dev);
 
@@ -83,7 +83,7 @@ U_BOOT_DRIVER(testfdt_drv) = {
 	.name	= "testfdt_drv",
 	.of_match	= testfdt_ids,
 	.id	= UCLASS_TEST_FDT,
-	.ofdata_to_platdata = testfdt_ofdata_to_platdata,
+	.of_to_plat = testfdt_of_to_plat,
 	.probe	= testfdt_drv_probe,
 	.ops	= &test_ops,
 	.priv_auto	= sizeof(struct dm_test_priv),
@@ -101,7 +101,7 @@ U_BOOT_DRIVER(testfdt1_drv) = {
 	.name	= "testfdt1_drv",
 	.of_match	= testfdt1_ids,
 	.id	= UCLASS_TEST_FDT,
-	.ofdata_to_platdata = testfdt_ofdata_to_platdata,
+	.of_to_plat = testfdt_of_to_plat,
 	.probe	= testfdt_drv_probe,
 	.ops	= &test_ops,
 	.priv_auto	= sizeof(struct dm_test_priv),
@@ -174,7 +174,7 @@ static int testdevres_drv_bind(struct udevice *dev)
 	return 0;
 }
 
-static int testdevres_drv_ofdata_to_platdata(struct udevice *dev)
+static int testdevres_drv_of_to_plat(struct udevice *dev)
 {
 	struct dm_testdevres_priv *priv = dev_get_priv(dev);
 
@@ -202,7 +202,7 @@ U_BOOT_DRIVER(testdevres_drv) = {
 	.of_match	= testdevres_ids,
 	.id	= UCLASS_TEST_DEVRES,
 	.bind	= testdevres_drv_bind,
-	.ofdata_to_platdata	= testdevres_drv_ofdata_to_platdata,
+	.of_to_plat	= testdevres_drv_of_to_plat,
 	.probe	= testdevres_drv_probe,
 	.plat_auto	= sizeof(struct dm_testdevres_pdata),
 	.priv_auto	= sizeof(struct dm_testdevres_priv),
@@ -1062,7 +1062,7 @@ static int dm_test_child_ofdata(struct unit_test_state *uts)
 
 	ut_assertok(uclass_first_device_err(UCLASS_TEST_BUS, &bus));
 	count = 0;
-	device_foreach_child_ofdata_to_platdata(dev, bus) {
+	device_foreach_child_of_to_plat(dev, bus) {
 		ut_assert(dev->flags & DM_FLAG_PLATDATA_VALID);
 		ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
 		count++;
@@ -1106,7 +1106,7 @@ static int dm_test_ofdata_order(struct unit_test_state *uts)
 	ut_assert(!(dev->flags & DM_FLAG_PLATDATA_VALID));
 
 	/* read the child's ofdata which should cause the parent's to be read */
-	ut_assertok(device_ofdata_to_platdata(dev));
+	ut_assertok(device_of_to_plat(dev));
 	ut_assert(dev->flags & DM_FLAG_PLATDATA_VALID);
 	ut_assert(bus->flags & DM_FLAG_PLATDATA_VALID);
 

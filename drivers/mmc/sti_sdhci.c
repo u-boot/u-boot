@@ -111,7 +111,7 @@ static int sti_sdhci_probe(struct udevice *dev)
 	return sdhci_probe(dev);
 }
 
-static int sti_sdhci_ofdata_to_platdata(struct udevice *dev)
+static int sti_sdhci_of_to_plat(struct udevice *dev)
 {
 	struct sdhci_host *host = dev_get_priv(dev);
 
@@ -142,7 +142,7 @@ U_BOOT_DRIVER(sti_mmc) = {
 	.of_match = sti_sdhci_ids,
 	.bind = sti_sdhci_bind,
 	.ops = &sdhci_ops,
-	.ofdata_to_platdata = sti_sdhci_ofdata_to_platdata,
+	.of_to_plat = sti_sdhci_of_to_plat,
 	.probe = sti_sdhci_probe,
 	.priv_auto	= sizeof(struct sdhci_host),
 	.plat_auto	= sizeof(struct sti_sdhci_plat),

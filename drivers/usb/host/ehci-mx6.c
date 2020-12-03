@@ -518,7 +518,7 @@ static int ehci_usb_phy_mode(struct udevice *dev)
 	return 0;
 }
 
-static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
+static int ehci_usb_of_to_plat(struct udevice *dev)
 {
 	struct usb_platdata *plat = dev_get_plat(dev);
 	enum usb_dr_mode dr_mode;
@@ -645,7 +645,7 @@ U_BOOT_DRIVER(usb_mx6) = {
 	.name	= "ehci_mx6",
 	.id	= UCLASS_USB,
 	.of_match = mx6_usb_ids,
-	.ofdata_to_platdata = ehci_usb_ofdata_to_platdata,
+	.of_to_plat = ehci_usb_of_to_plat,
 	.bind	= ehci_usb_bind,
 	.probe	= ehci_usb_probe,
 	.remove = ehci_deregister,

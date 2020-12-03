@@ -901,7 +901,7 @@ clk_free:
 	return ret;
 }
 
-static int stm32_ofdata_to_platdata(struct udevice *dev)
+static int stm32_of_to_plat(struct udevice *dev)
 {
 	struct stm32_i2c_priv *i2c_priv = dev_get_priv(dev);
 	u32 rise_time, fall_time;
@@ -953,7 +953,7 @@ U_BOOT_DRIVER(stm32f7_i2c) = {
 	.name = "stm32f7-i2c",
 	.id = UCLASS_I2C,
 	.of_match = stm32_i2c_of_match,
-	.ofdata_to_platdata = stm32_ofdata_to_platdata,
+	.of_to_plat = stm32_of_to_plat,
 	.probe = stm32_i2c_probe,
 	.priv_auto	= sizeof(struct stm32_i2c_priv),
 	.ops = &stm32_i2c_ops,

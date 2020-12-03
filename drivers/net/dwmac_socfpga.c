@@ -25,7 +25,7 @@ struct dwmac_socfpga_platdata {
 	u32			reg_shift;
 };
 
-static int dwmac_socfpga_ofdata_to_platdata(struct udevice *dev)
+static int dwmac_socfpga_of_to_plat(struct udevice *dev)
 {
 	struct dwmac_socfpga_platdata *pdata = dev_get_plat(dev);
 	struct regmap *regmap;
@@ -61,7 +61,7 @@ static int dwmac_socfpga_ofdata_to_platdata(struct udevice *dev)
 	pdata->phy_intf = range + args.args[0];
 	pdata->reg_shift = args.args[1];
 
-	return designware_eth_ofdata_to_platdata(dev);
+	return designware_eth_of_to_plat(dev);
 }
 
 static int dwmac_socfpga_probe(struct udevice *dev)
@@ -115,7 +115,7 @@ U_BOOT_DRIVER(dwmac_socfpga) = {
 	.name		= "dwmac_socfpga",
 	.id		= UCLASS_ETH,
 	.of_match	= dwmac_socfpga_ids,
-	.ofdata_to_platdata = dwmac_socfpga_ofdata_to_platdata,
+	.of_to_plat = dwmac_socfpga_of_to_plat,
 	.probe		= dwmac_socfpga_probe,
 	.ops		= &designware_eth_ops,
 	.priv_auto	= sizeof(struct dw_eth_dev),

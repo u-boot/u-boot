@@ -794,7 +794,7 @@ static int mvtwsi_i2c_set_bus_speed(struct udevice *bus, uint speed)
 	return 0;
 }
 
-static int mvtwsi_i2c_ofdata_to_platdata(struct udevice *bus)
+static int mvtwsi_i2c_of_to_plat(struct udevice *bus)
 {
 	struct mvtwsi_i2c_dev *dev = dev_get_priv(bus);
 
@@ -888,7 +888,7 @@ U_BOOT_DRIVER(i2c_mvtwsi) = {
 	.of_match = mvtwsi_i2c_ids,
 	.bind = mvtwsi_i2c_bind,
 	.probe = mvtwsi_i2c_probe,
-	.ofdata_to_platdata = mvtwsi_i2c_ofdata_to_platdata,
+	.of_to_plat = mvtwsi_i2c_of_to_plat,
 	.priv_auto	= sizeof(struct mvtwsi_i2c_dev),
 	.ops = &mvtwsi_i2c_ops,
 };

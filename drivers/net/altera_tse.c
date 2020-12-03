@@ -672,7 +672,7 @@ static int altera_tse_probe(struct udevice *dev)
 	return ret;
 }
 
-static int altera_tse_ofdata_to_platdata(struct udevice *dev)
+static int altera_tse_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *phy_mode;
@@ -710,7 +710,7 @@ U_BOOT_DRIVER(altera_tse) = {
 	.id	= UCLASS_ETH,
 	.of_match = altera_tse_ids,
 	.ops	= &altera_tse_ops,
-	.ofdata_to_platdata = altera_tse_ofdata_to_platdata,
+	.of_to_plat = altera_tse_of_to_plat,
 	.plat_auto	= sizeof(struct eth_pdata),
 	.priv_auto	= sizeof(struct altera_tse_priv),
 	.probe	= altera_tse_probe,

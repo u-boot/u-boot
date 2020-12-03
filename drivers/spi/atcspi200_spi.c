@@ -408,7 +408,7 @@ U_BOOT_DRIVER(atcspi200_spi) = {
 	.id = UCLASS_SPI,
 	.of_match = atcspi200_spi_ids,
 	.ops = &atcspi200_spi_ops,
-	.ofdata_to_platdata = atcspi200_ofdata_to_platadata,
+	.of_to_plat = atcspi200_ofdata_to_platadata,
 	.priv_auto	= sizeof(struct nds_spi_slave),
 	.probe = atcspi200_spi_probe,
 };

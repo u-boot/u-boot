@@ -100,7 +100,7 @@ struct fan53555_priv {
 	unsigned int sleep_vol_cache;
 };
 
-static int fan53555_regulator_ofdata_to_platdata(struct udevice *dev)
+static int fan53555_regulator_of_to_plat(struct udevice *dev)
 {
 	struct fan53555_platdata *dev_pdata = dev_get_plat(dev);
 	struct dm_regulator_uclass_plat *uc_pdata =
@@ -238,7 +238,7 @@ U_BOOT_DRIVER(fan53555_regulator) = {
 	.name = "fan53555_regulator",
 	.id = UCLASS_REGULATOR,
 	.ops = &fan53555_regulator_ops,
-	.ofdata_to_platdata = fan53555_regulator_ofdata_to_platdata,
+	.of_to_plat = fan53555_regulator_of_to_plat,
 	.plat_auto	= sizeof(struct fan53555_platdata),
 	.priv_auto	= sizeof(struct fan53555_priv),
 	.probe = fan53555_probe,

@@ -221,7 +221,7 @@ static int apl_hostbridge_early_init(struct udevice *dev)
 	return 0;
 }
 
-static int apl_hostbridge_ofdata_to_platdata(struct udevice *dev)
+static int apl_hostbridge_of_to_plat(struct udevice *dev)
 {
 	struct apl_hostbridge_platdata *plat = dev_get_plat(dev);
 	struct udevice *pinctrl;
@@ -400,7 +400,7 @@ U_BOOT_DRIVER(intel_apl_hostbridge) = {
 	.name		= "intel_apl_hostbridge",
 	.id		= UCLASS_NORTHBRIDGE,
 	.of_match	= apl_hostbridge_ids,
-	.ofdata_to_platdata = apl_hostbridge_ofdata_to_platdata,
+	.of_to_plat = apl_hostbridge_of_to_plat,
 	.probe		= apl_hostbridge_probe,
 	.remove		= apl_hostbridge_remove,
 	.plat_auto	= sizeof(struct apl_hostbridge_platdata),

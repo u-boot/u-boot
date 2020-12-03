@@ -139,7 +139,7 @@ static unsigned long nx_dw_mmc_set_clk(struct dwmci_host *host,
 	return rate;
 }
 
-static int nexell_dwmmc_ofdata_to_platdata(struct udevice *dev)
+static int nexell_dwmmc_of_to_plat(struct udevice *dev)
 {
 	struct nexell_dwmmc_priv *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -228,7 +228,7 @@ U_BOOT_DRIVER(nexell_dwmmc_drv) = {
 	.name		= "nexell_dwmmc",
 	.id		= UCLASS_MMC,
 	.of_match	= nexell_dwmmc_ids,
-	.ofdata_to_platdata = nexell_dwmmc_ofdata_to_platdata,
+	.of_to_plat = nexell_dwmmc_of_to_plat,
 	.ops		= &dm_dwmci_ops,
 	.bind		= nexell_dwmmc_bind,
 	.probe		= nexell_dwmmc_probe,
