@@ -114,8 +114,16 @@ struct video_priv {
 	u8 bg_col_idx;
 };
 
-/* Placeholder - there are no video operations at present */
+/**
+ * struct video_ops - structure for keeping video operations
+ * @video_sync: Synchronize FB with device. Some device like SPI based LCD
+ *		displays needs synchronization when data in an FB is available.
+ *		For these devices implement video_sync hook to call a sync
+ *		function. vid is pointer to video device udevice. Function
+ *		should return 0 on success video_sync and error code otherwise
+ */
 struct video_ops {
+	int (*video_sync)(struct udevice *vid);
 };
 
 #define video_get_ops(dev)        ((struct video_ops *)(dev)->driver->ops)
@@ -155,7 +163,7 @@ int video_clear(struct udevice *dev);
  * @force:	True to force a sync even if there was one recently (this is
  *		very expensive on sandbox)
  *
- * @return: 0 always
+ * @return: 0 on success, error code otherwise
  *
  * Some frame buffers are cached or have a secondary frame buffer. This
  * function syncs these up so that the current contents of the U-Boot frame

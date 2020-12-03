@@ -175,6 +175,15 @@ void video_set_default_colors(struct udevice *dev, bool invert)
 /* Flush video activity to the caches */
 int video_sync(struct udevice *vid, bool force)
 {
+	struct video_ops *ops = video_get_ops(vid);
+	int ret;
+
+	if (ops && ops->video_sync) {
+		ret = ops->video_sync(vid);
+		if (ret)
+			return ret;
+	}
+
 	/*
 	 * flush_dcache_range() is declared in common.h but it seems that some
 	 * architectures do not actually implement it. Is there a way to find
