@@ -36,7 +36,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static int device_bind_common(struct udevice *parent, const struct driver *drv,
 			      const char *name, void *plat,
 			      ulong driver_data, ofnode node,
-			      uint of_platdata_size, struct udevice **devp)
+			      uint of_plat_size, struct udevice **devp)
 {
 	struct udevice *dev;
 	struct uclass *uc;
@@ -100,9 +100,9 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 		bool alloc = !plat;
 
 		if (CONFIG_IS_ENABLED(OF_PLATDATA)) {
-			if (of_platdata_size) {
+			if (of_plat_size) {
 				dev->flags |= DM_FLAG_OF_PLATDATA;
-				if (of_platdata_size < drv->plat_auto)
+				if (of_plat_size < drv->plat_auto)
 					alloc = true;
 			}
 		}
@@ -114,8 +114,7 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 				goto fail_alloc1;
 			}
 			if (CONFIG_IS_ENABLED(OF_PLATDATA) && plat) {
-				memcpy(dev->plat, plat,
-				       of_platdata_size);
+				memcpy(dev->plat, plat, of_plat_size);
 			}
 		}
 	}
@@ -241,7 +240,7 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 			const struct driver_info *info, struct udevice **devp)
 {
 	struct driver *drv;
-	uint platdata_size = 0;
+	uint plat_size = 0;
 	int ret;
 
 	drv = lists_driver_lookup_name(info->name);
@@ -251,10 +250,10 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 		return -EPERM;
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	platdata_size = info->platdata_size;
+	plat_size = info->plat_size;
 #endif
 	ret = device_bind_common(parent, drv, info->name, (void *)info->plat, 0,
-				 ofnode_null(), platdata_size, devp);
+				 ofnode_null(), plat_size, devp);
 	if (ret)
 		return ret;
 

@@ -21,14 +21,14 @@
  *
  * @name:	Driver name
  * @plat:	Driver-specific platform data
- * @platdata_size: Size of platform data structure
+ * @plat_size: Size of platform data structure
  * @parent_idx:	Index of the parent driver_info structure
  */
 struct driver_info {
 	const char *name;
 	const void *plat;
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	unsigned short platdata_size;
+	unsigned short plat_size;
 	short parent_idx;
 #endif
 };

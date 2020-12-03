@@ -660,7 +660,7 @@ class DtbPlatdata(object):
         self.buf('U_BOOT_DEVICE(%s) = {\n' % var_name)
         self.buf('\t.name\t\t= "%s",\n' % struct_name)
         self.buf('\t.plat\t= &%s%s,\n' % (VAL_PREFIX, var_name))
-        self.buf('\t.platdata_size\t= sizeof(%s%s),\n' % (VAL_PREFIX, var_name))
+        self.buf('\t.plat_size\t= sizeof(%s%s),\n' % (VAL_PREFIX, var_name))
         idx = -1
         if node.parent and node.parent in self._valid_nodes:
             idx = node.parent.idx

@@ -308,7 +308,7 @@ of-platdata struct to the standard one used by the driver.
 In the case where SPL_OF_PLATDATA is enabled, plat_auto is
 still used to allocate space for the platform data. This is different from
 the normal behaviour and is triggered by the use of of-platdata (strictly
-speaking it is a non-zero platdata_size which triggers this).
+speaking it is a non-zero plat_size which triggers this).
 
 The of-platdata struct contents is copied from the C structure data to the
 start of the newly allocated area. In the case where device tree is used,
