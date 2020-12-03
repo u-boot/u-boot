@@ -1797,8 +1797,7 @@ UCLASS_DRIVER(pci) = {
 	.post_probe	= pci_uclass_post_probe,
 	.child_post_bind = pci_uclass_child_post_bind,
 	.per_device_auto	= sizeof(struct pci_controller),
-	.per_child_plat_auto	=
-			sizeof(struct pci_child_platdata),
+	.per_child_plat_auto	= sizeof(struct pci_child_platdata),
 };
 
 static const struct dm_pci_ops pci_bridge_ops = {

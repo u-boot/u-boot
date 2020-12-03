@@ -224,6 +224,5 @@ UCLASS_DRIVER(p2sb) = {
 	.per_device_auto	= sizeof(struct p2sb_uc_priv),
 	.post_bind	= p2sb_post_bind,
 	.child_post_bind = p2sb_child_post_bind,
-	.per_child_plat_auto	=
-		sizeof(struct p2sb_child_platdata),
+	.per_child_plat_auto = sizeof(struct p2sb_child_platdata),
 };

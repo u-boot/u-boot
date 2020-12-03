@@ -198,8 +198,7 @@ U_BOOT_DRIVER(intel_p2sb) = {
 	.ops		= &p2sb_ops,
 	.of_to_plat = p2sb_of_to_plat,
 	.plat_auto	= sizeof(struct p2sb_platdata),
-	.per_child_plat_auto	=
-		sizeof(struct p2sb_child_platdata),
+	.per_child_plat_auto	= sizeof(struct p2sb_child_platdata),
 	.child_post_bind = p2sb_child_post_bind,
 	.flags		= DM_FLAG_OS_PREPARE,
 };

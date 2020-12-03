@@ -504,8 +504,7 @@ UCLASS_DRIVER(spi) = {
 	.child_pre_probe = spi_child_pre_probe,
 	.per_device_auto	= sizeof(struct dm_spi_bus),
 	.per_child_auto	= sizeof(struct spi_slave),
-	.per_child_plat_auto	=
-			sizeof(struct dm_spi_slave_platdata),
+	.per_child_plat_auto	= sizeof(struct dm_spi_slave_platdata),
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.child_post_bind = spi_child_post_bind,
 #endif

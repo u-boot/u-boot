@@ -329,7 +329,6 @@ U_BOOT_DRIVER(usb_sandbox_hub) = {
 	.bind	= sandbox_hub_bind,
 	.ops	= &sandbox_usb_hub_ops,
 	.priv_auto	= sizeof(struct sandbox_hub_priv),
-	.per_child_plat_auto	=
-			sizeof(struct sandbox_hub_platdata),
+	.per_child_plat_auto	= sizeof(struct sandbox_hub_platdata),
 	.child_post_bind = sandbox_child_post_bind,
 };

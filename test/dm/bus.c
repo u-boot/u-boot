@@ -103,8 +103,7 @@ U_BOOT_DRIVER(testbus_drv) = {
 	.priv_auto	= sizeof(struct dm_test_priv),
 	.plat_auto	= sizeof(struct dm_test_pdata),
 	.per_child_auto	= sizeof(struct dm_test_parent_data),
-	.per_child_plat_auto	=
-			sizeof(struct dm_test_parent_plat),
+	.per_child_plat_auto	= sizeof(struct dm_test_parent_plat),
 	.child_pre_probe = testbus_child_pre_probe,
 	.child_post_remove = testbus_child_post_remove,
 };

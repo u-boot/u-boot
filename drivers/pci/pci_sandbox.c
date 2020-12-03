@@ -132,6 +132,5 @@ U_BOOT_DRIVER(pci_sandbox) = {
 
 	/* Attach an emulator if we can */
 	.child_post_bind = dm_scan_fdt_dev,
-	.per_child_plat_auto	=
-			sizeof(struct pci_child_platdata),
+	.per_child_plat_auto	= sizeof(struct pci_child_platdata),
 };
