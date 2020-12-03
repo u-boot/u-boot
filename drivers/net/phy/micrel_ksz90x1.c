@@ -396,9 +396,70 @@ static struct phy_driver ksz9031_driver = {
 /*
  * KSZ9131
  */
+
+#define KSZ9131RN_MMD_COMMON_CTRL_REG	2
+#define KSZ9131RN_RXC_DLL_CTRL		76
+#define KSZ9131RN_TXC_DLL_CTRL		77
+#define KSZ9131RN_DLL_CTRL_BYPASS	BIT_MASK(12)
+#define KSZ9131RN_DLL_ENABLE_DELAY	0
+#define KSZ9131RN_DLL_DISABLE_DELAY	BIT(12)
+
+static int ksz9131_config_rgmii_delay(struct phy_device *phydev)
+{
+	struct phy_driver *drv = phydev->drv;
+	u16 rxcdll_val, txcdll_val, val;
+	int ret;
+
+	switch (phydev->interface) {
+	case PHY_INTERFACE_MODE_RGMII:
+		rxcdll_val = KSZ9131RN_DLL_DISABLE_DELAY;
+		txcdll_val = KSZ9131RN_DLL_DISABLE_DELAY;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_ID:
+		rxcdll_val = KSZ9131RN_DLL_ENABLE_DELAY;
+		txcdll_val = KSZ9131RN_DLL_ENABLE_DELAY;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+		rxcdll_val = KSZ9131RN_DLL_ENABLE_DELAY;
+		txcdll_val = KSZ9131RN_DLL_DISABLE_DELAY;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		rxcdll_val = KSZ9131RN_DLL_DISABLE_DELAY;
+		txcdll_val = KSZ9131RN_DLL_ENABLE_DELAY;
+		break;
+	default:
+		return 0;
+	}
+
+	val = drv->readext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			   KSZ9131RN_RXC_DLL_CTRL);
+	val &= ~KSZ9131RN_DLL_CTRL_BYPASS;
+	val |= rxcdll_val;
+	ret = drv->writeext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			    KSZ9131RN_RXC_DLL_CTRL, val);
+	if (ret)
+		return ret;
+
+	val = drv->readext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			   KSZ9131RN_TXC_DLL_CTRL);
+
+	val &= ~KSZ9131RN_DLL_CTRL_BYPASS;
+	val |= txcdll_val;
+	ret = drv->writeext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			    KSZ9131RN_TXC_DLL_CTRL, val);
+
+	return ret;
+}
+
 static int ksz9131_config(struct phy_device *phydev)
 {
-	/* TBD: Implement Skew values for dts */
+	int ret;
+
+	if (phy_interface_is_rgmii(phydev)) {
+		ret = ksz9131_config_rgmii_delay(phydev);
+		if (ret)
+			return ret;
+	}
 
 	/* add an option to disable the gigabit feature of this PHY */
 	if (env_get("disable_giga")) {
