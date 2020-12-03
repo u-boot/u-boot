@@ -500,6 +500,6 @@ UCLASS_DRIVER(regulator) = {
 	.name		= "regulator",
 	.post_bind	= regulator_post_bind,
 	.pre_probe	= regulator_pre_probe,
-	.per_device_platdata_auto_alloc_size =
+	.per_device_platdata_auto	=
 				sizeof(struct dm_regulator_uclass_platdata),
 };

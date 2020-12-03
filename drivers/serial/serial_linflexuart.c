@@ -190,7 +190,7 @@ U_BOOT_DRIVER(serial_linflex) = {
 	.probe = linflex_serial_probe,
 	.ops	= &linflex_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,
-	.priv_auto_alloc_size	= sizeof(struct linflex_serial_priv),
+	.priv_auto	= sizeof(struct linflex_serial_priv),
 };
 
 #ifdef CONFIG_DEBUG_UART_LINFLEXUART

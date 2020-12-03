@@ -1796,8 +1796,8 @@ UCLASS_DRIVER(pci) = {
 	.pre_probe	= pci_uclass_pre_probe,
 	.post_probe	= pci_uclass_post_probe,
 	.child_post_bind = pci_uclass_child_post_bind,
-	.per_device_auto_alloc_size = sizeof(struct pci_controller),
-	.per_child_platdata_auto_alloc_size =
+	.per_device_auto	= sizeof(struct pci_controller),
+	.per_child_platdata_auto	=
 			sizeof(struct pci_child_platdata),
 };
 

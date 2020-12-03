@@ -1291,7 +1291,7 @@ U_BOOT_DRIVER(eth_ag7xxx) = {
 	.probe		= ag7xxx_eth_probe,
 	.remove		= ag7xxx_eth_remove,
 	.ops		= &ag7xxx_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct ar7xxx_eth_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct ar7xxx_eth_priv),
+	.platdata_auto	= sizeof(struct eth_pdata),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
 };

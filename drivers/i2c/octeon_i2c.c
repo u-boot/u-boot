@@ -835,6 +835,6 @@ U_BOOT_DRIVER(octeon_pci_twsi) = {
 	.id	= UCLASS_I2C,
 	.of_match = octeon_i2c_ids,
 	.probe	= octeon_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct octeon_twsi),
+	.priv_auto	= sizeof(struct octeon_twsi),
 	.ops	= &octeon_i2c_ops,
 };

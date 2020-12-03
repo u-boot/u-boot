@@ -114,5 +114,5 @@ U_BOOT_DRIVER(exynos_pwm) = {
 	.ops	= &exynos_pwm_ops,
 	.probe	= exynos_pwm_probe,
 	.ofdata_to_platdata	= exynos_pwm_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct exynos_pwm_priv),
+	.priv_auto	= sizeof(struct exynos_pwm_priv),
 };

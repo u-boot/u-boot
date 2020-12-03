@@ -184,6 +184,6 @@ U_BOOT_DRIVER(gpio_broadwell) = {
 	.ops	= &gpio_broadwell_ops,
 	.ofdata_to_platdata	= broadwell_gpio_ofdata_to_platdata,
 	.probe	= broadwell_gpio_probe,
-	.priv_auto_alloc_size = sizeof(struct broadwell_bank_priv),
-	.platdata_auto_alloc_size = sizeof(struct broadwell_bank_platdata),
+	.priv_auto	= sizeof(struct broadwell_bank_priv),
+	.platdata_auto	= sizeof(struct broadwell_bank_platdata),
 };

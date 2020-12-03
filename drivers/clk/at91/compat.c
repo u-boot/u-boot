@@ -225,7 +225,7 @@ U_BOOT_DRIVER(at91sam9x5_main_osc_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = main_osc_clk_match,
 	.probe = main_osc_clk_probe,
-	.platdata_auto_alloc_size = sizeof(struct pmc_platdata),
+	.platdata_auto	= sizeof(struct pmc_platdata),
 	.ops = &main_osc_clk_ops,
 };
 
@@ -266,7 +266,7 @@ U_BOOT_DRIVER(at91_plla_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = plla_clk_match,
 	.probe = plla_clk_probe,
-	.platdata_auto_alloc_size = sizeof(struct pmc_platdata),
+	.platdata_auto	= sizeof(struct pmc_platdata),
 	.ops = &plla_clk_ops,
 };
 
@@ -340,7 +340,7 @@ U_BOOT_DRIVER(at91_plladiv_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = at91_plladiv_clk_match,
 	.probe = at91_plladiv_clk_probe,
-	.platdata_auto_alloc_size = sizeof(struct pmc_platdata),
+	.platdata_auto	= sizeof(struct pmc_platdata),
 	.ops = &at91_plladiv_clk_ops,
 };
 
@@ -437,7 +437,7 @@ U_BOOT_DRIVER(system_clk) = {
 	.name = "system-clk",
 	.id = UCLASS_CLK,
 	.probe = at91_clk_probe,
-	.platdata_auto_alloc_size = sizeof(struct pmc_platdata),
+	.platdata_auto	= sizeof(struct pmc_platdata),
 	.ops = &system_clk_ops,
 };
 
@@ -536,7 +536,7 @@ static struct clk_ops periph_clk_ops = {
 U_BOOT_DRIVER(clk_periph) = {
 	.name	= "periph-clk",
 	.id	= UCLASS_CLK,
-	.platdata_auto_alloc_size = sizeof(struct pmc_platdata),
+	.platdata_auto	= sizeof(struct pmc_platdata),
 	.probe = at91_clk_probe,
 	.ops	= &periph_clk_ops,
 };
@@ -668,7 +668,7 @@ U_BOOT_DRIVER(at91sam9x5_utmi_clk) = {
 	.of_match = utmi_clk_match,
 	.probe = utmi_clk_probe,
 	.ofdata_to_platdata = utmi_clk_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct pmc_platdata),
+	.platdata_auto	= sizeof(struct pmc_platdata),
 	.ops = &utmi_clk_ops,
 };
 
@@ -713,7 +713,7 @@ U_BOOT_DRIVER(sama5d4_h32mx_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = sama5d4_h32mx_clk_match,
 	.probe = sama5d4_h32mx_clk_probe,
-	.platdata_auto_alloc_size = sizeof(struct pmc_platdata),
+	.platdata_auto	= sizeof(struct pmc_platdata),
 	.ops = &sama5d4_h32mx_clk_ops,
 };
 
@@ -876,8 +876,8 @@ U_BOOT_DRIVER(generic_clk) = {
 	.id = UCLASS_CLK,
 	.probe = at91_clk_probe,
 	.ofdata_to_platdata = generic_clk_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct generic_clk_priv),
-	.platdata_auto_alloc_size = sizeof(struct pmc_platdata),
+	.priv_auto	= sizeof(struct generic_clk_priv),
+	.platdata_auto	= sizeof(struct pmc_platdata),
 	.ops = &generic_clk_ops,
 };
 
@@ -1012,8 +1012,8 @@ U_BOOT_DRIVER(at91_usb_clk) = {
 	.of_match = at91_usb_clk_match,
 	.probe = at91_usb_clk_probe,
 	.ofdata_to_platdata = at91_usb_clk_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct at91_usb_clk_priv),
-	.platdata_auto_alloc_size = sizeof(struct pmc_platdata),
+	.priv_auto	= sizeof(struct at91_usb_clk_priv),
+	.platdata_auto	= sizeof(struct pmc_platdata),
 	.ops = &at91_usb_clk_ops,
 };
 

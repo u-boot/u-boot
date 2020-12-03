@@ -448,10 +448,10 @@ The easiest way to make this work it to add a few members to the driver:
 
 .. code-block:: c
 
-	.platdata_auto_alloc_size = sizeof(struct dm_test_pdata),
+	.platdata_auto = sizeof(struct dm_test_pdata),
 	.ofdata_to_platdata = testfdt_ofdata_to_platdata,
 
-The 'auto_alloc' feature allowed space for the platdata to be allocated
+The 'auto' feature allowed space for the platdata to be allocated
 and zeroed before the driver's ofdata_to_platdata() method is called. The
 ofdata_to_platdata() method, which the driver write supplies, should parse
 the device tree node for this device and place it in dev->platdata. Thus
@@ -464,7 +464,7 @@ probe method it will be called next. See Driver Lifecycle below for more
 details.
 
 If you don't want to have the platdata automatically allocated then you
-can leave out platdata_auto_alloc_size. In this case you can use malloc
+can leave out platdata_auto. In this case you can use malloc
 in your ofdata_to_platdata (or probe) method to allocate the required memory,
 and you should free it in the remove method.
 
@@ -589,7 +589,7 @@ as the bus speed for each device.
 
 To achieve this, the bus device can use dev->parent_platdata in each of its
 three children. This can be auto-allocated if the bus driver (or bus uclass)
-has a non-zero value for per_child_platdata_auto_alloc_size. If not, then
+has a non-zero value for per_child_platdata_auto. If not, then
 the bus device or uclass can allocate the space itself before the child
 device is probed.
 
@@ -695,24 +695,24 @@ platdata. A parent's ofdata is always read before a child.
 
 The steps are:
 
-   1. If priv_auto_alloc_size is non-zero, then the device-private space
+   1. If priv_auto is non-zero, then the device-private space
    is allocated for the device and zeroed. It will be accessible as
    dev->priv. The driver can put anything it likes in there, but should use
    it for run-time information, not platform data (which should be static
    and known before the device is probed).
 
-   2. If platdata_auto_alloc_size is non-zero, then the platform data space
+   2. If platdata_auto is non-zero, then the platform data space
    is allocated. This is only useful for device tree operation, since
    otherwise you would have to specific the platform data in the
    U_BOOT_DEVICE() declaration. The space is allocated for the device and
    zeroed. It will be accessible as dev->platdata.
 
-   3. If the device's uclass specifies a non-zero per_device_auto_alloc_size,
+   3. If the device's uclass specifies a non-zero per_device_auto,
    then this space is allocated and zeroed also. It is allocated for and
    stored in the device, but it is uclass data. owned by the uclass driver.
    It is possible for the device to access it.
 
-   4. If the device's immediate parent specifies a per_child_auto_alloc_size
+   4. If the device's immediate parent specifies a per_child_auto
    then this space is allocated. This is intended for use by the parent
    device to keep track of things related to the child. For example a USB
    flash stick attached to a USB host controller would likely use this
@@ -726,7 +726,7 @@ The steps are:
    works the same way whether it was bound using a device tree node or
    U_BOOT_DEVICE() structure. In either case, the platform data is now stored
    in the platdata structure. Typically you will use the
-   platdata_auto_alloc_size feature to specify the size of the platform data
+   platdata_auto feature to specify the size of the platform data
    structure, and U-Boot will automatically allocate and zero it for you before
    entry to ofdata_to_platdata(). But if not, you can allocate it yourself in
    ofdata_to_platdata(). Note that it is preferable to do all the device tree
@@ -795,9 +795,9 @@ as above and then following these steps (see device_probe()):
       - uclass data in dev->uclass_priv (for things the uclass stores
         about this device)
 
-   Note: If you don't use priv_auto_alloc_size then you will need to
+   Note: If you don't use priv_auto then you will need to
    allocate the priv space here yourself. The same applies also to
-   platdata_auto_alloc_size. Remember to free them in the remove() method.
+   platdata_auto. Remember to free them in the remove() method.
 
    5. The device is marked 'activated'
 
@@ -843,10 +843,10 @@ remove it. This performs the probe steps in reverse:
    be dynamically allocated, and thus needs to be deallocated during the
    remove() method, either:
 
-      - if the platdata_auto_alloc_size is non-zero, the deallocation
+      - if the platdata_auto is non-zero, the deallocation
         happens automatically within the driver model core; or
 
-      - when platdata_auto_alloc_size is 0, both the allocation (in probe()
+      - when platdata_auto is 0, both the allocation (in probe()
         or preferably ofdata_to_platdata()) and the deallocation in remove()
         are the responsibility of the driver author.
 

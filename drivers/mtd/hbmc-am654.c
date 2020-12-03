@@ -102,5 +102,5 @@ U_BOOT_DRIVER(hbmc_am654) = {
 	.of_match = am654_hbmc_dt_ids,
 	.probe = am654_hbmc_probe,
 	.bind = am654_hbmc_bind,
-	.priv_auto_alloc_size = sizeof(struct am654_hbmc_priv),
+	.priv_auto	= sizeof(struct am654_hbmc_priv),
 };

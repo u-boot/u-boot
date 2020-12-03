@@ -350,7 +350,7 @@ U_BOOT_DRIVER(virtio_pci_legacy) = {
 	.ops	= &virtio_pci_ops,
 	.bind	= virtio_pci_bind,
 	.probe	= virtio_pci_probe,
-	.priv_auto_alloc_size = sizeof(struct virtio_pci_priv),
+	.priv_auto	= sizeof(struct virtio_pci_priv),
 };
 
 static struct pci_device_id virtio_pci_supported[] = {

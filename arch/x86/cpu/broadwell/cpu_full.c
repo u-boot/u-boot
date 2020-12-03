@@ -665,6 +665,6 @@ U_BOOT_DRIVER(cpu_x86_broadwell_drv) = {
 	.bind		= cpu_x86_bind,
 	.probe		= cpu_x86_broadwell_probe,
 	.ops		= &cpu_x86_broadwell_ops,
-	.priv_auto_alloc_size	= sizeof(struct cpu_broadwell_priv),
+	.priv_auto	= sizeof(struct cpu_broadwell_priv),
 	.flags		= DM_FLAG_PRE_RELOC,
 };

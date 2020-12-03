@@ -421,5 +421,5 @@ U_BOOT_DRIVER(analogix_anx6345) = {
 	.of_match = anx6345_ids,
 	.probe	= anx6345_probe,
 	.ops	= &anx6345_ops,
-	.priv_auto_alloc_size = sizeof(struct anx6345_priv),
+	.priv_auto	= sizeof(struct anx6345_priv),
 };

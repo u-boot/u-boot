@@ -348,6 +348,6 @@ U_BOOT_DRIVER(da8xx_musb) = {
 	.probe = da8xx_musb_probe,
 	.remove = da8xx_musb_remove,
 	.ops = &musb_usb_ops,
-	.platdata_auto_alloc_size = sizeof(struct da8xx_musb_platdata),
-	.priv_auto_alloc_size = sizeof(struct musb_host_data),
+	.platdata_auto	= sizeof(struct da8xx_musb_platdata),
+	.priv_auto	= sizeof(struct musb_host_data),
 };

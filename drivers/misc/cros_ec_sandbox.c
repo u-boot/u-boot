@@ -587,6 +587,6 @@ U_BOOT_DRIVER(google_cros_ec_sandbox) = {
 	.id		= UCLASS_CROS_EC,
 	.of_match	= cros_ec_ids,
 	.probe		= cros_ec_probe,
-	.priv_auto_alloc_size = sizeof(struct ec_state),
+	.priv_auto	= sizeof(struct ec_state),
 	.ops		= &cros_ec_ops,
 };

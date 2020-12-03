@@ -96,21 +96,19 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 		}
 	}
 
-	if (drv->platdata_auto_alloc_size) {
+	if (drv->platdata_auto) {
 		bool alloc = !platdata;
 
 		if (CONFIG_IS_ENABLED(OF_PLATDATA)) {
 			if (of_platdata_size) {
 				dev->flags |= DM_FLAG_OF_PLATDATA;
-				if (of_platdata_size <
-						drv->platdata_auto_alloc_size)
+				if (of_platdata_size < drv->platdata_auto)
 					alloc = true;
 			}
 		}
 		if (alloc) {
 			dev->flags |= DM_FLAG_ALLOC_PDATA;
-			dev->platdata = calloc(1,
-					       drv->platdata_auto_alloc_size);
+			dev->platdata = calloc(1, drv->platdata_auto);
 			if (!dev->platdata) {
 				ret = -ENOMEM;
 				goto fail_alloc1;
@@ -122,7 +120,7 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 		}
 	}
 
-	size = uc->uc_drv->per_device_platdata_auto_alloc_size;
+	size = uc->uc_drv->per_device_platdata_auto;
 	if (size) {
 		dev->flags |= DM_FLAG_ALLOC_UCLASS_PDATA;
 		dev->uclass_platdata = calloc(1, size);
@@ -133,10 +131,9 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 	}
 
 	if (parent) {
-		size = parent->driver->per_child_platdata_auto_alloc_size;
+		size = parent->driver->per_child_platdata_auto;
 		if (!size) {
-			size = parent->uclass->uc_drv->
-					per_child_platdata_auto_alloc_size;
+			size = parent->uclass->uc_drv->per_child_platdata_auto;
 		}
 		if (size) {
 			dev->flags |= DM_FLAG_ALLOC_PARENT_PDATA;
@@ -363,15 +360,15 @@ int device_ofdata_to_platdata(struct udevice *dev)
 	assert(drv);
 
 	/* Allocate private data if requested and not reentered */
-	if (drv->priv_auto_alloc_size && !dev->priv) {
-		dev->priv = alloc_priv(drv->priv_auto_alloc_size, drv->flags);
+	if (drv->priv_auto && !dev->priv) {
+		dev->priv = alloc_priv(drv->priv_auto, drv->flags);
 		if (!dev->priv) {
 			ret = -ENOMEM;
 			goto fail;
 		}
 	}
 	/* Allocate private data if requested and not reentered */
-	size = dev->uclass->uc_drv->per_device_auto_alloc_size;
+	size = dev->uclass->uc_drv->per_device_auto;
 	if (size && !dev->uclass_priv) {
 		dev->uclass_priv = alloc_priv(size,
 					      dev->uclass->uc_drv->flags);
@@ -383,10 +380,9 @@ int device_ofdata_to_platdata(struct udevice *dev)
 
 	/* Allocate parent data for this child */
 	if (dev->parent) {
-		size = dev->parent->driver->per_child_auto_alloc_size;
+		size = dev->parent->driver->per_child_auto;
 		if (!size) {
-			size = dev->parent->uclass->uc_drv->
-					per_child_auto_alloc_size;
+			size = dev->parent->uclass->uc_drv->per_child_auto;
 		}
 		if (size && !dev->parent_priv) {
 			dev->parent_priv = alloc_priv(size, drv->flags);

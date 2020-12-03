@@ -81,7 +81,7 @@ U_BOOT_DRIVER(test_drv) = {
 	.probe	= test_probe,
 	.remove	= test_remove,
 	.unbind	= test_unbind,
-	.priv_auto_alloc_size = sizeof(struct dm_test_priv),
+	.priv_auto	= sizeof(struct dm_test_priv),
 };
 
 U_BOOT_DRIVER(test2_drv) = {
@@ -92,7 +92,7 @@ U_BOOT_DRIVER(test2_drv) = {
 	.probe	= test_probe,
 	.remove	= test_remove,
 	.unbind	= test_unbind,
-	.priv_auto_alloc_size = sizeof(struct dm_test_priv),
+	.priv_auto	= sizeof(struct dm_test_priv),
 };
 
 static int test_manual_drv_ping(struct udevice *dev, int pingval, int *pingret)

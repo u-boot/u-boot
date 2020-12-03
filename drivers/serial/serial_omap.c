@@ -158,9 +158,9 @@ U_BOOT_DRIVER(omap_serial) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap_serial_ids,
 	.ofdata_to_platdata = omap_serial_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct ns16550_platdata),
+	.platdata_auto	= sizeof(struct ns16550_platdata),
 #endif
-	.priv_auto_alloc_size = sizeof(struct NS16550),
+	.priv_auto	= sizeof(struct NS16550),
 	.probe = ns16550_serial_probe,
 	.ops	= &ns16550_serial_ops,
 #if !CONFIG_IS_ENABLED(OF_CONTROL)

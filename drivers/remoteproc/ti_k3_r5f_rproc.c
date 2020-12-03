@@ -866,7 +866,7 @@ U_BOOT_DRIVER(k3_r5f_rproc) = {
 	.ops = &k3_r5f_rproc_ops,
 	.probe = k3_r5f_probe,
 	.remove = k3_r5f_remove,
-	.priv_auto_alloc_size = sizeof(struct k3_r5f_core),
+	.priv_auto	= sizeof(struct k3_r5f_core),
 };
 
 static int k3_r5f_cluster_probe(struct udevice *dev)
@@ -901,6 +901,6 @@ U_BOOT_DRIVER(k3_r5fss) = {
 	.of_match = k3_r5fss_ids,
 	.id = UCLASS_MISC,
 	.probe = k3_r5f_cluster_probe,
-	.priv_auto_alloc_size = sizeof(struct k3_r5f_cluster),
+	.priv_auto	= sizeof(struct k3_r5f_cluster),
 	.flags = DM_FLAG_DEFAULT_PD_CTRL_OFF,
 };

@@ -118,6 +118,6 @@ U_BOOT_DRIVER(cpu_at91_drv) = {
 	.of_match	= at91_cpu_ids,
 	.ops		= &at91_cpu_ops,
 	.probe		= at91_cpu_probe,
-	.platdata_auto_alloc_size = sizeof(struct at91_cpu_platdata),
+	.platdata_auto	= sizeof(struct at91_cpu_platdata),
 	.flags		= DM_FLAG_PRE_RELOC,
 };

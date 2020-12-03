@@ -96,5 +96,5 @@ int led_default_state(void)
 UCLASS_DRIVER(led) = {
 	.id		= UCLASS_LED,
 	.name		= "led",
-	.per_device_platdata_auto_alloc_size = sizeof(struct led_uc_plat),
+	.per_device_platdata_auto	= sizeof(struct led_uc_plat),
 };

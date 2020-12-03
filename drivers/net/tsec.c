@@ -904,8 +904,8 @@ U_BOOT_DRIVER(eth_tsec) = {
 	.probe = tsec_probe,
 	.remove = tsec_remove,
 	.ops = &tsec_ops,
-	.priv_auto_alloc_size = sizeof(struct tsec_private),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct tsec_private),
+	.platdata_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif /* CONFIG_DM_ETH */

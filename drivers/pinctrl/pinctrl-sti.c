@@ -316,6 +316,6 @@ U_BOOT_DRIVER(pinctrl_sti) = {
 	.of_match = sti_pinctrl_ids,
 	.ops = &sti_pinctrl_ops,
 	.probe = sti_pinctrl_probe,
-	.platdata_auto_alloc_size = sizeof(struct sti_pinctrl_platdata),
+	.platdata_auto	= sizeof(struct sti_pinctrl_platdata),
 	.ops = &sti_pinctrl_ops,
 };

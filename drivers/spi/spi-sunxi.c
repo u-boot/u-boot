@@ -631,7 +631,7 @@ U_BOOT_DRIVER(sun4i_spi) = {
 	.of_match	= sun4i_spi_ids,
 	.ops	= &sun4i_spi_ops,
 	.ofdata_to_platdata	= sun4i_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size	= sizeof(struct sun4i_spi_platdata),
-	.priv_auto_alloc_size	= sizeof(struct sun4i_spi_priv),
+	.platdata_auto	= sizeof(struct sun4i_spi_platdata),
+	.priv_auto	= sizeof(struct sun4i_spi_priv),
 	.probe	= sun4i_spi_probe,
 };

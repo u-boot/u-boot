@@ -186,7 +186,7 @@ U_BOOT_DRIVER(orion_wdt) = {
 	.id = UCLASS_WDT,
 	.of_match = orion_wdt_ids,
 	.probe = orion_wdt_probe,
-	.priv_auto_alloc_size = sizeof(struct orion_wdt_priv),
+	.priv_auto	= sizeof(struct orion_wdt_priv),
 	.ofdata_to_platdata = orion_wdt_ofdata_to_platdata,
 	.ops = &orion_wdt_ops,
 };

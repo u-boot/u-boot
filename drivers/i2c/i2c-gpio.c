@@ -372,6 +372,6 @@ U_BOOT_DRIVER(i2c_gpio) = {
 	.of_match = i2c_gpio_ids,
 	.probe	= i2c_gpio_drv_probe,
 	.ofdata_to_platdata = i2c_gpio_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct i2c_gpio_bus),
+	.priv_auto	= sizeof(struct i2c_gpio_bus),
 	.ops	= &i2c_gpio_ops,
 };

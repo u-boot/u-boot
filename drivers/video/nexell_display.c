@@ -643,9 +643,9 @@ U_BOOT_DRIVER(nexell_display) = {
 	.name = "nexell-display",
 	.id = UCLASS_VIDEO,
 	.of_match = nx_display_ids,
-	.platdata_auto_alloc_size =
+	.platdata_auto	=
 	    sizeof(struct nx_display_platdata),
 	.bind = nx_display_bind,
 	.probe = nx_display_probe,
-	.priv_auto_alloc_size = sizeof(struct nx_display_dev),
+	.priv_auto	= sizeof(struct nx_display_dev),
 };

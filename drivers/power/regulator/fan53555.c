@@ -239,7 +239,7 @@ U_BOOT_DRIVER(fan53555_regulator) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &fan53555_regulator_ops,
 	.ofdata_to_platdata = fan53555_regulator_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct fan53555_platdata),
-	.priv_auto_alloc_size = sizeof(struct fan53555_priv),
+	.platdata_auto	= sizeof(struct fan53555_platdata),
+	.priv_auto	= sizeof(struct fan53555_priv),
 	.probe = fan53555_probe,
 };

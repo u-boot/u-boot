@@ -232,6 +232,6 @@ U_BOOT_DRIVER(nexell_dwmmc_drv) = {
 	.ops		= &dm_dwmci_ops,
 	.bind		= nexell_dwmmc_bind,
 	.probe		= nexell_dwmmc_probe,
-	.priv_auto_alloc_size = sizeof(struct nexell_dwmmc_priv),
-	.platdata_auto_alloc_size = sizeof(struct nexell_mmc_plat),
+	.priv_auto	= sizeof(struct nexell_dwmmc_priv),
+	.platdata_auto	= sizeof(struct nexell_mmc_plat),
 };

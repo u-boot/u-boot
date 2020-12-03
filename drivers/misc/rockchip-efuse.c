@@ -155,6 +155,6 @@ U_BOOT_DRIVER(rockchip_efuse) = {
 	.id = UCLASS_MISC,
 	.of_match = rockchip_efuse_ids,
 	.ofdata_to_platdata = rockchip_efuse_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct rockchip_efuse_platdata),
+	.platdata_auto	= sizeof(struct rockchip_efuse_platdata),
 	.ops = &rockchip_efuse_ops,
 };

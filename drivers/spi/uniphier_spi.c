@@ -412,7 +412,7 @@ U_BOOT_DRIVER(uniphier_spi) = {
 	.of_match = uniphier_spi_ids,
 	.ops	= &uniphier_spi_ops,
 	.ofdata_to_platdata = uniphier_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct uniphier_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct uniphier_spi_priv),
+	.platdata_auto	= sizeof(struct uniphier_spi_platdata),
+	.priv_auto	= sizeof(struct uniphier_spi_priv),
 	.probe	= uniphier_spi_probe,
 };

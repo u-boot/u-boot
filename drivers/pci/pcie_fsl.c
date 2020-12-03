@@ -663,5 +663,5 @@ U_BOOT_DRIVER(fsl_pcie) = {
 	.ops = &fsl_pcie_ops,
 	.ofdata_to_platdata = fsl_pcie_ofdata_to_platdata,
 	.probe = fsl_pcie_probe,
-	.priv_auto_alloc_size = sizeof(struct fsl_pcie),
+	.priv_auto	= sizeof(struct fsl_pcie),
 };

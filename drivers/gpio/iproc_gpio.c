@@ -286,5 +286,5 @@ U_BOOT_DRIVER(iproc_gpio) = {
 	.of_match		= iproc_gpio_ids,
 	.ops			= &iproc_gpio_ops,
 	.ofdata_to_platdata	= iproc_gpio_ofdata_to_platdata,
-	.platdata_auto_alloc_size	= sizeof(struct iproc_gpio_platdata),
+	.platdata_auto	= sizeof(struct iproc_gpio_platdata),
 };

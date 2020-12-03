@@ -231,5 +231,5 @@ int pmc_ofdata_to_uc_platdata(struct udevice *dev)
 UCLASS_DRIVER(acpi_pmc) = {
 	.id		= UCLASS_ACPI_PMC,
 	.name		= "power-mgr",
-	.per_device_auto_alloc_size	= sizeof(struct acpi_pmc_upriv),
+	.per_device_auto	= sizeof(struct acpi_pmc_upriv),
 };

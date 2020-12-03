@@ -309,7 +309,7 @@ U_BOOT_DRIVER(sdhci_cdns) = {
 	.of_match = sdhci_cdns_match,
 	.bind = sdhci_cdns_bind,
 	.probe = sdhci_cdns_probe,
-	.priv_auto_alloc_size = sizeof(struct sdhci_host),
-	.platdata_auto_alloc_size = sizeof(struct sdhci_cdns_plat),
+	.priv_auto	= sizeof(struct sdhci_host),
+	.platdata_auto	= sizeof(struct sdhci_cdns_plat),
 	.ops = &sdhci_cdns_mmc_ops,
 };

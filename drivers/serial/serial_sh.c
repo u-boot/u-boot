@@ -240,13 +240,13 @@ U_BOOT_DRIVER(serial_sh) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = of_match_ptr(sh_serial_id),
 	.ofdata_to_platdata = of_match_ptr(sh_serial_ofdata_to_platdata),
-	.platdata_auto_alloc_size = sizeof(struct sh_serial_platdata),
+	.platdata_auto	= sizeof(struct sh_serial_platdata),
 	.probe	= sh_serial_probe,
 	.ops	= &sh_serial_ops,
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags	= DM_FLAG_PRE_RELOC,
 #endif
-	.priv_auto_alloc_size = sizeof(struct uart_port),
+	.priv_auto	= sizeof(struct uart_port),
 };
 
 #else /* CONFIG_DM_SERIAL */

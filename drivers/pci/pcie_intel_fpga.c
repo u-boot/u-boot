@@ -430,5 +430,5 @@ U_BOOT_DRIVER(pcie_intel_fpga) = {
 	.ops			= &pcie_intel_fpga_ops,
 	.ofdata_to_platdata	= pcie_intel_fpga_ofdata_to_platdata,
 	.probe			= pcie_intel_fpga_probe,
-	.priv_auto_alloc_size	= sizeof(struct intel_fpga_pcie),
+	.priv_auto	= sizeof(struct intel_fpga_pcie),
 };

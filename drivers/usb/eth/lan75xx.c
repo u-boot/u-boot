@@ -304,8 +304,8 @@ U_BOOT_DRIVER(lan75xx_eth) = {
 	.probe	= lan75xx_eth_probe,
 	.remove	= lan7x_eth_remove,
 	.ops	= &lan75xx_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct lan7x_private),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct lan7x_private),
+	.platdata_auto	= sizeof(struct eth_pdata),
 };
 
 static const struct usb_device_id lan75xx_eth_id_table[] = {

@@ -750,8 +750,8 @@ U_BOOT_DRIVER(ethoc) = {
 	.probe				= ethoc_probe,
 	.remove				= ethoc_remove,
 	.ops				= &ethoc_ops,
-	.priv_auto_alloc_size		= sizeof(struct ethoc),
-	.platdata_auto_alloc_size	= sizeof(struct ethoc_eth_pdata),
+	.priv_auto		= sizeof(struct ethoc),
+	.platdata_auto	= sizeof(struct ethoc_eth_pdata),
 };
 
 #else

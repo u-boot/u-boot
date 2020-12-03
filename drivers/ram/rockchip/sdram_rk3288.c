@@ -1123,9 +1123,9 @@ U_BOOT_DRIVER(rockchip_rk3288_dmc) = {
 	.ofdata_to_platdata = rk3288_dmc_ofdata_to_platdata,
 #endif
 	.probe = rk3288_dmc_probe,
-	.priv_auto_alloc_size = sizeof(struct dram_info),
+	.priv_auto	= sizeof(struct dram_info),
 #if defined(CONFIG_TPL_BUILD) || \
 	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
-	.platdata_auto_alloc_size = sizeof(struct rk3288_sdram_params),
+	.platdata_auto	= sizeof(struct rk3288_sdram_params),
 #endif
 };

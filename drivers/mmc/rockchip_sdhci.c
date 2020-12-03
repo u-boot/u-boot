@@ -114,6 +114,6 @@ U_BOOT_DRIVER(arasan_sdhci_drv) = {
 	.ops		= &sdhci_ops,
 	.bind		= rockchip_sdhci_bind,
 	.probe		= arasan_sdhci_probe,
-	.priv_auto_alloc_size = sizeof(struct rockchip_sdhc),
-	.platdata_auto_alloc_size = sizeof(struct rockchip_sdhc_plat),
+	.priv_auto	= sizeof(struct rockchip_sdhc),
+	.platdata_auto	= sizeof(struct rockchip_sdhc_plat),
 };

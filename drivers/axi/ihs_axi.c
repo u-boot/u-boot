@@ -291,6 +291,6 @@ U_BOOT_DRIVER(ihs_axi_bus) = {
 	.id             = UCLASS_AXI,
 	.of_match       = ihs_axi_ids,
 	.ops		= &ihs_axi_ops,
-	.priv_auto_alloc_size = sizeof(struct ihs_axi_priv),
+	.priv_auto	= sizeof(struct ihs_axi_priv),
 	.probe          = ihs_axi_probe,
 };

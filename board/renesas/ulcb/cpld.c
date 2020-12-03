@@ -188,5 +188,5 @@ U_BOOT_DRIVER(sysreset_renesas_ulcb) = {
 	.ops		= &renesas_ulcb_sysreset,
 	.probe		= renesas_ulcb_sysreset_probe,
 	.of_match	= renesas_ulcb_sysreset_ids,
-	.priv_auto_alloc_size = sizeof(struct renesas_ulcb_sysreset_priv),
+	.priv_auto	= sizeof(struct renesas_ulcb_sysreset_priv),
 };

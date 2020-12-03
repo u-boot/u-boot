@@ -928,8 +928,8 @@ U_BOOT_DRIVER(mcs7830_eth) = {
 	.id	= UCLASS_ETH,
 	.probe = mcs7830_eth_probe,
 	.ops	= &mcs7830_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct mcs7830_private),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct mcs7830_private),
+	.platdata_auto	= sizeof(struct eth_pdata),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
 

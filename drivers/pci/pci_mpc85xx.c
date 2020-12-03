@@ -155,5 +155,5 @@ U_BOOT_DRIVER(mpc85xx_pci) = {
 	.probe			= mpc85xx_pci_dm_probe,
 	.remove			= mpc85xx_pci_dm_remove,
 	.ofdata_to_platdata	= mpc85xx_pci_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct mpc85xx_pci_priv),
+	.priv_auto	= sizeof(struct mpc85xx_pci_priv),
 };

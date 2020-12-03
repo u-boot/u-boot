@@ -168,5 +168,5 @@ U_BOOT_DRIVER(pci_generic_ecam) = {
 	.ops			= &pci_generic_ecam_ops,
 	.probe			= pci_generic_ecam_probe,
 	.ofdata_to_platdata	= pci_generic_ecam_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct generic_ecam_pcie),
+	.priv_auto	= sizeof(struct generic_ecam_pcie),
 };

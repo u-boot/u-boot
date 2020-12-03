@@ -80,6 +80,6 @@ U_BOOT_DRIVER(mtmips_reset) = {
 	.of_match = mtmips_reset_ids,
 	.ofdata_to_platdata = mtmips_reset_ofdata_to_platdata,
 	.probe = mtmips_reset_probe,
-	.priv_auto_alloc_size = sizeof(struct mtmips_reset_priv),
+	.priv_auto	= sizeof(struct mtmips_reset_priv),
 	.ops = &mtmips_reset_ops,
 };

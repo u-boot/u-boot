@@ -241,5 +241,5 @@ U_BOOT_DRIVER(bcm6328_led) = {
 	.ops = &bcm6328_led_ops,
 	.bind = bcm6328_led_bind,
 	.probe = bcm6328_led_probe,
-	.priv_auto_alloc_size = sizeof(struct bcm6328_led_priv),
+	.priv_auto	= sizeof(struct bcm6328_led_priv),
 };

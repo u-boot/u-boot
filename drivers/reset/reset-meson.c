@@ -89,5 +89,5 @@ U_BOOT_DRIVER(meson_reset) = {
 	.of_match = meson_reset_ids,
 	.probe = meson_reset_probe,
 	.ops = &meson_reset_ops,
-	.priv_auto_alloc_size = sizeof(struct meson_reset_priv),
+	.priv_auto	= sizeof(struct meson_reset_priv),
 };

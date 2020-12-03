@@ -1597,7 +1597,7 @@ U_BOOT_DRIVER(fecmxc_gem) = {
 	.probe	= fecmxc_probe,
 	.remove	= fecmxc_remove,
 	.ops	= &fecmxc_ops,
-	.priv_auto_alloc_size = sizeof(struct fec_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct fec_priv),
+	.platdata_auto	= sizeof(struct eth_pdata),
 };
 #endif

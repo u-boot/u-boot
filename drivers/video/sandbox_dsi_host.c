@@ -86,5 +86,5 @@ U_BOOT_DRIVER(sandbox_dsi_host) = {
 	.id		      = UCLASS_DSI_HOST,
 	.of_match	      = sandbox_dsi_host_ids,
 	.ops		      = &sandbox_dsi_host_ops,
-	.priv_auto_alloc_size = sizeof(struct sandbox_dsi_host_priv),
+	.priv_auto	= sizeof(struct sandbox_dsi_host_priv),
 };

@@ -124,8 +124,8 @@ UCLASS_DRIVER(test) = {
 	.pre_remove	= test_pre_remove,
 	.init		= test_init,
 	.destroy	= test_destroy,
-	.priv_auto_alloc_size	= sizeof(struct dm_test_uclass_priv),
-	.per_device_auto_alloc_size = sizeof(struct dm_test_uclass_perdev_priv),
-	.per_device_platdata_auto_alloc_size =
+	.priv_auto	= sizeof(struct dm_test_uclass_priv),
+	.per_device_auto	= sizeof(struct dm_test_uclass_perdev_priv),
+	.per_device_platdata_auto	=
 					sizeof(struct dm_test_perdev_uc_pdata),
 };

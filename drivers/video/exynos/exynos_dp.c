@@ -1081,5 +1081,5 @@ U_BOOT_DRIVER(exynos_dp) = {
 	.of_match = exynos_dp_ids,
 	.ops	= &exynos_dp_ops,
 	.ofdata_to_platdata	= exynos_dp_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct exynos_dp_priv),
+	.priv_auto	= sizeof(struct exynos_dp_priv),
 };

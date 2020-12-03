@@ -142,5 +142,5 @@ U_BOOT_DRIVER(fsl_ls_mdio) = {
 	.of_match = fsl_ls_mdio_of_ids,
 	.probe = fsl_ls_mdio_probe,
 	.ops = &fsl_ls_mdio_ops,
-	.priv_auto_alloc_size = sizeof(struct fsl_ls_mdio_priv),
+	.priv_auto	= sizeof(struct fsl_ls_mdio_priv),
 };

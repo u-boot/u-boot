@@ -107,6 +107,6 @@ U_BOOT_DRIVER(lpc32xx_hsuart) = {
 	.id	= UCLASS_SERIAL,
 	.probe	= lpc32xx_hsuart_probe,
 	.ops	= &lpc32xx_hsuart_ops,
-	.priv_auto_alloc_size = sizeof(struct lpc32xx_hsuart_priv),
+	.priv_auto	= sizeof(struct lpc32xx_hsuart_priv),
 	.flags	= DM_FLAG_PRE_RELOC,
 };

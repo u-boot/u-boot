@@ -204,8 +204,8 @@ U_BOOT_DRIVER(ti_musb_host) = {
 	.probe = ti_musb_host_probe,
 	.remove = ti_musb_host_remove,
 	.ops	= &musb_usb_ops,
-	.platdata_auto_alloc_size = sizeof(struct ti_musb_platdata),
-	.priv_auto_alloc_size = sizeof(struct musb_host_data),
+	.platdata_auto	= sizeof(struct ti_musb_platdata),
+	.priv_auto	= sizeof(struct musb_host_data),
 };
 
 #if CONFIG_IS_ENABLED(DM_USB_GADGET)
@@ -277,8 +277,8 @@ U_BOOT_DRIVER(ti_musb_peripheral) = {
 	.probe = ti_musb_peripheral_probe,
 	.remove = ti_musb_peripheral_remove,
 	.ops	= &musb_usb_ops,
-	.platdata_auto_alloc_size = sizeof(struct ti_musb_platdata),
-	.priv_auto_alloc_size = sizeof(struct ti_musb_peripheral),
+	.platdata_auto	= sizeof(struct ti_musb_platdata),
+	.priv_auto	= sizeof(struct ti_musb_peripheral),
 	.flags = DM_FLAG_PRE_RELOC,
 };
 #endif

@@ -177,5 +177,5 @@ U_BOOT_DRIVER(gpio_pcf8575) = {
 	.of_match = pcf8575_gpio_ids,
 	.ofdata_to_platdata = pcf8575_ofdata_platdata,
 	.probe	= pcf8575_gpio_probe,
-	.platdata_auto_alloc_size = sizeof(struct pcf8575_chip),
+	.platdata_auto	= sizeof(struct pcf8575_chip),
 };

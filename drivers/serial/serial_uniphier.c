@@ -172,6 +172,6 @@ U_BOOT_DRIVER(uniphier_serial) = {
 	.id = UCLASS_SERIAL,
 	.of_match = uniphier_uart_of_match,
 	.probe = uniphier_serial_probe,
-	.priv_auto_alloc_size = sizeof(struct uniphier_serial_priv),
+	.priv_auto	= sizeof(struct uniphier_serial_priv),
 	.ops = &uniphier_serial_ops,
 };

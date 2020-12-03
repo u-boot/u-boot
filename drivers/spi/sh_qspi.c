@@ -354,7 +354,7 @@ U_BOOT_DRIVER(sh_qspi) = {
 	.of_match	= sh_qspi_ids,
 	.ops		= &sh_qspi_ops,
 	.ofdata_to_platdata = sh_qspi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct sh_qspi_slave),
+	.platdata_auto	= sizeof(struct sh_qspi_slave),
 	.probe		= sh_qspi_probe,
 };
 #endif

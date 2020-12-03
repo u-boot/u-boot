@@ -489,7 +489,7 @@ U_BOOT_DRIVER(bmips_cpu_drv) = {
 	.of_match = bmips_cpu_ids,
 	.bind = bmips_cpu_bind,
 	.probe = bmips_cpu_probe,
-	.priv_auto_alloc_size = sizeof(struct bmips_cpu_priv),
+	.priv_auto	= sizeof(struct bmips_cpu_priv),
 	.ops = &bmips_cpu_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };

@@ -365,7 +365,7 @@ U_BOOT_DRIVER(gpio_exynos) = {
 	.of_match = exynos_gpio_ids,
 	.bind	= gpio_exynos_bind,
 	.probe = gpio_exynos_probe,
-	.priv_auto_alloc_size = sizeof(struct exynos_bank_info),
+	.priv_auto	= sizeof(struct exynos_bank_info),
 	.ops	= &gpio_exynos_ops,
 };
 #endif

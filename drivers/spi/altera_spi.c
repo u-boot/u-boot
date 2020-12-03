@@ -203,7 +203,7 @@ U_BOOT_DRIVER(altera_spi) = {
 	.of_match = altera_spi_ids,
 	.ops	= &altera_spi_ops,
 	.ofdata_to_platdata = altera_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct altera_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct altera_spi_priv),
+	.platdata_auto	= sizeof(struct altera_spi_platdata),
+	.priv_auto	= sizeof(struct altera_spi_priv),
 	.probe	= altera_spi_probe,
 };

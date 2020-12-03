@@ -292,7 +292,7 @@ U_BOOT_DRIVER(cortina_led) = {
 	.ofdata_to_platdata = ca_led_ofdata_to_platdata,
 	.bind = cortina_led_bind,
 	.probe = cortina_led_probe,
-	.platdata_auto_alloc_size = sizeof(struct cortina_led_platdata),
-	.priv_auto_alloc_size = sizeof(struct cortina_led_cfg),
+	.platdata_auto	= sizeof(struct cortina_led_platdata),
+	.priv_auto	= sizeof(struct cortina_led_cfg),
 	.ops = &cortina_led_ops,
 };

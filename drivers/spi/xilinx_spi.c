@@ -364,6 +364,6 @@ U_BOOT_DRIVER(xilinx_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = xilinx_spi_ids,
 	.ops	= &xilinx_spi_ops,
-	.priv_auto_alloc_size = sizeof(struct xilinx_spi_priv),
+	.priv_auto	= sizeof(struct xilinx_spi_priv),
 	.probe	= xilinx_spi_probe,
 };

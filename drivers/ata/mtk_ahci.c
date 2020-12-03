@@ -124,5 +124,5 @@ U_BOOT_DRIVER(mtk_ahci) = {
 	.ofdata_to_platdata = mtk_ahci_ofdata_to_platdata,
 	.ops	= &scsi_ops,
 	.probe	= mtk_ahci_probe,
-	.priv_auto_alloc_size = sizeof(struct mtk_ahci_priv),
+	.priv_auto	= sizeof(struct mtk_ahci_priv),
 };

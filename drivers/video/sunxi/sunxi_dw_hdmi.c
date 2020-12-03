@@ -395,7 +395,7 @@ U_BOOT_DRIVER(sunxi_dw_hdmi) = {
 	.id	= UCLASS_DISPLAY,
 	.ops	= &sunxi_dw_hdmi_ops,
 	.probe	= sunxi_dw_hdmi_probe,
-	.priv_auto_alloc_size = sizeof(struct sunxi_dw_hdmi_priv),
+	.priv_auto	= sizeof(struct sunxi_dw_hdmi_priv),
 };
 
 U_BOOT_DEVICE(sunxi_dw_hdmi) = {

@@ -100,6 +100,6 @@ U_BOOT_DRIVER(sandbox_mbox) = {
 	.of_match = sandbox_mbox_ids,
 	.bind = sandbox_mbox_bind,
 	.probe = sandbox_mbox_probe,
-	.priv_auto_alloc_size = sizeof(struct sandbox_mbox),
+	.priv_auto	= sizeof(struct sandbox_mbox),
 	.ops = &sandbox_mbox_mbox_ops,
 };

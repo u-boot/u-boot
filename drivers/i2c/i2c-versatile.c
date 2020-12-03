@@ -277,6 +277,6 @@ U_BOOT_DRIVER(versatile_i2c) = {
 	.id = UCLASS_I2C,
 	.of_match = versatile_i2c_of_match,
 	.probe = versatile_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct versatile_i2c_priv),
+	.priv_auto	= sizeof(struct versatile_i2c_priv),
 	.ops = &versatile_i2c_ops,
 };

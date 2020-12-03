@@ -798,6 +798,6 @@ U_BOOT_DRIVER(spi_qup) = {
 	.id	= UCLASS_SPI,
 	.of_match = qup_spi_ids,
 	.ops	= &qup_spi_ops,
-	.priv_auto_alloc_size	= sizeof(struct qup_spi_priv),
+	.priv_auto	= sizeof(struct qup_spi_priv),
 	.probe	= qup_spi_probe,
 };

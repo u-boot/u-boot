@@ -1447,13 +1447,13 @@ U_BOOT_DRIVER(clk_rk3399) = {
 	.name		= "rockchip_rk3399_cru",
 	.id		= UCLASS_CLK,
 	.of_match	= rk3399_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct rk3399_clk_priv),
+	.priv_auto	= sizeof(struct rk3399_clk_priv),
 	.ofdata_to_platdata = rk3399_clk_ofdata_to_platdata,
 	.ops		= &rk3399_clk_ops,
 	.bind		= rk3399_clk_bind,
 	.probe		= rk3399_clk_probe,
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	.platdata_auto_alloc_size = sizeof(struct rk3399_clk_plat),
+	.platdata_auto	= sizeof(struct rk3399_clk_plat),
 #endif
 };
 
@@ -1642,12 +1642,12 @@ U_BOOT_DRIVER(rockchip_rk3399_pmuclk) = {
 	.name		= "rockchip_rk3399_pmucru",
 	.id		= UCLASS_CLK,
 	.of_match	= rk3399_pmuclk_ids,
-	.priv_auto_alloc_size = sizeof(struct rk3399_pmuclk_priv),
+	.priv_auto	= sizeof(struct rk3399_pmuclk_priv),
 	.ofdata_to_platdata = rk3399_pmuclk_ofdata_to_platdata,
 	.ops		= &rk3399_pmuclk_ops,
 	.probe		= rk3399_pmuclk_probe,
 	.bind		= rk3399_pmuclk_bind,
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	.platdata_auto_alloc_size = sizeof(struct rk3399_pmuclk_plat),
+	.platdata_auto	= sizeof(struct rk3399_pmuclk_plat),
 #endif
 };

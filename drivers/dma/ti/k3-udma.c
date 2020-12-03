@@ -1933,5 +1933,5 @@ U_BOOT_DRIVER(ti_edma3) = {
 	.of_match = udma_ids,
 	.ops	= &udma_ops,
 	.probe	= udma_probe,
-	.priv_auto_alloc_size = sizeof(struct udma_dev),
+	.priv_auto	= sizeof(struct udma_dev),
 };

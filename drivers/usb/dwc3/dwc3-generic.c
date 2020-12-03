@@ -158,8 +158,8 @@ U_BOOT_DRIVER(dwc3_generic_peripheral) = {
 	.ofdata_to_platdata = dwc3_generic_ofdata_to_platdata,
 	.probe = dwc3_generic_peripheral_probe,
 	.remove = dwc3_generic_peripheral_remove,
-	.priv_auto_alloc_size = sizeof(struct dwc3_generic_priv),
-	.platdata_auto_alloc_size = sizeof(struct dwc3_generic_plat),
+	.priv_auto	= sizeof(struct dwc3_generic_priv),
+	.platdata_auto	= sizeof(struct dwc3_generic_plat),
 };
 #endif
 
@@ -200,8 +200,8 @@ U_BOOT_DRIVER(dwc3_generic_host) = {
 	.ofdata_to_platdata = dwc3_generic_ofdata_to_platdata,
 	.probe = dwc3_generic_host_probe,
 	.remove = dwc3_generic_host_remove,
-	.priv_auto_alloc_size = sizeof(struct dwc3_generic_host_priv),
-	.platdata_auto_alloc_size = sizeof(struct dwc3_generic_plat),
+	.priv_auto	= sizeof(struct dwc3_generic_host_priv),
+	.platdata_auto	= sizeof(struct dwc3_generic_plat),
 	.ops = &xhci_usb_ops,
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
@@ -459,6 +459,6 @@ U_BOOT_DRIVER(dwc3_generic_wrapper) = {
 	.bind = dwc3_glue_bind,
 	.probe = dwc3_glue_probe,
 	.remove = dwc3_glue_remove,
-	.platdata_auto_alloc_size = sizeof(struct dwc3_glue_data),
+	.platdata_auto	= sizeof(struct dwc3_glue_data),
 
 };

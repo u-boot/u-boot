@@ -79,7 +79,7 @@ U_BOOT_DRIVER(sti_timer) = {
 	.name = "sti_timer",
 	.id = UCLASS_TIMER,
 	.of_match = sti_timer_ids,
-	.priv_auto_alloc_size = sizeof(struct sti_timer_priv),
+	.priv_auto	= sizeof(struct sti_timer_priv),
 	.probe = sti_timer_probe,
 	.ops = &sti_timer_ops,
 };

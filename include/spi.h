@@ -102,7 +102,7 @@ enum spi_polarity {
  *
  * For driver model this is the per-child data used by the SPI bus. It can
  * be accessed using dev_get_parent_priv() on the slave device. The SPI uclass
- * sets uip per_child_auto_alloc_size to sizeof(struct spi_slave), and the
+ * sets up per_child_auto to sizeof(struct spi_slave), and the
  * driver should not override it. Two platform data fields (max_hz and mode)
  * are copied into this structure to provide an initial value. This allows
  * them to be changed, since we should never change platform data in drivers.

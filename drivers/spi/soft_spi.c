@@ -281,7 +281,7 @@ U_BOOT_DRIVER(soft_spi) = {
 	.of_match = soft_spi_ids,
 	.ops	= &soft_spi_ops,
 	.ofdata_to_platdata = soft_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct soft_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct soft_spi_priv),
+	.platdata_auto	= sizeof(struct soft_spi_platdata),
+	.priv_auto	= sizeof(struct soft_spi_priv),
 	.probe	= soft_spi_probe,
 };

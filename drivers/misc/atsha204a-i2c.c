@@ -407,5 +407,5 @@ U_BOOT_DRIVER(atsha204) = {
 	.id			= UCLASS_MISC,
 	.of_match		= atsha204a_ids,
 	.ofdata_to_platdata	= atsha204a_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(fdt_addr_t),
+	.priv_auto	= sizeof(fdt_addr_t),
 };

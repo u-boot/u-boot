@@ -388,7 +388,7 @@ U_BOOT_DRIVER(atmel_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = atmel_spi_ids,
 	.ops	= &atmel_spi_ops,
-	.platdata_auto_alloc_size = sizeof(struct atmel_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct atmel_spi_priv),
+	.platdata_auto	= sizeof(struct atmel_spi_platdata),
+	.priv_auto	= sizeof(struct atmel_spi_priv),
 	.probe	= atmel_spi_probe,
 };

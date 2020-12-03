@@ -298,8 +298,8 @@ U_BOOT_DRIVER(fsl_imx23_gpio) = {
 	.id	= UCLASS_GPIO,
 	.ops	= &gpio_mxs_ops,
 	.probe	= mxs_gpio_probe,
-	.priv_auto_alloc_size = sizeof(struct mxs_gpio_priv),
-	.platdata_auto_alloc_size = sizeof(struct mxs_gpio_platdata),
+	.priv_auto	= sizeof(struct mxs_gpio_priv),
+	.platdata_auto	= sizeof(struct mxs_gpio_platdata),
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = mxs_gpio_ids,
 	.ofdata_to_platdata = mxs_ofdata_to_platdata,

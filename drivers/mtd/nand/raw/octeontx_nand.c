@@ -2219,7 +2219,7 @@ U_BOOT_DRIVER(octeontx_pci_nand) = {
 	.of_match = of_match_ptr(octeontx_nand_ids),
 	.ofdata_to_platdata = octeontx_nand_ofdata_to_platdata,
 	.probe = octeontx_pci_nand_probe,
-	.priv_auto_alloc_size = sizeof(struct octeontx_nfc),
+	.priv_auto	= sizeof(struct octeontx_nfc),
 	.remove = octeontx_pci_nand_disable,
 	.flags = DM_FLAG_OS_PREPARE,
 };

@@ -100,5 +100,5 @@ UCLASS_DRIVER(spi_flash) = {
 	.id		= UCLASS_SPI_FLASH,
 	.name		= "spi_flash",
 	.post_bind	= spi_flash_post_bind,
-	.per_device_auto_alloc_size = sizeof(struct spi_flash),
+	.per_device_auto	= sizeof(struct spi_flash),
 };

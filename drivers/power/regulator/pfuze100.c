@@ -572,5 +572,5 @@ U_BOOT_DRIVER(pfuze100_regulator) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &pfuze100_regulator_ops,
 	.probe = pfuze100_regulator_probe,
-	.platdata_auto_alloc_size = sizeof(struct pfuze100_regulator_platdata),
+	.platdata_auto	= sizeof(struct pfuze100_regulator_platdata),
 };

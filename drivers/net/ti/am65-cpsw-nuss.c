@@ -791,7 +791,7 @@ U_BOOT_DRIVER(am65_cpsw_nuss_slave) = {
 	.of_match = am65_cpsw_nuss_ids,
 	.probe	= am65_cpsw_probe_cpsw,
 	.ops	= &am65_cpsw_ops,
-	.priv_auto_alloc_size = sizeof(struct am65_cpsw_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct am65_cpsw_priv),
+	.platdata_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

@@ -109,5 +109,5 @@ U_BOOT_DRIVER(warm_pwm_sandbox) = {
 	.id		= UCLASS_PWM,
 	.of_match	= sandbox_pwm_ids,
 	.ops		= &sandbox_pwm_ops,
-	.priv_auto_alloc_size	= sizeof(struct sandbox_pwm_priv),
+	.priv_auto	= sizeof(struct sandbox_pwm_priv),
 };

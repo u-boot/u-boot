@@ -452,9 +452,9 @@ U_BOOT_DRIVER(coldfire_spi) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = coldfire_spi_ids,
 	.ofdata_to_platdata = coldfire_dspi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct coldfire_spi_platdata),
+	.platdata_auto	= sizeof(struct coldfire_spi_platdata),
 #endif
 	.probe = coldfire_spi_probe,
 	.ops = &coldfire_spi_ops,
-	.priv_auto_alloc_size = sizeof(struct coldfire_spi_priv),
+	.priv_auto	= sizeof(struct coldfire_spi_priv),
 };

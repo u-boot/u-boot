@@ -176,5 +176,5 @@ UCLASS_DRIVER(timer) = {
 	.pre_probe	= timer_pre_probe,
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_probe	= timer_post_probe,
-	.per_device_auto_alloc_size = sizeof(struct timer_dev_priv),
+	.per_device_auto	= sizeof(struct timer_dev_priv),
 };

@@ -358,7 +358,7 @@ U_BOOT_DRIVER(serial_mxc) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match = mxc_serial_ids,
 	.ofdata_to_platdata = mxc_serial_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct mxc_serial_platdata),
+	.platdata_auto	= sizeof(struct mxc_serial_platdata),
 #endif
 	.probe = mxc_serial_probe,
 	.ops	= &mxc_serial_ops,

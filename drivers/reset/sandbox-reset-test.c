@@ -120,5 +120,5 @@ U_BOOT_DRIVER(sandbox_reset_test) = {
 	.name = "sandbox_reset_test",
 	.id = UCLASS_MISC,
 	.of_match = sandbox_reset_test_ids,
-	.priv_auto_alloc_size = sizeof(struct sandbox_reset_test),
+	.priv_auto	= sizeof(struct sandbox_reset_test),
 };

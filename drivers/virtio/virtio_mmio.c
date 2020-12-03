@@ -412,5 +412,5 @@ U_BOOT_DRIVER(virtio_mmio) = {
 	.ops	= &virtio_mmio_ops,
 	.probe	= virtio_mmio_probe,
 	.ofdata_to_platdata = virtio_mmio_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct virtio_mmio_priv),
+	.priv_auto	= sizeof(struct virtio_mmio_priv),
 };

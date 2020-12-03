@@ -221,9 +221,9 @@ static int p2sb_post_bind(struct udevice *dev)
 UCLASS_DRIVER(p2sb) = {
 	.id		= UCLASS_P2SB,
 	.name		= "p2sb",
-	.per_device_auto_alloc_size = sizeof(struct p2sb_uc_priv),
+	.per_device_auto	= sizeof(struct p2sb_uc_priv),
 	.post_bind	= p2sb_post_bind,
 	.child_post_bind = p2sb_child_post_bind,
-	.per_child_platdata_auto_alloc_size =
+	.per_child_platdata_auto	=
 		sizeof(struct p2sb_child_platdata),
 };

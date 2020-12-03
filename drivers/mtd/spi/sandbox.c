@@ -600,7 +600,7 @@ U_BOOT_DRIVER(sandbox_sf_emul) = {
 	.ofdata_to_platdata = sandbox_sf_ofdata_to_platdata,
 	.probe		= sandbox_sf_probe,
 	.remove		= sandbox_sf_remove,
-	.priv_auto_alloc_size = sizeof(struct sandbox_spi_flash),
-	.platdata_auto_alloc_size = sizeof(struct sandbox_spi_flash_plat_data),
+	.priv_auto	= sizeof(struct sandbox_spi_flash),
+	.platdata_auto	= sizeof(struct sandbox_spi_flash_plat_data),
 	.ops		= &sandbox_sf_emul_ops,
 };

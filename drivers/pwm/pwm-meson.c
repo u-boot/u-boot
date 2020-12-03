@@ -524,5 +524,5 @@ U_BOOT_DRIVER(meson_pwm) = {
 	.ops	= &meson_pwm_ops,
 	.ofdata_to_platdata = meson_pwm_ofdata_to_platdata,
 	.probe	 = meson_pwm_probe,
-	.priv_auto_alloc_size	= sizeof(struct meson_pwm),
+	.priv_auto	= sizeof(struct meson_pwm),
 };

@@ -43,8 +43,8 @@ as drivers in the USB uclass. For example:
 		.probe = tegra_ehci_usb_probe,
 		.remove = tegra_ehci_usb_remove,
 		.ops	= &ehci_usb_ops,
-		.platdata_auto_alloc_size = sizeof(struct usb_platdata),
-		.priv_auto_alloc_size = sizeof(struct fdt_usb),
+		.platdata_auto = sizeof(struct usb_platdata),
+		.priv_auto = sizeof(struct fdt_usb),
 		.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 	};
 
@@ -58,7 +58,7 @@ The ops here are ehci_usb_ops. All EHCI drivers will use these same ops in
 most cases, since they are all EHCI-compatible. For EHCI there are also some
 special operations that can be overridden when calling ehci_register().
 
-The driver can use priv_auto_alloc_size to set the size of its private data.
+The driver can use priv_auto to set the size of its private data.
 This can hold run-time information needed by the driver for operation. It
 exists when the device is probed (not when it is bound) and is removed when
 the driver is removed.

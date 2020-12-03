@@ -194,11 +194,11 @@ U_BOOT_DRIVER(serial_bcm283x_mu) = {
 	.name = "serial_bcm283x_mu",
 	.id = UCLASS_SERIAL,
 	.of_match = of_match_ptr(bcm283x_mu_serial_id),
-	.platdata_auto_alloc_size = sizeof(struct bcm283x_mu_serial_platdata),
+	.platdata_auto	= sizeof(struct bcm283x_mu_serial_platdata),
 	.probe = bcm283x_mu_serial_probe,
 	.ops = &bcm283x_mu_serial_ops,
 #if !CONFIG_IS_ENABLED(OF_CONTROL) || CONFIG_IS_ENABLED(OF_BOARD)
 	.flags = DM_FLAG_PRE_RELOC,
 #endif
-	.priv_auto_alloc_size = sizeof(struct bcm283x_mu_priv),
+	.priv_auto	= sizeof(struct bcm283x_mu_priv),
 };

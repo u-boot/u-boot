@@ -111,7 +111,7 @@ enum {
  * probe method if the device has a device tree node.
  *
  * All three of platdata, priv and uclass_priv can be allocated by the
- * driver, or you can use the auto_alloc_size members of struct driver and
+ * driver, or you can use the 'auto' members of struct driver and
  * struct uclass_driver to have driver model do this automatically.
  *
  * @driver: The driver used by this device
@@ -225,18 +225,18 @@ struct udevice_id {
  * memory allocated but it has not yet been probed.
  * @child_post_remove: Called after a child device is removed. The device
  * has memory allocated but its device_remove() method has been called.
- * @priv_auto_alloc_size: If non-zero this is the size of the private data
+ * @priv_auto: If non-zero this is the size of the private data
  * to be allocated in the device's ->priv pointer. If zero, then the driver
  * is responsible for allocating any data required.
- * @platdata_auto_alloc_size: If non-zero this is the size of the
+ * @platdata_auto: If non-zero this is the size of the
  * platform data to be allocated in the device's ->platdata pointer.
  * This is typically only useful for device-tree-aware drivers (those with
  * an of_match), since drivers which use platdata will have the data
  * provided in the U_BOOT_DEVICE() instantiation.
- * @per_child_auto_alloc_size: Each device can hold private data owned by
+ * @per_child_auto: Each device can hold private data owned by
  * its parent. If required this will be automatically allocated if this
  * value is non-zero.
- * @per_child_platdata_auto_alloc_size: A bus likes to store information about
+ * @per_child_platdata_auto: A bus likes to store information about
  * its children. If non-zero this is the size of this data, to be allocated
  * in the child's parent_platdata pointer.
  * @ops: Driver-specific operations. This is typically a list of function
@@ -258,10 +258,10 @@ struct driver {
 	int (*child_post_bind)(struct udevice *dev);
 	int (*child_pre_probe)(struct udevice *dev);
 	int (*child_post_remove)(struct udevice *dev);
-	int priv_auto_alloc_size;
-	int platdata_auto_alloc_size;
-	int per_child_auto_alloc_size;
-	int per_child_platdata_auto_alloc_size;
+	int priv_auto;
+	int platdata_auto;
+	int per_child_auto;
+	int per_child_platdata_auto;
 	const void *ops;	/* driver-specific operations */
 	uint32_t flags;
 #if CONFIG_IS_ENABLED(ACPIGEN)

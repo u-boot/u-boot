@@ -61,7 +61,7 @@ U_BOOT_DRIVER(dwmac_s700) = {
 	.ofdata_to_platdata = dwmac_s700_ofdata_to_platdata,
 	.probe  = dwmac_s700_probe,
 	.ops    = &designware_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct dw_eth_dev),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct dw_eth_dev),
+	.platdata_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

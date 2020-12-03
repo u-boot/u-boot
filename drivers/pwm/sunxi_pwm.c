@@ -181,5 +181,5 @@ U_BOOT_DRIVER(sunxi_pwm) = {
 	.ops	= &sunxi_pwm_ops,
 	.ofdata_to_platdata	= sunxi_pwm_ofdata_to_platdata,
 	.probe		= sunxi_pwm_probe,
-	.priv_auto_alloc_size	= sizeof(struct sunxi_pwm_priv),
+	.priv_auto	= sizeof(struct sunxi_pwm_priv),
 };

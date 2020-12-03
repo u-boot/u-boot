@@ -477,6 +477,6 @@ U_BOOT_DRIVER(ftsdc010_mmc) = {
 	.ops		= &dm_ftsdc010_mmc_ops,
 	.bind		= ftsdc010_mmc_bind,
 	.probe		= ftsdc010_mmc_probe,
-	.priv_auto_alloc_size = sizeof(struct ftsdc_priv),
-	.platdata_auto_alloc_size = sizeof(struct ftsdc010_plat),
+	.priv_auto	= sizeof(struct ftsdc_priv),
+	.platdata_auto	= sizeof(struct ftsdc010_plat),
 };

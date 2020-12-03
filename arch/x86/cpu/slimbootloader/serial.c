@@ -58,8 +58,8 @@ U_BOOT_DRIVER(serial_slimbootloader) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = slimbootloader_serial_ids,
 	.ofdata_to_platdata = slimbootloader_serial_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct ns16550_platdata),
-	.priv_auto_alloc_size = sizeof(struct NS16550),
+	.platdata_auto	= sizeof(struct ns16550_platdata),
+	.priv_auto	= sizeof(struct NS16550),
 	.probe	= ns16550_serial_probe,
 	.ops	= &ns16550_serial_ops,
 };

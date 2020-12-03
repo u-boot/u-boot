@@ -728,7 +728,7 @@ U_BOOT_DRIVER(pcie_mediatek_v1) = {
 	.of_match = mtk_pcie_ids,
 	.ops	= &mtk_pcie_ops,
 	.probe	= mtk_pcie_probe,
-	.priv_auto_alloc_size = sizeof(struct mtk_pcie),
+	.priv_auto	= sizeof(struct mtk_pcie),
 };
 
 static const struct udevice_id mtk_pcie_ids_v2[] = {
@@ -742,5 +742,5 @@ U_BOOT_DRIVER(pcie_mediatek_v2) = {
 	.of_match = mtk_pcie_ids_v2,
 	.ops	= &mtk_pcie_ops_v2,
 	.probe	= mtk_pcie_probe_v2,
-	.priv_auto_alloc_size = sizeof(struct mtk_pcie),
+	.priv_auto	= sizeof(struct mtk_pcie),
 };

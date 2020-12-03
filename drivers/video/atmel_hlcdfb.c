@@ -562,7 +562,7 @@ U_BOOT_DRIVER(atmel_hlcdfb) = {
 	.bind	= atmel_hlcdc_bind,
 	.probe	= atmel_hlcdc_probe,
 	.ofdata_to_platdata = atmel_hlcdc_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct atmel_hlcdc_priv),
+	.priv_auto	= sizeof(struct atmel_hlcdc_priv),
 };
 
 #endif

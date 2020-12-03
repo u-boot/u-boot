@@ -200,7 +200,7 @@ U_BOOT_DRIVER(imx_rgpio2p) = {
 	.id	= UCLASS_GPIO,
 	.ops	= &imx_rgpio2p_ops,
 	.probe	= imx_rgpio2p_probe,
-	.priv_auto_alloc_size = sizeof(struct imx_rgpio2p_plat),
+	.priv_auto	= sizeof(struct imx_rgpio2p_plat),
 	.of_match = imx_rgpio2p_ids,
 	.bind	= imx_rgpio2p_bind,
 };

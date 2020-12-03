@@ -142,7 +142,7 @@ U_BOOT_DRIVER(sp805_wdt) = {
 	.id = UCLASS_WDT,
 	.of_match = sp805_wdt_ids,
 	.probe = sp805_wdt_probe,
-	.priv_auto_alloc_size = sizeof(struct sp805_wdt_priv),
+	.priv_auto	= sizeof(struct sp805_wdt_priv),
 	.ofdata_to_platdata = sp805_wdt_ofdata_to_platdata,
 	.ops = &sp805_wdt_ops,
 };

@@ -159,7 +159,7 @@ U_BOOT_DRIVER(serial_cortina) = {
 	.id = UCLASS_SERIAL,
 	.of_match = ca_serial_ids,
 	.ofdata_to_platdata = ca_serial_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct ca_uart_priv),
+	.priv_auto	= sizeof(struct ca_uart_priv),
 	.probe = ca_serial_probe,
 	.ops = &ca_serial_ops
 };

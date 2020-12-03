@@ -5424,8 +5424,8 @@ static struct driver mvpp2_driver = {
 	.probe	= mvpp2_probe,
 	.remove = mvpp2_remove,
 	.ops	= &mvpp2_ops,
-	.priv_auto_alloc_size = sizeof(struct mvpp2_port),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct mvpp2_port),
+	.platdata_auto	= sizeof(struct eth_pdata),
 	.flags	= DM_FLAG_ACTIVE_DMA,
 };
 
@@ -5501,5 +5501,5 @@ U_BOOT_DRIVER(mvpp2_base) = {
 	.id	= UCLASS_MISC,
 	.of_match = mvpp2_ids,
 	.bind	= mvpp2_base_bind,
-	.priv_auto_alloc_size = sizeof(struct mvpp2),
+	.priv_auto	= sizeof(struct mvpp2),
 };

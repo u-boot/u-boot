@@ -849,12 +849,12 @@ UCLASS_DRIVER(usb) = {
 	.name		= "usb",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_bind	= dm_scan_fdt_dev,
-	.priv_auto_alloc_size = sizeof(struct usb_uclass_priv),
-	.per_child_auto_alloc_size = sizeof(struct usb_device),
-	.per_device_auto_alloc_size = sizeof(struct usb_bus_priv),
+	.priv_auto	= sizeof(struct usb_uclass_priv),
+	.per_child_auto	= sizeof(struct usb_device),
+	.per_device_auto	= sizeof(struct usb_bus_priv),
 	.child_post_bind = usb_child_post_bind,
 	.child_pre_probe = usb_child_pre_probe,
-	.per_child_platdata_auto_alloc_size = sizeof(struct usb_dev_platdata),
+	.per_child_platdata_auto	= sizeof(struct usb_dev_platdata),
 };
 
 UCLASS_DRIVER(usb_dev_generic) = {

@@ -1842,8 +1842,8 @@ U_BOOT_DRIVER(r8152_eth) = {
 	.id	= UCLASS_ETH,
 	.probe = r8152_eth_probe,
 	.ops	= &r8152_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct r8152),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct r8152),
+	.platdata_auto	= sizeof(struct eth_pdata),
 };
 
 static const struct usb_device_id r8152_eth_id_table[] = {

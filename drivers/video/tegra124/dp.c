@@ -1619,6 +1619,6 @@ U_BOOT_DRIVER(dp_tegra) = {
 	.ofdata_to_platdata = tegra_dp_ofdata_to_platdata,
 	.probe	= dp_tegra_probe,
 	.ops	= &dp_tegra_ops,
-	.priv_auto_alloc_size = sizeof(struct tegra_dp_priv),
-	.platdata_auto_alloc_size = sizeof(struct tegra_dp_plat),
+	.priv_auto	= sizeof(struct tegra_dp_priv),
+	.platdata_auto	= sizeof(struct tegra_dp_plat),
 };

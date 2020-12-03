@@ -313,6 +313,6 @@ U_BOOT_DRIVER(mtk_snfi_spi) = {
 	.id			= UCLASS_SPI,
 	.of_match		= mtk_snfi_spi_ids,
 	.ops			= &mtk_snfi_spi_ops,
-	.priv_auto_alloc_size	= sizeof(struct mtk_snfi_priv),
+	.priv_auto	= sizeof(struct mtk_snfi_priv),
 	.probe			= mtk_snfi_spi_probe,
 };

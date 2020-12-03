@@ -131,7 +131,7 @@ U_BOOT_DRIVER(stm32mp_wdt) = {
 	.name = "stm32mp-wdt",
 	.id = UCLASS_WDT,
 	.of_match = stm32mp_wdt_match,
-	.priv_auto_alloc_size = sizeof(struct stm32mp_wdt_priv),
+	.priv_auto	= sizeof(struct stm32mp_wdt_priv),
 	.probe = stm32mp_wdt_probe,
 	.ops = &stm32mp_wdt_ops,
 };

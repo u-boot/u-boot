@@ -112,6 +112,6 @@ U_BOOT_DRIVER(hi6220_dwmmc_drv) = {
 	.ops = &dm_dwmci_ops,
 	.bind = hi6220_dwmmc_bind,
 	.probe = hi6220_dwmmc_probe,
-	.priv_auto_alloc_size = sizeof(struct hi6220_dwmmc_priv_data),
-	.platdata_auto_alloc_size = sizeof(struct hi6220_dwmmc_plat),
+	.priv_auto	= sizeof(struct hi6220_dwmmc_priv_data),
+	.platdata_auto	= sizeof(struct hi6220_dwmmc_plat),
 };

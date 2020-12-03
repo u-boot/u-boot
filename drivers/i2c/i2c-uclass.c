@@ -739,11 +739,11 @@ UCLASS_DRIVER(i2c) = {
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_bind	= i2c_post_bind,
 	.init		= i2c_uclass_init,
-	.priv_auto_alloc_size = sizeof(struct i2c_priv),
+	.priv_auto	= sizeof(struct i2c_priv),
 	.pre_probe      = i2c_pre_probe,
 	.post_probe	= i2c_post_probe,
-	.per_device_auto_alloc_size = sizeof(struct dm_i2c_bus),
-	.per_child_platdata_auto_alloc_size = sizeof(struct dm_i2c_chip),
+	.per_device_auto	= sizeof(struct dm_i2c_bus),
+	.per_child_platdata_auto	= sizeof(struct dm_i2c_chip),
 	.child_post_bind = i2c_child_post_bind,
 };
 
@@ -766,7 +766,7 @@ U_BOOT_DRIVER(i2c_generic_chip_drv) = {
 	.of_match	= generic_chip_i2c_ids,
 #if CONFIG_IS_ENABLED(ACPIGEN)
 	.ofdata_to_platdata	= acpi_i2c_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct acpi_i2c_priv),
+	.priv_auto	= sizeof(struct acpi_i2c_priv),
 #endif
 	ACPI_OPS_PTR(&acpi_i2c_ops)
 };

@@ -86,8 +86,8 @@ U_BOOT_DRIVER(testfdt_drv) = {
 	.ofdata_to_platdata = testfdt_ofdata_to_platdata,
 	.probe	= testfdt_drv_probe,
 	.ops	= &test_ops,
-	.priv_auto_alloc_size = sizeof(struct dm_test_priv),
-	.platdata_auto_alloc_size = sizeof(struct dm_test_pdata),
+	.priv_auto	= sizeof(struct dm_test_priv),
+	.platdata_auto	= sizeof(struct dm_test_pdata),
 };
 
 static const struct udevice_id testfdt1_ids[] = {
@@ -104,8 +104,8 @@ U_BOOT_DRIVER(testfdt1_drv) = {
 	.ofdata_to_platdata = testfdt_ofdata_to_platdata,
 	.probe	= testfdt_drv_probe,
 	.ops	= &test_ops,
-	.priv_auto_alloc_size = sizeof(struct dm_test_priv),
-	.platdata_auto_alloc_size = sizeof(struct dm_test_pdata),
+	.priv_auto	= sizeof(struct dm_test_priv),
+	.platdata_auto	= sizeof(struct dm_test_pdata),
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
@@ -147,7 +147,7 @@ U_BOOT_DRIVER(testprobe_drv) = {
 	.of_match	= testprobe_ids,
 	.id	= UCLASS_TEST_PROBE,
 	.probe	= testprobe_drv_probe,
-	.platdata_auto_alloc_size	= sizeof(struct dm_testprobe_pdata),
+	.platdata_auto	= sizeof(struct dm_testprobe_pdata),
 };
 
 UCLASS_DRIVER(testprobe) = {
@@ -204,8 +204,8 @@ U_BOOT_DRIVER(testdevres_drv) = {
 	.bind	= testdevres_drv_bind,
 	.ofdata_to_platdata	= testdevres_drv_ofdata_to_platdata,
 	.probe	= testdevres_drv_probe,
-	.platdata_auto_alloc_size	= sizeof(struct dm_testdevres_pdata),
-	.priv_auto_alloc_size	= sizeof(struct dm_testdevres_priv),
+	.platdata_auto	= sizeof(struct dm_testdevres_pdata),
+	.priv_auto	= sizeof(struct dm_testdevres_priv),
 };
 
 UCLASS_DRIVER(testdevres) = {

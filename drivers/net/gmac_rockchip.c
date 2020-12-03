@@ -759,7 +759,7 @@ U_BOOT_DRIVER(eth_gmac_rockchip) = {
 	.ofdata_to_platdata = gmac_rockchip_ofdata_to_platdata,
 	.probe	= gmac_rockchip_probe,
 	.ops	= &gmac_rockchip_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct dw_eth_dev),
-	.platdata_auto_alloc_size = sizeof(struct gmac_rockchip_platdata),
+	.priv_auto	= sizeof(struct dw_eth_dev),
+	.platdata_auto	= sizeof(struct gmac_rockchip_platdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

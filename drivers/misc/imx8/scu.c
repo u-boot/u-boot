@@ -245,6 +245,6 @@ U_BOOT_DRIVER(imx8_scu) = {
 	.bind		= imx8_scu_bind,
 	.remove		= imx8_scu_remove,
 	.ops		= &imx8_scu_ops,
-	.platdata_auto_alloc_size = sizeof(struct imx8_scu),
+	.platdata_auto	= sizeof(struct imx8_scu),
 	.flags		= DM_FLAG_PRE_RELOC,
 };

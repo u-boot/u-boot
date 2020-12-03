@@ -158,6 +158,6 @@ U_BOOT_DRIVER(imx_pwm) = {
 	.ops	= &imx_pwm_ops,
 	.ofdata_to_platdata	= imx_pwm_ofdata_to_platdata,
 	.probe		= imx_pwm_probe,
-	.priv_auto_alloc_size	= sizeof(struct imx_pwm_priv),
+	.priv_auto	= sizeof(struct imx_pwm_priv),
 };
 #endif

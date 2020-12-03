@@ -561,8 +561,8 @@ U_BOOT_DRIVER(rockchip_rk3288_spi) = {
 	.of_match = rockchip_spi_ids,
 	.ops	= &rockchip_spi_ops,
 	.ofdata_to_platdata = rockchip_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct rockchip_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct rockchip_spi_priv),
+	.platdata_auto	= sizeof(struct rockchip_spi_platdata),
+	.priv_auto	= sizeof(struct rockchip_spi_priv),
 	.probe	= rockchip_spi_probe,
 };
 

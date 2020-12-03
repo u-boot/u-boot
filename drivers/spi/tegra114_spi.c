@@ -394,7 +394,7 @@ U_BOOT_DRIVER(tegra114_spi) = {
 	.of_match = tegra114_spi_ids,
 	.ops	= &tegra114_spi_ops,
 	.ofdata_to_platdata = tegra114_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct tegra_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct tegra114_spi_priv),
+	.platdata_auto	= sizeof(struct tegra_spi_platdata),
+	.priv_auto	= sizeof(struct tegra114_spi_priv),
 	.probe	= tegra114_spi_probe,
 };

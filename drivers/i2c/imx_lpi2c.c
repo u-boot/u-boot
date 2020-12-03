@@ -519,6 +519,6 @@ U_BOOT_DRIVER(imx_lpi2c) = {
 	.id = UCLASS_I2C,
 	.of_match = imx_lpi2c_ids,
 	.probe = imx_lpi2c_probe,
-	.priv_auto_alloc_size = sizeof(struct imx_lpi2c_bus),
+	.priv_auto	= sizeof(struct imx_lpi2c_bus),
 	.ops = &imx_lpi2c_ops,
 };

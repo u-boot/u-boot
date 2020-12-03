@@ -523,6 +523,6 @@ U_BOOT_DRIVER(i2c_tegra) = {
 	.id	= UCLASS_I2C,
 	.of_match = tegra_i2c_ids,
 	.probe	= tegra_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct i2c_bus),
+	.priv_auto	= sizeof(struct i2c_bus),
 	.ops	= &tegra_i2c_ops,
 };

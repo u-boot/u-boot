@@ -567,7 +567,7 @@ U_BOOT_DRIVER(serial_lpuart) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = lpuart_serial_ids,
 	.ofdata_to_platdata = lpuart_serial_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct lpuart_serial_platdata),
+	.platdata_auto	= sizeof(struct lpuart_serial_platdata),
 	.probe = lpuart_serial_probe,
 	.ops	= &lpuart_serial_ops,
 };

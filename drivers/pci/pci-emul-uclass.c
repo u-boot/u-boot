@@ -105,14 +105,14 @@ UCLASS_DRIVER(pci_emul) = {
 	.name		= "pci_emul",
 	.post_probe	= sandbox_pci_emul_post_probe,
 	.pre_remove	= sandbox_pci_emul_pre_remove,
-	.priv_auto_alloc_size	= sizeof(struct sandbox_pci_emul_priv),
-	.per_device_auto_alloc_size	= sizeof(struct pci_emul_uc_priv),
+	.priv_auto	= sizeof(struct sandbox_pci_emul_priv),
+	.per_device_auto	= sizeof(struct pci_emul_uc_priv),
 };
 
 /*
  * This uclass is a child of the pci bus. Its platdata is not defined here so
  * is defined by its parent, UCLASS_PCI, which uses struct pci_child_platdata.
- * See per_child_platdata_auto_alloc_size in UCLASS_DRIVER(pci).
+ * See per_child_platdata_auto	in UCLASS_DRIVER(pci).
  */
 UCLASS_DRIVER(pci_emul_parent) = {
 	.id		= UCLASS_PCI_EMUL_PARENT,

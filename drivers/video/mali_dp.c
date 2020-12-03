@@ -403,6 +403,6 @@ U_BOOT_DRIVER(mali_dp) = {
 	.of_match	= malidp_ids,
 	.bind		= malidp_bind,
 	.probe		= malidp_probe,
-	.priv_auto_alloc_size	= sizeof(struct malidp_priv),
+	.priv_auto	= sizeof(struct malidp_priv),
 	.ops		= &malidp_ops,
 };

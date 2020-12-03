@@ -124,5 +124,5 @@ U_BOOT_DRIVER(soc_ti_k3) = {
 	.ops		= &soc_ti_k3_ops,
 	.of_match       = soc_ti_k3_ids,
 	.probe          = soc_ti_k3_probe,
-	.platdata_auto_alloc_size = sizeof(struct soc_ti_k3_platdata),
+	.platdata_auto	= sizeof(struct soc_ti_k3_platdata),
 };

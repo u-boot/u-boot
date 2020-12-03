@@ -422,7 +422,7 @@ U_BOOT_DRIVER(bcm63xx_spi) = {
 	.id = UCLASS_SPI,
 	.of_match = bcm63xx_spi_ids,
 	.ops = &bcm63xx_spi_ops,
-	.priv_auto_alloc_size = sizeof(struct bcm63xx_spi_priv),
+	.priv_auto	= sizeof(struct bcm63xx_spi_priv),
 	.child_pre_probe = bcm63xx_spi_child_pre_probe,
 	.probe = bcm63xx_spi_probe,
 };

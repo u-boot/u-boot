@@ -100,6 +100,6 @@ U_BOOT_DRIVER(sdhci_bcmstb) = {
 	.ops = &sdhci_ops,
 	.bind = sdhci_bcmstb_bind,
 	.probe = sdhci_bcmstb_probe,
-	.priv_auto_alloc_size = sizeof(struct sdhci_host),
-	.platdata_auto_alloc_size = sizeof(struct sdhci_bcmstb_plat),
+	.priv_auto	= sizeof(struct sdhci_host),
+	.platdata_auto	= sizeof(struct sdhci_bcmstb_plat),
 };

@@ -637,7 +637,7 @@ U_BOOT_DRIVER(bcm6368_eth) = {
 	.id = UCLASS_ETH,
 	.of_match = bcm6368_eth_ids,
 	.ops = &bcm6368_eth_ops,
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
-	.priv_auto_alloc_size = sizeof(struct bcm6368_eth_priv),
+	.platdata_auto	= sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct bcm6368_eth_priv),
 	.probe = bcm6368_eth_probe,
 };

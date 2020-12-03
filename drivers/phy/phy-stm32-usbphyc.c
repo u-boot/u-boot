@@ -419,5 +419,5 @@ U_BOOT_DRIVER(stm32_usb_phyc) = {
 	.of_match = stm32_usbphyc_of_match,
 	.ops = &stm32_usbphyc_phy_ops,
 	.probe = stm32_usbphyc_probe,
-	.priv_auto_alloc_size = sizeof(struct stm32_usbphyc),
+	.priv_auto	= sizeof(struct stm32_usbphyc),
 };

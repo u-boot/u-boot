@@ -658,5 +658,5 @@ U_BOOT_DRIVER(socfpga_agilex_clk) = {
 	.ops		= &socfpga_clk_ops,
 	.probe		= socfpga_clk_probe,
 	.ofdata_to_platdata = socfpga_clk_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct socfpga_clk_platdata),
+	.platdata_auto	= sizeof(struct socfpga_clk_platdata),
 };

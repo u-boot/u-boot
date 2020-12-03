@@ -150,7 +150,7 @@ U_BOOT_DRIVER(pinctrl_bcm283x) = {
 	.id		= UCLASS_PINCTRL,
 	.of_match	= of_match_ptr(bcm2835_pinctrl_id),
 	.ofdata_to_platdata = bcm283x_pinctl_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct bcm283x_pinctrl_priv),
+	.priv_auto	= sizeof(struct bcm283x_pinctrl_priv),
 	.ops		= &bcm283x_pinctrl_ops,
 	.probe		= bcm283x_pinctl_probe,
 #if CONFIG_IS_ENABLED(OF_BOARD)

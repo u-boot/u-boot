@@ -363,14 +363,14 @@ U_BOOT_DRIVER(gpio_omap) = {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap_gpio_ids,
 	.ofdata_to_platdata = of_match_ptr(omap_gpio_ofdata_to_platdata),
-	.platdata_auto_alloc_size = sizeof(struct omap_gpio_platdata),
+	.platdata_auto	= sizeof(struct omap_gpio_platdata),
 #endif
 #else
 	.bind   = omap_gpio_bind,
 #endif
 	.ops	= &gpio_omap_ops,
 	.probe	= omap_gpio_probe,
-	.priv_auto_alloc_size = sizeof(struct gpio_bank),
+	.priv_auto	= sizeof(struct gpio_bank),
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags = DM_FLAG_PRE_RELOC,
 #endif

@@ -230,6 +230,6 @@ U_BOOT_DRIVER(cpu_imx8_drv) = {
 	.of_match	= cpu_imx8_ids,
 	.ops		= &cpu_imx8_ops,
 	.probe		= imx8_cpu_probe,
-	.platdata_auto_alloc_size = sizeof(struct cpu_imx_platdata),
+	.platdata_auto	= sizeof(struct cpu_imx_platdata),
 	.flags		= DM_FLAG_PRE_RELOC,
 };

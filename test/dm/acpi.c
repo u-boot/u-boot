@@ -110,7 +110,7 @@ U_BOOT_DRIVER(testacpi_drv) = {
 	.of_match	= testacpi_ids,
 	.id	= UCLASS_TEST_ACPI,
 	.bind	= dm_scan_fdt_dev,
-	.platdata_auto_alloc_size	= sizeof(struct testacpi_platdata),
+	.platdata_auto	= sizeof(struct testacpi_platdata),
 	ACPI_OPS_PTR(&testacpi_ops)
 };
 

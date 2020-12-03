@@ -300,6 +300,6 @@ U_BOOT_DRIVER(usb_xhci) = {
 	.remove = xhci_mtk_remove,
 	.ops = &xhci_usb_ops,
 	.bind = dm_scan_fdt_dev,
-	.priv_auto_alloc_size = sizeof(struct mtk_xhci),
+	.priv_auto	= sizeof(struct mtk_xhci),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

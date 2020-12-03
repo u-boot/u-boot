@@ -873,8 +873,8 @@ U_BOOT_DRIVER(eth_designware) = {
 	.probe	= designware_eth_probe,
 	.remove	= designware_eth_remove,
 	.ops	= &designware_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct dw_eth_dev),
-	.platdata_auto_alloc_size = sizeof(struct dw_eth_pdata),
+	.priv_auto	= sizeof(struct dw_eth_dev),
+	.platdata_auto	= sizeof(struct dw_eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 

@@ -191,6 +191,6 @@ U_BOOT_DRIVER(single_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = single_pinctrl_match,
 	.ops = &single_pinctrl_ops,
-	.platdata_auto_alloc_size = sizeof(struct single_pdata),
+	.platdata_auto	= sizeof(struct single_pdata),
 	.ofdata_to_platdata = single_ofdata_to_platdata,
 };

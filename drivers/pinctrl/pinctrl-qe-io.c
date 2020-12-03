@@ -246,7 +246,7 @@ U_BOOT_DRIVER(par_io_pinctrl) = {
 	.of_match = of_match_ptr(par_io_pinctrl_match),
 	.probe = par_io_pinctrl_probe,
 	.ofdata_to_platdata = qe_io_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct qe_io_platdata),
+	.platdata_auto	= sizeof(struct qe_io_platdata),
 	.ops = &par_io_pinctrl_ops,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.flags	= DM_FLAG_PRE_RELOC,

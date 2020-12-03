@@ -211,6 +211,6 @@ U_BOOT_DRIVER(imx_sc_thermal) = {
 	.bind = imx_sc_thermal_bind,
 	.probe	= imx_sc_thermal_probe,
 	.ofdata_to_platdata = imx_sc_thermal_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct imx_sc_thermal_plat),
+	.platdata_auto	= sizeof(struct imx_sc_thermal_plat),
 	.flags  = DM_FLAG_PRE_RELOC,
 };

@@ -172,5 +172,5 @@ U_BOOT_DRIVER(pca954x) = {
 	.remove = pca954x_remove,
 	.ops = &pca954x_ops,
 	.ofdata_to_platdata = pca954x_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct pca954x_priv),
+	.priv_auto	= sizeof(struct pca954x_priv),
 };

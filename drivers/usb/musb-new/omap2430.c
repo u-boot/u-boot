@@ -280,8 +280,8 @@ U_BOOT_DRIVER(omap2430_musb) = {
 #ifdef CONFIG_USB_MUSB_HOST
 	.ops = &musb_usb_ops,
 #endif
-	.platdata_auto_alloc_size = sizeof(struct omap2430_musb_platdata),
-	.priv_auto_alloc_size = sizeof(struct musb_host_data),
+	.platdata_auto	= sizeof(struct omap2430_musb_platdata),
+	.priv_auto	= sizeof(struct musb_host_data),
 };
 
 #endif /* CONFIG_IS_ENABLED(DM_USB) */

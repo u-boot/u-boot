@@ -830,7 +830,7 @@ U_BOOT_DRIVER(imx_pcie) = {
 	.probe			= imx_pcie_dm_probe,
 	.remove			= imx_pcie_dm_remove,
 	.ofdata_to_platdata	= imx_pcie_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct imx_pcie_priv),
+	.priv_auto	= sizeof(struct imx_pcie_priv),
 	.flags			= DM_FLAG_OS_PREPARE,
 };
 #endif

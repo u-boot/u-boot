@@ -160,6 +160,6 @@ U_BOOT_DRIVER(stm32_rng) = {
 	.ops = &stm32_rng_ops,
 	.probe = stm32_rng_probe,
 	.remove = stm32_rng_remove,
-	.platdata_auto_alloc_size = sizeof(struct stm32_rng_platdata),
+	.platdata_auto	= sizeof(struct stm32_rng_platdata),
 	.ofdata_to_platdata = stm32_rng_ofdata_to_platdata,
 };

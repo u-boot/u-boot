@@ -1079,5 +1079,5 @@ U_BOOT_DRIVER(sor_tegra) = {
 	.of_match = tegra_sor_ids,
 	.ofdata_to_platdata = tegra_sor_ofdata_to_platdata,
 	.ops	= &tegra_sor_ops,
-	.priv_auto_alloc_size = sizeof(struct tegra_dc_sor_data),
+	.priv_auto	= sizeof(struct tegra_dc_sor_data),
 };

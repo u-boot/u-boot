@@ -3166,5 +3166,5 @@ U_BOOT_DRIVER(ti_sci) = {
 	.id = UCLASS_FIRMWARE,
 	.of_match = ti_sci_ids,
 	.probe = ti_sci_probe,
-	.priv_auto_alloc_size = sizeof(struct ti_sci_info),
+	.priv_auto	= sizeof(struct ti_sci_info),
 };

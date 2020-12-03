@@ -155,5 +155,5 @@ U_BOOT_DRIVER(pwm_regulator) = {
 	.probe = pwm_regulator_probe,
 	.of_match = pwm_regulator_ids,
 	.ofdata_to_platdata	= pwm_regulator_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct pwm_regulator_info),
+	.priv_auto	= sizeof(struct pwm_regulator_info),
 };

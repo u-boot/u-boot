@@ -306,7 +306,7 @@ U_BOOT_DRIVER(atmel_fb) = {
 	.bind	= atmel_fb_lcd_bind,
 	.ofdata_to_platdata	= atmel_fb_ofdata_to_platdata,
 	.probe	= atmel_fb_lcd_probe,
-	.platdata_auto_alloc_size = sizeof(struct atmel_lcd_platdata),
-	.priv_auto_alloc_size	= sizeof(struct atmel_fb_priv),
+	.platdata_auto	= sizeof(struct atmel_lcd_platdata),
+	.priv_auto	= sizeof(struct atmel_fb_priv),
 };
 #endif

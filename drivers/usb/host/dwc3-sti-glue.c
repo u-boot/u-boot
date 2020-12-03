@@ -246,6 +246,6 @@ U_BOOT_DRIVER(dwc3_sti_glue) = {
 	.probe = sti_dwc3_glue_probe,
 	.remove = sti_dwc3_glue_remove,
 	.bind = sti_dwc3_glue_bind,
-	.platdata_auto_alloc_size = sizeof(struct sti_dwc3_glue_platdata),
+	.platdata_auto	= sizeof(struct sti_dwc3_glue_platdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

@@ -119,6 +119,6 @@ U_BOOT_DRIVER(tps62360_regulator) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &tps62360_regulator_ops,
 	.of_match = tps62360_regulator_ids,
-	.platdata_auto_alloc_size = sizeof(struct tps62360_regulator_pdata),
+	.platdata_auto	= sizeof(struct tps62360_regulator_pdata),
 	.probe = tps62360_regulator_probe,
 };

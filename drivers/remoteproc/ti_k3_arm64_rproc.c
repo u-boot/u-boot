@@ -226,6 +226,6 @@ U_BOOT_DRIVER(k3_arm64) = {
 	.id = UCLASS_REMOTEPROC,
 	.ops = &k3_arm64_ops,
 	.probe = k3_arm64_probe,
-	.priv_auto_alloc_size = sizeof(struct k3_arm64_privdata),
+	.priv_auto	= sizeof(struct k3_arm64_privdata),
 	.flags = DM_FLAG_DEFAULT_PD_CTRL_OFF,
 };

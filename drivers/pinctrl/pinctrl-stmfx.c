@@ -446,7 +446,7 @@ U_BOOT_DRIVER(stmfx_pinctrl) = {
 	.bind = stmfx_pinctrl_bind,
 	.probe = stmfx_pinctrl_probe,
 	.ops = &stmfx_pinctrl_ops,
-	.platdata_auto_alloc_size = sizeof(struct stmfx_pinctrl),
+	.platdata_auto	= sizeof(struct stmfx_pinctrl),
 };
 
 static int stmfx_chip_init(struct udevice *dev)

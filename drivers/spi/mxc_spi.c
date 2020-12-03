@@ -605,7 +605,7 @@ U_BOOT_DRIVER(mxc_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = mxc_spi_ids,
 	.ops	= &mxc_spi_ops,
-	.platdata_auto_alloc_size = sizeof(struct mxc_spi_slave),
+	.platdata_auto	= sizeof(struct mxc_spi_slave),
 	.probe	= mxc_spi_probe,
 };
 #endif

@@ -600,7 +600,7 @@ UCLASS_DRIVER(eth) = {
 	.pre_unbind	= eth_pre_unbind,
 	.post_probe	= eth_post_probe,
 	.pre_remove	= eth_pre_remove,
-	.priv_auto_alloc_size = sizeof(struct eth_uclass_priv),
-	.per_device_auto_alloc_size = sizeof(struct eth_device_priv),
+	.priv_auto	= sizeof(struct eth_uclass_priv),
+	.per_device_auto	= sizeof(struct eth_device_priv),
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };

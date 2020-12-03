@@ -1189,8 +1189,8 @@ U_BOOT_DRIVER(dwc2_udc_otg) = {
 	.ofdata_to_platdata = dwc2_udc_otg_ofdata_to_platdata,
 	.probe = dwc2_udc_otg_probe,
 	.remove = dwc2_udc_otg_remove,
-	.platdata_auto_alloc_size = sizeof(struct dwc2_plat_otg_data),
-	.priv_auto_alloc_size = sizeof(struct dwc2_priv_data),
+	.platdata_auto	= sizeof(struct dwc2_plat_otg_data),
+	.priv_auto	= sizeof(struct dwc2_priv_data),
 };
 
 int dwc2_udc_B_session_valid(struct udevice *dev)

@@ -512,5 +512,5 @@ U_BOOT_DRIVER(stm32_dsi) = {
 	.bind				= stm32_dsi_bind,
 	.probe				= stm32_dsi_probe,
 	.ops				= &stm32_dsi_ops,
-	.priv_auto_alloc_size		= sizeof(struct stm32_dsi_priv),
+	.priv_auto		= sizeof(struct stm32_dsi_priv),
 };

@@ -624,8 +624,8 @@ U_BOOT_DRIVER(atmel_mci) = {
 	.of_match = atmel_mci_ids,
 	.bind = atmel_mci_bind,
 	.probe = atmel_mci_probe,
-	.platdata_auto_alloc_size = sizeof(struct atmel_mci_plat),
-	.priv_auto_alloc_size = sizeof(struct atmel_mci_priv),
+	.platdata_auto	= sizeof(struct atmel_mci_plat),
+	.priv_auto	= sizeof(struct atmel_mci_priv),
 	.ops = &atmel_mci_mmc_ops,
 };
 #endif

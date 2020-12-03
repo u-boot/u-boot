@@ -629,10 +629,10 @@ U_BOOT_DRIVER(atmel_at91rm9200_gpio) = {
 	.id	= UCLASS_GPIO,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match = at91_gpio_ids,
-	.platdata_auto_alloc_size = sizeof(struct at91_port_platdata),
+	.platdata_auto	= sizeof(struct at91_port_platdata),
 #endif
 	.ops	= &gpio_at91_ops,
 	.probe	= at91_gpio_probe,
-	.priv_auto_alloc_size = sizeof(struct at91_port_priv),
+	.priv_auto	= sizeof(struct at91_port_priv),
 };
 #endif

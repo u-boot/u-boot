@@ -359,6 +359,6 @@ U_BOOT_DRIVER(pci_octeontx) = {
 	.ops	= &pci_octeontx_ops,
 	.ofdata_to_platdata = pci_octeontx_ofdata_to_platdata,
 	.probe	= pci_octeontx_probe,
-	.priv_auto_alloc_size = sizeof(struct octeontx_pci),
+	.priv_auto	= sizeof(struct octeontx_pci),
 	.flags = DM_FLAG_PRE_RELOC,
 };

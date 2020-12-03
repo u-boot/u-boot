@@ -237,5 +237,5 @@ U_BOOT_DRIVER(gpio_dwapb) = {
 	.bind		= gpio_dwapb_bind,
 	.probe		= gpio_dwapb_probe,
 	.remove		= gpio_dwapb_remove,
-	.priv_auto_alloc_size   = sizeof(struct gpio_dwapb_priv),
+	.priv_auto	  = sizeof(struct gpio_dwapb_priv),
 };

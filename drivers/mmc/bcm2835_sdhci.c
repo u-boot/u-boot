@@ -250,7 +250,7 @@ U_BOOT_DRIVER(sdhci_cdns) = {
 	.of_match = bcm2835_sdhci_match,
 	.bind = bcm2835_sdhci_bind,
 	.probe = bcm2835_sdhci_probe,
-	.priv_auto_alloc_size = sizeof(struct bcm2835_sdhci_host),
-	.platdata_auto_alloc_size = sizeof(struct bcm2835_sdhci_plat),
+	.priv_auto	= sizeof(struct bcm2835_sdhci_host),
+	.platdata_auto	= sizeof(struct bcm2835_sdhci_plat),
 	.ops = &sdhci_ops,
 };

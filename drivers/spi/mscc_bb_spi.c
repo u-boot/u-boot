@@ -232,6 +232,6 @@ U_BOOT_DRIVER(mscc_bb) = {
 	.id	= UCLASS_SPI,
 	.of_match = mscc_bb_ids,
 	.ops	= &mscc_bb_ops,
-	.priv_auto_alloc_size = sizeof(struct mscc_bb_priv),
+	.priv_auto	= sizeof(struct mscc_bb_priv),
 	.probe	= mscc_bb_spi_probe,
 };

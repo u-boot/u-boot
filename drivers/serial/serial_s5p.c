@@ -208,7 +208,7 @@ U_BOOT_DRIVER(serial_s5p) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = s5p_serial_ids,
 	.ofdata_to_platdata = s5p_serial_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct s5p_serial_platdata),
+	.platdata_auto	= sizeof(struct s5p_serial_platdata),
 	.probe = s5p_serial_probe,
 	.ops	= &s5p_serial_ops,
 };

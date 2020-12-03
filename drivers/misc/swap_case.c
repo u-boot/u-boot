@@ -391,8 +391,8 @@ U_BOOT_DRIVER(sandbox_swap_case_emul) = {
 	.id		= UCLASS_PCI_EMUL,
 	.of_match	= sandbox_swap_case_ids,
 	.ops		= &sandbox_swap_case_emul_ops,
-	.priv_auto_alloc_size = sizeof(struct swap_case_priv),
-	.platdata_auto_alloc_size = sizeof(struct swap_case_platdata),
+	.priv_auto	= sizeof(struct swap_case_priv),
+	.platdata_auto	= sizeof(struct swap_case_platdata),
 };
 
 static struct pci_device_id sandbox_swap_case_supported[] = {

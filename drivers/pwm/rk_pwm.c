@@ -215,5 +215,5 @@ U_BOOT_DRIVER(rk_pwm) = {
 	.ops	= &rk_pwm_ops,
 	.ofdata_to_platdata	= rk_pwm_ofdata_to_platdata,
 	.probe		= rk_pwm_probe,
-	.priv_auto_alloc_size	= sizeof(struct rk_pwm_priv),
+	.priv_auto	= sizeof(struct rk_pwm_priv),
 };

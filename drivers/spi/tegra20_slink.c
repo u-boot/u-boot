@@ -373,7 +373,7 @@ U_BOOT_DRIVER(tegra30_spi) = {
 	.of_match = tegra30_spi_ids,
 	.ops	= &tegra30_spi_ops,
 	.ofdata_to_platdata = tegra30_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct tegra_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct tegra30_spi_priv),
+	.platdata_auto	= sizeof(struct tegra_spi_platdata),
+	.priv_auto	= sizeof(struct tegra30_spi_priv),
 	.probe	= tegra30_spi_probe,
 };

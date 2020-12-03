@@ -807,6 +807,6 @@ U_BOOT_DRIVER(sifive_fu540_prci) = {
 	.of_match = sifive_fu540_prci_ids,
 	.probe = sifive_fu540_prci_probe,
 	.ops = &sifive_fu540_prci_ops,
-	.priv_auto_alloc_size = sizeof(struct __prci_data),
+	.priv_auto	= sizeof(struct __prci_data),
 	.bind = sifive_fu540_clk_bind,
 };

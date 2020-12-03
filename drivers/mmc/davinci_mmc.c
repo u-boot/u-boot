@@ -527,7 +527,7 @@ U_BOOT_DRIVER(ti_da830_mmc) = {
 	.id		= UCLASS_MMC,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match	= davinci_mmc_ids,
-	.platdata_auto_alloc_size = sizeof(struct davinci_mmc_plat),
+	.platdata_auto	= sizeof(struct davinci_mmc_plat),
 	.ofdata_to_platdata = davinci_mmc_ofdata_to_platdata,
 #endif
 #if CONFIG_BLK
@@ -535,7 +535,7 @@ U_BOOT_DRIVER(ti_da830_mmc) = {
 #endif
 	.probe = davinci_mmc_probe,
 	.ops = &davinci_mmc_ops,
-	.priv_auto_alloc_size = sizeof(struct davinci_mmc_priv),
+	.priv_auto	= sizeof(struct davinci_mmc_priv),
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags	= DM_FLAG_PRE_RELOC,
 #endif

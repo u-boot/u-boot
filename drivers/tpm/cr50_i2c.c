@@ -728,7 +728,7 @@ U_BOOT_DRIVER(cr50_i2c) = {
 	.ofdata_to_platdata	= cr50_i2c_ofdata_to_platdata,
 	.probe	= cr50_i2c_probe,
 	.remove	= cr50_i2c_cleanup,
-	.priv_auto_alloc_size = sizeof(struct cr50_priv),
+	.priv_auto	= sizeof(struct cr50_priv),
 	ACPI_OPS_PTR(&cr50_acpi_ops)
 	.flags		= DM_FLAG_OS_PREPARE,
 };

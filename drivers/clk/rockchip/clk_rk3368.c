@@ -643,9 +643,9 @@ U_BOOT_DRIVER(rockchip_rk3368_cru) = {
 	.name		= "rockchip_rk3368_cru",
 	.id		= UCLASS_CLK,
 	.of_match	= rk3368_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct rk3368_clk_priv),
+	.priv_auto	= sizeof(struct rk3368_clk_priv),
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	.platdata_auto_alloc_size = sizeof(struct rk3368_clk_plat),
+	.platdata_auto	= sizeof(struct rk3368_clk_plat),
 #endif
 	.ofdata_to_platdata = rk3368_clk_ofdata_to_platdata,
 	.ops		= &rk3368_clk_ops,

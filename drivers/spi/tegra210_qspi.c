@@ -423,8 +423,8 @@ U_BOOT_DRIVER(tegra210_qspi) = {
 	.of_match = tegra210_qspi_ids,
 	.ops = &tegra210_qspi_ops,
 	.ofdata_to_platdata = tegra210_qspi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct tegra_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct tegra210_qspi_priv),
-	.per_child_auto_alloc_size = sizeof(struct spi_slave),
+	.platdata_auto	= sizeof(struct tegra_spi_platdata),
+	.priv_auto	= sizeof(struct tegra210_qspi_priv),
+	.per_child_auto	= sizeof(struct spi_slave),
 	.probe = tegra210_qspi_probe,
 };

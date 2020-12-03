@@ -626,7 +626,7 @@ UCLASS_DRIVER(vidconsole) = {
 	.name		= "vidconsole0",
 	.pre_probe	= vidconsole_pre_probe,
 	.post_probe	= vidconsole_post_probe,
-	.per_device_auto_alloc_size	= sizeof(struct vidconsole_priv),
+	.per_device_auto	= sizeof(struct vidconsole_priv),
 };
 
 #ifdef CONFIG_VIDEO_COPY

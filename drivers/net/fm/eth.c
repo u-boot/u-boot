@@ -1130,8 +1130,8 @@ U_BOOT_DRIVER(eth_fman) = {
 	.probe = fm_eth_probe,
 	.remove = fm_eth_remove,
 	.ops = &fm_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct fm_eth),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct fm_eth),
+	.platdata_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif /* CONFIG_DM_ETH */

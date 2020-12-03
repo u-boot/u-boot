@@ -28,14 +28,14 @@ the UCLASS_ETH .id field in the U-Boot driver struct:
 		.ofdata_to_platdata	= eth_ape_ofdata_to_platdata,
 		.probe			= eth_ape_probe,
 		.ops			= &eth_ape_ops,
-		.priv_auto_alloc_size	= sizeof(struct eth_ape_priv),
-		.platdata_auto_alloc_size = sizeof(struct eth_ape_pdata),
+		.priv_auto	= sizeof(struct eth_ape_priv),
+		.platdata_auto = sizeof(struct eth_ape_pdata),
 		.flags			= DM_FLAG_ALLOC_PRIV_DMA,
 	};
 
 struct eth_ape_priv contains runtime per-instance data, like buffers, pointers
 to current descriptors, current speed settings, pointers to PHY related data
-(like struct mii_dev) and so on. Declaring its size in .priv_auto_alloc_size
+(like struct mii_dev) and so on. Declaring its size in .priv_auto
 will let the driver framework allocate it at the right time.
 It can be retrieved using a dev_get_priv(dev) call.
 
@@ -43,7 +43,7 @@ struct eth_ape_pdata contains static platform data, like the MMIO base address,
 a hardware variant, the MAC address. ``struct eth_pdata eth_pdata``
 as the first member of this struct helps to avoid duplicated code.
 If you don't need any more platform data beside the standard member,
-just use sizeof(struct eth_pdata) for the platdata_auto_alloc_size.
+just use sizeof(struct eth_pdata) for the platdata_auto.
 
 PCI devices add a line pointing to supported vendor/device ID pairs:
 

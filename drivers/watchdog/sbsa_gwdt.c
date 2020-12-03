@@ -125,7 +125,7 @@ U_BOOT_DRIVER(sbsa_gwdt) = {
 	.id = UCLASS_WDT,
 	.of_match = sbsa_gwdt_ids,
 	.probe = sbsa_gwdt_probe,
-	.priv_auto_alloc_size = sizeof(struct sbsa_gwdt_priv),
+	.priv_auto	= sizeof(struct sbsa_gwdt_priv),
 	.ofdata_to_platdata = sbsa_gwdt_ofdata_to_platdata,
 	.ops = &sbsa_gwdt_ops,
 };

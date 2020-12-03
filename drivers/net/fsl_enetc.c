@@ -677,8 +677,8 @@ U_BOOT_DRIVER(eth_enetc) = {
 	.probe	= enetc_probe,
 	.remove = enetc_remove,
 	.ops	= &enetc_ops,
-	.priv_auto_alloc_size = sizeof(struct enetc_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct enetc_priv),
+	.platdata_auto	= sizeof(struct eth_pdata),
 };
 
 static struct pci_device_id enetc_ids[] = {

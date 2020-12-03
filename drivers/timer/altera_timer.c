@@ -88,7 +88,7 @@ U_BOOT_DRIVER(altera_timer) = {
 	.id	= UCLASS_TIMER,
 	.of_match = altera_timer_ids,
 	.ofdata_to_platdata = altera_timer_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct altera_timer_platdata),
+	.platdata_auto	= sizeof(struct altera_timer_platdata),
 	.probe = altera_timer_probe,
 	.ops	= &altera_timer_ops,
 };

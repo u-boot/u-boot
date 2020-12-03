@@ -542,5 +542,5 @@ U_BOOT_DRIVER(st33zp24_i2c) = {
 	.probe  = st33zp24_i2c_probe,
 	.remove = st33zp24_i2c_remove,
 	.ops = &st33zp24_i2c_tpm_ops,
-	.priv_auto_alloc_size = sizeof(struct tpm_chip),
+	.priv_auto	= sizeof(struct tpm_chip),
 };

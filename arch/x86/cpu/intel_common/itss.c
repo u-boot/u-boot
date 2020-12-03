@@ -242,6 +242,6 @@ U_BOOT_DRIVER(intel_itss) = {
 	.ops		= &itss_ops,
 	.bind		= itss_bind,
 	.ofdata_to_platdata = itss_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct itss_platdata),
-	.priv_auto_alloc_size = sizeof(struct itss_priv),
+	.platdata_auto	= sizeof(struct itss_platdata),
+	.priv_auto	= sizeof(struct itss_priv),
 };

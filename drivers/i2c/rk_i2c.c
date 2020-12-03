@@ -491,7 +491,7 @@ U_BOOT_DRIVER(rockchip_rk3066_i2c) = {
 	.of_match = rockchip_i2c_ids,
 	.ofdata_to_platdata = rockchip_i2c_ofdata_to_platdata,
 	.probe	= rockchip_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct rk_i2c),
+	.priv_auto	= sizeof(struct rk_i2c),
 	.ops	= &rockchip_i2c_ops,
 };
 

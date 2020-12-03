@@ -1378,11 +1378,11 @@ U_BOOT_DRIVER(eth_cpsw) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match = cpsw_eth_ids,
 	.ofdata_to_platdata = cpsw_eth_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.platdata_auto	= sizeof(struct eth_pdata),
 #endif
 	.probe	= cpsw_eth_probe,
 	.ops	= &cpsw_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct cpsw_priv),
+	.priv_auto	= sizeof(struct cpsw_priv),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA | DM_FLAG_PRE_RELOC,
 };
 #endif /* CONFIG_DM_ETH */

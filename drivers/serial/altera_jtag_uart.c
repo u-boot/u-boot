@@ -119,7 +119,7 @@ U_BOOT_DRIVER(altera_jtaguart) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = altera_jtaguart_ids,
 	.ofdata_to_platdata = altera_jtaguart_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct altera_jtaguart_platdata),
+	.platdata_auto	= sizeof(struct altera_jtaguart_platdata),
 	.probe = altera_jtaguart_probe,
 	.ops	= &altera_jtaguart_ops,
 };

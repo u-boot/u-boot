@@ -76,6 +76,6 @@ U_BOOT_DRIVER(sdhci_tangier) = {
 	.bind		= sdhci_tangier_bind,
 	.probe		= sdhci_tangier_probe,
 	.ops		= &sdhci_ops,
-	.priv_auto_alloc_size = sizeof(struct sdhci_host),
-	.platdata_auto_alloc_size = sizeof(struct sdhci_tangier_plat),
+	.priv_auto	= sizeof(struct sdhci_host),
+	.platdata_auto	= sizeof(struct sdhci_tangier_plat),
 };

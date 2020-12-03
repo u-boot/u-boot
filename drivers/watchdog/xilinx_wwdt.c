@@ -172,8 +172,8 @@ U_BOOT_DRIVER(xlnx_wwdt) = {
 	.id = UCLASS_WDT,
 	.of_match = xlnx_wwdt_ids,
 	.probe = xlnx_wwdt_probe,
-	.priv_auto_alloc_size = sizeof(struct xlnx_wwdt_priv),
-	.platdata_auto_alloc_size = sizeof(struct xlnx_wwdt_platdata),
+	.priv_auto	= sizeof(struct xlnx_wwdt_priv),
+	.platdata_auto	= sizeof(struct xlnx_wwdt_platdata),
 	.ofdata_to_platdata = xlnx_wwdt_ofdata_to_platdata,
 	.ops = &xlnx_wwdt_ops,
 };

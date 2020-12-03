@@ -1830,6 +1830,6 @@ U_BOOT_DRIVER(mvneta) = {
 	.ofdata_to_platdata = mvneta_ofdata_to_platdata,
 	.probe	= mvneta_probe,
 	.ops	= &mvneta_ops,
-	.priv_auto_alloc_size = sizeof(struct mvneta_port),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct mvneta_port),
+	.platdata_auto	= sizeof(struct eth_pdata),
 };

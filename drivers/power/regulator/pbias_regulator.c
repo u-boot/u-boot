@@ -130,7 +130,7 @@ U_BOOT_DRIVER(pbias_pmic) = {
 	.bind = pbias_bind,
 	.ops = &pbias_ops,
 	.ofdata_to_platdata = pbias_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct pbias_priv),
+	.priv_auto	= sizeof(struct pbias_priv),
 };
 
 static const struct pbias_reg_info pbias_mmc_omap2430 = {

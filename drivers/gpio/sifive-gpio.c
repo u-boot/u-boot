@@ -172,7 +172,7 @@ U_BOOT_DRIVER(gpio_sifive) = {
 	.id	= UCLASS_GPIO,
 	.of_match = sifive_gpio_match,
 	.ofdata_to_platdata = of_match_ptr(sifive_gpio_ofdata_to_platdata),
-	.platdata_auto_alloc_size = sizeof(struct sifive_gpio_platdata),
+	.platdata_auto	= sizeof(struct sifive_gpio_platdata),
 	.ops	= &sifive_gpio_ops,
 	.probe	= sifive_gpio_probe,
 };

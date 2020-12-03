@@ -671,6 +671,6 @@ U_BOOT_DRIVER(fsl_imx6q_ipu) = {
 	.of_match = ipuv3_video_ids,
 	.bind	= ipuv3_video_bind,
 	.probe	= ipuv3_video_probe,
-	.priv_auto_alloc_size = sizeof(struct ipuv3_video_priv),
+	.priv_auto	= sizeof(struct ipuv3_video_priv),
 	.flags	= DM_FLAG_PRE_RELOC,
 };

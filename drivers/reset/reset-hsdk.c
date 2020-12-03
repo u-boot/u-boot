@@ -114,5 +114,5 @@ U_BOOT_DRIVER(hsdk_reset) = {
 	.of_match = hsdk_reset_dt_match,
 	.ops = &hsdk_reset_ops,
 	.probe = hsdk_reset_probe,
-	.priv_auto_alloc_size = sizeof(struct hsdk_rst),
+	.priv_auto	= sizeof(struct hsdk_rst),
 };

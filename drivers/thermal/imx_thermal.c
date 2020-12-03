@@ -274,6 +274,6 @@ U_BOOT_DRIVER(imx_thermal) = {
 	.id	= UCLASS_THERMAL,
 	.ops	= &imx_thermal_ops,
 	.probe	= imx_thermal_probe,
-	.priv_auto_alloc_size = sizeof(struct thermal_data),
+	.priv_auto	= sizeof(struct thermal_data),
 	.flags  = DM_FLAG_PRE_RELOC,
 };

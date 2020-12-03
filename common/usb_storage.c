@@ -1529,7 +1529,7 @@ U_BOOT_DRIVER(usb_mass_storage) = {
 	.of_match = usb_mass_storage_ids,
 	.probe = usb_mass_storage_probe,
 #if CONFIG_IS_ENABLED(BLK)
-	.platdata_auto_alloc_size	= sizeof(struct us_data),
+	.platdata_auto	= sizeof(struct us_data),
 #endif
 };
 

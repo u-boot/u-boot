@@ -717,6 +717,6 @@ U_BOOT_DRIVER(stm32_sdmmc2) = {
 	.ops = &stm32_sdmmc2_ops,
 	.probe = stm32_sdmmc2_probe,
 	.bind = stm32_sdmmc_bind,
-	.priv_auto_alloc_size = sizeof(struct stm32_sdmmc2_priv),
-	.platdata_auto_alloc_size = sizeof(struct stm32_sdmmc2_plat),
+	.priv_auto	= sizeof(struct stm32_sdmmc2_priv),
+	.platdata_auto	= sizeof(struct stm32_sdmmc2_plat),
 };

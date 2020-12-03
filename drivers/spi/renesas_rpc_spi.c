@@ -464,8 +464,8 @@ U_BOOT_DRIVER(rpc_spi) = {
 	.of_match	= rpc_spi_ids,
 	.ops		= &rpc_spi_ops,
 	.ofdata_to_platdata = rpc_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct rpc_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct rpc_spi_priv),
+	.platdata_auto	= sizeof(struct rpc_spi_platdata),
+	.priv_auto	= sizeof(struct rpc_spi_priv),
 	.bind		= rpc_spi_bind,
 	.probe		= rpc_spi_probe,
 };

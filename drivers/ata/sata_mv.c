@@ -1030,7 +1030,7 @@ U_BOOT_DRIVER(sata_mv_driver) = {
 	.name = "sata_mv_blk",
 	.id = UCLASS_BLK,
 	.ops = &sata_mv_blk_ops,
-	.platdata_auto_alloc_size = sizeof(struct mv_priv),
+	.platdata_auto	= sizeof(struct mv_priv),
 };
 
 static int sata_mv_probe(struct udevice *dev)

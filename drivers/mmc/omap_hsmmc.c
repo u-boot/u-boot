@@ -2029,14 +2029,14 @@ U_BOOT_DRIVER(omap_hsmmc) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap_hsmmc_ids,
 	.ofdata_to_platdata = omap_hsmmc_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct omap_hsmmc_plat),
+	.platdata_auto	= sizeof(struct omap_hsmmc_plat),
 #endif
 #ifdef CONFIG_BLK
 	.bind = omap_hsmmc_bind,
 #endif
 	.ops = &omap_hsmmc_ops,
 	.probe	= omap_hsmmc_probe,
-	.priv_auto_alloc_size = sizeof(struct omap_hsmmc_data),
+	.priv_auto	= sizeof(struct omap_hsmmc_data),
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags	= DM_FLAG_PRE_RELOC,
 #endif

@@ -795,7 +795,7 @@ U_BOOT_DRIVER(nvme_blk) = {
 	.id	= UCLASS_BLK,
 	.probe	= nvme_blk_probe,
 	.ops	= &nvme_blk_ops,
-	.priv_auto_alloc_size = sizeof(struct nvme_ns),
+	.priv_auto	= sizeof(struct nvme_ns),
 };
 
 static int nvme_bind(struct udevice *udev)
@@ -869,7 +869,7 @@ U_BOOT_DRIVER(nvme) = {
 	.id	= UCLASS_NVME,
 	.bind	= nvme_bind,
 	.probe	= nvme_probe,
-	.priv_auto_alloc_size = sizeof(struct nvme_dev),
+	.priv_auto	= sizeof(struct nvme_dev),
 };
 
 struct pci_device_id nvme_supported[] = {

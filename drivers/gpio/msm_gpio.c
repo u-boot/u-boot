@@ -129,5 +129,5 @@ U_BOOT_DRIVER(gpio_msm) = {
 	.ofdata_to_platdata = msm_gpio_ofdata_to_platdata,
 	.probe	= msm_gpio_probe,
 	.ops	= &gpio_msm_ops,
-	.priv_auto_alloc_size = sizeof(struct msm_gpio_bank),
+	.priv_auto	= sizeof(struct msm_gpio_bank),
 };

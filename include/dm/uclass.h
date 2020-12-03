@@ -65,19 +65,19 @@ struct udevice;
  * @child_post_probe: Called after a child in this uclass is probed
  * @init: Called to set up the uclass
  * @destroy: Called to destroy the uclass
- * @priv_auto_alloc_size: If non-zero this is the size of the private data
+ * @priv_auto: If non-zero this is the size of the private data
  * to be allocated in the uclass's ->priv pointer. If zero, then the uclass
  * driver is responsible for allocating any data required.
- * @per_device_auto_alloc_size: Each device can hold private data owned
+ * @per_device_auto: Each device can hold private data owned
  * by the uclass. If required this will be automatically allocated if this
  * value is non-zero.
- * @per_device_platdata_auto_alloc_size: Each device can hold platform data
+ * @per_device_platdata_auto: Each device can hold platform data
  * owned by the uclass as 'dev->uclass_platdata'. If the value is non-zero,
  * then this will be automatically allocated.
- * @per_child_auto_alloc_size: Each child device (of a parent in this
+ * @per_child_auto: Each child device (of a parent in this
  * uclass) can hold parent data for the device/uclass. This value is only
  * used as a fallback if this member is 0 in the driver.
- * @per_child_platdata_auto_alloc_size: A bus likes to store information about
+ * @per_child_platdata_auto: A bus likes to store information about
  * its children. If non-zero this is the size of this data, to be allocated
  * in the child device's parent_platdata pointer. This value is only used as
  * a fallback if this member is 0 in the driver.
@@ -98,11 +98,11 @@ struct uclass_driver {
 	int (*child_post_probe)(struct udevice *dev);
 	int (*init)(struct uclass *class);
 	int (*destroy)(struct uclass *class);
-	int priv_auto_alloc_size;
-	int per_device_auto_alloc_size;
-	int per_device_platdata_auto_alloc_size;
-	int per_child_auto_alloc_size;
-	int per_child_platdata_auto_alloc_size;
+	int priv_auto;
+	int per_device_auto;
+	int per_device_platdata_auto;
+	int per_child_auto;
+	int per_child_platdata_auto;
 	const void *ops;
 	uint32_t flags;
 };

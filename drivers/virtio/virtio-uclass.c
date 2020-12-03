@@ -369,5 +369,5 @@ UCLASS_DRIVER(virtio) = {
 	.child_post_bind = virtio_uclass_child_post_bind,
 	.child_pre_probe = virtio_uclass_child_pre_probe,
 	.child_post_probe = virtio_uclass_child_post_probe,
-	.per_device_auto_alloc_size = sizeof(struct virtio_dev_priv),
+	.per_device_auto	= sizeof(struct virtio_dev_priv),
 };

@@ -165,9 +165,9 @@ U_BOOT_DRIVER(rockchip_rk3368_timer) = {
 	.of_match = rockchip_timer_ids,
 	.probe = rockchip_timer_probe,
 	.ops	= &rockchip_timer_ops,
-	.priv_auto_alloc_size = sizeof(struct rockchip_timer_priv),
+	.priv_auto	= sizeof(struct rockchip_timer_priv),
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	.platdata_auto_alloc_size = sizeof(struct rockchip_timer_plat),
+	.platdata_auto	= sizeof(struct rockchip_timer_plat),
 #endif
 	.ofdata_to_platdata = rockchip_clk_ofdata_to_platdata,
 };

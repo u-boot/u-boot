@@ -647,9 +647,9 @@ U_BOOT_DRIVER(altera_gen5_sdram) = {
 	.of_match = altera_gen5_sdram_ids,
 	.ops = &altera_gen5_sdram_ops,
 	.ofdata_to_platdata = altera_gen5_sdram_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct altera_gen5_sdram_platdata),
+	.platdata_auto	= sizeof(struct altera_gen5_sdram_platdata),
 	.probe = altera_gen5_sdram_probe,
-	.priv_auto_alloc_size = sizeof(struct altera_gen5_sdram_priv),
+	.priv_auto	= sizeof(struct altera_gen5_sdram_priv),
 };
 
 #endif /* CONFIG_SPL_BUILD */

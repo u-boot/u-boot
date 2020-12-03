@@ -241,6 +241,6 @@ U_BOOT_DRIVER(usb_sandbox_keyb) = {
 	.bind	= sandbox_keyb_bind,
 	.probe	= sandbox_keyb_probe,
 	.ops	= &sandbox_usb_keyb_ops,
-	.priv_auto_alloc_size = sizeof(struct sandbox_keyb_priv),
-	.platdata_auto_alloc_size = sizeof(struct sandbox_keyb_plat),
+	.priv_auto	= sizeof(struct sandbox_keyb_priv),
+	.platdata_auto	= sizeof(struct sandbox_keyb_plat),
 };

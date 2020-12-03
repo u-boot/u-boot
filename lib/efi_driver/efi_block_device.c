@@ -196,7 +196,7 @@ U_BOOT_DRIVER(efi_blk) = {
 	.name			= "efi_blk",
 	.id			= UCLASS_BLK,
 	.ops			= &efi_blk_ops,
-	.platdata_auto_alloc_size = sizeof(struct efi_blk_platdata),
+	.platdata_auto	= sizeof(struct efi_blk_platdata),
 };
 
 /* EFI driver operators */

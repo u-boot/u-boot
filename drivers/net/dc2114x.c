@@ -751,8 +751,8 @@ U_BOOT_DRIVER(eth_dc2114x) = {
 	.bind	= dc2114x_bind,
 	.probe	= dc2114x_probe,
 	.ops	= &dc2114x_ops,
-	.priv_auto_alloc_size = sizeof(struct dc2114x_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct dc2114x_priv),
+	.platdata_auto	= sizeof(struct eth_pdata),
 };
 
 U_BOOT_PCI_DEVICE(eth_dc2114x, supported);

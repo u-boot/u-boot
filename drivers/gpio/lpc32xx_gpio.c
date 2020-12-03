@@ -317,5 +317,5 @@ U_BOOT_DRIVER(gpio_lpc32xx) = {
 	.id	= UCLASS_GPIO,
 	.ops	= &gpio_lpc32xx_ops,
 	.probe	= lpc32xx_gpio_probe,
-	.priv_auto_alloc_size = sizeof(struct lpc32xx_gpio_priv),
+	.priv_auto	= sizeof(struct lpc32xx_gpio_priv),
 };

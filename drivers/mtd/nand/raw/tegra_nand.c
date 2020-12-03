@@ -990,7 +990,7 @@ U_BOOT_DRIVER(tegra_nand) = {
 	.id = UCLASS_MTD,
 	.of_match = tegra_nand_dt_ids,
 	.probe = tegra_probe,
-	.priv_auto_alloc_size = sizeof(struct tegra_nand_info),
+	.priv_auto	= sizeof(struct tegra_nand_info),
 };
 
 void board_nand_init(void)

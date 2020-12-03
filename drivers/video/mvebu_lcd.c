@@ -594,5 +594,5 @@ U_BOOT_DRIVER(mvebu_video) = {
 	.of_match = mvebu_video_ids,
 	.bind	= mvebu_video_bind,
 	.probe	= mvebu_video_probe,
-	.priv_auto_alloc_size = sizeof(struct mvebu_video_priv),
+	.priv_auto	= sizeof(struct mvebu_video_priv),
 };

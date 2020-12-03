@@ -716,5 +716,5 @@ U_BOOT_DRIVER(exynos_fb) = {
 	.bind	= exynos_fb_bind,
 	.probe	= exynos_fb_probe,
 	.ofdata_to_platdata	= exynos_fb_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct exynos_fb_priv),
+	.priv_auto	= sizeof(struct exynos_fb_priv),
 };

@@ -260,7 +260,7 @@ U_BOOT_DRIVER(cdns_wdt) = {
 	.id = UCLASS_WDT,
 	.of_match = cdns_wdt_ids,
 	.probe = cdns_wdt_probe,
-	.priv_auto_alloc_size = sizeof(struct cdns_wdt_priv),
+	.priv_auto	= sizeof(struct cdns_wdt_priv),
 	.ofdata_to_platdata = cdns_wdt_ofdata_to_platdata,
 	.ops = &cdns_wdt_ops,
 };

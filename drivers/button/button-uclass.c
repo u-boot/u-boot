@@ -39,5 +39,5 @@ enum button_state_t button_get_state(struct udevice *dev)
 UCLASS_DRIVER(button) = {
 	.id		= UCLASS_BUTTON,
 	.name		= "button",
-	.per_device_platdata_auto_alloc_size = sizeof(struct button_uc_plat),
+	.per_device_platdata_auto	= sizeof(struct button_uc_plat),
 };

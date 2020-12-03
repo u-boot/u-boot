@@ -231,7 +231,7 @@ tree, but we need to tell it the size:
 
 	U_BOOT_DRIVER(spi_exynos) = {
 	...
-		.platdata_auto_alloc_size = sizeof(struct exynos_spi_platdata),
+		.platdata_auto = sizeof(struct exynos_spi_platdata),
 
 
 Here is a sample function. It gets a pointer to the platform data and
@@ -335,7 +335,7 @@ DM can auto-allocate this also:
 
 	U_BOOT_DRIVER(spi_exynos) = {
 	...
-		.priv_auto_alloc_size = sizeof(struct exynos_spi_priv),
+		.priv_auto = sizeof(struct exynos_spi_priv),
 
 
 Note that this is created before the probe method is called, and destroyed
@@ -621,7 +621,7 @@ needs, but this is the minimum.
 
 	U_BOOT_DRIVER(exynos_spi) = {
 	...
-		.per_child_auto_alloc_size	= sizeof(struct spi_slave),
+		.per_child_auto	= sizeof(struct spi_slave),
 	}
 
 

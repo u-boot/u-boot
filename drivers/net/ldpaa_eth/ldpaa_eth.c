@@ -1191,8 +1191,8 @@ U_BOOT_DRIVER(ldpaa_eth) = {
 	.bind = ldpaa_eth_bind,
 	.probe = ldpaa_eth_probe,
 	.ops = &ldpaa_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct ldpaa_eth_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct ldpaa_eth_priv),
+	.platdata_auto	= sizeof(struct eth_pdata),
 };
 
 #else

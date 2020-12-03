@@ -407,5 +407,5 @@ U_BOOT_DRIVER(gpio_zynq) = {
 	.of_match = zynq_gpio_ids,
 	.ofdata_to_platdata = zynq_gpio_ofdata_to_platdata,
 	.probe	= zynq_gpio_probe,
-	.platdata_auto_alloc_size = sizeof(struct zynq_gpio_platdata),
+	.platdata_auto	= sizeof(struct zynq_gpio_platdata),
 };

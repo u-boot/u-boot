@@ -304,7 +304,7 @@ U_BOOT_DRIVER(altera_sdram) = {
 	.of_match = altera_sdram_ids,
 	.ops = &altera_sdram_ops,
 	.ofdata_to_platdata = altera_sdram_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct altera_sdram_platdata),
+	.platdata_auto	= sizeof(struct altera_sdram_platdata),
 	.probe = altera_sdram_probe,
-	.priv_auto_alloc_size = sizeof(struct altera_sdram_priv),
+	.priv_auto	= sizeof(struct altera_sdram_priv),
 };

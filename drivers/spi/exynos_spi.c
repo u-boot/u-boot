@@ -427,7 +427,7 @@ U_BOOT_DRIVER(exynos_spi) = {
 	.of_match = exynos_spi_ids,
 	.ops	= &exynos_spi_ops,
 	.ofdata_to_platdata = exynos_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct exynos_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct exynos_spi_priv),
+	.platdata_auto	= sizeof(struct exynos_spi_platdata),
+	.priv_auto	= sizeof(struct exynos_spi_priv),
 	.probe	= exynos_spi_probe,
 };

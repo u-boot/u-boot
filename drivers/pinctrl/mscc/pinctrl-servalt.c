@@ -264,6 +264,6 @@ U_BOOT_DRIVER(servalt_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(servalt_pinctrl_of_match),
 	.probe = servalt_pinctrl_probe,
-	.priv_auto_alloc_size = sizeof(struct mscc_pinctrl),
+	.priv_auto	= sizeof(struct mscc_pinctrl),
 	.ops = &mscc_pinctrl_ops,
 };

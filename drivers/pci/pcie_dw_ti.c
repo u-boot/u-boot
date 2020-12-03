@@ -726,5 +726,5 @@ U_BOOT_DRIVER(pcie_dw_ti) = {
 	.ops			= &pcie_dw_ti_ops,
 	.ofdata_to_platdata	= pcie_dw_ti_ofdata_to_platdata,
 	.probe			= pcie_dw_ti_probe,
-	.priv_auto_alloc_size	= sizeof(struct pcie_dw_ti),
+	.priv_auto	= sizeof(struct pcie_dw_ti),
 };

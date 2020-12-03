@@ -193,6 +193,6 @@ U_BOOT_DRIVER(demo_shape_drv) = {
 	.ops	= &shape_ops,
 	.probe = dm_shape_probe,
 	.remove = dm_shape_remove,
-	.priv_auto_alloc_size = sizeof(struct shape_data),
-	.platdata_auto_alloc_size = sizeof(struct dm_demo_pdata),
+	.priv_auto	= sizeof(struct shape_data),
+	.platdata_auto	= sizeof(struct dm_demo_pdata),
 };

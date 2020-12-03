@@ -135,5 +135,5 @@ U_BOOT_DRIVER(bd82x6x_azalia_drv) = {
 	.of_match	= bd82x6x_azalia_ids,
 	.probe		= bd82x6x_azalia_probe,
 	.ops		= &bd82x6x_azalia_ops,
-	.priv_auto_alloc_size	= sizeof(struct hda_codec_priv),
+	.priv_auto	= sizeof(struct hda_codec_priv),
 };

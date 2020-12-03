@@ -661,6 +661,6 @@ U_BOOT_DRIVER(optee) = {
 	.ofdata_to_platdata = optee_ofdata_to_platdata,
 	.probe = optee_probe,
 	.ops = &optee_ops,
-	.platdata_auto_alloc_size = sizeof(struct optee_pdata),
-	.priv_auto_alloc_size = sizeof(struct optee_private),
+	.platdata_auto	= sizeof(struct optee_pdata),
+	.priv_auto	= sizeof(struct optee_private),
 };

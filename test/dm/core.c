@@ -154,7 +154,7 @@ static int dm_test_autobind_uclass_pdata_alloc(struct unit_test_state *uts)
 	 * Test if test uclass driver requires allocation for the uclass
 	 * platform data and then check the dev->uclass_platdata pointer.
 	 */
-	ut_assert(uc->uc_drv->per_device_platdata_auto_alloc_size);
+	ut_assert(uc->uc_drv->per_device_platdata_auto);
 
 	for (uclass_find_first_device(UCLASS_TEST, &dev);
 	     dev;

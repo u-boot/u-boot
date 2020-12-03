@@ -77,5 +77,5 @@ U_BOOT_DRIVER(gdsys_rxaui_ctrl) = {
 	.ops		= &gdsys_rxaui_ctrl_ops,
 	.of_match       = gdsys_rxaui_ctrl_ids,
 	.probe          = gdsys_rxaui_ctrl_probe,
-	.priv_auto_alloc_size = sizeof(struct gdsys_rxaui_ctrl_priv),
+	.priv_auto	= sizeof(struct gdsys_rxaui_ctrl_priv),
 };

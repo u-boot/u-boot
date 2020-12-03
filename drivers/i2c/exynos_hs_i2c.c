@@ -558,6 +558,6 @@ U_BOOT_DRIVER(hs_i2c) = {
 	.id	= UCLASS_I2C,
 	.of_match = exynos_hs_i2c_ids,
 	.ofdata_to_platdata = s3c_i2c_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct s3c24x0_i2c_bus),
+	.priv_auto	= sizeof(struct s3c24x0_i2c_bus),
 	.ops	= &exynos_hs_i2c_ops,
 };

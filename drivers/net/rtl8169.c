@@ -1248,8 +1248,8 @@ U_BOOT_DRIVER(eth_rtl8169) = {
 	.of_match = rtl8169_eth_ids,
 	.probe	= rtl8169_eth_probe,
 	.ops	= &rtl8169_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct rtl8169_private),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct rtl8169_private),
+	.platdata_auto	= sizeof(struct eth_pdata),
 };
 
 U_BOOT_PCI_DEVICE(eth_rtl8169, supported);

@@ -446,6 +446,6 @@ U_BOOT_DRIVER(eth_sandbox) = {
 	.ofdata_to_platdata = sb_eth_ofdata_to_platdata,
 	.remove	= sb_eth_remove,
 	.ops	= &sb_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct eth_sandbox_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct eth_sandbox_priv),
+	.platdata_auto	= sizeof(struct eth_pdata),
 };

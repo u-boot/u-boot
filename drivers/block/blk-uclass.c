@@ -660,5 +660,5 @@ UCLASS_DRIVER(blk) = {
 	.id		= UCLASS_BLK,
 	.name		= "blk",
 	.post_probe	= blk_post_probe,
-	.per_device_platdata_auto_alloc_size = sizeof(struct blk_desc),
+	.per_device_platdata_auto	= sizeof(struct blk_desc),
 };

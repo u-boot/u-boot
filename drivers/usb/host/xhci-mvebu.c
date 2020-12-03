@@ -96,7 +96,7 @@ U_BOOT_DRIVER(usb_xhci) = {
 	.probe = xhci_usb_probe,
 	.remove = xhci_deregister,
 	.ops	= &xhci_usb_ops,
-	.platdata_auto_alloc_size = sizeof(struct mvebu_xhci_platdata),
-	.priv_auto_alloc_size = sizeof(struct mvebu_xhci),
+	.platdata_auto	= sizeof(struct mvebu_xhci_platdata),
+	.priv_auto	= sizeof(struct mvebu_xhci),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };

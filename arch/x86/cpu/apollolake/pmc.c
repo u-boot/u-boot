@@ -224,5 +224,5 @@ U_BOOT_DRIVER(intel_apl_pmc) = {
 	.ofdata_to_platdata = apl_pmc_ofdata_to_uc_platdata,
 	.probe		= apl_pmc_probe,
 	.ops		= &apl_pmc_ops,
-	.platdata_auto_alloc_size = sizeof(struct apl_pmc_platdata),
+	.platdata_auto	= sizeof(struct apl_pmc_platdata),
 };

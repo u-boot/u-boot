@@ -235,8 +235,8 @@ U_BOOT_DRIVER(sandbox_pmc_emul_emul) = {
 	.of_match	= sandbox_pmc_emul_ids,
 	.ops		= &sandbox_pmc_emul_emul_ops,
 	.probe		= sandbox_pmc_probe,
-	.priv_auto_alloc_size = sizeof(struct pmc_emul_priv),
-	.platdata_auto_alloc_size = sizeof(struct pmc_emul_platdata),
+	.priv_auto	= sizeof(struct pmc_emul_priv),
+	.platdata_auto	= sizeof(struct pmc_emul_platdata),
 };
 
 static struct pci_device_id sandbox_pmc_emul_supported[] = {

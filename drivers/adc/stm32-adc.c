@@ -258,5 +258,5 @@ U_BOOT_DRIVER(stm32_adc) = {
 	.of_match = stm32_adc_ids,
 	.probe = stm32_adc_probe,
 	.ops = &stm32_adc_ops,
-	.priv_auto_alloc_size = sizeof(struct stm32_adc),
+	.priv_auto	= sizeof(struct stm32_adc),
 };

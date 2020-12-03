@@ -56,5 +56,5 @@ U_BOOT_DRIVER(adder_sandbox) = {
 	.of_match = sandbox_adder_ids,
 	.probe = sandbox_adder_probe,
 	.ops = &sandbox_adder_ops,
-	.priv_auto_alloc_size = sizeof(struct sandbox_adder_priv),
+	.priv_auto	= sizeof(struct sandbox_adder_priv),
 };

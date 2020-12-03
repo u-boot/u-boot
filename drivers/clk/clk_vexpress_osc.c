@@ -107,6 +107,6 @@ U_BOOT_DRIVER(vexpress_osc_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = vexpress_osc_clk_ids,
 	.ops = &vexpress_osc_clk_ops,
-	.priv_auto_alloc_size = sizeof(struct vexpress_osc_clk_priv),
+	.priv_auto	= sizeof(struct vexpress_osc_clk_priv),
 	.probe = vexpress_osc_clk_probe,
 };

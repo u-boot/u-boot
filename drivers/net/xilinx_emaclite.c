@@ -635,6 +635,6 @@ U_BOOT_DRIVER(emaclite) = {
 	.probe  = emaclite_probe,
 	.remove = emaclite_remove,
 	.ops    = &emaclite_ops,
-	.priv_auto_alloc_size = sizeof(struct xemaclite),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct xemaclite),
+	.platdata_auto	= sizeof(struct eth_pdata),
 };

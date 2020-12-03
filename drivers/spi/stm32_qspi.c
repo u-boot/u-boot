@@ -541,6 +541,6 @@ U_BOOT_DRIVER(stm32_qspi) = {
 	.id = UCLASS_SPI,
 	.of_match = stm32_qspi_ids,
 	.ops = &stm32_qspi_ops,
-	.priv_auto_alloc_size = sizeof(struct stm32_qspi_priv),
+	.priv_auto	= sizeof(struct stm32_qspi_priv),
 	.probe = stm32_qspi_probe,
 };

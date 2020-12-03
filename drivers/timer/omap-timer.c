@@ -100,7 +100,7 @@ U_BOOT_DRIVER(omap_timer) = {
 	.id	= UCLASS_TIMER,
 	.of_match = omap_timer_ids,
 	.ofdata_to_platdata = omap_timer_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct omap_timer_priv),
+	.priv_auto	= sizeof(struct omap_timer_priv),
 	.probe = omap_timer_probe,
 	.ops	= &omap_timer_ops,
 };

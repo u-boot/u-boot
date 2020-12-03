@@ -998,9 +998,9 @@ U_BOOT_DRIVER(rockchip_rk3368_dmc) = {
 	.of_match = rk3368_dmc_ids,
 	.ops = &rk3368_dmc_ops,
 	.probe = rk3368_dmc_probe,
-	.priv_auto_alloc_size = sizeof(struct dram_info),
+	.priv_auto	= sizeof(struct dram_info),
 	.ofdata_to_platdata = rk3368_dmc_ofdata_to_platdata,
 	.probe = rk3368_dmc_probe,
-	.priv_auto_alloc_size = sizeof(struct dram_info),
-	.platdata_auto_alloc_size = sizeof(struct rk3368_sdram_params),
+	.priv_auto	= sizeof(struct dram_info),
+	.platdata_auto	= sizeof(struct rk3368_sdram_params),
 };

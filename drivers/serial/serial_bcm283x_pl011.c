@@ -92,10 +92,10 @@ U_BOOT_DRIVER(bcm283x_pl011_uart) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = of_match_ptr(bcm283x_pl011_serial_id),
 	.probe	= bcm283x_pl011_serial_probe,
-	.platdata_auto_alloc_size = sizeof(struct pl01x_serial_platdata),
+	.platdata_auto	= sizeof(struct pl01x_serial_platdata),
 	.ops	= &bcm283x_pl011_serial_ops,
 #if !CONFIG_IS_ENABLED(OF_CONTROL) || CONFIG_IS_ENABLED(OF_BOARD)
 	.flags	= DM_FLAG_PRE_RELOC,
 #endif
-	.priv_auto_alloc_size = sizeof(struct pl01x_priv),
+	.priv_auto	= sizeof(struct pl01x_priv),
 };

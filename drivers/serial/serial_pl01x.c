@@ -388,11 +388,11 @@ U_BOOT_DRIVER(serial_pl01x) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = of_match_ptr(pl01x_serial_id),
 	.ofdata_to_platdata = of_match_ptr(pl01x_serial_ofdata_to_platdata),
-	.platdata_auto_alloc_size = sizeof(struct pl01x_serial_platdata),
+	.platdata_auto	= sizeof(struct pl01x_serial_platdata),
 	.probe = pl01x_serial_probe,
 	.ops	= &pl01x_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,
-	.priv_auto_alloc_size = sizeof(struct pl01x_priv),
+	.priv_auto	= sizeof(struct pl01x_priv),
 };
 
 #endif

@@ -118,5 +118,5 @@ U_BOOT_DRIVER(simple_panel) = {
 	.ops	= &simple_panel_ops,
 	.ofdata_to_platdata	= simple_panel_ofdata_to_platdata,
 	.probe		= simple_panel_probe,
-	.priv_auto_alloc_size	= sizeof(struct simple_panel_priv),
+	.priv_auto	= sizeof(struct simple_panel_priv),
 };

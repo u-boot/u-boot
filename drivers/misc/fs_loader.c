@@ -285,8 +285,8 @@ U_BOOT_DRIVER(fs_loader) = {
 	.of_match		= fs_loader_ids,
 	.probe			= fs_loader_probe,
 	.ofdata_to_platdata	= fs_loader_ofdata_to_platdata,
-	.platdata_auto_alloc_size	= sizeof(struct device_platdata),
-	.priv_auto_alloc_size	= sizeof(struct firmware),
+	.platdata_auto	= sizeof(struct device_platdata),
+	.priv_auto	= sizeof(struct firmware),
 };
 
 UCLASS_DRIVER(fs_loader) = {

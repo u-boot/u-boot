@@ -177,5 +177,5 @@ U_BOOT_DRIVER(ti_powerproc) = {
 	.id = UCLASS_REMOTEPROC,
 	.ops = &ti_powerproc_ops,
 	.probe = ti_powerproc_probe,
-	.priv_auto_alloc_size = sizeof(struct ti_powerproc_privdata),
+	.priv_auto	= sizeof(struct ti_powerproc_privdata),
 };

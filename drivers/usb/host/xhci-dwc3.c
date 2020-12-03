@@ -186,8 +186,8 @@ U_BOOT_DRIVER(xhci_dwc3) = {
 	.probe = xhci_dwc3_probe,
 	.remove = xhci_dwc3_remove,
 	.ops = &xhci_usb_ops,
-	.priv_auto_alloc_size = sizeof(struct xhci_ctrl),
-	.platdata_auto_alloc_size = sizeof(struct xhci_dwc3_platdata),
+	.priv_auto	= sizeof(struct xhci_ctrl),
+	.platdata_auto	= sizeof(struct xhci_dwc3_platdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif

@@ -68,5 +68,5 @@ U_BOOT_DRIVER(gpio_backlight) = {
 	.ops	= &gpio_backlight_ops,
 	.ofdata_to_platdata	= gpio_backlight_ofdata_to_platdata,
 	.probe		= gpio_backlight_probe,
-	.priv_auto_alloc_size	= sizeof(struct gpio_backlight_priv),
+	.priv_auto	= sizeof(struct gpio_backlight_priv),
 };

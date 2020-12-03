@@ -141,9 +141,9 @@ U_BOOT_DRIVER(spisel_boot_mpc83xx) = {
 	.ops	= &mpc83xx_spisel_boot_ops,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.ofdata_to_platdata = mpc83xx_spisel_boot_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct mpc8xxx_gpio_plat),
+	.platdata_auto	= sizeof(struct mpc8xxx_gpio_plat),
 	.of_match = mpc83xx_spisel_boot_ids,
 #endif
 	.probe	= mpc83xx_spisel_boot_probe,
-	.priv_auto_alloc_size = sizeof(struct mpc83xx_spisel_boot),
+	.priv_auto	= sizeof(struct mpc83xx_spisel_boot),
 };

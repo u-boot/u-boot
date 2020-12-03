@@ -667,7 +667,7 @@ U_BOOT_DRIVER(zynq_qspi) = {
 	.of_match = zynq_qspi_ids,
 	.ops    = &zynq_qspi_ops,
 	.ofdata_to_platdata = zynq_qspi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct zynq_qspi_platdata),
-	.priv_auto_alloc_size = sizeof(struct zynq_qspi_priv),
+	.platdata_auto	= sizeof(struct zynq_qspi_platdata),
+	.priv_auto	= sizeof(struct zynq_qspi_priv),
 	.probe  = zynq_qspi_probe,
 };

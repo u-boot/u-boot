@@ -475,5 +475,5 @@ U_BOOT_DRIVER(tpm_tis_lpc) = {
 	.of_match = tpm_tis_lpc_ids,
 	.ops    = &tpm_tis_lpc_ops,
 	.probe	= tpm_tis_lpc_probe,
-	.priv_auto_alloc_size = sizeof(struct tpm_tis_lpc_priv),
+	.priv_auto	= sizeof(struct tpm_tis_lpc_priv),
 };

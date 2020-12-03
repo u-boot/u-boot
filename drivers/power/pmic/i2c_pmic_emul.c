@@ -161,6 +161,6 @@ U_BOOT_DRIVER(sandbox_i2c_pmic_emul) = {
 	.of_match	= sandbox_i2c_pmic_ids,
 	.ofdata_to_platdata = sandbox_i2c_pmic_ofdata_to_platdata,
 	.probe		= sandbox_i2c_pmic_probe,
-	.platdata_auto_alloc_size = sizeof(struct sandbox_i2c_pmic_plat_data),
+	.platdata_auto	= sizeof(struct sandbox_i2c_pmic_plat_data),
 	.ops		= &sandbox_i2c_pmic_emul_ops,
 };

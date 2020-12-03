@@ -420,9 +420,9 @@ U_BOOT_DRIVER(davinci_spi) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = davinci_spi_ids,
 	.ofdata_to_platdata = davinci_ofdata_to_platadata,
-        .platdata_auto_alloc_size = sizeof(struct davinci_spi_platdata),
+        .platdata_auto	= sizeof(struct davinci_spi_platdata),
 #endif
 	.probe = davinci_spi_probe,
 	.ops = &davinci_spi_ops,
-	.priv_auto_alloc_size = sizeof(struct davinci_spi_slave),
+	.priv_auto	= sizeof(struct davinci_spi_slave),
 };

@@ -111,7 +111,7 @@ U_BOOT_DRIVER(altera_timer) = {
 	.id	= UCLASS_TIMER,
 	.of_match = ag101p_timer_ids,
 	.ofdata_to_platdata = atftme_timer_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct atftmr_timer_platdata),
+	.platdata_auto	= sizeof(struct atftmr_timer_platdata),
 	.probe = atftmr_timer_probe,
 	.ops	= &ag101p_timer_ops,
 };

@@ -105,5 +105,5 @@ U_BOOT_DRIVER(mdio_mux_i2creg) = {
 	.of_match	= mdio_mux_i2creg_ids,
 	.probe		= mdio_mux_i2creg_probe,
 	.ops		= &mdio_mux_i2creg_ops,
-	.priv_auto_alloc_size = sizeof(struct mdio_mux_i2creg_priv),
+	.priv_auto	= sizeof(struct mdio_mux_i2creg_priv),
 };

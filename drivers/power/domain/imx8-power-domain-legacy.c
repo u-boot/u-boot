@@ -377,8 +377,8 @@ U_BOOT_DRIVER(imx8_power_domain) = {
 	.bind = imx8_power_domain_bind,
 	.probe = imx8_power_domain_probe,
 	.ofdata_to_platdata = imx8_power_domain_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct imx8_power_domain_platdata),
-	.priv_auto_alloc_size = sizeof(struct imx8_power_domain_priv),
+	.platdata_auto	= sizeof(struct imx8_power_domain_platdata),
+	.priv_auto	= sizeof(struct imx8_power_domain_priv),
 	.ops = &imx8_power_domain_ops,
 	.flags	= DM_FLAG_DEFAULT_PD_CTRL_OFF,
 };

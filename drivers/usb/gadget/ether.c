@@ -2691,8 +2691,8 @@ U_BOOT_DRIVER(eth_usb) = {
 	.id	= UCLASS_ETH,
 	.probe	= usb_eth_probe,
 	.ops	= &usb_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct ether_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct ether_priv),
+	.platdata_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif /* CONFIG_DM_ETH */

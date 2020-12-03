@@ -175,5 +175,5 @@ U_BOOT_DRIVER(pci_ep_sandbox) = {
 	.of_match	= sandbox_pci_ep_ids,
 	.probe		= sandbox_pci_ep_probe,
 	.ops		= &sandbox_pci_ep_ops,
-	.priv_auto_alloc_size = sizeof(struct sandbox_pci_ep_priv),
+	.priv_auto	= sizeof(struct sandbox_pci_ep_priv),
 };

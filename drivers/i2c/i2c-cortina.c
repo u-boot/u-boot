@@ -341,7 +341,7 @@ U_BOOT_DRIVER(i2c_cortina) = {
 	.of_match = ca_i2c_ids,
 	.ofdata_to_platdata = ca_i2c_ofdata_to_platdata,
 	.probe	= ca_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct ca_i2c),
+	.priv_auto	= sizeof(struct ca_i2c),
 	.ops	= &ca_i2c_ops,
 	.flags  = DM_FLAG_PRE_RELOC,
 };

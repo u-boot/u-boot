@@ -473,5 +473,5 @@ U_BOOT_DRIVER(stm32_ltdc) = {
 	.of_match		= stm32_ltdc_ids,
 	.probe			= stm32_ltdc_probe,
 	.bind			= stm32_ltdc_bind,
-	.priv_auto_alloc_size	= sizeof(struct stm32_ltdc_priv),
+	.priv_auto	= sizeof(struct stm32_ltdc_priv),
 };

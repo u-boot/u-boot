@@ -707,7 +707,7 @@ U_BOOT_DRIVER(iproc_i2c) = {
 	.of_match = iproc_i2c_ids,
 	.ofdata_to_platdata = iproc_i2c_ofdata_to_platdata,
 	.probe	= iproc_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct iproc_i2c),
+	.priv_auto	= sizeof(struct iproc_i2c),
 	.ops	= &iproc_i2c_ops,
 	.flags  = DM_FLAG_PRE_RELOC,
 };

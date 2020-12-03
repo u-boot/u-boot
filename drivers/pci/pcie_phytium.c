@@ -195,5 +195,5 @@ U_BOOT_DRIVER(pci_phytium) = {
 	.of_match		= pci_phytium_ids,
 	.ops			= &pci_phytium_ops,
 	.ofdata_to_platdata	= pci_phytium_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct phytium_pcie),
+	.priv_auto	= sizeof(struct phytium_pcie),
 };

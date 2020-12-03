@@ -371,6 +371,6 @@ U_BOOT_DRIVER(i2c_rcar) = {
 	.id		= UCLASS_I2C,
 	.of_match	= rcar_i2c_ids,
 	.probe		= rcar_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct rcar_i2c_priv),
+	.priv_auto	= sizeof(struct rcar_i2c_priv),
 	.ops		= &rcar_i2c_ops,
 };

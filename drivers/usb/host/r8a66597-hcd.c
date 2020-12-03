@@ -894,6 +894,6 @@ U_BOOT_DRIVER(usb_r8a66597) = {
 	.probe	= r8a66597_usb_probe,
 	.remove = r8a66597_usb_remove,
 	.ops	= &r8a66597_usb_ops,
-	.priv_auto_alloc_size = sizeof(struct r8a66597),
+	.priv_auto	= sizeof(struct r8a66597),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };

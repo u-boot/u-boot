@@ -734,6 +734,6 @@ U_BOOT_DRIVER(meson_gxl_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(meson_gxl_pinctrl_match),
 	.probe = meson_pinctrl_probe,
-	.priv_auto_alloc_size = sizeof(struct meson_pinctrl),
+	.priv_auto	= sizeof(struct meson_pinctrl),
 	.ops = &meson_gx_pinctrl_ops,
 };

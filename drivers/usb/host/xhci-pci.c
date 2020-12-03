@@ -59,8 +59,8 @@ U_BOOT_DRIVER(xhci_pci) = {
 	.remove = xhci_deregister,
 	.of_match = xhci_pci_ids,
 	.ops	= &xhci_usb_ops,
-	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
-	.priv_auto_alloc_size = sizeof(struct xhci_ctrl),
+	.platdata_auto	= sizeof(struct usb_platdata),
+	.priv_auto	= sizeof(struct xhci_ctrl),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
 

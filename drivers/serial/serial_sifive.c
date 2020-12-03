@@ -202,7 +202,7 @@ U_BOOT_DRIVER(serial_sifive) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = sifive_serial_ids,
 	.ofdata_to_platdata = sifive_serial_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct sifive_uart_platdata),
+	.platdata_auto	= sizeof(struct sifive_uart_platdata),
 	.probe = sifive_serial_probe,
 	.ops	= &sifive_serial_ops,
 };

@@ -1199,5 +1199,5 @@ U_BOOT_DRIVER(pci_tegra) = {
 	.ops	= &pci_tegra_ops,
 	.ofdata_to_platdata = pci_tegra_ofdata_to_platdata,
 	.probe	= pci_tegra_probe,
-	.priv_auto_alloc_size = sizeof(struct tegra_pcie),
+	.priv_auto	= sizeof(struct tegra_pcie),
 };

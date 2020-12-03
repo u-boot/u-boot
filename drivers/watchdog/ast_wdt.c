@@ -124,7 +124,7 @@ U_BOOT_DRIVER(ast_wdt) = {
 	.id = UCLASS_WDT,
 	.of_match = ast_wdt_ids,
 	.probe = ast_wdt_probe,
-	.priv_auto_alloc_size = sizeof(struct ast_wdt_priv),
+	.priv_auto	= sizeof(struct ast_wdt_priv),
 	.ofdata_to_platdata = ast_wdt_ofdata_to_platdata,
 	.ops = &ast_wdt_ops,
 };

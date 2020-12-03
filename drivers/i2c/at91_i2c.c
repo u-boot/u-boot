@@ -318,7 +318,7 @@ U_BOOT_DRIVER(i2c_at91) = {
 	.of_match = at91_i2c_ids,
 	.probe = at91_i2c_probe,
 	.ofdata_to_platdata = at91_i2c_ofdata_to_platdata,
-	.per_child_auto_alloc_size = sizeof(struct dm_i2c_chip),
-	.priv_auto_alloc_size = sizeof(struct at91_i2c_bus),
+	.per_child_auto	= sizeof(struct dm_i2c_chip),
+	.priv_auto	= sizeof(struct at91_i2c_bus),
 	.ops	= &at91_i2c_ops,
 };

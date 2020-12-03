@@ -781,6 +781,6 @@ U_BOOT_DRIVER(broadwell_igd) = {
 	.ofdata_to_platdata = broadwell_igd_ofdata_to_platdata,
 	.bind	= broadwell_igd_bind,
 	.probe	= broadwell_igd_probe,
-	.priv_auto_alloc_size	= sizeof(struct broadwell_igd_priv),
-	.platdata_auto_alloc_size	= sizeof(struct broadwell_igd_plat),
+	.priv_auto	= sizeof(struct broadwell_igd_priv),
+	.platdata_auto	= sizeof(struct broadwell_igd_plat),
 };

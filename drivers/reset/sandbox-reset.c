@@ -99,7 +99,7 @@ U_BOOT_DRIVER(sandbox_reset) = {
 	.of_match = sandbox_reset_ids,
 	.bind = sandbox_reset_bind,
 	.probe = sandbox_reset_probe,
-	.priv_auto_alloc_size = sizeof(struct sandbox_reset),
+	.priv_auto	= sizeof(struct sandbox_reset),
 	.ops = &sandbox_reset_reset_ops,
 };
 

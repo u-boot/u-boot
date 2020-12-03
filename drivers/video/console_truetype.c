@@ -588,5 +588,5 @@ U_BOOT_DRIVER(vidconsole_truetype) = {
 	.id	= UCLASS_VIDEO_CONSOLE,
 	.ops	= &console_truetype_ops,
 	.probe	= console_truetype_probe,
-	.priv_auto_alloc_size	= sizeof(struct console_tt_priv),
+	.priv_auto	= sizeof(struct console_tt_priv),
 };

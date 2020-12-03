@@ -352,6 +352,6 @@ U_BOOT_DRIVER(ast_i2c) = {
 	.of_match = ast_i2c_ids,
 	.probe = ast_i2c_probe,
 	.ofdata_to_platdata = ast_i2c_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct ast_i2c_priv),
+	.priv_auto	= sizeof(struct ast_i2c_priv),
 	.ops = &ast_i2c_ops,
 };

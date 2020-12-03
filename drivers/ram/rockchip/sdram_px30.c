@@ -757,6 +757,6 @@ U_BOOT_DRIVER(dmc_px30) = {
 	.of_match = px30_dmc_ids,
 	.ops = &px30_dmc_ops,
 	.probe = px30_dmc_probe,
-	.priv_auto_alloc_size = sizeof(struct dram_info),
+	.priv_auto	= sizeof(struct dram_info),
 };
 #endif /* CONFIG_TPL_BUILD */

@@ -88,5 +88,5 @@ U_BOOT_DRIVER(ostm_timer) = {
 	.probe		= ostm_probe,
 	.of_match	= ostm_ids,
 	.ofdata_to_platdata = ostm_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct ostm_priv),
+	.priv_auto	= sizeof(struct ostm_priv),
 };

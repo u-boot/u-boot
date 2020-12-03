@@ -270,6 +270,6 @@ U_BOOT_DRIVER(sifive_otp) = {
 	.id = UCLASS_MISC,
 	.of_match = sifive_otp_ids,
 	.ofdata_to_platdata = sifive_otp_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct sifive_otp_platdata),
+	.platdata_auto	= sizeof(struct sifive_otp_platdata),
 	.ops = &sifive_otp_ops,
 };

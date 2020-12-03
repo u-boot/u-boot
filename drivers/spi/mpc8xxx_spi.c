@@ -281,5 +281,5 @@ U_BOOT_DRIVER(mpc8xxx_spi) = {
 	.ops	= &mpc8xxx_spi_ops,
 	.ofdata_to_platdata = mpc8xxx_spi_ofdata_to_platdata,
 	.probe	= mpc8xxx_spi_probe,
-	.priv_auto_alloc_size = sizeof(struct mpc8xxx_priv),
+	.priv_auto	= sizeof(struct mpc8xxx_priv),
 };

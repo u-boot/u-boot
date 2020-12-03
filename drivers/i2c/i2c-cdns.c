@@ -504,6 +504,6 @@ U_BOOT_DRIVER(cdns_i2c) = {
 	.id = UCLASS_I2C,
 	.of_match = cdns_i2c_of_match,
 	.ofdata_to_platdata = cdns_i2c_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct i2c_cdns_bus),
+	.priv_auto	= sizeof(struct i2c_cdns_bus),
 	.ops = &cdns_i2c_ops,
 };

@@ -865,7 +865,7 @@ U_BOOT_DRIVER(usb_ehci) = {
 	.probe = ehci_usb_probe,
 	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,
-	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
-	.priv_auto_alloc_size = sizeof(struct fdt_usb),
+	.platdata_auto	= sizeof(struct usb_platdata),
+	.priv_auto	= sizeof(struct fdt_usb),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };

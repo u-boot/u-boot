@@ -338,7 +338,7 @@ U_BOOT_DRIVER(gpio_atmel_pio4) = {
 	.probe	= atmel_pio4_probe,
 	.bind	= atmel_pio4_bind,
 	.of_match = atmel_pio4_ids,
-	.platdata_auto_alloc_size = sizeof(struct atmel_pio4_platdata),
+	.platdata_auto	= sizeof(struct atmel_pio4_platdata),
 };
 
 #endif

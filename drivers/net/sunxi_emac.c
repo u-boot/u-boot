@@ -612,6 +612,6 @@ U_BOOT_DRIVER(eth_sunxi_emac) = {
 	.ofdata_to_platdata = sunxi_emac_eth_ofdata_to_platdata,
 	.probe	= sunxi_emac_eth_probe,
 	.ops	= &sunxi_emac_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct emac_eth_dev),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct emac_eth_dev),
+	.platdata_auto	= sizeof(struct eth_pdata),
 };

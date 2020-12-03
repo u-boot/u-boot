@@ -334,5 +334,5 @@ U_BOOT_DRIVER(meson_gx_pwrc_vpu) = {
 	.of_match = meson_gx_pwrc_vpu_ids,
 	.probe = meson_gx_pwrc_vpu_probe,
 	.ops = &meson_gx_pwrc_vpu_ops,
-	.priv_auto_alloc_size = sizeof(struct meson_gx_pwrc_vpu_priv),
+	.priv_auto	= sizeof(struct meson_gx_pwrc_vpu_priv),
 };

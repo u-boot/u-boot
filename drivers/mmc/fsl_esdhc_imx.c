@@ -1707,8 +1707,8 @@ U_BOOT_DRIVER(fsl_esdhc) = {
 	.bind	= fsl_esdhc_bind,
 #endif
 	.probe	= fsl_esdhc_probe,
-	.platdata_auto_alloc_size = sizeof(struct fsl_esdhc_plat),
-	.priv_auto_alloc_size = sizeof(struct fsl_esdhc_priv),
+	.platdata_auto	= sizeof(struct fsl_esdhc_plat),
+	.priv_auto	= sizeof(struct fsl_esdhc_priv),
 };
 
 U_BOOT_DRIVER_ALIAS(fsl_esdhc, fsl_imx6q_usdhc)

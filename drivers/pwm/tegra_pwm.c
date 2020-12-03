@@ -79,5 +79,5 @@ U_BOOT_DRIVER(tegra_pwm) = {
 	.of_match = tegra_pwm_ids,
 	.ops	= &tegra_pwm_ops,
 	.ofdata_to_platdata	= tegra_pwm_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct tegra_pwm_priv),
+	.priv_auto	= sizeof(struct tegra_pwm_priv),
 };

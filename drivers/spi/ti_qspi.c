@@ -505,6 +505,6 @@ U_BOOT_DRIVER(ti_qspi) = {
 	.of_match = ti_qspi_ids,
 	.ops	= &ti_qspi_ops,
 	.ofdata_to_platdata = ti_qspi_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct ti_qspi_priv),
+	.priv_auto	= sizeof(struct ti_qspi_priv),
 	.probe	= ti_qspi_probe,
 };

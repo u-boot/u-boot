@@ -189,5 +189,5 @@ U_BOOT_DRIVER(sandbox_clk_test) = {
 	.id = UCLASS_MISC,
 	.of_match = sandbox_clk_test_ids,
 	.probe = sandbox_clk_test_probe,
-	.priv_auto_alloc_size = sizeof(struct sandbox_clk_test),
+	.priv_auto	= sizeof(struct sandbox_clk_test),
 };

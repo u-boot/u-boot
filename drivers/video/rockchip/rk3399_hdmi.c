@@ -76,5 +76,5 @@ U_BOOT_DRIVER(rk3399_hdmi_rockchip) = {
 	.ops = &rk3399_hdmi_ops,
 	.ofdata_to_platdata = rk3399_hdmi_ofdata_to_platdata,
 	.probe = rk3399_hdmi_probe,
-	.priv_auto_alloc_size = sizeof(struct rk_hdmi_priv),
+	.priv_auto	= sizeof(struct rk_hdmi_priv),
 };

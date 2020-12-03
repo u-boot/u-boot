@@ -871,5 +871,5 @@ U_BOOT_DRIVER(max3420_generic_udc) = {
 	.of_match = max3420_ids,
 	.probe = max3420_udc_probe,
 	.remove = max3420_udc_remove,
-	.priv_auto_alloc_size = sizeof(struct max3420_udc),
+	.priv_auto	= sizeof(struct max3420_udc),
 };

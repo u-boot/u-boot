@@ -240,7 +240,7 @@ U_BOOT_DRIVER(serial_msm) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = msm_serial_ids,
 	.ofdata_to_platdata = msm_serial_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct msm_serial_data),
+	.priv_auto	= sizeof(struct msm_serial_data),
 	.probe = msm_serial_probe,
 	.ops	= &msm_serial_ops,
 };

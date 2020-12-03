@@ -183,5 +183,5 @@ U_BOOT_DRIVER(mpc83xx_serdes) = {
 	.id             = UCLASS_MISC,
 	.of_match       = mpc83xx_serdes_ids,
 	.probe          = mpc83xx_serdes_probe,
-	.priv_auto_alloc_size = sizeof(struct mpc83xx_serdes_priv),
+	.priv_auto	= sizeof(struct mpc83xx_serdes_priv),
 };

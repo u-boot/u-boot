@@ -403,7 +403,7 @@ U_BOOT_DRIVER(intel_apl_hostbridge) = {
 	.ofdata_to_platdata = apl_hostbridge_ofdata_to_platdata,
 	.probe		= apl_hostbridge_probe,
 	.remove		= apl_hostbridge_remove,
-	.platdata_auto_alloc_size = sizeof(struct apl_hostbridge_platdata),
+	.platdata_auto	= sizeof(struct apl_hostbridge_platdata),
 	ACPI_OPS_PTR(&apl_hostbridge_acpi_ops)
 	.flags		= DM_FLAG_OS_PREPARE,
 };

@@ -955,6 +955,6 @@ U_BOOT_DRIVER(stm32f7_i2c) = {
 	.of_match = stm32_i2c_of_match,
 	.ofdata_to_platdata = stm32_ofdata_to_platdata,
 	.probe = stm32_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct stm32_i2c_priv),
+	.priv_auto	= sizeof(struct stm32_i2c_priv),
 	.ops = &stm32_i2c_ops,
 };

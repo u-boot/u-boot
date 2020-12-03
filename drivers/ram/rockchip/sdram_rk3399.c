@@ -3178,9 +3178,9 @@ U_BOOT_DRIVER(dmc_rk3399) = {
 	.ofdata_to_platdata = rk3399_dmc_ofdata_to_platdata,
 #endif
 	.probe = rk3399_dmc_probe,
-	.priv_auto_alloc_size = sizeof(struct dram_info),
+	.priv_auto	= sizeof(struct dram_info),
 #if defined(CONFIG_TPL_BUILD) || \
 	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
-	.platdata_auto_alloc_size = sizeof(struct rockchip_dmc_plat),
+	.platdata_auto	= sizeof(struct rockchip_dmc_plat),
 #endif
 };

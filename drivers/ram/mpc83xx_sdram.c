@@ -1095,5 +1095,5 @@ U_BOOT_DRIVER(mpc83xx_sdram) = {
 	.ops = &mpc83xx_sdram_ops,
 	.ofdata_to_platdata = mpc83xx_sdram_ofdata_to_platdata,
 	.probe = mpc83xx_sdram_probe,
-	.priv_auto_alloc_size = sizeof(struct mpc83xx_sdram_priv),
+	.priv_auto	= sizeof(struct mpc83xx_sdram_priv),
 };

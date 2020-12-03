@@ -1041,7 +1041,7 @@ U_BOOT_DRIVER(mvgbe) = {
 	.ofdata_to_platdata = mvgbe_ofdata_to_platdata,
 	.probe	= mvgbe_probe,
 	.ops	= &mvgbe_ops,
-	.priv_auto_alloc_size = sizeof(struct mvgbe_device),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct mvgbe_device),
+	.platdata_auto	= sizeof(struct eth_pdata),
 };
 #endif /* CONFIG_DM_ETH */

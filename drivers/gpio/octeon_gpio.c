@@ -236,7 +236,7 @@ U_BOOT_DRIVER(octeon_gpio) = {
 	.id	= UCLASS_GPIO,
 	.of_match = of_match_ptr(octeon_gpio_ids),
 	.probe = octeon_gpio_probe,
-	.priv_auto_alloc_size = sizeof(struct octeon_gpio),
+	.priv_auto	= sizeof(struct octeon_gpio),
 	.ops	= &octeon_gpio_ops,
 	.flags	= DM_FLAG_PRE_RELOC,
 };

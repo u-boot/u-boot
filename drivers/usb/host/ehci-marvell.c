@@ -152,8 +152,8 @@ U_BOOT_DRIVER(ehci_mvebu) = {
 	.probe = ehci_mvebu_probe,
 	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,
-	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
-	.priv_auto_alloc_size = sizeof(struct ehci_mvebu_priv),
+	.platdata_auto	= sizeof(struct usb_platdata),
+	.priv_auto	= sizeof(struct ehci_mvebu_priv),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
 

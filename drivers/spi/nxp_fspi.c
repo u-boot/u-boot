@@ -994,6 +994,6 @@ U_BOOT_DRIVER(nxp_fspi) = {
 	.of_match = nxp_fspi_ids,
 	.ops	= &nxp_fspi_ops,
 	.ofdata_to_platdata = nxp_fspi_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct nxp_fspi),
+	.priv_auto	= sizeof(struct nxp_fspi),
 	.probe	= nxp_fspi_probe,
 };

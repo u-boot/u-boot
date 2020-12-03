@@ -507,6 +507,6 @@ UCLASS_DRIVER(serial) = {
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_probe	= serial_post_probe,
 	.pre_remove	= serial_pre_remove,
-	.per_device_auto_alloc_size = sizeof(struct serial_dev_priv),
+	.per_device_auto	= sizeof(struct serial_dev_priv),
 };
 #endif

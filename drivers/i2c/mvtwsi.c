@@ -889,7 +889,7 @@ U_BOOT_DRIVER(i2c_mvtwsi) = {
 	.bind = mvtwsi_i2c_bind,
 	.probe = mvtwsi_i2c_probe,
 	.ofdata_to_platdata = mvtwsi_i2c_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct mvtwsi_i2c_dev),
+	.priv_auto	= sizeof(struct mvtwsi_i2c_dev),
 	.ops = &mvtwsi_i2c_ops,
 };
 #endif /* CONFIG_DM_I2C */

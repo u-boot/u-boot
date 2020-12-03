@@ -174,7 +174,7 @@ void *syscon_get_first_range(ulong driver_data)
 UCLASS_DRIVER(syscon) = {
 	.id		= UCLASS_SYSCON,
 	.name		= "syscon",
-	.per_device_auto_alloc_size = sizeof(struct syscon_uc_info),
+	.per_device_auto	= sizeof(struct syscon_uc_info),
 	.pre_probe = syscon_pre_probe,
 };
 

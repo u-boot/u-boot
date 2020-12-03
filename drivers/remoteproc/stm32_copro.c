@@ -222,5 +222,5 @@ U_BOOT_DRIVER(stm32_copro) = {
 	.id = UCLASS_REMOTEPROC,
 	.ops = &stm32_copro_ops,
 	.probe = stm32_copro_probe,
-	.priv_auto_alloc_size = sizeof(struct stm32_copro_privdata),
+	.priv_auto	= sizeof(struct stm32_copro_privdata),
 };

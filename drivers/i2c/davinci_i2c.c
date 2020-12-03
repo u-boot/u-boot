@@ -504,7 +504,7 @@ U_BOOT_DRIVER(i2c_davinci) = {
 	.id	= UCLASS_I2C,
 	.of_match = davinci_i2c_ids,
 	.probe	= davinci_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct i2c_bus),
+	.priv_auto	= sizeof(struct i2c_bus),
 	.ops	= &davinci_i2c_ops,
 };
 

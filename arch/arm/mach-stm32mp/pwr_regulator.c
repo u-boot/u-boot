@@ -104,7 +104,7 @@ U_BOOT_DRIVER(stm32mp_pwr_pmic) = {
 	.bind = stm32mp_pwr_bind,
 	.ops = &stm32mp_pwr_ops,
 	.ofdata_to_platdata = stm32mp_pwr_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct stm32mp_pwr_priv),
+	.priv_auto	= sizeof(struct stm32mp_pwr_priv),
 };
 
 static const struct stm32mp_pwr_reg_info stm32mp_pwr_reg11 = {

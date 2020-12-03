@@ -354,7 +354,7 @@ U_BOOT_DRIVER(tegra20_sflash) = {
 	.of_match = tegra20_sflash_ids,
 	.ops	= &tegra20_sflash_ops,
 	.ofdata_to_platdata = tegra20_sflash_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct tegra_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct tegra20_sflash_priv),
+	.platdata_auto	= sizeof(struct tegra_spi_platdata),
+	.priv_auto	= sizeof(struct tegra20_sflash_priv),
 	.probe	= tegra20_sflash_probe,
 };

@@ -130,7 +130,7 @@ U_BOOT_DRIVER(serial_owl) = {
 	.id = UCLASS_SERIAL,
 	.of_match = owl_serial_ids,
 	.ofdata_to_platdata = owl_serial_ofdata_to_platdata,
-	.priv_auto_alloc_size =	sizeof(struct owl_serial_priv),
+	.priv_auto	=	sizeof(struct owl_serial_priv),
 	.probe = owl_serial_probe,
 	.ops = &owl_serial_ops,
 };

@@ -130,7 +130,7 @@ U_BOOT_DRIVER(sandbox_clk) = {
 	.of_match	= sandbox_clk_ids,
 	.ops		= &sandbox_clk_ops,
 	.probe		= sandbox_clk_probe,
-	.priv_auto_alloc_size = sizeof(struct sandbox_clk_priv),
+	.priv_auto	= sizeof(struct sandbox_clk_priv),
 };
 
 ulong sandbox_clk_query_rate(struct udevice *dev, int id)

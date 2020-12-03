@@ -319,7 +319,7 @@ U_BOOT_DRIVER(pl022_spi) = {
 	.ofdata_to_platdata = pl022_spi_ofdata_to_platdata,
 #endif
 	.ops    = &pl022_spi_ops,
-	.platdata_auto_alloc_size = sizeof(struct pl022_spi_pdata),
-	.priv_auto_alloc_size = sizeof(struct pl022_spi_slave),
+	.platdata_auto	= sizeof(struct pl022_spi_pdata),
+	.priv_auto	= sizeof(struct pl022_spi_slave),
 	.probe  = pl022_spi_probe,
 };

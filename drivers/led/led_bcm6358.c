@@ -210,6 +210,6 @@ U_BOOT_DRIVER(bcm6358_led) = {
 	.of_match = bcm6358_led_ids,
 	.bind = bcm6358_led_bind,
 	.probe = bcm6358_led_probe,
-	.priv_auto_alloc_size = sizeof(struct bcm6358_led_priv),
+	.priv_auto	= sizeof(struct bcm6358_led_priv),
 	.ops = &bcm6358_led_ops,
 };

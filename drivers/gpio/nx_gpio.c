@@ -245,6 +245,6 @@ U_BOOT_DRIVER(nx_gpio) = {
 	.of_match	= nx_gpio_ids,
 	.ops		= &nx_gpio_ops,
 	.ofdata_to_platdata = nx_gpio_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct nx_gpio_platdata),
+	.platdata_auto	= sizeof(struct nx_gpio_platdata),
 	.probe		= nx_gpio_probe,
 };

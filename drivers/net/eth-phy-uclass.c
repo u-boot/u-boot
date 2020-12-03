@@ -113,7 +113,7 @@ int eth_phy_get_addr(struct udevice *dev)
 UCLASS_DRIVER(eth_phy_generic) = {
 	.id		= UCLASS_ETH_PHY,
 	.name		= "eth_phy_generic",
-	.per_device_auto_alloc_size = sizeof(struct eth_phy_device_priv),
+	.per_device_auto	= sizeof(struct eth_phy_device_priv),
 };
 
 U_BOOT_DRIVER(eth_phy_generic_drv) = {

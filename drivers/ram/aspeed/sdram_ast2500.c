@@ -435,5 +435,5 @@ U_BOOT_DRIVER(sdrammc_ast2500) = {
 	.ops = &ast2500_sdrammc_ops,
 	.ofdata_to_platdata = ast2500_sdrammc_ofdata_to_platdata,
 	.probe = ast2500_sdrammc_probe,
-	.priv_auto_alloc_size = sizeof(struct dram_info),
+	.priv_auto	= sizeof(struct dram_info),
 };

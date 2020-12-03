@@ -212,7 +212,7 @@ U_BOOT_DRIVER(serial_zynq) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = zynq_serial_ids,
 	.ofdata_to_platdata = zynq_serial_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct zynq_uart_platdata),
+	.platdata_auto	= sizeof(struct zynq_uart_platdata),
 	.probe = zynq_serial_probe,
 	.ops	= &zynq_serial_ops,
 };

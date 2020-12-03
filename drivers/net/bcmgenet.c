@@ -732,7 +732,7 @@ U_BOOT_DRIVER(eth_bcmgenet) = {
 	.ofdata_to_platdata = bcmgenet_eth_ofdata_to_platdata,
 	.probe  = bcmgenet_eth_probe,
 	.ops    = &bcmgenet_gmac_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct bcmgenet_eth_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct bcmgenet_eth_priv),
+	.platdata_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

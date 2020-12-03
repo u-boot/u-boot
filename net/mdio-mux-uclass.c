@@ -228,6 +228,6 @@ UCLASS_DRIVER(mdio_mux) = {
 	.child_post_bind = dm_mdio_mux_child_post_bind,
 	.post_bind  = dm_mdio_mux_post_bind,
 	.post_probe = dm_mdio_mux_post_probe,
-	.per_device_auto_alloc_size = sizeof(struct mdio_mux_perdev_priv),
-	.per_child_platdata_auto_alloc_size = sizeof(struct mdio_mux_ch_data),
+	.per_device_auto	= sizeof(struct mdio_mux_perdev_priv),
+	.per_child_platdata_auto	= sizeof(struct mdio_mux_ch_data),
 };

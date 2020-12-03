@@ -611,6 +611,6 @@ U_BOOT_DRIVER(octeon_spi) = {
 	.id			= UCLASS_SPI,
 	.of_match		= octeon_spi_ids,
 	.probe			= octeon_spi_probe,
-	.priv_auto_alloc_size	= sizeof(struct octeon_spi),
+	.priv_auto	= sizeof(struct octeon_spi),
 	.ops			= &octeon_spi_ops,
 };

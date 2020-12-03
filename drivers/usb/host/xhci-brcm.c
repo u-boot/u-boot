@@ -92,7 +92,7 @@ U_BOOT_DRIVER(usb_xhci) = {
 	.remove				= xhci_brcm_deregister,
 	.ops				= &xhci_usb_ops,
 	.of_match			= xhci_brcm_ids,
-	.platdata_auto_alloc_size	= sizeof(struct brcm_xhci_platdata),
-	.priv_auto_alloc_size		= sizeof(struct xhci_ctrl),
+	.platdata_auto	= sizeof(struct brcm_xhci_platdata),
+	.priv_auto		= sizeof(struct xhci_ctrl),
 	.flags				= DM_FLAG_ALLOC_PRIV_DMA,
 };

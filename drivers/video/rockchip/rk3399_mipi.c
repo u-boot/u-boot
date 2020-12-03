@@ -176,5 +176,5 @@ U_BOOT_DRIVER(rk_mipi_dsi) = {
 	.ofdata_to_platdata = rk_mipi_ofdata_to_platdata,
 	.probe	= rk_mipi_probe,
 	.ops	= &rk_mipi_dsi_ops,
-	.priv_auto_alloc_size   = sizeof(struct rk_mipi_priv),
+	.priv_auto	  = sizeof(struct rk_mipi_priv),
 };

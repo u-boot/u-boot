@@ -377,6 +377,6 @@ U_BOOT_DRIVER(gpio_tegra) = {
 	.of_match = tegra_gpio_ids,
 	.bind	= gpio_tegra_bind,
 	.probe = gpio_tegra_probe,
-	.priv_auto_alloc_size = sizeof(struct tegra_port_info),
+	.priv_auto	= sizeof(struct tegra_port_info),
 	.ops	= &gpio_tegra_ops,
 };

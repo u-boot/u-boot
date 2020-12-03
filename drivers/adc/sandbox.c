@@ -169,5 +169,5 @@ U_BOOT_DRIVER(sandbox_adc) = {
 	.ops		= &sandbox_adc_ops,
 	.probe		= sandbox_adc_probe,
 	.ofdata_to_platdata = sandbox_adc_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct sandbox_adc_priv),
+	.priv_auto	= sizeof(struct sandbox_adc_priv),
 };

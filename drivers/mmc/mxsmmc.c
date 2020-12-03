@@ -718,8 +718,8 @@ U_BOOT_DRIVER(fsl_imx23_mmc) = {
 	.bind	= mxsmmc_bind,
 #endif
 	.probe	= mxsmmc_probe,
-	.priv_auto_alloc_size = sizeof(struct mxsmmc_priv),
-	.platdata_auto_alloc_size = sizeof(struct mxsmmc_platdata),
+	.priv_auto	= sizeof(struct mxsmmc_priv),
+	.platdata_auto	= sizeof(struct mxsmmc_platdata),
 };
 
 U_BOOT_DRIVER_ALIAS(fsl_imx23_mmc, fsl_imx28_mmc)

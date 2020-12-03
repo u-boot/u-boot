@@ -615,7 +615,7 @@ U_BOOT_DRIVER(stm32_spi) = {
 	.id			= UCLASS_SPI,
 	.of_match		= stm32_spi_ids,
 	.ops			= &stm32_spi_ops,
-	.priv_auto_alloc_size	= sizeof(struct stm32_spi_priv),
+	.priv_auto	= sizeof(struct stm32_spi_priv),
 	.probe			= stm32_spi_probe,
 	.remove			= stm32_spi_remove,
 };

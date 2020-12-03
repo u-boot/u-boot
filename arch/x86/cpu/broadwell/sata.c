@@ -266,5 +266,5 @@ U_BOOT_DRIVER(ahci_broadwell_drv) = {
 	.of_match	= broadwell_ahci_ids,
 	.ofdata_to_platdata	= broadwell_sata_ofdata_to_platdata,
 	.probe		= broadwell_sata_probe,
-	.platdata_auto_alloc_size	 = sizeof(struct sata_platdata),
+	.platdata_auto	 = sizeof(struct sata_platdata),
 };

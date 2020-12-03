@@ -998,6 +998,6 @@ U_BOOT_DRIVER(ave) = {
 	.remove	  = ave_remove,
 	.ofdata_to_platdata = ave_ofdata_to_platdata,
 	.ops	  = &ave_ops,
-	.priv_auto_alloc_size = sizeof(struct ave_private),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct ave_private),
+	.platdata_auto	= sizeof(struct eth_pdata),
 };

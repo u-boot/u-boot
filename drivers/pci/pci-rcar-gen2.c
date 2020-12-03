@@ -260,5 +260,5 @@ U_BOOT_DRIVER(rcar_gen2_pci) = {
 	.ops			= &rcar_gen2_pci_ops,
 	.probe			= rcar_gen2_pci_probe,
 	.ofdata_to_platdata	= rcar_gen2_pci_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct rcar_gen2_pci_priv),
+	.priv_auto	= sizeof(struct rcar_gen2_pci_priv),
 };

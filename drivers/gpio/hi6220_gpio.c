@@ -89,7 +89,7 @@ U_BOOT_DRIVER(gpio_hi6220) = {
 	.id	= UCLASS_GPIO,
 	.ops	= &gpio_hi6220_ops,
 	.probe	= hi6220_gpio_probe,
-	.priv_auto_alloc_size = sizeof(struct gpio_bank),
+	.priv_auto	= sizeof(struct gpio_bank),
 };
 
 

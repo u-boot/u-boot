@@ -95,5 +95,5 @@ U_BOOT_DRIVER(dwc_ahci) = {
 	.ofdata_to_platdata = dwc_ahci_ofdata_to_platdata,
 	.ops	= &scsi_ops,
 	.probe	= dwc_ahci_probe,
-	.priv_auto_alloc_size = sizeof(struct dwc_ahci_priv),
+	.priv_auto	= sizeof(struct dwc_ahci_priv),
 };

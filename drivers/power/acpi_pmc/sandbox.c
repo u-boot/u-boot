@@ -94,5 +94,5 @@ U_BOOT_DRIVER(pmc_sandbox) = {
 	.of_match = sandbox_pmc_ids,
 	.probe = sandbox_pmc_probe,
 	.ops = &sandbox_pmc_ops,
-	.priv_auto_alloc_size = sizeof(struct sandbox_pmc_priv),
+	.priv_auto	= sizeof(struct sandbox_pmc_priv),
 };

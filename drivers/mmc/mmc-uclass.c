@@ -508,5 +508,5 @@ UCLASS_DRIVER(mmc) = {
 	.id		= UCLASS_MMC,
 	.name		= "mmc",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
-	.per_device_auto_alloc_size = sizeof(struct mmc_uclass_priv),
+	.per_device_auto	= sizeof(struct mmc_uclass_priv),
 };

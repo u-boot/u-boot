@@ -307,6 +307,6 @@ U_BOOT_DRIVER(xilinx_gpio) = {
 	.of_match = xilinx_gpio_ids,
 	.ofdata_to_platdata = xilinx_gpio_ofdata_to_platdata,
 	.probe = xilinx_gpio_probe,
-	.platdata_auto_alloc_size = sizeof(struct xilinx_gpio_platdata),
-	.priv_auto_alloc_size = sizeof(struct xilinx_gpio_privdata),
+	.platdata_auto	= sizeof(struct xilinx_gpio_platdata),
+	.priv_auto	= sizeof(struct xilinx_gpio_privdata),
 };

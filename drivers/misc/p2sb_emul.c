@@ -262,8 +262,8 @@ U_BOOT_DRIVER(sandbox_p2sb_emul_emul) = {
 	.id		= UCLASS_PCI_EMUL,
 	.of_match	= sandbox_p2sb_emul_ids,
 	.ops		= &sandbox_p2sb_emul_emul_ops,
-	.priv_auto_alloc_size = sizeof(struct p2sb_emul_priv),
-	.platdata_auto_alloc_size = sizeof(struct p2sb_emul_platdata),
+	.priv_auto	= sizeof(struct p2sb_emul_priv),
+	.platdata_auto	= sizeof(struct p2sb_emul_platdata),
 };
 
 static struct pci_device_id sandbox_p2sb_emul_supported[] = {

@@ -134,6 +134,6 @@ U_BOOT_DRIVER(virtio_blk) = {
 	.bind	= virtio_blk_bind,
 	.probe	= virtio_blk_probe,
 	.remove	= virtio_reset,
-	.priv_auto_alloc_size = sizeof(struct virtio_blk_priv),
+	.priv_auto	= sizeof(struct virtio_blk_priv),
 	.flags	= DM_FLAG_ACTIVE_DMA,
 };

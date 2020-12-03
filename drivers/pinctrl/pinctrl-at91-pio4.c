@@ -178,6 +178,6 @@ U_BOOT_DRIVER(atmel_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = atmel_pinctrl_match,
 	.probe = atmel_pinctrl_probe,
-	.platdata_auto_alloc_size = sizeof(struct atmel_pio4_platdata),
+	.platdata_auto	= sizeof(struct atmel_pio4_platdata),
 	.ops = &atmel_pinctrl_ops,
 };

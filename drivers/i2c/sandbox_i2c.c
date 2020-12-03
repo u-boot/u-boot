@@ -98,5 +98,5 @@ U_BOOT_DRIVER(sandbox_i2c) = {
 	.id	= UCLASS_I2C,
 	.of_match = sandbox_i2c_ids,
 	.ops	= &sandbox_i2c_ops,
-	.priv_auto_alloc_size = sizeof(struct sandbox_i2c_priv),
+	.priv_auto	= sizeof(struct sandbox_i2c_priv),
 };

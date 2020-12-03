@@ -327,5 +327,5 @@ U_BOOT_DRIVER(lg4573_lcd) = {
 	.of_match = lg4573_ids,
 	.bind   = lg4573_bind,
 	.probe  = lg4573_probe,
-	.priv_auto_alloc_size = sizeof(struct lg4573_lcd_priv),
+	.priv_auto	= sizeof(struct lg4573_lcd_priv),
 };

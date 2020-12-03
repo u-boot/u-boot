@@ -701,5 +701,5 @@ U_BOOT_DRIVER(pcie_advk) = {
 	.probe			= pcie_advk_probe,
 	.remove			= pcie_advk_remove,
 	.flags			= DM_FLAG_OS_PREPARE,
-	.priv_auto_alloc_size	= sizeof(struct pcie_advk),
+	.priv_auto	= sizeof(struct pcie_advk),
 };

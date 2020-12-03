@@ -94,6 +94,6 @@ U_BOOT_DRIVER(altera_sysid) = {
 	.id	= UCLASS_MISC,
 	.of_match = altera_sysid_ids,
 	.ofdata_to_platdata = altera_sysid_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct altera_sysid_platdata),
+	.platdata_auto	= sizeof(struct altera_sysid_platdata),
 	.ops	= &altera_sysid_ops,
 };

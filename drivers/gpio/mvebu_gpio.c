@@ -117,5 +117,5 @@ U_BOOT_DRIVER(gpio_mvebu) = {
 	.of_match		= mvebu_gpio_ids,
 	.ops			= &mvebu_gpio_ops,
 	.probe			= mvebu_gpio_probe,
-	.priv_auto_alloc_size	= sizeof(struct mvebu_gpio_priv),
+	.priv_auto	= sizeof(struct mvebu_gpio_priv),
 };

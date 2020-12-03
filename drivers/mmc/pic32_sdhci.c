@@ -88,6 +88,6 @@ U_BOOT_DRIVER(pic32_sdhci_drv) = {
 	.ops			= &sdhci_ops,
 	.bind			= pic32_sdhci_bind,
 	.probe			= pic32_sdhci_probe,
-	.priv_auto_alloc_size	= sizeof(struct sdhci_host),
-	.platdata_auto_alloc_size = sizeof(struct pic32_sdhci_plat)
+	.priv_auto	= sizeof(struct sdhci_host),
+	.platdata_auto	= sizeof(struct pic32_sdhci_plat)
 };

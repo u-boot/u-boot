@@ -228,7 +228,7 @@ U_BOOT_DRIVER(sandbox_host_blk) = {
 	.name		= "sandbox_host_blk",
 	.id		= UCLASS_BLK,
 	.ops		= &sandbox_host_blk_ops,
-	.platdata_auto_alloc_size = sizeof(struct host_block_dev),
+	.platdata_auto	= sizeof(struct host_block_dev),
 };
 #else
 U_BOOT_LEGACY_BLK(sandbox_host) = {

@@ -220,7 +220,7 @@ UCLASS_DRIVER(i2c_mux) = {
 	.name		= "i2c_mux",
 	.post_bind	= i2c_mux_post_bind,
 	.post_probe	= i2c_mux_post_probe,
-	.per_device_auto_alloc_size = sizeof(struct i2c_mux),
-	.per_child_platdata_auto_alloc_size = sizeof(struct i2c_mux_bus),
+	.per_device_auto	= sizeof(struct i2c_mux),
+	.per_child_platdata_auto	= sizeof(struct i2c_mux_bus),
 	.child_post_bind = i2c_mux_child_post_bind,
 };

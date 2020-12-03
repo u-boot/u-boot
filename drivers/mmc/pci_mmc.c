@@ -132,8 +132,8 @@ U_BOOT_DRIVER(pci_mmc) = {
 	.ofdata_to_platdata	= pci_mmc_ofdata_to_platdata,
 	.probe	= pci_mmc_probe,
 	.ops	= &sdhci_ops,
-	.priv_auto_alloc_size = sizeof(struct pci_mmc_priv),
-	.platdata_auto_alloc_size = sizeof(struct pci_mmc_plat),
+	.priv_auto	= sizeof(struct pci_mmc_priv),
+	.platdata_auto	= sizeof(struct pci_mmc_plat),
 	ACPI_OPS_PTR(&pci_mmc_acpi_ops)
 };
 

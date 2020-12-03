@@ -461,7 +461,7 @@ U_BOOT_DRIVER(cdns_usb3_peripheral) = {
 	.of_match = cdns3_ids,
 	.probe = cdns3_gadget_probe,
 	.remove = cdns3_gadget_remove,
-	.priv_auto_alloc_size = sizeof(struct cdns3_gadget_priv),
+	.priv_auto	= sizeof(struct cdns3_gadget_priv),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif
@@ -492,7 +492,7 @@ U_BOOT_DRIVER(cdns_usb3_host) = {
 	.of_match = cdns3_ids,
 	.probe = cdns3_host_probe,
 	.remove = cdns3_host_remove,
-	.priv_auto_alloc_size = sizeof(struct cdns3_host_priv),
+	.priv_auto	= sizeof(struct cdns3_host_priv),
 	.ops = &xhci_usb_ops,
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

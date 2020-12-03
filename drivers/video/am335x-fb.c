@@ -614,7 +614,7 @@ U_BOOT_DRIVER(am335x_fb) = {
 	.ofdata_to_platdata = am335x_fb_ofdata_to_platdata,
 	.probe = am335x_fb_probe,
 	.remove = am335x_fb_remove,
-	.priv_auto_alloc_size = sizeof(struct am335x_fb_priv),
+	.priv_auto	= sizeof(struct am335x_fb_priv),
 };
 
 #endif /* CONFIG_DM_VIDEO */

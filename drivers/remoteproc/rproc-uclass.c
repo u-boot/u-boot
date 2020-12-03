@@ -210,7 +210,7 @@ UCLASS_DRIVER(rproc) = {
 	.flags = DM_UC_FLAG_SEQ_ALIAS,
 	.pre_probe = rproc_pre_probe,
 	.post_probe = rproc_post_probe,
-	.per_device_platdata_auto_alloc_size =
+	.per_device_platdata_auto	=
 		sizeof(struct dm_rproc_uclass_pdata),
 };
 

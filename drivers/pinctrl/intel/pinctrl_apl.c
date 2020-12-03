@@ -184,6 +184,6 @@ U_BOOT_DRIVER(intel_apl_pinctrl) = {
 	.bind		= dm_scan_fdt_dev,
 #endif
 	.ofdata_to_platdata = apl_pinctrl_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct intel_pinctrl_priv),
-	.platdata_auto_alloc_size = sizeof(struct apl_gpio_platdata),
+	.priv_auto	= sizeof(struct intel_pinctrl_priv),
+	.platdata_auto	= sizeof(struct apl_gpio_platdata),
 };

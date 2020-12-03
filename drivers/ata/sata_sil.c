@@ -772,7 +772,7 @@ U_BOOT_DRIVER(sata_sil_driver) = {
 	.name = "sata_sil_blk",
 	.id = UCLASS_BLK,
 	.ops = &sata_sil_blk_ops,
-	.platdata_auto_alloc_size = sizeof(struct sil_sata_priv),
+	.platdata_auto	= sizeof(struct sil_sata_priv),
 };
 
 static int sil_unbind_device(struct udevice *dev)
@@ -920,7 +920,7 @@ U_BOOT_DRIVER(sil_ahci_pci) = {
 	.ops = &sata_sil_ops,
 	.probe = sil_pci_probe,
 	.remove = sil_pci_remove,
-	.priv_auto_alloc_size = sizeof(struct sil_sata_priv),
+	.priv_auto	= sizeof(struct sil_sata_priv),
 };
 
 U_BOOT_PCI_DEVICE(sil_ahci_pci, supported);

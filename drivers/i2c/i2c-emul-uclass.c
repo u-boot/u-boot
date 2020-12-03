@@ -64,14 +64,14 @@ int i2c_emul_find(struct udevice *dev, struct udevice **emulp)
 UCLASS_DRIVER(i2c_emul) = {
 	.id		= UCLASS_I2C_EMUL,
 	.name		= "i2c_emul",
-	.per_device_platdata_auto_alloc_size =
+	.per_device_platdata_auto	=
 		 sizeof(struct i2c_emul_uc_platdata),
 };
 
 /*
  * This uclass is a child of the i2c bus. Its platdata is not defined here so
  * is defined by its parent, UCLASS_I2C, which uses struct dm_i2c_chip. See
- * per_child_platdata_auto_alloc_size in UCLASS_DRIVER(i2c).
+ * per_child_platdata_auto	in UCLASS_DRIVER(i2c).
  */
 UCLASS_DRIVER(i2c_emul_parent) = {
 	.id		= UCLASS_I2C_EMUL_PARENT,

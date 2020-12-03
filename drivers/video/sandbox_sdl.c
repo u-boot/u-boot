@@ -78,5 +78,5 @@ U_BOOT_DRIVER(sandbox_lcd_sdl) = {
 	.of_match = sandbox_sdl_ids,
 	.bind	= sandbox_sdl_bind,
 	.probe	= sandbox_sdl_probe,
-	.platdata_auto_alloc_size	= sizeof(struct sandbox_sdl_plat),
+	.platdata_auto	= sizeof(struct sandbox_sdl_plat),
 };

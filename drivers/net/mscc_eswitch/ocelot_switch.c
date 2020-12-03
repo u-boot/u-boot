@@ -651,6 +651,6 @@ U_BOOT_DRIVER(ocelot) = {
 	.probe	  = ocelot_probe,
 	.remove	  = ocelot_remove,
 	.ops	  = &ocelot_ops,
-	.priv_auto_alloc_size = sizeof(struct ocelot_private),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct ocelot_private),
+	.platdata_auto	= sizeof(struct eth_pdata),
 };

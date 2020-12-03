@@ -47,7 +47,7 @@ UCLASS_DRIVER(simple_bus) = {
 	.id		= UCLASS_SIMPLE_BUS,
 	.name		= "simple_bus",
 	.post_bind	= simple_bus_post_bind,
-	.per_device_platdata_auto_alloc_size = sizeof(struct simple_bus_plat),
+	.per_device_platdata_auto	= sizeof(struct simple_bus_plat),
 };
 
 static const struct udevice_id generic_simple_bus_ids[] = {

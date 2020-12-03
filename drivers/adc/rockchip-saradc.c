@@ -180,5 +180,5 @@ U_BOOT_DRIVER(rockchip_saradc) = {
 	.ops		= &rockchip_saradc_ops,
 	.probe		= rockchip_saradc_probe,
 	.ofdata_to_platdata = rockchip_saradc_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct rockchip_saradc_priv),
+	.priv_auto	= sizeof(struct rockchip_saradc_priv),
 };

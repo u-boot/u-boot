@@ -475,6 +475,6 @@ U_BOOT_DRIVER(sifive_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = sifive_spi_ids,
 	.ops	= &sifive_spi_ops,
-	.priv_auto_alloc_size = sizeof(struct sifive_spi),
+	.priv_auto	= sizeof(struct sifive_spi),
 	.probe	= sifive_spi_probe,
 };

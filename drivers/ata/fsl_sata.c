@@ -900,7 +900,7 @@ U_BOOT_DRIVER(sata_fsl_driver) = {
 	.name = "sata_fsl_blk",
 	.id = UCLASS_BLK,
 	.ops = &sata_fsl_blk_ops,
-	.platdata_auto_alloc_size = sizeof(struct fsl_ata_priv),
+	.platdata_auto	= sizeof(struct fsl_ata_priv),
 };
 
 static int fsl_ata_ofdata_to_platdata(struct udevice *dev)
@@ -1029,6 +1029,6 @@ U_BOOT_DRIVER(fsl_ahci) = {
 	.ofdata_to_platdata = fsl_ata_ofdata_to_platdata,
 	.probe	= fsl_ata_probe,
 	.remove = fsl_ata_remove,
-	.priv_auto_alloc_size = sizeof(struct fsl_ata_priv),
+	.priv_auto	= sizeof(struct fsl_ata_priv),
 };
 #endif

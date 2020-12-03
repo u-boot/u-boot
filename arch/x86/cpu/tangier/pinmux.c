@@ -191,5 +191,5 @@ U_BOOT_DRIVER(tangier_pinctrl) = {
 	.id = UCLASS_SYSCON,
 	.of_match = tangier_pinctrl_match,
 	.probe = tangier_pinctrl_probe,
-	.priv_auto_alloc_size = sizeof(struct mrfld_pinctrl),
+	.priv_auto	= sizeof(struct mrfld_pinctrl),
 };

@@ -659,6 +659,6 @@ U_BOOT_DRIVER(arasan_sdhci_drv) = {
 	.ops		= &sdhci_ops,
 	.bind		= arasan_sdhci_bind,
 	.probe		= arasan_sdhci_probe,
-	.priv_auto_alloc_size = sizeof(struct arasan_sdhci_priv),
-	.platdata_auto_alloc_size = sizeof(struct arasan_sdhci_plat),
+	.priv_auto	= sizeof(struct arasan_sdhci_priv),
+	.platdata_auto	= sizeof(struct arasan_sdhci_plat),
 };

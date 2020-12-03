@@ -366,7 +366,7 @@ U_BOOT_DRIVER(da9063_ldo) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &da9063_ldo_ops,
 	.probe = da9063_ldo_probe,
-	.priv_auto_alloc_size = sizeof(struct da9063_priv),
+	.priv_auto	= sizeof(struct da9063_priv),
 };
 
 static const struct dm_regulator_ops da9063_buck_ops = {
@@ -385,5 +385,5 @@ U_BOOT_DRIVER(da9063_buck) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &da9063_buck_ops,
 	.probe = da9063_buck_probe,
-	.priv_auto_alloc_size = sizeof(struct da9063_priv),
+	.priv_auto	= sizeof(struct da9063_priv),
 };

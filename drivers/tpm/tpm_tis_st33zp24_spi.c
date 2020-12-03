@@ -670,6 +670,6 @@ U_BOOT_DRIVER(st33zp24_spi_spi) = {
 	.probe  = st33zp24_spi_probe,
 	.remove = st33zp24_spi_remove,
 	.ops = &st33zp24_spi_tpm_ops,
-	.priv_auto_alloc_size = sizeof(struct tpm_chip),
-	.platdata_auto_alloc_size = sizeof(struct st33zp24_spi_phy),
+	.priv_auto	= sizeof(struct tpm_chip),
+	.platdata_auto	= sizeof(struct st33zp24_spi_phy),
 };

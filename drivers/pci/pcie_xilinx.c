@@ -175,5 +175,5 @@ U_BOOT_DRIVER(pcie_xilinx) = {
 	.of_match		= pcie_xilinx_ids,
 	.ops			= &pcie_xilinx_ops,
 	.ofdata_to_platdata	= pcie_xilinx_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct xilinx_pcie),
+	.priv_auto	= sizeof(struct xilinx_pcie),
 };

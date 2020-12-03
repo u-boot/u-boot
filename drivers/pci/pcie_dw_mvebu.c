@@ -580,5 +580,5 @@ U_BOOT_DRIVER(pcie_dw_mvebu) = {
 	.ops			= &pcie_dw_mvebu_ops,
 	.ofdata_to_platdata	= pcie_dw_mvebu_ofdata_to_platdata,
 	.probe			= pcie_dw_mvebu_probe,
-	.priv_auto_alloc_size	= sizeof(struct pcie_dw_mvebu),
+	.priv_auto	= sizeof(struct pcie_dw_mvebu),
 };

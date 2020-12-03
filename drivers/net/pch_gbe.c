@@ -499,8 +499,8 @@ U_BOOT_DRIVER(eth_pch_gbe) = {
 	.probe = pch_gbe_probe,
 	.remove = pch_gbe_remove,
 	.ops = &pch_gbe_ops,
-	.priv_auto_alloc_size = sizeof(struct pch_gbe_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct pch_gbe_priv),
+	.platdata_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 

@@ -304,14 +304,14 @@ U_BOOT_DRIVER(serial_atmel) = {
 	.id	= UCLASS_SERIAL,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match = atmel_serial_ids,
-	.platdata_auto_alloc_size = sizeof(struct atmel_serial_platdata),
+	.platdata_auto	= sizeof(struct atmel_serial_platdata),
 #endif
 	.probe = atmel_serial_probe,
 	.ops	= &atmel_serial_ops,
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags = DM_FLAG_PRE_RELOC,
 #endif
-	.priv_auto_alloc_size	= sizeof(struct atmel_serial_priv),
+	.priv_auto	= sizeof(struct atmel_serial_priv),
 };
 #endif
 

@@ -403,7 +403,7 @@ U_BOOT_DRIVER(bcm63xx_hsspi) = {
 	.id = UCLASS_SPI,
 	.of_match = bcm63xx_hsspi_ids,
 	.ops = &bcm63xx_hsspi_ops,
-	.priv_auto_alloc_size = sizeof(struct bcm63xx_hsspi_priv),
+	.priv_auto	= sizeof(struct bcm63xx_hsspi_priv),
 	.child_pre_probe = bcm63xx_hsspi_child_pre_probe,
 	.probe = bcm63xx_hsspi_probe,
 };

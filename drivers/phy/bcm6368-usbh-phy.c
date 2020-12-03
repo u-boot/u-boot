@@ -191,6 +191,6 @@ U_BOOT_DRIVER(bcm6368_usbh) = {
 	.id = UCLASS_PHY,
 	.of_match = bcm6368_usbh_ids,
 	.ops = &bcm6368_usbh_ops,
-	.priv_auto_alloc_size = sizeof(struct bcm6368_usbh_priv),
+	.priv_auto	= sizeof(struct bcm6368_usbh_priv),
 	.probe = bcm6368_usbh_probe,
 };

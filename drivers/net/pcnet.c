@@ -689,8 +689,8 @@ U_BOOT_DRIVER(eth_pcnet) = {
 	.bind	= pcnet_bind,
 	.probe	= pcnet_probe,
 	.ops	= &pcnet_ops,
-	.priv_auto_alloc_size = sizeof(struct pcnet_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct pcnet_priv),
+	.platdata_auto	= sizeof(struct eth_pdata),
 	.flags	= DM_UC_FLAG_ALLOC_PRIV_DMA,
 };
 

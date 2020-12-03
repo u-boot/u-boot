@@ -221,5 +221,5 @@ U_BOOT_DRIVER(rockchip_rng) = {
 	.ops = &rockchip_rng_ops,
 	.probe = rockchip_rng_probe,
 	.ofdata_to_platdata = rockchip_rng_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct rk_rng_platdata),
+	.priv_auto	= sizeof(struct rk_rng_platdata),
 };

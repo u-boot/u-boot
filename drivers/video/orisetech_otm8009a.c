@@ -366,6 +366,6 @@ U_BOOT_DRIVER(otm8009a_panel) = {
 	.ops			  = &otm8009a_panel_ops,
 	.ofdata_to_platdata	  = otm8009a_panel_ofdata_to_platdata,
 	.probe			  = otm8009a_panel_probe,
-	.platdata_auto_alloc_size = sizeof(struct mipi_dsi_panel_plat),
-	.priv_auto_alloc_size	= sizeof(struct otm8009a_panel_priv),
+	.platdata_auto	= sizeof(struct mipi_dsi_panel_plat),
+	.priv_auto	= sizeof(struct otm8009a_panel_priv),
 };

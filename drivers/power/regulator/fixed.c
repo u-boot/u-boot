@@ -89,5 +89,5 @@ U_BOOT_DRIVER(regulator_fixed) = {
 	.ops = &fixed_regulator_ops,
 	.of_match = fixed_regulator_ids,
 	.ofdata_to_platdata = fixed_regulator_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct regulator_common_platdata),
+	.platdata_auto	= sizeof(struct regulator_common_platdata),
 };

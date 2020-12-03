@@ -230,6 +230,6 @@ U_BOOT_DRIVER(mxc_w1_drv) = {
 	.of_match			= mxc_w1_id,
 	.ofdata_to_platdata		= mxc_w1_ofdata_to_platdata,
 	.ops				= &mxc_w1_ops,
-	.platdata_auto_alloc_size	= sizeof(struct mxc_w1_pdata),
+	.platdata_auto	= sizeof(struct mxc_w1_pdata),
 	.probe				= mxc_w1_probe,
 };

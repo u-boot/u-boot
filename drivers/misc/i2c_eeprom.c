@@ -284,7 +284,7 @@ U_BOOT_DRIVER(i2c_eeprom_std) = {
 	.bind			= i2c_eeprom_std_bind,
 	.probe			= i2c_eeprom_std_probe,
 	.ofdata_to_platdata	= i2c_eeprom_std_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct i2c_eeprom),
+	.priv_auto	= sizeof(struct i2c_eeprom),
 	.ops			= &i2c_eeprom_std_ops,
 };
 
@@ -366,7 +366,7 @@ U_BOOT_DRIVER(i2c_eeprom_partition) = {
 	.id			= UCLASS_I2C_EEPROM,
 	.probe			= i2c_eeprom_partition_probe,
 	.ofdata_to_platdata	= i2c_eeprom_partition_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct i2c_eeprom_partition),
+	.priv_auto	= sizeof(struct i2c_eeprom_partition),
 	.ops			= &i2c_eeprom_partition_ops,
 };
 

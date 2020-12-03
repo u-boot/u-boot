@@ -265,5 +265,5 @@ U_BOOT_DRIVER(pwm_backlight) = {
 	.ops	= &pwm_backlight_ops,
 	.ofdata_to_platdata	= pwm_backlight_ofdata_to_platdata,
 	.probe		= pwm_backlight_probe,
-	.priv_auto_alloc_size	= sizeof(struct pwm_backlight_priv),
+	.priv_auto	= sizeof(struct pwm_backlight_priv),
 };

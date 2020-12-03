@@ -721,5 +721,5 @@ U_BOOT_DRIVER(meson_saradc) = {
 	.ops		= &meson_saradc_ops,
 	.probe		= meson_saradc_probe,
 	.ofdata_to_platdata = meson_saradc_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct meson_saradc_priv),
+	.priv_auto	= sizeof(struct meson_saradc_priv),
 };

@@ -651,6 +651,6 @@ U_BOOT_DRIVER(mt7628_eth) = {
 	.of_match = mt7628_eth_ids,
 	.probe	= mt7628_eth_probe,
 	.ops	= &mt7628_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct mt7628_eth_dev),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct mt7628_eth_dev),
+	.platdata_auto	= sizeof(struct eth_pdata),
 };

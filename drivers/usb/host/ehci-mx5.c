@@ -367,8 +367,8 @@ U_BOOT_DRIVER(usb_mx5) = {
 	.probe	= ehci_usb_probe,
 	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,
-	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
-	.priv_auto_alloc_size = sizeof(struct ehci_mx5_priv_data),
+	.platdata_auto	= sizeof(struct usb_platdata),
+	.priv_auto	= sizeof(struct ehci_mx5_priv_data),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif /* !CONFIG_IS_ENABLED(DM_USB) */

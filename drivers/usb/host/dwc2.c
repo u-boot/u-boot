@@ -1477,7 +1477,7 @@ U_BOOT_DRIVER(usb_dwc2) = {
 	.probe	= dwc2_usb_probe,
 	.remove = dwc2_usb_remove,
 	.ops	= &dwc2_usb_ops,
-	.priv_auto_alloc_size = sizeof(struct dwc2_priv),
+	.priv_auto	= sizeof(struct dwc2_priv),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif

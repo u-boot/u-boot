@@ -530,7 +530,7 @@ U_BOOT_DRIVER(pxa_mmc) = {
 	.id	= UCLASS_MMC,
 	.name	= "pxa_mmc",
 	.ops	= &pxa_mmc_ops,
-	.priv_auto_alloc_size = sizeof(struct pxa_mmc_priv),
+	.priv_auto	= sizeof(struct pxa_mmc_priv),
 	.probe	= pxa_mmc_probe,
 };
 #endif /* !CONFIG_IS_ENABLED(DM_MMC) */

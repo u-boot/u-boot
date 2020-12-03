@@ -507,9 +507,9 @@ U_BOOT_DRIVER(omap3_spi) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap3_spi_ids,
 	.ofdata_to_platdata = omap3_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct omap3_spi_plat),
+	.platdata_auto	= sizeof(struct omap3_spi_plat),
 #endif
 	.probe = omap3_spi_probe,
 	.ops    = &omap3_spi_ops,
-	.priv_auto_alloc_size = sizeof(struct omap3_spi_priv),
+	.priv_auto	= sizeof(struct omap3_spi_priv),
 };

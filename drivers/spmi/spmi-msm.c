@@ -194,5 +194,5 @@ U_BOOT_DRIVER(msm_spmi) = {
 	.of_match = msm_spmi_ids,
 	.ops = &msm_spmi_ops,
 	.probe = msm_spmi_probe,
-	.priv_auto_alloc_size = sizeof(struct msm_spmi_priv),
+	.priv_auto	= sizeof(struct msm_spmi_priv),
 };

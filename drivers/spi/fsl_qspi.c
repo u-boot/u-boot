@@ -887,6 +887,6 @@ U_BOOT_DRIVER(fsl_qspi) = {
 	.id	= UCLASS_SPI,
 	.of_match = fsl_qspi_ids,
 	.ops	= &fsl_qspi_ops,
-	.priv_auto_alloc_size = sizeof(struct fsl_qspi),
+	.priv_auto	= sizeof(struct fsl_qspi),
 	.probe	= fsl_qspi_probe,
 };

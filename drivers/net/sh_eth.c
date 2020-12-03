@@ -957,8 +957,8 @@ U_BOOT_DRIVER(eth_sh_ether) = {
 	.probe		= sh_ether_probe,
 	.remove		= sh_ether_remove,
 	.ops		= &sh_ether_ops,
-	.priv_auto_alloc_size = sizeof(struct sh_ether_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct sh_ether_priv),
+	.platdata_auto	= sizeof(struct eth_pdata),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif

@@ -581,5 +581,5 @@ U_BOOT_DRIVER(mt7628_pinctrl) = {
 	.ofdata_to_platdata = mt7628_pinctrl_ofdata_to_platdata,
 	.ops = &mt7628_pinctrl_ops,
 	.probe = mt7628_pinctrl_probe,
-	.priv_auto_alloc_size = sizeof(struct mt7628_pinctrl_priv),
+	.priv_auto	= sizeof(struct mt7628_pinctrl_priv),
 };

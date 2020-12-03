@@ -400,5 +400,5 @@ U_BOOT_DRIVER(rcar_gen3_pcie) = {
 	.ops			= &rcar_gen3_pcie_ops,
 	.probe			= rcar_gen3_pcie_probe,
 	.ofdata_to_platdata	= rcar_gen3_pcie_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct rcar_gen3_pcie_priv),
+	.platdata_auto	= sizeof(struct rcar_gen3_pcie_priv),
 };

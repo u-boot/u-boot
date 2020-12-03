@@ -100,10 +100,10 @@ U_BOOT_DRIVER(testbus_drv) = {
 	.id	= UCLASS_TEST_BUS,
 	.probe	= testbus_drv_probe,
 	.child_post_bind = testbus_child_post_bind,
-	.priv_auto_alloc_size = sizeof(struct dm_test_priv),
-	.platdata_auto_alloc_size = sizeof(struct dm_test_pdata),
-	.per_child_auto_alloc_size = sizeof(struct dm_test_parent_data),
-	.per_child_platdata_auto_alloc_size =
+	.priv_auto	= sizeof(struct dm_test_priv),
+	.platdata_auto	= sizeof(struct dm_test_pdata),
+	.per_child_auto	= sizeof(struct dm_test_parent_data),
+	.per_child_platdata_auto	=
 			sizeof(struct dm_test_parent_platdata),
 	.child_pre_probe = testbus_child_pre_probe,
 	.child_post_remove = testbus_child_post_remove,
@@ -312,19 +312,19 @@ static int dm_test_bus_parent_data_uclass(struct unit_test_state *uts)
 	/* Set the driver size to 0 so that the uclass size is used */
 	ut_assertok(uclass_find_device(UCLASS_TEST_BUS, 0, &bus));
 	drv = (struct driver *)bus->driver;
-	size = drv->per_child_auto_alloc_size;
+	size = drv->per_child_auto;
 
 #ifdef CONFIG_SANDBOX
 	os_mprotect_allow(bus->uclass->uc_drv, sizeof(*bus->uclass->uc_drv));
 	os_mprotect_allow(drv, sizeof(*drv));
 #endif
-	bus->uclass->uc_drv->per_child_auto_alloc_size = size;
-	drv->per_child_auto_alloc_size = 0;
+	bus->uclass->uc_drv->per_child_auto = size;
+	drv->per_child_auto = 0;
 	ret = test_bus_parent_data(uts);
 	if (ret)
 		return ret;
-	bus->uclass->uc_drv->per_child_auto_alloc_size = 0;
-	drv->per_child_auto_alloc_size = size;
+	bus->uclass->uc_drv->per_child_auto = 0;
+	drv->per_child_auto = size;
 
 	return 0;
 }
@@ -456,18 +456,18 @@ static int dm_test_bus_parent_platdata_uclass(struct unit_test_state *uts)
 	/* Set the driver size to 0 so that the uclass size is used */
 	ut_assertok(uclass_find_device(UCLASS_TEST_BUS, 0, &bus));
 	drv = (struct driver *)bus->driver;
-	size = drv->per_child_platdata_auto_alloc_size;
+	size = drv->per_child_platdata_auto;
 #ifdef CONFIG_SANDBOX
 	os_mprotect_allow(bus->uclass->uc_drv, sizeof(*bus->uclass->uc_drv));
 	os_mprotect_allow(drv, sizeof(*drv));
 #endif
-	bus->uclass->uc_drv->per_child_platdata_auto_alloc_size = size;
-	drv->per_child_platdata_auto_alloc_size = 0;
+	bus->uclass->uc_drv->per_child_platdata_auto = size;
+	drv->per_child_platdata_auto = 0;
 	ret = test_bus_parent_platdata(uts);
 	if (ret)
 		return ret;
-	bus->uclass->uc_drv->per_child_platdata_auto_alloc_size = 0;
-	drv->per_child_platdata_auto_alloc_size = size;
+	bus->uclass->uc_drv->per_child_platdata_auto = 0;
+	drv->per_child_platdata_auto = size;
 
 	return 0;
 }

@@ -576,8 +576,8 @@ U_BOOT_DRIVER(fsl_espi) = {
 	.ofdata_to_platdata = fsl_espi_ofdata_to_platdata,
 #endif
 	.ops	= &fsl_espi_ops,
-	.platdata_auto_alloc_size = sizeof(struct fsl_espi_platdata),
-	.priv_auto_alloc_size = sizeof(struct fsl_spi_slave),
+	.platdata_auto	= sizeof(struct fsl_espi_platdata),
+	.priv_auto	= sizeof(struct fsl_spi_slave),
 	.probe	= fsl_espi_probe,
 	.child_pre_probe = fsl_espi_child_pre_probe,
 };

@@ -424,7 +424,7 @@ U_BOOT_DRIVER(tps65910_boost) = {
 	.name = TPS65910_BOOST_DRIVER,
 	.id = UCLASS_REGULATOR,
 	.ops = &tps65910_boost_ops,
-	.platdata_auto_alloc_size = sizeof(struct tps65910_regulator_pdata),
+	.platdata_auto	= sizeof(struct tps65910_regulator_pdata),
 	.ofdata_to_platdata = tps65910_regulator_ofdata_to_platdata,
 };
 
@@ -439,7 +439,7 @@ U_BOOT_DRIVER(tps65910_buck) = {
 	.name = TPS65910_BUCK_DRIVER,
 	.id = UCLASS_REGULATOR,
 	.ops = &tps65910_buck_ops,
-	.platdata_auto_alloc_size = sizeof(struct tps65910_regulator_pdata),
+	.platdata_auto	= sizeof(struct tps65910_regulator_pdata),
 	.ofdata_to_platdata = tps65910_regulator_ofdata_to_platdata,
 };
 
@@ -454,6 +454,6 @@ U_BOOT_DRIVER(tps65910_ldo) = {
 	.name = TPS65910_LDO_DRIVER,
 	.id = UCLASS_REGULATOR,
 	.ops = &tps65910_ldo_ops,
-	.platdata_auto_alloc_size = sizeof(struct tps65910_regulator_pdata),
+	.platdata_auto	= sizeof(struct tps65910_regulator_pdata),
 	.ofdata_to_platdata = tps65910_regulator_ofdata_to_platdata,
 };

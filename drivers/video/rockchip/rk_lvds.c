@@ -247,5 +247,5 @@ U_BOOT_DRIVER(lvds_rockchip) = {
 	.ops	= &lvds_rockchip_ops,
 	.ofdata_to_platdata	= rk_lvds_ofdata_to_platdata,
 	.probe	= rk_lvds_probe,
-	.priv_auto_alloc_size	= sizeof(struct rk_lvds_priv),
+	.priv_auto	= sizeof(struct rk_lvds_priv),
 };

@@ -293,8 +293,8 @@ For example:
             .of_match       = mmc_ids,
             .ofdata_to_platdata = mmc_ofdata_to_platdata,
             .probe          = mmc_probe,
-            .priv_auto_alloc_size = sizeof(struct mmc_priv),
-            .platdata_auto_alloc_size = sizeof(struct mmc_platdata),
+            .priv_auto = sizeof(struct mmc_priv),
+            .platdata_auto = sizeof(struct mmc_platdata),
     };
 
     U_BOOT_DRIVER_ALIAS(mmc_drv, vendor_mmc) /* matches compatible string */
@@ -305,7 +305,7 @@ keep the use of each of-platdata struct to the smallest possible code area.
 There is just one driver C file for each struct, that can convert from the
 of-platdata struct to the standard one used by the driver.
 
-In the case where SPL_OF_PLATDATA is enabled, platdata_auto_alloc_size is
+In the case where SPL_OF_PLATDATA is enabled, platdata_auto is
 still used to allocate space for the platform data. This is different from
 the normal behaviour and is triggered by the use of of-platdata (strictly
 speaking it is a non-zero platdata_size which triggers this).

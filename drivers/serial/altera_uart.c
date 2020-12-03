@@ -112,7 +112,7 @@ U_BOOT_DRIVER(altera_uart) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = altera_uart_ids,
 	.ofdata_to_platdata = altera_uart_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct altera_uart_platdata),
+	.platdata_auto	= sizeof(struct altera_uart_platdata),
 	.probe = altera_uart_probe,
 	.ops	= &altera_uart_ops,
 };

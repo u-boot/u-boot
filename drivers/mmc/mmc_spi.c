@@ -468,6 +468,6 @@ U_BOOT_DRIVER(mmc_spi) = {
 	.ops = &mmc_spi_ops,
 	.probe = mmc_spi_probe,
 	.bind = mmc_spi_bind,
-	.platdata_auto_alloc_size = sizeof(struct mmc_spi_plat),
-	.priv_auto_alloc_size = sizeof(struct mmc_spi_priv),
+	.platdata_auto	= sizeof(struct mmc_spi_plat),
+	.priv_auto	= sizeof(struct mmc_spi_priv),
 };

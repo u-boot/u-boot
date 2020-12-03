@@ -212,7 +212,7 @@ U_BOOT_DRIVER(gpio_pm8916) = {
 	.ofdata_to_platdata = pm8916_gpio_ofdata_to_platdata,
 	.probe	= pm8916_gpio_probe,
 	.ops	= &pm8916_gpio_ops,
-	.priv_auto_alloc_size = sizeof(struct pm8916_gpio_bank),
+	.priv_auto	= sizeof(struct pm8916_gpio_bank),
 };
 
 
@@ -297,5 +297,5 @@ U_BOOT_DRIVER(pwrkey_pm8941) = {
 	.ofdata_to_platdata = pm8941_pwrkey_ofdata_to_platdata,
 	.probe	= pm8941_pwrkey_probe,
 	.ops	= &pm8941_pwrkey_ops,
-	.priv_auto_alloc_size = sizeof(struct pm8916_gpio_bank),
+	.priv_auto	= sizeof(struct pm8916_gpio_bank),
 };

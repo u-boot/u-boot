@@ -605,7 +605,7 @@ U_BOOT_DRIVER(fman) = {
 	.of_match = fman_ids,
 	.probe = fman_probe,
 	.remove = fman_remove,
-	.priv_auto_alloc_size = sizeof(struct fman_priv),
+	.priv_auto	= sizeof(struct fman_priv),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif /* CONFIG_DM_ETH */

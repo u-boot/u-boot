@@ -79,5 +79,5 @@ bool display_in_use(struct udevice *dev)
 UCLASS_DRIVER(display) = {
 	.id		= UCLASS_DISPLAY,
 	.name		= "display",
-	.per_device_platdata_auto_alloc_size	= sizeof(struct display_plat),
+	.per_device_platdata_auto	= sizeof(struct display_plat),
 };

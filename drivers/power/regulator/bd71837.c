@@ -466,5 +466,5 @@ U_BOOT_DRIVER(bd71837_regulator) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &bd71837_regulator_ops,
 	.probe = bd71837_regulator_probe,
-	.platdata_auto_alloc_size = sizeof(struct bd71837_platdata),
+	.platdata_auto	= sizeof(struct bd71837_platdata),
 };

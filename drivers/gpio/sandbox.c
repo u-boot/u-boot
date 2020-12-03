@@ -532,6 +532,6 @@ U_BOOT_DRIVER(sandbox_pinctrl_gpio) = {
 	.ops = &sandbox_pinctrl_gpio_ops,
 	.bind = dm_scan_fdt_dev,
 	.probe = sandbox_pinctrl_probe,
-	.priv_auto_alloc_size	= sizeof(struct sb_pinctrl_priv),
+	.priv_auto	= sizeof(struct sb_pinctrl_priv),
 	ACPI_OPS_PTR(&pinctrl_sandbox_acpi_ops)
 };

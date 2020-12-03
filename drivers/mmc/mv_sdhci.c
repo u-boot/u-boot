@@ -151,7 +151,7 @@ U_BOOT_DRIVER(mv_sdhci_drv) = {
 	.bind		= mv_sdhci_bind,
 	.probe		= mv_sdhci_probe,
 	.ops		= &sdhci_ops,
-	.priv_auto_alloc_size = sizeof(struct sdhci_host),
-	.platdata_auto_alloc_size = sizeof(struct mv_sdhci_plat),
+	.priv_auto	= sizeof(struct sdhci_host),
+	.platdata_auto	= sizeof(struct mv_sdhci_plat),
 };
 #endif /* CONFIG_DM_MMC */

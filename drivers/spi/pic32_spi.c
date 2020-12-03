@@ -444,6 +444,6 @@ U_BOOT_DRIVER(pic32_spi) = {
 	.id		= UCLASS_SPI,
 	.of_match	= pic32_spi_ids,
 	.ops		= &pic32_spi_ops,
-	.priv_auto_alloc_size = sizeof(struct pic32_spi_priv),
+	.priv_auto	= sizeof(struct pic32_spi_priv),
 	.probe		= pic32_spi_probe,
 };

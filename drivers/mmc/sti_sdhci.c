@@ -144,6 +144,6 @@ U_BOOT_DRIVER(sti_mmc) = {
 	.ops = &sdhci_ops,
 	.ofdata_to_platdata = sti_sdhci_ofdata_to_platdata,
 	.probe = sti_sdhci_probe,
-	.priv_auto_alloc_size = sizeof(struct sdhci_host),
-	.platdata_auto_alloc_size = sizeof(struct sti_sdhci_plat),
+	.priv_auto	= sizeof(struct sdhci_host),
+	.platdata_auto	= sizeof(struct sti_sdhci_plat),
 };

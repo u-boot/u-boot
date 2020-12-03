@@ -743,8 +743,8 @@ U_BOOT_DRIVER(sh_mmcif_mmc) = {
 	.of_match		= sh_mmcif_sd_match,
 	.bind			= sh_mmcif_dm_bind,
 	.probe			= sh_mmcif_dm_probe,
-	.priv_auto_alloc_size	= sizeof(struct sh_mmcif_host),
-	.platdata_auto_alloc_size = sizeof(struct sh_mmcif_plat),
+	.priv_auto	= sizeof(struct sh_mmcif_host),
+	.platdata_auto	= sizeof(struct sh_mmcif_plat),
 	.ops			= &sh_mmcif_dm_ops,
 };
 #endif

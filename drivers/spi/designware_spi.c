@@ -560,8 +560,8 @@ U_BOOT_DRIVER(dw_spi) = {
 	.of_match = dw_spi_ids,
 	.ops = &dw_spi_ops,
 	.ofdata_to_platdata = dw_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct dw_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct dw_spi_priv),
+	.platdata_auto	= sizeof(struct dw_spi_platdata),
+	.priv_auto	= sizeof(struct dw_spi_priv),
 	.probe = dw_spi_probe,
 	.remove = dw_spi_remove,
 };

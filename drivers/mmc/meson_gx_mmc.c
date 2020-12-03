@@ -340,7 +340,7 @@ U_BOOT_DRIVER(meson_mmc) = {
 	.probe = meson_mmc_probe,
 	.bind = meson_mmc_bind,
 	.ofdata_to_platdata = meson_mmc_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct meson_mmc_platdata),
+	.platdata_auto	= sizeof(struct meson_mmc_platdata),
 };
 
 #ifdef CONFIG_PWRSEQ

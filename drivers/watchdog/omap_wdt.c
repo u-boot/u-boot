@@ -263,6 +263,6 @@ U_BOOT_DRIVER(omap3_wdt) = {
 	.of_match = omap3_wdt_ids,
 	.ops = &omap3_wdt_ops,
 	.probe = omap3_wdt_probe,
-	.priv_auto_alloc_size = sizeof(struct omap3_wdt_priv),
+	.priv_auto	= sizeof(struct omap3_wdt_priv),
 };
 #endif /* !CONFIG_IS_ENABLED(WDT) */

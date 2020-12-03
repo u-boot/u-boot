@@ -408,7 +408,7 @@ UCLASS_DRIVER(video) = {
 	.pre_probe	= video_pre_probe,
 	.post_probe	= video_post_probe,
 	.pre_remove	= video_pre_remove,
-	.priv_auto_alloc_size	= sizeof(struct video_uc_priv),
-	.per_device_auto_alloc_size	= sizeof(struct video_priv),
-	.per_device_platdata_auto_alloc_size = sizeof(struct video_uc_platdata),
+	.priv_auto	= sizeof(struct video_uc_priv),
+	.per_device_auto	= sizeof(struct video_priv),
+	.per_device_platdata_auto	= sizeof(struct video_uc_platdata),
 };

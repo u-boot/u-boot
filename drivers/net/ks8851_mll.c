@@ -698,8 +698,8 @@ U_BOOT_DRIVER(ks8851) = {
 	.ofdata_to_platdata = ks8851_ofdata_to_platdata,
 	.probe		= ks8851_probe,
 	.ops		= &ks8851_ops,
-	.priv_auto_alloc_size = sizeof(struct ks_net),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct ks_net),
+	.platdata_auto	= sizeof(struct eth_pdata),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif

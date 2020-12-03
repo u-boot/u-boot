@@ -1102,5 +1102,5 @@ U_BOOT_DRIVER(dp_rockchip) = {
 	.ofdata_to_platdata	= rk_edp_ofdata_to_platdata,
 	.probe	= rk_edp_probe,
 	.remove	= rk_edp_remove,
-	.priv_auto_alloc_size	= sizeof(struct rk_edp_priv),
+	.priv_auto	= sizeof(struct rk_edp_priv),
 };

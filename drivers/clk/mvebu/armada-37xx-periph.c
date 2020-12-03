@@ -624,6 +624,6 @@ U_BOOT_DRIVER(armada_37xx_periph_clk) = {
 	.id		= UCLASS_CLK,
 	.of_match	= armada_37xx_periph_clk_ids,
 	.ops		= &armada_37xx_periph_clk_ops,
-	.priv_auto_alloc_size = sizeof(struct a37xx_periphclk),
+	.priv_auto	= sizeof(struct a37xx_periphclk),
 	.probe		= armada_37xx_periph_clk_probe,
 };

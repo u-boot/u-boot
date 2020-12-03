@@ -298,7 +298,7 @@ UCLASS_DRIVER(usb_emul) = {
 	.id		= UCLASS_USB_EMUL,
 	.name		= "usb_emul",
 	.post_bind	= dm_scan_fdt_dev,
-	.per_device_platdata_auto_alloc_size = sizeof(struct usb_emul_platdata),
-	.per_child_auto_alloc_size = sizeof(struct usb_device),
-	.per_child_platdata_auto_alloc_size = sizeof(struct usb_dev_platdata),
+	.per_device_platdata_auto	= sizeof(struct usb_emul_platdata),
+	.per_child_auto	= sizeof(struct usb_device),
+	.per_child_platdata_auto	= sizeof(struct usb_dev_platdata),
 };

@@ -621,6 +621,6 @@ U_BOOT_DRIVER(i2c_nexell) = {
 	.id		= UCLASS_I2C,
 	.of_match	= nx_i2c_ids,
 	.probe		= nx_i2c_probe,
-	.priv_auto_alloc_size	= sizeof(struct nx_i2c_bus),
+	.priv_auto	= sizeof(struct nx_i2c_bus),
 	.ops		= &nx_i2c_ops,
 };

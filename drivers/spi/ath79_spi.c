@@ -224,6 +224,6 @@ U_BOOT_DRIVER(ath79_spi) = {
 	.id = UCLASS_SPI,
 	.of_match = ath79_spi_ids,
 	.ops    = &ath79_spi_ops,
-	.priv_auto_alloc_size = sizeof(struct ath79_spi_priv),
+	.priv_auto	= sizeof(struct ath79_spi_priv),
 	.probe  = ath79_spi_probe,
 };

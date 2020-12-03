@@ -619,5 +619,5 @@ U_BOOT_DRIVER(pcie_brcm_base) = {
 	.of_match		= brcm_pcie_ids,
 	.probe			= brcm_pcie_probe,
 	.ofdata_to_platdata	= brcm_pcie_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct brcm_pcie),
+	.priv_auto	= sizeof(struct brcm_pcie),
 };

@@ -108,5 +108,5 @@ U_BOOT_DRIVER(acpi_gpe_drv) = {
 	.of_match	= acpi_gpe_ids,
 	.ops		= &acpi_gpe_ops,
 	.ofdata_to_platdata	= acpi_gpe_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct acpi_gpe_priv),
+	.priv_auto	= sizeof(struct acpi_gpe_priv),
 };

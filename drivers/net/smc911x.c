@@ -639,8 +639,8 @@ U_BOOT_DRIVER(smc911x) = {
 	.ofdata_to_platdata = smc911x_ofdata_to_platdata,
 	.probe		= smc911x_probe,
 	.ops		= &smc911x_ops,
-	.priv_auto_alloc_size = sizeof(struct smc911x_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct smc911x_priv),
+	.platdata_auto	= sizeof(struct eth_pdata),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif

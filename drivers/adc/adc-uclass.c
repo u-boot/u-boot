@@ -437,5 +437,5 @@ UCLASS_DRIVER(adc) = {
 	.id	= UCLASS_ADC,
 	.name	= "adc",
 	.pre_probe =  adc_pre_probe,
-	.per_device_platdata_auto_alloc_size = ADC_UCLASS_PLATDATA_SIZE,
+	.per_device_platdata_auto	= ADC_UCLASS_PLATDATA_SIZE,
 };

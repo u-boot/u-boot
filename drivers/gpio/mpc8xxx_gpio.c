@@ -295,9 +295,9 @@ U_BOOT_DRIVER(gpio_mpc8xxx) = {
 	.ops	= &gpio_mpc8xxx_ops,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.ofdata_to_platdata = mpc8xxx_gpio_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct mpc8xxx_gpio_plat),
+	.platdata_auto	= sizeof(struct mpc8xxx_gpio_plat),
 	.of_match = mpc8xxx_gpio_ids,
 #endif
 	.probe	= mpc8xxx_gpio_probe,
-	.priv_auto_alloc_size = sizeof(struct mpc8xxx_gpio_data),
+	.priv_auto	= sizeof(struct mpc8xxx_gpio_data),
 };

@@ -501,8 +501,8 @@ U_BOOT_DRIVER(jz_mmc_drv) = {
 	.ofdata_to_platdata	= jz_mmc_ofdata_to_platdata,
 	.bind			= jz_mmc_bind,
 	.probe			= jz_mmc_probe,
-	.priv_auto_alloc_size	= sizeof(struct jz_mmc_priv),
-	.platdata_auto_alloc_size = sizeof(struct jz_mmc_plat),
+	.priv_auto	= sizeof(struct jz_mmc_priv),
+	.platdata_auto	= sizeof(struct jz_mmc_plat),
 	.ops			= &jz_msc_ops,
 };
 #endif /* CONFIG_DM_MMC */

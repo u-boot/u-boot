@@ -372,7 +372,7 @@ U_BOOT_DRIVER(zynq_spi) = {
 	.of_match = zynq_spi_ids,
 	.ops	= &zynq_spi_ops,
 	.ofdata_to_platdata = zynq_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct zynq_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct zynq_spi_priv),
+	.platdata_auto	= sizeof(struct zynq_spi_platdata),
+	.priv_auto	= sizeof(struct zynq_spi_priv),
 	.probe	= zynq_spi_probe,
 };

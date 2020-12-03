@@ -1552,7 +1552,7 @@ U_BOOT_DRIVER(octeontx_bgx) = {
 	.id	= UCLASS_MISC,
 	.probe	= octeontx_bgx_probe,
 	.remove	= octeontx_bgx_remove,
-	.priv_auto_alloc_size = sizeof(struct bgx),
+	.priv_auto	= sizeof(struct bgx),
 	.flags  = DM_FLAG_OS_PREPARE,
 };
 

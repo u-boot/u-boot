@@ -155,5 +155,5 @@ U_BOOT_DRIVER(gpio_regulator) = {
 	.ops = &gpio_regulator_ops,
 	.of_match = gpio_regulator_ids,
 	.ofdata_to_platdata = gpio_regulator_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct gpio_regulator_platdata),
+	.platdata_auto	= sizeof(struct gpio_regulator_platdata),
 };

@@ -371,5 +371,5 @@ U_BOOT_DRIVER(j721e_ddrss) = {
 	.of_match = j721e_ddrss_ids,
 	.ops = &j721e_ddrss_ops,
 	.probe = j721e_ddrss_probe,
-	.priv_auto_alloc_size = sizeof(struct j721e_ddrss_desc),
+	.priv_auto	= sizeof(struct j721e_ddrss_desc),
 };

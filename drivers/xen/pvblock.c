@@ -723,7 +723,7 @@ U_BOOT_DRIVER(pvblock_blk) = {
 	.bind			= pvblock_blk_bind,
 	.probe			= pvblock_blk_probe,
 	.remove			= pvblock_blk_remove,
-	.priv_auto_alloc_size	= sizeof(struct blkfront_dev),
+	.priv_auto	= sizeof(struct blkfront_dev),
 	.flags			= DM_FLAG_OS_PREPARE,
 };
 

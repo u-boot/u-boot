@@ -342,5 +342,5 @@ U_BOOT_DRIVER(gpio_stm32) = {
 	.probe	= gpio_stm32_probe,
 	.ops	= &gpio_stm32_ops,
 	.flags	= DM_UC_FLAG_SEQ_ALIAS,
-	.priv_auto_alloc_size	= sizeof(struct stm32_gpio_priv),
+	.priv_auto	= sizeof(struct stm32_gpio_priv),
 };

@@ -343,7 +343,7 @@ U_BOOT_DRIVER(sandbox_testproc) = {
 	.id = UCLASS_REMOTEPROC,
 	.ops = &sandbox_testproc_ops,
 	.probe = sandbox_testproc_probe,
-	.priv_auto_alloc_size = sizeof(struct sandbox_test_devdata),
+	.priv_auto	= sizeof(struct sandbox_test_devdata),
 };
 
 /* TODO(nm@ti.com): Remove this along with non-DT support */

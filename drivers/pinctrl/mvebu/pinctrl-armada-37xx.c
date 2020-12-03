@@ -643,6 +643,6 @@ U_BOOT_DRIVER(armada_37xx_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(armada_37xx_pinctrl_of_match),
 	.probe = armada_37xx_pinctrl_probe,
-	.priv_auto_alloc_size = sizeof(struct armada_37xx_pinctrl),
+	.priv_auto	= sizeof(struct armada_37xx_pinctrl),
 	.ops = &armada_37xx_pinctrl_ops,
 };
