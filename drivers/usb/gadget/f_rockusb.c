@@ -309,8 +309,9 @@ static int rockusb_add(struct usb_configuration *c)
 
 	status = usb_add_function(c, &f_rkusb->usb_function);
 	if (status) {
+		free(f_rkusb->buf_head);
 		free(f_rkusb);
-		rockusb_func = f_rkusb;
+		rockusb_func = NULL;
 	}
 	return status;
 }
