@@ -190,7 +190,6 @@
 
 #endif
 
-#define CONFIG_JFFS2_CMDLINE		1
 #define CONFIG_JFFS2_NAND		1
 #define CONFIG_JFFS2_DEV		"nand0" /* NAND device jffs2 lives on */
 #define CONFIG_JFFS2_PART_OFFSET	0	/* start of jffs2 partition */

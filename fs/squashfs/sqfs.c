@@ -49,6 +49,7 @@ static int sqfs_read_sblk(struct squashfs_super_block **sblk)
 
 	if (sqfs_disk_read(0, 1, *sblk) != 1) {
 		free(*sblk);
+		sblk = NULL;
 		return -EINVAL;
 	}
 
@@ -1689,9 +1690,10 @@ free_strings:
 
 void sqfs_close(void)
 {
-	free(ctxt.sblk);
-	ctxt.cur_dev = NULL;
 	sqfs_decompressor_cleanup(&ctxt);
+	free(ctxt.sblk);
+	ctxt.sblk = NULL;
+	ctxt.cur_dev = NULL;
 }
 
 void sqfs_closedir(struct fs_dir_stream *dirs)

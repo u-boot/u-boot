@@ -29,7 +29,7 @@ enum log_level_t {
 	LOGL_CRIT,
 	/** @LOGL_ERR: Error that prevents something from working */
 	LOGL_ERR,
-	/** @LOGL_WARNING: Warning may prevent optimial operation */
+	/** @LOGL_WARNING: Warning may prevent optimal operation */
 	LOGL_WARNING,
 	/** @LOGL_NOTICE: Normal but significant condition, printf() */
 	LOGL_NOTICE,
@@ -96,8 +96,8 @@ enum log_category_t {
 	LOGC_DEVRES,
 	/** @LOGC_ACPI: Advanced Configuration and Power Interface (ACPI) */
 	LOGC_ACPI,
-	LOGC_BOOT,	/* Related to boot process / boot image processing */
-
+	/** @LOGC_BOOT: Related to boot process / boot image processing */
+	LOGC_BOOT,
 	/** @LOGC_COUNT: Number of log categories */
 	LOGC_COUNT,
 	/** @LOGC_END: Sentinel value for lists of log categories */
@@ -322,7 +322,7 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
  *
  * Members marked as 'not allocated' are stored as pointers and the caller is
  * responsible for making sure that the data pointed to is not overwritten.
- * Memebers marked as 'allocated' are allocated (e.g. via strdup()) by the log
+ * Members marked as 'allocated' are allocated (e.g. via strdup()) by the log
  * system.
  *
  * TODO(sjg@chromium.org): Compress this struct down a bit to reduce space, e.g.
@@ -379,7 +379,7 @@ struct log_driver {
  * the run-time aspects of drivers (currently just a list of filters to apply
  * to records send to this device).
  *
- * @next_filter_num: Seqence number of next filter filter added (0=no filters
+ * @next_filter_num: Sequence number of next filter filter added (0=no filters
  *	yet). This increments with each new filter on the device, but never
  *	decrements
  * @flags: Flags for this filter (enum log_device_flags)
@@ -412,7 +412,7 @@ enum log_filter_flags {
 };
 
 /**
- * struct log_filter - criterial to filter out log messages
+ * struct log_filter - criteria to filter out log messages
  *
  * If a message matches all criteria, then it is allowed. If LOGFF_DENY is set,
  * then it is denied instead.
