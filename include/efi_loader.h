@@ -210,6 +210,10 @@ extern const efi_guid_t efi_guid_cert_type_pkcs7;
 
 /* GUID of RNG protocol */
 extern const efi_guid_t efi_guid_rng_protocol;
+/* GUID of capsule update result */
+extern const efi_guid_t efi_guid_capsule_report;
+/* GUID of firmware management protocol */
+extern const efi_guid_t efi_guid_firmware_management_protocol;
 
 extern unsigned int __efi_runtime_start, __efi_runtime_stop;
 extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
@@ -812,6 +816,25 @@ void efi_memcpy_runtime(void *dest, const void *src, size_t n);
 /* commonly used helper function */
 u16 *efi_create_indexed_name(u16 *buffer, const char *name, unsigned int index);
 
+extern const struct efi_firmware_management_protocol efi_fmp_fit;
+extern const struct efi_firmware_management_protocol efi_fmp_raw;
+
+/* Capsule update */
+efi_status_t EFIAPI efi_update_capsule(
+		struct efi_capsule_header **capsule_header_array,
+		efi_uintn_t capsule_count,
+		u64 scatter_gather_list);
+efi_status_t EFIAPI efi_query_capsule_caps(
+		struct efi_capsule_header **capsule_header_array,
+		efi_uintn_t capsule_count,
+		u64 *maximum_capsule_size,
+		u32 *reset_type);
+
+#define EFI_CAPSULE_DIR L"\\EFI\\UpdateCapsule\\"
+
+/* Hook at initialization */
+efi_status_t efi_launch_capsules(void);
+
 #else /* CONFIG_IS_ENABLED(EFI_LOADER) */
 
 /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
@@ -828,6 +851,10 @@ static inline void efi_set_bootdev(const char *dev, const char *devnr,
 				   const char *path) { }
 static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
 static inline void efi_print_image_infos(void *pc) { }
+static inline efi_status_t efi_launch_capsules(void)
+{
+	return EFI_SUCCESS;
+}
 
 #endif /* CONFIG_IS_ENABLED(EFI_LOADER) */
 
