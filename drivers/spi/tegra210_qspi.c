@@ -99,7 +99,7 @@ struct tegra210_qspi_priv {
 
 static int tegra210_qspi_of_to_plat(struct udevice *bus)
 {
-	struct tegra_spi_platdata *plat = bus->plat;
+	struct tegra_spi_plat *plat = bus->plat;
 
 	plat->base = dev_read_addr(bus);
 	plat->periph_id = clock_decode_periph_id(bus);
@@ -125,7 +125,7 @@ static int tegra210_qspi_of_to_plat(struct udevice *bus)
 
 static int tegra210_qspi_probe(struct udevice *bus)
 {
-	struct tegra_spi_platdata *plat = dev_get_plat(bus);
+	struct tegra_spi_plat *plat = dev_get_plat(bus);
 	struct tegra210_qspi_priv *priv = dev_get_priv(bus);
 
 	priv->regs = (struct qspi_regs *)plat->base;
@@ -174,7 +174,7 @@ static int tegra210_qspi_claim_bus(struct udevice *dev)
 static void spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct tegra_spi_platdata *pdata = dev_get_plat(bus);
+	struct tegra_spi_plat *pdata = dev_get_plat(bus);
 	struct tegra210_qspi_priv *priv = dev_get_priv(bus);
 
 	/* If it's too soon to do another transaction, wait */
@@ -198,7 +198,7 @@ static void spi_cs_activate(struct udevice *dev)
 static void spi_cs_deactivate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct tegra_spi_platdata *pdata = dev_get_plat(bus);
+	struct tegra_spi_plat *pdata = dev_get_plat(bus);
 	struct tegra210_qspi_priv *priv = dev_get_priv(bus);
 
 	setbits_le32(&priv->regs->command1, QSPI_CMD1_CS_SW_VAL);
@@ -380,7 +380,7 @@ static int tegra210_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int tegra210_qspi_set_speed(struct udevice *bus, uint speed)
 {
-	struct tegra_spi_platdata *plat = bus->plat;
+	struct tegra_spi_plat *plat = bus->plat;
 	struct tegra210_qspi_priv *priv = dev_get_priv(bus);
 
 	if (speed > plat->frequency)
@@ -423,7 +423,7 @@ U_BOOT_DRIVER(tegra210_qspi) = {
 	.of_match = tegra210_qspi_ids,
 	.ops = &tegra210_qspi_ops,
 	.of_to_plat = tegra210_qspi_of_to_plat,
-	.plat_auto	= sizeof(struct tegra_spi_platdata),
+	.plat_auto	= sizeof(struct tegra_spi_plat),
 	.priv_auto	= sizeof(struct tegra210_qspi_priv),
 	.per_child_auto	= sizeof(struct spi_slave),
 	.probe = tegra210_qspi_probe,

@@ -42,7 +42,7 @@
  * handle	handle of the controller on which this driver is installed
  * io		block io protocol proxied by this driver
  */
-struct efi_blk_platdata {
+struct efi_blk_plat {
 	efi_handle_t		handle;
 	struct efi_block_io	*io;
 };
@@ -59,7 +59,7 @@ struct efi_blk_platdata {
 static ulong efi_bl_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			 void *buffer)
 {
-	struct efi_blk_platdata *plat = dev_get_plat(dev);
+	struct efi_blk_plat *plat = dev_get_plat(dev);
 	struct efi_block_io *io = plat->io;
 	efi_status_t ret;
 
@@ -88,7 +88,7 @@ static ulong efi_bl_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 static ulong efi_bl_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			  const void *buffer)
 {
-	struct efi_blk_platdata *plat = dev_get_plat(dev);
+	struct efi_blk_plat *plat = dev_get_plat(dev);
 	struct efi_block_io *io = plat->io;
 	efi_status_t ret;
 
@@ -140,7 +140,7 @@ static int efi_bl_bind(efi_handle_t handle, void *interface)
 	struct efi_object *obj = efi_search_obj(handle);
 	struct efi_block_io *io = interface;
 	int disks;
-	struct efi_blk_platdata *plat;
+	struct efi_blk_plat *plat;
 
 	EFI_PRINT("%s: handle %p, interface %p\n", __func__, handle, io);
 
@@ -196,7 +196,7 @@ U_BOOT_DRIVER(efi_blk) = {
 	.name			= "efi_blk",
 	.id			= UCLASS_BLK,
 	.ops			= &efi_blk_ops,
-	.plat_auto	= sizeof(struct efi_blk_platdata),
+	.plat_auto	= sizeof(struct efi_blk_plat),
 };
 
 /* EFI driver operators */

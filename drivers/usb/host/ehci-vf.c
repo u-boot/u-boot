@@ -312,7 +312,7 @@ static int vf_usb_bind(struct udevice *dev)
 
 static int ehci_usb_probe(struct udevice *dev)
 {
-	struct usb_platdata *plat = dev_get_plat(dev);
+	struct usb_plat *plat = dev_get_plat(dev);
 	struct ehci_vf_priv_data *priv = dev_get_priv(dev);
 	struct usb_ehci *ehci = priv->ehci;
 	struct ehci_hccr *hccr;
@@ -355,7 +355,7 @@ U_BOOT_DRIVER(usb_ehci) = {
 	.remove = ehci_deregister,
 	.ops = &ehci_usb_ops,
 	.of_to_plat = vf_usb_of_to_plat,
-	.plat_auto	= sizeof(struct usb_platdata),
+	.plat_auto	= sizeof(struct usb_plat),
 	.priv_auto	= sizeof(struct ehci_vf_priv_data),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

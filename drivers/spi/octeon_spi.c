@@ -81,7 +81,7 @@ struct octeon_spi {
 
 static u64 octeon_spi_set_mpicfg(struct udevice *dev)
 {
-	struct dm_spi_slave_platdata *slave = dev_get_parent_plat(dev);
+	struct dm_spi_slave_plat *slave = dev_get_parent_plat(dev);
 	struct udevice *bus = dev_get_parent(dev);
 	struct octeon_spi *priv = dev_get_priv(bus);
 	u64 mpi_cfg;

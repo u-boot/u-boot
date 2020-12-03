@@ -55,7 +55,7 @@ struct iproc_gpio_pctrl_map {
  * @name:	gpio device name, ex GPIO0, GPIO1
  * @ngpios:	total number of gpios
  */
-struct iproc_gpio_platdata {
+struct iproc_gpio_plat {
 	struct udevice *pinctrl_dev;
 	struct list_head gpiomap;
 	void __iomem *base;
@@ -73,7 +73,7 @@ struct iproc_gpio_platdata {
  * @gpio: GPIO pin
  * @set: set or clear
  */
-static inline void iproc_gpio_set_bit(struct iproc_gpio_platdata *plat,
+static inline void iproc_gpio_set_bit(struct iproc_gpio_plat *plat,
 				      u32 reg, u32 gpio, bool set)
 {
 	u32 offset = GPIO_REG(gpio, reg);
@@ -83,7 +83,7 @@ static inline void iproc_gpio_set_bit(struct iproc_gpio_platdata *plat,
 			(set ? BIT(shift) : 0));
 }
 
-static inline bool iproc_gpio_get_bit(struct iproc_gpio_platdata *plat,
+static inline bool iproc_gpio_get_bit(struct iproc_gpio_plat *plat,
 				      u32 reg, u32 gpio)
 {
 	u32 offset = GPIO_REG(gpio, reg);
@@ -98,7 +98,7 @@ static inline bool iproc_gpio_get_bit(struct iproc_gpio_platdata *plat,
  * @plat: iproc GPIO device
  * @gpio: GPIO pin
  */
-static u32 iproc_get_pctrl_from_gpio(struct iproc_gpio_platdata *plat, u32 gpio)
+static u32 iproc_get_pctrl_from_gpio(struct iproc_gpio_plat *plat, u32 gpio)
 {
 	struct iproc_gpio_pctrl_map *range = NULL;
 	struct list_head *pos, *tmp;
@@ -127,7 +127,7 @@ static u32 iproc_get_pctrl_from_gpio(struct iproc_gpio_platdata *plat, u32 gpio)
  */
 static int iproc_get_gpio_pctrl_mapping(struct udevice *dev)
 {
-	struct iproc_gpio_platdata *plat = dev_get_plat(dev);
+	struct iproc_gpio_plat *plat = dev_get_plat(dev);
 	struct iproc_gpio_pctrl_map *range = NULL;
 	struct ofnode_phandle_args args;
 	int index = 0, ret;
@@ -153,7 +153,7 @@ static int iproc_get_gpio_pctrl_mapping(struct udevice *dev)
 
 static int iproc_gpio_request(struct udevice *dev, u32 gpio, const char *label)
 {
-	struct iproc_gpio_platdata *plat = dev_get_plat(dev);
+	struct iproc_gpio_plat *plat = dev_get_plat(dev);
 	u32 pctrl;
 
 	/* nothing to do if there is no corresponding pinctrl device */
@@ -167,7 +167,7 @@ static int iproc_gpio_request(struct udevice *dev, u32 gpio, const char *label)
 
 static int iproc_gpio_direction_input(struct udevice *dev, u32 gpio)
 {
-	struct iproc_gpio_platdata *plat = dev_get_plat(dev);
+	struct iproc_gpio_plat *plat = dev_get_plat(dev);
 
 	iproc_gpio_set_bit(plat, OUT_EN_OFFSET, gpio, false);
 	dev_dbg(dev, "gpio:%u set input\n", gpio);
@@ -177,7 +177,7 @@ static int iproc_gpio_direction_input(struct udevice *dev, u32 gpio)
 
 static int iproc_gpio_direction_output(struct udevice *dev, u32 gpio, int value)
 {
-	struct iproc_gpio_platdata *plat = dev_get_plat(dev);
+	struct iproc_gpio_plat *plat = dev_get_plat(dev);
 
 	iproc_gpio_set_bit(plat, OUT_EN_OFFSET, gpio, true);
 	iproc_gpio_set_bit(plat, DATA_OUT_OFFSET, gpio, value);
@@ -188,7 +188,7 @@ static int iproc_gpio_direction_output(struct udevice *dev, u32 gpio, int value)
 
 static int iproc_gpio_get_value(struct udevice *dev, u32 gpio)
 {
-	struct iproc_gpio_platdata *plat = dev_get_plat(dev);
+	struct iproc_gpio_plat *plat = dev_get_plat(dev);
 	int value;
 
 	value = iproc_gpio_get_bit(plat, DATA_IN_OFFSET, gpio);
@@ -199,7 +199,7 @@ static int iproc_gpio_get_value(struct udevice *dev, u32 gpio)
 
 static int iproc_gpio_set_value(struct udevice *dev, u32 gpio, int value)
 {
-	struct iproc_gpio_platdata *plat = dev_get_plat(dev);
+	struct iproc_gpio_plat *plat = dev_get_plat(dev);
 
 	if (iproc_gpio_get_bit(plat, OUT_EN_OFFSET, gpio))
 		iproc_gpio_set_bit(plat, DATA_OUT_OFFSET, gpio, value);
@@ -210,7 +210,7 @@ static int iproc_gpio_set_value(struct udevice *dev, u32 gpio, int value)
 
 static int iproc_gpio_get_function(struct udevice *dev, u32 gpio)
 {
-	struct iproc_gpio_platdata *plat = dev_get_plat(dev);
+	struct iproc_gpio_plat *plat = dev_get_plat(dev);
 
 	if (iproc_gpio_get_bit(plat, OUT_EN_OFFSET, gpio))
 		return GPIOF_OUTPUT;
@@ -220,7 +220,7 @@ static int iproc_gpio_get_function(struct udevice *dev, u32 gpio)
 
 static int iproc_gpio_of_to_plat(struct udevice *dev)
 {
-	struct iproc_gpio_platdata *plat = dev_get_plat(dev);
+	struct iproc_gpio_plat *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	int ret;
 	char name[10];
@@ -286,5 +286,5 @@ U_BOOT_DRIVER(iproc_gpio) = {
 	.of_match		= iproc_gpio_ids,
 	.ops			= &iproc_gpio_ops,
 	.of_to_plat	= iproc_gpio_of_to_plat,
-	.plat_auto	= sizeof(struct iproc_gpio_platdata),
+	.plat_auto	= sizeof(struct iproc_gpio_plat),
 };

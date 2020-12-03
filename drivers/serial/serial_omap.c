@@ -101,7 +101,7 @@ DEBUG_UART_FUNCS
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int omap_serial_of_to_plat(struct udevice *dev)
 {
-	struct ns16550_platdata *plat = dev->plat;
+	struct ns16550_plat *plat = dev->plat;
 	fdt_addr_t addr;
 	struct clk clk;
 	int err;
@@ -158,7 +158,7 @@ U_BOOT_DRIVER(omap_serial) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap_serial_ids,
 	.of_to_plat = omap_serial_of_to_plat,
-	.plat_auto	= sizeof(struct ns16550_platdata),
+	.plat_auto	= sizeof(struct ns16550_plat),
 #endif
 	.priv_auto	= sizeof(struct NS16550),
 	.probe = ns16550_serial_probe,

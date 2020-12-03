@@ -53,7 +53,7 @@ enum {
 	CF9_GLB_RST	= 1 << 20,
 };
 
-struct apl_pmc_platdata {
+struct apl_pmc_plat {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct dtd_intel_apl_pmc dtplat;
 #endif
@@ -108,10 +108,10 @@ static int apl_global_reset_set_enable(struct udevice *dev, bool enable)
 	return 0;
 }
 
-int apl_pmc_ofdata_to_uc_platdata(struct udevice *dev)
+int apl_pmc_ofdata_to_uc_plat(struct udevice *dev)
 {
 	struct acpi_pmc_upriv *upriv = dev_get_uclass_priv(dev);
-	struct apl_pmc_platdata *plat = dev_get_plat(dev);
+	struct apl_pmc_plat *plat = dev_get_plat(dev);
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	u32 base[6];
@@ -144,7 +144,7 @@ int apl_pmc_ofdata_to_uc_platdata(struct udevice *dev)
 	if (ret)
 		return log_msg_ret("Bad gpe0-dw", ret);
 
-	return pmc_ofdata_to_uc_platdata(dev);
+	return pmc_ofdata_to_uc_plat(dev);
 #else
 	struct dtd_intel_apl_pmc *dtplat = &plat->dtplat;
 
@@ -169,7 +169,7 @@ int apl_pmc_ofdata_to_uc_platdata(struct udevice *dev)
 static int enable_pmcbar(struct udevice *dev)
 {
 	struct acpi_pmc_upriv *upriv = dev_get_uclass_priv(dev);
-	struct apl_pmc_platdata *priv = dev_get_plat(dev);
+	struct apl_pmc_plat *priv = dev_get_plat(dev);
 	pci_dev_t pmc = priv->bdf;
 
 	/*
@@ -221,8 +221,8 @@ U_BOOT_DRIVER(intel_apl_pmc) = {
 	.name		= "intel_apl_pmc",
 	.id		= UCLASS_ACPI_PMC,
 	.of_match	= apl_pmc_ids,
-	.of_to_plat = apl_pmc_ofdata_to_uc_platdata,
+	.of_to_plat = apl_pmc_ofdata_to_uc_plat,
 	.probe		= apl_pmc_probe,
 	.ops		= &apl_pmc_ops,
-	.plat_auto	= sizeof(struct apl_pmc_platdata),
+	.plat_auto	= sizeof(struct apl_pmc_plat),
 };

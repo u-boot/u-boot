@@ -88,7 +88,7 @@
 
 #define RX_TIMEOUT			1000		/* timeout in ms */
 
-struct dw_spi_platdata {
+struct dw_spi_plat {
 	s32 frequency;		/* Default clock frequency, -1 for none */
 	void __iomem *regs;
 };
@@ -155,7 +155,7 @@ static int request_gpio_cs(struct udevice *bus)
 
 static int dw_spi_of_to_plat(struct udevice *bus)
 {
-	struct dw_spi_platdata *plat = bus->plat;
+	struct dw_spi_plat *plat = bus->plat;
 
 	plat->regs = dev_read_addr_ptr(bus);
 
@@ -263,7 +263,7 @@ static int dw_spi_reset(struct udevice *bus)
 
 static int dw_spi_probe(struct udevice *bus)
 {
-	struct dw_spi_platdata *plat = dev_get_plat(bus);
+	struct dw_spi_plat *plat = dev_get_plat(bus);
 	struct dw_spi_priv *priv = dev_get_priv(bus);
 	int ret;
 
@@ -478,7 +478,7 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int dw_spi_set_speed(struct udevice *bus, uint speed)
 {
-	struct dw_spi_platdata *plat = bus->plat;
+	struct dw_spi_plat *plat = bus->plat;
 	struct dw_spi_priv *priv = dev_get_priv(bus);
 	u16 clk_div;
 
@@ -560,7 +560,7 @@ U_BOOT_DRIVER(dw_spi) = {
 	.of_match = dw_spi_ids,
 	.ops = &dw_spi_ops,
 	.of_to_plat = dw_spi_of_to_plat,
-	.plat_auto	= sizeof(struct dw_spi_platdata),
+	.plat_auto	= sizeof(struct dw_spi_plat),
 	.priv_auto	= sizeof(struct dw_spi_priv),
 	.probe = dw_spi_probe,
 	.remove = dw_spi_remove,

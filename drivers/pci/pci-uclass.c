@@ -49,7 +49,7 @@ struct udevice *pci_get_controller(struct udevice *dev)
 
 pci_dev_t dm_pci_get_bdf(const struct udevice *dev)
 {
-	struct pci_child_platdata *pplat = dev_get_parent_plat(dev);
+	struct pci_child_plat *pplat = dev_get_parent_plat(dev);
 	struct udevice *bus = dev->parent;
 
 	/*
@@ -136,7 +136,7 @@ int pci_bus_find_devfn(const struct udevice *bus, pci_dev_t find_devfn,
 	for (device_find_first_child(bus, &dev);
 	     dev;
 	     device_find_next_child(&dev)) {
-		struct pci_child_platdata *pplat;
+		struct pci_child_plat *pplat;
 
 		pplat = dev_get_parent_plat(dev);
 		if (pplat && pplat->devfn == find_devfn) {
@@ -162,7 +162,7 @@ int dm_pci_bus_find_bdf(pci_dev_t bdf, struct udevice **devp)
 static int pci_device_matches_ids(struct udevice *dev,
 				  struct pci_device_id *ids)
 {
-	struct pci_child_platdata *pplat;
+	struct pci_child_plat *pplat;
 	int i;
 
 	pplat = dev_get_parent_plat(dev);
@@ -218,7 +218,7 @@ static int dm_pci_bus_find_device(struct udevice *bus, unsigned int vendor,
 				  unsigned int device, int *indexp,
 				  struct udevice **devp)
 {
-	struct pci_child_platdata *pplat;
+	struct pci_child_plat *pplat;
 	struct udevice *dev;
 
 	for (device_find_first_child(bus, &dev);
@@ -261,7 +261,7 @@ int dm_pci_find_class(uint find_class, int index, struct udevice **devp)
 	for (pci_find_first_device(&dev);
 	     dev;
 	     pci_find_next_device(&dev)) {
-		struct pci_child_platdata *pplat = dev_get_parent_plat(dev);
+		struct pci_child_plat *pplat = dev_get_parent_plat(dev);
 
 		if (pplat->class == find_class && !index--) {
 			*devp = dev;
@@ -524,7 +524,7 @@ static void set_vga_bridge_bits(struct udevice *dev)
 int pci_auto_config_devices(struct udevice *bus)
 {
 	struct pci_controller *hose = bus->uclass_priv;
-	struct pci_child_platdata *pplat;
+	struct pci_child_plat *pplat;
 	unsigned int sub_bus;
 	struct udevice *dev;
 	int ret;
@@ -807,7 +807,7 @@ int pci_bind_bus_devices(struct udevice *bus)
 		      PCI_MAX_PCI_FUNCTIONS - 1);
 	for (bdf = PCI_BDF(bus->seq, 0, 0); bdf <= end;
 	     bdf += PCI_BDF(0, 0, 1)) {
-		struct pci_child_platdata *pplat;
+		struct pci_child_plat *pplat;
 		struct udevice *dev;
 		ulong class;
 
@@ -1080,7 +1080,7 @@ static int pci_uclass_post_probe(struct udevice *bus)
 
 static int pci_uclass_child_post_bind(struct udevice *dev)
 {
-	struct pci_child_platdata *pplat;
+	struct pci_child_plat *pplat;
 
 	if (!dev_of_valid(dev))
 		return 0;
@@ -1441,7 +1441,7 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
 }
 
 static phys_addr_t dm_pci_map_ea_virt(struct udevice *dev, int ea_off,
-				      struct pci_child_platdata *pdata)
+				      struct pci_child_plat *pdata)
 {
 	phys_addr_t addr = 0;
 
@@ -1472,7 +1472,7 @@ static phys_addr_t dm_pci_map_ea_virt(struct udevice *dev, int ea_off,
 }
 
 static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
-			       int ea_off, struct pci_child_platdata *pdata)
+			       int ea_off, struct pci_child_plat *pdata)
 {
 	int ea_cnt, i, entry_size;
 	int bar_id = (bar - PCI_BASE_ADDRESS_0) >> 2;
@@ -1523,7 +1523,7 @@ static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
 
 void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
 {
-	struct pci_child_platdata *pdata = dev_get_parent_plat(dev);
+	struct pci_child_plat *pdata = dev_get_parent_plat(dev);
 	struct udevice *udev = dev;
 	pci_addr_t pci_bus_addr;
 	u32 bar_response;
@@ -1725,7 +1725,7 @@ int pci_sriov_init(struct udevice *pdev, int vf_en)
 	bdf += PCI_BDF(0, 0, vf_offset);
 
 	for (vf = 0; vf < num_vfs; vf++) {
-		struct pci_child_platdata *pplat;
+		struct pci_child_plat *pplat;
 		ulong class;
 
 		pci_bus_read_config(bus, bdf, PCI_CLASS_DEVICE,
@@ -1797,7 +1797,7 @@ UCLASS_DRIVER(pci) = {
 	.post_probe	= pci_uclass_post_probe,
 	.child_post_bind = pci_uclass_child_post_bind,
 	.per_device_auto	= sizeof(struct pci_controller),
-	.per_child_plat_auto	= sizeof(struct pci_child_platdata),
+	.per_child_plat_auto	= sizeof(struct pci_child_plat),
 };
 
 static const struct dm_pci_ops pci_bridge_ops = {

@@ -28,7 +28,7 @@ static const int CONFIG_GPIO = 1;
 static const int DIRECTION_INPUT = 0;
 static const int DIRECTION_OUTPUT = 1;
 
-struct tegra_gpio_platdata {
+struct tegra_gpio_plat {
 	struct gpio_ctlr_bank *bank;
 	const char *port_name;	/* Name of port, e.g. "B" */
 	int base_gpio;		/* Port number for this port (0, 1,.., n-1) */
@@ -292,7 +292,7 @@ static int gpio_tegra_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct tegra_port_info *priv = dev->priv;
-	struct tegra_gpio_platdata *plat = dev->plat;
+	struct tegra_gpio_plat *plat = dev->plat;
 
 	/* Only child devices have ports */
 	if (!plat)
@@ -313,7 +313,7 @@ static int gpio_tegra_probe(struct udevice *dev)
  */
 static int gpio_tegra_bind(struct udevice *parent)
 {
-	struct tegra_gpio_platdata *plat = parent->plat;
+	struct tegra_gpio_plat *plat = parent->plat;
 	struct gpio_ctlr *ctlr;
 	int bank_count;
 	int bank;
@@ -348,7 +348,7 @@ static int gpio_tegra_bind(struct udevice *parent)
 		int port;
 
 		for (port = 0; port < TEGRA_PORTS_PER_BANK; port++) {
-			struct tegra_gpio_platdata *plat;
+			struct tegra_gpio_plat *plat;
 			struct udevice *dev;
 			int base_port;
 

@@ -377,7 +377,7 @@ void cadence_qspi_apb_delay(void *reg_base,
 	cadence_qspi_apb_controller_enable(reg_base);
 }
 
-void cadence_qspi_apb_controller_init(struct cadence_spi_platdata *plat)
+void cadence_qspi_apb_controller_init(struct cadence_spi_plat *plat)
 {
 	unsigned reg;
 
@@ -526,7 +526,7 @@ int cadence_qspi_apb_command_write(void *reg_base, const struct spi_mem_op *op)
 }
 
 /* Opcode + Address (3/4 bytes) + dummy bytes (0-4 bytes) */
-int cadence_qspi_apb_read_setup(struct cadence_spi_platdata *plat,
+int cadence_qspi_apb_read_setup(struct cadence_spi_plat *plat,
 				const struct spi_mem_op *op)
 {
 	unsigned int reg;
@@ -572,14 +572,14 @@ int cadence_qspi_apb_read_setup(struct cadence_spi_platdata *plat,
 	return 0;
 }
 
-static u32 cadence_qspi_get_rd_sram_level(struct cadence_spi_platdata *plat)
+static u32 cadence_qspi_get_rd_sram_level(struct cadence_spi_plat *plat)
 {
 	u32 reg = readl(plat->regbase + CQSPI_REG_SDRAMLEVEL);
 	reg >>= CQSPI_REG_SDRAMLEVEL_RD_LSB;
 	return reg & CQSPI_REG_SDRAMLEVEL_RD_MASK;
 }
 
-static int cadence_qspi_wait_for_data(struct cadence_spi_platdata *plat)
+static int cadence_qspi_wait_for_data(struct cadence_spi_plat *plat)
 {
 	unsigned int timeout = 10000;
 	u32 reg;
@@ -595,7 +595,7 @@ static int cadence_qspi_wait_for_data(struct cadence_spi_platdata *plat)
 }
 
 static int
-cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
+cadence_qspi_apb_indirect_read_execute(struct cadence_spi_plat *plat,
 				       unsigned int n_rx, u8 *rxbuf)
 {
 	unsigned int remaining = n_rx;
@@ -657,7 +657,7 @@ failrd:
 	return ret;
 }
 
-int cadence_qspi_apb_read_execute(struct cadence_spi_platdata *plat,
+int cadence_qspi_apb_read_execute(struct cadence_spi_plat *plat,
 				  const struct spi_mem_op *op)
 {
 	u64 from = op->addr.val;
@@ -678,7 +678,7 @@ int cadence_qspi_apb_read_execute(struct cadence_spi_platdata *plat,
 }
 
 /* Opcode + Address (3/4 bytes) */
-int cadence_qspi_apb_write_setup(struct cadence_spi_platdata *plat,
+int cadence_qspi_apb_write_setup(struct cadence_spi_plat *plat,
 				 const struct spi_mem_op *op)
 {
 	unsigned int reg;
@@ -701,7 +701,7 @@ int cadence_qspi_apb_write_setup(struct cadence_spi_platdata *plat,
 }
 
 static int
-cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
+cadence_qspi_apb_indirect_write_execute(struct cadence_spi_plat *plat,
 					unsigned int n_tx, const u8 *txbuf)
 {
 	unsigned int page_size = plat->page_size;
@@ -774,7 +774,7 @@ failwr:
 	return ret;
 }
 
-int cadence_qspi_apb_write_execute(struct cadence_spi_platdata *plat,
+int cadence_qspi_apb_write_execute(struct cadence_spi_plat *plat,
 				   const struct spi_mem_op *op)
 {
 	u32 to = op->addr.val;

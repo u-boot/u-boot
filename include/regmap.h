@@ -373,7 +373,7 @@ int regmap_update_bits(struct regmap *map, uint offset, uint mask, uint val);
 int regmap_init_mem(ofnode node, struct regmap **mapp);
 
 /**
- * regmap_init_mem_platdata() - Set up a new memory register map for
+ * regmap_init_mem_plat() - Set up a new memory register map for
  *				of-platdata
  *
  * @dev:	Device that uses this map
@@ -388,8 +388,8 @@ int regmap_init_mem(ofnode node, struct regmap **mapp);
  * Use regmap_uninit() to free it.
  *
  */
-int regmap_init_mem_platdata(struct udevice *dev, fdt_val_t *reg, int count,
-			     struct regmap **mapp);
+int regmap_init_mem_plat(struct udevice *dev, fdt_val_t *reg, int count,
+			 struct regmap **mapp);
 
 int regmap_init_mem_index(ofnode node, struct regmap **mapp, int index);
 

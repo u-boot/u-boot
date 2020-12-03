@@ -1049,7 +1049,7 @@ static int omap_i2c_probe_chip(struct udevice *bus, uint chip_addr,
 static int omap_i2c_probe(struct udevice *bus)
 {
 	struct omap_i2c *priv = dev_get_priv(bus);
-	struct omap_i2c_platdata *plat = dev_get_plat(bus);
+	struct omap_i2c_plat *plat = dev_get_plat(bus);
 
 	priv->speed = plat->speed;
 	priv->regs = map_physmem(plat->base, sizeof(void *),
@@ -1065,7 +1065,7 @@ static int omap_i2c_probe(struct udevice *bus)
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int omap_i2c_of_to_plat(struct udevice *bus)
 {
-	struct omap_i2c_platdata *plat = dev_get_plat(bus);
+	struct omap_i2c_plat *plat = dev_get_plat(bus);
 
 	plat->base = dev_read_addr(bus);
 	plat->speed = dev_read_u32_default(bus, "clock-frequency",
@@ -1094,7 +1094,7 @@ U_BOOT_DRIVER(i2c_omap) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap_i2c_ids,
 	.of_to_plat = omap_i2c_of_to_plat,
-	.plat_auto	= sizeof(struct omap_i2c_platdata),
+	.plat_auto	= sizeof(struct omap_i2c_plat),
 #endif
 	.probe	= omap_i2c_probe,
 	.priv_auto	= sizeof(struct omap_i2c),

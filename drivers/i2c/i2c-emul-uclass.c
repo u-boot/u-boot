@@ -14,7 +14,7 @@
  * i2c emulation works using an 'emul' node at the bus level. Each device in
  * that node is in the UCLASS_I2C_EMUL uclass, and emulates one i2c device. A
  * pointer to the device it emulates is in the 'dev' property of the emul device
- * uclass plat (struct i2c_emul_platdata), put there by i2c_emul_find().
+ * uclass plat (struct i2c_emul_plat), put there by i2c_emul_find().
  * When sandbox wants an emulator for a device, it calls i2c_emul_find() which
  * searches for the emulator with the correct address. To find the device for an
  * emulator, call i2c_emul_get_device().
@@ -24,27 +24,27 @@
  */
 
 /**
- * struct i2c_emul_uc_platdata - information about the emulator for this device
+ * struct i2c_emul_uc_plat - information about the emulator for this device
  *
  * This is used by devices in UCLASS_I2C_EMUL to record information about the
  * device being emulated. It is accessible with dev_get_uclass_plat()
  *
  * @dev: Device being emulated
  */
-struct i2c_emul_uc_platdata {
+struct i2c_emul_uc_plat {
 	struct udevice *dev;
 };
 
 struct udevice *i2c_emul_get_device(struct udevice *emul)
 {
-	struct i2c_emul_uc_platdata *uc_plat = dev_get_uclass_plat(emul);
+	struct i2c_emul_uc_plat *uc_plat = dev_get_uclass_plat(emul);
 
 	return uc_plat->dev;
 }
 
 int i2c_emul_find(struct udevice *dev, struct udevice **emulp)
 {
-	struct i2c_emul_uc_platdata *uc_plat;
+	struct i2c_emul_uc_plat *uc_plat;
 	struct udevice *emul;
 	int ret;
 
@@ -64,7 +64,7 @@ int i2c_emul_find(struct udevice *dev, struct udevice **emulp)
 UCLASS_DRIVER(i2c_emul) = {
 	.id		= UCLASS_I2C_EMUL,
 	.name		= "i2c_emul",
-	.per_device_plat_auto	= sizeof(struct i2c_emul_uc_platdata),
+	.per_device_plat_auto	= sizeof(struct i2c_emul_uc_plat),
 };
 
 /*

@@ -45,7 +45,7 @@ struct dm_spi_bus {
 };
 
 /**
- * struct dm_spi_platdata - platform data for all SPI slaves
+ * struct dm_spi_plat - platform data for all SPI slaves
  *
  * This describes a SPI slave, a child device of the SPI bus. To obtain this
  * struct from a spi_slave, use dev_get_parent_plat(dev) or
@@ -58,7 +58,7 @@ struct dm_spi_bus {
  * @max_hz:	Maximum bus speed that this slave can tolerate
  * @mode:	SPI mode to use for this device (see SPI mode flags)
  */
-struct dm_spi_slave_platdata {
+struct dm_spi_slave_plat {
 	unsigned int cs;
 	uint max_hz;
 	uint mode;
@@ -609,8 +609,7 @@ int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp);
  * @node:	Node offset to read from
  * @plat:	Place to put the decoded information
  */
-int spi_slave_of_to_plat(struct udevice *dev,
-			 struct dm_spi_slave_platdata *plat);
+int spi_slave_of_to_plat(struct udevice *dev, struct dm_spi_slave_plat *plat);
 
 /**
  * spi_cs_info() - Check information on a chip select

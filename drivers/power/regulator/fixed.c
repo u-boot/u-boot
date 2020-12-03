@@ -17,7 +17,7 @@
 static int fixed_regulator_of_to_plat(struct udevice *dev)
 {
 	struct dm_regulator_uclass_plat *uc_pdata;
-	struct regulator_common_platdata *dev_pdata;
+	struct regulator_common_plat *dev_pdata;
 
 	dev_pdata = dev_get_plat(dev);
 	uc_pdata = dev_get_uclass_plat(dev);
@@ -89,5 +89,5 @@ U_BOOT_DRIVER(regulator_fixed) = {
 	.ops = &fixed_regulator_ops,
 	.of_match = fixed_regulator_ids,
 	.of_to_plat = fixed_regulator_of_to_plat,
-	.plat_auto	= sizeof(struct regulator_common_platdata),
+	.plat_auto	= sizeof(struct regulator_common_plat),
 };

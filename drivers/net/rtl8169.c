@@ -1187,7 +1187,7 @@ int rtl8169_initialize(struct bd_info *bis)
 #ifdef CONFIG_DM_ETH
 static int rtl8169_eth_probe(struct udevice *dev)
 {
-	struct pci_child_platdata *pplat = dev_get_parent_plat(dev);
+	struct pci_child_plat *pplat = dev_get_parent_plat(dev);
 	struct rtl8169_private *priv = dev_get_priv(dev);
 	struct eth_pdata *plat = dev_get_plat(dev);
 	u32 iobase;

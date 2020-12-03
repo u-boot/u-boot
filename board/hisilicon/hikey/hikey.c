@@ -26,7 +26,7 @@
 #include <asm/armv8/mmu.h>
 
 /*TODO drop this table in favour of device tree */
-static const struct hikey_gpio_platdata hi6220_gpio[] = {
+static const struct hikey_gpio_plat hi6220_gpio[] = {
 	{ 0, HI6220_GPIO_BASE(0)},
 	{ 1, HI6220_GPIO_BASE(1)},
 	{ 2, HI6220_GPIO_BASE(2)},
@@ -77,7 +77,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 
-static const struct pl01x_serial_platdata serial_platdata = {
+static const struct pl01x_serial_plat serial_plat = {
 #if CONFIG_CONS_INDEX == 1
 	.base = HI6220_UART0_BASE,
 #elif CONFIG_CONS_INDEX == 4
@@ -91,7 +91,7 @@ static const struct pl01x_serial_platdata serial_platdata = {
 
 U_BOOT_DEVICE(hikey_seriala) = {
 	.name = "serial_pl01x",
-	.plat = &serial_platdata,
+	.plat = &serial_plat,
 };
 #endif
 

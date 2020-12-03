@@ -242,7 +242,7 @@ For example:
 
     #include <dt-structs.h>
 
-    struct mmc_platdata {
+    struct mmc_plat {
     #if CONFIG_IS_ENABLED(OF_PLATDATA)
             /* Put this first since driver model will copy the data here */
             struct dtd_mmc dtplat;
@@ -258,7 +258,7 @@ For example:
     {
     #if !CONFIG_IS_ENABLED(OF_PLATDATA)
             /* Decode the device tree data */
-            struct mmc_platdata *plat = dev_get_plat(dev);
+            struct mmc_plat *plat = dev_get_plat(dev);
             const void *blob = gd->fdt_blob;
             int node = dev_of_offset(dev);
 
@@ -270,7 +270,7 @@ For example:
 
     static int mmc_probe(struct udevice *dev)
     {
-            struct mmc_platdata *plat = dev_get_plat(dev);
+            struct mmc_plat *plat = dev_get_plat(dev);
 
     #if CONFIG_IS_ENABLED(OF_PLATDATA)
             /* Decode the of-platdata from the C structures */
@@ -294,12 +294,12 @@ For example:
             .of_to_plat = mmc_of_to_plat,
             .probe          = mmc_probe,
             .priv_auto = sizeof(struct mmc_priv),
-            .plat_auto = sizeof(struct mmc_platdata),
+            .plat_auto = sizeof(struct mmc_plat),
     };
 
     U_BOOT_DRIVER_ALIAS(mmc_drv, vendor_mmc) /* matches compatible string */
 
-Note that struct mmc_platdata is defined in the C file, not in a header. This
+Note that struct mmc_plat is defined in the C file, not in a header. This
 is to avoid needing to include dt-structs.h in a header file. The idea is to
 keep the use of each of-platdata struct to the smallest possible code area.
 There is just one driver C file for each struct, that can convert from the

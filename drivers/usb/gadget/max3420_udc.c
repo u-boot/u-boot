@@ -819,7 +819,7 @@ int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 static int max3420_udc_probe(struct udevice *dev)
 {
 	struct max3420_udc *udc = dev_get_priv(dev);
-	struct dm_spi_slave_platdata *slave_pdata;
+	struct dm_spi_slave_plat *slave_pdata;
 	struct udevice *bus = dev->parent;
 	int busnum = bus->seq;
 	unsigned int cs;

@@ -18,7 +18,7 @@ int qemu_cpu_fixup(void)
 	int cpu_num;
 	int cpu_online;
 	struct udevice *dev, *pdev;
-	struct cpu_platdata *plat;
+	struct cpu_plat *plat;
 	char *cpu;
 
 	/* first we need to find '/cpus' */

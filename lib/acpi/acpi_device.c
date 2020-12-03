@@ -724,7 +724,7 @@ static void acpi_device_write_spi(struct acpi_ctx *ctx, const struct acpi_spi *s
 static int acpi_device_set_spi(const struct udevice *dev, struct acpi_spi *spi,
 			       const char *scope)
 {
-	struct dm_spi_slave_platdata *plat;
+	struct dm_spi_slave_plat *plat;
 	struct spi_slave *slave = dev_get_parent_priv(dev);
 
 	plat = dev_get_parent_plat(slave->dev);

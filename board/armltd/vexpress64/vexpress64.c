@@ -20,7 +20,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const struct pl01x_serial_platdata serial_platdata = {
+static const struct pl01x_serial_plat serial_plat = {
 	.base = V2M_UART0,
 	.type = TYPE_PL011,
 	.clock = CONFIG_PL011_CLOCK,
@@ -28,7 +28,7 @@ static const struct pl01x_serial_platdata serial_platdata = {
 
 U_BOOT_DEVICE(vexpress_serials) = {
 	.name = "serial_pl01x",
-	.plat = &serial_platdata,
+	.plat = &serial_plat,
 };
 
 static struct mm_region vexpress64_mem_map[] = {

@@ -368,7 +368,7 @@ struct am335x_fb_priv {
 
 static int am335x_fb_remove(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_plat(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 
 	uc_plat->base -= 0x20;
 	uc_plat->size += 0x20;
@@ -377,7 +377,7 @@ static int am335x_fb_remove(struct udevice *dev)
 
 static int am335x_fb_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_plat(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct am335x_fb_priv *priv = dev_get_priv(dev);
 	struct am335x_lcdhw *regs = priv->regs;
@@ -592,7 +592,7 @@ static int am335x_fb_of_to_plat(struct udevice *dev)
 
 static int am335x_fb_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_plat(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 
 	uc_plat->size = ((LCD_MAX_WIDTH * LCD_MAX_HEIGHT *
 			  (1 << LCD_MAX_LOG2_BPP)) >> 3) + 0x20;

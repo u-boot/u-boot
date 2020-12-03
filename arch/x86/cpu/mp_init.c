@@ -221,7 +221,7 @@ static int find_cpu_by_apic_id(int apic_id, struct udevice **devp)
 	for (uclass_find_first_device(UCLASS_CPU, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
-		struct cpu_platdata *plat = dev_get_parent_plat(dev);
+		struct cpu_plat *plat = dev_get_parent_plat(dev);
 
 		if (plat->cpu_id == apic_id) {
 			*devp = dev;
@@ -706,7 +706,7 @@ static int ap_wait_for_instruction(struct udevice *cpu, void *unused)
 
 static int mp_init_cpu(struct udevice *cpu, void *unused)
 {
-	struct cpu_platdata *plat = dev_get_parent_plat(cpu);
+	struct cpu_plat *plat = dev_get_parent_plat(cpu);
 
 	plat->ucode_version = microcode_read_rev();
 	plat->device_id = gd->arch.x86_device;

@@ -616,7 +616,7 @@ int pinctrl_config_pads_for_node(struct udevice *dev, ofnode node)
 int intel_pinctrl_of_to_plat(struct udevice *dev,
 			     const struct pad_community *comm, int num_cfgs)
 {
-	struct p2sb_child_platdata *pplat = dev_get_parent_plat(dev);
+	struct p2sb_child_plat *pplat = dev_get_parent_plat(dev);
 	struct intel_pinctrl_priv *priv = dev_get_priv(dev);
 
 	if (!comm) {

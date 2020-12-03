@@ -356,7 +356,7 @@ static int mxs_of_get_timings(struct udevice *dev,
 
 static int mxs_video_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	struct display_timing timings;
@@ -409,7 +409,7 @@ static int mxs_video_probe(struct udevice *dev)
 
 static int mxs_video_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct display_timing timings;
 	u32 bpp = 0;
 	u32 bytes_pp = 0;
@@ -443,7 +443,7 @@ static int mxs_video_bind(struct udevice *dev)
 
 static int mxs_video_remove(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 
 	mxs_remove_common(plat->base);
 

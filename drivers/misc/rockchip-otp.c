@@ -47,13 +47,13 @@
 
 #define OTPC_TIMEOUT			10000
 
-struct rockchip_otp_platdata {
+struct rockchip_otp_plat {
 	void __iomem *base;
 	unsigned long secure_conf_base;
 	unsigned long otp_mask_base;
 };
 
-static int rockchip_otp_wait_status(struct rockchip_otp_platdata *otp,
+static int rockchip_otp_wait_status(struct rockchip_otp_plat *otp,
 				    u32 flag)
 {
 	int delay = OTPC_TIMEOUT;
@@ -73,7 +73,7 @@ static int rockchip_otp_wait_status(struct rockchip_otp_platdata *otp,
 	return 0;
 }
 
-static int rockchip_otp_ecc_enable(struct rockchip_otp_platdata *otp,
+static int rockchip_otp_ecc_enable(struct rockchip_otp_plat *otp,
 				   bool enable)
 {
 	int ret = 0;
@@ -102,7 +102,7 @@ static int rockchip_otp_ecc_enable(struct rockchip_otp_platdata *otp,
 static int rockchip_px30_otp_read(struct udevice *dev, int offset,
 				  void *buf, int size)
 {
-	struct rockchip_otp_platdata *otp = dev_get_plat(dev);
+	struct rockchip_otp_plat *otp = dev_get_plat(dev);
 	u8 *buffer = buf;
 	int ret = 0;
 
@@ -147,7 +147,7 @@ static const struct misc_ops rockchip_otp_ops = {
 
 static int rockchip_otp_of_to_plat(struct udevice *dev)
 {
-	struct rockchip_otp_platdata *otp = dev_get_plat(dev);
+	struct rockchip_otp_plat *otp = dev_get_plat(dev);
 
 	otp->base = dev_read_addr_ptr(dev);
 
@@ -172,5 +172,5 @@ U_BOOT_DRIVER(rockchip_otp) = {
 	.of_match = rockchip_otp_ids,
 	.ops = &rockchip_otp_ops,
 	.of_to_plat = rockchip_otp_of_to_plat,
-	.plat_auto	= sizeof(struct rockchip_otp_platdata),
+	.plat_auto	= sizeof(struct rockchip_otp_plat),
 };

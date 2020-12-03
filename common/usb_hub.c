@@ -959,7 +959,7 @@ UCLASS_DRIVER(usb_hub) = {
 	.post_probe	= usb_hub_post_probe,
 	.child_pre_probe	= usb_child_pre_probe,
 	.per_child_auto	= sizeof(struct usb_device),
-	.per_child_plat_auto	= sizeof(struct usb_dev_platdata),
+	.per_child_plat_auto	= sizeof(struct usb_dev_plat),
 	.per_device_auto	= sizeof(struct usb_hub_device),
 };
 

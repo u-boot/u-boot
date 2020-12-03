@@ -30,7 +30,7 @@ int p2sb_set_hide(struct udevice *dev, bool hide)
 
 void *pcr_reg_address(struct udevice *dev, uint offset)
 {
-	struct p2sb_child_platdata *pplat = dev_get_parent_plat(dev);
+	struct p2sb_child_plat *pplat = dev_get_parent_plat(dev);
 	struct udevice *p2sb = dev_get_parent(dev);
 	struct p2sb_uc_priv *upriv = dev_get_uclass_priv(p2sb);
 	uintptr_t reg_addr;
@@ -161,7 +161,7 @@ void pcr_clrsetbits8(struct udevice *dev, uint offset, uint clr, uint set)
 
 int p2sb_get_port_id(struct udevice *dev)
 {
-	struct p2sb_child_platdata *pplat = dev_get_parent_plat(dev);
+	struct p2sb_child_plat *pplat = dev_get_parent_plat(dev);
 
 	return pplat->pid;
 }
@@ -169,7 +169,7 @@ int p2sb_get_port_id(struct udevice *dev)
 int p2sb_set_port_id(struct udevice *dev, int portid)
 {
 	struct udevice *ps2b;
-	struct p2sb_child_platdata *pplat;
+	struct p2sb_child_plat *pplat;
 
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA))
 		return -ENOSYS;
@@ -197,7 +197,7 @@ int p2sb_set_port_id(struct udevice *dev, int portid)
 static int p2sb_child_post_bind(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct p2sb_child_platdata *pplat = dev_get_parent_plat(dev);
+	struct p2sb_child_plat *pplat = dev_get_parent_plat(dev);
 	int ret;
 	u32 pid;
 
@@ -224,5 +224,5 @@ UCLASS_DRIVER(p2sb) = {
 	.per_device_auto	= sizeof(struct p2sb_uc_priv),
 	.post_bind	= p2sb_post_bind,
 	.child_post_bind = p2sb_child_post_bind,
-	.per_child_plat_auto = sizeof(struct p2sb_child_platdata),
+	.per_child_plat_auto = sizeof(struct p2sb_child_plat),
 };

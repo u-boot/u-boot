@@ -32,7 +32,7 @@ struct altera_spi_regs {
 	u32	slave_sel;
 };
 
-struct altera_spi_platdata {
+struct altera_spi_plat {
 	struct altera_spi_regs *regs;
 };
 
@@ -89,7 +89,7 @@ static int altera_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	struct udevice *bus = dev->parent;
 	struct altera_spi_priv *priv = dev_get_priv(bus);
 	struct altera_spi_regs *const regs = priv->regs;
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 
 	/* assume spi core configured to do 8 bit transfers */
 	unsigned int bytes = bitlen / 8;
@@ -161,7 +161,7 @@ static int altera_spi_set_mode(struct udevice *bus, uint mode)
 
 static int altera_spi_probe(struct udevice *bus)
 {
-	struct altera_spi_platdata *plat = dev_get_plat(bus);
+	struct altera_spi_plat *plat = dev_get_plat(bus);
 	struct altera_spi_priv *priv = dev_get_priv(bus);
 
 	priv->regs = plat->regs;
@@ -171,7 +171,7 @@ static int altera_spi_probe(struct udevice *bus)
 
 static int altera_spi_of_to_plat(struct udevice *bus)
 {
-	struct altera_spi_platdata *plat = dev_get_plat(bus);
+	struct altera_spi_plat *plat = dev_get_plat(bus);
 
 	plat->regs = map_physmem(dev_read_addr(bus),
 				 sizeof(struct altera_spi_regs),
@@ -203,7 +203,7 @@ U_BOOT_DRIVER(altera_spi) = {
 	.of_match = altera_spi_ids,
 	.ops	= &altera_spi_ops,
 	.of_to_plat = altera_spi_of_to_plat,
-	.plat_auto	= sizeof(struct altera_spi_platdata),
+	.plat_auto	= sizeof(struct altera_spi_plat),
 	.priv_auto	= sizeof(struct altera_spi_priv),
 	.probe	= altera_spi_probe,
 };

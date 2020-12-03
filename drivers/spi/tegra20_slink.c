@@ -95,7 +95,7 @@ struct tegra_spi_slave {
 
 static int tegra30_spi_of_to_plat(struct udevice *bus)
 {
-	struct tegra_spi_platdata *plat = bus->plat;
+	struct tegra_spi_plat *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -122,7 +122,7 @@ static int tegra30_spi_of_to_plat(struct udevice *bus)
 
 static int tegra30_spi_probe(struct udevice *bus)
 {
-	struct tegra_spi_platdata *plat = dev_get_plat(bus);
+	struct tegra_spi_plat *plat = dev_get_plat(bus);
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
 
 	priv->regs = (struct spi_regs *)plat->base;
@@ -167,7 +167,7 @@ static int tegra30_spi_claim_bus(struct udevice *dev)
 static void spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct tegra_spi_platdata *pdata = dev_get_plat(bus);
+	struct tegra_spi_plat *pdata = dev_get_plat(bus);
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
 
 	/* If it's too soon to do another transaction, wait */
@@ -186,7 +186,7 @@ static void spi_cs_activate(struct udevice *dev)
 static void spi_cs_deactivate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct tegra_spi_platdata *pdata = dev_get_plat(bus);
+	struct tegra_spi_plat *pdata = dev_get_plat(bus);
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
 
 	/* CS is negated on Tegra, so drive a 0 to get a 1 */
@@ -314,7 +314,7 @@ static int tegra30_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int tegra30_spi_set_speed(struct udevice *bus, uint speed)
 {
-	struct tegra_spi_platdata *plat = bus->plat;
+	struct tegra_spi_plat *plat = bus->plat;
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
 
 	if (speed > plat->frequency)
@@ -373,7 +373,7 @@ U_BOOT_DRIVER(tegra30_spi) = {
 	.of_match = tegra30_spi_ids,
 	.ops	= &tegra30_spi_ops,
 	.of_to_plat = tegra30_spi_of_to_plat,
-	.plat_auto	= sizeof(struct tegra_spi_platdata),
+	.plat_auto	= sizeof(struct tegra_spi_plat),
 	.priv_auto	= sizeof(struct tegra30_spi_priv),
 	.probe	= tegra30_spi_probe,
 };

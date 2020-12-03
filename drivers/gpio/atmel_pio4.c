@@ -176,14 +176,14 @@ struct atmel_pioctrl_data {
 	u32 nbanks;
 };
 
-struct atmel_pio4_platdata {
+struct atmel_pio4_plat {
 	struct atmel_pio4_port *reg_base;
 };
 
 static struct atmel_pio4_port *atmel_pio4_bank_base(struct udevice *dev,
 						    u32 bank)
 {
-	struct atmel_pio4_platdata *plat = dev_get_plat(dev);
+	struct atmel_pio4_plat *plat = dev_get_plat(dev);
 	struct atmel_pio4_port *port_base =
 			(struct atmel_pio4_port *)((u32)plat->reg_base +
 			ATMEL_PIO_BANK_OFFSET * bank);
@@ -281,7 +281,7 @@ static int atmel_pio4_bind(struct udevice *dev)
 
 static int atmel_pio4_probe(struct udevice *dev)
 {
-	struct atmel_pio4_platdata *plat = dev_get_plat(dev);
+	struct atmel_pio4_plat *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct atmel_pioctrl_data *pioctrl_data;
 	struct clk clk;
@@ -338,7 +338,7 @@ U_BOOT_DRIVER(gpio_atmel_pio4) = {
 	.probe	= atmel_pio4_probe,
 	.bind	= atmel_pio4_bind,
 	.of_match = atmel_pio4_ids,
-	.plat_auto	= sizeof(struct atmel_pio4_platdata),
+	.plat_auto	= sizeof(struct atmel_pio4_plat),
 };
 
 #endif

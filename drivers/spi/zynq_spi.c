@@ -55,7 +55,7 @@ struct zynq_spi_regs {
 
 
 /* zynq spi platform data */
-struct zynq_spi_platdata {
+struct zynq_spi_plat {
 	struct zynq_spi_regs *regs;
 	u32 frequency;		/* input frequency */
 	u32 speed_hz;
@@ -75,7 +75,7 @@ struct zynq_spi_priv {
 
 static int zynq_spi_of_to_plat(struct udevice *bus)
 {
-	struct zynq_spi_platdata *plat = bus->plat;
+	struct zynq_spi_plat *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -121,7 +121,7 @@ static void zynq_spi_init_hw(struct zynq_spi_priv *priv)
 
 static int zynq_spi_probe(struct udevice *bus)
 {
-	struct zynq_spi_platdata *plat = dev_get_plat(bus);
+	struct zynq_spi_plat *plat = dev_get_plat(bus);
 	struct zynq_spi_priv *priv = dev_get_priv(bus);
 	struct clk clk;
 	unsigned long clock;
@@ -162,7 +162,7 @@ static int zynq_spi_probe(struct udevice *bus)
 static void spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct zynq_spi_platdata *plat = bus->plat;
+	struct zynq_spi_plat *plat = bus->plat;
 	struct zynq_spi_priv *priv = dev_get_priv(bus);
 	struct zynq_spi_regs *regs = priv->regs;
 	u32 cr;
@@ -193,7 +193,7 @@ static void spi_cs_activate(struct udevice *dev)
 static void spi_cs_deactivate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct zynq_spi_platdata *plat = bus->plat;
+	struct zynq_spi_plat *plat = bus->plat;
 	struct zynq_spi_priv *priv = dev_get_priv(bus);
 	struct zynq_spi_regs *regs = priv->regs;
 
@@ -234,7 +234,7 @@ static int zynq_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	struct udevice *bus = dev->parent;
 	struct zynq_spi_priv *priv = dev_get_priv(bus);
 	struct zynq_spi_regs *regs = priv->regs;
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 	u32 len = bitlen / 8;
 	u32 tx_len = len, rx_len = len, tx_tvl;
 	const u8 *tx_buf = dout;
@@ -296,7 +296,7 @@ static int zynq_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int zynq_spi_set_speed(struct udevice *bus, uint speed)
 {
-	struct zynq_spi_platdata *plat = bus->plat;
+	struct zynq_spi_plat *plat = bus->plat;
 	struct zynq_spi_priv *priv = dev_get_priv(bus);
 	struct zynq_spi_regs *regs = priv->regs;
 	uint32_t confr;
@@ -372,7 +372,7 @@ U_BOOT_DRIVER(zynq_spi) = {
 	.of_match = zynq_spi_ids,
 	.ops	= &zynq_spi_ops,
 	.of_to_plat = zynq_spi_of_to_plat,
-	.plat_auto	= sizeof(struct zynq_spi_platdata),
+	.plat_auto	= sizeof(struct zynq_spi_plat),
 	.priv_auto	= sizeof(struct zynq_spi_priv),
 	.probe	= zynq_spi_probe,
 };

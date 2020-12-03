@@ -174,7 +174,7 @@ int dm_remove_devices_flags(uint flags)
 }
 #endif
 
-int dm_scan_platdata(bool pre_reloc_only)
+int dm_scan_plat(bool pre_reloc_only)
 {
 	int ret;
 
@@ -308,9 +308,9 @@ int dm_init_and_scan(bool pre_reloc_only)
 		debug("dm_init() failed: %d\n", ret);
 		return ret;
 	}
-	ret = dm_scan_platdata(pre_reloc_only);
+	ret = dm_scan_plat(pre_reloc_only);
 	if (ret) {
-		debug("dm_scan_platdata() failed: %d\n", ret);
+		debug("dm_scan_plat() failed: %d\n", ret);
 		return ret;
 	}
 

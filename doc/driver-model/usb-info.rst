@@ -43,7 +43,7 @@ as drivers in the USB uclass. For example:
 		.probe = tegra_ehci_usb_probe,
 		.remove = tegra_ehci_usb_remove,
 		.ops	= &ehci_usb_ops,
-		.plat_auto = sizeof(struct usb_platdata),
+		.plat_auto = sizeof(struct usb_plat),
 		.priv_auto = sizeof(struct fdt_usb),
 		.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 	};
@@ -63,7 +63,7 @@ This can hold run-time information needed by the driver for operation. It
 exists when the device is probed (not when it is bound) and is removed when
 the driver is removed.
 
-Note that usb_platdata is currently only used to deal with setting up a bus
+Note that usb_plat is currently only used to deal with setting up a bus
 in USB device mode (OTG operation). It can be omitted if that is not
 supported.
 
@@ -93,12 +93,12 @@ The following primary data structures are in use:
 	handles that). Once the device is set up, you can find the device
 	descriptor and current configuration descriptor in this structure.
 
-- struct usb_platdata:
+- struct usb_plat:
 	This holds platform data for a controller. So far this is only used
 	as a work-around for controllers which can act as USB devices in OTG
 	mode, since the gadget framework does not use driver model.
 
-- struct usb_dev_platdata:
+- struct usb_dev_plat:
 	This holds platform data for a device. You can access it for a
 	device 'dev' with dev_get_parent_plat(dev). It holds the device
 	address and speed - anything that can be determined before the device

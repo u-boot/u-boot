@@ -37,7 +37,7 @@ struct uart_sifive {
 	u32 div;
 };
 
-struct sifive_uart_platdata {
+struct sifive_uart_plat {
 	unsigned long clock;
 	struct uart_sifive *regs;
 };
@@ -105,7 +105,7 @@ static int sifive_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	int ret;
 	struct clk clk;
-	struct sifive_uart_platdata *plat = dev_get_plat(dev);
+	struct sifive_uart_plat *plat = dev_get_plat(dev);
 	u32 clock = 0;
 
 	ret = clk_get_by_index(dev, 0, &clk);
@@ -131,7 +131,7 @@ static int sifive_serial_setbrg(struct udevice *dev, int baudrate)
 
 static int sifive_serial_probe(struct udevice *dev)
 {
-	struct sifive_uart_platdata *plat = dev_get_plat(dev);
+	struct sifive_uart_plat *plat = dev_get_plat(dev);
 
 	/* No need to reinitialize the UART after relocation */
 	if (gd->flags & GD_FLG_RELOC)
@@ -145,7 +145,7 @@ static int sifive_serial_probe(struct udevice *dev)
 static int sifive_serial_getc(struct udevice *dev)
 {
 	int c;
-	struct sifive_uart_platdata *plat = dev_get_plat(dev);
+	struct sifive_uart_plat *plat = dev_get_plat(dev);
 	struct uart_sifive *regs = plat->regs;
 
 	while ((c = _sifive_serial_getc(regs)) == -EAGAIN) ;
@@ -156,7 +156,7 @@ static int sifive_serial_getc(struct udevice *dev)
 static int sifive_serial_putc(struct udevice *dev, const char ch)
 {
 	int rc;
-	struct sifive_uart_platdata *plat = dev_get_plat(dev);
+	struct sifive_uart_plat *plat = dev_get_plat(dev);
 
 	while ((rc = _sifive_serial_putc(plat->regs, ch)) == -EAGAIN) ;
 
@@ -165,7 +165,7 @@ static int sifive_serial_putc(struct udevice *dev, const char ch)
 
 static int sifive_serial_pending(struct udevice *dev, bool input)
 {
-	struct sifive_uart_platdata *plat = dev_get_plat(dev);
+	struct sifive_uart_plat *plat = dev_get_plat(dev);
 	struct uart_sifive *regs = plat->regs;
 
 	if (input)
@@ -176,7 +176,7 @@ static int sifive_serial_pending(struct udevice *dev, bool input)
 
 static int sifive_serial_of_to_plat(struct udevice *dev)
 {
-	struct sifive_uart_platdata *plat = dev_get_plat(dev);
+	struct sifive_uart_plat *plat = dev_get_plat(dev);
 
 	plat->regs = (struct uart_sifive *)dev_read_addr(dev);
 	if (IS_ERR(plat->regs))
@@ -202,7 +202,7 @@ U_BOOT_DRIVER(serial_sifive) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = sifive_serial_ids,
 	.of_to_plat = sifive_serial_of_to_plat,
-	.plat_auto	= sizeof(struct sifive_uart_platdata),
+	.plat_auto	= sizeof(struct sifive_uart_plat),
 	.probe = sifive_serial_probe,
 	.ops	= &sifive_serial_ops,
 };

@@ -31,7 +31,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* fsl_dspi_platdata flags */
+/* fsl_dspi_plat flags */
 #define DSPI_FLAG_REGMAP_ENDIAN_BIG	BIT(0)
 
 /* idle data value */
@@ -65,14 +65,14 @@ DECLARE_GLOBAL_DATA_PTR;
 					DSPI_CTAR_DT(15))
 
 /**
- * struct fsl_dspi_platdata - platform data for Freescale DSPI
+ * struct fsl_dspi_plat - platform data for Freescale DSPI
  *
  * @flags: Flags for DSPI DSPI_FLAG_...
  * @speed_hz: Default SCK frequency
  * @num_chipselect: Number of DSPI chipselect signals
  * @regs_addr: Base address of DSPI registers
  */
-struct fsl_dspi_platdata {
+struct fsl_dspi_plat {
 	uint flags;
 	uint speed_hz;
 	uint num_chipselect;
@@ -448,7 +448,7 @@ static int fsl_dspi_cfg_speed(struct fsl_dspi_priv *priv, uint speed)
 
 static int fsl_dspi_child_pre_probe(struct udevice *dev)
 {
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 	struct fsl_dspi_priv *priv = dev_get_priv(dev->parent);
 	u32 cs_sck_delay = 0, sck_cs_delay = 0;
 	unsigned char pcssck = 0, cssck = 0;
@@ -481,7 +481,7 @@ static int fsl_dspi_child_pre_probe(struct udevice *dev)
 
 static int fsl_dspi_probe(struct udevice *bus)
 {
-	struct fsl_dspi_platdata *plat = dev_get_plat(bus);
+	struct fsl_dspi_plat *plat = dev_get_plat(bus);
 	struct fsl_dspi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_bus *dm_spi_bus;
 	uint mcr_cfg_val;
@@ -521,7 +521,7 @@ static int fsl_dspi_claim_bus(struct udevice *dev)
 	uint sr_val;
 	struct fsl_dspi_priv *priv;
 	struct udevice *bus = dev->parent;
-	struct dm_spi_slave_platdata *slave_plat =
+	struct dm_spi_slave_plat *slave_plat =
 		dev_get_parent_plat(dev);
 
 	priv = dev_get_priv(bus);
@@ -552,7 +552,7 @@ static int fsl_dspi_release_bus(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
 	struct fsl_dspi_priv *priv = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave_plat =
+	struct dm_spi_slave_plat *slave_plat =
 		dev_get_parent_plat(dev);
 
 	/* halt module */
@@ -576,7 +576,7 @@ static int fsl_dspi_bind(struct udevice *bus)
 static int fsl_dspi_of_to_plat(struct udevice *bus)
 {
 	fdt_addr_t addr;
-	struct fsl_dspi_platdata *plat = bus->plat;
+	struct fsl_dspi_plat *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -608,7 +608,7 @@ static int fsl_dspi_xfer(struct udevice *dev, unsigned int bitlen,
 		const void *dout, void *din, unsigned long flags)
 {
 	struct fsl_dspi_priv *priv;
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 	struct udevice *bus;
 
 	bus = dev->parent;
@@ -660,7 +660,7 @@ U_BOOT_DRIVER(fsl_dspi) = {
 	.of_match = fsl_dspi_ids,
 	.ops	= &fsl_dspi_ops,
 	.of_to_plat = fsl_dspi_of_to_plat,
-	.plat_auto	= sizeof(struct fsl_dspi_platdata),
+	.plat_auto	= sizeof(struct fsl_dspi_plat),
 	.priv_auto	= sizeof(struct fsl_dspi_priv),
 	.probe	= fsl_dspi_probe,
 	.child_pre_probe = fsl_dspi_child_pre_probe,

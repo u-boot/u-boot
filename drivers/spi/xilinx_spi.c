@@ -211,7 +211,7 @@ static void xilinx_spi_startup_block(struct udevice *dev, unsigned int bytes,
 	struct udevice *bus = dev_get_parent(dev);
 	struct xilinx_spi_priv *priv = dev_get_priv(bus);
 	struct xilinx_spi_regs *regs = priv->regs;
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 	const unsigned char *txp = dout;
 	unsigned char *rxp = din;
 	u32 reg;
@@ -244,7 +244,7 @@ static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	struct udevice *bus = dev_get_parent(dev);
 	struct xilinx_spi_priv *priv = dev_get_priv(bus);
 	struct xilinx_spi_regs *regs = priv->regs;
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 	/* assume spi core configured to do 8 bit transfers */
 	unsigned int bytes = bitlen / XILSPI_MAX_XFER_BITS;
 	const unsigned char *txp = dout;

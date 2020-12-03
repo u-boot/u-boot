@@ -247,7 +247,7 @@ const struct musb_platform_ops da8xx_ops = {
 	.disable	= da8xx_musb_disable,
 };
 
-struct da8xx_musb_platdata {
+struct da8xx_musb_plat {
 	void *base;
 	void *ctrl_mod_base;
 	struct musb_hdrc_platform_data plat;
@@ -258,7 +258,7 @@ struct da8xx_musb_platdata {
 
 static int da8xx_musb_of_to_plat(struct udevice *dev)
 {
-	struct da8xx_musb_platdata *plat = dev_get_plat(dev);
+	struct da8xx_musb_plat *plat = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 
@@ -282,7 +282,7 @@ static int da8xx_musb_of_to_plat(struct udevice *dev)
 static int da8xx_musb_probe(struct udevice *dev)
 {
 	struct musb_host_data *host = dev_get_priv(dev);
-	struct da8xx_musb_platdata *plat = dev_get_plat(dev);
+	struct da8xx_musb_plat *plat = dev_get_plat(dev);
 	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
 	struct omap_musb_board_data *otg_board_data;
 	int ret;
@@ -348,6 +348,6 @@ U_BOOT_DRIVER(da8xx_musb) = {
 	.probe = da8xx_musb_probe,
 	.remove = da8xx_musb_remove,
 	.ops = &musb_usb_ops,
-	.plat_auto	= sizeof(struct da8xx_musb_platdata),
+	.plat_auto	= sizeof(struct da8xx_musb_plat),
 	.priv_auto	= sizeof(struct musb_host_data),
 };

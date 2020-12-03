@@ -1865,7 +1865,7 @@ int ufs_start(struct ufs_hba *hba)
 int ufshcd_probe(struct udevice *ufs_dev, struct ufs_hba_ops *hba_ops)
 {
 	struct ufs_hba *hba = dev_get_uclass_priv(ufs_dev);
-	struct scsi_platdata *scsi_plat;
+	struct scsi_plat *scsi_plat;
 	struct udevice *scsi_dev;
 	int err;
 

@@ -39,7 +39,7 @@ U_BOOT_DRIVER(ohci_pci) = {
 	.remove = ohci_pci_remove,
 	.of_match = ohci_pci_ids,
 	.ops	= &ohci_usb_ops,
-	.plat_auto	= sizeof(struct usb_platdata),
+	.plat_auto	= sizeof(struct usb_plat),
 	.priv_auto	= sizeof(ohci_t),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };

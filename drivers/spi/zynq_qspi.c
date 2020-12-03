@@ -76,7 +76,7 @@ struct zynq_qspi_regs {
 };
 
 /* zynq qspi platform data */
-struct zynq_qspi_platdata {
+struct zynq_qspi_plat {
 	struct zynq_qspi_regs *regs;
 	u32 frequency;          /* input frequency */
 	u32 speed_hz;
@@ -100,7 +100,7 @@ struct zynq_qspi_priv {
 
 static int zynq_qspi_of_to_plat(struct udevice *bus)
 {
-	struct zynq_qspi_platdata *plat = bus->plat;
+	struct zynq_qspi_plat *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -171,7 +171,7 @@ static void zynq_qspi_init_hw(struct zynq_qspi_priv *priv)
 
 static int zynq_qspi_probe(struct udevice *bus)
 {
-	struct zynq_qspi_platdata *plat = dev_get_plat(bus);
+	struct zynq_qspi_plat *plat = dev_get_plat(bus);
 	struct zynq_qspi_priv *priv = dev_get_priv(bus);
 	struct clk clk;
 	unsigned long clock;
@@ -560,7 +560,7 @@ static int zynq_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 {
 	struct udevice *bus = dev->parent;
 	struct zynq_qspi_priv *priv = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 
 	priv->cs = slave_plat->cs;
 	priv->tx_buf = dout;
@@ -592,7 +592,7 @@ static int zynq_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
 {
-	struct zynq_qspi_platdata *plat = bus->plat;
+	struct zynq_qspi_plat *plat = bus->plat;
 	struct zynq_qspi_priv *priv = dev_get_priv(bus);
 	struct zynq_qspi_regs *regs = priv->regs;
 	uint32_t confr;
@@ -667,7 +667,7 @@ U_BOOT_DRIVER(zynq_qspi) = {
 	.of_match = zynq_qspi_ids,
 	.ops    = &zynq_qspi_ops,
 	.of_to_plat = zynq_qspi_of_to_plat,
-	.plat_auto	= sizeof(struct zynq_qspi_platdata),
+	.plat_auto	= sizeof(struct zynq_qspi_plat),
 	.priv_auto	= sizeof(struct zynq_qspi_priv),
 	.probe  = zynq_qspi_probe,
 };

@@ -55,9 +55,9 @@ static int do_dev(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static int curr_dev_and_platdata(struct udevice **devp,
-				 struct dm_regulator_uclass_plat **uc_pdata,
-				 bool allow_type_fixed)
+static int curr_dev_and_plat(struct udevice **devp,
+			     struct dm_regulator_uclass_plat **uc_pdata,
+			     bool allow_type_fixed)
 {
 	*devp = NULL;
 	*uc_pdata = NULL;
@@ -150,7 +150,7 @@ static int do_info(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret;
 	int i;
 
-	ret = curr_dev_and_platdata(&dev, &uc_pdata, true);
+	ret = curr_dev_and_plat(&dev, &uc_pdata, true);
 	if (ret)
 		return ret;
 
@@ -242,7 +242,7 @@ static int do_status(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret;
 
 	if (currdev && (argc < 2 || strcmp(argv[1], "-a"))) {
-		ret = curr_dev_and_platdata(&dev, &uc_pdata, true);
+		ret = curr_dev_and_plat(&dev, &uc_pdata, true);
 		if (ret)
 			return CMD_RET_FAILURE;
 		do_status_detail(dev, uc_pdata);
@@ -268,7 +268,7 @@ static int do_value(struct cmd_tbl *cmdtp, int flag, int argc,
 	int force;
 	int ret;
 
-	ret = curr_dev_and_platdata(&dev, &uc_pdata, argc == 1);
+	ret = curr_dev_and_plat(&dev, &uc_pdata, argc == 1);
 	if (ret)
 		return ret;
 
@@ -317,7 +317,7 @@ static int do_current(struct cmd_tbl *cmdtp, int flag, int argc,
 	int current;
 	int ret;
 
-	ret = curr_dev_and_platdata(&dev, &uc_pdata, argc == 1);
+	ret = curr_dev_and_plat(&dev, &uc_pdata, argc == 1);
 	if (ret)
 		return ret;
 
@@ -357,7 +357,7 @@ static int do_mode(struct cmd_tbl *cmdtp, int flag, int argc,
 	int mode;
 	int ret;
 
-	ret = curr_dev_and_platdata(&dev, &uc_pdata, false);
+	ret = curr_dev_and_plat(&dev, &uc_pdata, false);
 	if (ret)
 		return ret;
 
@@ -392,7 +392,7 @@ static int do_enable(struct cmd_tbl *cmdtp, int flag, int argc,
 	struct dm_regulator_uclass_plat *uc_pdata;
 	int ret;
 
-	ret = curr_dev_and_platdata(&dev, &uc_pdata, true);
+	ret = curr_dev_and_plat(&dev, &uc_pdata, true);
 	if (ret)
 		return ret;
 
@@ -412,7 +412,7 @@ static int do_disable(struct cmd_tbl *cmdtp, int flag, int argc,
 	struct dm_regulator_uclass_plat *uc_pdata;
 	int ret;
 
-	ret = curr_dev_and_platdata(&dev, &uc_pdata, true);
+	ret = curr_dev_and_plat(&dev, &uc_pdata, true);
 	if (ret)
 		return ret;
 

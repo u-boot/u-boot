@@ -22,7 +22,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * framework groups, Atmel PIO groups will be called banks.
  */
 
-struct atmel_pio4_platdata {
+struct atmel_pio4_plat {
 	struct atmel_pio4_port *reg_base;
 };
 
@@ -95,7 +95,7 @@ static u32 atmel_pinctrl_get_pinconf(const void *blob, int node)
 static inline struct atmel_pio4_port *atmel_pio4_bank_base(struct udevice *dev,
 							   u32 bank)
 {
-	struct atmel_pio4_platdata *plat = dev_get_plat(dev);
+	struct atmel_pio4_plat *plat = dev_get_plat(dev);
 	struct atmel_pio4_port *bank_base =
 			(struct atmel_pio4_port *)((u32)plat->reg_base +
 			ATMEL_PIO_BANK_OFFSET * bank);
@@ -154,7 +154,7 @@ const struct pinctrl_ops atmel_pinctrl_ops  = {
 
 static int atmel_pinctrl_probe(struct udevice *dev)
 {
-	struct atmel_pio4_platdata *plat = dev_get_plat(dev);
+	struct atmel_pio4_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr_base;
 
 	dev = dev_get_parent(dev);
@@ -178,6 +178,6 @@ U_BOOT_DRIVER(atmel_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = atmel_pinctrl_match,
 	.probe = atmel_pinctrl_probe,
-	.plat_auto	= sizeof(struct atmel_pio4_platdata),
+	.plat_auto	= sizeof(struct atmel_pio4_plat),
 	.ops = &atmel_pinctrl_ops,
 };

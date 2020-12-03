@@ -23,7 +23,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct exynos_spi_platdata {
+struct exynos_spi_plat {
 	enum periph_id periph_id;
 	s32 frequency;		/* Default clock frequency, -1 for none */
 	struct exynos_spi *regs;
@@ -213,7 +213,7 @@ static int spi_rx_tx(struct exynos_spi_priv *priv, int todo,
 static void spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct exynos_spi_platdata *pdata = dev_get_plat(bus);
+	struct exynos_spi_plat *pdata = dev_get_plat(bus);
 	struct exynos_spi_priv *priv = dev_get_priv(bus);
 
 	/* If it's too soon to do another transaction, wait */
@@ -239,7 +239,7 @@ static void spi_cs_activate(struct udevice *dev)
 static void spi_cs_deactivate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct exynos_spi_platdata *pdata = dev_get_plat(bus);
+	struct exynos_spi_plat *pdata = dev_get_plat(bus);
 	struct exynos_spi_priv *priv = dev_get_priv(bus);
 
 	setbits_le32(&priv->regs->cs_reg, SPI_SLAVE_SIG_INACT);
@@ -253,7 +253,7 @@ static void spi_cs_deactivate(struct udevice *dev)
 
 static int exynos_spi_of_to_plat(struct udevice *bus)
 {
-	struct exynos_spi_platdata *plat = bus->plat;
+	struct exynos_spi_plat *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -280,7 +280,7 @@ static int exynos_spi_of_to_plat(struct udevice *bus)
 
 static int exynos_spi_probe(struct udevice *bus)
 {
-	struct exynos_spi_platdata *plat = dev_get_plat(bus);
+	struct exynos_spi_plat *plat = dev_get_plat(bus);
 	struct exynos_spi_priv *priv = dev_get_priv(bus);
 
 	priv->regs = plat->regs;
@@ -368,7 +368,7 @@ static int exynos_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int exynos_spi_set_speed(struct udevice *bus, uint speed)
 {
-	struct exynos_spi_platdata *plat = bus->plat;
+	struct exynos_spi_plat *plat = bus->plat;
 	struct exynos_spi_priv *priv = dev_get_priv(bus);
 	int ret;
 
@@ -427,7 +427,7 @@ U_BOOT_DRIVER(exynos_spi) = {
 	.of_match = exynos_spi_ids,
 	.ops	= &exynos_spi_ops,
 	.of_to_plat = exynos_spi_of_to_plat,
-	.plat_auto	= sizeof(struct exynos_spi_platdata),
+	.plat_auto	= sizeof(struct exynos_spi_plat),
 	.priv_auto	= sizeof(struct exynos_spi_priv),
 	.probe	= exynos_spi_probe,
 };

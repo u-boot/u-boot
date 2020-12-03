@@ -253,7 +253,7 @@ static inline unsigned at91_gpio_to_pin(unsigned gpio)
 }
 
 /* Platform data for each GPIO port */
-struct at91_port_platdata {
+struct at91_port_plat {
 	uint32_t base_addr;
 	const char *bank_name;
 };

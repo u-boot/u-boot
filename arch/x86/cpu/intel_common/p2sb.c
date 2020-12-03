@@ -19,7 +19,7 @@
 #define PCH_P2SB_E0		0xe0
 #define HIDE_BIT		BIT(0)
 
-struct p2sb_platdata {
+struct p2sb_plat {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct dtd_intel_p2sb dtplat;
 #endif
@@ -57,7 +57,7 @@ struct p2sb_platdata {
  */
 static int p2sb_early_init(struct udevice *dev)
 {
-	struct p2sb_platdata *plat = dev_get_plat(dev);
+	struct p2sb_plat *plat = dev_get_plat(dev);
 	pci_dev_t pdev = plat->bdf;
 
 	/*
@@ -93,7 +93,7 @@ static int p2sb_spl_init(struct udevice *dev)
 int p2sb_of_to_plat(struct udevice *dev)
 {
 	struct p2sb_uc_priv *upriv = dev_get_uclass_priv(dev);
-	struct p2sb_platdata *plat = dev_get_plat(dev);
+	struct p2sb_plat *plat = dev_get_plat(dev);
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	int ret;
@@ -167,7 +167,7 @@ static int p2sb_remove(struct udevice *dev)
 static int p2sb_child_post_bind(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct p2sb_child_platdata *pplat = dev_get_parent_plat(dev);
+	struct p2sb_child_plat *pplat = dev_get_parent_plat(dev);
 	int ret;
 	u32 pid;
 
@@ -197,8 +197,8 @@ U_BOOT_DRIVER(intel_p2sb) = {
 	.remove		= p2sb_remove,
 	.ops		= &p2sb_ops,
 	.of_to_plat = p2sb_of_to_plat,
-	.plat_auto	= sizeof(struct p2sb_platdata),
-	.per_child_plat_auto	= sizeof(struct p2sb_child_platdata),
+	.plat_auto	= sizeof(struct p2sb_plat),
+	.per_child_plat_auto	= sizeof(struct p2sb_child_plat),
 	.child_post_bind = p2sb_child_post_bind,
 	.flags		= DM_FLAG_OS_PREPARE,
 };

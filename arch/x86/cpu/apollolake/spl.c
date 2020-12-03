@@ -92,7 +92,7 @@ static int apl_flash_bind(struct udevice *dev)
 {
 	if (CONFIG_IS_ENABLED(OF_PLATDATA) &&
 	    !CONFIG_IS_ENABLED(OF_PLATDATA_PARENT)) {
-		struct dm_spi_slave_platdata *plat;
+		struct dm_spi_slave_plat *plat;
 		struct udevice *spi;
 		int ret;
 

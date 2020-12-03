@@ -26,7 +26,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 #include <dm/platform_data/serial_pl01x.h>
 
-static const struct pl01x_serial_platdata serial_platdata = {
+static const struct pl01x_serial_plat serial_plat = {
 	.base = HI3660_UART6_BASE,
 	.type = TYPE_PL011,
 	.clock = 19200000
@@ -34,7 +34,7 @@ static const struct pl01x_serial_platdata serial_platdata = {
 
 U_BOOT_DEVICE(hikey960_serial0) = {
 	.name = "serial_pl01x",
-	.plat = &serial_platdata,
+	.plat = &serial_plat,
 };
 #endif
 

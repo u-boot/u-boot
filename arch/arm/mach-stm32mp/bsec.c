@@ -280,13 +280,13 @@ static int bsec_program_otp(long base, u32 val, u32 otp)
 }
 
 /* BSEC MISC driver *******************************************************/
-struct stm32mp_bsec_platdata {
+struct stm32mp_bsec_plat {
 	u32 base;
 };
 
 static int stm32mp_bsec_read_otp(struct udevice *dev, u32 *val, u32 otp)
 {
-	struct stm32mp_bsec_platdata *plat;
+	struct stm32mp_bsec_plat *plat;
 	u32 tmp_data = 0;
 	int ret;
 
@@ -319,7 +319,7 @@ static int stm32mp_bsec_read_otp(struct udevice *dev, u32 *val, u32 otp)
 
 static int stm32mp_bsec_read_shadow(struct udevice *dev, u32 *val, u32 otp)
 {
-	struct stm32mp_bsec_platdata *plat;
+	struct stm32mp_bsec_plat *plat;
 
 	if (IS_ENABLED(CONFIG_TFABOOT))
 		return stm32_smc(STM32_SMC_BSEC,
@@ -333,7 +333,7 @@ static int stm32mp_bsec_read_shadow(struct udevice *dev, u32 *val, u32 otp)
 
 static int stm32mp_bsec_read_lock(struct udevice *dev, u32 *val, u32 otp)
 {
-	struct stm32mp_bsec_platdata *plat = dev_get_plat(dev);
+	struct stm32mp_bsec_plat *plat = dev_get_plat(dev);
 
 	/* return OTP permanent write lock status */
 	*val = bsec_read_lock(plat->base + BSEC_WRLOCK_OFF, otp);
@@ -343,7 +343,7 @@ static int stm32mp_bsec_read_lock(struct udevice *dev, u32 *val, u32 otp)
 
 static int stm32mp_bsec_write_otp(struct udevice *dev, u32 val, u32 otp)
 {
-	struct stm32mp_bsec_platdata *plat;
+	struct stm32mp_bsec_plat *plat;
 
 	if (IS_ENABLED(CONFIG_TFABOOT))
 		return stm32_smc_exec(STM32_SMC_BSEC,
@@ -358,7 +358,7 @@ static int stm32mp_bsec_write_otp(struct udevice *dev, u32 val, u32 otp)
 
 static int stm32mp_bsec_write_shadow(struct udevice *dev, u32 val, u32 otp)
 {
-	struct stm32mp_bsec_platdata *plat;
+	struct stm32mp_bsec_plat *plat;
 
 	if (IS_ENABLED(CONFIG_TFABOOT))
 		return stm32_smc_exec(STM32_SMC_BSEC,
@@ -475,7 +475,7 @@ static const struct misc_ops stm32mp_bsec_ops = {
 
 static int stm32mp_bsec_of_to_plat(struct udevice *dev)
 {
-	struct stm32mp_bsec_platdata *plat = dev_get_plat(dev);
+	struct stm32mp_bsec_plat *plat = dev_get_plat(dev);
 
 	plat->base = (u32)dev_read_addr_ptr(dev);
 
@@ -485,7 +485,7 @@ static int stm32mp_bsec_of_to_plat(struct udevice *dev)
 static int stm32mp_bsec_probe(struct udevice *dev)
 {
 	int otp;
-	struct stm32mp_bsec_platdata *plat;
+	struct stm32mp_bsec_plat *plat;
 
 	/*
 	 * update unlocked shadow for OTP cleared by the rom code
@@ -513,7 +513,7 @@ U_BOOT_DRIVER(stm32mp_bsec) = {
 	.id = UCLASS_MISC,
 	.of_match = stm32mp_bsec_ids,
 	.of_to_plat = stm32mp_bsec_of_to_plat,
-	.plat_auto	= sizeof(struct stm32mp_bsec_platdata),
+	.plat_auto	= sizeof(struct stm32mp_bsec_plat),
 	.ops = &stm32mp_bsec_ops,
 	.probe = stm32mp_bsec_probe,
 };
@@ -521,7 +521,7 @@ U_BOOT_DRIVER(stm32mp_bsec) = {
 bool bsec_dbgswenable(void)
 {
 	struct udevice *dev;
-	struct stm32mp_bsec_platdata *plat;
+	struct stm32mp_bsec_plat *plat;
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_MISC,

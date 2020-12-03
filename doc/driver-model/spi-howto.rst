@@ -209,7 +209,7 @@ DM tells you. The name is not quite right. So in this case we would use:
 
 .. code-block:: c
 
-	struct exynos_spi_platdata {
+	struct exynos_spi_plat {
 		enum periph_id periph_id;
 		s32 frequency;		/* Default clock frequency, -1 for none */
 		struct exynos_spi *regs;
@@ -231,7 +231,7 @@ tree, but we need to tell it the size:
 
 	U_BOOT_DRIVER(spi_exynos) = {
 	...
-		.plat_auto = sizeof(struct exynos_spi_platdata),
+		.plat_auto = sizeof(struct exynos_spi_plat),
 
 
 Here is a sample function. It gets a pointer to the platform data and
@@ -241,7 +241,7 @@ fills in the fields from device tree.
 
 	static int exynos_spi_of_to_plat(struct udevice *bus)
 	{
-		struct exynos_spi_platdata *plat = bus->plat;
+		struct exynos_spi_plat *plat = bus->plat;
 		const void *blob = gd->fdt_blob;
 		int node = dev_of_offset(bus);
 
@@ -274,7 +274,7 @@ Specify this data in a U_BOOT_DEVICE() declaration in your board file:
 
 .. code-block:: c
 
-	struct exynos_spi_platdata platdata_spi0 = {
+	struct exynos_spi_plat platdata_spi0 = {
 		.periph_id = ...
 		.frequency = ...
 		.regs = ...
@@ -357,7 +357,7 @@ what you can copy out to set things up.
 
 	static int exynos_spi_probe(struct udevice *bus)
 	{
-		struct exynos_spi_platdata *plat = dev_get_plat(bus);
+		struct exynos_spi_plat *plat = dev_get_plat(bus);
 		struct exynos_spi_priv *priv = dev_get_priv(bus);
 
 		priv->regs = plat->regs;
@@ -437,7 +437,7 @@ Here is an example for the speed part:
 
 	static int exynos_spi_set_speed(struct udevice *bus, uint speed)
 	{
-		struct exynos_spi_platdata *plat = bus->plat;
+		struct exynos_spi_plat *plat = bus->plat;
 		struct exynos_spi_priv *priv = dev_get_priv(bus);
 		int ret;
 
@@ -585,7 +585,7 @@ The new version looks like this:
 	static void spi_cs_activate(struct udevice *dev)
 	{
 		struct udevice *bus = dev->parent;
-		struct exynos_spi_platdata *pdata = dev_get_plat(bus);
+		struct exynos_spi_plat *pdata = dev_get_plat(bus);
 		struct exynos_spi_priv *priv = dev_get_priv(bus);
 
 		/* If it's too soon to do another transaction, wait */
@@ -657,7 +657,7 @@ A little note about SPI uclass features
 
 The SPI uclass keeps some information about each device 'dev' on the bus:
 
-   struct dm_spi_slave_platdata:
+   struct dm_spi_slave_plat:
      This is device_get_parent_plat(dev).
      This is where the chip select number is stored, along with
      the default bus speed and mode. It is automatically read

@@ -37,7 +37,7 @@ struct rockchip_efuse_regs {
 		       /* 0x14	efuse strobe finish control register */
 };
 
-struct rockchip_efuse_platdata {
+struct rockchip_efuse_plat {
 	void __iomem *base;
 	struct clk *clk;
 };
@@ -86,7 +86,7 @@ U_BOOT_CMD(
 static int rockchip_rk3399_efuse_read(struct udevice *dev, int offset,
 				      void *buf, int size)
 {
-	struct rockchip_efuse_platdata *plat = dev_get_plat(dev);
+	struct rockchip_efuse_plat *plat = dev_get_plat(dev);
 	struct rockchip_efuse_regs *efuse =
 		(struct rockchip_efuse_regs *)plat->base;
 
@@ -139,7 +139,7 @@ static const struct misc_ops rockchip_efuse_ops = {
 
 static int rockchip_efuse_of_to_plat(struct udevice *dev)
 {
-	struct rockchip_efuse_platdata *plat = dev_get_plat(dev);
+	struct rockchip_efuse_plat *plat = dev_get_plat(dev);
 
 	plat->base = dev_read_addr_ptr(dev);
 	return 0;
@@ -155,6 +155,6 @@ U_BOOT_DRIVER(rockchip_efuse) = {
 	.id = UCLASS_MISC,
 	.of_match = rockchip_efuse_ids,
 	.of_to_plat = rockchip_efuse_of_to_plat,
-	.plat_auto	= sizeof(struct rockchip_efuse_platdata),
+	.plat_auto	= sizeof(struct rockchip_efuse_plat),
 	.ops = &rockchip_efuse_ops,
 };

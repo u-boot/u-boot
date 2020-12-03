@@ -38,7 +38,7 @@
 #define debug_trace(x, args...)
 #endif
 
-struct ich_spi_platdata {
+struct ich_spi_plat {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct dtd_intel_fast_spi dtplat;
 #endif
@@ -139,7 +139,7 @@ static bool ich9_can_do_33mhz(struct udevice *dev)
 	return speed == 1;
 }
 
-static void spi_lock_down(struct ich_spi_platdata *plat, void *sbase)
+static void spi_lock_down(struct ich_spi_plat *plat, void *sbase)
 {
 	if (plat->ich_version == ICHV_7) {
 		struct ich7_spi_regs *ich7_spi = sbase;
@@ -152,7 +152,7 @@ static void spi_lock_down(struct ich_spi_platdata *plat, void *sbase)
 	}
 }
 
-static bool spi_lock_status(struct ich_spi_platdata *plat, void *sbase)
+static bool spi_lock_status(struct ich_spi_plat *plat, void *sbase)
 {
 	int lock = 0;
 
@@ -264,7 +264,7 @@ static int ich_spi_exec_op_swseq(struct spi_slave *slave,
 				 const struct spi_mem_op *op)
 {
 	struct udevice *bus = dev_get_parent(slave->dev);
-	struct ich_spi_platdata *plat = dev_get_plat(bus);
+	struct ich_spi_plat *plat = dev_get_plat(bus);
 	struct ich_spi_priv *ctlr = dev_get_priv(bus);
 	uint16_t control;
 	int16_t opcode_index;
@@ -602,7 +602,7 @@ static int ich_spi_exec_op_hwseq(struct spi_slave *slave,
 static int ich_spi_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 {
 	struct udevice *bus = dev_get_parent(slave->dev);
-	struct ich_spi_platdata *plat = dev_get_plat(bus);
+	struct ich_spi_plat *plat = dev_get_plat(bus);
 	int ret;
 
 	bootstage_start(BOOTSTAGE_ID_ACCUM_SPI, "fast_spi");
@@ -685,7 +685,7 @@ static int ich_get_mmap_bus(struct udevice *bus, ulong *map_basep,
 	pci_dev_t spi_bdf;
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	if (device_is_on_pci_bus(bus)) {
-		struct pci_child_platdata *pplat;
+		struct pci_child_plat *pplat;
 
 		pplat = dev_get_parent_plat(bus);
 		spi_bdf = pplat->devfn;
@@ -706,7 +706,7 @@ static int ich_get_mmap_bus(struct udevice *bus, ulong *map_basep,
 						   offsetp);
 	}
 #else
-	struct ich_spi_platdata *plat = dev_get_plat(bus);
+	struct ich_spi_plat *plat = dev_get_plat(bus);
 
 	/*
 	 * We cannot rely on plat->bdf being set up yet since this method can
@@ -758,7 +758,7 @@ static int ich_spi_adjust_size(struct spi_slave *slave, struct spi_mem_op *op)
 
 static int ich_protect_lockdown(struct udevice *dev)
 {
-	struct ich_spi_platdata *plat = dev_get_plat(dev);
+	struct ich_spi_plat *plat = dev_get_plat(dev);
 	struct ich_spi_priv *priv = dev_get_priv(dev);
 	int ret = -ENOSYS;
 
@@ -788,11 +788,11 @@ static int ich_protect_lockdown(struct udevice *dev)
 }
 
 static int ich_init_controller(struct udevice *dev,
-			       struct ich_spi_platdata *plat,
+			       struct ich_spi_plat *plat,
 			       struct ich_spi_priv *ctlr)
 {
 	if (spl_phase() == PHASE_TPL) {
-		struct ich_spi_platdata *plat = dev_get_plat(dev);
+		struct ich_spi_plat *plat = dev_get_plat(dev);
 		int ret;
 
 		ret = fast_spi_early_init(plat->bdf, plat->mmio_base);
@@ -871,7 +871,7 @@ static int ich_cache_bios_region(struct udevice *dev)
 
 static int ich_spi_probe(struct udevice *dev)
 {
-	struct ich_spi_platdata *plat = dev_get_plat(dev);
+	struct ich_spi_plat *plat = dev_get_plat(dev);
 	struct ich_spi_priv *priv = dev_get_priv(dev);
 	int ret;
 
@@ -924,7 +924,7 @@ static int ich_spi_set_mode(struct udevice *bus, uint mode)
 static int ich_spi_child_pre_probe(struct udevice *dev)
 {
 	struct udevice *bus = dev_get_parent(dev);
-	struct ich_spi_platdata *plat = dev_get_plat(bus);
+	struct ich_spi_plat *plat = dev_get_plat(bus);
 	struct ich_spi_priv *priv = dev_get_priv(bus);
 	struct spi_slave *slave = dev_get_parent_priv(dev);
 
@@ -947,7 +947,7 @@ static int ich_spi_child_pre_probe(struct udevice *dev)
 
 static int ich_spi_of_to_plat(struct udevice *dev)
 {
-	struct ich_spi_platdata *plat = dev_get_plat(dev);
+	struct ich_spi_plat *plat = dev_get_plat(dev);
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct ich_spi_priv *priv = dev_get_priv(dev);
@@ -1005,7 +1005,7 @@ U_BOOT_DRIVER(intel_fast_spi) = {
 	.of_match = ich_spi_ids,
 	.ops	= &ich_spi_ops,
 	.of_to_plat = ich_spi_of_to_plat,
-	.plat_auto	= sizeof(struct ich_spi_platdata),
+	.plat_auto	= sizeof(struct ich_spi_plat),
 	.priv_auto	= sizeof(struct ich_spi_priv),
 	.child_pre_probe = ich_spi_child_pre_probe,
 	.probe	= ich_spi_probe,

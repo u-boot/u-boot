@@ -219,7 +219,7 @@ static int mpc8xxx_gpio_of_to_plat(struct udevice *dev)
 }
 #endif
 
-static int mpc8xxx_gpio_platdata_to_priv(struct udevice *dev)
+static int mpc8xxx_gpio_plat_to_priv(struct udevice *dev)
 {
 	struct mpc8xxx_gpio_data *priv = dev_get_priv(dev);
 	struct mpc8xxx_gpio_plat *plat = dev_get_plat(dev);
@@ -249,7 +249,7 @@ static int mpc8xxx_gpio_probe(struct udevice *dev)
 	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
 	char name[32], *str;
 
-	mpc8xxx_gpio_platdata_to_priv(dev);
+	mpc8xxx_gpio_plat_to_priv(dev);
 
 	snprintf(name, sizeof(name), "MPC@%lx_", data->addr);
 	str = strdup(name);

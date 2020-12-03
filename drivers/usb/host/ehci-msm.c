@@ -47,7 +47,7 @@ static int ehci_usb_probe(struct udevice *dev)
 {
 	struct msm_ehci_priv *p = dev_get_priv(dev);
 	struct usb_ehci *ehci = p->ehci;
-	struct usb_platdata *plat = dev_get_plat(dev);
+	struct usb_plat *plat = dev_get_plat(dev);
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
 	int ret;
@@ -145,6 +145,6 @@ U_BOOT_DRIVER(usb_ehci) = {
 	.remove = ehci_usb_remove,
 	.ops	= &ehci_usb_ops,
 	.priv_auto	= sizeof(struct msm_ehci_priv),
-	.plat_auto	= sizeof(struct usb_platdata),
+	.plat_auto	= sizeof(struct usb_plat),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };

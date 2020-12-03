@@ -23,7 +23,7 @@ enum {
 
 static int sandbox_sdl_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_plat(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct sandbox_sdl_plat *plat = dev_get_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct sandbox_state *state = state_get_current();
@@ -49,7 +49,7 @@ static int sandbox_sdl_probe(struct udevice *dev)
 
 static int sandbox_sdl_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_plat(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct sandbox_sdl_plat *plat = dev_get_plat(dev);
 	int ret = 0;
 

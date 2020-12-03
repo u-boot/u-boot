@@ -18,11 +18,11 @@
 #include <asm/intel_pinctrl_defs.h>
 
 /**
- * struct apl_gpio_platdata - platform data for each device
+ * struct apl_gpio_plat - platform data for each device
  *
  * @dtplat: of-platdata data from C struct
  */
-struct apl_gpio_platdata {
+struct apl_gpio_plat {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	/* Put this first since driver model will copy the data here */
 	struct dtd_intel_apl_pinctrl dtplat;
@@ -138,12 +138,12 @@ static const struct pad_community apl_gpio_communities[] = {
 
 static int apl_pinctrl_of_to_plat(struct udevice *dev)
 {
-	struct p2sb_child_platdata *pplat;
+	struct p2sb_child_plat *pplat;
 	const struct pad_community *comm = NULL;
 	int i;
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct apl_gpio_platdata *plat = dev_get_plat(dev);
+	struct apl_gpio_plat *plat = dev_get_plat(dev);
 	int ret;
 
 	/*
@@ -185,5 +185,5 @@ U_BOOT_DRIVER(intel_apl_pinctrl) = {
 #endif
 	.of_to_plat = apl_pinctrl_of_to_plat,
 	.priv_auto	= sizeof(struct intel_pinctrl_priv),
-	.plat_auto	= sizeof(struct apl_gpio_platdata),
+	.plat_auto	= sizeof(struct apl_gpio_plat),
 };

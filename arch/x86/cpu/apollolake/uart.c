@@ -68,7 +68,7 @@ void apl_uart_init(pci_dev_t bdf, ulong base)
  * This driver uses its own compatible string but almost everything else from
  * the standard ns16550 driver. This allows us to provide an of-platdata
  * implementation, since the platdata produced by of-platdata does not match
- * struct ns16550_platdata.
+ * struct ns16550_plat.
  *
  * When running with of-platdata (generally TPL), the platdata is converted to
  * something that ns16550 expects. When running withoutof-platdata (SPL, U-Boot
@@ -77,7 +77,7 @@ void apl_uart_init(pci_dev_t bdf, ulong base)
 
 static int apl_ns16550_probe(struct udevice *dev)
 {
-	struct ns16550_platdata *plat = dev_get_plat(dev);
+	struct ns16550_plat *plat = dev_get_plat(dev);
 
 	if (!CONFIG_IS_ENABLED(PCI))
 		apl_uart_init(plat->bdf, plat->base);
@@ -89,7 +89,7 @@ static int apl_ns16550_of_to_plat(struct udevice *dev)
 {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct dtd_intel_apl_ns16550 *dtplat = dev_get_plat(dev);
-	struct ns16550_platdata *plat;
+	struct ns16550_plat *plat;
 
 	/*
 	 * Convert our plat to the ns16550's plat, so we can just use
@@ -126,7 +126,7 @@ U_BOOT_DRIVER(intel_apl_ns16550) = {
 	.name	= "intel_apl_ns16550",
 	.id	= UCLASS_SERIAL,
 	.of_match = apl_ns16550_serial_ids,
-	.plat_auto	= sizeof(struct ns16550_platdata),
+	.plat_auto	= sizeof(struct ns16550_plat),
 	.priv_auto	= sizeof(struct NS16550),
 	.ops	= &ns16550_serial_ops,
 	.of_to_plat = apl_ns16550_of_to_plat,

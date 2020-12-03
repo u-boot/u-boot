@@ -124,7 +124,7 @@ static int sandbox_sf_probe(struct udevice *dev)
 	const struct flash_info *data;
 	struct sandbox_spi_flash_plat_data *pdata = dev_get_plat(dev);
 	struct sandbox_state *state = state_get_current();
-	struct dm_spi_slave_platdata *slave_plat;
+	struct dm_spi_slave_plat *slave_plat;
 	struct udevice *bus = dev->parent;
 	const char *spec = NULL;
 	struct udevice *emul;

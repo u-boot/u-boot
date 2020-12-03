@@ -17,7 +17,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct socfpga_clk_platdata {
+struct socfpga_clk_plat {
 	void __iomem *regs;
 };
 
@@ -25,20 +25,20 @@ struct socfpga_clk_platdata {
  * function to write the bypass register which requires a poll of the
  * busy bit
  */
-static void clk_write_bypass_mainpll(struct socfpga_clk_platdata *plat, u32 val)
+static void clk_write_bypass_mainpll(struct socfpga_clk_plat *plat, u32 val)
 {
 	CM_REG_WRITEL(plat, val, CLKMGR_MAINPLL_BYPASS);
 	cm_wait_for_fsm();
 }
 
-static void clk_write_bypass_perpll(struct socfpga_clk_platdata *plat, u32 val)
+static void clk_write_bypass_perpll(struct socfpga_clk_plat *plat, u32 val)
 {
 	CM_REG_WRITEL(plat, val, CLKMGR_PERPLL_BYPASS);
 	cm_wait_for_fsm();
 }
 
 /* function to write the ctrl register which requires a poll of the busy bit */
-static void clk_write_ctrl(struct socfpga_clk_platdata *plat, u32 val)
+static void clk_write_ctrl(struct socfpga_clk_plat *plat, u32 val)
 {
 	CM_REG_WRITEL(plat, val, CLKMGR_CTRL);
 	cm_wait_for_fsm();
@@ -108,7 +108,7 @@ static const struct {
 	},
 };
 
-static int membus_wait_for_req(struct socfpga_clk_platdata *plat, u32 pll,
+static int membus_wait_for_req(struct socfpga_clk_plat *plat, u32 pll,
 			       int timeout)
 {
 	int cnt = 0;
@@ -133,7 +133,7 @@ static int membus_wait_for_req(struct socfpga_clk_platdata *plat, u32 pll,
 	return 0;
 }
 
-static int membus_write_pll(struct socfpga_clk_platdata *plat, u32 pll,
+static int membus_write_pll(struct socfpga_clk_plat *plat, u32 pll,
 			    u32 addr_offset, u32 wdat, int timeout)
 {
 	u32 addr;
@@ -154,7 +154,7 @@ static int membus_write_pll(struct socfpga_clk_platdata *plat, u32 pll,
 	return membus_wait_for_req(plat, pll, timeout);
 }
 
-static int membus_read_pll(struct socfpga_clk_platdata *plat, u32 pll,
+static int membus_read_pll(struct socfpga_clk_plat *plat, u32 pll,
 			   u32 addr_offset, u32 *rdata, int timeout)
 {
 	u32 addr;
@@ -184,7 +184,7 @@ static int membus_read_pll(struct socfpga_clk_platdata *plat, u32 pll,
 	return 0;
 }
 
-static void membus_pll_configs(struct socfpga_clk_platdata *plat, u32 pll)
+static void membus_pll_configs(struct socfpga_clk_plat *plat, u32 pll)
 {
 	int i;
 	u32 rdata;
@@ -236,7 +236,7 @@ static u32 calc_vocalib_pll(u32 pllm, u32 pllglob)
 static void clk_basic_init(struct udevice *dev,
 			   const struct cm_config * const cfg)
 {
-	struct socfpga_clk_platdata *plat = dev_get_plat(dev);
+	struct socfpga_clk_plat *plat = dev_get_plat(dev);
 	u32 vcocalib;
 
 	if (!cfg)
@@ -342,7 +342,7 @@ static void clk_basic_init(struct udevice *dev,
 		       CM_REG_READL(plat, CLKMGR_CTRL) & ~CLKMGR_CTRL_BOOTMODE);
 }
 
-static u64 clk_get_vco_clk_hz(struct socfpga_clk_platdata *plat,
+static u64 clk_get_vco_clk_hz(struct socfpga_clk_plat *plat,
 			      u32 pllglob_reg, u32 pllm_reg)
 {
 	 u64 fref, arefdiv, mdiv, reg, vco;
@@ -375,26 +375,26 @@ static u64 clk_get_vco_clk_hz(struct socfpga_clk_platdata *plat,
 	return vco;
 }
 
-static u64 clk_get_main_vco_clk_hz(struct socfpga_clk_platdata *plat)
+static u64 clk_get_main_vco_clk_hz(struct socfpga_clk_plat *plat)
 {
 	return clk_get_vco_clk_hz(plat, CLKMGR_MAINPLL_PLLGLOB,
 				 CLKMGR_MAINPLL_PLLM);
 }
 
-static u64 clk_get_per_vco_clk_hz(struct socfpga_clk_platdata *plat)
+static u64 clk_get_per_vco_clk_hz(struct socfpga_clk_plat *plat)
 {
 	return clk_get_vco_clk_hz(plat, CLKMGR_PERPLL_PLLGLOB,
 				 CLKMGR_PERPLL_PLLM);
 }
 
-static u32 clk_get_5_1_clk_src(struct socfpga_clk_platdata *plat, u64 reg)
+static u32 clk_get_5_1_clk_src(struct socfpga_clk_plat *plat, u64 reg)
 {
 	u32 clksrc = CM_REG_READL(plat, reg);
 
 	return (clksrc & CLKMGR_CLKSRC_MASK) >> CLKMGR_CLKSRC_OFFSET;
 }
 
-static u64 clk_get_clksrc_hz(struct socfpga_clk_platdata *plat, u32 clksrc_reg,
+static u64 clk_get_clksrc_hz(struct socfpga_clk_plat *plat, u32 clksrc_reg,
 			     u32 main_reg, u32 per_reg)
 {
 	u64 clock;
@@ -431,7 +431,7 @@ static u64 clk_get_clksrc_hz(struct socfpga_clk_platdata *plat, u32 clksrc_reg,
 	return clock;
 }
 
-static u64 clk_get_mpu_clk_hz(struct socfpga_clk_platdata *plat)
+static u64 clk_get_mpu_clk_hz(struct socfpga_clk_plat *plat)
 {
 	u64 clock = clk_get_clksrc_hz(plat, CLKMGR_MAINPLL_MPUCLK,
 				      CLKMGR_MAINPLL_PLLC0,
@@ -443,14 +443,14 @@ static u64 clk_get_mpu_clk_hz(struct socfpga_clk_platdata *plat)
 	return clock;
 }
 
-static u32 clk_get_l3_main_clk_hz(struct socfpga_clk_platdata *plat)
+static u32 clk_get_l3_main_clk_hz(struct socfpga_clk_plat *plat)
 {
 	return clk_get_clksrc_hz(plat, CLKMGR_MAINPLL_NOCCLK,
 				      CLKMGR_MAINPLL_PLLC1,
 				      CLKMGR_PERPLL_PLLC1);
 }
 
-static u32 clk_get_l4_main_clk_hz(struct socfpga_clk_platdata *plat)
+static u32 clk_get_l4_main_clk_hz(struct socfpga_clk_plat *plat)
 {
 	u64 clock = clk_get_l3_main_clk_hz(plat);
 
@@ -461,7 +461,7 @@ static u32 clk_get_l4_main_clk_hz(struct socfpga_clk_platdata *plat)
 	return clock;
 }
 
-static u32 clk_get_sdmmc_clk_hz(struct socfpga_clk_platdata *plat)
+static u32 clk_get_sdmmc_clk_hz(struct socfpga_clk_plat *plat)
 {
 	u64 clock = clk_get_clksrc_hz(plat, CLKMGR_ALTR_SDMMCCTR,
 				      CLKMGR_MAINPLL_PLLC3,
@@ -473,7 +473,7 @@ static u32 clk_get_sdmmc_clk_hz(struct socfpga_clk_platdata *plat)
 	return clock / 4;
 }
 
-static u32 clk_get_l4_sp_clk_hz(struct socfpga_clk_platdata *plat)
+static u32 clk_get_l4_sp_clk_hz(struct socfpga_clk_plat *plat)
 {
 	u64 clock = clk_get_l3_main_clk_hz(plat);
 
@@ -484,7 +484,7 @@ static u32 clk_get_l4_sp_clk_hz(struct socfpga_clk_platdata *plat)
 	return clock;
 }
 
-static u32 clk_get_l4_mp_clk_hz(struct socfpga_clk_platdata *plat)
+static u32 clk_get_l4_mp_clk_hz(struct socfpga_clk_plat *plat)
 {
 	u64 clock = clk_get_l3_main_clk_hz(plat);
 
@@ -495,7 +495,7 @@ static u32 clk_get_l4_mp_clk_hz(struct socfpga_clk_platdata *plat)
 	return clock;
 }
 
-static u32 clk_get_l4_sys_free_clk_hz(struct socfpga_clk_platdata *plat)
+static u32 clk_get_l4_sys_free_clk_hz(struct socfpga_clk_plat *plat)
 {
 	if (CM_REG_READL(plat, CLKMGR_STAT) & CLKMGR_STAT_BOOTMODE)
 		return clk_get_l3_main_clk_hz(plat) / 2;
@@ -503,7 +503,7 @@ static u32 clk_get_l4_sys_free_clk_hz(struct socfpga_clk_platdata *plat)
 	return clk_get_l3_main_clk_hz(plat) / 4;
 }
 
-static u32 clk_get_emac_clk_hz(struct socfpga_clk_platdata *plat, u32 emac_id)
+static u32 clk_get_emac_clk_hz(struct socfpga_clk_plat *plat, u32 emac_id)
 {
 	bool emacsel_a;
 	u32 ctl;
@@ -585,7 +585,7 @@ static u32 clk_get_emac_clk_hz(struct socfpga_clk_platdata *plat, u32 emac_id)
 
 static ulong socfpga_clk_get_rate(struct clk *clk)
 {
-	struct socfpga_clk_platdata *plat = dev_get_plat(clk->dev);
+	struct socfpga_clk_plat *plat = dev_get_plat(clk->dev);
 
 	switch (clk->id) {
 	case AGILEX_MPU_CLK:
@@ -630,7 +630,7 @@ static int socfpga_clk_probe(struct udevice *dev)
 
 static int socfpga_clk_of_to_plat(struct udevice *dev)
 {
-	struct socfpga_clk_platdata *plat = dev_get_plat(dev);
+	struct socfpga_clk_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);
@@ -658,5 +658,5 @@ U_BOOT_DRIVER(socfpga_agilex_clk) = {
 	.ops		= &socfpga_clk_ops,
 	.probe		= socfpga_clk_probe,
 	.of_to_plat = socfpga_clk_of_to_plat,
-	.plat_auto	= sizeof(struct socfpga_clk_platdata),
+	.plat_auto	= sizeof(struct socfpga_clk_plat),
 };

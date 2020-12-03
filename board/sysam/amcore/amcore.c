@@ -107,7 +107,7 @@ int dram_init(void)
 	return 0;
 }
 
-static struct coldfire_serial_platdata mcf5307_serial_plat = {
+static struct coldfire_serial_plat mcf5307_serial_plat = {
 	.base = CONFIG_SYS_UART_BASE,
 	.port = 0,
 	.baudrate = CONFIG_BAUDRATE,

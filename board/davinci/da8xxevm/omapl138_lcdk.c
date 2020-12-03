@@ -356,7 +356,7 @@ int board_mmc_init(struct bd_info *bis)
 #endif
 
 #ifdef CONFIG_SPL_BUILD
-static const struct ns16550_platdata serial_pdata = {
+static const struct ns16550_plat serial_pdata = {
 	.base = DAVINCI_UART2_BASE,
 	.reg_shift = 2,
 	.clock = 228000000,
@@ -368,7 +368,7 @@ U_BOOT_DEVICE(omapl138_uart) = {
 	.plat = &serial_pdata,
 };
 
-static const struct davinci_mmc_plat mmc_platdata = {
+static const struct davinci_mmc_plat mmc_plat = {
 	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
 	.cfg = {
 		.f_min = 200000,
@@ -381,7 +381,7 @@ static const struct davinci_mmc_plat mmc_platdata = {
 };
 U_BOOT_DEVICE(omapl138_mmc) = {
 	.name = "ti_da830_mmc",
-	.plat = &mmc_platdata,
+	.plat = &mmc_plat,
 };
 
 void spl_board_init(void)

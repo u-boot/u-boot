@@ -21,7 +21,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct sandbox_serial_platdata {
+struct sandbox_serial_plat {
 	int colour;	/* Text colour to use for output, -1 for none */
 };
 
@@ -72,7 +72,7 @@ static int sandbox_serial_probe(struct udevice *dev)
 
 static int sandbox_serial_remove(struct udevice *dev)
 {
-	struct sandbox_serial_platdata *plat = dev->plat;
+	struct sandbox_serial_plat *plat = dev->plat;
 
 	if (plat->colour != -1)
 		output_ansi_reset();
@@ -83,7 +83,7 @@ static int sandbox_serial_remove(struct udevice *dev)
 static int sandbox_serial_putc(struct udevice *dev, const char ch)
 {
 	struct sandbox_serial_priv *priv = dev_get_priv(dev);
-	struct sandbox_serial_platdata *plat = dev->plat;
+	struct sandbox_serial_plat *plat = dev->plat;
 
 	/* With of-platdata we don't real the colour correctly, so disable it */
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA) && priv->start_of_line &&
@@ -203,7 +203,7 @@ static const char * const ansi_colour[] = {
 
 static int sandbox_serial_of_to_plat(struct udevice *dev)
 {
-	struct sandbox_serial_platdata *plat = dev->plat;
+	struct sandbox_serial_plat *plat = dev->plat;
 	const char *colour;
 	int i;
 
@@ -242,7 +242,7 @@ U_BOOT_DRIVER(sandbox_serial) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = sandbox_serial_ids,
 	.of_to_plat = sandbox_serial_of_to_plat,
-	.plat_auto	= sizeof(struct sandbox_serial_platdata),
+	.plat_auto	= sizeof(struct sandbox_serial_plat),
 	.priv_auto	= sizeof(struct sandbox_serial_priv),
 	.probe = sandbox_serial_probe,
 	.remove = sandbox_serial_remove,
@@ -251,7 +251,7 @@ U_BOOT_DRIVER(sandbox_serial) = {
 };
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-static const struct sandbox_serial_platdata platdata_non_fdt = {
+static const struct sandbox_serial_plat platdata_non_fdt = {
 	.colour = -1,
 };
 

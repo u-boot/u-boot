@@ -963,7 +963,7 @@ void board_fit_image_post_process(void **p_image, size_t *p_size)
 #endif
 
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
-static const struct omap_hsmmc_plat am335x_mmc0_platdata = {
+static const struct omap_hsmmc_plat am335x_mmc0_plat = {
 	.base_addr = (struct hsmmc *)OMAP_HSMMC1_BASE,
 	.cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_4BIT,
 	.cfg.f_min = 400000,
@@ -974,10 +974,10 @@ static const struct omap_hsmmc_plat am335x_mmc0_platdata = {
 
 U_BOOT_DEVICE(am335x_mmc0) = {
 	.name = "omap_hsmmc",
-	.plat = &am335x_mmc0_platdata,
+	.plat = &am335x_mmc0_plat,
 };
 
-static const struct omap_hsmmc_plat am335x_mmc1_platdata = {
+static const struct omap_hsmmc_plat am335x_mmc1_plat = {
 	.base_addr = (struct hsmmc *)OMAP_HSMMC2_BASE,
 	.cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_8BIT,
 	.cfg.f_min = 400000,
@@ -988,6 +988,6 @@ static const struct omap_hsmmc_plat am335x_mmc1_platdata = {
 
 U_BOOT_DEVICE(am335x_mmc1) = {
 	.name = "omap_hsmmc",
-	.plat = &am335x_mmc1_platdata,
+	.plat = &am335x_mmc1_plat,
 };
 #endif

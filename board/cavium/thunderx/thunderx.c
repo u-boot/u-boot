@@ -18,7 +18,7 @@
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 #include <dm/platform_data/serial_pl01x.h>
 
-static const struct pl01x_serial_platdata serial0 = {
+static const struct pl01x_serial_plat serial0 = {
 	.base = CONFIG_SYS_SERIAL0,
 	.type = TYPE_PL011,
 	.clock = 0,
@@ -30,7 +30,7 @@ U_BOOT_DEVICE(thunderx_serial0) = {
 	.plat = &serial0,
 };
 
-static const struct pl01x_serial_platdata serial1 = {
+static const struct pl01x_serial_plat serial1 = {
 	.base = CONFIG_SYS_SERIAL1,
 	.type = TYPE_PL011,
 	.clock = 0,

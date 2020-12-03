@@ -21,13 +21,13 @@ struct atmel_pit_regs {
 	u32	value_image;
 };
 
-struct atmel_pit_platdata {
+struct atmel_pit_plat {
 	struct atmel_pit_regs *regs;
 };
 
 static u64 atmel_pit_get_count(struct udevice *dev)
 {
-	struct atmel_pit_platdata *plat = dev_get_plat(dev);
+	struct atmel_pit_plat *plat = dev_get_plat(dev);
 	struct atmel_pit_regs *const regs = plat->regs;
 	u32 val = readl(&regs->value_image);
 
@@ -36,7 +36,7 @@ static u64 atmel_pit_get_count(struct udevice *dev)
 
 static int atmel_pit_probe(struct udevice *dev)
 {
-	struct atmel_pit_platdata *plat = dev_get_plat(dev);
+	struct atmel_pit_plat *plat = dev_get_plat(dev);
 	struct atmel_pit_regs *const regs = plat->regs;
 	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct clk clk;
@@ -60,7 +60,7 @@ static int atmel_pit_probe(struct udevice *dev)
 
 static int atmel_pit_of_to_plat(struct udevice *dev)
 {
-	struct atmel_pit_platdata *plat = dev_get_plat(dev);
+	struct atmel_pit_plat *plat = dev_get_plat(dev);
 
 	plat->regs = dev_read_addr_ptr(dev);
 
@@ -81,7 +81,7 @@ U_BOOT_DRIVER(atmel_pit) = {
 	.id	= UCLASS_TIMER,
 	.of_match = atmel_pit_ids,
 	.of_to_plat = atmel_pit_of_to_plat,
-	.plat_auto	= sizeof(struct atmel_pit_platdata),
+	.plat_auto	= sizeof(struct atmel_pit_plat),
 	.probe	= atmel_pit_probe,
 	.ops	= &atmel_pit_ops,
 };

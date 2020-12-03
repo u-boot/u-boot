@@ -125,7 +125,7 @@ static int pcf8575_set_value(struct udevice *dev, unsigned int offset,
 	return pcf8575_direction_output(dev, offset, value);
 }
 
-static int pcf8575_ofdata_platdata(struct udevice *dev)
+static int pcf8575_ofdata_plat(struct udevice *dev)
 {
 	struct pcf8575_chip *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
@@ -175,7 +175,7 @@ U_BOOT_DRIVER(gpio_pcf8575) = {
 	.id	= UCLASS_GPIO,
 	.ops	= &pcf8575_gpio_ops,
 	.of_match = pcf8575_gpio_ids,
-	.of_to_plat = pcf8575_ofdata_platdata,
+	.of_to_plat = pcf8575_ofdata_plat,
 	.probe	= pcf8575_gpio_probe,
 	.plat_auto	= sizeof(struct pcf8575_chip),
 };

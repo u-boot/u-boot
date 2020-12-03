@@ -414,6 +414,6 @@ U_BOOT_DRIVER(mtk_musb) = {
 #ifdef CONFIG_USB_MUSB_HOST
 	.ops		= &musb_usb_ops,
 #endif
-	.plat_auto	= sizeof(struct usb_platdata),
+	.plat_auto	= sizeof(struct usb_plat),
 	.priv_auto	= sizeof(struct mtk_musb_glue),
 };

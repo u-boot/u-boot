@@ -27,7 +27,7 @@ bool meson_gx_mmc_is_compatible(struct udevice *dev,
 
 static inline void *get_regbase(const struct mmc *mmc)
 {
-	struct meson_mmc_platdata *pdata = mmc->priv;
+	struct meson_mmc_plat *pdata = mmc->priv;
 
 	return pdata->regbase;
 }
@@ -160,7 +160,7 @@ static void meson_mmc_setup_cmd(struct mmc *mmc, struct mmc_data *data,
 
 static void meson_mmc_setup_addr(struct mmc *mmc, struct mmc_data *data)
 {
-	struct meson_mmc_platdata *pdata = mmc->priv;
+	struct meson_mmc_plat *pdata = mmc->priv;
 	unsigned int data_size;
 	uint32_t data_addr = 0;
 
@@ -198,7 +198,7 @@ static int meson_dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 				 struct mmc_data *data)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
-	struct meson_mmc_platdata *pdata = mmc->priv;
+	struct meson_mmc_plat *pdata = mmc->priv;
 	uint32_t status;
 	ulong start;
 	int ret = 0;
@@ -243,7 +243,7 @@ static const struct dm_mmc_ops meson_dm_mmc_ops = {
 
 static int meson_mmc_of_to_plat(struct udevice *dev)
 {
-	struct meson_mmc_platdata *pdata = dev_get_plat(dev);
+	struct meson_mmc_plat *pdata = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);
@@ -257,7 +257,7 @@ static int meson_mmc_of_to_plat(struct udevice *dev)
 
 static int meson_mmc_probe(struct udevice *dev)
 {
-	struct meson_mmc_platdata *pdata = dev_get_plat(dev);
+	struct meson_mmc_plat *pdata = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct mmc *mmc = &pdata->mmc;
 	struct mmc_config *cfg = &pdata->cfg;
@@ -320,7 +320,7 @@ static int meson_mmc_probe(struct udevice *dev)
 
 int meson_mmc_bind(struct udevice *dev)
 {
-	struct meson_mmc_platdata *pdata = dev_get_plat(dev);
+	struct meson_mmc_plat *pdata = dev_get_plat(dev);
 
 	return mmc_bind(dev, &pdata->mmc, &pdata->cfg);
 }
@@ -340,7 +340,7 @@ U_BOOT_DRIVER(meson_mmc) = {
 	.probe = meson_mmc_probe,
 	.bind = meson_mmc_bind,
 	.of_to_plat = meson_mmc_of_to_plat,
-	.plat_auto	= sizeof(struct meson_mmc_platdata),
+	.plat_auto	= sizeof(struct meson_mmc_plat),
 };
 
 #ifdef CONFIG_PWRSEQ

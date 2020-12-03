@@ -114,7 +114,7 @@ static int coldfire_spi_claim_bus(struct udevice *dev)
 	struct udevice *bus = dev->parent;
 	struct coldfire_spi_priv *cfspi = dev_get_priv(bus);
 	struct dspi *dspi = cfspi->regs;
-	struct dm_spi_slave_platdata *slave_plat =
+	struct dm_spi_slave_plat *slave_plat =
 		dev_get_parent_plat(dev);
 
 	if ((in_be32(&dspi->sr) & DSPI_SR_TXRXS) != DSPI_SR_TXRXS)
@@ -133,7 +133,7 @@ static int coldfire_spi_release_bus(struct udevice *dev)
 	struct udevice *bus = dev->parent;
 	struct coldfire_spi_priv *cfspi = dev_get_priv(bus);
 	struct dspi *dspi = cfspi->regs;
-	struct dm_spi_slave_platdata *slave_plat =
+	struct dm_spi_slave_plat *slave_plat =
 		dev_get_parent_plat(dev);
 
 	/* Clear FIFO */
@@ -150,7 +150,7 @@ static int coldfire_spi_xfer(struct udevice *dev, unsigned int bitlen,
 {
 	struct udevice *bus = dev_get_parent(dev);
 	struct coldfire_spi_priv *cfspi = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 	u16 *spi_rd16 = NULL, *spi_wr16 = NULL;
 	u8 *spi_rd = NULL, *spi_wr = NULL;
 	static u32 ctrl;
@@ -343,7 +343,7 @@ static int coldfire_spi_set_mode(struct udevice *bus, uint mode)
 
 static int coldfire_spi_probe(struct udevice *bus)
 {
-	struct coldfire_spi_platdata *plat = dev_get_plat(bus);
+	struct coldfire_spi_plat *plat = dev_get_plat(bus);
 	struct coldfire_spi_priv *cfspi = dev_get_priv(bus);
 	struct dspi *dspi = cfspi->regs;
 	int i;
@@ -387,7 +387,7 @@ static int coldfire_spi_probe(struct udevice *bus)
 static int coldfire_dspi_of_to_plat(struct udevice *bus)
 {
 	fdt_addr_t addr;
-	struct coldfire_spi_platdata *plat = bus->plat;
+	struct coldfire_spi_plat *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 	int *ctar, len;
@@ -452,7 +452,7 @@ U_BOOT_DRIVER(coldfire_spi) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = coldfire_spi_ids,
 	.of_to_plat = coldfire_dspi_of_to_plat,
-	.plat_auto	= sizeof(struct coldfire_spi_platdata),
+	.plat_auto	= sizeof(struct coldfire_spi_plat),
 #endif
 	.probe = coldfire_spi_probe,
 	.ops = &coldfire_spi_ops,

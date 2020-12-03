@@ -89,7 +89,7 @@ int tegra20_sflash_cs_info(struct udevice *bus, unsigned int cs,
 
 static int tegra20_sflash_of_to_plat(struct udevice *bus)
 {
-	struct tegra_spi_platdata *plat = bus->plat;
+	struct tegra_spi_plat *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -116,7 +116,7 @@ static int tegra20_sflash_of_to_plat(struct udevice *bus)
 
 static int tegra20_sflash_probe(struct udevice *bus)
 {
-	struct tegra_spi_platdata *plat = dev_get_plat(bus);
+	struct tegra_spi_plat *plat = dev_get_plat(bus);
 	struct tegra20_sflash_priv *priv = dev_get_priv(bus);
 
 	priv->regs = (struct spi_regs *)plat->base;
@@ -173,7 +173,7 @@ static int tegra20_sflash_claim_bus(struct udevice *dev)
 static void spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct tegra_spi_platdata *pdata = dev_get_plat(bus);
+	struct tegra_spi_plat *pdata = dev_get_plat(bus);
 	struct tegra20_sflash_priv *priv = dev_get_priv(bus);
 
 	/* If it's too soon to do another transaction, wait */
@@ -192,7 +192,7 @@ static void spi_cs_activate(struct udevice *dev)
 static void spi_cs_deactivate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct tegra_spi_platdata *pdata = dev_get_plat(bus);
+	struct tegra_spi_plat *pdata = dev_get_plat(bus);
 	struct tegra20_sflash_priv *priv = dev_get_priv(bus);
 
 	/* CS is negated on Tegra, so drive a 0 to get a 1 */
@@ -314,7 +314,7 @@ static int tegra20_sflash_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int tegra20_sflash_set_speed(struct udevice *bus, uint speed)
 {
-	struct tegra_spi_platdata *plat = bus->plat;
+	struct tegra_spi_plat *plat = bus->plat;
 	struct tegra20_sflash_priv *priv = dev_get_priv(bus);
 
 	if (speed > plat->frequency)
@@ -354,7 +354,7 @@ U_BOOT_DRIVER(tegra20_sflash) = {
 	.of_match = tegra20_sflash_ids,
 	.ops	= &tegra20_sflash_ops,
 	.of_to_plat = tegra20_sflash_of_to_plat,
-	.plat_auto	= sizeof(struct tegra_spi_platdata),
+	.plat_auto	= sizeof(struct tegra_spi_plat),
 	.priv_auto	= sizeof(struct tegra20_sflash_priv),
 	.probe	= tegra20_sflash_probe,
 };

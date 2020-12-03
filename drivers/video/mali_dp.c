@@ -260,7 +260,7 @@ static int malidp_update_timings_from_edid(struct udevice *dev,
 static int malidp_probe(struct udevice *dev)
 {
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct video_uc_platdata *uc_plat = dev_get_uclass_plat(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	ofnode framebuffer = ofnode_find_subnode(dev_ofnode(dev), "framebuffer");
 	struct malidp_priv *priv = dev_get_priv(dev);
 	struct display_timing timings;
@@ -382,7 +382,7 @@ fail_aclk:
 
 static int malidp_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_plat(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 
 	/* choose max possible size: 2K x 2K, XRGB888 framebuffer */
 	uc_plat->size = 4 * 2048 * 2048;

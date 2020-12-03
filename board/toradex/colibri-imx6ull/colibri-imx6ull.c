@@ -203,7 +203,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 }
 #endif
 
-static struct mxc_serial_platdata mxc_serial_plat = {
+static struct mxc_serial_plat mxc_serial_plat = {
 	.reg = (struct mxc_uart *)UART1_BASE,
 	.use_dte = 1,
 };

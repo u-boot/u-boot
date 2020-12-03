@@ -56,7 +56,7 @@ enum ns16550_flags {
 };
 
 /**
- * struct ns16550_platdata - information about a NS16550 port
+ * struct ns16550_plat - information about a NS16550 port
  *
  * @base:		Base register address
  * @reg_width:		IO accesses size of registers (in bytes, 1 or 4)
@@ -67,7 +67,7 @@ enum ns16550_flags {
  * @flags:		A few flags (enum ns16550_flags)
  * @bdf:		PCI slot/function (pci_dev_t)
  */
-struct ns16550_platdata {
+struct ns16550_plat {
 	unsigned long base;
 	int reg_width;
 	int reg_shift;
@@ -111,7 +111,7 @@ struct NS16550 {
 	UART_REG(ssr);		/* 11*/
 #endif
 #ifdef CONFIG_DM_SERIAL
-	struct ns16550_platdata *plat;
+	struct ns16550_plat *plat;
 #endif
 };
 

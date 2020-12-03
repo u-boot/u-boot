@@ -362,7 +362,7 @@ static int stm32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 			  const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev_get_parent(slave);
-	struct dm_spi_slave_platdata *slave_plat;
+	struct dm_spi_slave_plat *slave_plat;
 	struct stm32_spi_priv *priv = dev_get_priv(bus);
 	u32 sr;
 	u32 ifcr = 0;

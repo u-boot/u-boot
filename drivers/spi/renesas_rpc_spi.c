@@ -156,7 +156,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct rpc_spi_platdata {
+struct rpc_spi_plat {
 	fdt_addr_t	regs;
 	fdt_addr_t	extr;
 	s32		freq;	/* Default clock freq, -1 for none */
@@ -406,7 +406,7 @@ static int rpc_spi_bind(struct udevice *parent)
 
 static int rpc_spi_probe(struct udevice *dev)
 {
-	struct rpc_spi_platdata *plat = dev_get_plat(dev);
+	struct rpc_spi_plat *plat = dev_get_plat(dev);
 	struct rpc_spi_priv *priv = dev_get_priv(dev);
 
 	priv->regs = plat->regs;
@@ -419,7 +419,7 @@ static int rpc_spi_probe(struct udevice *dev)
 
 static int rpc_spi_of_to_plat(struct udevice *bus)
 {
-	struct rpc_spi_platdata *plat = dev_get_plat(bus);
+	struct rpc_spi_plat *plat = dev_get_plat(bus);
 
 	plat->regs = dev_read_addr_index(bus, 0);
 	plat->extr = dev_read_addr_index(bus, 1);
@@ -464,7 +464,7 @@ U_BOOT_DRIVER(rpc_spi) = {
 	.of_match	= rpc_spi_ids,
 	.ops		= &rpc_spi_ops,
 	.of_to_plat = rpc_spi_of_to_plat,
-	.plat_auto	= sizeof(struct rpc_spi_platdata),
+	.plat_auto	= sizeof(struct rpc_spi_plat),
 	.priv_auto	= sizeof(struct rpc_spi_priv),
 	.bind		= rpc_spi_bind,
 	.probe		= rpc_spi_probe,

@@ -31,7 +31,7 @@ struct global_data;
 void dm_fixup_for_gd_move(struct global_data *new_gd);
 
 /**
- * dm_scan_platdata() - Scan all platform data and bind drivers
+ * dm_scan_plat() - Scan all platform data and bind drivers
  *
  * This scans all available plat and creates drivers for each
  *
@@ -39,7 +39,7 @@ void dm_fixup_for_gd_move(struct global_data *new_gd);
  * flag. If false bind all drivers.
  * @return 0 if OK, -ve on error
  */
-int dm_scan_platdata(bool pre_reloc_only);
+int dm_scan_plat(bool pre_reloc_only);
 
 /**
  * dm_scan_fdt() - Scan the device tree and bind drivers

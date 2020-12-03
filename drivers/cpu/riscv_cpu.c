@@ -91,7 +91,7 @@ static int riscv_cpu_get_count(const struct udevice *dev)
 
 static int riscv_cpu_bind(struct udevice *dev)
 {
-	struct cpu_platdata *plat = dev_get_parent_plat(dev);
+	struct cpu_plat *plat = dev_get_parent_plat(dev);
 	struct driver *drv;
 	int ret;
 

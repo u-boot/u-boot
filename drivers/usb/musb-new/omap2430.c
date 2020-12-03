@@ -141,7 +141,7 @@ const struct musb_platform_ops omap2430_ops = {
 
 #if CONFIG_IS_ENABLED(DM_USB)
 
-struct omap2430_musb_platdata {
+struct omap2430_musb_plat {
 	void *base;
 	void *ctrl_mod_base;
 	struct musb_hdrc_platform_data plat;
@@ -151,7 +151,7 @@ struct omap2430_musb_platdata {
 
 static int omap2430_musb_of_to_plat(struct udevice *dev)
 {
-	struct omap2430_musb_platdata *plat = dev_get_plat(dev);
+	struct omap2430_musb_plat *plat = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 
@@ -218,7 +218,7 @@ static int omap2430_musb_probe(struct udevice *dev)
 #else
 	struct musb *musbp;
 #endif
-	struct omap2430_musb_platdata *plat = dev_get_plat(dev);
+	struct omap2430_musb_plat *plat = dev_get_plat(dev);
 	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
 	struct omap_musb_board_data *otg_board_data;
 	int ret = 0;
@@ -275,7 +275,7 @@ U_BOOT_DRIVER(omap2430_musb) = {
 #ifdef CONFIG_USB_MUSB_HOST
 	.ops = &musb_usb_ops,
 #endif
-	.plat_auto	= sizeof(struct omap2430_musb_platdata),
+	.plat_auto	= sizeof(struct omap2430_musb_plat),
 	.priv_auto	= sizeof(struct musb_host_data),
 };
 

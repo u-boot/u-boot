@@ -236,7 +236,7 @@ static int pic32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 			  const void *tx_buf, void *rx_buf,
 			  unsigned long flags)
 {
-	struct dm_spi_slave_platdata *slave_plat;
+	struct dm_spi_slave_plat *slave_plat;
 	struct udevice *bus = slave->parent;
 	struct pic32_spi_priv *priv;
 	int len = bitlen / 8;

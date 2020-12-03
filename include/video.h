@@ -18,7 +18,7 @@
 struct udevice;
 
 /**
- * struct video_uc_platdata - uclass platform data for a video device
+ * struct video_uc_plat - uclass platform data for a video device
  *
  * This holds information that the uclass needs to know about each device. It
  * is accessed using dev_get_uclass_plat(dev). See 'Theory of operation' at
@@ -31,7 +31,7 @@ struct udevice;
  * @copy_base: Base address of a hardware copy of the frame buffer. See
  *	CONFIG_VIDEO_COPY.
  */
-struct video_uc_platdata {
+struct video_uc_plat {
 	uint align;
 	uint size;
 	ulong base;
@@ -77,7 +77,7 @@ enum video_log2_bpp {
  * @fb:		Frame buffer
  * @fb_size:	Frame buffer size
  * @copy_fb:	Copy of the frame buffer to keep up to date; see struct
- *		video_uc_platdata
+ *		video_uc_plat
  * @line_length:	Length of each frame buffer line, in bytes. This can be
  *		set by the driver, but if not, the uclass will set it after
  *		probing

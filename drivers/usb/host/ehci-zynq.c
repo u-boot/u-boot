@@ -34,7 +34,7 @@ static int ehci_zynq_of_to_plat(struct udevice *dev)
 
 static int ehci_zynq_probe(struct udevice *dev)
 {
-	struct usb_platdata *plat = dev_get_plat(dev);
+	struct usb_plat *plat = dev_get_plat(dev);
 	struct zynq_ehci_priv *priv = dev_get_priv(dev);
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
@@ -85,7 +85,7 @@ U_BOOT_DRIVER(ehci_zynq) = {
 	.probe = ehci_zynq_probe,
 	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,
-	.plat_auto	= sizeof(struct usb_platdata),
+	.plat_auto	= sizeof(struct usb_plat),
 	.priv_auto	= sizeof(struct zynq_ehci_priv),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };

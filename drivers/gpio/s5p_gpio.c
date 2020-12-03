@@ -34,7 +34,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define RATE_SET(gpio)			(0x1 << (gpio + 16))
 
 /* Platform data for each bank */
-struct exynos_gpio_platdata {
+struct exynos_gpio_plat {
 	struct s5p_gpio_bank *bank;
 	const char *bank_name;	/* Name of port, e.g. 'gpa0" */
 };
@@ -287,7 +287,7 @@ static int gpio_exynos_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct exynos_bank_info *priv = dev->priv;
-	struct exynos_gpio_platdata *plat = dev->plat;
+	struct exynos_gpio_plat *plat = dev->plat;
 
 	/* Only child devices have ports */
 	if (!plat)
@@ -307,7 +307,7 @@ static int gpio_exynos_probe(struct udevice *dev)
  */
 static int gpio_exynos_bind(struct udevice *parent)
 {
-	struct exynos_gpio_platdata *plat = parent->plat;
+	struct exynos_gpio_plat *plat = parent->plat;
 	struct s5p_gpio_bank *bank, *base;
 	const void *blob = gd->fdt_blob;
 	int node;
@@ -320,7 +320,7 @@ static int gpio_exynos_bind(struct udevice *parent)
 	for (node = fdt_first_subnode(blob, dev_of_offset(parent)), bank = base;
 	     node > 0;
 	     node = fdt_next_subnode(blob, node), bank++) {
-		struct exynos_gpio_platdata *plat;
+		struct exynos_gpio_plat *plat;
 		struct udevice *dev;
 		fdt_addr_t reg;
 		int ret;

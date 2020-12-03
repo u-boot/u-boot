@@ -76,7 +76,7 @@ enum bcmstb_base_type {
 	BASE_LAST,
 };
 
-struct bcmstb_spi_platdata {
+struct bcmstb_spi_plat {
 	void *base[4];
 };
 
@@ -96,7 +96,7 @@ struct bcmstb_spi_priv {
 
 static int bcmstb_spi_of_to_plat(struct udevice *bus)
 {
-	struct bcmstb_spi_platdata *plat = dev_get_plat(bus);
+	struct bcmstb_spi_plat *plat = dev_get_plat(bus);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 	int ret = 0;
@@ -159,7 +159,7 @@ static void bcmstb_spi_clear_interrupt(void *base, u32 mask)
 
 static int bcmstb_spi_probe(struct udevice *bus)
 {
-	struct bcmstb_spi_platdata *plat = dev_get_plat(bus);
+	struct bcmstb_spi_plat *plat = dev_get_plat(bus);
 	struct bcmstb_spi_priv *priv = dev_get_priv(bus);
 
 	priv->regs = plat->base[HIF_MSPI];
@@ -434,6 +434,6 @@ U_BOOT_DRIVER(bcmstb_spi) = {
 	.ops				= &bcmstb_spi_ops,
 	.of_to_plat		= bcmstb_spi_of_to_plat,
 	.probe				= bcmstb_spi_probe,
-	.plat_auto	= sizeof(struct bcmstb_spi_platdata),
+	.plat_auto	= sizeof(struct bcmstb_spi_plat),
 	.priv_auto		= sizeof(struct bcmstb_spi_priv),
 };

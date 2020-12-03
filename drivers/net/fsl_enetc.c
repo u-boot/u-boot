@@ -54,7 +54,7 @@ static int ierb_fn_to_pf[] = {0, 1, 2, -1, -1, -1, 3};
 /* sets up primary MAC addresses in DT/IERB */
 void fdt_fixup_enetc_mac(void *blob)
 {
-	struct pci_child_platdata *ppdata;
+	struct pci_child_plat *ppdata;
 	struct eth_pdata *pdata;
 	struct udevice *dev;
 	struct uclass *uc;
@@ -365,7 +365,7 @@ static int enetc_remove(struct udevice *dev)
 
 static int enetc_ls1028a_write_hwaddr(struct udevice *dev)
 {
-	struct pci_child_platdata *ppdata = dev_get_parent_plat(dev);
+	struct pci_child_plat *ppdata = dev_get_parent_plat(dev);
 	const int devfn_to_pf[] = {0, 1, 2, -1, -1, -1, 3};
 	struct eth_pdata *plat = dev_get_plat(dev);
 	int devfn = PCI_FUNC(ppdata->devfn);

@@ -251,7 +251,7 @@ static struct mtk_pcie_port *mtk_pcie_find_port(const struct udevice *bus,
 	struct mtk_pcie *pcie = dev_get_priv(bus);
 	struct mtk_pcie_port *port;
 	struct udevice *dev;
-	struct pci_child_platdata *pplat = NULL;
+	struct pci_child_plat *pplat = NULL;
 	int ret = 0;
 
 	if (PCI_BUS(bdf) != 0) {

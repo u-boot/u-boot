@@ -703,7 +703,7 @@ void board_mmc_power_init(void)
 	twl4030_power_mmc_init(1);
 }
 
-static const struct omap_i2c_platdata rx51_i2c[] = {
+static const struct omap_i2c_plat rx51_i2c[] = {
 	{ I2C_BASE1, 2200000, OMAP_I2C_REV_V1 },
 	{ I2C_BASE2, 100000, OMAP_I2C_REV_V1 },
 	{ I2C_BASE3, 400000, OMAP_I2C_REV_V1 },

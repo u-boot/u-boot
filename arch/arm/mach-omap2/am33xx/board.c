@@ -80,7 +80,7 @@ int dram_init_banksize(void)
 }
 
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
-static const struct ns16550_platdata am33xx_serial[] = {
+static const struct ns16550_plat am33xx_serial[] = {
 	{ .base = CONFIG_SYS_NS16550_COM1, .reg_shift = 2,
 	  .clock = CONFIG_SYS_NS16550_CLK, .fcr = UART_FCR_DEFVAL, },
 # ifdef CONFIG_SYS_NS16550_COM2
@@ -113,7 +113,7 @@ U_BOOT_DEVICES(am33xx_uarts) = {
 };
 
 #ifdef CONFIG_DM_I2C
-static const struct omap_i2c_platdata am33xx_i2c[] = {
+static const struct omap_i2c_plat am33xx_i2c[] = {
 	{ I2C_BASE1, 100000, OMAP_I2C_REV_V2},
 	{ I2C_BASE2, 100000, OMAP_I2C_REV_V2},
 	{ I2C_BASE3, 100000, OMAP_I2C_REV_V2},
@@ -127,7 +127,7 @@ U_BOOT_DEVICES(am33xx_i2c) = {
 #endif
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
-static const struct omap_gpio_platdata am33xx_gpio[] = {
+static const struct omap_gpio_plat am33xx_gpio[] = {
 	{ 0, AM33XX_GPIO0_BASE },
 	{ 1, AM33XX_GPIO1_BASE },
 	{ 2, AM33XX_GPIO2_BASE },
@@ -214,7 +214,7 @@ static struct musb_hdrc_config musb_config = {
 };
 
 #if CONFIG_IS_ENABLED(DM_USB) && !CONFIG_IS_ENABLED(OF_CONTROL)
-static struct ti_musb_platdata usb0 = {
+static struct ti_musb_plat usb0 = {
 	.base = (void *)USB0_OTG_BASE,
 	.ctrl_mod_base = &((struct ctrl_dev *)CTRL_DEVICE_BASE)->usb_ctrl0,
 	.plat = {
@@ -224,7 +224,7 @@ static struct ti_musb_platdata usb0 = {
 		},
 };
 
-static struct ti_musb_platdata usb1 = {
+static struct ti_musb_plat usb1 = {
 	.base = (void *)USB1_OTG_BASE,
 	.ctrl_mod_base = &((struct ctrl_dev *)CTRL_DEVICE_BASE)->usb_ctrl1,
 	.plat = {

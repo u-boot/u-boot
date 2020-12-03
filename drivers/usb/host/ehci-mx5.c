@@ -287,7 +287,7 @@ static const struct ehci_ops mx5_ehci_ops = {
 
 static int ehci_usb_of_to_plat(struct udevice *dev)
 {
-	struct usb_platdata *plat = dev_get_plat(dev);
+	struct usb_plat *plat = dev_get_plat(dev);
 	const char *mode;
 
 	mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "dr_mode", NULL);
@@ -305,7 +305,7 @@ static int ehci_usb_of_to_plat(struct udevice *dev)
 
 static int ehci_usb_probe(struct udevice *dev)
 {
-	struct usb_platdata *plat = dev_get_plat(dev);
+	struct usb_plat *plat = dev_get_plat(dev);
 	struct usb_ehci *ehci = dev_read_addr_ptr(dev);
 	struct ehci_mx5_priv_data *priv = dev_get_priv(dev);
 	enum usb_init_type type = plat->init_type;
@@ -367,7 +367,7 @@ U_BOOT_DRIVER(usb_mx5) = {
 	.probe	= ehci_usb_probe,
 	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,
-	.plat_auto	= sizeof(struct usb_platdata),
+	.plat_auto	= sizeof(struct usb_plat),
 	.priv_auto	= sizeof(struct ehci_mx5_priv_data),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };

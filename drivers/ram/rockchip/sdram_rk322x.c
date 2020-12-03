@@ -754,7 +754,7 @@ static int rk322x_dmc_of_to_plat(struct udevice *dev)
 #endif /* CONFIG_TPL_BUILD */
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-static int conv_of_platdata(struct udevice *dev)
+static int conv_of_plat(struct udevice *dev)
 {
 	struct rk322x_sdram_params *plat = dev_get_plat(dev);
 	struct dtd_rockchip_rk322x_dmc *of_plat = &plat->of_plat;
@@ -767,9 +767,8 @@ static int conv_of_platdata(struct udevice *dev)
 	memcpy(&plat->base, of_plat->rockchip_sdram_params, sizeof(plat->base));
 
 	plat->num_channels = 1;
-	ret = regmap_init_mem_platdata(dev, of_plat->reg,
-				       ARRAY_SIZE(of_plat->reg) / 2,
-				       &plat->map);
+	ret = regmap_init_mem_plat(dev, of_plat->reg,
+				   ARRAY_SIZE(of_plat->reg) / 2, &plat->map);
 	if (ret)
 		return ret;
 
@@ -789,7 +788,7 @@ static int rk322x_dmc_probe(struct udevice *dev)
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 #ifdef CONFIG_TPL_BUILD
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	ret = conv_of_platdata(dev);
+	ret = conv_of_plat(dev);
 	if (ret)
 		return ret;
 #endif

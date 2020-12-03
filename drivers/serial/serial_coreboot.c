@@ -13,7 +13,7 @@
 
 static int coreboot_of_to_plat(struct udevice *dev)
 {
-	struct ns16550_platdata *plat = dev_get_plat(dev);
+	struct ns16550_plat *plat = dev_get_plat(dev);
 	struct cb_serial *cb_info = lib_sysinfo.serial;
 
 	plat->base = cb_info->baseaddr;
@@ -38,7 +38,7 @@ U_BOOT_DRIVER(coreboot_uart) = {
 	.id	= UCLASS_SERIAL,
 	.of_match	= coreboot_serial_ids,
 	.priv_auto	= sizeof(struct NS16550),
-	.plat_auto	= sizeof(struct ns16550_platdata),
+	.plat_auto	= sizeof(struct ns16550_plat),
 	.of_to_plat  = coreboot_of_to_plat,
 	.probe	= ns16550_serial_probe,
 	.ops	= &ns16550_serial_ops,

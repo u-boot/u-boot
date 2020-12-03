@@ -339,7 +339,7 @@ static void pciinfo(struct udevice *bus, bool short_listing)
 	for (device_find_first_child(bus, &dev);
 	     dev;
 	     device_find_next_child(&dev)) {
-		struct pci_child_platdata *pplat;
+		struct pci_child_plat *pplat;
 
 		pplat = dev_get_parent_plat(dev);
 		if (short_listing) {

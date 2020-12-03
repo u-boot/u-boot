@@ -83,7 +83,7 @@ static void mcf_serial_setbrg_common(uart_t *uart, int baudrate)
 
 static int coldfire_serial_probe(struct udevice *dev)
 {
-	struct coldfire_serial_platdata *plat = dev->plat;
+	struct coldfire_serial_plat *plat = dev->plat;
 
 	plat->port = dev->seq;
 
@@ -93,7 +93,7 @@ static int coldfire_serial_probe(struct udevice *dev)
 
 static int coldfire_serial_putc(struct udevice *dev, const char ch)
 {
-	struct coldfire_serial_platdata *plat = dev->plat;
+	struct coldfire_serial_plat *plat = dev->plat;
 	uart_t *uart = (uart_t *)plat->base;
 
 	/* Wait for last character to go. */
@@ -107,7 +107,7 @@ static int coldfire_serial_putc(struct udevice *dev, const char ch)
 
 static int coldfire_serial_getc(struct udevice *dev)
 {
-	struct coldfire_serial_platdata *plat = dev->plat;
+	struct coldfire_serial_plat *plat = dev->plat;
 	uart_t *uart = (uart_t *)(plat->base);
 
 	/* Wait for a character to arrive. */
@@ -119,7 +119,7 @@ static int coldfire_serial_getc(struct udevice *dev)
 
 int coldfire_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct coldfire_serial_platdata *plat = dev->plat;
+	struct coldfire_serial_plat *plat = dev->plat;
 	uart_t *uart = (uart_t *)(plat->base);
 
 	mcf_serial_setbrg_common(uart, baudrate);
@@ -129,7 +129,7 @@ int coldfire_serial_setbrg(struct udevice *dev, int baudrate)
 
 static int coldfire_serial_pending(struct udevice *dev, bool input)
 {
-	struct coldfire_serial_platdata *plat = dev->plat;
+	struct coldfire_serial_plat *plat = dev->plat;
 	uart_t *uart = (uart_t *)(plat->base);
 
 	if (input)
@@ -142,7 +142,7 @@ static int coldfire_serial_pending(struct udevice *dev, bool input)
 
 static int coldfire_of_to_plat(struct udevice *dev)
 {
-	struct coldfire_serial_platdata *plat = dev_get_plat(dev);
+	struct coldfire_serial_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr_base;
 
 	addr_base = dev_read_addr(dev);
@@ -172,7 +172,7 @@ U_BOOT_DRIVER(serial_coldfire) = {
 	.id = UCLASS_SERIAL,
 	.of_match = coldfire_serial_ids,
 	.of_to_plat = coldfire_of_to_plat,
-	.plat_auto	= sizeof(struct coldfire_serial_platdata),
+	.plat_auto	= sizeof(struct coldfire_serial_plat),
 	.probe = coldfire_serial_probe,
 	.ops = &coldfire_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,

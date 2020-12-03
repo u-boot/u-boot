@@ -377,7 +377,7 @@ void exynos_fimd_disable_sysmmu(void)
 void exynos_fimd_lcd_init(struct udevice *dev)
 {
 	struct exynos_fb_priv *priv = dev_get_priv(dev);
-	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0, rgb_mode;
 	unsigned int offset;
@@ -692,7 +692,7 @@ static int exynos_fb_probe(struct udevice *dev)
 
 static int exynos_fb_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 
 	/* This is the maximum panel size we expect to see */
 	plat->size = 1920 * 1080 * 2;

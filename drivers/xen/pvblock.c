@@ -70,7 +70,7 @@ struct blkfront_dev {
 	u8 *bounce_buffer;
 };
 
-struct blkfront_platdata {
+struct blkfront_plat {
 	unsigned int devid;
 };
 
@@ -685,7 +685,7 @@ static int pvblock_blk_bind(struct udevice *udev)
 static int pvblock_blk_probe(struct udevice *udev)
 {
 	struct blkfront_dev *blk_dev = dev_get_priv(udev);
-	struct blkfront_platdata *plat = dev_get_plat(udev);
+	struct blkfront_plat *plat = dev_get_plat(udev);
 	struct blk_desc *desc = dev_get_uclass_plat(udev);
 	int ret, devid;
 
@@ -737,12 +737,12 @@ static int on_new_vbd(struct udevice *parent, unsigned int devid)
 {
 	struct driver_info info;
 	struct udevice *udev;
-	struct blkfront_platdata *plat;
+	struct blkfront_plat *plat;
 	int ret;
 
 	debug("New " DRV_NAME_BLK ", device ID %d\n", devid);
 
-	plat = malloc(sizeof(struct blkfront_platdata));
+	plat = malloc(sizeof(struct blkfront_plat));
 	if (!plat) {
 		printf("Failed to allocate platform data\n");
 		return -ENOMEM;

@@ -39,7 +39,7 @@ DECLARE_GLOBAL_DATA_PTR;
  *
  * dw_eth_pdata: Required platform data for designware driver (must be first)
  */
-struct gmac_rockchip_platdata {
+struct gmac_rockchip_plat {
 	struct dw_eth_pdata dw_eth_pdata;
 	bool clock_input;
 	int tx_delay;
@@ -48,14 +48,14 @@ struct gmac_rockchip_platdata {
 
 struct rk_gmac_ops {
 	int (*fix_mac_speed)(struct dw_eth_dev *priv);
-	void (*set_to_rmii)(struct gmac_rockchip_platdata *pdata);
-	void (*set_to_rgmii)(struct gmac_rockchip_platdata *pdata);
+	void (*set_to_rmii)(struct gmac_rockchip_plat *pdata);
+	void (*set_to_rgmii)(struct gmac_rockchip_plat *pdata);
 };
 
 
 static int gmac_rockchip_of_to_plat(struct udevice *dev)
 {
-	struct gmac_rockchip_platdata *pdata = dev_get_plat(dev);
+	struct gmac_rockchip_plat *pdata = dev_get_plat(dev);
 	const char *string;
 
 	string = dev_read_string(dev, "clock_in_out");
@@ -344,7 +344,7 @@ static int rv1108_set_rmii_speed(struct dw_eth_dev *priv)
 	return 0;
 }
 
-static void px30_gmac_set_to_rmii(struct gmac_rockchip_platdata *pdata)
+static void px30_gmac_set_to_rmii(struct gmac_rockchip_plat *pdata)
 {
 	struct px30_grf *grf;
 	enum {
@@ -360,7 +360,7 @@ static void px30_gmac_set_to_rmii(struct gmac_rockchip_platdata *pdata)
 		     PX30_GMAC_PHY_INTF_SEL_RMII);
 }
 
-static void rk3228_gmac_set_to_rgmii(struct gmac_rockchip_platdata *pdata)
+static void rk3228_gmac_set_to_rgmii(struct gmac_rockchip_plat *pdata)
 {
 	struct rk322x_grf *grf;
 	enum {
@@ -403,7 +403,7 @@ static void rk3228_gmac_set_to_rgmii(struct gmac_rockchip_platdata *pdata)
 		     pdata->tx_delay << RK3228_CLK_TX_DL_CFG_GMAC_SHIFT);
 }
 
-static void rk3288_gmac_set_to_rgmii(struct gmac_rockchip_platdata *pdata)
+static void rk3288_gmac_set_to_rgmii(struct gmac_rockchip_plat *pdata)
 {
 	struct rk3288_grf *grf;
 
@@ -422,7 +422,7 @@ static void rk3288_gmac_set_to_rgmii(struct gmac_rockchip_platdata *pdata)
 		     pdata->tx_delay << RK3288_CLK_TX_DL_CFG_GMAC_SHIFT);
 }
 
-static void rk3308_gmac_set_to_rmii(struct gmac_rockchip_platdata *pdata)
+static void rk3308_gmac_set_to_rmii(struct gmac_rockchip_plat *pdata)
 {
 	struct rk3308_grf *grf;
 	enum {
@@ -438,7 +438,7 @@ static void rk3308_gmac_set_to_rmii(struct gmac_rockchip_platdata *pdata)
 		     RK3308_GMAC_PHY_INTF_SEL_RMII);
 }
 
-static void rk3328_gmac_set_to_rgmii(struct gmac_rockchip_platdata *pdata)
+static void rk3328_gmac_set_to_rgmii(struct gmac_rockchip_plat *pdata)
 {
 	struct rk3328_grf_regs *grf;
 	enum {
@@ -481,7 +481,7 @@ static void rk3328_gmac_set_to_rgmii(struct gmac_rockchip_platdata *pdata)
 		     pdata->tx_delay << RK3328_CLK_TX_DL_CFG_GMAC_SHIFT);
 }
 
-static void rk3368_gmac_set_to_rgmii(struct gmac_rockchip_platdata *pdata)
+static void rk3368_gmac_set_to_rgmii(struct gmac_rockchip_plat *pdata)
 {
 	struct rk3368_grf *grf;
 	enum {
@@ -518,7 +518,7 @@ static void rk3368_gmac_set_to_rgmii(struct gmac_rockchip_platdata *pdata)
 		     pdata->tx_delay << RK3368_CLK_TX_DL_CFG_GMAC_SHIFT);
 }
 
-static void rk3399_gmac_set_to_rgmii(struct gmac_rockchip_platdata *pdata)
+static void rk3399_gmac_set_to_rgmii(struct gmac_rockchip_plat *pdata)
 {
 	struct rk3399_grf_regs *grf;
 
@@ -538,7 +538,7 @@ static void rk3399_gmac_set_to_rgmii(struct gmac_rockchip_platdata *pdata)
 		     pdata->tx_delay << RK3399_CLK_TX_DL_CFG_GMAC_SHIFT);
 }
 
-static void rv1108_gmac_set_to_rmii(struct gmac_rockchip_platdata *pdata)
+static void rv1108_gmac_set_to_rmii(struct gmac_rockchip_plat *pdata)
 {
 	struct rv1108_grf *grf;
 
@@ -555,7 +555,7 @@ static void rv1108_gmac_set_to_rmii(struct gmac_rockchip_platdata *pdata)
 
 static int gmac_rockchip_probe(struct udevice *dev)
 {
-	struct gmac_rockchip_platdata *pdata = dev_get_plat(dev);
+	struct gmac_rockchip_plat *pdata = dev_get_plat(dev);
 	struct rk_gmac_ops *ops =
 		(struct rk_gmac_ops *)dev_get_driver_data(dev);
 	struct dw_eth_pdata *dw_pdata = dev_get_plat(dev);
@@ -760,6 +760,6 @@ U_BOOT_DRIVER(eth_gmac_rockchip) = {
 	.probe	= gmac_rockchip_probe,
 	.ops	= &gmac_rockchip_eth_ops,
 	.priv_auto	= sizeof(struct dw_eth_dev),
-	.plat_auto	= sizeof(struct gmac_rockchip_platdata),
+	.plat_auto	= sizeof(struct gmac_rockchip_plat),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

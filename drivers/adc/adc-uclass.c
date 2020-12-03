@@ -267,7 +267,7 @@ try_manual:
 	return _adc_channels_single_shot(dev, channel_mask, channels);
 }
 
-static int adc_vdd_platdata_update(struct udevice *dev)
+static int adc_vdd_plat_update(struct udevice *dev)
 {
 	struct adc_uclass_plat *uc_pdata = dev_get_uclass_plat(dev);
 	int ret;
@@ -290,7 +290,7 @@ static int adc_vdd_platdata_update(struct udevice *dev)
 	return 0;
 }
 
-static int adc_vss_platdata_update(struct udevice *dev)
+static int adc_vss_plat_update(struct udevice *dev)
 {
 	struct adc_uclass_plat *uc_pdata = dev_get_uclass_plat(dev);
 	int ret;
@@ -313,7 +313,7 @@ int adc_vdd_value(struct udevice *dev, int *uV)
 	int ret, value_sign = uc_pdata->vdd_polarity_negative ? -1 : 1;
 
 	/* Update the regulator Value. */
-	ret = adc_vdd_platdata_update(dev);
+	ret = adc_vdd_plat_update(dev);
 	if (ret)
 		return ret;
 
@@ -331,7 +331,7 @@ int adc_vss_value(struct udevice *dev, int *uV)
 	int ret, value_sign = uc_pdata->vss_polarity_negative ? -1 : 1;
 
 	/* Update the regulator Value. */
-	ret = adc_vss_platdata_update(dev);
+	ret = adc_vss_plat_update(dev);
 	if (ret)
 		return ret;
 
@@ -367,7 +367,7 @@ int adc_raw_to_uV(struct udevice *dev, unsigned int raw, int *uV)
 	return 0;
 }
 
-static int adc_vdd_platdata_set(struct udevice *dev)
+static int adc_vdd_plat_set(struct udevice *dev)
 {
 	struct adc_uclass_plat *uc_pdata = dev_get_uclass_plat(dev);
 	int ret;
@@ -380,7 +380,7 @@ static int adc_vdd_platdata_set(struct udevice *dev)
 	ret = device_get_supply_regulator(dev, "vdd-supply",
 					  &uc_pdata->vdd_supply);
 	if (!ret)
-		return adc_vdd_platdata_update(dev);
+		return adc_vdd_plat_update(dev);
 
 	if (ret != -ENOENT)
 		return ret;
@@ -392,7 +392,7 @@ static int adc_vdd_platdata_set(struct udevice *dev)
 	return 0;
 }
 
-static int adc_vss_platdata_set(struct udevice *dev)
+static int adc_vss_plat_set(struct udevice *dev)
 {
 	struct adc_uclass_plat *uc_pdata = dev_get_uclass_plat(dev);
 	int ret;
@@ -404,7 +404,7 @@ static int adc_vss_platdata_set(struct udevice *dev)
 	ret = device_get_supply_regulator(dev, "vss-supply",
 					  &uc_pdata->vss_supply);
 	if (!ret)
-		return adc_vss_platdata_update(dev);
+		return adc_vss_plat_update(dev);
 
 	if (ret != -ENOENT)
 		return ret;
@@ -421,12 +421,12 @@ static int adc_pre_probe(struct udevice *dev)
 	int ret;
 
 	/* Set ADC VDD plat: polarity, uV, regulator (phandle). */
-	ret = adc_vdd_platdata_set(dev);
+	ret = adc_vdd_plat_set(dev);
 	if (ret)
 		pr_err("%s: Can't update Vdd. Error: %d", dev->name, ret);
 
 	/* Set ADC VSS plat: polarity, uV, regulator (phandle). */
-	ret = adc_vss_platdata_set(dev);
+	ret = adc_vss_plat_set(dev);
 	if (ret)
 		pr_err("%s: Can't update Vss. Error: %d", dev->name, ret);
 

@@ -22,7 +22,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct soft_spi_platdata {
+struct soft_spi_plat {
 	struct gpio_desc cs;
 	struct gpio_desc sclk;
 	struct gpio_desc mosi;
@@ -41,7 +41,7 @@ struct soft_spi_priv {
 static int soft_spi_scl(struct udevice *dev, int bit)
 {
 	struct udevice *bus = dev_get_parent(dev);
-	struct soft_spi_platdata *plat = dev_get_plat(bus);
+	struct soft_spi_plat *plat = dev_get_plat(bus);
 
 	dm_gpio_set_value(&plat->sclk, bit);
 
@@ -51,7 +51,7 @@ static int soft_spi_scl(struct udevice *dev, int bit)
 static int soft_spi_sda(struct udevice *dev, int bit)
 {
 	struct udevice *bus = dev_get_parent(dev);
-	struct soft_spi_platdata *plat = dev_get_plat(bus);
+	struct soft_spi_plat *plat = dev_get_plat(bus);
 
 	dm_gpio_set_value(&plat->mosi, bit);
 
@@ -62,7 +62,7 @@ static int soft_spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev_get_parent(dev);
 	struct soft_spi_priv *priv = dev_get_priv(bus);
-	struct soft_spi_platdata *plat = dev_get_plat(bus);
+	struct soft_spi_plat *plat = dev_get_plat(bus);
 	int cidle = !!(priv->mode & SPI_CPOL);
 
 	dm_gpio_set_value(&plat->cs, 0);
@@ -75,7 +75,7 @@ static int soft_spi_cs_activate(struct udevice *dev)
 static int soft_spi_cs_deactivate(struct udevice *dev)
 {
 	struct udevice *bus = dev_get_parent(dev);
-	struct soft_spi_platdata *plat = dev_get_plat(bus);
+	struct soft_spi_plat *plat = dev_get_plat(bus);
 
 	dm_gpio_set_value(&plat->cs, 0);
 
@@ -117,7 +117,7 @@ static int soft_spi_xfer(struct udevice *dev, unsigned int bitlen,
 {
 	struct udevice *bus = dev_get_parent(dev);
 	struct soft_spi_priv *priv = dev_get_priv(bus);
-	struct soft_spi_platdata *plat = dev_get_plat(bus);
+	struct soft_spi_plat *plat = dev_get_plat(bus);
 	uchar		tmpdin  = 0;
 	uchar		tmpdout = 0;
 	const u8	*txd = dout;
@@ -228,7 +228,7 @@ static const struct dm_spi_ops soft_spi_ops = {
 
 static int soft_spi_of_to_plat(struct udevice *dev)
 {
-	struct soft_spi_platdata *plat = dev->plat;
+	struct soft_spi_plat *plat = dev->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 
@@ -240,7 +240,7 @@ static int soft_spi_of_to_plat(struct udevice *dev)
 static int soft_spi_probe(struct udevice *dev)
 {
 	struct spi_slave *slave = dev_get_parent_priv(dev);
-	struct soft_spi_platdata *plat = dev->plat;
+	struct soft_spi_plat *plat = dev->plat;
 	int cs_flags, clk_flags;
 	int ret;
 
@@ -281,7 +281,7 @@ U_BOOT_DRIVER(soft_spi) = {
 	.of_match = soft_spi_ids,
 	.ops	= &soft_spi_ops,
 	.of_to_plat = soft_spi_of_to_plat,
-	.plat_auto	= sizeof(struct soft_spi_platdata),
+	.plat_auto	= sizeof(struct soft_spi_plat),
 	.priv_auto	= sizeof(struct soft_spi_priv),
 	.probe	= soft_spi_probe,
 };

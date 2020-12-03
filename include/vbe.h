@@ -104,10 +104,10 @@ struct vbe_ddc_info {
 extern struct vbe_mode_info mode_info;
 
 struct video_priv;
-struct video_uc_platdata;
+struct video_uc_plat;
 int vbe_setup_video_priv(struct vesa_mode_info *vesa,
 			 struct video_priv *uc_priv,
-			 struct video_uc_platdata *plat);
+			 struct video_uc_plat *plat);
 int vbe_setup_video(struct udevice *dev, int (*int15_handler)(void));
 
 #endif

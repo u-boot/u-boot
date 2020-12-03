@@ -90,7 +90,7 @@ static int timer_post_probe(struct udevice *dev)
 int timer_timebase_fallback(struct udevice *dev)
 {
 	struct udevice *cpu;
-	struct cpu_platdata *cpu_plat;
+	struct cpu_plat *cpu_plat;
 	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	/* Did we get our clock rate from the device tree? */

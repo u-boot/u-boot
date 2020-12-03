@@ -11,7 +11,7 @@
 #define GPIO_PER_BANK	32
 #define GPIO_BANKS	3
 
-struct broadwell_bank_platdata {
+struct broadwell_bank_plat {
 	uint16_t base_addr;
 	const char *bank_name;
 	int bank;

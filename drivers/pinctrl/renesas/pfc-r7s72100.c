@@ -32,14 +32,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct r7s72100_pfc_platdata {
+struct r7s72100_pfc_plat {
 	void __iomem	*base;
 };
 
 static void r7s72100_pfc_set_function(struct udevice *dev, u16 bank, u16 line,
 				      u16 func, u16 inbuf, u16 bidir)
 {
-	struct r7s72100_pfc_platdata *plat = dev_get_plat(dev);
+	struct r7s72100_pfc_plat *plat = dev_get_plat(dev);
 
 	clrsetbits_le16(plat->base + PFCAE(bank), BIT(line),
 			(func & BIT(2)) ? BIT(line) : 0);
@@ -108,7 +108,7 @@ const struct pinctrl_ops r7s72100_pfc_ops  = {
 
 static int r7s72100_pfc_probe(struct udevice *dev)
 {
-	struct r7s72100_pfc_platdata *plat = dev_get_plat(dev);
+	struct r7s72100_pfc_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr_base;
 	ofnode node;
 
@@ -142,6 +142,6 @@ U_BOOT_DRIVER(r7s72100_pfc) = {
 	.id		= UCLASS_PINCTRL,
 	.of_match	= r7s72100_pfc_match,
 	.probe		= r7s72100_pfc_probe,
-	.plat_auto	= sizeof(struct r7s72100_pfc_platdata),
+	.plat_auto	= sizeof(struct r7s72100_pfc_plat),
 	.ops		= &r7s72100_pfc_ops,
 };

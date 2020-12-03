@@ -111,7 +111,7 @@ UCLASS_DRIVER(pci_emul) = {
 
 /*
  * This uclass is a child of the pci bus. Its plat is not defined here so
- * is defined by its parent, UCLASS_PCI, which uses struct pci_child_platdata.
+ * is defined by its parent, UCLASS_PCI, which uses struct pci_child_plat.
  * See per_child_plat_auto	in UCLASS_DRIVER(pci).
  */
 UCLASS_DRIVER(pci_emul_parent) = {

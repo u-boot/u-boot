@@ -20,7 +20,7 @@
 #include <linux/usb/dwc3.h>
 #include <linux/usb/otg.h>
 
-struct xhci_dwc3_platdata {
+struct xhci_dwc3_plat {
 	struct phy_bulk phys;
 };
 
@@ -117,7 +117,7 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	struct xhci_hccr *hccr;
 	struct dwc3 *dwc3_reg;
 	enum usb_dr_mode dr_mode;
-	struct xhci_dwc3_platdata *plat = dev_get_plat(dev);
+	struct xhci_dwc3_plat *plat = dev_get_plat(dev);
 	const char *phy;
 	u32 reg;
 	int ret;
@@ -167,7 +167,7 @@ static int xhci_dwc3_probe(struct udevice *dev)
 
 static int xhci_dwc3_remove(struct udevice *dev)
 {
-	struct xhci_dwc3_platdata *plat = dev_get_plat(dev);
+	struct xhci_dwc3_plat *plat = dev_get_plat(dev);
 
 	dwc3_shutdown_phy(dev, &plat->phys);
 
@@ -187,7 +187,7 @@ U_BOOT_DRIVER(xhci_dwc3) = {
 	.remove = xhci_dwc3_remove,
 	.ops = &xhci_usb_ops,
 	.priv_auto	= sizeof(struct xhci_ctrl),
-	.plat_auto	= sizeof(struct xhci_dwc3_platdata),
+	.plat_auto	= sizeof(struct xhci_dwc3_plat),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif

@@ -57,7 +57,7 @@ struct cortina_led_cfg {
 };
 
 /* LED_control structures */
-struct cortina_led_platdata {
+struct cortina_led_plat {
 	void __iomem *ctrl_regs;
 	u16 rate1;	/* blink rate setting 0 */
 	u16 rate2;	/* blink rate setting 1 */
@@ -136,7 +136,7 @@ static int ca_led_of_to_plat(struct udevice *dev)
 
 	/* Top-level LED node */
 	if (!uc_plat->label) {
-		struct cortina_led_platdata *plt = dev_get_plat(dev);
+		struct cortina_led_plat *plt = dev_get_plat(dev);
 
 		plt->rate1 =
 			dev_read_u32_default(dev, "Cortina,blink-rate1", 256);
@@ -169,7 +169,7 @@ static int cortina_led_probe(struct udevice *dev)
 
 	/* Top-level LED node */
 	if (!uc_plat->label) {
-		struct cortina_led_platdata *plat = dev_get_plat(dev);
+		struct cortina_led_plat *plat = dev_get_plat(dev);
 		u32 reg_value, val;
 		u16 rate1, rate2;
 
@@ -292,7 +292,7 @@ U_BOOT_DRIVER(cortina_led) = {
 	.of_to_plat = ca_led_of_to_plat,
 	.bind = cortina_led_bind,
 	.probe = cortina_led_probe,
-	.plat_auto	= sizeof(struct cortina_led_platdata),
+	.plat_auto	= sizeof(struct cortina_led_plat),
 	.priv_auto	= sizeof(struct cortina_led_cfg),
 	.ops = &cortina_led_ops,
 };

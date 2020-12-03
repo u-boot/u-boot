@@ -13,8 +13,8 @@
 /* We only support up to 8 */
 #define SANDBOX_NUM_PORTS	4
 
-struct sandbox_hub_platdata {
-	struct usb_dev_platdata plat;
+struct sandbox_hub_plat {
+	struct usb_dev_plat plat;
 	int port;	/* Port number (numbered from 0) */
 };
 
@@ -129,7 +129,7 @@ static struct udevice *hub_find_device(struct udevice *hub, int port,
 	for (device_find_first_child(hub, &dev);
 	     dev;
 	     device_find_next_child(&dev)) {
-		struct sandbox_hub_platdata *plat;
+		struct sandbox_hub_plat *plat;
 
 		plat = dev_get_parent_plat(dev);
 		if (plat->port == port) {
@@ -304,8 +304,8 @@ static int sandbox_hub_bind(struct udevice *dev)
 
 static int sandbox_child_post_bind(struct udevice *dev)
 {
-	struct sandbox_hub_platdata *plat = dev_get_parent_plat(dev);
-	struct usb_emul_platdata *emul = dev_get_uclass_plat(dev);
+	struct sandbox_hub_plat *plat = dev_get_parent_plat(dev);
+	struct usb_emul_plat *emul = dev_get_uclass_plat(dev);
 
 	plat->port = dev_read_u32_default(dev, "reg", -1);
 	emul->port1 = plat->port + 1;
@@ -329,6 +329,6 @@ U_BOOT_DRIVER(usb_sandbox_hub) = {
 	.bind	= sandbox_hub_bind,
 	.ops	= &sandbox_usb_hub_ops,
 	.priv_auto	= sizeof(struct sandbox_hub_priv),
-	.per_child_plat_auto	= sizeof(struct sandbox_hub_platdata),
+	.per_child_plat_auto	= sizeof(struct sandbox_hub_plat),
 	.child_post_bind = sandbox_child_post_bind,
 };

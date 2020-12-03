@@ -508,7 +508,7 @@ static int fsl_espi_set_mode(struct udevice *bus, uint mode)
 
 static int fsl_espi_child_pre_probe(struct udevice *dev)
 {
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 	struct udevice *bus = dev->parent;
 	struct fsl_spi_slave *fsl = dev_get_priv(bus);
 
@@ -520,7 +520,7 @@ static int fsl_espi_child_pre_probe(struct udevice *dev)
 
 static int fsl_espi_probe(struct udevice *bus)
 {
-	struct fsl_espi_platdata *plat = dev_get_plat(bus);
+	struct fsl_espi_plat *plat = dev_get_plat(bus);
 	struct fsl_spi_slave *fsl = dev_get_priv(bus);
 
 	fsl->espi = (ccsr_espi_t *)((u32)plat->regs_addr);
@@ -544,7 +544,7 @@ static const struct dm_spi_ops fsl_espi_ops = {
 static int fsl_espi_of_to_plat(struct udevice *bus)
 {
 	fdt_addr_t addr;
-	struct fsl_espi_platdata   *plat = bus->plat;
+	struct fsl_espi_plat   *plat = bus->plat;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -576,7 +576,7 @@ U_BOOT_DRIVER(fsl_espi) = {
 	.of_to_plat = fsl_espi_of_to_plat,
 #endif
 	.ops	= &fsl_espi_ops,
-	.plat_auto	= sizeof(struct fsl_espi_platdata),
+	.plat_auto	= sizeof(struct fsl_espi_plat),
 	.priv_auto	= sizeof(struct fsl_spi_slave),
 	.probe	= fsl_espi_probe,
 	.child_pre_probe = fsl_espi_child_pre_probe,

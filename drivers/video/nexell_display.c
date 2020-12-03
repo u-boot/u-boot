@@ -174,7 +174,7 @@ static void nx_display_parse_dp_layer(ofnode node, struct dp_plane_info *plane)
 
 static void nx_display_parse_dp_planes(ofnode node,
 				       struct nx_display_dev *dp,
-				       struct video_uc_platdata *plat)
+				       struct video_uc_plat *plat)
 {
 	const char *name;
 	ofnode subnode;
@@ -332,7 +332,7 @@ static int nx_display_parse_dp_lcds(ofnode node, const char *type,
 
 static int nx_display_parse_dt(struct udevice *dev,
 			       struct nx_display_dev *dp,
-			       struct video_uc_platdata *plat)
+			       struct video_uc_plat *plat)
 {
 	const char *name, *dtype;
 	int ret = 0;
@@ -391,7 +391,7 @@ static struct nx_display_dev *nx_display_setup(void)
 	struct nx_display_dev *dp;
 	int i, ret;
 	int node = 0;
-	struct video_uc_platdata *plat = NULL;
+	struct video_uc_plat *plat = NULL;
 
 	struct udevice *dev;
 
@@ -534,9 +534,9 @@ __weak void lcd_enable(void)
 
 static int nx_display_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_plat(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct nx_display_platdata *plat = dev_get_plat(dev);
+	struct nx_display_plat *plat = dev_get_plat(dev);
 	static GraphicDevice *graphic_device;
 	char addr[64];
 
@@ -546,7 +546,7 @@ static int nx_display_probe(struct udevice *dev)
 		return -EINVAL;
 
 	if (!uc_plat) {
-		debug("%s(): video_uc_platdata *plat == NULL --> return -EINVAL\n",
+		debug("%s(): video_uc_plat *plat == NULL --> return -EINVAL\n",
 		      __func__);
 		return -EINVAL;
 	}
@@ -558,7 +558,7 @@ static int nx_display_probe(struct udevice *dev)
 	}
 
 	if (!plat) {
-		debug("%s(): nx_display_platdata *plat == NULL --> return -EINVAL\n",
+		debug("%s(): nx_display_plat *plat == NULL --> return -EINVAL\n",
 		      __func__);
 		return -EINVAL;
 	}
@@ -619,7 +619,7 @@ static int nx_display_probe(struct udevice *dev)
 
 static int nx_display_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 
 	debug("%s()\n", __func__);
 
@@ -643,7 +643,7 @@ U_BOOT_DRIVER(nexell_display) = {
 	.name = "nexell-display",
 	.id = UCLASS_VIDEO,
 	.of_match = nx_display_ids,
-	.plat_auto	= sizeof(struct nx_display_platdata),
+	.plat_auto	= sizeof(struct nx_display_plat),
 	.bind = nx_display_bind,
 	.probe = nx_display_probe,
 	.priv_auto	= sizeof(struct nx_display_dev),

@@ -364,7 +364,7 @@ void rk_vop_probe_regulators(struct udevice *dev,
 
 int rk_vop_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct rk_vop_priv *priv = dev_get_priv(dev);
 	int ret = 0;
 	ofnode port, node;
@@ -406,7 +406,7 @@ int rk_vop_probe(struct udevice *dev)
 
 int rk_vop_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_plat(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 
 	plat->size = 4 * (CONFIG_VIDEO_ROCKCHIP_MAX_XRES *
 			  CONFIG_VIDEO_ROCKCHIP_MAX_YRES);

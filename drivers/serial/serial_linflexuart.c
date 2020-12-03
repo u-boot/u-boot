@@ -115,7 +115,7 @@ static int _linflex_serial_init(struct linflex_fsl *base)
 	return 0;
 }
 
-struct linflex_serial_platdata {
+struct linflex_serial_plat {
 	struct linflex_fsl *base_addr;
 	u8 port_id; /* do we need this? */
 };
@@ -168,7 +168,7 @@ static void linflex_serial_init_internal(struct linflex_fsl *lfuart)
 
 static int linflex_serial_probe(struct udevice *dev)
 {
-	struct linflex_serial_platdata *plat = dev->plat;
+	struct linflex_serial_plat *plat = dev->plat;
 	struct linflex_serial_priv *priv = dev_get_priv(dev);
 
 	priv->lfuart = (struct linflex_fsl *)plat->base_addr;

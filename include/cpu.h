@@ -8,7 +8,7 @@
 #define __CPU_H
 
 /**
- * struct cpu_platdata - platform data for a CPU
+ * struct cpu_plat - platform data for a CPU
  * @cpu_id:	   Platform-specific way of identifying the CPU.
  * @ucode_version: Microcode version, if CPU_FEAT_UCODE is set
  * @device_id:     Driver-defined device identifier
@@ -20,7 +20,7 @@
  * This can be accessed with dev_get_parent_plat() for any UCLASS_CPU
  * device.
  */
-struct cpu_platdata {
+struct cpu_plat {
 	int cpu_id;
 	int ucode_version;
 	ulong device_id;

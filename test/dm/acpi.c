@@ -25,12 +25,12 @@
 #define BUF_SIZE		4096
 
 /**
- * struct testacpi_platdata - Platform data for the test ACPI device
+ * struct testacpi_plat - Platform data for the test ACPI device
  *
  * @no_name: true to emit an empty ACPI name from testacpi_get_name()
  * @return_error: true to return an error instead of a name
  */
-struct testacpi_platdata {
+struct testacpi_plat {
 	bool return_error;
 	bool no_name;
 };
@@ -53,7 +53,7 @@ static int testacpi_write_tables(const struct udevice *dev,
 
 static int testacpi_get_name(const struct udevice *dev, char *out_name)
 {
-	struct testacpi_platdata *plat = dev_get_plat(dev);
+	struct testacpi_plat *plat = dev_get_plat(dev);
 
 	if (plat->return_error)
 		return -EINVAL;
@@ -110,7 +110,7 @@ U_BOOT_DRIVER(testacpi_drv) = {
 	.of_match	= testacpi_ids,
 	.id	= UCLASS_TEST_ACPI,
 	.bind	= dm_scan_fdt_dev,
-	.plat_auto	= sizeof(struct testacpi_platdata),
+	.plat_auto	= sizeof(struct testacpi_plat),
 	ACPI_OPS_PTR(&testacpi_ops)
 };
 
@@ -422,7 +422,7 @@ DM_TEST(dm_test_acpi_cmd_dump, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 /* Test acpi_device_path() */
 static int dm_test_acpi_device_path(struct unit_test_state *uts)
 {
-	struct testacpi_platdata *plat;
+	struct testacpi_plat *plat;
 	char buf[ACPI_PATH_MAX];
 	struct udevice *dev, *child;
 

@@ -18,8 +18,8 @@
 
 #define GPIO_REGULATOR_MAX_STATES	2
 
-struct gpio_regulator_platdata {
-	struct regulator_common_platdata common;
+struct gpio_regulator_plat {
+	struct regulator_common_plat common;
 	struct gpio_desc gpio; /* GPIO for regulator voltage control */
 	int states[GPIO_REGULATOR_MAX_STATES];
 	int voltages[GPIO_REGULATOR_MAX_STATES];
@@ -28,7 +28,7 @@ struct gpio_regulator_platdata {
 static int gpio_regulator_of_to_plat(struct udevice *dev)
 {
 	struct dm_regulator_uclass_plat *uc_pdata;
-	struct gpio_regulator_platdata *dev_pdata;
+	struct gpio_regulator_plat *dev_pdata;
 	struct gpio_desc *gpio;
 	int ret, count, i, j;
 	u32 states_array[GPIO_REGULATOR_MAX_STATES * 2];
@@ -80,7 +80,7 @@ static int gpio_regulator_of_to_plat(struct udevice *dev)
 static int gpio_regulator_get_value(struct udevice *dev)
 {
 	struct dm_regulator_uclass_plat *uc_pdata;
-	struct gpio_regulator_platdata *dev_pdata = dev_get_plat(dev);
+	struct gpio_regulator_plat *dev_pdata = dev_get_plat(dev);
 	int enable;
 
 	if (!dev_pdata->gpio.dev)
@@ -101,7 +101,7 @@ static int gpio_regulator_get_value(struct udevice *dev)
 
 static int gpio_regulator_set_value(struct udevice *dev, int uV)
 {
-	struct gpio_regulator_platdata *dev_pdata = dev_get_plat(dev);
+	struct gpio_regulator_plat *dev_pdata = dev_get_plat(dev);
 	int ret;
 	bool enable;
 
@@ -127,13 +127,13 @@ static int gpio_regulator_set_value(struct udevice *dev, int uV)
 
 static int gpio_regulator_get_enable(struct udevice *dev)
 {
-	struct gpio_regulator_platdata *dev_pdata = dev_get_plat(dev);
+	struct gpio_regulator_plat *dev_pdata = dev_get_plat(dev);
 	return regulator_common_get_enable(dev, &dev_pdata->common);
 }
 
 static int gpio_regulator_set_enable(struct udevice *dev, bool enable)
 {
-	struct gpio_regulator_platdata *dev_pdata = dev_get_plat(dev);
+	struct gpio_regulator_plat *dev_pdata = dev_get_plat(dev);
 	return regulator_common_set_enable(dev, &dev_pdata->common, enable);
 }
 
@@ -155,5 +155,5 @@ U_BOOT_DRIVER(gpio_regulator) = {
 	.ops = &gpio_regulator_ops,
 	.of_match = gpio_regulator_ids,
 	.of_to_plat = gpio_regulator_of_to_plat,
-	.plat_auto	= sizeof(struct gpio_regulator_platdata),
+	.plat_auto	= sizeof(struct gpio_regulator_plat),
 };

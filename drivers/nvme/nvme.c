@@ -676,7 +676,7 @@ static int nvme_blk_probe(struct udevice *udev)
 	struct blk_desc *desc = dev_get_uclass_plat(udev);
 	struct nvme_ns *ns = dev_get_priv(udev);
 	u8 flbas;
-	struct pci_child_platdata *pplat;
+	struct pci_child_plat *pplat;
 	struct nvme_id_ns *id;
 
 	id = memalign(ndev->page_size, sizeof(struct nvme_id_ns));

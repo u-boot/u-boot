@@ -24,7 +24,7 @@ struct gpio_regs *const gpioa_regs =
 		(struct gpio_regs *) GPIOA_BASE_ADDR;
 
 #ifndef CONFIG_OF_CONTROL
-static const struct pl01x_serial_platdata serial_platdata = {
+static const struct pl01x_serial_plat serial_plat = {
 	.base = 0x80406000,
 	.type = TYPE_PL011,
 	.clock = 2700 * 1000,
@@ -32,7 +32,7 @@ static const struct pl01x_serial_platdata serial_platdata = {
 
 U_BOOT_DEVICE(stv09911_serials) = {
 	.name = "serial_pl01x",
-	.plat = &serial_platdata,
+	.plat = &serial_plat,
 };
 #endif
 

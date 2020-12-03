@@ -35,7 +35,7 @@ static bool bcm283x_is_serial_muxed(void)
 
 static int bcm283x_pl011_serial_probe(struct udevice *dev)
 {
-	struct pl01x_serial_platdata *plat = dev_get_plat(dev);
+	struct pl01x_serial_plat *plat = dev_get_plat(dev);
 	int ret;
 
 	/* Don't spawn the device if it's not muxed */
@@ -92,7 +92,7 @@ U_BOOT_DRIVER(bcm283x_pl011_uart) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = of_match_ptr(bcm283x_pl011_serial_id),
 	.probe	= bcm283x_pl011_serial_probe,
-	.plat_auto	= sizeof(struct pl01x_serial_platdata),
+	.plat_auto	= sizeof(struct pl01x_serial_plat),
 	.ops	= &bcm283x_pl011_serial_ops,
 #if !CONFIG_IS_ENABLED(OF_CONTROL) || CONFIG_IS_ENABLED(OF_BOARD)
 	.flags	= DM_FLAG_PRE_RELOC,

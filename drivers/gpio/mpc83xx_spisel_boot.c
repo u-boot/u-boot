@@ -78,7 +78,7 @@ static int mpc83xx_spisel_boot_of_to_plat(struct udevice *dev)
 }
 #endif
 
-static int mpc83xx_spisel_boot_platdata_to_priv(struct udevice *dev)
+static int mpc83xx_spisel_boot_plat_to_priv(struct udevice *dev)
 {
 	struct mpc83xx_spisel_boot *priv = dev_get_priv(dev);
 	struct mpc8xxx_gpio_plat *plat = dev_get_plat(dev);
@@ -107,7 +107,7 @@ static int mpc83xx_spisel_boot_probe(struct udevice *dev)
 	struct mpc83xx_spisel_boot *data = dev_get_priv(dev);
 	char name[32], *str;
 
-	mpc83xx_spisel_boot_platdata_to_priv(dev);
+	mpc83xx_spisel_boot_plat_to_priv(dev);
 
 	snprintf(name, sizeof(name), "MPC@%lx_", data->addr);
 	str = strdup(name);

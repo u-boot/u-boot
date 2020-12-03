@@ -22,7 +22,7 @@
 
 static int bd82x6x_azalia_probe(struct udevice *dev)
 {
-	struct pci_child_platdata *plat;
+	struct pci_child_plat *plat;
 	struct hda_codec_priv *priv;
 	struct udevice *pch;
 	u32 codec_mask;

@@ -6,7 +6,7 @@
 #ifndef __fsl_espi_h
 #define __fsl_espi_h
 
-struct fsl_espi_platdata {
+struct fsl_espi_plat {
 	uint flags;
 	uint speed_hz;
 	uint num_chipselect;

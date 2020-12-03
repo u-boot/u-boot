@@ -17,7 +17,7 @@
 #include <asm/arch/pch.h>
 #include <linux/delay.h>
 
-struct sata_platdata {
+struct sata_plat {
 	int port_map;
 	uint port0_gen3_tx;
 	uint port1_gen3_tx;
@@ -41,7 +41,7 @@ struct sata_platdata {
 
 static void broadwell_sata_init(struct udevice *dev)
 {
-	struct sata_platdata *plat = dev_get_plat(dev);
+	struct sata_plat *plat = dev_get_plat(dev);
 	u32 reg32;
 	u8 *abar;
 	u16 reg16;
@@ -211,7 +211,7 @@ static void broadwell_sata_init(struct udevice *dev)
 
 static int broadwell_sata_enable(struct udevice *dev)
 {
-	struct sata_platdata *plat = dev_get_plat(dev);
+	struct sata_plat *plat = dev_get_plat(dev);
 	struct gpio_desc desc;
 	u16 map;
 	int ret;
@@ -234,7 +234,7 @@ static int broadwell_sata_enable(struct udevice *dev)
 
 static int broadwell_sata_of_to_plat(struct udevice *dev)
 {
-	struct sata_platdata *plat = dev_get_plat(dev);
+	struct sata_plat *plat = dev_get_plat(dev);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 
@@ -266,5 +266,5 @@ U_BOOT_DRIVER(ahci_broadwell_drv) = {
 	.of_match	= broadwell_ahci_ids,
 	.of_to_plat	= broadwell_sata_of_to_plat,
 	.probe		= broadwell_sata_probe,
-	.plat_auto	 = sizeof(struct sata_platdata),
+	.plat_auto	 = sizeof(struct sata_plat),
 };

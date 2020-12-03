@@ -27,7 +27,7 @@ struct altera_gen5_sdram_priv {
 	struct ram_info info;
 };
 
-struct altera_gen5_sdram_platdata {
+struct altera_gen5_sdram_plat {
 	struct socfpga_sdr *sdr;
 };
 
@@ -565,7 +565,7 @@ static unsigned long sdram_calculate_size(struct socfpga_sdr_ctrl *sdr_ctrl)
 
 static int altera_gen5_sdram_of_to_plat(struct udevice *dev)
 {
-	struct altera_gen5_sdram_platdata *plat = dev->plat;
+	struct altera_gen5_sdram_plat *plat = dev->plat;
 
 	plat->sdr = (struct socfpga_sdr *)devfdt_get_addr_index(dev, 0);
 	if (!plat->sdr)
@@ -578,7 +578,7 @@ static int altera_gen5_sdram_probe(struct udevice *dev)
 {
 	int ret;
 	unsigned long sdram_size;
-	struct altera_gen5_sdram_platdata *plat = dev->plat;
+	struct altera_gen5_sdram_plat *plat = dev->plat;
 	struct altera_gen5_sdram_priv *priv = dev_get_priv(dev);
 	struct socfpga_sdr_ctrl *sdr_ctrl = &plat->sdr->sdr_ctrl;
 	struct reset_ctl_bulk resets;
@@ -647,7 +647,7 @@ U_BOOT_DRIVER(altera_gen5_sdram) = {
 	.of_match = altera_gen5_sdram_ids,
 	.ops = &altera_gen5_sdram_ops,
 	.of_to_plat = altera_gen5_sdram_of_to_plat,
-	.plat_auto	= sizeof(struct altera_gen5_sdram_platdata),
+	.plat_auto	= sizeof(struct altera_gen5_sdram_plat),
 	.probe = altera_gen5_sdram_probe,
 	.priv_auto	= sizeof(struct altera_gen5_sdram_priv),
 };

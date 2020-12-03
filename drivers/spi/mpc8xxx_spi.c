@@ -107,7 +107,7 @@ static int mpc8xxx_spi_probe(struct udevice *dev)
 static void mpc8xxx_spi_cs_activate(struct udevice *dev)
 {
 	struct mpc8xxx_priv *priv = dev_get_priv(dev->parent);
-	struct dm_spi_slave_platdata *plat = dev_get_parent_plat(dev);
+	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
 
 	dm_gpio_set_value(&priv->gpios[plat->cs], 1);
 }
@@ -115,7 +115,7 @@ static void mpc8xxx_spi_cs_activate(struct udevice *dev)
 static void mpc8xxx_spi_cs_deactivate(struct udevice *dev)
 {
 	struct mpc8xxx_priv *priv = dev_get_priv(dev->parent);
-	struct dm_spi_slave_platdata *plat = dev_get_parent_plat(dev);
+	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
 
 	dm_gpio_set_value(&priv->gpios[plat->cs], 0);
 }
@@ -126,7 +126,7 @@ static int mpc8xxx_spi_xfer(struct udevice *dev, uint bitlen,
 	struct udevice *bus = dev->parent;
 	struct mpc8xxx_priv *priv = dev_get_priv(bus);
 	spi8xxx_t *spi = priv->spi;
-	struct dm_spi_slave_platdata *plat = dev_get_parent_plat(dev);
+	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
 	u32 tmpdin = 0, tmpdout = 0, n;
 	const u8 *cout = dout;
 	u8 *cin = din;

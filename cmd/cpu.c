@@ -26,7 +26,7 @@ static int print_cpu_list(bool detail)
 	for (uclass_first_device(UCLASS_CPU, &dev);
 		     dev;
 		     uclass_next_device(&dev)) {
-		struct cpu_platdata *plat = dev_get_parent_plat(dev);
+		struct cpu_plat *plat = dev_get_parent_plat(dev);
 		struct cpu_info info;
 		bool first = true;
 		int ret, i;

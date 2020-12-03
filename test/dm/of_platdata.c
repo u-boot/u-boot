@@ -8,7 +8,7 @@
 #include <test/ut.h>
 
 /* Test that we can find a device using of-platdata */
-static int dm_test_of_platdata_base(struct unit_test_state *uts)
+static int dm_test_of_plat_base(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 
@@ -17,10 +17,10 @@ static int dm_test_of_platdata_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_platdata_base, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_base, UT_TESTF_SCAN_PDATA);
 
 /* Test that we can read properties from a device */
-static int dm_test_of_platdata_props(struct unit_test_state *uts)
+static int dm_test_of_plat_props(struct unit_test_state *uts)
 {
 	struct dtd_sandbox_spl_test *plat;
 	struct udevice *dev;
@@ -89,7 +89,7 @@ static int dm_test_of_platdata_props(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_platdata_props, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_props, UT_TESTF_SCAN_PDATA);
 
 /*
  * find_driver_info - recursively find the driver_info for a device
@@ -139,7 +139,7 @@ static int find_driver_info(struct unit_test_state *uts, struct udevice *parent,
 }
 
 /* Check that every device is recorded in its driver_info struct */
-static int dm_test_of_platdata_dev(struct unit_test_state *uts)
+static int dm_test_of_plat_dev(struct unit_test_state *uts)
 {
 	const struct driver_info *info =
 		ll_entry_start(struct driver_info, driver_info);
@@ -171,10 +171,10 @@ static int dm_test_of_platdata_dev(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_platdata_dev, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_dev, UT_TESTF_SCAN_PDATA);
 
 /* Test handling of phandles that point to other devices */
-static int dm_test_of_platdata_phandle(struct unit_test_state *uts)
+static int dm_test_of_plat_phandle(struct unit_test_state *uts)
 {
 	struct dtd_sandbox_clk_test *plat;
 	struct udevice *dev, *clk;
@@ -204,11 +204,11 @@ static int dm_test_of_platdata_phandle(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_platdata_phandle, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_phandle, UT_TESTF_SCAN_PDATA);
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA_PARENT)
 /* Test that device parents are correctly set up */
-static int dm_test_of_platdata_parent(struct unit_test_state *uts)
+static int dm_test_of_plat_parent(struct unit_test_state *uts)
 {
 	struct udevice *rtc, *i2c;
 
@@ -218,5 +218,5 @@ static int dm_test_of_platdata_parent(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_platdata_parent, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_parent, UT_TESTF_SCAN_PDATA);
 #endif

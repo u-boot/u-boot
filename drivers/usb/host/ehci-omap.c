@@ -368,7 +368,7 @@ struct ehci_omap_priv_data {
 
 static int ehci_usb_of_to_plat(struct udevice *dev)
 {
-	struct usb_platdata *plat = dev_get_plat(dev);
+	struct usb_plat *plat = dev_get_plat(dev);
 
 	plat->init_type = USB_INIT_HOST;
 
@@ -377,7 +377,7 @@ static int ehci_usb_of_to_plat(struct udevice *dev)
 
 static int omap_ehci_probe(struct udevice *dev)
 {
-	struct usb_platdata *plat = dev_get_plat(dev);
+	struct usb_plat *plat = dev_get_plat(dev);
 	struct ehci_omap_priv_data *priv = dev_get_priv(dev);
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
@@ -403,7 +403,7 @@ U_BOOT_DRIVER(usb_omap_ehci) = {
 	.of_match = omap_ehci_dt_ids,
 	.probe = omap_ehci_probe,
 	.of_to_plat = ehci_usb_of_to_plat,
-	.plat_auto	= sizeof(struct usb_platdata),
+	.plat_auto	= sizeof(struct usb_plat),
 	.priv_auto	= sizeof(struct ehci_omap_priv_data),
 	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,

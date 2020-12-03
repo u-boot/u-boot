@@ -120,7 +120,7 @@ static int dm_test_autobind(struct unit_test_state *uts)
 	ut_asserteq(0, list_count_items(&gd->dm_root->child_head));
 	ut_asserteq(0, dm_testdrv_op_count[DM_TEST_OP_POST_BIND]);
 
-	ut_assertok(dm_scan_platdata(false));
+	ut_assertok(dm_scan_plat(false));
 
 	/* We should have our test class now at least, plus more children */
 	ut_assert(1 < list_count_items(&gd->uclass_root));
@@ -264,7 +264,7 @@ static int dm_test_autoprobe(struct unit_test_state *uts)
 DM_TEST(dm_test_autoprobe, UT_TESTF_SCAN_PDATA);
 
 /* Check that we see the correct plat in each device */
-static int dm_test_platdata(struct unit_test_state *uts)
+static int dm_test_plat(struct unit_test_state *uts)
 {
 	const struct dm_test_pdata *pdata;
 	struct udevice *dev;
@@ -279,7 +279,7 @@ static int dm_test_platdata(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_platdata, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_plat, UT_TESTF_SCAN_PDATA);
 
 /* Test that we can bind, probe, remove, unbind a driver */
 static int dm_test_lifecycle(struct unit_test_state *uts)
@@ -485,7 +485,7 @@ static int dm_test_leak(struct unit_test_state *uts)
 
 		dm_leak_check_start(uts);
 
-		ut_assertok(dm_scan_platdata(false));
+		ut_assertok(dm_scan_plat(false));
 		ut_assertok(dm_scan_fdt(false));
 
 		/* Scanning the uclass is enough to probe all the devices */

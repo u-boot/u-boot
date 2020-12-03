@@ -70,7 +70,7 @@ int match_ddr_conf(u32 ddr_conf)
  */
 int sdram_mmr_init_full(struct udevice *dev)
 {
-	struct altera_sdram_platdata *plat = dev->plat;
+	struct altera_sdram_plat *plat = dev->plat;
 	struct altera_sdram_priv *priv = dev_get_priv(dev);
 	u32 update_value, io48_value, ddrioctl;
 	u32 i;

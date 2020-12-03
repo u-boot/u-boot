@@ -19,7 +19,7 @@
 
 #include <asm/arch/system_manager.h>
 
-struct dwmac_socfpga_platdata {
+struct dwmac_socfpga_plat {
 	struct dw_eth_pdata	dw_eth_pdata;
 	void			*phy_intf;
 	u32			reg_shift;
@@ -27,7 +27,7 @@ struct dwmac_socfpga_platdata {
 
 static int dwmac_socfpga_of_to_plat(struct udevice *dev)
 {
-	struct dwmac_socfpga_platdata *pdata = dev_get_plat(dev);
+	struct dwmac_socfpga_plat *pdata = dev_get_plat(dev);
 	struct regmap *regmap;
 	struct ofnode_phandle_args args;
 	void *range;
@@ -66,7 +66,7 @@ static int dwmac_socfpga_of_to_plat(struct udevice *dev)
 
 static int dwmac_socfpga_probe(struct udevice *dev)
 {
-	struct dwmac_socfpga_platdata *pdata = dev_get_plat(dev);
+	struct dwmac_socfpga_plat *pdata = dev_get_plat(dev);
 	struct eth_pdata *edata = &pdata->dw_eth_pdata.eth_pdata;
 	struct reset_ctl_bulk reset_bulk;
 	int ret;
@@ -119,6 +119,6 @@ U_BOOT_DRIVER(dwmac_socfpga) = {
 	.probe		= dwmac_socfpga_probe,
 	.ops		= &designware_eth_ops,
 	.priv_auto	= sizeof(struct dw_eth_dev),
-	.plat_auto	= sizeof(struct dwmac_socfpga_platdata),
+	.plat_auto	= sizeof(struct dwmac_socfpga_plat),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
 };

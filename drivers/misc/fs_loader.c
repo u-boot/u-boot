@@ -61,7 +61,7 @@ static int mount_ubifs(char *mtdpart, char *ubivol)
 }
 #endif
 
-static int select_fs_dev(struct device_platdata *plat)
+static int select_fs_dev(struct device_plat *plat)
 {
 	int ret;
 
@@ -226,7 +226,7 @@ static int fs_loader_of_to_plat(struct udevice *dev)
 	ofnode fs_loader_node = dev_ofnode(dev);
 
 	if (ofnode_valid(fs_loader_node)) {
-		struct device_platdata *plat;
+		struct device_plat *plat;
 
 		plat = dev->plat;
 		if (!ofnode_read_u32_array(fs_loader_node,
@@ -250,7 +250,7 @@ static int fs_loader_probe(struct udevice *dev)
 {
 #if CONFIG_IS_ENABLED(DM) && CONFIG_IS_ENABLED(BLK)
 	int ret;
-	struct device_platdata *plat = dev->plat;
+	struct device_plat *plat = dev->plat;
 
 	if (plat->phandlepart.phandle) {
 		ofnode node = ofnode_get_by_phandle(plat->phandlepart.phandle);
@@ -285,7 +285,7 @@ U_BOOT_DRIVER(fs_loader) = {
 	.of_match		= fs_loader_ids,
 	.probe			= fs_loader_probe,
 	.of_to_plat	= fs_loader_of_to_plat,
-	.plat_auto	= sizeof(struct device_platdata),
+	.plat_auto	= sizeof(struct device_plat),
 	.priv_auto	= sizeof(struct firmware),
 };
 

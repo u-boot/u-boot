@@ -895,7 +895,7 @@ static int rk3368_dmc_of_to_plat(struct udevice *dev)
 }
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-static int conv_of_platdata(struct udevice *dev)
+static int conv_of_plat(struct udevice *dev)
 {
 	struct rk3368_sdram_params *plat = dev_get_plat(dev);
 	struct dtd_rockchip_rk3368_dmc *of_plat = &plat->of_plat;
@@ -923,7 +923,7 @@ static int rk3368_dmc_probe(struct udevice *dev)
 	struct dram_info *priv = dev_get_priv(dev);
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	ret = conv_of_platdata(dev);
+	ret = conv_of_plat(dev);
 	if (ret)
 		return ret;
 #endif

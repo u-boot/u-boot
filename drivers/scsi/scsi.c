@@ -151,7 +151,7 @@ static ulong scsi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 {
 	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 	struct udevice *bdev = dev->parent;
-	struct scsi_platdata *uc_plat = dev_get_uclass_plat(bdev);
+	struct scsi_plat *uc_plat = dev_get_uclass_plat(bdev);
 	lbaint_t start, blks, max_blks;
 	uintptr_t buf_addr;
 	unsigned short smallblks = 0;
@@ -221,7 +221,7 @@ static ulong scsi_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 {
 	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 	struct udevice *bdev = dev->parent;
-	struct scsi_platdata *uc_plat = dev_get_uclass_plat(bdev);
+	struct scsi_plat *uc_plat = dev_get_uclass_plat(bdev);
 	lbaint_t start, blks, max_blks;
 	uintptr_t buf_addr;
 	unsigned short smallblks;
@@ -604,7 +604,7 @@ static int do_scsi_scan_one(struct udevice *dev, int id, int lun, bool verbose)
 
 int scsi_scan_dev(struct udevice *dev, bool verbose)
 {
-	struct scsi_platdata *uc_plat; /* scsi controller plat */
+	struct scsi_plat *uc_plat; /* scsi controller plat */
 	int ret;
 	int i;
 	int lun;

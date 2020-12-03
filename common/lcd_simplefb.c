@@ -22,7 +22,7 @@ static int lcd_dt_simplefb_configure_node(void *blob, int off)
 	const char *name;
 	ulong fb_base;
 #ifdef CONFIG_DM_VIDEO
-	struct video_uc_platdata *plat;
+	struct video_uc_plat *plat;
 	struct video_priv *uc_priv;
 	struct udevice *dev;
 	int ret;

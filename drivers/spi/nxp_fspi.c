@@ -887,7 +887,7 @@ static int nxp_fspi_claim_bus(struct udevice *dev)
 {
 	struct nxp_fspi *f;
 	struct udevice *bus;
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_plat(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 
 	bus = dev->parent;
 	f = dev_get_priv(bus);
