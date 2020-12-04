@@ -195,6 +195,9 @@ extern const efi_guid_t efi_file_system_info_guid;
 extern const efi_guid_t efi_guid_device_path_utilities_protocol;
 /* GUID of the deprecated Unicode collation protocol */
 extern const efi_guid_t efi_guid_unicode_collation_protocol;
+/* GUIDs of the Load File and Load File2 protocol */
+extern const efi_guid_t efi_guid_load_file_protocol;
+extern const efi_guid_t efi_guid_load_file2_protocol;
 /* GUID of the Unicode collation protocol */
 extern const efi_guid_t efi_guid_unicode_collation_protocol2;
 extern const efi_guid_t efi_guid_hii_config_routing_protocol;
