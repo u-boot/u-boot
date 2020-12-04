@@ -86,7 +86,6 @@ static int setup(const efi_handle_t handle,
 
 static int execute(void)
 {
-	efi_guid_t lf2_proto_guid = EFI_LOAD_FILE2_PROTOCOL_GUID;
 	struct efi_load_file_protocol *lf2;
 	struct efi_device_path *dp2, *dp2_invalid;
 	efi_status_t status;
@@ -99,13 +98,15 @@ static int execute(void)
 	memset(buffer, 0, sizeof(buffer));
 
 	dp2 = (struct efi_device_path *)&dp;
-	status = boottime->locate_device_path(&lf2_proto_guid, &dp2, &handle);
+	status = boottime->locate_device_path(&efi_guid_load_file2_protocol,
+					      &dp2, &handle);
 	if (status != EFI_SUCCESS) {
 		efi_st_error("Unable to locate device path\n");
 		return EFI_ST_FAILURE;
 	}
 
-	status = boottime->handle_protocol(handle, &lf2_proto_guid,
+	status = boottime->handle_protocol(handle,
+					   &efi_guid_load_file2_protocol,
 					   (void **)&lf2);
 	if (status != EFI_SUCCESS) {
 		efi_st_error("Unable to locate protocol\n");
