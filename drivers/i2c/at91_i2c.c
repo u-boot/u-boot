@@ -51,6 +51,10 @@ static int at91_i2c_xfer_msg(struct at91_i2c_bus *bus, struct i2c_msg *msg)
 	u32 i;
 	int ret = 0;
 
+	/* if there is no message to send/receive, just exit quietly */
+	if (msg->len == 0)
+		return ret;
+
 	readl(&reg->sr);
 	if (is_read) {
 		writel(TWI_CR_START, &reg->cr);
