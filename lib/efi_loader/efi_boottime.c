@@ -1860,13 +1860,15 @@ out:
  * Read a file into a buffer allocated as EFI_BOOT_SERVICES_DATA. It is the
  * callers obligation to update the memory type as needed.
  *
- * @file_path:	the path of the image to load
- * @buffer:	buffer containing the loaded image
- * @size:	size of the loaded image
- * Return:	status code
+ * @boot_policy:	true for request originating from the boot manager
+ * @file_path:		the path of the image to load
+ * @buffer:		buffer containing the loaded image
+ * @size:		size of the loaded image
+ * Return:		status code
  */
 static
-efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
+efi_status_t efi_load_image_from_path(bool boot_policy,
+				      struct efi_device_path *file_path,
 				      void **buffer, efi_uintn_t *size)
 {
 	struct efi_file_info *info = NULL;
@@ -1968,8 +1970,8 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	}
 
 	if (!source_buffer) {
-		ret = efi_load_image_from_path(file_path, &dest_buffer,
-					       &source_size);
+		ret = efi_load_image_from_path(boot_policy, file_path,
+					       &dest_buffer, &source_size);
 		if (ret != EFI_SUCCESS)
 			goto error;
 	} else {
