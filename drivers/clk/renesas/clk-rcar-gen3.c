@@ -310,7 +310,7 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		      __func__, __LINE__,
 		      core->parent, prediv, postdiv, rate);
 
-		return -EINVAL;
+		return rate;
 
 	}
 
