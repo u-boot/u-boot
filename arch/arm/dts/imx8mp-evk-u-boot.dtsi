@@ -49,6 +49,10 @@
 };
 
 &reg_usdhc2_vmmc {
+	u-boot,off-on-delay-us = <20000>;
+};
+
+&reg_usdhc2_vmmc {
 	u-boot,dm-spl;
 };
 

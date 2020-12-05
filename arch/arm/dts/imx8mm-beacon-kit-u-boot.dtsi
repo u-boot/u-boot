@@ -37,6 +37,10 @@
 	/delete-property/ assigned-clock-rates;
 };
 
+&reg_usdhc2_vmmc {
+	u-boot,off-on-delay-us = <20000>;
+};
+
 &fec1 {
 	phy-reset-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
 };
