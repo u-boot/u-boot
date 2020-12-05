@@ -14,7 +14,13 @@
 
 /* High-level configuration options */
 
-/* Board-specific serial config */
+/*
+ * Board-specific serial config
+ *
+ * Colibri UART-A: NVIDIA UARTA
+ * Colibri UART-B: NVIDIA UARTD
+ * Colibri UART-C: NVIDIA UARTB
+ */
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 

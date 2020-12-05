@@ -20,6 +20,12 @@
 /* Generic Interrupt Controller */
 #define CONFIG_GICV2
 
+#undef FDTFILE
+#define BOOTENV_EFI_SET_FDTFILE_FALLBACK                                  \
+        "if test -z \"${fdtfile}\" -a -n \"${soc}\"; then "               \
+          "setenv efi_fdtfile ${vendor}/${soc}-${board}${boardver}.dtb; "           \
+        "fi; "
+
 /*
  * Memory layout for where various images get loaded by boot scripts:
  *
