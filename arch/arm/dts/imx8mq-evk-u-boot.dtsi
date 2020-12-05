@@ -3,3 +3,12 @@
 &reg_usdhc2_vmmc {
 	u-boot,off-on-delay-us = <20000>;
 };
+
+&usdhc1 {
+	mmc-hs400-1_8v;
+};
+
+&usdhc2 {
+	sd-uhs-sdr104;
+	sd-uhs-ddr50;
+};
