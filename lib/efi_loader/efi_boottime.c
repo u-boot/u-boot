@@ -1942,6 +1942,10 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
 	efi_handle_t device;
 	efi_status_t ret;
 	struct efi_device_path *dp;
+	struct efi_load_file_protocol *load_file_protocol = NULL;
+	efi_uintn_t buffer_size;
+	uint64_t addr, pages;
+	const efi_guid_t *guid;
 
 	/* In case of failure nothing is returned */
 	*buffer = NULL;
@@ -1952,7 +1956,50 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
 		       &efi_simple_file_system_protocol_guid, &dp, &device));
 	if (ret == EFI_SUCCESS)
 		return efi_load_image_from_file(file_path, buffer, size);
-	return EFI_NOT_FOUND;
+
+	ret = EFI_CALL(efi_locate_device_path(
+		       &efi_guid_load_file_protocol, &dp, &device));
+	if (ret == EFI_SUCCESS) {
+		guid = &efi_guid_load_file_protocol;
+	} else if (!boot_policy) {
+		guid = &efi_guid_load_file2_protocol;
+		ret = EFI_CALL(efi_locate_device_path(guid, &dp, &device));
+	}
+	if (ret != EFI_SUCCESS)
+		return EFI_NOT_FOUND;
+	ret = EFI_CALL(efi_handle_protocol(device, guid,
+					   (void **)&load_file_protocol));
+	if (ret != EFI_SUCCESS)
+		return EFI_NOT_FOUND;
+	buffer_size = 0;
+	ret = load_file_protocol->load_file(load_file_protocol, dp,
+					    boot_policy, &buffer_size,
+					    NULL);
+	if (ret != EFI_BUFFER_TOO_SMALL)
+		goto out;
+	pages = efi_size_in_pages(buffer_size);
+	ret = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES, EFI_BOOT_SERVICES_DATA,
+				 pages, &addr);
+	if (ret != EFI_SUCCESS) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+	ret = EFI_CALL(load_file_protocol->load_file(
+					load_file_protocol, dp, boot_policy,
+					&buffer_size, (void *)(uintptr_t)addr));
+	if (ret != EFI_SUCCESS)
+		efi_free_pages(addr, pages);
+out:
+	if (load_file_protocol)
+		EFI_CALL(efi_close_protocol(device,
+					    &efi_guid_load_file2_protocol,
+					    efi_root, NULL));
+	if (ret == EFI_SUCCESS) {
+		*buffer = (void *)(uintptr_t)addr;
+		*size = buffer_size;
+	}
+
+	return ret;
 }
 
 /**
