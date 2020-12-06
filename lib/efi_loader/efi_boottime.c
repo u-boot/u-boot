@@ -1855,31 +1855,25 @@ out:
 }
 
 /**
- * efi_load_image_from_path() - load an image using a file path
+ * efi_load_image_from_file() - load an image from file system
  *
  * Read a file into a buffer allocated as EFI_BOOT_SERVICES_DATA. It is the
  * callers obligation to update the memory type as needed.
  *
- * @boot_policy:	true for request originating from the boot manager
  * @file_path:		the path of the image to load
  * @buffer:		buffer containing the loaded image
  * @size:		size of the loaded image
  * Return:		status code
  */
 static
-efi_status_t efi_load_image_from_path(bool boot_policy,
-				      struct efi_device_path *file_path,
+efi_status_t efi_load_image_from_file(struct efi_device_path *file_path,
 				      void **buffer, efi_uintn_t *size)
 {
 	struct efi_file_info *info = NULL;
 	struct efi_file_handle *f;
-	static efi_status_t ret;
+	efi_status_t ret;
 	u64 addr;
 	efi_uintn_t bs;
-
-	/* In case of failure nothing is returned */
-	*buffer = NULL;
-	*size = 0;
 
 	/* Open file */
 	f = efi_file_from_path(file_path);
@@ -1926,6 +1920,39 @@ error:
 	EFI_CALL(f->close(f));
 	free(info);
 	return ret;
+}
+
+/**
+ * efi_load_image_from_path() - load an image using a file path
+ *
+ * Read a file into a buffer allocated as EFI_BOOT_SERVICES_DATA. It is the
+ * callers obligation to update the memory type as needed.
+ *
+ * @boot_policy:	true for request originating from the boot manager
+ * @file_path:		the path of the image to load
+ * @buffer:		buffer containing the loaded image
+ * @size:		size of the loaded image
+ * Return:		status code
+ */
+static
+efi_status_t efi_load_image_from_path(bool boot_policy,
+				      struct efi_device_path *file_path,
+				      void **buffer, efi_uintn_t *size)
+{
+	efi_handle_t device;
+	efi_status_t ret;
+	struct efi_device_path *dp;
+
+	/* In case of failure nothing is returned */
+	*buffer = NULL;
+	*size = 0;
+
+	dp = file_path;
+	ret = EFI_CALL(efi_locate_device_path(
+		       &efi_simple_file_system_protocol_guid, &dp, &device));
+	if (ret == EFI_SUCCESS)
+		return efi_load_image_from_file(file_path, buffer, size);
+	return EFI_NOT_FOUND;
 }
 
 /**
