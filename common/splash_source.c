@@ -37,7 +37,7 @@ static int splash_sf_read_raw(u32 bmp_load_addr, int offset, size_t read_size)
 			return -ENODEV;
 	}
 
-	return spi_flash_read(sf, offset, read_size, (void *)bmp_load_addr);
+	return spi_flash_read(sf, offset, read_size, (void *)(uintptr_t)bmp_load_addr);
 }
 #else
 static int splash_sf_read_raw(u32 bmp_load_addr, int offset, size_t read_size)
@@ -98,7 +98,7 @@ static int splash_load_raw(struct splash_location *location, u32 bmp_load_addr)
 	if (res < 0)
 		return res;
 
-	bmp_hdr = (struct bmp_header *)bmp_load_addr;
+	bmp_hdr = (struct bmp_header *)(uintptr_t)bmp_load_addr;
 	bmp_size = le32_to_cpu(bmp_hdr->file_size);
 
 	if (bmp_load_addr + bmp_size >= gd->start_addr_sp)
