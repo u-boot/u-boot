@@ -38,6 +38,10 @@
 	status = "okay";
 };
 
+&vdd_center {
+	regulator-init-microvolt = <900000>;
+};
+
 &sdmmc {
 	u-boot,dm-pre-reloc;
 	bus-width = <4>;
