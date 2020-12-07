@@ -7,6 +7,7 @@
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <bootstage.h>
+#include <cli.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <errno.h>
@@ -19,6 +20,7 @@
 #include <net.h>
 #include <asm/cache.h>
 #include <asm/io.h>
+#include <linux/sizes.h>
 #if defined(CONFIG_CMD_USB)
 #include <usb.h>
 #endif
@@ -34,6 +36,8 @@
 /* use 8MByte as default max gunzip size */
 #define CONFIG_SYS_BOOTM_LEN	0x800000
 #endif
+
+#define MAX_CMDLINE_SIZE	SZ_4K
 
 #define IH_INITRD_ARCH IH_ARCH_DEFAULT
 
@@ -465,18 +469,34 @@ ulong bootm_disable_interrupts(void)
 	return iflag;
 }
 
-#if defined(CONFIG_SILENT_CONSOLE) && !defined(CONFIG_SILENT_U_BOOT_ONLY)
+#define CONSOLE_ARG		"console="
+#define CONSOLE_ARG_SIZE	sizeof(CONSOLE_ARG)
 
-#define CONSOLE_ARG     "console="
-#define CONSOLE_ARG_LEN (sizeof(CONSOLE_ARG) - 1)
-
-static void fixup_silent_linux(void)
+/**
+ * fixup_silent_linux() - Handle silencing the linux boot if required
+ *
+ * This uses the silent_linux envvar to control whether to add/set a "console="
+ * parameter to the command line
+ *
+ * @buf: Buffer containing the string to process
+ * @maxlen: Maximum length of buffer
+ * @return 0 if OK, -ENOSPC if @maxlen is too small
+ */
+static int fixup_silent_linux(char *buf, int maxlen)
 {
-	char *buf;
-	const char *env_val;
-	char *cmdline = env_get("bootargs");
 	int want_silent;
+	char *cmdline;
+	int size;
 
+	/*
+	 * Move the input string to the end of buffer. The output string will be
+	 * built up at the start.
+	 */
+	size = strlen(buf) + 1;
+	if (size * 2 > maxlen)
+		return -ENOSPC;
+	cmdline = buf + maxlen - size;
+	memmove(cmdline, buf, size);
 	/*
 	 * Only fix cmdline when requested. The environment variable can be:
 	 *
@@ -486,44 +506,132 @@ static void fixup_silent_linux(void)
 	 */
 	want_silent = env_get_yesno("silent_linux");
 	if (want_silent == 0)
-		return;
+		return 0;
 	else if (want_silent == -1 && !(gd->flags & GD_FLG_SILENT))
-		return;
+		return 0;
 
 	debug("before silent fix-up: %s\n", cmdline);
-	if (cmdline && (cmdline[0] != '\0')) {
+	if (*cmdline) {
 		char *start = strstr(cmdline, CONSOLE_ARG);
 
-		/* Allocate space for maximum possible new command line */
-		buf = malloc(strlen(cmdline) + 1 + CONSOLE_ARG_LEN + 1);
-		if (!buf) {
-			debug("%s: out of memory\n", __func__);
-			return;
-		}
+		/* Check space for maximum possible new command line */
+		if (size + CONSOLE_ARG_SIZE > maxlen)
+			return -ENOSPC;
 
 		if (start) {
 			char *end = strchr(start, ' ');
-			int num_start_bytes = start - cmdline + CONSOLE_ARG_LEN;
+			int start_bytes;
 
-			strncpy(buf, cmdline, num_start_bytes);
+			start_bytes = start - cmdline + CONSOLE_ARG_SIZE - 1;
+			strncpy(buf, cmdline, start_bytes);
 			if (end)
-				strcpy(buf + num_start_bytes, end);
+				strcpy(buf + start_bytes, end);
 			else
-				buf[num_start_bytes] = '\0';
+				buf[start_bytes] = '\0';
 		} else {
 			sprintf(buf, "%s %s", cmdline, CONSOLE_ARG);
 		}
-		env_val = buf;
+		if (buf + strlen(buf) >= cmdline)
+			return -ENOSPC;
 	} else {
-		buf = NULL;
-		env_val = CONSOLE_ARG;
+		if (maxlen < sizeof(CONSOLE_ARG))
+			return -ENOSPC;
+		strcpy(buf, CONSOLE_ARG);
+	}
+	debug("after silent fix-up: %s\n", buf);
+
+	return 0;
+}
+
+/**
+ * process_subst() - Handle substitution of ${...} fields in the environment
+ *
+ * Handle variable substitution in the provided buffer
+ *
+ * @buf: Buffer containing the string to process
+ * @maxlen: Maximum length of buffer
+ * @return 0 if OK, -ENOSPC if @maxlen is too small
+ */
+static int process_subst(char *buf, int maxlen)
+{
+	char *cmdline;
+	int size;
+	int ret;
+
+	/* Move to end of buffer */
+	size = strlen(buf) + 1;
+	cmdline = buf + maxlen - size;
+	if (buf + size > cmdline)
+		return -ENOSPC;
+	memmove(cmdline, buf, size);
+
+	ret = cli_simple_process_macros(cmdline, buf, cmdline - buf);
+
+	return ret;
+}
+
+int bootm_process_cmdline(char *buf, int maxlen, int flags)
+{
+	int ret;
+
+	/* Check config first to enable compiler to eliminate code */
+	if (IS_ENABLED(CONFIG_SILENT_CONSOLE) &&
+	    !IS_ENABLED(CONFIG_SILENT_U_BOOT_ONLY) &&
+	    (flags & BOOTM_CL_SILENT)) {
+		ret = fixup_silent_linux(buf, maxlen);
+		if (ret)
+			return log_msg_ret("silent", ret);
+	}
+	if (IS_ENABLED(CONFIG_BOOTARGS_SUBST) && (flags & BOOTM_CL_SUBST)) {
+		ret = process_subst(buf, maxlen);
+		if (ret)
+			return log_msg_ret("silent", ret);
 	}
 
-	env_set("bootargs", env_val);
-	debug("after silent fix-up: %s\n", env_val);
-	free(buf);
+	return 0;
 }
-#endif /* CONFIG_SILENT_CONSOLE */
+
+int bootm_process_cmdline_env(int flags)
+{
+	const int maxlen = MAX_CMDLINE_SIZE;
+	bool do_silent;
+	const char *env;
+	char *buf;
+	int ret;
+
+	/* First check if any action is needed */
+	do_silent = IS_ENABLED(CONFIG_SILENT_CONSOLE) &&
+	    !IS_ENABLED(CONFIG_SILENT_U_BOOT_ONLY) && (flags & BOOTM_CL_SILENT);
+	if (!do_silent && !IS_ENABLED(CONFIG_BOOTARGS_SUBST))
+		return 0;
+
+	env = env_get("bootargs");
+	if (env && strlen(env) >= maxlen)
+		return -E2BIG;
+	buf = malloc(maxlen);
+	if (!buf)
+		return -ENOMEM;
+	if (env)
+		strcpy(buf, env);
+	else
+		*buf = '\0';
+	ret = bootm_process_cmdline(buf, maxlen, flags);
+	if (!ret) {
+		ret = env_set("bootargs", buf);
+
+		/*
+		 * If buf is "" and bootargs does not exist, this will produce
+		 * an error trying to delete bootargs. Ignore it
+		 */
+		if (ret == -ENOENT)
+			ret = 0;
+	}
+	free(buf);
+	if (ret)
+		return log_msg_ret("env", ret);
+
+	return 0;
+}
 
 /**
  * Execute selected states of the bootm command.
@@ -627,10 +735,12 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (!ret && (states & BOOTM_STATE_OS_BD_T))
 		ret = boot_fn(BOOTM_STATE_OS_BD_T, argc, argv, images);
 	if (!ret && (states & BOOTM_STATE_OS_PREP)) {
-#if defined(CONFIG_SILENT_CONSOLE) && !defined(CONFIG_SILENT_U_BOOT_ONLY)
-		if (images->os.os == IH_OS_LINUX)
-			fixup_silent_linux();
-#endif
+		ret = bootm_process_cmdline_env(images->os.os == IH_OS_LINUX);
+		if (ret) {
+			printf("Cmdline setup failed (err=%d)\n", ret);
+			ret = CMD_RET_FAILURE;
+			goto err;
+		}
 		ret = boot_fn(BOOTM_STATE_OS_PREP, argc, argv, images);
 	}
 

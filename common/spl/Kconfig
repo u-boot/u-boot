@@ -1276,6 +1276,15 @@ config SPL_ATF
 	  is loaded by SPL (which is considered as BL2 in ATF terminology).
 	  More detail at: https://github.com/ARM-software/arm-trusted-firmware
 
+config SPL_ATF_LOAD_IMAGE_V2
+	bool "Use the new LOAD_IMAGE_V2 parameter passing"
+	depends on SPL_ATF
+	help
+	  Some platforms use the newer LOAD_IMAGE_V2 parameter passing.
+
+	  If you want to load a bl31 image from the SPL and need the new
+	  method, say Y.
+
 config SPL_ATF_NO_PLATFORM_PARAM
         bool "Pass no platform parameter"
 	depends on SPL_ATF
