@@ -155,7 +155,7 @@ HOSTCFLAGS_kwbimage.o += -DCONFIG_KWB_SECURE
 endif
 
 # MXSImage needs LibSSL
-ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_ARMADA_38X)$(CONFIG_ARMADA_39X)$(CONFIG_FIT_SIGNATURE),)
+ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_ARMADA_38X)$(CONFIG_ARMADA_39X)$(CONFIG_FIT_SIGNATURE)$(CONFIG_FIT_CIPHER),)
 HOSTCFLAGS_kwbimage.o += \
 	$(shell pkg-config --cflags libssl libcrypto 2> /dev/null || echo "")
 HOSTLDLIBS_mkimage += \
