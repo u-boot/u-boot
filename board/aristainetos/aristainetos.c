@@ -27,6 +27,7 @@
 #include <bmp_logo.h>
 #include <dm/root.h>
 #include <env.h>
+#include <env_internal.h>
 #include <i2c_eeprom.h>
 #include <i2c.h>
 #include <micrel.h>
@@ -194,87 +195,6 @@ static void enable_lvds(struct display_info_t const *dev)
 	writel(reg, &iomux->gpr[3]);
 }
 
-static void enable_spi_display(struct display_info_t const *dev)
-{
-	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
-	int reg;
-	s32 timeout = 100000;
-
-#if defined(CONFIG_VIDEO_BMP_LOGO)
-	rotate_logo(3);  /* portrait display in landscape mode */
-#endif
-
-	reg = readl(&ccm->cs2cdr);
-
-	/* select pll 5 clock */
-	reg &= ~(MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK
-		| MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK);
-	writel(reg, &ccm->cs2cdr);
-
-	/* set PLL5 to 197994996Hz */
-	reg &= ~BM_ANADIG_PLL_VIDEO_DIV_SELECT;
-	reg |= BF_ANADIG_PLL_VIDEO_DIV_SELECT(0x21);
-	reg &= ~BM_ANADIG_PLL_VIDEO_POST_DIV_SELECT;
-	reg |= BF_ANADIG_PLL_VIDEO_POST_DIV_SELECT(0);
-	writel(reg, &ccm->analog_pll_video);
-
-	writel(BF_ANADIG_PLL_VIDEO_NUM_A(0xfbf4),
-	       &ccm->analog_pll_video_num);
-	writel(BF_ANADIG_PLL_VIDEO_DENOM_B(0xf4240),
-	       &ccm->analog_pll_video_denom);
-
-	reg &= ~BM_ANADIG_PLL_VIDEO_POWERDOWN;
-	writel(reg, &ccm->analog_pll_video);
-
-	while (timeout--)
-		if (readl(&ccm->analog_pll_video) & BM_ANADIG_PLL_VIDEO_LOCK)
-			break;
-	if (timeout < 0)
-		printf("Warning: video pll lock timeout!\n");
-
-	reg = readl(&ccm->analog_pll_video);
-	reg |= BM_ANADIG_PLL_VIDEO_ENABLE;
-	reg &= ~BM_ANADIG_PLL_VIDEO_BYPASS;
-	writel(reg, &ccm->analog_pll_video);
-
-	/* set LDB0, LDB1 clk select to 000/000 (PLL5 clock) */
-	reg = readl(&ccm->cs2cdr);
-	reg &= ~(MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK
-		 | MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK);
-	reg |= (0 << MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET)
-		| (0 << MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET);
-	writel(reg, &ccm->cs2cdr);
-
-	reg = readl(&ccm->cscmr2);
-	reg |= MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV;
-	writel(reg, &ccm->cscmr2);
-
-	reg = readl(&ccm->chsccdr);
-	reg |= (CHSCCDR_CLK_SEL_LDB_DI0
-		<< MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
-	reg &= ~MXC_CCM_CHSCCDR_IPU1_DI0_PODF_MASK;
-	reg |= (2 << MXC_CCM_CHSCCDR_IPU1_DI0_PODF_OFFSET);
-	reg &= ~MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_MASK;
-	reg |= (2 << MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_OFFSET);
-	writel(reg, &ccm->chsccdr);
-
-	reg = IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES
-	      | IOMUXC_GPR2_DI1_VS_POLARITY_ACTIVE_HIGH
-	      | IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_HIGH
-	      | IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG
-	      | IOMUXC_GPR2_DATA_WIDTH_CH0_24BIT
-	      | IOMUXC_GPR2_LVDS_CH1_MODE_DISABLED
-	      | IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0;
-	writel(reg, &iomux->gpr[2]);
-
-	reg = readl(&iomux->gpr[3]);
-	reg = (reg & ~IOMUXC_GPR3_LVDS0_MUX_CTL_MASK)
-	       | (IOMUXC_GPR3_MUX_SRC_IPU1_DI0
-		  << IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);
-	writel(reg, &iomux->gpr[3]);
-}
-
 static void setup_display(void)
 {
 	enable_ipu_clock();
@@ -331,24 +251,35 @@ static void setup_board_gpio(void)
 	setup_one_led("led_blue", LEDST_OFF);
 }
 
-#define ARI_RESC_FMT "setenv rescue_reason setenv bootargs \\${bootargs}" \
-		" rescueReason=%d "
-
 static void aristainetos_run_rescue_command(int reason)
 {
-	char rescue_reason_command[80];
+	char rescue_reason_command[20];
 
-	sprintf(rescue_reason_command, ARI_RESC_FMT, reason);
+	sprintf(rescue_reason_command, "setenv rreason %d", reason);
 	run_command(rescue_reason_command, 0);
 }
 
-static int aristainetos_eeprom(void)
+static int aristainetos_bootmode_settings(void)
 {
+	struct gpio_desc *desc;
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
+	unsigned int sbmr1 = readl(&psrc->sbmr1);
+	char *my_bootdelay;
+	char bootmode = 0;
+	int ret;
 	struct udevice *dev;
 	int off;
-	int ret;
 	u8 data[0x10];
 	u8 rescue_reason;
+
+	/* jumper controlled reset of the environment */
+	ret = gpio_hog_lookup_name("env_reset", &desc);
+	if (!ret) {
+		if (dm_gpio_get_value(desc)) {
+			printf("\nReset u-boot environment (jumper)\n");
+			run_command("run default_env; saveenv; saveenv", 0);
+		}
+	}
 
 	off = fdt_path_offset(gd->fdt_blob, "eeprom0");
 	if (off < 0) {
@@ -366,37 +297,26 @@ static int aristainetos_eeprom(void)
 	if (ret)
 		return ret;
 
-	ret = i2c_eeprom_read(dev, 0x1ff0, (uint8_t *)data, 6);
+	ret = i2c_eeprom_read(dev, 0x1ff0, (uint8_t *)data, sizeof(data));
 	if (ret) {
 		printf("%s: Could not read EEPROM\n", __func__);
 		return ret;
 	}
 
-	if (strncmp((char *)&data[3], "ReScUe", 6) == 0) {
-		rescue_reason = *(uint8_t *)&data[9];
-		memset(&data[3], 0xff, 7);
-		i2c_eeprom_write(dev, 0x1ff0, (uint8_t *)&data[3], 7);
-		printf("\nBooting into Rescue System (EEPROM)\n");
-		aristainetos_run_rescue_command(rescue_reason);
-		run_command("run rescue_load_fit rescueboot", 0);
-	} else if (strncmp((char *)data, "DeF", 3) == 0) {
+	/* software controlled reset of the environment (EEPROM magic) */
+	if (strncmp((char *)data, "DeF", 3) == 0) {
 		memset(data, 0xff, 3);
 		i2c_eeprom_write(dev, 0x1ff0, (uint8_t *)data, 3);
-		printf("\nClear u-boot environment (set back to defaults)\n");
+		printf("\nReset u-boot environment (EEPROM)\n");
 		run_command("run default_env; saveenv; saveenv", 0);
 	}
 
-	return 0;
-};
-
-static void aristainetos_bootmode_settings(void)
-{
-	struct gpio_desc *desc;
-	struct src *psrc = (struct src *)SRC_BASE_ADDR;
-	unsigned int sbmr1 = readl(&psrc->sbmr1);
-	char *my_bootdelay;
-	char bootmode = 0;
-	int ret;
+	if (sbmr1 & 0x40) {
+		env_set("bootmode", "1");
+		printf("SD bootmode jumper set!\n");
+	} else {
+		env_set("bootmode", "0");
+	}
 
 	/*
 	 * Check the boot-source. If booting from NOR Flash,
@@ -420,28 +340,27 @@ static void aristainetos_bootmode_settings(void)
 			env_set("bootdelay", "-2");
 	}
 
-	if (sbmr1 & 0x40) {
-		env_set("bootmode", "1");
-		printf("SD bootmode jumper set!\n");
-	} else {
-		env_set("bootmode", "0");
-	}
-
-	/* read out some jumper values*/
-	ret = gpio_hog_lookup_name("env_reset", &desc);
-	if (!ret) {
-		if (dm_gpio_get_value(desc)) {
-			printf("\nClear env (set back to defaults)\n");
-			run_command("run default_env; saveenv; saveenv", 0);
-		}
-	}
+	/* jumper controlled boot of the rescue system */
 	ret = gpio_hog_lookup_name("boot_rescue", &desc);
 	if (!ret) {
 		if (dm_gpio_get_value(desc)) {
+			printf("\nBooting into Rescue System (jumper)\n");
 			aristainetos_run_rescue_command(16);
 			run_command("run rescue_xload_boot", 0);
 		}
 	}
+
+	/* software controlled boot of the rescue system (EEPROM magic) */
+	if (strncmp((char *)&data[3], "ReScUe", 6) == 0) {
+		rescue_reason = *(uint8_t *)&data[9];
+		memset(&data[3], 0xff, 7);
+		i2c_eeprom_write(dev, 0x1ff0, (uint8_t *)&data[3], 7);
+		printf("\nBooting into Rescue System (EEPROM)\n");
+		aristainetos_run_rescue_command(rescue_reason);
+		run_command("run rescue_xload_boot", 0);
+	}
+
+	return 0;
 }
 
 #if defined(CONFIG_DM_PMIC_DA9063)
@@ -497,15 +416,15 @@ static int setup_pmic_voltages(void)
 int board_late_init(void)
 {
 	int x, y;
+	int ret;
 
 	led_default_state();
 	splash_get_pos(&x, &y);
 	bmp_display((ulong)&bmp_logo_bitmap[0], x, y);
 
-	aristainetos_bootmode_settings();
-
-	/* eeprom work */
-	aristainetos_eeprom();
+	ret = aristainetos_bootmode_settings();
+	if (ret)
+		return ret;
 
 	/* set board_type */
 	if (gd->board_type == BOARD_TYPE_4)
@@ -549,96 +468,8 @@ struct display_info_t const displays[] = {
 			.vmode          = FB_VMODE_NONINTERLACED
 		}
 	}
-#if ((CONFIG_SYS_BOARD_VERSION == 2) || \
-	(CONFIG_SYS_BOARD_VERSION == 3) || \
-	(CONFIG_SYS_BOARD_VERSION == 4) || \
-	(CONFIG_SYS_BOARD_VERSION == 5))
-	, {
-		.bus	= -1,
-		.addr	= 0,
-		.pixfmt	= IPU_PIX_FMT_RGB24,
-		.detect	= NULL,
-		.enable	= enable_spi_display,
-		.mode	= {
-			.name           = "lg4573",
-			.refresh        = 57,
-			.xres           = 480,
-			.yres           = 800,
-			.pixclock       = 37037,
-			.left_margin    = 59,
-			.right_margin   = 10,
-			.upper_margin   = 15,
-			.lower_margin   = 15,
-			.hsync_len      = 10,
-			.vsync_len      = 15,
-			.sync           = FB_SYNC_EXT | FB_SYNC_HOR_HIGH_ACT |
-					  FB_SYNC_VERT_HIGH_ACT,
-			.vmode          = FB_VMODE_NONINTERLACED
-		}
-	}
-#endif
 };
 size_t display_count = ARRAY_SIZE(displays);
-
-#if defined(CONFIG_MTD_RAW_NAND)
-iomux_v3_cfg_t nfc_pads[] = {
-	MX6_PAD_NANDF_CLE__NAND_CLE		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_NANDF_ALE__NAND_ALE		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_NANDF_WP_B__NAND_WP_B	| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_NANDF_RB0__NAND_READY_B	| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_NANDF_CS0__NAND_CE0_B		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_SD4_CMD__NAND_RE_B		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_SD4_CLK__NAND_WE_B		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_NANDF_D0__NAND_DATA00		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_NANDF_D1__NAND_DATA01		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_NANDF_D2__NAND_DATA02		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_NANDF_D3__NAND_DATA03		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_NANDF_D4__NAND_DATA04		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_NANDF_D5__NAND_DATA05		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_NANDF_D6__NAND_DATA06		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_NANDF_D7__NAND_DATA07		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_SD4_DAT0__NAND_DQS		| MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-static void setup_gpmi_nand(void)
-{
-	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
-
-	/* config gpmi nand iomux */
-	imx_iomux_v3_setup_multiple_pads(nfc_pads,
-					 ARRAY_SIZE(nfc_pads));
-
-	/* gate ENFC_CLK_ROOT clock first,before clk source switch */
-	clrbits_le32(&mxc_ccm->CCGR2, MXC_CCM_CCGR2_IOMUX_IPT_CLK_IO_MASK);
-
-	/* config gpmi and bch clock to 100 MHz */
-	clrsetbits_le32(&mxc_ccm->cs2cdr,
-			MXC_CCM_CS2CDR_ENFC_CLK_PODF_MASK |
-			MXC_CCM_CS2CDR_ENFC_CLK_PRED_MASK |
-			MXC_CCM_CS2CDR_ENFC_CLK_SEL_MASK,
-			MXC_CCM_CS2CDR_ENFC_CLK_PODF(0) |
-			MXC_CCM_CS2CDR_ENFC_CLK_PRED(3) |
-			MXC_CCM_CS2CDR_ENFC_CLK_SEL(3));
-
-	/* enable ENFC_CLK_ROOT clock */
-	setbits_le32(&mxc_ccm->CCGR2, MXC_CCM_CCGR2_IOMUX_IPT_CLK_IO_MASK);
-
-	/* enable gpmi and bch clock gating */
-	setbits_le32(&mxc_ccm->CCGR4,
-		     MXC_CCM_CCGR4_RAWNAND_U_BCH_INPUT_APB_MASK |
-		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_BCH_INPUT_BCH_MASK |
-		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_BCH_INPUT_GPMI_IO_MASK |
-		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_INPUT_APB_MASK |
-		     MXC_CCM_CCGR4_PL301_MX6QPER1_BCH_OFFSET);
-
-	/* enable apbh clock gating */
-	setbits_le32(&mxc_ccm->CCGR0, MXC_CCM_CCGR0_APBHDMA_MASK);
-}
-#else
-static void setup_gpmi_nand(void)
-{
-}
-#endif
 
 int board_init(void)
 {
@@ -648,7 +479,6 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 	setup_board_gpio();
-	setup_gpmi_nand();
 	setup_display();
 
 	/* GPIO_1 for USB_OTG_ID */
@@ -698,3 +528,22 @@ int embedded_dtb_select(void)
 	return 0;
 }
 #endif
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	if (op == ENVOP_SAVE || op == ENVOP_ERASE)
+		return ENVL_SPI_FLASH;
+
+	switch (prio) {
+	case 0:
+		return ENVL_NOWHERE;
+
+	case 1:
+		return ENVL_SPI_FLASH;
+
+	default:
+		return ENVL_UNKNOWN;
+	}
+
+	return ENVL_UNKNOWN;
+}

@@ -177,8 +177,6 @@
 #endif
 #endif
 
-#define CONFIG_IMX_THERMAL
-
 #ifndef CONFIG_SPL_BUILD
 #if defined(CONFIG_DM_VIDEO)
 #define CONFIG_VIDEO_MXS

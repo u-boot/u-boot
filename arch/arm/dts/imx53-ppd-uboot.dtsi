@@ -28,7 +28,7 @@
 		#size-cells = <1>;
 
 		vpd@0 {
-			reg = <0 1022>;
+			reg = <0 800>;
 		};
 
 		bootcount: bootcount@1022 {

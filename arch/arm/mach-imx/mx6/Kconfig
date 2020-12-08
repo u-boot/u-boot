@@ -128,41 +128,19 @@ config TARGET_APALIS_IMX6
 	imply CMD_DM
 	imply CMD_SATA
 
-config TARGET_ARISTAINETOS2
-	bool "aristainetos2"
-	depends on MX6DL
-	select BOARD_LATE_INIT
-	select SYS_I2C_MXC
-	select MXC_UART
-	select FEC_MXC
-	select DM
-	imply CMD_SATA
-	imply CMD_DM
-
-config TARGET_ARISTAINETOS2B
-	bool "Support aristainetos2-revB"
-	depends on MX6DL
-	select BOARD_LATE_INIT
-	select SYS_I2C_MXC
-	select MXC_UART
-	select FEC_MXC
-	select DM
-	imply CMD_SATA
-	imply CMD_DM
-
-config TARGET_ARISTAINETOS2BCSL
-	bool "Support aristainetos2-revB CSL"
-	depends on MX6DL
-	select BOARD_LATE_INIT
-	select SYS_I2C_MXC
-	select MXC_UART
-	select FEC_MXC
-	select DM
-	imply CMD_SATA
-	imply CMD_DM
-
 config TARGET_ARISTAINETOS2C
 	bool "Support aristainetos2-revC"
+	depends on MX6DL
+	select BOARD_LATE_INIT
+	select SYS_I2C_MXC
+	select MXC_UART
+	select FEC_MXC
+	select DM
+	imply CMD_SATA
+	imply CMD_DM
+
+config TARGET_ARISTAINETOS2CCSLB
+	bool "Support aristainetos2-revC CSL"
 	depends on MX6DL
 	select BOARD_LATE_INIT
 	select SYS_I2C_MXC

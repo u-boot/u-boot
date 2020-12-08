@@ -760,7 +760,6 @@ static int esdhc_set_timing(struct mmc *mmc)
 	case MMC_HS_400_ES:
 		mixctrl |= MIX_CTRL_DDREN | MIX_CTRL_HS400_EN;
 		esdhc_write32(&regs->mixctrl, mixctrl);
-		esdhc_set_strobe_dll(mmc);
 		break;
 	case MMC_HS:
 	case MMC_HS_52:
@@ -933,6 +932,23 @@ static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 	int ret __maybe_unused;
 	u32 clock;
 
+#ifdef MMC_SUPPORTS_TUNING
+	/*
+	 * call esdhc_set_timing() before update the clock rate,
+	 * This is because current we support DDR and SDR mode,
+	 * Once the DDR_EN bit is set, the card clock will be
+	 * divide by 2 automatically. So need to do this before
+	 * setting clock rate.
+	 */
+	if (priv->mode != mmc->selected_mode) {
+		ret = esdhc_set_timing(mmc);
+		if (ret) {
+			printf("esdhc_set_timing error %d\n", ret);
+			return ret;
+		}
+	}
+#endif
+
 	/* Set the clock speed */
 	clock = mmc->clock;
 	if (clock < mmc->cfg->f_min)
@@ -957,13 +973,13 @@ static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 #endif
 	}
 
-	if (priv->mode != mmc->selected_mode) {
-		ret = esdhc_set_timing(mmc);
-		if (ret) {
-			printf("esdhc_set_timing error %d\n", ret);
-			return ret;
-		}
-	}
+	/*
+	 * For HS400/HS400ES mode, make sure set the strobe dll in the
+	 * target clock rate. So call esdhc_set_strobe_dll() after the
+	 * clock updated.
+	 */
+	if (mmc->selected_mode == MMC_HS_400 || mmc->selected_mode == MMC_HS_400_ES)
+		esdhc_set_strobe_dll(mmc);
 
 	if (priv->signal_voltage != mmc->signal_voltage) {
 		ret = esdhc_set_voltage(mmc);
@@ -1646,6 +1662,20 @@ static int fsl_esdhc_set_enhanced_strobe(struct udevice *dev)
 }
 #endif
 
+static int fsl_esdhc_wait_dat0(struct udevice *dev, int state,
+				int timeout_us)
+{
+	int ret;
+	u32 tmp;
+	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
+	struct fsl_esdhc *regs = priv->esdhc_regs;
+
+	ret = readx_poll_timeout(esdhc_read32, &regs->prsstat, tmp,
+				!!(tmp & PRSSTAT_DAT0) == !!state,
+				timeout_us);
+	return ret;
+}
+
 static const struct dm_mmc_ops fsl_esdhc_ops = {
 	.get_cd		= fsl_esdhc_get_cd,
 	.send_cmd	= fsl_esdhc_send_cmd,
@@ -1656,6 +1686,7 @@ static const struct dm_mmc_ops fsl_esdhc_ops = {
 #if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
 	.set_enhanced_strobe = fsl_esdhc_set_enhanced_strobe,
 #endif
+	.wait_dat0 = fsl_esdhc_wait_dat0,
 };
 #endif
 

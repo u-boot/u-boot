@@ -642,14 +642,8 @@ dtb-$(CONFIG_MX53) += imx53-cx9020.dtb \
 
 ifneq ($(CONFIG_MX6DL)$(CONFIG_MX6QDL)$(CONFIG_MX6S),)
 dtb-y += \
-	imx6dl-aristainetos2_4.dtb \
-	imx6dl-aristainetos2_7.dtb \
-	imx6dl-aristainetos2b_4.dtb \
-	imx6dl-aristainetos2b_7.dtb \
-	imx6dl-aristainetos2b_csl_4.dtb \
-	imx6dl-aristainetos2b_csl_7.dtb \
-	imx6dl-aristainetos2c_4.dtb \
 	imx6dl-aristainetos2c_7.dtb \
+	imx6dl-aristainetos2c_cslb_7.dtb \
 	imx6dl-brppt2.dtb \
 	imx6dl-cubox-i.dtb \
 	imx6dl-cubox-i-emmc-som-v15.dtb \
@@ -767,6 +761,7 @@ dtb-$(CONFIG_ARCH_IMX8) += \
 	imx8qm-rom7720-a1.dtb \
 	fsl-imx8qxp-ai_ml.dtb \
 	fsl-imx8qxp-colibri.dtb \
+	fsl-imx8qxp-apalis.dtb \
 	fsl-imx8qxp-mek.dtb \
 	imx8-deneb.dtb \
 	imx8-giedi.dtb

@@ -23,7 +23,7 @@ branch: imx_5.4.3_2.0.0
 .. code-block:: bash
 
    $ make PLAT=imx8mp bl31
-   $ sudo cp build/imx8mp/release/bl31.bin $(srctree)
+   $ cp build/imx8mp/release/bl31.bin $(srctree)
 
 Get the ddr firmware
 --------------------
@@ -32,11 +32,11 @@ Get the ddr firmware
 
    $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.7.bin
    $ chmod +x firmware-imx-8.7.bin
-   $ ./firmware-imx-8.7
-   $ sudo cp firmware-imx-8.7/firmware/ddr/synopsys/lpddr4_pmu_train_1d_dmem_201904.bin $(srctree)/lpddr4_pmu_train_1d_dmem.bin
-   $ sudo cp firmware-imx-8.7/firmware/ddr/synopsys/lpddr4_pmu_train_1d_imem_201904.bin $(srctree)/lpddr4_pmu_train_1d_imem.bin
-   $ sudo cp firmware-imx-8.7/firmware/ddr/synopsys/lpddr4_pmu_train_2d_dmem_201904.bin $(srctree)/lpddr4_pmu_train_2d_dmem.bin
-   $ sudo cp firmware-imx-8.7/firmware/ddr/synopsys/lpddr4_pmu_train_2d_imem_201904.bin $(srctree)/lpddr4_pmu_train_2d_imem.bin
+   $ ./firmware-imx-8.7.bin
+   $ cp firmware-imx-8.7/firmware/ddr/synopsys/lpddr4_pmu_train_1d_dmem_201904.bin $(srctree)/lpddr4_pmu_train_1d_dmem.bin
+   $ cp firmware-imx-8.7/firmware/ddr/synopsys/lpddr4_pmu_train_1d_imem_201904.bin $(srctree)/lpddr4_pmu_train_1d_imem.bin
+   $ cp firmware-imx-8.7/firmware/ddr/synopsys/lpddr4_pmu_train_2d_dmem_201904.bin $(srctree)/lpddr4_pmu_train_2d_dmem.bin
+   $ cp firmware-imx-8.7/firmware/ddr/synopsys/lpddr4_pmu_train_2d_imem_201904.bin $(srctree)/lpddr4_pmu_train_2d_imem.bin
 
 Build U-Boot
 ------------

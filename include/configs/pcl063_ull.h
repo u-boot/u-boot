@@ -69,8 +69,6 @@
 #define CONFIG_MXC_USB_FLAGS		0
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	1
 
-#define CONFIG_IMX_THERMAL
-
 #define ENV_MMC \
 	"mmcdev=" __stringify(MMC_ROOTFS_DEV) "\0" \
 	"mmcpart=" __stringify(MMC_ROOTFS_PART) "\0" \

@@ -146,8 +146,6 @@
 
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 
-#define CONFIG_IMX_THERMAL
-
 #define CONFIG_USBD_HS
 
 /* USB Device Firmware Update support */

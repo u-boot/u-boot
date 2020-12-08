@@ -16,8 +16,6 @@
 
 #define CONFIG_SYS_HZ			1000
 
-#define CONFIG_IMX_THERMAL
-
 /* Physical Memory Map */
 #define CONFIG_SYS_SDRAM_BASE		MMDC0_ARB_BASE_ADDR
 
