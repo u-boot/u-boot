@@ -112,6 +112,21 @@ int fit_parse_subimage(const char *spec, ulong addr_curr,
 }
 #endif /* !USE_HOSTCC */
 
+#ifdef USE_HOSTCC
+/* Host tools use these implementations for Cipher and Signature support */
+static void *host_blob;
+
+void image_set_host_blob(void *blob)
+{
+	host_blob = blob;
+}
+
+void *image_get_host_blob(void)
+{
+	return host_blob;
+}
+#endif /* USE_HOSTCC */
+
 static void fit_get_debug(const void *fit, int noffset,
 		char *prop_name, int err)
 {
