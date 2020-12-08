@@ -890,6 +890,11 @@ int misc_init_r(void)
 
 	setup_environment(gd->fdt_blob);
 
+	return 0;
+}
+
+int board_late_init(void)
+{
 #ifdef CONFIG_USB_ETHER
 	usb_ether_init();
 #endif
