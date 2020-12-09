@@ -134,6 +134,22 @@ config SERIAL_SEARCH_ALL
 
 	  If unsure, say N.
 
+config SERIAL_PROBE_ALL
+	bool "Probe all available serial devices"
+	depends on DM_SERIAL
+	default n
+	help
+	  The serial subsystem only probes for a single serial device,
+	  but does not probe for other remaining serial devices.
+	  With this option set, we make probing and searching for
+	  all available devices optional.
+	  Normally, U-Boot talks to one serial port at a time, but SBSA
+	  compliant UART devices like PL011 require initialization
+	  by firmware and to let the kernel use serial port for sending
+	  and receiving the characters.
+
+	  If unsure, say N.
+
 config SPL_DM_SERIAL
 	bool "Enable Driver Model for serial drivers in SPL"
 	depends on DM_SERIAL && SPL_DM
