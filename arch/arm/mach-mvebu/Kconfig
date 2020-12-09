@@ -299,5 +299,6 @@ config SECURED_MODE_CSK_INDEX
 	depends on SECURED_MODE_IMAGE
 
 source "board/solidrun/clearfog/Kconfig"
+source "board/kobol/helios4/Kconfig"
 
 endif
