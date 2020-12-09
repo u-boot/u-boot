@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
- * Author: Patrick Delaunay <patrick.delaunay@st.com>
+ * Author: Patrick Delaunay <patrick.delaunay@foss.st.com>
  */
 
 #include <common.h>

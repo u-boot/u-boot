@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) STMicroelectronics SA 2017
- * Author(s): Patrice CHOTARD, <patrice.chotard@st.com> for STMicroelectronics.
+ * Author(s): Patrice CHOTARD, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
 #ifndef __STM32_RCC_H_

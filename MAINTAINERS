@@ -385,7 +385,7 @@ F:	drivers/smem/msm_smem.c
 F:	drivers/usb/host/ehci-msm.c
 
 ARM STI
-M:	Patrice Chotard <patrice.chotard@st.com>
+M:	Patrice Chotard <patrice.chotard@foss.st.com>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-stm.git
 F:	arch/arm/mach-sti/
@@ -411,8 +411,8 @@ F:	arch/arm/cpu/arm926ejs/spear/
 F:	arch/arm/include/asm/arch-spear/
 
 ARM STM STM32MP
-M:	Patrick Delaunay <patrick.delaunay@st.com>
-M:	Patrice Chotard <patrice.chotard@st.com>
+M:	Patrick Delaunay <patrick.delaunay@foss.st.com>
+M:	Patrice Chotard <patrice.chotard@foss.st.com>
 L:	uboot-stm32@st-md-mailman.stormreply.com (moderated for non-subscribers)
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-stm.git
 S:	Maintained
