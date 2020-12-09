@@ -5,7 +5,7 @@
 # (C) Copyright 2000-2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-obj-y	:= cpu.o state.o
+obj-y	:= cache.o cpu.o state.o
 extra-y	:= start.o os.o
 extra-$(CONFIG_SANDBOX_SDL)	+= sdl.o
 obj-$(CONFIG_SPL_BUILD)	+= spl.o
