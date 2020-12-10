@@ -133,10 +133,6 @@ efi_status_t efi_init_runtime_supported(void)
 #ifdef CONFIG_EFI_HAVE_RUNTIME_RESET
 	rt_table->runtime_services_supported |= EFI_RT_SUPPORTED_RESET_SYSTEM;
 #endif
-	if (IS_ENABLED(CONFIG_EFI_RUNTIME_UPDATE_CAPSULE))
-		rt_table->runtime_services_supported |=
-			(EFI_RT_SUPPORTED_UPDATE_CAPSULE |
-			 EFI_RT_SUPPORTED_QUERY_CAPSULE_CAPABILITIES);
 
 	ret = efi_install_configuration_table(&efi_rt_properties_table_guid,
 					      rt_table);
