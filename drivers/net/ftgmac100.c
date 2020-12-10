@@ -271,6 +271,28 @@ static int ftgmac100_set_mac(struct ftgmac100_data *priv,
 }
 
 /*
+ * Get MAC address
+ */
+static int ftgmac100_get_mac(struct ftgmac100_data *priv,
+				unsigned char *mac)
+{
+	struct ftgmac100 *ftgmac100 = priv->iobase;
+	unsigned int maddr = readl(&ftgmac100->mac_madr);
+	unsigned int laddr = readl(&ftgmac100->mac_ladr);
+
+	debug("%s(%x %x)\n", __func__, maddr, laddr);
+
+	mac[0] = (maddr >> 8) & 0xff;
+	mac[1] =  maddr & 0xff;
+	mac[2] = (laddr >> 24) & 0xff;
+	mac[3] = (laddr >> 16) & 0xff;
+	mac[4] = (laddr >> 8) & 0xff;
+	mac[5] =  laddr & 0xff;
+
+	return 0;
+}
+
+/*
  * disable transmitter, receiver
  */
 static void ftgmac100_stop(struct udevice *dev)
@@ -511,6 +533,14 @@ static int ftgmac100_write_hwaddr(struct udevice *dev)
 	return ftgmac100_set_mac(priv, pdata->enetaddr);
 }
 
+static int ftgmac_read_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct ftgmac100_data *priv = dev_get_priv(dev);
+
+	return ftgmac100_get_mac(priv, pdata->enetaddr);
+}
+
 static int ftgmac100_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
@@ -570,6 +600,8 @@ static int ftgmac100_probe(struct udevice *dev)
 		dev_err(dev, "Failed to initialize PHY: %d\n", ret);
 		goto out;
 	}
+
+	ftgmac_read_hwaddr(dev);
 
 out:
 	if (ret)
