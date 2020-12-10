@@ -371,10 +371,18 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ESDHC_DETECT_QUIRK ((readb(QIXIS_BASE + QIXIS_STAT_PRES1) & \
 	QIXIS_SDID_MASK) != QIXIS_ESDHC_NO_ADAPTER)
 
+#define COMMON_ENV \
+	"kernelheader_addr_r=0x80200000\0"	\
+	"fdtheader_addr_r=0x80100000\0"		\
+	"kernel_addr_r=0x81000000\0"		\
+	"fdt_addr_r=0x90000000\0"		\
+	"load_addr=0xa0000000\0"
+
 /* Initial environment variables */
 #ifdef CONFIG_NXP_ESBC
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\
+	COMMON_ENV				\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"loadaddr=0x90100000\0"			\
 	"kernel_addr=0x100000\0"		\
@@ -406,6 +414,7 @@ unsigned long get_board_ddr_clk(void);
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\
+	COMMON_ENV				\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"loadaddr=0x90100000\0"			\
 	"kernel_addr=0x100000\0"		\
@@ -467,6 +476,7 @@ unsigned long get_board_ddr_clk(void);
 #if defined(CONFIG_QSPI_BOOT)
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\
+	COMMON_ENV				\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"loadaddr=0x90100000\0"			\
 	"kernel_addr=0x100000\0"		\
@@ -484,6 +494,7 @@ unsigned long get_board_ddr_clk(void);
 #elif defined(CONFIG_SD_BOOT)
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS               \
+	COMMON_ENV				\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"    \
 	"loadaddr=0x90100000\0"                 \
 	"kernel_addr=0x800\0"                \
@@ -501,6 +512,7 @@ unsigned long get_board_ddr_clk(void);
 #else	/* NOR BOOT */
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\
+	COMMON_ENV				\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"loadaddr=0x90100000\0"			\
 	"kernel_addr=0x100000\0"		\
