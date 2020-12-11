@@ -100,6 +100,15 @@ config PHY_BROADCOM
 config PHY_CORTINA
 	bool "Cortina Ethernet PHYs support"
 
+config SYS_CORTINA_NO_FW_UPLOAD
+	bool "Cortina firmware loading support"
+	default n
+	depends on PHY_CORTINA
+	help
+		Cortina phy has provision to store phy firmware in attached dedicated
+		EEPROM. And boards designed with such EEPROM does not require firmware
+		upload.
+
 choice
 	prompt "Location of the Cortina firmware"
 	default SYS_CORTINA_FW_IN_NOR

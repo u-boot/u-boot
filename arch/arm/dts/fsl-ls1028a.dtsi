@@ -2,7 +2,7 @@
 /*
  * NXP ls1028a SOC common device tree source
  *
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  *
  */
 
@@ -91,7 +91,7 @@
 		status = "disabled";
 	};
 
-	pcie@3400000 {
+	pcie1: pcie@3400000 {
 	       compatible = "fsl,ls-pcie", "fsl,ls1028-pcie", "snps,dw-pcie";
 	       reg = <0x00 0x03400000 0x0 0x80000
 		       0x00 0x03480000 0x0 0x40000   /* lut registers */
@@ -107,7 +107,7 @@
 		       0x82000000 0x0 0x40000000 0x80 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
 	};
 
-	pcie@3500000 {
+	pcie2: pcie@3500000 {
 	       compatible = "fsl,ls-pcie", "fsl,ls1028-pcie", "snps,dw-pcie";
 	       reg = <0x00 0x03500000 0x0 0x80000
 		       0x00 0x03580000 0x0 0x40000   /* lut registers */

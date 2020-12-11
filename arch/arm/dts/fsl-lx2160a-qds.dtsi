@@ -2,11 +2,17 @@
 /*
  * NXP LX2160AQDS common device tree source
  *
- * Copyright 2018-2019 NXP
+ * Copyright 2018-2020 NXP
  *
  */
 
 #include "fsl-lx2160a.dtsi"
+
+/ {
+	aliases {
+		spi0 = &fspi;
+	};
+};
 
 &dpmac17 {
 	status = "okay";
@@ -248,6 +254,20 @@
 				reg = <0x51>;
 			};
 		};
+	};
+};
+
+&fspi {
+	status = "okay";
+
+	mt35xu512aba0: flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <50000000>;
+		reg = <0>;
+		spi-rx-bus-width = <8>;
+		spi-tx-bus-width = <1>;
 	};
 };
 

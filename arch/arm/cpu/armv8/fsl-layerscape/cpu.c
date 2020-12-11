@@ -79,6 +79,9 @@ static struct cpu_type cpu_type_list[] = {
 	CPU_TYPE_ENTRY(LX2160A, LX2160A, 16),
 	CPU_TYPE_ENTRY(LX2120A, LX2120A, 12),
 	CPU_TYPE_ENTRY(LX2080A, LX2080A, 8),
+	CPU_TYPE_ENTRY(LX2162A, LX2162A, 16),
+	CPU_TYPE_ENTRY(LX2122A, LX2122A, 12),
+	CPU_TYPE_ENTRY(LX2082A, LX2082A, 8),
 };
 
 #define EARLY_PGTABLE_SIZE 0x5000
@@ -403,7 +406,7 @@ void cpu_name(char *name)
 	for (i = 0; i < ARRAY_SIZE(cpu_type_list); i++)
 		if ((cpu_type_list[i].soc_ver & SVR_WO_E) == ver) {
 			strcpy(name, cpu_type_list[i].name);
-#ifdef CONFIG_ARCH_LX2160A
+#if defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LX2162A)
 			if (IS_C_PROCESSOR(svr))
 				strcat(name, "C");
 #endif
@@ -1229,7 +1232,7 @@ __efi_runtime_data u32 __iomem *rstcr = (u32 *)CONFIG_SYS_FSL_RST_ADDR;
 
 void __efi_runtime reset_cpu(ulong addr)
 {
-#ifdef CONFIG_ARCH_LX2160A
+#if defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LX2162A)
 	/* clear the RST_REQ_MSK and SW_RST_REQ */
 	out_le32(rstcr, 0x0);
 

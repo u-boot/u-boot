@@ -273,7 +273,8 @@ static int ls_pcie_probe(struct udevice *dev)
 
 	pcie_rc->enabled = is_serdes_configured(PCIE_SRDS_PRTCL(pcie->idx));
 	if (!pcie_rc->enabled) {
-		printf("PCIe%d: %s disabled\n", pcie->idx, dev->name);
+		printf("PCIe%d: %s disabled\n", PCIE_SRDS_PRTCL(pcie->idx),
+		       dev->name);
 		return 0;
 	}
 
@@ -313,6 +314,13 @@ static int ls_pcie_probe(struct udevice *dev)
 		return ret;
 	}
 
+	cfg_size = fdt_resource_size(&pcie_rc->cfg_res);
+	if (cfg_size < SZ_8K) {
+		printf("PCIe%d: %s Invalid size(0x%llx) for resource \"config\",expected minimum 0x%x\n",
+		       PCIE_SRDS_PRTCL(pcie->idx), dev->name, (u64)cfg_size, SZ_8K);
+		return 0;
+	}
+
 	/*
 	 * Fix the pcie memory map address and PF control registers address
 	 * for LS2088A series SoCs
@@ -322,7 +330,6 @@ static int ls_pcie_probe(struct udevice *dev)
 	if (svr == SVR_LS2088A || svr == SVR_LS2084A ||
 	    svr == SVR_LS2048A || svr == SVR_LS2044A ||
 	    svr == SVR_LS2081A || svr == SVR_LS2041A) {
-		cfg_size = fdt_resource_size(&pcie_rc->cfg_res);
 		pcie_rc->cfg_res.start = LS2088A_PCIE1_PHYS_ADDR +
 					 LS2088A_PCIE_PHYS_SIZE * pcie->idx;
 		pcie_rc->cfg_res.end = pcie_rc->cfg_res.start + cfg_size;
@@ -342,7 +349,8 @@ static int ls_pcie_probe(struct udevice *dev)
 	      (unsigned long)pcie->ctrl, (unsigned long)pcie_rc->cfg0,
 	      pcie->big_endian);
 
-	printf("PCIe%u: %s %s", pcie->idx, dev->name, "Root Complex");
+	printf("PCIe%u: %s %s", PCIE_SRDS_PRTCL(pcie->idx), dev->name,
+	       "Root Complex");
 	ls_pcie_setup_ctrl(pcie_rc);
 
 	if (!ls_pcie_link_up(pcie)) {

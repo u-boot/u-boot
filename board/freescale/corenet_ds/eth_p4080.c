@@ -367,6 +367,9 @@ int board_eth_init(struct bd_info *bis)
 			};
 			break;
 		case PHY_INTERFACE_MODE_RGMII:
+		case PHY_INTERFACE_MODE_RGMII_TXID:
+		case PHY_INTERFACE_MODE_RGMII_RXID:
+		case PHY_INTERFACE_MODE_RGMII_ID:
 			fm_info_set_phy_address(i, 0);
 			mdio_mux[i] = EMI1_RGMII;
 			fm_info_set_mdio(i,
@@ -434,6 +437,9 @@ int board_eth_init(struct bd_info *bis)
 			};
 			break;
 		case PHY_INTERFACE_MODE_RGMII:
+		case PHY_INTERFACE_MODE_RGMII_TXID:
+		case PHY_INTERFACE_MODE_RGMII_RXID:
+		case PHY_INTERFACE_MODE_RGMII_ID:
 			fm_info_set_phy_address(i, 0);
 			mdio_mux[i] = EMI1_RGMII;
 			fm_info_set_mdio(i,

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  */
 
 #include <common.h>
@@ -484,10 +485,10 @@ int adjust_vdd(ulong vdd_override)
 	u8 vid;
 #endif
 	int vdd_target, vdd_current, vdd_last;
-	int ret, i2caddress;
+	int ret, i2caddress = 0;
 	unsigned long vdd_string_override;
 	char *vdd_string;
-#ifdef CONFIG_ARCH_LX2160A
+#if defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LX2162A)
 	static const u16 vdd[32] = {
 		8250,
 		7875,

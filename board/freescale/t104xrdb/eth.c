@@ -77,6 +77,9 @@ int board_eth_init(struct bd_info *bis)
 			break;
 #endif
 		case PHY_INTERFACE_MODE_RGMII:
+		case PHY_INTERFACE_MODE_RGMII_TXID:
+		case PHY_INTERFACE_MODE_RGMII_RXID:
+		case PHY_INTERFACE_MODE_RGMII_ID:
 			if (FM1_DTSEC4 == i)
 				phy_addr = CONFIG_SYS_RGMII1_PHY_ADDR;
 			if (FM1_DTSEC5 == i)

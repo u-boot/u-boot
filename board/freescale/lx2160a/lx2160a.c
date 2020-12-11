@@ -32,12 +32,13 @@
 #include "../common/vid.h"
 #include <fsl_immap.h>
 #include <asm/arch-fsl-layerscape/fsl_icid.h>
+#include "lx2160a.h"
 
 #ifdef CONFIG_EMC2305
 #include "../common/emc2305.h"
 #endif
 
-#ifdef CONFIG_TARGET_LX2160AQDS
+#if defined(CONFIG_TARGET_LX2160AQDS) || defined(CONFIG_TARGET_LX2162AQDS)
 #define CFG_MUX_I2C_SDHC(reg, value)		((reg & 0x3f) | value)
 #define SET_CFG_MUX1_SDHC1_SDHC(reg)		(reg & 0x3f)
 #define SET_CFG_MUX2_SDHC1_SPI(reg, value)	((reg & 0xcf) | value)
@@ -47,7 +48,7 @@
 #define SDHC1_BASE_PMUX_DSPI			2
 #define SDHC2_BASE_PMUX_DSPI			2
 #define IIC5_PMUX_SPI3				3
-#endif /* CONFIG_TARGET_LX2160AQDS */
+#endif /* CONFIG_TARGET_LX2160AQDS or CONFIG_TARGET_LX2162AQDS */
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -191,7 +192,7 @@ int board_fix_fdt(void *fdt)
 }
 #endif
 
-#if defined(CONFIG_TARGET_LX2160AQDS)
+#if defined(CONFIG_TARGET_LX2160AQDS) || defined(CONFIG_TARGET_LX2162AQDS)
 void esdhc_dspi_status_fixup(void *blob)
 {
 	const char esdhc0_path[] = "/soc/esdhc@2140000";
@@ -259,7 +260,7 @@ void esdhc_dspi_status_fixup(void *blob)
 
 int esdhc_status_fixup(void *blob, const char *compat)
 {
-#if defined(CONFIG_TARGET_LX2160AQDS)
+#if defined(CONFIG_TARGET_LX2160AQDS) || defined(CONFIG_TARGET_LX2162AQDS)
 	/* Enable esdhc and dspi DT nodes based on RCW fields */
 	esdhc_dspi_status_fixup(blob);
 #else
@@ -297,7 +298,7 @@ int checkboard(void)
 	enum boot_src src = get_boot_src();
 	char buf[64];
 	u8 sw;
-#ifdef CONFIG_TARGET_LX2160AQDS
+#if defined(CONFIG_TARGET_LX2160AQDS) || defined(CONFIG_TARGET_LX2162AQDS)
 	int clock;
 	static const char *const freq[] = {"100", "125", "156.25",
 					   "161.13", "322.26", "", "", "",
@@ -306,7 +307,7 @@ int checkboard(void)
 #endif
 
 	cpu_name(buf);
-#ifdef CONFIG_TARGET_LX2160AQDS
+#if defined(CONFIG_TARGET_LX2160AQDS) || defined(CONFIG_TARGET_LX2162AQDS)
 	printf("Board: %s-QDS, ", buf);
 #else
 	printf("Board: %s-RDB, ", buf);
@@ -339,7 +340,13 @@ int checkboard(void)
 			break;
 		}
 	}
-#ifdef CONFIG_TARGET_LX2160AQDS
+#if defined(CONFIG_TARGET_LX2160ARDB)
+	printf("FPGA: v%d.%d\n", QIXIS_READ(scver), QIXIS_READ(tagdata));
+
+	puts("SERDES1 Reference: Clock1 = 161.13MHz Clock2 = 161.13MHz\n");
+	puts("SERDES2 Reference: Clock1 = 100MHz Clock2 = 100MHz\n");
+	puts("SERDES3 Reference: Clock1 = 100MHz Clock2 = 100MHz\n");
+#else
 	printf("FPGA: v%d (%s), build %d",
 	       (int)QIXIS_READ(scver), qixis_read_tag(buf),
 	       (int)qixis_read_minor());
@@ -350,31 +357,27 @@ int checkboard(void)
 	sw = QIXIS_READ(brdcfg[2]);
 	clock = sw >> 4;
 	printf("Clock1 = %sMHz ", freq[clock]);
+#if defined(CONFIG_TARGET_LX2160AQDS)
 	clock = sw & 0x0f;
 	printf("Clock2 = %sMHz", freq[clock]);
-
+#endif
 	sw = QIXIS_READ(brdcfg[3]);
 	puts("\nSERDES2 Reference : ");
 	clock = sw >> 4;
 	printf("Clock1 = %sMHz ", freq[clock]);
 	clock = sw & 0x0f;
-	printf("Clock2 = %sMHz", freq[clock]);
-
+	printf("Clock2 = %sMHz\n", freq[clock]);
+#if defined(CONFIG_TARGET_LX2160AQDS)
 	sw = QIXIS_READ(brdcfg[12]);
-	puts("\nSERDES3 Reference : ");
+	puts("SERDES3 Reference : ");
 	clock = sw >> 4;
 	printf("Clock1 = %sMHz Clock2 = %sMHz\n", freq[clock], freq[clock]);
-#else
-	printf("FPGA: v%d.%d\n", QIXIS_READ(scver), QIXIS_READ(tagdata));
-
-	puts("SERDES1 Reference: Clock1 = 161.13MHz Clock2 = 161.13MHz\n");
-	puts("SERDES2 Reference: Clock1 = 100MHz Clock2 = 100MHz\n");
-	puts("SERDES3 Reference: Clock1 = 100MHz Clock2 = 100MHz\n");
+#endif
 #endif
 	return 0;
 }
 
-#ifdef CONFIG_TARGET_LX2160AQDS
+#if defined(CONFIG_TARGET_LX2160AQDS) || defined(CONFIG_TARGET_LX2162AQDS)
 /*
  * implementation of CONFIG_ESDHC_DETECT_QUIRK Macro.
  */
@@ -562,7 +565,7 @@ int config_board_mux(void)
 
 unsigned long get_board_sys_clk(void)
 {
-#ifdef CONFIG_TARGET_LX2160AQDS
+#if defined(CONFIG_TARGET_LX2160AQDS) || defined(CONFIG_TARGET_LX2162AQDS)
 	u8 sysclk_conf = QIXIS_READ(brdcfg[1]);
 
 	switch (sysclk_conf & 0x03) {
@@ -581,7 +584,7 @@ unsigned long get_board_sys_clk(void)
 
 unsigned long get_board_ddr_clk(void)
 {
-#ifdef CONFIG_TARGET_LX2160AQDS
+#if defined(CONFIG_TARGET_LX2160AQDS) || defined(CONFIG_TARGET_LX2162AQDS)
 	u8 ddrclk_conf = QIXIS_READ(brdcfg[1]);
 
 	switch ((ddrclk_conf & 0x30) >> 4) {

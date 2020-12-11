@@ -9,6 +9,7 @@ SoC overview
 	7. LS2081A
 	8. LX2160A
 	9. LS1028A
+	10. LX2162A
 
 LS1043A
 ---------
@@ -379,3 +380,58 @@ The LS1028A SoC includes the following function and features:
   - Layerscape Trust Architecture
   - Service Processor (SP) provides pre-boot initialization and secure-boot
     capabilities
+
+LX2162A
+--------
+The QorIQ LX2162A processor is built on the Layerscape architecture
+combining sixteen ARM A72 processor cores with advanced, high-performance
+datapath acceleration and network, peripheral interfaces required for
+networking, wireless infrastructure, storage, and general-purpose embedded
+applications.
+
+LX2162A is compliant with the Layerscape Chassis Generation 3.2.
+
+The LX2162A SoC includes the following function and features:
+  Sixteen 32-bit / 64-bit ARM v8 A72 CPUs
+  Cache Coherent Interconnect Fabric (CCN508)
+  One 64-bit 2.9GT/s DDR4 SDRAM memory controllers with ECC.
+  Data path acceleration architecture (DPAA2)
+  12 Serdes lanes at up to 25 GHz
+  Ethernet interfaces
+  Support for 10G-SXGMII (aka USXGMII).
+  Support for SGMII (and 1000Base-KX)
+  Support for XFI (and 10GBase-KR)
+  Support for CAUI2 (50G) and 25G-AUI(25G).
+  Support for XLAUI (and 40GBase-KR4) for 40G.
+  Support for two RGMII parallel interfaces.
+  Energy efficient Ethernet support (802.3az)
+  IEEE 1588 support.
+  High-speed peripheral interfaces
+	One PCIe Gen 3.0 8-lane controllers supporting SR-IOV,
+	Two PCIe Gen 3.0 4-lane controllers.
+	Four serial ATA (SATA 3.0) controllers.
+	One USB 3.0 controllers with integrated PHY
+	Two Enhanced secure digital host controllers
+	Two Controller Area Network (CAN) modules
+	Flexible Serial peripheral interface (FlexSPI) controller.
+	Three Serial peripheral interface (SPI) controllers.
+	Eight I2C Controllers.
+	Four PL011 UARTs supporting two 4-pin UART ports or four 2-pin UART ports.
+	General Purpose IO (GPIO)
+  Support for hardware virtualization and partitioning (ARM MMU-500)
+  Support for GIC (ARM GIC-500)
+  QorIQ platform Trust Architecture 3.0
+  One Secure WatchDog timer and one Non-Secure Watchdog timer.
+  ARM Generic Timer
+  Two Flextimers
+  Debug supporting run control, data acquisition, high-speed trace,
+  performance/event monitoring
+  Thermal Monitor Unit (TMU) with +/- 2C accuracy
+  Support for Voltage ID (VID) for yield improvement
+
+LX2162A SoC has 2 more similar SoC personalities
+1)LX2122A, few difference w.r.t. LX2162A:
+       a) Twelve 64-bit ARM v8 Cortex-A72 CPUs
+
+2)LX2082A, few difference w.r.t. LX2162A:
+       a) Eight 64-bit ARM v8 Cortex-A72 CPUs

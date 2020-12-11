@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014-2015, Freescale Semiconductor, Inc.
- * Copyright 2019 NXP Semiconductors
+ * Copyright 2019-2020 NXP
  *
  * Derived from arch/power/cpu/mpc85xx/speed.c
  */
@@ -180,7 +180,7 @@ int get_clocks(void)
 #ifdef CONFIG_FSL_ESDHC
 #if defined(CONFIG_ARCH_LS1028A) || defined(CONFIG_ARCH_LS1088A)
 	clock = sys_info.freq_cga_m2;
-#elif defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LS2080A)
+#elif defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LX2162A)
 	clock = sys_info.freq_systembus;
 #endif
 	gd->arch.sdhc_per_clk = clock / CONFIG_SYS_FSL_SDHC_CLK_DIV;
