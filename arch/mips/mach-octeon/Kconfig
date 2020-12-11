@@ -55,6 +55,10 @@ config SYS_ICACHE_SIZE
 config SYS_ICACHE_LINE_SIZE
 	default 128
 
+config SYS_PCI_64BIT
+	bool
+	default y
+
 source "board/Marvell/octeon_ebb7304/Kconfig"
 
 endmenu
