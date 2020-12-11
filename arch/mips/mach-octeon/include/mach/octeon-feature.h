@@ -6,6 +6,8 @@
 #ifndef __OCTEON_FEATURE_H__
 #define __OCTEON_FEATURE_H__
 
+#include "cvmx-fuse.h"
+
 /*
  * Octeon models are declared after the macros in octeon-model.h with the
  * suffix _FEATURE. The individual features are declared with the

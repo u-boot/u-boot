@@ -17,13 +17,7 @@
 
 /* Random number generator stuff */
 
-#define CVMX_RNM_CTL_STATUS	0x0001180040000000
 #define CVMX_OCT_DID_RNG	8ULL
-
-static u64 cvmx_build_io_address(u64 major_did, u64 sub_did)
-{
-	return ((0x1ull << 48) | (major_did << 43) | (sub_did << 40));
-}
 
 static u64 cvmx_rng_get_random64(void)
 {
@@ -285,10 +279,10 @@ static int test_dram_byte64(struct ddr_priv *priv, int lmc, u64 p,
 	int node = 0;
 
 	// Force full cacheline write-backs to boost traffic
-	l2c_ctl.u64 = l2c_rd(priv, CVMX_L2C_CTL);
+	l2c_ctl.u64 = l2c_rd(priv, CVMX_L2C_CTL_REL);
 	saved_dissblkdty = l2c_ctl.cn78xx.dissblkdty;
 	l2c_ctl.cn78xx.dissblkdty = 1;
-	l2c_wr(priv, CVMX_L2C_CTL, l2c_ctl.u64);
+	l2c_wr(priv, CVMX_L2C_CTL_REL, l2c_ctl.u64);
 
 	if (octeon_is_cpuid(OCTEON_CN73XX) || octeon_is_cpuid(OCTEON_CNF75XX))
 		kbitno = 18;
@@ -489,9 +483,9 @@ static int test_dram_byte64(struct ddr_priv *priv, int lmc, u64 p,
 	}
 
 	// Restore original setting that could enable partial cacheline writes
-	l2c_ctl.u64 = l2c_rd(priv, CVMX_L2C_CTL);
+	l2c_ctl.u64 = l2c_rd(priv, CVMX_L2C_CTL_REL);
 	l2c_ctl.cn78xx.dissblkdty = saved_dissblkdty;
-	l2c_wr(priv, CVMX_L2C_CTL, l2c_ctl.u64);
+	l2c_wr(priv, CVMX_L2C_CTL_REL, l2c_ctl.u64);
 
 	return errors;
 }
@@ -6315,17 +6309,17 @@ static void lmc_final(struct ddr_priv *priv)
 	lmc_rd(priv, CVMX_LMCX_INT(if_num));
 
 	for (tad = 0; tad < num_tads; tad++) {
-		l2c_wr(priv, CVMX_L2C_TADX_INT(tad),
-		       l2c_rd(priv, CVMX_L2C_TADX_INT(tad)));
+		l2c_wr(priv, CVMX_L2C_TADX_INT_REL(tad),
+		       l2c_rd(priv, CVMX_L2C_TADX_INT_REL(tad)));
 		debug("%-45s : (%d) 0x%08llx\n", "CVMX_L2C_TAD_INT", tad,
-		      l2c_rd(priv, CVMX_L2C_TADX_INT(tad)));
+		      l2c_rd(priv, CVMX_L2C_TADX_INT_REL(tad)));
 	}
 
 	for (mci = 0; mci < num_mcis; mci++) {
-		l2c_wr(priv, CVMX_L2C_MCIX_INT(mci),
-		       l2c_rd(priv, CVMX_L2C_MCIX_INT(mci)));
+		l2c_wr(priv, CVMX_L2C_MCIX_INT_REL(mci),
+		       l2c_rd(priv, CVMX_L2C_MCIX_INT_REL(mci)));
 		debug("%-45s : (%d) 0x%08llx\n", "L2C_MCI_INT", mci,
-		      l2c_rd(priv, CVMX_L2C_MCIX_INT(mci)));
+		      l2c_rd(priv, CVMX_L2C_MCIX_INT_REL(mci)));
 	}
 
 	debug("%-45s : 0x%08llx\n", "LMC_INT",
@@ -9827,7 +9821,7 @@ static void cvmx_dram_address_extract_info(struct ddr_priv *priv, u64 address,
 		address -= ADDRESS_HOLE;
 
 	/* Determine the LMC controllers */
-	l2c_ctl.u64 = l2c_rd(priv, CVMX_L2C_CTL);
+	l2c_ctl.u64 = l2c_rd(priv, CVMX_L2C_CTL_REL);
 
 	/* xbits depends on number of LMCs */
 	xbits = cvmx_dram_get_num_lmc(priv) >> 1;	// 4->2, 2->1, 1->0
