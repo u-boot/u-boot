@@ -321,6 +321,18 @@ config NAND_STM32_FMC2
 	  The controller supports a maximum 8k page size and supports
 	  a maximum 8-bit correction error per sector of 512 bytes.
 
+config CORTINA_NAND
+	bool "Support for NAND controller on Cortina-Access SoCs"
+	depends on CORTINA_PLATFORM
+	select SYS_NAND_SELF_INIT
+	select DM_MTD
+	imply CMD_NAND
+	help
+	  Enables support for NAND Flash chips on Coartina-Access SoCs platform
+	  This controller is found on Presidio/Venus SoCs.
+	  The controller supports a maximum 8k page size and supports
+	  a maximum 40-bit error correction per sector of 1024 bytes.
+
 comment "Generic NAND options"
 
 config SYS_NAND_BLOCK_SIZE
