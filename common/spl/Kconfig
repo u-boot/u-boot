@@ -186,7 +186,7 @@ config SPL_BOOTROM_SUPPORT
 
 config SPL_BOOTCOUNT_LIMIT
 	bool "Support bootcount in SPL"
-	depends on SPL_ENV_SUPPORT
+	depends on SPL_ENV_SUPPORT && !TPL_BOOTCOUNT_LIMIT
 	help
 	  On some boards, which use 'falcon' mode, it is necessary to check
 	  and increment the number of boot attempts. Such boards do not
@@ -1381,6 +1381,13 @@ config TPL_BOARD_INIT
 	  If this option is enabled, U-Boot will call the function
 	  spl_board_init() from board_init_r(). This function should be
 	  provided by the board.
+
+config TPL_BOOTCOUNT_LIMIT
+	bool "Support bootcount in TPL"
+	depends on TPL_ENV_SUPPORT
+	help
+	  If this option is enabled, the TPL will support bootcount.
+	  For example, it may be useful to choose the device to boot.
 
 config TPL_LDSCRIPT
         string "Linker script for the TPL stage"

@@ -69,7 +69,7 @@ void bootcount_store(ulong);
  */
 ulong bootcount_load(void);
 
-#if defined(CONFIG_SPL_BOOTCOUNT_LIMIT) || defined(CONFIG_BOOTCOUNT_LIMIT)
+#if defined(CONFIG_SPL_BOOTCOUNT_LIMIT) || defined(CONFIG_TPL_BOOTCOUNT_LIMIT) || defined(CONFIG_BOOTCOUNT_LIMIT)
 
 #if !defined(CONFIG_SYS_BOOTCOUNT_LE) && !defined(CONFIG_SYS_BOOTCOUNT_BE)
 # if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -130,7 +130,7 @@ static inline void bootcount_inc(void)
 
 #ifndef CONFIG_SPL_BUILD
 	/* Only increment bootcount when no bootcount support in SPL */
-#ifndef CONFIG_SPL_BOOTCOUNT_LIMIT
+#if !defined(CONFIG_SPL_BOOTCOUNT_LIMIT) && !defined(CONFIG_TPL_BOOTCOUNT_LIMIT)
 	bootcount_store(++bootcount);
 #endif
 	env_set_ulong("bootcount", bootcount);
@@ -140,5 +140,5 @@ static inline void bootcount_inc(void)
 #else
 static inline int bootcount_error(void) { return 0; }
 static inline void bootcount_inc(void) {}
-#endif /* CONFIG_SPL_BOOTCOUNT_LIMIT || CONFIG_BOOTCOUNT_LIMIT */
+#endif /* CONFIG_SPL_BOOTCOUNT_LIMIT || CONFIG_TPL_BOOTCOUNT_LIMIT || CONFIG_BOOTCOUNT_LIMIT */
 #endif /* _BOOTCOUNT_H__ */
