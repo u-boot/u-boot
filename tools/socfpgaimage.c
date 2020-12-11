@@ -274,12 +274,51 @@ static int socfpgaimage_verify_header(unsigned char *ptr, int image_size,
 	return sfp_verify_buffer(ptr);
 }
 
+static void socfpgaimage_print_header_v0(struct socfpga_header_v0 *header)
+{
+	printf("Image Type\t: Cyclone V / Arria V SoC Image\n");
+	printf("Validation word\t: 0x%08x\n",
+	       le32_to_cpu(header->validation));
+	printf("Version\t\t: 0x%08x\n", header->version);
+	printf("Flags\t\t: 0x%08x\n", header->flags);
+	printf("Program length\t: 0x%08x\n",
+	       le16_to_cpu(header->length_u32));
+	printf("Header checksum\t: 0x%08x\n",
+	       le16_to_cpu(header->checksum));
+}
+
+static void socfpgaimage_print_header_v1(struct socfpga_header_v1 *header)
+{
+	printf("Image Type\t: Arria 10 SoC Image\n");
+	printf("Validation word\t: 0x%08x\n",
+	       le32_to_cpu(header->validation));
+	printf("Version\t\t: 0x%08x\n", header->version);
+	printf("Flags\t\t: 0x%08x\n", header->flags);
+	printf("Header length\t: 0x%08x\n",
+	       le16_to_cpu(header->header_u8));
+	printf("Program length\t: 0x%08x\n",
+	       le32_to_cpu(header->length_u8));
+	printf("Program entry\t: 0x%08x\n",
+	       le32_to_cpu(header->entry_offset));
+	printf("Header checksum\t: 0x%08x\n",
+	       le16_to_cpu(header->checksum));
+}
+
 static void socfpgaimage_print_header(const void *ptr)
 {
-	if (sfp_verify_buffer(ptr) == 0)
-		printf("Looks like a sane SOCFPGA preloader\n");
-	else
+	const void *header = ptr + HEADER_OFFSET;
+	struct socfpga_header_v0 *header_v0;
+
+	if (sfp_verify_buffer(ptr) == 0) {
+		header_v0 = (struct socfpga_header_v0 *)header;
+
+		if (header_v0->version == 0)
+			socfpgaimage_print_header_v0(header_v0);
+		else
+			socfpgaimage_print_header_v1((struct socfpga_header_v1 *)header);
+	} else {
 		printf("Not a sane SOCFPGA preloader\n");
+	}
 }
 
 static int socfpgaimage_check_params_v0(struct image_tool_params *params)
