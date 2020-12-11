@@ -200,6 +200,7 @@ F:	drivers/i2c/i2c-cortina.c
 F:	drivers/i2c/i2c-cortina.h
 F:	drivers/mtd/nand/raw/cortina_nand.c
 F:	drivers/mtd/nand/raw/cortina_nand.h
+F:	configs/cortina_presidio-asic-pnand_defconfig
 
 ARM/CZ.NIC TURRIS MOX SUPPORT
 M:	Marek Behun <marek.behun@nic.cz>

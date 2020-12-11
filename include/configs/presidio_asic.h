@@ -67,4 +67,13 @@
 #define CONFIG_SYS_MAXARGS		64
 #define CONFIG_EXTRA_ENV_SETTINGS	"silent=y\0"
 
+/* nand driver parameters */
+#ifdef CONFIG_TARGET_PRESIDIO_ASIC
+	#define CONFIG_SYS_NAND_ONFI_DETECTION
+	#define CONFIG_SYS_MAX_NAND_DEVICE      1
+	#define CONFIG_SYS_NAND_MAX_CHIPS       1
+	#define CONFIG_SYS_NAND_BASE            CONFIG_SYS_FLASH_BASE
+	#define CONFIG_SYS_NAND_BASE_LIST       { CONFIG_SYS_NAND_BASE }
+#endif
+
 #endif /* __PRESIDIO_ASIC_H */
