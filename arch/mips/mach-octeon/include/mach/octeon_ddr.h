@@ -11,7 +11,7 @@
 #include <linux/delay.h>
 #include <linux/io.h>
 #include <mach/octeon-model.h>
-#include <mach/cvmx/cvmx-lmcx-defs.h>
+#include <mach/cvmx-lmcx-defs.h>
 #include <mach/cvmx-regs.h>
 #include <mach/cvmx-l2c-defs.h>
 
