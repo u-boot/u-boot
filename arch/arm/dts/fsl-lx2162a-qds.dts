@@ -13,22 +13,20 @@
 / {
 	model = "NXP Layerscape LX2162AQDS Board";
 	compatible = "fsl,lx2162aqds", "fsl,lx2160a";
-
-	aliases {
-		pcie@3500000 {
-			status = "disabled";
-		};
-
-		pcie@3800000 {
-			status = "disabled";
-		};
-
-		pcie@3900000 {
-			status = "disabled";
-		};
-	};
 };
 
 &usb1 {
+	status = "disabled";
+};
+
+&pcie2 {
+	status = "disabled";
+};
+
+&pcie5 {
+	status = "disabled";
+};
+
+&pcie6 {
 	status = "disabled";
 };
