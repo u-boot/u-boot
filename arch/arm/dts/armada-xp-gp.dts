@@ -31,6 +31,10 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+	aliases {
+		spi0 = &spi0;
+	};
+
 	memory@0 {
 		device_type = "memory";
 		/*
