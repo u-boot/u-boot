@@ -397,14 +397,13 @@ static u8 stm32prog_start(struct stm32prog_data *data, u32 address)
 		if (!dfu_entity)
 			return -ENODEV;
 
-		if (data->dfu_seq) {
-			ret = dfu_flush(dfu_entity, NULL, 0, data->dfu_seq);
-			data->dfu_seq = 0;
-			if (ret) {
-				stm32prog_err("DFU flush failed [%d]", ret);
-				return ret;
-			}
+		ret = dfu_flush(dfu_entity, NULL, 0, data->dfu_seq);
+		if (ret) {
+			stm32prog_err("DFU flush failed [%d]", ret);
+			return ret;
 		}
+		data->dfu_seq = 0;
+
 		printf("\n  received length = 0x%x\n", data->cursor);
 		if (data->header.present) {
 			if (data->cursor !=
