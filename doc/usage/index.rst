@@ -3,6 +3,8 @@ Use U-Boot
 
 .. toctree::
 
+   netconsole
+
 Shell commands
 --------------
 
