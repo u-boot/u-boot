@@ -57,7 +57,9 @@ Generate kernel crash
 ~~~~~~~~~~~~~~~~~~~~~
 
 For test purpose, you can generate a kernel crash by setting reboot timeout to
-10 seconds and trigger a panic::
+10 seconds and trigger a panic
+
+.. code-block:: console
 
     $ sudo sh -c "echo 1 > /proc/sys/kernel/sysrq"
     $ sudo sh -c "echo 10 > /proc/sys/kernel/panic"
