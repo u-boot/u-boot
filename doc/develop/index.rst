@@ -12,3 +12,4 @@ Develop U-Boot
    crash_dumps
    global_data
    logging
+   trace

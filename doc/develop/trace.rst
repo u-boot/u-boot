@@ -1,6 +1,5 @@
-# SPDX-License-Identifier: GPL-2.0+
-#
-# Copyright (c) 2013 The Chromium OS Authors.
+.. SPDX-License-Identifier: GPL-2.0+
+.. Copyright (c) 2013 The Chromium OS Authors.
 
 Tracing in U-Boot
 =================
@@ -33,73 +32,82 @@ this, follow these steps:
 
 Add the following to include/configs/sandbox.h (if not already there)
 
-#define CONFIG_TRACE
-#define CONFIG_CMD_TRACE
-#define CONFIG_TRACE_BUFFER_SIZE		(16 << 20)
-#define CONFIG_TRACE_EARLY_SIZE		(8 << 20)
-#define CONFIG_TRACE_EARLY
-#define CONFIG_TRACE_EARLY_ADDR		0x00100000
+.. code-block:: c
+
+    #define CONFIG_TRACE
+    #define CONFIG_CMD_TRACE
+    #define CONFIG_TRACE_BUFFER_SIZE    (16 << 20)
+    #define CONFIG_TRACE_EARLY_SIZE     (8 << 20)
+    #define CONFIG_TRACE_EARLY
+    #define CONFIG_TRACE_EARLY_ADDR     0x00100000
 
 Build sandbox U-Boot with tracing enabled:
 
-$ make FTRACE=1 O=sandbox sandbox_config
-$ make FTRACE=1 O=sandbox
+.. code-block:: console
+
+    $ make FTRACE=1 O=sandbox sandbox_config
+    $ make FTRACE=1 O=sandbox
 
 Run sandbox, wait for a bit of trace information to appear, and then capture
 a trace:
 
-$ ./sandbox/u-boot
+.. code-block:: console
 
+    $ ./sandbox/u-boot
 
-U-Boot 2013.04-rc2-00100-ga72fcef (Apr 17 2013 - 19:25:24)
+    U-Boot 2013.04-rc2-00100-ga72fcef (Apr 17 2013 - 19:25:24)
 
-DRAM:  128 MiB
-trace: enabled
-Using default environment
+    DRAM:  128 MiB
+    trace: enabled
+    Using default environment
 
-In:    serial
-Out:   serial
-Err:   serial
-=>trace stats
-	671,406 function sites
-	 69,712 function calls
-	      0 untracked function calls
-	 73,373 traced function calls
-	     16 maximum observed call depth
-	     15 call depth limit
-	 66,491 calls not traced due to depth
-=>trace stats
-	671,406 function sites
+    In:    serial
+    Out:   serial
+    Err:   serial
+    =>trace stats
+        671,406 function sites
+         69,712 function calls
+              0 untracked function calls
+         73,373 traced function calls
+             16 maximum observed call depth
+             15 call depth limit
+         66,491 calls not traced due to depth
+    =>trace stats
+        671,406 function sites
       1,279,450 function calls
-	      0 untracked function calls
-	950,490 traced function calls (333217 dropped due to overflow)
-	     16 maximum observed call depth
-	     15 call depth limit
-      1,275,767 calls not traced due to depth
-=>trace calls 0 e00000
-Call list dumped to 00000000, size 0xae0a40
-=>print
-baudrate=115200
-profbase=0
-profoffset=ae0a40
-profsize=e00000
-stderr=serial
-stdin=serial
-stdout=serial
+              0 untracked function calls
+        950,490 traced function calls (333217 dropped due to overflow)
+             16 maximum observed call depth
+             15 call depth limit
+          1,275,767 calls not traced due to depth
+    =>trace calls 0 e00000
+    Call list dumped to 00000000, size 0xae0a40
+    =>print
+    baudrate=115200
+    profbase=0
+    profoffset=ae0a40
+    profsize=e00000
+    stderr=serial
+    stdin=serial
+    stdout=serial
 
-Environment size: 117/8188 bytes
-=>host save host 0 trace 0 ${profoffset}
-11405888 bytes written in 10 ms (1.1 GiB/s)
-=>reset
+    Environment size: 117/8188 bytes
+    =>host save host 0 trace 0 ${profoffset}
+    11405888 bytes written in 10 ms (1.1 GiB/s)
+    =>reset
 
 
-Then run proftool to convert the trace information to ftrace format.
+Then run proftool to convert the trace information to ftrace format
 
-$ ./sandbox/tools/proftool -m sandbox/System.map -p trace dump-ftrace >trace.txt
+.. code-block:: console
 
-Finally run pytimechart to display it:
+    $ ./sandbox/tools/proftool -m sandbox/System.map -p trace dump-ftrace >trace.txt
 
-$ pytimechart trace.txt
+Finally run pytimechart to display it
+
+.. code-block:: console
+
+    $ pytimechart trace.txt
 
 Using this tool you can zoom and pan across the trace, with the function
 calls on the left and little marks representing the start and end of each
@@ -109,31 +117,31 @@ function.
 CONFIG Options
 --------------
 
-- CONFIG_TRACE
-		Enables the trace feature in U-Boot.
+CONFIG_TRACE
+    Enables the trace feature in U-Boot.
 
-- CONFIG_CMD_TRACE
-		Enables the trace command.
+CONFIG_CMD_TRACE
+    Enables the trace command.
 
-- CONFIG_TRACE_BUFFER_SIZE
-		Size of trace buffer to allocate for U-Boot. This buffer is
-		used after relocation, as a place to put function tracing
-		information. The address of the buffer is determined by
-		the relocation code.
+CONFIG_TRACE_BUFFER_SIZE
+    Size of trace buffer to allocate for U-Boot. This buffer is
+    used after relocation, as a place to put function tracing
+    information. The address of the buffer is determined by
+    the relocation code.
 
-- CONFIG_TRACE_EARLY
-		Define this to start tracing early, before relocation.
+CONFIG_TRACE_EARLY
+    Define this to start tracing early, before relocation.
 
-- CONFIG_TRACE_EARLY_SIZE
-		Size of 'early' trace buffer. Before U-Boot has relocated
-		it doesn't have a proper trace buffer. On many boards
-		you can define an area of memory to use for the trace
-		buffer until the 'real' trace buffer is available after
-		relocation. The contents of this buffer are then copied to
-		the real buffer.
+CONFIG_TRACE_EARLY_SIZE
+    Size of 'early' trace buffer. Before U-Boot has relocated
+    it doesn't have a proper trace buffer. On many boards
+    you can define an area of memory to use for the trace
+    buffer until the 'real' trace buffer is available after
+    relocation. The contents of this buffer are then copied to
+    the real buffer.
 
-- CONFIG_TRACE_EARLY_ADDR
-		Address of early trace buffer
+CONFIG_TRACE_EARLY_ADDR
+    Address of early trace buffer
 
 
 Building U-Boot with Tracing Enabled
@@ -191,20 +199,20 @@ Commands
 
 The trace command has variable sub-commands:
 
-- stats
-		Display tracing statistics
+stats
+    Display tracing statistics
 
-- pause
-		Pause tracing
+pause
+    Pause tracing
 
-- resume
-		Resume tracing
+resume
+    Resume tracing
 
-- funclist [<addr> <size>]
-		Dump a list of functions into the buffer
+funclist [<addr> <size>]
+    Dump a list of functions into the buffer
 
-- calls  [<addr> <size>]
-		Dump function call trace into buffer
+calls  [<addr> <size>]
+    Dump function call trace into buffer
 
 If the address and size are not given, these are obtained from environment
 variables (see below). In any case the environment variables are updated
@@ -216,14 +224,14 @@ Environment Variables
 
 The following are used:
 
-- profbase
-		Base address of trace output buffer
+profbase
+    Base address of trace output buffer
 
-- profoffset
-		Offset of first unwritten byte in trace output buffer
+profoffset
+    Offset of first unwritten byte in trace output buffer
 
-- profsize
-		Size of trace output buffer
+profsize
+    Size of trace output buffer
 
 All of these are set by the 'trace calls' command.
 
@@ -231,18 +239,18 @@ These variables keep track of the amount of data written to the trace
 output buffer by the 'trace' command. The trace commands which write data
 to the output buffer can use these to specify the buffer to write to, and
 update profoffset each time. This allows successive commands to append data
-to the same buffer, for example:
+to the same buffer, for example::
 
-	trace funclist 10000 e00000
-	trace calls
+    => trace funclist 10000 e00000
+    => trace calls
 
 (the latter command appends more data to the buffer).
 
 
-- fakegocmd
-		Specifies commands to run just before booting the OS. This
-		is a useful time to write the trace data to the host for
-		processing.
+fakegocmd
+    Specifies commands to run just before booting the OS. This
+    is a useful time to write the trace data to the host for
+    processing.
 
 
 Writing Out Trace Data
@@ -250,11 +258,11 @@ Writing Out Trace Data
 
 Once the trace data is in an output buffer in memory there are various ways
 to transmit it to the host. Notably you can use tftput to send the data
-over a network link:
+over a network link::
 
-fakegocmd=trace pause; usb start; set autoload n; bootp;
-	trace calls 10000000 1000000;
-	tftpput ${profbase} ${profoffset} 192.168.1.4:/tftpboot/calls
+    fakegocmd=trace pause; usb start; set autoload n; bootp;
+    trace calls 10000000 1000000;
+    tftpput ${profbase} ${profoffset} 192.168.1.4:/tftpboot/calls
 
 This starts up USB (to talk to an attached USB Ethernet dongle), writes
 a trace log to address 10000000 and sends it to a host machine using
@@ -272,16 +280,17 @@ This tool must be given the U-Boot map file and the trace data received
 from running that U-Boot. It produces a text output file.
 
 Options
-	-m <map_file>
-		Specify U-Boot map file
 
-	-p <trace_file>
-		Specifiy profile/trace file
+-m <map_file>
+    Specify U-Boot map file
+
+-p <trace_file>
+    Specifiy profile/trace file
 
 Commands:
 
-- dump-ftrace
-	Write a text dump of the file in Linux ftrace format to stdout
+dump-ftrace
+    Write a text dump of the file in Linux ftrace format to stdout
 
 
 Viewing the Trace Data
@@ -301,17 +310,17 @@ The following suggestions may be helpful if you are trying to reduce boot
 time:
 
 1. Enable CONFIG_BOOTSTAGE and CONFIG_BOOTSTAGE_REPORT. This should get
-you are helpful overall snapshot of the boot time.
+   you are helpful overall snapshot of the boot time.
 
 2. Build U-Boot with tracing and run it. Note the difference in boot time
-(it is common for tracing to add 10% to the time)
+   (it is common for tracing to add 10% to the time)
 
 3. Collect the trace information as descibed above. Use this to find where
-all the time is being spent.
+   all the time is being spent.
 
 4. Take a look at that code and see if you can optimise it. Perhaps it is
-possible to speed up the initialisation of a device, or remove an unused
-feature.
+   possible to speed up the initialisation of a device, or remove an unused
+   feature.
 
 5. Rebuild, run and collect again. Compare your results.
 
