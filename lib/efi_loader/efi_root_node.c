@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <efi_dt_fixup.h>
 #include <efi_loader.h>
 
 const efi_guid_t efi_u_boot_guid = U_BOOT_GUID;
@@ -60,6 +61,11 @@ efi_status_t efi_root_node_register(void)
 			 /* Device path utilities protocol */
 			 &efi_guid_device_path_utilities_protocol,
 			 (void *)&efi_device_path_utilities,
+#if !CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)
+			 /* Device-tree fix-up protocol */
+			 &efi_guid_dt_fixup_protocol,
+			 (void *)&efi_dt_fixup_prot,
+#endif
 #if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL2)
 #if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL)
 			 /* Deprecated Unicode collation protocol */

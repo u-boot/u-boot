@@ -8,6 +8,7 @@
 #include <charset.h>
 #include <common.h>
 #include <command.h>
+#include <efi_dt_fixup.h>
 #include <efi_loader.h>
 #include <efi_rng.h>
 #include <exports.h>
@@ -260,6 +261,10 @@ static const struct {
 	{
 		"PXE Base Code",
 		EFI_PXE_BASE_CODE_PROTOCOL_GUID,
+	},
+	{
+		"Device-Tree Fixup",
+		EFI_DT_FIXUP_PROTOCOL_GUID,
 	},
 	/* Configuration table GUIDs */
 	{
