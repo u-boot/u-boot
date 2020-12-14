@@ -28,6 +28,23 @@
 # define CONFIG_SPI_IDLE_VAL 0xFF
 #endif
 
+/**
+ * struct sandbox_spi_priv - Sandbox SPI private data
+ *
+ * Helper struct to keep track of the sandbox SPI bus internal state. It is
+ * used in unit tests to verify that dm spi functions update the bus
+ * speed/mode properly (for instance, when jumping back and forth between spi
+ * slaves claiming the bus, we need to make sure that the bus speed is updated
+ * accordingly for each slave).
+ *
+ * @speed:	Current bus speed.
+ * @mode:	Current bus mode.
+ */
+struct sandbox_spi_priv {
+	uint speed;
+	uint mode;
+};
+
 __weak int sandbox_spi_get_emul(struct sandbox_state *state,
 				struct udevice *bus, struct udevice *slave,
 				struct udevice **emulp)
@@ -90,11 +107,19 @@ static int sandbox_spi_xfer(struct udevice *slave, unsigned int bitlen,
 
 static int sandbox_spi_set_speed(struct udevice *bus, uint speed)
 {
+	struct sandbox_spi_priv *priv = dev_get_priv(bus);
+
+	priv->speed = speed;
+
 	return 0;
 }
 
 static int sandbox_spi_set_mode(struct udevice *bus, uint mode)
 {
+	struct sandbox_spi_priv *priv = dev_get_priv(bus);
+
+	priv->mode = mode;
+
 	return 0;
 }
 
@@ -136,4 +161,5 @@ U_BOOT_DRIVER(sandbox_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = sandbox_spi_ids,
 	.ops	= &sandbox_spi_ops,
+	.priv_auto = sizeof(struct sandbox_spi_priv),
 };
