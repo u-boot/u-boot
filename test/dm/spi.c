@@ -22,7 +22,7 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 	struct sandbox_state *state = state_get_current();
 	struct spi_slave *slave;
 	struct udevice *bus, *dev;
-	const int busnum = 0, cs = 0, mode = 0, speed = 1000000, cs_b = 1;
+	const int busnum = 0, cs = 0, mode = 0, speed = 1000000, cs_b = 2;
 	struct spi_cs_info info;
 	ofnode node;
 

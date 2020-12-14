@@ -101,8 +101,8 @@ static int sandbox_spi_set_mode(struct udevice *bus, uint mode)
 static int sandbox_cs_info(struct udevice *bus, uint cs,
 			   struct spi_cs_info *info)
 {
-	/* Always allow activity on CS 0 */
-	if (cs >= 1)
+	/* Always allow activity on CS 0, CS 1 */
+	if (cs >= 2)
 		return -EINVAL;
 
 	return 0;
