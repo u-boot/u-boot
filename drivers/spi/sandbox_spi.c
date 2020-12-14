@@ -28,22 +28,6 @@
 # define CONFIG_SPI_IDLE_VAL 0xFF
 #endif
 
-const char *sandbox_spi_parse_spec(const char *arg, unsigned long *bus,
-				   unsigned long *cs)
-{
-	char *endp;
-
-	*bus = simple_strtoul(arg, &endp, 0);
-	if (*endp != ':' || *bus >= CONFIG_SANDBOX_SPI_MAX_BUS)
-		return NULL;
-
-	*cs = simple_strtoul(endp + 1, &endp, 0);
-	if (*endp != ':' || *cs >= CONFIG_SANDBOX_SPI_MAX_CS)
-		return NULL;
-
-	return endp + 1;
-}
-
 __weak int sandbox_spi_get_emul(struct sandbox_state *state,
 				struct udevice *bus, struct udevice *slave,
 				struct udevice **emulp)
