@@ -155,11 +155,13 @@ int video_clear(struct udevice *dev);
  * @force:	True to force a sync even if there was one recently (this is
  *		very expensive on sandbox)
  *
+ * @return: 0 always
+ *
  * Some frame buffers are cached or have a secondary frame buffer. This
  * function syncs these up so that the current contents of the U-Boot frame
  * buffer are displayed to the user.
  */
-void video_sync(struct udevice *vid, bool force);
+int video_sync(struct udevice *vid, bool force);
 
 /**
  * video_sync_all() - Sync all devices' frame buffers with there hardware
