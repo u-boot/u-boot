@@ -216,13 +216,13 @@ static int meson_pinconf_bias_set(struct udevice *dev, unsigned int pin,
 	}
 
 	/* othewise, enable the bias and select level */
-	clrsetbits_le32(priv->reg_pullen + reg, BIT(bit), 1);
+	clrsetbits_le32(priv->reg_pullen + reg, BIT(bit), BIT(bit));
 	ret = meson_gpio_calc_reg_and_bit(dev, offset, REG_PULL, &reg, &bit);
 	if (ret)
 		return ret;
 
 	clrsetbits_le32(priv->reg_pull + reg, BIT(bit),
-			param == PIN_CONFIG_BIAS_PULL_UP);
+			(param == PIN_CONFIG_BIAS_PULL_UP ? BIT(bit) : 0));
 
 	return 0;
 }
