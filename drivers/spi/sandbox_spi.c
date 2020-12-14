@@ -52,6 +52,20 @@ __weak int sandbox_spi_get_emul(struct sandbox_state *state,
 	return -ENOENT;
 }
 
+uint sandbox_spi_get_speed(struct udevice *dev)
+{
+	struct sandbox_spi_priv *priv = dev_get_priv(dev);
+
+	return priv->speed;
+}
+
+uint sandbox_spi_get_mode(struct udevice *dev)
+{
+	struct sandbox_spi_priv *priv = dev_get_priv(dev);
+
+	return priv->mode;
+}
+
 static int sandbox_spi_xfer(struct udevice *slave, unsigned int bitlen,
 			    const void *dout, void *din, unsigned long flags)
 {

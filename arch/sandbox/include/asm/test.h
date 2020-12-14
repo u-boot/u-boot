@@ -203,6 +203,22 @@ void sandbox_set_allow_beep(struct udevice *dev, bool allow);
 int sandbox_get_beep_frequency(struct udevice *dev);
 
 /**
+ * sandbox_spi_get_speed() - Get current speed setting of a sandbox spi bus
+ *
+ * @dev: Device to check
+ * @return current bus speed
+ */
+uint sandbox_spi_get_speed(struct udevice *dev);
+
+/**
+ * sandbox_spi_get_mode() - Get current mode setting of a sandbox spi bus
+ *
+ * @dev: Device to check
+ * @return current mode
+ */
+uint sandbox_spi_get_mode(struct udevice *dev);
+
+/**
  * sandbox_get_pch_spi_protect() - Get the PCI SPI protection status
  *
  * @dev: Device to check
