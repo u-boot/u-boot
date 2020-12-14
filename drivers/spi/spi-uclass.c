@@ -153,12 +153,12 @@ int spi_write_then_read(struct spi_slave *slave, const u8 *opcode,
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int spi_child_post_bind(struct udevice *dev)
 {
-	struct dm_spi_slave_platdata *plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
 
 	if (!dev_of_valid(dev))
 		return 0;
 
-	return spi_slave_ofdata_to_platdata(dev, plat);
+	return spi_slave_of_to_plat(dev, plat);
 }
 #endif
 
@@ -197,7 +197,7 @@ static int spi_post_probe(struct udevice *bus)
 
 static int spi_child_pre_probe(struct udevice *dev)
 {
-	struct dm_spi_slave_platdata *plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
 	struct spi_slave *slave = dev_get_parent_priv(dev);
 
 	/*
@@ -218,7 +218,7 @@ static int spi_child_pre_probe(struct udevice *dev)
 
 int spi_chip_select(struct udevice *dev)
 {
-	struct dm_spi_slave_platdata *plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
 
 	return plat ? plat->cs : -ENOENT;
 }
@@ -254,9 +254,9 @@ int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp)
 
 	for (device_find_first_child(bus, &dev); dev;
 	     device_find_next_child(&dev)) {
-		struct dm_spi_slave_platdata *plat;
+		struct dm_spi_slave_plat *plat;
 
-		plat = dev_get_parent_platdata(dev);
+		plat = dev_get_parent_plat(dev);
 		debug("%s: plat=%p, cs=%d\n", __func__, plat, plat->cs);
 		if (plat->cs == cs) {
 			*devp = dev;
@@ -323,7 +323,7 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 		       struct udevice **busp, struct spi_slave **devp)
 {
 	struct udevice *bus, *dev;
-	struct dm_spi_slave_platdata *plat;
+	struct dm_spi_slave_plat *plat;
 	struct spi_slave *slave;
 	bool created = false;
 	int ret;
@@ -353,7 +353,7 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 			      ret);
 			return ret;
 		}
-		plat = dev_get_parent_platdata(dev);
+		plat = dev_get_parent_plat(dev);
 		plat->cs = cs;
 		if (speed) {
 			plat->max_hz = speed;
@@ -431,8 +431,7 @@ void spi_free_slave(struct spi_slave *slave)
 	slave->dev = NULL;
 }
 
-int spi_slave_ofdata_to_platdata(struct udevice *dev,
-				 struct dm_spi_slave_platdata *plat)
+int spi_slave_of_to_plat(struct udevice *dev, struct dm_spi_slave_plat *plat)
 {
 	int mode = 0;
 	int value;
@@ -502,10 +501,9 @@ UCLASS_DRIVER(spi) = {
 #endif
 	.post_probe	= spi_post_probe,
 	.child_pre_probe = spi_child_pre_probe,
-	.per_device_auto_alloc_size = sizeof(struct dm_spi_bus),
-	.per_child_auto_alloc_size = sizeof(struct spi_slave),
-	.per_child_platdata_auto_alloc_size =
-			sizeof(struct dm_spi_slave_platdata),
+	.per_device_auto	= sizeof(struct dm_spi_bus),
+	.per_child_auto	= sizeof(struct spi_slave),
+	.per_child_plat_auto	= sizeof(struct dm_spi_slave_plat),
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.child_post_bind = spi_child_post_bind,
 #endif

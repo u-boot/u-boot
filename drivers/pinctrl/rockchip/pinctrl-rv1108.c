@@ -289,7 +289,7 @@ U_BOOT_DRIVER(pinctrl_rv1108) = {
 	.name           = "pinctrl_rv1108",
 	.id             = UCLASS_PINCTRL,
 	.of_match       = rv1108_pinctrl_ids,
-	.priv_auto_alloc_size = sizeof(struct rockchip_pinctrl_priv),
+	.priv_auto	= sizeof(struct rockchip_pinctrl_priv),
 	.ops            = &rockchip_pinctrl_ops,
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.bind		= dm_scan_fdt_dev,

@@ -223,7 +223,7 @@ U_BOOT_DRIVER(sandbox_codec) = {
 	.id		= UCLASS_AUDIO_CODEC,
 	.of_match	= sandbox_codec_ids,
 	.ops		= &sandbox_codec_ops,
-	.priv_auto_alloc_size	= sizeof(struct sandbox_codec_priv),
+	.priv_auto	= sizeof(struct sandbox_codec_priv),
 };
 
 static const struct i2s_ops sandbox_i2s_ops = {
@@ -241,7 +241,7 @@ U_BOOT_DRIVER(sandbox_i2s) = {
 	.of_match	= sandbox_i2s_ids,
 	.ops		= &sandbox_i2s_ops,
 	.probe		= sandbox_i2s_probe,
-	.priv_auto_alloc_size	= sizeof(struct sandbox_i2s_priv),
+	.priv_auto	= sizeof(struct sandbox_i2s_priv),
 };
 
 static const struct sound_ops sandbox_sound_ops = {
@@ -262,6 +262,6 @@ U_BOOT_DRIVER(sandbox_sound) = {
 	.id		= UCLASS_SOUND,
 	.of_match	= sandbox_sound_ids,
 	.ops		= &sandbox_sound_ops,
-	.priv_auto_alloc_size	= sizeof(struct sandbox_sound_priv),
+	.priv_auto	= sizeof(struct sandbox_sound_priv),
 	.probe		= sandbox_sound_probe,
 };

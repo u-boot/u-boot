@@ -25,7 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int testfdt_drv_ping(struct udevice *dev, int pingval, int *pingret)
 {
-	const struct dm_test_pdata *pdata = dev->platdata;
+	const struct dm_test_pdata *pdata = dev->plat;
 	struct dm_test_priv *priv = dev_get_priv(dev);
 
 	*pingret = pingval + pdata->ping_add;
@@ -38,9 +38,9 @@ static const struct test_ops test_ops = {
 	.ping = testfdt_drv_ping,
 };
 
-static int testfdt_ofdata_to_platdata(struct udevice *dev)
+static int testfdt_of_to_plat(struct udevice *dev)
 {
-	struct dm_test_pdata *pdata = dev_get_platdata(dev);
+	struct dm_test_pdata *pdata = dev_get_plat(dev);
 
 	pdata->ping_add = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					"ping-add", -1);
@@ -83,11 +83,11 @@ U_BOOT_DRIVER(testfdt_drv) = {
 	.name	= "testfdt_drv",
 	.of_match	= testfdt_ids,
 	.id	= UCLASS_TEST_FDT,
-	.ofdata_to_platdata = testfdt_ofdata_to_platdata,
+	.of_to_plat = testfdt_of_to_plat,
 	.probe	= testfdt_drv_probe,
 	.ops	= &test_ops,
-	.priv_auto_alloc_size = sizeof(struct dm_test_priv),
-	.platdata_auto_alloc_size = sizeof(struct dm_test_pdata),
+	.priv_auto	= sizeof(struct dm_test_priv),
+	.plat_auto	= sizeof(struct dm_test_pdata),
 };
 
 static const struct udevice_id testfdt1_ids[] = {
@@ -101,11 +101,11 @@ U_BOOT_DRIVER(testfdt1_drv) = {
 	.name	= "testfdt1_drv",
 	.of_match	= testfdt1_ids,
 	.id	= UCLASS_TEST_FDT,
-	.ofdata_to_platdata = testfdt_ofdata_to_platdata,
+	.of_to_plat = testfdt_of_to_plat,
 	.probe	= testfdt_drv_probe,
 	.ops	= &test_ops,
-	.priv_auto_alloc_size = sizeof(struct dm_test_priv),
-	.platdata_auto_alloc_size = sizeof(struct dm_test_pdata),
+	.priv_auto	= sizeof(struct dm_test_priv),
+	.plat_auto	= sizeof(struct dm_test_pdata),
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
@@ -132,7 +132,7 @@ struct dm_testprobe_pdata {
 
 static int testprobe_drv_probe(struct udevice *dev)
 {
-	struct dm_testprobe_pdata *pdata = dev_get_platdata(dev);
+	struct dm_testprobe_pdata *pdata = dev_get_plat(dev);
 
 	return pdata->probe_err;
 }
@@ -147,7 +147,7 @@ U_BOOT_DRIVER(testprobe_drv) = {
 	.of_match	= testprobe_ids,
 	.id	= UCLASS_TEST_PROBE,
 	.probe	= testprobe_drv_probe,
-	.platdata_auto_alloc_size	= sizeof(struct dm_testprobe_pdata),
+	.plat_auto	= sizeof(struct dm_testprobe_pdata),
 };
 
 UCLASS_DRIVER(testprobe) = {
@@ -167,14 +167,14 @@ struct dm_testdevres_priv {
 
 static int testdevres_drv_bind(struct udevice *dev)
 {
-	struct dm_testdevres_pdata *pdata = dev_get_platdata(dev);
+	struct dm_testdevres_pdata *pdata = dev_get_plat(dev);
 
 	pdata->ptr = devm_kmalloc(dev, TEST_DEVRES_SIZE, 0);
 
 	return 0;
 }
 
-static int testdevres_drv_ofdata_to_platdata(struct udevice *dev)
+static int testdevres_drv_of_to_plat(struct udevice *dev)
 {
 	struct dm_testdevres_priv *priv = dev_get_priv(dev);
 
@@ -202,10 +202,10 @@ U_BOOT_DRIVER(testdevres_drv) = {
 	.of_match	= testdevres_ids,
 	.id	= UCLASS_TEST_DEVRES,
 	.bind	= testdevres_drv_bind,
-	.ofdata_to_platdata	= testdevres_drv_ofdata_to_platdata,
+	.of_to_plat	= testdevres_drv_of_to_plat,
 	.probe	= testdevres_drv_probe,
-	.platdata_auto_alloc_size	= sizeof(struct dm_testdevres_pdata),
-	.priv_auto_alloc_size	= sizeof(struct dm_testdevres_priv),
+	.plat_auto	= sizeof(struct dm_testdevres_pdata),
+	.priv_auto	= sizeof(struct dm_testdevres_priv),
 };
 
 UCLASS_DRIVER(testdevres) = {
@@ -232,7 +232,7 @@ int dm_check_devices(struct unit_test_state *uts, int num_devices)
 
 		/*
 		 * Get the 'ping-expect' property, which tells us what the
-		 * ping add should be. We don't use the platdata because we
+		 * ping add should be. We don't use the plat because we
 		 * want to test the code that sets that up
 		 * (testfdt_drv_probe()).
 		 */
@@ -257,7 +257,7 @@ static int dm_test_fdt(struct unit_test_state *uts)
 	int ret;
 	int i;
 
-	ret = dm_extended_scan_fdt(gd->fdt_blob, false);
+	ret = dm_extended_scan(false);
 	ut_assert(!ret);
 
 	ret = uclass_get(UCLASS_TEST_FDT, &uc);
@@ -271,7 +271,7 @@ static int dm_test_fdt(struct unit_test_state *uts)
 		ret = uclass_find_device(UCLASS_TEST_FDT, i, &dev);
 		ut_assert(!ret);
 		ut_assert(!dev_get_priv(dev));
-		ut_assert(dev->platdata);
+		ut_assert(dev->plat);
 	}
 
 	ut_assertok(dm_check_devices(uts, num_devices));
@@ -308,7 +308,7 @@ static int dm_test_fdt_pre_reloc(struct unit_test_state *uts)
 	struct uclass *uc;
 	int ret;
 
-	ret = dm_scan_fdt(gd->fdt_blob, true);
+	ret = dm_scan_fdt(true);
 	ut_assert(!ret);
 
 	ret = uclass_get(UCLASS_TEST_FDT, &uc);
@@ -445,7 +445,7 @@ static int dm_test_first_next_device(struct unit_test_state *uts)
 
 	/* Remove them and try again, with an error on the second one */
 	ut_assertok(uclass_get_device(UCLASS_TEST_PROBE, 1, &dev));
-	pdata = dev_get_platdata(dev);
+	pdata = dev_get_plat(dev);
 	pdata->probe_err = -ENOMEM;
 	device_remove(parent, DM_REMOVE_NORMAL);
 	ut_assertok(uclass_first_device(UCLASS_TEST_PROBE, &dev));
@@ -454,7 +454,7 @@ static int dm_test_first_next_device(struct unit_test_state *uts)
 
 	/* Now an error on the first one */
 	ut_assertok(uclass_get_device(UCLASS_TEST_PROBE, 0, &dev));
-	pdata = dev_get_platdata(dev);
+	pdata = dev_get_plat(dev);
 	pdata->probe_err = -ENOENT;
 	device_remove(parent, DM_REMOVE_NORMAL);
 	ut_asserteq(-ENOENT, uclass_first_device(UCLASS_TEST_PROBE, &dev));
@@ -541,21 +541,21 @@ static int dm_test_first_next_ok_device(struct unit_test_state *uts)
 	ut_assertok(check_devices(uts, devlist, 0));
 
 	/* Remove them and try again, with an error on the second one */
-	pdata = dev_get_platdata(devlist[1]);
+	pdata = dev_get_plat(devlist[1]);
 	pdata->probe_err = -ENOENT - 1;
 	device_remove(parent, DM_REMOVE_NORMAL);
 	ut_assertok(check_devices(uts, devlist, 1 << 1));
 
 	/* Now an error on the first one */
-	pdata = dev_get_platdata(devlist[0]);
+	pdata = dev_get_plat(devlist[0]);
 	pdata->probe_err = -ENOENT - 0;
 	device_remove(parent, DM_REMOVE_NORMAL);
 	ut_assertok(check_devices(uts, devlist, 3 << 0));
 
 	/* Now errors on all */
-	pdata = dev_get_platdata(devlist[2]);
+	pdata = dev_get_plat(devlist[2]);
 	pdata->probe_err = -ENOENT - 2;
-	pdata = dev_get_platdata(devlist[3]);
+	pdata = dev_get_plat(devlist[3]);
 	pdata->probe_err = -ENOENT - 3;
 	device_remove(parent, DM_REMOVE_NORMAL);
 	ut_assertok(check_devices(uts, devlist, 0xf << 0));
@@ -1062,7 +1062,7 @@ static int dm_test_child_ofdata(struct unit_test_state *uts)
 
 	ut_assertok(uclass_first_device_err(UCLASS_TEST_BUS, &bus));
 	count = 0;
-	device_foreach_child_ofdata_to_platdata(dev, bus) {
+	device_foreach_child_of_to_plat(dev, bus) {
 		ut_assert(dev->flags & DM_FLAG_PLATDATA_VALID);
 		ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
 		count++;
@@ -1106,7 +1106,7 @@ static int dm_test_ofdata_order(struct unit_test_state *uts)
 	ut_assert(!(dev->flags & DM_FLAG_PLATDATA_VALID));
 
 	/* read the child's ofdata which should cause the parent's to be read */
-	ut_assertok(device_ofdata_to_platdata(dev));
+	ut_assertok(device_of_to_plat(dev));
 	ut_assert(dev->flags & DM_FLAG_PLATDATA_VALID);
 	ut_assert(bus->flags & DM_FLAG_PLATDATA_VALID);
 

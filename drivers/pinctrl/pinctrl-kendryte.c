@@ -735,6 +735,6 @@ U_BOOT_DRIVER(pinctrl_k210) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = k210_pc_ids,
 	.probe = k210_pc_probe,
-	.priv_auto_alloc_size = sizeof(struct k210_pc_priv),
+	.priv_auto	= sizeof(struct k210_pc_priv),
 	.ops = &k210_pc_pinctrl_ops,
 };

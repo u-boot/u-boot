@@ -420,7 +420,7 @@ static int ocelot_initialize(struct ocelot_private *priv)
 static int ocelot_write_hwaddr(struct udevice *dev)
 {
 	struct ocelot_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	mscc_mac_table_add(priv->regs[ANA], ocelot_regs_ana_table,
 			   pdata->enetaddr, PGID_UNICAST);
@@ -433,7 +433,7 @@ static int ocelot_write_hwaddr(struct udevice *dev)
 static int ocelot_start(struct udevice *dev)
 {
 	struct ocelot_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const unsigned char mac[ETH_ALEN] = { 0xff, 0xff, 0xff, 0xff, 0xff,
 					      0xff };
 	int ret;
@@ -651,6 +651,6 @@ U_BOOT_DRIVER(ocelot) = {
 	.probe	  = ocelot_probe,
 	.remove	  = ocelot_remove,
 	.ops	  = &ocelot_ops,
-	.priv_auto_alloc_size = sizeof(struct ocelot_private),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct ocelot_private),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

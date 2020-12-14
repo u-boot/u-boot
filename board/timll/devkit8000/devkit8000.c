@@ -47,7 +47,7 @@ static u32 gpmc_net_config[GPMC_MAX_REG] = {
 	0
 };
 
-static const struct ns16550_platdata devkit8000_serial = {
+static const struct ns16550_plat devkit8000_serial = {
 	.base = OMAP34XX_UART3,
 	.reg_shift = 2,
 	.clock = V_NS16550_CLK,

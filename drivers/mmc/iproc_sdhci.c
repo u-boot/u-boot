@@ -172,7 +172,7 @@ struct iproc_sdhci_plat {
 static int iproc_sdhci_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct iproc_sdhci_plat *plat = dev_get_platdata(dev);
+	struct iproc_sdhci_plat *plat = dev_get_plat(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	struct sdhci_iproc_host *iproc_host;
 	int node = dev_of_offset(dev);
@@ -230,7 +230,7 @@ static int iproc_sdhci_probe(struct udevice *dev)
 
 static int iproc_sdhci_bind(struct udevice *dev)
 {
-	struct iproc_sdhci_plat *plat = dev_get_platdata(dev);
+	struct iproc_sdhci_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -247,6 +247,6 @@ U_BOOT_DRIVER(iproc_sdhci_drv) = {
 	.ops = &sdhci_ops,
 	.bind = iproc_sdhci_bind,
 	.probe = iproc_sdhci_probe,
-	.priv_auto_alloc_size = sizeof(struct sdhci_host),
-	.platdata_auto_alloc_size = sizeof(struct iproc_sdhci_plat),
+	.priv_auto	= sizeof(struct sdhci_host),
+	.plat_auto	= sizeof(struct iproc_sdhci_plat),
 };

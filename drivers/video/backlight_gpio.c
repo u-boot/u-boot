@@ -24,7 +24,7 @@ static int gpio_backlight_enable(struct udevice *dev)
 	return 0;
 }
 
-static int gpio_backlight_ofdata_to_platdata(struct udevice *dev)
+static int gpio_backlight_of_to_plat(struct udevice *dev)
 {
 	struct gpio_backlight_priv *priv = dev_get_priv(dev);
 	int ret;
@@ -66,7 +66,7 @@ U_BOOT_DRIVER(gpio_backlight) = {
 	.id	= UCLASS_PANEL_BACKLIGHT,
 	.of_match = gpio_backlight_ids,
 	.ops	= &gpio_backlight_ops,
-	.ofdata_to_platdata	= gpio_backlight_ofdata_to_platdata,
+	.of_to_plat	= gpio_backlight_of_to_plat,
 	.probe		= gpio_backlight_probe,
-	.priv_auto_alloc_size	= sizeof(struct gpio_backlight_priv),
+	.priv_auto	= sizeof(struct gpio_backlight_priv),
 };

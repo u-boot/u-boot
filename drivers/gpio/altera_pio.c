@@ -19,7 +19,7 @@ struct altera_pio_regs {
 	u32	direction;		/* Direction register */
 };
 
-struct altera_pio_platdata {
+struct altera_pio_plat {
 	struct altera_pio_regs *regs;
 	int gpio_count;
 	const char *bank_name;
@@ -27,7 +27,7 @@ struct altera_pio_platdata {
 
 static int altera_pio_direction_input(struct udevice *dev, unsigned pin)
 {
-	struct altera_pio_platdata *plat = dev_get_platdata(dev);
+	struct altera_pio_plat *plat = dev_get_plat(dev);
 	struct altera_pio_regs *const regs = plat->regs;
 
 	clrbits_le32(&regs->direction, 1 << pin);
@@ -38,7 +38,7 @@ static int altera_pio_direction_input(struct udevice *dev, unsigned pin)
 static int altera_pio_direction_output(struct udevice *dev, unsigned pin,
 				     int val)
 {
-	struct altera_pio_platdata *plat = dev_get_platdata(dev);
+	struct altera_pio_plat *plat = dev_get_plat(dev);
 	struct altera_pio_regs *const regs = plat->regs;
 
 	if (val)
@@ -53,7 +53,7 @@ static int altera_pio_direction_output(struct udevice *dev, unsigned pin,
 
 static int altera_pio_get_value(struct udevice *dev, unsigned pin)
 {
-	struct altera_pio_platdata *plat = dev_get_platdata(dev);
+	struct altera_pio_plat *plat = dev_get_plat(dev);
 	struct altera_pio_regs *const regs = plat->regs;
 
 	return !!(readl(&regs->data) & (1 << pin));
@@ -62,7 +62,7 @@ static int altera_pio_get_value(struct udevice *dev, unsigned pin)
 
 static int altera_pio_set_value(struct udevice *dev, unsigned pin, int val)
 {
-	struct altera_pio_platdata *plat = dev_get_platdata(dev);
+	struct altera_pio_plat *plat = dev_get_plat(dev);
 	struct altera_pio_regs *const regs = plat->regs;
 
 	if (val)
@@ -76,7 +76,7 @@ static int altera_pio_set_value(struct udevice *dev, unsigned pin, int val)
 static int altera_pio_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct altera_pio_platdata *plat = dev_get_platdata(dev);
+	struct altera_pio_plat *plat = dev_get_plat(dev);
 
 	uc_priv->gpio_count = plat->gpio_count;
 	uc_priv->bank_name = plat->bank_name;
@@ -84,9 +84,9 @@ static int altera_pio_probe(struct udevice *dev)
 	return 0;
 }
 
-static int altera_pio_ofdata_to_platdata(struct udevice *dev)
+static int altera_pio_of_to_plat(struct udevice *dev)
 {
-	struct altera_pio_platdata *plat = dev_get_platdata(dev);
+	struct altera_pio_plat *plat = dev_get_plat(dev);
 
 	plat->regs = map_physmem(dev_read_addr(dev),
 				 sizeof(struct altera_pio_regs),
@@ -116,7 +116,7 @@ U_BOOT_DRIVER(altera_pio) = {
 	.id		= UCLASS_GPIO,
 	.of_match	= altera_pio_ids,
 	.ops		= &altera_pio_ops,
-	.ofdata_to_platdata = altera_pio_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct altera_pio_platdata),
+	.of_to_plat = altera_pio_of_to_plat,
+	.plat_auto	= sizeof(struct altera_pio_plat),
 	.probe		= altera_pio_probe,
 };

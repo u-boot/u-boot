@@ -84,7 +84,7 @@ static int sfi_write_cpus(struct table_info *tab)
 	for (uclass_find_first_device(UCLASS_CPU, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
-		struct cpu_platdata *plat = dev_get_parent_platdata(dev);
+		struct cpu_plat *plat = dev_get_parent_plat(dev);
 
 		if (!device_active(dev))
 			continue;

@@ -20,7 +20,7 @@ extern struct udevice *rvu_af_dev;
 int rvu_pf_init(struct rvu_pf *rvu)
 {
 	struct nix *nix;
-	struct eth_pdata *pdata = dev_get_platdata(rvu->dev);
+	struct eth_pdata *pdata = dev_get_plat(rvu->dev);
 
 	debug("%s: Allocating nix lf\n", __func__);
 	nix = nix_lf_alloc(rvu->dev);
@@ -104,8 +104,8 @@ U_BOOT_DRIVER(rvu_pf) = {
 	.probe	= rvu_pf_probe,
 	.remove = rvu_pf_remove,
 	.ops    = &nix_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct rvu_pf),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct rvu_pf),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 static struct pci_device_id rvu_pf_supported[] = {

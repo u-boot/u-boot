@@ -89,7 +89,7 @@ struct sifive_otp_regs {
 	u32 pwe;    /* Write enable input (defines program cycle) */
 };
 
-struct sifive_otp_platdata {
+struct sifive_otp_plat {
 	struct sifive_otp_regs __iomem *regs;
 	u32 total_fuses;
 };
@@ -100,7 +100,7 @@ struct sifive_otp_platdata {
 static int sifive_otp_read(struct udevice *dev, int offset,
 			   void *buf, int size)
 {
-	struct sifive_otp_platdata *plat = dev_get_platdata(dev);
+	struct sifive_otp_plat *plat = dev_get_plat(dev);
 	struct sifive_otp_regs *regs = (struct sifive_otp_regs *)plat->regs;
 
 	/* Check if offset and size are multiple of BYTES_PER_FUSE */
@@ -162,7 +162,7 @@ static int sifive_otp_read(struct udevice *dev, int offset,
 static int sifive_otp_write(struct udevice *dev, int offset,
 			    const void *buf, int size)
 {
-	struct sifive_otp_platdata *plat = dev_get_platdata(dev);
+	struct sifive_otp_plat *plat = dev_get_plat(dev);
 	struct sifive_otp_regs *regs = (struct sifive_otp_regs *)plat->regs;
 
 	/* Check if offset and size are multiple of BYTES_PER_FUSE */
@@ -239,9 +239,9 @@ static int sifive_otp_write(struct udevice *dev, int offset,
 	return size;
 }
 
-static int sifive_otp_ofdata_to_platdata(struct udevice *dev)
+static int sifive_otp_of_to_plat(struct udevice *dev)
 {
-	struct sifive_otp_platdata *plat = dev_get_platdata(dev);
+	struct sifive_otp_plat *plat = dev_get_plat(dev);
 	int ret;
 
 	plat->regs = dev_read_addr_ptr(dev);
@@ -269,7 +269,7 @@ U_BOOT_DRIVER(sifive_otp) = {
 	.name = "sifive_otp",
 	.id = UCLASS_MISC,
 	.of_match = sifive_otp_ids,
-	.ofdata_to_platdata = sifive_otp_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct sifive_otp_platdata),
+	.of_to_plat = sifive_otp_of_to_plat,
+	.plat_auto	= sizeof(struct sifive_otp_plat),
 	.ops = &sifive_otp_ops,
 };

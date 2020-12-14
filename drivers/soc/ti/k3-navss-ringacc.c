@@ -1130,5 +1130,5 @@ U_BOOT_DRIVER(k3_navss_ringacc) = {
 	.id	= UCLASS_MISC,
 	.of_match = knav_ringacc_ids,
 	.probe = k3_nav_ringacc_probe,
-	.priv_auto_alloc_size = sizeof(struct k3_nav_ringacc),
+	.priv_auto	= sizeof(struct k3_nav_ringacc),
 };

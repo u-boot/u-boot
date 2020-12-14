@@ -18,7 +18,7 @@ struct clk_fixed_factor {
 };
 
 #define to_clk_fixed_factor(dev)	\
-	((struct clk_fixed_factor *)dev_get_platdata(dev))
+	((struct clk_fixed_factor *)dev_get_plat(dev))
 
 static ulong clk_fixed_factor_get_rate(struct clk *clk)
 {
@@ -38,7 +38,7 @@ const struct clk_ops clk_fixed_factor_ops = {
 	.get_rate = clk_fixed_factor_get_rate,
 };
 
-static int clk_fixed_factor_ofdata_to_platdata(struct udevice *dev)
+static int clk_fixed_factor_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	int err;
@@ -66,7 +66,7 @@ U_BOOT_DRIVER(clk_fixed_factor) = {
 	.name = "fixed_factor_clock",
 	.id = UCLASS_CLK,
 	.of_match = clk_fixed_factor_match,
-	.ofdata_to_platdata = clk_fixed_factor_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct clk_fixed_factor),
+	.of_to_plat = clk_fixed_factor_of_to_plat,
+	.plat_auto	= sizeof(struct clk_fixed_factor),
 	.ops = &clk_fixed_factor_ops,
 };

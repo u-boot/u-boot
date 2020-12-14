@@ -19,7 +19,7 @@
 #include <spl.h>
 #include <asm/itss.h>
 
-struct itss_platdata {
+struct itss_plat {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	/* Put this first since driver model will copy the data here */
 	struct dtd_intel_itss dtplat;
@@ -178,13 +178,13 @@ static int itss_bind(struct udevice *dev)
 	return 0;
 }
 
-static int itss_ofdata_to_platdata(struct udevice *dev)
+static int itss_of_to_plat(struct udevice *dev)
 {
 	struct itss_priv *priv = dev_get_priv(dev);
 	int ret;
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct itss_platdata *plat = dev_get_platdata(dev);
+	struct itss_plat *plat = dev_get_plat(dev);
 	struct dtd_intel_itss *dtplat = &plat->dtplat;
 
 	/*
@@ -241,7 +241,7 @@ U_BOOT_DRIVER(intel_itss) = {
 	.of_match	= itss_ids,
 	.ops		= &itss_ops,
 	.bind		= itss_bind,
-	.ofdata_to_platdata = itss_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct itss_platdata),
-	.priv_auto_alloc_size = sizeof(struct itss_priv),
+	.of_to_plat = itss_of_to_plat,
+	.plat_auto	= sizeof(struct itss_plat),
+	.priv_auto	= sizeof(struct itss_priv),
 };

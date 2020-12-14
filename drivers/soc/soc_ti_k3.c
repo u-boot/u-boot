@@ -22,7 +22,7 @@
 #define JTAG_ID_PARTNO_SHIFT	12
 #define JTAG_ID_PARTNO_MASK	(0xffff << 12)
 
-struct soc_ti_k3_platdata {
+struct soc_ti_k3_plat {
 	const char *family;
 	const char *revision;
 };
@@ -74,7 +74,7 @@ static const char *get_rev_string(u32 idreg)
 
 static int soc_ti_k3_get_family(struct udevice *dev, char *buf, int size)
 {
-	struct soc_ti_k3_platdata *plat = dev_get_platdata(dev);
+	struct soc_ti_k3_plat *plat = dev_get_plat(dev);
 
 	snprintf(buf, size, "%s", plat->family);
 
@@ -83,7 +83,7 @@ static int soc_ti_k3_get_family(struct udevice *dev, char *buf, int size)
 
 static int soc_ti_k3_get_revision(struct udevice *dev, char *buf, int size)
 {
-	struct soc_ti_k3_platdata *plat = dev_get_platdata(dev);
+	struct soc_ti_k3_plat *plat = dev_get_plat(dev);
 
 	snprintf(buf, size, "SR%s", plat->revision);
 
@@ -97,7 +97,7 @@ static const struct soc_ops soc_ti_k3_ops = {
 
 int soc_ti_k3_probe(struct udevice *dev)
 {
-	struct soc_ti_k3_platdata *plat = dev_get_platdata(dev);
+	struct soc_ti_k3_plat *plat = dev_get_plat(dev);
 	u32 idreg;
 	void *idreg_addr;
 
@@ -124,5 +124,5 @@ U_BOOT_DRIVER(soc_ti_k3) = {
 	.ops		= &soc_ti_k3_ops,
 	.of_match       = soc_ti_k3_ids,
 	.probe          = soc_ti_k3_probe,
-	.platdata_auto_alloc_size = sizeof(struct soc_ti_k3_platdata),
+	.plat_auto	= sizeof(struct soc_ti_k3_plat),
 };

@@ -21,7 +21,7 @@ struct sandbox_adder_priv {
 int sandbox_adder_read(struct udevice *dev, ulong address, void *data,
 		       enum axi_size_t size)
 {
-	struct p2sb_child_platdata *pplat = dev_get_parent_platdata(dev);
+	struct p2sb_child_plat *pplat = dev_get_parent_plat(dev);
 	u32 *val = data;
 
 	*val = pplat->pid << 24 | address;
@@ -56,5 +56,5 @@ U_BOOT_DRIVER(adder_sandbox) = {
 	.of_match = sandbox_adder_ids,
 	.probe = sandbox_adder_probe,
 	.ops = &sandbox_adder_ops,
-	.priv_auto_alloc_size = sizeof(struct sandbox_adder_priv),
+	.priv_auto	= sizeof(struct sandbox_adder_priv),
 };

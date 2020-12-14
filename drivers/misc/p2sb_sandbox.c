@@ -35,5 +35,5 @@ U_BOOT_DRIVER(p2sb_sandbox) = {
 	.id = UCLASS_P2SB,
 	.of_match = sandbox_p2sb_ids,
 	.probe = sandbox_p2sb_probe,
-	.priv_auto_alloc_size = sizeof(struct sandbox_p2sb_priv),
+	.priv_auto	= sizeof(struct sandbox_p2sb_priv),
 };

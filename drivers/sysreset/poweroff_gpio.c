@@ -87,6 +87,6 @@ U_BOOT_DRIVER(poweroff_gpio) = {
 	.id		= UCLASS_SYSRESET,
 	.ops		= &poweroff_gpio_ops,
 	.probe		= poweroff_gpio_probe,
-	.priv_auto_alloc_size = sizeof(struct poweroff_gpio_info),
+	.priv_auto	= sizeof(struct poweroff_gpio_info),
 	.of_match	= poweroff_gpio_ids,
 };

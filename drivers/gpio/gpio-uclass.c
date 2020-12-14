@@ -239,9 +239,9 @@ struct gpio_hog_data {
 	u32 val[2];
 };
 
-static int gpio_hog_ofdata_to_platdata(struct udevice *dev)
+static int gpio_hog_of_to_plat(struct udevice *dev)
 {
-	struct gpio_hog_data *plat = dev_get_platdata(dev);
+	struct gpio_hog_data *plat = dev_get_plat(dev);
 	const char *nodename;
 	int ret;
 
@@ -272,7 +272,7 @@ static int gpio_hog_ofdata_to_platdata(struct udevice *dev)
 
 static int gpio_hog_probe(struct udevice *dev)
 {
-	struct gpio_hog_data *plat = dev_get_platdata(dev);
+	struct gpio_hog_data *plat = dev_get_plat(dev);
 	struct gpio_hog_priv *priv = dev_get_priv(dev);
 	int ret;
 
@@ -338,10 +338,10 @@ int gpio_hog_lookup_name(const char *name, struct gpio_desc **desc)
 U_BOOT_DRIVER(gpio_hog) = {
 	.name	= "gpio_hog",
 	.id	= UCLASS_NOP,
-	.ofdata_to_platdata = gpio_hog_ofdata_to_platdata,
+	.of_to_plat = gpio_hog_of_to_plat,
 	.probe = gpio_hog_probe,
-	.priv_auto_alloc_size = sizeof(struct gpio_hog_priv),
-	.platdata_auto_alloc_size = sizeof(struct gpio_hog_data),
+	.priv_auto	= sizeof(struct gpio_hog_priv),
+	.plat_auto	= sizeof(struct gpio_hog_data),
 };
 #else
 int gpio_hog_lookup_name(const char *name, struct gpio_desc **desc)
@@ -1339,5 +1339,5 @@ UCLASS_DRIVER(gpio) = {
 	.post_probe	= gpio_post_probe,
 	.post_bind	= gpio_post_bind,
 	.pre_remove	= gpio_pre_remove,
-	.per_device_auto_alloc_size = sizeof(struct gpio_dev_priv),
+	.per_device_auto	= sizeof(struct gpio_dev_priv),
 };

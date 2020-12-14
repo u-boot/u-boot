@@ -43,7 +43,7 @@ static struct tps62360_regulator_config tps62361_data = {
 
 static int tps62360_regulator_set_value(struct udevice *dev, int uV)
 {
-	struct tps62360_regulator_pdata *pdata = dev_get_platdata(dev);
+	struct tps62360_regulator_pdata *pdata = dev_get_plat(dev);
 	u8 regval;
 
 	if (uV < pdata->config->vmin || uV > pdata->config->vmax)
@@ -66,7 +66,7 @@ static int tps62360_regulator_get_value(struct udevice *dev)
 {
 	u8 regval;
 	int ret;
-	struct tps62360_regulator_pdata *pdata = dev_get_platdata(dev);
+	struct tps62360_regulator_pdata *pdata = dev_get_plat(dev);
 
 	ret = dm_i2c_read(pdata->i2c, TPS62360_REG_SET0 + pdata->vsel_offset,
 			  &regval, 1);
@@ -80,7 +80,7 @@ static int tps62360_regulator_get_value(struct udevice *dev)
 
 static int tps62360_regulator_probe(struct udevice *dev)
 {
-	struct tps62360_regulator_pdata *pdata = dev_get_platdata(dev);
+	struct tps62360_regulator_pdata *pdata = dev_get_plat(dev);
 	u8 vsel0;
 	u8 vsel1;
 	int ret;
@@ -119,6 +119,6 @@ U_BOOT_DRIVER(tps62360_regulator) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &tps62360_regulator_ops,
 	.of_match = tps62360_regulator_ids,
-	.platdata_auto_alloc_size = sizeof(struct tps62360_regulator_pdata),
+	.plat_auto	= sizeof(struct tps62360_regulator_pdata),
 	.probe = tps62360_regulator_probe,
 };

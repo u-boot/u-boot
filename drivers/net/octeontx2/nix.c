@@ -727,7 +727,7 @@ int nix_lf_setup_mac(struct udevice *dev)
 {
 	struct rvu_pf *rvu = dev_get_priv(dev);
 	struct nix *nix = rvu->nix;
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	/* If lower level firmware fails to set proper MAC
 	 * u-boot framework updates MAC to random address.

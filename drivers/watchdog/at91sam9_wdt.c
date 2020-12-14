@@ -117,7 +117,7 @@ U_BOOT_DRIVER(atmel_at91sam9260_wdt) = {
 	.name = "atmel_at91sam9260_wdt",
 	.id = UCLASS_WDT,
 	.of_match = at91_wdt_ids,
-	.priv_auto_alloc_size = sizeof(struct at91_wdt_priv),
+	.priv_auto	= sizeof(struct at91_wdt_priv),
 	.ops = &at91_wdt_ops,
 	.probe = at91_wdt_probe,
 };

@@ -90,7 +90,7 @@ static int timer_post_probe(struct udevice *dev)
 int timer_timebase_fallback(struct udevice *dev)
 {
 	struct udevice *cpu;
-	struct cpu_platdata *cpu_plat;
+	struct cpu_plat *cpu_plat;
 	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	/* Did we get our clock rate from the device tree? */
@@ -103,7 +103,7 @@ int timer_timebase_fallback(struct udevice *dev)
 	if (!cpu)
 		return -ENODEV;
 
-	cpu_plat = dev_get_parent_platdata(cpu);
+	cpu_plat = dev_get_parent_plat(cpu);
 	if (!cpu_plat)
 		return -ENODEV;
 
@@ -176,5 +176,5 @@ UCLASS_DRIVER(timer) = {
 	.pre_probe	= timer_pre_probe,
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_probe	= timer_post_probe,
-	.per_device_auto_alloc_size = sizeof(struct timer_dev_priv),
+	.per_device_auto	= sizeof(struct timer_dev_priv),
 };

@@ -9,6 +9,8 @@
 
 This supports converting device tree data to C structures definitions and
 static data.
+
+See doc/driver-model/of-plat.rst for more informaiton
 """
 
 import collections
@@ -19,9 +21,9 @@ import sys
 
 from dtoc import fdt
 from dtoc import fdt_util
-from patman import tools
 
-# When we see these properties we ignore them - i.e. do not create a structure member
+# When we see these properties we ignore them - i.e. do not create a structure
+# member
 PROP_IGNORE_LIST = [
     '#address-cells',
     '#gpio-cells',
@@ -35,13 +37,13 @@ PROP_IGNORE_LIST = [
     'u-boot,dm-spl',
 ]
 
-# C type declarations for the tyues we support
+# C type declarations for the types we support
 TYPE_NAMES = {
-    fdt.TYPE_INT: 'fdt32_t',
-    fdt.TYPE_BYTE: 'unsigned char',
-    fdt.TYPE_STRING: 'const char *',
-    fdt.TYPE_BOOL: 'bool',
-    fdt.TYPE_INT64: 'fdt64_t',
+    fdt.Type.INT: 'fdt32_t',
+    fdt.Type.BYTE: 'unsigned char',
+    fdt.Type.STRING: 'const char *',
+    fdt.Type.BOOL: 'bool',
+    fdt.Type.INT64: 'fdt64_t',
 }
 
 STRUCT_PREFIX = 'dtd_'
@@ -69,9 +71,9 @@ def conv_name_to_c(name):
     (400ms for 1m calls versus 1000ms for the 're' version).
 
     Args:
-        name:   Name to convert
+        name (str): Name to convert
     Return:
-        String containing the C version of this name
+        str: String containing the C version of this name
     """
     new = name.replace('@', '_at_')
     new = new.replace('-', '_')
@@ -83,11 +85,11 @@ def tab_to(num_tabs, line):
     """Append tabs to a line of text to reach a tab stop.
 
     Args:
-        num_tabs: Tab stop to obtain (0 = column 0, 1 = column 8, etc.)
-        line: Line of text to append to
+        num_tabs (int): Tab stop to obtain (0 = column 0, 1 = column 8, etc.)
+        line (str): Line of text to append to
 
     Returns:
-        line with the correct number of tabs appeneded. If the line already
+        str: line with the correct number of tabs appeneded. If the line already
         extends past that tab stop then a single space is appended.
     """
     if len(line) >= num_tabs * 8:
@@ -103,27 +105,31 @@ def get_value(ftype, value):
     For booleans this return 'true'
 
     Args:
-        type: Data type (fdt_util)
-        value: Data value, as a string of bytes
+        ftype (fdt.Type): Data type (fdt_util)
+        value (bytes): Data value, as a string of bytes
+
+    Returns:
+        str: String representation of the value
     """
-    if ftype == fdt.TYPE_INT:
+    if ftype == fdt.Type.INT:
         return '%#x' % fdt_util.fdt32_to_cpu(value)
-    elif ftype == fdt.TYPE_BYTE:
-        return '%#x' % tools.ToByte(value[0])
-    elif ftype == fdt.TYPE_STRING:
+    elif ftype == fdt.Type.BYTE:
+        char = value[0]
+        return '%#x' % (ord(char) if isinstance(char, str) else char)
+    elif ftype == fdt.Type.STRING:
         # Handle evil ACPI backslashes by adding another backslash before them.
         # So "\\_SB.GPO0" in the device tree effectively stays like that in C
         return '"%s"' % value.replace('\\', '\\\\')
-    elif ftype == fdt.TYPE_BOOL:
+    elif ftype == fdt.Type.BOOL:
         return 'true'
-    elif ftype == fdt.TYPE_INT64:
+    else:  # ftype == fdt.Type.INT64:
         return '%#x' % value
 
 def get_compat_name(node):
     """Get the node's list of compatible string as a C identifiers
 
     Args:
-        node: Node object to check
+        node (fdt.Node): Node object to check
     Return:
         List of C identifiers for all the compatible strings
     """
@@ -157,7 +163,7 @@ class DtbPlatdata(object):
         _drivers_additional: List of additional drivers to use during scanning
     """
     def __init__(self, dtb_fname, include_disabled, warning_disabled,
-                 drivers_additional=[]):
+                 drivers_additional=None):
         self._fdt = None
         self._dtb_fname = dtb_fname
         self._valid_nodes = None
@@ -167,7 +173,7 @@ class DtbPlatdata(object):
         self._lines = []
         self._drivers = []
         self._driver_aliases = {}
-        self._drivers_additional = drivers_additional
+        self._drivers_additional = drivers_additional or []
 
     def get_normalized_compat_name(self, node):
         """Get a node's normalized compat name
@@ -212,7 +218,7 @@ class DtbPlatdata(object):
         file.
 
         Args:
-            fname: Filename to send output to, or '-' for stdout
+            fname (str): Filename to send output to, or '-' for stdout
         """
         if fname == '-':
             self._outfile = sys.stdout
@@ -223,7 +229,7 @@ class DtbPlatdata(object):
         """Output a string to the output file
 
         Args:
-            line: String to output
+            line (str): String to output
         """
         self._outfile.write(line)
 
@@ -231,7 +237,7 @@ class DtbPlatdata(object):
         """Buffer up a string to send later
 
         Args:
-            line: String to add to our 'buffer' list
+            line (str): String to add to our 'buffer' list
         """
         self._lines.append(line)
 
@@ -239,7 +245,7 @@ class DtbPlatdata(object):
         """Get the contents of the output buffer, and clear it
 
         Returns:
-            The output buffer, which is then cleared for future use
+            list(str): The output buffer, which is then cleared for future use
         """
         lines = self._lines
         self._lines = []
@@ -262,9 +268,14 @@ class DtbPlatdata(object):
         or not. As an interim measure, use a list of known property names.
 
         Args:
-            prop: Prop object to check
-        Return:
-            Number of argument cells is this is a phandle, else None
+            prop (fdt.Prop): Prop object to check
+            node_name (str): Node name, only used for raising an error
+        Returns:
+            int or None: Number of argument cells is this is a phandle,
+                else None
+        Raises:
+            ValueError: if the phandle cannot be parsed or the required property
+                is not present
         """
         if prop.name in ['clocks', 'cd-gpios']:
             if not isinstance(prop.value, list):
@@ -293,7 +304,7 @@ class DtbPlatdata(object):
                         break
                 if not cells:
                     raise ValueError("Node '%s' has no cells property" %
-                            (target.name))
+                                     (target.name))
                 num_args = fdt_util.fdt32_to_cpu(cells.value)
                 max_args = max(max_args, num_args)
                 args.append(num_args)
@@ -301,20 +312,20 @@ class DtbPlatdata(object):
             return PhandleInfo(max_args, args)
         return None
 
-    def scan_driver(self, fn):
+    def scan_driver(self, fname):
         """Scan a driver file to build a list of driver names and aliases
 
         This procedure will populate self._drivers and self._driver_aliases
 
         Args
-            fn: Driver filename to scan
+            fname: Driver filename to scan
         """
-        with open(fn, encoding='utf-8') as fd:
+        with open(fname, encoding='utf-8') as inf:
             try:
-                buff = fd.read()
+                buff = inf.read()
             except UnicodeDecodeError:
                 # This seems to happen on older Python versions
-                print("Skipping file '%s' due to unicode error" % fn)
+                print("Skipping file '%s' due to unicode error" % fname)
                 return
 
             # The following re will search for driver names declared as
@@ -326,8 +337,9 @@ class DtbPlatdata(object):
 
             # The following re will search for driver aliases declared as
             # U_BOOT_DRIVER_ALIAS(alias, driver_name)
-            driver_aliases = re.findall('U_BOOT_DRIVER_ALIAS\(\s*(\w+)\s*,\s*(\w+)\s*\)',
-                                        buff)
+            driver_aliases = re.findall(
+                'U_BOOT_DRIVER_ALIAS\(\s*(\w+)\s*,\s*(\w+)\s*\)',
+                buff)
 
             for alias in driver_aliases: # pragma: no cover
                 if len(alias) != 2:
@@ -343,19 +355,19 @@ class DtbPlatdata(object):
         basedir = sys.argv[0].replace('tools/dtoc/dtoc', '')
         if basedir == '':
             basedir = './'
-        for (dirpath, dirnames, filenames) in os.walk(basedir):
-            for fn in filenames:
-                if not fn.endswith('.c'):
+        for (dirpath, _, filenames) in os.walk(basedir):
+            for fname in filenames:
+                if not fname.endswith('.c'):
                     continue
-                self.scan_driver(dirpath + '/' + fn)
+                self.scan_driver(dirpath + '/' + fname)
 
-        for fn in self._drivers_additional:
-            if not isinstance(fn, str) or len(fn) == 0:
+        for fname in self._drivers_additional:
+            if not isinstance(fname, str) or len(fname) == 0:
                 continue
-            if fn[0] == '/':
-                self.scan_driver(fn)
+            if fname[0] == '/':
+                self.scan_driver(fname)
             else:
-                self.scan_driver(basedir + '/' + fn)
+                self.scan_driver(basedir + '/' + fname)
 
     def scan_dtb(self):
         """Scan the device tree to obtain a tree of nodes and properties
@@ -403,7 +415,7 @@ class DtbPlatdata(object):
         """Get the number of cells in addresses and sizes for this node
 
         Args:
-            node: Node to check
+            node (fdt.None): Node to check
 
         Returns:
             Tuple:
@@ -411,15 +423,15 @@ class DtbPlatdata(object):
                 Number of size cells for this node
         """
         parent = node.parent
-        na, ns = 2, 2
+        num_addr, num_size = 2, 2
         if parent:
-            na_prop = parent.props.get('#address-cells')
-            ns_prop = parent.props.get('#size-cells')
-            if na_prop:
-                na = fdt_util.fdt32_to_cpu(na_prop.value)
-            if ns_prop:
-                ns = fdt_util.fdt32_to_cpu(ns_prop.value)
-        return na, ns
+            addr_prop = parent.props.get('#address-cells')
+            size_prop = parent.props.get('#size-cells')
+            if addr_prop:
+                num_addr = fdt_util.fdt32_to_cpu(addr_prop.value)
+            if size_prop:
+                num_size = fdt_util.fdt32_to_cpu(size_prop.value)
+        return num_addr, num_size
 
     def scan_reg_sizes(self):
         """Scan for 64-bit 'reg' properties and update the values
@@ -432,30 +444,31 @@ class DtbPlatdata(object):
             reg = node.props.get('reg')
             if not reg:
                 continue
-            na, ns = self.get_num_cells(node)
-            total = na + ns
+            num_addr, num_size = self.get_num_cells(node)
+            total = num_addr + num_size
 
-            if reg.type != fdt.TYPE_INT:
+            if reg.type != fdt.Type.INT:
                 raise ValueError("Node '%s' reg property is not an int" %
                                  node.name)
             if len(reg.value) % total:
-                raise ValueError("Node '%s' reg property has %d cells "
-                        'which is not a multiple of na + ns = %d + %d)' %
-                        (node.name, len(reg.value), na, ns))
-            reg.na = na
-            reg.ns = ns
-            if na != 1 or ns != 1:
-                reg.type = fdt.TYPE_INT64
+                raise ValueError(
+                    "Node '%s' reg property has %d cells "
+                    'which is not a multiple of na + ns = %d + %d)' %
+                    (node.name, len(reg.value), num_addr, num_size))
+            reg.num_addr = num_addr
+            reg.num_size = num_size
+            if num_addr != 1 or num_size != 1:
+                reg.type = fdt.Type.INT64
                 i = 0
                 new_value = []
                 val = reg.value
                 if not isinstance(val, list):
                     val = [val]
                 while i < len(val):
-                    addr = fdt_util.fdt_cells_to_cpu(val[i:], reg.na)
-                    i += na
-                    size = fdt_util.fdt_cells_to_cpu(val[i:], reg.ns)
-                    i += ns
+                    addr = fdt_util.fdt_cells_to_cpu(val[i:], reg.num_addr)
+                    i += num_addr
+                    size = fdt_util.fdt_cells_to_cpu(val[i:], reg.num_size)
+                    i += num_size
                     new_value += [addr, size]
                 reg.value = new_value
 
@@ -501,14 +514,12 @@ class DtbPlatdata(object):
             else:
                 structs[node_name] = fields
 
-        upto = 0
         for node in self._valid_nodes:
             node_name, _ = self.get_normalized_compat_name(node)
             struct = structs[node_name]
             for name, prop in node.props.items():
                 if name not in PROP_IGNORE_LIST and name[0] != '#':
                     prop.Widen(struct[name])
-            upto += 1
 
         return structs
 
@@ -584,7 +595,7 @@ class DtbPlatdata(object):
         """Output the C code for a node
 
         Args:
-            node: node to output
+            node (fdt.Node): node to output
         """
         def _output_list(node, prop):
             """Output the C code for a devicetree property that holds a list
@@ -601,12 +612,10 @@ class DtbPlatdata(object):
             if info:
                 # Process the list as pairs of (phandle, id)
                 pos = 0
-                item = 0
                 for args in info.args:
                     phandle_cell = prop.value[pos]
                     phandle = fdt_util.fdt32_to_cpu(phandle_cell)
                     target_node = self._fdt.phandle_to_node[phandle]
-                    name = conv_name_to_c(target_node.name)
                     arg_values = []
                     for i in range(args):
                         arg_values.append(
@@ -614,7 +623,6 @@ class DtbPlatdata(object):
                     pos += 1 + args
                     vals.append('\t{%d, {%s}}' % (target_node.idx,
                                                   ', '.join(arg_values)))
-                    item += 1
                 for val in vals:
                     self.buf('\n\t\t%s,' % val)
             else:
@@ -651,8 +659,8 @@ class DtbPlatdata(object):
         # Add a device declaration
         self.buf('U_BOOT_DEVICE(%s) = {\n' % var_name)
         self.buf('\t.name\t\t= "%s",\n' % struct_name)
-        self.buf('\t.platdata\t= &%s%s,\n' % (VAL_PREFIX, var_name))
-        self.buf('\t.platdata_size\t= sizeof(%s%s),\n' % (VAL_PREFIX, var_name))
+        self.buf('\t.plat\t= &%s%s,\n' % (VAL_PREFIX, var_name))
+        self.buf('\t.plat_size\t= sizeof(%s%s),\n' % (VAL_PREFIX, var_name))
         idx = -1
         if node.parent and node.parent in self._valid_nodes:
             idx = node.parent.idx
@@ -702,19 +710,26 @@ class DtbPlatdata(object):
         self.out(''.join(self.get_buf()))
 
 def run_steps(args, dtb_file, include_disabled, output, warning_disabled=False,
-              drivers_additional=[]):
+              drivers_additional=None):
     """Run all the steps of the dtoc tool
 
     Args:
-        args: List of non-option arguments provided to the problem
-        dtb_file: Filename of dtb file to process
-        include_disabled: True to include disabled nodes
-        output: Name of output file
+        args (list): List of non-option arguments provided to the problem
+        dtb_file (str): Filename of dtb file to process
+        include_disabled (bool): True to include disabled nodes
+        output (str): Name of output file
+        warning_disabled (bool): True to avoid showing warnings about missing
+            drivers
+       _drivers_additional (list): List of additional drivers to use during
+            scanning
+    Raises:
+        ValueError: if args has no command, or an unknown command
     """
     if not args:
         raise ValueError('Please specify a command: struct, platdata')
 
-    plat = DtbPlatdata(dtb_file, include_disabled, warning_disabled, drivers_additional)
+    plat = DtbPlatdata(dtb_file, include_disabled, warning_disabled,
+                       drivers_additional)
     plat.scan_drivers()
     plat.scan_dtb()
     plat.scan_tree()

@@ -32,7 +32,7 @@ U_BOOT_DRIVER(imx8mq_pinctrl) = {
 	.of_match = of_match_ptr(imx8m_pinctrl_match),
 	.probe = imx8mq_pinctrl_probe,
 	.remove = imx_pinctrl_remove,
-	.priv_auto_alloc_size = sizeof(struct imx_pinctrl_priv),
+	.priv_auto	= sizeof(struct imx_pinctrl_priv),
 	.ops = &imx_pinctrl_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };

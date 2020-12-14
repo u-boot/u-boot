@@ -150,7 +150,7 @@ U_BOOT_DRIVER(pinctrl_qca953x) = {
 	.name		= "pinctrl_qca953x",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= qca953x_pinctrl_ids,
-	.priv_auto_alloc_size = sizeof(struct qca953x_pinctrl_priv),
+	.priv_auto	= sizeof(struct qca953x_pinctrl_priv),
 	.ops		= &qca953x_pinctrl_ops,
 	.probe		= qca953x_pinctrl_probe,
 };

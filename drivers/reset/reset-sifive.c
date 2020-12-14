@@ -114,5 +114,5 @@ U_BOOT_DRIVER(sifive_reset) = {
 	.id		= UCLASS_RESET,
 	.ops		= &sifive_reset_ops,
 	.probe		= sifive_reset_probe,
-	.priv_auto_alloc_size = sizeof(struct sifive_reset_priv),
+	.priv_auto	= sizeof(struct sifive_reset_priv),
 };

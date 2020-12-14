@@ -19,8 +19,8 @@ struct udevice;
  * device_bind() - Create a device and bind it to a driver
  *
  * Called to set up a new device attached to a driver. The device will either
- * have platdata, or a device tree node which can be used to create the
- * platdata.
+ * have plat, or a device tree node which can be used to create the
+ * plat.
  *
  * Once bound a device exists but is not yet active until device_probe() is
  * called.
@@ -28,21 +28,17 @@ struct udevice;
  * @parent: Pointer to device's parent, under which this driver will exist
  * @drv: Device's driver
  * @name: Name of device (e.g. device tree node name)
- * @platdata: Pointer to data for this device - the structure is device-
+ * @plat: Pointer to data for this device - the structure is device-
  * specific but may include the device's I/O address, etc.. This is NULL for
  * devices which use device tree.
- * @of_offset: Offset of device tree node for this device. This is -1 for
- * devices which don't use device tree.
+ * @ofnode: Devicetree node for this device. This is ofnode_null() for
+ * devices which don't use devicetree or don't have a node.
  * @devp: if non-NULL, returns a pointer to the bound device
  * @return 0 if OK, -ve on error
  */
 int device_bind(struct udevice *parent, const struct driver *drv,
-		const char *name, void *platdata, int of_offset,
+		const char *name, void *plat, ofnode node,
 		struct udevice **devp);
-
-int device_bind_ofnode(struct udevice *parent, const struct driver *drv,
-		       const char *name, void *platdata, ofnode node,
-		       struct udevice **devp);
 
 /**
  * device_bind_with_driver_data() - Create a device and bind it to a driver
@@ -76,7 +72,7 @@ int device_bind_with_driver_data(struct udevice *parent,
  * @parent: Pointer to device's parent
  * @pre_reloc_only: If true, bind the driver only if its DM_FLAG_PRE_RELOC flag
  * is set. If false bind the driver always.
- * @info: Name and platdata for this device
+ * @info: Name and plat for this device
  * @devp: if non-NULL, returns a pointer to the bound device
  * @return 0 if OK, -ve on error
  */
@@ -93,7 +89,7 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 int device_reparent(struct udevice *dev, struct udevice *new_parent);
 
 /**
- * device_ofdata_to_platdata() - Read platform data for a device
+ * device_of_to_plat() - Read platform data for a device
  *
  * Read platform data for a device (typically from the device tree) so that
  * the information needed to probe the device is present.
@@ -106,7 +102,7 @@ int device_reparent(struct udevice *dev, struct udevice *new_parent);
  * @dev: Pointer to device to process
  * @return 0 if OK, -ve on error
  */
-int device_ofdata_to_platdata(struct udevice *dev);
+int device_of_to_plat(struct udevice *dev);
 
 /**
  * device_probe() - Probe a device, activating it

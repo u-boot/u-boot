@@ -644,7 +644,7 @@ static const struct dm_mmc_ops stm32_sdmmc2_ops = {
 static int stm32_sdmmc2_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct stm32_sdmmc2_plat *plat = dev_get_platdata(dev);
+	struct stm32_sdmmc2_plat *plat = dev_get_plat(dev);
 	struct stm32_sdmmc2_priv *priv = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
 	int ret;
@@ -700,7 +700,7 @@ clk_free:
 
 static int stm32_sdmmc_bind(struct udevice *dev)
 {
-	struct stm32_sdmmc2_plat *plat = dev_get_platdata(dev);
+	struct stm32_sdmmc2_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -717,6 +717,6 @@ U_BOOT_DRIVER(stm32_sdmmc2) = {
 	.ops = &stm32_sdmmc2_ops,
 	.probe = stm32_sdmmc2_probe,
 	.bind = stm32_sdmmc_bind,
-	.priv_auto_alloc_size = sizeof(struct stm32_sdmmc2_priv),
-	.platdata_auto_alloc_size = sizeof(struct stm32_sdmmc2_plat),
+	.priv_auto	= sizeof(struct stm32_sdmmc2_priv),
+	.plat_auto	= sizeof(struct stm32_sdmmc2_plat),
 };

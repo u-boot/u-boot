@@ -278,7 +278,7 @@ static const struct dm_gpio_ops gpio_sandbox_ops = {
 #endif
 };
 
-static int sandbox_gpio_ofdata_to_platdata(struct udevice *dev)
+static int sandbox_gpio_of_to_plat(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
@@ -318,7 +318,7 @@ U_BOOT_DRIVER(sandbox_gpio) = {
 	.name	= "sandbox_gpio",
 	.id	= UCLASS_GPIO,
 	.of_match = sandbox_gpio_ids,
-	.ofdata_to_platdata = sandbox_gpio_ofdata_to_platdata,
+	.of_to_plat = sandbox_gpio_of_to_plat,
 	.probe	= gpio_sandbox_probe,
 	.remove	= gpio_sandbox_remove,
 	.ops	= &gpio_sandbox_ops,
@@ -532,6 +532,6 @@ U_BOOT_DRIVER(sandbox_pinctrl_gpio) = {
 	.ops = &sandbox_pinctrl_gpio_ops,
 	.bind = dm_scan_fdt_dev,
 	.probe = sandbox_pinctrl_probe,
-	.priv_auto_alloc_size	= sizeof(struct sb_pinctrl_priv),
+	.priv_auto	= sizeof(struct sb_pinctrl_priv),
 	ACPI_OPS_PTR(&pinctrl_sandbox_acpi_ops)
 };

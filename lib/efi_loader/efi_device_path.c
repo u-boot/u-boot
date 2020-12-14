@@ -531,7 +531,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 	case UCLASS_ETH: {
 		struct efi_device_path_mac_addr *dp =
 			dp_fill(buf, dev->parent);
-		struct eth_pdata *pdata = dev->platdata;
+		struct eth_pdata *pdata = dev->plat;
 
 		dp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
 		dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR;
@@ -551,7 +551,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 		case UCLASS_ROOT: {
 			/* stop traversing parents at this point: */
 			struct efi_device_path_vendor *dp;
-			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+			struct blk_desc *desc = dev_get_uclass_plat(dev);
 
 			dp_fill(buf, dev->parent);
 			dp = buf;
@@ -568,7 +568,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 #ifdef CONFIG_VIRTIO_BLK
 		case UCLASS_VIRTIO: {
 			struct efi_device_path_vendor *dp;
-			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+			struct blk_desc *desc = dev_get_uclass_plat(dev);
 
 			dp_fill(buf, dev->parent);
 			dp = buf;
@@ -586,7 +586,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 		case UCLASS_IDE: {
 			struct efi_device_path_atapi *dp =
 			dp_fill(buf, dev->parent);
-			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+			struct blk_desc *desc = dev_get_uclass_plat(dev);
 
 			dp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
 			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_ATAPI;
@@ -603,7 +603,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 		case UCLASS_SCSI: {
 			struct efi_device_path_scsi *dp =
 				dp_fill(buf, dev->parent);
-			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+			struct blk_desc *desc = dev_get_uclass_plat(dev);
 
 			dp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
 			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_SCSI;
@@ -617,7 +617,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 		case UCLASS_MMC: {
 			struct efi_device_path_sd_mmc_path *sddp =
 				dp_fill(buf, dev->parent);
-			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+			struct blk_desc *desc = dev_get_uclass_plat(dev);
 
 			sddp->dp.type     = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
 			sddp->dp.sub_type = is_sd(desc) ?
@@ -632,7 +632,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 		case UCLASS_AHCI: {
 			struct efi_device_path_sata *dp =
 				dp_fill(buf, dev->parent);
-			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+			struct blk_desc *desc = dev_get_uclass_plat(dev);
 
 			dp->dp.type     = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
 			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_SATA;

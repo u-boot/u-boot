@@ -98,6 +98,6 @@ U_BOOT_DRIVER(mt762x_wdt) = {
 	.id = UCLASS_WDT,
 	.of_match = mt762x_wdt_ids,
 	.probe = mt762x_wdt_probe,
-	.priv_auto_alloc_size = sizeof(struct mt762x_wdt),
+	.priv_auto	= sizeof(struct mt762x_wdt),
 	.ops = &mt762x_wdt_ops,
 };

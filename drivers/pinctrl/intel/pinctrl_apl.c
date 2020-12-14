@@ -18,11 +18,11 @@
 #include <asm/intel_pinctrl_defs.h>
 
 /**
- * struct apl_gpio_platdata - platform data for each device
+ * struct apl_gpio_plat - platform data for each device
  *
  * @dtplat: of-platdata data from C struct
  */
-struct apl_gpio_platdata {
+struct apl_gpio_plat {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	/* Put this first since driver model will copy the data here */
 	struct dtd_intel_apl_pinctrl dtplat;
@@ -136,14 +136,14 @@ static const struct pad_community apl_gpio_communities[] = {
 	},
 };
 
-static int apl_pinctrl_ofdata_to_platdata(struct udevice *dev)
+static int apl_pinctrl_of_to_plat(struct udevice *dev)
 {
-	struct p2sb_child_platdata *pplat;
+	struct p2sb_child_plat *pplat;
 	const struct pad_community *comm = NULL;
 	int i;
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct apl_gpio_platdata *plat = dev_get_platdata(dev);
+	struct apl_gpio_plat *plat = dev_get_plat(dev);
 	int ret;
 
 	/*
@@ -160,13 +160,13 @@ static int apl_pinctrl_ofdata_to_platdata(struct udevice *dev)
 		return log_msg_ret("Could not set port id", ret);
 #endif
 	/* Attach this device to its community structure */
-	pplat = dev_get_parent_platdata(dev);
+	pplat = dev_get_parent_plat(dev);
 	for (i = 0; i < ARRAY_SIZE(apl_gpio_communities); i++) {
 		if (apl_gpio_communities[i].port == pplat->pid)
 			comm = &apl_gpio_communities[i];
 	}
 
-	return intel_pinctrl_ofdata_to_platdata(dev, comm, 2);
+	return intel_pinctrl_of_to_plat(dev, comm, 2);
 }
 
 static const struct udevice_id apl_gpio_ids[] = {
@@ -183,7 +183,7 @@ U_BOOT_DRIVER(intel_apl_pinctrl) = {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.bind		= dm_scan_fdt_dev,
 #endif
-	.ofdata_to_platdata = apl_pinctrl_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct intel_pinctrl_priv),
-	.platdata_auto_alloc_size = sizeof(struct apl_gpio_platdata),
+	.of_to_plat = apl_pinctrl_of_to_plat,
+	.priv_auto	= sizeof(struct intel_pinctrl_priv),
+	.plat_auto	= sizeof(struct apl_gpio_plat),
 };

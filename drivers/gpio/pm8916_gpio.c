@@ -187,7 +187,7 @@ static int pm8916_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
-static int pm8916_gpio_ofdata_to_platdata(struct udevice *dev)
+static int pm8916_gpio_of_to_plat(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
@@ -209,10 +209,10 @@ U_BOOT_DRIVER(gpio_pm8916) = {
 	.name	= "gpio_pm8916",
 	.id	= UCLASS_GPIO,
 	.of_match = pm8916_gpio_ids,
-	.ofdata_to_platdata = pm8916_gpio_ofdata_to_platdata,
+	.of_to_plat = pm8916_gpio_of_to_plat,
 	.probe	= pm8916_gpio_probe,
 	.ops	= &pm8916_gpio_ops,
-	.priv_auto_alloc_size = sizeof(struct pm8916_gpio_bank),
+	.priv_auto	= sizeof(struct pm8916_gpio_bank),
 };
 
 
@@ -272,7 +272,7 @@ static int pm8941_pwrkey_probe(struct udevice *dev)
 	return 0;
 }
 
-static int pm8941_pwrkey_ofdata_to_platdata(struct udevice *dev)
+static int pm8941_pwrkey_of_to_plat(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
@@ -294,8 +294,8 @@ U_BOOT_DRIVER(pwrkey_pm8941) = {
 	.name	= "pwrkey_pm8916",
 	.id	= UCLASS_GPIO,
 	.of_match = pm8941_pwrkey_ids,
-	.ofdata_to_platdata = pm8941_pwrkey_ofdata_to_platdata,
+	.of_to_plat = pm8941_pwrkey_of_to_plat,
 	.probe	= pm8941_pwrkey_probe,
 	.ops	= &pm8941_pwrkey_ops,
-	.priv_auto_alloc_size = sizeof(struct pm8916_gpio_bank),
+	.priv_auto	= sizeof(struct pm8916_gpio_bank),
 };

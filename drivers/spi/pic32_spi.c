@@ -236,7 +236,7 @@ static int pic32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 			  const void *tx_buf, void *rx_buf,
 			  unsigned long flags)
 {
-	struct dm_spi_slave_platdata *slave_plat;
+	struct dm_spi_slave_plat *slave_plat;
 	struct udevice *bus = slave->parent;
 	struct pic32_spi_priv *priv;
 	int len = bitlen / 8;
@@ -244,7 +244,7 @@ static int pic32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 	ulong tbase;
 
 	priv = dev_get_priv(bus);
-	slave_plat = dev_get_parent_platdata(slave);
+	slave_plat = dev_get_parent_plat(slave);
 
 	debug("spi_xfer: bus:%i cs:%i flags:%lx\n",
 	      bus->seq, slave_plat->cs, flags);
@@ -444,6 +444,6 @@ U_BOOT_DRIVER(pic32_spi) = {
 	.id		= UCLASS_SPI,
 	.of_match	= pic32_spi_ids,
 	.ops		= &pic32_spi_ops,
-	.priv_auto_alloc_size = sizeof(struct pic32_spi_priv),
+	.priv_auto	= sizeof(struct pic32_spi_priv),
 	.probe		= pic32_spi_probe,
 };

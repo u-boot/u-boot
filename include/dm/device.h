@@ -23,16 +23,16 @@ struct driver_info;
 /* Driver is active (probed). Cleared when it is removed */
 #define DM_FLAG_ACTIVATED		(1 << 0)
 
-/* DM is responsible for allocating and freeing platdata */
+/* DM is responsible for allocating and freeing plat */
 #define DM_FLAG_ALLOC_PDATA		(1 << 1)
 
 /* DM should init this device prior to relocation */
 #define DM_FLAG_PRE_RELOC		(1 << 2)
 
-/* DM is responsible for allocating and freeing parent_platdata */
+/* DM is responsible for allocating and freeing parent_plat */
 #define DM_FLAG_ALLOC_PARENT_PDATA	(1 << 3)
 
-/* DM is responsible for allocating and freeing uclass_platdata */
+/* DM is responsible for allocating and freeing uclass_plat */
 #define DM_FLAG_ALLOC_UCLASS_PDATA	(1 << 4)
 
 /* Allocate driver private data on a DMA boundary */
@@ -64,7 +64,7 @@ struct driver_info;
 /* DM does not enable/disable the power domains corresponding to this device */
 #define DM_FLAG_DEFAULT_PD_CTRL_OFF	(1 << 11)
 
-/* Driver platdata has been read. Cleared when the device is removed */
+/* Driver plat has been read. Cleared when the device is removed */
 #define DM_FLAG_PLATDATA_VALID		(1 << 12)
 
 /*
@@ -104,21 +104,21 @@ enum {
  * particular port or peripheral (essentially a driver instance).
  *
  * A device will come into existence through a 'bind' call, either due to
- * a U_BOOT_DEVICE() macro (in which case platdata is non-NULL) or a node
+ * a U_BOOT_DEVICE() macro (in which case plat is non-NULL) or a node
  * in the device tree (in which case of_offset is >= 0). In the latter case
- * we translate the device tree information into platdata in a function
- * implemented by the driver ofdata_to_platdata method (called just before the
+ * we translate the device tree information into plat in a function
+ * implemented by the driver of_to_plat method (called just before the
  * probe method if the device has a device tree node.
  *
- * All three of platdata, priv and uclass_priv can be allocated by the
+ * All three of plat, priv and uclass_priv can be allocated by the
  * driver, or you can use the auto_alloc_size members of struct driver and
  * struct uclass_driver to have driver model do this automatically.
  *
  * @driver: The driver used by this device
  * @name: Name of device, typically the FDT node name
- * @platdata: Configuration data for this device
- * @parent_platdata: The parent bus's configuration data for this device
- * @uclass_platdata: The uclass's configuration data for this device
+ * @plat: Configuration data for this device
+ * @parent_plat: The parent bus's configuration data for this device
+ * @uclass_plat: The uclass's configuration data for this device
  * @node: Reference to device tree node for this device
  * @driver_data: Driver data word for the entry that matched this device with
  *		its driver
@@ -142,9 +142,9 @@ enum {
 struct udevice {
 	const struct driver *driver;
 	const char *name;
-	void *platdata;
-	void *parent_platdata;
-	void *uclass_platdata;
+	void *plat;
+	void *parent_plat;
+	void *uclass_plat;
 	ofnode node;
 	ulong driver_data;
 	struct udevice *parent;
@@ -177,11 +177,6 @@ static inline int dev_of_offset(const struct udevice *dev)
 	return ofnode_to_offset(dev->node);
 }
 
-static inline void dev_set_of_offset(struct udevice *dev, int of_offset)
-{
-	dev->node = offset_to_ofnode(of_offset);
-}
-
 static inline bool dev_has_of_node(struct udevice *dev)
 {
 	return ofnode_valid(dev->node);
@@ -208,7 +203,7 @@ struct udevice_id {
  *
  * This holds methods for setting up a new device, and also removing it.
  * The device needs information to set itself up - this is provided either
- * by platdata or a device tree node (which we find by looking up
+ * by plat or a device tree node (which we find by looking up
  * matching compatible strings with of_match).
  *
  * Drivers all belong to a uclass, representing a class of devices of the
@@ -224,26 +219,26 @@ struct udevice_id {
  * @probe: Called to probe a device, i.e. activate it
  * @remove: Called to remove a device, i.e. de-activate it
  * @unbind: Called to unbind a device from its driver
- * @ofdata_to_platdata: Called before probe to decode device tree data
+ * @of_to_plat: Called before probe to decode device tree data
  * @child_post_bind: Called after a new child has been bound
  * @child_pre_probe: Called before a child device is probed. The device has
  * memory allocated but it has not yet been probed.
  * @child_post_remove: Called after a child device is removed. The device
  * has memory allocated but its device_remove() method has been called.
- * @priv_auto_alloc_size: If non-zero this is the size of the private data
+ * @priv_auto: If non-zero this is the size of the private data
  * to be allocated in the device's ->priv pointer. If zero, then the driver
  * is responsible for allocating any data required.
- * @platdata_auto_alloc_size: If non-zero this is the size of the
- * platform data to be allocated in the device's ->platdata pointer.
+ * @plat_auto: If non-zero this is the size of the
+ * platform data to be allocated in the device's ->plat pointer.
  * This is typically only useful for device-tree-aware drivers (those with
- * an of_match), since drivers which use platdata will have the data
+ * an of_match), since drivers which use plat will have the data
  * provided in the U_BOOT_DEVICE() instantiation.
- * @per_child_auto_alloc_size: Each device can hold private data owned by
+ * @per_child_auto: Each device can hold private data owned by
  * its parent. If required this will be automatically allocated if this
  * value is non-zero.
- * @per_child_platdata_auto_alloc_size: A bus likes to store information about
+ * @per_child_plat_auto: A bus likes to store information about
  * its children. If non-zero this is the size of this data, to be allocated
- * in the child's parent_platdata pointer.
+ * in the child's parent_plat pointer.
  * @ops: Driver-specific operations. This is typically a list of function
  * pointers defined by the driver, to implement driver functions required by
  * the uclass.
@@ -259,14 +254,14 @@ struct driver {
 	int (*probe)(struct udevice *dev);
 	int (*remove)(struct udevice *dev);
 	int (*unbind)(struct udevice *dev);
-	int (*ofdata_to_platdata)(struct udevice *dev);
+	int (*of_to_plat)(struct udevice *dev);
 	int (*child_post_bind)(struct udevice *dev);
 	int (*child_pre_probe)(struct udevice *dev);
 	int (*child_post_remove)(struct udevice *dev);
-	int priv_auto_alloc_size;
-	int platdata_auto_alloc_size;
-	int per_child_auto_alloc_size;
-	int per_child_platdata_auto_alloc_size;
+	int priv_auto;
+	int plat_auto;
+	int per_child_auto;
+	int per_child_plat_auto;
 	const void *ops;	/* driver-specific operations */
 	uint32_t flags;
 #if CONFIG_IS_ENABLED(ACPIGEN)
@@ -290,34 +285,34 @@ struct driver {
 #define U_BOOT_DRIVER_ALIAS(__name, __alias)
 
 /**
- * dev_get_platdata() - Get the platform data for a device
+ * dev_get_plat() - Get the platform data for a device
  *
  * This checks that dev is not NULL, but no other checks for now
  *
  * @dev		Device to check
  * @return platform data, or NULL if none
  */
-void *dev_get_platdata(const struct udevice *dev);
+void *dev_get_plat(const struct udevice *dev);
 
 /**
- * dev_get_parent_platdata() - Get the parent platform data for a device
+ * dev_get_parent_plat() - Get the parent platform data for a device
  *
  * This checks that dev is not NULL, but no other checks for now
  *
  * @dev		Device to check
  * @return parent's platform data, or NULL if none
  */
-void *dev_get_parent_platdata(const struct udevice *dev);
+void *dev_get_parent_plat(const struct udevice *dev);
 
 /**
- * dev_get_uclass_platdata() - Get the uclass platform data for a device
+ * dev_get_uclass_plat() - Get the uclass platform data for a device
  *
  * This checks that dev is not NULL, but no other checks for now
  *
  * @dev		Device to check
  * @return uclass's platform data, or NULL if none
  */
-void *dev_get_uclass_platdata(const struct udevice *dev);
+void *dev_get_uclass_plat(const struct udevice *dev);
 
 /**
  * dev_get_priv() - Get the private data for a device
@@ -627,9 +622,9 @@ int device_find_child_by_name(const struct udevice *parent, const char *name,
 			      struct udevice **devp);
 
 /**
- * device_first_child_ofdata_err() - Find the first child and reads its platdata
+ * device_first_child_ofdata_err() - Find the first child and reads its plat
  *
- * The ofdata_to_platdata() method is called on the child before it is returned,
+ * The of_to_plat() method is called on the child before it is returned,
  * but the child is not probed.
  *
  * @parent: Parent to check
@@ -640,9 +635,9 @@ int device_first_child_ofdata_err(struct udevice *parent,
 				  struct udevice **devp);
 
 /*
- * device_next_child_ofdata_err() - Find the next child and read its platdata
+ * device_next_child_ofdata_err() - Find the next child and read its plat
  *
- * The ofdata_to_platdata() method is called on the child before it is returned,
+ * The of_to_plat() method is called on the child before it is returned,
  * but the child is not probed.
  *
  * @devp: On entry, points to the previous child; on exit returns the child that
@@ -803,19 +798,19 @@ static inline bool device_is_on_pci_bus(const struct udevice *dev)
 	list_for_each_entry(pos, &parent->child_head, sibling_node)
 
 /**
- * device_foreach_child_ofdata_to_platdata() - iterate through children
+ * device_foreach_child_of_to_plat() - iterate through children
  *
  * This stops when it gets an error, with @pos set to the device that failed to
  * read ofdata.
 
  * This creates a for() loop which works through the available children of
  * a device in order from start to end. Device ofdata is read by calling
- * device_ofdata_to_platdata() on each one. The devices are not probed.
+ * device_of_to_plat() on each one. The devices are not probed.
  *
  * @pos: struct udevice * for the current device
  * @parent: parent device to scan
  */
-#define device_foreach_child_ofdata_to_platdata(pos, parent)	\
+#define device_foreach_child_of_to_plat(pos, parent)	\
 	for (int _ret = device_first_child_ofdata_err(parent, &dev); !_ret; \
 	     _ret = device_next_child_ofdata_err(&dev))
 

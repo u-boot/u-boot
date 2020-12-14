@@ -1033,7 +1033,7 @@ U_BOOT_DRIVER(stm32_fmc2_nfc) = {
 	.id = UCLASS_MTD,
 	.of_match = stm32_fmc2_nfc_match,
 	.probe = stm32_fmc2_nfc_probe,
-	.priv_auto_alloc_size = sizeof(struct stm32_fmc2_nfc),
+	.priv_auto	= sizeof(struct stm32_fmc2_nfc),
 };
 
 void board_nand_init(void)

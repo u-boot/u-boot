@@ -43,7 +43,7 @@ void lpc32xx_uart_init(unsigned int uart_id)
 }
 
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
-static const struct ns16550_platdata lpc32xx_uart[] = {
+static const struct ns16550_plat lpc32xx_uart[] = {
 	{ .base = UART3_BASE, .reg_shift = 2,
 	  .clock = CONFIG_SYS_NS16550_CLK, .fcr = UART_FCR_DEFVAL, },
 	{ .base = UART4_BASE, .reg_shift = 2,
@@ -55,7 +55,7 @@ static const struct ns16550_platdata lpc32xx_uart[] = {
 };
 
 #if defined(CONFIG_LPC32XX_HSUART)
-static const struct lpc32xx_hsuart_platdata lpc32xx_hsuart[] = {
+static const struct lpc32xx_hsuart_plat lpc32xx_hsuart[] = {
 	{ HS_UART1_BASE, },
 	{ HS_UART2_BASE, },
 	{ HS_UART7_BASE, },

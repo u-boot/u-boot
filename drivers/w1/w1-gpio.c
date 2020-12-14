@@ -33,7 +33,7 @@ struct w1_gpio_pdata {
 
 static bool w1_gpio_read_bit(struct udevice *dev)
 {
-	struct w1_gpio_pdata *pdata = dev_get_platdata(dev);
+	struct w1_gpio_pdata *pdata = dev_get_plat(dev);
 	int val;
 
 	dm_gpio_set_dir_flags(&pdata->gpio, GPIOD_IS_OUT);
@@ -63,7 +63,7 @@ static u8 w1_gpio_read_byte(struct udevice *dev)
 
 static void w1_gpio_write_bit(struct udevice *dev, bool bit)
 {
-	struct w1_gpio_pdata *pdata = dev_get_platdata(dev);
+	struct w1_gpio_pdata *pdata = dev_get_plat(dev);
 
 	dm_gpio_set_dir_flags(&pdata->gpio, GPIOD_IS_OUT);
 
@@ -84,7 +84,7 @@ static void w1_gpio_write_byte(struct udevice *dev, u8 byte)
 
 static bool w1_gpio_reset(struct udevice *dev)
 {
-	struct w1_gpio_pdata *pdata = dev_get_platdata(dev);
+	struct w1_gpio_pdata *pdata = dev_get_plat(dev);
 	int val;
 
 	/* initiate the reset pulse. first we must pull the bus to low */
@@ -151,9 +151,9 @@ static const struct w1_ops w1_gpio_ops = {
 	.write_byte	= w1_gpio_write_byte,
 };
 
-static int w1_gpio_ofdata_to_platdata(struct udevice *dev)
+static int w1_gpio_of_to_plat(struct udevice *dev)
 {
-	struct w1_gpio_pdata *pdata = dev_get_platdata(dev);
+	struct w1_gpio_pdata *pdata = dev_get_plat(dev);
 	int ret;
 
 	ret = gpio_request_by_name(dev, "gpios", 0, &pdata->gpio, 0);
@@ -172,7 +172,7 @@ U_BOOT_DRIVER(w1_gpio_drv) = {
 	.id				= UCLASS_W1,
 	.name				= "w1_gpio_drv",
 	.of_match			= w1_gpio_id,
-	.ofdata_to_platdata		= w1_gpio_ofdata_to_platdata,
+	.of_to_plat		= w1_gpio_of_to_plat,
 	.ops				= &w1_gpio_ops,
-	.platdata_auto_alloc_size	= sizeof(struct w1_gpio_pdata),
+	.plat_auto	= sizeof(struct w1_gpio_pdata),
 };

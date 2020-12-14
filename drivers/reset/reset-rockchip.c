@@ -131,5 +131,5 @@ U_BOOT_DRIVER(rockchip_reset) = {
 	.id = UCLASS_RESET,
 	.probe = rockchip_reset_probe,
 	.ops = &rockchip_reset_ops,
-	.priv_auto_alloc_size = sizeof(struct rockchip_reset_priv),
+	.priv_auto	= sizeof(struct rockchip_reset_priv),
 };

@@ -123,5 +123,5 @@ U_BOOT_DRIVER(sunxi_reset) = {
 	.id		= UCLASS_RESET,
 	.ops		= &sunxi_reset_ops,
 	.probe		= sunxi_reset_probe,
-	.priv_auto_alloc_size = sizeof(struct sunxi_reset_priv),
+	.priv_auto	= sizeof(struct sunxi_reset_priv),
 };

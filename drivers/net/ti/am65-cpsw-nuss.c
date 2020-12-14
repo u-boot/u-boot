@@ -281,7 +281,7 @@ static void am65_cpsw_gmii_sel_k3(struct am65_cpsw_priv *priv,
 
 static int am65_cpsw_start(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct am65_cpsw_priv *priv = dev_get_priv(dev);
 	struct am65_cpsw_common	*common = priv->cpsw_common;
 	struct am65_cpsw_port *port = &common->ports[priv->port_id];
@@ -514,7 +514,7 @@ static int am65_cpsw_read_rom_hwaddr(struct udevice *dev)
 {
 	struct am65_cpsw_priv *priv = dev_get_priv(dev);
 	struct am65_cpsw_common *common = priv->cpsw_common;
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	u32 mac_hi, mac_lo;
 
 	if (common->mac_efuse == FDT_ADDR_T_NONE)
@@ -563,7 +563,7 @@ static int am65_cpsw_phy_init(struct udevice *dev)
 {
 	struct am65_cpsw_priv *priv = dev_get_priv(dev);
 	struct am65_cpsw_common *cpsw_common = priv->cpsw_common;
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct phy_device *phydev;
 	u32 supported = PHY_GBIT_FEATURES;
 	int ret;
@@ -599,7 +599,7 @@ static int am65_cpsw_phy_init(struct udevice *dev)
 
 static int am65_cpsw_ofdata_parse_phy(struct udevice *dev, ofnode port_np)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct am65_cpsw_priv *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args out_args;
 	const char *phy_mode;
@@ -649,7 +649,7 @@ out:
 static int am65_cpsw_probe_cpsw(struct udevice *dev)
 {
 	struct am65_cpsw_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct am65_cpsw_common *cpsw_common;
 	ofnode ports_np, node;
 	int ret, i;
@@ -791,7 +791,7 @@ U_BOOT_DRIVER(am65_cpsw_nuss_slave) = {
 	.of_match = am65_cpsw_nuss_ids,
 	.probe	= am65_cpsw_probe_cpsw,
 	.ops	= &am65_cpsw_ops,
-	.priv_auto_alloc_size = sizeof(struct am65_cpsw_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct am65_cpsw_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

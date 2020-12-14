@@ -105,5 +105,5 @@ U_BOOT_DRIVER(ast2500_reset) = {
 	.of_match = ast2500_reset_ids,
 	.probe = ast2500_reset_probe,
 	.ops = &ast2500_reset_ops,
-	.priv_auto_alloc_size = sizeof(struct ast2500_reset_priv),
+	.priv_auto	= sizeof(struct ast2500_reset_priv),
 };

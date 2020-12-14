@@ -866,5 +866,5 @@ U_BOOT_DRIVER(ihs_fpga_bus) = {
 	.id             = UCLASS_MISC,
 	.of_match       = ihs_fpga_ids,
 	.probe          = ihs_fpga_probe,
-	.priv_auto_alloc_size = sizeof(struct ihs_fpga_priv),
+	.priv_auto	= sizeof(struct ihs_fpga_priv),
 };

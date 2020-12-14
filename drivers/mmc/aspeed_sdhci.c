@@ -19,7 +19,7 @@ struct aspeed_sdhci_plat {
 static int aspeed_sdhci_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct aspeed_sdhci_plat *plat = dev_get_platdata(dev);
+	struct aspeed_sdhci_plat *plat = dev_get_plat(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	u32 max_clk;
 	struct clk clk;
@@ -67,7 +67,7 @@ free:
 
 static int aspeed_sdhci_bind(struct udevice *dev)
 {
-	struct aspeed_sdhci_plat *plat = dev_get_platdata(dev);
+	struct aspeed_sdhci_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -86,6 +86,6 @@ U_BOOT_DRIVER(aspeed_sdhci_drv) = {
 	.ops		= &sdhci_ops,
 	.bind		= aspeed_sdhci_bind,
 	.probe		= aspeed_sdhci_probe,
-	.priv_auto_alloc_size = sizeof(struct sdhci_host),
-	.platdata_auto_alloc_size = sizeof(struct aspeed_sdhci_plat),
+	.priv_auto	= sizeof(struct sdhci_host),
+	.plat_auto	= sizeof(struct aspeed_sdhci_plat),
 };

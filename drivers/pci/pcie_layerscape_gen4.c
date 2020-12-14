@@ -569,5 +569,5 @@ U_BOOT_DRIVER(pcie_layerscape_gen4) = {
 	.of_match = ls_pcie_g4_ids,
 	.ops = &ls_pcie_g4_ops,
 	.probe	= ls_pcie_g4_probe,
-	.priv_auto_alloc_size = sizeof(struct ls_pcie_g4),
+	.priv_auto	= sizeof(struct ls_pcie_g4),
 };

@@ -257,7 +257,7 @@ U_BOOT_DRIVER(mtu3_peripheral) = {
 	.of_match = ssusb_of_match,
 	.probe = mtu3_gadget_probe,
 	.remove = mtu3_gadget_remove,
-	.priv_auto_alloc_size = sizeof(struct mtu3),
+	.priv_auto	= sizeof(struct mtu3),
 };
 #endif
 
@@ -298,7 +298,7 @@ U_BOOT_DRIVER(mtu3_host) = {
 	.of_match = ssusb_of_match,
 	.probe = mtu3_host_probe,
 	.remove = mtu3_host_remove,
-	.priv_auto_alloc_size = sizeof(struct mtu3_host),
+	.priv_auto	= sizeof(struct mtu3_host),
 	.ops = &xhci_usb_ops,
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
@@ -365,5 +365,5 @@ U_BOOT_DRIVER(mtu3) = {
 	.bind = mtu3_glue_bind,
 	.probe = mtu3_probe,
 	.remove = mtu3_remove,
-	.priv_auto_alloc_size = sizeof(struct ssusb_mtk),
+	.priv_auto	= sizeof(struct ssusb_mtk),
 };

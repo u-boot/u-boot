@@ -126,7 +126,7 @@ static int imx_pwm_set_enable(struct udevice *dev, uint channel, bool enable)
 	return 0;
 };
 
-static int imx_pwm_ofdata_to_platdata(struct udevice *dev)
+static int imx_pwm_of_to_plat(struct udevice *dev)
 {
 	struct imx_pwm_priv *priv = dev_get_priv(dev);
 
@@ -156,8 +156,8 @@ U_BOOT_DRIVER(imx_pwm) = {
 	.id	= UCLASS_PWM,
 	.of_match = imx_pwm_ids,
 	.ops	= &imx_pwm_ops,
-	.ofdata_to_platdata	= imx_pwm_ofdata_to_platdata,
+	.of_to_plat	= imx_pwm_of_to_plat,
 	.probe		= imx_pwm_probe,
-	.priv_auto_alloc_size	= sizeof(struct imx_pwm_priv),
+	.priv_auto	= sizeof(struct imx_pwm_priv),
 };
 #endif

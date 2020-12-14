@@ -63,7 +63,7 @@ config SF_DEFAULT_MODE
 	  to handle the common case when only a single serial
 	  flash is present on the system.
 	  Not used for boot with device tree; the SPI driver reads
-	  speed and mode from platdata values computed from
+	  speed and mode from plat values computed from
 	  available node.
 
 config SF_DEFAULT_SPEED
@@ -75,7 +75,7 @@ config SF_DEFAULT_SPEED
 	  to handle the common case when only a single serial
 	  flash is present on the system.
 	  Not used for boot with device tree; the SPI driver reads
-	  speed and mode from platdata values computed from
+	  speed and mode from plat values computed from
 	  available node.
 
 if SPI_FLASH

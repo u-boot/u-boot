@@ -816,7 +816,7 @@ U_BOOT_DRIVER(davinci_nand) = {
 	.id		= UCLASS_MTD,
 	.of_match	= davinci_nand_ids,
 	.probe		= davinci_nand_probe,
-	.priv_auto_alloc_size = sizeof(struct nand_chip),
+	.priv_auto	= sizeof(struct nand_chip),
 };
 
 void board_nand_init(void)

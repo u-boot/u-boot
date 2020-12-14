@@ -784,7 +784,7 @@ U_BOOT_DRIVER(vf610_nfc_dt) = {
 	.name = "vf610-nfc-dt",
 	.id = UCLASS_MTD,
 	.of_match = vf610_nfc_dt_ids,
-	.priv_auto_alloc_size = sizeof(struct vf610_nfc),
+	.priv_auto	= sizeof(struct vf610_nfc),
 	.probe = vf610_nfc_dt_probe,
 };
 

@@ -8,7 +8,7 @@
 #include <test/ut.h>
 
 /* Test that we can find a device using of-platdata */
-static int dm_test_of_platdata_base(struct unit_test_state *uts)
+static int dm_test_of_plat_base(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 
@@ -17,10 +17,10 @@ static int dm_test_of_platdata_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_platdata_base, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_base, UT_TESTF_SCAN_PDATA);
 
 /* Test that we can read properties from a device */
-static int dm_test_of_platdata_props(struct unit_test_state *uts)
+static int dm_test_of_plat_props(struct unit_test_state *uts)
 {
 	struct dtd_sandbox_spl_test *plat;
 	struct udevice *dev;
@@ -31,7 +31,7 @@ static int dm_test_of_platdata_props(struct unit_test_state *uts)
 	ut_asserteq_str("sandbox_clk_test", dev->name);
 
 	ut_assertok(uclass_next_device_err(&dev));
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	ut_assert(plat->boolval);
 	ut_asserteq(1, plat->intval);
 	ut_asserteq(4, ARRAY_SIZE(plat->intarray));
@@ -54,7 +54,7 @@ static int dm_test_of_platdata_props(struct unit_test_state *uts)
 	ut_asserteq_str("", plat->stringarray[2]);
 
 	ut_assertok(uclass_next_device_err(&dev));
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	ut_assert(!plat->boolval);
 	ut_asserteq(3, plat->intval);
 	ut_asserteq(5, plat->intarray[0]);
@@ -74,14 +74,14 @@ static int dm_test_of_platdata_props(struct unit_test_state *uts)
 	ut_asserteq_str("message", plat->stringarray[2]);
 
 	ut_assertok(uclass_next_device_err(&dev));
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	ut_assert(!plat->boolval);
 	ut_asserteq_str("one", plat->stringarray[0]);
 	ut_asserteq_str("", plat->stringarray[1]);
 	ut_asserteq_str("", plat->stringarray[2]);
 
 	ut_assertok(uclass_next_device_err(&dev));
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	ut_assert(!plat->boolval);
 	ut_asserteq_str("spl", plat->stringarray[0]);
 
@@ -89,7 +89,7 @@ static int dm_test_of_platdata_props(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_platdata_props, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_props, UT_TESTF_SCAN_PDATA);
 
 /*
  * find_driver_info - recursively find the driver_info for a device
@@ -139,7 +139,7 @@ static int find_driver_info(struct unit_test_state *uts, struct udevice *parent,
 }
 
 /* Check that every device is recorded in its driver_info struct */
-static int dm_test_of_platdata_dev(struct unit_test_state *uts)
+static int dm_test_of_plat_dev(struct unit_test_state *uts)
 {
 	const struct driver_info *info =
 		ll_entry_start(struct driver_info, driver_info);
@@ -171,17 +171,17 @@ static int dm_test_of_platdata_dev(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_platdata_dev, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_dev, UT_TESTF_SCAN_PDATA);
 
 /* Test handling of phandles that point to other devices */
-static int dm_test_of_platdata_phandle(struct unit_test_state *uts)
+static int dm_test_of_plat_phandle(struct unit_test_state *uts)
 {
 	struct dtd_sandbox_clk_test *plat;
 	struct udevice *dev, *clk;
 
 	ut_assertok(uclass_first_device_err(UCLASS_MISC, &dev));
 	ut_asserteq_str("sandbox_clk_test", dev->name);
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 
 	ut_assertok(device_get_by_driver_info_idx(plat->clocks[0].idx, &clk));
 	ut_asserteq_str("fixed_clock", clk->name);
@@ -204,11 +204,11 @@ static int dm_test_of_platdata_phandle(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_platdata_phandle, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_phandle, UT_TESTF_SCAN_PDATA);
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA_PARENT)
 /* Test that device parents are correctly set up */
-static int dm_test_of_platdata_parent(struct unit_test_state *uts)
+static int dm_test_of_plat_parent(struct unit_test_state *uts)
 {
 	struct udevice *rtc, *i2c;
 
@@ -218,5 +218,5 @@ static int dm_test_of_platdata_parent(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_platdata_parent, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_parent, UT_TESTF_SCAN_PDATA);
 #endif

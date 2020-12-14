@@ -4,7 +4,7 @@
  * Quentin Schulz, Bootlin, quentin.schulz@bootlin.com
  *
  * Structure for use with U_BOOT_DEVICE for pl022 SPI devices or to use
- * in ofdata_to_platdata.
+ * in of_to_plat.
  */
 
 #ifndef __spi_pl022_h

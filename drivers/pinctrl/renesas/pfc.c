@@ -990,7 +990,7 @@ U_BOOT_DRIVER(pinctrl_sh_pfc) = {
 	.name		= "sh_pfc_pinctrl",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= sh_pfc_pinctrl_ids,
-	.priv_auto_alloc_size = sizeof(struct sh_pfc_pinctrl_priv),
+	.priv_auto	= sizeof(struct sh_pfc_pinctrl_priv),
 	.ops		= &sh_pfc_pinctrl_ops,
 	.probe		= sh_pfc_pinctrl_probe,
 };

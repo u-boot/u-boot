@@ -199,7 +199,7 @@ U_BOOT_DRIVER(exynos7420_clk_topc) = {
 	.id = UCLASS_CLK,
 	.of_match = exynos7420_clk_topc_compat,
 	.probe = exynos7420_clk_topc_probe,
-	.priv_auto_alloc_size = sizeof(struct exynos7420_clk_topc_priv),
+	.priv_auto	= sizeof(struct exynos7420_clk_topc_priv),
 	.ops = &exynos7420_clk_topc_ops,
 };
 
@@ -213,7 +213,7 @@ U_BOOT_DRIVER(exynos7420_clk_top0) = {
 	.id = UCLASS_CLK,
 	.of_match = exynos7420_clk_top0_compat,
 	.probe = exynos7420_clk_top0_probe,
-	.priv_auto_alloc_size = sizeof(struct exynos7420_clk_top0_priv),
+	.priv_auto	= sizeof(struct exynos7420_clk_top0_priv),
 	.ops = &exynos7420_clk_top0_ops,
 };
 

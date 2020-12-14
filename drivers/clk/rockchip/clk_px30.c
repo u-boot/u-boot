@@ -1432,7 +1432,7 @@ static int px30_clk_probe(struct udevice *dev)
 	return 0;
 }
 
-static int px30_clk_ofdata_to_platdata(struct udevice *dev)
+static int px30_clk_of_to_plat(struct udevice *dev)
 {
 	struct px30_clk_priv *priv = dev_get_priv(dev);
 
@@ -1480,8 +1480,8 @@ U_BOOT_DRIVER(rockchip_px30_cru) = {
 	.name		= "rockchip_px30_cru",
 	.id		= UCLASS_CLK,
 	.of_match	= px30_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct px30_clk_priv),
-	.ofdata_to_platdata = px30_clk_ofdata_to_platdata,
+	.priv_auto	= sizeof(struct px30_clk_priv),
+	.of_to_plat = px30_clk_of_to_plat,
 	.ops		= &px30_clk_ops,
 	.bind		= px30_clk_bind,
 	.probe		= px30_clk_probe,
@@ -1609,7 +1609,7 @@ static int px30_pmuclk_probe(struct udevice *dev)
 	return 0;
 }
 
-static int px30_pmuclk_ofdata_to_platdata(struct udevice *dev)
+static int px30_pmuclk_of_to_plat(struct udevice *dev)
 {
 	struct px30_pmuclk_priv *priv = dev_get_priv(dev);
 
@@ -1627,8 +1627,8 @@ U_BOOT_DRIVER(rockchip_px30_pmucru) = {
 	.name		= "rockchip_px30_pmucru",
 	.id		= UCLASS_CLK,
 	.of_match	= px30_pmuclk_ids,
-	.priv_auto_alloc_size = sizeof(struct px30_pmuclk_priv),
-	.ofdata_to_platdata = px30_pmuclk_ofdata_to_platdata,
+	.priv_auto	= sizeof(struct px30_pmuclk_priv),
+	.of_to_plat = px30_pmuclk_of_to_plat,
 	.ops		= &px30_pmuclk_ops,
 	.probe		= px30_pmuclk_probe,
 };

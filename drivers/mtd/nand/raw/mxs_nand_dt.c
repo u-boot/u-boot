@@ -168,7 +168,7 @@ U_BOOT_DRIVER(mxs_nand_dt) = {
 	.id = UCLASS_MTD,
 	.of_match = mxs_nand_dt_ids,
 	.probe = mxs_nand_dt_probe,
-	.priv_auto_alloc_size = sizeof(struct mxs_nand_info),
+	.priv_auto	= sizeof(struct mxs_nand_info),
 };
 
 void board_nand_init(void)

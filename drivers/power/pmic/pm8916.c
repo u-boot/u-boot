@@ -82,5 +82,5 @@ U_BOOT_DRIVER(pmic_pm8916) = {
 	.bind = dm_scan_fdt_dev,
 	.probe = pm8916_probe,
 	.ops = &pm8916_ops,
-	.priv_auto_alloc_size = sizeof(struct pm8916_priv),
+	.priv_auto	= sizeof(struct pm8916_priv),
 };

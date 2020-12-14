@@ -1286,7 +1286,7 @@ U_BOOT_DRIVER(zynq_nand) = {
 	.id = UCLASS_MTD,
 	.of_match = zynq_nand_dt_ids,
 	.probe = zynq_nand_probe,
-	.priv_auto_alloc_size = sizeof(struct zynq_nand_info),
+	.priv_auto	= sizeof(struct zynq_nand_info),
 };
 
 void board_nand_init(void)

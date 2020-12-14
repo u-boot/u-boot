@@ -526,7 +526,7 @@ static void mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info,
 
 static int mvebu_video_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct mvebu_video_priv *priv = dev_get_priv(dev);
 	struct mvebu_lcd_info lcd_info;
@@ -575,7 +575,7 @@ static int mvebu_video_probe(struct udevice *dev)
 
 static int mvebu_video_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 
 	plat->size = LCD_MAX_WIDTH * LCD_MAX_HEIGHT *
 		(1 << LCD_MAX_LOG2_BPP) / 8;
@@ -594,5 +594,5 @@ U_BOOT_DRIVER(mvebu_video) = {
 	.of_match = mvebu_video_ids,
 	.bind	= mvebu_video_bind,
 	.probe	= mvebu_video_probe,
-	.priv_auto_alloc_size = sizeof(struct mvebu_video_priv),
+	.priv_auto	= sizeof(struct mvebu_video_priv),
 };

@@ -451,6 +451,10 @@ int main(int argc, char *argv[])
 	if (ret)
 		goto err;
 
+	ret = os_setup_signal_handlers();
+	if (ret)
+		goto err;
+
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	gd->malloc_base = CONFIG_MALLOC_F_ADDR;
 #endif

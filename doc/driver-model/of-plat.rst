@@ -157,8 +157,8 @@ and the following device declarations:
 
     U_BOOT_DEVICE(dwmmc_at_ff0c0000) = {
             .name           = "rockchip_rk3288_dw_mshc",
-            .platdata       = &dtv_dwmmc_at_ff0c0000,
-            .platdata_size  = sizeof(dtv_dwmmc_at_ff0c0000),
+            .plat       = &dtv_dwmmc_at_ff0c0000,
+            .plat_size  = sizeof(dtv_dwmmc_at_ff0c0000),
             .parent_idx     = -1,
     };
 
@@ -171,10 +171,10 @@ accessed using:
 .. code-block:: c
 
     struct udevice *dev;
-    struct dtd_rockchip_rk3288_dw_mshc *plat = dev_get_platdata(dev);
+    struct dtd_rockchip_rk3288_dw_mshc *plat = dev_get_plat(dev);
 
 This avoids the code overhead of converting the device tree data to
-platform data in the driver. The ofdata_to_platdata() method should
+platform data in the driver. The of_to_plat() method should
 therefore do nothing in such a driver.
 
 Note that for the platform data to be matched with a driver, the 'name'
@@ -222,7 +222,7 @@ all the limitations metioned in caveats above.
 
 Therefore it is recommended that the of-platdata structure should be used
 only in the probe() method of your driver. It cannot be used in the
-ofdata_to_platdata() method since this is not called when platform data is
+of_to_plat() method since this is not called when platform data is
 already present.
 
 
@@ -232,9 +232,9 @@ How to structure your driver
 Drivers should always support device tree as an option. The of-platdata
 feature is intended as a add-on to existing drivers.
 
-Your driver should convert the platdata struct in its probe() method. The
+Your driver should convert the plat struct in its probe() method. The
 existing device tree decoding logic should be kept in the
-ofdata_to_platdata() method and wrapped with #if.
+of_to_plat() method and wrapped with #if.
 
 For example:
 
@@ -242,7 +242,7 @@ For example:
 
     #include <dt-structs.h>
 
-    struct mmc_platdata {
+    struct mmc_plat {
     #if CONFIG_IS_ENABLED(OF_PLATDATA)
             /* Put this first since driver model will copy the data here */
             struct dtd_mmc dtplat;
@@ -254,11 +254,11 @@ For example:
             int fifo_depth;
     };
 
-    static int mmc_ofdata_to_platdata(struct udevice *dev)
+    static int mmc_of_to_plat(struct udevice *dev)
     {
     #if !CONFIG_IS_ENABLED(OF_PLATDATA)
             /* Decode the device tree data */
-            struct mmc_platdata *plat = dev_get_platdata(dev);
+            struct mmc_plat *plat = dev_get_plat(dev);
             const void *blob = gd->fdt_blob;
             int node = dev_of_offset(dev);
 
@@ -270,7 +270,7 @@ For example:
 
     static int mmc_probe(struct udevice *dev)
     {
-            struct mmc_platdata *plat = dev_get_platdata(dev);
+            struct mmc_plat *plat = dev_get_plat(dev);
 
     #if CONFIG_IS_ENABLED(OF_PLATDATA)
             /* Decode the of-platdata from the C structures */
@@ -291,29 +291,29 @@ For example:
             .name           = "mmc_drv",
             .id             = UCLASS_MMC,
             .of_match       = mmc_ids,
-            .ofdata_to_platdata = mmc_ofdata_to_platdata,
+            .of_to_plat = mmc_of_to_plat,
             .probe          = mmc_probe,
-            .priv_auto_alloc_size = sizeof(struct mmc_priv),
-            .platdata_auto_alloc_size = sizeof(struct mmc_platdata),
+            .priv_auto = sizeof(struct mmc_priv),
+            .plat_auto = sizeof(struct mmc_plat),
     };
 
     U_BOOT_DRIVER_ALIAS(mmc_drv, vendor_mmc) /* matches compatible string */
 
-Note that struct mmc_platdata is defined in the C file, not in a header. This
+Note that struct mmc_plat is defined in the C file, not in a header. This
 is to avoid needing to include dt-structs.h in a header file. The idea is to
 keep the use of each of-platdata struct to the smallest possible code area.
 There is just one driver C file for each struct, that can convert from the
 of-platdata struct to the standard one used by the driver.
 
-In the case where SPL_OF_PLATDATA is enabled, platdata_auto_alloc_size is
+In the case where SPL_OF_PLATDATA is enabled, plat_auto is
 still used to allocate space for the platform data. This is different from
 the normal behaviour and is triggered by the use of of-platdata (strictly
-speaking it is a non-zero platdata_size which triggers this).
+speaking it is a non-zero plat_size which triggers this).
 
 The of-platdata struct contents is copied from the C structure data to the
 start of the newly allocated area. In the case where device tree is used,
 the platform data is allocated, and starts zeroed. In this case the
-ofdata_to_platdata() method should still set up the platform data (and the
+of_to_plat() method should still set up the platform data (and the
 of-platdata struct will not be present).
 
 SPL must use either of-platdata or device tree. Drivers cannot use both at
@@ -336,8 +336,8 @@ Otherwise (such as in U-Boot proper) these structs are not available. This
 prevents them being used inadvertently. All usage must be bracketed with
 #if CONFIG_IS_ENABLED(OF_PLATDATA).
 
-The dt-platdata.c file contains the device declarations and is is built in
-spl/dt-platdata.c. It additionally contains the definition of
+The dt-plat.c file contains the device declarations and is is built in
+spl/dt-plat.c. It additionally contains the definition of
 dm_populate_phandle_data() which is responsible of filling the phandle
 information by adding references to U_BOOT_DEVICE by using DM_GET_DEVICE
 

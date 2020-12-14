@@ -956,7 +956,7 @@ static int veyron_init(struct dram_info *priv)
 static int setup_sdram(struct udevice *dev)
 {
 	struct dram_info *priv = dev_get_priv(dev);
-	struct rk3288_sdram_params *params = dev_get_platdata(dev);
+	struct rk3288_sdram_params *params = dev_get_plat(dev);
 
 # ifdef CONFIG_ROCKCHIP_FAST_SPL
 	if (priv->is_veyron) {
@@ -971,10 +971,10 @@ static int setup_sdram(struct udevice *dev)
 	return sdram_init(priv, params);
 }
 
-static int rk3288_dmc_ofdata_to_platdata(struct udevice *dev)
+static int rk3288_dmc_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct rk3288_sdram_params *params = dev_get_platdata(dev);
+	struct rk3288_sdram_params *params = dev_get_plat(dev);
 	int ret;
 
 	/* Rk3288 supports dual-channel, set default channel num to 2 */
@@ -1015,9 +1015,9 @@ static int rk3288_dmc_ofdata_to_platdata(struct udevice *dev)
 #endif /* CONFIG_SPL_BUILD */
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-static int conv_of_platdata(struct udevice *dev)
+static int conv_of_plat(struct udevice *dev)
 {
-	struct rk3288_sdram_params *plat = dev_get_platdata(dev);
+	struct rk3288_sdram_params *plat = dev_get_plat(dev);
 	struct dtd_rockchip_rk3288_dmc *of_plat = &plat->of_plat;
 	int ret;
 
@@ -1028,9 +1028,8 @@ static int conv_of_platdata(struct udevice *dev)
 	memcpy(&plat->base, of_plat->rockchip_sdram_params, sizeof(plat->base));
 	/* Rk3288 supports dual-channel, set default channel num to 2 */
 	plat->num_channels = 2;
-	ret = regmap_init_mem_platdata(dev, of_plat->reg,
-				       ARRAY_SIZE(of_plat->reg) / 2,
-				       &plat->map);
+	ret = regmap_init_mem_plat(dev, of_plat->reg,
+				   ARRAY_SIZE(of_plat->reg) / 2, &plat->map);
 	if (ret)
 		return ret;
 
@@ -1042,7 +1041,7 @@ static int rk3288_dmc_probe(struct udevice *dev)
 {
 #if defined(CONFIG_TPL_BUILD) || \
 	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
-	struct rk3288_sdram_params *plat = dev_get_platdata(dev);
+	struct rk3288_sdram_params *plat = dev_get_plat(dev);
 	struct udevice *dev_clk;
 	struct regmap *map;
 	int ret;
@@ -1053,7 +1052,7 @@ static int rk3288_dmc_probe(struct udevice *dev)
 #if defined(CONFIG_TPL_BUILD) || \
 	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	ret = conv_of_platdata(dev);
+	ret = conv_of_plat(dev);
 	if (ret)
 		return ret;
 #endif
@@ -1120,12 +1119,12 @@ U_BOOT_DRIVER(rockchip_rk3288_dmc) = {
 	.ops = &rk3288_dmc_ops,
 #if defined(CONFIG_TPL_BUILD) || \
 	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
-	.ofdata_to_platdata = rk3288_dmc_ofdata_to_platdata,
+	.of_to_plat = rk3288_dmc_of_to_plat,
 #endif
 	.probe = rk3288_dmc_probe,
-	.priv_auto_alloc_size = sizeof(struct dram_info),
+	.priv_auto	= sizeof(struct dram_info),
 #if defined(CONFIG_TPL_BUILD) || \
 	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
-	.platdata_auto_alloc_size = sizeof(struct rk3288_sdram_params),
+	.plat_auto	= sizeof(struct rk3288_sdram_params),
 #endif
 };

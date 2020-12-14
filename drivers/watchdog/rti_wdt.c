@@ -118,6 +118,6 @@ U_BOOT_DRIVER(rti_wdt) = {
 	.of_match = rti_wdt_ids,
 	.ops = &rti_wdt_ops,
 	.probe = rti_wdt_probe,
-	.priv_auto_alloc_size = sizeof(struct rti_wdt_priv),
+	.priv_auto	= sizeof(struct rti_wdt_priv),
 	.flags = DM_FLAG_REMOVE_WITH_PD_ON,
 };

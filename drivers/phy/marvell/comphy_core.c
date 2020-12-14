@@ -189,5 +189,5 @@ U_BOOT_DRIVER(mvebu_comphy) = {
 	.id	= UCLASS_MISC,
 	.of_match = comphy_ids,
 	.probe	= comphy_probe,
-	.priv_auto_alloc_size = sizeof(struct chip_serdes_phy_config),
+	.priv_auto	= sizeof(struct chip_serdes_phy_config),
 };

@@ -743,7 +743,7 @@ int asix_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 #ifdef CONFIG_DM_ETH
 static int asix_eth_start(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct asix_private *priv = dev_get_priv(dev);
 
 	return asix_init_common(&priv->ueth, pdata->enetaddr);
@@ -825,7 +825,7 @@ static int asix_free_pkt(struct udevice *dev, uchar *packet, int packet_len)
 
 int asix_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct asix_private *priv = dev_get_priv(dev);
 
 	if (priv->flags & FLAG_TYPE_AX88172)
@@ -836,7 +836,7 @@ int asix_write_hwaddr(struct udevice *dev)
 
 static int asix_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct asix_private *priv = dev_get_priv(dev);
 	struct ueth_data *ss = &priv->ueth;
 	int ret;
@@ -876,8 +876,8 @@ U_BOOT_DRIVER(asix_eth) = {
 	.id	= UCLASS_ETH,
 	.probe = asix_eth_probe,
 	.ops	= &asix_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct asix_private),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct asix_private),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 static const struct usb_device_id asix_eth_id_table[] = {

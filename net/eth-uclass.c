@@ -149,7 +149,7 @@ unsigned char *eth_get_ethaddr(void)
 	struct eth_pdata *pdata;
 
 	if (eth_get_dev()) {
-		pdata = eth_get_dev()->platdata;
+		pdata = eth_get_dev()->plat;
 		return pdata->enetaddr;
 	}
 
@@ -203,7 +203,7 @@ static int eth_write_hwaddr(struct udevice *dev)
 
 	/* seq is valid since the device is active */
 	if (eth_get_ops(dev)->write_hwaddr && !eth_mac_skip(dev->seq)) {
-		pdata = dev->platdata;
+		pdata = dev->plat;
 		if (!is_valid_ethaddr(pdata->enetaddr)) {
 			printf("\nError: %s address %pM illegal value\n",
 			       dev->name, pdata->enetaddr);
@@ -237,7 +237,7 @@ static int on_ethaddr(const char *name, const char *value, enum env_op op,
 
 	retval = uclass_find_device_by_seq(UCLASS_ETH, index, false, &dev);
 	if (!retval) {
-		struct eth_pdata *pdata = dev->platdata;
+		struct eth_pdata *pdata = dev->plat;
 		switch (op) {
 		case env_op_create:
 		case env_op_overwrite:
@@ -506,7 +506,7 @@ static bool eth_dev_get_mac_address(struct udevice *dev, u8 mac[ARP_HLEN])
 static int eth_post_probe(struct udevice *dev)
 {
 	struct eth_device_priv *priv = dev->uclass_priv;
-	struct eth_pdata *pdata = dev->platdata;
+	struct eth_pdata *pdata = dev->plat;
 	unsigned char env_enetaddr[ARP_HLEN];
 	char *source = "DT";
 
@@ -583,7 +583,7 @@ static int eth_post_probe(struct udevice *dev)
 
 static int eth_pre_remove(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev->platdata;
+	struct eth_pdata *pdata = dev->plat;
 
 	eth_get_ops(dev)->stop(dev);
 
@@ -600,7 +600,7 @@ UCLASS_DRIVER(eth) = {
 	.pre_unbind	= eth_pre_unbind,
 	.post_probe	= eth_post_probe,
 	.pre_remove	= eth_pre_remove,
-	.priv_auto_alloc_size = sizeof(struct eth_uclass_priv),
-	.per_device_auto_alloc_size = sizeof(struct eth_device_priv),
+	.priv_auto	= sizeof(struct eth_uclass_priv),
+	.per_device_auto	= sizeof(struct eth_device_priv),
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };

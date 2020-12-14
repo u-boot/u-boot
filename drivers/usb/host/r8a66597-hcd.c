@@ -805,7 +805,7 @@ static int r8a66597_submit_bulk_msg(struct udevice *udev,
 	return ret;
 }
 
-static int r8a66597_usb_ofdata_to_platdata(struct udevice *dev)
+static int r8a66597_usb_of_to_plat(struct udevice *dev)
 {
 	struct r8a66597 *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
@@ -890,10 +890,10 @@ U_BOOT_DRIVER(usb_r8a66597) = {
 	.name	= "r8a66597_usb",
 	.id	= UCLASS_USB,
 	.of_match = r8a66597_usb_ids,
-	.ofdata_to_platdata = r8a66597_usb_ofdata_to_platdata,
+	.of_to_plat = r8a66597_usb_of_to_plat,
 	.probe	= r8a66597_usb_probe,
 	.remove = r8a66597_usb_remove,
 	.ops	= &r8a66597_usb_ops,
-	.priv_auto_alloc_size = sizeof(struct r8a66597),
+	.priv_auto	= sizeof(struct r8a66597),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };

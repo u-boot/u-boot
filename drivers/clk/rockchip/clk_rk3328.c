@@ -797,7 +797,7 @@ static int rk3328_clk_probe(struct udevice *dev)
 	return 0;
 }
 
-static int rk3328_clk_ofdata_to_platdata(struct udevice *dev)
+static int rk3328_clk_of_to_plat(struct udevice *dev)
 {
 	struct rk3328_clk_priv *priv = dev_get_priv(dev);
 
@@ -845,8 +845,8 @@ U_BOOT_DRIVER(rockchip_rk3328_cru) = {
 	.name		= "rockchip_rk3328_cru",
 	.id		= UCLASS_CLK,
 	.of_match	= rk3328_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct rk3328_clk_priv),
-	.ofdata_to_platdata = rk3328_clk_ofdata_to_platdata,
+	.priv_auto	= sizeof(struct rk3328_clk_priv),
+	.of_to_plat = rk3328_clk_of_to_plat,
 	.ops		= &rk3328_clk_ops,
 	.bind		= rk3328_clk_bind,
 	.probe		= rk3328_clk_probe,

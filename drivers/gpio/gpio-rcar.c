@@ -189,6 +189,6 @@ U_BOOT_DRIVER(rcar_gpio) = {
 	.id	= UCLASS_GPIO,
 	.of_match = rcar_gpio_ids,
 	.ops	= &rcar_gpio_ops,
-	.priv_auto_alloc_size = sizeof(struct rcar_gpio_priv),
+	.priv_auto	= sizeof(struct rcar_gpio_priv),
 	.probe	= rcar_gpio_probe,
 };

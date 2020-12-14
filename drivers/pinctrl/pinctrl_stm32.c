@@ -500,5 +500,5 @@ U_BOOT_DRIVER(pinctrl_stm32) = {
 	.ops			= &stm32_pinctrl_ops,
 	.bind			= stm32_pinctrl_bind,
 	.probe			= stm32_pinctrl_probe,
-	.priv_auto_alloc_size	= sizeof(struct stm32_pinctrl_priv),
+	.priv_auto	= sizeof(struct stm32_pinctrl_priv),
 };

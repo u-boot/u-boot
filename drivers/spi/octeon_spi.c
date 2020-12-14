@@ -81,7 +81,7 @@ struct octeon_spi {
 
 static u64 octeon_spi_set_mpicfg(struct udevice *dev)
 {
-	struct dm_spi_slave_platdata *slave = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *slave = dev_get_parent_plat(dev);
 	struct udevice *bus = dev_get_parent(dev);
 	struct octeon_spi *priv = dev_get_priv(bus);
 	u64 mpi_cfg;
@@ -611,6 +611,6 @@ U_BOOT_DRIVER(octeon_spi) = {
 	.id			= UCLASS_SPI,
 	.of_match		= octeon_spi_ids,
 	.probe			= octeon_spi_probe,
-	.priv_auto_alloc_size	= sizeof(struct octeon_spi),
+	.priv_auto	= sizeof(struct octeon_spi),
 	.ops			= &octeon_spi_ops,
 };

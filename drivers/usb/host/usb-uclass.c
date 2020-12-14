@@ -389,7 +389,7 @@ struct usb_device *usb_get_dev_index(struct udevice *bus, int index)
 
 int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp)
 {
-	struct usb_platdata *plat;
+	struct usb_plat *plat;
 	struct udevice *dev;
 	int ret;
 
@@ -401,7 +401,7 @@ int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp)
 	if (ret)
 		return ret;
 
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	plat->init_type = USB_INIT_DEVICE;
 	ret = device_probe(dev);
 	if (ret)
@@ -566,7 +566,7 @@ static int usb_find_and_bind_driver(struct udevice *parent,
 		const struct usb_device_id *id;
 		struct udevice *dev;
 		const struct driver *drv;
-		struct usb_dev_platdata *plat;
+		struct usb_dev_plat *plat;
 
 		for (id = entry->match; id->match_flags; id++) {
 			if (!usb_match_one_id(desc, iface, id))
@@ -575,19 +575,19 @@ static int usb_find_and_bind_driver(struct udevice *parent,
 			drv = entry->driver;
 			/*
 			 * We could pass the descriptor to the driver as
-			 * platdata (instead of NULL) and allow its bind()
+			 * plat (instead of NULL) and allow its bind()
 			 * method to return -ENOENT if it doesn't support this
 			 * device. That way we could continue the search to
 			 * find another driver. For now this doesn't seem
 			 * necesssary, so just bind the first match.
 			 */
-			ret = device_bind_ofnode(parent, drv, drv->name, NULL,
-						 node, &dev);
+			ret = device_bind(parent, drv, drv->name, NULL, node,
+					  &dev);
 			if (ret)
 				goto error;
 			debug("%s: Match found: %s\n", __func__, drv->name);
 			dev->driver_data = id->driver_info;
-			plat = dev_get_parent_platdata(dev);
+			plat = dev_get_parent_plat(dev);
 			plat->id = *id;
 			*devp = dev;
 			return 0;
@@ -622,7 +622,7 @@ static int usb_find_child(struct udevice *parent,
 	for (device_find_first_child(parent, &dev);
 	     dev;
 	     device_find_next_child(&dev)) {
-		struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
+		struct usb_dev_plat *plat = dev_get_parent_plat(dev);
 
 		/* If this device is already in use, skip it */
 		if (device_active(dev))
@@ -643,7 +643,7 @@ int usb_scan_device(struct udevice *parent, int port,
 {
 	struct udevice *dev;
 	bool created = false;
-	struct usb_dev_platdata *plat;
+	struct usb_dev_plat *plat;
 	struct usb_bus_priv *priv;
 	struct usb_device *parent_udev;
 	int ret;
@@ -707,7 +707,7 @@ int usb_scan_device(struct udevice *parent, int port,
 			return ret;
 		created = true;
 	}
-	plat = dev_get_parent_platdata(dev);
+	plat = dev_get_parent_plat(dev);
 	debug("%s: Probing '%s', plat=%p\n", __func__, dev->name, plat);
 	plat->devnum = udev->devnum;
 	plat->udev = udev;
@@ -770,7 +770,7 @@ int usb_detect_change(void)
 
 static int usb_child_post_bind(struct udevice *dev)
 {
-	struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
+	struct usb_dev_plat *plat = dev_get_parent_plat(dev);
 	int val;
 
 	if (!dev_of_valid(dev))
@@ -809,7 +809,7 @@ struct udevice *usb_get_bus(struct udevice *dev)
 int usb_child_pre_probe(struct udevice *dev)
 {
 	struct usb_device *udev = dev_get_parent_priv(dev);
-	struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
+	struct usb_dev_plat *plat = dev_get_parent_plat(dev);
 	int ret;
 
 	if (plat->udev) {
@@ -849,12 +849,12 @@ UCLASS_DRIVER(usb) = {
 	.name		= "usb",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_bind	= dm_scan_fdt_dev,
-	.priv_auto_alloc_size = sizeof(struct usb_uclass_priv),
-	.per_child_auto_alloc_size = sizeof(struct usb_device),
-	.per_device_auto_alloc_size = sizeof(struct usb_bus_priv),
+	.priv_auto	= sizeof(struct usb_uclass_priv),
+	.per_child_auto	= sizeof(struct usb_device),
+	.per_device_auto	= sizeof(struct usb_bus_priv),
 	.child_post_bind = usb_child_post_bind,
 	.child_pre_probe = usb_child_pre_probe,
-	.per_child_platdata_auto_alloc_size = sizeof(struct usb_dev_platdata),
+	.per_child_plat_auto	= sizeof(struct usb_dev_plat),
 };
 
 UCLASS_DRIVER(usb_dev_generic) = {

@@ -269,7 +269,7 @@ int acpi_recurse_method(struct acpi_ctx *ctx, struct udevice *parent,
 		void *start = ctx->current;
 
 		log_debug("- method %d, %s %p\n", method, parent->name, func);
-		ret = device_ofdata_to_platdata(parent);
+		ret = device_of_to_plat(parent);
 		if (ret)
 			return log_msg_ret("ofdata", ret);
 		ret = func(parent, ctx);

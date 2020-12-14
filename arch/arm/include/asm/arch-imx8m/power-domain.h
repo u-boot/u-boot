@@ -6,7 +6,7 @@
 #ifndef _ASM_ARCH_IMX8M_POWER_DOMAIN_H
 #define _ASM_ARCH_IMX8M_POWER_DOMAIN_H
 
-struct imx8m_power_domain_platdata {
+struct imx8m_power_domain_plat {
 	int resource_id;
 	int has_pd;
 	struct power_domain pd;

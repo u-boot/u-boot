@@ -87,6 +87,6 @@ U_BOOT_DRIVER(syscon_reboot) = {
 	.id = UCLASS_SYSRESET,
 	.of_match = syscon_reboot_ids,
 	.probe = syscon_reboot_probe,
-	.priv_auto_alloc_size = sizeof(struct syscon_reboot_priv),
+	.priv_auto	= sizeof(struct syscon_reboot_priv),
 	.ops = &syscon_reboot_ops,
 };

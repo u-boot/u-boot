@@ -42,7 +42,7 @@ enum {
 };
 
 /**
- * struct apl_hostbridge_platdata - platform data for hostbridge
+ * struct apl_hostbridge_plat - platform data for hostbridge
  *
  * @dtplat: Platform data for of-platdata
  * @early_pads: Early pad data to set up, each (pad, cfg0, cfg1)
@@ -50,7 +50,7 @@ enum {
  * @pciex_region_size: BAR length in bytes
  * @bdf: Bus/device/function of hostbridge
  */
-struct apl_hostbridge_platdata {
+struct apl_hostbridge_plat {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct dtd_intel_apl_hostbridge dtplat;
 #endif
@@ -158,7 +158,7 @@ static const struct nhlt_endp_descriptor dmic_4ch_descriptors[] = {
 
 static int apl_hostbridge_early_init_pinctrl(struct udevice *dev)
 {
-	struct apl_hostbridge_platdata *plat = dev_get_platdata(dev);
+	struct apl_hostbridge_plat *plat = dev_get_plat(dev);
 	struct udevice *pinctrl;
 	int ret;
 
@@ -172,7 +172,7 @@ static int apl_hostbridge_early_init_pinctrl(struct udevice *dev)
 
 static int apl_hostbridge_early_init(struct udevice *dev)
 {
-	struct apl_hostbridge_platdata *plat = dev_get_platdata(dev);
+	struct apl_hostbridge_plat *plat = dev_get_plat(dev);
 	u32 region_size;
 	ulong base;
 	u32 reg;
@@ -221,9 +221,9 @@ static int apl_hostbridge_early_init(struct udevice *dev)
 	return 0;
 }
 
-static int apl_hostbridge_ofdata_to_platdata(struct udevice *dev)
+static int apl_hostbridge_of_to_plat(struct udevice *dev)
 {
-	struct apl_hostbridge_platdata *plat = dev_get_platdata(dev);
+	struct apl_hostbridge_plat *plat = dev_get_plat(dev);
 	struct udevice *pinctrl;
 	int ret;
 
@@ -400,10 +400,10 @@ U_BOOT_DRIVER(intel_apl_hostbridge) = {
 	.name		= "intel_apl_hostbridge",
 	.id		= UCLASS_NORTHBRIDGE,
 	.of_match	= apl_hostbridge_ids,
-	.ofdata_to_platdata = apl_hostbridge_ofdata_to_platdata,
+	.of_to_plat = apl_hostbridge_of_to_plat,
 	.probe		= apl_hostbridge_probe,
 	.remove		= apl_hostbridge_remove,
-	.platdata_auto_alloc_size = sizeof(struct apl_hostbridge_platdata),
+	.plat_auto	= sizeof(struct apl_hostbridge_plat),
 	ACPI_OPS_PTR(&apl_hostbridge_acpi_ops)
 	.flags		= DM_FLAG_OS_PREPARE,
 };

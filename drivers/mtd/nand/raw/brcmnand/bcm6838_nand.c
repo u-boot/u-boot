@@ -108,7 +108,7 @@ U_BOOT_DRIVER(bcm6838_nand) = {
 	.id = UCLASS_MTD,
 	.of_match = bcm6838_nand_dt_ids,
 	.probe = bcm6838_nand_probe,
-	.priv_auto_alloc_size = sizeof(struct bcm6838_nand_soc),
+	.priv_auto	= sizeof(struct bcm6838_nand_soc),
 };
 
 void board_nand_init(void)

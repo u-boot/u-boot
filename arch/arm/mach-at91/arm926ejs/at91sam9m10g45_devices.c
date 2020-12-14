@@ -167,7 +167,7 @@ void at91_mci_hw_init(void)
 #endif
 
 /* Platform data for the GPIOs */
-static const struct at91_port_platdata at91sam9260_plat[] = {
+static const struct at91_port_plat at91sam9260_plat[] = {
 	{ ATMEL_BASE_PIOA, "PA" },
 	{ ATMEL_BASE_PIOB, "PB" },
 	{ ATMEL_BASE_PIOC, "PC" },

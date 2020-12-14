@@ -187,7 +187,7 @@ U_BOOT_DRIVER(serdes_am654_mux_clk) = {
 	.name = "ti-serdes-am654-mux-clk",
 	.id = UCLASS_CLK,
 	.probe = serdes_am654_mux_clk_probe,
-	.priv_auto_alloc_size = sizeof(struct serdes_am654_mux_clk_data),
+	.priv_auto	= sizeof(struct serdes_am654_mux_clk_data),
 	.ops = &serdes_am654_mux_clk_ops,
 };
 
@@ -412,5 +412,5 @@ U_BOOT_DRIVER(am654_serdes_phy) = {
 	.bind = serdes_am654_bind,
 	.ops = &serdes_am654_phy_ops,
 	.probe = serdes_am654_probe,
-	.priv_auto_alloc_size = sizeof(struct serdes_am654),
+	.priv_auto	= sizeof(struct serdes_am654),
 };

@@ -150,6 +150,6 @@ U_BOOT_DRIVER(armada_37xx_tbg_clk) = {
 	.id		= UCLASS_CLK,
 	.of_match	= armada_37xx_tbg_clk_ids,
 	.ops		= &armada_37xx_tbg_clk_ops,
-	.priv_auto_alloc_size = sizeof(struct a37xx_tbgclk),
+	.priv_auto	= sizeof(struct a37xx_tbgclk),
 	.probe		= armada_37xx_tbg_clk_probe,
 };

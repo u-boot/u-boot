@@ -155,5 +155,5 @@ U_BOOT_DRIVER(usb_sandbox) = {
 	.of_match = sandbox_usb_ids,
 	.probe = sandbox_usb_probe,
 	.ops	= &sandbox_usb_ops,
-	.priv_auto_alloc_size = sizeof(struct sandbox_usb_ctrl),
+	.priv_auto	= sizeof(struct sandbox_usb_ctrl),
 };

@@ -22,7 +22,7 @@ static int lcd_dt_simplefb_configure_node(void *blob, int off)
 	const char *name;
 	ulong fb_base;
 #ifdef CONFIG_DM_VIDEO
-	struct video_uc_platdata *plat;
+	struct video_uc_plat *plat;
 	struct video_priv *uc_priv;
 	struct udevice *dev;
 	int ret;
@@ -31,7 +31,7 @@ static int lcd_dt_simplefb_configure_node(void *blob, int off)
 	if (ret)
 		return ret;
 	uc_priv = dev_get_uclass_priv(dev);
-	plat = dev_get_uclass_platdata(dev);
+	plat = dev_get_uclass_plat(dev);
 	xsize = uc_priv->xsize;
 	ysize = uc_priv->ysize;
 	bpix = uc_priv->bpix;

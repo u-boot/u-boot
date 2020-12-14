@@ -64,7 +64,7 @@ static int dwc3_of_simple_clk_init(struct udevice *dev,
 
 static int dwc3_of_simple_probe(struct udevice *dev)
 {
-	struct dwc3_of_simple *simple = dev_get_platdata(dev);
+	struct dwc3_of_simple *simple = dev_get_plat(dev);
 	int ret;
 
 	ret = dwc3_of_simple_clk_init(dev, simple);
@@ -80,7 +80,7 @@ static int dwc3_of_simple_probe(struct udevice *dev)
 
 static int dwc3_of_simple_remove(struct udevice *dev)
 {
-	struct dwc3_of_simple *simple = dev_get_platdata(dev);
+	struct dwc3_of_simple *simple = dev_get_plat(dev);
 
 	reset_release_bulk(&simple->resets);
 
@@ -102,6 +102,6 @@ U_BOOT_DRIVER(dwc3_of_simple) = {
 	.of_match = dwc3_of_simple_ids,
 	.probe = dwc3_of_simple_probe,
 	.remove = dwc3_of_simple_remove,
-	.platdata_auto_alloc_size = sizeof(struct dwc3_of_simple),
+	.plat_auto	= sizeof(struct dwc3_of_simple),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

@@ -41,7 +41,7 @@ struct uart_zynq {
 	u32 baud_rate_divider; /* 0x34 - Baud Rate Divider [7:0] */
 };
 
-struct zynq_uart_platdata {
+struct zynq_uart_plat {
 	struct uart_zynq *regs;
 };
 
@@ -107,7 +107,7 @@ static int _uart_zynq_serial_putc(struct uart_zynq *regs, const char c)
 
 static int zynq_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct zynq_uart_platdata *platdata = dev_get_platdata(dev);
+	struct zynq_uart_plat *plat = dev_get_plat(dev);
 	unsigned long clock;
 
 	int ret;
@@ -132,15 +132,15 @@ static int zynq_serial_setbrg(struct udevice *dev, int baudrate)
 		return ret;
 	}
 
-	_uart_zynq_serial_setbrg(platdata->regs, clock, baudrate);
+	_uart_zynq_serial_setbrg(plat->regs, clock, baudrate);
 
 	return 0;
 }
 
 static int zynq_serial_probe(struct udevice *dev)
 {
-	struct zynq_uart_platdata *platdata = dev_get_platdata(dev);
-	struct uart_zynq *regs = platdata->regs;
+	struct zynq_uart_plat *plat = dev_get_plat(dev);
+	struct uart_zynq *regs = plat->regs;
 	u32 val;
 
 	/* No need to reinitialize the UART if TX already enabled */
@@ -148,15 +148,15 @@ static int zynq_serial_probe(struct udevice *dev)
 	if (val & ZYNQ_UART_CR_TX_EN)
 		return 0;
 
-	_uart_zynq_serial_init(platdata->regs);
+	_uart_zynq_serial_init(plat->regs);
 
 	return 0;
 }
 
 static int zynq_serial_getc(struct udevice *dev)
 {
-	struct zynq_uart_platdata *platdata = dev_get_platdata(dev);
-	struct uart_zynq *regs = platdata->regs;
+	struct zynq_uart_plat *plat = dev_get_plat(dev);
+	struct uart_zynq *regs = plat->regs;
 
 	if (readl(&regs->channel_sts) & ZYNQ_UART_SR_RXEMPTY)
 		return -EAGAIN;
@@ -166,15 +166,15 @@ static int zynq_serial_getc(struct udevice *dev)
 
 static int zynq_serial_putc(struct udevice *dev, const char ch)
 {
-	struct zynq_uart_platdata *platdata = dev_get_platdata(dev);
+	struct zynq_uart_plat *plat = dev_get_plat(dev);
 
-	return _uart_zynq_serial_putc(platdata->regs, ch);
+	return _uart_zynq_serial_putc(plat->regs, ch);
 }
 
 static int zynq_serial_pending(struct udevice *dev, bool input)
 {
-	struct zynq_uart_platdata *platdata = dev_get_platdata(dev);
-	struct uart_zynq *regs = platdata->regs;
+	struct zynq_uart_plat *plat = dev_get_plat(dev);
+	struct uart_zynq *regs = plat->regs;
 
 	if (input)
 		return !(readl(&regs->channel_sts) & ZYNQ_UART_SR_RXEMPTY);
@@ -182,13 +182,13 @@ static int zynq_serial_pending(struct udevice *dev, bool input)
 		return !!(readl(&regs->channel_sts) & ZYNQ_UART_SR_TXACTIVE);
 }
 
-static int zynq_serial_ofdata_to_platdata(struct udevice *dev)
+static int zynq_serial_of_to_plat(struct udevice *dev)
 {
-	struct zynq_uart_platdata *platdata = dev_get_platdata(dev);
+	struct zynq_uart_plat *plat = dev_get_plat(dev);
 
-	platdata->regs = (struct uart_zynq *)dev_read_addr(dev);
-	if (IS_ERR(platdata->regs))
-		return PTR_ERR(platdata->regs);
+	plat->regs = (struct uart_zynq *)dev_read_addr(dev);
+	if (IS_ERR(plat->regs))
+		return PTR_ERR(plat->regs);
 
 	return 0;
 }
@@ -211,8 +211,8 @@ U_BOOT_DRIVER(serial_zynq) = {
 	.name	= "serial_zynq",
 	.id	= UCLASS_SERIAL,
 	.of_match = zynq_serial_ids,
-	.ofdata_to_platdata = zynq_serial_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct zynq_uart_platdata),
+	.of_to_plat = zynq_serial_of_to_plat,
+	.plat_auto	= sizeof(struct zynq_uart_plat),
 	.probe = zynq_serial_probe,
 	.ops	= &zynq_serial_ops,
 };

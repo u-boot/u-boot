@@ -940,7 +940,7 @@ ulong ide_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 #endif
 {
 #ifdef CONFIG_BLK
-	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 #endif
 	int device = block_dev->devnum;
 	ulong n = 0;
@@ -1067,7 +1067,7 @@ ulong ide_write(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 #endif
 {
 #ifdef CONFIG_BLK
-	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 #endif
 	int device = block_dev->devnum;
 	ulong n = 0;
@@ -1160,7 +1160,7 @@ int ide_device_present(int dev)
 #ifdef CONFIG_BLK
 static int ide_blk_probe(struct udevice *udev)
 {
-	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+	struct blk_desc *desc = dev_get_uclass_plat(udev);
 
 	/* fill in device vendor/product/rev strings */
 	strncpy(desc->vendor, ide_dev_desc[desc->devnum].vendor,

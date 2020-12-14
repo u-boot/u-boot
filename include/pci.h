@@ -899,11 +899,11 @@ struct udevice;
 
 #ifdef CONFIG_DM_PCI
 /**
- * struct pci_child_platdata - information stored about each PCI device
+ * struct pci_child_plat - information stored about each PCI device
  *
  * Every device on a PCI bus has this per-child data.
  *
- * It can be accessed using dev_get_parent_platdata(dev) if dev->parent is a
+ * It can be accessed using dev_get_parent_plat(dev) if dev->parent is a
  * PCI bus (i.e. UCLASS_PCI)
  *
  * @devfn:	Encoded device and function index - see PCI_DEVFN()
@@ -914,7 +914,7 @@ struct udevice;
  * @pfdev:	Handle to Physical Function device
  * @virtid:	Virtual Function Index
  */
-struct pci_child_platdata {
+struct pci_child_plat {
 	int devfn;
 	unsigned short vendor;
 	unsigned short device;

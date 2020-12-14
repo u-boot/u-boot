@@ -141,5 +141,5 @@ UCLASS_DRIVER(tpm) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.post_bind	= dm_scan_fdt_dev,
 #endif
-	.per_device_auto_alloc_size	= sizeof(struct tpm_chip_priv),
+	.per_device_auto	= sizeof(struct tpm_chip_priv),
 };

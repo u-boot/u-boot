@@ -130,14 +130,14 @@ int w1_get_bus(int busnum, struct udevice **busp)
 
 u8 w1_get_device_family(struct udevice *dev)
 {
-	struct w1_device *w1 = dev_get_parent_platdata(dev);
+	struct w1_device *w1 = dev_get_parent_plat(dev);
 
 	return w1->id & 0xff;
 }
 
 int w1_reset_select(struct udevice *dev)
 {
-	struct w1_device *w1 = dev_get_parent_platdata(dev);
+	struct w1_device *w1 = dev_get_parent_plat(dev);
 	struct udevice *bus = dev_get_parent(dev);
 	const struct w1_ops *ops = device_get_ops(bus);
 	int i;
@@ -230,10 +230,10 @@ UCLASS_DRIVER(w1) = {
 	.name		= "w1",
 	.id		= UCLASS_W1,
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
-	.per_device_auto_alloc_size	= sizeof(struct w1_bus),
+	.per_device_auto	= sizeof(struct w1_bus),
 	.post_probe	= w1_post_probe,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.post_bind	= dm_scan_fdt_dev,
 #endif
-	.per_child_platdata_auto_alloc_size     = sizeof(struct w1_device),
+	.per_child_plat_auto	    = sizeof(struct w1_device),
 };

@@ -431,5 +431,5 @@ U_BOOT_DRIVER(meson_ee_pwrc) = {
 	.of_match = meson_ee_pwrc_ids,
 	.probe = meson_ee_pwrc_probe,
 	.ops = &meson_ee_pwrc_ops,
-	.priv_auto_alloc_size = sizeof(struct meson_ee_pwrc_priv),
+	.priv_auto	= sizeof(struct meson_ee_pwrc_priv),
 };

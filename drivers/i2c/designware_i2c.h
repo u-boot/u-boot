@@ -212,7 +212,7 @@ extern const struct dm_i2c_ops designware_i2c_ops;
 
 int designware_i2c_probe(struct udevice *bus);
 int designware_i2c_remove(struct udevice *dev);
-int designware_i2c_ofdata_to_platdata(struct udevice *bus);
+int designware_i2c_of_to_plat(struct udevice *bus);
 
 /**
  * dw_i2c_gen_speed_config() - Calculate config info from requested speed

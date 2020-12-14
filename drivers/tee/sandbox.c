@@ -385,7 +385,7 @@ U_BOOT_DRIVER(sandbox_tee) = {
 	.id = UCLASS_TEE,
 	.of_match = sandbox_tee_match,
 	.ops = &sandbox_tee_ops,
-	.priv_auto_alloc_size = sizeof(struct sandbox_tee_state),
+	.priv_auto	= sizeof(struct sandbox_tee_state),
 	.probe = sandbox_tee_probe,
 	.remove = sandbox_tee_remove,
 };

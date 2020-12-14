@@ -72,7 +72,7 @@ static ulong virtio_blk_write(struct udevice *dev, lbaint_t start,
 static int virtio_blk_bind(struct udevice *dev)
 {
 	struct virtio_dev_priv *uc_priv = dev_get_uclass_priv(dev->parent);
-	struct blk_desc *desc = dev_get_uclass_platdata(dev);
+	struct blk_desc *desc = dev_get_uclass_plat(dev);
 	int devnum;
 
 	desc->if_type = IF_TYPE_VIRTIO;
@@ -106,7 +106,7 @@ static int virtio_blk_bind(struct udevice *dev)
 static int virtio_blk_probe(struct udevice *dev)
 {
 	struct virtio_blk_priv *priv = dev_get_priv(dev);
-	struct blk_desc *desc = dev_get_uclass_platdata(dev);
+	struct blk_desc *desc = dev_get_uclass_plat(dev);
 	u64 cap;
 	int ret;
 
@@ -134,6 +134,6 @@ U_BOOT_DRIVER(virtio_blk) = {
 	.bind	= virtio_blk_bind,
 	.probe	= virtio_blk_probe,
 	.remove	= virtio_reset,
-	.priv_auto_alloc_size = sizeof(struct virtio_blk_priv),
+	.priv_auto	= sizeof(struct virtio_blk_priv),
 	.flags	= DM_FLAG_ACTIVE_DMA,
 };

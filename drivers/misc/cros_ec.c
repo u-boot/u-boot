@@ -1505,7 +1505,7 @@ int cros_ec_set_lid_shutdown_mask(struct udevice *dev, int enable)
 UCLASS_DRIVER(cros_ec) = {
 	.id		= UCLASS_CROS_EC,
 	.name		= "cros-ec",
-	.per_device_auto_alloc_size = sizeof(struct cros_ec_dev),
+	.per_device_auto	= sizeof(struct cros_ec_dev),
 	.post_bind	= dm_scan_fdt_dev,
 	.flags		= DM_UC_FLAG_ALLOC_PRIV_DMA,
 };

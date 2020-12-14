@@ -357,5 +357,5 @@ U_BOOT_DRIVER(i8042_kbd) = {
 	.probe = i8042_kbd_probe,
 	.remove = i8042_kbd_remove,
 	.ops	= &i8042_kbd_ops,
-	.priv_auto_alloc_size = sizeof(struct i8042_kbd_priv),
+	.priv_auto	= sizeof(struct i8042_kbd_priv),
 };

@@ -5186,7 +5186,7 @@ static int mvpp2_send(struct udevice *dev, void *packet, int length)
 
 static int mvpp2_start(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct mvpp2_port *port = dev_get_priv(dev);
 
 	/* Load current MAC address */
@@ -5424,8 +5424,8 @@ static struct driver mvpp2_driver = {
 	.probe	= mvpp2_probe,
 	.remove = mvpp2_remove,
 	.ops	= &mvpp2_ops,
-	.priv_auto_alloc_size = sizeof(struct mvpp2_port),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct mvpp2_port),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags	= DM_FLAG_ACTIVE_DMA,
 };
 
@@ -5477,8 +5477,8 @@ static int mvpp2_base_bind(struct udevice *parent)
 		sprintf(name, "mvpp2-%d", id);
 
 		/* Create child device UCLASS_ETH and bind it */
-		device_bind(parent, &mvpp2_driver, name, plat, subnode, &dev);
-		dev_set_of_offset(dev, subnode);
+		device_bind(parent, &mvpp2_driver, name, plat,
+			    offset_to_ofnode(subnode), &dev);
 	}
 
 	return 0;
@@ -5501,5 +5501,5 @@ U_BOOT_DRIVER(mvpp2_base) = {
 	.id	= UCLASS_MISC,
 	.of_match = mvpp2_ids,
 	.bind	= mvpp2_base_bind,
-	.priv_auto_alloc_size = sizeof(struct mvpp2),
+	.priv_auto	= sizeof(struct mvpp2),
 };

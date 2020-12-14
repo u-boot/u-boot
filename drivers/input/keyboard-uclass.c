@@ -87,5 +87,5 @@ UCLASS_DRIVER(keyboard) = {
 	.id		= UCLASS_KEYBOARD,
 	.name		= "keyboard",
 	.pre_probe	= keyboard_pre_probe,
-	.per_device_auto_alloc_size = sizeof(struct keyboard_priv),
+	.per_device_auto	= sizeof(struct keyboard_priv),
 };

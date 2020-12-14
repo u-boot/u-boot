@@ -792,5 +792,5 @@ U_BOOT_DRIVER(rockchip_typec_phy) = {
 	.of_match = rockchip_typec_phy_ids,
 	.probe = rockchip_tcphy_probe,
 	.bind = rockchip_tcphy_bind,
-	.priv_auto_alloc_size = sizeof(struct rockchip_tcphy),
+	.priv_auto	= sizeof(struct rockchip_tcphy),
 };

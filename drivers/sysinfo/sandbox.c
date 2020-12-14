@@ -102,6 +102,6 @@ U_BOOT_DRIVER(sysinfo_sandbox) = {
 	.id             = UCLASS_SYSINFO,
 	.of_match       = sysinfo_sandbox_ids,
 	.ops		= &sysinfo_sandbox_ops,
-	.priv_auto_alloc_size = sizeof(struct sysinfo_sandbox_priv),
+	.priv_auto	= sizeof(struct sysinfo_sandbox_priv),
 	.probe          = sysinfo_sandbox_probe,
 };

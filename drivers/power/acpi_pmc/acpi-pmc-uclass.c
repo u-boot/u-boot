@@ -204,7 +204,7 @@ void pmc_dump_info(struct udevice *dev)
 	       upriv->gen_pmcon1, upriv->gen_pmcon2, upriv->gen_pmcon3);
 }
 
-int pmc_ofdata_to_uc_platdata(struct udevice *dev)
+int pmc_ofdata_to_uc_plat(struct udevice *dev)
 {
 	struct acpi_pmc_upriv *upriv = dev_get_uclass_priv(dev);
 	int ret;
@@ -231,5 +231,5 @@ int pmc_ofdata_to_uc_platdata(struct udevice *dev)
 UCLASS_DRIVER(acpi_pmc) = {
 	.id		= UCLASS_ACPI_PMC,
 	.name		= "power-mgr",
-	.per_device_auto_alloc_size	= sizeof(struct acpi_pmc_upriv),
+	.per_device_auto	= sizeof(struct acpi_pmc_upriv),
 };

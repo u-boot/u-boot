@@ -513,12 +513,12 @@ static const struct eth_ops mcffec_ops = {
 };
 
 /*
- * Boot sequence, called just after mcffec_ofdata_to_platdata,
+ * Boot sequence, called just after mcffec_of_to_plat,
  * as DM way, it replaces old mcffec_initialize.
  */
 static int mcffec_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct fec_info_s *info = dev->priv;
 	int node = dev_of_offset(dev);
 	int retval, fec_idx;
@@ -584,9 +584,9 @@ static int mcffec_remove(struct udevice *dev)
 /*
  * Boot sequence, called 1st
  */
-static int mcffec_ofdata_to_platdata(struct udevice *dev)
+static int mcffec_of_to_plat(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const u32 *val;
 
 	pdata->iobase = dev_read_addr(dev);
@@ -610,10 +610,10 @@ U_BOOT_DRIVER(mcffec) = {
 	.name	= "mcffec",
 	.id	= UCLASS_ETH,
 	.of_match = mcffec_ids,
-	.ofdata_to_platdata = mcffec_ofdata_to_platdata,
+	.of_to_plat = mcffec_of_to_plat,
 	.probe	= mcffec_probe,
 	.remove	= mcffec_remove,
 	.ops	= &mcffec_ops,
-	.priv_auto_alloc_size = sizeof(struct fec_info_s),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct fec_info_s),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

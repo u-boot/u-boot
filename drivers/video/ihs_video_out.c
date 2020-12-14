@@ -338,5 +338,5 @@ U_BOOT_DRIVER(ihs_video_out_drv) = {
 	.ops		= &ihs_video_out_ops,
 	.of_match       = ihs_video_out_ids,
 	.probe          = ihs_video_out_probe,
-	.priv_auto_alloc_size = sizeof(struct ihs_video_out_priv),
+	.priv_auto	= sizeof(struct ihs_video_out_priv),
 };

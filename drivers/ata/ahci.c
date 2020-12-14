@@ -172,7 +172,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 #if !defined(CONFIG_SCSI_AHCI_PLAT) && !defined(CONFIG_DM_SCSI)
 # ifdef CONFIG_DM_PCI
 	struct udevice *dev = uc_priv->dev;
-	struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
+	struct pci_child_plat *pplat = dev_get_parent_plat(dev);
 # else
 	pci_dev_t pdev = uc_priv->dev;
 	unsigned short vendor;
@@ -474,7 +474,7 @@ static int ahci_init_one(struct ahci_uc_priv *uc_priv, pci_dev_t dev)
 		pci_write_config_byte(dev, 0x41, 0xa1);
 #endif
 #else
-	struct scsi_platdata *plat = dev_get_uclass_platdata(dev);
+	struct scsi_plat *plat = dev_get_uclass_plat(dev);
 	uc_priv->mmio_base = (void *)plat->base;
 #endif
 
@@ -1163,14 +1163,14 @@ int ahci_bind_scsi(struct udevice *ahci_dev, struct udevice **devp)
 int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 {
 	struct ahci_uc_priv *uc_priv;
-	struct scsi_platdata *uc_plat;
+	struct scsi_plat *uc_plat;
 	struct udevice *dev;
 	int ret;
 
 	device_find_first_child(ahci_dev, &dev);
 	if (!dev)
 		return -ENODEV;
-	uc_plat = dev_get_uclass_platdata(dev);
+	uc_plat = dev_get_uclass_plat(dev);
 	uc_plat->base = base;
 	uc_plat->max_lun = 1;
 	uc_plat->max_id = 2;

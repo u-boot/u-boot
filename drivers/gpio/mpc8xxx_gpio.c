@@ -183,9 +183,9 @@ static int mpc8xxx_gpio_get_function(struct udevice *dev, uint gpio)
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-static int mpc8xxx_gpio_ofdata_to_platdata(struct udevice *dev)
+static int mpc8xxx_gpio_of_to_plat(struct udevice *dev)
 {
-	struct mpc8xxx_gpio_plat *plat = dev_get_platdata(dev);
+	struct mpc8xxx_gpio_plat *plat = dev_get_plat(dev);
 	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
 	fdt_addr_t addr;
 	u32 i;
@@ -219,10 +219,10 @@ static int mpc8xxx_gpio_ofdata_to_platdata(struct udevice *dev)
 }
 #endif
 
-static int mpc8xxx_gpio_platdata_to_priv(struct udevice *dev)
+static int mpc8xxx_gpio_plat_to_priv(struct udevice *dev)
 {
 	struct mpc8xxx_gpio_data *priv = dev_get_priv(dev);
-	struct mpc8xxx_gpio_plat *plat = dev_get_platdata(dev);
+	struct mpc8xxx_gpio_plat *plat = dev_get_plat(dev);
 	unsigned long size = plat->size;
 	ulong driver_data = dev_get_driver_data(dev);
 
@@ -249,7 +249,7 @@ static int mpc8xxx_gpio_probe(struct udevice *dev)
 	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
 	char name[32], *str;
 
-	mpc8xxx_gpio_platdata_to_priv(dev);
+	mpc8xxx_gpio_plat_to_priv(dev);
 
 	snprintf(name, sizeof(name), "MPC@%lx_", data->addr);
 	str = strdup(name);
@@ -294,10 +294,10 @@ U_BOOT_DRIVER(gpio_mpc8xxx) = {
 	.id	= UCLASS_GPIO,
 	.ops	= &gpio_mpc8xxx_ops,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-	.ofdata_to_platdata = mpc8xxx_gpio_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct mpc8xxx_gpio_plat),
+	.of_to_plat = mpc8xxx_gpio_of_to_plat,
+	.plat_auto	= sizeof(struct mpc8xxx_gpio_plat),
 	.of_match = mpc8xxx_gpio_ids,
 #endif
 	.probe	= mpc8xxx_gpio_probe,
-	.priv_auto_alloc_size = sizeof(struct mpc8xxx_gpio_data),
+	.priv_auto	= sizeof(struct mpc8xxx_gpio_data),
 };

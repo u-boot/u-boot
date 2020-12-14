@@ -112,7 +112,7 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
             val = ConfigParser.SafeConfigParser.get(
                 self, section, option, *args, **kwargs
             )
-        return tools.ToUnicode(val)
+        return val
 
     def items(self, section, *args, **kwargs):
         """Extend SafeConfigParser to add project_section to section.
@@ -147,8 +147,7 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
 
         item_dict = dict(top_items)
         item_dict.update(project_items)
-        return {(tools.ToUnicode(item), tools.ToUnicode(val))
-                for item, val in item_dict.items()}
+        return {(item, val) for item, val in item_dict.items()}
 
 def ReadGitAliases(fname):
     """Read a git alias file. This is in the form used by git:

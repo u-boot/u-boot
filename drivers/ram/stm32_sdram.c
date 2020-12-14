@@ -161,7 +161,7 @@ struct stm32_sdram_params {
 
 int stm32_sdram_init(struct udevice *dev)
 {
-	struct stm32_sdram_params *params = dev_get_platdata(dev);
+	struct stm32_sdram_params *params = dev_get_plat(dev);
 	struct stm32_sdram_control *control;
 	struct stm32_sdram_timing *timing;
 	struct stm32_fmc_regs *regs = params->base;
@@ -256,9 +256,9 @@ int stm32_sdram_init(struct udevice *dev)
 	return 0;
 }
 
-static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
+static int stm32_fmc_of_to_plat(struct udevice *dev)
 {
-	struct stm32_sdram_params *params = dev_get_platdata(dev);
+	struct stm32_sdram_params *params = dev_get_plat(dev);
 	struct bank_params *bank_params;
 	struct ofnode_phandle_args args;
 	u32 *syscfg_base;
@@ -355,7 +355,7 @@ static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
 
 static int stm32_fmc_probe(struct udevice *dev)
 {
-	struct stm32_sdram_params *params = dev_get_platdata(dev);
+	struct stm32_sdram_params *params = dev_get_plat(dev);
 	int ret;
 	fdt_addr_t addr;
 
@@ -407,7 +407,7 @@ U_BOOT_DRIVER(stm32_fmc) = {
 	.id = UCLASS_RAM,
 	.of_match = stm32_fmc_ids,
 	.ops = &stm32_fmc_ops,
-	.ofdata_to_platdata = stm32_fmc_ofdata_to_platdata,
+	.of_to_plat = stm32_fmc_of_to_plat,
 	.probe = stm32_fmc_probe,
-	.platdata_auto_alloc_size = sizeof(struct stm32_sdram_params),
+	.plat_auto	= sizeof(struct stm32_sdram_params),
 };

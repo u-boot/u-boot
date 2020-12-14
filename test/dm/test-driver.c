@@ -21,7 +21,7 @@ static struct unit_test_state *uts = &global_dm_test_state;
 
 static int testdrv_ping(struct udevice *dev, int pingval, int *pingret)
 {
-	const struct dm_test_pdata *pdata = dev_get_platdata(dev);
+	const struct dm_test_pdata *pdata = dev_get_plat(dev);
 	struct dm_test_priv *priv = dev_get_priv(dev);
 
 	*pingret = pingval + pdata->ping_add;
@@ -81,7 +81,7 @@ U_BOOT_DRIVER(test_drv) = {
 	.probe	= test_probe,
 	.remove	= test_remove,
 	.unbind	= test_unbind,
-	.priv_auto_alloc_size = sizeof(struct dm_test_priv),
+	.priv_auto	= sizeof(struct dm_test_priv),
 };
 
 U_BOOT_DRIVER(test2_drv) = {
@@ -92,7 +92,7 @@ U_BOOT_DRIVER(test2_drv) = {
 	.probe	= test_probe,
 	.remove	= test_remove,
 	.unbind	= test_unbind,
-	.priv_auto_alloc_size = sizeof(struct dm_test_priv),
+	.priv_auto	= sizeof(struct dm_test_priv),
 };
 
 static int test_manual_drv_ping(struct udevice *dev, int pingval, int *pingret)

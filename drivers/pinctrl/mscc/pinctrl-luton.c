@@ -166,7 +166,7 @@ int luton_pinctrl_probe(struct udevice *dev)
 		return ret;
 
 	ret = device_bind(dev, &luton_gpio_driver, "luton-gpio", NULL,
-			  dev_of_offset(dev), NULL);
+			  dev_ofnode(dev), NULL);
 
 	return 0;
 }
@@ -181,6 +181,6 @@ U_BOOT_DRIVER(luton_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(luton_pinctrl_of_match),
 	.probe = luton_pinctrl_probe,
-	.priv_auto_alloc_size = sizeof(struct mscc_pinctrl),
+	.priv_auto	= sizeof(struct mscc_pinctrl),
 	.ops = &mscc_pinctrl_ops,
 };

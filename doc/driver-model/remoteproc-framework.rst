@@ -127,7 +127,7 @@ a simplified definition of a device is as follows:
 
 	U_BOOT_DEVICE(proc_3_demo) = {
 		.name = "sandbox_test_proc",
-		.platdata = &proc_3_test,
+		.plat = &proc_3_test,
 	};
 
 There can be additional data that may be desired depending on the

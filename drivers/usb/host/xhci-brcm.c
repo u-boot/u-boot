@@ -22,7 +22,7 @@
 #define USBAXI_SA_UA_MASK	(USBAXI_UA_MASK | USBAXI_SA_MASK)
 #define USBAXI_SA_UA_VAL	(USBAXI_UA_VAL | USBAXI_SA_VAL)
 
-struct brcm_xhci_platdata {
+struct brcm_xhci_plat {
 	unsigned int arcache;
 	unsigned int awcache;
 	void __iomem *hc_base;
@@ -30,7 +30,7 @@ struct brcm_xhci_platdata {
 
 static int xhci_brcm_probe(struct udevice *dev)
 {
-	struct brcm_xhci_platdata *plat = dev_get_platdata(dev);
+	struct brcm_xhci_plat *plat = dev_get_plat(dev);
 	struct xhci_hcor *hcor;
 	struct xhci_hccr *hcd;
 	int len, ret = 0;
@@ -71,7 +71,7 @@ static int xhci_brcm_probe(struct udevice *dev)
 
 static int xhci_brcm_deregister(struct udevice *dev)
 {
-	struct brcm_xhci_platdata *plat = dev_get_platdata(dev);
+	struct brcm_xhci_plat *plat = dev_get_plat(dev);
 
 	/* Restore the default values for AXI read and write attributes */
 	writel(plat->awcache, plat->hc_base + DRD2U3H_XHC_REGS_AXIWRA);
@@ -92,7 +92,7 @@ U_BOOT_DRIVER(usb_xhci) = {
 	.remove				= xhci_brcm_deregister,
 	.ops				= &xhci_usb_ops,
 	.of_match			= xhci_brcm_ids,
-	.platdata_auto_alloc_size	= sizeof(struct brcm_xhci_platdata),
-	.priv_auto_alloc_size		= sizeof(struct xhci_ctrl),
+	.plat_auto	= sizeof(struct brcm_xhci_plat),
+	.priv_auto		= sizeof(struct xhci_ctrl),
 	.flags				= DM_FLAG_ALLOC_PRIV_DMA,
 };

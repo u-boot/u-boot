@@ -192,7 +192,7 @@ static int sdhci_get_config(const void *blob, int node, struct sdhci_host *host)
 #ifdef CONFIG_DM_MMC
 static int s5p_sdhci_probe(struct udevice *dev)
 {
-	struct s5p_sdhci_plat *plat = dev_get_platdata(dev);
+	struct s5p_sdhci_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	int ret;
@@ -224,7 +224,7 @@ static int s5p_sdhci_probe(struct udevice *dev)
 
 static int s5p_sdhci_bind(struct udevice *dev)
 {
-	struct s5p_sdhci_plat *plat = dev_get_platdata(dev);
+	struct s5p_sdhci_plat *plat = dev_get_plat(dev);
 	int ret;
 
 	ret = sdhci_bind(dev, &plat->mmc, &plat->cfg);
@@ -246,7 +246,7 @@ U_BOOT_DRIVER(s5p_sdhci_drv) = {
 	.bind		= s5p_sdhci_bind,
 	.ops		= &sdhci_ops,
 	.probe		= s5p_sdhci_probe,
-	.priv_auto_alloc_size = sizeof(struct sdhci_host),
-	.platdata_auto_alloc_size = sizeof(struct s5p_sdhci_plat),
+	.priv_auto	= sizeof(struct sdhci_host),
+	.plat_auto	= sizeof(struct s5p_sdhci_plat),
 };
 #endif /* CONFIG_DM_MMC */

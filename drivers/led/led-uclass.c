@@ -22,7 +22,7 @@ int led_get_by_label(const char *label, struct udevice **devp)
 	if (ret)
 		return ret;
 	uclass_foreach_dev(dev, uc) {
-		struct led_uc_plat *uc_plat = dev_get_uclass_platdata(dev);
+		struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 
 		/* Ignore the top-level LED node */
 		if (uc_plat->label && !strcmp(label, uc_plat->label))
@@ -96,5 +96,5 @@ int led_default_state(void)
 UCLASS_DRIVER(led) = {
 	.id		= UCLASS_LED,
 	.name		= "led",
-	.per_device_platdata_auto_alloc_size = sizeof(struct led_uc_plat),
+	.per_device_plat_auto	= sizeof(struct led_uc_plat),
 };

@@ -440,10 +440,10 @@ static inline u8 sdhci_readb(struct sdhci_host *host, int reg)
  * ...
  *
  * Inside U_BOOT_DRIVER():
- *	.platdata_auto_alloc_size = sizeof(struct msm_sdhc_plat),
+ *	.plat_auto	= sizeof(struct msm_sdhc_plat),
  *
  * To access platform data:
- *	struct msm_sdhc_plat *plat = dev_get_platdata(dev);
+ *	struct msm_sdhc_plat *plat = dev_get_plat(dev);
  *
  * See msm_sdhci.c for an example.
  *

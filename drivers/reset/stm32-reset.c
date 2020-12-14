@@ -100,6 +100,6 @@ U_BOOT_DRIVER(stm32_rcc_reset) = {
 	.name			= "stm32_rcc_reset",
 	.id			= UCLASS_RESET,
 	.probe			= stm32_reset_probe,
-	.priv_auto_alloc_size	= sizeof(struct stm32_reset_priv),
+	.priv_auto	= sizeof(struct stm32_reset_priv),
 	.ops			= &stm32_reset_ops,
 };

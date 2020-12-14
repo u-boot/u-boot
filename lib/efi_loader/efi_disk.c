@@ -547,7 +547,7 @@ efi_status_t efi_disk_register(void)
 
 	for (uclass_first_device_check(UCLASS_BLK, &dev); dev;
 	     uclass_next_device_check(&dev)) {
-		struct blk_desc *desc = dev_get_uclass_platdata(dev);
+		struct blk_desc *desc = dev_get_uclass_plat(dev);
 		const char *if_typename = blk_get_if_type_name(desc->if_type);
 
 		/* Add block device for the full device */

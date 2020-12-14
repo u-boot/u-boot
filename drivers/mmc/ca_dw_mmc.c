@@ -87,7 +87,7 @@ unsigned int ca_dwmci_get_mmc_clock(struct dwmci_host *host, uint freq)
 	return SD_SCLK_MAX / clk_div / (host->div + 1);
 }
 
-static int ca_dwmmc_ofdata_to_platdata(struct udevice *dev)
+static int ca_dwmmc_of_to_plat(struct udevice *dev)
 {
 	struct ca_dwmmc_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -124,7 +124,7 @@ struct dm_mmc_ops ca_dwmci_dm_ops;
 
 static int ca_dwmmc_probe(struct udevice *dev)
 {
-	struct ca_mmc_plat *plat = dev_get_platdata(dev);
+	struct ca_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct ca_dwmmc_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -148,7 +148,7 @@ static int ca_dwmmc_probe(struct udevice *dev)
 
 static int ca_dwmmc_bind(struct udevice *dev)
 {
-	struct ca_mmc_plat *plat = dev_get_platdata(dev);
+	struct ca_mmc_plat *plat = dev_get_plat(dev);
 
 	return dwmci_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -162,10 +162,10 @@ U_BOOT_DRIVER(ca_dwmmc_drv) = {
 	.name		= "cortina_dwmmc",
 	.id		= UCLASS_MMC,
 	.of_match	= ca_dwmmc_ids,
-	.ofdata_to_platdata = ca_dwmmc_ofdata_to_platdata,
+	.of_to_plat = ca_dwmmc_of_to_plat,
 	.bind		= ca_dwmmc_bind,
 	.ops		= &ca_dwmci_dm_ops,
 	.probe		= ca_dwmmc_probe,
-	.priv_auto_alloc_size	= sizeof(struct ca_dwmmc_priv_data),
-	.platdata_auto_alloc_size = sizeof(struct ca_mmc_plat),
+	.priv_auto	= sizeof(struct ca_dwmmc_priv_data),
+	.plat_auto	= sizeof(struct ca_mmc_plat),
 };

@@ -172,5 +172,5 @@ int sound_find_codec_i2s(struct udevice *dev)
 UCLASS_DRIVER(sound) = {
 	.id		= UCLASS_SOUND,
 	.name		= "sound",
-	.per_device_auto_alloc_size	= sizeof(struct sound_uc_priv),
+	.per_device_auto	= sizeof(struct sound_uc_priv),
 };

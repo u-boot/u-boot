@@ -3883,7 +3883,7 @@ U_BOOT_DRIVER(octeontx_hsmmc_host) = {
 	.id	= UCLASS_MISC,
 	.of_match = of_match_ptr(octeontx_hsmmc_host_ids),
 	.probe	= octeontx_mmc_host_probe,
-	.priv_auto_alloc_size = sizeof(struct octeontx_mmc_host),
+	.priv_auto	= sizeof(struct octeontx_mmc_host),
 	.child_pre_probe = octeontx_mmc_host_child_pre_probe,
 	.flags	= DM_FLAG_PRE_RELOC,
 };

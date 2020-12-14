@@ -38,7 +38,7 @@ static int save_vesa_mode(struct cb_framebuffer *fb,
 
 static int coreboot_video_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct cb_framebuffer *fb = lib_sysinfo.framebuffer;
 	struct vesa_mode_info *vesa = &mode_info.vesa;

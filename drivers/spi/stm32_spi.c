@@ -362,7 +362,7 @@ static int stm32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 			  const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev_get_parent(slave);
-	struct dm_spi_slave_platdata *slave_plat;
+	struct dm_spi_slave_plat *slave_plat;
 	struct stm32_spi_priv *priv = dev_get_priv(bus);
 	u32 sr;
 	u32 ifcr = 0;
@@ -407,7 +407,7 @@ static int stm32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 	debug("%s: priv->tx_len=%d priv->rx_len=%d\n", __func__,
 	      priv->tx_len, priv->rx_len);
 
-	slave_plat = dev_get_parent_platdata(slave);
+	slave_plat = dev_get_parent_plat(slave);
 	if (flags & SPI_XFER_BEGIN)
 		stm32_spi_set_cs(bus, slave_plat->cs, false);
 
@@ -615,7 +615,7 @@ U_BOOT_DRIVER(stm32_spi) = {
 	.id			= UCLASS_SPI,
 	.of_match		= stm32_spi_ids,
 	.ops			= &stm32_spi_ops,
-	.priv_auto_alloc_size	= sizeof(struct stm32_spi_priv),
+	.priv_auto	= sizeof(struct stm32_spi_priv),
 	.probe			= stm32_spi_probe,
 	.remove			= stm32_spi_remove,
 };

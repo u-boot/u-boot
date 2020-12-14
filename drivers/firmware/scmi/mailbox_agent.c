@@ -97,7 +97,7 @@ U_BOOT_DRIVER(scmi_mbox) = {
 	.name		= "scmi-over-mailbox",
 	.id		= UCLASS_SCMI_AGENT,
 	.of_match	= scmi_mbox_ids,
-	.priv_auto_alloc_size = sizeof(struct scmi_mbox_channel),
+	.priv_auto	= sizeof(struct scmi_mbox_channel),
 	.probe		= scmi_mbox_probe,
 	.ops		= &scmi_mbox_ops,
 };

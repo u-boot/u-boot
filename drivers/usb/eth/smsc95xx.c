@@ -937,7 +937,7 @@ static int smsc95xx_eth_start(struct udevice *dev)
 {
 	struct usb_device *udev = dev_get_parent_priv(dev);
 	struct smsc95xx_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	/* Driver-model Ethernet ensures we have this */
 	priv->have_hwaddr = 1;
@@ -1020,7 +1020,7 @@ static int smsc95xx_free_pkt(struct udevice *dev, uchar *packet, int packet_len)
 int smsc95xx_write_hwaddr(struct udevice *dev)
 {
 	struct usb_device *udev = dev_get_parent_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct smsc95xx_private *priv = dev_get_priv(dev);
 
 	return smsc95xx_write_hwaddr_common(udev, priv, pdata->enetaddr);
@@ -1029,7 +1029,7 @@ int smsc95xx_write_hwaddr(struct udevice *dev)
 int smsc95xx_read_rom_hwaddr(struct udevice *dev)
 {
 	struct usb_device *udev = dev_get_parent_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	int ret;
 
 	ret = smsc95xx_init_mac_address(pdata->enetaddr, udev);
@@ -1062,8 +1062,8 @@ U_BOOT_DRIVER(smsc95xx_eth) = {
 	.id	= UCLASS_ETH,
 	.probe = smsc95xx_eth_probe,
 	.ops	= &smsc95xx_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct smsc95xx_private),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct smsc95xx_private),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 static const struct usb_device_id smsc95xx_eth_id_table[] = {

@@ -31,7 +31,7 @@ static enum button_state_t button_gpio_get_state(struct udevice *dev)
 
 static int button_gpio_probe(struct udevice *dev)
 {
-	struct button_uc_plat *uc_plat = dev_get_uclass_platdata(dev);
+	struct button_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct button_gpio_priv *priv = dev_get_priv(dev);
 	int ret;
 
@@ -83,7 +83,7 @@ static int button_gpio_bind(struct udevice *parent)
 						 node, &dev);
 		if (ret)
 			return ret;
-		uc_plat = dev_get_uclass_platdata(dev);
+		uc_plat = dev_get_uclass_plat(dev);
 		uc_plat->label = label;
 	}
 
@@ -105,7 +105,7 @@ U_BOOT_DRIVER(button_gpio) = {
 	.id		= UCLASS_BUTTON,
 	.of_match	= button_gpio_ids,
 	.ops		= &button_gpio_ops,
-	.priv_auto_alloc_size = sizeof(struct button_gpio_priv),
+	.priv_auto	= sizeof(struct button_gpio_priv),
 	.bind		= button_gpio_bind,
 	.probe		= button_gpio_probe,
 	.remove		= button_gpio_remove,

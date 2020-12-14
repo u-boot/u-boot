@@ -83,7 +83,7 @@ U_BOOT_DRIVER(scmi_smccc) = {
 	.name		= "scmi-over-smccc",
 	.id		= UCLASS_SCMI_AGENT,
 	.of_match	= scmi_smccc_ids,
-	.priv_auto_alloc_size = sizeof(struct scmi_smccc_channel),
+	.priv_auto	= sizeof(struct scmi_smccc_channel),
 	.probe		= scmi_smccc_probe,
 	.ops		= &scmi_smccc_ops,
 };

@@ -251,6 +251,6 @@ U_BOOT_DRIVER(cdce9xx_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = cdce9xx_clk_of_match,
 	.probe = cdce9xx_clk_probe,
-	.priv_auto_alloc_size = sizeof(struct cdce9xx_clk_data),
+	.priv_auto	= sizeof(struct cdce9xx_clk_data),
 	.ops = &cdce9xx_clk_ops,
 };

@@ -1937,7 +1937,7 @@ U_BOOT_DRIVER(pxa3xx_nand) = {
 	.id = UCLASS_MTD,
 	.of_match = pxa3xx_nand_dt_ids,
 	.probe = pxa3xx_nand_probe,
-	.priv_auto_alloc_size = sizeof(struct pxa3xx_nand_info) +
+	.priv_auto	= sizeof(struct pxa3xx_nand_info) +
 		sizeof(struct pxa3xx_nand_host) * CONFIG_SYS_MAX_NAND_DEVICE,
 };
 

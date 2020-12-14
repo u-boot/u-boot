@@ -93,7 +93,7 @@ static int dw_mdio_reset(struct mii_dev *bus)
 {
 	struct udevice *dev = bus->priv;
 	struct dw_eth_dev *priv = dev_get_priv(dev);
-	struct dw_eth_pdata *pdata = dev_get_platdata(dev);
+	struct dw_eth_pdata *pdata = dev_get_plat(dev);
 	int ret;
 
 	if (!dm_gpio_is_valid(&priv->reset_gpio))
@@ -610,7 +610,7 @@ int designware_initialize(ulong base_addr, u32 interface)
 #ifdef CONFIG_DM_ETH
 static int designware_eth_start(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 	int ret;
 
@@ -654,7 +654,7 @@ void designware_eth_stop(struct udevice *dev)
 
 int designware_eth_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 
 	return _dw_write_hwaddr(priv, pdata->enetaddr);
@@ -678,7 +678,7 @@ static int designware_eth_bind(struct udevice *dev)
 
 int designware_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 	u32 iobase = pdata->iobase;
 	ulong ioaddr;
@@ -740,7 +740,7 @@ int designware_eth_probe(struct udevice *dev)
 #ifdef CONFIG_DM_PCI
 	/*
 	 * If we are on PCI bus, either directly attached to a PCI root port,
-	 * or via a PCI bridge, fill in platdata before we probe the hardware.
+	 * or via a PCI bridge, fill in plat before we probe the hardware.
 	 */
 	if (device_is_on_pci_bus(dev)) {
 		dm_pci_read_config32(dev, PCI_BASE_ADDRESS_0, &iobase);
@@ -811,9 +811,9 @@ const struct eth_ops designware_eth_ops = {
 	.write_hwaddr		= designware_eth_write_hwaddr,
 };
 
-int designware_eth_ofdata_to_platdata(struct udevice *dev)
+int designware_eth_of_to_plat(struct udevice *dev)
 {
-	struct dw_eth_pdata *dw_pdata = dev_get_platdata(dev);
+	struct dw_eth_pdata *dw_pdata = dev_get_plat(dev);
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 #endif
@@ -868,13 +868,13 @@ U_BOOT_DRIVER(eth_designware) = {
 	.name	= "eth_designware",
 	.id	= UCLASS_ETH,
 	.of_match = designware_eth_ids,
-	.ofdata_to_platdata = designware_eth_ofdata_to_platdata,
+	.of_to_plat = designware_eth_of_to_plat,
 	.bind	= designware_eth_bind,
 	.probe	= designware_eth_probe,
 	.remove	= designware_eth_remove,
 	.ops	= &designware_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct dw_eth_dev),
-	.platdata_auto_alloc_size = sizeof(struct dw_eth_pdata),
+	.priv_auto	= sizeof(struct dw_eth_dev),
+	.plat_auto	= sizeof(struct dw_eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 

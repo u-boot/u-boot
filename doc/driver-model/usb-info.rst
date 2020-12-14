@@ -39,31 +39,31 @@ as drivers in the USB uclass. For example:
 		.name	= "ehci_tegra",
 		.id	= UCLASS_USB,
 		.of_match = ehci_usb_ids,
-		.ofdata_to_platdata = ehci_usb_ofdata_to_platdata,
+		.of_to_plat = ehci_usb_of_to_plat,
 		.probe = tegra_ehci_usb_probe,
 		.remove = tegra_ehci_usb_remove,
 		.ops	= &ehci_usb_ops,
-		.platdata_auto_alloc_size = sizeof(struct usb_platdata),
-		.priv_auto_alloc_size = sizeof(struct fdt_usb),
+		.plat_auto = sizeof(struct usb_plat),
+		.priv_auto = sizeof(struct fdt_usb),
 		.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 	};
 
 Here ehci_usb_ids is used to list the controllers that the driver supports.
 Each has its own data value. Controllers must be in the UCLASS_USB uclass.
 
-The ofdata_to_platdata() method allows the controller driver to grab any
+The of_to_plat() method allows the controller driver to grab any
 necessary settings from the device tree.
 
 The ops here are ehci_usb_ops. All EHCI drivers will use these same ops in
 most cases, since they are all EHCI-compatible. For EHCI there are also some
 special operations that can be overridden when calling ehci_register().
 
-The driver can use priv_auto_alloc_size to set the size of its private data.
+The driver can use priv_auto to set the size of its private data.
 This can hold run-time information needed by the driver for operation. It
 exists when the device is probed (not when it is bound) and is removed when
 the driver is removed.
 
-Note that usb_platdata is currently only used to deal with setting up a bus
+Note that usb_plat is currently only used to deal with setting up a bus
 in USB device mode (OTG operation). It can be omitted if that is not
 supported.
 
@@ -93,14 +93,14 @@ The following primary data structures are in use:
 	handles that). Once the device is set up, you can find the device
 	descriptor and current configuration descriptor in this structure.
 
-- struct usb_platdata:
+- struct usb_plat:
 	This holds platform data for a controller. So far this is only used
 	as a work-around for controllers which can act as USB devices in OTG
 	mode, since the gadget framework does not use driver model.
 
-- struct usb_dev_platdata:
+- struct usb_dev_plat:
 	This holds platform data for a device. You can access it for a
-	device 'dev' with dev_get_parent_platdata(dev). It holds the device
+	device 'dev' with dev_get_parent_plat(dev). It holds the device
 	address and speed - anything that can be determined before the device
 	driver is actually set up. When probing the bus this structure is
 	used to provide essential information to the device driver.

@@ -189,5 +189,5 @@ U_BOOT_DRIVER(rcar_gen2_phy) = {
 	.ops		= &rcar_gen2_phy_phy_ops,
 	.probe		= rcar_gen2_phy_probe,
 	.remove		= rcar_gen2_phy_remove,
-	.priv_auto_alloc_size = sizeof(struct rcar_gen2_phy),
+	.priv_auto	= sizeof(struct rcar_gen2_phy),
 };

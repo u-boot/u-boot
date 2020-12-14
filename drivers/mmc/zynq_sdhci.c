@@ -552,7 +552,7 @@ const struct sdhci_ops arasan_ops = {
 
 static int arasan_sdhci_probe(struct udevice *dev)
 {
-	struct arasan_sdhci_plat *plat = dev_get_platdata(dev);
+	struct arasan_sdhci_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct arasan_sdhci_priv *priv = dev_get_priv(dev);
 	struct sdhci_host *host;
@@ -613,7 +613,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	return sdhci_probe(dev);
 }
 
-static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
+static int arasan_sdhci_of_to_plat(struct udevice *dev)
 {
 	struct arasan_sdhci_priv *priv = dev_get_priv(dev);
 
@@ -641,7 +641,7 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 
 static int arasan_sdhci_bind(struct udevice *dev)
 {
-	struct arasan_sdhci_plat *plat = dev_get_platdata(dev);
+	struct arasan_sdhci_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -655,10 +655,10 @@ U_BOOT_DRIVER(arasan_sdhci_drv) = {
 	.name		= "arasan_sdhci",
 	.id		= UCLASS_MMC,
 	.of_match	= arasan_sdhci_ids,
-	.ofdata_to_platdata = arasan_sdhci_ofdata_to_platdata,
+	.of_to_plat = arasan_sdhci_of_to_plat,
 	.ops		= &sdhci_ops,
 	.bind		= arasan_sdhci_bind,
 	.probe		= arasan_sdhci_probe,
-	.priv_auto_alloc_size = sizeof(struct arasan_sdhci_priv),
-	.platdata_auto_alloc_size = sizeof(struct arasan_sdhci_plat),
+	.priv_auto	= sizeof(struct arasan_sdhci_priv),
+	.plat_auto	= sizeof(struct arasan_sdhci_plat),
 };

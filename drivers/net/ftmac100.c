@@ -318,7 +318,7 @@ out:
 #ifdef CONFIG_DM_ETH
 static int ftmac100_start(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct ftmac100_data *priv = dev_get_priv(dev);
 
 	return _ftmac100_init(priv, plat->enetaddr);
@@ -360,7 +360,7 @@ static int ftmac100_free_pkt(struct udevice *dev, uchar *packet, int length)
 
 int ftmac100_read_rom_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	eth_env_get_enetaddr("ethaddr", pdata->enetaddr);
 	return 0;
 }
@@ -393,10 +393,10 @@ static const char *dtbmacaddr(u32 ifno)
 	return NULL;
 }
 
-static int ftmac100_ofdata_to_platdata(struct udevice *dev)
+static int ftmac100_of_to_plat(struct udevice *dev)
 {
 	struct ftmac100_data *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *mac;
 	pdata->iobase = dev_read_addr(dev);
 	priv->iobase = pdata->iobase;
@@ -437,11 +437,11 @@ U_BOOT_DRIVER(ftmac100) = {
 	.id	= UCLASS_ETH,
 	.of_match = ftmac100_ids,
 	.bind	= ftmac100_bind,
-	.ofdata_to_platdata = ftmac100_ofdata_to_platdata,
+	.of_to_plat = ftmac100_of_to_plat,
 	.probe	= ftmac100_probe,
 	.ops	= &ftmac100_ops,
-	.priv_auto_alloc_size = sizeof(struct ftmac100_data),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct ftmac100_data),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif

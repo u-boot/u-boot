@@ -34,9 +34,9 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static int device_bind_common(struct udevice *parent, const struct driver *drv,
-			      const char *name, void *platdata,
+			      const char *name, void *plat,
 			      ulong driver_data, ofnode node,
-			      uint of_platdata_size, struct udevice **devp)
+			      uint of_plat_size, struct udevice **devp)
 {
 	struct udevice *dev;
 	struct uclass *uc;
@@ -63,7 +63,7 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 #ifdef CONFIG_DEVRES
 	INIT_LIST_HEAD(&dev->devres_head);
 #endif
-	dev->platdata = platdata;
+	dev->plat = plat;
 	dev->driver_data = driver_data;
 	dev->name = name;
 	dev->node = node;
@@ -96,52 +96,48 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 		}
 	}
 
-	if (drv->platdata_auto_alloc_size) {
-		bool alloc = !platdata;
+	if (drv->plat_auto) {
+		bool alloc = !plat;
 
 		if (CONFIG_IS_ENABLED(OF_PLATDATA)) {
-			if (of_platdata_size) {
+			if (of_plat_size) {
 				dev->flags |= DM_FLAG_OF_PLATDATA;
-				if (of_platdata_size <
-						drv->platdata_auto_alloc_size)
+				if (of_plat_size < drv->plat_auto)
 					alloc = true;
 			}
 		}
 		if (alloc) {
 			dev->flags |= DM_FLAG_ALLOC_PDATA;
-			dev->platdata = calloc(1,
-					       drv->platdata_auto_alloc_size);
-			if (!dev->platdata) {
+			dev->plat = calloc(1, drv->plat_auto);
+			if (!dev->plat) {
 				ret = -ENOMEM;
 				goto fail_alloc1;
 			}
-			if (CONFIG_IS_ENABLED(OF_PLATDATA) && platdata) {
-				memcpy(dev->platdata, platdata,
-				       of_platdata_size);
+			if (CONFIG_IS_ENABLED(OF_PLATDATA) && plat) {
+				memcpy(dev->plat, plat, of_plat_size);
 			}
 		}
 	}
 
-	size = uc->uc_drv->per_device_platdata_auto_alloc_size;
+	size = uc->uc_drv->per_device_plat_auto;
 	if (size) {
 		dev->flags |= DM_FLAG_ALLOC_UCLASS_PDATA;
-		dev->uclass_platdata = calloc(1, size);
-		if (!dev->uclass_platdata) {
+		dev->uclass_plat = calloc(1, size);
+		if (!dev->uclass_plat) {
 			ret = -ENOMEM;
 			goto fail_alloc2;
 		}
 	}
 
 	if (parent) {
-		size = parent->driver->per_child_platdata_auto_alloc_size;
+		size = parent->driver->per_child_plat_auto;
 		if (!size) {
-			size = parent->uclass->uc_drv->
-					per_child_platdata_auto_alloc_size;
+			size = parent->uclass->uc_drv->per_child_plat_auto;
 		}
 		if (size) {
 			dev->flags |= DM_FLAG_ALLOC_PARENT_PDATA;
-			dev->parent_platdata = calloc(1, size);
-			if (!dev->parent_platdata) {
+			dev->parent_plat = calloc(1, size);
+			if (!dev->parent_plat) {
 				ret = -ENOMEM;
 				goto fail_alloc3;
 			}
@@ -201,19 +197,19 @@ fail_uclass_bind:
 	if (CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)) {
 		list_del(&dev->sibling_node);
 		if (dev->flags & DM_FLAG_ALLOC_PARENT_PDATA) {
-			free(dev->parent_platdata);
-			dev->parent_platdata = NULL;
+			free(dev->parent_plat);
+			dev->parent_plat = NULL;
 		}
 	}
 fail_alloc3:
 	if (dev->flags & DM_FLAG_ALLOC_UCLASS_PDATA) {
-		free(dev->uclass_platdata);
-		dev->uclass_platdata = NULL;
+		free(dev->uclass_plat);
+		dev->uclass_plat = NULL;
 	}
 fail_alloc2:
 	if (dev->flags & DM_FLAG_ALLOC_PDATA) {
-		free(dev->platdata);
-		dev->platdata = NULL;
+		free(dev->plat);
+		dev->plat = NULL;
 	}
 fail_alloc1:
 	devres_release_all(dev);
@@ -233,18 +229,10 @@ int device_bind_with_driver_data(struct udevice *parent,
 }
 
 int device_bind(struct udevice *parent, const struct driver *drv,
-		const char *name, void *platdata, int of_offset,
+		const char *name, void *plat, ofnode node,
 		struct udevice **devp)
 {
-	return device_bind_common(parent, drv, name, platdata, 0,
-				  offset_to_ofnode(of_offset), 0, devp);
-}
-
-int device_bind_ofnode(struct udevice *parent, const struct driver *drv,
-		       const char *name, void *platdata, ofnode node,
-		       struct udevice **devp)
-{
-	return device_bind_common(parent, drv, name, platdata, 0, node, 0,
+	return device_bind_common(parent, drv, name, plat, 0, node, 0,
 				  devp);
 }
 
@@ -252,7 +240,7 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 			const struct driver_info *info, struct udevice **devp)
 {
 	struct driver *drv;
-	uint platdata_size = 0;
+	uint plat_size = 0;
 	int ret;
 
 	drv = lists_driver_lookup_name(info->name);
@@ -262,11 +250,10 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 		return -EPERM;
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	platdata_size = info->platdata_size;
+	plat_size = info->plat_size;
 #endif
-	ret = device_bind_common(parent, drv, info->name,
-				 (void *)info->platdata, 0, ofnode_null(),
-				 platdata_size, devp);
+	ret = device_bind_common(parent, drv, info->name, (void *)info->plat, 0,
+				 ofnode_null(), plat_size, devp);
 	if (ret)
 		return ret;
 
@@ -339,7 +326,7 @@ static void *alloc_priv(int size, uint flags)
 	return priv;
 }
 
-int device_ofdata_to_platdata(struct udevice *dev)
+int device_of_to_plat(struct udevice *dev)
 {
 	const struct driver *drv;
 	int size = 0;
@@ -353,7 +340,7 @@ int device_ofdata_to_platdata(struct udevice *dev)
 
 	/* Ensure all parents have ofdata */
 	if (dev->parent) {
-		ret = device_ofdata_to_platdata(dev->parent);
+		ret = device_of_to_plat(dev->parent);
 		if (ret)
 			goto fail;
 
@@ -371,15 +358,15 @@ int device_ofdata_to_platdata(struct udevice *dev)
 	assert(drv);
 
 	/* Allocate private data if requested and not reentered */
-	if (drv->priv_auto_alloc_size && !dev->priv) {
-		dev->priv = alloc_priv(drv->priv_auto_alloc_size, drv->flags);
+	if (drv->priv_auto && !dev->priv) {
+		dev->priv = alloc_priv(drv->priv_auto, drv->flags);
 		if (!dev->priv) {
 			ret = -ENOMEM;
 			goto fail;
 		}
 	}
 	/* Allocate private data if requested and not reentered */
-	size = dev->uclass->uc_drv->per_device_auto_alloc_size;
+	size = dev->uclass->uc_drv->per_device_auto;
 	if (size && !dev->uclass_priv) {
 		dev->uclass_priv = alloc_priv(size,
 					      dev->uclass->uc_drv->flags);
@@ -391,10 +378,9 @@ int device_ofdata_to_platdata(struct udevice *dev)
 
 	/* Allocate parent data for this child */
 	if (dev->parent) {
-		size = dev->parent->driver->per_child_auto_alloc_size;
+		size = dev->parent->driver->per_child_auto;
 		if (!size) {
-			size = dev->parent->uclass->uc_drv->
-					per_child_auto_alloc_size;
+			size = dev->parent->uclass->uc_drv->per_child_auto;
 		}
 		if (size && !dev->parent_priv) {
 			dev->parent_priv = alloc_priv(size, drv->flags);
@@ -405,9 +391,9 @@ int device_ofdata_to_platdata(struct udevice *dev)
 		}
 	}
 
-	if (drv->ofdata_to_platdata &&
+	if (drv->of_to_plat &&
 	    (CONFIG_IS_ENABLED(OF_PLATDATA) || dev_has_of_node(dev))) {
-		ret = drv->ofdata_to_platdata(dev);
+		ret = drv->of_to_plat(dev);
 		if (ret)
 			goto fail;
 	}
@@ -436,7 +422,7 @@ int device_probe(struct udevice *dev)
 	drv = dev->driver;
 	assert(drv);
 
-	ret = device_ofdata_to_platdata(dev);
+	ret = device_of_to_plat(dev);
 	if (ret)
 		goto fail;
 
@@ -531,34 +517,34 @@ fail:
 	return ret;
 }
 
-void *dev_get_platdata(const struct udevice *dev)
+void *dev_get_plat(const struct udevice *dev)
 {
 	if (!dev) {
 		dm_warn("%s: null device\n", __func__);
 		return NULL;
 	}
 
-	return dev->platdata;
+	return dev->plat;
 }
 
-void *dev_get_parent_platdata(const struct udevice *dev)
+void *dev_get_parent_plat(const struct udevice *dev)
 {
 	if (!dev) {
 		dm_warn("%s: null device\n", __func__);
 		return NULL;
 	}
 
-	return dev->parent_platdata;
+	return dev->parent_plat;
 }
 
-void *dev_get_uclass_platdata(const struct udevice *dev)
+void *dev_get_uclass_plat(const struct udevice *dev)
 {
 	if (!dev) {
 		dm_warn("%s: null device\n", __func__);
 		return NULL;
 	}
 
-	return dev->uclass_platdata;
+	return dev->uclass_plat;
 }
 
 void *dev_get_priv(const struct udevice *dev)
@@ -895,7 +881,7 @@ int device_first_child_ofdata_err(struct udevice *parent, struct udevice **devp)
 	if (!dev)
 		return -ENODEV;
 
-	ret = device_ofdata_to_platdata(dev);
+	ret = device_of_to_plat(dev);
 	if (ret)
 		return ret;
 
@@ -913,7 +899,7 @@ int device_next_child_ofdata_err(struct udevice **devp)
 	if (!dev)
 		return -ENODEV;
 
-	ret = device_ofdata_to_platdata(dev);
+	ret = device_of_to_plat(dev);
 	if (ret)
 		return ret;
 

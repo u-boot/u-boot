@@ -68,16 +68,16 @@ void apl_uart_init(pci_dev_t bdf, ulong base)
  * This driver uses its own compatible string but almost everything else from
  * the standard ns16550 driver. This allows us to provide an of-platdata
  * implementation, since the platdata produced by of-platdata does not match
- * struct ns16550_platdata.
+ * struct ns16550_plat.
  *
  * When running with of-platdata (generally TPL), the platdata is converted to
  * something that ns16550 expects. When running withoutof-platdata (SPL, U-Boot
- * proper), we use ns16550's ofdata_to_platdata routine.
+ * proper), we use ns16550's of_to_plat routine.
  */
 
 static int apl_ns16550_probe(struct udevice *dev)
 {
-	struct ns16550_platdata *plat = dev_get_platdata(dev);
+	struct ns16550_plat *plat = dev_get_plat(dev);
 
 	if (!CONFIG_IS_ENABLED(PCI))
 		apl_uart_init(plat->bdf, plat->base);
@@ -85,14 +85,14 @@ static int apl_ns16550_probe(struct udevice *dev)
 	return ns16550_serial_probe(dev);
 }
 
-static int apl_ns16550_ofdata_to_platdata(struct udevice *dev)
+static int apl_ns16550_of_to_plat(struct udevice *dev)
 {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_intel_apl_ns16550 *dtplat = dev_get_platdata(dev);
-	struct ns16550_platdata *plat;
+	struct dtd_intel_apl_ns16550 *dtplat = dev_get_plat(dev);
+	struct ns16550_plat *plat;
 
 	/*
-	 * Convert our platdata to the ns16550's platdata, so we can just use
+	 * Convert our plat to the ns16550's plat, so we can just use
 	 * that driver
 	 */
 	plat = malloc(sizeof(*plat));
@@ -105,11 +105,11 @@ static int apl_ns16550_ofdata_to_platdata(struct udevice *dev)
 	plat->clock = dtplat->clock_frequency;
 	plat->fcr = UART_FCR_DEFVAL;
 	plat->bdf = pci_ofplat_get_devfn(dtplat->reg[0]);
-	dev->platdata = plat;
+	dev->plat = plat;
 #else
 	int ret;
 
-	ret = ns16550_serial_ofdata_to_platdata(dev);
+	ret = ns16550_serial_of_to_plat(dev);
 	if (ret)
 		return ret;
 #endif /* OF_PLATDATA */
@@ -126,9 +126,9 @@ U_BOOT_DRIVER(intel_apl_ns16550) = {
 	.name	= "intel_apl_ns16550",
 	.id	= UCLASS_SERIAL,
 	.of_match = apl_ns16550_serial_ids,
-	.platdata_auto_alloc_size = sizeof(struct ns16550_platdata),
-	.priv_auto_alloc_size = sizeof(struct NS16550),
+	.plat_auto	= sizeof(struct ns16550_plat),
+	.priv_auto	= sizeof(struct NS16550),
 	.ops	= &ns16550_serial_ops,
-	.ofdata_to_platdata = apl_ns16550_ofdata_to_platdata,
+	.of_to_plat = apl_ns16550_of_to_plat,
 	.probe = apl_ns16550_probe,
 };

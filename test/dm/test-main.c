@@ -89,12 +89,12 @@ static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 
 	uts->start = mallinfo();
 	if (test->flags & UT_TESTF_SCAN_PDATA)
-		ut_assertok(dm_scan_platdata(false));
+		ut_assertok(dm_scan_plat(false));
 	if (test->flags & UT_TESTF_PROBE_TEST)
 		ut_assertok(do_autoprobe(uts));
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA) &&
 	    (test->flags & UT_TESTF_SCAN_FDT))
-		ut_assertok(dm_extended_scan_fdt(gd->fdt_blob, false));
+		ut_assertok(dm_extended_scan(false));
 
 	/*
 	 * Silence the console and rely on console recording to get
@@ -211,9 +211,9 @@ int dm_test_main(const char *test_name)
 	gd_set_of_root(uts->of_root);
 	gd->dm_root = NULL;
 	ut_assertok(dm_init(CONFIG_IS_ENABLED(OF_LIVE)));
-	dm_scan_platdata(false);
+	dm_scan_plat(false);
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA))
-		dm_scan_fdt(gd->fdt_blob, false);
+		dm_scan_fdt(false);
 
 	return uts->fail_count ? CMD_RET_FAILURE : 0;
 }

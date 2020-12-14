@@ -375,5 +375,5 @@ U_BOOT_DRIVER(pci_layerscape) = {
 	.of_match = ls_pcie_ids,
 	.ops = &ls_pcie_ops,
 	.probe	= ls_pcie_probe,
-	.priv_auto_alloc_size = sizeof(struct ls_pcie_rc),
+	.priv_auto	= sizeof(struct ls_pcie_rc),
 };

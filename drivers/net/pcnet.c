@@ -585,7 +585,7 @@ int pcnet_initialize(struct bd_info *bis)
 #else /* DM_ETH */
 static int pcnet_start(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct pcnet_priv *priv = dev_get_priv(dev);
 
 	memcpy(priv->enetaddr, plat->enetaddr, sizeof(plat->enetaddr));
@@ -638,7 +638,7 @@ static int pcnet_bind(struct udevice *dev)
 
 static int pcnet_probe(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct pcnet_priv *lp = dev_get_priv(dev);
 	u16 command, status;
 	u32 iobase;
@@ -689,8 +689,8 @@ U_BOOT_DRIVER(eth_pcnet) = {
 	.bind	= pcnet_bind,
 	.probe	= pcnet_probe,
 	.ops	= &pcnet_ops,
-	.priv_auto_alloc_size = sizeof(struct pcnet_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct pcnet_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags	= DM_UC_FLAG_ALLOC_PRIV_DMA,
 };
 

@@ -71,7 +71,7 @@ static int ti_powerproc_probe(struct udevice *dev)
 	struct ti_powerproc_privdata *priv;
 	int ret;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	priv = dev_get_priv(dev);
 
 	ret = ti_of_to_priv(dev, priv);
@@ -96,7 +96,7 @@ static int ti_powerproc_load(struct udevice *dev, ulong addr, ulong size)
 	struct ti_powerproc_privdata *priv;
 	int ret;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata) {
 		debug("%s: no uc pdata!\n", dev->name);
 		return -EINVAL;
@@ -131,7 +131,7 @@ static int ti_powerproc_start(struct udevice *dev)
 	struct ti_powerproc_privdata *priv;
 	int ret;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata) {
 		debug("%s: no uc pdata!\n", dev->name);
 		return -EINVAL;
@@ -177,5 +177,5 @@ U_BOOT_DRIVER(ti_powerproc) = {
 	.id = UCLASS_REMOTEPROC,
 	.ops = &ti_powerproc_ops,
 	.probe = ti_powerproc_probe,
-	.priv_auto_alloc_size = sizeof(struct ti_powerproc_privdata),
+	.priv_auto	= sizeof(struct ti_powerproc_privdata),
 };

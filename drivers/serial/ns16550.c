@@ -103,7 +103,7 @@ static inline int serial_in_shift(void *addr, int shift)
  * on a platform
  */
 #ifdef CONFIG_NS16550_DYNAMIC
-static void serial_out_dynamic(struct ns16550_platdata *plat, u8 *addr,
+static void serial_out_dynamic(struct ns16550_plat *plat, u8 *addr,
 			       int value)
 {
 	if (plat->flags & NS16550_FLAG_IO) {
@@ -124,7 +124,7 @@ static void serial_out_dynamic(struct ns16550_platdata *plat, u8 *addr,
 	}
 }
 
-static int serial_in_dynamic(struct ns16550_platdata *plat, u8 *addr)
+static int serial_in_dynamic(struct ns16550_plat *plat, u8 *addr)
 {
 	if (plat->flags & NS16550_FLAG_IO) {
 		return inb(addr);
@@ -144,12 +144,12 @@ static int serial_in_dynamic(struct ns16550_platdata *plat, u8 *addr)
 	}
 }
 #else
-static inline void serial_out_dynamic(struct ns16550_platdata *plat, u8 *addr,
+static inline void serial_out_dynamic(struct ns16550_plat *plat, u8 *addr,
 				      int value)
 {
 }
 
-static inline int serial_in_dynamic(struct ns16550_platdata *plat, u8 *addr)
+static inline int serial_in_dynamic(struct ns16550_plat *plat, u8 *addr)
 {
 	return 0;
 }
@@ -158,7 +158,7 @@ static inline int serial_in_dynamic(struct ns16550_platdata *plat, u8 *addr)
 
 static void ns16550_writeb(NS16550_t port, int offset, int value)
 {
-	struct ns16550_platdata *plat = port->plat;
+	struct ns16550_plat *plat = port->plat;
 	unsigned char *addr;
 
 	offset *= 1 << plat->reg_shift;
@@ -172,7 +172,7 @@ static void ns16550_writeb(NS16550_t port, int offset, int value)
 
 static int ns16550_readb(NS16550_t port, int offset)
 {
-	struct ns16550_platdata *plat = port->plat;
+	struct ns16550_plat *plat = port->plat;
 	unsigned char *addr;
 
 	offset *= 1 << plat->reg_shift;
@@ -186,7 +186,7 @@ static int ns16550_readb(NS16550_t port, int offset)
 
 static u32 ns16550_getfcr(NS16550_t port)
 {
-	struct ns16550_platdata *plat = port->plat;
+	struct ns16550_plat *plat = port->plat;
 
 	return plat->fcr;
 }
@@ -418,7 +418,7 @@ static int ns16550_serial_getc(struct udevice *dev)
 static int ns16550_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct NS16550 *const com_port = dev_get_priv(dev);
-	struct ns16550_platdata *plat = com_port->plat;
+	struct ns16550_plat *plat = com_port->plat;
 	int clock_divisor;
 
 	clock_divisor = ns16550_calc_divisor(com_port, plat->clock, baudrate);
@@ -465,7 +465,7 @@ static int ns16550_serial_getinfo(struct udevice *dev,
 				  struct serial_device_info *info)
 {
 	struct NS16550 *const com_port = dev_get_priv(dev);
-	struct ns16550_platdata *plat = com_port->plat;
+	struct ns16550_plat *plat = com_port->plat;
 
 	info->type = SERIAL_CHIP_16550_COMPATIBLE;
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
@@ -482,7 +482,7 @@ static int ns16550_serial_getinfo(struct udevice *dev,
 	return 0;
 }
 
-static int ns16550_serial_assign_base(struct ns16550_platdata *plat, ulong base)
+static int ns16550_serial_assign_base(struct ns16550_plat *plat, ulong base)
 {
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
@@ -498,7 +498,7 @@ static int ns16550_serial_assign_base(struct ns16550_platdata *plat, ulong base)
 
 int ns16550_serial_probe(struct udevice *dev)
 {
-	struct ns16550_platdata *plat = dev->platdata;
+	struct ns16550_plat *plat = dev->plat;
 	struct NS16550 *const com_port = dev_get_priv(dev);
 	struct reset_ctl_bulk reset_bulk;
 	fdt_addr_t addr;
@@ -506,7 +506,7 @@ int ns16550_serial_probe(struct udevice *dev)
 
 	/*
 	 * If we are on PCI bus, either directly attached to a PCI root port,
-	 * or via a PCI bridge, assign platdata->base before probing hardware.
+	 * or via a PCI bridge, assign plat->base before probing hardware.
 	 */
 	if (device_is_on_pci_bus(dev)) {
 		addr = devfdt_get_addr_pci(dev);
@@ -519,7 +519,7 @@ int ns16550_serial_probe(struct udevice *dev)
 	if (!ret)
 		reset_deassert_bulk(&reset_bulk);
 
-	com_port->plat = dev_get_platdata(dev);
+	com_port->plat = dev_get_plat(dev);
 	NS16550_init(com_port, -1);
 
 	return 0;
@@ -533,9 +533,9 @@ enum {
 #endif
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
-int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
+int ns16550_serial_of_to_plat(struct udevice *dev)
 {
-	struct ns16550_platdata *plat = dev->platdata;
+	struct ns16550_plat *plat = dev->plat;
 	const u32 port_type = dev_get_driver_data(dev);
 	fdt_addr_t addr;
 	struct clk clk;
@@ -610,10 +610,10 @@ U_BOOT_DRIVER(ns16550_serial) = {
 	.id	= UCLASS_SERIAL,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = ns16550_serial_ids,
-	.ofdata_to_platdata = ns16550_serial_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct ns16550_platdata),
+	.of_to_plat = ns16550_serial_of_to_plat,
+	.plat_auto	= sizeof(struct ns16550_plat),
 #endif
-	.priv_auto_alloc_size = sizeof(struct NS16550),
+	.priv_auto	= sizeof(struct NS16550),
 	.probe = ns16550_serial_probe,
 	.ops	= &ns16550_serial_ops,
 #if !CONFIG_IS_ENABLED(OF_CONTROL)

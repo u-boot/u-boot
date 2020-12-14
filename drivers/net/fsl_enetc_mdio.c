@@ -144,7 +144,7 @@ U_BOOT_DRIVER(enetc_mdio) = {
 	.bind	= enetc_mdio_bind,
 	.probe	= enetc_mdio_probe,
 	.ops	= &enetc_mdio_ops,
-	.priv_auto_alloc_size = sizeof(struct enetc_mdio_priv),
+	.priv_auto	= sizeof(struct enetc_mdio_priv),
 };
 
 static struct pci_device_id enetc_mdio_ids[] = {

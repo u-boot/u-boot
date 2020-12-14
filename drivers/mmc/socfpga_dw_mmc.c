@@ -95,7 +95,7 @@ static int socfpga_dwmmc_get_clk_rate(struct udevice *dev)
 	return 0;
 }
 
-static int socfpga_dwmmc_ofdata_to_platdata(struct udevice *dev)
+static int socfpga_dwmmc_of_to_plat(struct udevice *dev)
 {
 	struct dwmci_socfpga_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -133,7 +133,7 @@ static int socfpga_dwmmc_ofdata_to_platdata(struct udevice *dev)
 static int socfpga_dwmmc_probe(struct udevice *dev)
 {
 #ifdef CONFIG_BLK
-	struct socfpga_dwmci_plat *plat = dev_get_platdata(dev);
+	struct socfpga_dwmci_plat *plat = dev_get_plat(dev);
 #endif
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct dwmci_socfpga_priv_data *priv = dev_get_priv(dev);
@@ -165,7 +165,7 @@ static int socfpga_dwmmc_probe(struct udevice *dev)
 static int socfpga_dwmmc_bind(struct udevice *dev)
 {
 #ifdef CONFIG_BLK
-	struct socfpga_dwmci_plat *plat = dev_get_platdata(dev);
+	struct socfpga_dwmci_plat *plat = dev_get_plat(dev);
 	int ret;
 
 	ret = dwmci_bind(dev, &plat->mmc, &plat->cfg);
@@ -185,10 +185,10 @@ U_BOOT_DRIVER(socfpga_dwmmc_drv) = {
 	.name		= "socfpga_dwmmc",
 	.id		= UCLASS_MMC,
 	.of_match	= socfpga_dwmmc_ids,
-	.ofdata_to_platdata = socfpga_dwmmc_ofdata_to_platdata,
+	.of_to_plat = socfpga_dwmmc_of_to_plat,
 	.ops		= &dm_dwmci_ops,
 	.bind		= socfpga_dwmmc_bind,
 	.probe		= socfpga_dwmmc_probe,
-	.priv_auto_alloc_size = sizeof(struct dwmci_socfpga_priv_data),
-	.platdata_auto_alloc_size = sizeof(struct socfpga_dwmci_plat),
+	.priv_auto	= sizeof(struct dwmci_socfpga_priv_data),
+	.plat_auto	= sizeof(struct socfpga_dwmci_plat),
 };

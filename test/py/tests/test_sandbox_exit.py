@@ -19,3 +19,27 @@ def test_ctrl_c(u_boot_console):
 
     u_boot_console.kill(signal.SIGINT)
     assert(u_boot_console.validate_exited())
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_exception')
+@pytest.mark.buildconfigspec('sandbox_crash_reset')
+def test_exception_reset(u_boot_console):
+    """Test that SIGILL causes a reset."""
+
+    u_boot_console.run_command('exception undefined', wait_for_prompt=False)
+    m = u_boot_console.p.expect(['resetting ...', 'U-Boot'])
+    if m != 0:
+        raise Exception('SIGILL did not lead to reset')
+    m = u_boot_console.p.expect(['U-Boot', '=>'])
+    if m != 0:
+        raise Exception('SIGILL did not lead to reset')
+    u_boot_console.restart_uboot()
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_exception')
+@pytest.mark.notbuildconfigspec('sandbox_crash_reset')
+def test_exception_exit(u_boot_console):
+    """Test that SIGILL causes a reset."""
+
+    u_boot_console.run_command('exception undefined', wait_for_prompt=False)
+    assert(u_boot_console.validate_exited())

@@ -129,7 +129,7 @@ U_BOOT_DRIVER(stm32_timer) = {
 	.name = "stm32_timer",
 	.id = UCLASS_TIMER,
 	.of_match = stm32_timer_ids,
-	.priv_auto_alloc_size = sizeof(struct stm32_timer_priv),
+	.priv_auto	= sizeof(struct stm32_timer_priv),
 	.probe = stm32_timer_probe,
 	.ops = &stm32_timer_ops,
 };

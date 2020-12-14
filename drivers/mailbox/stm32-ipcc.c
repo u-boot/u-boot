@@ -163,6 +163,6 @@ U_BOOT_DRIVER(stm32_ipcc) = {
 	.id = UCLASS_MAILBOX,
 	.of_match = stm32_ipcc_ids,
 	.probe = stm32_ipcc_probe,
-	.priv_auto_alloc_size = sizeof(struct stm32_ipcc),
+	.priv_auto	= sizeof(struct stm32_ipcc),
 	.ops = &stm32_ipcc_mbox_ops,
 };

@@ -205,7 +205,7 @@ static int tee_pre_remove(struct udevice *dev)
 UCLASS_DRIVER(tee) = {
 	.id = UCLASS_TEE,
 	.name = "tee",
-	.per_device_auto_alloc_size = sizeof(struct tee_uclass_priv),
+	.per_device_auto	= sizeof(struct tee_uclass_priv),
 	.pre_probe = tee_pre_probe,
 	.pre_remove = tee_pre_remove,
 };

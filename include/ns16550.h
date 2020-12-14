@@ -56,7 +56,7 @@ enum ns16550_flags {
 };
 
 /**
- * struct ns16550_platdata - information about a NS16550 port
+ * struct ns16550_plat - information about a NS16550 port
  *
  * @base:		Base register address
  * @reg_width:		IO accesses size of registers (in bytes, 1 or 4)
@@ -67,7 +67,7 @@ enum ns16550_flags {
  * @flags:		A few flags (enum ns16550_flags)
  * @bdf:		PCI slot/function (pci_dev_t)
  */
-struct ns16550_platdata {
+struct ns16550_plat {
 	unsigned long base;
 	int reg_width;
 	int reg_shift;
@@ -111,7 +111,7 @@ struct NS16550 {
 	UART_REG(ssr);		/* 11*/
 #endif
 #ifdef CONFIG_DM_SERIAL
-	struct ns16550_platdata *plat;
+	struct ns16550_plat *plat;
 #endif
 };
 
@@ -241,7 +241,7 @@ void NS16550_reinit(NS16550_t com_port, int baud_divisor);
 int ns16550_calc_divisor(NS16550_t port, int clock, int baudrate);
 
 /**
- * ns16550_serial_ofdata_to_platdata() - convert DT to platform data
+ * ns16550_serial_of_to_plat() - convert DT to platform data
  *
  * Decode a device tree node for an ns16550 device. This includes the
  * register base address and register shift properties. The caller must set
@@ -250,7 +250,7 @@ int ns16550_calc_divisor(NS16550_t port, int clock, int baudrate);
  * @dev:	dev to decode platform data for
  * @return:	0 if OK, -EINVAL on error
  */
-int ns16550_serial_ofdata_to_platdata(struct udevice *dev);
+int ns16550_serial_of_to_plat(struct udevice *dev);
 
 /**
  * ns16550_serial_probe() - probe a serial port

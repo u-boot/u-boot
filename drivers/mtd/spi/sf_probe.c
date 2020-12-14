@@ -166,7 +166,7 @@ U_BOOT_DRIVER(jedec_spi_nor) = {
 	.of_match	= spi_flash_std_ids,
 	.probe		= spi_flash_std_probe,
 	.remove		= spi_flash_std_remove,
-	.priv_auto_alloc_size = sizeof(struct spi_flash),
+	.priv_auto	= sizeof(struct spi_flash),
 	.ops		= &spi_flash_std_ops,
 };
 

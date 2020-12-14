@@ -280,7 +280,7 @@ U_BOOT_DRIVER(regmap_test) = {
 	.of_match	= regmaptest_ids,
 	.id	= UCLASS_NOP,
 	.probe = remaptest_probe,
-	.priv_auto_alloc_size = sizeof(struct regmaptest_priv),
+	.priv_auto	= sizeof(struct regmaptest_priv),
 };
 
 static int dm_test_devm_regmap(struct unit_test_state *uts)

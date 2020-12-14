@@ -236,7 +236,7 @@ static void bcmgenet_umac_reset(struct bcmgenet_eth_priv *priv)
 static int bcmgenet_gmac_write_hwaddr(struct udevice *dev)
 {
 	struct bcmgenet_eth_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	uchar *addr = pdata->enetaddr;
 	u32 reg;
 
@@ -619,7 +619,7 @@ static int bcmgenet_interface_set(struct bcmgenet_eth_priv *priv)
 
 static int bcmgenet_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct bcmgenet_eth_priv *priv = dev_get_priv(dev);
 	ofnode mdio_node;
 	const char *name;
@@ -685,9 +685,9 @@ static const struct eth_ops bcmgenet_gmac_eth_ops = {
 	.stop                   = bcmgenet_gmac_eth_stop,
 };
 
-static int bcmgenet_eth_ofdata_to_platdata(struct udevice *dev)
+static int bcmgenet_eth_of_to_plat(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct bcmgenet_eth_priv *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args phy_node;
 	const char *phy_mode;
@@ -729,10 +729,10 @@ U_BOOT_DRIVER(eth_bcmgenet) = {
 	.name   = "eth_bcmgenet",
 	.id     = UCLASS_ETH,
 	.of_match = bcmgenet_eth_ids,
-	.ofdata_to_platdata = bcmgenet_eth_ofdata_to_platdata,
+	.of_to_plat = bcmgenet_eth_of_to_plat,
 	.probe  = bcmgenet_eth_probe,
 	.ops    = &bcmgenet_gmac_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct bcmgenet_eth_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct bcmgenet_eth_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

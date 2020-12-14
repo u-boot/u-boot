@@ -633,5 +633,5 @@ U_BOOT_DRIVER(tpm_tis_i2c) = {
 	.of_match = tpm_tis_i2c_ids,
 	.ops    = &tpm_tis_i2c_ops,
 	.probe	= tpm_tis_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct tpm_chip),
+	.priv_auto	= sizeof(struct tpm_chip),
 };

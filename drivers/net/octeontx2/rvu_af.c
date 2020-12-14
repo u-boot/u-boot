@@ -160,7 +160,7 @@ U_BOOT_DRIVER(rvu_af) = {
 	.id     = UCLASS_MISC,
 	.probe  = rvu_af_probe,
 	.remove = rvu_af_remove,
-	.priv_auto_alloc_size = sizeof(struct rvu_af),
+	.priv_auto	= sizeof(struct rvu_af),
 };
 
 static struct pci_device_id rvu_af_supported[] = {

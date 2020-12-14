@@ -322,7 +322,7 @@ static int setup_phy(struct udevice *dev)
 static int emaclite_start(struct udevice *dev)
 {
 	struct xemaclite *emaclite = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct emaclite_regs *regs = emaclite->regs;
 
 	debug("EmacLite Initialization Started\n");
@@ -593,9 +593,9 @@ static const struct eth_ops emaclite_ops = {
 	.stop = emaclite_stop,
 };
 
-static int emaclite_ofdata_to_platdata(struct udevice *dev)
+static int emaclite_of_to_plat(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct xemaclite *emaclite = dev_get_priv(dev);
 	int offset = 0;
 
@@ -631,10 +631,10 @@ U_BOOT_DRIVER(emaclite) = {
 	.name   = "emaclite",
 	.id     = UCLASS_ETH,
 	.of_match = emaclite_ids,
-	.ofdata_to_platdata = emaclite_ofdata_to_platdata,
+	.of_to_plat = emaclite_of_to_plat,
 	.probe  = emaclite_probe,
 	.remove = emaclite_remove,
 	.ops    = &emaclite_ops,
-	.priv_auto_alloc_size = sizeof(struct xemaclite),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct xemaclite),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

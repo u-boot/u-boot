@@ -111,8 +111,7 @@ def EncodeFmap(image_size, name, areas):
         ConvertName(names, params)
         return struct.pack(fmt, *params)
 
-    values = FmapHeader(FMAP_SIGNATURE, 1, 0, 0, image_size,
-                        tools.FromUnicode(name), len(areas))
+    values = FmapHeader(FMAP_SIGNATURE, 1, 0, 0, image_size, name, len(areas))
     blob = _FormatBlob(FMAP_HEADER_FORMAT, FMAP_HEADER_NAMES, values)
     for area in areas:
         blob += _FormatBlob(FMAP_AREA_FORMAT, FMAP_AREA_NAMES, area)

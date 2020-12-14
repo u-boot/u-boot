@@ -919,7 +919,7 @@ U_BOOT_DRIVER(meson_clk) = {
 	.name		= "meson_clk",
 	.id		= UCLASS_CLK,
 	.of_match	= meson_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct meson_clk),
+	.priv_auto	= sizeof(struct meson_clk),
 	.ops		= &meson_clk_ops,
 	.probe		= meson_clk_probe,
 };

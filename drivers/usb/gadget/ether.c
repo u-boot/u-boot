@@ -2009,7 +2009,7 @@ static int eth_bind(struct usb_gadget *gadget)
 	int			gcnum;
 	u8			tmp[7];
 #ifdef CONFIG_DM_ETH
-	struct eth_pdata	*pdata = dev_get_platdata(l_priv->netdev);
+	struct eth_pdata	*pdata = dev_get_plat(l_priv->netdev);
 #endif
 
 	/* these flags are only ever cleared; compiler take note */
@@ -2646,7 +2646,7 @@ static void usb_eth_stop(struct udevice *dev)
 static int usb_eth_probe(struct udevice *dev)
 {
 	struct ether_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	priv->netdev = dev;
 	l_priv = priv;
@@ -2691,8 +2691,8 @@ U_BOOT_DRIVER(eth_usb) = {
 	.id	= UCLASS_ETH,
 	.probe	= usb_eth_probe,
 	.ops	= &usb_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct ether_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct ether_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif /* CONFIG_DM_ETH */

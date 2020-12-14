@@ -85,10 +85,10 @@ static int lpc32xx_serial_init(struct hsuart_regs *hsuart)
 
 static int lpc32xx_hsuart_probe(struct udevice *dev)
 {
-	struct lpc32xx_hsuart_platdata *platdata = dev_get_platdata(dev);
+	struct lpc32xx_hsuart_plat *plat = dev_get_plat(dev);
 	struct lpc32xx_hsuart_priv *priv = dev_get_priv(dev);
 
-	priv->hsuart = (struct hsuart_regs *)platdata->base;
+	priv->hsuart = (struct hsuart_regs *)plat->base;
 
 	lpc32xx_serial_init(priv->hsuart);
 
@@ -107,6 +107,6 @@ U_BOOT_DRIVER(lpc32xx_hsuart) = {
 	.id	= UCLASS_SERIAL,
 	.probe	= lpc32xx_hsuart_probe,
 	.ops	= &lpc32xx_hsuart_ops,
-	.priv_auto_alloc_size = sizeof(struct lpc32xx_hsuart_priv),
+	.priv_auto	= sizeof(struct lpc32xx_hsuart_priv),
 	.flags	= DM_FLAG_PRE_RELOC,
 };

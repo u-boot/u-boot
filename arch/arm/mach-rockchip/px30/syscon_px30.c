@@ -23,7 +23,7 @@ U_BOOT_DRIVER(syscon_px30) = {
 };
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-static int px30_syscon_bind_of_platdata(struct udevice *dev)
+static int px30_syscon_bind_of_plat(struct udevice *dev)
 {
 	dev->driver_data = dev->driver->of_match->data;
 	debug("syscon: %s %d\n", dev->name, (uint)dev->driver_data);
@@ -35,20 +35,20 @@ U_BOOT_DRIVER(rockchip_px30_pmu) = {
 	.name = "rockchip_px30_pmu",
 	.id = UCLASS_SYSCON,
 	.of_match = px30_syscon_ids,
-	.bind = px30_syscon_bind_of_platdata,
+	.bind = px30_syscon_bind_of_plat,
 };
 
 U_BOOT_DRIVER(rockchip_px30_pmugrf) = {
 	.name = "rockchip_px30_pmugrf",
 	.id = UCLASS_SYSCON,
 	.of_match = px30_syscon_ids + 1,
-	.bind = px30_syscon_bind_of_platdata,
+	.bind = px30_syscon_bind_of_plat,
 };
 
 U_BOOT_DRIVER(rockchip_px30_grf) = {
 	.name = "rockchip_px30_grf",
 	.id = UCLASS_SYSCON,
 	.of_match = px30_syscon_ids + 2,
-	.bind = px30_syscon_bind_of_platdata,
+	.bind = px30_syscon_bind_of_plat,
 };
 #endif

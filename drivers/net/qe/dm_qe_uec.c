@@ -416,7 +416,7 @@ static void qe_uec_stop(struct udevice *dev)
 static int qe_uec_set_hwaddr(struct udevice *dev)
 {
 	struct qe_uec_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct uec_priv *uec = priv->uec;
 	uec_t *uec_regs = uec->uec_regs;
 	uchar *mac = pdata->enetaddr;
@@ -982,7 +982,7 @@ static void qe_uec_set_eth_type(struct udevice *dev)
 static int qe_uec_set_uec_info(struct udevice *dev)
 {
 	struct qe_uec_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct uec_priv *uec = priv->uec;
 	struct uec_inf *uec_info;
 	struct ucc_fast_inf *uf_info;
@@ -1086,7 +1086,7 @@ out:
 static int qe_uec_probe(struct udevice *dev)
 {
 	struct qe_uec_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct uec_priv		*uec;
 	int ret;
 
@@ -1129,9 +1129,9 @@ static int qe_uec_remove(struct udevice *dev)
 	return 0;
 }
 
-static int qe_uec_ofdata_to_platdata(struct udevice *dev)
+static int qe_uec_of_to_plat(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *phy_mode;
 
 	pdata->iobase = (phys_addr_t)devfdt_get_addr(dev);
@@ -1158,10 +1158,10 @@ U_BOOT_DRIVER(eth_qe_uec) = {
 	.name	= QE_UEC_DRIVER_NAME,
 	.id	= UCLASS_ETH,
 	.of_match = qe_uec_ids,
-	.ofdata_to_platdata = qe_uec_ofdata_to_platdata,
+	.of_to_plat = qe_uec_of_to_plat,
 	.probe	= qe_uec_probe,
 	.remove = qe_uec_remove,
 	.ops	= &qe_uec_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct qe_uec_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct qe_uec_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

@@ -85,14 +85,14 @@ static int apl_flash_probe(struct udevice *dev)
 
 /*
  * Manually set the parent of the SPI flash to SPI, since dtoc doesn't. We also
- * need to allocate the parent_platdata since by the time this function is
+ * need to allocate the parent_plat since by the time this function is
  * called device_bind() has already gone past that step.
  */
 static int apl_flash_bind(struct udevice *dev)
 {
 	if (CONFIG_IS_ENABLED(OF_PLATDATA) &&
 	    !CONFIG_IS_ENABLED(OF_PLATDATA_PARENT)) {
-		struct dm_spi_slave_platdata *plat;
+		struct dm_spi_slave_plat *plat;
 		struct udevice *spi;
 		int ret;
 
@@ -104,7 +104,7 @@ static int apl_flash_bind(struct udevice *dev)
 		plat = calloc(sizeof(*plat), 1);
 		if (!plat)
 			return -ENOMEM;
-		dev->parent_platdata = plat;
+		dev->parent_plat = plat;
 	}
 
 	return 0;
@@ -125,7 +125,7 @@ U_BOOT_DRIVER(winbond_w25q128fw) = {
 	.of_match	= apl_flash_ids,
 	.bind		= apl_flash_bind,
 	.probe		= apl_flash_probe,
-	.priv_auto_alloc_size = sizeof(struct spi_flash),
+	.priv_auto	= sizeof(struct spi_flash),
 	.ops		= &apl_flash_ops,
 };
 

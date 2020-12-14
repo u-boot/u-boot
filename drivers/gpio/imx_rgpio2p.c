@@ -132,7 +132,7 @@ static const struct dm_gpio_ops imx_rgpio2p_ops = {
 static int imx_rgpio2p_probe(struct udevice *dev)
 {
 	struct imx_rgpio2p_data *bank = dev_get_priv(dev);
-	struct imx_rgpio2p_plat *plat = dev_get_platdata(dev);
+	struct imx_rgpio2p_plat *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	int banknum;
 	char name[18], *str;
@@ -151,12 +151,12 @@ static int imx_rgpio2p_probe(struct udevice *dev)
 
 static int imx_rgpio2p_bind(struct udevice *dev)
 {
-	struct imx_rgpio2p_plat *plat = dev->platdata;
+	struct imx_rgpio2p_plat *plat = dev->plat;
 	fdt_addr_t addr;
 
 	/*
-	 * If platdata already exsits, directly return.
-	 * Actually only when DT is not supported, platdata
+	 * If plat already exsits, directly return.
+	 * Actually only when DT is not supported, plat
 	 * is statically initialized in U_BOOT_DEVICES.Here
 	 * will return.
 	 */
@@ -171,7 +171,7 @@ static int imx_rgpio2p_bind(struct udevice *dev)
 	 * TODO:
 	 * When every board is converted to driver model and DT is supported,
 	 * this can be done by auto-alloc feature, but not using calloc
-	 * to alloc memory for platdata.
+	 * to alloc memory for plat.
 	 *
 	 * For example imx_rgpio2p_plat uses platform data rather than device
 	 * tree.
@@ -184,7 +184,7 @@ static int imx_rgpio2p_bind(struct udevice *dev)
 
 	plat->regs = (struct gpio_regs *)addr;
 	plat->bank_index = dev->req_seq;
-	dev->platdata = plat;
+	dev->plat = plat;
 
 	return 0;
 }
@@ -200,7 +200,7 @@ U_BOOT_DRIVER(imx_rgpio2p) = {
 	.id	= UCLASS_GPIO,
 	.ops	= &imx_rgpio2p_ops,
 	.probe	= imx_rgpio2p_probe,
-	.priv_auto_alloc_size = sizeof(struct imx_rgpio2p_plat),
+	.priv_auto	= sizeof(struct imx_rgpio2p_plat),
 	.of_match = imx_rgpio2p_ids,
 	.bind	= imx_rgpio2p_bind,
 };

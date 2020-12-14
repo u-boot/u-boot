@@ -231,7 +231,7 @@ static int rcar_gen2_pci_probe(struct udevice *dev)
 	return 0;
 }
 
-static int rcar_gen2_pci_ofdata_to_platdata(struct udevice *dev)
+static int rcar_gen2_pci_of_to_plat(struct udevice *dev)
 {
 	struct rcar_gen2_pci_priv *priv = dev_get_priv(dev);
 
@@ -259,6 +259,6 @@ U_BOOT_DRIVER(rcar_gen2_pci) = {
 	.of_match		= rcar_gen2_pci_ids,
 	.ops			= &rcar_gen2_pci_ops,
 	.probe			= rcar_gen2_pci_probe,
-	.ofdata_to_platdata	= rcar_gen2_pci_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct rcar_gen2_pci_priv),
+	.of_to_plat	= rcar_gen2_pci_of_to_plat,
+	.priv_auto	= sizeof(struct rcar_gen2_pci_priv),
 };

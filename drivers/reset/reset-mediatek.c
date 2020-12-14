@@ -102,5 +102,5 @@ U_BOOT_DRIVER(mediatek_reset) = {
 	.id = UCLASS_RESET,
 	.probe = mediatek_reset_probe,
 	.ops = &mediatek_reset_ops,
-	.priv_auto_alloc_size = sizeof(struct mediatek_reset_priv),
+	.priv_auto	= sizeof(struct mediatek_reset_priv),
 };

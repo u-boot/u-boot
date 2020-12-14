@@ -1310,7 +1310,7 @@ U_BOOT_DRIVER(arasan_nand) = {
 	.id = UCLASS_MTD,
 	.of_match = arasan_nand_dt_ids,
 	.probe = arasan_probe,
-	.priv_auto_alloc_size = sizeof(struct arasan_nand_info),
+	.priv_auto	= sizeof(struct arasan_nand_info),
 };
 
 void board_nand_init(void)

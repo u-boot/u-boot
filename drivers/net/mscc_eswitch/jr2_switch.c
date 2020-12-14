@@ -726,7 +726,7 @@ static int jr2_mac_table_add(struct jr2_private *priv,
 static int jr2_write_hwaddr(struct udevice *dev)
 {
 	struct jr2_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	return jr2_mac_table_add(priv, pdata->enetaddr, PGID_UNICAST);
 }
@@ -755,7 +755,7 @@ static void serdes_setup(struct jr2_private *priv)
 static int jr2_start(struct udevice *dev)
 {
 	struct jr2_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const unsigned char mac[ETH_ALEN] = {0xff, 0xff, 0xff, 0xff, 0xff,
 		0xff };
 	int ret;
@@ -964,6 +964,6 @@ U_BOOT_DRIVER(jr2) = {
 	.probe				= jr2_probe,
 	.remove				= jr2_remove,
 	.ops				= &jr2_ops,
-	.priv_auto_alloc_size		= sizeof(struct jr2_private),
-	.platdata_auto_alloc_size	= sizeof(struct eth_pdata),
+	.priv_auto		= sizeof(struct jr2_private),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

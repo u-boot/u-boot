@@ -323,7 +323,7 @@ static int servalt_mac_table_add(struct servalt_private *priv,
 static int servalt_write_hwaddr(struct udevice *dev)
 {
 	struct servalt_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	return servalt_mac_table_add(priv, pdata->enetaddr, PGID_UNICAST);
 }
@@ -331,7 +331,7 @@ static int servalt_write_hwaddr(struct udevice *dev)
 static int servalt_start(struct udevice *dev)
 {
 	struct servalt_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const unsigned char mac[ETH_ALEN] = {0xff, 0xff, 0xff, 0xff, 0xff,
 		0xff };
 	int ret;
@@ -523,6 +523,6 @@ U_BOOT_DRIVER(servalt) = {
 	.probe				= servalt_probe,
 	.remove				= servalt_remove,
 	.ops				= &servalt_ops,
-	.priv_auto_alloc_size		= sizeof(struct servalt_private),
-	.platdata_auto_alloc_size	= sizeof(struct eth_pdata),
+	.priv_auto		= sizeof(struct servalt_private),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

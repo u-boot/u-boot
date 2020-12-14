@@ -188,7 +188,7 @@ U_BOOT_DRIVER(fsl_imx23_pinctrl) = {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.bind		= dm_scan_fdt_dev,
 #endif
-	.priv_auto_alloc_size = sizeof(struct mxs_pinctrl_priv),
+	.priv_auto	= sizeof(struct mxs_pinctrl_priv),
 	.ops = &mxs_pinctrl_ops,
 };
 

@@ -142,5 +142,5 @@ U_BOOT_DRIVER(ipq4019_mdio) = {
 	.bind           = ipq4019_mdio_bind,
 	.probe          = ipq4019_mdio_probe,
 	.ops            = &ipq4019_mdio_ops,
-	.priv_auto_alloc_size   = sizeof(struct ipq4019_mdio_priv),
+	.priv_auto	  = sizeof(struct ipq4019_mdio_priv),
 };

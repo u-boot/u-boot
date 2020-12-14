@@ -385,7 +385,7 @@ static int samsung_i2s_probe(struct udevice *dev)
 	return i2s_tx_init(priv);
 }
 
-static int samsung_i2s_ofdata_to_platdata(struct udevice *dev)
+static int samsung_i2s_of_to_plat(struct udevice *dev)
 {
 	struct i2s_uc_priv *priv = dev_get_uclass_priv(dev);
 	ulong base;
@@ -451,6 +451,6 @@ U_BOOT_DRIVER(samsung_i2s) = {
 	.id		= UCLASS_I2S,
 	.of_match	= samsung_i2s_ids,
 	.probe		= samsung_i2s_probe,
-	.ofdata_to_platdata	= samsung_i2s_ofdata_to_platdata,
+	.of_to_plat	= samsung_i2s_of_to_plat,
 	.ops		= &samsung_i2s_ops,
 };

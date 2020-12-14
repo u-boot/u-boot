@@ -128,10 +128,10 @@ static int reg_get_enable(struct udevice *dev)
 
 static int act8846_reg_probe(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	int reg = dev->driver_data;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	uc_pdata->type = reg <= 4 ? REGULATOR_TYPE_BUCK : REGULATOR_TYPE_LDO;
 	uc_pdata->mode_count = 0;

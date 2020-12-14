@@ -108,5 +108,5 @@ U_BOOT_DRIVER(sandbox_irq_drv) = {
 	.id		= UCLASS_IRQ,
 	.of_match	= sandbox_irq_ids,
 	.ops		= &sandbox_irq_ops,
-	.priv_auto_alloc_size	= sizeof(struct sandbox_irq_priv),
+	.priv_auto	= sizeof(struct sandbox_irq_priv),
 };
