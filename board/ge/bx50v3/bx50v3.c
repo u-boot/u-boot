@@ -356,15 +356,12 @@ static void process_vpd(struct vpd_cache *vpd)
 
 	switch (vpd->product_id) {
 	case VPD_PRODUCT_B450:
-		env_set("confidx", "1");
 		i210_index = 1;
 		break;
 	case VPD_PRODUCT_B650:
-		env_set("confidx", "2");
 		i210_index = 1;
 		break;
 	case VPD_PRODUCT_B850:
-		env_set("confidx", "3");
 		i210_index = 2;
 		break;
 	}
@@ -554,16 +551,23 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 int board_fit_config_name_match(const char *name)
 {
+	const char *machine = name;
+
 	if (!vpd.is_read)
 		return strcmp(name, "imx6q-bx50v3");
 
+	if (!strncmp(machine, "Boot ", 5))
+		machine += 5;
+	if (!strncmp(machine, "imx6q-", 6))
+		machine += 6;
+
 	switch (vpd.product_id) {
 	case VPD_PRODUCT_B450:
-		return strcmp(name, "imx6q-b450v3");
+		return strcasecmp(machine, "b450v3");
 	case VPD_PRODUCT_B650:
-		return strcmp(name, "imx6q-b650v3");
+		return strcasecmp(machine, "b650v3");
 	case VPD_PRODUCT_B850:
-		return strcmp(name, "imx6q-b850v3");
+		return strcasecmp(machine, "b850v3");
 	default:
 		return -1;
 	}

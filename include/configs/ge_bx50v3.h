@@ -62,7 +62,7 @@
         "networkboot=" \
                 "run setnetworkboot; " \
                 "nfs ${loadaddr} /srv/nfs/fitImage; " \
-                "bootm ${loadaddr}#conf@${confidx}\0" \
+                "bootm ${loadaddr}\0" \
 
 #define CONFIG_NETWORKBOOTCOMMAND \
 	"run networkboot; " \
@@ -111,7 +111,7 @@
 	"doboot=" \
 		"echo Booting from ${dev}:${devnum}:${partnum} ...; " \
 		"run setargs; " \
-		"bootm ${loadaddr}#conf@${confidx}\0" \
+		"bootm ${loadaddr}\0" \
 	"tryboot=" \
 		"setenv partnum 1; run hasfirstboot || setenv partnum 2; " \
 		"run loadimage || run swappartitions && run loadimage || " \
