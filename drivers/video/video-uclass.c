@@ -15,6 +15,7 @@
 #include <video_console.h>
 #include <asm/cache.h>
 #include <dm/lists.h>
+#include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #ifdef CONFIG_SANDBOX
@@ -172,7 +173,7 @@ void video_set_default_colors(struct udevice *dev, bool invert)
 }
 
 /* Flush video activity to the caches */
-void video_sync(struct udevice *vid, bool force)
+int video_sync(struct udevice *vid, bool force)
 {
 	/*
 	 * flush_dcache_range() is declared in common.h but it seems that some
@@ -196,17 +197,22 @@ void video_sync(struct udevice *vid, bool force)
 		last_sync = get_timer(0);
 	}
 #endif
+	return 0;
 }
 
 void video_sync_all(void)
 {
 	struct udevice *dev;
+	int ret;
 
 	for (uclass_find_first_device(UCLASS_VIDEO, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
-		if (device_active(dev))
-			video_sync(dev, true);
+		if (device_active(dev)) {
+			ret = video_sync(dev, true);
+			if (ret)
+				dev_dbg(dev, "Video sync failed\n");
+		}
 	}
 }
 
