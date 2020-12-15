@@ -156,11 +156,11 @@ The whitelist database
 
 .. code-block:: bash
 
-    $ openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_db/ \
+    openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_db/ \
             -keyout db.key -out db.crt -nodes -days 365
-    $ cert-to-efi-sig-list -g 11111111-2222-3333-4444-123456789abc \
+    cert-to-efi-sig-list -g 11111111-2222-3333-4444-123456789abc \
             db.crt db.esl
-    $ sign-efi-sig-list -c KEK.crt -k KEK.key db db.esl db.auth
+    sign-efi-sig-list -c KEK.crt -k KEK.key db db.esl db.auth
 
 Copy the \*.auth files to media, say mmc, that is accessible from U-Boot.
 

@@ -1,3 +1,5 @@
+Network console
+===============
 
 In U-Boot, we implemented the networked console via the standard
 "devices" mechanism, which means that you can switch between the
@@ -6,7 +8,8 @@ serial and network input/output devices by adjusting the 'stdin' and
 set either of these variables to "nc". Input and output can be
 switched independently.
 
-CONFIG_NETCONSOLE_BUFFER_SIZE - Override the default buffer size
+The default buffer size can be overridden by setting
+CONFIG_NETCONSOLE_BUFFER_SIZE.
 
 We use an environment variable 'ncip' to set the IP address and the
 port of the destination. The format is <ip_addr>:<port>. If <port> is
@@ -17,15 +20,16 @@ The source / listening port can be configured separately by setting
 the 'ncinport' environment variable and the destination port can be
 configured by setting the 'ncoutport' environment variable.
 
-For example, if your server IP is 192.168.1.1, you could use:
+For example, if your server IP is 192.168.1.1, you could use::
 
 	=> setenv nc 'setenv stdout nc;setenv stdin nc'
 	=> setenv ncip 192.168.1.1
 	=> saveenv
 	=> run nc
 
+On the host side, please use this script to access the console
 
-On the host side, please use this script to access the console:
+.. code-block:: bash
 
 	tools/netconsole <ip> [port]
 
@@ -54,31 +58,37 @@ file for the original Ingo Molnar's documentation on how to pass
 parameters to the loadable module.
 
 The format of the kernel command line parameter (for the static
-configuration) is as follows:
+configuration) is as follows
 
-  netconsole=[src-port]@[src-ip]/[<dev>],[tgt-port]@<tgt-ip>/[tgt-macaddr]
+.. code-block:: bash
+
+    netconsole=[src-port]@[src-ip]/[<dev>],[tgt-port]@<tgt-ip>/[tgt-macaddr]
 
 where
 
-  src-port	source for UDP packets
-		(defaults to 6665)
-  src-ip	source IP to use
-		(defaults to the interface's address)
-  dev		network interface
-		(defaults to eth0)
-  tgt-port	port for logging agent
-		(defaults to 6666)
-  tgt-ip	IP address for logging agent
-		(this is the required parameter)
-  tgt-macaddr	ethernet MAC address for logging agent
-		(defaults to broadcast)
+src-port
+    source for UDP packets (defaults to 6665)
 
-Examples:
+src-ip
+    source IP to use (defaults to the interface's address)
+
+dev
+    network interface (defaults to eth0)
+
+tgt-port
+  port for logging agent (defaults to 6666)
+
+tgt-ip
+  IP address for logging agent (this is the required parameter)
+
+tgt-macaddr
+    ethernet MAC address for logging agent (defaults to broadcast)
+
+Examples
+
+.. code-block:: bash
 
   netconsole=4444@10.0.0.1/eth1,9353@10.0.0.2/12:34:56:78:9a:bc
-
-or
-
   netconsole=@/,@192.168.3.1/
 
 Please note that for the Linux networked console to work, the
@@ -90,6 +100,8 @@ in the ELDK-NFS-based environment.
 
 To browse the Linux network console output, use the 'netcat' tool invoked
 as follows:
+
+.. code-block:: bash
 
 	nc -u -l -p 6666
 

@@ -33,8 +33,10 @@ On most architectures the global data pointer is stored in a register.
 +------------+----------+
 | SuperH     | r13      |
 +------------+----------+
+| x86 32bit  | fs       |
++------------+----------+
 
-The sandbox, x86, and Xtensa are notable exceptions.
+The sandbox, x86_64, and Xtensa are notable exceptions.
 
 Clang for ARM does not support assigning a global register. When using Clang
 gd is defined as an inline function using assembly code. This adds a few bytes
