@@ -98,7 +98,7 @@ int board_early_init_r(void)
 /* Bits in CREG_BOOT register */
 #define CREG_BOOT_WP_BIT	BIT(8)
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	writel(1, CREG_IP_SW_RESET);
 	while (1)

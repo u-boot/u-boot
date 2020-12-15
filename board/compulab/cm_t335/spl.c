@@ -96,7 +96,7 @@ static void probe_sdram_size(long size)
 		break;
 	default:
 		puts("Failed configuring DRAM, resetting...\n\n");
-		reset_cpu(0);
+		reset_cpu();
 	}
 	debug("%s: setting DRAM size to %ldM\n", __func__, size >> 20);
 	config_ddr(303, &ioregs, &ddr3_data,

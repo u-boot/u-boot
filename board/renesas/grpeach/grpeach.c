@@ -40,7 +40,7 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	/* Dummy read (must read WRCSR:WOVF at least once before clearing) */
 	readb(RZA1_WDT_BASE + WRCSR);

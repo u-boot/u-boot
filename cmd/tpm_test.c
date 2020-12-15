@@ -146,7 +146,7 @@ static int test_enable(struct udevice *dev)
 
 #define reboot() do { \
 	printf("\trebooting...\n"); \
-	reset_cpu(0); \
+	reset_cpu(); \
 } while (0)
 
 static int test_fast_enable(struct udevice *dev)

@@ -375,7 +375,7 @@ void smp_kick_all_cpus(void)
 }
 #endif
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
 

@@ -910,7 +910,7 @@ usb_modify_speed:
 #endif
 
 #if !CONFIG_IS_ENABLED(SYSRESET)
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
 

@@ -488,6 +488,6 @@ void board_boot_order(u32 *spl_boot_list)
 	spl_boot_list[2] = BOOT_DEVICE_NONE;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 }

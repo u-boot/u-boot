@@ -143,7 +143,7 @@ void *board_fdt_blob_setup(void)
 #endif
 
 /* Actual reset is done via PSCI. */
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 }
 

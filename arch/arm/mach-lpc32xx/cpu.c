@@ -17,7 +17,7 @@
 static struct clk_pm_regs *clk = (struct clk_pm_regs *)CLK_PM_BASE;
 static struct wdt_regs  *wdt = (struct wdt_regs *)WDT_BASE;
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	/* Enable watchdog clock */
 	setbits_le32(&clk->timclk_ctrl, CLK_TIMCLK_WATCHDOG);

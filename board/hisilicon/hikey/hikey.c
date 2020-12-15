@@ -486,7 +486,7 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	writel(0x48698284, &ao_sc->stat0);
 	wfi();

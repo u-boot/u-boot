@@ -185,7 +185,7 @@ ulong board_get_usable_ram_top(ulong total_size)
 	return BCM_NS3_MEM_END;
 }
 
-void reset_cpu(ulong level)
+void reset_cpu(void)
 {
 	/* Perform a level 3 reset */
 	psci_system_reset2(3, 0);

@@ -104,7 +104,7 @@ void enable_caches(void)
 	dcache_enable();
 }
 
-void reset_cpu(ulong ignored)
+void reset_cpu(void)
 {
 	u32 reg;
 

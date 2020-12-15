@@ -163,7 +163,7 @@ U_BOOT_CMD(
 	"cpld write addr val\n"
 );
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	cpld_write(CPLD_ADDR_RESET, 1);
 }

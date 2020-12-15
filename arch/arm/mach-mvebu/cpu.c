@@ -42,7 +42,7 @@ void lowlevel_init(void)
 	 */
 }
 
-void reset_cpu(unsigned long ignored)
+void reset_cpu(void)
 {
 	struct mvebu_system_registers *reg =
 		(struct mvebu_system_registers *)MVEBU_SYSTEM_REG_BASE;

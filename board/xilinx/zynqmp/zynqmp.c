@@ -436,7 +436,7 @@ int dram_init(void)
 }
 #endif
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 }
 

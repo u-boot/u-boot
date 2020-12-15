@@ -314,7 +314,7 @@ int a3700_fdt_fix_pcie_regions(void *blob)
 	return fdt_setprop_inplace(blob, node, "ranges", new_ranges, len);
 }
 
-void reset_cpu(ulong ignored)
+void reset_cpu(void)
 {
 	/*
 	 * Write magic number of 0x1d1e to North Bridge Warm Reset register
