@@ -500,25 +500,3 @@ software_interrupt:
 	bal	do_interruption
 
 	.align	5
-
-/*
- * void reset_cpu(ulong addr);
- * $r0: input address to jump to
- */
-.globl reset_cpu
-reset_cpu:
-/* No need to disable MMU because we never enable it */
-
-	bal	invalidate_icac
-	bal	invalidate_dcac
-	mfsr	$p0, $MMU_CFG
-	andi	$p0, $p0, 0x3			! MMPS
-	li	$p1, 0x2			! TLB MMU
-	bne	$p0, $p1, 1f
-	tlbop	flushall			! Flush TLB
-1:
-	mfsr	$p0, MR_CAC_CTL			! Get the $CACHE_CTL reg
-	li	$p1, DIS_DCAC
-	and	$p0, $p0, $p1			! Clear the DC_EN bit
-	mtsr	$p0, MR_CAC_CTL			! Write back the $CACHE_CTL reg
-	br	$r0				! Jump to the input address
