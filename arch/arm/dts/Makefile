@@ -166,6 +166,7 @@ dtb-$(CONFIG_ARCH_MESON) += \
 	meson-gxl-s905d-libretech-pc.dtb \
 	meson-gxm-khadas-vim2.dtb \
 	meson-gxm-s912-libretech-pc.dtb \
+	meson-gxm-wetek-core2.dtb \
 	meson-axg-s400.dtb \
 	meson-g12a-u200.dtb \
 	meson-g12a-sei510.dtb \
