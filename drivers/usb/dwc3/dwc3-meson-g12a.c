@@ -269,9 +269,6 @@ int dwc3_meson_g12a_force_mode(struct udevice *dev, enum usb_dr_mode mode)
 	if (!priv->phys[USB2_OTG_PHY].dev)
 		return -EINVAL;
 
-	if (mode == priv->otg_mode)
-		return 0;
-
 	if (mode == USB_DR_MODE_HOST)
 		debug("%s: switching to Host Mode\n", __func__);
 	else
