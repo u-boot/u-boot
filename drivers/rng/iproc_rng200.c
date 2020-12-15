@@ -50,7 +50,6 @@ static void iproc_rng200_enable(struct iproc_rng200_platdata *pdata, bool enable
 		val &= ~RNG_CTRL_RNG_RBGEN_ENABLE;
 
 	writel(val, rng_base + RNG_CTRL_OFFSET);
-
 }
 
 static void iproc_rng200_restart(struct iproc_rng200_platdata *pdata)
