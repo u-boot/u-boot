@@ -143,7 +143,7 @@ int video_clear(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	return 0;
+	return video_sync(dev, false);
 }
 
 void video_set_default_colors(struct udevice *dev, bool invert)
