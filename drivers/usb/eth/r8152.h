@@ -92,6 +92,7 @@
 #define USB_PM_CTRL_STATUS	0xd432	/* RTL8153A */
 #define USB_RX_EXTRA_AGGR_TMR	0xd432	/* RTL8153B */
 #define USB_TX_DMA		0xd434
+#define USB_UPT_RXDMA_OWN	0xd437
 #define USB_TOLERANCE		0xd490
 #define USB_LPM_CTRL		0xd41a
 #define USB_BMU_RESET		0xd4b0
@@ -345,6 +346,10 @@
 /* USB_BMU_RESET */
 #define BMU_RESET_EP_IN		0x01
 #define BMU_RESET_EP_OUT	0x02
+
+/* USB_UPT_RXDMA_OWN */
+#define OWN_UPDATE		BIT(0)
+#define OWN_CLEAR		BIT(1)
 
 /* USB_UPS_CTRL */
 #define POWER_CUT		0x0100
