@@ -435,7 +435,6 @@ struct spi_slave *spi_setup_slave(unsigned int busnum, unsigned int cs,
 void spi_free_slave(struct spi_slave *slave)
 {
 	device_remove(slave->dev, DM_REMOVE_NORMAL);
-	slave->dev = NULL;
 }
 
 int spi_slave_of_to_plat(struct udevice *dev, struct dm_spi_slave_plat *plat)
