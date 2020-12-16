@@ -1647,7 +1647,7 @@ int r8152_eth_probe(struct usb_device *dev, unsigned int ifnum,
 	if (usb_set_interface(dev, iface_desc->bInterfaceNumber, 0) ||
 	    !ss->ep_in || !ss->ep_out || !ss->ep_int) {
 		debug("Problems with device\n");
-		return 0;
+		goto error;
 	}
 
 	dev->privptr = (void *)ss;
@@ -1659,7 +1659,7 @@ int r8152_eth_probe(struct usb_device *dev, unsigned int ifnum,
 	r8152b_get_version(tp);
 
 	if (rtl_ops_init(tp))
-		return 0;
+		goto error;
 
 	tp->rtl_ops.init(tp);
 	tp->rtl_ops.up(tp);
@@ -1669,6 +1669,11 @@ int r8152_eth_probe(struct usb_device *dev, unsigned int ifnum,
 			  DUPLEX_FULL);
 
 	return 1;
+
+error:
+	cfree(ss->dev_priv);
+	ss->dev_priv = 0;
+	return 0;
 }
 
 int r8152_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
