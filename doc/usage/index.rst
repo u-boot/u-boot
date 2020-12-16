@@ -12,4 +12,5 @@ Shell commands
    :maxdepth: 1
 
    bootmenu
+   button
    pstore
