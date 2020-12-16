@@ -447,6 +447,12 @@ static void rtl8152_set_rx_mode(struct r8152 *tp)
 	ocp_write_dword(tp, MCU_TYPE_PLA, PLA_RCR, ocp_data);
 }
 
+static inline void r8153b_rx_agg_chg_indicate(struct r8152 *tp)
+{
+	ocp_write_byte(tp, MCU_TYPE_USB, USB_UPT_RXDMA_OWN,
+		       OWN_UPDATE | OWN_CLEAR);
+}
+
 static int rtl_enable(struct r8152 *tp)
 {
 	u32 ocp_data;
@@ -456,6 +462,15 @@ static int rtl_enable(struct r8152 *tp)
 	ocp_data = ocp_read_byte(tp, MCU_TYPE_PLA, PLA_CR);
 	ocp_data |= PLA_CR_RE | PLA_CR_TE;
 	ocp_write_byte(tp, MCU_TYPE_PLA, PLA_CR, ocp_data);
+
+	switch (tp->version) {
+	case RTL_VER_08:
+	case RTL_VER_09:
+		r8153b_rx_agg_chg_indicate(tp);
+		break;
+	default:
+		break;
+	}
 
 	rxdy_gated_en(tp, false);
 
@@ -525,8 +540,6 @@ static void r8153_set_rx_early_size(struct r8152 *tp)
 		debug("** %s Invalid Device\n", __func__);
 		break;
 	}
-
-	ocp_write_word(tp, MCU_TYPE_USB, USB_RX_EARLY_SIZE, ocp_data);
 }
 
 static int rtl8153_enable(struct r8152 *tp)
