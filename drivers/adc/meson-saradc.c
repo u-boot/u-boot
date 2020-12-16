@@ -512,8 +512,11 @@ static int meson_saradc_init(struct meson_saradc_priv *priv)
 	 * reading the temperature sensor.
 	 */
 	regmap_read(priv->regmap, MESON_SAR_ADC_REG3, &regval);
-	if (regval & MESON_SAR_ADC_REG3_BL30_INITIALIZED)
-		return 0;
+	if (regval & MESON_SAR_ADC_REG3_BL30_INITIALIZED) {
+		regmap_read(priv->regmap, MESON_SAR_ADC_REG3, &regval);
+		if (regval & MESON_SAR_ADC_REG3_ADC_EN)
+			return 0;
+	}
 
 	meson_saradc_stop_sample_engine(priv);
 
