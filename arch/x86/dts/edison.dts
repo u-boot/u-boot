@@ -16,7 +16,7 @@
 
 / {
 	model = "Intel Edison";
-	compatible = "intel,edison";
+	compatible = "intel,edison", "intel,tangier";
 
 	aliases {
 		serial0 = &serial0;
@@ -103,6 +103,18 @@
 	scu: ipc@ff009000 {
 		compatible = "intel,scu-ipc";
 		reg = <0xff009000 0x1000>;
+	};
+
+	usb: usb@f9100000 {
+		compatible = "intel,tangier-dwc3";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		dwc3: dwc3 {
+			reg = <0xf9100000 0x100000>;
+			maximum-speed = "high-speed";
+			dr_mode = "peripheral";
+		};
 	};
 
 	watchdog: wdt@0 {

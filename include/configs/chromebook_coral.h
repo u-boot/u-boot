@@ -15,10 +15,13 @@
 	"read mmc 2:2 100000 0 80; setexpr loader *001004f0; " \
 	"setexpr size *00100518; setexpr blocks $size / 200; " \
 	"read mmc 2:2 100000 80 $blocks; setexpr setup $loader - 1000; " \
-	"setexpr cmdline $loader - 2000; " \
-	"part uuid mmc 2:2 uuid; setenv bootargs_U $uuid; " \
-	"zboot start 100000 0 0 0 $setup $cmdline; " \
-	"zboot load; zboot setup; zboot dump; zboot go"
+	"setexpr cmdline_ptr $loader - 2000; " \
+	"setexpr.s cmdline *$cmdline_ptr; " \
+	"setexpr cmdline gsub %U \\\\${uuid}; " \
+	"if part uuid mmc 2:2 uuid; then " \
+	"zboot start 100000 0 0 0 $setup cmdline; " \
+	"zboot load; zboot setup; zboot dump; zboot go;" \
+	"fi"
 
 #include <configs/x86-common.h>
 #include <configs/x86-chromebook.h>
