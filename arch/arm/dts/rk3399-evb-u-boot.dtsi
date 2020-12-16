@@ -13,10 +13,6 @@
 	};
 };
 
-&rng {
-	status = "okay";
-};
-
 &i2c0 {
 	u-boot,dm-pre-reloc;
 };

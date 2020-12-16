@@ -24,10 +24,6 @@
 	u-boot,dm-pre-reloc;
 };
 
-&rng {
-	status = "okay";
-};
-
 &sdhci {
 	max-frequency = <25000000>;
 	u-boot,dm-pre-reloc;
