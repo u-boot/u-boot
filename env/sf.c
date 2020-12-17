@@ -359,7 +359,7 @@ static int env_sf_init_early(void)
 		ret = env_check_redund((char *)tmp_env1, read1_fail,
 				       (char *)tmp_env2, read2_fail);
 
-		if (ret == -EIO || ret == -ENOMSG)
+		if (ret < 0)
 			goto err_read;
 
 		if (gd->env_valid == ENV_VALID)

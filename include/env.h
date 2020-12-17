@@ -328,8 +328,6 @@ int env_export(struct environment_s *env_out);
  * @buf2_read_fail: 0 if buf2 is valid, non-zero if invalid
  * @return 0 if OK,
  *	-EIO if no environment is valid,
- *	-EINVAL if read of second entry is good
- *	-ENOENT if read of first entry is good
  *	-ENOMSG if the CRC was bad
  */
 
