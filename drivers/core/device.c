@@ -41,6 +41,7 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 	struct udevice *dev;
 	struct uclass *uc;
 	int size, ret = 0;
+	bool auto_seq = true;
 
 	if (devp)
 		*devp = NULL;
@@ -73,6 +74,7 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 
 	dev->seq = -1;
 	dev->req_seq = -1;
+	dev->sqq = -1;
 	if (CONFIG_IS_ENABLED(DM_SEQ_ALIAS) &&
 	    (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS)) {
 		/*
@@ -84,17 +86,25 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 		 */
 		if (CONFIG_IS_ENABLED(OF_CONTROL) &&
 		    !CONFIG_IS_ENABLED(OF_PLATDATA)) {
-			if (uc->uc_drv->name && ofnode_valid(node))
+			if (uc->uc_drv->name && ofnode_valid(node)) {
+				dev_read_alias_seq(dev, &dev->sqq);
 				dev_read_alias_seq(dev, &dev->req_seq);
-#if CONFIG_IS_ENABLED(OF_PRIOR_STAGE)
-			if (dev->req_seq == -1)
-				dev->req_seq =
-					uclass_find_next_free_req_seq(uc);
-#endif
+				auto_seq = false;
+			}
+			if (CONFIG_IS_ENABLED(OF_PRIOR_STAGE)) {
+				if (dev->req_seq == -1) {
+					auto_seq = true;
+					dev->req_seq =
+						uclass_find_next_free_req_seq(
+							uc);
+				}
+			}
 		} else {
 			dev->req_seq = uclass_find_next_free_req_seq(uc);
 		}
 	}
+	if (auto_seq)
+		dev->sqq = uclass_find_next_free_req_seq(uc);
 
 	if (drv->plat_auto) {
 		bool alloc = !plat;

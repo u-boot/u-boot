@@ -311,22 +311,24 @@ int dm_init_and_scan(bool pre_reloc_only)
 	ret = dm_scan_plat(pre_reloc_only);
 	if (ret) {
 		debug("dm_scan_plat() failed: %d\n", ret);
-		return ret;
+		goto fail;
 	}
 
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		ret = dm_extended_scan(pre_reloc_only);
 		if (ret) {
 			debug("dm_extended_scan() failed: %d\n", ret);
-			return ret;
+			goto fail;
 		}
 	}
 
 	ret = dm_scan_other(pre_reloc_only);
 	if (ret)
-		return ret;
+		goto fail;
 
 	return 0;
+fail:
+	return ret;
 }
 
 #ifdef CONFIG_ACPIGEN
