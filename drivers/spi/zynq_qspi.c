@@ -13,8 +13,10 @@
 #include <log.h>
 #include <malloc.h>
 #include <spi.h>
+#include <spi_flash.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
+#include "../mtd/spi/sf_internal.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -96,6 +98,8 @@ struct zynq_qspi_platdata {
 	struct zynq_qspi_regs *regs;
 	u32 frequency;          /* input frequency */
 	u32 speed_hz;
+	u32 is_dual;
+	u32 tx_rx_mode;
 };
 
 /* zynq qspi priv */
@@ -111,6 +115,9 @@ struct zynq_qspi_priv {
 	int bytes_to_transfer;
 	int bytes_to_receive;
 	unsigned int is_inst;
+	unsigned int is_dual;
+	unsigned int is_dio;
+	unsigned int u_page;
 	unsigned cs_change:1;
 };
 
@@ -119,9 +126,59 @@ static int zynq_qspi_ofdata_to_platdata(struct udevice *bus)
 	struct zynq_qspi_platdata *plat = bus->platdata;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
+	int is_dual;
+	u32 mode = 0;
+	int offset;
+	u32 value;
 
 	plat->regs = (struct zynq_qspi_regs *)fdtdec_get_addr(blob,
 							      node, "reg");
+
+	is_dual = fdtdec_get_int(blob, node, "is-dual", -1);
+	if (is_dual < 0)
+		plat->is_dual = SF_SINGLE_FLASH;
+	else if (is_dual == 1)
+		plat->is_dual = SF_DUAL_PARALLEL_FLASH;
+	else
+		if (fdtdec_get_int(blob, node,
+				   "is-stacked", -1) < 0)
+			plat->is_dual = SF_SINGLE_FLASH;
+		else
+			plat->is_dual = SF_DUAL_STACKED_FLASH;
+
+	offset = fdt_first_subnode(blob, node);
+
+	value = fdtdec_get_uint(blob, offset, "spi-rx-bus-width", 1);
+	switch (value) {
+	case 1:
+		break;
+	case 2:
+		mode |= SPI_RX_DUAL;
+		break;
+	case 4:
+		mode |= SPI_RX_QUAD;
+		break;
+	default:
+		printf("Invalid spi-rx-bus-width %d\n", value);
+		break;
+	}
+
+	value = fdtdec_get_uint(blob, offset, "spi-tx-bus-width", 1);
+	switch (value) {
+	case 1:
+		break;
+	case 2:
+		mode |= SPI_TX_DUAL;
+		break;
+	case 4:
+		mode |= SPI_TX_QUAD;
+		break;
+	default:
+		printf("Invalid spi-tx-bus-width %d\n", value);
+		break;
+	}
+
+	plat->tx_rx_mode = mode;
 
 	return 0;
 }
@@ -246,6 +303,13 @@ static int zynq_qspi_probe(struct udevice *bus)
 
 	priv->regs = plat->regs;
 	priv->fifo_depth = ZYNQ_QSPI_FIFO_DEPTH;
+	priv->is_dual = plat->is_dual;
+
+	if (priv->is_dual == -1) {
+		debug("%s: No QSPI device detected based on MIO settings\n",
+		      __func__);
+		return -1;
+	}
 
 	ret = clk_get_by_name(bus, "ref_clk", &clk);
 	if (ret < 0) {
@@ -699,6 +763,11 @@ static int zynq_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 		priv->cs_change = 1;
 	else
 		priv->cs_change = 0;
+
+	if (flags & SPI_XFER_U_PAGE)
+		priv->u_page = 1;
+	else
+		priv->u_page = 0;
 
 	zynq_qspi_transfer(priv);
 
