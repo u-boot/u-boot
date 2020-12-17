@@ -44,6 +44,9 @@ struct udevice;
 /* Members of this uclass sequence themselves with aliases */
 #define DM_UC_FLAG_SEQ_ALIAS			(1 << 0)
 
+/* Members of this uclass without aliases don't get a sequence number */
+#define DM_UC_FLAG_NO_AUTO_SEQ			(1 << 1)
+
 /* Same as DM_FLAG_ALLOC_PRIV_DMA */
 #define DM_UC_FLAG_ALLOC_PRIV_DMA		(1 << 5)
 

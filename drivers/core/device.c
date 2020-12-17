@@ -103,7 +103,7 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 			dev->req_seq = uclass_find_next_free_req_seq(uc);
 		}
 	}
-	if (auto_seq)
+	if (auto_seq && !(uc->uc_drv->flags & DM_UC_FLAG_NO_AUTO_SEQ))
 		dev->sqq = uclass_find_next_free_req_seq(uc);
 
 	if (drv->plat_auto) {
