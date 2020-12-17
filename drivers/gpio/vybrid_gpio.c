@@ -114,7 +114,7 @@ static int vybrid_gpio_odata_to_plat(struct udevice *dev)
 		return -EINVAL;
 
 	plat->base = base_addr;
-	plat->chip = dev->req_seq;
+	plat->chip = dev_seq(dev);
 	plat->port_name = fdt_get_name(gd->fdt_blob, dev_of_offset(dev), NULL);
 
 	return 0;

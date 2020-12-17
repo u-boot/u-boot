@@ -183,7 +183,7 @@ static int imx_rgpio2p_bind(struct udevice *dev)
 		return -ENOMEM;
 
 	plat->regs = (struct gpio_regs *)addr;
-	plat->bank_index = dev->req_seq;
+	plat->bank_index = dev_seq(dev);
 	dev->plat = plat;
 
 	return 0;
