@@ -207,7 +207,6 @@ int device_remove(struct udevice *dev, uint flags)
 	if (flags_remove(flags, drv->flags)) {
 		device_free(dev);
 
-		dev->seq = -1;
 		dev->flags &= ~DM_FLAG_ACTIVATED;
 	}
 
