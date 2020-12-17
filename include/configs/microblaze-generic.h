@@ -81,6 +81,20 @@
 # define BOOT_TARGET_DEVICES_QSPI(func)
 #endif
 
+#if defined(CONFIG_MTD_NOR_FLASH)
+# define BOOT_TARGET_DEVICES_NOR(func)  func(NOR, nor, na)
+#else
+# define BOOT_TARGET_DEVICES_NOR(func)
+#endif
+
+#define BOOTENV_DEV_NOR(devtypeu, devtypel, instance) \
+	"bootcmd_nor=cp.b ${script_offset_nor} ${scriptaddr} ${script_size_f} && " \
+		"echo NOR: Trying to boot script at ${scriptaddr} && " \
+		"source ${scriptaddr}; echo NOR: SCRIPT FAILED: continuing...;\0"
+
+#define BOOTENV_DEV_NAME_NOR(devtypeu, devtypel, instance) \
+	"nor "
+
 #define BOOTENV_DEV_QSPI(devtypeu, devtypel, instance) \
 	"bootcmd_qspi=sf probe 0 0 0 && " \
 	"sf read ${scriptaddr} ${script_offset_f} ${script_size_f} && " \
@@ -101,7 +115,8 @@
 
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_JTAG(func) \
-	BOOT_TARGET_DEVICES_QSPI(func)  \
+	BOOT_TARGET_DEVICES_QSPI(func) \
+	BOOT_TARGET_DEVICES_NOR(func) \
 	BOOT_TARGET_DEVICES_DHCP(func) \
 	BOOT_TARGET_DEVICES_PXE(func)
 
