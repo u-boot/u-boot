@@ -126,9 +126,6 @@ struct udevice *eth_get_dev_by_name(const char *devname)
 
 	uclass_foreach_dev(it, uc) {
 		/*
-		 * We need the seq to be valid, so try to probe it.
-		 * If the probe fails, the seq will not match since it will be
-		 * -1 instead of what we are looking for.
 		 * We don't care about errors from probe here. Either they won't
 		 * match an alias or it will match a literal name and we'll pick
 		 * up the error when we try to probe again in eth_set_dev().
@@ -434,7 +431,7 @@ int eth_initialize(void)
 
 		bootstage_mark(BOOTSTAGE_ID_NET_ETH_INIT);
 		do {
-			if (dev_seq(dev) != -1) {
+			if (device_active(dev)) {
 				if (num_devices)
 					printf(", ");
 
@@ -446,7 +443,7 @@ int eth_initialize(void)
 
 			eth_write_hwaddr(dev);
 
-			if (dev_seq(dev) != -1)
+			if (device_active(dev))
 				num_devices++;
 			uclass_next_device_check(&dev);
 		} while (dev);

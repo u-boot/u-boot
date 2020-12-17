@@ -1155,7 +1155,7 @@ static int eqos_read_rom_hwaddr(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_plat(dev);
 
 #ifdef CONFIG_ARCH_IMX8M
-	imx_get_mac_from_fuse(dev->req_seq, pdata->enetaddr);
+	imx_get_mac_from_fuse(dev_seq(dev), pdata->enetaddr);
 #endif
 	return !is_valid_ethaddr(pdata->enetaddr);
 }
