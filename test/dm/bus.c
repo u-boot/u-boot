@@ -159,9 +159,10 @@ static int dm_test_bus_children_funcs(struct unit_test_state *uts)
 	ut_asserteq(-ENODEV, device_find_child_by_seq(bus, -1, true, &dev));
 	ut_assertok(device_find_child_by_seq(bus, 0, true, &dev));
 	ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
-	ut_asserteq(-ENODEV, device_find_child_by_seq(bus, 0, false, &dev));
+	ut_asserteq(0, device_find_child_by_seq(bus, 0, false, &dev));
 	ut_assertok(device_get_child_by_seq(bus, 0, &dev));
 	ut_assert(dev->flags & DM_FLAG_ACTIVATED);
+	ut_asserteq(0, device_find_child_by_seq(bus, 0, false, &dev));
 
 	/* There is no device with sequence number 2 */
 	ut_asserteq(-ENODEV, device_find_child_by_seq(bus, 2, false, &dev));

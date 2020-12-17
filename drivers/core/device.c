@@ -661,12 +661,9 @@ int device_find_child_by_seq(const struct udevice *parent, int seq_or_req_seq,
 	struct udevice *dev;
 
 	*devp = NULL;
-	if (seq_or_req_seq == -1)
-		return -ENODEV;
 
 	list_for_each_entry(dev, &parent->child_head, sibling_node) {
-		if ((find_req_seq ? dev->req_seq : dev_seq(dev)) ==
-				seq_or_req_seq) {
+		if (dev->sqq == seq_or_req_seq) {
 			*devp = dev;
 			return 0;
 		}
