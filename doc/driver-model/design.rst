@@ -515,11 +515,23 @@ cases. While it might be tempting to automatically renumber the devices
 where there are gaps in the sequence, this can lead to confusion and is
 not the way that U-Boot works.
 
-Each device can request a sequence number. If none is required then the
-device will be automatically allocated the next available sequence number.
+Where a device gets its sequence number is controlled by the DM_SEQ_ALIAS
+Kconfig option, which can have a different value in U-Boot proper and SPL.
+If this option is not set, aliases are ignored.
 
-To specify the sequence number in the device tree an alias is typically
-used. Make sure that the uclass has the DM_UC_FLAG_SEQ_ALIAS flag set.
+Even if CONFIG_DM_SEQ_ALIAS is enabled, the uclass must still have the
+DM_UC_FLAG_SEQ_ALIAS flag set, for its devices to be sequenced by aliases.
+
+With those options set, devices with an alias (e.g. "serial2") will get that
+sequence number (e.g. 2). Other devices get the next available number after all
+aliases and all existing numbers. This means that if there is just a single
+alias "serial2", unaliased serial devices will be assigned 3 or more, with 0 and
+1 being unused.
+
+If CONFIG_DM_SEQ_ALIAS or DM_UC_FLAG_SEQ_ALIAS are not set, all devices will get
+sequence numbers in a simple ordering starting from 0. To find the next number
+to allocate, driver model scans through to find the maximum existing number,
+then uses the next one. It does not attempt to fill in gaps.
 
 .. code-block:: none
 
@@ -546,12 +558,18 @@ More commonly you can use node references, which expand to the full path:
 The alias resolves to the same string in this case, but this version is
 easier to read.
 
-Device sequence numbers are resolved when a device is probed. Before then
-the sequence number is only a request which may or may not be honoured,
-depending on what other devices have been probed. However the numbering is
-entirely under the control of the board author so a conflict is generally
-an error.
+Device sequence numbers are resolved when a device is bound and the number does
+not change for the life of the device.
 
+There are some situations where the uclass must allocate sequence numbers,
+since a strictly increase sequence (with devicetree nodes bound first) is not
+suitable. An example of this is the PCI bus. In this case, you can set the
+uclass DM_UC_FLAG_NO_AUTO_SEQ flag. With this flag set, only devices with an
+alias will be assigned a number by driver model. The rest is left to the uclass
+to sort out, e.g. when enumerating the bus.
+
+Note that changing the sequence number for a device (e.g. in a driver) is not
+permitted. If it is felt to be necessary, ask on the mailing list.
 
 Bus Drivers
 -----------
@@ -673,6 +691,10 @@ plat will be NULL, but of_offset will be the offset of the device tree
 node that caused the device to be created. The uclass is set correctly for
 the device.
 
+The device's sequence number is assigned, either the requested one or the next
+available one (after all aliases are processed) if nothing particular is
+requested.
+
 The device's bind() method is permitted to perform simple actions, but
 should not scan the device tree node, not initialise hardware, nor set up
 structures or allocate memory. All of these tasks should be left for
@@ -780,11 +802,7 @@ as above and then following these steps (see device_probe()):
    This means (for example) that an I2C driver will require that its bus
    be activated.
 
-   2. The device's sequence number is assigned, either the requested one
-   (assuming no conflicts) or the next available one if there is a conflict
-   or nothing particular is requested.
-
-   4. The device's probe() method is called. This should do anything that
+   2. The device's probe() method is called. This should do anything that
    is required by the device to get it going. This could include checking
    that the hardware is actually present, setting up clocks for the
    hardware and setting up hardware registers to initial values. The code
@@ -799,9 +817,9 @@ as above and then following these steps (see device_probe()):
    allocate the priv space here yourself. The same applies also to
    plat_auto. Remember to free them in the remove() method.
 
-   5. The device is marked 'activated'
+   3. The device is marked 'activated'
 
-   10. The uclass's post_probe() method is called, if one exists. This may
+   4. The uclass's post_probe() method is called, if one exists. This may
    cause the uclass to do some housekeeping to record the device as
    activated and 'known' by the uclass.
 
@@ -850,14 +868,7 @@ remove it. This performs the probe steps in reverse:
         or preferably of_to_plat()) and the deallocation in remove()
         are the responsibility of the driver author.
 
-   5. The device sequence number is set to -1, meaning that it no longer
-   has an allocated sequence. If the device is later reactivated and that
-   sequence number is still free, it may well receive the name sequence
-   number again. But from this point, the sequence number previously used
-   by this device will no longer exist (think of SPI bus 2 being removed
-   and bus 2 is no longer available for use).
-
-   6. The device is marked inactive. Note that it is still bound, so the
+   5. The device is marked inactive. Note that it is still bound, so the
    device structure itself is not freed at this point. Should the device be
    activated again, then the cycle starts again at step 2 above.
 
