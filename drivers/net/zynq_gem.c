@@ -705,7 +705,7 @@ static int zynq_gem_probe(struct udevice *dev)
 	priv->bus->write = zynq_gem_miiphy_write;
 	priv->bus->priv = priv;
 
-	ret = mdio_register_seq(priv->bus, dev->seq);
+	ret = mdio_register_seq(priv->bus, dev_seq(dev));
 	if (ret)
 		goto err2;
 

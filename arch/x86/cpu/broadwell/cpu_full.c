@@ -638,7 +638,7 @@ static int broadwell_get_count(const struct udevice *dev)
 
 static int cpu_x86_broadwell_probe(struct udevice *dev)
 {
-	if (dev->seq == 0) {
+	if (dev_seq(dev) == 0) {
 		cpu_core_init(dev);
 		return broadwell_init(dev);
 	}

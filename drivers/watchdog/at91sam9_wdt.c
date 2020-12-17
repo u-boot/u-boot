@@ -108,7 +108,7 @@ static int at91_wdt_probe(struct udevice *dev)
 	if (!priv->regs)
 		return -EINVAL;
 
-	debug("%s: Probing wdt%u\n", __func__, dev->seq);
+	debug("%s: Probing wdt%u\n", __func__, dev_seq(dev));
 
 	return 0;
 }

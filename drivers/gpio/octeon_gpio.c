@@ -202,7 +202,7 @@ static int octeon_gpio_probe(struct udevice *dev)
 
 	uc_priv->bank_name  = strdup(dev->name);
 	end = strchr(uc_priv->bank_name, '@');
-	end[0] = 'A' + dev->seq;
+	end[0] = 'A' + dev_seq(dev);
 	end[1] = '\0';
 
 	debug("%s(%s): base address: %p, pin count: %d\n",

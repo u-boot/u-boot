@@ -373,7 +373,7 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 	/* Configure Address Translation. */
 	ret = rockchip_pcie_atr_init(priv);
 	if (ret) {
-		dev_err(dev, "PCIE-%d: ATR init failed\n", dev->seq);
+		dev_err(dev, "PCIE-%d: ATR init failed\n", dev_seq(dev));
 		goto err_power_off_phy;
 	}
 
@@ -528,7 +528,7 @@ static int rockchip_pcie_probe(struct udevice *dev)
 	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
 	int ret;
 
-	priv->first_busno = dev->seq;
+	priv->first_busno = dev_seq(dev);
 	priv->dev = dev;
 
 	ret = rockchip_pcie_parse_dt(dev);
@@ -544,7 +544,7 @@ static int rockchip_pcie_probe(struct udevice *dev)
 		return ret;
 
 	dev_info(dev, "PCIE-%d: Link up (Bus%d)\n",
-		 dev->seq, hose->first_busno);
+		 dev_seq(dev), hose->first_busno);
 
 	return 0;
 }

@@ -182,6 +182,11 @@ static inline bool dev_has_of_node(struct udevice *dev)
 	return ofnode_valid(dev->node);
 }
 
+static inline int dev_seq(const struct udevice *dev)
+{
+	return dev->seq;
+}
+
 /**
  * struct udevice_id - Lists the compatible strings supported by a driver
  * @compatible: Compatible string

@@ -479,7 +479,7 @@ static int fdt_fixup_pci_vfs(void *blob, struct extra_iommu_entry *entry,
 	for (bus = dev; device_is_on_pci_bus(bus);)
 		bus = bus->parent;
 
-	bdf = entry->bdf - PCI_BDF(bus->seq, 0, 0) + (vf_offset << 8);
+	bdf = entry->bdf - PCI_BDF(dev_seq(bus), 0, 0) + (vf_offset << 8);
 
 	for (i = 0; i < entry->num_vfs; i++) {
 		if (fdt_fixup_pcie_device_ls(blob, bdf, pcie_rc) < 0)
@@ -518,7 +518,7 @@ static void fdt_fixup_pcie_ls(void *blob)
 		pcie_rc = dev_get_priv(bus);
 
 		/* the DT fixup must be relative to the hose first_busno */
-		bdf = dm_pci_get_bdf(dev) - PCI_BDF(bus->seq, 0, 0);
+		bdf = dm_pci_get_bdf(dev) - PCI_BDF(dev_seq(bus), 0, 0);
 
 		if (fdt_fixup_pcie_device_ls(blob, bdf, pcie_rc) < 0)
 			break;

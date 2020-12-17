@@ -158,7 +158,7 @@ static int orion_wdt_probe(struct udevice *dev)
 	struct orion_wdt_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	debug("%s: Probing wdt%u\n", __func__, dev->seq);
+	debug("%s: Probing wdt%u\n", __func__, dev_seq(dev));
 	orion_wdt_stop(dev);
 
 	ret = clk_get_by_name(dev, "fixed", &priv->clk);

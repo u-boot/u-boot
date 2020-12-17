@@ -98,7 +98,7 @@ static int altera_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	uint32_t reg, data, start;
 
 	debug("%s: bus:%i cs:%i bitlen:%i bytes:%i flags:%lx\n", __func__,
-	      bus->seq, slave_plat->cs, bitlen, bytes, flags);
+	      dev_seq(bus), slave_plat->cs, bitlen, bytes, flags);
 
 	if (bitlen == 0)
 		goto done;

@@ -568,7 +568,7 @@ static int emaclite_probe(struct udevice *dev)
 	emaclite->bus->write = emaclite_miiphy_write;
 	emaclite->bus->priv = emaclite;
 
-	ret = mdio_register_seq(emaclite->bus, dev->seq);
+	ret = mdio_register_seq(emaclite->bus, dev_seq(dev));
 	if (ret)
 		return ret;
 

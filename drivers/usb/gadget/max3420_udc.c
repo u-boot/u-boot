@@ -821,7 +821,7 @@ static int max3420_udc_probe(struct udevice *dev)
 	struct max3420_udc *udc = dev_get_priv(dev);
 	struct dm_spi_slave_plat *slave_pdata;
 	struct udevice *bus = dev->parent;
-	int busnum = bus->seq;
+	int busnum = dev_seq(bus);
 	unsigned int cs;
 	uint speed, mode;
 	struct udevice *spid;

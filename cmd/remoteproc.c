@@ -47,7 +47,7 @@ static int print_remoteproc_list(void)
 			break;
 		}
 		printf("%d - Name:'%s' type:'%s' supports: %s%s%s%s%s%s\n",
-		       dev->seq,
+		       dev_seq(dev),
 		       uc_pdata->name,
 		       type,
 		       ops->load ? "load " : "",

@@ -128,7 +128,7 @@ static int xlnx_wwdt_probe(struct udevice *dev)
 	struct xlnx_wwdt_plat *plat = dev_get_plat(dev);
 	struct xlnx_wwdt_priv *wdt = dev_get_priv(dev);
 
-	dev_dbg(dev, "%s: Probing wdt%u\n", __func__, dev->seq);
+	dev_dbg(dev, "%s: Probing wdt%u\n", __func__, dev_seq(dev));
 
 	ret = regmap_init_mem(dev_ofnode(dev), &wdt->regs);
 	if (ret) {

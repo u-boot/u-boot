@@ -452,11 +452,12 @@ int nicvf_write_hwaddr(struct udevice *dev)
 	 * u-boot framework updates MAC to random address.
 	 * Use this hook to update mac address in environment.
 	 */
-	if (!eth_env_get_enetaddr_by_index("eth", dev->seq, ethaddr)) {
-		eth_env_set_enetaddr_by_index("eth", dev->seq, pdata->enetaddr);
+	if (!eth_env_get_enetaddr_by_index("eth", dev_seq(dev), ethaddr)) {
+		eth_env_set_enetaddr_by_index("eth", dev_seq(dev),
+					      pdata->enetaddr);
 		debug("%s: pMAC %pM\n", __func__, pdata->enetaddr);
 	}
-	eth_env_get_enetaddr_by_index("eth", dev->seq, ethaddr);
+	eth_env_get_enetaddr_by_index("eth", dev_seq(dev), ethaddr);
 	if (memcmp(ethaddr, pdata->enetaddr, ARP_HLEN)) {
 		debug("%s: pMAC %pM\n", __func__, pdata->enetaddr);
 		nicvf_hw_set_mac_addr(nic, dev);
@@ -540,7 +541,7 @@ int nicvf_initialize(struct udevice *dev)
 
 	if (is_valid_ethaddr(ethaddr)) {
 		memcpy(pdata->enetaddr, ethaddr, ARP_HLEN);
-		eth_env_set_enetaddr_by_index("eth", dev->seq, ethaddr);
+		eth_env_set_enetaddr_by_index("eth", dev_seq(dev), ethaddr);
 	}
 	debug("%s enetaddr %pM ethaddr %pM\n", __func__,
 	      pdata->enetaddr, ethaddr);

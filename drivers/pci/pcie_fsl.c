@@ -29,16 +29,16 @@ static int fsl_pcie_addr_valid(struct fsl_pcie *pcie, pci_dev_t bdf)
 	if (!pcie->enabled)
 		return -ENXIO;
 
-	if (PCI_BUS(bdf) < bus->seq)
+	if (PCI_BUS(bdf) < dev_seq(bus))
 		return -EINVAL;
 
-	if (PCI_BUS(bdf) > bus->seq && (!fsl_pcie_link_up(pcie) || pcie->mode))
+	if (PCI_BUS(bdf) > dev_seq(bus) && (!fsl_pcie_link_up(pcie) || pcie->mode))
 		return -EINVAL;
 
-	if (PCI_BUS(bdf) == bus->seq && (PCI_DEV(bdf) > 0 || PCI_FUNC(bdf) > 0))
+	if (PCI_BUS(bdf) == dev_seq(bus) && (PCI_DEV(bdf) > 0 || PCI_FUNC(bdf) > 0))
 		return -EINVAL;
 
-	if (PCI_BUS(bdf) == (bus->seq + 1) && (PCI_DEV(bdf) > 0))
+	if (PCI_BUS(bdf) == (dev_seq(bus) + 1) && (PCI_DEV(bdf) > 0))
 		return -EINVAL;
 
 	return 0;
@@ -57,7 +57,7 @@ static int fsl_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 		return 0;
 	}
 
-	bdf = bdf - PCI_BDF(bus->seq, 0, 0);
+	bdf = bdf - PCI_BDF(dev_seq(bus), 0, 0);
 	val = bdf | (offset & 0xfc) | ((offset & 0xf00) << 16) | 0x80000000;
 	out_be32(&regs->cfg_addr, val);
 
@@ -93,7 +93,7 @@ static int fsl_pcie_write_config(struct udevice *bus, pci_dev_t bdf,
 	if (fsl_pcie_addr_valid(pcie, bdf))
 		return 0;
 
-	bdf = bdf - PCI_BDF(bus->seq, 0, 0);
+	bdf = bdf - PCI_BDF(dev_seq(bus), 0, 0);
 	val = bdf | (offset & 0xfc) | ((offset & 0xf00) << 16) | 0x80000000;
 	out_be32(&regs->cfg_addr, val);
 
@@ -123,7 +123,7 @@ static int fsl_pcie_hose_read_config(struct fsl_pcie *pcie, uint offset,
 	int ret;
 	struct udevice *bus = pcie->bus;
 
-	ret = fsl_pcie_read_config(bus, PCI_BDF(bus->seq, 0, 0),
+	ret = fsl_pcie_read_config(bus, PCI_BDF(dev_seq(bus), 0, 0),
 				   offset, valuep, size);
 
 	return ret;
@@ -134,7 +134,7 @@ static int fsl_pcie_hose_write_config(struct fsl_pcie *pcie, uint offset,
 {
 	struct udevice *bus = pcie->bus;
 
-	return fsl_pcie_write_config(bus, PCI_BDF(bus->seq, 0, 0),
+	return fsl_pcie_write_config(bus, PCI_BDF(dev_seq(bus), 0, 0),
 				     offset, value, size);
 }
 

@@ -511,7 +511,7 @@ static int fsl_dspi_probe(struct udevice *bus)
 		DSPI_MCR_CRXF | DSPI_MCR_CTXF;
 	fsl_dspi_init_mcr(priv, mcr_cfg_val);
 
-	debug("%s probe done, bus-num %d.\n", bus->name, bus->seq);
+	debug("%s probe done, bus-num %d.\n", bus->name, dev_seq(bus));
 
 	return 0;
 }
@@ -527,7 +527,7 @@ static int fsl_dspi_claim_bus(struct udevice *dev)
 	priv = dev_get_priv(bus);
 
 	/* processor special preparation work */
-	cpu_dspi_claim_bus(bus->seq, slave_plat->cs);
+	cpu_dspi_claim_bus(dev_seq(bus), slave_plat->cs);
 
 	/* configure transfer mode */
 	fsl_dspi_cfg_ctar_mode(priv, slave_plat->cs, priv->mode);
@@ -559,7 +559,7 @@ static int fsl_dspi_release_bus(struct udevice *dev)
 	dspi_halt(priv, 1);
 
 	/* processor special release work */
-	cpu_dspi_release_bus(bus->seq, slave_plat->cs);
+	cpu_dspi_release_bus(dev_seq(bus), slave_plat->cs);
 
 	return 0;
 }

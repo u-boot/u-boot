@@ -701,7 +701,7 @@ int usb_scan_device(struct udevice *parent, int port,
 			return ret;
 		ret = usb_find_and_bind_driver(parent, &udev->descriptor,
 					       iface,
-					       udev->controller_dev->seq,
+					       dev_seq(udev->controller_dev),
 					       udev->devnum, port, &dev);
 		if (ret)
 			return ret;

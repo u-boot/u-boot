@@ -88,7 +88,7 @@ static int sbsa_gwdt_expire_now(struct udevice *dev, ulong flags)
 
 static int sbsa_gwdt_probe(struct udevice *dev)
 {
-	debug("%s: Probing wdt%u (sbsa-gwdt)\n", __func__, dev->seq);
+	debug("%s: Probing wdt%u (sbsa-gwdt)\n", __func__, dev_seq(dev));
 
 	return 0;
 }

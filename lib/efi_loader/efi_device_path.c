@@ -624,7 +624,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 				DEVICE_PATH_SUB_TYPE_MSG_SD :
 				DEVICE_PATH_SUB_TYPE_MSG_MMC;
 			sddp->dp.length   = sizeof(*sddp);
-			sddp->slot_number = dev->seq;
+			sddp->slot_number = dev_seq(dev);
 			return &sddp[1];
 			}
 #endif
@@ -677,7 +677,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 			DEVICE_PATH_SUB_TYPE_MSG_SD :
 			DEVICE_PATH_SUB_TYPE_MSG_MMC;
 		sddp->dp.length   = sizeof(*sddp);
-		sddp->slot_number = dev->seq;
+		sddp->slot_number = dev_seq(dev);
 
 		return &sddp[1];
 	}

@@ -606,9 +606,9 @@ static int vidconsole_post_probe(struct udevice *dev)
 	if (!priv->tab_width_frac)
 		priv->tab_width_frac = VID_TO_POS(priv->x_charsize) * 8;
 
-	if (dev->seq) {
+	if (dev_seq(dev)) {
 		snprintf(sdev->name, sizeof(sdev->name), "vidconsole%d",
-			 dev->seq);
+			 dev_seq(dev));
 	} else {
 		strcpy(sdev->name, "vidconsole");
 	}

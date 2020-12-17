@@ -1451,7 +1451,7 @@ static int fecmxc_probe(struct udevice *dev)
 
 	fec_reg_setup(priv);
 
-	priv->dev_id = dev->seq;
+	priv->dev_id = dev_seq(dev);
 
 #ifdef CONFIG_DM_ETH_PHY
 	bus = eth_phy_get_mdio_bus(dev);
@@ -1459,9 +1459,10 @@ static int fecmxc_probe(struct udevice *dev)
 
 	if (!bus) {
 #ifdef CONFIG_FEC_MXC_MDIO_BASE
-		bus = fec_get_miibus((ulong)CONFIG_FEC_MXC_MDIO_BASE, dev->seq);
+		bus = fec_get_miibus((ulong)CONFIG_FEC_MXC_MDIO_BASE,
+				     dev_seq(dev));
 #else
-		bus = fec_get_miibus((ulong)priv->eth, dev->seq);
+		bus = fec_get_miibus((ulong)priv->eth, dev_seq(dev));
 #endif
 	}
 	if (!bus) {

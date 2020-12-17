@@ -72,7 +72,7 @@ static int sandbox_spi_xfer(struct udevice *slave, unsigned int bitlen,
 		return -EINVAL;
 	}
 
-	busnum = bus->seq;
+	busnum = dev_seq(bus);
 	cs = spi_chip_select(slave);
 	if (busnum >= CONFIG_SANDBOX_SPI_MAX_BUS ||
 	    cs >= CONFIG_SANDBOX_SPI_MAX_CS) {

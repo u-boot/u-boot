@@ -146,7 +146,7 @@ static int pci_generic_ecam_probe(struct udevice *dev)
 {
 	struct generic_ecam_pcie *pcie = dev_get_priv(dev);
 
-	pcie->first_busno = dev->seq;
+	pcie->first_busno = dev_seq(dev);
 
 	return 0;
 }

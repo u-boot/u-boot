@@ -65,7 +65,7 @@ pci_dev_t dm_pci_get_bdf(const struct udevice *dev)
 	if (!device_active(bus))
 		log_err("PCI: Device '%s' on unprobed bus '%s'\n", dev->name,
 			bus->name);
-	return PCI_ADD_BUS(bus->seq, pplat->devfn);
+	return PCI_ADD_BUS(dev_seq(bus), pplat->devfn);
 }
 
 /**
@@ -81,8 +81,8 @@ static int pci_get_bus_max(void)
 
 	ret = uclass_get(UCLASS_PCI, &uc);
 	uclass_foreach_dev(bus, uc) {
-		if (bus->seq > ret)
-			ret = bus->seq;
+		if (dev_seq(bus) > ret)
+			ret = dev_seq(bus);
 	}
 
 	debug("%s: ret=%d\n", __func__, ret);
@@ -513,7 +513,7 @@ static void set_vga_bridge_bits(struct udevice *dev)
 	struct udevice *parent = dev->parent;
 	u16 bc;
 
-	while (parent->seq != 0) {
+	while (dev_seq(parent) != 0) {
 		dm_pci_read_config16(parent, PCI_BRIDGE_CONTROL, &bc);
 		bc |= PCI_BRIDGE_CTL_VGA;
 		dm_pci_write_config16(parent, PCI_BRIDGE_CONTROL, bc);
@@ -529,7 +529,7 @@ int pci_auto_config_devices(struct udevice *bus)
 	struct udevice *dev;
 	int ret;
 
-	sub_bus = bus->seq;
+	sub_bus = dev_seq(bus);
 	debug("%s: start\n", __func__);
 	pciauto_config_init(hose);
 	for (ret = device_find_first_child(bus, &dev);
@@ -645,9 +645,9 @@ int dm_pci_hose_probe_bus(struct udevice *bus)
 	}
 
 	if (!ea_pos) {
-		if (sub_bus != bus->seq) {
+		if (sub_bus != dev_seq(bus)) {
 			debug("%s: Internal error, bus '%s' got seq %d, expected %d\n",
-			      __func__, bus->name, bus->seq, sub_bus);
+			      __func__, bus->name, dev_seq(bus), sub_bus);
 			return -EPIPE;
 		}
 		sub_bus = pci_get_bus_max();
@@ -771,7 +771,7 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 		return -EPERM;
 
 	/* Bind a generic driver so that the device can be used */
-	sprintf(name, "pci_%x:%x.%x", parent->seq, PCI_DEV(bdf),
+	sprintf(name, "pci_%x:%x.%x", dev_seq(parent), PCI_DEV(bdf),
 		PCI_FUNC(bdf));
 	str = strdup(name);
 	if (!str)
@@ -803,9 +803,9 @@ int pci_bind_bus_devices(struct udevice *bus)
 	int ret;
 
 	found_multi = false;
-	end = PCI_BDF(bus->seq, PCI_MAX_PCI_DEVICES - 1,
+	end = PCI_BDF(dev_seq(bus), PCI_MAX_PCI_DEVICES - 1,
 		      PCI_MAX_PCI_FUNCTIONS - 1);
-	for (bdf = PCI_BDF(bus->seq, 0, 0); bdf <= end;
+	for (bdf = PCI_BDF(dev_seq(bus), 0, 0); bdf <= end;
 	     bdf += PCI_BDF(0, 0, 1)) {
 		struct pci_child_plat *pplat;
 		struct udevice *dev;
@@ -832,7 +832,7 @@ int pci_bind_bus_devices(struct udevice *bus)
 			found_multi = header_type & 0x80;
 
 		debug("%s: bus %d/%s: found device %x, function %d", __func__,
-		      bus->seq, bus->name, PCI_DEV(bdf), PCI_FUNC(bdf));
+		      dev_seq(bus), bus->name, PCI_DEV(bdf), PCI_FUNC(bdf));
 		pci_bus_read_config(bus, bdf, PCI_DEVICE_ID, &device,
 				    PCI_SIZE_16);
 		pci_bus_read_config(bus, bdf, PCI_CLASS_REVISION, &class,
@@ -1010,7 +1010,7 @@ static int pci_uclass_pre_probe(struct udevice *bus)
 {
 	struct pci_controller *hose;
 
-	debug("%s, bus=%d/%s, parent=%s\n", __func__, bus->seq, bus->name,
+	debug("%s, bus=%d/%s, parent=%s\n", __func__, dev_seq(bus), bus->name,
 	      bus->parent->name);
 	hose = bus->uclass_priv;
 
@@ -1025,8 +1025,8 @@ static int pci_uclass_pre_probe(struct udevice *bus)
 		hose->ctlr = parent_hose->bus;
 	}
 	hose->bus = bus;
-	hose->first_busno = bus->seq;
-	hose->last_busno = bus->seq;
+	hose->first_busno = dev_seq(bus);
+	hose->last_busno = dev_seq(bus);
 	if (dev_of_valid(bus)) {
 		hose->skip_auto_config_until_reloc =
 			dev_read_bool(bus,
@@ -1041,7 +1041,7 @@ static int pci_uclass_post_probe(struct udevice *bus)
 	struct pci_controller *hose = dev_get_uclass_priv(bus);
 	int ret;
 
-	debug("%s: probing bus %d\n", __func__, bus->seq);
+	debug("%s: probing bus %d\n", __func__, dev_seq(bus));
 	ret = pci_bind_bus_devices(bus);
 	if (ret)
 		return ret;
@@ -1068,7 +1068,7 @@ static int pci_uclass_post_probe(struct udevice *bus)
 	 * Note we only call this 1) after U-Boot is relocated, and 2)
 	 * root bus has finished probing.
 	 */
-	if ((gd->flags & GD_FLG_RELOC) && bus->seq == 0 && ll_boot_init()) {
+	if ((gd->flags & GD_FLG_RELOC) && dev_seq(bus) == 0 && ll_boot_init()) {
 		ret = fsp_init_phase_pci();
 		if (ret)
 			return ret;
@@ -1732,7 +1732,7 @@ int pci_sriov_init(struct udevice *pdev, int vf_en)
 				    &class, PCI_SIZE_16);
 
 		debug("%s: bus %d/%s: found VF %x:%x\n", __func__,
-		      bus->seq, bus->name, PCI_DEV(bdf), PCI_FUNC(bdf));
+		      dev_seq(bus), bus->name, PCI_DEV(bdf), PCI_FUNC(bdf));
 
 		/* Find this device in the device tree */
 		ret = pci_bus_find_devfn(bus, PCI_MASK_BUS(bdf), &dev);
@@ -1763,7 +1763,7 @@ int pci_sriov_init(struct udevice *pdev, int vf_en)
 		pplat->virtid = vf * vf_stride + vf_offset;
 
 		debug("%s: bus %d/%s: found VF %x:%x %x:%x class %lx id %x\n",
-		      __func__, dev->seq, dev->name, PCI_DEV(bdf),
+		      __func__, dev_seq(dev), dev->name, PCI_DEV(bdf),
 		      PCI_FUNC(bdf), vendor, device, class, pplat->virtid);
 		bdf += PCI_BDF(0, 0, vf_stride);
 	}

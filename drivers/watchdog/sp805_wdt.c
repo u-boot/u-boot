@@ -105,7 +105,7 @@ static int sp805_wdt_expire_now(struct udevice *dev, ulong flags)
 
 static int sp805_wdt_probe(struct udevice *dev)
 {
-	debug("%s: Probing wdt%u (sp805-wdt)\n", __func__, dev->seq);
+	debug("%s: Probing wdt%u (sp805-wdt)\n", __func__, dev_seq(dev));
 
 	return 0;
 }

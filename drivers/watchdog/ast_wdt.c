@@ -113,7 +113,7 @@ static const struct udevice_id ast_wdt_ids[] = {
 
 static int ast_wdt_probe(struct udevice *dev)
 {
-	debug("%s() wdt%u\n", __func__, dev->seq);
+	debug("%s() wdt%u\n", __func__, dev_seq(dev));
 	ast_wdt_stop(dev);
 
 	return 0;

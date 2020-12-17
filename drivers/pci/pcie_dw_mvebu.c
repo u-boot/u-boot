@@ -500,13 +500,13 @@ static int pcie_dw_mvebu_probe(struct udevice *dev)
 	debug("PCIE Reset on GPIO support is missing\n");
 #endif /* DM_GPIO */
 
-	pcie->first_busno = dev->seq;
+	pcie->first_busno = dev_seq(dev);
 
 	/* Don't register host if link is down */
 	if (!pcie_dw_mvebu_pcie_link_up(pcie->ctrl_base, LINK_SPEED_GEN_3)) {
-		printf("PCIE-%d: Link down\n", dev->seq);
+		printf("PCIE-%d: Link down\n", dev_seq(dev));
 	} else {
-		printf("PCIE-%d: Link up (Gen%d-x%d, Bus%d)\n", dev->seq,
+		printf("PCIE-%d: Link up (Gen%d-x%d, Bus%d)\n", dev_seq(dev),
 		       pcie_dw_get_link_speed(pcie->ctrl_base),
 		       pcie_dw_get_link_width(pcie->ctrl_base),
 		       hose->first_busno);

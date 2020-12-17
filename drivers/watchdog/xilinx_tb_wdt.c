@@ -85,7 +85,7 @@ static int xlnx_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 
 static int xlnx_wdt_probe(struct udevice *dev)
 {
-	debug("%s: Probing wdt%u\n", __func__, dev->seq);
+	debug("%s: Probing wdt%u\n", __func__, dev_seq(dev));
 
 	return 0;
 }

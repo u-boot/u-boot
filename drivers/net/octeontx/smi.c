@@ -335,7 +335,7 @@ int octeontx_smi_probe(struct udevice *dev)
 		priv = malloc(sizeof(*priv));
 		if (!bus || !priv) {
 			printf("Failed to allocate OcteonTX MDIO bus # %u\n",
-			       dev->seq);
+			       dev_seq(dev));
 			return -1;
 		}
 

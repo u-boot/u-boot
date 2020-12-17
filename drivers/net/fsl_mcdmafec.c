@@ -502,7 +502,7 @@ static int mcdmafec_probe(struct udevice *dev)
 	int retval;
 	const u32 *val;
 
-	info->index = dev->seq;
+	info->index = dev_seq(dev);
 	info->iobase = pdata->iobase;
 	info->miibase = pdata->iobase;
 	info->phy_addr = -1;

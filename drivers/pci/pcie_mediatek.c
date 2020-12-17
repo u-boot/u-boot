@@ -261,7 +261,7 @@ static struct mtk_pcie_port *mtk_pcie_find_port(const struct udevice *bus,
 			return NULL;
 		}
 
-		while (dev->parent->seq != 0)
+		while (dev_seq(dev->parent) != 0)
 			dev = dev->parent;
 
 		pplat = dev_get_parent_plat(dev);

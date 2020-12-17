@@ -217,7 +217,7 @@ static int tegra20_sflash_xfer(struct udevice *dev, unsigned int bitlen,
 	int ret;
 
 	debug("%s: slave %u:%u dout %p din %p bitlen %u\n",
-	      __func__, bus->seq, spi_chip_select(dev), dout, din, bitlen);
+	      __func__, dev_seq(bus), spi_chip_select(dev), dout, din, bitlen);
 	if (bitlen % 8)
 		return -1;
 	num_bytes = bitlen / 8;

@@ -240,7 +240,7 @@ static int nx_i2c_probe(struct udevice *dev)
 		return -EINVAL;
 	bus->regs = (struct nx_i2c_regs *)addr;
 
-	bus->bus_num = dev->seq;
+	bus->bus_num = dev_seq(dev);
 
 	/* i2c node parsing */
 	i2c_process_node(dev);

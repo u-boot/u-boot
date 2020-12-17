@@ -811,7 +811,7 @@ static int octeon_i2c_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	debug("TWSI bus %d at %p\n", dev->seq, twsi->base);
+	debug("TWSI bus %d at %p\n", dev_seq(dev), twsi->base);
 
 	/* Start with standard speed, real speed set via DT or cmd */
 	return twsi_init(twsi->base, i2c_slave_addr);

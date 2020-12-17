@@ -596,7 +596,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	}
 
 	priv->ehci = ehci;
-	priv->portnr = dev->seq;
+	priv->portnr = dev_seq(dev);
 	priv->init_type = type;
 
 #if CONFIG_IS_ENABLED(DM_REGULATOR)

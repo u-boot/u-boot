@@ -242,7 +242,7 @@ static int omap3_wdt_probe(struct udevice *dev)
 		return -EINVAL;
 
 	priv->wdt_trgr_pattern = 0x1234;
-	debug("%s: Probing wdt%u\n", __func__, dev->seq);
+	debug("%s: Probing wdt%u\n", __func__, dev_seq(dev));
 	return 0;
 }
 

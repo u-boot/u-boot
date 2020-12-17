@@ -528,7 +528,7 @@ static int higmac_probe(struct udevice *dev)
 	bus->priv = priv;
 	priv->bus = bus;
 
-	ret = mdio_register_seq(bus, dev->seq);
+	ret = mdio_register_seq(bus, dev_seq(dev));
 	if (ret)
 		return ret;
 

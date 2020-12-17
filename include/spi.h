@@ -116,7 +116,7 @@ enum spi_polarity {
  *			claimed.
  * @bus:		ID of the bus that the slave is attached to. For
  *			driver model this is the sequence number of the SPI
- *			bus (bus->seq) so does not need to be stored
+ *			bus (dev_seq(bus)) so does not need to be stored
  * @cs:			ID of the chip select connected to the slave.
  * @mode:		SPI mode to use for this slave (see SPI mode flags)
  * @wordlen:		Size of SPI word in number of bits

@@ -638,7 +638,7 @@ static int pcie_advk_probe(struct udevice *dev)
 		dev_warn(pcie->dev, "PCIE Reset on GPIO support is missing\n");
 	}
 
-	pcie->first_busno = dev->seq;
+	pcie->first_busno = dev_seq(dev);
 	pcie->dev = pci_get_controller(dev);
 
 	return pcie_advk_setup_hw(pcie);
