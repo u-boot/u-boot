@@ -369,21 +369,6 @@ int uclass_first_device_drvdata(enum uclass_id id, ulong driver_data,
 				struct udevice **devp);
 
 /**
- * uclass_resolve_seq() - Resolve a device's sequence number
- *
- * On entry dev->seq is -1, and dev->req_seq may be -1 (to allocate a
- * sequence number automatically, or >= 0 to select a particular number.
- * If the requested sequence number is in use, then this device will
- * be allocated another one.
- *
- * Note that the device's seq value is not changed by this function.
- *
- * @dev: Device for which to allocate sequence number
- * @return sequence number allocated, or -ve on error
- */
-int uclass_resolve_seq(struct udevice *dev);
-
-/**
  * uclass_id_foreach_dev() - Helper function to iteration through devices
  *
  * This creates a for() loop which works through the available devices in

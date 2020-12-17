@@ -680,45 +680,6 @@ int uclass_unbind_device(struct udevice *dev)
 }
 #endif
 
-int uclass_resolve_seq(struct udevice *dev)
-{
-	struct uclass *uc = dev->uclass;
-	struct uclass_driver *uc_drv = uc->uc_drv;
-	struct udevice *dup;
-	int seq = 0;
-	int ret;
-
-	assert(dev_seq(dev) == -1);
-	ret = uclass_find_device_by_seq(uc_drv->id, dev->req_seq, false, &dup);
-	if (!ret) {
-		/* Do nothing here for now */
-	} else if (ret == -ENODEV) {
-		/* Our requested sequence number is available */
-		if (dev->req_seq != -1)
-			return dev->req_seq;
-	} else {
-		return ret;
-	}
-
-	if (CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(DM_SEQ_ALIAS) &&
-	    (uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS)) {
-		/*
-		 * dev_read_alias_highest_id() will return -1 if there no
-		 * alias. Thus we can always add one.
-		 */
-		seq = dev_read_alias_highest_id(uc_drv->name) + 1;
-	}
-
-	for (; seq < DM_MAX_SEQ; seq++) {
-		ret = uclass_find_device_by_seq(uc_drv->id, seq, false, &dup);
-		if (ret == -ENODEV)
-			break;
-		if (ret)
-			return ret;
-	}
-	return seq;
-}
-
 int uclass_pre_probe_device(struct udevice *dev)
 {
 	struct uclass_driver *uc_drv;
