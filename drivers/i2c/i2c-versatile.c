@@ -252,11 +252,6 @@ static int versatile_i2c_probe(struct udevice *dev)
 
 	priv->base = (phys_addr_t)dev_read_addr(dev);
 	priv->delay = 25;	/* 25us * 4 = 100kHz */
-	/*
-	 * U-Boot still doesn't assign automatically
-	 * sequence numbers to devices
-	 */
-	dev->req_seq = 1;
 
 	return 0;
 }
