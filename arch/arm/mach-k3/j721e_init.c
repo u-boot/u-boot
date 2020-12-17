@@ -167,7 +167,7 @@ void board_init_f(ulong dummy)
 	 * firmware (SYSFW) image for various purposes and SYSFW depends on us
 	 * to initialize its pin settings.
 	 */
-	ret = uclass_find_device_by_seq(UCLASS_SERIAL, 0, true, &dev);
+	ret = uclass_find_device_by_seq(UCLASS_SERIAL, 0, &dev);
 	if (!ret)
 		pinctrl_select_state(dev, "default");
 

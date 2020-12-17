@@ -156,17 +156,17 @@ static int dm_test_bus_children_funcs(struct unit_test_state *uts)
 	ut_asserteq_str("c-test@5", dev->name);
 
 	/* Device with sequence number 0 should be accessible */
-	ut_asserteq(-ENODEV, device_find_child_by_seq(bus, -1, true, &dev));
-	ut_assertok(device_find_child_by_seq(bus, 0, true, &dev));
+	ut_asserteq(-ENODEV, device_find_child_by_seq(bus, -1, &dev));
+	ut_assertok(device_find_child_by_seq(bus, 0, &dev));
 	ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
-	ut_asserteq(0, device_find_child_by_seq(bus, 0, false, &dev));
+	ut_asserteq(0, device_find_child_by_seq(bus, 0, &dev));
 	ut_assertok(device_get_child_by_seq(bus, 0, &dev));
 	ut_assert(dev->flags & DM_FLAG_ACTIVATED);
-	ut_asserteq(0, device_find_child_by_seq(bus, 0, false, &dev));
+	ut_asserteq(0, device_find_child_by_seq(bus, 0, &dev));
 
 	/* There is no device with sequence number 2 */
-	ut_asserteq(-ENODEV, device_find_child_by_seq(bus, 2, false, &dev));
-	ut_asserteq(-ENODEV, device_find_child_by_seq(bus, 2, true, &dev));
+	ut_asserteq(-ENODEV, device_find_child_by_seq(bus, 2, &dev));
+	ut_asserteq(-ENODEV, device_find_child_by_seq(bus, 2, &dev));
 	ut_asserteq(-ENODEV, device_get_child_by_seq(bus, 2, &dev));
 
 	/* Looking for something that is not a child */
@@ -220,7 +220,7 @@ static int dm_test_bus_children_iterators(struct unit_test_state *uts)
 	ut_asserteq_ptr(dev, NULL);
 
 	/* Move to the next child without using device_find_first_child() */
-	ut_assertok(device_find_child_by_seq(bus, 5, true, &dev));
+	ut_assertok(device_find_child_by_seq(bus, 5, &dev));
 	ut_asserteq_str("c-test@5", dev->name);
 	ut_assertok(device_find_next_child(&dev));
 	ut_asserteq_str("c-test@0", dev->name);
@@ -245,7 +245,7 @@ static int test_bus_parent_data(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_TEST_BUS, 0, &bus));
 
 	/* Check that parent data is allocated */
-	ut_assertok(device_find_child_by_seq(bus, 0, true, &dev));
+	ut_assertok(device_find_child_by_seq(bus, 0, &dev));
 	ut_asserteq_ptr(NULL, dev_get_parent_priv(dev));
 	ut_assertok(device_get_child_by_seq(bus, 0, &dev));
 	parent_data = dev_get_parent_priv(dev);

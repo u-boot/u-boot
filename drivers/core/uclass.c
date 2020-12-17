@@ -288,25 +288,23 @@ int uclass_find_next_free_req_seq(struct uclass *uc)
 	return max + 1;
 }
 
-int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
-			      bool find_req_seq, struct udevice **devp)
+int uclass_find_device_by_seq(enum uclass_id id, int seq, struct udevice **devp)
 {
 	struct uclass *uc;
 	struct udevice *dev;
 	int ret;
 
 	*devp = NULL;
-	log_debug("%d %d\n", find_req_seq, seq_or_req_seq);
-	if (seq_or_req_seq == -1)
+	log_debug("%d\n", seq);
+	if (seq == -1)
 		return -ENODEV;
 	ret = uclass_get(id, &uc);
 	if (ret)
 		return ret;
 
 	uclass_foreach_dev(dev, uc) {
-		log_debug("   - %d %d '%s'\n",
-			  dev->req_seq, dev_seq(dev), dev->name);
-		if (dev_seq(dev) == seq_or_req_seq) {
+		log_debug("   - %d '%s'\n", dev->sqq, dev->name);
+		if (dev->sqq == seq) {
 			*devp = dev;
 			log_debug("   - found\n");
 			return 0;
@@ -466,14 +464,8 @@ int uclass_get_device_by_seq(enum uclass_id id, int seq, struct udevice **devp)
 	int ret;
 
 	*devp = NULL;
-	ret = uclass_find_device_by_seq(id, seq, false, &dev);
-	if (ret == -ENODEV) {
-		/*
-		 * We didn't find it in probed devices. See if there is one
-		 * that will request this seq if probed.
-		 */
-		ret = uclass_find_device_by_seq(id, seq, true, &dev);
-	}
+	ret = uclass_find_device_by_seq(id, seq, &dev);
+
 	return uclass_get_device_tail(dev, ret, devp);
 }
 

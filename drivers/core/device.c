@@ -647,15 +647,15 @@ int device_get_child_count(const struct udevice *parent)
 	return count;
 }
 
-int device_find_child_by_seq(const struct udevice *parent, int seq_or_req_seq,
-			     bool find_req_seq, struct udevice **devp)
+int device_find_child_by_seq(const struct udevice *parent, int seq,
+			     struct udevice **devp)
 {
 	struct udevice *dev;
 
 	*devp = NULL;
 
 	list_for_each_entry(dev, &parent->child_head, sibling_node) {
-		if (dev->sqq == seq_or_req_seq) {
+		if (dev->sqq == seq) {
 			*devp = dev;
 			return 0;
 		}
@@ -671,14 +671,8 @@ int device_get_child_by_seq(const struct udevice *parent, int seq,
 	int ret;
 
 	*devp = NULL;
-	ret = device_find_child_by_seq(parent, seq, false, &dev);
-	if (ret == -ENODEV) {
-		/*
-		 * We didn't find it in probed devices. See if there is one
-		 * that will request this seq if probed.
-		 */
-		ret = device_find_child_by_seq(parent, seq, true, &dev);
-	}
+	ret = device_find_child_by_seq(parent, seq, &dev);
+
 	return device_get_device_tail(dev, ret, devp);
 }
 

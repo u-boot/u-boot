@@ -452,24 +452,16 @@ int device_get_child_count(const struct udevice *parent);
 /**
  * device_find_child_by_seq() - Find a child device based on a sequence
  *
- * This searches for a device with the given seq or req_seq.
- *
- * For seq, if an active device has this sequence it will be returned.
- * If there is no such device then this will return -ENODEV.
- *
- * For req_seq, if a device (whether activated or not) has this req_seq
- * value, that device will be returned. This is a strong indication that
- * the device will receive that sequence when activated.
+ * This searches for a device with the given seq.
  *
  * @parent: Parent device
- * @seq_or_req_seq: Sequence number to find (0=first)
- * @find_req_seq: true to find req_seq, false to find seq
+ * @seq: Sequence number to find (0=first)
  * @devp: Returns pointer to device (there is only one per for each seq).
  * Set to NULL if none is found
- * @return 0 if OK, -ve on error
+ * @return 0 if OK, -ENODEV if not found
  */
-int device_find_child_by_seq(const struct udevice *parent, int seq_or_req_seq,
-			     bool find_req_seq, struct udevice **devp);
+int device_find_child_by_seq(const struct udevice *parent, int seq,
+			     struct udevice **devp);
 
 /**
  * device_get_child_by_seq() - Get a child device based on a sequence

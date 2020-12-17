@@ -103,25 +103,17 @@ int uclass_find_device_by_name(enum uclass_id id, const char *name,
 /**
  * uclass_find_device_by_seq() - Find uclass device based on ID and sequence
  *
- * This searches for a device with the given seq or req_seq.
- *
- * For seq, if an active device has this sequence it will be returned.
- * If there is no such device then this will return -ENODEV.
- *
- * For req_seq, if a device (whether activated or not) has this req_seq
- * value, that device will be returned. This is a strong indication that
- * the device will receive that sequence when activated.
+ * This searches for a device with the given seq.
  *
  * The device is NOT probed, it is merely returned.
  *
  * @id: ID to look up
- * @seq_or_req_seq: Sequence number to find (0=first)
- * @find_req_seq: true to find req_seq, false to find seq
+ * @seq: Sequence number to find (0=first)
  * @devp: Returns pointer to device (there is only one per for each seq)
- * @return 0 if OK, -ve on error
+ * @return 0 if OK, -ENODEV if not found
  */
-int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
-			      bool find_req_seq, struct udevice **devp);
+int uclass_find_device_by_seq(enum uclass_id id, int seq,
+			      struct udevice **devp);
 
 /**
  * uclass_find_device_by_of_offset() - Find a uclass device by device tree node

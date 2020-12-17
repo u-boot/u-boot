@@ -273,7 +273,7 @@ int spi_cs_is_valid(unsigned int busnum, unsigned int cs)
 	struct udevice *bus;
 	int ret;
 
-	ret = uclass_find_device_by_seq(UCLASS_SPI, busnum, false, &bus);
+	ret = uclass_find_device_by_seq(UCLASS_SPI, busnum, &bus);
 	if (ret) {
 		debug("%s: No bus %d\n", __func__, busnum);
 		return ret;
@@ -302,7 +302,7 @@ int spi_find_bus_and_cs(int busnum, int cs, struct udevice **busp,
 	struct udevice *bus, *dev;
 	int ret;
 
-	ret = uclass_find_device_by_seq(UCLASS_SPI, busnum, false, &bus);
+	ret = uclass_find_device_by_seq(UCLASS_SPI, busnum, &bus);
 	if (ret) {
 		debug("%s: No bus %d\n", __func__, busnum);
 		return ret;
