@@ -126,6 +126,23 @@ UCLASS_DRIVER(testfdt) = {
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
 
+static const struct udevice_id testfdtm_ids[] = {
+	{ .compatible = "denx,u-boot-fdtm-test" },
+	{ }
+};
+
+U_BOOT_DRIVER(testfdtm_drv) = {
+	.name	= "testfdtm_drv",
+	.of_match	= testfdtm_ids,
+	.id	= UCLASS_TEST_FDT_MANUAL,
+};
+
+UCLASS_DRIVER(testfdtm) = {
+	.name		= "testfdtm",
+	.id		= UCLASS_TEST_FDT_MANUAL,
+	.flags		= DM_UC_FLAG_SEQ_ALIAS | DM_UC_FLAG_NO_AUTO_SEQ,
+};
+
 struct dm_testprobe_pdata {
 	int probe_err;
 };
@@ -398,6 +415,31 @@ static int dm_test_fdt_uclass_seq(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_fdt_uclass_seq, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* More tests for sequence numbers */
+static int dm_test_fdt_uclass_seq_manual(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	/*
+	 * Since DM_UC_FLAG_NO_AUTO_SEQ is set for this uclass, only testfdtm1
+	 * should get a sequence number assigned
+	 */
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT_MANUAL, 0, &dev));
+	ut_asserteq_str("testfdtm0", dev->name);
+	ut_asserteq(-1, dev_seq(dev));
+
+	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT_MANUAL, 1, &dev));
+	ut_asserteq_str("testfdtm1", dev->name);
+	ut_asserteq(1, dev_seq(dev));
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT_MANUAL, 2, &dev));
+	ut_asserteq_str("testfdtm2", dev->name);
+	ut_asserteq(-1, dev_seq(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_fdt_uclass_seq_manual, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that we can find a device by device tree offset */
 static int dm_test_fdt_offset(struct unit_test_state *uts)

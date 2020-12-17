@@ -37,6 +37,7 @@
 		testfdt3 = "/b-test";
 		testfdt5 = "/some-bus/c-test@5";
 		testfdt8 = "/a-test";
+		testfdtm1 = &testfdtm1;
 		fdt-dummy0 = "/translation-test@8000/dev@0,0";
 		fdt-dummy1 = "/translation-test@8000/dev@1,100";
 		fdt-dummy2 = "/translation-test@8000/dev@2,200";
@@ -915,6 +916,18 @@
 		#mux-control-cells = <0>;
 		u-boot,mux-autoprobe;
 		idle-state = <0xabcd>;
+	};
+
+	testfdtm0 {
+		compatible = "denx,u-boot-fdtm-test";
+	};
+
+	testfdtm1: testfdtm1 {
+		compatible = "denx,u-boot-fdtm-test";
+	};
+
+	testfdtm2 {
+		compatible = "denx,u-boot-fdtm-test";
 	};
 
 	timer@0 {
