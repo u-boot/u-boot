@@ -11,6 +11,7 @@
 #include <net.h>
 #include <asm/io.h>
 #include <asm/arch/eth.h>
+#include <asm/arch/sm.h>
 #include <i2c.h>
 #include "khadas-mcu.h"
 
@@ -129,9 +130,27 @@ int meson_ft_board_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 
+#define EFUSE_MAC_OFFSET	0
+#define EFUSE_MAC_SIZE		6
+
 int misc_init_r(void)
 {
+	uint8_t mac_addr[EFUSE_MAC_SIZE];
+	ssize_t len;
+
 	meson_eth_init(PHY_INTERFACE_MODE_RGMII, 0);
+
+	if (!eth_env_get_enetaddr("ethaddr", mac_addr)) {
+		len = meson_sm_read_efuse(EFUSE_MAC_OFFSET,
+					  mac_addr, EFUSE_MAC_SIZE);
+		if (len != EFUSE_MAC_SIZE)
+			return 0;
+
+		if (is_valid_ethaddr(mac_addr))
+			eth_env_set_enetaddr("ethaddr", mac_addr);
+		else
+			meson_generate_serial_ethaddr();
+	}
 
 	return 0;
 }
