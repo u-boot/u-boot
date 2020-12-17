@@ -791,7 +791,6 @@ static int octeon_i2c_probe(struct udevice *dev)
 		pci_dev_t bdf = dm_pci_get_bdf(dev);
 
 		debug("TWSI PCI device: %x\n", bdf);
-		dev->req_seq = PCI_FUNC(bdf);
 
 		twsi->base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
 					    PCI_REGION_MEM);

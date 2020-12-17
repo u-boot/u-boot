@@ -319,7 +319,6 @@ int octeontx_smi_probe(struct udevice *dev)
 	pci_dev_t bdf = dm_pci_get_bdf(dev);
 
 	debug("SMI PCI device: %x\n", bdf);
-	dev->req_seq = PCI_FUNC(bdf);
 	if (!dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM)) {
 		printf("Failed to map PCI region for bdf %x\n", bdf);
 		return -1;
