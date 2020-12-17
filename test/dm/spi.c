@@ -26,9 +26,6 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 	struct spi_cs_info info;
 	ofnode node;
 
-	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_SPI, busnum,
-						       false, &bus));
-
 	/*
 	 * The post_bind() method will bind devices to chip selects. Check
 	 * this then remove the emulation and the slave device.
