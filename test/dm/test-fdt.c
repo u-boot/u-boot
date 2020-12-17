@@ -333,20 +333,28 @@ static int dm_test_fdt_uclass_seq(struct unit_test_state *uts)
 	/* A few basic santiy tests */
 	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_FDT, 3, true, &dev));
 	ut_asserteq_str("b-test", dev->name);
+	ut_asserteq(3, dev_seq(dev));
 
 	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_FDT, 8, true, &dev));
 	ut_asserteq_str("a-test", dev->name);
+	ut_asserteq(8, dev_seq(dev));
 
-	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 5,
-						       true, &dev));
+	/*
+	 * This device has no alias so gets the next value after all available
+	 * aliases. The last alias is testfdt12
+	 */
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_FDT, 13, true, &dev));
+	ut_asserteq_str("d-test", dev->name);
+	ut_asserteq(13, dev_seq(dev));
+
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 9, true,
+						       &dev));
 	ut_asserteq_ptr(NULL, dev);
 
 	/* Test aliases */
 	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 6, &dev));
 	ut_asserteq_str("e-test", dev->name);
-
-	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 7,
-						       true, &dev));
+	ut_asserteq(6, dev_seq(dev));
 
 	/*
 	 * Note that c-test nodes are not probed since it is not a top-level
@@ -354,6 +362,7 @@ static int dm_test_fdt_uclass_seq(struct unit_test_state *uts)
 	 */
 	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 3, &dev));
 	ut_asserteq_str("b-test", dev->name);
+	ut_asserteq(3, dev_seq(dev));
 
 	/*
 	 * d-test wants sequence number 3 also, but it can't have it because
@@ -361,31 +370,29 @@ static int dm_test_fdt_uclass_seq(struct unit_test_state *uts)
 	 */
 	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 2, &dev));
 	ut_asserteq_str("d-test", dev->name);
+	ut_asserteq(13, dev_seq(dev));
 
-	/*
-	 * d-test actually gets 9, because thats the next free one after the
-	 * aliases.
-	 */
-	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 9, &dev));
-	ut_asserteq_str("d-test", dev->name);
+	/* g-test gets the next value after f-test */
+	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 15, &dev));
+	ut_asserteq_str("g-test", dev->name);
+	ut_asserteq(15, dev_seq(dev));
 
-	/* initially no one wants seq 10 */
-	ut_asserteq(-ENODEV, uclass_get_device_by_seq(UCLASS_TEST_FDT, 10,
-						      &dev));
-	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
-	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 4, &dev));
-
-	/* But now that it is probed, we can find it */
-	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 10, &dev));
-	ut_asserteq_str("f-test", dev->name);
-
-	/*
-	 * And we should still have holes in our sequence numbers, that is 2
-	 * and 4 should not be used.
-	 */
-	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 2,
+	/* And we should still have holes in our sequence numbers */
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 0, true,
+						       &dev));
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 1, true,
+						       &dev));
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 2, true,
+						       &dev));
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 4, true,
+						       &dev));
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 7, true,
+						       &dev));
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 9, true,
+						       &dev));
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 10,
 						       true, &dev));
-	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 4,
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 11,
 						       true, &dev));
 
 	return 0;

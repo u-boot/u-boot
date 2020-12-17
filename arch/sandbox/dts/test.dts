@@ -33,7 +33,7 @@
 		testfdt6 = "/e-test";
 		testbus3 = "/some-bus";
 		testfdt0 = "/some-bus/c-test@0";
-		testfdt1 = "/some-bus/c-test@1";
+		testfdt12 = "/some-bus/c-test@1";
 		testfdt3 = "/b-test";
 		testfdt5 = "/some-bus/c-test@5";
 		testfdt8 = "/a-test";

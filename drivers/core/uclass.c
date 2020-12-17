@@ -306,8 +306,7 @@ int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
 	uclass_foreach_dev(dev, uc) {
 		log_debug("   - %d %d '%s'\n",
 			  dev->req_seq, dev_seq(dev), dev->name);
-		if ((find_req_seq ? dev->req_seq : dev_seq(dev)) ==
-				seq_or_req_seq) {
+		if (dev_seq(dev) == seq_or_req_seq) {
 			*devp = dev;
 			log_debug("   - found\n");
 			return 0;
@@ -692,8 +691,7 @@ int uclass_resolve_seq(struct udevice *dev)
 	assert(dev_seq(dev) == -1);
 	ret = uclass_find_device_by_seq(uc_drv->id, dev->req_seq, false, &dup);
 	if (!ret) {
-		dm_warn("Device '%s': seq %d is in use by '%s'\n",
-			dev->name, dev->req_seq, dup->name);
+		/* Do nothing here for now */
 	} else if (ret == -ENODEV) {
 		/* Our requested sequence number is available */
 		if (dev->req_seq != -1)

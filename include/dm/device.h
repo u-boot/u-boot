@@ -192,7 +192,7 @@ static inline bool dev_has_of_node(struct udevice *dev)
 
 static inline int dev_seq(const struct udevice *dev)
 {
-	return dev->seq;
+	return dev->sqq;
 }
 
 /**
