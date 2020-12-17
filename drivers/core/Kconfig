@@ -113,6 +113,22 @@ config SPL_DM_SEQ_ALIAS
 	  numbered devices (e.g. serial0 = &serial0). This feature can be
 	  disabled if it is not required, to save code space in SPL.
 
+config SPL_DM_INLINE_OFNODE
+	bool "Inline some ofnode functions which are seldom used in SPL"
+	depends on SPL_DM
+	default y
+	help
+	  This applies to several ofnode functions (see ofnode.h) which are
+	  seldom used. Inlining them can help reduce code size.
+
+config TPL_DM_INLINE_OFNODE
+	bool "Inline some ofnode functions which are seldom used in TPL"
+	depends on TPL_DM
+	default y
+	help
+	  This applies to several ofnode functions (see ofnode.h) which are
+	  seldom used. Inlining them can help reduce code size.
+
 config REGMAP
 	bool "Support register maps"
 	depends on DM

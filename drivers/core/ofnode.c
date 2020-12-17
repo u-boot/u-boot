@@ -226,6 +226,7 @@ int ofnode_read_u32_array(ofnode node, const char *propname,
 	}
 }
 
+#if !CONFIG_IS_ENABLED(DM_INLINE_OFNODE)
 bool ofnode_is_enabled(ofnode node)
 {
 	if (ofnode_is_np(node)) {
@@ -255,6 +256,7 @@ ofnode ofnode_next_subnode(ofnode node)
 	return offset_to_ofnode(
 		fdt_next_subnode(gd->fdt_blob, ofnode_to_offset(node)));
 }
+#endif /* !DM_INLINE_OFNODE */
 
 ofnode ofnode_get_parent(ofnode node)
 {
