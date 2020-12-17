@@ -19,10 +19,10 @@
  * maximum req_seq of the uclass + 1.
  * This allows assiging req_seq number in the binding order.
  *
- * @id:		Id number of the uclass
+ * @uc:		uclass to check
  * @return	The next free req_seq number
  */
-int uclass_find_next_free_req_seq(enum uclass_id id);
+int uclass_find_next_free_req_seq(struct uclass *uc);
 
 /**
  * uclass_get_device_tail() - handle the end of a get_device call

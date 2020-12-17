@@ -89,10 +89,10 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 #if CONFIG_IS_ENABLED(OF_PRIOR_STAGE)
 			if (dev->req_seq == -1)
 				dev->req_seq =
-					uclass_find_next_free_req_seq(drv->id);
+					uclass_find_next_free_req_seq(uc);
 #endif
 		} else {
-			dev->req_seq = uclass_find_next_free_req_seq(drv->id);
+			dev->req_seq = uclass_find_next_free_req_seq(uc);
 		}
 	}
 

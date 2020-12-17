@@ -90,7 +90,9 @@ static int designware_i2c_pci_probe(struct udevice *dev)
 
 static int designware_i2c_pci_bind(struct udevice *dev)
 {
+	struct uclass *uc;
 	char name[20];
+	int ret;
 
 	if (dev_of_valid(dev))
 		return 0;
@@ -108,7 +110,11 @@ static int designware_i2c_pci_bind(struct udevice *dev)
 	 * be possible. We cannot use static data in drivers since they may be
 	 * used in SPL or before relocation.
 	 */
-	dev->req_seq = uclass_find_next_free_req_seq(UCLASS_I2C);
+	ret = uclass_get(UCLASS_I2C, &uc);
+	if (ret)
+		return ret;
+
+	dev->req_seq = uclass_find_next_free_req_seq(uc);
 	sprintf(name, "i2c_designware#%u", dev->req_seq);
 	device_set_name(dev, name);
 

@@ -272,16 +272,10 @@ int uclass_find_device_by_name(enum uclass_id id, const char *name,
 	return -ENODEV;
 }
 
-int uclass_find_next_free_req_seq(enum uclass_id id)
+int uclass_find_next_free_req_seq(struct uclass *uc)
 {
-	struct uclass *uc;
 	struct udevice *dev;
-	int ret;
 	int max = -1;
-
-	ret = uclass_get(id, &uc);
-	if (ret)
-		return ret;
 
 	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
 		if ((dev->req_seq != -1) && (dev->req_seq > max))
