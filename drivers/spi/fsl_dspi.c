@@ -569,7 +569,7 @@ static int fsl_dspi_release_bus(struct udevice *dev)
  */
 static int fsl_dspi_bind(struct udevice *bus)
 {
-	debug("%s assigned req_seq %d.\n", bus->name, bus->req_seq);
+	debug("%s assigned seq %d.\n", bus->name, dev_seq(bus));
 	return 0;
 }
 

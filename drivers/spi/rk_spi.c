@@ -186,7 +186,6 @@ static int conv_of_plat(struct udevice *dev)
 	ret = clk_get_by_driver_info(dev, dtplat->clocks, &priv->clk);
 	if (ret < 0)
 		return ret;
-	dev->req_seq = 0;
 
 	return 0;
 }
