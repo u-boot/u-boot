@@ -75,9 +75,9 @@ static int osd_get_osd_cur(struct udevice **osdp)
  */
 static void show_osd(struct udevice *osd)
 {
-	printf("OSD %d:\t%s", osd->req_seq, osd->name);
+	printf("OSD %d:\t%s", dev_seq(osd), osd->name);
 	if (device_active(osd))
-		printf("  (active %d)", dev_seq(osd));
+		printf("  (active)");
 	printf("\n");
 }
 

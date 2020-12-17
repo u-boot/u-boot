@@ -1700,7 +1700,7 @@ static void show_bus(struct udevice *bus)
 {
 	struct udevice *dev;
 
-	printf("Bus %d:\t%s", bus->req_seq, bus->name);
+	printf("Bus %d:\t%s", dev_seq(bus), bus->name);
 	if (device_active(bus))
 		printf("  (active %d)", dev_seq(bus));
 	printf("\n");
