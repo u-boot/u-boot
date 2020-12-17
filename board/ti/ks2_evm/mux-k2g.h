@@ -377,7 +377,7 @@ void k2g_mux_config(void)
 		configure_pin_mux(k2g_generic_pin_cfg);
 	} else if (board_is_k2g_gp() || board_is_k2g_g1()) {
 		configure_pin_mux(k2g_evm_pin_cfg);
-	} else if (board_is_k2g_ice()) {
+	} else if (board_is_k2g_ice() || board_is_k2g_i1()) {
 		configure_pin_mux(k2g_ice_evm_pin_cfg);
 	} else {
 		puts("Unknown board, cannot configure pinmux.");
