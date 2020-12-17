@@ -124,7 +124,8 @@
  */
 #define ll_entry_start(_type, _list)					\
 ({									\
-	static char start[0] __aligned(4) __attribute__((unused,	\
+	static char start[0] __aligned(CONFIG_LINKER_LIST_ALIGN)	\
+		__attribute__((unused,					\
 		section(".u_boot_list_2_"#_list"_1")));			\
 	(_type *)&start;						\
 })
