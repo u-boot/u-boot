@@ -321,7 +321,7 @@ int dm_pciauto_config_device(struct udevice *dev)
 	bool enum_only = false;
 	struct udevice *ctlr = pci_get_controller(dev);
 	struct pci_controller *ctlr_hose = dev_get_uclass_priv(ctlr);
-	int n;
+	int ret;
 
 #ifdef CONFIG_PCI_ENUM_ONLY
 	enum_only = true;
@@ -341,10 +341,10 @@ int dm_pciauto_config_device(struct udevice *dev)
 		dm_pciauto_setup_device(dev, 2, pci_mem, pci_prefetch, pci_io,
 					enum_only);
 
-		n = dm_pci_hose_probe_bus(dev);
-		if (n < 0)
-			return n;
-		sub_bus = (unsigned int)n;
+		ret = dm_pci_hose_probe_bus(dev);
+		if (ret < 0)
+			return log_msg_ret("probe", ret);
+		sub_bus = ret;
 		break;
 
 	case PCI_CLASS_BRIDGE_CARDBUS:
