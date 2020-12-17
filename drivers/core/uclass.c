@@ -272,18 +272,25 @@ int uclass_find_device_by_name(enum uclass_id id, const char *name,
 	return -ENODEV;
 }
 
-int uclass_find_next_free_req_seq(struct uclass *uc)
+int uclass_find_next_free_seq(struct uclass *uc)
 {
 	struct udevice *dev;
 	int max = -1;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
-		if ((dev->req_seq != -1) && (dev->req_seq > max))
-			max = dev->req_seq;
-	}
+	/* If using aliases, start with the highest alias value */
+	if (CONFIG_IS_ENABLED(DM_SEQ_ALIAS) &&
+	    (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS))
+		max = dev_read_alias_highest_id(uc->uc_drv->name);
 
-	if (max == -1)
-		return 0;
+	/* Avoid conflict with existing devices */
+	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+		if (dev->sqq > max)
+			max = dev->sqq;
+	}
+	/*
+	 * At this point, max will be -1 if there are no existing aliases or
+	 * devices
+	 */
 
 	return max + 1;
 }
