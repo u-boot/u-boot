@@ -231,6 +231,7 @@ static bool console_dev_is_serial(struct stdio_dev *sdev)
 #if CONFIG_IS_ENABLED(CONSOLE_MUX)
 /** Console I/O multiplexing *******************************************/
 
+/* tstcdev: save the last stdio device with pending characters, with tstc != 0 */
 static struct stdio_dev *tstcdev;
 struct stdio_dev **console_devices[MAX_FILES];
 int cd_count[MAX_FILES];
@@ -254,6 +255,12 @@ static int console_getc(int file)
 	ret = tstcdev->getc(tstcdev);
 	tstcdev = NULL;
 	return ret;
+}
+
+/*  Upper layer may have already called tstc(): check the saved result */
+static bool console_has_tstc(void)
+{
+	return !!tstcdev;
 }
 
 static int console_tstc(int file)
@@ -348,6 +355,11 @@ static inline int console_getc(int file)
 	return stdio_devices[file]->getc(stdio_devices[file]);
 }
 
+static bool console_has_tstc(void)
+{
+	return false;
+}
+
 static inline int console_tstc(int file)
 {
 	return stdio_devices[file]->tstc(stdio_devices[file]);
@@ -405,18 +417,19 @@ int fgetc(int file)
 		 */
 		for (;;) {
 			WATCHDOG_RESET();
-#if CONFIG_IS_ENABLED(CONSOLE_MUX)
-			/*
-			 * Upper layer may have already called tstc() so
-			 * check for that first.
-			 */
-			if (tstcdev != NULL)
-				return console_getc(file);
-			console_tstc(file);
-#else
-			if (console_tstc(file))
-				return console_getc(file);
-#endif
+			if (CONFIG_IS_ENABLED(CONSOLE_MUX)) {
+				/*
+				 * Upper layer may have already called tstc() so
+				 * check for that first.
+				 */
+				if (console_has_tstc())
+					return console_getc(file);
+				console_tstc(file);
+			} else {
+				if (console_tstc(file))
+					return console_getc(file);
+			}
+
 			/*
 			 * If the watchdog must be rate-limited then it should
 			 * already be handled in board-specific code.
