@@ -177,6 +177,11 @@ static struct stdio_dev *tstcdev;
 struct stdio_dev **console_devices[MAX_FILES];
 int cd_count[MAX_FILES];
 
+static void __maybe_unused console_devices_set(int file, struct stdio_dev *dev)
+{
+	console_devices[file][0] = dev;
+}
+
 /*
  * This depends on tstc() always being called before getchar().
  * This is guaranteed to be true because this routine is called
@@ -275,6 +280,11 @@ static inline void console_doenv(int file, struct stdio_dev *dev)
 }
 #endif
 #else
+
+static void __maybe_unused console_devices_set(int file, struct stdio_dev *dev)
+{
+}
+
 static inline int console_getc(int file)
 {
 	return stdio_devices[file]->getc(stdio_devices[file]);
@@ -958,18 +968,14 @@ int console_init_r(void)
 	if (outputdev != NULL) {
 		console_setfile(stdout, outputdev);
 		console_setfile(stderr, outputdev);
-#if CONFIG_IS_ENABLED(CONSOLE_MUX)
-		console_devices[stdout][0] = outputdev;
-		console_devices[stderr][0] = outputdev;
-#endif
+		console_devices_set(stdout, outputdev);
+		console_devices_set(stderr, outputdev);
 	}
 
 	/* Initializes input console */
 	if (inputdev != NULL) {
 		console_setfile(stdin, inputdev);
-#if CONFIG_IS_ENABLED(CONSOLE_MUX)
-		console_devices[stdin][0] = inputdev;
-#endif
+		console_devices_set(stdin, inputdev);
 	}
 
 	if (!IS_ENABLED(CONFIG_SYS_CONSOLE_INFO_QUIET))
