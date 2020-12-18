@@ -88,6 +88,64 @@ static int on_silent(const char *name, const char *value, enum env_op op,
 U_BOOT_ENV_CALLBACK(silent, on_silent);
 #endif
 
+#ifdef CONFIG_CONSOLE_RECORD
+/* helper function: access to gd->console_out and gd->console_in */
+static void console_record_putc(const char c)
+{
+	if (!(gd->flags & GD_FLG_RECORD))
+		return;
+	if  (gd->console_out.start)
+		membuff_putbyte((struct membuff *)&gd->console_out, c);
+}
+
+static void console_record_puts(const char *s)
+{
+	if (!(gd->flags & GD_FLG_RECORD))
+		return;
+	if  (gd->console_out.start)
+		membuff_put((struct membuff *)&gd->console_out, s, strlen(s));
+}
+
+static int console_record_getc(void)
+{
+	if (!(gd->flags & GD_FLG_RECORD))
+		return -1;
+	if (!gd->console_in.start)
+		return -1;
+
+	return membuff_getbyte((struct membuff *)&gd->console_in);
+}
+
+static int console_record_tstc(void)
+{
+	if (!(gd->flags & GD_FLG_RECORD))
+		return 0;
+	if (gd->console_in.start) {
+		if (membuff_peekbyte((struct membuff *)&gd->console_in) != -1)
+			return 1;
+	}
+	return 0;
+}
+#else
+static void console_record_putc(char c)
+{
+}
+
+static void console_record_puts(const char *s)
+{
+}
+
+static int console_record_getc(void)
+{
+	return -1;
+}
+
+static int console_record_tstc(void)
+{
+	return 0;
+}
+#endif
+
 #if CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV)
 /*
  * if overwrite_console returns 1, the stdin, stderr and stdout
@@ -414,21 +472,18 @@ int fprintf(int file, const char *fmt, ...)
 
 int getchar(void)
 {
+	int ch;
+
 	if (IS_ENABLED(CONFIG_DISABLE_CONSOLE) && (gd->flags & GD_FLG_DISABLE_CONSOLE))
 		return 0;
 
 	if (!gd->have_console)
 		return 0;
 
-#ifdef CONFIG_CONSOLE_RECORD
-	if (gd->console_in.start) {
-		int ch;
+	ch = console_record_getc();
+	if (ch != -1)
+		return ch;
 
-		ch = membuff_getbyte((struct membuff *)&gd->console_in);
-		if (ch != -1)
-			return 1;
-	}
-#endif
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Get from the standard input */
 		return fgetc(stdin);
@@ -445,12 +500,10 @@ int tstc(void)
 
 	if (!gd->have_console)
 		return 0;
-#ifdef CONFIG_CONSOLE_RECORD
-	if (gd->console_in.start) {
-		if (membuff_peekbyte((struct membuff *)&gd->console_in) != -1)
-			return 1;
-	}
-#endif
+
+	if (console_record_tstc())
+		return 1;
+
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Test the standard input */
 		return ftstc(stdin);
@@ -521,10 +574,9 @@ void putc(const char c)
 {
 	if (!gd)
 		return;
-#ifdef CONFIG_CONSOLE_RECORD
-	if ((gd->flags & GD_FLG_RECORD) && gd->console_out.start)
-		membuff_putbyte((struct membuff *)&gd->console_out, c);
-#endif
+
+	console_record_putc(c);
+
 	/* sandbox can send characters to stdout before it has a console */
 	if (IS_ENABLED(CONFIG_SANDBOX) && !(gd->flags & GD_FLG_SERIAL_READY)) {
 		os_putc(c);
@@ -563,10 +615,9 @@ void puts(const char *s)
 {
 	if (!gd)
 		return;
-#ifdef CONFIG_CONSOLE_RECORD
-	if ((gd->flags & GD_FLG_RECORD) && gd->console_out.start)
-		membuff_put((struct membuff *)&gd->console_out, s, strlen(s));
-#endif
+
+	console_record_puts(s);
+
 	/* sandbox can send characters to stdout before it has a console */
 	if (IS_ENABLED(CONFIG_SANDBOX) && !(gd->flags & GD_FLG_SERIAL_READY)) {
 		os_puts(s);
