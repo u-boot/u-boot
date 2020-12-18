@@ -156,23 +156,19 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 	} else if (hz <= 25000000) {
 		oclk_dly = 0;
 		sclk_dly = 5;
-#ifdef CONFIG_MACH_SUN9I
-	} else if (hz <= 52000000) {
-		oclk_dly = 5;
-		sclk_dly = 4;
 	} else {
-		/* hz > 52000000 */
-		oclk_dly = 2;
+		if (IS_ENABLED(CONFIG_MACH_SUN9I)) {
+			if (hz <= 52000000)
+				oclk_dly = 5;
+			else
+				oclk_dly = 2;
+		} else {
+			if (hz <= 52000000)
+				oclk_dly = 3;
+			else
+				oclk_dly = 1;
+		}
 		sclk_dly = 4;
-#else
-	} else if (hz <= 52000000) {
-		oclk_dly = 3;
-		sclk_dly = 4;
-	} else {
-		/* hz > 52000000 */
-		oclk_dly = 1;
-		sclk_dly = 4;
-#endif
 	}
 
 	if (new_mode) {
@@ -521,10 +517,11 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	cfg->host_caps = MMC_MODE_4BIT;
-#if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_MACH_SUN8I) || defined(CONFIG_SUN50I_GEN_H6)
-	if (sdc_no == 2)
+
+	if ((IS_ENABLED(CONFIG_MACH_SUN50I) || IS_ENABLED(CONFIG_MACH_SUN8I) ||
+	    IS_ENABLED(CONFIG_SUN50I_GEN_H6)) && (sdc_no == 2))
 		cfg->host_caps = MMC_MODE_8BIT;
-#endif
+
 	cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
