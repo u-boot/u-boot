@@ -10,10 +10,18 @@
 #include <init.h>
 #include <net.h>
 #include <asm/io.h>
+#include <asm/arch/boot.h>
 #include <asm/arch/eth.h>
 #include <asm/arch/sm.h>
 #include <i2c.h>
 #include "khadas-mcu.h"
+
+int mmc_get_env_dev(void)
+{
+	if (meson_get_boot_device() == BOOT_DEVICE_EMMC)
+		return 2;
+	return 1;
+}
 
 /*
  * The VIM3 on-board  MCU can mux the PCIe/USB3.0 shared differential
