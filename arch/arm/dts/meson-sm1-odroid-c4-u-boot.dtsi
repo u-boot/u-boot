@@ -11,3 +11,7 @@
 	snps,reset-delays-us = <0 10000 1000000>;
 	snps,reset-active-low;
 };
+
+&tflash_vdd {
+	gpio = <&gpio_ao GPIOAO_3 GPIO_OPEN_DRAIN>;
+};
