@@ -284,7 +284,8 @@
 			};
 
 			spi2: spi@50240000 {
-				compatible = "kendryte,k120-spislave",
+				compatible = "canaan,kendryte-k210-spi",
+					     "snps,dw-apb-ssi-4.01",
 					     "snps,dw-apb-ssi";
 				spi-slave;
 				reg = <0x50240000 0x100>;
@@ -495,6 +496,8 @@
 				interrupts = <24>;
 				clocks = <&sysclk K210_CLK_DVP>;
 				resets = <&sysrst K210_RST_DVP>;
+				kendryte,sysctl = <&sysctl>;
+				kendryte,misc-offset = <K210_SYSCTL_MISC>;
 				status = "disabled";
 			};
 
@@ -557,7 +560,8 @@
 			spi0: spi@52000000 {
 				#address-cells = <1>;
 				#size-cells = <0>;
-				compatible = "kendryte,k210-spi",
+				compatible = "canaan,kendryte-k210-spi",
+					     "snps,dw-apb-ssi-4.01",
 					     "snps,dw-apb-ssi";
 				reg = <0x52000000 0x100>;
 				interrupts = <1>;
@@ -573,7 +577,8 @@
 			spi1: spi@53000000 {
 				#address-cells = <1>;
 				#size-cells = <0>;
-				compatible = "kendryte,k210-spi",
+				compatible = "canaan,kendryte-k210-spi",
+					     "snps,dw-apb-ssi-4.01",
 					     "snps,dw-apb-ssi";
 				reg = <0x53000000 0x100>;
 				interrupts = <2>;
@@ -589,8 +594,8 @@
 			spi3: spi@54000000 {
 				#address-cells = <1>;
 				#size-cells = <0>;
-				compatible = "kendryte,k210-spi",
-					     "snps,dw-apb-ssi";
+				compatible = "canaan,kendryte-k210-ssi",
+					     "snps,dwc-ssi-1.01a";
 				reg = <0x54000000 0x200>;
 				interrupts = <4>;
 				clocks = <&sysclk K210_CLK_SPI3>;

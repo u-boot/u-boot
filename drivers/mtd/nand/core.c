@@ -130,10 +130,18 @@ EXPORT_SYMBOL_GPL(nanddev_isreserved);
  */
 int nanddev_erase(struct nand_device *nand, const struct nand_pos *pos)
 {
+	unsigned int entry;
+
 	if (nanddev_isbad(nand, pos) || nanddev_isreserved(nand, pos)) {
 		pr_warn("attempt to erase a bad/reserved block @%llx\n",
 			nanddev_pos_to_offs(nand, pos));
-		return -EIO;
+		if (nanddev_isreserved(nand, pos))
+			return -EIO;
+
+		/* remove bad block from BBT */
+		entry = nanddev_bbt_pos_to_entry(nand, pos);
+		nanddev_bbt_set_block_status(nand, entry,
+					     NAND_BBT_BLOCK_STATUS_UNKNOWN);
 	}
 
 	return nand->ops->erase(nand, pos);
