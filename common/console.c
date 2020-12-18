@@ -44,14 +44,15 @@ static int on_console(const char *name, const char *value, enum env_op op,
 	case env_op_create:
 	case env_op_overwrite:
 
-#if CONFIG_IS_ENABLED(CONSOLE_MUX)
-		if (iomux_doenv(console, value))
-			return 1;
-#else
-		/* Try assigning specified device */
-		if (console_assign(console, value) < 0)
-			return 1;
-#endif
+		if (CONFIG_IS_ENABLED(CONSOLE_MUX)) {
+			if (iomux_doenv(console, value))
+				return 1;
+		} else {
+			/* Try assigning specified device */
+			if (console_assign(console, value) < 0)
+				return 1;
+		}
+
 		return 0;
 
 	case env_op_delete:
@@ -69,14 +70,13 @@ U_BOOT_ENV_CALLBACK(console, on_console);
 static int on_silent(const char *name, const char *value, enum env_op op,
 	int flags)
 {
-#if !CONFIG_IS_ENABLED(SILENT_CONSOLE_UPDATE_ON_SET)
-	if (flags & H_INTERACTIVE)
-		return 0;
-#endif
-#if !CONFIG_IS_ENABLED(SILENT_CONSOLE_UPDATE_ON_RELOC)
-	if ((flags & H_INTERACTIVE) == 0)
-		return 0;
-#endif
+	if (!CONFIG_IS_ENABLED(SILENT_CONSOLE_UPDATE_ON_SET))
+		if (flags & H_INTERACTIVE)
+			return 0;
+
+	if (!CONFIG_IS_ENABLED(SILENT_CONSOLE_UPDATE_ON_RELOC))
+		if ((flags & H_INTERACTIVE) == 0)
+			return 0;
 
 	if (value != NULL)
 		gd->flags |= GD_FLG_SILENT;
@@ -159,14 +159,13 @@ static bool console_dev_is_serial(struct stdio_dev *sdev)
 {
 	bool is_serial;
 
-#ifdef CONFIG_DM_SERIAL
-	if (sdev->flags & DEV_FLAGS_DM) {
+	if (IS_ENABLED(CONFIG_DM_SERIAL) && (sdev->flags & DEV_FLAGS_DM)) {
 		struct udevice *dev = sdev->priv;
 
 		is_serial = device_get_uclass_id(dev) == UCLASS_SERIAL;
-	} else
-#endif
-	is_serial = !strcmp(sdev->name, "serial");
+	} else {
+		is_serial = !strcmp(sdev->name, "serial");
+	}
 
 	return is_serial;
 }
@@ -350,13 +349,12 @@ int fgetc(int file)
 			if (console_tstc(file))
 				return console_getc(file);
 #endif
-#ifdef CONFIG_WATCHDOG
 			/*
 			 * If the watchdog must be rate-limited then it should
 			 * already be handled in board-specific code.
 			 */
-			 udelay(1);
-#endif
+			if (IS_ENABLED(CONFIG_WATCHDOG))
+				udelay(1);
 		}
 	}
 
@@ -406,10 +404,8 @@ int fprintf(int file, const char *fmt, ...)
 
 int getchar(void)
 {
-#ifdef CONFIG_DISABLE_CONSOLE
-	if (gd->flags & GD_FLG_DISABLE_CONSOLE)
+	if (IS_ENABLED(CONFIG_DISABLE_CONSOLE) && (gd->flags & GD_FLG_DISABLE_CONSOLE))
 		return 0;
-#endif
 
 	if (!gd->have_console)
 		return 0;
@@ -434,10 +430,8 @@ int getchar(void)
 
 int tstc(void)
 {
-#ifdef CONFIG_DISABLE_CONSOLE
-	if (gd->flags & GD_FLG_DISABLE_CONSOLE)
+	if (IS_ENABLED(CONFIG_DISABLE_CONSOLE) && (gd->flags & GD_FLG_DISABLE_CONSOLE))
 		return 0;
-#endif
 
 	if (!gd->have_console)
 		return 0;
@@ -485,10 +479,8 @@ static void print_pre_console_buffer(int flushpoint)
 	char buf_out[CONFIG_PRE_CON_BUF_SZ + 1];
 	char *buf_in;
 
-#ifdef CONFIG_SILENT_CONSOLE
-	if (gd->flags & GD_FLG_SILENT)
+	if (IS_ENABLED(CONFIG_SILENT_CONSOLE) && (gd->flags & GD_FLG_SILENT))
 		return;
-#endif
 
 	buf_in = map_sysmem(CONFIG_PRE_CON_BUF_ADDR, CONFIG_PRE_CON_BUF_SZ);
 	if (gd->precon_buf_idx > CONFIG_PRE_CON_BUF_SZ)
@@ -523,32 +515,26 @@ void putc(const char c)
 	if ((gd->flags & GD_FLG_RECORD) && gd->console_out.start)
 		membuff_putbyte((struct membuff *)&gd->console_out, c);
 #endif
-#ifdef CONFIG_SANDBOX
 	/* sandbox can send characters to stdout before it has a console */
-	if (!(gd->flags & GD_FLG_SERIAL_READY)) {
+	if (IS_ENABLED(CONFIG_SANDBOX) && !(gd->flags & GD_FLG_SERIAL_READY)) {
 		os_putc(c);
 		return;
 	}
-#endif
-#ifdef CONFIG_DEBUG_UART
+
 	/* if we don't have a console yet, use the debug UART */
-	if (!(gd->flags & GD_FLG_SERIAL_READY)) {
+	if (IS_ENABLED(CONFIG_DEBUG_UART) && !(gd->flags & GD_FLG_SERIAL_READY)) {
 		printch(c);
 		return;
 	}
-#endif
-#ifdef CONFIG_SILENT_CONSOLE
-	if (gd->flags & GD_FLG_SILENT) {
+
+	if (IS_ENABLED(CONFIG_SILENT_CONSOLE) && (gd->flags & GD_FLG_SILENT)) {
 		if (!(gd->flags & GD_FLG_DEVINIT))
 			pre_console_putc(c);
 		return;
 	}
-#endif
 
-#ifdef CONFIG_DISABLE_CONSOLE
-	if (gd->flags & GD_FLG_DISABLE_CONSOLE)
+	if (IS_ENABLED(CONFIG_DISABLE_CONSOLE) && (gd->flags & GD_FLG_DISABLE_CONSOLE))
 		return;
-#endif
 
 	if (!gd->have_console)
 		return pre_console_putc(c);
@@ -571,15 +557,13 @@ void puts(const char *s)
 	if ((gd->flags & GD_FLG_RECORD) && gd->console_out.start)
 		membuff_put((struct membuff *)&gd->console_out, s, strlen(s));
 #endif
-#ifdef CONFIG_SANDBOX
 	/* sandbox can send characters to stdout before it has a console */
-	if (!(gd->flags & GD_FLG_SERIAL_READY)) {
+	if (IS_ENABLED(CONFIG_SANDBOX) && !(gd->flags & GD_FLG_SERIAL_READY)) {
 		os_puts(s);
 		return;
 	}
-#endif
-#ifdef CONFIG_DEBUG_UART
-	if (!(gd->flags & GD_FLG_SERIAL_READY)) {
+
+	if (IS_ENABLED(CONFIG_DEBUG_UART) && !(gd->flags & GD_FLG_SERIAL_READY)) {
 		while (*s) {
 			int ch = *s++;
 
@@ -587,19 +571,15 @@ void puts(const char *s)
 		}
 		return;
 	}
-#endif
-#ifdef CONFIG_SILENT_CONSOLE
-	if (gd->flags & GD_FLG_SILENT) {
+
+	if (IS_ENABLED(CONFIG_SILENT_CONSOLE) && (gd->flags & GD_FLG_SILENT)) {
 		if (!(gd->flags & GD_FLG_DEVINIT))
 			pre_console_puts(s);
 		return;
 	}
-#endif
 
-#ifdef CONFIG_DISABLE_CONSOLE
-	if (gd->flags & GD_FLG_DISABLE_CONSOLE)
+	if (IS_ENABLED(CONFIG_DISABLE_CONSOLE) && (gd->flags & GD_FLG_DISABLE_CONSOLE))
 		return;
-#endif
 
 	if (!gd->have_console)
 		return pre_console_puts(s);
@@ -772,19 +752,19 @@ int console_assign(int file, const char *devname)
 /* return true if the 'silent' flag is removed */
 static bool console_update_silent(void)
 {
-#ifdef CONFIG_SILENT_CONSOLE
+	unsigned long flags = gd->flags;
+
+	if (!IS_ENABLED(CONFIG_SILENT_CONSOLE))
+		return false;
+
 	if (env_get("silent")) {
 		gd->flags |= GD_FLG_SILENT;
-	} else {
-		unsigned long flags = gd->flags;
-
-		gd->flags &= ~GD_FLG_SILENT;
-
-		return !!(flags & GD_FLG_SILENT);
+		return false;
 	}
-#endif
 
-	return false;
+	gd->flags &= ~GD_FLG_SILENT;
+
+	return !!(flags & GD_FLG_SILENT);
 }
 
 int console_announce_r(void)
@@ -843,12 +823,8 @@ int console_init_r(void)
 {
 	char *stdinname, *stdoutname, *stderrname;
 	struct stdio_dev *inputdev = NULL, *outputdev = NULL, *errdev = NULL;
-#ifdef CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 	int i;
-#endif /* CONFIG_SYS_CONSOLE_ENV_OVERWRITE */
-#if CONFIG_IS_ENABLED(CONSOLE_MUX)
 	int iomux_err = 0;
-#endif
 	int flushpoint;
 
 	/* update silent for env loaded from flash (initr_env) */
@@ -874,14 +850,14 @@ int console_init_r(void)
 		inputdev  = search_device(DEV_FLAGS_INPUT,  stdinname);
 		outputdev = search_device(DEV_FLAGS_OUTPUT, stdoutname);
 		errdev    = search_device(DEV_FLAGS_OUTPUT, stderrname);
-#if CONFIG_IS_ENABLED(CONSOLE_MUX)
-		iomux_err = iomux_doenv(stdin, stdinname);
-		iomux_err += iomux_doenv(stdout, stdoutname);
-		iomux_err += iomux_doenv(stderr, stderrname);
-		if (!iomux_err)
-			/* Successful, so skip all the code below. */
-			goto done;
-#endif
+		if (CONFIG_IS_ENABLED(CONSOLE_MUX)) {
+			iomux_err = iomux_doenv(stdin, stdinname);
+			iomux_err += iomux_doenv(stdout, stdoutname);
+			iomux_err += iomux_doenv(stderr, stderrname);
+			if (!iomux_err)
+				/* Successful, so skip all the code below. */
+				goto done;
+		}
 	}
 	/* if the devices are overwritten or not found, use default device */
 	if (inputdev == NULL) {
@@ -907,25 +883,22 @@ int console_init_r(void)
 		console_doenv(stdin, inputdev);
 	}
 
-#if CONFIG_IS_ENABLED(CONSOLE_MUX)
 done:
-#endif
 
-#ifndef CONFIG_SYS_CONSOLE_INFO_QUIET
-	stdio_print_current_devices();
-#endif /* CONFIG_SYS_CONSOLE_INFO_QUIET */
+	if (!IS_ENABLED(CONFIG_SYS_CONSOLE_INFO_QUIET))
+		stdio_print_current_devices();
+
 #ifdef CONFIG_VIDCONSOLE_AS_LCD
 	if (strstr(stdoutname, CONFIG_VIDCONSOLE_AS_NAME))
 		printf("Warning: Please change '%s' to 'vidconsole' in stdout/stderr environment vars\n",
 		       CONFIG_VIDCONSOLE_AS_NAME);
 #endif
 
-#ifdef CONFIG_SYS_CONSOLE_ENV_OVERWRITE
-	/* set the environment variables (will overwrite previous env settings) */
-	for (i = 0; i < MAX_FILES; i++) {
-		env_set(stdio_names[i], stdio_devices[i]->name);
+	if (IS_ENABLED(CONFIG_SYS_CONSOLE_ENV_OVERWRITE)) {
+		/* set the environment variables (will overwrite previous env settings) */
+		for (i = 0; i < MAX_FILES; i++)
+			env_set(stdio_names[i], stdio_devices[i]->name);
 	}
-#endif /* CONFIG_SYS_CONSOLE_ENV_OVERWRITE */
 
 	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
 
@@ -956,18 +929,16 @@ int console_init_r(void)
 	else
 		flushpoint = PRE_CONSOLE_FLUSHPOINT2_EVERYTHING_BUT_SERIAL;
 
-#ifdef CONFIG_SPLASH_SCREEN
 	/*
 	 * suppress all output if splash screen is enabled and we have
 	 * a bmp to display. We redirect the output from frame buffer
 	 * console to serial console in this case or suppress it if
 	 * "silent" mode was requested.
 	 */
-	if (env_get("splashimage") != NULL) {
+	if (IS_ENABLED(CONFIG_SPLASH_SCREEN) && env_get("splashimage")) {
 		if (!(gd->flags & GD_FLG_SILENT))
 			outputdev = search_device (DEV_FLAGS_OUTPUT, "serial");
 	}
-#endif
 
 	/* Scan devices looking for input and output devices */
 	list_for_each(pos, list) {
@@ -1001,9 +972,8 @@ int console_init_r(void)
 #endif
 	}
 
-#ifndef CONFIG_SYS_CONSOLE_INFO_QUIET
-	stdio_print_current_devices();
-#endif /* CONFIG_SYS_CONSOLE_INFO_QUIET */
+	if (!IS_ENABLED(CONFIG_SYS_CONSOLE_INFO_QUIET))
+		stdio_print_current_devices();
 
 	/* Setting environment variables */
 	for (i = 0; i < MAX_FILES; i++) {
