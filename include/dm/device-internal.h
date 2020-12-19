@@ -288,6 +288,7 @@ fdt_addr_t simple_bus_translate(struct udevice *dev, fdt_addr_t addr);
 /* Cast away any volatile pointer */
 #define DM_ROOT_NON_CONST		(((gd_t *)gd)->dm_root)
 #define DM_UCLASS_ROOT_NON_CONST	(((gd_t *)gd)->uclass_root)
+#define DM_UCLASS_ROOT_S_NON_CONST	(((gd_t *)gd)->uclass_root_s)
 
 /* device resource management */
 #ifdef CONFIG_DEVRES

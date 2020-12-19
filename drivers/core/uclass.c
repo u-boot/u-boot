@@ -33,7 +33,7 @@ struct uclass *uclass_find(enum uclass_id key)
 	 * node to the start of the list, or creating a linear array mapping
 	 * id to node.
 	 */
-	list_for_each_entry(uc, &gd->uclass_root, sibling_node) {
+	list_for_each_entry(uc, gd->uclass_root, sibling_node) {
 		if (uc->uc_drv->id == key)
 			return uc;
 	}
@@ -84,7 +84,7 @@ static int uclass_add(enum uclass_id id, struct uclass **ucp)
 	uc->uc_drv = uc_drv;
 	INIT_LIST_HEAD(&uc->sibling_node);
 	INIT_LIST_HEAD(&uc->dev_head);
-	list_add(&uc->sibling_node, &DM_UCLASS_ROOT_NON_CONST);
+	list_add(&uc->sibling_node, DM_UCLASS_ROOT_NON_CONST);
 
 	if (uc_drv->init) {
 		ret = uc_drv->init(uc);

@@ -116,14 +116,14 @@ static int dm_test_autobind(struct unit_test_state *uts)
 	 * device with no children.
 	 */
 	ut_assert(dms->root);
-	ut_asserteq(1, list_count_items(&gd->uclass_root));
+	ut_asserteq(1, list_count_items(gd->uclass_root));
 	ut_asserteq(0, list_count_items(&gd->dm_root->child_head));
 	ut_asserteq(0, dm_testdrv_op_count[DM_TEST_OP_POST_BIND]);
 
 	ut_assertok(dm_scan_plat(false));
 
 	/* We should have our test class now at least, plus more children */
-	ut_assert(1 < list_count_items(&gd->uclass_root));
+	ut_assert(1 < list_count_items(gd->uclass_root));
 	ut_assert(0 < list_count_items(&gd->dm_root->child_head));
 
 	/* Our 3 dm_test_infox children should be bound to the test uclass */
@@ -1073,7 +1073,7 @@ static int dm_test_all_have_seq(struct unit_test_state *uts)
 	struct udevice *dev;
 	struct uclass *uc;
 
-	list_for_each_entry(uc, &gd->uclass_root, sibling_node) {
+	list_for_each_entry(uc, gd->uclass_root, sibling_node) {
 		list_for_each_entry(dev, &uc->dev_head, uclass_node) {
 			if (dev->seq_ == -1)
 				printf("Device '%s' has no seq (%d)\n",

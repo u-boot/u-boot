@@ -194,7 +194,13 @@ struct global_data {
 	/**
 	 * @uclass_root: head of core tree
 	 */
-	struct list_head uclass_root;
+	struct list_head uclass_root_s;
+	/**
+	 * @uclass_root: pointer to head of core tree, if uclasses are in
+	 * read-only memory and cannot be adjusted to use @uclass_root as a
+	 * list head.
+	 */
+	struct list_head *uclass_root;
 # if CONFIG_IS_ENABLED(OF_PLATDATA)
         /** Dynamic info about the driver */
 	struct driver_rt *dm_driver_rt;

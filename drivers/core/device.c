@@ -613,7 +613,7 @@ static int device_find_by_ofnode(ofnode node, struct udevice **devp)
 	struct udevice *dev;
 	int ret;
 
-	list_for_each_entry(uc, &gd->uclass_root, sibling_node) {
+	list_for_each_entry(uc, gd->uclass_root, sibling_node) {
 		ret = uclass_find_device_by_ofnode(uc->uc_drv->id, node,
 						   &dev);
 		if (!ret || dev) {
@@ -1032,7 +1032,7 @@ int dev_disable_by_path(const char *path)
 	if (!of_live_active())
 		return -ENOSYS;
 
-	list_for_each_entry(uc, &gd->uclass_root, sibling_node) {
+	list_for_each_entry(uc, gd->uclass_root, sibling_node) {
 		ret = uclass_find_device_by_ofnode(uc->uc_drv->id, node, &dev);
 		if (!ret)
 			break;
