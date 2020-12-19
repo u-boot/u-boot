@@ -16,6 +16,7 @@
 #include <acpi/acpi_s3.h>
 #include <asm/io.h>
 #include <asm/pci.h>
+#include <asm/arch/pmc.h>
 #include <linux/bitops.h>
 #include <power/acpi_pmc.h>
 
@@ -51,13 +52,6 @@ enum {
 	ETR		= 0x1048,
 	CF9_LOCK        = 1UL << 31,
 	CF9_GLB_RST	= 1 << 20,
-};
-
-struct apl_pmc_plat {
-#if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_intel_apl_pmc dtplat;
-#endif
-	pci_dev_t bdf;
 };
 
 static int apl_pmc_fill_power_state(struct udevice *dev)

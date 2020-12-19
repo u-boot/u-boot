@@ -17,18 +17,6 @@
 #include <asm-generic/gpio.h>
 #include <asm/intel_pinctrl_defs.h>
 
-/**
- * struct apl_gpio_plat - platform data for each device
- *
- * @dtplat: of-platdata data from C struct
- */
-struct apl_gpio_plat {
-#if CONFIG_IS_ENABLED(OF_PLATDATA)
-	/* Put this first since driver model will copy the data here */
-	struct dtd_intel_apl_pinctrl dtplat;
-#endif
-};
-
 static const struct reset_mapping rst_map[] = {
 	{ .logical = PAD_CFG0_LOGICAL_RESET_PWROK, .chipset = 0U << 30 },
 	{ .logical = PAD_CFG0_LOGICAL_RESET_DEEP, .chipset = 1U << 30 },
