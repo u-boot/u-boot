@@ -135,7 +135,8 @@ enum {
  * @uclass_node: Used by uclass to link its devices
  * @child_head: List of children of this device
  * @sibling_node: Next device in list of all devices
- * @flags: Flags for this device DM_FLAG_...
+ * @flags_: Flags for this device DM_FLAG_... (do not access outside driver
+ *	model)
  * @seq_: Allocated sequence number for this device (-1 = none). This is set up
  * when the device is bound and is unique within the device's uclass. If the
  * device has an alias in the devicetree then that is used to set the sequence
@@ -163,7 +164,7 @@ struct udevice {
 	struct list_head uclass_node;
 	struct list_head child_head;
 	struct list_head sibling_node;
-	uint32_t flags;
+	u32 flags_;
 	int seq_;
 #ifdef CONFIG_DEVRES
 	struct list_head devres_head;
@@ -176,23 +177,23 @@ struct udevice {
 /* Returns the operations for a device */
 #define device_get_ops(dev)	(dev->driver->ops)
 
-/* Returns non-zero if the device is active (probed and not removed) */
-#define device_active(dev)	((dev)->flags & DM_FLAG_ACTIVATED)
-
 static inline u32 dev_get_flags(const struct udevice *dev)
 {
-	return dev->flags;
+	return dev->flags_;
 }
 
 static inline void dev_or_flags(struct udevice *dev, u32 or)
 {
-	dev->flags |= or;
+	dev->flags_ |= or;
 }
 
 static inline void dev_bic_flags(struct udevice *dev, u32 bic)
 {
-	dev->flags &= ~bic;
+	dev->flags_ &= ~bic;
 }
+
+/* Returns non-zero if the device is active (probed and not removed) */
+#define device_active(dev)	(dev_get_flags(dev) & DM_FLAG_ACTIVATED)
 
 static inline int dev_of_offset(const struct udevice *dev)
 {
