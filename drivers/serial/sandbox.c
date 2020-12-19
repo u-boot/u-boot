@@ -17,24 +17,10 @@
 #include <serial.h>
 #include <video.h>
 #include <linux/compiler.h>
+#include <asm/serial.h>
 #include <asm/state.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-struct sandbox_serial_plat {
-	int colour;	/* Text colour to use for output, -1 for none */
-};
-
-/**
- * struct sandbox_serial_priv - Private data for this driver
- *
- * @buf: holds input characters available to be read by this driver
- */
-struct sandbox_serial_priv {
-	struct membuff buf;
-	char serial_buf[16];
-	bool start_of_line;
-};
 
 /**
  * output_ansi_colour() - Output an ANSI colour code
