@@ -13,10 +13,7 @@
 #include <acpi/acpi_s3.h>
 #include <asm/io.h>
 #include <asm/processor.h>
-
-struct x86_sysreset_plat {
-	struct udevice *pch;
-};
+#include <asm/sysreset.h>
 
 /*
  * Power down the machine by using the power management sleep control
