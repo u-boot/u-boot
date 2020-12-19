@@ -3752,7 +3752,7 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 	host->dev = dev;
 	debug("%s(%s): Base address: %p\n", __func__, dev->name,
 	      host->base_addr);
-	if (!dev_has_of_node(dev)) {
+	if (!dev_has_ofnode(dev)) {
 		pr_err("%s: No device tree information found\n", __func__);
 		return -1;
 	}

@@ -406,7 +406,7 @@ int device_of_to_plat(struct udevice *dev)
 	assert(drv);
 
 	if (drv->of_to_plat &&
-	    (CONFIG_IS_ENABLED(OF_PLATDATA) || dev_has_of_node(dev))) {
+	    (CONFIG_IS_ENABLED(OF_PLATDATA) || dev_has_ofnode(dev))) {
 		ret = drv->of_to_plat(dev);
 		if (ret)
 			goto fail;

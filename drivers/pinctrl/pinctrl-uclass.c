@@ -305,7 +305,7 @@ int pinctrl_select_state(struct udevice *dev, const char *statename)
 	 * Some device which is logical like mmc.blk, do not have
 	 * a valid ofnode.
 	 */
-	if (!dev_has_of_node(dev))
+	if (!dev_has_ofnode(dev))
 		return 0;
 	/*
 	 * Try full-implemented pinctrl first.

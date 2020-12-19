@@ -517,7 +517,7 @@ static ofnode usb_get_ofnode(struct udevice *hub, int port)
 	ofnode node;
 	u32 reg;
 
-	if (!dev_has_of_node(hub))
+	if (!dev_has_ofnode(hub))
 		return ofnode_null();
 
 	/*
