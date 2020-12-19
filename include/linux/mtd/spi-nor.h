@@ -352,6 +352,7 @@ struct spi_nor {
 	u32 erase_size;
 };
 
+#ifndef __UBOOT__
 static inline void spi_nor_set_flash_node(struct spi_nor *nor,
 					  const struct device_node *np)
 {
@@ -363,6 +364,7 @@ device_node *spi_nor_get_flash_node(struct spi_nor *nor)
 {
 	return mtd_get_of_node(&nor->mtd);
 }
+#endif /* __UBOOT__ */
 
 /**
  * struct spi_nor_hwcaps - Structure for describing the hardware capabilies
