@@ -56,7 +56,7 @@
 	};
 
 	gpio_a: gpios@0 {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-pre-proper;
 		gpio-controller;
 		compatible = "sandbox,gpio";
 		#gpio-cells = <1>;
@@ -65,7 +65,7 @@
 	};
 
 	gpio_b: gpios@1 {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-pre-proper;
 		gpio-controller;
 		compatible = "sandbox,gpio";
 		#gpio-cells = <2>;
@@ -120,7 +120,7 @@
 	};
 
 	lcd {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-pre-proper;
 		compatible = "sandbox,lcd-sdl";
 		xres = <1366>;
 		yres = <768>;
@@ -209,7 +209,7 @@
 
 	spi@0 {
 		firmware_storage_spi: flash@0 {
-			u-boot,dm-pre-reloc;
+			u-boot,dm-pre-proper;
 			reg = <0>;
 			compatible = "spansion,m25p16", "jedec,spi-nor";
 			spi-max-frequency = <40000000>;
@@ -278,7 +278,6 @@
 	};
 
 	tpm {
-		u-boot,dm-pre-reloc;
 		compatible = "google,sandbox-tpm";
 	};
 
@@ -415,6 +414,6 @@
 	};
 
 	keyboard-controller {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-pre-proper;
 	};
 };
