@@ -13,19 +13,12 @@
 #include <log.h>
 #include <p2sb.h>
 #include <spl.h>
+#include <asm/p2sb.h>
 #include <asm/pci.h>
 #include <linux/bitops.h>
 
 #define PCH_P2SB_E0		0xe0
 #define HIDE_BIT		BIT(0)
-
-struct p2sb_plat {
-#if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_intel_p2sb dtplat;
-#endif
-	ulong mmio_base;
-	pci_dev_t bdf;
-};
 
 /* PCI config space registers */
 #define HPTC_OFFSET		0x60
