@@ -122,7 +122,6 @@ enum {
  *	access outside driver model)
  * @uclass_plat_: The uclass's configuration data for this device (do not access
  *	outside driver model)
- * @node: Reference to device tree node for this device
  * @driver_data: Driver data word for the entry that matched this device with
  *		its driver
  * @parent: Parent of this device, or NULL for the top level device
@@ -143,6 +142,8 @@ enum {
  * number. Otherwise, the next available number is used. Sequence numbers are
  * used by certain commands that need device to be numbered (e.g. 'mmc dev').
  * (do not access outside driver model)
+ * @node_: Reference to device tree node for this device (do not access outside
+ *	driver model)
  * @devres_head: List of memory allocations associated with this device.
  *		When CONFIG_DEVRES is enabled, devm_kmalloc() and friends will
  *		add to this list. Memory so-allocated will be freed
@@ -154,7 +155,6 @@ struct udevice {
 	void *plat_;
 	void *parent_plat_;
 	void *uclass_plat_;
-	ofnode node;
 	ulong driver_data;
 	struct udevice *parent;
 	void *priv_;
@@ -166,6 +166,9 @@ struct udevice {
 	struct list_head sibling_node;
 	u32 flags_;
 	int seq_;
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+	ofnode node_;
+#endif
 #ifdef CONFIG_DEVRES
 	struct list_head devres_head;
 #endif
@@ -201,7 +204,7 @@ static inline void dev_bic_flags(struct udevice *dev, u32 bic)
 static inline ofnode dev_ofnode(const struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	return dev->node;
+	return dev->node_;
 #else
 	return ofnode_null();
 #endif
@@ -231,7 +234,7 @@ static inline bool dev_has_ofnode(const struct udevice *dev)
 static inline void dev_set_ofnode(struct udevice *dev, ofnode node)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	dev->node = node;
+	dev->node_ = node;
 #endif
 }
 
