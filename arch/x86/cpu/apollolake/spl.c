@@ -97,7 +97,7 @@ U_BOOT_DRIVER(winbond_w25q128fw) = {
 	.id		= UCLASS_SPI_FLASH,
 	.of_match	= apl_flash_ids,
 	.probe		= apl_flash_probe,
-	.priv_auto	= sizeof(struct spi_flash),
+	.priv_auto	= sizeof(struct spi_nor),
 	.ops		= &apl_flash_ops,
 };
 
