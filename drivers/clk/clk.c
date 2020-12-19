@@ -67,7 +67,7 @@ const char *clk_hw_get_name(const struct clk *hw)
 
 bool clk_dev_binded(struct clk *clk)
 {
-	if (clk->dev && (clk->dev->flags & DM_FLAG_BOUND))
+	if (clk->dev && (dev_get_flags(clk->dev) & DM_FLAG_BOUND))
 		return true;
 
 	return false;

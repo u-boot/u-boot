@@ -69,10 +69,10 @@ int device_unbind(struct udevice *dev)
 	if (!dev)
 		return log_msg_ret("dev", -EINVAL);
 
-	if (dev->flags & DM_FLAG_ACTIVATED)
+	if (dev_get_flags(dev) & DM_FLAG_ACTIVATED)
 		return log_msg_ret("active", -EINVAL);
 
-	if (!(dev->flags & DM_FLAG_BOUND))
+	if (!(dev_get_flags(dev) & DM_FLAG_BOUND))
 		return log_msg_ret("not-bound", -EINVAL);
 
 	drv = dev->driver;
@@ -88,15 +88,15 @@ int device_unbind(struct udevice *dev)
 	if (ret)
 		return log_msg_ret("child unbind", ret);
 
-	if (dev->flags & DM_FLAG_ALLOC_PDATA) {
+	if (dev_get_flags(dev) & DM_FLAG_ALLOC_PDATA) {
 		free(dev_get_plat(dev));
 		dev_set_plat(dev, NULL);
 	}
-	if (dev->flags & DM_FLAG_ALLOC_UCLASS_PDATA) {
+	if (dev_get_flags(dev) & DM_FLAG_ALLOC_UCLASS_PDATA) {
 		free(dev_get_uclass_plat(dev));
 		dev_set_uclass_plat(dev, NULL);
 	}
-	if (dev->flags & DM_FLAG_ALLOC_PARENT_PDATA) {
+	if (dev_get_flags(dev) & DM_FLAG_ALLOC_PARENT_PDATA) {
 		free(dev_get_parent_plat(dev));
 		dev_set_parent_plat(dev, NULL);
 	}
@@ -109,7 +109,7 @@ int device_unbind(struct udevice *dev)
 
 	devres_release_all(dev);
 
-	if (dev->flags & DM_FLAG_NAME_ALLOCED)
+	if (dev_get_flags(dev) & DM_FLAG_NAME_ALLOCED)
 		free((char *)dev->name);
 	free(dev);
 
@@ -144,7 +144,7 @@ void device_free(struct udevice *dev)
 			dev_set_parent_priv(dev, NULL);
 		}
 	}
-	dev->flags &= ~DM_FLAG_PLATDATA_VALID;
+	dev_bic_flags(dev, DM_FLAG_PLATDATA_VALID);
 
 	devres_release_probe(dev);
 }
@@ -166,7 +166,7 @@ int device_remove(struct udevice *dev, uint flags)
 	if (!dev)
 		return -EINVAL;
 
-	if (!(dev->flags & DM_FLAG_ACTIVATED))
+	if (!(dev_get_flags(dev) & DM_FLAG_ACTIVATED))
 		return 0;
 
 	drv = dev->driver;
@@ -207,7 +207,7 @@ int device_remove(struct udevice *dev, uint flags)
 	if (flags_remove(flags, drv->flags)) {
 		device_free(dev);
 
-		dev->flags &= ~DM_FLAG_ACTIVATED;
+		dev_bic_flags(dev, DM_FLAG_ACTIVATED);
 	}
 
 	return ret;

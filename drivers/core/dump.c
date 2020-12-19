@@ -14,7 +14,7 @@ static void show_devices(struct udevice *dev, int depth, int last_flag)
 {
 	int i, is_last;
 	struct udevice *child;
-	u32 flags = dev->flags;
+	u32 flags = dev_get_flags(dev);
 
 	/* print the first 20 characters to not break the tree-format. */
 	printf(IS_ENABLED(CONFIG_SPL_BUILD) ? " %s  %d  [ %c ]   %s  " :
@@ -67,7 +67,7 @@ void dm_dump_all(void)
 static void dm_display_line(struct udevice *dev, int index)
 {
 	printf("%-3i %c %s @ %08lx", index,
-	       dev->flags & DM_FLAG_ACTIVATED ? '*' : ' ',
+	       dev_get_flags(dev) & DM_FLAG_ACTIVATED ? '*' : ' ',
 	       dev->name, (ulong)map_to_sysmem(dev));
 	if (dev->seq_ != -1)
 		printf(", seq %d", dev_seq(dev));

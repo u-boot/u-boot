@@ -131,7 +131,7 @@ static int dm_test_autobind(struct unit_test_state *uts)
 
 	/* No devices should be probed */
 	list_for_each_entry(dev, &gd->dm_root->child_head, sibling_node)
-		ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
+		ut_assert(!(dev_get_flags(dev) & DM_FLAG_ACTIVATED));
 
 	/* Our test driver should have been bound 3 times */
 	ut_assert(dm_testdrv_op_count[DM_TEST_OP_BIND] == 3);
@@ -212,7 +212,7 @@ static int dm_test_autoprobe(struct unit_test_state *uts)
 	ut_asserteq(0, dm_testdrv_op_count[DM_TEST_OP_POST_PROBE]);
 
 	/* The root device should not be activated until needed */
-	ut_assert(dms->root->flags & DM_FLAG_ACTIVATED);
+	ut_assert(dev_get_flags(dms->root) & DM_FLAG_ACTIVATED);
 
 	/*
 	 * We should be able to find the three test devices, and they should
@@ -222,17 +222,17 @@ static int dm_test_autoprobe(struct unit_test_state *uts)
 	for (i = 0; i < 3; i++) {
 		ut_assertok(uclass_find_device(UCLASS_TEST, i, &dev));
 		ut_assert(dev);
-		ut_assertf(!(dev->flags & DM_FLAG_ACTIVATED),
+		ut_assertf(!(dev_get_flags(dev) & DM_FLAG_ACTIVATED),
 			   "Driver %d/%s already activated", i, dev->name);
 
 		/* This should activate it */
 		ut_assertok(uclass_get_device(UCLASS_TEST, i, &dev));
 		ut_assert(dev);
-		ut_assert(dev->flags & DM_FLAG_ACTIVATED);
+		ut_assert(dev_get_flags(dev) & DM_FLAG_ACTIVATED);
 
 		/* Activating a device should activate the root device */
 		if (!i)
-			ut_assert(dms->root->flags & DM_FLAG_ACTIVATED);
+			ut_assert(dev_get_flags(dms->root) & DM_FLAG_ACTIVATED);
 	}
 
 	/*
@@ -460,10 +460,10 @@ static int dm_test_remove(struct unit_test_state *uts)
 	for (i = 0; i < 3; i++) {
 		ut_assertok(uclass_find_device(UCLASS_TEST, i, &dev));
 		ut_assert(dev);
-		ut_assertf(dev->flags & DM_FLAG_ACTIVATED,
+		ut_assertf(dev_get_flags(dev) & DM_FLAG_ACTIVATED,
 			   "Driver %d/%s not activated", i, dev->name);
 		ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
-		ut_assertf(!(dev->flags & DM_FLAG_ACTIVATED),
+		ut_assertf(!(dev_get_flags(dev) & DM_FLAG_ACTIVATED),
 			   "Driver %d/%s should have deactivated", i,
 			   dev->name);
 		ut_assert(!dev_get_priv(dev));

@@ -247,7 +247,7 @@ static int _rproc_dev_is_probed(struct udevice *dev,
 			    struct dm_rproc_uclass_pdata *uc_pdata,
 			    const void *data)
 {
-	if (dev->flags & DM_FLAG_ACTIVATED)
+	if (dev_get_flags(dev) & DM_FLAG_ACTIVATED)
 		return 0;
 
 	return -EAGAIN;

@@ -55,16 +55,16 @@ static int dm_test_bus_children_funcs(struct unit_test_state *uts)
 	ut_assertok(device_get_child(bus, 0, &dev));
 	ut_asserteq(-ENODEV, device_get_child(bus, 4, &dev));
 	ut_assertok(device_get_child_by_seq(bus, 5, &dev));
-	ut_assert(dev->flags & DM_FLAG_ACTIVATED);
+	ut_assert(dev_get_flags(dev) & DM_FLAG_ACTIVATED);
 	ut_asserteq_str("c-test@5", dev->name);
 
 	/* Device with sequence number 0 should be accessible */
 	ut_asserteq(-ENODEV, device_find_child_by_seq(bus, -1, &dev));
 	ut_assertok(device_find_child_by_seq(bus, 0, &dev));
-	ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
+	ut_assert(!(dev_get_flags(dev) & DM_FLAG_ACTIVATED));
 	ut_asserteq(0, device_find_child_by_seq(bus, 0, &dev));
 	ut_assertok(device_get_child_by_seq(bus, 0, &dev));
-	ut_assert(dev->flags & DM_FLAG_ACTIVATED);
+	ut_assert(dev_get_flags(dev) & DM_FLAG_ACTIVATED);
 	ut_asserteq(0, device_find_child_by_seq(bus, 0, &dev));
 
 	/* There is no device with sequence number 2 */
@@ -96,10 +96,10 @@ static int dm_test_bus_children_of_offset(struct unit_test_state *uts)
 	ut_assert(node > 0);
 	ut_assertok(device_find_child_by_of_offset(bus, node, &dev));
 	ut_assertnonnull(dev);
-	ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
+	ut_assert(!(dev_get_flags(dev) & DM_FLAG_ACTIVATED));
 	ut_assertok(device_get_child_by_of_offset(bus, node, &dev));
 	ut_assertnonnull(dev);
-	ut_assert(dev->flags & DM_FLAG_ACTIVATED);
+	ut_assert(dev_get_flags(dev) & DM_FLAG_ACTIVATED);
 
 	return 0;
 }

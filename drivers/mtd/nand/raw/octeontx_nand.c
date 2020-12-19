@@ -2187,7 +2187,7 @@ int octeontx_pci_nand_deferred_probe(void)
 	debug("%s: Performing deferred probing\n", __func__);
 	list_for_each_entry(pdev, &octeontx_pci_nand_deferred_devices, list) {
 		debug("%s: Probing %s\n", __func__, pdev->dev->name);
-		pdev->dev->flags &= ~DM_FLAG_ACTIVATED;
+		dev_get_flags(pdev->dev) &= ~DM_FLAG_ACTIVATED;
 		rc = device_probe(pdev->dev);
 		if (rc && rc != -ENODEV) {
 			printf("%s: Error %d with deferred probe of %s\n",

@@ -179,6 +179,21 @@ struct udevice {
 /* Returns non-zero if the device is active (probed and not removed) */
 #define device_active(dev)	((dev)->flags & DM_FLAG_ACTIVATED)
 
+static inline u32 dev_get_flags(const struct udevice *dev)
+{
+	return dev->flags;
+}
+
+static inline void dev_or_flags(struct udevice *dev, u32 or)
+{
+	dev->flags |= or;
+}
+
+static inline void dev_bic_flags(struct udevice *dev, u32 bic)
+{
+	dev->flags &= ~bic;
+}
+
 static inline int dev_of_offset(const struct udevice *dev)
 {
 	return ofnode_to_offset(dev->node);

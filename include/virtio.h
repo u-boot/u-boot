@@ -492,7 +492,7 @@ static inline void __virtio_clear_bit(struct udevice *udev, unsigned int fbit)
  */
 static inline bool virtio_has_feature(struct udevice *vdev, unsigned int fbit)
 {
-	if (!(vdev->flags & DM_FLAG_BOUND))
+	if (!(dev_get_flags(vdev) & DM_FLAG_BOUND))
 		WARN_ON(true);
 
 	return __virtio_test_bit(vdev->parent, fbit);

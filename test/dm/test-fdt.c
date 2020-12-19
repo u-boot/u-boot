@@ -1031,8 +1031,8 @@ static int dm_test_child_ofdata(struct unit_test_state *uts)
 	ut_assertok(uclass_first_device_err(UCLASS_TEST_BUS, &bus));
 	count = 0;
 	device_foreach_child_of_to_plat(dev, bus) {
-		ut_assert(dev->flags & DM_FLAG_PLATDATA_VALID);
-		ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
+		ut_assert(dev_get_flags(dev) & DM_FLAG_PLATDATA_VALID);
+		ut_assert(!(dev_get_flags(dev) & DM_FLAG_ACTIVATED));
 		count++;
 	}
 	ut_asserteq(3, count);
@@ -1050,8 +1050,8 @@ static int dm_test_first_child_probe(struct unit_test_state *uts)
 	ut_assertok(uclass_first_device_err(UCLASS_TEST_BUS, &bus));
 	count = 0;
 	device_foreach_child_probe(dev, bus) {
-		ut_assert(dev->flags & DM_FLAG_PLATDATA_VALID);
-		ut_assert(dev->flags & DM_FLAG_ACTIVATED);
+		ut_assert(dev_get_flags(dev) & DM_FLAG_PLATDATA_VALID);
+		ut_assert(dev_get_flags(dev) & DM_FLAG_ACTIVATED);
 		count++;
 	}
 	ut_asserteq(3, count);
@@ -1067,19 +1067,19 @@ static int dm_test_ofdata_order(struct unit_test_state *uts)
 
 	ut_assertok(uclass_find_first_device(UCLASS_I2C, &bus));
 	ut_assertnonnull(bus);
-	ut_assert(!(bus->flags & DM_FLAG_PLATDATA_VALID));
+	ut_assert(!(dev_get_flags(bus) & DM_FLAG_PLATDATA_VALID));
 
 	ut_assertok(device_find_first_child(bus, &dev));
 	ut_assertnonnull(dev);
-	ut_assert(!(dev->flags & DM_FLAG_PLATDATA_VALID));
+	ut_assert(!(dev_get_flags(dev) & DM_FLAG_PLATDATA_VALID));
 
 	/* read the child's ofdata which should cause the parent's to be read */
 	ut_assertok(device_of_to_plat(dev));
-	ut_assert(dev->flags & DM_FLAG_PLATDATA_VALID);
-	ut_assert(bus->flags & DM_FLAG_PLATDATA_VALID);
+	ut_assert(dev_get_flags(dev) & DM_FLAG_PLATDATA_VALID);
+	ut_assert(dev_get_flags(bus) & DM_FLAG_PLATDATA_VALID);
 
-	ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
-	ut_assert(!(bus->flags & DM_FLAG_ACTIVATED));
+	ut_assert(!(dev_get_flags(dev) & DM_FLAG_ACTIVATED));
+	ut_assert(!(dev_get_flags(bus) & DM_FLAG_ACTIVATED));
 
 	return 0;
 }
