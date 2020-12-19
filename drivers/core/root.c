@@ -148,7 +148,7 @@ int dm_init(bool of_live)
 	if (ret)
 		return ret;
 	if (CONFIG_IS_ENABLED(OF_CONTROL))
-		DM_ROOT_NON_CONST->node = ofnode_root();
+		dev_set_ofnode(DM_ROOT_NON_CONST, ofnode_root());
 	ret = device_probe(DM_ROOT_NON_CONST);
 	if (ret)
 		return ret;

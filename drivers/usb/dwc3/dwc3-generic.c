@@ -108,7 +108,7 @@ static int dwc3_generic_remove(struct udevice *dev,
 static int dwc3_generic_of_to_plat(struct udevice *dev)
 {
 	struct dwc3_generic_plat *plat = dev_get_plat(dev);
-	ofnode node = dev->node;
+	ofnode node = dev_ofnode(dev);
 
 	plat->base = dev_read_addr(dev);
 
@@ -301,7 +301,7 @@ static int dwc3_glue_bind(struct udevice *parent)
 	ofnode node;
 	int ret;
 
-	ofnode_for_each_subnode(node, parent->node) {
+	ofnode_for_each_subnode(node, dev_ofnode(parent)) {
 		const char *name = ofnode_get_name(node);
 		enum usb_dr_mode dr_mode;
 		struct udevice *dev;
@@ -418,7 +418,7 @@ static int dwc3_glue_probe(struct udevice *dev)
 	while (child) {
 		enum usb_dr_mode dr_mode;
 
-		dr_mode = usb_get_dr_mode(child->node);
+		dr_mode = usb_get_dr_mode(dev_ofnode(child));
 		device_find_next_child(&child);
 		if (ops && ops->select_dr_mode)
 			ops->select_dr_mode(dev, index, dr_mode);

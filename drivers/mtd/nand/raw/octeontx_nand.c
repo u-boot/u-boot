@@ -1999,7 +1999,7 @@ static int octeontx_nfc_chip_init(struct octeontx_nfc *tn, struct udevice *dev,
 static int octeontx_nfc_chips_init(struct octeontx_nfc *tn)
 {
 	struct udevice *dev = tn->dev;
-	ofnode node = dev->node;
+	ofnode node = dev_ofnode(dev);
 	ofnode nand_node;
 	int nr_chips = of_get_child_count(node);
 	int ret;

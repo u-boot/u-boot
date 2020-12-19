@@ -103,7 +103,8 @@ static int pbias_bind(struct udevice *dev)
 {
 	int children;
 
-	children = pmic_bind_children(dev, dev->node, pmic_children_info);
+	children = pmic_bind_children(dev, dev_ofnode(dev),
+				      pmic_children_info);
 	if (!children)
 		debug("%s: %s - no child found\n", __func__, dev->name);
 

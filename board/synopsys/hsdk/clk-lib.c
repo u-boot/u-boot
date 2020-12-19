@@ -23,8 +23,8 @@ int soc_clk_ctl(const char *name, ulong *rate, enum clk_ctl_ops ctl)
 	/* Dummy fmeas device, just to be able to use standard clk_* api */
 	struct udevice fmeas = {
 		.name = "clk-fmeas",
-		.node = ofnode_path("/clk-fmeas"),
 	};
+	dev_set_ofnode(&fmeas, ofnode_path("/clk-fmeas"));
 
 	ret = clk_get_by_name(&fmeas, name, &clk);
 	if (ret) {

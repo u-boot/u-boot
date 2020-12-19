@@ -99,7 +99,7 @@ static int enetc_bind(struct udevice *dev)
 	 * and some are not, use different naming scheme - enetc-N based on
 	 * PCI function # and enetc#N based on interface count
 	 */
-	if (ofnode_valid(dev->node))
+	if (ofnode_valid(dev_ofnode(dev)))
 		sprintf(name, "enetc-%u", PCI_FUNC(pci_get_devfn(dev)));
 	else
 		sprintf(name, "enetc#%u", eth_num_devices++);
@@ -253,12 +253,12 @@ static void enetc_start_pcs(struct udevice *dev)
 			mdio_register(&priv->imdio);
 	}
 
-	if (!ofnode_valid(dev->node)) {
+	if (!ofnode_valid(dev_ofnode(dev))) {
 		enetc_dbg(dev, "no enetc ofnode found, skipping PCS set-up\n");
 		return;
 	}
 
-	if_str = ofnode_read_string(dev->node, "phy-mode");
+	if_str = ofnode_read_string(dev_ofnode(dev), "phy-mode");
 	if (if_str)
 		priv->if_type = phy_get_interface_by_name(if_str);
 	else
@@ -306,7 +306,7 @@ static int enetc_probe(struct udevice *dev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
 
-	if (ofnode_valid(dev->node) && !ofnode_is_available(dev->node)) {
+	if (ofnode_valid(dev_ofnode(dev)) && !ofnode_is_available(dev_ofnode(dev))) {
 		enetc_dbg(dev, "interface disabled\n");
 		return -ENODEV;
 	}

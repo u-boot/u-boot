@@ -289,7 +289,7 @@ static int meson_clk_probe(struct udevice *dev)
 {
 	struct meson_clk *priv = dev_get_priv(dev);
 
-	priv->map = syscon_node_to_regmap(dev_get_parent(dev)->node);
+	priv->map = syscon_node_to_regmap(dev_ofnode(dev_get_parent(dev)));
 	if (IS_ERR(priv->map))
 		return PTR_ERR(priv->map);
 

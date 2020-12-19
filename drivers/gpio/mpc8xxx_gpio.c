@@ -191,7 +191,7 @@ static int mpc8xxx_gpio_of_to_plat(struct udevice *dev)
 	u32 i;
 	u32 reg[4];
 
-	if (ofnode_read_bool(dev->node, "little-endian"))
+	if (ofnode_read_bool(dev_ofnode(dev), "little-endian"))
 		data->little_endian = true;
 
 	if (data->little_endian)
@@ -257,7 +257,7 @@ static int mpc8xxx_gpio_probe(struct udevice *dev)
 	if (!str)
 		return -ENOMEM;
 
-	if (ofnode_device_is_compatible(dev->node, "fsl,qoriq-gpio")) {
+	if (ofnode_device_is_compatible(dev_ofnode(dev), "fsl,qoriq-gpio")) {
 		unsigned long gpibe = data->addr + sizeof(struct ccsr_gpio)
 			- sizeof(u32);
 

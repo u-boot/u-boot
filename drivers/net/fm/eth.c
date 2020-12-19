@@ -957,7 +957,7 @@ phy_interface_t fman_read_sys_if(struct udevice *dev)
 {
 	const char *if_str;
 
-	if_str = ofnode_read_string(dev->node, "phy-connection-type");
+	if_str = ofnode_read_string(dev_ofnode(dev), "phy-connection-type");
 	debug("MAC system interface mode %s\n", if_str);
 
 	return phy_get_interface_by_name(if_str);
@@ -969,7 +969,7 @@ static int fm_eth_bind(struct udevice *dev)
 	char mac_name[11];
 	u32 fm, num;
 
-	if (ofnode_read_u32(ofnode_get_parent(dev->node), "cell-index", &fm)) {
+	if (ofnode_read_u32(ofnode_get_parent(dev_ofnode(dev)), "cell-index", &fm)) {
 		printf("FMan node property cell-index missing\n");
 		return -EINVAL;
 	}

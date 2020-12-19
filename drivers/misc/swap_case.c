@@ -54,7 +54,7 @@ struct swap_case_priv {
 
 static int sandbox_swap_case_use_ea(const struct udevice *dev)
 {
-	return !!ofnode_get_property(dev->node, "use-ea", NULL);
+	return !!ofnode_get_property(dev_ofnode(dev), "use-ea", NULL);
 }
 
 /* Please keep these macros in sync with ea_regs below */

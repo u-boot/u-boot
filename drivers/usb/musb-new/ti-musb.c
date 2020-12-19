@@ -289,7 +289,7 @@ static int ti_musb_wrapper_bind(struct udevice *parent)
 	ofnode node;
 	int ret;
 
-	ofnode_for_each_subnode(node, parent->node) {
+	ofnode_for_each_subnode(node, dev_ofnode(parent)) {
 		struct udevice *dev;
 		const char *name = ofnode_get_name(node);
 		enum usb_dr_mode dr_mode;

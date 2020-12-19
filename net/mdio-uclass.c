@@ -40,8 +40,8 @@ static int dm_mdio_post_bind(struct udevice *dev)
 	const char *dt_name;
 
 	/* set a custom name for the MDIO device, if present in DT */
-	if (ofnode_valid(dev->node)) {
-		dt_name = ofnode_read_string(dev->node, "device-name");
+	if (dev_has_ofnode(dev)) {
+		dt_name = dev_read_string(dev, "device-name");
 		if (dt_name) {
 			debug("renaming dev %s to %s\n", dev->name, dt_name);
 			device_set_name(dev, dt_name);
@@ -182,14 +182,14 @@ struct phy_device *dm_eth_phy_connect(struct udevice *ethdev)
 	struct phy_device *phy;
 	int i;
 
-	if (!ofnode_valid(ethdev->node)) {
+	if (!dev_has_ofnode(ethdev)) {
 		debug("%s: supplied eth dev has no DT node!\n", ethdev->name);
 		return NULL;
 	}
 
 	interface = PHY_INTERFACE_MODE_NONE;
 	for (i = 0; i < PHY_MODE_STR_CNT; i++) {
-		if_str = ofnode_read_string(ethdev->node, phy_mode_str[i]);
+		if_str = dev_read_string(ethdev, phy_mode_str[i]);
 		if (if_str) {
 			interface = phy_get_interface_by_name(if_str);
 			break;

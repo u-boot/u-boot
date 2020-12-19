@@ -3439,7 +3439,7 @@ static u32 xlate_voltage(u32 voltage)
  */
 static bool octeontx_mmc_get_valid(struct udevice *dev)
 {
-	const char *stat = ofnode_read_string(dev->node, "status");
+	const char *stat = ofnode_read_string(dev_ofnode(dev), "status");
 
 	if (!stat || !strncmp(stat, "ok", 2))
 		return true;
@@ -3461,14 +3461,15 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 	uint low, high;
 	char env_name[32];
 	int err;
-	ofnode node = dev->node;
+	ofnode node = dev_ofnode(dev);
 	int bus_width = 1;
 	ulong new_max_freq;
 
 	debug("%s(%s)", __func__, dev->name);
 	slot->cfg.name = dev->name;
 
-	slot->cfg.f_max = ofnode_read_s32_default(dev->node, "max-frequency",
+	slot->cfg.f_max = ofnode_read_s32_default(dev_ofnode(dev),
+						  "max-frequency",
 						  26000000);
 	snprintf(env_name, sizeof(env_name), "mmc_max_frequency%d",
 		 slot->bus_id);
@@ -3486,25 +3487,26 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 
 	if (IS_ENABLED(CONFIG_ARCH_OCTEONTX2)) {
 		slot->hs400_tuning_block =
-			ofnode_read_s32_default(dev->node,
+			ofnode_read_s32_default(dev_ofnode(dev),
 						"marvell,hs400-tuning-block",
 						-1);
 		debug("%s(%s): mmc HS400 tuning block: %d\n", __func__,
 		      dev->name, slot->hs400_tuning_block);
 
 		slot->hs200_tap_adj =
-			ofnode_read_s32_default(dev->node,
+			ofnode_read_s32_default(dev_ofnode(dev),
 						"marvell,hs200-tap-adjust", 0);
 		debug("%s(%s): hs200-tap-adjust: %d\n", __func__, dev->name,
 		      slot->hs200_tap_adj);
 		slot->hs400_tap_adj =
-			ofnode_read_s32_default(dev->node,
+			ofnode_read_s32_default(dev_ofnode(dev),
 						"marvell,hs400-tap-adjust", 0);
 		debug("%s(%s): hs400-tap-adjust: %d\n", __func__, dev->name,
 		      slot->hs400_tap_adj);
 	}
 
-	err = ofnode_read_u32_array(dev->node, "voltage-ranges", voltages, 2);
+	err = ofnode_read_u32_array(dev_ofnode(dev), "voltage-ranges",
+				    voltages, 2);
 	if (err) {
 		slot->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	} else {
@@ -3756,14 +3758,15 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 		pr_err("%s: No device tree information found\n", __func__);
 		return -1;
 	}
-	host->node = dev->node;
+	host->node = dev_ofnode(dev);
 	host->last_slotid = -1;
 	if (otx_is_platform(PLATFORM_ASIM))
 		host->is_asim = true;
 	if (otx_is_platform(PLATFORM_EMULATOR))
 		host->is_emul = true;
 	host->dma_wait_delay =
-		ofnode_read_u32_default(dev->node, "marvell,dma-wait-delay", 1);
+		ofnode_read_u32_default(dev_ofnode(dev),
+					"marvell,dma-wait-delay", 1);
 	/* Force reset of eMMC */
 	writeq(0, host->base_addr + MIO_EMM_CFG());
 	debug("%s: Clearing MIO_EMM_CFG\n", __func__);
@@ -3824,7 +3827,7 @@ static int octeontx_mmc_host_child_pre_probe(struct udevice *dev)
 	struct octeontx_mmc_host *host = dev_get_priv(dev_get_parent(dev));
 	struct octeontx_mmc_slot *slot;
 	struct mmc_uclass_priv *upriv;
-	ofnode node = dev->node;
+	ofnode node = dev_ofnode(dev);
 	u32 bus_id;
 	char name[16];
 	int err;

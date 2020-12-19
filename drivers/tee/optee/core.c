@@ -592,7 +592,7 @@ static optee_invoke_fn *get_invoke_func(struct udevice *dev)
 	const char *method;
 
 	debug("optee: looking for conduit method in DT.\n");
-	method = ofnode_get_property(dev->node, "method", NULL);
+	method = ofnode_get_property(dev_ofnode(dev), "method", NULL);
 	if (!method) {
 		debug("optee: missing \"method\" property\n");
 		return ERR_PTR(-ENXIO);

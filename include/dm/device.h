@@ -200,7 +200,11 @@ static inline void dev_bic_flags(struct udevice *dev, u32 bic)
  */
 static inline ofnode dev_ofnode(const struct udevice *dev)
 {
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	return dev->node;
+#else
+	return ofnode_null();
+#endif
 }
 
 /* Returns non-zero if the device is active (probed and not removed) */
@@ -208,12 +212,27 @@ static inline ofnode dev_ofnode(const struct udevice *dev)
 
 static inline int dev_of_offset(const struct udevice *dev)
 {
-	return ofnode_to_offset(dev->node);
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+	return ofnode_to_offset(dev_ofnode(dev));
+#else
+	return -1;
+#endif
 }
 
 static inline bool dev_has_ofnode(const struct udevice *dev)
 {
-	return ofnode_valid(dev->node);
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+	return ofnode_valid(dev_ofnode(dev));
+#else
+	return false;
+#endif
+}
+
+static inline void dev_set_ofnode(struct udevice *dev, ofnode node)
+{
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+	dev->node = node;
+#endif
 }
 
 static inline int dev_seq(const struct udevice *dev)

@@ -110,7 +110,7 @@ static int cdns3_core_init_role(struct cdns3 *cdns)
 	enum usb_dr_mode dr_mode;
 	int ret = 0;
 
-	dr_mode = usb_get_dr_mode(dev->node);
+	dr_mode = usb_get_dr_mode(dev_ofnode(dev));
 	cdns->role = USB_ROLE_NONE;
 
 	/*
@@ -393,7 +393,7 @@ int cdns3_bind(struct udevice *parent)
 	ofnode node;
 	int ret;
 
-	node = ofnode_by_compatible(parent->node, "cdns,usb3");
+	node = ofnode_by_compatible(dev_ofnode(parent), "cdns,usb3");
 	if (!ofnode_valid(node)) {
 		ret = -ENODEV;
 		goto fail;

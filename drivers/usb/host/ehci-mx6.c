@@ -523,7 +523,7 @@ static int ehci_usb_of_to_plat(struct udevice *dev)
 	struct usb_plat *plat = dev_get_plat(dev);
 	enum usb_dr_mode dr_mode;
 
-	dr_mode = usb_get_dr_mode(dev->node);
+	dr_mode = usb_get_dr_mode(dev_ofnode(dev));
 
 	switch (dr_mode) {
 	case USB_DR_MODE_HOST:

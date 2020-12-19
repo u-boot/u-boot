@@ -313,7 +313,7 @@ read_error:
 
 int octeontx_smi_probe(struct udevice *dev)
 {
-	int ret, subnode, cnt = 0, node = dev->node.of_offset;
+	int ret, subnode, cnt = 0, node = dev_ofnode(dev).of_offset;
 	struct mii_dev *bus;
 	struct octeontx_smi_priv *priv;
 	pci_dev_t bdf = dm_pci_get_bdf(dev);

@@ -21,7 +21,7 @@ struct resource;
 #if CONFIG_IS_ENABLED(OF_LIVE)
 static inline const struct device_node *dev_np(const struct udevice *dev)
 {
-	return ofnode_to_np(dev->node);
+	return ofnode_to_np(dev_ofnode(dev));
 }
 #else
 static inline const struct device_node *dev_np(const struct udevice *dev)

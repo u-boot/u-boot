@@ -344,7 +344,7 @@ static int serdes_am654_bind(struct udevice *dev)
 
 	ret = device_bind_driver_to_node(dev->parent,
 					 "ti-serdes-am654-mux-clk",
-					 dev_read_name(dev), dev->node,
+					 dev_read_name(dev), dev_ofnode(dev),
 					 NULL);
 	if (ret) {
 		dev_err(dev, "%s: not able to bind clock driver\n", __func__);

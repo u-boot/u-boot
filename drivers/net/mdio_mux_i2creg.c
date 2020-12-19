@@ -61,7 +61,7 @@ static int mdio_mux_i2creg_probe(struct udevice *dev)
 	}
 
 	/* parent should be an I2C chip, grandparent should be an I2C bus */
-	chip_node = ofnode_get_parent(dev->node);
+	chip_node = ofnode_get_parent(dev_ofnode(dev));
 	bus_node = ofnode_get_parent(chip_node);
 
 	err = uclass_get_device_by_ofnode(UCLASS_I2C, bus_node, &i2c_bus);

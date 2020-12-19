@@ -460,8 +460,10 @@ static int fsl_dspi_child_pre_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	ofnode_read_u32(dev->node, "fsl,spi-cs-sck-delay", &cs_sck_delay);
-	ofnode_read_u32(dev->node, "fsl,spi-sck-cs-delay", &sck_cs_delay);
+	ofnode_read_u32(dev_ofnode(dev), "fsl,spi-cs-sck-delay",
+			&cs_sck_delay);
+	ofnode_read_u32(dev_ofnode(dev), "fsl,spi-sck-cs-delay",
+			&sck_cs_delay);
 
 	/* Set PCS to SCK delay scale values */
 	ns_delay_scale(&pcssck, &cssck, cs_sck_delay, priv->bus_clk);

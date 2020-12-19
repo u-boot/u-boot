@@ -905,7 +905,7 @@ void dwc3_of_parse(struct dwc3 *dwc)
 	 */
 	hird_threshold = 12;
 
-	dwc->hsphy_mode = usb_get_phy_mode(dev->node);
+	dwc->hsphy_mode = usb_get_phy_mode(dev_ofnode(dev));
 
 	dwc->has_lpm_erratum = dev_read_bool(dev,
 				"snps,has-lpm-erratum");

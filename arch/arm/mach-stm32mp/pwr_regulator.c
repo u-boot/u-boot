@@ -81,7 +81,7 @@ static int stm32mp_pwr_bind(struct udevice *dev)
 {
 	int children;
 
-	children = pmic_bind_children(dev, dev->node, pwr_children_info);
+	children = pmic_bind_children(dev, dev_ofnode(dev), pwr_children_info);
 	if (!children)
 		dev_dbg(dev, "no child found\n");
 
