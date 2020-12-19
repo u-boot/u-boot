@@ -73,7 +73,7 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 	dev->driver = drv;
 	dev->uclass = uc;
 
-	dev->sqq = -1;
+	dev->seq_ = -1;
 	if (CONFIG_IS_ENABLED(DM_SEQ_ALIAS) &&
 	    (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS)) {
 		/*
@@ -83,13 +83,13 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 		if (CONFIG_IS_ENABLED(OF_CONTROL) &&
 		    !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 			if (uc->uc_drv->name && ofnode_valid(node)) {
-				if (!dev_read_alias_seq(dev, &dev->sqq))
+				if (!dev_read_alias_seq(dev, &dev->seq_))
 					auto_seq = false;
 			}
 		}
 	}
 	if (auto_seq && !(uc->uc_drv->flags & DM_UC_FLAG_NO_AUTO_SEQ))
-		dev->sqq = uclass_find_next_free_seq(uc);
+		dev->seq_ = uclass_find_next_free_seq(uc);
 
 	if (drv->plat_auto) {
 		bool alloc = !plat;
@@ -658,7 +658,7 @@ int device_find_child_by_seq(const struct udevice *parent, int seq,
 	*devp = NULL;
 
 	list_for_each_entry(dev, &parent->child_head, sibling_node) {
-		if (dev->sqq == seq) {
+		if (dev->seq_ == seq) {
 			*devp = dev;
 			return 0;
 		}

@@ -1019,7 +1019,7 @@ static int pci_uclass_pre_probe(struct udevice *bus)
 		ret = uclass_get(UCLASS_PCI, &uc);
 		if (ret)
 			return ret;
-		bus->sqq = uclass_find_next_free_seq(uc);
+		bus->seq_ = uclass_find_next_free_seq(uc);
 	}
 
 	/* For bridges, use the top-level PCI controller */

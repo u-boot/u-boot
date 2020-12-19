@@ -136,11 +136,12 @@ enum {
  * @child_head: List of children of this device
  * @sibling_node: Next device in list of all devices
  * @flags: Flags for this device DM_FLAG_...
- * @seq: Allocated sequence number for this device (-1 = none). This is set up
+ * @seq_: Allocated sequence number for this device (-1 = none). This is set up
  * when the device is bound and is unique within the device's uclass. If the
  * device has an alias in the devicetree then that is used to set the sequence
  * number. Otherwise, the next available number is used. Sequence numbers are
- * used by certain commands that need device to be numbered (e.g. 'mmc dev')
+ * used by certain commands that need device to be numbered (e.g. 'mmc dev').
+ * (do not access outside driver model)
  * @devres_head: List of memory allocations associated with this device.
  *		When CONFIG_DEVRES is enabled, devm_kmalloc() and friends will
  *		add to this list. Memory so-allocated will be freed
@@ -163,7 +164,7 @@ struct udevice {
 	struct list_head child_head;
 	struct list_head sibling_node;
 	uint32_t flags;
-	int sqq;
+	int seq_;
 #ifdef CONFIG_DEVRES
 	struct list_head devres_head;
 #endif
@@ -190,7 +191,7 @@ static inline bool dev_has_of_node(struct udevice *dev)
 
 static inline int dev_seq(const struct udevice *dev)
 {
-	return dev->sqq;
+	return dev->seq_;
 }
 
 /**

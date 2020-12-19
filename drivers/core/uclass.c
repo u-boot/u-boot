@@ -297,8 +297,8 @@ int uclass_find_next_free_seq(struct uclass *uc)
 
 	/* Avoid conflict with existing devices */
 	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
-		if (dev->sqq > max)
-			max = dev->sqq;
+		if (dev->seq_ > max)
+			max = dev->seq_;
 	}
 	/*
 	 * At this point, max will be -1 if there are no existing aliases or
@@ -323,8 +323,8 @@ int uclass_find_device_by_seq(enum uclass_id id, int seq, struct udevice **devp)
 		return ret;
 
 	uclass_foreach_dev(dev, uc) {
-		log_debug("   - %d '%s'\n", dev->sqq, dev->name);
-		if (dev->sqq == seq) {
+		log_debug("   - %d '%s'\n", dev->seq_, dev->name);
+		if (dev->seq_ == seq) {
 			*devp = dev;
 			log_debug("   - found\n");
 			return 0;

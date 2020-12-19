@@ -69,7 +69,7 @@ static void dm_display_line(struct udevice *dev, int index)
 	printf("%-3i %c %s @ %08lx", index,
 	       dev->flags & DM_FLAG_ACTIVATED ? '*' : ' ',
 	       dev->name, (ulong)map_to_sysmem(dev));
-	if (dev->sqq != -1)
+	if (dev->seq_ != -1)
 		printf(", seq %d", dev_seq(dev));
 	puts("\n");
 }

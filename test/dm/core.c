@@ -1075,10 +1075,10 @@ static int dm_test_all_have_seq(struct unit_test_state *uts)
 
 	list_for_each_entry(uc, &gd->uclass_root, sibling_node) {
 		list_for_each_entry(dev, &uc->dev_head, uclass_node) {
-			if (dev->sqq == -1)
+			if (dev->seq_ == -1)
 				printf("Device '%s' has no seq (%d)\n",
-				       dev->name, dev->sqq);
-			ut_assert(dev->sqq != -1);
+				       dev->name, dev->seq_);
+			ut_assert(dev->seq_ != -1);
 		}
 	}
 
