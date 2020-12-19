@@ -102,12 +102,13 @@
 	};
 
 	cpus {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-pre-proper;
 		#address-cells = <1>;
 		#size-cells = <0>;
 
 		cpu_0: cpu@0 {
-			u-boot,dm-pre-reloc;
+			u-boot,dm-pre-proper;
+			u-boot,dm-spl;
 			device_type = "cpu";
 			compatible = "intel,apl-cpu";
 			reg = <0>;
@@ -184,12 +185,14 @@
 		};
 
 		punit@0,1 {
-			u-boot,dm-pre-reloc;
+			u-boot,dm-pre-proper;
+			u-boot,dm-spl;
 			reg = <0x00000800 0 0 0 0>;
 			compatible = "intel,apl-punit";
 		};
 
 		gma@2,0 {
+			u-boot,dm-pre-proper;
 			reg = <0x00001000 0 0 0 0>;
 			compatible = "fsp-fb";
 		};
@@ -324,7 +327,8 @@
 		};
 
 		spi: fast-spi@d,2 {
-			u-boot,dm-pre-reloc;
+			u-boot,dm-pre-proper;
+			u-boot,dm-spl;
 			reg = <0x02006a10 0 0 0 0>;
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -335,7 +339,8 @@
 			fwstore_spi: spi-flash@0 {
 				#size-cells = <1>;
 				#address-cells = <1>;
-				u-boot,dm-pre-reloc;
+				u-boot,dm-pre-proper;
+				u-boot,dm-spl;
 				reg = <0>;
 				compatible = "winbond,w25q128fw",
 					 "jedec,spi-nor";
@@ -577,7 +582,7 @@
 				#size-cells = <0>;
 				u-boot,dm-pre-reloc;
 				cros_ec: cros-ec {
-					u-boot,dm-pre-reloc;
+					u-boot,dm-pre-proper;
 					compatible = "google,cros-ec-lpc";
 					reg = <0x204 1 0x200 1 0x880 0x80>;
 
