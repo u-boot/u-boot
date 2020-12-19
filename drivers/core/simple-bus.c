@@ -5,12 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
-
-struct simple_bus_plat {
-	u32 base;
-	u32 size;
-	u32 target;
-};
+#include <dm/simple_bus.h>
 
 fdt_addr_t simple_bus_translate(struct udevice *dev, fdt_addr_t addr)
 {
