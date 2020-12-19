@@ -296,6 +296,41 @@ __weak int dm_scan_other(bool pre_reloc_only)
 	return 0;
 }
 
+/**
+ * dm_scan() - Scan tables to bind devices
+ *
+ * Runs through the driver_info tables and binds the devices it finds. Then runs
+ * through the devicetree nodes. Finally calls dm_scan_other() to add any
+ * special devices
+ *
+ * @pre_reloc_only: If true, bind only nodes with special devicetree properties,
+ * or drivers with the DM_FLAG_PRE_RELOC flag. If false bind all drivers.
+ */
+static int dm_scan(bool pre_reloc_only)
+{
+	int ret;
+
+	ret = dm_scan_plat(pre_reloc_only);
+	if (ret) {
+		debug("dm_scan_plat() failed: %d\n", ret);
+		return ret;
+	}
+
+	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
+		ret = dm_extended_scan(pre_reloc_only);
+		if (ret) {
+			debug("dm_extended_scan() failed: %d\n", ret);
+			return ret;
+		}
+	}
+
+	ret = dm_scan_other(pre_reloc_only);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 int dm_init_and_scan(bool pre_reloc_only)
 {
 	int ret;
@@ -308,27 +343,13 @@ int dm_init_and_scan(bool pre_reloc_only)
 		debug("dm_init() failed: %d\n", ret);
 		return ret;
 	}
-	ret = dm_scan_plat(pre_reloc_only);
+	ret = dm_scan(pre_reloc_only);
 	if (ret) {
-		debug("dm_scan_plat() failed: %d\n", ret);
-		goto fail;
+		log_debug("dm_scan() failed: %d\n", ret);
+		return ret;
 	}
-
-	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
-		ret = dm_extended_scan(pre_reloc_only);
-		if (ret) {
-			debug("dm_extended_scan() failed: %d\n", ret);
-			goto fail;
-		}
-	}
-
-	ret = dm_scan_other(pre_reloc_only);
-	if (ret)
-		goto fail;
 
 	return 0;
-fail:
-	return ret;
 }
 
 #ifdef CONFIG_ACPIGEN
