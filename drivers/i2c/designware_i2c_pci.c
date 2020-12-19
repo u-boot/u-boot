@@ -92,7 +92,7 @@ static int designware_i2c_pci_bind(struct udevice *dev)
 {
 	char name[20];
 
-	if (dev_of_valid(dev))
+	if (dev_has_ofnode(dev))
 		return 0;
 
 	sprintf(name, "i2c_designware#%u", dev_seq(dev));
@@ -152,7 +152,7 @@ static int dw_i2c_acpi_fill_ssdt(const struct udevice *dev,
 	int ret;
 
 	/* If no device-tree node, ignore this since we assume it isn't used */
-	if (!dev_of_valid(dev))
+	if (!dev_has_ofnode(dev))
 		return 0;
 
 	ret = acpi_device_path(dev, path, sizeof(path));

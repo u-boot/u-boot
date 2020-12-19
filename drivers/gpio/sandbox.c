@@ -294,7 +294,7 @@ static int gpio_sandbox_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
-	if (!dev_of_valid(dev))
+	if (!dev_has_ofnode(dev))
 		/* Tell the uclass how many GPIOs we have */
 		uc_priv->gpio_count = CONFIG_SANDBOX_GPIO_COUNT;
 

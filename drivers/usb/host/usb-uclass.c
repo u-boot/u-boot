@@ -773,7 +773,7 @@ static int usb_child_post_bind(struct udevice *dev)
 	struct usb_dev_plat *plat = dev_get_parent_plat(dev);
 	int val;
 
-	if (!dev_of_valid(dev))
+	if (!dev_has_ofnode(dev))
 		return 0;
 
 	/* We only support matching a few things */

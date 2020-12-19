@@ -485,7 +485,7 @@ int device_probe(struct udevice *dev)
 	}
 
 	/* Only handle devices that have a valid ofnode */
-	if (dev_of_valid(dev)) {
+	if (dev_has_ofnode(dev)) {
 		/*
 		 * Process 'assigned-{clocks/clock-parents/clock-rates}'
 		 * properties

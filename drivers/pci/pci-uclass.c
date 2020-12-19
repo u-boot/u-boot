@@ -540,7 +540,7 @@ int pci_auto_config_devices(struct udevice *bus)
 		int ret;
 
 		debug("%s: device %s\n", __func__, dev->name);
-		if (dev_of_valid(dev) &&
+		if (dev_has_ofnode(dev) &&
 		    dev_read_bool(dev, "pci,no-autoconfig"))
 			continue;
 		ret = dm_pciauto_config_device(dev);
@@ -1036,7 +1036,7 @@ static int pci_uclass_pre_probe(struct udevice *bus)
 	hose->bus = bus;
 	hose->first_busno = dev_seq(bus);
 	hose->last_busno = dev_seq(bus);
-	if (dev_of_valid(bus)) {
+	if (dev_has_ofnode(bus)) {
 		hose->skip_auto_config_until_reloc =
 			dev_read_bool(bus,
 				      "u-boot,skip-auto-config-until-reloc");
@@ -1091,7 +1091,7 @@ static int pci_uclass_child_post_bind(struct udevice *dev)
 {
 	struct pci_child_plat *pplat;
 
-	if (!dev_of_valid(dev))
+	if (!dev_has_ofnode(dev))
 		return 0;
 
 	pplat = dev_get_parent_plat(dev);

@@ -112,7 +112,7 @@ static int pinconfig_post_bind(struct udevice *dev)
 	ofnode node;
 	int ret;
 
-	if (!dev_of_valid(dev))
+	if (!dev_has_ofnode(dev))
 		return 0;
 
 	dev_for_each_subnode(node, dev) {

@@ -75,7 +75,7 @@ static int pci_mmc_acpi_fill_ssdt(const struct udevice *dev,
 	struct acpi_dp *dp;
 	int ret;
 
-	if (!dev_of_valid(dev))
+	if (!dev_has_ofnode(dev))
 		return 0;
 
 	ret = gpio_get_acpi(&priv->cd_gpio, &gpio);

@@ -192,6 +192,17 @@ static inline void dev_bic_flags(struct udevice *dev, u32 bic)
 	dev->flags_ &= ~bic;
 }
 
+/**
+ * dev_ofnode() - get the DT node reference associated with a udevice
+ *
+ * @dev:	device to check
+ * @return reference of the the device's DT node
+ */
+static inline ofnode dev_ofnode(const struct udevice *dev)
+{
+	return dev->node;
+}
+
 /* Returns non-zero if the device is active (probed and not removed) */
 #define device_active(dev)	(dev_get_flags(dev) & DM_FLAG_ACTIVATED)
 
@@ -200,7 +211,7 @@ static inline int dev_of_offset(const struct udevice *dev)
 	return ofnode_to_offset(dev->node);
 }
 
-static inline bool dev_has_ofnode(struct udevice *dev)
+static inline bool dev_has_ofnode(const struct udevice *dev)
 {
 	return ofnode_valid(dev->node);
 }
