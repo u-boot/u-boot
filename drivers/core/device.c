@@ -323,11 +323,57 @@ static void *alloc_priv(int size, uint flags)
 	return priv;
 }
 
+/**
+ * device_alloc_priv() - Allocate priv/plat data required by the device
+ *
+ * @dev: Device to process
+ * @return 0 if OK, -ENOMEM if out of memory
+ */
+static int device_alloc_priv(struct udevice *dev)
+{
+	const struct driver *drv;
+	void *ptr;
+	int size;
+
+	drv = dev->driver;
+	assert(drv);
+
+	/* Allocate private data if requested and not reentered */
+	if (drv->priv_auto && !dev_get_priv(dev)) {
+		ptr = alloc_priv(drv->priv_auto, drv->flags);
+		if (!ptr)
+			return -ENOMEM;
+		dev_set_priv(dev, ptr);
+	}
+
+	/* Allocate private data if requested and not reentered */
+	size = dev->uclass->uc_drv->per_device_auto;
+	if (size && !dev_get_uclass_priv(dev)) {
+		ptr = alloc_priv(size, dev->uclass->uc_drv->flags);
+		if (!ptr)
+			return -ENOMEM;
+		dev_set_uclass_priv(dev, ptr);
+	}
+
+	/* Allocate parent data for this child */
+	if (dev->parent) {
+		size = dev->parent->driver->per_child_auto;
+		if (!size)
+			size = dev->parent->uclass->uc_drv->per_child_auto;
+		if (size && !dev_get_parent_priv(dev)) {
+			ptr = alloc_priv(size, drv->flags);
+			if (!ptr)
+				return -ENOMEM;
+			dev_set_parent_priv(dev, ptr);
+		}
+	}
+
+	return 0;
+}
+
 int device_of_to_plat(struct udevice *dev)
 {
 	const struct driver *drv;
-	int size = 0;
-	void *ptr;
 	int ret;
 
 	if (!dev)
@@ -352,43 +398,12 @@ int device_of_to_plat(struct udevice *dev)
 			return 0;
 	}
 
+	ret = device_alloc_priv(dev);
+	if (ret)
+		goto fail;
+
 	drv = dev->driver;
 	assert(drv);
-
-	/* Allocate private data if requested and not reentered */
-	if (drv->priv_auto && !dev_get_priv(dev)) {
-		ptr = alloc_priv(drv->priv_auto, drv->flags);
-		if (!ptr) {
-			ret = -ENOMEM;
-			goto fail;
-		}
-		dev_set_priv(dev, ptr);
-	}
-	/* Allocate private data if requested and not reentered */
-	size = dev->uclass->uc_drv->per_device_auto;
-	if (size && !dev_get_uclass_priv(dev)) {
-		ptr = alloc_priv(size, dev->uclass->uc_drv->flags);
-		if (!ptr) {
-			ret = -ENOMEM;
-			goto fail;
-		}
-		dev_set_uclass_priv(dev, ptr);
-	}
-
-	/* Allocate parent data for this child */
-	if (dev->parent) {
-		size = dev->parent->driver->per_child_auto;
-		if (!size)
-			size = dev->parent->uclass->uc_drv->per_child_auto;
-		if (size && !dev_get_parent_priv(dev)) {
-			ptr = alloc_priv(size, drv->flags);
-			if (!ptr) {
-				ret = -ENOMEM;
-				goto fail;
-			}
-			dev_set_parent_priv(dev, ptr);
-		}
-	}
 
 	if (drv->of_to_plat &&
 	    (CONFIG_IS_ENABLED(OF_PLATDATA) || dev_has_of_node(dev))) {
