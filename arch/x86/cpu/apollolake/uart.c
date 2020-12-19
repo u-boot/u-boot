@@ -17,6 +17,7 @@
 #include <asm/pci.h>
 #include <asm/lpss.h>
 #include <dm/device-internal.h>
+#include <asm/arch/uart.h>
 
 /* Low-power Subsystem (LPSS) clock register */
 enum {
@@ -69,7 +70,7 @@ void apl_uart_init(pci_dev_t bdf, ulong base)
  * This driver uses its own compatible string but almost everything else from
  * the standard ns16550 driver. This allows us to provide an of-platdata
  * implementation, since the platdata produced by of-platdata does not match
- * struct ns16550_plat.
+ * struct apl_ns16550_plat.
  *
  * When running with of-platdata (generally TPL), the platdata is converted to
  * something that ns16550 expects. When running withoutof-platdata (SPL, U-Boot
@@ -78,10 +79,10 @@ void apl_uart_init(pci_dev_t bdf, ulong base)
 
 static int apl_ns16550_probe(struct udevice *dev)
 {
-	struct ns16550_plat *plat = dev_get_plat(dev);
+	struct apl_ns16550_plat *plat = dev_get_plat(dev);
 
 	if (!CONFIG_IS_ENABLED(PCI))
-		apl_uart_init(plat->bdf, plat->base);
+		apl_uart_init(plat->ns16550.bdf, plat->ns16550.base);
 
 	return ns16550_serial_probe(dev);
 }
@@ -89,24 +90,28 @@ static int apl_ns16550_probe(struct udevice *dev)
 static int apl_ns16550_of_to_plat(struct udevice *dev)
 {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_intel_apl_ns16550 *dtplat = dev_get_plat(dev);
-	struct ns16550_plat *plat;
+	struct dtd_intel_apl_ns16550 *dtplat;
+	struct apl_ns16550_plat *plat = dev_get_plat(dev);
+	struct ns16550_plat ns;
 
 	/*
-	 * Convert our plat to the ns16550's plat, so we can just use
-	 * that driver
+	 * The device's plat uses struct apl_ns16550_plat which starts with the
+	 * dtd struct, but the ns16550 driver expects it to be struct ns16550.
+	 * Set up what that driver expects. Note that this means that the values
+	 * cannot be read in this driver when using of-platdata.
+	 *
+	 * TODO(sjg@chromium.org): Consider having a separate plat pointer for
+	 * of-platdata so that it is not necessary to overwrite this.
 	 */
-	plat = malloc(sizeof(*plat));
-	if (!plat)
-		return -ENOMEM;
-	plat->base = dtplat->early_regs[0];
-	plat->reg_width = 1;
-	plat->reg_shift = dtplat->reg_shift;
-	plat->reg_offset = 0;
-	plat->clock = dtplat->clock_frequency;
-	plat->fcr = UART_FCR_DEFVAL;
-	plat->bdf = pci_ofplat_get_devfn(dtplat->reg[0]);
-	dev_set_plat(dev, plat);
+	dtplat = &plat->dtplat;
+	ns.base = dtplat->early_regs[0];
+	ns.reg_width = 1;
+	ns.reg_shift = dtplat->reg_shift;
+	ns.reg_offset = 0;
+	ns.clock = dtplat->clock_frequency;
+	ns.fcr = UART_FCR_DEFVAL;
+	ns.bdf = pci_ofplat_get_devfn(dtplat->reg[0]);
+	memcpy(plat, &ns, sizeof(ns));
 #else
 	int ret;
 
@@ -129,7 +134,7 @@ U_BOOT_DRIVER(intel_apl_ns16550) = {
 	.name	= "intel_apl_ns16550",
 	.id	= UCLASS_SERIAL,
 	.of_match = of_match_ptr(apl_ns16550_serial_ids),
-	.plat_auto	= sizeof(struct ns16550_plat),
+	.plat_auto	= sizeof(struct apl_ns16550_plat),
 	.priv_auto	= sizeof(struct ns16550),
 	.ops	= &ns16550_serial_ops,
 	.of_to_plat = apl_ns16550_of_to_plat,
