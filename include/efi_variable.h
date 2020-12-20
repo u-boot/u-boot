@@ -91,7 +91,7 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
 
 #define EFI_VAR_FILE_NAME "ubootefi.var"
 
-#define EFI_VAR_BUF_SIZE 0x4000
+#define EFI_VAR_BUF_SIZE CONFIG_EFI_VAR_BUF_SIZE
 
 /*
  * This constant identifies the file format for storing UEFI variables in
