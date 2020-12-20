@@ -697,6 +697,7 @@ F:	test/unicode_ut.c
 F:	cmd/bootefi.c
 F:	cmd/efidebug.c
 F:	cmd/nvedit_efi.c
+F:	tools/efivar.py
 F:	tools/file2include.c
 
 EFI VARIABLES VIA OP-TEE
