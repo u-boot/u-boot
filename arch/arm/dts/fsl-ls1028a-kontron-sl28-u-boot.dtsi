@@ -4,8 +4,8 @@
 
 / {
 	aliases {
-		mmc0 = &esdhc0;
-		mmc1 = &esdhc1;
+		mmc0 = &esdhc1;
+		mmc1 = &esdhc0;
 		i2c0 = &i2c0;
 		i2c1 = &i2c3;
 		i2c2 = &i2c4;
