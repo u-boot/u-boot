@@ -27,8 +27,8 @@ int iomux_doenv(const int console, const char *arg)
 {
 	char *console_args, *temp, **start;
 	int i, j, k, io_flag, cs_idx, repeat;
+	struct stdio_dev **cons_set, **old_set;
 	struct stdio_dev *dev;
-	struct stdio_dev **cons_set;
 
 	console_args = strdup(arg);
 	if (console_args == NULL)
@@ -128,10 +128,23 @@ int iomux_doenv(const int console, const char *arg)
 		return 1;
 	}
 
-	/* Works even if console_devices[console] is NULL. */
-	free(console_devices[console]);
+	old_set = console_devices[console];
+	repeat = cd_count[console];
+
 	console_devices[console] = cons_set;
 	cd_count[console] = cs_idx;
+
+	/* Stop dropped consoles */
+	for (i = 0; i < repeat; i++) {
+		for (j = 0; j < cs_idx; j++) {
+			if (old_set[i] == cons_set[j])
+				break;
+		}
+		if (j == cs_idx)
+			console_stop(console, old_set[i]);
+	}
+
+	free(old_set);
 	return 0;
 }
 #endif /* CONSOLE_MUX */
