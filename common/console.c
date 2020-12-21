@@ -172,13 +172,9 @@ static int console_setfile(int file, struct stdio_dev * dev)
 	case stdin:
 	case stdout:
 	case stderr:
-		/* Start new device */
-		if (dev->start) {
-			error = dev->start(dev);
-			/* If it's not started dont use it */
-			if (error < 0)
-				break;
-		}
+		error = console_start(file, dev);
+		if (error)
+			break;
 
 		/* Assign the new device (leaving the existing one started) */
 		stdio_devices[file] = dev;
@@ -388,6 +384,26 @@ static inline void console_doenv(int file, struct stdio_dev *dev)
 }
 #endif
 #endif /* CONIFIG_IS_ENABLED(CONSOLE_MUX) */
+
+int console_start(int file, struct stdio_dev *sdev)
+{
+	int error;
+
+	/* Start new device */
+	if (sdev->start) {
+		error = sdev->start(sdev);
+		/* If it's not started don't use it */
+		if (error < 0)
+			return error;
+	}
+	return 0;
+}
+
+void console_stop(int file, struct stdio_dev *sdev)
+{
+	if (sdev->stop)
+		sdev->stop(sdev);
+}
 
 /** U-Boot INITIAL CONSOLE-NOT COMPATIBLE FUNCTIONS *************************/
 

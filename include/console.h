@@ -8,6 +8,7 @@
 #define __CONSOLE_H
 
 #include <stdbool.h>
+#include <stdio_dev.h>
 #include <linux/errno.h>
 
 extern char console_buffer[];
@@ -15,6 +16,8 @@ extern char console_buffer[];
 /* common/console.c */
 int console_init_f(void);	/* Before relocation; uses the serial  stuff */
 int console_init_r(void);	/* After  relocation; uses the console stuff */
+int console_start(int file, struct stdio_dev *sdev);	/* Start a console device */
+void console_stop(int file, struct stdio_dev *sdev);	/* Stop a console device */
 int console_assign(int file, const char *devname);	/* Assign the console */
 int ctrlc(void);
 int had_ctrlc(void);	/* have we had a Control-C since last clear? */
