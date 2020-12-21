@@ -45,15 +45,14 @@ int iomux_doenv(const int console, const char *arg)
 	i = 0;
 	temp = console_args;
 	for (;;) {
-		temp = strchr(temp, ',');
-		if (temp != NULL) {
-			i++;
-			temp++;
-			continue;
-		}
 		/* There's always one entry more than the number of commas. */
 		i++;
-		break;
+
+		temp = strchr(temp, ',');
+		if (temp == NULL)
+			break;
+
+		temp++;
 	}
 	start = (char **)malloc(i * sizeof(char *));
 	if (start == NULL) {
