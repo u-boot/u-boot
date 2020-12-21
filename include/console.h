@@ -25,6 +25,8 @@ void clear_ctrlc(void);	/* clear the Control-C condition */
 int disable_ctrlc(int);	/* 1 to disable, 0 to enable Control-C detect */
 int confirm_yesno(void);        /*  1 if input is "y", "Y", "yes" or "YES" */
 
+struct stdio_dev *search_device(int flags, const char *name);
+
 #ifdef CONFIG_CONSOLE_RECORD
 /**
  * console_record_init() - set up the console recording buffers
