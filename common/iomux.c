@@ -95,10 +95,10 @@ int iomux_doenv(const int console, const char *arg)
 	for (j = 0; j < i; j++) {
 		/*
 		 * Check whether the device exists and is valid.
-		 * console_assign() also calls search_device(),
+		 * console_assign() also calls console_search_dev(),
 		 * but I need the pointer to the device.
 		 */
-		dev = search_device(io_flag, start[j]);
+		dev = console_search_dev(io_flag, start[j]);
 		if (dev == NULL)
 			continue;
 		/*

@@ -832,7 +832,7 @@ void clear_ctrlc(void)
 
 /** U-Boot INIT FUNCTIONS *************************************************/
 
-struct stdio_dev *search_device(int flags, const char *name)
+struct stdio_dev *console_search_dev(int flags, const char *name)
 {
 	struct stdio_dev *dev;
 
@@ -868,7 +868,7 @@ int console_assign(int file, const char *devname)
 
 	/* Check for valid device name */
 
-	dev = search_device(flag, devname);
+	dev = console_search_dev(flag, devname);
 
 	if (dev)
 		return console_setfile(file, dev);
@@ -974,9 +974,9 @@ int console_init_r(void)
 	stderrname = env_get("stderr");
 
 	if (OVERWRITE_CONSOLE == 0) {	/* if not overwritten by config switch */
-		inputdev  = search_device(DEV_FLAGS_INPUT,  stdinname);
-		outputdev = search_device(DEV_FLAGS_OUTPUT, stdoutname);
-		errdev    = search_device(DEV_FLAGS_OUTPUT, stderrname);
+		inputdev  = console_search_dev(DEV_FLAGS_INPUT,  stdinname);
+		outputdev = console_search_dev(DEV_FLAGS_OUTPUT, stdoutname);
+		errdev    = console_search_dev(DEV_FLAGS_OUTPUT, stderrname);
 		if (CONFIG_IS_ENABLED(CONSOLE_MUX)) {
 			iomux_err = iomux_doenv(stdin, stdinname);
 			iomux_err += iomux_doenv(stdout, stdoutname);
@@ -988,13 +988,13 @@ int console_init_r(void)
 	}
 	/* if the devices are overwritten or not found, use default device */
 	if (inputdev == NULL) {
-		inputdev  = search_device(DEV_FLAGS_INPUT,  "serial");
+		inputdev  = console_search_dev(DEV_FLAGS_INPUT,  "serial");
 	}
 	if (outputdev == NULL) {
-		outputdev = search_device(DEV_FLAGS_OUTPUT, "serial");
+		outputdev = console_search_dev(DEV_FLAGS_OUTPUT, "serial");
 	}
 	if (errdev == NULL) {
-		errdev    = search_device(DEV_FLAGS_OUTPUT, "serial");
+		errdev    = console_search_dev(DEV_FLAGS_OUTPUT, "serial");
 	}
 	/* Initializes output console first */
 	if (outputdev != NULL) {
@@ -1064,7 +1064,7 @@ int console_init_r(void)
 	 */
 	if (IS_ENABLED(CONFIG_SPLASH_SCREEN) && env_get("splashimage")) {
 		if (!(gd->flags & GD_FLG_SILENT))
-			outputdev = search_device (DEV_FLAGS_OUTPUT, "serial");
+			outputdev = console_search_dev (DEV_FLAGS_OUTPUT, "serial");
 	}
 
 	/* Scan devices looking for input and output devices */
