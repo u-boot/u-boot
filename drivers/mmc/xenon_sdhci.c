@@ -338,6 +338,16 @@ static void xenon_mmc_enable_slot(struct sdhci_host *host, u8 slot)
 	sdhci_writel(host, var, SDHC_SYS_OP_CTRL);
 }
 
+/* Disable specific slot */
+static void xenon_mmc_disable_slot(struct sdhci_host *host, u8 slot)
+{
+	u32 var;
+
+	var = sdhci_readl(host, SDHC_SYS_OP_CTRL);
+	var &= ~(SLOT_MASK(slot) << SLOT_ENABLE_SHIFT);
+	sdhci_writel(host, var, SDHC_SYS_OP_CTRL);
+}
+
 /* Enable Parallel Transfer Mode */
 static void xenon_mmc_enable_parallel_tran(struct sdhci_host *host, u8 slot)
 {
@@ -503,6 +513,14 @@ static int xenon_sdhci_probe(struct udevice *dev)
 	return ret;
 }
 
+static int xenon_sdhci_remove(struct udevice *dev)
+{
+	struct sdhci_host *host = dev_get_priv(dev);
+
+	xenon_mmc_disable_slot(host, XENON_MMC_SLOT_ID_HYPERION);
+	return 0;
+}
+
 static int xenon_sdhci_of_to_plat(struct udevice *dev)
 {
 	struct sdhci_host *host = dev_get_priv(dev);
@@ -552,6 +570,7 @@ U_BOOT_DRIVER(xenon_sdhci_drv) = {
 	.ops		= &sdhci_ops,
 	.bind		= xenon_sdhci_bind,
 	.probe		= xenon_sdhci_probe,
+	.remove		= xenon_sdhci_remove,
 	.priv_auto	= sizeof(struct xenon_sdhci_priv),
 	.plat_auto	= sizeof(struct xenon_sdhci_plat),
 };
