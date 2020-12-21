@@ -129,19 +129,10 @@ int iomux_doenv(const int console, const char *arg)
 		return 1;
 	} else {
 		/* Works even if console_devices[console] is NULL. */
-		console_devices[console] =
-			(struct stdio_dev **)realloc(console_devices[console],
-			cs_idx * sizeof(struct stdio_dev *));
-		if (console_devices[console] == NULL) {
-			free(cons_set);
-			return 1;
-		}
-		memcpy(console_devices[console], cons_set, cs_idx *
-			sizeof(struct stdio_dev *));
-
+		free(console_devices[console]);
+		console_devices[console] = cons_set;
 		cd_count[console] = cs_idx;
 	}
-	free(cons_set);
 	return 0;
 }
 #endif /* CONSOLE_MUX */
