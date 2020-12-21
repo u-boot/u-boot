@@ -126,12 +126,12 @@ int iomux_doenv(const int console, const char *arg)
 	if (cs_idx == 0) {
 		free(cons_set);
 		return 1;
-	} else {
-		/* Works even if console_devices[console] is NULL. */
-		free(console_devices[console]);
-		console_devices[console] = cons_set;
-		cd_count[console] = cs_idx;
 	}
+
+	/* Works even if console_devices[console] is NULL. */
+	free(console_devices[console]);
+	console_devices[console] = cons_set;
+	cd_count[console] = cs_idx;
 	return 0;
 }
 #endif /* CONSOLE_MUX */
