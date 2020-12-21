@@ -303,10 +303,11 @@ static int confirm_close(void)
 static int do_ahab_close(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
+	int confirmed = argc >= 2 && !strcmp(argv[1], "-y");
 	int err;
 	u16 lc;
 
-	if (!confirm_close())
+	if (!confirmed && !confirm_close())
 		return -EACCES;
 
 	err = sc_seco_chip_info(-1, &lc, NULL, NULL, NULL);
