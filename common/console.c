@@ -237,6 +237,32 @@ static void __maybe_unused console_devices_set(int file, struct stdio_dev *dev)
 	console_devices[file][0] = dev;
 }
 
+/**
+ * console_needs_start_stop() - check if we need to start or stop the STDIO device
+ * @file: STDIO file
+ * @sdev: STDIO device in question
+ *
+ * This function checks if we need to start or stop the stdio device used for
+ * a console. For IOMUX case it simply enforces one time start and one time
+ * stop of the device independently of how many STDIO files are using it. In
+ * other words, we start console once before first STDIO device wants it and
+ * stop after the last is gone.
+ */
+static bool console_needs_start_stop(int file, struct stdio_dev *sdev)
+{
+	int i, j;
+
+	for (i = 0; i < ARRAY_SIZE(cd_count); i++) {
+		if (i == file)
+			continue;
+
+		for (j = 0; j < cd_count[i]; j++)
+			if (console_devices[i][j] == sdev)
+				return false;
+	}
+	return true;
+}
+
 /*
  * This depends on tstc() always being called before getchar().
  * This is guaranteed to be true because this routine is called
@@ -346,6 +372,11 @@ static void __maybe_unused console_devices_set(int file, struct stdio_dev *dev)
 {
 }
 
+static inline bool console_needs_start_stop(int file, struct stdio_dev *sdev)
+{
+	return true;
+}
+
 static inline int console_getc(int file)
 {
 	return stdio_devices[file]->getc(stdio_devices[file]);
@@ -389,6 +420,9 @@ int console_start(int file, struct stdio_dev *sdev)
 {
 	int error;
 
+	if (!console_needs_start_stop(file, sdev))
+		return 0;
+
 	/* Start new device */
 	if (sdev->start) {
 		error = sdev->start(sdev);
@@ -401,6 +435,9 @@ int console_start(int file, struct stdio_dev *sdev)
 
 void console_stop(int file, struct stdio_dev *sdev)
 {
+	if (!console_needs_start_stop(file, sdev))
+		return;
+
 	if (sdev->stop)
 		sdev->stop(sdev);
 }
