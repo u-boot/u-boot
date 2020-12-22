@@ -30,6 +30,7 @@
 #include <linux/usb/cdc.h>
 #include <g_dnl.h>
 #include <dfu.h>
+#include <thor.h>
 
 #include "f_thor.h"
 
@@ -735,6 +736,8 @@ int thor_handle(void)
 			printf("%s: No data received!\n", __func__);
 			break;
 		}
+		if (dfu_reinit_needed)
+			return THOR_DFU_REINIT_NEEDED;
 	}
 
 	return 0;

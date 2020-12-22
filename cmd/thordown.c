@@ -52,13 +52,18 @@ int do_thor_down(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		goto exit;
 	}
 
-	ret = thor_handle();
-	if (ret) {
-		pr_err("THOR failed: %d\n", ret);
-		ret = CMD_RET_FAILURE;
-		goto exit;
-	}
-
+	do {
+		ret = thor_handle();
+		if (ret == THOR_DFU_REINIT_NEEDED) {
+			dfu_free_entities();
+			ret = dfu_init_env_entities(interface, devstring);
+		}
+		if (ret) {
+			pr_err("THOR failed: %d\n", ret);
+			ret = CMD_RET_FAILURE;
+			goto exit;
+		}
+	} while (ret == 0);
 exit:
 	g_dnl_unregister();
 	usb_gadget_release(controller_index);
