@@ -14,6 +14,10 @@
 	chosen {
 		stdout-path = &uart1;
 	};
+
+	aliases {
+		eeprom0 = &eeprom_som;
+	};
 };
 
 &fec1 {
@@ -97,9 +101,10 @@
 	sda-gpios = <&gpio1 31 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 
-	eeprom@50 {
-		compatible = "cat,24c32";
+	eeprom_som: eeprom@50 {
+		compatible = "atmel,24c04";
 		reg = <0x50>;
+		status = "okay";
 	};
 };
 
