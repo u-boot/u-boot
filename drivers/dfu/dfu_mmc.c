@@ -316,7 +316,7 @@ void dfu_free_entity_mmc(struct dfu_entity *dfu)
 int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 {
 	const char *entity_type;
-	size_t second_arg;
+	ssize_t second_arg;
 	size_t third_arg;
 
 	struct mmc *mmc;
@@ -339,7 +339,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 	 * Base 0 means we'll accept (prefixed with 0x or 0) base 16, 8,
 	 * with default 10.
 	 */
-	second_arg = simple_strtoul(argv[1], NULL, 0);
+	second_arg = simple_strtol(argv[1], NULL, 0);
 	third_arg = simple_strtoul(argv[2], NULL, 0);
 
 	mmc = find_mmc_device(dfu->data.mmc.dev_num);
@@ -406,7 +406,8 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 
 	/* if it's NOT a raw write */
 	if (strcmp(entity_type, "raw")) {
-		dfu->data.mmc.dev = second_arg;
+		dfu->data.mmc.dev = (second_arg != -1) ? second_arg :
+							 dfu->data.mmc.dev_num;
 		dfu->data.mmc.part = third_arg;
 	}
 
