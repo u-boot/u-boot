@@ -23,38 +23,48 @@ use.
    more step (if and only if you have original U-Boot), i.e. run the
    following command::
 
-   $ truncate -s %4096 u-boot.bin
+     $ truncate -s %4096 u-boot.bin
 
 2. Run your board and interrupt booting to U-Boot console. In the console
    call::
 
-   => run do_force_flash_os
+     => run do_force_flash_os
 
 3. Wait for few seconds, it will prepare environment variable and runs
    DFU. Run DFU command from the host system::
 
-   $ dfu-util -v -d 8087:0a99 --alt u-boot0 -D u-boot.bin
+     $ dfu-util -v -d 8087:0a99 --alt u-boot0 -D u-boot.bin
 
 4. Return to U-Boot console and following hint. i.e. push Ctrl+C, and
    reset the board::
 
-   => reset
-
+     => reset
 
 Updating U-Boot using xFSTK
 ---------------------------
 
 You can also update U-Boot using the xfstk-dldr-solo tool if you can build it.
-One way to do that is to follow the `xFSTK`_ instructions. You may need to use
-a virtual machine running Ubuntu Trusty. Once you have built it and installed
-libboost-all-dev, you can copy xfstk-dldr-solo to /usr/local/bin and
+One way to do that is to follow the `xFSTK`_ instructions. In short, after you
+install all necessary dependencies and clone repository, it will look like this:
+
+.. code-block:: sh
+
+  cd xFSTK
+  export DISTRIBUTION_NAME=ubuntu20.04
+  export BUILD_VERSION=1.8.5
+  git checkout v$BUILD_VERSION
+  ...
+
+Once you have built it, you can copy xfstk-dldr-solo to /usr/local/bin and
 libboost_program_options.so.1.54.0 to /usr/lib/i386-linux-gnu/ and with luck
-it will work. You might fine this `drive`_ helpful.
+it will work. You might find this `drive`_ helpful.
 
-If it does, then you can download and unpack the Edison reocovery image,
-install dfu-util, reset your board and flash U-Boot like this::
+If it does, then you can download and unpack the Edison recovery image,
+install dfu-util, reset your board and flash U-Boot like this:
 
-   $ xfstk-dldr-solo --gpflags 0x80000007 \
+.. code-block:: sh
+
+  xfstk-dldr-solo --gpflags 0x80000007 \
       --osimage u-boot-edison.img \
       --fwdnx recover/edison_dnx_fwr.bin \
       --fwimage recover/edison_ifwi-dbg-00.bin \
@@ -64,7 +74,7 @@ This should show the following
 
 .. code-block:: none
 
-  XFSTK Downloader Solo 0.0.0
+  XFSTK Downloader Solo 1.8.5
   Copyright (c) 2015 Intel Corporation
   Build date and time: Aug 15 2020 15:07:13
 
@@ -75,13 +85,12 @@ This should show the following
   .......(lots of dots)........XFSTK-STATUS--Reconnecting to device - Attempt #1
   .......(even more dots)......................
 
-
 You have about 10 seconds after resetting the board to type the above command.
 If you want to check if the board is ready, type:
 
 .. code-block:: none
 
-  lsusb |egrep "8087|8086"
+  lsusb | egrep "8087|8086"
   Bus 001 Device 004: ID 8086:e005 Intel Corp.
 
 If you see a device with the same ID as above, the board is waiting for your
@@ -112,9 +121,9 @@ After about 5 seconds you should see some console output from the board:
 
   *** Ready to receive application ***
 
-  After another 10 seconds the xFSTK tool completes and the board resets. About
-  10 seconds after that should see the above message again and then within a
-  few seconds U-Boot should start on your board:
+After another 10 seconds the xFSTK tool completes and the board resets. About
+10 seconds after that should see the above message again and then within a few
+seconds U-Boot should start on your board:
 
 .. code-block:: none
 
@@ -146,7 +155,7 @@ After about 5 seconds you should see some console output from the board:
   Building boot_params at 0x00090000
   Loading bzImage at address 100000 (5427456 bytes)
   Magic signature found
-  Kernel command line: "rootwait root=PARTUUID=ada722ed-6410-764e-8619-abff6f66e10e rootfstype=ext4 console=ttyMFD2 earlyprintk=ttyMFD2,keep loglevel=4 g_multi.ethernet_config=cdc systemd.unit=multi-user.target hardware_id=00 g_multi.iSerialNumber=2249baf774c675598661a63098c0ad41 g_multi.dev_addr=02:00:86:c0:ad:41 platform_mrfld_audio.audio_codec=dummy"
+  Kernel command line: "rootwait ..."
   Magic signature found
 
   Starting kernel ...
@@ -157,5 +166,5 @@ After about 5 seconds you should see some console output from the board:
 
   edison login:
 
-.. _xFSTK: https://community.intel.com/t5/Intel-Makers/Building-xFSTK-on-Ubuntu-14-04-32-bit-for-flashing-Edison/td-p/538081
+.. _xFSTK: https://github.com/edison-fw/xFSTK
 .. _drive: https://drive.google.com/drive/u/0/folders/1URPHrOk9-UBsh8hjv-7WwC0W6Fy61uAJ

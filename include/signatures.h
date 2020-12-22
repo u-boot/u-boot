@@ -4,8 +4,8 @@
  * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#ifndef __FSP_TYPES_H__
-#define __FSP_TYPES_H__
+#ifndef __SIGNATURES_H__
+#define __SIGNATURES_H__
 
 /**
  * Returns a 16-bit signature built from 2 ASCII characters.
@@ -59,4 +59,4 @@
 #define SIGNATURE_64(A, B, C, D, E, F, G, H)	\
 	(SIGNATURE_32(A, B, C, D) | ((u64)(SIGNATURE_32(E, F, G, H)) << 32))
 
-#endif
+#endif /* __SIGNATURES_H__ */
