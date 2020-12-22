@@ -16,6 +16,7 @@
 #include <fat.h>
 #include <mmc.h>
 #include <part.h>
+#include <command.h>
 
 static unsigned char *dfu_file_buf;
 static u64 dfu_file_buf_len;
@@ -206,6 +207,9 @@ int dfu_write_medium_mmc(struct dfu_entity *dfu,
 	case DFU_FS_EXT4:
 		ret = mmc_file_buf_write(dfu, offset, buf, len);
 		break;
+	case DFU_SCRIPT:
+		ret = run_command_list(buf, *len, 0);
+		break;
 	case DFU_SKIP:
 		ret = 0;
 		break;
@@ -221,9 +225,21 @@ int dfu_flush_medium_mmc(struct dfu_entity *dfu)
 {
 	int ret = 0;
 
-	if (dfu->layout != DFU_RAW_ADDR) {
-		/* Do stuff here. */
+	switch (dfu->layout) {
+	case DFU_FS_FAT:
+	case DFU_FS_EXT4:
 		ret = mmc_file_buf_write_finish(dfu);
+		break;
+	case DFU_SCRIPT:
+		/* script may have changed the dfu_alt_info */
+		dfu_reinit_needed = true;
+		break;
+	case DFU_RAW_ADDR:
+	case DFU_SKIP:
+		break;
+	default:
+		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
+		       dfu_get_layout(dfu->layout));
 	}
 
 	return ret;
@@ -243,6 +259,7 @@ int dfu_get_medium_size_mmc(struct dfu_entity *dfu, u64 *size)
 		if (ret < 0)
 			return ret;
 		return 0;
+	case DFU_SCRIPT:
 	case DFU_SKIP:
 		return 0;
 	default:
@@ -408,6 +425,8 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 		dfu->layout = DFU_FS_EXT4;
 	} else if (!strcmp(entity_type, "skip")) {
 		dfu->layout = DFU_SKIP;
+	} else if (!strcmp(entity_type, "script")) {
+		dfu->layout = DFU_SCRIPT;
 	} else {
 		pr_err("Memory layout (%s) not supported!\n", entity_type);
 		return -ENODEV;
