@@ -614,7 +614,7 @@ const char *dfu_get_dev_type(enum dfu_device_type t)
 const char *dfu_get_layout(enum dfu_layout l)
 {
 	const char *const dfu_layout[] = {NULL, "RAW_ADDR", "FAT", "EXT2",
-					  "EXT3", "EXT4", "RAM_ADDR" };
+					  "EXT3", "EXT4", "RAM_ADDR", "SKIP" };
 	return dfu_layout[l];
 }
 

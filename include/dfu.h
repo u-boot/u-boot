@@ -33,6 +33,7 @@ enum dfu_layout {
 	DFU_FS_EXT3,
 	DFU_FS_EXT4,
 	DFU_RAM_ADDR,
+	DFU_SKIP,
 };
 
 enum dfu_op {

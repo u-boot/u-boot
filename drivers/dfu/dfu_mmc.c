@@ -108,6 +108,8 @@ static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
 	case DFU_FS_EXT4:
 		fstype = FS_TYPE_EXT;
 		break;
+	case DFU_SKIP:
+		return 0;
 	default:
 		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
 		       dfu_get_layout(dfu->layout));
@@ -204,6 +206,9 @@ int dfu_write_medium_mmc(struct dfu_entity *dfu,
 	case DFU_FS_EXT4:
 		ret = mmc_file_buf_write(dfu, offset, buf, len);
 		break;
+	case DFU_SKIP:
+		ret = 0;
+		break;
 	default:
 		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
 		       dfu_get_layout(dfu->layout));
@@ -237,6 +242,8 @@ int dfu_get_medium_size_mmc(struct dfu_entity *dfu, u64 *size)
 		ret = mmc_file_op(DFU_OP_SIZE, dfu, 0, NULL, size);
 		if (ret < 0)
 			return ret;
+		return 0;
+	case DFU_SKIP:
 		return 0;
 	default:
 		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
@@ -399,6 +406,8 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 		dfu->layout = DFU_FS_FAT;
 	} else if (!strcmp(entity_type, "ext4")) {
 		dfu->layout = DFU_FS_EXT4;
+	} else if (!strcmp(entity_type, "skip")) {
+		dfu->layout = DFU_SKIP;
 	} else {
 		pr_err("Memory layout (%s) not supported!\n", entity_type);
 		return -ENODEV;
