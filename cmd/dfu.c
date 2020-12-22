@@ -34,7 +34,6 @@ static int do_dfu(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 #if defined(CONFIG_DFU_TIMEOUT) || defined(CONFIG_DFU_OVER_TFTP)
 	unsigned long value = 0;
 #endif
-
 	if (argc >= 4) {
 		interface = argv[2];
 		devstring = argv[3];
@@ -67,8 +66,18 @@ static int do_dfu(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	int controller_index = simple_strtoul(usb_controller, NULL, 0);
+	bool retry = false;
+	do {
+		run_usb_dnl_gadget(controller_index, "usb_dnl_dfu");
 
-	run_usb_dnl_gadget(controller_index, "usb_dnl_dfu");
+		if (dfu_reinit_needed) {
+			dfu_free_entities();
+			ret = dfu_init_env_entities(interface, devstring);
+			if (ret)
+				goto done;
+			retry = true;
+		}
+	} while (retry);
 
 done:
 	dfu_free_entities();
