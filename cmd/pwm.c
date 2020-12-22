@@ -1,0 +1,117 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Control PWM channels
+ *
+ * Copyright (c) 2020 SiFive, Inc
+ * author: Pragnesh Patel <pragnesh.patel@sifive.com>
+ */
+
+#include <command.h>
+#include <dm.h>
+#include <pwm.h>
+
+enum pwm_cmd {
+	PWM_SET_INVERT,
+	PWM_SET_CONFIG,
+	PWM_SET_ENABLE,
+	PWM_SET_DISABLE,
+};
+
+static int do_pwm(struct cmd_tbl *cmdtp, int flag, int argc,
+		  char *const argv[])
+{
+	const char *str_cmd, *str_channel = NULL, *str_enable = NULL;
+	const char *str_pwm = NULL, *str_period = NULL, *str_duty = NULL;
+	enum pwm_cmd sub_cmd;
+	struct udevice *dev;
+	u32 channel, pwm_enable, pwm_dev, period_ns = 0, duty_ns = 0;
+	int ret;
+
+	if (argc < 4)
+		return CMD_RET_USAGE;
+
+	str_cmd = argv[1];
+	argc -= 2;
+	argv += 2;
+
+	if (argc > 0) {
+		str_pwm = *argv;
+		argc--;
+		argv++;
+	}
+
+	if (!str_pwm)
+		return CMD_RET_USAGE;
+
+	switch (*str_cmd) {
+	case 'i':
+		sub_cmd = PWM_SET_INVERT;
+		break;
+	case 'c':
+		sub_cmd = PWM_SET_CONFIG;
+		break;
+	case 'e':
+		sub_cmd = PWM_SET_ENABLE;
+		break;
+	case 'd':
+		sub_cmd = PWM_SET_DISABLE;
+		break;
+	default:
+		return CMD_RET_USAGE;
+	}
+
+	pwm_dev = simple_strtoul(str_pwm, NULL, 10);
+	ret = uclass_get_device(UCLASS_PWM, pwm_dev, &dev);
+	if (ret) {
+		printf("pwm: '%s' not found\n", str_pwm);
+		return cmd_process_error(cmdtp, ret);
+	}
+
+	if (argc > 0) {
+		str_channel = *argv;
+		channel = simple_strtoul(str_channel, NULL, 10);
+		argc--;
+		argv++;
+	} else {
+		return CMD_RET_USAGE;
+	}
+
+	if (sub_cmd == PWM_SET_INVERT && argc > 0) {
+		str_enable = *argv;
+		pwm_enable = simple_strtoul(str_enable, NULL, 10);
+		ret = pwm_set_invert(dev, channel, pwm_enable);
+	} else if (sub_cmd == PWM_SET_CONFIG && argc == 2) {
+		str_period = *argv;
+		argc--;
+		argv++;
+		period_ns = simple_strtoul(str_period, NULL, 10);
+
+		if (argc > 0) {
+			str_duty = *argv;
+			duty_ns = simple_strtoul(str_duty, NULL, 10);
+		}
+
+		ret = pwm_set_config(dev, channel, period_ns, duty_ns);
+	} else if (sub_cmd == PWM_SET_ENABLE) {
+		ret = pwm_set_enable(dev, channel, 1);
+	} else if (sub_cmd == PWM_SET_DISABLE) {
+		ret = pwm_set_enable(dev, channel, 0);
+	} else {
+		printf("PWM arguments missing\n");
+		return CMD_RET_FAILURE;
+	}
+
+	if (ret) {
+		printf("error(%d)\n", ret);
+		return CMD_RET_FAILURE;
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+U_BOOT_CMD(pwm, 6, 0, do_pwm,
+	   "control pwm channels",
+	   "pwm <invert> <pwm_dev_num> <channel> <polarity>\n"
+	   "pwm <config> <pwm_dev_num> <channel> <period_ns> <duty_ns>\n"
+	   "pwm <enable/disable> <pwm_dev_num> <channel>\n"
+	   "Note: All input values are in decimal");
