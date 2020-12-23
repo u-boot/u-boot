@@ -19,6 +19,9 @@ endif
 $(obj)/dt-spl.dtb: $(DTB) $(objtree)/tools/fdtgrep FORCE
 	$(call if_changed,fdtgrep)
 
+$(obj)/dt-tpl.dtb: $(DTB) $(objtree)/tools/fdtgrep FORCE
+	$(call if_changed,fdtgrep)
+
 ifeq ($(CONFIG_OF_DTB_PROPS_REMOVE),y)
 $(obj)/dt.dtb: $(DTB) $(objtree)/tools/fdtgrep FORCE
 	$(call if_changed,fdt_rm_props)
@@ -27,7 +30,7 @@ $(obj)/dt.dtb: $(DTB) FORCE
 	$(call if_changed,shipped)
 endif
 
-targets += dt.dtb dt-spl.dtb
+targets += dt.dtb dt-spl.dtb dt-tpl.dtb
 
 $(DTB): arch-dtbs
 	$(Q)test -e $@ || (						\
@@ -51,10 +54,12 @@ else
 obj-$(CONFIG_OF_EMBED) := dt.dtb.o
 endif
 
-dtbs: $(obj)/dt.dtb $(obj)/dt-spl.dtb
+dtbs: $(obj)/dt.dtb \
+		$(if $(CONFIG_SPL),$(obj)/dt-spl.dtb) \
+		$(if $(CONFIG_TPL),$(obj)/dt-tpl.dtb)
 	@:
 
-clean-files := dt.dtb.S dt-spl.dtb.S
+clean-files := dt.dtb.S dt-spl.dtb.S dt-tpl.dtb.S
 
 # Let clean descend into dts directories
 subdir- += ../arch/arm/dts ../arch/microblaze/dts ../arch/mips/dts ../arch/sandbox/dts ../arch/x86/dts ../arch/powerpc/dts ../arch/riscv/dts
