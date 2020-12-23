@@ -78,7 +78,7 @@ static struct ns16550 *serial_ports[6] = {
 		int clock_divisor; \
 		clock_divisor = ns16550_calc_divisor(serial_ports[port-1], \
 				CONFIG_SYS_NS16550_CLK, gd->baudrate); \
-		NS16550_init(serial_ports[port-1], clock_divisor); \
+		ns16550_init(serial_ports[port - 1], clock_divisor); \
 		return 0 ; \
 	} \
 	static void eserial##port##_setbrg(void) \
@@ -117,9 +117,9 @@ static struct ns16550 *serial_ports[6] = {
 static void _serial_putc(const char c, const int port)
 {
 	if (c == '\n')
-		NS16550_putc(PORT, '\r');
+		ns16550_putc(PORT, '\r');
 
-	NS16550_putc(PORT, c);
+	ns16550_putc(PORT, c);
 }
 
 static void _serial_puts(const char *s, const int port)
@@ -131,12 +131,12 @@ static void _serial_puts(const char *s, const int port)
 
 static int _serial_getc(const int port)
 {
-	return NS16550_getc(PORT);
+	return ns16550_getc(PORT);
 }
 
 static int _serial_tstc(const int port)
 {
-	return NS16550_tstc(PORT);
+	return ns16550_tstc(PORT);
 }
 
 static void _serial_setbrg(const int port)
@@ -145,7 +145,7 @@ static void _serial_setbrg(const int port)
 
 	clock_divisor = ns16550_calc_divisor(PORT, CONFIG_SYS_NS16550_CLK,
 					     gd->baudrate);
-	NS16550_reinit(PORT, clock_divisor);
+	ns16550_reinit(PORT, clock_divisor);
 }
 
 static inline void

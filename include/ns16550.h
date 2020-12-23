@@ -222,11 +222,11 @@ struct ns16550 {
 /* useful defaults for LCR */
 #define UART_LCR_8N1	0x03
 
-void NS16550_init(struct ns16550 *com_port, int baud_divisor);
-void NS16550_putc(struct ns16550 *com_port, char c);
-char NS16550_getc(struct ns16550 *com_port);
-int NS16550_tstc(struct ns16550 *com_port);
-void NS16550_reinit(struct ns16550 *com_port, int baud_divisor);
+void ns16550_init(struct ns16550 *com_port, int baud_divisor);
+void ns16550_putc(struct ns16550 *com_port, char c);
+char ns16550_getc(struct ns16550 *com_port);
+int ns16550_tstc(struct ns16550 *com_port);
+void ns16550_reinit(struct ns16550 *com_port, int baud_divisor);
 
 /**
  * ns16550_calc_divisor() - calculate the divisor given clock and baud rate

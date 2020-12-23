@@ -50,7 +50,7 @@ void board_init_f(ulong bootflag)
 	bus_clk = CONFIG_SYS_CLK_FREQ * plat_ratio;
 	gd->bus_clk = bus_clk;
 
-	NS16550_init((struct ns16550 *)CONFIG_SYS_NS16550_COM1,
+	ns16550_init((struct ns16550 *)CONFIG_SYS_NS16550_COM1,
 		     bus_clk / 16 / CONFIG_BAUDRATE);
 #ifdef CONFIG_SPL_MMC_BOOT
 	puts("\nSD boot...\n");

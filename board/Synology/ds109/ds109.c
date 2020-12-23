@@ -108,8 +108,9 @@ void reset_misc(void)
 
 	b_d = ns16550_calc_divisor((struct ns16550 *)CONFIG_SYS_NS16550_COM2,
 				   CONFIG_SYS_NS16550_CLK, 9600);
-	NS16550_init((struct ns16550 *)CONFIG_SYS_NS16550_COM2, b_d);
-	NS16550_putc((struct ns16550 *)CONFIG_SYS_NS16550_COM2, SOFTWARE_REBOOT);
+	ns16550_init((struct ns16550 *)CONFIG_SYS_NS16550_COM2, b_d);
+	ns16550_putc((struct ns16550 *)CONFIG_SYS_NS16550_COM2,
+		     SOFTWARE_REBOOT);
 }
 
 /* Support old kernels */

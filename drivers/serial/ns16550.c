@@ -212,7 +212,7 @@ int ns16550_calc_divisor(struct ns16550 *port, int clock, int baudrate)
 	return DIV_ROUND_CLOSEST(clock, mode_x_div * baudrate);
 }
 
-static void NS16550_setbrg(struct ns16550 *com_port, int baud_divisor)
+static void ns16550_setbrg(struct ns16550 *com_port, int baud_divisor)
 {
 	/* to keep serial format, read lcr before writing BKSE */
 	int lcr_val = serial_in(&com_port->lcr) & ~UART_LCR_BKSE;
@@ -223,7 +223,7 @@ static void NS16550_setbrg(struct ns16550 *com_port, int baud_divisor)
 	serial_out(lcr_val, &com_port->lcr);
 }
 
-void NS16550_init(struct ns16550 *com_port, int baud_divisor)
+void ns16550_init(struct ns16550 *com_port, int baud_divisor)
 {
 #if (defined(CONFIG_SPL_BUILD) && \
 		(defined(CONFIG_OMAP34XX) || defined(CONFIG_OMAP44XX)))
@@ -235,13 +235,13 @@ void NS16550_init(struct ns16550 *com_port, int baud_divisor)
 	if ((serial_in(&com_port->lsr) & (UART_LSR_TEMT | UART_LSR_THRE))
 	     == UART_LSR_THRE) {
 		if (baud_divisor != -1)
-			NS16550_setbrg(com_port, baud_divisor);
+			ns16550_setbrg(com_port, baud_divisor);
 		else {
 			// Re-use old baud rate divisor to flush transmit reg.
 			const int dll = serial_in(&com_port->dll);
 			const int dlm = serial_in(&com_port->dlm);
 			const int divisor = dll | (dlm << 8);
-			NS16550_setbrg(com_port, divisor);
+			ns16550_setbrg(com_port, divisor);
 		}
 		serial_out(0, &com_port->mdr1);
 	}
@@ -260,7 +260,7 @@ void NS16550_init(struct ns16550 *com_port, int baud_divisor)
 	/* initialize serial config to 8N1 before writing baudrate */
 	serial_out(UART_LCRVAL, &com_port->lcr);
 	if (baud_divisor != -1)
-		NS16550_setbrg(com_port, baud_divisor);
+		ns16550_setbrg(com_port, baud_divisor);
 #if defined(CONFIG_ARCH_OMAP2PLUS) || defined(CONFIG_SOC_DA8XX) || \
 	defined(CONFIG_OMAP_SERIAL)
 	/* /16 is proper to hit 115200 with 48MHz */
@@ -272,17 +272,17 @@ void NS16550_init(struct ns16550 *com_port, int baud_divisor)
 }
 
 #ifndef CONFIG_NS16550_MIN_FUNCTIONS
-void NS16550_reinit(struct ns16550 *com_port, int baud_divisor)
+void ns16550_reinit(struct ns16550 *com_port, int baud_divisor)
 {
 	serial_out(CONFIG_SYS_NS16550_IER, &com_port->ier);
-	NS16550_setbrg(com_port, 0);
+	ns16550_setbrg(com_port, 0);
 	serial_out(UART_MCRVAL, &com_port->mcr);
 	serial_out(ns16550_getfcr(com_port), &com_port->fcr);
-	NS16550_setbrg(com_port, baud_divisor);
+	ns16550_setbrg(com_port, baud_divisor);
 }
 #endif /* CONFIG_NS16550_MIN_FUNCTIONS */
 
-void NS16550_putc(struct ns16550 *com_port, char c)
+void ns16550_putc(struct ns16550 *com_port, char c)
 {
 	while ((serial_in(&com_port->lsr) & UART_LSR_THRE) == 0)
 		;
@@ -299,7 +299,7 @@ void NS16550_putc(struct ns16550 *com_port, char c)
 }
 
 #ifndef CONFIG_NS16550_MIN_FUNCTIONS
-char NS16550_getc(struct ns16550 *com_port)
+char ns16550_getc(struct ns16550 *com_port)
 {
 	while ((serial_in(&com_port->lsr) & UART_LSR_DR) == 0) {
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_USB_TTY)
@@ -311,7 +311,7 @@ char NS16550_getc(struct ns16550 *com_port)
 	return serial_in(&com_port->rbr);
 }
 
-int NS16550_tstc(struct ns16550 *com_port)
+int ns16550_tstc(struct ns16550 *com_port)
 {
 	return (serial_in(&com_port->lsr) & UART_LSR_DR) != 0;
 }
@@ -423,7 +423,7 @@ static int ns16550_serial_setbrg(struct udevice *dev, int baudrate)
 
 	clock_divisor = ns16550_calc_divisor(com_port, plat->clock, baudrate);
 
-	NS16550_setbrg(com_port, clock_divisor);
+	ns16550_setbrg(com_port, clock_divisor);
 
 	return 0;
 }
@@ -520,7 +520,7 @@ int ns16550_serial_probe(struct udevice *dev)
 		reset_deassert_bulk(&reset_bulk);
 
 	com_port->plat = dev_get_plat(dev);
-	NS16550_init(com_port, -1);
+	ns16550_init(com_port, -1);
 
 	return 0;
 }
