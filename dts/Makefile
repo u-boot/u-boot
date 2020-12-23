@@ -16,10 +16,11 @@ else
 DTB := arch/$(ARCH)/dts/$(DEVICE_TREE).dtb
 endif
 
-$(obj)/dt-spl.dtb: $(DTB) $(objtree)/tools/fdtgrep FORCE
+spl/$(obj)/dt-spl.dtb: $(DTB) $(objtree)/tools/fdtgrep FORCE
+	mkdir -p $(dir $@)
 	$(call if_changed,fdtgrep)
 
-$(obj)/dt-tpl.dtb: $(DTB) $(objtree)/tools/fdtgrep FORCE
+tpl/$(obj)/dt-tpl.dtb: $(DTB) $(objtree)/tools/fdtgrep FORCE
 	$(call if_changed,fdtgrep)
 
 ifeq ($(CONFIG_OF_DTB_PROPS_REMOVE),y)
@@ -55,8 +56,8 @@ obj-$(CONFIG_OF_EMBED) := dt.dtb.o
 endif
 
 dtbs: $(obj)/dt.dtb \
-		$(if $(CONFIG_SPL),$(obj)/dt-spl.dtb) \
-		$(if $(CONFIG_TPL),$(obj)/dt-tpl.dtb)
+		$(if $(CONFIG_SPL),spl/$(obj)/dt-spl.dtb) \
+		$(if $(CONFIG_TPL),tpl/$(obj)/dt-tpl.dtb)
 	@:
 
 clean-files := dt.dtb.S dt-spl.dtb.S dt-tpl.dtb.S
