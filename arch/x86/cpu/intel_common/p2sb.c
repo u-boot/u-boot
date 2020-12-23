@@ -180,7 +180,7 @@ static int p2sb_child_post_bind(struct udevice *dev)
 	return 0;
 }
 
-struct p2sb_ops p2sb_ops = {
+static const struct p2sb_ops p2sb_ops = {
 	.set_hide	= intel_p2sb_set_hide,
 };
 

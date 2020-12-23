@@ -205,7 +205,7 @@ static int apl_pmc_probe(struct udevice *dev)
 	return 0;
 }
 
-static struct acpi_pmc_ops apl_pmc_ops = {
+static const struct acpi_pmc_ops apl_pmc_ops = {
 	.init			= apl_pmc_fill_power_state,
 	.prev_sleep_state	= apl_prev_sleep_state,
 	.disable_tco		= apl_disable_tco,
