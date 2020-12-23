@@ -152,8 +152,6 @@ static int apl_pinctrl_of_to_plat(struct udevice *dev)
 	 * linker list (i.e. alphabetical order by driver name). So the GPIO
 	 * device may well be bound before its parent (p2sb), and this call
 	 * will fail if p2sb is not bound yet.
-	 *
-	 * TODO(sjg@chromium.org): Add a parent pointer to child devices in dtoc
 	 */
 	ret = p2sb_set_port_id(dev, plat->dtplat.intel_p2sb_port_id);
 	if (ret)

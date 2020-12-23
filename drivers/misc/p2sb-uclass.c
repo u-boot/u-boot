@@ -168,26 +168,11 @@ int p2sb_get_port_id(struct udevice *dev)
 
 int p2sb_set_port_id(struct udevice *dev, int portid)
 {
-	struct udevice *ps2b;
 	struct p2sb_child_plat *pplat;
 
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA))
 		return -ENOSYS;
 
-	if (!CONFIG_IS_ENABLED(OF_PLATDATA_PARENT)) {
-		uclass_find_first_device(UCLASS_P2SB, &ps2b);
-		if (!ps2b)
-			return -EDEADLK;
-		dev->parent = ps2b;
-
-		/*
-		 * We must allocate this, since when the device was bound it did
-		 * not have a parent.
-		 */
-		dev->parent_plat = malloc(sizeof(*pplat));
-		if (!dev->parent_plat)
-			return -ENOMEM;
-	}
 	pplat = dev_get_parent_plat(dev);
 	pplat->pid = portid;
 
