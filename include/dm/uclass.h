@@ -115,6 +115,14 @@ struct uclass_driver {
 	ll_entry_declare(struct uclass_driver, __name, uclass_driver)
 
 /**
+ * uclass_get_priv() - Get the private data for a uclass
+ *
+ * @uc		Uclass to check
+ * @return private data, or NULL if none
+ */
+void *uclass_get_priv(const struct uclass *uc);
+
+/**
  * uclass_get() - Get a uclass based on an ID, creating it if needed
  *
  * Every uclass is identified by an ID, a number from 0 to n-1 where n is
