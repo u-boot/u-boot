@@ -540,6 +540,15 @@ config TARGET_TBS2910
 	bool "TBS2910 Matrix ARM mini PC"
 	depends on MX6Q
 
+config TARGET_TIAGO
+	bool "SECO Tiago"
+	depends on MX6ULL
+	select BOARD_LATE_INIT
+	select DM
+	select DM_THERMAL
+	select SUPPORT_SPL
+	imply CMD_DM
+
 config TARGET_KP_IMX6Q_TPC
 	bool "K+P KP_IMX6Q_TPC i.MX6 Quad"
 	depends on MX6QDL
@@ -674,6 +683,7 @@ source "board/softing/vining_2000/Kconfig"
 source "board/liebherr/display5/Kconfig"
 source "board/liebherr/mccmon6/Kconfig"
 source "board/logicpd/imx6/Kconfig"
+source "board/seco/tiago/Kconfig"
 source "board/solidrun/mx6cuboxi/Kconfig"
 source "board/somlabs/visionsom-6ull/Kconfig"
 source "board/technexion/pico-imx6/Kconfig"

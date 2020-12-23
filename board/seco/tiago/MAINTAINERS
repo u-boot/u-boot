@@ -1,0 +1,6 @@
+TIAGO BOARD
+M:	Sean Anderson <sean.anderson@seco.com>
+S:	Maintained
+F:	board/seco/tiago/
+F:	include/configs/tiago.h
+F:	configs/tiago_defconfig

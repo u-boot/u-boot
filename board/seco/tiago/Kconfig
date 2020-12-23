@@ -1,0 +1,25 @@
+if TARGET_TIAGO
+
+config SYS_BOARD
+	default "tiago"
+
+config SYS_VENDOR
+	default "seco"
+
+config SYS_CONFIG_NAME
+	default "tiago"
+
+config CHAIN_OF_TRUST
+	bool "Enable chain of trust"
+	depends on FIT_SIGNATURE
+	select IMX_HAB
+	select ENV_IS_NOWHERE
+	select BOARD_LATE_INIT
+	help
+	  Say Y here to enable options necessary for establishing a chain of
+	  trust from the IMX boot ROM to Linux.
+
+config BOOTDELAY
+	default -2 if CHAIN_OF_TRUST
+
+endif
