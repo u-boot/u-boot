@@ -133,14 +133,16 @@ void spl_board_init(void)
  * for devices, so the TPL BARs continue to be used. Once U-Boot starts it does
  * the auto allocation (after relocation).
  */
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct udevice_id tpl_fake_pci_ids[] = {
 	{ .compatible = "pci-x86" },
 	{ }
 };
+#endif
 
 U_BOOT_DRIVER(pci_x86) = {
 	.name	= "pci_x86",
 	.id	= UCLASS_SIMPLE_BUS,
-	.of_match = tpl_fake_pci_ids,
+	.of_match = of_match_ptr(tpl_fake_pci_ids),
 };
 #endif
