@@ -39,8 +39,8 @@ struct driver *lists_driver_lookup_name(const char *name)
 struct uclass_driver *lists_uclass_lookup(enum uclass_id id)
 {
 	struct uclass_driver *uclass =
-		ll_entry_start(struct uclass_driver, uclass);
-	const int n_ents = ll_entry_count(struct uclass_driver, uclass);
+		ll_entry_start(struct uclass_driver, uclass_driver);
+	const int n_ents = ll_entry_count(struct uclass_driver, uclass_driver);
 	struct uclass_driver *entry;
 
 	for (entry = uclass; entry != uclass + n_ents; entry++) {

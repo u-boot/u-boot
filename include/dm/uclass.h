@@ -112,7 +112,7 @@ struct uclass_driver {
 
 /* Declare a new uclass_driver */
 #define UCLASS_DRIVER(__name)						\
-	ll_entry_declare(struct uclass_driver, __name, uclass)
+	ll_entry_declare(struct uclass_driver, __name, uclass_driver)
 
 /**
  * uclass_get() - Get a uclass based on an ID, creating it if needed
