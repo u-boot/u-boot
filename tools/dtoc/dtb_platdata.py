@@ -652,6 +652,39 @@ class DtbPlatdata():
         self.buf('};\n')
         self.buf('\n')
 
+    def _output_prop(self, node, prop):
+        """Output a line containing the value of a struct member
+
+        Args:
+            node (Node): Node being output
+            prop (Prop): Prop object to output
+        """
+        if prop.name in PROP_IGNORE_LIST or prop.name[0] == '#':
+            return
+        member_name = conv_name_to_c(prop.name)
+        self.buf('\t%s= ' % tab_to(3, '.' + member_name))
+
+        # Special handling for lists
+        if isinstance(prop.value, list):
+            self._output_list(node, prop)
+        else:
+            self.buf(get_value(prop.type, prop.value))
+        self.buf(',\n')
+
+    def _output_values(self, var_name, struct_name, node):
+        """Output the definition of a device's struct values
+
+        Args:
+            var_name (str): C name for the node
+            struct_name (str): Name for the dt struct associated with the node
+            node (Node): Node being output
+        """
+        self.buf('static struct %s%s %s%s = {\n' %
+                 (STRUCT_PREFIX, struct_name, VAL_PREFIX, var_name))
+        for pname in sorted(node.props):
+            self._output_prop(node, node.props[pname])
+        self.buf('};\n')
+
     def output_node(self, node):
         """Output the C code for a node
 
@@ -661,23 +694,8 @@ class DtbPlatdata():
         struct_name, _ = self.get_normalized_compat_name(node)
         var_name = conv_name_to_c(node.name)
         self.buf('/* Node %s index %d */\n' % (node.path, node.idx))
-        self.buf('static struct %s%s %s%s = {\n' %
-                 (STRUCT_PREFIX, struct_name, VAL_PREFIX, var_name))
-        for pname in sorted(node.props):
-            prop = node.props[pname]
-            if pname in PROP_IGNORE_LIST or pname[0] == '#':
-                continue
-            member_name = conv_name_to_c(prop.name)
-            self.buf('\t%s= ' % tab_to(3, '.' + member_name))
 
-            # Special handling for lists
-            if isinstance(prop.value, list):
-                self._output_list(node, prop)
-            else:
-                self.buf(get_value(prop.type, prop.value))
-            self.buf(',\n')
-        self.buf('};\n')
-
+        self._output_values(var_name, struct_name, node)
         self._declare_device(var_name, struct_name, node.parent)
 
         self.out(''.join(self.get_buf()))
