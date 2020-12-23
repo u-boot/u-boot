@@ -165,12 +165,12 @@ const char *uclass_get_name(enum uclass_id id)
 
 void *uclass_get_priv(const struct uclass *uc)
 {
-	return uc->priv;
+	return uc->priv_;
 }
 
 void uclass_set_priv(struct uclass *uc, void *priv)
 {
-	uc->priv = priv;
+	uc->priv_ = priv;
 }
 
 enum uclass_id uclass_get_by_name(const char *name)

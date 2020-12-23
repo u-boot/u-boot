@@ -116,17 +116,22 @@ enum {
  *
  * @driver: The driver used by this device
  * @name: Name of device, typically the FDT node name
- * @plat: Configuration data for this device
- * @parent_plat: The parent bus's configuration data for this device
- * @uclass_plat: The uclass's configuration data for this device
+ * @plat_: Configuration data for this device (do not access outside driver
+ *	model)
+ * @parent_plat_: The parent bus's configuration data for this device (do not
+ *	access outside driver model)
+ * @uclass_plat_: The uclass's configuration data for this device (do not access
+ *	outside driver model)
  * @node: Reference to device tree node for this device
  * @driver_data: Driver data word for the entry that matched this device with
  *		its driver
  * @parent: Parent of this device, or NULL for the top level device
- * @priv: Private data for this device
+ * @priv_: Private data for this device (do not access outside driver model)
  * @uclass: Pointer to uclass for this device
- * @uclass_priv: The uclass's private data for this device
- * @parent_priv: The parent's private data for this device
+ * @uclass_priv_: The uclass's private data for this device (do not access
+ *	outside driver model)
+ * @parent_priv_: The parent's private data for this device (do not access
+ *	outside driver model)
  * @uclass_node: Used by uclass to link its devices
  * @child_head: List of children of this device
  * @sibling_node: Next device in list of all devices
@@ -144,16 +149,16 @@ enum {
 struct udevice {
 	const struct driver *driver;
 	const char *name;
-	void *plat;
-	void *parent_plat;
-	void *uclass_plat;
+	void *plat_;
+	void *parent_plat_;
+	void *uclass_plat_;
 	ofnode node;
 	ulong driver_data;
 	struct udevice *parent;
-	void *priv;
+	void *priv_;
 	struct uclass *uclass;
-	void *uclass_priv;
-	void *parent_priv;
+	void *uclass_priv_;
+	void *parent_priv_;
 	struct list_head uclass_node;
 	struct list_head child_head;
 	struct list_head sibling_node;

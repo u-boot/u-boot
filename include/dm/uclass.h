@@ -24,7 +24,7 @@
  * There may be drivers for on-chip SoC GPIO banks, I2C GPIO expanders and
  * PMIC IO lines, all made available in a unified way through the uclass.
  *
- * @priv: Private data for this uclass
+ * @priv_: Private data for this uclass (do not access outside driver model)
  * @uc_drv: The driver for the uclass itself, not to be confused with a
  * 'struct driver'
  * @dev_head: List of devices in this uclass (devices are attached to their
@@ -32,7 +32,7 @@
  * @sibling_node: Next uclass in the linked list of uclasses
  */
 struct uclass {
-	void *priv;
+	void *priv_;
 	struct uclass_driver *uc_drv;
 	struct list_head dev_head;
 	struct list_head sibling_node;

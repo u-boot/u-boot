@@ -514,7 +514,7 @@ void *dev_get_plat(const struct udevice *dev)
 		return NULL;
 	}
 
-	return dev->plat;
+	return dev->plat_;
 }
 
 void *dev_get_parent_plat(const struct udevice *dev)
@@ -524,7 +524,7 @@ void *dev_get_parent_plat(const struct udevice *dev)
 		return NULL;
 	}
 
-	return dev->parent_plat;
+	return dev->parent_plat_;
 }
 
 void *dev_get_uclass_plat(const struct udevice *dev)
@@ -534,7 +534,7 @@ void *dev_get_uclass_plat(const struct udevice *dev)
 		return NULL;
 	}
 
-	return dev->uclass_plat;
+	return dev->uclass_plat_;
 }
 
 void *dev_get_priv(const struct udevice *dev)
@@ -544,7 +544,7 @@ void *dev_get_priv(const struct udevice *dev)
 		return NULL;
 	}
 
-	return dev->priv;
+	return dev->priv_;
 }
 
 void *dev_get_uclass_priv(const struct udevice *dev)
@@ -554,7 +554,7 @@ void *dev_get_uclass_priv(const struct udevice *dev)
 		return NULL;
 	}
 
-	return dev->uclass_priv;
+	return dev->uclass_priv_;
 }
 
 void *dev_get_parent_priv(const struct udevice *dev)
@@ -564,7 +564,7 @@ void *dev_get_parent_priv(const struct udevice *dev)
 		return NULL;
 	}
 
-	return dev->parent_priv;
+	return dev->parent_priv_;
 }
 
 static int device_get_device_tail(struct udevice *dev, int ret,
@@ -966,32 +966,32 @@ int device_set_name(struct udevice *dev, const char *name)
 
 void dev_set_priv(struct udevice *dev, void *priv)
 {
-	dev->priv = priv;
+	dev->priv_ = priv;
 }
 
 void dev_set_parent_priv(struct udevice *dev, void *parent_priv)
 {
-	dev->parent_priv = parent_priv;
+	dev->parent_priv_ = parent_priv;
 }
 
 void dev_set_uclass_priv(struct udevice *dev, void *uclass_priv)
 {
-	dev->uclass_priv = uclass_priv;
+	dev->uclass_priv_ = uclass_priv;
 }
 
 void dev_set_plat(struct udevice *dev, void *plat)
 {
-	dev->plat = plat;
+	dev->plat_ = plat;
 }
 
 void dev_set_parent_plat(struct udevice *dev, void *parent_plat)
 {
-	dev->parent_plat = parent_plat;
+	dev->parent_plat_ = parent_plat;
 }
 
 void dev_set_uclass_plat(struct udevice *dev, void *uclass_plat)
 {
-	dev->uclass_plat = uclass_plat;
+	dev->uclass_plat_ = uclass_plat;
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
