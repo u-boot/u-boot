@@ -61,7 +61,7 @@ U_BOOT_DRIVER(serial_intel_mid) = {
 	.of_match = mid_serial_ids,
 	.of_to_plat = ns16550_serial_of_to_plat,
 	.plat_auto	= sizeof(struct ns16550_plat),
-	.priv_auto	= sizeof(struct NS16550),
+	.priv_auto	= sizeof(struct ns16550),
 	.probe	= mid_serial_probe,
 	.ops	= &ns16550_serial_ops,
 };

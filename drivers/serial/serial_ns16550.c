@@ -36,34 +36,34 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Note: The port number specified in the functions is 1 based.
  *	 the array is 0 based.
  */
-static NS16550_t serial_ports[6] = {
+static struct ns16550 *serial_ports[6] = {
 #ifdef CONFIG_SYS_NS16550_COM1
-	(NS16550_t)CONFIG_SYS_NS16550_COM1,
+	(struct ns16550 *)CONFIG_SYS_NS16550_COM1,
 #else
 	NULL,
 #endif
 #ifdef CONFIG_SYS_NS16550_COM2
-	(NS16550_t)CONFIG_SYS_NS16550_COM2,
+	(struct ns16550 *)CONFIG_SYS_NS16550_COM2,
 #else
 	NULL,
 #endif
 #ifdef CONFIG_SYS_NS16550_COM3
-	(NS16550_t)CONFIG_SYS_NS16550_COM3,
+	(struct ns16550 *)CONFIG_SYS_NS16550_COM3,
 #else
 	NULL,
 #endif
 #ifdef CONFIG_SYS_NS16550_COM4
-	(NS16550_t)CONFIG_SYS_NS16550_COM4,
+	(struct ns16550 *)CONFIG_SYS_NS16550_COM4,
 #else
 	NULL,
 #endif
 #ifdef CONFIG_SYS_NS16550_COM5
-	(NS16550_t)CONFIG_SYS_NS16550_COM5,
+	(struct ns16550 *)CONFIG_SYS_NS16550_COM5,
 #else
 	NULL,
 #endif
 #ifdef CONFIG_SYS_NS16550_COM6
-	(NS16550_t)CONFIG_SYS_NS16550_COM6
+	(struct ns16550 *)CONFIG_SYS_NS16550_COM6
 #else
 	NULL
 #endif

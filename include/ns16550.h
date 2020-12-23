@@ -21,6 +21,9 @@
  * will not allocate storage for arrays of size 0
  */
 
+#ifndef __ns16550_h
+#define __ns16550_h
+
 #include <linux/types.h>
 
 #ifdef CONFIG_DM_SERIAL
@@ -82,7 +85,7 @@ struct ns16550_plat {
 
 struct udevice;
 
-struct NS16550 {
+struct ns16550 {
 	UART_REG(rbr);		/* 0 */
 	UART_REG(ier);		/* 1 */
 	UART_REG(fcr);		/* 2 */
@@ -119,8 +122,6 @@ struct NS16550 {
 #define iir fcr
 #define dll rbr
 #define dlm ier
-
-typedef struct NS16550 *NS16550_t;
 
 /*
  * These are the definitions for the FIFO Control Register
@@ -221,11 +222,11 @@ typedef struct NS16550 *NS16550_t;
 /* useful defaults for LCR */
 #define UART_LCR_8N1	0x03
 
-void NS16550_init(NS16550_t com_port, int baud_divisor);
-void NS16550_putc(NS16550_t com_port, char c);
-char NS16550_getc(NS16550_t com_port);
-int NS16550_tstc(NS16550_t com_port);
-void NS16550_reinit(NS16550_t com_port, int baud_divisor);
+void NS16550_init(struct ns16550 *com_port, int baud_divisor);
+void NS16550_putc(struct ns16550 *com_port, char c);
+char NS16550_getc(struct ns16550 *com_port);
+int NS16550_tstc(struct ns16550 *com_port);
+void NS16550_reinit(struct ns16550 *com_port, int baud_divisor);
 
 /**
  * ns16550_calc_divisor() - calculate the divisor given clock and baud rate
@@ -238,7 +239,7 @@ void NS16550_reinit(NS16550_t com_port, int baud_divisor);
  * @baudrate:	Required baud rate
  * @return baud rate divisor that should be used
  */
-int ns16550_calc_divisor(NS16550_t port, int clock, int baudrate);
+int ns16550_calc_divisor(struct ns16550 *port, int clock, int baudrate);
 
 /**
  * ns16550_serial_of_to_plat() - convert DT to platform data
@@ -266,3 +267,5 @@ int ns16550_serial_probe(struct udevice *dev);
  * These should be used by the client driver for the driver's 'ops' member
  */
 extern const struct dm_serial_ops ns16550_serial_ops;
+
+#endif /* __ns16550_h */

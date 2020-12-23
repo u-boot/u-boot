@@ -106,10 +106,10 @@ void reset_misc(void)
 	printf("Synology reset...");
 	udelay(50000);
 
-	b_d = ns16550_calc_divisor((NS16550_t)CONFIG_SYS_NS16550_COM2,
-		CONFIG_SYS_NS16550_CLK, 9600);
-	NS16550_init((NS16550_t)CONFIG_SYS_NS16550_COM2, b_d);
-	NS16550_putc((NS16550_t)CONFIG_SYS_NS16550_COM2, SOFTWARE_REBOOT);
+	b_d = ns16550_calc_divisor((struct ns16550 *)CONFIG_SYS_NS16550_COM2,
+				   CONFIG_SYS_NS16550_CLK, 9600);
+	NS16550_init((struct ns16550 *)CONFIG_SYS_NS16550_COM2, b_d);
+	NS16550_putc((struct ns16550 *)CONFIG_SYS_NS16550_COM2, SOFTWARE_REBOOT);
 }
 
 /* Support old kernels */
