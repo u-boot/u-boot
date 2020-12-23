@@ -90,6 +90,9 @@ int board_late_init(void)
 	struct udevice *dev;
 	struct mmc *mmc_dev;
 	bool ddr4, emmc;
+	const char *mac;
+	char eth[10];
+	int i;
 
 	if (!of_machine_is_compatible("globalscale,espressobin"))
 		return 0;
@@ -97,6 +100,22 @@ int board_late_init(void)
 	/* Find free buffer in default_environment[] for new variables */
 	while (*ptr != '\0' && *(ptr+1) != '\0') ptr++;
 	ptr += 2;
+
+	/*
+	 * Ensure that 'env default -a' does not erase permanent MAC addresses
+	 * stored in env variables: $ethaddr, $eth1addr, $eth2addr and $eth3addr
+	 */
+
+	mac = env_get("ethaddr");
+	if (mac && strlen(mac) <= 17)
+		ptr += sprintf(ptr, "ethaddr=%s", mac) + 1;
+
+	for (i = 1; i <= 3; i++) {
+		sprintf(eth, "eth%daddr", i);
+		mac = env_get(eth);
+		if (mac && strlen(mac) <= 17)
+			ptr += sprintf(ptr, "%s=%s", eth, mac) + 1;
+	}
 
 	/* If the memory controller has been configured for DDR4, we're running on v7 */
 	ddr4 = ((readl(A3700_CH0_MC_CTRL2_REG) >> A3700_MC_CTRL2_SDRAM_TYPE_OFFS)
