@@ -94,11 +94,11 @@ int device_unbind(struct udevice *dev)
 	}
 	if (dev->flags & DM_FLAG_ALLOC_UCLASS_PDATA) {
 		free(dev_get_uclass_plat(dev));
-		dev->uclass_plat = NULL;
+		dev_set_uclass_plat(dev, NULL);
 	}
 	if (dev->flags & DM_FLAG_ALLOC_PARENT_PDATA) {
 		free(dev_get_parent_plat(dev));
-		dev->parent_plat = NULL;
+		dev_set_parent_plat(dev, NULL);
 	}
 	ret = uclass_unbind_device(dev);
 	if (ret)
@@ -131,7 +131,7 @@ void device_free(struct udevice *dev)
 	size = dev->uclass->uc_drv->per_device_auto;
 	if (size) {
 		free(dev_get_uclass_priv(dev));
-		dev->uclass_priv = NULL;
+		dev_set_uclass_priv(dev, NULL);
 	}
 	if (dev->parent) {
 		size = dev->parent->driver->per_child_auto;
@@ -141,7 +141,7 @@ void device_free(struct udevice *dev)
 		}
 		if (size) {
 			free(dev_get_parent_priv(dev));
-			dev->parent_priv = NULL;
+			dev_set_parent_priv(dev, NULL);
 		}
 	}
 	dev->flags &= ~DM_FLAG_PLATDATA_VALID;

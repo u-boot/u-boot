@@ -72,11 +72,14 @@ static int uclass_add(enum uclass_id id, struct uclass **ucp)
 	if (!uc)
 		return -ENOMEM;
 	if (uc_drv->priv_auto) {
-		uc->priv = calloc(1, uc_drv->priv_auto);
-		if (!uc->priv) {
+		void *ptr;
+
+		ptr = calloc(1, uc_drv->priv_auto);
+		if (!ptr) {
 			ret = -ENOMEM;
 			goto fail_mem;
 		}
+		uclass_set_priv(uc, ptr);
 	}
 	uc->uc_drv = uc_drv;
 	INIT_LIST_HEAD(&uc->sibling_node);
@@ -94,8 +97,8 @@ static int uclass_add(enum uclass_id id, struct uclass **ucp)
 	return 0;
 fail:
 	if (uc_drv->priv_auto) {
-		free(uc->priv);
-		uc->priv = NULL;
+		free(uclass_get_priv(uc));
+		uclass_set_priv(uc, NULL);
 	}
 	list_del(&uc->sibling_node);
 fail_mem:
@@ -132,7 +135,7 @@ int uclass_destroy(struct uclass *uc)
 		uc_drv->destroy(uc);
 	list_del(&uc->sibling_node);
 	if (uc_drv->priv_auto)
-		free(uc->priv);
+		free(uclass_get_priv(uc));
 	free(uc);
 
 	return 0;
