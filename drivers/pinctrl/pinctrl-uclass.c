@@ -305,7 +305,7 @@ int pinctrl_select_state(struct udevice *dev, const char *statename)
 	 * Some device which is logical like mmc.blk, do not have
 	 * a valid ofnode.
 	 */
-	if (!ofnode_valid(dev->node))
+	if (!dev_has_of_node(dev))
 		return 0;
 	/*
 	 * Try full-implemented pinctrl first.
@@ -416,7 +416,9 @@ static int __maybe_unused pinctrl_post_bind(struct udevice *dev)
 
 UCLASS_DRIVER(pinctrl) = {
 	.id = UCLASS_PINCTRL,
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.post_bind = pinctrl_post_bind,
+#endif
 	.flags = DM_UC_FLAG_SEQ_ALIAS,
 	.name = "pinctrl",
 };
