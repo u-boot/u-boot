@@ -50,15 +50,17 @@ UCLASS_DRIVER(simple_bus) = {
 	.per_device_plat_auto	= sizeof(struct simple_bus_plat),
 };
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct udevice_id generic_simple_bus_ids[] = {
 	{ .compatible = "simple-bus" },
 	{ .compatible = "simple-mfd" },
 	{ }
 };
+#endif
 
 U_BOOT_DRIVER(simple_bus) = {
 	.name	= "simple_bus",
 	.id	= UCLASS_SIMPLE_BUS,
-	.of_match = generic_simple_bus_ids,
+	.of_match = of_match_ptr(generic_simple_bus_ids),
 	.flags	= DM_FLAG_PRE_RELOC,
 };
