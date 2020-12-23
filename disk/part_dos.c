@@ -329,7 +329,7 @@ int is_valid_dos_buf(void *buf)
 	return test_block_type(buf) == DOS_MBR ? 0 : -1;
 }
 
-int write_mbr_partition(struct blk_desc *dev_desc, void *buf)
+int write_mbr_sector(struct blk_desc *dev_desc, void *buf)
 {
 	if (is_valid_dos_buf(buf))
 		return -1;
