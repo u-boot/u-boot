@@ -19,6 +19,8 @@
 #define DOS_PART_TYPE_EXTENDED_LBA	0x0F
 #define DOS_PART_TYPE_EXTENDED_LINUX	0x85
 
+#define DOS_PART_DEFAULT_GAP		2048
+
 typedef struct dos_partition {
 	unsigned char boot_ind;		/* 0x80 - active			*/
 	unsigned char head;		/* starting head			*/
