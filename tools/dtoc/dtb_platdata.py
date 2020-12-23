@@ -112,18 +112,19 @@ def get_value(ftype, value):
         str: String representation of the value
     """
     if ftype == fdt.Type.INT:
-        return '%#x' % fdt_util.fdt32_to_cpu(value)
+        val = '%#x' % fdt_util.fdt32_to_cpu(value)
     elif ftype == fdt.Type.BYTE:
         char = value[0]
-        return '%#x' % (ord(char) if isinstance(char, str) else char)
+        val = '%#x' % (ord(char) if isinstance(char, str) else char)
     elif ftype == fdt.Type.STRING:
         # Handle evil ACPI backslashes by adding another backslash before them.
         # So "\\_SB.GPO0" in the device tree effectively stays like that in C
-        return '"%s"' % value.replace('\\', '\\\\')
+        val = '"%s"' % value.replace('\\', '\\\\')
     elif ftype == fdt.Type.BOOL:
-        return 'true'
+        val = 'true'
     else:  # ftype == fdt.Type.INT64:
-        return '%#x' % value
+        val = '%#x' % value
+    return val
 
 def get_compat_name(node):
     """Get the node's list of compatible string as a C identifiers
@@ -131,7 +132,7 @@ def get_compat_name(node):
     Args:
         node (fdt.Node): Node object to check
     Return:
-        List of C identifiers for all the compatible strings
+        list of str: List of C identifiers for all the compatible strings
     """
     compat = node.props['compatible'].value
     if not isinstance(compat, list):
@@ -139,7 +140,7 @@ def get_compat_name(node):
     return [conv_name_to_c(c) for c in compat]
 
 
-class DtbPlatdata(object):
+class DtbPlatdata():
     """Provide a means to convert device tree binary data to platform data
 
     The output of this process is C structures which can be used in space-
@@ -183,7 +184,7 @@ class DtbPlatdata(object):
         and a lookup in driver_aliases printing a warning in case of failure.
 
         Args:
-            node: Node object to check
+            node (Node): Node object to check
         Return:
             Tuple:
                 Driver name associated with the first compatible string
@@ -330,7 +331,7 @@ class DtbPlatdata(object):
 
             # The following re will search for driver names declared as
             # U_BOOT_DRIVER(driver_name)
-            drivers = re.findall('U_BOOT_DRIVER\((.*)\)', buff)
+            drivers = re.findall(r'U_BOOT_DRIVER\((.*)\)', buff)
 
             for driver in drivers:
                 self._drivers.append(driver)
@@ -338,7 +339,7 @@ class DtbPlatdata(object):
             # The following re will search for driver aliases declared as
             # U_BOOT_DRIVER_ALIAS(alias, driver_name)
             driver_aliases = re.findall(
-                'U_BOOT_DRIVER_ALIAS\(\s*(\w+)\s*,\s*(\w+)\s*\)',
+                r'U_BOOT_DRIVER_ALIAS\(\s*(\w+)\s*,\s*(\w+)\s*\)',
                 buff)
 
             for alias in driver_aliases: # pragma: no cover
@@ -383,8 +384,8 @@ class DtbPlatdata(object):
         This adds each node to self._valid_nodes.
 
         Args:
-            root: Root node for scan
-            valid_nodes: List of Node objects to add to
+            root (Node): Root node for scan
+            valid_nodes (list of Node): List of Node objects to add to
         """
         for node in root.subnodes:
             if 'compatible' in node.props:
@@ -484,7 +485,7 @@ class DtbPlatdata(object):
         updated to match that width.
 
         Returns:
-            dict containing structures:
+            dict of dict: dict containing structures:
                 key (str): Node name, as a C identifier
                 value: dict containing structure fields:
                     key (str): Field name
@@ -559,7 +560,7 @@ class DtbPlatdata(object):
         doc/driver-model/of-plat.rst for more information.
 
         Args:
-            structs: dict containing structures:
+            structs (dict): dict containing structures:
                 key (str): Node name, as a C identifier
                 value: dict containing structure fields:
                     key (str): Field name
@@ -720,7 +721,7 @@ def run_steps(args, dtb_file, include_disabled, output, warning_disabled=False,
         output (str): Name of output file
         warning_disabled (bool): True to avoid showing warnings about missing
             drivers
-       _drivers_additional (list): List of additional drivers to use during
+        drivers_additional (list): List of additional drivers to use during
             scanning
     Raises:
         ValueError: if args has no command, or an unknown command
