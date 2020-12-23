@@ -14,11 +14,13 @@ static void show_devices(struct udevice *dev, int depth, int last_flag)
 {
 	int i, is_last;
 	struct udevice *child;
+	u32 flags = dev->flags;
 
 	/* print the first 20 characters to not break the tree-format. */
-	printf(" %-10.10s  %3d  [ %c ]   %-20.20s  ", dev->uclass->uc_drv->name,
+	printf(IS_ENABLED(CONFIG_SPL_BUILD) ? " %s  %d  [ %c ]   %s  " :
+	       " %-10.10s  %3d  [ %c ]   %-20.20s  ", dev->uclass->uc_drv->name,
 	       dev_get_uclass_index(dev, NULL),
-	       dev->flags & DM_FLAG_ACTIVATED ? '+' : ' ', dev->driver->name);
+	       flags & DM_FLAG_ACTIVATED ? '+' : ' ', dev->driver->name);
 
 	for (i = depth; i >= 0; i--) {
 		is_last = (last_flag >> i) & 1;
