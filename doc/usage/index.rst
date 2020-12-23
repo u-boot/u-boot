@@ -14,4 +14,5 @@ Shell commands
    bootefi
    bootmenu
    button
+   mbr
    pstore

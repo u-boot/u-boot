@@ -1034,6 +1034,14 @@ config CMD_LSBLK
 	  Print list of available block device drivers, and for each, the list
 	  of known block devices.
 
+config CMD_MBR
+	bool "MBR (Master Boot Record) command"
+	select DOS_PARTITION
+	select HAVE_BLOCK_DEVICE
+	help
+	  Enable the 'mbr' command to ready and write MBR (Master Boot Record)
+	  style partition tables.
+
 config CMD_MISC
 	bool "misc"
 	depends on MISC
