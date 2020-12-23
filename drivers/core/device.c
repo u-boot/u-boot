@@ -959,6 +959,36 @@ int device_set_name(struct udevice *dev, const char *name)
 	return 0;
 }
 
+void dev_set_priv(struct udevice *dev, void *priv)
+{
+	dev->priv = priv;
+}
+
+void dev_set_parent_priv(struct udevice *dev, void *parent_priv)
+{
+	dev->parent_priv = parent_priv;
+}
+
+void dev_set_uclass_priv(struct udevice *dev, void *uclass_priv)
+{
+	dev->uclass_priv = uclass_priv;
+}
+
+void dev_set_plat(struct udevice *dev, void *plat)
+{
+	dev->plat = plat;
+}
+
+void dev_set_parent_plat(struct udevice *dev, void *parent_plat)
+{
+	dev->parent_plat = parent_plat;
+}
+
+void dev_set_uclass_plat(struct udevice *dev, void *uclass_plat)
+{
+	dev->uclass_plat = uclass_plat;
+}
+
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 bool device_is_compatible(const struct udevice *dev, const char *compat)
 {
