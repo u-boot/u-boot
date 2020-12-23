@@ -631,6 +631,27 @@ class DtbPlatdata():
                 self.buf(', '.join(vals[i:i + 8]))
         self.buf('}')
 
+    def _declare_device(self, var_name, struct_name, node_parent):
+        """Add a device declaration to the output
+
+        This declares a U_BOOT_DEVICE() for the device being processed
+
+        Args:
+            var_name (str): C name for the node
+            struct_name (str): Name for the dt struct associated with the node
+            node_parent (Node): Parent of the node (or None if none)
+        """
+        self.buf('U_BOOT_DEVICE(%s) = {\n' % var_name)
+        self.buf('\t.name\t\t= "%s",\n' % struct_name)
+        self.buf('\t.plat\t= &%s%s,\n' % (VAL_PREFIX, var_name))
+        self.buf('\t.plat_size\t= sizeof(%s%s),\n' % (VAL_PREFIX, var_name))
+        idx = -1
+        if node_parent and node_parent in self._valid_nodes:
+            idx = node_parent.idx
+        self.buf('\t.parent_idx\t= %d,\n' % idx)
+        self.buf('};\n')
+        self.buf('\n')
+
     def output_node(self, node):
         """Output the C code for a node
 
@@ -657,17 +678,7 @@ class DtbPlatdata():
             self.buf(',\n')
         self.buf('};\n')
 
-        # Add a device declaration
-        self.buf('U_BOOT_DEVICE(%s) = {\n' % var_name)
-        self.buf('\t.name\t\t= "%s",\n' % struct_name)
-        self.buf('\t.plat\t= &%s%s,\n' % (VAL_PREFIX, var_name))
-        self.buf('\t.plat_size\t= sizeof(%s%s),\n' % (VAL_PREFIX, var_name))
-        idx = -1
-        if node.parent and node.parent in self._valid_nodes:
-            idx = node.parent.idx
-        self.buf('\t.parent_idx\t= %d,\n' % idx)
-        self.buf('};\n')
-        self.buf('\n')
+        self._declare_device(var_name, struct_name, node.parent)
 
         self.out(''.join(self.get_buf()))
 
