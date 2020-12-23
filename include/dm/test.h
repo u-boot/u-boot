@@ -134,14 +134,12 @@ extern struct unit_test_state global_dm_test_state;
  * @testdev: Test device
  * @force_fail_alloc: Force all memory allocs to fail
  * @skip_post_probe: Skip uclass post-probe processing
- * @removed: Used to keep track of a device that was removed
  */
 struct dm_test_state {
 	struct udevice *root;
 	struct udevice *testdev;
 	int force_fail_alloc;
 	int skip_post_probe;
-	struct udevice *removed;
 };
 
 /* Declare a new driver model test */

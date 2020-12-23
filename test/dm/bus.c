@@ -30,7 +30,8 @@ enum {
 	FLAG_CHILD_REMOVED	= -7,
 };
 
-static struct dm_test_state *test_state;
+/* Records the last testbus device that was removed */
+static struct udevice *testbus_removed;
 
 static int testbus_drv_probe(struct udevice *dev)
 {
@@ -78,11 +79,9 @@ static int testbus_child_post_probe_uclass(struct udevice *dev)
 static int testbus_child_post_remove(struct udevice *dev)
 {
 	struct dm_test_parent_data *parent_data = dev_get_parent_priv(dev);
-	struct dm_test_state *dms = test_state;
 
 	parent_data->flag += FLAG_CHILD_REMOVED;
-	if (dms)
-		dms->removed = dev;
+	testbus_removed = dev;
 
 	return 0;
 }
@@ -335,11 +334,10 @@ DM_TEST(dm_test_bus_parent_data_uclass,
 static int dm_test_bus_parent_ops(struct unit_test_state *uts)
 {
 	struct dm_test_parent_data *parent_data;
-	struct dm_test_state *dms = uts->priv;
 	struct udevice *bus, *dev;
 	struct uclass *uc;
 
-	test_state = dms;
+	testbus_removed = NULL;
 	ut_assertok(uclass_get_device(UCLASS_TEST_BUS, 0, &bus));
 	ut_assertok(uclass_get(UCLASS_TEST_FDT, &uc));
 
@@ -362,9 +360,9 @@ static int dm_test_bus_parent_ops(struct unit_test_state *uts)
 		ut_asserteq(FLAG_CHILD_PROBED, parent_data->flag);
 		ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
 		ut_asserteq_ptr(NULL, dev_get_parent_priv(dev));
-		ut_asserteq_ptr(dms->removed, dev);
+		ut_asserteq_ptr(testbus_removed, dev);
 	}
-	test_state = NULL;
+	testbus_removed = NULL;
 
 	return 0;
 }
