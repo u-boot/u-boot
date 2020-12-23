@@ -19,6 +19,7 @@
 #include <ide.h>
 #include <memalign.h>
 #include <asm/unaligned.h>
+#include <linux/compiler.h>
 #include "part_dos.h"
 #include <part.h>
 
@@ -302,13 +303,13 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 	return -1;
 }
 
-void part_print_dos(struct blk_desc *dev_desc)
+static void __maybe_unused part_print_dos(struct blk_desc *dev_desc)
 {
 	printf("Part\tStart Sector\tNum Sectors\tUUID\t\tType\n");
 	print_partition_extended(dev_desc, 0, 0, 1, 0);
 }
 
-int part_get_info_dos(struct blk_desc *dev_desc, int part,
+static int __maybe_unused part_get_info_dos(struct blk_desc *dev_desc, int part,
 		      struct disk_partition *info)
 {
 	return part_get_info_extended(dev_desc, 0, 0, 1, part, info, 0);
