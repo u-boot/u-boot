@@ -36,20 +36,29 @@ static int get_connection(struct mm_connection *conn)
 	static const struct tee_optee_ta_uuid uuid = PTA_STMM_UUID;
 	struct udevice *tee = NULL;
 	struct tee_open_session_arg arg;
-	int rc;
+	int rc = -ENODEV;
 
 	tee = tee_find_device(tee, NULL, NULL, NULL);
 	if (!tee)
-		return -ENODEV;
+		goto out;
 
 	memset(&arg, 0, sizeof(arg));
 	tee_optee_ta_uuid_to_octets(arg.uuid, &uuid);
 	rc = tee_open_session(tee, &arg, 0, NULL);
-	if (!rc) {
-		conn->tee = tee;
-		conn->session = arg.session;
+	if (rc)
+		goto out;
+
+	/* Check the internal OP-TEE result */
+	if (arg.ret != TEE_SUCCESS) {
+		rc = -EIO;
+		goto out;
 	}
 
+	conn->tee = tee;
+	conn->session = arg.session;
+
+	return 0;
+out:
 	return rc;
 }
 
@@ -88,6 +97,7 @@ static efi_status_t optee_mm_communicate(void *comm_buf, ulong dsize)
 
 	if (tee_shm_register(conn.tee, comm_buf, buf_size, 0, &shm)) {
 		log_err("Unable to register shared memory\n");
+		tee_close_session(conn.tee, conn.session);
 		return EFI_UNSUPPORTED;
 	}
 
