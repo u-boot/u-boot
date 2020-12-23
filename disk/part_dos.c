@@ -42,9 +42,9 @@ static inline unsigned int le32_to_int(unsigned char *le32)
 
 static inline int is_extended(int part_type)
 {
-    return (part_type == 0x5 ||
-	    part_type == 0xf ||
-	    part_type == 0x85);
+    return (part_type == DOS_PART_TYPE_EXTENDED ||
+	    part_type == DOS_PART_TYPE_EXTENDED_LBA ||
+	    part_type == DOS_PART_TYPE_EXTENDED_LINUX);
 }
 
 static int get_bootable(dos_partition_t *p)
