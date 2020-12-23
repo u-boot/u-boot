@@ -248,11 +248,6 @@
 		stringarray = "one";
 	};
 
-	spl-test4 {
-		u-boot,dm-pre-reloc;
-		compatible = "sandbox,spl-test.2";
-	};
-
 	spl-test5 {
 		u-boot,dm-tpl;
 		compatible = "sandbox,spl-test";

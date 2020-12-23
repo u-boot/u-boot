@@ -204,8 +204,6 @@ struct dtd_sandbox_spl_test {
 \tconst char *\tstringarray[3];
 \tconst char *\tstringval;
 };
-struct dtd_sandbox_spl_test_2 {
-};
 ''', data)
 
         self.run_test(['platdata'], dtb_file, output)
@@ -283,16 +281,6 @@ U_BOOT_DEVICE(spl_test3) = {
 \t.name\t\t= "sandbox_spl_test",
 \t.plat\t= &dtv_spl_test3,
 \t.plat_size\t= sizeof(dtv_spl_test3),
-\t.parent_idx\t= -1,
-};
-
-/* Node /spl-test4 index 5 */
-static struct dtd_sandbox_spl_test_2 dtv_spl_test4 = {
-};
-U_BOOT_DEVICE(spl_test4) = {
-\t.name\t\t= "sandbox_spl_test_2",
-\t.plat\t= &dtv_spl_test4,
-\t.plat_size\t= sizeof(dtv_spl_test4),
 \t.parent_idx\t= -1,
 };
 
