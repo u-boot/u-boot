@@ -16,11 +16,8 @@ else
 DTB := arch/$(ARCH)/dts/$(DEVICE_TREE).dtb
 endif
 
-spl/$(obj)/dt-spl.dtb: $(DTB) $(objtree)/tools/fdtgrep FORCE
+$(obj)/dt-$(SPL_NAME).dtb: dts/dt.dtb $(objtree)/tools/fdtgrep FORCE
 	mkdir -p $(dir $@)
-	$(call if_changed,fdtgrep)
-
-tpl/$(obj)/dt-tpl.dtb: $(DTB) $(objtree)/tools/fdtgrep FORCE
 	$(call if_changed,fdtgrep)
 
 ifeq ($(CONFIG_OF_DTB_PROPS_REMOVE),y)
@@ -31,7 +28,7 @@ $(obj)/dt.dtb: $(DTB) FORCE
 	$(call if_changed,shipped)
 endif
 
-targets += dt.dtb dt-spl.dtb dt-tpl.dtb
+targets += dt.dtb
 
 $(DTB): arch-dtbs
 	$(Q)test -e $@ || (						\
@@ -55,12 +52,15 @@ else
 obj-$(CONFIG_OF_EMBED) := dt.dtb.o
 endif
 
-dtbs: $(obj)/dt.dtb \
-		$(if $(CONFIG_SPL),spl/$(obj)/dt-spl.dtb) \
-		$(if $(CONFIG_TPL),tpl/$(obj)/dt-tpl.dtb)
+# Target for U-Boot proper
+dtbs: $(obj)/dt.dtb
 	@:
 
-clean-files := dt.dtb.S dt-spl.dtb.S dt-tpl.dtb.S
+# Target for SPL/TPL
+spl_dtbs: $(obj)/dt-$(SPL_NAME).dtb
+	@:
+
+clean-files := dt.dtb.S
 
 # Let clean descend into dts directories
 subdir- += ../arch/arm/dts ../arch/microblaze/dts ../arch/mips/dts ../arch/sandbox/dts ../arch/x86/dts ../arch/powerpc/dts ../arch/riscv/dts

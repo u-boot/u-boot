@@ -37,6 +37,8 @@ SPL_BIN := u-boot-spl
 SPL_NAME := spl
 endif
 
+export SPL_NAME
+
 ifdef CONFIG_SPL_BUILD
 SPL_ := SPL_
 ifeq ($(CONFIG_TPL_BUILD),y)
@@ -459,9 +461,8 @@ endif
 PHONY += FORCE
 FORCE:
 
-PHONY += dtbs
-dtbs:
-	$(Q)$(MAKE) $(build)=dts dtbs
+$(obj)/dts/dt-$(SPL_NAME).dtb: dts/dt.dtb
+	$(Q)$(MAKE) $(build)=$(obj)/dts spl_dtbs
 
 # Declare the contents of the .PHONY variable as phony.  We keep that
 # information in a variable so we can use it in if_changed and friends.
