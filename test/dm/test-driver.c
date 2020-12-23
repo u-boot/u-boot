@@ -12,6 +12,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <dm/device-internal.h>
 #include <dm/test.h>
 #include <test/test.h>
 #include <test/ut.h>
@@ -67,7 +68,7 @@ static int test_remove(struct udevice *dev)
 static int test_unbind(struct udevice *dev)
 {
 	/* Private data should not be allocated */
-	ut_assert(!dev->priv);
+	ut_assert(!dev_get_priv(dev));
 
 	dm_testdrv_op_count[DM_TEST_OP_UNBIND]++;
 	return 0;
@@ -119,8 +120,8 @@ static int test_manual_probe(struct udevice *dev)
 
 	dm_testdrv_op_count[DM_TEST_OP_PROBE]++;
 	if (!dms->force_fail_alloc)
-		dev->priv = calloc(1, sizeof(struct dm_test_priv));
-	if (!dev->priv)
+		dev_set_priv(dev, calloc(1, sizeof(struct dm_test_priv)));
+	if (!dev_get_priv(dev))
 		return -ENOMEM;
 
 	return 0;

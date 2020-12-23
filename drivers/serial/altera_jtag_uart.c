@@ -37,7 +37,7 @@ static int altera_jtaguart_setbrg(struct udevice *dev, int baudrate)
 
 static int altera_jtaguart_putc(struct udevice *dev, const char ch)
 {
-	struct altera_jtaguart_plat *plat = dev->plat;
+	struct altera_jtaguart_plat *plat = dev_get_plat(dev);
 	struct altera_jtaguart_regs *const regs = plat->regs;
 	u32 st = readl(&regs->control);
 
@@ -56,7 +56,7 @@ static int altera_jtaguart_putc(struct udevice *dev, const char ch)
 
 static int altera_jtaguart_pending(struct udevice *dev, bool input)
 {
-	struct altera_jtaguart_plat *plat = dev->plat;
+	struct altera_jtaguart_plat *plat = dev_get_plat(dev);
 	struct altera_jtaguart_regs *const regs = plat->regs;
 	u32 st = readl(&regs->control);
 
@@ -68,7 +68,7 @@ static int altera_jtaguart_pending(struct udevice *dev, bool input)
 
 static int altera_jtaguart_getc(struct udevice *dev)
 {
-	struct altera_jtaguart_plat *plat = dev->plat;
+	struct altera_jtaguart_plat *plat = dev_get_plat(dev);
 	struct altera_jtaguart_regs *const regs = plat->regs;
 	u32 val;
 
@@ -83,7 +83,7 @@ static int altera_jtaguart_getc(struct udevice *dev)
 static int altera_jtaguart_probe(struct udevice *dev)
 {
 #ifdef CONFIG_ALTERA_JTAG_UART_BYPASS
-	struct altera_jtaguart_plat *plat = dev->plat;
+	struct altera_jtaguart_plat *plat = dev_get_plat(dev);
 	struct altera_jtaguart_regs *const regs = plat->regs;
 
 	writel(ALTERA_JTAG_AC, &regs->control); /* clear AC flag */

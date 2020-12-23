@@ -16,6 +16,7 @@
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_rv1108.h>
 #include <asm/arch-rockchip/hardware.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rv1108-cru.h>
 #include <linux/delay.h>
@@ -697,7 +698,7 @@ static int rv1108_clk_bind(struct udevice *dev)
 						    glb_srst_fst_val);
 		priv->glb_srst_snd_value = offsetof(struct rv1108_cru,
 						    glb_srst_snd_val);
-		sys_child->priv = priv;
+		dev_set_priv(sys_child, priv);
 	}
 
 #if CONFIG_IS_ENABLED(RESET_ROCKCHIP)

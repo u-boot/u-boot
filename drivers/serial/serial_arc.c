@@ -37,7 +37,7 @@ struct arc_serial_plat {
 
 static int arc_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct arc_serial_plat *plat = dev->plat;
+	struct arc_serial_plat *plat = dev_get_plat(dev);
 	struct arc_serial_regs *const regs = plat->reg;
 	int arc_console_baud = gd->cpu_clk / (baudrate * 4) - 1;
 
@@ -49,7 +49,7 @@ static int arc_serial_setbrg(struct udevice *dev, int baudrate)
 
 static int arc_serial_putc(struct udevice *dev, const char c)
 {
-	struct arc_serial_plat *plat = dev->plat;
+	struct arc_serial_plat *plat = dev_get_plat(dev);
 	struct arc_serial_regs *const regs = plat->reg;
 
 	while (!(readb(&regs->status) & UART_TXEMPTY))
@@ -67,7 +67,7 @@ static int arc_serial_tstc(struct arc_serial_regs *const regs)
 
 static int arc_serial_pending(struct udevice *dev, bool input)
 {
-	struct arc_serial_plat *plat = dev->plat;
+	struct arc_serial_plat *plat = dev_get_plat(dev);
 	struct arc_serial_regs *const regs = plat->reg;
 	uint32_t status = readb(&regs->status);
 
@@ -79,7 +79,7 @@ static int arc_serial_pending(struct udevice *dev, bool input)
 
 static int arc_serial_getc(struct udevice *dev)
 {
-	struct arc_serial_plat *plat = dev->plat;
+	struct arc_serial_plat *plat = dev_get_plat(dev);
 	struct arc_serial_regs *const regs = plat->reg;
 
 	while (!arc_serial_tstc(regs))

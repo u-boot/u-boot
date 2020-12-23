@@ -522,8 +522,8 @@ void cros_ec_check_keyboard(struct udevice *dev)
 
 int cros_ec_probe(struct udevice *dev)
 {
-	struct ec_state *ec = dev->priv;
-	struct cros_ec_dev *cdev = dev->uclass_priv;
+	struct ec_state *ec = dev_get_priv(dev);
+	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
 	struct udevice *keyb_dev;
 	ofnode node;
 	int err;

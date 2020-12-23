@@ -16,6 +16,7 @@
 #include <asm/io.h>
 #include <asm/pci.h>
 #include <asm/lpss.h>
+#include <dm/device-internal.h>
 
 /* Low-power Subsystem (LPSS) clock register */
 enum {
@@ -105,7 +106,7 @@ static int apl_ns16550_of_to_plat(struct udevice *dev)
 	plat->clock = dtplat->clock_frequency;
 	plat->fcr = UART_FCR_DEFVAL;
 	plat->bdf = pci_ofplat_get_devfn(dtplat->reg[0]);
-	dev->plat = plat;
+	dev_set_plat(dev, plat);
 #else
 	int ret;
 

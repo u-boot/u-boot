@@ -498,7 +498,7 @@ static int ns16550_serial_assign_base(struct ns16550_plat *plat, ulong base)
 
 int ns16550_serial_probe(struct udevice *dev)
 {
-	struct ns16550_plat *plat = dev->plat;
+	struct ns16550_plat *plat = dev_get_plat(dev);
 	struct ns16550 *const com_port = dev_get_priv(dev);
 	struct reset_ctl_bulk reset_bulk;
 	fdt_addr_t addr;
@@ -535,7 +535,7 @@ enum {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 int ns16550_serial_of_to_plat(struct udevice *dev)
 {
-	struct ns16550_plat *plat = dev->plat;
+	struct ns16550_plat *plat = dev_get_plat(dev);
 	const u32 port_type = dev_get_driver_data(dev);
 	fdt_addr_t addr;
 	struct clk clk;

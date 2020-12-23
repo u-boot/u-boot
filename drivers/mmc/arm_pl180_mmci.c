@@ -421,7 +421,7 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 	struct arm_pl180_mmc_plat *pdata = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct mmc *mmc = &pdata->mmc;
-	struct pl180_mmc_host *host = dev->priv;
+	struct pl180_mmc_host *host = dev_get_priv(dev);
 	struct mmc_config *cfg = &pdata->cfg;
 	struct clk clk;
 	u32 bus_width;
@@ -508,7 +508,7 @@ static int dm_host_set_ios(struct udevice *dev)
 
 static int dm_mmc_getcd(struct udevice *dev)
 {
-	struct pl180_mmc_host *host = dev->priv;
+	struct pl180_mmc_host *host = dev_get_priv(dev);
 	int value = 1;
 
 	if (dm_gpio_is_valid(&host->cd_gpio))
@@ -525,7 +525,7 @@ static const struct dm_mmc_ops arm_pl180_dm_mmc_ops = {
 
 static int arm_pl180_mmc_of_to_plat(struct udevice *dev)
 {
-	struct pl180_mmc_host *host = dev->priv;
+	struct pl180_mmc_host *host = dev_get_priv(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);

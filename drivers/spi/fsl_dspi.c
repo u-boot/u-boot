@@ -486,7 +486,7 @@ static int fsl_dspi_probe(struct udevice *bus)
 	struct dm_spi_bus *dm_spi_bus;
 	uint mcr_cfg_val;
 
-	dm_spi_bus = bus->uclass_priv;
+	dm_spi_bus = dev_get_uclass_priv(bus);
 
 	/* cpu speical pin muxing configure */
 	cpu_dspi_port_conf();
@@ -576,7 +576,7 @@ static int fsl_dspi_bind(struct udevice *bus)
 static int fsl_dspi_of_to_plat(struct udevice *bus)
 {
 	fdt_addr_t addr;
-	struct fsl_dspi_plat *plat = bus->plat;
+	struct fsl_dspi_plat *plat = dev_get_plat(bus);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 

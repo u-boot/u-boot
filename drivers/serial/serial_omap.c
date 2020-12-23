@@ -101,7 +101,7 @@ DEBUG_UART_FUNCS
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int omap_serial_of_to_plat(struct udevice *dev)
 {
-	struct ns16550_plat *plat = dev->plat;
+	struct ns16550_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 	struct clk clk;
 	int err;

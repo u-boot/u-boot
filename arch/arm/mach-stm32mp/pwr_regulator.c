@@ -9,6 +9,7 @@
 #include <syscon.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <dm/device-internal.h>
 #include <linux/bitops.h>
 #include <linux/err.h>
 #include <power/pmic.h>
@@ -165,7 +166,7 @@ static int stm32mp_pwr_regulator_probe(struct udevice *dev)
 	}
 
 	uc_pdata->type = REGULATOR_TYPE_FIXED;
-	dev->priv = (void *)*p;
+	dev_set_priv(dev, (void *)*p);
 
 	return 0;
 }

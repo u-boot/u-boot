@@ -795,7 +795,7 @@ static const struct spi_controller_mem_ops fsl_qspi_mem_ops = {
 
 static int fsl_qspi_probe(struct udevice *bus)
 {
-	struct dm_spi_bus *dm_bus = bus->uclass_priv;
+	struct dm_spi_bus *dm_bus = dev_get_uclass_priv(bus);
 	struct fsl_qspi *q = dev_get_priv(bus);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);

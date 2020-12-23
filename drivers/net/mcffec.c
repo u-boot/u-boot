@@ -125,7 +125,7 @@ static void set_fec_duplex_speed(volatile fec_t *fecp, int dup_spd)
 #ifdef ET_DEBUG
 static void dbg_fec_regs(struct udevice *dev)
 {
-	struct fec_info_s *info = dev->priv;
+	struct fec_info_s *info = dev_get_priv(dev);
 	volatile fec_t *fecp = (fec_t *)(info->iobase);
 
 	printf("=====\n");
@@ -275,7 +275,7 @@ static void dbg_fec_regs(struct udevice *dev)
 
 int mcffec_init(struct udevice *dev)
 {
-	struct fec_info_s *info = dev->priv;
+	struct fec_info_s *info = dev_get_priv(dev);
 	volatile fec_t *fecp = (fec_t *) (info->iobase);
 	int rval, i;
 	uchar ea[6];
@@ -374,7 +374,7 @@ int mcffec_init(struct udevice *dev)
 
 static int mcffec_send(struct udevice *dev, void *packet, int length)
 {
-	struct fec_info_s *info = dev->priv;
+	struct fec_info_s *info = dev_get_priv(dev);
 	volatile fec_t *fecp = (fec_t *)info->iobase;
 	int j, rc;
 	u16 phy_status;
@@ -440,7 +440,7 @@ static int mcffec_send(struct udevice *dev, void *packet, int length)
 
 static int mcffec_recv(struct udevice *dev, int flags, uchar **packetp)
 {
-	struct fec_info_s *info = dev->priv;
+	struct fec_info_s *info = dev_get_priv(dev);
 	volatile fec_t *fecp = (fec_t *)info->iobase;
 	int length = -1;
 
@@ -492,7 +492,7 @@ static int mcffec_recv(struct udevice *dev, int flags, uchar **packetp)
 
 static void mcffec_halt(struct udevice *dev)
 {
-	struct fec_info_s *info = dev->priv;
+	struct fec_info_s *info = dev_get_priv(dev);
 
 	fec_reset(info);
 	fecpin_setclear(info, 0);
@@ -519,7 +519,7 @@ static const struct eth_ops mcffec_ops = {
 static int mcffec_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
-	struct fec_info_s *info = dev->priv;
+	struct fec_info_s *info = dev_get_priv(dev);
 	int node = dev_of_offset(dev);
 	int retval, fec_idx;
 	const u32 *val;

@@ -18,7 +18,7 @@ static int slimbootloader_serial_of_to_plat(struct udevice *dev)
 {
 	const efi_guid_t guid = SBL_SERIAL_PORT_INFO_GUID;
 	struct sbl_serial_port_info *data;
-	struct ns16550_plat *plat = dev->plat;
+	struct ns16550_plat *plat = dev_get_plat(dev);
 
 	if (!gd->arch.hob_list)
 		panic("hob list not found!");

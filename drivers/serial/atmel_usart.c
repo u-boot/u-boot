@@ -262,7 +262,7 @@ static int atmel_serial_enable_clk(struct udevice *dev)
 
 static int atmel_serial_probe(struct udevice *dev)
 {
-	struct atmel_serial_plat *plat = dev->plat;
+	struct atmel_serial_plat *plat = dev_get_plat(dev);
 	struct atmel_serial_priv *priv = dev_get_priv(dev);
 	int ret;
 #if CONFIG_IS_ENABLED(OF_CONTROL)

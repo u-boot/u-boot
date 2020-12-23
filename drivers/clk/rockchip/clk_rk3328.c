@@ -16,6 +16,7 @@
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/grf_rk3328.h>
 #include <asm/io.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3328-cru.h>
 #include <linux/bitops.h>
@@ -823,7 +824,7 @@ static int rk3328_clk_bind(struct udevice *dev)
 						    glb_srst_fst_value);
 		priv->glb_srst_snd_value = offsetof(struct rk3328_cru,
 						    glb_srst_snd_value);
-		sys_child->priv = priv;
+		dev_set_priv(sys_child, priv);
 	}
 
 #if CONFIG_IS_ENABLED(RESET_ROCKCHIP)

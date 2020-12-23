@@ -383,7 +383,7 @@ static const struct dm_spi_ops davinci_spi_ops = {
 static int davinci_spi_probe(struct udevice *bus)
 {
 	struct davinci_spi_slave *ds = dev_get_priv(bus);
-	struct davinci_spi_plat *plat = bus->plat;
+	struct davinci_spi_plat *plat = dev_get_plat(bus);
 	ds->regs = plat->regs;
 	ds->num_cs = plat->num_cs;
 
@@ -393,7 +393,7 @@ static int davinci_spi_probe(struct udevice *bus)
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int davinci_ofdata_to_platadata(struct udevice *bus)
 {
-	struct davinci_spi_plat *plat = bus->plat;
+	struct davinci_spi_plat *plat = dev_get_plat(bus);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(bus);

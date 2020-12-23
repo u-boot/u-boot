@@ -286,8 +286,8 @@ static const struct dm_gpio_ops gpio_exynos_ops = {
 static int gpio_exynos_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct exynos_bank_info *priv = dev->priv;
-	struct exynos_gpio_plat *plat = dev->plat;
+	struct exynos_bank_info *priv = dev_get_priv(dev);
+	struct exynos_gpio_plat *plat = dev_get_plat(dev);
 
 	/* Only child devices have ports */
 	if (!plat)
@@ -307,7 +307,7 @@ static int gpio_exynos_probe(struct udevice *dev)
  */
 static int gpio_exynos_bind(struct udevice *parent)
 {
-	struct exynos_gpio_plat *plat = parent->plat;
+	struct exynos_gpio_plat *plat = dev_get_plat(parent);
 	struct s5p_gpio_bank *bank, *base;
 	const void *blob = gd->fdt_blob;
 	int node;

@@ -16,6 +16,7 @@
 #include <syscon.h>
 #include <linux/bitops.h>
 #include <linux/ioport.h>
+#include <dm/device-internal.h>
 #include <dm/read.h>
 #ifdef CONFIG_MMC_OMAP36XX_PINS
 #include <asm/arch/sys_proto.h>
@@ -208,7 +209,7 @@ static int pbias_regulator_probe(struct udevice *dev)
 	}
 
 	uc_pdata->type = REGULATOR_TYPE_OTHER;
-	dev->priv = (void *)*p;
+	dev_set_priv(dev, (void *)*p);
 
 	return 0;
 }

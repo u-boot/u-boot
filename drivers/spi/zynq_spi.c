@@ -75,7 +75,7 @@ struct zynq_spi_priv {
 
 static int zynq_spi_of_to_plat(struct udevice *bus)
 {
-	struct zynq_spi_plat *plat = bus->plat;
+	struct zynq_spi_plat *plat = dev_get_plat(bus);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -162,7 +162,7 @@ static int zynq_spi_probe(struct udevice *bus)
 static void spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct zynq_spi_plat *plat = bus->plat;
+	struct zynq_spi_plat *plat = dev_get_plat(bus);
 	struct zynq_spi_priv *priv = dev_get_priv(bus);
 	struct zynq_spi_regs *regs = priv->regs;
 	u32 cr;
@@ -193,7 +193,7 @@ static void spi_cs_activate(struct udevice *dev)
 static void spi_cs_deactivate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct zynq_spi_plat *plat = bus->plat;
+	struct zynq_spi_plat *plat = dev_get_plat(bus);
 	struct zynq_spi_priv *priv = dev_get_priv(bus);
 	struct zynq_spi_regs *regs = priv->regs;
 
@@ -296,7 +296,7 @@ static int zynq_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int zynq_spi_set_speed(struct udevice *bus, uint speed)
 {
-	struct zynq_spi_plat *plat = bus->plat;
+	struct zynq_spi_plat *plat = dev_get_plat(bus);
 	struct zynq_spi_priv *priv = dev_get_priv(bus);
 	struct zynq_spi_regs *regs = priv->regs;
 	uint32_t confr;

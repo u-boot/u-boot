@@ -100,7 +100,7 @@ struct zynq_qspi_priv {
 
 static int zynq_qspi_of_to_plat(struct udevice *bus)
 {
-	struct zynq_qspi_plat *plat = bus->plat;
+	struct zynq_qspi_plat *plat = dev_get_plat(bus);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -592,7 +592,7 @@ static int zynq_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
 {
-	struct zynq_qspi_plat *plat = bus->plat;
+	struct zynq_qspi_plat *plat = dev_get_plat(bus);
 	struct zynq_qspi_priv *priv = dev_get_priv(bus);
 	struct zynq_qspi_regs *regs = priv->regs;
 	uint32_t confr;

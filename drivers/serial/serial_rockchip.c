@@ -10,6 +10,7 @@
 #include <ns16550.h>
 #include <serial.h>
 #include <asm/arch-rockchip/clock.h>
+#include <dm/device-internal.h>
 
 #if defined(CONFIG_ROCKCHIP_RK3188)
 struct rockchip_uart_plat {
@@ -34,7 +35,7 @@ static int rockchip_serial_probe(struct udevice *dev)
 	plat->plat.reg_shift = plat->dtplat.reg_shift;
 	plat->plat.clock = plat->dtplat.clock_frequency;
 	plat->plat.fcr = UART_FCR_DEFVAL;
-	dev->plat = &plat->plat;
+	dev_set_plat(dev, &plat->plat);
 
 	return ns16550_serial_probe(dev);
 }

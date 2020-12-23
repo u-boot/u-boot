@@ -122,7 +122,7 @@ void qe_config_iopin(u8 port, u8 pin, int dir, int open_drain, int assign)
 #else
 static int qe_io_of_to_plat(struct udevice *dev)
 {
-	struct qe_io_plat *plat = dev->plat;
+	struct qe_io_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);
@@ -143,7 +143,7 @@ static int qe_io_of_to_plat(struct udevice *dev)
  */
 static int par_io_of_config_node(struct udevice *dev, ofnode pio)
 {
-	struct qe_io_plat *plat = dev->plat;
+	struct qe_io_plat *plat = dev_get_plat(dev);
 	qepio83xx_t *par_io = plat->base;
 	const unsigned int *pio_map;
 	int pio_map_len;

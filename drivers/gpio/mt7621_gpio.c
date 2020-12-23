@@ -130,7 +130,7 @@ static int gpio_mediatek_probe(struct udevice *dev)
  */
 static int gpio_mediatek_bind(struct udevice *parent)
 {
-	struct mediatek_gpio_plat *plat = parent->plat;
+	struct mediatek_gpio_plat *plat = dev_get_plat(parent);
 	ofnode node;
 	int bank = 0;
 	int ret;

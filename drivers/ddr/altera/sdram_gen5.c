@@ -565,7 +565,7 @@ static unsigned long sdram_calculate_size(struct socfpga_sdr_ctrl *sdr_ctrl)
 
 static int altera_gen5_sdram_of_to_plat(struct udevice *dev)
 {
-	struct altera_gen5_sdram_plat *plat = dev->plat;
+	struct altera_gen5_sdram_plat *plat = dev_get_plat(dev);
 
 	plat->sdr = (struct socfpga_sdr *)devfdt_get_addr_index(dev, 0);
 	if (!plat->sdr)
@@ -578,7 +578,7 @@ static int altera_gen5_sdram_probe(struct udevice *dev)
 {
 	int ret;
 	unsigned long sdram_size;
-	struct altera_gen5_sdram_plat *plat = dev->plat;
+	struct altera_gen5_sdram_plat *plat = dev_get_plat(dev);
 	struct altera_gen5_sdram_priv *priv = dev_get_priv(dev);
 	struct socfpga_sdr_ctrl *sdr_ctrl = &plat->sdr->sdr_ctrl;
 	struct reset_ctl_bulk resets;

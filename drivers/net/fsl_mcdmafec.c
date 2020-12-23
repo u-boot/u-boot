@@ -79,7 +79,7 @@ static void init_eth_info(struct fec_info_dma *info)
 
 static void fec_halt(struct udevice *dev)
 {
-	struct fec_info_dma *info = dev->priv;
+	struct fec_info_dma *info = dev_get_priv(dev);
 	volatile fecdma_t *fecp = (fecdma_t *)info->iobase;
 	int counter = 0xffff;
 
@@ -230,7 +230,7 @@ static void fec_set_hwaddr(volatile fecdma_t *fecp, u8 *mac)
 
 static int fec_init(struct udevice *dev)
 {
-	struct fec_info_dma *info = dev->priv;
+	struct fec_info_dma *info = dev_get_priv(dev);
 	volatile fecdma_t *fecp = (fecdma_t *)info->iobase;
 	int rval, i;
 	uchar enetaddr[6];
@@ -352,7 +352,7 @@ static int mcdmafec_init(struct udevice *dev)
 
 static int mcdmafec_send(struct udevice *dev, void *packet, int length)
 {
-	struct fec_info_dma *info = dev->priv;
+	struct fec_info_dma *info = dev_get_priv(dev);
 	cbd_t *p_tbd, *p_used_tbd;
 	u16 phy_status;
 
@@ -412,7 +412,7 @@ static int mcdmafec_send(struct udevice *dev, void *packet, int length)
 
 static int mcdmafec_recv(struct udevice *dev, int flags, uchar **packetp)
 {
-	struct fec_info_dma *info = dev->priv;
+	struct fec_info_dma *info = dev_get_priv(dev);
 	volatile fecdma_t *fecp = (fecdma_t *)info->iobase;
 
 	cbd_t *prbd = &info->rxbd[info->rx_idx];
@@ -496,7 +496,7 @@ static const struct eth_ops mcdmafec_ops = {
  */
 static int mcdmafec_probe(struct udevice *dev)
 {
-	struct fec_info_dma *info = dev->priv;
+	struct fec_info_dma *info = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	int node = dev_of_offset(dev);
 	int retval;

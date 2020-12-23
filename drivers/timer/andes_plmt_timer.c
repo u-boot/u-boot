@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <timer.h>
 #include <asm/io.h>
+#include <dm/device-internal.h>
 #include <linux/err.h>
 
 /* mtime register */
@@ -19,7 +20,7 @@
 
 static u64 andes_plmt_get_count(struct udevice *dev)
 {
-	return readq((void __iomem *)MTIME_REG(dev->priv));
+	return readq((void __iomem *)MTIME_REG(dev_get_priv(dev)));
 }
 
 static const struct timer_ops andes_plmt_ops = {
@@ -28,8 +29,8 @@ static const struct timer_ops andes_plmt_ops = {
 
 static int andes_plmt_probe(struct udevice *dev)
 {
-	dev->priv = dev_read_addr_ptr(dev);
-	if (!dev->priv)
+	dev_set_priv(dev, dev_read_addr_ptr(dev));
+	if (!dev_get_priv(dev))
 		return -EINVAL;
 
 	return timer_timebase_fallback(dev);

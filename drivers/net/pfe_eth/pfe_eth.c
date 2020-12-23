@@ -157,7 +157,7 @@ static int pfe_eth_start(struct udevice *dev)
 
 static int pfe_eth_send(struct udevice *dev, void *packet, int length)
 {
-	struct pfe_eth_dev *priv = (struct pfe_eth_dev *)dev->priv;
+	struct pfe_eth_dev *priv = (struct pfe_eth_dev *)dev_get_priv(dev);
 
 	int rc;
 	int i = 0;

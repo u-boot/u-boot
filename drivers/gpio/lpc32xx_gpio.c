@@ -295,7 +295,7 @@ static const struct dm_gpio_ops gpio_lpc32xx_ops = {
 static int lpc32xx_gpio_probe(struct udevice *dev)
 {
 	struct lpc32xx_gpio_priv *gpio_priv = dev_get_priv(dev);
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	if (dev_of_offset(dev) == -1) {
 		/* Tell the uclass how many GPIOs we have */

@@ -206,7 +206,7 @@ static u64 mpc83xx_timer_get_count(struct udevice *dev)
 
 static int mpc83xx_timer_probe(struct udevice *dev)
 {
-	struct timer_dev_priv *uc_priv = dev->uclass_priv;
+	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct clk clock;
 	int ret;
 

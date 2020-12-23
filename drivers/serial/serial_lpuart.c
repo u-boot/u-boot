@@ -138,7 +138,7 @@ static inline int get_lpuart_clk_rate(struct udevice *dev, u32 *clk)
 
 static bool is_lpuart32(struct udevice *dev)
 {
-	struct lpuart_serial_plat *plat = dev->plat;
+	struct lpuart_serial_plat *plat = dev_get_plat(dev);
 
 	return plat->flags & LPUART_FLAG_REGMAP_32BIT_REG;
 }
@@ -445,7 +445,7 @@ static int lpuart_serial_setbrg(struct udevice *dev, int baudrate)
 
 static int lpuart_serial_getc(struct udevice *dev)
 {
-	struct lpuart_serial_plat *plat = dev->plat;
+	struct lpuart_serial_plat *plat = dev_get_plat(dev);
 
 	if (is_lpuart32(dev))
 		return _lpuart32_serial_getc(plat);
@@ -455,7 +455,7 @@ static int lpuart_serial_getc(struct udevice *dev)
 
 static int lpuart_serial_putc(struct udevice *dev, const char c)
 {
-	struct lpuart_serial_plat *plat = dev->plat;
+	struct lpuart_serial_plat *plat = dev_get_plat(dev);
 
 	if (is_lpuart32(dev))
 		_lpuart32_serial_putc(plat, c);
@@ -467,7 +467,7 @@ static int lpuart_serial_putc(struct udevice *dev, const char c)
 
 static int lpuart_serial_pending(struct udevice *dev, bool input)
 {
-	struct lpuart_serial_plat *plat = dev->plat;
+	struct lpuart_serial_plat *plat = dev_get_plat(dev);
 	struct lpuart_fsl *reg = plat->reg;
 	struct lpuart_fsl_reg32 *reg32 = plat->reg;
 	u32 stat;
@@ -513,7 +513,7 @@ static int lpuart_serial_probe(struct udevice *dev)
 
 static int lpuart_serial_of_to_plat(struct udevice *dev)
 {
-	struct lpuart_serial_plat *plat = dev->plat;
+	struct lpuart_serial_plat *plat = dev_get_plat(dev);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	fdt_addr_t addr;

@@ -443,7 +443,7 @@ static const struct dm_spi_ops mxs_spi_ops = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int mxs_of_to_plat(struct udevice *bus)
 {
-	struct mxs_spi_plat *plat = bus->plat;
+	struct mxs_spi_plat *plat = dev_get_plat(bus);
 	u32 prop[2];
 	int ret;
 

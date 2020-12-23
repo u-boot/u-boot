@@ -82,7 +82,7 @@ uint sandbox_pci_read_bar(u32 barval, int type, uint size)
 
 static int sandbox_pci_emul_post_probe(struct udevice *dev)
 {
-	struct sandbox_pci_emul_priv *priv = dev->uclass->priv;
+	struct sandbox_pci_emul_priv *priv = uclass_get_priv(dev->uclass);
 
 	priv->dev_count++;
 	sandbox_set_enable_pci_map(true);
@@ -92,7 +92,7 @@ static int sandbox_pci_emul_post_probe(struct udevice *dev)
 
 static int sandbox_pci_emul_pre_remove(struct udevice *dev)
 {
-	struct sandbox_pci_emul_priv *priv = dev->uclass->priv;
+	struct sandbox_pci_emul_priv *priv = uclass_get_priv(dev->uclass);
 
 	priv->dev_count--;
 	sandbox_set_enable_pci_map(priv->dev_count > 0);

@@ -32,7 +32,7 @@ struct altera_uart_plat {
 
 static int altera_uart_setbrg(struct udevice *dev, int baudrate)
 {
-	struct altera_uart_plat *plat = dev->plat;
+	struct altera_uart_plat *plat = dev_get_plat(dev);
 	struct altera_uart_regs *const regs = plat->regs;
 	u32 div;
 
@@ -44,7 +44,7 @@ static int altera_uart_setbrg(struct udevice *dev, int baudrate)
 
 static int altera_uart_putc(struct udevice *dev, const char ch)
 {
-	struct altera_uart_plat *plat = dev->plat;
+	struct altera_uart_plat *plat = dev_get_plat(dev);
 	struct altera_uart_regs *const regs = plat->regs;
 
 	if (!(readl(&regs->status) & ALTERA_UART_TRDY))
@@ -57,7 +57,7 @@ static int altera_uart_putc(struct udevice *dev, const char ch)
 
 static int altera_uart_pending(struct udevice *dev, bool input)
 {
-	struct altera_uart_plat *plat = dev->plat;
+	struct altera_uart_plat *plat = dev_get_plat(dev);
 	struct altera_uart_regs *const regs = plat->regs;
 	u32 st = readl(&regs->status);
 
@@ -69,7 +69,7 @@ static int altera_uart_pending(struct udevice *dev, bool input)
 
 static int altera_uart_getc(struct udevice *dev)
 {
-	struct altera_uart_plat *plat = dev->plat;
+	struct altera_uart_plat *plat = dev_get_plat(dev);
 	struct altera_uart_regs *const regs = plat->regs;
 
 	if (!(readl(&regs->status) & ALTERA_UART_RRDY))

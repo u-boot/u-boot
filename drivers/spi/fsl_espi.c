@@ -544,7 +544,7 @@ static const struct dm_spi_ops fsl_espi_ops = {
 static int fsl_espi_of_to_plat(struct udevice *bus)
 {
 	fdt_addr_t addr;
-	struct fsl_espi_plat   *plat = bus->plat;
+	struct fsl_espi_plat   *plat = dev_get_plat(bus);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 

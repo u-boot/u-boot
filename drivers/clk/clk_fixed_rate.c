@@ -6,6 +6,7 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <dm/device-internal.h>
 #include <linux/clk-provider.h>
 
 static ulong clk_fixed_rate_get_rate(struct clk *clk)
@@ -32,7 +33,8 @@ static int clk_fixed_rate_of_to_plat(struct udevice *dev)
 		dev_read_u32_default(dev, "clock-frequency", 0);
 #endif
 	/* Make fixed rate clock accessible from higher level struct clk */
-	dev->uclass_priv = clk;
+	/* FIXME: This is not allowed */
+	dev_set_uclass_priv(dev, clk);
 	clk->dev = dev;
 	clk->enable_count = 0;
 

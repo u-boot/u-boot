@@ -52,7 +52,11 @@ void ft_fixup_enet_phy_connect_type(void *fdt)
 			continue;
 		}
 
+#ifdef CONFIG_DM_ETH
+		priv = dev_get_priv(dev);
+#else
 		priv = dev->priv;
+#endif
 		if (priv->flags & TSEC_SGMII)
 			continue;
 

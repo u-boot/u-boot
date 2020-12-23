@@ -135,7 +135,7 @@ static int rkspi_wait_till_not_busy(struct rockchip_spi *regs)
 static void spi_cs_activate(struct udevice *dev, uint cs)
 {
 	struct udevice *bus = dev->parent;
-	struct rockchip_spi_plat *plat = bus->plat;
+	struct rockchip_spi_plat *plat = dev_get_plat(bus);
 	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	struct rockchip_spi *regs = priv->regs;
 
@@ -161,7 +161,7 @@ static void spi_cs_activate(struct udevice *dev, uint cs)
 static void spi_cs_deactivate(struct udevice *dev, uint cs)
 {
 	struct udevice *bus = dev->parent;
-	struct rockchip_spi_plat *plat = bus->plat;
+	struct rockchip_spi_plat *plat = dev_get_plat(bus);
 	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	struct rockchip_spi *regs = priv->regs;
 
@@ -176,7 +176,7 @@ static void spi_cs_deactivate(struct udevice *dev, uint cs)
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 static int conv_of_plat(struct udevice *dev)
 {
-	struct rockchip_spi_plat *plat = dev->plat;
+	struct rockchip_spi_plat *plat = dev_get_plat(dev);
 	struct dtd_rockchip_rk3288_spi *dtplat = &plat->of_plat;
 	struct rockchip_spi_priv *priv = dev_get_priv(dev);
 	int ret;

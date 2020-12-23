@@ -11,6 +11,7 @@
 #include <acpi/acpi_device.h>
 #include <asm/gpio.h>
 #include <dm/acpi.h>
+#include <dm/device-internal.h>
 #include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <dm/of.h>
@@ -297,14 +298,15 @@ static int gpio_sandbox_probe(struct udevice *dev)
 		/* Tell the uclass how many GPIOs we have */
 		uc_priv->gpio_count = CONFIG_SANDBOX_GPIO_COUNT;
 
-	dev->priv = calloc(sizeof(struct gpio_state), uc_priv->gpio_count);
+	dev_set_priv(dev,
+		     calloc(sizeof(struct gpio_state), uc_priv->gpio_count));
 
 	return 0;
 }
 
 static int gpio_sandbox_remove(struct udevice *dev)
 {
-	free(dev->priv);
+	free(dev_get_priv(dev));
 
 	return 0;
 }

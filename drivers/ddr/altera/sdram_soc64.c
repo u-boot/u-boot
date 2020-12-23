@@ -232,7 +232,7 @@ phys_size_t sdram_calculate_size(struct altera_sdram_plat *plat)
 
 static int altera_sdram_of_to_plat(struct udevice *dev)
 {
-	struct altera_sdram_plat *plat = dev->plat;
+	struct altera_sdram_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr_index(dev, 0);

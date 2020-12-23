@@ -291,8 +291,8 @@ static const struct udevice_id tegra_gpio_ids[] = {
 static int gpio_tegra_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct tegra_port_info *priv = dev->priv;
-	struct tegra_gpio_plat *plat = dev->plat;
+	struct tegra_port_info *priv = dev_get_priv(dev);
+	struct tegra_gpio_plat *plat = dev_get_plat(dev);
 
 	/* Only child devices have ports */
 	if (!plat)
@@ -313,7 +313,7 @@ static int gpio_tegra_probe(struct udevice *dev)
  */
 static int gpio_tegra_bind(struct udevice *parent)
 {
-	struct tegra_gpio_plat *plat = parent->plat;
+	struct tegra_gpio_plat *plat = dev_get_plat(parent);
 	struct gpio_ctlr *ctlr;
 	int bank_count;
 	int bank;

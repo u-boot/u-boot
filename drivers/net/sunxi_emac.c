@@ -537,7 +537,7 @@ static int sunxi_emac_eth_start(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 
-	return _sunxi_emac_eth_init(dev->priv, pdata->enetaddr);
+	return _sunxi_emac_eth_init(dev_get_priv(dev), pdata->enetaddr);
 }
 
 static int sunxi_emac_eth_send(struct udevice *dev, void *packet, int length)

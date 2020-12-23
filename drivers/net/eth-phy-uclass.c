@@ -54,7 +54,7 @@ int eth_phy_set_mdio_bus(struct udevice *eth_dev, struct mii_dev *mdio_bus)
 	for (uclass_first_device(UCLASS_ETH_PHY, &dev); dev;
 	     uclass_next_device(&dev)) {
 		if (dev->parent == eth_dev) {
-			uc_priv = (struct eth_phy_device_priv *)(dev->uclass_priv);
+			uc_priv = (struct eth_phy_device_priv *)(dev_get_uclass_priv(dev));
 
 			if (!uc_priv->mdio_bus)
 				uc_priv->mdio_bus = mdio_bus;
@@ -79,7 +79,7 @@ struct mii_dev *eth_phy_get_mdio_bus(struct udevice *eth_dev)
 			 * phy_dev is shared and controlled by
 			 * other eth controller
 			 */
-			uc_priv = (struct eth_phy_device_priv *)(phy_dev->uclass_priv);
+			uc_priv = (struct eth_phy_device_priv *)(dev_get_uclass_priv(phy_dev));
 			if (uc_priv->mdio_bus)
 				printf("Get shared mii bus on %s\n", eth_dev->name);
 			else

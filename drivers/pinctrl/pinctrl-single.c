@@ -47,7 +47,7 @@ static int single_configure_pins(struct udevice *dev,
 				 const struct single_fdt_pin_cfg *pins,
 				 int size)
 {
-	struct single_pdata *pdata = dev->plat;
+	struct single_pdata *pdata = dev_get_plat(dev);
 	int count = size / sizeof(struct single_fdt_pin_cfg);
 	phys_addr_t n, reg;
 	u32 val;
@@ -81,7 +81,7 @@ static int single_configure_bits(struct udevice *dev,
 				 const struct single_fdt_bits_cfg *pins,
 				 int size)
 {
-	struct single_pdata *pdata = dev->plat;
+	struct single_pdata *pdata = dev_get_plat(dev);
 	int count = size / sizeof(struct single_fdt_bits_cfg);
 	phys_addr_t n, reg;
 	u32 val, mask;
@@ -153,7 +153,7 @@ static int single_of_to_plat(struct udevice *dev)
 	fdt_addr_t addr;
 	u32 of_reg[2];
 	int res;
-	struct single_pdata *pdata = dev->plat;
+	struct single_pdata *pdata = dev_get_plat(dev);
 
 	pdata->width =
 		dev_read_u32_default(dev, "pinctrl-single,register-width", 0);

@@ -387,7 +387,7 @@ static int coldfire_spi_probe(struct udevice *bus)
 static int coldfire_dspi_of_to_plat(struct udevice *bus)
 {
 	fdt_addr_t addr;
-	struct coldfire_spi_plat *plat = bus->plat;
+	struct coldfire_spi_plat *plat = dev_get_plat(bus);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 	int *ctar, len;

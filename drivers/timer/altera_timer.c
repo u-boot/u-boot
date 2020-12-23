@@ -34,7 +34,7 @@ struct altera_timer_plat {
 
 static u64 altera_timer_get_count(struct udevice *dev)
 {
-	struct altera_timer_plat *plat = dev->plat;
+	struct altera_timer_plat *plat = dev_get_plat(dev);
 	struct altera_timer_regs *const regs = plat->regs;
 	u32 val;
 
@@ -49,7 +49,7 @@ static u64 altera_timer_get_count(struct udevice *dev)
 
 static int altera_timer_probe(struct udevice *dev)
 {
-	struct altera_timer_plat *plat = dev->plat;
+	struct altera_timer_plat *plat = dev_get_plat(dev);
 	struct altera_timer_regs *const regs = plat->regs;
 
 	writel(0, &regs->status);

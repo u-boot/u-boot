@@ -14,6 +14,7 @@
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_rk3036.h>
 #include <asm/arch-rockchip/hardware.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3036-cru.h>
 #include <linux/delay.h>
@@ -353,7 +354,7 @@ static int rk3036_clk_bind(struct udevice *dev)
 						    cru_glb_srst_fst_value);
 		priv->glb_srst_snd_value = offsetof(struct rk3036_cru,
 						    cru_glb_srst_snd_value);
-		sys_child->priv = priv;
+		dev_set_priv(sys_child, priv);
 	}
 
 #if CONFIG_IS_ENABLED(RESET_ROCKCHIP)

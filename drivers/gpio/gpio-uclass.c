@@ -1165,7 +1165,7 @@ int gpio_get_number(const struct gpio_desc *desc)
 
 	if (!dev)
 		return -1;
-	uc_priv = dev->uclass_priv;
+	uc_priv = dev_get_uclass_priv(dev);
 
 	return uc_priv->gpio_base + desc->offset;
 }

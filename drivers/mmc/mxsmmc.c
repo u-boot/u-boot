@@ -668,7 +668,7 @@ static const struct dm_mmc_ops mxsmmc_ops = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int mxsmmc_of_to_plat(struct udevice *bus)
 {
-	struct mxsmmc_plat *plat = bus->plat;
+	struct mxsmmc_plat *plat = dev_get_plat(bus);
 	u32 prop[2];
 	int ret;
 

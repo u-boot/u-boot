@@ -60,7 +60,7 @@ int submit_control_msg(struct usb_device *udev, unsigned long pipe,
 {
 	struct udevice *bus = udev->controller_dev;
 	struct dm_usb_ops *ops = usb_get_ops(bus);
-	struct usb_uclass_priv *uc_priv = bus->uclass->priv;
+	struct usb_uclass_priv *uc_priv = uclass_get_priv(bus->uclass);
 	int err;
 
 	if (!ops->control)
@@ -184,7 +184,7 @@ int usb_stop(void)
 	if (ret)
 		return ret;
 
-	uc_priv = uc->priv;
+	uc_priv = uclass_get_priv(uc);
 
 	uclass_foreach_dev(bus, uc) {
 		ret = device_remove(bus, DM_REMOVE_NORMAL);
@@ -263,7 +263,7 @@ int usb_init(void)
 	if (ret)
 		return ret;
 
-	uc_priv = uc->priv;
+	uc_priv = uclass_get_priv(uc);
 
 	uclass_foreach_dev(bus, uc) {
 		/* init low_level USB */

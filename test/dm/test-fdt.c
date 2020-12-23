@@ -25,7 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int testfdt_drv_ping(struct udevice *dev, int pingval, int *pingret)
 {
-	const struct dm_test_pdata *pdata = dev->plat;
+	const struct dm_test_pdata *pdata = dev_get_plat(dev);
 	struct dm_test_priv *priv = dev_get_priv(dev);
 
 	*pingret = pingval + pdata->ping_add;
@@ -288,7 +288,7 @@ static int dm_test_fdt(struct unit_test_state *uts)
 		ret = uclass_find_device(UCLASS_TEST_FDT, i, &dev);
 		ut_assert(!ret);
 		ut_assert(!dev_get_priv(dev));
-		ut_assert(dev->plat);
+		ut_assert(dev_get_plat(dev));
 	}
 
 	ut_assertok(dm_check_devices(uts, num_devices));
