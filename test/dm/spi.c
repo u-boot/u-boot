@@ -9,6 +9,7 @@
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/state.h>
+#include <asm/test.h>
 #include <dm/device-internal.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
@@ -22,12 +23,9 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 	struct sandbox_state *state = state_get_current();
 	struct spi_slave *slave;
 	struct udevice *bus, *dev;
-	const int busnum = 0, cs = 0, mode = 0, speed = 1000000, cs_b = 1;
+	const int busnum = 0, cs = 0, mode = 0, speed = 1000000, cs_b = 2;
 	struct spi_cs_info info;
 	ofnode node;
-
-	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_SPI, busnum,
-						       false, &bus));
 
 	/*
 	 * The post_bind() method will bind devices to chip selects. Check
@@ -93,6 +91,87 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_spi_find, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* dm_test_spi_switch_slaves - Helper function to check whether spi_claim_bus
+ *                             operates correctly with two spi slaves.
+ *
+ * Check that switching back and forth between two slaves claiming the bus
+ * will update dm_spi_bus->speed and sandbox_spi bus speed/mode correctly.
+ *
+ * @uts - unit test state
+ * @slave_a - first spi slave used for testing
+ * @slave_b - second spi slave used for testing
+ */
+static int dm_test_spi_switch_slaves(struct unit_test_state *uts,
+				     struct spi_slave *slave_a,
+				     struct spi_slave *slave_b)
+{
+	struct udevice *bus;
+	struct dm_spi_bus *bus_data;
+
+	/* Check that slaves are on the same bus */
+	ut_asserteq_ptr(dev_get_parent(slave_a->dev),
+			dev_get_parent(slave_b->dev));
+
+	bus = dev_get_parent(slave_a->dev);
+	bus_data = dev_get_uclass_priv(bus);
+
+	ut_assertok(spi_claim_bus(slave_a));
+	ut_asserteq(slave_a->max_hz, bus_data->speed);
+	ut_asserteq(slave_a->max_hz, sandbox_spi_get_speed(bus));
+	ut_asserteq(slave_a->mode, sandbox_spi_get_mode(bus));
+	spi_release_bus(slave_a);
+
+	ut_assertok(spi_claim_bus(slave_b));
+	ut_asserteq(slave_b->max_hz, bus_data->speed);
+	ut_asserteq(slave_b->max_hz, sandbox_spi_get_speed(bus));
+	ut_asserteq(slave_b->mode, sandbox_spi_get_mode(bus));
+	spi_release_bus(slave_b);
+
+	ut_assertok(spi_claim_bus(slave_a));
+	ut_asserteq(slave_a->max_hz, bus_data->speed);
+	ut_asserteq(slave_a->max_hz, sandbox_spi_get_speed(bus));
+	ut_asserteq(slave_a->mode, sandbox_spi_get_mode(bus));
+	spi_release_bus(slave_a);
+
+	return 0;
+}
+
+static int dm_test_spi_claim_bus(struct unit_test_state *uts)
+{
+	struct udevice *bus;
+	struct spi_slave *slave_a, *slave_b;
+	struct dm_spi_slave_plat *slave_plat;
+	const int busnum = 0, cs_a = 0, cs_b = 1, mode = 0;
+
+	/* Get spi slave on CS0 */
+	ut_assertok(spi_get_bus_and_cs(busnum, cs_a, 1000000, mode, NULL, 0,
+				       &bus, &slave_a));
+	/* Get spi slave on CS1 */
+	ut_assertok(spi_get_bus_and_cs(busnum, cs_b, 1000000, mode, NULL, 0,
+				       &bus, &slave_b));
+
+	/* Different max_hz, different mode. */
+	ut_assert(slave_a->max_hz != slave_b->max_hz);
+	ut_assert(slave_a->mode != slave_b->mode);
+	dm_test_spi_switch_slaves(uts, slave_a, slave_b);
+
+	/* Different max_hz, same mode. */
+	slave_a->mode = slave_b->mode;
+	dm_test_spi_switch_slaves(uts, slave_a, slave_b);
+
+	/*
+	 * Same max_hz, different mode.
+	 * Restore original mode for slave_a, from platdata.
+	 */
+	slave_plat = dev_get_parent_plat(slave_a->dev);
+	slave_a->mode = slave_plat->mode;
+	slave_a->max_hz = slave_b->max_hz;
+	dm_test_spi_switch_slaves(uts, slave_a, slave_b);
+
+	return 0;
+}
+DM_TEST(dm_test_spi_claim_bus, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that sandbox SPI works correctly */
 static int dm_test_spi_xfer(struct unit_test_state *uts)

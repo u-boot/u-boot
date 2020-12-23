@@ -21,7 +21,7 @@ static int w1_bus(void)
 		printf("one wire interface not found\n");
 		return CMD_RET_FAILURE;
 	}
-	printf("Bus %d:\t%s", bus->seq, bus->name);
+	printf("Bus %d:\t%s", dev_seq(bus), bus->name);
 	if (device_active(bus))
 		printf("  (active)");
 	printf("\n");
@@ -31,7 +31,7 @@ static int w1_bus(void)
 	     device_find_next_child(&dev)) {
 		ret = device_probe(dev);
 
-		printf("\t%s (%d) uclass %s : ", dev->name, dev->seq,
+		printf("\t%s (%d) uclass %s : ", dev->name, dev_seq(dev),
 		       dev->uclass->uc_drv->name);
 
 		if (ret)

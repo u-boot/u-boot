@@ -272,48 +272,46 @@ int uclass_find_device_by_name(enum uclass_id id, const char *name,
 	return -ENODEV;
 }
 
-int uclass_find_next_free_req_seq(enum uclass_id id)
+int uclass_find_next_free_seq(struct uclass *uc)
 {
-	struct uclass *uc;
 	struct udevice *dev;
-	int ret;
 	int max = -1;
 
-	ret = uclass_get(id, &uc);
-	if (ret)
-		return ret;
+	/* If using aliases, start with the highest alias value */
+	if (CONFIG_IS_ENABLED(DM_SEQ_ALIAS) &&
+	    (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS))
+		max = dev_read_alias_highest_id(uc->uc_drv->name);
 
+	/* Avoid conflict with existing devices */
 	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
-		if ((dev->req_seq != -1) && (dev->req_seq > max))
-			max = dev->req_seq;
+		if (dev->sqq > max)
+			max = dev->sqq;
 	}
-
-	if (max == -1)
-		return 0;
+	/*
+	 * At this point, max will be -1 if there are no existing aliases or
+	 * devices
+	 */
 
 	return max + 1;
 }
 
-int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
-			      bool find_req_seq, struct udevice **devp)
+int uclass_find_device_by_seq(enum uclass_id id, int seq, struct udevice **devp)
 {
 	struct uclass *uc;
 	struct udevice *dev;
 	int ret;
 
 	*devp = NULL;
-	log_debug("%d %d\n", find_req_seq, seq_or_req_seq);
-	if (seq_or_req_seq == -1)
+	log_debug("%d\n", seq);
+	if (seq == -1)
 		return -ENODEV;
 	ret = uclass_get(id, &uc);
 	if (ret)
 		return ret;
 
 	uclass_foreach_dev(dev, uc) {
-		log_debug("   - %d %d '%s'\n",
-			  dev->req_seq, dev->seq, dev->name);
-		if ((find_req_seq ? dev->req_seq : dev->seq) ==
-				seq_or_req_seq) {
+		log_debug("   - %d '%s'\n", dev->sqq, dev->name);
+		if (dev->sqq == seq) {
 			*devp = dev;
 			log_debug("   - found\n");
 			return 0;
@@ -473,14 +471,8 @@ int uclass_get_device_by_seq(enum uclass_id id, int seq, struct udevice **devp)
 	int ret;
 
 	*devp = NULL;
-	ret = uclass_find_device_by_seq(id, seq, false, &dev);
-	if (ret == -ENODEV) {
-		/*
-		 * We didn't find it in probed devices. See if there is one
-		 * that will request this seq if probed.
-		 */
-		ret = uclass_find_device_by_seq(id, seq, true, &dev);
-	}
+	ret = uclass_find_device_by_seq(id, seq, &dev);
+
 	return uclass_get_device_tail(dev, ret, devp);
 }
 
@@ -686,46 +678,6 @@ int uclass_unbind_device(struct udevice *dev)
 	return 0;
 }
 #endif
-
-int uclass_resolve_seq(struct udevice *dev)
-{
-	struct uclass *uc = dev->uclass;
-	struct uclass_driver *uc_drv = uc->uc_drv;
-	struct udevice *dup;
-	int seq = 0;
-	int ret;
-
-	assert(dev->seq == -1);
-	ret = uclass_find_device_by_seq(uc_drv->id, dev->req_seq, false, &dup);
-	if (!ret) {
-		dm_warn("Device '%s': seq %d is in use by '%s'\n",
-			dev->name, dev->req_seq, dup->name);
-	} else if (ret == -ENODEV) {
-		/* Our requested sequence number is available */
-		if (dev->req_seq != -1)
-			return dev->req_seq;
-	} else {
-		return ret;
-	}
-
-	if (CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(DM_SEQ_ALIAS) &&
-	    (uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS)) {
-		/*
-		 * dev_read_alias_highest_id() will return -1 if there no
-		 * alias. Thus we can always add one.
-		 */
-		seq = dev_read_alias_highest_id(uc_drv->name) + 1;
-	}
-
-	for (; seq < DM_MAX_SEQ; seq++) {
-		ret = uclass_find_device_by_seq(uc_drv->id, seq, false, &dup);
-		if (ret == -ENODEV)
-			break;
-		if (ret)
-			return ret;
-	}
-	return seq;
-}
 
 int uclass_pre_probe_device(struct udevice *dev)
 {

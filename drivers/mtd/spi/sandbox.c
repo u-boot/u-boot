@@ -131,7 +131,7 @@ static int sandbox_sf_probe(struct udevice *dev)
 	int ret = 0;
 	int cs = -1;
 
-	debug("%s: bus %d, looking for emul=%p: ", __func__, bus->seq, dev);
+	debug("%s: bus %d, looking for emul=%p: ", __func__, dev_seq(bus), dev);
 	ret = sandbox_spi_get_emul(state, bus, dev, &emul);
 	if (ret) {
 		printf("Error: Unknown chip select for device '%s'\n",
@@ -565,7 +565,7 @@ int sandbox_spi_get_emul(struct sandbox_state *state,
 			 struct udevice **emulp)
 {
 	struct sandbox_spi_info *info;
-	int busnum = bus->seq;
+	int busnum = dev_seq(bus);
 	int cs = spi_chip_select(slave);
 	int ret;
 

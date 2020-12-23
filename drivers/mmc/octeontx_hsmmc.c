@@ -3731,7 +3731,6 @@ U_BOOT_DRIVER(octeontx_hsmmc_slot) = {
  */
 static int octeontx_mmc_host_probe(struct udevice *dev)
 {
-	pci_dev_t bdf = dm_pci_get_bdf(dev);
 	struct octeontx_mmc_host *host = dev_get_priv(dev);
 	union mio_emm_int emm_int;
 	u8 rev;
@@ -3757,7 +3756,6 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 		return -1;
 	}
 	host->node = dev->node;
-	dev->req_seq = PCI_FUNC(bdf);
 	host->last_slotid = -1;
 	if (otx_is_platform(PLATFORM_ASIM))
 		host->is_asim = true;

@@ -32,7 +32,7 @@ static int print_cpu_list(bool detail)
 		int ret, i;
 
 		ret = cpu_get_desc(dev, buf, sizeof(buf));
-		printf("%3d: %-10s %s\n", dev->seq, dev->name,
+		printf("%3d: %-10s %s\n", dev_seq(dev), dev->name,
 		       ret ? "<no description>" : buf);
 		if (!detail)
 			continue;

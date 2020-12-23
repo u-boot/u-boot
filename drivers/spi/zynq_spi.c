@@ -242,7 +242,7 @@ static int zynq_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	u32 ts, status;
 
 	debug("spi_xfer: bus:%i cs:%i bitlen:%i len:%i flags:%lx\n",
-	      bus->seq, slave_plat->cs, bitlen, len, flags);
+	      dev_seq(bus), slave_plat->cs, bitlen, len, flags);
 
 	if (bitlen % 8) {
 		debug("spi_xfer: Non byte aligned SPI transfer\n");

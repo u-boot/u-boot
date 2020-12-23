@@ -39,9 +39,22 @@
 
 #define SPI_DEFAULT_WORDLEN	8
 
-/* TODO(sjg@chromium.org): Remove this and use max_hz from struct spi_slave */
+/**
+ * struct dm_spi_bus - SPI bus info
+ *
+ * This contains information about a SPI bus. To obtain this structure, use
+ * dev_get_uclass_priv(bus) where bus is the SPI bus udevice.
+ *
+ * @max_hz:	Maximum speed that the bus can tolerate.
+ * @speed:	Current bus speed. This is 0 until the bus is first claimed.
+ * @mode:	Current bus mode. This is 0 until the bus is first claimed.
+ *
+ * TODO(sjg@chromium.org): Remove this and use max_hz from struct spi_slave.
+ */
 struct dm_spi_bus {
 	uint max_hz;
+	uint speed;
+	uint mode;
 };
 
 /**
@@ -112,11 +125,9 @@ enum spi_polarity {
  *
  * @dev:		SPI slave device
  * @max_hz:		Maximum speed for this slave
- * @speed:		Current bus speed. This is 0 until the bus is first
- *			claimed.
  * @bus:		ID of the bus that the slave is attached to. For
  *			driver model this is the sequence number of the SPI
- *			bus (bus->seq) so does not need to be stored
+ *			bus (dev_seq(bus)) so does not need to be stored
  * @cs:			ID of the chip select connected to the slave.
  * @mode:		SPI mode to use for this slave (see SPI mode flags)
  * @wordlen:		Size of SPI word in number of bits
@@ -131,7 +142,6 @@ struct spi_slave {
 #if CONFIG_IS_ENABLED(DM_SPI)
 	struct udevice *dev;	/* struct spi_slave is dev->parentdata */
 	uint max_hz;
-	uint speed;
 #else
 	unsigned int bus;
 	unsigned int cs;

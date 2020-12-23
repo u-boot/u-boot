@@ -223,7 +223,7 @@ static int cdns_wdt_stop(struct udevice *dev)
  */
 static int cdns_wdt_probe(struct udevice *dev)
 {
-	debug("%s: Probing wdt%u\n", __func__, dev->seq);
+	debug("%s: Probing wdt%u\n", __func__, dev_seq(dev));
 
 	return 0;
 }

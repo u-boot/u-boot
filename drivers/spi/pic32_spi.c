@@ -247,7 +247,7 @@ static int pic32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 	slave_plat = dev_get_parent_plat(slave);
 
 	debug("spi_xfer: bus:%i cs:%i flags:%lx\n",
-	      bus->seq, slave_plat->cs, flags);
+	      dev_seq(bus), slave_plat->cs, flags);
 	debug("msg tx %p, rx %p submitted of %d byte(s)\n",
 	      tx_buf, rx_buf, len);
 
@@ -384,7 +384,7 @@ static int pic32_spi_probe(struct udevice *bus)
 	fdt_size_t size;
 	int ret;
 
-	debug("%s: %d, bus: %i\n", __func__, __LINE__, bus->seq);
+	debug("%s: %d, bus: %i\n", __func__, __LINE__, dev_seq(bus));
 	addr = fdtdec_get_addr_size(gd->fdt_blob, node, "reg", &size);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;

@@ -934,7 +934,7 @@ struct dm_pci_ops {
 	 * PCI buses must support reading and writing configuration values
 	 * so that the bus can be scanned and its devices configured.
 	 *
-	 * Normally PCI_BUS(@bdf) is the same as @bus->seq, but not always.
+	 * Normally PCI_BUS(@bdf) is the same as @dev_seq(bus), but not always.
 	 * If bridges exist it is possible to use the top-level bus to
 	 * access a sub-bus. In that case @bus will be the top-level bus
 	 * and PCI_BUS(bdf) will be a different (higher) value

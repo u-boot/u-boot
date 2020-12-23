@@ -240,7 +240,7 @@ static int coldfire_spi_set_speed(struct udevice *bus, uint max_hz)
 	cfspi->baudrate = max_hz;
 
 	/* Read current setup */
-	bus_setup = readl(&dspi->ctar[bus->seq]);
+	bus_setup = readl(&dspi->ctar[dev_seq(bus)]);
 
 	tmp = (prescaler[3] * scaler[15]);
 	/* Maximum and minimum baudrate it can handle */
@@ -294,7 +294,7 @@ static int coldfire_spi_set_speed(struct udevice *bus, uint max_hz)
 
 	bus_setup &= ~(DSPI_CTAR_PBR(0x03) | DSPI_CTAR_BR(0x0f));
 	bus_setup |= (DSPI_CTAR_PBR(best_i) | DSPI_CTAR_BR(best_j));
-	writel(bus_setup, &dspi->ctar[bus->seq]);
+	writel(bus_setup, &dspi->ctar[dev_seq(bus)]);
 
 	return 0;
 }
@@ -318,7 +318,7 @@ static int coldfire_spi_set_mode(struct udevice *bus, uint mode)
 	if (cfspi->mode & SPI_MODE_MOD) {
 		if ((cfspi->mode & SPI_MODE_XFER_SZ_MASK) == 0)
 			bus_setup |=
-			    readl(&dspi->ctar[bus->seq]) & MCF_FRM_SZ_16BIT;
+			    readl(&dspi->ctar[dev_seq(bus)]) & MCF_FRM_SZ_16BIT;
 		else
 			bus_setup |=
 			    ((cfspi->mode & SPI_MODE_XFER_SZ_MASK) >> 1);
@@ -329,14 +329,14 @@ static int coldfire_spi_set_mode(struct udevice *bus, uint mode)
 		bus_setup |= (cfspi->mode & SPI_MODE_DLY_SCA_MASK) >> 4;
 	} else {
 		bus_setup |=
-			(readl(&dspi->ctar[bus->seq]) & MCF_CTAR_MODE_MASK);
+			(readl(&dspi->ctar[dev_seq(bus)]) & MCF_CTAR_MODE_MASK);
 	}
 
 	cfspi->charbit =
-		((readl(&dspi->ctar[bus->seq]) & MCF_FRM_SZ_16BIT) ==
+		((readl(&dspi->ctar[dev_seq(bus)]) & MCF_FRM_SZ_16BIT) ==
 			MCF_FRM_SZ_16BIT) ? 16 : 8;
 
-	setbits_be32(&dspi->ctar[bus->seq], bus_setup);
+	setbits_be32(&dspi->ctar[dev_seq(bus)], bus_setup);
 
 	return 0;
 }

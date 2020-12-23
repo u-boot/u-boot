@@ -369,7 +369,7 @@ static int pcie_intel_fpga_probe(struct udevice *dev)
 	struct intel_fpga_pcie *pcie = dev_get_priv(dev);
 
 	pcie->bus = pci_get_controller(dev);
-	pcie->first_busno = dev->seq;
+	pcie->first_busno = dev_seq(dev);
 
 	/* clear all interrupts */
 	cra_writel(pcie, P2A_INT_STS_ALL, P2A_INT_STATUS);

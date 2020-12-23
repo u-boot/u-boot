@@ -110,7 +110,7 @@ static int ast_i2c_probe(struct udevice *dev)
 {
 	struct ast2500_scu *scu;
 
-	debug("Enabling I2C%u\n", dev->seq);
+	debug("Enabling I2C%u\n", dev_seq(dev));
 
 	/*
 	 * Get all I2C devices out of Reset.
@@ -307,7 +307,7 @@ static int ast_i2c_set_speed(struct udevice *dev, unsigned int speed)
 	struct ast_i2c_regs *regs = priv->regs;
 	ulong i2c_rate, divider;
 
-	debug("Setting speed for I2C%d to <%u>\n", dev->seq, speed);
+	debug("Setting speed for I2C%d to <%u>\n", dev_seq(dev), speed);
 	if (!speed) {
 		debug("No valid speed specified\n");
 		return -EINVAL;

@@ -222,7 +222,7 @@ static int vf_usb_of_to_plat(struct udevice *dev)
 	int node = dev_of_offset(dev);
 	const char *mode;
 
-	priv->portnr = dev->seq;
+	priv->portnr = dev_seq(dev);
 
 	priv->ehci = dev_read_addr_ptr(dev);
 	mode = fdt_getprop(dt_blob, node, "dr_mode", NULL);
@@ -296,16 +296,14 @@ static const struct ehci_ops vf_ehci_ops = {
 
 static int vf_usb_bind(struct udevice *dev)
 {
-	static int num_controllers;
-
 	/*
 	 * Without this hack, if we return ENODEV for USB Controller 0, on
 	 * probe for the next controller, USB Controller 1 will be given a
 	 * sequence number of 0. This conflicts with our requirement of
 	 * sequence numbers while initialising the peripherals.
+	 *
+	 * FIXME: Check that this still works OK with the new sequence numbers
 	 */
-	dev->req_seq = num_controllers;
-	num_controllers++;
 
 	return 0;
 }

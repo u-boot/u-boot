@@ -305,7 +305,7 @@ def PruneWorktrees(git_dir):
     if result.return_code != 0:
         raise OSError('git worktree prune: %s' % result.stderr)
 
-def CreatePatches(branch, start, count, ignore_binary, series):
+def CreatePatches(branch, start, count, ignore_binary, series, signoff = True):
     """Create a series of patches from the top of the current branch.
 
     The patch files are written to the current directory using
@@ -323,7 +323,9 @@ def CreatePatches(branch, start, count, ignore_binary, series):
     """
     if series.get('version'):
         version = '%s ' % series['version']
-    cmd = ['git', 'format-patch', '-M', '--signoff']
+    cmd = ['git', 'format-patch', '-M' ]
+    if signoff:
+        cmd.append('--signoff')
     if ignore_binary:
         cmd.append('--no-binary')
     if series.get('cover'):

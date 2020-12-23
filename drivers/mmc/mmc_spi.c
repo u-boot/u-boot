@@ -418,7 +418,6 @@ static int mmc_spi_probe(struct udevice *dev)
 	priv->spi = dev_get_parent_priv(dev);
 	if (!priv->spi->max_hz)
 		priv->spi->max_hz = MMC_SPI_MAX_CLOCK;
-	priv->spi->speed = 0;
 	priv->spi->mode = SPI_MODE_0;
 	priv->spi->wordlen = 8;
 

@@ -1066,3 +1066,22 @@ static int dm_test_inactive_child(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_inactive_child, UT_TESTF_SCAN_PDATA);
+
+/* Make sure all bound devices have a sequence number */
+static int dm_test_all_have_seq(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+
+	list_for_each_entry(uc, &gd->uclass_root, sibling_node) {
+		list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+			if (dev->sqq == -1)
+				printf("Device '%s' has no seq (%d)\n",
+				       dev->name, dev->sqq);
+			ut_assert(dev->sqq != -1);
+		}
+	}
+
+	return 0;
+}
+DM_TEST(dm_test_all_have_seq, UT_TESTF_SCAN_PDATA);

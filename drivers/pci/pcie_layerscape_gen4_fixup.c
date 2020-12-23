@@ -166,7 +166,7 @@ static void fdt_fixup_pcie_ls_gen4(void *blob)
 		}
 
 		/* the DT fixup must be relative to the hose first_busno */
-		bdf = dm_pci_get_bdf(dev) - PCI_BDF(bus->seq, 0, 0);
+		bdf = dm_pci_get_bdf(dev) - PCI_BDF(dev_seq(bus), 0, 0);
 		/* map PCI b.d.f to streamID in LUT */
 		ls_pcie_g4_lut_set_mapping(pcie, index, bdf >> 8, streamid);
 		/* update msi-map in device tree */

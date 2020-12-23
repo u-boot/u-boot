@@ -51,23 +51,28 @@ int dm_spi_claim_bus(struct udevice *dev)
 	struct dm_spi_ops *ops = spi_get_ops(bus);
 	struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
 	struct spi_slave *slave = dev_get_parent_priv(dev);
-	int speed;
+	uint speed, mode;
 
 	speed = slave->max_hz;
+	mode = slave->mode;
+
 	if (spi->max_hz) {
 		if (speed)
-			speed = min(speed, (int)spi->max_hz);
+			speed = min(speed, spi->max_hz);
 		else
 			speed = spi->max_hz;
 	}
 	if (!speed)
 		speed = SPI_DEFAULT_SPEED_HZ;
-	if (speed != slave->speed) {
+
+	if (speed != spi->speed || mode != spi->mode) {
 		int ret = spi_set_speed_mode(bus, speed, slave->mode);
 
 		if (ret)
 			return log_ret(ret);
-		slave->speed = speed;
+
+		spi->speed = speed;
+		spi->mode = mode;
 	}
 
 	return log_ret(ops->claim_bus ? ops->claim_bus(dev) : 0);
@@ -273,7 +278,7 @@ int spi_cs_is_valid(unsigned int busnum, unsigned int cs)
 	struct udevice *bus;
 	int ret;
 
-	ret = uclass_find_device_by_seq(UCLASS_SPI, busnum, false, &bus);
+	ret = uclass_find_device_by_seq(UCLASS_SPI, busnum, &bus);
 	if (ret) {
 		debug("%s: No bus %d\n", __func__, busnum);
 		return ret;
@@ -302,7 +307,7 @@ int spi_find_bus_and_cs(int busnum, int cs, struct udevice **busp,
 	struct udevice *bus, *dev;
 	int ret;
 
-	ret = uclass_find_device_by_seq(UCLASS_SPI, busnum, false, &bus);
+	ret = uclass_find_device_by_seq(UCLASS_SPI, busnum, &bus);
 	if (ret) {
 		debug("%s: No bus %d\n", __func__, busnum);
 		return ret;
@@ -324,6 +329,7 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 {
 	struct udevice *bus, *dev;
 	struct dm_spi_slave_plat *plat;
+	struct dm_spi_bus *bus_data;
 	struct spi_slave *slave;
 	bool created = false;
 	int ret;
@@ -381,12 +387,13 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 	}
 
 	slave = dev_get_parent_priv(dev);
+	bus_data = dev_get_uclass_priv(bus);
 
 	/*
 	 * In case the operation speed is not yet established by
 	 * dm_spi_claim_bus() ensure the bus is configured properly.
 	 */
-	if (!slave->speed) {
+	if (!bus_data->speed) {
 		ret = spi_claim_bus(slave);
 		if (ret)
 			goto err;
@@ -428,7 +435,6 @@ struct spi_slave *spi_setup_slave(unsigned int busnum, unsigned int cs,
 void spi_free_slave(struct spi_slave *slave)
 {
 	device_remove(slave->dev, DM_REMOVE_NORMAL);
-	slave->dev = NULL;
 }
 
 int spi_slave_of_to_plat(struct udevice *dev, struct dm_spi_slave_plat *plat)

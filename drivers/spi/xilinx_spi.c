@@ -255,7 +255,7 @@ static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	int ret;
 
 	debug("spi_xfer: bus:%i cs:%i bitlen:%i bytes:%i flags:%lx\n",
-	      bus->seq, slave_plat->cs, bitlen, bytes, flags);
+	      dev_seq(bus), slave_plat->cs, bitlen, bytes, flags);
 
 	if (bitlen == 0)
 		goto done;

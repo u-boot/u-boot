@@ -95,21 +95,7 @@ static int designware_i2c_pci_bind(struct udevice *dev)
 	if (dev_of_valid(dev))
 		return 0;
 
-	/*
-	 * Create a unique device name for PCI type devices
-	 * ToDo:
-	 * Setting req_seq in the driver is probably not recommended.
-	 * But without a DT alias the number is not configured. And
-	 * using this driver is impossible for PCIe I2C devices.
-	 * This can be removed, once a better (correct) way for this
-	 * is found and implemented.
-	 *
-	 * TODO(sjg@chromium.org): Perhaps if uclasses had platdata this would
-	 * be possible. We cannot use static data in drivers since they may be
-	 * used in SPL or before relocation.
-	 */
-	dev->req_seq = uclass_find_next_free_req_seq(UCLASS_I2C);
-	sprintf(name, "i2c_designware#%u", dev->req_seq);
+	sprintf(name, "i2c_designware#%u", dev_seq(dev));
 	device_set_name(dev, name);
 
 	return 0;

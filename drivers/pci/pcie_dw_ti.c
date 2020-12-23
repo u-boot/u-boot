@@ -634,7 +634,7 @@ static int pcie_dw_ti_probe(struct udevice *dev)
 	generic_phy_init(&phy1);
 	generic_phy_power_on(&phy1);
 
-	pci->first_busno = dev->seq;
+	pci->first_busno = dev_seq(dev);
 	pci->dev = dev;
 
 	pcie_dw_setup_host(pci);
@@ -644,11 +644,11 @@ static int pcie_dw_ti_probe(struct udevice *dev)
 		pcie_am654_set_mode(pci, DW_PCIE_RC_TYPE);
 
 	if (!pcie_dw_ti_pcie_link_up(pci, LINK_SPEED_GEN_2)) {
-		printf("PCIE-%d: Link down\n", dev->seq);
+		printf("PCIE-%d: Link down\n", dev_seq(dev));
 		return -ENODEV;
 	}
 
-	printf("PCIE-%d: Link up (Gen%d-x%d, Bus%d)\n", dev->seq,
+	printf("PCIE-%d: Link up (Gen%d-x%d, Bus%d)\n", dev_seq(dev),
 	       pcie_dw_get_link_speed(pci),
 	       pcie_dw_get_link_width(pci),
 	       hose->first_busno);

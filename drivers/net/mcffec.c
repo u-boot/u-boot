@@ -524,7 +524,7 @@ static int mcffec_probe(struct udevice *dev)
 	int retval, fec_idx;
 	const u32 *val;
 
-	info->index = dev->seq;
+	info->index = dev_seq(dev);
 	info->iobase = pdata->iobase;
 	info->phy_addr = -1;
 

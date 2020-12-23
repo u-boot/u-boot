@@ -784,16 +784,6 @@ static const char *acpi_name_from_id(enum uclass_id id)
 	}
 }
 
-static int acpi_check_seq(const struct udevice *dev)
-{
-	if (dev->req_seq == -1) {
-		log_warning("Device '%s' has no seq\n", dev->name);
-		return log_msg_ret("no seq", -ENXIO);
-	}
-
-	return dev->req_seq;
-}
-
 /* If you change this function, add test cases to dm_test_acpi_get_name() */
 int acpi_device_infer_name(const struct udevice *dev, char *out_name)
 {
@@ -826,29 +816,18 @@ int acpi_device_infer_name(const struct udevice *dev, char *out_name)
 		}
 	}
 	if (!name) {
-		int num;
-
 		switch (id) {
 		/* DSDT: acpi/lpss.asl */
 		case UCLASS_SERIAL:
-			num = acpi_check_seq(dev);
-			if (num < 0)
-				return num;
-			sprintf(out_name, "URT%d", num);
+			sprintf(out_name, "URT%d", dev_seq(dev));
 			name = out_name;
 			break;
 		case UCLASS_I2C:
-			num = acpi_check_seq(dev);
-			if (num < 0)
-				return num;
-			sprintf(out_name, "I2C%d", num);
+			sprintf(out_name, "I2C%d", dev_seq(dev));
 			name = out_name;
 			break;
 		case UCLASS_SPI:
-			num = acpi_check_seq(dev);
-			if (num < 0)
-				return num;
-			sprintf(out_name, "SPI%d", num);
+			sprintf(out_name, "SPI%d", dev_seq(dev));
 			name = out_name;
 			break;
 		default:

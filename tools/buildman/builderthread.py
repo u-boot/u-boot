@@ -13,6 +13,7 @@ from patman import command
 from patman import gitutil
 
 RETURN_CODE_RETRY = -1
+BASE_ELF_FILENAMES = ['u-boot', 'spl/u-boot-spl', 'tpl/u-boot-tpl']
 
 def Mkdir(dirname, parents = False):
     """Make a directory if it doesn't already exist.
@@ -240,6 +241,17 @@ class BuilderThread(threading.Thread):
                 args.extend(self.builder.toolchains.GetMakeArguments(brd))
                 args.extend(self.toolchain.MakeArgs())
 
+                # Remove any output targets. Since we use a build directory that
+                # was previously used by another board, it may have produced an
+                # SPL image. If we don't remove it (i.e. see do_config and
+                # self.mrproper below) then it will appear to be the output of
+                # this build, even if it does not produce SPL images.
+                build_dir = self.builder.GetBuildDir(commit_upto, brd.target)
+                for elf in BASE_ELF_FILENAMES:
+                    fname = os.path.join(out_dir, elf)
+                    if os.path.exists(fname):
+                        os.remove(fname)
+
                 # If we need to reconfigure, do that now
                 if do_config:
                     config_out = ''
@@ -335,7 +347,7 @@ class BuilderThread(threading.Thread):
                 for var in sorted(env.keys()):
                     print('%s="%s"' % (var, env[var]), file=fd)
             lines = []
-            for fname in ['u-boot', 'spl/u-boot-spl']:
+            for fname in BASE_ELF_FILENAMES:
                 cmd = ['%snm' % self.toolchain.cross, '--size-sort', fname]
                 nm_result = command.RunPipe([cmd], capture=True,
                         capture_stderr=True, cwd=result.out_dir,

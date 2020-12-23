@@ -189,8 +189,8 @@ void dm_pciauto_prescan_setup_bridge(struct udevice *dev, int sub_bus)
 
 	/* Configure bus number registers */
 	dm_pci_write_config8(dev, PCI_PRIMARY_BUS,
-			     PCI_BUS(dm_pci_get_bdf(dev)) - ctlr->seq);
-	dm_pci_write_config8(dev, PCI_SECONDARY_BUS, sub_bus - ctlr->seq);
+			     PCI_BUS(dm_pci_get_bdf(dev)) - dev_seq(ctlr));
+	dm_pci_write_config8(dev, PCI_SECONDARY_BUS, sub_bus - dev_seq(ctlr));
 	dm_pci_write_config8(dev, PCI_SUBORDINATE_BUS, 0xff);
 
 	if (pci_mem) {
@@ -265,7 +265,7 @@ void dm_pciauto_postscan_setup_bridge(struct udevice *dev, int sub_bus)
 	pci_io = ctlr_hose->pci_io;
 
 	/* Configure bus number registers */
-	dm_pci_write_config8(dev, PCI_SUBORDINATE_BUS, sub_bus - ctlr->seq);
+	dm_pci_write_config8(dev, PCI_SUBORDINATE_BUS, sub_bus - dev_seq(ctlr));
 
 	if (pci_mem) {
 		/* Round memory allocator to 1MB boundary */
@@ -321,7 +321,7 @@ int dm_pciauto_config_device(struct udevice *dev)
 	bool enum_only = false;
 	struct udevice *ctlr = pci_get_controller(dev);
 	struct pci_controller *ctlr_hose = dev_get_uclass_priv(ctlr);
-	int n;
+	int ret;
 
 #ifdef CONFIG_PCI_ENUM_ONLY
 	enum_only = true;
@@ -341,10 +341,10 @@ int dm_pciauto_config_device(struct udevice *dev)
 		dm_pciauto_setup_device(dev, 2, pci_mem, pci_prefetch, pci_io,
 					enum_only);
 
-		n = dm_pci_hose_probe_bus(dev);
-		if (n < 0)
-			return n;
-		sub_bus = (unsigned int)n;
+		ret = dm_pci_hose_probe_bus(dev);
+		if (ret < 0)
+			return log_msg_ret("probe", ret);
+		sub_bus = ret;
 		break;
 
 	case PCI_CLASS_BRIDGE_CARDBUS:

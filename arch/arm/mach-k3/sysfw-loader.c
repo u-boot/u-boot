@@ -223,7 +223,7 @@ static void *k3_sysfw_get_spi_addr(void)
 	int ret;
 
 	ret = uclass_find_device_by_seq(UCLASS_SPI, CONFIG_SF_DEFAULT_BUS,
-					true, &dev);
+					&dev);
 	if (ret)
 		return NULL;
 

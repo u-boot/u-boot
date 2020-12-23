@@ -44,6 +44,9 @@ struct udevice;
 /* Members of this uclass sequence themselves with aliases */
 #define DM_UC_FLAG_SEQ_ALIAS			(1 << 0)
 
+/* Members of this uclass without aliases don't get a sequence number */
+#define DM_UC_FLAG_NO_AUTO_SEQ			(1 << 1)
+
 /* Same as DM_FLAG_ALLOC_PRIV_DMA */
 #define DM_UC_FLAG_ALLOC_PRIV_DMA		(1 << 5)
 
@@ -364,21 +367,6 @@ int uclass_next_device_check(struct udevice **devp);
  */
 int uclass_first_device_drvdata(enum uclass_id id, ulong driver_data,
 				struct udevice **devp);
-
-/**
- * uclass_resolve_seq() - Resolve a device's sequence number
- *
- * On entry dev->seq is -1, and dev->req_seq may be -1 (to allocate a
- * sequence number automatically, or >= 0 to select a particular number.
- * If the requested sequence number is in use, then this device will
- * be allocated another one.
- *
- * Note that the device's seq value is not changed by this function.
- *
- * @dev: Device for which to allocate sequence number
- * @return sequence number allocated, or -ve on error
- */
-int uclass_resolve_seq(struct udevice *dev);
 
 /**
  * uclass_id_foreach_dev() - Helper function to iteration through devices

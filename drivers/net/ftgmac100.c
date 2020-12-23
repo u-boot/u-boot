@@ -171,7 +171,7 @@ static int ftgmac100_mdio_init(struct udevice *dev)
 	bus->write = ftgmac100_mdio_write;
 	bus->priv  = priv;
 
-	ret = mdio_register_seq(bus, dev->seq);
+	ret = mdio_register_seq(bus, dev_seq(dev));
 	if (ret) {
 		free(bus);
 		return ret;

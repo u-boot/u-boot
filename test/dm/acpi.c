@@ -123,7 +123,7 @@ UCLASS_DRIVER(testacpi) = {
 static int dm_test_acpi_get_name(struct unit_test_state *uts)
 {
 	char name[ACPI_NAME_MAX];
-	struct udevice *dev, *dev2, *i2c, *spi, *serial, *timer, *sound;
+	struct udevice *dev, *dev2, *i2c, *spi, *timer, *sound;
 	struct udevice *pci, *root;
 
 	/* Test getting the name from the driver */
@@ -145,10 +145,6 @@ static int dm_test_acpi_get_name(struct unit_test_state *uts)
 	ut_assertok(uclass_first_device(UCLASS_SPI, &spi));
 	ut_assertok(acpi_get_name(spi, name));
 	ut_asserteq_str("SPI0", name);
-
-	/* The uart has no sequence number, so this should fail */
-	ut_assertok(uclass_first_device(UCLASS_SERIAL, &serial));
-	ut_asserteq(-ENXIO, acpi_get_name(serial, name));
 
 	/* ACPI doesn't know about the timer */
 	ut_assertok(uclass_first_device(UCLASS_TIMER, &timer));

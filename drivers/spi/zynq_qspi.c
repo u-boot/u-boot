@@ -568,7 +568,7 @@ static int zynq_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 	priv->len = bitlen / 8;
 
 	debug("zynq_qspi_xfer: bus:%i cs:%i bitlen:%i len:%i flags:%lx\n",
-	      bus->seq, slave_plat->cs, bitlen, priv->len, flags);
+	      dev_seq(bus), slave_plat->cs, bitlen, priv->len, flags);
 
 	/*
 	 * Festering sore.

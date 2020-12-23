@@ -321,7 +321,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	mdelay(1);
 
 	priv->ehci = ehci;
-	priv->portnr = dev->seq;
+	priv->portnr = dev_seq(dev);
 	priv->init_type = type;
 
 	ret = device_get_supply_regulator(dev, "vbus-supply",

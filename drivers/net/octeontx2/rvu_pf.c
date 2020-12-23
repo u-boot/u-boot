@@ -34,7 +34,7 @@ int rvu_pf_init(struct rvu_pf *rvu)
 	/* to make post_probe happy */
 	if (is_valid_ethaddr(nix->lmac->mac_addr)) {
 		memcpy(pdata->enetaddr, nix->lmac->mac_addr, 6);
-		eth_env_set_enetaddr_by_index("eth", rvu->dev->seq,
+		eth_env_set_enetaddr_by_index("eth", dev_seq(rvu->dev),
 					      pdata->enetaddr);
 	}
 
@@ -59,7 +59,7 @@ int rvu_pf_probe(struct udevice *dev)
 	debug("%s: name: %s\n", __func__, dev->name);
 
 	rvu->pf_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2, PCI_REGION_MEM);
-	rvu->pfid = dev->seq + 1; // RVU PF's start from 1;
+	rvu->pfid = dev_seq(dev) + 1; // RVU PF's start from 1;
 	rvu->dev = dev;
 	if (!rvu_af_dev) {
 		printf("%s: Error: Could not find RVU AF device\n",
@@ -80,7 +80,7 @@ int rvu_pf_probe(struct udevice *dev)
 	 * modify device name to include index/sequence number,
 	 * for better readability, this is 1:1 mapping with eth0/1/2.. names.
 	 */
-	sprintf(name, "rvu_pf#%d", dev->seq);
+	sprintf(name, "rvu_pf#%d", dev_seq(dev));
 	device_set_name(dev, name);
 	debug("%s: name: %s\n", __func__, dev->name);
 	return err;

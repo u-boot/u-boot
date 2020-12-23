@@ -87,8 +87,8 @@ static int i2c_mux_post_bind(struct udevice *mux)
 
 		ret = device_bind_driver_to_node(mux, "i2c_mux_bus_drv",
 						 full_name, node, &dev);
-		debug("   - bind ret=%d, %s, req_seq %d\n", ret,
-		      dev ? dev->name : NULL, dev->req_seq);
+		debug("   - bind ret=%d, %s, seq %d\n", ret,
+		      dev ? dev->name : NULL, dev_seq(dev));
 		if (ret)
 			return ret;
 	}

@@ -126,9 +126,6 @@ struct udevice *eth_get_dev_by_name(const char *devname)
 
 	uclass_foreach_dev(it, uc) {
 		/*
-		 * We need the seq to be valid, so try to probe it.
-		 * If the probe fails, the seq will not match since it will be
-		 * -1 instead of what we are looking for.
 		 * We don't care about errors from probe here. Either they won't
 		 * match an alias or it will match a literal name and we'll pick
 		 * up the error when we try to probe again in eth_set_dev().
@@ -137,7 +134,7 @@ struct udevice *eth_get_dev_by_name(const char *devname)
 			continue;
 		/* Check for the name or the sequence number to match */
 		if (strcmp(it->name, devname) == 0 ||
-		    (endp > startp && it->seq == seq))
+		    (endp > startp && dev_seq(it) == seq))
 			return it;
 	}
 
@@ -189,7 +186,7 @@ void eth_halt_state_only(void)
 int eth_get_dev_index(void)
 {
 	if (eth_get_dev())
-		return eth_get_dev()->seq;
+		return dev_seq(eth_get_dev());
 	return -1;
 }
 
@@ -202,7 +199,7 @@ static int eth_write_hwaddr(struct udevice *dev)
 		return -EINVAL;
 
 	/* seq is valid since the device is active */
-	if (eth_get_ops(dev)->write_hwaddr && !eth_mac_skip(dev->seq)) {
+	if (eth_get_ops(dev)->write_hwaddr && !eth_mac_skip(dev_seq(dev))) {
 		pdata = dev->plat;
 		if (!is_valid_ethaddr(pdata->enetaddr)) {
 			printf("\nError: %s address %pM illegal value\n",
@@ -235,7 +232,7 @@ static int on_ethaddr(const char *name, const char *value, enum env_op op,
 	/* look for an index after "eth" */
 	index = simple_strtoul(name + 3, NULL, 10);
 
-	retval = uclass_find_device_by_seq(UCLASS_ETH, index, false, &dev);
+	retval = uclass_find_device_by_seq(UCLASS_ETH, index, &dev);
 	if (!retval) {
 		struct eth_pdata *pdata = dev->plat;
 		switch (op) {
@@ -434,11 +431,11 @@ int eth_initialize(void)
 
 		bootstage_mark(BOOTSTAGE_ID_NET_ETH_INIT);
 		do {
-			if (dev->seq != -1) {
+			if (device_active(dev)) {
 				if (num_devices)
 					printf(", ");
 
-				printf("eth%d: %s", dev->seq, dev->name);
+				printf("eth%d: %s", dev_seq(dev), dev->name);
 
 				if (ethprime && dev == prime_dev)
 					printf(" [PRIME]");
@@ -446,7 +443,7 @@ int eth_initialize(void)
 
 			eth_write_hwaddr(dev);
 
-			if (dev->seq != -1)
+			if (device_active(dev))
 				num_devices++;
 			uclass_next_device_check(&dev);
 		} while (dev);
@@ -547,7 +544,7 @@ static int eth_post_probe(struct udevice *dev)
 			eth_get_ops(dev)->read_rom_hwaddr(dev);
 	}
 
-	eth_env_get_enetaddr_by_index("eth", dev->seq, env_enetaddr);
+	eth_env_get_enetaddr_by_index("eth", dev_seq(dev), env_enetaddr);
 	if (!is_zero_ethaddr(env_enetaddr)) {
 		if (!is_zero_ethaddr(pdata->enetaddr) &&
 		    memcmp(pdata->enetaddr, env_enetaddr, ARP_HLEN)) {
@@ -562,13 +559,14 @@ static int eth_post_probe(struct udevice *dev)
 		/* Override the ROM MAC address */
 		memcpy(pdata->enetaddr, env_enetaddr, ARP_HLEN);
 	} else if (is_valid_ethaddr(pdata->enetaddr)) {
-		eth_env_set_enetaddr_by_index("eth", dev->seq, pdata->enetaddr);
+		eth_env_set_enetaddr_by_index("eth", dev_seq(dev),
+					      pdata->enetaddr);
 	} else if (is_zero_ethaddr(pdata->enetaddr) ||
 		   !is_valid_ethaddr(pdata->enetaddr)) {
 #ifdef CONFIG_NET_RANDOM_ETHADDR
 		net_random_ethaddr(pdata->enetaddr);
 		printf("\nWarning: %s (eth%d) using random MAC address - %pM\n",
-		       dev->name, dev->seq, pdata->enetaddr);
+		       dev->name, dev_seq(dev), pdata->enetaddr);
 #else
 		printf("\nError: %s address not set.\n",
 		       dev->name);

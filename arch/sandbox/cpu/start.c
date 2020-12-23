@@ -6,6 +6,7 @@
 #include <common.h>
 #include <command.h>
 #include <dm/root.h>
+#include <efi_loader.h>
 #include <errno.h>
 #include <init.h>
 #include <os.h>
@@ -404,6 +405,15 @@ void state_show(struct sandbox_state *state)
 	for (p = state->argv; *p; p++)
 		printf("%s ", *p);
 	printf("\n");
+}
+
+void __efi_runtime EFIAPI efi_reset_system(
+		enum efi_reset_type reset_type,
+		efi_status_t reset_status,
+		unsigned long data_size, void *reset_data)
+{
+	os_fd_restore();
+	os_relaunch(os_argv);
 }
 
 void sandbox_reset(void)

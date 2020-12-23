@@ -298,7 +298,7 @@ static int i2c_gpio_probe(struct udevice *dev, uint chip, uint chip_flags)
 	i2c_gpio_send_stop(bus, delay);
 
 	debug("%s: bus: %d (%s) chip: %x flags: %x ret: %d\n",
-	      __func__, dev->seq, dev->name, chip, chip_flags, ret);
+	      __func__, dev_seq(dev), dev->name, chip, chip_flags, ret);
 
 	return ret;
 }

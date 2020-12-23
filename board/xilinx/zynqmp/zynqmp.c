@@ -596,10 +596,10 @@ int board_late_init(void)
 			puts("Boot from EMMC but without SD0 enabled!\n");
 			return -1;
 		}
-		debug("mmc0 device found at %p, seq %d\n", dev, dev->seq);
+		debug("mmc0 device found at %p, seq %d\n", dev, dev_seq(dev));
 
 		mode = "mmc";
-		bootseq = dev->seq;
+		bootseq = dev_seq(dev);
 		break;
 	case SD_MODE:
 		puts("SD_MODE\n");
@@ -610,10 +610,10 @@ int board_late_init(void)
 			puts("Boot from SD0 but without SD0 enabled!\n");
 			return -1;
 		}
-		debug("mmc0 device found at %p, seq %d\n", dev, dev->seq);
+		debug("mmc0 device found at %p, seq %d\n", dev, dev_seq(dev));
 
 		mode = "mmc";
-		bootseq = dev->seq;
+		bootseq = dev_seq(dev);
 		env_set("modeboot", "sdboot");
 		break;
 	case SD1_LSHFT_MODE:
@@ -628,10 +628,10 @@ int board_late_init(void)
 			puts("Boot from SD1 but without SD1 enabled!\n");
 			return -1;
 		}
-		debug("mmc1 device found at %p, seq %d\n", dev, dev->seq);
+		debug("mmc1 device found at %p, seq %d\n", dev, dev_seq(dev));
 
 		mode = "mmc";
-		bootseq = dev->seq;
+		bootseq = dev_seq(dev);
 		env_set("modeboot", "sdboot");
 		break;
 	case NAND_MODE:

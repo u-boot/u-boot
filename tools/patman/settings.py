@@ -23,7 +23,12 @@ _default_settings = {
     "u-boot": {},
     "linux": {
         "process_tags": "False",
-    }
+    },
+    "gcc": {
+        "process_tags": "False",
+        "add_signoff": "False",
+        "check_patch": "False",
+    },
 }
 
 class _ProjectConfigParser(ConfigParser.SafeConfigParser):

@@ -133,7 +133,7 @@ int exynos_pinctrl_probe(struct udevice *dev)
 
 	priv->base = base;
 	priv->pin_ctrl = (struct samsung_pin_ctrl *)dev_get_driver_data(dev) +
-				dev->req_seq;
+				dev_seq(dev);
 
 	return 0;
 }

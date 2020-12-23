@@ -28,10 +28,6 @@ U_BOOT_DEVICE(gpio_sandbox) = {
 };
 #endif
 
-void flush_cache(unsigned long start, unsigned long size)
-{
-}
-
 #ifndef CONFIG_TIMER
 /* system timer offset in ms */
 static unsigned long sandbox_timer_offset;

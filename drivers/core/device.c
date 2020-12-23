@@ -41,6 +41,7 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 	struct udevice *dev;
 	struct uclass *uc;
 	int size, ret = 0;
+	bool auto_seq = true;
 
 	if (devp)
 		*devp = NULL;
@@ -71,30 +72,23 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 	dev->driver = drv;
 	dev->uclass = uc;
 
-	dev->seq = -1;
-	dev->req_seq = -1;
+	dev->sqq = -1;
 	if (CONFIG_IS_ENABLED(DM_SEQ_ALIAS) &&
 	    (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS)) {
 		/*
 		 * Some devices, such as a SPI bus, I2C bus and serial ports
 		 * are numbered using aliases.
-		 *
-		 * This is just a 'requested' sequence, and will be
-		 * resolved (and ->seq updated) when the device is probed.
 		 */
 		if (CONFIG_IS_ENABLED(OF_CONTROL) &&
 		    !CONFIG_IS_ENABLED(OF_PLATDATA)) {
-			if (uc->uc_drv->name && ofnode_valid(node))
-				dev_read_alias_seq(dev, &dev->req_seq);
-#if CONFIG_IS_ENABLED(OF_PRIOR_STAGE)
-			if (dev->req_seq == -1)
-				dev->req_seq =
-					uclass_find_next_free_req_seq(drv->id);
-#endif
-		} else {
-			dev->req_seq = uclass_find_next_free_req_seq(drv->id);
+			if (uc->uc_drv->name && ofnode_valid(node)) {
+				if (!dev_read_alias_seq(dev, &dev->sqq))
+					auto_seq = false;
+			}
 		}
 	}
+	if (auto_seq && !(uc->uc_drv->flags & DM_UC_FLAG_NO_AUTO_SEQ))
+		dev->sqq = uclass_find_next_free_seq(uc);
 
 	if (drv->plat_auto) {
 		bool alloc = !plat;
@@ -411,7 +405,6 @@ int device_probe(struct udevice *dev)
 {
 	const struct driver *drv;
 	int ret;
-	int seq;
 
 	if (!dev)
 		return -EINVAL;
@@ -441,13 +434,6 @@ int device_probe(struct udevice *dev)
 		if (dev->flags & DM_FLAG_ACTIVATED)
 			return 0;
 	}
-
-	seq = uclass_resolve_seq(dev);
-	if (seq < 0) {
-		ret = seq;
-		goto fail;
-	}
-	dev->seq = seq;
 
 	dev->flags |= DM_FLAG_ACTIVATED;
 
@@ -511,7 +497,6 @@ fail_uclass:
 fail:
 	dev->flags &= ~DM_FLAG_ACTIVATED;
 
-	dev->seq = -1;
 	device_free(dev);
 
 	return ret;
@@ -645,18 +630,15 @@ int device_get_child_count(const struct udevice *parent)
 	return count;
 }
 
-int device_find_child_by_seq(const struct udevice *parent, int seq_or_req_seq,
-			     bool find_req_seq, struct udevice **devp)
+int device_find_child_by_seq(const struct udevice *parent, int seq,
+			     struct udevice **devp)
 {
 	struct udevice *dev;
 
 	*devp = NULL;
-	if (seq_or_req_seq == -1)
-		return -ENODEV;
 
 	list_for_each_entry(dev, &parent->child_head, sibling_node) {
-		if ((find_req_seq ? dev->req_seq : dev->seq) ==
-				seq_or_req_seq) {
+		if (dev->sqq == seq) {
 			*devp = dev;
 			return 0;
 		}
@@ -672,14 +654,8 @@ int device_get_child_by_seq(const struct udevice *parent, int seq,
 	int ret;
 
 	*devp = NULL;
-	ret = device_find_child_by_seq(parent, seq, false, &dev);
-	if (ret == -ENODEV) {
-		/*
-		 * We didn't find it in probed devices. See if there is one
-		 * that will request this seq if probed.
-		 */
-		ret = device_find_child_by_seq(parent, seq, true, &dev);
-	}
+	ret = device_find_child_by_seq(parent, seq, &dev);
+
 	return device_get_device_tail(dev, ret, devp);
 }
 

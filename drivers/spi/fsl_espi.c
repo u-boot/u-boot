@@ -527,7 +527,7 @@ static int fsl_espi_probe(struct udevice *bus)
 	fsl->max_transfer_length = ESPI_MAX_DATA_TRANSFER_LEN;
 	fsl->speed_hz = plat->speed_hz;
 
-	debug("%s probe done, bus-num %d.\n", bus->name, bus->seq);
+	debug("%s probe done, bus-num %d.\n", bus->name, dev_seq(bus));
 
 	return 0;
 }

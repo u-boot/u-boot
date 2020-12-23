@@ -736,7 +736,7 @@ int nix_lf_setup_mac(struct udevice *dev)
 	 */
 	if (memcmp(nix->lmac->mac_addr, pdata->enetaddr, ARP_HLEN)) {
 		memcpy(nix->lmac->mac_addr, pdata->enetaddr, 6);
-		eth_env_set_enetaddr_by_index("eth", rvu->dev->seq,
+		eth_env_set_enetaddr_by_index("eth", dev_seq(rvu->dev),
 					      pdata->enetaddr);
 		cgx_lmac_mac_filter_setup(nix->lmac);
 		/* Update user given MAC address to ATF for update

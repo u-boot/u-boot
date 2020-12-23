@@ -87,7 +87,7 @@ DECLARE_GLOBAL_DATA_PTR;
  *			intel,apic-id = <2>;
  *		};
  *
- * Here the 'reg' property is the CPU number and then is placed in dev->req_seq
+ * Here the 'reg' property is the CPU number and then is placed in dev_seq(cpu)
  * so that we can index into ap_callbacks[] using that. The APIC ID is different
  * and may not be sequential (it typically is if hyperthreading is supported).
  *
@@ -135,7 +135,7 @@ struct mp_flight_plan {
  *
  * @func: Function to run
  * @arg: Argument to pass to the function
- * @logical_cpu_number: Either a CPU number (i.e. dev->req_seq) or a special
+ * @logical_cpu_number: Either a CPU number (i.e. dev_seq(cpu) or a special
  *	value like MP_SELECT_BSP. It tells the AP whether it should process this
  *	callback
  */
@@ -152,7 +152,7 @@ static struct mp_flight_plan mp_info;
  * ap_callbacks - Callback mailbox array
  *
  * Array of callback, one entry for each available CPU, indexed by the CPU
- * number, which is dev->req_seq. The entry for the main CPU is never used.
+ * number, which is dev_seq(cpu). The entry for the main CPU is never used.
  * When this is NULL, there is no pending work for the CPU to run. When
  * non-NULL it points to the mp_callback structure. This is shared between all
  * CPUs, so should only be written by the main CPU.
@@ -562,7 +562,7 @@ static int get_bsp(struct udevice **devp, int *cpu_countp)
 	if (cpu_countp)
 		*cpu_countp = ret;
 
-	return dev->req_seq >= 0 ? dev->req_seq : 0;
+	return dev_seq(dev) >= 0 ? dev_seq(dev) : 0;
 }
 
 /**
@@ -614,7 +614,7 @@ static void store_callback(struct mp_callback **slot, struct mp_callback *val)
 static int run_ap_work(struct mp_callback *callback, struct udevice *bsp,
 		       int num_cpus, uint expire_ms)
 {
-	int cur_cpu = bsp->req_seq;
+	int cur_cpu = dev_seq(bsp);
 	int num_aps = num_cpus - 1; /* number of non-BSPs to get this message */
 	int cpus_accepted;
 	ulong start;
@@ -679,7 +679,7 @@ static int ap_wait_for_instruction(struct udevice *cpu, void *unused)
 	if (!IS_ENABLED(CONFIG_SMP_AP_WORK))
 		return 0;
 
-	per_cpu_slot = &ap_callbacks[cpu->req_seq];
+	per_cpu_slot = &ap_callbacks[dev_seq(cpu)];
 
 	while (1) {
 		struct mp_callback *cb = read_callback(per_cpu_slot);
@@ -694,7 +694,7 @@ static int ap_wait_for_instruction(struct udevice *cpu, void *unused)
 		mfence();
 		if (lcb.logical_cpu_number == MP_SELECT_ALL ||
 		    lcb.logical_cpu_number == MP_SELECT_APS ||
-		    cpu->req_seq == lcb.logical_cpu_number)
+		    dev_seq(cpu) == lcb.logical_cpu_number)
 			lcb.func(lcb.arg);
 
 		/* Indicate we are finished */
@@ -839,7 +839,6 @@ int mp_init(void)
 	int num_aps, num_cpus;
 	atomic_t *ap_count;
 	struct udevice *cpu;
-	struct uclass *uc;
 	int ret;
 
 	if (IS_ENABLED(CONFIG_QFW)) {
@@ -847,14 +846,6 @@ int mp_init(void)
 		if (ret)
 			return ret;
 	}
-
-	/*
-	 * Multiple APs are brought up simultaneously and they may get the same
-	 * seq num in the uclass_resolve_seq() during device_probe(). To avoid
-	 * this, set req_seq to the reg number in the device tree in advance.
-	 */
-	uclass_id_foreach_dev(UCLASS_CPU, cpu, uc)
-		cpu->req_seq = dev_read_u32_default(cpu, "reg", -1);
 
 	ret = get_bsp(&cpu, &num_cpus);
 	if (ret < 0) {

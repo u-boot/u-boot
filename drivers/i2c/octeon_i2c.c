@@ -791,7 +791,6 @@ static int octeon_i2c_probe(struct udevice *dev)
 		pci_dev_t bdf = dm_pci_get_bdf(dev);
 
 		debug("TWSI PCI device: %x\n", bdf);
-		dev->req_seq = PCI_FUNC(bdf);
 
 		twsi->base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
 					    PCI_REGION_MEM);
@@ -811,7 +810,7 @@ static int octeon_i2c_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	debug("TWSI bus %d at %p\n", dev->seq, twsi->base);
+	debug("TWSI bus %d at %p\n", dev_seq(dev), twsi->base);
 
 	/* Start with standard speed, real speed set via DT or cmd */
 	return twsi_init(twsi->base, i2c_slave_addr);

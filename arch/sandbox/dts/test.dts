@@ -33,10 +33,11 @@
 		testfdt6 = "/e-test";
 		testbus3 = "/some-bus";
 		testfdt0 = "/some-bus/c-test@0";
-		testfdt1 = "/some-bus/c-test@1";
+		testfdt12 = "/some-bus/c-test@1";
 		testfdt3 = "/b-test";
 		testfdt5 = "/some-bus/c-test@5";
 		testfdt8 = "/a-test";
+		testfdtm1 = &testfdtm1;
 		fdt-dummy0 = "/translation-test@8000/dev@0,0";
 		fdt-dummy1 = "/translation-test@8000/dev@1,100";
 		fdt-dummy2 = "/translation-test@8000/dev@2,200";
@@ -864,12 +865,20 @@
 		#size-cells = <0>;
 		reg = <0 1>;
 		compatible = "sandbox,spi";
-		cs-gpios = <0>, <&gpio_a 0>;
+		cs-gpios = <0>, <0>, <&gpio_a 0>;
 		spi.bin@0 {
 			reg = <0>;
 			compatible = "spansion,m25p16", "jedec,spi-nor";
 			spi-max-frequency = <40000000>;
 			sandbox,filename = "spi.bin";
+		};
+		spi.bin@1 {
+			reg = <1>;
+			compatible = "spansion,m25p16", "jedec,spi-nor";
+			spi-max-frequency = <50000000>;
+			sandbox,filename = "spi.bin";
+			spi-cpol;
+			spi-cpha;
 		};
 	};
 
@@ -915,6 +924,18 @@
 		#mux-control-cells = <0>;
 		u-boot,mux-autoprobe;
 		idle-state = <0xabcd>;
+	};
+
+	testfdtm0 {
+		compatible = "denx,u-boot-fdtm-test";
+	};
+
+	testfdtm1: testfdtm1 {
+		compatible = "denx,u-boot-fdtm-test";
+	};
+
+	testfdtm2 {
+		compatible = "denx,u-boot-fdtm-test";
 	};
 
 	timer@0 {

@@ -697,7 +697,7 @@ static int axi_emac_probe(struct udevice *dev)
 	priv->bus->write = axiemac_miiphy_write;
 	priv->bus->priv = priv;
 
-	ret = mdio_register_seq(priv->bus, dev->seq);
+	ret = mdio_register_seq(priv->bus, dev_seq(dev));
 	if (ret)
 		return ret;
 

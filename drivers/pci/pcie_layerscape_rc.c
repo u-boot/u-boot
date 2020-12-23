@@ -130,13 +130,13 @@ static int ls_pcie_addr_valid(struct ls_pcie_rc *pcie_rc, pci_dev_t bdf)
 	if (!pcie_rc->enabled)
 		return -ENXIO;
 
-	if (PCI_BUS(bdf) < bus->seq)
+	if (PCI_BUS(bdf) < dev_seq(bus))
 		return -EINVAL;
 
-	if ((PCI_BUS(bdf) > bus->seq) && (!ls_pcie_link_up(pcie)))
+	if ((PCI_BUS(bdf) > dev_seq(bus)) && (!ls_pcie_link_up(pcie)))
 		return -EINVAL;
 
-	if (PCI_BUS(bdf) <= (bus->seq + 1) && (PCI_DEV(bdf) > 0))
+	if (PCI_BUS(bdf) <= (dev_seq(bus) + 1) && (PCI_DEV(bdf) > 0))
 		return -EINVAL;
 
 	return 0;
@@ -152,16 +152,16 @@ int ls_pcie_conf_address(const struct udevice *bus, pci_dev_t bdf,
 	if (ls_pcie_addr_valid(pcie_rc, bdf))
 		return -EINVAL;
 
-	if (PCI_BUS(bdf) == bus->seq) {
+	if (PCI_BUS(bdf) == dev_seq(bus)) {
 		*paddress = pcie->dbi + offset;
 		return 0;
 	}
 
-	busdev = PCIE_ATU_BUS(PCI_BUS(bdf) - bus->seq) |
+	busdev = PCIE_ATU_BUS(PCI_BUS(bdf) - dev_seq(bus)) |
 		 PCIE_ATU_DEV(PCI_DEV(bdf)) |
 		 PCIE_ATU_FUNC(PCI_FUNC(bdf));
 
-	if (PCI_BUS(bdf) == bus->seq + 1) {
+	if (PCI_BUS(bdf) == dev_seq(bus) + 1) {
 		ls_pcie_cfg0_set_busdev(pcie_rc, busdev);
 		*paddress = pcie_rc->cfg0 + offset;
 	} else {

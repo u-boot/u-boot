@@ -126,6 +126,23 @@ UCLASS_DRIVER(testfdt) = {
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
 
+static const struct udevice_id testfdtm_ids[] = {
+	{ .compatible = "denx,u-boot-fdtm-test" },
+	{ }
+};
+
+U_BOOT_DRIVER(testfdtm_drv) = {
+	.name	= "testfdtm_drv",
+	.of_match	= testfdtm_ids,
+	.id	= UCLASS_TEST_FDT_MANUAL,
+};
+
+UCLASS_DRIVER(testfdtm) = {
+	.name		= "testfdtm",
+	.id		= UCLASS_TEST_FDT_MANUAL,
+	.flags		= DM_UC_FLAG_SEQ_ALIAS | DM_UC_FLAG_NO_AUTO_SEQ,
+};
+
 struct dm_testprobe_pdata {
 	int probe_err;
 };
@@ -331,22 +348,30 @@ static int dm_test_fdt_uclass_seq(struct unit_test_state *uts)
 	struct udevice *dev;
 
 	/* A few basic santiy tests */
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_FDT, 3, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_FDT, 3, &dev));
 	ut_asserteq_str("b-test", dev->name);
+	ut_asserteq(3, dev_seq(dev));
 
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_FDT, 8, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_FDT, 8, &dev));
 	ut_asserteq_str("a-test", dev->name);
+	ut_asserteq(8, dev_seq(dev));
 
-	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 5,
-						       true, &dev));
+	/*
+	 * This device has no alias so gets the next value after all available
+	 * aliases. The last alias is testfdt12
+	 */
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_FDT, 13, &dev));
+	ut_asserteq_str("d-test", dev->name);
+	ut_asserteq(13, dev_seq(dev));
+
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 9,
+						       &dev));
 	ut_asserteq_ptr(NULL, dev);
 
 	/* Test aliases */
 	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 6, &dev));
 	ut_asserteq_str("e-test", dev->name);
-
-	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 7,
-						       true, &dev));
+	ut_asserteq(6, dev_seq(dev));
 
 	/*
 	 * Note that c-test nodes are not probed since it is not a top-level
@@ -354,6 +379,7 @@ static int dm_test_fdt_uclass_seq(struct unit_test_state *uts)
 	 */
 	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 3, &dev));
 	ut_asserteq_str("b-test", dev->name);
+	ut_asserteq(3, dev_seq(dev));
 
 	/*
 	 * d-test wants sequence number 3 also, but it can't have it because
@@ -361,36 +387,98 @@ static int dm_test_fdt_uclass_seq(struct unit_test_state *uts)
 	 */
 	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 2, &dev));
 	ut_asserteq_str("d-test", dev->name);
+	ut_asserteq(13, dev_seq(dev));
 
-	/*
-	 * d-test actually gets 9, because thats the next free one after the
-	 * aliases.
-	 */
-	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 9, &dev));
-	ut_asserteq_str("d-test", dev->name);
+	/* g-test gets the next value after f-test */
+	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 15, &dev));
+	ut_asserteq_str("g-test", dev->name);
+	ut_asserteq(15, dev_seq(dev));
 
-	/* initially no one wants seq 10 */
-	ut_asserteq(-ENODEV, uclass_get_device_by_seq(UCLASS_TEST_FDT, 10,
-						      &dev));
-	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
-	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 4, &dev));
-
-	/* But now that it is probed, we can find it */
-	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 10, &dev));
-	ut_asserteq_str("f-test", dev->name);
-
-	/*
-	 * And we should still have holes in our sequence numbers, that is 2
-	 * and 4 should not be used.
-	 */
+	/* And we should still have holes in our sequence numbers */
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 0,
+						       &dev));
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 1,
+						       &dev));
 	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 2,
-						       true, &dev));
+						       &dev));
 	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 4,
-						       true, &dev));
+						       &dev));
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 7,
+						       &dev));
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 9,
+						       &dev));
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 10,
+						       &dev));
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 11,
+						       &dev));
 
 	return 0;
 }
 DM_TEST(dm_test_fdt_uclass_seq, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* More tests for sequence numbers */
+static int dm_test_fdt_uclass_seq_manual(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	/*
+	 * Since DM_UC_FLAG_NO_AUTO_SEQ is set for this uclass, only testfdtm1
+	 * should get a sequence number assigned
+	 */
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT_MANUAL, 0, &dev));
+	ut_asserteq_str("testfdtm0", dev->name);
+	ut_asserteq(-1, dev_seq(dev));
+
+	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT_MANUAL, 1, &dev));
+	ut_asserteq_str("testfdtm1", dev->name);
+	ut_asserteq(1, dev_seq(dev));
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT_MANUAL, 2, &dev));
+	ut_asserteq_str("testfdtm2", dev->name);
+	ut_asserteq(-1, dev_seq(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_fdt_uclass_seq_manual, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_fdt_uclass_seq_more(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	ofnode node;
+
+	/* Check creating a device with an alias */
+	node = ofnode_path("/some-bus/c-test@1");
+	ut_assertok(device_bind(dm_root(), DM_GET_DRIVER(testfdt_drv),
+				"c-test@1", NULL, node, &dev));
+	ut_asserteq(12, dev_seq(dev));
+	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 12, &dev));
+	ut_asserteq_str("c-test@1", dev->name);
+
+	/*
+	 * Now bind a device without an alias. It should not get the next
+	 * sequence number after all aliases, and existing bound devices. The
+	 * last alias is 12, so we have:
+	 *
+	 * 13 d-test
+	 * 14 f-test
+	 * 15 g-test
+	 * 16 h-test
+	 * 17 another-test
+	 * 18 chosen-test
+	 *
+	 * So next available is 19
+	 */
+	ut_assertok(device_bind(dm_root(), DM_GET_DRIVER(testfdt_drv),
+				"fred", NULL, ofnode_null(), &dev));
+	ut_asserteq(19, dev_seq(dev));
+
+	ut_assertok(device_bind(dm_root(), DM_GET_DRIVER(testfdt_drv),
+				"fred2", NULL, ofnode_null(), &dev));
+	ut_asserteq(20, dev_seq(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_fdt_uclass_seq_more, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that we can find a device by device tree offset */
 static int dm_test_fdt_offset(struct unit_test_state *uts)
@@ -587,30 +675,30 @@ static int dm_test_fdt_translation(struct unit_test_state *uts)
 	fdt32_t dma_addr[2];
 
 	/* Some simple translations */
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, &dev));
 	ut_asserteq_str("dev@0,0", dev->name);
 	ut_asserteq(0x8000, dev_read_addr(dev));
 
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 1, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 1, &dev));
 	ut_asserteq_str("dev@1,100", dev->name);
 	ut_asserteq(0x9000, dev_read_addr(dev));
 
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 2, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 2, &dev));
 	ut_asserteq_str("dev@2,200", dev->name);
 	ut_asserteq(0xA000, dev_read_addr(dev));
 
 	/* No translation for busses with #size-cells == 0 */
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 3, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 3, &dev));
 	ut_asserteq_str("dev@42", dev->name);
 	ut_asserteq(0x42, dev_read_addr(dev));
 
 	/* dma address translation */
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, &dev));
 	dma_addr[0] = cpu_to_be32(0);
 	dma_addr[1] = cpu_to_be32(0);
 	ut_asserteq(0x10000000, dev_translate_dma_address(dev, dma_addr));
 
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 1, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 1, &dev));
 	dma_addr[0] = cpu_to_be32(1);
 	dma_addr[1] = cpu_to_be32(0x100);
 	ut_asserteq(0x20000000, dev_translate_dma_address(dev, dma_addr));
@@ -628,7 +716,7 @@ static int dm_test_fdt_get_addr_ptr_flat(struct unit_test_state *uts)
 	ut_assertok(uclass_first_device_err(UCLASS_GPIO, &gpio));
 	ut_assertnull(devfdt_get_addr_ptr(gpio));
 
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, &dev));
 	ptr = devfdt_get_addr_ptr(dev);
 	ut_asserteq_ptr((void *)0x8000, ptr);
 
@@ -643,7 +731,7 @@ static int dm_test_fdt_remap_addr_flat(struct unit_test_state *uts)
 	fdt_addr_t addr;
 	void *paddr;
 
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, &dev));
 
 	addr = devfdt_get_addr(dev);
 	ut_asserteq(0x8000, addr);
@@ -664,7 +752,7 @@ static int dm_test_fdt_remap_addr_index_flat(struct unit_test_state *uts)
 	fdt_size_t size;
 	void *paddr;
 
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, &dev));
 
 	addr = devfdt_get_addr_size_index(dev, 0, &size);
 	ut_asserteq(0x8000, addr);
@@ -686,7 +774,7 @@ static int dm_test_fdt_remap_addr_name_flat(struct unit_test_state *uts)
 	fdt_size_t size;
 	void *paddr;
 
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, &dev));
 
 	addr = devfdt_get_addr_size_name(dev, "sandbox-dummy-0", &size);
 	ut_asserteq(0x8000, addr);
@@ -707,7 +795,7 @@ static int dm_test_fdt_remap_addr_live(struct unit_test_state *uts)
 	fdt_addr_t addr;
 	void *paddr;
 
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, &dev));
 
 	addr = dev_read_addr(dev);
 	ut_asserteq(0x8000, addr);
@@ -728,7 +816,7 @@ static int dm_test_fdt_remap_addr_index_live(struct unit_test_state *uts)
 	fdt_size_t size;
 	void *paddr;
 
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, &dev));
 
 	addr = dev_read_addr_size_index(dev, 0, &size);
 	ut_asserteq(0x8000, addr);
@@ -750,7 +838,7 @@ static int dm_test_fdt_remap_addr_name_live(struct unit_test_state *uts)
 	fdt_size_t size;
 	void *paddr;
 
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, &dev));
 
 	addr = dev_read_addr_size_name(dev, "sandbox-dummy-0", &size);
 	ut_asserteq(0x8000, addr);
@@ -785,7 +873,7 @@ static int dm_test_fdt_livetree_writing(struct unit_test_state *uts)
 
 	device_bind_driver_to_node(dm_root(), "usb_sandbox", "usb@2", node,
 				   &dev);
-	ut_assertok(uclass_find_device_by_seq(UCLASS_USB, 2, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_USB, 2, &dev));
 
 	/* Test string property setting */
 

@@ -28,9 +28,6 @@ static int dm_test_i2c_find(struct unit_test_state *uts)
 	struct udevice *bus, *dev;
 	const int no_chip = 0x10;
 
-	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_I2C, busnum,
-						       false, &bus));
-
 	/*
 	 * The post_bind() method will bind devices to chip selects. Check
 	 * this then remove the emulation and the slave device.

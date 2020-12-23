@@ -593,7 +593,7 @@ static int octeon_spi_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	debug("SPI bus %s %d at %p\n", dev->name, dev->seq, priv->base);
+	debug("SPI bus %s %d at %p\n", dev->name, dev_seq(dev), priv->base);
 
 	return 0;
 }

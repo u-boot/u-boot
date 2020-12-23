@@ -282,7 +282,11 @@ U_BOOT_I2C_ADAP_COMPLETE(lpc32xx_2, lpc32xx_i2c_init, NULL,
 static int lpc32xx_i2c_probe(struct udevice *bus)
 {
 	struct lpc32xx_i2c_dev *dev = dev_get_plat(bus);
-	bus->seq = dev->index;
+
+	/*
+	 * FIXME: This is not permitted
+	 *	dev_seq(bus) = dev->index;
+	 */
 
 	__i2c_init(dev->base, dev->speed, 0, dev->index);
 	return 0;

@@ -131,9 +131,11 @@ enum {
  * @child_head: List of children of this device
  * @sibling_node: Next device in list of all devices
  * @flags: Flags for this device DM_FLAG_...
- * @req_seq: Requested sequence number for this device (-1 = any)
  * @seq: Allocated sequence number for this device (-1 = none). This is set up
- * when the device is probed and will be unique within the device's uclass.
+ * when the device is bound and is unique within the device's uclass. If the
+ * device has an alias in the devicetree then that is used to set the sequence
+ * number. Otherwise, the next available number is used. Sequence numbers are
+ * used by certain commands that need device to be numbered (e.g. 'mmc dev')
  * @devres_head: List of memory allocations associated with this device.
  *		When CONFIG_DEVRES is enabled, devm_kmalloc() and friends will
  *		add to this list. Memory so-allocated will be freed
@@ -156,8 +158,7 @@ struct udevice {
 	struct list_head child_head;
 	struct list_head sibling_node;
 	uint32_t flags;
-	int req_seq;
-	int seq;
+	int sqq;
 #ifdef CONFIG_DEVRES
 	struct list_head devres_head;
 #endif
@@ -180,6 +181,11 @@ static inline int dev_of_offset(const struct udevice *dev)
 static inline bool dev_has_of_node(struct udevice *dev)
 {
 	return ofnode_valid(dev->node);
+}
+
+static inline int dev_seq(const struct udevice *dev)
+{
+	return dev->sqq;
 }
 
 /**
@@ -439,24 +445,16 @@ int device_get_child_count(const struct udevice *parent);
 /**
  * device_find_child_by_seq() - Find a child device based on a sequence
  *
- * This searches for a device with the given seq or req_seq.
- *
- * For seq, if an active device has this sequence it will be returned.
- * If there is no such device then this will return -ENODEV.
- *
- * For req_seq, if a device (whether activated or not) has this req_seq
- * value, that device will be returned. This is a strong indication that
- * the device will receive that sequence when activated.
+ * This searches for a device with the given seq.
  *
  * @parent: Parent device
- * @seq_or_req_seq: Sequence number to find (0=first)
- * @find_req_seq: true to find req_seq, false to find seq
+ * @seq: Sequence number to find (0=first)
  * @devp: Returns pointer to device (there is only one per for each seq).
  * Set to NULL if none is found
- * @return 0 if OK, -ve on error
+ * @return 0 if OK, -ENODEV if not found
  */
-int device_find_child_by_seq(const struct udevice *parent, int seq_or_req_seq,
-			     bool find_req_seq, struct udevice **devp);
+int device_find_child_by_seq(const struct udevice *parent, int seq,
+			     struct udevice **devp);
 
 /**
  * device_get_child_by_seq() - Get a child device based on a sequence
