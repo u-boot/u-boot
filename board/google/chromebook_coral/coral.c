@@ -143,14 +143,16 @@ struct acpi_ops coral_acpi_ops = {
 	.inject_dsdt	= chromeos_acpi_gpio_generate,
 };
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct udevice_id coral_ids[] = {
 	{ .compatible = "google,coral" },
 	{ }
 };
+#endif
 
 U_BOOT_DRIVER(coral_drv) = {
 	.name		= "coral",
 	.id		= UCLASS_SYSINFO,
-	.of_match	= coral_ids,
+	.of_match	= of_match_ptr(coral_ids),
 	ACPI_OPS_PTR(&coral_acpi_ops)
 };

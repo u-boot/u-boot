@@ -118,15 +118,17 @@ static int apl_ns16550_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct udevice_id apl_ns16550_serial_ids[] = {
 	{ .compatible = "intel,apl-ns16550" },
 	{ },
 };
+#endif
 
 U_BOOT_DRIVER(intel_apl_ns16550) = {
 	.name	= "intel_apl_ns16550",
 	.id	= UCLASS_SERIAL,
-	.of_match = apl_ns16550_serial_ids,
+	.of_match = of_match_ptr(apl_ns16550_serial_ids),
 	.plat_auto	= sizeof(struct ns16550_plat),
 	.priv_auto	= sizeof(struct ns16550),
 	.ops	= &ns16550_serial_ops,

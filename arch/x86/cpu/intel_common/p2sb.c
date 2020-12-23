@@ -184,15 +184,17 @@ static const struct p2sb_ops p2sb_ops = {
 	.set_hide	= intel_p2sb_set_hide,
 };
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct udevice_id p2sb_ids[] = {
 	{ .compatible = "intel,p2sb" },
 	{ }
 };
+#endif
 
 U_BOOT_DRIVER(intel_p2sb) = {
 	.name		= "intel_p2sb",
 	.id		= UCLASS_P2SB,
-	.of_match	= p2sb_ids,
+	.of_match	= of_match_ptr(p2sb_ids),
 	.probe		= p2sb_probe,
 	.remove		= p2sb_remove,
 	.ops		= &p2sb_ops,

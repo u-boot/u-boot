@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <log.h>
+#include <spl.h>
 #include <acpi/acpi_s3.h>
 #ifdef CONFIG_X86
 #include <asm/intel_pinctrl.h>
@@ -60,7 +61,8 @@ int pmc_gpe_init(struct udevice *dev)
 	 * are different and if they aren't, use the reset values.
 	 */
 	if (dw[0] == dw[1] || dw[1] == dw[2]) {
-		log_info("PMC: Using default GPE route");
+		if (spl_phase() > PHASE_TPL)
+			log_info("PMC: Using default GPE route");
 		gpio_cfg = readl(upriv->gpe_cfg);
 		for (i = 0; i < upriv->gpe0_count; i++)
 			dw[i] = gpio_cfg >> gpe0_shift(upriv, i);

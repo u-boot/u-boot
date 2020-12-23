@@ -230,15 +230,17 @@ static const struct irq_ops itss_ops = {
 #endif
 };
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct udevice_id itss_ids[] = {
 	{ .compatible = "intel,itss", .data = X86_IRQT_ITSS },
 	{ }
 };
+#endif
 
 U_BOOT_DRIVER(intel_itss) = {
 	.name		= "intel_itss",
 	.id		= UCLASS_IRQ,
-	.of_match	= itss_ids,
+	.of_match	= of_match_ptr(itss_ids),
 	.ops		= &itss_ops,
 	.bind		= itss_bind,
 	.of_to_plat = itss_of_to_plat,

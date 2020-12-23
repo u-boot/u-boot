@@ -23,14 +23,16 @@ static const struct pch_ops apl_pch_ops = {
 	.set_spi_protect = apl_set_spi_protect,
 };
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct udevice_id apl_pch_ids[] = {
 	{ .compatible = "intel,apl-pch" },
 	{ }
 };
+#endif
 
 U_BOOT_DRIVER(intel_apl_pch) = {
 	.name		= "intel_apl_pch",
 	.id		= UCLASS_PCH,
-	.of_match	= apl_pch_ids,
+	.of_match	= of_match_ptr(apl_pch_ids),
 	.ops		= &apl_pch_ops,
 };

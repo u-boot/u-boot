@@ -188,15 +188,17 @@ static const struct dm_gpio_ops gpio_intel_ops = {
 #endif
 };
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct udevice_id intel_intel_gpio_ids[] = {
 	{ .compatible = "intel,gpio" },
 	{ }
 };
+#endif
 
 U_BOOT_DRIVER(intel_gpio) = {
 	.name	= "intel_gpio",
 	.id	= UCLASS_GPIO,
-	.of_match = intel_intel_gpio_ids,
+	.of_match = of_match_ptr(intel_intel_gpio_ids),
 	.ops	= &gpio_intel_ops,
 	.of_to_plat	= intel_gpio_of_to_plat,
 	.probe	= intel_gpio_probe,

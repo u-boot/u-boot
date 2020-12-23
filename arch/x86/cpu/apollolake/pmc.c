@@ -212,15 +212,17 @@ static const struct acpi_pmc_ops apl_pmc_ops = {
 	.global_reset_set_enable = apl_global_reset_set_enable,
 };
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct udevice_id apl_pmc_ids[] = {
 	{ .compatible = "intel,apl-pmc" },
 	{ }
 };
+#endif
 
 U_BOOT_DRIVER(intel_apl_pmc) = {
 	.name		= "intel_apl_pmc",
 	.id		= UCLASS_ACPI_PMC,
-	.of_match	= apl_pmc_ids,
+	.of_match	= of_match_ptr(apl_pmc_ids),
 	.of_to_plat = apl_pmc_ofdata_to_uc_plat,
 	.probe		= apl_pmc_probe,
 	.ops		= &apl_pmc_ops,
