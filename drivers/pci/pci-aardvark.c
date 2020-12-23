@@ -649,9 +649,6 @@ static int pcie_advk_remove(struct udevice *dev)
 	struct pcie_advk *pcie = dev_get_priv(dev);
 	u32 reg;
 
-	if (dm_gpio_is_valid(&pcie->reset_gpio))
-		dm_gpio_set_value(&pcie->reset_gpio, 1);
-
 	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
 	reg &= ~LINK_TRAINING_EN;
 	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
