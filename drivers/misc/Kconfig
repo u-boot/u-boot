@@ -343,6 +343,15 @@ config TEGRA186_BPMP
 	  can make requests to the BPMP. This driver is similar to an MFD
 	  driver in the Linux kernel.
 
+config TEST_DRV
+	bool "Enable support for test drivers"
+	default y if SANDBOX
+	help
+	  This enables drivers and uclasses that provides a way of testing the
+	  operations of memory allocation and driver/uclass methods in driver
+	  model. This should only be enabled for testing as it is not useful for
+	  anything else.
+
 config TWL4030_LED
 	bool "Enable TWL4030 LED controller"
 	help

@@ -19,102 +19,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct dm_test_parent_plat {
-	int count;
-	int bind_flag;
-	int uclass_bind_flag;
-};
-
-enum {
-	FLAG_CHILD_PROBED	= 10,
-	FLAG_CHILD_REMOVED	= -7,
-};
-
-/* Records the last testbus device that was removed */
-static struct udevice *testbus_removed;
-
-static int testbus_drv_probe(struct udevice *dev)
-{
-	return dm_scan_fdt_dev(dev);
-}
-
-static int testbus_child_post_bind(struct udevice *dev)
-{
-	struct dm_test_parent_plat *plat;
-
-	plat = dev_get_parent_plat(dev);
-	plat->bind_flag = 1;
-	plat->uclass_bind_flag = 2;
-
-	return 0;
-}
-
-static int testbus_child_pre_probe(struct udevice *dev)
-{
-	struct dm_test_parent_data *parent_data = dev_get_parent_priv(dev);
-
-	parent_data->flag += FLAG_CHILD_PROBED;
-
-	return 0;
-}
-
-static int testbus_child_pre_probe_uclass(struct udevice *dev)
-{
-	struct dm_test_priv *priv = dev_get_priv(dev);
-
-	priv->uclass_flag++;
-
-	return 0;
-}
-
-static int testbus_child_post_probe_uclass(struct udevice *dev)
-{
-	struct dm_test_priv *priv = dev_get_priv(dev);
-
-	priv->uclass_postp++;
-
-	return 0;
-}
-
-static int testbus_child_post_remove(struct udevice *dev)
-{
-	struct dm_test_parent_data *parent_data = dev_get_parent_priv(dev);
-
-	parent_data->flag += FLAG_CHILD_REMOVED;
-	testbus_removed = dev;
-
-	return 0;
-}
-
-static const struct udevice_id testbus_ids[] = {
-	{
-		.compatible = "denx,u-boot-test-bus",
-		.data = DM_TEST_TYPE_FIRST },
-	{ }
-};
-
-U_BOOT_DRIVER(testbus_drv) = {
-	.name	= "testbus_drv",
-	.of_match	= testbus_ids,
-	.id	= UCLASS_TEST_BUS,
-	.probe	= testbus_drv_probe,
-	.child_post_bind = testbus_child_post_bind,
-	.priv_auto	= sizeof(struct dm_test_priv),
-	.plat_auto	= sizeof(struct dm_test_pdata),
-	.per_child_auto	= sizeof(struct dm_test_parent_data),
-	.per_child_plat_auto	= sizeof(struct dm_test_parent_plat),
-	.child_pre_probe = testbus_child_pre_probe,
-	.child_post_remove = testbus_child_post_remove,
-};
-
-UCLASS_DRIVER(testbus) = {
-	.name		= "testbus",
-	.id		= UCLASS_TEST_BUS,
-	.flags		= DM_UC_FLAG_SEQ_ALIAS,
-	.child_pre_probe = testbus_child_pre_probe_uclass,
-	.child_post_probe = testbus_child_post_probe_uclass,
-};
-
 /* Test that we can probe for children */
 static int dm_test_bus_children(struct unit_test_state *uts)
 {
@@ -337,7 +241,7 @@ static int dm_test_bus_parent_ops(struct unit_test_state *uts)
 	struct udevice *bus, *dev;
 	struct uclass *uc;
 
-	testbus_removed = NULL;
+	testbus_get_clear_removed();
 	ut_assertok(uclass_get_device(UCLASS_TEST_BUS, 0, &bus));
 	ut_assertok(uclass_get(UCLASS_TEST_FDT, &uc));
 
@@ -349,7 +253,7 @@ static int dm_test_bus_parent_ops(struct unit_test_state *uts)
 
 		ut_assertok(device_probe(dev));
 		parent_data = dev_get_parent_priv(dev);
-		ut_asserteq(FLAG_CHILD_PROBED, parent_data->flag);
+		ut_asserteq(TEST_FLAG_CHILD_PROBED, parent_data->flag);
 	}
 
 	uclass_foreach_dev(dev, uc) {
@@ -357,12 +261,11 @@ static int dm_test_bus_parent_ops(struct unit_test_state *uts)
 		if (dev->parent != bus)
 			continue;
 		parent_data = dev_get_parent_priv(dev);
-		ut_asserteq(FLAG_CHILD_PROBED, parent_data->flag);
+		ut_asserteq(TEST_FLAG_CHILD_PROBED, parent_data->flag);
 		ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
 		ut_asserteq_ptr(NULL, dev_get_parent_priv(dev));
-		ut_asserteq_ptr(testbus_removed, dev);
+		ut_asserteq_ptr(testbus_get_clear_removed(), dev);
 	}
-	testbus_removed = NULL;
 
 	return 0;
 }

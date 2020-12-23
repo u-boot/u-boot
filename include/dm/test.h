@@ -167,6 +167,24 @@ struct sandbox_sdl_plat {
 	int font_size;
 };
 
+/**
+ * struct dm_test_parent_plat - Used to track state in bus tests
+ *
+ * @count:
+ * @bind_flag: Indicates that the child post-bind method was called
+ * @uclass_bind_flag: Also indicates that the child post-bind method was called
+ */
+struct dm_test_parent_plat {
+	int count;
+	int bind_flag;
+	int uclass_bind_flag;
+};
+
+enum {
+	TEST_FLAG_CHILD_PROBED	= 10,
+	TEST_FLAG_CHILD_REMOVED	= -7,
+};
+
 /* Declare ping methods for the drivers */
 int test_ping(struct udevice *dev, int pingval, int *pingret);
 int testfdt_ping(struct udevice *dev, int pingval, int *pingret);

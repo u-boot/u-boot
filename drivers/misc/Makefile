@@ -67,6 +67,7 @@ obj-$(CONFIG_STM32_RCC) += stm32_rcc.o
 obj-$(CONFIG_SYS_DPAA_QBMAN) += fsl_portals.o
 obj-$(CONFIG_TEGRA186_BPMP) += tegra186_bpmp.o
 obj-$(CONFIG_TEGRA_CAR) += tegra_car.o
+obj-$(CONFIG_TEST_DRV) += test_drv.o
 obj-$(CONFIG_TWL4030_LED) += twl4030_led.o
 obj-$(CONFIG_VEXPRESS_CONFIG) += vexpress_config.o
 obj-$(CONFIG_WINBOND_W83627) += winbond_w83627.o
