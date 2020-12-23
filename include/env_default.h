@@ -19,6 +19,8 @@ env_t embedded_environment __UBOOT_ENV_SECTION__(environment) = {
 	{
 #elif defined(DEFAULT_ENV_INSTANCE_STATIC)
 static char default_environment[] = {
+#elif defined(DEFAULT_ENV_IS_RW)
+uchar default_environment[] = {
 #else
 const uchar default_environment[] = {
 #endif
