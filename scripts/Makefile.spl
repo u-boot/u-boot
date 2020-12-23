@@ -307,11 +307,14 @@ $(obj)/$(SPL_BIN).dtb: $(obj)/dts/dt-$(SPL_NAME).dtb FORCE
 
 pythonpath = PYTHONPATH=scripts/dtc/pylibfdt
 
+DTOC_ARGS := $(pythonpath) $(srctree)/tools/dtoc/dtoc \
+	-d $(obj)/$(SPL_BIN).dtb
+
 quiet_cmd_dtocc = DTOC C  $@
-cmd_dtocc = $(pythonpath) $(srctree)/tools/dtoc/dtoc -d $(obj)/$(SPL_BIN).dtb -o $@ platdata
+cmd_dtocc = $(DTOC_ARGS) -o $@ platdata
 
 quiet_cmd_dtoch = DTOC H  $@
-cmd_dtoch = $(pythonpath) $(srctree)/tools/dtoc/dtoc -d $(obj)/$(SPL_BIN).dtb -o $@ struct
+cmd_dtoch = $(DTOC_ARGS) -o $@ struct
 
 quiet_cmd_plat = PLAT    $@
 cmd_plat = $(CC) $(c_flags) -c $< -o $(filter-out $(PHONY),$@)
