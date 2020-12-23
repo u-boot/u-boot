@@ -18,6 +18,7 @@
 #include <command.h>
 #include <ide.h>
 #include <memalign.h>
+#include <asm/unaligned.h>
 #include "part_dos.h"
 #include <part.h>
 
@@ -28,17 +29,6 @@
 /* should this be configurable? It looks like it's not very common at all
  * to use large numbers of partitions */
 #define MAX_EXT_PARTS 256
-
-/* Convert char[4] in little endian format to the host format integer
- */
-static inline unsigned int le32_to_int(unsigned char *le32)
-{
-    return ((le32[3] << 24) +
-	    (le32[2] << 16) +
-	    (le32[1] << 8) +
-	     le32[0]
-	   );
-}
 
 static inline int is_extended(int part_type)
 {
@@ -61,8 +51,8 @@ static int get_bootable(dos_partition_t *p)
 static void print_one_part(dos_partition_t *p, lbaint_t ext_part_sector,
 			   int part_num, unsigned int disksig)
 {
-	lbaint_t lba_start = ext_part_sector + le32_to_int (p->start4);
-	lbaint_t lba_size  = le32_to_int (p->size4);
+	lbaint_t lba_start = ext_part_sector + get_unaligned_le32(p->start4);
+	lbaint_t lba_size  = get_unaligned_le32(p->size4);
 
 	printf("%3d\t%-10" LBAFlength "u\t%-10" LBAFlength
 		"u\t%08x-%02x\t%02x%s%s\n",
@@ -171,7 +161,7 @@ static void print_partition_extended(struct blk_desc *dev_desc,
 	}
 
 	if (!ext_part_sector)
-		disksig = le32_to_int(&buffer[DOS_PART_DISKSIG_OFFSET]);
+		disksig = get_unaligned_le32(&buffer[DOS_PART_DISKSIG_OFFSET]);
 
 	/* Print all primary/logical partitions */
 	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
@@ -198,7 +188,7 @@ static void print_partition_extended(struct blk_desc *dev_desc,
 	for (i = 0; i < 4; i++, pt++) {
 		if (is_extended (pt->sys_ind)) {
 			lbaint_t lba_start
-				= le32_to_int (pt->start4) + relative;
+				= get_unaligned_le32 (pt->start4) + relative;
 
 			print_partition_extended(dev_desc, lba_start,
 				ext_part_sector == 0  ? lba_start : relative,
@@ -244,7 +234,7 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 	if (!ext_part_sector)
-		disksig = le32_to_int(&buffer[DOS_PART_DISKSIG_OFFSET]);
+		disksig = get_unaligned_le32(&buffer[DOS_PART_DISKSIG_OFFSET]);
 #endif
 
 	/* Print all primary/logical partitions */
@@ -260,8 +250,8 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 		    (ext_part_sector == 0 || is_extended(pt->sys_ind) == 0)) {
 			info->blksz = DOS_PART_DEFAULT_SECTOR;
 			info->start = (lbaint_t)(ext_part_sector +
-					le32_to_int(pt->start4));
-			info->size  = (lbaint_t)le32_to_int(pt->size4);
+					get_unaligned_le32(pt->start4));
+			info->size  = (lbaint_t)get_unaligned_le32(pt->size4);
 			part_set_generic_name(dev_desc, part_num,
 					      (char *)info->name);
 			/* sprintf(info->type, "%d, pt->sys_ind); */
@@ -286,7 +276,7 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 	for (i = 0; i < 4; i++, pt++) {
 		if (is_extended (pt->sys_ind)) {
 			lbaint_t lba_start
-				= le32_to_int (pt->start4) + relative;
+				= get_unaligned_le32 (pt->start4) + relative;
 
 			return part_get_info_extended(dev_desc, lba_start,
 				 ext_part_sector == 0 ? lba_start : relative,
