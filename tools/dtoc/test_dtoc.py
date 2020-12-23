@@ -906,3 +906,13 @@ U_BOOT_DEVICE(spl_test2) = {
         with test_util.capture_sys_output() as (stdout, stderr):
             dtb_platdata.run_steps(['struct'], dtb_file, False, output, True,
                                [driver_fn])
+
+    def testDriver(self):
+        """Test the Driver class"""
+        drv1 = dtb_platdata.Driver('fred')
+        drv2 = dtb_platdata.Driver('mary')
+        drv3 = dtb_platdata.Driver('fred')
+        self.assertEqual("Driver(name='fred')", str(drv1))
+        self.assertEqual(drv1, drv3)
+        self.assertNotEqual(drv1, drv2)
+        self.assertNotEqual(drv2, drv3)

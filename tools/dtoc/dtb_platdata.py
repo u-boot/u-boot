@@ -64,6 +64,22 @@ PhandleInfo = collections.namedtuple('PhandleInfo', ['max_args', 'args'])
 PhandleLink = collections.namedtuple('PhandleLink', ['var_node', 'dev_name'])
 
 
+class Driver:
+    """Information about a driver in U-Boot
+
+    Attributes:
+        name: Name of driver. For U_BOOT_DRIVER(x) this is 'x'
+    """
+    def __init__(self, name):
+        self.name = name
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __repr__(self):
+        return "Driver(name='%s')" % self.name
+
+
 def conv_name_to_c(name):
     """Convert a device-tree name to a C identifier
 
@@ -156,7 +172,9 @@ class DtbPlatdata():
         _outfile: The current output file (sys.stdout or a real file)
         _warning_disabled: true to disable warnings about driver names not found
         _lines: Stashed list of output lines for outputting in the future
-        _drivers: List of valid driver names found in drivers/
+        _drivers: Dict of valid driver names found in drivers/
+            key: Driver name
+            value: Driver for that driver
         _driver_aliases: Dict that holds aliases for driver names
             key: Driver alias declared with
                 U_BOOT_DRIVER_ALIAS(driver_alias, driver_name)
@@ -172,7 +190,7 @@ class DtbPlatdata():
         self._outfile = None
         self._warning_disabled = warning_disabled
         self._lines = []
-        self._drivers = []
+        self._drivers = {}
         self._driver_aliases = {}
         self._drivers_additional = drivers_additional or []
 
@@ -196,7 +214,7 @@ class DtbPlatdata():
         compat_list_c = get_compat_name(node)
 
         for compat_c in compat_list_c:
-            if not compat_c in self._drivers:
+            if not compat_c in self._drivers.keys():
                 compat_c = self._driver_aliases.get(compat_c)
                 if not compat_c:
                     continue
@@ -334,7 +352,7 @@ class DtbPlatdata():
             drivers = re.findall(r'U_BOOT_DRIVER\((.*)\)', buff)
 
             for driver in drivers:
-                self._drivers.append(driver)
+                self._drivers[driver] = Driver(driver)
 
             # The following re will search for driver aliases declared as
             # U_BOOT_DRIVER_ALIAS(alias, driver_name)
