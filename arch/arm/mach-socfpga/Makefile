@@ -73,6 +73,7 @@ obj-y	+= firewall.o
 obj-y	+= spl_agilex.o
 endif
 else
+obj-$(CONFIG_SPL_ATF) += secure_reg_helper.o
 obj-$(CONFIG_SPL_ATF) += smc_api.o
 endif
 
