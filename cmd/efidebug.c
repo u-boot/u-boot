@@ -19,6 +19,228 @@
 #include <linux/ctype.h>
 
 #define BS systab.boottime
+#define RT systab.runtime
+
+#ifdef CONFIG_EFI_HAVE_CAPSULE_SUPPORT
+/**
+ * do_efi_capsule_update() - process a capsule update
+ *
+ * @cmdtp:	Command table
+ * @flag:	Command flag
+ * @argc:	Number of arguments
+ * @argv:	Argument array
+ * Return:	CMD_RET_SUCCESS on success, CMD_RET_RET_FAILURE on failure
+ *
+ * Implement efidebug "capsule update" sub-command.
+ * process a capsule update.
+ *
+ *     efidebug capsule update [-v] <capsule address>
+ */
+static int do_efi_capsule_update(struct cmd_tbl *cmdtp, int flag,
+				 int argc, char * const argv[])
+{
+	struct efi_capsule_header *capsule;
+	int verbose = 0;
+	char *endp;
+	efi_status_t ret;
+
+	if (argc != 2 && argc != 3)
+		return CMD_RET_USAGE;
+
+	if (argc == 3) {
+		if (strcmp(argv[1], "-v"))
+			return CMD_RET_USAGE;
+
+		verbose = 1;
+		argc--;
+		argv++;
+	}
+
+	capsule = (typeof(capsule))simple_strtoul(argv[1], &endp, 16);
+	if (endp == argv[1]) {
+		printf("Invalid address: %s", argv[1]);
+		return CMD_RET_FAILURE;
+	}
+
+	if (verbose) {
+		printf("Capsule guid: %pUl\n", &capsule->capsule_guid);
+		printf("Capsule flags: 0x%x\n", capsule->flags);
+		printf("Capsule header size: 0x%x\n", capsule->header_size);
+		printf("Capsule image size: 0x%x\n",
+		       capsule->capsule_image_size);
+	}
+
+	ret = EFI_CALL(RT->update_capsule(&capsule, 1, (u64)NULL));
+	if (ret) {
+		printf("Cannot handle a capsule at %p", capsule);
+		return CMD_RET_FAILURE;
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+/**
+ * do_efi_capsule_show() - show capsule information
+ *
+ * @cmdtp:	Command table
+ * @flag:	Command flag
+ * @argc:	Number of arguments
+ * @argv:	Argument array
+ * Return:	CMD_RET_SUCCESS on success, CMD_RET_RET_FAILURE on failure
+ *
+ * Implement efidebug "capsule show" sub-command.
+ * show capsule information.
+ *
+ *     efidebug capsule show <capsule address>
+ */
+static int do_efi_capsule_show(struct cmd_tbl *cmdtp, int flag,
+			       int argc, char * const argv[])
+{
+	struct efi_capsule_header *capsule;
+	char *endp;
+
+	if (argc != 2)
+		return CMD_RET_USAGE;
+
+	capsule = (typeof(capsule))simple_strtoul(argv[1], &endp, 16);
+	if (endp == argv[1]) {
+		printf("Invalid address: %s", argv[1]);
+		return CMD_RET_FAILURE;
+	}
+
+	printf("Capsule guid: %pUl\n", &capsule->capsule_guid);
+	printf("Capsule flags: 0x%x\n", capsule->flags);
+	printf("Capsule header size: 0x%x\n", capsule->header_size);
+	printf("Capsule image size: 0x%x\n",
+	       capsule->capsule_image_size);
+
+	return CMD_RET_SUCCESS;
+}
+
+/**
+ * do_efi_capsule_res() - show a capsule update result
+ *
+ * @cmdtp:	Command table
+ * @flag:	Command flag
+ * @argc:	Number of arguments
+ * @argv:	Argument array
+ * Return:	CMD_RET_SUCCESS on success, CMD_RET_RET_FAILURE on failure
+ *
+ * Implement efidebug "capsule result" sub-command.
+ * show a capsule update result.
+ * If result number is not specified, CapsuleLast will be shown.
+ *
+ *     efidebug capsule result [<capsule result number>]
+ */
+static int do_efi_capsule_res(struct cmd_tbl *cmdtp, int flag,
+			      int argc, char * const argv[])
+{
+	int capsule_id;
+	char *endp;
+	char var_name[12];
+	u16 var_name16[12], *p;
+	efi_guid_t guid;
+	struct efi_capsule_result_variable_header *result = NULL;
+	efi_uintn_t size;
+	efi_status_t ret;
+
+	if (argc != 1 && argc != 2)
+		return CMD_RET_USAGE;
+
+	guid = efi_guid_capsule_report;
+	if (argc == 1) {
+		size = sizeof(var_name16);
+		ret = EFI_CALL(RT->get_variable(L"CapsuleLast", &guid, NULL,
+						&size, var_name16));
+		if (ret != EFI_SUCCESS) {
+			if (ret == EFI_NOT_FOUND)
+				printf("CapsuleLast doesn't exist\n");
+			else
+				printf("Failed to get CapsuleLast\n");
+
+			return CMD_RET_FAILURE;
+		}
+		printf("CapsuleLast is %ls\n", var_name16);
+	} else {
+		argc--;
+		argv++;
+
+		capsule_id = simple_strtoul(argv[0], &endp, 16);
+		if (capsule_id < 0 || capsule_id > 0xffff)
+			return CMD_RET_USAGE;
+
+		sprintf(var_name, "Capsule%04X", capsule_id);
+		p = var_name16;
+		utf8_utf16_strncpy(&p, var_name, 9);
+	}
+
+	size = 0;
+	ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size, NULL));
+	if (ret == EFI_BUFFER_TOO_SMALL) {
+		result = malloc(size);
+		ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size,
+						result));
+		if (ret != EFI_SUCCESS) {
+			free(result);
+			printf("Failed to get %ls\n", var_name16);
+
+			return CMD_RET_FAILURE;
+		}
+	}
+
+	printf("Result total size: 0x%x\n", result->variable_total_size);
+	printf("Capsule guid: %pUl\n", &result->capsule_guid);
+	printf("Time processed: %04d-%02d-%02d %02d:%02d:%02d\n",
+	       result->capsule_processed.year, result->capsule_processed.month,
+	       result->capsule_processed.day, result->capsule_processed.hour,
+	       result->capsule_processed.minute,
+	       result->capsule_processed.second);
+	printf("Capsule status: 0x%lx\n", result->capsule_status);
+
+	free(result);
+
+	return CMD_RET_SUCCESS;
+}
+
+static struct cmd_tbl cmd_efidebug_capsule_sub[] = {
+	U_BOOT_CMD_MKENT(update, CONFIG_SYS_MAXARGS, 1, do_efi_capsule_update,
+			 "", ""),
+	U_BOOT_CMD_MKENT(show, CONFIG_SYS_MAXARGS, 1, do_efi_capsule_show,
+			 "", ""),
+	U_BOOT_CMD_MKENT(result, CONFIG_SYS_MAXARGS, 1, do_efi_capsule_res,
+			 "", ""),
+};
+
+/**
+ * do_efi_capsule() - manage UEFI capsules
+ *
+ * @cmdtp:	Command table
+ * @flag:	Command flag
+ * @argc:	Number of arguments
+ * @argv:	Argument array
+ * Return:	CMD_RET_SUCCESS on success,
+ *		CMD_RET_USAGE or CMD_RET_RET_FAILURE on failure
+ *
+ * Implement efidebug "capsule" sub-command.
+ */
+static int do_efi_capsule(struct cmd_tbl *cmdtp, int flag,
+			  int argc, char * const argv[])
+{
+	struct cmd_tbl *cp;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	argc--; argv++;
+
+	cp = find_cmd_tbl(argv[0], cmd_efidebug_capsule_sub,
+			  ARRAY_SIZE(cmd_efidebug_capsule_sub));
+	if (!cp)
+		return CMD_RET_USAGE;
+
+	return cp->cmd(cmdtp, flag, argc, argv);
+}
+#endif /* CONFIG_EFI_HAVE_CAPSULE_SUPPORT */
 
 /**
  * efi_get_device_handle_info() - get information of UEFI device
@@ -1237,6 +1459,10 @@ static int do_efi_query_info(struct cmd_tbl *cmdtp, int flag,
 
 static struct cmd_tbl cmd_efidebug_sub[] = {
 	U_BOOT_CMD_MKENT(boot, CONFIG_SYS_MAXARGS, 1, do_efi_boot_opt, "", ""),
+#ifdef CONFIG_EFI_HAVE_CAPSULE_SUPPORT
+	U_BOOT_CMD_MKENT(capsule, CONFIG_SYS_MAXARGS, 1, do_efi_capsule,
+			 "", ""),
+#endif
 	U_BOOT_CMD_MKENT(devices, CONFIG_SYS_MAXARGS, 1, do_efi_show_devices,
 			 "", ""),
 	U_BOOT_CMD_MKENT(drivers, CONFIG_SYS_MAXARGS, 1, do_efi_show_drivers,
@@ -1311,6 +1537,15 @@ static char efidebug_help_text[] =
 	"efidebug boot order [<bootid#1> [<bootid#2> [<bootid#3> [...]]]]\n"
 	"  - set/show UEFI boot order\n"
 	"\n"
+#ifdef CONFIG_EFI_HAVE_CAPSULE_SUPPORT
+	"efidebug capsule update [-v] <capsule address>\n"
+	"  - process a capsule\n"
+	"efidebug capsule show <capsule address>\n"
+	"  - show capsule information\n"
+	"efidebug capsule result [<capsule result var>]\n"
+	"  - show a capsule update result\n"
+	"\n"
+#endif
 	"efidebug devices\n"
 	"  - show UEFI devices\n"
 	"efidebug drivers\n"
