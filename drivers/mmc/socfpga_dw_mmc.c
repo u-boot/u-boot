@@ -46,7 +46,7 @@ static void socfpga_dwmci_reset(struct udevice *dev)
 	reset_deassert_bulk(&reset_bulk);
 }
 
-static void socfpga_dwmci_clksel(struct dwmci_host *host)
+static int socfpga_dwmci_clksel(struct dwmci_host *host)
 {
 	struct dwmci_socfpga_priv_data *priv = host->priv;
 	u32 sdmmc_mask = ((priv->smplsel & 0x7) << SYSMGR_SDMMC_SMPLSEL_SHIFT) |
@@ -66,6 +66,8 @@ static void socfpga_dwmci_clksel(struct dwmci_host *host)
 	/* Enable SDMMC clock */
 	setbits_le32(socfpga_get_clkmgr_addr() + CLKMGR_PERPLL_EN,
 		     CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
+
+	return 0;
 }
 
 static int socfpga_dwmmc_get_clk_rate(struct udevice *dev)

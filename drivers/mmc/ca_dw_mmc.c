@@ -40,7 +40,7 @@ struct ca_dwmmc_priv_data {
 	u8 ds;
 };
 
-static void ca_dwmci_clksel(struct dwmci_host *host)
+static int ca_dwmci_clksel(struct dwmci_host *host)
 {
 	struct ca_dwmmc_priv_data *priv = host->priv;
 	u32 val = readl(priv->sd_dll_reg);
@@ -52,6 +52,8 @@ static void ca_dwmci_clksel(struct dwmci_host *host)
 		val |= SD_CLK_SEL_100MHZ;
 
 	writel(val, priv->sd_dll_reg);
+
+	return 0;
 }
 
 static void ca_dwmci_board_init(struct dwmci_host *host)
