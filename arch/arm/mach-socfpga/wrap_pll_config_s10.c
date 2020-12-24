@@ -12,6 +12,7 @@
 
 const struct cm_config * const cm_get_default_config(void)
 {
+#ifdef CONFIG_SPL_BUILD
 	struct cm_config *cm_handoff_cfg = (struct cm_config *)
 		(S10_HANDOFF_CLOCK + S10_HANDOFF_OFFSET_DATA);
 	u32 *conversion = (u32 *)cm_handoff_cfg;
@@ -26,7 +27,7 @@ const struct cm_config * const cm_get_default_config(void)
 	} else if (handoff_clk == S10_HANDOFF_MAGIC_CLOCK) {
 		return cm_handoff_cfg;
 	}
-
+#endif
 	return NULL;
 }
 
