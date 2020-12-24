@@ -72,6 +72,8 @@ ifdef CONFIG_TARGET_SOCFPGA_AGILEX
 obj-y	+= firewall.o
 obj-y	+= spl_agilex.o
 endif
+else
+obj-$(CONFIG_SPL_ATF) += smc_api.o
 endif
 
 ifdef CONFIG_TARGET_SOCFPGA_GEN5
