@@ -22,7 +22,6 @@ struct disk_partition;
 
 #define MAX_CLUSTSIZE	CONFIG_FS_FAT_MAX_CLUSTSIZE
 
-#define DIRENTSPERBLOCK	(mydata->sect_size / sizeof(dir_entry))
 #define DIRENTSPERCLUST	((mydata->clust_size * mydata->sect_size) / \
 			 sizeof(dir_entry))
 

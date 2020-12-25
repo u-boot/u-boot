@@ -810,7 +810,6 @@ static void fat_itr_child(fat_itr *itr, fat_itr *parent)
  */
 void *fat_next_cluster(fat_itr *itr, unsigned int *nbytes)
 {
-	fsdata *mydata = itr->fsdata;  /* for silly macros */
 	int ret;
 	u32 sect;
 	u32 read_size;
@@ -838,8 +837,8 @@ void *fat_next_cluster(fat_itr *itr, unsigned int *nbytes)
 		read_size = itr->fsdata->clust_size;
 	}
 
-	debug("FAT read(sect=%d), clust_size=%d, read_size=%u, DIRENTSPERBLOCK=%zd\n",
-	      sect, itr->fsdata->clust_size, read_size, DIRENTSPERBLOCK);
+	log_debug("FAT read(sect=%d), clust_size=%d, read_size=%u\n",
+		  sect, itr->fsdata->clust_size, read_size);
 
 	/*
 	 * NOTE: do_fat_read_at() had complicated logic to deal w/
