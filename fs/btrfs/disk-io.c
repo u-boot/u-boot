@@ -1030,7 +1030,6 @@ out:
 int close_ctree_fs_info(struct btrfs_fs_info *fs_info)
 {
 	int ret;
-	int err = 0;
 
 	free_fs_roots_tree(&fs_info->fs_root_tree);
 
@@ -1038,9 +1037,7 @@ int close_ctree_fs_info(struct btrfs_fs_info *fs_info)
 	ret = btrfs_close_devices(fs_info->fs_devices);
 	btrfs_cleanup_all_caches(fs_info);
 	btrfs_free_fs_info(fs_info);
-	if (!err)
-		err = ret;
-	return err;
+	return ret;
 }
 
 int btrfs_buffer_uptodate(struct extent_buffer *buf, u64 parent_transid)
