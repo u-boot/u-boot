@@ -139,3 +139,7 @@
 &wdog1 {
 	u-boot,dm-spl;
 };
+
+&fec {
+	phy-reset-gpios = <&gpio4 2 GPIO_ACTIVE_LOW>;
+};
