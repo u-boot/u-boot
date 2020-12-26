@@ -708,21 +708,16 @@ static void musb_peri_rx(u16 intr)
 
 static void musb_peri_tx(u16 intr)
 {
+	unsigned int ep;
+
 	/* Check for EP0 */
 	if (0x01 & intr)
 		musb_peri_ep0_tx();
 
-	/*
-	 * Use this in the future when handling epN tx
-	 *
-	 * u8 ep;
-	 *
-	 * for (ep = 1; ep < 16; ep++) {
-	 *	if ((1 << ep) & intr) {
-	 *		/ * handle tx for this endpoint * /
-	 *	}
-	 * }
-	 */
+	for (ep = 1; ep < 16; ep++) {
+		if ((1 << ep) & intr)
+			udc_endpoint_write(GET_ENDPOINT(udc_device, ep));
+	}
 }
 
 void udc_irq(void)
