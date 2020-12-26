@@ -81,10 +81,8 @@ void musb_configure_ep(const struct musb_epinfo *epinfo, u8 cnt)
 			config_fifo(tx, idx, fifoaddr);
 
 			csr = readw(&musbr->txcsr);
-#if defined(CONFIG_USB_MUSB_HCD)
 			/* clear the data toggle bit */
 			writew(csr | MUSB_TXCSR_CLRDATATOG, &musbr->txcsr);
-#endif
 			/* Flush fifo if required */
 			if (csr & MUSB_TXCSR_TXPKTRDY)
 				writew(csr | MUSB_TXCSR_FLUSHFIFO,
@@ -94,10 +92,8 @@ void musb_configure_ep(const struct musb_epinfo *epinfo, u8 cnt)
 			config_fifo(rx, idx, fifoaddr);
 
 			csr = readw(&musbr->rxcsr);
-#if defined(CONFIG_USB_MUSB_HCD)
 			/* clear the data toggle bit */
 			writew(csr | MUSB_RXCSR_CLRDATATOG, &musbr->rxcsr);
-#endif
 			/* Flush fifo if required */
 			if (csr & MUSB_RXCSR_RXPKTRDY)
 				writew(csr | MUSB_RXCSR_FLUSHFIFO,
