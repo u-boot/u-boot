@@ -47,7 +47,6 @@
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
 /* Extra Environment */
-#define CONFIG_PREBOOT		"run prebootcmd"
 #define CONFIG_HOSTNAME		"xea"
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
