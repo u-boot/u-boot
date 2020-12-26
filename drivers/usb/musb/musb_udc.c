@@ -104,6 +104,8 @@ struct usb_endpoint_instance *ep0_endpoint;
 static struct usb_device_instance *udc_device;
 static int enabled;
 
+static u16 pending_intrrx;
+
 #ifdef MUSB_DEBUG
 static void musb_db_regs(void)
 {
@@ -664,7 +666,10 @@ static void musb_peri_rx_ep(unsigned int ep)
 				/* The common musb fifo reader */
 				read_fifo(ep, length, data);
 
-				musb_peri_rx_ack(ep);
+				if (length == peri_rxcount)
+					musb_peri_rx_ack(ep);
+				else
+					pending_intrrx |= (1 << ep);
 
 				/*
 				 * urb's actual_length is updated in
@@ -677,18 +682,24 @@ static void musb_peri_rx_ep(unsigned int ep)
 					serial_printf("ERROR : %s %d no space "
 						      "in rcv buffer\n",
 						      __PRETTY_FUNCTION__, ep);
+
+				pending_intrrx |= (1 << ep);
 			}
 		} else {
 			if (debug_level > 0)
 				serial_printf("ERROR : %s %d problem with "
 					      "endpoint\n",
 					      __PRETTY_FUNCTION__, ep);
+
+			pending_intrrx |= (1 << ep);
 		}
 
 	} else {
 		if (debug_level > 0)
 			serial_printf("ERROR : %s %d with nothing to do\n",
 				      __PRETTY_FUNCTION__, ep);
+
+		musb_peri_rx_ack(ep);
 	}
 }
 
@@ -769,6 +780,9 @@ void udc_irq(void)
 
 			intrrx = readw(&musbr->intrrx);
 			intrtx = readw(&musbr->intrtx);
+
+			intrrx |= pending_intrrx;
+			pending_intrrx = 0;
 
 			if (intrrx)
 				musb_peri_rx(intrrx);
