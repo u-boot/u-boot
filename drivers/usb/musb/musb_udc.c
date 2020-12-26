@@ -875,18 +875,8 @@ void udc_setup_ep(struct usb_device_instance *device, unsigned int id,
 		ep0_endpoint->endpoint_address = 0xff;
 		ep0_urb = usbd_alloc_urb(device, endpoint);
 	} else if (MAX_ENDPOINT >= id) {
-		int ep_addr;
-
-		/* Check the direction */
-		ep_addr = endpoint->endpoint_address;
-		if (USB_DIR_IN == (ep_addr & USB_ENDPOINT_DIR_MASK)) {
-			/* IN */
-			epinfo[(id * 2) + 1].epsize = endpoint->tx_packetSize;
-		} else {
-			/* OUT */
-			epinfo[id * 2].epsize = endpoint->rcv_packetSize;
-		}
-
+		epinfo[(id * 2) + 0].epsize = endpoint->rcv_packetSize;
+		epinfo[(id * 2) + 1].epsize = endpoint->tx_packetSize;
 		musb_configure_ep(&epinfo[0], ARRAY_SIZE(epinfo));
 	} else {
 		if (debug_level > 0)
