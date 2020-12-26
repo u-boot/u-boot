@@ -30,8 +30,8 @@ static int do_conitrace(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("%02x ", c);
 		first = false;
 
-		/* 1 ms delay - serves to detect separate keystrokes */
-		udelay(1000);
+		/* 10 ms delay - serves to detect separate keystrokes */
+		udelay(10000);
 		if (!tstc()) {
 			printf("\n");
 			first = true;
