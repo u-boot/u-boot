@@ -707,9 +707,7 @@ static void musb_peri_rx(u16 intr)
 {
 	unsigned int ep;
 
-	/* Check for EP0 */
-	if (0x01 & intr)
-		musb_peri_ep0();
+	/* First bit is reserved and does not indicate interrupt for EP0 */
 
 	for (ep = 1; ep < 16; ep++) {
 		if ((1 << ep) & intr)
@@ -721,9 +719,9 @@ static void musb_peri_tx(u16 intr)
 {
 	unsigned int ep;
 
-	/* Check for EP0 */
+	/* Check for EP0: first bit indicates interrupt for both RX and TX */
 	if (0x01 & intr)
-		musb_peri_ep0_tx();
+		musb_peri_ep0();
 
 	for (ep = 1; ep < 16; ep++) {
 		if ((1 << ep) & intr)
@@ -749,8 +747,6 @@ void udc_irq(void)
 					      DEVICE_BUS_ACTIVITY, 0);
 			musb_peri_resume();
 		}
-
-		musb_peri_ep0();
 
 		if (MUSB_INTR_RESET & intrusb) {
 			usbd_device_event_irq(udc_device, DEVICE_RESET, 0);
@@ -790,7 +786,7 @@ void udc_irq(void)
 			if (intrtx)
 				musb_peri_tx(intrtx);
 		} else {
-			if (MUSB_INTR_SOF & intrusb) {
+			if (readw(&musbr->intrtx) & 0x1) {
 				u8 faddr;
 				faddr = readb(&musbr->faddr);
 				/*
