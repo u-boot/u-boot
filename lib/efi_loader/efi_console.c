@@ -14,6 +14,7 @@
 #include <env.h>
 #include <stdio_dev.h>
 #include <video_console.h>
+#include <linux/delay.h>
 
 #define EFI_COUT_MODE_2 2
 #define EFI_MAX_COUT_MODE 3
@@ -688,6 +689,17 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
 
 	switch (ch) {
 	case 0x1b:
+		/*
+		 * If a second key is received within 10 ms, assume that we are
+		 * dealing with an escape sequence. Otherwise consider this the
+		 * escape key being hit. 10 ms is long enough to work fine at
+		 * 1200 baud and above.
+		 */
+		udelay(10000);
+		if (!tstc()) {
+			pressed_key.scan_code = 23;
+			break;
+		}
 		/*
 		 * Xterm Control Sequences
 		 * https://www.xfree86.org/4.8.0/ctlseqs.html
