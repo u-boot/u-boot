@@ -282,7 +282,7 @@ static int meson_saradc_read_raw_sample(struct meson_saradc_priv *priv,
 	regmap_read(priv->regmap, MESON_SAR_ADC_FIFO_RD, &regval);
 	fifo_chan = FIELD_GET(MESON_SAR_ADC_FIFO_RD_CHAN_ID_MASK, regval);
 	if (fifo_chan != channel) {
-		printf("ADC FIFO entry belongs to channel %d instead of %d\n",
+		printf("ADC FIFO entry belongs to channel %u instead of %u\n",
 		       fifo_chan, channel);
 		return -EINVAL;
 	}
