@@ -247,8 +247,8 @@ static void efi_queue_event(struct efi_event *event)
 		}
 		if (event)
 			list_add_tail(&event->queue_link, &efi_event_queue);
+		efi_process_event_queue();
 	}
-	efi_process_event_queue();
 }
 
 /**
