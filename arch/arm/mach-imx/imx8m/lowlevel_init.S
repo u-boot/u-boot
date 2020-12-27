@@ -5,7 +5,7 @@
 
 #include <config.h>
 
-.align 8
+.align 4
 .global rom_pointer
 rom_pointer:
 	.space 256
