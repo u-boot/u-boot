@@ -131,7 +131,7 @@ static struct spi_flash *parse_dev(char *devstr)
 
 	dev = spi_flash_probe(bus, cs, speed, mode);
 	if (!dev) {
-		printf("Failed to create SPI flash at %d:%d:%d:%d\n",
+		printf("Failed to create SPI flash at %u:%u:%u:%u\n",
 		       bus, cs, speed, mode);
 		return NULL;
 	}
