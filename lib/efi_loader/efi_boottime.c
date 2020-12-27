@@ -271,8 +271,8 @@ efi_status_t is_valid_tpl(efi_uintn_t tpl)
  * efi_signal_event() - signal an EFI event
  * @event:     event to signal
  *
- * This function signals an event. If the event belongs to an event group all
- * events of the group are signaled. If they are of type EVT_NOTIFY_SIGNAL
+ * This function signals an event. If the event belongs to an event group, all
+ * events of the group are signaled. If they are of type EVT_NOTIFY_SIGNAL,
  * their notification function is queued.
  *
  * For the SignalEvent service see efi_signal_event_ext.
