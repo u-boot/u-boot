@@ -275,7 +275,7 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 		memcpy(*load_options, lo.optional_data, size);
 		ret = efi_set_load_options(*handle, size, *load_options);
 	} else {
-		load_options = NULL;
+		*load_options = NULL;
 	}
 
 error:
