@@ -2000,7 +2000,7 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 	}
 
 	if (!efi_st_keep_devices) {
-		if IS_ENABLED(CONFIG_USB_DEVICE)
+		if (IS_ENABLED(CONFIG_USB_DEVICE))
 			udc_disconnect();
 		board_quiesce_devices();
 		dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
