@@ -2127,7 +2127,7 @@ static struct eqos_ops eqos_imx_ops = {
 
 struct eqos_config __maybe_unused eqos_imx_config = {
 	.reg_access_always_ok = false,
-	.mdio_wait = 10000,
+	.mdio_wait = 10,
 	.swr_wait = 50,
 	.config_mac = EQOS_MAC_RXQ_CTRL0_RXQ0EN_ENABLED_DCB,
 	.config_mac_mdio = EQOS_MAC_MDIO_ADDRESS_CR_250_300,
