@@ -311,10 +311,10 @@ enum efi_image_auth_status {
  */
 struct efi_loaded_image_obj {
 	struct efi_object header;
-	efi_status_t exit_status;
+	efi_status_t *exit_status;
 	efi_uintn_t *exit_data_size;
 	u16 **exit_data;
-	struct jmp_buf_data exit_jmp;
+	struct jmp_buf_data *exit_jmp;
 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
 				     struct efi_system_table *st);
 	u16 image_type;
