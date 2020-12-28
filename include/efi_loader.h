@@ -304,8 +304,10 @@ enum efi_image_auth_status {
  * @exit_status:	exit status passed to Exit()
  * @exit_data_size:	exit data size passed to Exit()
  * @exit_data:		exit data passed to Exit()
- * @exit_jmp:		long jump buffer for returning form started image
+ * @exit_jmp:		long jump buffer for returning from started image
  * @entry:		entry address of the relocated image
+ * @image_type:		indicates if the image is an applicition or a driver
+ * @auth_status:	indicates if the image is authenticated
  */
 struct efi_loaded_image_obj {
 	struct efi_object header;
