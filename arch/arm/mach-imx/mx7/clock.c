@@ -916,7 +916,7 @@ void mxs_set_lcdclk(uint32_t base_addr, uint32_t freq)
 		}
 
 		if (5 == i) {
-			printf("Fail to set rate to %dkhz", freq);
+			printf("Fail to set rate to %u kHz", freq);
 			return;
 		}
 	}
@@ -936,7 +936,7 @@ void mxs_set_lcdclk(uint32_t base_addr, uint32_t freq)
 	}
 
 	if (best == 0) {
-		printf("Fail to set rate to %dkhz", freq);
+		printf("Fail to set rate to %u kHz", freq);
 		return;
 	}
 
@@ -1115,17 +1115,17 @@ int do_mx7_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	printf("\n");
 
-	printf("IPG        %8d kHz\n", mxc_get_clock(MXC_IPG_CLK) / 1000);
-	printf("UART       %8d kHz\n", mxc_get_clock(MXC_UART_CLK) / 1000);
+	printf("IPG        %8u kHz\n", mxc_get_clock(MXC_IPG_CLK) / 1000);
+	printf("UART       %8u kHz\n", mxc_get_clock(MXC_UART_CLK) / 1000);
 #ifdef CONFIG_MXC_SPI
-	printf("CSPI       %8d kHz\n", mxc_get_clock(MXC_CSPI_CLK) / 1000);
+	printf("CSPI       %8u kHz\n", mxc_get_clock(MXC_CSPI_CLK) / 1000);
 #endif
-	printf("AHB        %8d kHz\n", mxc_get_clock(MXC_AHB_CLK) / 1000);
-	printf("AXI        %8d kHz\n", mxc_get_clock(MXC_AXI_CLK) / 1000);
-	printf("DDR        %8d kHz\n", mxc_get_clock(MXC_DDR_CLK) / 1000);
-	printf("USDHC1     %8d kHz\n", mxc_get_clock(MXC_ESDHC_CLK) / 1000);
-	printf("USDHC2     %8d kHz\n", mxc_get_clock(MXC_ESDHC2_CLK) / 1000);
-	printf("USDHC3     %8d kHz\n", mxc_get_clock(MXC_ESDHC3_CLK) / 1000);
+	printf("AHB        %8u kHz\n", mxc_get_clock(MXC_AHB_CLK) / 1000);
+	printf("AXI        %8u kHz\n", mxc_get_clock(MXC_AXI_CLK) / 1000);
+	printf("DDR        %8u kHz\n", mxc_get_clock(MXC_DDR_CLK) / 1000);
+	printf("USDHC1     %8u kHz\n", mxc_get_clock(MXC_ESDHC_CLK) / 1000);
+	printf("USDHC2     %8u kHz\n", mxc_get_clock(MXC_ESDHC2_CLK) / 1000);
+	printf("USDHC3     %8u kHz\n", mxc_get_clock(MXC_ESDHC3_CLK) / 1000);
 
 	return 0;
 }

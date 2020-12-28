@@ -47,6 +47,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define VPD_PRODUCT_B650 2
 #define VPD_PRODUCT_B450 3
 
+#define AR8033_DBG_REG_ADDR		0x1d
+#define AR8033_DBG_REG_DATA		0x1e
+#define AR8033_SERDES_REG		0x5
+
 static int productid;  /* Default to generic. */
 static struct vpd_cache vpd;
 
@@ -61,31 +65,16 @@ int dram_init(void)
 	return 0;
 }
 
-static int mx6_rgmii_rework(struct phy_device *phydev)
-{
-	/* Configure AR8033 to ouput a 125MHz clk from CLK_25M */
-	/* set device address 0x7 */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x7);
-	/* offset 0x8016: CLK_25M Clock Select */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, 0x8016);
-	/* enable register write, no post increment, address 0x7 */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x4007);
-	/* set to 125 MHz from local PLL source */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, 0x18);
-
-	/* rgmii tx clock delay enable */
-	/* set debug port address: SerDes Test and System Mode Control */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
-	/* enable rgmii tx clock delay */
-	/* set the reserved bits to avoid board specific voltage peak issue*/
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x3D47);
-
-	return 0;
-}
-
 int board_phy_config(struct phy_device *phydev)
 {
-	mx6_rgmii_rework(phydev);
+	/*
+	 * Set reserved bits to avoid board specific voltage peak issue. The
+	 * value is a magic number provided directly by Qualcomm. Note, that
+	 * PHY driver will take control of BIT(8) in this register to control
+	 * TX clock delay, so we do not initialize that bit here.
+	 */
+	phy_write(phydev, MDIO_DEVAD_NONE, AR8033_DBG_REG_ADDR, AR8033_SERDES_REG);
+	phy_write(phydev, MDIO_DEVAD_NONE, AR8033_DBG_REG_DATA, 0x3c47);
 
 	if (phydev->drv->config)
 		phydev->drv->config(phydev);
@@ -356,15 +345,12 @@ static void process_vpd(struct vpd_cache *vpd)
 
 	switch (vpd->product_id) {
 	case VPD_PRODUCT_B450:
-		env_set("confidx", "1");
 		i210_index = 1;
 		break;
 	case VPD_PRODUCT_B650:
-		env_set("confidx", "2");
 		i210_index = 1;
 		break;
 	case VPD_PRODUCT_B850:
-		env_set("confidx", "3");
 		i210_index = 2;
 		break;
 	}
@@ -554,16 +540,23 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 int board_fit_config_name_match(const char *name)
 {
+	const char *machine = name;
+
 	if (!vpd.is_read)
 		return strcmp(name, "imx6q-bx50v3");
 
+	if (!strncmp(machine, "Boot ", 5))
+		machine += 5;
+	if (!strncmp(machine, "imx6q-", 6))
+		machine += 6;
+
 	switch (vpd.product_id) {
 	case VPD_PRODUCT_B450:
-		return strcmp(name, "imx6q-b450v3");
+		return strcasecmp(machine, "b450v3");
 	case VPD_PRODUCT_B650:
-		return strcmp(name, "imx6q-b650v3");
+		return strcasecmp(machine, "b650v3");
 	case VPD_PRODUCT_B850:
-		return strcmp(name, "imx6q-b850v3");
+		return strcasecmp(machine, "b850v3");
 	default:
 		return -1;
 	}

@@ -954,7 +954,7 @@ static int mxc_i2c_probe(struct udevice *bus)
 		    !dm_gpio_is_valid(&i2c_bus->scl_gpio) ||
 		    ret || ret2) {
 			dev_err(bus,
-				"i2c bus %d at %lu, fail to request scl/sda gpio\n",
+				"i2c bus %d at 0x%2lx, fail to request scl/sda gpio\n",
 				bus->seq, i2c_bus->base);
 			return -EINVAL;
 		}

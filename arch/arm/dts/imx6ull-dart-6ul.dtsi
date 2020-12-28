@@ -14,6 +14,10 @@
 	chosen {
 		stdout-path = &uart1;
 	};
+
+	aliases {
+		eeprom0 = &eeprom_som;
+	};
 };
 
 &fec1 {
@@ -50,6 +54,10 @@
 			micrel,led-mode = <1>;
 		};
 	};
+};
+
+&gpio1 {
+	u-boot,dm-pre-reloc;
 };
 
 &gpmi {
@@ -96,10 +104,13 @@
 	scl-gpios = <&gpio1 30 GPIO_ACTIVE_HIGH>;
 	sda-gpios = <&gpio1 31 GPIO_ACTIVE_HIGH>;
 	status = "okay";
+	u-boot,dm-pre-reloc;
 
-	eeprom@50 {
-		compatible = "cat,24c32";
+	eeprom_som: eeprom@50 {
+		u-boot,dm-pre-reloc;
+		compatible = "atmel,24c04";
 		reg = <0x50>;
+		status = "okay";
 	};
 };
 
@@ -205,6 +216,7 @@
 	};
 
 	pinctrl_i2c2: i2cgrp {
+		u-boot,dm-pre-reloc;
 		fsl,pins = <
 			MX6UL_PAD_UART5_TX_DATA__I2C2_SCL       0x4001b8b0
 			MX6UL_PAD_UART5_RX_DATA__I2C2_SDA       0x4001b8b0
@@ -212,6 +224,7 @@
 	};
 
 	pinctrl_i2c2_gpio: i2c2grp_gpio {
+		u-boot,dm-pre-reloc;
 		fsl,pins = <
 			MX6UL_PAD_UART5_TX_DATA__GPIO1_IO30	0x1b8b0
 			MX6UL_PAD_UART5_RX_DATA__GPIO1_IO31	0x1b8b0

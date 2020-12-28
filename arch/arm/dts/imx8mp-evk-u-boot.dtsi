@@ -49,6 +49,10 @@
 };
 
 &reg_usdhc2_vmmc {
+	u-boot,off-on-delay-us = <20000>;
+};
+
+&reg_usdhc2_vmmc {
 	u-boot,dm-spl;
 };
 
@@ -122,10 +126,14 @@
 
 &usdhc2 {
 	u-boot,dm-spl;
+	sd-uhs-sdr104;
+	sd-uhs-ddr50;
 };
 
 &usdhc3 {
 	u-boot,dm-spl;
+	mmc-hs400-1_8v;
+	mmc-hs400-enhanced-strobe;
 };
 
 &wdog1 {
