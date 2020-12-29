@@ -121,6 +121,7 @@ u-boot-spl-init := $(head-y)
 u-boot-spl-main := $(libs-y)
 ifdef CONFIG_$(SPL_TPL_)OF_PLATDATA
 u-boot-spl-platdata := $(obj)/dts/dt-platdata.o
+u-boot-spl-platdata_c := $(patsubst %.o,%.c,$(u-boot-spl-platdata))
 endif
 
 # Linker Script
@@ -310,17 +311,15 @@ pythonpath = PYTHONPATH=scripts/dtc/pylibfdt
 DTOC_ARGS := $(pythonpath) $(srctree)/tools/dtoc/dtoc \
 	-d $(obj)/$(SPL_BIN).dtb
 
-quiet_cmd_dtocc = DTOC C  $@
-cmd_dtocc = $(DTOC_ARGS) -o $@ platdata
-
-quiet_cmd_dtoch = DTOC H  $@
-cmd_dtoch = $(DTOC_ARGS) -o $@ struct
+quiet_cmd_dtoc = DTOC    $@
+cmd_dtoc = $(DTOC_ARGS) -c $(obj)/dts -C include/generated all
 
 quiet_cmd_plat = PLAT    $@
 cmd_plat = $(CC) $(c_flags) -c $< -o $(filter-out $(PHONY),$@)
 
-targets += $(obj)/dts/dt-platdata.o
-$(obj)/dts/dt-platdata.o: $(obj)/dts/dt-platdata.c \
+targets += $(u-boot-spl-platdata)
+
+$(obj)/dts/dt-%.o: $(obj)/dts/dt-%.c \
 		include/generated/dt-structs-gen.h prepare FORCE
 	$(call if_changed,plat)
 
@@ -328,11 +327,9 @@ PHONY += dts_dir
 dts_dir:
 	$(shell [ -d $(obj)/dts ] || mkdir -p $(obj)/dts)
 
-include/generated/dt-structs-gen.h: $(obj)/$(SPL_BIN).dtb dts_dir FORCE
-	$(call if_changed,dtoch)
-
-$(obj)/dts/dt-platdata.c: $(obj)/$(SPL_BIN).dtb dts_dir FORCE
-	$(call if_changed,dtocc)
+include/generated/dt-structs-gen.h $(u-boot-spl-platdata_c) &: \
+		$(obj)/$(SPL_BIN).dtb dts_dir FORCE
+	$(call if_changed,dtoc)
 
 ifdef CONFIG_SAMSUNG
 ifdef CONFIG_VAR_SIZE_SPL
