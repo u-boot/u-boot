@@ -16,7 +16,9 @@ obj-$(CONFIG_DM_VIDEO) += video-uclass.o vidconsole-uclass.o
 obj-$(CONFIG_DM_VIDEO) += video_bmp.o
 obj-$(CONFIG_PANEL) += panel-uclass.o
 obj-$(CONFIG_SIMPLE_PANEL) += simple_panel.o
-obj-$(CONFIG_AM335X_LCD) += tilcdc-panel.o
+obj-$(CONFIG_AM335X_LCD) += tilcdc.o tilcdc-panel.o
+else
+obj-$(CONFIG_AM335X_LCD) += am335x-fb.o
 endif
 
 obj-${CONFIG_EXYNOS_FB} += exynos/
@@ -24,7 +26,6 @@ obj-${CONFIG_VIDEO_ROCKCHIP} += rockchip/
 obj-${CONFIG_VIDEO_STM32} += stm32/
 obj-${CONFIG_VIDEO_TEGRA124} += tegra124/
 
-obj-$(CONFIG_AM335X_LCD) += am335x-fb.o
 obj-$(CONFIG_ATI_RADEON_FB) += ati_radeon_fb.o videomodes.o
 obj-$(CONFIG_ATMEL_HLCD) += atmel_hlcdfb.o
 obj-$(CONFIG_ATMEL_LCD) += atmel_lcdfb.o

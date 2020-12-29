@@ -6,7 +6,7 @@
 #ifndef _TILCDC_PANEL_H
 #define _TILCDC_PANEL_H
 
-#include "am335x-fb.h"
+#include "tilcdc.h"
 
 int tilcdc_panel_get_display_info(struct udevice *dev,
 				  struct tilcdc_panel_info *info);

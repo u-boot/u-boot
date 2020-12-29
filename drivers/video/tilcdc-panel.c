@@ -15,7 +15,7 @@
 #include <panel.h>
 #include <asm/gpio.h>
 #include <linux/err.h>
-#include "am335x-fb.h"
+#include "tilcdc.h"
 
 struct tilcdc_panel_priv {
 	struct tilcdc_panel_info info;
