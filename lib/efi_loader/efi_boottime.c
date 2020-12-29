@@ -271,8 +271,8 @@ efi_status_t is_valid_tpl(efi_uintn_t tpl)
  * efi_signal_event() - signal an EFI event
  * @event:     event to signal
  *
- * This function signals an event. If the event belongs to an event group all
- * events of the group are signaled. If they are of type EVT_NOTIFY_SIGNAL
+ * This function signals an event. If the event belongs to an event group, all
+ * events of the group are signaled. If they are of type EVT_NOTIFY_SIGNAL,
  * their notification function is queued.
  *
  * For the SignalEvent service see efi_signal_event_ext.
@@ -2000,7 +2000,7 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 	}
 
 	if (!efi_st_keep_devices) {
-		if IS_ENABLED(CONFIG_USB_DEVICE)
+		if (IS_ENABLED(CONFIG_USB_DEVICE))
 			udc_disconnect();
 		board_quiesce_devices();
 		dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
@@ -2899,6 +2899,8 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 	efi_status_t ret;
 	void *info;
 	efi_handle_t parent_image = current_image;
+	efi_status_t exit_status;
+	struct jmp_buf_data exit_jmp;
 
 	EFI_ENTRY("%p, %p, %p", image_handle, exit_data_size, exit_data);
 
@@ -2920,9 +2922,11 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 
 	image_obj->exit_data_size = exit_data_size;
 	image_obj->exit_data = exit_data;
+	image_obj->exit_status = &exit_status;
+	image_obj->exit_jmp = &exit_jmp;
 
 	/* call the image! */
-	if (setjmp(&image_obj->exit_jmp)) {
+	if (setjmp(&exit_jmp)) {
 		/*
 		 * We called the entry point of the child image with EFI_CALL
 		 * in the lines below. The child image called the Exit() boot
@@ -2944,10 +2948,10 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 		 */
 		assert(__efi_entry_check());
 		EFI_PRINT("%lu returned by started image\n",
-			  (unsigned long)((uintptr_t)image_obj->exit_status &
+			  (unsigned long)((uintptr_t)exit_status &
 			  ~EFI_ERROR_MASK));
 		current_image = parent_image;
-		return EFI_EXIT(image_obj->exit_status);
+		return EFI_EXIT(exit_status);
 	}
 
 	current_image = image_handle;
@@ -3130,6 +3134,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 	struct efi_loaded_image *loaded_image_protocol;
 	struct efi_loaded_image_obj *image_obj =
 		(struct efi_loaded_image_obj *)image_handle;
+	struct jmp_buf_data *exit_jmp;
 
 	EFI_ENTRY("%p, %ld, %zu, %p", image_handle, exit_status,
 		  exit_data_size, exit_data);
@@ -3171,6 +3176,9 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 		if (ret != EFI_SUCCESS)
 			EFI_PRINT("%s: out of memory\n", __func__);
 	}
+	/* efi_delete_image() frees image_obj. Copy before the call. */
+	exit_jmp = image_obj->exit_jmp;
+	*image_obj->exit_status = exit_status;
 	if (image_obj->image_type == IMAGE_SUBSYSTEM_EFI_APPLICATION ||
 	    exit_status != EFI_SUCCESS)
 		efi_delete_image(image_obj, loaded_image_protocol);
@@ -3184,8 +3192,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 	 */
 	efi_restore_gd();
 
-	image_obj->exit_status = exit_status;
-	longjmp(&image_obj->exit_jmp, 1);
+	longjmp(exit_jmp, 1);
 
 	panic("EFI application exited");
 out:
