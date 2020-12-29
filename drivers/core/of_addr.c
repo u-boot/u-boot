@@ -18,7 +18,8 @@
 /* Max address size we deal with */
 #define OF_MAX_ADDR_CELLS	4
 #define OF_CHECK_ADDR_COUNT(na)	((na) > 0 && (na) <= OF_MAX_ADDR_CELLS)
-#define OF_CHECK_COUNTS(na, ns)	(OF_CHECK_ADDR_COUNT(na) && (ns) > 0)
+#define OF_CHECK_COUNTS(na, ns)	(OF_CHECK_ADDR_COUNT(na) && \
+				 ((ns) > 0 || gd_size_cells_0()))
 
 static struct of_bus *of_match_bus(struct device_node *np);
 
@@ -162,11 +163,6 @@ const __be32 *of_get_address(const struct device_node *dev, int index,
 }
 EXPORT_SYMBOL(of_get_address);
 
-static int of_empty_ranges_quirk(const struct device_node *np)
-{
-	return false;
-}
-
 static int of_translate_one(const struct device_node *parent,
 			    struct of_bus *bus, struct of_bus *pbus,
 			    __be32 *addr, int na, int ns, int pna,
@@ -193,11 +189,8 @@ static int of_translate_one(const struct device_node *parent,
 	 * As far as we know, this damage only exists on Apple machines, so
 	 * This code is only enabled on powerpc. --gcl
 	 */
+
 	ranges = of_get_property(parent, rprop, &rlen);
-	if (ranges == NULL && !of_empty_ranges_quirk(parent)) {
-		debug("no ranges; cannot translate\n");
-		return 1;
-	}
 	if (ranges == NULL || rlen == 0) {
 		offset = of_read_number(addr, na);
 		memset(addr, 0, pna * 4);
