@@ -18,13 +18,14 @@ import tempfile
 import unittest
 from unittest import mock
 
-from dtb_platdata import conv_name_to_c
-from dtb_platdata import get_compat_name
 from dtb_platdata import get_value
 from dtb_platdata import tab_to
 from dtoc import dtb_platdata
 from dtoc import fdt
 from dtoc import fdt_util
+from dtoc import src_scan
+from dtoc.src_scan import conv_name_to_c
+from dtoc.src_scan import get_compat_name
 from patman import test_util
 from patman import tools
 
@@ -933,9 +934,9 @@ U_BOOT_DRVINFO(spl_test2) = {
 
     def test_driver(self):
         """Test the Driver class"""
-        drv1 = dtb_platdata.Driver('fred')
-        drv2 = dtb_platdata.Driver('mary')
-        drv3 = dtb_platdata.Driver('fred')
+        drv1 = src_scan.Driver('fred')
+        drv2 = src_scan.Driver('mary')
+        drv3 = src_scan.Driver('fred')
         self.assertEqual("Driver(name='fred')", str(drv1))
         self.assertEqual(drv1, drv3)
         self.assertNotEqual(drv1, drv2)
@@ -989,8 +990,7 @@ U_BOOT_DRVINFO(spl_test2) = {
 
             # Mock out scan_driver and check that it is called with the
             # expected files
-            with mock.patch.object(dtb_platdata.DtbPlatdata, "scan_driver") \
-                    as mocked:
+            with mock.patch.object(src_scan.Scanner, "scan_driver")  as mocked:
                 dtb_platdata.run_steps(['all'], dtb_file, False, None, [outdir],
                                        True, basedir=indir)
             self.assertEqual(2, len(mocked.mock_calls))

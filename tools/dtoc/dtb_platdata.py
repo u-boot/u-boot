@@ -22,6 +22,8 @@ import sys
 
 from dtoc import fdt
 from dtoc import fdt_util
+from dtoc import src_scan
+from dtoc.src_scan import conv_name_to_c
 
 # When we see these properties we ignore them - i.e. do not create a structure
 # member
@@ -76,39 +78,6 @@ PhandleInfo = collections.namedtuple('PhandleInfo', ['max_args', 'args'])
 PhandleLink = collections.namedtuple('PhandleLink', ['var_node', 'dev_name'])
 
 
-class Driver:
-    """Information about a driver in U-Boot
-
-    Attributes:
-        name: Name of driver. For U_BOOT_DRIVER(x) this is 'x'
-    """
-    def __init__(self, name):
-        self.name = name
-
-    def __eq__(self, other):
-        return self.name == other.name
-
-    def __repr__(self):
-        return "Driver(name='%s')" % self.name
-
-
-def conv_name_to_c(name):
-    """Convert a device-tree name to a C identifier
-
-    This uses multiple replace() calls instead of re.sub() since it is faster
-    (400ms for 1m calls versus 1000ms for the 're' version).
-
-    Args:
-        name (str): Name to convert
-    Return:
-        str: String containing the C version of this name
-    """
-    new = name.replace('@', '_at_')
-    new = new.replace('-', '_')
-    new = new.replace(',', '_')
-    new = new.replace('.', '_')
-    return new
-
 def tab_to(num_tabs, line):
     """Append tabs to a line of text to reach a tab stop.
 
@@ -154,19 +123,6 @@ def get_value(ftype, value):
         val = '%#x' % value
     return val
 
-def get_compat_name(node):
-    """Get the node's list of compatible string as a C identifiers
-
-    Args:
-        node (fdt.Node): Node object to check
-    Return:
-        list of str: List of C identifiers for all the compatible strings
-    """
-    compat = node.props['compatible'].value
-    if not isinstance(compat, list):
-        compat = [compat]
-    return [conv_name_to_c(c) for c in compat]
-
 
 class DtbPlatdata():
     """Provide a means to convert device tree binary data to platform data
@@ -176,22 +132,15 @@ class DtbPlatdata():
     code is not affordable.
 
     Properties:
+        _scan: Scan object, for scanning and reporting on useful information
+            from the U-Boot source code
         _fdt: Fdt object, referencing the device tree
         _dtb_fname: Filename of the input device tree binary file
         _valid_nodes: A list of Node object with compatible strings. The list
             is ordered by conv_name_to_c(node.name)
         _include_disabled: true to include nodes marked status = "disabled"
         _outfile: The current output file (sys.stdout or a real file)
-        _warning_disabled: true to disable warnings about driver names not found
         _lines: Stashed list of output lines for outputting in the future
-        _drivers: Dict of valid driver names found in drivers/
-            key: Driver name
-            value: Driver for that driver
-        _driver_aliases: Dict that holds aliases for driver names
-            key: Driver alias declared with
-                DM_DRIVER_ALIAS(driver_alias, driver_name)
-            value: Driver name declared with U_BOOT_DRIVER(driver_name)
-        _drivers_additional: List of additional drivers to use during scanning
         _dirname: Directory to hold output files, or None for none (all files
             go to stdout)
         _struct_data (dict): OrderedDict of dtplat structures to output
@@ -201,57 +150,17 @@ class DtbPlatdata():
                         value: Prop object with field information
         _basedir (str): Base directory of source tree
     """
-    def __init__(self, dtb_fname, include_disabled, warning_disabled,
-                 drivers_additional=None):
+    def __init__(self, scan, dtb_fname, include_disabled):
+        self._scan = scan
         self._fdt = None
         self._dtb_fname = dtb_fname
         self._valid_nodes = None
         self._include_disabled = include_disabled
         self._outfile = None
-        self._warning_disabled = warning_disabled
         self._lines = []
-        self._drivers = {}
-        self._driver_aliases = {}
-        self._drivers_additional = drivers_additional or []
         self._dirnames = [None] * len(Ftype)
         self._struct_data = collections.OrderedDict()
         self._basedir = None
-
-    def get_normalized_compat_name(self, node):
-        """Get a node's normalized compat name
-
-        Returns a valid driver name by retrieving node's list of compatible
-        string as a C identifier and performing a check against _drivers
-        and a lookup in driver_aliases printing a warning in case of failure.
-
-        Args:
-            node (Node): Node object to check
-        Return:
-            Tuple:
-                Driver name associated with the first compatible string
-                List of C identifiers for all the other compatible strings
-                    (possibly empty)
-                In case of no match found, the return will be the same as
-                get_compat_name()
-        """
-        compat_list_c = get_compat_name(node)
-
-        for compat_c in compat_list_c:
-            if not compat_c in self._drivers.keys():
-                compat_c = self._driver_aliases.get(compat_c)
-                if not compat_c:
-                    continue
-
-            aliases_c = compat_list_c
-            if compat_c in aliases_c:
-                aliases_c.remove(compat_c)
-            return compat_c, aliases_c
-
-        if not self._warning_disabled:
-            print('WARNING: the driver %s was not found in the driver list'
-                  % (compat_list_c[0]))
-
-        return compat_list_c[0], compat_list_c[1:]
 
     def setup_output_dirs(self, output_dirs):
         """Set up the output directories
@@ -407,65 +316,6 @@ class DtbPlatdata():
             return PhandleInfo(max_args, args)
         return None
 
-    def scan_driver(self, fname):
-        """Scan a driver file to build a list of driver names and aliases
-
-        This procedure will populate self._drivers and self._driver_aliases
-
-        Args
-            fname: Driver filename to scan
-        """
-        with open(fname, encoding='utf-8') as inf:
-            try:
-                buff = inf.read()
-            except UnicodeDecodeError:
-                # This seems to happen on older Python versions
-                print("Skipping file '%s' due to unicode error" % fname)
-                return
-
-            # The following re will search for driver names declared as
-            # U_BOOT_DRIVER(driver_name)
-            drivers = re.findall(r'U_BOOT_DRIVER\((.*)\)', buff)
-
-            for driver in drivers:
-                self._drivers[driver] = Driver(driver)
-
-            # The following re will search for driver aliases declared as
-            # DM_DRIVER_ALIAS(alias, driver_name)
-            driver_aliases = re.findall(
-                r'DM_DRIVER_ALIAS\(\s*(\w+)\s*,\s*(\w+)\s*\)',
-                buff)
-
-            for alias in driver_aliases: # pragma: no cover
-                if len(alias) != 2:
-                    continue
-                self._driver_aliases[alias[1]] = alias[0]
-
-    def scan_drivers(self, basedir=None):
-        """Scan the driver folders to build a list of driver names and aliases
-
-        This procedure will populate self._drivers and self._driver_aliases
-
-        """
-        if not basedir:
-            basedir = sys.argv[0].replace('tools/dtoc/dtoc', '')
-            if basedir == '':
-                basedir = './'
-        self._basedir = basedir
-        for (dirpath, _, filenames) in os.walk(basedir):
-            for fname in filenames:
-                if not fname.endswith('.c'):
-                    continue
-                self.scan_driver(dirpath + '/' + fname)
-
-        for fname in self._drivers_additional:
-            if not isinstance(fname, str) or len(fname) == 0:
-                continue
-            if fname[0] == '/':
-                self.scan_driver(fname)
-            else:
-                self.scan_driver(basedir + '/' + fname)
-
     def scan_dtb(self):
         """Scan the device tree to obtain a tree of nodes and properties
 
@@ -584,7 +434,7 @@ class DtbPlatdata():
         """
         structs = self._struct_data
         for node in self._valid_nodes:
-            node_name, _ = self.get_normalized_compat_name(node)
+            node_name, _ = self._scan.get_normalized_compat_name(node)
             fields = {}
 
             # Get a list of all the valid properties in this node.
@@ -607,7 +457,7 @@ class DtbPlatdata():
                 structs[node_name] = fields
 
         for node in self._valid_nodes:
-            node_name, _ = self.get_normalized_compat_name(node)
+            node_name, _ = self._scan.get_normalized_compat_name(node)
             struct = structs[node_name]
             for name, prop in node.props.items():
                 if name not in PROP_IGNORE_LIST and name[0] != '#':
@@ -772,7 +622,7 @@ class DtbPlatdata():
         Args:
             node (fdt.Node): node to output
         """
-        struct_name, _ = self.get_normalized_compat_name(node)
+        struct_name, _ = self._scan.get_normalized_compat_name(node)
         var_name = conv_name_to_c(node.name)
         self.buf('/* Node %s index %d */\n' % (node.path, node.idx))
 
@@ -845,9 +695,9 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs,
     if output and output_dirs and any(output_dirs):
         raise ValueError('Must specify either output or output_dirs, not both')
 
-    plat = DtbPlatdata(dtb_file, include_disabled, warning_disabled,
-                       drivers_additional)
-    plat.scan_drivers(basedir)
+    scan = src_scan.Scanner(basedir, drivers_additional, warning_disabled)
+    plat = DtbPlatdata(scan, dtb_file, include_disabled)
+    scan.scan_drivers()
     plat.scan_dtb()
     plat.scan_tree()
     plat.scan_reg_sizes()
