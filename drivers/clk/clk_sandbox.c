@@ -30,6 +30,22 @@ static ulong sandbox_clk_get_rate(struct clk *clk)
 	return priv->rate[clk->id];
 }
 
+static ulong sandbox_clk_round_rate(struct clk *clk, ulong rate)
+{
+	struct sandbox_clk_priv *priv = dev_get_priv(clk->dev);
+
+	if (!priv->probed)
+		return -ENODEV;
+
+	if (clk->id >= SANDBOX_CLK_ID_COUNT)
+		return -EINVAL;
+
+	if (!rate)
+		return -EINVAL;
+
+	return rate;
+}
+
 static ulong sandbox_clk_set_rate(struct clk *clk, ulong rate)
 {
 	struct sandbox_clk_priv *priv = dev_get_priv(clk->dev);
@@ -103,6 +119,7 @@ static int sandbox_clk_free(struct clk *clk)
 }
 
 static struct clk_ops sandbox_clk_ops = {
+	.round_rate	= sandbox_clk_round_rate,
 	.get_rate	= sandbox_clk_get_rate,
 	.set_rate	= sandbox_clk_set_rate,
 	.enable		= sandbox_clk_enable,

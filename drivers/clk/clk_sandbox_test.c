@@ -86,6 +86,16 @@ ulong sandbox_clk_test_get_rate(struct udevice *dev, int id)
 	return clk_get_rate(sbct->clkps[id]);
 }
 
+ulong sandbox_clk_test_round_rate(struct udevice *dev, int id, ulong rate)
+{
+	struct sandbox_clk_test *sbct = dev_get_priv(dev);
+
+	if (id < 0 || id >= SANDBOX_CLK_TEST_ID_COUNT)
+		return -EINVAL;
+
+	return clk_round_rate(sbct->clkps[id], rate);
+}
+
 ulong sandbox_clk_test_set_rate(struct udevice *dev, int id, ulong rate)
 {
 	struct sandbox_clk_test *sbct = dev_get_priv(dev);
