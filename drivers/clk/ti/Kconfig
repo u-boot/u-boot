@@ -10,6 +10,12 @@ config CLK_TI_AM3_DPLL
 	  This enables the DPLL clock drivers support on AM33XX SoCs. The DPLL
 	  provides all interface clocks and functional clocks to the processor.
 
+config CLK_TI_DIVIDER
+	bool "TI divider clock driver"
+	depends on CLK && OF_CONTROL && CLK_CCF
+	help
+	  This enables the divider clock driver support on TI's SoCs.
+
 config CLK_TI_MUX
 	bool "TI mux clock driver"
 	depends on CLK && OF_CONTROL && CLK_CCF

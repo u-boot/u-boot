@@ -13,6 +13,7 @@
 #include <clk-uclass.h>
 #include <asm/io.h>
 #include <linux/clk-provider.h>
+#include "clk.h"
 
 struct clk_ti_mux_priv {
 	struct clk_bulk parents;
@@ -23,30 +24,6 @@ struct clk_ti_mux_priv {
 	u32 shift;
 	s32 latch;
 };
-
-static void clk_ti_mux_rmw(u32 val, u32 mask, fdt_addr_t reg)
-{
-	u32 v;
-
-	v = readl(reg);
-	v &= ~mask;
-	v |= val;
-	writel(v, reg);
-}
-
-static void clk_ti_mux_latch(fdt_addr_t reg, s8 shift)
-{
-	u32 latch;
-
-	if (shift < 0)
-		return;
-
-	latch = 1 << shift;
-
-	clk_ti_mux_rmw(latch, latch, reg);
-	clk_ti_mux_rmw(0, latch, reg);
-	readl(reg);		/* OCP barrier */
-}
 
 static struct clk *clk_ti_mux_get_parent_by_index(struct clk_bulk *parents,
 						  int index)
@@ -120,7 +97,7 @@ static int clk_ti_mux_set_parent(struct clk *clk, struct clk *parent)
 
 	val |= index << priv->shift;
 	writel(val, priv->reg);
-	clk_ti_mux_latch(priv->reg, priv->latch);
+	clk_ti_latch(priv->reg, priv->latch);
 	return 0;
 }
 
