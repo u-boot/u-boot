@@ -884,6 +884,14 @@ U_BOOT_DEVICE(spl_test2) = {
             self.run_test(['struct'], dtb_file, None)
         self._check_strings(self.struct_text, stdout.getvalue())
 
+    def test_multi_to_file(self):
+        """Test output of multiple pieces to a single file"""
+        dtb_file = get_dtb_file('dtoc_test_simple.dts')
+        output = tools.GetOutputFilename('output')
+        self.run_test(['struct,platdata'], dtb_file, output)
+        data = tools.ReadFile(output, binary=False)
+        self._check_strings(self.struct_text + self.platdata_text, data)
+
     def test_no_command(self):
         """Test running dtoc without a command"""
         with self.assertRaises(ValueError) as exc:
