@@ -12,6 +12,7 @@
  * - starts output DMA from gd->fb_base buffer
  */
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <lcd.h>
 #include <log.h>
@@ -112,14 +113,33 @@ struct am335x_lcdhw {
 	unsigned int		clkc_reset;		/* 0x70 */
 };
 
+DECLARE_GLOBAL_DATA_PTR;
+
+#if !CONFIG_IS_ENABLED(DM_VIDEO)
+
+#if !defined(LCD_CNTL_BASE)
+#error "hw-base address of LCD-Controller (LCD_CNTL_BASE) not defined!"
+#endif
+
+/* Macro definitions */
+#define FBSIZE(x)	(((x)->hactive * (x)->vactive * (x)->bpp) >> 3)
+
+#define LCDC_RASTER_TIMING_2_INVMASK(x)		((x) & GENMASK(25, 20))
+
+static struct am335x_lcdhw *lcdhw = (void *)LCD_CNTL_BASE;
+
+int lcd_get_size(int *line_length)
+{
+	*line_length = (panel_info.vl_col * NBITS(panel_info.vl_bpix)) / 8;
+	return *line_length * panel_info.vl_row + 0x20;
+}
+
 struct dpll_data {
 	unsigned long rounded_rate;
 	u16 rounded_m;
 	u8 rounded_n;
 	u8 rounded_div;
 };
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /**
  * am335x_dpll_round_rate() - Round a target rate for an OMAP DPLL
@@ -197,25 +217,6 @@ static ulong am335x_fb_set_pixel_clk_rate(struct am335x_lcdhw *regs, ulong rate)
 	reg |= LCDC_CTRL_CLK_DIVISOR(dd.rounded_div);
 	writel(reg, &regs->ctrl);
 	return round_rate;
-}
-
-#if !CONFIG_IS_ENABLED(DM_VIDEO)
-
-#if !defined(LCD_CNTL_BASE)
-#error "hw-base address of LCD-Controller (LCD_CNTL_BASE) not defined!"
-#endif
-
-/* Macro definitions */
-#define FBSIZE(x)	(((x)->hactive * (x)->vactive * (x)->bpp) >> 3)
-
-#define LCDC_RASTER_TIMING_2_INVMASK(x)		((x) & GENMASK(25, 20))
-
-static struct am335x_lcdhw *lcdhw = (void *)LCD_CNTL_BASE;
-
-int lcd_get_size(int *line_length)
-{
-	*line_length = (panel_info.vl_col * NBITS(panel_info.vl_bpix)) / 8;
-	return *line_length * panel_info.vl_row + 0x20;
 }
 
 int am335xfb_init(struct am335x_lcdpanel *panel)
@@ -335,14 +336,58 @@ enum {
 
 struct am335x_fb_priv {
 	struct am335x_lcdhw *regs;
+	struct clk gclk;
+	struct clk dpll_m2_clk;
 };
+
+static ulong tilcdc_set_pixel_clk_rate(struct udevice *dev, ulong rate)
+{
+	struct am335x_fb_priv *priv = dev_get_priv(dev);
+	struct am335x_lcdhw *regs = priv->regs;
+	ulong mult_rate, mult_round_rate, best_err, err;
+	u32 v;
+	int div, i;
+
+	best_err = rate;
+	div = 0;
+	for (i = 2; i <= 255; i++) {
+		mult_rate = rate * i;
+		mult_round_rate = clk_round_rate(&priv->gclk, mult_rate);
+		if (IS_ERR_VALUE(mult_round_rate))
+			return mult_round_rate;
+
+		err = mult_rate - mult_round_rate;
+		if (err < best_err) {
+			best_err = err;
+			div = i;
+			if (err == 0)
+				break;
+		}
+	}
+
+	if (div == 0) {
+		dev_err(dev, "failed to find a divisor\n");
+		return -EFAULT;
+	}
+
+	mult_rate = clk_set_rate(&priv->gclk, rate * div);
+	v = readl(&regs->ctrl) & ~LCDC_CTRL_CLK_DIVISOR_MASK;
+	v |= LCDC_CTRL_CLK_DIVISOR(div);
+	writel(v, &regs->ctrl);
+	rate = mult_rate / div;
+	dev_dbg(dev, "rate=%ld, div=%d, err=%ld\n", rate, div, err);
+	return rate;
+}
 
 static int am335x_fb_remove(struct udevice *dev)
 {
 	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
+	struct am335x_fb_priv *priv = dev_get_priv(dev);
 
 	uc_plat->base -= 0x20;
 	uc_plat->size += 0x20;
+	clk_release_all(&priv->gclk, 1);
+	clk_release_all(&priv->dpll_m2_clk, 1);
 	return 0;
 }
 
@@ -352,10 +397,10 @@ static int am335x_fb_probe(struct udevice *dev)
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct am335x_fb_priv *priv = dev_get_priv(dev);
 	struct am335x_lcdhw *regs = priv->regs;
-	struct udevice *panel;
+	struct udevice *panel, *clk_dev;
 	struct tilcdc_panel_info info;
 	struct display_timing timing;
-	struct cm_dpll *const cmdpll = (struct cm_dpll *)CM_DPLL;
+	ulong rate;
 	u32 reg;
 	int err;
 
@@ -416,10 +461,42 @@ static int am335x_fb_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	am335x_fb_set_pixel_clk_rate(regs, timing.pixelclock.typ);
+	err = uclass_get_device_by_name(UCLASS_CLK, "lcd_gclk@534", &clk_dev);
+	if (err) {
+		dev_err(dev, "failed to get lcd_gclk device\n");
+		return err;
+	}
 
-	/* clock source for LCDC from dispPLL M2 */
-	writel(0, &cmdpll->clklcdcpixelclk);
+	err = clk_request(clk_dev, &priv->gclk);
+	if (err) {
+		dev_err(dev, "failed to get %s clock\n", clk_dev->name);
+		return err;
+	}
+
+	rate = tilcdc_set_pixel_clk_rate(dev, timing.pixelclock.typ);
+	if (IS_ERR_VALUE(rate)) {
+		dev_err(dev, "failed to set pixel clock rate\n");
+		return rate;
+	}
+
+	err = uclass_get_device_by_name(UCLASS_CLK, "dpll_disp_m2_ck@4a4", &clk_dev);
+	if (err) {
+		dev_err(dev, "failed to get dpll_disp_m2 clock device\n");
+		return err;
+	}
+
+	err = clk_request(clk_dev, &priv->dpll_m2_clk);
+	if (err) {
+		dev_err(dev, "failed to get %s clock\n", clk_dev->name);
+		return err;
+	}
+
+	err = clk_set_parent(&priv->gclk, &priv->dpll_m2_clk);
+	if (err) {
+		dev_err(dev, "failed to set %s clock as %s's parent\n",
+			priv->dpll_m2_clk.dev->name, priv->gclk.dev->name);
+		return err;
+	}
 
 	/* palette default entry */
 	memset((void *)uc_plat->base, 0, 0x20);
