@@ -94,6 +94,14 @@ def GetOutputFilename(fname):
     """
     return os.path.join(outdir, fname)
 
+def GetOutputDir():
+    """Return the current output directory
+
+    Returns:
+        str: The output directory
+    """
+    return outdir
+
 def _FinaliseForTest():
     """Remove the output directory (for use by tests)"""
     global outdir

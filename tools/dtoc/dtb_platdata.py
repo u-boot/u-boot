@@ -862,11 +862,14 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs,
     structs = plat.scan_structs()
     plat.scan_phandles()
 
-    for cmd in args[0].split(','):
+    cmds = args[0].split(',')
+    if 'all' in cmds:
+        cmds = sorted(OUTPUT_FILES.keys())
+    for cmd in cmds:
         outfile = OUTPUT_FILES.get(cmd)
         if not outfile:
             raise ValueError("Unknown command '%s': (use: %s)" %
-                             (cmd, ', '.join(OUTPUT_FILES.keys())))
+                             (cmd, ', '.join(sorted(OUTPUT_FILES.keys()))))
         plat.setup_output(outfile.ftype,
                           outfile.fname if output_dirs else output)
         if cmd == 'struct':

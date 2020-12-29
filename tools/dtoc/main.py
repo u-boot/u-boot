@@ -13,11 +13,7 @@ having to link against libfdt. By putting the data from the device tree into
 C structures, normal C code can be used. This helps to reduce the size of the
 compiled program.
 
-Dtoc produces two output files:
-
-   dt-structs.h  - contains struct definitions
-   dt-platdata.c - contains data from the device tree using the struct
-                      definitions, as well as U-Boot driver definitions.
+Dtoc produces several output files - see OUTPUT_FILES in dtb_platdata.py
 
 This tool is used in U-Boot to provide device tree data to SPL without
 increasing the code size of SPL. This supports the CONFIG_SPL_OF_PLATDATA
