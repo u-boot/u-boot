@@ -66,6 +66,7 @@
 #define DPLL_EN_STOP			1
 #define DPLL_EN_MN_BYPASS		4
 #define DPLL_EN_LOW_POWER_BYPASS	5
+#define DPLL_EN_FAST_RELOCK_BYPASS	6
 #define DPLL_EN_LOCK			7
 
 /* CM_IDLEST_DPLL fields */
