@@ -5,6 +5,8 @@
  * Copyright (C) 2020 Dario Binacchi <dariobin@libero.it>
  */
 
+#include "am33xx-u-boot.dtsi"
+
 / {
 	panel {
 		u-boot,dm-pre-reloc;

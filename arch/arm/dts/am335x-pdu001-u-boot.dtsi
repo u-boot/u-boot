@@ -3,6 +3,8 @@
  * Copyright (C) 2018 EETS GmbH - https://www.eets.ch/
  */
 
+#include "am33xx-u-boot.dtsi"
+
 / {
 	ocp {
 		u-boot,dm-pre-reloc;

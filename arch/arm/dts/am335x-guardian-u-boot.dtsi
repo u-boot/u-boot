@@ -4,6 +4,8 @@
  * Copyright (C) 2018 Robert Bosch Power Tools GmbH
  */
 
+#include "am33xx-u-boot.dtsi"
+
 / {
 	ocp {
 		u-boot,dm-pre-reloc;

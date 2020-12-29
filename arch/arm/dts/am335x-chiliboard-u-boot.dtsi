@@ -4,6 +4,8 @@
  * Author: Marcin Niestroj <m.niestroj@grinn-global.com>
  */
 
+#include "am33xx-u-boot.dtsi"
+
 / {
 	chosen {
 		stdout-path = &uart0;

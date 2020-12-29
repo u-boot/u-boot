@@ -3,6 +3,8 @@
  * Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com/
  */
 
+#include "am33xx-u-boot.dtsi"
+
 / {
 	panel {
 		u-boot,dm-pre-reloc;
