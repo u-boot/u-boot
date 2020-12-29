@@ -14,6 +14,7 @@ import unittest
 from unittest import mock
 
 from dtoc import src_scan
+from patman import test_util
 from patman import tools
 
 # This is a test so is allowed to access private things in the module it is
@@ -30,15 +31,26 @@ class TestSrcScan(unittest.TestCase):
     def tearDownClass(cls):
         tools.FinaliseOutputDir()
 
-    @classmethod
-    def test_scan_drivers(cls):
-        """Test running dtoc with additional drivers to scan"""
+    def test_simple(self):
+        """Simple test of scanning drivers"""
+        scan = src_scan.Scanner(None, True, None)
+        scan.scan_drivers()
+        self.assertIn('sandbox_gpio', scan._drivers)
+        self.assertIn('sandbox_gpio_alias', scan._driver_aliases)
+        self.assertEqual('sandbox_gpio',
+                         scan._driver_aliases['sandbox_gpio_alias'])
+        self.assertNotIn('sandbox_gpio_alias2', scan._driver_aliases)
+
+    def test_additional(self):
+        """Test with additional drivers to scan"""
         scan = src_scan.Scanner(
             None, True, [None, '', 'tools/dtoc/dtoc_test_scan_drivers.cxx'])
         scan.scan_drivers()
+        self.assertIn('sandbox_gpio_alias2', scan._driver_aliases)
+        self.assertEqual('sandbox_gpio',
+                         scan._driver_aliases['sandbox_gpio_alias2'])
 
-    @classmethod
-    def test_unicode_error(cls):
+    def test_unicode_error(self):
         """Test running dtoc with an invalid unicode file
 
         To be able to perform this test without adding a weird text file which
@@ -49,7 +61,11 @@ class TestSrcScan(unittest.TestCase):
         with open(driver_fn, 'wb+') as fout:
             fout.write(b'\x81')
 
-        src_scan.Scanner(None, True, [driver_fn])
+        scan = src_scan.Scanner(None, True, [driver_fn])
+        with test_util.capture_sys_output() as (stdout, _):
+            scan.scan_drivers()
+        self.assertRegex(stdout.getvalue(),
+                         r"Skipping file '.*' due to unicode error\s*")
 
     def test_driver(self):
         """Test the Driver class"""
