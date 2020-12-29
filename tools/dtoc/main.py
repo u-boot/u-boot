@@ -87,6 +87,10 @@ if __name__ != '__main__':
 parser = OptionParser()
 parser.add_option('-B', '--build-dir', type='string', default='b',
         help='Directory containing the build output')
+parser.add_option('-c', '--c-output-dir', action='store',
+                  help='Select output directory for C files')
+parser.add_option('-C', '--h-output-dir', action='store',
+                  help='Select output directory for H files (defaults to --c-output-di)')
 parser.add_option('-d', '--dtb-file', action='store',
                   help='Specify the .dtb input file')
 parser.add_option('--include-disabled', action='store_true',
@@ -111,4 +115,5 @@ elif options.test_coverage:
 
 else:
     dtb_platdata.run_steps(args, options.dtb_file, options.include_disabled,
-                           options.output)
+                           options.output,
+                           [options.c_output_dir, options.h_output_dir])

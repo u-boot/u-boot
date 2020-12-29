@@ -757,8 +757,9 @@ class DtbPlatdata():
 
         self.out(''.join(self.get_buf()))
 
-def run_steps(args, dtb_file, include_disabled, output, warning_disabled=False,
-              drivers_additional=None):
+
+def run_steps(args, dtb_file, include_disabled, output, output_dirs,
+              warning_disabled=False, drivers_additional=None):
     """Run all the steps of the dtoc tool
 
     Args:
@@ -766,6 +767,9 @@ def run_steps(args, dtb_file, include_disabled, output, warning_disabled=False,
         dtb_file (str): Filename of dtb file to process
         include_disabled (bool): True to include disabled nodes
         output (str): Name of output file (None for stdout)
+        output_dirs (tuple of str):
+            Directory to put C output files
+            Directory to put H output files
         warning_disabled (bool): True to avoid showing warnings about missing
             drivers
         drivers_additional (list): List of additional drivers to use during
