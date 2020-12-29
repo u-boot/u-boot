@@ -59,7 +59,7 @@ struct driver_rt {
  * When of-platdata is in use, U_BOOT_DRVINFO() cannot be used outside of the
  * dt-plat.c file created by dtoc
  */
-#if CONFIG_IS_ENABLED(OF_PLATDATA) && !defined(DT_PLATDATA_C)
+#if CONFIG_IS_ENABLED(OF_PLATDATA) && !defined(DT_PLAT_C)
 #define U_BOOT_DRVINFO(__name)	_Static_assert(false, \
 	"Cannot use U_BOOT_DRVINFO with of-platdata. Please use devicetree instead")
 #else

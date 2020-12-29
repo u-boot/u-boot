@@ -47,7 +47,7 @@ C_HEADER = '''/*
  */
 
 /* Allow use of U_BOOT_DRVINFO() in this file */
-#define DT_PLATDATA_C
+#define DT_PLAT_C
 
 #include <common.h>
 #include <dm.h>
@@ -979,5 +979,5 @@ U_BOOT_DRVINFO(spl_test2) = {
 
         leafs = set(os.path.basename(fname) for fname in fnames)
         self.assertEqual(
-            {'dt-structs-gen.h', 'source.dts', 'dt-platdata.c', 'source.dtb'},
+            {'dt-structs-gen.h', 'source.dts', 'dt-plat.c', 'source.dtb'},
             leafs)

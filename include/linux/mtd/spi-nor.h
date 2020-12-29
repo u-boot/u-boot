@@ -262,7 +262,7 @@ struct spi_flash {
  *	Defined below (keep this text to enable searching for spi_flash decl)
  * }
  */
-#ifndef DT_PLATDATA_C
+#ifndef DT_PLAT_C
 #define spi_flash spi_nor
 #endif
 

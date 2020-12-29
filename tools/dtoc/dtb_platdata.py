@@ -796,7 +796,7 @@ class DtbPlatdata():
         information.
         """
         self.out('/* Allow use of U_BOOT_DRVINFO() in this file */\n')
-        self.out('#define DT_PLATDATA_C\n')
+        self.out('#define DT_PLAT_C\n')
         self.out('\n')
         self.out('#include <common.h>\n')
         self.out('#include <dm.h>\n')
@@ -832,7 +832,7 @@ OUTPUT_FILES = {
         OutputFile(Ftype.HEADER, 'dt-structs-gen.h',
                    'Defines the structs used to hold devicetree data'),
     'platdata':
-        OutputFile(Ftype.SOURCE, 'dt-platdata.c',
+        OutputFile(Ftype.SOURCE, 'dt-plat.c',
                    'Declares the U_BOOT_DRIVER() records and platform data'),
     }
 
