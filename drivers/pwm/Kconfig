@@ -75,3 +75,10 @@ config PWM_SUNXI
 	help
 	  This PWM is found on H3, A64 and other Allwinner SoCs. It supports a
 	  programmable period and duty cycle. A 16-bit counter is used.
+
+config PWM_TI_EHRPWM
+	bool "Enable support for EHRPWM PWM"
+	depends on DM_PWM && ARCH_OMAP2PLUS
+	default y
+	help
+	  PWM driver support for the EHRPWM controller found on TI SOCs.

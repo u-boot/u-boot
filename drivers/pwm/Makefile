@@ -19,3 +19,4 @@ obj-$(CONFIG_PWM_SANDBOX)	+= sandbox_pwm.o
 obj-$(CONFIG_PWM_SIFIVE)	+= pwm-sifive.o
 obj-$(CONFIG_PWM_TEGRA)		+= tegra_pwm.o
 obj-$(CONFIG_PWM_SUNXI)		+= sunxi_pwm.o
+obj-$(CONFIG_PWM_TI_EHRPWM)	+= pwm-ti-ehrpwm.o
