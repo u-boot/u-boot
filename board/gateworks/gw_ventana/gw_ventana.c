@@ -1375,7 +1375,7 @@ static struct mxc_serial_plat ventana_mxc_serial_plat = {
 	.reg = (struct mxc_uart *)UART2_BASE,
 };
 
-U_BOOT_DEVICE(ventana_serial) = {
+U_BOOT_DRVINFO(ventana_serial) = {
 	.name   = "serial_mxc",
 	.plat = &ventana_mxc_serial_plat,
 };

@@ -352,7 +352,7 @@ static struct dm_rproc_uclass_pdata proc_3_test = {
 	.mem_type = RPROC_INTERNAL_MEMORY_MAPPED,
 };
 
-U_BOOT_DEVICE(proc_3_demo) = {
+U_BOOT_DRVINFO(proc_3_demo) = {
 	.name = "sandbox_test_proc",
 	.plat = &proc_3_test,
 };

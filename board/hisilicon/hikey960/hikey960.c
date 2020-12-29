@@ -32,7 +32,7 @@ static const struct pl01x_serial_plat serial_plat = {
 	.clock = 19200000
 };
 
-U_BOOT_DEVICE(hikey960_serial0) = {
+U_BOOT_DRVINFO(hikey960_serial0) = {
 	.name = "serial_pl01x",
 	.plat = &serial_plat,
 };

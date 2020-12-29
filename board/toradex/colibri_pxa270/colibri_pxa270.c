@@ -133,7 +133,7 @@ static const struct pxa_mmc_plat mmc_plat = {
 	.base = (struct pxa_mmc_regs *)MMC0_BASE,
 };
 
-U_BOOT_DEVICE(pxa_mmcs) = {
+U_BOOT_DRVINFO(pxa_mmcs) = {
 	.name = "pxa_mmc",
 	.plat = &mmc_plat,
 };
@@ -146,7 +146,7 @@ static const struct pxa_serial_plat serial_plat = {
 	.baudrate = CONFIG_BAUDRATE,
 };
 
-U_BOOT_DEVICE(pxa_serials) = {
+U_BOOT_DRVINFO(pxa_serials) = {
 	.name = "serial_pxa",
 	.plat = &serial_plat,
 };

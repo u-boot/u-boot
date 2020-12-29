@@ -104,7 +104,7 @@ enum {
  * particular port or peripheral (essentially a driver instance).
  *
  * A device will come into existence through a 'bind' call, either due to
- * a U_BOOT_DEVICE() macro (in which case plat is non-NULL) or a node
+ * a U_BOOT_DRVINFO() macro (in which case plat is non-NULL) or a node
  * in the device tree (in which case of_offset is >= 0). In the latter case
  * we translate the device tree information into plat in a function
  * implemented by the driver of_to_plat method (called just before the
@@ -293,7 +293,7 @@ struct udevice_id {
  * platform data to be allocated in the device's ->plat pointer.
  * This is typically only useful for device-tree-aware drivers (those with
  * an of_match), since drivers which use plat will have the data
- * provided in the U_BOOT_DEVICE() instantiation.
+ * provided in the U_BOOT_DRVINFO() instantiation.
  * @per_child_auto: Each device can hold private data owned by
  * its parent. If required this will be automatically allocated if this
  * value is non-zero.

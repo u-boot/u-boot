@@ -37,7 +37,7 @@ static const struct ns16550_plat serial_omap_plat = {
 	.fcr = UART_FCR_DEFVAL,
 };
 
-U_BOOT_DEVICE(sniper_serial) = {
+U_BOOT_DRVINFO(sniper_serial) = {
 	.name = "ns16550_serial",
 	.plat = &serial_omap_plat
 };

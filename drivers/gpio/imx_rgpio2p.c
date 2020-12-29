@@ -158,7 +158,7 @@ static int imx_rgpio2p_bind(struct udevice *dev)
 	/*
 	 * If plat already exsits, directly return.
 	 * Actually only when DT is not supported, plat
-	 * is statically initialized in U_BOOT_DEVICES.Here
+	 * is statically initialized in U_BOOT_DRVINFOS.Here
 	 * will return.
 	 */
 	if (plat)
@@ -216,7 +216,7 @@ static const struct imx_rgpio2p_plat imx_plat[] = {
 	{ 5, (struct gpio_regs *)RGPIO2P_GPIO6_BASE_ADDR },
 };
 
-U_BOOT_DEVICES(imx_rgpio2ps) = {
+U_BOOT_DRVINFOS(imx_rgpio2ps) = {
 	{ "imx_rgpio2p", &imx_plat[0] },
 	{ "imx_rgpio2p", &imx_plat[1] },
 	{ "imx_rgpio2p", &imx_plat[2] },

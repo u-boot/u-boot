@@ -398,6 +398,6 @@ U_BOOT_DRIVER(sunxi_dw_hdmi) = {
 	.priv_auto	= sizeof(struct sunxi_dw_hdmi_priv),
 };
 
-U_BOOT_DEVICE(sunxi_dw_hdmi) = {
+U_BOOT_DRVINFO(sunxi_dw_hdmi) = {
 	.name = "sunxi_dw_hdmi"
 };

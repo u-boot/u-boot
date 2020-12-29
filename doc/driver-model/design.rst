@@ -422,7 +422,7 @@ Device Tree
 
 While plat is useful, a more flexible way of providing device data is
 by using device tree. In U-Boot you should use this where possible. Avoid
-sending patches which make use of the U_BOOT_DEVICE() macro unless strictly
+sending patches which make use of the U_BOOT_DRVINFO() macro unless strictly
 necessary.
 
 With device tree we replace the above code with the following device tree
@@ -436,7 +436,7 @@ fragment:
 		sides = <4>;
 	};
 
-This means that instead of having lots of U_BOOT_DEVICE() declarations in
+This means that instead of having lots of U_BOOT_DRVINFO() declarations in
 the board file, we put these in the device tree. This approach allows a lot
 more generality, since the same board file can support many types of boards
 (e,g. with the same SoC) just by using different device trees. An added
@@ -665,9 +665,9 @@ Bind stage
 
 U-Boot discovers devices using one of these two methods:
 
-- Scan the U_BOOT_DEVICE() definitions. U-Boot looks up the name specified
+- Scan the U_BOOT_DRVINFO() definitions. U-Boot looks up the name specified
   by each, to find the appropriate U_BOOT_DRIVER() definition. In this case,
-  there is no path by which driver_data may be provided, but the U_BOOT_DEVICE()
+  there is no path by which driver_data may be provided, but the U_BOOT_DRVINFO()
   may provide plat.
 
 - Scan through the device tree definitions. U-Boot looks at top-level
@@ -685,7 +685,7 @@ driver's bind() method if one is defined.
 At this point all the devices are known, and bound to their drivers. There
 is a 'struct udevice' allocated for all devices. However, nothing has been
 activated (except for the root device). Each bound device that was created
-from a U_BOOT_DEVICE() declaration will hold the plat pointer specified
+from a U_BOOT_DRVINFO() declaration will hold the plat pointer specified
 in that declaration. For a bound device created from the device tree,
 plat will be NULL, but of_offset will be the offset of the device tree
 node that caused the device to be created. The uclass is set correctly for
@@ -726,7 +726,7 @@ The steps are:
    2. If plat_auto is non-zero, then the platform data space
    is allocated. This is only useful for device tree operation, since
    otherwise you would have to specific the platform data in the
-   U_BOOT_DEVICE() declaration. The space is allocated for the device and
+   U_BOOT_DRVINFO() declaration. The space is allocated for the device and
    zeroed. It will be accessible as dev->plat.
 
    3. If the device's uclass specifies a non-zero per_device_auto,
@@ -746,7 +746,7 @@ The steps are:
    do various calls like dev_read_u32(dev, ...) to access the node and store
    the resulting information into dev->plat. After this point, the device
    works the same way whether it was bound using a device tree node or
-   U_BOOT_DEVICE() structure. In either case, the platform data is now stored
+   U_BOOT_DRVINFO() structure. In either case, the platform data is now stored
    in the plat structure. Typically you will use the
    plat_auto feature to specify the size of the platform data
    structure, and U-Boot will automatically allocate and zero it for you before
@@ -855,7 +855,7 @@ remove it. This performs the probe steps in reverse:
    4. The device memory is freed (platform data, private data, uclass data,
    parent data).
 
-   Note: Because the platform data for a U_BOOT_DEVICE() is defined with a
+   Note: Because the platform data for a U_BOOT_DRVINFO() is defined with a
    static pointer, it is not de-allocated during the remove() method. For
    a device instantiated using the device tree data, the platform data will
    be dynamically allocated, and thus needs to be deallocated during the
@@ -931,7 +931,7 @@ property can provide better control granularity on which device is bound
 before relocation. While with DM_FLAG_PRE_RELOC flag of the driver all
 devices with the same driver are bound, which requires allocation a large
 amount of memory. When device tree is not used, DM_FLAG_PRE_RELOC is the
-only way for statically declared devices via U_BOOT_DEVICE() to be bound
+only way for statically declared devices via U_BOOT_DRVINFO() to be bound
 prior to relocation.
 
 It is possible to limit this to specific relocation steps, by using

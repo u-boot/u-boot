@@ -62,7 +62,7 @@ static struct pl01x_serial_plat serial0 = {
 	.type = TYPE_PL011,
 };
 
-U_BOOT_DEVICE(nxp_serial0) = {
+U_BOOT_DRVINFO(nxp_serial0) = {
 	.name = "serial_pl01x",
 	.plat = &serial0,
 };
@@ -72,7 +72,7 @@ static struct pl01x_serial_plat serial1 = {
 	.type = TYPE_PL011,
 };
 
-U_BOOT_DEVICE(nxp_serial1) = {
+U_BOOT_DRVINFO(nxp_serial1) = {
 	.name = "serial_pl01x",
 	.plat = &serial1,
 };

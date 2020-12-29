@@ -56,31 +56,31 @@ struct driver_rt {
  * is not feasible (e.g. serial driver in SPL where <8KB of SRAM is
  * available). U-Boot's driver model uses device tree for configuration.
  *
- * When of-platdata is in use, U_BOOT_DEVICE() cannot be used outside of the
+ * When of-platdata is in use, U_BOOT_DRVINFO() cannot be used outside of the
  * dt-plat.c file created by dtoc
  */
 #if CONFIG_IS_ENABLED(OF_PLATDATA) && !defined(DT_PLATDATA_C)
-#define U_BOOT_DEVICE(__name)	_Static_assert(false, \
-	"Cannot use U_BOOT_DEVICE with of-platdata. Please use devicetree instead")
+#define U_BOOT_DRVINFO(__name)	_Static_assert(false, \
+	"Cannot use U_BOOT_DRVINFO with of-platdata. Please use devicetree instead")
 #else
-#define U_BOOT_DEVICE(__name)						\
+#define U_BOOT_DRVINFO(__name)						\
 	ll_entry_declare(struct driver_info, __name, driver_info)
 #endif
 
 /* Declare a list of devices. The argument is a driver_info[] array */
-#define U_BOOT_DEVICES(__name)						\
+#define U_BOOT_DRVINFOS(__name)						\
 	ll_entry_declare_list(struct driver_info, __name, driver_info)
 
 /**
  * Get a pointer to a given device info given its name
  *
- * With the declaration U_BOOT_DEVICE(name), DM_GET_DEVICE(name) will return a
+ * With the declaration U_BOOT_DRVINFO(name), DM_GET_DEVICE(name) will return a
  * pointer to the struct driver_info created by that declaration.
  *
  * if OF_PLATDATA is enabled, from this it is possible to use the @dev member of
  * struct driver_info to find the device pointer itself.
  *
- * TODO(sjg@chromium.org): U_BOOT_DEVICE() tells U-Boot to create a device, so
+ * TODO(sjg@chromium.org): U_BOOT_DRVINFO() tells U-Boot to create a device, so
  * the naming seems sensible, but DM_GET_DEVICE() is a bit of misnomer, since it
  * finds the driver_info record, not the device.
  *
@@ -93,7 +93,7 @@ struct driver_rt {
 /**
  * dm_populate_phandle_data() - Populates phandle data in platda
  *
- * This populates phandle data with an U_BOOT_DEVICE entry get by
+ * This populates phandle data with an U_BOOT_DRVINFO entry get by
  * DM_GET_DEVICE. The implementation of this function will be done
  * by dtoc when parsing dtb.
  */

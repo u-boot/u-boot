@@ -713,14 +713,14 @@ class DtbPlatdata():
     def _declare_device(self, var_name, struct_name, node_parent):
         """Add a device declaration to the output
 
-        This declares a U_BOOT_DEVICE() for the device being processed
+        This declares a U_BOOT_DRVINFO() for the device being processed
 
         Args:
             var_name (str): C name for the node
             struct_name (str): Name for the dt struct associated with the node
             node_parent (Node): Parent of the node (or None if none)
         """
-        self.buf('U_BOOT_DEVICE(%s) = {\n' % var_name)
+        self.buf('U_BOOT_DRVINFO(%s) = {\n' % var_name)
         self.buf('\t.name\t\t= "%s",\n' % struct_name)
         self.buf('\t.plat\t= &%s%s,\n' % (VAL_PREFIX, var_name))
         self.buf('\t.plat_size\t= sizeof(%s%s),\n' % (VAL_PREFIX, var_name))
@@ -783,14 +783,14 @@ class DtbPlatdata():
         """Generate device defintions for the platform data
 
         This writes out C platform data initialisation data and
-        U_BOOT_DEVICE() declarations for each valid node. Where a node has
+        U_BOOT_DRVINFO() declarations for each valid node. Where a node has
         multiple compatible strings, a #define is used to make them equivalent.
 
         See the documentation in doc/driver-model/of-plat.rst for more
         information.
         """
         self.out_header()
-        self.out('/* Allow use of U_BOOT_DEVICE() in this file */\n')
+        self.out('/* Allow use of U_BOOT_DRVINFO() in this file */\n')
         self.out('#define DT_PLATDATA_C\n')
         self.out('\n')
         self.out('#include <common.h>\n')

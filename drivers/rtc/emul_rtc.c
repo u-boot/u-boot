@@ -91,6 +91,6 @@ U_BOOT_DRIVER(rtc_emul) = {
 	.priv_auto	= sizeof(struct emul_rtc),
 };
 
-U_BOOT_DEVICE(rtc_emul) = {
+U_BOOT_DRVINFO(rtc_emul) = {
 	.name	= "rtc_emul",
 };

@@ -35,7 +35,7 @@ struct uclass_driver *lists_uclass_lookup(enum uclass_id id);
 /**
  * lists_bind_drivers() - search for and bind all drivers to parent
  *
- * This searches the U_BOOT_DEVICE() structures and creates new devices for
+ * This searches the U_BOOT_DRVINFO() structures and creates new devices for
  * each one. The devices will have @parent as their parent.
  *
  * @parent: parent device (root)

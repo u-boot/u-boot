@@ -146,7 +146,7 @@ U_BOOT_DRIVER(sunxi_lcd) = {
 };
 
 #ifdef CONFIG_MACH_SUN50I
-U_BOOT_DEVICE(sunxi_lcd) = {
+U_BOOT_DRVINFO(sunxi_lcd) = {
 	.name = "sunxi_lcd"
 };
 #endif

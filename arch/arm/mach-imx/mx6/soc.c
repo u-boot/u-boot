@@ -44,7 +44,7 @@ static const struct imx_thermal_plat imx6_thermal_plat = {
 	.fuse_word = 6,
 };
 
-U_BOOT_DEVICE(imx6_thermal) = {
+U_BOOT_DRVINFO(imx6_thermal) = {
 	.name = "imx_thermal",
 	.plat = &imx6_thermal_plat,
 };

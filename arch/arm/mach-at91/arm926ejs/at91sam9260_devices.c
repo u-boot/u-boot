@@ -219,7 +219,7 @@ static const struct at91_port_plat at91sam9260_plat[] = {
 	{ ATMEL_BASE_PIOC, "PC" },
 };
 
-U_BOOT_DEVICES(at91sam9260_gpios) = {
+U_BOOT_DRVINFOS(at91sam9260_gpios) = {
 	{ "atmel_at91rm9200_gpio", &at91sam9260_plat[0] },
 	{ "atmel_at91rm9200_gpio", &at91sam9260_plat[1] },
 	{ "atmel_at91rm9200_gpio", &at91sam9260_plat[2] },

@@ -30,7 +30,7 @@ static const struct pl01x_serial_plat serial_plat = {
 	.clock = 2700 * 1000,
 };
 
-U_BOOT_DEVICE(stv09911_serials) = {
+U_BOOT_DRVINFO(stv09911_serials) = {
 	.name = "serial_pl01x",
 	.plat = &serial_plat,
 };

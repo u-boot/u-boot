@@ -54,7 +54,7 @@ static const struct ns16550_plat devkit8000_serial = {
 	.fcr = UART_FCR_DEFVAL,
 };
 
-U_BOOT_DEVICE(devkit8000_uart) = {
+U_BOOT_DRVINFO(devkit8000_uart) = {
 	"ns16550_serial",
 	&devkit8000_serial
 };

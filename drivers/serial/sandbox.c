@@ -241,7 +241,7 @@ static const struct sandbox_serial_plat platdata_non_fdt = {
 	.colour = -1,
 };
 
-U_BOOT_DEVICE(serial_sandbox_non_fdt) = {
+U_BOOT_DRVINFO(serial_sandbox_non_fdt) = {
 	.name = "sandbox_serial",
 	.plat = &platdata_non_fdt,
 };

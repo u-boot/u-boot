@@ -43,17 +43,17 @@ static const struct dm_test_pdata test_pdata_pre_reloc = {
 	.ping_add		= TEST_INTVAL_PRE_RELOC,
 };
 
-U_BOOT_DEVICE(dm_test_info1) = {
+U_BOOT_DRVINFO(dm_test_info1) = {
 	.name = "test_drv",
 	.plat = &test_pdata[0],
 };
 
-U_BOOT_DEVICE(dm_test_info2) = {
+U_BOOT_DRVINFO(dm_test_info2) = {
 	.name = "test_drv",
 	.plat = &test_pdata[1],
 };
 
-U_BOOT_DEVICE(dm_test_info3) = {
+U_BOOT_DRVINFO(dm_test_info3) = {
 	.name = "test_drv",
 	.plat = &test_pdata[2],
 };

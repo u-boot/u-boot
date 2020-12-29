@@ -21,7 +21,7 @@ SoCs require a 16KB SPL image which must include a full MMC stack. In this
 case the overhead of device tree access may be too great.
 
 It is possible to create platform data manually by defining C structures
-for it, and reference that data in a U_BOOT_DEVICE() declaration. This
+for it, and reference that data in a U_BOOT_DRVINFO() declaration. This
 bypasses the use of device tree completely, effectively creating a parallel
 configuration mechanism. But it is an available option for SPL.
 
@@ -79,7 +79,7 @@ SPL/TPL and should be tested with:
 
 A new tool called 'dtoc' converts a device tree file either into a set of
 struct declarations, one for each compatible node, and a set of
-U_BOOT_DEVICE() declarations along with the actual platform data for each
+U_BOOT_DRVINFO() declarations along with the actual platform data for each
 device. As an example, consider this MMC node:
 
 .. code-block:: none
@@ -155,7 +155,7 @@ and the following device declarations:
             .card_detect_delay      = 0xc8,
     };
 
-    U_BOOT_DEVICE(dwmmc_at_ff0c0000) = {
+    U_BOOT_DRVINFO(dwmmc_at_ff0c0000) = {
             .name           = "rockchip_rk3288_dw_mshc",
             .plat       = &dtv_dwmmc_at_ff0c0000,
             .plat_size  = sizeof(dtv_dwmmc_at_ff0c0000),
@@ -178,7 +178,7 @@ platform data in the driver. The of_to_plat() method should
 therefore do nothing in such a driver.
 
 Note that for the platform data to be matched with a driver, the 'name'
-property of the U_BOOT_DEVICE() declaration has to match a driver declared
+property of the U_BOOT_DRVINFO() declaration has to match a driver declared
 via U_BOOT_DRIVER(). This effectively means that a U_BOOT_DRIVER() with a
 'name' corresponding to the devicetree 'compatible' string (after converting
 it to a valid name for C) is needed, so a dedicated driver is required for
@@ -189,7 +189,7 @@ used to declare an alias for a driver name, typically a 'compatible' string.
 This macro produces no code, but it is by dtoc tool.
 
 The parent_idx is the index of the parent driver_info structure within its
-linker list (instantiated by the U_BOOT_DEVICE() macro). This is used to support
+linker list (instantiated by the U_BOOT_DRVINFO() macro). This is used to support
 dev_get_parent(). The dm_populate_phandle_data() is included to allow for
 fix-ups required by dtoc. It is not currently used. The values in 'clocks' are
 the index of the driver_info for the target device followed by any phandle
@@ -339,7 +339,7 @@ prevents them being used inadvertently. All usage must be bracketed with
 The dt-plat.c file contains the device declarations and is is built in
 spl/dt-plat.c. It additionally contains the definition of
 dm_populate_phandle_data() which is responsible of filling the phandle
-information by adding references to U_BOOT_DEVICE by using DM_GET_DEVICE
+information by adding references to U_BOOT_DRVINFO by using DM_GET_DEVICE
 
 The pylibfdt Python module is used to access the devicetree.
 

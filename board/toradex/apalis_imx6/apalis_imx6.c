@@ -1149,7 +1149,7 @@ static struct mxc_serial_plat mxc_serial_plat = {
 	.use_dte = true,
 };
 
-U_BOOT_DEVICE(mxc_serial) = {
+U_BOOT_DRVINFO(mxc_serial) = {
 	.name = "serial_mxc",
 	.plat = &mxc_serial_plat,
 };

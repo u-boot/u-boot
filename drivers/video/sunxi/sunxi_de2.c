@@ -319,7 +319,7 @@ U_BOOT_DRIVER(sunxi_de2) = {
 	.flags	= DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DEVICE(sunxi_de2) = {
+U_BOOT_DRVINFO(sunxi_de2) = {
 	.name = "sunxi_de2"
 };
 

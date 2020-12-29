@@ -372,7 +372,7 @@ static const struct mxc_gpio_plat mxc_plat[] = {
 #endif
 };
 
-U_BOOT_DEVICES(mxc_gpios) = {
+U_BOOT_DRVINFOS(mxc_gpios) = {
 	{ "gpio_mxc", &mxc_plat[0] },
 	{ "gpio_mxc", &mxc_plat[1] },
 	{ "gpio_mxc", &mxc_plat[2] },
