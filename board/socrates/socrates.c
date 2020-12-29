@@ -26,14 +26,12 @@
 #include <fdt_support.h>
 #include <asm/io.h>
 #include <i2c.h>
-#include <mb862xx.h>
 #include <video_fb.h>
 #include "upm_table.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[];	/* FLASH chips info */
-extern GraphicDevice mb862xx;
 
 void local_bus_init (void);
 ulong flash_get_size (ulong base, int banknum);
@@ -206,16 +204,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	val[i++] = 0;				/* always 0 */
 	val[i++] = gd->bd->bi_flashstart;
 	val[i++] = gd->bd->bi_flashsize;
-
-#if defined(CONFIG_VIDEO_MB862xx)
-	if (mb862xx.frameAdrs == CONFIG_SYS_LIME_BASE) {
-		/* Fixup LIME mapping */
-		val[i++] = 2;			/* chip select number */
-		val[i++] = 0;			/* always 0 */
-		val[i++] = CONFIG_SYS_LIME_BASE;
-		val[i++] = CONFIG_SYS_LIME_SIZE;
-	}
-#endif
 
 	/* Fixup FPGA mapping */
 	val[i++] = 3;				/* chip select number */
