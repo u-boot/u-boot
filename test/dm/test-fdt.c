@@ -1152,3 +1152,83 @@ static int dm_test_ofdata_order(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofdata_order, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Test dev_decode_display_timing() */
+static int dm_test_decode_display_timing(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct display_timing timing;
+
+	ut_assertok(uclass_first_device_err(UCLASS_TEST_FDT, &dev));
+	ut_asserteq_str("a-test", dev->name);
+
+	ut_assertok(dev_decode_display_timing(dev, 0, &timing));
+	ut_assert(timing.hactive.typ == 240);
+	ut_assert(timing.hback_porch.typ == 7);
+	ut_assert(timing.hfront_porch.typ == 6);
+	ut_assert(timing.hsync_len.typ == 1);
+	ut_assert(timing.vactive.typ == 320);
+	ut_assert(timing.vback_porch.typ == 5);
+	ut_assert(timing.vfront_porch.typ == 8);
+	ut_assert(timing.vsync_len.typ == 2);
+	ut_assert(timing.pixelclock.typ == 6500000);
+	ut_assert(timing.flags & DISPLAY_FLAGS_HSYNC_HIGH);
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_HSYNC_LOW));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_VSYNC_HIGH));
+	ut_assert(timing.flags & DISPLAY_FLAGS_VSYNC_LOW);
+	ut_assert(timing.flags & DISPLAY_FLAGS_DE_HIGH);
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_DE_LOW));
+	ut_assert(timing.flags & DISPLAY_FLAGS_PIXDATA_POSEDGE);
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE));
+	ut_assert(timing.flags & DISPLAY_FLAGS_INTERLACED);
+	ut_assert(timing.flags & DISPLAY_FLAGS_DOUBLESCAN);
+	ut_assert(timing.flags & DISPLAY_FLAGS_DOUBLECLK);
+
+	ut_assertok(dev_decode_display_timing(dev, 1, &timing));
+	ut_assert(timing.hactive.typ == 480);
+	ut_assert(timing.hback_porch.typ == 59);
+	ut_assert(timing.hfront_porch.typ == 10);
+	ut_assert(timing.hsync_len.typ == 12);
+	ut_assert(timing.vactive.typ == 800);
+	ut_assert(timing.vback_porch.typ == 15);
+	ut_assert(timing.vfront_porch.typ == 17);
+	ut_assert(timing.vsync_len.typ == 16);
+	ut_assert(timing.pixelclock.typ == 9000000);
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_HSYNC_HIGH));
+	ut_assert(timing.flags & DISPLAY_FLAGS_HSYNC_LOW);
+	ut_assert(timing.flags & DISPLAY_FLAGS_VSYNC_HIGH);
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_VSYNC_LOW));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_DE_HIGH));
+	ut_assert(timing.flags & DISPLAY_FLAGS_DE_LOW);
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_PIXDATA_POSEDGE));
+	ut_assert(timing.flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE);
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_INTERLACED));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_DOUBLESCAN));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_DOUBLECLK));
+
+	ut_assertok(dev_decode_display_timing(dev, 2, &timing));
+	ut_assert(timing.hactive.typ == 800);
+	ut_assert(timing.hback_porch.typ == 89);
+	ut_assert(timing.hfront_porch.typ == 164);
+	ut_assert(timing.hsync_len.typ == 11);
+	ut_assert(timing.vactive.typ == 480);
+	ut_assert(timing.vback_porch.typ == 23);
+	ut_assert(timing.vfront_porch.typ == 10);
+	ut_assert(timing.vsync_len.typ == 13);
+	ut_assert(timing.pixelclock.typ == 33500000);
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_HSYNC_HIGH));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_HSYNC_LOW));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_VSYNC_HIGH));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_VSYNC_LOW));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_DE_HIGH));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_DE_LOW));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_PIXDATA_POSEDGE));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_INTERLACED));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_DOUBLESCAN));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_DOUBLECLK));
+
+	ut_assert(dev_decode_display_timing(dev, 3, &timing));
+	return 0;
+}
+DM_TEST(dm_test_decode_display_timing, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
