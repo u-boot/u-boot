@@ -237,12 +237,12 @@ class DtbPlatdata():
         file.
 
         Args:
-            fname (str): Filename to send output to, or '-' for stdout
+            fname (str): Filename to send output to, or None for stdout
         """
-        if fname == '-':
-            self._outfile = sys.stdout
-        else:
+        if fname:
             self._outfile = open(fname, 'w')
+        else:
+            self._outfile = sys.stdout
 
     def out(self, line):
         """Output a string to the output file
@@ -765,7 +765,7 @@ def run_steps(args, dtb_file, include_disabled, output, warning_disabled=False,
         args (list): List of non-option arguments provided to the problem
         dtb_file (str): Filename of dtb file to process
         include_disabled (bool): True to include disabled nodes
-        output (str): Name of output file
+        output (str): Name of output file (None for stdout)
         warning_disabled (bool): True to avoid showing warnings about missing
             drivers
         drivers_additional (list): List of additional drivers to use during

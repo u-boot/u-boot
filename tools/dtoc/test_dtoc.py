@@ -875,7 +875,7 @@ U_BOOT_DEVICE(spl_test2) = {
         """Test output to stdout"""
         dtb_file = get_dtb_file('dtoc_test_simple.dts')
         with test_util.capture_sys_output() as _:
-            self.run_test(['struct'], dtb_file, '-')
+            self.run_test(['struct'], dtb_file, None)
 
     def test_no_command(self):
         """Test running dtoc without a command"""

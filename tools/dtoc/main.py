@@ -91,7 +91,7 @@ parser.add_option('-d', '--dtb-file', action='store',
                   help='Specify the .dtb input file')
 parser.add_option('--include-disabled', action='store_true',
                   help='Include disabled nodes')
-parser.add_option('-o', '--output', action='store', default='-',
+parser.add_option('-o', '--output', action='store',
                   help='Select output filename')
 parser.add_option('-P', '--processes', type=int,
                   help='set number of processes to use for running tests')
