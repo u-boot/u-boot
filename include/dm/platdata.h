@@ -74,27 +74,23 @@ struct driver_rt {
 /**
  * Get a pointer to a given device info given its name
  *
- * With the declaration U_BOOT_DRVINFO(name), DM_GET_DEVICE(name) will return a
+ * With the declaration U_BOOT_DRVINFO(name), DM_DRVINFO_GET(name) will return a
  * pointer to the struct driver_info created by that declaration.
  *
  * if OF_PLATDATA is enabled, from this it is possible to use the @dev member of
  * struct driver_info to find the device pointer itself.
  *
- * TODO(sjg@chromium.org): U_BOOT_DRVINFO() tells U-Boot to create a device, so
- * the naming seems sensible, but DM_GET_DEVICE() is a bit of misnomer, since it
- * finds the driver_info record, not the device.
- *
  * @__name: Driver name (C identifier, not a string. E.g. gpio7_at_ff7e0000)
  * @return struct driver_info * to the driver that created the device
  */
-#define DM_GET_DEVICE(__name)						\
+#define DM_DRVINFO_GET(__name)						\
 	ll_entry_get(struct driver_info, __name, driver_info)
 
 /**
  * dm_populate_phandle_data() - Populates phandle data in platda
  *
  * This populates phandle data with an U_BOOT_DRVINFO entry get by
- * DM_GET_DEVICE. The implementation of this function will be done
+ * DM_DRVINFO_GET. The implementation of this function will be done
  * by dtoc when parsing dtb.
  */
 void dm_populate_phandle_data(void);

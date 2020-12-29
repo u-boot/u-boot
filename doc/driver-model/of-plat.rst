@@ -339,7 +339,7 @@ prevents them being used inadvertently. All usage must be bracketed with
 The dt-plat.c file contains the device declarations and is is built in
 spl/dt-plat.c. It additionally contains the definition of
 dm_populate_phandle_data() which is responsible of filling the phandle
-information by adding references to U_BOOT_DRVINFO by using DM_GET_DEVICE
+information by adding references to U_BOOT_DRVINFO by using DM_DRVINFO_GET
 
 The pylibfdt Python module is used to access the devicetree.
 
