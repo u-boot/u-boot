@@ -422,17 +422,6 @@ U_BOOT_DRVINFO(phandle3_target) = {
 \t.parent_idx\t= -1,
 };
 
-/* Node /phandle-target index 4 */
-static struct dtd_target dtv_phandle_target = {
-\t.intval\t\t\t= 0x0,
-};
-U_BOOT_DRVINFO(phandle_target) = {
-\t.name\t\t= "target",
-\t.plat\t= &dtv_phandle_target,
-\t.plat_size\t= sizeof(dtv_phandle_target),
-\t.parent_idx\t= -1,
-};
-
 /* Node /phandle-source index 2 */
 static struct dtd_source dtv_phandle_source = {
 \t.clocks\t\t\t= {
@@ -457,6 +446,17 @@ U_BOOT_DRVINFO(phandle_source2) = {
 \t.name\t\t= "source",
 \t.plat\t= &dtv_phandle_source2,
 \t.plat_size\t= sizeof(dtv_phandle_source2),
+\t.parent_idx\t= -1,
+};
+
+/* Node /phandle-target index 4 */
+static struct dtd_target dtv_phandle_target = {
+\t.intval\t\t\t= 0x0,
+};
+U_BOOT_DRVINFO(phandle_target) = {
+\t.name\t\t= "target",
+\t.plat\t= &dtv_phandle_target,
+\t.plat_size\t= sizeof(dtv_phandle_target),
 \t.parent_idx\t= -1,
 };
 
@@ -488,16 +488,6 @@ struct dtd_target {
         with open(output) as infile:
             data = infile.read()
         self._check_strings(C_HEADER + '''
-/* Node /phandle-target index 1 */
-static struct dtd_target dtv_phandle_target = {
-};
-U_BOOT_DRVINFO(phandle_target) = {
-\t.name\t\t= "target",
-\t.plat\t= &dtv_phandle_target,
-\t.plat_size\t= sizeof(dtv_phandle_target),
-\t.parent_idx\t= -1,
-};
-
 /* Node /phandle-source2 index 0 */
 static struct dtd_source dtv_phandle_source2 = {
 \t.clocks\t\t\t= {
@@ -507,6 +497,16 @@ U_BOOT_DRVINFO(phandle_source2) = {
 \t.name\t\t= "source",
 \t.plat\t= &dtv_phandle_source2,
 \t.plat_size\t= sizeof(dtv_phandle_source2),
+\t.parent_idx\t= -1,
+};
+
+/* Node /phandle-target index 1 */
+static struct dtd_target dtv_phandle_target = {
+};
+U_BOOT_DRVINFO(phandle_target) = {
+\t.name\t\t= "target",
+\t.plat\t= &dtv_phandle_target,
+\t.plat_size\t= sizeof(dtv_phandle_target),
 \t.parent_idx\t= -1,
 };
 
@@ -544,17 +544,6 @@ U_BOOT_DRVINFO(phandle3_target) = {
 \t.parent_idx\t= -1,
 };
 
-/* Node /phandle-target index 4 */
-static struct dtd_target dtv_phandle_target = {
-\t.intval\t\t\t= 0x0,
-};
-U_BOOT_DRVINFO(phandle_target) = {
-\t.name\t\t= "target",
-\t.plat\t= &dtv_phandle_target,
-\t.plat_size\t= sizeof(dtv_phandle_target),
-\t.parent_idx\t= -1,
-};
-
 /* Node /phandle-source index 2 */
 static struct dtd_source dtv_phandle_source = {
 \t.cd_gpios\t\t= {
@@ -579,6 +568,17 @@ U_BOOT_DRVINFO(phandle_source2) = {
 \t.name\t\t= "source",
 \t.plat\t= &dtv_phandle_source2,
 \t.plat_size\t= sizeof(dtv_phandle_source2),
+\t.parent_idx\t= -1,
+};
+
+/* Node /phandle-target index 4 */
+static struct dtd_target dtv_phandle_target = {
+\t.intval\t\t\t= 0x0,
+};
+U_BOOT_DRVINFO(phandle_target) = {
+\t.name\t\t= "target",
+\t.plat\t= &dtv_phandle_target,
+\t.plat_size\t= sizeof(dtv_phandle_target),
 \t.parent_idx\t= -1,
 };
 
