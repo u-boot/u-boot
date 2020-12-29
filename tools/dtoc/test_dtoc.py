@@ -12,18 +12,14 @@ tool.
 import collections
 import glob
 import os
-import shutil
 import struct
-import tempfile
 import unittest
-from unittest import mock
 
 from dtb_platdata import get_value
 from dtb_platdata import tab_to
 from dtoc import dtb_platdata
 from dtoc import fdt
 from dtoc import fdt_util
-from dtoc import src_scan
 from dtoc.src_scan import conv_name_to_c
 from dtoc.src_scan import get_compat_name
 from patman import test_util
@@ -904,44 +900,6 @@ U_BOOT_DRVINFO(spl_test2) = {
         self.assertIn("Unknown command 'invalid-cmd': (use: platdata, struct)",
                       str(exc.exception))
 
-    @staticmethod
-    def test_scan_drivers():
-        """Test running dtoc with additional drivers to scan"""
-        dtb_file = get_dtb_file('dtoc_test_simple.dts')
-        output = tools.GetOutputFilename('output')
-        with test_util.capture_sys_output() as _:
-            dtb_platdata.run_steps(
-                ['struct'], dtb_file, False, output, [], True,
-                [None, '', 'tools/dtoc/dtoc_test_scan_drivers.cxx'])
-
-    @staticmethod
-    def test_unicode_error():
-        """Test running dtoc with an invalid unicode file
-
-        To be able to perform this test without adding a weird text file which
-        would produce issues when using checkpatch.pl or patman, generate the
-        file at runtime and then process it.
-        """
-        dtb_file = get_dtb_file('dtoc_test_simple.dts')
-        output = tools.GetOutputFilename('output')
-        driver_fn = '/tmp/' + next(tempfile._get_candidate_names())
-        with open(driver_fn, 'wb+') as fout:
-            fout.write(b'\x81')
-
-        with test_util.capture_sys_output() as _:
-            dtb_platdata.run_steps(['struct'], dtb_file, False, output, [],
-                                   True, [driver_fn])
-
-    def test_driver(self):
-        """Test the Driver class"""
-        drv1 = src_scan.Driver('fred')
-        drv2 = src_scan.Driver('mary')
-        drv3 = src_scan.Driver('fred')
-        self.assertEqual("Driver(name='fred')", str(drv1))
-        self.assertEqual(drv1, drv3)
-        self.assertNotEqual(drv1, drv2)
-        self.assertNotEqual(drv2, drv3)
-
     def test_output_conflict(self):
         """Test a conflict between and output dirs and output file"""
         with self.assertRaises(ValueError) as exc:
@@ -969,34 +927,3 @@ U_BOOT_DRVINFO(spl_test2) = {
         self.assertEqual(
             {'dt-structs-gen.h', 'source.dts', 'dt-plat.c', 'source.dtb'},
             leafs)
-
-    def test_scan_dirs(self):
-        """Test scanning of source directories"""
-        def add_file(fname):
-            pathname = os.path.join(indir, fname)
-            dirname = os.path.dirname(pathname)
-            os.makedirs(dirname, exist_ok=True)
-            tools.WriteFile(pathname, '', binary=False)
-            fname_list.append(pathname)
-
-        try:
-            outdir = tools.GetOutputDir()
-            indir = tempfile.mkdtemp(prefix='dtoc.')
-            dtb_file = get_dtb_file('dtoc_test_simple.dts')
-
-            fname_list = []
-            add_file('fname.c')
-            add_file('dir/fname2.c')
-
-            # Mock out scan_driver and check that it is called with the
-            # expected files
-            with mock.patch.object(src_scan.Scanner, "scan_driver")  as mocked:
-                dtb_platdata.run_steps(['all'], dtb_file, False, None, [outdir],
-                                       True, basedir=indir)
-            self.assertEqual(2, len(mocked.mock_calls))
-            self.assertEqual(mock.call(fname_list[0]),
-                             mocked.mock_calls[0])
-            self.assertEqual(mock.call(fname_list[1]),
-                             mocked.mock_calls[1])
-        finally:
-            shutil.rmtree(indir)

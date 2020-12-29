@@ -78,11 +78,11 @@ class Scanner:
             key: Driver alias declared with
                 DM_DRIVER_ALIAS(driver_alias, driver_name)
             value: Driver name declared with U_BOOT_DRIVER(driver_name)
+        _warning_disabled: true to disable warnings about driver names not found
         _drivers_additional (list or str): List of additional drivers to use
             during scanning
-        _warning_disabled: true to disable warnings about driver names not found
     """
-    def __init__(self, basedir, drivers_additional, warning_disabled):
+    def __init__(self, basedir, warning_disabled, drivers_additional):
         """Set up a new Scanner
         """
         if not basedir:

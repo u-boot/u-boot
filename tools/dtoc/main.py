@@ -46,7 +46,8 @@ def run_tests(processes, args):
         args: List of positional args provided to dtoc. This can hold a test
             name to execute (as in 'dtoc -t test_empty_file', for example)
     """
-    import test_dtoc
+    from dtoc import test_src_scan
+    from dtoc import test_dtoc
 
     result = unittest.TestResult()
     sys.argv = [sys.argv[0]]
@@ -55,7 +56,7 @@ def run_tests(processes, args):
     test_util.RunTestSuites(
         result, debug=True, verbosity=1, test_preserve_dirs=False,
         processes=processes, test_name=test_name, toolpath=[],
-        test_class_list=[test_dtoc.TestDtoc,])
+        test_class_list=[test_dtoc.TestDtoc,test_src_scan.TestSrcScan])
 
     return test_util.ReportResult('binman', test_name, result)
 

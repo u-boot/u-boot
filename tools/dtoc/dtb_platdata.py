@@ -695,7 +695,7 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs,
     if output and output_dirs and any(output_dirs):
         raise ValueError('Must specify either output or output_dirs, not both')
 
-    scan = src_scan.Scanner(basedir, drivers_additional, warning_disabled)
+    scan = src_scan.Scanner(basedir, warning_disabled, drivers_additional)
     plat = DtbPlatdata(scan, dtb_file, include_disabled)
     scan.scan_drivers()
     plat.scan_dtb()
