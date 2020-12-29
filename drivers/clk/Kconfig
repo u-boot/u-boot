@@ -179,6 +179,7 @@ source "drivers/clk/renesas/Kconfig"
 source "drivers/clk/sunxi/Kconfig"
 source "drivers/clk/sifive/Kconfig"
 source "drivers/clk/tegra/Kconfig"
+source "drivers/clk/ti/Kconfig"
 source "drivers/clk/uniphier/Kconfig"
 
 config ICS8N3QV01

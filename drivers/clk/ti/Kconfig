@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0+
+#
+# Copyright (C) 2020 Dario Binacchi <dariobin@libero.it>
+#
+
+config CLK_TI_MUX
+	bool "TI mux clock driver"
+	depends on CLK && OF_CONTROL && CLK_CCF
+	help
+	  This enables the mux clock driver support on TI's SoCs.

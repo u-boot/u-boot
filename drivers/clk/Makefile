@@ -14,6 +14,7 @@ obj-$(CONFIG_$(SPL_TPL_)CLK_COMPOSITE_CCF) += clk-composite.o
 obj-y += analogbits/
 obj-y += imx/
 obj-y += tegra/
+obj-y += ti/
 obj-$(CONFIG_ARCH_ASPEED) += aspeed/
 obj-$(CONFIG_ARCH_MEDIATEK) += mediatek/
 obj-$(CONFIG_ARCH_MTMIPS) += mtmips/
