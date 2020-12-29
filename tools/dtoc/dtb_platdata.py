@@ -199,6 +199,7 @@ class DtbPlatdata():
                     value: dict containing structure fields:
                         key (str): Field name
                         value: Prop object with field information
+        _basedir (str): Base directory of source tree
     """
     def __init__(self, dtb_fname, include_disabled, warning_disabled,
                  drivers_additional=None):
@@ -214,6 +215,7 @@ class DtbPlatdata():
         self._drivers_additional = drivers_additional or []
         self._dirnames = [None] * len(Ftype)
         self._struct_data = collections.OrderedDict()
+        self._basedir = None
 
     def get_normalized_compat_name(self, node):
         """Get a node's normalized compat name
@@ -439,15 +441,17 @@ class DtbPlatdata():
                     continue
                 self._driver_aliases[alias[1]] = alias[0]
 
-    def scan_drivers(self):
+    def scan_drivers(self, basedir=None):
         """Scan the driver folders to build a list of driver names and aliases
 
         This procedure will populate self._drivers and self._driver_aliases
 
         """
-        basedir = sys.argv[0].replace('tools/dtoc/dtoc', '')
-        if basedir == '':
-            basedir = './'
+        if not basedir:
+            basedir = sys.argv[0].replace('tools/dtoc/dtoc', '')
+            if basedir == '':
+                basedir = './'
+        self._basedir = basedir
         for (dirpath, _, filenames) in os.walk(basedir):
             for fname in filenames:
                 if not fname.endswith('.c'):
@@ -831,7 +835,7 @@ OUTPUT_FILES = {
 
 
 def run_steps(args, dtb_file, include_disabled, output, output_dirs,
-              warning_disabled=False, drivers_additional=None):
+              warning_disabled=False, drivers_additional=None, basedir=None):
     """Run all the steps of the dtoc tool
 
     Args:
@@ -846,6 +850,8 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs,
             drivers
         drivers_additional (list): List of additional drivers to use during
             scanning
+        basedir (str): Base directory of U-Boot source code. Defaults to the
+            grandparent of this file's directory
     Raises:
         ValueError: if args has no command, or an unknown command
     """
@@ -856,7 +862,7 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs,
 
     plat = DtbPlatdata(dtb_file, include_disabled, warning_disabled,
                        drivers_additional)
-    plat.scan_drivers()
+    plat.scan_drivers(basedir)
     plat.scan_dtb()
     plat.scan_tree()
     plat.scan_reg_sizes()

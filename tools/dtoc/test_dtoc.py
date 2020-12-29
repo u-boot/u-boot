@@ -12,9 +12,11 @@ tool.
 import collections
 import glob
 import os
+import shutil
 import struct
 import tempfile
 import unittest
+from unittest import mock
 
 from dtb_platdata import conv_name_to_c
 from dtb_platdata import get_compat_name
@@ -981,3 +983,35 @@ U_BOOT_DRVINFO(spl_test2) = {
         self.assertEqual(
             {'dt-structs-gen.h', 'source.dts', 'dt-plat.c', 'source.dtb'},
             leafs)
+
+    def test_scan_dirs(self):
+        """Test scanning of source directories"""
+        def add_file(fname):
+            pathname = os.path.join(indir, fname)
+            dirname = os.path.dirname(pathname)
+            os.makedirs(dirname, exist_ok=True)
+            tools.WriteFile(pathname, '', binary=False)
+            fname_list.append(pathname)
+
+        try:
+            outdir = tools.GetOutputDir()
+            indir = tempfile.mkdtemp(prefix='dtoc.')
+            dtb_file = get_dtb_file('dtoc_test_simple.dts')
+
+            fname_list = []
+            add_file('fname.c')
+            add_file('dir/fname2.c')
+
+            # Mock out scan_driver and check that it is called with the
+            # expected files
+            with mock.patch.object(dtb_platdata.DtbPlatdata, "scan_driver") \
+                    as mocked:
+                dtb_platdata.run_steps(['all'], dtb_file, False, None, [outdir],
+                                       True, basedir=indir)
+            self.assertEqual(2, len(mocked.mock_calls))
+            self.assertEqual(mock.call(fname_list[0]),
+                             mocked.mock_calls[0])
+            self.assertEqual(mock.call(fname_list[1]),
+                             mocked.mock_calls[1])
+        finally:
+            shutil.rmtree(indir)
