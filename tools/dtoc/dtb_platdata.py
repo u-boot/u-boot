@@ -59,7 +59,7 @@ class Ftype(IntEnum):
 # fname: Filename excluding directory, e.g. 'dt-plat.c'
 # hdr_comment: Comment explaining the purpose of the file
 OutputFile = collections.namedtuple('OutputFile',
-                                    ['ftype', 'fname', 'hdr_comment'])
+                                    ['ftype', 'fname', 'method', 'hdr_comment'])
 
 # This holds information about a property which includes phandles.
 #
@@ -194,6 +194,11 @@ class DtbPlatdata():
         _drivers_additional: List of additional drivers to use during scanning
         _dirname: Directory to hold output files, or None for none (all files
             go to stdout)
+        _struct_data (dict): OrderedDict of dtplat structures to output
+            key (str): Node name, as a C identifier
+                    value: dict containing structure fields:
+                        key (str): Field name
+                        value: Prop object with field information
     """
     def __init__(self, dtb_fname, include_disabled, warning_disabled,
                  drivers_additional=None):
@@ -208,6 +213,7 @@ class DtbPlatdata():
         self._driver_aliases = {}
         self._drivers_additional = drivers_additional or []
         self._dirnames = [None] * len(Ftype)
+        self._struct_data = collections.OrderedDict()
 
     def get_normalized_compat_name(self, node):
         """Get a node's normalized compat name
@@ -570,14 +576,9 @@ class DtbPlatdata():
         Once the widest property is determined, all other properties are
         updated to match that width.
 
-        Returns:
-            dict of dict: dict containing structures:
-                key (str): Node name, as a C identifier
-                value: dict containing structure fields:
-                    key (str): Field name
-                    value: Prop object with field information
+        The results are written to self._struct_data
         """
-        structs = collections.OrderedDict()
+        structs = self._struct_data
         for node in self._valid_nodes:
             node_name, _ = self.get_normalized_compat_name(node)
             fields = {}
@@ -608,8 +609,6 @@ class DtbPlatdata():
                 if name not in PROP_IGNORE_LIST and name[0] != '#':
                     prop.Widen(struct[name])
 
-        return structs
-
     def scan_phandles(self):
         """Figure out what phandles each node uses
 
@@ -638,21 +637,14 @@ class DtbPlatdata():
                         pos += 1 + args
 
 
-    def generate_structs(self, structs):
+    def generate_structs(self):
         """Generate struct defintions for the platform data
 
         This writes out the body of a header file consisting of structure
         definitions for node in self._valid_nodes. See the documentation in
         doc/driver-model/of-plat.rst for more information.
-
-        Args:
-            structs (dict): dict containing structures:
-                key (str): Node name, as a C identifier
-                value: dict containing structure fields:
-                    key (str): Field name
-                    value: Prop object with field information
-
         """
+        structs = self._struct_data
         self.out('#include <stdbool.h>\n')
         self.out('#include <linux/libfdt.h>\n')
 
@@ -785,7 +777,7 @@ class DtbPlatdata():
 
         self.out(''.join(self.get_buf()))
 
-    def generate_tables(self):
+    def generate_plat(self):
         """Generate device defintions for the platform data
 
         This writes out C platform data initialisation data and
@@ -830,9 +822,10 @@ class DtbPlatdata():
 OUTPUT_FILES = {
     'struct':
         OutputFile(Ftype.HEADER, 'dt-structs-gen.h',
+                   DtbPlatdata.generate_structs,
                    'Defines the structs used to hold devicetree data'),
     'platdata':
-        OutputFile(Ftype.SOURCE, 'dt-plat.c',
+        OutputFile(Ftype.SOURCE, 'dt-plat.c', DtbPlatdata.generate_plat,
                    'Declares the U_BOOT_DRIVER() records and platform data'),
     }
 
@@ -868,7 +861,7 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs,
     plat.scan_tree()
     plat.scan_reg_sizes()
     plat.setup_output_dirs(output_dirs)
-    structs = plat.scan_structs()
+    plat.scan_structs()
     plat.scan_phandles()
 
     cmds = args[0].split(',')
@@ -882,8 +875,5 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs,
         plat.setup_output(outfile.ftype,
                           outfile.fname if output_dirs else output)
         plat.out_header(outfile)
-        if cmd == 'struct':
-            plat.generate_structs(structs)
-        elif cmd == 'platdata':
-            plat.generate_tables()
+        outfile.method(plat)
     plat.finish_output()
