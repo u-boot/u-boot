@@ -306,7 +306,7 @@ int gpio_hog_probe_all(void)
 	for (uclass_first_device(UCLASS_NOP, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
-		if (dev->driver == DM_GET_DRIVER(gpio_hog)) {
+		if (dev->driver == DM_DRIVER_GET(gpio_hog)) {
 			ret = device_probe(dev);
 			if (ret) {
 				printf("Failed to probe device %s err: %d\n",

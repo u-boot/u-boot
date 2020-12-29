@@ -617,7 +617,7 @@ int soc_clk_dump(void)
 	int i, ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_CLK,
-		DM_GET_DRIVER(zynqmp_clk), &dev);
+		DM_DRIVER_GET(zynqmp_clk), &dev);
 	if (ret)
 		return ret;
 

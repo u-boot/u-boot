@@ -343,7 +343,7 @@ int g_dnl_board_usb_cable_connected(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_USB_GADGET_GENERIC,
-					  DM_GET_DRIVER(dwc2_udc_otg),
+					  DM_DRIVER_GET(dwc2_udc_otg),
 					  &dwc2_udc_otg);
 	if (!ret)
 		debug("dwc2_udc_otg init failed\n");
@@ -475,11 +475,11 @@ static void sysconf_init(void)
 	 *      but this value need to be consistent with board design
 	 */
 	ret = uclass_get_device_by_driver(UCLASS_PMIC,
-					  DM_GET_DRIVER(stm32mp_pwr_pmic),
+					  DM_DRIVER_GET(stm32mp_pwr_pmic),
 					  &pwr_dev);
 	if (!ret) {
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(stm32mp_bsec),
+						  DM_DRIVER_GET(stm32mp_bsec),
 						  &dev);
 		if (ret) {
 			pr_err("Can't find stm32mp_bsec driver\n");

@@ -91,7 +91,7 @@ static int do_cpld(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_SYSRESET,
-					  DM_GET_DRIVER(sysreset_renesas_ulcb),
+					  DM_DRIVER_GET(sysreset_renesas_ulcb),
 					  &dev);
 	if (ret)
 		return ret;

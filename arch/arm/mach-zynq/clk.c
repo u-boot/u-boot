@@ -40,7 +40,7 @@ int set_cpu_clk_info(void)
 	int i, ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_CLK,
-		DM_GET_DRIVER(zynq_clk), &dev);
+		DM_DRIVER_GET(zynq_clk), &dev);
 	if (ret)
 		return ret;
 
@@ -75,7 +75,7 @@ int soc_clk_dump(void)
 	int i, ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_CLK,
-		DM_GET_DRIVER(zynq_clk), &dev);
+		DM_DRIVER_GET(zynq_clk), &dev);
 	if (ret)
 		return ret;
 

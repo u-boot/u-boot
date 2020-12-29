@@ -111,7 +111,7 @@ void board_nand_init(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_MTD,
-					  DM_GET_DRIVER(bcm6368_nand), &dev);
+					  DM_DRIVER_GET(bcm6368_nand), &dev);
 	if (ret && ret != -ENODEV)
 		pr_err("Failed to initialize %s. (error %d)\n", dev->name,
 		       ret);

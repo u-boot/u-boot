@@ -264,7 +264,7 @@ int uclass_get_device_by_phandle(enum uclass_id id, struct udevice *parent,
  * uclass_get_device_by_driver() - Get a uclass device for a driver
  *
  * This searches the devices in the uclass for one that uses the given
- * driver. Use DM_GET_DRIVER(name) for the @drv argument, where 'name' is
+ * driver. Use DM_DRIVER_GET(name) for the @drv argument, where 'name' is
  * the driver name - as used in U_BOOT_DRIVER(name).
  *
  * The device is probed to activate it ready for use.

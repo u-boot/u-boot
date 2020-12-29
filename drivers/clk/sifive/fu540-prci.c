@@ -537,7 +537,7 @@ static int __prci_consumer_reset(const char *rst_name, bool trigger)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_RESET,
-					  DM_GET_DRIVER(sifive_reset),
+					  DM_DRIVER_GET(sifive_reset),
 					  &dev);
 	if (ret) {
 		dev_err(dev, "Reset driver not found: %d\n", ret);

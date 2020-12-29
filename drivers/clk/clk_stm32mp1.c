@@ -2253,7 +2253,7 @@ int soc_clk_dump(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_CLK,
-					  DM_GET_DRIVER(stm32mp1_clock),
+					  DM_DRIVER_GET(stm32mp1_clock),
 					  &dev);
 	if (ret)
 		return ret;

@@ -335,7 +335,7 @@ struct driver {
 	ll_entry_declare(struct driver, __name, driver)
 
 /* Get a pointer to a given driver */
-#define DM_GET_DRIVER(__name)						\
+#define DM_DRIVER_GET(__name)						\
 	ll_entry_get(struct driver, __name, driver)
 
 /**

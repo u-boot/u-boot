@@ -219,7 +219,7 @@ static int do_lgset(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_DISPLAY,
-					  DM_GET_DRIVER(lg4573_lcd), &dev);
+					  DM_DRIVER_GET(lg4573_lcd), &dev);
 	if (ret) {
 		printf("%s: Could not get lg4573 device\n", __func__);
 		return ret;

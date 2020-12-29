@@ -25,7 +25,7 @@ int riscv_init_ipi(void)
 	struct udevice *dev;
 
 	ret = uclass_get_device_by_driver(UCLASS_TIMER,
-					  DM_GET_DRIVER(sifive_clint), &dev);
+					  DM_DRIVER_GET(sifive_clint), &dev);
 	if (ret)
 		return ret;
 

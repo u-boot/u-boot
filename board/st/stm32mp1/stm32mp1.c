@@ -116,7 +116,7 @@ int checkboard(void)
 	/* display the STMicroelectronics board identification */
 	if (CONFIG_IS_ENABLED(CMD_STBOARD)) {
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(stm32mp_bsec),
+						  DM_DRIVER_GET(stm32mp_bsec),
 						  &dev);
 		if (!ret)
 			ret = misc_read(dev, STM32_BSEC_SHADOW(BSEC_OTP_BOARD),
@@ -196,7 +196,7 @@ int g_dnl_board_usb_cable_connected(void)
 		return ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_USB_GADGET_GENERIC,
-					  DM_GET_DRIVER(dwc2_udc_otg),
+					  DM_DRIVER_GET(dwc2_udc_otg),
 					  &dwc2_udc_otg);
 	if (!ret)
 		debug("dwc2_udc_otg init failed\n");
@@ -464,11 +464,11 @@ static void sysconf_init(void)
 	 *      but this value need to be consistent with board design
 	 */
 	ret = uclass_get_device_by_driver(UCLASS_PMIC,
-					  DM_GET_DRIVER(stm32mp_pwr_pmic),
+					  DM_DRIVER_GET(stm32mp_pwr_pmic),
 					  &pwr_dev);
 	if (!ret && IS_ENABLED(CONFIG_DM_REGULATOR)) {
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(stm32mp_bsec),
+						  DM_DRIVER_GET(stm32mp_bsec),
 						  &dev);
 		if (ret) {
 			pr_err("Can't find stm32mp_bsec driver\n");
@@ -618,7 +618,7 @@ static void board_ev1_init(void)
 	struct udevice *dev;
 
 	/* configure IRQ line on EV1 for touchscreen before LCD reset */
-	uclass_get_device_by_driver(UCLASS_NOP, DM_GET_DRIVER(goodix), &dev);
+	uclass_get_device_by_driver(UCLASS_NOP, DM_DRIVER_GET(goodix), &dev);
 }
 
 /* board dependent setup after realloc */
@@ -680,7 +680,7 @@ int board_late_init(void)
 			}
 		}
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(stm32mp_bsec),
+						  DM_DRIVER_GET(stm32mp_bsec),
 						  &dev);
 
 		if (!ret)

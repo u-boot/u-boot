@@ -2233,14 +2233,14 @@ void board_nand_init(void)
 
 	if (IS_ENABLED(CONFIG_NAND_OCTEONTX_HW_ECC)) {
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(octeontx_pci_bchpf),
+						  DM_DRIVER_GET(octeontx_pci_bchpf),
 						  &dev);
 		if (ret && ret != -ENODEV) {
 			pr_err("Failed to initialize OcteonTX BCH PF controller. (error %d)\n",
 			       ret);
 		}
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(octeontx_pci_bchvf),
+						  DM_DRIVER_GET(octeontx_pci_bchvf),
 						  &dev);
 		if (ret && ret != -ENODEV) {
 			pr_err("Failed to initialize OcteonTX BCH VF controller. (error %d)\n",
@@ -2249,7 +2249,7 @@ void board_nand_init(void)
 	}
 
 	ret = uclass_get_device_by_driver(UCLASS_MTD,
-					  DM_GET_DRIVER(octeontx_pci_nand),
+					  DM_DRIVER_GET(octeontx_pci_nand),
 					  &dev);
 	if (ret && ret != -ENODEV)
 		pr_err("Failed to initialize OcteonTX NAND controller. (error %d)\n",
