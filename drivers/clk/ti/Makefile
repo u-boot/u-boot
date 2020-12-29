@@ -10,3 +10,4 @@ obj-$(CONFIG_CLK_TI_CTRL) += clk-ctrl.o
 obj-$(CONFIG_CLK_TI_DIVIDER) += clk-divider.o
 obj-$(CONFIG_CLK_TI_GATE) += clk-gate.o
 obj-$(CONFIG_CLK_TI_MUX) += clk-mux.o
+obj-$(CONFIG_CLK_TI_SCI) += clk-sci.o

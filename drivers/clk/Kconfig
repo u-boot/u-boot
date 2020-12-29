@@ -98,14 +98,6 @@ config CLK_STM32F
 	  This clock driver adds support for RCC clock management
 	  for STM32F4 and STM32F7 SoCs.
 
-config CLK_TI_SCI
-	bool "TI System Control Interface (TI SCI) clock driver"
-	depends on CLK && TI_SCI_PROTOCOL && OF_CONTROL
-	help
-	  This enables the clock driver support over TI System Control Interface
-	  available on some new TI's SoCs. If you wish to use clock resources
-	  managed by the TI System Controller, say Y here. Otherwise, say N.
-
 config CLK_HSDK
 	bool "Enable cgu clock driver for HSDK boards"
 	depends on CLK && TARGET_HSDK
