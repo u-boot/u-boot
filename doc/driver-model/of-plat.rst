@@ -184,7 +184,7 @@ via U_BOOT_DRIVER(). This effectively means that a U_BOOT_DRIVER() with a
 it to a valid name for C) is needed, so a dedicated driver is required for
 each 'compatible' string.
 
-In order to make this a bit more flexible U_BOOT_DRIVER_ALIAS macro can be
+In order to make this a bit more flexible DM_DRIVER_ALIAS macro can be
 used to declare an alias for a driver name, typically a 'compatible' string.
 This macro produces no code, but it is by dtoc tool.
 
@@ -195,7 +195,7 @@ fix-ups required by dtoc. It is not currently used. The values in 'clocks' are
 the index of the driver_info for the target device followed by any phandle
 arguments. This is used to support device_get_by_driver_info_idx().
 
-During the build process dtoc parses both U_BOOT_DRIVER and U_BOOT_DRIVER_ALIAS
+During the build process dtoc parses both U_BOOT_DRIVER and DM_DRIVER_ALIAS
 to build a list of valid driver names and driver aliases. If the 'compatible'
 string used for a device does not not match a valid driver name, it will be
 checked against the list of driver aliases in order to get the right driver
@@ -297,7 +297,7 @@ For example:
             .plat_auto = sizeof(struct mmc_plat),
     };
 
-    U_BOOT_DRIVER_ALIAS(mmc_drv, vendor_mmc) /* matches compatible string */
+    DM_DRIVER_ALIAS(mmc_drv, vendor_mmc) /* matches compatible string */
 
 Note that struct mmc_plat is defined in the C file, not in a header. This
 is to avoid needing to include dt-structs.h in a header file. The idea is to

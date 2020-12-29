@@ -327,7 +327,7 @@ U_BOOT_DRIVER(sandbox_gpio) = {
 	ACPI_OPS_PTR(&gpio_sandbox_acpi_ops)
 };
 
-U_BOOT_DRIVER_ALIAS(sandbox_gpio, sandbox_gpio_alias)
+DM_DRIVER_ALIAS(sandbox_gpio, sandbox_gpio_alias)
 
 /* pincontrol: used only to check GPIO pin configuration (pinmux command) */
 

@@ -493,4 +493,4 @@ U_BOOT_DRIVER(fsl_imx23_spi) = {
 	.probe	= mxs_spi_probe,
 };
 
-U_BOOT_DRIVER_ALIAS(fsl_imx23_spi, fsl_imx28_spi)
+DM_DRIVER_ALIAS(fsl_imx23_spi, fsl_imx28_spi)

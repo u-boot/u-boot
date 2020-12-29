@@ -170,6 +170,6 @@ U_BOOT_DRIVER(jedec_spi_nor) = {
 	.ops		= &spi_flash_std_ops,
 };
 
-U_BOOT_DRIVER_ALIAS(jedec_spi_nor, spansion_m25p16)
+DM_DRIVER_ALIAS(jedec_spi_nor, spansion_m25p16)
 
 #endif /* CONFIG_DM_SPI_FLASH */

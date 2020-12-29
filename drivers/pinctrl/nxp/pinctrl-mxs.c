@@ -192,4 +192,4 @@ U_BOOT_DRIVER(fsl_imx23_pinctrl) = {
 	.ops = &mxs_pinctrl_ops,
 };
 
-U_BOOT_DRIVER_ALIAS(fsl_imx23_pinctrl, fsl_imx28_pinctrl)
+DM_DRIVER_ALIAS(fsl_imx23_pinctrl, fsl_imx28_pinctrl)

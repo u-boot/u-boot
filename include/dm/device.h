@@ -343,7 +343,7 @@ struct driver {
  * produce no code but its information will be parsed by tools like
  * dtoc
  */
-#define U_BOOT_DRIVER_ALIAS(__name, __alias)
+#define DM_DRIVER_ALIAS(__name, __alias)
 
 /**
  * dev_get_plat() - Get the platform data for a device

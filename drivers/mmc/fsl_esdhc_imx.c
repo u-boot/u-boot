@@ -1711,5 +1711,5 @@ U_BOOT_DRIVER(fsl_esdhc) = {
 	.priv_auto	= sizeof(struct fsl_esdhc_priv),
 };
 
-U_BOOT_DRIVER_ALIAS(fsl_esdhc, fsl_imx6q_usdhc)
+DM_DRIVER_ALIAS(fsl_esdhc, fsl_imx6q_usdhc)
 #endif

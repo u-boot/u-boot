@@ -306,5 +306,5 @@ U_BOOT_DRIVER(fsl_imx23_gpio) = {
 #endif
 };
 
-U_BOOT_DRIVER_ALIAS(fsl_imx23_gpio, fsl_imx28_gpio)
+DM_DRIVER_ALIAS(fsl_imx23_gpio, fsl_imx28_gpio)
 #endif /* DM_GPIO */

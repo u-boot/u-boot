@@ -187,7 +187,7 @@ class DtbPlatdata():
             value: Driver for that driver
         _driver_aliases: Dict that holds aliases for driver names
             key: Driver alias declared with
-                U_BOOT_DRIVER_ALIAS(driver_alias, driver_name)
+                DM_DRIVER_ALIAS(driver_alias, driver_name)
             value: Driver name declared with U_BOOT_DRIVER(driver_name)
         _drivers_additional: List of additional drivers to use during scanning
         _dirname: Directory to hold output files, or None for none (all files
@@ -416,9 +416,9 @@ class DtbPlatdata():
                 self._drivers[driver] = Driver(driver)
 
             # The following re will search for driver aliases declared as
-            # U_BOOT_DRIVER_ALIAS(alias, driver_name)
+            # DM_DRIVER_ALIAS(alias, driver_name)
             driver_aliases = re.findall(
-                r'U_BOOT_DRIVER_ALIAS\(\s*(\w+)\s*,\s*(\w+)\s*\)',
+                r'DM_DRIVER_ALIAS\(\s*(\w+)\s*,\s*(\w+)\s*\)',
                 buff)
 
             for alias in driver_aliases: # pragma: no cover

@@ -345,7 +345,7 @@ U_BOOT_DRIVER(gpio_mxc) = {
 	.bind	= mxc_gpio_bind,
 };
 
-U_BOOT_DRIVER_ALIAS(gpio_mxc, fsl_imx6q_gpio)
+DM_DRIVER_ALIAS(gpio_mxc, fsl_imx6q_gpio)
 
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct mxc_gpio_plat mxc_plat[] = {

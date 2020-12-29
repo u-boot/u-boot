@@ -565,4 +565,4 @@ U_BOOT_DRIVER(rockchip_rk3288_spi) = {
 	.probe	= rockchip_spi_probe,
 };
 
-U_BOOT_DRIVER_ALIAS(rockchip_rk3288_spi, rockchip_rk3368_spi)
+DM_DRIVER_ALIAS(rockchip_rk3288_spi, rockchip_rk3368_spi)

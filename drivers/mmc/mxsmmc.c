@@ -722,5 +722,5 @@ U_BOOT_DRIVER(fsl_imx23_mmc) = {
 	.plat_auto	= sizeof(struct mxsmmc_plat),
 };
 
-U_BOOT_DRIVER_ALIAS(fsl_imx23_mmc, fsl_imx28_mmc)
+DM_DRIVER_ALIAS(fsl_imx23_mmc, fsl_imx28_mmc)
 #endif /* CONFIG_DM_MMC */
