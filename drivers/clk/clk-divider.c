@@ -28,8 +28,8 @@
 
 #define UBOOT_DM_CLK_CCF_DIVIDER "ccf_clk_divider"
 
-static unsigned int _get_table_div(const struct clk_div_table *table,
-				   unsigned int val)
+unsigned int clk_divider_get_table_div(const struct clk_div_table *table,
+				       unsigned int val)
 {
 	const struct clk_div_table *clkt;
 
@@ -49,7 +49,7 @@ static unsigned int _get_div(const struct clk_div_table *table,
 	if (flags & CLK_DIVIDER_MAX_AT_ZERO)
 		return val ? val : clk_div_mask(width) + 1;
 	if (table)
-		return _get_table_div(table, val);
+		return clk_divider_get_table_div(table, val);
 	return val + 1;
 }
 
@@ -89,8 +89,8 @@ static ulong clk_divider_recalc_rate(struct clk *clk)
 				   divider->flags, divider->width);
 }
 
-static bool _is_valid_table_div(const struct clk_div_table *table,
-				unsigned int div)
+bool clk_divider_is_valid_table_div(const struct clk_div_table *table,
+				    unsigned int div)
 {
 	const struct clk_div_table *clkt;
 
@@ -100,18 +100,18 @@ static bool _is_valid_table_div(const struct clk_div_table *table,
 	return false;
 }
 
-static bool _is_valid_div(const struct clk_div_table *table, unsigned int div,
-			  unsigned long flags)
+bool clk_divider_is_valid_div(const struct clk_div_table *table,
+			      unsigned int div, unsigned long flags)
 {
 	if (flags & CLK_DIVIDER_POWER_OF_TWO)
 		return is_power_of_2(div);
 	if (table)
-		return _is_valid_table_div(table, div);
+		return clk_divider_is_valid_table_div(table, div);
 	return true;
 }
 
-static unsigned int _get_table_val(const struct clk_div_table *table,
-				   unsigned int div)
+unsigned int clk_divider_get_table_val(const struct clk_div_table *table,
+				       unsigned int div)
 {
 	const struct clk_div_table *clkt;
 
@@ -131,7 +131,7 @@ static unsigned int _get_val(const struct clk_div_table *table,
 	if (flags & CLK_DIVIDER_MAX_AT_ZERO)
 		return (div == clk_div_mask(width) + 1) ? 0 : div;
 	if (table)
-		return  _get_table_val(table, div);
+		return clk_divider_get_table_val(table, div);
 	return div - 1;
 }
 int divider_get_val(unsigned long rate, unsigned long parent_rate,
@@ -142,7 +142,7 @@ int divider_get_val(unsigned long rate, unsigned long parent_rate,
 
 	div = DIV_ROUND_UP_ULL((u64)parent_rate, rate);
 
-	if (!_is_valid_div(table, div, flags))
+	if (!clk_divider_is_valid_div(table, div, flags))
 		return -EINVAL;
 
 	value = _get_val(table, div, flags, width);

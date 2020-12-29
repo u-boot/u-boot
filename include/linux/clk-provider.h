@@ -76,6 +76,19 @@ struct clk_mux {
 extern const struct clk_ops clk_mux_ops;
 u8 clk_mux_get_parent(struct clk *clk);
 
+/**
+ * clk_mux_index_to_val() - Convert the parent index to the register value
+ *
+ * It returns the value to write in the hardware register to output the selected
+ * input clock parent.
+ *
+ * @table: array of register values corresponding to the parent index (optional)
+ * @flags: hardware-specific flags
+ * @index: parent clock index
+ * @return the register value
+ */
+unsigned int clk_mux_index_to_val(u32 *table, unsigned int flags, u8 index);
+
 struct clk_gate {
 	struct clk	clk;
 	void __iomem	*reg;
@@ -125,6 +138,50 @@ struct clk_divider {
 #define CLK_DIVIDER_READ_ONLY		BIT(5)
 #define CLK_DIVIDER_MAX_AT_ZERO		BIT(6)
 extern const struct clk_ops clk_divider_ops;
+
+/**
+ * clk_divider_get_table_div() - convert the register value to the divider
+ *
+ * @table:  array of register values corresponding to valid dividers
+ * @val: value to convert
+ * @return the divider
+ */
+unsigned int clk_divider_get_table_div(const struct clk_div_table *table,
+				       unsigned int val);
+
+/**
+ * clk_divider_get_table_val() - convert the divider to the register value
+ *
+ * It returns the value to write in the hardware register to divide the input
+ * clock rate by @div.
+ *
+ * @table: array of register values corresponding to valid dividers
+ * @div: requested divider
+ * @return the register value
+ */
+unsigned int clk_divider_get_table_val(const struct clk_div_table *table,
+				       unsigned int div);
+
+/**
+ * clk_divider_is_valid_div() - check if the divider is valid
+ *
+ * @table: array of valid dividers (optional)
+ * @div: divider to check
+ * @flags: hardware-specific flags
+ * @return true if the divider is valid, false otherwise
+ */
+bool clk_divider_is_valid_div(const struct clk_div_table *table,
+			      unsigned int div, unsigned long flags);
+
+/**
+ * clk_divider_is_valid_table_div - check if the divider is in the @table array
+ *
+ * @table: array of valid dividers
+ * @div: divider to check
+ * @return true if the divider is found in the @table array, false otherwise
+ */
+bool clk_divider_is_valid_table_div(const struct clk_div_table *table,
+				    unsigned int div);
 unsigned long divider_recalc_rate(struct clk *hw, unsigned long parent_rate,
 				  unsigned int val,
 				  const struct clk_div_table *table,
