@@ -188,14 +188,7 @@ class TestDtoc(unittest.TestCase):
         self.assertEqual(C_HEADER.splitlines() + [''] +
                          C_EMPTY_POPULATE_PHANDLE_DATA.splitlines(), lines)
 
-    def test_simple(self):
-        """Test output from some simple nodes with various types of data"""
-        dtb_file = get_dtb_file('dtoc_test_simple.dts')
-        output = tools.GetOutputFilename('output')
-        self.run_test(['struct'], dtb_file, output)
-        with open(output) as infile:
-            data = infile.read()
-        self._check_strings(HEADER + '''
+    struct_text = HEADER + '''
 struct dtd_sandbox_i2c_test {
 };
 struct dtd_sandbox_pmic_test {
@@ -214,12 +207,9 @@ struct dtd_sandbox_spl_test {
 \tconst char *\tstringarray[3];
 \tconst char *\tstringval;
 };
-''', data)
+'''
 
-        self.run_test(['platdata'], dtb_file, output)
-        with open(output) as infile:
-            data = infile.read()
-        self._check_strings(C_HEADER + '''
+    platdata_text = C_HEADER + '''
 /* Node /i2c@0 index 0 */
 static struct dtd_sandbox_i2c_test dtv_i2c_at_0 = {
 };
@@ -294,7 +284,23 @@ U_BOOT_DEVICE(spl_test3) = {
 \t.parent_idx\t= -1,
 };
 
-''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
+''' + C_EMPTY_POPULATE_PHANDLE_DATA
+
+    def test_simple(self):
+        """Test output from some simple nodes with various types of data"""
+        dtb_file = get_dtb_file('dtoc_test_simple.dts')
+        output = tools.GetOutputFilename('output')
+        self.run_test(['struct'], dtb_file, output)
+        with open(output) as infile:
+            data = infile.read()
+
+        self._check_strings(self.struct_text, data)
+
+        self.run_test(['platdata'], dtb_file, output)
+        with open(output) as infile:
+            data = infile.read()
+
+        self._check_strings(self.platdata_text, data)
 
     def test_driver_alias(self):
         """Test output from a device tree file with a driver alias"""
@@ -874,8 +880,9 @@ U_BOOT_DEVICE(spl_test2) = {
     def test_stdout(self):
         """Test output to stdout"""
         dtb_file = get_dtb_file('dtoc_test_simple.dts')
-        with test_util.capture_sys_output() as _:
+        with test_util.capture_sys_output() as (stdout, _):
             self.run_test(['struct'], dtb_file, None)
+        self._check_strings(self.struct_text, stdout.getvalue())
 
     def test_no_command(self):
         """Test running dtoc without a command"""
