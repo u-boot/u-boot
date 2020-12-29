@@ -162,9 +162,6 @@ and the following device declarations:
             .parent_idx     = -1,
     };
 
-    void dm_populate_phandle_data(void) {
-    }
-
 The device is then instantiated at run-time and the platform data can be
 accessed using:
 
@@ -190,10 +187,7 @@ This macro produces no code, but it is by dtoc tool.
 
 The parent_idx is the index of the parent driver_info structure within its
 linker list (instantiated by the U_BOOT_DRVINFO() macro). This is used to support
-dev_get_parent(). The dm_populate_phandle_data() is included to allow for
-fix-ups required by dtoc. It is not currently used. The values in 'clocks' are
-the index of the driver_info for the target device followed by any phandle
-arguments. This is used to support device_get_by_driver_info_idx().
+dev_get_parent().
 
 During the build process dtoc parses both U_BOOT_DRIVER and DM_DRIVER_ALIAS
 to build a list of valid driver names and driver aliases. If the 'compatible'
@@ -337,9 +331,11 @@ prevents them being used inadvertently. All usage must be bracketed with
 #if CONFIG_IS_ENABLED(OF_PLATDATA).
 
 The dt-plat.c file contains the device declarations and is is built in
-spl/dt-plat.c. It additionally contains the definition of
-dm_populate_phandle_data() which is responsible of filling the phandle
-information by adding references to U_BOOT_DRVINFO by using DM_DRVINFO_GET
+spl/dt-plat.c.
+
+The dm_populate_phandle_data() function that was previous needed has now been
+removed, since dtoc can address the drivers directly from dt-plat.c and does
+not need to fix up things at runtime.
 
 The pylibfdt Python module is used to access the devicetree.
 

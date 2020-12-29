@@ -56,10 +56,6 @@ C_HEADER = '''/*
 #include <dt-structs.h>
 '''
 
-C_EMPTY_POPULATE_PHANDLE_DATA = '''void dm_populate_phandle_data(void) {
-}
-'''
-
 # This is a test so is allowed to access private things in the module it is
 # testing
 # pylint: disable=W0212
@@ -190,8 +186,7 @@ class TestDtoc(unittest.TestCase):
         self.run_test(['platdata'], dtb_file, output)
         with open(output) as infile:
             lines = infile.read().splitlines()
-        self.assertEqual(C_HEADER.splitlines() + [''] +
-                         C_EMPTY_POPULATE_PHANDLE_DATA.splitlines(), lines)
+        self.assertEqual(C_HEADER.splitlines() + [''], lines)
 
     struct_text = HEADER + '''
 struct dtd_sandbox_i2c_test {
@@ -289,7 +284,7 @@ U_BOOT_DRVINFO(spl_test3) = {
 \t.parent_idx\t= -1,
 };
 
-''' + C_EMPTY_POPULATE_PHANDLE_DATA
+'''
 
     def test_simple(self):
         """Test output from some simple nodes with various types of data"""
@@ -344,8 +339,6 @@ U_BOOT_DRVINFO(gpios_at_0) = {
 \t.parent_idx\t= -1,
 };
 
-void dm_populate_phandle_data(void) {
-}
 ''', data)
 
     def test_invalid_driver(self):
@@ -376,8 +369,6 @@ U_BOOT_DRVINFO(spl_test) = {
 \t.parent_idx\t= -1,
 };
 
-void dm_populate_phandle_data(void) {
-}
 ''', data)
 
     def test_phandle(self):
@@ -460,8 +451,6 @@ U_BOOT_DRVINFO(phandle_target) = {
 \t.parent_idx\t= -1,
 };
 
-void dm_populate_phandle_data(void) {
-}
 ''', data)
 
     def test_phandle_single(self):
@@ -510,8 +499,6 @@ U_BOOT_DRVINFO(phandle_target) = {
 \t.parent_idx\t= -1,
 };
 
-void dm_populate_phandle_data(void) {
-}
 ''', data)
 
     def test_phandle_cd_gpio(self):
@@ -582,8 +569,6 @@ U_BOOT_DRVINFO(phandle_target) = {
 \t.parent_idx\t= -1,
 };
 
-void dm_populate_phandle_data(void) {
-}
 ''', data)
 
     def test_phandle_bad(self):
@@ -662,7 +647,7 @@ U_BOOT_DRVINFO(test3) = {
 \t.parent_idx\t= -1,
 };
 
-''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
+''', data)
 
     def test_addresses32(self):
         """Test output from a node with a 'reg' property with na=1, ns=1"""
@@ -706,7 +691,7 @@ U_BOOT_DRVINFO(test2) = {
 \t.parent_idx\t= -1,
 };
 
-''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
+''', data)
 
     def test_addresses64_32(self):
         """Test output from a node with a 'reg' property with na=2, ns=1"""
@@ -764,7 +749,7 @@ U_BOOT_DRVINFO(test3) = {
 \t.parent_idx\t= -1,
 };
 
-''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
+''', data)
 
     def test_addresses32_64(self):
         """Test output from a node with a 'reg' property with na=1, ns=2"""
@@ -822,7 +807,7 @@ U_BOOT_DRVINFO(test3) = {
 \t.parent_idx\t= -1,
 };
 
-''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
+''', data)
 
     def test_bad_reg(self):
         """Test that a reg property with an invalid type generates an error"""
@@ -885,7 +870,7 @@ U_BOOT_DRVINFO(spl_test2) = {
 \t.parent_idx\t= -1,
 };
 
-''' + C_EMPTY_POPULATE_PHANDLE_DATA, data)
+''', data)
 
     def test_stdout(self):
         """Test output to stdout"""

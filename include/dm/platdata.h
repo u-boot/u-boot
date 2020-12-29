@@ -86,12 +86,4 @@ struct driver_rt {
 #define DM_DRVINFO_GET(__name)						\
 	ll_entry_get(struct driver_info, __name, driver_info)
 
-/**
- * dm_populate_phandle_data() - Populates phandle data in platda
- *
- * This populates phandle data with an U_BOOT_DRVINFO entry get by
- * DM_DRVINFO_GET. The implementation of this function will be done
- * by dtoc when parsing dtb.
- */
-void dm_populate_phandle_data(void);
 #endif
