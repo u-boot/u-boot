@@ -1,0 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * dm8168-evm U-Boot Additions
+ *
+ * Copyright (C) 2020 Dario Binacchi <dariobin@libero.it>
+ */
+
+/ {
+	ocp {
+		u-boot,dm-pre-reloc;
+	};
+};

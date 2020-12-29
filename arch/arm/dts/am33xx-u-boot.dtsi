@@ -13,3 +13,7 @@
 &prcm_clocks {
 	compatible = "simple-bus";
 };
+
+&scm_clocks {
+	compatible = "simple-bus";
+};
