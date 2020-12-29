@@ -7,8 +7,16 @@
 
 #include "am33xx-u-boot.dtsi"
 
-/ {
-	panel {
-		u-boot,dm-pre-reloc;
+&l4_per {
+
+	segment@300000 {
+
+		target-module@e000 {
+			u-boot,dm-pre-reloc;
+
+			lcdc: lcdc@0 {
+				u-boot,dm-pre-reloc;
+			};
+		};
 	};
 };

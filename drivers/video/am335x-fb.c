@@ -15,6 +15,7 @@
 #include <dm.h>
 #include <lcd.h>
 #include <log.h>
+#include <panel.h>
 #include <video.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/hardware.h>
@@ -25,6 +26,7 @@
 #include <linux/delay.h>
 #include <linux/err.h>
 #include "am335x-fb.h"
+#include "tilcdc-panel.h"
 
 #define LCDC_FMAX				200000000
 
@@ -323,7 +325,7 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 
 #else /* CONFIG_DM_VIDEO */
 
-#define FBSIZE(t, p)	(((t)->hactive.typ * (t)->vactive.typ * (p)->bpp) >> 3)
+#define FBSIZE(t, p)	(((t).hactive.typ * (t).vactive.typ * (p).bpp) >> 3)
 
 enum {
 	LCD_MAX_WIDTH		= 2048,
@@ -331,39 +333,8 @@ enum {
 	LCD_MAX_LOG2_BPP	= VIDEO_BPP32,
 };
 
-/**
- * tilcdc_panel_info: Panel parameters
- *
- * @ac_bias: AC Bias Pin Frequency
- * @ac_bias_intrpt: AC Bias Pin Transitions per Interrupt
- * @dma_burst_sz: DMA burst size
- * @bpp: Bits per pixel
- * @fdd: FIFO DMA Request Delay
- * @tft_alt_mode: TFT Alternative Signal Mapping (Only for active)
- * @invert_pxl_clk: Invert pixel clock
- * @sync_edge: Horizontal and Vertical Sync Edge: 0=rising 1=falling
- * @sync_ctrl: Horizontal and Vertical Sync: Control: 0=ignore
- * @raster_order: Raster Data Order Select: 1=Most-to-least 0=Least-to-most
- * @fifo_th: DMA FIFO threshold
- */
-struct tilcdc_panel_info {
-	u32 ac_bias;
-	u32 ac_bias_intrpt;
-	u32 dma_burst_sz;
-	u32 bpp;
-	u32 fdd;
-	bool tft_alt_mode;
-	bool invert_pxl_clk;
-	u32 sync_edge;
-	u32 sync_ctrl;
-	u32 raster_order;
-	u32 fifo_th;
-};
-
 struct am335x_fb_priv {
 	struct am335x_lcdhw *regs;
-	struct tilcdc_panel_info panel;
-	struct display_timing timing;
 };
 
 static int am335x_fb_remove(struct udevice *dev)
@@ -381,16 +352,71 @@ static int am335x_fb_probe(struct udevice *dev)
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct am335x_fb_priv *priv = dev_get_priv(dev);
 	struct am335x_lcdhw *regs = priv->regs;
-	struct tilcdc_panel_info *panel = &priv->panel;
-	struct display_timing *timing = &priv->timing;
+	struct udevice *panel;
+	struct tilcdc_panel_info info;
+	struct display_timing timing;
 	struct cm_dpll *const cmdpll = (struct cm_dpll *)CM_DPLL;
 	u32 reg;
+	int err;
 
 	/* Before relocation we don't need to do anything */
 	if (!(gd->flags & GD_FLG_RELOC))
 		return 0;
 
-	am335x_fb_set_pixel_clk_rate(regs, timing->pixelclock.typ);
+	err = uclass_get_device(UCLASS_PANEL, 0, &panel);
+	if (err) {
+		dev_err(dev, "failed to get panel\n");
+		return err;
+	}
+
+	err = panel_get_display_timing(panel, &timing);
+	if (err) {
+		dev_err(dev, "failed to get display timing\n");
+		return err;
+	}
+
+	if (timing.pixelclock.typ > (LCDC_FMAX / 2)) {
+		dev_err(dev, "invalid display clock-frequency: %d Hz\n",
+			timing.pixelclock.typ);
+		return -EINVAL;
+	}
+
+	if (timing.hactive.typ > LCD_MAX_WIDTH)
+		timing.hactive.typ = LCD_MAX_WIDTH;
+
+	if (timing.vactive.typ > LCD_MAX_HEIGHT)
+		timing.vactive.typ = LCD_MAX_HEIGHT;
+
+	err = tilcdc_panel_get_display_info(panel, &info);
+	if (err) {
+		dev_err(dev, "failed to get panel info\n");
+		return err;
+	}
+
+	switch (info.bpp) {
+	case 16:
+	case 24:
+	case 32:
+		break;
+	default:
+		dev_err(dev, "invalid seting, bpp: %d\n", info.bpp);
+		return -EINVAL;
+	}
+
+	switch (info.dma_burst_sz) {
+	case 1:
+	case 2:
+	case 4:
+	case 8:
+	case 16:
+		break;
+	default:
+		dev_err(dev, "invalid setting, dma-burst-sz: %d\n",
+			info.dma_burst_sz);
+		return -EINVAL;
+	}
+
+	am335x_fb_set_pixel_clk_rate(regs, timing.pixelclock.typ);
 
 	/* clock source for LCDC from dispPLL M2 */
 	writel(0, &cmdpll->clklcdcpixelclk);
@@ -411,14 +437,14 @@ static int am335x_fb_probe(struct udevice *dev)
 	writel(reg, &regs->ctrl);
 
 	writel(uc_plat->base, &regs->lcddma_fb0_base);
-	writel(uc_plat->base + FBSIZE(timing, panel),
+	writel(uc_plat->base + FBSIZE(timing, info),
 	       &regs->lcddma_fb0_ceiling);
 	writel(uc_plat->base, &regs->lcddma_fb1_base);
-	writel(uc_plat->base + FBSIZE(timing, panel),
+	writel(uc_plat->base + FBSIZE(timing, info),
 	       &regs->lcddma_fb1_ceiling);
 
-	reg = LCDC_DMA_CTRL_FIFO_TH(panel->fifo_th);
-	switch (panel->dma_burst_sz) {
+	reg = LCDC_DMA_CTRL_FIFO_TH(info.fifo_th);
+	switch (info.dma_burst_sz) {
 	case 1:
 		reg |= LCDC_DMA_CTRL_BURST_SIZE(LCDC_DMA_CTRL_BURST_1);
 		break;
@@ -438,155 +464,84 @@ static int am335x_fb_probe(struct udevice *dev)
 
 	writel(reg, &regs->lcddma_ctrl);
 
-	writel(LCDC_RASTER_TIMING_0_HORLSB(timing->hactive.typ) |
-	       LCDC_RASTER_TIMING_0_HORMSB(timing->hactive.typ) |
-	       LCDC_RASTER_TIMING_0_HFPLSB(timing->hfront_porch.typ) |
-	       LCDC_RASTER_TIMING_0_HBPLSB(timing->hback_porch.typ) |
-	       LCDC_RASTER_TIMING_0_HSWLSB(timing->hsync_len.typ),
+	writel(LCDC_RASTER_TIMING_0_HORLSB(timing.hactive.typ) |
+	       LCDC_RASTER_TIMING_0_HORMSB(timing.hactive.typ) |
+	       LCDC_RASTER_TIMING_0_HFPLSB(timing.hfront_porch.typ) |
+	       LCDC_RASTER_TIMING_0_HBPLSB(timing.hback_porch.typ) |
+	       LCDC_RASTER_TIMING_0_HSWLSB(timing.hsync_len.typ),
 	       &regs->raster_timing0);
 
-	writel(LCDC_RASTER_TIMING_1_VBP(timing->vback_porch.typ) |
-	       LCDC_RASTER_TIMING_1_VFP(timing->vfront_porch.typ) |
-	       LCDC_RASTER_TIMING_1_VSW(timing->vsync_len.typ) |
-	       LCDC_RASTER_TIMING_1_VERLSB(timing->vactive.typ),
+	writel(LCDC_RASTER_TIMING_1_VBP(timing.vback_porch.typ) |
+	       LCDC_RASTER_TIMING_1_VFP(timing.vfront_porch.typ) |
+	       LCDC_RASTER_TIMING_1_VSW(timing.vsync_len.typ) |
+	       LCDC_RASTER_TIMING_1_VERLSB(timing.vactive.typ),
 	       &regs->raster_timing1);
 
-	reg = LCDC_RASTER_TIMING_2_ACB(panel->ac_bias) |
-		LCDC_RASTER_TIMING_2_ACBI(panel->ac_bias_intrpt) |
-		LCDC_RASTER_TIMING_2_HSWMSB(timing->hsync_len.typ) |
-		LCDC_RASTER_TIMING_2_VERMSB(timing->vactive.typ) |
-		LCDC_RASTER_TIMING_2_HBPMSB(timing->hback_porch.typ) |
-		LCDC_RASTER_TIMING_2_HFPMSB(timing->hfront_porch.typ);
+	reg = LCDC_RASTER_TIMING_2_ACB(info.ac_bias) |
+		LCDC_RASTER_TIMING_2_ACBI(info.ac_bias_intrpt) |
+		LCDC_RASTER_TIMING_2_HSWMSB(timing.hsync_len.typ) |
+		LCDC_RASTER_TIMING_2_VERMSB(timing.vactive.typ) |
+		LCDC_RASTER_TIMING_2_HBPMSB(timing.hback_porch.typ) |
+		LCDC_RASTER_TIMING_2_HFPMSB(timing.hfront_porch.typ);
 
-	if (timing->flags & DISPLAY_FLAGS_VSYNC_LOW)
+	if (timing.flags & DISPLAY_FLAGS_VSYNC_LOW)
 		reg |= LCDC_RASTER_TIMING_2_VSYNC_INVERT;
 
-	if (timing->flags & DISPLAY_FLAGS_HSYNC_LOW)
+	if (timing.flags & DISPLAY_FLAGS_HSYNC_LOW)
 		reg |= LCDC_RASTER_TIMING_2_HSYNC_INVERT;
 
-	if (panel->invert_pxl_clk)
+	if (info.invert_pxl_clk)
 		reg |= LCDC_RASTER_TIMING_2_PXCLK_INVERT;
 
-	if (panel->sync_edge)
+	if (info.sync_edge)
 		reg |= LCDC_RASTER_TIMING_2_HSVS_RISEFALL;
 
-	if (panel->sync_ctrl)
+	if (info.sync_ctrl)
 		reg |= LCDC_RASTER_TIMING_2_HSVS_CONTROL;
 
 	writel(reg, &regs->raster_timing2);
 
 	reg = LCDC_RASTER_CTRL_PALMODE_RAWDATA | LCDC_RASTER_CTRL_TFT_MODE |
-		LCDC_RASTER_CTRL_ENABLE | LCDC_RASTER_CTRL_REQDLY(panel->fdd);
+		LCDC_RASTER_CTRL_ENABLE | LCDC_RASTER_CTRL_REQDLY(info.fdd);
 
-	if (panel->tft_alt_mode)
+	if (info.tft_alt_mode)
 		reg |= LCDC_RASTER_CTRL_TFT_ALT_ENABLE;
 
-	if (panel->bpp == 24)
+	if (info.bpp == 24)
 		reg |= LCDC_RASTER_CTRL_TFT_24BPP_MODE;
-	else if (panel->bpp == 32)
+	else if (info.bpp == 32)
 		reg |= LCDC_RASTER_CTRL_TFT_24BPP_MODE |
 			LCDC_RASTER_CTRL_TFT_24BPP_UNPACK;
 
-	if (panel->raster_order)
+	if (info.raster_order)
 		reg |= LCDC_RASTER_CTRL_DATA_ORDER;
 
 	writel(reg, &regs->raster_ctrl);
 
-	uc_priv->xsize = timing->hactive.typ;
-	uc_priv->ysize = timing->vactive.typ;
-	uc_priv->bpix = log_2_n_round_up(panel->bpp);
+	uc_priv->xsize = timing.hactive.typ;
+	uc_priv->ysize = timing.vactive.typ;
+	uc_priv->bpix = log_2_n_round_up(info.bpp);
+
+	err = panel_enable_backlight(panel);
+	if (err) {
+		dev_err(dev, "failed to enable panel backlight\n");
+		return err;
+	}
+
 	return 0;
 }
 
-static int am335x_fb_of_to_plat(struct udevice *dev)
+static int am335x_fb_ofdata_to_platdata(struct udevice *dev)
 {
 	struct am335x_fb_priv *priv = dev_get_priv(dev);
-	struct tilcdc_panel_info *panel = &priv->panel;
-	struct display_timing *timing = &priv->timing;
-	ofnode node;
-	int err;
 
-	node = ofnode_by_compatible(ofnode_null(), "ti,am33xx-tilcdc");
-	if (!ofnode_valid(node)) {
-		dev_err(dev, "missing 'ti,am33xx-tilcdc' node\n");
-		return -ENXIO;
+	priv->regs = (struct am335x_lcdhw *)dev_read_addr(dev);
+	if ((fdt_addr_t)priv->regs == FDT_ADDR_T_NONE) {
+		dev_err(dev, "failed to get base address\n");
+		return -EINVAL;
 	}
 
-	priv->regs = (struct am335x_lcdhw *)ofnode_get_addr(node);
 	dev_dbg(dev, "LCD: base address=0x%x\n", (unsigned int)priv->regs);
-
-	err = ofnode_decode_display_timing(dev_ofnode(dev), 0, timing);
-	if (err) {
-		dev_err(dev, "failed to get display timing\n");
-		return err;
-	}
-
-	if (timing->pixelclock.typ > (LCDC_FMAX / 2)) {
-		dev_err(dev, "invalid display clock-frequency: %d Hz\n",
-			timing->pixelclock.typ);
-		return -EINVAL;
-	}
-
-	if (timing->hactive.typ > LCD_MAX_WIDTH)
-		timing->hactive.typ = LCD_MAX_WIDTH;
-
-	if (timing->vactive.typ > LCD_MAX_HEIGHT)
-		timing->vactive.typ = LCD_MAX_HEIGHT;
-
-	node = ofnode_find_subnode(dev_ofnode(dev), "panel-info");
-	if (!ofnode_valid(node)) {
-		dev_err(dev, "missing 'panel-info' node\n");
-		return -ENXIO;
-	}
-
-	err |= ofnode_read_u32(node, "ac-bias", &panel->ac_bias);
-	err |= ofnode_read_u32(node, "ac-bias-intrpt", &panel->ac_bias_intrpt);
-	err |= ofnode_read_u32(node, "dma-burst-sz", &panel->dma_burst_sz);
-	err |= ofnode_read_u32(node, "bpp", &panel->bpp);
-	err |= ofnode_read_u32(node, "fdd", &panel->fdd);
-	err |= ofnode_read_u32(node, "sync-edge", &panel->sync_edge);
-	err |= ofnode_read_u32(node, "sync-ctrl", &panel->sync_ctrl);
-	err |= ofnode_read_u32(node, "raster-order", &panel->raster_order);
-	err |= ofnode_read_u32(node, "fifo-th", &panel->fifo_th);
-	if (err) {
-		dev_err(dev, "failed to get panel info\n");
-		return err;
-	}
-
-	switch (panel->bpp) {
-	case 16:
-	case 24:
-	case 32:
-		break;
-	default:
-		dev_err(dev, "invalid seting, bpp: %d\n", panel->bpp);
-		return -EINVAL;
-	}
-
-	switch (panel->dma_burst_sz) {
-	case 1:
-	case 2:
-	case 4:
-	case 8:
-	case 16:
-		break;
-	default:
-		dev_err(dev, "invalid setting, dma-burst-sz: %d\n",
-			panel->dma_burst_sz);
-		return -EINVAL;
-	}
-
-	/* optional */
-	panel->tft_alt_mode = ofnode_read_bool(node, "tft-alt-mode");
-	panel->invert_pxl_clk = ofnode_read_bool(node, "invert-pxl-clk");
-
-	dev_dbg(dev, "LCD: %dx%d, bpp=%d, clk=%d Hz\n", timing->hactive.typ,
-		timing->vactive.typ, panel->bpp, timing->pixelclock.typ);
-	dev_dbg(dev, "     hbp=%d, hfp=%d, hsw=%d\n", timing->hback_porch.typ,
-		timing->hfront_porch.typ, timing->hsync_len.typ);
-	dev_dbg(dev, "     vbp=%d, vfp=%d, vsw=%d\n", timing->vback_porch.typ,
-		timing->vfront_porch.typ, timing->vsync_len.typ);
-
 	return 0;
 }
 
@@ -602,7 +557,7 @@ static int am335x_fb_bind(struct udevice *dev)
 }
 
 static const struct udevice_id am335x_fb_ids[] = {
-	{ .compatible = "ti,tilcdc,panel" },
+	{ .compatible = "ti,am33xx-tilcdc" },
 	{ }
 };
 
