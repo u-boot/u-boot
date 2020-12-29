@@ -20,11 +20,6 @@
 	};
 
 	ocp {
-		uart0: serial@44e09000 {
-			pinctrl-names = "default";
-			pinctrl-0 = <&uart0_pins>;
-			status = "okay";
-		};
 
 		i2c0: i2c@44e0b000 {
 			pinctrl-names = "default";
@@ -110,6 +105,12 @@
 
 &timer3 {
 	status = "disabled";
+};
+
+&uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart0_pins>;
+	status = "okay";
 };
 
 &uart4 {
