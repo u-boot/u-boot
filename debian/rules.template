@@ -1,0 +1,102 @@
+#!/usr/bin/make -f
+
+BINDIR := debian/tmp
+CERTDIR := ../crts
+CONFIG := tiago_defconfig
+DTB := arch/arm/dts/imx6ull-tiago.dtb
+
+MAKEOVERRIDES := UBOOTRELEASE=VERSION
+
+.DELETE_ON_ERROR:
+
+# cst has race conditions... ugh
+.NOTPARALLEL:
+
+%: ;
+
+.PHONY: config
+config:
+	$(MAKE) $(CONFIG)
+
+tools/mkimage: config
+	$(MAKE) tools
+
+$(DTB): config
+	$(MAKE) dtbs
+
+dts/dt-withkey.dtb: $(DTB) board/seco/tiago/dummy.its tools/mkimage
+	cp $< $@
+	tools/mkimage -f board/seco/tiago/dummy.its -K $@ -k $(CERTDIR) -r dummy.itb
+	rm dummy.itb
+
+u-boot.dtb u-boot-nodtb.bin u-boot-dtb.imx u-boot-dtb.imx.log&: dts/dt-withkey.dtb config
+	$(MAKE) EXT_DTB=$< u-boot-dtb.imx u-boot.dtb u-boot-nodtb.bin
+
+u-boot.itb: board/seco/tiago/u-boot.its u-boot.dtb u-boot-nodtb.bin
+	mkimage -f $< -k $(CERTDIR) $@
+
+SPL-sdp: SPL
+u-boot-dtb-sdp.imx: u-boot-dtb.imx
+SPL-sdp u-boot-dtb-sdp.imx:
+	cp $< $@
+	dd if=/dev/zero of=$@ seek=12 bs=1 count=4 conv=notrunc
+
+# This is ugly, but it's the easiest way to create the Blocks parameter
+SPL.csf u-boot-dtb.csf: PREFIX=HAB
+SPL-sdp.csf u-boot-dtb-sdp.csf: PREFIX=.*
+SPL.csf SPL-sdp.csf: SPL.log
+u-boot-dtb.csf u-boot-dtb-sdp.csf: SUFFIX=.imx
+u-boot-dtb.csf u-boot-dtb-sdp.csf: u-boot-dtb.imx.log
+%.csf:
+	( m4 -DCERTDIR=$(CERTDIR) csf.template && \
+	  sed -n 's/$(PREFIX) Blocks:\(.*\)/\1 "$*$(SUFFIX)"/p' < $< | \
+	  head -c -1 | tr '\n' , | sed 's/,/, \\\n/' ) > $@
+
+# This must be after the recipe so the ordering is correct
+SPL.csf SPL-sdp.csf u-boot-dtb.csf u-boot-dtb-sdp.csf: csf.template
+
+SPL.sig SPL-sdp.sig: %.sig: %
+u-boot-dtb.sig u-boot-dtb-sdp.sig: %.sig: %.imx
+%.sig: %.csf
+	cst -i $< -o $@
+
+SPL-signed SPL-sdp-signed: %-signed: SPL %.sig
+u-boot-dtb-signed.imx u-boot-dtb-sdp-signed.imx: %-signed.imx: u-boot-dtb.imx %.sig
+SPL-signed SPL-sdp-signed u-boot-dtb-signed.imx u-boot-dtb-sdp-signed.imx:
+	cat $^ > $@
+
+boot.img: u-boot-dtb-signed.imx
+	rm -f $@
+	dd of=$@ if=u-boot-dtb-signed.imx bs=1K seek=1
+
+.PHONY: build-arch
+build-arch: boot.img u-boot-dtb-sdp-signed.imx
+
+.PHONY: build
+build: build-arch
+
+.PHONY: binary-arch
+binary-arch: clean-binary
+	install -Dt $(BINDIR)/boot -m644 boot.img
+
+.PHONY: binary-indep
+binary-indep: clean-binary
+	install -Dt $(BINDIR)/usr/share/doc/u-boot-tiago/ -m644 debian/copyright
+
+.PHONY: binary
+binary: binary-indep binary-arch
+	install -dm755 $(BINDIR)/DEBIAN
+	dpkg-gencontrol
+	dpkg-deb -b $(BINDIR) ..
+
+.PHONY: clean-build
+clean-build:
+	$(MAKE) clean
+	rm -f *.imx *.csf *.csf.bin
+
+.PHONY: clean-binary
+clean-binary:
+	rm -rf $(BINDIR) debian/files
+
+.PHONY: clean
+clean: clean-binary clean-build

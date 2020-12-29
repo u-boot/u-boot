@@ -1,0 +1,45 @@
+/dts-v1/;
+
+/ {
+	description = "";
+	#address-cells = <1>;
+	images {
+		u-boot {
+			description = "";
+			data = /incbin/("../../../u-boot-nodtb.bin");
+			type = "standalone";
+			os = "U-Boot";
+			arch = "arm";
+			compression = "none";
+			load = <0x87800000>;
+			entry = <0x87800000>;
+			hash-1 {
+				algo = "sha256";
+			};
+		};
+
+		fdt {
+			description = "";
+			data = /incbin/("../../../u-boot.dtb");
+			type = "flat_dt";
+			compression = "none";
+			hash-1 {
+				algo = "sha256";
+			};
+		};
+	};
+
+	configurations {
+		default = "config-1";
+		config-1 {
+			description = "";
+			loadables = "u-boot";
+			fdt = "fdt";
+			signature {
+				algo = "sha256,rsa2048";
+				key-name-hint = "vboot";
+				sign-images = "loadables", "fdt";
+			};
+		};
+	};
+};

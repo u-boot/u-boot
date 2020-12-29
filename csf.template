@@ -1,0 +1,25 @@
+[Header]
+    Version = 4.2
+    Hash Algorithm = sha256
+    Engine Configuration = 0
+    Certificate Format = X509
+    Signature Format = CMS
+    Engine = SW
+
+[Install SRK]
+    File = "CERTDIR/SRK_1_2_3_4_table.bin"
+    Source index = 0
+
+[Install CSFK]
+    File = "CERTDIR/CSF1_1_sha256_2048_65537_v3_usr_crt.pem"
+
+[Authenticate CSF]
+
+[Install Key]
+    Verification index = 0
+    Target Index = 2
+    File= "CERTDIR/IMG1_1_sha256_2048_65537_v3_usr_crt.pem"
+
+[Authenticate Data]
+    Verification index = 2
+    Blocks = \

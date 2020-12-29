@@ -1,0 +1,9 @@
+Source: u-boot
+Section: admin
+Priority: optional
+Maintainer: MAINTAINER
+
+Package: u-boot-tiago
+Architecture: armhf
+Description: Bootloader for Tiago
+ Das U-Boot RELEASE for Tiago.
