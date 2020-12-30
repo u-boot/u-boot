@@ -79,6 +79,16 @@ static int do_efi_capsule_update(struct cmd_tbl *cmdtp, int flag,
 	return CMD_RET_SUCCESS;
 }
 
+static int do_efi_capsule_on_disk_update(struct cmd_tbl *cmdtp, int flag,
+					 int argc, char * const argv[])
+{
+	efi_status_t ret;
+
+	ret = efi_launch_capsules();
+
+	return ret == EFI_SUCCESS ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
+}
+
 /**
  * do_efi_capsule_show() - show capsule information
  *
@@ -206,6 +216,8 @@ static struct cmd_tbl cmd_efidebug_capsule_sub[] = {
 	U_BOOT_CMD_MKENT(update, CONFIG_SYS_MAXARGS, 1, do_efi_capsule_update,
 			 "", ""),
 	U_BOOT_CMD_MKENT(show, CONFIG_SYS_MAXARGS, 1, do_efi_capsule_show,
+			 "", ""),
+	U_BOOT_CMD_MKENT(disk-update, 0, 0, do_efi_capsule_on_disk_update,
 			 "", ""),
 	U_BOOT_CMD_MKENT(result, CONFIG_SYS_MAXARGS, 1, do_efi_capsule_res,
 			 "", ""),
@@ -1544,6 +1556,8 @@ static char efidebug_help_text[] =
 #ifdef CONFIG_EFI_HAVE_CAPSULE_SUPPORT
 	"efidebug capsule update [-v] <capsule address>\n"
 	"  - process a capsule\n"
+	"efidebug capsule disk-update\n"
+	"  - update a capsule from disk\n"
 	"efidebug capsule show <capsule address>\n"
 	"  - show capsule information\n"
 	"efidebug capsule result [<capsule result var>]\n"
