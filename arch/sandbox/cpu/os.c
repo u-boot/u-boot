@@ -32,6 +32,9 @@
 #include <os.h>
 #include <rtc_def.h>
 
+/* Environment variable for time offset */
+#define ENV_TIME_OFFSET "UBOOT_SB_TIME_OFFSET"
+
 /* Operating System Interface */
 
 struct os_mem_hdr {
@@ -796,6 +799,28 @@ int os_spl_to_uboot(const char *fname)
 	/* U-Boot will delete ram buffer after read: "--rm_memory"*/
 	state->ram_buf_rm = true;
 	return os_jump_to_file(fname);
+}
+
+long os_get_time_offset(void)
+{
+	const char *offset;
+
+	offset = getenv(ENV_TIME_OFFSET);
+	if (offset)
+		return strtol(offset, NULL, 0);
+	return 0;
+}
+
+void os_set_time_offset(long offset)
+{
+	char buf[21];
+	int ret;
+
+	snprintf(buf, sizeof(buf), "%ld", offset);
+	ret = setenv(ENV_TIME_OFFSET, buf, true);
+	if (ret)
+		printf("Could not set environment variable %s\n",
+		       ENV_TIME_OFFSET);
 }
 
 void os_localtime(struct rtc_time *rt)

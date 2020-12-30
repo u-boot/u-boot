@@ -424,4 +424,22 @@ int os_setup_signal_handlers(void);
  */
 void os_signal_action(int sig, unsigned long pc);
 
+/**
+ * os_get_time_offset() - get time offset
+ *
+ * Get the time offset from environment variable UBOOT_SB_TIME_OFFSET.
+ *
+ * Return:	offset in seconds
+ */
+long os_get_time_offset(void);
+
+/**
+ * os_set_time_offset() - set time offset
+ *
+ * Save the time offset in environment variable UBOOT_SB_TIME_OFFSET.
+ *
+ * @offset:	offset in seconds
+ */
+void os_set_time_offset(long offset);
+
 #endif

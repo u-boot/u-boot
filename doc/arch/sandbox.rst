@@ -131,6 +131,13 @@ available options. Some of these are described below:
 -i
   Go to interactive mode after executing the commands specified by -c.
 
+Environment Variables
+---------------------
+
+UBOOT_SB_TIME_OFFSET
+    This environment variable stores the offset of the emulated real time clock
+    to the host's real time clock in seconds. The offset defaults to zero.
+
 Memory Emulation
 ----------------
 
