@@ -257,11 +257,6 @@ efi_status_t efi_init_obj_list(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 #endif
-#ifdef CONFIG_EFI_LOAD_FILE2_INITRD
-	ret = efi_initrd_register();
-	if (ret != EFI_SUCCESS)
-		goto out;
-#endif
 #ifdef CONFIG_NET
 	ret = efi_net_register();
 	if (ret != EFI_SUCCESS)
