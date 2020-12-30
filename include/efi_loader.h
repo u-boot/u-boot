@@ -820,6 +820,10 @@ bool efi_secure_boot_enabled(void);
 bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 		     WIN_CERTIFICATE **auth, size_t *auth_len);
 
+struct pkcs7_message *efi_parse_pkcs7_header(const void *buf,
+					     size_t buflen,
+					     u8 **tmpbuf);
+
 /* runtime implementation of memcpy() */
 void efi_memcpy_runtime(void *dest, const void *src, size_t n);
 
