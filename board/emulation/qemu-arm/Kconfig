@@ -11,3 +11,10 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply VIRTIO_BLK
 
 endif
+
+if TARGET_QEMU_ARM_64BIT && !TFABOOT
+config BOARD_SPECIFIC_OPTIONS
+	imply SYS_MTDPARTS_RUNTIME
+
+source "board/emulation/common/Kconfig"
+endif
