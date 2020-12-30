@@ -813,6 +813,8 @@ efi_status_t efi_image_region_add(struct efi_image_regions *regs,
 				  int nocheck);
 
 void efi_sigstore_free(struct efi_signature_store *sigstore);
+struct efi_signature_store *efi_build_signature_store(void *sig_list,
+						      efi_uintn_t size);
 struct efi_signature_store *efi_sigstore_parse_sigdb(u16 *name);
 
 bool efi_secure_boot_enabled(void);

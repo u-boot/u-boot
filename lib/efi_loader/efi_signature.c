@@ -737,6 +737,63 @@ err:
 }
 
 /**
+ * efi_sigstore_parse_sigdb - parse the signature list and populate
+ * the signature store
+ *
+ * @sig_list:	Pointer to the signature list
+ * @size:	Size of the signature list
+ *
+ * Parse the efi signature list and instantiate a signature store
+ * structure.
+ *
+ * Return:	Pointer to signature store on success, NULL on error
+ */
+struct efi_signature_store *efi_build_signature_store(void *sig_list,
+						      efi_uintn_t size)
+{
+	struct efi_signature_list *esl;
+	struct efi_signature_store *sigstore = NULL, *siglist;
+
+	esl = sig_list;
+	while (size > 0) {
+		/* List must exist if there is remaining data. */
+		if (size < sizeof(*esl)) {
+			EFI_PRINT("Signature list in wrong format\n");
+			goto err;
+		}
+
+		if (size < esl->signature_list_size) {
+			EFI_PRINT("Signature list in wrong format\n");
+			goto err;
+		}
+
+		/* Parse a single siglist. */
+		siglist = efi_sigstore_parse_siglist(esl);
+		if (!siglist) {
+			EFI_PRINT("Parsing of signature list of failed\n");
+			goto err;
+		}
+
+		/* Append siglist */
+		siglist->next = sigstore;
+		sigstore = siglist;
+
+		/* Next */
+		size -= esl->signature_list_size;
+		esl = (void *)esl + esl->signature_list_size;
+	}
+	free(sig_list);
+
+	return sigstore;
+
+err:
+	efi_sigstore_free(sigstore);
+	free(sig_list);
+
+	return NULL;
+}
+
+/**
  * efi_sigstore_parse_sigdb - parse a signature database variable
  * @name:	Variable's name
  *
@@ -747,8 +804,7 @@ err:
  */
 struct efi_signature_store *efi_sigstore_parse_sigdb(u16 *name)
 {
-	struct efi_signature_store *sigstore = NULL, *siglist;
-	struct efi_signature_list *esl;
+	struct efi_signature_store *sigstore = NULL;
 	const efi_guid_t *vendor;
 	void *db;
 	efi_uintn_t db_size;
@@ -784,47 +840,10 @@ struct efi_signature_store *efi_sigstore_parse_sigdb(u16 *name)
 	ret = EFI_CALL(efi_get_variable(name, vendor, NULL, &db_size, db));
 	if (ret != EFI_SUCCESS) {
 		EFI_PRINT("Getting variable, %ls, failed\n", name);
-		goto err;
+		free(db);
+		return NULL;
 	}
 
-	/* Parse siglist list */
-	esl = db;
-	while (db_size > 0) {
-		/* List must exist if there is remaining data. */
-		if (db_size < sizeof(*esl)) {
-			EFI_PRINT("variable, %ls, in wrong format\n", name);
-			goto err;
-		}
-
-		if (db_size < esl->signature_list_size) {
-			EFI_PRINT("variable, %ls, in wrong format\n", name);
-			goto err;
-		}
-
-		/* Parse a single siglist. */
-		siglist = efi_sigstore_parse_siglist(esl);
-		if (!siglist) {
-			EFI_PRINT("Parsing signature list of %ls failed\n",
-				  name);
-			goto err;
-		}
-
-		/* Append siglist */
-		siglist->next = sigstore;
-		sigstore = siglist;
-
-		/* Next */
-		db_size -= esl->signature_list_size;
-		esl = (void *)esl + esl->signature_list_size;
-	}
-	free(db);
-
-	return sigstore;
-
-err:
-	efi_sigstore_free(sigstore);
-	free(db);
-
-	return NULL;
+	return efi_build_signature_store(db, db_size);
 }
 #endif /* CONFIG_EFI_SECURE_BOOT */
