@@ -819,6 +819,8 @@ struct efi_signature_store *efi_sigstore_parse_sigdb(u16 *name);
 
 bool efi_secure_boot_enabled(void);
 
+bool efi_capsule_auth_enabled(void);
+
 bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 		     WIN_CERTIFICATE **auth, size_t *auth_len);
 
@@ -846,6 +848,10 @@ efi_status_t EFIAPI efi_query_capsule_caps(
 		efi_uintn_t capsule_count,
 		u64 *maximum_capsule_size,
 		u32 *reset_type);
+
+efi_status_t efi_capsule_authenticate(const void *capsule,
+				      efi_uintn_t capsule_size,
+				      void **image, efi_uintn_t *image_size);
 
 #define EFI_CAPSULE_DIR L"\\EFI\\UpdateCapsule\\"
 

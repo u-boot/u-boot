@@ -26,7 +26,7 @@ const efi_guid_t efi_guid_cert_x509 = EFI_CERT_X509_GUID;
 const efi_guid_t efi_guid_cert_x509_sha256 = EFI_CERT_X509_SHA256_GUID;
 const efi_guid_t efi_guid_cert_type_pkcs7 = EFI_CERT_TYPE_PKCS7_GUID;
 
-#ifdef CONFIG_EFI_SECURE_BOOT
+#if defined(CONFIG_EFI_SECURE_BOOT) || defined(CONFIG_EFI_CAPSULE_AUTHENTICATE)
 static u8 pkcs7_hdr[] = {
 	/* SEQUENCE */
 	0x30, 0x82, 0x05, 0xc7,
@@ -846,4 +846,4 @@ struct efi_signature_store *efi_sigstore_parse_sigdb(u16 *name)
 
 	return efi_build_signature_store(db, db_size);
 }
-#endif /* CONFIG_EFI_SECURE_BOOT */
+#endif /* CONFIG_EFI_SECURE_BOOT || CONFIG_EFI_CAPSULE_AUTHENTICATE */

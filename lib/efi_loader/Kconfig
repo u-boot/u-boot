@@ -153,6 +153,23 @@ config EFI_CAPSULE_FIRMWARE_MANAGEMENT
 	  Select this option if you want to enable capsule-based
 	  firmware update using Firmware Management Protocol.
 
+config EFI_CAPSULE_AUTHENTICATE
+	bool "Update Capsule authentication"
+	depends on EFI_CAPSULE_FIRMWARE
+	depends on EFI_CAPSULE_ON_DISK
+	depends on EFI_CAPSULE_FIRMWARE_MANAGEMENT
+	select SHA256
+	select RSA
+	select RSA_VERIFY
+	select RSA_VERIFY_WITH_PKEY
+	select X509_CERTIFICATE_PARSER
+	select PKCS7_MESSAGE_PARSER
+	select PKCS7_VERIFY
+	default n
+	help
+	  Select this option if you want to enable capsule
+	  authentication
+
 config EFI_CAPSULE_FIRMWARE_FIT
 	bool "FMP driver for FIT image"
 	depends on EFI_CAPSULE_FIRMWARE_MANAGEMENT
