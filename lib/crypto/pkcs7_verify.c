@@ -50,8 +50,15 @@ static int pkcs7_digest(struct pkcs7_message *pkcs7,
 	struct image_region regions[2];
 	int ret = 0;
 
-	/* The digest was calculated already. */
-	if (sig->digest)
+	/*
+	 * [RFC2315 9.3]
+	 * If the authenticated attributes are present,
+	 * the message-digest is calculated on the
+	 * attributes present in the
+	 * authenticatedAttributes field and not just
+	 * the contents field
+	 */
+	if (!sinfo->authattrs && sig->digest)
 		return 0;
 
 	if (!sinfo->sig->hash_algo)
@@ -63,17 +70,25 @@ static int pkcs7_digest(struct pkcs7_message *pkcs7,
 	else
 		return -ENOPKG;
 
-	sig->digest = calloc(1, sig->digest_size);
-	if (!sig->digest) {
-		pr_warn("Sig %u: Out of memory\n", sinfo->index);
-		return -ENOMEM;
+	/*
+	 * Calculate the hash only if the data is present.
+	 * In case of authenticated variable and capsule,
+	 * the hash has already been calculated on the
+	 * efi_image_regions and populated
+	 */
+	if (pkcs7->data) {
+		sig->digest = calloc(1, sig->digest_size);
+		if (!sig->digest) {
+			pr_warn("Sig %u: Out of memory\n", sinfo->index);
+			return -ENOMEM;
+		}
+
+		regions[0].data = pkcs7->data;
+		regions[0].size = pkcs7->data_len;
+
+		/* Digest the message [RFC2315 9.3] */
+		hash_calculate(sinfo->sig->hash_algo, regions, 1, sig->digest);
 	}
-
-	regions[0].data = pkcs7->data;
-	regions[0].size = pkcs7->data_len;
-
-	/* Digest the message [RFC2315 9.3] */
-	hash_calculate(sinfo->sig->hash_algo, regions, 1, sig->digest);
 
 	/* However, if there are authenticated attributes, there must be a
 	 * message digest attribute amongst them which corresponds to the
