@@ -1377,3 +1377,21 @@ void fat_closedir(struct fs_dir_stream *dirs)
 void fat_close(void)
 {
 }
+
+int fat_uuid(char *uuid_str)
+{
+	boot_sector bs;
+	volume_info volinfo;
+	int fatsize;
+	int ret;
+	u8 *id;
+
+	ret = read_bootsectandvi(&bs, &volinfo, &fatsize);
+	if (ret)
+		return ret;
+
+	id = volinfo.volume_id;
+	sprintf(uuid_str, "%02X%02X-%02X%02X", id[3], id[2], id[1], id[0]);
+
+	return 0;
+}
