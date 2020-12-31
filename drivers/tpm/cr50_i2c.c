@@ -742,8 +742,8 @@ static const struct udevice_id cr50_i2c_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(cr50_i2c) = {
-	.name   = "cr50_i2c",
+U_BOOT_DRIVER(google_cr50) = {
+	.name   = "google_cr50",
 	.id     = UCLASS_TPM,
 	.of_match = cr50_i2c_ids,
 	.ops    = &cr50_i2c_ops,
