@@ -183,23 +183,31 @@ static int cr50_i2c_write(struct udevice *dev, u8 addr, const u8 *buffer,
 	return cr50_i2c_wait_tpm_ready(dev);
 }
 
-static inline u8 tpm_access(u8 locality)
+static inline u8 tpm_access(int locality)
 {
+	if (locality == -1)
+		locality = 0;
 	return 0x0 | (locality << 4);
 }
 
-static inline u8 tpm_sts(u8 locality)
+static inline u8 tpm_sts(int locality)
 {
+	if (locality == -1)
+		locality = 0;
 	return 0x1 | (locality << 4);
 }
 
-static inline u8 tpm_data_fifo(u8 locality)
+static inline u8 tpm_data_fifo(int locality)
 {
+	if (locality == -1)
+		locality = 0;
 	return 0x5 | (locality << 4);
 }
 
-static inline u8 tpm_did_vid(u8 locality)
+static inline u8 tpm_did_vid(int locality)
 {
+	if (locality == -1)
+		locality = 0;
 	return 0x6 | (locality << 4);
 }
 
