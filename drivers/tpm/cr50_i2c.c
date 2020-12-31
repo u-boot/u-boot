@@ -380,7 +380,6 @@ out_err:
 static int cr50_i2c_send(struct udevice *dev, const u8 *buf, size_t len)
 {
 	struct cr50_priv *priv = dev_get_priv(dev);
-
 	int status;
 	size_t burstcnt, limit, sent = 0;
 	u8 tpm_go[4] = { TPM_STS_GO };
@@ -557,9 +556,23 @@ static int cr50_i2c_get_desc(struct udevice *dev, char *buf, int size)
 {
 	struct dm_i2c_chip *chip = dev_get_parent_plat(dev);
 	struct cr50_priv *priv = dev_get_priv(dev);
+	int len;
 
-	return snprintf(buf, size, "cr50 TPM 2.0 (i2c %02x id %x) irq=%d",
-			chip->chip_addr, priv->vendor >> 16, priv->use_irq);
+	len = snprintf(buf, size, "cr50 TPM 2.0 (i2c %02x id %x), ",
+		       chip->chip_addr, priv->vendor >> 16);
+	if (priv->use_irq) {
+		len += snprintf(buf + len, size - len, "irq=%s/%ld",
+				priv->irq.dev->name, priv->irq.id);
+	} else if (dm_gpio_is_valid(&priv->ready_gpio)) {
+		len += snprintf(buf + len, size - len, "gpio=%s/%u",
+				priv->ready_gpio.dev->name,
+				priv->ready_gpio.offset);
+	} else {
+		len += snprintf(buf + len, size - len, "delay=%d",
+				TIMEOUT_NO_IRQ_US);
+	}
+
+	return len;
 }
 
 static int cr50_i2c_open(struct udevice *dev)
@@ -702,11 +715,12 @@ static int cr50_i2c_probe(struct udevice *dev)
 		mdelay(10);
 	}
 	if (vendor != CR50_DID_VID) {
-		log_debug("DID_VID %08x not recognised\n", vendor);
+		log_warning("DID_VID %08x not recognised\n", vendor);
 		return log_msg_ret("vendor-id", -EXDEV);
 	}
 	priv->vendor = vendor;
 	priv->locality = -1;
+	log_debug("Cr50 ready\n");
 
 	return 0;
 }
