@@ -134,7 +134,7 @@ B4860QDS Default Settings
 -------------------------
 
 Switch Settings
----------------
+^^^^^^^^^^^^^^^
 
 .. code-block:: none
 
@@ -167,7 +167,7 @@ B4420QDS Default Settings
 -------------------------
 
 Switch Settings
----------------
+^^^^^^^^^^^^^^^
 
 .. code-block:: none
 
