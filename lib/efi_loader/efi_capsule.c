@@ -73,8 +73,8 @@ void set_capsule_result(int index, struct efi_capsule_header *capsule,
 	struct efi_time time;
 	efi_status_t ret;
 
-	efi_create_indexed_name(variable_name16, "Capsule", index);
-
+	efi_create_indexed_name(variable_name16, sizeof(variable_name16),
+				"Capsule", index);
 	result.variable_total_size = sizeof(result);
 	result.capsule_guid = capsule->capsule_guid;
 	ret = EFI_CALL((*efi_runtime_services.get_time)(&time, NULL));
@@ -896,7 +896,8 @@ efi_status_t efi_launch_capsules(void)
 	free(files);
 
 	/* CapsuleLast */
-	efi_create_indexed_name(variable_name16, "Capsule", index - 1);
+	efi_create_indexed_name(variable_name16, sizeof(variable_name16),
+				"Capsule", index - 1);
 	efi_set_variable_int(L"CapsuleLast", &efi_guid_capsule_report,
 			     EFI_VARIABLE_READ_ONLY |
 			     EFI_VARIABLE_NON_VOLATILE |

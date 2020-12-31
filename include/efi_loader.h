@@ -824,7 +824,8 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 void efi_memcpy_runtime(void *dest, const void *src, size_t n);
 
 /* commonly used helper function */
-u16 *efi_create_indexed_name(u16 *buffer, const char *name, unsigned int index);
+u16 *efi_create_indexed_name(u16 *buffer, size_t buffer_size, const char *name,
+			     unsigned int index);
 
 extern const struct efi_firmware_management_protocol efi_fmp_fit;
 extern const struct efi_firmware_management_protocol efi_fmp_raw;

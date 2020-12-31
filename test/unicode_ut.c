@@ -603,7 +603,7 @@ static int unicode_test_efi_create_indexed_name(struct unit_test_state *uts)
 	u16 *pos;
 
 	memset(buf, 0xeb, sizeof(buf));
-	pos = efi_create_indexed_name(buf, "Capsule", 0x0af9);
+	pos = efi_create_indexed_name(buf, sizeof(buf), "Capsule", 0x0af9);
 
 	ut_asserteq_mem(expected, buf, sizeof(expected));
 	ut_asserteq(pos - buf, u16_strnlen(buf, SIZE_MAX));
