@@ -11,6 +11,7 @@ Shell commands
 .. toctree::
    :maxdepth: 1
 
+   base
    bootefi
    bootmenu
    button
