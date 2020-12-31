@@ -1,7 +1,16 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
-PStore command
+pstore command
 ==============
+
+Synopsis
+--------
+
+::
+
+    pstore set <addr> <len> [record-size] [console-size] [ftrace-size] [pmsg_size] [ecc-size]
+    pstore display [record-type] [nb]
+    pstore save <interface> <dev[:part]> <directory-path>
 
 Design
 ------
