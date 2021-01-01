@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) EETS GmbH, 2017, Felix Brack <f.brack@eets.ch>
+ * Copyright (C) 2021 Dario Binacchi <dariobin@libero.it>
  */
 
 #include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <dm/pinctrl.h>
 #include <linux/libfdt.h>
+#include <linux/list.h>
 #include <asm/io.h>
+#include <sort.h>
 
 /**
  * struct single_pdata - platform data
@@ -27,6 +31,20 @@ struct single_pdata {
 };
 
 /**
+ * struct single_func - pinctrl function
+ * @node: list node
+ * @name: pinctrl function name
+ * @npins: number of entries in pins array
+ * @pins: pins array
+ */
+struct single_func {
+	struct list_head node;
+	const char *name;
+	unsigned int npins;
+	unsigned int *pins;
+};
+
+/**
  * struct single_priv - private data
  * @bits_per_pin: number of bits per pin
  * @npins: number of selectable pins
@@ -36,6 +54,7 @@ struct single_priv {
 	unsigned int bits_per_pin;
 	unsigned int npins;
 	char pin_name[PINNAME_SIZE];
+	struct list_head functions;
 };
 
 /**
@@ -101,6 +120,121 @@ static void single_write(struct udevice *dev, unsigned int val, fdt_addr_t reg)
 }
 
 /**
+ * single_get_pin_by_offset() - get a pin based on the register offset
+ * @dev: single driver instance
+ * @offset: register offset from the base
+ */
+static int single_get_pin_by_offset(struct udevice *dev, unsigned int offset)
+{
+	struct single_pdata *pdata = dev_get_plat(dev);
+	struct single_priv *priv = dev_get_priv(dev);
+
+	if (offset > pdata->offset) {
+		dev_err(dev, "mux offset out of range: 0x%x (0x%x)\n",
+			offset, pdata->offset);
+		return -EINVAL;
+	}
+
+	if (pdata->bits_per_mux)
+		return (offset * BITS_PER_BYTE) / priv->bits_per_pin;
+
+	return offset / (pdata->width / BITS_PER_BYTE);
+}
+
+static int single_get_offset_by_pin(struct udevice *dev, unsigned int pin)
+{
+	struct single_pdata *pdata = dev_get_plat(dev);
+	struct single_priv *priv = dev_get_priv(dev);
+	unsigned int mux_bytes;
+
+	if (pin >= priv->npins)
+		return -EINVAL;
+
+	mux_bytes = pdata->width / BITS_PER_BYTE;
+	if (pdata->bits_per_mux) {
+		int byte_num;
+
+		byte_num = (priv->bits_per_pin * pin) / BITS_PER_BYTE;
+		return (byte_num / mux_bytes) * mux_bytes;
+	}
+
+	return pin * mux_bytes;
+}
+
+static const char *single_get_pin_function(struct udevice *dev,
+					   unsigned int pin)
+{
+	struct single_priv *priv = dev_get_priv(dev);
+	struct single_func *func;
+	int i;
+
+	list_for_each_entry(func, &priv->functions, node) {
+		for (i = 0; i < func->npins; i++) {
+			if (pin == func->pins[i])
+				return func->name;
+
+			if (pin < func->pins[i])
+				break;
+		}
+	}
+
+	return NULL;
+}
+
+static int single_get_pin_muxing(struct udevice *dev, unsigned int pin,
+				 char *buf, int size)
+{
+	struct single_pdata *pdata = dev_get_plat(dev);
+	struct single_priv *priv = dev_get_priv(dev);
+	fdt_addr_t reg;
+	const char *fname;
+	unsigned int val;
+	int offset, pin_shift = 0;
+
+	offset = single_get_offset_by_pin(dev, pin);
+	if (offset < 0)
+		return offset;
+
+	reg = pdata->base + offset;
+	val = single_read(dev, reg);
+
+	if (pdata->bits_per_mux)
+		pin_shift = pin % (pdata->width / priv->bits_per_pin) *
+			priv->bits_per_pin;
+
+	val &= (pdata->mask << pin_shift);
+	fname = single_get_pin_function(dev, pin);
+	snprintf(buf, size, "%pa 0x%08x %s", &reg, val,
+		 fname ? fname : "UNCLAIMED");
+	return 0;
+}
+
+static struct single_func *single_allocate_function(struct udevice *dev,
+						    unsigned int group_pins)
+{
+	struct single_func *func;
+
+	func = devm_kmalloc(dev, sizeof(*func), GFP_KERNEL);
+	if (!func)
+		return ERR_PTR(-ENOMEM);
+
+	func->pins = devm_kmalloc(dev, sizeof(unsigned int) * group_pins,
+				  GFP_KERNEL);
+	if (!func->pins)
+		return ERR_PTR(-ENOMEM);
+
+	return func;
+}
+
+static int single_pin_compare(const void *s1, const void *s2)
+{
+	int pin1 = *(const unsigned int *)s1;
+	int pin2 = *(const unsigned int *)s2;
+
+	return pin1 - pin2;
+}
+
+/**
  * single_configure_pins() - Configure pins based on FDT data
  *
  * @dev: Pointer to single pin configuration device which is the parent of
@@ -113,13 +247,16 @@ static void single_write(struct udevice *dev, unsigned int val, fdt_addr_t reg)
  * @size: Size of the 'pins' array in bytes.
  *        The number of register/value pairs in the 'pins' array therefore
  *        equals to 'size / sizeof(struct single_fdt_pin_cfg)'.
+ * @fname: Function name.
  */
 static int single_configure_pins(struct udevice *dev,
 				 const struct single_fdt_pin_cfg *pins,
-				 int size)
+				 int size, const char *fname)
 {
 	struct single_pdata *pdata = dev_get_plat(dev);
-	int n, count = size / sizeof(struct single_fdt_pin_cfg);
+	struct single_priv *priv = dev_get_priv(dev);
+	int n, pin, count = size / sizeof(struct single_fdt_pin_cfg);
+	struct single_func *func;
 	phys_addr_t reg;
 	u32 offset, val;
 
@@ -127,33 +264,61 @@ static int single_configure_pins(struct udevice *dev,
 	if (!pdata->mask)
 		return 0;
 
+	func = single_allocate_function(dev, count);
+	if (IS_ERR(func))
+		return PTR_ERR(func);
+
+	func->name = fname;
+	func->npins = 0;
 	for (n = 0; n < count; n++, pins++) {
 		offset = fdt32_to_cpu(pins->reg);
 		if (offset < 0 || offset > pdata->offset) {
-			dev_dbg(dev, "  invalid register offset 0x%x\n",
+			dev_err(dev, "  invalid register offset 0x%x\n",
 				offset);
 			continue;
 		}
 
 		reg = pdata->base + offset;
 		val = fdt32_to_cpu(pins->val) & pdata->mask;
+		pin = single_get_pin_by_offset(dev, offset);
+		if (pin < 0) {
+			dev_err(dev, "  failed to get pin by offset %x\n",
+				offset);
+			continue;
+		}
+
 		single_write(dev, (single_read(dev, reg) & ~pdata->mask) | val,
 			     reg);
 		dev_dbg(dev, "  reg/val %pa/0x%08x\n", &reg, val);
-
+		func->pins[func->npins] = pin;
+		func->npins++;
 	}
+
+	qsort(func->pins, func->npins, sizeof(func->pins[0]),
+	      single_pin_compare);
+	list_add(&func->node, &priv->functions);
 	return 0;
 }
 
 static int single_configure_bits(struct udevice *dev,
 				 const struct single_fdt_bits_cfg *pins,
-				 int size)
+				 int size, const char *fname)
 {
 	struct single_pdata *pdata = dev_get_plat(dev);
-	int n, count = size / sizeof(struct single_fdt_bits_cfg);
+	struct single_priv *priv = dev_get_priv(dev);
+	int n, pin, count = size / sizeof(struct single_fdt_bits_cfg);
+	int npins_in_reg, pin_num_from_lsb;
+	struct single_func *func;
 	phys_addr_t reg;
-	u32 offset, val, mask;
+	u32 offset, val, mask, bit_pos, val_pos, mask_pos, submask;
 
+	npins_in_reg = pdata->width / priv->bits_per_pin;
+	func = single_allocate_function(dev, count * npins_in_reg);
+	if (IS_ERR(func))
+		return PTR_ERR(func);
+
+	func->name = fname;
+	func->npins = 0;
 	for (n = 0; n < count; n++, pins++) {
 		offset = fdt32_to_cpu(pins->reg);
 		if (offset < 0 || offset > pdata->offset) {
@@ -164,11 +329,47 @@ static int single_configure_bits(struct udevice *dev,
 
 		reg = pdata->base + offset;
 
+		pin = single_get_pin_by_offset(dev, offset);
+		if (pin < 0) {
+			dev_err(dev, "  failed to get pin by offset 0x%pa\n",
+				&reg);
+			continue;
+		}
+
 		mask = fdt32_to_cpu(pins->mask);
 		val = fdt32_to_cpu(pins->val) & mask;
 		single_write(dev, (single_read(dev, reg) & ~mask) | val, reg);
 		dev_dbg(dev, "  reg/val %pa/0x%08x\n", &reg, val);
+
+		while (mask) {
+			bit_pos = __ffs(mask);
+			pin_num_from_lsb = bit_pos / priv->bits_per_pin;
+			mask_pos = pdata->mask << bit_pos;
+			val_pos = val & mask_pos;
+			submask = mask & mask_pos;
+
+			if ((mask & mask_pos) == 0) {
+				dev_err(dev, "Invalid mask at 0x%x\n", offset);
+				break;
+			}
+
+			mask &= ~mask_pos;
+
+			if (submask != mask_pos) {
+				dev_warn(dev,
+					 "Invalid submask 0x%x at 0x%x\n",
+					 submask, offset);
+				continue;
+			}
+
+			func->pins[func->npins] = pin + pin_num_from_lsb;
+			func->npins++;
+		}
 	}
+
+	qsort(func->pins, func->npins, sizeof(func->pins[0]),
+	      single_pin_compare);
+	list_add(&func->node, &priv->functions);
 	return 0;
 }
 static int single_set_state(struct udevice *dev,
@@ -186,7 +387,7 @@ static int single_set_state(struct udevice *dev,
 			dev_dbg(dev, "  invalid pin configuration in fdt\n");
 			return -FDT_ERR_BADSTRUCTURE;
 		}
-		single_configure_pins(dev, prop, len);
+		single_configure_pins(dev, prop, len, config->name);
 		return 0;
 	}
 
@@ -198,7 +399,7 @@ static int single_set_state(struct udevice *dev,
 			dev_dbg(dev, "  invalid bits configuration in fdt\n");
 			return -FDT_ERR_BADSTRUCTURE;
 		}
-		single_configure_bits(dev, prop_bits, len);
+		single_configure_bits(dev, prop_bits, len, config->name);
 		return 0;
 	}
 
@@ -231,6 +432,8 @@ static int single_probe(struct udevice *dev)
 	struct single_pdata *pdata = dev_get_plat(dev);
 	struct single_priv *priv = dev_get_priv(dev);
 	u32 size;
+
+	INIT_LIST_HEAD(&priv->functions);
 
 	size = pdata->offset + pdata->width / BITS_PER_BYTE;
 	priv->npins = size / (pdata->width / BITS_PER_BYTE);
@@ -296,6 +499,7 @@ const struct pinctrl_ops single_pinctrl_ops = {
 	.get_pins_count	= single_get_pins_count,
 	.get_pin_name = single_get_pin_name,
 	.set_state = single_set_state,
+	.get_pin_muxing	= single_get_pin_muxing,
 };
 
 static const struct udevice_id single_pinctrl_match[] = {
