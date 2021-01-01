@@ -79,6 +79,10 @@ static int single_configure_pins(struct udevice *dev,
 	phys_addr_t reg;
 	u32 offset, val;
 
+	/* If function mask is null, needn't enable it. */
+	if (!pdata->mask)
+		return 0;
+
 	for (n = 0; n < count; n++, pins++) {
 		offset = fdt32_to_cpu(pins->reg);
 		if (offset < 0 || offset > pdata->offset) {
@@ -207,8 +211,12 @@ static int single_of_to_plat(struct udevice *dev)
 	}
 	pdata->base = addr;
 
-	pdata->mask = dev_read_u32_default(dev, "pinctrl-single,function-mask",
-					   0xffffffff);
+	ret = dev_read_u32(dev, "pinctrl-single,function-mask", &pdata->mask);
+	if (ret) {
+		pdata->mask = 0;
+		dev_warn(dev, "missing function register mask\n");
+	}
+
 	pdata->bits_per_mux = dev_read_bool(dev, "pinctrl-single,bit-per-mux");
 
 	return 0;
