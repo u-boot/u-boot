@@ -30,10 +30,12 @@ struct single_pdata {
  * struct single_priv - private data
  * @bits_per_pin: number of bits per pin
  * @npins: number of selectable pins
+ * @pin_name: temporary buffer to store the pin name
  */
 struct single_priv {
 	unsigned int bits_per_pin;
 	unsigned int npins;
+	char pin_name[PINNAME_SIZE];
 };
 
 /**
@@ -204,6 +206,19 @@ static int single_set_state(struct udevice *dev,
 	return len;
 }
 
+static const char *single_get_pin_name(struct udevice *dev,
+				       unsigned int selector)
+{
+	struct single_priv *priv = dev_get_priv(dev);
+
+	if (selector >= priv->npins)
+		snprintf(priv->pin_name, PINNAME_SIZE, "Error");
+	else
+		snprintf(priv->pin_name, PINNAME_SIZE, "PIN%u", selector);
+
+	return priv->pin_name;
+}
+
 static int single_get_pins_count(struct udevice *dev)
 {
 	struct single_priv *priv = dev_get_priv(dev);
@@ -279,6 +294,7 @@ static int single_of_to_plat(struct udevice *dev)
 
 const struct pinctrl_ops single_pinctrl_ops = {
 	.get_pins_count	= single_get_pins_count,
+	.get_pin_name = single_get_pin_name,
 	.set_state = single_set_state,
 };
 
