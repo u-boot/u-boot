@@ -1589,35 +1589,35 @@ struct efi_file_io_token {
 
 struct efi_file_handle {
 	u64 rev;
-	efi_status_t (EFIAPI *open)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *open)(struct efi_file_handle *this,
 			struct efi_file_handle **new_handle,
 			u16 *file_name, u64 open_mode, u64 attributes);
-	efi_status_t (EFIAPI *close)(struct efi_file_handle *file);
-	efi_status_t (EFIAPI *delete)(struct efi_file_handle *file);
-	efi_status_t (EFIAPI *read)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *close)(struct efi_file_handle *this);
+	efi_status_t (EFIAPI *delete)(struct efi_file_handle *this);
+	efi_status_t (EFIAPI *read)(struct efi_file_handle *this,
 			efi_uintn_t *buffer_size, void *buffer);
-	efi_status_t (EFIAPI *write)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *write)(struct efi_file_handle *this,
 			efi_uintn_t *buffer_size, void *buffer);
-	efi_status_t (EFIAPI *getpos)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *getpos)(struct efi_file_handle *this,
 				      u64 *pos);
-	efi_status_t (EFIAPI *setpos)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *setpos)(struct efi_file_handle *this,
 				      u64 pos);
-	efi_status_t (EFIAPI *getinfo)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *getinfo)(struct efi_file_handle *this,
 			const efi_guid_t *info_type, efi_uintn_t *buffer_size,
 			void *buffer);
-	efi_status_t (EFIAPI *setinfo)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *setinfo)(struct efi_file_handle *this,
 			const efi_guid_t *info_type, efi_uintn_t buffer_size,
 			void *buffer);
-	efi_status_t (EFIAPI *flush)(struct efi_file_handle *file);
-	efi_status_t (EFIAPI *open_ex)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *flush)(struct efi_file_handle *this);
+	efi_status_t (EFIAPI *open_ex)(struct efi_file_handle *this,
 			struct efi_file_handle **new_handle,
 			u16 *file_name, u64 open_mode, u64 attributes,
 			struct efi_file_io_token *token);
-	efi_status_t (EFIAPI *read_ex)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *read_ex)(struct efi_file_handle *this,
 			struct efi_file_io_token *token);
-	efi_status_t (EFIAPI *write_ex)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *write_ex)(struct efi_file_handle *this,
 			struct efi_file_io_token *token);
-	efi_status_t (EFIAPI *flush_ex)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *flush_ex)(struct efi_file_handle *this,
 			struct efi_file_io_token *token);
 };
 

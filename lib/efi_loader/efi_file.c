@@ -246,18 +246,16 @@ error:
 	return NULL;
 }
 
-static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *file,
-		struct efi_file_handle **new_handle,
-		u16 *file_name, u64 open_mode, u64 attributes)
+static efi_status_t efi_file_open_int(struct efi_file_handle *this,
+				      struct efi_file_handle **new_handle,
+				      u16 *file_name, u64 open_mode,
+				      u64 attributes)
 {
-	struct file_handle *fh = to_fh(file);
+	struct file_handle *fh = to_fh(this);
 	efi_status_t ret;
 
-	EFI_ENTRY("%p, %p, \"%ls\", %llx, %llu", file, new_handle,
-		  file_name, open_mode, attributes);
-
 	/* Check parameters */
-	if (!file || !new_handle || !file_name) {
+	if (!this || !new_handle || !file_name) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
@@ -291,6 +289,75 @@ static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *file,
 	} else {
 		ret = EFI_NOT_FOUND;
 	}
+out:
+	return ret;
+}
+
+/**
+ * efi_file_open_()
+ *
+ * This function implements the Open service of the File Protocol.
+ * See the UEFI spec for details.
+ *
+ * @this:	EFI_FILE_PROTOCOL instance
+ * @new_handle:	on return pointer to file handle
+ * @file_name:	file name
+ * @open_mode:	mode to open the file (read, read/write, create/read/write)
+ * @attributes:	attributes for newly created file
+ */
+static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *this,
+					 struct efi_file_handle **new_handle,
+					 u16 *file_name, u64 open_mode,
+					 u64 attributes)
+{
+	efi_status_t ret;
+
+	EFI_ENTRY("%p, %p, \"%ls\", %llx, %llu", this, new_handle,
+		  file_name, open_mode, attributes);
+
+	ret = efi_file_open_int(this, new_handle, file_name, open_mode,
+				attributes);
+
+	return EFI_EXIT(ret);
+}
+
+/**
+ * efi_file_open_ex() - open file asynchronously
+ *
+ * This function implements the OpenEx service of the File Protocol.
+ * See the UEFI spec for details.
+ *
+ * @this:	EFI_FILE_PROTOCOL instance
+ * @new_handle:	on return pointer to file handle
+ * @file_name:	file name
+ * @open_mode:	mode to open the file (read, read/write, create/read/write)
+ * @attributes:	attributes for newly created file
+ * @token:	transaction token
+ */
+static efi_status_t EFIAPI efi_file_open_ex(struct efi_file_handle *this,
+					    struct efi_file_handle **new_handle,
+					    u16 *file_name, u64 open_mode,
+					    u64 attributes,
+					    struct efi_file_io_token *token)
+{
+	efi_status_t ret;
+
+	EFI_ENTRY("%p, %p, \"%ls\", %llx, %llu, %p", this, new_handle,
+		  file_name, open_mode, attributes, token);
+
+	if (!token) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	ret = efi_file_open_int(this, new_handle, file_name, open_mode,
+				attributes);
+
+	if (ret == EFI_SUCCESS && token->event) {
+		token->status = EFI_SUCCESS;
+		efi_signal_event(token->event);
+	}
+
 out:
 	return EFI_EXIT(ret);
 }
@@ -441,19 +508,15 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 	return EFI_SUCCESS;
 }
 
-static efi_status_t EFIAPI efi_file_read(struct efi_file_handle *file,
-					 efi_uintn_t *buffer_size, void *buffer)
+static efi_status_t efi_file_read_int(struct efi_file_handle *this,
+				      efi_uintn_t *buffer_size, void *buffer)
 {
-	struct file_handle *fh = to_fh(file);
+	struct file_handle *fh = to_fh(this);
 	efi_status_t ret = EFI_SUCCESS;
 	u64 bs;
 
-	EFI_ENTRY("%p, %p, %p", file, buffer_size, buffer);
-
-	if (!buffer_size) {
-		ret = EFI_INVALID_PARAMETER;
-		goto error;
-	}
+	if (!this || !buffer_size || !buffer)
+		return EFI_INVALID_PARAMETER;
 
 	bs = *buffer_size;
 	if (fh->isdir)
@@ -465,34 +528,77 @@ static efi_status_t EFIAPI efi_file_read(struct efi_file_handle *file,
 	else
 		*buffer_size = SIZE_MAX;
 
-error:
-	return EFI_EXIT(ret);
+	return ret;
 }
 
 /**
- * efi_file_write() - write to file
+ * efi_file_read() - read file
  *
- * This function implements the Write() service of the EFI_FILE_PROTOCOL.
+ * This function implements the Read() service of the EFI_FILE_PROTOCOL.
  *
  * See the Unified Extensible Firmware Interface (UEFI) specification for
  * details.
  *
- * @file:		file handle
- * @buffer_size:	number of bytes to write
- * @buffer:		buffer with the bytes to write
+ * @this:		file protocol instance
+ * @buffer_size:	number of bytes to read
+ * @buffer:		read buffer
  * Return:		status code
  */
-static efi_status_t EFIAPI efi_file_write(struct efi_file_handle *file,
-					  efi_uintn_t *buffer_size,
-					  void *buffer)
+static efi_status_t EFIAPI efi_file_read(struct efi_file_handle *this,
+					 efi_uintn_t *buffer_size, void *buffer)
 {
-	struct file_handle *fh = to_fh(file);
+	efi_status_t ret;
+
+	EFI_ENTRY("%p, %p, %p", this, buffer_size, buffer);
+
+	ret = efi_file_read_int(this, buffer_size, buffer);
+
+	return EFI_EXIT(ret);
+}
+
+/**
+ * efi_file_read_ex() - read file asynchonously
+ *
+ * This function implements the ReadEx() service of the EFI_FILE_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:		file protocol instance
+ * @token:		transaction token
+ * Return:		status code
+ */
+static efi_status_t EFIAPI efi_file_read_ex(struct efi_file_handle *this,
+					    struct efi_file_io_token *token)
+{
+	efi_status_t ret;
+
+	EFI_ENTRY("%p, %p", this, token);
+
+	if (!token) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	ret = efi_file_read_int(this, &token->buffer_size, token->buffer);
+
+	if (ret == EFI_SUCCESS && token->event) {
+		token->status = EFI_SUCCESS;
+		efi_signal_event(token->event);
+	}
+
+out:
+	return EFI_EXIT(ret);
+}
+
+static efi_status_t efi_file_write_int(struct efi_file_handle *this,
+				       efi_uintn_t *buffer_size, void *buffer)
+{
+	struct file_handle *fh = to_fh(this);
 	efi_status_t ret = EFI_SUCCESS;
 	loff_t actwrite;
 
-	EFI_ENTRY("%p, %p, %p", file, buffer_size, buffer);
-
-	if (!file || !buffer_size || !buffer) {
+	if (!this || !buffer_size || !buffer) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
@@ -519,6 +625,67 @@ static efi_status_t EFIAPI efi_file_write(struct efi_file_handle *file,
 	}
 	*buffer_size = actwrite;
 	fh->offset += actwrite;
+
+out:
+	return ret;
+}
+
+/**
+ * efi_file_write() - write to file
+ *
+ * This function implements the Write() service of the EFI_FILE_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:		file protocol instance
+ * @buffer_size:	number of bytes to write
+ * @buffer:		buffer with the bytes to write
+ * Return:		status code
+ */
+static efi_status_t EFIAPI efi_file_write(struct efi_file_handle *this,
+					  efi_uintn_t *buffer_size,
+					  void *buffer)
+{
+	efi_status_t ret;
+
+	EFI_ENTRY("%p, %p, %p", this, buffer_size, buffer);
+
+	ret = efi_file_write_int(this, buffer_size, buffer);
+
+	return EFI_EXIT(ret);
+}
+
+/**
+ * efi_file_write_ex() - write to file
+ *
+ * This function implements the WriteEx() service of the EFI_FILE_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:		file protocol instance
+ * @token:		transaction token
+ * Return:		status code
+ */
+static efi_status_t EFIAPI efi_file_write_ex(struct efi_file_handle *this,
+					     struct efi_file_io_token *token)
+{
+	efi_status_t ret;
+
+	EFI_ENTRY("%p, %p", this, token);
+
+	if (!token) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	ret = efi_file_write_int(this, &token->buffer_size, token->buffer);
+
+	if (ret == EFI_SUCCESS && token->event) {
+		token->status = EFI_SUCCESS;
+		efi_signal_event(token->event);
+	}
 
 out:
 	return EFI_EXIT(ret);
@@ -761,36 +928,84 @@ out:
 	return EFI_EXIT(ret);
 }
 
-static efi_status_t EFIAPI efi_file_flush(struct efi_file_handle *file)
+/**
+ * efi_file_flush_int() - flush file
+ *
+ * This is the internal implementation of the Flush() and FlushEx() services of
+ * the EFI_FILE_PROTOCOL.
+ *
+ * @this:	file protocol instance
+ * Return:	status code
+ */
+static efi_status_t efi_file_flush_int(struct efi_file_handle *this)
 {
-	EFI_ENTRY("%p", file);
-	return EFI_EXIT(EFI_SUCCESS);
+	struct file_handle *fh = to_fh(this);
+
+	if (!this)
+		return EFI_INVALID_PARAMETER;
+
+	if (!(fh->open_mode & EFI_FILE_MODE_WRITE))
+		return EFI_ACCESS_DENIED;
+
+	/* TODO: flush for file position after end of file */
+	return EFI_SUCCESS;
 }
 
-static efi_status_t EFIAPI efi_file_open_ex(struct efi_file_handle *file,
-			struct efi_file_handle **new_handle,
-			u16 *file_name, u64 open_mode, u64 attributes,
-			struct efi_file_io_token *token)
+/**
+ * efi_file_flush() - flush file
+ *
+ * This function implements the Flush() service of the EFI_FILE_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:	file protocol instance
+ * Return:	status code
+ */
+static efi_status_t EFIAPI efi_file_flush(struct efi_file_handle *this)
 {
-	return EFI_UNSUPPORTED;
+	efi_status_t ret;
+
+	EFI_ENTRY("%p", this);
+
+	ret = efi_file_flush_int(this);
+
+	return EFI_EXIT(ret);
 }
 
-static efi_status_t EFIAPI efi_file_read_ex(struct efi_file_handle *file,
-			struct efi_file_io_token *token)
+/**
+ * efi_file_flush_ex() - flush file
+ *
+ * This function implements the FlushEx() service of the EFI_FILE_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:	file protocol instance
+ * @token:	transaction token
+ * Return:	status code
+ */
+static efi_status_t EFIAPI efi_file_flush_ex(struct efi_file_handle *this,
+					     struct efi_file_io_token *token)
 {
-	return EFI_UNSUPPORTED;
-}
+	efi_status_t ret;
 
-static efi_status_t EFIAPI efi_file_write_ex(struct efi_file_handle *file,
-			struct efi_file_io_token *token)
-{
-	return EFI_UNSUPPORTED;
-}
+	EFI_ENTRY("%p, %p", this, token);
 
-static efi_status_t EFIAPI efi_file_flush_ex(struct efi_file_handle *file,
-			struct efi_file_io_token *token)
-{
-	return EFI_UNSUPPORTED;
+	if (!token) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	ret = efi_file_flush_int(this);
+
+	if (ret == EFI_SUCCESS && token->event) {
+		token->status = EFI_SUCCESS;
+		efi_signal_event(token->event);
+	}
+
+out:
+	return EFI_EXIT(ret);
 }
 
 static const struct efi_file_handle efi_file_handle_protocol = {
