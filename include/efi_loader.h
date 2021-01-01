@@ -304,15 +304,17 @@ enum efi_image_auth_status {
  * @exit_status:	exit status passed to Exit()
  * @exit_data_size:	exit data size passed to Exit()
  * @exit_data:		exit data passed to Exit()
- * @exit_jmp:		long jump buffer for returning form started image
+ * @exit_jmp:		long jump buffer for returning from started image
  * @entry:		entry address of the relocated image
+ * @image_type:		indicates if the image is an applicition or a driver
+ * @auth_status:	indicates if the image is authenticated
  */
 struct efi_loaded_image_obj {
 	struct efi_object header;
-	efi_status_t exit_status;
+	efi_status_t *exit_status;
 	efi_uintn_t *exit_data_size;
 	u16 **exit_data;
-	struct jmp_buf_data exit_jmp;
+	struct jmp_buf_data *exit_jmp;
 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
 				     struct efi_system_table *st);
 	u16 image_type;
@@ -811,18 +813,27 @@ efi_status_t efi_image_region_add(struct efi_image_regions *regs,
 				  int nocheck);
 
 void efi_sigstore_free(struct efi_signature_store *sigstore);
+struct efi_signature_store *efi_build_signature_store(void *sig_list,
+						      efi_uintn_t size);
 struct efi_signature_store *efi_sigstore_parse_sigdb(u16 *name);
 
 bool efi_secure_boot_enabled(void);
 
+bool efi_capsule_auth_enabled(void);
+
 bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 		     WIN_CERTIFICATE **auth, size_t *auth_len);
+
+struct pkcs7_message *efi_parse_pkcs7_header(const void *buf,
+					     size_t buflen,
+					     u8 **tmpbuf);
 
 /* runtime implementation of memcpy() */
 void efi_memcpy_runtime(void *dest, const void *src, size_t n);
 
 /* commonly used helper function */
-u16 *efi_create_indexed_name(u16 *buffer, const char *name, unsigned int index);
+u16 *efi_create_indexed_name(u16 *buffer, size_t buffer_size, const char *name,
+			     unsigned int index);
 
 extern const struct efi_firmware_management_protocol efi_fmp_fit;
 extern const struct efi_firmware_management_protocol efi_fmp_raw;
@@ -837,6 +848,10 @@ efi_status_t EFIAPI efi_query_capsule_caps(
 		efi_uintn_t capsule_count,
 		u64 *maximum_capsule_size,
 		u32 *reset_type);
+
+efi_status_t efi_capsule_authenticate(const void *capsule,
+				      efi_uintn_t capsule_size,
+				      void **image, efi_uintn_t *image_size);
 
 #define EFI_CAPSULE_DIR L"\\EFI\\UpdateCapsule\\"
 

@@ -4,13 +4,11 @@
  */
 
 #include <common.h>
-#include <env.h>
-#include <malloc.h>
-#include <mapmem.h>
-#include <dm.h>
-#include <fs.h>
 #include <efi_loader.h>
 #include <efi_load_initrd.h>
+#include <fs.h>
+#include <malloc.h>
+#include <mapmem.h>
 
 static efi_status_t EFIAPI
 efi_load_file2_initrd(struct efi_load_file_protocol *this,

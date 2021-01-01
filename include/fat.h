@@ -22,7 +22,6 @@ struct disk_partition;
 
 #define MAX_CLUSTSIZE	CONFIG_FS_FAT_MAX_CLUSTSIZE
 
-#define DIRENTSPERBLOCK	(mydata->sect_size / sizeof(dir_entry))
 #define DIRENTSPERCLUST	((mydata->clust_size * mydata->sect_size) / \
 			 sizeof(dir_entry))
 
@@ -213,4 +212,16 @@ int fat_unlink(const char *filename);
 int fat_mkdir(const char *dirname);
 void fat_close(void);
 void *fat_next_cluster(fat_itr *itr, unsigned int *nbytes);
+
+/**
+ * fat_uuid() - get FAT volume ID
+ *
+ * The FAT volume ID returned in @uuid_str as hexadecimal number in XXXX-XXXX
+ * format.
+ *
+ * @uuid_str:	caller allocated buffer of at least 10 bytes for the volume ID
+ * Return:	0 on success
+ */
+int fat_uuid(char *uuid_str);
+
 #endif /* _FAT_H_ */

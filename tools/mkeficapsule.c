@@ -4,15 +4,21 @@
  *		Author: AKASHI Takahiro
  */
 
+#include <errno.h>
 #include <getopt.h>
 #include <malloc.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <linux/types.h>
+
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+
+#include "fdt_host.h"
 
 typedef __u8 u8;
 typedef __u16 u16;
@@ -22,6 +28,9 @@ typedef __s16 s16;
 typedef __s32 s32;
 
 #define aligned_u64 __aligned_u64
+
+#define SIGNATURE_NODENAME	"signature"
+#define OVERLAY_NODENAME	"__overlay__"
 
 #ifndef __packed
 #define __packed __attribute__((packed))
@@ -43,6 +52,9 @@ static struct option options[] = {
 	{"raw", required_argument, NULL, 'r'},
 	{"index", required_argument, NULL, 'i'},
 	{"instance", required_argument, NULL, 'I'},
+	{"dtb", required_argument, NULL, 'D'},
+	{"public key", required_argument, NULL, 'K'},
+	{"overlay", no_argument, NULL, 'O'},
 	{"help", no_argument, NULL, 'h'},
 	{NULL, 0, NULL, 0},
 };
@@ -51,12 +63,181 @@ static void print_usage(void)
 {
 	printf("Usage: %s [options] <output file>\n"
 	       "Options:\n"
-	       "\t--fit <fit image>      new FIT image file\n"
-	       "\t--raw <raw image>      new raw image file\n"
-	       "\t--index <index>        update image index\n"
-	       "\t--instance <instance>  update hardware instance\n"
-	       "\t--help                 print a help message\n",
+
+	       "\t--fit <fit image>       new FIT image file\n"
+	       "\t--raw <raw image>       new raw image file\n"
+	       "\t--index <index>         update image index\n"
+	       "\t--instance <instance>   update hardware instance\n"
+	       "\t--public-key <key file> public key esl file\n"
+	       "\t--dtb <dtb file>        dtb file\n"
+	       "\t--overlay               the dtb file is an overlay\n"
+	       "\t--help                  print a help message\n",
 	       tool_name);
+}
+
+static int fdt_add_pub_key_data(void *sptr, void *dptr, size_t key_size,
+				bool overlay)
+{
+	int parent;
+	int ov_node;
+	int frag_node;
+	int ret = 0;
+
+	if (overlay) {
+		/*
+		 * The signature would be stored in the
+		 * first fragment node of the overlay
+		 */
+		frag_node = fdt_first_subnode(dptr, 0);
+		if (frag_node == -FDT_ERR_NOTFOUND) {
+			fprintf(stderr,
+				"Couldn't find the fragment node: %s\n",
+				fdt_strerror(frag_node));
+			goto done;
+		}
+
+		ov_node = fdt_subnode_offset(dptr, frag_node, OVERLAY_NODENAME);
+		if (ov_node == -FDT_ERR_NOTFOUND) {
+			fprintf(stderr,
+				"Couldn't find the __overlay__ node: %s\n",
+				fdt_strerror(ov_node));
+			goto done;
+		}
+	} else {
+		ov_node = 0;
+	}
+
+	parent = fdt_subnode_offset(dptr, ov_node, SIGNATURE_NODENAME);
+	if (parent == -FDT_ERR_NOTFOUND) {
+		parent = fdt_add_subnode(dptr, ov_node, SIGNATURE_NODENAME);
+		if (parent < 0) {
+			ret = parent;
+			if (ret != -FDT_ERR_NOSPACE) {
+				fprintf(stderr,
+					"Couldn't create signature node: %s\n",
+					fdt_strerror(parent));
+			}
+		}
+	}
+	if (ret)
+		goto done;
+
+	/* Write the key to the FDT node */
+	ret = fdt_setprop(dptr, parent, "capsule-key",
+			  sptr, key_size);
+
+done:
+	if (ret)
+		ret = ret == -FDT_ERR_NOSPACE ? -ENOSPC : -EIO;
+
+	return ret;
+}
+
+static int add_public_key(const char *pkey_file, const char *dtb_file,
+			  bool overlay)
+{
+	int ret;
+	int srcfd = 0;
+	int destfd = 0;
+	void *sptr = NULL;
+	void *dptr = NULL;
+	off_t src_size;
+	struct stat pub_key;
+	struct stat dtb;
+
+	/* Find out the size of the public key */
+	srcfd = open(pkey_file, O_RDONLY);
+	if (srcfd == -1) {
+		fprintf(stderr, "%s: Can't open %s: %s\n",
+			__func__, pkey_file, strerror(errno));
+		goto err;
+	}
+
+	ret = fstat(srcfd, &pub_key);
+	if (ret == -1) {
+		fprintf(stderr, "%s: Can't stat %s: %s\n",
+			__func__, pkey_file, strerror(errno));
+		goto err;
+	}
+
+	src_size = pub_key.st_size;
+
+	/* mmap the public key esl file */
+	sptr = mmap(0, src_size, PROT_READ, MAP_SHARED, srcfd, 0);
+	if ((sptr == MAP_FAILED) || (errno != 0)) {
+		fprintf(stderr, "%s: Failed to mmap %s:%s\n",
+			__func__, pkey_file, strerror(errno));
+		goto err;
+	}
+
+	/* Open the dest FDT */
+	destfd = open(dtb_file, O_RDWR);
+	if (destfd == -1) {
+		fprintf(stderr, "%s: Can't open %s: %s\n",
+			__func__, dtb_file, strerror(errno));
+		goto err;
+	}
+
+	ret = fstat(destfd, &dtb);
+	if (ret == -1) {
+		fprintf(stderr, "%s: Can't stat %s: %s\n",
+			__func__, dtb_file, strerror(errno));
+		goto err;
+	}
+
+	dtb.st_size += src_size + 0x30;
+	if (ftruncate(destfd, dtb.st_size)) {
+		fprintf(stderr, "%s: Can't expand %s: %s\n",
+			__func__, dtb_file, strerror(errno));
+		goto err;;
+	}
+
+	errno = 0;
+	/* mmap the dtb file */
+	dptr = mmap(0, dtb.st_size, PROT_READ | PROT_WRITE, MAP_SHARED,
+		    destfd, 0);
+	if ((dptr == MAP_FAILED) || (errno != 0)) {
+		fprintf(stderr, "%s: Failed to mmap %s:%s\n",
+			__func__, dtb_file, strerror(errno));
+		goto err;
+	}
+
+	if (fdt_check_header(dptr)) {
+		fprintf(stderr, "%s: Invalid FDT header\n", __func__);
+		goto err;
+	}
+
+	ret = fdt_open_into(dptr, dptr, dtb.st_size);
+	if (ret) {
+		fprintf(stderr, "%s: Cannot expand FDT: %s\n",
+			__func__, fdt_strerror(ret));
+		goto err;
+	}
+
+	/* Copy the esl file to the expanded FDT */
+	ret = fdt_add_pub_key_data(sptr, dptr, src_size, overlay);
+	if (ret < 0) {
+		fprintf(stderr, "%s: Unable to add public key to the FDT\n",
+			__func__);
+		goto err;
+	}
+
+	return 0;
+
+err:
+	if (sptr)
+		munmap(sptr, src_size);
+
+	if (dptr)
+		munmap(dptr, dtb.st_size);
+
+	if (srcfd >= 0)
+		close(srcfd);
+
+	if (destfd >= 0)
+		close(destfd);
+
+	return -1;
 }
 
 static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
@@ -173,16 +354,22 @@ err_1:
 int main(int argc, char **argv)
 {
 	char *file;
+	char *pkey_file;
+	char *dtb_file;
 	efi_guid_t *guid;
 	unsigned long index, instance;
 	int c, idx;
+	int ret;
+	bool overlay = false;
 
 	file = NULL;
+	pkey_file = NULL;
+	dtb_file = NULL;
 	guid = NULL;
 	index = 0;
 	instance = 0;
 	for (;;) {
-		c = getopt_long(argc, argv, "f:r:i:I:v:h", options, &idx);
+		c = getopt_long(argc, argv, "f:r:i:I:v:D:K:Oh", options, &idx);
 		if (c == -1)
 			break;
 
@@ -209,22 +396,44 @@ int main(int argc, char **argv)
 		case 'I':
 			instance = strtoul(optarg, NULL, 0);
 			break;
+		case 'K':
+			if (pkey_file) {
+				printf("Public Key already specified\n");
+				return -1;
+			}
+			pkey_file = optarg;
+			break;
+		case 'D':
+			if (dtb_file) {
+				printf("DTB file already specified\n");
+				return -1;
+			}
+			dtb_file = optarg;
+			break;
+		case 'O':
+			overlay = true;
+			break;
 		case 'h':
 			print_usage();
 			return 0;
 		}
 	}
 
-	/* need a output file */
-	if (argc != optind + 1) {
+	/* need a fit image file or raw image file */
+	if (!file && !pkey_file && !dtb_file) {
+		printf("%s: %d\n", __func__, __LINE__);
 		print_usage();
 		return -1;
 	}
 
-	/* need a fit image file or raw image file */
-	if (!file) {
-		print_usage();
-		return -1;
+	if (pkey_file && dtb_file) {
+		ret = add_public_key(pkey_file, dtb_file, overlay);
+		if (ret == -1) {
+			printf("Adding public key to the dtb failed\n");
+			return -1;
+		} else {
+			return 0;
+		}
 	}
 
 	if (create_fwbin(argv[optind], file, guid, index, instance)

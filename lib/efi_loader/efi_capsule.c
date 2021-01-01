@@ -14,6 +14,10 @@
 #include <mapmem.h>
 #include <sort.h>
 
+#include <crypto/pkcs7.h>
+#include <crypto/pkcs7_parser.h>
+#include <linux/err.h>
+
 const efi_guid_t efi_guid_capsule_report = EFI_CAPSULE_REPORT_GUID;
 static const efi_guid_t efi_guid_firmware_management_capsule_id =
 		EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID;
@@ -73,8 +77,8 @@ void set_capsule_result(int index, struct efi_capsule_header *capsule,
 	struct efi_time time;
 	efi_status_t ret;
 
-	efi_create_indexed_name(variable_name16, "Capsule", index);
-
+	efi_create_indexed_name(variable_name16, sizeof(variable_name16),
+				"Capsule", index);
 	result.variable_total_size = sizeof(result);
 	result.capsule_guid = capsule->capsule_guid;
 	ret = EFI_CALL((*efi_runtime_services.get_time)(&time, NULL));
@@ -190,6 +194,124 @@ skip:
 
 	return NULL;
 }
+
+#if defined(CONFIG_EFI_CAPSULE_AUTHENTICATE)
+
+const efi_guid_t efi_guid_capsule_root_cert_guid =
+	EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID;
+
+__weak int efi_get_public_key_data(void **pkey, efi_uintn_t *pkey_len)
+{
+	/* The platform is supposed to provide
+	 * a method for getting the public key
+	 * stored in the form of efi signature
+	 * list
+	 */
+	return 0;
+}
+
+efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_size,
+				      void **image, efi_uintn_t *image_size)
+{
+	u8 *buf;
+	int ret;
+	void *fdt_pkey, *pkey;
+	efi_uintn_t pkey_len;
+	uint64_t monotonic_count;
+	struct efi_signature_store *truststore;
+	struct pkcs7_message *capsule_sig;
+	struct efi_image_regions *regs;
+	struct efi_firmware_image_authentication *auth_hdr;
+	efi_status_t status;
+
+	status = EFI_SECURITY_VIOLATION;
+	capsule_sig = NULL;
+	truststore = NULL;
+	regs = NULL;
+
+	/* Sanity checks */
+	if (capsule == NULL || capsule_size == 0)
+		goto out;
+
+	auth_hdr = (struct efi_firmware_image_authentication *)capsule;
+	if (capsule_size < sizeof(*auth_hdr))
+		goto out;
+
+	if (auth_hdr->auth_info.hdr.dwLength <=
+	    offsetof(struct win_certificate_uefi_guid, cert_data))
+		goto out;
+
+	if (guidcmp(&auth_hdr->auth_info.cert_type, &efi_guid_cert_type_pkcs7))
+		goto out;
+
+	*image = (uint8_t *)capsule + sizeof(auth_hdr->monotonic_count) +
+		auth_hdr->auth_info.hdr.dwLength;
+	*image_size = capsule_size - auth_hdr->auth_info.hdr.dwLength -
+		sizeof(auth_hdr->monotonic_count);
+	memcpy(&monotonic_count, &auth_hdr->monotonic_count,
+	       sizeof(monotonic_count));
+
+	/* data to be digested */
+	regs = calloc(sizeof(*regs) + sizeof(struct image_region) * 2, 1);
+	if (!regs)
+		goto out;
+
+	regs->max = 2;
+	efi_image_region_add(regs, (uint8_t *)*image,
+			     (uint8_t *)*image + *image_size, 1);
+
+	efi_image_region_add(regs, (uint8_t *)&monotonic_count,
+			     (uint8_t *)&monotonic_count + sizeof(monotonic_count),
+			     1);
+
+	capsule_sig = efi_parse_pkcs7_header(auth_hdr->auth_info.cert_data,
+					     auth_hdr->auth_info.hdr.dwLength
+					     - sizeof(auth_hdr->auth_info),
+					     &buf);
+	if (IS_ERR(capsule_sig)) {
+		debug("Parsing variable's pkcs7 header failed\n");
+		capsule_sig = NULL;
+		goto out;
+	}
+
+	ret = efi_get_public_key_data(&fdt_pkey, &pkey_len);
+	if (ret < 0)
+		goto out;
+
+	pkey = malloc(pkey_len);
+	if (!pkey)
+		goto out;
+
+	memcpy(pkey, fdt_pkey, pkey_len);
+	truststore = efi_build_signature_store(pkey, pkey_len);
+	if (!truststore)
+		goto out;
+
+	/* verify signature */
+	if (efi_signature_verify(regs, capsule_sig, truststore, NULL)) {
+		debug("Verified\n");
+	} else {
+		debug("Verifying variable's signature failed\n");
+		goto out;
+	}
+
+	status = EFI_SUCCESS;
+
+out:
+	efi_sigstore_free(truststore);
+	pkcs7_free_message(capsule_sig);
+	free(regs);
+
+	return status;
+}
+#else
+efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_size,
+				      void **image, efi_uintn_t *image_size)
+{
+	return EFI_UNSUPPORTED;
+}
+#endif /* CONFIG_EFI_CAPSULE_AUTHENTICATE */
+
 
 /**
  * efi_capsule_update_firmware - update firmware from capsule
@@ -896,7 +1018,8 @@ efi_status_t efi_launch_capsules(void)
 	free(files);
 
 	/* CapsuleLast */
-	efi_create_indexed_name(variable_name16, "Capsule", index - 1);
+	efi_create_indexed_name(variable_name16, sizeof(variable_name16),
+				"Capsule", index - 1);
 	efi_set_variable_int(L"CapsuleLast", &efi_guid_capsule_report,
 			     EFI_VARIABLE_READ_ONLY |
 			     EFI_VARIABLE_NON_VOLATILE |

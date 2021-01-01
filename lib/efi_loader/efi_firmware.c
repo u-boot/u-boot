@@ -11,7 +11,29 @@
 #include <dfu.h>
 #include <efi_loader.h>
 #include <image.h>
+#include <signatures.h>
+
 #include <linux/list.h>
+
+#define FMP_PAYLOAD_HDR_SIGNATURE	SIGNATURE_32('M', 'S', 'S', '1')
+
+/**
+ * struct fmp_payload_header - EDK2 header for the FMP payload
+ *
+ * This structure describes the header which is preprended to the
+ * FMP payload by the edk2 capsule generation scripts.
+ *
+ * @signature:			Header signature used to identify the header
+ * @header_size:		Size of the structure
+ * @fw_version:			Firmware versions used
+ * @lowest_supported_version:	Lowest supported version
+ */
+struct fmp_payload_header {
+	u32 signature;
+	u32 header_size;
+	u32 fw_version;
+	u32 lowest_supported_version;
+};
 
 /* Place holder; not supported */
 static
@@ -162,9 +184,16 @@ static efi_status_t efi_get_dfu_info(
 		image_info[i].version_name = NULL; /* not supported */
 		image_info[i].size = 0;
 		image_info[i].attributes_supported =
-				IMAGE_ATTRIBUTE_IMAGE_UPDATABLE;
+			IMAGE_ATTRIBUTE_IMAGE_UPDATABLE |
+			IMAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED;
 		image_info[i].attributes_setting =
 				IMAGE_ATTRIBUTE_IMAGE_UPDATABLE;
+
+		/* Check if the capsule authentication is enabled */
+		if (env_get("capsule_authentication_enabled"))
+			image_info[0].attributes_setting |=
+				IMAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED;
+
 		image_info[i].lowest_supported_image_version = 0;
 		image_info[i].last_attempt_version = 0;
 		image_info[i].last_attempt_status = LAST_ATTEMPT_STATUS_SUCCESS;
@@ -379,11 +408,57 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 	efi_status_t (*progress)(efi_uintn_t completion),
 	u16 **abort_reason)
 {
+	u32 fmp_hdr_signature;
+	struct fmp_payload_header *header;
+	void *capsule_payload;
+	efi_status_t status;
+	efi_uintn_t capsule_payload_size;
+
 	EFI_ENTRY("%p %d %p %ld %p %p %p\n", this, image_index, image,
 		  image_size, vendor_code, progress, abort_reason);
 
 	if (!image)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	/* Authenticate the capsule if authentication enabled */
+	if (IS_ENABLED(CONFIG_EFI_CAPSULE_AUTHENTICATE) &&
+	    env_get("capsule_authentication_enabled")) {
+		capsule_payload = NULL;
+		capsule_payload_size = 0;
+		status = efi_capsule_authenticate(image, image_size,
+						  &capsule_payload,
+						  &capsule_payload_size);
+
+		if (status == EFI_SECURITY_VIOLATION) {
+			printf("Capsule authentication check failed. Aborting update\n");
+			return EFI_EXIT(status);
+		} else if (status != EFI_SUCCESS) {
+			return EFI_EXIT(status);
+		}
+
+		debug("Capsule authentication successfull\n");
+		image = capsule_payload;
+		image_size = capsule_payload_size;
+	} else {
+		debug("Capsule authentication disabled. ");
+		debug("Updating capsule without authenticating.\n");
+	}
+
+	fmp_hdr_signature = FMP_PAYLOAD_HDR_SIGNATURE;
+	header = (void *)image;
+
+	if (!memcmp(&header->signature, &fmp_hdr_signature,
+		    sizeof(fmp_hdr_signature))) {
+		/*
+		 * When building the capsule with the scripts in
+		 * edk2, a FMP header is inserted above the capsule
+		 * payload. Compensate for this header to get the
+		 * actual payload that is to be updated.
+		 */
+		image += header->header_size;
+		image_size -= header->header_size;
+
+	}
 
 	if (dfu_write_by_alt(image_index - 1, (void *)image, image_size,
 			     NULL, NULL))

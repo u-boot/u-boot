@@ -24,91 +24,6 @@
 #include <asm/sections.h>
 
 #ifdef CONFIG_EFI_SECURE_BOOT
-static u8 pkcs7_hdr[] = {
-	/* SEQUENCE */
-	0x30, 0x82, 0x05, 0xc7,
-	/* OID: pkcs7-signedData */
-	0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x07, 0x02,
-	/* Context Structured? */
-	0xa0, 0x82, 0x05, 0xb8,
-};
-
-/**
- * efi_variable_parse_signature - parse a signature in variable
- * @buf:	Pointer to variable's value
- * @buflen:	Length of @buf
- * @tmpbuf:	Pointer to temporary buffer
- *
- * Parse a signature embedded in variable's value and instantiate
- * a pkcs7_message structure. Since pkcs7_parse_message() accepts only
- * pkcs7's signedData, some header needed be prepended for correctly
- * parsing authentication data, particularly for variable's.
- * A temporary buffer will be allocated if needed, and it should be
- * kept valid during the authentication because some data in the buffer
- * will be referenced by efi_signature_verify().
- *
- * Return:	Pointer to pkcs7_message structure on success, NULL on error
- */
-static struct pkcs7_message *efi_variable_parse_signature(const void *buf,
-							  size_t buflen,
-							  u8 **tmpbuf)
-{
-	u8 *ebuf;
-	size_t ebuflen, len;
-	struct pkcs7_message *msg;
-
-	/*
-	 * This is the best assumption to check if the binary is
-	 * already in a form of pkcs7's signedData.
-	 */
-	if (buflen > sizeof(pkcs7_hdr) &&
-	    !memcmp(&((u8 *)buf)[4], &pkcs7_hdr[4], 11)) {
-		msg = pkcs7_parse_message(buf, buflen);
-		if (IS_ERR(msg))
-			return NULL;
-		return msg;
-	}
-
-	/*
-	 * Otherwise, we should add a dummy prefix sequence for pkcs7
-	 * message parser to be able to process.
-	 * NOTE: EDK2 also uses similar hack in WrapPkcs7Data()
-	 * in CryptoPkg/Library/BaseCryptLib/Pk/CryptPkcs7VerifyCommon.c
-	 * TODO:
-	 * The header should be composed in a more refined manner.
-	 */
-	EFI_PRINT("Makeshift prefix added to authentication data\n");
-	ebuflen = sizeof(pkcs7_hdr) + buflen;
-	if (ebuflen <= 0x7f) {
-		EFI_PRINT("Data is too short\n");
-		return NULL;
-	}
-
-	ebuf = malloc(ebuflen);
-	if (!ebuf) {
-		EFI_PRINT("Out of memory\n");
-		return NULL;
-	}
-
-	memcpy(ebuf, pkcs7_hdr, sizeof(pkcs7_hdr));
-	memcpy(ebuf + sizeof(pkcs7_hdr), buf, buflen);
-	len = ebuflen - 4;
-	ebuf[2] = (len >> 8) & 0xff;
-	ebuf[3] = len & 0xff;
-	len = ebuflen - 0x13;
-	ebuf[0x11] = (len >> 8) & 0xff;
-	ebuf[0x12] = len & 0xff;
-
-	msg = pkcs7_parse_message(ebuf, ebuflen);
-
-	if (IS_ERR(msg)) {
-		free(ebuf);
-		return NULL;
-	}
-
-	*tmpbuf = ebuf;
-	return msg;
-}
 
 /**
  * efi_variable_authenticate - authenticate a variable
@@ -215,10 +130,10 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 		goto err;
 
 	/* ebuf should be kept valid during the authentication */
-	var_sig = efi_variable_parse_signature(auth->auth_info.cert_data,
-					       auth->auth_info.hdr.dwLength
-						   - sizeof(auth->auth_info),
-					       &ebuf);
+	var_sig = efi_parse_pkcs7_header(auth->auth_info.cert_data,
+					 auth->auth_info.hdr.dwLength
+					 - sizeof(auth->auth_info),
+					 &ebuf);
 	if (!var_sig) {
 		EFI_PRINT("Parsing variable's signature failed\n");
 		goto err;

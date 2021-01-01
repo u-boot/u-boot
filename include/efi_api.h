@@ -1813,6 +1813,24 @@ struct efi_variable_authentication_2 {
 } __attribute__((__packed__));
 
 /**
+ * efi_firmware_image_authentication - Capsule authentication method
+ * descriptor
+ *
+ * This structure describes an authentication information for
+ * a capsule with IMAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED set
+ * and should be included as part of the capsule.
+ * Only EFI_CERT_TYPE_PKCS7_GUID is accepted.
+ *
+ * @monotonic_count: Count to prevent replay
+ * @auth_info: Authentication info
+ */
+struct efi_firmware_image_authentication {
+	uint64_t monotonic_count;
+	struct win_certificate_uefi_guid auth_info;
+} __attribute__((__packed__));
+
+
+/**
  * efi_signature_data - A format of signature
  *
  * This structure describes a single signature in signature database.
