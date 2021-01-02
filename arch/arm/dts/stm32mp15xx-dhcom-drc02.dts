@@ -37,7 +37,7 @@
 	 */
 	usb-hub {
 		gpio-hog;
-		gpios = <8 GPIO_ACTIVE_HIGH>;
+		gpios = <8 0>;
 		output-high;
 		line-name = "rs485-rx-en";
 	};
@@ -65,7 +65,7 @@
 	 */
 	usb-hub {
 		gpio-hog;
-		gpios = <2 GPIO_ACTIVE_HIGH>;
+		gpios = <2 0>;
 		output-high;
 		line-name = "usb-hub-reset";
 	};
