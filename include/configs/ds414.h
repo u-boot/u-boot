@@ -24,31 +24,13 @@
 #define CONFIG_SYS_I2C_SLAVE		0x0
 #define CONFIG_SYS_I2C_SPEED		100000
 
-/* Environment in SPI NOR flash */
-
-#define CONFIG_SYS_NETA_INTERFACE_TYPE	PHY_INTERFACE_MODE_RGMII
-
 /* PCIe support */
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_PCI_SCAN_SHOW
 #endif
 
 /* USB/EHCI/XHCI configuration */
-
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
-
-/* FIXME: broken XHCI support
- * Below defines should enable support for the two rear USB3 ports. Sadly, this
- * does not work because:
- * - xhci-pci seems to not support DM_USB, so with that enabled it is not
- *   found.
- * - USB init fails, controller does not respond in time */
-
-#if !defined(CONFIG_USB_XHCI_HCD)
 #define CONFIG_EHCI_IS_TDI
-#endif
-
-/* why is this only defined in mv-common.h if CONFIG_DM is undefined? */
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
@@ -94,5 +76,8 @@
 /* Default Environment */
 #define CONFIG_BOOTCOMMAND	"sf read ${loadaddr} 0xd0000 0x700000; bootm"
 #define CONFIG_LOADADDR		0x80000
+
+/* increase autoneg timeout, my NIC sucks */
+#define PHY_ANEG_TIMEOUT	16000
 
 #endif /* _CONFIG_SYNOLOGY_DS414_H */
