@@ -47,16 +47,17 @@ void dm_pciauto_setup_device(struct udevice *dev, int bars_num,
 			dm_pci_write_config32(dev, bar, 0xffffffff);
 		dm_pci_read_config32(dev, bar, &bar_response);
 
-		/* If BAR is not implemented go to the next BAR */
-		if (!bar_response)
+		/* If BAR is not implemented (or invalid) go to the next BAR */
+		if (!bar_response || bar_response == 0xffffffff)
 			continue;
 
 		found_mem64 = 0;
 
 		/* Check the BAR type and set our address mask */
 		if (bar_response & PCI_BASE_ADDRESS_SPACE) {
-			bar_size = ((~(bar_response & PCI_BASE_ADDRESS_IO_MASK))
-				   & 0xffff) + 1;
+			bar_size = bar_response & PCI_BASE_ADDRESS_IO_MASK;
+			bar_size &= ~(bar_size - 1);
+
 			if (!enum_only)
 				bar_res = io;
 
