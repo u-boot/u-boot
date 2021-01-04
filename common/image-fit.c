@@ -15,7 +15,6 @@
 #include <u-boot/crc.h>
 #else
 #include <linux/compiler.h>
-#include <linux/kconfig.h>
 #include <common.h>
 #include <errno.h>
 #include <log.h>
@@ -28,6 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <bootm.h>
 #include <image.h>
 #include <bootstage.h>
+#include <linux/kconfig.h>
 #include <u-boot/crc.h>
 #include <u-boot/md5.h>
 #include <u-boot/sha1.h>
@@ -486,16 +486,16 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 
 	ret = fit_image_get_data_and_size(fit, image_noffset, &data, &size);
 
-#ifndef USE_HOSTCC
-	printf("%s  Data Start:   ", p);
-	if (ret) {
-		printf("unavailable\n");
-	} else {
-		void *vdata = (void *)data;
+	if (!host_build()) {
+		printf("%s  Data Start:   ", p);
+		if (ret) {
+			printf("unavailable\n");
+		} else {
+			void *vdata = (void *)data;
 
-		printf("0x%08lx\n", (ulong)map_to_sysmem(vdata));
+			printf("0x%08lx\n", (ulong)map_to_sysmem(vdata));
+		}
 	}
-#endif
 
 	printf("%s  Data Size:    ", p);
 	if (ret)
@@ -1420,7 +1420,6 @@ int fit_all_image_verify(const void *fit)
 	return 1;
 }
 
-#ifdef CONFIG_FIT_CIPHER
 static int fit_image_uncipher(const void *fit, int image_noffset,
 			      void **data, size_t *size)
 {
@@ -1444,7 +1443,6 @@ static int fit_image_uncipher(const void *fit, int image_noffset,
  out:
 	return ret;
 }
-#endif /* CONFIG_FIT_CIPHER */
 
 /**
  * fit_image_check_os - check whether image node is of a given os type
@@ -1486,9 +1484,8 @@ int fit_image_check_arch(const void *fit, int noffset, uint8_t arch)
 	uint8_t image_arch;
 	int aarch32_support = 0;
 
-#ifdef CONFIG_ARM64_SUPPORT_AARCH32
-	aarch32_support = 1;
-#endif
+	if (IS_ENABLED(CONFIG_ARM64_SUPPORT_AARCH32))
+		aarch32_support = 1;
 
 	if (fit_image_get_arch(fit, noffset, &image_arch))
 		return 0;
@@ -1977,13 +1974,13 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	}
 
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_CHECK_ARCH);
-#if !defined(USE_HOSTCC) && !defined(CONFIG_SANDBOX)
-	if (!fit_image_check_target_arch(fit, noffset)) {
-		puts("Unsupported Architecture\n");
-		bootstage_error(bootstage_id + BOOTSTAGE_SUB_CHECK_ARCH);
-		return -ENOEXEC;
+	if (!host_build() && IS_ENABLED(CONFIG_SANDBOX)) {
+		if (!fit_image_check_target_arch(fit, noffset)) {
+			puts("Unsupported Architecture\n");
+			bootstage_error(bootstage_id + BOOTSTAGE_SUB_CHECK_ARCH);
+			return -ENOEXEC;
+		}
 	}
-#endif
 
 #ifndef USE_HOSTCC
 	fit_image_get_arch(fit, noffset, &os_arch);
@@ -2029,9 +2026,8 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 		return -ENOENT;
 	}
 
-#ifdef CONFIG_FIT_CIPHER
 	/* Decrypt data before uncompress/move */
-	if (IMAGE_ENABLE_DECRYPT) {
+	if (IS_ENABLED(CONFIG_FIT_CIPHER) && IMAGE_ENABLE_DECRYPT) {
 		puts("   Decrypting Data ... ");
 		if (fit_image_uncipher(fit, noffset, &buf, &size)) {
 			puts("Error\n");
@@ -2039,12 +2035,10 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 		}
 		puts("OK\n");
 	}
-#endif
 
-#if !defined(USE_HOSTCC) && defined(CONFIG_FIT_IMAGE_POST_PROCESS)
 	/* perform any post-processing on the image data */
-	board_fit_image_post_process(&buf, &size);
-#endif
+	if (!host_build() && IS_ENABLED(CONFIG_FIT_IMAGE_POST_PROCESS))
+		board_fit_image_post_process(&buf, &size);
 
 	len = (ulong)size;
 
