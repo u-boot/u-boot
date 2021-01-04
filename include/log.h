@@ -156,6 +156,9 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
  */
 #if CONFIG_IS_ENABLED(LOG)
 #define _LOG_MAX_LEVEL CONFIG_VAL(LOG_MAX_LEVEL)
+#define log_emer(_fmt...)	log(LOG_CATEGORY, LOGL_EMERG, ##_fmt)
+#define log_alert(_fmt...)	log(LOG_CATEGORY, LOGL_ALERT, ##_fmt)
+#define log_crit(_fmt...)	log(LOG_CATEGORY, LOGL_CRIT, ##_fmt)
 #define log_err(_fmt...)	log(LOG_CATEGORY, LOGL_ERR, ##_fmt)
 #define log_warning(_fmt...)	log(LOG_CATEGORY, LOGL_WARNING, ##_fmt)
 #define log_notice(_fmt...)	log(LOG_CATEGORY, LOGL_NOTICE, ##_fmt)
@@ -163,12 +166,17 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
 #define log_debug(_fmt...)	log(LOG_CATEGORY, LOGL_DEBUG, ##_fmt)
 #define log_content(_fmt...)	log(LOG_CATEGORY, LOGL_DEBUG_CONTENT, ##_fmt)
 #define log_io(_fmt...)		log(LOG_CATEGORY, LOGL_DEBUG_IO, ##_fmt)
+#define log_cont(_fmt...)	log(LOGC_CONT, LOGL_CONT, ##_fmt)
 #else
 #define _LOG_MAX_LEVEL LOGL_INFO
+#define log_emerg(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
+#define log_alert(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
+#define log_crit(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
 #define log_err(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
 #define log_warning(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
 #define log_notice(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
 #define log_info(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
+#define log_cont(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
 #define log_debug(_fmt, ...)	debug(_fmt, ##__VA_ARGS__)
 #define log_content(_fmt...)	log_nop(LOG_CATEGORY, \
 					LOGL_DEBUG_CONTENT, ##_fmt)
