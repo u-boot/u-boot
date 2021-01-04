@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2019 Parthiban Nallathambi <parthitce@gmail.com>
+ * Copyright (C) 2021 Marc Ferland, Amotus Solutions Inc., <ferlandm@amotus.ca>
  */
 
 / {
@@ -22,36 +23,25 @@
 
 &fec1 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_enet1>;
+	pinctrl-0 = <&pinctrl_enet1 &pinctrl_enet1_rst &pinctrl_enet1_mdio>;
 	phy-mode = "rmii";
 	phy-handle = <&ethphy0>;
+	phy-reset-gpios = <&gpio5 0 GPIO_ACTIVE_LOW>;
+	phy-reset-duration = <100>;
 	status = "okay";
 
-	mdio1: mdio1 {
+	mdio1: mdio {
 		#address-cells = <1>;
 		#size-cells = <0>;
 
+		/* KSZ8081RNB (SoM) */
 		ethphy0: ethernet-phy@1 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			clocks = <&clks IMX6UL_CLK_ENET_REF>;
+			clock-names = "rmii-ref";
+			micrel,led-mode = <1>;
+			max-speed = <100>;
 			reg = <1>;
-			micrel,led-mode = <1>;
-		};
-	};
-};
-
-&fec2 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_enet2>;
-	phy-mode = "rmii";
-	phy-handle = <&ethphy1>;
-	status = "okay";
-
-	mdio2: mdio2 {
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		ethphy1: ethernet-phy@2 {
-			reg = <2>;
-			micrel,led-mode = <1>;
 		};
 	};
 };
@@ -149,10 +139,9 @@
 &iomuxc {
 	pinctrl-names = "default";
 
+
 	pinctrl_enet1: enet1grp {
 		fsl,pins = <
-			MX6UL_PAD_GPIO1_IO06__ENET1_MDIO	0x1b0b0
-			MX6UL_PAD_GPIO1_IO07__ENET1_MDC		0X1b0b0
 			MX6UL_PAD_ENET1_RX_EN__ENET1_RX_EN	0x1b0b0
 			MX6UL_PAD_ENET1_RX_ER__ENET1_RX_ER	0x1b0b0
 			MX6UL_PAD_ENET1_RX_DATA0__ENET1_RDATA00	0x1b0b0
@@ -164,18 +153,10 @@
 		>;
 	};
 
-	pinctrl_enet2: enet2grp {
+	pinctrl_enet1_mdio: enet1-mdio-grp {
 		fsl,pins = <
-			MX6UL_PAD_GPIO1_IO06__ENET2_MDIO	0x1b0b0
-			MX6UL_PAD_GPIO1_IO07__ENET2_MDC		0X1b0b0
-			MX6UL_PAD_ENET2_RX_EN__ENET2_RX_EN	0x1b0b0
-			MX6UL_PAD_ENET2_RX_ER__ENET2_RX_ER	0x1b0b0
-			MX6UL_PAD_ENET2_RX_DATA0__ENET2_RDATA00	0x1b0b0
-			MX6UL_PAD_ENET2_RX_DATA1__ENET2_RDATA01	0x1b0b0
-			MX6UL_PAD_ENET2_TX_EN__ENET2_TX_EN	0x1b0b0
-			MX6UL_PAD_ENET2_TX_DATA0__ENET2_TDATA00	0x1b0b0
-			MX6UL_PAD_ENET2_TX_DATA1__ENET2_TDATA01	0x1b0b0
-			MX6UL_PAD_ENET2_TX_CLK__ENET2_REF_CLK2	0x4001b031
+			MX6UL_PAD_GPIO1_IO07__ENET1_MDC		0x1b0b0
+			MX6UL_PAD_GPIO1_IO06__ENET1_MDIO	0x1b0b0
 		>;
 	};
 
@@ -269,6 +250,14 @@
 			MX6UL_PAD_NAND_DATA05__USDHC2_DATA5	0x170f9
 			MX6UL_PAD_NAND_DATA06__USDHC2_DATA6	0x170f9
 			MX6UL_PAD_NAND_DATA07__USDHC2_DATA7	0x170f9
+		>;
+	};
+};
+
+&iomuxc_snvs {
+	pinctrl_enet1_rst: enet1-rst-grp {
+		fsl,pins = <
+			MX6ULL_PAD_SNVS_TAMPER0__GPIO5_IO00	0x1b0b0
 		>;
 	};
 };
