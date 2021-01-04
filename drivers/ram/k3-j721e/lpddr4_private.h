@@ -14,9 +14,9 @@
 #define VERSION_0  (0x54d5da40U)
 #define VERSION_1  (0xc1865a1U)
 
-#define BIT_MASK    (0x1U)
-#define BYTE_MASK   (0xffU)
-#define NIBBLE_MASK (0xfU)
+#define LPDDR4_BIT_MASK	(0x1U)
+#define BYTE_MASK	(0xffU)
+#define NIBBLE_MASK	(0xfU)
 
 #define WORD_SHIFT (32U)
 #define WORD_MASK (0xffffffffU)
@@ -46,11 +46,15 @@
 #define IO_CALIB_DONE ((uint32_t)0x1U << 23U)
 #define IO_CALIB_FIELD ((uint32_t)NIBBLE_MASK << 28U)
 #define IO_CALIB_STATE ((uint32_t)0xBU << 28U)
-#define RX_CAL_DONE ((uint32_t)BIT_MASK << 4U)
-#define CA_TRAIN_RL (((uint32_t)BIT_MASK << 5U) | ((uint32_t)BIT_MASK << 4U))
+#define RX_CAL_DONE ((uint32_t)LPDDR4_BIT_MASK << 4U)
+#define CA_TRAIN_RL (((uint32_t)LPDDR4_BIT_MASK << 5U) | \
+		     ((uint32_t)LPDDR4_BIT_MASK << 4U))
 #define WR_LVL_STATE (((uint32_t)NIBBLE_MASK) << 13U)
-#define GATE_LVL_ERROR_FIELDS (((uint32_t)BIT_MASK << 7U) | ((uint32_t)BIT_MASK << 6U))
-#define READ_LVL_ERROR_FIELDS ((((uint32_t)NIBBLE_MASK) << 28U) | (((uint32_t)BYTE_MASK) << 16U))
-#define DQ_LVL_STATUS (((uint32_t)BIT_MASK << 26U) | (((uint32_t)BYTE_MASK) << 18U))
+#define GATE_LVL_ERROR_FIELDS (((uint32_t)LPDDR4_BIT_MASK << 7U) | \
+			       ((uint32_t)LPDDR4_BIT_MASK << 6U))
+#define READ_LVL_ERROR_FIELDS ((((uint32_t)NIBBLE_MASK) << 28U) | \
+			       (((uint32_t)BYTE_MASK) << 16U))
+#define DQ_LVL_STATUS (((uint32_t)LPDDR4_BIT_MASK << 26U) | \
+		       (((uint32_t)BYTE_MASK) << 18U))
 
 #endif  /* LPDDR4_PRIV_H */
