@@ -264,6 +264,11 @@ static int ubi_rename_vol(char *oldname, char *newname)
 		return ENODEV;
 	}
 
+	if (!ubi_check(newname)) {
+		printf("%s: volume %s already exist\n", __func__, newname);
+		return EINVAL;
+	}
+
 	printf("Rename UBI volume %s to %s\n", oldname, newname);
 
 	if (ubi->ro_mode) {
