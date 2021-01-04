@@ -324,7 +324,8 @@ void *board_fdt_blob_setup(void)
 {
 	void *fdt_blob;
 
-	if (!IS_ENABLED(CONFIG_VERSAL_NO_DDR) &&
+	if (!IS_ENABLED(CONFIG_SPL_BUILD) &&
+	    !IS_ENABLED(CONFIG_VERSAL_NO_DDR) &&
 	    !IS_ENABLED(CONFIG_VERSAL_NO_DDR)) {
 		fdt_blob = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
 
