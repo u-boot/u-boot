@@ -180,7 +180,7 @@ struct dart6ul_info {
 #define DART6UL_INFO_STORAGE_GET(n) ((n) & 0x3)
 #define DART6UL_INFO_WIFI_GET(n)    ((n) >> 2 & 0x1)
 #define DART6UL_INFO_REV_GET(n)     ((n) >> 3 & 0x3)
-#define DART6UL_DDRSIZE_IN_MIB(n)   ((n) << 8)
+#define DART6UL_DDRSIZE(n)          ((n) * SZ_128M)
 #define DART6UL_INFO_MAGIC          0x32524156
 
 static const char *som_info_storage_to_str(u8 som_info)
@@ -253,7 +253,7 @@ int checkboard(void)
 	       info->date,
 	       som_info_storage_to_str(info->som_info),
 	       DART6UL_INFO_WIFI_GET(info->som_info) ? "yes" : "no",
-	       DART6UL_DDRSIZE_IN_MIB(info->ddr_size),
+	       DART6UL_DDRSIZE(info->ddr_size) / SZ_1M,
 	       som_info_rev_to_str(info->som_info));
 
 	free(info);
