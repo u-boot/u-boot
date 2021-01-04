@@ -217,10 +217,9 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
 #if !_DEBUG && CONFIG_IS_ENABLED(LOG)
 
 #define debug_cond(cond, fmt, args...)			\
-	do {						\
-		if (1)					\
-			log(LOG_CATEGORY, LOGL_DEBUG, fmt, ##args); \
-	} while (0)
+({							\
+	log(LOG_CATEGORY, LOGL_DEBUG, fmt, ##args);	\
+})
 
 #else /* _DEBUG */
 
@@ -229,11 +228,11 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
  * computed by a preprocessor in the best case, allowing for the best
  * optimization.
  */
-#define debug_cond(cond, fmt, args...)			\
-	do {						\
-		if (cond)				\
-			printf(pr_fmt(fmt), ##args);	\
-	} while (0)
+#define debug_cond(cond, fmt, args...)		\
+({						\
+	if (cond)				\
+		printf(pr_fmt(fmt), ##args);	\
+})
 
 #endif /* _DEBUG */
 
