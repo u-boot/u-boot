@@ -695,8 +695,8 @@ config LIB_DATE
 config LIB_ELF
 	bool
 	help
-	  Supoort basic elf loading/validating functions.
-	  This supports fir 32 bit and 64 bit versions.
+	  Support basic elf loading/validating functions.
+	  This supports for 32 bit and 64 bit versions.
 
 endmenu
 
