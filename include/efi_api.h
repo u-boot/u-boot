@@ -34,8 +34,6 @@ enum efi_timer_delay {
 	EFI_TIMER_RELATIVE = 2
 };
 
-#define efi_intn_t ssize_t
-#define efi_uintn_t size_t
 typedef void *efi_hii_handle_t;
 typedef u16 *efi_string_t;
 typedef u16 efi_string_id_t;
