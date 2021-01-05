@@ -541,8 +541,6 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 
 	ret = efi_add_memory_map_pg(memory, pages, EFI_CONVENTIONAL_MEMORY,
 				    false);
-	/* Merging of adjacent free regions is missing */
-
 	if (ret != EFI_SUCCESS)
 		return EFI_NOT_FOUND;
 
