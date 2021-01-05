@@ -36,7 +36,7 @@ static const struct pinconf_param conf_params[] = {
 	{ "input-debounce", PIN_CONFIG_INPUT_DEBOUNCE, 0 },
 };
 
-static u32 atmel_pinctrl_get_pinconf(const void *blob, int node)
+static u32 atmel_pinctrl_get_pinconf(struct udevice *config)
 {
 	const struct pinconf_param *params;
 	u32 param, arg, conf = 0;
@@ -44,7 +44,7 @@ static u32 atmel_pinctrl_get_pinconf(const void *blob, int node)
 
 	for (i = 0; i < ARRAY_SIZE(conf_params); i++) {
 		params = &conf_params[i];
-		if (!fdt_get_property(blob, node, params->property, NULL))
+		if (!dev_read_prop(config, params->property, NULL))
 			continue;
 
 		param = params->param;
@@ -115,7 +115,7 @@ static int atmel_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	u32 i, conf;
 	int count;
 
-	conf = atmel_pinctrl_get_pinconf(blob, node);
+	conf = atmel_pinctrl_get_pinconf(config);
 
 	count = fdtdec_get_int_array_count(blob, node, "pinmux",
 					   cells, ARRAY_SIZE(cells));
