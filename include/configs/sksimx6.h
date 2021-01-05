@@ -10,9 +10,6 @@
 #include "mx6_common.h"
 #include "imx6_spl.h"
 
-/* Thermal */
-#define CONFIG_IMX_THERMAL
-
 /* Serial */
 #define CONFIG_MXC_UART_BASE	       UART1_BASE
 

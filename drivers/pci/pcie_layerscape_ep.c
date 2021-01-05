@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <asm/arch/fsl_serdes.h>
 #include <dm.h>
 #include <dm/devres.h>
 #include <errno.h>
@@ -272,7 +273,9 @@ static int ls_pcie_ep_probe(struct udevice *dev)
 
 	svr = SVR_SOC_VER(get_svr());
 
-	if (svr == SVR_LX2160A)
+	if (svr == SVR_LX2160A || svr == SVR_LX2162A ||
+	    svr == SVR_LX2120A || svr == SVR_LX2080A ||
+	    svr == SVR_LX2122A || svr == SVR_LX2082A)
 		pcie_ep->pf1_offset = LX2160_PCIE_PF1_OFFSET;
 	else
 		pcie_ep->pf1_offset = LS_PCIE_PF1_OFFSET;
@@ -294,7 +297,8 @@ static int ls_pcie_ep_probe(struct udevice *dev)
 	pcie_ep->num_ob_wins = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					      "num-ob-windows", 8);
 
-	printf("PCIe%u: %s %s", pcie->idx, dev->name, "Endpoint");
+	printf("PCIe%u: %s %s", PCIE_SRDS_PRTCL(pcie->idx), dev->name,
+	       "Endpoint");
 	ls_pcie_setup_ep(pcie_ep);
 
 	if (!ls_pcie_link_up(pcie)) {

@@ -209,7 +209,7 @@ int read_i2c_vpd(struct vpd_cache *cache,
 	u8 *data;
 	int size;
 
-	ret = uclass_get_device_by_name(UCLASS_I2C_EEPROM, "vpd", &dev);
+	ret = uclass_get_device_by_name(UCLASS_I2C_EEPROM, "vpd@0", &dev);
 	if (ret)
 		return ret;
 

@@ -149,7 +149,9 @@
 /* USB */
 #ifdef CONFIG_USB
 #define CONFIG_HAS_FSL_XHCI_USB
+#ifndef CONFIG_TARGET_LX2162AQDS
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
+#endif
 #endif
 
 /* FlexSPI */
@@ -230,7 +232,7 @@ unsigned long get_board_ddr_clk(void);
 	"kernel_size=0x2800000\0"		\
 	"kernel_addr_sd=0x8000\0"		\
 	"kernelhdr_addr_sd=0x3000\0"            \
-	"kernel_size_sd=0x1d000\0"              \
+	"kernel_size_sd=0x14000\0"              \
 	"kernelhdr_size_sd=0x20\0"              \
 	"console=ttyAMA0,38400n8\0"		\
 	BOOTENV					\

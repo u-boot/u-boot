@@ -400,10 +400,12 @@ void fdt_fixup_remove_jr(void *blob)
 
 	while (jr_node != -FDT_ERR_NOTFOUND) {
 		reg = (fdt32_t *)fdt_getprop(blob, jr_node, "reg", &len);
-		jr_offset = fdt_read_number(reg, addr_cells);
-		if (jr_offset == used_jr) {
-			fdt_del_node(blob, jr_node);
-			break;
+		if (reg) {
+			jr_offset = fdt_read_number(reg, addr_cells);
+			if (jr_offset == used_jr) {
+				fdt_del_node(blob, jr_node);
+				break;
+			}
 		}
 		jr_node = fdt_node_offset_by_compatible(blob, jr_node,
 							"fsl,sec-v4.0-job-ring");

@@ -152,7 +152,7 @@ void device_free(struct udevice *dev)
 static bool flags_remove(uint flags, uint drv_flags)
 {
 	if ((flags & DM_REMOVE_NORMAL) ||
-	    (flags & (drv_flags & (DM_FLAG_ACTIVE_DMA | DM_FLAG_OS_PREPARE))))
+	    (flags && (drv_flags & (DM_FLAG_ACTIVE_DMA | DM_FLAG_OS_PREPARE))))
 		return true;
 
 	return false;

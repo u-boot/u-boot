@@ -118,7 +118,9 @@
 	  "setenv efi_fdtfile ${soc}-${board}${boardver}.dtb; "           \
 	"fi; "
 #else
+#ifndef BOOTENV_EFI_SET_FDTFILE_FALLBACK
 #define BOOTENV_EFI_SET_FDTFILE_FALLBACK
+#endif
 #endif
 
 
@@ -367,6 +369,7 @@
 #endif
 #define BOOTENV_DEV_DHCP(devtypeu, devtypel, instance) \
 	"bootcmd_dhcp=" \
+		"setenv devtype " #devtypel "; " \
 		BOOTENV_RUN_NET_USB_START \
 		BOOTENV_RUN_PCI_ENUM \
 		"if dhcp ${scriptaddr} ${boot_script_dhcp}; then " \

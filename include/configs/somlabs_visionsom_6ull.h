@@ -104,6 +104,4 @@
 #define CONFIG_ETHPRIME			"eth0"
 #endif
 
-#define CONFIG_IMX_THERMAL
-
 #endif

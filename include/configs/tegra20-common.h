@@ -51,6 +51,7 @@
 	"scriptaddr=0x10000000\0" \
 	"pxefile_addr_r=0x10100000\0" \
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"fdtfile=" FDTFILE "\0" \
 	"fdt_addr_r=0x03000000\0" \
 	"ramdisk_addr_r=0x03100000\0"
 

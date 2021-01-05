@@ -2,7 +2,7 @@
 /*
  * NXP ls1088a SOC common device tree source
  *
- * Copyright 2017 NXP
+ * Copyright 2017, 2020 NXP
  */
 
 / {
@@ -135,7 +135,7 @@
 		dr_mode = "host";
 	};
 
-	pcie@3400000 {
+	pcie1: pcie@3400000 {
 		compatible = "fsl,ls-pcie", "snps,dw-pcie";
 		reg = <0x00 0x03400000 0x0 0x80000   /* dbi registers */
 		       0x00 0x03480000 0x0 0x80000   /* lut registers */
@@ -151,7 +151,7 @@
 			  0x82000000 0x0 0x40000000 0x20 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
 	};
 
-	pcie@3500000 {
+	pcie2: pcie@3500000 {
 		compatible = "fsl,ls-pcie", "snps,dw-pcie";
 		reg = <0x00 0x03500000 0x0 0x80000   /* dbi registers */
 		       0x00 0x03580000 0x0 0x80000   /* lut registers */
@@ -167,7 +167,7 @@
 			  0x82000000 0x0 0x40000000 0x28 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
 	};
 
-	pcie@3600000 {
+	pcie3: pcie@3600000 {
 		compatible = "fsl,ls-pcie", "snps,dw-pcie";
 		reg = <0x00 0x03600000 0x0 0x80000   /* dbi registers */
 		       0x00 0x03680000 0x0 0x80000   /* lut registers */

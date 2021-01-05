@@ -382,7 +382,6 @@ static int sam9x60_clk_probe(struct udevice *dev)
 	const char *p[10];
 	unsigned int cm[10], m[10], *tmpclkmux, *tmpmux;
 	struct clk clk, *c;
-	bool main_osc_bypass;
 	int ret, muxallocindex = 0, clkmuxallocindex = 0, i;
 	static const struct clk_range r = { 0, 0 };
 
@@ -440,8 +439,6 @@ static int sam9x60_clk_probe(struct udevice *dev)
 	if (ret)
 		goto fail;
 
-	main_osc_bypass = dev_read_bool(dev, "atmel,main-osc-bypass");
-
 	/* Register main rc oscillator. */
 	c = at91_clk_main_rc(base, clk_names[ID_MAIN_RC_OSC],
 			     clk_names[ID_MAIN_RC]);
@@ -453,7 +450,7 @@ static int sam9x60_clk_probe(struct udevice *dev)
 
 	/* Register main oscillator. */
 	c = at91_clk_main_osc(base, clk_names[ID_MAIN_OSC],
-			      clk_names[ID_MAIN_XTAL], main_osc_bypass);
+			      clk_names[ID_MAIN_XTAL], false);
 	if (IS_ERR(c)) {
 		ret = PTR_ERR(c);
 		goto fail;

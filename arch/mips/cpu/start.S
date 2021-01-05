@@ -74,9 +74,14 @@
 	.endm
 
 ENTRY(_start)
-	/* U-Boot entry point */
+	/*
+	 * U-Boot entry point.
+	 * Do not add instructions to the branch delay slot! Some SoC's
+	 * like Octeon might patch the final U-Boot binary at this location
+	 * with additional boot headers.
+	 */
 	b	reset
-	 mtc0	zero, CP0_COUNT	# clear cp0 count for most accurate boot timing
+	 nop
 
 #if defined(CONFIG_MIPS_INSERT_BOOT_CONFIG)
 	/*
@@ -123,6 +128,7 @@ ENTRY(_start)
 #endif
 
 reset:
+	mtc0	zero, CP0_COUNT	# clear cp0 count for most accurate boot timing
 #if __mips_isa_rev >= 6
 	mfc0	t0, CP0_CONFIG, 5
 	and	t0, t0, MIPS_CONF5_VP

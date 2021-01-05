@@ -30,9 +30,10 @@ next image headers:
 
 v2, v1 and v0 formats are backward compatible.
 
-Android Boot Image format is represented by :c:type:`struct andr_img_hdr` in
-U-Boot, and can be seen in ``include/android_image.h``. U-Boot supports booting
-Android Boot Image and also has associated command
+The Android Boot Image format is represented by
+:c:type:`struct andr_img_hdr <andr_img_hdr>` in U-Boot, and can be seen in
+``include/android_image.h``. U-Boot supports booting Android Boot Image and also
+has associated command
 
 Booting
 -------

@@ -460,16 +460,14 @@ static int process_cmd(struct ec_state *ec,
 	case EC_CMD_ENTERING_MODE:
 		len = 0;
 		break;
-	case EC_CMD_GET_NEXT_EVENT:
-		/*
-		 * TODO:
-		 * This driver emulates an old keyboard device supporting
-		 * EC_CMD_MKBP_STATE. Current Chrome OS keyboards use
-		 * EC_CMD_GET_NEXT_EVENT. Cf.
-		 * "mkbp: Add support for buttons and switches"
-		 * https://chromium.googlesource.com/chromiumos/platform/ec/+/87a071941b89e3f7fd3eb329b682e60b3fbd6c73
-		 */
-		return -EC_RES_INVALID_COMMAND;
+	case EC_CMD_GET_NEXT_EVENT: {
+		struct ec_response_get_next_event *resp = resp_data;
+
+		resp->event_type = EC_MKBP_EVENT_KEY_MATRIX;
+		cros_ec_keyscan(ec, resp->data.key_matrix);
+		len = sizeof(*resp);
+		break;
+	}
 	default:
 		printf("   ** Unknown EC command %#02x\n", req_hdr->command);
 		return -1;

@@ -86,7 +86,8 @@ static int atmel_sdhci_probe(struct udevice *dev)
 		return -EINVAL;
 
 	ret = clk_enable(&clk);
-	if (ret)
+	/* return error only if the clock really has a clock enable func */
+	if (ret && ret != -ENOSYS)
 		return ret;
 
 	ret = mmc_of_parse(dev, &plat->cfg);

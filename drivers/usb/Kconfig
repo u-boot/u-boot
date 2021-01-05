@@ -60,7 +60,7 @@ config DM_USB_GADGET
 	  mode)
 
 config SPL_DM_USB_GADGET
-	bool "Enable driver model for USB Gadget in sPL"
+	bool "Enable driver model for USB Gadget in SPL"
 	depends on SPL_DM_USB
 	help
 	  Enable driver model for USB Gadget in SPL

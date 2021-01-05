@@ -1,0 +1,10 @@
+Apalis iMX8X
+M:	Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+W:	http://developer.toradex.com/software/linux/linux-software
+S:	Maintained
+F:	arch/arm/dts/fsl-imx8x-apalis.dts
+F:	arch/arm/dts/fsl-imx8x-apalis-u-boot.dtsi
+F:	board/toradex/apalis-imx8x/
+F:	configs/apalis-imx8x_defconfig
+F:	doc/board/toradex/apalis-imx8x.rst
+F:	include/configs/apalis-imx8x.h

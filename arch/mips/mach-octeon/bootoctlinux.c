@@ -9,7 +9,6 @@
 #include <dm.h>
 #include <elf.h>
 #include <env.h>
-#include <ram.h>
 
 #include <asm/io.h>
 #include <linux/compat.h>
@@ -370,8 +369,6 @@ int do_bootoctlinux(struct cmd_tbl *cmdtp, int flag, int argc,
 	struct cvmx_coremask avail_coremask;
 	int first_core;
 	int core;
-	struct ram_info ram;
-	struct udevice *dev;
 	const u64 *nmi_code;
 	int num_dwords;
 	u8 node_mask = 0x01;
@@ -470,19 +467,6 @@ int do_bootoctlinux(struct cmd_tbl *cmdtp, int flag, int argc,
 	 */
 	cvmx_coremask_or(&coremask_to_run, &coremask_to_run, &core_mask);
 
-	/* Get RAM size */
-	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
-	if (ret) {
-		debug("DRAM init failed: %d\n", ret);
-		return ret;
-	}
-
-	ret = ram_get_info(dev, &ram);
-	if (ret) {
-		debug("Cannot get DRAM size: %d\n", ret);
-		return ret;
-	}
-
 	/*
 	 * Load kernel ELF image, or try binary if ELF is not detected.
 	 * This way the much smaller vmlinux.bin can also be started but
@@ -498,7 +482,7 @@ int do_bootoctlinux(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* Init bootmem list for Linux kernel booting */
 	if (!cvmx_bootmem_phy_mem_list_init(
-		    ram.size, OCTEON_RESERVED_LOW_MEM_SIZE,
+		    gd->ram_size, OCTEON_RESERVED_LOW_MEM_SIZE,
 		    (void *)CKSEG0ADDR(BOOTLOADER_BOOTMEM_DESC_SPACE))) {
 		printf("FATAL: Error initializing free memory list\n");
 		return 0;
@@ -517,7 +501,8 @@ int do_bootoctlinux(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (core == first_core)
 			cvmx_bootinfo_array[core].flags |= BOOT_FLAG_INIT_CORE;
 
-		cvmx_bootinfo_array[core].dram_size = ram.size / (1024 * 1024);
+		cvmx_bootinfo_array[core].dram_size = gd->ram_size /
+			(1024 * 1024);
 
 		cvmx_bootinfo_array[core].dclock_hz = gd->mem_clk * 1000000;
 		cvmx_bootinfo_array[core].eclock_hz = gd->cpu_clk;

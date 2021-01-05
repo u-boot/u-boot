@@ -337,9 +337,6 @@ int get_scl(void);
  * additionnal command line configuration.
  */
 
-/* we don't need flash support */
-#undef CONFIG_JFFS2_CMDLINE
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 64 MB of memory, since this is

@@ -70,10 +70,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* Environment organization */
-
-#define CONFIG_IMX_THERMAL
-
 /* I2C configs */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC

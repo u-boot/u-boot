@@ -43,27 +43,20 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int confidx;  /* Default to generic. */
+#define VPD_PRODUCT_B850 1
+#define VPD_PRODUCT_B650 2
+#define VPD_PRODUCT_B450 3
+
+#define AR8033_DBG_REG_ADDR		0x1d
+#define AR8033_DBG_REG_DATA		0x1e
+#define AR8033_SERDES_REG		0x5
+
+static int productid;  /* Default to generic. */
 static struct vpd_cache vpd;
 
 #define NC_PAD_CTRL (PAD_CTL_PUS_100K_UP |	\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |	\
 	PAD_CTL_HYS)
-
-#define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP | PAD_CTL_PUE |	\
-	PAD_CTL_SPEED_HIGH | PAD_CTL_DSE_48ohm | PAD_CTL_SRE_FAST)
-
-#define ENET_CLK_PAD_CTRL (PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_120ohm | PAD_CTL_SRE_FAST)
-
-#define ENET_RX_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE | \
-	PAD_CTL_SPEED_HIGH   | PAD_CTL_SRE_FAST)
-
-#define I2C_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |	\
-	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
-
-#define I2C_PAD MUX_PAD_CTRL(I2C_PAD_CTRL)
 
 int dram_init(void)
 {
@@ -72,31 +65,16 @@ int dram_init(void)
 	return 0;
 }
 
-static int mx6_rgmii_rework(struct phy_device *phydev)
-{
-	/* Configure AR8033 to ouput a 125MHz clk from CLK_25M */
-	/* set device address 0x7 */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x7);
-	/* offset 0x8016: CLK_25M Clock Select */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, 0x8016);
-	/* enable register write, no post increment, address 0x7 */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x4007);
-	/* set to 125 MHz from local PLL source */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, 0x18);
-
-	/* rgmii tx clock delay enable */
-	/* set debug port address: SerDes Test and System Mode Control */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
-	/* enable rgmii tx clock delay */
-	/* set the reserved bits to avoid board specific voltage peak issue*/
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x3D47);
-
-	return 0;
-}
-
 int board_phy_config(struct phy_device *phydev)
 {
-	mx6_rgmii_rework(phydev);
+	/*
+	 * Set reserved bits to avoid board specific voltage peak issue. The
+	 * value is a magic number provided directly by Qualcomm. Note, that
+	 * PHY driver will take control of BIT(8) in this register to control
+	 * TX clock delay, so we do not initialize that bit here.
+	 */
+	phy_write(phydev, MDIO_DEVAD_NONE, AR8033_DBG_REG_ADDR, AR8033_SERDES_REG);
+	phy_write(phydev, MDIO_DEVAD_NONE, AR8033_DBG_REG_DATA, 0x3c47);
 
 	if (phydev->drv->config)
 		phydev->drv->config(phydev);
@@ -127,7 +105,7 @@ static void do_enable_hdmi(struct display_info_t const *dev)
 
 static int is_b850v3(void)
 {
-	return confidx == 3;
+	return productid == VPD_PRODUCT_B850;
 }
 
 static int detect_lcd(struct display_info_t const *dev)
@@ -314,9 +292,6 @@ int overwrite_console(void)
 #define VPD_TYPE_INVALID 0x00
 #define VPD_BLOCK_NETWORK 0x20
 #define VPD_BLOCK_HWID 0x44
-#define VPD_PRODUCT_B850 1
-#define VPD_PRODUCT_B650 2
-#define VPD_PRODUCT_B450 3
 #define VPD_HAS_MAC1 0x1
 #define VPD_HAS_MAC2 0x2
 #define VPD_MAC_ADDRESS_LENGTH 6
@@ -370,15 +345,12 @@ static void process_vpd(struct vpd_cache *vpd)
 
 	switch (vpd->product_id) {
 	case VPD_PRODUCT_B450:
-		env_set("confidx", "1");
 		i210_index = 1;
 		break;
 	case VPD_PRODUCT_B650:
-		env_set("confidx", "2");
 		i210_index = 1;
 		break;
 	case VPD_PRODUCT_B850:
-		env_set("confidx", "3");
 		i210_index = 2;
 		break;
 	}
@@ -398,6 +370,7 @@ static iomux_v3_cfg_t const misc_pads[] = {
 	MX6_PAD_GPIO_9__WDOG1_B         | MUX_PAD_CTRL(NC_PAD_CTRL),
 };
 #define SUS_S3_OUT	IMX_GPIO_NR(4, 11)
+#define PWGIN_IN	IMX_GPIO_NR(4, 14)
 #define WIFI_EN	IMX_GPIO_NR(6, 14)
 
 int board_early_init_f(void)
@@ -412,28 +385,13 @@ int board_early_init_f(void)
 	return 0;
 }
 
-static void set_confidx(const struct vpd_cache* vpd)
-{
-	switch (vpd->product_id) {
-	case VPD_PRODUCT_B450:
-		confidx = 1;
-		break;
-	case VPD_PRODUCT_B650:
-		confidx = 2;
-		break;
-	case VPD_PRODUCT_B850:
-		confidx = 3;
-		break;
-	}
-}
-
 int board_init(void)
 {
 	if (!read_i2c_vpd(&vpd, vpd_callback)) {
 		int ret, rescan;
 
 		vpd.is_read = true;
-		set_confidx(&vpd);
+		productid = vpd.product_id;
 
 		ret = fdtdec_resetup(&rescan);
 		if (!ret && rescan) {
@@ -444,6 +402,9 @@ int board_init(void)
 
 	gpio_request(SUS_S3_OUT, "sus_s3_out");
 	gpio_direction_output(SUS_S3_OUT, 1);
+
+	gpio_request(PWGIN_IN, "pwgin_in");
+	gpio_direction_input(PWGIN_IN);
 
 	gpio_request(WIFI_EN, "wifi_en");
 	gpio_direction_output(WIFI_EN, 1);
@@ -494,6 +455,17 @@ void pmic_init(void)
 	}
 }
 
+static void detect_boot_cause(void)
+{
+	const char *cause = "POR";
+
+	if (is_b850v3())
+		if (!gpio_get_value(PWGIN_IN))
+			cause = "PM_WDOG";
+
+	env_set("bootcause", cause);
+}
+
 int board_late_init(void)
 {
 	process_vpd(&vpd);
@@ -506,6 +478,8 @@ int board_late_init(void)
 		env_set("videoargs", "video=DP-1:1024x768@60 video=HDMI-A-1:1024x768@60");
 	else
 		env_set("videoargs", "video=LVDS-1:1024x768@65");
+
+	detect_boot_cause();
 
 	/* board specific pmic init */
 	pmic_init();
@@ -566,16 +540,23 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 int board_fit_config_name_match(const char *name)
 {
+	const char *machine = name;
+
 	if (!vpd.is_read)
 		return strcmp(name, "imx6q-bx50v3");
 
+	if (!strncmp(machine, "Boot ", 5))
+		machine += 5;
+	if (!strncmp(machine, "imx6q-", 6))
+		machine += 6;
+
 	switch (vpd.product_id) {
 	case VPD_PRODUCT_B450:
-		return strcmp(name, "imx6q-b450v3");
+		return strcasecmp(machine, "b450v3");
 	case VPD_PRODUCT_B650:
-		return strcmp(name, "imx6q-b650v3");
+		return strcasecmp(machine, "b650v3");
 	case VPD_PRODUCT_B850:
-		return strcmp(name, "imx6q-b850v3");
+		return strcasecmp(machine, "b850v3");
 	default:
 		return -1;
 	}

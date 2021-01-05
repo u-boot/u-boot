@@ -138,8 +138,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 #endif
 
-#define CONFIG_IMX_THERMAL
-
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 
 #endif				/* __CONFIG_H */

@@ -195,6 +195,7 @@ F:	drivers/watchdog/cortina_wdt.c
 F:	drivers/serial/serial_cortina.c
 F:	drivers/led/led_cortina.c
 F:	drivers/mmc/ca_dw_mmc.c
+F:	drivers/spi/ca_sflash.c
 F:	drivers/i2c/i2c-cortina.c
 F:	drivers/i2c/i2c-cortina.h
 
@@ -385,7 +386,7 @@ F:	drivers/smem/msm_smem.c
 F:	drivers/usb/host/ehci-msm.c
 
 ARM STI
-M:	Patrice Chotard <patrice.chotard@st.com>
+M:	Patrice Chotard <patrice.chotard@foss.st.com>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-stm.git
 F:	arch/arm/mach-sti/
@@ -411,8 +412,8 @@ F:	arch/arm/cpu/arm926ejs/spear/
 F:	arch/arm/include/asm/arch-spear/
 
 ARM STM STM32MP
-M:	Patrick Delaunay <patrick.delaunay@st.com>
-M:	Patrice Chotard <patrice.chotard@st.com>
+M:	Patrick Delaunay <patrick.delaunay@foss.st.com>
+M:	Patrice Chotard <patrice.chotard@foss.st.com>
 L:	uboot-stm32@st-md-mailman.stormreply.com (moderated for non-subscribers)
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-stm.git
 S:	Maintained
@@ -679,6 +680,7 @@ S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-efi.git
 F:	doc/api/efi.rst
 F:	doc/uefi/*
+F:	doc/usage/bootefi.rst
 F:	drivers/rtc/emul_rtc.c
 F:	include/capitalization.h
 F:	include/charset.h
@@ -696,6 +698,7 @@ F:	test/unicode_ut.c
 F:	cmd/bootefi.c
 F:	cmd/efidebug.c
 F:	cmd/nvedit_efi.c
+F:	tools/efivar.py
 F:	tools/file2include.c
 
 EFI VARIABLES VIA OP-TEE
@@ -758,6 +761,7 @@ T:	git https://gitlab.denx.de/u-boot/u-boot.git
 F:	common/log*
 F:	cmd/log.c
 F:	doc/develop/logging.rst
+F:	include/log.h
 F:	lib/getopt.c
 F:	test/log/
 F:	test/py/tests/test_log.py
@@ -799,6 +803,7 @@ F:	drivers/watchdog/cortina_wdt.c
 F:	drivers/serial/serial_cortina.c
 F:	drivers/led/led_cortina.c
 F:	drivers/mmc/ca_dw_mmc.c
+F:	drivers/spi/ca_sflash.c
 F:	drivers/i2c/i2c-cortina.c
 F:	drivers/i2c/i2c-cortina.h
 

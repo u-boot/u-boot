@@ -21,11 +21,15 @@
 #include <dm/uclass.h>
 #include <dm/uclass-internal.h>
 #include <hang.h>
+#include <i2c.h>
 #include <power/bd71837.h>
+#include <power/pca9450.h>
 #include <power/pmic.h>
 #include <spl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define I2C_PMIC_BUS_ID        1
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
@@ -101,33 +105,29 @@ int power_init_board(void)
 	struct udevice *dev;
 	int ret;
 
-	ret = pmic_get("pmic@4b", &dev);
-	if (ret == -ENODEV) {
-		puts("No pmic\n");
+	if (IS_ENABLED(CONFIG_SPL_DM_PMIC_PCA9450)) {
+		ret = pmic_get("pmic", &dev);
+		if (ret == -ENODEV) {
+			puts("No pmic found\n");
+			return ret;
+		}
+
+		if (ret != 0)
+			return ret;
+
+		/* BUCKxOUT_DVS0/1 control BUCK123 output, clear PRESET_EN */
+		pmic_reg_write(dev, PCA9450_BUCK123_DVS, 0x29);
+
+		/* increase VDD_DRAM to 0.975v for 1.5Ghz DDR */
+		pmic_reg_write(dev, PCA9450_BUCK3OUT_DVS0, 0x1c);
+
+		/* set WDOG_B_CFG to cold reset */
+		pmic_reg_write(dev, PCA9450_RESET_CTRL, 0xA1);
+
+		pmic_reg_write(dev, PCA9450_CONFIG2, 0x1);
+
 		return 0;
 	}
-	if (ret != 0)
-		return ret;
-
-	/* decrease RESET key long push time from the default 10s to 10ms */
-	pmic_reg_write(dev, BD718XX_PWRONCONFIG1, 0x0);
-
-	/* unlock the PMIC regs */
-	pmic_reg_write(dev, BD718XX_REGLOCK, 0x1);
-
-	/* increase VDD_SOC to typical value 0.85v before first DRAM access */
-	pmic_reg_write(dev, BD718XX_BUCK1_VOLT_RUN, 0x0f);
-
-	/* increase VDD_DRAM to 0.975v for 3Ghz DDR */
-	pmic_reg_write(dev, BD718XX_1ST_NODVS_BUCK_VOLT, 0x83);
-
-#ifndef CONFIG_IMX8M_LPDDR4
-	/* increase NVCC_DRAM_1V2 to 1.2v for DDR4 */
-	pmic_reg_write(dev, BD718XX_4TH_NODVS_BUCK_VOLT, 0x28);
-#endif
-
-	/* lock the PMIC regs */
-	pmic_reg_write(dev, BD718XX_REGLOCK, 0x11);
 
 	return 0;
 }

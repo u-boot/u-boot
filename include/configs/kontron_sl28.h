@@ -89,8 +89,8 @@
 	"ramdisk_addr_r=0x88080000\0"
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
+	func(MMC, mmc, 1) \
 	func(NVME, nvme, 0) \
 	func(USB, usb, 0) \
 	func(DHCP, dhcp, 0) \

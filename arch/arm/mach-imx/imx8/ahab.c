@@ -14,6 +14,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/image.h>
 #include <console.h>
+#include <cpu_func.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -92,7 +93,7 @@ int authenticate_os_container(ulong addr)
 					    sizeof(struct container_hdr) +
 					    i * sizeof(struct boot_img_t));
 
-		debug("img %d, dst 0x%x, src 0x%x, size 0x%x\n",
+		debug("img %d, dst 0x%x, src 0x%lux, size 0x%x\n",
 		      i, (uint32_t) img->dst, img->offset + addr, img->size);
 
 		memcpy((void *)img->dst, (const void *)(img->offset + addr),
@@ -106,7 +107,7 @@ int authenticate_os_container(ulong addr)
 		/* Find the memreg and set permission for seco pt */
 		err = sc_rm_find_memreg(-1, &mr, s, e);
 		if (err) {
-			printf("Error: can't find memreg for image load address 0x%x, error %d\n", img->dst, err);
+			printf("Error: can't find memreg for image load address 0x%llx, error %d\n", img->dst, err);
 			ret = -ENOMEM;
 			goto exit;
 		}
@@ -302,10 +303,11 @@ static int confirm_close(void)
 static int do_ahab_close(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
+	int confirmed = argc >= 2 && !strcmp(argv[1], "-y");
 	int err;
 	u16 lc;
 
-	if (!confirm_close())
+	if (!confirmed && !confirm_close())
 		return -EACCES;
 
 	err = sc_seco_chip_info(-1, &lc, NULL, NULL, NULL);

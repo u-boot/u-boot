@@ -206,6 +206,9 @@ hostprogs-y += proftool
 hostprogs-$(CONFIG_STATIC_RELA) += relocate-rela
 hostprogs-$(CONFIG_RISCV) += prelink-riscv
 
+hostprogs-$(CONFIG_ARCH_OCTEON) += update_octeon_header
+update_octeon_header-objs := update_octeon_header.o lib/crc32.o
+
 hostprogs-y += fdtgrep
 fdtgrep-objs += $(LIBFDT_OBJS) common/fdt_region.o fdtgrep.o
 

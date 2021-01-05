@@ -175,9 +175,11 @@ static int read_eeprom(void)
 	struct udevice *dev;
 #ifdef CONFIG_SYS_EEPROM_BUS_NUM
 	ret = i2c_get_chip_for_busnum(CONFIG_SYS_EEPROM_BUS_NUM,
-				      CONFIG_SYS_I2C_EEPROM_ADDR, 1, &dev);
+				      CONFIG_SYS_I2C_EEPROM_ADDR,
+				      CONFIG_SYS_I2C_EEPROM_ADDR_LEN, &dev);
 #else
-	ret = i2c_get_chip_for_busnum(0, CONFIG_SYS_I2C_EEPROM_ADDR, 1, &dev);
+	ret = i2c_get_chip_for_busnum(0, CONFIG_SYS_I2C_EEPROM_ADDR,
+				      CONFIG_SYS_I2C_EEPROM_ADDR_LEN, &dev);
 #endif
 	if (!ret)
 		ret = dm_i2c_read(dev, 0, (void *)&e, sizeof(e));

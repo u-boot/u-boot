@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2016-2018 NXP
+ * Copyright 2016-2018, 2020 NXP
  * Copyright 2015, Freescale Semiconductor
  */
 
@@ -179,8 +179,8 @@
 #define SYS_FSL_OCRAM_SPACE_SIZE	0x00200000 /* 2M space */
 #define CONFIG_SYS_FSL_OCRAM_SIZE	0x00020000 /* Real size 128K */
 
-/* LX2160A Soc Support */
-#elif defined(CONFIG_ARCH_LX2160A)
+/* LX2160A/LX2162A Soc Support */
+#elif defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LX2162A)
 #define TZPC_BASE				0x02200000
 #define TZPCDECPROT_0_SET_BASE			(TZPC_BASE + 0x804)
 #if !defined(CONFIG_DM_I2C)

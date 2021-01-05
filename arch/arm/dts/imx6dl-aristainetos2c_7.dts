@@ -11,6 +11,6 @@
 #include "imx6qdl-aristainetos2c.dtsi"
 
 / {
-	model = "aristainetos2c i.MX6 Dual Lite Board 7";
-	compatible = "fsl,imx6dl";
+	model = "aristainetos2c+2d i.MX6 Dual Lite Boards 7";
+	compatible = "abb,aristainetos2-imx6dl-7", "fsl,imx6dl";
 };

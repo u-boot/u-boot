@@ -104,6 +104,6 @@ int binman_init(void)
 		binman->image = node;
 	}
 	binman_set_rom_offset(ROM_OFFSET_NONE);
-\
+
 	return 0;
 }

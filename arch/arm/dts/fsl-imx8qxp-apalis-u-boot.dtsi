@@ -1,0 +1,139 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Copyright 2020 Toradex
+ */
+
+&{/imx8qx-pm} {
+
+	u-boot,dm-pre-proper;
+};
+
+&mu {
+	u-boot,dm-pre-proper;
+};
+
+&clk {
+	u-boot,dm-pre-proper;
+};
+
+&iomuxc {
+	u-boot,dm-pre-proper;
+};
+
+&pd_lsio {
+	u-boot,dm-pre-proper;
+};
+
+&pd_lsio_gpio0 {
+	u-boot,dm-pre-proper;
+};
+
+&pd_lsio_gpio1 {
+	u-boot,dm-pre-proper;
+};
+
+&pd_lsio_gpio2 {
+	u-boot,dm-pre-proper;
+};
+
+&pd_lsio_gpio3 {
+	u-boot,dm-pre-proper;
+};
+
+&pd_lsio_gpio4 {
+	u-boot,dm-pre-proper;
+};
+
+&pd_lsio_gpio5 {
+	u-boot,dm-pre-proper;
+};
+
+&pd_lsio_gpio6 {
+	u-boot,dm-pre-proper;
+};
+
+&pd_lsio_gpio7 {
+	u-boot,dm-pre-proper;
+};
+
+&pd_dma {
+	u-boot,dm-pre-proper;
+};
+
+&pd_dma_lpuart0 {
+	u-boot,dm-pre-proper;
+};
+
+&pd_dma_lpuart3 {
+	u-boot,dm-pre-proper;
+};
+
+&pd_conn {
+	u-boot,dm-pre-proper;
+};
+
+&pd_conn_sdch0 {
+	u-boot,dm-pre-proper;
+};
+
+&pd_conn_sdch1 {
+	u-boot,dm-pre-proper;
+};
+
+&pd_conn_sdch2 {
+	u-boot,dm-pre-proper;
+};
+
+&pd_conn_enet0 {
+	u-boot,dm-pre-proper;
+};
+
+&gpio0 {
+	u-boot,dm-pre-proper;
+};
+
+&gpio1 {
+	u-boot,dm-pre-proper;
+};
+
+&gpio2 {
+	u-boot,dm-pre-proper;
+};
+
+&gpio3 {
+	u-boot,dm-pre-proper;
+};
+
+&gpio4 {
+	u-boot,dm-pre-proper;
+};
+
+&gpio5 {
+	u-boot,dm-pre-proper;
+};
+
+&gpio6 {
+	u-boot,dm-pre-proper;
+};
+
+&gpio7 {
+	u-boot,dm-pre-proper;
+};
+
+&lpuart3 {
+	u-boot,dm-pre-proper;
+};
+
+&lpuart0 {
+	u-boot,dm-pre-proper;
+};
+
+&usdhc1 {
+	u-boot,dm-pre-proper;
+	/delete-property/ assigned-clock-parents;
+};
+
+&usdhc2 {
+	u-boot,dm-pre-proper;
+	/delete-property/ assigned-clock-parents;
+};

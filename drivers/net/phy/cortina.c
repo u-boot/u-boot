@@ -3,7 +3,7 @@
  * Cortina CS4315/CS4340 10G PHY drivers
  *
  * Copyright 2014 Freescale Semiconductor, Inc.
- * Copyright 2018 NXP
+ * Copyright 2018, 2020 NXP
  *
  */
 
@@ -29,7 +29,7 @@
 #error The Cortina PHY needs 10G support
 #endif
 
-#ifndef CORTINA_NO_FW_UPLOAD
+#ifndef CONFIG_SYS_CORTINA_NO_FW_UPLOAD
 struct cortina_reg_config cortina_reg_cfg[] = {
 	/* CS4315_enable_sr_mode */
 	{VILLA_GLOBAL_MSEQCLKCTRL, 0x8004},
@@ -227,7 +227,7 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 
 int cs4340_phy_init(struct phy_device *phydev)
 {
-#ifndef CORTINA_NO_FW_UPLOAD
+#ifndef CONFIG_SYS_CORTINA_NO_FW_UPLOAD
 	int timeout = 100;  /* 100ms */
 #endif
 	int reg_value;
@@ -238,7 +238,7 @@ int cs4340_phy_init(struct phy_device *phydev)
 	 * Boards designed with EEPROM attached to Cortina
 	 * does not require FW upload.
 	 */
-#ifndef CORTINA_NO_FW_UPLOAD
+#ifndef CONFIG_SYS_CORTINA_NO_FW_UPLOAD
 	/* step1: BIST test */
 	phy_write(phydev, 0x00, VILLA_GLOBAL_MSEQCLKCTRL,     0x0004);
 	phy_write(phydev, 0x00, VILLA_GLOBAL_LINE_SOFT_RESET, 0x0000);

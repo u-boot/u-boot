@@ -7,6 +7,7 @@ Board-specific doc
    :maxdepth: 2
 
    actions/index
+   advantech/index
    AndesTech/index
    amlogic/index
    atmel/index

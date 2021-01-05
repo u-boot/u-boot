@@ -64,7 +64,7 @@ struct dm_spi_bus {
  * struct from a spi_slave, use dev_get_parent_plat(dev) or
  * dev_get_parent_plat(slave->dev).
  *
- * This data is immuatable. Each time the device is probed, @max_hz and @mode
+ * This data is immutable. Each time the device is probed, @max_hz and @mode
  * will be copied to struct spi_slave.
  *
  * @cs:		Chip select number (0..n-1)

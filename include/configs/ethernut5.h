@@ -62,7 +62,6 @@
 
 /* JFFS2 */
 #ifdef CONFIG_CMD_JFFS2
-#define CONFIG_JFFS2_CMDLINE
 #define CONFIG_JFFS2_NAND
 #endif
 

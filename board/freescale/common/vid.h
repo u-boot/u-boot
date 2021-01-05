@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  */
 
 #ifndef __VID_H_
@@ -36,6 +37,35 @@
  * 0x00: Enables write to all commands
  */
 #define EN_WRITE_ALL_CMD (0)
+
+#ifdef CONFIG_TARGET_LX2160ARDB
+/* The lowest and highest voltage allowed*/
+#define VDD_MV_MIN			775
+#define VDD_MV_MAX			855
+#endif
+
+#if defined(CONFIG_TARGET_LX2160AQDS) || defined(CONFIG_TARGET_LX2162AQDS)
+/* The lowest and highest voltage allowed*/
+#define VDD_MV_MIN			775
+#define VDD_MV_MAX			925
+#endif
+
+#if defined(CONFIG_TARGET_LX2160AQDS) || defined(CONFIG_TARGET_LX2162AQDS) || \
+defined(CONFIG_TARGET_LX2160ARDB)
+/* PM Bus commands code for LTC3882*/
+#define PWM_CHANNEL0                    0x0
+#define PMBUS_CMD_PAGE                  0x0
+#define PMBUS_CMD_READ_VOUT             0x8B
+#define PMBUS_CMD_VOUT_COMMAND          0x21
+#define PMBUS_CMD_PAGE_PLUS_WRITE       0x05
+
+/* Voltage monitor on channel 2*/
+#define I2C_VOL_MONITOR_BUS_V_OFFSET	0x2
+#define I2C_VOL_MONITOR_BUS_V_OVF	0x1
+#define I2C_VOL_MONITOR_BUS_V_SHIFT	3
+#define I2C_VOL_MONITOR_ADDR            0x63
+#define I2C_MUX_CH_VOL_MONITOR		0xA
+#endif
 
 int adjust_vdd(ulong vdd_override);
 

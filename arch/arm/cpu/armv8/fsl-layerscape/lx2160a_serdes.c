@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2018 NXP
+ * Copyright 2018, 2020 NXP
  */
 
 #include <common.h>
@@ -11,6 +11,22 @@ struct serdes_config {
 	u8 lanes[SRDS_MAX_LANES];
 };
 
+#if defined(CONFIG_ARCH_LX2162A)
+static struct serdes_config serdes1_cfg_tbl[] = {
+	/* SerDes 1 */
+	{0x01, {PCIE1, PCIE1, PCIE1, PCIE1 } },
+	{0x02, {SGMII6, SGMII5, SGMII4, SGMII3 } },
+	{0x03, {XFI6, XFI5, XFI4, XFI3 } },
+	{0x09, {SGMII6, SGMII5, SGMII4, PCIE1 } },
+	{0x0B, {SGMII6, SGMII5, PCIE1, PCIE1 } },
+	{0x0F, {_50GE2, _50GE2, _50GE1, _50GE1 } },
+	{0x10, {_25GE6, _25GE5, _50GE1, _50GE1 } },
+	{0x11, {_25GE6, _25GE5, _25GE4, _25GE3 } },
+	{0x12, {_25GE6, _25GE5, XFI4, XFI3 } },
+	{0x14, {_40GE1, _40GE1, _40GE1, _40GE1 } },
+	{}
+};
+#else
 static struct serdes_config serdes1_cfg_tbl[] = {
 	/* SerDes 1 */
 	{0x01, {PCIE2, PCIE2, PCIE2, PCIE2, PCIE1, PCIE1, PCIE1, PCIE1 } },
@@ -48,6 +64,7 @@ static struct serdes_config serdes1_cfg_tbl[] = {
 	{0x16, {XFI10, XFI9, PCIE2, PCIE2, XFI6, XFI5, XFI4, XFI3 } },
 	{}
 };
+#endif
 
 static struct serdes_config serdes2_cfg_tbl[] = {
 	/* SerDes 2 */

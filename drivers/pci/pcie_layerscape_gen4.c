@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
- * Copyright 2018-2019 NXP
+ * Copyright 2018-2020 NXP
  *
  * PCIe Gen4 driver for NXP Layerscape SoCs
  * Author: Hou Zhiqiang <Minder.Hou@gmail.com>
@@ -455,6 +455,7 @@ static int ls_pcie_g4_probe(struct udevice *dev)
 	u32 link_ctrl_sta;
 	u32 val;
 	int ret;
+	fdt_size_t cfg_size;
 
 	pcie->bus = dev;
 
@@ -472,7 +473,8 @@ static int ls_pcie_g4_probe(struct udevice *dev)
 
 	pcie->enabled = is_serdes_configured(PCIE_SRDS_PRTCL(pcie->idx));
 	if (!pcie->enabled) {
-		printf("PCIe%d: %s disabled\n", pcie->idx, dev->name);
+		printf("PCIe%d: %s disabled\n", PCIE_SRDS_PRTCL(pcie->idx),
+		       dev->name);
 		return 0;
 	}
 
@@ -485,6 +487,13 @@ static int ls_pcie_g4_probe(struct udevice *dev)
 	if (ret) {
 		printf("%s: resource \"config\" not found\n", dev->name);
 		return ret;
+	}
+
+	cfg_size = fdt_resource_size(&pcie->cfg_res);
+	if (cfg_size < SZ_4K) {
+		printf("PCIe%d: %s Invalid size(0x%llx) for resource \"config\",expected minimum 0x%x\n",
+		       PCIE_SRDS_PRTCL(pcie->idx), dev->name, cfg_size, SZ_4K);
+		return 0;
 	}
 
 	pcie->cfg = map_physmem(pcie->cfg_res.start,
@@ -522,10 +531,12 @@ static int ls_pcie_g4_probe(struct udevice *dev)
 	pcie->mode = readb(pcie->ccsr + PCI_HEADER_TYPE) & 0x7f;
 
 	if (pcie->mode == PCI_HEADER_TYPE_NORMAL) {
-		printf("PCIe%u: %s %s", pcie->idx, dev->name, "Endpoint");
+		printf("PCIe%u: %s %s", PCIE_SRDS_PRTCL(pcie->idx), dev->name,
+		       "Endpoint");
 		ls_pcie_g4_setup_ep(pcie);
 	} else {
-		printf("PCIe%u: %s %s", pcie->idx, dev->name, "Root Complex");
+		printf("PCIe%u: %s %s", PCIE_SRDS_PRTCL(pcie->idx), dev->name,
+		       "Root Complex");
 		ls_pcie_g4_setup_ctrl(pcie);
 	}
 

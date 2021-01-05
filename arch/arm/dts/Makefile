@@ -204,7 +204,6 @@ dtb-$(CONFIG_ARCH_TEGRA) += tegra20-harmony.dtb \
 dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-3720-db.dtb			\
 	armada-3720-espressobin.dtb		\
-	armada-3720-espressobin-emmc.dtb	\
 	armada-3720-turris-mox.dtb		\
 	armada-3720-uDPU.dtb			\
 	armada-375-db.dtb			\
@@ -415,7 +414,11 @@ dtb-$(CONFIG_FSL_LSCH3) += fsl-ls2080a-qds.dtb \
 	fsl-lx2160a-qds-19-x-x.dtb \
 	fsl-lx2160a-qds-19-11-x.dtb \
 	fsl-lx2160a-qds-20-x-x.dtb \
-	fsl-lx2160a-qds-20-11-x.dtb
+	fsl-lx2160a-qds-20-11-x.dtb \
+	fsl-lx2162a-qds.dtb\
+	fsl-lx2162a-qds-17-x.dtb\
+	fsl-lx2162a-qds-18-x.dtb\
+	fsl-lx2162a-qds-20-x.dtb
 dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-qds-duart.dtb \
 	fsl-ls1043a-qds-lpuart.dtb \
 	fsl-ls1043a-rdb.dtb \
@@ -643,14 +646,8 @@ dtb-$(CONFIG_MX53) += imx53-cx9020.dtb \
 
 ifneq ($(CONFIG_MX6DL)$(CONFIG_MX6QDL)$(CONFIG_MX6S),)
 dtb-y += \
-	imx6dl-aristainetos2_4.dtb \
-	imx6dl-aristainetos2_7.dtb \
-	imx6dl-aristainetos2b_4.dtb \
-	imx6dl-aristainetos2b_7.dtb \
-	imx6dl-aristainetos2b_csl_4.dtb \
-	imx6dl-aristainetos2b_csl_7.dtb \
-	imx6dl-aristainetos2c_4.dtb \
 	imx6dl-aristainetos2c_7.dtb \
+	imx6dl-aristainetos2c_cslb_7.dtb \
 	imx6dl-brppt2.dtb \
 	imx6dl-cubox-i.dtb \
 	imx6dl-cubox-i-emmc-som-v15.dtb \
@@ -768,6 +765,7 @@ dtb-$(CONFIG_ARCH_IMX8) += \
 	imx8qm-rom7720-a1.dtb \
 	fsl-imx8qxp-ai_ml.dtb \
 	fsl-imx8qxp-colibri.dtb \
+	fsl-imx8qxp-apalis.dtb \
 	fsl-imx8qxp-mek.dtb \
 	imx8-deneb.dtb \
 	imx8-giedi.dtb

@@ -36,7 +36,34 @@ latex_engine = 'xelatex'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['kerneldoc', 'rstFlatTable', 'kernel_include', 'cdomain', 'kfigure']
+extensions = ['kerneldoc', 'rstFlatTable', 'kernel_include', 'kfigure']
+
+#
+# cdomain is badly broken in Sphinx 3+. Leaving it out generates *most*
+# of the docs correctly, but not all.
+#
+if major >= 3:
+    if (major > 3) or (minor > 0 or patch >= 2):
+        sys.stderr.write('''The build process with Sphinx 3+ is broken.
+You will have to remove -W in doc/Makefile.
+''')
+        # Sphinx c function parser is more pedantic with regards to type
+        # checking. Due to that, having macros at c:function cause problems.
+        # Those needed to be escaped by using c_id_attributes[] array
+        c_id_attributes = [
+
+            # include/linux/compiler.h
+            "__maybe_unused",
+
+            # include/efi.h
+            "EFIAPI",
+
+            # include/efi_loader.h
+            "__efi_runtime",
+        ]
+
+else:
+    extensions.append('cdomain')
 
 # The name of the math extension changed on Sphinx 1.4
 if (major == 1 and minor > 3) or (major > 1):

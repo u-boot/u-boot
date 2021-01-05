@@ -4,7 +4,7 @@
 
 menuconfig FSL_MC_ENET
 	bool "NXP Management Complex"
-	depends on ARCH_LS2080A || ARCH_LS1088A || ARCH_LX2160A
+	depends on ARCH_LS2080A || ARCH_LS1088A || ARCH_LX2160A || ARCH_LX2162A
 	default y
 	select RESV_RAM
 	help
@@ -17,7 +17,7 @@ if FSL_MC_ENET
 config SYS_MC_RSV_MEM_ALIGN
 	hex "Management Complex reserved memory alignment"
 	depends on RESV_RAM
-	default 0x20000000 if ARCH_LS2080A || ARCH_LS1088A || ARCH_LX2160A
+	default 0x20000000 if ARCH_LS2080A || ARCH_LS1088A || ARCH_LX2160A || ARCH_LX2162A
 	help
 	  Reserved memory needs to be aligned for MC to use. Default value
 	  is 512MB.

@@ -447,6 +447,12 @@ static void rtl8152_set_rx_mode(struct r8152 *tp)
 	ocp_write_dword(tp, MCU_TYPE_PLA, PLA_RCR, ocp_data);
 }
 
+static inline void r8153b_rx_agg_chg_indicate(struct r8152 *tp)
+{
+	ocp_write_byte(tp, MCU_TYPE_USB, USB_UPT_RXDMA_OWN,
+		       OWN_UPDATE | OWN_CLEAR);
+}
+
 static int rtl_enable(struct r8152 *tp)
 {
 	u32 ocp_data;
@@ -456,6 +462,15 @@ static int rtl_enable(struct r8152 *tp)
 	ocp_data = ocp_read_byte(tp, MCU_TYPE_PLA, PLA_CR);
 	ocp_data |= PLA_CR_RE | PLA_CR_TE;
 	ocp_write_byte(tp, MCU_TYPE_PLA, PLA_CR, ocp_data);
+
+	switch (tp->version) {
+	case RTL_VER_08:
+	case RTL_VER_09:
+		r8153b_rx_agg_chg_indicate(tp);
+		break;
+	default:
+		break;
+	}
 
 	rxdy_gated_en(tp, false);
 
@@ -525,8 +540,6 @@ static void r8153_set_rx_early_size(struct r8152 *tp)
 		debug("** %s Invalid Device\n", __func__);
 		break;
 	}
-
-	ocp_write_word(tp, MCU_TYPE_USB, USB_RX_EARLY_SIZE, ocp_data);
 }
 
 static int rtl8153_enable(struct r8152 *tp)
@@ -1647,7 +1660,7 @@ int r8152_eth_probe(struct usb_device *dev, unsigned int ifnum,
 	if (usb_set_interface(dev, iface_desc->bInterfaceNumber, 0) ||
 	    !ss->ep_in || !ss->ep_out || !ss->ep_int) {
 		debug("Problems with device\n");
-		return 0;
+		goto error;
 	}
 
 	dev->privptr = (void *)ss;
@@ -1659,7 +1672,7 @@ int r8152_eth_probe(struct usb_device *dev, unsigned int ifnum,
 	r8152b_get_version(tp);
 
 	if (rtl_ops_init(tp))
-		return 0;
+		goto error;
 
 	tp->rtl_ops.init(tp);
 	tp->rtl_ops.up(tp);
@@ -1669,6 +1682,11 @@ int r8152_eth_probe(struct usb_device *dev, unsigned int ifnum,
 			  DUPLEX_FULL);
 
 	return 1;
+
+error:
+	cfree(ss->dev_priv);
+	ss->dev_priv = 0;
+	return 0;
 }
 
 int r8152_eth_get_info(struct usb_device *dev, struct ueth_data *ss,

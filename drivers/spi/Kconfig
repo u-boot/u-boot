@@ -106,6 +106,14 @@ config BCMSTB_SPI
 	  be used to access the SPI flash on platforms embedding this
 	  Broadcom SPI core.
 
+config CORTINA_SFLASH
+	bool "Cortina-Access Serial Flash controller driver"
+	depends on DM_SPI && SPI_MEM
+	help
+	  Enable the Cortina-Access Serial Flash controller driver. This driver
+	  can be used to access the SPI NOR/NAND flash on platforms embedding this
+	  Cortina-Access IP core.
+
 config CADENCE_QSPI
 	bool "Cadence QSPI driver"
 	help

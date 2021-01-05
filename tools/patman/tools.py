@@ -333,6 +333,7 @@ def Run(name, *args, **kwargs):
         elif for_host:
             name, extra_args = GetHostCompileTool(name)
             args = tuple(extra_args) + args
+        name = os.path.expanduser(name)  # Expand paths containing ~
         all_args = (name,) + args
         result = command.RunPipe([all_args], capture=True, capture_stderr=True,
                                  env=env, raise_on_error=False, binary=binary)

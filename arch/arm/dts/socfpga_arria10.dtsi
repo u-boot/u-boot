@@ -604,7 +604,8 @@
 		};
 
 		spi0: spi@ffda4000 {
-			compatible = "snps,dw-apb-ssi";
+			compatible = "altr,socfpga-arria10-spi",
+				     "snps,dw-apb-ssi-3.22a", "snps,dw-apb-ssi";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0xffda4000 0x100>;
@@ -617,7 +618,8 @@
 		};
 
 		spi1: spi@ffda5000 {
-			compatible = "snps,dw-apb-ssi";
+			compatible = "altr,socfpga-arria10-spi",
+				     "snps,dw-apb-ssi-3.22a", "snps,dw-apb-ssi";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0xffda5000 0x100>;

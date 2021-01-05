@@ -141,9 +141,6 @@
 #define CONFIG_MXC_USB_FLAGS   0
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 
-/* Uncomment to enable iMX thermal driver support */
-/*#define CONFIG_IMX_THERMAL*/
-
 /* SPL */
 #include "imx7_spl.h"
 

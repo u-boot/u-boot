@@ -24,7 +24,11 @@
 
 int arch_cpu_init(void)
 {
+#if defined(CONFIG_CLK_CCF)
+	return 0;
+#else
 	return at91_clock_init(CONFIG_SYS_AT91_MAIN_CLOCK);
+#endif
 }
 
 void arch_preboot_os(void)

@@ -16,6 +16,10 @@ config SYS_LS_PFE_FW_ADDR
 	hex "Flash address of PFE firmware"
 	default 0x40a00000
 
+config SYS_LS_PFE_FW_LENGTH
+	hex "length of PFE firmware"
+	default 0x40000
+
 config SYS_LS_PPA_FW_ADDR
 	hex "PPA Firmware Addr"
 	default 0x40400000
@@ -65,6 +69,10 @@ config SYS_LS_PFE_FW_ADDR
 	hex "Flash address of PFE firmware"
 	default 0x40020000
 
+config SYS_LS_PFE_FW_LENGTH
+	hex "length of PFE firmware"
+	default 0x40000
+
 config SYS_LS_PPA_FW_ADDR
 	hex "PPA Firmware Addr"
 	default 0x40060000
@@ -77,6 +85,9 @@ config SYS_LS_PFE_ESBC_ADDR
 	hex "PFE Firmware HDR Addr"
 	default 0x401f8000
 
+config SYS_LS_PFE_ESBC_LENGTH
+	hex "length of PFE Firmware HDR"
+	default 0xc00
 endif
 
 if TARGET_LS1012AFRDM || TARGET_LS1012AFRWY

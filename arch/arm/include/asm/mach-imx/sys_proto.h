@@ -183,6 +183,11 @@ void init_src(void);
 void init_snvs(void);
 void imx_wdog_disable_powerdown(void);
 
+void board_mem_get_layout(u64 *phys_sdram_1_start,
+			  u64 *phys_sdram_1_size,
+			  u64 *phys_sdram_2_start,
+			  u64 *phys_sdram_2_size);
+
 int arch_auxiliary_core_check_up(u32 core_id);
 
 int board_mmc_get_env_dev(int devno);

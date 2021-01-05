@@ -61,7 +61,7 @@ static int sbsa_gwdt_start(struct udevice *dev, u64 timeout, ulong flags)
 	 * to half value of timeout.
 	 */
 	clk = get_tbclk();
-	writel(clk / 2 * timeout,
+	writel(clk / (2 * 1000) * timeout,
 	       priv->reg_control + SBSA_GWDT_WOR);
 
 	/* writing WCS will cause an explicit watchdog refresh */

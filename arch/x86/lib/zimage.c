@@ -61,8 +61,8 @@
  *	BZIMAGE_LOAD_ADDR or ZIMAGE_LOAD_ADDR
  * @base_ptr: Pointer to the boot parameters, typically at address
  *	DEFAULT_SETUP_BASE
- * @cmdline: Address of 'override' command line, or 0 to use the one in the
- *	setup block
+ * @cmdline: Environment variable containing the 'override' command line, or
+ *	NULL to use the one in the setup block
  */
 struct zboot_state {
 	ulong bzimage_addr;
@@ -71,7 +71,7 @@ struct zboot_state {
 	ulong initrd_size;
 	ulong load_address;
 	struct boot_params *base_ptr;
-	ulong cmdline;
+	char *cmdline;
 } state;
 
 enum {
@@ -420,7 +420,7 @@ static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
 		state.bzimage_addr = 0;
 	}
 	if (argc >= 7)
-		state.cmdline = simple_strtoul(argv[6], NULL, 16);
+		state.cmdline = env_get(argv[6]);
 
 	return 0;
 }
@@ -466,7 +466,7 @@ static int do_zboot_setup(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 	ret = setup_zimage(base_ptr, (char *)base_ptr + COMMAND_LINE_OFFSET,
 			   0, state.initrd_addr, state.initrd_size,
-			   state.cmdline);
+			   (ulong)state.cmdline);
 	if (ret) {
 		puts("Setting up boot parameters failed ...\n");
 		return CMD_RET_FAILURE;
@@ -757,8 +757,9 @@ U_BOOT_CMDREP_COMPLETE(
 	"      initrd size - The size of the initrd image to use, if any.\n"
 	"      setup -       The address of the kernel setup region, if this\n"
 	"                    is not at addr\n"
-	"      cmdline -     The address of the kernel command line, to\n"
-	"                    override U-Boot's normal cmdline generation\n"
+	"      cmdline -     Environment variable containing the kernel\n"
+	"                    command line, to override U-Boot's normal\n"
+	"                    cmdline generation\n"
 	"\n"
 	"Sub-commands to do part of the zboot sequence:\n"
 	"\tstart [addr [arg ...]] - specify arguments\n"

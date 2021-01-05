@@ -8,6 +8,7 @@
 #include <env.h>
 #include <i2c.h>
 #include <init.h>
+#include <mmc.h>
 #include <phy.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
@@ -83,6 +84,7 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+	struct mmc *mmc_dev;
 	bool ddr4, emmc;
 
 	if (env_get("fdtfile"))
@@ -95,7 +97,9 @@ int board_late_init(void)
 	ddr4 = ((readl(A3700_CH0_MC_CTRL2_REG) >> A3700_MC_CTRL2_SDRAM_TYPE_OFFS)
 		& A3700_MC_CTRL2_SDRAM_TYPE_MASK) == A3700_MC_CTRL2_SDRAM_TYPE_DDR4;
 
-	emmc = of_machine_is_compatible("globalscale,espressobin-emmc");
+	/* eMMC is mmc dev num 1 */
+	mmc_dev = find_mmc_device(1);
+	emmc = (mmc_dev && mmc_init(mmc_dev) == 0);
 
 	if (ddr4 && emmc)
 		env_set("fdtfile", "marvell/armada-3720-espressobin-v7-emmc.dtb");

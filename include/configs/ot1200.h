@@ -74,9 +74,6 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 #endif
 
-/* Thermal support */
-#define CONFIG_IMX_THERMAL
-
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
 

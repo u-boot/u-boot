@@ -16,7 +16,8 @@
 	defined(CONFIG_TARGET_COLIBRI_IMX6) || \
 	defined(CONFIG_TARGET_COLIBRI_IMX8X) || \
 	defined(CONFIG_TARGET_VERDIN_IMX8MM) || \
-	defined(CONFIG_TARGET_VERDIN_IMX8MN)
+	defined(CONFIG_TARGET_VERDIN_IMX8MN) || \
+	defined(CONFIG_TARGET_VERDIN_IMX8MP)
 #include <asm/arch/sys_proto.h>
 #else
 #define is_cpu_type(cpu) (0)
@@ -137,8 +138,12 @@ const char * const toradex_modules[] = {
 	[53] = "Apalis iMX8 QuadXPlus 2GB ECC IT",
 	[54] = "Apalis iMX8 DualXPlus 1GB",
 	[55] = "Verdin iMX8M Mini Quad 2GB Wi-Fi / BT IT",
-	[56] = "Verdin iMX8M Nano SoloLite 1GB", /* not currently on sale */
+	[56] = "Verdin iMX8M Nano Quad 1GB Wi-Fi / BT", /* not currently on sale */
 	[57] = "Verdin iMX8M Mini DualLite 1GB",
+	[58] = "Verdin iMX8M Plus Quad 4GB Wi-Fi / BT IT",
+	[59] = "Verdin iMX8M Mini Quad 2GB IT",
+	[60] = "Verdin iMX8M Mini DualLite 1GB WB IT",
+	[61] = "Verdin iMX8M Plus Quad 2GB",
 };
 
 const char * const toradex_carrier_boards[] = {
@@ -361,21 +366,15 @@ static int get_cfgblock_interactive(void)
 
 	if (cpu_is_pxa27x())
 		sprintf(message, "Is the module the 312 MHz version? [y/N] ");
-#if !defined(CONFIG_TARGET_VERDIN_IMX8MM) || !defined(CONFIG_TARGET_VERDIN_IMX8MN)
-	else
-		sprintf(message, "Is the module an IT version? [y/N] ");
-
-	len = cli_readline(message);
-	it = console_buffer[0];
-#else
 	else
 		it = 'y';
-#endif
 
 #if defined(CONFIG_TARGET_APALIS_IMX8) || \
 		defined(CONFIG_TARGET_APALIS_IMX8X) || \
 		defined(CONFIG_TARGET_COLIBRI_IMX6ULL) || \
-		defined(CONFIG_TARGET_COLIBRI_IMX8X)
+		defined(CONFIG_TARGET_COLIBRI_IMX8X) || \
+		defined(CONFIG_TARGET_VERDIN_IMX8MM) || \
+		defined(CONFIG_TARGET_VERDIN_IMX8MP)
 	sprintf(message, "Does the module have Wi-Fi / Bluetooth? [y/N] ");
 	len = cli_readline(message);
 	wb = console_buffer[0];
@@ -424,12 +423,6 @@ static int get_cfgblock_interactive(void)
 		tdx_hw_tag.prodid = COLIBRI_IMX7D;
 	else if (!strcmp("imx7s", soc))
 		tdx_hw_tag.prodid = COLIBRI_IMX7S;
-	else if (is_cpu_type(MXC_CPU_IMX8MM))
-		tdx_hw_tag.prodid = VERDIN_IMX8MMQ_WIFI_BT_IT;
-	else if (is_cpu_type(MXC_CPU_IMX8MMDL))
-		tdx_hw_tag.prodid = VERDIN_IMX8MMDL;
-	else if (is_cpu_type(MXC_CPU_IMX8MN))
-		tdx_hw_tag.prodid = VERDIN_IMX8MNSL;
 	else if (is_cpu_type(MXC_CPU_IMX8QM)) {
 		if (it == 'y' || it == 'Y') {
 			if (wb == 'y' || wb == 'Y')
@@ -465,6 +458,23 @@ static int get_cfgblock_interactive(void)
 				tdx_hw_tag.prodid = COLIBRI_IMX8DX;
 		}
 #endif
+	} else if (is_cpu_type(MXC_CPU_IMX8MMDL)) {
+		if (wb == 'y' || wb == 'Y')
+			tdx_hw_tag.prodid = VERDIN_IMX8MMDL_WIFI_BT_IT;
+		else
+			tdx_hw_tag.prodid = VERDIN_IMX8MMDL;
+	} else if (is_cpu_type(MXC_CPU_IMX8MM)) {
+		if (wb == 'y' || wb == 'Y')
+			tdx_hw_tag.prodid = VERDIN_IMX8MMQ_WIFI_BT_IT;
+		else
+			tdx_hw_tag.prodid = VERDIN_IMX8MMQ_IT;
+	} else if (is_cpu_type(MXC_CPU_IMX8MN)) {
+		tdx_hw_tag.prodid = VERDIN_IMX8MNQ_WIFI_BT;
+	} else if (is_cpu_type(MXC_CPU_IMX8MP)) {
+		if (wb == 'y' || wb == 'Y')
+			tdx_hw_tag.prodid = VERDIN_IMX8MPQ_WIFI_BT_IT;
+		else
+			tdx_hw_tag.prodid = VERDIN_IMX8MPQ;
 	} else if (!strcmp("tegra20", soc)) {
 		if (it == 'y' || it == 'Y')
 			if (gd->ram_size == 0x10000000)

@@ -19,6 +19,7 @@ config TARGET_JETSON_TK1
 
 config TARGET_CEI_TK1_SOM
 	bool "Colorado Engineering Inc Tegra124 TK1-som board"
+	select ARCH_SUPPORT_PSCI
 	select BOARD_LATE_INIT
 	select CPU_V7_HAS_NONSEC if !SPL_BUILD
 	select CPU_V7_HAS_VIRT if !SPL_BUILD

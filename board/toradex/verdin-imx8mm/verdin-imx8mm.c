@@ -8,11 +8,21 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
+#include <i2c.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <micrel.h>
 
+#include "../common/tdx-cfg-block.h"
+
 DECLARE_GLOBAL_DATA_PTR;
+
+#define I2C_PMIC	0
+
+enum pcb_rev_t {
+	PCB_VERSION_1_0,
+	PCB_VERSION_1_1
+};
 
 #if IS_ENABLED(CONFIG_FEC_MXC)
 static int setup_fec(void)
@@ -104,8 +114,79 @@ int board_mmc_get_env_dev(int devno)
 	return devno;
 }
 
+static enum pcb_rev_t get_pcb_revision(void)
+{
+	struct udevice *bus;
+	struct udevice *i2c_dev = NULL;
+	int ret;
+	u8 is_bd71837 = 0;
+
+	ret = uclass_get_device_by_seq(UCLASS_I2C, I2C_PMIC, &bus);
+	if (!ret)
+		ret = dm_i2c_probe(bus, 0x4b, 0, &i2c_dev);
+	if (!ret)
+		ret = dm_i2c_read(i2c_dev, 0x0, &is_bd71837, 1);
+
+	/* BD71837_REV, High Nibble is major version, fix 1010 */
+	is_bd71837 = !ret && ((is_bd71837 & 0xf0) == 0xa0);
+	return is_bd71837 ? PCB_VERSION_1_0 : PCB_VERSION_1_1;
+}
+
+static void select_dt_from_module_version(void)
+{
+	char variant[32];
+	char *env_variant = env_get("variant");
+	int is_wifi = 0;
+
+	if (IS_ENABLED(CONFIG_TDX_CFG_BLOCK)) {
+		/*
+		 * If we have a valid config block and it says we are a
+		 * module with Wi-Fi/Bluetooth make sure we use the -wifi
+		 * device tree.
+		 */
+		is_wifi = (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_WIFI_BT_IT) ||
+			  (tdx_hw_tag.prodid == VERDIN_IMX8MMDL_WIFI_BT_IT);
+	}
+
+	switch (get_pcb_revision()) {
+	case PCB_VERSION_1_0:
+		printf("Detected a V1.0 module\n");
+		if (is_wifi)
+			strncpy(&variant[0], "wifi", sizeof(variant));
+		else
+			strncpy(&variant[0], "nonwifi", sizeof(variant));
+		break;
+	default:
+		if (is_wifi)
+			strncpy(&variant[0], "wifi-v1.1", sizeof(variant));
+		else
+			strncpy(&variant[0], "nonwifi-v1.1", sizeof(variant));
+		break;
+	}
+
+	if (strcmp(variant, env_variant)) {
+		printf("Setting variant to %s\n", variant);
+		env_set("variant", variant);
+
+		if (IS_ENABLED(CONFIG_ENV_IS_NOWHERE))
+			env_save();
+	}
+}
+
 int board_late_init(void)
 {
+	select_dt_from_module_version();
+
+	return 0;
+}
+
+int board_phys_sdram_size(phys_size_t *size)
+{
+	if (!size)
+		return -EINVAL;
+
+	*size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
+
 	return 0;
 }
 

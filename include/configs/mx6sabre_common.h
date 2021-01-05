@@ -12,8 +12,6 @@
 
 #include "mx6_common.h"
 
-#define CONFIG_IMX_THERMAL
-
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
 

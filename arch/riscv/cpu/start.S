@@ -123,7 +123,7 @@ call_board_init_f_0:
 	 * wait for initialization to complete.
 	 */
 	la	t0, hart_lottery
-	li	s2, 1
+	li	t1, 1
 	amoswap.w s2, t1, 0(t0)
 	bnez	s2, wait_for_gd_init
 #else

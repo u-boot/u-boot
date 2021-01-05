@@ -13,8 +13,6 @@
 
 #include "imx6_spl.h"
 
-#define CONFIG_IMX_THERMAL
-
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
 
 /* MMC Configs */

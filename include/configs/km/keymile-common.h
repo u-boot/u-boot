@@ -32,9 +32,6 @@
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-/* UBI Support for all Keymile boards */
-#define CONFIG_MTD_CONCAT
-
 #ifndef CONFIG_KM_DEF_ENV_BOOTPARAMS
 #define CONFIG_KM_DEF_ENV_BOOTPARAMS \
 	"actual_bank=0\0"
