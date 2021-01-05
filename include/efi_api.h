@@ -701,10 +701,10 @@ struct efi_simple_text_output_protocol {
 			char extended_verification);
 	efi_status_t (EFIAPI *output_string)(
 			struct efi_simple_text_output_protocol *this,
-			const efi_string_t str);
+			const u16 *str);
 	efi_status_t (EFIAPI *test_string)(
 			struct efi_simple_text_output_protocol *this,
-			const efi_string_t str);
+			const u16 *str);
 	efi_status_t(EFIAPI *query_mode)(
 			struct efi_simple_text_output_protocol *this,
 			unsigned long mode_number, unsigned long *columns,
