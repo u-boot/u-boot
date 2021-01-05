@@ -34,6 +34,7 @@ static const struct pinconf_param conf_params[] = {
 	{ "input-schmitt-disable", PIN_CONFIG_INPUT_SCHMITT_ENABLE, 0 },
 	{ "input-schmitt-enable", PIN_CONFIG_INPUT_SCHMITT_ENABLE, 1 },
 	{ "input-debounce", PIN_CONFIG_INPUT_DEBOUNCE, 0 },
+	{ "atmel,drive-strength", PIN_CONFIG_DRIVE_STRENGTH, 0 },
 };
 
 static u32 atmel_pinctrl_get_pinconf(struct udevice *config)
@@ -41,6 +42,7 @@ static u32 atmel_pinctrl_get_pinconf(struct udevice *config)
 	const struct pinconf_param *params;
 	u32 param, arg, conf = 0;
 	u32 i;
+	u32 val;
 
 	for (i = 0; i < ARRAY_SIZE(conf_params); i++) {
 		params = &conf_params[i];
@@ -81,6 +83,12 @@ static u32 atmel_pinctrl_get_pinconf(struct udevice *config)
 				conf |= ATMEL_PIO_IFEN_MASK;
 				conf |= ATMEL_PIO_IFSCEN_MASK;
 			}
+			break;
+		case PIN_CONFIG_DRIVE_STRENGTH:
+			dev_read_u32(config, params->property, &val);
+			conf &= (~ATMEL_PIO_DRVSTR_MASK);
+			conf |= (val << ATMEL_PIO_DRVSTR_OFFSET)
+				& ATMEL_PIO_DRVSTR_MASK;
 			break;
 		default:
 			printf("%s: Unsupported configuration parameter: %u\n",
