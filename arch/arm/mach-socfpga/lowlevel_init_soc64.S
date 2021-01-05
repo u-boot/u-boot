@@ -47,6 +47,55 @@ skipwarmreset:
 
 #if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
 #if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_ATF)
+
+	/*
+	 * In ATF flow, need to clear the old CPU address when cold reset
+	 * being triggered, but shouldn't clear CPU address if it is reset
+	 * by CPU-ON, so that the core can correctly jump to ATF code after
+	 * reset by CPU-ON. CPU-ON trigger the reset via mpumodrst.
+	 *
+	 * Hardware will set 1 to core*_irq in mpurststat register in
+	 * reset manager if the core is reset by mpumodrst.
+	 *
+	 * The following code will check the mpurststat to identify if the
+	 * core is reset by mpumodrst, and it will skip CPU address clearing
+	 * if the core is reset by mpumodrst. At last, the code need to clear
+	 * the core*_irq by set it to 1. So that it can reflect the correct
+	 * and latest status in next reset.
+	 */
+
+	/* Retrieve mpurststat register in reset manager */
+	ldr	x4, =SOCFPGA_RSTMGR_ADDRESS
+	ldr	w5, [x4, #0x04]
+
+	/* Set mask based on current core id */
+	mrs	x0, mpidr_el1
+	and	x1, x0, #0xF
+	ldr	x2, =0x00000100
+	lsl	x2, x2, x1
+
+	/* Skip if core*_irq register is set */
+	and	x6, x5, x2
+	cbnz	x6, skip_clear_cpu_address
+
+	/*
+	 * Reach here means core*_irq is 0, means the core is
+	 * reset by cold, warm or watchdog reset.
+	 * Clear previous CPU release address
+	 */
+	ldr	x4, =CPU_RELEASE_ADDR
+	str	wzr, [x4]
+	b	skip_clear_core_irq
+
+skip_clear_cpu_address:
+	/* Clear core*_irq register by writing 1 */
+	ldr	x4, =SOCFPGA_RSTMGR_ADDRESS
+	str	w2, [x4, #0x04]
+
+skip_clear_core_irq:
+	/* Master CPU (CPU0) does not need to wait for atf */
+	branch_if_master x0, master_cpu
+
 wait_for_atf:
 	ldr	x4, =CPU_RELEASE_ADDR
 	ldr	x5, [x4]
@@ -54,6 +103,8 @@ wait_for_atf:
 	br	x5
 slave_wait_atf:
 	branch_if_slave x0, wait_for_atf
+
+master_cpu:
 #else
 	branch_if_slave x0, 1f
 #endif
