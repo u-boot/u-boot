@@ -64,6 +64,7 @@
  * @SPI_MEM_DATA_OUT: data sent the SPI memory
  */
 enum spi_mem_data_dir {
+	SPI_MEM_NO_DATA,
 	SPI_MEM_DATA_IN,
 	SPI_MEM_DATA_OUT,
 };
