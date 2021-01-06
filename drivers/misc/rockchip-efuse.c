@@ -58,7 +58,7 @@ static int dump_efuses(struct cmd_tbl *cmdtp, int flag,
 
 	/* retrieve the device */
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_GET_DRIVER(rockchip_efuse), &dev);
+					  DM_DRIVER_GET(rockchip_efuse), &dev);
 	if (ret) {
 		printf("%s: no misc-device found\n", __func__);
 		return 0;

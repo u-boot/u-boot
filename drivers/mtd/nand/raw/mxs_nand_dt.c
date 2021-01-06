@@ -177,7 +177,7 @@ void board_nand_init(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_MTD,
-					  DM_GET_DRIVER(mxs_nand_dt),
+					  DM_DRIVER_GET(mxs_nand_dt),
 					  &dev);
 	if (ret && ret != -ENODEV)
 		pr_err("Failed to initialize MXS NAND controller. (error %d)\n",

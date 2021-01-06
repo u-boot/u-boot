@@ -14,6 +14,7 @@
 #include <regmap.h>
 #include <reset-uclass.h>
 #include <syscon.h>
+#include <dm/device-internal.h>
 #include <linux/bitops.h>
 #include <linux/err.h>
 
@@ -92,7 +93,7 @@ int mediatek_reset_bind(struct udevice *pdev, u32 regofs, u32 num_regs)
 	priv = malloc(sizeof(struct mediatek_reset_priv));
 	priv->regofs = regofs;
 	priv->nr_resets = num_regs * 32;
-	rst_dev->priv = priv;
+	dev_set_priv(rst_dev, priv);
 
 	return 0;
 }

@@ -338,7 +338,7 @@ static int dwc3_meson_gxl_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	priv->otg_mode = usb_get_dr_mode(dev->node);
+	priv->otg_mode = usb_get_dr_mode(dev_ofnode(dev));
 
 	if (priv->otg_mode == USB_DR_MODE_PERIPHERAL)
 		priv->otg_phy_mode = USB_DR_MODE_PERIPHERAL;

@@ -525,7 +525,7 @@ bool bsec_dbgswenable(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_GET_DRIVER(stm32mp_bsec), &dev);
+					  DM_DRIVER_GET(stm32mp_bsec), &dev);
 	if (ret || !dev) {
 		pr_debug("bsec driver not available\n");
 		return false;

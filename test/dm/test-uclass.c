@@ -82,7 +82,7 @@ static int test_post_probe(struct udevice *dev)
 	if (&prev->uclass_node != &uc->dev_head) {
 		struct dm_test_uclass_perdev_priv *prev_uc_priv
 				= dev_get_uclass_priv(prev);
-		struct dm_test_pdata *pdata = prev->plat;
+		struct dm_test_pdata *pdata = dev_get_plat(prev);
 
 		ut_assert(pdata);
 		ut_assert(prev_uc_priv);
@@ -102,7 +102,7 @@ static int test_pre_remove(struct udevice *dev)
 static int test_init(struct uclass *uc)
 {
 	dm_testdrv_op_count[DM_TEST_OP_INIT]++;
-	ut_assert(uc->priv);
+	ut_assert(uclass_get_priv(uc));
 
 	return 0;
 }

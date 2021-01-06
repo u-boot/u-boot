@@ -123,7 +123,7 @@ static void serial_find_console_or_panic(void)
 #ifdef CONFIG_SERIAL_SEARCH_ALL
 		if (!uclass_get_device_by_seq(UCLASS_SERIAL, INDEX, &dev) ||
 		    !uclass_get_device(UCLASS_SERIAL, INDEX, &dev)) {
-			if (dev->flags & DM_FLAG_ACTIVATED) {
+			if (dev_get_flags(dev) & DM_FLAG_ACTIVATED) {
 				gd->cur_serial_dev = dev;
 				return;
 			}

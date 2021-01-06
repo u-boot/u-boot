@@ -12,6 +12,20 @@
 #include <dm/ofnode.h>
 
 /**
+ * uclass_set_priv() - Set the private data for a uclass
+ *
+ * This is normally handled by driver model, which automatically allocates
+ * private data when an 'auto' size if provided by the uclass driver.
+ *
+ * Use this function to override normal operation for special situations, such
+ * as needing to allocate a variable amount of data.
+ *
+ * @uc		Uclass to update
+ * @priv	New private-data pointer
+ */
+void uclass_set_priv(struct uclass *uc, void *priv);
+
+/**
  * uclass_find_next_free_seq() - Get the next free sequence number
  *
  * This returns the next free sequence number. This is useful only if

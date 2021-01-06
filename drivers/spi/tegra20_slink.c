@@ -95,7 +95,7 @@ struct tegra_spi_slave {
 
 static int tegra30_spi_of_to_plat(struct udevice *bus)
 {
-	struct tegra_spi_plat *plat = bus->plat;
+	struct tegra_spi_plat *plat = dev_get_plat(bus);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -314,7 +314,7 @@ static int tegra30_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int tegra30_spi_set_speed(struct udevice *bus, uint speed)
 {
-	struct tegra_spi_plat *plat = bus->plat;
+	struct tegra_spi_plat *plat = dev_get_plat(bus);
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
 
 	if (speed > plat->frequency)

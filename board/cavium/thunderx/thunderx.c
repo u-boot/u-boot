@@ -25,7 +25,7 @@ static const struct pl01x_serial_plat serial0 = {
 	.skip_init = true,
 };
 
-U_BOOT_DEVICE(thunderx_serial0) = {
+U_BOOT_DRVINFO(thunderx_serial0) = {
 	.name = "serial_pl01x",
 	.plat = &serial0,
 };
@@ -37,7 +37,7 @@ static const struct pl01x_serial_plat serial1 = {
 	.skip_init = true,
 };
 
-U_BOOT_DEVICE(thunderx_serial1) = {
+U_BOOT_DRVINFO(thunderx_serial1) = {
 	.name = "serial_pl01x",
 	.plat = &serial1,
 };

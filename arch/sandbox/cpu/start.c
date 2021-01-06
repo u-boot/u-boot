@@ -457,6 +457,13 @@ int main(int argc, char *argv[])
 	if (os_parse_args(state, argc, argv))
 		return 1;
 
+	/* Remove old memory file if required */
+	if (state->ram_buf_rm && state->ram_buf_fname) {
+		os_unlink(state->ram_buf_fname);
+		state->write_ram_buf = false;
+		state->ram_buf_fname = NULL;
+	}
+
 	ret = sandbox_read_state(state, state->state_fname);
 	if (ret)
 		goto err;

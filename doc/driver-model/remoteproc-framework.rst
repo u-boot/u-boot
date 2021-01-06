@@ -125,7 +125,7 @@ a simplified definition of a device is as follows:
 		.driver_plat_data = &mydriver_data;
 	};
 
-	U_BOOT_DEVICE(proc_3_demo) = {
+	U_BOOT_DRVINFO(proc_3_demo) = {
 		.name = "sandbox_test_proc",
 		.plat = &proc_3_test,
 	};

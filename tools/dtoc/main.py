@@ -13,11 +13,7 @@ having to link against libfdt. By putting the data from the device tree into
 C structures, normal C code can be used. This helps to reduce the size of the
 compiled program.
 
-Dtoc produces two output files:
-
-   dt-structs.h  - contains struct definitions
-   dt-platdata.c - contains data from the device tree using the struct
-                      definitions, as well as U-Boot driver definitions.
+Dtoc produces several output files - see OUTPUT_FILES in dtb_platdata.py
 
 This tool is used in U-Boot to provide device tree data to SPL without
 increasing the code size of SPL. This supports the CONFIG_SPL_OF_PLATDATA
@@ -42,37 +38,27 @@ sys.path.insert(0, os.path.join(our_path,
 from dtoc import dtb_platdata
 from patman import test_util
 
-def run_tests(args):
+def run_tests(processes, args):
     """Run all the test we have for dtoc
 
     Args:
+        processes: Number of processes to use to run tests (None=same as #CPUs)
         args: List of positional args provided to dtoc. This can hold a test
             name to execute (as in 'dtoc -t test_empty_file', for example)
     """
-    import test_dtoc
+    from dtoc import test_src_scan
+    from dtoc import test_dtoc
 
     result = unittest.TestResult()
     sys.argv = [sys.argv[0]]
     test_name = args and args[0] or None
-    for module in (test_dtoc.TestDtoc,):
-        if test_name:
-            try:
-                suite = unittest.TestLoader().loadTestsFromName(test_name, module)
-            except AttributeError:
-                continue
-        else:
-            suite = unittest.TestLoader().loadTestsFromTestCase(module)
-        suite.run(result)
 
-    print(result)
-    for _, err in result.errors:
-        print(err)
-    for _, err in result.failures:
-        print(err)
-    if result.errors or result.failures:
-        print('dtoc tests FAILED')
-        return 1
-    return 0
+    test_util.RunTestSuites(
+        result, debug=True, verbosity=1, test_preserve_dirs=False,
+        processes=processes, test_name=test_name, toolpath=[],
+        test_class_list=[test_dtoc.TestDtoc,test_src_scan.TestSrcScan])
+
+    return test_util.ReportResult('binman', test_name, result)
 
 def RunTestCoverage():
     """Run the tests and check that we get 100% coverage"""
@@ -87,11 +73,15 @@ if __name__ != '__main__':
 parser = OptionParser()
 parser.add_option('-B', '--build-dir', type='string', default='b',
         help='Directory containing the build output')
+parser.add_option('-c', '--c-output-dir', action='store',
+                  help='Select output directory for C files')
+parser.add_option('-C', '--h-output-dir', action='store',
+                  help='Select output directory for H files (defaults to --c-output-di)')
 parser.add_option('-d', '--dtb-file', action='store',
                   help='Specify the .dtb input file')
 parser.add_option('--include-disabled', action='store_true',
                   help='Include disabled nodes')
-parser.add_option('-o', '--output', action='store', default='-',
+parser.add_option('-o', '--output', action='store',
                   help='Select output filename')
 parser.add_option('-P', '--processes', type=int,
                   help='set number of processes to use for running tests')
@@ -103,7 +93,7 @@ parser.add_option('-T', '--test-coverage', action='store_true',
 
 # Run our meagre tests
 if options.test:
-    ret_code = run_tests(args)
+    ret_code = run_tests(options.processes, args)
     sys.exit(ret_code)
 
 elif options.test_coverage:
@@ -111,4 +101,5 @@ elif options.test_coverage:
 
 else:
     dtb_platdata.run_steps(args, options.dtb_file, options.include_disabled,
-                           options.output)
+                           options.output,
+                           [options.c_output_dir, options.h_output_dir])

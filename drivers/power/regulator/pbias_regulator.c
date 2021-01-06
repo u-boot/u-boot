@@ -16,6 +16,7 @@
 #include <syscon.h>
 #include <linux/bitops.h>
 #include <linux/ioport.h>
+#include <dm/device-internal.h>
 #include <dm/read.h>
 #ifdef CONFIG_MMC_OMAP36XX_PINS
 #include <asm/arch/sys_proto.h>
@@ -102,7 +103,8 @@ static int pbias_bind(struct udevice *dev)
 {
 	int children;
 
-	children = pmic_bind_children(dev, dev->node, pmic_children_info);
+	children = pmic_bind_children(dev, dev_ofnode(dev),
+				      pmic_children_info);
 	if (!children)
 		debug("%s: %s - no child found\n", __func__, dev->name);
 
@@ -208,7 +210,7 @@ static int pbias_regulator_probe(struct udevice *dev)
 	}
 
 	uc_pdata->type = REGULATOR_TYPE_OTHER;
-	dev->priv = (void *)*p;
+	dev_set_priv(dev, (void *)*p);
 
 	return 0;
 }

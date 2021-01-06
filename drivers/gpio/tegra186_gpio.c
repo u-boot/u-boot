@@ -34,7 +34,7 @@ struct tegra186_gpio_plat {
 static uint32_t *tegra186_gpio_reg(struct udevice *dev, uint32_t reg,
 				   uint32_t gpio)
 {
-	struct tegra186_gpio_plat *plat = dev->plat;
+	struct tegra186_gpio_plat *plat = dev_get_plat(dev);
 	uint32_t index = (reg + (gpio * TEGRA186_GPIO_PER_GPIO_STRIDE)) / 4;
 
 	return &(plat->regs[index]);
@@ -166,7 +166,7 @@ static const struct dm_gpio_ops tegra186_gpio_ops = {
  */
 static int tegra186_gpio_bind(struct udevice *parent)
 {
-	struct tegra186_gpio_plat *parent_plat = parent->plat;
+	struct tegra186_gpio_plat *parent_plat = dev_get_plat(parent);
 	struct tegra186_gpio_ctlr_data *ctlr_data =
 		(struct tegra186_gpio_ctlr_data *)dev_get_driver_data(parent);
 	uint32_t *regs;
@@ -201,7 +201,7 @@ static int tegra186_gpio_bind(struct udevice *parent)
 
 static int tegra186_gpio_probe(struct udevice *dev)
 {
-	struct tegra186_gpio_plat *plat = dev->plat;
+	struct tegra186_gpio_plat *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	/* Only child devices have ports */

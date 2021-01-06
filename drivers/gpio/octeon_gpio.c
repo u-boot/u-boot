@@ -190,7 +190,7 @@ static int octeon_gpio_probe(struct udevice *dev)
 			GPIO_CONST_GPIOS_MASK;
 	} else {
 		priv->base = dev_remap_addr(dev);
-		uc_priv->gpio_count = ofnode_read_u32_default(dev->node,
+		uc_priv->gpio_count = ofnode_read_u32_default(dev_ofnode(dev),
 							      "nr-gpios", 32);
 	}
 

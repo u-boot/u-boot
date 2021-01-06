@@ -36,7 +36,7 @@ static const struct ns16550_plat igep_serial = {
 	.fcr = UART_FCR_DEFVAL,
 };
 
-U_BOOT_DEVICE(igep_uart) = {
+U_BOOT_DRVINFO(igep_uart) = {
 	"ns16550_serial",
 	&igep_serial
 };

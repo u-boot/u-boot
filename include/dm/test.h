@@ -134,14 +134,12 @@ extern struct unit_test_state global_dm_test_state;
  * @testdev: Test device
  * @force_fail_alloc: Force all memory allocs to fail
  * @skip_post_probe: Skip uclass post-probe processing
- * @removed: Used to keep track of a device that was removed
  */
 struct dm_test_state {
 	struct udevice *root;
 	struct udevice *testdev;
 	int force_fail_alloc;
 	int skip_post_probe;
-	struct udevice *removed;
 };
 
 /* Declare a new driver model test */
@@ -167,6 +165,24 @@ struct sandbox_sdl_plat {
 	int rot;
 	const char *vidconsole_drv_name;
 	int font_size;
+};
+
+/**
+ * struct dm_test_parent_plat - Used to track state in bus tests
+ *
+ * @count:
+ * @bind_flag: Indicates that the child post-bind method was called
+ * @uclass_bind_flag: Also indicates that the child post-bind method was called
+ */
+struct dm_test_parent_plat {
+	int count;
+	int bind_flag;
+	int uclass_bind_flag;
+};
+
+enum {
+	TEST_FLAG_CHILD_PROBED	= 10,
+	TEST_FLAG_CHILD_REMOVED	= -7,
 };
 
 /* Declare ping methods for the drivers */

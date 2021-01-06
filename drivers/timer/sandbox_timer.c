@@ -65,6 +65,6 @@ U_BOOT_DRIVER(sandbox_timer) = {
 };
 
 /* This is here in case we don't have a device tree */
-U_BOOT_DEVICE(sandbox_timer_non_fdt) = {
+U_BOOT_DRVINFO(sandbox_timer_non_fdt) = {
 	.name = "sandbox_timer",
 };

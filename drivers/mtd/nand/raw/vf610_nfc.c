@@ -794,7 +794,7 @@ void board_nand_init(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_MTD,
-					  DM_GET_DRIVER(vf610_nfc_dt),
+					  DM_DRIVER_GET(vf610_nfc_dt),
 					  &dev);
 	if (ret && ret != -ENODEV)
 		pr_err("Failed to initialize NAND controller. (error %d)\n",

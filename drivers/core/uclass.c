@@ -33,7 +33,7 @@ struct uclass *uclass_find(enum uclass_id key)
 	 * node to the start of the list, or creating a linear array mapping
 	 * id to node.
 	 */
-	list_for_each_entry(uc, &gd->uclass_root, sibling_node) {
+	list_for_each_entry(uc, gd->uclass_root, sibling_node) {
 		if (uc->uc_drv->id == key)
 			return uc;
 	}
@@ -72,16 +72,19 @@ static int uclass_add(enum uclass_id id, struct uclass **ucp)
 	if (!uc)
 		return -ENOMEM;
 	if (uc_drv->priv_auto) {
-		uc->priv = calloc(1, uc_drv->priv_auto);
-		if (!uc->priv) {
+		void *ptr;
+
+		ptr = calloc(1, uc_drv->priv_auto);
+		if (!ptr) {
 			ret = -ENOMEM;
 			goto fail_mem;
 		}
+		uclass_set_priv(uc, ptr);
 	}
 	uc->uc_drv = uc_drv;
 	INIT_LIST_HEAD(&uc->sibling_node);
 	INIT_LIST_HEAD(&uc->dev_head);
-	list_add(&uc->sibling_node, &DM_UCLASS_ROOT_NON_CONST);
+	list_add(&uc->sibling_node, DM_UCLASS_ROOT_NON_CONST);
 
 	if (uc_drv->init) {
 		ret = uc_drv->init(uc);
@@ -94,8 +97,8 @@ static int uclass_add(enum uclass_id id, struct uclass **ucp)
 	return 0;
 fail:
 	if (uc_drv->priv_auto) {
-		free(uc->priv);
-		uc->priv = NULL;
+		free(uclass_get_priv(uc));
+		uclass_set_priv(uc, NULL);
 	}
 	list_del(&uc->sibling_node);
 fail_mem:
@@ -132,7 +135,7 @@ int uclass_destroy(struct uclass *uc)
 		uc_drv->destroy(uc);
 	list_del(&uc->sibling_node);
 	if (uc_drv->priv_auto)
-		free(uc->priv);
+		free(uclass_get_priv(uc));
 	free(uc);
 
 	return 0;
@@ -158,6 +161,16 @@ const char *uclass_get_name(enum uclass_id id)
 	if (uclass_get(id, &uc))
 		return NULL;
 	return uc->uc_drv->name;
+}
+
+void *uclass_get_priv(const struct uclass *uc)
+{
+	return uc->priv_;
+}
+
+void uclass_set_priv(struct uclass *uc, void *priv)
+{
+	uc->priv_ = priv;
 }
 
 enum uclass_id uclass_get_by_name(const char *name)
@@ -284,8 +297,8 @@ int uclass_find_next_free_seq(struct uclass *uc)
 
 	/* Avoid conflict with existing devices */
 	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
-		if (dev->sqq > max)
-			max = dev->sqq;
+		if (dev->seq_ > max)
+			max = dev->seq_;
 	}
 	/*
 	 * At this point, max will be -1 if there are no existing aliases or
@@ -310,8 +323,8 @@ int uclass_find_device_by_seq(enum uclass_id id, int seq, struct udevice **devp)
 		return ret;
 
 	uclass_foreach_dev(dev, uc) {
-		log_debug("   - %d '%s'\n", dev->sqq, dev->name);
-		if (dev->sqq == seq) {
+		log_debug("   - %d '%s'\n", dev->seq_, dev->name);
+		if (dev->seq_ == seq) {
 			*devp = dev;
 			log_debug("   - found\n");
 			return 0;

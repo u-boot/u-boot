@@ -270,7 +270,7 @@ fills in the fields from device tree.
 Add the platform data [non-device-tree only]
 --------------------------------------------
 
-Specify this data in a U_BOOT_DEVICE() declaration in your board file:
+Specify this data in a U_BOOT_DRVINFO() declaration in your board file:
 
 .. code-block:: c
 
@@ -281,7 +281,7 @@ Specify this data in a U_BOOT_DEVICE() declaration in your board file:
 		.deactivate_delay_us = ...
 	};
 
-	U_BOOT_DEVICE(board_spi0) = {
+	U_BOOT_DRVINFO(board_spi0) = {
 		.name = "exynos_spi",
 		.plat = &platdata_spi0,
 	};

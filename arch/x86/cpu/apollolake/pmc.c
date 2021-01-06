@@ -16,6 +16,7 @@
 #include <acpi/acpi_s3.h>
 #include <asm/io.h>
 #include <asm/pci.h>
+#include <asm/arch/pmc.h>
 #include <linux/bitops.h>
 #include <power/acpi_pmc.h>
 
@@ -51,13 +52,6 @@ enum {
 	ETR		= 0x1048,
 	CF9_LOCK        = 1UL << 31,
 	CF9_GLB_RST	= 1 << 20,
-};
-
-struct apl_pmc_plat {
-#if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_intel_apl_pmc dtplat;
-#endif
-	pci_dev_t bdf;
 };
 
 static int apl_pmc_fill_power_state(struct udevice *dev)
@@ -205,22 +199,24 @@ static int apl_pmc_probe(struct udevice *dev)
 	return 0;
 }
 
-static struct acpi_pmc_ops apl_pmc_ops = {
+static const struct acpi_pmc_ops apl_pmc_ops = {
 	.init			= apl_pmc_fill_power_state,
 	.prev_sleep_state	= apl_prev_sleep_state,
 	.disable_tco		= apl_disable_tco,
 	.global_reset_set_enable = apl_global_reset_set_enable,
 };
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct udevice_id apl_pmc_ids[] = {
 	{ .compatible = "intel,apl-pmc" },
 	{ }
 };
+#endif
 
 U_BOOT_DRIVER(intel_apl_pmc) = {
 	.name		= "intel_apl_pmc",
 	.id		= UCLASS_ACPI_PMC,
-	.of_match	= apl_pmc_ids,
+	.of_match	= of_match_ptr(apl_pmc_ids),
 	.of_to_plat = apl_pmc_ofdata_to_uc_plat,
 	.probe		= apl_pmc_probe,
 	.ops		= &apl_pmc_ops,

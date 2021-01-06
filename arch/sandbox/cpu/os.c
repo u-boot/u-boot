@@ -790,6 +790,11 @@ int os_find_u_boot(char *fname, int maxlen)
 
 int os_spl_to_uboot(const char *fname)
 {
+	struct sandbox_state *state = state_get_current();
+
+	printf("%s\n", __func__);
+	/* U-Boot will delete ram buffer after read: "--rm_memory"*/
+	state->ram_buf_rm = true;
 	return os_jump_to_file(fname);
 }
 

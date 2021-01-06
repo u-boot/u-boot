@@ -24,6 +24,7 @@
 #include <asm/io.h>
 #include <asm/pci.h>
 #include <asm/arch/acpi.h>
+#include <asm/arch/hostbridge.h>
 #include <asm/arch/systemagent.h>
 #include <dt-bindings/sound/nhlt.h>
 #include <dm/acpi.h>
@@ -41,25 +42,7 @@ enum {
 	TOLUD			= 0xbc,
 };
 
-/**
- * struct apl_hostbridge_plat - platform data for hostbridge
- *
- * @dtplat: Platform data for of-platdata
- * @early_pads: Early pad data to set up, each (pad, cfg0, cfg1)
- * @early_pads_count: Number of pads to process
- * @pciex_region_size: BAR length in bytes
- * @bdf: Bus/device/function of hostbridge
- */
-struct apl_hostbridge_plat {
-#if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_intel_apl_hostbridge dtplat;
-#endif
-	u32 *early_pads;
-	int early_pads_count;
-	uint pciex_region_size;
-	pci_dev_t bdf;
-};
-
+#if CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)
 static const struct nhlt_format_config dmic_1ch_formats[] = {
 	/* 48 KHz 16-bits per sample. */
 	{
@@ -155,6 +138,7 @@ static const struct nhlt_endp_descriptor dmic_4ch_descriptors[] = {
 		.num_formats = ARRAY_SIZE(dmic_4ch_formats),
 	},
 };
+#endif
 
 static int apl_hostbridge_early_init_pinctrl(struct udevice *dev)
 {
@@ -283,7 +267,7 @@ static int apl_acpi_hb_get_name(const struct udevice *dev, char *out_name)
 	return acpi_copy_name(out_name, "RHUB");
 }
 
-#ifdef CONFIG_GENERATE_ACPI_TABLE
+#if CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)
 static int apl_acpi_hb_write_tables(const struct udevice *dev,
 				    struct acpi_ctx *ctx)
 {
@@ -322,7 +306,6 @@ static int apl_acpi_hb_write_tables(const struct udevice *dev,
 
 	return 0;
 }
-#endif
 
 static int apl_acpi_setup_nhlt(const struct udevice *dev, struct acpi_ctx *ctx)
 {
@@ -347,6 +330,7 @@ static int apl_acpi_setup_nhlt(const struct udevice *dev, struct acpi_ctx *ctx)
 
 	return log_msg_ret("channels", -EINVAL);
 }
+#endif
 
 static int apl_hostbridge_remove(struct udevice *dev)
 {
@@ -385,21 +369,23 @@ ulong sa_get_tseg_base(struct udevice *dev)
 
 struct acpi_ops apl_hostbridge_acpi_ops = {
 	.get_name	= apl_acpi_hb_get_name,
-#ifdef CONFIG_GENERATE_ACPI_TABLE
+#if CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)
 	.write_tables	= apl_acpi_hb_write_tables,
-#endif
 	.setup_nhlt	= apl_acpi_setup_nhlt,
+#endif
 };
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct udevice_id apl_hostbridge_ids[] = {
 	{ .compatible = "intel,apl-hostbridge" },
 	{ }
 };
+#endif
 
 U_BOOT_DRIVER(intel_apl_hostbridge) = {
 	.name		= "intel_apl_hostbridge",
 	.id		= UCLASS_NORTHBRIDGE,
-	.of_match	= apl_hostbridge_ids,
+	.of_match	= of_match_ptr(apl_hostbridge_ids),
 	.of_to_plat = apl_hostbridge_of_to_plat,
 	.probe		= apl_hostbridge_probe,
 	.remove		= apl_hostbridge_remove,

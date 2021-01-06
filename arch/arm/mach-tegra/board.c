@@ -264,7 +264,7 @@ static struct ns16550_plat ns16550_com1_pdata = {
 	.fcr = UART_FCR_DEFVAL,
 };
 
-U_BOOT_DEVICE(ns16550_com1) = {
+U_BOOT_DRVINFO(ns16550_com1) = {
 	"ns16550_serial", &ns16550_com1_pdata
 };
 #endif

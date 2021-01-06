@@ -524,7 +524,7 @@ static void set_vga_bridge_bits(struct udevice *dev)
 
 int pci_auto_config_devices(struct udevice *bus)
 {
-	struct pci_controller *hose = bus->uclass_priv;
+	struct pci_controller *hose = dev_get_uclass_priv(bus);
 	struct pci_child_plat *pplat;
 	unsigned int sub_bus;
 	struct udevice *dev;
@@ -540,7 +540,7 @@ int pci_auto_config_devices(struct udevice *bus)
 		int ret;
 
 		debug("%s: device %s\n", __func__, dev->name);
-		if (dev_of_valid(dev) &&
+		if (dev_has_ofnode(dev) &&
 		    dev_read_bool(dev, "pci,no-autoconfig"))
 			continue;
 		ret = dm_pciauto_config_device(dev);
@@ -1007,7 +1007,7 @@ static int pci_uclass_pre_probe(struct udevice *bus)
 
 	debug("%s, bus=%d/%s, parent=%s\n", __func__, dev_seq(bus), bus->name,
 	      bus->parent->name);
-	hose = bus->uclass_priv;
+	hose = dev_get_uclass_priv(bus);
 
 	/*
 	 * Set the sequence number, if device_bind() doesn't. We want control
@@ -1019,7 +1019,7 @@ static int pci_uclass_pre_probe(struct udevice *bus)
 		ret = uclass_get(UCLASS_PCI, &uc);
 		if (ret)
 			return ret;
-		bus->sqq = uclass_find_next_free_seq(uc);
+		bus->seq_ = uclass_find_next_free_seq(uc);
 	}
 
 	/* For bridges, use the top-level PCI controller */
@@ -1036,7 +1036,7 @@ static int pci_uclass_pre_probe(struct udevice *bus)
 	hose->bus = bus;
 	hose->first_busno = dev_seq(bus);
 	hose->last_busno = dev_seq(bus);
-	if (dev_of_valid(bus)) {
+	if (dev_has_ofnode(bus)) {
 		hose->skip_auto_config_until_reloc =
 			dev_read_bool(bus,
 				      "u-boot,skip-auto-config-until-reloc");
@@ -1091,7 +1091,7 @@ static int pci_uclass_child_post_bind(struct udevice *dev)
 {
 	struct pci_child_plat *pplat;
 
-	if (!dev_of_valid(dev))
+	if (!dev_has_ofnode(dev))
 		return 0;
 
 	pplat = dev_get_parent_plat(dev);
@@ -1109,7 +1109,7 @@ static int pci_bridge_read_config(const struct udevice *bus, pci_dev_t bdf,
 				  uint offset, ulong *valuep,
 				  enum pci_size_t size)
 {
-	struct pci_controller *hose = bus->uclass_priv;
+	struct pci_controller *hose = dev_get_uclass_priv(bus);
 
 	return pci_bus_read_config(hose->ctlr, bdf, offset, valuep, size);
 }
@@ -1118,7 +1118,7 @@ static int pci_bridge_write_config(struct udevice *bus, pci_dev_t bdf,
 				   uint offset, ulong value,
 				   enum pci_size_t size)
 {
-	struct pci_controller *hose = bus->uclass_priv;
+	struct pci_controller *hose = dev_get_uclass_priv(bus);
 
 	return pci_bus_write_config(hose->ctlr, bdf, offset, value, size);
 }

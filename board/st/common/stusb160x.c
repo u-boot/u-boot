@@ -22,7 +22,7 @@ int stusb160x_cable_connected(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_I2C_GENERIC,
-					  DM_GET_DRIVER(stusb160x),
+					  DM_DRIVER_GET(stusb160x),
 					  &dev);
 	if (ret < 0)
 		return ret;

@@ -288,7 +288,7 @@ static const struct dm_spi_ops pl022_spi_ops = {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int pl022_spi_of_to_plat(struct udevice *bus)
 {
-	struct pl022_spi_pdata *plat = bus->plat;
+	struct pl022_spi_pdata *plat = dev_get_plat(bus);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 	struct clk clkdev;

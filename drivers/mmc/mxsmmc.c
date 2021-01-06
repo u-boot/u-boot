@@ -668,7 +668,7 @@ static const struct dm_mmc_ops mxsmmc_ops = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int mxsmmc_of_to_plat(struct udevice *bus)
 {
-	struct mxsmmc_plat *plat = bus->plat;
+	struct mxsmmc_plat *plat = dev_get_plat(bus);
 	u32 prop[2];
 	int ret;
 
@@ -722,5 +722,5 @@ U_BOOT_DRIVER(fsl_imx23_mmc) = {
 	.plat_auto	= sizeof(struct mxsmmc_plat),
 };
 
-U_BOOT_DRIVER_ALIAS(fsl_imx23_mmc, fsl_imx28_mmc)
+DM_DRIVER_ALIAS(fsl_imx23_mmc, fsl_imx28_mmc)
 #endif /* CONFIG_DM_MMC */

@@ -345,7 +345,7 @@ int clk_set_defaults(struct udevice *dev, int stage)
 {
 	int ret;
 
-	if (!dev_of_valid(dev))
+	if (!dev_has_ofnode(dev))
 		return 0;
 
 	/* If this not in SPL and pre-reloc state, don't take any action. */

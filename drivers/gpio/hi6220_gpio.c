@@ -67,7 +67,7 @@ static int hi6220_gpio_probe(struct udevice *dev)
 {
 	struct gpio_bank *bank = dev_get_priv(dev);
 	struct hikey_gpio_plat *plat = dev_get_plat(dev);
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	char name[18], *str;
 
 	sprintf(name, "GPIO%d_", plat->bank_index);

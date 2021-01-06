@@ -457,7 +457,7 @@ static int emaclite_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	u32 length, first_read, reg, attempt = 0;
 	void *addr, *ack;
-	struct xemaclite *emaclite = dev->priv;
+	struct xemaclite *emaclite = dev_get_priv(dev);
 	struct emaclite_regs *regs = emaclite->regs;
 	struct ethernet_hdr *eth;
 	struct ip_udp_hdr *ip;

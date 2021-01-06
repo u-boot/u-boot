@@ -60,7 +60,7 @@ int submit_control_msg(struct usb_device *udev, unsigned long pipe,
 {
 	struct udevice *bus = udev->controller_dev;
 	struct dm_usb_ops *ops = usb_get_ops(bus);
-	struct usb_uclass_priv *uc_priv = bus->uclass->priv;
+	struct usb_uclass_priv *uc_priv = uclass_get_priv(bus->uclass);
 	int err;
 
 	if (!ops->control)
@@ -184,7 +184,7 @@ int usb_stop(void)
 	if (ret)
 		return ret;
 
-	uc_priv = uc->priv;
+	uc_priv = uclass_get_priv(uc);
 
 	uclass_foreach_dev(bus, uc) {
 		ret = device_remove(bus, DM_REMOVE_NORMAL);
@@ -263,7 +263,7 @@ int usb_init(void)
 	if (ret)
 		return ret;
 
-	uc_priv = uc->priv;
+	uc_priv = uclass_get_priv(uc);
 
 	uclass_foreach_dev(bus, uc) {
 		/* init low_level USB */
@@ -517,7 +517,7 @@ static ofnode usb_get_ofnode(struct udevice *hub, int port)
 	ofnode node;
 	u32 reg;
 
-	if (!dev_has_of_node(hub))
+	if (!dev_has_ofnode(hub))
 		return ofnode_null();
 
 	/*
@@ -773,7 +773,7 @@ static int usb_child_post_bind(struct udevice *dev)
 	struct usb_dev_plat *plat = dev_get_parent_plat(dev);
 	int val;
 
-	if (!dev_of_valid(dev))
+	if (!dev_has_ofnode(dev))
 		return 0;
 
 	/* We only support matching a few things */

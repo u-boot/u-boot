@@ -148,7 +148,7 @@ static int socfpga_reset_bind(struct udevice *dev)
 	 * Bind it to the node, too, so that it can get its base address.
 	 */
 	ret = device_bind_driver_to_node(dev, "socfpga_sysreset", "sysreset",
-					 dev->node, &sys_child);
+					 dev_ofnode(dev), &sys_child);
 	if (ret)
 		debug("Warning: No sysreset driver: ret=%d\n", ret);
 

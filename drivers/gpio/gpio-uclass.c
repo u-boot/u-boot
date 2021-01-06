@@ -306,7 +306,7 @@ int gpio_hog_probe_all(void)
 	for (uclass_first_device(UCLASS_NOP, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
-		if (dev->driver == DM_GET_DRIVER(gpio_hog)) {
+		if (dev->driver == DM_DRIVER_GET(gpio_hog)) {
 			ret = device_probe(dev);
 			if (ret) {
 				printf("Failed to probe device %s err: %d\n",
@@ -1165,7 +1165,7 @@ int gpio_get_number(const struct gpio_desc *desc)
 
 	if (!dev)
 		return -1;
-	uc_priv = dev->uclass_priv;
+	uc_priv = dev_get_uclass_priv(dev);
 
 	return uc_priv->gpio_base + desc->offset;
 }

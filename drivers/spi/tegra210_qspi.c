@@ -99,7 +99,7 @@ struct tegra210_qspi_priv {
 
 static int tegra210_qspi_of_to_plat(struct udevice *bus)
 {
-	struct tegra_spi_plat *plat = bus->plat;
+	struct tegra_spi_plat *plat = dev_get_plat(bus);
 
 	plat->base = dev_read_addr(bus);
 	plat->periph_id = clock_decode_periph_id(bus);
@@ -380,7 +380,7 @@ static int tegra210_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int tegra210_qspi_set_speed(struct udevice *bus, uint speed)
 {
-	struct tegra_spi_plat *plat = bus->plat;
+	struct tegra_spi_plat *plat = dev_get_plat(bus);
 	struct tegra210_qspi_priv *priv = dev_get_priv(bus);
 
 	if (speed > plat->frequency)

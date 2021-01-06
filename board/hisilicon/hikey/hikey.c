@@ -50,7 +50,7 @@ static const struct hikey_gpio_plat hi6220_gpio[] = {
 
 };
 
-U_BOOT_DEVICES(hi6220_gpios) = {
+U_BOOT_DRVINFOS(hi6220_gpios) = {
 	{ "gpio_hi6220", &hi6220_gpio[0] },
 	{ "gpio_hi6220", &hi6220_gpio[1] },
 	{ "gpio_hi6220", &hi6220_gpio[2] },
@@ -89,7 +89,7 @@ static const struct pl01x_serial_plat serial_plat = {
 	.clock = 19200000
 };
 
-U_BOOT_DEVICE(hikey_seriala) = {
+U_BOOT_DRVINFO(hikey_seriala) = {
 	.name = "serial_pl01x",
 	.plat = &serial_plat,
 };

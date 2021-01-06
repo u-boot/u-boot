@@ -26,7 +26,7 @@ int fuse_read(u32 bank, u32 word, u32 *val)
 	switch (bank) {
 	case STM32MP_OTP_BANK:
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(stm32mp_bsec),
+						  DM_DRIVER_GET(stm32mp_bsec),
 						  &dev);
 		if (ret)
 			return ret;
@@ -41,7 +41,7 @@ int fuse_read(u32 bank, u32 word, u32 *val)
 #ifdef CONFIG_PMIC_STPMIC1
 	case STM32MP_NVM_BANK:
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(stpmic1_nvm),
+						  DM_DRIVER_GET(stpmic1_nvm),
 						  &dev);
 		if (ret)
 			return ret;
@@ -71,7 +71,7 @@ int fuse_prog(u32 bank, u32 word, u32 val)
 	switch (bank) {
 	case STM32MP_OTP_BANK:
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(stm32mp_bsec),
+						  DM_DRIVER_GET(stm32mp_bsec),
 						  &dev);
 		if (ret)
 			return ret;
@@ -86,7 +86,7 @@ int fuse_prog(u32 bank, u32 word, u32 val)
 #ifdef CONFIG_PMIC_STPMIC1
 	case STM32MP_NVM_BANK:
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(stpmic1_nvm),
+						  DM_DRIVER_GET(stpmic1_nvm),
 						  &dev);
 		if (ret)
 			return ret;
@@ -115,7 +115,7 @@ int fuse_sense(u32 bank, u32 word, u32 *val)
 	switch (bank) {
 	case STM32MP_OTP_BANK:
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(stm32mp_bsec),
+						  DM_DRIVER_GET(stm32mp_bsec),
 						  &dev);
 		if (ret)
 			return ret;
@@ -129,7 +129,7 @@ int fuse_sense(u32 bank, u32 word, u32 *val)
 #ifdef CONFIG_PMIC_STPMIC1
 	case STM32MP_NVM_BANK:
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(stpmic1_nvm),
+						  DM_DRIVER_GET(stpmic1_nvm),
 						  &dev);
 		if (ret)
 			return ret;
@@ -159,7 +159,7 @@ int fuse_override(u32 bank, u32 word, u32 val)
 	switch (bank) {
 	case STM32MP_OTP_BANK:
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(stm32mp_bsec),
+						  DM_DRIVER_GET(stm32mp_bsec),
 						  &dev);
 		if (ret)
 			return ret;
@@ -174,7 +174,7 @@ int fuse_override(u32 bank, u32 word, u32 val)
 #ifdef CONFIG_PMIC_STPMIC1
 	case STM32MP_NVM_BANK:
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(stpmic1_nvm),
+						  DM_DRIVER_GET(stpmic1_nvm),
 						  &dev);
 		if (ret)
 			return ret;

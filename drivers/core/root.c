@@ -45,8 +45,8 @@ void dm_fixup_for_gd_move(struct global_data *new_gd)
 {
 	/* The sentinel node has moved, so update things that point to it */
 	if (gd->dm_root) {
-		new_gd->uclass_root.next->prev = &new_gd->uclass_root;
-		new_gd->uclass_root.prev->next = &new_gd->uclass_root;
+		new_gd->uclass_root->next->prev = new_gd->uclass_root;
+		new_gd->uclass_root->prev->next = new_gd->uclass_root;
 	}
 }
 
@@ -86,8 +86,8 @@ void fix_drivers(void)
 void fix_uclass(void)
 {
 	struct uclass_driver *uclass =
-		ll_entry_start(struct uclass_driver, uclass);
-	const int n_ents = ll_entry_count(struct uclass_driver, uclass);
+		ll_entry_start(struct uclass_driver, uclass_driver);
+	const int n_ents = ll_entry_count(struct uclass_driver, uclass_driver);
 	struct uclass_driver *entry;
 
 	for (entry = uclass; entry != uclass + n_ents; entry++) {
@@ -136,7 +136,8 @@ int dm_init(bool of_live)
 		dm_warn("Virtual root driver already exists!\n");
 		return -EINVAL;
 	}
-	INIT_LIST_HEAD(&DM_UCLASS_ROOT_NON_CONST);
+	gd->uclass_root = &DM_UCLASS_ROOT_S_NON_CONST;
+	INIT_LIST_HEAD(DM_UCLASS_ROOT_NON_CONST);
 
 	if (IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC)) {
 		fix_drivers();
@@ -148,7 +149,7 @@ int dm_init(bool of_live)
 	if (ret)
 		return ret;
 	if (CONFIG_IS_ENABLED(OF_CONTROL))
-		DM_ROOT_NON_CONST->node = ofnode_root();
+		dev_set_ofnode(DM_ROOT_NON_CONST, ofnode_root());
 	ret = device_probe(DM_ROOT_NON_CONST);
 	if (ret)
 		return ret;
@@ -296,39 +297,57 @@ __weak int dm_scan_other(bool pre_reloc_only)
 	return 0;
 }
 
-int dm_init_and_scan(bool pre_reloc_only)
+/**
+ * dm_scan() - Scan tables to bind devices
+ *
+ * Runs through the driver_info tables and binds the devices it finds. Then runs
+ * through the devicetree nodes. Finally calls dm_scan_other() to add any
+ * special devices
+ *
+ * @pre_reloc_only: If true, bind only nodes with special devicetree properties,
+ * or drivers with the DM_FLAG_PRE_RELOC flag. If false bind all drivers.
+ */
+static int dm_scan(bool pre_reloc_only)
 {
 	int ret;
 
-	if (CONFIG_IS_ENABLED(OF_PLATDATA))
-		dm_populate_phandle_data();
-
-	ret = dm_init(CONFIG_IS_ENABLED(OF_LIVE));
-	if (ret) {
-		debug("dm_init() failed: %d\n", ret);
-		return ret;
-	}
 	ret = dm_scan_plat(pre_reloc_only);
 	if (ret) {
 		debug("dm_scan_plat() failed: %d\n", ret);
-		goto fail;
+		return ret;
 	}
 
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		ret = dm_extended_scan(pre_reloc_only);
 		if (ret) {
 			debug("dm_extended_scan() failed: %d\n", ret);
-			goto fail;
+			return ret;
 		}
 	}
 
 	ret = dm_scan_other(pre_reloc_only);
 	if (ret)
-		goto fail;
+		return ret;
 
 	return 0;
-fail:
-	return ret;
+}
+
+int dm_init_and_scan(bool pre_reloc_only)
+{
+	int ret;
+
+	ret = dm_init(CONFIG_IS_ENABLED(OF_LIVE));
+	if (ret) {
+		debug("dm_init() failed: %d\n", ret);
+		return ret;
+	}
+	ret = dm_scan(pre_reloc_only);
+	if (ret) {
+		log_debug("dm_scan() failed: %d\n", ret);
+		return ret;
+	}
+
+	return 0;
 }
 
 #ifdef CONFIG_ACPIGEN

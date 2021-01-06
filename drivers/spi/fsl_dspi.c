@@ -460,8 +460,10 @@ static int fsl_dspi_child_pre_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	ofnode_read_u32(dev->node, "fsl,spi-cs-sck-delay", &cs_sck_delay);
-	ofnode_read_u32(dev->node, "fsl,spi-sck-cs-delay", &sck_cs_delay);
+	ofnode_read_u32(dev_ofnode(dev), "fsl,spi-cs-sck-delay",
+			&cs_sck_delay);
+	ofnode_read_u32(dev_ofnode(dev), "fsl,spi-sck-cs-delay",
+			&sck_cs_delay);
 
 	/* Set PCS to SCK delay scale values */
 	ns_delay_scale(&pcssck, &cssck, cs_sck_delay, priv->bus_clk);
@@ -486,7 +488,7 @@ static int fsl_dspi_probe(struct udevice *bus)
 	struct dm_spi_bus *dm_spi_bus;
 	uint mcr_cfg_val;
 
-	dm_spi_bus = bus->uclass_priv;
+	dm_spi_bus = dev_get_uclass_priv(bus);
 
 	/* cpu speical pin muxing configure */
 	cpu_dspi_port_conf();
@@ -576,7 +578,7 @@ static int fsl_dspi_bind(struct udevice *bus)
 static int fsl_dspi_of_to_plat(struct udevice *bus)
 {
 	fdt_addr_t addr;
-	struct fsl_dspi_plat *plat = bus->plat;
+	struct fsl_dspi_plat *plat = dev_get_plat(bus);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 

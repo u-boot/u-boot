@@ -304,13 +304,14 @@ static int meson_pwm_probe(struct udevice *dev)
 					if (strcmp(cdev->driver->name, "fixed_rate_clock"))
 						continue;
 
-					str = ofnode_read_string(cdev->node, "clock-output-names");
+					str = ofnode_read_string(dev_ofnode(cdev),
+								 "clock-output-names");
 					if (!str)
 						continue;
 
 					if (!strcmp(str, "xtal")) {
 						err = uclass_get_device_by_ofnode(UCLASS_CLK,
-										  cdev->node,
+										  dev_ofnode(cdev),
 										  &cdev);
 						if (err) {
 							printf("%s%d: Failed to get xtal clk\n", __func__, i);
@@ -345,7 +346,9 @@ static int meson_pwm_probe(struct udevice *dev)
 					return -EINVAL;
 				}
 
-				err = uclass_get_device_by_ofnode(UCLASS_CLK, cdev->node, &cdev);
+				err = uclass_get_device_by_ofnode(UCLASS_CLK,
+								  dev_ofnode(cdev),
+								  &cdev);
 				if (err) {
 					printf("%s%d: Failed to get clk controller\n", __func__, i);
 					return err;

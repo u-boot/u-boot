@@ -528,4 +528,4 @@ U_BOOT_DRIVER(atmel_sama5d3_pinctrl) = {
 	.ops = &at91_pinctrl_ops,
 };
 
-U_BOOT_DRIVER_ALIAS(atmel_sama5d3_pinctrl, atmel_at91rm9200_pinctrl)
+DM_DRIVER_ALIAS(atmel_sama5d3_pinctrl, atmel_at91rm9200_pinctrl)

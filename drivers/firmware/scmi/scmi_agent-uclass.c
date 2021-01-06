@@ -73,11 +73,11 @@ static int scmi_bind_protocols(struct udevice *dev)
 		switch (protocol_id) {
 		case SCMI_PROTOCOL_ID_CLOCK:
 			if (IS_ENABLED(CONFIG_CLK_SCMI))
-				drv = DM_GET_DRIVER(scmi_clock);
+				drv = DM_DRIVER_GET(scmi_clock);
 			break;
 		case SCMI_PROTOCOL_ID_RESET_DOMAIN:
 			if (IS_ENABLED(CONFIG_RESET_SCMI))
-				drv = DM_GET_DRIVER(scmi_reset_domain);
+				drv = DM_DRIVER_GET(scmi_reset_domain);
 			break;
 		default:
 			break;

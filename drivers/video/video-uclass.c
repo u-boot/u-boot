@@ -378,7 +378,7 @@ static int video_post_bind(struct udevice *dev)
 		return 0;
 
 	/* Set up the video pointer, if this is the first device */
-	uc_priv = dev->uclass->priv;
+	uc_priv = uclass_get_priv(dev->uclass);
 	if (!uc_priv->video_ptr)
 		uc_priv->video_ptr = gd->video_top;
 

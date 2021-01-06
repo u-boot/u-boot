@@ -108,7 +108,8 @@ static int sti_dwc3_glue_of_to_plat(struct udevice *dev)
 	int ret;
 	u32 reg[4];
 
-	ret = ofnode_read_u32_array(dev->node, "reg", reg, ARRAY_SIZE(reg));
+	ret = ofnode_read_u32_array(dev_ofnode(dev), "reg", reg,
+				    ARRAY_SIZE(reg));
 	if (ret) {
 		pr_err("unable to find st,stih407-dwc3 reg property(%d)\n", ret);
 		return ret;
@@ -154,7 +155,7 @@ static int sti_dwc3_glue_bind(struct udevice *dev)
 	ofnode node, dwc3_node;
 
 	/* Find snps,dwc3 node from subnode */
-	ofnode_for_each_subnode(node, dev->node) {
+	ofnode_for_each_subnode(node, dev_ofnode(dev)) {
 		if (ofnode_device_is_compatible(node, "snps,dwc3"))
 			dwc3_node = node;
 	}

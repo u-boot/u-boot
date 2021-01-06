@@ -24,7 +24,7 @@
  * There may be drivers for on-chip SoC GPIO banks, I2C GPIO expanders and
  * PMIC IO lines, all made available in a unified way through the uclass.
  *
- * @priv: Private data for this uclass
+ * @priv_: Private data for this uclass (do not access outside driver model)
  * @uc_drv: The driver for the uclass itself, not to be confused with a
  * 'struct driver'
  * @dev_head: List of devices in this uclass (devices are attached to their
@@ -32,7 +32,7 @@
  * @sibling_node: Next uclass in the linked list of uclasses
  */
 struct uclass {
-	void *priv;
+	void *priv_;
 	struct uclass_driver *uc_drv;
 	struct list_head dev_head;
 	struct list_head sibling_node;
@@ -112,7 +112,15 @@ struct uclass_driver {
 
 /* Declare a new uclass_driver */
 #define UCLASS_DRIVER(__name)						\
-	ll_entry_declare(struct uclass_driver, __name, uclass)
+	ll_entry_declare(struct uclass_driver, __name, uclass_driver)
+
+/**
+ * uclass_get_priv() - Get the private data for a uclass
+ *
+ * @uc		Uclass to check
+ * @return private data, or NULL if none
+ */
+void *uclass_get_priv(const struct uclass *uc);
 
 /**
  * uclass_get() - Get a uclass based on an ID, creating it if needed
@@ -256,7 +264,7 @@ int uclass_get_device_by_phandle(enum uclass_id id, struct udevice *parent,
  * uclass_get_device_by_driver() - Get a uclass device for a driver
  *
  * This searches the devices in the uclass for one that uses the given
- * driver. Use DM_GET_DRIVER(name) for the @drv argument, where 'name' is
+ * driver. Use DM_DRIVER_GET(name) for the @drv argument, where 'name' is
  * the driver name - as used in U_BOOT_DRIVER(name).
  *
  * The device is probed to activate it ready for use.

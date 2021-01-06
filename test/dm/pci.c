@@ -120,13 +120,13 @@ static int dm_test_pci_drvdata(struct unit_test_state *uts)
 
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(1, 0x08, 0), &swap));
 	ut_asserteq(SWAP_CASE_DRV_DATA, swap->driver_data);
-	ut_assertok(dev_of_valid(swap));
+	ut_assertok(dev_has_ofnode(swap));
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(1, 0x0c, 0), &swap));
 	ut_asserteq(SWAP_CASE_DRV_DATA, swap->driver_data);
-	ut_assertok(dev_of_valid(swap));
+	ut_assertok(dev_has_ofnode(swap));
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(1, 0x10, 0), &swap));
 	ut_asserteq(SWAP_CASE_DRV_DATA, swap->driver_data);
-	ut_assertok(!dev_of_valid(swap));
+	ut_assertok(!dev_has_ofnode(swap));
 
 	return 0;
 }

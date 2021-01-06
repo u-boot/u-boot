@@ -728,7 +728,7 @@ static struct mxc_serial_plat cm_fx6_mxc_serial_plat = {
 	.reg = (struct mxc_uart *)UART4_BASE,
 };
 
-U_BOOT_DEVICE(cm_fx6_serial) = {
+U_BOOT_DRVINFO(cm_fx6_serial) = {
 	.name	= "serial_mxc",
 	.plat = &cm_fx6_mxc_serial_plat,
 };

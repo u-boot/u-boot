@@ -22,6 +22,7 @@
 #include <fdtdec.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <dm/device-internal.h>
 #include <linux/errno.h>
 #include <malloc.h>
 
@@ -328,7 +329,7 @@ static int omap_gpio_bind(struct udevice *dev)
 
 	plat->base = base_addr;
 	plat->port_name = fdt_get_name(gd->fdt_blob, dev_of_offset(dev), NULL);
-	dev->plat = plat;
+	dev_set_plat(dev, plat);
 
 	return 0;
 }

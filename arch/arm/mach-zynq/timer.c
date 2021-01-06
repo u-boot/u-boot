@@ -68,7 +68,7 @@ int timer_init(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_CLK,
-		DM_GET_DRIVER(zynq_clk), &dev);
+		DM_DRIVER_GET(zynq_clk), &dev);
 	if (ret)
 		return ret;
 

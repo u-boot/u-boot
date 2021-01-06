@@ -678,7 +678,7 @@ static int i2c_child_post_bind(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct dm_i2c_chip *plat = dev_get_parent_plat(dev);
 
-	if (!dev_of_valid(dev))
+	if (!dev_has_ofnode(dev))
 		return 0;
 	return i2c_chip_of_to_plat(dev, plat);
 #else

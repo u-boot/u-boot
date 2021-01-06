@@ -17,24 +17,10 @@
 #include <serial.h>
 #include <video.h>
 #include <linux/compiler.h>
+#include <asm/serial.h>
 #include <asm/state.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-struct sandbox_serial_plat {
-	int colour;	/* Text colour to use for output, -1 for none */
-};
-
-/**
- * struct sandbox_serial_priv - Private data for this driver
- *
- * @buf: holds input characters available to be read by this driver
- */
-struct sandbox_serial_priv {
-	struct membuff buf;
-	char serial_buf[16];
-	bool start_of_line;
-};
 
 /**
  * output_ansi_colour() - Output an ANSI colour code
@@ -72,7 +58,7 @@ static int sandbox_serial_probe(struct udevice *dev)
 
 static int sandbox_serial_remove(struct udevice *dev)
 {
-	struct sandbox_serial_plat *plat = dev->plat;
+	struct sandbox_serial_plat *plat = dev_get_plat(dev);
 
 	if (plat->colour != -1)
 		output_ansi_reset();
@@ -83,7 +69,7 @@ static int sandbox_serial_remove(struct udevice *dev)
 static int sandbox_serial_putc(struct udevice *dev, const char ch)
 {
 	struct sandbox_serial_priv *priv = dev_get_priv(dev);
-	struct sandbox_serial_plat *plat = dev->plat;
+	struct sandbox_serial_plat *plat = dev_get_plat(dev);
 
 	/* With of-platdata we don't real the colour correctly, so disable it */
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA) && priv->start_of_line &&
@@ -203,7 +189,7 @@ static const char * const ansi_colour[] = {
 
 static int sandbox_serial_of_to_plat(struct udevice *dev)
 {
-	struct sandbox_serial_plat *plat = dev->plat;
+	struct sandbox_serial_plat *plat = dev_get_plat(dev);
 	const char *colour;
 	int i;
 
@@ -255,7 +241,7 @@ static const struct sandbox_serial_plat platdata_non_fdt = {
 	.colour = -1,
 };
 
-U_BOOT_DEVICE(serial_sandbox_non_fdt) = {
+U_BOOT_DRVINFO(serial_sandbox_non_fdt) = {
 	.name = "sandbox_serial",
 	.plat = &platdata_non_fdt,
 };

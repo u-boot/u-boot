@@ -43,17 +43,17 @@ static const struct dm_test_pdata test_pdata_pre_reloc = {
 	.ping_add		= TEST_INTVAL_PRE_RELOC,
 };
 
-U_BOOT_DEVICE(dm_test_info1) = {
+U_BOOT_DRVINFO(dm_test_info1) = {
 	.name = "test_drv",
 	.plat = &test_pdata[0],
 };
 
-U_BOOT_DEVICE(dm_test_info2) = {
+U_BOOT_DRVINFO(dm_test_info2) = {
 	.name = "test_drv",
 	.plat = &test_pdata[1],
 };
 
-U_BOOT_DEVICE(dm_test_info3) = {
+U_BOOT_DRVINFO(dm_test_info3) = {
 	.name = "test_drv",
 	.plat = &test_pdata[2],
 };
@@ -116,14 +116,14 @@ static int dm_test_autobind(struct unit_test_state *uts)
 	 * device with no children.
 	 */
 	ut_assert(dms->root);
-	ut_asserteq(1, list_count_items(&gd->uclass_root));
+	ut_asserteq(1, list_count_items(gd->uclass_root));
 	ut_asserteq(0, list_count_items(&gd->dm_root->child_head));
 	ut_asserteq(0, dm_testdrv_op_count[DM_TEST_OP_POST_BIND]);
 
 	ut_assertok(dm_scan_plat(false));
 
 	/* We should have our test class now at least, plus more children */
-	ut_assert(1 < list_count_items(&gd->uclass_root));
+	ut_assert(1 < list_count_items(gd->uclass_root));
 	ut_assert(0 < list_count_items(&gd->dm_root->child_head));
 
 	/* Our 3 dm_test_infox children should be bound to the test uclass */
@@ -131,7 +131,7 @@ static int dm_test_autobind(struct unit_test_state *uts)
 
 	/* No devices should be probed */
 	list_for_each_entry(dev, &gd->dm_root->child_head, sibling_node)
-		ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
+		ut_assert(!(dev_get_flags(dev) & DM_FLAG_ACTIVATED));
 
 	/* Our test driver should have been bound 3 times */
 	ut_assert(dm_testdrv_op_count[DM_TEST_OP_BIND] == 3);
@@ -212,7 +212,7 @@ static int dm_test_autoprobe(struct unit_test_state *uts)
 	ut_asserteq(0, dm_testdrv_op_count[DM_TEST_OP_POST_PROBE]);
 
 	/* The root device should not be activated until needed */
-	ut_assert(dms->root->flags & DM_FLAG_ACTIVATED);
+	ut_assert(dev_get_flags(dms->root) & DM_FLAG_ACTIVATED);
 
 	/*
 	 * We should be able to find the three test devices, and they should
@@ -222,17 +222,17 @@ static int dm_test_autoprobe(struct unit_test_state *uts)
 	for (i = 0; i < 3; i++) {
 		ut_assertok(uclass_find_device(UCLASS_TEST, i, &dev));
 		ut_assert(dev);
-		ut_assertf(!(dev->flags & DM_FLAG_ACTIVATED),
+		ut_assertf(!(dev_get_flags(dev) & DM_FLAG_ACTIVATED),
 			   "Driver %d/%s already activated", i, dev->name);
 
 		/* This should activate it */
 		ut_assertok(uclass_get_device(UCLASS_TEST, i, &dev));
 		ut_assert(dev);
-		ut_assert(dev->flags & DM_FLAG_ACTIVATED);
+		ut_assert(dev_get_flags(dev) & DM_FLAG_ACTIVATED);
 
 		/* Activating a device should activate the root device */
 		if (!i)
-			ut_assert(dms->root->flags & DM_FLAG_ACTIVATED);
+			ut_assert(dev_get_flags(dms->root) & DM_FLAG_ACTIVATED);
 	}
 
 	/*
@@ -255,7 +255,7 @@ static int dm_test_autoprobe(struct unit_test_state *uts)
 		ut_assert(priv);
 		ut_asserteq(expected_base_add, priv->base_add);
 
-		pdata = dev->plat;
+		pdata = dev_get_plat(dev);
 		expected_base_add += pdata->ping_add;
 	}
 
@@ -273,7 +273,7 @@ static int dm_test_plat(struct unit_test_state *uts)
 	for (i = 0; i < 3; i++) {
 		ut_assertok(uclass_find_device(UCLASS_TEST, i, &dev));
 		ut_assert(dev);
-		pdata = dev->plat;
+		pdata = dev_get_plat(dev);
 		ut_assert(pdata->ping_add == test_pdata[i].ping_add);
 	}
 
@@ -297,7 +297,7 @@ static int dm_test_lifecycle(struct unit_test_state *uts)
 	ut_assert(dev);
 	ut_assert(dm_testdrv_op_count[DM_TEST_OP_BIND]
 			== op_count[DM_TEST_OP_BIND] + 1);
-	ut_assert(!dev->priv);
+	ut_assert(!dev_get_priv(dev));
 
 	/* Probe the device - it should fail allocating private data */
 	dms->force_fail_alloc = 1;
@@ -305,14 +305,14 @@ static int dm_test_lifecycle(struct unit_test_state *uts)
 	ut_assert(ret == -ENOMEM);
 	ut_assert(dm_testdrv_op_count[DM_TEST_OP_PROBE]
 			== op_count[DM_TEST_OP_PROBE] + 1);
-	ut_assert(!dev->priv);
+	ut_assert(!dev_get_priv(dev));
 
 	/* Try again without the alloc failure */
 	dms->force_fail_alloc = 0;
 	ut_assertok(device_probe(dev));
 	ut_assert(dm_testdrv_op_count[DM_TEST_OP_PROBE]
 			== op_count[DM_TEST_OP_PROBE] + 2);
-	ut_assert(dev->priv);
+	ut_assert(dev_get_priv(dev));
 
 	/* This should be device 3 in the uclass */
 	ut_assertok(uclass_find_device(UCLASS_TEST, 3, &test_dev));
@@ -402,8 +402,8 @@ int dm_check_operations(struct unit_test_state *uts, struct udevice *dev,
 
 	/* Getting the child device should allocate plat / priv */
 	ut_assertok(testfdt_ping(dev, 10, &pingret));
-	ut_assert(dev->priv);
-	ut_assert(dev->plat);
+	ut_assert(dev_get_priv(dev));
+	ut_assert(dev_get_plat(dev));
 
 	expected = 10 + base;
 	ut_asserteq(expected, pingret);
@@ -414,7 +414,7 @@ int dm_check_operations(struct unit_test_state *uts, struct udevice *dev,
 	ut_asserteq(expected, pingret);
 
 	/* Now check the ping_total */
-	priv = dev->priv;
+	priv = dev_get_priv(dev);
 	ut_asserteq(DM_TEST_START_TOTAL + 10 + 20 + base * 2,
 		    priv->ping_total);
 
@@ -444,7 +444,7 @@ static int dm_test_operations(struct unit_test_state *uts)
 		base = test_pdata[i].ping_add;
 		debug("dev=%d, base=%d\n", i, base);
 
-		ut_assert(!dm_check_operations(uts, dev, base, dev->priv));
+		ut_assert(!dm_check_operations(uts, dev, base, dev_get_priv(dev)));
 	}
 
 	return 0;
@@ -460,13 +460,13 @@ static int dm_test_remove(struct unit_test_state *uts)
 	for (i = 0; i < 3; i++) {
 		ut_assertok(uclass_find_device(UCLASS_TEST, i, &dev));
 		ut_assert(dev);
-		ut_assertf(dev->flags & DM_FLAG_ACTIVATED,
+		ut_assertf(dev_get_flags(dev) & DM_FLAG_ACTIVATED,
 			   "Driver %d/%s not activated", i, dev->name);
 		ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
-		ut_assertf(!(dev->flags & DM_FLAG_ACTIVATED),
+		ut_assertf(!(dev_get_flags(dev) & DM_FLAG_ACTIVATED),
 			   "Driver %d/%s should have deactivated", i,
 			   dev->name);
-		ut_assert(!dev->priv);
+		ut_assert(!dev_get_priv(dev));
 	}
 
 	return 0;
@@ -512,7 +512,7 @@ static int dm_test_uclass(struct unit_test_state *uts)
 	ut_assertok(uclass_get(UCLASS_TEST, &uc));
 	ut_asserteq(1, dm_testdrv_op_count[DM_TEST_OP_INIT]);
 	ut_asserteq(0, dm_testdrv_op_count[DM_TEST_OP_DESTROY]);
-	ut_assert(uc->priv);
+	ut_assert(uclass_get_priv(uc));
 
 	ut_assertok(uclass_destroy(uc));
 	ut_asserteq(1, dm_testdrv_op_count[DM_TEST_OP_INIT]);
@@ -547,7 +547,7 @@ static int create_children(struct unit_test_state *uts, struct udevice *parent,
 						&driver_info_manual, &dev));
 		pdata = calloc(1, sizeof(*pdata));
 		pdata->ping_add = key + i;
-		dev->plat = pdata;
+		dev_set_plat(dev, pdata);
 		if (child)
 			child[i] = dev;
 	}
@@ -1052,7 +1052,7 @@ static int dm_test_inactive_child(struct unit_test_state *uts)
 	 */
 	ut_asserteq(-ENODEV, device_find_first_inactive_child(parent,
 							UCLASS_TEST, &dev1));
-	ut_assertok(device_bind(parent, DM_GET_DRIVER(test_drv),
+	ut_assertok(device_bind(parent, DM_DRIVER_GET(test_drv),
 				"test_child", 0, ofnode_null(), &dev1));
 
 	ut_assertok(device_find_first_inactive_child(parent, UCLASS_TEST,
@@ -1073,12 +1073,12 @@ static int dm_test_all_have_seq(struct unit_test_state *uts)
 	struct udevice *dev;
 	struct uclass *uc;
 
-	list_for_each_entry(uc, &gd->uclass_root, sibling_node) {
+	list_for_each_entry(uc, gd->uclass_root, sibling_node) {
 		list_for_each_entry(dev, &uc->dev_head, uclass_node) {
-			if (dev->sqq == -1)
+			if (dev->seq_ == -1)
 				printf("Device '%s' has no seq (%d)\n",
-				       dev->name, dev->sqq);
-			ut_assert(dev->sqq != -1);
+				       dev->name, dev->seq_);
+			ut_assert(dev->seq_ != -1);
 		}
 	}
 

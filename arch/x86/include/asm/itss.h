@@ -11,6 +11,8 @@
 #ifndef _ASM_ARCH_ITSS_H
 #define _ASM_ARCH_ITSS_H
 
+#include <irq.h>
+
 #define GPIO_IRQ_START	50
 #define GPIO_IRQ_END	ITSS_MAX_IRQ
 
@@ -41,5 +43,24 @@
 #define PCR_ITSS_IPC0_CONF	0x3200
 /* ITSS Power reduction control */
 #define PCR_ITSS_ITSSPRC	0x3300
+
+struct itss_plat {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	/* Put this first since driver model will copy the data here */
+	struct dtd_intel_itss dtplat;
+#endif
+};
+
+/* struct pmc_route - Routing for PMC to GPIO */
+struct pmc_route {
+	u32 pmc;
+	u32 gpio;
+};
+
+struct itss_priv {
+	struct pmc_route *route;
+	uint route_count;
+	u32 irq_snapshot[NUM_IPC_REGS];
+};
 
 #endif /* _ASM_ARCH_ITSS_H */

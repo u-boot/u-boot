@@ -228,7 +228,7 @@ static const struct dm_spi_ops soft_spi_ops = {
 
 static int soft_spi_of_to_plat(struct udevice *dev)
 {
-	struct soft_spi_plat *plat = dev->plat;
+	struct soft_spi_plat *plat = dev_get_plat(dev);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 
@@ -240,7 +240,7 @@ static int soft_spi_of_to_plat(struct udevice *dev)
 static int soft_spi_probe(struct udevice *dev)
 {
 	struct spi_slave *slave = dev_get_parent_priv(dev);
-	struct soft_spi_plat *plat = dev->plat;
+	struct soft_spi_plat *plat = dev_get_plat(dev);
 	int cs_flags, clk_flags;
 	int ret;
 

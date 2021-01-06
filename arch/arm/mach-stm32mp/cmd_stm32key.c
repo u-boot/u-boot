@@ -31,7 +31,7 @@ static void fuse_hash_value(u32 addr, bool print)
 	int i, ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_GET_DRIVER(stm32mp_bsec),
+					  DM_DRIVER_GET(stm32mp_bsec),
 					  &dev);
 	if (ret) {
 		pr_err("Can't find stm32mp_bsec driver\n");

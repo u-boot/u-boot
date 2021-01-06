@@ -59,7 +59,7 @@ U_BOOT_CMD(
 static int altera_sysid_read(struct udevice *dev,
 			     int offset, void *buf, int size)
 {
-	struct altera_sysid_plat *plat = dev->plat;
+	struct altera_sysid_plat *plat = dev_get_plat(dev);
 	struct altera_sysid_regs *const regs = plat->regs;
 	u32 *sysid = buf;
 

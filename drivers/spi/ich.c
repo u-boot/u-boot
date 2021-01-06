@@ -38,17 +38,6 @@
 #define debug_trace(x, args...)
 #endif
 
-struct ich_spi_plat {
-#if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_intel_fast_spi dtplat;
-#endif
-	enum ich_version ich_version;	/* Controller version, 7 or 9 */
-	bool lockdown;			/* lock down controller settings? */
-	ulong mmio_base;		/* Base of MMIO registers */
-	pci_dev_t bdf;			/* PCI address used by of-platdata */
-	bool hwseq;			/* Use hardware sequencing (not s/w) */
-};
-
 static u8 ich_readb(struct ich_spi_priv *priv, int reg)
 {
 	u8 value = readb(priv->base + reg);

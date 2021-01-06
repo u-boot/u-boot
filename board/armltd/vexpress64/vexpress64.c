@@ -26,7 +26,7 @@ static const struct pl01x_serial_plat serial_plat = {
 	.clock = CONFIG_PL011_CLOCK,
 };
 
-U_BOOT_DEVICE(vexpress_serials) = {
+U_BOOT_DRVINFO(vexpress_serials) = {
 	.name = "serial_pl01x",
 	.plat = &serial_plat,
 };

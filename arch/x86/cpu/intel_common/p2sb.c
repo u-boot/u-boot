@@ -13,19 +13,12 @@
 #include <log.h>
 #include <p2sb.h>
 #include <spl.h>
+#include <asm/p2sb.h>
 #include <asm/pci.h>
 #include <linux/bitops.h>
 
 #define PCH_P2SB_E0		0xe0
 #define HIDE_BIT		BIT(0)
-
-struct p2sb_plat {
-#if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_intel_p2sb dtplat;
-#endif
-	ulong mmio_base;
-	pci_dev_t bdf;
-};
 
 /* PCI config space registers */
 #define HPTC_OFFSET		0x60
@@ -180,19 +173,21 @@ static int p2sb_child_post_bind(struct udevice *dev)
 	return 0;
 }
 
-struct p2sb_ops p2sb_ops = {
+static const struct p2sb_ops p2sb_ops = {
 	.set_hide	= intel_p2sb_set_hide,
 };
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct udevice_id p2sb_ids[] = {
 	{ .compatible = "intel,p2sb" },
 	{ }
 };
+#endif
 
 U_BOOT_DRIVER(intel_p2sb) = {
 	.name		= "intel_p2sb",
 	.id		= UCLASS_P2SB,
-	.of_match	= p2sb_ids,
+	.of_match	= of_match_ptr(p2sb_ids),
 	.probe		= p2sb_probe,
 	.remove		= p2sb_remove,
 	.ops		= &p2sb_ops,

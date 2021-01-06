@@ -113,7 +113,7 @@ static struct coldfire_serial_plat mcf5307_serial_plat = {
 	.baudrate = CONFIG_BAUDRATE,
 };
 
-U_BOOT_DEVICE(coldfire_serial) = {
+U_BOOT_DRVINFO(coldfire_serial) = {
 	.name = "serial_coldfire",
 	.plat = &mcf5307_serial_plat,
 };

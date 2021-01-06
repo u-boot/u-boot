@@ -1042,7 +1042,7 @@ void board_nand_init(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_MTD,
-					  DM_GET_DRIVER(stm32_fmc2_nfc),
+					  DM_DRIVER_GET(stm32_fmc2_nfc),
 					  &dev);
 	if (ret && ret != -ENODEV)
 		pr_err("Failed to initialize STM32 FMC2 NFC controller. (error %d)\n",

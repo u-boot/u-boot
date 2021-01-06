@@ -163,7 +163,7 @@ static int dm_mdio_mux_post_bind(struct udevice *mux)
 	ofnode ch_node;
 	int err, first_err = 0;
 
-	if (!ofnode_valid(mux->node)) {
+	if (!dev_has_ofnode(mux)) {
 		debug("%s: no mux node found, no child MDIO busses set up\n",
 		      __func__);
 		return 0;

@@ -23,126 +23,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int testfdt_drv_ping(struct udevice *dev, int pingval, int *pingret)
-{
-	const struct dm_test_pdata *pdata = dev->plat;
-	struct dm_test_priv *priv = dev_get_priv(dev);
-
-	*pingret = pingval + pdata->ping_add;
-	priv->ping_total += *pingret;
-
-	return 0;
-}
-
-static const struct test_ops test_ops = {
-	.ping = testfdt_drv_ping,
-};
-
-static int testfdt_of_to_plat(struct udevice *dev)
-{
-	struct dm_test_pdata *pdata = dev_get_plat(dev);
-
-	pdata->ping_add = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					"ping-add", -1);
-	pdata->base = fdtdec_get_addr(gd->fdt_blob, dev_of_offset(dev),
-				      "ping-expect");
-
-	return 0;
-}
-
-static int testfdt_drv_probe(struct udevice *dev)
-{
-	struct dm_test_priv *priv = dev_get_priv(dev);
-
-	priv->ping_total += DM_TEST_START_TOTAL;
-
-	/*
-	 * If this device is on a bus, the uclass_flag will be set before
-	 * calling this function. In the meantime the uclass_postp is
-	 * initlized to a value -1. These are used respectively by
-	 * dm_test_bus_child_pre_probe_uclass() and
-	 * dm_test_bus_child_post_probe_uclass().
-	 */
-	priv->uclass_total += priv->uclass_flag;
-	priv->uclass_postp = -1;
-
-	return 0;
-}
-
-static const struct udevice_id testfdt_ids[] = {
-	{
-		.compatible = "denx,u-boot-fdt-test",
-		.data = DM_TEST_TYPE_FIRST },
-	{
-		.compatible = "google,another-fdt-test",
-		.data = DM_TEST_TYPE_SECOND },
-	{ }
-};
-
-U_BOOT_DRIVER(testfdt_drv) = {
-	.name	= "testfdt_drv",
-	.of_match	= testfdt_ids,
-	.id	= UCLASS_TEST_FDT,
-	.of_to_plat = testfdt_of_to_plat,
-	.probe	= testfdt_drv_probe,
-	.ops	= &test_ops,
-	.priv_auto	= sizeof(struct dm_test_priv),
-	.plat_auto	= sizeof(struct dm_test_pdata),
-};
-
-static const struct udevice_id testfdt1_ids[] = {
-	{
-		.compatible = "denx,u-boot-fdt-test1",
-		.data = DM_TEST_TYPE_FIRST },
-	{ }
-};
-
-U_BOOT_DRIVER(testfdt1_drv) = {
-	.name	= "testfdt1_drv",
-	.of_match	= testfdt1_ids,
-	.id	= UCLASS_TEST_FDT,
-	.of_to_plat = testfdt_of_to_plat,
-	.probe	= testfdt_drv_probe,
-	.ops	= &test_ops,
-	.priv_auto	= sizeof(struct dm_test_priv),
-	.plat_auto	= sizeof(struct dm_test_pdata),
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-/* From here is the testfdt uclass code */
-int testfdt_ping(struct udevice *dev, int pingval, int *pingret)
-{
-	const struct test_ops *ops = device_get_ops(dev);
-
-	if (!ops->ping)
-		return -ENOSYS;
-
-	return ops->ping(dev, pingval, pingret);
-}
-
-UCLASS_DRIVER(testfdt) = {
-	.name		= "testfdt",
-	.id		= UCLASS_TEST_FDT,
-	.flags		= DM_UC_FLAG_SEQ_ALIAS,
-};
-
-static const struct udevice_id testfdtm_ids[] = {
-	{ .compatible = "denx,u-boot-fdtm-test" },
-	{ }
-};
-
-U_BOOT_DRIVER(testfdtm_drv) = {
-	.name	= "testfdtm_drv",
-	.of_match	= testfdtm_ids,
-	.id	= UCLASS_TEST_FDT_MANUAL,
-};
-
-UCLASS_DRIVER(testfdtm) = {
-	.name		= "testfdtm",
-	.id		= UCLASS_TEST_FDT_MANUAL,
-	.flags		= DM_UC_FLAG_SEQ_ALIAS | DM_UC_FLAG_NO_AUTO_SEQ,
-};
-
 struct dm_testprobe_pdata {
 	int probe_err;
 };
@@ -288,7 +168,7 @@ static int dm_test_fdt(struct unit_test_state *uts)
 		ret = uclass_find_device(UCLASS_TEST_FDT, i, &dev);
 		ut_assert(!ret);
 		ut_assert(!dev_get_priv(dev));
-		ut_assert(dev->plat);
+		ut_assert(dev_get_plat(dev));
 	}
 
 	ut_assertok(dm_check_devices(uts, num_devices));
@@ -448,7 +328,7 @@ static int dm_test_fdt_uclass_seq_more(struct unit_test_state *uts)
 
 	/* Check creating a device with an alias */
 	node = ofnode_path("/some-bus/c-test@1");
-	ut_assertok(device_bind(dm_root(), DM_GET_DRIVER(testfdt_drv),
+	ut_assertok(device_bind(dm_root(), DM_DRIVER_GET(testfdt_drv),
 				"c-test@1", NULL, node, &dev));
 	ut_asserteq(12, dev_seq(dev));
 	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 12, &dev));
@@ -468,11 +348,11 @@ static int dm_test_fdt_uclass_seq_more(struct unit_test_state *uts)
 	 *
 	 * So next available is 19
 	 */
-	ut_assertok(device_bind(dm_root(), DM_GET_DRIVER(testfdt_drv),
+	ut_assertok(device_bind(dm_root(), DM_DRIVER_GET(testfdt_drv),
 				"fred", NULL, ofnode_null(), &dev));
 	ut_asserteq(19, dev_seq(dev));
 
-	ut_assertok(device_bind(dm_root(), DM_GET_DRIVER(testfdt_drv),
+	ut_assertok(device_bind(dm_root(), DM_DRIVER_GET(testfdt_drv),
 				"fred2", NULL, ofnode_null(), &dev));
 	ut_asserteq(20, dev_seq(dev));
 
@@ -1151,8 +1031,8 @@ static int dm_test_child_ofdata(struct unit_test_state *uts)
 	ut_assertok(uclass_first_device_err(UCLASS_TEST_BUS, &bus));
 	count = 0;
 	device_foreach_child_of_to_plat(dev, bus) {
-		ut_assert(dev->flags & DM_FLAG_PLATDATA_VALID);
-		ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
+		ut_assert(dev_get_flags(dev) & DM_FLAG_PLATDATA_VALID);
+		ut_assert(!(dev_get_flags(dev) & DM_FLAG_ACTIVATED));
 		count++;
 	}
 	ut_asserteq(3, count);
@@ -1170,8 +1050,8 @@ static int dm_test_first_child_probe(struct unit_test_state *uts)
 	ut_assertok(uclass_first_device_err(UCLASS_TEST_BUS, &bus));
 	count = 0;
 	device_foreach_child_probe(dev, bus) {
-		ut_assert(dev->flags & DM_FLAG_PLATDATA_VALID);
-		ut_assert(dev->flags & DM_FLAG_ACTIVATED);
+		ut_assert(dev_get_flags(dev) & DM_FLAG_PLATDATA_VALID);
+		ut_assert(dev_get_flags(dev) & DM_FLAG_ACTIVATED);
 		count++;
 	}
 	ut_asserteq(3, count);
@@ -1187,19 +1067,19 @@ static int dm_test_ofdata_order(struct unit_test_state *uts)
 
 	ut_assertok(uclass_find_first_device(UCLASS_I2C, &bus));
 	ut_assertnonnull(bus);
-	ut_assert(!(bus->flags & DM_FLAG_PLATDATA_VALID));
+	ut_assert(!(dev_get_flags(bus) & DM_FLAG_PLATDATA_VALID));
 
 	ut_assertok(device_find_first_child(bus, &dev));
 	ut_assertnonnull(dev);
-	ut_assert(!(dev->flags & DM_FLAG_PLATDATA_VALID));
+	ut_assert(!(dev_get_flags(dev) & DM_FLAG_PLATDATA_VALID));
 
 	/* read the child's ofdata which should cause the parent's to be read */
 	ut_assertok(device_of_to_plat(dev));
-	ut_assert(dev->flags & DM_FLAG_PLATDATA_VALID);
-	ut_assert(bus->flags & DM_FLAG_PLATDATA_VALID);
+	ut_assert(dev_get_flags(dev) & DM_FLAG_PLATDATA_VALID);
+	ut_assert(dev_get_flags(bus) & DM_FLAG_PLATDATA_VALID);
 
-	ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
-	ut_assert(!(bus->flags & DM_FLAG_ACTIVATED));
+	ut_assert(!(dev_get_flags(dev) & DM_FLAG_ACTIVATED));
+	ut_assert(!(dev_get_flags(bus) & DM_FLAG_ACTIVATED));
 
 	return 0;
 }

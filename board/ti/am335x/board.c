@@ -927,7 +927,7 @@ struct eth_pdata cpsw_pdata = {
 	.priv_pdata = &am335_eth_data,
 };
 
-U_BOOT_DEVICE(am335x_eth) = {
+U_BOOT_DRVINFO(am335x_eth) = {
 	.name = "eth_cpsw",
 	.plat = &cpsw_pdata,
 };
@@ -972,7 +972,7 @@ static const struct omap_hsmmc_plat am335x_mmc0_plat = {
 	.cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT,
 };
 
-U_BOOT_DEVICE(am335x_mmc0) = {
+U_BOOT_DRVINFO(am335x_mmc0) = {
 	.name = "omap_hsmmc",
 	.plat = &am335x_mmc0_plat,
 };
@@ -986,7 +986,7 @@ static const struct omap_hsmmc_plat am335x_mmc1_plat = {
 	.cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT,
 };
 
-U_BOOT_DEVICE(am335x_mmc1) = {
+U_BOOT_DRVINFO(am335x_mmc1) = {
 	.name = "omap_hsmmc",
 	.plat = &am335x_mmc1_plat,
 };

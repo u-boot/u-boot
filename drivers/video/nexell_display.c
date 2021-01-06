@@ -416,7 +416,7 @@ static struct nx_display_dev *nx_display_setup(void)
 		      __func__);
 		return NULL;
 	}
-	node = dev->node.of_offset;
+	node = dev_ofnode(dev).of_offset;
 
 	if (CONFIG_IS_ENABLED(OF_CONTROL)) {
 		ret = nx_display_parse_dt(dev, dp, plat);

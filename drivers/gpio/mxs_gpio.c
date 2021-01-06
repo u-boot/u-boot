@@ -264,7 +264,7 @@ static int mxs_gpio_probe(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int mxs_of_to_plat(struct udevice *dev)
 {
-	struct mxs_gpio_plat *plat = dev->plat;
+	struct mxs_gpio_plat *plat = dev_get_plat(dev);
 	struct fdtdec_phandle_args args;
 	int node = dev_of_offset(dev);
 	int ret;
@@ -306,5 +306,5 @@ U_BOOT_DRIVER(fsl_imx23_gpio) = {
 #endif
 };
 
-U_BOOT_DRIVER_ALIAS(fsl_imx23_gpio, fsl_imx28_gpio)
+DM_DRIVER_ALIAS(fsl_imx23_gpio, fsl_imx28_gpio)
 #endif /* DM_GPIO */

@@ -43,7 +43,7 @@ static const struct pl01x_serial_plat serial_plat = {
 #endif
 };
 
-U_BOOT_DEVICE(integrator_serials) = {
+U_BOOT_DRVINFO(integrator_serials) = {
 	.name = "serial_pl01x",
 	.plat = &serial_plat,
 };

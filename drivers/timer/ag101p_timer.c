@@ -64,7 +64,7 @@ struct atftmr_timer_plat {
 
 static u64 atftmr_timer_get_count(struct udevice *dev)
 {
-	struct atftmr_timer_plat *plat = dev->plat;
+	struct atftmr_timer_plat *plat = dev_get_plat(dev);
 	struct atftmr_timer_regs *const regs = plat->regs;
 	u32 val;
 	val = readl(&regs->t3_counter);
@@ -73,7 +73,7 @@ static u64 atftmr_timer_get_count(struct udevice *dev)
 
 static int atftmr_timer_probe(struct udevice *dev)
 {
-	struct atftmr_timer_plat *plat = dev->plat;
+	struct atftmr_timer_plat *plat = dev_get_plat(dev);
 	struct atftmr_timer_regs *const regs = plat->regs;
 	u32 cr;
 	writel(0, &regs->t3_load);

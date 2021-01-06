@@ -1860,10 +1860,18 @@ static int rndis_control_ack(struct eth_device *net)
 static int rndis_control_ack(struct udevice *net)
 #endif
 {
-	struct ether_priv	*priv = (struct ether_priv *)net->priv;
-	struct eth_dev		*dev = &priv->ethdev;
-	int                     length;
-	struct usb_request      *resp = dev->stat_req;
+	struct ether_priv *priv;
+	struct eth_dev *dev;
+	int length;
+	struct usb_request *resp;
+
+#ifndef CONFIG_DM_ETH
+	priv = (struct ether_priv *)net->priv;
+#else
+	priv = dev_get_priv(net);
+#endif
+	dev = &priv->ethdev;
+	resp = dev->stat_req;
 
 	/* in case RNDIS calls this after disconnect */
 	if (!dev->status) {

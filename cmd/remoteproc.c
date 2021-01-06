@@ -35,7 +35,7 @@ static int print_remoteproc_list(void)
 		uc_pdata = dev_get_uclass_plat(dev);
 
 		/* Do not print if rproc is not probed */
-		if (!(dev->flags & DM_FLAG_ACTIVATED))
+		if (!(dev_get_flags(dev) & DM_FLAG_ACTIVATED))
 			continue;
 
 		switch (uc_pdata->mem_type) {

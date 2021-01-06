@@ -415,10 +415,6 @@ int state_uninit(void)
 		}
 	}
 
-	/* Remove old memory file if required */
-	if (state->ram_buf_rm && state->ram_buf_fname)
-		os_unlink(state->ram_buf_fname);
-
 	/* Delete this at the last moment so as not to upset gdb too much */
 	if (state->jumped_fname)
 		os_unlink(state->jumped_fname);

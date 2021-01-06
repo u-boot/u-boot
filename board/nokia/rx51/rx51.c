@@ -709,7 +709,7 @@ static const struct omap_i2c_plat rx51_i2c[] = {
 	{ I2C_BASE3, 400000, OMAP_I2C_REV_V1 },
 };
 
-U_BOOT_DEVICES(rx51_i2c) = {
+U_BOOT_DRVINFOS(rx51_i2c) = {
 	{ "i2c_omap", &rx51_i2c[0] },
 	{ "i2c_omap", &rx51_i2c[1] },
 	{ "i2c_omap", &rx51_i2c[2] },

@@ -258,11 +258,13 @@ struct flash_info;
 /*
  * TODO: Remove, once all users of spi_flash interface are moved to MTD
  *
- * struct spi_flash {
+struct spi_flash {
  *	Defined below (keep this text to enable searching for spi_flash decl)
  * }
  */
+#ifndef DT_PLAT_C
 #define spi_flash spi_nor
+#endif
 
 /**
  * struct spi_nor - Structure for defining a the SPI NOR layer
@@ -352,6 +354,7 @@ struct spi_nor {
 	u32 erase_size;
 };
 
+#ifndef __UBOOT__
 static inline void spi_nor_set_flash_node(struct spi_nor *nor,
 					  const struct device_node *np)
 {
@@ -363,6 +366,7 @@ device_node *spi_nor_get_flash_node(struct spi_nor *nor)
 {
 	return mtd_get_of_node(&nor->mtd);
 }
+#endif /* __UBOOT__ */
 
 /**
  * struct spi_nor_hwcaps - Structure for describing the hardware capabilies

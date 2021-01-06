@@ -177,7 +177,7 @@ struct zynqmp_qspi_priv {
 
 static int zynqmp_qspi_of_to_plat(struct udevice *bus)
 {
-	struct zynqmp_qspi_plat *plat = bus->plat;
+	struct zynqmp_qspi_plat *plat = dev_get_plat(bus);
 
 	debug("%s\n", __func__);
 
@@ -255,7 +255,7 @@ static void zynqmp_qspi_chipselect(struct zynqmp_qspi_priv *priv, int is_on)
 
 void zynqmp_qspi_set_tapdelay(struct udevice *bus, u32 baudrateval)
 {
-	struct zynqmp_qspi_plat *plat = bus->plat;
+	struct zynqmp_qspi_plat *plat = dev_get_plat(bus);
 	struct zynqmp_qspi_priv *priv = dev_get_priv(bus);
 	struct zynqmp_qspi_regs *regs = priv->regs;
 	u32 tapdlybypass = 0, lpbkdlyadj = 0, datadlyadj = 0, clk_rate;
@@ -295,7 +295,7 @@ void zynqmp_qspi_set_tapdelay(struct udevice *bus, u32 baudrateval)
 
 static int zynqmp_qspi_set_speed(struct udevice *bus, uint speed)
 {
-	struct zynqmp_qspi_plat *plat = bus->plat;
+	struct zynqmp_qspi_plat *plat = dev_get_plat(bus);
 	struct zynqmp_qspi_priv *priv = dev_get_priv(bus);
 	struct zynqmp_qspi_regs *regs = priv->regs;
 	u32 confr;

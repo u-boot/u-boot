@@ -285,7 +285,7 @@ static int gpio_sunxi_bind(struct udevice *parent)
 {
 	struct sunxi_gpio_soc_data *soc_data =
 		(struct sunxi_gpio_soc_data *)dev_get_driver_data(parent);
-	struct sunxi_gpio_plat *plat = parent->plat;
+	struct sunxi_gpio_plat *plat = dev_get_plat(parent);
 	struct sunxi_gpio_reg *ctlr;
 	int bank, ret;
 

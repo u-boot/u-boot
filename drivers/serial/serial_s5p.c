@@ -88,7 +88,7 @@ static void __maybe_unused s5p_serial_baud(struct s5p_uart *uart, uint uclk,
 #ifndef CONFIG_SPL_BUILD
 int s5p_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct s5p_serial_plat *plat = dev->plat;
+	struct s5p_serial_plat *plat = dev_get_plat(dev);
 	struct s5p_uart *const uart = plat->reg;
 	u32 uclk;
 
@@ -111,7 +111,7 @@ int s5p_serial_setbrg(struct udevice *dev, int baudrate)
 
 static int s5p_serial_probe(struct udevice *dev)
 {
-	struct s5p_serial_plat *plat = dev->plat;
+	struct s5p_serial_plat *plat = dev_get_plat(dev);
 	struct s5p_uart *const uart = plat->reg;
 
 	s5p_serial_init(uart);
@@ -140,7 +140,7 @@ static int serial_err_check(const struct s5p_uart *const uart, int op)
 
 static int s5p_serial_getc(struct udevice *dev)
 {
-	struct s5p_serial_plat *plat = dev->plat;
+	struct s5p_serial_plat *plat = dev_get_plat(dev);
 	struct s5p_uart *const uart = plat->reg;
 
 	if (!(readl(&uart->ufstat) & RX_FIFO_COUNT_MASK))
@@ -152,7 +152,7 @@ static int s5p_serial_getc(struct udevice *dev)
 
 static int s5p_serial_putc(struct udevice *dev, const char ch)
 {
-	struct s5p_serial_plat *plat = dev->plat;
+	struct s5p_serial_plat *plat = dev_get_plat(dev);
 	struct s5p_uart *const uart = plat->reg;
 
 	if (readl(&uart->ufstat) & TX_FIFO_FULL)
@@ -166,7 +166,7 @@ static int s5p_serial_putc(struct udevice *dev, const char ch)
 
 static int s5p_serial_pending(struct udevice *dev, bool input)
 {
-	struct s5p_serial_plat *plat = dev->plat;
+	struct s5p_serial_plat *plat = dev_get_plat(dev);
 	struct s5p_uart *const uart = plat->reg;
 	uint32_t ufstat = readl(&uart->ufstat);
 
@@ -178,7 +178,7 @@ static int s5p_serial_pending(struct udevice *dev, bool input)
 
 static int s5p_serial_of_to_plat(struct udevice *dev)
 {
-	struct s5p_serial_plat *plat = dev->plat;
+	struct s5p_serial_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);

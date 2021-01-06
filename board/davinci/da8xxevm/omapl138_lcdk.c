@@ -363,7 +363,7 @@ static const struct ns16550_plat serial_pdata = {
 	.fcr = UART_FCR_DEFVAL,
 };
 
-U_BOOT_DEVICE(omapl138_uart) = {
+U_BOOT_DRVINFO(omapl138_uart) = {
 	.name = "ns16550_serial",
 	.plat = &serial_pdata,
 };
@@ -379,7 +379,7 @@ static const struct davinci_mmc_plat mmc_plat = {
 		.name = "da830-mmc",
 	},
 };
-U_BOOT_DEVICE(omapl138_mmc) = {
+U_BOOT_DRVINFO(omapl138_mmc) = {
 	.name = "ti_da830_mmc",
 	.plat = &mmc_plat,
 };

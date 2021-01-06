@@ -1999,7 +1999,7 @@ static int octeontx_nfc_chip_init(struct octeontx_nfc *tn, struct udevice *dev,
 static int octeontx_nfc_chips_init(struct octeontx_nfc *tn)
 {
 	struct udevice *dev = tn->dev;
-	ofnode node = dev->node;
+	ofnode node = dev_ofnode(dev);
 	ofnode nand_node;
 	int nr_chips = of_get_child_count(node);
 	int ret;
@@ -2187,7 +2187,7 @@ int octeontx_pci_nand_deferred_probe(void)
 	debug("%s: Performing deferred probing\n", __func__);
 	list_for_each_entry(pdev, &octeontx_pci_nand_deferred_devices, list) {
 		debug("%s: Probing %s\n", __func__, pdev->dev->name);
-		pdev->dev->flags &= ~DM_FLAG_ACTIVATED;
+		dev_get_flags(pdev->dev) &= ~DM_FLAG_ACTIVATED;
 		rc = device_probe(pdev->dev);
 		if (rc && rc != -ENODEV) {
 			printf("%s: Error %d with deferred probe of %s\n",
@@ -2233,14 +2233,14 @@ void board_nand_init(void)
 
 	if (IS_ENABLED(CONFIG_NAND_OCTEONTX_HW_ECC)) {
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(octeontx_pci_bchpf),
+						  DM_DRIVER_GET(octeontx_pci_bchpf),
 						  &dev);
 		if (ret && ret != -ENODEV) {
 			pr_err("Failed to initialize OcteonTX BCH PF controller. (error %d)\n",
 			       ret);
 		}
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(octeontx_pci_bchvf),
+						  DM_DRIVER_GET(octeontx_pci_bchvf),
 						  &dev);
 		if (ret && ret != -ENODEV) {
 			pr_err("Failed to initialize OcteonTX BCH VF controller. (error %d)\n",
@@ -2249,7 +2249,7 @@ void board_nand_init(void)
 	}
 
 	ret = uclass_get_device_by_driver(UCLASS_MTD,
-					  DM_GET_DRIVER(octeontx_pci_nand),
+					  DM_DRIVER_GET(octeontx_pci_nand),
 					  &dev);
 	if (ret && ret != -ENODEV)
 		pr_err("Failed to initialize OcteonTX NAND controller. (error %d)\n",

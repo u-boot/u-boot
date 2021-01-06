@@ -11,6 +11,7 @@
 #include <malloc.h>
 #include <reset-uclass.h>
 #include <asm/io.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <linux/bitops.h>
 #include <linux/log2.h>
@@ -113,7 +114,7 @@ int sunxi_reset_bind(struct udevice *dev, ulong count)
 	priv = malloc(sizeof(struct sunxi_reset_priv));
 	priv->count = count;
 	priv->desc = (const struct ccu_desc *)dev_get_driver_data(dev);
-	rst_dev->priv = priv;
+	dev_set_priv(rst_dev, priv);
 
 	return 0;
 }

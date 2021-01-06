@@ -104,7 +104,7 @@ enum {
  * particular port or peripheral (essentially a driver instance).
  *
  * A device will come into existence through a 'bind' call, either due to
- * a U_BOOT_DEVICE() macro (in which case plat is non-NULL) or a node
+ * a U_BOOT_DRVINFO() macro (in which case plat is non-NULL) or a node
  * in the device tree (in which case of_offset is >= 0). In the latter case
  * we translate the device tree information into plat in a function
  * implemented by the driver of_to_plat method (called just before the
@@ -116,26 +116,34 @@ enum {
  *
  * @driver: The driver used by this device
  * @name: Name of device, typically the FDT node name
- * @plat: Configuration data for this device
- * @parent_plat: The parent bus's configuration data for this device
- * @uclass_plat: The uclass's configuration data for this device
- * @node: Reference to device tree node for this device
+ * @plat_: Configuration data for this device (do not access outside driver
+ *	model)
+ * @parent_plat_: The parent bus's configuration data for this device (do not
+ *	access outside driver model)
+ * @uclass_plat_: The uclass's configuration data for this device (do not access
+ *	outside driver model)
  * @driver_data: Driver data word for the entry that matched this device with
  *		its driver
  * @parent: Parent of this device, or NULL for the top level device
- * @priv: Private data for this device
+ * @priv_: Private data for this device (do not access outside driver model)
  * @uclass: Pointer to uclass for this device
- * @uclass_priv: The uclass's private data for this device
- * @parent_priv: The parent's private data for this device
+ * @uclass_priv_: The uclass's private data for this device (do not access
+ *	outside driver model)
+ * @parent_priv_: The parent's private data for this device (do not access
+ *	outside driver model)
  * @uclass_node: Used by uclass to link its devices
  * @child_head: List of children of this device
  * @sibling_node: Next device in list of all devices
- * @flags: Flags for this device DM_FLAG_...
- * @seq: Allocated sequence number for this device (-1 = none). This is set up
+ * @flags_: Flags for this device DM_FLAG_... (do not access outside driver
+ *	model)
+ * @seq_: Allocated sequence number for this device (-1 = none). This is set up
  * when the device is bound and is unique within the device's uclass. If the
  * device has an alias in the devicetree then that is used to set the sequence
  * number. Otherwise, the next available number is used. Sequence numbers are
- * used by certain commands that need device to be numbered (e.g. 'mmc dev')
+ * used by certain commands that need device to be numbered (e.g. 'mmc dev').
+ * (do not access outside driver model)
+ * @node_: Reference to device tree node for this device (do not access outside
+ *	driver model)
  * @devres_head: List of memory allocations associated with this device.
  *		When CONFIG_DEVRES is enabled, devm_kmalloc() and friends will
  *		add to this list. Memory so-allocated will be freed
@@ -144,21 +152,23 @@ enum {
 struct udevice {
 	const struct driver *driver;
 	const char *name;
-	void *plat;
-	void *parent_plat;
-	void *uclass_plat;
-	ofnode node;
+	void *plat_;
+	void *parent_plat_;
+	void *uclass_plat_;
 	ulong driver_data;
 	struct udevice *parent;
-	void *priv;
+	void *priv_;
 	struct uclass *uclass;
-	void *uclass_priv;
-	void *parent_priv;
+	void *uclass_priv_;
+	void *parent_priv_;
 	struct list_head uclass_node;
 	struct list_head child_head;
 	struct list_head sibling_node;
-	uint32_t flags;
-	int sqq;
+	u32 flags_;
+	int seq_;
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+	ofnode node_;
+#endif
 #ifdef CONFIG_DEVRES
 	struct list_head devres_head;
 #endif
@@ -170,22 +180,67 @@ struct udevice {
 /* Returns the operations for a device */
 #define device_get_ops(dev)	(dev->driver->ops)
 
+static inline u32 dev_get_flags(const struct udevice *dev)
+{
+	return dev->flags_;
+}
+
+static inline void dev_or_flags(struct udevice *dev, u32 or)
+{
+	dev->flags_ |= or;
+}
+
+static inline void dev_bic_flags(struct udevice *dev, u32 bic)
+{
+	dev->flags_ &= ~bic;
+}
+
+/**
+ * dev_ofnode() - get the DT node reference associated with a udevice
+ *
+ * @dev:	device to check
+ * @return reference of the the device's DT node
+ */
+static inline ofnode dev_ofnode(const struct udevice *dev)
+{
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+	return dev->node_;
+#else
+	return ofnode_null();
+#endif
+}
+
 /* Returns non-zero if the device is active (probed and not removed) */
-#define device_active(dev)	((dev)->flags & DM_FLAG_ACTIVATED)
+#define device_active(dev)	(dev_get_flags(dev) & DM_FLAG_ACTIVATED)
 
 static inline int dev_of_offset(const struct udevice *dev)
 {
-	return ofnode_to_offset(dev->node);
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+	return ofnode_to_offset(dev_ofnode(dev));
+#else
+	return -1;
+#endif
 }
 
-static inline bool dev_has_of_node(struct udevice *dev)
+static inline bool dev_has_ofnode(const struct udevice *dev)
 {
-	return ofnode_valid(dev->node);
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+	return ofnode_valid(dev_ofnode(dev));
+#else
+	return false;
+#endif
+}
+
+static inline void dev_set_ofnode(struct udevice *dev, ofnode node)
+{
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+	dev->node_ = node;
+#endif
 }
 
 static inline int dev_seq(const struct udevice *dev)
 {
-	return dev->sqq;
+	return dev->seq_;
 }
 
 /**
@@ -238,7 +293,7 @@ struct udevice_id {
  * platform data to be allocated in the device's ->plat pointer.
  * This is typically only useful for device-tree-aware drivers (those with
  * an of_match), since drivers which use plat will have the data
- * provided in the U_BOOT_DEVICE() instantiation.
+ * provided in the U_BOOT_DRVINFO() instantiation.
  * @per_child_auto: Each device can hold private data owned by
  * its parent. If required this will be automatically allocated if this
  * value is non-zero.
@@ -280,7 +335,7 @@ struct driver {
 	ll_entry_declare(struct driver, __name, driver)
 
 /* Get a pointer to a given driver */
-#define DM_GET_DRIVER(__name)						\
+#define DM_DRIVER_GET(__name)						\
 	ll_entry_get(struct driver, __name, driver)
 
 /**
@@ -288,7 +343,7 @@ struct driver {
  * produce no code but its information will be parsed by tools like
  * dtoc
  */
-#define U_BOOT_DRIVER_ALIAS(__name, __alias)
+#define DM_DRIVER_ALIAS(__name, __alias)
 
 /**
  * dev_get_plat() - Get the platform data for a device

@@ -113,6 +113,15 @@ config SPL_FSL_PBL
 	  Create boot binary having SPL binary in PBI format concatenated with
 	  u-boot binary.
 
+config SPL_ALLOC_BD
+	bool "Allocate memory for bd_info"
+	default y if X86 || SANDBOX
+	help
+	  Some boards don't allocate space for this in their board_init_f()
+	  code. In this case U-Boot can allocate space for gd->bd in the
+	  standard SPL flow (board_init_r()). Enable this option to support
+	  this feature.
+
 endmenu
 
 config HANDOFF

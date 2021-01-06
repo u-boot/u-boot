@@ -173,7 +173,7 @@ static int get_ssusb_rscs(struct udevice *dev, struct ssusb_mtk *ssusb)
 		return -ENODEV;
 	}
 
-	ssusb->dr_mode = usb_get_dr_mode(child->node);
+	ssusb->dr_mode = usb_get_dr_mode(dev_ofnode(child));
 
 	if (ssusb->dr_mode == USB_DR_MODE_UNKNOWN ||
 		ssusb->dr_mode == USB_DR_MODE_OTG)
@@ -313,7 +313,7 @@ static int mtu3_glue_bind(struct udevice *parent)
 	ofnode node;
 	int ret;
 
-	node = ofnode_by_compatible(parent->node, "mediatek,ssusb");
+	node = ofnode_by_compatible(dev_ofnode(parent), "mediatek,ssusb");
 	if (!ofnode_valid(node))
 		return -ENODEV;
 

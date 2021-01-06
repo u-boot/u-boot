@@ -99,7 +99,7 @@ static const struct ns16550_plat am33xx_serial[] = {
 # endif
 };
 
-U_BOOT_DEVICES(am33xx_uarts) = {
+U_BOOT_DRVINFOS(am33xx_uarts) = {
 	{ "ns16550_serial", &am33xx_serial[0] },
 #  ifdef CONFIG_SYS_NS16550_COM2
 	{ "ns16550_serial", &am33xx_serial[1] },
@@ -119,7 +119,7 @@ static const struct omap_i2c_plat am33xx_i2c[] = {
 	{ I2C_BASE3, 100000, OMAP_I2C_REV_V2},
 };
 
-U_BOOT_DEVICES(am33xx_i2c) = {
+U_BOOT_DRVINFOS(am33xx_i2c) = {
 	{ "i2c_omap", &am33xx_i2c[0] },
 	{ "i2c_omap", &am33xx_i2c[1] },
 	{ "i2c_omap", &am33xx_i2c[2] },
@@ -138,7 +138,7 @@ static const struct omap_gpio_plat am33xx_gpio[] = {
 #endif
 };
 
-U_BOOT_DEVICES(am33xx_gpios) = {
+U_BOOT_DRVINFOS(am33xx_gpios) = {
 	{ "gpio_omap", &am33xx_gpio[0] },
 	{ "gpio_omap", &am33xx_gpio[1] },
 	{ "gpio_omap", &am33xx_gpio[2] },
@@ -155,7 +155,7 @@ static const struct omap3_spi_plat omap3_spi_pdata = {
 	.pin_dir = MCSPI_PINDIR_D0_IN_D1_OUT,
 };
 
-U_BOOT_DEVICE(am33xx_spi) = {
+U_BOOT_DRVINFO(am33xx_spi) = {
 	.name = "omap3_spi",
 	.plat = &omap3_spi_pdata,
 };
@@ -234,7 +234,7 @@ static struct ti_musb_plat usb1 = {
 		},
 };
 
-U_BOOT_DEVICES(am33xx_usbs) = {
+U_BOOT_DRVINFOS(am33xx_usbs) = {
 #if CONFIG_AM335X_USB0_MODE == MUSB_PERIPHERAL
 	{ "ti-musb-peripheral", &usb0 },
 #elif CONFIG_AM335X_USB0_MODE == MUSB_HOST

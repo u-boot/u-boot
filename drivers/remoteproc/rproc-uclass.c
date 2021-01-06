@@ -115,7 +115,7 @@ static int rproc_pre_probe(struct udevice *dev)
 
 	/* See if we need to populate via fdt */
 
-	if (!dev->plat) {
+	if (!dev_get_plat(dev)) {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 		int node = dev_of_offset(dev);
 		const void *blob = gd->fdt_blob;
@@ -140,7 +140,7 @@ static int rproc_pre_probe(struct udevice *dev)
 #endif
 
 	} else {
-		struct dm_rproc_uclass_pdata *pdata = dev->plat;
+		struct dm_rproc_uclass_pdata *pdata = dev_get_plat(dev);
 
 		debug("'%s': using legacy data\n", dev->name);
 		if (pdata->name)
@@ -247,7 +247,7 @@ static int _rproc_dev_is_probed(struct udevice *dev,
 			    struct dm_rproc_uclass_pdata *uc_pdata,
 			    const void *data)
 {
-	if (dev->flags & DM_FLAG_ACTIVATED)
+	if (dev_get_flags(dev) & DM_FLAG_ACTIVATED)
 		return 0;
 
 	return -EAGAIN;

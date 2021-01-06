@@ -95,7 +95,7 @@ void support_card_init(void)
 
 	/* The system bus must be initialized for access to the support card. */
 	ret = uclass_get_device_by_driver(UCLASS_SIMPLE_BUS,
-					  DM_GET_DRIVER(uniphier_system_bus_driver),
+					  DM_DRIVER_GET(uniphier_system_bus_driver),
 					  &dev);
 	if (ret)
 		return;

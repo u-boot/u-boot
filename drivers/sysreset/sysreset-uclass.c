@@ -9,12 +9,13 @@
 #include <common.h>
 #include <command.h>
 #include <cpu_func.h>
-#include <hang.h>
-#include <log.h>
-#include <sysreset.h>
 #include <dm.h>
 #include <errno.h>
+#include <hang.h>
+#include <log.h>
 #include <regmap.h>
+#include <spl.h>
+#include <sysreset.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/root.h>
@@ -101,7 +102,10 @@ void sysreset_walk_halt(enum sysreset_t type)
 		mdelay(100);
 
 	/* Still no reset? Give up */
-	log_err("System reset not supported on this platform\n");
+	if (spl_phase() <= PHASE_SPL)
+		log_err("no sysreset\n");
+	else
+		log_err("System reset not supported on this platform\n");
 	hang();
 }
 
