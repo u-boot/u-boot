@@ -170,7 +170,7 @@ static int fru_parse_board(unsigned long addr)
 	data = (u8 *)&fru_data.brd.manufacturer_type_len;
 
 	/* Record max structure limit not to write data over allocated space */
-	limit = data + sizeof(struct fru_board_data);
+	limit = (u8 *)&fru_data.brd + sizeof(struct fru_board_data);
 
 	for (i = 0; ; i++, data += FRU_BOARD_MAX_LEN) {
 		len = fru_check_type_len(*(u8 *)addr, fru_data.brd.lang_code,

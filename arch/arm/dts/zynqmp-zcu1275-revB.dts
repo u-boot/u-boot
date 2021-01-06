@@ -23,6 +23,7 @@
 		serial1 = &dcc;
 		spi0 = &qspi;
 		mmc0 = &sdhci1;
+		ethernet0 = &gem1;
 	};
 
 	chosen {
@@ -38,6 +39,29 @@
 
 &dcc {
 	status = "okay";
+};
+
+&gem1 {
+	status = "okay";
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		phy1: ethernet-phy@1 {
+			reg = <1>; /* KSZ9031RNXIC on AES-FMC-NETW1-G */
+			rxc-skew-ps = <1800>; /* Skew control of RX_CLK pad output */
+			txc-skew-ps = <1800>; /* Skew control of GTX_CLK pad input */
+			txen-skew-ps = <900>; /* Skew control of TX_CTL pad input */
+			rxdv-skew-ps = <0>; /* Skew control of RX_CTL pad output */
+			rxd0-skew-ps = <0>; /* Skew control of RXD0 pad output */
+			rxd1-skew-ps = <0>; /* Skew control of RXD1 pad output */
+			rxd2-skew-ps = <0>; /* Skew control of RXD2 pad output */
+			rxd3-skew-ps = <0>; /* Skew control of RXD3 pad output */
+			txd0-skew-ps = <900>; /* Skew control of TXD0 pad input */
+			txd1-skew-ps = <900>; /* Skew control of TXD1 pad input */
+			txd2-skew-ps = <900>; /* Skew control of TXD2 pad input */
+			txd3-skew-ps = <900>; /* Skew control of TXD3 pad input */
+		};
+	};
 };
 
 &qspi {

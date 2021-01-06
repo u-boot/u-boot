@@ -1206,12 +1206,10 @@ static int zynq_nand_probe(struct udevice *dev)
 		nand_chip->options |= NAND_SUBPAGE_READ;
 
 		/* On-Die ECC spare bytes offset 8 is used for ECC codes */
-		if (ondie_ecc_enabled) {
-			nand_chip->ecc.layout = &ondie_nand_oob_64;
-			/* Use the BBT pattern descriptors */
-			nand_chip->bbt_td = &bbt_main_descr;
-			nand_chip->bbt_md = &bbt_mirror_descr;
-		}
+		nand_chip->ecc.layout = &ondie_nand_oob_64;
+		/* Use the BBT pattern descriptors */
+		nand_chip->bbt_td = &bbt_main_descr;
+		nand_chip->bbt_md = &bbt_mirror_descr;
 	} else {
 		/* Hardware ECC generates 3 bytes ECC code for each 512 bytes */
 		nand_chip->ecc.mode = NAND_ECC_HW;
