@@ -7,10 +7,17 @@
  */
 
 #ifndef __UBOOT__
+#include <log.h>
+#include <dm/devres.h>
 #include <linux/dmaengine.h>
 #include <linux/pm_runtime.h>
 #include "internals.h"
 #else
+#include <common.h>
+#include <dm.h>
+#include <errno.h>
+#include <malloc.h>
+#include <spi.h>
 #include <spi.h>
 #include <spi-mem.h>
 #endif
@@ -123,10 +130,11 @@ static int spi_check_buswidth_req(struct spi_slave *slave, u8 buswidth, bool tx)
 			return 0;
 
 		break;
-
 	case 8:
-		if (!tx && (mode & SPI_RX_OCTAL))
+		if ((tx && (mode & SPI_TX_OCTAL)) ||
+		    (!tx && (mode & SPI_RX_OCTAL)))
 			return 0;
+
 		break;
 
 	default:
@@ -150,7 +158,7 @@ bool spi_mem_default_supports_op(struct spi_slave *slave,
 	    spi_check_buswidth_req(slave, op->dummy.buswidth, true))
 		return false;
 
-	if (op->data.nbytes &&
+	if (op->data.dir != SPI_MEM_NO_DATA &&
 	    spi_check_buswidth_req(slave, op->data.buswidth,
 				   op->data.dir == SPI_MEM_DATA_OUT))
 		return false;
@@ -207,7 +215,7 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 	const u8 *tx_buf = NULL;
 	u8 *rx_buf = NULL;
 	int op_len;
-	u32 flag = 0;
+	u32 flag;
 	int ret;
 	int i;
 
@@ -364,40 +372,26 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 		pos += op->addr.nbytes;
 	}
 
-	if (op->dummy.nbytes) {
+	if (op->dummy.nbytes)
 		memset(op_buf + pos, 0xff, op->dummy.nbytes);
-		slave->dummy_bytes = op->dummy.nbytes;
-	}
-
-	if (slave->flags & SPI_XFER_U_PAGE)
-		flag |= SPI_XFER_U_PAGE;
-	if (slave->flags & SPI_XFER_LOWER)
-		flag |= SPI_XFER_LOWER;
-	if (slave->flags & SPI_XFER_UPPER)
-		flag |= SPI_XFER_UPPER;
-	if (slave->flags & SPI_XFER_STRIPE)
-		flag |= SPI_XFER_STRIPE;
 
 	/* 1st transfer: opcode + address + dummy cycles */
+	flag = SPI_XFER_BEGIN;
 	/* Make sure to set END bit if no tx or rx data messages follow */
 	if (!tx_buf && !rx_buf)
 		flag |= SPI_XFER_END;
 
-	ret = spi_xfer(slave, op_len * 8, op_buf, NULL, flag | SPI_XFER_BEGIN);
+	ret = spi_xfer(slave, op_len * 8, op_buf, NULL, flag);
 	if (ret)
 		return ret;
-
-	slave->dummy_bytes = 0;
 
 	/* 2nd transfer: rx or tx data path */
 	if (tx_buf || rx_buf) {
 		ret = spi_xfer(slave, op->data.nbytes * 8, tx_buf,
-			       rx_buf, flag | SPI_XFER_END);
+			       rx_buf, SPI_XFER_END);
 		if (ret)
 			return ret;
 	}
-
-	slave->flags &= ~SPI_XFER_MASK;
 
 	spi_release_bus(slave);
 
