@@ -15,7 +15,8 @@
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/io.h>
-#include <linux/bitops.h>
+#include <clk.h>
+#include <spi-mem.h>
 #include "../mtd/spi/sf_internal.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -835,12 +836,80 @@ static int zynq_qspi_set_mode(struct udevice *bus, uint mode)
 	return 0;
 }
 
+static int zynq_qspi_exec_op(struct spi_slave *slave,
+			     const struct spi_mem_op *op)
+{
+	int op_len, pos = 0, ret, i;
+	unsigned int flag = 0;
+	const u8 *tx_buf = NULL;
+	u8 *rx_buf = NULL;
+
+	if (op->data.nbytes) {
+		if (op->data.dir == SPI_MEM_DATA_IN)
+			rx_buf = op->data.buf.in;
+		else
+			tx_buf = op->data.buf.out;
+	}
+
+	op_len = sizeof(op->cmd.opcode) + op->addr.nbytes + op->dummy.nbytes;
+
+	u8 op_buf[op_len];
+
+	op_buf[pos++] = op->cmd.opcode;
+
+	if (op->addr.nbytes) {
+		for (i = 0; i < op->addr.nbytes; i++)
+			op_buf[pos + i] = op->addr.val >>
+			(8 * (op->addr.nbytes - i - 1));
+
+		pos += op->addr.nbytes;
+	}
+
+	if (op->dummy.nbytes) {
+		memset(op_buf + pos, 0xff, op->dummy.nbytes);
+		slave->dummy_bytes = op->dummy.nbytes;
+	}
+
+	if (slave->flags & SPI_XFER_U_PAGE)
+		flag |= SPI_XFER_U_PAGE;
+
+	/* 1st transfer: opcode + address + dummy cycles */
+	/* Make sure to set END bit if no tx or rx data messages follow */
+	if (!tx_buf && !rx_buf)
+		flag |= SPI_XFER_END;
+
+	ret = zynq_qspi_xfer(slave->dev, op_len * 8, op_buf, NULL,
+			     flag | SPI_XFER_BEGIN);
+	if (ret)
+		return ret;
+
+	slave->dummy_bytes = 0;
+
+	/* 2nd transfer: rx or tx data path */
+	if (tx_buf || rx_buf) {
+		ret = zynq_qspi_xfer(slave->dev, op->data.nbytes * 8, tx_buf,
+				     rx_buf, flag | SPI_XFER_END);
+		if (ret)
+			return ret;
+	}
+
+	slave->flags &= ~SPI_XFER_MASK;
+	spi_release_bus(slave);
+
+	return 0;
+}
+
+static const struct spi_controller_mem_ops zynq_qspi_mem_ops = {
+	.exec_op = zynq_qspi_exec_op,
+};
+
 static const struct dm_spi_ops zynq_qspi_ops = {
 	.claim_bus      = zynq_qspi_claim_bus,
 	.release_bus    = zynq_qspi_release_bus,
 	.xfer           = zynq_qspi_xfer,
 	.set_speed      = zynq_qspi_set_speed,
 	.set_mode       = zynq_qspi_set_mode,
+	.mem_ops        = &zynq_qspi_mem_ops,
 };
 
 static const struct udevice_id zynq_qspi_ids[] = {
