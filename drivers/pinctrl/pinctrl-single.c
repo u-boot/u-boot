@@ -51,6 +51,9 @@ struct single_func {
  * @pin_name: temporary buffer to store the pin name
  */
 struct single_priv {
+#if (IS_ENABLED(CONFIG_SANDBOX))
+	u32 *sandbox_regs;
+#endif
 	unsigned int bits_per_pin;
 	unsigned int npins;
 	char pin_name[PINNAME_SIZE];
@@ -87,6 +90,8 @@ struct single_fdt_bits_cfg {
 	fdt32_t mask;
 };
 
+#if (!IS_ENABLED(CONFIG_SANDBOX))
+
 static unsigned int single_read(struct udevice *dev, fdt_addr_t reg)
 {
 	struct single_pdata *pdata = dev_get_plat(dev);
@@ -118,6 +123,24 @@ static void single_write(struct udevice *dev, unsigned int val, fdt_addr_t reg)
 		writel(val, reg);
 	}
 }
+
+#else /* CONFIG_SANDBOX  */
+
+static unsigned int single_read(struct udevice *dev, fdt_addr_t reg)
+{
+	struct single_priv *priv = dev_get_priv(dev);
+
+	return priv->sandbox_regs[reg];
+}
+
+static void single_write(struct udevice *dev, unsigned int val, fdt_addr_t reg)
+{
+	struct single_priv *priv = dev_get_priv(dev);
+
+	priv->sandbox_regs[reg] = val;
+}
+
+#endif /* CONFIG_SANDBOX  */
 
 /**
  * single_get_pin_by_offset() - get a pin based on the register offset
@@ -436,6 +459,14 @@ static int single_probe(struct udevice *dev)
 	INIT_LIST_HEAD(&priv->functions);
 
 	size = pdata->offset + pdata->width / BITS_PER_BYTE;
+	#if (CONFIG_IS_ENABLED(SANDBOX))
+	priv->sandbox_regs =
+		devm_kzalloc(dev, size * sizeof(*priv->sandbox_regs),
+			     GFP_KERNEL);
+	if (!priv->sandbox_regs)
+		return -ENOMEM;
+	#endif
+
 	priv->npins = size / (pdata->width / BITS_PER_BYTE);
 	if (pdata->bits_per_mux) {
 		priv->bits_per_pin = fls(pdata->mask);
