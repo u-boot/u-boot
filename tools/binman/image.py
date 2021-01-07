@@ -324,3 +324,48 @@ class Image(section.Entry_section):
             _DoLine(lines, _EntryToStrings(entry))
             selected_entries.append(entry)
         return selected_entries, lines, widths
+
+    def LookupImageSymbol(self, sym_name, optional, msg, base_addr):
+        """Look up a symbol in an ELF file
+
+        Looks up a symbol in an ELF file. Only entry types which come from an
+        ELF image can be used by this function.
+
+        This searches through this image including all of its subsections.
+
+        At present the only entry properties supported are:
+            offset
+            image_pos - 'base_addr' is added if this is not an end-at-4gb image
+            size
+
+        Args:
+            sym_name: Symbol name in the ELF file to look up in the format
+                _binman_<entry>_prop_<property> where <entry> is the name of
+                the entry and <property> is the property to find (e.g.
+                _binman_u_boot_prop_offset). As a special case, you can append
+                _any to <entry> to have it search for any matching entry. E.g.
+                _binman_u_boot_any_prop_offset will match entries called u-boot,
+                u-boot-img and u-boot-nodtb)
+            optional: True if the symbol is optional. If False this function
+                will raise if the symbol is not found
+            msg: Message to display if an error occurs
+            base_addr: Base address of image. This is added to the returned
+                image_pos in most cases so that the returned position indicates
+                where the targeted entry/binary has actually been loaded. But
+                if end-at-4gb is used, this is not done, since the binary is
+                already assumed to be linked to the ROM position and using
+                execute-in-place (XIP).
+
+        Returns:
+            Value that should be assigned to that symbol, or None if it was
+                optional and not found
+
+        Raises:
+            ValueError if the symbol is invalid or not found, or references a
+                property which is not supported
+        """
+        entries = OrderedDict()
+        entries_by_name = {}
+        self._CollectEntries(entries, entries_by_name, self)
+        return self.LookupSymbol(sym_name, optional, msg, base_addr,
+                                 entries_by_name)

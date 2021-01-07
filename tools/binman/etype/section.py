@@ -385,7 +385,7 @@ class Entry_section(Entry):
                 return entry.GetData()
         source_entry.Raise("Cannot find entry for node '%s'" % node.name)
 
-    def LookupSymbol(self, sym_name, optional, msg, base_addr):
+    def LookupSymbol(self, sym_name, optional, msg, base_addr, entries=None):
         """Look up a symbol in an ELF file
 
         Looks up a symbol in an ELF file. Only entry types which come from an
@@ -428,18 +428,20 @@ class Entry_section(Entry):
                              (msg, sym_name))
         entry_name, prop_name = m.groups()
         entry_name = entry_name.replace('_', '-')
-        entry = self._entries.get(entry_name)
+        if not entries:
+            entries = self._entries
+        entry = entries.get(entry_name)
         if not entry:
             if entry_name.endswith('-any'):
                 root = entry_name[:-4]
-                for name in self._entries:
+                for name in entries:
                     if name.startswith(root):
                         rest = name[len(root):]
                         if rest in ['', '-img', '-nodtb']:
-                            entry = self._entries[name]
+                            entry = entries[name]
         if not entry:
             err = ("%s: Entry '%s' not found in list (%s)" %
-                   (msg, entry_name, ','.join(self._entries.keys())))
+                   (msg, entry_name, ','.join(entries.keys())))
             if optional:
                 print('Warning: %s' % err, file=sys.stderr)
                 return None
@@ -648,3 +650,32 @@ class Entry_section(Entry):
         """
         for entry in self._entries.values():
             entry.CheckMissing(missing_list)
+
+    def _CollectEntries(self, entries, entries_by_name, add_entry):
+        """Collect all the entries in an section
+
+        This builds up a dict of entries in this section and all subsections.
+        Entries are indexed by path and by name.
+
+        Since all paths are unique, entries will not have any conflicts. However
+        entries_by_name make have conflicts if two entries have the same name
+        (e.g. with different parent sections). In this case, an entry at a
+        higher level in the hierarchy will win over a lower-level entry.
+
+        Args:
+            entries: dict to put entries:
+                key: entry path
+                value: Entry object
+            entries_by_name: dict to put entries
+                key: entry name
+                value: Entry object
+            add_entry: Entry to add
+        """
+        entries[add_entry.GetPath()] = add_entry
+        to_add = add_entry.GetEntries()
+        if to_add:
+            for entry in to_add.values():
+                entries[entry.GetPath()] = entry
+            for entry in to_add.values():
+                self._CollectEntries(entries, entries_by_name, entry)
+        entries_by_name[add_entry.name] = add_entry

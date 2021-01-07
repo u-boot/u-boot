@@ -4139,6 +4139,21 @@ class TestFunctional(unittest.TestCase):
             }
         self.assertEqual(expected, props)
 
+    def testSymbolsSubsection(self):
+        """Test binman can assign symbols from a subsection"""
+        elf_fname = self.ElfTestFile('u_boot_binman_syms')
+        syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
+        addr = elf.GetSymbolAddress(elf_fname, '__image_copy_start')
+        self.assertEqual(syms['_binman_u_boot_spl_prop_offset'].address, addr)
+
+        self._SetupSplElf('u_boot_binman_syms')
+        data = self._DoReadFile('187_symbols_sub.dts')
+        sym_values = struct.pack('<LQLL', 0x00, 0x1c, 0x28, 0x04)
+        expected = (sym_values + U_BOOT_SPL_DATA[20:] +
+                    tools.GetBytes(0xff, 1) + U_BOOT_DATA + sym_values +
+                    U_BOOT_SPL_DATA[20:])
+        self.assertEqual(expected, data)
+
 
 if __name__ == "__main__":
     unittest.main()
