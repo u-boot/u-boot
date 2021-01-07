@@ -50,6 +50,17 @@
 				};
 
 				fdt-2 {
+					description = "fsl-ls1028a-kontron-sl28-var1";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+
+					blob {
+						filename = "arch/arm/dts/fsl-ls1028a-kontron-sl28-var1.dtb";
+					};
+				};
+
+				fdt-3 {
 					description = "fsl-ls1028a-kontron-sl28-var3";
 					type = "flat_dt";
 					arch = "arm";
@@ -60,7 +71,7 @@
 					};
 				};
 
-				fdt-3 {
+				fdt-4 {
 					description = "fsl-ls1028a-kontron-sl28-var4";
 					type = "flat_dt";
 					arch = "arm";
@@ -82,15 +93,22 @@
 				};
 
 				conf-2 {
-					description = "fsl-ls1028a-kontron-sl28-var3";
+					description = "fsl-ls1028a-kontron-sl28-var1";
 					firmware = "uboot";
 					fdt = "fdt-2";
 				};
 
 				conf-3 {
-					description = "fsl-ls1028a-kontron-sl28-var4";
+					description = "fsl-ls1028a-kontron-sl28-var3";
 					firmware = "uboot";
 					fdt = "fdt-3";
+				};
+
+				conf-4 {
+					description = "fsl-ls1028a-kontron-sl28-var4";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-4";
 				};
 			};
 		};
@@ -131,6 +149,11 @@
 				firmware = "bl31";
 				loadables = "uboot";
 			};
+
+			conf-4 {
+				firmware = "bl31";
+				loadables = "uboot";
+			};
 		};
 	};
 };
@@ -165,6 +188,10 @@
 			};
 
 			conf-3 {
+				loadables = "uboot", "bl32";
+			};
+
+			conf-4 {
 				loadables = "uboot", "bl32";
 			};
 		};
