@@ -154,6 +154,10 @@ The device index starts from ``a`` and refers to the interface (e.g. USB
 controller, SD/MMC controller) or disk index. The partition index starts
 from ``1`` and describes the partition number on the particular device.
 
+Alternatively, partition types may be specified using :ref:`U-Boot's partition
+syntax <partitions>`. This allows specifying partitions like ``0.1``,
+``0#boot``, or ``:3``. The interface is always ``mmc``.
+
 Writing Partition Table
 -----------------------
 

@@ -6,6 +6,7 @@ Use U-Boot
 
    fdt_overlays
    netconsole
+   partitions
 
 Shell commands
 --------------
