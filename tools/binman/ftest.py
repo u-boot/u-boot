@@ -4154,6 +4154,25 @@ class TestFunctional(unittest.TestCase):
                     U_BOOT_SPL_DATA[20:])
         self.assertEqual(expected, data)
 
+    def testReadImageEntryArg(self):
+        """Test reading an image that would need an entry arg to generate"""
+        entry_args = {
+            'cros-ec-rw-path': 'ecrw.bin',
+        }
+        data = self.data = self._DoReadFileDtb(
+            '188_image_entryarg.dts',use_real_dtb=True, update_dtb=True,
+            entry_args=entry_args)
+
+        image_fname = tools.GetOutputFilename('image.bin')
+        orig_image = control.images['image']
+
+        # This should not generate an error about the missing 'cros-ec-rw-path'
+        # since we are reading the image from a file. Compare with
+        # testEntryArgsRequired()
+        image = Image.FromFile(image_fname)
+        self.assertEqual(orig_image.GetEntries().keys(),
+                         image.GetEntries().keys())
+
 
 if __name__ == "__main__":
     unittest.main()

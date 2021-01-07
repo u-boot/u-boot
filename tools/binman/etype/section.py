@@ -679,3 +679,18 @@ class Entry_section(Entry):
             for entry in to_add.values():
                 self._CollectEntries(entries, entries_by_name, entry)
         entries_by_name[add_entry.name] = add_entry
+
+    def MissingArgs(self, entry, missing):
+        """Report a missing argument, if enabled
+
+        For entries which require arguments, this reports an error if some are
+        missing. If missing entries are being ignored (e.g. because we read the
+        entry from an image rather than creating it), this function does
+        nothing.
+
+        Args:
+            missing: List of missing properties / entry args, each a string
+        """
+        if not self._ignore_missing:
+            entry.Raise('Missing required properties/entry args: %s' %
+                       (', '.join(missing)))
