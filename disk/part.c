@@ -692,12 +692,13 @@ int part_get_info_by_name(struct blk_desc *dev_desc, const char *name,
  * Get partition info from device number and partition name.
  *
  * Parse a device number and partition name string in the form of
- * "device_num#partition_name", for example "0#misc". If the partition
- * is found, sets dev_desc and part_info accordingly with the information
- * of the partition with the given partition_name.
+ * "devicenum.hwpartnum#partition_name", for example "0.1#misc". devicenum and
+ * hwpartnum are both optional, defaulting to 0. If the partition is found,
+ * sets dev_desc and part_info accordingly with the information of the
+ * partition with the given partition_name.
  *
  * @param[in] dev_iface Device interface
- * @param[in] dev_part_str Input string argument, like "0#misc"
+ * @param[in] dev_part_str Input string argument, like "0.1#misc"
  * @param[out] dev_desc Place to store the device description pointer
  * @param[out] part_info Place to store the partition information
  * @return 0 on success, or a negative on error
@@ -707,29 +708,31 @@ static int part_get_info_by_dev_and_name(const char *dev_iface,
 					 struct blk_desc **dev_desc,
 					 struct disk_partition *part_info)
 {
-	char *ep;
-	const char *part_str;
-	int dev_num, ret;
+	char *dup_str = NULL;
+	const char *dev_str, *part_str;
+	int ret;
 
+	/* Separate device and partition name specification */
 	part_str = strchr(dev_part_str, '#');
-	if (!part_str || part_str == dev_part_str)
-		return -EINVAL;
-
-	dev_num = simple_strtoul(dev_part_str, &ep, 16);
-	if (ep != part_str) {
-		/* Not all the first part before the # was parsed. */
+	if (part_str) {
+		dup_str = strdup(dev_part_str);
+		dup_str[part_str - dev_part_str] = 0;
+		dev_str = dup_str;
+		part_str++;
+	} else {
 		return -EINVAL;
 	}
-	part_str++;
 
-	*dev_desc = blk_get_dev(dev_iface, dev_num);
-	if (!*dev_desc) {
-		printf("Could not find %s %d\n", dev_iface, dev_num);
-		return -ENODEV;
-	}
+	ret = blk_get_device_by_str(dev_iface, dev_str, dev_desc);
+	if (ret)
+		goto cleanup;
+
 	ret = part_get_info_by_name(*dev_desc, part_str, part_info);
 	if (ret < 0)
 		printf("Could not find \"%s\" partition\n", part_str);
+
+cleanup:
+	free(dup_str);
 	return ret;
 }
 
