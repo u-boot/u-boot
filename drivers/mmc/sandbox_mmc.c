@@ -17,6 +17,17 @@ struct sandbox_mmc_plat {
 	struct mmc mmc;
 };
 
+#define MMC_CSIZE 0
+#define MMC_CMULT 8 /* 8 because the card is high-capacity */
+#define MMC_BL_LEN_SHIFT 10
+#define MMC_BL_LEN BIT(MMC_BL_LEN_SHIFT)
+#define MMC_CAPACITY (((MMC_CSIZE + 1) << (MMC_CMULT + 2)) \
+		      * MMC_BL_LEN) /* 1 MiB */
+
+struct sandbox_mmc_priv {
+	u8 buf[MMC_CAPACITY];
+};
+
 /**
  * sandbox_mmc_send_cmd() - Emulate SD commands
  *
@@ -26,6 +37,10 @@ struct sandbox_mmc_plat {
 static int sandbox_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 				struct mmc_data *data)
 {
+	struct sandbox_mmc_priv *priv = dev_get_priv(dev);
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	static ulong erase_start, erase_end;
+
 	switch (cmd->cmdidx) {
 	case MMC_CMD_ALL_SEND_CID:
 		memset(cmd->response, '\0', sizeof(cmd->response));
@@ -44,8 +59,9 @@ static int sandbox_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		break;
 	case MMC_CMD_SEND_CSD:
 		cmd->response[0] = 0;
-		cmd->response[1] = 10 << 16;	/* 1 << block_len */
-		cmd->response[2] = 0;
+		cmd->response[1] = (MMC_BL_LEN_SHIFT << 16) |
+				   ((MMC_CSIZE >> 16) & 0x3f);
+		cmd->response[2] = (MMC_CSIZE & 0xffff) << 16;
 		cmd->response[3] = 0;
 		break;
 	case SD_CMD_SWITCH_FUNC: {
@@ -59,12 +75,26 @@ static int sandbox_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		break;
 	}
 	case MMC_CMD_READ_SINGLE_BLOCK:
-		memset(data->dest, '\0', data->blocksize);
-		break;
 	case MMC_CMD_READ_MULTIPLE_BLOCK:
-		strcpy(data->dest, "this is a test");
+		memcpy(data->dest, &priv->buf[cmd->cmdarg * data->blocksize],
+		       data->blocks * data->blocksize);
+		break;
+	case MMC_CMD_WRITE_SINGLE_BLOCK:
+	case MMC_CMD_WRITE_MULTIPLE_BLOCK:
+		memcpy(&priv->buf[cmd->cmdarg * data->blocksize], data->src,
+		       data->blocks * data->blocksize);
 		break;
 	case MMC_CMD_STOP_TRANSMISSION:
+		break;
+	case SD_CMD_ERASE_WR_BLK_START:
+		erase_start = cmd->cmdarg;
+		break;
+	case SD_CMD_ERASE_WR_BLK_END:
+		erase_end = cmd->cmdarg;
+		break;
+	case MMC_CMD_ERASE:
+		memset(&priv->buf[erase_start * mmc->write_bl_len], '\0',
+		       (erase_end - erase_start + 1) * mmc->write_bl_len);
 		break;
 	case SD_CMD_APP_SEND_OP_COND:
 		cmd->response[0] = OCR_BUSY | OCR_HCS;
@@ -148,5 +178,6 @@ U_BOOT_DRIVER(mmc_sandbox) = {
 	.bind		= sandbox_mmc_bind,
 	.unbind		= sandbox_mmc_unbind,
 	.probe		= sandbox_mmc_probe,
-	.plat_auto	= sizeof(struct sandbox_mmc_plat),
+	.priv_auto = sizeof(struct sandbox_mmc_priv),
+	.plat_auto = sizeof(struct sandbox_mmc_plat),
 };
