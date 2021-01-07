@@ -2,7 +2,7 @@
 # Copyright (c) 2016 Google, Inc
 # Written by Simon Glass <sjg@chromium.org>
 #
-# Entry-type module for 'u-boot-nodtb.bin'
+# Entry-type module for 'u-boot-spl-nodtb.bin'
 #
 
 from binman.entry import Entry

@@ -9,7 +9,6 @@
 
 from binman import elf
 from binman.entry import Entry
-from patman import command
 from binman.etype.blob import Entry_blob
 from patman import tools
 
