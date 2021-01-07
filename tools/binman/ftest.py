@@ -1638,15 +1638,37 @@ class TestFunctional(unittest.TestCase):
                       str(e.exception))
 
     def _HandleVblockCommand(self, pipe_list):
-        """Fake calls to the futility utility"""
+        """Fake calls to the futility utility
+
+        The expected pipe is:
+
+           [('futility', 'vbutil_firmware', '--vblock',
+             'vblock.vblock', '--keyblock', 'devkeys/firmware.keyblock',
+             '--signprivate', 'devkeys/firmware_data_key.vbprivk',
+             '--version', '1', '--fv', 'input.vblock', '--kernelkey',
+             'devkeys/kernel_subkey.vbpubk', '--flags', '1')]
+
+        This writes to the output file (here, 'vblock.vblock'). If
+        self._hash_data is False, it writes VBLOCK_DATA, else it writes a hash
+        of the input data (here, 'input.vblock').
+        """
         if pipe_list[0][0] == 'futility':
             fname = pipe_list[0][3]
             with open(fname, 'wb') as fd:
-                fd.write(VBLOCK_DATA)
+                if self._hash_data:
+                    infile = pipe_list[0][11]
+                    m = hashlib.sha256()
+                    data = tools.ReadFile(infile)
+                    m.update(data)
+                    fd.write(m.digest())
+                else:
+                    fd.write(VBLOCK_DATA)
+
             return command.CommandResult()
 
     def testVblock(self):
         """Test for the Chromium OS Verified Boot Block"""
+        self._hash_data = False
         command.test_result = self._HandleVblockCommand
         entry_args = {
             'keydir': 'devkeys',
@@ -1676,6 +1698,29 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFile('077_vblock_bad_entry.dts')
         self.assertIn("Node '/binman/vblock': Cannot find entry for node "
                       "'other'", str(e.exception))
+
+    def testVblockContent(self):
+        """Test that the vblock signs the right data"""
+        self._hash_data = True
+        command.test_result = self._HandleVblockCommand
+        entry_args = {
+            'keydir': 'devkeys',
+        }
+        data = self._DoReadFileDtb(
+            '189_vblock_content.dts', use_real_dtb=True, update_dtb=True,
+            entry_args=entry_args)[0]
+        hashlen = 32  # SHA256 hash is 32 bytes
+        self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
+        hashval = data[-hashlen:]
+        dtb = data[len(U_BOOT_DATA):-hashlen]
+
+        expected_data = U_BOOT_DATA + dtb
+
+        # The hashval should be a hash of the dtb
+        m = hashlib.sha256()
+        m.update(expected_data)
+        expected_hashval = m.digest()
+        self.assertEqual(expected_hashval, hashval)
 
     def testTpl(self):
         """Test that an image with TPL and its device tree can be created"""

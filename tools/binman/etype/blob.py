@@ -66,3 +66,7 @@ class Entry_blob(Entry):
 
     def GetDefaultFilename(self):
         return self._filename
+
+    def ProcessContents(self):
+        # The blob may have changed due to WriteSymbols()
+        return self.ProcessContentsUpdate(self.data)

@@ -136,12 +136,7 @@ class Image(section.Entry_section):
         Returns:
             True if the new data size is OK, False if expansion is needed
         """
-        sizes_ok = True
-        for entry in self._entries.values():
-            if not entry.ProcessContents():
-                sizes_ok = False
-                tout.Debug("Entry '%s' size change" % self._node.path)
-        return sizes_ok
+        return super().ProcessContents()
 
     def WriteSymbols(self):
         """Write symbol values into binary files for access at run time"""
