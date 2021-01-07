@@ -460,8 +460,7 @@ class Node:
             prop_name: Name of property to add
             val: String value of property
         """
-        if sys.version_info[0] >= 3:  # pragma: no cover
-            val = bytes(val, 'utf-8')
+        val = bytes(val, 'utf-8')
         self.AddData(prop_name, val + b'\0')
 
     def AddSubnode(self, name):

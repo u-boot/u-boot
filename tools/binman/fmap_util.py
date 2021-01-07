@@ -53,8 +53,8 @@ FmapArea = collections.namedtuple('FmapArea', FMAP_AREA_NAMES)
 
 
 def NameToFmap(name):
-    if type(name) == bytes and sys.version_info[0] >= 3:
-        name = name.decode('utf-8')  # pragma: no cover (for Python 2)
+    if type(name) == bytes:
+        name = name.decode('utf-8')
     return name.replace('\0', '').replace('-', '_').upper()
 
 def ConvertName(field_names, fields):
