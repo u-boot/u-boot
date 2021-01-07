@@ -1050,10 +1050,9 @@ Some ideas:
 - Allow easy building of images by specifying just the board name
 - Support building an image for a board (-b) more completely, with a
   configurable build directory
-- Support adding FITs to an image
-- Support for ARM Trusted Firmware (ATF)
 - Detect invalid properties in nodes
 - Sort the fdtmap by offset
+- Output temporary files to a different directory
 
 --
 Simon Glass <sjg@chromium.org>
