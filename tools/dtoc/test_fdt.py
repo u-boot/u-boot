@@ -397,6 +397,12 @@ class TestProp(unittest.TestCase):
         data = self.fdt.getprop(self.node.Offset(), 'one')
         self.assertEqual(1, fdt32_to_cpu(data))
 
+        val = 1234
+        self.node.AddInt('integer', val)
+        self.dtb.Sync(auto_resize=True)
+        data = self.fdt.getprop(self.node.Offset(), 'integer')
+        self.assertEqual(val, fdt32_to_cpu(data))
+
         val = '123' + chr(0) + '456'
         self.node.AddString('string', val)
         self.dtb.Sync(auto_resize=True)

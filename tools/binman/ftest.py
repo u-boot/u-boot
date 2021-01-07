@@ -4218,6 +4218,14 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(orig_image.GetEntries().keys(),
                          image.GetEntries().keys())
 
+    def testFilesAlign(self):
+        """Test alignment with files"""
+        data = self._DoReadFile('190_files_align.dts')
+
+        # The first string is 15 bytes so will align to 16
+        expect = FILES_DATA[:15] + b'\0' + FILES_DATA[15:]
+        self.assertEqual(expect, data)
+
 
 if __name__ == "__main__":
     unittest.main()

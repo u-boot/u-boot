@@ -6,6 +6,7 @@
 		files {
 			pattern = "files/*.dat";
 			files-compress = "none";
+			files-align = <4>;
 		};
 	};
 };
