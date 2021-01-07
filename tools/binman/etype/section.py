@@ -605,10 +605,12 @@ class Entry_section(Entry):
     def ReadData(self, decomp=True):
         tout.Info("ReadData path='%s'" % self.GetPath())
         parent_data = self.section.ReadData(True)
-        tout.Info('%s: Reading data from offset %#x-%#x, size %#x' %
-                  (self.GetPath(), self.offset, self.offset + self.size,
-                   self.size))
-        data = parent_data[self.offset:self.offset + self.size]
+        offset = self.offset - self.section._skip_at_start
+        data = parent_data[offset:offset + self.size]
+        tout.Info(
+            '%s: Reading data from offset %#x-%#x (real %#x), size %#x, got %#x' %
+                  (self.GetPath(), self.offset, self.offset + self.size, offset,
+                   self.size, len(data)))
         return data
 
     def ReadChildData(self, child, decomp=True):

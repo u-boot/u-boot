@@ -4226,6 +4226,25 @@ class TestFunctional(unittest.TestCase):
         expect = FILES_DATA[:15] + b'\0' + FILES_DATA[15:]
         self.assertEqual(expect, data)
 
+    def testReadImageSkip(self):
+        """Test reading an image and accessing its FDT map"""
+        data = self.data = self._DoReadFileRealDtb('191_read_image_skip.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        orig_image = control.images['image']
+        image = Image.FromFile(image_fname)
+        self.assertEqual(orig_image.GetEntries().keys(),
+                         image.GetEntries().keys())
+
+        orig_entry = orig_image.GetEntries()['fdtmap']
+        entry = image.GetEntries()['fdtmap']
+        self.assertEqual(orig_entry.offset, entry.offset)
+        self.assertEqual(orig_entry.size, entry.size)
+        self.assertEqual(16, entry.image_pos)
+
+        u_boot = image.GetEntries()['section'].GetEntries()['u-boot']
+
+        self.assertEquals(U_BOOT_DATA, u_boot.ReadData())
+
 
 if __name__ == "__main__":
     unittest.main()
