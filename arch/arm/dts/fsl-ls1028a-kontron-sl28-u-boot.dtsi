@@ -10,8 +10,6 @@
 		i2c1 = &i2c3;
 		i2c2 = &i2c4;
 		rtc0 = &rtc;
-		ethernet0 = &enetc0;
-		ethernet1 = &enetc1;
 		ethernet2 = &enetc2;
 		ethernet3 = &enetc6;
 	};
