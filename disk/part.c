@@ -736,7 +736,8 @@ static int part_get_info_by_dev_and_name(const char *dev_iface,
 int part_get_info_by_dev_and_name_or_num(const char *dev_iface,
 					 const char *dev_part_str,
 					 struct blk_desc **dev_desc,
-					 struct disk_partition *part_info)
+					 struct disk_partition *part_info,
+					 int allow_whole_dev)
 {
 	int ret;
 
@@ -750,7 +751,7 @@ int part_get_info_by_dev_and_name_or_num(const char *dev_iface,
 	 * directly.
 	 */
 	ret = blk_get_device_part_str(dev_iface, dev_part_str,
-				      dev_desc, part_info, 1);
+				      dev_desc, part_info, allow_whole_dev);
 	if (ret < 0)
 		printf("Couldn't find partition %s %s\n",
 		       dev_iface, dev_part_str);
