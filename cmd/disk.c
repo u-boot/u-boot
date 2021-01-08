@@ -120,7 +120,6 @@ int common_diskboot(struct cmd_tbl *cmdtp, const char *intf, int argc,
 			return 1;
 		}
 		bootstage_mark(BOOTSTAGE_ID_IDE_FIT_READ_OK);
-		fit_print_contents(fit_hdr);
 	}
 #endif
 
