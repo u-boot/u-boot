@@ -357,7 +357,10 @@ def main():
     signp.set_defaults(func=cmd_sign)
 
     args = ap.parse_args()
-    args.func(args)
+    if hasattr(args, "func"):
+        args.func(args)
+    else:
+        ap.print_help()
 
 def group(a, *ns):
     for n in ns:
