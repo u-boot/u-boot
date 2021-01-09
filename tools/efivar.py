@@ -51,21 +51,21 @@ var_guids = {
 }
 
 class EfiStruct:
-        # struct efi_var_file
-        var_file_fmt = '<QQLL'
-        var_file_size = struct.calcsize(var_file_fmt)
-        # struct efi_var_entry
-        var_entry_fmt = '<LLQ16s'
-        var_entry_size = struct.calcsize(var_entry_fmt)
-        # struct efi_time
-        var_time_fmt = '<H6BLh2B'
-        var_time_size = struct.calcsize(var_time_fmt)
-        # WIN_CERTIFICATE
-        var_win_cert_fmt = '<L2H'
-        var_win_cert_size = struct.calcsize(var_win_cert_fmt)
-        # WIN_CERTIFICATE_UEFI_GUID
-        var_win_cert_uefi_guid_fmt = var_win_cert_fmt+'16s'
-        var_win_cert_uefi_guid_size = struct.calcsize(var_win_cert_uefi_guid_fmt)
+    # struct efi_var_file
+    var_file_fmt = '<QQLL'
+    var_file_size = struct.calcsize(var_file_fmt)
+    # struct efi_var_entry
+    var_entry_fmt = '<LLQ16s'
+    var_entry_size = struct.calcsize(var_entry_fmt)
+    # struct efi_time
+    var_time_fmt = '<H6BLh2B'
+    var_time_size = struct.calcsize(var_time_fmt)
+    # WIN_CERTIFICATE
+    var_win_cert_fmt = '<L2H'
+    var_win_cert_size = struct.calcsize(var_win_cert_fmt)
+    # WIN_CERTIFICATE_UEFI_GUID
+    var_win_cert_uefi_guid_fmt = var_win_cert_fmt+'16s'
+    var_win_cert_uefi_guid_size = struct.calcsize(var_win_cert_uefi_guid_fmt)
 
 class EfiVariable:
     def __init__(self, size, attrs, time, guid, name, data):
