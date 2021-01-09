@@ -292,7 +292,7 @@ def pkcs7_sign(cert, key, buf):
 
 # UEFI 2.8 Errata B "8.2.2 Using the EFI_VARIABLE_AUTHENTICATION_2 descriptor"
 def cmd_sign(args):
-    guid, name, attrs, data, size = parse_args(args)
+    guid, name, attrs, data, _ = parse_args(args)
     attrs |= EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS
     efi = EfiStruct()
 
