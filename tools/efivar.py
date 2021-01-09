@@ -149,7 +149,7 @@ class EfiVariableStore:
         offs = 0
         while offs < len(self.ents):
             var, loffs = self._next_var(offs)
-            if var.name == name and str(var.guid):
+            if var.name == name and str(var.guid) == guid:
                 if var.attrs != attrs:
                     print("err: attributes don't match")
                     exit(1)
