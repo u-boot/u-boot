@@ -23,12 +23,6 @@
 #include <asm-generic/gpio.h>
 #include <linux/delay.h>
 
-#ifdef CONFIG_DM_MMC
-struct sunxi_mmc_variant {
-	u16 mclk_offset;
-};
-#endif
-
 struct sunxi_mmc_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
@@ -42,9 +36,6 @@ struct sunxi_mmc_priv {
 	int cd_inverted;		/* Inverted Card Detect */
 	struct sunxi_mmc *reg;
 	struct mmc_config cfg;
-#ifdef CONFIG_DM_MMC
-	const struct sunxi_mmc_variant *variant;
-#endif
 };
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
@@ -605,6 +596,17 @@ static const struct dm_mmc_ops sunxi_mmc_ops = {
 	.get_cd		= sunxi_mmc_getcd,
 };
 
+static unsigned get_mclk_offset(void)
+{
+	if (IS_ENABLED(CONFIG_MACH_SUN9I_A80))
+		return 0x410;
+
+	if (IS_ENABLED(CONFIG_SUN50I_GEN_H6))
+		return 0x830;
+
+	return 0x88;
+};
+
 static int sunxi_mmc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
@@ -633,8 +635,6 @@ static int sunxi_mmc_probe(struct udevice *dev)
 	cfg->f_max = 52000000;
 
 	priv->reg = (void *)dev_read_addr(dev);
-	priv->variant =
-		(const struct sunxi_mmc_variant *)dev_get_driver_data(dev);
 
 	/* We don't have a sunxi clock driver so find the clock address here */
 	ret = dev_read_phandle_with_args(dev, "clocks", "#clock-cells", 0,
@@ -644,8 +644,7 @@ static int sunxi_mmc_probe(struct udevice *dev)
 	ccu_reg = (u32 *)ofnode_get_addr(args.node);
 
 	priv->mmc_no = ((uintptr_t)priv->reg - SUNXI_MMC0_BASE) / 0x1000;
-	priv->mclkreg = (void *)ccu_reg +
-			(priv->variant->mclk_offset + (priv->mmc_no * 4));
+	priv->mclkreg = (void *)ccu_reg + get_mclk_offset() + priv->mmc_no * 4;
 
 	ret = clk_get_by_name(dev, "ahb", &gate_clk);
 	if (!ret)
@@ -687,55 +686,18 @@ static int sunxi_mmc_bind(struct udevice *dev)
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
 
-static const struct sunxi_mmc_variant sun4i_a10_variant = {
-	.mclk_offset = 0x88,
-};
-
-static const struct sunxi_mmc_variant sun9i_a80_variant = {
-	.mclk_offset = 0x410,
-};
-
-static const struct sunxi_mmc_variant sun50i_h6_variant = {
-	.mclk_offset = 0x830,
-};
-
 static const struct udevice_id sunxi_mmc_ids[] = {
-	{
-	  .compatible = "allwinner,sun4i-a10-mmc",
-	  .data = (ulong)&sun4i_a10_variant,
-	},
-	{
-	  .compatible = "allwinner,sun5i-a13-mmc",
-	  .data = (ulong)&sun4i_a10_variant,
-	},
-	{
-	  .compatible = "allwinner,sun7i-a20-mmc",
-	  .data = (ulong)&sun4i_a10_variant,
-	},
-	{
-	  .compatible = "allwinner,sun8i-a83t-emmc",
-	  .data = (ulong)&sun4i_a10_variant,
-	},
-	{
-	  .compatible = "allwinner,sun9i-a80-mmc",
-	  .data = (ulong)&sun9i_a80_variant,
-	},
-	{
-	  .compatible = "allwinner,sun50i-a64-mmc",
-	  .data = (ulong)&sun4i_a10_variant,
-	},
-	{
-	  .compatible = "allwinner,sun50i-a64-emmc",
-	  .data = (ulong)&sun4i_a10_variant,
-	},
-	{
-	  .compatible = "allwinner,sun50i-h6-mmc",
-	  .data = (ulong)&sun50i_h6_variant,
-	},
-	{
-	  .compatible = "allwinner,sun50i-h6-emmc",
-	  .data = (ulong)&sun50i_h6_variant,
-	},
+	{ .compatible = "allwinner,sun4i-a10-mmc" },
+	{ .compatible = "allwinner,sun5i-a13-mmc" },
+	{ .compatible = "allwinner,sun7i-a20-mmc" },
+	{ .compatible = "allwinner,sun8i-a83t-emmc" },
+	{ .compatible = "allwinner,sun9i-a80-mmc" },
+	{ .compatible = "allwinner,sun50i-a64-mmc" },
+	{ .compatible = "allwinner,sun50i-a64-emmc" },
+	{ .compatible = "allwinner,sun50i-h6-mmc" },
+	{ .compatible = "allwinner,sun50i-h6-emmc" },
+	{ .compatible = "allwinner,sun50i-a100-mmc" },
+	{ .compatible = "allwinner,sun50i-a100-emmc" },
 	{ /* sentinel */ }
 };
 
