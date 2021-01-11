@@ -360,7 +360,7 @@ static int fit_config_verify_sig(const void *fit, int conf_noffset,
 				 const void *sig_blob, int sig_offset)
 {
 	int noffset;
-	char *err_msg = "";
+	char *err_msg = "No 'signature' subnode found";
 	int verified = 0;
 	int ret;
 
