@@ -48,6 +48,46 @@ config DRAM_SUN50I_H6
 	  Select this dram controller driver for some sun50i platforms,
 	  like H6.
 
+config DRAM_SUN50I_H616
+	bool
+	help
+	  Select this dram controller driver for some sun50i platforms,
+	  like H616.
+
+if DRAM_SUN50I_H616
+config DRAM_SUN50I_H616_WRITE_LEVELING
+	bool "H616 DRAM write leveling"
+	---help---
+	  Select this when DRAM on your H616 board needs write leveling.
+
+config DRAM_SUN50I_H616_READ_CALIBRATION
+	bool "H616 DRAM read calibration"
+	---help---
+	  Select this when DRAM on your H616 board needs read calibration.
+
+config DRAM_SUN50I_H616_READ_TRAINING
+	bool "H616 DRAM read training"
+	---help---
+	  Select this when DRAM on your H616 board needs read training.
+
+config DRAM_SUN50I_H616_WRITE_TRAINING
+	bool "H616 DRAM write training"
+	---help---
+	  Select this when DRAM on your H616 board needs write training.
+
+config DRAM_SUN50I_H616_BIT_DELAY_COMPENSATION
+	bool "H616 DRAM bit delay compensation"
+	---help---
+	  Select this when DRAM on your H616 board needs bit delay
+	  compensation.
+
+config DRAM_SUN50I_H616_UNKNOWN_FEATURE
+	bool "H616 DRAM unknown feature"
+	---help---
+	  Select this when DRAM on your H616 board needs this unknown
+	  feature.
+endif
+
 config SUN6I_P2WI
 	bool "Allwinner sun6i internal P2WI controller"
 	help
@@ -424,6 +464,7 @@ config DRAM_CLK
 		       MACH_SUN8I_V3S
 	default 672 if MACH_SUN50I
 	default 744 if MACH_SUN50I_H6
+	default 720 if MACH_SUN50I_H616
 	---help---
 	Set the dram clock speed, valid range 240 - 480 (prior to sun9i),
 	must be a multiple of 24. For the sun9i (A80), the tested values
@@ -440,6 +481,7 @@ endif
 
 config DRAM_ZQ
 	int "sunxi dram zq value"
+	depends on !MACH_SUN50I_H616
 	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || \
 		       MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_A83T
 	default 127 if MACH_SUN7I
@@ -457,6 +499,7 @@ config DRAM_ODT_EN
 	default y if MACH_SUN8I_R40
 	default y if MACH_SUN50I
 	default y if MACH_SUN50I_H6
+	default y if MACH_SUN50I_H616
 	---help---
 	Select this to enable dram odt (on die termination).
 
