@@ -116,10 +116,6 @@ int board_init(void)
 {
 	irq_init();
 
-	/* arch number of the board */
-	/* LEGO didn't register for a unique number and uses da850evm */
-	gd->bd->bi_arch_number = MACH_TYPE_DAVINCI_DA850_EVM;
-
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;
 
