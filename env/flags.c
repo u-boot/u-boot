@@ -563,12 +563,13 @@ int env_flags_validate(const struct env_entry *item, const char *newval,
 		return 1;
 #endif
 
-#ifndef CONFIG_ENV_ACCESS_IGNORE_FORCE
 	if (flag & H_FORCE) {
+#ifdef CONFIG_ENV_ACCESS_IGNORE_FORCE
 		printf("## Error: Can't force access to \"%s\"\n", name);
+#else
 		return 0;
-	}
 #endif
+	}
 	switch (op) {
 	case env_op_delete:
 		if (item->flags & ENV_FLAGS_VARACCESS_PREVENT_DELETE) {
