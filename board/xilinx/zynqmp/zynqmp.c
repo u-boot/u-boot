@@ -648,6 +648,7 @@ int board_late_init(void)
 	if (bootseq >= 0) {
 		bootseq_len = snprintf(NULL, 0, "%i", bootseq);
 		debug("Bootseq len: %x\n", bootseq_len);
+		env_set_hex("bootseq", bootseq);
 	}
 
 	/*
