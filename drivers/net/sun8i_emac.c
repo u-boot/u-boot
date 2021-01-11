@@ -297,30 +297,29 @@ static void sun8i_adjust_link(struct emac_eth_dev *priv,
 	writel(v, priv->mac_reg + EMAC_CTL0);
 }
 
-static int sun8i_emac_set_syscon_ephy(struct emac_eth_dev *priv, u32 *reg)
+static u32 sun8i_emac_set_syscon_ephy(struct emac_eth_dev *priv, u32 reg)
 {
 	if (priv->use_internal_phy) {
 		/* H3 based SoC's that has an Internal 100MBit PHY
 		 * needs to be configured and powered up before use
 		*/
-		*reg &= ~H3_EPHY_DEFAULT_MASK;
-		*reg |=  H3_EPHY_DEFAULT_VALUE;
-		*reg |= priv->phyaddr << H3_EPHY_ADDR_SHIFT;
-		*reg &= ~H3_EPHY_SHUTDOWN;
-		*reg |= H3_EPHY_SELECT;
-	} else
-		/* This is to select External Gigabit PHY on
-		 * the boards with H3 SoC.
-		*/
-		*reg &= ~H3_EPHY_SELECT;
+		reg &= ~H3_EPHY_DEFAULT_MASK;
+		reg |=  H3_EPHY_DEFAULT_VALUE;
+		reg |= priv->phyaddr << H3_EPHY_ADDR_SHIFT;
+		reg &= ~H3_EPHY_SHUTDOWN;
+		return reg | H3_EPHY_SELECT;
+	}
 
-	return 0;
+	/* This is to select External Gigabit PHY on those boards with
+	 * an internal PHY. Does not hurt on other SoCs. Linux does
+	 * it as well.
+	 */
+	return reg & ~H3_EPHY_SELECT;
 }
 
 static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
 				 struct emac_eth_dev *priv)
 {
-	int ret;
 	u32 reg;
 
 	if (priv->variant == R40_GMAC) {
@@ -336,11 +335,7 @@ static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
 
 	reg = readl(priv->sysctl_reg + 0x30);
 
-	if (priv->variant == H3_EMAC || priv->variant == H6_EMAC) {
-		ret = sun8i_emac_set_syscon_ephy(priv, &reg);
-		if (ret)
-			return ret;
-	}
+	reg = sun8i_emac_set_syscon_ephy(priv, reg);
 
 	reg &= ~(SC_ETCS_MASK | SC_EPIT);
 	if (priv->variant == H3_EMAC ||
