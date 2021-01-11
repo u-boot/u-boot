@@ -425,6 +425,11 @@ M:	Diego Rondini <diego.rondini@kynetics.com>
 S:	Maintained
 F:	configs/orangepi_zero_plus2_h3_defconfig
 
+ORANGEPI ZERO 2 BOARD
+M:	Jernej Skrabec <jernej.skrabec@siol.net>
+S:	Maintained
+F:	configs/orangepi_zero2_defconfig
+
 ORANGEPI PC 2 BOARD
 M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained
