@@ -730,7 +730,7 @@ config I2C3_ENABLE
 	See I2C0_ENABLE help text.
 endif
 
-if SUNXI_GEN_SUN6I
+if SUNXI_GEN_SUN6I || SUN50I_GEN_H6
 config R_I2C_ENABLE
 	bool "Enable the PRCM I2C/TWI controller"
 	# This is used for the pmic on H3

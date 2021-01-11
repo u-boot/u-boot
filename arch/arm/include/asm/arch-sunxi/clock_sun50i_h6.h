@@ -297,6 +297,7 @@ struct sunxi_ccm_reg {
 
 /* Module gate/reset shift*/
 #define RESET_SHIFT			(16)
+#define GATE_SHIFT			(0)
 
 /* DRAM clock bit field */
 #define DRAM_MOD_RESET			BIT(30)
