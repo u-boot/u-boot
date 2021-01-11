@@ -85,7 +85,9 @@
 
 /* IO mux settings */
 #define SUN8I_IOMUX_H3		2
-#define SUN8I_IOMUX_R40	5
+#define SUN8I_IOMUX_R40		5
+#define SUN8I_IOMUX_H6		5
+#define SUN8I_IOMUX_H616	2
 #define SUN8I_IOMUX		4
 
 /* H3/A64 EMAC Register's offset */
@@ -517,10 +519,10 @@ static int sun8i_emac_eth_start(struct udevice *dev)
 
 static int parse_phy_pins(struct udevice *dev)
 {
-	struct emac_eth_dev *priv = dev_get_priv(dev);
 	int offset;
 	const char *pin_name;
 	int drive, pull = SUN4I_PINCTRL_NO_PULL, i;
+	u32 iomux;
 
 	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev_of_offset(dev),
 				       "pinctrl-0");
@@ -547,6 +549,21 @@ static int parse_phy_pins(struct udevice *dev)
 	else if (fdt_get_property(gd->fdt_blob, offset, "bias-pull-down", NULL))
 		pull = SUN4I_PINCTRL_PULL_DOWN;
 
+	/*
+	 * The GPIO pinmux value is an integration choice, so depends on the
+	 * SoC, not the EMAC variant.
+	 */
+	if (IS_ENABLED(CONFIG_MACH_SUN8I_H3))
+		iomux = SUN8I_IOMUX_H3;
+	else if (IS_ENABLED(CONFIG_MACH_SUN8I_R40))
+		iomux = SUN8I_IOMUX_R40;
+	else if (IS_ENABLED(CONFIG_MACH_SUN50I_H6))
+		iomux = SUN8I_IOMUX_H6;
+	else if (IS_ENABLED(CONFIG_MACH_SUN50I_H616))
+		iomux = SUN8I_IOMUX_H616;
+	else
+		iomux = SUN8I_IOMUX;
+
 	for (i = 0; ; i++) {
 		int pin;
 
@@ -559,12 +576,7 @@ static int parse_phy_pins(struct udevice *dev)
 		if (pin < 0)
 			continue;
 
-		if (priv->variant == H3_EMAC)
-			sunxi_gpio_set_cfgpin(pin, SUN8I_IOMUX_H3);
-		else if (priv->variant == R40_GMAC || priv->variant == H6_EMAC)
-			sunxi_gpio_set_cfgpin(pin, SUN8I_IOMUX_R40);
-		else
-			sunxi_gpio_set_cfgpin(pin, SUN8I_IOMUX);
+		sunxi_gpio_set_cfgpin(pin, iomux);
 
 		if (drive != ~0)
 			sunxi_gpio_set_drv(pin, drive);
