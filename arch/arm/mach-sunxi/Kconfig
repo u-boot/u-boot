@@ -190,9 +190,10 @@ config MACH_SUNXI_H3_H5
 	select SUPPORT_SPL
 
 # TODO: try out A80's 8GiB DRAM space
+# TODO: H616 supports 4 GiB DRAM space
 config SUNXI_DRAM_MAX_SIZE
 	hex
-	default 0xC0000000 if MACH_SUN50I || MACH_SUN50I_H5 || MACH_SUN50I_H6
+	default 0xC0000000 if MACH_SUN50I || MACH_SUN50I_H5 || MACH_SUN50I_H6 || MACH_SUN50I_H616
 	default 0x80000000
 
 choice
@@ -353,6 +354,12 @@ config MACH_SUN50I_H6
 	select ARM64
 	select PHY_SUN4I_USB
 	select DRAM_SUN50I_H6
+	select SUN50I_GEN_H6
+
+config MACH_SUN50I_H616
+	bool "sun50i (Allwinner H616)"
+	select ARM64
+	select DRAM_SUN50I_H616
 	select SUN50I_GEN_H6
 
 endchoice
@@ -591,6 +598,7 @@ config SYS_CLK_FREQ
 	default 1008000000 if MACH_SUN8I
 	default 1008000000 if MACH_SUN9I
 	default 888000000 if MACH_SUN50I_H6
+	default 1008000000 if MACH_SUN50I_H616
 
 config SYS_CONFIG_NAME
 	default "sun4i" if MACH_SUN4I
@@ -601,6 +609,7 @@ config SYS_CONFIG_NAME
 	default "sun9i" if MACH_SUN9I
 	default "sun50i" if MACH_SUN50I
 	default "sun50i" if MACH_SUN50I_H6
+	default "sun50i" if MACH_SUN50I_H616
 
 config SYS_BOARD
 	default "sunxi"
