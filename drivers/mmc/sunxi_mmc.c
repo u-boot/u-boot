@@ -122,7 +122,7 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 	if (IS_ENABLED(CONFIG_MACH_SUN8I_A83T) && priv->mmc_no != 2)
 		new_mode = false;
 
-#if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_MACH_SUN50I_H6)
+#if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_SUN50I_GEN_H6)
 	calibrate = true;
 #endif
 
@@ -133,7 +133,7 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 #ifdef CONFIG_MACH_SUN9I
 		pll = CCM_MMC_CTRL_PLL_PERIPH0;
 		pll_hz = clock_get_pll4_periph0();
-#elif defined(CONFIG_MACH_SUN50I_H6)
+#elif defined(CONFIG_SUN50I_GEN_H6)
 		pll = CCM_MMC_CTRL_PLL6X2;
 		pll_hz = clock_get_pll6() * 2;
 #else
@@ -249,7 +249,7 @@ static int mmc_config_clock(struct sunxi_mmc_priv *priv, struct mmc *mmc)
 	rval &= ~SUNXI_MMC_CLK_DIVIDER_MASK;
 	writel(rval, &priv->reg->clkcr);
 
-#if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_MACH_SUN50I_H6)
+#if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_SUN50I_GEN_H6)
 	/* A64 supports calibration of delays on MMC controller and we
 	 * have to set delay of zero before starting calibration.
 	 * Allwinner BSP driver sets a delay only in the case of
@@ -530,7 +530,7 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	cfg->host_caps = MMC_MODE_4BIT;
-#if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_MACH_SUN8I) || defined(CONFIG_MACH_SUN50I_H6)
+#if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_MACH_SUN8I) || defined(CONFIG_SUN50I_GEN_H6)
 	if (sdc_no == 2)
 		cfg->host_caps = MMC_MODE_8BIT;
 #endif
@@ -545,7 +545,7 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 
 	/* config ahb clock */
 	debug("init mmc %d clock and io\n", sdc_no);
-#if !defined(CONFIG_MACH_SUN50I_H6)
+#if !defined(CONFIG_SUN50I_GEN_H6)
 	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MMC(sdc_no));
 
 #ifdef CONFIG_SUNXI_GEN_SUN6I
@@ -557,7 +557,7 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 	writel(SUNXI_MMC_COMMON_CLK_GATE | SUNXI_MMC_COMMON_RESET,
 	       SUNXI_MMC_COMMON_BASE + 4 * sdc_no);
 #endif
-#else /* CONFIG_MACH_SUN50I_H6 */
+#else /* CONFIG_SUN50I_GEN_H6 */
 	setbits_le32(&ccm->sd_gate_reset, 1 << sdc_no);
 	/* unassert reset */
 	setbits_le32(&ccm->sd_gate_reset, 1 << (RESET_SHIFT + sdc_no));
