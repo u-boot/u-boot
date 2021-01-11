@@ -82,7 +82,7 @@ config SUN8I_RSB
 config SUNXI_SRAM_ADDRESS
 	hex
 	default 0x10000 if MACH_SUN9I || MACH_SUN50I || MACH_SUN50I_H5
-	default 0x20000 if MACH_SUN50I_H6
+	default 0x20000 if SUN50I_GEN_H6
 	default 0x0
 	---help---
 	Older Allwinner SoCs have their mask boot ROM mapped just below 4GB,
@@ -107,6 +107,15 @@ config SUNXI_GEN_SUN6I
 	Select this for sunxi SoCs which have sun6i like periphery, like
 	separate ahb reset control registers, custom pmic bus, new style
 	watchdog, etc.
+
+config SUN50I_GEN_H6
+	bool
+	select FIT
+	select SPL_LOAD_FIT
+	select SUPPORT_SPL
+	---help---
+	Select this for sunxi SoCs which have H6 like peripherals, clocks
+	and memory map.
 
 config SUNXI_DRAM_DW
 	bool
@@ -302,11 +311,9 @@ config MACH_SUN50I_H5
 config MACH_SUN50I_H6
 	bool "sun50i (Allwinner H6)"
 	select ARM64
-	select SUPPORT_SPL
-	select FIT
 	select PHY_SUN4I_USB
-	select SPL_LOAD_FIT
 	select DRAM_SUN50I_H6
+	select SUN50I_GEN_H6
 
 endchoice
 
@@ -756,7 +763,7 @@ config VIDEO_SUNXI
 	depends on !MACH_SUN8I_V3S
 	depends on !MACH_SUN9I
 	depends on !MACH_SUN50I
-	depends on !MACH_SUN50I_H6
+	depends on !SUN50I_GEN_H6
 	select VIDEO
 	imply VIDEO_DT_SIMPLEFB
 	default y
@@ -989,7 +996,7 @@ config SPL_STACK_R_ADDR
 	default 0x4fe00000 if MACH_SUN8I
 	default 0x2fe00000 if MACH_SUN9I
 	default 0x4fe00000 if MACH_SUN50I
-	default 0x4fe00000 if MACH_SUN50I_H6
+	default 0x4fe00000 if SUN50I_GEN_H6
 
 config SPL_SPI_SUNXI
 	bool "Support for SPI Flash on Allwinner SoCs in SPL"
