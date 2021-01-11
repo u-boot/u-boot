@@ -94,6 +94,14 @@ def GetOutputFilename(fname):
     """
     return os.path.join(outdir, fname)
 
+def GetOutputDir():
+    """Return the current output directory
+
+    Returns:
+        str: The output directory
+    """
+    return outdir
+
 def _FinaliseForTest():
     """Remove the output directory (for use by tests)"""
     global outdir
@@ -415,8 +423,6 @@ def WriteFile(fname, data, binary=True):
 def GetBytes(byte, size):
     """Get a string of bytes of a given size
 
-    This handles the unfortunate different between Python 2 and Python 2.
-
     Args:
         byte: Numeric byte value to use
         size: Size of bytes/string to return
@@ -424,81 +430,7 @@ def GetBytes(byte, size):
     Returns:
         A bytes type with 'byte' repeated 'size' times
     """
-    if sys.version_info[0] >= 3:
-        data = bytes([byte]) * size
-    else:
-        data = chr(byte) * size
-    return data
-
-def ToUnicode(val):
-    """Make sure a value is a unicode string
-
-    This allows some amount of compatibility between Python 2 and Python3. For
-    the former, it returns a unicode object.
-
-    Args:
-        val: string or unicode object
-
-    Returns:
-        unicode version of val
-    """
-    if sys.version_info[0] >= 3:
-        return val
-    return val if isinstance(val, unicode) else val.decode('utf-8')
-
-def FromUnicode(val):
-    """Make sure a value is a non-unicode string
-
-    This allows some amount of compatibility between Python 2 and Python3. For
-    the former, it converts a unicode object to a string.
-
-    Args:
-        val: string or unicode object
-
-    Returns:
-        non-unicode version of val
-    """
-    if sys.version_info[0] >= 3:
-        return val
-    return val if isinstance(val, str) else val.encode('utf-8')
-
-def ToByte(ch):
-    """Convert a character to an ASCII value
-
-    This is useful because in Python 2 bytes is an alias for str, but in
-    Python 3 they are separate types. This function converts the argument to
-    an ASCII value in either case.
-
-    Args:
-        ch: A string (Python 2) or byte (Python 3) value
-
-    Returns:
-        integer ASCII value for ch
-    """
-    return ord(ch) if type(ch) == str else ch
-
-def ToChar(byte):
-    """Convert a byte to a character
-
-    This is useful because in Python 2 bytes is an alias for str, but in
-    Python 3 they are separate types. This function converts an ASCII value to
-    a value with the appropriate type in either case.
-
-    Args:
-        byte: A byte or str value
-    """
-    return chr(byte) if type(byte) != str else byte
-
-def ToChars(byte_list):
-    """Convert a list of bytes to a str/bytes type
-
-    Args:
-        byte_list: List of ASCII values representing the string
-
-    Returns:
-        string made by concatenating all the ASCII values
-    """
-    return ''.join([chr(byte) for byte in byte_list])
+    return bytes([byte]) * size
 
 def ToBytes(string):
     """Convert a str type into a bytes type
@@ -507,12 +439,9 @@ def ToBytes(string):
         string: string to convert
 
     Returns:
-        Python 3: A bytes type
-        Python 2: A string type
+        A bytes type
     """
-    if sys.version_info[0] >= 3:
-        return string.encode('utf-8')
-    return string
+    return string.encode('utf-8')
 
 def ToString(bval):
     """Convert a bytes type into a str type

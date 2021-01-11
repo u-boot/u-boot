@@ -492,7 +492,7 @@ ulong sata_read(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
 static ulong sata_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		       void *buffer)
 {
-	struct sil_sata_priv *priv = dev_get_platdata(dev);
+	struct sil_sata_priv *priv = dev_get_plat(dev);
 	int port_number = priv->port_num;
 	struct sil_sata *sata = priv->sil_sata_desc[port_number];
 #endif
@@ -517,7 +517,7 @@ ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, const void *buffer)
 ulong sata_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		 const void *buffer)
 {
-	struct sil_sata_priv *priv = dev_get_platdata(dev);
+	struct sil_sata_priv *priv = dev_get_plat(dev);
 	int port_number = priv->port_num;
 	struct sil_sata *sata = priv->sil_sata_desc[port_number];
 #endif
@@ -542,7 +542,7 @@ static int sil_init_sata(int dev)
 #else
 static int sil_init_sata(struct udevice *uc_dev, int dev)
 {
-	struct sil_sata_priv *priv = dev_get_platdata(uc_dev);
+	struct sil_sata_priv *priv = dev_get_plat(uc_dev);
 #endif
 	struct sil_sata *sata;
 	void *port;
@@ -708,8 +708,8 @@ int scan_sata(int dev)
 #else
 static int scan_sata(struct udevice *blk_dev, int dev)
 {
-	struct blk_desc *desc = dev_get_uclass_platdata(blk_dev);
-	struct sil_sata_priv *priv = dev_get_platdata(blk_dev);
+	struct blk_desc *desc = dev_get_uclass_plat(blk_dev);
+	struct sil_sata_priv *priv = dev_get_plat(blk_dev);
 	struct sil_sata *sata = priv->sil_sata_desc[dev];
 #endif
 	unsigned char serial[ATA_ID_SERNO_LEN + 1];
@@ -772,7 +772,7 @@ U_BOOT_DRIVER(sata_sil_driver) = {
 	.name = "sata_sil_blk",
 	.id = UCLASS_BLK,
 	.ops = &sata_sil_blk_ops,
-	.platdata_auto_alloc_size = sizeof(struct sil_sata_priv),
+	.plat_auto	= sizeof(struct sil_sata_priv),
 };
 
 static int sil_unbind_device(struct udevice *dev)
@@ -920,7 +920,7 @@ U_BOOT_DRIVER(sil_ahci_pci) = {
 	.ops = &sata_sil_ops,
 	.probe = sil_pci_probe,
 	.remove = sil_pci_remove,
-	.priv_auto_alloc_size = sizeof(struct sil_sata_priv),
+	.priv_auto	= sizeof(struct sil_sata_priv),
 };
 
 U_BOOT_PCI_DEVICE(sil_ahci_pci, supported);

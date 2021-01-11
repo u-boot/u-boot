@@ -298,7 +298,7 @@ static int i2c_gpio_probe(struct udevice *dev, uint chip, uint chip_flags)
 	i2c_gpio_send_stop(bus, delay);
 
 	debug("%s: bus: %d (%s) chip: %x flags: %x ret: %d\n",
-	      __func__, dev->seq, dev->name, chip, chip_flags, ret);
+	      __func__, dev_seq(dev), dev->name, chip, chip_flags, ret);
 
 	return ret;
 }
@@ -329,7 +329,7 @@ static int i2c_gpio_drv_probe(struct udevice *dev)
 	return 0;
 }
 
-static int i2c_gpio_ofdata_to_platdata(struct udevice *dev)
+static int i2c_gpio_of_to_plat(struct udevice *dev)
 {
 	struct i2c_gpio_bus *bus = dev_get_priv(dev);
 	int ret;
@@ -371,7 +371,7 @@ U_BOOT_DRIVER(i2c_gpio) = {
 	.id	= UCLASS_I2C,
 	.of_match = i2c_gpio_ids,
 	.probe	= i2c_gpio_drv_probe,
-	.ofdata_to_platdata = i2c_gpio_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct i2c_gpio_bus),
+	.of_to_plat = i2c_gpio_of_to_plat,
+	.priv_auto	= sizeof(struct i2c_gpio_bus),
 	.ops	= &i2c_gpio_ops,
 };

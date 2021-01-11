@@ -885,7 +885,7 @@ static int meson_clk_probe(struct udevice *dev)
 {
 	struct meson_clk *priv = dev_get_priv(dev);
 
-	priv->map = syscon_node_to_regmap(dev_get_parent(dev)->node);
+	priv->map = syscon_node_to_regmap(dev_ofnode(dev_get_parent(dev)));
 	if (IS_ERR(priv->map))
 		return PTR_ERR(priv->map);
 
@@ -919,7 +919,7 @@ U_BOOT_DRIVER(meson_clk) = {
 	.name		= "meson_clk",
 	.id		= UCLASS_CLK,
 	.of_match	= meson_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct meson_clk),
+	.priv_auto	= sizeof(struct meson_clk),
 	.ops		= &meson_clk_ops,
 	.probe		= meson_clk_probe,
 };

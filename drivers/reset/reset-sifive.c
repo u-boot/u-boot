@@ -9,6 +9,7 @@
 #include <reset-uclass.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <linux/bitops.h>
 
@@ -97,7 +98,7 @@ int sifive_reset_bind(struct udevice *dev, ulong count)
 	}
 	priv = malloc(sizeof(struct sifive_reset_priv));
 	priv->nr_reset = count;
-	rst_dev->priv = priv;
+	dev_set_priv(rst_dev, priv);
 
 	return 0;
 }
@@ -114,5 +115,5 @@ U_BOOT_DRIVER(sifive_reset) = {
 	.id		= UCLASS_RESET,
 	.ops		= &sifive_reset_ops,
 	.probe		= sifive_reset_probe,
-	.priv_auto_alloc_size = sizeof(struct sifive_reset_priv),
+	.priv_auto	= sizeof(struct sifive_reset_priv),
 };

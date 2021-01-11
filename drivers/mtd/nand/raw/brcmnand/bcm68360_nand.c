@@ -108,7 +108,7 @@ U_BOOT_DRIVER(bcm68360_nand) = {
 	.id = UCLASS_MTD,
 	.of_match = bcm68360_nand_dt_ids,
 	.probe = bcm68360_nand_probe,
-	.priv_auto_alloc_size = sizeof(struct bcm68360_nand_soc),
+	.priv_auto	= sizeof(struct bcm68360_nand_soc),
 };
 
 void board_nand_init(void)
@@ -117,7 +117,7 @@ void board_nand_init(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_MTD,
-					  DM_GET_DRIVER(bcm68360_nand), &dev);
+					  DM_DRIVER_GET(bcm68360_nand), &dev);
 	if (ret && ret != -ENODEV)
 		pr_err("Failed to initialize %s. (error %d)\n", dev->name,
 		       ret);

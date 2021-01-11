@@ -602,7 +602,7 @@ static void acpi_device_write_i2c(struct acpi_ctx *ctx,
 static int acpi_device_set_i2c(const struct udevice *dev, struct acpi_i2c *i2c,
 			       const char *scope)
 {
-	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+	struct dm_i2c_chip *chip = dev_get_parent_plat(dev);
 	struct udevice *bus = dev_get_parent(dev);
 
 	memset(i2c, '\0', sizeof(*i2c));
@@ -724,10 +724,10 @@ static void acpi_device_write_spi(struct acpi_ctx *ctx, const struct acpi_spi *s
 static int acpi_device_set_spi(const struct udevice *dev, struct acpi_spi *spi,
 			       const char *scope)
 {
-	struct dm_spi_slave_platdata *plat;
+	struct dm_spi_slave_plat *plat;
 	struct spi_slave *slave = dev_get_parent_priv(dev);
 
-	plat = dev_get_parent_platdata(slave->dev);
+	plat = dev_get_parent_plat(slave->dev);
 	memset(spi, '\0', sizeof(*spi));
 	spi->device_select = plat->cs;
 	spi->device_select_polarity = SPI_POLARITY_LOW;
@@ -784,16 +784,6 @@ static const char *acpi_name_from_id(enum uclass_id id)
 	}
 }
 
-static int acpi_check_seq(const struct udevice *dev)
-{
-	if (dev->req_seq == -1) {
-		log_warning("Device '%s' has no seq\n", dev->name);
-		return log_msg_ret("no seq", -ENXIO);
-	}
-
-	return dev->req_seq;
-}
-
 /* If you change this function, add test cases to dm_test_acpi_get_name() */
 int acpi_device_infer_name(const struct udevice *dev, char *out_name)
 {
@@ -826,29 +816,18 @@ int acpi_device_infer_name(const struct udevice *dev, char *out_name)
 		}
 	}
 	if (!name) {
-		int num;
-
 		switch (id) {
 		/* DSDT: acpi/lpss.asl */
 		case UCLASS_SERIAL:
-			num = acpi_check_seq(dev);
-			if (num < 0)
-				return num;
-			sprintf(out_name, "URT%d", num);
+			sprintf(out_name, "URT%d", dev_seq(dev));
 			name = out_name;
 			break;
 		case UCLASS_I2C:
-			num = acpi_check_seq(dev);
-			if (num < 0)
-				return num;
-			sprintf(out_name, "I2C%d", num);
+			sprintf(out_name, "I2C%d", dev_seq(dev));
 			name = out_name;
 			break;
 		case UCLASS_SPI:
-			num = acpi_check_seq(dev);
-			if (num < 0)
-				return num;
-			sprintf(out_name, "SPI%d", num);
+			sprintf(out_name, "SPI%d", dev_seq(dev));
 			name = out_name;
 			break;
 		default:

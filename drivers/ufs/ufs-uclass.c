@@ -12,5 +12,5 @@
 UCLASS_DRIVER(ufs) = {
 	.id	= UCLASS_UFS,
 	.name	= "ufs",
-	.per_device_auto_alloc_size = sizeof(struct ufs_hba),
+	.per_device_auto	= sizeof(struct ufs_hba),
 };

@@ -9,8 +9,9 @@
 #ifndef _FAT_H_
 #define _FAT_H_
 
-#include <asm/byteorder.h>
 #include <fs.h>
+#include <asm/byteorder.h>
+#include <asm/cache.h>
 
 struct disk_partition;
 
@@ -21,7 +22,6 @@ struct disk_partition;
 
 #define MAX_CLUSTSIZE	CONFIG_FS_FAT_MAX_CLUSTSIZE
 
-#define DIRENTSPERBLOCK	(mydata->sect_size / sizeof(dir_entry))
 #define DIRENTSPERCLUST	((mydata->clust_size * mydata->sect_size) / \
 			 sizeof(dir_entry))
 
@@ -179,6 +179,9 @@ typedef struct {
 	int	fats;		/* Number of FATs */
 } fsdata;
 
+struct fat_itr;
+typedef struct fat_itr fat_itr;
+
 static inline u32 clust_to_sect(fsdata *fsdata, u32 clust)
 {
 	return fsdata->data_begin + clust * fsdata->clust_size;
@@ -208,4 +211,17 @@ void fat_closedir(struct fs_dir_stream *dirs);
 int fat_unlink(const char *filename);
 int fat_mkdir(const char *dirname);
 void fat_close(void);
+void *fat_next_cluster(fat_itr *itr, unsigned int *nbytes);
+
+/**
+ * fat_uuid() - get FAT volume ID
+ *
+ * The FAT volume ID returned in @uuid_str as hexadecimal number in XXXX-XXXX
+ * format.
+ *
+ * @uuid_str:	caller allocated buffer of at least 10 bytes for the volume ID
+ * Return:	0 on success
+ */
+int fat_uuid(char *uuid_str);
+
 #endif /* _FAT_H_ */

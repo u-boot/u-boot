@@ -128,7 +128,7 @@ static int sandbox_testproc_probe(struct udevice *dev)
 	struct sandbox_test_devdata *ddata;
 	int ret;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	ddata = dev_get_priv(dev);
 	if (!ddata) {
 		debug("%s: platform private data missing\n", uc_pdata->name);
@@ -151,7 +151,7 @@ static int sandbox_testproc_init(struct udevice *dev)
 	struct dm_rproc_uclass_pdata *uc_pdata;
 	int ret;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	ret = sandbox_dev_move_to_state(dev, sb_init);
 
@@ -173,7 +173,7 @@ static int sandbox_testproc_reset(struct udevice *dev)
 	struct dm_rproc_uclass_pdata *uc_pdata;
 	int ret;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	ret = sandbox_dev_move_to_state(dev, sb_reset);
 
@@ -197,7 +197,7 @@ static int sandbox_testproc_load(struct udevice *dev, ulong addr, ulong size)
 	struct dm_rproc_uclass_pdata *uc_pdata;
 	int ret;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	ret = sandbox_dev_move_to_state(dev, sb_loaded);
 
@@ -220,7 +220,7 @@ static int sandbox_testproc_start(struct udevice *dev)
 	struct dm_rproc_uclass_pdata *uc_pdata;
 	int ret;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	ret = sandbox_dev_move_to_state(dev, sb_running);
 
@@ -242,7 +242,7 @@ static int sandbox_testproc_stop(struct udevice *dev)
 	struct dm_rproc_uclass_pdata *uc_pdata;
 	int ret;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	ret = sandbox_dev_move_to_state(dev, sb_init);
 
@@ -265,7 +265,7 @@ static int sandbox_testproc_is_running(struct udevice *dev)
 	struct sandbox_test_devdata *ddata;
 	int ret = 1;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	ddata = dev_get_priv(dev);
 
 	if (ddata->current_state == sb_running)
@@ -287,7 +287,7 @@ static int sandbox_testproc_ping(struct udevice *dev)
 	struct sandbox_test_devdata *ddata;
 	int ret;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	ddata = dev_get_priv(dev);
 
 	if (ddata->current_state == sb_running)
@@ -343,7 +343,7 @@ U_BOOT_DRIVER(sandbox_testproc) = {
 	.id = UCLASS_REMOTEPROC,
 	.ops = &sandbox_testproc_ops,
 	.probe = sandbox_testproc_probe,
-	.priv_auto_alloc_size = sizeof(struct sandbox_test_devdata),
+	.priv_auto	= sizeof(struct sandbox_test_devdata),
 };
 
 /* TODO(nm@ti.com): Remove this along with non-DT support */
@@ -352,7 +352,7 @@ static struct dm_rproc_uclass_pdata proc_3_test = {
 	.mem_type = RPROC_INTERNAL_MEMORY_MAPPED,
 };
 
-U_BOOT_DEVICE(proc_3_demo) = {
+U_BOOT_DRVINFO(proc_3_demo) = {
 	.name = "sandbox_test_proc",
-	.platdata = &proc_3_test,
+	.plat = &proc_3_test,
 };

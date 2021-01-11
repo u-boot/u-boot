@@ -212,7 +212,7 @@ struct dp_hdmi_dev {
 };
 
 /* platform data for the driver model */
-struct nx_display_platdata {
+struct nx_display_plat {
 	int module;
 	struct dp_sync_info sync;
 	struct dp_ctrl_info ctrl;
@@ -267,7 +267,7 @@ int dp_plane_wait_vsync(int module, int layer, int fps);
 
 #if defined CONFIG_SPL_BUILD ||	\
 	(!defined(CONFIG_DM) && !defined(CONFIG_OF_CONTROL))
-int nx_display_probe(struct nx_display_platdata *plat);
+int nx_display_probe(struct nx_display_plat *plat);
 #endif
 
 #endif

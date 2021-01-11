@@ -348,7 +348,7 @@ int board_init(void)
 
 		uclass_find_first_device(UCLASS_VIDEO, &dev);
 		if (dev) {
-			struct atmel_lcd_platdata *plat = dev_get_platdata(dev);
+			struct atmel_lcd_plat *plat = dev_get_plat(dev);
 
 			plat->timing_index = 1;
 		}
@@ -416,11 +416,11 @@ void reset_phy(void)
 {
 }
 
-static struct atmel_serial_platdata at91sam9260_serial_plat = {
+static struct atmel_serial_plat at91sam9260_serial_plat = {
 	.base_addr = ATMEL_BASE_DBGU,
 };
 
-U_BOOT_DEVICE(at91sam9260_serial) = {
+U_BOOT_DRVINFO(at91sam9260_serial) = {
 	.name	= "serial_atmel",
-	.platdata = &at91sam9260_serial_plat,
+	.plat = &at91sam9260_serial_plat,
 };

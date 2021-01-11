@@ -673,10 +673,10 @@ int nvme_scan_namespace(void)
 static int nvme_blk_probe(struct udevice *udev)
 {
 	struct nvme_dev *ndev = dev_get_priv(udev->parent);
-	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+	struct blk_desc *desc = dev_get_uclass_plat(udev);
 	struct nvme_ns *ns = dev_get_priv(udev);
 	u8 flbas;
-	struct pci_child_platdata *pplat;
+	struct pci_child_plat *pplat;
 	struct nvme_id_ns *id;
 
 	id = memalign(ndev->page_size, sizeof(struct nvme_id_ns));
@@ -704,7 +704,7 @@ static int nvme_blk_probe(struct udevice *udev)
 	desc->log2blksz = ns->lba_shift;
 	desc->blksz = 1 << ns->lba_shift;
 	desc->bdev = udev;
-	pplat = dev_get_parent_platdata(udev->parent);
+	pplat = dev_get_parent_plat(udev->parent);
 	sprintf(desc->vendor, "0x%.4x", pplat->vendor);
 	memcpy(desc->product, ndev->serial, sizeof(ndev->serial));
 	memcpy(desc->revision, ndev->firmware_rev, sizeof(ndev->firmware_rev));
@@ -719,7 +719,7 @@ static ulong nvme_blk_rw(struct udevice *udev, lbaint_t blknr,
 	struct nvme_ns *ns = dev_get_priv(udev);
 	struct nvme_dev *dev = ns->dev;
 	struct nvme_command c;
-	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+	struct blk_desc *desc = dev_get_uclass_plat(udev);
 	int status;
 	u64 prp2;
 	u64 total_len = blkcnt << desc->log2blksz;
@@ -795,7 +795,7 @@ U_BOOT_DRIVER(nvme_blk) = {
 	.id	= UCLASS_BLK,
 	.probe	= nvme_blk_probe,
 	.ops	= &nvme_blk_ops,
-	.priv_auto_alloc_size = sizeof(struct nvme_ns),
+	.priv_auto	= sizeof(struct nvme_ns),
 };
 
 static int nvme_bind(struct udevice *udev)
@@ -869,7 +869,7 @@ U_BOOT_DRIVER(nvme) = {
 	.id	= UCLASS_NVME,
 	.bind	= nvme_bind,
 	.probe	= nvme_probe,
-	.priv_auto_alloc_size = sizeof(struct nvme_dev),
+	.priv_auto	= sizeof(struct nvme_dev),
 };
 
 struct pci_device_id nvme_supported[] = {

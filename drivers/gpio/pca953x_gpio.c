@@ -76,7 +76,7 @@ struct pca953x_info {
 static int pca953x_write_single(struct udevice *dev, int reg, u8 val,
 				int offset)
 {
-	struct pca953x_info *info = dev_get_platdata(dev);
+	struct pca953x_info *info = dev_get_plat(dev);
 	int bank_shift = fls((info->gpio_count - 1) / BANK_SZ);
 	int off = offset / BANK_SZ;
 	int ret = 0;
@@ -93,7 +93,7 @@ static int pca953x_write_single(struct udevice *dev, int reg, u8 val,
 static int pca953x_read_single(struct udevice *dev, int reg, u8 *val,
 			       int offset)
 {
-	struct pca953x_info *info = dev_get_platdata(dev);
+	struct pca953x_info *info = dev_get_plat(dev);
 	int bank_shift = fls((info->gpio_count - 1) / BANK_SZ);
 	int off = offset / BANK_SZ;
 	int ret;
@@ -112,7 +112,7 @@ static int pca953x_read_single(struct udevice *dev, int reg, u8 *val,
 
 static int pca953x_read_regs(struct udevice *dev, int reg, u8 *val)
 {
-	struct pca953x_info *info = dev_get_platdata(dev);
+	struct pca953x_info *info = dev_get_plat(dev);
 	int ret = 0;
 
 	if (info->gpio_count <= 8) {
@@ -137,7 +137,7 @@ static int pca953x_read_regs(struct udevice *dev, int reg, u8 *val)
 
 static int pca953x_write_regs(struct udevice *dev, int reg, u8 *val)
 {
-	struct pca953x_info *info = dev_get_platdata(dev);
+	struct pca953x_info *info = dev_get_plat(dev);
 	int ret = 0;
 
 	if (info->gpio_count <= 8) {
@@ -160,7 +160,7 @@ static int pca953x_write_regs(struct udevice *dev, int reg, u8 *val)
 
 static int pca953x_is_output(struct udevice *dev, int offset)
 {
-	struct pca953x_info *info = dev_get_platdata(dev);
+	struct pca953x_info *info = dev_get_plat(dev);
 
 	int bank = offset / BANK_SZ;
 	int off = offset % BANK_SZ;
@@ -185,7 +185,7 @@ static int pca953x_get_value(struct udevice *dev, uint offset)
 
 static int pca953x_set_value(struct udevice *dev, uint offset, int value)
 {
-	struct pca953x_info *info = dev_get_platdata(dev);
+	struct pca953x_info *info = dev_get_plat(dev);
 	int bank = offset / BANK_SZ;
 	int off = offset % BANK_SZ;
 	u8 val;
@@ -207,7 +207,7 @@ static int pca953x_set_value(struct udevice *dev, uint offset, int value)
 
 static int pca953x_set_direction(struct udevice *dev, uint offset, int dir)
 {
-	struct pca953x_info *info = dev_get_platdata(dev);
+	struct pca953x_info *info = dev_get_plat(dev);
 	int bank = offset / BANK_SZ;
 	int off = offset % BANK_SZ;
 	u8 val;
@@ -271,7 +271,7 @@ static const struct dm_gpio_ops pca953x_ops = {
 
 static int pca953x_probe(struct udevice *dev)
 {
-	struct pca953x_info *info = dev_get_platdata(dev);
+	struct pca953x_info *info = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	char name[32], label[8], *str;
 	int addr;
@@ -385,6 +385,6 @@ U_BOOT_DRIVER(pca953x) = {
 	.id		= UCLASS_GPIO,
 	.ops		= &pca953x_ops,
 	.probe		= pca953x_probe,
-	.platdata_auto_alloc_size = sizeof(struct pca953x_info),
+	.plat_auto	= sizeof(struct pca953x_info),
 	.of_match	= pca953x_ids,
 };

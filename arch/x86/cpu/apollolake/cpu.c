@@ -63,7 +63,7 @@ static int apl_get_info(const struct udevice *dev, struct cpu_info *info)
 
 static int acpi_cpu_fill_ssdt(const struct udevice *dev, struct acpi_ctx *ctx)
 {
-	uint core_id = dev->req_seq;
+	uint core_id = dev_seq(dev);
 	int cores_per_package;
 	int ret;
 

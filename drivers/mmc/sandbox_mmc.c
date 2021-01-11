@@ -108,14 +108,14 @@ static const struct dm_mmc_ops sandbox_mmc_ops = {
 
 int sandbox_mmc_probe(struct udevice *dev)
 {
-	struct sandbox_mmc_plat *plat = dev_get_platdata(dev);
+	struct sandbox_mmc_plat *plat = dev_get_plat(dev);
 
 	return mmc_init(&plat->mmc);
 }
 
 int sandbox_mmc_bind(struct udevice *dev)
 {
-	struct sandbox_mmc_plat *plat = dev_get_platdata(dev);
+	struct sandbox_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_config *cfg = &plat->cfg;
 
 	cfg->name = dev->name;
@@ -148,5 +148,5 @@ U_BOOT_DRIVER(mmc_sandbox) = {
 	.bind		= sandbox_mmc_bind,
 	.unbind		= sandbox_mmc_unbind,
 	.probe		= sandbox_mmc_probe,
-	.platdata_auto_alloc_size = sizeof(struct sandbox_mmc_plat),
+	.plat_auto	= sizeof(struct sandbox_mmc_plat),
 };

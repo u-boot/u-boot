@@ -373,7 +373,7 @@ static int serval_initialize(struct serval_private *priv)
 static int serval_write_hwaddr(struct udevice *dev)
 {
 	struct serval_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	mscc_mac_table_add(priv->regs[ANA], serval_regs_ana_table,
 			   pdata->enetaddr, PGID_UNICAST);
@@ -386,7 +386,7 @@ static int serval_write_hwaddr(struct udevice *dev)
 static int serval_start(struct udevice *dev)
 {
 	struct serval_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const unsigned char mac[ETH_ALEN] = { 0xff, 0xff, 0xff, 0xff, 0xff,
 					      0xff };
 	int ret;
@@ -604,6 +604,6 @@ U_BOOT_DRIVER(serval) = {
 	.probe				= serval_probe,
 	.remove				= serval_remove,
 	.ops				= &serval_ops,
-	.priv_auto_alloc_size		= sizeof(struct serval_private),
-	.platdata_auto_alloc_size	= sizeof(struct eth_pdata),
+	.priv_auto		= sizeof(struct serval_private),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

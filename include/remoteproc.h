@@ -34,7 +34,7 @@ enum rproc_mem_type {
  * @mem_type: one of 'enum rproc_mem_type'
  * @driver_plat_data: driver specific platform data that may be needed.
  *
- * This can be accessed with dev_get_uclass_platdata() for any UCLASS_REMOTEPROC
+ * This can be accessed with dev_get_uclass_plat() for any UCLASS_REMOTEPROC
  * device.
  *
  */

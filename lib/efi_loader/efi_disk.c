@@ -376,6 +376,23 @@ static efi_status_t efi_disk_add_dev(
 	/* Fill in object data */
 	if (part) {
 		struct efi_device_path *node = efi_dp_part_node(desc, part);
+		struct efi_handler *handler;
+		void *protocol_interface;
+
+		/* Parent must expose EFI_BLOCK_IO_PROTOCOL */
+		ret = efi_search_protocol(parent, &efi_block_io_guid, &handler);
+		if (ret != EFI_SUCCESS)
+			goto error;
+
+		/*
+		 * Link the partition (child controller) to the block device
+		 * (controller).
+		 */
+		ret = efi_protocol_open(handler, &protocol_interface, NULL,
+					&diskobj->header,
+					EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER);
+		if (ret != EFI_SUCCESS)
+				goto error;
 
 		diskobj->dp = efi_dp_append_node(dp_parent, node);
 		efi_free_pool(node);
@@ -453,6 +470,9 @@ static efi_status_t efi_disk_add_dev(
 		}
 	}
 	return EFI_SUCCESS;
+error:
+	efi_delete_handle(&diskobj->header);
+	return ret;
 }
 
 /**
@@ -527,7 +547,7 @@ efi_status_t efi_disk_register(void)
 
 	for (uclass_first_device_check(UCLASS_BLK, &dev); dev;
 	     uclass_next_device_check(&dev)) {
-		struct blk_desc *desc = dev_get_uclass_platdata(dev);
+		struct blk_desc *desc = dev_get_uclass_plat(dev);
 		const char *if_typename = blk_get_if_type_name(desc->if_type);
 
 		/* Add block device for the full device */

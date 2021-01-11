@@ -7,6 +7,17 @@ config HAVE_ARCH_IOREMAP
 config NEEDS_MANUAL_RELOC
 	bool
 
+config LINKER_LIST_ALIGN
+	int
+	default 32 if SANDBOX
+	default 8 if ARM64 || X86
+	default 4
+	help
+	  Force the each linker list to be aligned to this boundary. This
+	  is required if ll_entry_get() is used, since otherwise the linker
+	  may add padding into the table, thus breaking it.
+	  See linker_lists.rst for full details.
+
 choice
 	prompt "Architecture select"
 	default SANDBOX
@@ -112,6 +123,7 @@ config SANDBOX
 	imply BITREVERSE
 	select BLOBLIST
 	imply CMD_DM
+	imply CMD_EXCEPTION
 	imply CMD_GETTIME
 	imply CMD_HASH
 	imply CMD_IO
@@ -146,6 +158,8 @@ config SANDBOX
 	imply ACPI_PMC_SANDBOX
 	imply CMD_PMC
 	imply CMD_CLONE
+	imply SILENT_CONSOLE
+	imply BOOTARGS_SUBST
 
 config SH
 	bool "SuperH architecture"

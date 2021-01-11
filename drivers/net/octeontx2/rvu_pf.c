@@ -20,7 +20,7 @@ extern struct udevice *rvu_af_dev;
 int rvu_pf_init(struct rvu_pf *rvu)
 {
 	struct nix *nix;
-	struct eth_pdata *pdata = dev_get_platdata(rvu->dev);
+	struct eth_pdata *pdata = dev_get_plat(rvu->dev);
 
 	debug("%s: Allocating nix lf\n", __func__);
 	nix = nix_lf_alloc(rvu->dev);
@@ -34,7 +34,7 @@ int rvu_pf_init(struct rvu_pf *rvu)
 	/* to make post_probe happy */
 	if (is_valid_ethaddr(nix->lmac->mac_addr)) {
 		memcpy(pdata->enetaddr, nix->lmac->mac_addr, 6);
-		eth_env_set_enetaddr_by_index("eth", rvu->dev->seq,
+		eth_env_set_enetaddr_by_index("eth", dev_seq(rvu->dev),
 					      pdata->enetaddr);
 	}
 
@@ -59,7 +59,7 @@ int rvu_pf_probe(struct udevice *dev)
 	debug("%s: name: %s\n", __func__, dev->name);
 
 	rvu->pf_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2, PCI_REGION_MEM);
-	rvu->pfid = dev->seq + 1; // RVU PF's start from 1;
+	rvu->pfid = dev_seq(dev) + 1; // RVU PF's start from 1;
 	rvu->dev = dev;
 	if (!rvu_af_dev) {
 		printf("%s: Error: Could not find RVU AF device\n",
@@ -80,7 +80,7 @@ int rvu_pf_probe(struct udevice *dev)
 	 * modify device name to include index/sequence number,
 	 * for better readability, this is 1:1 mapping with eth0/1/2.. names.
 	 */
-	sprintf(name, "rvu_pf#%d", dev->seq);
+	sprintf(name, "rvu_pf#%d", dev_seq(dev));
 	device_set_name(dev, name);
 	debug("%s: name: %s\n", __func__, dev->name);
 	return err;
@@ -104,8 +104,8 @@ U_BOOT_DRIVER(rvu_pf) = {
 	.probe	= rvu_pf_probe,
 	.remove = rvu_pf_remove,
 	.ops    = &nix_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct rvu_pf),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct rvu_pf),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 static struct pci_device_id rvu_pf_supported[] = {

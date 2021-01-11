@@ -164,7 +164,7 @@ static int intel_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
-static int intel_gpio_ofdata_to_platdata(struct udevice *dev)
+static int intel_gpio_of_to_plat(struct udevice *dev)
 {
 	struct gpio_dev_priv *upriv = dev_get_uclass_priv(dev);
 	struct intel_pinctrl_priv *pinctrl_priv = dev_get_priv(dev->parent);
@@ -188,16 +188,18 @@ static const struct dm_gpio_ops gpio_intel_ops = {
 #endif
 };
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct udevice_id intel_intel_gpio_ids[] = {
 	{ .compatible = "intel,gpio" },
 	{ }
 };
+#endif
 
 U_BOOT_DRIVER(intel_gpio) = {
 	.name	= "intel_gpio",
 	.id	= UCLASS_GPIO,
-	.of_match = intel_intel_gpio_ids,
+	.of_match = of_match_ptr(intel_intel_gpio_ids),
 	.ops	= &gpio_intel_ops,
-	.ofdata_to_platdata	= intel_gpio_ofdata_to_platdata,
+	.of_to_plat	= intel_gpio_of_to_plat,
 	.probe	= intel_gpio_probe,
 };

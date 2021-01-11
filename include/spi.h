@@ -39,17 +39,30 @@
 
 #define SPI_DEFAULT_WORDLEN	8
 
-/* TODO(sjg@chromium.org): Remove this and use max_hz from struct spi_slave */
+/**
+ * struct dm_spi_bus - SPI bus info
+ *
+ * This contains information about a SPI bus. To obtain this structure, use
+ * dev_get_uclass_priv(bus) where bus is the SPI bus udevice.
+ *
+ * @max_hz:	Maximum speed that the bus can tolerate.
+ * @speed:	Current bus speed. This is 0 until the bus is first claimed.
+ * @mode:	Current bus mode. This is 0 until the bus is first claimed.
+ *
+ * TODO(sjg@chromium.org): Remove this and use max_hz from struct spi_slave.
+ */
 struct dm_spi_bus {
 	uint max_hz;
+	uint speed;
+	uint mode;
 };
 
 /**
- * struct dm_spi_platdata - platform data for all SPI slaves
+ * struct dm_spi_plat - platform data for all SPI slaves
  *
  * This describes a SPI slave, a child device of the SPI bus. To obtain this
- * struct from a spi_slave, use dev_get_parent_platdata(dev) or
- * dev_get_parent_platdata(slave->dev).
+ * struct from a spi_slave, use dev_get_parent_plat(dev) or
+ * dev_get_parent_plat(slave->dev).
  *
  * This data is immutable. Each time the device is probed, @max_hz and @mode
  * will be copied to struct spi_slave.
@@ -58,7 +71,7 @@ struct dm_spi_bus {
  * @max_hz:	Maximum bus speed that this slave can tolerate
  * @mode:	SPI mode to use for this device (see SPI mode flags)
  */
-struct dm_spi_slave_platdata {
+struct dm_spi_slave_plat {
 	unsigned int cs;
 	uint max_hz;
 	uint mode;
@@ -102,7 +115,7 @@ enum spi_polarity {
  *
  * For driver model this is the per-child data used by the SPI bus. It can
  * be accessed using dev_get_parent_priv() on the slave device. The SPI uclass
- * sets uip per_child_auto_alloc_size to sizeof(struct spi_slave), and the
+ * sets up per_child_auto to sizeof(struct spi_slave), and the
  * driver should not override it. Two platform data fields (max_hz and mode)
  * are copied into this structure to provide an initial value. This allows
  * them to be changed, since we should never change platform data in drivers.
@@ -112,11 +125,9 @@ enum spi_polarity {
  *
  * @dev:		SPI slave device
  * @max_hz:		Maximum speed for this slave
- * @speed:		Current bus speed. This is 0 until the bus is first
- *			claimed.
  * @bus:		ID of the bus that the slave is attached to. For
  *			driver model this is the sequence number of the SPI
- *			bus (bus->seq) so does not need to be stored
+ *			bus (dev_seq(bus)) so does not need to be stored
  * @cs:			ID of the chip select connected to the slave.
  * @mode:		SPI mode to use for this slave (see SPI mode flags)
  * @wordlen:		Size of SPI word in number of bits
@@ -131,7 +142,6 @@ struct spi_slave {
 #if CONFIG_IS_ENABLED(DM_SPI)
 	struct udevice *dev;	/* struct spi_slave is dev->parentdata */
 	uint max_hz;
-	uint speed;
 #else
 	unsigned int bus;
 	unsigned int cs;
@@ -566,12 +576,12 @@ int spi_find_bus_and_cs(int busnum, int cs, struct udevice **busp,
  * is automatically bound on this chip select with requested speed and mode.
  *
  * Ths new slave device is probed ready for use with the speed and mode
- * from platdata when available or the requested values.
+ * from plat when available or the requested values.
  *
  * @busnum:	SPI bus number
  * @cs:		Chip select to look for
- * @speed:	SPI speed to use for this slave when not available in platdata
- * @mode:	SPI mode to use for this slave when not available in platdata
+ * @speed:	SPI speed to use for this slave when not available in plat
+ * @mode:	SPI mode to use for this slave when not available in plat
  * @drv_name:	Name of driver to attach to this chip select
  * @dev_name:	Name of the new device thus created
  * @busp:	Returns bus device
@@ -601,7 +611,7 @@ int spi_chip_select(struct udevice *slave);
 int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp);
 
 /**
- * spi_slave_ofdata_to_platdata() - decode standard SPI platform data
+ * spi_slave_of_to_plat() - decode standard SPI platform data
  *
  * This decodes the speed and mode for a slave from a device tree node
  *
@@ -609,8 +619,7 @@ int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp);
  * @node:	Node offset to read from
  * @plat:	Place to put the decoded information
  */
-int spi_slave_ofdata_to_platdata(struct udevice *dev,
-				 struct dm_spi_slave_platdata *plat);
+int spi_slave_of_to_plat(struct udevice *dev, struct dm_spi_slave_plat *plat);
 
 /**
  * spi_cs_info() - Check information on a chip select

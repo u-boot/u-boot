@@ -263,7 +263,7 @@ int exynos_dwmmc_init(const void *blob)
 #ifdef CONFIG_DM_MMC
 static int exynos_dwmmc_probe(struct udevice *dev)
 {
-	struct exynos_mmc_plat *plat = dev_get_platdata(dev);
+	struct exynos_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct dwmci_exynos_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -288,7 +288,7 @@ static int exynos_dwmmc_probe(struct udevice *dev)
 
 static int exynos_dwmmc_bind(struct udevice *dev)
 {
-	struct exynos_mmc_plat *plat = dev_get_platdata(dev);
+	struct exynos_mmc_plat *plat = dev_get_plat(dev);
 
 	return dwmci_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -306,7 +306,7 @@ U_BOOT_DRIVER(exynos_dwmmc_drv) = {
 	.bind		= exynos_dwmmc_bind,
 	.ops		= &dm_dwmci_ops,
 	.probe		= exynos_dwmmc_probe,
-	.priv_auto_alloc_size	= sizeof(struct dwmci_exynos_priv_data),
-	.platdata_auto_alloc_size = sizeof(struct exynos_mmc_plat),
+	.priv_auto	= sizeof(struct dwmci_exynos_priv_data),
+	.plat_auto	= sizeof(struct exynos_mmc_plat),
 };
 #endif

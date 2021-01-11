@@ -76,6 +76,6 @@ U_BOOT_DRIVER(syscon_reset) = {
 	.id = UCLASS_RESET,
 	.of_match = syscon_reset_ids,
 	.probe = syscon_reset_probe,
-	.priv_auto_alloc_size = sizeof(struct syscon_reset_priv),
+	.priv_auto	= sizeof(struct syscon_reset_priv),
 	.ops = &syscon_reset_ops,
 };

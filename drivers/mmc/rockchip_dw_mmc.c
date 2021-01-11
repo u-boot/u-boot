@@ -50,7 +50,7 @@ static uint rockchip_dwmmc_get_mmc_clk(struct dwmci_host *host, uint freq)
 	return freq;
 }
 
-static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
+static int rockchip_dwmmc_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rockchip_dwmmc_priv *priv = dev_get_priv(dev);
@@ -101,7 +101,7 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 
 static int rockchip_dwmmc_probe(struct udevice *dev)
 {
-	struct rockchip_mmc_plat *plat = dev_get_platdata(dev);
+	struct rockchip_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct rockchip_dwmmc_priv *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -157,7 +157,7 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 
 static int rockchip_dwmmc_bind(struct udevice *dev)
 {
-	struct rockchip_mmc_plat *plat = dev_get_platdata(dev);
+	struct rockchip_mmc_plat *plat = dev_get_plat(dev);
 
 	return dwmci_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -172,16 +172,16 @@ U_BOOT_DRIVER(rockchip_rk3288_dw_mshc) = {
 	.name		= "rockchip_rk3288_dw_mshc",
 	.id		= UCLASS_MMC,
 	.of_match	= rockchip_dwmmc_ids,
-	.ofdata_to_platdata = rockchip_dwmmc_ofdata_to_platdata,
+	.of_to_plat = rockchip_dwmmc_of_to_plat,
 	.ops		= &dm_dwmci_ops,
 	.bind		= rockchip_dwmmc_bind,
 	.probe		= rockchip_dwmmc_probe,
-	.priv_auto_alloc_size = sizeof(struct rockchip_dwmmc_priv),
-	.platdata_auto_alloc_size = sizeof(struct rockchip_mmc_plat),
+	.priv_auto	= sizeof(struct rockchip_dwmmc_priv),
+	.plat_auto	= sizeof(struct rockchip_mmc_plat),
 };
 
-U_BOOT_DRIVER_ALIAS(rockchip_rk3288_dw_mshc, rockchip_rk3328_dw_mshc)
-U_BOOT_DRIVER_ALIAS(rockchip_rk3288_dw_mshc, rockchip_rk3368_dw_mshc)
+DM_DRIVER_ALIAS(rockchip_rk3288_dw_mshc, rockchip_rk3328_dw_mshc)
+DM_DRIVER_ALIAS(rockchip_rk3288_dw_mshc, rockchip_rk3368_dw_mshc)
 
 #ifdef CONFIG_PWRSEQ
 static int rockchip_dwmmc_pwrseq_set_power(struct udevice *dev, bool enable)

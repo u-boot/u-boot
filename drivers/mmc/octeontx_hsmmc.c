@@ -30,6 +30,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/csrs/csrs-mio_emm.h>
 #include <asm/io.h>
+#include <dm/device-internal.h>
 
 #include <power/regulator.h>
 
@@ -3438,7 +3439,7 @@ static u32 xlate_voltage(u32 voltage)
  */
 static bool octeontx_mmc_get_valid(struct udevice *dev)
 {
-	const char *stat = ofnode_read_string(dev->node, "status");
+	const char *stat = ofnode_read_string(dev_ofnode(dev), "status");
 
 	if (!stat || !strncmp(stat, "ok", 2))
 		return true;
@@ -3460,14 +3461,15 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 	uint low, high;
 	char env_name[32];
 	int err;
-	ofnode node = dev->node;
+	ofnode node = dev_ofnode(dev);
 	int bus_width = 1;
 	ulong new_max_freq;
 
 	debug("%s(%s)", __func__, dev->name);
 	slot->cfg.name = dev->name;
 
-	slot->cfg.f_max = ofnode_read_s32_default(dev->node, "max-frequency",
+	slot->cfg.f_max = ofnode_read_s32_default(dev_ofnode(dev),
+						  "max-frequency",
 						  26000000);
 	snprintf(env_name, sizeof(env_name), "mmc_max_frequency%d",
 		 slot->bus_id);
@@ -3485,25 +3487,26 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 
 	if (IS_ENABLED(CONFIG_ARCH_OCTEONTX2)) {
 		slot->hs400_tuning_block =
-			ofnode_read_s32_default(dev->node,
+			ofnode_read_s32_default(dev_ofnode(dev),
 						"marvell,hs400-tuning-block",
 						-1);
 		debug("%s(%s): mmc HS400 tuning block: %d\n", __func__,
 		      dev->name, slot->hs400_tuning_block);
 
 		slot->hs200_tap_adj =
-			ofnode_read_s32_default(dev->node,
+			ofnode_read_s32_default(dev_ofnode(dev),
 						"marvell,hs200-tap-adjust", 0);
 		debug("%s(%s): hs200-tap-adjust: %d\n", __func__, dev->name,
 		      slot->hs200_tap_adj);
 		slot->hs400_tap_adj =
-			ofnode_read_s32_default(dev->node,
+			ofnode_read_s32_default(dev_ofnode(dev),
 						"marvell,hs400-tap-adjust", 0);
 		debug("%s(%s): hs400-tap-adjust: %d\n", __func__, dev->name,
 		      slot->hs400_tap_adj);
 	}
 
-	err = ofnode_read_u32_array(dev->node, "voltage-ranges", voltages, 2);
+	err = ofnode_read_u32_array(dev_ofnode(dev), "voltage-ranges",
+				    voltages, 2);
 	if (err) {
 		slot->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	} else {
@@ -3731,7 +3734,6 @@ U_BOOT_DRIVER(octeontx_hsmmc_slot) = {
  */
 static int octeontx_mmc_host_probe(struct udevice *dev)
 {
-	pci_dev_t bdf = dm_pci_get_bdf(dev);
 	struct octeontx_mmc_host *host = dev_get_priv(dev);
 	union mio_emm_int emm_int;
 	u8 rev;
@@ -3752,19 +3754,19 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 	host->dev = dev;
 	debug("%s(%s): Base address: %p\n", __func__, dev->name,
 	      host->base_addr);
-	if (!dev_has_of_node(dev)) {
+	if (!dev_has_ofnode(dev)) {
 		pr_err("%s: No device tree information found\n", __func__);
 		return -1;
 	}
-	host->node = dev->node;
-	dev->req_seq = PCI_FUNC(bdf);
+	host->node = dev_ofnode(dev);
 	host->last_slotid = -1;
 	if (otx_is_platform(PLATFORM_ASIM))
 		host->is_asim = true;
 	if (otx_is_platform(PLATFORM_EMULATOR))
 		host->is_emul = true;
 	host->dma_wait_delay =
-		ofnode_read_u32_default(dev->node, "marvell,dma-wait-delay", 1);
+		ofnode_read_u32_default(dev_ofnode(dev),
+					"marvell,dma-wait-delay", 1);
 	/* Force reset of eMMC */
 	writeq(0, host->base_addr + MIO_EMM_CFG());
 	debug("%s: Clearing MIO_EMM_CFG\n", __func__);
@@ -3825,7 +3827,7 @@ static int octeontx_mmc_host_child_pre_probe(struct udevice *dev)
 	struct octeontx_mmc_host *host = dev_get_priv(dev_get_parent(dev));
 	struct octeontx_mmc_slot *slot;
 	struct mmc_uclass_priv *upriv;
-	ofnode node = dev->node;
+	ofnode node = dev_ofnode(dev);
 	u32 bus_id;
 	char name[16];
 	int err;
@@ -3843,7 +3845,7 @@ static int octeontx_mmc_host_child_pre_probe(struct udevice *dev)
 	}
 
 	slot = &host->slots[bus_id];
-	dev->priv = slot;
+	dev_set_priv(dev, slot);
 	slot->host = host;
 	slot->bus_id = bus_id;
 	slot->dev = dev;
@@ -3854,16 +3856,21 @@ static int octeontx_mmc_host_child_pre_probe(struct udevice *dev)
 	snprintf(name, sizeof(name), "octeontx-mmc%d", bus_id);
 	err = device_set_name(dev, name);
 
-	if (!dev->uclass_priv) {
+	/* FIXME: This code should not be needed */
+	if (!dev_get_uclass_priv(dev)) {
 		debug("%s(%s): Allocating uclass priv\n", __func__,
 		      dev->name);
 		upriv = calloc(1, sizeof(struct mmc_uclass_priv));
 		if (!upriv)
 			return -ENOMEM;
-		dev->uclass_priv = upriv;
-		dev->uclass->priv = upriv;
+
+		/*
+		 * FIXME: This is not allowed
+		 * dev_set_uclass_priv(dev, upriv);
+		 * uclass_set_priv(dev->uclass, upriv);
+		 */
 	} else {
-		upriv = dev->uclass_priv;
+		upriv = dev_get_uclass_priv(dev);
 	}
 
 	upriv->mmc = &slot->mmc;
@@ -3880,10 +3887,11 @@ static const struct udevice_id octeontx_hsmmc_host_ids[] = {
 
 U_BOOT_DRIVER(octeontx_hsmmc_host) = {
 	.name	= "octeontx_hsmmc_host",
+	/* FIXME: Why is this not UCLASS_MMC? */
 	.id	= UCLASS_MISC,
 	.of_match = of_match_ptr(octeontx_hsmmc_host_ids),
 	.probe	= octeontx_mmc_host_probe,
-	.priv_auto_alloc_size = sizeof(struct octeontx_mmc_host),
+	.priv_auto	= sizeof(struct octeontx_mmc_host),
 	.child_pre_probe = octeontx_mmc_host_child_pre_probe,
 	.flags	= DM_FLAG_PRE_RELOC,
 };

@@ -21,7 +21,7 @@ static bool mtd_is_aligned_with_block_size(struct mtd_info *mtd, u64 size)
 static int mtd_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			u64 offset, void *buf, long *len)
 {
-	u64 off, lim, remaining;
+	u64 off, lim, remaining, lock_ofs, lock_len;
 	struct mtd_info *mtd = dfu->data.mtd.info;
 	struct mtd_oob_ops io_op = {};
 	int ret = 0;
@@ -34,7 +34,7 @@ static int mtd_block_op(enum dfu_op op, struct dfu_entity *dfu,
 		return 0;
 	}
 
-	off = dfu->data.mtd.start + offset + dfu->bad_skip;
+	off = lock_ofs = dfu->data.mtd.start + offset + dfu->bad_skip;
 	lim = dfu->data.mtd.start + dfu->data.mtd.size;
 
 	if (off >= lim) {
@@ -56,11 +56,18 @@ static int mtd_block_op(enum dfu_op op, struct dfu_entity *dfu,
 	if (op == DFU_OP_WRITE) {
 		struct erase_info erase_op = {};
 
-		remaining = round_up(*len, mtd->erasesize);
+		remaining = lock_len = round_up(*len, mtd->erasesize);
 		erase_op.mtd = mtd;
 		erase_op.addr = off;
 		erase_op.len = mtd->erasesize;
 		erase_op.scrub = 0;
+
+		debug("Unlocking the mtd device\n");
+		ret = mtd_unlock(mtd, lock_ofs, lock_len);
+		if (ret && ret != -EOPNOTSUPP) {
+			printf("MTD device unlock failed\n");
+			return 0;
+		}
 
 		while (remaining) {
 			if (erase_op.addr + remaining > lim) {
@@ -139,6 +146,13 @@ static int mtd_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			io_op.len = mtd->writesize;
 	}
 
+	if (op == DFU_OP_WRITE) {
+		/* Write done, lock again */
+		debug("Locking the mtd device\n");
+		ret = mtd_lock(mtd, lock_ofs, lock_len);
+		if (ret && ret != -EOPNOTSUPP)
+			printf("MTD device lock failed\n");
+	}
 	return ret;
 }
 

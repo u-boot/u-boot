@@ -15,6 +15,7 @@
 #include <asm/arch/cru_rk3308.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/hardware.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3308-cru.h>
 #include <linux/bitops.h>
@@ -1019,7 +1020,7 @@ static int rk3308_clk_probe(struct udevice *dev)
 	return ret;
 }
 
-static int rk3308_clk_ofdata_to_platdata(struct udevice *dev)
+static int rk3308_clk_of_to_plat(struct udevice *dev)
 {
 	struct rk3308_clk_priv *priv = dev_get_priv(dev);
 
@@ -1045,7 +1046,7 @@ static int rk3308_clk_bind(struct udevice *dev)
 						    glb_srst_fst);
 		priv->glb_srst_snd_value = offsetof(struct rk3308_cru,
 						    glb_srst_snd);
-		sys_child->priv = priv;
+		dev_set_priv(sys_child, priv);
 	}
 
 #if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
@@ -1067,8 +1068,8 @@ U_BOOT_DRIVER(rockchip_rk3308_cru) = {
 	.name		= "rockchip_rk3308_cru",
 	.id		= UCLASS_CLK,
 	.of_match	= rk3308_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct rk3308_clk_priv),
-	.ofdata_to_platdata = rk3308_clk_ofdata_to_platdata,
+	.priv_auto	= sizeof(struct rk3308_clk_priv),
+	.of_to_plat = rk3308_clk_of_to_plat,
 	.ops		= &rk3308_clk_ops,
 	.bind		= rk3308_clk_bind,
 	.probe		= rk3308_clk_probe,

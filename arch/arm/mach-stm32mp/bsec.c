@@ -280,13 +280,13 @@ static int bsec_program_otp(long base, u32 val, u32 otp)
 }
 
 /* BSEC MISC driver *******************************************************/
-struct stm32mp_bsec_platdata {
+struct stm32mp_bsec_plat {
 	u32 base;
 };
 
 static int stm32mp_bsec_read_otp(struct udevice *dev, u32 *val, u32 otp)
 {
-	struct stm32mp_bsec_platdata *plat;
+	struct stm32mp_bsec_plat *plat;
 	u32 tmp_data = 0;
 	int ret;
 
@@ -295,7 +295,7 @@ static int stm32mp_bsec_read_otp(struct udevice *dev, u32 *val, u32 otp)
 				 STM32_SMC_READ_OTP,
 				 otp, 0, val);
 
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 
 	/* read current shadow value */
 	ret = bsec_read_shadow(plat->base, &tmp_data, otp);
@@ -319,21 +319,21 @@ static int stm32mp_bsec_read_otp(struct udevice *dev, u32 *val, u32 otp)
 
 static int stm32mp_bsec_read_shadow(struct udevice *dev, u32 *val, u32 otp)
 {
-	struct stm32mp_bsec_platdata *plat;
+	struct stm32mp_bsec_plat *plat;
 
 	if (IS_ENABLED(CONFIG_TFABOOT))
 		return stm32_smc(STM32_SMC_BSEC,
 				 STM32_SMC_READ_SHADOW,
 				 otp, 0, val);
 
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 
 	return bsec_read_shadow(plat->base, val, otp);
 }
 
 static int stm32mp_bsec_read_lock(struct udevice *dev, u32 *val, u32 otp)
 {
-	struct stm32mp_bsec_platdata *plat = dev_get_platdata(dev);
+	struct stm32mp_bsec_plat *plat = dev_get_plat(dev);
 
 	/* return OTP permanent write lock status */
 	*val = bsec_read_lock(plat->base + BSEC_WRLOCK_OFF, otp);
@@ -343,14 +343,14 @@ static int stm32mp_bsec_read_lock(struct udevice *dev, u32 *val, u32 otp)
 
 static int stm32mp_bsec_write_otp(struct udevice *dev, u32 val, u32 otp)
 {
-	struct stm32mp_bsec_platdata *plat;
+	struct stm32mp_bsec_plat *plat;
 
 	if (IS_ENABLED(CONFIG_TFABOOT))
 		return stm32_smc_exec(STM32_SMC_BSEC,
 				      STM32_SMC_PROG_OTP,
 				      otp, val);
 
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 
 	return bsec_program_otp(plat->base, val, otp);
 
@@ -358,14 +358,14 @@ static int stm32mp_bsec_write_otp(struct udevice *dev, u32 val, u32 otp)
 
 static int stm32mp_bsec_write_shadow(struct udevice *dev, u32 val, u32 otp)
 {
-	struct stm32mp_bsec_platdata *plat;
+	struct stm32mp_bsec_plat *plat;
 
 	if (IS_ENABLED(CONFIG_TFABOOT))
 		return stm32_smc_exec(STM32_SMC_BSEC,
 				      STM32_SMC_WRITE_SHADOW,
 				      otp, val);
 
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 
 	return bsec_write_shadow(plat->base, val, otp);
 }
@@ -473,9 +473,9 @@ static const struct misc_ops stm32mp_bsec_ops = {
 	.write = stm32mp_bsec_write,
 };
 
-static int stm32mp_bsec_ofdata_to_platdata(struct udevice *dev)
+static int stm32mp_bsec_of_to_plat(struct udevice *dev)
 {
-	struct stm32mp_bsec_platdata *plat = dev_get_platdata(dev);
+	struct stm32mp_bsec_plat *plat = dev_get_plat(dev);
 
 	plat->base = (u32)dev_read_addr_ptr(dev);
 
@@ -485,7 +485,7 @@ static int stm32mp_bsec_ofdata_to_platdata(struct udevice *dev)
 static int stm32mp_bsec_probe(struct udevice *dev)
 {
 	int otp;
-	struct stm32mp_bsec_platdata *plat;
+	struct stm32mp_bsec_plat *plat;
 
 	/*
 	 * update unlocked shadow for OTP cleared by the rom code
@@ -493,7 +493,7 @@ static int stm32mp_bsec_probe(struct udevice *dev)
 	 */
 
 	if (!IS_ENABLED(CONFIG_TFABOOT) && !IS_ENABLED(CONFIG_SPL_BUILD)) {
-		plat = dev_get_platdata(dev);
+		plat = dev_get_plat(dev);
 
 		for (otp = 57; otp <= BSEC_OTP_MAX_VALUE; otp++)
 			if (!bsec_read_SR_lock(plat->base, otp))
@@ -512,8 +512,8 @@ U_BOOT_DRIVER(stm32mp_bsec) = {
 	.name = "stm32mp_bsec",
 	.id = UCLASS_MISC,
 	.of_match = stm32mp_bsec_ids,
-	.ofdata_to_platdata = stm32mp_bsec_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct stm32mp_bsec_platdata),
+	.of_to_plat = stm32mp_bsec_of_to_plat,
+	.plat_auto	= sizeof(struct stm32mp_bsec_plat),
 	.ops = &stm32mp_bsec_ops,
 	.probe = stm32mp_bsec_probe,
 };
@@ -521,17 +521,17 @@ U_BOOT_DRIVER(stm32mp_bsec) = {
 bool bsec_dbgswenable(void)
 {
 	struct udevice *dev;
-	struct stm32mp_bsec_platdata *plat;
+	struct stm32mp_bsec_plat *plat;
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_GET_DRIVER(stm32mp_bsec), &dev);
+					  DM_DRIVER_GET(stm32mp_bsec), &dev);
 	if (ret || !dev) {
 		pr_debug("bsec driver not available\n");
 		return false;
 	}
 
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	if (readl(plat->base + BSEC_DENABLE_OFF) & BSEC_DENABLE_DBGSWENABLE)
 		return true;
 

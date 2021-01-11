@@ -91,7 +91,7 @@ static int do_cpld(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_SYSRESET,
-					  DM_GET_DRIVER(sysreset_renesas_ulcb),
+					  DM_DRIVER_GET(sysreset_renesas_ulcb),
 					  &dev);
 	if (ret)
 		return ret;
@@ -188,5 +188,5 @@ U_BOOT_DRIVER(sysreset_renesas_ulcb) = {
 	.ops		= &renesas_ulcb_sysreset,
 	.probe		= renesas_ulcb_sysreset_probe,
 	.of_match	= renesas_ulcb_sysreset_ids,
-	.priv_auto_alloc_size = sizeof(struct renesas_ulcb_sysreset_priv),
+	.priv_auto	= sizeof(struct renesas_ulcb_sysreset_priv),
 };

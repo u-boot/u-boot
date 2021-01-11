@@ -372,6 +372,6 @@ U_BOOT_DRIVER(uniphier_reset) = {
 	.id = UCLASS_RESET,
 	.of_match = uniphier_reset_match,
 	.probe = uniphier_reset_probe,
-	.priv_auto_alloc_size = sizeof(struct uniphier_reset_priv),
+	.priv_auto	= sizeof(struct uniphier_reset_priv),
 	.ops = &uniphier_reset_ops,
 };

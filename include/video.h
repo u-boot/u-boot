@@ -18,10 +18,10 @@
 struct udevice;
 
 /**
- * struct video_uc_platdata - uclass platform data for a video device
+ * struct video_uc_plat - uclass platform data for a video device
  *
  * This holds information that the uclass needs to know about each device. It
- * is accessed using dev_get_uclass_platdata(dev). See 'Theory of operation' at
+ * is accessed using dev_get_uclass_plat(dev). See 'Theory of operation' at
  * the top of video-uclass.c for details on how this information is set.
  *
  * @align: Frame-buffer alignment, indicating the memory boundary the frame
@@ -31,7 +31,7 @@ struct udevice;
  * @copy_base: Base address of a hardware copy of the frame buffer. See
  *	CONFIG_VIDEO_COPY.
  */
-struct video_uc_platdata {
+struct video_uc_plat {
 	uint align;
 	uint size;
 	ulong base;
@@ -77,7 +77,7 @@ enum video_log2_bpp {
  * @fb:		Frame buffer
  * @fb_size:	Frame buffer size
  * @copy_fb:	Copy of the frame buffer to keep up to date; see struct
- *		video_uc_platdata
+ *		video_uc_plat
  * @line_length:	Length of each frame buffer line, in bytes. This can be
  *		set by the driver, but if not, the uclass will set it after
  *		probing
@@ -114,8 +114,16 @@ struct video_priv {
 	u8 bg_col_idx;
 };
 
-/* Placeholder - there are no video operations at present */
+/**
+ * struct video_ops - structure for keeping video operations
+ * @video_sync: Synchronize FB with device. Some device like SPI based LCD
+ *		displays needs synchronization when data in an FB is available.
+ *		For these devices implement video_sync hook to call a sync
+ *		function. vid is pointer to video device udevice. Function
+ *		should return 0 on success video_sync and error code otherwise
+ */
 struct video_ops {
+	int (*video_sync)(struct udevice *vid);
 };
 
 #define video_get_ops(dev)        ((struct video_ops *)(dev)->driver->ops)
@@ -125,7 +133,7 @@ struct video_ops {
  *
  * Note: This function is for internal use.
  *
- * This uses the uclass platdata's @size and @align members to figure out
+ * This uses the uclass plat's @size and @align members to figure out
  * a size and position for each frame buffer as part of the pre-relocation
  * process of determining the post-relocation memory layout.
  *
@@ -151,15 +159,17 @@ int video_clear(struct udevice *dev);
 /**
  * video_sync() - Sync a device's frame buffer with its hardware
  *
+ * @vid:	Device to sync
+ * @force:	True to force a sync even if there was one recently (this is
+ *		very expensive on sandbox)
+ *
+ * @return: 0 on success, error code otherwise
+ *
  * Some frame buffers are cached or have a secondary frame buffer. This
  * function syncs these up so that the current contents of the U-Boot frame
  * buffer are displayed to the user.
- *
- * @dev:	Device to sync
- * @force:	True to force a sync even if there was one recently (this is
- *		very expensive on sandbox)
  */
-void video_sync(struct udevice *vid, bool force);
+int video_sync(struct udevice *vid, bool force);
 
 /**
  * video_sync_all() - Sync all devices' frame buffers with there hardware

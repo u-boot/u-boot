@@ -6,7 +6,7 @@
 #ifdef CONFIG_DM_I2C
 
 /* Information about a GPIO bank */
-struct omap_i2c_platdata {
+struct omap_i2c_plat {
 	ulong base;	/* address of registers in physical memory */
 	int speed;
 	int ip_rev;

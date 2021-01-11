@@ -172,7 +172,7 @@ U_BOOT_DRIVER(denali_nand_dt) = {
 	.id = UCLASS_MTD,
 	.of_match = denali_nand_dt_ids,
 	.probe = denali_dt_probe,
-	.priv_auto_alloc_size = sizeof(struct denali_nand_info),
+	.priv_auto	= sizeof(struct denali_nand_info),
 };
 
 void board_nand_init(void)
@@ -181,7 +181,7 @@ void board_nand_init(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_MTD,
-					  DM_GET_DRIVER(denali_nand_dt),
+					  DM_DRIVER_GET(denali_nand_dt),
 					  &dev);
 	if (ret && ret != -ENODEV)
 		pr_err("Failed to initialize Denali NAND controller. (error %d)\n",

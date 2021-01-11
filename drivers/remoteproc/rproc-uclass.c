@@ -42,7 +42,7 @@ static int for_each_remoteproc_device(int (*fn) (struct udevice *dev,
 	     ret = uclass_find_next_device(&dev)) {
 		if (ret || dev == skip_dev)
 			continue;
-		uc_pdata = dev_get_uclass_platdata(dev);
+		uc_pdata = dev_get_uclass_plat(dev);
 		ret = fn(dev, uc_pdata, data);
 		if (ret)
 			return ret;
@@ -111,11 +111,11 @@ static int rproc_pre_probe(struct udevice *dev)
 	struct dm_rproc_uclass_pdata *uc_pdata;
 	const struct dm_rproc_ops *ops;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	/* See if we need to populate via fdt */
 
-	if (!dev->platdata) {
+	if (!dev_get_plat(dev)) {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 		int node = dev_of_offset(dev);
 		const void *blob = gd->fdt_blob;
@@ -140,7 +140,7 @@ static int rproc_pre_probe(struct udevice *dev)
 #endif
 
 	} else {
-		struct dm_rproc_uclass_pdata *pdata = dev->platdata;
+		struct dm_rproc_uclass_pdata *pdata = dev_get_plat(dev);
 
 		debug("'%s': using legacy data\n", dev->name);
 		if (pdata->name)
@@ -210,8 +210,7 @@ UCLASS_DRIVER(rproc) = {
 	.flags = DM_UC_FLAG_SEQ_ALIAS,
 	.pre_probe = rproc_pre_probe,
 	.post_probe = rproc_post_probe,
-	.per_device_platdata_auto_alloc_size =
-		sizeof(struct dm_rproc_uclass_pdata),
+	.per_device_plat_auto	= sizeof(struct dm_rproc_uclass_pdata),
 };
 
 /* Remoteproc subsystem access functions */
@@ -248,7 +247,7 @@ static int _rproc_dev_is_probed(struct udevice *dev,
 			    struct dm_rproc_uclass_pdata *uc_pdata,
 			    const void *data)
 {
-	if (dev->flags & DM_FLAG_ACTIVATED)
+	if (dev_get_flags(dev) & DM_FLAG_ACTIVATED)
 		return 0;
 
 	return -EAGAIN;
@@ -306,7 +305,7 @@ int rproc_load(int id, ulong addr, ulong size)
 		return ret;
 	}
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	ops = rproc_get_ops(dev);
 	if (!ops) {
@@ -366,7 +365,7 @@ static int _rproc_ops_wrapper(int id, enum rproc_ops op)
 		return ret;
 	}
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	ops = rproc_get_ops(dev);
 	if (!ops) {

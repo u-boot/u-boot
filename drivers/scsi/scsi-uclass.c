@@ -35,5 +35,5 @@ int scsi_bus_reset(struct udevice *dev)
 UCLASS_DRIVER(scsi) = {
 	.id		= UCLASS_SCSI,
 	.name		= "scsi",
-	.per_device_platdata_auto_alloc_size = sizeof(struct scsi_platdata),
+	.per_device_plat_auto	= sizeof(struct scsi_plat),
 };

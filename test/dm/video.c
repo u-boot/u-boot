@@ -107,7 +107,7 @@ static int select_vidconsole(struct unit_test_state *uts, const char *drv_name)
 
 	ut_assertok(uclass_find_device(UCLASS_VIDEO, 0, &dev));
 	ut_assert(!device_active(dev));
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	plat->vidconsole_drv_name = "vidconsole0";
 
 	return 0;
@@ -217,7 +217,7 @@ static int check_vidconsole_output(struct unit_test_state *uts, int rot,
 
 	ut_assertok(uclass_find_device(UCLASS_VIDEO, 0, &dev));
 	ut_assert(!device_active(dev));
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	plat->rot = rot;
 
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
@@ -359,7 +359,7 @@ static int dm_test_video_truetype_scroll(struct unit_test_state *uts)
 
 	ut_assertok(uclass_find_device(UCLASS_VIDEO, 0, &dev));
 	ut_assert(!device_active(dev));
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	plat->font_size = 100;
 
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
@@ -380,7 +380,7 @@ static int dm_test_video_truetype_bs(struct unit_test_state *uts)
 
 	ut_assertok(uclass_find_device(UCLASS_VIDEO, 0, &dev));
 	ut_assert(!device_active(dev));
-	plat = dev_get_platdata(dev);
+	plat = dev_get_plat(dev);
 	plat->font_size = 100;
 
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));

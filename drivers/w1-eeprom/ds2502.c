@@ -222,7 +222,7 @@ static int ds2502_probe(struct udevice *dev)
 {
 	struct w1_device *w1;
 
-	w1 = dev_get_parent_platdata(dev);
+	w1 = dev_get_parent_plat(dev);
 	w1->id = 0;
 	return 0;
 }

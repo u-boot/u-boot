@@ -1371,11 +1371,11 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
 
-static struct mxc_serial_platdata ventana_mxc_serial_plat = {
+static struct mxc_serial_plat ventana_mxc_serial_plat = {
 	.reg = (struct mxc_uart *)UART2_BASE,
 };
 
-U_BOOT_DEVICE(ventana_serial) = {
+U_BOOT_DRVINFO(ventana_serial) = {
 	.name   = "serial_mxc",
-	.platdata = &ventana_mxc_serial_plat,
+	.plat = &ventana_mxc_serial_plat,
 };

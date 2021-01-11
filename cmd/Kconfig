@@ -55,6 +55,15 @@ config SYS_PROMPT
 	  This string is displayed in the command line to the left of the
 	  cursor.
 
+config SYS_PROMPT_HUSH_PS2
+	string "Hush shell secondary prompt"
+	depends on HUSH_PARSER
+	default "> "
+	help
+	  This defines the secondary prompt string, which is
+	  printed when the command interpreter needs more input
+	  to complete a command. Usually "> ".
+
 config SYS_XTRACE
 	string "Command execution tracer"
 	depends on CMDLINE
@@ -1682,7 +1691,7 @@ config CMD_EFIDEBUG
 
 config CMD_EXCEPTION
 	bool "exception - raise exception"
-	depends on ARM || RISCV || X86
+	depends on ARM || RISCV || SANDBOX || X86
 	help
 	  Enable the 'exception' command which allows to raise an exception.
 
@@ -1908,7 +1917,7 @@ config CMD_REGULATOR
 
 	  The '-f' (force) option can be used for set the value which exceeds
 	  the limits, which are found in device-tree and are kept in regulator's
-	  uclass platdata structure.
+	  uclass plat structure.
 
 endmenu
 

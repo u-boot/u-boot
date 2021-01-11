@@ -26,7 +26,7 @@
 #endif
 #include <fsl_sec.h>
 #include <asm/arch-fsl-layerscape/soc.h>
-#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
+#if CONFIG_IS_ENABLED(ARMV8_SEC_FIRMWARE_SUPPORT)
 #include <asm/armv8/sec_firmware.h>
 #endif
 #include <asm/arch/speed.h>
@@ -81,7 +81,7 @@ void ft_fixup_cpu(void *blob)
 						    "device_type", "cpu", 4);
 	}
 
-#if defined(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT) && \
+#if CONFIG_IS_ENABLED(ARMV8_SEC_FIRMWARE_SUPPORT) && \
 	defined(CONFIG_SEC_FIRMWARE_ARMV8_PSCI)
 	int node;
 	u32 psci_ver;
@@ -383,7 +383,7 @@ static void fdt_fixup_msi(void *blob)
 }
 #endif
 
-#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
+#if CONFIG_IS_ENABLED(ARMV8_SEC_FIRMWARE_SUPPORT)
 /* Remove JR node used by SEC firmware */
 void fdt_fixup_remove_jr(void *blob)
 {
@@ -490,7 +490,7 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
 	else {
 		ccsr_sec_t __iomem *sec;
 
-#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
+#if CONFIG_IS_ENABLED(ARMV8_SEC_FIRMWARE_SUPPORT)
 		fdt_fixup_remove_jr(blob);
 		fdt_fixup_kaslr(blob);
 #endif

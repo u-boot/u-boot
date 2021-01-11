@@ -390,5 +390,5 @@ U_BOOT_DRIVER(k3_avs) = {
 	.of_match = k3_avs_ids,
 	.id = UCLASS_MISC,
 	.probe = k3_avs_probe,
-	.priv_auto_alloc_size = sizeof(struct k3_avs_privdata),
+	.priv_auto	= sizeof(struct k3_avs_privdata),
 };

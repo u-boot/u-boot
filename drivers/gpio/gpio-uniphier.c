@@ -166,6 +166,6 @@ U_BOOT_DRIVER(uniphier_gpio) = {
 	.id	= UCLASS_GPIO,
 	.of_match = uniphier_gpio_match,
 	.probe	= uniphier_gpio_probe,
-	.priv_auto_alloc_size = sizeof(struct uniphier_gpio_priv),
+	.priv_auto	= sizeof(struct uniphier_gpio_priv),
 	.ops	= &uniphier_gpio_ops,
 };

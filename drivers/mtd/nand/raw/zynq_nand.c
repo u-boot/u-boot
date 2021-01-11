@@ -1206,12 +1206,10 @@ static int zynq_nand_probe(struct udevice *dev)
 		nand_chip->options |= NAND_SUBPAGE_READ;
 
 		/* On-Die ECC spare bytes offset 8 is used for ECC codes */
-		if (ondie_ecc_enabled) {
-			nand_chip->ecc.layout = &ondie_nand_oob_64;
-			/* Use the BBT pattern descriptors */
-			nand_chip->bbt_td = &bbt_main_descr;
-			nand_chip->bbt_md = &bbt_mirror_descr;
-		}
+		nand_chip->ecc.layout = &ondie_nand_oob_64;
+		/* Use the BBT pattern descriptors */
+		nand_chip->bbt_td = &bbt_main_descr;
+		nand_chip->bbt_md = &bbt_mirror_descr;
 	} else {
 		/* Hardware ECC generates 3 bytes ECC code for each 512 bytes */
 		nand_chip->ecc.mode = NAND_ECC_HW;
@@ -1286,7 +1284,7 @@ U_BOOT_DRIVER(zynq_nand) = {
 	.id = UCLASS_MTD,
 	.of_match = zynq_nand_dt_ids,
 	.probe = zynq_nand_probe,
-	.priv_auto_alloc_size = sizeof(struct zynq_nand_info),
+	.priv_auto	= sizeof(struct zynq_nand_info),
 };
 
 void board_nand_init(void)
@@ -1295,7 +1293,7 @@ void board_nand_init(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_MTD,
-					  DM_GET_DRIVER(zynq_nand), &dev);
+					  DM_DRIVER_GET(zynq_nand), &dev);
 	if (ret && ret != -ENODEV)
 		pr_err("Failed to initialize %s. (error %d)\n", dev->name, ret);
 }

@@ -375,7 +375,7 @@ int rockchip_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 	return 0;
 }
 
-static int rockchip_i2c_ofdata_to_platdata(struct udevice *bus)
+static int rockchip_i2c_of_to_plat(struct udevice *bus)
 {
 	struct rk_i2c *priv = dev_get_priv(bus);
 	int ret;
@@ -489,10 +489,10 @@ U_BOOT_DRIVER(rockchip_rk3066_i2c) = {
 	.name	= "rockchip_rk3066_i2c",
 	.id	= UCLASS_I2C,
 	.of_match = rockchip_i2c_ids,
-	.ofdata_to_platdata = rockchip_i2c_ofdata_to_platdata,
+	.of_to_plat = rockchip_i2c_of_to_plat,
 	.probe	= rockchip_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct rk_i2c),
+	.priv_auto	= sizeof(struct rk_i2c),
 	.ops	= &rockchip_i2c_ops,
 };
 
-U_BOOT_DRIVER_ALIAS(rockchip_rk3066_i2c, rockchip_rk3288_i2c)
+DM_DRIVER_ALIAS(rockchip_rk3066_i2c, rockchip_rk3288_i2c)

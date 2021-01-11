@@ -33,7 +33,7 @@ struct syscon_ops {
  *
  * Update: 64-bit is now supported and we have an education crisis.
  */
-struct syscon_base_platdata {
+struct syscon_base_plat {
 	fdt_val_t reg[2];
 };
 #endif

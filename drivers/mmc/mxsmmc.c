@@ -52,7 +52,7 @@ struct mxsmmc_priv {
 #include <dm/read.h>
 #include <dt-structs.h>
 
-struct mxsmmc_platdata {
+struct mxsmmc_plat {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct dtd_fsl_imx23_mmc dtplat;
 #endif
@@ -310,7 +310,7 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 static int
 mxsmmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd, struct mmc_data *data)
 {
-	struct mxsmmc_platdata *plat = dev_get_platdata(dev);
+	struct mxsmmc_plat *plat = dev_get_plat(dev);
 	struct mxsmmc_priv *priv = dev_get_priv(dev);
 	struct mxs_ssp_regs *ssp_regs = priv->regs;
 	struct mmc *mmc = &plat->mmc;
@@ -490,7 +490,7 @@ mxsmmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd, struct mmc_data *data)
 
 static int mxsmmc_get_cd(struct udevice *dev)
 {
-	struct mxsmmc_platdata *plat = dev_get_platdata(dev);
+	struct mxsmmc_plat *plat = dev_get_plat(dev);
 	struct mxsmmc_priv *priv = dev_get_priv(dev);
 	struct mxs_ssp_regs *ssp_regs = priv->regs;
 
@@ -502,7 +502,7 @@ static int mxsmmc_get_cd(struct udevice *dev)
 
 static int mxsmmc_set_ios(struct udevice *dev)
 {
-	struct mxsmmc_platdata *plat = dev_get_platdata(dev);
+	struct mxsmmc_plat *plat = dev_get_plat(dev);
 	struct mxsmmc_priv *priv = dev_get_priv(dev);
 	struct mxs_ssp_regs *ssp_regs = priv->regs;
 	struct mmc *mmc = &plat->mmc;
@@ -567,7 +567,7 @@ static int mxsmmc_init(struct udevice *dev)
 static int mxsmmc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct mxsmmc_platdata *plat = dev_get_platdata(dev);
+	struct mxsmmc_plat *plat = dev_get_plat(dev);
 	struct mxsmmc_priv *priv = dev_get_priv(dev);
 	struct blk_desc *bdesc;
 	struct mmc *mmc;
@@ -653,7 +653,7 @@ static int mxsmmc_probe(struct udevice *dev)
 #if CONFIG_IS_ENABLED(BLK)
 static int mxsmmc_bind(struct udevice *dev)
 {
-	struct mxsmmc_platdata *plat = dev_get_platdata(dev);
+	struct mxsmmc_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -666,9 +666,9 @@ static const struct dm_mmc_ops mxsmmc_ops = {
 };
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
-static int mxsmmc_ofdata_to_platdata(struct udevice *bus)
+static int mxsmmc_of_to_plat(struct udevice *bus)
 {
-	struct mxsmmc_platdata *plat = bus->platdata;
+	struct mxsmmc_plat *plat = dev_get_plat(bus);
 	u32 prop[2];
 	int ret;
 
@@ -711,16 +711,16 @@ U_BOOT_DRIVER(fsl_imx23_mmc) = {
 	.id	= UCLASS_MMC,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = mxsmmc_ids,
-	.ofdata_to_platdata = mxsmmc_ofdata_to_platdata,
+	.of_to_plat = mxsmmc_of_to_plat,
 #endif
 	.ops	= &mxsmmc_ops,
 #if CONFIG_IS_ENABLED(BLK)
 	.bind	= mxsmmc_bind,
 #endif
 	.probe	= mxsmmc_probe,
-	.priv_auto_alloc_size = sizeof(struct mxsmmc_priv),
-	.platdata_auto_alloc_size = sizeof(struct mxsmmc_platdata),
+	.priv_auto	= sizeof(struct mxsmmc_priv),
+	.plat_auto	= sizeof(struct mxsmmc_plat),
 };
 
-U_BOOT_DRIVER_ALIAS(fsl_imx23_mmc, fsl_imx28_mmc)
+DM_DRIVER_ALIAS(fsl_imx23_mmc, fsl_imx28_mmc)
 #endif /* CONFIG_DM_MMC */

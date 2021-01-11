@@ -45,8 +45,8 @@ void dm_fixup_for_gd_move(struct global_data *new_gd)
 {
 	/* The sentinel node has moved, so update things that point to it */
 	if (gd->dm_root) {
-		new_gd->uclass_root.next->prev = &new_gd->uclass_root;
-		new_gd->uclass_root.prev->next = &new_gd->uclass_root;
+		new_gd->uclass_root->next->prev = new_gd->uclass_root;
+		new_gd->uclass_root->prev->next = new_gd->uclass_root;
 	}
 }
 
@@ -69,8 +69,8 @@ void fix_drivers(void)
 			entry->remove += gd->reloc_off;
 		if (entry->unbind)
 			entry->unbind += gd->reloc_off;
-		if (entry->ofdata_to_platdata)
-			entry->ofdata_to_platdata += gd->reloc_off;
+		if (entry->of_to_plat)
+			entry->of_to_plat += gd->reloc_off;
 		if (entry->child_post_bind)
 			entry->child_post_bind += gd->reloc_off;
 		if (entry->child_pre_probe)
@@ -86,8 +86,8 @@ void fix_drivers(void)
 void fix_uclass(void)
 {
 	struct uclass_driver *uclass =
-		ll_entry_start(struct uclass_driver, uclass);
-	const int n_ents = ll_entry_count(struct uclass_driver, uclass);
+		ll_entry_start(struct uclass_driver, uclass_driver);
+	const int n_ents = ll_entry_count(struct uclass_driver, uclass_driver);
 	struct uclass_driver *entry;
 
 	for (entry = uclass; entry != uclass + n_ents; entry++) {
@@ -123,8 +123,8 @@ void fix_devices(void)
 	struct driver_info *entry;
 
 	for (entry = dev; entry != dev + n_ents; entry++) {
-		if (entry->platdata)
-			entry->platdata += gd->reloc_off;
+		if (entry->plat)
+			entry->plat += gd->reloc_off;
 	}
 }
 
@@ -136,7 +136,8 @@ int dm_init(bool of_live)
 		dm_warn("Virtual root driver already exists!\n");
 		return -EINVAL;
 	}
-	INIT_LIST_HEAD(&DM_UCLASS_ROOT_NON_CONST);
+	gd->uclass_root = &DM_UCLASS_ROOT_S_NON_CONST;
+	INIT_LIST_HEAD(DM_UCLASS_ROOT_NON_CONST);
 
 	if (IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC)) {
 		fix_drivers();
@@ -147,12 +148,8 @@ int dm_init(bool of_live)
 	ret = device_bind_by_name(NULL, false, &root_info, &DM_ROOT_NON_CONST);
 	if (ret)
 		return ret;
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-	if (CONFIG_IS_ENABLED(OF_LIVE) && of_live)
-		DM_ROOT_NON_CONST->node = np_to_ofnode(gd_of_root());
-	else
-		DM_ROOT_NON_CONST->node = offset_to_ofnode(0);
-#endif
+	if (CONFIG_IS_ENABLED(OF_CONTROL))
+		dev_set_ofnode(DM_ROOT_NON_CONST, ofnode_root());
 	ret = device_probe(DM_ROOT_NON_CONST);
 	if (ret)
 		return ret;
@@ -178,7 +175,7 @@ int dm_remove_devices_flags(uint flags)
 }
 #endif
 
-int dm_scan_platdata(bool pre_reloc_only)
+int dm_scan_plat(bool pre_reloc_only)
 {
 	int ret;
 
@@ -203,33 +200,6 @@ int dm_scan_platdata(bool pre_reloc_only)
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
-static int dm_scan_fdt_live(struct udevice *parent,
-			    const struct device_node *node_parent,
-			    bool pre_reloc_only)
-{
-	struct device_node *np;
-	int ret = 0, err;
-
-	for (np = node_parent->child; np; np = np->sibling) {
-
-		if (!of_device_is_available(np)) {
-			pr_debug("   - ignoring disabled device\n");
-			continue;
-		}
-		err = lists_bind_fdt(parent, np_to_ofnode(np), NULL,
-				     pre_reloc_only);
-		if (err && !ret) {
-			ret = err;
-			debug("%s: ret=%d\n", np->name, ret);
-		}
-	}
-
-	if (ret)
-		dm_warn("Some drivers failed to bind\n");
-
-	return ret;
-}
-
 /**
  * dm_scan_fdt_node() - Scan the device tree and bind drivers for a node
  *
@@ -237,28 +207,30 @@ static int dm_scan_fdt_live(struct udevice *parent,
  * for each one.
  *
  * @parent: Parent device for the devices that will be created
- * @blob: Pointer to device tree blob
- * @offset: Offset of node to scan
+ * @node: Node to scan
  * @pre_reloc_only: If true, bind only drivers with the DM_FLAG_PRE_RELOC
  * flag. If false bind all drivers.
  * @return 0 if OK, -ve on error
  */
-static int dm_scan_fdt_node(struct udevice *parent, const void *blob,
-			    int offset, bool pre_reloc_only)
+static int dm_scan_fdt_node(struct udevice *parent, ofnode parent_node,
+			    bool pre_reloc_only)
 {
 	int ret = 0, err;
+	ofnode node;
 
-	for (offset = fdt_first_subnode(blob, offset);
-	     offset > 0;
-	     offset = fdt_next_subnode(blob, offset)) {
-		const char *node_name = fdt_get_name(blob, offset, NULL);
+	if (!ofnode_valid(parent_node))
+		return 0;
 
-		if (!fdtdec_get_is_enabled(blob, offset)) {
+	for (node = ofnode_first_subnode(parent_node);
+	     ofnode_valid(node);
+	     node = ofnode_next_subnode(node)) {
+		const char *node_name = ofnode_get_name(node);
+
+		if (!ofnode_is_enabled(node)) {
 			pr_debug("   - ignoring disabled device\n");
 			continue;
 		}
-		err = lists_bind_fdt(parent, offset_to_ofnode(offset), NULL,
-				     pre_reloc_only);
+		err = lists_bind_fdt(parent, node, NULL, pre_reloc_only);
 		if (err && !ret) {
 			ret = err;
 			debug("%s: ret=%d\n", node_name, ret);
@@ -273,43 +245,25 @@ static int dm_scan_fdt_node(struct udevice *parent, const void *blob,
 
 int dm_scan_fdt_dev(struct udevice *dev)
 {
-	if (!dev_of_valid(dev))
-		return 0;
-
-	if (of_live_active())
-		return dm_scan_fdt_live(dev, dev_np(dev),
-				gd->flags & GD_FLG_RELOC ? false : true);
-
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev_of_offset(dev),
+	return dm_scan_fdt_node(dev, dev_ofnode(dev),
 				gd->flags & GD_FLG_RELOC ? false : true);
 }
 
-int dm_scan_fdt(const void *blob, bool pre_reloc_only)
+int dm_scan_fdt(bool pre_reloc_only)
 {
-	if (of_live_active())
-		return dm_scan_fdt_live(gd->dm_root, gd_of_root(),
-					pre_reloc_only);
-
-	return dm_scan_fdt_node(gd->dm_root, blob, 0, pre_reloc_only);
+	return dm_scan_fdt_node(gd->dm_root, ofnode_root(), pre_reloc_only);
 }
 
-static int dm_scan_fdt_ofnode_path(const void *blob, const char *path,
-				   bool pre_reloc_only)
+static int dm_scan_fdt_ofnode_path(const char *path, bool pre_reloc_only)
 {
 	ofnode node;
 
 	node = ofnode_path(path);
-	if (!ofnode_valid(node))
-		return 0;
 
-	if (of_live_active())
-		return dm_scan_fdt_live(gd->dm_root, node.np, pre_reloc_only);
-
-	return dm_scan_fdt_node(gd->dm_root, blob, node.of_offset,
-				pre_reloc_only);
+	return dm_scan_fdt_node(gd->dm_root, node, pre_reloc_only);
 }
 
-int dm_extended_scan_fdt(const void *blob, bool pre_reloc_only)
+int dm_extended_scan(bool pre_reloc_only)
 {
 	int ret, i;
 	const char * const nodes[] = {
@@ -318,7 +272,7 @@ int dm_extended_scan_fdt(const void *blob, bool pre_reloc_only)
 		"/firmware"
 	};
 
-	ret = dm_scan_fdt(blob, pre_reloc_only);
+	ret = dm_scan_fdt(pre_reloc_only);
 	if (ret) {
 		debug("dm_scan_fdt() failed: %d\n", ret);
 		return ret;
@@ -326,7 +280,7 @@ int dm_extended_scan_fdt(const void *blob, bool pre_reloc_only)
 
 	/* Some nodes aren't devices themselves but may contain some */
 	for (i = 0; i < ARRAY_SIZE(nodes); i++) {
-		ret = dm_scan_fdt_ofnode_path(blob, nodes[i], pre_reloc_only);
+		ret = dm_scan_fdt_ofnode_path(nodes[i], pre_reloc_only);
 		if (ret) {
 			debug("dm_scan_fdt() scan for %s failed: %d\n",
 			      nodes[i], ret);
@@ -343,28 +297,30 @@ __weak int dm_scan_other(bool pre_reloc_only)
 	return 0;
 }
 
-int dm_init_and_scan(bool pre_reloc_only)
+/**
+ * dm_scan() - Scan tables to bind devices
+ *
+ * Runs through the driver_info tables and binds the devices it finds. Then runs
+ * through the devicetree nodes. Finally calls dm_scan_other() to add any
+ * special devices
+ *
+ * @pre_reloc_only: If true, bind only nodes with special devicetree properties,
+ * or drivers with the DM_FLAG_PRE_RELOC flag. If false bind all drivers.
+ */
+static int dm_scan(bool pre_reloc_only)
 {
 	int ret;
 
-	if (CONFIG_IS_ENABLED(OF_PLATDATA))
-		dm_populate_phandle_data();
-
-	ret = dm_init(CONFIG_IS_ENABLED(OF_LIVE));
+	ret = dm_scan_plat(pre_reloc_only);
 	if (ret) {
-		debug("dm_init() failed: %d\n", ret);
-		return ret;
-	}
-	ret = dm_scan_platdata(pre_reloc_only);
-	if (ret) {
-		debug("dm_scan_platdata() failed: %d\n", ret);
+		debug("dm_scan_plat() failed: %d\n", ret);
 		return ret;
 	}
 
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
-		ret = dm_extended_scan_fdt(gd->fdt_blob, pre_reloc_only);
+		ret = dm_extended_scan(pre_reloc_only);
 		if (ret) {
-			debug("dm_extended_scan_dt() failed: %d\n", ret);
+			debug("dm_extended_scan() failed: %d\n", ret);
 			return ret;
 		}
 	}
@@ -372,6 +328,24 @@ int dm_init_and_scan(bool pre_reloc_only)
 	ret = dm_scan_other(pre_reloc_only);
 	if (ret)
 		return ret;
+
+	return 0;
+}
+
+int dm_init_and_scan(bool pre_reloc_only)
+{
+	int ret;
+
+	ret = dm_init(CONFIG_IS_ENABLED(OF_LIVE));
+	if (ret) {
+		debug("dm_init() failed: %d\n", ret);
+		return ret;
+	}
+	ret = dm_scan(pre_reloc_only);
+	if (ret) {
+		log_debug("dm_scan() failed: %d\n", ret);
+		return ret;
+	}
 
 	return 0;
 }

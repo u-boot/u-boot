@@ -169,7 +169,7 @@ U_BOOT_DRIVER(imx_wdt) = {
 	.of_match	= imx_wdt_ids,
 	.probe		= imx_wdt_probe,
 	.ops		= &imx_wdt_ops,
-	.priv_auto_alloc_size = sizeof(struct imx_wdt_priv),
+	.priv_auto	= sizeof(struct imx_wdt_priv),
 	.flags		= DM_FLAG_PRE_RELOC,
 };
 #endif

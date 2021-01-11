@@ -251,5 +251,5 @@ U_BOOT_DRIVER(meson_gxl_usb2_phy) = {
 	.of_match = meson_gxl_usb2_phy_ids,
 	.probe = meson_gxl_usb2_phy_probe,
 	.ops = &meson_gxl_usb2_phy_ops,
-	.priv_auto_alloc_size = sizeof(struct phy_meson_gxl_usb2_priv),
+	.priv_auto	= sizeof(struct phy_meson_gxl_usb2_priv),
 };

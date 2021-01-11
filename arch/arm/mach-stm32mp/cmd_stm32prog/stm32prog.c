@@ -1340,7 +1340,7 @@ int stm32prog_pmic_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 
 	pr_debug("%s: %x %lx\n", __func__, offset, *size);
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_GET_DRIVER(stpmic1_nvm),
+					  DM_DRIVER_GET(stpmic1_nvm),
 					  &dev);
 	if (ret)
 		return ret;
@@ -1351,7 +1351,7 @@ int stm32prog_pmic_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 		memset(data->pmic_part, 0, PMIC_SIZE);
 
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(stpmic1_nvm),
+						  DM_DRIVER_GET(stpmic1_nvm),
 						  &dev);
 		if (ret)
 			return ret;
@@ -1389,7 +1389,7 @@ int stm32prog_pmic_start(struct stm32prog_data *data)
 	}
 
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_GET_DRIVER(stpmic1_nvm),
+					  DM_DRIVER_GET(stpmic1_nvm),
 					  &dev);
 	if (ret)
 		return ret;

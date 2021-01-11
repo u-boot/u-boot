@@ -3011,10 +3011,10 @@ static int sdram_init(struct dram_info *dram,
 	return 0;
 }
 
-static int rk3399_dmc_ofdata_to_platdata(struct udevice *dev)
+static int rk3399_dmc_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct rockchip_dmc_plat *plat = dev_get_platdata(dev);
+	struct rockchip_dmc_plat *plat = dev_get_plat(dev);
 	int ret;
 
 	ret = dev_read_u32_array(dev, "rockchip,sdram-params",
@@ -3034,15 +3034,14 @@ static int rk3399_dmc_ofdata_to_platdata(struct udevice *dev)
 }
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-static int conv_of_platdata(struct udevice *dev)
+static int conv_of_plat(struct udevice *dev)
 {
-	struct rockchip_dmc_plat *plat = dev_get_platdata(dev);
+	struct rockchip_dmc_plat *plat = dev_get_plat(dev);
 	struct dtd_rockchip_rk3399_dmc *dtplat = &plat->dtplat;
 	int ret;
 
-	ret = regmap_init_mem_platdata(dev, dtplat->reg,
-				       ARRAY_SIZE(dtplat->reg) / 2,
-				       &plat->map);
+	ret = regmap_init_mem_plat(dev, dtplat->reg,
+				   ARRAY_SIZE(dtplat->reg) / 2, &plat->map);
 	if (ret)
 		return ret;
 
@@ -3067,7 +3066,7 @@ static const struct sdram_rk3399_ops rk3399_ops = {
 static int rk3399_dmc_init(struct udevice *dev)
 {
 	struct dram_info *priv = dev_get_priv(dev);
-	struct rockchip_dmc_plat *plat = dev_get_platdata(dev);
+	struct rockchip_dmc_plat *plat = dev_get_plat(dev);
 	int ret;
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3399_sdram_params *params = &plat->sdram_params;
@@ -3076,7 +3075,7 @@ static int rk3399_dmc_init(struct udevice *dev)
 	struct rk3399_sdram_params *params =
 					(void *)dtplat->rockchip_sdram_params;
 
-	ret = conv_of_platdata(dev);
+	ret = conv_of_plat(dev);
 	if (ret)
 		return ret;
 #endif
@@ -3175,12 +3174,12 @@ U_BOOT_DRIVER(dmc_rk3399) = {
 	.ops = &rk3399_dmc_ops,
 #if defined(CONFIG_TPL_BUILD) || \
 	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
-	.ofdata_to_platdata = rk3399_dmc_ofdata_to_platdata,
+	.of_to_plat = rk3399_dmc_of_to_plat,
 #endif
 	.probe = rk3399_dmc_probe,
-	.priv_auto_alloc_size = sizeof(struct dram_info),
+	.priv_auto	= sizeof(struct dram_info),
 #if defined(CONFIG_TPL_BUILD) || \
 	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
-	.platdata_auto_alloc_size = sizeof(struct rockchip_dmc_plat),
+	.plat_auto	= sizeof(struct rockchip_dmc_plat),
 #endif
 };

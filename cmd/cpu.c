@@ -26,13 +26,13 @@ static int print_cpu_list(bool detail)
 	for (uclass_first_device(UCLASS_CPU, &dev);
 		     dev;
 		     uclass_next_device(&dev)) {
-		struct cpu_platdata *plat = dev_get_parent_platdata(dev);
+		struct cpu_plat *plat = dev_get_parent_plat(dev);
 		struct cpu_info info;
 		bool first = true;
 		int ret, i;
 
 		ret = cpu_get_desc(dev, buf, sizeof(buf));
-		printf("%3d: %-10s %s\n", dev->seq, dev->name,
+		printf("%3d: %-10s %s\n", dev_seq(dev), dev->name,
 		       ret ? "<no description>" : buf);
 		if (!detail)
 			continue;

@@ -162,14 +162,14 @@ struct scsi_cmd {
 #define SCSI_WRITE_SAME	0x41		/* Write Same (O) */
 
 /**
- * struct scsi_platdata - stores information about SCSI controller
+ * struct scsi_plat - stores information about SCSI controller
  *
  * @base: Controller base address
  * @max_lun: Maximum number of logical units
  * @max_id: Maximum number of target ids
  * @max_bytes_per_req: Maximum number of bytes per read/write request
  */
-struct scsi_platdata {
+struct scsi_plat {
 	unsigned long base;
 	unsigned long max_lun;
 	unsigned long max_id;

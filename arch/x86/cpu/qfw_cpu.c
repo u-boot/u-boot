@@ -18,7 +18,7 @@ int qemu_cpu_fixup(void)
 	int cpu_num;
 	int cpu_online;
 	struct udevice *dev, *pdev;
-	struct cpu_platdata *plat;
+	struct cpu_plat *plat;
 	char *cpu;
 
 	/* first we need to find '/cpus' */
@@ -67,7 +67,7 @@ int qemu_cpu_fixup(void)
 			printf("binding cpu@%d failed: %d\n", cpu_num, ret);
 			return ret;
 		}
-		plat = dev_get_parent_platdata(dev);
+		plat = dev_get_parent_plat(dev);
 		plat->cpu_id = cpu_num;
 	}
 	return 0;

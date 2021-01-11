@@ -313,13 +313,12 @@ read_error:
 
 int octeontx_smi_probe(struct udevice *dev)
 {
-	int ret, subnode, cnt = 0, node = dev->node.of_offset;
+	int ret, subnode, cnt = 0, node = dev_ofnode(dev).of_offset;
 	struct mii_dev *bus;
 	struct octeontx_smi_priv *priv;
 	pci_dev_t bdf = dm_pci_get_bdf(dev);
 
 	debug("SMI PCI device: %x\n", bdf);
-	dev->req_seq = PCI_FUNC(bdf);
 	if (!dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM)) {
 		printf("Failed to map PCI region for bdf %x\n", bdf);
 		return -1;
@@ -335,7 +334,7 @@ int octeontx_smi_probe(struct udevice *dev)
 		priv = malloc(sizeof(*priv));
 		if (!bus || !priv) {
 			printf("Failed to allocate OcteonTX MDIO bus # %u\n",
-			       dev->seq);
+			       dev_seq(dev));
 			return -1;
 		}
 

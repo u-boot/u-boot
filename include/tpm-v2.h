@@ -18,6 +18,12 @@
 
 #define TPM2_DIGEST_LEN		32
 
+#define TPM2_SHA1_DIGEST_SIZE 20
+#define TPM2_SHA256_DIGEST_SIZE	32
+#define TPM2_SHA384_DIGEST_SIZE	48
+#define TPM2_SHA512_DIGEST_SIZE	64
+#define TPM2_SM3_256_DIGEST_SIZE 32
+
 #define TPM2_MAX_PCRS 32
 #define TPM2_PCR_SELECT_MAX ((TPM2_MAX_PCRS + 7) / 8)
 #define TPM2_MAX_CAP_BUFFER 1024
@@ -44,6 +50,15 @@
 #define TPM2_PT_PCR_COUNT		(u32)(TPM2_PT_FIXED + 18)
 #define TPM2_PT_MAX_COMMAND_SIZE	(u32)(TPM2_PT_FIXED + 30)
 #define TPM2_PT_MAX_RESPONSE_SIZE	(u32)(TPM2_PT_FIXED + 31)
+
+/* event types */
+#define EV_POST_CODE		((u32)0x00000001)
+#define EV_NO_ACTION		((u32)0x00000003)
+#define EV_SEPARATOR		((u32)0x00000004)
+#define EV_S_CRTM_CONTENTS	((u32)0x00000007)
+#define EV_S_CRTM_VERSION	((u32)0x00000008)
+#define EV_CPU_MICROCODE	((u32)0x00000009)
+#define EV_TABLE_OF_DEVICES	((u32)0x0000000B)
 
 /* TPMS_TAGGED_PROPERTY Structure */
 struct tpms_tagged_property {
@@ -84,6 +99,73 @@ union tpmu_capabilities {
 struct tpms_capability_data {
 	u32 capability;
 	union tpmu_capabilities data;
+} __packed;
+
+/**
+ * SHA1 Event Log Entry Format
+ *
+ * @pcr_index:	PCRIndex event extended to
+ * @event_type:	Type of event (see EFI specs)
+ * @digest:	Value extended into PCR index
+ * @event_size:	Size of event
+ * @event:	Event data
+ */
+struct tcg_pcr_event {
+	u32 pcr_index;
+	u32 event_type;
+	u8 digest[TPM2_SHA1_DIGEST_SIZE];
+	u32 event_size;
+	u8 event[];
+} __packed;
+
+/**
+ * Definition of TPMU_HA Union
+ */
+union tmpu_ha {
+	u8 sha1[TPM2_SHA1_DIGEST_SIZE];
+	u8 sha256[TPM2_SHA256_DIGEST_SIZE];
+	u8 sm3_256[TPM2_SM3_256_DIGEST_SIZE];
+	u8 sha384[TPM2_SHA384_DIGEST_SIZE];
+	u8 sha512[TPM2_SHA512_DIGEST_SIZE];
+} __packed;
+
+/**
+ * Definition of TPMT_HA Structure
+ *
+ * @hash_alg:	Hash algorithm defined in enum tpm2_algorithms
+ * @digest:	Digest value for a given algorithm
+ */
+struct tpmt_ha {
+	u16 hash_alg;
+	union tmpu_ha digest;
+} __packed;
+
+/**
+ * Definition of TPML_DIGEST_VALUES Structure
+ *
+ * @count:	Number of algorithms supported by hardware
+ * @digests:	struct for algorithm id and hash value
+ */
+struct tpml_digest_values {
+	u32 count;
+	struct tpmt_ha digests[TPM2_NUM_PCR_BANKS];
+} __packed;
+
+/**
+ * Crypto Agile Log Entry Format
+ *
+ * @pcr_index:	PCRIndex event extended to
+ * @event_type:	Type of event
+ * @digests:	List of digestsextended to PCR index
+ * @event_size: Size of the event data
+ * @event:	Event data
+ */
+struct tcg_pcr_event2 {
+	u32 pcr_index;
+	u32 event_type;
+	struct tpml_digest_values digests;
+	u32 event_size;
+	u8 event[];
 } __packed;
 
 /**
@@ -309,11 +391,14 @@ u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
  *
  * @dev		TPM device
  * @index	Index of the PCR
+ * @algorithm	Algorithm used, defined in 'enum tpm2_algorithms'
  * @digest	Value representing the event to be recorded
+ * @digest_len  len of the hash
  *
  * @return code of the operation
  */
-u32 tpm2_pcr_extend(struct udevice *dev, u32 index, const uint8_t *digest);
+u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
+		    const u8 *digest, u32 digest_len);
 
 /**
  * Issue a TPM2_PCR_Read command.

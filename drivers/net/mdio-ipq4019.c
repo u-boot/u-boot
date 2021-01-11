@@ -107,8 +107,8 @@ static const struct mdio_ops ipq4019_mdio_ops = {
 
 static int ipq4019_mdio_bind(struct udevice *dev)
 {
-	if (ofnode_valid(dev->node))
-		device_set_name(dev, ofnode_get_name(dev->node));
+	if (ofnode_valid(dev_ofnode(dev)))
+		device_set_name(dev, ofnode_get_name(dev_ofnode(dev)));
 
 	return 0;
 }
@@ -142,5 +142,5 @@ U_BOOT_DRIVER(ipq4019_mdio) = {
 	.bind           = ipq4019_mdio_bind,
 	.probe          = ipq4019_mdio_probe,
 	.ops            = &ipq4019_mdio_ops,
-	.priv_auto_alloc_size   = sizeof(struct ipq4019_mdio_priv),
+	.priv_auto	  = sizeof(struct ipq4019_mdio_priv),
 };

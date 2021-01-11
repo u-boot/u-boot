@@ -14,7 +14,7 @@
  *
  * @base: Register base address
  */
-struct bcm283x_mu_serial_platdata {
+struct bcm283x_mu_serial_plat {
 	unsigned long base;
 	unsigned int clock;
 	bool skip_init;

@@ -19,6 +19,7 @@
 #include <asm/arch-rockchip/cru_rk3368.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/io.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3368-cru.h>
 #include <linux/delay.h>
@@ -582,7 +583,7 @@ static int rk3368_clk_probe(struct udevice *dev)
 {
 	struct rk3368_clk_priv __maybe_unused *priv = dev_get_priv(dev);
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct rk3368_clk_plat *plat = dev_get_platdata(dev);
+	struct rk3368_clk_plat *plat = dev_get_plat(dev);
 
 	priv->cru = map_sysmem(plat->dtd.reg[0], plat->dtd.reg[1]);
 #endif
@@ -593,7 +594,7 @@ static int rk3368_clk_probe(struct udevice *dev)
 	return 0;
 }
 
-static int rk3368_clk_ofdata_to_platdata(struct udevice *dev)
+static int rk3368_clk_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3368_clk_priv *priv = dev_get_priv(dev);
@@ -621,7 +622,7 @@ static int rk3368_clk_bind(struct udevice *dev)
 						    glb_srst_fst_val);
 		priv->glb_srst_snd_value = offsetof(struct rk3368_cru,
 						    glb_srst_snd_val);
-		sys_child->priv = priv;
+		dev_set_priv(sys_child, priv);
 	}
 
 #if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
@@ -643,11 +644,11 @@ U_BOOT_DRIVER(rockchip_rk3368_cru) = {
 	.name		= "rockchip_rk3368_cru",
 	.id		= UCLASS_CLK,
 	.of_match	= rk3368_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct rk3368_clk_priv),
+	.priv_auto	= sizeof(struct rk3368_clk_priv),
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	.platdata_auto_alloc_size = sizeof(struct rk3368_clk_plat),
+	.plat_auto	= sizeof(struct rk3368_clk_plat),
 #endif
-	.ofdata_to_platdata = rk3368_clk_ofdata_to_platdata,
+	.of_to_plat = rk3368_clk_of_to_plat,
 	.ops		= &rk3368_clk_ops,
 	.bind		= rk3368_clk_bind,
 	.probe		= rk3368_clk_probe,

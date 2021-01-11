@@ -600,7 +600,7 @@ U_BOOT_DRIVER(i2c_mv) = {
 	.id	= UCLASS_I2C,
 	.of_match = mv_i2c_ids,
 	.probe	= mv_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct mv_i2c_priv),
+	.priv_auto	= sizeof(struct mv_i2c_priv),
 	.ops	= &mv_i2c_ops,
 };
 #endif /* CONFIG_DM_I2C */

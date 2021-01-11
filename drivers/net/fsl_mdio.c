@@ -248,8 +248,8 @@ U_BOOT_DRIVER(tsec_mdio) = {
 	.probe = tsec_mdio_probe,
 	.remove = tsec_mdio_remove,
 	.ops = &tsec_mdio_ops,
-	.priv_auto_alloc_size = sizeof(struct tsec_mdio_priv),
-	.platdata_auto_alloc_size = sizeof(struct mdio_perdev_priv),
+	.priv_auto	= sizeof(struct tsec_mdio_priv),
+	.plat_auto	= sizeof(struct mdio_perdev_priv),
 };
 #endif /* CONFIG_PHYLIB */
 #endif /* CONFIG_DM_MDIO */

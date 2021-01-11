@@ -75,6 +75,14 @@ void board_quiesce_devices(void);
  */
 void switch_to_non_secure_mode(void);
 
+/* Flags to control bootm_process_cmdline() */
+enum bootm_cmdline_t {
+	BOOTM_CL_SILENT	= 1 << 0,	/* Do silent console processing */
+	BOOTM_CL_SUBST	= 1 << 1,	/* Do substitution */
+
+	BOOTM_CL_ALL	= 3,		/* All substitutions */
+};
+
 /**
  * arch_preboot_os() - arch specific configuration before booting
  */
@@ -84,5 +92,37 @@ void arch_preboot_os(void);
  * board_preboot_os() - board specific configuration before booting
  */
 void board_preboot_os(void);
+
+/*
+ * bootm_process_cmdline() - Process fix-ups for the command line
+ *
+ * This handles:
+ *
+ *  - making Linux boot silently if requested ('silent_linux' envvar)
+ *  - performing substitutions in the command line ('bootargs_subst' envvar)
+ *
+ * @maxlen must provide enough space for the string being processed plus the
+ * resulting string
+ *
+ * @buf: buffer holding commandline string to adjust
+ * @maxlen: Maximum length of buffer at @buf (including \0)
+ * @flags: Flags to control what happens (see bootm_cmdline_t)
+ * @return 0 if OK, -ENOMEM if out of memory, -ENOSPC if the commandline is too
+ *	long
+ */
+int bootm_process_cmdline(char *buf, int maxlen, int flags);
+
+/**
+ * bootm_process_cmdline_env() - Process fix-ups for the command line
+ *
+ * Updates the 'bootargs' envvar as required. This handles:
+ *
+ *  - making Linux boot silently if requested ('silent_linux' envvar)
+ *  - performing substitutions in the command line ('bootargs_subst' envvar)
+ *
+ * @flags: Flags to control what happens (see bootm_cmdline_t)
+ * @return 0 if OK, -ENOMEM if out of memory
+ */
+int bootm_process_cmdline_env(int flags);
 
 #endif

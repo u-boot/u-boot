@@ -1051,6 +1051,6 @@ U_BOOT_DRIVER(stm32_fmc2_ebi) = {
 	.id = UCLASS_NOP,
 	.of_match = stm32_fmc2_ebi_match,
 	.probe = stm32_fmc2_ebi_probe,
-	.priv_auto_alloc_size = sizeof(struct stm32_fmc2_ebi),
+	.priv_auto	= sizeof(struct stm32_fmc2_ebi),
 	.bind = dm_scan_fdt_dev,
 };

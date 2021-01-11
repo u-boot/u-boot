@@ -411,6 +411,34 @@ index 0000000..2234c87
         pm.add_line('common/main.c', 'if (CONFIG_IS_ENABLED(CONFIG_CLK))')
         self.checkSingleMessage(pm, 'CONFIG_IS_ENABLED_CONFIG', 'error')
 
+    def check_struct(self, auto, suffix, warning):
+        """Check one of the warnings for struct naming
+
+        Args:
+            auto: Auto variable name, e.g. 'per_child_auto'
+            suffix: Suffix to expect on member, e.g. '_priv'
+            warning: Warning name, e.g. 'PRIV_AUTO'
+        """
+        pm = PatchMaker()
+        pm.add_line('common/main.c', '.%s = sizeof(struct(fred)),' % auto)
+        pm.add_line('common/main.c', '.%s = sizeof(struct(mary%s)),' %
+                    (auto, suffix))
+        self.checkSingleMessage(
+            pm, warning, "struct 'fred' should have a %s suffix" % suffix)
+
+    def testDmDriverAuto(self):
+        """Check for the correct suffix on 'struct driver' auto members"""
+        self.check_struct('priv_auto', '_priv', 'PRIV_AUTO')
+        self.check_struct('plat_auto', '_plat', 'PLAT_AUTO')
+        self.check_struct('per_child_auto', '_priv', 'CHILD_PRIV_AUTO')
+        self.check_struct('per_child_plat_auto', '_plat', 'CHILD_PLAT_AUTO')
+
+    def testDmUclassAuto(self):
+        """Check for the correct suffix on 'struct uclass' auto members"""
+        # Some of these are omitted since they match those from struct driver
+        self.check_struct('per_device_auto', '_priv', 'DEVICE_PRIV_AUTO')
+        self.check_struct('per_device_plat_auto', '_plat', 'DEVICE_PLAT_AUTO')
+
 
 if __name__ == "__main__":
     unittest.main()

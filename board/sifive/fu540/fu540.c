@@ -58,7 +58,7 @@ static u32 fu540_read_serialnum(void)
 
 	/* init OTP */
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_GET_DRIVER(sifive_otp), &dev);
+					  DM_DRIVER_GET(sifive_otp), &dev);
 
 	if (ret) {
 		debug("%s: could not find otp device\n", __func__);

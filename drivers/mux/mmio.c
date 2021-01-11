@@ -12,6 +12,7 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <dm/device.h>
+#include <dm/device-internal.h>
 #include <dm/device_compat.h>
 #include <dm/read.h>
 #include <dm/devres.h>
@@ -68,7 +69,7 @@ static int mmio_mux_probe(struct udevice *dev)
 	fields = devm_kmalloc(dev, num_fields * sizeof(*fields), __GFP_ZERO);
 	if (!fields)
 		return -ENOMEM;
-	dev->priv = fields;
+	dev_set_priv(dev, fields);
 
 	mux_reg_masks = devm_kmalloc(dev, num_fields * 2 * sizeof(u32),
 				     __GFP_ZERO);

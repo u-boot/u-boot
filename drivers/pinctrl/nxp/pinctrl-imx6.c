@@ -47,9 +47,9 @@ U_BOOT_DRIVER(fsl_imx6q_iomuxc) = {
 	.of_match = of_match_ptr(imx6_pinctrl_match),
 	.probe = imx6_pinctrl_probe,
 	.remove = imx_pinctrl_remove,
-	.priv_auto_alloc_size = sizeof(struct imx_pinctrl_priv),
+	.priv_auto	= sizeof(struct imx_pinctrl_priv),
 	.ops = &imx_pinctrl_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER_ALIAS(fsl_imx6q_iomuxc, fsl_imx6dl_iomuxc)
+DM_DRIVER_ALIAS(fsl_imx6q_iomuxc, fsl_imx6dl_iomuxc)

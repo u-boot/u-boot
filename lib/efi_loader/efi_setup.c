@@ -100,9 +100,9 @@ static efi_status_t efi_init_secure_boot(void)
 
 	ret = efi_set_variable_int(L"SignatureSupport",
 				   &efi_global_variable_guid,
+				   EFI_VARIABLE_READ_ONLY |
 				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
-				   EFI_VARIABLE_RUNTIME_ACCESS |
-				   EFI_VARIABLE_READ_ONLY,
+				   EFI_VARIABLE_RUNTIME_ACCESS,
 				   sizeof(signature_types),
 				   &signature_types, false);
 	if (ret != EFI_SUCCESS)
@@ -118,13 +118,67 @@ static efi_status_t efi_init_secure_boot(void)
 #endif /* CONFIG_EFI_SECURE_BOOT */
 
 /**
+ * efi_init_capsule - initialize capsule update state
+ *
+ * Return:	status code
+ */
+static efi_status_t efi_init_capsule(void)
+{
+	efi_status_t ret = EFI_SUCCESS;
+
+	if (IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_UPDATE)) {
+		ret = efi_set_variable_int(L"CapsuleMax",
+					   &efi_guid_capsule_report,
+					   EFI_VARIABLE_READ_ONLY |
+					   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+					   EFI_VARIABLE_RUNTIME_ACCESS,
+					   22, L"CapsuleFFFF", false);
+		if (ret != EFI_SUCCESS)
+			printf("EFI: cannot initialize CapsuleMax variable\n");
+	}
+
+	return ret;
+}
+
+/**
+ * efi_init_os_indications() - indicate supported features for OS requests
+ *
+ * Set the OsIndicationsSupported variable.
+ *
+ * Return:	status code
+ */
+static efi_status_t efi_init_os_indications(void)
+{
+	u64 os_indications_supported = 0;
+
+	if (IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT))
+		os_indications_supported |=
+			EFI_OS_INDICATIONS_CAPSULE_RESULT_VAR_SUPPORTED;
+
+	if (IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK))
+		os_indications_supported |=
+			EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED;
+
+	if (IS_ENABLED(CONFIG_EFI_CAPSULE_FIRMWARE_MANAGEMENT))
+		os_indications_supported |=
+			EFI_OS_INDICATIONS_FMP_CAPSULE_SUPPORTED;
+
+	return efi_set_variable_int(L"OsIndicationsSupported",
+				    &efi_global_variable_guid,
+				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				    EFI_VARIABLE_RUNTIME_ACCESS |
+				    EFI_VARIABLE_READ_ONLY,
+				    sizeof(os_indications_supported),
+				    &os_indications_supported, false);
+}
+
+/**
  * efi_init_obj_list() - Initialize and populate EFI object list
  *
  * Return:	status code
  */
 efi_status_t efi_init_obj_list(void)
 {
-	u64 os_indications_supported = 0; /* None */
 	efi_status_t ret = EFI_SUCCESS;
 
 	/* Initialize once only */
@@ -157,12 +211,6 @@ efi_status_t efi_init_obj_list(void)
 			goto out;
 	}
 
-	if (IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL)) {
-		ret = efi_tcg2_register();
-		if (ret != EFI_SUCCESS)
-			goto out;
-	}
-
 	/* Initialize variable services */
 	ret = efi_init_variables();
 	if (ret != EFI_SUCCESS)
@@ -174,13 +222,7 @@ efi_status_t efi_init_obj_list(void)
 		goto out;
 
 	/* Indicate supported features */
-	ret = efi_set_variable_int(L"OsIndicationsSupported",
-				   &efi_global_variable_guid,
-				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
-				   EFI_VARIABLE_RUNTIME_ACCESS |
-				   EFI_VARIABLE_READ_ONLY,
-				   sizeof(os_indications_supported),
-				   &os_indications_supported, false);
+	ret = efi_init_os_indications();
 	if (ret != EFI_SUCCESS)
 		goto out;
 
@@ -188,6 +230,12 @@ efi_status_t efi_init_obj_list(void)
 	ret = efi_initialize_system_table();
 	if (ret != EFI_SUCCESS)
 		goto out;
+
+	if (IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL)) {
+		ret = efi_tcg2_register();
+		if (ret != EFI_SUCCESS)
+			goto out;
+	}
 
 	/* Secure boot */
 	ret = efi_init_secure_boot();
@@ -206,11 +254,6 @@ efi_status_t efi_init_obj_list(void)
 
 #if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
 	ret = efi_gop_register();
-	if (ret != EFI_SUCCESS)
-		goto out;
-#endif
-#ifdef CONFIG_EFI_LOAD_FILE2_INITRD
-	ret = efi_initrd_register();
 	if (ret != EFI_SUCCESS)
 		goto out;
 #endif
@@ -233,11 +276,19 @@ efi_status_t efi_init_obj_list(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
+	ret = efi_init_capsule();
+	if (ret != EFI_SUCCESS)
+		goto out;
+
 	/* Initialize EFI runtime services */
 	ret = efi_reset_system_init();
 	if (ret != EFI_SUCCESS)
 		goto out;
 
+	/* Execute capsules after reboot */
+	if (IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK) &&
+	    !IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK_EARLY))
+		ret = efi_launch_capsules();
 out:
 	efi_obj_list_initialized = ret;
 	return ret;

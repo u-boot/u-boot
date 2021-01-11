@@ -41,7 +41,7 @@
 
 	cros_ec: cros-ec {
 		reg = <0 0>;
-		u-boot,dm-pre-reloc;
+		u-boot,dm-pre-proper;
 		compatible = "google,cros-ec-sandbox";
 	};
 
@@ -83,7 +83,7 @@
 	};
 
 	spi: spi@0 {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-pre-proper;
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0 0>;

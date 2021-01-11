@@ -548,6 +548,7 @@ S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/arm/mach-zynq/
 F:	doc/board/xilinx/
+F:	doc/device-tree-bindings/video/syncoam,seps525.txt
 F:	drivers/clk/clk_zynq.c
 F:	drivers/fpga/zynqpl.c
 F:	drivers/gpio/zynq_gpio.c
@@ -589,6 +590,7 @@ F:	drivers/spi/zynq_qspi.c
 F:	drivers/spi/zynq_spi.c
 F:	drivers/timer/cadence-ttc.c
 F:	drivers/usb/host/ehci-zynq.c
+F:	drivers/video/seps525.c
 F:	drivers/watchdog/cdns_wdt.c
 F:	include/zynqmppl.h
 F:	include/zynqmp_firmware.h

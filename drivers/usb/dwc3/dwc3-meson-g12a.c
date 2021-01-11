@@ -258,7 +258,7 @@ static int dwc3_meson_g12a_usb_init(struct dwc3_meson_g12a *priv)
 
 int dwc3_meson_g12a_force_mode(struct udevice *dev, enum usb_dr_mode mode)
 {
-	struct dwc3_meson_g12a *priv = dev_get_platdata(dev);
+	struct dwc3_meson_g12a *priv = dev_get_plat(dev);
 
 	if (!priv)
 		return -EINVAL;
@@ -356,7 +356,7 @@ static int dwc3_meson_g12a_clk_init(struct dwc3_meson_g12a *priv)
 
 static int dwc3_meson_g12a_probe(struct udevice *dev)
 {
-	struct dwc3_meson_g12a *priv = dev_get_platdata(dev);
+	struct dwc3_meson_g12a *priv = dev_get_plat(dev);
 	int ret, i;
 
 	priv->dev = dev;
@@ -392,7 +392,7 @@ static int dwc3_meson_g12a_probe(struct udevice *dev)
 	}
 #endif
 
-	priv->otg_mode = usb_get_dr_mode(dev->node);
+	priv->otg_mode = usb_get_dr_mode(dev_ofnode(dev));
 
 	ret = dwc3_meson_g12a_usb_init(priv);
 	if (ret)
@@ -431,7 +431,7 @@ err_phy_init:
 
 static int dwc3_meson_g12a_remove(struct udevice *dev)
 {
-	struct dwc3_meson_g12a *priv = dev_get_platdata(dev);
+	struct dwc3_meson_g12a *priv = dev_get_plat(dev);
 	int i;
 
 	reset_release_all(&priv->reset, 1);
@@ -466,6 +466,6 @@ U_BOOT_DRIVER(dwc3_generic_wrapper) = {
 	.of_match = dwc3_meson_g12a_ids,
 	.probe = dwc3_meson_g12a_probe,
 	.remove = dwc3_meson_g12a_remove,
-	.platdata_auto_alloc_size = sizeof(struct dwc3_meson_g12a),
+	.plat_auto	= sizeof(struct dwc3_meson_g12a),
 
 };

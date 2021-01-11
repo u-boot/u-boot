@@ -56,7 +56,7 @@ int set_km_env(void)
 
 	/* try to read rootfssize (ram image) from environment */
 	p = env_get("rootfssize");
-	if (p != NULL)
+	if (p)
 		strict_strtoul(p, 16, &rootfssize);
 	pram = (rootfssize + CONFIG_KM_RESERVED_PRAM + CONFIG_KM_PHRAM +
 		CONFIG_KM_PNVRAM) / 0x400;
@@ -165,7 +165,7 @@ static int do_setboardid(struct cmd_tbl *cmdtp, int flag, int argc,
 	char *p;
 
 	p = get_local_var("IVM_BoardId");
-	if (p == NULL) {
+	if (!p) {
 		printf("can't get the IVM_Boardid\n");
 		return 1;
 	}
@@ -174,7 +174,7 @@ static int do_setboardid(struct cmd_tbl *cmdtp, int flag, int argc,
 	printf("set boardid=%s\n", buf);
 
 	p = get_local_var("IVM_HWKey");
-	if (p == NULL) {
+	if (!p) {
 		printf("can't get the IVM_HWKey\n");
 		return 1;
 	}
@@ -186,8 +186,8 @@ static int do_setboardid(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
-U_BOOT_CMD(km_setboardid, 1, 0, do_setboardid, "setboardid", "read out bid and "
-				 "hwkey from IVM and set in environment");
+U_BOOT_CMD(km_setboardid, 1, 0, do_setboardid, "setboardid",
+	   "read out bid and hwkey from IVM and set in environment");
 
 /*
  * command km_checkbidhwk
@@ -218,14 +218,14 @@ static int do_checkboardidhwk(struct cmd_tbl *cmdtp, int flag, int argc,
 	 * already stored in the local hush variables
 	 */
 	p = get_local_var("IVM_BoardId");
-	if (p == NULL) {
+	if (!p) {
 		printf("can't get the IVM_Boardid\n");
 		return 1;
 	}
 	rc = strict_strtoul(p, 16, &ivmbid);
 
 	p = get_local_var("IVM_HWKey");
-	if (p == NULL) {
+	if (!p) {
 		printf("can't get the IVM_HWKey\n");
 		return 1;
 	}
@@ -238,10 +238,10 @@ static int do_checkboardidhwk(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* now try to read values from environment if available */
 	p = env_get("boardid");
-	if (p != NULL)
+	if (p)
 		rc = strict_strtoul(p, 16, &envbid);
 	p = env_get("hwkey");
-	if (p != NULL)
+	if (p)
 		rc = strict_strtoul(p, 16, &envhwkey);
 
 	if (rc != 0) {
@@ -263,9 +263,8 @@ static int do_checkboardidhwk(struct cmd_tbl *cmdtp, int flag, int argc,
 
 			if (verbose) {
 				printf("IVM_BoardId: %ld, IVM_HWKey=%ld\n",
-					ivmbid, ivmhwkey);
-				printf("boardIdHwKeyList: %s\n",
-					bidhwklist);
+				       ivmbid, ivmhwkey);
+				printf("boardIdHwKeyList: %s\n", bidhwklist);
 			}
 			while (!found) {
 				/* loop over each bid/hwkey pair in the list */
@@ -291,13 +290,13 @@ static int do_checkboardidhwk(struct cmd_tbl *cmdtp, int flag, int argc,
 					while (*rest && !isxdigit(*rest))
 						rest++;
 				}
-				if ((!bid) || (!hwkey)) {
+				if (!bid || !hwkey) {
 					/* end of list */
 					break;
 				}
 				if (verbose) {
 					printf("trying bid=0x%lX, hwkey=%ld\n",
-						bid, hwkey);
+					       bid, hwkey);
 				}
 				/*
 				 * Compare the values of the found entry in the
@@ -305,7 +304,7 @@ static int do_checkboardidhwk(struct cmd_tbl *cmdtp, int flag, int argc,
 				 * in the inventory eeprom. If they are equal
 				 * set the values in environment variables.
 				 */
-				if ((bid == ivmbid) && (hwkey == ivmhwkey)) {
+				if (bid == ivmbid && hwkey == ivmhwkey) {
 					char buf[10];
 
 					found = 1;
@@ -321,12 +320,12 @@ static int do_checkboardidhwk(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	/* compare now the values */
-	if ((ivmbid == envbid) && (ivmhwkey == envhwkey)) {
+	if (ivmbid == envbid && ivmhwkey == envhwkey) {
 		printf("boardid=0x%3lX, hwkey=%ld\n", envbid, envhwkey);
 		rc = 0; /* match */
 	} else {
 		printf("Error: env boardid=0x%3lX, hwkey=%ld\n", envbid,
-			envhwkey);
+		       envhwkey);
 		printf("       IVM bId=0x%3lX, hwKey=%ld\n", ivmbid, ivmhwkey);
 		rc = 1; /* don't match */
 	}
@@ -334,10 +333,8 @@ static int do_checkboardidhwk(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 U_BOOT_CMD(km_checkbidhwk, 2, 0, do_checkboardidhwk,
-		"check boardid and hwkey",
-		"[v]\n  - check environment parameter "\
-		"\"boardIdListHex\" against stored boardid and hwkey "\
-		"from the IVM\n    v: verbose output"
+	   "check boardid and hwkey",
+	   "[v]\n  - check environment parameter \"boardIdListHex\" against stored boardid and hwkey from the IVM\n    v: verbose output"
 );
 
 /*
@@ -356,6 +353,7 @@ static int do_checktestboot(struct cmd_tbl *cmdtp, int flag, int argc,
 #if defined(CONFIG_POST)
 	testpin = post_hotkeys_pressed();
 #endif
+
 	s = env_get("test_bank");
 	/* when test_bank is not set, act as if testpin is not asserted */
 	testboot = (testpin != 0) && (s);
@@ -370,6 +368,6 @@ static int do_checktestboot(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 U_BOOT_CMD(km_checktestboot, 2, 0, do_checktestboot,
-		"check if testpin is asserted",
-		"[v]\n  v - verbose output"
+	   "check if testpin is asserted",
+	   "[v]\n  v - verbose output"
 );

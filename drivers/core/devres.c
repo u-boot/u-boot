@@ -23,7 +23,7 @@
 /** enum devres_phase - Shows where resource was allocated
  *
  * DEVRES_PHASE_BIND: In the bind() method
- * DEVRES_PHASE_OFDATA: In the ofdata_to_platdata() method
+ * DEVRES_PHASE_OFDATA: In the of_to_plat() method
  * DEVRES_PHASE_PROBE: In the probe() method
  */
 enum devres_phase {
@@ -107,9 +107,9 @@ void devres_add(struct udevice *dev, void *res)
 
 	devres_log(dev, dr, "ADD");
 	assert_noisy(list_empty(&dr->entry));
-	if (dev->flags & DM_FLAG_PLATDATA_VALID)
+	if (dev_get_flags(dev) & DM_FLAG_PLATDATA_VALID)
 		dr->phase = DEVRES_PHASE_PROBE;
-	else if (dev->flags & DM_FLAG_BOUND)
+	else if (dev_get_flags(dev) & DM_FLAG_BOUND)
 		dr->phase = DEVRES_PHASE_OFDATA;
 	else
 		dr->phase = DEVRES_PHASE_BIND;

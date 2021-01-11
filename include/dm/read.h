@@ -21,7 +21,7 @@ struct resource;
 #if CONFIG_IS_ENABLED(OF_LIVE)
 static inline const struct device_node *dev_np(const struct udevice *dev)
 {
-	return ofnode_to_np(dev->node);
+	return ofnode_to_np(dev_ofnode(dev));
 }
 #else
 static inline const struct device_node *dev_np(const struct udevice *dev)
@@ -29,22 +29,6 @@ static inline const struct device_node *dev_np(const struct udevice *dev)
 	return NULL;
 }
 #endif
-
-/**
- * dev_ofnode() - get the DT node reference associated with a udevice
- *
- * @dev:	device to check
- * @return reference of the the device's DT node
- */
-static inline ofnode dev_ofnode(const struct udevice *dev)
-{
-	return dev->node;
-}
-
-static inline bool dev_of_valid(const struct udevice *dev)
-{
-	return ofnode_valid(dev_ofnode(dev));
-}
 
 #ifndef CONFIG_DM_DEV_READ_INLINE
 

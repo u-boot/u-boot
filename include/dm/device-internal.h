@@ -19,8 +19,8 @@ struct udevice;
  * device_bind() - Create a device and bind it to a driver
  *
  * Called to set up a new device attached to a driver. The device will either
- * have platdata, or a device tree node which can be used to create the
- * platdata.
+ * have plat, or a device tree node which can be used to create the
+ * plat.
  *
  * Once bound a device exists but is not yet active until device_probe() is
  * called.
@@ -28,21 +28,17 @@ struct udevice;
  * @parent: Pointer to device's parent, under which this driver will exist
  * @drv: Device's driver
  * @name: Name of device (e.g. device tree node name)
- * @platdata: Pointer to data for this device - the structure is device-
+ * @plat: Pointer to data for this device - the structure is device-
  * specific but may include the device's I/O address, etc.. This is NULL for
  * devices which use device tree.
- * @of_offset: Offset of device tree node for this device. This is -1 for
- * devices which don't use device tree.
+ * @ofnode: Devicetree node for this device. This is ofnode_null() for
+ * devices which don't use devicetree or don't have a node.
  * @devp: if non-NULL, returns a pointer to the bound device
  * @return 0 if OK, -ve on error
  */
 int device_bind(struct udevice *parent, const struct driver *drv,
-		const char *name, void *platdata, int of_offset,
+		const char *name, void *plat, ofnode node,
 		struct udevice **devp);
-
-int device_bind_ofnode(struct udevice *parent, const struct driver *drv,
-		       const char *name, void *platdata, ofnode node,
-		       struct udevice **devp);
 
 /**
  * device_bind_with_driver_data() - Create a device and bind it to a driver
@@ -76,7 +72,7 @@ int device_bind_with_driver_data(struct udevice *parent,
  * @parent: Pointer to device's parent
  * @pre_reloc_only: If true, bind the driver only if its DM_FLAG_PRE_RELOC flag
  * is set. If false bind the driver always.
- * @info: Name and platdata for this device
+ * @info: Name and plat for this device
  * @devp: if non-NULL, returns a pointer to the bound device
  * @return 0 if OK, -ve on error
  */
@@ -93,7 +89,7 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 int device_reparent(struct udevice *dev, struct udevice *new_parent);
 
 /**
- * device_ofdata_to_platdata() - Read platform data for a device
+ * device_of_to_plat() - Read platform data for a device
  *
  * Read platform data for a device (typically from the device tree) so that
  * the information needed to probe the device is present.
@@ -106,7 +102,7 @@ int device_reparent(struct udevice *dev, struct udevice *new_parent);
  * @dev: Pointer to device to process
  * @return 0 if OK, -ve on error
  */
-int device_ofdata_to_platdata(struct udevice *dev);
+int device_of_to_plat(struct udevice *dev);
 
 /**
  * device_probe() - Probe a device, activating it
@@ -194,6 +190,90 @@ static inline int device_chld_remove(struct udevice *dev, struct driver *drv,
 #endif
 
 /**
+ * dev_set_priv() - Set the private data for a device
+ *
+ * This is normally handled by driver model, which automatically allocates
+ * private data when an 'auto' size if provided by the driver.
+ *
+ * Use this function to override normal operation for special situations, such
+ * as needing to allocate a variable amount of data.
+ *
+ * @dev		Device to check
+ * @priv	New private-data pointer
+ */
+void dev_set_priv(struct udevice *dev, void *priv);
+
+/**
+ * dev_set_parent_priv() - Set the parent-private data for a device
+ *
+ * This is normally handled by driver model, which automatically allocates
+ * parent-private data when an 'auto' size if provided by the driver.
+ *
+ * Use this function to override normal operation for special situations, such
+ * as needing to allocate a variable amount of data.
+ *
+ * @dev:	Device to update
+ * @parent_priv: New parent-private data
+ */
+void dev_set_parent_priv(struct udevice *dev, void *parent_priv);
+
+/**
+ * dev_set_uclass_priv() - Set the uclass private data for a device
+ *
+ * This is normally handled by driver model, which automatically allocates
+ * uclass-private data when an 'auto' size if provided by the driver.
+ *
+ * Use this function to override normal operation for special situations, such
+ * as needing to allocate a variable amount of data.
+ *
+ * @dev:	Device to update
+ * @uclass_priv: New uclass private data
+ */
+void dev_set_uclass_priv(struct udevice *dev, void *uclass_priv);
+
+/**
+ * dev_set_plat() - Set the platform data for a device
+ *
+ * This is normally handled by driver model, which automatically allocates
+ * platform data when an 'auto' size if provided by the driver.
+ *
+ * Use this function to override normal operation for special situations, such
+ * as needing to allocate a variable amount of data.
+ *
+ * @dev		Device to check
+ * @plat	New platform-data pointer
+ */
+void dev_set_plat(struct udevice *dev, void *priv);
+
+/**
+ * dev_set_parent_plat() - Set the parent platform data for a device
+ *
+ * This is normally handled by driver model, which automatically allocates
+ * parent platform data when an 'auto' size if provided by the driver.
+ *
+ * Use this function to override normal operation for special situations, such
+ * as needing to allocate a variable amount of data.
+ *
+ * @dev:	Device to update
+ * @parent_plat: New parent platform data
+ */
+void dev_set_parent_plat(struct udevice *dev, void *parent_plat);
+
+/**
+ * dev_set_uclass_plat() - Set the uclass platform data for a device
+ *
+ * This is normally handled by driver model, which automatically allocates
+ * uclass platform data when an 'auto' size if provided by the driver.
+ *
+ * Use this function to override normal operation for special situations, such
+ * as needing to allocate a variable amount of data.
+ *
+ * @dev:	Device to update
+ * @uclass_plat: New uclass platform data
+ */
+void dev_set_uclass_plat(struct udevice *dev, void *uclass_plat);
+
+/**
  * simple_bus_translate() - translate a bus address to a system address
  *
  * This handles the 'ranges' property in a simple bus. It translates the
@@ -208,6 +288,7 @@ fdt_addr_t simple_bus_translate(struct udevice *dev, fdt_addr_t addr);
 /* Cast away any volatile pointer */
 #define DM_ROOT_NON_CONST		(((gd_t *)gd)->dm_root)
 #define DM_UCLASS_ROOT_NON_CONST	(((gd_t *)gd)->uclass_root)
+#define DM_UCLASS_ROOT_S_NON_CONST	(((gd_t *)gd)->uclass_root_s)
 
 /* device resource management */
 #ifdef CONFIG_DEVRES

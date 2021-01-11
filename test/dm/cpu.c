@@ -25,7 +25,7 @@ static int dm_test_cpu(struct unit_test_state *uts)
 	for (uclass_find_first_device(UCLASS_CPU, &dev);
 	     dev;
 	     uclass_find_next_device(&dev))
-		ut_assert(dev->flags & DM_FLAG_ACTIVATED);
+		ut_assert(dev_get_flags(dev) & DM_FLAG_ACTIVATED);
 
 	ut_assertok(uclass_get_device_by_name(UCLASS_CPU, "cpu-test1", &dev));
 	ut_asserteq_ptr(cpu_get_current_dev(), dev);

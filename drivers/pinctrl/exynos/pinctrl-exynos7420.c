@@ -110,7 +110,7 @@ U_BOOT_DRIVER(pinctrl_exynos7420) = {
 	.name		= "pinctrl_exynos7420",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= exynos7420_pinctrl_ids,
-	.priv_auto_alloc_size = sizeof(struct exynos_pinctrl_priv),
+	.priv_auto	= sizeof(struct exynos_pinctrl_priv),
 	.ops		= &exynos7420_pinctrl_ops,
 	.probe		= exynos_pinctrl_probe,
 };

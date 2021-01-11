@@ -15,12 +15,12 @@
 #include <linux/ctype.h>
 
 /**
- * struct swap_case_platdata - platform data for this device
+ * struct swap_case_plat - platform data for this device
  *
  * @command:	Current PCI command value
  * @bar:	Current base address values
  */
-struct swap_case_platdata {
+struct swap_case_plat {
 	u16 command;
 	u32 bar[6];
 };
@@ -54,7 +54,7 @@ struct swap_case_priv {
 
 static int sandbox_swap_case_use_ea(const struct udevice *dev)
 {
-	return !!ofnode_get_property(dev->node, "use-ea", NULL);
+	return !!ofnode_get_property(dev_ofnode(dev), "use-ea", NULL);
 }
 
 /* Please keep these macros in sync with ea_regs below */
@@ -100,7 +100,7 @@ static int sandbox_swap_case_read_config(const struct udevice *emul,
 					 uint offset, ulong *valuep,
 					 enum pci_size_t size)
 {
-	struct swap_case_platdata *plat = dev_get_platdata(emul);
+	struct swap_case_plat *plat = dev_get_plat(emul);
 
 	/*
 	 * The content of the EA capability structure is handled elsewhere to
@@ -200,7 +200,7 @@ static int sandbox_swap_case_read_config(const struct udevice *emul,
 static int sandbox_swap_case_write_config(struct udevice *emul, uint offset,
 					  ulong value, enum pci_size_t size)
 {
-	struct swap_case_platdata *plat = dev_get_platdata(emul);
+	struct swap_case_plat *plat = dev_get_plat(emul);
 
 	switch (offset) {
 	case PCI_COMMAND:
@@ -228,7 +228,7 @@ static int sandbox_swap_case_write_config(struct udevice *emul, uint offset,
 static int sandbox_swap_case_find_bar(struct udevice *emul, unsigned int addr,
 				      int *barnump, unsigned int *offsetp)
 {
-	struct swap_case_platdata *plat = dev_get_platdata(emul);
+	struct swap_case_plat *plat = dev_get_plat(emul);
 	int barnum;
 
 	for (barnum = 0; barnum < ARRAY_SIZE(barinfo); barnum++) {
@@ -391,8 +391,8 @@ U_BOOT_DRIVER(sandbox_swap_case_emul) = {
 	.id		= UCLASS_PCI_EMUL,
 	.of_match	= sandbox_swap_case_ids,
 	.ops		= &sandbox_swap_case_emul_ops,
-	.priv_auto_alloc_size = sizeof(struct swap_case_priv),
-	.platdata_auto_alloc_size = sizeof(struct swap_case_platdata),
+	.priv_auto	= sizeof(struct swap_case_priv),
+	.plat_auto	= sizeof(struct swap_case_plat),
 };
 
 static struct pci_device_id sandbox_swap_case_supported[] = {

@@ -117,7 +117,31 @@ int cmd_process_error(struct cmd_tbl *cmdtp, int err);
 	defined(CONFIG_CMD_PCI) || \
 	defined(CONFIG_CMD_SETEXPR)
 #define CMD_DATA_SIZE
-extern int cmd_get_data_size(char* arg, int default_size);
+#define CMD_DATA_SIZE_ERR	(-1)
+#define CMD_DATA_SIZE_STR	(-2)
+
+/**
+ * cmd_get_data_size() - Get the data-size specifier from a command
+ *
+ * This reads a '.x' size specifier appended to a command. For example 'md.b'
+ * is the 'md' command with a '.b' specifier, meaning that the command should
+ * use bytes.
+ *
+ * Valid characters are:
+ *
+ *	b - byte
+ *	w - word (16 bits)
+ *	l - long (32 bits)
+ *	q - quad (64 bits)
+ *	s - string
+ *
+ * @arg: Pointers to the command to check. If a valid specifier is present it
+ *	will be the last character of the string, following a '.'
+ * @default_size: Default size to return if there is no specifier
+ * @return data size in bytes (1, 2, 4, 8) or CMD_DATA_SIZE_ERR for an invalid
+ *	character, or CMD_DATA_SIZE_STR for a string
+ */
+int cmd_get_data_size(char *arg, int default_size);
 #endif
 
 #ifdef CONFIG_CMD_BOOTD
@@ -158,6 +182,23 @@ extern int do_env_print_efi(struct cmd_tbl *cmdtp, int flag, int argc,
 extern int do_env_set_efi(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[]);
 #endif
+
+/**
+ * setexpr_regex_sub() - Replace a regex pattern with a string
+ *
+ * @data: Buffer containing the string to update
+ * @data_size: Size of buffer (must be large enough for the new string)
+ * @nbuf: Back-reference buffer
+ * @nbuf_size: Size of back-reference buffer (must be larger enough for @s plus
+ *	all back-reference expansions)
+ * @r: Regular expression to find
+ * @s: String to replace with
+ * @global: true to replace all matches in @data, false to replace just the
+ *	first
+ * @return 0 if OK, 1 on error
+ */
+int setexpr_regex_sub(char *data, uint data_size, char *nbuf, uint nbuf_size,
+		      const char *r, const char *s, bool global);
 
 /*
  * Error codes that commands return to cmd_process(). We use the standard 0

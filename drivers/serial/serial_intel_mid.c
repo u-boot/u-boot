@@ -21,7 +21,7 @@
 #define UART_MUL	0x34
 #define UART_DIV	0x38
 
-static void mid_writel(struct ns16550_platdata *plat, int offset, int value)
+static void mid_writel(struct ns16550_plat *plat, int offset, int value)
 {
 	unsigned char *addr;
 
@@ -33,7 +33,7 @@ static void mid_writel(struct ns16550_platdata *plat, int offset, int value)
 
 static int mid_serial_probe(struct udevice *dev)
 {
-	struct ns16550_platdata *plat = dev_get_platdata(dev);
+	struct ns16550_plat *plat = dev_get_plat(dev);
 
 	/*
 	 * Initialize fractional divider correctly for Intel Edison
@@ -59,9 +59,9 @@ U_BOOT_DRIVER(serial_intel_mid) = {
 	.name	= "serial_intel_mid",
 	.id	= UCLASS_SERIAL,
 	.of_match = mid_serial_ids,
-	.ofdata_to_platdata = ns16550_serial_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct ns16550_platdata),
-	.priv_auto_alloc_size = sizeof(struct NS16550),
+	.of_to_plat = ns16550_serial_of_to_plat,
+	.plat_auto	= sizeof(struct ns16550_plat),
+	.priv_auto	= sizeof(struct ns16550),
 	.probe	= mid_serial_probe,
 	.ops	= &ns16550_serial_ops,
 };

@@ -10,3 +10,4 @@ Emulation
    qemu-mips
    qemu-riscv
    qemu-x86
+   qemu_capsule_update

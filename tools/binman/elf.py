@@ -158,9 +158,9 @@ def MakeElf(elf_fname, text, data):
 
     # Spilt the text into two parts so that we can make the entry point two
     # bytes after the start of the text section
-    text_bytes1 = ['\t.byte\t%#x' % tools.ToByte(byte) for byte in text[:2]]
-    text_bytes2 = ['\t.byte\t%#x' % tools.ToByte(byte) for byte in text[2:]]
-    data_bytes = ['\t.byte\t%#x' % tools.ToByte(byte) for byte in data]
+    text_bytes1 = ['\t.byte\t%#x' % byte for byte in text[:2]]
+    text_bytes2 = ['\t.byte\t%#x' % byte for byte in text[2:]]
+    data_bytes = ['\t.byte\t%#x' % byte for byte in data]
     with open(s_file, 'w') as fd:
         print('''/* Auto-generated C program to produce an ELF file for testing */
 

@@ -397,11 +397,11 @@ static int meson_ee_pwrc_probe(struct udevice *dev)
 	if (!priv->data)
 		return -EINVAL;
 
-	priv->regmap_hhi = syscon_node_to_regmap(dev_get_parent(dev)->node);
+	priv->regmap_hhi = syscon_node_to_regmap(dev_ofnode(dev_get_parent(dev)));
 	if (IS_ERR(priv->regmap_hhi))
 		return PTR_ERR(priv->regmap_hhi);
 
-	ret = ofnode_read_u32(dev->node, "amlogic,ao-sysctrl",
+	ret = ofnode_read_u32(dev_ofnode(dev), "amlogic,ao-sysctrl",
 			      &ao_phandle);
 	if (ret)
 		return ret;
@@ -431,5 +431,5 @@ U_BOOT_DRIVER(meson_ee_pwrc) = {
 	.of_match = meson_ee_pwrc_ids,
 	.probe = meson_ee_pwrc_probe,
 	.ops = &meson_ee_pwrc_ops,
-	.priv_auto_alloc_size = sizeof(struct meson_ee_pwrc_priv),
+	.priv_auto	= sizeof(struct meson_ee_pwrc_priv),
 };

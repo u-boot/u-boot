@@ -199,7 +199,7 @@ static const struct udevice_id sata_ceva_ids[] = {
 	{ }
 };
 
-static int sata_ceva_ofdata_to_platdata(struct udevice *dev)
+static int sata_ceva_of_to_plat(struct udevice *dev)
 {
 	struct ceva_sata_priv *priv = dev_get_priv(dev);
 	struct resource res_regs;
@@ -233,7 +233,7 @@ U_BOOT_DRIVER(ceva_host_blk) = {
 	.of_match = sata_ceva_ids,
 	.bind = sata_ceva_bind,
 	.ops = &scsi_ops,
-	.priv_auto_alloc_size = sizeof(struct ceva_sata_priv),
+	.priv_auto	= sizeof(struct ceva_sata_priv),
 	.probe = sata_ceva_probe,
-	.ofdata_to_platdata = sata_ceva_ofdata_to_platdata,
+	.of_to_plat = sata_ceva_of_to_plat,
 };

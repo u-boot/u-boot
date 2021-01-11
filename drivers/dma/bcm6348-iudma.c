@@ -649,6 +649,6 @@ U_BOOT_DRIVER(bcm6348_iudma) = {
 	.id = UCLASS_DMA,
 	.of_match = bcm6348_iudma_ids,
 	.ops = &bcm6348_iudma_ops,
-	.priv_auto_alloc_size = sizeof(struct bcm6348_iudma_priv),
+	.priv_auto	= sizeof(struct bcm6348_iudma_priv),
 	.probe = bcm6348_iudma_probe,
 };

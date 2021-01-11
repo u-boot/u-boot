@@ -500,13 +500,13 @@ static int pcie_dw_mvebu_probe(struct udevice *dev)
 	debug("PCIE Reset on GPIO support is missing\n");
 #endif /* DM_GPIO */
 
-	pcie->first_busno = dev->seq;
+	pcie->first_busno = dev_seq(dev);
 
 	/* Don't register host if link is down */
 	if (!pcie_dw_mvebu_pcie_link_up(pcie->ctrl_base, LINK_SPEED_GEN_3)) {
-		printf("PCIE-%d: Link down\n", dev->seq);
+		printf("PCIE-%d: Link down\n", dev_seq(dev));
 	} else {
-		printf("PCIE-%d: Link up (Gen%d-x%d, Bus%d)\n", dev->seq,
+		printf("PCIE-%d: Link up (Gen%d-x%d, Bus%d)\n", dev_seq(dev),
 		       pcie_dw_get_link_speed(pcie->ctrl_base),
 		       pcie_dw_get_link_width(pcie->ctrl_base),
 		       hose->first_busno);
@@ -535,7 +535,7 @@ static int pcie_dw_mvebu_probe(struct udevice *dev)
 }
 
 /**
- * pcie_dw_mvebu_ofdata_to_platdata() - Translate from DT to device state
+ * pcie_dw_mvebu_of_to_plat() - Translate from DT to device state
  *
  * @dev: A pointer to the device being operated on
  *
@@ -545,7 +545,7 @@ static int pcie_dw_mvebu_probe(struct udevice *dev)
  *
  * Return: 0 on success, else -EINVAL
  */
-static int pcie_dw_mvebu_ofdata_to_platdata(struct udevice *dev)
+static int pcie_dw_mvebu_of_to_plat(struct udevice *dev)
 {
 	struct pcie_dw_mvebu *pcie = dev_get_priv(dev);
 
@@ -578,7 +578,7 @@ U_BOOT_DRIVER(pcie_dw_mvebu) = {
 	.id			= UCLASS_PCI,
 	.of_match		= pcie_dw_mvebu_ids,
 	.ops			= &pcie_dw_mvebu_ops,
-	.ofdata_to_platdata	= pcie_dw_mvebu_ofdata_to_platdata,
+	.of_to_plat	= pcie_dw_mvebu_of_to_plat,
 	.probe			= pcie_dw_mvebu_probe,
-	.priv_auto_alloc_size	= sizeof(struct pcie_dw_mvebu),
+	.priv_auto	= sizeof(struct pcie_dw_mvebu),
 };

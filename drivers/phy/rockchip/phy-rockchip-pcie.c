@@ -267,5 +267,5 @@ U_BOOT_DRIVER(rockchip_pcie_phy) = {
 	.of_match = rockchip_pcie_phy_ids,
 	.ops = &rockchip_pcie_phy_ops,
 	.probe = rockchip_pcie_phy_probe,
-	.priv_auto_alloc_size = sizeof(struct rockchip_pcie_phy),
+	.priv_auto	= sizeof(struct rockchip_pcie_phy),
 };

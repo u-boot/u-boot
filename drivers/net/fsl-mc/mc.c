@@ -185,9 +185,9 @@ static int mc_fixup_mac_addr(void *blob, int nodeoffset,
 			     enum mc_fixup_type type)
 {
 #ifdef CONFIG_DM_ETH
-	struct eth_pdata *plat = dev_get_platdata(eth_dev);
+	struct eth_pdata *plat = dev_get_plat(eth_dev);
 	unsigned char *enetaddr = plat->enetaddr;
-	int eth_index = eth_dev->seq;
+	int eth_index = dev_seq(eth_dev);
 #else
 	unsigned char *enetaddr = eth_dev->enetaddr;
 	int eth_index = eth_dev->index;

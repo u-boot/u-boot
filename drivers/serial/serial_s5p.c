@@ -28,7 +28,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define TX_FIFO_FULL		(1 << 24)
 
 /* Information about a serial port */
-struct s5p_serial_platdata {
+struct s5p_serial_plat {
 	struct s5p_uart *reg;  /* address of registers in physical memory */
 	u8 port_id;     /* uart port number */
 };
@@ -88,7 +88,7 @@ static void __maybe_unused s5p_serial_baud(struct s5p_uart *uart, uint uclk,
 #ifndef CONFIG_SPL_BUILD
 int s5p_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct s5p_serial_platdata *plat = dev->platdata;
+	struct s5p_serial_plat *plat = dev_get_plat(dev);
 	struct s5p_uart *const uart = plat->reg;
 	u32 uclk;
 
@@ -111,7 +111,7 @@ int s5p_serial_setbrg(struct udevice *dev, int baudrate)
 
 static int s5p_serial_probe(struct udevice *dev)
 {
-	struct s5p_serial_platdata *plat = dev->platdata;
+	struct s5p_serial_plat *plat = dev_get_plat(dev);
 	struct s5p_uart *const uart = plat->reg;
 
 	s5p_serial_init(uart);
@@ -140,7 +140,7 @@ static int serial_err_check(const struct s5p_uart *const uart, int op)
 
 static int s5p_serial_getc(struct udevice *dev)
 {
-	struct s5p_serial_platdata *plat = dev->platdata;
+	struct s5p_serial_plat *plat = dev_get_plat(dev);
 	struct s5p_uart *const uart = plat->reg;
 
 	if (!(readl(&uart->ufstat) & RX_FIFO_COUNT_MASK))
@@ -152,7 +152,7 @@ static int s5p_serial_getc(struct udevice *dev)
 
 static int s5p_serial_putc(struct udevice *dev, const char ch)
 {
-	struct s5p_serial_platdata *plat = dev->platdata;
+	struct s5p_serial_plat *plat = dev_get_plat(dev);
 	struct s5p_uart *const uart = plat->reg;
 
 	if (readl(&uart->ufstat) & TX_FIFO_FULL)
@@ -166,7 +166,7 @@ static int s5p_serial_putc(struct udevice *dev, const char ch)
 
 static int s5p_serial_pending(struct udevice *dev, bool input)
 {
-	struct s5p_serial_platdata *plat = dev->platdata;
+	struct s5p_serial_plat *plat = dev_get_plat(dev);
 	struct s5p_uart *const uart = plat->reg;
 	uint32_t ufstat = readl(&uart->ufstat);
 
@@ -176,9 +176,9 @@ static int s5p_serial_pending(struct udevice *dev, bool input)
 		return (ufstat & TX_FIFO_COUNT_MASK) >> TX_FIFO_COUNT_SHIFT;
 }
 
-static int s5p_serial_ofdata_to_platdata(struct udevice *dev)
+static int s5p_serial_of_to_plat(struct udevice *dev)
 {
-	struct s5p_serial_platdata *plat = dev->platdata;
+	struct s5p_serial_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);
@@ -187,7 +187,7 @@ static int s5p_serial_ofdata_to_platdata(struct udevice *dev)
 
 	plat->reg = (struct s5p_uart *)addr;
 	plat->port_id = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					"id", dev->seq);
+					"id", dev_seq(dev));
 	return 0;
 }
 
@@ -207,8 +207,8 @@ U_BOOT_DRIVER(serial_s5p) = {
 	.name	= "serial_s5p",
 	.id	= UCLASS_SERIAL,
 	.of_match = s5p_serial_ids,
-	.ofdata_to_platdata = s5p_serial_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct s5p_serial_platdata),
+	.of_to_plat = s5p_serial_of_to_plat,
+	.plat_auto	= sizeof(struct s5p_serial_plat),
 	.probe = s5p_serial_probe,
 	.ops	= &s5p_serial_ops,
 };

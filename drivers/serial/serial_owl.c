@@ -102,7 +102,7 @@ static int owl_serial_probe(struct udevice *dev)
 	return 0;
 }
 
-static int owl_serial_ofdata_to_platdata(struct	udevice	*dev)
+static int owl_serial_of_to_plat(struct	udevice	*dev)
 {
 	struct owl_serial_priv *priv = dev_get_priv(dev);
 
@@ -129,8 +129,8 @@ U_BOOT_DRIVER(serial_owl) = {
 	.name = "serial_owl",
 	.id = UCLASS_SERIAL,
 	.of_match = owl_serial_ids,
-	.ofdata_to_platdata = owl_serial_ofdata_to_platdata,
-	.priv_auto_alloc_size =	sizeof(struct owl_serial_priv),
+	.of_to_plat = owl_serial_of_to_plat,
+	.priv_auto	=	sizeof(struct owl_serial_priv),
 	.probe = owl_serial_probe,
 	.ops = &owl_serial_ops,
 };

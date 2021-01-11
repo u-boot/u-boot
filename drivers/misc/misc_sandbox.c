@@ -129,5 +129,5 @@ U_BOOT_DRIVER(misc_sandbox) = {
 	.ops		= &misc_sandbox_ops,
 	.of_match       = misc_sandbox_ids,
 	.probe          = misc_sandbox_probe,
-	.priv_auto_alloc_size = sizeof(struct misc_sandbox_priv),
+	.priv_auto	= sizeof(struct misc_sandbox_priv),
 };

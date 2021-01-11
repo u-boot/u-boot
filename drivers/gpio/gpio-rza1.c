@@ -130,6 +130,6 @@ U_BOOT_DRIVER(r7s72100_gpio) = {
 	.name	= "r7s72100-gpio",
 	.id	= UCLASS_GPIO,
 	.ops	= &r7s72100_gpio_ops,
-	.priv_auto_alloc_size = sizeof(struct r7s72100_gpio_priv),
+	.priv_auto	= sizeof(struct r7s72100_gpio_priv),
 	.probe	= r7s72100_gpio_probe,
 };

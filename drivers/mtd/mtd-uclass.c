@@ -32,5 +32,5 @@ int mtd_probe(struct udevice *dev)
 UCLASS_DRIVER(mtd) = {
 	.id		= UCLASS_MTD,
 	.name		= "mtd",
-	.per_device_auto_alloc_size = sizeof(struct mtd_info),
+	.per_device_auto	= sizeof(struct mtd_info),
 };

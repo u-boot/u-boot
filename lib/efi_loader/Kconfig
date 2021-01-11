@@ -108,6 +108,91 @@ config EFI_SET_TIME
 	  Provide the SetTime() runtime service at boottime. This service
 	  can be used by an EFI application to adjust the real time clock.
 
+config EFI_HAVE_CAPSULE_SUPPORT
+	bool
+
+config EFI_RUNTIME_UPDATE_CAPSULE
+	bool "UpdateCapsule() runtime service"
+	default n
+	select EFI_HAVE_CAPSULE_SUPPORT
+	help
+	  Select this option if you want to use UpdateCapsule and
+	  QueryCapsuleCapabilities API's.
+
+config EFI_CAPSULE_ON_DISK
+	bool "Enable capsule-on-disk support"
+	select EFI_HAVE_CAPSULE_SUPPORT
+	default n
+	help
+	  Select this option if you want to use capsule-on-disk feature,
+	  that is, capsules can be fetched and executed from files
+	  under a specific directory on UEFI system partition instead of
+	  via UpdateCapsule API.
+
+config EFI_CAPSULE_ON_DISK_EARLY
+	bool "Initiate capsule-on-disk at U-Boot boottime"
+	depends on EFI_CAPSULE_ON_DISK
+	default n
+	select EFI_SETUP_EARLY
+	help
+	  Normally, without this option enabled, capsules will be
+	  executed only at the first time of invoking one of efi command.
+	  If this option is enabled, capsules will be enforced to be
+	  executed as part of U-Boot initialisation so that they will
+	  surely take place whatever is set to distro_bootcmd.
+
+config EFI_CAPSULE_FIRMWARE
+	bool
+	default n
+
+config EFI_CAPSULE_FIRMWARE_MANAGEMENT
+	bool "Capsule: Firmware Management Protocol"
+	depends on EFI_HAVE_CAPSULE_SUPPORT
+	default y
+	help
+	  Select this option if you want to enable capsule-based
+	  firmware update using Firmware Management Protocol.
+
+config EFI_CAPSULE_AUTHENTICATE
+	bool "Update Capsule authentication"
+	depends on EFI_CAPSULE_FIRMWARE
+	depends on EFI_CAPSULE_ON_DISK
+	depends on EFI_CAPSULE_FIRMWARE_MANAGEMENT
+	select SHA256
+	select RSA
+	select RSA_VERIFY
+	select RSA_VERIFY_WITH_PKEY
+	select X509_CERTIFICATE_PARSER
+	select PKCS7_MESSAGE_PARSER
+	select PKCS7_VERIFY
+	default n
+	help
+	  Select this option if you want to enable capsule
+	  authentication
+
+config EFI_CAPSULE_FIRMWARE_FIT
+	bool "FMP driver for FIT image"
+	depends on EFI_CAPSULE_FIRMWARE_MANAGEMENT
+	depends on FIT
+	select UPDATE_FIT
+	select DFU
+	select EFI_CAPSULE_FIRMWARE
+	default n
+	help
+	  Select this option if you want to enable firmware management protocol
+	  driver for FIT image
+
+config EFI_CAPSULE_FIRMWARE_RAW
+	bool "FMP driver for raw image"
+	depends on EFI_CAPSULE_FIRMWARE_MANAGEMENT
+	select DFU
+	select DFU_WRITE_ALT
+	select EFI_CAPSULE_FIRMWARE
+	default n
+	help
+	  Select this option if you want to enable firmware management protocol
+	  driver for raw image
+
 config EFI_DEVICE_PATH_TO_TEXT
 	bool "Device path to text protocol"
 	default y
@@ -179,7 +264,8 @@ config EFI_HAVE_RUNTIME_RESET
 	# bool "Reset runtime service is available"
 	bool
 	default y
-	depends on ARCH_BCM283X || FSL_LAYERSCAPE || PSCI_RESET || SYSRESET_X86
+	depends on ARCH_BCM283X || FSL_LAYERSCAPE || PSCI_RESET || \
+		   SANDBOX || SYSRESET_X86
 
 config EFI_GRUB_ARM32_WORKAROUND
 	bool "Workaround for GRUB on 32bit ARM"
@@ -205,6 +291,15 @@ config EFI_TCG2_PROTOCOL
 	help
 	  Provide a EFI_TCG2_PROTOCOL implementation using the TPM hardware
 	  of the platform.
+
+config EFI_TCG2_PROTOCOL_EVENTLOG_SIZE
+	int "EFI_TCG2_PROTOCOL EventLog size"
+	depends on EFI_TCG2_PROTOCOL
+	default 4096
+	help
+		Define the size of the EventLog for EFI_TCG2_PROTOCOL. Note that
+		this is going to be allocated twice. One for the eventlog it self
+		and one for the configuration table that is required from the spec
 
 config EFI_LOAD_FILE2_INITRD
 	bool "EFI_FILE_LOAD2_PROTOCOL for Linux initial ramdisk"

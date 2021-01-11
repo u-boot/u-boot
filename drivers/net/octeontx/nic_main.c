@@ -766,7 +766,7 @@ U_BOOT_DRIVER(octeontx_nic) = {
 	.name	= "octeontx_nic",
 	.id	= UCLASS_MISC,
 	.probe	= octeontx_nic_probe,
-	.priv_auto_alloc_size = sizeof(struct nicpf),
+	.priv_auto	= sizeof(struct nicpf),
 };
 
 static struct pci_device_id octeontx_nic_supported[] = {

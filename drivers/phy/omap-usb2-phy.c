@@ -261,5 +261,5 @@ U_BOOT_DRIVER(omap_usb2_phy) = {
 	.of_match = omap_usb2_id_table,
 	.probe = omap_usb2_phy_probe,
 	.ops = &omap_usb2_phy_ops,
-	.priv_auto_alloc_size = sizeof(struct omap_usb2_phy),
+	.priv_auto	= sizeof(struct omap_usb2_phy),
 };

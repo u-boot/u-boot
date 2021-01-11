@@ -171,7 +171,7 @@ static int ftgmac100_mdio_init(struct udevice *dev)
 	bus->write = ftgmac100_mdio_write;
 	bus->priv  = priv;
 
-	ret = mdio_register_seq(bus, dev->seq);
+	ret = mdio_register_seq(bus, dev_seq(dev));
 	if (ret) {
 		free(bus);
 		return ret;
@@ -287,7 +287,7 @@ static void ftgmac100_stop(struct udevice *dev)
 
 static int ftgmac100_start(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 	struct ftgmac100 *ftgmac100 = priv->iobase;
 	struct phy_device *phydev = priv->phydev;
@@ -505,15 +505,15 @@ static int ftgmac100_send(struct udevice *dev, void *packet, int length)
 
 static int ftgmac100_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 
 	return ftgmac100_set_mac(priv, pdata->enetaddr);
 }
 
-static int ftgmac100_ofdata_to_platdata(struct udevice *dev)
+static int ftgmac100_of_to_plat(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 	const char *phy_mode;
 
@@ -542,7 +542,7 @@ static int ftgmac100_ofdata_to_platdata(struct udevice *dev)
 
 static int ftgmac100_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 	int ret;
 
@@ -609,11 +609,11 @@ U_BOOT_DRIVER(ftgmac100) = {
 	.name	= "ftgmac100",
 	.id	= UCLASS_ETH,
 	.of_match = ftgmac100_ids,
-	.ofdata_to_platdata = ftgmac100_ofdata_to_platdata,
+	.of_to_plat = ftgmac100_of_to_plat,
 	.probe	= ftgmac100_probe,
 	.remove = ftgmac100_remove,
 	.ops	= &ftgmac100_ops,
-	.priv_auto_alloc_size = sizeof(struct ftgmac100_data),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct ftgmac100_data),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };

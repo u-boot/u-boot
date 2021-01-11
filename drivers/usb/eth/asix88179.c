@@ -857,7 +857,7 @@ static int ax88179_free_pkt(struct udevice *dev, uchar *packet, int packet_len)
 
 int ax88179_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct asix_private *priv = dev_get_priv(dev);
 	struct ueth_data *ueth = &priv->ueth;
 
@@ -866,7 +866,7 @@ int ax88179_write_hwaddr(struct udevice *dev)
 
 static int ax88179_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct asix_private *priv = dev_get_priv(dev);
 	struct usb_device *usb_dev;
 	int ret;
@@ -902,8 +902,8 @@ U_BOOT_DRIVER(ax88179_eth) = {
 	.id = UCLASS_ETH,
 	.probe = ax88179_eth_probe,
 	.ops = &ax88179_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct asix_private),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct asix_private),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 static const struct usb_device_id ax88179_eth_id_table[] = {

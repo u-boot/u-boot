@@ -1165,7 +1165,7 @@ static int spinand_probe(struct udevice *dev)
 		return -ENOMEM;
 	sprintf(mtd->name, "spi-nand%d", spi_nand_idx++);
 	spinand->slave = slave;
-	spinand_set_of_node(spinand, dev->node.np);
+	spinand_set_ofnode(spinand, dev_ofnode(dev));
 #endif
 
 	ret = spinand_init(spinand);
@@ -1247,6 +1247,6 @@ U_BOOT_DRIVER(spinand) = {
 	.name = "spi_nand",
 	.id = UCLASS_MTD,
 	.of_match = spinand_ids,
-	.priv_auto_alloc_size = sizeof(struct spinand_device),
+	.priv_auto	= sizeof(struct spinand_device),
 	.probe = spinand_probe,
 };

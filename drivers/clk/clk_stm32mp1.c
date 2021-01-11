@@ -2253,7 +2253,7 @@ int soc_clk_dump(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_CLK,
-					  DM_GET_DRIVER(stm32mp1_clock),
+					  DM_DRIVER_GET(stm32mp1_clock),
 					  &dev);
 	if (ret)
 		return ret;
@@ -2332,6 +2332,6 @@ U_BOOT_DRIVER(stm32mp1_clock) = {
 	.name = "stm32mp1_clk",
 	.id = UCLASS_CLK,
 	.ops = &stm32mp1_clk_ops,
-	.priv_auto_alloc_size = sizeof(struct stm32mp1_clk_priv),
+	.priv_auto	= sizeof(struct stm32mp1_clk_priv),
 	.probe = stm32mp1_clk_probe,
 };

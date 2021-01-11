@@ -425,7 +425,7 @@ static int axi_ethernet_init(struct axidma_priv *priv)
 
 static int axiemac_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct axidma_priv *priv = dev_get_priv(dev);
 	struct axi_regs *regs = priv->iobase;
 
@@ -697,7 +697,7 @@ static int axi_emac_probe(struct udevice *dev)
 	priv->bus->write = axiemac_miiphy_write;
 	priv->bus->priv = priv;
 
-	ret = mdio_register_seq(priv->bus, dev->seq);
+	ret = mdio_register_seq(priv->bus, dev_seq(dev));
 	if (ret)
 		return ret;
 
@@ -726,9 +726,9 @@ static const struct eth_ops axi_emac_ops = {
 	.write_hwaddr		= axiemac_write_hwaddr,
 };
 
-static int axi_emac_ofdata_to_platdata(struct udevice *dev)
+static int axi_emac_of_to_plat(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct axidma_priv *priv = dev_get_priv(dev);
 	int node = dev_of_offset(dev);
 	int offset = 0;
@@ -787,10 +787,10 @@ U_BOOT_DRIVER(axi_emac) = {
 	.name	= "axi_emac",
 	.id	= UCLASS_ETH,
 	.of_match = axi_emac_ids,
-	.ofdata_to_platdata = axi_emac_ofdata_to_platdata,
+	.of_to_plat = axi_emac_of_to_plat,
 	.probe	= axi_emac_probe,
 	.remove	= axi_emac_remove,
 	.ops	= &axi_emac_ops,
-	.priv_auto_alloc_size = sizeof(struct axidma_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct axidma_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

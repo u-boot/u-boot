@@ -734,5 +734,5 @@ U_BOOT_DRIVER(versal_clk) = {
 	.of_match = versal_clk_ids,
 	.probe = versal_clk_probe,
 	.ops = &versal_clk_ops,
-	.priv_auto_alloc_size = sizeof(struct versal_clk_priv),
+	.priv_auto	= sizeof(struct versal_clk_priv),
 };

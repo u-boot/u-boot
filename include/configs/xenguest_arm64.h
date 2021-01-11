@@ -27,7 +27,6 @@
 #define CONFIG_SYS_MALLOC_LEN         (32 * 1024 * 1024)
 
 /* Monitor Command Prompt */
-#define CONFIG_SYS_PROMPT_HUSH_PS2    "> "
 #define CONFIG_SYS_CBSIZE             1024
 #define CONFIG_SYS_MAXARGS            64
 #define CONFIG_SYS_BARGSIZE           CONFIG_SYS_CBSIZE

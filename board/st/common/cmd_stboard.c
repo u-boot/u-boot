@@ -85,7 +85,7 @@ static int do_stboard(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_GET_DRIVER(stm32mp_bsec),
+					  DM_DRIVER_GET(stm32mp_bsec),
 					  &dev);
 
 	ret = misc_read(dev, STM32_BSEC_OTP(BSEC_OTP_BOARD),

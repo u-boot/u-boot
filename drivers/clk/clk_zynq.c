@@ -485,6 +485,6 @@ U_BOOT_DRIVER(zynq_clk) = {
 	.id		= UCLASS_CLK,
 	.of_match	= zynq_clk_ids,
 	.ops		= &zynq_clk_ops,
-	.priv_auto_alloc_size = sizeof(struct zynq_clk_priv),
+	.priv_auto	= sizeof(struct zynq_clk_priv),
 	.probe		= zynq_clk_probe,
 };

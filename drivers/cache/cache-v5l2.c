@@ -73,7 +73,7 @@ struct v5l2_plat {
 
 static int v5l2_enable(struct udevice *dev)
 {
-	struct v5l2_plat *plat = dev_get_platdata(dev);
+	struct v5l2_plat *plat = dev_get_plat(dev);
 	volatile struct l2cache *regs = plat->regs;
 
 	if (regs)
@@ -84,7 +84,7 @@ static int v5l2_enable(struct udevice *dev)
 
 static int v5l2_disable(struct udevice *dev)
 {
-	struct v5l2_plat *plat = dev_get_platdata(dev);
+	struct v5l2_plat *plat = dev_get_plat(dev);
 	volatile struct l2cache *regs = plat->regs;
 	u8 hart = gd->arch.boot_hart;
 	void __iomem *cctlcmd = (void __iomem *)CCTL_CMD_REG(regs, hart);
@@ -104,9 +104,9 @@ static int v5l2_disable(struct udevice *dev)
 	return 0;
 }
 
-static int v5l2_ofdata_to_platdata(struct udevice *dev)
+static int v5l2_of_to_plat(struct udevice *dev)
 {
-	struct v5l2_plat *plat = dev_get_platdata(dev);
+	struct v5l2_plat *plat = dev_get_plat(dev);
 	struct l2cache *regs;
 
 	regs = (struct l2cache *)dev_read_addr(dev);
@@ -130,7 +130,7 @@ static int v5l2_ofdata_to_platdata(struct udevice *dev)
 
 static int v5l2_probe(struct udevice *dev)
 {
-	struct v5l2_plat *plat = dev_get_platdata(dev);
+	struct v5l2_plat *plat = dev_get_plat(dev);
 	struct l2cache *regs = plat->regs;
 	u32 ctl_val;
 
@@ -180,9 +180,9 @@ U_BOOT_DRIVER(v5l2_cache) = {
 	.name   = "v5l2_cache",
 	.id     = UCLASS_CACHE,
 	.of_match = v5l2_cache_ids,
-	.ofdata_to_platdata = v5l2_ofdata_to_platdata,
+	.of_to_plat = v5l2_of_to_plat,
 	.probe	= v5l2_probe,
-	.platdata_auto_alloc_size = sizeof(struct v5l2_plat),
+	.plat_auto	= sizeof(struct v5l2_plat),
 	.ops = &v5l2_cache_ops,
 	.flags  = DM_FLAG_PRE_RELOC,
 };

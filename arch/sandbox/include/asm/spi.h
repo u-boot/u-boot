@@ -32,14 +32,4 @@ struct sandbox_spi_emu_ops {
 	int (*xfer)(void *priv, const u8 *rx, u8 *tx, uint bytes);
 };
 
-/*
- * Extract the bus/cs from the spi spec and return the start of the spi
- * client spec.  If the bus/cs are invalid for the current config, then
- * it returns NULL.
- *
- * Example: arg="0:1:foo" will set bus to 0, cs to 1, and return "foo"
- */
-const char *sandbox_spi_parse_spec(const char *arg, unsigned long *bus,
-				   unsigned long *cs);
-
 #endif

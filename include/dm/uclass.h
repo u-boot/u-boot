@@ -24,7 +24,7 @@
  * There may be drivers for on-chip SoC GPIO banks, I2C GPIO expanders and
  * PMIC IO lines, all made available in a unified way through the uclass.
  *
- * @priv: Private data for this uclass
+ * @priv_: Private data for this uclass (do not access outside driver model)
  * @uc_drv: The driver for the uclass itself, not to be confused with a
  * 'struct driver'
  * @dev_head: List of devices in this uclass (devices are attached to their
@@ -32,7 +32,7 @@
  * @sibling_node: Next uclass in the linked list of uclasses
  */
 struct uclass {
-	void *priv;
+	void *priv_;
 	struct uclass_driver *uc_drv;
 	struct list_head dev_head;
 	struct list_head sibling_node;
@@ -43,6 +43,9 @@ struct udevice;
 
 /* Members of this uclass sequence themselves with aliases */
 #define DM_UC_FLAG_SEQ_ALIAS			(1 << 0)
+
+/* Members of this uclass without aliases don't get a sequence number */
+#define DM_UC_FLAG_NO_AUTO_SEQ			(1 << 1)
 
 /* Same as DM_FLAG_ALLOC_PRIV_DMA */
 #define DM_UC_FLAG_ALLOC_PRIV_DMA		(1 << 5)
@@ -65,21 +68,21 @@ struct udevice;
  * @child_post_probe: Called after a child in this uclass is probed
  * @init: Called to set up the uclass
  * @destroy: Called to destroy the uclass
- * @priv_auto_alloc_size: If non-zero this is the size of the private data
+ * @priv_auto: If non-zero this is the size of the private data
  * to be allocated in the uclass's ->priv pointer. If zero, then the uclass
  * driver is responsible for allocating any data required.
- * @per_device_auto_alloc_size: Each device can hold private data owned
+ * @per_device_auto: Each device can hold private data owned
  * by the uclass. If required this will be automatically allocated if this
  * value is non-zero.
- * @per_device_platdata_auto_alloc_size: Each device can hold platform data
- * owned by the uclass as 'dev->uclass_platdata'. If the value is non-zero,
+ * @per_device_plat_auto: Each device can hold platform data
+ * owned by the uclass as 'dev->uclass_plat'. If the value is non-zero,
  * then this will be automatically allocated.
- * @per_child_auto_alloc_size: Each child device (of a parent in this
+ * @per_child_auto: Each child device (of a parent in this
  * uclass) can hold parent data for the device/uclass. This value is only
  * used as a fallback if this member is 0 in the driver.
- * @per_child_platdata_auto_alloc_size: A bus likes to store information about
+ * @per_child_plat_auto: A bus likes to store information about
  * its children. If non-zero this is the size of this data, to be allocated
- * in the child device's parent_platdata pointer. This value is only used as
+ * in the child device's parent_plat pointer. This value is only used as
  * a fallback if this member is 0 in the driver.
  * @ops: Uclass operations, providing the consistent interface to devices
  * within the uclass.
@@ -98,18 +101,26 @@ struct uclass_driver {
 	int (*child_post_probe)(struct udevice *dev);
 	int (*init)(struct uclass *class);
 	int (*destroy)(struct uclass *class);
-	int priv_auto_alloc_size;
-	int per_device_auto_alloc_size;
-	int per_device_platdata_auto_alloc_size;
-	int per_child_auto_alloc_size;
-	int per_child_platdata_auto_alloc_size;
+	int priv_auto;
+	int per_device_auto;
+	int per_device_plat_auto;
+	int per_child_auto;
+	int per_child_plat_auto;
 	const void *ops;
 	uint32_t flags;
 };
 
 /* Declare a new uclass_driver */
 #define UCLASS_DRIVER(__name)						\
-	ll_entry_declare(struct uclass_driver, __name, uclass)
+	ll_entry_declare(struct uclass_driver, __name, uclass_driver)
+
+/**
+ * uclass_get_priv() - Get the private data for a uclass
+ *
+ * @uc		Uclass to check
+ * @return private data, or NULL if none
+ */
+void *uclass_get_priv(const struct uclass *uc);
 
 /**
  * uclass_get() - Get a uclass based on an ID, creating it if needed
@@ -253,7 +264,7 @@ int uclass_get_device_by_phandle(enum uclass_id id, struct udevice *parent,
  * uclass_get_device_by_driver() - Get a uclass device for a driver
  *
  * This searches the devices in the uclass for one that uses the given
- * driver. Use DM_GET_DRIVER(name) for the @drv argument, where 'name' is
+ * driver. Use DM_DRIVER_GET(name) for the @drv argument, where 'name' is
  * the driver name - as used in U_BOOT_DRIVER(name).
  *
  * The device is probed to activate it ready for use.
@@ -364,21 +375,6 @@ int uclass_next_device_check(struct udevice **devp);
  */
 int uclass_first_device_drvdata(enum uclass_id id, ulong driver_data,
 				struct udevice **devp);
-
-/**
- * uclass_resolve_seq() - Resolve a device's sequence number
- *
- * On entry dev->seq is -1, and dev->req_seq may be -1 (to allocate a
- * sequence number automatically, or >= 0 to select a particular number.
- * If the requested sequence number is in use, then this device will
- * be allocated another one.
- *
- * Note that the device's seq value is not changed by this function.
- *
- * @dev: Device for which to allocate sequence number
- * @return sequence number allocated, or -ve on error
- */
-int uclass_resolve_seq(struct udevice *dev);
 
 /**
  * uclass_id_foreach_dev() - Helper function to iteration through devices

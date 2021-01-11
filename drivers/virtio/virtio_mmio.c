@@ -334,7 +334,7 @@ static int virtio_mmio_notify(struct udevice *udev, struct virtqueue *vq)
 	return 0;
 }
 
-static int virtio_mmio_ofdata_to_platdata(struct udevice *udev)
+static int virtio_mmio_of_to_plat(struct udevice *udev)
 {
 	struct virtio_mmio_priv *priv = dev_get_priv(udev);
 
@@ -411,6 +411,6 @@ U_BOOT_DRIVER(virtio_mmio) = {
 	.of_match = virtio_mmio_ids,
 	.ops	= &virtio_mmio_ops,
 	.probe	= virtio_mmio_probe,
-	.ofdata_to_platdata = virtio_mmio_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct virtio_mmio_priv),
+	.of_to_plat = virtio_mmio_of_to_plat,
+	.priv_auto	= sizeof(struct virtio_mmio_priv),
 };

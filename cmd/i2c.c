@@ -390,7 +390,7 @@ static int do_i2c_write(struct cmd_tbl *cmdtp, int flag, int argc,
 		ret = i2c_set_chip_offset_len(dev, alen);
 	if (ret)
 		return i2c_report_err(ret, I2C_ERR_WRITE);
-	i2c_chip = dev_get_parent_platdata(dev);
+	i2c_chip = dev_get_parent_plat(dev);
 	if (!i2c_chip)
 		return i2c_report_err(ret, I2C_ERR_WRITE);
 #endif
@@ -1700,14 +1700,14 @@ static void show_bus(struct udevice *bus)
 {
 	struct udevice *dev;
 
-	printf("Bus %d:\t%s", bus->req_seq, bus->name);
+	printf("Bus %d:\t%s", dev_seq(bus), bus->name);
 	if (device_active(bus))
-		printf("  (active %d)", bus->seq);
+		printf("  (active %d)", dev_seq(bus));
 	printf("\n");
 	for (device_find_first_child(bus, &dev);
 	     dev;
 	     device_find_next_child(&dev)) {
-		struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+		struct dm_i2c_chip *chip = dev_get_parent_plat(dev);
 
 		printf("   %02x: %s, offset len %x, flags %x\n",
 		       chip->chip_addr, dev->name, chip->offset_len,
@@ -1825,7 +1825,7 @@ static int do_i2c_bus_num(struct cmd_tbl *cmdtp, int flag, int argc,
 		struct udevice *bus;
 
 		if (!i2c_get_cur_bus(&bus))
-			bus_no = bus->seq;
+			bus_no = dev_seq(bus);
 		else
 			bus_no = -1;
 #else

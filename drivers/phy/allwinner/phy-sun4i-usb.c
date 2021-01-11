@@ -428,7 +428,7 @@ static struct phy_ops sun4i_usb_phy_ops = {
 
 static int sun4i_usb_phy_probe(struct udevice *dev)
 {
-	struct sun4i_usb_phy_plat *plat = dev_get_platdata(dev);
+	struct sun4i_usb_phy_plat *plat = dev_get_plat(dev);
 	struct sun4i_usb_phy_data *data = dev_get_priv(dev);
 	int i, ret;
 
@@ -646,6 +646,6 @@ U_BOOT_DRIVER(sun4i_usb_phy) = {
 	.of_match = sun4i_usb_phy_ids,
 	.ops = &sun4i_usb_phy_ops,
 	.probe = sun4i_usb_phy_probe,
-	.platdata_auto_alloc_size = sizeof(struct sun4i_usb_phy_plat[MAX_PHYS]),
-	.priv_auto_alloc_size = sizeof(struct sun4i_usb_phy_data),
+	.plat_auto	= sizeof(struct sun4i_usb_phy_plat[MAX_PHYS]),
+	.priv_auto	= sizeof(struct sun4i_usb_phy_data),
 };

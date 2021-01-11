@@ -285,9 +285,9 @@ static const struct ehci_ops mx5_ehci_ops = {
 	.powerup_fixup		= mx5_ehci_powerup_fixup,
 };
 
-static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
+static int ehci_usb_of_to_plat(struct udevice *dev)
 {
-	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct usb_plat *plat = dev_get_plat(dev);
 	const char *mode;
 
 	mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "dr_mode", NULL);
@@ -305,7 +305,7 @@ static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 
 static int ehci_usb_probe(struct udevice *dev)
 {
-	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct usb_plat *plat = dev_get_plat(dev);
 	struct usb_ehci *ehci = dev_read_addr_ptr(dev);
 	struct ehci_mx5_priv_data *priv = dev_get_priv(dev);
 	enum usb_init_type type = plat->init_type;
@@ -321,7 +321,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	mdelay(1);
 
 	priv->ehci = ehci;
-	priv->portnr = dev->seq;
+	priv->portnr = dev_seq(dev);
 	priv->init_type = type;
 
 	ret = device_get_supply_regulator(dev, "vbus-supply",
@@ -363,12 +363,12 @@ U_BOOT_DRIVER(usb_mx5) = {
 	.name	= "ehci_mx5",
 	.id	= UCLASS_USB,
 	.of_match = mx5_usb_ids,
-	.ofdata_to_platdata = ehci_usb_ofdata_to_platdata,
+	.of_to_plat = ehci_usb_of_to_plat,
 	.probe	= ehci_usb_probe,
 	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,
-	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
-	.priv_auto_alloc_size = sizeof(struct ehci_mx5_priv_data),
+	.plat_auto	= sizeof(struct usb_plat),
+	.priv_auto	= sizeof(struct ehci_mx5_priv_data),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif /* !CONFIG_IS_ENABLED(DM_USB) */

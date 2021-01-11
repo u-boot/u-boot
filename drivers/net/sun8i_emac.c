@@ -255,7 +255,7 @@ static int sun8i_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 static int sun8i_eth_write_hwaddr(struct udevice *dev)
 {
 	struct emac_eth_dev *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	uchar *mac_id = pdata->enetaddr;
 	u32 macid_lo, macid_hi;
 
@@ -712,7 +712,7 @@ static int sun8i_mdio_reset(struct mii_dev *bus)
 {
 	struct udevice *dev = bus->priv;
 	struct emac_eth_dev *priv = dev_get_priv(dev);
-	struct sun8i_eth_pdata *pdata = dev_get_platdata(dev);
+	struct sun8i_eth_pdata *pdata = dev_get_plat(dev);
 	int ret;
 
 	if (!dm_gpio_is_valid(&priv->reset_gpio))
@@ -799,7 +799,7 @@ static void sun8i_emac_eth_stop(struct udevice *dev)
 
 static int sun8i_emac_eth_probe(struct udevice *dev)
 {
-	struct sun8i_eth_pdata *sun8i_pdata = dev_get_platdata(dev);
+	struct sun8i_eth_pdata *sun8i_pdata = dev_get_plat(dev);
 	struct eth_pdata *pdata = &sun8i_pdata->eth_pdata;
 	struct emac_eth_dev *priv = dev_get_priv(dev);
 	int ret;
@@ -861,9 +861,9 @@ static int sun8i_handle_internal_phy(struct udevice *dev, struct emac_eth_dev *p
 	return 0;
 }
 
-static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
+static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 {
-	struct sun8i_eth_pdata *sun8i_pdata = dev_get_platdata(dev);
+	struct sun8i_eth_pdata *sun8i_pdata = dev_get_plat(dev);
 	struct eth_pdata *pdata = &sun8i_pdata->eth_pdata;
 	struct emac_eth_dev *priv = dev_get_priv(dev);
 	const char *phy_mode;
@@ -1001,10 +1001,10 @@ U_BOOT_DRIVER(eth_sun8i_emac) = {
 	.name   = "eth_sun8i_emac",
 	.id     = UCLASS_ETH,
 	.of_match = sun8i_emac_eth_ids,
-	.ofdata_to_platdata = sun8i_emac_eth_ofdata_to_platdata,
+	.of_to_plat = sun8i_emac_eth_of_to_plat,
 	.probe  = sun8i_emac_eth_probe,
 	.ops    = &sun8i_emac_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct emac_eth_dev),
-	.platdata_auto_alloc_size = sizeof(struct sun8i_eth_pdata),
+	.priv_auto	= sizeof(struct emac_eth_dev),
+	.plat_auto	= sizeof(struct sun8i_eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

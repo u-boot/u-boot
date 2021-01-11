@@ -28,27 +28,42 @@
 # define CONFIG_SPI_IDLE_VAL 0xFF
 #endif
 
-const char *sandbox_spi_parse_spec(const char *arg, unsigned long *bus,
-				   unsigned long *cs)
-{
-	char *endp;
-
-	*bus = simple_strtoul(arg, &endp, 0);
-	if (*endp != ':' || *bus >= CONFIG_SANDBOX_SPI_MAX_BUS)
-		return NULL;
-
-	*cs = simple_strtoul(endp + 1, &endp, 0);
-	if (*endp != ':' || *cs >= CONFIG_SANDBOX_SPI_MAX_CS)
-		return NULL;
-
-	return endp + 1;
-}
+/**
+ * struct sandbox_spi_priv - Sandbox SPI private data
+ *
+ * Helper struct to keep track of the sandbox SPI bus internal state. It is
+ * used in unit tests to verify that dm spi functions update the bus
+ * speed/mode properly (for instance, when jumping back and forth between spi
+ * slaves claiming the bus, we need to make sure that the bus speed is updated
+ * accordingly for each slave).
+ *
+ * @speed:	Current bus speed.
+ * @mode:	Current bus mode.
+ */
+struct sandbox_spi_priv {
+	uint speed;
+	uint mode;
+};
 
 __weak int sandbox_spi_get_emul(struct sandbox_state *state,
 				struct udevice *bus, struct udevice *slave,
 				struct udevice **emulp)
 {
 	return -ENOENT;
+}
+
+uint sandbox_spi_get_speed(struct udevice *dev)
+{
+	struct sandbox_spi_priv *priv = dev_get_priv(dev);
+
+	return priv->speed;
+}
+
+uint sandbox_spi_get_mode(struct udevice *dev)
+{
+	struct sandbox_spi_priv *priv = dev_get_priv(dev);
+
+	return priv->mode;
 }
 
 static int sandbox_spi_xfer(struct udevice *slave, unsigned int bitlen,
@@ -72,7 +87,7 @@ static int sandbox_spi_xfer(struct udevice *slave, unsigned int bitlen,
 		return -EINVAL;
 	}
 
-	busnum = bus->seq;
+	busnum = dev_seq(bus);
 	cs = spi_chip_select(slave);
 	if (busnum >= CONFIG_SANDBOX_SPI_MAX_BUS ||
 	    cs >= CONFIG_SANDBOX_SPI_MAX_CS) {
@@ -106,19 +121,27 @@ static int sandbox_spi_xfer(struct udevice *slave, unsigned int bitlen,
 
 static int sandbox_spi_set_speed(struct udevice *bus, uint speed)
 {
+	struct sandbox_spi_priv *priv = dev_get_priv(bus);
+
+	priv->speed = speed;
+
 	return 0;
 }
 
 static int sandbox_spi_set_mode(struct udevice *bus, uint mode)
 {
+	struct sandbox_spi_priv *priv = dev_get_priv(bus);
+
+	priv->mode = mode;
+
 	return 0;
 }
 
 static int sandbox_cs_info(struct udevice *bus, uint cs,
 			   struct spi_cs_info *info)
 {
-	/* Always allow activity on CS 0 */
-	if (cs >= 1)
+	/* Always allow activity on CS 0, CS 1 */
+	if (cs >= 2)
 		return -EINVAL;
 
 	return 0;
@@ -152,4 +175,5 @@ U_BOOT_DRIVER(sandbox_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = sandbox_spi_ids,
 	.ops	= &sandbox_spi_ops,
+	.priv_auto = sizeof(struct sandbox_spi_priv),
 };

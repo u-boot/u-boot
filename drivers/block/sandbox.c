@@ -34,8 +34,8 @@ static unsigned long host_block_read(struct udevice *dev,
 				     unsigned long start, lbaint_t blkcnt,
 				     void *buffer)
 {
-	struct host_block_dev *host_dev = dev_get_platdata(dev);
-	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+	struct host_block_dev *host_dev = dev_get_plat(dev);
+	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 
 #else
 static unsigned long host_block_read(struct blk_desc *block_dev,
@@ -65,8 +65,8 @@ static unsigned long host_block_write(struct udevice *dev,
 				      unsigned long start, lbaint_t blkcnt,
 				      const void *buffer)
 {
-	struct host_block_dev *host_dev = dev_get_platdata(dev);
-	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+	struct host_block_dev *host_dev = dev_get_plat(dev);
+	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 #else
 static unsigned long host_block_write(struct blk_desc *block_dev,
 				      unsigned long start, lbaint_t blkcnt,
@@ -133,7 +133,7 @@ int host_dev_bind(int devnum, char *filename)
 	if (ret)
 		goto err_file;
 
-	host_dev = dev_get_platdata(dev);
+	host_dev = dev_get_plat(dev);
 	host_dev->fd = fd;
 	host_dev->filename = fname;
 
@@ -202,7 +202,7 @@ int host_get_dev_err(int devnum, struct blk_desc **blk_devp)
 	ret = blk_get_device(IF_TYPE_HOST, devnum, &dev);
 	if (ret)
 		return ret;
-	*blk_devp = dev_get_uclass_platdata(dev);
+	*blk_devp = dev_get_uclass_plat(dev);
 #else
 	struct host_block_dev *host_dev = find_host_device(devnum);
 
@@ -228,7 +228,7 @@ U_BOOT_DRIVER(sandbox_host_blk) = {
 	.name		= "sandbox_host_blk",
 	.id		= UCLASS_BLK,
 	.ops		= &sandbox_host_blk_ops,
-	.platdata_auto_alloc_size = sizeof(struct host_block_dev),
+	.plat_auto	= sizeof(struct host_block_dev),
 };
 #else
 U_BOOT_LEGACY_BLK(sandbox_host) = {

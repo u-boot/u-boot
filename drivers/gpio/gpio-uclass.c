@@ -239,9 +239,9 @@ struct gpio_hog_data {
 	u32 val[2];
 };
 
-static int gpio_hog_ofdata_to_platdata(struct udevice *dev)
+static int gpio_hog_of_to_plat(struct udevice *dev)
 {
-	struct gpio_hog_data *plat = dev_get_platdata(dev);
+	struct gpio_hog_data *plat = dev_get_plat(dev);
 	const char *nodename;
 	int ret;
 
@@ -272,7 +272,7 @@ static int gpio_hog_ofdata_to_platdata(struct udevice *dev)
 
 static int gpio_hog_probe(struct udevice *dev)
 {
-	struct gpio_hog_data *plat = dev_get_platdata(dev);
+	struct gpio_hog_data *plat = dev_get_plat(dev);
 	struct gpio_hog_priv *priv = dev_get_priv(dev);
 	int ret;
 
@@ -306,7 +306,7 @@ int gpio_hog_probe_all(void)
 	for (uclass_first_device(UCLASS_NOP, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
-		if (dev->driver == DM_GET_DRIVER(gpio_hog)) {
+		if (dev->driver == DM_DRIVER_GET(gpio_hog)) {
 			ret = device_probe(dev);
 			if (ret) {
 				printf("Failed to probe device %s err: %d\n",
@@ -338,10 +338,10 @@ int gpio_hog_lookup_name(const char *name, struct gpio_desc **desc)
 U_BOOT_DRIVER(gpio_hog) = {
 	.name	= "gpio_hog",
 	.id	= UCLASS_NOP,
-	.ofdata_to_platdata = gpio_hog_ofdata_to_platdata,
+	.of_to_plat = gpio_hog_of_to_plat,
 	.probe = gpio_hog_probe,
-	.priv_auto_alloc_size = sizeof(struct gpio_hog_priv),
-	.platdata_auto_alloc_size = sizeof(struct gpio_hog_data),
+	.priv_auto	= sizeof(struct gpio_hog_priv),
+	.plat_auto	= sizeof(struct gpio_hog_data),
 };
 #else
 int gpio_hog_lookup_name(const char *name, struct gpio_desc **desc)
@@ -1100,9 +1100,8 @@ int gpio_get_list_count(struct udevice *dev, const char *list_name)
 {
 	int ret;
 
-	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev_of_offset(dev),
-					     list_name, "#gpio-cells", 0, -1,
-					     NULL);
+	ret = dev_read_phandle_with_args(dev, list_name, "#gpio-cells", 0, -1,
+					 NULL);
 	if (ret) {
 		debug("%s: Node '%s', property '%s', GPIO count failed: %d\n",
 		      __func__, dev->name, list_name, ret);
@@ -1166,7 +1165,7 @@ int gpio_get_number(const struct gpio_desc *desc)
 
 	if (!dev)
 		return -1;
-	uc_priv = dev->uclass_priv;
+	uc_priv = dev_get_uclass_priv(dev);
 
 	return uc_priv->gpio_base + desc->offset;
 }
@@ -1340,5 +1339,5 @@ UCLASS_DRIVER(gpio) = {
 	.post_probe	= gpio_post_probe,
 	.post_bind	= gpio_post_bind,
 	.pre_remove	= gpio_pre_remove,
-	.per_device_auto_alloc_size = sizeof(struct gpio_dev_priv),
+	.per_device_auto	= sizeof(struct gpio_dev_priv),
 };

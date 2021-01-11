@@ -66,7 +66,7 @@ static inline int serial_in_shift(void *addr, int shift)
 
 static inline void _debug_uart_init(void)
 {
-	struct NS16550 *com_port = (struct NS16550 *)CONFIG_DEBUG_UART_BASE;
+	struct ns16550 *com_port = (struct ns16550 *)CONFIG_DEBUG_UART_BASE;
 	int baud_divisor;
 
 	baud_divisor = ns16550_calc_divisor(com_port, CONFIG_DEBUG_UART_CLOCK,
@@ -85,7 +85,7 @@ static inline void _debug_uart_init(void)
 
 static inline void _debug_uart_putc(int ch)
 {
-	struct NS16550 *com_port = (struct NS16550 *)CONFIG_DEBUG_UART_BASE;
+	struct ns16550 *com_port = (struct ns16550 *)CONFIG_DEBUG_UART_BASE;
 
 	while (!(serial_din(&com_port->lsr) & UART_LSR_THRE))
 		;
@@ -99,9 +99,9 @@ DEBUG_UART_FUNCS
 #if CONFIG_IS_ENABLED(DM_SERIAL)
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
-static int omap_serial_ofdata_to_platdata(struct udevice *dev)
+static int omap_serial_of_to_plat(struct udevice *dev)
 {
-	struct ns16550_platdata *plat = dev->platdata;
+	struct ns16550_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 	struct clk clk;
 	int err;
@@ -157,10 +157,10 @@ U_BOOT_DRIVER(omap_serial) = {
 	.id	= UCLASS_SERIAL,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap_serial_ids,
-	.ofdata_to_platdata = omap_serial_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct ns16550_platdata),
+	.of_to_plat = omap_serial_of_to_plat,
+	.plat_auto	= sizeof(struct ns16550_plat),
 #endif
-	.priv_auto_alloc_size = sizeof(struct NS16550),
+	.priv_auto	= sizeof(struct ns16550),
 	.probe = ns16550_serial_probe,
 	.ops	= &ns16550_serial_ops,
 #if !CONFIG_IS_ENABLED(OF_CONTROL)

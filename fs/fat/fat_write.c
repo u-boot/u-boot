@@ -8,25 +8,185 @@
 #include <common.h>
 #include <command.h>
 #include <config.h>
+#include <div64.h>
 #include <fat.h>
 #include <log.h>
 #include <malloc.h>
-#include <asm/byteorder.h>
 #include <part.h>
+#include <rand.h>
+#include <asm/byteorder.h>
 #include <asm/cache.h>
 #include <linux/ctype.h>
-#include <div64.h>
 #include <linux/math64.h>
 #include "fat.c"
 
-static void uppercase(char *str, int len)
+static dir_entry *find_directory_entry(fat_itr *itr, char *filename);
+static int new_dir_table(fat_itr *itr);
+
+/* Characters that may only be used in long file names */
+static const char LONG_ONLY_CHARS[] = "+,;=[]";
+
+/* Combined size of the name and ext fields in the directory entry */
+#define SHORT_NAME_SIZE 11
+
+/**
+ * str2fat() - convert string to valid FAT name characters
+ *
+ * Stop when reaching end of @src or a period.
+ * Ignore spaces.
+ * Replace characters that may only be used in long names by underscores.
+ * Convert lower case characters to upper case.
+ *
+ * To avoid assumptions about the code page we do not use characters
+ * above 0x7f for the short name.
+ *
+ * @dest:	destination buffer
+ * @src:	source buffer
+ * @length:	size of destination buffer
+ * Return:	number of bytes in destination buffer
+ */
+static int str2fat(char *dest, char *src, int length)
 {
 	int i;
 
-	for (i = 0; i < len; i++) {
-		*str = toupper(*str);
-		str++;
+	for (i = 0; i < length; ++src) {
+		char c = *src;
+
+		if (!c || c == '.')
+			break;
+		if (c == ' ')
+			continue;
+		if (strchr(LONG_ONLY_CHARS, c) || c > 0x7f)
+			c = '_';
+		else if (c >= 'a' && c <= 'z')
+			c &= 0xdf;
+		dest[i] = c;
+		++i;
 	}
+	return i;
+}
+
+/**
+ * fat_move_to_cluster() - position to first directory entry in cluster
+ *
+ * @itr:	directory iterator
+ * @cluster	cluster
+ * Return:	0 for success, -EIO on error
+ */
+static int fat_move_to_cluster(fat_itr *itr, unsigned int cluster)
+{
+	unsigned int nbytes;
+
+	/* position to the start of the directory */
+	itr->next_clust = cluster;
+	itr->last_cluster = 0;
+	if (!fat_next_cluster(itr, &nbytes))
+		return -EIO;
+	itr->dent = (dir_entry *)itr->block;
+	itr->remaining = nbytes / sizeof(dir_entry) - 1;
+	return 0;
+}
+
+/**
+ * set_name() - set short name in directory entry
+ *
+ * The function determines if the @filename is a valid short name.
+ * In this case no long name is needed.
+ *
+ * If a long name is needed, a short name is constructed.
+ *
+ * @itr:	directory iterator
+ * @filename:	long file name
+ * @shortname:	buffer of 11 bytes to receive chosen short name and extension
+ * Return:	number of directory entries needed, negative on error
+ */
+static int set_name(fat_itr *itr, const char *filename, char *shortname)
+{
+	char *period;
+	char *pos;
+	int period_location;
+	char buf[13];
+	int i;
+	int ret;
+	struct {
+		char name[8];
+		char ext[3];
+	} dirent;
+
+	if (!filename)
+		return -EIO;
+
+	/* Initialize buffer */
+	memset(&dirent, ' ', sizeof(dirent));
+
+	/* Convert filename to upper case short name */
+	period = strrchr(filename, '.');
+	pos = (char *)filename;
+	if (*pos == '.') {
+		pos = period + 1;
+		period = 0;
+	}
+	if (period)
+		str2fat(dirent.ext, period + 1, sizeof(dirent.ext));
+	period_location = str2fat(dirent.name, pos, sizeof(dirent.name));
+	if (period_location < 0)
+		return period_location;
+	if (*dirent.name == ' ')
+		*dirent.name = '_';
+	/* 0xe5 signals a deleted directory entry. Replace it by 0x05. */
+	if (*dirent.name == 0xe5)
+		*dirent.name = 0x05;
+
+	/* If filename and short name are the same, quit. */
+	sprintf(buf, "%.*s.%.3s", period_location, dirent.name, dirent.ext);
+	if (!strcmp(buf, filename)) {
+		ret = 1;
+		goto out;
+	}
+
+	/* Construct an indexed short name */
+	for (i = 1; i < 0x200000; ++i) {
+		int suffix_len;
+		int suffix_start;
+		int j;
+
+		/* To speed up the search use random numbers */
+		if (i < 10) {
+			j = i;
+		} else {
+			j = 30 - fls(i);
+			j = 10 + (rand() >> j);
+		}
+		sprintf(buf, "~%d", j);
+		suffix_len = strlen(buf);
+		suffix_start = 8 - suffix_len;
+		if (suffix_start > period_location)
+			suffix_start = period_location;
+		memcpy(dirent.name + suffix_start, buf, suffix_len);
+		if (*dirent.ext != ' ')
+			sprintf(buf, "%.*s.%.3s", suffix_start + suffix_len,
+				dirent.name, dirent.ext);
+		else
+			sprintf(buf, "%.*s", suffix_start + suffix_len,
+				dirent.name);
+		debug("generated short name: %s\n", buf);
+
+		/* Check that the short name does not exist yet. */
+		ret = fat_move_to_cluster(itr, itr->start_clust);
+		if (ret)
+			return ret;
+		if (find_directory_entry(itr, buf))
+			continue;
+
+		debug("chosen short name: %s\n", buf);
+		/* Each long name directory entry takes 13 characters. */
+		ret = (strlen(filename) + 25) / 13;
+		goto out;
+	}
+	return -EIO;
+out:
+	memcpy(shortname, dirent.name, SHORT_NAME_SIZE);
+	return ret;
 }
 
 static int total_sector;
@@ -48,67 +208,6 @@ static int disk_write(__u32 block, __u32 nr_blocks, void *buf)
 		return -1;
 
 	return ret;
-}
-
-/**
- * set_name() - set short name in directory entry
- *
- * @dirent:	directory entry
- * @filename:	long file name
- */
-static void set_name(dir_entry *dirent, const char *filename)
-{
-	char s_name[VFAT_MAXLEN_BYTES];
-	char *period;
-	int period_location, len, i, ext_num;
-
-	if (filename == NULL)
-		return;
-
-	len = strlen(filename);
-	if (len == 0)
-		return;
-
-	strncpy(s_name, filename, VFAT_MAXLEN_BYTES - 1);
-	s_name[VFAT_MAXLEN_BYTES - 1] = '\0';
-	uppercase(s_name, len);
-
-	period = strchr(s_name, '.');
-	if (period == NULL) {
-		period_location = len;
-		ext_num = 0;
-	} else {
-		period_location = period - s_name;
-		ext_num = len - period_location - 1;
-	}
-
-	/* Pad spaces when the length of file name is shorter than eight */
-	if (period_location < 8) {
-		memcpy(dirent->name, s_name, period_location);
-		for (i = period_location; i < 8; i++)
-			dirent->name[i] = ' ';
-	} else if (period_location == 8) {
-		memcpy(dirent->name, s_name, period_location);
-	} else {
-		memcpy(dirent->name, s_name, 6);
-		/*
-		 * TODO: Translating two long names with the same first six
-		 *       characters to the same short name is utterly wrong.
-		 *       Short names must be unique.
-		 */
-		dirent->name[6] = '~';
-		dirent->name[7] = '1';
-	}
-
-	if (ext_num < 3) {
-		memcpy(dirent->ext, s_name + period_location + 1, ext_num);
-		for (i = ext_num; i < 3; i++)
-			dirent->ext[i] = ' ';
-	} else
-		memcpy(dirent->ext, s_name + period_location + 1, 3);
-
-	debug("name : %s\n", dirent->name);
-	debug("ext : %s\n", dirent->ext);
 }
 
 /*
@@ -149,6 +248,66 @@ static int flush_dirty_fat_buffer(fsdata *mydata)
 	}
 	mydata->fat_dirty = 0;
 
+	return 0;
+}
+
+/**
+ * fat_find_empty_dentries() - find a sequence of available directory entries
+ *
+ * @itr:	directory iterator
+ * @count:	number of directory entries to find
+ * Return:	0 on success or negative error number
+ */
+static int fat_find_empty_dentries(fat_itr *itr, int count)
+{
+	unsigned int cluster;
+	dir_entry *dent;
+	int remaining;
+	unsigned int n = 0;
+	int ret;
+
+	ret = fat_move_to_cluster(itr, itr->start_clust);
+	if (ret)
+		return ret;
+
+	for (;;) {
+		if (!itr->dent) {
+			log_debug("Not enough directory entries available\n");
+			return -ENOSPC;
+		}
+		switch (itr->dent->name[0]) {
+		case 0x00:
+		case DELETED_FLAG:
+			if (!n) {
+				/* Remember first deleted directory entry */
+				cluster = itr->clust;
+				dent = itr->dent;
+				remaining = itr->remaining;
+			}
+			++n;
+			if (n == count)
+				goto out;
+			break;
+		default:
+			n = 0;
+			break;
+		}
+
+		next_dent(itr);
+		if (!itr->dent &&
+		    (!itr->is_root || itr->fsdata->fatsize == 32) &&
+		    new_dir_table(itr))
+			return -ENOSPC;
+	}
+out:
+	/* Position back to first directory entry */
+	if (itr->clust != cluster) {
+		ret = fat_move_to_cluster(itr, cluster);
+		if (ret)
+			return ret;
+	}
+	itr->dent = dent;
+	itr->remaining = remaining;
 	return 0;
 }
 
@@ -221,15 +380,18 @@ name11_12:
 	return 1;
 }
 
-static int new_dir_table(fat_itr *itr);
 static int flush_dir(fat_itr *itr);
 
-/*
- * Fill dir_slot entries with appropriate name, id, and attr
- * 'itr' will point to a next entry
+/**
+ * fill_dir_slot() - fill directory entries for long name
+ *
+ * @itr:	directory iterator
+ * @l_name:	long name
+ * @shortname:	short name
+ * Return:	0 for success, -errno otherwise
  */
 static int
-fill_dir_slot(fat_itr *itr, const char *l_name)
+fill_dir_slot(fat_itr *itr, const char *l_name, const char *shortname)
 {
 	__u8 temp_dir_slot_buffer[MAX_LFN_SLOT * sizeof(dir_slot)];
 	dir_slot *slotptr = (dir_slot *)temp_dir_slot_buffer;
@@ -237,7 +399,7 @@ fill_dir_slot(fat_itr *itr, const char *l_name)
 	int idx = 0, ret;
 
 	/* Get short file name checksum value */
-	checksum = mkcksum(itr->dent->name, itr->dent->ext);
+	checksum = mkcksum(shortname, shortname + 8);
 
 	do {
 		memset(slotptr, 0x00, sizeof(dir_slot));
@@ -259,11 +421,9 @@ fill_dir_slot(fat_itr *itr, const char *l_name)
 		if (itr->remaining == 0)
 			flush_dir(itr);
 
-		/* allocate a cluster for more entries */
-		if (!fat_itr_next(itr) && !itr->dent)
-			if ((itr->is_root && itr->fsdata->fatsize != 32) ||
-			    new_dir_table(itr))
-				return -1;
+		next_dent(itr);
+		if (!itr->dent)
+			return -EIO;
 	}
 
 	return 0;
@@ -636,17 +796,32 @@ static int find_empty_cluster(fsdata *mydata)
 	return entry;
 }
 
-/*
- * Allocate a cluster for additional directory entries
+/**
+ * new_dir_table() - allocate a cluster for additional directory entries
+ *
+ * @itr:	directory iterator
+ * Return:	0 on success, -EIO otherwise
  */
 static int new_dir_table(fat_itr *itr)
 {
 	fsdata *mydata = itr->fsdata;
 	int dir_newclust = 0;
+	int dir_oldclust = itr->clust;
 	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
 
 	dir_newclust = find_empty_cluster(mydata);
-	set_fatent_value(mydata, itr->clust, dir_newclust);
+
+	/*
+	 * Flush before updating FAT to ensure valid directory structure
+	 * in case of failure.
+	 */
+	itr->clust = dir_newclust;
+	itr->next_clust = dir_newclust;
+	memset(itr->block, 0x00, bytesperclust);
+	if (flush_dir(itr))
+		return -EIO;
+
+	set_fatent_value(mydata, dir_oldclust, dir_newclust);
 	if (mydata->fatsize == 32)
 		set_fatent_value(mydata, dir_newclust, 0xffffff8);
 	else if (mydata->fatsize == 16)
@@ -654,13 +829,8 @@ static int new_dir_table(fat_itr *itr)
 	else if (mydata->fatsize == 12)
 		set_fatent_value(mydata, dir_newclust, 0xff8);
 
-	itr->clust = dir_newclust;
-	itr->next_clust = dir_newclust;
-
 	if (flush_dirty_fat_buffer(mydata) < 0)
-		return -1;
-
-	memset(itr->block, 0x00, bytesperclust);
+		return -EIO;
 
 	itr->dent = (dir_entry *)itr->block;
 	itr->last_cluster = 1;
@@ -961,24 +1131,35 @@ getit:
 	return 0;
 }
 
-/*
- * Fill dir_entry
+/**
+ * fill_dentry() - fill directory entry with shortname
+ *
+ * @mydata:		private filesystem parameters
+ * @dentptr:		directory entry
+ * @shortname:		chosen short name
+ * @start_cluster:	first cluster of file
+ * @size:		file size
+ * @attr:		file attributes
  */
 static void fill_dentry(fsdata *mydata, dir_entry *dentptr,
-	const char *filename, __u32 start_cluster, __u32 size, __u8 attr)
+	const char *shortname, __u32 start_cluster, __u32 size, __u8 attr)
 {
+	memset(dentptr, 0, sizeof(*dentptr));
+
 	set_start_cluster(mydata, dentptr, start_cluster);
 	dentptr->size = cpu_to_le32(size);
 
 	dentptr->attr = attr;
 
-	set_name(dentptr, filename);
+	memcpy(dentptr->name, shortname, SHORT_NAME_SIZE);
 }
 
-/*
- * Find a directory entry based on filename or start cluster number
- * If the directory entry is not found,
- * the new position for writing a directory entry will be returned
+/**
+ * find_directory_entry() - find a directory entry by filename
+ *
+ * @itr:	directory iterator
+ * @filename:	name of file to find
+ * Return:	directory entry or NULL
  */
 static dir_entry *find_directory_entry(fat_itr *itr, char *filename)
 {
@@ -1000,13 +1181,6 @@ static dir_entry *find_directory_entry(fat_itr *itr, char *filename)
 		else
 			return itr->dent;
 	}
-
-	/* allocate a cluster for more entries */
-	if (!itr->dent &&
-	    (!itr->is_root || itr->fsdata->fatsize == 32) &&
-	    new_dir_table(itr))
-		/* indicate that allocating dent failed */
-		itr->dent = NULL;
 
 	return NULL;
 }
@@ -1157,6 +1331,8 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 		retdent->size = cpu_to_le32(pos + size);
 	} else {
 		/* Create a new file */
+		char shortname[SHORT_NAME_SIZE];
+		int ndent;
 
 		if (itr->is_root) {
 			/* root dir cannot have "." or ".." */
@@ -1167,31 +1343,30 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 			}
 		}
 
-		if (!itr->dent) {
-			printf("Error: allocating new dir entry\n");
-			ret = -EIO;
-			goto exit;
-		}
-
 		if (pos) {
 			/* No hole allowed */
 			ret = -EINVAL;
 			goto exit;
 		}
 
-		memset(itr->dent, 0, sizeof(*itr->dent));
-
-		/* Calculate checksum for short name */
-		set_name(itr->dent, filename);
-
-		/* Set long name entries */
-		if (fill_dir_slot(itr, filename)) {
-			ret = -EIO;
+		/* Check if long name is needed */
+		ndent = set_name(itr, filename, shortname);
+		if (ndent < 0) {
+			ret = ndent;
 			goto exit;
+		}
+		ret = fat_find_empty_dentries(itr, ndent);
+		if (ret)
+			goto exit;
+		if (ndent > 1) {
+			/* Set long name entries */
+			ret = fill_dir_slot(itr, filename, shortname);
+			if (ret)
+				goto exit;
 		}
 
 		/* Set short name entry */
-		fill_dentry(itr->fsdata, itr->dent, filename, 0, size,
+		fill_dentry(itr->fsdata, itr->dent, shortname, 0, size,
 			    ATTR_ARCH);
 
 		retdent = itr->dent;
@@ -1270,27 +1445,91 @@ exit:
 	return count;
 }
 
-static int delete_dentry(fat_itr *itr)
+/**
+ * delete_single_dentry() - delete a single directory entry
+ *
+ * @itr:	directory iterator
+ * Return:	0 for success
+ */
+static int delete_single_dentry(fat_itr *itr)
+{
+	struct dir_entry *dent = itr->dent;
+
+	memset(dent, 0, sizeof(*dent));
+	dent->name[0] = DELETED_FLAG;
+
+	if (!itr->remaining) {
+		if (flush_dir(itr)) {
+			printf("error: writing directory entry\n");
+			return -EIO;
+		}
+	}
+	return 0;
+}
+
+/**
+ * delete_long_name() - delete long name directory entries
+ *
+ * @itr:	directory iterator
+ * Return:	0 for success
+ */
+static int delete_long_name(fat_itr *itr)
+{
+	struct dir_entry *dent = itr->dent;
+	int seqn = itr->dent->name[0] & ~LAST_LONG_ENTRY_MASK;
+
+	while (seqn--) {
+		int ret;
+
+		ret = delete_single_dentry(itr);
+		if (ret)
+			return ret;
+		dent = next_dent(itr);
+		if (!dent)
+			return -EIO;
+	}
+	return 0;
+}
+
+/**
+ * delete_dentry_long() - remove directory entry
+ *
+ * @itr:	directory iterator
+ * Return:	0 for success
+ */
+static int delete_dentry_long(fat_itr *itr)
 {
 	fsdata *mydata = itr->fsdata;
-	dir_entry *dentptr = itr->dent;
+	dir_entry *dent = itr->dent;
 
 	/* free cluster blocks */
-	clear_fatent(mydata, START(dentptr));
+	clear_fatent(mydata, START(dent));
 	if (flush_dirty_fat_buffer(mydata) < 0) {
 		printf("Error: flush fat buffer\n");
 		return -EIO;
 	}
+	/* Position to first directory entry for long name */
+	if (itr->clust != itr->dent_clust) {
+		int ret;
 
-	/*
-	 * update a directory entry
-	 * TODO:
-	 *  - long file name support
-	 *  - find and mark the "new" first invalid entry as name[0]=0x00
-	 */
-	memset(dentptr, 0, sizeof(*dentptr));
-	dentptr->name[0] = 0xe5;
+		ret = fat_move_to_cluster(itr, itr->dent_clust);
+		if (ret)
+			return ret;
+	}
+	itr->dent = itr->dent_start;
+	itr->remaining = itr->dent_rem;
+	dent = itr->dent_start;
+	/* Delete long name */
+	if ((dent->attr & ATTR_VFAT) == ATTR_VFAT &&
+	    (dent->name[0] & LAST_LONG_ENTRY_MASK)) {
+		int ret;
 
+		ret = delete_long_name(itr);
+		if (ret)
+			return ret;
+	}
+	/* Delete short name */
+	delete_single_dentry(itr);
 	if (flush_dir(itr)) {
 		printf("error: writing directory entry\n");
 		return -EIO;
@@ -1360,7 +1599,7 @@ int fat_unlink(const char *filename)
 		}
 	}
 
-	ret = delete_dentry(itr);
+	ret = delete_dentry_long(itr);
 
 exit:
 	free(fsdata.fatbuf);
@@ -1424,6 +1663,9 @@ int fat_mkdir(const char *new_dirname)
 		ret = -EEXIST;
 		goto exit;
 	} else {
+		char shortname[SHORT_NAME_SIZE];
+		int ndent;
+
 		if (itr->is_root) {
 			/* root dir cannot have "." or ".." */
 			if (!strcmp(l_dirname, ".") ||
@@ -1433,20 +1675,24 @@ int fat_mkdir(const char *new_dirname)
 			}
 		}
 
-		if (!itr->dent) {
-			printf("Error: allocating new dir entry\n");
-			ret = -EIO;
+		/* Check if long name is needed */
+		ndent = set_name(itr, dirname, shortname);
+		if (ndent < 0) {
+			ret = ndent;
 			goto exit;
 		}
-
-		memset(itr->dent, 0, sizeof(*itr->dent));
-
-		/* Set short name to set alias checksum field in dir_slot */
-		set_name(itr->dent, dirname);
-		fill_dir_slot(itr, dirname);
+		ret = fat_find_empty_dentries(itr, ndent);
+		if (ret)
+			goto exit;
+		if (ndent > 1) {
+			/* Set long name entries */
+			ret = fill_dir_slot(itr, dirname, shortname);
+			if (ret)
+				goto exit;
+		}
 
 		/* Set attribute as archive for regular file */
-		fill_dentry(itr->fsdata, itr->dent, dirname, 0, 0,
+		fill_dentry(itr->fsdata, itr->dent, shortname, 0, 0,
 			    ATTR_DIR | ATTR_ARCH);
 
 		retdent = itr->dent;
@@ -1468,7 +1714,11 @@ int fat_mkdir(const char *new_dirname)
 	memcpy(dotdent[1].name, "..      ", 8);
 	memcpy(dotdent[1].ext, "   ", 3);
 	dotdent[1].attr = ATTR_DIR | ATTR_ARCH;
-	set_start_cluster(mydata, &dotdent[1], itr->start_clust);
+
+	if (itr->is_root)
+		set_start_cluster(mydata, &dotdent[1], 0);
+	else
+		set_start_cluster(mydata, &dotdent[1], itr->start_clust);
 
 	ret = set_contents(mydata, retdent, 0, (__u8 *)dotdent,
 			   bytesperclust, &actwrite);

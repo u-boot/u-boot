@@ -1860,10 +1860,18 @@ static int rndis_control_ack(struct eth_device *net)
 static int rndis_control_ack(struct udevice *net)
 #endif
 {
-	struct ether_priv	*priv = (struct ether_priv *)net->priv;
-	struct eth_dev		*dev = &priv->ethdev;
-	int                     length;
-	struct usb_request      *resp = dev->stat_req;
+	struct ether_priv *priv;
+	struct eth_dev *dev;
+	int length;
+	struct usb_request *resp;
+
+#ifndef CONFIG_DM_ETH
+	priv = (struct ether_priv *)net->priv;
+#else
+	priv = dev_get_priv(net);
+#endif
+	dev = &priv->ethdev;
+	resp = dev->stat_req;
 
 	/* in case RNDIS calls this after disconnect */
 	if (!dev->status) {
@@ -2009,7 +2017,7 @@ static int eth_bind(struct usb_gadget *gadget)
 	int			gcnum;
 	u8			tmp[7];
 #ifdef CONFIG_DM_ETH
-	struct eth_pdata	*pdata = dev_get_platdata(l_priv->netdev);
+	struct eth_pdata	*pdata = dev_get_plat(l_priv->netdev);
 #endif
 
 	/* these flags are only ever cleared; compiler take note */
@@ -2646,7 +2654,7 @@ static void usb_eth_stop(struct udevice *dev)
 static int usb_eth_probe(struct udevice *dev)
 {
 	struct ether_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	priv->netdev = dev;
 	l_priv = priv;
@@ -2691,8 +2699,8 @@ U_BOOT_DRIVER(eth_usb) = {
 	.id	= UCLASS_ETH,
 	.probe	= usb_eth_probe,
 	.ops	= &usb_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct ether_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct ether_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif /* CONFIG_DM_ETH */

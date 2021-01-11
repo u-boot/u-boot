@@ -1169,7 +1169,7 @@ static void macb_stop(struct udevice *dev)
 
 static int macb_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct macb_device *macb = dev_get_priv(dev);
 
 	return _macb_write_hwaddr(macb, plat->enetaddr);
@@ -1222,7 +1222,7 @@ static const struct macb_config default_gem_config = {
 
 static int macb_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct macb_device *macb = dev_get_priv(dev);
 	const char *phy_mode;
 	int ret;
@@ -1283,25 +1283,25 @@ static int macb_eth_remove(struct udevice *dev)
 }
 
 /**
- * macb_late_eth_ofdata_to_platdata
+ * macb_late_eth_of_to_plat
  * @dev:	udevice struct
  * Returns 0 when operation success and negative errno number
  * when operation failed.
  */
-int __weak macb_late_eth_ofdata_to_platdata(struct udevice *dev)
+int __weak macb_late_eth_of_to_plat(struct udevice *dev)
 {
 	return 0;
 }
 
-static int macb_eth_ofdata_to_platdata(struct udevice *dev)
+static int macb_eth_of_to_plat(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	pdata->iobase = (phys_addr_t)dev_remap_addr(dev);
 	if (!pdata->iobase)
 		return -EINVAL;
 
-	return macb_late_eth_ofdata_to_platdata(dev);
+	return macb_late_eth_of_to_plat(dev);
 }
 
 static const struct macb_config sama5d4_config = {
@@ -1331,12 +1331,12 @@ U_BOOT_DRIVER(eth_macb) = {
 	.name	= "eth_macb",
 	.id	= UCLASS_ETH,
 	.of_match = macb_eth_ids,
-	.ofdata_to_platdata = macb_eth_ofdata_to_platdata,
+	.of_to_plat = macb_eth_of_to_plat,
 	.probe	= macb_eth_probe,
 	.remove	= macb_eth_remove,
 	.ops	= &macb_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct macb_device),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct macb_device),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 #endif
 

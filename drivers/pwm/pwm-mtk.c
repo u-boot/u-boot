@@ -184,5 +184,5 @@ U_BOOT_DRIVER(mtk_pwm) = {
 	.of_match = mtk_pwm_ids,
 	.ops = &mtk_pwm_ops,
 	.probe = mtk_pwm_probe,
-	.priv_auto_alloc_size = sizeof(struct mtk_pwm_priv),
+	.priv_auto	= sizeof(struct mtk_pwm_priv),
 };

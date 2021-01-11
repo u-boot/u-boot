@@ -27,29 +27,29 @@
 
 #define PGTABLE_OFF	0x4000
 
-u32 hmc_readl(struct altera_sdram_platdata *plat, u32 reg)
+u32 hmc_readl(struct altera_sdram_plat *plat, u32 reg)
 {
 	return readl(plat->iomhc + reg);
 }
 
-u32 hmc_ecc_readl(struct altera_sdram_platdata *plat, u32 reg)
+u32 hmc_ecc_readl(struct altera_sdram_plat *plat, u32 reg)
 {
 	return readl(plat->hmc + reg);
 }
 
-u32 hmc_ecc_writel(struct altera_sdram_platdata *plat,
+u32 hmc_ecc_writel(struct altera_sdram_plat *plat,
 		   u32 data, u32 reg)
 {
 	return writel(data, plat->hmc + reg);
 }
 
-u32 ddr_sch_writel(struct altera_sdram_platdata *plat, u32 data,
+u32 ddr_sch_writel(struct altera_sdram_plat *plat, u32 data,
 		   u32 reg)
 {
 	return writel(data, plat->ddr_sch + reg);
 }
 
-int emif_clear(struct altera_sdram_platdata *plat)
+int emif_clear(struct altera_sdram_plat *plat)
 {
 	hmc_ecc_writel(plat, 0, RSTHANDSHAKECTRL);
 
@@ -59,7 +59,7 @@ int emif_clear(struct altera_sdram_platdata *plat)
 				 false, 1000, false);
 }
 
-int emif_reset(struct altera_sdram_platdata *plat)
+int emif_reset(struct altera_sdram_plat *plat)
 {
 	u32 c2s, s2c, ret;
 
@@ -214,7 +214,7 @@ void sdram_size_check(struct bd_info *bd)
  * Calculate SDRAM device size based on SDRAM controller parameters.
  * Size is specified in bytes.
  */
-phys_size_t sdram_calculate_size(struct altera_sdram_platdata *plat)
+phys_size_t sdram_calculate_size(struct altera_sdram_plat *plat)
 {
 	u32 dramaddrw = hmc_readl(plat, DRAMADDRW);
 
@@ -230,9 +230,9 @@ phys_size_t sdram_calculate_size(struct altera_sdram_platdata *plat)
 	return size;
 }
 
-static int altera_sdram_ofdata_to_platdata(struct udevice *dev)
+static int altera_sdram_of_to_plat(struct udevice *dev)
 {
-	struct altera_sdram_platdata *plat = dev->platdata;
+	struct altera_sdram_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr_index(dev, 0);
@@ -303,8 +303,8 @@ U_BOOT_DRIVER(altera_sdram) = {
 	.id = UCLASS_RAM,
 	.of_match = altera_sdram_ids,
 	.ops = &altera_sdram_ops,
-	.ofdata_to_platdata = altera_sdram_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct altera_sdram_platdata),
+	.of_to_plat = altera_sdram_of_to_plat,
+	.plat_auto	= sizeof(struct altera_sdram_plat),
 	.probe = altera_sdram_probe,
-	.priv_auto_alloc_size = sizeof(struct altera_sdram_priv),
+	.priv_auto	= sizeof(struct altera_sdram_priv),
 };

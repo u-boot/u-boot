@@ -249,3 +249,15 @@ static int dm_test_ofnode_get_child_count(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_get_child_count,
 	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_is_enabled(struct unit_test_state *uts)
+{
+	ofnode root_node = ofnode_path("/");
+	ofnode node = ofnode_path("/usb@0");
+
+	ut_assert(ofnode_is_enabled(root_node));
+	ut_assert(!ofnode_is_enabled(node));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_is_enabled, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

@@ -93,7 +93,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-U_BOOT_DEVICE(sysreset) = {
+U_BOOT_DRVINFO(sysreset) = {
 	.name = "xtfpga_sysreset",
 };
 
@@ -104,7 +104,7 @@ static struct ethoc_eth_pdata ethoc_pdata = {
 	.packet_base = CONFIG_SYS_ETHOC_BUFFER_ADDR,
 };
 
-U_BOOT_DEVICE(ethoc) = {
+U_BOOT_DRVINFO(ethoc) = {
 	.name = "ethoc",
-	.platdata = &ethoc_pdata,
+	.plat = &ethoc_pdata,
 };

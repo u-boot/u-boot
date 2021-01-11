@@ -29,14 +29,14 @@
 #include <fdt_support.h>
 #include "igep00x0.h"
 
-static const struct ns16550_platdata igep_serial = {
+static const struct ns16550_plat igep_serial = {
 	.base = OMAP34XX_UART3,
 	.reg_shift = 2,
 	.clock = V_NS16550_CLK,
 	.fcr = UART_FCR_DEFVAL,
 };
 
-U_BOOT_DEVICE(igep_uart) = {
+U_BOOT_DRVINFO(igep_uart) = {
 	"ns16550_serial",
 	&igep_serial
 };

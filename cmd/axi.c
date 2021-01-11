@@ -33,9 +33,9 @@ static void show_bus(struct udevice *bus)
 {
 	struct udevice *dev;
 
-	printf("Bus %d:\t%s", bus->req_seq, bus->name);
+	printf("Bus %d:\t%s", dev_seq(bus), bus->name);
 	if (device_active(bus))
-		printf("  (active %d)", bus->seq);
+		printf("  (active)");
 	printf("\n");
 	for (device_find_first_child(bus, &dev);
 	     dev;
@@ -147,7 +147,7 @@ static int do_axi_bus_num(struct cmd_tbl *cmdtp, int flag, int argc,
 		struct udevice *bus;
 
 		if (!axi_get_cur_bus(&bus))
-			bus_no = bus->seq;
+			bus_no = dev_seq(bus);
 		else
 			bus_no = -1;
 

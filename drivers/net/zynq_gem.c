@@ -270,7 +270,7 @@ static int phywrite(struct zynq_gem_priv *priv, u32 phy_addr,
 static int zynq_gem_setup_mac(struct udevice *dev)
 {
 	u32 i, macaddrlow, macaddrhigh;
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	struct zynq_gem_regs *regs = priv->iobase;
 
@@ -635,7 +635,7 @@ __weak int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 
 static int zynq_gem_read_rom_mac(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	if (!pdata)
 		return -ENOSYS;
@@ -705,7 +705,7 @@ static int zynq_gem_probe(struct udevice *dev)
 	priv->bus->write = zynq_gem_miiphy_write;
 	priv->bus->priv = priv;
 
-	ret = mdio_register_seq(priv->bus, dev->seq);
+	ret = mdio_register_seq(priv->bus, dev_seq(dev));
 	if (ret)
 		goto err2;
 
@@ -743,9 +743,9 @@ static const struct eth_ops zynq_gem_ops = {
 	.read_rom_hwaddr	= zynq_gem_read_rom_mac,
 };
 
-static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
+static int zynq_gem_of_to_plat(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args phandle_args;
 	const char *phy_mode;
@@ -807,10 +807,10 @@ U_BOOT_DRIVER(zynq_gem) = {
 	.name	= "zynq_gem",
 	.id	= UCLASS_ETH,
 	.of_match = zynq_gem_ids,
-	.ofdata_to_platdata = zynq_gem_ofdata_to_platdata,
+	.of_to_plat = zynq_gem_of_to_plat,
 	.probe	= zynq_gem_probe,
 	.remove	= zynq_gem_remove,
 	.ops	= &zynq_gem_ops,
-	.priv_auto_alloc_size = sizeof(struct zynq_gem_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct zynq_gem_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

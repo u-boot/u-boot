@@ -322,7 +322,7 @@ static int ca_i2c_probe(struct udevice *bus)
 	return 0;
 }
 
-static int ca_i2c_ofdata_to_platdata(struct udevice *bus)
+static int ca_i2c_of_to_plat(struct udevice *bus)
 {
 	struct ca_i2c *priv = dev_get_priv(bus);
 
@@ -339,9 +339,9 @@ U_BOOT_DRIVER(i2c_cortina) = {
 	.name	= "i2c_cortina",
 	.id	= UCLASS_I2C,
 	.of_match = ca_i2c_ids,
-	.ofdata_to_platdata = ca_i2c_ofdata_to_platdata,
+	.of_to_plat = ca_i2c_of_to_plat,
 	.probe	= ca_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct ca_i2c),
+	.priv_auto	= sizeof(struct ca_i2c),
 	.ops	= &ca_i2c_ops,
 	.flags  = DM_FLAG_PRE_RELOC,
 };

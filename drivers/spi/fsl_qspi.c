@@ -515,8 +515,8 @@ static void fsl_qspi_invalidate(struct fsl_qspi *q)
 
 static void fsl_qspi_select_mem(struct fsl_qspi *q, struct spi_slave *slave)
 {
-	struct dm_spi_slave_platdata *plat =
-		dev_get_parent_platdata(slave->dev);
+	struct dm_spi_slave_plat *plat =
+		dev_get_parent_plat(slave->dev);
 
 	if (q->selected == plat->cs)
 		return;
@@ -795,7 +795,7 @@ static const struct spi_controller_mem_ops fsl_qspi_mem_ops = {
 
 static int fsl_qspi_probe(struct udevice *bus)
 {
-	struct dm_spi_bus *dm_bus = bus->uclass_priv;
+	struct dm_spi_bus *dm_bus = dev_get_uclass_priv(bus);
 	struct fsl_qspi *q = dev_get_priv(bus);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
@@ -887,6 +887,6 @@ U_BOOT_DRIVER(fsl_qspi) = {
 	.id	= UCLASS_SPI,
 	.of_match = fsl_qspi_ids,
 	.ops	= &fsl_qspi_ops,
-	.priv_auto_alloc_size = sizeof(struct fsl_qspi),
+	.priv_auto	= sizeof(struct fsl_qspi),
 	.probe	= fsl_qspi_probe,
 };

@@ -89,7 +89,7 @@ static int pl022_is_supported(struct pl022_spi_slave *ps)
 
 static int pl022_spi_probe(struct udevice *bus)
 {
-	struct pl022_spi_pdata *plat = dev_get_platdata(bus);
+	struct pl022_spi_pdata *plat = dev_get_plat(bus);
 	struct pl022_spi_slave *ps = dev_get_priv(bus);
 
 	ps->base = ioremap(plat->addr, plat->size);
@@ -286,9 +286,9 @@ static const struct dm_spi_ops pl022_spi_ops = {
 };
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-static int pl022_spi_ofdata_to_platdata(struct udevice *bus)
+static int pl022_spi_of_to_plat(struct udevice *bus)
 {
-	struct pl022_spi_pdata *plat = bus->platdata;
+	struct pl022_spi_pdata *plat = dev_get_plat(bus);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 	struct clk clkdev;
@@ -316,10 +316,10 @@ U_BOOT_DRIVER(pl022_spi) = {
 	.id     = UCLASS_SPI,
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = pl022_spi_ids,
-	.ofdata_to_platdata = pl022_spi_ofdata_to_platdata,
+	.of_to_plat = pl022_spi_of_to_plat,
 #endif
 	.ops    = &pl022_spi_ops,
-	.platdata_auto_alloc_size = sizeof(struct pl022_spi_pdata),
-	.priv_auto_alloc_size = sizeof(struct pl022_spi_slave),
+	.plat_auto	= sizeof(struct pl022_spi_pdata),
+	.priv_auto	= sizeof(struct pl022_spi_slave),
 	.probe  = pl022_spi_probe,
 };

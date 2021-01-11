@@ -51,6 +51,6 @@ U_BOOT_DRIVER(simple_pm_bus_drv) = {
 	.of_match = simple_pm_bus_ids,
 	.probe = simple_pm_bus_probe,
 	.remove = simple_pm_bus_remove,
-	.priv_auto_alloc_size = sizeof(struct clk_bulk),
+	.priv_auto	= sizeof(struct clk_bulk),
 	.flags	= DM_FLAG_PRE_RELOC,
 };

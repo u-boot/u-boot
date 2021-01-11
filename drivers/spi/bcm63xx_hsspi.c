@@ -140,7 +140,7 @@ static int bcm63xx_hsspi_set_speed(struct udevice *bus, uint speed)
 }
 
 static void bcm63xx_hsspi_activate_cs(struct bcm63xx_hsspi_priv *priv,
-				   struct dm_spi_slave_platdata *plat)
+				   struct dm_spi_slave_plat *plat)
 {
 	uint32_t clr, set;
 
@@ -217,7 +217,7 @@ static int bcm63xx_hsspi_xfer(struct udevice *dev, unsigned int bitlen,
 		const void *dout, void *din, unsigned long flags)
 {
 	struct bcm63xx_hsspi_priv *priv = dev_get_priv(dev->parent);
-	struct dm_spi_slave_platdata *plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
 	size_t data_bytes = bitlen / 8;
 	size_t step_size = HSSPI_FIFO_SIZE;
 	uint16_t opcode = 0;
@@ -316,7 +316,7 @@ static const struct udevice_id bcm63xx_hsspi_ids[] = {
 static int bcm63xx_hsspi_child_pre_probe(struct udevice *dev)
 {
 	struct bcm63xx_hsspi_priv *priv = dev_get_priv(dev->parent);
-	struct dm_spi_slave_platdata *plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
 
 	/* check cs */
 	if (plat->cs >= priv->num_cs) {
@@ -403,7 +403,7 @@ U_BOOT_DRIVER(bcm63xx_hsspi) = {
 	.id = UCLASS_SPI,
 	.of_match = bcm63xx_hsspi_ids,
 	.ops = &bcm63xx_hsspi_ops,
-	.priv_auto_alloc_size = sizeof(struct bcm63xx_hsspi_priv),
+	.priv_auto	= sizeof(struct bcm63xx_hsspi_priv),
 	.child_pre_probe = bcm63xx_hsspi_child_pre_probe,
 	.probe = bcm63xx_hsspi_probe,
 };

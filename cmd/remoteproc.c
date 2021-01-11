@@ -32,10 +32,10 @@ static int print_remoteproc_list(void)
 		struct dm_rproc_uclass_pdata *uc_pdata;
 		const struct dm_rproc_ops *ops = rproc_get_ops(dev);
 
-		uc_pdata = dev_get_uclass_platdata(dev);
+		uc_pdata = dev_get_uclass_plat(dev);
 
 		/* Do not print if rproc is not probed */
-		if (!(dev->flags & DM_FLAG_ACTIVATED))
+		if (!(dev_get_flags(dev) & DM_FLAG_ACTIVATED))
 			continue;
 
 		switch (uc_pdata->mem_type) {
@@ -47,7 +47,7 @@ static int print_remoteproc_list(void)
 			break;
 		}
 		printf("%d - Name:'%s' type:'%s' supports: %s%s%s%s%s%s\n",
-		       dev->seq,
+		       dev_seq(dev),
 		       uc_pdata->name,
 		       type,
 		       ops->load ? "load " : "",

@@ -20,7 +20,7 @@ def setup():
     """Do required setup before doing anything"""
     gitutil.Setup()
 
-def prepare_patches(col, branch, count, start, end, ignore_binary):
+def prepare_patches(col, branch, count, start, end, ignore_binary, signoff):
     """Figure out what patches to generate, then generate them
 
     The patch files are written to the current directory, e.g. 0001_xxx.patch
@@ -56,7 +56,7 @@ def prepare_patches(col, branch, count, start, end, ignore_binary):
     to_do = count - end
     series = patchstream.get_metadata(branch, start, to_do)
     cover_fname, patch_files = gitutil.CreatePatches(
-        branch, start, to_do, ignore_binary, series)
+        branch, start, to_do, ignore_binary, series, signoff)
 
     # Fix up the patch files to our liking, and insert the cover letter
     patchstream.fix_patches(series, patch_files)
@@ -163,7 +163,7 @@ def send(args):
     col = terminal.Color()
     series, cover_fname, patch_files = prepare_patches(
         col, args.branch, args.count, args.start, args.end,
-        args.ignore_binary)
+        args.ignore_binary, args.add_signoff)
     ok = check_patches(series, patch_files, args.check_patch,
                        args.verbose)
 

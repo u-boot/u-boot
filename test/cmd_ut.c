@@ -75,6 +75,8 @@ static struct cmd_tbl cmd_ut_sub[] = {
 	U_BOOT_CMD_MKENT(log, CONFIG_SYS_MAXARGS, 1, do_ut_log, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(mem, CONFIG_SYS_MAXARGS, 1, do_ut_mem, "", ""),
+	U_BOOT_CMD_MKENT(setexpr, CONFIG_SYS_MAXARGS, 1, do_ut_setexpr, "",
+			 ""),
 #ifdef CONFIG_UT_TIME
 	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
 #endif
@@ -86,6 +88,7 @@ static struct cmd_tbl cmd_ut_sub[] = {
 			 "", ""),
 	U_BOOT_CMD_MKENT(bloblist, CONFIG_SYS_MAXARGS, 1, do_ut_bloblist,
 			 "", ""),
+	U_BOOT_CMD_MKENT(bootm, CONFIG_SYS_MAXARGS, 1, do_ut_bootm, "", ""),
 	U_BOOT_CMD_MKENT(str, CONFIG_SYS_MAXARGS, 1, do_ut_str,
 			 "", ""),
 #endif
@@ -153,6 +156,7 @@ static char ut_help_text[] =
 #ifdef CONFIG_UT_OVERLAY
 	"ut overlay [test-name]\n"
 #endif
+	"ut setexpr [test-name] - test setexpr command\n"
 #ifdef CONFIG_SANDBOX
 	"ut str - Basic test of string functions\n"
 #endif

@@ -54,6 +54,6 @@ U_BOOT_DRIVER(wdt_reboot) = {
 	.id = UCLASS_SYSRESET,
 	.of_match = wdt_reboot_ids,
 	.ops = &wdt_reboot_ops,
-	.priv_auto_alloc_size = sizeof(struct wdt_reboot_priv),
+	.priv_auto	= sizeof(struct wdt_reboot_priv),
 	.probe = wdt_reboot_probe,
 };

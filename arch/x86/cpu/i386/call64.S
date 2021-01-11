@@ -11,6 +11,7 @@
 #include <asm/processor-flags.h>
 
 .code32
+.section .text_call64
 .globl cpu_call64
 cpu_call64:
 	/*

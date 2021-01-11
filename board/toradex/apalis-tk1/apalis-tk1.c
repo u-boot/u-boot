@@ -155,7 +155,7 @@ int tegra_pcie_board_init(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_PMIC,
-					  DM_GET_DRIVER(pmic_as3722), &dev);
+					  DM_DRIVER_GET(pmic_as3722), &dev);
 	if (ret) {
 		pr_err("failed to find AS3722 PMIC: %d\n", ret);
 		return ret;
@@ -194,7 +194,7 @@ void tegra_pcie_board_port_reset(struct tegra_pcie_port *port)
 		int ret;
 
 		ret = uclass_get_device_by_driver(UCLASS_PMIC,
-						  DM_GET_DRIVER(pmic_as3722),
+						  DM_DRIVER_GET(pmic_as3722),
 						  &dev);
 		if (ret) {
 			debug("%s: Failed to find PMIC\n", __func__);

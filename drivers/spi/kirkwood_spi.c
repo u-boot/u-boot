@@ -23,7 +23,7 @@ struct mvebu_spi_dev {
 	bool			is_errata_50mhz_ac;
 };
 
-struct mvebu_spi_platdata {
+struct mvebu_spi_plat {
 	struct kwspi_registers *spireg;
 	bool is_errata_50mhz_ac;
 };
@@ -109,7 +109,7 @@ static int _spi_xfer(struct kwspi_registers *reg, unsigned int bitlen,
 
 static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 	struct kwspi_registers *reg = plat->spireg;
 	u32 data;
 
@@ -127,7 +127,7 @@ static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
 
 static void mvebu_spi_50mhz_ac_timing_erratum(struct udevice *bus, uint mode)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 	struct kwspi_registers *reg = plat->spireg;
 	u32 data;
 
@@ -160,7 +160,7 @@ static void mvebu_spi_50mhz_ac_timing_erratum(struct udevice *bus, uint mode)
 
 static int mvebu_spi_set_mode(struct udevice *bus, uint mode)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 	struct kwspi_registers *reg = plat->spireg;
 	u32 data = readl(&reg->cfg);
 
@@ -185,7 +185,7 @@ static int mvebu_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			  const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev->parent;
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 
 	return _spi_xfer(plat->spireg, bitlen, dout, din, flags);
 }
@@ -198,7 +198,7 @@ __attribute__((weak)) int mvebu_board_spi_claim_bus(struct udevice *dev)
 static int mvebu_spi_claim_bus(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 
 	/* Configure the chip-select in the CTRL register */
 	clrsetbits_le32(&plat->spireg->ctrl,
@@ -220,7 +220,7 @@ static int mvebu_spi_release_bus(struct udevice *dev)
 
 static int mvebu_spi_probe(struct udevice *bus)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 	struct kwspi_registers *reg = plat->spireg;
 
 	writel(KWSPI_SMEMRDY, &reg->ctrl);
@@ -230,9 +230,9 @@ static int mvebu_spi_probe(struct udevice *bus)
 	return 0;
 }
 
-static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
+static int mvebu_spi_of_to_plat(struct udevice *bus)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 	const struct mvebu_spi_dev *drvdata =
 		(struct mvebu_spi_dev *)dev_get_driver_data(bus);
 
@@ -295,8 +295,8 @@ U_BOOT_DRIVER(mvebu_spi) = {
 	.id = UCLASS_SPI,
 	.of_match = mvebu_spi_ids,
 	.ops = &mvebu_spi_ops,
-	.ofdata_to_platdata = mvebu_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct mvebu_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct mvebu_spi_priv),
+	.of_to_plat = mvebu_spi_of_to_plat,
+	.plat_auto	= sizeof(struct mvebu_spi_plat),
+	.priv_auto	= sizeof(struct mvebu_spi_priv),
 	.probe = mvebu_spi_probe,
 };

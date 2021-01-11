@@ -10,14 +10,11 @@
 #include <errno.h>
 #include <i2c.h>
 #include <log.h>
+#include <asm/i2c.h>
 #include <asm/test.h>
 #include <dm/acpi.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
-
-struct sandbox_i2c_priv {
-	bool test_mode;
-};
 
 static int get_emul(struct udevice *dev, struct udevice **devp,
 		    struct dm_i2c_ops **opsp)
@@ -27,7 +24,7 @@ static int get_emul(struct udevice *dev, struct udevice **devp,
 
 	*devp = NULL;
 	*opsp = NULL;
-	plat = dev_get_parent_platdata(dev);
+	plat = dev_get_parent_plat(dev);
 	if (!plat->emul) {
 		ret = i2c_emul_find(dev, &plat->emul);
 		if (ret)
@@ -98,5 +95,5 @@ U_BOOT_DRIVER(sandbox_i2c) = {
 	.id	= UCLASS_I2C,
 	.of_match = sandbox_i2c_ids,
 	.ops	= &sandbox_i2c_ops,
-	.priv_auto_alloc_size = sizeof(struct sandbox_i2c_priv),
+	.priv_auto	= sizeof(struct sandbox_i2c_priv),
 };

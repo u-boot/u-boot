@@ -308,5 +308,5 @@ U_BOOT_DRIVER(rockchip_usb2phy) = {
 	.of_match = rockchip_usb2phy_ids,
 	.probe = rockchip_usb2phy_probe,
 	.bind = rockchip_usb2phy_bind,
-	.priv_auto_alloc_size = sizeof(struct rockchip_usb2phy),
+	.priv_auto	= sizeof(struct rockchip_usb2phy),
 };

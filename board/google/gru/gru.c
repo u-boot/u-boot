@@ -45,7 +45,7 @@ int board_early_init_r(void)
 	 * setting up.
 	 */
 	ret = uclass_get_device_by_driver(UCLASS_CLK,
-					  DM_GET_DRIVER(clk_rk3399), &clk);
+					  DM_DRIVER_GET(clk_rk3399), &clk);
 	if (ret) {
 		debug("%s: CLK init failed: %d\n", __func__, ret);
 		return ret;

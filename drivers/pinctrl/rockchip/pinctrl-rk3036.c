@@ -101,7 +101,7 @@ U_BOOT_DRIVER(pinctrl_rockchip) = {
 	.name		= "rk3036-pinctrl",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= rk3036_pinctrl_ids,
-	.priv_auto_alloc_size = sizeof(struct rockchip_pinctrl_priv),
+	.priv_auto	= sizeof(struct rockchip_pinctrl_priv),
 	.ops		= &rockchip_pinctrl_ops,
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.bind		= dm_scan_fdt_dev,

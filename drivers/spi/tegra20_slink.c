@@ -93,9 +93,9 @@ struct tegra_spi_slave {
 	struct tegra30_spi_priv *ctrl;
 };
 
-static int tegra30_spi_ofdata_to_platdata(struct udevice *bus)
+static int tegra30_spi_of_to_plat(struct udevice *bus)
 {
-	struct tegra_spi_platdata *plat = bus->platdata;
+	struct tegra_spi_plat *plat = dev_get_plat(bus);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -122,7 +122,7 @@ static int tegra30_spi_ofdata_to_platdata(struct udevice *bus)
 
 static int tegra30_spi_probe(struct udevice *bus)
 {
-	struct tegra_spi_platdata *plat = dev_get_platdata(bus);
+	struct tegra_spi_plat *plat = dev_get_plat(bus);
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
 
 	priv->regs = (struct spi_regs *)plat->base;
@@ -167,7 +167,7 @@ static int tegra30_spi_claim_bus(struct udevice *dev)
 static void spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct tegra_spi_platdata *pdata = dev_get_platdata(bus);
+	struct tegra_spi_plat *pdata = dev_get_plat(bus);
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
 
 	/* If it's too soon to do another transaction, wait */
@@ -186,7 +186,7 @@ static void spi_cs_activate(struct udevice *dev)
 static void spi_cs_deactivate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct tegra_spi_platdata *pdata = dev_get_platdata(bus);
+	struct tegra_spi_plat *pdata = dev_get_plat(bus);
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
 
 	/* CS is negated on Tegra, so drive a 0 to get a 1 */
@@ -211,7 +211,7 @@ static int tegra30_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	int ret;
 
 	debug("%s: slave %u:%u dout %p din %p bitlen %u\n",
-	      __func__, bus->seq, spi_chip_select(dev), dout, din, bitlen);
+	      __func__, dev_seq(bus), spi_chip_select(dev), dout, din, bitlen);
 	if (bitlen % 8)
 		return -1;
 	num_bytes = bitlen / 8;
@@ -314,7 +314,7 @@ static int tegra30_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int tegra30_spi_set_speed(struct udevice *bus, uint speed)
 {
-	struct tegra_spi_platdata *plat = bus->platdata;
+	struct tegra_spi_plat *plat = dev_get_plat(bus);
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
 
 	if (speed > plat->frequency)
@@ -372,8 +372,8 @@ U_BOOT_DRIVER(tegra30_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = tegra30_spi_ids,
 	.ops	= &tegra30_spi_ops,
-	.ofdata_to_platdata = tegra30_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct tegra_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct tegra30_spi_priv),
+	.of_to_plat = tegra30_spi_of_to_plat,
+	.plat_auto	= sizeof(struct tegra_spi_plat),
+	.priv_auto	= sizeof(struct tegra30_spi_priv),
 	.probe	= tegra30_spi_probe,
 };

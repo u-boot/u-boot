@@ -116,5 +116,5 @@ U_BOOT_DRIVER(phy_sandbox) = {
 	.of_match	= sandbox_phy_ids,
 	.ops		= &sandbox_phy_ops,
 	.probe		= sandbox_phy_probe,
-	.priv_auto_alloc_size = sizeof(struct sandbox_phy_priv),
+	.priv_auto	= sizeof(struct sandbox_phy_priv),
 };

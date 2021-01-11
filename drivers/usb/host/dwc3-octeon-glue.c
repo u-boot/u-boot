@@ -366,7 +366,7 @@ static int octeon_dwc3_glue_bind(struct udevice *dev)
 
 	/* Find snps,dwc3 node from subnode */
 	dwc3_node = ofnode_null();
-	ofnode_for_each_subnode(node, dev->node) {
+	ofnode_for_each_subnode(node, dev_ofnode(dev)) {
 		if (ofnode_device_is_compatible(node, "snps,dwc3"))
 			dwc3_node = node;
 	}

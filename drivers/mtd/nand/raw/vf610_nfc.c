@@ -784,7 +784,7 @@ U_BOOT_DRIVER(vf610_nfc_dt) = {
 	.name = "vf610-nfc-dt",
 	.id = UCLASS_MTD,
 	.of_match = vf610_nfc_dt_ids,
-	.priv_auto_alloc_size = sizeof(struct vf610_nfc),
+	.priv_auto	= sizeof(struct vf610_nfc),
 	.probe = vf610_nfc_dt_probe,
 };
 
@@ -794,7 +794,7 @@ void board_nand_init(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_MTD,
-					  DM_GET_DRIVER(vf610_nfc_dt),
+					  DM_DRIVER_GET(vf610_nfc_dt),
 					  &dev);
 	if (ret && ret != -ENODEV)
 		pr_err("Failed to initialize NAND controller. (error %d)\n",

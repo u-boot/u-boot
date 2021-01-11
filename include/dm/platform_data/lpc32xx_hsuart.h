@@ -7,11 +7,11 @@
 #define _LPC32XX_HSUART_PLAT_H
 
 /**
- * struct lpc32xx_hsuart_platdata - NXP LPC32xx HSUART platform data
+ * struct lpc32xx_hsuart_plat - NXP LPC32xx HSUART platform data
  *
  * @base:               Base register address
  */
-struct lpc32xx_hsuart_platdata {
+struct lpc32xx_hsuart_plat {
 	unsigned long base;
 };
 

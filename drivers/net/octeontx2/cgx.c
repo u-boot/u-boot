@@ -285,7 +285,7 @@ U_BOOT_DRIVER(cgx) = {
 	.id	= UCLASS_MISC,
 	.probe	= cgx_probe,
 	.remove	= cgx_remove,
-	.priv_auto_alloc_size = sizeof(struct cgx),
+	.priv_auto	= sizeof(struct cgx),
 };
 
 static struct pci_device_id cgx_supported[] = {

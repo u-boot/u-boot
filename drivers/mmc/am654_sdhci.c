@@ -129,7 +129,7 @@ static void am654_sdhci_set_control_reg(struct sdhci_host *host)
 static int am654_sdhci_set_ios_post(struct sdhci_host *host)
 {
 	struct udevice *dev = host->mmc->dev;
-	struct am654_sdhci_plat *plat = dev_get_platdata(dev);
+	struct am654_sdhci_plat *plat = dev_get_plat(dev);
 	unsigned int speed = host->mmc->clock;
 	int sel50, sel100, freqsel;
 	u32 otap_del_sel;
@@ -269,7 +269,7 @@ int am654_sdhci_init(struct am654_sdhci_plat *plat)
 static int am654_sdhci_deferred_probe(struct sdhci_host *host)
 {
 	struct udevice *dev = host->mmc->dev;
-	struct am654_sdhci_plat *plat = dev_get_platdata(dev);
+	struct am654_sdhci_plat *plat = dev_get_plat(dev);
 	unsigned long start;
 	int val;
 
@@ -311,7 +311,7 @@ const struct am654_driver_data j721e_8bit_drv_data = {
 static int j721e_4bit_sdhci_set_ios_post(struct sdhci_host *host)
 {
 	struct udevice *dev = host->mmc->dev;
-	struct am654_sdhci_plat *plat = dev_get_platdata(dev);
+	struct am654_sdhci_plat *plat = dev_get_plat(dev);
 	u32 otap_del_sel, mask, val;
 
 	otap_del_sel = plat->otap_del_sel[host->mmc->selected_mode];
@@ -335,7 +335,7 @@ const struct am654_driver_data j721e_4bit_drv_data = {
 static int sdhci_am654_get_otap_delay(struct udevice *dev,
 				      struct mmc_config *cfg)
 {
-	struct am654_sdhci_plat *plat = dev_get_platdata(dev);
+	struct am654_sdhci_plat *plat = dev_get_plat(dev);
 	int ret;
 	int i;
 
@@ -367,7 +367,7 @@ static int am654_sdhci_probe(struct udevice *dev)
 {
 	struct am654_driver_data *drv_data =
 			(struct am654_driver_data *)dev_get_driver_data(dev);
-	struct am654_sdhci_plat *plat = dev_get_platdata(dev);
+	struct am654_sdhci_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
@@ -408,9 +408,9 @@ static int am654_sdhci_probe(struct udevice *dev)
 	return 0;
 }
 
-static int am654_sdhci_ofdata_to_platdata(struct udevice *dev)
+static int am654_sdhci_of_to_plat(struct udevice *dev)
 {
-	struct am654_sdhci_plat *plat = dev_get_platdata(dev);
+	struct am654_sdhci_plat *plat = dev_get_plat(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
 	u32 drv_strength;
@@ -463,7 +463,7 @@ static int am654_sdhci_bind(struct udevice *dev)
 {
 	struct am654_driver_data *drv_data =
 			(struct am654_driver_data *)dev_get_driver_data(dev);
-	struct am654_sdhci_plat *plat = dev_get_platdata(dev);
+	struct am654_sdhci_plat *plat = dev_get_plat(dev);
 
 	plat->flags = drv_data->flags;
 
@@ -490,10 +490,10 @@ U_BOOT_DRIVER(am654_sdhci_drv) = {
 	.name		= "am654_sdhci",
 	.id		= UCLASS_MMC,
 	.of_match	= am654_sdhci_ids,
-	.ofdata_to_platdata = am654_sdhci_ofdata_to_platdata,
+	.of_to_plat = am654_sdhci_of_to_plat,
 	.ops		= &sdhci_ops,
 	.bind		= am654_sdhci_bind,
 	.probe		= am654_sdhci_probe,
-	.priv_auto_alloc_size = sizeof(struct sdhci_host),
-	.platdata_auto_alloc_size = sizeof(struct am654_sdhci_plat),
+	.priv_auto	= sizeof(struct sdhci_host),
+	.plat_auto	= sizeof(struct am654_sdhci_plat),
 };

@@ -42,7 +42,7 @@ struct mxc_i2c_bus {
 	/*
 	 * board file can use this index to locate which i2c_pads_info is for
 	 * i2c_idle_bus. When pinmux is implement, this entry can be
-	 * discarded. Here we do not use dev->seq, because we do not want to
+	 * discarded. Here we do not use dev_seq(dev), because we do not want to
 	 * export device to board file.
 	 */
 	int index;

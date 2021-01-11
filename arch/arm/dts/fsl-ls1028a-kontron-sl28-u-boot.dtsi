@@ -16,7 +16,7 @@
 		ethernet3 = &enetc6;
 	};
 
-	binman {
+	binman: binman {
 		filename = "u-boot.rom";
 		pad-byte = <0xff>;
 
@@ -80,27 +80,99 @@
 				conf-1 {
 					description = "fsl-ls1028a-kontron-sl28";
 					firmware = "uboot";
-					loadables = "uboot";
 					fdt = "fdt-1";
 				};
 
 				conf-2 {
 					description = "fsl-ls1028a-kontron-sl28-var3";
 					firmware = "uboot";
-					loadables = "uboot";
 					fdt = "fdt-2";
 				};
 
 				conf-3 {
 					description = "fsl-ls1028a-kontron-sl28-var4";
 					firmware = "uboot";
-					loadables = "uboot";
 					fdt = "fdt-3";
 				};
 			};
 		};
 	};
 };
+
+#ifdef CONFIG_SL28_SPL_LOADS_ATF_BL31
+&binman {
+	fit {
+		images {
+			bl31 {
+				description = "ARM Trusted Firmware (bl31)";
+				type = "firmware";
+				arch = "arm";
+				os = "arm-trusted-firmware";
+				compression = "none";
+				load = <CONFIG_SL28_BL31_ENTRY_ADDR>;
+				entry = <CONFIG_SL28_BL31_ENTRY_ADDR>;
+
+				blob-ext {
+					filename = "bl31.bin";
+				};
+			};
+		};
+
+		configurations {
+			conf-1 {
+				firmware = "bl31";
+				loadables = "uboot";
+			};
+
+			conf-2 {
+				firmware = "bl31";
+				loadables = "uboot";
+			};
+
+			conf-3 {
+				firmware = "bl31";
+				loadables = "uboot";
+			};
+		};
+	};
+};
+#endif
+
+#ifdef CONFIG_SL28_SPL_LOADS_OPTEE_BL32
+&binman {
+	fit {
+		images {
+			bl32 {
+				description = "OP-TEE Trusted OS (bl32)";
+				type = "firmware";
+				arch = "arm";
+				os = "tee";
+				compression = "none";
+				load = <CONFIG_SL28_BL32_ENTRY_ADDR>;
+				entry = <CONFIG_SL28_BL32_ENTRY_ADDR>;
+
+				blob-ext {
+					filename = "tee.bin";
+				};
+			};
+		};
+
+		configurations {
+			conf-1 {
+				loadables = "uboot", "bl32";
+			};
+
+			conf-2 {
+				loadables = "uboot", "bl32";
+			};
+
+			conf-3 {
+				loadables = "uboot", "bl32";
+			};
+		};
+	};
+};
+#endif
 
 &i2c0 {
 	rtc: rtc@32 {

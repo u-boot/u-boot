@@ -334,20 +334,21 @@ static void pciinfo(struct udevice *bus, bool short_listing)
 {
 	struct udevice *dev;
 
-	pciinfo_header(bus->seq, short_listing);
+	pciinfo_header(dev_seq(bus), short_listing);
 
 	for (device_find_first_child(bus, &dev);
 	     dev;
 	     device_find_next_child(&dev)) {
-		struct pci_child_platdata *pplat;
+		struct pci_child_plat *pplat;
 
-		pplat = dev_get_parent_platdata(dev);
+		pplat = dev_get_parent_plat(dev);
 		if (short_listing) {
-			printf("%02x.%02x.%02x   ", bus->seq,
+			printf("%02x.%02x.%02x   ", dev_seq(bus),
 			       PCI_DEV(pplat->devfn), PCI_FUNC(pplat->devfn));
 			pci_header_show_brief(dev);
 		} else {
-			printf("\nFound PCI device %02x.%02x.%02x:\n", bus->seq,
+			printf("\nFound PCI device %02x.%02x.%02x:\n",
+			       dev_seq(bus),
 			       PCI_DEV(pplat->devfn), PCI_FUNC(pplat->devfn));
 			pci_header_show(dev);
 		}

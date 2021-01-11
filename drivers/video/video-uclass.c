@@ -15,6 +15,7 @@
 #include <video_console.h>
 #include <asm/cache.h>
 #include <dm/lists.h>
+#include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #ifdef CONFIG_SANDBOX
@@ -25,7 +26,7 @@
  * Theory of operation:
  *
  * Before relocation each device is bound. The driver for each device must
- * set the @align and @size values in struct video_uc_platdata. This
+ * set the @align and @size values in struct video_uc_plat. This
  * information represents the requires size and alignment of the frame buffer
  * for the device. The values can be an over-estimate but cannot be too
  * small. The actual values will be suppled (in the same manner) by the bind()
@@ -68,7 +69,7 @@ void video_set_flush_dcache(struct udevice *dev, bool flush)
 
 static ulong alloc_fb(struct udevice *dev, ulong *addrp)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	ulong base, align, size;
 
 	if (!plat->size)
@@ -142,7 +143,7 @@ int video_clear(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	return 0;
+	return video_sync(dev, false);
 }
 
 void video_set_default_colors(struct udevice *dev, bool invert)
@@ -172,8 +173,17 @@ void video_set_default_colors(struct udevice *dev, bool invert)
 }
 
 /* Flush video activity to the caches */
-void video_sync(struct udevice *vid, bool force)
+int video_sync(struct udevice *vid, bool force)
 {
+	struct video_ops *ops = video_get_ops(vid);
+	int ret;
+
+	if (ops && ops->video_sync) {
+		ret = ops->video_sync(vid);
+		if (ret)
+			return ret;
+	}
+
 	/*
 	 * flush_dcache_range() is declared in common.h but it seems that some
 	 * architectures do not actually implement it. Is there a way to find
@@ -196,17 +206,22 @@ void video_sync(struct udevice *vid, bool force)
 		last_sync = get_timer(0);
 	}
 #endif
+	return 0;
 }
 
 void video_sync_all(void)
 {
 	struct udevice *dev;
+	int ret;
 
 	for (uclass_find_first_device(UCLASS_VIDEO, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
-		if (device_active(dev))
-			video_sync(dev, true);
+		if (device_active(dev)) {
+			ret = video_sync(dev, true);
+			if (ret)
+				dev_dbg(dev, "Video sync failed\n");
+		}
 	}
 }
 
@@ -301,7 +316,7 @@ static int video_pre_remove(struct udevice *dev)
 /* Set up the display ready for use */
 static int video_post_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 	char name[30], drv[15], *str;
 	const char *drv_name = drv;
@@ -378,7 +393,7 @@ static int video_post_bind(struct udevice *dev)
 		return 0;
 
 	/* Set up the video pointer, if this is the first device */
-	uc_priv = dev->uclass->priv;
+	uc_priv = uclass_get_priv(dev->uclass);
 	if (!uc_priv->video_ptr)
 		uc_priv->video_ptr = gd->video_top;
 
@@ -408,7 +423,7 @@ UCLASS_DRIVER(video) = {
 	.pre_probe	= video_pre_probe,
 	.post_probe	= video_post_probe,
 	.pre_remove	= video_pre_remove,
-	.priv_auto_alloc_size	= sizeof(struct video_uc_priv),
-	.per_device_auto_alloc_size	= sizeof(struct video_priv),
-	.per_device_platdata_auto_alloc_size = sizeof(struct video_uc_platdata),
+	.priv_auto	= sizeof(struct video_uc_priv),
+	.per_device_auto	= sizeof(struct video_priv),
+	.per_device_plat_auto	= sizeof(struct video_uc_plat),
 };

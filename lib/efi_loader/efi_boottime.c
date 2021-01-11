@@ -81,6 +81,9 @@ const efi_guid_t efi_guid_event_group_ready_to_boot =
 /* event group ResetSystem() invoked (before ExitBootServices) */
 const efi_guid_t efi_guid_event_group_reset_system =
 			EFI_EVENT_GROUP_RESET_SYSTEM;
+/* GUIDs of the Load File and Load File2 protocols */
+const efi_guid_t efi_guid_load_file_protocol = EFI_LOAD_FILE_PROTOCOL_GUID;
+const efi_guid_t efi_guid_load_file2_protocol = EFI_LOAD_FILE2_PROTOCOL_GUID;
 
 static efi_status_t EFIAPI efi_disconnect_controller(
 					efi_handle_t controller_handle,
@@ -244,8 +247,8 @@ static void efi_queue_event(struct efi_event *event)
 		}
 		if (event)
 			list_add_tail(&event->queue_link, &efi_event_queue);
+		efi_process_event_queue();
 	}
-	efi_process_event_queue();
 }
 
 /**
@@ -1770,29 +1773,107 @@ failure:
 }
 
 /**
- * efi_load_image_from_path() - load an image using a file path
+ * efi_locate_device_path() - Get the device path and handle of an device
+ *                            implementing a protocol
+ * @protocol:    GUID of the protocol
+ * @device_path: device path
+ * @device:      handle of the device
+ *
+ * This function implements the LocateDevicePath service.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * Return: status code
+ */
+static efi_status_t EFIAPI efi_locate_device_path(
+			const efi_guid_t *protocol,
+			struct efi_device_path **device_path,
+			efi_handle_t *device)
+{
+	struct efi_device_path *dp;
+	size_t i;
+	struct efi_handler *handler;
+	efi_handle_t *handles;
+	size_t len, len_dp;
+	size_t len_best = 0;
+	efi_uintn_t no_handles;
+	u8 *remainder;
+	efi_status_t ret;
+
+	EFI_ENTRY("%pUl, %p, %p", protocol, device_path, device);
+
+	if (!protocol || !device_path || !*device_path) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	/* Find end of device path */
+	len = efi_dp_instance_size(*device_path);
+
+	/* Get all handles implementing the protocol */
+	ret = EFI_CALL(efi_locate_handle_buffer(BY_PROTOCOL, protocol, NULL,
+						&no_handles, &handles));
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	for (i = 0; i < no_handles; ++i) {
+		/* Find the device path protocol */
+		ret = efi_search_protocol(handles[i], &efi_guid_device_path,
+					  &handler);
+		if (ret != EFI_SUCCESS)
+			continue;
+		dp = (struct efi_device_path *)handler->protocol_interface;
+		len_dp = efi_dp_instance_size(dp);
+		/*
+		 * This handle can only be a better fit
+		 * if its device path length is longer than the best fit and
+		 * if its device path length is shorter of equal the searched
+		 * device path.
+		 */
+		if (len_dp <= len_best || len_dp > len)
+			continue;
+		/* Check if dp is a subpath of device_path */
+		if (memcmp(*device_path, dp, len_dp))
+			continue;
+		if (!device) {
+			ret = EFI_INVALID_PARAMETER;
+			goto out;
+		}
+		*device = handles[i];
+		len_best = len_dp;
+	}
+	if (len_best) {
+		remainder = (u8 *)*device_path + len_best;
+		*device_path = (struct efi_device_path *)remainder;
+		ret = EFI_SUCCESS;
+	} else {
+		ret = EFI_NOT_FOUND;
+	}
+out:
+	return EFI_EXIT(ret);
+}
+
+/**
+ * efi_load_image_from_file() - load an image from file system
  *
  * Read a file into a buffer allocated as EFI_BOOT_SERVICES_DATA. It is the
  * callers obligation to update the memory type as needed.
  *
- * @file_path:	the path of the image to load
- * @buffer:	buffer containing the loaded image
- * @size:	size of the loaded image
- * Return:	status code
+ * @file_path:		the path of the image to load
+ * @buffer:		buffer containing the loaded image
+ * @size:		size of the loaded image
+ * Return:		status code
  */
 static
-efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
+efi_status_t efi_load_image_from_file(struct efi_device_path *file_path,
 				      void **buffer, efi_uintn_t *size)
 {
 	struct efi_file_info *info = NULL;
 	struct efi_file_handle *f;
-	static efi_status_t ret;
+	efi_status_t ret;
 	u64 addr;
 	efi_uintn_t bs;
-
-	/* In case of failure nothing is returned */
-	*buffer = NULL;
-	*size = 0;
 
 	/* Open file */
 	f = efi_file_from_path(file_path);
@@ -1842,6 +1923,86 @@ error:
 }
 
 /**
+ * efi_load_image_from_path() - load an image using a file path
+ *
+ * Read a file into a buffer allocated as EFI_BOOT_SERVICES_DATA. It is the
+ * callers obligation to update the memory type as needed.
+ *
+ * @boot_policy:	true for request originating from the boot manager
+ * @file_path:		the path of the image to load
+ * @buffer:		buffer containing the loaded image
+ * @size:		size of the loaded image
+ * Return:		status code
+ */
+static
+efi_status_t efi_load_image_from_path(bool boot_policy,
+				      struct efi_device_path *file_path,
+				      void **buffer, efi_uintn_t *size)
+{
+	efi_handle_t device;
+	efi_status_t ret;
+	struct efi_device_path *dp;
+	struct efi_load_file_protocol *load_file_protocol = NULL;
+	efi_uintn_t buffer_size;
+	uint64_t addr, pages;
+	const efi_guid_t *guid;
+
+	/* In case of failure nothing is returned */
+	*buffer = NULL;
+	*size = 0;
+
+	dp = file_path;
+	ret = EFI_CALL(efi_locate_device_path(
+		       &efi_simple_file_system_protocol_guid, &dp, &device));
+	if (ret == EFI_SUCCESS)
+		return efi_load_image_from_file(file_path, buffer, size);
+
+	ret = EFI_CALL(efi_locate_device_path(
+		       &efi_guid_load_file_protocol, &dp, &device));
+	if (ret == EFI_SUCCESS) {
+		guid = &efi_guid_load_file_protocol;
+	} else if (!boot_policy) {
+		guid = &efi_guid_load_file2_protocol;
+		ret = EFI_CALL(efi_locate_device_path(guid, &dp, &device));
+	}
+	if (ret != EFI_SUCCESS)
+		return EFI_NOT_FOUND;
+	ret = EFI_CALL(efi_handle_protocol(device, guid,
+					   (void **)&load_file_protocol));
+	if (ret != EFI_SUCCESS)
+		return EFI_NOT_FOUND;
+	buffer_size = 0;
+	ret = load_file_protocol->load_file(load_file_protocol, dp,
+					    boot_policy, &buffer_size,
+					    NULL);
+	if (ret != EFI_BUFFER_TOO_SMALL)
+		goto out;
+	pages = efi_size_in_pages(buffer_size);
+	ret = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES, EFI_BOOT_SERVICES_DATA,
+				 pages, &addr);
+	if (ret != EFI_SUCCESS) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+	ret = EFI_CALL(load_file_protocol->load_file(
+					load_file_protocol, dp, boot_policy,
+					&buffer_size, (void *)(uintptr_t)addr));
+	if (ret != EFI_SUCCESS)
+		efi_free_pages(addr, pages);
+out:
+	if (load_file_protocol)
+		EFI_CALL(efi_close_protocol(device,
+					    &efi_guid_load_file2_protocol,
+					    efi_root, NULL));
+	if (ret == EFI_SUCCESS) {
+		*buffer = (void *)(uintptr_t)addr;
+		*size = buffer_size;
+	}
+
+	return ret;
+}
+
+/**
  * efi_load_image() - load an EFI image into memory
  * @boot_policy:   true for request originating from the boot manager
  * @parent_image:  the caller's image handle
@@ -1883,8 +2044,8 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	}
 
 	if (!source_buffer) {
-		ret = efi_load_image_from_path(file_path, &dest_buffer,
-					       &source_size);
+		ret = efi_load_image_from_path(boot_policy, file_path,
+					       &dest_buffer, &source_size);
 		if (ret != EFI_SUCCESS)
 			goto error;
 	} else {
@@ -2404,88 +2565,6 @@ found:
 }
 
 /**
- * efi_locate_device_path() - Get the device path and handle of an device
- *                            implementing a protocol
- * @protocol:    GUID of the protocol
- * @device_path: device path
- * @device:      handle of the device
- *
- * This function implements the LocateDevicePath service.
- *
- * See the Unified Extensible Firmware Interface (UEFI) specification for
- * details.
- *
- * Return: status code
- */
-static efi_status_t EFIAPI efi_locate_device_path(
-			const efi_guid_t *protocol,
-			struct efi_device_path **device_path,
-			efi_handle_t *device)
-{
-	struct efi_device_path *dp;
-	size_t i;
-	struct efi_handler *handler;
-	efi_handle_t *handles;
-	size_t len, len_dp;
-	size_t len_best = 0;
-	efi_uintn_t no_handles;
-	u8 *remainder;
-	efi_status_t ret;
-
-	EFI_ENTRY("%pUl, %p, %p", protocol, device_path, device);
-
-	if (!protocol || !device_path || !*device_path) {
-		ret = EFI_INVALID_PARAMETER;
-		goto out;
-	}
-
-	/* Find end of device path */
-	len = efi_dp_instance_size(*device_path);
-
-	/* Get all handles implementing the protocol */
-	ret = EFI_CALL(efi_locate_handle_buffer(BY_PROTOCOL, protocol, NULL,
-						&no_handles, &handles));
-	if (ret != EFI_SUCCESS)
-		goto out;
-
-	for (i = 0; i < no_handles; ++i) {
-		/* Find the device path protocol */
-		ret = efi_search_protocol(handles[i], &efi_guid_device_path,
-					  &handler);
-		if (ret != EFI_SUCCESS)
-			continue;
-		dp = (struct efi_device_path *)handler->protocol_interface;
-		len_dp = efi_dp_instance_size(dp);
-		/*
-		 * This handle can only be a better fit
-		 * if its device path length is longer than the best fit and
-		 * if its device path length is shorter of equal the searched
-		 * device path.
-		 */
-		if (len_dp <= len_best || len_dp > len)
-			continue;
-		/* Check if dp is a subpath of device_path */
-		if (memcmp(*device_path, dp, len_dp))
-			continue;
-		if (!device) {
-			ret = EFI_INVALID_PARAMETER;
-			goto out;
-		}
-		*device = handles[i];
-		len_best = len_dp;
-	}
-	if (len_best) {
-		remainder = (u8 *)*device_path + len_best;
-		*device_path = (struct efi_device_path *)remainder;
-		ret = EFI_SUCCESS;
-	} else {
-		ret = EFI_NOT_FOUND;
-	}
-out:
-	return EFI_EXIT(ret);
-}
-
-/**
  * efi_install_multiple_protocol_interfaces() - Install multiple protocol
  *                                              interfaces
  * @handle: handle on which the protocol interfaces shall be installed
@@ -2700,7 +2779,7 @@ static void EFIAPI efi_set_mem(void *buffer, size_t size, uint8_t value)
  *
  * Return: status code
  */
-static efi_status_t efi_protocol_open(
+efi_status_t efi_protocol_open(
 			struct efi_handler *handler,
 			void **protocol_interface, void *agent_handle,
 			void *controller_handle, uint32_t attributes)

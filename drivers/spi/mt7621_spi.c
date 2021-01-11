@@ -304,6 +304,6 @@ U_BOOT_DRIVER(mt7621_spi) = {
 	.id = UCLASS_SPI,
 	.of_match = mt7621_spi_ids,
 	.ops = &mt7621_spi_ops,
-	.priv_auto_alloc_size = sizeof(struct mt7621_spi),
+	.priv_auto	= sizeof(struct mt7621_spi),
 	.probe = mt7621_spi_probe,
 };

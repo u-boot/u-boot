@@ -21,7 +21,7 @@ SoCs require a 16KB SPL image which must include a full MMC stack. In this
 case the overhead of device tree access may be too great.
 
 It is possible to create platform data manually by defining C structures
-for it, and reference that data in a U_BOOT_DEVICE() declaration. This
+for it, and reference that data in a U_BOOT_DRVINFO() declaration. This
 bypasses the use of device tree completely, effectively creating a parallel
 configuration mechanism. But it is an available option for SPL.
 
@@ -79,7 +79,7 @@ SPL/TPL and should be tested with:
 
 A new tool called 'dtoc' converts a device tree file either into a set of
 struct declarations, one for each compatible node, and a set of
-U_BOOT_DEVICE() declarations along with the actual platform data for each
+U_BOOT_DRVINFO() declarations along with the actual platform data for each
 device. As an example, consider this MMC node:
 
 .. code-block:: none
@@ -155,15 +155,12 @@ and the following device declarations:
             .card_detect_delay      = 0xc8,
     };
 
-    U_BOOT_DEVICE(dwmmc_at_ff0c0000) = {
+    U_BOOT_DRVINFO(dwmmc_at_ff0c0000) = {
             .name           = "rockchip_rk3288_dw_mshc",
-            .platdata       = &dtv_dwmmc_at_ff0c0000,
-            .platdata_size  = sizeof(dtv_dwmmc_at_ff0c0000),
+            .plat       = &dtv_dwmmc_at_ff0c0000,
+            .plat_size  = sizeof(dtv_dwmmc_at_ff0c0000),
             .parent_idx     = -1,
     };
-
-    void dm_populate_phandle_data(void) {
-    }
 
 The device is then instantiated at run-time and the platform data can be
 accessed using:
@@ -171,31 +168,28 @@ accessed using:
 .. code-block:: c
 
     struct udevice *dev;
-    struct dtd_rockchip_rk3288_dw_mshc *plat = dev_get_platdata(dev);
+    struct dtd_rockchip_rk3288_dw_mshc *plat = dev_get_plat(dev);
 
 This avoids the code overhead of converting the device tree data to
-platform data in the driver. The ofdata_to_platdata() method should
+platform data in the driver. The of_to_plat() method should
 therefore do nothing in such a driver.
 
 Note that for the platform data to be matched with a driver, the 'name'
-property of the U_BOOT_DEVICE() declaration has to match a driver declared
+property of the U_BOOT_DRVINFO() declaration has to match a driver declared
 via U_BOOT_DRIVER(). This effectively means that a U_BOOT_DRIVER() with a
 'name' corresponding to the devicetree 'compatible' string (after converting
 it to a valid name for C) is needed, so a dedicated driver is required for
 each 'compatible' string.
 
-In order to make this a bit more flexible U_BOOT_DRIVER_ALIAS macro can be
+In order to make this a bit more flexible DM_DRIVER_ALIAS macro can be
 used to declare an alias for a driver name, typically a 'compatible' string.
 This macro produces no code, but it is by dtoc tool.
 
 The parent_idx is the index of the parent driver_info structure within its
-linker list (instantiated by the U_BOOT_DEVICE() macro). This is used to support
-dev_get_parent(). The dm_populate_phandle_data() is included to allow for
-fix-ups required by dtoc. It is not currently used. The values in 'clocks' are
-the index of the driver_info for the target device followed by any phandle
-arguments. This is used to support device_get_by_driver_info_idx().
+linker list (instantiated by the U_BOOT_DRVINFO() macro). This is used to support
+dev_get_parent().
 
-During the build process dtoc parses both U_BOOT_DRIVER and U_BOOT_DRIVER_ALIAS
+During the build process dtoc parses both U_BOOT_DRIVER and DM_DRIVER_ALIAS
 to build a list of valid driver names and driver aliases. If the 'compatible'
 string used for a device does not not match a valid driver name, it will be
 checked against the list of driver aliases in order to get the right driver
@@ -222,7 +216,7 @@ all the limitations metioned in caveats above.
 
 Therefore it is recommended that the of-platdata structure should be used
 only in the probe() method of your driver. It cannot be used in the
-ofdata_to_platdata() method since this is not called when platform data is
+of_to_plat() method since this is not called when platform data is
 already present.
 
 
@@ -232,9 +226,9 @@ How to structure your driver
 Drivers should always support device tree as an option. The of-platdata
 feature is intended as a add-on to existing drivers.
 
-Your driver should convert the platdata struct in its probe() method. The
+Your driver should convert the plat struct in its probe() method. The
 existing device tree decoding logic should be kept in the
-ofdata_to_platdata() method and wrapped with #if.
+of_to_plat() method and wrapped with #if.
 
 For example:
 
@@ -242,7 +236,7 @@ For example:
 
     #include <dt-structs.h>
 
-    struct mmc_platdata {
+    struct mmc_plat {
     #if CONFIG_IS_ENABLED(OF_PLATDATA)
             /* Put this first since driver model will copy the data here */
             struct dtd_mmc dtplat;
@@ -254,11 +248,11 @@ For example:
             int fifo_depth;
     };
 
-    static int mmc_ofdata_to_platdata(struct udevice *dev)
+    static int mmc_of_to_plat(struct udevice *dev)
     {
     #if !CONFIG_IS_ENABLED(OF_PLATDATA)
             /* Decode the device tree data */
-            struct mmc_platdata *plat = dev_get_platdata(dev);
+            struct mmc_plat *plat = dev_get_plat(dev);
             const void *blob = gd->fdt_blob;
             int node = dev_of_offset(dev);
 
@@ -270,7 +264,7 @@ For example:
 
     static int mmc_probe(struct udevice *dev)
     {
-            struct mmc_platdata *plat = dev_get_platdata(dev);
+            struct mmc_plat *plat = dev_get_plat(dev);
 
     #if CONFIG_IS_ENABLED(OF_PLATDATA)
             /* Decode the of-platdata from the C structures */
@@ -291,29 +285,29 @@ For example:
             .name           = "mmc_drv",
             .id             = UCLASS_MMC,
             .of_match       = mmc_ids,
-            .ofdata_to_platdata = mmc_ofdata_to_platdata,
+            .of_to_plat = mmc_of_to_plat,
             .probe          = mmc_probe,
-            .priv_auto_alloc_size = sizeof(struct mmc_priv),
-            .platdata_auto_alloc_size = sizeof(struct mmc_platdata),
+            .priv_auto = sizeof(struct mmc_priv),
+            .plat_auto = sizeof(struct mmc_plat),
     };
 
-    U_BOOT_DRIVER_ALIAS(mmc_drv, vendor_mmc) /* matches compatible string */
+    DM_DRIVER_ALIAS(mmc_drv, vendor_mmc) /* matches compatible string */
 
-Note that struct mmc_platdata is defined in the C file, not in a header. This
+Note that struct mmc_plat is defined in the C file, not in a header. This
 is to avoid needing to include dt-structs.h in a header file. The idea is to
 keep the use of each of-platdata struct to the smallest possible code area.
 There is just one driver C file for each struct, that can convert from the
 of-platdata struct to the standard one used by the driver.
 
-In the case where SPL_OF_PLATDATA is enabled, platdata_auto_alloc_size is
+In the case where SPL_OF_PLATDATA is enabled, plat_auto is
 still used to allocate space for the platform data. This is different from
 the normal behaviour and is triggered by the use of of-platdata (strictly
-speaking it is a non-zero platdata_size which triggers this).
+speaking it is a non-zero plat_size which triggers this).
 
 The of-platdata struct contents is copied from the C structure data to the
 start of the newly allocated area. In the case where device tree is used,
 the platform data is allocated, and starts zeroed. In this case the
-ofdata_to_platdata() method should still set up the platform data (and the
+of_to_plat() method should still set up the platform data (and the
 of-platdata struct will not be present).
 
 SPL must use either of-platdata or device tree. Drivers cannot use both at
@@ -336,10 +330,12 @@ Otherwise (such as in U-Boot proper) these structs are not available. This
 prevents them being used inadvertently. All usage must be bracketed with
 #if CONFIG_IS_ENABLED(OF_PLATDATA).
 
-The dt-platdata.c file contains the device declarations and is is built in
-spl/dt-platdata.c. It additionally contains the definition of
-dm_populate_phandle_data() which is responsible of filling the phandle
-information by adding references to U_BOOT_DEVICE by using DM_GET_DEVICE
+The dt-plat.c file contains the device declarations and is is built in
+spl/dt-plat.c.
+
+The dm_populate_phandle_data() function that was previous needed has now been
+removed, since dtoc can address the drivers directly from dt-plat.c and does
+not need to fix up things at runtime.
 
 The pylibfdt Python module is used to access the devicetree.
 

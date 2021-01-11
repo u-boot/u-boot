@@ -44,11 +44,6 @@
 		longbytearray = [09 0a 0b 0c 0d 0e 0f 10];
 	};
 
-	spl-test4 {
-		u-boot,dm-pre-reloc;
-		compatible = "sandbox,spl-test.2";
-	};
-
 	i2c@0 {
 		compatible = "sandbox,i2c-test";
 		u-boot,dm-pre-reloc;

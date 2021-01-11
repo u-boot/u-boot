@@ -86,7 +86,7 @@ static int ast_wdt_expire_now(struct udevice *dev, ulong flags)
 	return ast_wdt_stop(dev);
 }
 
-static int ast_wdt_ofdata_to_platdata(struct udevice *dev)
+static int ast_wdt_of_to_plat(struct udevice *dev)
 {
 	struct ast_wdt_priv *priv = dev_get_priv(dev);
 
@@ -113,7 +113,7 @@ static const struct udevice_id ast_wdt_ids[] = {
 
 static int ast_wdt_probe(struct udevice *dev)
 {
-	debug("%s() wdt%u\n", __func__, dev->seq);
+	debug("%s() wdt%u\n", __func__, dev_seq(dev));
 	ast_wdt_stop(dev);
 
 	return 0;
@@ -124,7 +124,7 @@ U_BOOT_DRIVER(ast_wdt) = {
 	.id = UCLASS_WDT,
 	.of_match = ast_wdt_ids,
 	.probe = ast_wdt_probe,
-	.priv_auto_alloc_size = sizeof(struct ast_wdt_priv),
-	.ofdata_to_platdata = ast_wdt_ofdata_to_platdata,
+	.priv_auto	= sizeof(struct ast_wdt_priv),
+	.of_to_plat = ast_wdt_of_to_plat,
 	.ops = &ast_wdt_ops,
 };

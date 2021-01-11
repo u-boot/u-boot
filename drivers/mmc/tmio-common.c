@@ -708,14 +708,14 @@ static void tmio_sd_host_init(struct tmio_sd_priv *priv)
 
 int tmio_sd_bind(struct udevice *dev)
 {
-	struct tmio_sd_plat *plat = dev_get_platdata(dev);
+	struct tmio_sd_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
 
 int tmio_sd_probe(struct udevice *dev, u32 quirks)
 {
-	struct tmio_sd_plat *plat = dev_get_platdata(dev);
+	struct tmio_sd_plat *plat = dev_get_plat(dev);
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	fdt_addr_t base;

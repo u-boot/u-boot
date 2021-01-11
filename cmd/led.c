@@ -54,7 +54,7 @@ static int list_leds(void)
 	for (uclass_find_first_device(UCLASS_LED, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
-		struct led_uc_plat *plat = dev_get_uclass_platdata(dev);
+		struct led_uc_plat *plat = dev_get_uclass_plat(dev);
 
 		if (!plat->label)
 			continue;

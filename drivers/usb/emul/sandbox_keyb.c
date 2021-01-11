@@ -202,7 +202,7 @@ static int sandbox_keyb_interrupt(struct udevice *dev, struct usb_device *udev,
 
 static int sandbox_keyb_bind(struct udevice *dev)
 {
-	struct sandbox_keyb_plat *plat = dev_get_platdata(dev);
+	struct sandbox_keyb_plat *plat = dev_get_plat(dev);
 	struct usb_string *fs;
 
 	fs = plat->keyb_strings;
@@ -241,6 +241,6 @@ U_BOOT_DRIVER(usb_sandbox_keyb) = {
 	.bind	= sandbox_keyb_bind,
 	.probe	= sandbox_keyb_probe,
 	.ops	= &sandbox_usb_keyb_ops,
-	.priv_auto_alloc_size = sizeof(struct sandbox_keyb_priv),
-	.platdata_auto_alloc_size = sizeof(struct sandbox_keyb_plat),
+	.priv_auto	= sizeof(struct sandbox_keyb_priv),
+	.plat_auto	= sizeof(struct sandbox_keyb_plat),
 };

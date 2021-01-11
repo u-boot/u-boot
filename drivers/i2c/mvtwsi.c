@@ -794,7 +794,7 @@ static int mvtwsi_i2c_set_bus_speed(struct udevice *bus, uint speed)
 	return 0;
 }
 
-static int mvtwsi_i2c_ofdata_to_platdata(struct udevice *bus)
+static int mvtwsi_i2c_of_to_plat(struct udevice *bus)
 {
 	struct mvtwsi_i2c_dev *dev = dev_get_priv(bus);
 
@@ -823,9 +823,9 @@ static int mvtwsi_i2c_bind(struct udevice *bus)
 	struct mvtwsi_registers *twsi = dev_read_addr_ptr(bus);
 
 	/* Disable the hidden slave in i2c0 of these platforms */
-	if ((IS_ENABLED(CONFIG_ARMADA_38X) || IS_ENABLED(CONFIG_ARCH_KIRKWOOD)
-				|| IS_ENABLED(CONFIG_ARMADA_8K))
-			&& bus->req_seq == 0)
+	if ((IS_ENABLED(CONFIG_ARMADA_38X) ||
+	     IS_ENABLED(CONFIG_ARCH_KIRKWOOD) ||
+	     IS_ENABLED(CONFIG_ARMADA_8K)) && !dev_seq(bus))
 		twsi_disable_i2c_slave(twsi);
 
 	return 0;
@@ -888,8 +888,8 @@ U_BOOT_DRIVER(i2c_mvtwsi) = {
 	.of_match = mvtwsi_i2c_ids,
 	.bind = mvtwsi_i2c_bind,
 	.probe = mvtwsi_i2c_probe,
-	.ofdata_to_platdata = mvtwsi_i2c_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct mvtwsi_i2c_dev),
+	.of_to_plat = mvtwsi_i2c_of_to_plat,
+	.priv_auto	= sizeof(struct mvtwsi_i2c_dev),
 	.ops = &mvtwsi_i2c_ops,
 };
 #endif /* CONFIG_DM_I2C */

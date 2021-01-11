@@ -15,6 +15,7 @@
 #define LOG_CATEGORY	LOGC_BOOT
 
 #include <common.h>
+#include <bootm.h>
 #include <command.h>
 #include <env.h>
 #include <irq_func.h>
@@ -330,7 +331,12 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	}
 
 	if (cmd_line) {
+		int max_size = 0xff;
+		int ret;
+
 		log_debug("Setup cmdline\n");
+		if (bootproto >= 0x0206)
+			max_size = hdr->cmdline_size;
 		if (bootproto >= 0x0202) {
 			hdr->cmd_line_ptr = (uintptr_t)cmd_line;
 		} else if (bootproto >= 0x0200) {
@@ -346,6 +352,14 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 			strcpy(cmd_line, (char *)cmdline_force);
 		else
 			build_command_line(cmd_line, auto_boot);
+		ret = bootm_process_cmdline(cmd_line, max_size, BOOTM_CL_ALL);
+		if (ret) {
+			printf("Cmdline setup failed (err=%d)\n", ret);
+			return ret;
+		}
+		printf("Kernel command line: \"");
+		puts(cmd_line);
+		printf("\"\n");
 	}
 
 	if (IS_ENABLED(CONFIG_INTEL_MID) && bootproto >= 0x0207)

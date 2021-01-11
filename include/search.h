@@ -80,7 +80,16 @@ int hsearch_r(struct env_entry item, enum env_action action,
 int hmatch_r(const char *match, int last_idx, struct env_entry **retval,
 	     struct hsearch_data *htab);
 
-/* Search and delete entry matching "key" in internal hash table. */
+/**
+ * hdelete_r() - Search and delete entry in internal hash table
+ *
+ * @key: Name of entry to delete
+ * @htab: Hash table
+ * @flag: Flags to use (H_...)
+ * @return 0 on success, -ENOENT if not found, -EPERM if the hash table callback
+ *	rejected changing the variable, -EINVAL if the hash table refused to
+ *	delete the variable
+ */
 int hdelete_r(const char *key, struct hsearch_data *htab, int flag);
 
 ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,

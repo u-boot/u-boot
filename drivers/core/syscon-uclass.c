@@ -56,9 +56,9 @@ static int syscon_pre_probe(struct udevice *dev)
 	 * using OF_PLATDATA will need to ensure that this is true.
 	 */
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct syscon_base_platdata *plat = dev_get_platdata(dev);
+	struct syscon_base_plat *plat = dev_get_plat(dev);
 
-	return regmap_init_mem_platdata(dev, plat->reg, ARRAY_SIZE(plat->reg),
+	return regmap_init_mem_plat(dev, plat->reg, ARRAY_SIZE(plat->reg),
 					&priv->regmap);
 #else
 	return regmap_init_mem(dev_ofnode(dev), &priv->regmap);
@@ -174,7 +174,7 @@ void *syscon_get_first_range(ulong driver_data)
 UCLASS_DRIVER(syscon) = {
 	.id		= UCLASS_SYSCON,
 	.name		= "syscon",
-	.per_device_auto_alloc_size = sizeof(struct syscon_uc_info),
+	.per_device_auto	= sizeof(struct syscon_uc_info),
 	.pre_probe = syscon_pre_probe,
 };
 

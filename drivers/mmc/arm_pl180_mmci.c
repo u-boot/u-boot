@@ -418,10 +418,10 @@ static void arm_pl180_mmc_init(struct pl180_mmc_host *host)
 
 static int arm_pl180_mmc_probe(struct udevice *dev)
 {
-	struct arm_pl180_mmc_plat *pdata = dev_get_platdata(dev);
+	struct arm_pl180_mmc_plat *pdata = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct mmc *mmc = &pdata->mmc;
-	struct pl180_mmc_host *host = dev->priv;
+	struct pl180_mmc_host *host = dev_get_priv(dev);
 	struct mmc_config *cfg = &pdata->cfg;
 	struct clk clk;
 	u32 bus_width;
@@ -486,7 +486,7 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 
 int arm_pl180_mmc_bind(struct udevice *dev)
 {
-	struct arm_pl180_mmc_plat *plat = dev_get_platdata(dev);
+	struct arm_pl180_mmc_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -508,7 +508,7 @@ static int dm_host_set_ios(struct udevice *dev)
 
 static int dm_mmc_getcd(struct udevice *dev)
 {
-	struct pl180_mmc_host *host = dev->priv;
+	struct pl180_mmc_host *host = dev_get_priv(dev);
 	int value = 1;
 
 	if (dm_gpio_is_valid(&host->cd_gpio))
@@ -523,9 +523,9 @@ static const struct dm_mmc_ops arm_pl180_dm_mmc_ops = {
 	.get_cd = dm_mmc_getcd,
 };
 
-static int arm_pl180_mmc_ofdata_to_platdata(struct udevice *dev)
+static int arm_pl180_mmc_of_to_plat(struct udevice *dev)
 {
-	struct pl180_mmc_host *host = dev->priv;
+	struct pl180_mmc_host *host = dev_get_priv(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);
@@ -549,9 +549,9 @@ U_BOOT_DRIVER(arm_pl180_mmc) = {
 	.of_match = arm_pl180_mmc_match,
 	.ops = &arm_pl180_dm_mmc_ops,
 	.probe = arm_pl180_mmc_probe,
-	.ofdata_to_platdata = arm_pl180_mmc_ofdata_to_platdata,
+	.of_to_plat = arm_pl180_mmc_of_to_plat,
 	.bind = arm_pl180_mmc_bind,
-	.priv_auto_alloc_size = sizeof(struct pl180_mmc_host),
-	.platdata_auto_alloc_size = sizeof(struct arm_pl180_mmc_plat),
+	.priv_auto	= sizeof(struct pl180_mmc_host),
+	.plat_auto	= sizeof(struct arm_pl180_mmc_plat),
 };
 #endif

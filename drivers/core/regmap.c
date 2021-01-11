@@ -60,8 +60,8 @@ static struct regmap *regmap_alloc(int count)
 }
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-int regmap_init_mem_platdata(struct udevice *dev, fdt_val_t *reg, int count,
-			     struct regmap **mapp)
+int regmap_init_mem_plat(struct udevice *dev, fdt_val_t *reg, int count,
+			 struct regmap **mapp)
 {
 	struct regmap_range *range;
 	struct regmap *map;

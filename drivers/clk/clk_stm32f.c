@@ -726,6 +726,6 @@ U_BOOT_DRIVER(stm32fx_clk) = {
 	.id			= UCLASS_CLK,
 	.ops			= &stm32_clk_ops,
 	.probe			= stm32_clk_probe,
-	.priv_auto_alloc_size	= sizeof(struct stm32_clk),
+	.priv_auto	= sizeof(struct stm32_clk),
 	.flags			= DM_FLAG_PRE_RELOC,
 };

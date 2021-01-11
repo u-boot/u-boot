@@ -16,7 +16,7 @@
  * lists_driver_lookup_name() - Return u_boot_driver corresponding to name
  *
  * This function returns a pointer to a driver given its name. This is used
- * for binding a driver given its name and platdata.
+ * for binding a driver given its name and plat.
  *
  * @name: Name of driver to look up
  * @return pointer to driver, or NULL if not found
@@ -35,7 +35,7 @@ struct uclass_driver *lists_uclass_lookup(enum uclass_id id);
 /**
  * lists_bind_drivers() - search for and bind all drivers to parent
  *
- * This searches the U_BOOT_DEVICE() structures and creates new devices for
+ * This searches the U_BOOT_DRVINFO() structures and creates new devices for
  * each one. The devices will have @parent as their parent.
  *
  * @parent: parent device (root)

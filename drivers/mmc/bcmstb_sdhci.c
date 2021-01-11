@@ -49,7 +49,7 @@ struct sdhci_bcmstb_plat {
 
 static int sdhci_bcmstb_bind(struct udevice *dev)
 {
-	struct sdhci_bcmstb_plat *plat = dev_get_platdata(dev);
+	struct sdhci_bcmstb_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -57,7 +57,7 @@ static int sdhci_bcmstb_bind(struct udevice *dev)
 static int sdhci_bcmstb_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct sdhci_bcmstb_plat *plat = dev_get_platdata(dev);
+	struct sdhci_bcmstb_plat *plat = dev_get_plat(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	fdt_addr_t base;
 	int ret;
@@ -100,6 +100,6 @@ U_BOOT_DRIVER(sdhci_bcmstb) = {
 	.ops = &sdhci_ops,
 	.bind = sdhci_bcmstb_bind,
 	.probe = sdhci_bcmstb_probe,
-	.priv_auto_alloc_size = sizeof(struct sdhci_host),
-	.platdata_auto_alloc_size = sizeof(struct sdhci_bcmstb_plat),
+	.priv_auto	= sizeof(struct sdhci_host),
+	.plat_auto	= sizeof(struct sdhci_bcmstb_plat),
 };

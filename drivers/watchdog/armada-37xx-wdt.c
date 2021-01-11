@@ -196,6 +196,6 @@ U_BOOT_DRIVER(a37xx_wdt) = {
 	.id = UCLASS_WDT,
 	.of_match = a37xx_wdt_ids,
 	.probe = a37xx_wdt_probe,
-	.priv_auto_alloc_size = sizeof(struct a37xx_wdt),
+	.priv_auto	= sizeof(struct a37xx_wdt),
 	.ops = &a37xx_wdt_ops,
 };

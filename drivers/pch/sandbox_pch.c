@@ -82,5 +82,5 @@ U_BOOT_DRIVER(sandbox_pch_drv) = {
 	.id		= UCLASS_PCH,
 	.of_match	= sandbox_pch_ids,
 	.ops		= &sandbox_pch_ops,
-	.priv_auto_alloc_size	= sizeof(struct sandbox_pch_priv),
+	.priv_auto	= sizeof(struct sandbox_pch_priv),
 };

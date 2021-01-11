@@ -660,7 +660,7 @@ int rtl8139_initialize(struct bd_info *bis)
 #else /* DM_ETH */
 static int rtl8139_start(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct rtl8139_priv *priv = dev_get_priv(dev);
 
 	memcpy(priv->enetaddr, plat->enetaddr, sizeof(plat->enetaddr));
@@ -704,7 +704,7 @@ static int rtl8139_free_pkt(struct udevice *dev, uchar *packet, int length)
 
 static int rtl8139_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct rtl8139_priv *priv = dev_get_priv(dev);
 
 	memcpy(priv->enetaddr, plat->enetaddr, sizeof(plat->enetaddr));
@@ -735,7 +735,7 @@ static int rtl8139_bind(struct udevice *dev)
 
 static int rtl8139_probe(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct rtl8139_priv *priv = dev_get_priv(dev);
 	u32 iobase;
 
@@ -771,8 +771,8 @@ U_BOOT_DRIVER(eth_rtl8139) = {
 	.bind	= rtl8139_bind,
 	.probe	= rtl8139_probe,
 	.ops	= &rtl8139_ops,
-	.priv_auto_alloc_size = sizeof(struct rtl8139_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct rtl8139_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 U_BOOT_PCI_DEVICE(eth_rtl8139, supported);

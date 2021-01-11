@@ -495,6 +495,23 @@ static int spl_fit_image_get_os(const void *fit, int noffset, uint8_t *os)
 }
 
 /*
+ * The purpose of the FIT load buffer is to provide a memory location that is
+ * independent of the load address of any FIT component.
+ */
+static void *spl_get_fit_load_buffer(size_t size)
+{
+	void *buf;
+
+	buf = malloc(size);
+	if (!buf) {
+		pr_err("Could not get FIT buffer of %lu bytes\n", (ulong)size);
+		pr_err("\tcheck CONFIG_SYS_SPL_MALLOC_SIZE\n");
+		buf = spl_get_load_buffer(0, size);
+	}
+	return buf;
+}
+
+/*
  * Weak default function to allow customizing SPL fit loading for load-only
  * use cases by allowing to skip the parsing/processing of the FIT contents
  * (so that this can be done separately in a more customized fashion)
@@ -508,12 +525,12 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 			struct spl_load_info *info, ulong sector, void *fit)
 {
 	int sectors;
-	ulong size;
+	ulong size, hsize;
 	unsigned long count;
 	struct spl_image_info image_info;
 	int node = -1;
 	int images, ret;
-	int base_offset, hsize, align_len = ARCH_DMA_MINALIGN - 1;
+	int base_offset;
 	int index = 0;
 	int firmware_node;
 
@@ -529,24 +546,14 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 
 	/*
 	 * So far we only have one block of data from the FIT. Read the entire
-	 * thing, including that first block, placing it so it finishes before
-	 * where we will load the image.
-	 *
-	 * Note that we will load the image such that its first byte will be
-	 * at the load address. Since that byte may be part-way through a
-	 * block, we may load the image up to one block before the load
-	 * address. So take account of that here by subtracting an addition
-	 * block length from the FIT start position.
-	 *
-	 * In fact the FIT has its own load address, but we assume it cannot
-	 * be before CONFIG_SYS_TEXT_BASE.
+	 * thing, including that first block.
 	 *
 	 * For FIT with data embedded, data is loaded as part of FIT image.
 	 * For FIT with external data, data is not loaded in this step.
 	 */
-	hsize = (size + info->bl_len + align_len) & ~align_len;
-	fit = spl_get_load_buffer(-hsize, hsize);
 	sectors = get_aligned_image_size(info, size, 0);
+	hsize = sectors * info->bl_len;
+	fit = spl_get_fit_load_buffer(hsize);
 	count = info->read(info, sector, sectors, fit);
 	debug("fit read sector %lx, sectors=%d, dst=%p, count=%lu, size=0x%lx\n",
 	      sector, sectors, fit, count, size);
@@ -557,6 +564,16 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	/* skip further processing if requested to enable load-only use cases */
 	if (spl_load_simple_fit_skip_processing())
 		return 0;
+
+	if (IS_ENABLED(CONFIG_SPL_FIT_SIGNATURE)) {
+		int conf_offset = fit_find_config_node(fit);
+
+		printf("## Checking hash(es) for config %s ... ",
+		       fit_get_name(fit, conf_offset, NULL));
+		if (fit_config_verify(fit, conf_offset))
+			return -EPERM;
+		puts("OK\n");
+	}
 
 	/* find the node holding the images information */
 	images = fdt_path_offset(fit, FIT_IMAGES_PATH);

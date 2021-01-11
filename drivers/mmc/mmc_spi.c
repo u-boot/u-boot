@@ -411,14 +411,13 @@ done:
 static int mmc_spi_probe(struct udevice *dev)
 {
 	struct mmc_spi_priv *priv = dev_get_priv(dev);
-	struct mmc_spi_plat *plat = dev_get_platdata(dev);
+	struct mmc_spi_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	char *name;
 
 	priv->spi = dev_get_parent_priv(dev);
 	if (!priv->spi->max_hz)
 		priv->spi->max_hz = MMC_SPI_MAX_CLOCK;
-	priv->spi->speed = 0;
 	priv->spi->mode = SPI_MODE_0;
 	priv->spi->wordlen = 8;
 
@@ -446,7 +445,7 @@ static int mmc_spi_probe(struct udevice *dev)
 
 static int mmc_spi_bind(struct udevice *dev)
 {
-	struct mmc_spi_plat *plat = dev_get_platdata(dev);
+	struct mmc_spi_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -468,6 +467,6 @@ U_BOOT_DRIVER(mmc_spi) = {
 	.ops = &mmc_spi_ops,
 	.probe = mmc_spi_probe,
 	.bind = mmc_spi_bind,
-	.platdata_auto_alloc_size = sizeof(struct mmc_spi_plat),
-	.priv_auto_alloc_size = sizeof(struct mmc_spi_priv),
+	.plat_auto	= sizeof(struct mmc_spi_plat),
+	.priv_auto	= sizeof(struct mmc_spi_priv),
 };

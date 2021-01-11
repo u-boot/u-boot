@@ -235,5 +235,5 @@ U_BOOT_DRIVER(ddr_stm32mp1) = {
 	.of_match = stm32mp1_ddr_ids,
 	.ops = &stm32mp1_ddr_ops,
 	.probe = stm32mp1_ddr_probe,
-	.priv_auto_alloc_size = sizeof(struct ddr_info),
+	.priv_auto	= sizeof(struct ddr_info),
 };

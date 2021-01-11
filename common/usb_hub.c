@@ -958,9 +958,9 @@ UCLASS_DRIVER(usb_hub) = {
 	.post_bind	= dm_scan_fdt_dev,
 	.post_probe	= usb_hub_post_probe,
 	.child_pre_probe	= usb_child_pre_probe,
-	.per_child_auto_alloc_size = sizeof(struct usb_device),
-	.per_child_platdata_auto_alloc_size = sizeof(struct usb_dev_platdata),
-	.per_device_auto_alloc_size = sizeof(struct usb_hub_device),
+	.per_child_auto	= sizeof(struct usb_device),
+	.per_child_plat_auto	= sizeof(struct usb_dev_plat),
+	.per_device_auto	= sizeof(struct usb_hub_device),
 };
 
 static const struct usb_device_id hub_id_table[] = {

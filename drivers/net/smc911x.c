@@ -536,7 +536,7 @@ err_detect:
 
 static int smc911x_start(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct smc911x_priv *priv = dev_get_priv(dev);
 
 	memcpy(priv->enetaddr, plat->enetaddr, sizeof(plat->enetaddr));
@@ -577,7 +577,7 @@ static int smc911x_recv(struct udevice *dev, int flags, uchar **packetp)
 static int smc911x_read_rom_hwaddr(struct udevice *dev)
 {
 	struct smc911x_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	if (!smc911x_read_mac_address(priv))
 		return -ENODEV;
@@ -607,10 +607,10 @@ static int smc911x_probe(struct udevice *dev)
 	return 0;
 }
 
-static int smc911x_ofdata_to_platdata(struct udevice *dev)
+static int smc911x_of_to_plat(struct udevice *dev)
 {
 	struct smc911x_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	pdata->iobase = dev_read_addr(dev);
 	priv->iobase = pdata->iobase;
@@ -636,11 +636,11 @@ U_BOOT_DRIVER(smc911x) = {
 	.id		= UCLASS_ETH,
 	.of_match	= smc911x_ids,
 	.bind		= smc911x_bind,
-	.ofdata_to_platdata = smc911x_ofdata_to_platdata,
+	.of_to_plat = smc911x_of_to_plat,
 	.probe		= smc911x_probe,
 	.ops		= &smc911x_ops,
-	.priv_auto_alloc_size = sizeof(struct smc911x_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct smc911x_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif

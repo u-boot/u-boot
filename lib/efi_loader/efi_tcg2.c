@@ -14,11 +14,24 @@
 #include <efi_tcg2.h>
 #include <log.h>
 #include <tpm-v2.h>
+#include <u-boot/sha1.h>
+#include <u-boot/sha256.h>
+#include <u-boot/sha512.h>
 #include <linux/unaligned/access_ok.h>
 #include <linux/unaligned/generic.h>
+#include <hexdump.h>
 
-DECLARE_GLOBAL_DATA_PTR;
+struct event_log_buffer {
+	void *buffer;
+	void *final_buffer;
+	size_t pos; /* eventlog position */
+	size_t final_pos; /* final events config table position */
+	size_t last_event_size;
+	bool get_event_called;
+	bool truncated;
+};
 
+static struct event_log_buffer event_log;
 /*
  * When requesting TPM2_CAP_TPM_PROPERTIES the value is on a standard offset.
  * Since the current tpm2_get_capability() response buffers starts at
@@ -30,33 +43,40 @@ DECLARE_GLOBAL_DATA_PTR;
 #define properties_offset (offsetof(struct tpml_tagged_tpm_property, tpm_property) + \
 			   offsetof(struct tpms_tagged_property, value))
 
-struct {
+static const efi_guid_t efi_guid_tcg2_protocol = EFI_TCG2_PROTOCOL_GUID;
+static const efi_guid_t efi_guid_final_events = EFI_TCG2_FINAL_EVENTS_TABLE_GUID;
+
+struct digest_info {
 	u16 hash_alg;
 	u32 hash_mask;
-} hash_algo_list[] = {
+	u16 hash_len;
+};
+
+const static struct digest_info hash_algo_list[] = {
 	{
 		TPM2_ALG_SHA1,
 		EFI_TCG2_BOOT_HASH_ALG_SHA1,
+		TPM2_SHA1_DIGEST_SIZE,
 	},
 	{
 		TPM2_ALG_SHA256,
 		EFI_TCG2_BOOT_HASH_ALG_SHA256,
+		TPM2_SHA256_DIGEST_SIZE,
 	},
 	{
 		TPM2_ALG_SHA384,
 		EFI_TCG2_BOOT_HASH_ALG_SHA384,
+		TPM2_SHA384_DIGEST_SIZE,
 	},
 	{
 		TPM2_ALG_SHA512,
 		EFI_TCG2_BOOT_HASH_ALG_SHA512,
-	},
-	{
-		TPM2_ALG_SM3_256,
-		EFI_TCG2_BOOT_HASH_ALG_SM3_256,
+		TPM2_SHA512_DIGEST_SIZE,
 	},
 };
 
 #define MAX_HASH_COUNT ARRAY_SIZE(hash_algo_list)
+
 /**
  * alg_to_mask - Get a TCG hash mask for algorithms
  *
@@ -76,7 +96,146 @@ static u32 alg_to_mask(u16 hash_alg)
 	return 0;
 }
 
-const efi_guid_t efi_guid_tcg2_protocol = EFI_TCG2_PROTOCOL_GUID;
+/**
+ * alg_to_len - Get a TCG hash len for algorithms
+ *
+ * @hash_alg: TCG defined algorithm
+ *
+ * @Return: len of chosen algorithm, 0 if the algorithm is not supported
+ */
+static u16 alg_to_len(u16 hash_alg)
+{
+	int i;
+
+	for (i = 0; i < MAX_HASH_COUNT; i++) {
+		if (hash_algo_list[i].hash_alg == hash_alg)
+			return hash_algo_list[i].hash_len;
+	}
+
+	return 0;
+}
+
+static u32 tcg_event_final_size(struct tpml_digest_values *digest_list)
+{
+	u32 len;
+	int i;
+
+	len = offsetof(struct tcg_pcr_event2, digests);
+	len += offsetof(struct tpml_digest_values, digests);
+	for (i = 0; i < digest_list->count; i++) {
+		u16 hash_alg = digest_list->digests[i].hash_alg;
+
+		len += offsetof(struct tpmt_ha, digest);
+		len += alg_to_len(hash_alg);
+	}
+	len += sizeof(u32); /* tcg_pcr_event2 event_size*/
+
+	return len;
+}
+
+/* tcg2_pcr_extend - Extend PCRs for a TPM2 device for a given tpml_digest_values
+ *
+ * @dev:		device
+ * @digest_list:	list of digest algorithms to extend
+ *
+ * @Return: status code
+ */
+static efi_status_t tcg2_pcr_extend(struct udevice *dev, u32 pcr_index,
+				    struct tpml_digest_values *digest_list)
+{
+	u32 rc;
+	int i;
+
+	for (i = 0; i < digest_list->count; i++) {
+		u32 alg = digest_list->digests[i].hash_alg;
+
+		rc = tpm2_pcr_extend(dev, pcr_index, alg,
+				     (u8 *)&digest_list->digests[i].digest,
+				     alg_to_len(alg));
+		if (rc) {
+			EFI_PRINT("Failed to extend PCR\n");
+			return EFI_DEVICE_ERROR;
+		}
+	}
+
+	return EFI_SUCCESS;
+}
+
+/* tcg2_agile_log_append - Append an agile event to out eventlog
+ *
+ * @pcr_index:		PCR index
+ * @event_type:		type of event added
+ * @digest_list:	list of digest algorithms to add
+ * @size:		size of event
+ * @event:		event to add
+ *
+ * @Return: status code
+ */
+static efi_status_t tcg2_agile_log_append(u32 pcr_index, u32 event_type,
+					  struct tpml_digest_values *digest_list,
+					  u32 size, u8 event[])
+{
+	void *log = event_log.buffer + event_log.pos;
+	size_t pos;
+	int i;
+	u32 event_size;
+
+	if (event_log.get_event_called)
+		log = event_log.final_buffer + event_log.final_pos;
+
+	/*
+	 * size refers to the length of event[] only, we need to check against
+	 * the final tcg_pcr_event2 size
+	 */
+	event_size = size + tcg_event_final_size(digest_list);
+	if (event_log.pos + event_size > TPM2_EVENT_LOG_SIZE ||
+	    event_log.final_pos + event_size > TPM2_EVENT_LOG_SIZE) {
+		event_log.truncated = true;
+		return EFI_VOLUME_FULL;
+	}
+
+	put_unaligned_le32(pcr_index, log);
+	pos = offsetof(struct tcg_pcr_event2, event_type);
+	put_unaligned_le32(event_type, log + pos);
+	pos = offsetof(struct tcg_pcr_event2, digests); /* count */
+	put_unaligned_le32(digest_list->count, log + pos);
+
+	pos += offsetof(struct tpml_digest_values, digests);
+	for (i = 0; i < digest_list->count; i++) {
+		u16 hash_alg = digest_list->digests[i].hash_alg;
+		u8 *digest = (u8 *)&digest_list->digests[i].digest;
+
+		put_unaligned_le16(hash_alg, log + pos);
+		pos += offsetof(struct tpmt_ha, digest);
+		memcpy(log + pos, digest, alg_to_len(hash_alg));
+		pos += alg_to_len(hash_alg);
+	}
+
+	put_unaligned_le32(size, log + pos);
+	pos += sizeof(u32); /* tcg_pcr_event2 event_size*/
+	memcpy(log + pos, event, size);
+	pos += size;
+
+	/* make sure the calculated buffer is what we checked against */
+	if (pos != event_size)
+		return EFI_INVALID_PARAMETER;
+
+	/* if GetEventLog hasn't been called update the normal log */
+	if (!event_log.get_event_called) {
+		event_log.pos += pos;
+		event_log.last_event_size = pos;
+	} else {
+	/* if GetEventLog has been called update config table log */
+		struct efi_tcg2_final_events_table *final_event;
+
+		final_event =
+			(struct efi_tcg2_final_events_table *)(event_log.final_buffer);
+		final_event->number_of_events++;
+		event_log.final_pos += pos;
+	}
+
+	return EFI_SUCCESS;
+}
 
 /**
  * platform_get_tpm_device() - retrieve TPM device
@@ -208,7 +367,7 @@ static int tpm2_get_num_pcr(struct udevice *dev, u32 *num_pcr)
  *
  * Return: true if PCR is active
  */
-bool is_active_pcr(struct tpms_pcr_selection *selection)
+static bool is_active_pcr(struct tpms_pcr_selection *selection)
 {
 	int i;
 	/*
@@ -306,6 +465,103 @@ static int tpm2_get_pcr_info(struct udevice *dev, u32 *supported_pcr,
 	return 0;
 out:
 	return -1;
+}
+
+/**
+ * __get_active_pcr_banks() - returns the currently active PCR banks
+ *
+ * @active_pcr_banks:		pointer for receiving the bitmap of currently
+ *				active PCR banks
+ *
+ * Return:	status code
+ */
+static efi_status_t __get_active_pcr_banks(u32 *active_pcr_banks)
+{
+	struct udevice *dev;
+	u32 active, supported, pcr_banks;
+	efi_status_t ret;
+	int err;
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	err = tpm2_get_pcr_info(dev, &supported, &active, &pcr_banks);
+	if (err) {
+		ret = EFI_DEVICE_ERROR;
+		goto out;
+	}
+
+	*active_pcr_banks = active;
+
+out:
+	return ret;
+}
+
+/* tcg2_create_digest - create a list of digests of the supported PCR banks
+ *			for a given memory range
+ *
+ * @input:		input memory
+ * @length:		length of buffer to calculate the digest
+ * @digest_list:	list of digests to fill in
+ *
+ * Return:		status code
+ */
+static efi_status_t tcg2_create_digest(const u8 *input, u32 length,
+				       struct tpml_digest_values *digest_list)
+{
+	sha1_context ctx;
+	sha256_context ctx_256;
+	sha512_context ctx_512;
+	u8 final[TPM2_ALG_SHA512];
+	efi_status_t ret;
+	u32 active;
+	int i;
+
+	ret = __get_active_pcr_banks(&active);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	digest_list->count = 0;
+	for (i = 0; i < MAX_HASH_COUNT; i++) {
+		u16 hash_alg = hash_algo_list[i].hash_alg;
+
+		if (!(active & alg_to_mask(hash_alg)))
+			continue;
+		switch (hash_alg) {
+		case TPM2_ALG_SHA1:
+			sha1_starts(&ctx);
+			sha1_update(&ctx, input, length);
+			sha1_finish(&ctx, final);
+			digest_list->count++;
+			break;
+		case TPM2_ALG_SHA256:
+			sha256_starts(&ctx_256);
+			sha256_update(&ctx_256, input, length);
+			sha256_finish(&ctx_256, final);
+			digest_list->count++;
+			break;
+		case TPM2_ALG_SHA384:
+			sha384_starts(&ctx_512);
+			sha384_update(&ctx_512, input, length);
+			sha384_finish(&ctx_512, final);
+			digest_list->count++;
+			break;
+		case TPM2_ALG_SHA512:
+			sha512_starts(&ctx_512);
+			sha512_update(&ctx_512, input, length);
+			sha512_finish(&ctx_512, final);
+			digest_list->count++;
+			break;
+		default:
+			EFI_PRINT("Unsupported algorithm %x\n", hash_alg);
+			return EFI_INVALID_PARAMETER;
+		}
+		digest_list->digests[i].hash_alg = hash_alg;
+		memcpy(&digest_list->digests[i].digest, final, (u32)alg_to_len(hash_alg));
+	}
+
+	return EFI_SUCCESS;
 }
 
 /**
@@ -427,7 +683,28 @@ efi_tcg2_get_eventlog(struct efi_tcg2_protocol *this,
 		      u64 *event_log_location, u64 *event_log_last_entry,
 		      bool *event_log_truncated)
 {
-	return EFI_UNSUPPORTED;
+	efi_status_t ret = EFI_SUCCESS;
+	struct udevice *dev;
+
+	EFI_ENTRY("%p, %u, %p, %p,  %p", this, log_format, event_log_location,
+		  event_log_last_entry, event_log_truncated);
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS) {
+		event_log_location = NULL;
+		event_log_last_entry = NULL;
+		*event_log_truncated = false;
+		ret = EFI_SUCCESS;
+		goto out;
+	}
+	*event_log_location = (uintptr_t)event_log.buffer;
+	*event_log_last_entry = (uintptr_t)(event_log.buffer + event_log.pos -
+					    event_log.last_event_size);
+	*event_log_truncated = event_log.truncated;
+	event_log.get_event_called = true;
+
+out:
+	return EFI_EXIT(ret);
 }
 
 /**
@@ -450,7 +727,76 @@ efi_tcg2_hash_log_extend_event(struct efi_tcg2_protocol *this, u64 flags,
 			       u64 data_to_hash, u64 data_to_hash_len,
 			       struct efi_tcg2_event *efi_tcg_event)
 {
-	return EFI_UNSUPPORTED;
+	struct udevice *dev;
+	efi_status_t ret;
+	u32 event_type, pcr_index, event_size;
+	struct tpml_digest_values digest_list;
+
+	EFI_ENTRY("%p, %llu, %llu, %llu, %p", this, flags, data_to_hash,
+		  data_to_hash_len, efi_tcg_event);
+
+	if (!this || !data_to_hash || !efi_tcg_event) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	if (efi_tcg_event->size < efi_tcg_event->header.header_size +
+	    sizeof(u32)) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	if (efi_tcg_event->header.pcr_index < 0 ||
+	    efi_tcg_event->header.pcr_index > TPM2_MAX_PCRS) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	/*
+	 * if PE_COFF_IMAGE is set we need to make sure the image is not
+	 * corrupted, verify it and hash the PE/COFF image in accordance with
+	 * the  procedure  specified  in  "Calculating  the  PE  Image  Hash"
+	 * section  of the "Windows Authenticode Portable Executable Signature
+	 * Format"
+	 * Not supported for now
+	 */
+	if (flags & PE_COFF_IMAGE) {
+		ret = EFI_UNSUPPORTED;
+		goto out;
+	}
+
+	pcr_index = efi_tcg_event->header.pcr_index;
+	event_type = efi_tcg_event->header.event_type;
+
+	ret = tcg2_create_digest((u8 *)data_to_hash, data_to_hash_len,
+				 &digest_list);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_pcr_extend(dev, pcr_index, &digest_list);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	if (flags & EFI_TCG2_EXTEND_ONLY) {
+		if (event_log.truncated)
+			ret = EFI_VOLUME_FULL;
+		goto out;
+	}
+
+	/*
+	 * The efi_tcg_event size includes the size component and the
+	 * headersize
+	 */
+	event_size = efi_tcg_event->size - sizeof(efi_tcg_event->size) -
+		efi_tcg_event->header.header_size;
+	ret = tcg2_agile_log_append(pcr_index, event_type, &digest_list,
+				    event_size, efi_tcg_event->event);
+out:
+	return EFI_EXIT(ret);
 }
 
 /**
@@ -464,7 +810,7 @@ efi_tcg2_hash_log_extend_event(struct efi_tcg2_protocol *this, u64 flags,
  *
  * Return:	status code
  */
-efi_status_t EFIAPI
+static efi_status_t EFIAPI
 efi_tcg2_submit_command(struct efi_tcg2_protocol *this,
 			u32 input_param_block_size, u8 *input_param_block,
 			u32 output_param_block_size, u8 *output_param_block)
@@ -481,11 +827,16 @@ efi_tcg2_submit_command(struct efi_tcg2_protocol *this,
  *
  * Return:	status code
  */
-efi_status_t EFIAPI
+static efi_status_t EFIAPI
 efi_tcg2_get_active_pcr_banks(struct efi_tcg2_protocol *this,
 			      u32 *active_pcr_banks)
 {
-	return EFI_UNSUPPORTED;
+	efi_status_t ret;
+
+	EFI_ENTRY("%p, %p", this, active_pcr_banks);
+	ret = __get_active_pcr_banks(active_pcr_banks);
+
+	return EFI_EXIT(ret);
 }
 
 /**
@@ -496,7 +847,7 @@ efi_tcg2_get_active_pcr_banks(struct efi_tcg2_protocol *this,
  *
  * Return:	status code
  */
-efi_status_t EFIAPI
+static efi_status_t EFIAPI
 efi_tcg2_set_active_pcr_banks(struct efi_tcg2_protocol *this,
 			      u32 active_pcr_banks)
 {
@@ -515,7 +866,7 @@ efi_tcg2_set_active_pcr_banks(struct efi_tcg2_protocol *this,
  *
  * Return:	status code
  */
-efi_status_t EFIAPI
+static efi_status_t EFIAPI
 efi_tcg2_get_result_of_set_active_pcr_banks(struct efi_tcg2_protocol *this,
 					    u32 *operation_present, u32 *response)
 {
@@ -531,6 +882,169 @@ static const struct efi_tcg2_protocol efi_tcg2_protocol = {
 	.set_active_pcr_banks = efi_tcg2_set_active_pcr_banks,
 	.get_result_of_set_active_pcr_banks = efi_tcg2_get_result_of_set_active_pcr_banks,
 };
+
+/**
+ * create_specid_event() - Create the first event in the eventlog
+ *
+ * @dev:			tpm device
+ * @event_header:		Pointer to the final event header
+ * @event_size:			final spec event size
+ *
+ * Return:	status code
+ */
+static efi_status_t create_specid_event(struct udevice *dev, void *buffer,
+					size_t *event_size)
+{
+	struct tcg_efi_spec_id_event *spec_event;
+	size_t spec_event_size;
+	efi_status_t ret = EFI_DEVICE_ERROR;
+	u32 active, supported;
+	int err, i;
+
+	/*
+	 * Create Spec event. This needs to be the first event in the log
+	 * according to the TCG EFI protocol spec
+	 */
+
+	/* Setup specID event data */
+	spec_event = (struct tcg_efi_spec_id_event *)buffer;
+	memcpy(spec_event->signature, TCG_EFI_SPEC_ID_EVENT_SIGNATURE_03,
+	       sizeof(spec_event->signature));
+	put_unaligned_le32(0, &spec_event->platform_class); /* type client */
+	spec_event->spec_version_minor =
+		TCG_EFI_SPEC_ID_EVENT_SPEC_VERSION_MINOR_TPM2;
+	spec_event->spec_version_major =
+		TCG_EFI_SPEC_ID_EVENT_SPEC_VERSION_MAJOR_TPM2;
+	spec_event->spec_errata =
+		TCG_EFI_SPEC_ID_EVENT_SPEC_VERSION_ERRATA_TPM2;
+	spec_event->uintn_size = sizeof(efi_uintn_t) / sizeof(u32);
+
+	err = tpm2_get_pcr_info(dev, &supported, &active,
+				&spec_event->number_of_algorithms);
+	if (err)
+		goto out;
+	if (spec_event->number_of_algorithms > MAX_HASH_COUNT ||
+	    spec_event->number_of_algorithms < 1)
+		goto out;
+
+	for (i = 0; i < spec_event->number_of_algorithms; i++) {
+		u16 hash_alg = hash_algo_list[i].hash_alg;
+		u16 hash_len = hash_algo_list[i].hash_len;
+
+		if (active && alg_to_mask(hash_alg)) {
+			put_unaligned_le16(hash_alg,
+					   &spec_event->digest_sizes[i].algorithm_id);
+			put_unaligned_le16(hash_len,
+					   &spec_event->digest_sizes[i].digest_size);
+		}
+	}
+	/*
+	 * the size of the spec event and placement of vendor_info_size
+	 * depends on supported algoriths
+	 */
+	spec_event_size =
+		offsetof(struct tcg_efi_spec_id_event, digest_sizes) +
+		spec_event->number_of_algorithms * sizeof(spec_event->digest_sizes[0]);
+	/* no vendor info for us */
+	memset(buffer + spec_event_size, 0,
+	       sizeof(spec_event->vendor_info_size));
+	spec_event_size += sizeof(spec_event->vendor_info_size);
+	*event_size = spec_event_size;
+
+	return EFI_SUCCESS;
+
+out:
+	return ret;
+}
+
+/**
+ * create_final_event() - Create the final event and install the config
+ *			defined by the TCG EFI spec
+ */
+static efi_status_t create_final_event(void)
+{
+	struct efi_tcg2_final_events_table *final_event;
+	efi_status_t ret;
+
+	/*
+	 * All events generated after the invocation of
+	 * EFI_TCG2_GET_EVENT_LOGS need to be stored in an instance of an
+	 * EFI_CONFIGURATION_TABLE
+	 */
+	ret = efi_allocate_pool(EFI_ACPI_MEMORY_NVS, TPM2_EVENT_LOG_SIZE,
+				&event_log.final_buffer);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	memset(event_log.final_buffer, 0xff, TPM2_EVENT_LOG_SIZE);
+	final_event = event_log.final_buffer;
+	final_event->number_of_events = 0;
+	final_event->version = EFI_TCG2_FINAL_EVENTS_TABLE_VERSION;
+	event_log.final_pos = sizeof(*final_event);
+	ret = efi_install_configuration_table(&efi_guid_final_events,
+					      final_event);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	return EFI_SUCCESS;
+out:
+	return ret;
+}
+
+/**
+ * efi_init_event_log() - initialize an eventlog
+ */
+static efi_status_t efi_init_event_log(void)
+{
+	/*
+	 * vendor_info_size is currently set to 0, we need to change the length
+	 * and allocate the flexible array member if this changes
+	 */
+	struct tcg_pcr_event *event_header = NULL;
+	struct udevice *dev;
+	size_t spec_event_size;
+	efi_status_t ret;
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, TPM2_EVENT_LOG_SIZE,
+				(void **)&event_log.buffer);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	/*
+	 * initialize log area as 0xff so the OS can easily figure out the
+	 * last log entry
+	 */
+	memset(event_log.buffer, 0xff, TPM2_EVENT_LOG_SIZE);
+	event_log.pos = 0;
+	event_log.last_event_size = 0;
+	event_log.get_event_called = false;
+	event_log.truncated = false;
+
+	/*
+	 * The log header is defined to be in SHA1 event log entry format.
+	 * Setup event header
+	 */
+	event_header =  (struct tcg_pcr_event *)event_log.buffer;
+	put_unaligned_le32(0, &event_header->pcr_index);
+	put_unaligned_le32(EV_NO_ACTION, &event_header->event_type);
+	memset(&event_header->digest, 0, sizeof(event_header->digest));
+	ret = create_specid_event(dev, event_log.buffer + sizeof(*event_header),
+				  &spec_event_size);
+	if (ret != EFI_SUCCESS)
+		goto out;
+	put_unaligned_le32(spec_event_size, &event_header->event_size);
+	event_log.pos = spec_event_size + sizeof(*event_header);
+	event_log.last_event_size = event_log.pos;
+
+	ret = create_final_event();
+
+out:
+	return ret;
+}
 
 /**
  * efi_tcg2_register() - register EFI_TCG2_PROTOCOL
@@ -549,6 +1063,11 @@ efi_status_t efi_tcg2_register(void)
 		log_warning("Unable to find TPMv2 device\n");
 		return EFI_SUCCESS;
 	}
+
+	ret = efi_init_event_log();
+	if (ret != EFI_SUCCESS)
+		return ret;
+
 	ret = efi_add_protocol(efi_root, &efi_guid_tcg2_protocol,
 			       (void *)&efi_tcg2_protocol);
 	if (ret != EFI_SUCCESS)

@@ -187,6 +187,6 @@ U_BOOT_DRIVER(74x164) = {
 	.id		= UCLASS_GPIO,
 	.ops		= &gen_74x164_ops,
 	.probe		= gen_74x164_probe,
-	.priv_auto_alloc_size = sizeof(struct gen_74x164_priv),
+	.priv_auto	= sizeof(struct gen_74x164_priv),
 	.of_match	= gen_74x164_ids,
 };

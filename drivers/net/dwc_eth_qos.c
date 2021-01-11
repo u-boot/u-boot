@@ -1108,7 +1108,7 @@ static int eqos_adjust_link(struct udevice *dev)
 
 static int eqos_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	uint32_t val;
 
@@ -1152,10 +1152,10 @@ static int eqos_write_hwaddr(struct udevice *dev)
 
 static int eqos_read_rom_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 #ifdef CONFIG_ARCH_IMX8M
-	imx_get_mac_from_fuse(dev->req_seq, pdata->enetaddr);
+	imx_get_mac_from_fuse(dev_seq(dev), pdata->enetaddr);
 #endif
 	return !is_valid_ethaddr(pdata->enetaddr);
 }
@@ -2193,6 +2193,6 @@ U_BOOT_DRIVER(eth_eqos) = {
 	.probe = eqos_probe,
 	.remove = eqos_remove,
 	.ops = &eqos_ops,
-	.priv_auto_alloc_size = sizeof(struct eqos_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct eqos_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

@@ -407,6 +407,9 @@ int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
 					&fit_uname_config,
 					arch, &load, &len);
 
+				if (fdt_noffset < 0)
+					goto error;
+
 				images->fit_hdr_fdt = map_sysmem(fdt_addr, 0);
 				images->fit_uname_fdt = fit_uname_fdt;
 				images->fit_noffset_fdt = fdt_noffset;

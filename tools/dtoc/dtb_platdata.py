@@ -9,19 +9,24 @@
 
 This supports converting device tree data to C structures definitions and
 static data.
+
+See doc/driver-model/of-plat.rst for more informaiton
 """
 
 import collections
 import copy
+from enum import IntEnum
 import os
 import re
 import sys
 
 from dtoc import fdt
 from dtoc import fdt_util
-from patman import tools
+from dtoc import src_scan
+from dtoc.src_scan import conv_name_to_c
 
-# When we see these properties we ignore them - i.e. do not create a structure member
+# When we see these properties we ignore them - i.e. do not create a structure
+# member
 PROP_IGNORE_LIST = [
     '#address-cells',
     '#gpio-cells',
@@ -35,17 +40,28 @@ PROP_IGNORE_LIST = [
     'u-boot,dm-spl',
 ]
 
-# C type declarations for the tyues we support
+# C type declarations for the types we support
 TYPE_NAMES = {
-    fdt.TYPE_INT: 'fdt32_t',
-    fdt.TYPE_BYTE: 'unsigned char',
-    fdt.TYPE_STRING: 'const char *',
-    fdt.TYPE_BOOL: 'bool',
-    fdt.TYPE_INT64: 'fdt64_t',
+    fdt.Type.INT: 'fdt32_t',
+    fdt.Type.BYTE: 'unsigned char',
+    fdt.Type.STRING: 'const char *',
+    fdt.Type.BOOL: 'bool',
+    fdt.Type.INT64: 'fdt64_t',
 }
 
 STRUCT_PREFIX = 'dtd_'
 VAL_PREFIX = 'dtv_'
+
+class Ftype(IntEnum):
+    SOURCE, HEADER = range(2)
+
+
+# This holds information about each type of output file dtoc can create
+# type: Type of file (Ftype)
+# fname: Filename excluding directory, e.g. 'dt-plat.c'
+# hdr_comment: Comment explaining the purpose of the file
+OutputFile = collections.namedtuple('OutputFile',
+                                    ['ftype', 'fname', 'method', 'hdr_comment'])
 
 # This holds information about a property which includes phandles.
 #
@@ -62,32 +78,15 @@ PhandleInfo = collections.namedtuple('PhandleInfo', ['max_args', 'args'])
 PhandleLink = collections.namedtuple('PhandleLink', ['var_node', 'dev_name'])
 
 
-def conv_name_to_c(name):
-    """Convert a device-tree name to a C identifier
-
-    This uses multiple replace() calls instead of re.sub() since it is faster
-    (400ms for 1m calls versus 1000ms for the 're' version).
-
-    Args:
-        name:   Name to convert
-    Return:
-        String containing the C version of this name
-    """
-    new = name.replace('@', '_at_')
-    new = new.replace('-', '_')
-    new = new.replace(',', '_')
-    new = new.replace('.', '_')
-    return new
-
 def tab_to(num_tabs, line):
     """Append tabs to a line of text to reach a tab stop.
 
     Args:
-        num_tabs: Tab stop to obtain (0 = column 0, 1 = column 8, etc.)
-        line: Line of text to append to
+        num_tabs (int): Tab stop to obtain (0 = column 0, 1 = column 8, etc.)
+        line (str): Line of text to append to
 
     Returns:
-        line with the correct number of tabs appeneded. If the line already
+        str: line with the correct number of tabs appeneded. If the line already
         extends past that tab stop then a single space is appended.
     """
     if len(line) >= num_tabs * 8:
@@ -103,37 +102,29 @@ def get_value(ftype, value):
     For booleans this return 'true'
 
     Args:
-        type: Data type (fdt_util)
-        value: Data value, as a string of bytes
+        ftype (fdt.Type): Data type (fdt_util)
+        value (bytes): Data value, as a string of bytes
+
+    Returns:
+        str: String representation of the value
     """
-    if ftype == fdt.TYPE_INT:
-        return '%#x' % fdt_util.fdt32_to_cpu(value)
-    elif ftype == fdt.TYPE_BYTE:
-        return '%#x' % tools.ToByte(value[0])
-    elif ftype == fdt.TYPE_STRING:
+    if ftype == fdt.Type.INT:
+        val = '%#x' % fdt_util.fdt32_to_cpu(value)
+    elif ftype == fdt.Type.BYTE:
+        char = value[0]
+        val = '%#x' % (ord(char) if isinstance(char, str) else char)
+    elif ftype == fdt.Type.STRING:
         # Handle evil ACPI backslashes by adding another backslash before them.
         # So "\\_SB.GPO0" in the device tree effectively stays like that in C
-        return '"%s"' % value.replace('\\', '\\\\')
-    elif ftype == fdt.TYPE_BOOL:
-        return 'true'
-    elif ftype == fdt.TYPE_INT64:
-        return '%#x' % value
-
-def get_compat_name(node):
-    """Get the node's list of compatible string as a C identifiers
-
-    Args:
-        node: Node object to check
-    Return:
-        List of C identifiers for all the compatible strings
-    """
-    compat = node.props['compatible'].value
-    if not isinstance(compat, list):
-        compat = [compat]
-    return [conv_name_to_c(c) for c in compat]
+        val = '"%s"' % value.replace('\\', '\\\\')
+    elif ftype == fdt.Type.BOOL:
+        val = 'true'
+    else:  # ftype == fdt.Type.INT64:
+        val = '%#x' % value
+    return val
 
 
-class DtbPlatdata(object):
+class DtbPlatdata():
     """Provide a means to convert device tree binary data to platform data
 
     The output of this process is C structures which can be used in space-
@@ -141,89 +132,103 @@ class DtbPlatdata(object):
     code is not affordable.
 
     Properties:
+        _scan: Scan object, for scanning and reporting on useful information
+            from the U-Boot source code
         _fdt: Fdt object, referencing the device tree
         _dtb_fname: Filename of the input device tree binary file
         _valid_nodes: A list of Node object with compatible strings. The list
             is ordered by conv_name_to_c(node.name)
         _include_disabled: true to include nodes marked status = "disabled"
         _outfile: The current output file (sys.stdout or a real file)
-        _warning_disabled: true to disable warnings about driver names not found
         _lines: Stashed list of output lines for outputting in the future
-        _drivers: List of valid driver names found in drivers/
-        _driver_aliases: Dict that holds aliases for driver names
-            key: Driver alias declared with
-                U_BOOT_DRIVER_ALIAS(driver_alias, driver_name)
-            value: Driver name declared with U_BOOT_DRIVER(driver_name)
-        _drivers_additional: List of additional drivers to use during scanning
+        _dirname: Directory to hold output files, or None for none (all files
+            go to stdout)
+        _struct_data (dict): OrderedDict of dtplat structures to output
+            key (str): Node name, as a C identifier
+                    value: dict containing structure fields:
+                        key (str): Field name
+                        value: Prop object with field information
+        _basedir (str): Base directory of source tree
     """
-    def __init__(self, dtb_fname, include_disabled, warning_disabled,
-                 drivers_additional=[]):
+    def __init__(self, scan, dtb_fname, include_disabled):
+        self._scan = scan
         self._fdt = None
         self._dtb_fname = dtb_fname
         self._valid_nodes = None
         self._include_disabled = include_disabled
         self._outfile = None
-        self._warning_disabled = warning_disabled
         self._lines = []
-        self._drivers = []
-        self._driver_aliases = {}
-        self._drivers_additional = drivers_additional
+        self._dirnames = [None] * len(Ftype)
+        self._struct_data = collections.OrderedDict()
+        self._basedir = None
 
-    def get_normalized_compat_name(self, node):
-        """Get a node's normalized compat name
+    def setup_output_dirs(self, output_dirs):
+        """Set up the output directories
 
-        Returns a valid driver name by retrieving node's list of compatible
-        string as a C identifier and performing a check against _drivers
-        and a lookup in driver_aliases printing a warning in case of failure.
+        This should be done before setup_output() is called
 
         Args:
-            node: Node object to check
-        Return:
-            Tuple:
-                Driver name associated with the first compatible string
-                List of C identifiers for all the other compatible strings
-                    (possibly empty)
-                In case of no match found, the return will be the same as
-                get_compat_name()
+            output_dirs (tuple of str):
+                Directory to use for C output files.
+                    Use None to write files relative current directory
+                Directory to use for H output files.
+                    Defaults to the C output dir
         """
-        compat_list_c = get_compat_name(node)
+        def process_dir(ftype, dirname):
+            if dirname:
+                os.makedirs(dirname, exist_ok=True)
+                self._dirnames[ftype] = dirname
 
-        for compat_c in compat_list_c:
-            if not compat_c in self._drivers:
-                compat_c = self._driver_aliases.get(compat_c)
-                if not compat_c:
-                    continue
+        if output_dirs:
+            c_dirname = output_dirs[0]
+            h_dirname = output_dirs[1] if len(output_dirs) > 1 else c_dirname
+            process_dir(Ftype.SOURCE, c_dirname)
+            process_dir(Ftype.HEADER, h_dirname)
 
-            aliases_c = compat_list_c
-            if compat_c in aliases_c:
-                aliases_c.remove(compat_c)
-            return compat_c, aliases_c
-
-        if not self._warning_disabled:
-            print('WARNING: the driver %s was not found in the driver list'
-                  % (compat_list_c[0]))
-
-        return compat_list_c[0], compat_list_c[1:]
-
-    def setup_output(self, fname):
+    def setup_output(self, ftype, fname):
         """Set up the output destination
 
         Once this is done, future calls to self.out() will output to this
-        file.
+        file. The file used is as follows:
+
+        self._dirnames[ftype] is None: output to fname, or stdout if None
+        self._dirnames[ftype] is not None: output to fname in that directory
+
+        Calling this function multiple times will close the old file and open
+        the new one. If they are the same file, nothing happens and output will
+        continue to the same file.
 
         Args:
-            fname: Filename to send output to, or '-' for stdout
+            ftype (str): Type of file to create ('c' or 'h')
+            fname (str): Filename to send output to. If there is a directory in
+                self._dirnames for this file type, it will be put in that
+                directory
         """
-        if fname == '-':
-            self._outfile = sys.stdout
+        dirname = self._dirnames[ftype]
+        if dirname:
+            pathname = os.path.join(dirname, fname)
+            if self._outfile:
+                self._outfile.close()
+            self._outfile = open(pathname, 'w')
+        elif fname:
+            if not self._outfile:
+                self._outfile = open(fname, 'w')
         else:
-            self._outfile = open(fname, 'w')
+            self._outfile = sys.stdout
+
+    def finish_output(self):
+        """Finish outputing to a file
+
+        This closes the output file, if one is in use
+        """
+        if self._outfile != sys.stdout:
+            self._outfile.close()
 
     def out(self, line):
         """Output a string to the output file
 
         Args:
-            line: String to output
+            line (str): String to output
         """
         self._outfile.write(line)
 
@@ -231,7 +236,7 @@ class DtbPlatdata(object):
         """Buffer up a string to send later
 
         Args:
-            line: String to add to our 'buffer' list
+            line (str): String to add to our 'buffer' list
         """
         self._lines.append(line)
 
@@ -239,21 +244,26 @@ class DtbPlatdata(object):
         """Get the contents of the output buffer, and clear it
 
         Returns:
-            The output buffer, which is then cleared for future use
+            list(str): The output buffer, which is then cleared for future use
         """
         lines = self._lines
         self._lines = []
         return lines
 
-    def out_header(self):
-        """Output a message indicating that this is an auto-generated file"""
+    def out_header(self, outfile):
+        """Output a message indicating that this is an auto-generated file
+
+        Args:
+            outfile: OutputFile describing the file being generated
+        """
         self.out('''/*
  * DO NOT MODIFY
  *
- * This file was generated by dtoc from a .dtb (device tree binary) file.
+ * %s.
+ * This was generated by dtoc from a .dtb (device tree binary) file.
  */
 
-''')
+''' % outfile.hdr_comment)
 
     def get_phandle_argc(self, prop, node_name):
         """Check if a node contains phandles
@@ -262,9 +272,14 @@ class DtbPlatdata(object):
         or not. As an interim measure, use a list of known property names.
 
         Args:
-            prop: Prop object to check
-        Return:
-            Number of argument cells is this is a phandle, else None
+            prop (fdt.Prop): Prop object to check
+            node_name (str): Node name, only used for raising an error
+        Returns:
+            int or None: Number of argument cells is this is a phandle,
+                else None
+        Raises:
+            ValueError: if the phandle cannot be parsed or the required property
+                is not present
         """
         if prop.name in ['clocks', 'cd-gpios']:
             if not isinstance(prop.value, list):
@@ -293,69 +308,13 @@ class DtbPlatdata(object):
                         break
                 if not cells:
                     raise ValueError("Node '%s' has no cells property" %
-                            (target.name))
+                                     (target.name))
                 num_args = fdt_util.fdt32_to_cpu(cells.value)
                 max_args = max(max_args, num_args)
                 args.append(num_args)
                 i += 1 + num_args
             return PhandleInfo(max_args, args)
         return None
-
-    def scan_driver(self, fn):
-        """Scan a driver file to build a list of driver names and aliases
-
-        This procedure will populate self._drivers and self._driver_aliases
-
-        Args
-            fn: Driver filename to scan
-        """
-        with open(fn, encoding='utf-8') as fd:
-            try:
-                buff = fd.read()
-            except UnicodeDecodeError:
-                # This seems to happen on older Python versions
-                print("Skipping file '%s' due to unicode error" % fn)
-                return
-
-            # The following re will search for driver names declared as
-            # U_BOOT_DRIVER(driver_name)
-            drivers = re.findall('U_BOOT_DRIVER\((.*)\)', buff)
-
-            for driver in drivers:
-                self._drivers.append(driver)
-
-            # The following re will search for driver aliases declared as
-            # U_BOOT_DRIVER_ALIAS(alias, driver_name)
-            driver_aliases = re.findall('U_BOOT_DRIVER_ALIAS\(\s*(\w+)\s*,\s*(\w+)\s*\)',
-                                        buff)
-
-            for alias in driver_aliases: # pragma: no cover
-                if len(alias) != 2:
-                    continue
-                self._driver_aliases[alias[1]] = alias[0]
-
-    def scan_drivers(self):
-        """Scan the driver folders to build a list of driver names and aliases
-
-        This procedure will populate self._drivers and self._driver_aliases
-
-        """
-        basedir = sys.argv[0].replace('tools/dtoc/dtoc', '')
-        if basedir == '':
-            basedir = './'
-        for (dirpath, dirnames, filenames) in os.walk(basedir):
-            for fn in filenames:
-                if not fn.endswith('.c'):
-                    continue
-                self.scan_driver(dirpath + '/' + fn)
-
-        for fn in self._drivers_additional:
-            if not isinstance(fn, str) or len(fn) == 0:
-                continue
-            if fn[0] == '/':
-                self.scan_driver(fn)
-            else:
-                self.scan_driver(basedir + '/' + fn)
 
     def scan_dtb(self):
         """Scan the device tree to obtain a tree of nodes and properties
@@ -371,8 +330,8 @@ class DtbPlatdata(object):
         This adds each node to self._valid_nodes.
 
         Args:
-            root: Root node for scan
-            valid_nodes: List of Node objects to add to
+            root (Node): Root node for scan
+            valid_nodes (list of Node): List of Node objects to add to
         """
         for node in root.subnodes:
             if 'compatible' in node.props:
@@ -403,7 +362,7 @@ class DtbPlatdata(object):
         """Get the number of cells in addresses and sizes for this node
 
         Args:
-            node: Node to check
+            node (fdt.None): Node to check
 
         Returns:
             Tuple:
@@ -411,15 +370,15 @@ class DtbPlatdata(object):
                 Number of size cells for this node
         """
         parent = node.parent
-        na, ns = 2, 2
+        num_addr, num_size = 2, 2
         if parent:
-            na_prop = parent.props.get('#address-cells')
-            ns_prop = parent.props.get('#size-cells')
-            if na_prop:
-                na = fdt_util.fdt32_to_cpu(na_prop.value)
-            if ns_prop:
-                ns = fdt_util.fdt32_to_cpu(ns_prop.value)
-        return na, ns
+            addr_prop = parent.props.get('#address-cells')
+            size_prop = parent.props.get('#size-cells')
+            if addr_prop:
+                num_addr = fdt_util.fdt32_to_cpu(addr_prop.value)
+            if size_prop:
+                num_size = fdt_util.fdt32_to_cpu(size_prop.value)
+        return num_addr, num_size
 
     def scan_reg_sizes(self):
         """Scan for 64-bit 'reg' properties and update the values
@@ -432,30 +391,31 @@ class DtbPlatdata(object):
             reg = node.props.get('reg')
             if not reg:
                 continue
-            na, ns = self.get_num_cells(node)
-            total = na + ns
+            num_addr, num_size = self.get_num_cells(node)
+            total = num_addr + num_size
 
-            if reg.type != fdt.TYPE_INT:
+            if reg.type != fdt.Type.INT:
                 raise ValueError("Node '%s' reg property is not an int" %
                                  node.name)
             if len(reg.value) % total:
-                raise ValueError("Node '%s' reg property has %d cells "
-                        'which is not a multiple of na + ns = %d + %d)' %
-                        (node.name, len(reg.value), na, ns))
-            reg.na = na
-            reg.ns = ns
-            if na != 1 or ns != 1:
-                reg.type = fdt.TYPE_INT64
+                raise ValueError(
+                    "Node '%s' reg property has %d cells "
+                    'which is not a multiple of na + ns = %d + %d)' %
+                    (node.name, len(reg.value), num_addr, num_size))
+            reg.num_addr = num_addr
+            reg.num_size = num_size
+            if num_addr != 1 or num_size != 1:
+                reg.type = fdt.Type.INT64
                 i = 0
                 new_value = []
                 val = reg.value
                 if not isinstance(val, list):
                     val = [val]
                 while i < len(val):
-                    addr = fdt_util.fdt_cells_to_cpu(val[i:], reg.na)
-                    i += na
-                    size = fdt_util.fdt_cells_to_cpu(val[i:], reg.ns)
-                    i += ns
+                    addr = fdt_util.fdt_cells_to_cpu(val[i:], reg.num_addr)
+                    i += num_addr
+                    size = fdt_util.fdt_cells_to_cpu(val[i:], reg.num_size)
+                    i += num_size
                     new_value += [addr, size]
                 reg.value = new_value
 
@@ -470,16 +430,11 @@ class DtbPlatdata(object):
         Once the widest property is determined, all other properties are
         updated to match that width.
 
-        Returns:
-            dict containing structures:
-                key (str): Node name, as a C identifier
-                value: dict containing structure fields:
-                    key (str): Field name
-                    value: Prop object with field information
+        The results are written to self._struct_data
         """
-        structs = collections.OrderedDict()
+        structs = self._struct_data
         for node in self._valid_nodes:
-            node_name, _ = self.get_normalized_compat_name(node)
+            node_name, _ = self._scan.get_normalized_compat_name(node)
             fields = {}
 
             # Get a list of all the valid properties in this node.
@@ -501,16 +456,12 @@ class DtbPlatdata(object):
             else:
                 structs[node_name] = fields
 
-        upto = 0
         for node in self._valid_nodes:
-            node_name, _ = self.get_normalized_compat_name(node)
+            node_name, _ = self._scan.get_normalized_compat_name(node)
             struct = structs[node_name]
             for name, prop in node.props.items():
                 if name not in PROP_IGNORE_LIST and name[0] != '#':
                     prop.Widen(struct[name])
-            upto += 1
-
-        return structs
 
     def scan_phandles(self):
         """Figure out what phandles each node uses
@@ -540,22 +491,14 @@ class DtbPlatdata(object):
                         pos += 1 + args
 
 
-    def generate_structs(self, structs):
+    def generate_structs(self):
         """Generate struct defintions for the platform data
 
         This writes out the body of a header file consisting of structure
         definitions for node in self._valid_nodes. See the documentation in
         doc/driver-model/of-plat.rst for more information.
-
-        Args:
-            structs: dict containing structures:
-                key (str): Node name, as a C identifier
-                value: dict containing structure fields:
-                    key (str): Field name
-                    value: Prop object with field information
-
         """
-        self.out_header()
+        structs = self._struct_data
         self.out('#include <stdbool.h>\n')
         self.out('#include <linux/libfdt.h>\n')
 
@@ -580,154 +523,198 @@ class DtbPlatdata(object):
                 self.out(';\n')
             self.out('};\n')
 
-    def output_node(self, node):
-        """Output the C code for a node
+    def _output_list(self, node, prop):
+        """Output the C code for a devicetree property that holds a list
 
         Args:
-            node: node to output
+            node (fdt.Node): Node to output
+            prop (fdt.Prop): Prop to output
         """
-        def _output_list(node, prop):
-            """Output the C code for a devicetree property that holds a list
+        self.buf('{')
+        vals = []
+        # For phandles, output a reference to the platform data
+        # of the target node.
+        info = self.get_phandle_argc(prop, node.name)
+        if info:
+            # Process the list as pairs of (phandle, id)
+            pos = 0
+            for args in info.args:
+                phandle_cell = prop.value[pos]
+                phandle = fdt_util.fdt32_to_cpu(phandle_cell)
+                target_node = self._fdt.phandle_to_node[phandle]
+                arg_values = []
+                for i in range(args):
+                    arg_values.append(
+                        str(fdt_util.fdt32_to_cpu(prop.value[pos + 1 + i])))
+                pos += 1 + args
+                vals.append('\t{%d, {%s}}' % (target_node.idx,
+                                              ', '.join(arg_values)))
+            for val in vals:
+                self.buf('\n\t\t%s,' % val)
+        else:
+            for val in prop.value:
+                vals.append(get_value(prop.type, val))
 
-            Args:
-                node (fdt.Node): Node to output
-                prop (fdt.Prop): Prop to output
-            """
-            self.buf('{')
-            vals = []
-            # For phandles, output a reference to the platform data
-            # of the target node.
-            info = self.get_phandle_argc(prop, node.name)
-            if info:
-                # Process the list as pairs of (phandle, id)
-                pos = 0
-                item = 0
-                for args in info.args:
-                    phandle_cell = prop.value[pos]
-                    phandle = fdt_util.fdt32_to_cpu(phandle_cell)
-                    target_node = self._fdt.phandle_to_node[phandle]
-                    name = conv_name_to_c(target_node.name)
-                    arg_values = []
-                    for i in range(args):
-                        arg_values.append(
-                            str(fdt_util.fdt32_to_cpu(prop.value[pos + 1 + i])))
-                    pos += 1 + args
-                    vals.append('\t{%d, {%s}}' % (target_node.idx,
-                                                  ', '.join(arg_values)))
-                    item += 1
-                for val in vals:
-                    self.buf('\n\t\t%s,' % val)
-            else:
-                for val in prop.value:
-                    vals.append(get_value(prop.type, val))
+            # Put 8 values per line to avoid very long lines.
+            for i in range(0, len(vals), 8):
+                if i:
+                    self.buf(',\n\t\t')
+                self.buf(', '.join(vals[i:i + 8]))
+        self.buf('}')
 
-                # Put 8 values per line to avoid very long lines.
-                for i in range(0, len(vals), 8):
-                    if i:
-                        self.buf(',\n\t\t')
-                    self.buf(', '.join(vals[i:i + 8]))
-            self.buf('}')
+    def _declare_device(self, var_name, struct_name, node_parent):
+        """Add a device declaration to the output
 
-        struct_name, _ = self.get_normalized_compat_name(node)
-        var_name = conv_name_to_c(node.name)
-        self.buf('/* Node %s index %d */\n' % (node.path, node.idx))
-        self.buf('static struct %s%s %s%s = {\n' %
-                 (STRUCT_PREFIX, struct_name, VAL_PREFIX, var_name))
-        for pname in sorted(node.props):
-            prop = node.props[pname]
-            if pname in PROP_IGNORE_LIST or pname[0] == '#':
-                continue
-            member_name = conv_name_to_c(prop.name)
-            self.buf('\t%s= ' % tab_to(3, '.' + member_name))
+        This declares a U_BOOT_DRVINFO() for the device being processed
 
-            # Special handling for lists
-            if isinstance(prop.value, list):
-                _output_list(node, prop)
-            else:
-                self.buf(get_value(prop.type, prop.value))
-            self.buf(',\n')
-        self.buf('};\n')
-
-        # Add a device declaration
-        self.buf('U_BOOT_DEVICE(%s) = {\n' % var_name)
+        Args:
+            var_name (str): C name for the node
+            struct_name (str): Name for the dt struct associated with the node
+            node_parent (Node): Parent of the node (or None if none)
+        """
+        self.buf('U_BOOT_DRVINFO(%s) = {\n' % var_name)
         self.buf('\t.name\t\t= "%s",\n' % struct_name)
-        self.buf('\t.platdata\t= &%s%s,\n' % (VAL_PREFIX, var_name))
-        self.buf('\t.platdata_size\t= sizeof(%s%s),\n' % (VAL_PREFIX, var_name))
+        self.buf('\t.plat\t= &%s%s,\n' % (VAL_PREFIX, var_name))
+        self.buf('\t.plat_size\t= sizeof(%s%s),\n' % (VAL_PREFIX, var_name))
         idx = -1
-        if node.parent and node.parent in self._valid_nodes:
-            idx = node.parent.idx
+        if node_parent and node_parent in self._valid_nodes:
+            idx = node_parent.idx
         self.buf('\t.parent_idx\t= %d,\n' % idx)
         self.buf('};\n')
         self.buf('\n')
 
+    def _output_prop(self, node, prop):
+        """Output a line containing the value of a struct member
+
+        Args:
+            node (Node): Node being output
+            prop (Prop): Prop object to output
+        """
+        if prop.name in PROP_IGNORE_LIST or prop.name[0] == '#':
+            return
+        member_name = conv_name_to_c(prop.name)
+        self.buf('\t%s= ' % tab_to(3, '.' + member_name))
+
+        # Special handling for lists
+        if isinstance(prop.value, list):
+            self._output_list(node, prop)
+        else:
+            self.buf(get_value(prop.type, prop.value))
+        self.buf(',\n')
+
+    def _output_values(self, var_name, struct_name, node):
+        """Output the definition of a device's struct values
+
+        Args:
+            var_name (str): C name for the node
+            struct_name (str): Name for the dt struct associated with the node
+            node (Node): Node being output
+        """
+        self.buf('static struct %s%s %s%s = {\n' %
+                 (STRUCT_PREFIX, struct_name, VAL_PREFIX, var_name))
+        for pname in sorted(node.props):
+            self._output_prop(node, node.props[pname])
+        self.buf('};\n')
+
+    def output_node(self, node):
+        """Output the C code for a node
+
+        Args:
+            node (fdt.Node): node to output
+        """
+        struct_name, _ = self._scan.get_normalized_compat_name(node)
+        var_name = conv_name_to_c(node.name)
+        self.buf('/* Node %s index %d */\n' % (node.path, node.idx))
+
+        self._output_values(var_name, struct_name, node)
+        self._declare_device(var_name, struct_name, node.parent)
+
         self.out(''.join(self.get_buf()))
 
-    def generate_tables(self):
+    def generate_plat(self):
         """Generate device defintions for the platform data
 
         This writes out C platform data initialisation data and
-        U_BOOT_DEVICE() declarations for each valid node. Where a node has
+        U_BOOT_DRVINFO() declarations for each valid node. Where a node has
         multiple compatible strings, a #define is used to make them equivalent.
 
         See the documentation in doc/driver-model/of-plat.rst for more
         information.
         """
-        self.out_header()
-        self.out('/* Allow use of U_BOOT_DEVICE() in this file */\n')
-        self.out('#define DT_PLATDATA_C\n')
+        self.out('/* Allow use of U_BOOT_DRVINFO() in this file */\n')
+        self.out('#define DT_PLAT_C\n')
         self.out('\n')
         self.out('#include <common.h>\n')
         self.out('#include <dm.h>\n')
         self.out('#include <dt-structs.h>\n')
         self.out('\n')
-        nodes_to_output = list(self._valid_nodes)
 
-        # Keep outputing nodes until there is none left
-        while nodes_to_output:
-            node = nodes_to_output[0]
-            # Output all the node's dependencies first
-            for req_node in node.phandles:
-                if req_node in nodes_to_output:
-                    self.output_node(req_node)
-                    nodes_to_output.remove(req_node)
+        for node in self._valid_nodes:
             self.output_node(node)
-            nodes_to_output.remove(node)
-
-        # Define dm_populate_phandle_data() which will add the linking between
-        # nodes using DM_GET_DEVICE
-        # dtv_dmc_at_xxx.clocks[0].node = DM_GET_DEVICE(clock_controller_at_xxx)
-        self.buf('void dm_populate_phandle_data(void) {\n')
-        self.buf('}\n')
 
         self.out(''.join(self.get_buf()))
 
-def run_steps(args, dtb_file, include_disabled, output, warning_disabled=False,
-              drivers_additional=[]):
+
+# Types of output file we understand
+# key: Command used to generate this file
+# value: OutputFile for this command
+OUTPUT_FILES = {
+    'struct':
+        OutputFile(Ftype.HEADER, 'dt-structs-gen.h',
+                   DtbPlatdata.generate_structs,
+                   'Defines the structs used to hold devicetree data'),
+    'platdata':
+        OutputFile(Ftype.SOURCE, 'dt-plat.c', DtbPlatdata.generate_plat,
+                   'Declares the U_BOOT_DRIVER() records and platform data'),
+    }
+
+
+def run_steps(args, dtb_file, include_disabled, output, output_dirs,
+              warning_disabled=False, drivers_additional=None, basedir=None):
     """Run all the steps of the dtoc tool
 
     Args:
-        args: List of non-option arguments provided to the problem
-        dtb_file: Filename of dtb file to process
-        include_disabled: True to include disabled nodes
-        output: Name of output file
+        args (list): List of non-option arguments provided to the problem
+        dtb_file (str): Filename of dtb file to process
+        include_disabled (bool): True to include disabled nodes
+        output (str): Name of output file (None for stdout)
+        output_dirs (tuple of str):
+            Directory to put C output files
+            Directory to put H output files
+        warning_disabled (bool): True to avoid showing warnings about missing
+            drivers
+        drivers_additional (list): List of additional drivers to use during
+            scanning
+        basedir (str): Base directory of U-Boot source code. Defaults to the
+            grandparent of this file's directory
+    Raises:
+        ValueError: if args has no command, or an unknown command
     """
     if not args:
-        raise ValueError('Please specify a command: struct, platdata')
+        raise ValueError('Please specify a command: struct, platdata, all')
+    if output and output_dirs and any(output_dirs):
+        raise ValueError('Must specify either output or output_dirs, not both')
 
-    plat = DtbPlatdata(dtb_file, include_disabled, warning_disabled, drivers_additional)
-    plat.scan_drivers()
+    scan = src_scan.Scanner(basedir, warning_disabled, drivers_additional)
+    plat = DtbPlatdata(scan, dtb_file, include_disabled)
+    scan.scan_drivers()
     plat.scan_dtb()
     plat.scan_tree()
     plat.scan_reg_sizes()
-    plat.setup_output(output)
-    structs = plat.scan_structs()
+    plat.setup_output_dirs(output_dirs)
+    plat.scan_structs()
     plat.scan_phandles()
 
-    for cmd in args[0].split(','):
-        if cmd == 'struct':
-            plat.generate_structs(structs)
-        elif cmd == 'platdata':
-            plat.generate_tables()
-        else:
-            raise ValueError("Unknown command '%s': (use: struct, platdata)" %
-                             cmd)
+    cmds = args[0].split(',')
+    if 'all' in cmds:
+        cmds = sorted(OUTPUT_FILES.keys())
+    for cmd in cmds:
+        outfile = OUTPUT_FILES.get(cmd)
+        if not outfile:
+            raise ValueError("Unknown command '%s': (use: %s)" %
+                             (cmd, ', '.join(sorted(OUTPUT_FILES.keys()))))
+        plat.setup_output(outfile.ftype,
+                          outfile.fname if output_dirs else output)
+        plat.out_header(outfile)
+        outfile.method(plat)
+    plat.finish_output()

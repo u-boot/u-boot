@@ -95,6 +95,15 @@ enum {
 };
 
 /**
+ * testbus_get_clear_removed() - Test function to obtain removed device
+ *
+ * This is used in testbus to find out which device was removed. Calling this
+ * function returns a pointer to the device and then clears it back to NULL, so
+ * that a future test can check it.
+ */
+struct udevice *testbus_get_clear_removed(void);
+
+/**
  * dm_test_main() - Run driver model tests
  *
  * Run all the available driver model tests, or a selection

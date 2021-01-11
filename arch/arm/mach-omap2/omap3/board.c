@@ -38,7 +38,7 @@ static void omap3_invalidate_l2_cache_secure(void);
 #if CONFIG_IS_ENABLED(DM_GPIO)
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 /* Manually initialize GPIO banks when OF_CONTROL doesn't */
-static const struct omap_gpio_platdata omap34xx_gpio[] = {
+static const struct omap_gpio_plat omap34xx_gpio[] = {
 	{ 0, OMAP34XX_GPIO1_BASE },
 	{ 1, OMAP34XX_GPIO2_BASE },
 	{ 2, OMAP34XX_GPIO3_BASE },
@@ -47,7 +47,7 @@ static const struct omap_gpio_platdata omap34xx_gpio[] = {
 	{ 5, OMAP34XX_GPIO6_BASE },
 };
 
-U_BOOT_DEVICES(omap34xx_gpios) = {
+U_BOOT_DRVINFOS(omap34xx_gpios) = {
 	{ "gpio_omap", &omap34xx_gpio[0] },
 	{ "gpio_omap", &omap34xx_gpio[1] },
 	{ "gpio_omap", &omap34xx_gpio[2] },

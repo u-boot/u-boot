@@ -31,7 +31,7 @@ struct pci_mmc_priv {
 static int pci_mmc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct pci_mmc_plat *plat = dev_get_platdata(dev);
+	struct pci_mmc_plat *plat = dev_get_plat(dev);
 	struct pci_mmc_priv *priv = dev_get_priv(dev);
 	struct sdhci_host *host = &priv->host;
 	int ret;
@@ -50,7 +50,7 @@ static int pci_mmc_probe(struct udevice *dev)
 	return sdhci_probe(dev);
 }
 
-static int pci_mmc_ofdata_to_platdata(struct udevice *dev)
+static int pci_mmc_of_to_plat(struct udevice *dev)
 {
 	struct pci_mmc_priv *priv = dev_get_priv(dev);
 
@@ -61,7 +61,7 @@ static int pci_mmc_ofdata_to_platdata(struct udevice *dev)
 
 static int pci_mmc_bind(struct udevice *dev)
 {
-	struct pci_mmc_plat *plat = dev_get_platdata(dev);
+	struct pci_mmc_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -75,7 +75,7 @@ static int pci_mmc_acpi_fill_ssdt(const struct udevice *dev,
 	struct acpi_dp *dp;
 	int ret;
 
-	if (!dev_of_valid(dev))
+	if (!dev_has_ofnode(dev))
 		return 0;
 
 	ret = gpio_get_acpi(&priv->cd_gpio, &gpio);
@@ -129,11 +129,11 @@ U_BOOT_DRIVER(pci_mmc) = {
 	.id	= UCLASS_MMC,
 	.of_match = pci_mmc_match,
 	.bind	= pci_mmc_bind,
-	.ofdata_to_platdata	= pci_mmc_ofdata_to_platdata,
+	.of_to_plat	= pci_mmc_of_to_plat,
 	.probe	= pci_mmc_probe,
 	.ops	= &sdhci_ops,
-	.priv_auto_alloc_size = sizeof(struct pci_mmc_priv),
-	.platdata_auto_alloc_size = sizeof(struct pci_mmc_plat),
+	.priv_auto	= sizeof(struct pci_mmc_priv),
+	.plat_auto	= sizeof(struct pci_mmc_plat),
 	ACPI_OPS_PTR(&pci_mmc_acpi_ops)
 };
 

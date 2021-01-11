@@ -191,13 +191,13 @@ static int ls_pcie_g4_addr_valid(struct ls_pcie_g4 *pcie, pci_dev_t bdf)
 	if (!pcie->enabled)
 		return -ENXIO;
 
-	if (PCI_BUS(bdf) < bus->seq)
+	if (PCI_BUS(bdf) < dev_seq(bus))
 		return -EINVAL;
 
-	if ((PCI_BUS(bdf) > bus->seq) && (!ls_pcie_g4_link_up(pcie)))
+	if ((PCI_BUS(bdf) > dev_seq(bus)) && (!ls_pcie_g4_link_up(pcie)))
 		return -EINVAL;
 
-	if (PCI_BUS(bdf) <= (bus->seq + 1) && (PCI_DEV(bdf) > 0))
+	if (PCI_BUS(bdf) <= (dev_seq(bus) + 1) && (PCI_DEV(bdf) > 0))
 		return -EINVAL;
 
 	return 0;
@@ -209,7 +209,7 @@ void *ls_pcie_g4_conf_address(struct ls_pcie_g4 *pcie, pci_dev_t bdf,
 	struct udevice *bus = pcie->bus;
 	u32 target;
 
-	if (PCI_BUS(bdf) == bus->seq) {
+	if (PCI_BUS(bdf) == dev_seq(bus)) {
 		if (offset < INDIRECT_ADDR_BNDRY) {
 			ccsr_set_page(pcie, 0);
 			return pcie->ccsr + offset;
@@ -219,7 +219,7 @@ void *ls_pcie_g4_conf_address(struct ls_pcie_g4 *pcie, pci_dev_t bdf,
 		return pcie->ccsr + OFFSET_TO_PAGE_ADDR(offset);
 	}
 
-	target = PAB_TARGET_BUS(PCI_BUS(bdf) - bus->seq) |
+	target = PAB_TARGET_BUS(PCI_BUS(bdf) - dev_seq(bus)) |
 		 PAB_TARGET_DEV(PCI_DEV(bdf)) |
 		 PAB_TARGET_FUNC(PCI_FUNC(bdf));
 
@@ -580,5 +580,5 @@ U_BOOT_DRIVER(pcie_layerscape_gen4) = {
 	.of_match = ls_pcie_g4_ids,
 	.ops = &ls_pcie_g4_ops,
 	.probe	= ls_pcie_g4_probe,
-	.priv_auto_alloc_size = sizeof(struct ls_pcie_g4),
+	.priv_auto	= sizeof(struct ls_pcie_g4),
 };

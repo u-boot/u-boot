@@ -210,7 +210,7 @@ static int serval_pinctrl_probe(struct udevice *dev)
 		return ret;
 
 	ret = device_bind(dev, &serval_gpio_driver, "serval-gpio", NULL,
-			  dev_of_offset(dev), NULL);
+			  dev_ofnode(dev), NULL);
 
 	if (ret)
 		return ret;
@@ -228,6 +228,6 @@ U_BOOT_DRIVER(serval_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(serval_pinctrl_of_match),
 	.probe = serval_pinctrl_probe,
-	.priv_auto_alloc_size = sizeof(struct mscc_pinctrl),
+	.priv_auto	= sizeof(struct mscc_pinctrl),
 	.ops = &mscc_pinctrl_ops,
 };

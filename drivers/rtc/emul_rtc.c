@@ -88,9 +88,9 @@ U_BOOT_DRIVER(rtc_emul) = {
 	.id	= UCLASS_RTC,
 	.ops	= &emul_rtc_ops,
 	.probe	= emul_rtc_probe,
-	.priv_auto_alloc_size = sizeof(struct emul_rtc),
+	.priv_auto	= sizeof(struct emul_rtc),
 };
 
-U_BOOT_DEVICE(rtc_emul) = {
+U_BOOT_DRVINFO(rtc_emul) = {
 	.name	= "rtc_emul",
 };

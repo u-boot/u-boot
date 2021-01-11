@@ -34,7 +34,7 @@ static int do_misc_list(struct cmd_tbl *cmdtp, int flag,
 	for (uclass_first_device(UCLASS_MISC, &dev);
 	     dev;
 	     uclass_next_device(&dev)) {
-		printf("%-20s %5d %10s\n", dev->name, dev->seq,
+		printf("%-20s %5d %10s\n", dev->name, dev_seq(dev),
 		       dev->driver->name);
 	}
 

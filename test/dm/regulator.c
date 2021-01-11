@@ -50,7 +50,7 @@ static const char *regulator_names[OUTPUT_COUNT][OUTPUT_NAME_COUNT] = {
 /* Test regulator get method */
 static int dm_test_power_regulator_get(struct unit_test_state *uts)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	struct udevice *dev_by_devname;
 	struct udevice *dev_by_platname;
 	const char *devname;
@@ -77,7 +77,7 @@ static int dm_test_power_regulator_get(struct unit_test_state *uts)
 		 * a device with the name equal to the requested one.
 		 */
 		ut_assertok(regulator_get_by_platname(platname, &dev_by_platname));
-		uc_pdata = dev_get_uclass_platdata(dev_by_platname);
+		uc_pdata = dev_get_uclass_plat(dev_by_platname);
 		ut_assert(uc_pdata);
 		ut_asserteq_str(platname, uc_pdata->name);
 
@@ -95,7 +95,7 @@ DM_TEST(dm_test_power_regulator_get, UT_TESTF_SCAN_FDT);
 /* Test regulator set and get Voltage method */
 static int dm_test_power_regulator_set_get_voltage(struct unit_test_state *uts)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	struct udevice *dev;
 	const char *platname;
 	int val_set, val_get;
@@ -104,7 +104,7 @@ static int dm_test_power_regulator_set_get_voltage(struct unit_test_state *uts)
 	platname = regulator_names[BUCK1][PLATNAME];
 	ut_assertok(regulator_get_by_platname(platname, &dev));
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	ut_assert(uc_pdata);
 
 	val_set = uc_pdata->min_uV;
@@ -122,7 +122,7 @@ DM_TEST(dm_test_power_regulator_set_get_voltage, UT_TESTF_SCAN_FDT);
 /* Test regulator set and get Current method */
 static int dm_test_power_regulator_set_get_current(struct unit_test_state *uts)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	struct udevice *dev;
 	const char *platname;
 	int val_set, val_get;
@@ -131,7 +131,7 @@ static int dm_test_power_regulator_set_get_current(struct unit_test_state *uts)
 	platname = regulator_names[LDO1][PLATNAME];
 	ut_assertok(regulator_get_by_platname(platname, &dev));
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	ut_assert(uc_pdata);
 
 	val_set = uc_pdata->min_uA;
@@ -146,7 +146,7 @@ static int dm_test_power_regulator_set_get_current(struct unit_test_state *uts)
 	platname = regulator_names[LDO2][PLATNAME];
 	ut_assertok(regulator_get_by_platname(platname, &dev));
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	ut_assert(uc_pdata);
 	ut_asserteq(-ENODATA, uc_pdata->min_uA);
 	ut_asserteq(-ENODATA, uc_pdata->max_uA);
@@ -220,7 +220,7 @@ DM_TEST(dm_test_power_regulator_set_get_mode, UT_TESTF_SCAN_FDT);
 /* Test regulator set and get suspend Voltage method */
 static int dm_test_power_regulator_set_get_suspend_voltage(struct unit_test_state *uts)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	const struct dm_regulator_ops *ops;
 	struct udevice *dev;
 	const char *platname;
@@ -230,7 +230,7 @@ static int dm_test_power_regulator_set_get_suspend_voltage(struct unit_test_stat
 	platname = regulator_names[BUCK1][PLATNAME];
 	ut_assertok(regulator_get_by_platname(platname, &dev));
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	ut_assert(uc_pdata);
 
 	ops = dev_get_driver_ops(dev);

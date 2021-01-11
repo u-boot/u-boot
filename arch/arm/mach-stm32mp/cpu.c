@@ -318,7 +318,7 @@ static u32 get_otp(int index, int shift, int mask)
 	u32 otp = 0;
 
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_GET_DRIVER(stm32mp_bsec),
+					  DM_DRIVER_GET(stm32mp_bsec),
 					  &dev);
 
 	if (!ret)
@@ -563,7 +563,7 @@ __weak int setup_mac_address(void)
 		return 0;
 
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_GET_DRIVER(stm32mp_bsec),
+					  DM_DRIVER_GET(stm32mp_bsec),
 					  &dev);
 	if (ret)
 		return ret;
@@ -601,7 +601,7 @@ static int setup_serial_number(void)
 		return 0;
 
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_GET_DRIVER(stm32mp_bsec),
+					  DM_DRIVER_GET(stm32mp_bsec),
 					  &dev);
 	if (ret)
 		return ret;

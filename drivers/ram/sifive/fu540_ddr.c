@@ -230,7 +230,7 @@ static u32 fu540_ddr_get_dram_class(volatile u32 *ctl)
 static int fu540_ddr_setup(struct udevice *dev)
 {
 	struct fu540_ddr_info *priv = dev_get_priv(dev);
-	struct sifive_dmc_plat *plat = dev_get_platdata(dev);
+	struct sifive_dmc_plat *plat = dev_get_plat(dev);
 	struct fu540_ddr_params *params = &plat->ddr_params;
 	volatile u32 *denali_ctl =  priv->ctl->denali_ctl;
 	volatile u32 *denali_phy =  priv->phy->denali_phy;
@@ -402,8 +402,8 @@ U_BOOT_DRIVER(fu540_ddr) = {
 	.of_match = fu540_ddr_ids,
 	.ops = &fu540_ddr_ops,
 	.probe = fu540_ddr_probe,
-	.priv_auto_alloc_size = sizeof(struct fu540_ddr_info),
+	.priv_auto	= sizeof(struct fu540_ddr_info),
 #if defined(CONFIG_SPL_BUILD)
-	.platdata_auto_alloc_size = sizeof(struct sifive_dmc_plat),
+	.plat_auto	= sizeof(struct sifive_dmc_plat),
 #endif
 };

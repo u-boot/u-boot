@@ -113,6 +113,15 @@ config SPL_FSL_PBL
 	  Create boot binary having SPL binary in PBI format concatenated with
 	  u-boot binary.
 
+config SPL_ALLOC_BD
+	bool "Allocate memory for bd_info"
+	default y if X86 || SANDBOX
+	help
+	  Some boards don't allocate space for this in their board_init_f()
+	  code. In this case U-Boot can allocate space for gd->bd in the
+	  standard SPL flow (board_init_r()). Enable this option to support
+	  this feature.
+
 endmenu
 
 config HANDOFF
@@ -1275,6 +1284,15 @@ config SPL_ATF
 	  ATF(ARM Trusted Firmware) is a component for ARM AArch64 which
 	  is loaded by SPL (which is considered as BL2 in ATF terminology).
 	  More detail at: https://github.com/ARM-software/arm-trusted-firmware
+
+config SPL_ATF_LOAD_IMAGE_V2
+	bool "Use the new LOAD_IMAGE_V2 parameter passing"
+	depends on SPL_ATF
+	help
+	  Some platforms use the newer LOAD_IMAGE_V2 parameter passing.
+
+	  If you want to load a bl31 image from the SPL and need the new
+	  method, say Y.
 
 config SPL_ATF_NO_PLATFORM_PARAM
         bool "Pass no platform parameter"

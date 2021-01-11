@@ -500,6 +500,17 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int offset,
 		slash = strrchr(prop, '/');
 		if (strcmp(slash + 1, find_name))
 			continue;
+
+		/*
+		 * Adding an extra check to distinguish DT nodes with
+		 * same name
+		 */
+		if (IS_ENABLED(CONFIG_PHANDLE_CHECK_SEQ)) {
+			if (fdt_get_phandle(blob, offset) !=
+			    fdt_get_phandle(blob, fdt_path_offset(blob, prop)))
+				continue;
+		}
+
 		val = trailing_strtol(name);
 		if (val != -1) {
 			*seqp = val;

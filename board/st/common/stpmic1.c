@@ -20,7 +20,7 @@ int board_ddr_power_init(enum ddr_type ddr_type)
 	u32 buck2;
 
 	ret = uclass_get_device_by_driver(UCLASS_PMIC,
-					  DM_GET_DRIVER(pmic_stpmic1), &dev);
+					  DM_DRIVER_GET(pmic_stpmic1), &dev);
 	if (ret)
 		/* No PMIC on board */
 		return 0;
@@ -187,7 +187,7 @@ void stpmic1_init(u32 voltage_mv)
 	struct udevice *dev;
 
 	if (uclass_get_device_by_driver(UCLASS_PMIC,
-					DM_GET_DRIVER(pmic_stpmic1), &dev))
+					DM_DRIVER_GET(pmic_stpmic1), &dev))
 		return;
 
 	/* update VDDCORE = BUCK1 */

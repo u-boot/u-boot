@@ -180,7 +180,7 @@ static inline struct omap_hsmmc_data *omap_hsmmc_get_data(struct mmc *mmc)
 static inline struct mmc_config *omap_hsmmc_get_cfg(struct mmc *mmc)
 {
 #if CONFIG_IS_ENABLED(DM_MMC)
-	struct omap_hsmmc_plat *plat = dev_get_platdata(mmc->dev);
+	struct omap_hsmmc_plat *plat = dev_get_plat(mmc->dev);
 	return &plat->cfg;
 #else
 	return &((struct omap_hsmmc_data *)mmc->priv)->cfg;
@@ -1898,9 +1898,9 @@ __weak const struct mmc_platform_fixups *platform_fixups_mmc(uint32_t addr)
 }
 #endif
 
-static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
+static int omap_hsmmc_of_to_plat(struct udevice *dev)
 {
-	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
+	struct omap_hsmmc_plat *plat = dev_get_plat(dev);
 	struct omap_mmc_of_data *of_data = (void *)dev_get_driver_data(dev);
 
 	struct mmc_config *cfg = &plat->cfg;
@@ -1949,14 +1949,14 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 
 static int omap_hsmmc_bind(struct udevice *dev)
 {
-	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
+	struct omap_hsmmc_plat *plat = dev_get_plat(dev);
 	plat->mmc = calloc(1, sizeof(struct mmc));
 	return mmc_bind(dev, plat->mmc, &plat->cfg);
 }
 #endif
 static int omap_hsmmc_probe(struct udevice *dev)
 {
-	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
+	struct omap_hsmmc_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct omap_hsmmc_data *priv = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
@@ -2028,15 +2028,15 @@ U_BOOT_DRIVER(omap_hsmmc) = {
 	.id	= UCLASS_MMC,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap_hsmmc_ids,
-	.ofdata_to_platdata = omap_hsmmc_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct omap_hsmmc_plat),
+	.of_to_plat = omap_hsmmc_of_to_plat,
+	.plat_auto	= sizeof(struct omap_hsmmc_plat),
 #endif
 #ifdef CONFIG_BLK
 	.bind = omap_hsmmc_bind,
 #endif
 	.ops = &omap_hsmmc_ops,
 	.probe	= omap_hsmmc_probe,
-	.priv_auto_alloc_size = sizeof(struct omap_hsmmc_data),
+	.priv_auto	= sizeof(struct omap_hsmmc_data),
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags	= DM_FLAG_PRE_RELOC,
 #endif

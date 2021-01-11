@@ -746,7 +746,7 @@ ulong sata_read(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
 static ulong sata_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		       void *buffer)
 {
-	struct fsl_ata_priv *priv = dev_get_platdata(dev);
+	struct fsl_ata_priv *priv = dev_get_plat(dev);
 	fsl_sata_t *sata = priv->fsl_sata;
 #endif
 	u32 rc;
@@ -768,7 +768,7 @@ ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, const void *buffer)
 static ulong sata_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			const void *buffer)
 {
-	struct fsl_ata_priv *priv = dev_get_platdata(dev);
+	struct fsl_ata_priv *priv = dev_get_plat(dev);
 	fsl_sata_t *sata = priv->fsl_sata;
 #endif
 	u32 rc;
@@ -808,8 +808,8 @@ int scan_sata(int dev)
 #else
 static int scan_sata(struct udevice *dev)
 {
-	struct blk_desc *desc = dev_get_uclass_platdata(dev);
-	struct fsl_ata_priv *priv = dev_get_platdata(dev);
+	struct blk_desc *desc = dev_get_uclass_plat(dev);
+	struct fsl_ata_priv *priv = dev_get_plat(dev);
 	fsl_sata_t *sata = priv->fsl_sata;
 #endif
 
@@ -900,10 +900,10 @@ U_BOOT_DRIVER(sata_fsl_driver) = {
 	.name = "sata_fsl_blk",
 	.id = UCLASS_BLK,
 	.ops = &sata_fsl_blk_ops,
-	.platdata_auto_alloc_size = sizeof(struct fsl_ata_priv),
+	.plat_auto	= sizeof(struct fsl_ata_priv),
 };
 
-static int fsl_ata_ofdata_to_platdata(struct udevice *dev)
+static int fsl_ata_of_to_plat(struct udevice *dev)
 {
 	struct fsl_ata_priv *priv = dev_get_priv(dev);
 
@@ -969,7 +969,7 @@ static int fsl_ata_probe(struct udevice *dev)
 			continue;
 		}
 
-		blk_priv = dev_get_platdata(blk);
+		blk_priv = dev_get_plat(blk);
 		blk_priv->fsl_sata = priv->fsl_sata;
 		/* Scan SATA port */
 		ret = scan_sata(blk);
@@ -1026,9 +1026,9 @@ U_BOOT_DRIVER(fsl_ahci) = {
 	.id = UCLASS_AHCI,
 	.of_match = fsl_ata_ids,
 	.ops = &sata_fsl_ahci_ops,
-	.ofdata_to_platdata = fsl_ata_ofdata_to_platdata,
+	.of_to_plat = fsl_ata_of_to_plat,
 	.probe	= fsl_ata_probe,
 	.remove = fsl_ata_remove,
-	.priv_auto_alloc_size = sizeof(struct fsl_ata_priv),
+	.priv_auto	= sizeof(struct fsl_ata_priv),
 };
 #endif

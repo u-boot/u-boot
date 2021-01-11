@@ -43,10 +43,10 @@ static int gic_v3_its_get_gic_addr(struct gic_v3_its_priv *priv)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_IRQ,
-					  DM_GET_DRIVER(arm_gic_v3_its), &dev);
+					  DM_DRIVER_GET(arm_gic_v3_its), &dev);
 	if (ret) {
 		pr_err("%s: failed to get %s irq device\n", __func__,
-		       DM_GET_DRIVER(arm_gic_v3_its)->name);
+		       DM_DRIVER_GET(arm_gic_v3_its)->name);
 		return ret;
 	}
 
@@ -74,17 +74,17 @@ static int gic_v3_its_get_gic_lpi_addr(struct gic_v3_its_priv *priv)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_SYSCON,
-					  DM_GET_DRIVER(gic_lpi_syscon), &dev);
+					  DM_DRIVER_GET(gic_lpi_syscon), &dev);
 	if (ret) {
 		pr_err("%s: failed to get %s syscon device\n", __func__,
-		       DM_GET_DRIVER(gic_lpi_syscon)->name);
+		       DM_DRIVER_GET(gic_lpi_syscon)->name);
 		return ret;
 	}
 
 	regmap = syscon_get_regmap(dev);
 	if (!regmap) {
 		pr_err("%s: failed to regmap for %s syscon device\n", __func__,
-		       DM_GET_DRIVER(gic_lpi_syscon)->name);
+		       DM_DRIVER_GET(gic_lpi_syscon)->name);
 		return -ENODEV;
 	}
 	priv->lpi_base = regmap->ranges[0].start;

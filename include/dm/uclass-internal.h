@@ -12,17 +12,34 @@
 #include <dm/ofnode.h>
 
 /**
- * uclass_find_next_free_req_seq() - Get the next free req_seq number
+ * uclass_set_priv() - Set the private data for a uclass
  *
- * This returns the next free req_seq number. This is useful only if
- * OF_CONTROL is not used. The next free req_seq number is simply the
- * maximum req_seq of the uclass + 1.
- * This allows assiging req_seq number in the binding order.
+ * This is normally handled by driver model, which automatically allocates
+ * private data when an 'auto' size if provided by the uclass driver.
  *
- * @id:		Id number of the uclass
- * @return	The next free req_seq number
+ * Use this function to override normal operation for special situations, such
+ * as needing to allocate a variable amount of data.
+ *
+ * @uc		Uclass to update
+ * @priv	New private-data pointer
  */
-int uclass_find_next_free_req_seq(enum uclass_id id);
+void uclass_set_priv(struct uclass *uc, void *priv);
+
+/**
+ * uclass_find_next_free_seq() - Get the next free sequence number
+ *
+ * This returns the next free sequence number. This is useful only if
+ * OF_CONTROL is not used. The next free sequence number is simply the
+ * maximum sequence number used by all devices in the uclass + 1. The value
+ * returned is always greater than the largest alias, if DM_SEQ_ALIAS is enabled
+ * and the uclass has the DM_UC_FLAG_SEQ_ALIAS flag.
+ *
+ * This allows assigning the sequence number in the binding order.
+ *
+ * @uc:		uclass to check
+ * @return	The next free sequence number
+ */
+int uclass_find_next_free_seq(struct uclass *uc);
 
 /**
  * uclass_get_device_tail() - handle the end of a get_device call
@@ -103,25 +120,17 @@ int uclass_find_device_by_name(enum uclass_id id, const char *name,
 /**
  * uclass_find_device_by_seq() - Find uclass device based on ID and sequence
  *
- * This searches for a device with the given seq or req_seq.
- *
- * For seq, if an active device has this sequence it will be returned.
- * If there is no such device then this will return -ENODEV.
- *
- * For req_seq, if a device (whether activated or not) has this req_seq
- * value, that device will be returned. This is a strong indication that
- * the device will receive that sequence when activated.
+ * This searches for a device with the given seq.
  *
  * The device is NOT probed, it is merely returned.
  *
  * @id: ID to look up
- * @seq_or_req_seq: Sequence number to find (0=first)
- * @find_req_seq: true to find req_seq, false to find seq
+ * @seq: Sequence number to find (0=first)
  * @devp: Returns pointer to device (there is only one per for each seq)
- * @return 0 if OK, -ve on error
+ * @return 0 if OK, -ENODEV if not found
  */
-int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
-			      bool find_req_seq, struct udevice **devp);
+int uclass_find_device_by_seq(enum uclass_id id, int seq,
+			      struct udevice **devp);
 
 /**
  * uclass_find_device_by_of_offset() - Find a uclass device by device tree node

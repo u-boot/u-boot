@@ -161,5 +161,5 @@ U_BOOT_DRIVER(gpio_pic32) = {
 	.of_match	= pic32_gpio_ids,
 	.ops		= &gpio_pic32_ops,
 	.probe		= pic32_gpio_probe,
-	.priv_auto_alloc_size	= sizeof(struct pic32_gpio_priv),
+	.priv_auto	= sizeof(struct pic32_gpio_priv),
 };

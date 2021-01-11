@@ -87,7 +87,7 @@ static int msm_sdc_clk_init(struct udevice *dev)
 static int msm_sdc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct msm_sdhc_plat *plat = dev_get_platdata(dev);
+	struct msm_sdhc_plat *plat = dev_get_plat(dev);
 	struct msm_sdhc *prv = dev_get_priv(dev);
 	struct sdhci_host *host = &prv->host;
 	u32 core_version, core_minor, core_major;
@@ -167,7 +167,7 @@ static int msm_sdc_remove(struct udevice *dev)
 	return 0;
 }
 
-static int msm_ofdata_to_platdata(struct udevice *dev)
+static int msm_of_to_plat(struct udevice *dev)
 {
 	struct udevice *parent = dev->parent;
 	struct msm_sdhc *priv = dev_get_priv(dev);
@@ -189,7 +189,7 @@ static int msm_ofdata_to_platdata(struct udevice *dev)
 
 static int msm_sdc_bind(struct udevice *dev)
 {
-	struct msm_sdhc_plat *plat = dev_get_platdata(dev);
+	struct msm_sdhc_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -203,11 +203,11 @@ U_BOOT_DRIVER(msm_sdc_drv) = {
 	.name		= "msm_sdc",
 	.id		= UCLASS_MMC,
 	.of_match	= msm_mmc_ids,
-	.ofdata_to_platdata = msm_ofdata_to_platdata,
+	.of_to_plat = msm_of_to_plat,
 	.ops		= &sdhci_ops,
 	.bind		= msm_sdc_bind,
 	.probe		= msm_sdc_probe,
 	.remove		= msm_sdc_remove,
-	.priv_auto_alloc_size = sizeof(struct msm_sdhc),
-	.platdata_auto_alloc_size = sizeof(struct msm_sdhc_plat),
+	.priv_auto	= sizeof(struct msm_sdhc),
+	.plat_auto	= sizeof(struct msm_sdhc_plat),
 };

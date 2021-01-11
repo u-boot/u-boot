@@ -289,7 +289,7 @@ static int bus_i2c_set_bus_speed(struct udevice *bus, int speed)
 			return clock_rate;
 		}
 	} else {
-		clock_rate = imx_get_i2cclk(bus->seq);
+		clock_rate = imx_get_i2cclk(dev_seq(bus));
 		if (!clock_rate)
 			return -EPERM;
 	}
@@ -377,7 +377,7 @@ static int bus_i2c_init(struct udevice *bus, int speed)
 	val = readl(&regs->mcr) & ~LPI2C_MCR_MEN_MASK;
 	writel(val | LPI2C_MCR_MEN(1), &regs->mcr);
 
-	debug("i2c : controller bus %d, speed %d:\n", bus->seq, speed);
+	debug("i2c : controller bus %d, speed %d:\n", dev_seq(bus), speed);
 
 	return ret;
 }
@@ -452,11 +452,11 @@ static int imx_lpi2c_probe(struct udevice *bus)
 		return -EINVAL;
 
 	i2c_bus->base = addr;
-	i2c_bus->index = bus->seq;
+	i2c_bus->index = dev_seq(bus);
 	i2c_bus->bus = bus;
 
 	/* power up i2c resource */
-	ret = init_i2c_power(bus->seq);
+	ret = init_i2c_power(dev_seq(bus));
 	if (ret) {
 		debug("init_i2c_power err = %d\n", ret);
 		return ret;
@@ -486,7 +486,7 @@ static int imx_lpi2c_probe(struct udevice *bus)
 		}
 	} else {
 		/* To i.MX7ULP, only i2c4-7 can be handled by A7 core */
-		ret = enable_i2c_clk(1, bus->seq);
+		ret = enable_i2c_clk(1, dev_seq(bus));
 		if (ret < 0)
 			return ret;
 	}
@@ -496,7 +496,7 @@ static int imx_lpi2c_probe(struct udevice *bus)
 		return ret;
 
 	debug("i2c : controller bus %d at 0x%lx , speed %d: ",
-	      bus->seq, i2c_bus->base,
+	      dev_seq(bus), i2c_bus->base,
 	      i2c_bus->speed);
 
 	return 0;
@@ -519,6 +519,6 @@ U_BOOT_DRIVER(imx_lpi2c) = {
 	.id = UCLASS_I2C,
 	.of_match = imx_lpi2c_ids,
 	.probe = imx_lpi2c_probe,
-	.priv_auto_alloc_size = sizeof(struct imx_lpi2c_bus),
+	.priv_auto	= sizeof(struct imx_lpi2c_bus),
 	.ops = &imx_lpi2c_ops,
 };

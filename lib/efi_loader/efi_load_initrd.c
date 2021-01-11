@@ -4,16 +4,11 @@
  */
 
 #include <common.h>
-#include <env.h>
-#include <malloc.h>
-#include <mapmem.h>
-#include <dm.h>
-#include <fs.h>
 #include <efi_loader.h>
 #include <efi_load_initrd.h>
-
-static const efi_guid_t efi_guid_load_file2_protocol =
-		EFI_LOAD_FILE2_PROTOCOL_GUID;
+#include <fs.h>
+#include <malloc.h>
+#include <mapmem.h>
 
 static efi_status_t EFIAPI
 efi_load_file2_initrd(struct efi_load_file_protocol *this,

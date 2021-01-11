@@ -80,11 +80,12 @@ u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
 	return tpm_sendrecv_command(dev, command_v2, NULL, NULL);
 }
 
-u32 tpm2_pcr_extend(struct udevice *dev, u32 index, const uint8_t *digest)
+u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
+		    const u8 *digest, u32 digest_len)
 {
 	u8 command_v2[COMMAND_BUFFER_SIZE] = {
 		tpm_u16(TPM2_ST_SESSIONS),	/* TAG */
-		tpm_u32(33 + TPM2_DIGEST_LEN),	/* Length */
+		tpm_u32(33 + digest_len),	/* Length */
 		tpm_u32(TPM2_CC_PCR_EXTEND),	/* Command code */
 
 		/* HANDLE */
@@ -99,7 +100,7 @@ u32 tpm2_pcr_extend(struct udevice *dev, u32 index, const uint8_t *digest)
 		tpm_u16(0),			/* Size of <hmac/password> */
 						/* <hmac/password> (if any) */
 		tpm_u32(1),			/* Count (number of hashes) */
-		tpm_u16(TPM2_ALG_SHA256),	/* Algorithm of the hash */
+		tpm_u16(algorithm),	/* Algorithm of the hash */
 		/* STRING(digest)		   Digest */
 	};
 	unsigned int offset = 33;
@@ -110,8 +111,8 @@ u32 tpm2_pcr_extend(struct udevice *dev, u32 index, const uint8_t *digest)
 	 *     - the digest
 	 */
 	ret = pack_byte_string(command_v2, sizeof(command_v2), "s",
-			       offset, digest, TPM2_DIGEST_LEN);
-	offset += TPM2_DIGEST_LEN;
+			       offset, digest, digest_len);
+	offset += digest_len;
 	if (ret)
 		return TPM_LIB_ERROR;
 

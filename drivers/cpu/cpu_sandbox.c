@@ -64,7 +64,7 @@ static const struct cpu_ops cpu_sandbox_ops = {
 static int cpu_sandbox_bind(struct udevice *dev)
 {
 	int ret;
-	struct cpu_platdata *plat = dev_get_parent_platdata(dev);
+	struct cpu_plat *plat = dev_get_parent_plat(dev);
 
 	/* first examine the property in current cpu node */
 	ret = dev_read_u32(dev, "timebase-frequency", &plat->timebase_freq);

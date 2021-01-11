@@ -247,5 +247,5 @@ U_BOOT_DRIVER(ftpm_tee) = {
 	.probe	= ftpm_tee_probe,
 	.remove	= ftpm_tee_remove,
 	.flags	= DM_FLAG_OS_PREPARE,
-	.priv_auto_alloc_size = sizeof(struct ftpm_tee_private),
+	.priv_auto	= sizeof(struct ftpm_tee_private),
 };

@@ -1925,13 +1925,6 @@ The following options need to be configured:
 		try longer timeout such as
 		#define CONFIG_NFS_TIMEOUT 10000UL
 
-- Command Interpreter:
-		CONFIG_SYS_PROMPT_HUSH_PS2
-
-		This defines the secondary prompt string, which is
-		printed when the command interpreter needs more input
-		to complete a command. Usually "> ".
-
 	Note:
 
 		In the current implementation, the local variables

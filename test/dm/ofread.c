@@ -33,7 +33,7 @@ static int dm_test_ofnode_get_property_by_prop(struct unit_test_state *uts)
 			ut_asserteq(4, len);
 			break;
 		case 3:
-			/* only for platdata */
+			/* only for plat */
 			ut_asserteq_str("name", propname);
 			ut_asserteq(6, len);
 			ut_asserteq_str("flash", value);

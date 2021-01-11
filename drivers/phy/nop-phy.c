@@ -56,5 +56,5 @@ U_BOOT_DRIVER(nop_phy) = {
 	.of_match = nop_phy_ids,
 	.ops = &nop_phy_ops,
 	.probe = nop_phy_probe,
-	.priv_auto_alloc_size = sizeof(struct nop_phy_priv),
+	.priv_auto	= sizeof(struct nop_phy_priv),
 };

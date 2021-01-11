@@ -23,14 +23,10 @@ gd_t *gd;
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 /* Add a simple GPIO device */
-U_BOOT_DEVICE(gpio_sandbox) = {
+U_BOOT_DRVINFO(gpio_sandbox) = {
 	.name = "sandbox_gpio",
 };
 #endif
-
-void flush_cache(unsigned long start, unsigned long size)
-{
-}
 
 #ifndef CONFIG_TIMER
 /* system timer offset in ms */

@@ -143,6 +143,6 @@ U_BOOT_DRIVER(clk_msm) = {
 	.id		= UCLASS_CLK,
 	.of_match	= msm_clk_ids,
 	.ops		= &msm_clk_ops,
-	.priv_auto_alloc_size = sizeof(struct msm_clk_priv),
+	.priv_auto	= sizeof(struct msm_clk_priv),
 	.probe		= msm_clk_probe,
 };

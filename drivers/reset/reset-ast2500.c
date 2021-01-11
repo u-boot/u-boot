@@ -72,7 +72,7 @@ static int ast2500_reset_probe(struct udevice *dev)
 
 	/* get SCU base from clock device */
 	rc = uclass_get_device_by_driver(UCLASS_CLK,
-					 DM_GET_DRIVER(aspeed_ast2500_scu), &scu_dev);
+					 DM_DRIVER_GET(aspeed_ast2500_scu), &scu_dev);
 	if (rc) {
 		debug("%s: clock device not found, rc=%d\n", __func__, rc);
 		return rc;
@@ -105,5 +105,5 @@ U_BOOT_DRIVER(ast2500_reset) = {
 	.of_match = ast2500_reset_ids,
 	.probe = ast2500_reset_probe,
 	.ops = &ast2500_reset_ops,
-	.priv_auto_alloc_size = sizeof(struct ast2500_reset_priv),
+	.priv_auto	= sizeof(struct ast2500_reset_priv),
 };

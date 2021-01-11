@@ -954,7 +954,7 @@ static struct clk_ops rk3288_clk_ops = {
 #endif
 };
 
-static int rk3288_clk_ofdata_to_platdata(struct udevice *dev)
+static int rk3288_clk_of_to_plat(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3288_clk_priv *priv = dev_get_priv(dev);
@@ -975,7 +975,7 @@ static int rk3288_clk_probe(struct udevice *dev)
 		return PTR_ERR(priv->grf);
 #ifdef CONFIG_SPL_BUILD
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct rk3288_clk_plat *plat = dev_get_platdata(dev);
+	struct rk3288_clk_plat *plat = dev_get_plat(dev);
 
 	priv->cru = map_sysmem(plat->dtd.reg[0], plat->dtd.reg[1]);
 #endif
@@ -1018,7 +1018,7 @@ static int rk3288_clk_bind(struct udevice *dev)
 						    cru_glb_srst_fst_value);
 		priv->glb_srst_snd_value = offsetof(struct rockchip_cru,
 						    cru_glb_srst_snd_value);
-		sys_child->priv = priv;
+		dev_set_priv(sys_child, priv);
 	}
 
 #if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
@@ -1040,10 +1040,10 @@ U_BOOT_DRIVER(rockchip_rk3288_cru) = {
 	.name		= "rockchip_rk3288_cru",
 	.id		= UCLASS_CLK,
 	.of_match	= rk3288_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct rk3288_clk_priv),
-	.platdata_auto_alloc_size = sizeof(struct rk3288_clk_plat),
+	.priv_auto	= sizeof(struct rk3288_clk_priv),
+	.plat_auto	= sizeof(struct rk3288_clk_plat),
 	.ops		= &rk3288_clk_ops,
 	.bind		= rk3288_clk_bind,
-	.ofdata_to_platdata	= rk3288_clk_ofdata_to_platdata,
+	.of_to_plat	= rk3288_clk_of_to_plat,
 	.probe		= rk3288_clk_probe,
 };

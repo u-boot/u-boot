@@ -621,7 +621,7 @@ static int get_fs_info(fsdata *mydata)
 		/*
 		 * The root directory is not cluster-aligned and may be on a
 		 * "negative" cluster, this will be handled specially in
-		 * next_cluster().
+		 * fat_next_cluster().
 		 */
 		mydata->root_cluster = 0;
 	}
@@ -647,44 +647,88 @@ static int get_fs_info(fsdata *mydata)
 	return 0;
 }
 
-
-/*
- * Directory iterator, to simplify filesystem traversal
+/**
+ * struct fat_itr - directory iterator, to simplify filesystem traversal
  *
  * Implements an iterator pattern to traverse directory tables,
  * transparently handling directory tables split across multiple
  * clusters, and the difference between FAT12/FAT16 root directory
  * (contiguous) and subdirectories + FAT32 root (chained).
  *
- * Rough usage:
+ * Rough usage
  *
- *   for (fat_itr_root(&itr, fsdata); fat_itr_next(&itr); ) {
- *      // to traverse down to a subdirectory pointed to by
- *      // current iterator position:
- *      fat_itr_child(&itr, &itr);
- *   }
+ * .. code-block:: c
  *
- * For more complete example, see fat_itr_resolve()
+ *     for (fat_itr_root(&itr, fsdata); fat_itr_next(&itr); ) {
+ *         // to traverse down to a subdirectory pointed to by
+ *         // current iterator position:
+ *         fat_itr_child(&itr, &itr);
+ *     }
+ *
+ * For a more complete example, see fat_itr_resolve().
  */
-
-typedef struct {
-	fsdata    *fsdata;        /* filesystem parameters */
-	unsigned   start_clust;   /* first cluster */
-	unsigned   clust;         /* current cluster */
-	unsigned   next_clust;    /* next cluster if remaining == 0 */
-	int        last_cluster;  /* set once we've read last cluster */
-	int        is_root;       /* is iterator at root directory */
-	int        remaining;     /* remaining dent's in current cluster */
-
-	/* current iterator position values: */
-	dir_entry *dent;          /* current directory entry */
-	char       l_name[VFAT_MAXLEN_BYTES];    /* long (vfat) name */
-	char       s_name[14];    /* short 8.3 name */
-	char      *name;          /* l_name if there is one, else s_name */
-
-	/* storage for current cluster in memory: */
-	u8         block[MAX_CLUSTSIZE] __aligned(ARCH_DMA_MINALIGN);
-} fat_itr;
+struct fat_itr {
+	/**
+	 * @fsdata:		filesystem parameters
+	 */
+	fsdata *fsdata;
+	/**
+	 * @start_clust:	first cluster
+	 */
+	unsigned int start_clust;
+	/**
+	 * @clust:		current cluster
+	 */
+	unsigned int clust;
+	/**
+	 * @next_clust:		next cluster if remaining == 0
+	 */
+	unsigned int next_clust;
+	/**
+	 * @last_cluster:	set if last cluster of directory reached
+	 */
+	int last_cluster;
+	/**
+	 * @is_root:		is iterator at root directory
+	 */
+	int is_root;
+	/**
+	 * @remaining:		remaining directory entries in current cluster
+	 */
+	int remaining;
+	/**
+	 * @dent:		current directory entry
+	 */
+	dir_entry *dent;
+	/**
+	 * @dent_rem:		remaining entries after long name start
+	 */
+	int dent_rem;
+	/**
+	 * @dent_clust:		cluster of long name start
+	 */
+	unsigned int dent_clust;
+	/**
+	 * @dent_start:		first directory entry for long name
+	 */
+	dir_entry *dent_start;
+	/**
+	 * @l_name:		long name of current directory entry
+	 */
+	char l_name[VFAT_MAXLEN_BYTES];
+	/**
+	 * @s_name:		short 8.3 name of current directory entry
+	 */
+	char s_name[14];
+	/**
+	 * @name:		l_name if there is one, else s_name
+	 */
+	char *name;
+	/**
+	 * @block:		buffer for current cluster
+	 */
+	u8 block[MAX_CLUSTSIZE] __aligned(ARCH_DMA_MINALIGN);
+};
 
 static int fat_itr_isdir(fat_itr *itr);
 
@@ -702,7 +746,7 @@ static int fat_itr_root(fat_itr *itr, fsdata *fsdata)
 		return -ENXIO;
 
 	itr->fsdata = fsdata;
-	itr->start_clust = 0;
+	itr->start_clust = fsdata->root_cluster;
 	itr->clust = fsdata->root_cluster;
 	itr->next_clust = fsdata->root_cluster;
 	itr->dent = NULL;
@@ -746,6 +790,7 @@ static void fat_itr_child(fat_itr *itr, fat_itr *parent)
 	} else {
 		itr->clust = parent->fsdata->root_cluster;
 		itr->next_clust = parent->fsdata->root_cluster;
+		itr->start_clust = parent->fsdata->root_cluster;
 		itr->is_root = 1;
 	}
 	itr->dent = NULL;
@@ -753,9 +798,18 @@ static void fat_itr_child(fat_itr *itr, fat_itr *parent)
 	itr->last_cluster = 0;
 }
 
-static void *next_cluster(fat_itr *itr, unsigned *nbytes)
+/**
+ * fat_next_cluster() - load next FAT cluster
+ *
+ * The function is used when iterating through directories. It loads the
+ * next cluster with directory entries
+ *
+ * @itr:	directory iterator
+ * @nbytes:	number of bytes read, 0 on error
+ * Return:	first directory entry, NULL on error
+ */
+void *fat_next_cluster(fat_itr *itr, unsigned int *nbytes)
 {
-	fsdata *mydata = itr->fsdata;  /* for silly macros */
 	int ret;
 	u32 sect;
 	u32 read_size;
@@ -783,8 +837,8 @@ static void *next_cluster(fat_itr *itr, unsigned *nbytes)
 		read_size = itr->fsdata->clust_size;
 	}
 
-	debug("FAT read(sect=%d), clust_size=%d, read_size=%u, DIRENTSPERBLOCK=%zd\n",
-	      sect, itr->fsdata->clust_size, read_size, DIRENTSPERBLOCK);
+	log_debug("FAT read(sect=%d), clust_size=%d, read_size=%u\n",
+		  sect, itr->fsdata->clust_size, read_size);
 
 	/*
 	 * NOTE: do_fat_read_at() had complicated logic to deal w/
@@ -825,7 +879,7 @@ static dir_entry *next_dent(fat_itr *itr)
 {
 	if (itr->remaining == 0) {
 		unsigned nbytes;
-		struct dir_entry *dent = next_cluster(itr, &nbytes);
+		struct dir_entry *dent = fat_next_cluster(itr, &nbytes);
 
 		/* have we reached the last cluster? */
 		if (!dent) {
@@ -923,9 +977,13 @@ static int fat_itr_next(fat_itr *itr)
 
 	while (1) {
 		dent = next_dent(itr);
-		if (!dent)
+		if (!dent) {
+			itr->dent_start = NULL;
 			return 0;
-
+		}
+		itr->dent_rem = itr->remaining;
+		itr->dent_start = itr->dent;
+		itr->dent_clust = itr->clust;
 		if (dent->name[0] == DELETED_FLAG)
 			continue;
 
@@ -1025,6 +1083,7 @@ static int fat_itr_resolve(fat_itr *itr, const char *path, unsigned type)
 			/* point back to itself */
 			itr->clust = itr->fsdata->root_cluster;
 			itr->next_clust = itr->fsdata->root_cluster;
+			itr->start_clust = itr->fsdata->root_cluster;
 			itr->dent = NULL;
 			itr->remaining = 0;
 			itr->last_cluster = 0;
@@ -1317,4 +1376,22 @@ void fat_closedir(struct fs_dir_stream *dirs)
 
 void fat_close(void)
 {
+}
+
+int fat_uuid(char *uuid_str)
+{
+	boot_sector bs;
+	volume_info volinfo;
+	int fatsize;
+	int ret;
+	u8 *id;
+
+	ret = read_bootsectandvi(&bs, &volinfo, &fatsize);
+	if (ret)
+		return ret;
+
+	id = volinfo.volume_id;
+	sprintf(uuid_str, "%02X%02X-%02X%02X", id[3], id[2], id[1], id[0]);
+
+	return 0;
 }

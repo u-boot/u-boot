@@ -153,6 +153,6 @@ U_BOOT_DRIVER(mt7628_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = mt7628_clk_ids,
 	.probe = mt7628_clk_probe,
-	.priv_auto_alloc_size = sizeof(struct mt7628_clk_priv),
+	.priv_auto	= sizeof(struct mt7628_clk_priv),
 	.ops = &mt7628_clk_ops,
 };

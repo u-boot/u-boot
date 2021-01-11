@@ -223,12 +223,12 @@ static int cdns_wdt_stop(struct udevice *dev)
  */
 static int cdns_wdt_probe(struct udevice *dev)
 {
-	debug("%s: Probing wdt%u\n", __func__, dev->seq);
+	debug("%s: Probing wdt%u\n", __func__, dev_seq(dev));
 
 	return 0;
 }
 
-static int cdns_wdt_ofdata_to_platdata(struct udevice *dev)
+static int cdns_wdt_of_to_plat(struct udevice *dev)
 {
 	struct cdns_wdt_priv *priv = dev_get_priv(dev);
 
@@ -260,7 +260,7 @@ U_BOOT_DRIVER(cdns_wdt) = {
 	.id = UCLASS_WDT,
 	.of_match = cdns_wdt_ids,
 	.probe = cdns_wdt_probe,
-	.priv_auto_alloc_size = sizeof(struct cdns_wdt_priv),
-	.ofdata_to_platdata = cdns_wdt_ofdata_to_platdata,
+	.priv_auto	= sizeof(struct cdns_wdt_priv),
+	.of_to_plat = cdns_wdt_of_to_plat,
 	.ops = &cdns_wdt_ops,
 };

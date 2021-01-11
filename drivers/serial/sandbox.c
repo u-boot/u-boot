@@ -12,38 +12,15 @@
 #include <common.h>
 #include <console.h>
 #include <dm.h>
-#include <fdtdec.h>
 #include <lcd.h>
 #include <os.h>
 #include <serial.h>
 #include <video.h>
 #include <linux/compiler.h>
+#include <asm/serial.h>
 #include <asm/state.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-
-/*
- *
- *   serial_buf: A buffer that holds keyboard characters for the
- *		 Sandbox U-Boot.
- *
- * invariants:
- *   serial_buf_write		 == serial_buf_read -> empty buffer
- *   (serial_buf_write + 1) % 16 == serial_buf_read -> full buffer
- */
-static unsigned char serial_buf[16];
-static unsigned int serial_buf_write;
-static unsigned int serial_buf_read;
-
-struct sandbox_serial_platdata {
-	int colour;	/* Text colour to use for output, -1 for none */
-};
-
-struct sandbox_serial_priv {
-	bool start_of_line;
-};
 
 /**
  * output_ansi_colour() - Output an ANSI colour code
@@ -74,13 +51,14 @@ static int sandbox_serial_probe(struct udevice *dev)
 
 	if (state->term_raw != STATE_TERM_RAW)
 		disable_ctrlc(1);
+	membuff_init(&priv->buf, priv->serial_buf, sizeof(priv->serial_buf));
 
 	return 0;
 }
 
 static int sandbox_serial_remove(struct udevice *dev)
 {
-	struct sandbox_serial_platdata *plat = dev->platdata;
+	struct sandbox_serial_plat *plat = dev_get_plat(dev);
 
 	if (plat->colour != -1)
 		output_ansi_reset();
@@ -91,7 +69,7 @@ static int sandbox_serial_remove(struct udevice *dev)
 static int sandbox_serial_putc(struct udevice *dev, const char ch)
 {
 	struct sandbox_serial_priv *priv = dev_get_priv(dev);
-	struct sandbox_serial_platdata *plat = dev->platdata;
+	struct sandbox_serial_plat *plat = dev_get_plat(dev);
 
 	/* With of-platdata we don't real the colour correctly, so disable it */
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA) && priv->start_of_line &&
@@ -107,46 +85,39 @@ static int sandbox_serial_putc(struct udevice *dev, const char ch)
 	return 0;
 }
 
-static unsigned int increment_buffer_index(unsigned int index)
-{
-	return (index + 1) % ARRAY_SIZE(serial_buf);
-}
-
 static int sandbox_serial_pending(struct udevice *dev, bool input)
 {
-	const unsigned int next_index =
-		increment_buffer_index(serial_buf_write);
+	struct sandbox_serial_priv *priv = dev_get_priv(dev);
 	ssize_t count;
+	char *data;
+	int avail;
 
 	if (!input)
 		return 0;
 
 	os_usleep(100);
-#ifndef CONFIG_SPL_BUILD
-	video_sync_all();
-#endif
-	if (next_index == serial_buf_read)
+	if (!IS_ENABLED(CONFIG_SPL_BUILD))
+		video_sync_all();
+	avail = membuff_putraw(&priv->buf, 100, false, &data);
+	if (!avail)
 		return 1;	/* buffer full */
 
-	count = os_read(0, &serial_buf[serial_buf_write], 1);
-	if (count == 1)
-		serial_buf_write = next_index;
+	count = os_read(0, data, avail);
+	if (count > 0)
+		membuff_putraw(&priv->buf, count, true, &data);
 
-	return serial_buf_write != serial_buf_read;
+	return membuff_avail(&priv->buf);
 }
 
 static int sandbox_serial_getc(struct udevice *dev)
 {
-	int result;
+	struct sandbox_serial_priv *priv = dev_get_priv(dev);
 
 	if (!sandbox_serial_pending(dev, true))
 		return -EAGAIN;	/* buffer empty */
 
-	result = serial_buf[serial_buf_read];
-	serial_buf_read = increment_buffer_index(serial_buf_read);
-	return result;
+	return membuff_getbyte(&priv->buf);
 }
-#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
 
 #ifdef CONFIG_DEBUG_UART_SANDBOX
 
@@ -211,23 +182,21 @@ static int sandbox_serial_getinfo(struct udevice *dev,
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
 static const char * const ansi_colour[] = {
 	"black", "red", "green", "yellow", "blue", "megenta", "cyan",
 	"white",
 };
 
-static int sandbox_serial_ofdata_to_platdata(struct udevice *dev)
+static int sandbox_serial_of_to_plat(struct udevice *dev)
 {
-	struct sandbox_serial_platdata *plat = dev->platdata;
+	struct sandbox_serial_plat *plat = dev_get_plat(dev);
 	const char *colour;
 	int i;
 
 	if (CONFIG_IS_ENABLED(OF_PLATDATA))
 		return 0;
 	plat->colour = -1;
-	colour = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
-			     "sandbox,text-colour", NULL);
+	colour = dev_read_string(dev, "sandbox,text-colour");
 	if (colour) {
 		for (i = 0; i < ARRAY_SIZE(ansi_colour); i++) {
 			if (!strcmp(colour, ansi_colour[i])) {
@@ -258,9 +227,9 @@ U_BOOT_DRIVER(sandbox_serial) = {
 	.name	= "sandbox_serial",
 	.id	= UCLASS_SERIAL,
 	.of_match = sandbox_serial_ids,
-	.ofdata_to_platdata = sandbox_serial_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct sandbox_serial_platdata),
-	.priv_auto_alloc_size = sizeof(struct sandbox_serial_priv),
+	.of_to_plat = sandbox_serial_of_to_plat,
+	.plat_auto	= sizeof(struct sandbox_serial_plat),
+	.priv_auto	= sizeof(struct sandbox_serial_priv),
 	.probe = sandbox_serial_probe,
 	.remove = sandbox_serial_remove,
 	.ops	= &sandbox_serial_ops,
@@ -268,14 +237,12 @@ U_BOOT_DRIVER(sandbox_serial) = {
 };
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-static const struct sandbox_serial_platdata platdata_non_fdt = {
+static const struct sandbox_serial_plat platdata_non_fdt = {
 	.colour = -1,
 };
 
-U_BOOT_DEVICE(serial_sandbox_non_fdt) = {
+U_BOOT_DRVINFO(serial_sandbox_non_fdt) = {
 	.name = "sandbox_serial",
-	.platdata = &platdata_non_fdt,
+	.plat = &platdata_non_fdt,
 };
 #endif
-
-#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */

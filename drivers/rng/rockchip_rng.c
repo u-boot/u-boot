@@ -49,7 +49,7 @@ struct rk_rng_soc_data {
 	int (*rk_rng_read)(struct udevice *dev, void *data, size_t len);
 };
 
-struct rk_rng_platdata {
+struct rk_rng_plat {
 	fdt_addr_t base;
 	struct rk_rng_soc_data *soc_data;
 };
@@ -77,7 +77,7 @@ static int rk_rng_read_regs(fdt_addr_t addr, void *buf, size_t size)
 
 static int rk_v1_rng_read(struct udevice *dev, void *data, size_t len)
 {
-	struct rk_rng_platdata *pdata = dev_get_priv(dev);
+	struct rk_rng_plat *pdata = dev_get_priv(dev);
 	u32 reg = 0;
 	int retval;
 
@@ -108,7 +108,7 @@ exit:
 
 static int rk_v2_rng_read(struct udevice *dev, void *data, size_t len)
 {
-	struct rk_rng_platdata *pdata = dev_get_priv(dev);
+	struct rk_rng_plat *pdata = dev_get_priv(dev);
 	u32 reg = 0;
 	int retval;
 
@@ -146,7 +146,7 @@ static int rockchip_rng_read(struct udevice *dev, void *data, size_t len)
 	unsigned int i;
 	int ret = -EIO;
 
-	struct rk_rng_platdata *pdata = dev_get_priv(dev);
+	struct rk_rng_plat *pdata = dev_get_priv(dev);
 
 	if (!len)
 		return 0;
@@ -168,9 +168,9 @@ exit:
 	return ret;
 }
 
-static int rockchip_rng_ofdata_to_platdata(struct udevice *dev)
+static int rockchip_rng_of_to_plat(struct udevice *dev)
 {
-	struct rk_rng_platdata *pdata = dev_get_priv(dev);
+	struct rk_rng_plat *pdata = dev_get_priv(dev);
 
 	memset(pdata, 0x00, sizeof(*pdata));
 
@@ -183,7 +183,7 @@ static int rockchip_rng_ofdata_to_platdata(struct udevice *dev)
 
 static int rockchip_rng_probe(struct udevice *dev)
 {
-	struct rk_rng_platdata *pdata = dev_get_priv(dev);
+	struct rk_rng_plat *pdata = dev_get_priv(dev);
 
 	pdata->soc_data = (struct rk_rng_soc_data *)dev_get_driver_data(dev);
 
@@ -220,6 +220,6 @@ U_BOOT_DRIVER(rockchip_rng) = {
 	.of_match = rockchip_rng_match,
 	.ops = &rockchip_rng_ops,
 	.probe = rockchip_rng_probe,
-	.ofdata_to_platdata = rockchip_rng_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct rk_rng_platdata),
+	.of_to_plat = rockchip_rng_of_to_plat,
+	.priv_auto	= sizeof(struct rk_rng_plat),
 };

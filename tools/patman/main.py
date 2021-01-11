@@ -81,6 +81,8 @@ send.add_argument('--no-check', action='store_false', dest='check_patch',
                   help="Don't check for patch compliance")
 send.add_argument('--no-tags', action='store_false', dest='process_tags',
                   default=True, help="Don't process subject tags as aliases")
+send.add_argument('--no-signoff', action='store_false', dest='add_signoff',
+                  default=True, help="Don't add Signed-off-by to patches")
 send.add_argument('--smtp-server', type=str,
                   help="Specify the SMTP server to 'git send-email'")
 

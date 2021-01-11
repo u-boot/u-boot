@@ -107,7 +107,7 @@ U_BOOT_DRIVER(nomadik_mtu) = {
 	.name = "nomadik_mtu",
 	.id = UCLASS_TIMER,
 	.of_match = nomadik_mtu_ids,
-	.priv_auto_alloc_size = sizeof(struct nomadik_mtu_priv),
+	.priv_auto	= sizeof(struct nomadik_mtu_priv),
 	.probe = nomadik_mtu_probe,
 	.ops = &nomadik_mtu_ops,
 };

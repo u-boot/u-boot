@@ -14,11 +14,13 @@ static void show_devices(struct udevice *dev, int depth, int last_flag)
 {
 	int i, is_last;
 	struct udevice *child;
+	u32 flags = dev_get_flags(dev);
 
 	/* print the first 20 characters to not break the tree-format. */
-	printf(" %-10.10s  %3d  [ %c ]   %-20.20s  ", dev->uclass->uc_drv->name,
+	printf(IS_ENABLED(CONFIG_SPL_BUILD) ? " %s  %d  [ %c ]   %s  " :
+	       " %-10.10s  %3d  [ %c ]   %-20.20s  ", dev->uclass->uc_drv->name,
 	       dev_get_uclass_index(dev, NULL),
-	       dev->flags & DM_FLAG_ACTIVATED ? '+' : ' ', dev->driver->name);
+	       flags & DM_FLAG_ACTIVATED ? '+' : ' ', dev->driver->name);
 
 	for (i = depth; i >= 0; i--) {
 		is_last = (last_flag >> i) & 1;
@@ -65,10 +67,10 @@ void dm_dump_all(void)
 static void dm_display_line(struct udevice *dev, int index)
 {
 	printf("%-3i %c %s @ %08lx", index,
-	       dev->flags & DM_FLAG_ACTIVATED ? '*' : ' ',
+	       dev_get_flags(dev) & DM_FLAG_ACTIVATED ? '*' : ' ',
 	       dev->name, (ulong)map_to_sysmem(dev));
-	if (dev->seq != -1 || dev->req_seq != -1)
-		printf(", seq %d, (req %d)", dev->seq, dev->req_seq);
+	if (dev->seq_ != -1)
+		printf(", seq %d", dev_seq(dev));
 	puts("\n");
 }
 
@@ -170,6 +172,6 @@ void dm_dump_static_driver_info(void)
 	puts("---------------------------------\n");
 	for (entry = drv; entry != drv + n_ents; entry++) {
 		printf("%-25.25s @%08lx\n", entry->name,
-		       (ulong)map_to_sysmem(entry->platdata));
+		       (ulong)map_to_sysmem(entry->plat));
 	}
 }

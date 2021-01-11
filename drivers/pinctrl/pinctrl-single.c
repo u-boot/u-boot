@@ -47,7 +47,7 @@ static int single_configure_pins(struct udevice *dev,
 				 const struct single_fdt_pin_cfg *pins,
 				 int size)
 {
-	struct single_pdata *pdata = dev->platdata;
+	struct single_pdata *pdata = dev_get_plat(dev);
 	int count = size / sizeof(struct single_fdt_pin_cfg);
 	phys_addr_t n, reg;
 	u32 val;
@@ -81,7 +81,7 @@ static int single_configure_bits(struct udevice *dev,
 				 const struct single_fdt_bits_cfg *pins,
 				 int size)
 {
-	struct single_pdata *pdata = dev->platdata;
+	struct single_pdata *pdata = dev_get_plat(dev);
 	int count = size / sizeof(struct single_fdt_bits_cfg);
 	phys_addr_t n, reg;
 	u32 val, mask;
@@ -148,12 +148,12 @@ static int single_set_state(struct udevice *dev,
 	return len;
 }
 
-static int single_ofdata_to_platdata(struct udevice *dev)
+static int single_of_to_plat(struct udevice *dev)
 {
 	fdt_addr_t addr;
 	u32 of_reg[2];
 	int res;
-	struct single_pdata *pdata = dev->platdata;
+	struct single_pdata *pdata = dev_get_plat(dev);
 
 	pdata->width =
 		dev_read_u32_default(dev, "pinctrl-single,register-width", 0);
@@ -191,6 +191,6 @@ U_BOOT_DRIVER(single_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = single_pinctrl_match,
 	.ops = &single_pinctrl_ops,
-	.platdata_auto_alloc_size = sizeof(struct single_pdata),
-	.ofdata_to_platdata = single_ofdata_to_platdata,
+	.plat_auto	= sizeof(struct single_pdata),
+	.of_to_plat = single_of_to_plat,
 };

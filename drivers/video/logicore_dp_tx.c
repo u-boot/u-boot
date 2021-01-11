@@ -2292,6 +2292,6 @@ U_BOOT_DRIVER(logicore_dp_tx) = {
 	.id			= UCLASS_DISPLAY,
 	.of_match		= logicore_dp_tx_ids,
 	.probe			= logicore_dp_tx_probe,
-	.priv_auto_alloc_size	= sizeof(struct dp_tx),
+	.priv_auto	= sizeof(struct dp_tx),
 	.ops			= &logicore_dp_tx_ops,
 };

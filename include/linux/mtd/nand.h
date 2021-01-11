@@ -389,6 +389,7 @@ static inline int nanddev_unregister(struct nand_device *nand)
 	return mtd_device_unregister(nand->mtd);
 }
 
+#ifndef __UBOOT__
 /**
  * nanddev_set_of_node() - Attach a DT node to a NAND device
  * @nand: NAND device
@@ -412,6 +413,19 @@ static inline const struct device_node *nanddev_get_of_node(struct nand_device *
 {
 	return mtd_get_of_node(nand->mtd);
 }
+#else
+/**
+ * nanddev_set_of_node() - Attach a DT node to a NAND device
+ * @nand: NAND device
+ * @node: ofnode
+ *
+ * Attach a DT node to a NAND device.
+ */
+static inline void nanddev_set_ofnode(struct nand_device *nand, ofnode node)
+{
+	mtd_set_ofnode(nand->mtd, node);
+}
+#endif /* __UBOOT__ */
 
 /**
  * nanddev_offs_to_pos() - Convert an absolute NAND offset into a NAND position

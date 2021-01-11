@@ -220,6 +220,6 @@ U_BOOT_DRIVER(ti_sci_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = ti_sci_clk_of_match,
 	.probe = ti_sci_clk_probe,
-	.priv_auto_alloc_size = sizeof(struct ti_sci_clk_data),
+	.priv_auto	= sizeof(struct ti_sci_clk_data),
 	.ops = &ti_sci_clk_ops,
 };

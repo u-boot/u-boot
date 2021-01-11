@@ -93,7 +93,7 @@ static const struct i2c_eeprom_ops i2c_eeprom_std_ops = {
 	.size	= i2c_eeprom_std_size,
 };
 
-static int i2c_eeprom_std_ofdata_to_platdata(struct udevice *dev)
+static int i2c_eeprom_std_of_to_plat(struct udevice *dev)
 {
 	struct i2c_eeprom *priv = dev_get_priv(dev);
 	struct i2c_eeprom_drv_data *data =
@@ -131,8 +131,8 @@ static int i2c_eeprom_std_bind(struct udevice *dev)
 		if (!name)
 			continue;
 
-		device_bind_ofnode(dev, DM_GET_DRIVER(i2c_eeprom_partition),
-				   name, NULL, partition, NULL);
+		device_bind(dev, DM_DRIVER_GET(i2c_eeprom_partition), name,
+			    NULL, partition, NULL);
 	}
 
 	return 0;
@@ -283,8 +283,8 @@ U_BOOT_DRIVER(i2c_eeprom_std) = {
 	.of_match		= i2c_eeprom_std_ids,
 	.bind			= i2c_eeprom_std_bind,
 	.probe			= i2c_eeprom_std_probe,
-	.ofdata_to_platdata	= i2c_eeprom_std_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct i2c_eeprom),
+	.of_to_plat	= i2c_eeprom_std_of_to_plat,
+	.priv_auto	= sizeof(struct i2c_eeprom),
 	.ops			= &i2c_eeprom_std_ops,
 };
 
@@ -298,7 +298,7 @@ static int i2c_eeprom_partition_probe(struct udevice *dev)
 	return 0;
 }
 
-static int i2c_eeprom_partition_ofdata_to_platdata(struct udevice *dev)
+static int i2c_eeprom_partition_of_to_plat(struct udevice *dev)
 {
 	struct i2c_eeprom_partition *priv = dev_get_priv(dev);
 	u32 reg[2];
@@ -365,8 +365,8 @@ U_BOOT_DRIVER(i2c_eeprom_partition) = {
 	.name			= "i2c_eeprom_partition",
 	.id			= UCLASS_I2C_EEPROM,
 	.probe			= i2c_eeprom_partition_probe,
-	.ofdata_to_platdata	= i2c_eeprom_partition_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct i2c_eeprom_partition),
+	.of_to_plat	= i2c_eeprom_partition_of_to_plat,
+	.priv_auto	= sizeof(struct i2c_eeprom_partition),
 	.ops			= &i2c_eeprom_partition_ops,
 };
 

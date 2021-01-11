@@ -5,4 +5,8 @@ obj-y += sl28.o cmds.o
 endif
 
 obj-y += common.o ddr.o
-obj-$(CONFIG_SPL_BUILD) += spl.o
+
+ifdef CONFIG_SPL_BUILD
+obj-y += spl.o
+obj-$(CONFIG_SPL_ATF) += spl_atf.o
+endif

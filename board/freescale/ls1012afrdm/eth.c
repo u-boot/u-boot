@@ -114,12 +114,12 @@ static struct pfe_eth_pdata pfe_pdata1 = {
 	},
 };
 
-U_BOOT_DEVICE(ls1012a_pfe0) = {
+U_BOOT_DRVINFO(ls1012a_pfe0) = {
 	.name = "pfe_eth",
-	.platdata = &pfe_pdata0,
+	.plat = &pfe_pdata0,
 };
 
-U_BOOT_DEVICE(ls1012a_pfe1) = {
+U_BOOT_DRVINFO(ls1012a_pfe1) = {
 	.name = "pfe_eth",
-	.platdata = &pfe_pdata1,
+	.plat = &pfe_pdata1,
 };

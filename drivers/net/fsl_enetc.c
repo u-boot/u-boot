@@ -54,7 +54,7 @@ static int ierb_fn_to_pf[] = {0, 1, 2, -1, -1, -1, 3};
 /* sets up primary MAC addresses in DT/IERB */
 void fdt_fixup_enetc_mac(void *blob)
 {
-	struct pci_child_platdata *ppdata;
+	struct pci_child_plat *ppdata;
 	struct eth_pdata *pdata;
 	struct udevice *dev;
 	struct uclass *uc;
@@ -68,8 +68,8 @@ void fdt_fixup_enetc_mac(void *blob)
 		    strcmp(dev->driver->name, ENETC_DRIVER_NAME))
 			continue;
 
-		pdata = dev_get_platdata(dev);
-		ppdata = dev_get_parent_platdata(dev);
+		pdata = dev_get_plat(dev);
+		ppdata = dev_get_parent_plat(dev);
 		devfn = PCI_FUNC(ppdata->devfn);
 
 		enetc_set_ierb_primary_mac(dev, devfn, pdata->enetaddr);
@@ -99,7 +99,7 @@ static int enetc_bind(struct udevice *dev)
 	 * and some are not, use different naming scheme - enetc-N based on
 	 * PCI function # and enetc#N based on interface count
 	 */
-	if (ofnode_valid(dev->node))
+	if (ofnode_valid(dev_ofnode(dev)))
 		sprintf(name, "enetc-%u", PCI_FUNC(pci_get_devfn(dev)));
 	else
 		sprintf(name, "enetc#%u", eth_num_devices++);
@@ -253,12 +253,12 @@ static void enetc_start_pcs(struct udevice *dev)
 			mdio_register(&priv->imdio);
 	}
 
-	if (!ofnode_valid(dev->node)) {
+	if (!ofnode_valid(dev_ofnode(dev))) {
 		enetc_dbg(dev, "no enetc ofnode found, skipping PCS set-up\n");
 		return;
 	}
 
-	if_str = ofnode_read_string(dev->node, "phy-mode");
+	if_str = ofnode_read_string(dev_ofnode(dev), "phy-mode");
 	if (if_str)
 		priv->if_type = phy_get_interface_by_name(if_str);
 	else
@@ -306,7 +306,7 @@ static int enetc_probe(struct udevice *dev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
 
-	if (ofnode_valid(dev->node) && !ofnode_is_available(dev->node)) {
+	if (ofnode_valid(dev_ofnode(dev)) && !ofnode_is_available(dev_ofnode(dev))) {
 		enetc_dbg(dev, "interface disabled\n");
 		return -ENODEV;
 	}
@@ -365,9 +365,9 @@ static int enetc_remove(struct udevice *dev)
 
 static int enetc_ls1028a_write_hwaddr(struct udevice *dev)
 {
-	struct pci_child_platdata *ppdata = dev_get_parent_platdata(dev);
+	struct pci_child_plat *ppdata = dev_get_parent_plat(dev);
 	const int devfn_to_pf[] = {0, 1, 2, -1, -1, -1, 3};
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	int devfn = PCI_FUNC(ppdata->devfn);
 	u8 *addr = plat->enetaddr;
 	u32 lower, upper;
@@ -391,7 +391,7 @@ static int enetc_ls1028a_write_hwaddr(struct udevice *dev)
 
 static int enetc_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eth_pdata *plat = dev_get_plat(dev);
 	struct enetc_priv *priv = dev_get_priv(dev);
 	u8 *addr = plat->enetaddr;
 
@@ -677,8 +677,8 @@ U_BOOT_DRIVER(eth_enetc) = {
 	.probe	= enetc_probe,
 	.remove = enetc_remove,
 	.ops	= &enetc_ops,
-	.priv_auto_alloc_size = sizeof(struct enetc_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct enetc_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 static struct pci_device_id enetc_ids[] = {
