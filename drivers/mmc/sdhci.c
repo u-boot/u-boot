@@ -74,6 +74,7 @@ static void sdhci_transfer_pio(struct sdhci_host *host, struct mmc_data *data)
 static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 			      int *is_aligned, int trans_bytes)
 {
+	dma_addr_t dma_addr;
 	unsigned char ctrl;
 	void *buf;
 
@@ -104,8 +105,8 @@ static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 					  mmc_get_dma_dir(data));
 
 	if (host->flags & USE_SDMA) {
-		sdhci_writel(host, phys_to_bus((ulong)host->start_addr),
-				SDHCI_DMA_ADDRESS);
+		dma_addr = dev_phys_to_bus(mmc_to_dev(host->mmc), host->start_addr);
+		sdhci_writel(host, dma_addr, SDHCI_DMA_ADDRESS);
 	}
 #if CONFIG_IS_ENABLED(MMC_SDHCI_ADMA)
 	else if (host->flags & (USE_ADMA | USE_ADMA64)) {
@@ -163,8 +164,9 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data)
 				start_addr &=
 				~(SDHCI_DEFAULT_BOUNDARY_SIZE - 1);
 				start_addr += SDHCI_DEFAULT_BOUNDARY_SIZE;
-				sdhci_writel(host, phys_to_bus((ulong)start_addr),
-					     SDHCI_DMA_ADDRESS);
+				start_addr = dev_phys_to_bus(mmc_to_dev(host->mmc),
+							     start_addr);
+				sdhci_writel(host, start_addr, SDHCI_DMA_ADDRESS);
 			}
 		}
 		if (timeout-- > 0)
