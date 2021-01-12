@@ -403,18 +403,8 @@ static int do_bootefi_image(const char *image_opt)
 
 #ifdef CONFIG_CMD_BOOTEFI_HELLO
 	if (!strcmp(image_opt, "hello")) {
-		char *saddr;
-
-		saddr = env_get("loadaddr");
+		image_buf = __efi_helloworld_begin;
 		size = __efi_helloworld_end - __efi_helloworld_begin;
-
-		if (saddr)
-			addr = simple_strtoul(saddr, NULL, 16);
-		else
-			addr = CONFIG_SYS_LOAD_ADDR;
-
-		image_buf = map_sysmem(addr, size);
-		memcpy(image_buf, __efi_helloworld_begin, size);
 
 		efi_free_pool(bootefi_device_path);
 		efi_free_pool(bootefi_image_path);
