@@ -453,6 +453,8 @@ efi_status_t efi_set_watchdog(unsigned long timeout);
 
 /* Called from places to check whether a timer expired */
 void efi_timer_check(void);
+/* Check if a buffer contains a PE-COFF image */
+efi_status_t efi_check_pe(void *buffer, size_t size, void **nt_header);
 /* PE loader implementation */
 efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 			 void *efi, size_t efi_size,
