@@ -467,7 +467,8 @@ void efi_restore_gd(void);
 /* Call this to relocate the runtime section to an address space */
 void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
 /* Call this to set the current device name */
-void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
+void efi_set_bootdev(const char *dev, const char *devnr, const char *path,
+		     void *buffer, size_t buffer_size);
 /* Add a new object to the object list. */
 void efi_add_handle(efi_handle_t obj);
 /* Create handle */
@@ -829,7 +830,8 @@ static inline efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
 /* No loader configured, stub out EFI_ENTRY */
 static inline void efi_restore_gd(void) { }
 static inline void efi_set_bootdev(const char *dev, const char *devnr,
-				   const char *path) { }
+				   const char *path, void *buffer,
+				   size_t buffer_size) { }
 static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
 static inline void efi_print_image_infos(void *pc) { }
 

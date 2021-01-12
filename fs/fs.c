@@ -752,7 +752,8 @@ int do_load(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 
 	if (IS_ENABLED(CONFIG_CMD_BOOTEFI))
 		efi_set_bootdev(argv[1], (argc > 2) ? argv[2] : "",
-				(argc > 4) ? argv[4] : "");
+				(argc > 4) ? argv[4] : "", map_sysmem(addr, 0),
+				len_read);
 
 	printf("%llu bytes read in %lu ms", len_read, time);
 	if (time > 0) {

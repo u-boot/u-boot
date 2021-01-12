@@ -329,6 +329,12 @@ static void tftp_complete(void)
 			time_start * 1000, "/s");
 	}
 	puts("\ndone\n");
+	if (IS_ENABLED(CONFIG_CMD_BOOTEFI)) {
+		if (!tftp_put_active)
+			efi_set_bootdev("Net", "", tftp_filename,
+					map_sysmem(tftp_load_addr, 0),
+					net_boot_file_size);
+	}
 	net_set_state(NETLOOP_SUCCESS);
 }
 
@@ -841,9 +847,6 @@ void tftp_start(enum proto_t protocol)
 		printf("Load address: 0x%lx\n", tftp_load_addr);
 		puts("Loading: *\b");
 		tftp_state = STATE_SEND_RRQ;
-#ifdef CONFIG_CMD_BOOTEFI
-		efi_set_bootdev("Net", "", tftp_filename);
-#endif
 	}
 
 	time_start = get_timer(0);
