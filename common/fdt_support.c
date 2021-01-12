@@ -1344,6 +1344,79 @@ u64 fdt_translate_dma_address(const void *blob, int node_offset,
 	return __of_translate_address(blob, node_offset, in_addr, "dma-ranges");
 }
 
+int fdt_get_dma_range(const void *blob, int node, phys_addr_t *cpu,
+		      dma_addr_t *bus, u64 *size)
+{
+	bool found_dma_ranges = false;
+	struct of_bus *bus_node;
+	const fdt32_t *ranges;
+	int na, ns, pna, pns;
+	int parent = node;
+	int ret = 0;
+	int len;
+
+	/* Find the closest dma-ranges property */
+	while (parent >= 0) {
+		ranges = fdt_getprop(blob, parent, "dma-ranges", &len);
+
+		/* Ignore empty ranges, they imply no translation required */
+		if (ranges && len > 0)
+			break;
+
+		/* Once we find 'dma-ranges', then a missing one is an error */
+		if (found_dma_ranges && !ranges) {
+			ret = -EINVAL;
+			goto out;
+		}
+
+		if (ranges)
+			found_dma_ranges = true;
+
+		parent = fdt_parent_offset(blob, parent);
+	}
+
+	if (!ranges || parent < 0) {
+		debug("no dma-ranges found for node %s\n",
+		      fdt_get_name(blob, node, NULL));
+		ret = -ENOENT;
+		goto out;
+	}
+
+	/* switch to that node */
+	node = parent;
+	parent = fdt_parent_offset(blob, node);
+	if (parent < 0) {
+		printf("Found dma-ranges in root node, shoudln't happen\n");
+		ret = -EINVAL;
+		goto out;
+	}
+
+	/* Get the address sizes both for the bus and its parent */
+	bus_node = of_match_bus(blob, node);
+	bus_node->count_cells(blob, node, &na, &ns);
+	if (!OF_CHECK_COUNTS(na, ns)) {
+		printf("%s: Bad cell count for %s\n", __FUNCTION__,
+		       fdt_get_name(blob, node, NULL));
+		return -EINVAL;
+		goto out;
+	}
+
+	bus_node = of_match_bus(blob, parent);
+	bus_node->count_cells(blob, parent, &pna, &pns);
+	if (!OF_CHECK_COUNTS(pna, pns)) {
+		printf("%s: Bad cell count for %s\n", __FUNCTION__,
+		       fdt_get_name(blob, parent, NULL));
+		return -EINVAL;
+		goto out;
+	}
+
+	*bus = fdt_read_number(ranges, na);
+	*cpu = fdt_translate_dma_address(blob, node, ranges + na);
+	*size = fdt_read_number(ranges + na + pna, ns);
+out:
+	return ret;
+}
+
 /**
  * fdt_node_offset_by_compat_reg: Find a node that matches compatiable and
  * who's reg property matches a physical cpu address

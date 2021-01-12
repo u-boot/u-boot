@@ -260,6 +260,20 @@ u64 fdt_translate_address(const void *blob, int node_offset,
 u64 fdt_translate_dma_address(const void *blob, int node_offset,
 			      const __be32 *in_addr);
 
+/**
+ * Get DMA ranges for a specifc node, this is useful to perform bus->cpu and
+ * cpu->bus address translations
+ *
+ * @param blob		Pointer to device tree blob
+ * @param node_offset	Node DT offset
+ * @param cpu		Pointer to variable storing the range's cpu address
+ * @param bus		Pointer to variable storing the range's bus address
+ * @param size		Pointer to variable storing the range's size
+ * @return translated DMA address or OF_BAD_ADDR on error
+ */
+int fdt_get_dma_range(const void *blob, int node_offset, phys_addr_t *cpu,
+		      dma_addr_t *bus, u64 *size);
+
 int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
 					phys_addr_t compat_off);
 int fdt_alloc_phandle(void *blob);
