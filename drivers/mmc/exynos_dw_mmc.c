@@ -133,8 +133,6 @@ static int exynos_dwmci_core_init(struct dwmci_host *host)
 	return 0;
 }
 
-static struct dwmci_host dwmci_host[DWMMC_MAX_CH_NUM];
-
 static int do_dwmci_init(struct dwmci_host *host)
 {
 	int flag, err;
@@ -204,60 +202,6 @@ static int exynos_dwmci_get_config(const void *blob, int node,
 	host->div = fdtdec_get_int(blob, node, "div", 0);
 
 	return 0;
-}
-
-static int exynos_dwmci_process_node(const void *blob,
-					int node_list[], int count)
-{
-	struct dwmci_exynos_priv_data *priv;
-	struct dwmci_host *host;
-	int i, node, err;
-
-	for (i = 0; i < count; i++) {
-		node = node_list[i];
-		if (node <= 0)
-			continue;
-		host = &dwmci_host[i];
-
-		priv = malloc(sizeof(struct dwmci_exynos_priv_data));
-		if (!priv) {
-			pr_err("dwmci_exynos_priv_data malloc fail!\n");
-			return -ENOMEM;
-		}
-
-		err = exynos_dwmci_get_config(blob, node, host, priv);
-		if (err) {
-			printf("%s: failed to decode dev %d\n", __func__, i);
-			free(priv);
-			return err;
-		}
-		host->priv = priv;
-
-		do_dwmci_init(host);
-	}
-	return 0;
-}
-
-int exynos_dwmmc_init(const void *blob)
-{
-	int node_list[DWMMC_MAX_CH_NUM];
-	int boot_dev_node;
-	int err = 0, count;
-
-	count = fdtdec_find_aliases_for_id(blob, "mmc",
-			COMPAT_SAMSUNG_EXYNOS_DWMMC, node_list,
-			DWMMC_MAX_CH_NUM);
-
-	/* For DWMMC always set boot device as mmc 0 */
-	if (count >= 3 && get_boot_mode() == BOOT_MODE_SD) {
-		boot_dev_node = node_list[2];
-		node_list[2] = node_list[0];
-		node_list[0] = boot_dev_node;
-	}
-
-	err = exynos_dwmci_process_node(blob, node_list, count);
-
-	return err;
 }
 
 #ifdef CONFIG_DM_MMC
