@@ -15,6 +15,7 @@ obj-$(CONFIG_UT_DM) += test-fdt.o
 obj-$(CONFIG_UT_DM) += test-uclass.o
 
 obj-$(CONFIG_UT_DM) += core.o
+obj-$(CONFIG_UT_DM) += read.o
 ifneq ($(CONFIG_SANDBOX),)
 obj-$(CONFIG_ACPIGEN) += acpi.o
 obj-$(CONFIG_ACPIGEN) += acpigen.o

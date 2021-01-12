@@ -350,6 +350,23 @@
 		test5-gpios = <&gpio_a 19>;
 	};
 
+	mmio-bus@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "denx,u-boot-test-bus";
+		dma-ranges = <0x10000000 0x00000000 0x00040000>;
+
+		subnode@0 {
+			compatible = "denx,u-boot-fdt-test";
+		};
+	};
+
+	mmio-bus@1 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "denx,u-boot-test-bus";
+	};
+
 	acpi_test1: acpi-test {
 		compatible = "denx,u-boot-acpi-test";
 		acpi-ssdt-test-data = "ab";
