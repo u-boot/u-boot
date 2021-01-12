@@ -174,7 +174,7 @@ u32 ddr3_init(void)
 	} else if (board_is_k2g_gp()) {
 		ddr3_init_ddrphy(KS2_DDR3A_DDRPHYC, &ddr3phy_800_2g);
 		ddr3_init_ddremif(KS2_DDR3A_EMIF_CTRL_BASE, &ddr3_800_2g);
-	} else if (board_is_k2g_ice()) {
+	} else if (board_is_k2g_ice() || board_is_k2g_i1()) {
 		ddr3_init_ddrphy(KS2_DDR3A_DDRPHYC, &ddr3phy_800_512mb);
 		ddr3_init_ddremif(KS2_DDR3A_EMIF_CTRL_BASE, &ddr3_800_512mb);
 	}

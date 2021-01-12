@@ -132,6 +132,9 @@ int dm_init(bool of_live)
 {
 	int ret;
 
+	if (IS_ENABLED(CONFIG_OF_TRANSLATE_ZERO_SIZE_CELLS))
+		gd->dm_flags |= GD_DM_FLG_SIZE_CELLS_0;
+
 	if (gd->dm_root) {
 		dm_warn("Virtual root driver already exists!\n");
 		return -EINVAL;

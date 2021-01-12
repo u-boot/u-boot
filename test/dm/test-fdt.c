@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <log.h>
@@ -549,6 +550,64 @@ U_BOOT_DRIVER(fdt_dummy_drv) = {
 	.id	= UCLASS_TEST_DUMMY,
 };
 
+static int zero_size_cells_bus_bind(struct udevice *dev)
+{
+	ofnode child;
+	int err;
+
+	ofnode_for_each_subnode(child, dev_ofnode(dev)) {
+		if (ofnode_get_property(child, "compatible", NULL))
+			continue;
+
+		err = device_bind_driver_to_node(dev,
+						 "zero_size_cells_bus_child_drv",
+						 "zero_size_cells_bus_child",
+						 child, NULL);
+		if (err) {
+			dev_err(dev, "%s: failed to bind %s\n", __func__,
+				ofnode_get_name(child));
+			return err;
+		}
+	}
+
+	return 0;
+}
+
+static const struct udevice_id zero_size_cells_bus_ids[] = {
+	{ .compatible = "sandbox,zero-size-cells-bus" },
+	{ }
+};
+
+U_BOOT_DRIVER(zero_size_cells_bus) = {
+	.name = "zero_size_cells_bus_drv",
+	.id = UCLASS_TEST_DUMMY,
+	.of_match = zero_size_cells_bus_ids,
+	.bind = zero_size_cells_bus_bind,
+};
+
+static int zero_size_cells_bus_child_bind(struct udevice *dev)
+{
+	ofnode child;
+	int err;
+
+	ofnode_for_each_subnode(child, dev_ofnode(dev)) {
+		err = lists_bind_fdt(dev, child, NULL, false);
+		if (err) {
+			dev_err(dev, "%s: lists_bind_fdt, err=%d\n",
+				__func__, err);
+			return err;
+		}
+	}
+
+	return 0;
+}
+
+U_BOOT_DRIVER(zero_size_cells_bus_child_drv) = {
+	.name = "zero_size_cells_bus_child_drv",
+	.id = UCLASS_TEST_DUMMY,
+	.bind = zero_size_cells_bus_child_bind,
+};
+
 static int dm_test_fdt_translation(struct unit_test_state *uts)
 {
 	struct udevice *dev;
@@ -570,7 +629,16 @@ static int dm_test_fdt_translation(struct unit_test_state *uts)
 	/* No translation for busses with #size-cells == 0 */
 	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 3, &dev));
 	ut_asserteq_str("dev@42", dev->name);
+	/* No translation for busses with #size-cells == 0 */
 	ut_asserteq(0x42, dev_read_addr(dev));
+
+	/* Translation for busses with #size-cells == 0 */
+	gd->dm_flags |= GD_DM_FLG_SIZE_CELLS_0;
+	ut_asserteq(0x8042, dev_read_addr(dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 4, &dev));
+	ut_asserteq_str("dev@19", dev->name);
+	ut_asserteq(0xc019, dev_read_addr(dev));
+	gd->dm_flags &= ~GD_DM_FLG_SIZE_CELLS_0;
 
 	/* dma address translation */
 	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, &dev));
@@ -1084,3 +1152,83 @@ static int dm_test_ofdata_order(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofdata_order, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Test dev_decode_display_timing() */
+static int dm_test_decode_display_timing(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct display_timing timing;
+
+	ut_assertok(uclass_first_device_err(UCLASS_TEST_FDT, &dev));
+	ut_asserteq_str("a-test", dev->name);
+
+	ut_assertok(dev_decode_display_timing(dev, 0, &timing));
+	ut_assert(timing.hactive.typ == 240);
+	ut_assert(timing.hback_porch.typ == 7);
+	ut_assert(timing.hfront_porch.typ == 6);
+	ut_assert(timing.hsync_len.typ == 1);
+	ut_assert(timing.vactive.typ == 320);
+	ut_assert(timing.vback_porch.typ == 5);
+	ut_assert(timing.vfront_porch.typ == 8);
+	ut_assert(timing.vsync_len.typ == 2);
+	ut_assert(timing.pixelclock.typ == 6500000);
+	ut_assert(timing.flags & DISPLAY_FLAGS_HSYNC_HIGH);
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_HSYNC_LOW));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_VSYNC_HIGH));
+	ut_assert(timing.flags & DISPLAY_FLAGS_VSYNC_LOW);
+	ut_assert(timing.flags & DISPLAY_FLAGS_DE_HIGH);
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_DE_LOW));
+	ut_assert(timing.flags & DISPLAY_FLAGS_PIXDATA_POSEDGE);
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE));
+	ut_assert(timing.flags & DISPLAY_FLAGS_INTERLACED);
+	ut_assert(timing.flags & DISPLAY_FLAGS_DOUBLESCAN);
+	ut_assert(timing.flags & DISPLAY_FLAGS_DOUBLECLK);
+
+	ut_assertok(dev_decode_display_timing(dev, 1, &timing));
+	ut_assert(timing.hactive.typ == 480);
+	ut_assert(timing.hback_porch.typ == 59);
+	ut_assert(timing.hfront_porch.typ == 10);
+	ut_assert(timing.hsync_len.typ == 12);
+	ut_assert(timing.vactive.typ == 800);
+	ut_assert(timing.vback_porch.typ == 15);
+	ut_assert(timing.vfront_porch.typ == 17);
+	ut_assert(timing.vsync_len.typ == 16);
+	ut_assert(timing.pixelclock.typ == 9000000);
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_HSYNC_HIGH));
+	ut_assert(timing.flags & DISPLAY_FLAGS_HSYNC_LOW);
+	ut_assert(timing.flags & DISPLAY_FLAGS_VSYNC_HIGH);
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_VSYNC_LOW));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_DE_HIGH));
+	ut_assert(timing.flags & DISPLAY_FLAGS_DE_LOW);
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_PIXDATA_POSEDGE));
+	ut_assert(timing.flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE);
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_INTERLACED));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_DOUBLESCAN));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_DOUBLECLK));
+
+	ut_assertok(dev_decode_display_timing(dev, 2, &timing));
+	ut_assert(timing.hactive.typ == 800);
+	ut_assert(timing.hback_porch.typ == 89);
+	ut_assert(timing.hfront_porch.typ == 164);
+	ut_assert(timing.hsync_len.typ == 11);
+	ut_assert(timing.vactive.typ == 480);
+	ut_assert(timing.vback_porch.typ == 23);
+	ut_assert(timing.vfront_porch.typ == 10);
+	ut_assert(timing.vsync_len.typ == 13);
+	ut_assert(timing.pixelclock.typ == 33500000);
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_HSYNC_HIGH));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_HSYNC_LOW));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_VSYNC_HIGH));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_VSYNC_LOW));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_DE_HIGH));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_DE_LOW));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_PIXDATA_POSEDGE));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_INTERLACED));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_DOUBLESCAN));
+	ut_assert(!(timing.flags & DISPLAY_FLAGS_DOUBLECLK));
+
+	ut_assert(dev_decode_display_timing(dev, 3, &timing));
+	return 0;
+}
+DM_TEST(dm_test_decode_display_timing, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

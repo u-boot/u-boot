@@ -37,6 +37,8 @@ struct omap3_spi_priv {
 	unsigned int mode;
 	unsigned int wordlen;
 	unsigned int pin_dir:1;
+
+	bool bus_claimed;
 };
 
 static void omap3_spi_write_chconf(struct omap3_spi_priv *priv, int val)
@@ -372,6 +374,8 @@ static void _omap3_spi_claim_bus(struct omap3_spi_priv *priv)
 	conf |= OMAP3_MCSPI_MODULCTRL_SINGLE;
 
 	writel(conf, &priv->regs->modulctrl);
+
+	priv->bus_claimed = true;
 }
 
 static int omap3_spi_claim_bus(struct udevice *dev)
@@ -381,9 +385,12 @@ static int omap3_spi_claim_bus(struct udevice *dev)
 	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 
 	priv->cs = slave_plat->cs;
-	priv->freq = slave_plat->max_hz;
+	if (!priv->freq)
+		priv->freq = slave_plat->max_hz;
 
 	_omap3_spi_claim_bus(priv);
+	_omap3_spi_set_speed(priv);
+	_omap3_spi_set_mode(priv);
 
 	return 0;
 }
@@ -394,6 +401,8 @@ static int omap3_spi_release_bus(struct udevice *dev)
 	struct omap3_spi_priv *priv = dev_get_priv(bus);
 
 	writel(OMAP3_MCSPI_MODULCTRL_MS, &priv->regs->modulctrl);
+
+	priv->bus_claimed = false;
 
 	return 0;
 }
@@ -440,7 +449,8 @@ static int omap3_spi_set_speed(struct udevice *dev, unsigned int speed)
 	struct omap3_spi_priv *priv = dev_get_priv(dev);
 
 	priv->freq = speed;
-	_omap3_spi_set_speed(priv);
+	if (priv->bus_claimed)
+		_omap3_spi_set_speed(priv);
 
 	return 0;
 }
@@ -451,7 +461,8 @@ static int omap3_spi_set_mode(struct udevice *dev, uint mode)
 
 	priv->mode = mode;
 
-	_omap3_spi_set_mode(priv);
+	if (priv->bus_claimed)
+		_omap3_spi_set_mode(priv);
 
 	return 0;
 }

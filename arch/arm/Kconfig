@@ -799,6 +799,7 @@ config ARCH_OMAP2PLUS
 	select SPL_BOARD_INIT if SPL
 	select SPL_STACK_R if SPL
 	select SUPPORT_SPL
+	imply TI_SYSC if DM && OF_CONTROL
 	imply FIT
 
 config ARCH_MESON

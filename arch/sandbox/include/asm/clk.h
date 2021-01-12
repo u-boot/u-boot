@@ -106,6 +106,15 @@ int sandbox_clk_test_get_bulk(struct udevice *dev);
  */
 ulong sandbox_clk_test_get_rate(struct udevice *dev, int id);
 /**
+ * sandbox_clk_test_round_rate - Ask the sandbox clock test device to round a
+ * clock's rate.
+ *
+ * @dev:	The sandbox clock test (client) device.
+ * @id:		The test device's clock ID to configure.
+ * @return:	The rounded rate of the clock.
+ */
+ulong sandbox_clk_test_round_rate(struct udevice *dev, int id, ulong rate);
+/**
  * sandbox_clk_test_set_rate - Ask the sandbox clock test device to set a
  * clock's rate.
  *

@@ -22,8 +22,8 @@ obj-${CONFIG_EXYNOS_FB} += exynos/
 obj-${CONFIG_VIDEO_ROCKCHIP} += rockchip/
 obj-${CONFIG_VIDEO_STM32} += stm32/
 obj-${CONFIG_VIDEO_TEGRA124} += tegra124/
+obj-y += ti/
 
-obj-$(CONFIG_AM335X_LCD) += am335x-fb.o
 obj-$(CONFIG_ATI_RADEON_FB) += ati_radeon_fb.o videomodes.o
 obj-$(CONFIG_ATMEL_HLCD) += atmel_hlcdfb.o
 obj-$(CONFIG_ATMEL_LCD) += atmel_lcdfb.o

@@ -37,9 +37,10 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"run eval_boot_device;" \
+	"part uuid mmc ${mmc_boot}:${root_fs_partition} root_fs_partuuid;" \
 	"setenv bootargs console=${console} " \
 	"vt.global_cursor_default=0 " \
-	"root=/dev/mmcblk${mmc_boot}p${root_fs_partition} " \
+	"root=PARTUUID=${root_fs_partuuid} " \
 	"rootfstype=ext4 " \
 	"rootwait " \
 	"rootdelay=1;" \

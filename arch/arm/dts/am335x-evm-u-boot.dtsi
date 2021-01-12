@@ -3,12 +3,21 @@
  * Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com/
  */
 
-/ {
-	panel {
-		u-boot,dm-pre-reloc;
+#include "am33xx-u-boot.dtsi"
+
+&l4_per {
+
+	segment@300000 {
+
+		target-module@e000 {
+			u-boot,dm-pre-reloc;
+
+			lcdc: lcdc@0 {
+				u-boot,dm-pre-reloc;
+			};
+		};
 	};
 };
-
 
 &mmc3 {
 	status = "disabled";

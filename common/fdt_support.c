@@ -20,6 +20,8 @@
 #include <exports.h>
 #include <fdtdec.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /**
  * fdt_getprop_u32_default_node - Return a node's property or a default
  *
@@ -996,8 +998,8 @@ void fdt_del_node_and_alias(void *blob, const char *alias)
 /* Max address size we deal with */
 #define OF_MAX_ADDR_CELLS	4
 #define OF_BAD_ADDR	FDT_ADDR_T_NONE
-#define OF_CHECK_COUNTS(na, ns)	((na) > 0 && (na) <= OF_MAX_ADDR_CELLS && \
-			(ns) > 0)
+#define OF_CHECK_COUNTS(na, ns) (((na) > 0 && (na) <= OF_MAX_ADDR_CELLS) && \
+			 ((ns) > 0 || gd_size_cells_0()))
 
 /* Debug utility */
 #ifdef DEBUG

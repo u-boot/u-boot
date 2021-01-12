@@ -226,7 +226,7 @@ void enable_basic_clocks(void)
 		&cmper->usb0clkctrl,
 		&cmper->emiffwclkctrl,
 		&cmper->emifclkctrl,
-#if CONFIG_IS_ENABLED(AM335X_LCD)
+#if CONFIG_IS_ENABLED(AM335X_LCD) && !CONFIG_IS_ENABLED(DM_VIDEO)
 		&cmper->lcdclkctrl,
 		&cmper->lcdcclkstctrl,
 #endif

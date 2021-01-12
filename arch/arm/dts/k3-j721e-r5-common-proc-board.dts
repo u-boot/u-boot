@@ -6,7 +6,7 @@
 /dts-v1/;
 
 #include "k3-j721e-som-p0.dtsi"
-#include "k3-j721e-ddr-evm-lp4-3733.dtsi"
+#include "k3-j721e-ddr-evm-lp4-4266.dtsi"
 #include "k3-j721e-ddr.dtsi"
 
 / {
@@ -28,6 +28,7 @@
 		power-domains = <&k3_pds 61 TI_SCI_PD_EXCLUSIVE>,
 				<&k3_pds 202 TI_SCI_PD_EXCLUSIVE>;
 		resets = <&k3_reset 202 0>;
+		clocks = <&k3_clks 61 1>;
 		assigned-clocks = <&k3_clks 202 2>, <&k3_clks 61 1>;
 		assigned-clock-rates = <2000000000>, <200000000>;
 		ti,sci = <&dmsc>;

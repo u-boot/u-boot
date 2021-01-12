@@ -678,6 +678,23 @@ int dev_get_child_count(const struct udevice *dev);
  */
 int dev_read_pci_bus_range(const struct udevice *dev, struct resource *res);
 
+/**
+ * dev_decode_display_timing() - decode display timings
+ *
+ * Decode display timings from the supplied 'display-timings' node.
+ * See doc/device-tree-bindings/video/display-timing.txt for binding
+ * information.
+ *
+ * @dev: device to read DT display timings from. The node linked to the device
+ *       contains a child node called 'display-timings' which in turn contains
+ *       one or more display timing nodes.
+ * @index: index number to read (0=first timing subnode)
+ * @config: place to put timings
+ * @return 0 if OK, -FDT_ERR_NOTFOUND if not found
+ */
+int dev_decode_display_timing(const struct udevice *dev, int index,
+			      struct display_timing *config);
+
 #else /* CONFIG_DM_DEV_READ_INLINE is enabled */
 
 static inline int dev_read_u32(const struct udevice *dev,
@@ -998,6 +1015,13 @@ static inline int dev_read_alias_highest_id(const char *stem)
 static inline int dev_get_child_count(const struct udevice *dev)
 {
 	return ofnode_get_child_count(dev_ofnode(dev));
+}
+
+static inline int dev_decode_display_timing(const struct udevice *dev,
+					    int index,
+					    struct display_timing *config)
+{
+	return ofnode_decode_display_timing(dev_ofnode(dev), index, config);
 }
 
 #endif /* CONFIG_DM_DEV_READ_INLINE */

@@ -12,7 +12,7 @@
 #define _BUR_COMMON_H_
 
 #if !CONFIG_IS_ENABLED(DM_VIDEO)
-#include <../../../drivers/video/am335x-fb.h>
+#include <../../../drivers/video/ti/am335x-fb.h>
 
 int load_lcdtiming(struct am335x_lcdpanel *panel);
 #endif

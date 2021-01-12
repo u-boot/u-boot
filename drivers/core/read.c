@@ -379,3 +379,9 @@ int dev_read_pci_bus_range(const struct udevice *dev,
 
 	return 0;
 }
+
+int dev_decode_display_timing(const struct udevice *dev, int index,
+			      struct display_timing *config)
+{
+	return ofnode_decode_display_timing(dev_ofnode(dev), index, config);
+}

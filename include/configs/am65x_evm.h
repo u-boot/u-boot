@@ -56,6 +56,12 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
+/*
+ * If the maximum size is not declared then it is defined as
+ * CONFIG_SYS_DFU_DATA_BUF_SIZE.
+ */
+#define CONFIG_SYS_DFU_MAX_FILE_SIZE	(1024 * 1024 * 8)   /* 8 MiB */
+
 #define CONFIG_SPL_MAX_SIZE		CONFIG_SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M

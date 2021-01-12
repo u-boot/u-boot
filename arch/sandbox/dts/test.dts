@@ -42,6 +42,7 @@
 		fdt-dummy1 = "/translation-test@8000/dev@1,100";
 		fdt-dummy2 = "/translation-test@8000/dev@2,200";
 		fdt-dummy3 = "/translation-test@8000/noxlatebus@3,300/dev@42";
+		fdt-dummy4 = "/translation-test@8000/xlatebus@4,400/devs/dev@19";
 		usb0 = &usb_0;
 		usb1 = &usb_1;
 		usb2 = &usb_2;
@@ -141,6 +142,52 @@
 			       <&muxcontroller1>;
 		mux-control-names = "mux0", "mux1", "mux2", "mux3", "mux4";
 		mux-syscon = <&syscon3>;
+		display-timings {
+			timing0: 240x320 {
+				clock-frequency = <6500000>;
+				hactive = <240>;
+				vactive = <320>;
+				hfront-porch = <6>;
+				hback-porch = <7>;
+				hsync-len = <1>;
+				vback-porch = <5>;
+				vfront-porch = <8>;
+				vsync-len = <2>;
+				hsync-active = <1>;
+				vsync-active = <0>;
+				de-active = <1>;
+				pixelclk-active = <1>;
+				interlaced;
+				doublescan;
+				doubleclk;
+			};
+			timing1: 480x800 {
+				clock-frequency = <9000000>;
+				hactive = <480>;
+				vactive = <800>;
+				hfront-porch = <10>;
+				hback-porch = <59>;
+				hsync-len = <12>;
+				vback-porch = <15>;
+				vfront-porch = <17>;
+				vsync-len = <16>;
+				hsync-active = <0>;
+				vsync-active = <1>;
+				de-active = <0>;
+				pixelclk-active = <0>;
+			};
+			timing2: 800x480 {
+				clock-frequency = <33500000>;
+				hactive = <800>;
+				vactive = <480>;
+				hback-porch = <89>;
+				hfront-porch = <164>;
+				vback-porch = <23>;
+				vfront-porch = <10>;
+				hsync-len = <11>;
+				vsync-len = <13>;
+			};
+		};
 	};
 
 	junk {
@@ -1082,6 +1129,7 @@
 			  1 0x100 0x9000 0x1000
 			  2 0x200 0xA000 0x1000
 			  3 0x300 0xB000 0x1000
+			  4 0x400 0xC000 0x1000
 			 >;
 
 		dma-ranges = <0 0x000 0x10000000 0x1000
@@ -1118,6 +1166,25 @@
 				reg = <0x42>;
 			};
 		};
+
+		xlatebus@4,400 {
+			compatible = "sandbox,zero-size-cells-bus";
+			reg = <4 0x400 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges = <0 4 0x400 0x1000>;
+
+			devs {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				dev@19 {
+					compatible = "denx,u-boot-fdt-dummy";
+					reg = <0x19>;
+				};
+			};
+		};
+
 	};
 
 	osd {
