@@ -365,6 +365,10 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "denx,u-boot-test-bus";
+
+		subnode@0 {
+			compatible = "denx,u-boot-fdt-test";
+		};
 	};
 
 	acpi_test1: acpi-test {
