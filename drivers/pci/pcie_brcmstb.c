@@ -432,6 +432,7 @@ static int brcm_pcie_probe(struct udevice *dev)
 	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
 	struct brcm_pcie *pcie = dev_get_priv(dev);
 	void __iomem *base = pcie->base;
+	struct pci_region region;
 	bool ssc_good = false;
 	int num_out_wins = 0;
 	u64 rc_bar2_offset, rc_bar2_size;
@@ -468,13 +469,10 @@ static int brcm_pcie_probe(struct udevice *dev)
 			MISC_CTRL_SCB_ACCESS_EN_MASK |
 			MISC_CTRL_CFG_READ_UR_MODE_MASK |
 			MISC_CTRL_MAX_BURST_SIZE_128);
-	/*
-	 * TODO: When support for other SoCs than BCM2711 is added we may
-	 * need to use the base address and size(s) provided in the dma-ranges
-	 * property.
-	 */
-	rc_bar2_offset = 0;
-	rc_bar2_size = 0xc0000000;
+
+	pci_get_dma_regions(dev, &region, 0);
+	rc_bar2_offset = region.bus_start - region.phys_start;
+	rc_bar2_size = 1ULL << fls64(region.size - 1);
 
 	tmp = lower_32_bits(rc_bar2_offset);
 	u32p_replace_bits(&tmp, brcm_pcie_encode_ibar_size(rc_bar2_size),
