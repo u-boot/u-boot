@@ -422,6 +422,43 @@ fail:
 	return ret;
 }
 
+/**
+ * device_get_dma_constraints() - Populate device's DMA constraints
+ *
+ * Gets a device's DMA constraints from firmware. This information is later
+ * used by drivers to translate physcal addresses to the device's bus address
+ * space. For now only device-tree is supported.
+ *
+ * @dev: Pointer to target device
+ * Return: 0 if OK or if no DMA constraints were found, error otherwise
+ */
+static int device_get_dma_constraints(struct udevice *dev)
+{
+	struct udevice *parent = dev->parent;
+	phys_addr_t cpu = 0;
+	dma_addr_t bus = 0;
+	u64 size = 0;
+	int ret;
+
+	if (!CONFIG_IS_ENABLED(DM_DMA) || !parent || !dev_has_ofnode(parent))
+		return 0;
+
+	/*
+	 * We start parsing for dma-ranges from the device's bus node. This is
+	 * specially important on nested buses.
+	 */
+	ret = dev_get_dma_range(parent, &cpu, &bus, &size);
+	/* Don't return an error if no 'dma-ranges' were found */
+	if (ret && ret != -ENOENT) {
+		dm_warn("%s: failed to get DMA range, %d\n", dev->name, ret);
+		return ret;
+	}
+
+	dev_set_dma_offset(dev, cpu - bus);
+
+	return 0;
+}
+
 int device_probe(struct udevice *dev)
 {
 	const struct driver *drv;
@@ -483,6 +520,10 @@ int device_probe(struct udevice *dev)
 		if (ret)
 			goto fail;
 	}
+
+	ret = device_get_dma_constraints(dev);
+	if (ret)
+		goto fail;
 
 	ret = uclass_pre_probe_device(dev);
 	if (ret)
