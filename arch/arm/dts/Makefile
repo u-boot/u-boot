@@ -161,14 +161,19 @@ dtb-$(CONFIG_ARCH_MESON) += \
 	meson-gxl-s905x-p212.dtb \
 	meson-gxl-s805x-libretech-ac.dtb \
 	meson-gxl-s905x-libretech-cc.dtb \
+	meson-gxl-s905x-libretech-cc-v2.dtb \
 	meson-gxl-s905x-khadas-vim.dtb \
 	meson-gxl-s905d-libretech-pc.dtb \
 	meson-gxm-khadas-vim2.dtb \
 	meson-gxm-s912-libretech-pc.dtb \
+	meson-gxm-wetek-core2.dtb \
 	meson-axg-s400.dtb \
 	meson-g12a-u200.dtb \
 	meson-g12a-sei510.dtb \
+	meson-g12b-gtking.dtb \
+	meson-g12b-gtking-pro.dtb \
 	meson-g12b-odroid-n2.dtb \
+	meson-g12b-odroid-n2-plus.dtb \
 	meson-g12b-a311d-khadas-vim3.dtb \
 	meson-sm1-khadas-vim3l.dtb \
 	meson-sm1-odroid-c4.dtb \

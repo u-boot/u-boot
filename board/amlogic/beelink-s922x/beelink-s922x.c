@@ -10,7 +10,6 @@
 #include <init.h>
 #include <net.h>
 #include <asm/io.h>
-#include <asm/arch/boot.h>
 #include <asm/arch/sm.h>
 #include <asm/arch/eth.h>
 #include <asm/arch/boot.h>
@@ -18,13 +17,6 @@
 #define EFUSE_MAC_OFFSET	20
 #define EFUSE_MAC_SIZE		12
 #define MAC_ADDR_LEN		6
-
-int mmc_get_env_dev(void)
-{
-	if (meson_get_boot_device() == BOOT_DEVICE_EMMC)
-		return 1;
-	return 0;
-}
 
 int misc_init_r(void)
 {
