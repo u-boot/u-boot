@@ -29,6 +29,82 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct efi_device_path *bootefi_image_path;
 static struct efi_device_path *bootefi_device_path;
+static void *image_addr;
+static size_t image_size;
+
+/**
+ * efi_clear_bootdev() - clear boot device
+ */
+static void efi_clear_bootdev(void)
+{
+	efi_free_pool(bootefi_device_path);
+	efi_free_pool(bootefi_image_path);
+	bootefi_device_path = NULL;
+	bootefi_image_path = NULL;
+	image_addr = NULL;
+	image_size = 0;
+}
+
+/**
+ * efi_set_bootdev() - set boot device
+ *
+ * This function is called when a file is loaded, e.g. via the 'load' command.
+ * We use the path to this file to inform the UEFI binary about the boot device.
+ *
+ * @dev:		device, e.g. "MMC"
+ * @devnr:		number of the device, e.g. "1:2"
+ * @path:		path to file loaded
+ * @buffer:		buffer with file loaded
+ * @buffer_size:	size of file loaded
+ */
+void efi_set_bootdev(const char *dev, const char *devnr, const char *path,
+		     void *buffer, size_t buffer_size)
+{
+	struct efi_device_path *device, *image;
+	efi_status_t ret;
+
+	/* Forget overwritten image */
+	if (buffer + buffer_size >= image_addr &&
+	    image_addr + image_size >= buffer)
+		efi_clear_bootdev();
+
+	/* Remember only PE-COFF and FIT images */
+	if (efi_check_pe(buffer, buffer_size, NULL) != EFI_SUCCESS) {
+#ifdef CONFIG_FIT
+		if (!fit_check_format(buffer))
+			return;
+		/*
+		 * FIT images of type EFI_OS are started via command bootm.
+		 * We should not use their boot device with the bootefi command.
+		 */
+		buffer = 0;
+		buffer_size = 0;
+#else
+		return;
+#endif
+	}
+
+	/* efi_set_bootdev() is typically called repeatedly, recover memory */
+	efi_clear_bootdev();
+
+	image_addr = buffer;
+	image_size = buffer_size;
+
+	ret = efi_dp_from_name(dev, devnr, path, &device, &image);
+	if (ret == EFI_SUCCESS) {
+		bootefi_device_path = device;
+		if (image) {
+			/* FIXME: image should not contain device */
+			struct efi_device_path *image_tmp = image;
+
+			efi_dp_split_file_path(image, &device, &image);
+			efi_free_pool(image_tmp);
+		}
+		bootefi_image_path = image;
+	} else {
+		efi_clear_bootdev();
+	}
+}
 
 /**
  * efi_env_set_load_options() - set load options from environment variable
@@ -398,33 +474,28 @@ static int do_bootefi_image(const char *image_opt)
 {
 	void *image_buf;
 	unsigned long addr, size;
-	const char *size_str;
 	efi_status_t ret;
 
 #ifdef CONFIG_CMD_BOOTEFI_HELLO
 	if (!strcmp(image_opt, "hello")) {
 		image_buf = __efi_helloworld_begin;
 		size = __efi_helloworld_end - __efi_helloworld_begin;
-
-		efi_free_pool(bootefi_device_path);
-		efi_free_pool(bootefi_image_path);
-		bootefi_device_path = NULL;
-		bootefi_image_path = NULL;
+		efi_clear_bootdev();
 	} else
 #endif
 	{
-		size_str = env_get("filesize");
-		if (size_str)
-			size = simple_strtoul(size_str, NULL, 16);
-		else
-			size = 0;
-
-		addr = simple_strtoul(image_opt, NULL, 16);
+		addr = strtoul(image_opt, NULL, 16);
 		/* Check that a numeric value was passed */
-		if (!addr && *image_opt != '0')
+		if (!addr)
 			return CMD_RET_USAGE;
 
-		image_buf = map_sysmem(addr, size);
+		image_buf = map_sysmem(addr, 0);
+
+		if (image_buf != image_addr) {
+			log_err("No UEFI binary known at %s\n", image_opt);
+			return CMD_RET_FAILURE;
+		}
+		size = image_size;
 	}
 	ret = efi_run_image(image_buf, size);
 
@@ -557,11 +628,8 @@ static efi_status_t bootefi_test_prepare
 	if (ret == EFI_SUCCESS)
 		return ret;
 
-	efi_free_pool(bootefi_image_path);
-	bootefi_image_path = NULL;
 failure:
-	efi_free_pool(bootefi_device_path);
-	bootefi_device_path = NULL;
+	efi_clear_bootdev();
 	return ret;
 }
 
@@ -681,39 +749,3 @@ U_BOOT_CMD(
 	"Boots an EFI payload from memory",
 	bootefi_help_text
 );
-
-/**
- * efi_set_bootdev() - set boot device
- *
- * This function is called when a file is loaded, e.g. via the 'load' command.
- * We use the path to this file to inform the UEFI binary about the boot device.
- *
- * @dev:	device, e.g. "MMC"
- * @devnr:	number of the device, e.g. "1:2"
- * @path:	path to file loaded
- */
-void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
-{
-	struct efi_device_path *device, *image;
-	efi_status_t ret;
-
-	/* efi_set_bootdev is typically called repeatedly, recover memory */
-	efi_free_pool(bootefi_device_path);
-	efi_free_pool(bootefi_image_path);
-
-	ret = efi_dp_from_name(dev, devnr, path, &device, &image);
-	if (ret == EFI_SUCCESS) {
-		bootefi_device_path = device;
-		if (image) {
-			/* FIXME: image should not contain device */
-			struct efi_device_path *image_tmp = image;
-
-			efi_dp_split_file_path(image, &device, &image);
-			efi_free_pool(image_tmp);
-		}
-		bootefi_image_path = image;
-	} else {
-		bootefi_device_path = NULL;
-		bootefi_image_path = NULL;
-	}
-}
