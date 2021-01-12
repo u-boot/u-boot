@@ -1016,4 +1016,15 @@ config PINEPHONE_DT_SELECTION
 	  Enable this option to automatically select the device tree for the
 	  correct PinePhone hardware revision during boot.
 
+config BLUETOOTH_DT_DEVICE_FIXUP
+	string "Fixup the Bluetooth controller address"
+	default ""
+	help
+	  This option specifies the DT compatible name of the Bluetooth
+	  controller for which to set the "local-bd-address" property.
+	  Set this option if your device ships with the Bluetooth controller
+	  default address.
+	  The used address is "bdaddr" if set, and "ethaddr" with the LSB
+	  flipped elsewise.
+
 endif

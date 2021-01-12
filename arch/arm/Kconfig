@@ -1045,6 +1045,7 @@ config ARCH_SUNXI
 	select SPL_USE_TINY_PRINTF
 	select USE_PREBOOT
 	select SYS_RELOC_GD_ENV_ADDR
+	imply BOARD_LATE_INIT
 	imply CMD_DM
 	imply CMD_GPT
 	imply CMD_UBI if MTD_RAW_NAND

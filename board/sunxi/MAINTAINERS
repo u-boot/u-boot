@@ -440,6 +440,11 @@ M:	Vasily Khoruzhick <anarsoul@gmail.com>
 S:	Maintained
 F:	configs/pinebook_defconfig
 
+PINECUBE BOARD:
+M:	Icenowy Zheng <icenowy@aosc.io>
+S:	Maintained
+F:	configs/pinecube_defconfig
+
 PINE64 BOARDS
 M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained

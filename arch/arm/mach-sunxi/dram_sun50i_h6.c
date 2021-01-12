@@ -37,9 +37,9 @@
 
 static void mctl_sys_init(struct dram_para *para);
 static void mctl_com_init(struct dram_para *para);
-static void mctl_channel_init(struct dram_para *para);
+static bool mctl_channel_init(struct dram_para *para);
 
-static void mctl_core_init(struct dram_para *para)
+static bool mctl_core_init(struct dram_para *para)
 {
 	mctl_sys_init(para);
 	mctl_com_init(para);
@@ -51,7 +51,7 @@ static void mctl_core_init(struct dram_para *para)
 	default:
 		panic("Unsupported DRAM type!");
 	};
-	mctl_channel_init(para);
+	return mctl_channel_init(para);
 }
 
 /* PHY initialisation */
@@ -411,7 +411,7 @@ static void mctl_bit_delay_set(struct dram_para *para)
 	}
 }
 
-static void mctl_channel_init(struct dram_para *para)
+static bool mctl_channel_init(struct dram_para *para)
 {
 	struct sunxi_mctl_com_reg * const mctl_com =
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
@@ -528,46 +528,15 @@ static void mctl_channel_init(struct dram_para *para)
 		clrbits_le32(&mctl_phy->dx[i].gcr[3], ~0x3ffff);
 	udelay(10);
 
-	if (readl(&mctl_phy->pgsr[0]) & 0x400000)
-	{
-		/* Check for single rank and optionally half DQ. */
-		if ((readl(&mctl_phy->dx[0].rsr[0]) & 0x3) == 2 &&
-		    (readl(&mctl_phy->dx[1].rsr[0]) & 0x3) == 2) {
-			para->ranks = 1;
-
-			if ((readl(&mctl_phy->dx[2].rsr[0]) & 0x3) != 2 ||
-			    (readl(&mctl_phy->dx[3].rsr[0]) & 0x3) != 2)
-				para->bus_full_width = 0;
-
-			/* Restart DRAM initialization from scratch. */
-			mctl_core_init(para);
-			return;
-		}
-
-		/*
-		 * Check for dual rank and half DQ. NOTE: This combination
-		 * is highly unlikely and was not tested. Condition is the
-		 * same as in libdram, though.
-		 */
-		if ((readl(&mctl_phy->dx[0].rsr[0]) & 0x3) == 0 &&
-		    (readl(&mctl_phy->dx[1].rsr[0]) & 0x3) == 0) {
-			para->bus_full_width = 0;
-
-			/* Restart DRAM initialization from scratch. */
-			mctl_core_init(para);
-			return;
-		}
-
-		panic("This DRAM setup is currently not supported.\n");
-	}
-
 	if (readl(&mctl_phy->pgsr[0]) & 0xff00000) {
 		/* Oops! There's something wrong! */
 		debug("PLL = %x\n", readl(0x3001010));
 		debug("DRAM PHY PGSR0 = %x\n", readl(&mctl_phy->pgsr[0]));
 		for (i = 0; i < 4; i++)
 			debug("DRAM PHY DX%dRSR0 = %x\n", i, readl(&mctl_phy->dx[i].rsr[0]));
-		panic("Error while initializing DRAM PHY!\n");
+		debug("Error while initializing DRAM PHY!\n");
+
+		return false;
 	}
 
 	if (sunxi_dram_is_lpddr(para->type))
@@ -582,13 +551,59 @@ static void mctl_channel_init(struct dram_para *para)
 	writel(0xffffffff, &mctl_com->maer0);
 	writel(0x7ff, &mctl_com->maer1);
 	writel(0xffff, &mctl_com->maer2);
+
+	return true;
+}
+
+static void mctl_auto_detect_rank_width(struct dram_para *para)
+{
+	/* this is minimum size that it's supported */
+	para->cols = 8;
+	para->rows = 13;
+
+	/*
+	 * Previous versions of this driver tried to auto detect the rank
+	 * and width by looking at controller registers. However this proved
+	 * to be not reliable, so this approach here is the more robust
+	 * solution. Check the git history for details.
+	 *
+	 * Strategy here is to test most demanding combination first and least
+	 * demanding last, otherwise HW might not be fully utilized. For
+	 * example, half bus width and rank = 1 combination would also work
+	 * on HW with full bus width and rank = 2, but only 1/4 RAM would be
+	 * visible.
+	 */
+
+	debug("testing 32-bit width, rank = 2\n");
+	para->bus_full_width = 1;
+	para->ranks = 2;
+	if (mctl_core_init(para))
+		return;
+
+	debug("testing 32-bit width, rank = 1\n");
+	para->bus_full_width = 1;
+	para->ranks = 1;
+	if (mctl_core_init(para))
+		return;
+
+	debug("testing 16-bit width, rank = 2\n");
+	para->bus_full_width = 0;
+	para->ranks = 2;
+	if (mctl_core_init(para))
+		return;
+
+	debug("testing 16-bit width, rank = 1\n");
+	para->bus_full_width = 0;
+	para->ranks = 1;
+	if (mctl_core_init(para))
+		return;
+
+	panic("This DRAM setup is currently not supported.\n");
 }
 
 static void mctl_auto_detect_dram_size(struct dram_para *para)
 {
 	/* TODO: non-(LP)DDR3 */
-	/* Detect rank number and half DQ by the code in mctl_channel_init. */
-	mctl_core_init(para);
 
 	/* detect row address bits */
 	para->cols = 8;
@@ -652,10 +667,6 @@ unsigned long sunxi_dram_init(void)
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
 	struct dram_para para = {
 		.clk = CONFIG_DRAM_CLK,
-		.ranks = 2,
-		.cols = 11,
-		.rows = 14,
-		.bus_full_width = 1,
 #ifdef CONFIG_SUNXI_DRAM_H6_LPDDR3
 		.type = SUNXI_DRAM_TYPE_LPDDR3,
 		.dx_read_delays  = SUN50I_H6_LPDDR3_DX_READ_DELAYS,
@@ -673,6 +684,7 @@ unsigned long sunxi_dram_init(void)
 	setbits_le32(0x7010310, BIT(8));
 	clrbits_le32(0x7010318, 0x3f);
 
+	mctl_auto_detect_rank_width(&para);
 	mctl_auto_detect_dram_size(&para);
 
 	mctl_core_init(&para);

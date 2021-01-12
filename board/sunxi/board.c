@@ -39,6 +39,7 @@
 #include <u-boot/crc.h>
 #include <env_internal.h>
 #include <linux/libfdt.h>
+#include <fdt_support.h>
 #include <nand.h>
 #include <net.h>
 #include <spl.h>
@@ -789,6 +790,38 @@ static void parse_spl_header(const uint32_t spl_addr)
 	env_set_hex("fel_scriptaddr", spl->fel_script_address);
 }
 
+static bool get_unique_sid(unsigned int *sid)
+{
+	if (sunxi_get_sid(sid) != 0)
+		return false;
+
+	if (!sid[0])
+		return false;
+
+	/*
+	 * The single words 1 - 3 of the SID have quite a few bits
+	 * which are the same on many models, so we take a crc32
+	 * of all 3 words, to get a more unique value.
+	 *
+	 * Note we only do this on newer SoCs as we cannot change
+	 * the algorithm on older SoCs since those have been using
+	 * fixed mac-addresses based on only using word 3 for a
+	 * long time and changing a fixed mac-address with an
+	 * u-boot update is not good.
+	 */
+#if !defined(CONFIG_MACH_SUN4I) && !defined(CONFIG_MACH_SUN5I) && \
+    !defined(CONFIG_MACH_SUN6I) && !defined(CONFIG_MACH_SUN7I) && \
+    !defined(CONFIG_MACH_SUN8I_A23) && !defined(CONFIG_MACH_SUN8I_A33)
+	sid[3] = crc32(0, (unsigned char *)&sid[1], 12);
+#endif
+
+	/* Ensure the NIC specific bytes of the mac are not all 0 */
+	if ((sid[3] & 0xffffff) == 0)
+		sid[3] |= 0x800000;
+
+	return true;
+}
+
 /*
  * Note this function gets called multiple times.
  * It must not make any changes to env variables which already exist.
@@ -799,61 +832,40 @@ static void setup_environment(const void *fdt)
 	unsigned int sid[4];
 	uint8_t mac_addr[6];
 	char ethaddr[16];
-	int i, ret;
+	int i;
 
-	ret = sunxi_get_sid(sid);
-	if (ret == 0 && sid[0] != 0) {
-		/*
-		 * The single words 1 - 3 of the SID have quite a few bits
-		 * which are the same on many models, so we take a crc32
-		 * of all 3 words, to get a more unique value.
-		 *
-		 * Note we only do this on newer SoCs as we cannot change
-		 * the algorithm on older SoCs since those have been using
-		 * fixed mac-addresses based on only using word 3 for a
-		 * long time and changing a fixed mac-address with an
-		 * u-boot update is not good.
-		 */
-#if !defined(CONFIG_MACH_SUN4I) && !defined(CONFIG_MACH_SUN5I) && \
-    !defined(CONFIG_MACH_SUN6I) && !defined(CONFIG_MACH_SUN7I) && \
-    !defined(CONFIG_MACH_SUN8I_A23) && !defined(CONFIG_MACH_SUN8I_A33)
-		sid[3] = crc32(0, (unsigned char *)&sid[1], 12);
-#endif
+	if (!get_unique_sid(sid))
+		return;
 
-		/* Ensure the NIC specific bytes of the mac are not all 0 */
-		if ((sid[3] & 0xffffff) == 0)
-			sid[3] |= 0x800000;
+	for (i = 0; i < 4; i++) {
+		sprintf(ethaddr, "ethernet%d", i);
+		if (!fdt_get_alias(fdt, ethaddr))
+			continue;
 
-		for (i = 0; i < 4; i++) {
-			sprintf(ethaddr, "ethernet%d", i);
-			if (!fdt_get_alias(fdt, ethaddr))
-				continue;
+		if (i == 0)
+			strcpy(ethaddr, "ethaddr");
+		else
+			sprintf(ethaddr, "eth%daddr", i);
 
-			if (i == 0)
-				strcpy(ethaddr, "ethaddr");
-			else
-				sprintf(ethaddr, "eth%daddr", i);
+		if (env_get(ethaddr))
+			continue;
 
-			if (env_get(ethaddr))
-				continue;
+		/* Non OUI / registered MAC address */
+		mac_addr[0] = (i << 4) | 0x02;
+		mac_addr[1] = (sid[0] >>  0) & 0xff;
+		mac_addr[2] = (sid[3] >> 24) & 0xff;
+		mac_addr[3] = (sid[3] >> 16) & 0xff;
+		mac_addr[4] = (sid[3] >>  8) & 0xff;
+		mac_addr[5] = (sid[3] >>  0) & 0xff;
 
-			/* Non OUI / registered MAC address */
-			mac_addr[0] = (i << 4) | 0x02;
-			mac_addr[1] = (sid[0] >>  0) & 0xff;
-			mac_addr[2] = (sid[3] >> 24) & 0xff;
-			mac_addr[3] = (sid[3] >> 16) & 0xff;
-			mac_addr[4] = (sid[3] >>  8) & 0xff;
-			mac_addr[5] = (sid[3] >>  0) & 0xff;
+		eth_env_set_enetaddr(ethaddr, mac_addr);
+	}
 
-			eth_env_set_enetaddr(ethaddr, mac_addr);
-		}
+	if (!env_get("serial#")) {
+		snprintf(serial_string, sizeof(serial_string),
+			"%08x%08x", sid[0], sid[3]);
 
-		if (!env_get("serial#")) {
-			snprintf(serial_string, sizeof(serial_string),
-				"%08x%08x", sid[0], sid[3]);
-
-			env_set("serial#", serial_string);
-		}
+		env_set("serial#", serial_string);
 	}
 }
 
@@ -890,11 +902,48 @@ int misc_init_r(void)
 
 	setup_environment(gd->fdt_blob);
 
+	return 0;
+}
+
+int board_late_init(void)
+{
 #ifdef CONFIG_USB_ETHER
 	usb_ether_init();
 #endif
 
 	return 0;
+}
+
+static void bluetooth_dt_fixup(void *blob)
+{
+	/* Some devices ship with a Bluetooth controller default address.
+	 * Set a valid address through the device tree.
+	 */
+	uchar tmp[ETH_ALEN], bdaddr[ETH_ALEN];
+	unsigned int sid[4];
+	int i;
+
+	if (!CONFIG_BLUETOOTH_DT_DEVICE_FIXUP[0])
+		return;
+
+	if (eth_env_get_enetaddr("bdaddr", tmp)) {
+		/* Convert between the binary formats of the corresponding stacks */
+		for (i = 0; i < ETH_ALEN; ++i)
+			bdaddr[i] = tmp[ETH_ALEN - i - 1];
+	} else {
+		if (!get_unique_sid(sid))
+			return;
+
+		bdaddr[0] = ((sid[3] >>  0) & 0xff) ^ 1;
+		bdaddr[1] = (sid[3] >>  8) & 0xff;
+		bdaddr[2] = (sid[3] >> 16) & 0xff;
+		bdaddr[3] = (sid[3] >> 24) & 0xff;
+		bdaddr[4] = (sid[0] >>  0) & 0xff;
+		bdaddr[5] = 0x02;
+	}
+
+	do_fixup_by_compat(blob, CONFIG_BLUETOOTH_DT_DEVICE_FIXUP,
+			   "local-bd-address", bdaddr, ETH_ALEN, 1);
 }
 
 int ft_board_setup(void *blob, struct bd_info *bd)
@@ -906,6 +955,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	 * ethernet aliases the u-boot copy does not have.
 	 */
 	setup_environment(blob);
+
+	bluetooth_dt_fixup(blob);
 
 #ifdef CONFIG_VIDEO_DT_SIMPLEFB
 	r = sunxi_simplefb_setup(blob);

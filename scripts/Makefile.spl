@@ -386,11 +386,11 @@ endif
 $(obj)/$(SPL_BIN).sfp: $(obj)/$(SPL_BIN).bin FORCE
 	$(call if_changed,mkimage)
 
-quiet_cmd_mksunxiboot = MKSUNXI $@
-cmd_mksunxiboot = $(objtree)/tools/mksunxiboot \
-			--default-dt $(CONFIG_DEFAULT_DEVICE_TREE) $< $@
+MKIMAGEFLAGS_sunxi-spl.bin = -T sunxi_egon \
+	-n $(CONFIG_DEFAULT_DEVICE_TREE)
+
 $(obj)/sunxi-spl.bin: $(obj)/$(SPL_BIN).bin FORCE
-	$(call if_changed,mksunxiboot)
+	$(call if_changed,mkimage)
 
 quiet_cmd_sunxi_spl_image_builder = SUNXI_SPL_IMAGE_BUILDER $@
 cmd_sunxi_spl_image_builder = $(objtree)/tools/sunxi-spl-image-builder \
