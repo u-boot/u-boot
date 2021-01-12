@@ -25,5 +25,3 @@
 /* CLKSEL Register */
 #define DWMCI_DIVRATIO_BIT		24
 #define DWMCI_DIVRATIO_MASK		0x7
-
-int exynos_dwmmc_init(const void *blob);
