@@ -411,13 +411,14 @@ config ENV_IS_IN_UBI
 
 config SYS_REDUNDAND_ENVIRONMENT
 	bool "Enable redundant environment support"
-	depends on ENV_IS_IN_EEPROM || ENV_IS_IN_FLASH || ENV_IS_IN_MMC || \
-		ENV_IS_IN_NAND || ENV_IS_IN_SPI_FLASH || ENV_IS_IN_UBI
 	help
 	  Normally, the environemt is stored in a single location.  By
 	  selecting this option, you can then define where to hold a redundant
 	  copy of the environment data, so that there is a valid backup copy in
 	  case there is a power failure during a "saveenv" operation.
+	  Also this config changes the binary environment structure handling
+	  which is used by env import/export commands which are independent of
+	  storing variables to redundant location on a non volatile device.
 
 config ENV_FAT_INTERFACE
 	string "Name of the block device for the environment"
