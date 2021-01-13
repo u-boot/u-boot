@@ -1553,6 +1553,12 @@ int fit_image_check_comp(const void *fit, int noffset, uint8_t comp)
  */
 int fit_check_format(const void *fit)
 {
+	/* A FIT image must be a valid FDT */
+	if (fdt_check_header(fit)) {
+		debug("Wrong FIT format: not a flattened device tree\n");
+		return 0;
+	}
+
 	/* mandatory / node 'description' property */
 	if (fdt_getprop(fit, 0, FIT_DESC_PROP, NULL) == NULL) {
 		debug("Wrong FIT format: no description\n");
