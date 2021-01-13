@@ -4,6 +4,8 @@
  * Author(s): Vikas Manocha, <vikas.manocha@st.com> for STMicroelectronics.
  */
 
+#define LOG_CATEGORY UCLASS_SERIAL
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
@@ -13,6 +15,7 @@
 #include <watchdog.h>
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include "serial_stm32.h"

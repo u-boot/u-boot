@@ -6,6 +6,7 @@
 #include <common.h>
 #include <command.h>
 #include <console.h>
+#include <log.h>
 #include <misc.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
@@ -34,7 +35,7 @@ static void fuse_hash_value(u32 addr, bool print)
 					  DM_DRIVER_GET(stm32mp_bsec),
 					  &dev);
 	if (ret) {
-		pr_err("Can't find stm32mp_bsec driver\n");
+		log_err("Can't find stm32mp_bsec driver\n");
 		return;
 	}
 

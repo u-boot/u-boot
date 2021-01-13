@@ -47,28 +47,28 @@
 		config-1 {
 			/* DT+SoM+board model */
 			description = "dh,stm32mp15xx-dhcom-pdk2_somrev0_boardrev0";
-			loadables = "uboot";
+			firmware = "uboot";
 			fdt = "fdt-1";
 		};
 
 		config-2 {
 			/* DT+SoM+board model */
 			description = "dh,stm32mp15xx-dhcom-pdk2_somrev1_boardrev0";
-			loadables = "uboot";
+			firmware = "uboot";
 			fdt = "fdt-1";
 		};
 
 		config-3 {
 			/* DT+SoM+board model */
 			description = "dh,stm32mp15xx-dhcom-drc02_somrev0_boardrev0";
-			loadables = "uboot";
+			firmware = "uboot";
 			fdt = "fdt-2";
 		};
 
 		config-4 {
 			/* DT+SoM+board model */
 			description = "dh,stm32mp15xx-dhcom-drc02_somrev1_boardrev0";
-			loadables = "uboot";
+			firmware = "uboot";
 			fdt = "fdt-2";
 		};
 

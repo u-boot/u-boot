@@ -3,6 +3,8 @@
  * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
  */
 
+#define LOG_CATEGORY LOGC_ARCH
+
 #include <common.h>
 #include <dm.h>
 #include <image.h>
@@ -21,15 +23,15 @@ int dram_init(void)
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
-		debug("RAM init failed: %d\n", ret);
+		log_debug("RAM init failed: %d\n", ret);
 		return ret;
 	}
 	ret = ram_get_info(dev, &ram);
 	if (ret) {
-		debug("Cannot get RAM size: %d\n", ret);
+		log_debug("Cannot get RAM size: %d\n", ret);
 		return ret;
 	}
-	debug("RAM init base=%lx, size=%x\n", ram.base, ram.size);
+	log_debug("RAM init base=%lx, size=%x\n", ram.base, ram.size);
 
 	gd->ram_size = ram.size;
 

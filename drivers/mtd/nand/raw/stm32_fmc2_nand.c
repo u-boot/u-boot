@@ -4,12 +4,15 @@
  * Author: Christophe Kerello <christophe.kerello@st.com>
  */
 
+#define LOG_CATEGORY UCLASS_MTD
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <log.h>
 #include <nand.h>
 #include <reset.h>
+#include <dm/device_compat.h>
 #include <linux/bitfield.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
@@ -324,7 +327,7 @@ static int stm32_fmc2_nfc_ham_calculate(struct mtd_info *mtd, const u8 *data,
 	ret = readl_poll_timeout(nfc->io_base + FMC2_SR, sr,
 				 sr & FMC2_SR_NWRF, FMC2_TIMEOUT_5S);
 	if (ret < 0) {
-		pr_err("Ham timeout\n");
+		log_err("Ham timeout\n");
 		return ret;
 	}
 
@@ -409,7 +412,7 @@ static int stm32_fmc2_nfc_bch_calculate(struct mtd_info *mtd, const u8 *data,
 	ret = readl_poll_timeout(nfc->io_base + FMC2_BCHISR, bchisr,
 				 bchisr & FMC2_BCHISR_EPBRF, FMC2_TIMEOUT_5S);
 	if (ret < 0) {
-		pr_err("Bch timeout\n");
+		log_err("Bch timeout\n");
 		return ret;
 	}
 
@@ -457,7 +460,7 @@ static int stm32_fmc2_nfc_bch_correct(struct mtd_info *mtd, u8 *dat,
 	ret = readl_poll_timeout(nfc->io_base + FMC2_BCHISR, bchisr,
 				 bchisr & FMC2_BCHISR_DERF, FMC2_TIMEOUT_5S);
 	if (ret < 0) {
-		pr_err("Bch timeout\n");
+		log_err("Bch timeout\n");
 		return ret;
 	}
 
@@ -795,26 +798,24 @@ static int stm32_fmc2_nfc_parse_child(struct stm32_fmc2_nfc *nfc, ofnode node)
 
 	nand->ncs /= sizeof(u32);
 	if (!nand->ncs) {
-		pr_err("Invalid reg property size\n");
+		log_err("Invalid reg property size\n");
 		return -EINVAL;
 	}
 
 	ret = ofnode_read_u32_array(node, "reg", cs, nand->ncs);
 	if (ret < 0) {
-		pr_err("Could not retrieve reg property\n");
+		log_err("Could not retrieve reg property\n");
 		return -EINVAL;
 	}
 
 	for (i = 0; i < nand->ncs; i++) {
 		if (cs[i] >= FMC2_MAX_CE) {
-			pr_err("Invalid reg value: %d\n",
-			       nand->cs_used[i]);
+			log_err("Invalid reg value: %d\n", nand->cs_used[i]);
 			return -EINVAL;
 		}
 
 		if (nfc->cs_assigned & BIT(cs[i])) {
-			pr_err("Cs already assigned: %d\n",
-			       nand->cs_used[i]);
+			log_err("Cs already assigned: %d\n", nand->cs_used[i]);
 			return -EINVAL;
 		}
 
@@ -837,12 +838,12 @@ static int stm32_fmc2_nfc_parse_dt(struct udevice *dev,
 		nchips++;
 
 	if (!nchips) {
-		pr_err("NAND chip not defined\n");
+		log_err("NAND chip not defined\n");
 		return -EINVAL;
 	}
 
 	if (nchips > 1) {
-		pr_err("Too many NAND chips defined\n");
+		log_err("Too many NAND chips defined\n");
 		return -EINVAL;
 	}
 
@@ -918,24 +919,21 @@ static int stm32_fmc2_nfc_probe(struct udevice *dev)
 
 		addr = dev_read_addr_index(dev, mem_region);
 		if (addr == FDT_ADDR_T_NONE) {
-			pr_err("Resource data_base not found for cs%d",
-			       chip_cs);
+			dev_err(dev, "Resource data_base not found for cs%d", chip_cs);
 			return ret;
 		}
 		nfc->data_base[chip_cs] = addr;
 
 		addr = dev_read_addr_index(dev, mem_region + 1);
 		if (addr == FDT_ADDR_T_NONE) {
-			pr_err("Resource cmd_base not found for cs%d",
-			       chip_cs);
+			dev_err(dev, "Resource cmd_base not found for cs%d", chip_cs);
 			return ret;
 		}
 		nfc->cmd_base[chip_cs] = addr;
 
 		addr = dev_read_addr_index(dev, mem_region + 2);
 		if (addr == FDT_ADDR_T_NONE) {
-			pr_err("Resource addr_base not found for cs%d",
-			       chip_cs);
+			dev_err(dev, "Resource addr_base not found for cs%d", chip_cs);
 			return ret;
 		}
 		nfc->addr_base[chip_cs] = addr;
@@ -985,14 +983,14 @@ static int stm32_fmc2_nfc_probe(struct udevice *dev)
 	 * ECC sector size = 512
 	 */
 	if (chip->ecc.mode != NAND_ECC_HW) {
-		pr_err("Nand_ecc_mode is not well defined in the DT\n");
+		dev_err(dev, "Nand_ecc_mode is not well defined in the DT\n");
 		return -EINVAL;
 	}
 
 	ret = nand_check_ecc_caps(chip, &stm32_fmc2_nfc_ecc_caps,
 				  mtd->oobsize - FMC2_BBM_LEN);
 	if (ret) {
-		pr_err("No valid ECC settings set\n");
+		dev_err(dev, "No valid ECC settings set\n");
 		return ret;
 	}
 
@@ -1045,6 +1043,6 @@ void board_nand_init(void)
 					  DM_DRIVER_GET(stm32_fmc2_nfc),
 					  &dev);
 	if (ret && ret != -ENODEV)
-		pr_err("Failed to initialize STM32 FMC2 NFC controller. (error %d)\n",
-		       ret);
+		log_err("Failed to initialize STM32 FMC2 NFC controller. (error %d)\n",
+			ret);
 }

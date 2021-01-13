@@ -4,6 +4,9 @@
  *
  * Driver for STMicroelectronics Serial peripheral interface (SPI)
  */
+
+#define LOG_CATEGORY UCLASS_SPI
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
@@ -138,7 +141,7 @@ static void stm32_spi_write_txfifo(struct stm32_spi_priv *priv)
 		}
 	}
 
-	debug("%s: %d bytes left\n", __func__, priv->tx_len);
+	log_debug("%d bytes left\n", priv->tx_len);
 }
 
 static void stm32_spi_read_rxfifo(struct stm32_spi_priv *priv)
@@ -176,12 +179,12 @@ static void stm32_spi_read_rxfifo(struct stm32_spi_priv *priv)
 		rxplvl = (sr & SPI_SR_RXPLVL) >> SPI_SR_RXPLVL_SHIFT;
 	}
 
-	debug("%s: %d bytes left\n", __func__, priv->rx_len);
+	log_debug("%d bytes left\n", priv->rx_len);
 }
 
 static int stm32_spi_enable(struct stm32_spi_priv *priv)
 {
-	debug("%s\n", __func__);
+	log_debug("\n");
 
 	/* Enable the SPI hardware */
 	setbits_le32(priv->base + STM32_SPI_CR1, SPI_CR1_SPE);
@@ -191,7 +194,7 @@ static int stm32_spi_enable(struct stm32_spi_priv *priv)
 
 static int stm32_spi_disable(struct stm32_spi_priv *priv)
 {
-	debug("%s\n", __func__);
+	log_debug("\n");
 
 	/* Disable the SPI hardware */
 	clrbits_le32(priv->base + STM32_SPI_CR1, SPI_CR1_SPE);
@@ -204,7 +207,7 @@ static int stm32_spi_claim_bus(struct udevice *slave)
 	struct udevice *bus = dev_get_parent(slave);
 	struct stm32_spi_priv *priv = dev_get_priv(bus);
 
-	debug("%s\n", __func__);
+	dev_dbg(slave, "\n");
 
 	/* Enable the SPI hardware */
 	return stm32_spi_enable(priv);
@@ -215,7 +218,7 @@ static int stm32_spi_release_bus(struct udevice *slave)
 	struct udevice *bus = dev_get_parent(slave);
 	struct stm32_spi_priv *priv = dev_get_priv(bus);
 
-	debug("%s\n", __func__);
+	dev_dbg(slave, "\n");
 
 	/* Disable the SPI hardware */
 	return stm32_spi_disable(priv);
@@ -227,7 +230,7 @@ static void stm32_spi_stopxfer(struct udevice *dev)
 	u32 cr1, sr;
 	int ret;
 
-	debug("%s\n", __func__);
+	dev_dbg(dev, "\n");
 
 	cr1 = readl(priv->base + STM32_SPI_CR1);
 
@@ -255,7 +258,7 @@ static int stm32_spi_set_cs(struct udevice *dev, unsigned int cs, bool enable)
 {
 	struct stm32_spi_priv *priv = dev_get_priv(dev);
 
-	debug("%s: cs=%d enable=%d\n", __func__, cs, enable);
+	dev_dbg(dev, "cs=%d enable=%d\n", cs, enable);
 
 	if (cs >= MAX_CS_COUNT)
 		return -ENODEV;
@@ -274,7 +277,7 @@ static int stm32_spi_set_mode(struct udevice *bus, uint mode)
 	struct stm32_spi_priv *priv = dev_get_priv(bus);
 	u32 cfg2_clrb = 0, cfg2_setb = 0;
 
-	debug("%s: mode=%d\n", __func__, mode);
+	dev_dbg(bus, "mode=%d\n", mode);
 
 	if (mode & SPI_CPOL)
 		cfg2_setb |= SPI_CFG2_CPOL;
@@ -330,7 +333,7 @@ static int stm32_spi_set_speed(struct udevice *bus, uint hz)
 	u32 mbrdiv;
 	long div;
 
-	debug("%s: hz=%d\n", __func__, hz);
+	dev_dbg(bus, "hz=%d\n", hz);
 
 	if (priv->cur_hz == hz)
 		return 0;
@@ -404,8 +407,8 @@ static int stm32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 		stm32_spi_enable(priv);
 	}
 
-	debug("%s: priv->tx_len=%d priv->rx_len=%d\n", __func__,
-	      priv->tx_len, priv->rx_len);
+	dev_dbg(bus, "priv->tx_len=%d priv->rx_len=%d\n",
+		priv->tx_len, priv->rx_len);
 
 	slave_plat = dev_get_parent_plat(slave);
 	if (flags & SPI_XFER_BEGIN)
@@ -477,7 +480,7 @@ static int stm32_spi_get_fifo_size(struct udevice *dev)
 
 	stm32_spi_disable(priv);
 
-	debug("%s %d x 8-bit fifo size\n", __func__, count);
+	dev_dbg(dev, "%d x 8-bit fifo size\n", count);
 
 	return count;
 }
@@ -522,7 +525,7 @@ static int stm32_spi_probe(struct udevice *dev)
 	ret = gpio_request_list_by_name(dev, "cs-gpios", priv->cs_gpios,
 					ARRAY_SIZE(priv->cs_gpios), 0);
 	if (ret < 0) {
-		pr_err("Can't get %s cs gpios: %d", dev->name, ret);
+		dev_err(dev, "Can't get cs gpios: %d", ret);
 		goto reset_err;
 	}
 

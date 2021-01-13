@@ -1,5 +1,5 @@
 ST BOARDS
-M:	Patrick Delaunay <patrick.delaunay@st.com>
+M:	Patrick Delaunay <patrick.delaunay@foss.st.com>
 L:	uboot-stm32@st-md-mailman.stormreply.com (moderated for non-subscribers)
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-stm.git
 S:	Maintained

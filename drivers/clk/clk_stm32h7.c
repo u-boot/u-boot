@@ -4,6 +4,8 @@
  * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
+#define LOG_CATEGORY UCLASS_CLK
+
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
@@ -11,6 +13,7 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <dm/root.h>
 #include <linux/bitops.h>
 
@@ -465,18 +468,18 @@ static ulong stm32_get_rate(struct stm32_rcc_regs *regs, enum pllsrc pllsrc)
 	int ret;
 	const char *name = pllsrc_name[pllsrc];
 
-	debug("%s name %s\n", __func__, name);
+	log_debug("pllsrc name %s\n", name);
 
 	clk.id = 0;
 	ret = uclass_get_device_by_name(UCLASS_CLK, name, &fixed_clock_dev);
 	if (ret) {
-		pr_err("Can't find clk %s (%d)", name, ret);
+		log_err("Can't find clk %s (%d)", name, ret);
 		return 0;
 	}
 
 	ret = clk_request(fixed_clock_dev, &clk);
 	if (ret) {
-		pr_err("Can't request %s clk (%d)", name, ret);
+		log_err("Can't request %s clk (%d)", name, ret);
 		return 0;
 	}
 
@@ -484,8 +487,7 @@ static ulong stm32_get_rate(struct stm32_rcc_regs *regs, enum pllsrc pllsrc)
 	if (pllsrc == HSI)
 		divider = stm32_get_HSI_divider(regs);
 
-	debug("%s divider %d rate %ld\n", __func__,
-	      divider, clk_get_rate(&clk));
+	log_debug("divider %d rate %ld\n", divider, clk_get_rate(&clk));
 
 	return clk_get_rate(&clk) >> divider;
 };
@@ -516,7 +518,7 @@ static u32 stm32_get_PLL1_rate(struct stm32_rcc_regs *regs,
 		break;
 	case RCC_PLLCKSELR_PLLSRC_NO_CLK:
 		/* shouldn't happen */
-		pr_err("wrong value for RCC_PLLCKSELR register\n");
+		log_err("wrong value for RCC_PLLCKSELR register\n");
 		pllsrc = 0;
 		break;
 	}
@@ -546,10 +548,10 @@ static u32 stm32_get_PLL1_rate(struct stm32_rcc_regs *regs,
 	vco = (pllsrc / divm1) * divn1;
 	rate = (pllsrc * fracn1) / (divm1 * 8192);
 
-	debug("%s divm1 = %d divn1 = %d divp1 = %d divq1 = %d divr1 = %d\n",
-	      __func__, divm1, divn1, divp1, divq1, divr1);
-	debug("%s fracn1 = %d vco = %ld rate = %ld\n",
-	      __func__, fracn1, vco, rate);
+	log_debug("divm1 = %d divn1 = %d divp1 = %d divq1 = %d divr1 = %d\n",
+		  divm1, divn1, divp1, divq1, divr1);
+	log_debug("fracn1 = %d vco = %ld rate = %ld\n",
+		  fracn1, vco, rate);
 
 	switch (output) {
 	case PLL1_P_CK:
@@ -610,7 +612,7 @@ u32 psc = stm32_get_apb_psc(regs, apb);
 		case 16:
 			return sysclk / 4;
 		default:
-			pr_err("unexpected prescaler value (%d)\n", psc);
+			log_err("unexpected prescaler value (%d)\n", psc);
 			return 0;
 		}
 	else
@@ -623,7 +625,7 @@ u32 psc = stm32_get_apb_psc(regs, apb);
 		case 16:
 			return sysclk / psc;
 		default:
-			pr_err("unexpected prescaler value (%d)\n", psc);
+			log_err("unexpected prescaler value (%d)\n", psc);
 			return 0;
 		}
 };
@@ -665,8 +667,8 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 	if (!sysclk)
 		return sysclk;
 
-	debug("%s system clock: source = %d freq = %ld\n",
-	      __func__, source, sysclk);
+	dev_dbg(clk->dev, "system clock: source = %d freq = %ld\n",
+		source, sysclk);
 
 	d1cfgr = readl(&regs->d1cfgr);
 
@@ -685,8 +687,8 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 
 	gate_offset = clk_map[clk->id].gate_offset;
 
-	debug("%s clk->id=%ld gate_offset=0x%x sysclk=%ld\n",
-	      __func__, clk->id, gate_offset, sysclk);
+	dev_dbg(clk->dev, "clk->id=%ld gate_offset=0x%x sysclk=%ld\n",
+		clk->id, gate_offset, sysclk);
 
 	switch (gate_offset) {
 	case RCC_AHB3ENR:
@@ -704,8 +706,8 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 			sysclk = sysclk / prescaler_table[idx];
 		}
 
-		debug("%s system clock: freq after APB3 prescaler = %ld\n",
-		      __func__, sysclk);
+		dev_dbg(clk->dev, "system clock: freq after APB3 prescaler = %ld\n",
+			sysclk);
 
 		return sysclk;
 		break;
@@ -719,8 +721,9 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 			sysclk = sysclk / prescaler_table[idx];
 		}
 
-		debug("%s system clock: freq after APB4 prescaler = %ld\n",
-		      __func__, sysclk);
+		dev_dbg(clk->dev,
+			"system clock: freq after APB4 prescaler = %ld\n",
+			sysclk);
 
 		return sysclk;
 		break;
@@ -741,8 +744,9 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 			return stm32_get_timer_rate(priv, sysclk, APB1);
 		}
 
-		debug("%s system clock: freq after APB1 prescaler = %ld\n",
-		      __func__, sysclk);
+		dev_dbg(clk->dev,
+			"system clock: freq after APB1 prescaler = %ld\n",
+			sysclk);
 
 		return (sysclk / stm32_get_apb_psc(regs, APB1));
 		break;
@@ -758,15 +762,17 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 			return stm32_get_timer_rate(priv, sysclk, APB2);
 		}
 
-		debug("%s system clock: freq after APB2 prescaler = %ld\n",
-		      __func__, sysclk);
+		dev_dbg(clk->dev,
+			"system clock: freq after APB2 prescaler = %ld\n",
+			sysclk);
 
 		return (sysclk / stm32_get_apb_psc(regs, APB2));
 
 		break;
 
 	default:
-		pr_err("unexpected gate_offset value (0x%x)\n", gate_offset);
+		dev_err(clk->dev, "unexpected gate_offset value (0x%x)\n",
+			gate_offset);
 		return -EINVAL;
 		break;
 	}
@@ -783,9 +789,9 @@ static int stm32_clk_enable(struct clk *clk)
 	gate_offset = clk_map[clk_id].gate_offset;
 	gate_bit_index = clk_map[clk_id].gate_bit_idx;
 
-	debug("%s: clkid=%ld gate offset=0x%x bit_index=%d name=%s\n",
-	      __func__, clk->id, gate_offset, gate_bit_index,
-	      clk_map[clk_id].name);
+	dev_dbg(clk->dev, "clkid=%ld gate offset=0x%x bit_index=%d name=%s\n",
+		clk->id, gate_offset, gate_bit_index,
+		clk_map[clk_id].name);
 
 	setbits_le32(&regs->cr + (gate_offset / 4), BIT(gate_bit_index));
 
@@ -810,13 +816,13 @@ static int stm32_clk_probe(struct udevice *dev)
 					   "st,syscfg", &syscon);
 
 	if (err) {
-		pr_err("unable to find syscon device\n");
+		dev_err(dev, "unable to find syscon device\n");
 		return err;
 	}
 
 	priv->pwr_regmap = syscon_get_regmap(syscon);
 	if (!priv->pwr_regmap) {
-		pr_err("unable to find regmap\n");
+		dev_err(dev, "unable to find regmap\n");
 		return -ENODEV;
 	}
 
@@ -829,7 +835,7 @@ static int stm32_clk_of_xlate(struct clk *clk,
 			struct ofnode_phandle_args *args)
 {
 	if (args->args_count != 1) {
-		debug("Invaild args_count: %d\n", args->args_count);
+		dev_dbg(clk->dev, "Invaild args_count: %d\n", args->args_count);
 		return -EINVAL;
 	}
 
@@ -852,7 +858,7 @@ static int stm32_clk_of_xlate(struct clk *clk,
 		clk->id = 0;
 	}
 
-	debug("%s clk->id %ld\n", __func__, clk->id);
+	dev_dbg(clk->dev, "clk->id %ld\n", clk->id);
 
 	return 0;
 }

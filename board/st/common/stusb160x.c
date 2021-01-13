@@ -6,6 +6,8 @@
  * Copyright (C) 2020, STMicroelectronics - All Rights Reserved
  */
 
+#define LOG_CATEGORY UCLASS_I2C_GENERIC
+
 #include <common.h>
 #include <dm.h>
 #include <i2c.h>

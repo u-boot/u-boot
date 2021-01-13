@@ -1,5 +1,5 @@
 .. SPDX-License-Identifier: GPL-2.0+
-.. sectionauthor:: Patrice Chotard <patrice.chotard@st.com>
+.. sectionauthor:: Patrice Chotard <patrice.chotard@foss.st.com>
 
 Binding/unbinding a driver
 ==========================

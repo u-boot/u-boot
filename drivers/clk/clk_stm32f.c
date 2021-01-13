@@ -4,18 +4,19 @@
  * Author(s): Vikas Manocha, <vikas.manocha@st.com> for STMicroelectronics.
  */
 
+#define LOG_CATEGORY UCLASS_CLK
+
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <log.h>
 #include <stm32_rcc.h>
-#include <linux/bitops.h>
-
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/stm32_pwr.h>
-
+#include <dm/device_compat.h>
 #include <dt-bindings/mfd/stm32f7-rcc.h>
+#include <linux/bitops.h>
 
 #define RCC_CR_HSION			BIT(0)
 #define RCC_CR_HSEON			BIT(16)
@@ -309,7 +310,7 @@ static unsigned long stm32_clk_get_pllsai_rate(struct stm32_clk *priv,
 				  >> RCC_PLLSAICFGR_PLLSAIR_SHIFT;
 		break;
 	default:
-		pr_err("incorrect PLLSAI output %d\n", output);
+		log_err("incorrect PLLSAI output %d\n", output);
 		return -EINVAL;
 	}
 
@@ -490,7 +491,7 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 		return (sysclk >> stm32_get_apb_shift(regs, APB2));
 
 	default:
-		pr_err("clock index %ld out of range\n", clk->id);
+		dev_err(clk->dev, "clock index %ld out of range\n", clk->id);
 		return -EINVAL;
 	}
 }
@@ -509,8 +510,9 @@ static ulong stm32_set_rate(struct clk *clk, ulong rate)
 
 	/* Only set_rate for LTDC clock is implemented */
 	if (clk->id != STM32F7_APB2_CLOCK(LTDC)) {
-		pr_err("set_rate not implemented for clock index %ld\n",
-		       clk->id);
+		dev_err(clk->dev,
+			"set_rate not implemented for clock index %ld\n",
+			clk->id);
 		return 0;
 	}
 
@@ -604,8 +606,8 @@ static int stm32_clk_enable(struct clk *clk)
 	u32 offset = clk->id / 32;
 	u32 bit_index = clk->id % 32;
 
-	debug("%s: clkid = %ld, offset from AHB1ENR is %d, bit_index = %d\n",
-	      __func__, clk->id, offset, bit_index);
+	dev_dbg(clk->dev, "clkid = %ld, offset from AHB1ENR is %d, bit_index = %d\n",
+		clk->id, offset, bit_index);
 	setbits_le32(&regs->ahb1enr + offset, BIT(bit_index));
 
 	return 0;
@@ -618,7 +620,7 @@ static int stm32_clk_probe(struct udevice *dev)
 	struct clk clk;
 	int err;
 
-	debug("%s\n", __func__);
+	dev_dbg(dev, "%s\n", __func__);
 
 	struct stm32_clk *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
@@ -652,14 +654,14 @@ static int stm32_clk_probe(struct udevice *dev)
 					&fixed_clock_dev);
 
 	if (err) {
-		pr_err("Can't find fixed clock (%d)", err);
+		dev_err(dev, "Can't find fixed clock (%d)", err);
 		return err;
 	}
 
 	err = clk_request(fixed_clock_dev, &clk);
 	if (err) {
-		pr_err("Can't request %s clk (%d)", fixed_clock_dev->name,
-		       err);
+		dev_err(dev, "Can't request %s clk (%d)",
+			fixed_clock_dev->name, err);
 		return err;
 	}
 
@@ -673,8 +675,8 @@ static int stm32_clk_probe(struct udevice *dev)
 	priv->hse_rate = clk_get_rate(&clk);
 
 	if (priv->hse_rate < 1000000) {
-		pr_err("%s: unexpected HSE clock rate = %ld \"n", __func__,
-		       priv->hse_rate);
+		dev_err(dev, "unexpected HSE clock rate = %ld \"n",
+			priv->hse_rate);
 		return -EINVAL;
 	}
 
@@ -684,8 +686,7 @@ static int stm32_clk_probe(struct udevice *dev)
 		err = dev_read_phandle_with_args(dev, "st,syscfg", NULL, 0, 0,
 						 &args);
 		if (err) {
-			debug("%s: can't find syscon device (%d)\n", __func__,
-			      err);
+			dev_err(dev, "can't find syscon device (%d)\n", err);
 			return err;
 		}
 
@@ -699,10 +700,10 @@ static int stm32_clk_probe(struct udevice *dev)
 
 static int stm32_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
 {
-	debug("%s(clk=%p)\n", __func__, clk);
+	dev_dbg(clk->dev, "clk=%p\n", clk);
 
 	if (args->args_count != 2) {
-		debug("Invaild args_count: %d\n", args->args_count);
+		dev_dbg(clk->dev, "Invaild args_count: %d\n", args->args_count);
 		return -EINVAL;
 	}
 

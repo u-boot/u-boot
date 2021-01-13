@@ -3,6 +3,8 @@
  * Copyright (C) 2019, STMicroelectronics - All Rights Reserved
  */
 
+#define LOG_CATEGORY UCLASS_RAM
+
 #include <common.h>
 #include <command.h>
 #include <console.h>
@@ -404,7 +406,7 @@ bool stm32mp1_ddr_interactive(void *priv,
 #endif
 	}
 
-	debug("** step %d ** %s / %d\n", step, step_str[step], next_step);
+	log_debug("** step %d ** %s / %d\n", step, step_str[step], next_step);
 
 	if (next_step < 0)
 		return false;

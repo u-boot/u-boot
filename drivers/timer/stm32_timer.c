@@ -4,6 +4,8 @@
  * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
+#define LOG_CATEGORY UCLASS_TIMER
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>

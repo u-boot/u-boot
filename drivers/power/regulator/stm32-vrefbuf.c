@@ -6,6 +6,8 @@
  * Originally based on the Linux kernel v4.16 drivers/regulator/stm32-vrefbuf.c
  */
 
+#define LOG_CATEGORY UCLASS_REGULATOR
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>

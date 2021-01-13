@@ -3,8 +3,11 @@
  * Copyright (C) 2020, STMicroelectronics - All Rights Reserved
  */
 
+#define LOG_CATEGORY LOGC_BOARD
+
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/ddr.h>
 #include <linux/bitops.h>
@@ -202,7 +205,7 @@ void stpmic1_init(u32 voltage_mv)
 
 	/* Check if debug is enabled to program PMIC according to the bit */
 	if (readl(TAMP_BOOT_CONTEXT) & TAMP_BOOT_DEBUG_ON) {
-		printf("Keep debug unit ON\n");
+		log_info("Keep debug unit ON\n");
 
 		pmic_clrsetbits(dev, STPMIC1_BUCKS_MRST_CR,
 				STPMIC1_MRST_BUCK_DEBUG,

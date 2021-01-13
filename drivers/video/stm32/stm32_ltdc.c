@@ -5,6 +5,8 @@
  *	      Yannick Fertre <yannick.fertre@st.com> for STMicroelectronics.
  */
 
+#define LOG_CATEGORY UCLASS_VIDEO
+
 #include <common.h>
 #include <clk.h>
 #include <display.h>
@@ -176,13 +178,13 @@ static u32 stm32_ltdc_get_pixel_format(enum video_log2_bpp l2bpp)
 	case VIDEO_BPP2:
 	case VIDEO_BPP4:
 	default:
-		pr_warn("%s: warning %dbpp not supported yet, %dbpp instead\n",
-			__func__, VNBITS(l2bpp), VNBITS(VIDEO_BPP16));
+		log_warning("warning %dbpp not supported yet, %dbpp instead\n",
+			    VNBITS(l2bpp), VNBITS(VIDEO_BPP16));
 		pf = PF_RGB565;
 		break;
 	}
 
-	debug("%s: %d bpp -> ltdc pf %d\n", __func__, VNBITS(l2bpp), pf);
+	log_debug("%d bpp -> ltdc pf %d\n", VNBITS(l2bpp), pf);
 
 	return (u32)pf;
 }
@@ -249,7 +251,7 @@ static void stm32_ltdc_set_mode(struct stm32_ltdc_priv *priv,
 
 	/* Signal polarities */
 	val = 0;
-	debug("%s: timing->flags 0x%08x\n", __func__, timings->flags);
+	log_debug("timing->flags 0x%08x\n", timings->flags);
 	if (timings->flags & DISPLAY_FLAGS_HSYNC_HIGH)
 		val |= GCR_HSPOL;
 	if (timings->flags & DISPLAY_FLAGS_VSYNC_HIGH)
@@ -379,8 +381,8 @@ static int stm32_ltdc_probe(struct udevice *dev)
 		dev_warn(dev, "fail to set pixel clock %d hz\n",
 			 timings.pixelclock.typ);
 
-	debug("%s: Set pixel clock req %d hz get %ld hz\n", __func__,
-	      timings.pixelclock.typ, clk_get_rate(&pclk));
+	dev_dbg(dev, "Set pixel clock req %d hz get %ld hz\n",
+		timings.pixelclock.typ, clk_get_rate(&pclk));
 
 	ret = reset_get_by_index(dev, 0, &rst);
 	if (ret) {
@@ -394,12 +396,13 @@ static int stm32_ltdc_probe(struct udevice *dev)
 	if (IS_ENABLED(CONFIG_VIDEO_BRIDGE)) {
 		ret = uclass_get_device(UCLASS_VIDEO_BRIDGE, 0, &bridge);
 		if (ret)
-			debug("No video bridge, or no backlight on bridge\n");
+			dev_dbg(dev,
+				"No video bridge, or no backlight on bridge\n");
 
 		if (bridge) {
 			ret = video_bridge_attach(bridge);
 			if (ret) {
-				dev_err(dev, "fail to attach bridge\n");
+				dev_err(bridge, "fail to attach bridge\n");
 				return ret;
 			}
 		}
@@ -414,12 +417,12 @@ static int stm32_ltdc_probe(struct udevice *dev)
 	priv->crop_h = timings.vactive.typ;
 	priv->alpha = 0xFF;
 
-	debug("%s: %dx%d %dbpp frame buffer at 0x%lx\n", __func__,
-	      timings.hactive.typ, timings.vactive.typ,
-	      VNBITS(priv->l2bpp), uc_plat->base);
-	debug("%s: crop %d,%d %dx%d bg 0x%08x alpha %d\n", __func__,
-	      priv->crop_x, priv->crop_y, priv->crop_w, priv->crop_h,
-	      priv->bg_col_argb, priv->alpha);
+	dev_dbg(dev, "%dx%d %dbpp frame buffer at 0x%lx\n",
+		timings.hactive.typ, timings.vactive.typ,
+		VNBITS(priv->l2bpp), uc_plat->base);
+	dev_dbg(dev, "crop %d,%d %dx%d bg 0x%08x alpha %d\n",
+		priv->crop_x, priv->crop_y, priv->crop_w, priv->crop_h,
+		priv->bg_col_argb, priv->alpha);
 
 	/* Configure & start LTDC */
 	stm32_ltdc_set_mode(priv, &timings);
@@ -457,7 +460,7 @@ static int stm32_ltdc_bind(struct udevice *dev)
 	uc_plat->size = CONFIG_VIDEO_STM32_MAX_XRES *
 			CONFIG_VIDEO_STM32_MAX_YRES *
 			(CONFIG_VIDEO_STM32_MAX_BPP >> 3);
-	debug("%s: frame buffer max size %d bytes\n", __func__, uc_plat->size);
+	dev_dbg(dev, "frame buffer max size %d bytes\n", uc_plat->size);
 
 	return 0;
 }
