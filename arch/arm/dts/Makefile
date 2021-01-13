@@ -786,6 +786,7 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-beacon-kit.dtb \
 	imx8mq-phanbell.dtb \
 	imx8mp-evk.dtb \
+	imx8mp-phyboard-pollux-rdk.dtb \
 	imx8mq-pico-pi.dtb
 
 dtb-$(CONFIG_ARCH_IMXRT) += imxrt1050-evk.dtb \
