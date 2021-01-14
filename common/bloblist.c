@@ -33,6 +33,12 @@ static const char *const tag_name[] = {
 	[BLOBLISTT_SPL_HANDOFF]		= "SPL hand-off",
 	[BLOBLISTT_VBOOT_CTX]		= "Chrome OS vboot context",
 	[BLOBLISTT_VBOOT_HANDOFF]	= "Chrome OS vboot hand-off",
+	[BLOBLISTT_ACPI_GNVS]		= "ACPI GNVS",
+	[BLOBLISTT_INTEL_VBT]		= "Intel Video-BIOS table",
+	[BLOBLISTT_TPM2_TCG_LOG]	= "TPM v2 log space",
+	[BLOBLISTT_TCPA_LOG]		= "TPM log space",
+	[BLOBLISTT_ACPI_TABLES]		= "ACPI tables for x86",
+	[BLOBLISTT_SMBIOS_TABLES]	= "SMBIOS tables for x86",
 };
 
 const char *bloblist_tag_name(enum bloblist_tag_t tag)
