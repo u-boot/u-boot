@@ -17,6 +17,12 @@
 #include <asm-generic/gpio.h>
 #include <dm/acpi.h>
 
+/* Type of MMC device */
+enum {
+	TYPE_SD,
+	TYPE_EMMC,
+};
+
 struct pci_mmc_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
@@ -79,6 +85,8 @@ static int pci_mmc_acpi_fill_ssdt(const struct udevice *dev,
 
 	if (!dev_has_ofnode(dev))
 		return 0;
+	if (dev_get_driver_data(dev) == TYPE_EMMC)
+		return 0;
 
 	ret = gpio_get_acpi(&priv->cd_gpio, &gpio);
 	if (ret)
@@ -122,7 +130,8 @@ struct acpi_ops pci_mmc_acpi_ops = {
 };
 
 static const struct udevice_id pci_mmc_match[] = {
-	{ .compatible = "intel,apl-sd" },
+	{ .compatible = "intel,apl-sd", .data = TYPE_SD },
+	{ .compatible = "intel,apl-emmc", .data = TYPE_EMMC },
 	{ }
 };
 
