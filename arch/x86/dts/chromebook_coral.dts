@@ -575,6 +575,12 @@
 			acpi,name = "SDCD";
 		};
 
+		emmc: emmc@1c,0 {
+			reg = <0x0000e000 0 0 0 0>;
+			compatible = "intel,apl-emmc";
+			non-removable;
+		};
+
 		pch: pch@1f,0 {
 			reg = <0x0000f800 0 0 0 0>;
 			compatible = "intel,apl-pch";
