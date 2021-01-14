@@ -568,9 +568,10 @@ static int reserve_bloblist(void)
 {
 #ifdef CONFIG_BLOBLIST
 	/* Align to a 4KB boundary for easier reading of addresses */
-	gd->start_addr_sp = ALIGN_DOWN(gd->start_addr_sp - CONFIG_BLOBLIST_SIZE,
-				       0x1000);
-	gd->new_bloblist = map_sysmem(gd->start_addr_sp, CONFIG_BLOBLIST_SIZE);
+	gd->start_addr_sp = ALIGN_DOWN(gd->start_addr_sp -
+				       CONFIG_BLOBLIST_SIZE_RELOC, 0x1000);
+	gd->new_bloblist = map_sysmem(gd->start_addr_sp,
+				      CONFIG_BLOBLIST_SIZE_RELOC);
 #endif
 
 	return 0;
@@ -658,7 +659,8 @@ static int reloc_bloblist(void)
 
 		debug("Copying bloblist from %p to %p, size %x\n",
 		      gd->bloblist, gd->new_bloblist, size);
-		memcpy(gd->new_bloblist, gd->bloblist, size);
+		bloblist_reloc(gd->new_bloblist, CONFIG_BLOBLIST_SIZE_RELOC,
+			       gd->bloblist, size);
 		gd->bloblist = gd->new_bloblist;
 	}
 #endif

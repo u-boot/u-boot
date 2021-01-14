@@ -697,6 +697,16 @@ config BLOBLIST_ADDR
 	  Sets the address of the bloblist, set up by the first part of U-Boot
 	  which runs. Subsequent U-Boot stages typically use the same address.
 
+config BLOBLIST_SIZE_RELOC
+	hex "Size of bloblist after relocation"
+	depends on BLOBLIST
+	default BLOBLIST_SIZE
+	help
+	  Sets the size of the bloblist in bytes after relocation. Since U-Boot
+	  has a lot more memory available then, it is possible to use a larger
+	  size than the one set up by SPL. This bloblist is set up during the
+	  relocation process.
+
 endmenu
 
 source "common/spl/Kconfig"
