@@ -141,12 +141,12 @@ static int term_read_reply(int *n, int num, char end_char)
  */
 static efi_status_t EFIAPI efi_cout_output_string(
 			struct efi_simple_text_output_protocol *this,
-			const efi_string_t string)
+			const u16 *string)
 {
 	struct simple_text_output_mode *con = &efi_con_mode;
 	struct cout_mode *mode = &efi_cout_modes[con->mode];
 	char *buf, *pos;
-	u16 *p;
+	const u16 *p;
 	efi_status_t ret = EFI_SUCCESS;
 
 	EFI_ENTRY("%p, %p", this, string);
@@ -230,7 +230,7 @@ out:
  */
 static efi_status_t EFIAPI efi_cout_test_string(
 			struct efi_simple_text_output_protocol *this,
-			const efi_string_t string)
+			const u16 *string)
 {
 	EFI_ENTRY("%p, %p", this, string);
 	return EFI_EXIT(EFI_SUCCESS);

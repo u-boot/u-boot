@@ -411,6 +411,8 @@ void efi_runtime_detach(void);
 /* efi_convert_pointer() - convert pointer to virtual address */
 efi_status_t EFIAPI efi_convert_pointer(efi_uintn_t debug_disposition,
 					void **address);
+/* Carve out DT reserved memory ranges */
+void efi_carve_out_dt_rsv(void *fdt);
 /* Called by bootefi to make console interface available */
 efi_status_t efi_console_register(void);
 /* Called by bootefi to make all disk storage accessible as EFI objects */
@@ -460,6 +462,8 @@ efi_status_t efi_set_watchdog(unsigned long timeout);
 
 /* Called from places to check whether a timer expired */
 void efi_timer_check(void);
+/* Check if a buffer contains a PE-COFF image */
+efi_status_t efi_check_pe(void *buffer, size_t size, void **nt_header);
 /* PE loader implementation */
 efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 			 void *efi, size_t efi_size,
@@ -472,7 +476,8 @@ void efi_restore_gd(void);
 /* Call this to relocate the runtime section to an address space */
 void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
 /* Call this to set the current device name */
-void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
+void efi_set_bootdev(const char *dev, const char *devnr, const char *path,
+		     void *buffer, size_t buffer_size);
 /* Add a new object to the object list. */
 void efi_add_handle(efi_handle_t obj);
 /* Create handle */
@@ -871,7 +876,8 @@ static inline efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
 /* No loader configured, stub out EFI_ENTRY */
 static inline void efi_restore_gd(void) { }
 static inline void efi_set_bootdev(const char *dev, const char *devnr,
-				   const char *path) { }
+				   const char *path, void *buffer,
+				   size_t buffer_size) { }
 static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
 static inline void efi_print_image_infos(void *pc) { }
 static inline efi_status_t efi_launch_capsules(void)

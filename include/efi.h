@@ -20,6 +20,11 @@
 #include <linux/string.h>
 #include <linux/types.h>
 
+/* Type INTN in UEFI specification */
+#define efi_intn_t ssize_t
+/* Type UINTN in UEFI specification*/
+#define efi_uintn_t size_t
+
 /*
  * EFI on x86_64 uses the Microsoft ABI which is not the default for GCC.
  *

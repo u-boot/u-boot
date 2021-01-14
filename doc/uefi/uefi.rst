@@ -59,13 +59,10 @@ Below you find the output of an example session starting GRUB::
     120832 bytes read in 7 ms (16.5 MiB/s)
     => bootefi ${kernel_addr_r} ${fdt_addr_r}
 
-The bootefi command uses the device, the file name, and the file size
-(environment variable 'filesize') of the most recently loaded file when setting
-up the binary for execution. So the UEFI binary should be loaded last.
-
-The environment variable 'bootargs' is passed as load options in the UEFI system
-table. The Linux kernel EFI stub uses the load options as command line
-arguments.
+When booting from a memory location it is unknown from which file it was loaded.
+Therefore the bootefi command uses the device path of the block device partition
+or the network adapter and the file name of the most recently loaded PE-COFF
+file when setting up the loaded image protocol.
 
 Launching a UEFI binary from a FIT image
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -29,6 +29,82 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct efi_device_path *bootefi_image_path;
 static struct efi_device_path *bootefi_device_path;
+static void *image_addr;
+static size_t image_size;
+
+/**
+ * efi_clear_bootdev() - clear boot device
+ */
+static void efi_clear_bootdev(void)
+{
+	efi_free_pool(bootefi_device_path);
+	efi_free_pool(bootefi_image_path);
+	bootefi_device_path = NULL;
+	bootefi_image_path = NULL;
+	image_addr = NULL;
+	image_size = 0;
+}
+
+/**
+ * efi_set_bootdev() - set boot device
+ *
+ * This function is called when a file is loaded, e.g. via the 'load' command.
+ * We use the path to this file to inform the UEFI binary about the boot device.
+ *
+ * @dev:		device, e.g. "MMC"
+ * @devnr:		number of the device, e.g. "1:2"
+ * @path:		path to file loaded
+ * @buffer:		buffer with file loaded
+ * @buffer_size:	size of file loaded
+ */
+void efi_set_bootdev(const char *dev, const char *devnr, const char *path,
+		     void *buffer, size_t buffer_size)
+{
+	struct efi_device_path *device, *image;
+	efi_status_t ret;
+
+	/* Forget overwritten image */
+	if (buffer + buffer_size >= image_addr &&
+	    image_addr + image_size >= buffer)
+		efi_clear_bootdev();
+
+	/* Remember only PE-COFF and FIT images */
+	if (efi_check_pe(buffer, buffer_size, NULL) != EFI_SUCCESS) {
+#ifdef CONFIG_FIT
+		if (!fit_check_format(buffer))
+			return;
+		/*
+		 * FIT images of type EFI_OS are started via command bootm.
+		 * We should not use their boot device with the bootefi command.
+		 */
+		buffer = 0;
+		buffer_size = 0;
+#else
+		return;
+#endif
+	}
+
+	/* efi_set_bootdev() is typically called repeatedly, recover memory */
+	efi_clear_bootdev();
+
+	image_addr = buffer;
+	image_size = buffer_size;
+
+	ret = efi_dp_from_name(dev, devnr, path, &device, &image);
+	if (ret == EFI_SUCCESS) {
+		bootefi_device_path = device;
+		if (image) {
+			/* FIXME: image should not contain device */
+			struct efi_device_path *image_tmp = image;
+
+			efi_dp_split_file_path(image, &device, &image);
+			efi_free_pool(image_tmp);
+		}
+		bootefi_image_path = image;
+	} else {
+		efi_clear_bootdev();
+	}
+}
 
 /**
  * efi_env_set_load_options() - set load options from environment variable
@@ -133,86 +209,6 @@ static efi_status_t copy_fdt(void **fdtp)
 	*fdtp = (void *)(uintptr_t)new_fdt_addr;
 done:
 	return ret;
-}
-
-/**
- * efi_reserve_memory() - add reserved memory to memory map
- *
- * @addr:	start address of the reserved memory range
- * @size:	size of the reserved memory range
- * @nomap:	indicates that the memory range shall not be accessed by the
- *		UEFI payload
- */
-static void efi_reserve_memory(u64 addr, u64 size, bool nomap)
-{
-	int type;
-	efi_uintn_t ret;
-
-	/* Convert from sandbox address space. */
-	addr = (uintptr_t)map_sysmem(addr, 0);
-
-	if (nomap)
-		type = EFI_RESERVED_MEMORY_TYPE;
-	else
-		type = EFI_BOOT_SERVICES_DATA;
-
-	ret = efi_add_memory_map(addr, size, type);
-	if (ret != EFI_SUCCESS)
-		log_err("Reserved memory mapping failed addr %llx size %llx\n",
-			addr, size);
-}
-
-/**
- * efi_carve_out_dt_rsv() - Carve out DT reserved memory ranges
- *
- * The mem_rsv entries of the FDT are added to the memory map. Any failures are
- * ignored because this is not critical and we would rather continue to try to
- * boot.
- *
- * @fdt: Pointer to device tree
- */
-static void efi_carve_out_dt_rsv(void *fdt)
-{
-	int nr_rsv, i;
-	u64 addr, size;
-	int nodeoffset, subnode;
-
-	nr_rsv = fdt_num_mem_rsv(fdt);
-
-	/* Look for an existing entry and add it to the efi mem map. */
-	for (i = 0; i < nr_rsv; i++) {
-		if (fdt_get_mem_rsv(fdt, i, &addr, &size) != 0)
-			continue;
-		efi_reserve_memory(addr, size, false);
-	}
-
-	/* process reserved-memory */
-	nodeoffset = fdt_subnode_offset(fdt, 0, "reserved-memory");
-	if (nodeoffset >= 0) {
-		subnode = fdt_first_subnode(fdt, nodeoffset);
-		while (subnode >= 0) {
-			fdt_addr_t fdt_addr;
-			fdt_size_t fdt_size;
-
-			/* check if this subnode has a reg property */
-			fdt_addr = fdtdec_get_addr_size_auto_parent(
-						fdt, nodeoffset, subnode,
-						"reg", 0, &fdt_size, false);
-			/*
-			 * The /reserved-memory node may have children with
-			 * a size instead of a reg property.
-			 */
-			if (fdt_addr != FDT_ADDR_T_NONE &&
-			    fdtdec_get_is_enabled(fdt, subnode)) {
-				bool nomap;
-
-				nomap = !!fdt_getprop(fdt, subnode, "no-map",
-						      NULL);
-				efi_reserve_memory(fdt_addr, fdt_size, nomap);
-			}
-			subnode = fdt_next_subnode(fdt, subnode);
-		}
-	}
 }
 
 /**
@@ -398,43 +394,28 @@ static int do_bootefi_image(const char *image_opt)
 {
 	void *image_buf;
 	unsigned long addr, size;
-	const char *size_str;
 	efi_status_t ret;
 
 #ifdef CONFIG_CMD_BOOTEFI_HELLO
 	if (!strcmp(image_opt, "hello")) {
-		char *saddr;
-
-		saddr = env_get("loadaddr");
+		image_buf = __efi_helloworld_begin;
 		size = __efi_helloworld_end - __efi_helloworld_begin;
-
-		if (saddr)
-			addr = simple_strtoul(saddr, NULL, 16);
-		else
-			addr = CONFIG_SYS_LOAD_ADDR;
-
-		image_buf = map_sysmem(addr, size);
-		memcpy(image_buf, __efi_helloworld_begin, size);
-
-		efi_free_pool(bootefi_device_path);
-		efi_free_pool(bootefi_image_path);
-		bootefi_device_path = NULL;
-		bootefi_image_path = NULL;
+		efi_clear_bootdev();
 	} else
 #endif
 	{
-		size_str = env_get("filesize");
-		if (size_str)
-			size = simple_strtoul(size_str, NULL, 16);
-		else
-			size = 0;
-
-		addr = simple_strtoul(image_opt, NULL, 16);
+		addr = strtoul(image_opt, NULL, 16);
 		/* Check that a numeric value was passed */
-		if (!addr && *image_opt != '0')
+		if (!addr)
 			return CMD_RET_USAGE;
 
-		image_buf = map_sysmem(addr, size);
+		image_buf = map_sysmem(addr, 0);
+
+		if (image_buf != image_addr) {
+			log_err("No UEFI binary known at %s\n", image_opt);
+			return CMD_RET_FAILURE;
+		}
+		size = image_size;
 	}
 	ret = efi_run_image(image_buf, size);
 
@@ -567,11 +548,8 @@ static efi_status_t bootefi_test_prepare
 	if (ret == EFI_SUCCESS)
 		return ret;
 
-	efi_free_pool(bootefi_image_path);
-	bootefi_image_path = NULL;
 failure:
-	efi_free_pool(bootefi_device_path);
-	bootefi_device_path = NULL;
+	efi_clear_bootdev();
 	return ret;
 }
 
@@ -691,39 +669,3 @@ U_BOOT_CMD(
 	"Boots an EFI payload from memory",
 	bootefi_help_text
 );
-
-/**
- * efi_set_bootdev() - set boot device
- *
- * This function is called when a file is loaded, e.g. via the 'load' command.
- * We use the path to this file to inform the UEFI binary about the boot device.
- *
- * @dev:	device, e.g. "MMC"
- * @devnr:	number of the device, e.g. "1:2"
- * @path:	path to file loaded
- */
-void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
-{
-	struct efi_device_path *device, *image;
-	efi_status_t ret;
-
-	/* efi_set_bootdev is typically called repeatedly, recover memory */
-	efi_free_pool(bootefi_device_path);
-	efi_free_pool(bootefi_image_path);
-
-	ret = efi_dp_from_name(dev, devnr, path, &device, &image);
-	if (ret == EFI_SUCCESS) {
-		bootefi_device_path = device;
-		if (image) {
-			/* FIXME: image should not contain device */
-			struct efi_device_path *image_tmp = image;
-
-			efi_dp_split_file_path(image, &device, &image);
-			efi_free_pool(image_tmp);
-		}
-		bootefi_image_path = image;
-	} else {
-		bootefi_device_path = NULL;
-		bootefi_image_path = NULL;
-	}
-}
