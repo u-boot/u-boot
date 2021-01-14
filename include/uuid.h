@@ -23,6 +23,7 @@ struct uuid {
 #define UUID_STR_FORMAT_GUID	BIT(0)
 #define UUID_STR_UPPER_CASE	BIT(1)
 
+/* Use UUID_STR_LEN + 1 for string space */
 #define UUID_STR_LEN		36
 #define UUID_BIN_LEN		sizeof(struct uuid)
 
