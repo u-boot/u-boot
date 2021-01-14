@@ -131,6 +131,13 @@ config SYS_CORTINA_FW_IN_SPIFLASH
 
 endchoice
 
+config PHY_CORTINA_ACCESS
+	bool "Cortina Access Ethernet PHYs support"
+	default y
+	depends on CORTINA_NI_ENET
+	help
+		Cortina Access Ethernet PHYs init process
+
 config PHY_DAVICOM
 	bool "Davicom Ethernet PHYs support"
 

@@ -493,6 +493,7 @@ int phy_aquantia_init(void);
 int phy_atheros_init(void);
 int phy_broadcom_init(void);
 int phy_cortina_init(void);
+int phy_cortina_access_init(void);
 int phy_davicom_init(void);
 int phy_et1011c_init(void);
 int phy_lxt_init(void);
