@@ -106,7 +106,7 @@ cleandocs:
 	$(Q)$(MAKE) BUILDDIR=$(abspath $(BUILDDIR)) $(build)=doc/media clean
 
 dochelp:
-	@echo  ' Linux kernel internal documentation in different formats from ReST:'
+	@echo  ' U-Boot documentation in different formats from ReST:'
 	@echo  '  htmldocs        - HTML'
 	@echo  '  latexdocs       - LaTeX'
 	@echo  '  pdfdocs         - PDF'
