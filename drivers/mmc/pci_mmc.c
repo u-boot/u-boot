@@ -10,6 +10,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <mmc.h>
 #include <sdhci.h>
 #include <acpi/acpigen.h>
 #include <acpi/acpi_device.h>
@@ -40,7 +41,14 @@ static int pci_mmc_probe(struct udevice *dev)
 	struct pci_mmc_plat *plat = dev_get_plat(dev);
 	struct pci_mmc_priv *priv = dev_get_priv(dev);
 	struct sdhci_host *host = &priv->host;
+	struct blk_desc *desc;
 	int ret;
+
+	ret = mmc_of_parse(dev, &plat->cfg);
+	if (ret)
+		return ret;
+	desc = mmc_get_blk_desc(&plat->mmc);
+	desc->removable = !(plat->cfg.host_caps & MMC_CAP_NONREMOVABLE);
 
 	host->ioaddr = (void *)dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
 					      PCI_REGION_MEM);
