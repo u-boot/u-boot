@@ -734,7 +734,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		debug("Failed to stash bootstage: err=%d\n", ret);
 #endif
 
-	debug("loaded - jumping to U-Boot...\n");
+	debug("loaded - jumping to %s...\n", spl_phase_name(spl_next_phase()));
 	spl_board_prepare_for_boot();
 	jump_to_image_no_args(&spl_image);
 }
