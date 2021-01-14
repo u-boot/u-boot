@@ -200,6 +200,8 @@ F:	drivers/i2c/i2c-cortina.c
 F:	drivers/i2c/i2c-cortina.h
 F:	drivers/mtd/nand/raw/cortina_nand.c
 F:	drivers/mtd/nand/raw/cortina_nand.h
+F:	drivers/net/cortina_ni.c
+F:	drivers/net/cortina_ni.h
 F:	configs/cortina_presidio-asic-pnand_defconfig
 
 ARM/CZ.NIC TURRIS MOX SUPPORT
@@ -811,6 +813,8 @@ F:	drivers/mmc/ca_dw_mmc.c
 F:	drivers/spi/ca_sflash.c
 F:	drivers/i2c/i2c-cortina.c
 F:	drivers/i2c/i2c-cortina.h
+F:	drivers/net/cortina_ni.c
+F:	drivers/net/cortina_ni.h
 
 MIPS MEDIATEK
 M:	Weijie Gao <weijie.gao@mediatek.com>

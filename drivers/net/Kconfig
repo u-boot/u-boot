@@ -149,6 +149,13 @@ config BCMGENET
 	help
 	  This driver supports the BCMGENET Ethernet MAC.
 
+config CORTINA_NI_ENET
+	bool "Cortina-Access Ethernet driver"
+	depends on DM_ETH && CORTINA_PLATFORM
+	help
+	  This driver supports the Cortina-Access Ethernet MAC for
+	  all supported CAxxxx SoCs.
+
 config DWC_ETH_QOS
 	bool "Synopsys DWC Ethernet QOS device support"
 	depends on DM_ETH
