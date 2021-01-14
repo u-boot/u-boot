@@ -487,7 +487,7 @@ static int eth_pre_unbind(struct udevice *dev)
 
 static bool eth_dev_get_mac_address(struct udevice *dev, u8 mac[ARP_HLEN])
 {
-#if IS_ENABLED(CONFIG_OF_CONTROL)
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	const uint8_t *p;
 
 	p = dev_read_u8_array_ptr(dev, "mac-address", ARP_HLEN);
