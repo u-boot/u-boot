@@ -151,6 +151,16 @@ static int rcar_pcie_config_access(const struct udevice *udev,
 	struct rcar_gen3_pcie_priv *priv = dev_get_plat(udev);
 	u32 reg = where & ~3;
 
+	/* Root bus */
+	if (PCI_DEV(bdf) == 0) {
+		if (access_type == RCAR_PCI_ACCESS_READ)
+			*data = readl(priv->regs + PCICONF(where / 4));
+		else
+			writel(*data, priv->regs + PCICONF(where / 4));
+
+		return 0;
+	}
+
 	/* Clear errors */
 	clrbits_le32(priv->regs + PCIEERRFR, 0);
 
@@ -187,11 +197,14 @@ static int rcar_gen3_pcie_addr_valid(pci_dev_t d, uint where)
 {
 	u32 slot;
 
+	if (PCI_BUS(d))
+		return -EINVAL;
+
 	if (PCI_FUNC(d))
 		return -EINVAL;
 
 	slot = PCI_DEV(d);
-	if (slot != 1)
+	if (slot > 1)
 		return -EINVAL;
 
 	return 0;
