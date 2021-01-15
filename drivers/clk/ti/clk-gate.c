@@ -87,7 +87,7 @@ U_BOOT_DRIVER(clk_ti_gate) = {
 	.name = "ti_gate_clock",
 	.id = UCLASS_CLK,
 	.of_match = clk_ti_gate_of_match,
-	.ofdata_to_platdata = clk_ti_gate_of_to_plat,
+	.of_to_plat = clk_ti_gate_of_to_plat,
 	.priv_auto = sizeof(struct clk_ti_gate_priv),
 	.ops = &clk_ti_gate_ops,
 };

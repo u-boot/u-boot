@@ -155,7 +155,7 @@ static ulong tilcdc_set_pixel_clk_rate(struct udevice *dev, ulong rate)
 
 static int tilcdc_remove(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct tilcdc_priv *priv = dev_get_priv(dev);
 
 	uc_plat->base -= 0x20;
@@ -167,7 +167,7 @@ static int tilcdc_remove(struct udevice *dev)
 
 static int tilcdc_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct tilcdc_priv *priv = dev_get_priv(dev);
 	struct tilcdc_regs *regs = priv->regs;
@@ -399,7 +399,7 @@ static int tilcdc_of_to_plat(struct udevice *dev)
 
 static int tilcdc_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 
 	uc_plat->size = ((LCDC_MAX_WIDTH * LCDC_MAX_HEIGHT *
 			  (1 << LCDC_MAX_LOG2_BPP)) >> 3) + 0x20;
@@ -418,7 +418,7 @@ U_BOOT_DRIVER(tilcdc) = {
 	.id = UCLASS_VIDEO,
 	.of_match = tilcdc_ids,
 	.bind = tilcdc_bind,
-	.ofdata_to_platdata = tilcdc_of_to_plat,
+	.of_to_plat = tilcdc_of_to_plat,
 	.probe = tilcdc_probe,
 	.remove = tilcdc_remove,
 	.priv_auto = sizeof(struct tilcdc_priv)

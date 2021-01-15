@@ -148,7 +148,7 @@ U_BOOT_DRIVER(clk_ti_ctrl) = {
 	.name = "ti_ctrl_clk",
 	.id = UCLASS_CLK,
 	.of_match = clk_ti_ctrl_ids,
-	.ofdata_to_platdata = clk_ti_ctrl_of_to_plat,
+	.of_to_plat = clk_ti_ctrl_of_to_plat,
 	.ops = &clk_ti_ctrl_ops,
 	.priv_auto = sizeof(struct clk_ti_ctrl_priv),
 };

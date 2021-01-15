@@ -571,6 +571,6 @@ U_BOOT_DRIVER(ca_sflash) = {
 	.id = UCLASS_SPI,
 	.of_match = ca_sflash_ids,
 	.ops = &ca_sflash_ops,
-	.priv_auto_alloc_size = sizeof(struct ca_sflash_priv),
+	.priv_auto = sizeof(struct ca_sflash_priv),
 	.probe = ca_sflash_probe,
 };
