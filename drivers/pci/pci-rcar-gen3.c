@@ -358,9 +358,9 @@ static int rcar_gen3_pcie_probe(struct udevice *dev)
 		break;
 	}
 
-	writel(0, priv->regs + PCIEPRAR(4));
-	writel(0, priv->regs + PCIELAR(4));
-	writel(0, priv->regs + PCIELAMR(4));
+	writel(0, priv->regs + PCIEPRAR(1));
+	writel(0, priv->regs + PCIELAR(1));
+	writel(0, priv->regs + PCIELAMR(1));
 
 	ret = rcar_gen3_pcie_hw_init(dev);
 	if (ret)
