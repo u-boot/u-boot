@@ -33,7 +33,7 @@ config TARGET_SOCFPGA_AGILEX
 	bool
 	select ARMV8_MULTIENTRY
 	select ARMV8_SET_SMPEN
-	select ARMV8_SPIN_TABLE
+	select BINMAN if SPL_ATF
 	select CLK
 	select FPGA_INTEL_SDM_MAILBOX
 	select NCORE_CACHE
@@ -79,7 +79,7 @@ config TARGET_SOCFPGA_STRATIX10
 	bool
 	select ARMV8_MULTIENTRY
 	select ARMV8_SET_SMPEN
-	select ARMV8_SPIN_TABLE
+	select BINMAN if SPL_ATF
 	select FPGA_INTEL_SDM_MAILBOX
 
 choice

@@ -1583,7 +1583,10 @@ u-boot.spr: spl/u-boot-spl.img u-boot.img FORCE
 
 ifneq ($(CONFIG_ARCH_SOCFPGA),)
 quiet_cmd_gensplx4 = GENSPLX4 $@
-cmd_gensplx4 = cat	spl/u-boot-spl.sfp spl/u-boot-spl.sfp	\
+cmd_gensplx4 = $(OBJCOPY) -I binary -O binary --gap-fill=0x0		\
+			--pad-to=$(CONFIG_SPL_PAD_TO)			\
+			spl/u-boot-spl.sfp spl/u-boot-spl.sfp &&        \
+		cat	spl/u-boot-spl.sfp spl/u-boot-spl.sfp		\
 			spl/u-boot-spl.sfp spl/u-boot-spl.sfp > $@ || { rm -f $@; false; }
 spl/u-boot-splx4.sfp: spl/u-boot-spl.sfp FORCE
 	$(call if_changed,gensplx4)

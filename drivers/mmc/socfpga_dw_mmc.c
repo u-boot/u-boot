@@ -6,6 +6,7 @@
 #include <common.h>
 #include <log.h>
 #include <asm/arch/clock_manager.h>
+#include <asm/arch/secure_reg_helper.h>
 #include <asm/arch/system_manager.h>
 #include <clk.h>
 #include <dm.h>
@@ -13,6 +14,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <dm/device_compat.h>
+#include <linux/intel-smc.h>
 #include <linux/libfdt.h>
 #include <linux/err.h>
 #include <malloc.h>
@@ -46,7 +48,7 @@ static void socfpga_dwmci_reset(struct udevice *dev)
 	reset_deassert_bulk(&reset_bulk);
 }
 
-static void socfpga_dwmci_clksel(struct dwmci_host *host)
+static int socfpga_dwmci_clksel(struct dwmci_host *host)
 {
 	struct dwmci_socfpga_priv_data *priv = host->priv;
 	u32 sdmmc_mask = ((priv->smplsel & 0x7) << SYSMGR_SDMMC_SMPLSEL_SHIFT) |
@@ -58,14 +60,28 @@ static void socfpga_dwmci_clksel(struct dwmci_host *host)
 
 	debug("%s: drvsel %d smplsel %d\n", __func__,
 	      priv->drvsel, priv->smplsel);
+
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_ATF)
+	int ret;
+
+	ret = socfpga_secure_reg_write32(SOCFPGA_SECURE_REG_SYSMGR_SOC64_SDMMC,
+					 sdmmc_mask);
+	if (ret) {
+		printf("DWMMC: Failed to set clksel via SMC call");
+		return ret;
+	}
+#else
 	writel(sdmmc_mask, socfpga_get_sysmgr_addr() + SYSMGR_SDMMC);
 
 	debug("%s: SYSMGR_SDMMCGRP_CTRL_REG = 0x%x\n", __func__,
 		readl(socfpga_get_sysmgr_addr() + SYSMGR_SDMMC));
+#endif
 
 	/* Enable SDMMC clock */
 	setbits_le32(socfpga_get_clkmgr_addr() + CLKMGR_PERPLL_EN,
 		     CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
+
+	return 0;
 }
 
 static int socfpga_dwmmc_get_clk_rate(struct udevice *dev)

@@ -13,7 +13,7 @@
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/misc.h>
 #include <asm/io.h>
-
+#include <log.h>
 #include <usb.h>
 #include <usb/dwc2_udc.h>
 
@@ -85,5 +85,15 @@ int board_usb_init(int index, enum usb_init_type init)
 int g_dnl_board_usb_cable_connected(void)
 {
 	return 1;
+}
+#endif
+
+#ifdef CONFIG_SPL_BUILD
+__weak int board_fit_config_name_match(const char *name)
+{
+	/* Just empty function now - can't decide what to choose */
+	debug("%s: %s\n", __func__, name);
+
+	return 0;
 }
 #endif

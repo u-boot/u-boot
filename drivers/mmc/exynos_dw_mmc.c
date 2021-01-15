@@ -44,7 +44,7 @@ struct dwmci_exynos_priv_data {
  * Function used as callback function to initialise the
  * CLKSEL register for every mmc channel.
  */
-static void exynos_dwmci_clksel(struct dwmci_host *host)
+static int exynos_dwmci_clksel(struct dwmci_host *host)
 {
 #ifdef CONFIG_DM_MMC
 	struct dwmci_exynos_priv_data *priv =
@@ -53,6 +53,8 @@ static void exynos_dwmci_clksel(struct dwmci_host *host)
 	struct dwmci_exynos_priv_data *priv = host->priv;
 #endif
 	dwmci_writel(host, DWMCI_CLKSEL, priv->sdr_timing);
+
+	return 0;
 }
 
 unsigned int exynos_dwmci_get_clk(struct dwmci_host *host, uint freq)

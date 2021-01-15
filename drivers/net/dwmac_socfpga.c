@@ -6,6 +6,8 @@
  */
 
 #include <common.h>
+#include <asm/arch/secure_reg_helper.h>
+#include <asm/arch/system_manager.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <clk.h>
@@ -16,8 +18,6 @@
 #include "designware.h"
 #include <dm/device_compat.h>
 #include <linux/err.h>
-
-#include <asm/arch/system_manager.h>
 
 struct dwmac_socfpga_plat {
 	struct dw_eth_pdata	dw_eth_pdata;
@@ -64,6 +64,32 @@ static int dwmac_socfpga_of_to_plat(struct udevice *dev)
 	return designware_eth_of_to_plat(dev);
 }
 
+static int dwmac_socfpga_do_setphy(struct udevice *dev, u32 modereg)
+{
+	struct dwmac_socfpga_plat *pdata = dev_get_plat(dev);
+	u32 modemask = SYSMGR_EMACGRP_CTRL_PHYSEL_MASK << pdata->reg_shift;
+
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_ATF)
+	u32 index = ((u64)pdata->phy_intf - socfpga_get_sysmgr_addr() -
+		     SYSMGR_SOC64_EMAC0) >> 2;
+
+	u32 id = SOCFPGA_SECURE_REG_SYSMGR_SOC64_EMAC0 + index;
+
+	int ret = socfpga_secure_reg_update32(id,
+					     modemask,
+					     modereg << pdata->reg_shift);
+	if (ret) {
+		dev_err(dev, "Failed to set PHY register via SMC call\n");
+		return ret;
+	}
+#else
+	clrsetbits_le32(pdata->phy_intf, modemask,
+			modereg << pdata->reg_shift);
+#endif
+
+	return 0;
+}
+
 static int dwmac_socfpga_probe(struct udevice *dev)
 {
 	struct dwmac_socfpga_plat *pdata = dev_get_plat(dev);
@@ -71,7 +97,6 @@ static int dwmac_socfpga_probe(struct udevice *dev)
 	struct reset_ctl_bulk reset_bulk;
 	int ret;
 	u32 modereg;
-	u32 modemask;
 
 	switch (edata->phy_interface) {
 	case PHY_INTERFACE_MODE_MII:
@@ -97,9 +122,9 @@ static int dwmac_socfpga_probe(struct udevice *dev)
 
 	reset_assert_bulk(&reset_bulk);
 
-	modemask = SYSMGR_EMACGRP_CTRL_PHYSEL_MASK << pdata->reg_shift;
-	clrsetbits_le32(pdata->phy_intf, modemask,
-			modereg << pdata->reg_shift);
+	ret = dwmac_socfpga_do_setphy(dev, modereg);
+	if (ret)
+		return ret;
 
 	reset_release_bulk(&reset_bulk);
 

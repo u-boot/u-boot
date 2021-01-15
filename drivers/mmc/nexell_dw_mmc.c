@@ -51,7 +51,7 @@ struct nexell_dwmmc_priv {
 
 struct clk *clk_get(const char *id);
 
-static void nx_dw_mmc_clksel(struct dwmci_host *host)
+static int nx_dw_mmc_clksel(struct dwmci_host *host)
 {
 	/* host->priv is pointer to "struct udevice" */
 	struct nexell_dwmmc_priv *priv = dev_get_priv(host->priv);
@@ -65,6 +65,8 @@ static void nx_dw_mmc_clksel(struct dwmci_host *host)
 		      DWMCI_SET_DRV_CLK(DWMCI_SHIFT_0) | DWMCI_SET_DIV_RATIO(3);
 
 	dwmci_writel(host, DWMCI_CLKSEL, val);
+
+	return 0;
 }
 
 static void nx_dw_mmc_reset(int ch)

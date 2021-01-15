@@ -40,9 +40,14 @@
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFE00000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x40000
+#ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR  \
 					+ CONFIG_SYS_INIT_RAM_SIZE \
 					- S10_HANDOFF_SIZE)
+#else
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE \
+					+ 0x100000)
+#endif
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_SP_ADDR)
 #define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
 
@@ -78,12 +83,20 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  * CONFIG_BOOTARGS goes into the environment value "bootargs".
  * Do note the value will override also the chosen node in FDT blob.
  */
+
+#ifdef CONFIG_FIT
+#define CONFIG_BOOTFILE "kernel.itb"
+#define CONFIG_BOOTCOMMAND "run fatscript; run mmcfitload;run linux_qspi_enable;" \
+			   "run mmcfitboot"
+#else
+#define CONFIG_BOOTFILE "Image"
 #define CONFIG_BOOTCOMMAND "run fatscript; run mmcload;run linux_qspi_enable;" \
 			   "run mmcboot"
+#endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
-	"bootfile=Image\0" \
+	"bootfile=" CONFIG_BOOTFILE "\0" \
 	"fdt_addr=8000000\0" \
 	"fdtimage=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	"mmcroot=/dev/mmcblk0p2\0" \
@@ -93,6 +106,11 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 	"mmcload=mmc rescan;" \
 		"load mmc 0:1 ${loadaddr} ${bootfile};" \
 		"load mmc 0:1 ${fdt_addr} ${fdtimage}\0" \
+	"mmcfitboot=setenv bootargs " CONFIG_BOOTARGS \
+		" root=${mmcroot} rw rootwait;" \
+		"bootm ${loadaddr}\0" \
+	"mmcfitload=mmc rescan;" \
+		"load mmc 0:1 ${loadaddr} ${bootfile}\0" \
 	"linux_qspi_enable=if sf probe; then " \
 		"echo Enabling QSPI at Linux DTB...;" \
 		"fdt addr ${fdt_addr}; fdt resize;" \
@@ -193,6 +211,10 @@ unsigned int cm_get_l4_sys_free_clk_hz(void);
 					- CONFIG_SYS_SPL_MALLOC_SIZE)
 
 /* SPL SDMMC boot support */
+#ifdef CONFIG_SPL_LOAD_FIT
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.itb"
+#else
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
+#endif
 
 #endif	/* __CONFIG_SOCFPGA_SOC64_COMMON_H__ */
