@@ -7,53 +7,34 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/*
- * CPU and Board Configuration Options
- */
+#include <linux/sizes.h>
 
-/*
- * Miscellaneous configurable options
- */
-#define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size */
+#define CONFIG_SYS_SDRAM_BASE       0x80000000
+#define CONFIG_SYS_INIT_SP_ADDR     (CONFIG_SYS_SDRAM_BASE + SZ_2M)
 
-/*
- * Print Buffer Size
- */
-#define CONFIG_SYS_PBSIZE	\
-	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
+#define CONFIG_SYS_LOAD_ADDR        (CONFIG_SYS_SDRAM_BASE + SZ_2M)
 
-/*
- * max number of command args
- */
-#define CONFIG_SYS_MAXARGS	16
+#define CONFIG_SYS_MALLOC_LEN       SZ_8M
 
-/*
- * Boot Argument Buffer Size
- */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
+#define CONFIG_SYS_BOOTM_LEN        SZ_64M
 
-/*
- * Size of malloc() pool
- * 512kB is suggested, (CONFIG_ENV_SIZE + 128 * 1024) was not enough
- */
-#define CONFIG_SYS_MALLOC_LEN	(512 << 10)
+#define CONFIG_STANDALONE_LOAD_ADDR 0x80200000
 
-/*
- * Physical Memory Map
- */
-#define PHYS_SDRAM_0		0x80000000 /* SDRAM Bank #1 */
-#define PHYS_SDRAM_0_SIZE	0x40000000 /* 1 GB */
-#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_0
+/* Environment options */
 
-/* Init Stack Pointer */
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + 0x200000)
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(DHCP, dhcp, na)
 
-#define CONFIG_SYS_LOAD_ADDR	0x80000000 /* SDRAM */
+#include <config_distro_bootcmd.h>
 
-/*
- * memtest works on DRAM
- */
-
-/* When we use RAM as ENV */
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"bootm_size=0x10000000\0" \
+	"kernel_addr_r=0x84000000\0" \
+	"fdt_addr_r=0x88000000\0" \
+	"scriptaddr=0x88100000\0" \
+	"pxefile_addr_r=0x88200000\0" \
+	"ramdisk_addr_r=0x88300000\0" \
+	BOOTENV
 
 #endif /* __CONFIG_H */
