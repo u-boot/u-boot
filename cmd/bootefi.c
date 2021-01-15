@@ -631,10 +631,12 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 	else if (ret != EFI_SUCCESS)
 		return CMD_RET_FAILURE;
 
-	if (!strcmp(argv[1], "bootmgr"))
-		return do_efibootmgr();
+	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR)) {
+		if (!strcmp(argv[1], "bootmgr"))
+			return do_efibootmgr();
+	}
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
-	else if (!strcmp(argv[1], "selftest"))
+	if (!strcmp(argv[1], "selftest"))
 		return do_efi_selftest();
 #endif
 
@@ -657,11 +659,14 @@ static char bootefi_help_text[] =
 	"    Use environment variable efi_selftest to select a single test.\n"
 	"    Use 'setenv efi_selftest list' to enumerate all tests.\n"
 #endif
+#ifdef CONFIG_CMD_BOOTEFI_BOOTMGR
 	"bootefi bootmgr [fdt address]\n"
 	"  - load and boot EFI payload based on BootOrder/BootXXXX variables.\n"
 	"\n"
 	"    If specified, the device tree located at <fdt address> gets\n"
-	"    exposed as EFI configuration table.\n";
+	"    exposed as EFI configuration table.\n"
+#endif
+	;
 #endif
 
 U_BOOT_CMD(

@@ -21,7 +21,7 @@ targets += helloworld.o
 endif
 
 obj-$(CONFIG_CMD_BOOTEFI_HELLO) += helloworld_efi.o
-obj-y += efi_bootmgr.o
+obj-$(CONFIG_CMD_BOOTEFI_BOOTMGR) += efi_bootmgr.o
 obj-y += efi_boottime.o
 obj-y += efi_console.o
 obj-y += efi_device_path.o
