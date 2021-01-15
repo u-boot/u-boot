@@ -790,7 +790,9 @@ static int esdhc_set_voltage(struct mmc *mmc)
 {
 	struct fsl_esdhc_priv *priv = dev_get_priv(mmc->dev);
 	struct fsl_esdhc *regs = priv->esdhc_regs;
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
 	int ret;
+#endif
 
 	priv->signal_voltage = mmc->signal_voltage;
 	switch (mmc->signal_voltage) {
