@@ -29,7 +29,11 @@ typedef unsigned short umode_t;
 
 #include <stddef.h>
 
+#ifdef CONFIG_DMA_ADDR_T_64BIT
+typedef u64 dma_addr_t;
+#else
 typedef u32 dma_addr_t;
+#endif
 
 typedef unsigned long phys_addr_t;
 typedef unsigned long phys_size_t;
