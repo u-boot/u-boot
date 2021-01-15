@@ -281,6 +281,15 @@ config PCIE_ROCKCHIP
 	  Say Y here if you want to enable PCIe controller support on
 	  Rockchip SoCs.
 
+config PCIE_DW_ROCKCHIP
+	bool "Rockchip DesignWare based PCIe controller"
+	depends on ARCH_ROCKCHIP
+	select DM_PCI
+	select PHY_ROCKCHIP_SNPS_PCIE3
+	help
+	  Say Y here if you want to enable DW PCIe controller support on
+	  Rockchip SoCs.
+
 config PCI_BRCMSTB
 	bool "Broadcom STB PCIe controller"
 	depends on DM_PCI

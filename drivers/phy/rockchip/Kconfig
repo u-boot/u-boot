@@ -23,6 +23,9 @@ config PHY_ROCKCHIP_SNPS_PCIE3
 	depends on PHY && ARCH_ROCKCHIP
 	help
 	  Support for Rockchip PCIe3 PHY with Synopsys IP block.
+	  It could support PCIe Gen3 single root complex, and could
+	  also be able splited into multiple combinations of lanes.
+
 
 config PHY_ROCKCHIP_TYPEC
 	bool "Rockchip TYPEC PHY Driver"
