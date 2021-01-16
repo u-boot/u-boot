@@ -197,6 +197,66 @@ static int do_show_switches(struct udevice *dev)
 	return 0;
 }
 
+static const char *const event_name[] = {
+	"lid_closed",
+	"lid_open",
+	"power_button",
+	"ac_connected",
+	"ac_disconnected",
+	"battery_low",
+	"battery_critical",
+	"battery",
+	"thermal_threshold",
+	"device",
+	"thermal",
+	"usb_charger",
+	"key_pressed",
+	"interface_ready",
+	"keyboard_recovery",
+	"thermal_shutdown",
+	"battery_shutdown",
+	"throttle_start",
+	"throttle_stop",
+	"hang_detect",
+	"hang_reboot",
+	"pd_mcu",
+	"battery_status",
+	"panic",
+	"keyboard_fastboot",
+	"rtc",
+	"mkbp",
+	"usb_mux",
+	"mode_change",
+	"keyboard_recovery_hw_reinit",
+	"extended",
+	"invalid",
+};
+
+static int do_show_events(struct udevice *dev)
+{
+	u32 events;
+	int ret;
+	uint i;
+
+	ret = cros_ec_get_host_events(dev, &events);
+	if (ret)
+		return ret;
+	printf("%08x\n", events);
+	for (i = 0; i < ARRAY_SIZE(event_name); i++) {
+		enum host_event_code code = i + 1;
+		u64 mask = EC_HOST_EVENT_MASK(code);
+
+		if (events & mask) {
+			if (event_name[i])
+				printf("%s\n", event_name[i]);
+			else
+				printf("unknown code %#x\n", code);
+		}
+	}
+
+	return 0;
+}
+
 static int do_cros_ec(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
@@ -303,13 +363,10 @@ static int do_cros_ec(struct cmd_tbl *cmdtp, int flag, int argc,
 			return 1;
 		}
 	} else if (0 == strcmp("events", cmd)) {
-		uint32_t events;
+		ret = do_show_events(dev);
 
-		if (cros_ec_get_host_events(dev, &events)) {
-			debug("%s: Could not read host events\n", __func__);
-			return 1;
-		}
-		printf("0x%08x\n", events);
+		if (ret)
+			printf("Error: %d\n", ret);
 	} else if (0 == strcmp("clrevents", cmd)) {
 		uint32_t events = 0x7fffffff;
 
@@ -498,6 +555,7 @@ U_BOOT_CMD(
 	"crosec hash                Read CROS-EC hash\n"
 	"crosec reboot [rw | ro | cold]  Reboot CROS-EC\n"
 	"crosec events              Read CROS-EC host events\n"
+	"crosec eventsb             Read CROS-EC host events_b\n"
 	"crosec clrevents [mask]    Clear CROS-EC host events\n"
 	"crosec regioninfo <ro|rw>  Read image info\n"
 	"crosec flashinfo           Read flash info\n"

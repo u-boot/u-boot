@@ -101,3 +101,40 @@ static int dm_test_cros_ec_switches(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_cros_ec_switches, UT_TESTF_SCAN_FDT);
+
+static int dm_test_cros_ec_events(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	u32 events;
+
+	ut_assertok(uclass_first_device_err(UCLASS_CROS_EC, &dev));
+	ut_assertok(cros_ec_get_host_events(dev, &events));
+	ut_asserteq(0, events);
+
+	/* try the command */
+	console_record_reset();
+	ut_assertok(run_command("crosec events", 0));
+	ut_assert_nextline("00000000");
+	ut_assert_console_end();
+
+	/* Open the lid and check the event appears */
+	sandbox_cros_ec_set_test_flags(dev, CROSECT_LID_OPEN);
+	ut_assertok(cros_ec_get_host_events(dev, &events));
+	ut_asserteq(EC_HOST_EVENT_MASK(EC_HOST_EVENT_LID_OPEN), events);
+
+	/* try the command */
+	console_record_reset();
+	ut_assertok(run_command("crosec events", 0));
+	ut_assert_nextline("00000002");
+	ut_assert_nextline("lid_open");
+	ut_assert_console_end();
+
+	/* Clear the event */
+	ut_assertok(cros_ec_clear_host_events(dev,
+		EC_HOST_EVENT_MASK(EC_HOST_EVENT_LID_OPEN)));
+	ut_assertok(cros_ec_get_host_events(dev, &events));
+	ut_asserteq(0, events);
+
+	return 0;
+}
+DM_TEST(dm_test_cros_ec_events, UT_TESTF_SCAN_FDT);

@@ -364,10 +364,20 @@ static int process_cmd(struct ec_state *ec,
 			resp->mask |= EC_HOST_EVENT_MASK(
 					EC_HOST_EVENT_KEYBOARD_RECOVERY);
 		}
-
+		if (ec->test_flags & CROSECT_LID_OPEN)
+			resp->mask |=
+				EC_HOST_EVENT_MASK(EC_HOST_EVENT_LID_OPEN);
 		len = sizeof(*resp);
 		break;
 	}
+	case EC_CMD_HOST_EVENT_CLEAR_B: {
+		const struct ec_params_host_event_mask *req = req_data;
+
+		if (req->mask & EC_HOST_EVENT_MASK(EC_HOST_EVENT_LID_OPEN))
+			ec->test_flags &= ~CROSECT_LID_OPEN;
+		len = 0;
+		break;
+		}
 	case EC_CMD_VBOOT_HASH: {
 		const struct ec_params_vboot_hash *req = req_data;
 		struct ec_response_vboot_hash *resp = resp_data;
