@@ -404,6 +404,8 @@ static int ec_command(struct udevice *dev, uint cmd, int cmd_version,
 		 */
 		if (din && in_buffer) {
 			assert(len <= din_len);
+			if (len > din_len)
+				return -ENOSPC;
 			memmove(din, in_buffer, len);
 		}
 	}
