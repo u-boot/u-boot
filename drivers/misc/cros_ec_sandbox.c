@@ -473,6 +473,13 @@ static int process_cmd(struct ec_state *ec,
 		len = sizeof(*resp);
 		break;
 	}
+	case EC_CMD_GET_SKU_ID: {
+		struct ec_sku_id_info *resp = resp_data;
+
+		resp->sku_id = 1234;
+		len = sizeof(*resp);
+		break;
+	}
 	default:
 		printf("   ** Unknown EC command %#02x\n", req_hdr->command);
 		return -1;

@@ -30,3 +30,20 @@ static int dm_test_cros_ec_hello(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_cros_ec_hello, UT_TESTF_SCAN_FDT);
+
+static int dm_test_cros_ec_sku_id(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	ut_assertok(uclass_first_device_err(UCLASS_CROS_EC, &dev));
+	ut_asserteq(1234, cros_ec_get_sku_id(dev));
+
+	/* try the command */
+	console_record_reset();
+	ut_assertok(run_command("crosec sku", 0));
+	ut_assert_nextline("1234");
+	ut_assert_console_end();
+
+	return 0;
+}
+DM_TEST(dm_test_cros_ec_sku_id, UT_TESTF_SCAN_FDT);

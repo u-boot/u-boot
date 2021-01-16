@@ -1105,6 +1105,19 @@ int cros_ec_flash_update_rw(struct udevice *dev, const uint8_t *image,
 	return 0;
 }
 
+int cros_ec_get_sku_id(struct udevice *dev)
+{
+	struct ec_sku_id_info *r;
+	int ret;
+
+	ret = ec_command_inptr(dev, EC_CMD_GET_SKU_ID, 0, NULL, 0,
+			       (uint8_t **)&r, sizeof(*r));
+	if (ret != sizeof(*r))
+		return -ret;
+
+	return r->sku_id;
+}
+
 int cros_ec_read_nvdata(struct udevice *dev, uint8_t *block, int size)
 {
 	struct ec_params_vbnvcontext p;

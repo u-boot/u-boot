@@ -330,6 +330,14 @@ int cros_ec_flash_offset(struct udevice *dev, enum ec_flash_region region,
 			 uint32_t *offset, uint32_t *size);
 
 /**
+ * cros_ec_get_sku_id() - Read the SKU ID
+ *
+ * @dev: CROS-EC device
+ * return SKU ID, or -ve on error
+ */
+int cros_ec_get_sku_id(struct udevice *dev);
+
+/**
  * Read/write non-volatile data from/to a CROS-EC device.
  *
  * @param dev		CROS-EC device

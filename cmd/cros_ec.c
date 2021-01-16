@@ -352,6 +352,15 @@ static int do_cros_ec(struct cmd_tbl *cmdtp, int flag, int argc,
 			debug("%s: Could not access LDO%d\n", __func__, index);
 			return ret;
 		}
+	} else if (!strcmp("sku", cmd)) {
+		ret = cros_ec_get_sku_id(dev);
+
+		if (ret >= 0) {
+			printf("%d\n", ret);
+			ret = 0;
+		} else {
+			printf("Error: %d\n", ret);
+		}
 	} else {
 		return CMD_RET_USAGE;
 	}
@@ -382,6 +391,7 @@ U_BOOT_CMD(
 	"crosec write <ro|rw> <addr> [<size>]  Write EC image\n"
 	"crosec vbnvcontext [hexstring]        Read [write] VbNvContext from EC\n"
 	"crosec ldo <idx> [<state>] Switch/Read LDO state\n"
+	"crosec sku                 Read board SKU ID\n"
 	"crosec test                run tests on cros_ec\n"
 	"crosec version             Read CROS-EC version"
 );
