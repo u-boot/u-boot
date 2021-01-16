@@ -476,6 +476,14 @@ config ENV_FAT_FILE
 	  It's a string of the FAT file name. This file use to store the
 	  environment.
 
+config ENV_FAT_FILE_REDUND
+	string "Name of the FAT file to use for the environment"
+	depends on ENV_IS_IN_FAT && SYS_REDUNDAND_ENVIRONMENT
+	default "uboot-redund.env"
+	help
+	  It's a string of the FAT file name. This file use to store the
+	  redundant environment.
+
 config ENV_EXT4_INTERFACE
 	string "Name of the block device for the environment"
 	depends on ENV_IS_IN_EXT4
