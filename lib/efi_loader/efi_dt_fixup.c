@@ -104,10 +104,9 @@ void efi_carve_out_dt_rsv(void *fdt)
  * @flags:		bit field designating action to be performed
  * Return:		status code
  */
-static efi_status_t EFIAPI efi_dt_fixup(struct efi_dt_fixup_protocol *this,
-					void *dtb,
-					efi_uintn_t *buffer_size,
-					u32 flags)
+static efi_status_t __maybe_unused EFIAPI
+efi_dt_fixup(struct efi_dt_fixup_protocol *this, void *dtb,
+	     efi_uintn_t *buffer_size, u32 flags)
 {
 	efi_status_t ret;
 	size_t required_size;

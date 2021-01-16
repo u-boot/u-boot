@@ -208,6 +208,14 @@ config EFI_DEVICE_PATH_TO_TEXT
 	  The device path to text protocol converts device nodes and paths to
 	  human readable strings.
 
+config EFI_DT_FIXUP
+	bool "Device tree fixup protocol"
+	depends on !GENERATE_ACPI_TABLE
+	default y
+	help
+	  The EFI device-tree fix-up protocol provides a function to let the
+	  firmware apply fix-ups. This may be used by boot loaders.
+
 config EFI_LOADER_HII
 	bool "HII protocols"
 	default y
