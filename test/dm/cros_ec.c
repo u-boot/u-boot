@@ -56,6 +56,7 @@ static int dm_test_cros_ec_features(struct unit_test_state *uts)
 	ut_assertok(uclass_first_device_err(UCLASS_CROS_EC, &dev));
 	ut_assertok(cros_ec_get_features(dev, &feat));
 	ut_asserteq_64(1U << EC_FEATURE_FLASH | 1U << EC_FEATURE_I2C |
+		1u << EC_FEATURE_VSTORE |
 		1ULL << EC_FEATURE_UNIFIED_WAKE_MASKS | 1ULL << EC_FEATURE_ISH,
 		feat);
 
@@ -68,6 +69,7 @@ static int dm_test_cros_ec_features(struct unit_test_state *uts)
 	ut_assertok(run_command("crosec features", 0));
 	ut_assert_nextline("flash");
 	ut_assert_nextline("i2c");
+	ut_assert_nextline("vstore");
 	ut_assert_nextline("unified_wake_masks");
 	ut_assert_nextline("ish");
 	ut_assert_console_end();
@@ -138,3 +140,39 @@ static int dm_test_cros_ec_events(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_cros_ec_events, UT_TESTF_SCAN_FDT);
+
+static int dm_test_cros_ec_vstore(struct unit_test_state *uts)
+{
+	const int size = EC_VSTORE_SLOT_SIZE;
+	u8 test_data[size], data[size];
+	struct udevice *dev;
+	u32 locked;
+	int i;
+
+	ut_assertok(uclass_first_device_err(UCLASS_CROS_EC, &dev));
+	ut_asserteq(true, cros_ec_vstore_supported(dev));
+
+	ut_asserteq(4, cros_ec_vstore_info(dev, &locked));
+	ut_asserteq(0, locked);
+
+	/* Write some data */
+	for (i = 0; i < size; i++)
+		test_data[i] = ' ' + i;
+	ut_assertok(cros_ec_vstore_write(dev, 2, test_data, size));
+
+	/* Check it is locked */
+	ut_asserteq(4, cros_ec_vstore_info(dev, &locked));
+	ut_asserteq(1 << 2, locked);
+
+	/* Read it back and compare */
+	ut_assertok(cros_ec_vstore_read(dev, 2, data));
+	ut_asserteq_mem(test_data, data, size);
+
+	/* Try another slot to make sure it is empty */
+	ut_assertok(cros_ec_vstore_read(dev, 0, data));
+	for (i = 0; i < size; i++)
+		ut_asserteq(0, data[i]);
+
+	return 0;
+}
+DM_TEST(dm_test_cros_ec_vstore, UT_TESTF_SCAN_FDT);

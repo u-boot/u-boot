@@ -62,6 +62,15 @@ struct ec_keymatrix_entry {
 	int keycode;	/* corresponding linux key code */
 };
 
+enum {
+	VSTORE_SLOT_COUNT	= 4,
+};
+
+struct vstore_slot {
+	bool locked;
+	u8 data[EC_VSTORE_SLOT_SIZE];
+};
+
 /**
  * struct ec_state - Information about the EC state
  *
@@ -75,7 +84,7 @@ struct ec_keymatrix_entry {
  * @keyscan: Current keyscan information (bit set for each row/column pressed)
  * @recovery_req: Keyboard recovery requested
  * @test_flags: Flags that control behaviour for tests
- * @switches: Current switches value (EC_SWITCH_)
+ * @slot_locked: Locked vstore slots (mask)
  */
 struct ec_state {
 	u8 vbnv_context[EC_VBNV_BLOCK_SIZE_V2];
@@ -88,6 +97,7 @@ struct ec_state {
 	uint8_t keyscan[KEYBOARD_COLS];
 	bool recovery_req;
 	uint test_flags;
+	struct vstore_slot slot[VSTORE_SLOT_COUNT];
 } s_state, *g_state;
 
 /**
@@ -495,10 +505,48 @@ static int process_cmd(struct ec_state *ec,
 		struct ec_response_get_features *resp = resp_data;
 
 		resp->flags[0] = EC_FEATURE_MASK_0(EC_FEATURE_FLASH) |
-			EC_FEATURE_MASK_0(EC_FEATURE_I2C);
+			EC_FEATURE_MASK_0(EC_FEATURE_I2C) |
+			EC_FEATURE_MASK_0(EC_FEATURE_VSTORE);
 		resp->flags[1] =
 			EC_FEATURE_MASK_1(EC_FEATURE_UNIFIED_WAKE_MASKS) |
 			EC_FEATURE_MASK_1(EC_FEATURE_ISH);
+		len = sizeof(*resp);
+		break;
+	}
+	case EC_CMD_VSTORE_INFO: {
+		struct ec_response_vstore_info *resp = resp_data;
+		int i;
+
+		resp->slot_count = VSTORE_SLOT_COUNT;
+		resp->slot_locked = 0;
+		for (i = 0; i < VSTORE_SLOT_COUNT; i++) {
+			if (ec->slot[i].locked)
+				resp->slot_locked |= 1 << i;
+		}
+		len = sizeof(*resp);
+		break;
+	};
+	case EC_CMD_VSTORE_WRITE: {
+		const struct ec_params_vstore_write *req = req_data;
+		struct vstore_slot *slot;
+
+		if (req->slot >= EC_VSTORE_SLOT_MAX)
+			return -EINVAL;
+		slot = &ec->slot[req->slot];
+		slot->locked = true;
+		memcpy(slot->data, req->data, EC_VSTORE_SLOT_SIZE);
+		len = 0;
+		break;
+	}
+	case EC_CMD_VSTORE_READ: {
+		const struct ec_params_vstore_read *req = req_data;
+		struct ec_response_vstore_read *resp = resp_data;
+		struct vstore_slot *slot;
+
+		if (req->slot >= EC_VSTORE_SLOT_MAX)
+			return -EINVAL;
+		slot = &ec->slot[req->slot];
+		memcpy(resp->data, slot->data, EC_VSTORE_SLOT_SIZE);
 		len = sizeof(*resp);
 		break;
 	}

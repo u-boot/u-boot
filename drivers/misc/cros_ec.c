@@ -1557,6 +1557,77 @@ int cros_ec_set_lid_shutdown_mask(struct udevice *dev, int enable)
 	return 0;
 }
 
+int cros_ec_vstore_supported(struct udevice *dev)
+{
+	return cros_ec_check_feature(dev, EC_FEATURE_VSTORE);
+}
+
+int cros_ec_vstore_info(struct udevice *dev, u32 *lockedp)
+{
+	struct ec_response_vstore_info *resp;
+
+	if (ec_command_inptr(dev, EC_CMD_VSTORE_INFO, 0, NULL, 0,
+			     (uint8_t **)&resp, sizeof(*resp)) != sizeof(*resp))
+		return -EIO;
+
+	if (lockedp)
+		*lockedp = resp->slot_locked;
+
+	return resp->slot_count;
+}
+
+/*
+ * cros_ec_vstore_read - Read data from EC vstore slot
+ *
+ * @slot: vstore slot to read from
+ * @data: buffer to store read data, must be EC_VSTORE_SLOT_SIZE bytes
+ */
+int cros_ec_vstore_read(struct udevice *dev, int slot, uint8_t *data)
+{
+	struct ec_params_vstore_read req;
+	struct ec_response_vstore_read *resp;
+
+	req.slot = slot;
+	if (ec_command_inptr(dev, EC_CMD_VSTORE_READ, 0, &req, sizeof(req),
+			     (uint8_t **)&resp, sizeof(*resp)) != sizeof(*resp))
+		return -EIO;
+
+	if (!data || req.slot >= EC_VSTORE_SLOT_MAX)
+		return -EINVAL;
+
+	memcpy(data, resp->data, sizeof(resp->data));
+
+	return 0;
+}
+
+/*
+ * cros_ec_vstore_write - Save data into EC vstore slot
+ *
+ * @slot: vstore slot to write into
+ * @data: data to write
+ * @size: size of data in bytes
+ *
+ * Maximum size of data is EC_VSTORE_SLOT_SIZE.  It is the callers
+ * responsibility to check the number of implemented slots by
+ * querying the vstore info.
+ */
+int cros_ec_vstore_write(struct udevice *dev, int slot, const uint8_t *data,
+			 size_t size)
+{
+	struct ec_params_vstore_write req;
+
+	if (slot >= EC_VSTORE_SLOT_MAX || size > EC_VSTORE_SLOT_SIZE)
+		return -EINVAL;
+
+	req.slot = slot;
+	memcpy(req.data, data, size);
+
+	if (ec_command(dev, EC_CMD_VSTORE_WRITE, 0, &req, sizeof(req), NULL, 0))
+		return -EIO;
+
+	return 0;
+}
+
 int cros_ec_get_switches(struct udevice *dev)
 {
 	struct dm_cros_ec_ops *ops;

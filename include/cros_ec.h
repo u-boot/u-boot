@@ -596,4 +596,47 @@ int cros_ec_check_feature(struct udevice *dev, uint feature);
  */
 int cros_ec_get_switches(struct udevice *dev);
 
+/**
+ * cros_ec_vstore_supported() - Check if vstore is supported
+ *
+ * @dev: CROS-EC device
+ * @return false if not supported, true if supported, -ve on error
+ */
+int cros_ec_vstore_supported(struct udevice *dev);
+
+/**
+ * cros_ec_vstore_info() - Get vstore information
+ *
+ * @dev: CROS-EC device
+ * @lockedp: mask of locked slots
+ * @return number of vstore slots supported by the EC,, -ve on error
+ */
+int cros_ec_vstore_info(struct udevice *dev, u32 *lockedp);
+
+/**
+ * cros_ec_vstore_read() - Read data from EC vstore slot
+ *
+ * @dev: CROS-EC device
+ * @slot: vstore slot to read from
+ * @data: buffer to store read data, must be EC_VSTORE_SLOT_SIZE bytes
+ * @return 0 if OK, -ve on error
+ */
+int cros_ec_vstore_read(struct udevice *dev, int slot, uint8_t *data);
+
+/**
+ * cros_ec_vstore_write() - Save data into EC vstore slot
+ *
+ * The maximum size of data is EC_VSTORE_SLOT_SIZE.  It is the caller's
+ * responsibility to check the number of implemented slots by querying the
+ * vstore info.
+ *
+ * @dev: CROS-EC device
+ * @slot: vstore slot to write into
+ * @data: data to write
+ * @size: size of data in bytes
+ * @return 0 if OK, -ve on error
+ */
+int cros_ec_vstore_write(struct udevice *dev, int slot, const uint8_t *data,
+			 size_t size);
+
 #endif
