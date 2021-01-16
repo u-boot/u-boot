@@ -44,6 +44,10 @@ enum {
 	CROS_EC_CMD_TIMEOUT_MS	= 5000,
 	/* Timeout waiting for a synchronous hash to be recomputed */
 	CROS_EC_CMD_HASH_TIMEOUT_MS = 2000,
+
+	/* Wait 10 ms between attempts to check if EC's hash is ready */
+	CROS_EC_HASH_CHECK_DELAY_MS = 10,
+
 };
 
 #define INVALID_HCMD 0xFF
@@ -502,9 +506,10 @@ static int cros_ec_wait_on_hash_done(struct udevice *dev,
 
 	start = get_timer(0);
 	while (hash->status == EC_VBOOT_HASH_STATUS_BUSY) {
-		mdelay(50);	/* Insert some reasonable delay */
+		mdelay(CROS_EC_HASH_CHECK_DELAY_MS);
 
 		p->cmd = EC_VBOOT_HASH_GET;
+
 		if (ec_command(dev, EC_CMD_VBOOT_HASH, 0, p, sizeof(*p), hash,
 			       sizeof(*hash)) < 0)
 			return -1;
@@ -622,18 +627,23 @@ int cros_ec_reboot(struct udevice *dev, enum ec_reboot_cmd cmd, uint8_t flags)
 		return -1;
 
 	if (!(flags & EC_REBOOT_FLAG_ON_AP_SHUTDOWN)) {
+		ulong start;
+
 		/*
 		 * EC reboot will take place immediately so delay to allow it
 		 * to complete.  Note that some reboot types (EC_REBOOT_COLD)
 		 * will reboot the AP as well, in which case we won't actually
 		 * get to this point.
 		 */
-		/*
-		 * TODO(rspangler@chromium.org): Would be nice if we had a
-		 * better way to determine when the reboot is complete.  Could
-		 * we poll a memory-mapped LPC value?
-		 */
-		udelay(50000);
+		mdelay(50);
+		start = get_timer(0);
+		while (cros_ec_hello(dev, NULL)) {
+			if (get_timer(start) > 3000) {
+				log_err("EC did not return from reboot\n");
+				return -ETIMEDOUT;
+			}
+			mdelay(5);
+		}
 	}
 
 	return 0;
