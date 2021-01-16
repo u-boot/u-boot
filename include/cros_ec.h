@@ -516,4 +516,25 @@ int cros_ec_set_lid_shutdown_mask(struct udevice *dev, int enable);
  * @return 0 if OK, -ve on error
  */
 int cros_ec_hello(struct udevice *dev, uint *handshakep);
+
+/**
+ * cros_ec_get_features() - Get the set of features provided by the EC
+ *
+ * See enum ec_feature_code for the list of available features
+ *
+ * @dev: CROS-EC device
+ * @featuresp: Returns a bitmask of supported features
+ * @return 0 if OK, -ve on error
+ */
+int cros_ec_get_features(struct udevice *dev, u64 *featuresp);
+
+/**
+ * cros_ec_check_feature() - Check if a feature is supported
+ *
+ * @dev: CROS-EC device
+ * @feature: Feature number to check (enum ec_feature_code)
+ * @return true if supported, false if not, -ve on error
+ */
+int cros_ec_check_feature(struct udevice *dev, uint feature);
+
 #endif

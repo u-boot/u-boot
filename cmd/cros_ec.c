@@ -94,6 +94,74 @@ static int do_read_write(struct udevice *dev, int is_write, int argc,
 	return 0;
 }
 
+static const char *const feat_name[64] = {
+	"limited",
+	"flash",
+	"pwm_fan",
+	"pwm_keyb",
+	"lightbar",
+	"led",
+	"motion_sense",
+	"keyb",
+	"pstore",
+	"port80",
+	"thermal",
+	"bklight_switch",
+	"wifi_switch",
+	"host_events",
+	"gpio",
+	"i2c",
+	"charger",
+	"battery",
+	"smart_battery",
+	"hang_detect",
+	"pmu",
+	"sub_mcu",
+	"usb_pd",
+	"usb_mux",
+	"motion_sense_fifo",
+	"vstore",
+	"usbc_ss_mux_virtual",
+	"rtc",
+	"fingerprint",
+	"touchpad",
+	"rwsig",
+	"device_event",
+	"unified_wake_masks",
+	"host_event64",
+	"exec_in_ram",
+	"cec",
+	"motion_sense_tight_timestamps",
+	"refined_tablet_mode_hysteresis",
+	"efs2",
+	"scp",
+	"ish",
+	"typec_cmd",
+	"typec_require_ap_mode_entry",
+	"typec_mux_require_ap_ack",
+};
+
+static int do_show_features(struct udevice *dev)
+{
+	u64 feat;
+	int ret;
+	uint i;
+
+	ret = cros_ec_get_features(dev, &feat);
+	if (ret)
+		return ret;
+	for (i = 0; i < ARRAY_SIZE(feat_name); i++) {
+		if (feat & (1ULL << i)) {
+			if (feat_name[i])
+				printf("%s\n", feat_name[i]);
+			else
+				printf("unknown %d\n", i);
+		}
+	}
+
+	return 0;
+}
+
 static int do_cros_ec(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
@@ -140,6 +208,11 @@ static int do_cros_ec(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 		printf("rows     = %u\n", info.rows);
 		printf("cols     = %u\n", info.cols);
+	} else if (!strcmp("features", cmd)) {
+		ret = do_show_features(dev);
+
+		if (ret)
+			printf("Error: %d\n", ret);
 	} else if (0 == strcmp("curimage", cmd)) {
 		enum ec_current_image image;
 
@@ -379,6 +452,7 @@ U_BOOT_CMD(
 	"init                Re-init CROS-EC (done on startup automatically)\n"
 	"crosec id                  Read CROS-EC ID\n"
 	"crosec info                Read CROS-EC info\n"
+	"crosec features            Read CROS-EC features\n"
 	"crosec curimage            Read CROS-EC current image\n"
 	"crosec hash                Read CROS-EC hash\n"
 	"crosec reboot [rw | ro | cold]  Reboot CROS-EC\n"

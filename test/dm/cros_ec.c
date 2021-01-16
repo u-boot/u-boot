@@ -47,3 +47,31 @@ static int dm_test_cros_ec_sku_id(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_cros_ec_sku_id, UT_TESTF_SCAN_FDT);
+
+static int dm_test_cros_ec_features(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	u64 feat;
+
+	ut_assertok(uclass_first_device_err(UCLASS_CROS_EC, &dev));
+	ut_assertok(cros_ec_get_features(dev, &feat));
+	ut_asserteq_64(1U << EC_FEATURE_FLASH | 1U << EC_FEATURE_I2C |
+		1ULL << EC_FEATURE_UNIFIED_WAKE_MASKS | 1ULL << EC_FEATURE_ISH,
+		feat);
+
+	ut_asserteq(true, cros_ec_check_feature(dev, EC_FEATURE_I2C));
+	ut_asserteq(false, cros_ec_check_feature(dev, EC_FEATURE_MOTION_SENSE));
+	ut_asserteq(true, cros_ec_check_feature(dev, EC_FEATURE_ISH));
+
+	/* try the command */
+	console_record_reset();
+	ut_assertok(run_command("crosec features", 0));
+	ut_assert_nextline("flash");
+	ut_assert_nextline("i2c");
+	ut_assert_nextline("unified_wake_masks");
+	ut_assert_nextline("ish");
+	ut_assert_console_end();
+
+	return 0;
+}
+DM_TEST(dm_test_cros_ec_features, UT_TESTF_SCAN_FDT);
