@@ -234,10 +234,50 @@ int cros_ec_flash_update_rw(struct udevice *dev, const uint8_t  *image,
 struct udevice *board_get_cros_ec_dev(void);
 
 struct dm_cros_ec_ops {
+	/**
+	 * check_version() - Check the protocol version being used (optional)
+	 *
+	 * If provided, this function should check that the EC can be supported
+	 * by the driver. If not provided, HELLO messages will be sent to try
+	 * to determine the protocol version.
+	 *
+	 * @dev: Device to check
+	 * @return 0 if the protocol is valid, -ve if not supported
+	 */
 	int (*check_version)(struct udevice *dev);
+
+	/**
+	 * command() - Old-style command interface
+	 *
+	 * This sends a command and receives a response (deprecated, use
+	 * packet())
+	 *
+	 * @dev: Device to use
+	 * @cmd: Command to send (only supports 0-0xff)
+	 * @cmd_version: Version of command to send (often 0)
+	 * @dout: Output data (may be NULL If dout_len=0)
+	 * @dout_len: Length of output data excluding 4-byte header
+	 * @dinp: On input, set to point to input data, often struct
+	 *	cros_ec_dev->din - typically this is left alone but may be
+	 *	updated by the driver
+	 * @din_len: Maximum length of response
+	 * @return number of bytes in response, or -ve on error
+	 */
 	int (*command)(struct udevice *dev, uint8_t cmd, int cmd_version,
 		       const uint8_t *dout, int dout_len,
 		       uint8_t **dinp, int din_len);
+
+	/**
+	 * packet() - New-style command interface
+	 *
+	 * This interface is preferred over command(), since it is typically
+	 * easier to implement.
+	 *
+	 * @dev: Device to use
+	 * @out_bytes: Number of bytes to send (from struct cros_ec_dev->dout)
+	 * @in_bytes: Maximum number of bytes to expect in response
+	 * @return number of bytes in response, or -ve on error
+	 */
 	int (*packet)(struct udevice *dev, int out_bytes, int in_bytes);
 };
 
