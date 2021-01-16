@@ -75,3 +75,29 @@ static int dm_test_cros_ec_features(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_cros_ec_features, UT_TESTF_SCAN_FDT);
+
+static int dm_test_cros_ec_switches(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	ut_assertok(uclass_first_device_err(UCLASS_CROS_EC, &dev));
+	ut_asserteq(0, cros_ec_get_switches(dev));
+
+	/* try the command */
+	console_record_reset();
+	ut_assertok(run_command("crosec switches", 0));
+	ut_assert_console_end();
+
+	/* Open the lid and check the switch changes */
+	sandbox_cros_ec_set_test_flags(dev, CROSECT_LID_OPEN);
+	ut_asserteq(EC_SWITCH_LID_OPEN, cros_ec_get_switches(dev));
+
+	/* try the command */
+	console_record_reset();
+	ut_assertok(run_command("crosec switches", 0));
+	ut_assert_nextline("lid open");
+	ut_assert_console_end();
+
+	return 0;
+}
+DM_TEST(dm_test_cros_ec_switches, UT_TESTF_SCAN_FDT);

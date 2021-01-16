@@ -279,6 +279,16 @@ struct dm_cros_ec_ops {
 	 * @return number of bytes in response, or -ve on error
 	 */
 	int (*packet)(struct udevice *dev, int out_bytes, int in_bytes);
+
+	/**
+	 * get_switches() - Get value of EC switches
+	 *
+	 * This is currently supported on the LPC EC.
+	 *
+	 * @dev: Device to use
+	 * @return current switches value, or -ENOSYS if not supported
+	 */
+	int (*get_switches)(struct udevice *dev);
 };
 
 #define dm_cros_ec_get_ops(dev) \
@@ -576,5 +586,14 @@ int cros_ec_get_features(struct udevice *dev, u64 *featuresp);
  * @return true if supported, false if not, -ve on error
  */
 int cros_ec_check_feature(struct udevice *dev, uint feature);
+
+/**
+ * cros_ec_get_switches() - Get switches value
+ *
+ * @dev: CROS-EC device
+ * @return switches value, or -ENOSYS if not supported, or other -ve value on
+ *	other error
+ */
+int cros_ec_get_switches(struct udevice *dev);
 
 #endif

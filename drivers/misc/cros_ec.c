@@ -1557,6 +1557,22 @@ int cros_ec_set_lid_shutdown_mask(struct udevice *dev, int enable)
 	return 0;
 }
 
+int cros_ec_get_switches(struct udevice *dev)
+{
+	struct dm_cros_ec_ops *ops;
+	int ret;
+
+	ops = dm_cros_ec_get_ops(dev);
+	if (!ops->get_switches)
+		return -ENOSYS;
+
+	ret = ops->get_switches(dev);
+	if (ret < 0)
+		return log_msg_ret("get", ret);
+
+	return ret;
+}
+
 UCLASS_DRIVER(cros_ec) = {
 	.id		= UCLASS_CROS_EC,
 	.name		= "cros-ec",

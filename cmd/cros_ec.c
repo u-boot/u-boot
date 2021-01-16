@@ -162,6 +162,41 @@ static int do_show_features(struct udevice *dev)
 	return 0;
 }
 
+static const char *const switch_name[8] = {
+	"lid open",
+	"power button pressed",
+	"write-protect disabled",
+	NULL,
+	"dedicated recovery",
+	NULL,
+	NULL,
+	NULL,
+};
+
+static int do_show_switches(struct udevice *dev)
+{
+	uint switches;
+	int ret;
+	uint i;
+
+	ret = cros_ec_get_switches(dev);
+	if (ret < 0)
+		return log_msg_ret("get", ret);
+	switches = ret;
+	for (i = 0; i < ARRAY_SIZE(switch_name); i++) {
+		uint mask = 1 << i;
+
+		if (switches & mask) {
+			if (switch_name[i])
+				printf("%s\n", switch_name[i]);
+			else
+				printf("unknown %02x\n", mask);
+		}
+	}
+
+	return 0;
+}
+
 static int do_cros_ec(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
@@ -210,6 +245,11 @@ static int do_cros_ec(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("cols     = %u\n", info.cols);
 	} else if (!strcmp("features", cmd)) {
 		ret = do_show_features(dev);
+
+		if (ret)
+			printf("Error: %d\n", ret);
+	} else if (!strcmp("switches", cmd)) {
+		ret = do_show_switches(dev);
 
 		if (ret)
 			printf("Error: %d\n", ret);
@@ -453,6 +493,7 @@ U_BOOT_CMD(
 	"crosec id                  Read CROS-EC ID\n"
 	"crosec info                Read CROS-EC info\n"
 	"crosec features            Read CROS-EC features\n"
+	"crosec switches            Read CROS-EC switches\n"
 	"crosec curimage            Read CROS-EC current image\n"
 	"crosec hash                Read CROS-EC hash\n"
 	"crosec reboot [rw | ro | cold]  Reboot CROS-EC\n"

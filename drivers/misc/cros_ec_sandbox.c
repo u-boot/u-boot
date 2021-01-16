@@ -75,6 +75,7 @@ struct ec_keymatrix_entry {
  * @keyscan: Current keyscan information (bit set for each row/column pressed)
  * @recovery_req: Keyboard recovery requested
  * @test_flags: Flags that control behaviour for tests
+ * @switches: Current switches value (EC_SWITCH_)
  */
 struct ec_state {
 	u8 vbnv_context[EC_VBNV_BLOCK_SIZE_V2];
@@ -541,6 +542,14 @@ void cros_ec_check_keyboard(struct udevice *dev)
 	}
 }
 
+/* Return the byte of EC switch states */
+static int cros_ec_sandbox_get_switches(struct udevice *dev)
+{
+	struct ec_state *ec = dev_get_priv(dev);
+
+	return ec->test_flags & CROSECT_LID_OPEN ? EC_SWITCH_LID_OPEN : 0;
+}
+
 void sandbox_cros_ec_set_test_flags(struct udevice *dev, uint flags)
 {
 	struct ec_state *ec = dev_get_priv(dev);
@@ -603,6 +612,7 @@ int cros_ec_probe(struct udevice *dev)
 
 struct dm_cros_ec_ops cros_ec_ops = {
 	.packet = cros_ec_sandbox_packet,
+	.get_switches = cros_ec_sandbox_get_switches,
 };
 
 static const struct udevice_id cros_ec_ids[] = {

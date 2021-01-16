@@ -61,6 +61,7 @@ enum {
  */
 enum cros_ec_test_t {
 	CROSECT_BREAK_HELLO	= BIT(1),
+	CROSECT_LID_OPEN	= BIT(2),
 };
 
 /**
