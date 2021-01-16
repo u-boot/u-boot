@@ -591,6 +591,25 @@ static int cros_ec_invalidate_hash(struct udevice *dev)
 	return 0;
 }
 
+int cros_ec_hello(struct udevice *dev, uint *handshakep)
+{
+	struct ec_params_hello req;
+	struct ec_response_hello *resp;
+
+	req.in_data = 0x12345678;
+	if (ec_command_inptr(dev, EC_CMD_HELLO, 0, &req, sizeof(req),
+			     (uint8_t **)&resp, sizeof(*resp)) < 0)
+		return -EIO;
+	if (resp->out_data != req.in_data + 0x01020304) {
+		printf("Received invalid handshake %x\n", resp->out_data);
+		if (handshakep)
+			*handshakep = req.in_data;
+		return -ENOTSYNC;
+	}
+
+	return 0;
+}
+
 int cros_ec_reboot(struct udevice *dev, enum ec_reboot_cmd cmd, uint8_t flags)
 {
 	struct ec_params_reboot_ec p;
@@ -738,7 +757,6 @@ static int cros_ec_check_version(struct udevice *dev)
 {
 	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
 	struct ec_params_hello req;
-	struct ec_response_hello *resp;
 
 	struct dm_cros_ec_ops *ops;
 	int ret;
@@ -767,14 +785,14 @@ static int cros_ec_check_version(struct udevice *dev)
 	/* Try sending a version 3 packet */
 	cdev->protocol_version = 3;
 	req.in_data = 0;
-	if (ec_command_inptr(dev, EC_CMD_HELLO, 0, &req, sizeof(req),
-			     (uint8_t **)&resp, sizeof(*resp)) > 0)
+	ret = cros_ec_hello(dev, NULL);
+	if (!ret || ret == -ENOTSYNC)
 		return 0;
 
 	/* Try sending a version 2 packet */
 	cdev->protocol_version = 2;
-	if (ec_command_inptr(dev, EC_CMD_HELLO, 0, &req, sizeof(req),
-			     (uint8_t **)&resp, sizeof(*resp)) > 0)
+	ret = cros_ec_hello(dev, NULL);
+	if (!ret || ret == -ENOTSYNC)
 		return 0;
 
 	/*
@@ -790,18 +808,16 @@ static int cros_ec_check_version(struct udevice *dev)
 
 int cros_ec_test(struct udevice *dev)
 {
-	struct ec_params_hello req;
-	struct ec_response_hello *resp;
+	uint out_data;
+	int ret;
 
-	req.in_data = 0x12345678;
-	if (ec_command_inptr(dev, EC_CMD_HELLO, 0, &req, sizeof(req),
-		       (uint8_t **)&resp, sizeof(*resp)) < sizeof(*resp)) {
+	ret = cros_ec_hello(dev, &out_data);
+	if (ret == -ENOTSYNC) {
+		printf("Received invalid handshake %x\n", out_data);
+		return ret;
+	} else if (ret) {
 		printf("ec_command_inptr() returned error\n");
-		return -1;
-	}
-	if (resp->out_data != req.in_data + 0x01020304) {
-		printf("Received invalid handshake %x\n", resp->out_data);
-		return -1;
+		return ret;
 	}
 
 	return 0;

@@ -497,4 +497,15 @@ int cros_ec_get_lid_shutdown_mask(struct udevice *dev);
  */
 int cros_ec_set_lid_shutdown_mask(struct udevice *dev, int enable);
 
+/**
+ * cros_ec_hello() - Send a hello message
+ *
+ * Sends a message with a fixed input value and checks that the expected output
+ * value is received
+ *
+ * @dev: CROS-EC device
+ * @handshakep: If non-NULL, returns received handshake value on error
+ * @return 0 if OK, -ve on error
+ */
+int cros_ec_hello(struct udevice *dev, uint *handshakep);
 #endif

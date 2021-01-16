@@ -18,6 +18,7 @@
 #include <asm/malloc.h>
 #include <asm/state.h>
 #include <asm/sdl.h>
+#include <asm/test.h>
 #include <linux/input.h>
 
 /*
@@ -73,6 +74,7 @@ struct ec_keymatrix_entry {
  * @matrix: Information about keyboard matrix
  * @keyscan: Current keyscan information (bit set for each row/column pressed)
  * @recovery_req: Keyboard recovery requested
+ * @test_flags: Flags that control behaviour for tests
  */
 struct ec_state {
 	u8 vbnv_context[EC_VBNV_BLOCK_SIZE_V2];
@@ -84,6 +86,7 @@ struct ec_state {
 	struct ec_keymatrix_entry *matrix;	/* the key matrix info */
 	uint8_t keyscan[KEYBOARD_COLS];
 	bool recovery_req;
+	uint test_flags;
 } s_state, *g_state;
 
 /**
@@ -295,6 +298,8 @@ static int process_cmd(struct ec_state *ec,
 		struct ec_response_hello *resp = resp_data;
 
 		resp->out_data = req->in_data + 0x01020304;
+		if (ec->test_flags & CROSECT_BREAK_HELLO)
+			resp->out_data++;
 		len = sizeof(*resp);
 		break;
 	}
@@ -516,6 +521,13 @@ void cros_ec_check_keyboard(struct udevice *dev)
 		ec->recovery_req = true;
 		printf("   - EC requests recovery\n");
 	}
+}
+
+void sandbox_cros_ec_set_test_flags(struct udevice *dev, uint flags)
+{
+	struct ec_state *ec = dev_get_priv(dev);
+
+	ec->test_flags = flags;
 }
 
 int cros_ec_probe(struct udevice *dev)

@@ -58,6 +58,12 @@ enum {
 };
 
 /**
+ */
+enum cros_ec_test_t {
+	CROSECT_BREAK_HELLO	= BIT(1),
+};
+
+/**
  * sandbox_i2c_set_test_mode() - set test mode for running unit tests
  *
  * See sandbox_i2c_xfer() for the behaviour changes.
@@ -259,5 +265,13 @@ uint sandbox_pci_read_bar(u32 barval, int type, uint size);
  * @enable: true to enable, false to disable
  */
 void sandbox_set_enable_memio(bool enable);
+
+/**
+ * sandbox_cros_ec_set_test_flags() - Set behaviour for testing purposes
+ *
+ * @dev: Device to check
+ * @flags: Flags to control behaviour (CROSECT_...)
+ */
+void sandbox_cros_ec_set_test_flags(struct udevice *dev, uint flags);
 
 #endif
