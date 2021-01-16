@@ -702,7 +702,7 @@ void efi_variables_boot_exit_notify(void)
 	if (ret != EFI_SUCCESS)
 		log_err("Can't populate EFI variables. No runtime variables will be available\n");
 	else
-		memcpy(efi_var_buf, var_buf, len);
+		efi_var_buf_update(var_buf);
 	free(var_buf);
 
 	/* Update runtime service table */
