@@ -58,9 +58,11 @@ efi_status_t efi_root_node_register(void)
 			 &efi_guid_device_path_to_text_protocol,
 			 (void *)&efi_device_path_to_text,
 #endif
+#ifdef CONFIG_EFI_DEVICE_PATH_UTIL
 			 /* Device path utilities protocol */
 			 &efi_guid_device_path_utilities_protocol,
 			 (void *)&efi_device_path_utilities,
+#endif
 #ifdef CONFIG_EFI_DT_FIXUP
 			 /* Device-tree fix-up protocol */
 			 &efi_guid_dt_fixup_protocol,

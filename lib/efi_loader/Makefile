@@ -28,7 +28,7 @@ obj-$(CONFIG_EFI_CAPSULE_FIRMWARE) += efi_firmware.o
 obj-y += efi_console.o
 obj-y += efi_device_path.o
 obj-$(CONFIG_EFI_DEVICE_PATH_TO_TEXT) += efi_device_path_to_text.o
-obj-y += efi_device_path_utilities.o
+obj-$(CONFIG_EFI_DEVICE_PATH_UTIL) += efi_device_path_utilities.o
 ifeq ($(CONFIG_GENERATE_ACPI_TABLE),)
 obj-y += efi_dt_fixup.o
 endif

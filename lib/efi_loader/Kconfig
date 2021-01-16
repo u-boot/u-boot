@@ -208,6 +208,13 @@ config EFI_DEVICE_PATH_TO_TEXT
 	  The device path to text protocol converts device nodes and paths to
 	  human readable strings.
 
+config EFI_DEVICE_PATH_UTIL
+	bool "Device path utilities protocol"
+	default y
+	help
+	  The device path utilities protocol creates and manipulates device
+	  paths and device nodes. It is required to run the EFI Shell.
+
 config EFI_DT_FIXUP
 	bool "Device tree fixup protocol"
 	depends on !GENERATE_ACPI_TABLE
