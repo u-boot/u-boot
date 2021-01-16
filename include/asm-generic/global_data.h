@@ -412,12 +412,12 @@ struct global_data {
 	 * @new_bloblist: relocated blob list information
 	 */
 	struct bloblist_hdr *new_bloblist;
-# ifdef CONFIG_SPL
+#endif
+#if CONFIG_IS_ENABLED(HANDOFF)
 	/**
 	 * @spl_handoff: SPL hand-off information
 	 */
 	struct spl_handoff *spl_handoff;
-# endif
 #endif
 #if defined(CONFIG_TRANSLATION_OFFSET)
 	/**

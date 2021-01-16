@@ -25,8 +25,10 @@ unsigned long get_version(void)
 # define miiphy_set_current_dev		dummy
 #endif
 
-void jumptable_init(void)
+int jumptable_init(void)
 {
 	gd->jt = malloc(sizeof(struct jt_funcs));
 #include <_exports.h>
+
+	return 0;
 }

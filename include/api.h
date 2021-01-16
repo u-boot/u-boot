@@ -7,6 +7,14 @@
 #ifndef __API_H
 #define __API_H
 
-void api_init(void);
+/**
+ * api_init() - Initialize API for external applications
+ *
+ * Initialize API for external (standalone) applications running on top of
+ * U-Boot. It is called during the generic post-relocation init sequence.
+ *
+ * Return: 0 if OK
+ */
+int api_init(void);
 
 #endif

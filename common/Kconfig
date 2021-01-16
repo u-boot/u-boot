@@ -17,6 +17,14 @@ config CONSOLE_RECORD
 	  To enable console recording, call console_record_reset_enable()
 	  from your code.
 
+config CONSOLE_RECORD_INIT_F
+	bool "Enable console recording during pre-relocation init"
+	depends on CONSOLE_RECORD && SYS_MALLOC_F
+	default y
+	help
+	  This option enables console recording during pre-relocation init.
+	  CONFIG_SYS_MALLOC_F must be enabled to use this feature.
+
 config CONSOLE_RECORD_OUT_SIZE
 	hex "Output buffer size"
 	depends on CONSOLE_RECORD

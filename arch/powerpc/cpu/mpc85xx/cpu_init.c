@@ -1028,7 +1028,7 @@ void arch_preboot_os(void)
 	mtmsr(msr);
 }
 
-void cpu_secondary_init_r(void)
+int cpu_secondary_init_r(void)
 {
 #ifdef CONFIG_QE
 #ifdef CONFIG_U_QE
@@ -1040,6 +1040,8 @@ void cpu_secondary_init_r(void)
 	qe_init(qe_base);
 	qe_reset();
 #endif
+
+	return 0;
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT

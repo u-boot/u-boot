@@ -27,8 +27,8 @@ int iomux_doenv(const int console, const char *arg)
 {
 	char *console_args, *temp, **start;
 	int i, j, k, io_flag, cs_idx, repeat;
+	struct stdio_dev **cons_set, **old_set;
 	struct stdio_dev *dev;
-	struct stdio_dev **cons_set;
 
 	console_args = strdup(arg);
 	if (console_args == NULL)
@@ -45,15 +45,14 @@ int iomux_doenv(const int console, const char *arg)
 	i = 0;
 	temp = console_args;
 	for (;;) {
-		temp = strchr(temp, ',');
-		if (temp != NULL) {
-			i++;
-			temp++;
-			continue;
-		}
 		/* There's always one entry more than the number of commas. */
 		i++;
-		break;
+
+		temp = strchr(temp, ',');
+		if (temp == NULL)
+			break;
+
+		temp++;
 	}
 	start = (char **)malloc(i * sizeof(char *));
 	if (start == NULL) {
@@ -95,10 +94,10 @@ int iomux_doenv(const int console, const char *arg)
 	for (j = 0; j < i; j++) {
 		/*
 		 * Check whether the device exists and is valid.
-		 * console_assign() also calls search_device(),
+		 * console_assign() also calls console_search_dev(),
 		 * but I need the pointer to the device.
 		 */
-		dev = search_device(io_flag, start[j]);
+		dev = console_search_dev(io_flag, start[j]);
 		if (dev == NULL)
 			continue;
 		/*
@@ -127,21 +126,25 @@ int iomux_doenv(const int console, const char *arg)
 	if (cs_idx == 0) {
 		free(cons_set);
 		return 1;
-	} else {
-		/* Works even if console_devices[console] is NULL. */
-		console_devices[console] =
-			(struct stdio_dev **)realloc(console_devices[console],
-			cs_idx * sizeof(struct stdio_dev *));
-		if (console_devices[console] == NULL) {
-			free(cons_set);
-			return 1;
-		}
-		memcpy(console_devices[console], cons_set, cs_idx *
-			sizeof(struct stdio_dev *));
-
-		cd_count[console] = cs_idx;
 	}
-	free(cons_set);
+
+	old_set = console_devices[console];
+	repeat = cd_count[console];
+
+	console_devices[console] = cons_set;
+	cd_count[console] = cs_idx;
+
+	/* Stop dropped consoles */
+	for (i = 0; i < repeat; i++) {
+		for (j = 0; j < cs_idx; j++) {
+			if (old_set[i] == cons_set[j])
+				break;
+		}
+		if (j == cs_idx)
+			console_stop(console, old_set[i]);
+	}
+
+	free(old_set);
 	return 0;
 }
 #endif /* CONSOLE_MUX */

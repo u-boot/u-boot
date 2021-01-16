@@ -91,21 +91,8 @@ __weak int board_flash_wp_on(void)
 	return 0;
 }
 
-__weak void cpu_secondary_init_r(void)
+__weak int cpu_secondary_init_r(void)
 {
-}
-
-static int initr_secondary_cpu(void)
-{
-	/*
-	 * after non-volatile devices & environment is setup and cpu code have
-	 * another round to deal with any initialization that might require
-	 * full access to the environment or loading of some image (firmware)
-	 * from a non-volatile device
-	 */
-	/* TODO: maybe define this for all archs? */
-	cpu_secondary_init_r();
-
 	return 0;
 }
 
@@ -195,20 +182,10 @@ static int initr_reloc_global_data(void)
 	return 0;
 }
 
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_MIPS)
-static int initr_trap(void)
+__weak int arch_initr_trap(void)
 {
-	/*
-	 * Setup trap handlers
-	 */
-#if defined(CONFIG_PPC)
-	trap_init(gd->relocaddr);
-#else
-	trap_init(CONFIG_SYS_SDRAM_BASE);
-#endif
 	return 0;
 }
-#endif
 
 #ifdef CONFIG_ADDR_MAP
 static int initr_addr_map(void)
@@ -219,37 +196,10 @@ static int initr_addr_map(void)
 }
 #endif
 
-#ifdef CONFIG_POST
-static int initr_post_backlog(void)
-{
-	post_output_backlog();
-	return 0;
-}
-#endif
-
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
 static int initr_unlock_ram_in_cache(void)
 {
 	unlock_ram_in_cache();	/* it's time to unlock D-cache in e500 */
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_PCI_ENDPOINT
-static int initr_pci_ep(void)
-{
-	pci_ep_init();
-
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_PCI
-static int initr_pci(void)
-{
-	if (IS_ENABLED(CONFIG_PCI_INIT_R))
-		pci_init();
-
 	return 0;
 }
 #endif
@@ -281,23 +231,6 @@ static int initr_malloc(void)
 			TOTAL_MALLOC_LEN);
 	return 0;
 }
-
-static int initr_console_record(void)
-{
-#if defined(CONFIG_CONSOLE_RECORD)
-	return console_record_init();
-#else
-	return 0;
-#endif
-}
-
-#ifdef CONFIG_SYS_NONCACHED_MEMORY
-static int initr_noncached(void)
-{
-	noncached_init();
-	return 0;
-}
-#endif
 
 static int initr_of_live(void)
 {
@@ -485,14 +418,6 @@ static int initr_mmc(void)
 }
 #endif
 
-#ifdef CONFIG_XEN
-static int initr_xen(void)
-{
-	xen_init();
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_PVBLOCK
 static int initr_pvblock(void)
 {
@@ -555,21 +480,6 @@ static int initr_malloc_bootparams(void)
 }
 #endif
 
-static int initr_jumptable(void)
-{
-	jumptable_init();
-	return 0;
-}
-
-#if defined(CONFIG_API)
-static int initr_api(void)
-{
-	/* Initialize API */
-	api_init();
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_CMD_NET
 static int initr_ethaddr(void)
 {
@@ -610,14 +520,6 @@ static int initr_scsi(void)
 	scsi_init();
 	puts("\n");
 
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_BITBANGMII
-static int initr_bbmii(void)
-{
-	bb_miiphy_init();
 	return 0;
 }
 #endif
@@ -713,9 +615,11 @@ static init_fnc_t init_sequence_r[] = {
 	initr_malloc,
 	log_init,
 	initr_bootstage,	/* Needs malloc() but has its own timer */
-	initr_console_record,
+#if defined(CONFIG_CONSOLE_RECORD)
+	console_record_init,
+#endif
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
-	initr_noncached,
+	noncached_init,
 #endif
 	initr_of_live,
 #ifdef CONFIG_DM
@@ -755,9 +659,7 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	initr_manual_reloc_cmdtable,
 #endif
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_MIPS)
-	initr_trap,
-#endif
+	arch_initr_trap,
 #ifdef CONFIG_ADDR_MAP
 	initr_addr_map,
 #endif
@@ -766,15 +668,15 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	INIT_FUNC_WATCHDOG_RESET
 #ifdef CONFIG_POST
-	initr_post_backlog,
+	post_output_backlog,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
-#if defined(CONFIG_PCI) && defined(CONFIG_SYS_EARLY_PCI_INIT)
+#if defined(CONFIG_PCI_INIT_R) && defined(CONFIG_SYS_EARLY_PCI_INIT)
 	/*
 	 * Do early PCI configuration _before_ the flash gets initialised,
 	 * because PCU resources are crucial for flash access on some boards.
 	 */
-	initr_pci,
+	pci_init,
 #endif
 #ifdef CONFIG_ARCH_EARLY_INIT_R
 	arch_early_init_r,
@@ -798,7 +700,7 @@ static init_fnc_t init_sequence_r[] = {
 	initr_mmc,
 #endif
 #ifdef CONFIG_XEN
-	initr_xen,
+	xen_init,
 #endif
 #ifdef CONFIG_PVBLOCK
 	initr_pvblock,
@@ -808,21 +710,21 @@ static init_fnc_t init_sequence_r[] = {
 	initr_malloc_bootparams,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
-	initr_secondary_cpu,
+	cpu_secondary_init_r,
 #if defined(CONFIG_ID_EEPROM) || defined(CONFIG_SYS_I2C_MAC_OFFSET)
 	mac_read_from_eeprom,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
-#if defined(CONFIG_PCI) && !defined(CONFIG_SYS_EARLY_PCI_INIT)
+#if defined(CONFIG_PCI_INIT_R) && !defined(CONFIG_SYS_EARLY_PCI_INIT)
 	/*
 	 * Do pci configuration
 	 */
-	initr_pci,
+	pci_init,
 #endif
 	stdio_add_devices,
-	initr_jumptable,
+	jumptable_init,
 #ifdef CONFIG_API
-	initr_api,
+	api_init,
 #endif
 	console_init_r,		/* fully init console as a device */
 #ifdef CONFIG_DISPLAY_BOARDINFO_LATE
@@ -861,10 +763,10 @@ static init_fnc_t init_sequence_r[] = {
 	initr_scsi,
 #endif
 #ifdef CONFIG_BITBANGMII
-	initr_bbmii,
+	bb_miiphy_init,
 #endif
 #ifdef CONFIG_PCI_ENDPOINT
-	initr_pci_ep,
+	pci_ep_init,
 #endif
 #ifdef CONFIG_CMD_NET
 	INIT_FUNC_WATCHDOG_RESET

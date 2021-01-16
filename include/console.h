@@ -8,6 +8,7 @@
 #define __CONSOLE_H
 
 #include <stdbool.h>
+#include <stdio_dev.h>
 #include <linux/errno.h>
 
 extern char console_buffer[];
@@ -15,12 +16,26 @@ extern char console_buffer[];
 /* common/console.c */
 int console_init_f(void);	/* Before relocation; uses the serial  stuff */
 int console_init_r(void);	/* After  relocation; uses the console stuff */
+int console_start(int file, struct stdio_dev *sdev);	/* Start a console device */
+void console_stop(int file, struct stdio_dev *sdev);	/* Stop a console device */
 int console_assign(int file, const char *devname);	/* Assign the console */
 int ctrlc(void);
 int had_ctrlc(void);	/* have we had a Control-C since last clear? */
 void clear_ctrlc(void);	/* clear the Control-C condition */
 int disable_ctrlc(int);	/* 1 to disable, 0 to enable Control-C detect */
 int confirm_yesno(void);        /*  1 if input is "y", "Y", "yes" or "YES" */
+
+/**
+ * console_search_dev() - search for stdio device with given flags and name
+ * @flags: device flags as per input/output/system
+ * @name: device name
+ *
+ * Iterates over registered STDIO devices and match them with given @flags
+ * and @name.
+ *
+ * @return pointer to the &struct stdio_dev if found, or NULL otherwise
+ */
+struct stdio_dev *console_search_dev(int flags, const char *name);
 
 #ifdef CONFIG_CONSOLE_RECORD
 /**

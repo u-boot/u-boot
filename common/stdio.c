@@ -181,7 +181,7 @@ struct stdio_dev *stdio_get_by_name(const char *name)
 		 * 'stdout', which may include a list of devices separate by
 		 * commas. Obviously this is not going to work, so we ignore
 		 * that case. The call path in that case is
-		 * console_init_r() -> search_device() -> stdio_get_by_name()
+		 * console_init_r() -> console_search_dev() -> stdio_get_by_name()
 		 */
 		if (!strncmp(name, "vidconsole", 10) && !strchr(name, ',') &&
 		    !stdio_probe_device(name, UCLASS_VIDEO, &sdev))
@@ -332,7 +332,7 @@ int stdio_add_devices(void)
 		/*
 		 * If the console setting is not in environment variables then
 		 * console_init_r() will not be calling iomux_doenv() (which
-		 * calls search_device()). So we will not dynamically add
+		 * calls console_search_dev()). So we will not dynamically add
 		 * devices by calling stdio_probe_device().
 		 *
 		 * So just probe all video devices now so that whichever one is

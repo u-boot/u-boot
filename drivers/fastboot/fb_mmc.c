@@ -508,7 +508,7 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 			fastboot_fail("invalid MBR partition", response);
 			return;
 		}
-		if (write_mbr_partition(dev_desc, download_buffer)) {
+		if (write_mbr_sector(dev_desc, download_buffer)) {
 			printf("%s: writing MBR partition failed\n", __func__);
 			fastboot_fail("writing MBR partition failed",
 				      response);

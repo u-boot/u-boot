@@ -40,7 +40,7 @@ void exc_handler(struct pt_regs *fp) {
 	for(;;);
 }
 
-void trap_init(ulong value) {
+static void trap_init(ulong value) {
 	unsigned long *vec = (ulong *)value;
 	int i;
 
@@ -58,4 +58,11 @@ void trap_init(ulong value) {
 	}
 
 	setvbr(value);		/* set vector base register to new table */
+}
+
+int arch_initr_trap(void)
+{
+	trap_init(CONFIG_SYS_SDRAM_BASE);
+
+	return 0;
 }

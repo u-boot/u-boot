@@ -15,29 +15,44 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* emit some sample log records in different ways, for testing */
-static int do_log_run(int cat, const char *file)
+static int do_log_run(struct unit_test_state *uts, int cat, const char *file)
 {
 	int i;
+	int ret, expected_ret;
+
+	if (gd->flags & GD_FLG_LOG_READY)
+		expected_ret = 0;
+	else
+		expected_ret = -ENOSYS;
 
 	gd->log_fmt = LOGF_TEST;
 	debug("debug\n");
 	for (i = LOGL_FIRST; i < LOGL_COUNT; i++) {
 		log(cat, i, "log %d\n", i);
-		_log(log_uc_cat(cat), i, file, 100 + i, "func", "_log %d\n",
-		     i);
+		ret = _log(log_uc_cat(cat), i, file, 100 + i,
+			   "func", "_log %d\n", i);
+		ut_asserteq(ret, expected_ret);
+	}
+	/* test with LOGL_COUNT flag */
+	for (i = LOGL_FIRST; i < LOGL_COUNT; i++) {
+		ret = _log(log_uc_cat(cat), i | LOGL_FORCE_DEBUG, file, 100 + i,
+			   "func", "_log force %d\n", i);
+		ut_asserteq(ret, expected_ret);
 	}
 
 	gd->log_fmt = log_get_default_format();
 	return 0;
 }
 
-#define log_run_cat(cat) do_log_run(cat, "file")
-#define log_run_file(file) do_log_run(UCLASS_SPI, file)
-#define log_run() do_log_run(UCLASS_SPI, "file")
+#define log_run_cat(cat) do_log_run(uts, cat, "file")
+#define log_run_file(file) do_log_run(uts, UCLASS_SPI, file)
+#define log_run() do_log_run(uts, UCLASS_SPI, "file")
 
 #define EXPECT_LOG BIT(0)
 #define EXPECT_DIRECT BIT(1)
 #define EXPECT_EXTRA BIT(2)
+#define EXPECT_FORCE BIT(3)
+#define EXPECT_DEBUG BIT(4)
 
 static int do_check_log_entries(struct unit_test_state *uts, int flags, int min,
 				int max)
@@ -49,10 +64,21 @@ static int do_check_log_entries(struct unit_test_state *uts, int flags, int min,
 			ut_assert_nextline("do_log_run() log %d", i);
 		if (flags & EXPECT_DIRECT)
 			ut_assert_nextline("func() _log %d", i);
+		if (flags & EXPECT_DEBUG) {
+			ut_assert_nextline("log %d", i);
+			ut_assert_nextline("_log %d", i);
+		}
 	}
 	if (flags & EXPECT_EXTRA)
 		for (; i <= LOGL_MAX ; i++)
 			ut_assert_nextline("func() _log %d", i);
+
+	for (i = LOGL_FIRST; i < LOGL_COUNT; i++) {
+		if (flags & EXPECT_FORCE)
+			ut_assert_nextline("func() _log force %d", i);
+		if (flags & EXPECT_DEBUG)
+			ut_assert_nextline("_log force %d", i);
+	}
 
 	ut_assert_console_end();
 	return 0;
@@ -66,10 +92,10 @@ static int do_check_log_entries(struct unit_test_state *uts, int flags, int min,
 
 #define check_log_entries_flags(flags) \
 	check_log_entries_flags_levels(flags, LOGL_FIRST, _LOG_MAX_LEVEL)
-#define check_log_entries() check_log_entries_flags(EXPECT_LOG | EXPECT_DIRECT)
+#define check_log_entries() check_log_entries_flags(EXPECT_LOG | EXPECT_DIRECT | EXPECT_FORCE)
 #define check_log_entries_extra() \
-	check_log_entries_flags(EXPECT_LOG | EXPECT_DIRECT | EXPECT_EXTRA)
-#define check_log_entries_none() check_log_entries_flags(0)
+	check_log_entries_flags(EXPECT_LOG | EXPECT_DIRECT | EXPECT_EXTRA | EXPECT_FORCE)
+#define check_log_entries_none() check_log_entries_flags(EXPECT_FORCE)
 
 /* Check a category filter using the first category */
 int log_test_cat_allow(struct unit_test_state *uts)
@@ -126,7 +152,7 @@ int log_test_file(struct unit_test_state *uts)
 
 	ut_assertok(console_record_reset_enable());
 	log_run_file("file");
-	check_log_entries_flags(EXPECT_DIRECT | EXPECT_EXTRA);
+	check_log_entries_flags(EXPECT_DIRECT | EXPECT_EXTRA | EXPECT_FORCE);
 
 	ut_assertok(console_record_reset_enable());
 	log_run_file("file2");
@@ -147,7 +173,7 @@ int log_test_file_second(struct unit_test_state *uts)
 
 	ut_assertok(console_record_reset_enable());
 	log_run_file("file2");
-	check_log_entries_flags(EXPECT_DIRECT | EXPECT_EXTRA);
+	check_log_entries_flags(EXPECT_DIRECT | EXPECT_EXTRA | EXPECT_FORCE);
 
 	ut_assertok(log_remove_filter("console", filt));
 	return 0;
@@ -182,8 +208,8 @@ int log_test_level(struct unit_test_state *uts)
 
 	ut_assertok(console_record_reset_enable());
 	log_run();
-	check_log_entries_flags_levels(EXPECT_LOG | EXPECT_DIRECT, LOGL_FIRST,
-				       LOGL_WARNING);
+	check_log_entries_flags_levels(EXPECT_LOG | EXPECT_DIRECT | EXPECT_FORCE,
+				       LOGL_FIRST, LOGL_WARNING);
 
 	ut_assertok(log_remove_filter("console", filt));
 	return 0;
@@ -351,7 +377,7 @@ int log_test_level_deny(struct unit_test_state *uts)
 
 	ut_assertok(console_record_reset_enable());
 	log_run();
-	check_log_entries_flags_levels(EXPECT_LOG | EXPECT_DIRECT,
+	check_log_entries_flags_levels(EXPECT_LOG | EXPECT_DIRECT | EXPECT_FORCE,
 				       LOGL_WARNING + 1, _LOG_MAX_LEVEL);
 
 	ut_assertok(log_remove_filter("console", filt1));
@@ -374,7 +400,7 @@ int log_test_min(struct unit_test_state *uts)
 
 	ut_assertok(console_record_reset_enable());
 	log_run();
-	check_log_entries_flags_levels(EXPECT_LOG | EXPECT_DIRECT,
+	check_log_entries_flags_levels(EXPECT_LOG | EXPECT_DIRECT | EXPECT_FORCE,
 				       LOGL_WARNING, LOGL_INFO - 1);
 
 	ut_assertok(log_remove_filter("console", filt1));
@@ -382,3 +408,23 @@ int log_test_min(struct unit_test_state *uts)
 	return 0;
 }
 LOG_TEST_FLAGS(log_test_min, UT_TESTF_CONSOLE_REC);
+
+/* Check dropped traces */
+int log_test_dropped(struct unit_test_state *uts)
+{
+	/* force LOG not ready */
+	gd->flags &= ~(GD_FLG_LOG_READY);
+	gd->log_drop_count = 0;
+
+	ut_assertok(console_record_reset_enable());
+	log_run();
+
+	ut_asserteq(gd->log_drop_count, 3 * (LOGL_COUNT - LOGL_FIRST - 1));
+	check_log_entries_flags_levels(EXPECT_DEBUG, LOGL_FIRST, CONFIG_LOG_DEFAULT_LEVEL);
+
+	gd->flags |= GD_FLG_LOG_READY;
+	gd->log_drop_count = 0;
+
+	return 0;
+}
+LOG_TEST_FLAGS(log_test_dropped, UT_TESTF_CONSOLE_REC);

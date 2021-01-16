@@ -126,7 +126,7 @@ endmenu
 
 config HANDOFF
 	bool "Pass hand-off information from SPL to U-Boot proper"
-	depends on BLOBLIST
+	depends on SPL && BLOBLIST
 	help
 	  It is useful to be able to pass information from SPL to U-Boot
 	  proper to preserve state that is known in SPL and is needed in U-Boot.

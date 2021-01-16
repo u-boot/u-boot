@@ -465,14 +465,19 @@ int get_disk_guid(struct blk_desc *dev_desc, char *guid);
 int is_valid_dos_buf(void *buf);
 
 /**
- * write_mbr_partition() - write DOS MBR
+ * write_mbr_sector() - write DOS MBR
  *
  * @param dev_desc - block device descriptor
  * @param buf - buffer which contains the MBR
  *
  * @return - '0' on success, otherwise error
  */
-int write_mbr_partition(struct blk_desc *dev_desc, void *buf);
+int write_mbr_sector(struct blk_desc *dev_desc, void *buf);
+
+int write_mbr_partitions(struct blk_desc *dev,
+		struct disk_partition *p, int count, unsigned int disksig);
+int layout_mbr_partitions(struct disk_partition *p, int count,
+			  lbaint_t total_sectors);
 
 #endif
 
