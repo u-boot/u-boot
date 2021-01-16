@@ -147,9 +147,6 @@ extern const struct efi_device_path_to_text_protocol efi_device_path_to_text;
 /* implementation of the EFI_DEVICE_PATH_UTILITIES_PROTOCOL */
 extern const struct efi_device_path_utilities_protocol
 					efi_device_path_utilities;
-/* deprecated version of the EFI_UNICODE_COLLATION_PROTOCOL */
-extern const struct efi_unicode_collation_protocol
-					efi_unicode_collation_protocol;
 /* current version of the EFI_UNICODE_COLLATION_PROTOCOL */
 extern const struct efi_unicode_collation_protocol
 					efi_unicode_collation_protocol2;
