@@ -78,8 +78,9 @@ efi_selftest_miniapp_exception.efi \
 efi_selftest_miniapp_exit.efi \
 efi_selftest_miniapp_return.efi
 
-always += \
-dtbdump.efi
+ifeq ($(CONFIG_GENERATE_ACPI_TABLE),)
+always += dtbdump.efi
+endif
 
 $(obj)/efi_miniapp_file_image_exception.h: $(obj)/efi_selftest_miniapp_exception.efi
 	$(obj)/../../tools/file2include $(obj)/efi_selftest_miniapp_exception.efi > \
