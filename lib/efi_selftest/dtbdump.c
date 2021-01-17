@@ -41,7 +41,51 @@ static void error(u16 *string)
 }
 
 /**
- * input() - read string from console
+ * efi_input_yn() - get answer to yes/no question
+ *
+ * Return:
+ * y or Y
+ *     EFI_SUCCESS
+ * n or N
+ *     EFI_ACCESS_DENIED
+ * ESC
+ *     EFI_ABORTED
+ */
+static efi_status_t efi_input_yn(void)
+{
+	struct efi_input_key key = {0};
+	efi_uintn_t index;
+	efi_status_t ret;
+
+	/* Drain the console input */
+	ret = cin->reset(cin, true);
+	for (;;) {
+		ret = bs->wait_for_event(1, &cin->wait_for_key, &index);
+		if (ret != EFI_SUCCESS)
+			continue;
+		ret = cin->read_key_stroke(cin, &key);
+		if (ret != EFI_SUCCESS)
+			continue;
+		switch (key.scan_code) {
+		case 0x17: /* Escape */
+			return EFI_ABORTED;
+		default:
+			break;
+		}
+		/* Convert to lower case */
+		switch (key.unicode_char | 0x20) {
+		case 'y':
+			return EFI_SUCCESS;
+		case 'n':
+			return EFI_ACCESS_DENIED;
+		default:
+			break;
+		}
+	}
+}
+
+/**
+ * efi_input() - read string from console
  *
  * @buffer:		input buffer
  * @buffer_size:	buffer size
@@ -379,6 +423,20 @@ efi_status_t do_save(u16 *filename)
 		error(L"Failed to open volume\n");
 		return ret;
 	}
+	/* Check if file already exists */
+	ret = root->open(root, &file, filename, EFI_FILE_MODE_READ, 0);
+	if (ret == EFI_SUCCESS) {
+		file->close(file);
+		cout->output_string(cout, L"Overwrite existing file (y/n)? ");
+		ret = efi_input_yn();
+		cout->output_string(cout, L"\n");
+		if (ret != EFI_SUCCESS) {
+			root->close(root);
+			error(L"Aborted by user\n");
+			return ret;
+		}
+	}
+
 	/* Create file */
 	ret = root->open(root, &file, filename,
 			 EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE |
