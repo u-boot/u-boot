@@ -43,6 +43,7 @@ static struct sbi_ext extensions[] = {
 	{ 0x00735049, "IPI Extension" },
 	{ 0x52464E43, "RFENCE Extension" },
 	{ 0x0048534D, "Hart State Management Extension" },
+	{ 0x53525354, "System Reset Extension" },
 };
 
 static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,
