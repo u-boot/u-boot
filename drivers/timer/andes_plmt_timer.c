@@ -18,10 +18,29 @@
 /* mtime register */
 #define MTIME_REG(base)			((ulong)(base))
 
-static u64 andes_plmt_get_count(struct udevice *dev)
+static u64 notrace andes_plmt_get_count(struct udevice *dev)
 {
 	return readq((void __iomem *)MTIME_REG(dev_get_priv(dev)));
 }
+
+#if CONFIG_IS_ENABLED(RISCV_MMODE) && IS_ENABLED(CONFIG_TIMER_EARLY)
+/**
+ * timer_early_get_rate() - Get the timer rate before driver model
+ */
+unsigned long notrace timer_early_get_rate(void)
+{
+	return RISCV_MMODE_TIMER_FREQ;
+}
+
+/**
+ * timer_early_get_count() - Get the timer count before driver model
+ *
+ */
+u64 notrace timer_early_get_count(void)
+{
+	return readq((void __iomem *)MTIME_REG(RISCV_MMODE_TIMERBASE));
+}
+#endif
 
 static const struct timer_ops andes_plmt_ops = {
 	.get_count = andes_plmt_get_count,
