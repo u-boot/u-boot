@@ -12,6 +12,7 @@ of running Linux.
 
 Mainline support
 ----------------
+
 The support for following drivers are already enabled:
 
 1. SiFive UART Driver.
@@ -24,7 +25,7 @@ Booting from MMC using FSBL
 ---------------------------
 
 Building
---------
+~~~~~~~~
 
 1. Add the RISC-V toolchain to your PATH.
 2. Setup ARCH & cross compilation environment variable:
@@ -37,7 +38,7 @@ Building
 4. make
 
 Flashing
---------
+~~~~~~~~
 
 The current U-Boot port is supported in S-mode only and loaded from DRAM.
 
@@ -63,11 +64,12 @@ copied to the first partition of the sdcard.
     sudo dd if=<prior_stage_firmware_binary> of=/dev/disk2s1 bs=1024
 
 Booting
--------
+~~~~~~~
+
 Once you plugin the sdcard and power up, you should see the U-Boot prompt.
 
 Sample boot log from HiFive Unleashed board
--------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: none
 
@@ -417,7 +419,7 @@ Booting from MMC using U-Boot SPL
 ---------------------------------
 
 Building
---------
+~~~~~~~~
 
 Before building U-Boot SPL, OpenSBI must be built first. OpenSBI can be
 cloned and built for FU540 as below:
@@ -441,7 +443,7 @@ This will generate spl/u-boot-spl.bin and FIT image (u-boot.itb)
 
 
 Flashing
---------
+~~~~~~~~
 
 ZSBL loads the U-Boot SPL (u-boot-spl.bin) from a partition with GUID type
 5B193300-FC78-40CD-8002-E86C45580B47
@@ -471,11 +473,12 @@ Program the SD card
 	sudo dd if=u-boot.itb of=/dev/sda seek=2082
 
 Booting
--------
+~~~~~~~
+
 Once you plugin the sdcard and power up, you should see the U-Boot prompt.
 
 Sample boot log from HiFive Unleashed board
--------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: none
 
