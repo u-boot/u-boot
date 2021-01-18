@@ -83,7 +83,16 @@ struct macb_dma_desc {
 	u32	ctrl;
 };
 
-#define DMA_DESC_BYTES(n)	(n * sizeof(struct macb_dma_desc))
+struct macb_dma_desc_64 {
+	u32 addrh;
+	u32 unused;
+};
+
+#define HW_DMA_CAP_32B		0
+#define HW_DMA_CAP_64B		1
+
+#define DMA_DESC_SIZE		16
+#define DMA_DESC_BYTES(n)	((n) * DMA_DESC_SIZE)
 #define MACB_TX_DMA_DESC_SIZE	(DMA_DESC_BYTES(MACB_TX_RING_SIZE))
 #define MACB_RX_DMA_DESC_SIZE	(DMA_DESC_BYTES(MACB_RX_RING_SIZE))
 #define MACB_TX_DUMMY_DMA_DESC_SIZE	(DMA_DESC_BYTES(1))
@@ -137,6 +146,7 @@ struct macb_device {
 
 struct macb_config {
 	unsigned int		dma_burst_length;
+	unsigned int		hw_dma_cap;
 
 	int			(*clk_init)(struct udevice *dev, ulong rate);
 };
@@ -307,6 +317,24 @@ static inline void macb_invalidate_rx_buffer(struct macb_device *macb)
 
 #if defined(CONFIG_CMD_NET)
 
+static struct macb_dma_desc_64 *macb_64b_desc(struct macb_dma_desc *desc)
+{
+	return (struct macb_dma_desc_64 *)((void *)desc
+		+ sizeof(struct macb_dma_desc));
+}
+
+static void macb_set_addr(struct macb_device *macb, struct macb_dma_desc *desc,
+			  ulong addr)
+{
+	struct macb_dma_desc_64 *desc_64;
+
+	if (macb->config->hw_dma_cap & HW_DMA_CAP_64B) {
+		desc_64 = macb_64b_desc(desc);
+		desc_64->addrh = upper_32_bits(addr);
+	}
+	desc->addr = lower_32_bits(addr);
+}
+
 static int _macb_send(struct macb_device *macb, const char *name, void *packet,
 		      int length)
 {
@@ -325,8 +353,12 @@ static int _macb_send(struct macb_device *macb, const char *name, void *packet,
 		macb->tx_head++;
 	}
 
+	if (macb->config->hw_dma_cap & HW_DMA_CAP_64B)
+		tx_head = tx_head * 2;
+
 	macb->tx_ring[tx_head].ctrl = ctrl;
-	macb->tx_ring[tx_head].addr = paddr;
+	macb_set_addr(macb, &macb->tx_ring[tx_head], paddr);
+
 	barrier();
 	macb_flush_ring_desc(macb, TX);
 	macb_writel(macb, NCR, MACB_BIT(TE) | MACB_BIT(RE) | MACB_BIT(TSTART));
@@ -363,19 +395,28 @@ static void reclaim_rx_buffers(struct macb_device *macb,
 			       unsigned int new_tail)
 {
 	unsigned int i;
+	unsigned int count;
 
 	i = macb->rx_tail;
 
 	macb_invalidate_ring_desc(macb, RX);
 	while (i > new_tail) {
-		macb->rx_ring[i].addr &= ~MACB_BIT(RX_USED);
+		if (macb->config->hw_dma_cap & HW_DMA_CAP_64B)
+			count = i * 2;
+		else
+			count = i;
+		macb->rx_ring[count].addr &= ~MACB_BIT(RX_USED);
 		i++;
 		if (i > MACB_RX_RING_SIZE)
 			i = 0;
 	}
 
 	while (i < new_tail) {
-		macb->rx_ring[i].addr &= ~MACB_BIT(RX_USED);
+		if (macb->config->hw_dma_cap & HW_DMA_CAP_64B)
+			count = i * 2;
+		else
+			count = i;
+		macb->rx_ring[count].addr &= ~MACB_BIT(RX_USED);
 		i++;
 	}
 
@@ -390,16 +431,25 @@ static int _macb_recv(struct macb_device *macb, uchar **packetp)
 	void *buffer;
 	int length;
 	u32 status;
+	u8 flag = false;
 
 	macb->wrapped = false;
 	for (;;) {
 		macb_invalidate_ring_desc(macb, RX);
+
+		if (macb->config->hw_dma_cap & HW_DMA_CAP_64B)
+			next_rx_tail = next_rx_tail * 2;
 
 		if (!(macb->rx_ring[next_rx_tail].addr & MACB_BIT(RX_USED)))
 			return -EAGAIN;
 
 		status = macb->rx_ring[next_rx_tail].ctrl;
 		if (status & MACB_BIT(RX_SOF)) {
+			if (macb->config->hw_dma_cap & HW_DMA_CAP_64B) {
+				next_rx_tail = next_rx_tail / 2;
+				flag = true;
+			}
+
 			if (next_rx_tail != macb->rx_tail)
 				reclaim_rx_buffers(macb, next_rx_tail);
 			macb->wrapped = false;
@@ -426,11 +476,22 @@ static int _macb_recv(struct macb_device *macb, uchar **packetp)
 				*packetp = buffer;
 			}
 
+			if (macb->config->hw_dma_cap & HW_DMA_CAP_64B) {
+				if (!flag)
+					next_rx_tail = next_rx_tail / 2;
+			}
+
 			if (++next_rx_tail >= MACB_RX_RING_SIZE)
 				next_rx_tail = 0;
 			macb->next_rx_tail = next_rx_tail;
 			return length;
 		} else {
+			if (macb->config->hw_dma_cap & HW_DMA_CAP_64B) {
+				if (!flag)
+					next_rx_tail = next_rx_tail / 2;
+				flag = false;
+			}
+
 			if (++next_rx_tail >= MACB_RX_RING_SIZE) {
 				macb->wrapped = true;
 				next_rx_tail = 0;
@@ -469,6 +530,12 @@ static int macb_phy_find(struct macb_device *macb, const char *name)
 {
 	int i;
 	u16 phy_id;
+
+	phy_id = macb_mdio_read(macb, macb->phy_addr, MII_PHYSID1);
+	if (phy_id != 0xffff) {
+		printf("%s: PHY present at %d\n", name, macb->phy_addr);
+		return 0;
+	}
 
 	/* Search for PHY... */
 	for (i = 0; i < 32; i++) {
@@ -718,6 +785,7 @@ static int gmac_init_multi_queues(struct macb_device *macb)
 {
 	int i, num_queues = 1;
 	u32 queue_mask;
+	unsigned long paddr;
 
 	/* bit 0 is never set but queue 0 always exists */
 	queue_mask = gem_readl(macb, DCFG6) & 0xff;
@@ -731,10 +799,18 @@ static int gmac_init_multi_queues(struct macb_device *macb)
 	macb->dummy_desc->addr = 0;
 	flush_dcache_range(macb->dummy_desc_dma, macb->dummy_desc_dma +
 			ALIGN(MACB_TX_DUMMY_DMA_DESC_SIZE, PKTALIGN));
+	paddr = macb->dummy_desc_dma;
 
-	for (i = 1; i < num_queues; i++)
-		gem_writel_queue_TBQP(macb, macb->dummy_desc_dma, i - 1);
-
+	for (i = 1; i < num_queues; i++) {
+		gem_writel_queue_TBQP(macb, lower_32_bits(paddr), i - 1);
+		gem_writel_queue_RBQP(macb, lower_32_bits(paddr), i - 1);
+		if (macb->config->hw_dma_cap & HW_DMA_CAP_64B) {
+			gem_writel_queue_TBQPH(macb, upper_32_bits(paddr),
+					       i - 1);
+			gem_writel_queue_RBQPH(macb, upper_32_bits(paddr),
+					       i - 1);
+		}
+	}
 	return 0;
 }
 
@@ -760,6 +836,9 @@ static void gmac_configure_dma(struct macb_device *macb)
 		dmacfg &= ~GEM_BIT(ENDIA_DESC);
 
 	dmacfg &= ~GEM_BIT(ADDR64);
+	if (macb->config->hw_dma_cap & HW_DMA_CAP_64B)
+		dmacfg |= GEM_BIT(ADDR64);
+
 	gem_writel(macb, DMACFG, dmacfg);
 }
 
@@ -775,6 +854,7 @@ static int _macb_init(struct macb_device *macb, const char *name)
 	unsigned long paddr;
 	int ret;
 	int i;
+	int count;
 
 	/*
 	 * macb_halt should have been called at some point before now,
@@ -786,20 +866,28 @@ static int _macb_init(struct macb_device *macb, const char *name)
 	for (i = 0; i < MACB_RX_RING_SIZE; i++) {
 		if (i == (MACB_RX_RING_SIZE - 1))
 			paddr |= MACB_BIT(RX_WRAP);
-		macb->rx_ring[i].addr = paddr;
-		macb->rx_ring[i].ctrl = 0;
+		if (macb->config->hw_dma_cap & HW_DMA_CAP_64B)
+			count = i * 2;
+		else
+			count = i;
+		macb->rx_ring[count].ctrl = 0;
+		macb_set_addr(macb, &macb->rx_ring[count], paddr);
 		paddr += macb->rx_buffer_size;
 	}
 	macb_flush_ring_desc(macb, RX);
 	macb_flush_rx_buffer(macb);
 
 	for (i = 0; i < MACB_TX_RING_SIZE; i++) {
-		macb->tx_ring[i].addr = 0;
+		if (macb->config->hw_dma_cap & HW_DMA_CAP_64B)
+			count = i * 2;
+		else
+			count = i;
+		macb_set_addr(macb, &macb->tx_ring[count], 0);
 		if (i == (MACB_TX_RING_SIZE - 1))
-			macb->tx_ring[i].ctrl = MACB_BIT(TX_USED) |
+			macb->tx_ring[count].ctrl = MACB_BIT(TX_USED) |
 				MACB_BIT(TX_WRAP);
 		else
-			macb->tx_ring[i].ctrl = MACB_BIT(TX_USED);
+			macb->tx_ring[count].ctrl = MACB_BIT(TX_USED);
 	}
 	macb_flush_ring_desc(macb, TX);
 
@@ -812,8 +900,12 @@ static int _macb_init(struct macb_device *macb, const char *name)
 	gem_writel(macb, DMACFG, MACB_ZYNQ_GEM_DMACR_INIT);
 #endif
 
-	macb_writel(macb, RBQP, macb->rx_ring_dma);
-	macb_writel(macb, TBQP, macb->tx_ring_dma);
+	macb_writel(macb, RBQP, lower_32_bits(macb->rx_ring_dma));
+	macb_writel(macb, TBQP, lower_32_bits(macb->tx_ring_dma));
+	if (macb->config->hw_dma_cap & HW_DMA_CAP_64B) {
+		macb_writel(macb, RBQPH, upper_32_bits(macb->rx_ring_dma));
+		macb_writel(macb, TBQPH, upper_32_bits(macb->tx_ring_dma));
+	}
 
 	if (macb_is_gem(macb)) {
 		/* Initialize DMA properties */
@@ -1217,6 +1309,7 @@ static int macb_enable_clk(struct udevice *dev)
 
 static const struct macb_config default_gem_config = {
 	.dma_burst_length = 16,
+	.hw_dma_cap = HW_DMA_CAP_32B,
 	.clk_init = NULL,
 };
 
@@ -1224,17 +1317,24 @@ static int macb_eth_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct macb_device *macb = dev_get_priv(dev);
+	struct ofnode_phandle_args phandle_args;
 	const char *phy_mode;
 	int ret;
 
-	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
-			       NULL);
+	phy_mode = dev_read_prop(dev, "phy-mode", NULL);
+
 	if (phy_mode)
 		macb->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (macb->phy_interface == -1) {
 		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
 		return -EINVAL;
 	}
+
+	/* Read phyaddr from DT */
+	if (!dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
+					&phandle_args))
+		macb->phy_addr = ofnode_read_u32_default(phandle_args.node,
+							 "reg", -1);
 
 	macb->regs = (void *)pdata->iobase;
 
@@ -1304,13 +1404,21 @@ static int macb_eth_of_to_plat(struct udevice *dev)
 	return macb_late_eth_of_to_plat(dev);
 }
 
+static const struct macb_config microchip_config = {
+	.dma_burst_length = 16,
+	.hw_dma_cap = HW_DMA_CAP_64B,
+	.clk_init = NULL,
+};
+
 static const struct macb_config sama5d4_config = {
 	.dma_burst_length = 4,
+	.hw_dma_cap = HW_DMA_CAP_32B,
 	.clk_init = NULL,
 };
 
 static const struct macb_config sifive_config = {
 	.dma_burst_length = 16,
+	.hw_dma_cap = HW_DMA_CAP_32B,
 	.clk_init = macb_sifive_clk_init,
 };
 
@@ -1324,6 +1432,8 @@ static const struct udevice_id macb_eth_ids[] = {
 	{ .compatible = "cdns,zynq-gem" },
 	{ .compatible = "sifive,fu540-c000-gem",
 	  .data = (ulong)&sifive_config },
+	{ .compatible = "microchip,mpfs-mss-gem",
+	  .data = (ulong)&microchip_config },
 	{ }
 };
 

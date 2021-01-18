@@ -70,6 +70,7 @@ console shall be opened immediately. Boot output should look like the following:
     U-Boot 2020.04-rc2-00087-g2221cc09c1-dirty (Feb 28 2020 - 13:53:09 -0500)
 
     DRAM:  8 MiB
+    MMC:   spi@53000000:slot@0: 0
     In:    serial@38000000
     Out:   serial@38000000
     Err:   serial@38000000
@@ -118,14 +119,115 @@ The value of FW_PAYLOAD_OFFSET must match CONFIG_SYS_TEXT_BASE - 0x80000000.
 
 The file to flash is build/platform/kendryte/k210/firmware/fw_payload.bin.
 
-Loading Images
-^^^^^^^^^^^^^^
+Booting
+^^^^^^^
 
-To load a kernel, transfer it over serial.
+The default boot process is to load and boot the files ``/uImage`` and
+``/k210.dtb`` off of the first partition of the MMC. For Linux, this will result
+in an output like
 
 .. code-block:: none
 
-    => loady 80000000 1500000
+    U-Boot 2020.10-00691-gd1d651d988-dirty (Oct 16 2020 - 17:05:24 -0400)
+
+    DRAM:  8 MiB
+    MMC:   spi@53000000:slot@0: 0
+    Loading Environment from SPIFlash... SF: Detected w25q128fw with page size 256 Bytes, erase size 4 KiB, total 16 MiB
+    OK
+    In:    serial@38000000
+    Out:   serial@38000000
+    Err:   serial@38000000
+    Hit any key to stop autoboot:  0
+    1827380 bytes read in 1044 ms (1.7 MiB/s)
+    13428 bytes read in 10 ms (1.3 MiB/s)
+    ## Booting kernel from Legacy Image at 80060000 ...
+       Image Name:   linux
+       Image Type:   RISC-V Linux Kernel Image (uncompressed)
+       Data Size:    1827316 Bytes = 1.7 MiB
+       Load Address: 80000000
+       Entry Point:  80000000
+       Verifying Checksum ... OK
+    ## Flattened Device Tree blob at 80400000
+       Booting using the fdt blob at 0x80400000
+       Loading Kernel Image
+       Loading Device Tree to 00000000803f9000, end 00000000803ff473 ... OK
+
+    Starting kernel ...
+
+    [    0.000000] Linux version 5.9.0-00021-g6dcc2f0814c6-dirty (sean@godwin) (riscv64-linux-gnu-gcc (GCC) 10.2.0, GNU ld (GNU Binutils) 2.35) #34 SMP Fri Oct 16 14:40:57 EDT 2020
+    [    0.000000] earlycon: sifive0 at MMIO 0x0000000038000000 (options '115200n8')
+    [    0.000000] printk: bootconsole [sifive0] enabled
+    [    0.000000] Zone ranges:
+    [    0.000000]   DMA32    [mem 0x0000000080000000-0x00000000807fffff]
+    [    0.000000]   Normal   empty
+    [    0.000000] Movable zone start for each node
+    [    0.000000] Early memory node ranges
+    [    0.000000]   node   0: [mem 0x0000000080000000-0x00000000807fffff]
+    [    0.000000] Initmem setup node 0 [mem 0x0000000080000000-0x00000000807fffff]
+    [    0.000000] riscv: ISA extensions acdfgim
+    [    0.000000] riscv: ELF capabilities acdfim
+    [    0.000000] percpu: max_distance=0x18000 too large for vmalloc space 0x0
+    [    0.000000] percpu: Embedded 12 pages/cpu s18848 r0 d30304 u49152
+    [    0.000000] Built 1 zonelists, mobility grouping off.  Total pages: 2020
+    [    0.000000] Kernel command line: earlycon console=ttySIF0
+    [    0.000000] Dentry cache hash table entries: 1024 (order: 1, 8192 bytes, linear)
+    [    0.000000] Inode-cache hash table entries: 512 (order: 0, 4096 bytes, linear)
+    [    0.000000] Sorting __ex_table...
+    [    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
+    [    0.000000] Memory: 6004K/8192K available (1139K kernel code, 126K rwdata, 198K rodata, 90K init, 81K bss, 2188K reserved, 0K cma-reserved)
+    [    0.000000] rcu: Hierarchical RCU implementation.
+    [    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+    [    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+    [    0.000000] riscv-intc: 64 local interrupts mapped
+    [    0.000000] plic: interrupt-controller@C000000: mapped 65 interrupts with 2 handlers for 2 contexts.
+    [    0.000000] random: get_random_bytes called from 0x00000000800019a8 with crng_init=0
+    [    0.000000] k210-clk: clock-controller
+    [    0.000000] k210-clk: clock-controller: fixed-rate 26 MHz osc base clock
+    [    0.000000] clint: clint@2000000: timer running at 7800000 Hz
+    [    0.000000] clocksource: clint_clocksource: mask: 0xffffffffffffffff max_cycles: 0x3990be68b, max_idle_ns: 881590404272 ns
+    [    0.000014] sched_clock: 64 bits at 7MHz, resolution 128ns, wraps every 4398046511054ns
+    [    0.008450] Console: colour dummy device 80x25
+    [    0.012494] Calibrating delay loop (skipped), value calculated using timer frequency.. 15.60 BogoMIPS (lpj=31200)
+    [    0.022693] pid_max: default: 4096 minimum: 301
+    [    0.027352] Mount-cache hash table entries: 512 (order: 0, 4096 bytes, linear)
+    [    0.034428] Mountpoint-cache hash table entries: 512 (order: 0, 4096 bytes, linear)
+    [    0.045099] rcu: Hierarchical SRCU implementation.
+    [    0.050048] smp: Bringing up secondary CPUs ...
+    [    0.055417] smp: Brought up 1 node, 2 CPUs
+    [    0.059602] devtmpfs: initialized
+    [    0.082796] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+    [    0.091820] futex hash table entries: 16 (order: -2, 1024 bytes, linear)
+    [    0.098507] pinctrl core: initialized pinctrl subsystem
+    [    0.140938] clocksource: Switched to clocksource clint_clocksource
+    [    0.247216] workingset: timestamp_bits=62 max_order=11 bucket_order=0
+    [    0.277392] k210-fpioa 502b0000.pinmux: K210 FPIOA pin controller
+    [    0.291724] k210-sysctl 50440000.syscon: K210 system controller
+    [    0.305317] k210-rst 50440000.syscon:reset-controller: K210 reset controller
+    [    0.313808] 38000000.serial: ttySIF0 at MMIO 0x38000000 (irq = 1, base_baud = 115200) is a SiFive UART v0
+    [    0.322712] printk: console [ttySIF0] enabled
+    [    0.322712] printk: console [ttySIF0] enabled
+    [    0.331328] printk: bootconsole [sifive0] disabled
+    [    0.331328] printk: bootconsole [sifive0] disabled
+    [    0.353347] Freeing unused kernel memory: 88K
+    [    0.357004] This architecture does not have kernel memory protection.
+    [    0.363397] Run /init as init process
+
+Loading, Booting, and Storing Images
+------------------------------------
+
+.. _loading:
+
+Loading Images
+^^^^^^^^^^^^^^
+
+Serial
+""""""
+
+Use the ``loady`` command to load images over serial.
+
+.. code-block:: none
+
+    => loady $loadaddr 1500000
     ## Switch baudrate to 1500000 bps and press ENTER ...
 
     *** baud: 1500000
@@ -150,6 +252,61 @@ To load a kernel, transfer it over serial.
     *** baud: 115200 ***
     =>
 
+This command does not set ``$filesize``, so it may need to be set manually.
+
+SPI Flash
+"""""""""
+
+To load an image off of SPI flash, first set up a partition as described in
+:ref:`partitions`. Then, use ``mtd`` to load that partition
+
+.. code-block:: none
+
+    => sf probe
+    SF: Detected w25q128fw with page size 256 Bytes, erase size 4 KiB, total 16 MiB
+    => mtd read linux $loadaddr
+    Reading 2097152 byte(s) at offset 0x00000000
+
+This command does not set ``$filesize``, so it may need to be set manually.
+
+MMC
+"""
+
+The MMC device number is 0. To list partitions on the device, use ``part``:
+
+.. code-block:: none
+
+    => part list mmc 0
+
+    Partition Map for MMC device 0  --   Partition Type: EFI
+
+    Part    Start LBA       End LBA          Name
+            Attributes
+            Type GUID
+            Partition GUID
+      1     0x00000800      0x039effde      "boot"
+            attrs:  0x0000000000000000
+            type:   c12a7328-f81f-11d2-ba4b-00a0c93ec93b
+            guid:   96161f7d-7113-4cc7-9a24-08ab7fc5cb72
+
+To list files, use ``ls``:
+
+.. code-block:: none
+
+    => ls mmc 0:1
+    <DIR>       4096 .
+    <DIR>       4096 ..
+    <DIR>      16384 lost+found
+               13428 k210.dtb
+             1827380 uImage
+
+To load a file, use ``load``:
+
+.. code-block:: none
+
+    => load mmc 0:1 $loadaddr uImage
+    1827380 bytes read in 1049 ms (1.7 MiB/s)
+
 Running Programs
 ^^^^^^^^^^^^^^^^
 
@@ -160,20 +317,6 @@ To run a bare binary, use the ``go`` command:
 
 .. code-block:: none
 
-    => loady
-    ## Ready for binary (ymodem) download to 0x80000000 at 115200 bps...
-    C
-    *** file: ./examples/standalone/hello_world.bin
-    $ sz -vv ./examples/standalone/hello_world.bin
-    Sending: hello_world.bin
-    Bytes Sent:   4864   BPS:649
-    Sending:
-    Ymodem sectors/kbytes sent:   0/ 0k
-    Transfer complete
-
-    *** exit status: 0 ***
-    (CAN) packets, 5 retries
-    ## Total Size      = 0x000012f8 = 4856 Bytes
     => go 80000000
     ## Starting application at 0x80000000 ...
     Example expects ABI version 9
@@ -184,51 +327,127 @@ To run a bare binary, use the ``go`` command:
     argv[1] = "<NULL>"
     Hit any key to exit ...
 
+Note that this will only start a program on one hart. As-of this writing it is
+only possible to start a program on multiple harts using the ``bootm`` command.
+
 Legacy Images
 """""""""""""
 
-To run legacy images, use the ``bootm`` command:
+To create a legacy image, use ``tools/mkimage``:
 
 .. code-block:: none
 
-    $ tools/mkimage -A riscv -O u-boot -T standalone -C none -a 80000000 -e 80000000 -d examples/standalone/hello_world.bin hello_world.img
-    Image Name:
-    Created:      Thu Mar  5 12:04:10 2020
-    Image Type:   RISC-V U-Boot Standalone Program (uncompressed)
-    Data Size:    4856 Bytes = 4.74 KiB = 0.00 MiB
+    $ tools/mkimage -A riscv -O linux -T kernel -C none -a 0x80000000 -e 0x80000000 -n linux -d ../linux-git/arch/riscv/boot/Image uImage
+    Image Name:   linux
+    Created:      Fri Oct 16 17:36:32 2020
+    Image Type:   RISC-V Linux Kernel Image (uncompressed)
+    Data Size:    1827316 Bytes = 1784.49 KiB = 1.74 MiB
     Load Address: 80000000
     Entry Point:  80000000
 
-    $ picocom -b 115200 /dev/ttyUSB0
-    => loady
-    ## Ready for binary (ymodem) download to 0x80000000 at 115200 bps...
-    C
-    *** file: hello_world.img
-    $ sz -vv hello_world.img
-    Sending: hello_world.img
-    Bytes Sent:   4992   BPS:665
-    Sending:
-    Ymodem sectors/kbytes sent:   0/ 0k
-    Transfer complete
+The ``bootm`` command also requires an FDT, even if the image doesn't require
+one. After loading the image to ``$loadaddr`` and the FDT to ``$fdt_addr_r``,
+boot with:
 
-    *** exit status: 0 ***
-    CAN) packets, 3 retries
-    ## Total Size      = 0x00001338 = 4920 Bytes
-    => bootm
-    ## Booting kernel from Legacy Image at 80000000 ...
-       Image Name:
-       Image Type:   RISC-V U-Boot Standalone Program (uncompressed)
-       Data Size:    4856 Bytes = 4.7 KiB
+.. code-block:: none
+
+    => bootm $loadaddr - $fdt_addr_r
+    ## Booting kernel from Legacy Image at 80060000 ...
+       Image Name:   linux
+       Image Type:   RISC-V Linux Kernel Image (uncompressed)
+       Data Size:    1827316 Bytes = 1.7 MiB
        Load Address: 80000000
        Entry Point:  80000000
        Verifying Checksum ... OK
-       Loading Standalone Program
-    Example expects ABI version 9
-    Actual U-Boot ABI version 9
-    Hello World
-    argc = 0
-    argv[0] = "<NULL>"
-    Hit any key to exit ...
+    ## Flattened Device Tree blob at 80400000
+       Booting using the fdt blob at 0x80400000
+       Loading Kernel Image
+       Loading Device Tree to 00000000803f9000, end 00000000803ff473 ... OK
+
+    Starting kernel ...
+
+The FDT is verified after the kernel is relocated, so it must be loaded high
+enough so that it won't be overwritten. The default values for ``$loadaddr``
+and ``$fdt_addr_r`` should provide ample headroom for most use-cases.
+
+Flashing Images
+^^^^^^^^^^^^^^^
+
+SPI Flash
+"""""""""
+
+To flash data to SPI flash, first load it using one of the methods in
+:ref:`loading`. Addiotionally, create some partitions as described in
+:ref:`partitions`. Then use the ``mtd`` command:
+
+.. code-block:: none
+
+    => sf probe
+    SF: Detected w25q128fw with page size 256 Bytes, erase size 4 KiB, total 16 MiB
+    => mtd write linux $loadaddr 0 $filesize
+    Writing 2478162 byte(s) at offset 0x00000000
+
+Note that in order to write a bootable image, a header and tailer must be added.
+
+MMC
+"""
+
+MMC writes are unsupported for now.
+
+SPI Flash
+^^^^^^^^^
+
+Sipeed MAIX boards typically provide around 16 MiB of SPI NOR flash. U-Boot is
+stored in the first 1 MiB or so of this flash. U-Boot's environment is stored at
+the end of flash.
+
+.. _partitions:
+
+Partitions
+""""""""""
+
+There is no set data layout. The default partition layout only allocates
+partitions for U-Boot and its default environment
+
+.. code-block:: none
+
+    => mtd list
+    List of MTD devices:
+    * nor0
+      - type: NOR flash
+      - block size: 0x1000 bytes
+      - min I/O: 0x1 bytes
+      - 0x000000000000-0x000001000000 : "nor0"
+          - 0x000000000000-0x000000100000 : "u-boot"
+          - 0x000000fff000-0x000001000000 : "env"
+
+As an example, to allocate 2MiB for Linux and (almost) 13 MiB for other data,
+set the ``mtdparts`` like:
+
+.. code-block:: none
+
+    => env set mtdparts nor0:1M(u-boot),2M(linux),0xcff000(data),0x1000@0xfff000(env)
+    => mtd list
+    List of MTD devices:
+    * nor0
+      - type: NOR flash
+      - block size: 0x1000 bytes
+      - min I/O: 0x1 bytes
+      - 0x000000000000-0x000001000000 : "nor0"
+          - 0x000000000000-0x000000100000 : "u-boot"
+          - 0x000000100000-0x000000300000 : "linux"
+          - 0x000000300000-0x000000fff000 : "data"
+          - 0x000000fff000-0x000001000000 : "env"
+
+To make these changes permanent, save the environment:
+
+.. code-block:: none
+
+    => env save
+    Saving Environment to SPIFlash... Erasing SPI flash...Writing to SPI flash...done
+    OK
+
+U-Boot will always load the environment from the last 4 KiB of flash.
 
 Pin Assignment
 --------------

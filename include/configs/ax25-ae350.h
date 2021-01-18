@@ -17,6 +17,11 @@
 #endif
 #endif
 
+#define RISCV_MMODE_TIMERBASE           0xe6000000
+#define RISCV_MMODE_TIMER_FREQ          60000000
+
+#define RISCV_SMODE_TIMER_FREQ          60000000
+
 /*
  * CPU and Board Configuration Options
  */

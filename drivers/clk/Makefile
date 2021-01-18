@@ -30,6 +30,7 @@ obj-$(CONFIG_$(SPL_TPL_)CLK_INTEL) += intel/
 obj-$(CONFIG_CLK_HSDK) += clk-hsdk-cgu.o
 obj-$(CONFIG_CLK_K210) += kendryte/
 obj-$(CONFIG_CLK_MPC83XX) += mpc83xx_clk.o
+obj-$(CONFIG_CLK_MPFS) += microchip/
 obj-$(CONFIG_CLK_OCTEON) += clk_octeon.o
 obj-$(CONFIG_CLK_OWL) += owl/
 obj-$(CONFIG_CLK_RENESAS) += renesas/
