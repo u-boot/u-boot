@@ -448,7 +448,6 @@ static int pcie_advk_write_config(struct udevice *bus, pci_dev_t bdf,
 	advk_writel(pcie, 1, PIO_START);
 
 	if (!pcie_advk_wait_pio(pcie)) {
-		dev_dbg(pcie->dev, "- wait pio timeout\n");
 		return -EINVAL;
 	}
 
@@ -630,12 +629,12 @@ static int pcie_advk_probe(struct udevice *dev)
 	 *     clock should be gated as well.
 	 */
 	if (dm_gpio_is_valid(&pcie->reset_gpio)) {
-		dev_dbg(pcie->dev, "Toggle PCIE Reset GPIO ...\n");
+		dev_dbg(dev, "Toggle PCIE Reset GPIO ...\n");
 		dm_gpio_set_value(&pcie->reset_gpio, 1);
 		mdelay(200);
 		dm_gpio_set_value(&pcie->reset_gpio, 0);
 	} else {
-		dev_warn(pcie->dev, "PCIE Reset on GPIO support is missing\n");
+		dev_warn(dev, "PCIE Reset on GPIO support is missing\n");
 	}
 
 	pcie->first_busno = dev_seq(dev);
