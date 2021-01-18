@@ -823,7 +823,7 @@ static int nxp_fspi_default_setup(struct nxp_fspi *f)
 
 	/* the default frequency, we will change it later if necessary. */
 	ret = clk_set_rate(&f->clk, 20000000);
-	if (ret)
+	if (ret < 0)
 		return ret;
 
 	ret = nxp_fspi_clk_prep_enable(f);
@@ -914,7 +914,7 @@ static int nxp_fspi_set_speed(struct udevice *bus, uint speed)
 	nxp_fspi_clk_disable_unprep(f);
 
 	ret = clk_set_rate(&f->clk, speed);
-	if (ret)
+	if (ret < 0)
 		return ret;
 
 	ret = nxp_fspi_clk_prep_enable(f);
