@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
@@ -617,8 +618,19 @@ static int mxc_spi_probe(struct udevice *bus)
 	if (mxcs->base == FDT_ADDR_T_NONE)
 		return -ENODEV;
 
+#if CONFIG_IS_ENABLED(CLK)
+	struct clk clk;
+	ret = clk_get_by_index(bus, 0, &clk);
+	if (ret)
+		return ret;
+
+	clk_enable(&clk);
+
+	mxcs->max_hz = clk_get_rate(&clk);
+#else
 	mxcs->max_hz = fdtdec_get_int(blob, node, "spi-max-frequency",
 				      20000000);
+#endif
 
 	return 0;
 }
