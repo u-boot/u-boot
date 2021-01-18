@@ -12,6 +12,7 @@ Implementation
    commands
    global_data
    logging
+   menus
 
 Debugging
 ---------
