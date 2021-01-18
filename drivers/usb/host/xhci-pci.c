@@ -13,8 +13,8 @@
 #include <usb.h>
 #include <usb/xhci.h>
 
-static void xhci_pci_init(struct udevice *dev, struct xhci_hccr **ret_hccr,
-			  struct xhci_hcor **ret_hcor)
+static int xhci_pci_init(struct udevice *dev, struct xhci_hccr **ret_hccr,
+			 struct xhci_hcor **ret_hcor)
 {
 	struct xhci_hccr *hccr;
 	struct xhci_hcor *hcor;
@@ -22,6 +22,11 @@ static void xhci_pci_init(struct udevice *dev, struct xhci_hccr **ret_hccr,
 
 	hccr = (struct xhci_hccr *)dm_pci_map_bar(dev,
 			PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+	if (!hccr) {
+		printf("xhci-pci init cannot map PCI mem bar\n");
+		return -EIO;
+	}
+
 	hcor = (struct xhci_hcor *)((uintptr_t) hccr +
 			HC_LENGTH(xhci_readl(&hccr->cr_capbase)));
 
@@ -35,14 +40,18 @@ static void xhci_pci_init(struct udevice *dev, struct xhci_hccr **ret_hccr,
 	dm_pci_read_config32(dev, PCI_COMMAND, &cmd);
 	cmd |= PCI_COMMAND_MASTER;
 	dm_pci_write_config32(dev, PCI_COMMAND, cmd);
+	return 0;
 }
 
 static int xhci_pci_probe(struct udevice *dev)
 {
 	struct xhci_hccr *hccr;
 	struct xhci_hcor *hcor;
+	int ret;
 
-	xhci_pci_init(dev, &hccr, &hcor);
+	ret = xhci_pci_init(dev, &hccr, &hcor);
+	if (ret)
+		return ret;
 
 	return xhci_register(dev, hccr, hcor);
 }
