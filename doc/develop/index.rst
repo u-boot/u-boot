@@ -29,3 +29,4 @@ Testing
    :maxdepth: 1
 
    coccinelle
+   testing
