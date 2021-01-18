@@ -16,6 +16,8 @@
 #include <log.h>
 #include <linux/ctype.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Use puts() instead of printf() to avoid printf buffer overflow
  * for long help messages
@@ -488,9 +490,6 @@ int cmd_get_data_size(char* arg, int default_size)
 }
 #endif
 
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-DECLARE_GLOBAL_DATA_PTR;
-
 void fixup_cmdtable(struct cmd_tbl *cmdtp, int size)
 {
 	int	i;
@@ -535,7 +534,6 @@ void fixup_cmdtable(struct cmd_tbl *cmdtp, int size)
 		cmdtp++;
 	}
 }
-#endif
 
 int cmd_always_repeatable(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[], int *repeatable)

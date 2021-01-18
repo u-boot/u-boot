@@ -684,8 +684,11 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 
 		ret = spl_load_fit_image(info, sector, fit, base_offset, node,
 					 &image_info);
-		if (ret < 0)
-			continue;
+		if (ret < 0) {
+			printf("%s: can't load image loadables index %d (ret = %d)\n",
+			       __func__, index, ret);
+			return ret;
+		}
 
 		if (!spl_fit_image_get_os(fit, node, &os_type))
 			debug("Loadable is %s\n", genimg_get_os_name(os_type));

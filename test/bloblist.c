@@ -7,7 +7,6 @@
 #include <bloblist.h>
 #include <log.h>
 #include <mapmem.h>
-#include <asm/state.h>
 #include <test/suites.h>
 #include <test/test.h>
 #include <test/ut.h>
@@ -240,7 +239,6 @@ BLOBLIST_TEST(bloblist_test_checksum, 0);
 /* Test the 'bloblist info' command */
 static int bloblist_test_cmd_info(struct unit_test_state *uts)
 {
-	struct sandbox_state *state = state_get_current();
 	struct bloblist_hdr *hdr;
 	char *data, *data2;
 
@@ -250,8 +248,7 @@ static int bloblist_test_cmd_info(struct unit_test_state *uts)
 	data2 = bloblist_ensure(TEST_TAG2, TEST_SIZE2);
 
 	console_record_reset_enable();
-	if (!state->show_test_output)
-		gd->flags |= GD_FLG_SILENT;
+	ut_silence_console(uts);
 	console_record_reset();
 	run_command("bloblist info", 0);
 	ut_assert_nextline("base:     %lx", (ulong)map_to_sysmem(hdr));
@@ -259,7 +256,7 @@ static int bloblist_test_cmd_info(struct unit_test_state *uts)
 	ut_assert_nextline("alloced:  70     112 Bytes");
 	ut_assert_nextline("free:     390    912 Bytes");
 	ut_assert_console_end();
-	gd->flags &= ~(GD_FLG_SILENT | GD_FLG_RECORD);
+	ut_unsilence_console(uts);
 
 	return 0;
 }
@@ -268,7 +265,6 @@ BLOBLIST_TEST(bloblist_test_cmd_info, 0);
 /* Test the 'bloblist list' command */
 static int bloblist_test_cmd_list(struct unit_test_state *uts)
 {
-	struct sandbox_state *state = state_get_current();
 	struct bloblist_hdr *hdr;
 	char *data, *data2;
 
@@ -278,8 +274,7 @@ static int bloblist_test_cmd_list(struct unit_test_state *uts)
 	data2 = bloblist_ensure(TEST_TAG2, TEST_SIZE2);
 
 	console_record_reset_enable();
-	if (!state->show_test_output)
-		gd->flags |= GD_FLG_SILENT;
+	ut_silence_console(uts);
 	console_record_reset();
 	run_command("bloblist list", 0);
 	ut_assert_nextline("Address       Size  Tag Name");
@@ -288,7 +283,7 @@ static int bloblist_test_cmd_list(struct unit_test_state *uts)
 	ut_assert_nextline("%08lx  %8x    2 SPL hand-off",
 			   (ulong)map_to_sysmem(data2), TEST_SIZE2);
 	ut_assert_console_end();
-	gd->flags &= ~(GD_FLG_SILENT | GD_FLG_RECORD);
+	ut_unsilence_console(uts);
 
 	return 0;
 }

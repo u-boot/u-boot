@@ -819,7 +819,10 @@ config AUTOBOOT_STOP_STR_SHA256
 	  This option adds the feature to only stop the autobooting,
 	  and therefore boot into the U-Boot prompt, when the input
 	  string / password matches a values that is encypted via
-	  a SHA256 hash and saved in the environment.
+	  a SHA256 hash and saved in the environment variable
+	  "bootstopkeysha256". If the value in that variable
+	  includes a ":", the portion prior to the ":" will be treated
+	  as a salt value.
 
 config AUTOBOOT_USE_MENUKEY
 	bool "Allow a specify key to run a menu from the environment"

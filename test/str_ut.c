@@ -19,7 +19,7 @@ static const char str3[] = "0xbI'm sorry you're alive.";
 /* Declare a new str test */
 #define STR_TEST(_name, _flags)		UNIT_TEST(_name, _flags, str_test)
 
-static int str_test_upper(struct unit_test_state *uts)
+static int str_upper(struct unit_test_state *uts)
 {
 	char out[TEST_STR_SIZE];
 
@@ -55,7 +55,7 @@ static int str_test_upper(struct unit_test_state *uts)
 
 	return 0;
 }
-STR_TEST(str_test_upper, 0);
+STR_TEST(str_upper, 0);
 
 static int run_strtoul(struct unit_test_state *uts, const char *str, int base,
 		       ulong expect_val, int expect_endp_offset, bool upper)

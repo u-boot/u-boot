@@ -757,6 +757,25 @@ int uclass_pre_remove_device(struct udevice *dev)
 }
 #endif
 
+int uclass_probe_all(enum uclass_id id)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_first_device(id, &dev);
+	if (ret || !dev)
+		return ret;
+
+	/* Scanning uclass to probe all devices */
+	while (dev) {
+		ret = uclass_next_device(&dev);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
 UCLASS_DRIVER(nop) = {
 	.id		= UCLASS_NOP,
 	.name		= "nop",

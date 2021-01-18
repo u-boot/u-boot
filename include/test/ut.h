@@ -338,4 +338,22 @@ ulong ut_check_free(void);
  */
 long ut_check_delta(ulong last);
 
+/**
+ * ut_silence_console() - Silence the console if requested by the user
+ *
+ * This stops test output from appear on the console. It is the default on
+ * sandbox, unless the -v flag is given. For other boards, this does nothing.
+ *
+ * @uts: Test state (in case in future we want to keep state here)
+ */
+void ut_silence_console(struct unit_test_state *uts);
+
+/**
+ * ut_unsilence_console() - Unsilence the console after a test
+ *
+ * This restarts console output again and turns off console recording. This
+ * happens on all boards, including sandbox.
+ */
+void ut_unsilence_console(struct unit_test_state *uts);
+
 #endif

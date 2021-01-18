@@ -38,7 +38,7 @@
 #include "deflate.h"
 
 #ifdef DEBUG
-#  include <ctype.h>
+#  include <linux/ctype.h>
 #endif
 
 /* ===========================================================================

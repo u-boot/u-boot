@@ -377,6 +377,17 @@ int uclass_first_device_drvdata(enum uclass_id id, ulong driver_data,
 				struct udevice **devp);
 
 /**
+ * uclass_probe_all() - Probe all devices based on an uclass ID
+ *
+ * This function probes all devices associated with a uclass by
+ * looking for its ID.
+ *
+ * @id: uclass ID to look up
+ * @return 0 if OK, other -ve on error
+ */
+int uclass_probe_all(enum uclass_id id);
+
+/**
  * uclass_id_foreach_dev() - Helper function to iteration through devices
  *
  * This creates a for() loop which works through the available devices in

@@ -247,10 +247,11 @@ void part_print_efi(struct blk_desc *dev_desc)
 		uuid_bin = (unsigned char *)gpt_pte[i].partition_type_guid.b;
 		uuid_bin_to_str(uuid_bin, uuid, UUID_STR_FORMAT_GUID);
 		printf("\ttype:\t%s\n", uuid);
-#ifdef CONFIG_PARTITION_TYPE_GUID
-		if (!uuid_guid_get_str(uuid_bin, uuid))
-			printf("\ttype:\t%s\n", uuid);
-#endif
+		if (CONFIG_IS_ENABLED(PARTITION_TYPE_GUID)) {
+			const char *type = uuid_guid_get_str(uuid_bin);
+			if (type)
+				printf("\ttype:\t%s\n", type);
+		}
 		uuid_bin = (unsigned char *)gpt_pte[i].unique_partition_guid.b;
 		uuid_bin_to_str(uuid_bin, uuid, UUID_STR_FORMAT_GUID);
 		printf("\tguid:\t%s\n", uuid);

@@ -25,7 +25,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define MAX_DELAY_STOP_STR 32
+#define MAX_DELAY_STOP_STR 64
 
 #ifndef DEBUG_BOOTKEYS
 #define DEBUG_BOOTKEYS 0
@@ -80,6 +80,7 @@ static int passwd_abort_sha256(uint64_t etime)
 	u8 sha_env[SHA256_SUM_LEN];
 	u8 *sha;
 	char *presskey;
+	char *c;
 	const char *algo_name = "sha256";
 	u_int presskey_len = 0;
 	int abort = 0;
@@ -89,6 +90,14 @@ static int passwd_abort_sha256(uint64_t etime)
 	if (sha_env_str == NULL)
 		sha_env_str = AUTOBOOT_STOP_STR_SHA256;
 
+	presskey = malloc_cache_aligned(MAX_DELAY_STOP_STR);
+	c = strstr(sha_env_str, ":");
+	if (c && (c - sha_env_str < MAX_DELAY_STOP_STR)) {
+		/* preload presskey with salt */
+		memcpy(presskey, sha_env_str, c - sha_env_str);
+		presskey_len = c - sha_env_str;
+		sha_env_str = c + 1;
+	}
 	/*
 	 * Generate the binary value from the environment hash value
 	 * so that we can compare this value with the computed hash
@@ -100,7 +109,6 @@ static int passwd_abort_sha256(uint64_t etime)
 		return 0;
 	}
 
-	presskey = malloc_cache_aligned(MAX_DELAY_STOP_STR);
 	sha = malloc_cache_aligned(SHA256_SUM_LEN);
 	size = SHA256_SUM_LEN;
 	/*

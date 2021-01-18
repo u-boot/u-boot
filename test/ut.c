@@ -8,6 +8,9 @@
 #include <common.h>
 #include <console.h>
 #include <malloc.h>
+#ifdef CONFIG_SANDBOX
+#include <asm/state.h>
+#endif
 #include <test/test.h>
 #include <test/ut.h>
 
@@ -113,4 +116,19 @@ int ut_check_console_dump(struct unit_test_state *uts, int total_bytes)
 	}
 
 	return upto == total_bytes ? 0 : 1;
+}
+
+void ut_silence_console(struct unit_test_state *uts)
+{
+#ifdef CONFIG_SANDBOX
+	struct sandbox_state *state = state_get_current();
+
+	if (!state->show_test_output)
+		gd->flags |= GD_FLG_SILENT;
+#endif
+}
+
+void ut_unsilence_console(struct unit_test_state *uts)
+{
+	gd->flags &= ~(GD_FLG_SILENT | GD_FLG_RECORD);
 }
