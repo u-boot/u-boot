@@ -20,6 +20,82 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* MX35 and older is CSPI */
+#if defined(CONFIG_MX25) || defined(CONFIG_MX31) || defined(CONFIG_MX35)
+#define MXC_CSPI
+struct cspi_regs {
+	u32 rxdata;
+	u32 txdata;
+	u32 ctrl;
+	u32 intr;
+	u32 dma;
+	u32 stat;
+	u32 period;
+	u32 test;
+};
+
+#define MXC_CSPICTRL_EN			BIT(0)
+#define MXC_CSPICTRL_MODE		BIT(1)
+#define MXC_CSPICTRL_XCH		BIT(2)
+#define MXC_CSPICTRL_SMC		BIT(3)
+#define MXC_CSPICTRL_POL		BIT(4)
+#define MXC_CSPICTRL_PHA		BIT(5)
+#define MXC_CSPICTRL_SSCTL		BIT(6)
+#define MXC_CSPICTRL_SSPOL		BIT(7)
+#define MXC_CSPICTRL_DATARATE(x)	(((x) & 0x7) << 16)
+#define MXC_CSPICTRL_RXOVF		BIT(6)
+#define MXC_CSPIPERIOD_32KHZ		BIT(15)
+#define MAX_SPI_BYTES			4
+#if defined(CONFIG_MX25) || defined(CONFIG_MX35)
+#define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 12)
+#define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0xfff) << 20)
+#define MXC_CSPICTRL_TC			BIT(7)
+#define MXC_CSPICTRL_MAXBITS		0xfff
+#else	/* MX31 */
+#define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 24)
+#define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0x1f) << 8)
+#define MXC_CSPICTRL_TC			BIT(8)
+#define MXC_CSPICTRL_MAXBITS		0x1f
+#endif
+
+#else	/* MX51 and newer is ECSPI */
+#define MXC_ECSPI
+struct cspi_regs {
+	u32 rxdata;
+	u32 txdata;
+	u32 ctrl;
+	u32 cfg;
+	u32 intr;
+	u32 dma;
+	u32 stat;
+	u32 period;
+};
+
+#define MXC_CSPICTRL_EN			BIT(0)
+#define MXC_CSPICTRL_MODE		BIT(1)
+#define MXC_CSPICTRL_XCH		BIT(2)
+#define MXC_CSPICTRL_MODE_MASK		(0xf << 4)
+#define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 12)
+#define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0xfff) << 20)
+#define MXC_CSPICTRL_PREDIV(x)		(((x) & 0xF) << 12)
+#define MXC_CSPICTRL_POSTDIV(x)		(((x) & 0xF) << 8)
+#define MXC_CSPICTRL_SELCHAN(x)		(((x) & 0x3) << 18)
+#define MXC_CSPICTRL_MAXBITS		0xfff
+#define MXC_CSPICTRL_TC			BIT(7)
+#define MXC_CSPICTRL_RXOVF		BIT(6)
+#define MXC_CSPIPERIOD_32KHZ		BIT(15)
+#define MAX_SPI_BYTES			32
+
+/* Bit position inside CTRL register to be associated with SS */
+#define MXC_CSPICTRL_CHAN	18
+
+/* Bit position inside CON register to be associated with SS */
+#define MXC_CSPICON_PHA		0  /* SCLK phase control */
+#define MXC_CSPICON_POL		4  /* SCLK polarity */
+#define MXC_CSPICON_SSPOL	12 /* SS polarity */
+#define MXC_CSPICON_CTL		20 /* inactive state of SCLK */
+#endif
+
 #ifdef CONFIG_MX27
 /* i.MX27 has a completely wrong register layout and register definitions in the
  * datasheet, the correct one is in the Freescale's Linux driver */
