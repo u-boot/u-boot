@@ -595,6 +595,23 @@ static int macb_sifive_clk_init(struct udevice *dev, ulong rate)
 	return 0;
 }
 
+static int macb_sama7g5_clk_init(struct udevice *dev, ulong rate)
+{
+	struct clk clk;
+	int ret;
+
+	ret = clk_get_by_name(dev, "tx_clk", &clk);
+	if (ret)
+		return ret;
+
+	/*
+	 * This is for using GCK. Clock rate is addressed via assigned-clock
+	 * property, so only clock enable is needed here. The switching to
+	 * proper clock rate depending on link speed is managed by IP logic.
+	 */
+	return clk_enable(&clk);
+}
+
 int __weak macb_linkspd_cb(struct udevice *dev, unsigned int speed)
 {
 #ifdef CONFIG_CLK
@@ -1430,6 +1447,13 @@ static int macb_eth_of_to_plat(struct udevice *dev)
 	return macb_late_eth_of_to_plat(dev);
 }
 
+static const struct macb_usrio_cfg sama7g5_usrio = {
+	.mii = 0,
+	.rmii = 1,
+	.rgmii = 2,
+	.clken = BIT(2),
+};
+
 static const struct macb_config microchip_config = {
 	.dma_burst_length = 16,
 	.hw_dma_cap = HW_DMA_CAP_64B,
@@ -1451,10 +1475,19 @@ static const struct macb_config sifive_config = {
 	.usrio = &macb_default_usrio,
 };
 
+static const struct macb_config sama7g5_gmac_config = {
+	.dma_burst_length = 16,
+	.hw_dma_cap = HW_DMA_CAP_32B,
+	.clk_init = macb_sama7g5_clk_init,
+	.usrio = &sama7g5_usrio,
+};
+
 static const struct udevice_id macb_eth_ids[] = {
 	{ .compatible = "cdns,macb" },
 	{ .compatible = "cdns,at91sam9260-macb" },
 	{ .compatible = "cdns,sam9x60-macb" },
+	{ .compatible = "cdns,sama7g5-gem",
+	  .data = (ulong)&sama7g5_gmac_config },
 	{ .compatible = "atmel,sama5d2-gem" },
 	{ .compatible = "atmel,sama5d3-gem" },
 	{ .compatible = "atmel,sama5d4-gem", .data = (ulong)&sama5d4_config },
