@@ -631,7 +631,7 @@ int __weak macb_linkspd_cb(struct udevice *dev, unsigned int speed)
 
 	if (tx_clk.dev) {
 		ret = clk_set_rate(&tx_clk, rate);
-		if (ret)
+		if (ret < 0)
 			return ret;
 	}
 #endif
