@@ -597,8 +597,8 @@ static int eth_pre_remove(struct udevice *dev)
 	return 0;
 }
 
-UCLASS_DRIVER(ethernet) = {
-	.name		= "ethernet",
+UCLASS_DRIVER(eth) = {
+	.name		= "eth",
 	.id		= UCLASS_ETH,
 	.post_bind	= eth_post_bind,
 	.pre_unbind	= eth_pre_unbind,
