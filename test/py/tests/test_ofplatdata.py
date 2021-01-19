@@ -4,6 +4,7 @@
 import pytest
 import u_boot_utils as util
 
+@pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('spl_of_platdata')
 def test_spl_devicetree(u_boot_console):
     """Test content of spl device-tree"""
