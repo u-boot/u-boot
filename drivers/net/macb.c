@@ -947,7 +947,10 @@ static int _macb_init(struct macb_device *macb, const char *name)
 		 * to select interface between RMII and MII.
 		 */
 #ifdef CONFIG_DM_ETH
-		if (macb->phy_interface == PHY_INTERFACE_MODE_RGMII)
+		if (macb->phy_interface == PHY_INTERFACE_MODE_RGMII ||
+		    macb->phy_interface == PHY_INTERFACE_MODE_RGMII_ID ||
+		    macb->phy_interface == PHY_INTERFACE_MODE_RGMII_RXID ||
+		    macb->phy_interface == PHY_INTERFACE_MODE_RGMII_TXID)
 			val = macb->config->usrio->rgmii;
 		else if (macb->phy_interface == PHY_INTERFACE_MODE_RMII)
 			val = macb->config->usrio->rmii;
