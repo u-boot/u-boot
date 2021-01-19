@@ -29,6 +29,16 @@ static const efi_guid_t efi_dt_fixup_protocol_guid = EFI_DT_FIXUP_PROTOCOL_GUID;
 static const efi_guid_t efi_file_info_guid = EFI_FILE_INFO_GUID;
 
 /**
+ * print() - print string
+ *
+ * @string:	text
+ */
+static void print(u16 *string)
+{
+	cout->output_string(cout, string);
+}
+
+/**
  * error() - print error string
  *
  * @string:	error text
@@ -36,7 +46,7 @@ static const efi_guid_t efi_file_info_guid = EFI_FILE_INFO_GUID;
 static void error(u16 *string)
 {
 	cout->set_attribute(cout, EFI_LIGHTRED | EFI_BACKGROUND_BLACK);
-	cout->output_string(cout, string);
+	print(string);
 	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
 }
 
@@ -111,7 +121,7 @@ static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
 			continue;
 		switch (key.scan_code) {
 		case 0x17: /* Escape */
-			cout->output_string(cout, L"\nAborted\n");
+			print(L"\r\nAborted\r\n");
 			return EFI_ABORTED;
 		default:
 			break;
@@ -120,12 +130,12 @@ static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
 		case 0x08: /* Backspace */
 			if (pos) {
 				buffer[pos--] = 0;
-				cout->output_string(cout, L"\b \b");
+				print(L"\b \b");
 			}
 			break;
 		case 0x0a: /* Linefeed */
 		case 0x0d: /* Carriage return */
-			cout->output_string(cout, L"\n");
+			print(L"\r\n");
 			return EFI_SUCCESS;
 		default:
 			break;
@@ -138,7 +148,7 @@ static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
 			*outbuf = key.unicode_char;
 			buffer[pos++] = key.unicode_char;
 			buffer[pos] = 0;
-			cout->output_string(cout, outbuf);
+			print(outbuf);
 		}
 	}
 }
@@ -215,9 +225,9 @@ bool starts_with(u16 *string, u16 *keyword)
  */
 void do_help(void)
 {
-	error(L"load <dtb> - load device-tree from file\n");
-	error(L"save <dtb> - save device-tree to file\n");
-	error(L"exit       - exit the shell\n");
+	error(L"load <dtb> - load device-tree from file\r\n");
+	error(L"save <dtb> - save device-tree to file\r\n");
+	error(L"exit       - exit the shell\r\n");
 }
 
 /**
@@ -242,7 +252,7 @@ efi_status_t do_load(u16 *filename)
 	ret = bs->locate_protocol(&efi_dt_fixup_protocol_guid, NULL,
 				  (void **)&dt_fixup_prot);
 	if (ret != EFI_SUCCESS) {
-		error(L"Device-tree fix-up protocol not found\n");
+		error(L"Device-tree fix-up protocol not found\r\n");
 		return ret;
 	}
 
@@ -252,7 +262,7 @@ efi_status_t do_load(u16 *filename)
 				(void **)&loaded_image, NULL, NULL,
 				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
 	if (ret != EFI_SUCCESS) {
-		error(L"Loaded image protocol not found\n");
+		error(L"Loaded image protocol not found\r\n");
 		return ret;
 	}
 	/* Open the simple file system protocol */
@@ -261,57 +271,57 @@ efi_status_t do_load(u16 *filename)
 				(void **)&file_system, NULL, NULL,
 				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
 	if (ret != EFI_SUCCESS) {
-		error(L"Failed to open simple file system protocol\n");
+		error(L"Failed to open simple file system protocol\r\n");
 		goto out;
 	}
 
 	/* Open volume */
 	ret = file_system->open_volume(file_system, &root);
 	if (ret != EFI_SUCCESS) {
-		error(L"Failed to open volume\n");
+		error(L"Failed to open volume\r\n");
 		goto out;
 	}
 
 	/* Open file */
 	ret = root->open(root, &file, filename, EFI_FILE_MODE_READ, 0);
 	if (ret != EFI_SUCCESS) {
-		error(L"File not found\n");
+		error(L"File not found\r\n");
 		goto out;
 	}
 	/* Get file size */
 	buffer_size = 0;
 	ret = file->getinfo(file, &efi_file_info_guid, &buffer_size, NULL);
 	if (ret != EFI_BUFFER_TOO_SMALL) {
-		error(L"Can't get file info size\n");
+		error(L"Can't get file info size\r\n");
 		goto out;
 	}
 	ret = bs->allocate_pool(EFI_LOADER_DATA, buffer_size, (void **)&info);
 	if (ret != EFI_SUCCESS) {
-		error(L"Out of memory\n");
+		error(L"Out of memory\r\n");
 		goto out;
 	}
 	ret = file->getinfo(file, &efi_file_info_guid, &buffer_size, info);
 	if (ret != EFI_SUCCESS) {
-		error(L"Can't get file info\n");
+		error(L"Can't get file info\r\n");
 		goto out;
 	}
 	buffer_size = info->file_size;
 	pages = efi_size_in_pages(buffer_size);
 	ret = bs->free_pool(info);
 	if (ret != EFI_SUCCESS)
-		error(L"Can't free memory pool\n");
+		error(L"Can't free memory pool\r\n");
 	/* Read file */
 	ret = bs->allocate_pages(EFI_ALLOCATE_ANY_PAGES,
 				 EFI_ACPI_RECLAIM_MEMORY,
 				 pages, &addr);
 	if (ret != EFI_SUCCESS) {
-		error(L"Out of memory\n");
+		error(L"Out of memory\r\n");
 		goto out;
 	}
 	dtb = (struct fdt_header *)(uintptr_t)addr;
 	ret = file->read(file, &buffer_size, dtb);
 	if (ret != EFI_SUCCESS) {
-		error(L"Can't read file\n");
+		error(L"Can't read file\r\n");
 		goto out;
 	}
 	/* Fixup file, expecting EFI_BUFFER_TOO_SMALL */
@@ -322,24 +332,24 @@ efi_status_t do_load(u16 *filename)
 		/* Read file into larger buffer */
 		ret = bs->free_pages(addr, pages);
 		if (ret != EFI_SUCCESS)
-			error(L"Can't free memory pages\n");
+			error(L"Can't free memory pages\r\n");
 		pages = efi_size_in_pages(buffer_size);
 		ret = bs->allocate_pages(EFI_ALLOCATE_ANY_PAGES,
 					 EFI_ACPI_RECLAIM_MEMORY,
 					 pages, &addr);
 		if (ret != EFI_SUCCESS) {
-			error(L"Out of memory\n");
+			error(L"Out of memory\r\n");
 			goto out;
 		}
 		dtb = (struct fdt_header *)(uintptr_t)addr;
 		ret = file->setpos(file, 0);
 		if (ret != EFI_SUCCESS) {
-			error(L"Can't position file\n");
+			error(L"Can't position file\r\n");
 			goto out;
 		}
 		ret = file->read(file, &buffer_size, dtb);
 		if (ret != EFI_SUCCESS) {
-			error(L"Can't read file\n");
+			error(L"Can't read file\r\n");
 			goto out;
 		}
 		buffer_size = pages << EFI_PAGE_SHIFT;
@@ -349,24 +359,24 @@ efi_status_t do_load(u16 *filename)
 				EFI_DT_INSTALL_TABLE);
 	}
 	if (ret == EFI_SUCCESS)
-		cout->output_string(cout, L"device-tree installed\n");
+		print(L"device-tree installed\r\n");
 	else
-		error(L"Device-tree fix-up failed\n");
+		error(L"Device-tree fix-up failed\r\n");
 out:
 	if (addr) {
 		ret2 = bs->free_pages(addr, pages);
 		if (ret2 != EFI_SUCCESS)
-			error(L"Can't free memory pages\n");
+			error(L"Can't free memory pages\r\n");
 	}
 	if (file) {
 		ret2 = file->close(file);
 		if (ret2 != EFI_SUCCESS)
-			error(L"Can't close file\n");
+			error(L"Can't close file\r\n");
 	}
 	if (root) {
 		ret2 = root->close(root);
 		if (ret2 != EFI_SUCCESS)
-			error(L"Can't close volume\n");
+			error(L"Can't close volume\r\n");
 	}
 	return ret;
 }
@@ -388,11 +398,11 @@ efi_status_t do_save(u16 *filename)
 
 	dtb = get_dtb(systable);
 	if (!dtb) {
-		error(L"DTB not found\n");
+		error(L"DTB not found\r\n");
 		return EFI_NOT_FOUND;
 	}
 	if (f2h(dtb->magic) != FDT_MAGIC) {
-		error(L"Wrong device tree magic\n");
+		error(L"Wrong device tree magic\r\n");
 		return EFI_NOT_FOUND;
 	}
 	dtb_size = f2h(dtb->totalsize);
@@ -403,7 +413,7 @@ efi_status_t do_save(u16 *filename)
 				(void **)&loaded_image, NULL, NULL,
 				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
 	if (ret != EFI_SUCCESS) {
-		error(L"Loaded image protocol not found\n");
+		error(L"Loaded image protocol not found\r\n");
 		return ret;
 	}
 
@@ -413,26 +423,26 @@ efi_status_t do_save(u16 *filename)
 				(void **)&file_system, NULL, NULL,
 				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
 	if (ret != EFI_SUCCESS) {
-		error(L"Failed to open simple file system protocol\n");
+		error(L"Failed to open simple file system protocol\r\n");
 		return ret;
 	}
 
 	/* Open volume */
 	ret = file_system->open_volume(file_system, &root);
 	if (ret != EFI_SUCCESS) {
-		error(L"Failed to open volume\n");
+		error(L"Failed to open volume\r\n");
 		return ret;
 	}
 	/* Check if file already exists */
 	ret = root->open(root, &file, filename, EFI_FILE_MODE_READ, 0);
 	if (ret == EFI_SUCCESS) {
 		file->close(file);
-		cout->output_string(cout, L"Overwrite existing file (y/n)? ");
+		print(L"Overwrite existing file (y/n)? ");
 		ret = efi_input_yn();
-		cout->output_string(cout, L"\n");
+		print(L"\r\n");
 		if (ret != EFI_SUCCESS) {
 			root->close(root);
-			error(L"Aborted by user\n");
+			error(L"Aborted by user\r\n");
 			return ret;
 		}
 	}
@@ -445,16 +455,16 @@ efi_status_t do_save(u16 *filename)
 		/* Write file */
 		ret = file->write(file, &dtb_size, dtb);
 		if (ret != EFI_SUCCESS)
-			error(L"Failed to write file\n");
+			error(L"Failed to write file\r\n");
 		file->close(file);
 	} else {
-		error(L"Failed to open file\n");
+		error(L"Failed to open file\r\n");
 	}
 	root->close(root);
 
 	if (ret == EFI_SUCCESS) {
-		cout->output_string(cout, filename);
-		cout->output_string(cout, L" written\n");
+		print(filename);
+		print(L" written\r\n");
 	}
 
 	return ret;
@@ -480,7 +490,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
 	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
 	cout->clear_screen(cout);
 	cout->set_attribute(cout, EFI_WHITE | EFI_BACKGROUND_BLACK);
-	cout->output_string(cout, L"DTB Dump\n========\n\n");
+	print(L"DTB Dump\r\n========\r\n\r\n");
 	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
 
 	for (;;) {
@@ -488,7 +498,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
 		u16 *pos;
 		efi_uintn_t ret;
 
-		cout->output_string(cout, L"=> ");
+		print(L"=> ");
 		ret = efi_input(command, sizeof(command));
 		if (ret == EFI_ABORTED)
 			break;
