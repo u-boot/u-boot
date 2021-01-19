@@ -49,8 +49,8 @@ int set_km_env(void)
 	char *p;
 	unsigned long rootfssize = 0;
 
-	pnvramaddr = gd->ram_size - CONFIG_KM_RESERVED_PRAM - CONFIG_KM_PHRAM
-			- CONFIG_KM_PNVRAM;
+	pnvramaddr = CONFIG_SYS_SDRAM_BASE + gd->ram_size -
+		CONFIG_KM_RESERVED_PRAM - CONFIG_KM_PHRAM - CONFIG_KM_PNVRAM;
 	sprintf((char *)buf, "0x%x", pnvramaddr);
 	env_set("pnvramaddr", (char *)buf);
 
@@ -63,7 +63,8 @@ int set_km_env(void)
 	sprintf((char *)buf, "0x%x", pram);
 	env_set("pram", (char *)buf);
 
-	varaddr = gd->ram_size - CONFIG_KM_RESERVED_PRAM - CONFIG_KM_PHRAM;
+	varaddr = CONFIG_SYS_SDRAM_BASE + gd->ram_size -
+		CONFIG_KM_RESERVED_PRAM - CONFIG_KM_PHRAM;
 	sprintf((char *)buf, "0x%x", varaddr);
 	env_set("varaddr", (char *)buf);
 
