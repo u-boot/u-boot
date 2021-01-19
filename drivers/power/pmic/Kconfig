@@ -91,6 +91,21 @@ config DM_PMIC_FAN53555
 	  The driver implements read/write operations for use with the FAN53555
 	  regulator driver and binds the regulator driver to its node.
 
+config DM_PMIC_MP5416
+	bool "Enable Driver Model for PMIC MP5416"
+	depends on DM_PMIC
+	help
+	  This config enables implementation of driver-model pmic uclass features
+	  for PMIC MP5416. The driver implements read/write operations.
+
+config SPL_DM_PMIC_MP5416
+	bool "Enable Driver Model for PMIC MP5416 in SPL stage"
+	depends on DM_PMIC
+	help
+	  This config enables implementation of driver-model pmic uclass
+	  features for PMIC MP5416. The driver implements read/write
+	  operations.
+
 config DM_PMIC_PCA9450
 	bool "Enable Driver Model for PMIC PCA9450"
 	depends on DM_PMIC

@@ -71,14 +71,8 @@
 		compatible = "mediatek,timer";
 		reg = <0x10004000 0x80>;
 		interrupts = <GIC_SPI 152 IRQ_TYPE_LEVEL_LOW>;
-		clocks = <&system_clk>;
+		clocks = <&infracfg CLK_INFRA_APXGPT_PD>;
 		clock-names = "system-clk";
-	};
-
-	system_clk: dummy13m {
-		compatible = "fixed-clock";
-		clock-frequency = <13000000>;
-		#clock-cells = <0>;
 	};
 
 	infracfg: infracfg@10000000 {

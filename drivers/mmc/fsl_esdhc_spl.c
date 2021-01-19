@@ -91,20 +91,17 @@ void __noreturn mmc_boot(void)
 					CONFIG_CFG_DATA_SECTOR, 1, tmp_buf);
 	if (err != 1) {
 		puts("spl: mmc read failed!!\n");
-		free(tmp_buf);
 		hang();
 	}
 
 	val = *(tmp_buf + MBRDBR_BOOT_SIG_55);
 	if (0x55 != val) {
 		puts("spl: mmc signature is not valid!!\n");
-		free(tmp_buf);
 		hang();
 	}
 	val = *(tmp_buf + MBRDBR_BOOT_SIG_AA);
 	if (0xAA != val) {
 		puts("spl: mmc signature is not valid!!\n");
-		free(tmp_buf);
 		hang();
 	}
 

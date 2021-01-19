@@ -18,7 +18,7 @@ Get and Build the ARM Trusted firmware
 
 Note: $(srctree) is the U-Boot source directory
 Get ATF from: https://source.codeaurora.org/external/imx/imx-atf
-branch: imx_5.4.3_2.0.0
+branch: imx_5.4.47_2.2.0
 
 .. code-block:: bash
 
@@ -30,13 +30,13 @@ Get the ddr firmware
 
 .. code-block:: bash
 
-   $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.7.bin
-   $ chmod +x firmware-imx-8.7.bin
-   $ ./firmware-imx-8.7.bin
-   $ cp firmware-imx-8.7/firmware/ddr/synopsys/lpddr4_pmu_train_1d_dmem_201904.bin $(srctree)/lpddr4_pmu_train_1d_dmem.bin
-   $ cp firmware-imx-8.7/firmware/ddr/synopsys/lpddr4_pmu_train_1d_imem_201904.bin $(srctree)/lpddr4_pmu_train_1d_imem.bin
-   $ cp firmware-imx-8.7/firmware/ddr/synopsys/lpddr4_pmu_train_2d_dmem_201904.bin $(srctree)/lpddr4_pmu_train_2d_dmem.bin
-   $ cp firmware-imx-8.7/firmware/ddr/synopsys/lpddr4_pmu_train_2d_imem_201904.bin $(srctree)/lpddr4_pmu_train_2d_imem.bin
+   $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.9.bin
+   $ chmod +x firmware-imx-8.9.bin
+   $ ./firmware-imx-8.9.bin
+   $ cp firmware-imx-8.9/firmware/ddr/synopsys/lpddr4_pmu_train_1d_dmem_201904.bin $(srctree)/lpddr4_pmu_train_1d_dmem.bin
+   $ cp firmware-imx-8.9/firmware/ddr/synopsys/lpddr4_pmu_train_1d_imem_201904.bin $(srctree)/lpddr4_pmu_train_1d_imem.bin
+   $ cp firmware-imx-8.9/firmware/ddr/synopsys/lpddr4_pmu_train_2d_dmem_201904.bin $(srctree)/lpddr4_pmu_train_2d_dmem.bin
+   $ cp firmware-imx-8.9/firmware/ddr/synopsys/lpddr4_pmu_train_2d_imem_201904.bin $(srctree)/lpddr4_pmu_train_2d_imem.bin
 
 Build U-Boot
 ------------

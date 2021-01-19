@@ -86,6 +86,15 @@ config WDT_ASPEED
 	  It currently does not support Boot Flash Addressing Mode Detection or
 	  Second Boot.
 
+config WDT_AST2600
+	bool "Aspeed AST2600 watchdog timer support"
+	depends on WDT
+	default y if ASPEED_AST2600
+	help
+	  Select this to enable watchdog timer for Aspeed ast2500/ast2400 devices.
+	  The watchdog timer is stopped when initialized. It performs reset, either
+	  full SoC reset or CPU or just some peripherals, based on the flags.
+
 config WDT_AT91
 	bool "AT91 watchdog timer support"
 	depends on WDT

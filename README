@@ -3153,6 +3153,7 @@ i2c	- I2C sub-system
 sspi	- SPI utility commands
 base	- print or set address offset
 printenv- print environment variables
+pwm	- control pwm channels
 setenv	- set environment variables
 saveenv - save environment variables to persistent storage
 protect - enable or disable FLASH write protection
