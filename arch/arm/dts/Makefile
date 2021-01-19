@@ -323,6 +323,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-sck-kv-g-revB.dtbo		\
 	zynqmp-sck-kv-g-revA-pl.dtbo		\
 	zynqmp-topic-miamimp-xilinx-xdp-v1r1.dtb	\
+	zynqmp-vpk120-revA.dtb			\
 	zynqmp-zcu100-revC.dtb			\
 	zynqmp-zcu102-revA.dtb			\
 	zynqmp-zcu102-revB.dtb			\
@@ -376,6 +377,7 @@ dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-vmk180-revA-x-ebm-01-revA.dtb \
 	versal-vmk180-revA-x-ebm-02-revA.dtb \
 	versal-vmk180-revA-x-ebm-03-revA.dtb \
+	versal-vpk120-revA.dtb \
 	versal-x-ebm-01-revA.dtbo \
 	versal-x-ebm-02-revA.dtbo \
 	versal-x-ebm-03-revA.dtbo
