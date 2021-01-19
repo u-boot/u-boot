@@ -251,7 +251,8 @@ static int ks_rcv(struct ks_net *ks, uchar *data)
 	}
 
 	ks_wrreg16(ks, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_RRXEF);
-	printf(DRIVERNAME ": bad packet\n");
+	printf(DRIVERNAME ": bad packet (sts=0x%04x len=0x%04x)\n", sts, len);
+	ks->rxfc = 0;
 	return 0;
 }
 

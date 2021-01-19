@@ -10,6 +10,8 @@
 #define __NET_RAND_H__
 
 #include <common.h>
+#include <dm/uclass.h>
+#include <rng.h>
 
 /*
  * Return a seed for the PRNG derived from the eth0 MAC address.
@@ -37,7 +39,22 @@ static inline unsigned int seed_mac(void)
  */
 static inline void srand_mac(void)
 {
-	srand(seed_mac());
+	int ret;
+	struct udevice *devp;
+	u32 randv = 0;
+
+	if (IS_ENABLED(CONFIG_DM_RNG)) {
+		ret = uclass_get_device(UCLASS_RNG, 0, &devp);
+		if (ret) {
+			ret = dm_rng_read(devp, &randv, sizeof(randv));
+			if (ret < 0)
+				randv = 0;
+		}
+	}
+	if (randv)
+		srand(randv);
+	else
+		srand(seed_mac());
 }
 
 #endif /* __NET_RAND_H__ */

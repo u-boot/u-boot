@@ -15,6 +15,8 @@
 #include <asm/io.h>
 #include <part_efi.h>
 #include <malloc.h>
+#include <dm/uclass.h>
+#include <rng.h>
 
 /*
  * UUID - Universally Unique IDentifier - 128 bits unique number.
@@ -249,9 +251,22 @@ void gen_rand_uuid(unsigned char *uuid_bin)
 {
 	u32 ptr[4];
 	struct uuid *uuid = (struct uuid *)ptr;
-	int i;
+	int i, ret;
+	struct udevice *devp;
+	u32 randv = 0;
 
-	srand(get_ticks() + rand());
+	if (IS_ENABLED(CONFIG_DM_RNG)) {
+		ret = uclass_get_device(UCLASS_RNG, 0, &devp);
+		if (ret) {
+			ret = dm_rng_read(devp, &randv, sizeof(randv));
+			if (ret < 0)
+				randv = 0;
+		}
+	}
+	if (randv)
+		srand(randv);
+	else
+		srand(get_ticks() + rand());
 
 	/* Set all fields randomly */
 	for (i = 0; i < 4; i++)

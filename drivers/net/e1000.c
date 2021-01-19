@@ -869,7 +869,6 @@ e1000_read_eeprom(struct e1000_hw *hw, uint16_t offset,
 	return E1000_SUCCESS;
 }
 
-#ifndef CONFIG_DM_ETH
 /******************************************************************************
  *  e1000_write_eeprom_srwr - Write to Shadow Ram using EEWR
  *  @hw: pointer to the HW structure
@@ -1035,7 +1034,6 @@ static int32_t e1000_update_eeprom_checksum_i210(struct e1000_hw *hw)
 out:
 	return ret_val;
 }
-#endif
 
 /******************************************************************************
  * Verifies that the EEPROM has a valid checksum
@@ -5660,13 +5658,24 @@ e1000_poll(struct eth_device *nic)
 
 	return len ? 1 : 0;
 }
+#endif /* !CONFIG_DM_ETH */
 
+#ifdef CONFIG_DM_ETH
+static int e1000_write_hwaddr(struct udevice *dev)
+#else
 static int e1000_write_hwaddr(struct eth_device *dev)
+#endif
 {
 #ifndef CONFIG_E1000_NO_NVM
-	unsigned char *mac = dev->enetaddr;
 	unsigned char current_mac[6];
+#ifdef CONFIG_DM_ETH
+	struct eth_pdata *plat = dev_get_plat(dev);
+	struct e1000_hw *hw = dev_get_priv(dev);
+	u8 *mac = plat->enetaddr;
+#else
 	struct e1000_hw *hw = dev->priv;
+	u8 *mac = dev->enetaddr;
+#endif
 	uint16_t data[3];
 	int ret_val, i;
 
@@ -5700,6 +5709,7 @@ static int e1000_write_hwaddr(struct eth_device *dev)
 #endif
 }
 
+#ifndef CONFIG_DM_ETH
 /**************************************************************************
 PROBE - Look for an adapter, this routine's visible to the outside
 You should omit the last argument struct pci_device * for a non-PCI NIC
@@ -5926,6 +5936,7 @@ static const struct eth_ops e1000_eth_ops = {
 	.recv	= e1000_eth_recv,
 	.stop	= e1000_eth_stop,
 	.free_pkt = e1000_free_pkt,
+	.write_hwaddr = e1000_write_hwaddr,
 };
 
 static const struct udevice_id e1000_eth_ids[] = {
