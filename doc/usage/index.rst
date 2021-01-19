@@ -19,3 +19,4 @@ Shell commands
    button
    mbr
    pstore
+   sbi
