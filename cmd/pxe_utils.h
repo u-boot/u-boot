@@ -43,6 +43,7 @@ struct pxe_label {
 	char *initrd;
 	char *fdt;
 	char *fdtdir;
+	char *fdtoverlays;
 	int ipappend;
 	int attempted;
 	int localboot;
