@@ -336,6 +336,18 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	return 0;
 }
 
+static bool os_takes_devicetree(uint8_t os)
+{
+	switch (os) {
+	case IH_OS_U_BOOT:
+		return true;
+	case IH_OS_LINUX:
+		return IS_ENABLED(CONFIG_SPL_OS_BOOT);
+	default:
+		return false;
+	}
+}
+
 static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 			      struct spl_load_info *info, ulong sector,
 			      const struct spl_fit_info *ctx)
@@ -662,9 +674,9 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	 * Booting a next-stage U-Boot may require us to append the FDT.
 	 * We allow this to fail, as the U-Boot image might embed its FDT.
 	 */
-	if (spl_image->os == IH_OS_U_BOOT) {
+	if (os_takes_devicetree(spl_image->os)) {
 		ret = spl_fit_append_fdt(spl_image, info, sector, &ctx);
-		if (!IS_ENABLED(CONFIG_OF_EMBED) && ret < 0)
+		if (ret < 0 && spl_image->os != IH_OS_U_BOOT)
 			return ret;
 	}
 
@@ -695,7 +707,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 		if (!spl_fit_image_get_os(ctx.fit, node, &os_type))
 			debug("Loadable is %s\n", genimg_get_os_name(os_type));
 
-		if (os_type == IH_OS_U_BOOT) {
+		if (os_takes_devicetree(os_type)) {
 			spl_fit_append_fdt(&image_info, info, sector, &ctx);
 			spl_image->fdt_addr = image_info.fdt_addr;
 		}
