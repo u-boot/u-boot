@@ -31,6 +31,7 @@ struct spl_fit_info {
 	const void *fit;	/* Pointer to a valid FIT blob */
 	size_t ext_data_offset;	/* Offset to FIT external data (end of FIT) */
 	int images_node;	/* FDT offset to "/images" node */
+	int conf_node;		/* FDT offset to selected configuration node */
 };
 
 __weak void board_spl_fit_post_load(const void *fit)
@@ -84,15 +85,10 @@ static int spl_fit_get_image_name(const struct spl_fit_info *ctx,
 	struct udevice *sysinfo;
 	const char *name, *str;
 	__maybe_unused int node;
-	int conf_node;
 	int len, i;
 	bool found = true;
 
-	conf_node = fit_find_config_node(ctx->fit);
-	if (conf_node < 0)
-		return conf_node;
-
-	name = fdt_getprop(ctx->fit, conf_node, type, &len);
+	name = fdt_getprop(ctx->fit, ctx->conf_node, type, &len);
 	if (!name) {
 		debug("cannot find property '%s': %d\n", type, len);
 		return -EINVAL;
@@ -551,12 +547,15 @@ static int spl_simple_fit_read(struct spl_fit_info *ctx,
 
 static int spl_simple_fit_parse(struct spl_fit_info *ctx)
 {
-	if (IS_ENABLED(CONFIG_SPL_FIT_SIGNATURE)) {
-		int conf_offset = fit_find_config_node(ctx->fit);
+	/* Find the correct subnode under "/configurations" */
+	ctx->conf_node = fit_find_config_node(ctx->fit);
+	if (ctx->conf_node < 0)
+		return -EINVAL;
 
+	if (IS_ENABLED(CONFIG_SPL_FIT_SIGNATURE)) {
 		printf("## Checking hash(es) for config %s ... ",
-		       fit_get_name(ctx->fit, conf_offset, NULL));
-		if (fit_config_verify(ctx->fit, conf_offset))
+		       fit_get_name(ctx->fit, ctx->conf_node, NULL));
+		if (fit_config_verify(ctx->fit, ctx->conf_node))
 			return -EPERM;
 		puts("OK\n");
 	}
