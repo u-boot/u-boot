@@ -89,18 +89,8 @@ static int spl_fit_get_image_name(const struct spl_fit_info *ctx,
 	bool found = true;
 
 	conf_node = fit_find_config_node(ctx->fit);
-	if (conf_node < 0) {
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		printf("No matching DT out of these options:\n");
-		for (node = fdt_first_subnode(ctx->fit, conf_node);
-		     node >= 0;
-		     node = fdt_next_subnode(ctx->fit, node)) {
-			name = fdt_getprop(ctx->fit, node, "description", &len);
-			printf("   %s\n", name);
-		}
-#endif
+	if (conf_node < 0)
 		return conf_node;
-	}
 
 	name = fdt_getprop(ctx->fit, conf_node, type, &len);
 	if (!name) {
