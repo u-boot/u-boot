@@ -225,6 +225,13 @@ config MT7621_SPI
 	  the SPI NOR flash on platforms embedding this Ralink / MediaTek
 	  SPI core, like MT7621/7628/7688.
 
+config MTK_SNOR
+	bool "Mediatek SPI-NOR controller driver"
+	depends on SPI_MEM
+	help
+	  Enable the Mediatek SPINOR controller driver. This driver has
+          better read/write performance with NOR.
+
 config MTK_SNFI_SPI
 	bool "Mediatek SPI memory controller driver"
 	depends on SPI_MEM
