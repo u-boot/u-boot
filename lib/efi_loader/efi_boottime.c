@@ -1990,10 +1990,7 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
 	if (ret != EFI_SUCCESS)
 		efi_free_pages(addr, pages);
 out:
-	if (load_file_protocol)
-		EFI_CALL(efi_close_protocol(device,
-					    &efi_guid_load_file2_protocol,
-					    efi_root, NULL));
+	EFI_CALL(efi_close_protocol(device, guid, efi_root, NULL));
 	if (ret == EFI_SUCCESS) {
 		*buffer = (void *)(uintptr_t)addr;
 		*size = buffer_size;
