@@ -410,12 +410,9 @@ static int zynqmp_qspi_set_speed(struct udevice *bus, uint speed)
 	if (speed > plat->frequency)
 		speed = plat->frequency;
 
-	/* Set the clock frequency */
-	confr = readl(&regs->confr);
-	if (speed == 0) {
-		/* Set baudrate x8, if the freq is 0 */
-		baud_rate_val = GQSPI_DFLT_BAUD_RATE_VAL;
-	} else if (plat->speed_hz != speed) {
+	if (plat->speed_hz != speed) {
+		/* Set the clock frequency */
+		/* If speed == 0, default to lowest speed */
 		while ((baud_rate_val < 8) &&
 		       ((plat->frequency /
 		       (2 << baud_rate_val)) > speed))
@@ -425,13 +422,15 @@ static int zynqmp_qspi_set_speed(struct udevice *bus, uint speed)
 			baud_rate_val = GQSPI_DFLT_BAUD_RATE_VAL;
 
 		plat->speed_hz = plat->frequency / (2 << baud_rate_val);
-	}
-	confr &= ~GQSPI_BAUD_DIV_MASK;
-	confr |= (baud_rate_val << 3);
-	writel(confr, &regs->confr);
 
-	zynqmp_qspi_set_tapdelay(bus, baud_rate_val);
-	debug("regs=%p, speed=%d\n", priv->regs, plat->speed_hz);
+		confr = readl(&regs->confr);
+		confr &= ~GQSPI_BAUD_DIV_MASK;
+		confr |= (baud_rate_val << 3);
+		writel(confr, &regs->confr);
+		zynqmp_qspi_set_tapdelay(bus, baud_rate_val);
+
+		debug("regs=%p, speed=%d\n", priv->regs, plat->speed_hz);
+	}
 
 	return 0;
 }
