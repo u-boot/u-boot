@@ -18,6 +18,7 @@ Shell commands
    bootmenu
    button
    exit
+   for
    mbr
    pstore
    sbi
