@@ -84,7 +84,8 @@ menu "Info commands"
 
 config CMD_ACPI
 	bool "acpi"
-	default y if ACPIGEN
+	depends on ACPIGEN
+	default y
 	help
 	  List and dump ACPI tables. ACPI (Advanced Configuration and Power
 	  Interface) is used mostly on x86 for providing information to the
