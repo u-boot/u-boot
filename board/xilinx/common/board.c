@@ -324,25 +324,30 @@ void *board_fdt_blob_setup(void)
 {
 	void *fdt_blob;
 
-#if !defined(CONFIG_VERSAL_NO_DDR) && !defined(CONFIG_ZYNQMP_NO_DDR)
-	fdt_blob = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
+	if (!IS_ENABLED(CONFIG_SPL_BUILD) &&
+	    !IS_ENABLED(CONFIG_VERSAL_NO_DDR) &&
+	    !IS_ENABLED(CONFIG_VERSAL_NO_DDR)) {
+		fdt_blob = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
 
-	if (fdt_magic(fdt_blob) == FDT_MAGIC)
-		return fdt_blob;
+		if (fdt_magic(fdt_blob) == FDT_MAGIC)
+			return fdt_blob;
 
-	debug("DTB is not passed via %p\n", fdt_blob);
-#endif
+		debug("DTB is not passed via %p\n", fdt_blob);
+	}
 
-#ifdef CONFIG_SPL_BUILD
-	/* FDT is at end of BSS unless it is in a different memory region */
-	if (IS_ENABLED(CONFIG_SPL_SEPARATE_BSS))
-		fdt_blob = (ulong *)&_image_binary_end;
-	else
-		fdt_blob = (ulong *)&__bss_end;
-#else
-	/* FDT is at end of image */
-	fdt_blob = (ulong *)&_end;
-#endif
+	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+		/*
+		 * FDT is at end of BSS unless it is in a different memory
+		 * region
+		 */
+		if (IS_ENABLED(CONFIG_SPL_SEPARATE_BSS))
+			fdt_blob = (ulong *)&_image_binary_end;
+		else
+			fdt_blob = (ulong *)&__bss_end;
+	} else {
+		/* FDT is at end of image */
+		fdt_blob = (ulong *)&_end;
+	}
 
 	if (fdt_magic(fdt_blob) == FDT_MAGIC)
 		return fdt_blob;
