@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <log.h>
+#include <watchdog.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
@@ -566,6 +567,7 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 	len = instr->len;
 
 	while (len) {
+		WATCHDOG_RESET();
 #ifdef CONFIG_SPI_FLASH_BAR
 		ret = write_bar(nor, addr);
 		if (ret < 0)
@@ -1250,6 +1252,7 @@ static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len,
 	for (i = 0; i < len; ) {
 		ssize_t written;
 		loff_t addr = to + i;
+		WATCHDOG_RESET();
 
 		/*
 		 * If page_size is a power of two, the offset can be quickly
