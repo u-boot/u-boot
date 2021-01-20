@@ -275,7 +275,7 @@ static int fat_find_empty_dentries(fat_itr *itr, int count)
 			log_debug("Not enough directory entries available\n");
 			return -ENOSPC;
 		}
-		switch (itr->dent->name[0]) {
+		switch (itr->dent->nameext.name[0]) {
 		case 0x00:
 		case DELETED_FLAG:
 			if (!n) {
@@ -399,7 +399,7 @@ fill_dir_slot(fat_itr *itr, const char *l_name, const char *shortname)
 	int idx = 0, ret;
 
 	/* Get short file name checksum value */
-	checksum = mkcksum(shortname, shortname + 8);
+	checksum = mkcksum((void *)shortname);
 
 	do {
 		memset(slotptr, 0x00, sizeof(dir_slot));
@@ -1169,7 +1169,7 @@ static void fill_dentry(fsdata *mydata, dir_entry *dentptr,
 
 	dentptr->attr = attr;
 
-	memcpy(dentptr->name, shortname, SHORT_NAME_SIZE);
+	memcpy(&dentptr->nameext, shortname, SHORT_NAME_SIZE);
 }
 
 /**
@@ -1194,7 +1194,7 @@ static dir_entry *find_directory_entry(fat_itr *itr, char *filename)
 		if (!match)
 			continue;
 
-		if (itr->dent->name[0] == '\0')
+		if (itr->dent->nameext.name[0] == '\0')
 			return NULL;
 		else
 			return itr->dent;
@@ -1470,7 +1470,7 @@ static int delete_single_dentry(fat_itr *itr)
 	struct dir_entry *dent = itr->dent;
 
 	memset(dent, 0, sizeof(*dent));
-	dent->name[0] = DELETED_FLAG;
+	dent->nameext.name[0] = DELETED_FLAG;
 
 	if (!itr->remaining)
 		return flush_dir(itr);
@@ -1486,7 +1486,7 @@ static int delete_single_dentry(fat_itr *itr)
 static int delete_long_name(fat_itr *itr)
 {
 	struct dir_entry *dent = itr->dent;
-	int seqn = itr->dent->name[0] & ~LAST_LONG_ENTRY_MASK;
+	int seqn = itr->dent->nameext.name[0] & ~LAST_LONG_ENTRY_MASK;
 
 	while (seqn--) {
 		int ret;
@@ -1531,7 +1531,7 @@ static int delete_dentry_long(fat_itr *itr)
 	dent = itr->dent_start;
 	/* Delete long name */
 	if ((dent->attr & ATTR_VFAT) == ATTR_VFAT &&
-	    (dent->name[0] & LAST_LONG_ENTRY_MASK)) {
+	    (dent->nameext.name[0] & LAST_LONG_ENTRY_MASK)) {
 		int ret;
 
 		ret = delete_long_name(itr);
@@ -1712,12 +1712,10 @@ int fat_mkdir(const char *new_dirname)
 	}
 	memset(dotdent, 0, bytesperclust);
 
-	memcpy(dotdent[0].name, ".       ", 8);
-	memcpy(dotdent[0].ext, "   ", 3);
+	memcpy(&dotdent[0].nameext, ".          ", 11);
 	dotdent[0].attr = ATTR_DIR | ATTR_ARCH;
 
-	memcpy(dotdent[1].name, "..      ", 8);
-	memcpy(dotdent[1].ext, "   ", 3);
+	memcpy(&dotdent[1].nameext, "..         ", 11);
 	dotdent[1].attr = ATTR_DIR | ATTR_ARCH;
 
 	if (itr->is_root)

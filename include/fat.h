@@ -132,8 +132,13 @@ typedef struct volume_info
 #define CASE_LOWER_BASE	8	/* base (name) is lower case */
 #define CASE_LOWER_EXT	16	/* extension is lower case */
 
+struct nameext {
+	char name[8];
+	char ext[3];
+};
+
 typedef struct dir_entry {
-	char	name[8],ext[3];	/* Name and extension */
+	struct nameext nameext;	/* Name and extension */
 	__u8	attr;		/* Attribute bits */
 	__u8	lcase;		/* Case for name and ext (CASE_LOWER_x) */
 	__u8	ctime_ms;	/* Creation time, milliseconds */
