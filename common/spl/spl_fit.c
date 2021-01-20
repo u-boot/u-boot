@@ -27,7 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)
 #endif
 
-__weak void board_spl_fit_post_load(ulong load_addr, size_t length)
+__weak void board_spl_fit_post_load(const void *fit)
 {
 }
 
@@ -726,7 +726,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	spl_image->flags |= SPL_FIT_FOUND;
 
 #ifdef CONFIG_IMX_HAB
-	board_spl_fit_post_load((ulong)fit, size);
+	board_spl_fit_post_load(fit);
 #endif
 
 	return 0;
