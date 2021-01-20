@@ -298,18 +298,16 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 		src = (void *)data;
 	}
 
-#ifdef CONFIG_SPL_FIT_SIGNATURE
-	printf("## Checking hash(es) for Image %s ... ",
-	       fit_get_name(fit, node, NULL));
-	if (!fit_image_verify_with_data(fit, node,
-					 src, length))
-		return -EPERM;
-	puts("OK\n");
-#endif
+	if (CONFIG_IS_ENABLED(FIT_SIGNATURE)) {
+		printf("## Checking hash(es) for Image %s ... ",
+		       fit_get_name(fit, node, NULL));
+		if (!fit_image_verify_with_data(fit, node, src, length))
+			return -EPERM;
+		puts("OK\n");
+	}
 
-#ifdef CONFIG_SPL_FIT_IMAGE_POST_PROCESS
-	board_fit_image_post_process(&src, &length);
-#endif
+	if (CONFIG_IS_ENABLED(FIT_IMAGE_POST_PROCESS))
+		board_fit_image_post_process(&src, &length);
 
 	if (IS_ENABLED(CONFIG_SPL_GZIP) && image_comp == IH_COMP_GZIP) {
 		size = length;
@@ -374,7 +372,9 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 
 	/* Make the load-address of the FDT available for the SPL framework */
 	spl_image->fdt_addr = (void *)image_info.load_addr;
-#if !CONFIG_IS_ENABLED(FIT_IMAGE_TINY)
+	if (CONFIG_IS_ENABLED(FIT_IMAGE_TINY))
+		return 0;
+
 	if (CONFIG_IS_ENABLED(LOAD_FIT_APPLY_OVERLAY)) {
 		void *tmpbuffer = NULL;
 
@@ -432,7 +432,6 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 	ret = fdt_shrink_to_minimum(spl_image->fdt_addr, 8192);
 	if (ret < 0)
 		return ret;
-#endif
 
 	return ret;
 }
@@ -441,9 +440,11 @@ static int spl_fit_record_loadable(const struct spl_fit_info *ctx, int index,
 				   void *blob, struct spl_image_info *image)
 {
 	int ret = 0;
-#if !CONFIG_IS_ENABLED(FIT_IMAGE_TINY)
 	const char *name;
 	int node;
+
+	if (CONFIG_IS_ENABLED(FIT_IMAGE_TINY))
+		return 0;
 
 	ret = spl_fit_get_image_name(ctx, "loadables", index, &name);
 	if (ret < 0)
@@ -455,15 +456,15 @@ static int spl_fit_record_loadable(const struct spl_fit_info *ctx, int index,
 				  image->size, image->entry_point,
 				  fdt_getprop(ctx->fit, node, "type", NULL),
 				  fdt_getprop(ctx->fit, node, "os", NULL));
-#endif
 	return ret;
 }
 
 static int spl_fit_image_get_os(const void *fit, int noffset, uint8_t *os)
 {
-#if CONFIG_IS_ENABLED(FIT_IMAGE_TINY) && !defined(CONFIG_SPL_OS_BOOT)
-	const char *name = fdt_getprop(fit, noffset, FIT_OS_PROP, NULL);
+	if (!CONFIG_IS_ENABLED(FIT_IMAGE_TINY) || CONFIG_IS_ENABLED(OS_BOOT))
+		return fit_image_get_os(fit, noffset, os);
 
+	const char *name = fdt_getprop(fit, noffset, FIT_OS_PROP, NULL);
 	if (!name)
 		return -ENOENT;
 
@@ -478,9 +479,6 @@ static int spl_fit_image_get_os(const void *fit, int noffset, uint8_t *os)
 		*os = IH_OS_INVALID;
 
 	return 0;
-#else
-	return fit_image_get_os(fit, noffset, os);
-#endif
 }
 
 /*
@@ -627,10 +625,10 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	 */
 	if (node < 0)
 		node = spl_fit_get_image_node(&ctx, FIT_FIRMWARE_PROP, 0);
-#ifdef CONFIG_SPL_OS_BOOT
-	if (node < 0)
+
+	if (node < 0 && IS_ENABLED(CONFIG_SPL_OS_BOOT))
 		node = spl_fit_get_image_node(&ctx, FIT_KERNEL_PROP, 0);
-#endif
+
 	if (node < 0) {
 		debug("could not find firmware image, trying loadables...\n");
 		node = spl_fit_get_image_node(&ctx, "loadables", 0);
@@ -657,10 +655,8 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	 */
 	if (!spl_fit_image_get_os(ctx.fit, node, &spl_image->os))
 		debug("Image OS is %s\n", genimg_get_os_name(spl_image->os));
-#if !defined(CONFIG_SPL_OS_BOOT)
-	else
+	else if (!IS_ENABLED(CONFIG_SPL_OS_BOOT))
 		spl_image->os = IH_OS_U_BOOT;
-#endif
 
 	/*
 	 * Booting a next-stage U-Boot may require us to append the FDT.
@@ -729,9 +725,8 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 
 	spl_image->flags |= SPL_FIT_FOUND;
 
-#ifdef CONFIG_IMX_HAB
-	board_spl_fit_post_load(ctx.fit);
-#endif
+	if (IS_ENABLED(CONFIG_IMX_HAB))
+		board_spl_fit_post_load(ctx.fit);
 
 	return 0;
 }
