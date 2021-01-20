@@ -27,6 +27,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)
 #endif
 
+struct spl_fit_info {
+	const void *fit;	/* Pointer to a valid FIT blob */
+	size_t ext_data_offset;	/* Offset to FIT external data (end of FIT) */
+	int images_node;	/* FDT offset to "/images" node */
+};
+
 __weak void board_spl_fit_post_load(const void *fit)
 {
 }
@@ -522,28 +528,22 @@ __weak bool spl_load_simple_fit_skip_processing(void)
 	return false;
 }
 
-int spl_load_simple_fit(struct spl_image_info *spl_image,
-			struct spl_load_info *info, ulong sector, void *fit)
+static int spl_simple_fit_read(struct spl_fit_info *ctx,
+			       struct spl_load_info *info, ulong sector,
+			       const void *fit_header)
 {
+	unsigned long count, size;
 	int sectors;
-	ulong size, hsize;
-	unsigned long count;
-	struct spl_image_info image_info;
-	int node = -1;
-	int images, ret;
-	int base_offset;
-	int index = 0;
-	int firmware_node;
+	void *buf;
 
 	/*
 	 * For FIT with external data, figure out where the external images
 	 * start. This is the base for the data-offset properties in each
 	 * image.
 	 */
-	size = fdt_totalsize(fit);
-	size = (size + 3) & ~3;
+	size = ALIGN(fdt_totalsize(fit_header), 4);
 	size = board_spl_fit_size_align(size);
-	base_offset = (size + 3) & ~3;
+	ctx->ext_data_offset = ALIGN(size, 4);
 
 	/*
 	 * So far we only have one block of data from the FIT. Read the entire
@@ -553,35 +553,65 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	 * For FIT with external data, data is not loaded in this step.
 	 */
 	sectors = get_aligned_image_size(info, size, 0);
-	hsize = sectors * info->bl_len;
-	fit = spl_get_fit_load_buffer(hsize);
-	count = info->read(info, sector, sectors, fit);
+	buf = spl_get_fit_load_buffer(sectors * info->bl_len);
+
+	count = info->read(info, sector, sectors, buf);
+	ctx->fit = buf;
 	debug("fit read sector %lx, sectors=%d, dst=%p, count=%lu, size=0x%lx\n",
-	      sector, sectors, fit, count, size);
+	      sector, sectors, buf, count, size);
 
-	if (count == 0)
-		return -EIO;
+	return (count == 0) ? -EIO : 0;
+}
 
-	/* skip further processing if requested to enable load-only use cases */
-	if (spl_load_simple_fit_skip_processing())
-		return 0;
-
+static int spl_simple_fit_parse(struct spl_fit_info *ctx)
+{
 	if (IS_ENABLED(CONFIG_SPL_FIT_SIGNATURE)) {
-		int conf_offset = fit_find_config_node(fit);
+		int conf_offset = fit_find_config_node(ctx->fit);
 
 		printf("## Checking hash(es) for config %s ... ",
-		       fit_get_name(fit, conf_offset, NULL));
-		if (fit_config_verify(fit, conf_offset))
+		       fit_get_name(ctx->fit, conf_offset, NULL));
+		if (fit_config_verify(ctx->fit, conf_offset))
 			return -EPERM;
 		puts("OK\n");
 	}
 
 	/* find the node holding the images information */
-	images = fdt_path_offset(fit, FIT_IMAGES_PATH);
-	if (images < 0) {
-		debug("%s: Cannot find /images node: %d\n", __func__, images);
-		return -1;
+	ctx->images_node = fdt_path_offset(ctx->fit, FIT_IMAGES_PATH);
+	if (ctx->images_node < 0) {
+		debug("%s: Cannot find /images node: %d\n", __func__,
+		      ctx->images_node);
+		return -EINVAL;
 	}
+
+	return 0;
+}
+
+int spl_load_simple_fit(struct spl_image_info *spl_image,
+			struct spl_load_info *info, ulong sector, void *fit)
+{
+	struct spl_image_info image_info;
+	struct spl_fit_info ctx;
+	int node = -1;
+	int images, ret;
+	int base_offset;
+	int index = 0;
+	int firmware_node;
+
+	ret = spl_simple_fit_read(&ctx, info, sector, fit);
+	if (ret < 0)
+		return ret;
+
+	/* skip further processing if requested to enable load-only use cases */
+	if (spl_load_simple_fit_skip_processing())
+		return 0;
+
+	ret = spl_simple_fit_parse(&ctx);
+	if (ret < 0)
+		return ret;
+
+	images = ctx.images_node;
+	fit = (void *)ctx.fit;
+	base_offset = ctx.ext_data_offset;
 
 #ifdef CONFIG_SPL_FPGA
 	node = spl_fit_get_image_node(fit, images, "fpga", 0);
