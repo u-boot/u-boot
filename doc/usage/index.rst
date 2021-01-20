@@ -17,6 +17,7 @@ Shell commands
    bootefi
    bootmenu
    button
+   exit
    mbr
    pstore
    sbi
