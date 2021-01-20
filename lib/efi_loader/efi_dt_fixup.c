@@ -10,16 +10,6 @@
 #include <efi_loader.h>
 #include <mapmem.h>
 
-static efi_status_t EFIAPI efi_dt_fixup(struct efi_dt_fixup_protocol *this,
-					void *dtb,
-					efi_uintn_t *buffer_size,
-					u32 flags);
-
-struct efi_dt_fixup_protocol efi_dt_fixup_prot = {
-	.revision = EFI_DT_FIXUP_PROTOCOL_REVISION,
-	.fixup = efi_dt_fixup
-};
-
 const efi_guid_t efi_guid_dt_fixup_protocol = EFI_DT_FIXUP_PROTOCOL_GUID;
 
 /**
@@ -102,10 +92,21 @@ void efi_carve_out_dt_rsv(void *fdt)
 	}
 }
 
-static efi_status_t EFIAPI efi_dt_fixup(struct efi_dt_fixup_protocol *this,
-					void *dtb,
-					efi_uintn_t *buffer_size,
-					u32 flags)
+/**
+ * efi_dt_fixup() - fix up device tree
+ *
+ * This function implements the Fixup() service of the
+ * EFI Device Tree Fixup Protocol.
+ *
+ * @this:		instance of the protocol
+ * @dtb:		device tree provided by caller
+ * @buffer_size:	size of buffer for the device tree including free space
+ * @flags:		bit field designating action to be performed
+ * Return:		status code
+ */
+static efi_status_t __maybe_unused EFIAPI
+efi_dt_fixup(struct efi_dt_fixup_protocol *this, void *dtb,
+	     efi_uintn_t *buffer_size, u32 flags)
 {
 	efi_status_t ret;
 	size_t required_size;
@@ -158,3 +159,8 @@ static efi_status_t EFIAPI efi_dt_fixup(struct efi_dt_fixup_protocol *this,
 out:
 	return EFI_EXIT(ret);
 }
+
+struct efi_dt_fixup_protocol efi_dt_fixup_prot = {
+	.revision = EFI_DT_FIXUP_PROTOCOL_REVISION,
+	.fixup = efi_dt_fixup
+};

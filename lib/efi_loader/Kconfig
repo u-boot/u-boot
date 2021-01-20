@@ -27,6 +27,14 @@ config EFI_LOADER
 
 if EFI_LOADER
 
+config CMD_BOOTEFI_BOOTMGR
+	bool "UEFI Boot Manager"
+	default y
+	help
+	  Select this option if you want to select the UEFI binary to be booted
+	  via UEFI variables Boot####, BootOrder, and BootNext. This enables the
+	  'bootefi bootmgr' command.
+
 config EFI_SETUP_EARLY
 	bool
 	default n
@@ -200,6 +208,21 @@ config EFI_DEVICE_PATH_TO_TEXT
 	  The device path to text protocol converts device nodes and paths to
 	  human readable strings.
 
+config EFI_DEVICE_PATH_UTIL
+	bool "Device path utilities protocol"
+	default y
+	help
+	  The device path utilities protocol creates and manipulates device
+	  paths and device nodes. It is required to run the EFI Shell.
+
+config EFI_DT_FIXUP
+	bool "Device tree fixup protocol"
+	depends on !GENERATE_ACPI_TABLE
+	default y
+	help
+	  The EFI device-tree fix-up protocol provides a function to let the
+	  firmware apply fix-ups. This may be used by boot loaders.
+
 config EFI_LOADER_HII
 	bool "HII protocols"
 	default y
@@ -228,17 +251,6 @@ config EFI_UNICODE_CAPITALIZATION
 	  Unicode codepoints in the range 0x0000-0xffff. If this option is not
 	  set, only the the correct handling of the letters of the codepage
 	  used by the FAT file system is ensured.
-
-config EFI_UNICODE_COLLATION_PROTOCOL
-	bool "Deprecated version of the Unicode collation protocol"
-	default n
-	help
-	  In EFI 1.10 a version of the Unicode collation protocol using ISO
-	  639-2 language codes existed. This protocol is not part of the UEFI
-	  specification any longer. Unfortunately it is required to run the
-	  UEFI Self Certification Test (SCT) II, version 2.6, 2017.
-
-	  Choose this option for testing only. It is bound to be removed.
 
 endif
 

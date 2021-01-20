@@ -147,9 +147,6 @@ extern const struct efi_device_path_to_text_protocol efi_device_path_to_text;
 /* implementation of the EFI_DEVICE_PATH_UTILITIES_PROTOCOL */
 extern const struct efi_device_path_utilities_protocol
 					efi_device_path_utilities;
-/* deprecated version of the EFI_UNICODE_COLLATION_PROTOCOL */
-extern const struct efi_unicode_collation_protocol
-					efi_unicode_collation_protocol;
 /* current version of the EFI_UNICODE_COLLATION_PROTOCOL */
 extern const struct efi_unicode_collation_protocol
 					efi_unicode_collation_protocol2;
@@ -564,7 +561,7 @@ struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp);
  * @size:	size in bytes
  * Return:	size in pages
  */
-#define efi_size_in_pages(size) ((size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT)
+#define efi_size_in_pages(size) (((size) + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT)
 /* Generic EFI memory allocator, call this to get memory */
 void *efi_alloc(uint64_t len, int memory_type);
 /* More specific EFI memory allocator, called by EFI payloads */
