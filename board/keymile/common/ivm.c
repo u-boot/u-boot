@@ -321,6 +321,11 @@ static int ivm_populate_env(unsigned char *buf, int len, int mac_address_offset)
 		process_mac(valbuf, page2, mac_address_offset, true);
 		env_set((char *)"eth1addr", (char *)valbuf);
 	}
+	if (IS_ENABLED(CONFIG_TARGET_KMCENT2)) {
+		/* 3rd ethernet interface */
+		process_mac(valbuf, page2, 2, true);
+		env_set((char *)"eth4addr", (char *)valbuf);
+	}
 
 	return 0;
 }

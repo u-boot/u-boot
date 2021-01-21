@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0+
 
+dtb-$(CONFIG_TARGET_KMCENT2) += kmcent2.dtb
 dtb-$(CONFIG_TARGET_KMCOGE5NE) += kmcoge5ne.dtb
 dtb-$(CONFIG_TARGET_KMETER1) += kmeter1.dtb
 dtb-$(CONFIG_TARGET_KMOPTI2) += kmopti2.dtb

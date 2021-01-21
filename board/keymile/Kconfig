@@ -114,6 +114,7 @@ config SYS_IVM_EEPROM_PAGE_LEN
 	  Page size of inventory in EEPROM.
 
 source "board/keymile/km83xx/Kconfig"
+source "board/keymile/kmcent2/Kconfig"
 source "board/keymile/kmp204x/Kconfig"
 source "board/keymile/km_arm/Kconfig"
 
