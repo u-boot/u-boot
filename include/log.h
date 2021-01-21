@@ -316,10 +316,30 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 		    __ret); \
 	__ret; \
 	})
+
+/*
+ * Similar to the above, but any non-zero value is consider an error, not just
+ * values less than 0.
+ */
+#define log_retz(_ret) ({ \
+	int __ret = (_ret); \
+	if (__ret) \
+		log(LOG_CATEGORY, LOGL_ERR, "returning err=%d\n", __ret); \
+	__ret; \
+	})
+#define log_msg_retz(_msg, _ret) ({ \
+	int __ret = (_ret); \
+	if (__ret) \
+		log(LOG_CATEGORY, LOGL_ERR, "%s: returning err=%d\n", _msg, \
+		    __ret); \
+	__ret; \
+	})
 #else
 /* Non-logging versions of the above which just return the error code */
 #define log_ret(_ret) (_ret)
 #define log_msg_ret(_msg, _ret) ((void)(_msg), _ret)
+#define log_retz(_ret) (_ret)
+#define log_msg_retz(_msg, _ret) ((void)(_msg), _ret)
 #endif
 
 /** * enum log_rec_flags - Flags for a log record */

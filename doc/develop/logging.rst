@@ -117,10 +117,23 @@ can be used whenever your function returns an error value:
 
 .. code-block:: c
 
-   return log_ret(uclass_first_device(UCLASS_MMC, &dev));
+   return log_ret(uclass_first_device_err(UCLASS_MMC, &dev));
 
 This will write a log record when an error code is detected (a value < 0). This
 can make it easier to trace errors that are generated deep in the call stack.
+
+The log_msg_ret() variant will print a short string if CONFIG_LOG_ERROR_RETURN
+is enabled. So long as the string is unique within the function you can normally
+determine exactly which call failed:
+
+.. code-block:: c
+
+   ret = gpio_request_by_name(dev, "cd-gpios", 0, &desc, GPIOD_IS_IN);
+   if (ret)
+      return log_msg_ret("gpio", ret);
+
+Some functions return 0 for success and any other value is an error. For these,
+log_retz() and log_msg_retz() are available.
 
 Convenience functions
 ~~~~~~~~~~~~~~~~~~~~~
