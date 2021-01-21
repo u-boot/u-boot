@@ -28,8 +28,7 @@
 	};
 
 	aliases {
-		spi0 = &spi1;
-		spi1 = &spi5;
+		spi5 = &spi5;
 	};
 
 	/*
