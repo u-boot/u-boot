@@ -462,6 +462,15 @@ int device_probe(struct udevice *dev)
 	 * continue regardless of the result of pinctrl. Don't process pinctrl
 	 * settings for pinctrl devices since the device may not yet be
 	 * probed.
+	 *
+	 * This call can produce some non-intuitive results. For example, on an
+	 * x86 device where dev is the main PCI bus, the pinctrl device may be
+	 * child or grandchild of that bus, meaning that the child will be
+	 * probed here. If the child happens to be the P2SB and the pinctrl
+	 * device is a child of that, then both the pinctrl and P2SB will be
+	 * probed by this call. This works because the DM_FLAG_ACTIVATED flag
+	 * is set just above. However, the PCI bus' probe() method and
+	 * associated uclass methods have not yet been called.
 	 */
 	if (dev->parent && device_get_uclass_id(dev) != UCLASS_PINCTRL)
 		pinctrl_select_state(dev, "default");
