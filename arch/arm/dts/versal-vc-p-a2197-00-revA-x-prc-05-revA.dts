@@ -97,12 +97,12 @@
 	non-removable;
 	disable-wp;
 	bus-width = <8>;
-	xlnx,mio_bank = <0>; /* FIXME */
+	xlnx,mio-bank = <0>; /* FIXME */
 };
 
 &sdhci1 { /* connector */
 	status = "okay";
-	xlnx,mio_bank = <1>; /* FIXME */
+	xlnx,mio-bank = <1>; /* FIXME */
 };
 
 &serial0 {

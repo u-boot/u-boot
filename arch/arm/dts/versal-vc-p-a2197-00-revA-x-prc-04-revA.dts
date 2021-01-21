@@ -95,7 +95,7 @@
 &sdhci1 { /* J3 MIO26, MIO29 - MIO33 */
 	status = "okay";
 	disable-wp;
-	xlnx,mio_bank = <1>; /* FIXME */
+	xlnx,mio-bank = <1>; /* FIXME */
 };
 
 &serial0 { /* MIO35 - MIO37 */
