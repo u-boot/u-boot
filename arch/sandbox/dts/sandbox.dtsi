@@ -260,10 +260,14 @@
 		stringarray = "pre-proper";
 	};
 
-	spl-test7 {
+	test-bus {
+		compatible = "simple-bus";
 		u-boot,dm-spl;
-		compatible = "sandbox,spl-test";
-		stringarray = "spl";
+		spl-test7 {
+			u-boot,dm-spl;
+			compatible = "sandbox,spl-test";
+			stringarray = "spl";
+		};
 	};
 
 	square {
