@@ -153,7 +153,7 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
 {
 	struct log_filter *filt;
 
-	if (rec->force_debug)
+	if (rec->flags & LOGRECF_FORCE_DEBUG)
 		return true;
 
 	/* If there are no filters, filter on the default log level */
@@ -245,7 +245,9 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 
 	rec.cat = cat;
 	rec.level = level & LOGL_LEVEL_MASK;
-	rec.force_debug = level & LOGL_FORCE_DEBUG;
+	rec.flags = 0;
+	if (level & LOGL_FORCE_DEBUG)
+		rec.flags |= LOGRECF_FORCE_DEBUG;
 	rec.file = file;
 	rec.line = line;
 	rec.func = func;
@@ -255,7 +257,8 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 		gd->log_drop_count++;
 
 		/* display dropped traces with console puts and DEBUG_UART */
-		if (rec.level <= CONFIG_LOG_DEFAULT_LEVEL || rec.force_debug) {
+		if (rec.level <= CONFIG_LOG_DEFAULT_LEVEL ||
+		    rec.flags & LOGRECF_FORCE_DEBUG) {
 			char buf[CONFIG_SYS_CBSIZE];
 
 			va_start(args, fmt);
