@@ -27,14 +27,11 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x22000000 /* load address */
 
-/* NAND flash */
-
-/* SPI flash */
-
 #undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_SD_BOOT
 /* bootstrap + u-boot + env in sd card */
-#define CONFIG_BOOTCOMMAND	"fatload mmc " CONFIG_ENV_FAT_DEVICE_AND_PART " 0x21000000 at91-sama5d27_som1_ek.dtb; " \
+#define CONFIG_BOOTCOMMAND	"fatload mmc " CONFIG_ENV_FAT_DEVICE_AND_PART " 0x21000000 " \
+				CONFIG_DEFAULT_DEVICE_TREE ".dtb; " \
 				"fatload mmc " CONFIG_ENV_FAT_DEVICE_AND_PART " 0x22000000 zImage; " \
 				"bootz 0x22000000 - 0x21000000"
 #endif
