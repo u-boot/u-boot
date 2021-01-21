@@ -42,6 +42,7 @@ obj-y += fdtdec.o
 obj-$(CONFIG_UT_DM) += nop.o
 obj-y += ofnode.o
 obj-y += ofread.o
+obj-y += of_extra.o
 obj-$(CONFIG_OSD) += osd.o
 obj-$(CONFIG_DM_VIDEO) += panel.o
 obj-$(CONFIG_DM_PCI) += pci.o
