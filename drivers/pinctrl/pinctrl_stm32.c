@@ -409,6 +409,9 @@ static int stm32_pinctrl_bind(struct udevice *dev)
 	dev_for_each_subnode(node, dev) {
 		dev_dbg(dev, "bind %s\n", ofnode_get_name(node));
 
+		if (!ofnode_is_enabled(node))
+			continue;
+
 		ofnode_get_property(node, "gpio-controller", &ret);
 		if (ret < 0)
 			continue;
