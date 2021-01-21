@@ -217,22 +217,25 @@ config SYS_MALLOC_LEN
 	  TODO: Use for other architectures
 
 config SPL_SYS_MALLOC_F_LEN
-	hex "Size of malloc() pool in SPL before relocation"
+	hex "Size of malloc() pool in SPL"
 	depends on SYS_MALLOC_F && SPL
 	default 0x2800 if RCAR_GEN3
 	default SYS_MALLOC_F_LEN
 	help
-	  Before relocation, memory is very limited on many platforms. Still,
+	  In SPL memory is very limited on many platforms. Still,
 	  we can provide a small malloc() pool if needed. Driver model in
 	  particular needs this to operate, so that it can allocate the
 	  initial serial device and any others that are needed.
 
+	  It is possible to enable CONFIG_SYS_SPL_MALLOC_START to start a new
+	  malloc() region in SDRAM once it is inited.
+
 config TPL_SYS_MALLOC_F_LEN
-	hex "Size of malloc() pool in TPL before relocation"
+	hex "Size of malloc() pool in TPL"
 	depends on SYS_MALLOC_F && TPL
-	default SYS_MALLOC_F_LEN
+	default SPL_SYS_MALLOC_F_LEN
 	help
-	  Before relocation, memory is very limited on many platforms. Still,
+	  In TPL memory is very limited on many platforms. Still,
 	  we can provide a small malloc() pool if needed. Driver model in
 	  particular needs this to operate, so that it can allocate the
 	  initial serial device and any others that are needed.
