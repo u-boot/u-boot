@@ -15,8 +15,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define BUFFSIZE 64
-
 static int log_test_cont(struct unit_test_state *uts)
 {
 	int log_fmt;
@@ -29,12 +27,13 @@ static int log_test_cont(struct unit_test_state *uts)
 	gd->log_fmt = (1 << LOGF_CAT) | (1 << LOGF_LEVEL) | (1 << LOGF_MSG);
 	gd->default_log_level = LOGL_INFO;
 	console_record_reset_enable();
-	log(LOGC_ARCH, LOGL_ERR, "ea%d ", 1);
+	log(LOGC_ARCH, LOGL_ERR, "ea%d\n", 1);
 	log(LOGC_CONT, LOGL_CONT, "cc%d\n", 2);
 	gd->default_log_level = log_level;
 	gd->log_fmt = log_fmt;
 	gd->flags &= ~GD_FLG_RECORD;
-	ut_assertok(ut_check_console_line(uts, "ERR.arch, ea1 ERR.arch, cc2"));
+	ut_assertok(ut_check_console_line(uts, "ERR.arch, ea1"));
+	ut_assertok(ut_check_console_line(uts, "ERR.arch, cc2"));
 	ut_assertok(ut_check_console_end(uts));
 
 	/* Write a third message which is not a continuation */
@@ -46,6 +45,18 @@ static int log_test_cont(struct unit_test_state *uts)
 	gd->log_fmt = log_fmt;
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assertok(ut_check_console_line(uts, "INFO.efi, ie3"));
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Write two messages without a newline between them */
+	gd->log_fmt = (1 << LOGF_CAT) | (1 << LOGF_LEVEL) | (1 << LOGF_MSG);
+	gd->default_log_level = LOGL_INFO;
+	console_record_reset_enable();
+	log(LOGC_ARCH, LOGL_ERR, "ea%d ", 1);
+	log(LOGC_CONT, LOGL_CONT, "cc%d\n", 2);
+	gd->default_log_level = log_level;
+	gd->log_fmt = log_fmt;
+	gd->flags &= ~GD_FLG_RECORD;
+	ut_assertok(ut_check_console_line(uts, "ERR.arch, ea1 cc2"));
 	ut_assertok(ut_check_console_end(uts));
 
 	return 0;

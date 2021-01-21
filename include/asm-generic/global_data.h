@@ -410,6 +410,12 @@ struct global_data {
 	 * This value is used as logging level for continuation messages.
 	 */
 	int logl_prev;
+	/**
+	 * @log_cont: Previous log line did not finished wtih \n
+	 *
+	 * This allows for chained log messages on the same line
+	 */
+	bool log_cont;
 #endif
 #if CONFIG_IS_ENABLED(BLOBLIST)
 	/**

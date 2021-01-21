@@ -326,6 +326,8 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 enum log_rec_flags {
 	/** @LOGRECF_FORCE_DEBUG: Force output of debug record */
 	LOGRECF_FORCE_DEBUG	= BIT(0),
+	/** @LOGRECF_CONT: Continuation of previous log record */
+	LOGRECF_CONT		= BIT(1),
 };
 
 /**

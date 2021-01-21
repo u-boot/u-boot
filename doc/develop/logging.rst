@@ -96,6 +96,22 @@ Also debug() and error() will generate log records  - these use LOG_CATEGORY
 as the category, so you should #define this right at the top of the source
 file to ensure the category is correct.
 
+Generally each log format_string ends with a newline. If it does not, then the
+next log statement will have the LOGRECF_CONT flag set. This can be used to
+continue the statement on the same line as the previous one without emitting
+new header information (such as category/level). This behaviour is implemented
+with log_console. Here is an example that prints a list all on one line with
+the tags at the start:
+
+.. code-block:: c
+
+   log_debug("Here is a list:");
+   for (i = 0; i < count; i++)
+      log_debug(" item %d", i);
+   log_debug("\n");
+
+Also see the special category LOGL_CONT and level LOGC_CONT.
+
 You can also define CONFIG_LOG_ERROR_RETURN to enable the log_ret() macro. This
 can be used whenever your function returns an error value:
 

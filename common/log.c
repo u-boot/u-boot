@@ -218,8 +218,11 @@ static int log_dispatch(struct log_rec *rec, const char *fmt, va_list args)
 		if ((ldev->flags & LOGDF_ENABLE) &&
 		    log_passes_filters(ldev, rec)) {
 			if (!rec->msg) {
-				vsnprintf(buf, sizeof(buf), fmt, args);
+				int len;
+
+				len = vsnprintf(buf, sizeof(buf), fmt, args);
 				rec->msg = buf;
+				gd->log_cont = len && buf[len - 1] != '\n';
 			}
 			ldev->drv->emit(ldev, rec);
 		}
@@ -248,6 +251,8 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 	rec.flags = 0;
 	if (level & LOGL_FORCE_DEBUG)
 		rec.flags |= LOGRECF_FORCE_DEBUG;
+	if (gd->log_cont)
+		rec.flags |= LOGRECF_CONT;
 	rec.file = file;
 	rec.line = line;
 	rec.func = func;
