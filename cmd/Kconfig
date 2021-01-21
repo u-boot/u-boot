@@ -2027,7 +2027,6 @@ config CMD_TPM_V1
 
 config CMD_TPM_V2
 	bool
-	select CMD_LOG
 
 config CMD_TPM
 	bool "Enable the 'tpm' command"
