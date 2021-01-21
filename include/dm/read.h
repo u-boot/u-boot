@@ -30,8 +30,7 @@ static inline const struct device_node *dev_np(const struct udevice *dev)
 }
 #endif
 
-#ifndef CONFIG_DM_DEV_READ_INLINE
-
+#if !defined(CONFIG_DM_DEV_READ_INLINE) || CONFIG_IS_ENABLED(OF_PLATDATA)
 /**
  * dev_read_u32() - read a 32-bit integer from a device's DT property
  *
