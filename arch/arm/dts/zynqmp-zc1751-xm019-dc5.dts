@@ -93,6 +93,7 @@
 &sdhci0 {
 	status = "okay";
 	no-1-8-v;
+	xlnx,mio-bank = <0>;
 };
 
 &ttc0 {
