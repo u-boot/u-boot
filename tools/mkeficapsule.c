@@ -310,6 +310,9 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 	image.version = 0x00000003;
 	memcpy(&image.update_image_type_id, guid, sizeof(*guid));
 	image.update_image_index = index;
+	image.reserved[0] = 0;
+	image.reserved[1] = 0;
+	image.reserved[2] = 0;
 	image.update_image_size = bin_stat.st_size;
 	image.update_vendor_code_size = 0; /* none */
 	image.update_hardware_instance = instance;
