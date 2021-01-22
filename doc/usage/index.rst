@@ -24,3 +24,4 @@ Shell commands
    mbr
    pstore
    sbi
+   true
