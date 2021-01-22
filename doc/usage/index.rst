@@ -20,6 +20,7 @@ Shell commands
    echo
    exit
    for
+   loady
    mbr
    pstore
    sbi
