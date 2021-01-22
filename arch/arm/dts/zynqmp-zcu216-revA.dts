@@ -494,7 +494,10 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <4>;
-			/* U409B - 8a34001 */
+			idt_8a34001: phc@5b {
+				compatible = "idt,8a34001"; /* u409B */
+				reg = <0x5b>;
+			};
 		};
 		i2c_clk104: i2c@5 {
 			#address-cells = <1>;
