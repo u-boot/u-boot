@@ -62,7 +62,6 @@ class KernelDocDirective(Directive):
         'export': directives.unchanged,
         'internal': directives.unchanged,
         'identifiers': directives.unchanged,
-        'no-identifiers': directives.unchanged,
         'functions': directives.unchanged,
     }
     has_content = False
@@ -70,11 +69,6 @@ class KernelDocDirective(Directive):
     def run(self):
         env = self.state.document.settings.env
         cmd = [env.config.kerneldoc_bin, '-rst', '-enable-lineno']
-
-	# Pass the version string to kernel-doc, as it needs to use a different
-	# dialect, depending what the C domain supports for each specific
-	# Sphinx versions
-        cmd += ['-sphinx-version', sphinx.__version__]
 
         filename = env.config.kerneldoc_srctree + '/' + self.arguments[0]
         export_file_patterns = []
@@ -104,12 +98,6 @@ class KernelDocDirective(Directive):
                     cmd += ['-function', i]
             else:
                 cmd += ['-no-doc-sections']
-
-        if 'no-identifiers' in self.options:
-            no_identifiers = self.options.get('no-identifiers').split()
-            if no_identifiers:
-                for i in no_identifiers:
-                    cmd += ['-nosymbol', i]
 
         for pattern in export_file_patterns:
             for f in glob.glob(env.config.kerneldoc_srctree + '/' + pattern):
@@ -148,8 +136,7 @@ class KernelDocDirective(Directive):
                     lineoffset = int(match.group(1)) - 1
                     # we must eat our comments since the upset the markup
                 else:
-                    doc = env.srcdir + "/" + env.docname + ":" + str(self.lineno)
-                    result.append(line, doc + ": " + filename, lineoffset)
+                    result.append(line, filename, lineoffset)
                     lineoffset += 1
 
             node = nodes.section()
