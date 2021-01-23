@@ -133,8 +133,8 @@ B4420 has:
 B4860QDS Default Settings
 -------------------------
 
-Switch Settings
-^^^^^^^^^^^^^^^
+B4860QDS Switch Settings
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: none
 
@@ -166,8 +166,8 @@ NOR boot::
 B4420QDS Default Settings
 -------------------------
 
-Switch Settings
-^^^^^^^^^^^^^^^
+B4420QDS Switch Settings
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: none
 
