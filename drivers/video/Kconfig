@@ -30,7 +30,7 @@ config VIDEO_PCI_DEFAULT_FB_SIZE
 	help
 	  Generally, video drivers request the amount of memory they need for
 	  the frame buffer when they are bound, by setting the size field in
-	  struct video_uc_platdata. That memory is then reserved for use after
+	  struct video_uc_plat. That memory is then reserved for use after
 	  relocation. But PCI drivers cannot be bound before relocation unless
 	  they are mentioned in the devicetree.
 
@@ -51,7 +51,7 @@ config VIDEO_COPY
 	  U-Boot) and then copied to the hardware frame-buffer as needed.
 
 	  To use this, your video driver must set @copy_base in
-	  struct video_uc_platdata.
+	  struct video_uc_plat.
 
 config BACKLIGHT_PWM
 	bool "Generic PWM based Backlight Driver"

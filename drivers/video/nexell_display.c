@@ -15,7 +15,7 @@
 #include <malloc.h>
 #include <linux/compat.h>
 #include <linux/err.h>
-#include <video.h>		/* For struct video_uc_platdata */
+#include <video.h>		/* For struct video_uc_plat */
 #include <video_fb.h>
 #include <lcd.h>
 #include <asm/global_data.h>
