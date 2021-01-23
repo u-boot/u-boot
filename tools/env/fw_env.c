@@ -1208,7 +1208,7 @@ static int flash_write(int fd_current, int fd_target, int dev_target)
 
 	if (IS_UBI(dev_target)) {
 		if (ubi_update_start(fd_target, CUR_ENVSIZE) < 0)
-			return 0;
+			return -1;
 		return ubi_write(fd_target, environment.image, CUR_ENVSIZE);
 	}
 

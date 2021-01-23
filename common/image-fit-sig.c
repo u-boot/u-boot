@@ -19,20 +19,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define IMAGE_MAX_HASHED_NODES		100
 
-#ifdef USE_HOSTCC
-void *host_blob;
-
-void image_set_host_blob(void *blob)
-{
-	host_blob = blob;
-}
-
-void *image_get_host_blob(void)
-{
-	return host_blob;
-}
-#endif
-
 /**
  * fit_region_make_list() - Make a list of image regions
  *
