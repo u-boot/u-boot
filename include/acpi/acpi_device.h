@@ -171,10 +171,11 @@ enum acpi_gpio_polarity {
  * @io_restrict: I/O restriction setting
  * @polarity: GPIO polarity
  *
- * Note that GpioIo doesn't have any means of Active Low / High setting, so a
- * _DSD must be provided to mitigate this.
+ * Note that GpioIo() doesn't have any means of Active Low / High setting, so a
+ * _DSD must be provided to mitigate this. This parameter does not make sense
+ * for GpioInt() since it has its own means to define it.
  *
- * GpioIo doesn't properly communicate the initial state of the output pin,
+ * GpioIo() doesn't properly communicate the initial state of the output pin,
  * thus Linux assumes the simple rule:
  *
  * Pull Bias       Polarity      Requested...
@@ -184,7 +185,7 @@ enum acpi_gpio_polarity {
  *                               assuming non-active (Polarity = !Pull Bias)
  *
  * Down            Low           as low, assuming active
- * Down            High          as high, assuming non-active
+ * Down            High          as low, assuming non-active
  * Up              Low           as high, assuming non-active
  * Up              High          as high, assuming active
  *
