@@ -194,7 +194,7 @@ static int setup(const efi_handle_t handle,
 	decompress(&image);
 
 	block_io.media->block_size = 1 << LB_BLOCK_SIZE;
-	block_io.media->last_block = img.length >> LB_BLOCK_SIZE;
+	block_io.media->last_block = (img.length >> LB_BLOCK_SIZE) - 1;
 
 	ret = boottime->install_protocol_interface(
 				&disk_handle, &block_io_protocol_guid,
@@ -301,6 +301,7 @@ static int execute(void)
 	efi_handle_t *handles;
 	efi_handle_t handle_partition = NULL;
 	struct efi_device_path *dp_partition;
+	struct efi_block_io *block_io_protocol;
 	struct efi_simple_file_system_protocol *file_system;
 	struct efi_file_handle *root, *file;
 	struct {
@@ -309,6 +310,7 @@ static int execute(void)
 	} system_info;
 	efi_uintn_t buf_size;
 	char buf[16] __aligned(ARCH_DMA_MINALIGN);
+	u32 part1_size;
 	u64 pos;
 
 	/* Connect controller to virtual disk */
@@ -353,6 +355,23 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 
+	/* Open the block_io_protocol */
+	ret = boottime->open_protocol(handle_partition,
+				      &block_io_protocol_guid,
+				      (void **)&block_io_protocol, NULL, NULL,
+				      EFI_OPEN_PROTOCOL_GET_PROTOCOL);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Failed to open block IO protocol\n");
+		return EFI_ST_FAILURE;
+	}
+	/* Get size of first MBR partition */
+	memcpy(&part1_size, image + 0x1ca, sizeof(u32));
+	if (block_io_protocol->media->last_block != part1_size - 1) {
+		efi_st_error("Last LBA of partition %x, expected %x\n",
+			     (unsigned int)block_io_protocol->media->last_block,
+			     part1_size - 1);
+		return EFI_ST_FAILURE;
+	}
 	/* Open the simple file system protocol */
 	ret = boottime->open_protocol(handle_partition,
 				      &guid_simple_file_system_protocol,
