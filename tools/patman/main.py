@@ -68,7 +68,8 @@ send.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
 send.add_argument('-r', '--in-reply-to', type=str, action='store',
                   help="Message ID that this series is in reply to")
 send.add_argument('-t', '--ignore-bad-tags', action='store_true',
-                  default=False, help='Ignore bad tags / aliases')
+                  default=False,
+                  help='Ignore bad tags / aliases (default=warn)')
 send.add_argument('-T', '--thread', action='store_true', dest='thread',
                   default=False, help='Create patches as a single thread')
 send.add_argument('--cc-cmd', dest='cc_cmd', type=str, action='store',
@@ -176,6 +177,9 @@ elif args.cmd == 'send':
         command.Run(pager, fname)
 
     else:
+        # If we are not processing tags, no need to warning about bad ones
+        if not args.process_tags:
+            args.ignore_bad_tags = True
         control.send(args)
 
 # Check status of patches in patchwork
