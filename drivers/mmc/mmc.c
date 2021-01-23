@@ -841,7 +841,8 @@ static int __mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value,
 				 value);
 			return -EIO;
 		}
-		if (!ret && (status & MMC_STATUS_RDY_FOR_DATA))
+		if (!ret && (status & MMC_STATUS_RDY_FOR_DATA) &&
+		    (status & MMC_STATUS_CURR_STATE) == MMC_STATE_TRANS)
 			return 0;
 		udelay(100);
 	} while (get_timer(start) < timeout_ms);
