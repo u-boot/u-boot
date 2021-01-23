@@ -111,7 +111,7 @@ enum {
  * probe method if the device has a device tree node.
  *
  * All three of plat, priv and uclass_priv can be allocated by the
- * driver, or you can use the auto_alloc_size members of struct driver and
+ * driver, or you can use the auto members of struct driver and
  * struct uclass_driver to have driver model do this automatically.
  *
  * @driver: The driver used by this device
