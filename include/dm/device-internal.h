@@ -123,7 +123,8 @@ int device_probe(struct udevice *dev);
  *
  * @dev: Pointer to device to remove
  * @flags: Flags for selective device removal (DM_REMOVE_...)
- * @return 0 if OK, -ve on error (an error here is normally a very bad thing)
+ * @return 0 if OK, -EKEYREJECTED if not removed due to flags, other -ve on
+ *	error (such an error here is normally a very bad thing)
  */
 #if CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)
 int device_remove(struct udevice *dev, uint flags);
@@ -173,6 +174,12 @@ static inline int device_chld_unbind(struct udevice *dev, struct driver *drv)
 
 /**
  * device_chld_remove() - Stop all device's children
+ *
+ * This continues through all children recursively stopping part-way through if
+ * an error occurs. Return values of -EKEYREJECTED are ignored and processing
+ * continues, since they just indicate that the child did not elect to be
+ * removed based on the value of @flags.
+ *
  * @dev:	The device whose children are to be removed
  * @drv:	The targeted driver
  * @flags:	Flag, if this functions is called in the pre-OS stage

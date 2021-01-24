@@ -8,6 +8,8 @@
  * Pavel Herrmann <morpheus.ibis@gmail.com>
  */
 
+#define LOG_CATEGORY	LOGC_DM
+
 #include <common.h>
 #include <errno.h>
 #include <log.h>
@@ -54,7 +56,7 @@ int device_chld_remove(struct udevice *dev, struct driver *drv,
 			continue;
 
 		ret = device_remove(pos, flags);
-		if (ret)
+		if (ret && ret != -EKEYREJECTED)
 			return ret;
 	}
 
@@ -149,13 +151,24 @@ void device_free(struct udevice *dev)
 	devres_release_probe(dev);
 }
 
-static bool flags_remove(uint flags, uint drv_flags)
+/**
+ * flags_remove() - Figure out whether to remove a device
+ *
+ * @flags: Flags passed to device_remove()
+ * @drv_flags: Driver flags
+ * @return 0 if the device should be removed,
+ * -EKEYREJECTED if @flags includes a flag in DM_REMOVE_ACTIVE_ALL but
+ *	@drv_flags does not (indicates that this device has nothing to do for
+ *	DMA shutdown or OS prepare)
+ */
+static int flags_remove(uint flags, uint drv_flags)
 {
-	if ((flags & DM_REMOVE_NORMAL) ||
-	    (flags && (drv_flags & (DM_FLAG_ACTIVE_DMA | DM_FLAG_OS_PREPARE))))
-		return true;
+	if (flags & DM_REMOVE_NORMAL)
+		return 0;
+	if (flags && (drv_flags & DM_REMOVE_ACTIVE_ALL))
+		return 0;
 
-	return false;
+	return -EKEYREJECTED;
 }
 
 int device_remove(struct udevice *dev, uint flags)
@@ -169,22 +182,32 @@ int device_remove(struct udevice *dev, uint flags)
 	if (!(dev_get_flags(dev) & DM_FLAG_ACTIVATED))
 		return 0;
 
-	drv = dev->driver;
-	assert(drv);
-
+	/*
+	 * If the child returns EKEYREJECTED, continue. It just means that it
+	 * didn't match the flags.
+	 */
 	ret = device_chld_remove(dev, NULL, flags);
-	if (ret)
-		return ret;
-
-	ret = uclass_pre_remove_device(dev);
-	if (ret)
+	if (ret && ret != -EKEYREJECTED)
 		return ret;
 
 	/*
 	 * Remove the device if called with the "normal" remove flag set,
 	 * or if the remove flag matches any of the drivers remove flags
 	 */
-	if (drv->remove && flags_remove(flags, drv->flags)) {
+	drv = dev->driver;
+	assert(drv);
+	ret = flags_remove(flags, drv->flags);
+	if (ret) {
+		log_debug("%s: When removing: flags=%x, drv->flags=%x, err=%d\n",
+			  dev->name, flags, drv->flags, ret);
+		return ret;
+	}
+
+	ret = uclass_pre_remove_device(dev);
+	if (ret)
+		return ret;
+
+	if (drv->remove) {
 		ret = drv->remove(dev);
 		if (ret)
 			goto err_remove;
@@ -204,13 +227,11 @@ int device_remove(struct udevice *dev, uint flags)
 	    dev != gd->cur_serial_dev)
 		dev_power_domain_off(dev);
 
-	if (flags_remove(flags, drv->flags)) {
-		device_free(dev);
+	device_free(dev);
 
-		dev_bic_flags(dev, DM_FLAG_ACTIVATED);
-	}
+	dev_bic_flags(dev, DM_FLAG_ACTIVATED);
 
-	return ret;
+	return 0;
 
 err_remove:
 	/* We can't put the children back */
