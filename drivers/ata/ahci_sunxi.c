@@ -80,18 +80,18 @@ static int sunxi_sata_probe(struct udevice *dev)
 
 	base = dev_read_addr(dev);
 	if (base == FDT_ADDR_T_NONE) {
-		debug("%s: Failed to find address (err=%d\n)", __func__, ret);
+		debug("%s: Failed to find address\n", __func__);
 		return -EINVAL;
 	}
 	reg = (u8 *)base;
 	ret = sunxi_ahci_phy_init(reg);
 	if (ret) {
-		debug("%s: Failed to init phy (err=%d\n)", __func__, ret);
+		debug("%s: Failed to init phy (err=%d)\n", __func__, ret);
 		return ret;
 	}
 	ret = ahci_probe_scsi(dev, base);
 	if (ret) {
-		debug("%s: Failed to probe (err=%d\n)", __func__, ret);
+		debug("%s: Failed to probe (err=%d)\n", __func__, ret);
 		return ret;
 	}
 
@@ -105,7 +105,7 @@ static int sunxi_sata_bind(struct udevice *dev)
 
 	ret = ahci_bind_scsi(dev, &scsi_dev);
 	if (ret) {
-		debug("%s: Failed to bind (err=%d\n)", __func__, ret);
+		debug("%s: Failed to bind (err=%d)\n", __func__, ret);
 		return ret;
 	}
 
