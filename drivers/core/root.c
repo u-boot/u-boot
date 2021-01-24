@@ -162,6 +162,8 @@ int dm_init(bool of_live)
 
 int dm_uninit(void)
 {
+	/* Remove non-vital devices first */
+	device_remove(dm_root(), DM_REMOVE_NON_VITAL);
 	device_remove(dm_root(), DM_REMOVE_NORMAL);
 	device_unbind(dm_root());
 	gd->dm_root = NULL;
