@@ -1283,5 +1283,5 @@ U_BOOT_DRIVER(pci_iproc) = {
 	.probe = iproc_pcie_probe,
 	.remove = iproc_pcie_remove,
 	.priv_auto	= sizeof(struct iproc_pcie),
-	.flags = DM_REMOVE_OS_PREPARE,
+	.flags = DM_FLAG_OS_PREPARE,
 };

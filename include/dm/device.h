@@ -77,6 +77,9 @@ struct driver_info;
  * One or multiple of these flags are passed to device_remove() so that
  * a selective device removal as specified by the remove-stage and the
  * driver flags can be done.
+ *
+ * DO NOT use these flags in your driver's @flags value...
+ *	use the above DM_FLAG_... values instead
  */
 enum {
 	/* Normal remove, remove all devices */
