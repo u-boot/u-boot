@@ -6,7 +6,6 @@
  */
 
 #include <common.h>
-#include <bootm.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
 
@@ -133,9 +132,6 @@ efi_status_t efi_init_obj_list(void)
 
 	/* Allow unaligned memory access */
 	allow_unaligned();
-
-	/* On ARM switch from EL3 or secure mode to EL2 or non-secure mode */
-	switch_to_non_secure_mode();
 
 	/* Initialize root node */
 	ret = efi_root_node_register();

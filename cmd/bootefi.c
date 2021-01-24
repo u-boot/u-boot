@@ -8,6 +8,7 @@
 #define LOG_CATEGORY LOGC_EFI
 
 #include <common.h>
+#include <bootm.h>
 #include <charset.h>
 #include <command.h>
 #include <dm.h>
@@ -337,6 +338,9 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options)
 	efi_status_t ret;
 	efi_uintn_t exit_data_size = 0;
 	u16 *exit_data = NULL;
+
+	/* On ARM switch from EL3 or secure mode to EL2 or non-secure mode */
+	switch_to_non_secure_mode();
 
 	/* Call our payload! */
 	ret = EFI_CALL(efi_start_image(handle, &exit_data_size, &exit_data));
