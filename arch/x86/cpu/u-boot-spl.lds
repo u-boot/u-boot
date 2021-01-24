@@ -57,7 +57,9 @@ SECTIONS
 
         _image_binary_end = .;
 
+#if CONFIG_IS_ENABLED(SEPARATE_BSS)
 	. = 0x120000;
+#endif
 	.bss (OVERLAY) : {
 		__bss_start = .;
 		*(.bss*)
