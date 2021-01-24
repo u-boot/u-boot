@@ -23,6 +23,7 @@
 #include <pci.h>
 #include <wait_bit.h>
 #include <linux/bitops.h>
+#include <linux/log2.h>
 
 #define PCIECAR			0x000010
 #define PCIECCTLR		0x000018
@@ -347,10 +348,12 @@ static int rcar_gen3_pcie_probe(struct udevice *dev)
 		if (hose->regions[i].phys_start == 0)
 			continue;
 
-		mask = (hose->regions[i].size - 1) & ~0xf;
+		mask = (roundup_pow_of_two(hose->regions[i].size) - 1) & ~0xf;
 		mask |= LAR_ENABLE;
-		writel(hose->regions[i].phys_start, priv->regs + PCIEPRAR(0));
-		writel(hose->regions[i].phys_start, priv->regs + PCIELAR(0));
+		writel(rounddown_pow_of_two(hose->regions[i].phys_start),
+			priv->regs + PCIEPRAR(0));
+		writel(rounddown_pow_of_two(hose->regions[i].phys_start),
+			priv->regs + PCIELAR(0));
 		writel(mask, priv->regs + PCIELAMR(0));
 		break;
 	}
