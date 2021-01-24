@@ -19,6 +19,7 @@ Shell commands
    button
    echo
    exit
+   false
    for
    loady
    mbr
