@@ -880,6 +880,26 @@ If a parent has children these will be destroyed first. After this point
 the device does not exist and its memory has be deallocated.
 
 
+Special cases for removal
+-------------------------
+
+Some devices need to do clean-up before the OS is called. For example, a USB
+driver may want to stop the bus. This can be done in the remove() method.
+Some special flags are used to determine whether to remove the device:
+
+   DM_FLAG_OS_PREPARE - indicates that the device needs to get ready for OS
+          boot. The device will be removed just before the OS is booted
+   DM_REMOVE_ACTIVE_DMA - indicates that the device uses DMA. This is
+          effectively the same as DM_FLAG_OS_PREPARE, so the device is removed
+          before the OS is booted
+   DM_FLAG_VITAL - indicates that the device is 'vital' to the operation of
+          other devices. It is possible to remove this device after all regular
+          devices are removed. This is useful e.g. for a clock, which need to
+          be active during the device-removal phase.
+
+The dm_remove_devices_flags() function can be used to remove devices based on
+their driver flags.
+
 Data Structures
 ---------------
 
