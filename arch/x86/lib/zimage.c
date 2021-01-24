@@ -600,19 +600,12 @@ static void show_loader(struct setup_header *hdr)
 	printf("\n");
 }
 
-int do_zboot_dump(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+void zimage_dump(struct boot_params *base_ptr)
 {
-	struct boot_params *base_ptr = state.base_ptr;
 	struct setup_header *hdr;
 	const char *version;
 	int i;
 
-	if (argc > 1)
-		base_ptr = (void *)simple_strtoul(argv[1], NULL, 16);
-	if (!base_ptr) {
-		printf("No zboot setup_base\n");
-		return CMD_RET_FAILURE;
-	}
 	printf("Setup located at %p:\n\n", base_ptr);
 	print_num64("ACPI RSDP addr", base_ptr->acpi_rsdp_addr);
 
@@ -688,6 +681,20 @@ int do_zboot_dump(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	print_num("Handover offset", hdr->handover_offset);
 	if (get_boot_protocol(hdr, false) >= 0x215)
 		print_num("Kernel info offset", hdr->kernel_info_offset);
+}
+
+static int do_zboot_dump(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
+{
+	struct boot_params *base_ptr = state.base_ptr;
+
+	if (argc > 1)
+		base_ptr = (void *)simple_strtoul(argv[1], NULL, 16);
+	if (!base_ptr) {
+		printf("No zboot setup_base\n");
+		return CMD_RET_FAILURE;
+	}
+	zimage_dump(base_ptr);
 
 	return 0;
 }
