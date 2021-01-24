@@ -137,8 +137,8 @@ static int add_public_key(const char *pkey_file, const char *dtb_file,
 			  bool overlay)
 {
 	int ret;
-	int srcfd = 0;
-	int destfd = 0;
+	int srcfd = -1;
+	int destfd = -1;
 	void *sptr = NULL;
 	void *dptr = NULL;
 	off_t src_size;
@@ -150,6 +150,7 @@ static int add_public_key(const char *pkey_file, const char *dtb_file,
 	if (srcfd == -1) {
 		fprintf(stderr, "%s: Can't open %s: %s\n",
 			__func__, pkey_file, strerror(errno));
+		ret = -1;
 		goto err;
 	}
 
@@ -157,6 +158,7 @@ static int add_public_key(const char *pkey_file, const char *dtb_file,
 	if (ret == -1) {
 		fprintf(stderr, "%s: Can't stat %s: %s\n",
 			__func__, pkey_file, strerror(errno));
+		ret = -1;
 		goto err;
 	}
 
@@ -164,9 +166,10 @@ static int add_public_key(const char *pkey_file, const char *dtb_file,
 
 	/* mmap the public key esl file */
 	sptr = mmap(0, src_size, PROT_READ, MAP_SHARED, srcfd, 0);
-	if ((sptr == MAP_FAILED) || (errno != 0)) {
+	if (sptr == MAP_FAILED) {
 		fprintf(stderr, "%s: Failed to mmap %s:%s\n",
 			__func__, pkey_file, strerror(errno));
+		ret = -1;
 		goto err;
 	}
 
@@ -175,6 +178,7 @@ static int add_public_key(const char *pkey_file, const char *dtb_file,
 	if (destfd == -1) {
 		fprintf(stderr, "%s: Can't open %s: %s\n",
 			__func__, dtb_file, strerror(errno));
+		ret = -1;
 		goto err;
 	}
 
@@ -189,21 +193,24 @@ static int add_public_key(const char *pkey_file, const char *dtb_file,
 	if (ftruncate(destfd, dtb.st_size)) {
 		fprintf(stderr, "%s: Can't expand %s: %s\n",
 			__func__, dtb_file, strerror(errno));
-		goto err;;
+		ret = -1;
+		goto err;
 	}
 
 	errno = 0;
 	/* mmap the dtb file */
 	dptr = mmap(0, dtb.st_size, PROT_READ | PROT_WRITE, MAP_SHARED,
 		    destfd, 0);
-	if ((dptr == MAP_FAILED) || (errno != 0)) {
+	if (dptr == MAP_FAILED) {
 		fprintf(stderr, "%s: Failed to mmap %s:%s\n",
 			__func__, dtb_file, strerror(errno));
+		ret = -1;
 		goto err;
 	}
 
 	if (fdt_check_header(dptr)) {
 		fprintf(stderr, "%s: Invalid FDT header\n", __func__);
+		ret = -1;
 		goto err;
 	}
 
@@ -211,6 +218,7 @@ static int add_public_key(const char *pkey_file, const char *dtb_file,
 	if (ret) {
 		fprintf(stderr, "%s: Cannot expand FDT: %s\n",
 			__func__, fdt_strerror(ret));
+		ret = -1;
 		goto err;
 	}
 
@@ -219,10 +227,11 @@ static int add_public_key(const char *pkey_file, const char *dtb_file,
 	if (ret < 0) {
 		fprintf(stderr, "%s: Unable to add public key to the FDT\n",
 			__func__);
+		ret = -1;
 		goto err;
 	}
 
-	return 0;
+	ret = 0;
 
 err:
 	if (sptr)
@@ -231,13 +240,13 @@ err:
 	if (dptr)
 		munmap(dptr, dtb.st_size);
 
-	if (srcfd >= 0)
+	if (srcfd != -1)
 		close(srcfd);
 
-	if (destfd >= 0)
+	if (destfd != -1)
 		close(destfd);
 
-	return -1;
+	return ret;
 }
 
 static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
@@ -310,6 +319,9 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 	image.version = 0x00000003;
 	memcpy(&image.update_image_type_id, guid, sizeof(*guid));
 	image.update_image_index = index;
+	image.reserved[0] = 0;
+	image.reserved[1] = 0;
+	image.reserved[2] = 0;
 	image.update_image_size = bin_stat.st_size;
 	image.update_vendor_code_size = 0; /* none */
 	image.update_hardware_instance = instance;
@@ -421,26 +433,25 @@ int main(int argc, char **argv)
 
 	/* need a fit image file or raw image file */
 	if (!file && !pkey_file && !dtb_file) {
-		printf("%s: %d\n", __func__, __LINE__);
 		print_usage();
-		return -1;
+		exit(EXIT_FAILURE);
 	}
 
 	if (pkey_file && dtb_file) {
 		ret = add_public_key(pkey_file, dtb_file, overlay);
 		if (ret == -1) {
 			printf("Adding public key to the dtb failed\n");
-			return -1;
+			exit(EXIT_FAILURE);
 		} else {
-			return 0;
+			exit(EXIT_SUCCESS);
 		}
 	}
 
 	if (create_fwbin(argv[optind], file, guid, index, instance)
 			< 0) {
 		printf("Creating firmware capsule failed\n");
-		return -1;
+		exit(EXIT_FAILURE);
 	}
 
-	return 0;
+	exit(EXIT_SUCCESS);
 }

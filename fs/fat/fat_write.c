@@ -275,7 +275,7 @@ static int fat_find_empty_dentries(fat_itr *itr, int count)
 			log_debug("Not enough directory entries available\n");
 			return -ENOSPC;
 		}
-		switch (itr->dent->name[0]) {
+		switch (itr->dent->nameext.name[0]) {
 		case 0x00:
 		case DELETED_FLAG:
 			if (!n) {
@@ -399,7 +399,7 @@ fill_dir_slot(fat_itr *itr, const char *l_name, const char *shortname)
 	int idx = 0, ret;
 
 	/* Get short file name checksum value */
-	checksum = mkcksum(shortname, shortname + 8);
+	checksum = mkcksum((void *)shortname);
 
 	do {
 		memset(slotptr, 0x00, sizeof(dir_slot));
@@ -418,8 +418,12 @@ fill_dir_slot(fat_itr *itr, const char *l_name, const char *shortname)
 		slotptr--;
 		counter--;
 
-		if (itr->remaining == 0)
-			flush_dir(itr);
+		if (!itr->remaining) {
+			/* Write directory table to device */
+			ret = flush_dir(itr);
+			if (ret)
+				return ret;
+		}
 
 		next_dent(itr);
 		if (!itr->dent)
@@ -639,15 +643,23 @@ set_cluster(fsdata *mydata, u32 clustnum, u8 *buffer, u32 size)
 			   buffer, size);
 }
 
-static int
-flush_dir(fat_itr *itr)
+/**
+ * flush_dir() - flush directory
+ *
+ * @itr:	directory iterator
+ * Return:	0 for success, -EIO on error
+ */
+static int flush_dir(fat_itr *itr)
 {
 	fsdata *mydata = itr->fsdata;
 	u32 startsect, sect_offset, nsects;
+	int ret;
 
-	if (!itr->is_root || mydata->fatsize == 32)
-		return set_cluster(mydata, itr->clust, itr->block,
-				   mydata->clust_size * mydata->sect_size);
+	if (!itr->is_root || mydata->fatsize == 32) {
+		ret = set_cluster(mydata, itr->clust, itr->block,
+				  mydata->clust_size * mydata->sect_size);
+		goto out;
+	}
 
 	sect_offset = itr->clust * mydata->clust_size;
 	startsect = mydata->rootdir_sect + sect_offset;
@@ -655,8 +667,14 @@ flush_dir(fat_itr *itr)
 	nsects = min_t(u32, mydata->clust_size,
 		       mydata->rootdir_size - sect_offset);
 
-	return set_sectors(mydata, startsect, itr->block,
-			   nsects * mydata->sect_size);
+	ret = set_sectors(mydata, startsect, itr->block,
+			  nsects * mydata->sect_size);
+out:
+	if (ret) {
+		log_err("Error: writing directory entry\n");
+		return -EIO;
+	}
+	return 0;
 }
 
 /*
@@ -1151,7 +1169,7 @@ static void fill_dentry(fsdata *mydata, dir_entry *dentptr,
 
 	dentptr->attr = attr;
 
-	memcpy(dentptr->name, shortname, SHORT_NAME_SIZE);
+	memcpy(&dentptr->nameext, shortname, SHORT_NAME_SIZE);
 }
 
 /**
@@ -1176,7 +1194,7 @@ static dir_entry *find_directory_entry(fat_itr *itr, char *filename)
 		if (!match)
 			continue;
 
-		if (itr->dent->name[0] == '\0')
+		if (itr->dent->nameext.name[0] == '\0')
 			return NULL;
 		else
 			return itr->dent;
@@ -1390,10 +1408,6 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 
 	/* Write directory table to device */
 	ret = flush_dir(itr);
-	if (ret) {
-		printf("Error: writing directory entry\n");
-		ret = -EIO;
-	}
 
 exit:
 	free(filename_copy);
@@ -1456,14 +1470,10 @@ static int delete_single_dentry(fat_itr *itr)
 	struct dir_entry *dent = itr->dent;
 
 	memset(dent, 0, sizeof(*dent));
-	dent->name[0] = DELETED_FLAG;
+	dent->nameext.name[0] = DELETED_FLAG;
 
-	if (!itr->remaining) {
-		if (flush_dir(itr)) {
-			printf("error: writing directory entry\n");
-			return -EIO;
-		}
-	}
+	if (!itr->remaining)
+		return flush_dir(itr);
 	return 0;
 }
 
@@ -1476,7 +1486,7 @@ static int delete_single_dentry(fat_itr *itr)
 static int delete_long_name(fat_itr *itr)
 {
 	struct dir_entry *dent = itr->dent;
-	int seqn = itr->dent->name[0] & ~LAST_LONG_ENTRY_MASK;
+	int seqn = itr->dent->nameext.name[0] & ~LAST_LONG_ENTRY_MASK;
 
 	while (seqn--) {
 		int ret;
@@ -1521,7 +1531,7 @@ static int delete_dentry_long(fat_itr *itr)
 	dent = itr->dent_start;
 	/* Delete long name */
 	if ((dent->attr & ATTR_VFAT) == ATTR_VFAT &&
-	    (dent->name[0] & LAST_LONG_ENTRY_MASK)) {
+	    (dent->nameext.name[0] & LAST_LONG_ENTRY_MASK)) {
 		int ret;
 
 		ret = delete_long_name(itr);
@@ -1530,12 +1540,7 @@ static int delete_dentry_long(fat_itr *itr)
 	}
 	/* Delete short name */
 	delete_single_dentry(itr);
-	if (flush_dir(itr)) {
-		printf("error: writing directory entry\n");
-		return -EIO;
-	}
-
-	return 0;
+	return flush_dir(itr);
 }
 
 int fat_unlink(const char *filename)
@@ -1707,12 +1712,10 @@ int fat_mkdir(const char *new_dirname)
 	}
 	memset(dotdent, 0, bytesperclust);
 
-	memcpy(dotdent[0].name, ".       ", 8);
-	memcpy(dotdent[0].ext, "   ", 3);
+	memcpy(&dotdent[0].nameext, ".          ", 11);
 	dotdent[0].attr = ATTR_DIR | ATTR_ARCH;
 
-	memcpy(dotdent[1].name, "..      ", 8);
-	memcpy(dotdent[1].ext, "   ", 3);
+	memcpy(&dotdent[1].nameext, "..         ", 11);
 	dotdent[1].attr = ATTR_DIR | ATTR_ARCH;
 
 	if (itr->is_root)
@@ -1739,13 +1742,12 @@ int fat_mkdir(const char *new_dirname)
 	ret = flush_dirty_fat_buffer(mydata);
 	if (ret) {
 		printf("Error: flush fat buffer\n");
+		ret = -EIO;
 		goto exit;
 	}
 
 	/* Write directory table to device */
 	ret = flush_dir(itr);
-	if (ret)
-		printf("Error: writing directory entry\n");
 
 exit:
 	free(dirname_copy);

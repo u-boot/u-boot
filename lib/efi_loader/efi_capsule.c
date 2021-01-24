@@ -764,7 +764,7 @@ static efi_status_t efi_capsule_scan_dir(u16 ***files, unsigned int *num)
 		goto err;
 
 	/* make a list */
-	tmp_files = malloc(count * sizeof(*files));
+	tmp_files = malloc(count * sizeof(*tmp_files));
 	if (!tmp_files) {
 		ret = EFI_OUT_OF_RESOURCES;
 		goto err;

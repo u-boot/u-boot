@@ -123,16 +123,16 @@ static void get_name(dir_entry *dirent, char *s_name)
 {
 	char *ptr;
 
-	memcpy(s_name, dirent->name, 8);
+	memcpy(s_name, dirent->nameext.name, 8);
 	s_name[8] = '\0';
 	ptr = s_name;
 	while (*ptr && *ptr != ' ')
 		ptr++;
 	if (dirent->lcase & CASE_LOWER_BASE)
 		downcase(s_name, (unsigned)(ptr - s_name));
-	if (dirent->ext[0] && dirent->ext[0] != ' ') {
+	if (dirent->nameext.ext[0] && dirent->nameext.ext[0] != ' ') {
 		*ptr++ = '.';
-		memcpy(ptr, dirent->ext, 3);
+		memcpy(ptr, dirent->nameext.ext, 3);
 		if (dirent->lcase & CASE_LOWER_EXT)
 			downcase(ptr, 3);
 		ptr[3] = '\0';
@@ -472,16 +472,15 @@ static int slot2str(dir_slot *slotptr, char *l_name, int *idx)
 }
 
 /* Calculate short name checksum */
-static __u8 mkcksum(const char name[8], const char ext[3])
+static __u8 mkcksum(struct nameext *nameext)
 {
 	int i;
+	u8 *pos = (void *)nameext;
 
 	__u8 ret = 0;
 
-	for (i = 0; i < 8; i++)
-		ret = (((ret & 1) << 7) | ((ret & 0xfe) >> 1)) + name[i];
-	for (i = 0; i < 3; i++)
-		ret = (((ret & 1) << 7) | ((ret & 0xfe) >> 1)) + ext[i];
+	for (i = 0; i < 11; i++)
+		ret = (((ret & 1) << 7) | ((ret & 0xfe) >> 1)) + pos[i];
 
 	return ret;
 }
@@ -896,7 +895,7 @@ static dir_entry *next_dent(fat_itr *itr)
 	}
 
 	/* have we reached the last valid entry? */
-	if (itr->dent->name[0] == 0)
+	if (itr->dent->nameext.name[0] == 0)
 		return NULL;
 
 	return itr->dent;
@@ -905,7 +904,7 @@ static dir_entry *next_dent(fat_itr *itr)
 static dir_entry *extract_vfat_name(fat_itr *itr)
 {
 	struct dir_entry *dent = itr->dent;
-	int seqn = itr->dent->name[0] & ~LAST_LONG_ENTRY_MASK;
+	int seqn = itr->dent->nameext.name[0] & ~LAST_LONG_ENTRY_MASK;
 	u8 chksum, alias_checksum = ((dir_slot *)dent)->alias_checksum;
 	int n = 0;
 
@@ -932,18 +931,19 @@ static dir_entry *extract_vfat_name(fat_itr *itr)
 	 * We are now at the short file name entry.
 	 * If it is marked as deleted, just skip it.
 	 */
-	if (dent->name[0] == DELETED_FLAG ||
-	    dent->name[0] == aRING)
+	if (dent->nameext.name[0] == DELETED_FLAG ||
+	    dent->nameext.name[0] == aRING)
 		return NULL;
 
 	itr->l_name[n] = '\0';
 
-	chksum = mkcksum(dent->name, dent->ext);
+	chksum = mkcksum(&dent->nameext);
 
 	/* checksum mismatch could mean deleted file, etc.. skip it: */
 	if (chksum != alias_checksum) {
 		debug("** chksum=%x, alias_checksum=%x, l_name=%s, s_name=%8s.%3s\n",
-		      chksum, alias_checksum, itr->l_name, dent->name, dent->ext);
+		      chksum, alias_checksum, itr->l_name, dent->nameext.name,
+		      dent->nameext.ext);
 		return NULL;
 	}
 
@@ -984,12 +984,12 @@ static int fat_itr_next(fat_itr *itr)
 		itr->dent_rem = itr->remaining;
 		itr->dent_start = itr->dent;
 		itr->dent_clust = itr->clust;
-		if (dent->name[0] == DELETED_FLAG)
+		if (dent->nameext.name[0] == DELETED_FLAG)
 			continue;
 
 		if (dent->attr & ATTR_VOLUME) {
 			if ((dent->attr & ATTR_VFAT) == ATTR_VFAT &&
-			    (dent->name[0] & LAST_LONG_ENTRY_MASK)) {
+			    (dent->nameext.name[0] & LAST_LONG_ENTRY_MASK)) {
 				/* long file name */
 				dent = extract_vfat_name(itr);
 				/*

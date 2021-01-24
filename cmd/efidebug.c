@@ -189,14 +189,16 @@ static int do_efi_capsule_res(struct cmd_tbl *cmdtp, int flag,
 	ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size, NULL));
 	if (ret == EFI_BUFFER_TOO_SMALL) {
 		result = malloc(size);
+		if (!result)
+			return CMD_RET_FAILURE;
 		ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size,
 						result));
-		if (ret != EFI_SUCCESS) {
-			free(result);
-			printf("Failed to get %ls\n", var_name16);
+	}
+	if (ret != EFI_SUCCESS) {
+		free(result);
+		printf("Failed to get %ls\n", var_name16);
 
-			return CMD_RET_FAILURE;
-		}
+		return CMD_RET_FAILURE;
 	}
 
 	printf("Result total size: 0x%x\n", result->variable_total_size);

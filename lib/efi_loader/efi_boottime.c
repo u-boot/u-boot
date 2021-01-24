@@ -687,8 +687,15 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 		return EFI_INVALID_PARAMETER;
 	}
 
+	/*
+	 * The UEFI specification requires event notification levels to be
+	 * > TPL_APPLICATION and <= TPL_HIGH_LEVEL.
+	 *
+	 * Parameter NotifyTpl should not be checked if it is not used.
+	 */
 	if ((type & (EVT_NOTIFY_WAIT | EVT_NOTIFY_SIGNAL)) &&
-	    (!notify_function || is_valid_tpl(notify_tpl) != EFI_SUCCESS))
+	    (!notify_function || is_valid_tpl(notify_tpl) != EFI_SUCCESS ||
+	     notify_tpl == TPL_APPLICATION))
 		return EFI_INVALID_PARAMETER;
 
 	ret = efi_allocate_pool(pool_type, sizeof(struct efi_event),
@@ -1990,10 +1997,7 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
 	if (ret != EFI_SUCCESS)
 		efi_free_pages(addr, pages);
 out:
-	if (load_file_protocol)
-		EFI_CALL(efi_close_protocol(device,
-					    &efi_guid_load_file2_protocol,
-					    efi_root, NULL));
+	EFI_CALL(efi_close_protocol(device, guid, efi_root, NULL));
 	if (ret == EFI_SUCCESS) {
 		*buffer = (void *)(uintptr_t)addr;
 		*size = buffer_size;
