@@ -119,5 +119,5 @@ U_BOOT_DRIVER(rti_wdt) = {
 	.ops = &rti_wdt_ops,
 	.probe = rti_wdt_probe,
 	.priv_auto	= sizeof(struct rti_wdt_priv),
-	.flags = DM_FLAG_REMOVE_WITH_PD_ON,
+	.flags = DM_FLAG_LEAVE_PD_ON,
 };

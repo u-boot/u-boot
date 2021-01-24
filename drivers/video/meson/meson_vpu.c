@@ -212,5 +212,5 @@ U_BOOT_DRIVER(meson_vpu) = {
 	.probe = meson_vpu_probe,
 	.bind = meson_vpu_bind,
 	.priv_auto	= sizeof(struct meson_vpu_priv),
-	.flags  = DM_FLAG_PRE_RELOC | DM_FLAG_REMOVE_WITH_PD_ON,
+	.flags  = DM_FLAG_PRE_RELOC | DM_FLAG_LEAVE_PD_ON,
 };

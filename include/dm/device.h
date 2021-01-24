@@ -71,7 +71,7 @@ struct driver_info;
  * Device is removed without switching off its power domain. This might
  * be required, i. e. for serial console (debug) output when booting OS.
  */
-#define DM_FLAG_REMOVE_WITH_PD_ON	(1 << 13)
+#define DM_FLAG_LEAVE_PD_ON		(1 << 13)
 
 /*
  * One or multiple of these flags are passed to device_remove() so that
