@@ -119,6 +119,9 @@ static void announce_and_cleanup(int fake)
 	 * This may be useful for last-stage operations, like cancelling
 	 * of DMA operation or releasing device internal buffers.
 	 */
+	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL | DM_REMOVE_NON_VITAL);
+
+	/* Remove all active vital devices next */
 	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
 
 	cleanup_before_linux();
