@@ -172,13 +172,13 @@ int device_remove(struct udevice *dev, uint flags)
 	drv = dev->driver;
 	assert(drv);
 
-	ret = uclass_pre_remove_device(dev);
+	ret = device_chld_remove(dev, NULL, flags);
 	if (ret)
 		return ret;
 
-	ret = device_chld_remove(dev, NULL, flags);
+	ret = uclass_pre_remove_device(dev);
 	if (ret)
-		goto err;
+		return ret;
 
 	/*
 	 * Remove the device if called with the "normal" remove flag set,
@@ -216,12 +216,6 @@ err_remove:
 	/* We can't put the children back */
 	dm_warn("%s: Device '%s' failed to remove, but children are gone\n",
 		__func__, dev->name);
-err:
-	ret = uclass_post_probe_device(dev);
-	if (ret) {
-		dm_warn("%s: Device '%s' failed to post_probe on error path\n",
-			__func__, dev->name);
-	}
 
 	return ret;
 }
