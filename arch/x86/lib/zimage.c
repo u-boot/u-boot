@@ -109,8 +109,11 @@ static void build_command_line(char *command_line, int auto_boot)
 
 	if (env_command_line)
 		strcat(command_line, env_command_line);
-
-	printf("Kernel command line: \"%s\"\n", command_line);
+#ifdef DEBUG
+	printf("Kernel command line:");
+	puts(command_line);
+	printf("\n");
+#endif
 }
 
 static int kernel_magic_ok(struct setup_header *hdr)
@@ -354,7 +357,8 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 			build_command_line(cmd_line, auto_boot);
 		ret = bootm_process_cmdline(cmd_line, max_size, BOOTM_CL_ALL);
 		if (ret) {
-			printf("Cmdline setup failed (err=%d)\n", ret);
+			printf("Cmdline setup failed (max_size=%x, bootproto=%x, err=%d)\n",
+			       max_size, bootproto, ret);
 			return ret;
 		}
 		printf("Kernel command line: \"");
