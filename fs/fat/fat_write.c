@@ -573,7 +573,6 @@ static __u32 determine_fatent(fsdata *mydata, __u32 entry)
 static int
 set_sectors(fsdata *mydata, u32 startsect, u8 *buffer, u32 size)
 {
-	u32 nsects = 0;
 	int ret;
 
 	debug("startsect: %d\n", startsect);
@@ -595,6 +594,8 @@ set_sectors(fsdata *mydata, u32 startsect, u8 *buffer, u32 size)
 			size -= mydata->sect_size;
 		}
 	} else if (size >= mydata->sect_size) {
+		u32 nsects;
+
 		nsects = size / mydata->sect_size;
 		ret = disk_write(startsect, nsects, buffer);
 		if (ret != nsects) {
@@ -785,7 +786,6 @@ get_set_cluster(fsdata *mydata, __u32 clustnum, loff_t pos, __u8 *buffer,
 		}
 
 		size -= wsize;
-		buffer += wsize;
 		*gotsize += wsize;
 	}
 
@@ -1482,10 +1482,10 @@ static int delete_single_dentry(fat_itr *itr)
  */
 static int delete_long_name(fat_itr *itr)
 {
-	struct dir_entry *dent = itr->dent;
 	int seqn = itr->dent->nameext.name[0] & ~LAST_LONG_ENTRY_MASK;
 
 	while (seqn--) {
+		struct dir_entry *dent;
 		int ret;
 
 		ret = delete_single_dentry(itr);

@@ -248,7 +248,6 @@ static __u32 get_fatent(fsdata *mydata, __u32 entry)
 static int
 get_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer, unsigned long size)
 {
-	__u32 idx = 0;
 	__u32 startsect;
 	int ret;
 
@@ -277,6 +276,8 @@ get_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer, unsigned long size)
 			size -= mydata->sect_size;
 		}
 	} else {
+		__u32 idx;
+
 		idx = size / mydata->sect_size;
 		if (idx == 0)
 			ret = 0;
