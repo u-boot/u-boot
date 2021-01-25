@@ -399,10 +399,6 @@ static int set_config(struct usb_composite_dev *cdev,
 		goto done;
 
 	cdev->config = c;
-	if (cdev->use_os_string) {
-		cdev->os_desc_config = c;
-		os_desc_config = c;
-	}
 
 	/* Initialize all interfaces by setting them to altsetting zero. */
 	for (tmp = 0; tmp < MAX_CONFIG_INTERFACES; tmp++) {
@@ -515,6 +511,9 @@ int usb_add_config(struct usb_composite_dev *cdev,
 	}
 
 	usb_ep_autoconfig_reset(cdev->gadget);
+
+	if (os_desc_config)
+		cdev->os_desc_config = os_desc_config;
 
 done:
 	if (status)
@@ -1373,9 +1372,6 @@ static int composite_bind(struct usb_gadget *gadget)
 		/* Microsoft OS String Descriptor */
 		utf8_to_utf16le(qw_sign_buf, (__le16 *)cdev->qw_sign,
 				OS_STRING_QW_SIGN_LEN / 2);
-
-		if (os_desc_config)
-			cdev->os_desc_config = os_desc_config;
 	}
 
 	debug("%s: ready\n", composite->name);
