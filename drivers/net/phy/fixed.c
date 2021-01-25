@@ -24,7 +24,8 @@ int fixedphy_probe(struct phy_device *phydev)
 	/* check for mandatory properties within fixed-link node */
 	val = fdt_getprop_u32_default_node(gd->fdt_blob,
 					   ofnode, 0, "speed", 0);
-	if (val != SPEED_10 && val != SPEED_100 && val != SPEED_1000) {
+	if (val != SPEED_10 && val != SPEED_100 && val != SPEED_1000 &&
+	    val != SPEED_2500 && val != SPEED_10000) {
 		printf("ERROR: no/invalid speed given in fixed-link node!");
 		return -EINVAL;
 	}
