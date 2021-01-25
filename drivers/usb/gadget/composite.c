@@ -12,6 +12,7 @@
 #include <linux/bitops.h>
 #include <linux/bug.h>
 #include <linux/usb/composite.h>
+#include "u_os_desc.h"
 
 #define USB_BUFSIZ	4096
 
@@ -244,6 +245,7 @@ static int config_desc(struct usb_composite_dev *cdev, unsigned w_value)
 	u8				type = w_value >> 8;
 	int                             hs = 0;
 	struct usb_configuration	*c;
+	struct list_head		*pos;
 
 	if (gadget_is_dualspeed(gadget)) {
 		if (gadget->speed == USB_SPEED_HIGH)
@@ -255,7 +257,20 @@ static int config_desc(struct usb_composite_dev *cdev, unsigned w_value)
 	}
 
 	w_value &= 0xff;
-	list_for_each_entry(c, &cdev->configs, list) {
+
+	pos = &cdev->configs;
+	c = cdev->os_desc_config;
+	if (c)
+		goto check_config;
+
+	while ((pos = pos->next) !=  &cdev->configs) {
+		c = list_entry(pos, typeof(*c), list);
+
+		/* skip OS Descriptors config which is handled separately */
+		if (c == cdev->os_desc_config)
+			continue;
+
+check_config:
 		if (speed == USB_SPEED_HIGH) {
 			if (!c->highspeed)
 				continue;
@@ -779,6 +794,156 @@ static int bos_desc(struct usb_composite_dev *cdev)
 	return le16_to_cpu(bos->wTotalLength);
 }
 
+static int count_ext_compat(struct usb_configuration *c)
+{
+	int i, res;
+
+	res = 0;
+	for (i = 0; i < c->next_interface_id; ++i) {
+		struct usb_function *f;
+		int j;
+
+		f = c->interface[i];
+		for (j = 0; j < f->os_desc_n; ++j) {
+			struct usb_os_desc *d;
+
+			if (i != f->os_desc_table[j].if_id)
+				continue;
+			d = f->os_desc_table[j].os_desc;
+			if (d && d->ext_compat_id)
+				++res;
+		}
+	}
+	BUG_ON(res > 255);
+	return res;
+}
+
+static void fill_ext_compat(struct usb_configuration *c, u8 *buf)
+{
+	int i, count;
+
+	count = 16;
+	for (i = 0; i < c->next_interface_id; ++i) {
+		struct usb_function *f;
+		int j;
+
+		f = c->interface[i];
+		for (j = 0; j < f->os_desc_n; ++j) {
+			struct usb_os_desc *d;
+
+			if (i != f->os_desc_table[j].if_id)
+				continue;
+			d = f->os_desc_table[j].os_desc;
+			if (d && d->ext_compat_id) {
+				*buf++ = i;
+				*buf++ = 0x01;
+				memcpy(buf, d->ext_compat_id, 16);
+				buf += 22;
+			} else {
+				++buf;
+				*buf = 0x01;
+				buf += 23;
+			}
+			count += 24;
+			if (count >= 4096)
+				return;
+		}
+	}
+}
+
+static int count_ext_prop(struct usb_configuration *c, int interface)
+{
+	struct usb_function *f;
+	int j;
+
+	f = c->interface[interface];
+	for (j = 0; j < f->os_desc_n; ++j) {
+		struct usb_os_desc *d;
+
+		if (interface != f->os_desc_table[j].if_id)
+			continue;
+		d = f->os_desc_table[j].os_desc;
+		if (d && d->ext_compat_id)
+			return d->ext_prop_count;
+	}
+	return 0;
+}
+
+static int len_ext_prop(struct usb_configuration *c, int interface)
+{
+	struct usb_function *f;
+	struct usb_os_desc *d;
+	int j, res;
+
+	res = 10; /* header length */
+	f = c->interface[interface];
+	for (j = 0; j < f->os_desc_n; ++j) {
+		if (interface != f->os_desc_table[j].if_id)
+			continue;
+		d = f->os_desc_table[j].os_desc;
+		if (d)
+			return min(res + d->ext_prop_len, 4096);
+	}
+	return res;
+}
+
+static int fill_ext_prop(struct usb_configuration *c, int interface, u8 *buf)
+{
+	struct usb_function *f;
+	struct usb_os_desc *d;
+	struct usb_os_desc_ext_prop *ext_prop;
+	int j, count, n, ret;
+	u8 *start = buf;
+
+	f = c->interface[interface];
+	for (j = 0; j < f->os_desc_n; ++j) {
+		if (interface != f->os_desc_table[j].if_id)
+			continue;
+		d = f->os_desc_table[j].os_desc;
+		if (d)
+			list_for_each_entry(ext_prop, &d->ext_prop, entry) {
+				/* 4kB minus header length */
+				n = buf - start;
+				if (n >= 4086)
+					return 0;
+
+				count = ext_prop->data_len +
+					ext_prop->name_len + 14;
+				if (count > 4086 - n)
+					return -EINVAL;
+				usb_ext_prop_put_size(buf, count);
+				usb_ext_prop_put_type(buf, ext_prop->type);
+				ret = usb_ext_prop_put_name(buf, ext_prop->name,
+							    ext_prop->name_len);
+				if (ret < 0)
+					return ret;
+				switch (ext_prop->type) {
+				case USB_EXT_PROP_UNICODE:
+				case USB_EXT_PROP_UNICODE_ENV:
+				case USB_EXT_PROP_UNICODE_LINK:
+					usb_ext_prop_put_unicode(buf, ret,
+							 ext_prop->data,
+							 ext_prop->data_len);
+					break;
+				case USB_EXT_PROP_BINARY:
+					usb_ext_prop_put_binary(buf, ret,
+							ext_prop->data,
+							ext_prop->data_len);
+					break;
+				case USB_EXT_PROP_LE32:
+					/* not implemented */
+				case USB_EXT_PROP_BE32:
+					/* not implemented */
+				default:
+					return -EINVAL;
+				}
+				buf += count;
+			}
+	}
+
+	return 0;
+}
+
 /*
  * The setup() callback implements all the ep0 functionality that's
  * not handled lower down, in hardware or the hardware driver(like
@@ -935,6 +1100,91 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 		break;
 	default:
 unknown:
+		/*
+		 * OS descriptors handling
+		 */
+		if (CONFIG_IS_ENABLED(USB_GADGET_OS_DESCRIPTORS) && cdev->use_os_string &&
+		    cdev->os_desc_config && (ctrl->bRequestType & USB_TYPE_VENDOR) &&
+		    ctrl->bRequest == cdev->b_vendor_code) {
+			struct usb_configuration	*os_desc_cfg;
+			u8				*buf;
+			int				interface;
+			int				count = 0;
+
+			buf = req->buf;
+			os_desc_cfg = cdev->os_desc_config;
+			memset(buf, 0, w_length);
+			buf[5] = 0x01;
+			switch (ctrl->bRequestType & USB_RECIP_MASK) {
+			case USB_RECIP_DEVICE:
+				if (w_index != 0x4 || (w_value >> 8))
+					break;
+				buf[6] = w_index;
+				if (w_length == 0x10) {
+					/* Number of ext compat interfaces */
+					count = count_ext_compat(os_desc_cfg);
+					buf[8] = count;
+					count *= 24; /* 24 B/ext compat desc */
+					count += 16; /* header */
+					put_unaligned_le32(count, buf);
+					value = w_length;
+				} else {
+					/* "extended compatibility ID"s */
+					count = count_ext_compat(os_desc_cfg);
+					buf[8] = count;
+					count *= 24; /* 24 B/ext compat desc */
+					count += 16; /* header */
+					put_unaligned_le32(count, buf);
+					buf += 16;
+					fill_ext_compat(os_desc_cfg, buf);
+					value = w_length;
+				}
+				break;
+			case USB_RECIP_INTERFACE:
+				if (w_index != 0x5 || (w_value >> 8))
+					break;
+				interface = w_value & 0xFF;
+				buf[6] = w_index;
+				if (w_length == 0x0A) {
+					count = count_ext_prop(os_desc_cfg,
+						interface);
+					put_unaligned_le16(count, buf + 8);
+					count = len_ext_prop(os_desc_cfg,
+						interface);
+					put_unaligned_le32(count, buf);
+
+					value = w_length;
+				} else {
+					count = count_ext_prop(os_desc_cfg,
+						interface);
+					put_unaligned_le16(count, buf + 8);
+					count = len_ext_prop(os_desc_cfg,
+						interface);
+					put_unaligned_le32(count, buf);
+					buf += 10;
+					value = fill_ext_prop(os_desc_cfg,
+							      interface, buf);
+					if (value < 0)
+						return value;
+
+					value = w_length;
+				}
+				break;
+			}
+
+			if (value >= 0) {
+				req->length = value;
+				req->zero = value < w_length;
+				value = usb_ep_queue(gadget->ep0, req, GFP_KERNEL);
+				if (value < 0) {
+					debug("ep_queue --> %d\n", value);
+					req->status = 0;
+					composite_setup_complete(gadget->ep0, req);
+				}
+			}
+			return value;
+		}
+
 		debug("non-core control req%02x.%02x v%04x i%04x l%d\n",
 			ctrl->bRequestType, ctrl->bRequest,
 			w_value, w_index, w_length);
