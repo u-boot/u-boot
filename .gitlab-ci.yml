@@ -122,6 +122,9 @@ htmldocs:
   tags: [ 'all' ]
   stage: testsuites
   script:
+    - virtualenv -p /usr/bin/python3 /tmp/venvhtml
+    - . /tmp/venvhtml/bin/activate
+    - pip install -r doc/sphinx/requirements.txt
     - make htmldocs
 
 # some statistics about the code base
