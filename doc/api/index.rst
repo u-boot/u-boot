@@ -10,6 +10,7 @@ U-Boot API documentation
    efi
    getopt
    linker_lists
+   logging
    pinctrl
    rng
    sandbox
