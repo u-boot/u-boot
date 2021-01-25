@@ -259,14 +259,6 @@ static const struct fsl_qspi_devtype_data ls1021a_data = {
 	.little_endian = false,
 };
 
-static const struct fsl_qspi_devtype_data ls1088a_data = {
-	.rxfifo = SZ_128,
-	.txfifo = SZ_128,
-	.ahb_buf_size = SZ_1K,
-	.quirks = QUADSPI_QUIRK_TKT253890,
-	.little_endian = true,
-};
-
 static const struct fsl_qspi_devtype_data ls2080a_data = {
 	.rxfifo = SZ_128,
 	.txfifo = SZ_64,
@@ -877,7 +869,7 @@ static const struct udevice_id fsl_qspi_ids[] = {
 	{ .compatible = "fsl,imx7d-qspi", .data = (ulong)&imx7d_data, },
 	{ .compatible = "fsl,imx7ulp-qspi", .data = (ulong)&imx7ulp_data, },
 	{ .compatible = "fsl,ls1021a-qspi", .data = (ulong)&ls1021a_data, },
-	{ .compatible = "fsl,ls1088a-qspi", .data = (ulong)&ls1088a_data, },
+	{ .compatible = "fsl,ls1088a-qspi", .data = (ulong)&ls2080a_data, },
 	{ .compatible = "fsl,ls2080a-qspi", .data = (ulong)&ls2080a_data, },
 	{ }
 };
