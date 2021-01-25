@@ -15,6 +15,12 @@
 	compatible = "fsl,ls1028a-rdb", "fsl,ls1028a";
 	aliases {
 		spi0 = &fspi;
+		eth0 = &enetc0;
+		eth1 = &enetc2;
+		eth2 = &mscc_felix_port0;
+		eth3 = &mscc_felix_port1;
+		eth4 = &mscc_felix_port2;
+		eth5 = &mscc_felix_port3;
 	};
 };
 
@@ -131,9 +137,67 @@
 	phy-handle = <&rdb_phy0>;
 };
 
+&enetc2 {
+	status = "okay";
+};
+
+&mscc_felix {
+	status = "okay";
+};
+
+&mscc_felix_port0 {
+	label = "swp0";
+	phy-handle = <&sw_phy0>;
+	phy-mode = "qsgmii";
+	status = "okay";
+};
+
+&mscc_felix_port1 {
+	label = "swp1";
+	phy-handle = <&sw_phy1>;
+	phy-mode = "qsgmii";
+	status = "okay";
+};
+
+&mscc_felix_port2 {
+	label = "swp2";
+	phy-handle = <&sw_phy2>;
+	phy-mode = "qsgmii";
+	status = "okay";
+};
+
+&mscc_felix_port3 {
+	label = "swp3";
+	phy-handle = <&sw_phy3>;
+	phy-mode = "qsgmii";
+	status = "okay";
+};
+
+&mscc_felix_port4 {
+	ethernet = <&enetc2>;
+	status = "okay";
+};
+
 &mdio0 {
 	status = "okay";
 	rdb_phy0: phy@2 {
 		reg = <2>;
+	};
+
+	/* VSC8514 QSGMII PHY */
+	sw_phy0: phy@10 {
+		reg = <0x10>;
+	};
+
+	sw_phy1: phy@11 {
+		reg = <0x11>;
+	};
+
+	sw_phy2: phy@12 {
+		reg = <0x12>;
+	};
+
+	sw_phy3: phy@13 {
+		reg = <0x13>;
 	};
 };
