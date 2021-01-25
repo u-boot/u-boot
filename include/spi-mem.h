@@ -240,6 +240,9 @@ bool spi_mem_supports_op(struct spi_slave *slave, const struct spi_mem_op *op);
 
 int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op);
 
+bool spi_mem_default_supports_op(struct spi_slave *mem,
+				 const struct spi_mem_op *op);
+
 #ifndef __UBOOT__
 int spi_mem_driver_register_with_owner(struct spi_mem_driver *drv,
 				       struct module *owner);
