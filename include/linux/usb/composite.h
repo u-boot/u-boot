@@ -146,6 +146,7 @@ struct usb_function {
 	struct usb_gadget_strings	**strings;
 	struct usb_descriptor_header	**descriptors;
 	struct usb_descriptor_header	**hs_descriptors;
+	struct usb_descriptor_header    **ss_descriptors;
 
 	struct usb_configuration	*config;
 
@@ -279,6 +280,7 @@ struct usb_configuration {
 	u8			next_interface_id;
 	unsigned		highspeed:1;
 	unsigned		fullspeed:1;
+	unsigned		superspeed:1;
 	struct usb_function	*interface[MAX_CONFIG_INTERFACES];
 };
 
@@ -292,6 +294,7 @@ int usb_add_config(struct usb_composite_dev *,
  *	identifiers.
  * @strings: tables of strings, keyed by identifiers assigned during bind()
  *	and language IDs provided in control requests
+ * @max_speed: Highest speed the driver supports.
  * @bind: (REQUIRED) Used to allocate resources that are shared across the
  *	whole device, such as string IDs, and add its configurations using
  *	@usb_add_config().  This may fail by returning a negative errno
@@ -319,6 +322,7 @@ struct usb_composite_driver {
 	const char				*name;
 	const struct usb_device_descriptor	*dev;
 	struct usb_gadget_strings		**strings;
+	enum usb_device_speed			max_speed;
 
 	/* REVISIT:  bind() functions can be marked __init, which
 	 * makes trouble for section mismatch analysis.  See if
