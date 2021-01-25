@@ -532,6 +532,19 @@ int usb_add_config(struct usb_composite_dev *cdev,
 		}
 	}
 
+	/*
+	 * If one function of config is not super speed capable,
+	 * force the gadget to be high speed so controller driver
+	 * can init HW to be USB 2.0
+	 */
+	if (gadget_is_superspeed(cdev->gadget)) {
+		list_for_each_entry(f, &config->functions, list) {
+			if (!f->ss_descriptors)
+				cdev->gadget->max_speed =
+					USB_SPEED_HIGH;
+		}
+	}
+
 	usb_ep_autoconfig_reset(cdev->gadget);
 
 	os_desc_config = config;
