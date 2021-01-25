@@ -15,6 +15,13 @@
 
 #define DDR_BW_TEST_PAT			0xaa5555aa
 
+static const u32 sdr_size_cfg1[] = {
+	[DRAM_8MB] = (1 << NUMROWS_S),
+	[DRAM_16MB] = (1 << NUMROWS_S) | (1 << NUMCOLS_S),
+	[DRAM_32MB] = (2 << NUMROWS_S) | (1 << NUMCOLS_S),
+	[DRAM_64MB] = (2 << NUMROWS_S) | (2 << NUMCOLS_S),
+};
+
 static const u32 dram_size[] = {
 	[DRAM_8MB] = SZ_8M,
 	[DRAM_16MB] = SZ_16M,
@@ -192,4 +199,56 @@ void ddr2_init(struct mc_ddr_init_param *param)
 	/* Return actual DDR configuration */
 	param->memsize = dram_size[sz];
 	param->bus_width = bw;
+}
+
+static void mc_sdr_init(void __iomem *memc, mc_reset_t mc_reset, u32 cfg0,
+			u32 cfg1)
+{
+	mc_reset(1);
+	__udelay(200);
+	mc_reset(0);
+
+	writel(cfg0, memc + MEMCTL_SDRAM_CFG0_REG);
+	writel(cfg1, memc + MEMCTL_SDRAM_CFG1_REG);
+
+	while (!(readl(memc + MEMCTL_SDRAM_CFG1_REG) & SDRAM_INIT_DONE))
+		;
+
+	clrsetbits_32(memc + MEMCTL_PWR_SAVE_CNT_REG, SR_TAR_CNT_M,
+		      1 << SR_TAR_CNT_S);
+
+	setbits_32(memc + MEMCTL_DDR_SELF_REFRESH_REG, SR_AUTO_EN);
+}
+
+void sdr_init(struct mc_ddr_init_param *param)
+{
+	enum mc_dram_size sz;
+	u32 cfg1;
+
+	cfg1 = param->sdr_cfg1 | SDRAM_INIT_START;
+	cfg1 &= ~(NUMCOLS_M | NUMROWS_M);
+
+	/* First initialization, determine SDR capacity */
+	mc_sdr_init(param->memc, param->mc_reset, param->sdr_cfg0,
+		    cfg1 | sdr_size_cfg1[DRAM_64MB]);
+
+	if (dram_addr_test_bit(9)) {
+		sz = DRAM_8MB;
+	} else {
+		if (dram_addr_test_bit(10)) {
+			if (dram_addr_test_bit(23))
+				sz = DRAM_16MB;
+			else
+				sz = DRAM_32MB;
+		} else {
+			sz = DRAM_64MB;
+		}
+	}
+
+	/* Final initialization */
+	mc_sdr_init(param->memc, param->mc_reset, param->sdr_cfg0,
+		    cfg1 | sdr_size_cfg1[sz]);
+
+	/* Return actual DDR configuration */
+	param->memsize = dram_size[sz];
 }

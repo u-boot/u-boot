@@ -417,6 +417,16 @@ config DEBUG_UART_MTK
 	  driver will be available until the real driver model serial is
 	  running.
 
+config DEBUG_UART_MT7620
+	bool "UART driver for MediaTek MT7620 and earlier SoCs"
+	depends on MT7620_SERIAL
+	help
+	  Select this to enable a debug UART using the UART driver for
+	  MediaTek MT7620 and earlier SoCs.
+	  You will need to provide parameters to make this work. The
+	  driver will be available until the real driver model serial is
+	  running.
+
 endchoice
 
 config DEBUG_UART_BASE
@@ -832,6 +842,16 @@ config MTK_SERIAL
 	  tree binding to operate.
 	  The High-speed UART is compatible with the ns16550a UART and have
 	  its own high-speed registers.
+
+config MT7620_SERIAL
+	bool "UART driver for MediaTek MT7620 and earlier SoCs"
+	depends on DM_SERIAL
+	help
+	  Select this to enable UART support for MediaTek MT7620 and earlier
+	  SoCs. This driver uses driver model and requires a device tree
+	  binding to operate.
+	  The UART driver for MediaTek MT7620 and earlier SoCs is *NOT*
+	  compatible with the ns16550a UART.
 
 config MPC8XX_CONS
 	bool "Console driver for MPC8XX"

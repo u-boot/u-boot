@@ -399,6 +399,18 @@ config MACB_ZYNQ
 	  The Cadence MACB ethernet interface was used on Zynq platform.
 	  Say Y to enable support for the MACB/GEM in Zynq chip.
 
+config MT7620_ETH
+	bool "MediaTek MT7620 Ethernet Interface"
+	depends on SOC_MT7620
+	select PHYLIB
+	select DM_RESET
+	select DM_GPIO
+	select CLK
+	help
+	  The MediaTek MT7620 ethernet interface is used on MT7620 based
+	  boards. It has a built-in switch with two configurable ports which
+	  can connect to external PHY/MACs.
+
 config MT7628_ETH
 	bool "MediaTek MT7628 Ethernet Interface"
 	depends on SOC_MT7628

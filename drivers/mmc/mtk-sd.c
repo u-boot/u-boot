@@ -113,7 +113,51 @@
 #define MSDC_PB2_RESPWAIT_M		0x0c
 #define MSDC_PB2_RESPWAIT_S		2
 
+/* MSDC_PAD_CTRL0 */
+#define MSDC_PAD_CTRL0_CLKRDSEL_M	0xff000000
+#define MSDC_PAD_CTRL0_CLKRDSEL_S	24
+#define MSDC_PAD_CTRL0_CLKTDSEL		BIT(20)
+#define MSDC_PAD_CTRL0_CLKIES		BIT(19)
+#define MSDC_PAD_CTRL0_CLKSMT		BIT(18)
+#define MSDC_PAD_CTRL0_CLKPU		BIT(17)
+#define MSDC_PAD_CTRL0_CLKPD		BIT(16)
+#define MSDC_PAD_CTRL0_CLKSR		BIT(8)
+#define MSDC_PAD_CTRL0_CLKDRVP_M	0x70
+#define MSDC_PAD_CTRL0_CLKDRVP_S	4
+#define MSDC_PAD_CTRL0_CLKDRVN_M	0x7
+#define MSDC_PAD_CTRL0_CLKDRVN_S	0
+
+/* MSDC_PAD_CTRL1 */
+#define MSDC_PAD_CTRL1_CMDRDSEL_M	0xff000000
+#define MSDC_PAD_CTRL1_CMDRDSEL_S	24
+#define MSDC_PAD_CTRL1_CMDTDSEL		BIT(20)
+#define MSDC_PAD_CTRL1_CMDIES		BIT(19)
+#define MSDC_PAD_CTRL1_CMDSMT		BIT(18)
+#define MSDC_PAD_CTRL1_CMDPU		BIT(17)
+#define MSDC_PAD_CTRL1_CMDPD		BIT(16)
+#define MSDC_PAD_CTRL1_CMDSR		BIT(8)
+#define MSDC_PAD_CTRL1_CMDDRVP_M	0x70
+#define MSDC_PAD_CTRL1_CMDDRVP_S	4
+#define MSDC_PAD_CTRL1_CMDDRVN_M	0x7
+#define MSDC_PAD_CTRL1_CMDDRVN_S	0
+
+/* MSDC_PAD_CTRL2 */
+#define MSDC_PAD_CTRL2_DATRDSEL_M	0xff000000
+#define MSDC_PAD_CTRL2_DATRDSEL_S	24
+#define MSDC_PAD_CTRL2_DATTDSEL		BIT(20)
+#define MSDC_PAD_CTRL2_DATIES		BIT(19)
+#define MSDC_PAD_CTRL2_DATSMT		BIT(18)
+#define MSDC_PAD_CTRL2_DATPU		BIT(17)
+#define MSDC_PAD_CTRL2_DATPD		BIT(16)
+#define MSDC_PAD_CTRL2_DATSR		BIT(8)
+#define MSDC_PAD_CTRL2_DATDRVP_M	0x70
+#define MSDC_PAD_CTRL2_DATDRVP_S	4
+#define MSDC_PAD_CTRL2_DATDRVN_M	0x7
+#define MSDC_PAD_CTRL2_DATDRVN_S	0
+
 /* PAD_TUNE */
+#define MSDC_PAD_TUNE_CLKTDLY_M		0xf8000000
+#define MSDC_PAD_TUNE_CLKTDLY_S		27
 #define MSDC_PAD_TUNE_CMDRRDLY_M	0x7c00000
 #define MSDC_PAD_TUNE_CMDRRDLY_S	22
 #define MSDC_PAD_TUNE_CMD_SEL		BIT(21)
@@ -128,6 +172,26 @@
 
 #define PAD_CMD_TUNE_RX_DLY3		0x3E
 #define PAD_CMD_TUNE_RX_DLY3_S		1
+
+/* PAD_TUNE0 */
+#define MSDC_PAD_TUNE0_DAT0RDDLY_M	0x1f000000
+#define MSDC_PAD_TUNE0_DAT0RDDLY_S	24
+#define MSDC_PAD_TUNE0_DAT1RDDLY_M	0x1f0000
+#define MSDC_PAD_TUNE0_DAT1RDDLY_S	16
+#define MSDC_PAD_TUNE0_DAT2RDDLY_M	0x1f00
+#define MSDC_PAD_TUNE0_DAT2RDDLY_S	8
+#define MSDC_PAD_TUNE0_DAT3RDDLY_M	0x1f
+#define MSDC_PAD_TUNE0_DAT3RDDLY_S	0
+
+/* PAD_TUNE1 */
+#define MSDC_PAD_TUNE1_DAT4RDDLY_M	0x1f000000
+#define MSDC_PAD_TUNE1_DAT4RDDLY_S	24
+#define MSDC_PAD_TUNE1_DAT5RDDLY_M	0x1f0000
+#define MSDC_PAD_TUNE1_DAT5RDDLY_S	16
+#define MSDC_PAD_TUNE1_DAT6RDDLY_M	0x1f00
+#define MSDC_PAD_TUNE1_DAT6RDDLY_S	8
+#define MSDC_PAD_TUNE1_DAT7RDDLY_M	0x1f
+#define MSDC_PAD_TUNE1_DAT7RDDLY_S	0
 
 /* EMMC50_CFG0 */
 #define EMMC50_CFG_CFCSTS_SEL		BIT(4)
@@ -165,6 +229,8 @@
 #define PAD_DELAY_MAX			32
 
 #define DEFAULT_CD_DEBOUNCE		8
+
+#define SCLK_CYCLES_SHIFT		20
 
 #define CMD_INTS_MASK	\
 	(MSDC_INT_CMDRDY | MSDC_INT_RSPCRCERR | MSDC_INT_CMDTMO)
@@ -221,7 +287,10 @@ struct mtk_sd_regs {
 	u32 dat3_tune_crc;
 	u32 cmd_tune_crc;
 	u32 sdio_tune_wind;
-	u32 reserved4[5];
+	u32 reserved4[2];
+	u32 pad_ctrl0;
+	u32 pad_ctrl1;
+	u32 pad_ctrl2;
 	u32 pad_tune;
 	u32 pad_tune0;
 	u32 pad_tune1;
@@ -256,13 +325,14 @@ struct msdc_top_regs {
 
 struct msdc_compatible {
 	u8 clk_div_bits;
-	u8 sclk_cycle_shift;
 	bool pad_tune0;
 	bool async_fifo;
 	bool data_tune;
 	bool busy_check;
 	bool stop_clk_fix;
 	bool enhance_rx;
+	bool builtin_pad_ctrl;
+	bool default_pad_dly;
 };
 
 struct msdc_delay_phase {
@@ -722,7 +792,7 @@ static int msdc_ops_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 
 static void msdc_set_timeout(struct msdc_host *host, u32 ns, u32 clks)
 {
-	u32 timeout, clk_ns, shift;
+	u32 timeout, clk_ns, shift = SCLK_CYCLES_SHIFT;
 	u32 mode = 0;
 
 	host->timeout_ns = ns;
@@ -731,7 +801,6 @@ static void msdc_set_timeout(struct msdc_host *host, u32 ns, u32 clks)
 	if (host->sclk == 0) {
 		timeout = 0;
 	} else {
-		shift = host->dev_comp->sclk_cycle_shift;
 		clk_ns = 1000000000UL / host->sclk;
 		timeout = (ns + clk_ns - 1) / clk_ns + clks;
 		/* unit is 1048576 sclk cycles */
@@ -1391,9 +1460,14 @@ static void msdc_init_hw(struct msdc_host *host)
 {
 	u32 val;
 	void __iomem *tune_reg = &host->base->pad_tune;
+	void __iomem *rd_dly0_reg = &host->base->pad_tune0;
+	void __iomem *rd_dly1_reg = &host->base->pad_tune1;
 
-	if (host->dev_comp->pad_tune0)
+	if (host->dev_comp->pad_tune0) {
 		tune_reg = &host->base->pad_tune0;
+		rd_dly0_reg = &host->base->dat_rd_dly[0];
+		rd_dly1_reg = &host->base->dat_rd_dly[1];
+	}
 
 	/* Configure to MMC/SD mode, clock free running */
 	setbits_le32(&host->base->msdc_cfg, MSDC_CFG_MODE);
@@ -1479,6 +1553,45 @@ static void msdc_init_hw(struct msdc_host *host)
 		setbits_le32(tune_reg, MSDC_PAD_TUNE_RXDLYSEL);
 	}
 
+	if (host->dev_comp->builtin_pad_ctrl) {
+		/* Set pins driving strength */
+		writel(MSDC_PAD_CTRL0_CLKPD | MSDC_PAD_CTRL0_CLKSMT |
+		       MSDC_PAD_CTRL0_CLKIES | (4 << MSDC_PAD_CTRL0_CLKDRVN_S) |
+		       (4 << MSDC_PAD_CTRL0_CLKDRVP_S), &host->base->pad_ctrl0);
+		writel(MSDC_PAD_CTRL1_CMDPU | MSDC_PAD_CTRL1_CMDSMT |
+		       MSDC_PAD_CTRL1_CMDIES | (4 << MSDC_PAD_CTRL1_CMDDRVN_S) |
+		       (4 << MSDC_PAD_CTRL1_CMDDRVP_S), &host->base->pad_ctrl1);
+		writel(MSDC_PAD_CTRL2_DATPU | MSDC_PAD_CTRL2_DATSMT |
+		       MSDC_PAD_CTRL2_DATIES | (4 << MSDC_PAD_CTRL2_DATDRVN_S) |
+		       (4 << MSDC_PAD_CTRL2_DATDRVP_S), &host->base->pad_ctrl2);
+	}
+
+	if (host->dev_comp->default_pad_dly) {
+		/* Default pad delay may be needed if tuning not enabled */
+		clrsetbits_le32(tune_reg, MSDC_PAD_TUNE_CLKTDLY_M |
+				MSDC_PAD_TUNE_CMDRRDLY_M |
+				MSDC_PAD_TUNE_CMDRDLY_M |
+				MSDC_PAD_TUNE_DATRRDLY_M |
+				MSDC_PAD_TUNE_DATWRDLY_M,
+				(0x10 << MSDC_PAD_TUNE_CLKTDLY_S) |
+				(0x10 << MSDC_PAD_TUNE_CMDRRDLY_S) |
+				(0x10 << MSDC_PAD_TUNE_CMDRDLY_S) |
+				(0x10 << MSDC_PAD_TUNE_DATRRDLY_S) |
+				(0x10 << MSDC_PAD_TUNE_DATWRDLY_S));
+
+		writel((0x10 << MSDC_PAD_TUNE0_DAT0RDDLY_S) |
+		       (0x10 << MSDC_PAD_TUNE0_DAT1RDDLY_S) |
+		       (0x10 << MSDC_PAD_TUNE0_DAT2RDDLY_S) |
+		       (0x10 << MSDC_PAD_TUNE0_DAT3RDDLY_S),
+		       rd_dly0_reg);
+
+		writel((0x10 << MSDC_PAD_TUNE1_DAT4RDDLY_S) |
+		       (0x10 << MSDC_PAD_TUNE1_DAT5RDDLY_S) |
+		       (0x10 << MSDC_PAD_TUNE1_DAT6RDDLY_S) |
+		       (0x10 << MSDC_PAD_TUNE1_DAT7RDDLY_S),
+		       rd_dly1_reg);
+	}
+
 	/* Configure to enable SDIO mode otherwise sdio cmd5 won't work */
 	setbits_le32(&host->base->sdc_cfg, SDC_CFG_SDIO);
 
@@ -1526,12 +1639,14 @@ static int msdc_drv_probe(struct udevice *dev)
 	else
 		cfg->f_min = host->src_clk_freq / (4 * 4095);
 
+	cfg->f_max = host->src_clk_freq;
+
 	cfg->b_max = 1024;
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 
 	host->mmc = &plat->mmc;
 	host->timeout_ns = 100000000;
-	host->timeout_clks = 3 * (1 << host->dev_comp->sclk_cycle_shift);
+	host->timeout_clks = 3 * (1 << SCLK_CYCLES_SHIFT);
 
 #ifdef CONFIG_PINCTRL
 	pinctrl_select_state(dev, "default");
@@ -1615,13 +1730,14 @@ static const struct dm_mmc_ops msdc_ops = {
 
 static const struct msdc_compatible mt7620_compat = {
 	.clk_div_bits = 8,
-	.sclk_cycle_shift = 16,
 	.pad_tune0 = false,
 	.async_fifo = false,
 	.data_tune = false,
 	.busy_check = false,
 	.stop_clk_fix = false,
-	.enhance_rx = false
+	.enhance_rx = false,
+	.builtin_pad_ctrl = true,
+	.default_pad_dly = true,
 };
 
 static const struct msdc_compatible mt7622_compat = {
@@ -1635,7 +1751,6 @@ static const struct msdc_compatible mt7622_compat = {
 
 static const struct msdc_compatible mt7623_compat = {
 	.clk_div_bits = 12,
-	.sclk_cycle_shift = 20,
 	.pad_tune0 = true,
 	.async_fifo = true,
 	.data_tune = true,
@@ -1646,7 +1761,6 @@ static const struct msdc_compatible mt7623_compat = {
 
 static const struct msdc_compatible mt8512_compat = {
 	.clk_div_bits = 12,
-	.sclk_cycle_shift = 20,
 	.pad_tune0 = true,
 	.async_fifo = true,
 	.data_tune = true,
@@ -1656,7 +1770,6 @@ static const struct msdc_compatible mt8512_compat = {
 
 static const struct msdc_compatible mt8516_compat = {
 	.clk_div_bits = 12,
-	.sclk_cycle_shift = 20,
 	.pad_tune0 = true,
 	.async_fifo = true,
 	.data_tune = true,
@@ -1666,7 +1779,6 @@ static const struct msdc_compatible mt8516_compat = {
 
 static const struct msdc_compatible mt8183_compat = {
 	.clk_div_bits = 12,
-	.sclk_cycle_shift = 20,
 	.pad_tune0 = true,
 	.async_fifo = true,
 	.data_tune = true,

@@ -5,6 +5,7 @@ config SYS_MALLOC_F_LEN
 	default 0x1000
 
 config SYS_SOC
+	default "mt7620" if SOC_MT7620
 	default "mt7628" if SOC_MT7628
 
 config SYS_DCACHE_SIZE
@@ -31,9 +32,25 @@ config SPL_PAYLOAD
 
 config BUILD_TARGET
 	default "u-boot-with-spl.bin" if SPL
+	default "u-boot.bin"
 
 choice
 	prompt "MediaTek MIPS SoC select"
+
+config SOC_MT7620
+	bool "MT7620"
+	select MIPS_L1_CACHE_SHIFT_5
+	select SYS_MIPS_CACHE_INIT_RAM_LOAD
+	select PINCTRL_MT7620
+	select MT7620_SERIAL
+	select MISC
+	select SPL_SEPARATE_BSS if SPL
+	select SPL_LOADER_SUPPORT if SPL
+	select SPL_OF_CONTROL if SPL_DM
+	select SPL_OF_PLATDATA if SPL_DM
+	select SPL_DM_SERIAL if SPL_DM
+	help
+	  This supports MediaTek MT7620.
 
 config SOC_MT7628
 	bool "MT7628"
@@ -43,6 +60,7 @@ config SOC_MT7628
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD
 	select PINCTRL_MT7628
 	select MTK_SERIAL
+	select SYSRESET
 	select SYSRESET_RESETCTL
 	select SPL_SEPARATE_BSS if SPL
 	select SPL_INIT_STACK_WITHOUT_MALLOC_F if SPL
@@ -58,57 +76,7 @@ config SOC_MT7628
 
 endchoice
 
-choice
-	prompt "Board select"
-
-config BOARD_GARDENA_SMART_GATEWAY_MT7688
-	bool "GARDENA smart Gateway"
-	depends on SOC_MT7628
-	select BOARD_LATE_INIT
-	help
-	  GARDENA smart Gateway boards have a MT7688 SoC with 128 MiB of RAM
-	  and 8 MiB of flash (SPI NOR) and additional SPI NAND storage.
-
-config BOARD_LINKIT_SMART_7688
-	bool "LinkIt Smart 7688"
-	depends on SOC_MT7628
-	help
-	  Seeed LinkIt Smart 7688 boards have a MT7688 SoC with 128 MiB of RAM
-	  and 32 MiB of flash (SPI).
-	  Between its different peripherals there's an integrated switch with 4
-	  ethernet ports, 1 USB port, 1 UART, GPIO buttons and LEDs, and
-	  a MT7688 (PCIe).
-
-config BOARD_MT7628_RFB
-	bool "MediaTek MT7628 RFB"
-	depends on SOC_MT7628
-	help
-	  The reference design of MT7628. The board has 128 MiB DDR2, 8 MiB
-	  SPI-NOR flash, 1 built-in switch with 5 ports, 1 UART, 1 USB host,
-	  1 SDXC, 1 PCIe socket and JTAG pins.
-
-config BOARD_VOCORE2
-	bool "VoCore2"
-	depends on SOC_MT7628
-	select SPL_SERIAL_SUPPORT
-	select SPL_UART2_SPIS_PINMUX
-	help
-	  VoCore VoCore2 board has a MT7628 SoC with 128 MiB of RAM
-	  and 16 MiB of flash (SPI).
-
-endchoice
-
-config SPL_UART2_SPIS_PINMUX
-	bool "Use alternative pinmux for UART2 in SPL stage"
-	depends on SPL_SERIAL_SUPPORT
-	default n
-	help
-	  Select this if the UART2 of your board is connected to GPIO 16/17
-	  (shared with SPIS) rather than the usual GPIO 20/21.
-
-source "board/gardena/smart-gateway-mt7688/Kconfig"
-source "board/mediatek/mt7628/Kconfig"
-source "board/seeed/linkit-smart-7688/Kconfig"
-source "board/vocore/vocore2/Kconfig"
+source "arch/mips/mach-mtmips/mt7620/Kconfig"
+source "arch/mips/mach-mtmips/mt7628/Kconfig"
 
 endmenu
