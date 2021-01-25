@@ -36,3 +36,11 @@ config MSCC_SERVAL_SWITCH
 	select PHYLIB
 	help
 	  This driver supports the Serval network switch device.
+
+config MSCC_FELIX_SWITCH
+	bool "Felix switch driver"
+	depends on DM_DSA && DM_PCI
+	select FSL_ENETC
+	help
+	  This driver supports the Ethernet switch integrated in the
+	  NXP LS1028A SoC.
