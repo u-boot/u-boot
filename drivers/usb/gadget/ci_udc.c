@@ -336,6 +336,7 @@ static int ci_ep_enable(struct usb_ep *ep,
 	num = desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (desc->bEndpointAddress & USB_DIR_IN) != 0;
 	ci_ep->desc = desc;
+	ep->desc = desc;
 
 	if (num) {
 		int max = get_unaligned_le16(&desc->wMaxPacketSize);
@@ -358,6 +359,7 @@ static int ci_ep_disable(struct usb_ep *ep)
 	struct ci_ep *ci_ep = container_of(ep, struct ci_ep, ep);
 
 	ci_ep->desc = NULL;
+	ep->desc = NULL;
 	return 0;
 }
 
