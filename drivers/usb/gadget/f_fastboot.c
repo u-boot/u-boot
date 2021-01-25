@@ -46,6 +46,25 @@ struct f_fastboot {
 	struct usb_request *in_req, *out_req;
 };
 
+static char fb_ext_prop_name[] = "DeviceInterfaceGUID";
+static char fb_ext_prop_data[] = "{4866319A-F4D6-4374-93B9-DC2DEB361BA9}";
+
+static struct usb_os_desc_ext_prop fb_ext_prop = {
+	.type = 1,		/* NUL-terminated Unicode String (REG_SZ) */
+	.name = fb_ext_prop_name,
+	.data = fb_ext_prop_data,
+};
+
+/* 16 bytes of "Compatible ID" and "Subcompatible ID" */
+static char fb_cid[16] = {'W', 'I', 'N', 'U', 'S', 'B'};
+static struct usb_os_desc fb_os_desc = {
+	.ext_compat_id = fb_cid,
+};
+
+static struct usb_os_desc_table fb_os_desc_table = {
+	.os_desc = &fb_os_desc,
+};
+
 static inline struct f_fastboot *func_to_fastboot(struct usb_function *f)
 {
 	return container_of(f, struct f_fastboot, usb_function);
@@ -161,6 +180,19 @@ static int fastboot_bind(struct usb_configuration *c, struct usb_function *f)
 		return id;
 	interface_desc.bInterfaceNumber = id;
 
+	/* Enable OS and Extended Properties Feature Descriptor */
+	c->cdev->use_os_string = 1;
+	f->os_desc_table = &fb_os_desc_table;
+	f->os_desc_n = 1;
+	f->os_desc_table->if_id = id;
+	INIT_LIST_HEAD(&fb_os_desc.ext_prop);
+	fb_ext_prop.name_len = strlen(fb_ext_prop.name) * 2 + 2;
+	fb_os_desc.ext_prop_len = 10 + fb_ext_prop.name_len;
+	fb_os_desc.ext_prop_count = 1;
+	fb_ext_prop.data_len = strlen(fb_ext_prop.data) * 2 + 2;
+	fb_os_desc.ext_prop_len += fb_ext_prop.data_len + 4;
+	list_add_tail(&fb_ext_prop.entry, &fb_os_desc.ext_prop);
+
 	id = usb_string_id(c->cdev);
 	if (id < 0)
 		return id;
@@ -196,6 +228,8 @@ static int fastboot_bind(struct usb_configuration *c, struct usb_function *f)
 
 static void fastboot_unbind(struct usb_configuration *c, struct usb_function *f)
 {
+	f->os_desc_table = NULL;
+	list_del(&fb_os_desc.ext_prop);
 	memset(fastboot_func, 0, sizeof(*fastboot_func));
 }
 
