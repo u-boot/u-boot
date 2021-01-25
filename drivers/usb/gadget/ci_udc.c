@@ -145,6 +145,7 @@ static struct ci_drv controller = {
 		.name	= "ci_udc",
 		.ops	= &ci_udc_ops,
 		.is_dualspeed = 1,
+		.max_speed = USB_SPEED_HIGH,
 	},
 };
 
@@ -1014,8 +1015,6 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 	if (!driver)
 		return -EINVAL;
 	if (!driver->bind || !driver->setup || !driver->disconnect)
-		return -EINVAL;
-	if (driver->speed != USB_SPEED_FULL && driver->speed != USB_SPEED_HIGH)
 		return -EINVAL;
 
 #if CONFIG_IS_ENABLED(DM_USB)
