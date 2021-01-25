@@ -7,11 +7,15 @@
 #include <sandboxtee.h>
 #include <tee.h>
 #include <tee/optee_ta_avb.h>
+#include <tee/optee_ta_rpc_test.h>
+
+#include "optee/optee_msg.h"
+#include "optee/optee_private.h"
 
 /*
  * The sandbox tee driver tries to emulate a generic Trusted Exectution
- * Environment (TEE) with the Trusted Application (TA) OPTEE_TA_AVB
- * available.
+ * Environment (TEE) with the Trusted Applications (TA) OPTEE_TA_AVB and
+ * OPTEE_TA_RPC_TEST available.
  */
 
 static const u32 pstorage_max = 16;
@@ -32,7 +36,38 @@ struct ta_entry {
 			   struct tee_param *params);
 };
 
-#ifdef CONFIG_OPTEE_TA_AVB
+static int get_msg_arg(struct udevice *dev, uint num_params,
+		       struct tee_shm **shmp, struct optee_msg_arg **msg_arg)
+{
+	int rc;
+	struct optee_msg_arg *ma;
+
+	rc = __tee_shm_add(dev, OPTEE_MSG_NONCONTIG_PAGE_SIZE, NULL,
+			   OPTEE_MSG_GET_ARG_SIZE(num_params), TEE_SHM_ALLOC,
+			   shmp);
+	if (rc)
+		return rc;
+
+	ma = (*shmp)->addr;
+	memset(ma, 0, OPTEE_MSG_GET_ARG_SIZE(num_params));
+	ma->num_params = num_params;
+	*msg_arg = ma;
+
+	return 0;
+}
+
+void *optee_alloc_and_init_page_list(void *buf, ulong len,
+				     u64 *phys_buf_ptr)
+{
+	/*
+	 * An empty stub is added just to fix linking issues.
+	 * This function isn't supposed to be called in sandbox
+	 * setup, otherwise replace this with a proper
+	 * implementation from optee/core.c
+	 */
+	return NULL;
+}
+
 static u32 get_attr(uint n, uint num_params, struct tee_param *params)
 {
 	if (n >= num_params)
@@ -63,6 +98,7 @@ bad_params:
 	return TEE_ERROR_BAD_PARAMETERS;
 }
 
+#ifdef CONFIG_OPTEE_TA_AVB
 static u32 ta_avb_open_session(struct udevice *dev, uint num_params,
 			       struct tee_param *params)
 {
@@ -214,13 +250,111 @@ static u32 ta_avb_invoke_func(struct udevice *dev, u32 func, uint num_params,
 		return TEE_ERROR_NOT_SUPPORTED;
 	}
 }
-#endif /*OPTEE_TA_AVB*/
+#endif /* OPTEE_TA_AVB */
+
+#ifdef CONFIG_OPTEE_TA_RPC_TEST
+static u32 ta_rpc_test_open_session(struct udevice *dev, uint num_params,
+				    struct tee_param *params)
+{
+	/*
+	 * We don't expect additional parameters when opening a session to
+	 * this TA.
+	 */
+	return check_params(TEE_PARAM_ATTR_TYPE_NONE, TEE_PARAM_ATTR_TYPE_NONE,
+			    TEE_PARAM_ATTR_TYPE_NONE, TEE_PARAM_ATTR_TYPE_NONE,
+			    num_params, params);
+}
+
+static void fill_i2c_rpc_params(struct optee_msg_arg *msg_arg, u64 bus_num,
+				u64 chip_addr, u64 xfer_flags, u64 op,
+				struct tee_param_memref memref)
+{
+	msg_arg->params[0].attr = OPTEE_MSG_ATTR_TYPE_VALUE_INPUT;
+	msg_arg->params[1].attr = OPTEE_MSG_ATTR_TYPE_VALUE_INPUT;
+	msg_arg->params[2].attr = OPTEE_MSG_ATTR_TYPE_RMEM_INOUT;
+	msg_arg->params[3].attr = OPTEE_MSG_ATTR_TYPE_VALUE_OUTPUT;
+
+	/* trigger I2C services of TEE supplicant */
+	msg_arg->cmd = OPTEE_MSG_RPC_CMD_I2C_TRANSFER;
+
+	msg_arg->params[0].u.value.a = op;
+	msg_arg->params[0].u.value.b = bus_num;
+	msg_arg->params[0].u.value.c = chip_addr;
+	msg_arg->params[1].u.value.a = xfer_flags;
+
+	/* buffer to read/write data */
+	msg_arg->params[2].u.rmem.shm_ref = (ulong)memref.shm;
+	msg_arg->params[2].u.rmem.size = memref.size;
+	msg_arg->params[2].u.rmem.offs = memref.shm_offs;
+
+	msg_arg->num_params = 4;
+}
+
+static u32 ta_rpc_test_invoke_func(struct udevice *dev, u32 func,
+				   uint num_params,
+				   struct tee_param *params)
+{
+	struct tee_shm *shm;
+	struct tee_param_memref memref_data;
+	struct optee_msg_arg *msg_arg;
+	int chip_addr, bus_num, op, xfer_flags;
+	int res;
+
+	res = check_params(TEE_PARAM_ATTR_TYPE_VALUE_INPUT,
+			   TEE_PARAM_ATTR_TYPE_MEMREF_INOUT,
+			   TEE_PARAM_ATTR_TYPE_NONE,
+			   TEE_PARAM_ATTR_TYPE_NONE,
+			   num_params, params);
+	if (res)
+		return TEE_ERROR_BAD_PARAMETERS;
+
+	bus_num = params[0].u.value.a;
+	chip_addr = params[0].u.value.b;
+	xfer_flags = params[0].u.value.c;
+	memref_data = params[1].u.memref;
+
+	switch (func) {
+	case TA_RPC_TEST_CMD_I2C_READ:
+		op = OPTEE_MSG_RPC_CMD_I2C_TRANSFER_RD;
+		break;
+	case TA_RPC_TEST_CMD_I2C_WRITE:
+		op = OPTEE_MSG_RPC_CMD_I2C_TRANSFER_WR;
+		break;
+	default:
+		return TEE_ERROR_NOT_SUPPORTED;
+	}
+
+	/*
+	 * Fill params for an RPC call to tee supplicant
+	 */
+	res = get_msg_arg(dev, 4, &shm, &msg_arg);
+	if (res)
+		goto out;
+
+	fill_i2c_rpc_params(msg_arg, bus_num, chip_addr, xfer_flags, op,
+			    memref_data);
+
+	/* Make an RPC call to tee supplicant */
+	optee_suppl_cmd(dev, shm, 0);
+	res = msg_arg->ret;
+out:
+	tee_shm_free(shm);
+
+	return res;
+}
+#endif /* CONFIG_OPTEE_TA_RPC_TEST */
 
 static const struct ta_entry ta_entries[] = {
 #ifdef CONFIG_OPTEE_TA_AVB
 	{ .uuid = TA_AVB_UUID,
 	  .open_session = ta_avb_open_session,
 	  .invoke_func = ta_avb_invoke_func,
+	},
+#endif
+#ifdef CONFIG_OPTEE_TA_RPC_TEST
+	{ .uuid = TA_RPC_TEST_UUID,
+	  .open_session = ta_rpc_test_open_session,
+	  .invoke_func = ta_rpc_test_invoke_func,
 	},
 #endif
 };
