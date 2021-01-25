@@ -153,28 +153,21 @@ static int mvebu_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 	u32 reg;
 	u32 data;
 
-	debug("PCIE CFG read:  (b,d,f)=(%2d,%2d,%2d) ",
-	      PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
+	debug("PCIE CFG read:  loc_bus=%d loc_dev=%d (b,d,f)=(%2d,%2d,%2d) ",
+	      local_bus, local_dev, PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
 
-	/* Only allow one other device besides the local one on the local bus */
-	if (PCI_BUS(bdf) == local_bus && PCI_DEV(bdf) != local_dev) {
-		if (local_dev == 0 && PCI_DEV(bdf) != 1) {
-			debug("- out of range\n");
-			/*
-			 * If local dev is 0, the first other dev can
-			 * only be 1
-			 */
-			*valuep = pci_get_ff(size);
-			return 0;
-		} else if (local_dev != 0 && PCI_DEV(bdf) != 0) {
-			debug("- out of range\n");
-			/*
-			 * If local dev is not 0, the first other dev can
-			 * only be 0
-			 */
-			*valuep = pci_get_ff(size);
-			return 0;
-		}
+	/* Don't access the local host controller via this API */
+	if (PCI_BUS(bdf) == local_bus && PCI_DEV(bdf) == local_dev) {
+		debug("- skipping host controller\n");
+		*valuep = pci_get_ff(size);
+		return 0;
+	}
+
+	/* If local dev is 0, the first other dev can only be 1 */
+	if (PCI_BUS(bdf) == local_bus && local_dev == 0 && PCI_DEV(bdf) != 1) {
+		debug("- out of range\n");
+		*valuep = pci_get_ff(size);
+		return 0;
 	}
 
 	/* write address */
@@ -196,25 +189,20 @@ static int mvebu_pcie_write_config(struct udevice *bus, pci_dev_t bdf,
 	int local_dev = PCI_DEV(pcie->dev);
 	u32 data;
 
-	debug("PCIE CFG write: (b,d,f)=(%2d,%2d,%2d) ",
-	      PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
+	debug("PCIE CFG write: loc_bus=%d loc_dev=%d (b,d,f)=(%2d,%2d,%2d) ",
+	      local_bus, local_dev, PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
 	debug("(addr,val)=(0x%04x, 0x%08lx)\n", offset, value);
 
-	/* Only allow one other device besides the local one on the local bus */
-	if (PCI_BUS(bdf) == local_bus && PCI_DEV(bdf) != local_dev) {
-		if (local_dev == 0 && PCI_DEV(bdf) != 1) {
-			/*
-			 * If local dev is 0, the first other dev can
-			 * only be 1
-			 */
-			return 0;
-		} else if (local_dev != 0 && PCI_DEV(bdf) != 0) {
-			/*
-			 * If local dev is not 0, the first other dev can
-			 * only be 0
-			 */
-			return 0;
-		}
+	/* Don't access the local host controller via this API */
+	if (PCI_BUS(bdf) == local_bus && PCI_DEV(bdf) == local_dev) {
+		debug("- skipping host controller\n");
+		return 0;
+	}
+
+	/* If local dev is 0, the first other dev can only be 1 */
+	if (PCI_BUS(bdf) == local_bus && local_dev == 0 && PCI_DEV(bdf) != 1) {
+		debug("- out of range\n");
+		return 0;
 	}
 
 	writel(PCIE_CONF_ADDR(bdf, offset), pcie->base + PCIE_CONF_ADDR_OFF);
