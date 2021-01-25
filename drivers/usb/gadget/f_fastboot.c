@@ -427,7 +427,7 @@ static unsigned int rx_bytes_expected(struct usb_ep *ep)
 {
 	int rx_remain = fastboot_data_remaining();
 	unsigned int rem;
-	unsigned int maxpacket = ep->maxpacket;
+	unsigned int maxpacket = usb_endpoint_maxp(ep->desc);
 
 	if (rx_remain <= 0)
 		return 0;
