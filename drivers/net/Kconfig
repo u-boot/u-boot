@@ -37,6 +37,21 @@ config DM_MDIO_MUX
 	  This is currently implemented in net/mdio-mux-uclass.c
 	  Look in include/miiphy.h for details.
 
+config DM_DSA
+	bool "Enable Driver Model for DSA switches"
+	depends on DM_ETH && DM_MDIO
+	depends on PHY_FIXED
+	help
+	  Enable driver model for DSA switches
+
+	  Adds UCLASS_DSA class supporting switches that follow the Distributed
+	  Switch Architecture (DSA).  These switches rely on the presence of a
+	  management switch port connected to an Ethernet controller capable of
+	  receiving frames from the switch.  This host Ethernet controller is
+	  called the "master" Ethernet interface in DSA terminology.
+	  This is currently implemented in net/dsa-uclass.c, refer to
+	  include/net/dsa.h for API details.
+
 config MDIO_SANDBOX
 	depends on DM_MDIO && SANDBOX
 	default y
