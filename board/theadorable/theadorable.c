@@ -6,6 +6,7 @@
 #include <common.h>
 #include <command.h>
 #include <console.h>
+#include <dm.h>
 #include <i2c.h>
 #include <init.h>
 #include <net.h>
@@ -311,42 +312,107 @@ int board_late_init(void)
 #endif
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_PCI)
-int do_pcie_test(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+static int pcie_get_link_speed_width(pci_dev_t bdf, int *speed, int *width)
 {
-	pci_dev_t bdf;
+	struct udevice *dev;
 	u16 ven_id, dev_id;
-
-	if (argc != 3)
-		return cmd_usage(cmdtp);
-
-	ven_id = simple_strtoul(argv[1], NULL, 16);
-	dev_id = simple_strtoul(argv[2], NULL, 16);
-
-	printf("Checking for PCIe device: VendorID 0x%04x, DeviceId 0x%04x\n",
-	       ven_id, dev_id);
+	u16 lnksta;
+	int ret;
+	int pos;
 
 	/*
-	 * Check if the PCIe device is detected (somtimes its not available
+	 * Check if the PCIe device is detected (sometimes its not available
 	 * on the PCIe bus)
 	 */
-	bdf = pci_find_device(ven_id, dev_id, 0);
-	if (bdf == -1) {
-		/* PCIe device not found! */
-		printf("Failed to find PCIe device\n");
-	} else {
-		/* PCIe device found! */
-		printf("PCIe device found, resetting board...\n");
+	ret = dm_pci_bus_find_bdf(bdf, &dev);
+	if (ret)
+		return -ENODEV;
 
-		/* default handling: SOFT reset */
-		do_reset(NULL, 0, 0, NULL);
-	}
+	/* PCIe device found */
+	dm_pci_read_config16(dev, PCI_VENDOR_ID, &ven_id);
+	dm_pci_read_config16(dev, PCI_DEVICE_ID, &dev_id);
+	printf("Detected PCIe device: VendorID 0x%04x DeviceId 0x%04x @ BDF %d.%d.%d\n",
+	       ven_id, dev_id, PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
+
+	/* Now read EXP_LNKSTA register */
+	pos = dm_pci_find_capability(dev, PCI_CAP_ID_EXP);
+	dm_pci_read_config16(dev, pos + PCI_EXP_LNKSTA, &lnksta);
+	*speed = lnksta & PCI_EXP_LNKSTA_CLS;
+	*width = (lnksta & PCI_EXP_LNKSTA_NLW) >> PCI_EXP_LNKSTA_NLW_SHIFT;
 
 	return 0;
 }
 
+/*
+ * U-Boot cmd to test for the presence of the directly connected PCIe devices
+ * the theadorable board. This cmd can be used by U-Boot scripts for automated
+ * testing, if the PCIe setup is correct. Meaning, that all PCIe devices are
+ * correctly detected and the link speed and width is corrent.
+ *
+ * Here a short script that may be used for an automated test. It results in
+ * an endless reboot loop, if the PCIe devices are detected correctly. If at
+ * any time a problem is detected (PCIe device not available or link is
+ * incorrect), then booting will halt. So just use this "bootcmd" and let the
+ * board run over a longer time (e.g. one night) and if the board still reboots
+ * after this time, then everything is okay.
+ *
+ * bootcmd=echo bootcount=$bootcount; pcie ;if test $? -eq 0;
+ *         then echo PCIe status okay, resetting...; reset; else;
+ *         echo PCIe status NOT okay, hanging (bootcount=$bootcount); fi;
+ */
+int do_pcie_test(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+{
+	pci_dev_t bdf;
+	int speed;
+	int width;
+	int ret;
+
+	if (argc != 1)
+		return cmd_usage(cmdtp);
+
+	/*
+	 * Check if the PCIe device is detected (sometimes its not available
+	 * on the PCIe bus)
+	 */
+
+	/* Check for PCIe device on PCIe port/bus 0 */
+	bdf = PCI_BDF(0, 1, 0);
+	ret = pcie_get_link_speed_width(bdf, &speed, &width);
+	if (ret) {
+		/* PCIe device not found! */
+		printf("Failed to find PCIe device @ BDF %d.%d.%d\n",
+		       PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
+		return CMD_RET_FAILURE;
+	}
+
+	printf("Established speed=%d width=%d\n", speed, width);
+	if ((speed != 1 || width != 1)) {
+		printf("Detected incorrect speed/width!!!\n");
+		return CMD_RET_FAILURE;
+	}
+
+	/* Check for PCIe device on PCIe port/bus 1 */
+	bdf = PCI_BDF(1, 1, 0);
+	ret = pcie_get_link_speed_width(bdf, &speed, &width);
+	if (ret) {
+		/* PCIe device not found! */
+		printf("Failed to find PCIe device @ BDF %d.%d.%d\n",
+		       PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
+		return CMD_RET_FAILURE;
+	}
+
+	printf("Established speed=%d width=%d\n", speed, width);
+	if ((speed != 2 || width != 4)) {
+		printf("Detected incorrect speed/width!!!\n");
+		return CMD_RET_FAILURE;
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
 U_BOOT_CMD(
-	pcie,   3,   0,     do_pcie_test,
-	"Test for presence of a PCIe device",
-	"<VendorID> <DeviceID>"
+	pcie,   1,   0,     do_pcie_test,
+	"Test for presence of a PCIe devices with correct link",
+	""
 );
 #endif
