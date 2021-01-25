@@ -24,6 +24,8 @@
 #include <ipu_pixfmt.h>
 #include <thermal.h>
 #include <sata.h>
+#include <dm/device-internal.h>
+#include <dm/uclass-internal.h>
 
 #ifdef CONFIG_FSL_ESDHC_IMX
 #include <fsl_esdhc_imx.h>
@@ -278,6 +280,20 @@ void arch_preboot_os(void)
 #if defined(CONFIG_PCIE_IMX) && !CONFIG_IS_ENABLED(DM_PCI)
 	imx_pcie_remove();
 #endif
+
+#if defined(CONFIG_IMX_AHCI)
+	struct udevice *dev;
+	int rc;
+
+	rc = uclass_find_device(UCLASS_AHCI, 0, &dev);
+	if (!rc && dev) {
+		rc = device_remove(dev, DM_REMOVE_NORMAL);
+		if (rc)
+			printf("Cannot remove SATA device '%s' (err=%d)\n",
+				dev->name, rc);
+	}
+#endif
+
 #if defined(CONFIG_SATA)
 	if (!is_mx6sdl()) {
 		sata_remove(0);
@@ -385,6 +401,9 @@ u32 get_cpu_speed_grade_hz(void)
  */
 #define OCOTP_TESTER3_TEMP_SHIFT	6
 
+/* iMX8MP uses OCOTP_TESTER3[6:5] for Market segment */
+#define IMX8MP_OCOTP_TESTER3_TEMP_SHIFT	5
+
 u32 get_cpu_temp_grade(int *minc, int *maxc)
 {
 	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
@@ -394,7 +413,10 @@ u32 get_cpu_temp_grade(int *minc, int *maxc)
 	uint32_t val;
 
 	val = readl(&fuse->tester3);
-	val >>= OCOTP_TESTER3_TEMP_SHIFT;
+	if (is_imx8mp())
+		val >>= IMX8MP_OCOTP_TESTER3_TEMP_SHIFT;
+	else
+		val >>= OCOTP_TESTER3_TEMP_SHIFT;
 	val &= 0x3;
 
 	if (minc && maxc) {
@@ -445,12 +467,14 @@ enum boot_device get_boot_device(void)
 	case BOOT_TYPE_SPINOR:
 		boot_dev = SPI_NOR_BOOT;
 		break;
-#ifdef CONFIG_IMX8M
 	case BOOT_TYPE_USB:
 		boot_dev = USB_BOOT;
 		break;
-#endif
 	default:
+#ifdef CONFIG_IMX8M
+		if (((readl(SRC_BASE_ADDR + 0x58) & 0x00007FFF) >> 12) == 0x4)
+			boot_dev = QSPI_BOOT;
+#endif
 		break;
 	}
 

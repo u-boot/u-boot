@@ -199,9 +199,6 @@ void board_init_f(ulong dummy)
 
 	setup_iomux_uart();
 
-	/* iomux and setup of i2c */
-	board_early_init_f();
-
 	/* UART clocks enabled and gd valid - init serial console */
 	preloader_console_init();
 

@@ -170,24 +170,6 @@
 /*
  * CSPI register definitions
  */
-#define MXC_CSPI
-#define MXC_CSPICTRL_EN		(1 << 0)
-#define MXC_CSPICTRL_MODE	(1 << 1)
-#define MXC_CSPICTRL_XCH	(1 << 2)
-#define MXC_CSPICTRL_SMC	(1 << 3)
-#define MXC_CSPICTRL_POL	(1 << 4)
-#define MXC_CSPICTRL_PHA	(1 << 5)
-#define MXC_CSPICTRL_SSCTL	(1 << 6)
-#define MXC_CSPICTRL_SSPOL	(1 << 7)
-#define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 12)
-#define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0xfff) << 20)
-#define MXC_CSPICTRL_DATARATE(x)	(((x) & 0x7) << 16)
-#define MXC_CSPICTRL_TC		(1 << 7)
-#define MXC_CSPICTRL_RXOVF	(1 << 6)
-#define MXC_CSPICTRL_MAXBITS	0xfff
-#define MXC_CSPIPERIOD_32KHZ	(1 << 15)
-#define MAX_SPI_BYTES	4
-
 #define MXC_SPI_BASE_ADDRESSES \
 	0x43fa4000, \
 	0x50010000,
@@ -278,18 +260,6 @@ struct gpt_regs {
 	u32 cmp[3];	/* output compare 1-3 */
 	u32 capt[2];	/* input capture 1-2 */
 	u32 counter;	/* counter */
-};
-
-/* CSPI registers */
-struct cspi_regs {
-	u32 rxdata;
-	u32 txdata;
-	u32 ctrl;
-	u32 intr;
-	u32 dma;
-	u32 stat;
-	u32 period;
-	u32 test;
 };
 
 struct esdc_regs {

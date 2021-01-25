@@ -62,6 +62,8 @@
 #define DDRC_IPS_BASE_ADDR(X)	(0x3d400000 + ((X) * 0x2000000))
 #define DDR_CSD1_BASE_ADDR	0x40000000
 
+#define IOMUXC_GPR_GPR1_GPR_ENET_QOS_INTF_SEL_MASK 0x70000
+
 #if !defined(__ASSEMBLY__)
 #include <asm/types.h>
 #include <linux/bitops.h>
