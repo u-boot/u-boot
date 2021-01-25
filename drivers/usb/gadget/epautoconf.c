@@ -262,6 +262,7 @@ struct usb_ep *usb_ep_autoconfig(
 		ep = find_ep(gadget, "ep1-bulk");
 		if (ep && ep_matches(gadget, ep, desc))
 			return ep;
+#ifndef CONFIG_SPL_BUILD
 	} else if (gadget_is_dwc3(gadget)) {
 		const char *name = NULL;
 		/*
@@ -284,6 +285,7 @@ struct usb_ep *usb_ep_autoconfig(
 			ep = find_ep(gadget, name);
 		if (ep && ep_matches(gadget, ep, desc))
 			return ep;
+#endif
 	}
 
 	if (gadget->ops->match_ep)
