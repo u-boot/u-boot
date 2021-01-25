@@ -512,8 +512,8 @@ int usb_add_config(struct usb_composite_dev *cdev,
 
 	usb_ep_autoconfig_reset(cdev->gadget);
 
-	if (os_desc_config)
-		cdev->os_desc_config = os_desc_config;
+	os_desc_config = config;
+	cdev->os_desc_config = os_desc_config;
 
 done:
 	if (status)
