@@ -148,6 +148,11 @@
 #define OPTEE_MSG_RPC_CMD_SHM_FREE	7
 
 /*
+ * I2C bus access
+ */
+#define OPTEE_MSG_RPC_CMD_I2C_TRANSFER 21
+
+/*
  * Was OPTEE_MSG_RPC_CMD_SQL_FS, which isn't supported any longer
  */
 #define OPTEE_MSG_RPC_CMD_SQL_FS_RESERVED	8

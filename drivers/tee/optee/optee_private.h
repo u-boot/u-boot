@@ -60,6 +60,23 @@ static inline void optee_suppl_rpmb_release(struct udevice *dev)
 }
 #endif
 
+#ifdef CONFIG_DM_I2C
+/**
+ * optee_suppl_cmd_i2c_transfer() - route I2C requests to an I2C chip
+ * @arg:	OP-TEE message (layout specified in optee_msg.h) defining the
+ *		transfer mode (read/write), adapter, chip and control flags.
+ *
+ * Handles OP-TEE requests to transfer data to the I2C chip on the I2C adapter.
+ */
+void optee_suppl_cmd_i2c_transfer(struct optee_msg_arg *arg);
+#else
+static inline void optee_suppl_cmd_i2c_transfer(struct optee_msg_arg *arg)
+{
+	debug("OPTEE_MSG_RPC_CMD_I2C_TRANSFER not implemented\n");
+	arg->ret = TEE_ERROR_NOT_IMPLEMENTED;
+}
+#endif
+
 void *optee_alloc_and_init_page_list(void *buf, ulong len, u64 *phys_buf_ptr);
 
 #endif /* __OPTEE_PRIVATE_H */
