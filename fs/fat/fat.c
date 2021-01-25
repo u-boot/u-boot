@@ -1147,41 +1147,11 @@ int file_fat_detectfs(void)
 		return 1;
 	}
 
-#if defined(CONFIG_IDE) || \
-    defined(CONFIG_SATA) || \
-    defined(CONFIG_SCSI) || \
-    defined(CONFIG_CMD_USB) || \
-    defined(CONFIG_MMC)
-	printf("Interface:  ");
-	switch (cur_dev->if_type) {
-	case IF_TYPE_IDE:
-		printf("IDE");
-		break;
-	case IF_TYPE_SATA:
-		printf("SATA");
-		break;
-	case IF_TYPE_SCSI:
-		printf("SCSI");
-		break;
-	case IF_TYPE_ATAPI:
-		printf("ATAPI");
-		break;
-	case IF_TYPE_USB:
-		printf("USB");
-		break;
-	case IF_TYPE_DOC:
-		printf("DOC");
-		break;
-	case IF_TYPE_MMC:
-		printf("MMC");
-		break;
-	default:
-		printf("Unknown");
+	if (IS_ENABLED(CONFIG_HAVE_BLOCK_DEVICE)) {
+		printf("Interface:  %s\n", blk_get_if_type_name(cur_dev->if_type));
+		printf("  Device %d: ", cur_dev->devnum);
+		dev_print(cur_dev);
 	}
-
-	printf("\n  Device %d: ", cur_dev->devnum);
-	dev_print(cur_dev);
-#endif
 
 	if (read_bootsectandvi(&bs, &volinfo, &fatsize)) {
 		printf("\nNo valid FAT fs found\n");
