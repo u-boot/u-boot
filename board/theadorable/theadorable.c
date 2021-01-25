@@ -148,6 +148,18 @@ u8 board_sat_r_get(u8 dev_num, u8 reg)
 	return 0xe;	/* PEX port 0 is PCIe Gen1, PEX port 1..3 PCIe Gen2 */
 }
 
+#define PCIE_LNK_CTRL_STAT_2_OFF	0x0090
+#define PCIE_LNK_CTRL_STAT_2_DEEM_BIT	BIT(6)
+
+static void pcie_set_deemphasis(u32 base)
+{
+	u32 reg;
+
+	reg = readl((void *)base + PCIE_LNK_CTRL_STAT_2_OFF);
+	reg |= PCIE_LNK_CTRL_STAT_2_DEEM_BIT;
+	writel(reg, (void *)base + PCIE_LNK_CTRL_STAT_2_OFF);
+}
+
 int board_early_init_f(void)
 {
 	/* Configure MPP */
@@ -168,6 +180,18 @@ int board_early_init_f(void)
 	writel(THEADORABLE_GPP_OUT_ENA_MID, MVEBU_GPIO1_BASE + 0x04);
 	writel(THEADORABLE_GPP_OUT_VAL_HIGH, MVEBU_GPIO2_BASE + 0x00);
 	writel(THEADORABLE_GPP_OUT_ENA_HIGH, MVEBU_GPIO2_BASE + 0x04);
+
+	/*
+	 * Set deephasis bit in the PCIe configuration of both PCIe ports
+	 * used on this board.
+	 *
+	 * This needs to be done very early, even before the SERDES setup
+	 * code is run. This way, the first link will already be established
+	 * with this setup. Testing has shown, that this results in a more
+	 * stable PCIe link with better signal quality.
+	 */
+	pcie_set_deemphasis(MVEBU_REG_PCIE_BASE);		/* Port 0 */
+	pcie_set_deemphasis(MVEBU_REG_PCIE_BASE + 0x2000);	/* Port 2 */
 
 	return 0;
 }
