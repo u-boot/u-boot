@@ -108,10 +108,7 @@ static int set_name(fat_itr *itr, const char *filename, char *shortname)
 	char buf[13];
 	int i;
 	int ret;
-	struct {
-		char name[8];
-		char ext[3];
-	} dirent;
+	struct nameext dirent;
 
 	if (!filename)
 		return -EIO;
@@ -185,7 +182,7 @@ static int set_name(fat_itr *itr, const char *filename, char *shortname)
 	}
 	return -EIO;
 out:
-	memcpy(shortname, dirent.name, SHORT_NAME_SIZE);
+	memcpy(shortname, &dirent, SHORT_NAME_SIZE);
 	return ret;
 }
 
