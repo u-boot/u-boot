@@ -17,5 +17,13 @@ Shell commands
    bootefi
    bootmenu
    button
+   conitrace
+   echo
+   exit
+   false
+   for
+   loady
    mbr
    pstore
+   sbi
+   true

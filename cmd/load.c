@@ -1065,25 +1065,25 @@ U_BOOT_CMD(
 U_BOOT_CMD(
 	loadb, 3, 0,	do_load_serial_bin,
 	"load binary file over serial line (kermit mode)",
-	"[ off ] [ baud ]\n"
+	"[ addr [ baud ] ]\n"
 	"    - load binary file over serial line"
-	" with offset 'off' and baudrate 'baud'"
+	" at address 'addr' with baudrate 'baud'"
 );
 
 U_BOOT_CMD(
 	loadx, 3, 0,	do_load_serial_bin,
 	"load binary file over serial line (xmodem mode)",
-	"[ off ] [ baud ]\n"
+	"[ addr [ baud ] ]\n"
 	"    - load binary file over serial line"
-	" with offset 'off' and baudrate 'baud'"
+	" at address 'addr' with baudrate 'baud'"
 );
 
 U_BOOT_CMD(
 	loady, 3, 0,	do_load_serial_bin,
 	"load binary file over serial line (ymodem mode)",
-	"[ off ] [ baud ]\n"
+	"[ addr [ baud ] ]\n"
 	"    - load binary file over serial line"
-	" with offset 'off' and baudrate 'baud'"
+	" at address 'addr' with baudrate 'baud'"
 );
 
 #endif	/* CONFIG_CMD_LOADB */
