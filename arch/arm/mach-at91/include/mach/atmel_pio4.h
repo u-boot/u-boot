@@ -52,6 +52,7 @@ struct atmel_pio4_port {
 #define ATMEL_PIO_DRVSTR_LO		(1 << 16)
 #define ATMEL_PIO_DRVSTR_ME		(2 << 16)
 #define ATMEL_PIO_DRVSTR_HI		(3 << 16)
+#define ATMEL_PIO_DRVSTR_OFFSET		16
 #define ATMEL_PIO_CFGR_EVTSEL_MASK	GENMASK(26, 24)
 #define ATMEL_PIO_CFGR_EVTSEL_FALLING	(0 << 24)
 #define ATMEL_PIO_CFGR_EVTSEL_RISING	(1 << 24)

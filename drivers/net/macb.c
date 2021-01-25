@@ -144,11 +144,20 @@ struct macb_device {
 #endif
 };
 
+struct macb_usrio_cfg {
+	unsigned int		mii;
+	unsigned int		rmii;
+	unsigned int		rgmii;
+	unsigned int		clken;
+};
+
 struct macb_config {
 	unsigned int		dma_burst_length;
 	unsigned int		hw_dma_cap;
+	unsigned int		caps;
 
 	int			(*clk_init)(struct udevice *dev, ulong rate);
+	const struct macb_usrio_cfg	*usrio;
 };
 
 #ifndef CONFIG_DM_ETH
@@ -586,6 +595,23 @@ static int macb_sifive_clk_init(struct udevice *dev, ulong rate)
 	return 0;
 }
 
+static int macb_sama7g5_clk_init(struct udevice *dev, ulong rate)
+{
+	struct clk clk;
+	int ret;
+
+	ret = clk_get_by_name(dev, "tx_clk", &clk);
+	if (ret)
+		return ret;
+
+	/*
+	 * This is for using GCK. Clock rate is addressed via assigned-clock
+	 * property, so only clock enable is needed here. The switching to
+	 * proper clock rate depending on link speed is managed by IP logic.
+	 */
+	return clk_enable(&clk);
+}
+
 int __weak macb_linkspd_cb(struct udevice *dev, unsigned int speed)
 {
 #ifdef CONFIG_CLK
@@ -622,7 +648,7 @@ int __weak macb_linkspd_cb(struct udevice *dev, unsigned int speed)
 
 	if (tx_clk.dev) {
 		ret = clk_set_rate(&tx_clk, rate);
-		if (ret)
+		if (ret < 0)
 			return ret;
 	}
 #endif
@@ -850,6 +876,7 @@ static int _macb_init(struct macb_device *macb, const char *name)
 {
 #ifdef CONFIG_DM_ETH
 	struct macb_device *macb = dev_get_priv(dev);
+	unsigned int val = 0;
 #endif
 	unsigned long paddr;
 	int ret;
@@ -920,11 +947,20 @@ static int _macb_init(struct macb_device *macb, const char *name)
 		 * to select interface between RMII and MII.
 		 */
 #ifdef CONFIG_DM_ETH
-		if ((macb->phy_interface == PHY_INTERFACE_MODE_RMII) ||
-		    (macb->phy_interface == PHY_INTERFACE_MODE_RGMII))
-			gem_writel(macb, USRIO, GEM_BIT(RGMII));
-		else
-			gem_writel(macb, USRIO, 0);
+		if (macb->phy_interface == PHY_INTERFACE_MODE_RGMII ||
+		    macb->phy_interface == PHY_INTERFACE_MODE_RGMII_ID ||
+		    macb->phy_interface == PHY_INTERFACE_MODE_RGMII_RXID ||
+		    macb->phy_interface == PHY_INTERFACE_MODE_RGMII_TXID)
+			val = macb->config->usrio->rgmii;
+		else if (macb->phy_interface == PHY_INTERFACE_MODE_RMII)
+			val = macb->config->usrio->rmii;
+		else if (macb->phy_interface == PHY_INTERFACE_MODE_MII)
+			val = macb->config->usrio->mii;
+
+		if (macb->config->caps & MACB_CAPS_USRIO_HAS_CLKEN)
+			val |= macb->config->usrio->clken;
+
+		gem_writel(macb, USRIO, val);
 
 		if (macb->phy_interface == PHY_INTERFACE_MODE_SGMII) {
 			unsigned int ncfgr = macb_readl(macb, NCFGR);
@@ -934,7 +970,7 @@ static int _macb_init(struct macb_device *macb, const char *name)
 		}
 #else
 #if defined(CONFIG_RGMII) || defined(CONFIG_RMII)
-		gem_writel(macb, USRIO, GEM_BIT(RGMII));
+		gem_writel(macb, USRIO, macb->config->usrio->rgmii);
 #else
 		gem_writel(macb, USRIO, 0);
 #endif
@@ -945,28 +981,30 @@ static int _macb_init(struct macb_device *macb, const char *name)
 #ifdef CONFIG_AT91FAMILY
 		if (macb->phy_interface == PHY_INTERFACE_MODE_RMII) {
 			macb_writel(macb, USRIO,
-				    MACB_BIT(RMII) | MACB_BIT(CLKEN));
+				    macb->config->usrio->rmii |
+				    macb->config->usrio->clken);
 		} else {
-			macb_writel(macb, USRIO, MACB_BIT(CLKEN));
+			macb_writel(macb, USRIO, macb->config->usrio->clken);
 		}
 #else
 		if (macb->phy_interface == PHY_INTERFACE_MODE_RMII)
 			macb_writel(macb, USRIO, 0);
 		else
-			macb_writel(macb, USRIO, MACB_BIT(MII));
+			macb_writel(macb, USRIO, macb->config->usrio->mii);
 #endif
 #else
 #ifdef CONFIG_RMII
 #ifdef CONFIG_AT91FAMILY
-	macb_writel(macb, USRIO, MACB_BIT(RMII) | MACB_BIT(CLKEN));
+	macb_writel(macb, USRIO, macb->config->usrio->rmii |
+		    macb->config->usrio->clken);
 #else
 	macb_writel(macb, USRIO, 0);
 #endif
 #else
 #ifdef CONFIG_AT91FAMILY
-	macb_writel(macb, USRIO, MACB_BIT(CLKEN));
+	macb_writel(macb, USRIO, macb->config->usrio->clken);
 #else
-	macb_writel(macb, USRIO, MACB_BIT(MII));
+	macb_writel(macb, USRIO, macb->config->usrio->mii);
 #endif
 #endif /* CONFIG_RMII */
 #endif
@@ -1307,10 +1345,18 @@ static int macb_enable_clk(struct udevice *dev)
 }
 #endif
 
+static const struct macb_usrio_cfg macb_default_usrio = {
+	.mii = MACB_BIT(MII),
+	.rmii = MACB_BIT(RMII),
+	.rgmii = GEM_BIT(RGMII),
+	.clken = MACB_BIT(CLKEN),
+};
+
 static const struct macb_config default_gem_config = {
 	.dma_burst_length = 16,
 	.hw_dma_cap = HW_DMA_CAP_32B,
 	.clk_init = NULL,
+	.usrio = &macb_default_usrio,
 };
 
 static int macb_eth_probe(struct udevice *dev)
@@ -1404,28 +1450,56 @@ static int macb_eth_of_to_plat(struct udevice *dev)
 	return macb_late_eth_of_to_plat(dev);
 }
 
+static const struct macb_usrio_cfg sama7g5_usrio = {
+	.mii = 0,
+	.rmii = 1,
+	.rgmii = 2,
+	.clken = BIT(2),
+};
+
 static const struct macb_config microchip_config = {
 	.dma_burst_length = 16,
 	.hw_dma_cap = HW_DMA_CAP_64B,
 	.clk_init = NULL,
+	.usrio = &macb_default_usrio,
 };
 
 static const struct macb_config sama5d4_config = {
 	.dma_burst_length = 4,
 	.hw_dma_cap = HW_DMA_CAP_32B,
 	.clk_init = NULL,
+	.usrio = &macb_default_usrio,
 };
 
 static const struct macb_config sifive_config = {
 	.dma_burst_length = 16,
 	.hw_dma_cap = HW_DMA_CAP_32B,
 	.clk_init = macb_sifive_clk_init,
+	.usrio = &macb_default_usrio,
+};
+
+static const struct macb_config sama7g5_gmac_config = {
+	.dma_burst_length = 16,
+	.hw_dma_cap = HW_DMA_CAP_32B,
+	.clk_init = macb_sama7g5_clk_init,
+	.usrio = &sama7g5_usrio,
+};
+
+static const struct macb_config sama7g5_emac_config = {
+	.caps = MACB_CAPS_USRIO_HAS_CLKEN,
+	.dma_burst_length = 16,
+	.hw_dma_cap = HW_DMA_CAP_32B,
+	.usrio = &sama7g5_usrio,
 };
 
 static const struct udevice_id macb_eth_ids[] = {
 	{ .compatible = "cdns,macb" },
 	{ .compatible = "cdns,at91sam9260-macb" },
 	{ .compatible = "cdns,sam9x60-macb" },
+	{ .compatible = "cdns,sama7g5-gem",
+	  .data = (ulong)&sama7g5_gmac_config },
+	{ .compatible = "cdns,sama7g5-emac",
+	  .data = (ulong)&sama7g5_emac_config },
 	{ .compatible = "atmel,sama5d2-gem" },
 	{ .compatible = "atmel,sama5d3-gem" },
 	{ .compatible = "atmel,sama5d4-gem", .data = (ulong)&sama5d4_config },
