@@ -867,6 +867,9 @@ int write_mbr_and_gpt_partitions(struct blk_desc *dev_desc, void *buf)
 		return 1;
 	}
 
+	/* Update the partition table entries*/
+	part_init(dev_desc);
+
 	return 0;
 }
 #endif
