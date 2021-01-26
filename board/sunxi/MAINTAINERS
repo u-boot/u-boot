@@ -385,6 +385,11 @@ M:	Icenowy Zheng <icenowy@aosc.io>
 S:	Maintained
 F:	configs/teres_i_defconfig
 
+ORANGEPI 3 BOARD
+M:	Andre Heider <a.heider@gmail.com>
+S:	Maintained
+F:	configs/orangepi_3_defconfig
+
 ORANGEPI LITE2 BOARD
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
@@ -419,6 +424,11 @@ ORANGEPI ZERO PLUS 2 H3 BOARD
 M:	Diego Rondini <diego.rondini@kynetics.com>
 S:	Maintained
 F:	configs/orangepi_zero_plus2_h3_defconfig
+
+ORANGEPI ZERO 2 BOARD
+M:	Jernej Skrabec <jernej.skrabec@siol.net>
+S:	Maintained
+F:	configs/orangepi_zero2_defconfig
 
 ORANGEPI PC 2 BOARD
 M:	Andre Przywara <andre.przywara@arm.com>
@@ -493,6 +503,12 @@ M:	Rask Ingemann Lambertsen <rask@formelder.dk>
 S:	Maintained
 F:	configs/Sunchip_CX-A99_defconfig
 W:	https://linux-sunxi.org/Sunchip_CX-A99
+
+TANIX TX6 BOARD
+M:	Jernej Skrabec <jernej.skrabec@siol.net>
+S:	Maintained
+F:	configs/tanix_tx6_defconfig
+W:	https://linux-sunxi.org/Tanix_TX6
 
 TBS A711 BOARD
 M:	Maxime Ripard <mripard@kernel.org>

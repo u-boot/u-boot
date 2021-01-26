@@ -197,6 +197,10 @@ void i2c_init_board(void)
 	clock_twi_onoff(5, 1);
 	sunxi_gpio_set_cfgpin(SUNXI_GPL(8), SUN50I_GPL_R_TWI);
 	sunxi_gpio_set_cfgpin(SUNXI_GPL(9), SUN50I_GPL_R_TWI);
+#elif CONFIG_MACH_SUN50I_H616
+	clock_twi_onoff(5, 1);
+	sunxi_gpio_set_cfgpin(SUNXI_GPL(0), SUN50I_H616_GPL_R_TWI);
+	sunxi_gpio_set_cfgpin(SUNXI_GPL(1), SUN50I_H616_GPL_R_TWI);
 #else
 	clock_twi_onoff(5, 1);
 	sunxi_gpio_set_cfgpin(SUNXI_GPL(0), SUN8I_H3_GPL_R_TWI);
@@ -265,18 +269,28 @@ int board_init(void)
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_SATAPWR
-	satapwr_pin = sunxi_name_to_gpio(CONFIG_SATAPWR);
-	gpio_request(satapwr_pin, "satapwr");
-	gpio_direction_output(satapwr_pin, 1);
-	/* Give attached sata device time to power-up to avoid link timeouts */
-	mdelay(500);
-#endif
-#ifdef CONFIG_MACPWR
-	macpwr_pin = sunxi_name_to_gpio(CONFIG_MACPWR);
-	gpio_request(macpwr_pin, "macpwr");
-	gpio_direction_output(macpwr_pin, 1);
-#endif
+	/* strcmp() would look better, but doesn't get optimised away. */
+	if (CONFIG_SATAPWR[0]) {
+		satapwr_pin = sunxi_name_to_gpio(CONFIG_SATAPWR);
+		if (satapwr_pin >= 0) {
+			gpio_request(satapwr_pin, "satapwr");
+			gpio_direction_output(satapwr_pin, 1);
+
+			/*
+			 * Give the attached SATA device time to power-up
+			 * to avoid link timeouts
+			 */
+			mdelay(500);
+		}
+	}
+
+	if (CONFIG_MACPWR[0]) {
+		macpwr_pin = sunxi_name_to_gpio(CONFIG_MACPWR);
+		if (macpwr_pin >= 0) {
+			gpio_request(macpwr_pin, "macpwr");
+			gpio_direction_output(macpwr_pin, 1);
+		}
+	}
 
 #ifdef CONFIG_DM_I2C
 	/*
@@ -635,16 +649,18 @@ void sunxi_board_init(void)
 #endif
 
 #if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
-	defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || \
-	defined CONFIG_AXP818_POWER
+	defined CONFIG_AXP221_POWER || defined CONFIG_AXP305_POWER || \
+	defined CONFIG_AXP809_POWER || defined CONFIG_AXP818_POWER
 	power_failed = axp_init();
 
 #if defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || \
 	defined CONFIG_AXP818_POWER
 	power_failed |= axp_set_dcdc1(CONFIG_AXP_DCDC1_VOLT);
 #endif
+#if !defined(CONFIG_AXP305_POWER)
 	power_failed |= axp_set_dcdc2(CONFIG_AXP_DCDC2_VOLT);
 	power_failed |= axp_set_dcdc3(CONFIG_AXP_DCDC3_VOLT);
+#endif
 #if !defined(CONFIG_AXP209_POWER) && !defined(CONFIG_AXP818_POWER)
 	power_failed |= axp_set_dcdc4(CONFIG_AXP_DCDC4_VOLT);
 #endif
@@ -657,8 +673,10 @@ void sunxi_board_init(void)
 	defined CONFIG_AXP818_POWER
 	power_failed |= axp_set_aldo1(CONFIG_AXP_ALDO1_VOLT);
 #endif
+#if !defined(CONFIG_AXP305_POWER)
 	power_failed |= axp_set_aldo2(CONFIG_AXP_ALDO2_VOLT);
-#if !defined(CONFIG_AXP152_POWER)
+#endif
+#if !defined(CONFIG_AXP152_POWER) && !defined(CONFIG_AXP305_POWER)
 	power_failed |= axp_set_aldo3(CONFIG_AXP_ALDO3_VOLT);
 #endif
 #ifdef CONFIG_AXP209_POWER

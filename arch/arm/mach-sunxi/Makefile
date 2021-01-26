@@ -26,7 +26,7 @@ else
 obj-$(CONFIG_MACH_SUN8I)	+= clock_sun6i.o
 endif
 obj-$(CONFIG_MACH_SUN9I)	+= clock_sun9i.o gtbus_sun9i.o
-obj-$(CONFIG_MACH_SUN50I_H6)	+= clock_sun50i_h6.o
+obj-$(CONFIG_SUN50I_GEN_H6)	+= clock_sun50i_h6.o
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_DRAM_SUN4I)	+= dram_sun4i.o
@@ -40,4 +40,6 @@ obj-$(CONFIG_SUNXI_DRAM_DW)	+= dram_sunxi_dw.o
 obj-$(CONFIG_SUNXI_DRAM_DW)	+= dram_timings/
 obj-$(CONFIG_DRAM_SUN50I_H6)	+= dram_sun50i_h6.o
 obj-$(CONFIG_DRAM_SUN50I_H6)	+= dram_timings/
+obj-$(CONFIG_DRAM_SUN50I_H616)	+= dram_sun50i_h616.o
+obj-$(CONFIG_DRAM_SUN50I_H616)	+= dram_timings/
 endif

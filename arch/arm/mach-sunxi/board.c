@@ -116,6 +116,10 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(0), SUN50I_H6_GPH_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(1), SUN50I_H6_GPH_UART0);
 	sunxi_gpio_set_pull(SUNXI_GPH(1), SUNXI_GPIO_PULL_UP);
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN50I_H616)
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(0), SUN50I_H616_GPH_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(1), SUN50I_H616_GPH_UART0);
+	sunxi_gpio_set_pull(SUNXI_GPH(1), SUNXI_GPIO_PULL_UP);
 #elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN8I_A83T)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(9), SUN8I_A83T_GPB_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(10), SUN8I_A83T_GPB_UART0);
@@ -144,7 +148,7 @@ static int gpio_init(void)
 #error Unsupported console port number. Please fix pin mux settings in board.c
 #endif
 
-#ifdef CONFIG_MACH_SUN50I_H6
+#ifdef CONFIG_SUN50I_GEN_H6
 	/* Update PIO power bias configuration by copy hardware detected value */
 	val = readl(SUNXI_PIO_BASE + SUN50I_H6_GPIO_POW_MOD_VAL);
 	writel(val, SUNXI_PIO_BASE + SUN50I_H6_GPIO_POW_MOD_SEL);
@@ -277,15 +281,29 @@ uint32_t sunxi_get_boot_device(void)
 }
 
 #ifdef CONFIG_SPL_BUILD
+static u32 sunxi_get_spl_size(void)
+{
+	if (!is_boot0_magic(SPL_ADDR + 4)) /* eGON.BT0 */
+		return 0;
+
+	return readl(SPL_ADDR + 0x10);
+}
+
 /*
  * The eGON SPL image can be located at 8KB or at 128KB into an SD card or
  * an eMMC device. The boot source has bit 4 set in the latter case.
  * By adding 120KB to the normal offset when booting from a "high" location
  * we can support both cases.
+ * Also U-Boot proper is located at least 32KB after the SPL, but will
+ * immediately follow the SPL if that is bigger than that.
  */
-unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc)
+unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
+					   unsigned long raw_sect)
 {
-	unsigned long sector = CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR;
+	unsigned long spl_size = sunxi_get_spl_size();
+	unsigned long sector;
+
+	sector = max(raw_sect, spl_size / 512);
 
 	switch (sunxi_get_boot_source()) {
 	case SUNXI_BOOTED_FROM_MMC0_HIGH:
@@ -329,7 +347,7 @@ void reset_cpu(ulong addr)
 		/* sun5i sometimes gets stuck without this */
 		writel(WDT_MODE_RESET_EN | WDT_MODE_EN, &wdog->mode);
 	}
-#elif defined(CONFIG_SUNXI_GEN_SUN6I) || defined(CONFIG_MACH_SUN50I_H6)
+#elif defined(CONFIG_SUNXI_GEN_SUN6I) || defined(CONFIG_SUN50I_GEN_H6)
 #if defined(CONFIG_MACH_SUN50I_H6)
 	/* WDOG is broken for some H6 rev. use the R_WDOG instead */
 	static const struct sunxi_wdog *wdog =

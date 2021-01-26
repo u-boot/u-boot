@@ -353,6 +353,9 @@ static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
 		/* default */
 		break;
 	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
 		reg |= SC_EPIT | SC_ETCS_INT_GMII;
 		break;
 	case PHY_INTERFACE_MODE_RMII:

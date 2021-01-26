@@ -13,6 +13,7 @@ choice
 	depends on ARCH_SUNXI
 	default AXP209_POWER if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	default AXP221_POWER if MACH_SUN6I || MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_R40
+	default AXP305_POWER if MACH_SUN50I_H616
 	default AXP818_POWER if MACH_SUN8I_A83T
 	default SUNXI_NO_PMIC if MACH_SUNXI_H3_H5 || MACH_SUN50I || MACH_SUN8I_V3S
 
@@ -47,6 +48,15 @@ config AXP221_POWER
 	---help---
 	Select this to enable support for the axp221/axp223 pmic found on most
 	A23 and A31 boards.
+
+config AXP305_POWER
+	bool "axp305 pmic support"
+	depends on MACH_SUN50I_H616
+	select AXP_PMIC_BUS
+	select CMD_POWEROFF
+	---help---
+	Select this to enable support for the axp305 pmic found on most
+	H616 boards.
 
 config AXP809_POWER
 	bool "axp809 pmic support"
@@ -127,11 +137,12 @@ config AXP_DCDC3_VOLT
 
 config AXP_DCDC4_VOLT
 	int "axp pmic dcdc4 voltage"
-	depends on AXP152_POWER || AXP221_POWER || AXP809_POWER || AXP818_POWER
+	depends on AXP152_POWER || AXP221_POWER || AXP809_POWER || AXP818_POWER || AXP305_POWER
 	default 1250 if AXP152_POWER
 	default 1200 if MACH_SUN6I
 	default 0 if MACH_SUN8I
 	default 900 if MACH_SUN9I
+	default 1500 if AXP305_POWER
 	---help---
 	Set the voltage (mV) to program the axp pmic dcdc4 at, set to 0 to
 	disable dcdc4.
@@ -140,6 +151,7 @@ config AXP_DCDC4_VOLT
 	On A23 / A33 boards dcdc4 is unused and should be disabled.
 	On A80 boards dcdc4 powers VDD-SYS, HDMI, USB OTG and should be 0.9V.
 	On A83T boards dcdc4 is used for VDD-GPU.
+	On H616 boards dcdcd is used for VCC-DRAM.
 
 config AXP_DCDC5_VOLT
 	int "axp pmic dcdc5 voltage"
