@@ -174,7 +174,7 @@ static void write_raw_image(struct blk_desc *dev_desc,
 	fastboot_okay(NULL, response);
 }
 
-#if defined(CONFIG_FASTBOOT_MMC_BOOT1_SUPPORT) || \
+#if defined(CONFIG_FASTBOOT_MMC_BOOT_SUPPORT) || \
 	defined(CONFIG_FASTBOOT_MMC_USER_SUPPORT)
 static int fb_mmc_erase_mmc_hwpart(struct blk_desc *dev_desc)
 {
@@ -196,16 +196,16 @@ static int fb_mmc_erase_mmc_hwpart(struct blk_desc *dev_desc)
 }
 #endif
 
-#ifdef CONFIG_FASTBOOT_MMC_BOOT1_SUPPORT
-static void fb_mmc_boot1_ops(struct blk_desc *dev_desc, void *buffer,
-			     u32 buff_sz, char *response)
+#ifdef CONFIG_FASTBOOT_MMC_BOOT_SUPPORT
+static void fb_mmc_boot_ops(struct blk_desc *dev_desc, void *buffer,
+			    int hwpart, u32 buff_sz, char *response)
 {
 	lbaint_t blkcnt;
 	lbaint_t blks;
 	unsigned long blksz;
 
-	// To operate on EMMC_BOOT1 (mmc0boot0), we first change the hwpart
-	if (blk_dselect_hwpart(dev_desc, 1)) {
+	// To operate on EMMC_BOOT1/2 (mmc0boot0/1) we first change the hwpart
+	if (blk_dselect_hwpart(dev_desc, hwpart)) {
 		pr_err("Failed to select hwpart\n");
 		fastboot_fail("Failed to select hwpart", response);
 		return;
@@ -224,21 +224,24 @@ static void fb_mmc_boot1_ops(struct blk_desc *dev_desc, void *buffer,
 			return;
 		}
 
-		debug("Start Flashing Image to EMMC_BOOT1...\n");
+		debug("Start Flashing Image to EMMC_BOOT%d...\n", hwpart);
 
 		blks = fb_mmc_blk_write(dev_desc, 0, blkcnt, buffer);
 
 		if (blks != blkcnt) {
-			pr_err("Failed to write EMMC_BOOT1\n");
-			fastboot_fail("Failed to write EMMC_BOOT1", response);
+			pr_err("Failed to write EMMC_BOOT%d\n", hwpart);
+			fastboot_fail("Failed to write EMMC_BOOT part",
+				      response);
 			return;
 		}
 
-		printf("........ wrote %lu bytes to EMMC_BOOT1\n",
-		       blkcnt * blksz);
+		printf("........ wrote %lu bytes to EMMC_BOOT%d\n",
+		       blkcnt * blksz, hwpart);
 	} else { /* erase */
 		if (fb_mmc_erase_mmc_hwpart(dev_desc)) {
-			fastboot_fail("Failed to erase EMMC_BOOT1", response);
+			pr_err("Failed to erase EMMC_BOOT%d\n", hwpart);
+			fastboot_fail("Failed to erase EMMC_BOOT part",
+				      response);
 			return;
 		}
 	}
@@ -467,10 +470,15 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 		return;
 	}
 
-#ifdef CONFIG_FASTBOOT_MMC_BOOT1_SUPPORT
+#ifdef CONFIG_FASTBOOT_MMC_BOOT_SUPPORT
 	if (strcmp(cmd, CONFIG_FASTBOOT_MMC_BOOT1_NAME) == 0) {
-		fb_mmc_boot1_ops(dev_desc, download_buffer,
-				 download_bytes, response);
+		fb_mmc_boot_ops(dev_desc, download_buffer, 1,
+				download_bytes, response);
+		return;
+	}
+	if (strcmp(cmd, CONFIG_FASTBOOT_MMC_BOOT2_NAME) == 0) {
+		fb_mmc_boot_ops(dev_desc, download_buffer, 2,
+				download_bytes, response);
 		return;
 	}
 #endif
@@ -598,10 +606,15 @@ void fastboot_mmc_erase(const char *cmd, char *response)
 		return;
 	}
 
-#ifdef CONFIG_FASTBOOT_MMC_BOOT1_SUPPORT
+#ifdef CONFIG_FASTBOOT_MMC_BOOT_SUPPORT
 	if (strcmp(cmd, CONFIG_FASTBOOT_MMC_BOOT1_NAME) == 0) {
 		/* erase EMMC boot1 */
-		fb_mmc_boot1_ops(dev_desc, NULL, 0, response);
+		fb_mmc_boot_ops(dev_desc, NULL, 1, 0, response);
+		return;
+	}
+	if (strcmp(cmd, CONFIG_FASTBOOT_MMC_BOOT2_NAME) == 0) {
+		/* erase EMMC boot2 */
+		fb_mmc_boot_ops(dev_desc, NULL, 2, 0, response);
 		return;
 	}
 #endif
