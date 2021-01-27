@@ -196,6 +196,13 @@ config FASTBOOT_CMD_OEM_PARTCONF
 	  Add support for the "oem partconf" command from a client. This set
 	  the mmc boot-partition for the selecting eMMC device.
 
+config FASTBOOT_CMD_OEM_BOOTBUS
+	bool "Enable the 'oem bootbus' command"
+	depends on FASTBOOT_FLASH_MMC && SUPPORT_EMMC_BOOT
+	help
+	  Add support for the "oem bootbus" command from a client. This set
+	  the mmc boot configuration for the selecting eMMC device.
+
 endif # FASTBOOT
 
 endmenu

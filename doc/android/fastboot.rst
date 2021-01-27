@@ -25,6 +25,7 @@ The following OEM commands are supported (if enabled):
 - ``oem format`` - this executes ``gpt write mmc %x $partitions``
 - ``oem partconf`` - this executes ``mmc partconf %x <arg> 0`` to configure eMMC
   with <arg> = boot_ack boot_partition
+- ``oem bootbus``  - this executes ``mmc bootbus %x %s`` to configure eMMC
 
 Support for both eMMC and NAND devices is included.
 
