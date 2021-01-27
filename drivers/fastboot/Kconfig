@@ -124,14 +124,26 @@ config FASTBOOT_MMC_BOOT1_NAME
 	  defined here.
 	  The default target name for updating EMMC_BOOT1 is "mmc0boot0".
 
+config FASTBOOT_MMC_USER_SUPPORT
+	bool "Enable eMMC userdata partition flash/erase"
+	depends on FASTBOOT_FLASH_MMC
+	help
+	  Define this to enable the support "flash" and "erase" command on
+	  eMMC userdata. The "flash" command only update the MBR and GPT
+	  header when CONFIG_EFI_PARTITION is supported.
+	  The "erase" command erase all the userdata.
+	  This occurs when the specified "partition name" on the
+	  fastboot command line matches the value CONFIG_FASTBOOT_MMC_USER_NAME.
+
 config FASTBOOT_MMC_USER_NAME
-	string "Target name for erasing EMMC_USER"
-	depends on FASTBOOT_FLASH_MMC && EFI_PARTITION && ARCH_MEDIATEK
+	string "Target name for updating EMMC_USER"
+	depends on FASTBOOT_MMC_USER_SUPPORT
 	default "mmc0"
 	help
-	  The fastboot "erase" command supports erasing EMMC_USER. This occurs
-	  when the specified "EMMC_USER name" on the "fastboot erase" commands
-	  match the value defined here.
+	  The fastboot "flash" and "erase" command supports EMMC_USER.
+	  This occurs when the specified "EMMC_USER name" on the
+	  "fastboot flash" and the "fastboot erase" commands match the value
+	  defined here.
 	  The default target name for erasing EMMC_USER is "mmc0".
 
 config FASTBOOT_GPT_NAME
