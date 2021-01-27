@@ -504,6 +504,7 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 				      response);
 			return;
 		}
+		part_init(dev_desc);
 		printf("........ success\n");
 		fastboot_okay(NULL, response);
 		return;
@@ -525,6 +526,7 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 				      response);
 			return;
 		}
+		part_init(dev_desc);
 		printf("........ success\n");
 		fastboot_okay(NULL, response);
 		return;
