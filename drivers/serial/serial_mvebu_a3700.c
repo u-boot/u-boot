@@ -23,6 +23,7 @@ struct mvebu_plat {
 #define UART_POSSR_REG		0x14
 
 #define UART_STATUS_RX_RDY	0x10
+#define UART_STATUS_TX_EMPTY	0x40
 #define UART_STATUS_TXFIFO_FULL	0x800
 
 #define UART_CTRL_RXFIFO_RESET	0x4000
@@ -59,8 +60,13 @@ static int mvebu_serial_pending(struct udevice *dev, bool input)
 	struct mvebu_plat *plat = dev_get_plat(dev);
 	void __iomem *base = plat->base;
 
-	if (readl(base + UART_STATUS_REG) & UART_STATUS_RX_RDY)
-		return 1;
+	if (input) {
+		if (readl(base + UART_STATUS_REG) & UART_STATUS_RX_RDY)
+			return 1;
+	} else {
+		if (!(readl(base + UART_STATUS_REG) & UART_STATUS_TX_EMPTY))
+			return 1;
+	}
 
 	return 0;
 }

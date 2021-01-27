@@ -374,7 +374,7 @@ config SIFIVE_GPIO
 
 config MVEBU_GPIO
 	bool "Marvell MVEBU GPIO driver"
-	depends on DM_GPIO && ARCH_MVEBU
+	depends on DM_GPIO && (ARCH_MVEBU || ARCH_KIRKWOOD)
 	default y
 	help
 	  Say yes here to support Marvell MVEBU (Armada XP/38x) GPIOs.

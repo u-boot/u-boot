@@ -73,6 +73,7 @@ struct mvebu_pcie {
 	void __iomem *membase;
 	struct resource mem;
 	void __iomem *iobase;
+	struct resource io;
 	u32 port;
 	u32 lane;
 	int devfn;
@@ -81,6 +82,8 @@ struct mvebu_pcie {
 	char name[16];
 	unsigned int mem_target;
 	unsigned int mem_attr;
+	unsigned int io_target;
+	unsigned int io_attr;
 };
 
 /*
@@ -90,6 +93,7 @@ struct mvebu_pcie {
  */
 static void __iomem *mvebu_pcie_membase = (void __iomem *)MBUS_PCI_MEM_BASE;
 #define PCIE_MEM_SIZE	(128 << 20)
+static void __iomem *mvebu_pcie_iobase = (void __iomem *)MBUS_PCI_IO_BASE;
 
 static inline bool mvebu_pcie_link_up(struct mvebu_pcie *pcie)
 {
@@ -306,12 +310,24 @@ static int mvebu_pcie_probe(struct udevice *dev)
 		       (u32)pcie->mem.start, PCIE_MEM_SIZE);
 	}
 
+	pcie->io.start = (u32)mvebu_pcie_iobase;
+	pcie->io.end = pcie->io.start + MBUS_PCI_IO_SIZE - 1;
+	mvebu_pcie_iobase += MBUS_PCI_IO_SIZE;
+
+	if (mvebu_mbus_add_window_by_id(pcie->io_target, pcie->io_attr,
+					(phys_addr_t)pcie->io.start,
+					MBUS_PCI_IO_SIZE)) {
+		printf("PCIe unable to add mbus window for IO at %08x+%08x\n",
+		       (u32)pcie->io.start, MBUS_PCI_IO_SIZE);
+	}
+
 	/* Setup windows and configure host bridge */
 	mvebu_pcie_setup_wins(pcie);
 
 	/* Master + slave enable. */
 	reg = readl(pcie->base + PCIE_CMD_OFF);
 	reg |= PCI_COMMAND_MEMORY;
+	reg |= PCI_COMMAND_IO;
 	reg |= PCI_COMMAND_MASTER;
 	reg |= BIT(10);		/* disable interrupts */
 	writel(reg, pcie->base + PCIE_CMD_OFF);
@@ -323,7 +339,9 @@ static int mvebu_pcie_probe(struct udevice *dev)
 		       0, 0,
 		       gd->ram_size,
 		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
-	hose->region_count = 2;
+	pci_set_region(hose->regions + 2, pcie->io.start,
+		       pcie->io.start, MBUS_PCI_IO_SIZE, PCI_REGION_IO);
+	hose->region_count = 3;
 
 	/* Set BAR0 to internal registers */
 	writel(SOC_REGS_PHY_BASE, pcie->base + PCIE_BAR_LO_OFF(0));
@@ -439,6 +457,14 @@ static int mvebu_pcie_of_to_plat(struct udevice *dev)
 				 &pcie->mem_target, &pcie->mem_attr);
 	if (ret < 0) {
 		printf("%s: cannot get tgt/attr for mem window\n", pcie->name);
+		goto err;
+	}
+
+	ret = mvebu_get_tgt_attr(dev_ofnode(dev->parent), pcie->devfn,
+				 IORESOURCE_IO,
+				 &pcie->io_target, &pcie->io_attr);
+	if (ret < 0) {
+		printf("%s: cannot get tgt/attr for IO window\n", pcie->name);
 		goto err;
 	}
 

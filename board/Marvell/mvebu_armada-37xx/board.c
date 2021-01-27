@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/device-internal.h>
 #include <env.h>
 #include <i2c.h>
 #include <init.h>
@@ -84,11 +85,9 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+	struct udevice *dev;
 	struct mmc *mmc_dev;
 	bool ddr4, emmc;
-
-	if (env_get("fdtfile"))
-		return 0;
 
 	if (!of_machine_is_compatible("globalscale,espressobin"))
 		return 0;
@@ -100,6 +99,16 @@ int board_late_init(void)
 	/* eMMC is mmc dev num 1 */
 	mmc_dev = find_mmc_device(1);
 	emmc = (mmc_dev && mmc_init(mmc_dev) == 0);
+
+	/* if eMMC is not present then remove it from DM */
+	if (!emmc && mmc_dev) {
+		dev = mmc_dev->dev;
+		device_remove(dev, DM_REMOVE_NORMAL);
+		device_unbind(dev);
+	}
+
+	if (env_get("fdtfile"))
+		return 0;
 
 	if (ddr4 && emmc)
 		env_set("fdtfile", "marvell/armada-3720-espressobin-v7-emmc.dtb");

@@ -224,6 +224,17 @@ fdt_addr_r:
 
   A size of 1MB for the FDT/DTB seems reasonable.
 
+fdtfile:
+
+  Mandatory. the name of the DTB file for the specific board for instance
+  the espressobin v5 board the value is "marvell/armada-3720-espressobin.dtb"
+  while on a clearfog pro it is "armada-388-clearfog-pro.dtb" in the case of
+  a board providing its firmware based DTB this value can be used to override
+  the DTB with a different DTB. fdtfile will automatically be set for you if
+  it matches the format ${soc}-${board}.dtb which covers most 32 bit use cases.
+  AArch64 generally does not match as the Linux kernel put the dtb files under
+  SoC vendor directories. 
+
 ramdisk_addr_r:
 
   Mandatory. The location in RAM where the initial ramdisk will be loaded to
