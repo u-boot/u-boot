@@ -19,6 +19,7 @@ Shell commands
    button
    conitrace
    echo
+   exception
    exit
    false
    for

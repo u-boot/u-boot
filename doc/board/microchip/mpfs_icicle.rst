@@ -5,6 +5,7 @@ Microchip PolarFire SoC Icicle Kit
 
 RISC-V PolarFire SoC
 --------------------
+
 The PolarFire SoC is the 4+1 64-bit RISC-V SoC from Microchip.
 
 The Icicle Kit development platform is based on PolarFire SoC and capable
@@ -12,6 +13,7 @@ of running Linux.
 
 Mainline support
 ----------------
+
 The support for following drivers are already enabled:
 
 1. NS16550 UART Driver.
@@ -23,7 +25,7 @@ Booting from eMMC using HSS
 ---------------------------
 
 Building U-Boot
----------------
+~~~~~~~~~~~~~~~
 
 1. Add the RISC-V toolchain to your PATH.
 2. Setup ARCH & cross compilation environment variable:
@@ -36,7 +38,7 @@ Building U-Boot
 4. make
 
 Flashing
---------
+~~~~~~~~
 
 The current U-Boot port is supported in S-mode only and loaded from DRAM.
 
@@ -48,11 +50,13 @@ boot-flow) and OpenSBI generic platform fw_payload.bin (with u-boot.bin embedded
 as HSS payload (Custom boot-flow)
 
 Microchip boot-flow
--------------------
+~~~~~~~~~~~~~~~~~~~
+
 HSS with OpenSBI (M-Mode) -> U-Boot (S-Mode) -> Linux (S-Mode)
 
 Build the HSS (Hart Software Services) - Microchip boot-flow
-------------------------------------------------------------
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 (Note: HSS git repo is at https://github.com/polarfire-soc/hart-software-services)
 
 1. Configure
@@ -74,13 +78,15 @@ Alternatively, copy the default config for Microchip boot-flow.
 The FPGA design will use the hss.hex or hss.bin.
 
 FPGA design with HSS programming file
--------------------------------------
+'''''''''''''''''''''''''''''''''''''
+
 https://github.com/polarfire-soc/polarfire-soc-documentation/blob/master/boards/mpfs-icicle-kit-es/updating-icicle-kit/updating-icicle-kit-design-and-linux.md
 
 The HSS firmware runs from the PolarFire SoC eNVM on reset.
 
 Creating the HSS payload - Microchip boot-flow
-----------------------------------------------
+''''''''''''''''''''''''''''''''''''''''''''''
+
 1. You will be creating a payload from `u-boot-dtb.bin`.
    Copy this file to the HSS/tools/hss-payload-generator/test directory.
 2. Go to hss-payload-generator source directory.
@@ -108,11 +114,12 @@ Please refer to HSS documenation to build the HSS firmware for payload.
 (Note: HSS git repo is at https://github.com/polarfire-soc/hart-software-services/blob/master/tools/hss-payload-generator/README.md)
 
 Custom boot-flow
-----------------
+~~~~~~~~~~~~~~~~
+
 HSS without OpenSBI (M-Mode) -> OpenSBI (M-Mode) -> U-Boot (S-Mode) -> Linux (S-Mode)
 
 Build OpenSBI
--------------
+'''''''''''''
 
 1. Get the OpenSBI source
 
@@ -132,7 +139,8 @@ Build OpenSBI
    "<opensbi-directory>/build/platform/generic/firmware/fw_payload.bin"
 
 Build the HSS (Hart Software Services)- Custom boot-flow
---------------------------------------------------------
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 (Note: HSS git repo is at https://github.com/polarfire-soc/hart-software-services)
 
 1. Configure
@@ -154,7 +162,8 @@ Alternatively, copy the default custom config for Custom boot-flow.
 The FPGA design will use the hss.hex or hss.bin.
 
 Creating the HSS payload - Custom boot-flow
--------------------------------------------
+'''''''''''''''''''''''''''''''''''''''''''
+
 1. You will be creating a payload from `fw_payload.bin`.
    Copy this file to the HSS/tools/hss-payload-generator/test directory.
 2. Go to hss-payload-generator source directory.
@@ -183,7 +192,8 @@ Please refer to HSS documenation to build the HSS firmware for payload.
 and also refer the HSS payload generator at https://github.com/polarfire-soc/polarfire-soc-documentation/blob/master/software-development/hss-payloads.md)
 
 eMMC
-----
+~~~~
+
 Program eMMC with payload binary is explained in the PolarFire SoC documentation.
 (Note: PolarFire SoC Documentation git repo is at https://github.com/polarfire-soc/polarfire-soc-documentation/blob/master/boards/mpfs-icicle-kit-es/updating-icicle-kit/updating-icicle-kit-design-and-linux.md#eMMC)
 
@@ -195,17 +205,19 @@ line interface, then type 'boot' and enter to boot the newly copied image.
     sudo dd if=<payload_binary> of=/dev/sdX bs=512
 
 GUID type
----------
+~~~~~~~~~
+
 The HSS always picks up HSS payload from a GPT partition with
 GIUD type "21686148-6449-6E6F-744E-656564454649" or sector '0' of the eMMC if no
 GPT partition.
 
 Booting
--------
+~~~~~~~
+
 You should see the U-Boot prompt on UART0.
 
 Sample boot log from MPFS Icicle Kit
-------------------------------------
+''''''''''''''''''''''''''''''''''''
 
 .. code-block:: none
 
@@ -414,13 +426,15 @@ Booting U-Boot and Linux from eMMC
 ----------------------------------
 
 FPGA design with HSS programming file and Linux Image
------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 https://github.com/polarfire-soc/polarfire-soc-documentation/blob/master/boards/mpfs-icicle-kit-es/updating-icicle-kit/updating-icicle-kit-design-and-linux.md
 
 The HSS firmware runs from the PolarFire SoC eNVM on reset.
 
 eMMC
-----
+~~~~
+
 Program eMMC with payload binary and Linux image is explained in the
 PolarFire SoC documentation.
 The payload binary should be copied to partition 2 of the eMMC.
@@ -440,13 +454,14 @@ copied payload and Linux image.
 You should see the U-Boot prompt on UART0.
 
 GUID type
----------
+~~~~~~~~~
+
 The HSS always picks up the HSS payload from a GPT partition with
 GIUD type "21686148-6449-6E6F-744E-656564454649" or sector '0' of the eMMC if no
 GPT partition.
 
 Sample boot log from MPFS Icicle Kit
-------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: none
 

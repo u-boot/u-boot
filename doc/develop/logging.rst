@@ -26,8 +26,7 @@ Logging levels
 
 There are a number logging levels available.
 
-.. kernel-doc:: include/log.h
-   :identifiers: log_level_t
+See enum :c:type:`log_level_t`
 
 Logging category
 ----------------
@@ -36,8 +35,7 @@ Logging can come from a wide variety of places within U-Boot. Each log message
 has a category which is intended to allow messages to be filtered according to
 their source.
 
-.. kernel-doc:: include/log.h
-   :identifiers: log_category_t
+See enum :c:type:`log_category_t`
 
 Enabling logging
 ----------------
@@ -67,7 +65,7 @@ to enable building in of all logging statements in a single file. Put it at
 the top of the file, before any #includes.
 
 To actually get U-Boot to output this you need to also set the default logging
-level - e.g. set CONFIG_LOG_DEFAULT_LEVEL to 7 (:c:type:`LOGL_DEBUG`) or more.
+level - e.g. set CONFIG_LOG_DEFAULT_LEVEL to 7 (:c:data:`LOGL_DEBUG`) or more.
 Otherwise debug output is suppressed and will not be generated.
 
 Using DEBUG
@@ -290,8 +288,3 @@ number dropped due to them being generated before the log system was ready.
 Add a printf() format string pragma so that log statements are checked properly
 
 Add a command to delete existing log records.
-
-Logging API
------------
-.. kernel-doc:: include/log.h
-   :internal:
