@@ -1,0 +1,20 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * NXP LS1028A-QDS device tree fragment for RCW 7777
+ *
+ * Copyright 2019-2021 NXP Semiconductors
+ */
+
+&slot2 {
+#include "fsl-sch-30842.dtsi"
+};
+
+&mscc_felix {
+	status = "okay";
+};
+
+&mscc_felix_port1 {
+	status = "okay";
+	phy-mode = "sgmii-2500";
+	phy-handle = <&{/i2c@2000000/fpga@66/mux-mdio@54/mdio@50/phy@02}>;
+};
