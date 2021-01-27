@@ -189,6 +189,13 @@ config FASTBOOT_CMD_OEM_FORMAT
 	  relies on the env variable partitions to contain the list of
 	  partitions as required by the gpt command.
 
+config FASTBOOT_CMD_OEM_PARTCONF
+	bool "Enable the 'oem partconf' command"
+	depends on FASTBOOT_FLASH_MMC && SUPPORT_EMMC_BOOT
+	help
+	  Add support for the "oem partconf" command from a client. This set
+	  the mmc boot-partition for the selecting eMMC device.
+
 endif # FASTBOOT
 
 endmenu
