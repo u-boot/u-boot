@@ -174,7 +174,8 @@ static void write_raw_image(struct blk_desc *dev_desc,
 	fastboot_okay(NULL, response);
 }
 
-#ifdef CONFIG_FASTBOOT_MMC_BOOT1_SUPPORT
+#if defined(CONFIG_FASTBOOT_MMC_BOOT1_SUPPORT) || \
+	defined(CONFIG_FASTBOOT_MMC_USER_SUPPORT)
 static int fb_mmc_erase_mmc_hwpart(struct blk_desc *dev_desc)
 {
 	lbaint_t blks;
@@ -193,7 +194,9 @@ static int fb_mmc_erase_mmc_hwpart(struct blk_desc *dev_desc)
 
 	return 0;
 }
+#endif
 
+#ifdef CONFIG_FASTBOOT_MMC_BOOT1_SUPPORT
 static void fb_mmc_boot1_ops(struct blk_desc *dev_desc, void *buffer,
 			     u32 buff_sz, char *response)
 {
@@ -473,7 +476,7 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 #endif
 
 #if CONFIG_IS_ENABLED(EFI_PARTITION)
-#ifndef CONFIG_FASTBOOT_MMC_USER_NAME
+#ifndef CONFIG_FASTBOOT_MMC_USER_SUPPORT
 	if (strcmp(cmd, CONFIG_FASTBOOT_GPT_NAME) == 0) {
 #else
 	if (strcmp(cmd, CONFIG_FASTBOOT_GPT_NAME) == 0 ||
@@ -603,7 +606,7 @@ void fastboot_mmc_erase(const char *cmd, char *response)
 	}
 #endif
 
-#ifdef CONFIG_FASTBOOT_MMC_USER_NAME
+#ifdef CONFIG_FASTBOOT_MMC_USER_SUPPORT
 	if (strcmp(cmd, CONFIG_FASTBOOT_MMC_USER_NAME) == 0) {
 		/* erase EMMC userdata */
 		if (fb_mmc_erase_mmc_hwpart(dev_desc))
