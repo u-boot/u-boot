@@ -14,6 +14,7 @@ obj-$(CONFIG_PHY_AQUANTIA) += aquantia.o
 obj-$(CONFIG_PHY_ATHEROS) += atheros.o
 obj-$(CONFIG_PHY_BROADCOM) += broadcom.o
 obj-$(CONFIG_PHY_CORTINA) += cortina.o
+obj-$(CONFIG_PHY_CORTINA_ACCESS) += ca_phy.o
 obj-$(CONFIG_PHY_DAVICOM) += davicom.o
 obj-$(CONFIG_PHY_ET1011C) += et1011c.o
 obj-$(CONFIG_PHY_LXT) += lxt.o

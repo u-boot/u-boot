@@ -412,7 +412,7 @@ int net_loop(enum proto_t protocol)
 
 	bootstage_mark_name(BOOTSTAGE_ID_ETH_START, "eth_start");
 	net_init();
-	if (eth_is_on_demand_init() || protocol != NETCONS) {
+	if (eth_is_on_demand_init()) {
 		eth_halt();
 		eth_set_current();
 		ret = eth_init();

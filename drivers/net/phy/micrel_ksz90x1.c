@@ -120,8 +120,13 @@ static int ksz90x1_of_config_group(struct phy_device *phydev,
 	if (!drv || !drv->writeext)
 		return -EOPNOTSUPP;
 
-	/* Look for a PHY node under the Ethernet node */
-	node = dev_read_subnode(dev, "ethernet-phy");
+	node = phydev->node;
+
+	if (!ofnode_valid(node)) {
+		/* Look for a PHY node under the Ethernet node */
+		node = dev_read_subnode(dev, "ethernet-phy");
+	}
+
 	if (!ofnode_valid(node)) {
 		/* No node found, look in the Ethernet node */
 		node = dev_ofnode(dev);

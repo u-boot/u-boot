@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2020 Cortina Access Inc.
  *
- * Configuration for Cortina-Access Presidio board.
+ * Configuration for Cortina-Access Presidio board
  */
 
 #ifndef __PRESIDIO_ASIC_H
@@ -62,6 +62,19 @@
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
+
+#define KSEG1_ATU_XLAT(x) (x)
+
+/* HW REG ADDR */
+#define NI_READ_POLL_COUNT                      1000
+#define CA_NI_MDIO_REG_BASE                     0xF4338
+#define NI_HV_GLB_MAC_ADDR_CFG0_OFFSET          0x010
+#define NI_HV_GLB_MAC_ADDR_CFG1_OFFSET          0x014
+#define NI_HV_PT_BASE                           0x400
+#define NI_HV_XRAM_BASE                         0x820
+#define GLOBAL_BLOCK_RESET_OFFSET               0x04
+#define GLOBAL_GLOBAL_CONFIG_OFFSET             0x20
+#define GLOBAL_IO_DRIVE_CONTROL_OFFSET          0x4c
 
 /* max command args */
 #define CONFIG_SYS_MAXARGS		64
