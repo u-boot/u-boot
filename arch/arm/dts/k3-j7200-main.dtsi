@@ -343,7 +343,7 @@
 
 	main_r5fss0: r5fss@5c00000 {
 		compatible = "ti,j7200-r5fss";
-		lockstep-mode = <0>;
+		ti,cluster-mode = <0>;
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges = <0x5c00000 0x00 0x5c00000 0x20000>,
@@ -360,9 +360,9 @@
 			ti,sci-proc-ids = <0x06 0xFF>;
 			resets = <&k3_reset 245 1>;
 			firmware-name = "j7200-main-r5f0_0-fw";
-			atcm-enable = <1>;
-			btcm-enable = <1>;
-			loczrama = <1>;
+			ti,atcm-enable = <1>;
+			ti,btcm-enable = <1>;
+			ti,loczrama = <1>;
 		};
 
 		main_r5fss0_core1: r5f@5d00000 {
@@ -375,9 +375,9 @@
 			ti,sci-proc-ids = <0x07 0xFF>;
 			resets = <&k3_reset 246 1>;
 			firmware-name = "j7200-main-r5f0_1-fw";
-			atcm-enable = <1>;
-			btcm-enable = <1>;
-			loczrama = <1>;
+			ti,atcm-enable = <1>;
+			ti,btcm-enable = <1>;
+			ti,loczrama = <1>;
 		};
 	};
 };

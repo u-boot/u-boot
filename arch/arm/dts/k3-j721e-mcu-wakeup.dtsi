@@ -97,7 +97,7 @@
 
 	mcu_r5fss0: r5fss@41000000 {
 		compatible = "ti,j721e-r5fss";
-		lockstep-mode = <1>;
+		ti,cluster-mode = <1>;
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges = <0x41000000 0x00 0x41000000 0x20000>,
@@ -113,9 +113,9 @@
 			ti,sci-dev-id = <250>;
 			ti,sci-proc-ids = <0x01 0xFF>;
 			resets = <&k3_reset 250 1>;
-			atcm-enable = <1>;
-			btcm-enable = <1>;
-			loczrama = <1>;
+			ti,atcm-enable = <1>;
+			ti,btcm-enable = <1>;
+			ti,loczrama = <1>;
 		};
 
 		mcu_r5fss0_core1: r5f@41400000 {
@@ -127,9 +127,9 @@
 			ti,sci-dev-id = <251>;
 			ti,sci-proc-ids = <0x02 0xFF>;
 			resets = <&k3_reset 251 1>;
-			atcm-enable = <1>;
-			btcm-enable = <1>;
-			loczrama = <1>;
+			ti,atcm-enable = <1>;
+			ti,btcm-enable = <1>;
+			ti,loczrama = <1>;
 		};
 	};
 
