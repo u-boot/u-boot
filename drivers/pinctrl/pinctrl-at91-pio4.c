@@ -25,6 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct atmel_pio4_plat {
 	struct atmel_pio4_port *reg_base;
+	unsigned int slew_rate_support;
 };
 
 static const struct pinconf_param conf_params[] = {
@@ -36,9 +37,11 @@ static const struct pinconf_param conf_params[] = {
 	{ "input-schmitt-enable", PIN_CONFIG_INPUT_SCHMITT_ENABLE, 1 },
 	{ "input-debounce", PIN_CONFIG_INPUT_DEBOUNCE, 0 },
 	{ "atmel,drive-strength", PIN_CONFIG_DRIVE_STRENGTH, 0 },
+	{ "slew-rate", PIN_CONFIG_SLEW_RATE, 0},
 };
 
-static u32 atmel_pinctrl_get_pinconf(struct udevice *config)
+static u32 atmel_pinctrl_get_pinconf(struct udevice *config,
+				     struct atmel_pio4_plat *plat)
 {
 	const struct pinconf_param *params;
 	u32 param, arg, conf = 0;
@@ -52,6 +55,10 @@ static u32 atmel_pinctrl_get_pinconf(struct udevice *config)
 
 		param = params->param;
 		arg = params->default_value;
+
+		/* Keep slew rate enabled by default. */
+		if (plat->slew_rate_support)
+			conf |= ATMEL_PIO_SR;
 
 		switch (param) {
 		case PIN_CONFIG_BIAS_DISABLE:
@@ -91,6 +98,15 @@ static u32 atmel_pinctrl_get_pinconf(struct udevice *config)
 			conf |= (val << ATMEL_PIO_DRVSTR_OFFSET)
 				& ATMEL_PIO_DRVSTR_MASK;
 			break;
+		case PIN_CONFIG_SLEW_RATE:
+			if (!plat->slew_rate_support)
+				break;
+
+			dev_read_u32(config, params->property, &val);
+			/* And disable it if requested. */
+			if (val == 0)
+				conf &= ~ATMEL_PIO_SR;
+			break;
 		default:
 			printf("%s: Unsupported configuration parameter: %u\n",
 			       __func__, param);
@@ -116,6 +132,7 @@ static inline struct atmel_pio4_port *atmel_pio4_bank_base(struct udevice *dev,
 
 static int atmel_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
+	struct atmel_pio4_plat *plat = dev_get_plat(dev);
 	struct atmel_pio4_port *bank_base;
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(config);
@@ -124,7 +141,7 @@ static int atmel_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	u32 i, conf;
 	int count;
 
-	conf = atmel_pinctrl_get_pinconf(config);
+	conf = atmel_pinctrl_get_pinconf(config, plat);
 
 	count = fdtdec_get_int_array_count(blob, node, "pinmux",
 					   cells, ARRAY_SIZE(cells));
@@ -164,6 +181,7 @@ const struct pinctrl_ops atmel_pinctrl_ops  = {
 static int atmel_pinctrl_probe(struct udevice *dev)
 {
 	struct atmel_pio4_plat *plat = dev_get_plat(dev);
+	ulong priv = dev_get_driver_data(dev);
 	fdt_addr_t addr_base;
 
 	dev = dev_get_parent(dev);
@@ -172,13 +190,15 @@ static int atmel_pinctrl_probe(struct udevice *dev)
 		return -EINVAL;
 
 	plat->reg_base = (struct atmel_pio4_port *)addr_base;
+	plat->slew_rate_support = priv;
 
 	return 0;
 }
 
 static const struct udevice_id atmel_pinctrl_match[] = {
 	{ .compatible = "atmel,sama5d2-pinctrl" },
-	{ .compatible = "microchip,sama7g5-pinctrl" },
+	{ .compatible = "microchip,sama7g5-pinctrl",
+	  .data = (ulong)1, },
 	{}
 };
 
