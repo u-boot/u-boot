@@ -104,18 +104,19 @@ config FASTBOOT_FLASH_NAND_TRIMFFS
 	  When flashing NAND enable the DROP_FFS flag to drop trailing all-0xff
 	  pages.
 
-config FASTBOOT_MMC_BOOT1_SUPPORT
-	bool "Enable EMMC_BOOT1 flash/erase"
-	depends on FASTBOOT_FLASH_MMC && EFI_PARTITION && ARCH_MEDIATEK
+config FASTBOOT_MMC_BOOT_SUPPORT
+	bool "Enable EMMC_BOOT flash/erase"
+	depends on FASTBOOT_FLASH_MMC
 	help
 	  The fastboot "flash" and "erase" commands normally does operations
-	  on EMMC userdata. Define this to enable the special commands to
-	  flash/erase EMMC_BOOT1.
-	  The default target name for updating EMMC_BOOT1 is "mmc0boot0".
+	  on eMMC userdata. Define this to enable the special commands to
+	  flash/erase eMMC boot partition.
+	  The default target name for updating eMMC boot partition 1/2 is
+	  CONFIG_FASTBOOT_MMC_BOOT1_NAME/CONFIG_FASTBOOT_MMC_BOOT2_NAME.
 
 config FASTBOOT_MMC_BOOT1_NAME
 	string "Target name for updating EMMC_BOOT1"
-	depends on FASTBOOT_MMC_BOOT1_SUPPORT
+	depends on FASTBOOT_MMC_BOOT_SUPPORT
 	default "mmc0boot0"
 	help
 	  The fastboot "flash" and "erase" commands support operations on
@@ -123,6 +124,17 @@ config FASTBOOT_MMC_BOOT1_NAME
 	  the "fastboot flash" and "fastboot erase" commands match the value
 	  defined here.
 	  The default target name for updating EMMC_BOOT1 is "mmc0boot0".
+
+config FASTBOOT_MMC_BOOT2_NAME
+	string "Target name for updating EMMC_BOOT2"
+	depends on FASTBOOT_MMC_BOOT_SUPPORT
+	default "mmc0boot1"
+	help
+	  The fastboot "flash" and "erase" commands support operations on
+	  EMMC_BOOT2. This occurs when the specified "EMMC_BOOT2 name" on
+	  the "fastboot flash" and "fastboot erase" commands match the value
+	  defined here.
+	  The default target name for updating EMMC_BOOT2 is "mmc0boot1".
 
 config FASTBOOT_MMC_USER_SUPPORT
 	bool "Enable eMMC userdata partition flash/erase"
