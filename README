@@ -2770,13 +2770,6 @@ Low Level (hardware related) configuration options:
   CONFIG_SYS_OR3_PRELIM, CONFIG_SYS_BR3_PRELIM:
 		Memory Controller Definitions: BR2/3 and OR2/3 (SDRAM)
 
-- CONFIG_PCI_ENUM_ONLY
-		Only scan through and get the devices on the buses.
-		Don't do any setup work, presumably because someone or
-		something has already done it, and we don't need to do it
-		a second time.	Useful for platforms that are pre-booted
-		by coreboot or similar.
-
 - CONFIG_PCI_INDIRECT_BRIDGE:
 		Enable support for indirect PCI bridges.
 

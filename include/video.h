@@ -246,11 +246,25 @@ void video_set_default_colors(struct udevice *dev, bool invert);
  *	frame buffer start
  */
 int video_sync_copy(struct udevice *dev, void *from, void *to);
+
+/**
+ * video_sync_copy_all() - Sync the entire framebuffer to the copy
+ *
+ * @dev: Vidconsole device being updated
+ * @return 0 (always)
+ */
+int video_sync_copy_all(struct udevice *dev);
 #else
 static inline int video_sync_copy(struct udevice *dev, void *from, void *to)
 {
 	return 0;
 }
+
+static inline int video_sync_copy_all(struct udevice *dev)
+{
+	return 0;
+}
+
 #endif
 
 #ifndef CONFIG_DM_VIDEO

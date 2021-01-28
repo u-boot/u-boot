@@ -164,9 +164,9 @@ static int passwd_abort_key(uint64_t etime)
 	};
 
 	char presskey[MAX_DELAY_STOP_STR];
-	u_int presskey_len = 0;
-	u_int presskey_max = 0;
-	u_int i;
+	int presskey_len = 0;
+	int presskey_max = 0;
+	int i;
 
 #  ifdef CONFIG_AUTOBOOT_DELAY_STR
 	if (delaykey[0].str == NULL)

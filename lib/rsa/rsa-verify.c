@@ -522,10 +522,10 @@ int rsa_verify_hash(struct image_sign_info *info,
 			return ret;
 
 		/* No luck, so try each of the keys in turn */
-		for (ndepth = 0, noffset = fdt_next_node(info->fit, sig_node,
+		for (ndepth = 0, noffset = fdt_next_node(blob, sig_node,
 							 &ndepth);
 		     (noffset >= 0) && (ndepth > 0);
-		     noffset = fdt_next_node(info->fit, noffset, &ndepth)) {
+		     noffset = fdt_next_node(blob, noffset, &ndepth)) {
 			if (ndepth == 1 && noffset != node) {
 				ret = rsa_verify_with_keynode(info, hash,
 							      sig, sig_len,

@@ -69,6 +69,7 @@ endif
 
 ifdef CONFIG_TPL_BUILD
 
+obj-$(CONFIG_TPL_BOOTCOUNT_LIMIT) += bootcount/
 obj-$(CONFIG_TPL_MPC8XXX_INIT_DDR_SUPPORT) += ddr/fsl/
 
 endif

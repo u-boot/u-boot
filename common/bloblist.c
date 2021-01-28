@@ -33,6 +33,12 @@ static const char *const tag_name[] = {
 	[BLOBLISTT_SPL_HANDOFF]		= "SPL hand-off",
 	[BLOBLISTT_VBOOT_CTX]		= "Chrome OS vboot context",
 	[BLOBLISTT_VBOOT_HANDOFF]	= "Chrome OS vboot hand-off",
+	[BLOBLISTT_ACPI_GNVS]		= "ACPI GNVS",
+	[BLOBLISTT_INTEL_VBT]		= "Intel Video-BIOS table",
+	[BLOBLISTT_TPM2_TCG_LOG]	= "TPM v2 log space",
+	[BLOBLISTT_TCPA_LOG]		= "TPM log space",
+	[BLOBLISTT_ACPI_TABLES]		= "ACPI tables for x86",
+	[BLOBLISTT_SMBIOS_TABLES]	= "SMBIOS tables for x86",
 };
 
 const char *bloblist_tag_name(enum bloblist_tag_t tag)
@@ -317,6 +323,15 @@ void bloblist_show_list(void)
 	}
 }
 
+void bloblist_reloc(void *to, uint to_size, void *from, uint from_size)
+{
+	struct bloblist_hdr *hdr;
+
+	memcpy(to, from, from_size);
+	hdr = to;
+	hdr->size = to_size;
+}
+
 int bloblist_init(void)
 {
 	bool expected;
@@ -327,6 +342,8 @@ int bloblist_init(void)
 	 * that runs
 	 */
 	expected = !u_boot_first_phase();
+	if (spl_prev_phase() == PHASE_TPL && !IS_ENABLED(CONFIG_TPL_BLOBLIST))
+		expected = false;
 	if (expected)
 		ret = bloblist_check(CONFIG_BLOBLIST_ADDR,
 				     CONFIG_BLOBLIST_SIZE);

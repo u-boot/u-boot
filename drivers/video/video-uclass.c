@@ -290,6 +290,16 @@ int video_sync_copy(struct udevice *dev, void *from, void *to)
 
 	return 0;
 }
+
+int video_sync_copy_all(struct udevice *dev)
+{
+	struct video_priv *priv = dev_get_uclass_priv(dev);
+
+	video_sync_copy(dev, priv->fb, priv->fb + priv->fb_size);
+
+	return 0;
+}
+
 #endif
 
 /* Set up the colour map */

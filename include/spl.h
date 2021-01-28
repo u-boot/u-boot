@@ -58,6 +58,7 @@ static inline bool u_boot_first_phase(void)
 }
 
 enum u_boot_phase {
+	PHASE_NONE,	/* Invalid phase, signifying before U-Boot */
 	PHASE_TPL,	/* Running in TPL */
 	PHASE_SPL,	/* Running in SPL */
 	PHASE_BOARD_F,	/* Running in U-Boot before relocation */
@@ -121,6 +122,58 @@ static inline enum u_boot_phase spl_phase(void)
 	else
 		return PHASE_BOARD_R;
 #endif
+}
+
+/**
+ * spl_prev_phase() - Figure out the previous U-Boot phase
+ *
+ * @return the previous phase from this one, e.g. if called in SPL this returns
+ *	PHASE_TPL, if TPL is enabled
+ */
+static inline enum u_boot_phase spl_prev_phase(void)
+{
+#ifdef CONFIG_TPL_BUILD
+	return PHASE_NONE;
+#elif defined(CONFIG_SPL_BUILD)
+	return IS_ENABLED(CONFIG_TPL) ? PHASE_TPL : PHASE_NONE;
+#else
+	return IS_ENABLED(CONFIG_SPL) ? PHASE_SPL : PHASE_NONE;
+#endif
+}
+
+/**
+ * spl_next_phase() - Figure out the next U-Boot phase
+ *
+ * @return the next phase from this one, e.g. if called in TPL this returns
+ *	PHASE_SPL
+ */
+static inline enum u_boot_phase spl_next_phase(void)
+{
+#ifdef CONFIG_TPL_BUILD
+	return PHASE_SPL;
+#else
+	return PHASE_BOARD_F;
+#endif
+}
+
+/**
+ * spl_phase_name() - Get the name of the current phase
+ *
+ * @return phase name
+ */
+static inline const char *spl_phase_name(enum u_boot_phase phase)
+{
+	switch (phase) {
+	case PHASE_TPL:
+		return "TPL";
+	case PHASE_SPL:
+		return "SPL";
+	case PHASE_BOARD_F:
+	case PHASE_BOARD_R:
+		return "U-Boot";
+	default:
+		return "phase?";
+	}
 }
 
 /* A string name for SPL or TPL */

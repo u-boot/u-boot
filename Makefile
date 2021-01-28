@@ -885,7 +885,7 @@ cmd_static_rela = \
 	tools/relocate-rela $(3) $(4) $$start $$end
 else
 quiet_cmd_static_rela =
-cmd_static_rela = true
+cmd_static_rela =
 endif
 
 # Always append INPUTS so that arch config.mk's can add custom ones
@@ -1312,7 +1312,11 @@ endif
 shell_cmd = { $(call echo-cmd,$(1)) $(cmd_$(1)); }
 
 quiet_cmd_objcopy_uboot = OBJCOPY $@
+ifdef cmd_static_rela
 cmd_objcopy_uboot = $(cmd_objcopy) && $(call shell_cmd,static_rela,$<,$@,$(CONFIG_SYS_TEXT_BASE)) || { rm -f $@; false; }
+else
+cmd_objcopy_uboot = $(cmd_objcopy)
+endif
 
 u-boot-nodtb.bin: u-boot FORCE
 	$(call if_changed,objcopy_uboot)
