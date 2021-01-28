@@ -423,6 +423,9 @@ int write_mbr_partitions(struct blk_desc *dev,
 		ext_part_sect = next_ebr;
 	}
 
+	/* Update the partition table entries*/
+	part_init(dev_desc);
+
 	return 0;
 }
 
@@ -498,6 +501,9 @@ int write_mbr_sector(struct blk_desc *dev_desc, void *buf)
 		       __func__, "MBR");
 		return 1;
 	}
+
+	/* Update the partition table entries*/
+	part_init(dev_desc);
 
 	return 0;
 }
