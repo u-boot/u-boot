@@ -10,11 +10,11 @@
 import os
 import os.path
 import sys
+import pytest
 from pkg_resources import load_entry_point
 
-# argv; py.test test_directory_name user-supplied-arguments
-args = [os.path.dirname(__file__) + '/tests']
-args.extend(sys.argv)
-
 if __name__ == '__main__':
-    sys.exit(load_entry_point('pytest', 'console_scripts', 'pytest')(args))
+    # argv; py.test test_directory_name user-supplied-arguments
+    args = [os.path.dirname(__file__) + '/tests']
+    args.extend(sys.argv)
+    sys.exit(pytest.main(args))
