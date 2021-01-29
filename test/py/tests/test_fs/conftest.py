@@ -243,8 +243,7 @@ def umount_fs(mount_point):
 # Fixture for basic fs test
 #     derived from test/fs/fs-test.sh
 #
-# NOTE: yield_fixture was deprecated since pytest-3.0
-@pytest.yield_fixture()
+@pytest.fixture()
 def fs_obj_basic(request, u_boot_config):
     """Set up a file system to be used in basic fs test.
 
@@ -352,8 +351,7 @@ def fs_obj_basic(request, u_boot_config):
 #
 # Fixture for extended fs test
 #
-# NOTE: yield_fixture was deprecated since pytest-3.0
-@pytest.yield_fixture()
+@pytest.fixture()
 def fs_obj_ext(request, u_boot_config):
     """Set up a file system to be used in extended fs test.
 
@@ -439,8 +437,7 @@ def fs_obj_ext(request, u_boot_config):
 #
 # Fixture for mkdir test
 #
-# NOTE: yield_fixture was deprecated since pytest-3.0
-@pytest.yield_fixture()
+@pytest.fixture()
 def fs_obj_mkdir(request, u_boot_config):
     """Set up a file system to be used in mkdir test.
 
@@ -472,8 +469,7 @@ def fs_obj_mkdir(request, u_boot_config):
 #
 # Fixture for unlink test
 #
-# NOTE: yield_fixture was deprecated since pytest-3.0
-@pytest.yield_fixture()
+@pytest.fixture()
 def fs_obj_unlink(request, u_boot_config):
     """Set up a file system to be used in unlink test.
 
@@ -538,8 +534,7 @@ def fs_obj_unlink(request, u_boot_config):
 #
 # Fixture for symlink fs test
 #
-# NOTE: yield_fixture was deprecated since pytest-3.0
-@pytest.yield_fixture()
+@pytest.fixture()
 def fs_obj_symlink(request, u_boot_config):
     """Set up a file system to be used in symlink fs test.
 
