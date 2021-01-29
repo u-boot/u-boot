@@ -271,7 +271,7 @@ class Series(dict):
                 cc += get_maintainer.GetMaintainer(dir_list, commit.patch)
             for x in set(cc) & set(settings.bounces):
                 print(col.Color(col.YELLOW, 'Skipping "%s"' % x))
-            cc = set(cc) - set(settings.bounces)
+            cc = list(set(cc) - set(settings.bounces))
             if limit is not None:
                 cc = cc[:limit]
             all_ccs += cc
