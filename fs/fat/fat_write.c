@@ -1237,11 +1237,37 @@ again:
 		}
 
 		*last_slash_cont = '\0';
-		*basename = last_slash_cont + 1;
+		filename = last_slash_cont + 1;
 	} else {
 		*dirname = "/"; /* root by default */
-		*basename = filename;
 	}
+
+	/*
+	 * The FAT32 File System Specification v1.03 requires leading and
+	 * trailing spaces as well as trailing periods to be ignored.
+	 */
+	for (; *filename == ' '; ++filename)
+		;
+
+	/* Keep special entries '.' and '..' */
+	if (filename[0] == '.' &&
+	    (!filename[1] || (filename[1] == '.' && !filename[2])))
+		goto done;
+
+	/* Remove trailing periods and spaces */
+	for (p = filename + strlen(filename) - 1; p >= filename; --p) {
+		switch (*p) {
+		case ' ':
+		case '.':
+			*p = 0;
+			break;
+		default:
+			goto done;
+		}
+	}
+
+done:
+	*basename = filename;
 
 	return 0;
 }
