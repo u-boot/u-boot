@@ -142,8 +142,9 @@ static efi_status_t EFIAPI efi_disk_read_blocks(struct efi_block_io *this,
 		return EFI_MEDIA_CHANGED;
 	if (!this->media->media_present)
 		return EFI_NO_MEDIA;
-	/* media->io_align is a power of 2 */
-	if ((uintptr_t)buffer & (this->media->io_align - 1))
+	/* media->io_align is a power of 2 or 0 */
+	if (this->media->io_align &&
+	    (uintptr_t)buffer & (this->media->io_align - 1))
 		return EFI_INVALID_PARAMETER;
 	if (lba * this->media->block_size + buffer_size >
 	    this->media->last_block * this->media->block_size)
@@ -209,8 +210,9 @@ static efi_status_t EFIAPI efi_disk_write_blocks(struct efi_block_io *this,
 		return EFI_MEDIA_CHANGED;
 	if (!this->media->media_present)
 		return EFI_NO_MEDIA;
-	/* media->io_align is a power of 2 */
-	if ((uintptr_t)buffer & (this->media->io_align - 1))
+	/* media->io_align is a power of 2 or 0 */
+	if (this->media->io_align &&
+	    (uintptr_t)buffer & (this->media->io_align - 1))
 		return EFI_INVALID_PARAMETER;
 	if (lba * this->media->block_size + buffer_size >
 	    this->media->last_block * this->media->block_size)
