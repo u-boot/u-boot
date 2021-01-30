@@ -1299,9 +1299,8 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 		goto exit;
 	}
 
-	filename = basename;
-	if (normalize_longname(l_filename, filename)) {
-		printf("FAT: illegal filename (%s)\n", filename);
+	if (normalize_longname(l_filename, basename)) {
+		printf("FAT: illegal filename (%s)\n", basename);
 		ret = -EINVAL;
 		goto exit;
 	}
@@ -1365,7 +1364,7 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 		}
 
 		/* Check if long name is needed */
-		ndent = set_name(itr, filename, shortname);
+		ndent = set_name(itr, basename, shortname);
 		if (ndent < 0) {
 			ret = ndent;
 			goto exit;
@@ -1375,7 +1374,7 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 			goto exit;
 		if (ndent > 1) {
 			/* Set long name entries */
-			ret = fill_dir_slot(itr, filename, shortname);
+			ret = fill_dir_slot(itr, basename, shortname);
 			if (ret)
 				goto exit;
 		}
@@ -1611,31 +1610,31 @@ exit:
 	return ret;
 }
 
-int fat_mkdir(const char *new_dirname)
+int fat_mkdir(const char *dirname)
 {
 	dir_entry *retdent;
 	fsdata datablock = { .fatbuf = NULL, };
 	fsdata *mydata = &datablock;
 	fat_itr *itr = NULL;
-	char *dirname_copy, *parent, *dirname;
+	char *dirname_copy, *parent, *basename;
 	char l_dirname[VFAT_MAXLEN_BYTES];
 	int ret = -1;
 	loff_t actwrite;
 	unsigned int bytesperclust;
 	dir_entry *dotdent = NULL;
 
-	dirname_copy = strdup(new_dirname);
+	dirname_copy = strdup(dirname);
 	if (!dirname_copy)
 		goto exit;
 
-	split_filename(dirname_copy, &parent, &dirname);
-	if (!strlen(dirname)) {
+	split_filename(dirname_copy, &parent, &basename);
+	if (!strlen(basename)) {
 		ret = -EINVAL;
 		goto exit;
 	}
 
-	if (normalize_longname(l_dirname, dirname)) {
-		printf("FAT: illegal filename (%s)\n", dirname);
+	if (normalize_longname(l_dirname, basename)) {
+		printf("FAT: illegal filename (%s)\n", basename);
 		ret = -EINVAL;
 		goto exit;
 	}
@@ -1678,7 +1677,7 @@ int fat_mkdir(const char *new_dirname)
 		}
 
 		/* Check if long name is needed */
-		ndent = set_name(itr, dirname, shortname);
+		ndent = set_name(itr, basename, shortname);
 		if (ndent < 0) {
 			ret = ndent;
 			goto exit;
@@ -1688,7 +1687,7 @@ int fat_mkdir(const char *new_dirname)
 			goto exit;
 		if (ndent > 1) {
 			/* Set long name entries */
-			ret = fill_dir_slot(itr, dirname, shortname);
+			ret = fill_dir_slot(itr, basename, shortname);
 			if (ret)
 				goto exit;
 		}
