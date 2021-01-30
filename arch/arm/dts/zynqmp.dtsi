@@ -1156,14 +1156,14 @@
 
 			power-domains = <&zynqmp_firmware PD_DP>;
 
-			vid-layer {
+			vid_layer: vid-layer {
 				dma-names = "vid0", "vid1", "vid2";
 				dmas = <&xlnx_dpdma 0>,
 				       <&xlnx_dpdma 1>,
 				       <&xlnx_dpdma 2>;
 			};
 
-			gfx-layer {
+			gfx_layer: gfx-layer {
 				dma-names = "gfx0";
 				dmas = <&xlnx_dpdma 3>;
 			};
