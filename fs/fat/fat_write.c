@@ -1259,8 +1259,10 @@ again:
 static int normalize_longname(char *l_filename, const char *filename)
 {
 	const char *p, illegal[] = "<>:\"/\\|?*";
+	size_t len;
 
-	if (strlen(filename) >= VFAT_MAXLEN_BYTES)
+	len = strlen(filename);
+	if (!len || len >= VFAT_MAXLEN_BYTES || filename[len - 1] == '.')
 		return -1;
 
 	for (p = filename; *p; ++p) {
@@ -1347,15 +1349,6 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 		/* Create a new file */
 		char shortname[SHORT_NAME_SIZE];
 		int ndent;
-
-		if (itr->is_root) {
-			/* root dir cannot have "." or ".." */
-			if (!strcmp(l_filename, ".") ||
-			    !strcmp(l_filename, "..")) {
-				ret = -EINVAL;
-				goto exit;
-			}
-		}
 
 		if (pos) {
 			/* No hole allowed */
