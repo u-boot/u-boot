@@ -77,7 +77,7 @@ _start:
 	lgdt	gdt_ptr2
 #endif
 
-	/* Load the segement registers to match the GDT loaded in start16.S */
+	/* Load the segment registers to match the GDT loaded in start16.S */
 	movl	$(X86_GDT_ENTRY_32BIT_DS * X86_GDT_ENTRY_SIZE), %eax
 	movw	%ax, %fs
 	movw	%ax, %ds

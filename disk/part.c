@@ -150,6 +150,7 @@ void dev_print (struct blk_desc *dev_desc)
 	case IF_TYPE_USB:
 	case IF_TYPE_NVME:
 	case IF_TYPE_PVBLOCK:
+	case IF_TYPE_HOST:
 		printf ("Vendor: %s Rev: %s Prod: %s\n",
 			dev_desc->vendor,
 			dev_desc->revision,

@@ -1638,15 +1638,37 @@ class TestFunctional(unittest.TestCase):
                       str(e.exception))
 
     def _HandleVblockCommand(self, pipe_list):
-        """Fake calls to the futility utility"""
+        """Fake calls to the futility utility
+
+        The expected pipe is:
+
+           [('futility', 'vbutil_firmware', '--vblock',
+             'vblock.vblock', '--keyblock', 'devkeys/firmware.keyblock',
+             '--signprivate', 'devkeys/firmware_data_key.vbprivk',
+             '--version', '1', '--fv', 'input.vblock', '--kernelkey',
+             'devkeys/kernel_subkey.vbpubk', '--flags', '1')]
+
+        This writes to the output file (here, 'vblock.vblock'). If
+        self._hash_data is False, it writes VBLOCK_DATA, else it writes a hash
+        of the input data (here, 'input.vblock').
+        """
         if pipe_list[0][0] == 'futility':
             fname = pipe_list[0][3]
             with open(fname, 'wb') as fd:
-                fd.write(VBLOCK_DATA)
+                if self._hash_data:
+                    infile = pipe_list[0][11]
+                    m = hashlib.sha256()
+                    data = tools.ReadFile(infile)
+                    m.update(data)
+                    fd.write(m.digest())
+                else:
+                    fd.write(VBLOCK_DATA)
+
             return command.CommandResult()
 
     def testVblock(self):
         """Test for the Chromium OS Verified Boot Block"""
+        self._hash_data = False
         command.test_result = self._HandleVblockCommand
         entry_args = {
             'keydir': 'devkeys',
@@ -1676,6 +1698,29 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFile('077_vblock_bad_entry.dts')
         self.assertIn("Node '/binman/vblock': Cannot find entry for node "
                       "'other'", str(e.exception))
+
+    def testVblockContent(self):
+        """Test that the vblock signs the right data"""
+        self._hash_data = True
+        command.test_result = self._HandleVblockCommand
+        entry_args = {
+            'keydir': 'devkeys',
+        }
+        data = self._DoReadFileDtb(
+            '189_vblock_content.dts', use_real_dtb=True, update_dtb=True,
+            entry_args=entry_args)[0]
+        hashlen = 32  # SHA256 hash is 32 bytes
+        self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
+        hashval = data[-hashlen:]
+        dtb = data[len(U_BOOT_DATA):-hashlen]
+
+        expected_data = U_BOOT_DATA + dtb
+
+        # The hashval should be a hash of the dtb
+        m = hashlib.sha256()
+        m.update(expected_data)
+        expected_hashval = m.digest()
+        self.assertEqual(expected_hashval, hashval)
 
     def testTpl(self):
         """Test that an image with TPL and its device tree can be created"""
@@ -4138,6 +4183,67 @@ class TestFunctional(unittest.TestCase):
             'size': len(data),
             }
         self.assertEqual(expected, props)
+
+    def testSymbolsSubsection(self):
+        """Test binman can assign symbols from a subsection"""
+        elf_fname = self.ElfTestFile('u_boot_binman_syms')
+        syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
+        addr = elf.GetSymbolAddress(elf_fname, '__image_copy_start')
+        self.assertEqual(syms['_binman_u_boot_spl_prop_offset'].address, addr)
+
+        self._SetupSplElf('u_boot_binman_syms')
+        data = self._DoReadFile('187_symbols_sub.dts')
+        sym_values = struct.pack('<LQLL', 0x00, 0x1c, 0x28, 0x04)
+        expected = (sym_values + U_BOOT_SPL_DATA[20:] +
+                    tools.GetBytes(0xff, 1) + U_BOOT_DATA + sym_values +
+                    U_BOOT_SPL_DATA[20:])
+        self.assertEqual(expected, data)
+
+    def testReadImageEntryArg(self):
+        """Test reading an image that would need an entry arg to generate"""
+        entry_args = {
+            'cros-ec-rw-path': 'ecrw.bin',
+        }
+        data = self.data = self._DoReadFileDtb(
+            '188_image_entryarg.dts',use_real_dtb=True, update_dtb=True,
+            entry_args=entry_args)
+
+        image_fname = tools.GetOutputFilename('image.bin')
+        orig_image = control.images['image']
+
+        # This should not generate an error about the missing 'cros-ec-rw-path'
+        # since we are reading the image from a file. Compare with
+        # testEntryArgsRequired()
+        image = Image.FromFile(image_fname)
+        self.assertEqual(orig_image.GetEntries().keys(),
+                         image.GetEntries().keys())
+
+    def testFilesAlign(self):
+        """Test alignment with files"""
+        data = self._DoReadFile('190_files_align.dts')
+
+        # The first string is 15 bytes so will align to 16
+        expect = FILES_DATA[:15] + b'\0' + FILES_DATA[15:]
+        self.assertEqual(expect, data)
+
+    def testReadImageSkip(self):
+        """Test reading an image and accessing its FDT map"""
+        data = self.data = self._DoReadFileRealDtb('191_read_image_skip.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        orig_image = control.images['image']
+        image = Image.FromFile(image_fname)
+        self.assertEqual(orig_image.GetEntries().keys(),
+                         image.GetEntries().keys())
+
+        orig_entry = orig_image.GetEntries()['fdtmap']
+        entry = image.GetEntries()['fdtmap']
+        self.assertEqual(orig_entry.offset, entry.offset)
+        self.assertEqual(orig_entry.size, entry.size)
+        self.assertEqual(16, entry.image_pos)
+
+        u_boot = image.GetEntries()['section'].GetEntries()['u-boot']
+
+        self.assertEquals(U_BOOT_DATA, u_boot.ReadData())
 
 
 if __name__ == "__main__":

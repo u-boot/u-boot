@@ -30,8 +30,7 @@ static inline const struct device_node *dev_np(const struct udevice *dev)
 }
 #endif
 
-#ifndef CONFIG_DM_DEV_READ_INLINE
-
+#if !defined(CONFIG_DM_DEV_READ_INLINE) || CONFIG_IS_ENABLED(OF_PLATDATA)
 /**
  * dev_read_u32() - read a 32-bit integer from a device's DT property
  *
@@ -1007,7 +1006,7 @@ static inline u64 dev_translate_dma_address(const struct udevice *dev,
 
 static inline int dev_read_alias_highest_id(const char *stem)
 {
-	if (!CONFIG_IS_ENABLED(OF_LIBFDT))
+	if (!CONFIG_IS_ENABLED(OF_LIBFDT) || !gd->fdt_blob)
 		return -1;
 	return fdtdec_get_alias_highest_id(gd->fdt_blob, stem);
 }

@@ -210,11 +210,11 @@ DM_TEST(dm_test_of_plat_phandle, UT_TESTF_SCAN_PDATA);
 /* Test that device parents are correctly set up */
 static int dm_test_of_plat_parent(struct unit_test_state *uts)
 {
-	struct udevice *rtc, *i2c;
+	struct udevice *dev, *bus;
 
-	ut_assertok(uclass_first_device_err(UCLASS_RTC, &rtc));
-	ut_assertok(uclass_first_device_err(UCLASS_I2C, &i2c));
-	ut_asserteq_ptr(i2c, dev_get_parent(rtc));
+	ut_assertok(uclass_first_device_err(UCLASS_SIMPLE_BUS, &bus));
+	ut_assertok(device_first_child_err(bus, &dev));
+	ut_asserteq_ptr(bus, dev_get_parent(dev));
 
 	return 0;
 }

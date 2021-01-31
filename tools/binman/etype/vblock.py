@@ -49,7 +49,7 @@ class Entry_vblock(Entry):
             EntryArg('kernelkey', str),
             EntryArg('preamble-flags', int)])
 
-    def ObtainContents(self):
+    def GetVblock(self):
         # Join up the data files to be signed
         input_data = b''
         for entry_phandle in self.content:
@@ -76,5 +76,16 @@ class Entry_vblock(Entry):
         ]
         #out.Notice("Sign '%s' into %s" % (', '.join(self.value), self.label))
         stdout = tools.Run('futility', *args)
-        self.SetContents(tools.ReadFile(output_fname))
+        return tools.ReadFile(output_fname)
+
+    def ObtainContents(self):
+        data = self.GetVblock()
+        if data is False:
+            return False
+        self.SetContents(data)
         return True
+
+    def ProcessContents(self):
+        # The blob may have changed due to WriteSymbols()
+        data = self.GetVblock()
+        return self.ProcessContentsUpdate(data)

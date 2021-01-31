@@ -476,7 +476,8 @@ def Compress(indata, algo, with_header=True):
     fname = GetOutputFilename('%s.comp.tmp' % algo)
     WriteFile(fname, indata)
     if algo == 'lz4':
-        data = Run('lz4', '--no-frame-crc', '-c', fname, binary=True)
+        data = Run('lz4', '--no-frame-crc', '-B4', '-5', '-c', fname,
+                   binary=True)
     # cbfstool uses a very old version of lzma
     elif algo == 'lzma':
         outfname = GetOutputFilename('%s.comp.otmp' % algo)

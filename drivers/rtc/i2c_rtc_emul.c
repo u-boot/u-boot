@@ -57,6 +57,7 @@ long sandbox_i2c_rtc_set_offset(struct udevice *dev, bool use_system_time,
 	plat->use_system_time = use_system_time;
 	if (offset != -1)
 		plat->offset = offset;
+	os_set_time_offset(plat->offset);
 
 	return old_offset;
 }
@@ -80,7 +81,7 @@ static void reset_time(struct udevice *dev)
 
 	os_localtime(&now);
 	plat->base_time = rtc_mktime(&now);
-	plat->offset = 0;
+	plat->offset = os_get_time_offset();
 	plat->use_system_time = true;
 }
 
@@ -115,6 +116,7 @@ static int sandbox_i2c_rtc_set(struct udevice *dev, const struct rtc_time *time)
 		now = plat->base_time;
 	}
 	plat->offset = rtc_mktime(time) - now;
+	os_set_time_offset(plat->offset);
 
 	return 0;
 }

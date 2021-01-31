@@ -29,8 +29,8 @@ static const struct udevice_id intel_clk_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(clk_intel) = {
-	.name		= "clk_intel",
+U_BOOT_DRIVER(intel_apl_clk) = {
+	.name		= "intel_apl_clk",
 	.id		= UCLASS_CLK,
 	.of_match	= intel_clk_ids,
 	.ops		= &intel_clk_ops,

@@ -33,6 +33,9 @@
 #define SRAM_SIZE_2		(4 * KiB)
 #endif
 
+/* Early address for I2C port 2 */
+#define IOMAP_I2C2_BASE		(0xfe020000 + 2 * 0x1000)
+
 /*
  * Use UART2. To use UART1 you need to set '2' to '1', change device tree serial
  * node name and 'reg' property, and update CONFIG_DEBUG_UART_BASE.

@@ -215,7 +215,7 @@ static int sandbox_cmdline_cb_test_fdt(struct sandbox_state *state,
 	if (!p)
 		p = fname + strlen(fname);
 	len -= p - fname;
-	snprintf(p, len, fmt, p);
+	snprintf(p, len, fmt);
 	state->fdt_fname = fname;
 
 	return 0;

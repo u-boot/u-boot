@@ -145,6 +145,8 @@ int binman_init(void)
 	if (ret)
 		return log_msg_ret("node", -ENOENT);
 	binman_set_rom_offset(ROM_OFFSET_NONE);
+	log_debug("binman: Selected image node '%s'\n",
+		  ofnode_get_name(binman->image));
 
 	return 0;
 }

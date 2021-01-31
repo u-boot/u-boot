@@ -314,6 +314,16 @@ def AddString(node, prop, value):
     for n in GetUpdateNodes(node):
         n.AddString(prop, value)
 
+def AddInt(node, prop, value):
+    """Add a new string property to affected device trees
+
+    Args:
+        prop_name: Name of property
+        val: Integer value of property
+    """
+    for n in GetUpdateNodes(node):
+        n.AddInt(prop, value)
+
 def SetInt(node, prop, value, for_repack=False):
     """Update an integer property in affected device trees with an integer value
 

@@ -192,6 +192,8 @@ static const struct udevice_id designware_i2c_pci_ids[] = {
 	{ }
 };
 
+DM_DRIVER_ALIAS(i2c_designware_pci, intel_apl_i2c)
+
 U_BOOT_DRIVER(i2c_designware_pci) = {
 	.name	= "i2c_designware_pci",
 	.id	= UCLASS_I2C,

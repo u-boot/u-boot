@@ -460,9 +460,20 @@ class Node:
             prop_name: Name of property to add
             val: String value of property
         """
-        if sys.version_info[0] >= 3:  # pragma: no cover
-            val = bytes(val, 'utf-8')
+        val = bytes(val, 'utf-8')
         self.AddData(prop_name, val + b'\0')
+
+    def AddInt(self, prop_name, val):
+        """Add a new integer property to a node
+
+        The device tree is marked dirty so that the value will be written to
+        the blob on the next sync.
+
+        Args:
+            prop_name: Name of property to add
+            val: Integer value of property
+        """
+        self.AddData(prop_name, struct.pack('>I', val))
 
     def AddSubnode(self, name):
         """Add a new subnode to the node

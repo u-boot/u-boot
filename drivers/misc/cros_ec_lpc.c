@@ -207,6 +207,12 @@ int cros_ec_lpc_init(struct cros_ec_dev *dev, const void *blob)
 	return 0;
 }
 
+/* Return the byte of EC switch states */
+static int cros_ec_lpc_get_switches(struct udevice *dev)
+{
+	return inb(EC_LPC_ADDR_MEMMAP + EC_MEMMAP_SWITCHES);
+}
+
 /*
  * Test if LPC command args are supported.
  *
@@ -239,6 +245,7 @@ static struct dm_cros_ec_ops cros_ec_ops = {
 	.packet = cros_ec_lpc_packet,
 	.command = cros_ec_lpc_command,
 	.check_version = cros_ec_lpc_check_version,
+	.get_switches = cros_ec_lpc_get_switches,
 };
 
 static const struct udevice_id cros_ec_ids[] = {

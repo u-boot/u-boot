@@ -92,6 +92,7 @@ int host_dev_bind(int devnum, char *filename)
 {
 	struct host_block_dev *host_dev;
 	struct udevice *dev;
+	struct blk_desc *desc;
 	char dev_name[20], *str, *fname;
 	int ret, fd;
 
@@ -143,6 +144,12 @@ int host_dev_bind(int devnum, char *filename)
 		goto err_file;
 	}
 
+	desc = blk_get_devnum_by_type(IF_TYPE_HOST, devnum);
+	desc->removable = 1;
+	snprintf(desc->vendor, BLK_VEN_SIZE, "U-Boot");
+	snprintf(desc->product, BLK_PRD_SIZE, "hostfile");
+	snprintf(desc->revision, BLK_REV_SIZE, "1.0");
+
 	return 0;
 err_file:
 	os_close(fd);
@@ -187,6 +194,10 @@ int host_dev_bind(int dev, char *filename)
 	blk_dev->block_write = host_block_write;
 	blk_dev->devnum = dev;
 	blk_dev->part_type = PART_TYPE_UNKNOWN;
+	blk_dev->removable = 1;
+	snprintf(blk_dev->vendor, BLK_VEN_SIZE, "U-Boot");
+	snprintf(blk_dev->product, BLK_PRD_SIZE, "hostfile");
+	snprintf(blk_dev->revision, BLK_REV_SIZE, "1.0");
 	part_init(blk_dev);
 
 	return 0;
