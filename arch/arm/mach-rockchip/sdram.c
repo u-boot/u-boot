@@ -37,7 +37,7 @@ struct tos_parameter_t {
 int dram_init_banksize(void)
 {
 	size_t top = min((unsigned long)(gd->ram_size + CONFIG_SYS_SDRAM_BASE),
-			 gd->ram_top);
+			 (unsigned long)(gd->ram_top));
 
 #ifdef CONFIG_ARM64
 	/* Reserve 0x200000 for ATF bl31 */
