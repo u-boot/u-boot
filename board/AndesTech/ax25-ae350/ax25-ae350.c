@@ -77,7 +77,7 @@ int smc_init(void)
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	regs = (struct ftsmc020_bank *)addr;
+	regs = (struct ftsmc020_bank *)(uintptr_t)addr;
 	regs->cr &= ~FTSMC020_BANK_WPROT;
 
 	return 0;
