@@ -324,6 +324,8 @@ static int tmio_sd_dma_xfer(struct udevice *dev, struct mmc_data *data)
 
 	tmp = tmio_sd_readl(priv, TMIO_SD_DMA_MODE);
 
+	tmp |= priv->idma_bus_width;
+
 	if (data->flags & MMC_DATA_READ) {
 		buf = data->dest;
 		dir = DMA_FROM_DEVICE;
@@ -702,6 +704,7 @@ static void tmio_sd_host_init(struct tmio_sd_priv *priv)
 	if (priv->caps & TMIO_SD_CAP_DMA_INTERNAL) {
 		tmp = tmio_sd_readl(priv, TMIO_SD_DMA_MODE);
 		tmp |= TMIO_SD_DMA_MODE_ADDR_INC;
+		tmp |= priv->idma_bus_width;
 		tmio_sd_writel(priv, tmp, TMIO_SD_DMA_MODE);
 	}
 }
