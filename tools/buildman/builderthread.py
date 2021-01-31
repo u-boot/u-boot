@@ -89,7 +89,8 @@ class BuilderThread(threading.Thread):
     Members:
         builder: The builder which contains information we might need
         thread_num: Our thread number (0-n-1), used to decide on a
-                temporary directory
+                temporary directory. If this is -1 then there are no threads
+                and we are the (only) main process
     """
     def __init__(self, builder, thread_num, mrproper, per_board_out_dir):
         """Set up a new builder thread"""
@@ -445,6 +446,9 @@ class BuilderThread(threading.Thread):
 
         Args:
             job: Job to build
+
+        Returns:
+            List of Result objects
         """
         brd = job.board
         work_dir = self.builder.GetThreadDir(self.thread_num)
@@ -508,7 +512,10 @@ class BuilderThread(threading.Thread):
 
                 # We have the build results, so output the result
                 self._WriteResult(result, job.keep_outputs, job.work_in_output)
-                self.builder.out_queue.put(result)
+                if self.thread_num != -1:
+                    self.builder.out_queue.put(result)
+                else:
+                    self.builder.ProcessResult(result)
         else:
             # Just build the currently checked-out build
             result, request_config = self.RunCommit(None, brd, work_dir, True,
@@ -517,7 +524,10 @@ class BuilderThread(threading.Thread):
                         work_in_output=job.work_in_output)
             result.commit_upto = 0
             self._WriteResult(result, job.keep_outputs, job.work_in_output)
-            self.builder.out_queue.put(result)
+            if self.thread_num != -1:
+                self.builder.out_queue.put(result)
+            else:
+                self.builder.ProcessResult(result)
 
     def run(self):
         """Our thread's run function

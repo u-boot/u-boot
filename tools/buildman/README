@@ -1128,6 +1128,11 @@ If there are both warnings and errors, errors win, so buildman returns 100.
 The -y option is provided (for use with -s) to ignore the bountiful device-tree
 warnings. Similarly, -Y tells buildman to ignore the migration warnings.
 
+Sometimes you might get an error in a thread that is not handled by buildman,
+perhaps due to a failure of a tool that it calls. You might see the output, but
+then buildman hangs. Failing to handle any eventuality is a bug in buildman and
+should be reported. But you can use -T0 to disable threading and hopefully
+figure out the root cause of the build failure.
 
 Build summary
 =============
