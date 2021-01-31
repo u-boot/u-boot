@@ -33,6 +33,8 @@ enum dfu_layout {
 	DFU_FS_EXT3,
 	DFU_FS_EXT4,
 	DFU_RAM_ADDR,
+	DFU_SKIP,
+	DFU_SCRIPT,
 };
 
 enum dfu_op {
@@ -495,6 +497,8 @@ static inline int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr,
 	return -1;
 }
 #endif
+
+extern bool dfu_reinit_needed;
 
 #if CONFIG_IS_ENABLED(DFU_WRITE_ALT)
 /**

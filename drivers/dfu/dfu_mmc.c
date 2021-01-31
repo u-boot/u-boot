@@ -16,6 +16,7 @@
 #include <fat.h>
 #include <mmc.h>
 #include <part.h>
+#include <command.h>
 
 static unsigned char *dfu_file_buf;
 static u64 dfu_file_buf_len;
@@ -108,6 +109,8 @@ static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
 	case DFU_FS_EXT4:
 		fstype = FS_TYPE_EXT;
 		break;
+	case DFU_SKIP:
+		return 0;
 	default:
 		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
 		       dfu_get_layout(dfu->layout));
@@ -204,6 +207,12 @@ int dfu_write_medium_mmc(struct dfu_entity *dfu,
 	case DFU_FS_EXT4:
 		ret = mmc_file_buf_write(dfu, offset, buf, len);
 		break;
+	case DFU_SCRIPT:
+		ret = run_command_list(buf, *len, 0);
+		break;
+	case DFU_SKIP:
+		ret = 0;
+		break;
 	default:
 		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
 		       dfu_get_layout(dfu->layout));
@@ -216,9 +225,21 @@ int dfu_flush_medium_mmc(struct dfu_entity *dfu)
 {
 	int ret = 0;
 
-	if (dfu->layout != DFU_RAW_ADDR) {
-		/* Do stuff here. */
+	switch (dfu->layout) {
+	case DFU_FS_FAT:
+	case DFU_FS_EXT4:
 		ret = mmc_file_buf_write_finish(dfu);
+		break;
+	case DFU_SCRIPT:
+		/* script may have changed the dfu_alt_info */
+		dfu_reinit_needed = true;
+		break;
+	case DFU_RAW_ADDR:
+	case DFU_SKIP:
+		break;
+	default:
+		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
+		       dfu_get_layout(dfu->layout));
 	}
 
 	return ret;
@@ -237,6 +258,9 @@ int dfu_get_medium_size_mmc(struct dfu_entity *dfu, u64 *size)
 		ret = mmc_file_op(DFU_OP_SIZE, dfu, 0, NULL, size);
 		if (ret < 0)
 			return ret;
+		return 0;
+	case DFU_SCRIPT:
+	case DFU_SKIP:
 		return 0;
 	default:
 		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
@@ -316,7 +340,7 @@ void dfu_free_entity_mmc(struct dfu_entity *dfu)
 int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 {
 	const char *entity_type;
-	size_t second_arg;
+	ssize_t second_arg;
 	size_t third_arg;
 
 	struct mmc *mmc;
@@ -339,7 +363,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 	 * Base 0 means we'll accept (prefixed with 0x or 0) base 16, 8,
 	 * with default 10.
 	 */
-	second_arg = simple_strtoul(argv[1], NULL, 0);
+	second_arg = simple_strtol(argv[1], NULL, 0);
 	third_arg = simple_strtoul(argv[2], NULL, 0);
 
 	mmc = find_mmc_device(dfu->data.mmc.dev_num);
@@ -399,6 +423,10 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 		dfu->layout = DFU_FS_FAT;
 	} else if (!strcmp(entity_type, "ext4")) {
 		dfu->layout = DFU_FS_EXT4;
+	} else if (!strcmp(entity_type, "skip")) {
+		dfu->layout = DFU_SKIP;
+	} else if (!strcmp(entity_type, "script")) {
+		dfu->layout = DFU_SCRIPT;
 	} else {
 		pr_err("Memory layout (%s) not supported!\n", entity_type);
 		return -ENODEV;
@@ -406,7 +434,8 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 
 	/* if it's NOT a raw write */
 	if (strcmp(entity_type, "raw")) {
-		dfu->data.mmc.dev = second_arg;
+		dfu->data.mmc.dev = (second_arg != -1) ? second_arg :
+							 dfu->data.mmc.dev_num;
 		dfu->data.mmc.part = third_arg;
 	}
 

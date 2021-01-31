@@ -12,6 +12,7 @@
 #include <linux/bitops.h>
 #include <linux/bug.h>
 #include <linux/usb/composite.h>
+#include "u_os_desc.h"
 
 #define USB_BUFSIZ	4096
 
@@ -19,11 +20,31 @@
 typedef struct { __le16 val; } __packed __le16_packed;
 
 static struct usb_composite_driver *composite;
+static struct usb_configuration *os_desc_config;
+
+/* Microsoft OS String Descriptor */
+static char qw_sign_buf[OS_STRING_QW_SIGN_LEN / 2] = {'M', 'S', 'F', 'T', '1', '0', '0'};
 
 static inline void le16_add_cpu_packed(__le16_packed *var, u16 val)
 {
 	var->val = cpu_to_le16(le16_to_cpu(var->val) + val);
 }
+
+/**
+ * struct usb_os_string - represents OS String to be reported by a gadget
+ * @bLength: total length of the entire descritor, always 0x12
+ * @bDescriptorType: USB_DT_STRING
+ * @qwSignature: the OS String proper
+ * @bMS_VendorCode: code used by the host for subsequent requests
+ * @bPad: not used, must be zero
+ */
+struct usb_os_string {
+	__u8	bLength;
+	__u8	bDescriptorType;
+	__u8	qwSignature[OS_STRING_QW_SIGN_LEN];
+	__u8	bMS_VendorCode;
+	__u8	bPad;
+} __packed;
 
 /**
  * usb_add_function() - add a function to a configuration
@@ -67,6 +88,8 @@ int usb_add_function(struct usb_configuration *config,
 		config->fullspeed = 1;
 	if (!config->highspeed && function->hs_descriptors)
 		config->highspeed = 1;
+	if (!config->superspeed && function->ss_descriptors)
+		config->superspeed = 1;
 
 done:
 	if (value)
@@ -202,7 +225,9 @@ static int config_buf(struct usb_configuration *config,
 
 	/* add each function's descriptors */
 	list_for_each_entry(f, &config->functions, list) {
-		if (speed == USB_SPEED_HIGH)
+		if (speed == USB_SPEED_SUPER)
+			descriptors = f->ss_descriptors;
+		else if (speed == USB_SPEED_HIGH)
 			descriptors = f->hs_descriptors;
 		else
 			descriptors = f->descriptors;
@@ -228,8 +253,11 @@ static int config_desc(struct usb_composite_dev *cdev, unsigned w_value)
 	u8				type = w_value >> 8;
 	int                             hs = 0;
 	struct usb_configuration	*c;
+	struct list_head		*pos;
 
-	if (gadget_is_dualspeed(gadget)) {
+	if (gadget_is_superspeed(gadget)) {
+		speed = gadget->speed;
+	} else if (gadget_is_dualspeed(gadget)) {
 		if (gadget->speed == USB_SPEED_HIGH)
 			hs = 1;
 		if (type == USB_DT_OTHER_SPEED_CONFIG)
@@ -239,8 +267,24 @@ static int config_desc(struct usb_composite_dev *cdev, unsigned w_value)
 	}
 
 	w_value &= 0xff;
-	list_for_each_entry(c, &cdev->configs, list) {
-		if (speed == USB_SPEED_HIGH) {
+
+	pos = &cdev->configs;
+	c = cdev->os_desc_config;
+	if (c)
+		goto check_config;
+
+	while ((pos = pos->next) !=  &cdev->configs) {
+		c = list_entry(pos, typeof(*c), list);
+
+		/* skip OS Descriptors config which is handled separately */
+		if (c == cdev->os_desc_config)
+			continue;
+
+check_config:
+		if (speed == USB_SPEED_SUPER) {
+			if (!c->superspeed)
+				continue;
+		} else if (speed == USB_SPEED_HIGH) {
 			if (!c->highspeed)
 				continue;
 		} else {
@@ -259,7 +303,11 @@ static int count_configs(struct usb_composite_dev *cdev, unsigned type)
 	struct usb_gadget		*gadget = cdev->gadget;
 	unsigned			count = 0;
 	int				hs = 0;
+	int				ss = 0;
 	struct usb_configuration	*c;
+
+	if (gadget->speed == USB_SPEED_SUPER)
+		ss = 1;
 
 	if (gadget_is_dualspeed(gadget)) {
 		if (gadget->speed == USB_SPEED_HIGH)
@@ -269,7 +317,10 @@ static int count_configs(struct usb_composite_dev *cdev, unsigned type)
 	}
 	list_for_each_entry(c, &cdev->configs, list) {
 		/* ignore configs that won't work at this speed */
-		if (hs) {
+		if (ss) {
+			if (!c->superspeed)
+				continue;
+		} else if (hs) {
 			if (!c->highspeed)
 				continue;
 		} else {
@@ -353,6 +404,9 @@ static int set_config(struct usb_composite_dev *cdev,
 		     case USB_SPEED_HIGH:
 			     speed = "high";
 			     break;
+		     case USB_SPEED_SUPER:
+			     speed = "super";
+			     break;
 		     default:
 			     speed = "?";
 			     break;
@@ -377,7 +431,9 @@ static int set_config(struct usb_composite_dev *cdev,
 		 * function's setup callback instead of the current
 		 * configuration's setup callback.
 		 */
-		if (gadget->speed == USB_SPEED_HIGH)
+		if (gadget->speed == USB_SPEED_SUPER)
+			descriptors = f->ss_descriptors;
+		else if (gadget->speed == USB_SPEED_HIGH)
 			descriptors = f->hs_descriptors;
 		else
 			descriptors = f->descriptors;
@@ -457,8 +513,9 @@ int usb_add_config(struct usb_composite_dev *cdev,
 		list_del(&config->list);
 		config->cdev = NULL;
 	} else {
-		debug("cfg %d/%p speeds:%s%s\n",
+		debug("cfg %d/%p speeds:%s%s%s\n",
 			config->bConfigurationValue, config,
+			config->superspeed ? " super" : "",
 			config->highspeed ? " high" : "",
 			config->fullspeed
 				? (gadget_is_dualspeed(cdev->gadget)
@@ -475,7 +532,23 @@ int usb_add_config(struct usb_composite_dev *cdev,
 		}
 	}
 
+	/*
+	 * If one function of config is not super speed capable,
+	 * force the gadget to be high speed so controller driver
+	 * can init HW to be USB 2.0
+	 */
+	if (gadget_is_superspeed(cdev->gadget)) {
+		list_for_each_entry(f, &config->functions, list) {
+			if (!f->ss_descriptors)
+				cdev->gadget->max_speed =
+					USB_SPEED_HIGH;
+		}
+	}
+
 	usb_ep_autoconfig_reset(cdev->gadget);
+
+	os_desc_config = config;
+	cdev->os_desc_config = os_desc_config;
 
 done:
 	if (status)
@@ -575,6 +648,16 @@ static int get_string(struct usb_composite_dev *cdev,
 
 		s->bLength = 2 * (len + 1);
 		return s->bLength;
+	}
+
+	if (cdev->use_os_string && language == 0 && id == OS_STRING_IDX) {
+		struct usb_os_string *b = buf;
+		b->bLength = sizeof(*b);
+		b->bDescriptorType = USB_DT_STRING;
+		memcpy(&b->qwSignature, cdev->qw_sign, sizeof(b->qwSignature));
+		b->bMS_VendorCode = cdev->b_vendor_code;
+		b->bPad = 0;
+		return sizeof(*b);
 	}
 
 	/*
@@ -703,6 +786,7 @@ static void composite_setup_complete(struct usb_ep *ep, struct usb_request *req)
 static int bos_desc(struct usb_composite_dev *cdev)
 {
 	struct usb_ext_cap_descriptor   *usb_ext;
+	struct usb_dcd_config_params	dcd_config_params;
 	struct usb_bos_descriptor       *bos = cdev->req->buf;
 
 	bos->bLength = USB_DT_BOS_SIZE;
@@ -746,11 +830,171 @@ static int bos_desc(struct usb_composite_dev *cdev)
 				    USB_HIGH_SPEED_OPERATION |
 				    USB_5GBPS_OPERATION);
 		ss_cap->bFunctionalitySupport = USB_LOW_SPEED_OPERATION;
-		ss_cap->bU1devExitLat = USB_DEFAULT_U1_DEV_EXIT_LAT;
-		ss_cap->bU2DevExitLat =
-			cpu_to_le16(USB_DEFAULT_U2_DEV_EXIT_LAT);
+
+		/* Get Controller configuration */
+		if (cdev->gadget->ops->get_config_params) {
+			cdev->gadget->ops->get_config_params(
+				&dcd_config_params);
+		} else {
+			dcd_config_params.bU1devExitLat =
+				USB_DEFAULT_U1_DEV_EXIT_LAT;
+			dcd_config_params.bU2DevExitLat =
+				cpu_to_le16(USB_DEFAULT_U2_DEV_EXIT_LAT);
+		}
+		ss_cap->bU1devExitLat = dcd_config_params.bU1devExitLat;
+		ss_cap->bU2DevExitLat = dcd_config_params.bU2DevExitLat;
 	}
 	return le16_to_cpu(bos->wTotalLength);
+}
+
+static int count_ext_compat(struct usb_configuration *c)
+{
+	int i, res;
+
+	res = 0;
+	for (i = 0; i < c->next_interface_id; ++i) {
+		struct usb_function *f;
+		int j;
+
+		f = c->interface[i];
+		for (j = 0; j < f->os_desc_n; ++j) {
+			struct usb_os_desc *d;
+
+			if (i != f->os_desc_table[j].if_id)
+				continue;
+			d = f->os_desc_table[j].os_desc;
+			if (d && d->ext_compat_id)
+				++res;
+		}
+	}
+	BUG_ON(res > 255);
+	return res;
+}
+
+static void fill_ext_compat(struct usb_configuration *c, u8 *buf)
+{
+	int i, count;
+
+	count = 16;
+	for (i = 0; i < c->next_interface_id; ++i) {
+		struct usb_function *f;
+		int j;
+
+		f = c->interface[i];
+		for (j = 0; j < f->os_desc_n; ++j) {
+			struct usb_os_desc *d;
+
+			if (i != f->os_desc_table[j].if_id)
+				continue;
+			d = f->os_desc_table[j].os_desc;
+			if (d && d->ext_compat_id) {
+				*buf++ = i;
+				*buf++ = 0x01;
+				memcpy(buf, d->ext_compat_id, 16);
+				buf += 22;
+			} else {
+				++buf;
+				*buf = 0x01;
+				buf += 23;
+			}
+			count += 24;
+			if (count >= 4096)
+				return;
+		}
+	}
+}
+
+static int count_ext_prop(struct usb_configuration *c, int interface)
+{
+	struct usb_function *f;
+	int j;
+
+	f = c->interface[interface];
+	for (j = 0; j < f->os_desc_n; ++j) {
+		struct usb_os_desc *d;
+
+		if (interface != f->os_desc_table[j].if_id)
+			continue;
+		d = f->os_desc_table[j].os_desc;
+		if (d && d->ext_compat_id)
+			return d->ext_prop_count;
+	}
+	return 0;
+}
+
+static int len_ext_prop(struct usb_configuration *c, int interface)
+{
+	struct usb_function *f;
+	struct usb_os_desc *d;
+	int j, res;
+
+	res = 10; /* header length */
+	f = c->interface[interface];
+	for (j = 0; j < f->os_desc_n; ++j) {
+		if (interface != f->os_desc_table[j].if_id)
+			continue;
+		d = f->os_desc_table[j].os_desc;
+		if (d)
+			return min(res + d->ext_prop_len, 4096);
+	}
+	return res;
+}
+
+static int fill_ext_prop(struct usb_configuration *c, int interface, u8 *buf)
+{
+	struct usb_function *f;
+	struct usb_os_desc *d;
+	struct usb_os_desc_ext_prop *ext_prop;
+	int j, count, n, ret;
+	u8 *start = buf;
+
+	f = c->interface[interface];
+	for (j = 0; j < f->os_desc_n; ++j) {
+		if (interface != f->os_desc_table[j].if_id)
+			continue;
+		d = f->os_desc_table[j].os_desc;
+		if (d)
+			list_for_each_entry(ext_prop, &d->ext_prop, entry) {
+				/* 4kB minus header length */
+				n = buf - start;
+				if (n >= 4086)
+					return 0;
+
+				count = ext_prop->data_len +
+					ext_prop->name_len + 14;
+				if (count > 4086 - n)
+					return -EINVAL;
+				usb_ext_prop_put_size(buf, count);
+				usb_ext_prop_put_type(buf, ext_prop->type);
+				ret = usb_ext_prop_put_name(buf, ext_prop->name,
+							    ext_prop->name_len);
+				if (ret < 0)
+					return ret;
+				switch (ext_prop->type) {
+				case USB_EXT_PROP_UNICODE:
+				case USB_EXT_PROP_UNICODE_ENV:
+				case USB_EXT_PROP_UNICODE_LINK:
+					usb_ext_prop_put_unicode(buf, ret,
+							 ext_prop->data,
+							 ext_prop->data_len);
+					break;
+				case USB_EXT_PROP_BINARY:
+					usb_ext_prop_put_binary(buf, ret,
+							ext_prop->data,
+							ext_prop->data_len);
+					break;
+				case USB_EXT_PROP_LE32:
+					/* not implemented */
+				case USB_EXT_PROP_BE32:
+					/* not implemented */
+				default:
+					return -EINVAL;
+				}
+				buf += count;
+			}
+	}
+
+	return 0;
 }
 
 /*
@@ -801,32 +1045,28 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 			cdev->desc.bNumConfigurations =
 				count_configs(cdev, USB_DT_DEVICE);
 
-			/*
-			 * If the speed is Super speed, then the supported
-			 * max packet size is 512 and it should be sent as
-			 * exponent of 2. So, 9(2^9=512) should be filled in
-			 * bMaxPacketSize0. Also fill USB version as 3.0
-			 * if speed is Super speed.
-			 */
-			if (cdev->gadget->speed == USB_SPEED_SUPER) {
+			cdev->desc.bMaxPacketSize0 =
+				cdev->gadget->ep0->maxpacket;
+			if (gadget->speed >= USB_SPEED_SUPER) {
+				cdev->desc.bcdUSB = cpu_to_le16(0x0310);
 				cdev->desc.bMaxPacketSize0 = 9;
-				cdev->desc.bcdUSB = cpu_to_le16(0x0300);
 			} else {
-				cdev->desc.bMaxPacketSize0 =
-					cdev->gadget->ep0->maxpacket;
+				cdev->desc.bcdUSB = cpu_to_le16(0x0200);
 			}
 			value = min(w_length, (u16) sizeof cdev->desc);
 			memcpy(req->buf, &cdev->desc, value);
 			break;
 		case USB_DT_DEVICE_QUALIFIER:
-			if (!gadget_is_dualspeed(gadget))
+			if (!gadget_is_dualspeed(gadget) ||
+			    gadget->speed >= USB_SPEED_SUPER)
 				break;
 			device_qual(cdev);
 			value = min_t(int, w_length,
 				      sizeof(struct usb_qualifier_descriptor));
 			break;
 		case USB_DT_OTHER_SPEED_CONFIG:
-			if (!gadget_is_dualspeed(gadget))
+			if (!gadget_is_dualspeed(gadget) ||
+			    gadget->speed >= USB_SPEED_SUPER)
 				break;
 
 		case USB_DT_CONFIG:
@@ -841,10 +1081,16 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 				value = min(w_length, (u16) value);
 			break;
 		case USB_DT_BOS:
-			if (gadget_is_superspeed(cdev->gadget))
+			/*
+			 * Super speed connection should support BOS, and
+			 * USB compliance test (USB 2.0 Command Verifier)
+			 * also issues this request, return for now for
+			 * USB 2.0 connection.
+			 */
+			if (gadget->speed >= USB_SPEED_SUPER) {
 				value = bos_desc(cdev);
-			if (value >= 0)
 				value = min(w_length, (u16)value);
+			}
 			break;
 		default:
 			goto unknown;
@@ -909,6 +1155,91 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 		break;
 	default:
 unknown:
+		/*
+		 * OS descriptors handling
+		 */
+		if (CONFIG_IS_ENABLED(USB_GADGET_OS_DESCRIPTORS) && cdev->use_os_string &&
+		    cdev->os_desc_config && (ctrl->bRequestType & USB_TYPE_VENDOR) &&
+		    ctrl->bRequest == cdev->b_vendor_code) {
+			struct usb_configuration	*os_desc_cfg;
+			u8				*buf;
+			int				interface;
+			int				count = 0;
+
+			buf = req->buf;
+			os_desc_cfg = cdev->os_desc_config;
+			memset(buf, 0, w_length);
+			buf[5] = 0x01;
+			switch (ctrl->bRequestType & USB_RECIP_MASK) {
+			case USB_RECIP_DEVICE:
+				if (w_index != 0x4 || (w_value >> 8))
+					break;
+				buf[6] = w_index;
+				if (w_length == 0x10) {
+					/* Number of ext compat interfaces */
+					count = count_ext_compat(os_desc_cfg);
+					buf[8] = count;
+					count *= 24; /* 24 B/ext compat desc */
+					count += 16; /* header */
+					put_unaligned_le32(count, buf);
+					value = w_length;
+				} else {
+					/* "extended compatibility ID"s */
+					count = count_ext_compat(os_desc_cfg);
+					buf[8] = count;
+					count *= 24; /* 24 B/ext compat desc */
+					count += 16; /* header */
+					put_unaligned_le32(count, buf);
+					buf += 16;
+					fill_ext_compat(os_desc_cfg, buf);
+					value = w_length;
+				}
+				break;
+			case USB_RECIP_INTERFACE:
+				if (w_index != 0x5 || (w_value >> 8))
+					break;
+				interface = w_value & 0xFF;
+				buf[6] = w_index;
+				if (w_length == 0x0A) {
+					count = count_ext_prop(os_desc_cfg,
+						interface);
+					put_unaligned_le16(count, buf + 8);
+					count = len_ext_prop(os_desc_cfg,
+						interface);
+					put_unaligned_le32(count, buf);
+
+					value = w_length;
+				} else {
+					count = count_ext_prop(os_desc_cfg,
+						interface);
+					put_unaligned_le16(count, buf + 8);
+					count = len_ext_prop(os_desc_cfg,
+						interface);
+					put_unaligned_le32(count, buf);
+					buf += 10;
+					value = fill_ext_prop(os_desc_cfg,
+							      interface, buf);
+					if (value < 0)
+						return value;
+
+					value = w_length;
+				}
+				break;
+			}
+
+			if (value >= 0) {
+				req->length = value;
+				req->zero = value < w_length;
+				value = usb_ep_queue(gadget->ep0, req, GFP_KERNEL);
+				if (value < 0) {
+					debug("ep_queue --> %d\n", value);
+					req->status = 0;
+					composite_setup_complete(gadget->ep0, req);
+				}
+			}
+			return value;
+		}
+
 		debug("non-core control req%02x.%02x v%04x i%04x l%d\n",
 			ctrl->bRequestType, ctrl->bRequest,
 			w_value, w_index, w_length);
@@ -1082,6 +1413,15 @@ static int composite_bind(struct usb_gadget *gadget)
 	       sizeof(struct usb_device_descriptor));
 	cdev->desc.bMaxPacketSize0 = gadget->ep0->maxpacket;
 
+	if (cdev->use_os_string) {
+		/* TODO: Do we want to pass this via platform? */
+		cdev->b_vendor_code = 0x40;
+
+		/* Microsoft OS String Descriptor */
+		utf8_to_utf16le(qw_sign_buf, (__le16 *)cdev->qw_sign,
+				OS_STRING_QW_SIGN_LEN / 2);
+	}
+
 	debug("%s: ready\n", composite->name);
 	return 0;
 
@@ -1129,7 +1469,7 @@ composite_resume(struct usb_gadget *gadget)
 }
 
 static struct usb_gadget_driver composite_driver = {
-	.speed		= USB_SPEED_HIGH,
+	.speed		= USB_SPEED_SUPER,
 
 	.bind		= composite_bind,
 	.unbind         = composite_unbind,

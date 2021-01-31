@@ -204,7 +204,7 @@ static int dfu_flush_medium_mtd(struct dfu_entity *dfu)
 	int ret;
 
 	/* in case of ubi partition, erase rest of the partition */
-	if (dfu->data.nand.ubi) {
+	if (dfu->data.mtd.ubi) {
 		struct erase_info erase_op = {};
 
 		erase_op.mtd = dfu->data.mtd.info;
@@ -242,7 +242,7 @@ static unsigned int dfu_polltimeout_mtd(struct dfu_entity *dfu)
 	 * ubi partition, as sectors which are not used need
 	 * to be erased
 	 */
-	if (dfu->data.nand.ubi)
+	if (dfu->data.mtd.ubi)
 		return DFU_MANIFEST_POLL_TIMEOUT;
 
 	return DFU_DEFAULT_POLL_TIMEOUT;

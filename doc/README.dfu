@@ -17,7 +17,7 @@ Overview:
   - The access to mediums is done in DFU backends (driver/dfu)
 
   Today the supported DFU backends are:
-  - MMC (RAW or FAT / EXT2 / EXT3 / EXT4 file system)
+  - MMC (RAW or FAT / EXT2 / EXT3 / EXT4 file system / SKIP / SCRIPT)
   - NAND
   - RAM
   - SF (serial flash)
@@ -91,6 +91,8 @@ Commands:
       <name> part <dev> <part_id> [mmcpart <num>]  raw access to partition
       <name> fat <dev> <part_id> [mmcpart <num>]   file in FAT partition
       <name> ext4 <dev> <part_id> [mmcpart <num>]  file in EXT4 partition
+      <name> skip 0 0                              ignore flashed data
+      <name> script 0 0                            execute commands in shell
 
       with <partid> being the GPT or DOS partition index,
       with <num> being the eMMC hardware partition number.
@@ -102,6 +104,32 @@ Commands:
     A value of environment variable dfu_alt_info for SD card could be:
 
       "u-boot raw 0x80 0x800;uImage ext4 0 2"
+
+    If don't want to flash given image file to storage, use "skip" type
+    entity.
+    - It can be used to protect flashing wrong image for the specific board.
+    - Especailly, this layout will be useful when thor protocol is used,
+      which performs flashing in batch mode, where more than one file is
+      processed.
+    For example, if one makes a single tar file with support for the two
+    boards with u-boot-<board1>.bin and u-boot-<board2>.bin files, one
+    can use it to flash a proper u-boot image on both without a failure:
+
+      "u-boot-<board1>.bin raw 0x80 0x800; u-boot-<board2>.bin skip 0 0"
+
+    When flashing new system image requires do some more complex things
+    than just writing data to the storage medium, one can use 'script'
+    type. Data written to such entity will be executed as a command list
+    in the u-boot's shell. This for example allows to re-create partition
+    layout and even set new dfu_alt_info for the newly created paritions.
+    Such script would look like:
+	--->8---
+	setenv dfu_alt_info ...
+	setenv mbr_parts ...
+	mbr write ...
+	--->8---
+    Please note that this means that user will be able to execute any
+    arbitrary commands just like in the u-boot's shell.
 
   "nand" (raw slc nand device)
     cmd: dfu 0 nand <dev>

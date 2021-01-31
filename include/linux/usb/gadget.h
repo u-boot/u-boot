@@ -449,6 +449,11 @@ static inline void usb_ep_fifo_flush(struct usb_ep *ep)
 
 /*-------------------------------------------------------------------------*/
 
+struct usb_dcd_config_params {
+	__u8  bU1devExitLat;	/* U1 Device exit Latency */
+	__le16 bU2DevExitLat;	/* U2 Device exit Latency */
+};
+
 struct usb_gadget;
 struct usb_gadget_driver;
 
@@ -464,12 +469,16 @@ struct usb_gadget_ops {
 	int	(*pullup) (struct usb_gadget *, int is_on);
 	int	(*ioctl)(struct usb_gadget *,
 				unsigned code, unsigned long param);
+	void	(*get_config_params)(struct usb_dcd_config_params *);
 	int	(*udc_start)(struct usb_gadget *,
 			     struct usb_gadget_driver *);
 	int	(*udc_stop)(struct usb_gadget *);
 	struct usb_ep *(*match_ep)(struct usb_gadget *,
 			struct usb_endpoint_descriptor *,
 			struct usb_ss_ep_comp_descriptor *);
+	int   (*ep_conf)(struct usb_gadget *,
+			struct usb_ep *,
+			struct usb_endpoint_descriptor *);
 	void	(*udc_set_speed)(struct usb_gadget *gadget,
 				 enum usb_device_speed);
 };

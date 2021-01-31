@@ -26,6 +26,8 @@ static struct hash_algo *dfu_hash_algo;
 static unsigned long dfu_timeout = 0;
 #endif
 
+bool dfu_reinit_needed = false;
+
 /*
  * The purpose of the dfu_flush_callback() function is to
  * provide callback for dfu user
@@ -138,6 +140,8 @@ int dfu_init_env_entities(char *interface, char *devstr)
 	const char *str_env;
 	char *env_bkp;
 	int ret = 0;
+
+	dfu_reinit_needed = false;
 
 #ifdef CONFIG_SET_DFU_ALT_INFO
 	set_dfu_alt_info(interface, devstr);
@@ -614,7 +618,8 @@ const char *dfu_get_dev_type(enum dfu_device_type t)
 const char *dfu_get_layout(enum dfu_layout l)
 {
 	const char *const dfu_layout[] = {NULL, "RAW_ADDR", "FAT", "EXT2",
-					  "EXT3", "EXT4", "RAM_ADDR" };
+					  "EXT3", "EXT4", "RAM_ADDR", "SKIP",
+					  "SCRIPT" };
 	return dfu_layout[l];
 }
 

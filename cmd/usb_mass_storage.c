@@ -115,8 +115,8 @@ static int ums_init(const char *devtype, const char *devnums_part_str)
 		ums[ums_count].name = name;
 		ums[ums_count].block_dev = *block_dev;
 
-		printf("UMS: LUN %d, dev %d, hwpart %d, sector %#x, count %#x\n",
-		       ums_count, ums[ums_count].block_dev.devnum,
+		printf("UMS: LUN %d, dev %s %d, hwpart %d, sector %#x, count %#x\n",
+		       ums_count, devtype, ums[ums_count].block_dev.devnum,
 		       ums[ums_count].block_dev.hwpart,
 		       ums[ums_count].start_sector,
 		       ums[ums_count].num_sectors);
