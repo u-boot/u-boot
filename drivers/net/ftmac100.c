@@ -35,7 +35,7 @@ struct ftmac100_data {
  */
 static void ftmac100_reset(struct ftmac100_data *priv)
 {
-	struct ftmac100 *ftmac100 = (struct ftmac100 *)priv->iobase;
+	struct ftmac100 *ftmac100 = (struct ftmac100 *)(uintptr_t)priv->iobase;
 
 	debug ("%s()\n", __func__);
 
@@ -56,7 +56,7 @@ static void ftmac100_reset(struct ftmac100_data *priv)
 static void ftmac100_set_mac(struct ftmac100_data *priv ,
 	const unsigned char *mac)
 {
-	struct ftmac100 *ftmac100 = (struct ftmac100 *)priv->iobase;
+	struct ftmac100 *ftmac100 = (struct ftmac100 *)(uintptr_t)priv->iobase;
 	unsigned int maddr = mac[0] << 8 | mac[1];
 	unsigned int laddr = mac[2] << 24 | mac[3] << 16 | mac[4] << 8 | mac[5];
 
@@ -71,7 +71,7 @@ static void ftmac100_set_mac(struct ftmac100_data *priv ,
  */
 static void _ftmac100_halt(struct ftmac100_data *priv)
 {
-	struct ftmac100 *ftmac100 = (struct ftmac100 *)priv->iobase;
+	struct ftmac100 *ftmac100 = (struct ftmac100 *)(uintptr_t)priv->iobase;
 	debug ("%s()\n", __func__);
 	writel (0, &ftmac100->maccr);
 }
@@ -81,7 +81,7 @@ static void _ftmac100_halt(struct ftmac100_data *priv)
  */
 static int _ftmac100_init(struct ftmac100_data *priv, unsigned char enetaddr[6])
 {
-	struct ftmac100 *ftmac100 = (struct ftmac100 *)priv->iobase;
+	struct ftmac100 *ftmac100 = (struct ftmac100 *)(uintptr_t)priv->iobase;
 	struct ftmac100_txdes *txdes = priv->txdes;
 	struct ftmac100_rxdes *rxdes = priv->rxdes;
 	unsigned int maccr;
@@ -186,7 +186,7 @@ static int __ftmac100_recv(struct ftmac100_data *priv)
  */
 static int _ftmac100_send(struct ftmac100_data *priv, void *packet, int length)
 {
-	struct ftmac100 *ftmac100 = (struct ftmac100 *)priv->iobase;
+	struct ftmac100 *ftmac100 = (struct ftmac100 *)(uintptr_t)priv->iobase;
 	struct ftmac100_txdes *curr_des = priv->txdes;
 	ulong start;
 
