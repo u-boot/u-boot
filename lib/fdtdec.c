@@ -1572,7 +1572,7 @@ int fdtdec_setup(void)
 		return -1;
 	}
 # elif defined(CONFIG_OF_PRIOR_STAGE)
-	gd->fdt_blob = (void *)prior_stage_fdt_address;
+	gd->fdt_blob = (void *)(uintptr_t)prior_stage_fdt_address;
 # endif
 # ifndef CONFIG_SPL_BUILD
 	/* Allow the early environment to override the fdt address */
