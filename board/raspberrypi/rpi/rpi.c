@@ -268,6 +268,13 @@ int dram_init(void)
 
 	gd->ram_size = msg->get_arm_mem.body.resp.mem_size;
 
+	/*
+	 * In some configurations the memory size returned by VideoCore
+	 * is not aligned to the section size, what is mandatory for
+	 * the u-boot's memory setup.
+	 */
+	gd->ram_size &= ~MMU_SECTION_SIZE;
+
 	return 0;
 }
 
