@@ -3,9 +3,18 @@
  * Copyright (C) 2020 Texas Instruments Incorporated - http://www.ti.com/
  */
 
+#include "k3-j721e-common-proc-board-u-boot.dtsi"
+
 / {
 	chosen {
 		firmware-loader = &fs_loader0;
+	};
+
+	aliases {
+		remoteproc0 = &sysctrler;
+		remoteproc1 = &a72_0;
+		remoteproc2 = &main_r5fss0_core0;
+		remoteproc3 = &main_r5fss0_core1;
 	};
 
 	fs_loader0: fs_loader@0 {
