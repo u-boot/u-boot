@@ -372,7 +372,7 @@ void __udelay(unsigned long usec)
 	u64 now = get_ticks();
 	u64 stop;
 
-	stop = now + usec * get_tbclk_mhz();
+	stop = now + (u64)usec * get_tbclk_mhz();
 
 	while ((int64_t)(stop - get_ticks()) > 0)
 #if defined(CONFIG_QEMU) && defined(CONFIG_SMP)

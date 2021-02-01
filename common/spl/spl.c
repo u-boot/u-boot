@@ -144,6 +144,12 @@ ulong spl_get_image_size(void)
 		binman_sym(ulong, u_boot_any, size);
 }
 
+ulong spl_get_image_text_base(void)
+{
+	return spl_phase() == PHASE_TPL ? CONFIG_SPL_TEXT_BASE :
+		CONFIG_SYS_TEXT_BASE;
+}
+
 /*
  * Weak default function for board specific cleanup/preparation before
  * Linux boot. Some boards/platforms might not need it, so just provide

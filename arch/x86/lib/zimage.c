@@ -109,8 +109,11 @@ static void build_command_line(char *command_line, int auto_boot)
 
 	if (env_command_line)
 		strcat(command_line, env_command_line);
-
-	printf("Kernel command line: \"%s\"\n", command_line);
+#ifdef DEBUG
+	printf("Kernel command line:");
+	puts(command_line);
+	printf("\n");
+#endif
 }
 
 static int kernel_magic_ok(struct setup_header *hdr)
@@ -354,7 +357,8 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 			build_command_line(cmd_line, auto_boot);
 		ret = bootm_process_cmdline(cmd_line, max_size, BOOTM_CL_ALL);
 		if (ret) {
-			printf("Cmdline setup failed (err=%d)\n", ret);
+			printf("Cmdline setup failed (max_size=%x, bootproto=%x, err=%d)\n",
+			       max_size, bootproto, ret);
 			return ret;
 		}
 		printf("Kernel command line: \"");
@@ -600,19 +604,12 @@ static void show_loader(struct setup_header *hdr)
 	printf("\n");
 }
 
-int do_zboot_dump(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+void zimage_dump(struct boot_params *base_ptr)
 {
-	struct boot_params *base_ptr = state.base_ptr;
 	struct setup_header *hdr;
 	const char *version;
 	int i;
 
-	if (argc > 1)
-		base_ptr = (void *)simple_strtoul(argv[1], NULL, 16);
-	if (!base_ptr) {
-		printf("No zboot setup_base\n");
-		return CMD_RET_FAILURE;
-	}
 	printf("Setup located at %p:\n\n", base_ptr);
 	print_num64("ACPI RSDP addr", base_ptr->acpi_rsdp_addr);
 
@@ -688,6 +685,20 @@ int do_zboot_dump(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	print_num("Handover offset", hdr->handover_offset);
 	if (get_boot_protocol(hdr, false) >= 0x215)
 		print_num("Kernel info offset", hdr->kernel_info_offset);
+}
+
+static int do_zboot_dump(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
+{
+	struct boot_params *base_ptr = state.base_ptr;
+
+	if (argc > 1)
+		base_ptr = (void *)simple_strtoul(argv[1], NULL, 16);
+	if (!base_ptr) {
+		printf("No zboot setup_base\n");
+		return CMD_RET_FAILURE;
+	}
+	zimage_dump(base_ptr);
 
 	return 0;
 }

@@ -255,6 +255,16 @@ ulong spl_get_image_pos(void);
 ulong spl_get_image_size(void);
 
 /**
+ * spl_get_image_text_base() - get the text base of the next phase
+ *
+ * This returns the address that the next stage is linked to run at, i.e.
+ * CONFIG_SPL_TEXT_BASE or CONFIG_SYS_TEXT_BASE
+ *
+ * @return text-base address
+ */
+ulong spl_get_image_text_base(void);
+
+/**
  * spl_load_simple_fit_skip_processing() - Hook to allow skipping the FIT
  *	image processing during spl_load_simple_fit().
  *

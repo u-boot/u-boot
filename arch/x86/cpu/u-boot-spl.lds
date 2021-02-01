@@ -43,11 +43,23 @@ SECTIONS
 		__binman_sym_start = .;
 		KEEP(*(SORT(.binman_sym*)));
 		__binman_sym_end = .;
+
+		/*
+		 * Force 32-byte alignment so that it lines up with the start of
+		 * bss, which may have up to 32-byte alignment. This ensures
+		 * that the end of the .bin file matches up with
+		 * _image_binary_end or __bss_end - see board_fdt_blob_setup().
+		 * The alignment of BSS depends on what is in it, so can range
+		 * from 4 to 32 bytes.
+		 */
+		. = ALIGN(32);
 	}
 
         _image_binary_end = .;
 
+#if CONFIG_IS_ENABLED(SEPARATE_BSS)
 	. = 0x120000;
+#endif
 	.bss (OVERLAY) : {
 		__bss_start = .;
 		*(.bss*)
