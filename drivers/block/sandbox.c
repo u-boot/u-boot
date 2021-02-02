@@ -231,6 +231,18 @@ int host_get_dev_err(int devnum, struct blk_desc **blk_devp)
 }
 
 #ifdef CONFIG_BLK
+
+int sandbox_host_unbind(struct udevice *dev)
+{
+	struct host_block_dev *host_dev;
+
+	/* Data validity is checked in host_dev_bind() */
+	host_dev = dev_get_plat(dev);
+	os_close(host_dev->fd);
+
+	return 0;
+}
+
 static const struct blk_ops sandbox_host_blk_ops = {
 	.read	= host_block_read,
 	.write	= host_block_write,
@@ -240,6 +252,7 @@ U_BOOT_DRIVER(sandbox_host_blk) = {
 	.name		= "sandbox_host_blk",
 	.id		= UCLASS_BLK,
 	.ops		= &sandbox_host_blk_ops,
+	.unbind		= sandbox_host_unbind,
 	.plat_auto	= sizeof(struct host_block_dev),
 };
 #else
