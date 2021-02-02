@@ -78,6 +78,9 @@ static int mmc_spi_sendcmd(struct udevice *dev,
 	int i, rpos = 0, ret = 0;
 	u8 cmdo[7], r;
 
+	if (!resp || !resp_size)
+		return 0;
+
 	debug("%s: cmd%d cmdarg=0x%x resp_type=0x%x "
 	      "resp_size=%d resp_match=%d resp_match_value=0x%x\n",
 	      __func__, cmdidx, cmdarg, resp_type,
@@ -97,9 +100,6 @@ static int mmc_spi_sendcmd(struct udevice *dev,
 	ret = dm_spi_xfer(dev, 1 * 8, NULL, &r, 0);
 	if (ret)
 		return ret;
-
-	if (!resp || !resp_size)
-		return 0;
 
 	debug("%s: cmd%d", __func__, cmdidx);
 
