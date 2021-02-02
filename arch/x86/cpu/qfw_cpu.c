@@ -17,9 +17,15 @@ int qemu_cpu_fixup(void)
 	int ret;
 	int cpu_num;
 	int cpu_online;
+	struct uclass *uc;
 	struct udevice *dev, *pdev;
 	struct cpu_plat *plat;
 	char *cpu;
+
+	/* This will cause the CPUs devices to be bound */
+	ret = uclass_get(UCLASS_CPU, &uc);
+	if (ret)
+		return ret;
 
 	/* first we need to find '/cpus' */
 	for (device_find_first_child(dm_root(), &pdev);
