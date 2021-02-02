@@ -181,8 +181,10 @@ static int mmc_spi_readdata(struct udevice *dev,
 			if (ret)
 				return ret;
 #ifdef CONFIG_MMC_SPI_CRC_ON
-			if (be16_to_cpu(crc16_ccitt(0, buf, bsize)) != crc) {
-				debug("%s: data crc error\n", __func__);
+			u16 crc_ok = be16_to_cpu(crc16_ccitt(0, buf, bsize));
+			if (crc_ok != crc) {
+				debug("%s: data crc error, expected %04x got %04x\n",
+				      __func__, crc_ok, crc);
 				r1 = R1_SPI_COM_CRC;
 				break;
 			}
