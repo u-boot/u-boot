@@ -37,7 +37,8 @@
 #define SPI_RESPONSE_CRC_ERR		((5 << 1)|1)
 #define SPI_RESPONSE_WRITE_ERR		((6 << 1)|1)
 
-/* Read and write blocks start with these tokens and end with crc;
+/*
+ * Read and write blocks start with these tokens and end with crc;
  * on error, read tokens act like a subset of R2_SPI_* values.
  */
 /* single block write multiblock read */
@@ -70,6 +71,20 @@ struct mmc_spi_priv {
 	struct spi_slave *spi;
 };
 
+/**
+ * mmc_spi_sendcmd() - send a command to the SD card
+ *
+ * @dev:	mmc_spi device
+ * @cmdidx:	command index
+ * @cmdarg:	command argument
+ * @resp_type:	card response type
+ * @resp:	buffer to store the card response
+ * @resp_size:	size of the card response
+ * @resp_match:	if true, compare each of received bytes with @resp_match_value
+ * @resp_match_value:	a value to be compared with each of received bytes
+ * @r1b:	if true, receive additional bytes for busy signal token
+ * @return 0 if OK, -ETIMEDOUT if no card response is received, -ve on error
+ */
 static int mmc_spi_sendcmd(struct udevice *dev,
 			   ushort cmdidx, u32 cmdarg, u32 resp_type,
 			   u8 *resp, u32 resp_size,
@@ -159,6 +174,15 @@ static int mmc_spi_sendcmd(struct udevice *dev,
 	return 0;
 }
 
+/**
+ * mmc_spi_readdata() - read data block(s) from the SD card
+ *
+ * @dev:	mmc_spi device
+ * @xbuf:	buffer of the actual data (excluding token and crc) to read
+ * @bcnt:	number of data blocks to transfer
+ * @bsize:	size of the actual data (excluding token and crc) in bytes
+ * @return 0 if OK, -ECOMM if crc error, -ETIMEDOUT on other errors
+ */
 static int mmc_spi_readdata(struct udevice *dev,
 			    void *xbuf, u32 bcnt, u32 bsize)
 {
@@ -207,6 +231,16 @@ static int mmc_spi_readdata(struct udevice *dev,
 	return ret;
 }
 
+/**
+ * mmc_spi_writedata() - write data block(s) to the SD card
+ *
+ * @dev:	mmc_spi device
+ * @xbuf:	buffer of the actual data (excluding token and crc) to write
+ * @bcnt:	number of data blocks to transfer
+ * @bsize:	size of actual data (excluding token and crc) in bytes
+ * @multi:	indicate a transfer by multiple block write command (CMD25)
+ * @return 0 if OK, -ECOMM if crc error, -ETIMEDOUT on other errors
+ */
 static int mmc_spi_writedata(struct udevice *dev, const void *xbuf,
 			     u32 bcnt, u32 bsize, int multi)
 {
