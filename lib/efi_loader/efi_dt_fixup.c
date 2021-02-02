@@ -110,6 +110,7 @@ efi_dt_fixup(struct efi_dt_fixup_protocol *this, void *dtb,
 {
 	efi_status_t ret;
 	size_t required_size;
+	size_t total_size;
 	bootm_headers_t img = { 0 };
 
 	EFI_ENTRY("%p, %p, %p, %d", this, dtb, buffer_size, flags);
@@ -124,20 +125,20 @@ efi_dt_fixup(struct efi_dt_fixup_protocol *this, void *dtb,
 		goto out;
 	}
 	if (flags & EFI_DT_APPLY_FIXUPS) {
+		/* Check size */
 		required_size = fdt_off_dt_strings(dtb) +
 				fdt_size_dt_strings(dtb) +
 				0x3000;
-	} else {
-		required_size = fdt_totalsize(dtb);
-	}
-	if (required_size > *buffer_size) {
-		*buffer_size = required_size;
-		ret = EFI_BUFFER_TOO_SMALL;
-		goto out;
-	}
-	fdt_set_totalsize(dtb, *buffer_size);
+		total_size = fdt_totalsize(dtb);
+		if (required_size < total_size)
+			required_size = total_size;
+		if (required_size > *buffer_size) {
+			*buffer_size = required_size;
+			ret = EFI_BUFFER_TOO_SMALL;
+			goto out;
+		}
 
-	if (flags & EFI_DT_APPLY_FIXUPS) {
+		fdt_set_totalsize(dtb, *buffer_size);
 		if (image_setup_libfdt(&img, dtb, 0, NULL)) {
 			log_err("failed to process device tree\n");
 			ret = EFI_INVALID_PARAMETER;
@@ -147,10 +148,10 @@ efi_dt_fixup(struct efi_dt_fixup_protocol *this, void *dtb,
 	if (flags & EFI_DT_RESERVE_MEMORY)
 		efi_carve_out_dt_rsv(dtb);
 
-	if (EFI_DT_INSTALL_TABLE) {
+	if (flags & EFI_DT_INSTALL_TABLE) {
 		ret = efi_install_configuration_table(&efi_guid_fdt, dtb);
 		if (ret != EFI_SUCCESS) {
-			log_err("ERROR: failed to install device tree\n");
+			log_err("failed to install device tree\n");
 			goto out;
 		}
 	}
