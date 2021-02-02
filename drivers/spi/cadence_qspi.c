@@ -281,8 +281,14 @@ static int cadence_spi_mem_exec_op(struct spi_slave *spi,
 		break;
 	case CQSPI_READ:
 		err = cadence_qspi_apb_read_setup(plat, op);
-		if (!err)
-			err = cadence_qspi_apb_read_execute(plat, op);
+		if (!err) {
+			if (plat->is_dma)
+				err = cadence_qspi_apb_dma_read(plat,
+								op->data.nbytes,
+								op->data.buf.in);
+			else
+				err = cadence_qspi_apb_read_execute(plat, op);
+		}
 		break;
 	case CQSPI_WRITE:
 		err = cadence_qspi_apb_write_setup(plat, op);
