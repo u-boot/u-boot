@@ -103,29 +103,31 @@ static int mmc_spi_sendcmd(struct udevice *dev,
 
 	debug("%s: cmd%d", __func__, cmdidx);
 
-	if (resp_match) {
+	if (resp_match)
 		r = ~resp_match_value;
-		i = CMD_TIMEOUT;
-		while (i) {
-			ret = dm_spi_xfer(dev, 1 * 8, NULL, &r, 0);
-			if (ret)
-				return ret;
-			debug(" resp%d=0x%x", rpos, r);
-			rpos++;
-			i--;
+	i = CMD_TIMEOUT;
+	while (i) {
+		ret = dm_spi_xfer(dev, 1 * 8, NULL, &r, 0);
+		if (ret)
+			return ret;
+		debug(" resp%d=0x%x", rpos, r);
+		rpos++;
+		i--;
 
+		if (resp_match) {
 			if (r == resp_match_value)
 				break;
+		} else {
+			if (!(r & 0x80))
+				break;
 		}
-		if (!i && (r != resp_match_value))
+
+		if (!i)
 			return -ETIMEDOUT;
 	}
 
-	for (i = 0; i < resp_size; i++) {
-		if (i == 0 && resp_match) {
-			resp[i] = resp_match_value;
-			continue;
-		}
+	resp[0] = r;
+	for (i = 1; i < resp_size; i++) {
 		ret = dm_spi_xfer(dev, 1 * 8, NULL, &r, 0);
 		if (ret)
 			return ret;
