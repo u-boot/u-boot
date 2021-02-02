@@ -118,6 +118,10 @@ static int mv_sdhci_probe(struct udevice *dev)
 	host->mmc->dev = dev;
 	host->mmc->priv = host;
 
+	ret = mmc_of_parse(dev, &plat->cfg);
+	if (ret)
+		return ret;
+
 	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 0);
 	if (ret)
 		return ret;
