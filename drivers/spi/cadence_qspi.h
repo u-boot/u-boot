@@ -8,6 +8,8 @@
 #define __CADENCE_QSPI_H__
 
 #include <reset.h>
+#include <linux/mtd/spi-nor.h>
+#include <spi-mem.h>
 
 #define CQSPI_IS_ADDR(cmd_len)		(cmd_len > 1 ? 1 : 0)
 
@@ -252,8 +254,9 @@ void cadence_qspi_apb_delay(void *reg_base,
 void cadence_qspi_apb_enter_xip(void *reg_base, char xip_dummy);
 void cadence_qspi_apb_readdata_capture(void *reg_base,
 	unsigned int bypass, unsigned int delay);
-void cadence_qspi_apb_dma_read(struct cadence_spi_platdata *plat,
-			       unsigned int n_rx, u8 *rxbuf);
+int cadence_qspi_apb_dma_read(struct cadence_spi_platdata *plat,
+			      unsigned int n_rx, u8 *rxbuf);
+int cadence_qspi_apb_exec_flash_cmd(void *reg_base, unsigned int reg);
 int cadence_qspi_apb_wait_for_dma_cmplt(struct cadence_spi_platdata *plat);
 int cadence_spi_versal_flash_reset(struct udevice *dev);
 
