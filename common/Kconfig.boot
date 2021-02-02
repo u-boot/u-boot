@@ -140,6 +140,12 @@ config FIT_IMAGE_POST_PROCESS
 	  injected into the FIT creation (i.e. the blobs would have been pre-
 	  processed before being added to the FIT image).
 
+config FIT_PRINT
+        bool "Support FIT printing"
+        default y
+        help
+          Support printing the content of the fitImage in a verbose manner.
+
 if SPL
 
 config SPL_FIT
