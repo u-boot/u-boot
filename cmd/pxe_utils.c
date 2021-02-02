@@ -655,6 +655,9 @@ static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 	/* Try booting a Image */
 	else if (IS_ENABLED(CONFIG_CMD_BOOTZ))
 		do_bootz(cmdtp, 0, bootm_argc, bootm_argv);
+	/* Try booting an x86_64 Linux kernel image */
+	else if (IS_ENABLED(CONFIG_CMD_ZBOOT))
+		do_zboot_parent(cmdtp, 0, bootm_argc, bootm_argv, NULL);
 
 	unmap_sysmem(buf);
 

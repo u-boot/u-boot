@@ -165,6 +165,9 @@ int do_bootz(struct cmd_tbl *cmdtp, int flag, int argc,
 int do_booti(struct cmd_tbl *cmdtp, int flag, int argc,
 	     char *const argv[]);
 
+int do_zboot_parent(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[], int *repeatable);
+
 int common_diskboot(struct cmd_tbl *cmdtp, const char *intf, int argc,
 		    char *const argv[]);
 
