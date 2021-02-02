@@ -564,6 +564,7 @@ int cadence_qspi_apb_read_execute(struct cadence_spi_platdata *plat,
 	void *buf = op->data.buf.in;
 	size_t len = op->data.nbytes;
 
+	cadence_qspi_apb_enable_linear_mode(true);
 	if (plat->use_dac_mode && (from + len < plat->ahbsize)) {
 		if (len < 256 ||
 		    dma_memcpy(buf, plat->ahbbase + from, len) < 0) {
@@ -681,6 +682,7 @@ int cadence_qspi_apb_write_execute(struct cadence_spi_platdata *plat,
 	const void *buf = op->data.buf.out;
 	size_t len = op->data.nbytes;
 
+	cadence_qspi_apb_enable_linear_mode(true);
 	if (plat->use_dac_mode && (to + len < plat->ahbsize)) {
 		memcpy_toio(plat->ahbbase + to, buf, len);
 		if (!cadence_qspi_wait_idle(plat->regbase))

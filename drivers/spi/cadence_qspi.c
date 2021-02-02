@@ -18,6 +18,7 @@
 #include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/sizes.h>
+#include <zynqmp_firmware.h>
 #include "cadence_qspi.h"
 
 #define CQSPI_STIG_READ			0
@@ -186,6 +187,9 @@ static int cadence_spi_probe(struct udevice *bus)
 
 	priv->regbase = plat->regbase;
 	priv->ahbbase = plat->ahbbase;
+
+	xilinx_pm_request(PM_REQUEST_NODE, DEV_OSPI, PM_CAPABILITY_ACCESS,
+			  PM_MAX_QOS, PM_REQUEST_ACK_NO, NULL);
 
 	if (plat->ref_clk_hz == 0) {
 		ret = clk_get_by_index(bus, 0, &clk);
