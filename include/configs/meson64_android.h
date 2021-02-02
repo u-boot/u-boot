@@ -9,9 +9,6 @@
 #ifndef __MESON64_ANDROID_CONFIG_H
 #define __MESON64_ANDROID_CONFIG_H
 
-#define CONFIG_SYS_MMC_ENV_DEV	2
-#define CONFIG_SYS_MMC_ENV_PART	1
-
 
 #define BOOTENV_DEV_FASTBOOT(devtypeu, devtypel, instance) \
 	"bootcmd_fastboot=" \
@@ -101,11 +98,14 @@
 	func(SYSTEM, system, na) \
 
 #define PREBOOT_LOAD_LOGO \
-	"mmc dev ${mmcdev};" \
-	"part start mmc ${mmcdev} ${logopart} boot_start;" \
-	"part size mmc ${mmcdev} ${logopart} boot_size;" \
-	"if mmc read ${loadaddr} ${boot_start} ${boot_size}; then " \
+	"if test \"${boot_source}\" != \"usb\" && " \
+		"gpt verify mmc ${mmcdev} ${partitions}; then; " \
+		"mmc dev ${mmcdev};" \
+		"part start mmc ${mmcdev} ${logopart} boot_start;" \
+		"part size mmc ${mmcdev} ${logopart} boot_size;" \
+		"if mmc read ${loadaddr} ${boot_start} ${boot_size}; then " \
 			"bmp display ${loadaddr} m m;" \
+		"fi;" \
 	"fi;"
 
 #define CONFIG_EXTRA_ENV_SETTINGS                                     \

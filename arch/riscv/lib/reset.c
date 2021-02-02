@@ -5,8 +5,9 @@
 
 #include <common.h>
 #include <command.h>
+#include <hang.h>
 
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	printf("resetting ...\n");
 

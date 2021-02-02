@@ -65,10 +65,12 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <fdtdec.h>
 #include <gzip.h>
+#include <log.h>
 #include <version.h>
 #include <malloc.h>
 #include <video.h>
@@ -1710,7 +1712,8 @@ static void logo_black(void)
 			1);
 }
 
-static int do_clrlogo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_clrlogo(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	if (argc != 1)
 		return cmd_usage(cmdtp);
@@ -1979,9 +1982,7 @@ static void *video_logo(void)
 
 static int cfb_fb_is_in_dram(void)
 {
-	bd_t *bd = gd->bd;
-#if defined(CONFIG_ARM) || defined(CONFIG_NDS32) || \
-defined(CONFIG_SANDBOX) || defined(CONFIG_X86)
+	struct bd_info *bd = gd->bd;
 	ulong start, end;
 	int i;
 
@@ -1992,11 +1993,7 @@ defined(CONFIG_SANDBOX) || defined(CONFIG_X86)
 		    (ulong)video_fb_address < end)
 			return 1;
 	}
-#else
-	if ((ulong)video_fb_address >= bd->bi_memstart &&
-	    (ulong)video_fb_address < bd->bi_memstart + bd->bi_memsize)
-		return 1;
-#endif
+
 	return 0;
 }
 

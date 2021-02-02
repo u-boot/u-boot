@@ -127,9 +127,6 @@
 	"bootm ${loadaddr} ${rdaddr}\0"
 
 #else /* CONFIG_FLASHCARD */
-
-#define CONFIG_ENV_OVERWRITE /* allow to overwrite serial and ethaddr */
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_COMMON_ENV_SETTINGS \
 	"mmcargs=" \
@@ -176,10 +173,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 
-#define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0 + 0x00000000)
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + \
-					0x07000000) /* 112 MB */
-
 #define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0 + 0x02000000)
 
 /*
@@ -204,17 +197,9 @@
 						CONFIG_SYS_INIT_RAM_SIZE - \
 						GENERATED_GBL_DATA_SIZE)
 
-/* SRAM config */
-#define CONFIG_SYS_SRAM_START		0x40200000
-#define CONFIG_SYS_SRAM_SIZE		0x10000
-
 /* Defines for SPL */
 
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME        "u-boot.img"
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
 
 #define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
 					 CONFIG_SPL_TEXT_BASE)

@@ -88,7 +88,7 @@ void fastboot_okay(const char *reason, char *response)
  * which sets whatever flag your board specific Android bootloader flow
  * requires in order to re-enter the bootloader.
  */
-int __weak fastboot_set_reboot_flag(void)
+int __weak fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 {
 	return -ENOSYS;
 }

@@ -14,6 +14,9 @@
 #include <env.h>
 #include <errno.h>
 #include <image.h>
+#include <lmb.h>
+#include <log.h>
+#include <malloc.h>
 #include <linux/libfdt.h>
 #include <mapmem.h>
 #include <asm/io.h>
@@ -122,7 +125,7 @@ void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
 			/* check if this subnode has a reg property */
 			ret = fdt_get_resource(fdt_blob, subnode, "reg", 0,
 					       &res);
-			if (!ret) {
+			if (!ret && fdtdec_get_is_enabled(fdt_blob, subnode)) {
 				addr = res.start;
 				size = res.end - res.start + 1;
 				boot_fdt_reserve_region(lmb, addr, size);
@@ -262,8 +265,8 @@ error:
  *     1, if fdt image is found but corrupted
  *     of_flat_tree and of_size are set to 0 if no fdt exists
  */
-int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
-		bootm_headers_t *images, char **of_flat_tree, ulong *of_size)
+int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
+		 bootm_headers_t *images, char **of_flat_tree, ulong *of_size)
 {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
 	const image_header_t *fdt_hdr;
@@ -285,7 +288,8 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 	*of_flat_tree = NULL;
 	*of_size = 0;
 
-	img_addr = (argc == 0) ? load_addr : simple_strtoul(argv[0], NULL, 16);
+	img_addr = (argc == 0) ? image_load_addr :
+			simple_strtoul(argv[0], NULL, 16);
 	buf = map_sysmem(img_addr, 0);
 
 	if (argc > 2)
@@ -304,7 +308,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			else if (images->fit_uname_os)
 				default_addr = (ulong)images->fit_hdr_os;
 			else
-				default_addr = load_addr;
+				default_addr = image_load_addr;
 
 			if (fit_parse_conf(select, default_addr,
 					   &fdt_addr, &fit_uname_config)) {
@@ -422,7 +426,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			break;
 		default:
 			puts("ERROR: Did not find a cmdline Flattened Device Tree\n");
-			goto no_fdt;
+			goto error;
 		}
 
 		printf("   Booting using the fdt blob at %#08lx\n", fdt_addr);
@@ -461,10 +465,20 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	} else if (genimg_get_format(buf) == IMAGE_FORMAT_ANDROID) {
 		struct andr_img_hdr *hdr = buf;
-		ulong fdt_data, fdt_len;
+		ulong		fdt_data, fdt_len;
+		u32			fdt_size, dtb_idx;
+		/*
+		 * Firstly check if this android boot image has dtb field.
+		 */
+		dtb_idx = (u32)env_get_ulong("adtb_idx", 10, 0);
+		if (android_image_get_dtb_by_index((ulong)hdr, dtb_idx, &fdt_addr, &fdt_size)) {
+			fdt_blob = (char *)map_sysmem(fdt_addr, 0);
+			if (fdt_check_header(fdt_blob))
+				goto no_fdt;
 
-		if (!android_image_get_second(hdr, &fdt_data, &fdt_len) &&
-		    !fdt_check_header((char *)fdt_data)) {
+			debug("## Using FDT in Android image dtb area with idx %u\n", dtb_idx);
+		} else if (!android_image_get_second(hdr, &fdt_data, &fdt_len) &&
+			!fdt_check_header((char *)fdt_data)) {
 			fdt_blob = (char *)fdt_data;
 			if (fdt_totalsize(fdt_blob) != fdt_len)
 				goto error;
@@ -543,8 +557,20 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 		printf("ERROR: arch-specific fdt fixup failed\n");
 		goto err;
 	}
+
+	fdt_ret = optee_copy_fdt_nodes(gd->fdt_blob, blob);
+	if (fdt_ret) {
+		printf("ERROR: transfer of optee nodes to new fdt failed: %s\n",
+		       fdt_strerror(fdt_ret));
+		goto err;
+	}
+
 	/* Update ethernet nodes */
 	fdt_fixup_ethernet(blob);
+#if CONFIG_IS_ENABLED(CMD_PSTORE)
+	/* Append PStore configuration */
+	fdt_fixup_pstore(blob);
+#endif
 	if (IMAGE_OF_BOARD_SETUP) {
 		fdt_ret = ft_board_setup(blob, gd->bd);
 		if (fdt_ret) {
@@ -560,13 +586,6 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 			       fdt_strerror(fdt_ret));
 			goto err;
 		}
-	}
-
-	fdt_ret = optee_copy_fdt_nodes(gd->fdt_blob, blob);
-	if (fdt_ret) {
-		printf("ERROR: transfer of optee nodes to new fdt failed: %s\n",
-		       fdt_strerror(fdt_ret));
-		goto err;
 	}
 
 	/* Delete the old LMB reservation */

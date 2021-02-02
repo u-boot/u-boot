@@ -108,9 +108,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR			0x22000000	/* load address */
 
-#define CONFIG_SYS_MEMTEST_START		CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END			0x23e00000
-
 #ifdef CONFIG_SYS_USE_DATAFLASH_CS0
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
@@ -132,7 +129,6 @@
 #else	/* CONFIG_SYS_USE_MMC */
 /* bootstrap + u-boot + env + linux in mmc */
 /* For FAT system, most cases it should be in the reserved sector */
-#define CONFIG_SYS_MMC_ENV_DEV		0
 
 #define CONFIG_BOOTCOMMAND						\
 	"fatload mmc 0:1 0x22000000 uImage; bootm"

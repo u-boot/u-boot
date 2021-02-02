@@ -12,12 +12,14 @@
 #include <common.h>
 #include <eeprom.h>
 #include <env.h>
+#include <fdt_support.h>
 #include <init.h>
 #include <ioports.h>
 #include <mpc83xx.h>
 #include <i2c.h>
 #include <miiphy.h>
 #include <command.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <u-boot/crc.h>
 #if defined(CONFIG_PCI)
@@ -180,7 +182,7 @@ void pci_init_board(void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 #ifdef CONFIG_PCI

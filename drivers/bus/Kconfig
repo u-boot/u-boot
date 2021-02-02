@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: GPL-2.0
+#
+# Bus Devices
+#
+
+menu "Bus devices"
+
+config UNIPHIER_SYSTEM_BUS
+	bool "UniPhier System Bus driver"
+	depends on ARCH_UNIPHIER
+	default y
+	help
+	  Support for UniPhier System Bus, a simple external bus.  This is
+	  needed to use on-board devices connected to UniPhier SoCs.
+
+endmenu

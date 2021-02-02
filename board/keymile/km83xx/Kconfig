@@ -1,3 +1,26 @@
+menu "KM 83xx Options"
+	depends on MPC83xx
+
+config KM_ENABLE_FULL_DM_DTS_SUPPORT
+	bool "enable full DM/DTS support for KM 83xx boards"
+	default y
+	select CMD_DM
+	select DM
+	select DM_ETH
+	select DM_MDIO
+	select DM_SERIAL
+	select OF_CONTROL
+	select PINCTRL
+	select PINCTRL_QE
+	select PHYLIB
+endmenu
+
+config SYS_MEMTEST_START
+	default 0x00100000
+
+config SYS_MEMTEST_END
+	default 0x00f00000
+
 if TARGET_KMETER1
 
 config SYS_BOARD
@@ -52,25 +75,6 @@ config SYS_CONFIG_NAME
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select ARCH_MPC8309
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
-
-endif
-
-if TARGET_SUVD3
-
-config SYS_BOARD
-	default "km83xx"
-
-config SYS_VENDOR
-	default "keymile"
-
-config SYS_CONFIG_NAME
-	default "suvd3"
-
-config BOARD_SPECIFIC_OPTIONS # dummy
-	def_bool y
-	select ARCH_MPC832X
 	imply CMD_CRAMFS
 	imply FS_CRAMFS
 

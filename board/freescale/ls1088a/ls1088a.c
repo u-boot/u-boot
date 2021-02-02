@@ -5,6 +5,8 @@
 #include <common.h>
 #include <env.h>
 #include <i2c.h>
+#include <init.h>
+#include <log.h>
 #include <malloc.h>
 #include <errno.h>
 #include <netdev.h>
@@ -13,6 +15,7 @@
 #include <fsl_sec.h>
 #include <asm/io.h>
 #include <fdt_support.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fsl-mc/fsl_mc.h>
 #include <env_internal.h>
@@ -801,6 +804,11 @@ int board_init(void)
 #ifdef CONFIG_FSL_LS_PPA
 	ppa_init();
 #endif
+
+#if !defined(CONFIG_SYS_EARLY_PCI_INIT) && defined(CONFIG_DM_ETH)
+	pci_init();
+#endif
+
 	return 0;
 }
 
@@ -810,13 +818,6 @@ void detail_board_ddr_info(void)
 	print_size(gd->bd->bi_dram[0].size + gd->bd->bi_dram[1].size, "");
 	print_ddr_info(0);
 }
-
-#if defined(CONFIG_ARCH_MISC_INIT)
-int arch_misc_init(void)
-{
-	return 0;
-}
-#endif
 
 #ifdef CONFIG_FSL_MC_ENET
 void board_quiesce_devices(void)
@@ -911,7 +912,7 @@ void fsl_fdt_fixup_flash(void *fdt)
 	fdt_status_disabled(fdt, offset);
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	int i;
 	u16 mc_memory_bank = 0;

@@ -10,13 +10,14 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <dm.h>
 #include <hexdump.h>
 #include <video_osd.h>
 #include <malloc.h>
 
-static int do_osd_write(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_osd_write(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	struct udevice *dev;
 	uint x, y;
@@ -68,8 +69,8 @@ static int do_osd_write(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static int do_osd_print(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_osd_print(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	struct udevice *dev;
 	uint x, y;
@@ -99,8 +100,8 @@ static int do_osd_print(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static int do_osd_size(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_osd_size(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	struct udevice *dev;
 	uint x, y;

@@ -3,7 +3,6 @@
  * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
  */
 
-#include <dt-bindings/dma/k3-udma.h>
 #include <dt-bindings/net/ti-dp83867.h>
 
 / {
@@ -32,181 +31,15 @@
 		u-boot,dm-spl;
 	};
 
-	mcu_conf: scm_conf@40f00000 {
-		compatible = "syscon", "simple-mfd";
-		reg = <0x0 0x40f00000 0x0 0x20000>;
-		#address-cells = <1>;
-		#size-cells = <1>;
-		ranges = <0x0 0x0 0x40f00000 0x20000>;
-
-		phy_sel: cpsw-phy-sel@4040 {
-			compatible = "ti,am654-cpsw-phy-sel";
-			reg = <0x4040 0x4>;
-			reg-names = "gmii-sel";
-		};
-	};
-
-	cbass_mcu_navss: mcu_navss {
-		compatible = "simple-bus";
-		#address-cells = <2>;
-		#size-cells = <2>;
-		dma-coherent;
-		dma-ranges;
-		ranges;
-
-		ti,sci-dev-id = <232>;
+	mcu_navss {
 		u-boot,dm-spl;
 
-		mcu_ringacc: ringacc@2b800000 {
-			compatible = "ti,am654-navss-ringacc";
-			reg =	<0x0 0x2b800000 0x0 0x400000>,
-				<0x0 0x2b000000 0x0 0x400000>,
-				<0x0 0x28590000 0x0 0x100>,
-				<0x0 0x2a500000 0x0 0x40000>;
-			reg-names = "rt", "fifos", "proxy_gcfg", "proxy_target";
-			ti,num-rings = <286>;
-			ti,sci-rm-range-gp-rings = <0x1>; /* GP ring range */
-			ti,sci = <&dmsc>;
-			ti,sci-dev-id = <235>;
+		ringacc@2b800000 {
 			u-boot,dm-spl;
 		};
 
-		mcu_udmap: udmap@31150000 {
-			compatible = "ti,j721e-navss-mcu-udmap";
-			reg =	<0x0 0x285c0000 0x0 0x100>,
-				<0x0 0x2a800000 0x0 0x40000>,
-				<0x0 0x2aa00000 0x0 0x40000>;
-			reg-names = "gcfg", "rchanrt", "tchanrt";
-			#dma-cells = <3>;
-
-			ti,ringacc = <&mcu_ringacc>;
-			ti,psil-base = <0x6000>;
-
-			ti,sci = <&dmsc>;
-			ti,sci-dev-id = <236>;
-
-			ti,sci-rm-range-tchan = <0x0d>, /* TX_CHAN */
-						<0x0f>; /* TX_HCHAN */
-			ti,sci-rm-range-rchan = <0x0a>, /* RX_CHAN */
-						<0x0b>; /* RX_HCHAN */
-			ti,sci-rm-range-rflow = <0x00>; /* GP RFLOW */
+		dma-controller@285c0000 {
 			u-boot,dm-spl;
-		};
-	};
-
-	mcu_cpsw: ethernet@046000000 {
-		compatible = "ti,j721e-cpsw-nuss";
-		#address-cells = <2>;
-		#size-cells = <2>;
-		reg = <0x0 0x46000000 0x0 0x200000>;
-		reg-names = "cpsw_nuss";
-		ranges;
-		dma-coherent;
-		clocks = <&k3_clks 18 22>;
-		clock-names = "fck";
-		power-domains = <&k3_pds 18 TI_SCI_PD_EXCLUSIVE>;
-		ti,psil-base = <0x7000>;
-		cpsw-phy-sel = <&phy_sel>;
-
-		dmas = <&mcu_udmap &mcu_cpsw 0 UDMA_DIR_TX>,
-		       <&mcu_udmap &mcu_cpsw 1 UDMA_DIR_TX>,
-		       <&mcu_udmap &mcu_cpsw 2 UDMA_DIR_TX>,
-		       <&mcu_udmap &mcu_cpsw 3 UDMA_DIR_TX>,
-		       <&mcu_udmap &mcu_cpsw 4 UDMA_DIR_TX>,
-		       <&mcu_udmap &mcu_cpsw 5 UDMA_DIR_TX>,
-		       <&mcu_udmap &mcu_cpsw 6 UDMA_DIR_TX>,
-		       <&mcu_udmap &mcu_cpsw 7 UDMA_DIR_TX>,
-		       <&mcu_udmap &mcu_cpsw 0 UDMA_DIR_RX>;
-		dma-names = "tx0", "tx1", "tx2", "tx3",
-			    "tx4", "tx5", "tx6", "tx7",
-			    "rx";
-
-		ports {
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			host: host@0 {
-				reg = <0>;
-				ti,label = "host";
-			};
-
-			cpsw_port1: port@1 {
-				reg = <1>;
-				ti,mac-only;
-				ti,label = "port1";
-				ti,syscon-efuse = <&mcu_conf 0x200>;
-			};
-		};
-
-		davinci_mdio: mdio {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			bus_freq = <1000000>;
-		};
-
-		cpts {
-			clocks = <&k3_clks 18 2>;
-			clock-names = "cpts";
-			interrupts-extended = <&gic500 GIC_SPI 858 IRQ_TYPE_LEVEL_HIGH>;
-			interrupt-names = "cpts";
-			ti,cpts-ext-ts-inputs = <4>;
-			ti,cpts-periodic-outputs = <2>;
-		};
-
-		ti,psil-config0 {
-			linux,udma-mode = <UDMA_PKT_MODE>;
-			statictr-type = <PSIL_STATIC_TR_NONE>;
-			ti,needs-epib;
-			ti,psd-size = <16>;
-		};
-
-		ti,psil-config1 {
-			linux,udma-mode = <UDMA_PKT_MODE>;
-			statictr-type = <PSIL_STATIC_TR_NONE>;
-			ti,needs-epib;
-			ti,psd-size = <16>;
-		};
-
-		ti,psil-config2 {
-			linux,udma-mode = <UDMA_PKT_MODE>;
-			statictr-type = <PSIL_STATIC_TR_NONE>;
-			ti,needs-epib;
-			ti,psd-size = <16>;
-		};
-
-		ti,psil-config3 {
-			linux,udma-mode = <UDMA_PKT_MODE>;
-			statictr-type = <PSIL_STATIC_TR_NONE>;
-			ti,needs-epib;
-			ti,psd-size = <16>;
-		};
-
-		ti,psil-config4 {
-			linux,udma-mode = <UDMA_PKT_MODE>;
-			statictr-type = <PSIL_STATIC_TR_NONE>;
-			ti,needs-epib;
-			ti,psd-size = <16>;
-		};
-
-		ti,psil-config5 {
-			linux,udma-mode = <UDMA_PKT_MODE>;
-			statictr-type = <PSIL_STATIC_TR_NONE>;
-			ti,needs-epib;
-			ti,psd-size = <16>;
-		};
-
-		ti,psil-config6 {
-			linux,udma-mode = <UDMA_PKT_MODE>;
-			statictr-type = <PSIL_STATIC_TR_NONE>;
-			ti,needs-epib;
-			ti,psd-size = <16>;
-		};
-
-		ti,psil-config7 {
-			linux,udma-mode = <UDMA_PKT_MODE>;
-			statictr-type = <PSIL_STATIC_TR_NONE>;
-			ti,needs-epib;
-			ti,psd-size = <16>;
 		};
 	};
 };
@@ -282,6 +115,20 @@
 	u-boot,dm-spl;
 };
 
+&main_usbss0_pins_default {
+	u-boot,dm-spl;
+};
+
+&usbss0 {
+	u-boot,dm-spl;
+	ti,usb2-only;
+};
+
+&usb0 {
+	dr_mode = "peripheral";
+	u-boot,dm-spl;
+};
+
 &mcu_cpsw {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcu_cpsw_pins_default &mcu_mdio_pins_default>;
@@ -304,10 +151,67 @@
 	reg = <0x0 0x46000000 0x0 0x200000>,
 	      <0x0 0x40f00200 0x0 0x2>;
 	reg-names = "cpsw_nuss", "mac_efuse";
+	/delete-property/ ranges;
 
 	cpsw-phy-sel@40f04040 {
 		compatible = "ti,am654-cpsw-phy-sel";
 		reg= <0x0 0x40f04040 0x0 0x4>;
 		reg-names = "gmii-sel";
 	};
+};
+
+&main_mmc1_pins_default {
+	u-boot,dm-spl;
+};
+
+&wkup_i2c0_pins_default {
+	u-boot,dm-spl;
+};
+
+&wkup_i2c0 {
+	u-boot,dm-spl;
+};
+
+&main_i2c0 {
+	u-boot,dm-spl;
+};
+
+&main_i2c0_pins_default {
+	u-boot,dm-spl;
+};
+
+&exp2 {
+	u-boot,dm-spl;
+};
+
+&mcu_fss0_ospi0_pins_default {
+	u-boot,dm-spl;
+};
+
+&fss {
+	u-boot,dm-spl;
+};
+
+&ospi0 {
+	u-boot,dm-spl;
+
+	flash@0 {
+		u-boot,dm-spl;
+	};
+};
+
+&ospi1 {
+	u-boot,dm-spl;
+
+	flash@0 {
+		u-boot,dm-spl;
+	};
+};
+
+&mcu_fss0_ospi1_pins_default {
+	u-boot,dm-spl;
+};
+
+&chipid {
+	u-boot,dm-spl;
 };

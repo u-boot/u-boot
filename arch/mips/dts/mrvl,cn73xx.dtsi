@@ -1,0 +1,207 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Marvell / Cavium Inc. CN73xx
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/clock/octeon-clock.h>
+
+/ {
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	soc0: soc@0 {
+		interrupt-parent = <&ciu3>;
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges; /* Direct mapping */
+
+		ciu3: interrupt-controller@1010000000000 {
+			compatible = "cavium,octeon-7890-ciu3";
+			interrupt-controller;
+			/*
+			 * Interrupts are specified by two parts:
+			 * 1) Source number (20 significant bits)
+			 * 2) Trigger type: (4 == level, 1 == edge)
+			 */
+			#address-cells = <0>;
+			#interrupt-cells = <2>;
+			reg = <0x10100 0x00000000 0x0 0xb0000000>;
+		};
+
+		bootbus: bootbus@1180000000000 {
+			compatible = "cavium,octeon-3860-bootbus","simple-bus";
+			reg = <0x11800 0x00000000 0x0 0x200>;
+			/* The chip select number and offset */
+			#address-cells = <2>;
+			/* The size of the chip select region */
+			#size-cells = <1>;
+		};
+
+		clk: clock {
+			compatible = "mrvl,octeon-clk";
+			#clock-cells = <1>;
+			u-boot,dm-pre-reloc;
+		};
+
+		gpio: gpio-controller@1070000000800 {
+			#gpio-cells = <2>;
+			compatible = "cavium,octeon-7890-gpio";
+			reg = <0x10700 0x00000800 0x0 0x100>;
+			gpio-controller;
+			nr-gpios = <32>;
+			/* Interrupts are specified by two parts:
+			 * 1) GPIO pin number (0..15)
+			 * 2) Triggering (1 - edge rising
+			 *		  2 - edge falling
+			 *		  4 - level active high
+			 *		  8 - level active low)
+			 */
+			interrupt-controller;
+			#interrupt-cells = <2>;
+			/* The GPIO pins connect to 16 consecutive CUI bits */
+			interrupts = <0x03000 4>, <0x03001 4>,
+				     <0x03002 4>, <0x03003 4>,
+				     <0x03004 4>, <0x03005 4>,
+				     <0x03006 4>, <0x03007 4>,
+				     <0x03008 4>, <0x03009 4>,
+				     <0x0300a 4>, <0x0300b 4>,
+				     <0x0300c 4>, <0x0300d 4>,
+				     <0x0300e 4>, <0x0300f 4>;
+		};
+
+		l2c: l2c@1180080000000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "cavium,octeon-7xxx-l2c";
+			reg = <0x11800 0x80000000 0x0 0x01000000>;
+			u-boot,dm-pre-reloc;
+		};
+
+		lmc: lmc@1180088000000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "cavium,octeon-7xxx-ddr4";
+			reg = <0x11800 0x88000000 0x0 0x02000000>; // 2 IFs
+			u-boot,dm-pre-reloc;
+			l2c-handle = <&l2c>;
+		};
+
+		reset: reset@1180006001600 {
+			compatible = "mrvl,cn7xxx-rst";
+			reg = <0x11800 0x06001600 0x0 0x200>;
+		};
+
+		uart0: serial@1180000000800 {
+			compatible = "cavium,octeon-3860-uart","ns16550";
+			reg = <0x11800 0x00000800 0x0 0x400>;
+			clock-frequency = <0>;
+			current-speed = <115200>;
+			reg-shift = <3>;
+			interrupts = <0x08000 4>;
+		};
+
+		uart1: serial@1180000000c00 {
+			compatible = "cavium,octeon-3860-uart","ns16550";
+			reg = <0x11800 0x00000c00 0x0 0x400>;
+			clock-frequency = <0>;
+			current-speed = <115200>;
+			reg-shift = <3>;
+			interrupts = <0x08040 4>;
+		};
+
+		i2c0: i2c@1180000001000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "cavium,octeon-7890-twsi";
+			reg = <0x11800 0x00001000 0x0 0x200>;
+			/* INT_ST, INT_TS, INT_CORE */
+			interrupts = <0x0b000 1>, <0x0b001 1>, <0x0b002 1>;
+			clock-frequency = <100000>;
+			clocks = <&clk OCTEON_CLK_IO>;
+		};
+
+		i2c1: i2c@1180000001200 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "cavium,octeon-7890-twsi";
+			reg = <0x11800 0x00001200 0x0 0x200>;
+			/* INT_ST, INT_TS, INT_CORE */
+			interrupts = <0x0b100 1>, <0x0b101 1>, <0x0b102 1>;
+			clock-frequency = <100000>;
+			clocks = <&clk OCTEON_CLK_IO>;
+		};
+
+		spi: spi@1070000001000 {
+			compatible = "cavium,octeon-3010-spi";
+			reg = <0x10700 0x00001000 0x0 0x100>;
+			interrupts = <0x05001 1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			spi-max-frequency = <25000000>;
+			clocks = <&clk OCTEON_CLK_IO>;
+		};
+
+		/* USB 0 */
+		usb0: uctl@1180068000000 {
+			compatible = "cavium,octeon-7130-usb-uctl";
+			reg = <0x11800 0x68000000 0x0 0x100>;
+			ranges; /* Direct mapping */
+			#address-cells = <2>;
+			#size-cells = <2>;
+			/* Only 100MHz allowed */
+			refclk-frequency = <100000000>;
+			/* Only "dlmc_ref_clk0" is supported for 73xx */
+			refclk-type-ss = "dlmc_ref_clk0";
+			/* Only "dlmc_ref_clk0" is supported for 73xx */
+			refclk-type-hs = "dlmc_ref_clk0";
+
+			/*
+			 * Power is specified by three parts:
+			 * 1) GPIO handle (must be &gpio)
+			 * 2) GPIO pin number
+			 * 3) Active high (0) or active low (1)
+			 */
+			xhci@1680000000000 {
+				compatible = "cavium,octeon-7130-xhci","synopsys,dwc3","snps,dwc3";
+				reg = <0x16800 0x00000000 0x10 0x0>;
+				interrupts = <0x68080 4>; /* UAHC_IMAN, level */
+				maximum-speed = "super-speed";
+				dr_mode = "host";
+				snps,dis_u3_susphy_quirk;
+				snps,dis_u2_susphy_quirk;
+				snps,dis_enblslpm_quirk;
+			};
+		};
+
+		/* USB 1 */
+		usb1: uctl@1180069000000 {
+			compatible = "cavium,octeon-7130-usb-uctl";
+			reg = <0x11800 0x69000000 0x0 0x100>;
+			ranges; /* Direct mapping */
+			#address-cells = <2>;
+			#size-cells = <2>;
+			/* 50MHz, 100MHz and 125MHz allowed */
+			refclk-frequency = <100000000>;
+			/* Either "dlmc_ref_clk0" or "dlmc_ref_clk0" */
+			refclk-type-ss = "dlmc_ref_clk0";
+			/* Either "dlmc_ref_clk0" "dlmc_ref_clk1" or "pll_ref_clk" */
+			refclk-type-hs = "dlmc_ref_clk0";
+
+			/*
+			 * Power is specified by three parts:
+			 * 1) GPIO handle (must be &gpio)
+			 * 2) GPIO pin number
+			 * 3) Active high (0) or active low (1)
+			 */
+			xhci@1690000000000 {
+				compatible = "cavium,octeon-7130-xhci","synopsys,dwc3","snps,dwc3";
+				reg = <0x16900 0x00000000 0x10 0x0>;
+				interrupts = <0x69080 4>; /* UAHC_IMAN, level */
+				dr_mode = "host";
+			};
+		};
+	};
+};

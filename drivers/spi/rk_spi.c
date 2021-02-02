@@ -15,8 +15,10 @@
 #include <dm.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <log.h>
 #include <spi.h>
 #include <time.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
@@ -181,7 +183,7 @@ static int conv_of_platdata(struct udevice *dev)
 
 	plat->base = dtplat->reg[0];
 	plat->frequency = 20000000;
-	ret = clk_get_by_index_platdata(dev, 0, dtplat->clocks, &priv->clk);
+	ret = clk_get_by_driver_info(dev, dtplat->clocks, &priv->clk);
 	if (ret < 0)
 		return ret;
 	dev->req_seq = 0;
@@ -543,7 +545,9 @@ const  struct rockchip_spi_params rk3399_spi_params = {
 };
 
 static const struct udevice_id rockchip_spi_ids[] = {
+	{ .compatible = "rockchip,rk3066-spi" },
 	{ .compatible = "rockchip,rk3288-spi" },
+	{ .compatible = "rockchip,rk3328-spi" },
 	{ .compatible = "rockchip,rk3368-spi",
 	  .data = (ulong)&rk3399_spi_params },
 	{ .compatible = "rockchip,rk3399-spi",
@@ -551,12 +555,8 @@ static const struct udevice_id rockchip_spi_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(rockchip_spi) = {
-#if CONFIG_IS_ENABLED(OF_PLATDATA)
+U_BOOT_DRIVER(rockchip_rk3288_spi) = {
 	.name	= "rockchip_rk3288_spi",
-#else
-	.name	= "rockchip_spi",
-#endif
 	.id	= UCLASS_SPI,
 	.of_match = rockchip_spi_ids,
 	.ops	= &rockchip_spi_ops,
@@ -565,3 +565,5 @@ U_BOOT_DRIVER(rockchip_spi) = {
 	.priv_auto_alloc_size = sizeof(struct rockchip_spi_priv),
 	.probe	= rockchip_spi_probe,
 };
+
+U_BOOT_DRIVER_ALIAS(rockchip_rk3288_spi, rockchip_rk3368_spi)

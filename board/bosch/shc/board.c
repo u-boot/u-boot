@@ -12,10 +12,13 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
+#include <cpu_func.h>
 #include <env.h>
 #include <errno.h>
 #include <init.h>
 #include <irq_func.h>
+#include <net.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
@@ -32,6 +35,7 @@
 #include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>
+#include <linux/delay.h>
 #include <power/tps65217.h>
 #include <env_internal.h>
 #include <watchdog.h>
@@ -468,7 +472,7 @@ int board_late_init(void)
 
 #if defined(CONFIG_USB_ETHER) && \
 	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_USB_ETHER))
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return usb_eth_initialize(bis);
 }

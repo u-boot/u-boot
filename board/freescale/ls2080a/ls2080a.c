@@ -3,8 +3,10 @@
  * Copyright 2014 Freescale Semiconductor
  */
 #include <common.h>
+#include <init.h>
 #include <malloc.h>
 #include <errno.h>
+#include <net.h>
 #include <netdev.h>
 #include <fsl_ifc.h>
 #include <fsl_ddr.h>
@@ -48,14 +50,7 @@ void detail_board_ddr_info(void)
 #endif
 }
 
-#if defined(CONFIG_ARCH_MISC_INIT)
-int arch_misc_init(void)
-{
-	return 0;
-}
-#endif
-
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int error = 0;
 
@@ -103,7 +98,7 @@ void board_quiesce_devices(void)
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	u64 base[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];

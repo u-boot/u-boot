@@ -10,8 +10,6 @@ Converter from Kconfig and MAINTAINERS to a board database.
 Run 'tools/genboardscfg.py' to create a board database.
 
 Run 'tools/genboardscfg.py -h' for available options.
-
-Python 2.6 or later, but not Python 3.x is necessary to run this script.
 """
 
 import errno
@@ -24,8 +22,7 @@ import sys
 import tempfile
 import time
 
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'buildman'))
-import kconfiglib
+from buildman import kconfiglib
 
 ### constant variables ###
 OUTPUT_FILE = 'boards.cfg'
@@ -403,18 +400,20 @@ def format_and_output(params_list, output):
     with open(output, 'w', encoding="utf-8") as f:
         f.write(COMMENT_BLOCK + '\n'.join(output_lines) + '\n')
 
-def gen_boards_cfg(output, jobs=1, force=False):
+def gen_boards_cfg(output, jobs=1, force=False, quiet=False):
     """Generate a board database file.
 
     Arguments:
       output: The name of the output file
       jobs: The number of jobs to run simultaneously
       force: Force to generate the output even if it is new
+      quiet: True to avoid printing a message if nothing needs doing
     """
     check_top_directory()
 
     if not force and output_is_new(output):
-        print("%s is up to date. Nothing to do." % output)
+        if not quiet:
+            print("%s is up to date. Nothing to do." % output)
         sys.exit(0)
 
     params_list = scan_defconfigs(jobs)
@@ -435,9 +434,11 @@ def main():
                       help='the number of jobs to run simultaneously')
     parser.add_option('-o', '--output', default=OUTPUT_FILE,
                       help='output file [default=%s]' % OUTPUT_FILE)
+    parser.add_option('-q', '--quiet', action="store_true", help='run silently')
     (options, args) = parser.parse_args()
 
-    gen_boards_cfg(options.output, jobs=options.jobs, force=options.force)
+    gen_boards_cfg(options.output, jobs=options.jobs, force=options.force,
+                   quiet=options.quiet)
 
 if __name__ == '__main__':
     main()

@@ -2,13 +2,18 @@
 /*
  * Copyright (C) 2016 Freescale Semiconductor, Inc.
  */
+
+#include <common.h>
+#include <cpu_func.h>
 #include <init.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/hab.h>
+#include <linux/bitops.h>
 
 #define PMC0_BASE_ADDR		0x410a1000
 #define PMC0_CTRL		0x28
@@ -117,10 +122,25 @@ void init_wdog(void)
 	disable_wdog(WDG2_RBASE);
 }
 
+static bool ldo_mode_is_enabled(void)
+{
+	unsigned int reg;
+
+	reg = readl(PMC0_BASE_ADDR + PMC0_CTRL);
+	if (reg & PMC0_CTRL_LDOEN)
+		return true;
+	else
+		return false;
+}
+
+#if !defined(CONFIG_SPL) || (defined(CONFIG_SPL) && defined(CONFIG_SPL_BUILD))
 #if defined(CONFIG_LDO_ENABLED_MODE)
 static void init_ldo_mode(void)
 {
 	unsigned int reg;
+
+	if (ldo_mode_is_enabled())
+		return;
 
 	/* Set LDOOKDIS */
 	setbits_le32(PMC0_BASE_ADDR + PMC0_CTRL, PMC0_CTRL_LDOOKDIS);
@@ -174,6 +194,7 @@ void s_init(void)
 #endif
 	return;
 }
+#endif
 
 #ifndef CONFIG_ULP_WATCHDOG
 void reset_cpu(ulong addr)
@@ -188,21 +209,6 @@ void reset_cpu(ulong addr)
 const char *get_imx_type(u32 imxtype)
 {
 	return "7ULP";
-}
-
-#define PMC0_BASE_ADDR		0x410a1000
-#define PMC0_CTRL		0x28
-#define PMC0_CTRL_LDOEN		BIT(31)
-
-static bool ldo_mode_is_enabled(void)
-{
-	unsigned int reg;
-
-	reg = readl(PMC0_BASE_ADDR + PMC0_CTRL);
-	if (reg & PMC0_CTRL_LDOEN)
-		return true;
-	else
-		return false;
 }
 
 int print_cpuinfo(void)

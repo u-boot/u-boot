@@ -7,14 +7,16 @@
  */
 
 #include <common.h>
+#include <command.h>
+#include <dm.h>
 #include <dm-demo.h>
 #include <mapmem.h>
 #include <asm/io.h>
 
 struct udevice *demo_dev;
 
-static int do_demo_hello(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char * const argv[])
+static int do_demo_hello(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 	int ch = 0;
 
@@ -24,8 +26,8 @@ static int do_demo_hello(cmd_tbl_t *cmdtp, int flag, int argc,
 	return demo_hello(demo_dev, ch);
 }
 
-static int do_demo_status(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int do_demo_status(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	int status;
 	int ret;
@@ -39,8 +41,8 @@ static int do_demo_status(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int do_demo_light(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char * const argv[])
+static int do_demo_light(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 	int light;
 	int ret;
@@ -59,7 +61,7 @@ static int do_demo_light(cmd_tbl_t *cmdtp, int flag, int argc,
 	return ret;
 }
 
-int do_demo_list(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_demo_list(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct udevice *dev;
 	int i, ret;
@@ -78,16 +80,17 @@ int do_demo_list(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return cmd_process_error(cmdtp, ret);
 }
 
-static cmd_tbl_t demo_commands[] = {
+static struct cmd_tbl demo_commands[] = {
 	U_BOOT_CMD_MKENT(list, 0, 1, do_demo_list, "", ""),
 	U_BOOT_CMD_MKENT(hello, 2, 1, do_demo_hello, "", ""),
 	U_BOOT_CMD_MKENT(light, 2, 1, do_demo_light, "", ""),
 	U_BOOT_CMD_MKENT(status, 1, 1, do_demo_status, "", ""),
 };
 
-static int do_demo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_demo(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
-	cmd_tbl_t *demo_cmd;
+	struct cmd_tbl *demo_cmd;
 	int devnum = 0;
 	int ret;
 
@@ -127,5 +130,4 @@ U_BOOT_CMD(
 	"demo hello <num> [<char>]     Say hello\n"
 	"demo light [<num>]            Set or get the lights\n"
 	"demo status <num>             Get demo device status\n"
-	"demo list                     List available demo devices"
 );

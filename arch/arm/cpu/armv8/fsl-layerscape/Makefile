@@ -6,7 +6,7 @@ obj-y += cpu.o
 obj-y += lowlevel.o
 obj-y += soc.o
 ifndef CONFIG_SPL_BUILD
-obj-$(CONFIG_MP) += mp.o
+obj-$(CONFIG_MP) += mp.o spintable.o
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
 endif
 obj-$(CONFIG_SPL) += spl.o
@@ -23,6 +23,11 @@ endif
 endif
 
 ifneq ($(CONFIG_ARCH_LX2160A),)
+obj-$(CONFIG_SYS_HAS_SERDES) += lx2160a_serdes.o
+obj-y += icid.o lx2160_ids.o
+endif
+
+ifneq ($(CONFIG_ARCH_LX2162A),)
 obj-$(CONFIG_SYS_HAS_SERDES) += lx2160a_serdes.o
 obj-y += icid.o lx2160_ids.o
 endif

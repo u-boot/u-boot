@@ -32,12 +32,33 @@ enum {
 	FASTBOOT_COMMAND_CONTINUE,
 	FASTBOOT_COMMAND_REBOOT,
 	FASTBOOT_COMMAND_REBOOT_BOOTLOADER,
+	FASTBOOT_COMMAND_REBOOT_FASTBOOTD,
+	FASTBOOT_COMMAND_REBOOT_RECOVERY,
 	FASTBOOT_COMMAND_SET_ACTIVE,
 #if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_FORMAT)
 	FASTBOOT_COMMAND_OEM_FORMAT,
 #endif
 
 	FASTBOOT_COMMAND_COUNT
+};
+
+/**
+ * Reboot reasons
+ */
+enum fastboot_reboot_reason {
+	FASTBOOT_REBOOT_REASON_BOOTLOADER,
+	FASTBOOT_REBOOT_REASON_FASTBOOTD,
+	FASTBOOT_REBOOT_REASON_RECOVERY,
+	FASTBOOT_REBOOT_REASONS_COUNT
+};
+
+/**
+ * BCB boot commands
+ */
+static const char * const fastboot_boot_cmds[] = {
+	[FASTBOOT_REBOOT_REASON_BOOTLOADER] = "bootonce-bootloader",
+	[FASTBOOT_REBOOT_REASON_FASTBOOTD] = "boot-fastboot",
+	[FASTBOOT_REBOOT_REASON_RECOVERY] = "boot-recovery"
 };
 
 /**
@@ -77,7 +98,7 @@ void fastboot_okay(const char *reason, char *response);
  * which sets whatever flag your board specific Android bootloader flow
  * requires in order to re-enter the bootloader.
  */
-int fastboot_set_reboot_flag(void);
+int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason);
 
 /**
  * fastboot_set_progress_callback() - set progress callback

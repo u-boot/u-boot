@@ -4,7 +4,10 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
+#include <init.h>
 #include <ioports.h>
+#include <log.h>
 #include <mpc83xx.h>
 #include <i2c.h>
 #include <miiphy.h>
@@ -14,10 +17,12 @@
 #include <pci.h>
 #endif
 #include <spd_sdram.h>
+#include <asm/bitops.h>
 #include <asm/mmu.h>
 #if defined(CONFIG_OF_LIBFDT)
 #include <linux/libfdt.h>
 #endif
+#include <linux/delay.h>
 
 #include "../../../arch/powerpc/cpu/mpc83xx/hrcw/hrcw.h"
 #include "../../../arch/powerpc/cpu/mpc83xx/elbc/elbc.h"
@@ -384,7 +389,7 @@ int misc_init_r(void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 #ifdef CONFIG_PCI

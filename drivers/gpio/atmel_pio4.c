@@ -9,8 +9,10 @@
 #include <clk.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <malloc.h>
 #include <asm/arch/hardware.h>
 #include <asm/gpio.h>
+#include <linux/bitops.h>
 #include <mach/gpio.h>
 #include <mach/atmel_pio4.h>
 
@@ -168,7 +170,7 @@ int atmel_pio4_get_pio_input(u32 port, u32 pin)
 	return (readl(&port_base->pdsr) & mask) ? 1 : 0;
 }
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 
 struct atmel_pioctrl_data {
 	u32 nbanks;
@@ -297,7 +299,7 @@ static int atmel_pio4_probe(struct udevice *dev)
 
 	clk_free(&clk);
 
-	addr_base = devfdt_get_addr(dev);
+	addr_base = dev_read_addr(dev);
 	if (addr_base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

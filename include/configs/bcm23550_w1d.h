@@ -76,7 +76,6 @@
 #define CONFIG_SYS_NS16550_COM1		0x3e000000
 
 /* must fit into GPT:u-boot-env partition */
-#define CONFIG_SYS_MMC_ENV_DEV		0
 
 /* console configuration */
 #define CONFIG_SYS_CBSIZE		1024	/* Console buffer size */

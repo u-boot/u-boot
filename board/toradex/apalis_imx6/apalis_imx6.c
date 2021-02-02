@@ -7,8 +7,13 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
+#include <image.h>
 #include <init.h>
+#include <net.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 #include <ahci.h>
 #include <asm/arch/clock.h>
@@ -136,22 +141,79 @@ iomux_v3_cfg_t const usdhc3_pads[] = {
 
 int mx6_rgmii_rework(struct phy_device *phydev)
 {
-	/* control data pad skew - devaddr = 0x02, register = 0x04 */
-	ksz9031_phy_extended_write(phydev, 0x02,
-				   MII_KSZ9031_EXT_RGMII_CTRL_SIG_SKEW,
-				   MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x0000);
-	/* rx data pad skew - devaddr = 0x02, register = 0x05 */
-	ksz9031_phy_extended_write(phydev, 0x02,
-				   MII_KSZ9031_EXT_RGMII_RX_DATA_SKEW,
-				   MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x0000);
-	/* tx data pad skew - devaddr = 0x02, register = 0x05 */
-	ksz9031_phy_extended_write(phydev, 0x02,
-				   MII_KSZ9031_EXT_RGMII_TX_DATA_SKEW,
-				   MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x0000);
-	/* gtx and rx clock pad skew - devaddr = 0x02, register = 0x08 */
-	ksz9031_phy_extended_write(phydev, 0x02,
-				   MII_KSZ9031_EXT_RGMII_CLOCK_SKEW,
-				   MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x03FF);
+	int tmp;
+
+	switch (ksz9xx1_phy_get_id(phydev) & MII_KSZ9x31_SILICON_REV_MASK) {
+	case PHY_ID_KSZ9131:
+		/* read rxc dll control - devaddr = 0x02, register = 0x4c */
+		tmp = ksz9031_phy_extended_read(phydev, 0x02,
+					   MII_KSZ9131_EXT_RGMII_2NS_SKEW_RXDLL,
+					   MII_KSZ9031_MOD_DATA_NO_POST_INC);
+		/* disable rxdll bypass (enable 2ns skew delay on RXC) */
+		tmp &= ~MII_KSZ9131_RXTXDLL_BYPASS;
+		/* rxc data pad skew 2ns - devaddr = 0x02, register = 0x4c */
+		ksz9031_phy_extended_write(phydev, 0x02,
+					   MII_KSZ9131_EXT_RGMII_2NS_SKEW_RXDLL,
+					   MII_KSZ9031_MOD_DATA_NO_POST_INC,
+					   tmp);
+		/* read txc dll control - devaddr = 0x02, register = 0x4d */
+		tmp = ksz9031_phy_extended_read(phydev, 0x02,
+					   MII_KSZ9131_EXT_RGMII_2NS_SKEW_TXDLL,
+					   MII_KSZ9031_MOD_DATA_NO_POST_INC);
+		/* disable rxdll bypass (enable 2ns skew delay on TXC) */
+		tmp &= ~MII_KSZ9131_RXTXDLL_BYPASS;
+		/* txc data pad skew 2ns - devaddr = 0x02, register = 0x4d */
+		ksz9031_phy_extended_write(phydev, 0x02,
+					   MII_KSZ9131_EXT_RGMII_2NS_SKEW_TXDLL,
+					   MII_KSZ9031_MOD_DATA_NO_POST_INC,
+					   tmp);
+
+		/* control data pad skew - devaddr = 0x02, register = 0x04 */
+		ksz9031_phy_extended_write(phydev, 0x02,
+					   MII_KSZ9031_EXT_RGMII_CTRL_SIG_SKEW,
+					   MII_KSZ9031_MOD_DATA_NO_POST_INC,
+					   0x007d);
+		/* rx data pad skew - devaddr = 0x02, register = 0x05 */
+		ksz9031_phy_extended_write(phydev, 0x02,
+					   MII_KSZ9031_EXT_RGMII_RX_DATA_SKEW,
+					   MII_KSZ9031_MOD_DATA_NO_POST_INC,
+					   0x7777);
+		/* tx data pad skew - devaddr = 0x02, register = 0x05 */
+		ksz9031_phy_extended_write(phydev, 0x02,
+					   MII_KSZ9031_EXT_RGMII_TX_DATA_SKEW,
+					   MII_KSZ9031_MOD_DATA_NO_POST_INC,
+					   0xdddd);
+		/* gtx and rx clock pad skew - devaddr = 0x02,register = 0x08 */
+		ksz9031_phy_extended_write(phydev, 0x02,
+					   MII_KSZ9031_EXT_RGMII_CLOCK_SKEW,
+					   MII_KSZ9031_MOD_DATA_NO_POST_INC,
+					   0x0007);
+		break;
+	case PHY_ID_KSZ9031:
+	default:
+		/* control data pad skew - devaddr = 0x02, register = 0x04 */
+		ksz9031_phy_extended_write(phydev, 0x02,
+					   MII_KSZ9031_EXT_RGMII_CTRL_SIG_SKEW,
+					   MII_KSZ9031_MOD_DATA_NO_POST_INC,
+					   0x0000);
+		/* rx data pad skew - devaddr = 0x02, register = 0x05 */
+		ksz9031_phy_extended_write(phydev, 0x02,
+					   MII_KSZ9031_EXT_RGMII_RX_DATA_SKEW,
+					   MII_KSZ9031_MOD_DATA_NO_POST_INC,
+					   0x0000);
+		/* tx data pad skew - devaddr = 0x02, register = 0x05 */
+		ksz9031_phy_extended_write(phydev, 0x02,
+					   MII_KSZ9031_EXT_RGMII_TX_DATA_SKEW,
+					   MII_KSZ9031_MOD_DATA_NO_POST_INC,
+					   0x0000);
+		/* gtx and rx clock pad skew - devaddr = 0x02,register = 0x08 */
+		ksz9031_phy_extended_write(phydev, 0x02,
+					   MII_KSZ9031_EXT_RGMII_CLOCK_SKEW,
+					   MII_KSZ9031_MOD_DATA_NO_POST_INC,
+					   0x03FF);
+		break;
+	}
+
 	return 0;
 }
 
@@ -176,22 +238,6 @@ iomux_v3_cfg_t const enet_pads[] = {
 						  MUX_MODE_SION,
 #	define GPIO_ENET_PHY_RESET IMX_GPIO_NR(1, 25)
 };
-
-static void setup_iomux_enet(void)
-{
-	imx_iomux_v3_setup_multiple_pads(enet_pads, ARRAY_SIZE(enet_pads));
-}
-
-static int reset_enet_phy(struct mii_dev *bus)
-{
-	/* Reset KSZ9031 PHY */
-	gpio_request(GPIO_ENET_PHY_RESET, "ETH_RESET#");
-	gpio_direction_output(GPIO_ENET_PHY_RESET, 0);
-	mdelay(10);
-	gpio_set_value(GPIO_ENET_PHY_RESET, 1);
-
-	return 0;
-}
 
 /* mux the Apalis GPIO pins, so they can be used from the U-Boot cmdline */
 iomux_v3_cfg_t const gpio_pads[] = {
@@ -315,7 +361,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return ret;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	struct src *psrc = (struct src *)SRC_BASE_ADDR;
 	unsigned reg = readl(&psrc->sbmr1) >> 11;
@@ -363,41 +409,6 @@ int board_phy_config(struct phy_device *phydev)
 	mx6_rgmii_rework(phydev);
 	if (phydev->drv->config)
 		phydev->drv->config(phydev);
-
-	return 0;
-}
-
-int board_eth_init(bd_t *bis)
-{
-	uint32_t base = IMX_FEC_BASE;
-	struct mii_dev *bus = NULL;
-	struct phy_device *phydev = NULL;
-	int ret;
-
-	setup_iomux_enet();
-
-#ifdef CONFIG_FEC_MXC
-	bus = fec_get_miibus(base, -1);
-	if (!bus)
-		return 0;
-
-	bus->reset = reset_enet_phy;
-	/* scan PHY 4,5,6,7 */
-	phydev = phy_find_by_mask(bus, (0xf << 4), PHY_INTERFACE_MODE_RGMII);
-	if (!phydev) {
-		free(bus);
-		puts("no PHY found\n");
-		return 0;
-	}
-
-	printf("using PHY at %d\n", phydev->addr);
-	ret = fec_probe(bis, -1, base, bus, phydev);
-	if (ret) {
-		printf("FEC MXC: %s:failed\n", __func__);
-		free(phydev);
-		free(bus);
-	}
-#endif /* CONFIG_FEC_MXC */
 
 	return 0;
 }
@@ -757,7 +768,7 @@ int checkboard(void)
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	return ft_common_board_setup(blob, bd);
 }

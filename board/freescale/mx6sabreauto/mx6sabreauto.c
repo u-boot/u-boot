@@ -6,7 +6,9 @@
  */
 
 #include <common.h>
+#include <image.h>
 #include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
@@ -22,7 +24,6 @@
 #include <mmc.h>
 #include <fsl_esdhc_imx.h>
 #include <miiphy.h>
-#include <netdev.h>
 #include <asm/arch/sys_proto.h>
 #include <i2c.h>
 #include <input.h>
@@ -76,23 +77,6 @@ static iomux_v3_cfg_t const uart4_pads[] = {
 	IOMUX_PADS(PAD_KEY_ROW0__UART4_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 };
 
-static iomux_v3_cfg_t const enet_pads[] = {
-	IOMUX_PADS(PAD_KEY_COL1__ENET_MDIO		| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_KEY_COL2__ENET_MDC		| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TXC__RGMII_TXC		| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD0__RGMII_TD0		| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD1__RGMII_TD1		| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD2__RGMII_TD2		| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD3__RGMII_TD3		| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TX_CTL__RGMII_TX_CTL	| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_ENET_REF_CLK__ENET_TX_CLK	| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RXC__RGMII_RXC		| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD0__RGMII_RD0		| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD1__RGMII_RD1		| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD2__RGMII_RD2		| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD3__RGMII_RD3		| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RX_CTL__RGMII_RX_CTL	| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-};
 
 /* I2C2 PMIC, iPod, Tuner, Codec, Touch, HDMI EDID, MIPI CSI2 card */
 static struct i2c_pads_info mx6q_i2c_pad_info1 = {
@@ -259,10 +243,6 @@ static void setup_iomux_eimnor(void)
 }
 #endif
 
-static void setup_iomux_enet(void)
-{
-	SETUP_IOMUX_PADS(enet_pads);
-}
 
 static iomux_v3_cfg_t const usdhc3_pads[] = {
 	IOMUX_PADS(PAD_SD3_CLK__SD3_CLK		| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
@@ -295,7 +275,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return !gpio_get_value(IMX_GPIO_NR(6, 15));
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	SETUP_IOMUX_PADS(usdhc3_pads);
 
@@ -339,26 +319,6 @@ static void setup_gpmi_nand(void)
 	setbits_le32(&mxc_ccm->CCGR0, MXC_CCM_CCGR0_APBHDMA_MASK);
 }
 #endif
-
-static void setup_fec(void)
-{
-	if (is_mx6dqp()) {
-		/*
-		 * select ENET MAC0 TX clock from PLL
-		 */
-		imx_iomux_set_gpr_register(5, 9, 1, 1);
-		enable_fec_anatop_clock(0, ENET_125MHZ);
-	}
-
-	setup_iomux_enet();
-}
-
-int board_eth_init(bd_t *bis)
-{
-	setup_fec();
-
-	return cpu_eth_init(bis);
-}
 
 u32 get_board_rev(void)
 {

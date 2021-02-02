@@ -7,6 +7,7 @@
  */
 
 #ifndef __UBOOT__
+#include <malloc.h>
 #include <linux/device.h>
 #include <linux/kernel.h>
 #endif
@@ -103,7 +104,7 @@ static int gd5fxgq4xexxg_ecc_get_status(struct spinand_device *spinand,
 
 static const struct mtd_ooblayout_ops gd5fxgq4xexxg_ooblayout = {
 	.ecc = gd5fxgq4xexxg_ooblayout_ecc,
-	.free = gd5fxgq4xexxg_ooblayout_free,
+	.rfree = gd5fxgq4xexxg_ooblayout_free,
 };
 
 static const struct spinand_info gigadevice_spinand_table[] = {

@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2004, 2007, 2010-2011 Freescale Semiconductor.
+ * Copyright 2020 NXP
  */
 
 /*
@@ -20,12 +21,12 @@
 #undef CONFIG_PCI2
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 
-#define CONFIG_ENV_OVERWRITE
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
 #define CONFIG_FSL_VIA
 
 #ifndef __ASSEMBLY__
+#include <linux/stringify.h>
 extern unsigned long get_clock_freq(void);
 #endif
 #define CONFIG_SYS_CLK_FREQ	get_clock_freq() /* sysclk for MPC85xx */
@@ -40,14 +41,6 @@ extern unsigned long get_clock_freq(void);
  * Only possible on E500 Version 2 or newer cores.
  */
 #define CONFIG_ENABLE_36BIT_PHYS	1
-
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_ADDR_MAP
-#define CONFIG_SYS_NUM_ADDR_MAP		16	/* number of TLB1 entries */
-#endif
-
-#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00400000
 
 #define CONFIG_SYS_CCSRBAR		0xe0000000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
@@ -74,7 +67,6 @@ extern unsigned long get_clock_freq(void);
 #error ("CONFIG_SPD_EEPROM is required")
 #endif
 
-#undef CONFIG_CLOCKS_IN_MHZ
 /*
  * Physical Address Map
  *
@@ -304,12 +296,18 @@ extern unsigned long get_clock_freq(void);
 /*
  * I2C
  */
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_FSL
 #define CONFIG_SYS_FSL_I2C_SPEED	400000
 #define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
 #define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x69} }
+#else
+#define CONFIG_SYS_SPD_BUS_NUM 0
+#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
+#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
+#endif
+#define CONFIG_SYS_I2C_FSL
 
 /* EEPROM */
 #define CONFIG_ID_EEPROM
@@ -375,8 +373,6 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 #if defined(CONFIG_PCI)
-#undef CONFIG_EEPRO100
-#undef CONFIG_TULIP
 
 #if !defined(CONFIG_DM_PCI)
 #define CONFIG_FSL_PCI_INIT		1	/* Use common FSL init code */

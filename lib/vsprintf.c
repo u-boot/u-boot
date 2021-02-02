@@ -19,13 +19,12 @@
 #include <div64.h>
 #include <hexdump.h>
 #include <stdarg.h>
+#include <uuid.h>
 #include <vsprintf.h>
 #include <linux/ctype.h>
 #include <linux/err.h>
 #include <linux/types.h>
 #include <linux/string.h>
-
-#define noinline __attribute__((noinline))
 
 /* we use this so that we can do without the ctype library */
 #define is_digit(c)	((c) >= '0' && (c) <= '9')

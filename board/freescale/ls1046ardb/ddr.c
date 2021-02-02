@@ -10,6 +10,7 @@
 #ifdef CONFIG_FSL_DEEP_SLEEP
 #include <fsl_sleep.h>
 #endif
+#include <log.h>
 #include <asm/arch/clock.h>
 
 DECLARE_GLOBAL_DATA_PTR;

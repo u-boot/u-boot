@@ -17,9 +17,12 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <malloc.h>
 #include <sdhci.h>
+#include <power/regulator.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -39,6 +42,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define SDHC_SYS_EXT_OP_CTRL			0x010C
 #define MASK_CMD_CONFLICT_ERROR			BIT(8)
+
+#define SDHC_SLOT_EMMC_CTRL			0x0130
+#define ENABLE_DATA_STROBE_SHIFT		24
+#define SET_EMMC_RSTN_SHIFT			16
+#define EMMC_VCCQ_MASK				0x3
+#define EMMC_VCCQ_1_8V				0x1
+#define EMMC_VCCQ_1_2V				0x2
+#define	EMMC_VCCQ_3_3V				0x3
 
 #define SDHC_SLOT_RETUNING_REQ_CTRL		0x0144
 /* retuning compatible */
@@ -106,6 +117,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MMC_TIMING_MMC_HS400	10
 
 #define XENON_MMC_MAX_CLK	400000000
+#define XENON_MMC_3V3_UV	3300000
+#define XENON_MMC_1V8_UV	1800000
 
 enum soc_pad_ctrl_type {
 	SOC_PAD_SD,
@@ -126,6 +139,8 @@ struct xenon_sdhci_priv {
 
 	void *pad_ctrl_reg;
 	int pad_type;
+
+	struct udevice *vqmmc;
 };
 
 static int xenon_mmc_phy_init(struct sdhci_host *host)
@@ -204,6 +219,51 @@ static void armada_3700_soc_pad_voltage_set(struct sdhci_host *host)
 		writel(ARMADA_3700_SOC_PAD_1_8V, priv->pad_ctrl_reg);
 	else if (priv->pad_type == SOC_PAD_SD)
 		writel(ARMADA_3700_SOC_PAD_3_3V, priv->pad_ctrl_reg);
+}
+
+static int xenon_mmc_start_signal_voltage_switch(struct sdhci_host *host)
+{
+	struct xenon_sdhci_priv *priv = host->mmc->priv;
+	u8 voltage;
+	u32 ctrl;
+	int ret = 0;
+
+	/* If there is no vqmmc regulator, return */
+	if (!priv->vqmmc)
+		return 0;
+
+	if (priv->pad_type == SOC_PAD_FIXED_1_8V) {
+		/* Switch to 1.8v */
+		ret = regulator_set_value(priv->vqmmc,
+					  XENON_MMC_1V8_UV);
+	} else if (priv->pad_type == SOC_PAD_SD) {
+		/* Get voltage info */
+		voltage = sdhci_readb(host, SDHCI_POWER_CONTROL);
+		voltage &= ~SDHCI_POWER_ON;
+
+		if (voltage == SDHCI_POWER_330) {
+			/* Switch to 3.3v */
+			ret = regulator_set_value(priv->vqmmc,
+						  XENON_MMC_3V3_UV);
+		} else {
+			/* Switch to 1.8v */
+			ret = regulator_set_value(priv->vqmmc,
+						  XENON_MMC_1V8_UV);
+		}
+	}
+
+	/* Set VCCQ, eMMC mode: 1.8V; SD/SDIO mode: 3.3V */
+	ctrl = sdhci_readl(host, SDHC_SLOT_EMMC_CTRL);
+	if (IS_SD(host->mmc))
+		ctrl |= EMMC_VCCQ_3_3V;
+	else
+		ctrl |= EMMC_VCCQ_1_8V;
+	sdhci_writel(host, ctrl, SDHC_SLOT_EMMC_CTRL);
+
+	if (ret)
+		printf("Signal voltage switch fail\n");
+
+	return ret;
 }
 
 static void xenon_mmc_phy_set(struct sdhci_host *host)
@@ -332,6 +392,13 @@ static int xenon_sdhci_set_ios_post(struct sdhci_host *host)
 	uint speed = host->mmc->tran_speed;
 	int pwr_18v = 0;
 
+	/*
+	 * Signal Voltage Switching is only applicable for Host Controllers
+	 * v3.00 and above.
+	 */
+	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
+		xenon_mmc_start_signal_voltage_switch(host);
+
 	if ((sdhci_readb(host, SDHCI_POWER_CONTROL) & ~SDHCI_POWER_ON) ==
 	    SDHCI_POWER_180)
 		pwr_18v = 1;
@@ -392,6 +459,18 @@ static int xenon_sdhci_probe(struct udevice *dev)
 	/* Set default timing */
 	priv->timing = MMC_TIMING_LEGACY;
 
+	/* Get the vqmmc regulator if there is */
+	device_get_supply_regulator(dev, "vqmmc-supply", &priv->vqmmc);
+	/* Set the initial voltage value to 3.3V if there is regulator */
+	if (priv->vqmmc) {
+		ret = regulator_set_value(priv->vqmmc,
+					  XENON_MMC_3V3_UV);
+		if (ret) {
+			printf("Failed to set VQMMC regulator to 3.3V\n");
+			return ret;
+		}
+	}
+
 	/* Disable auto clock gating during init */
 	xenon_mmc_set_acg(host, false);
 
@@ -406,25 +485,15 @@ static int xenon_sdhci_probe(struct udevice *dev)
 		armada_3700_soc_pad_voltage_set(host);
 
 	host->host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz | MMC_MODE_DDR_52MHz;
-	switch (fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "bus-width",
-		1)) {
-	case 8:
-		host->host_caps |= MMC_MODE_8BIT;
-		break;
-	case 4:
-		host->host_caps |= MMC_MODE_4BIT;
-		break;
-	case 1:
-		break;
-	default:
-		printf("Invalid \"bus-width\" value\n");
-		return -EINVAL;
-	}
+
+	ret = mmc_of_parse(dev, &plat->cfg);
+	if (ret)
+		return ret;
 
 	host->ops = &xenon_sdhci_ops;
 
 	host->max_clk = XENON_MMC_MAX_CLK;
-	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 0);
+	ret = sdhci_setup_cfg(&plat->cfg, host, XENON_MMC_MAX_CLK, 0);
 	if (ret)
 		return ret;
 
@@ -453,7 +522,7 @@ static int xenon_sdhci_ofdata_to_platdata(struct udevice *dev)
 	const char *name;
 
 	host->name = dev->name;
-	host->ioaddr = (void *)devfdt_get_addr(dev);
+	host->ioaddr = dev_read_addr_ptr(dev);
 
 	if (device_is_compatible(dev, "marvell,armada-3700-sdhci"))
 		priv->pad_ctrl_reg = (void *)devfdt_get_addr_index(dev, 1);

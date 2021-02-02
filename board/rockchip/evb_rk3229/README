@@ -22,7 +22,6 @@ Compile the U-Boot
 
   > cd ../u-boot
   > export CROSS_COMPILE=arm-linux-gnueabihf-
-  > export ARCH=arm
   > make evb-rk3229_defconfig
   > make
   > make u-boot.itb

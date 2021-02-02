@@ -7,39 +7,6 @@
 #ifndef _GPIO_H_
 #define _GPIO_H_
 
-#define STM32_GPIOS_PER_BANK		16
-
-enum stm32_gpio_port {
-	STM32_GPIO_PORT_A = 0,
-	STM32_GPIO_PORT_B,
-	STM32_GPIO_PORT_C,
-	STM32_GPIO_PORT_D,
-	STM32_GPIO_PORT_E,
-	STM32_GPIO_PORT_F,
-	STM32_GPIO_PORT_G,
-	STM32_GPIO_PORT_H,
-	STM32_GPIO_PORT_I
-};
-
-enum stm32_gpio_pin {
-	STM32_GPIO_PIN_0 = 0,
-	STM32_GPIO_PIN_1,
-	STM32_GPIO_PIN_2,
-	STM32_GPIO_PIN_3,
-	STM32_GPIO_PIN_4,
-	STM32_GPIO_PIN_5,
-	STM32_GPIO_PIN_6,
-	STM32_GPIO_PIN_7,
-	STM32_GPIO_PIN_8,
-	STM32_GPIO_PIN_9,
-	STM32_GPIO_PIN_10,
-	STM32_GPIO_PIN_11,
-	STM32_GPIO_PIN_12,
-	STM32_GPIO_PIN_13,
-	STM32_GPIO_PIN_14,
-	STM32_GPIO_PIN_15
-};
-
 enum stm32_gpio_mode {
 	STM32_GPIO_MODE_IN = 0,
 	STM32_GPIO_MODE_OUT,
@@ -85,8 +52,8 @@ enum stm32_gpio_af {
 };
 
 struct stm32_gpio_dsc {
-	enum stm32_gpio_port	port;
-	enum stm32_gpio_pin	pin;
+	u8	port;
+	u8	pin;
 };
 
 struct stm32_gpio_ctl {

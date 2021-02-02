@@ -11,6 +11,7 @@
 #include <env.h>
 #include <malloc.h>
 #include <env_internal.h>
+#include <linux/delay.h>
 #include <linux/types.h>
 #include <api_public.h>
 #include <u-boot/crc.h>
@@ -56,7 +57,7 @@ static int API_getc(va_list ap)
 	if ((c = (int *)va_arg(ap, uintptr_t)) == NULL)
 		return API_EINVAL;
 
-	*c = getc();
+	*c = getchar();
 	return 0;
 }
 

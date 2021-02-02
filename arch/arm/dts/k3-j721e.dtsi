@@ -30,6 +30,18 @@
 		serial9 = &main_uart7;
 		serial10 = &main_uart8;
 		serial11 = &main_uart9;
+		i2c0 = &wkup_i2c0;
+		i2c1 = &mcu_i2c0;
+		i2c2 = &mcu_i2c1;
+		i2c3 = &main_i2c0;
+		i2c4 = &main_i2c1;
+		i2c5 = &main_i2c2;
+		i2c6 = &main_i2c3;
+		i2c7 = &main_i2c4;
+		i2c8 = &main_i2c5;
+		i2c9 = &main_i2c6;
+		spi0 = &ospi0;
+		spi1 = &ospi1;
 	};
 
 	chosen { };
@@ -119,12 +131,13 @@
 		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH>;
 	};
 
-	cbass_main: interconnect@100000 {
+	cbass_main: bus@100000 {
 		compatible = "simple-bus";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges = <0x00 0x00100000 0x00 0x00100000 0x00 0x00020000>, /* ctrl mmr */
 			 <0x00 0x00600000 0x00 0x00600000 0x00 0x00031100>, /* GPIO */
+			 <0x00 0x00700000 0x00 0x00700000 0x00 0x00001000>, /* ESM */
 			 <0x00 0x00900000 0x00 0x00900000 0x00 0x00012000>, /* serdes */
 			 <0x00 0x00A40000 0x00 0x00A40000 0x00 0x00000800>, /* timesync router */
 			 <0x00 0x01000000 0x00 0x01000000 0x00 0x0af02400>, /* Most peripherals */
@@ -151,7 +164,7 @@
 			 <0x05 0x00000000 0x05 0x00000000 0x01 0x00000000>,
 			 <0x07 0x00000000 0x07 0x00000000 0x01 0x00000000>;
 
-		cbass_mcu_wakeup: interconnect@28380000 {
+		cbass_mcu_wakeup: bus@28380000 {
 			compatible = "simple-bus";
 			#address-cells = <2>;
 			#size-cells = <2>;

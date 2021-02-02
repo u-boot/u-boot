@@ -16,9 +16,9 @@ controller support within SOCFPGA
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	256
 -> Using smaller max blk cnt to avoid flooding the limited stack in OCRAM
 
---------------------------------------------------
-Generating the handoff header files for U-Boot SPL
---------------------------------------------------
+---------------------------------------------------------------------
+Cyclone 5 / Arria 5 generating the handoff header files for U-Boot SPL
+---------------------------------------------------------------------
 
 This text is assuming quartus 16.1, but newer versions will probably work just fine too;
 verified with DE1_SOC_Linux_FB demo project (https://github.com/VCTLabs/DE1_SOC_Linux_FB).
@@ -32,7 +32,7 @@ Rebuilding your Quartus project
 
 Choose one of the follwing methods, either command line or GUI.
 
-Using the comaand line
+Using the command line
 ~~~~~~~~~~~~~~~~~~~~~~
 
 First run the embedded command shell, using your path to the Quartus install:
@@ -147,3 +147,32 @@ Note: file sizes will differ slightly depending on the selected board.
 
 Now your board is ready for full mainline support including U-Boot SPL.
 The Preloader will not be needed any more.
+
+----------------------------------------------------------
+Arria 10 generating the handoff header files for U-Boot SPL
+----------------------------------------------------------
+
+A header file for inclusion in a devicetree for Arria10 can be generated
+by the qts-filter-a10.sh script directly from the hps_isw_handoff/hps.xml
+file generated during the FPGA project compilation.  The header contains
+all PLL, clock, pinmux, and bridge configurations required.
+
+Please look at the socfpga_arria10_socdk_sdmmc-u-boot.dtsi for an example
+that includes use of the generated handoff header.
+
+Devicetree header generation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The qts-filter-a10.sh script can process the compile time genetated hps.xml
+to create the appropriate devicetree header.
+
+
+  $ ./arch/arm/mach-socfpga/qts-filter-a10.sh \
+        <hps_xml> \
+        <output_file>
+
+    hps_xml      - hps_isw_handoff/hps.xml from Quartus project
+    output_file  - Output filename and location for header file
+
+The script generates a single header file names <output_file> that should
+be placed in arch/arm/dts.

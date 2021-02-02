@@ -74,7 +74,7 @@ class TestFsExt(object):
                 '%sload host 0:0 %x /%s' % (fs_type, ADDR, MIN_FILE),
                 '%swrite host 0:0 %x /dir1/none/%s.w3 $filesize'
                     % (fs_type, ADDR, MIN_FILE)])
-            assert('Unable to write "/dir1/none/' in ''.join(output))
+            assert('Unable to write file /dir1/none/' in ''.join(output))
             assert_fs_integrity(fs_type, fs_img)
 
     def test_fs_ext4(self, u_boot_console, fs_obj_ext):
@@ -216,7 +216,7 @@ class TestFsExt(object):
             output = u_boot_console.run_command(
                 '%swrite host 0:0 %x /dir1/%s.w8 0x1400 %x'
                     % (fs_type, ADDR, MIN_FILE, 0x100000 + 0x1400))
-            assert('Unable to write "/dir1' in output)
+            assert('Unable to write file /dir1' in output)
             assert_fs_integrity(fs_type, fs_img)
 
     def test_fs_ext9(self, u_boot_console, fs_obj_ext):
@@ -231,7 +231,7 @@ class TestFsExt(object):
                 '%sload host 0:0 %x /%s' % (fs_type, ADDR, MIN_FILE),
                 '%swrite host 0:0 %x /dir1/%s.w9 0x1400 0x1400'
                     % (fs_type, ADDR, MIN_FILE)])
-            assert('Unable to write "/dir1' in ''.join(output))
+            assert('Unable to write file /dir1' in ''.join(output))
             assert_fs_integrity(fs_type, fs_img)
 
     def test_fs_ext10(self, u_boot_console, fs_obj_ext):

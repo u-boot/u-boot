@@ -43,16 +43,17 @@ Configuration Options:
   CONFIG_DFU_RAM
   CONFIG_DFU_SF
   CONFIG_DFU_SF_PART
+  CONFIG_DFU_TIMEOUT
   CONFIG_DFU_VIRTUAL
   CONFIG_CMD_DFU
 
 Environment variables:
-  the dfu command use 3 environments variables:
-  "dfu_alt_info" : the DFU setting for the USB download gadget with a comma
+  the dfu command uses 3 environments variables:
+  "dfu_alt_info" : the DFU setting for the USB download gadget with a semicolon
                    separated string of information on each alternate:
                    dfu_alt_info="<alt1>;<alt2>;....;<altN>"
 
-                   when only several device are used, the format is:
+                   when several devices are used, the format is:
                    - <interface> <dev>'='alternate list (';' separated)
                    - each interface is separated by '&'
                 dfu_alt_info=\
@@ -62,7 +63,7 @@ Environment variables:
                    "<interfaceI> <devI>=<altY+1>;....;<altZ>&"
 
   "dfu_bufsiz" : size of the DFU buffer, when absent, use
-                 CONFIG_SYS_DFU_DATA_BUF_SIZE (8MiB by default)
+                 CONFIG_SYS_DFU_DATA_BUF_SIZE (8 MiB by default)
 
   "dfu_hash_algo" : name of the hash algorithm to use
 
@@ -70,12 +71,15 @@ Commands:
   dfu <USB_controller> [<interface> <dev>] list
     list the alternate device defined in "dfu_alt_info"
 
-  dfu <USB_controller> [<interface> <dev>]
+  dfu <USB_controller> [<interface> <dev>] [<timeout>]
     start the dfu stack on the USB instance with the selected medium
     backend and use the "dfu_alt_info" variable to configure the
     alternate setting and link each one with the medium
     The dfu command continue until receive a ^C in console or
-    a DFU detach transaction from HOST.
+    a DFU detach transaction from HOST. If CONFIG_DFU_TIMEOUT option
+    is enabled and <timeout> parameter is present in the command line,
+    the DFU operation will be aborted automatically after <timeout>
+    seconds of waiting remote to initiate DFU session.
 
   The possible values of <interface> are :
   (with <USB controller> = 0 in the dfu command example)
@@ -83,12 +87,21 @@ Commands:
   "mmc" (for eMMC and SD card)
     cmd: dfu 0 mmc <dev>
     each element in "dfu_alt_info" =
-      <name> raw <offset> <size>   raw access to mmc device
-      <name> part <dev> <part_id>  raw acces to partition
-      <name> fat <dev> <part_id>   file in FAT partition
-      <name> ext4 <dev> <part_id>  file in EXT4 partition
+      <name> raw <offset> <size> [mmcpart <num>]   raw access to mmc device
+      <name> part <dev> <part_id> [mmcpart <num>]  raw access to partition
+      <name> fat <dev> <part_id> [mmcpart <num>]   file in FAT partition
+      <name> ext4 <dev> <part_id> [mmcpart <num>]  file in EXT4 partition
 
-      with <partid> is the GPT or DOS partition index
+      with <partid> being the GPT or DOS partition index,
+      with <num> being the eMMC hardware partition number.
+
+    A value of environment variable dfu_alt_info for eMMC could be:
+
+      "u-boot raw 0x3e 0x800 mmcpart 1;bl2 raw 0x1e 0x1d mmcpart 1"
+
+    A value of environment variable dfu_alt_info for SD card could be:
+
+      "u-boot raw 0x80 0x800;uImage ext4 0 2"
 
   "nand" (raw slc nand device)
     cmd: dfu 0 nand <dev>
@@ -108,7 +121,7 @@ Commands:
   "sf" (serial flash : NOR)
     cmd: dfu 0 sf <dev>
     each element in "dfu_alt_info" =
-      <name> ram <offset> <size>  raw access to sf device
+      <name> raw <offset> <size>  raw access to sf device
       <name> part <dev> <part_id>  raw acces to partition
       <name> partubi <dev> <part_id>  raw acces to ubi partition
 

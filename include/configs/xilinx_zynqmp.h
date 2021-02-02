@@ -19,9 +19,6 @@
 #define GICD_BASE	0xF9010000
 #define GICC_BASE	0xF9020000
 
-#define CONFIG_SYS_MEMTEST_START	0
-#define CONFIG_SYS_MEMTEST_END		1000
-
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 
 /* Generic Timer Definitions - setup in EL3. Setup by ATF for other cases */
@@ -64,7 +61,9 @@
 	"Image ram 80000 $kernel_size_r\\\\;" \
 	"system.dtb ram $fdt_addr_r $fdt_size_r\0" \
 	"dfu_ram=run dfu_ram_info && dfu 0 ram 0\0" \
-	"thor_ram=run dfu_ram_info && thordown 0 ram 0\0"
+	"thor_ram=run dfu_ram_info && thordown 0 ram 0\0" \
+	"dfu_ram_tftp=run dfu_ram_info && setenv updatefile boot && " \
+	"setenv loadaddr 10000000 && dfu tftp ram 0\0"
 
 #define DFU_ALT_INFO  \
 		DFU_ALT_INFO_RAM
@@ -231,12 +230,8 @@
 /* ATF is my kernel image */
 #define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"atf-uboot.ub"
 
-/* FIT load address for RAM boot */
-#define CONFIG_SPL_LOAD_FIT_ADDRESS	0x10000000
-
 /* MMC support */
 #ifdef CONFIG_MMC_SDHCI_ZYNQ
-# define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0 /* unused */
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0 /* unused */
 # define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0 /* unused */
@@ -248,7 +243,6 @@
 #endif
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
-# undef CONFIG_CMD_BOOTD
 # define CONFIG_SPL_ENV_SUPPORT
 # define CONFIG_SPL_HASH_SUPPORT
 # define CONFIG_ENV_MAX_ENTRIES	10
@@ -260,7 +254,5 @@
 #ifdef CONFIG_SPL_SYS_MALLOC_SIMPLE
 # error "Disable CONFIG_SPL_SYS_MALLOC_SIMPLE. Full malloc needs to be used"
 #endif
-
-#define CONFIG_BOARD_EARLY_INIT_F
 
 #endif /* __XILINX_ZYNQMP_H */

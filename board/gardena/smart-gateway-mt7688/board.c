@@ -4,13 +4,19 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
 #include <env_internal.h>
+#include <flash.h>
 #include <init.h>
 #include <led.h>
+#include <log.h>
+#include <malloc.h>
 #include <net.h>
 #include <spi.h>
 #include <spi_flash.h>
+#include <linux/delay.h>
+#include <linux/stringify.h>
 #include <u-boot/crc.h>
 #include <uuid.h>
 #include <linux/ctype.h>
@@ -204,7 +210,7 @@ static void copy_or_generate_uuid(char *fd_ptr, const char *env_var_name)
  * Helper function to provide some sane factory-data values for testing
  * purpose, when these values are not programmed correctly
  */
-int do_fd_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_fd_write(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct factory_data_values *fd;
 	struct spi_flash *sf;
@@ -294,8 +300,10 @@ err_free:
 	return ret;
 }
 
+#ifndef CONFIG_SPL_BUILD
 U_BOOT_CMD(
 	fd_write,	1,	0,	do_fd_write,
 	"Write test factory-data values to SPI NOR",
 	"\n"
 );
+#endif

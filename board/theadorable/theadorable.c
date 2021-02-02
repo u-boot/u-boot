@@ -4,9 +4,11 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <console.h>
 #include <i2c.h>
 #include <init.h>
+#include <net.h>
 #include <pci.h>
 #if !defined(CONFIG_SPL_BUILD)
 #include <bootcount.h>
@@ -15,6 +17,7 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <linux/delay.h>
 #include <linux/mbus.h>
 #ifdef CONFIG_NET
 #include <netdev.h>
@@ -217,7 +220,7 @@ int checkboard(void)
 }
 
 #ifdef CONFIG_NET
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	cpu_eth_init(bis); /* Built in controller(s) come first */
 	return pci_eth_init(bis);
@@ -308,7 +311,7 @@ int board_late_init(void)
 #endif
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_PCI)
-int do_pcie_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_pcie_test(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	pci_dev_t bdf;
 	u16 ven_id, dev_id;

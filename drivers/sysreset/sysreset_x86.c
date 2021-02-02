@@ -6,11 +6,11 @@
  */
 
 #include <common.h>
-#include <acpi_s3.h>
 #include <dm.h>
 #include <efi_loader.h>
 #include <pch.h>
 #include <sysreset.h>
+#include <acpi/acpi_s3.h>
 #include <asm/io.h>
 #include <asm/processor.h>
 
@@ -148,8 +148,8 @@ static struct sysreset_ops x86_sysreset_ops = {
 	.get_last = x86_sysreset_get_last,
 };
 
-U_BOOT_DRIVER(x86_sysreset) = {
-	.name = "x86-sysreset",
+U_BOOT_DRIVER(x86_reset) = {
+	.name = "x86_reset",
 	.id = UCLASS_SYSRESET,
 	.of_match = x86_sysreset_ids,
 	.ops = &x86_sysreset_ops,

@@ -66,129 +66,26 @@ config SYS_XTRACE
 	  To enable the tracer a variable "xtrace" needs to be defined in
 	  the environment.
 
-menu "Autoboot options"
-
-config AUTOBOOT
-	bool "Autoboot"
-	default y
-	help
-	  This enables the autoboot.  See doc/README.autoboot for detail.
-
-config AUTOBOOT_KEYED
-	bool "Stop autobooting via specific input key / string"
-	default n
-	help
-	  This option enables stopping (aborting) of the automatic
-	  boot feature only by issuing a specific input key or
-	  string. If not enabled, any input key will abort the
-	  U-Boot automatic booting process and bring the device
-	  to the U-Boot prompt for user input.
-
-config AUTOBOOT_PROMPT
-	string "Autoboot stop prompt"
-	depends on AUTOBOOT_KEYED
-	default "Autoboot in %d seconds\\n"
-	help
-	  This string is displayed before the boot delay selected by
-	  CONFIG_BOOTDELAY starts. If it is not defined	there is no
-	  output indicating that autoboot is in progress.
-
-	  Note that this define is used as the (only) argument to a
-	  printf() call, so it may contain '%' format specifications,
-	  provided that it also includes, sepearated by commas exactly
-	  like in a printf statement, the required arguments. It is
-	  the responsibility of the user to select only such arguments
-	  that are valid in the given context.
-
-config AUTOBOOT_ENCRYPTION
-	bool "Enable encryption in autoboot stopping"
-	depends on AUTOBOOT_KEYED
-	help
-	  This option allows a string to be entered into U-Boot to stop the
-	  autoboot. The string itself is hashed and compared against the hash
-	  in the environment variable 'bootstopkeysha256'. If it matches then
-	  boot stops and a command-line prompt is presented.
-
-	  This provides a way to ship a secure production device which can also
-	  be accessed at the U-Boot command line.
-
-config AUTOBOOT_DELAY_STR
-	string "Delay autobooting via specific input key / string"
-	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION
-	help
-	  This option delays the automatic boot feature by issuing
-	  a specific input key or string. If CONFIG_AUTOBOOT_DELAY_STR
-	  or the environment variable "bootdelaykey" is specified
-	  and this string is received from console input before
-	  autoboot starts booting, U-Boot gives a command prompt. The
-	  U-Boot prompt will time out if CONFIG_BOOT_RETRY_TIME is
-	  used, otherwise it never times out.
-
-config AUTOBOOT_STOP_STR
-	string "Stop autobooting via specific input key / string"
-	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION
-	help
-	  This option enables stopping (aborting) of the automatic
-	  boot feature only by issuing a specific input key or
-	  string. If CONFIG_AUTOBOOT_STOP_STR or the environment
-	  variable "bootstopkey" is specified and this string is
-	  received from console input before autoboot starts booting,
-	  U-Boot gives a command prompt. The U-Boot prompt never
-	  times out, even if CONFIG_BOOT_RETRY_TIME is used.
-
-config AUTOBOOT_KEYED_CTRLC
-	bool "Enable Ctrl-C autoboot interruption"
-	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION
-	default n
-	help
-	  This option allows for the boot sequence to be interrupted
-	  by ctrl-c, in addition to the "bootdelaykey" and "bootstopkey".
-	  Setting this variable	provides an escape sequence from the
-	  limited "password" strings.
-
-config AUTOBOOT_STOP_STR_SHA256
-	string "Stop autobooting via SHA256 encrypted password"
-	depends on AUTOBOOT_KEYED && AUTOBOOT_ENCRYPTION
-	help
-	  This option adds the feature to only stop the autobooting,
-	  and therefore boot into the U-Boot prompt, when the input
-	  string / password matches a values that is encypted via
-	  a SHA256 hash and saved in the environment.
-
-config AUTOBOOT_USE_MENUKEY
-	bool "Allow a specify key to run a menu from the environment"
-	depends on !AUTOBOOT_KEYED
-	help
-	  If a specific key is pressed to stop autoboot, then the commands in
-	  the environment variable 'menucmd' are executed before boot starts.
-
-config AUTOBOOT_MENUKEY
-	int "ASCII value of boot key to show a menu"
-	default 0
-	depends on AUTOBOOT_USE_MENUKEY
-	help
-	  If this key is pressed to stop autoboot, then the commands in the
-	  environment variable 'menucmd' will be executed before boot starts.
-	  For example, 33 means "!" in ASCII, so pressing ! at boot would take
-	  this action.
-
-config AUTOBOOT_MENU_SHOW
-	bool "Show a menu on boot"
-	depends on CMD_BOOTMENU
-	help
-	  This enables the boot menu, controlled by environment variables
-	  defined by the board. The menu starts after running the 'preboot'
-	  environmnent variable (if enabled) and before handling the boot delay.
-	  See README.bootmenu for more details.
-
-endmenu
-
 config BUILD_BIN2C
 	bool
 
 comment "Commands"
 
 menu "Info commands"
+
+config CMD_ACPI
+	bool "acpi"
+	default y if ACPIGEN
+	help
+	  List and dump ACPI tables. ACPI (Advanced Configuration and Power
+	  Interface) is used mostly on x86 for providing information to the
+	  Operating System about devices in the system. The tables are set up
+	  by the firmware, typically U-Boot but possibly an earlier firmware
+	  module, if U-Boot is chain-loaded from something else. ACPI tables
+	  can also include code, to perform hardware-specific tasks required
+	  by the Operating Systems. This allows some amount of separation
+	  between the firmware and OS, and is particularly useful when you
+	  want to make hardware changes without the OS needing to be adjusted.
 
 config CMD_BDI
 	bool "bdinfo"
@@ -228,11 +125,39 @@ config CMD_LICENSE
 	help
 	  Print GPL license text
 
+config CMD_PMC
+	bool "pmc"
+	help
+	  Provides access to the Intel Power-Management Controller (PMC) so
+	  that its state can be examined. This does not currently support
+	  changing the state but it is still useful for debugging and seeing
+	  what is going on.
+
 config CMD_REGINFO
 	bool "reginfo"
 	depends on PPC
 	help
 	  Register dump
+
+config CMD_TLV_EEPROM
+	bool "tlv_eeprom"
+	depends on I2C_EEPROM
+	help
+	  Display and program the system EEPROM data block in ONIE Tlvinfo
+	  format. TLV stands for Type-Length-Value.
+
+config SPL_CMD_TLV_EEPROM
+	bool "tlv_eeprom for SPL"
+	depends on SPL_I2C_EEPROM
+	select SPL_DRIVERS_MISC_SUPPORT
+	help
+	  Read system EEPROM data block in ONIE Tlvinfo format from SPL.
+
+config CMD_SBI
+	bool "sbi"
+	depends on RISCV_SMODE && SBI_V02
+	help
+	  Display information about the SBI implementation.
 
 endmenu
 
@@ -250,6 +175,13 @@ config CMD_BOOTM
 	default y
 	help
 	  Boot an application image from the memory.
+
+config BOOTM_EFI
+	bool "Support booting UEFI FIT images"
+	depends on CMD_BOOTEFI && CMD_BOOTM && FIT
+	default y
+	help
+	  Support booting UEFI FIT images via the bootm command.
 
 config CMD_BOOTZ
 	bool "bootz"
@@ -286,6 +218,7 @@ config BOOTM_OPENRTOS
 
 config BOOTM_OSE
 	bool "Support booting Enea OSE images"
+	depends on (ARM && (ARM64 || CPU_V7A || CPU_V7R) || SANDBOX || PPC || X86)
 	depends on CMD_BOOTM
 	help
 	  Support booting Enea OSE images via the bootm command.
@@ -334,6 +267,7 @@ config CMD_BOOTEFI_HELLO_COMPILE
 config CMD_BOOTEFI_HELLO
 	bool "Allow booting a standard EFI hello world for testing"
 	depends on CMD_BOOTEFI_HELLO_COMPILE
+	default y if CMD_BOOTEFI_SELFTEST
 	help
 	  This adds a standard EFI hello world application to U-Boot so that
 	  it can be used with the 'bootefi hello' command. This is useful
@@ -348,17 +282,28 @@ config CMD_BOOTMENU
 	help
 	  Add an ANSI terminal boot menu command.
 
-config CMD_DTIMG
-	bool "dtimg"
+config CMD_ADTIMG
+	bool "adtimg"
 	help
 	  Android DTB/DTBO image manipulation commands. Read dtb/dtbo files from
 	  image into RAM, dump image structure information, etc. Those dtb/dtbo
 	  files should be merged in one dtb further, which needs to be passed to
 	  the kernel, as part of a boot process.
 
+config CMD_ABOOTIMG
+	bool "abootimg"
+	depends on ANDROID_BOOT_IMAGE
+	help
+	  Android Boot Image manipulation commands. Allows one to extract
+	  images contained in boot.img, like kernel, ramdisk, dtb, etc, and
+	  obtain corresponding meta-information from boot.img.
+
+	  See doc/android/boot-image.rst for details.
+
 config CMD_ELF
 	bool "bootelf, bootvx"
 	default y
+	select LIB_ELF
 	help
 	  Boot an ELF/vxWorks image from the memory.
 
@@ -433,12 +378,6 @@ config CMD_SPL_WRITE_SIZE
 	  This provides the size of the command-line argument area in NAND
 	  flash used by Falcon-mode boot. See the documentation until CMD_SPL
 	  for detail.
-
-config CMD_FITUPD
-	bool "fitImage update command"
-	help
-	  Implements the 'fitupd' command, which allows to automatically
-	  store software updates present on a TFTP server in NOR Flash
 
 config CMD_THOR_DOWNLOAD
 	bool "thor - TIZEN 'thor' download"
@@ -551,7 +490,19 @@ config CMD_NVEDIT_INFO
 	  This command can be optionally used for evaluation in scripts:
 	  [-d] : evaluate whether default environment is used
 	  [-p] : evaluate whether environment can be persisted
+	  [-q] : quiet output
 	  The result of multiple evaluations will be combined with AND.
+
+config CMD_NVEDIT_LOAD
+	bool "env load"
+	help
+	  Load all environment variables from the compiled-in persistent
+	  storage.
+
+config CMD_NVEDIT_SELECT
+	bool "env select"
+	help
+	  Select the compiled-in persistent storage of environment variables.
 
 endmenu
 
@@ -562,6 +513,15 @@ config CMD_BINOP
 	help
 	  Compute binary operations (xor, or, and) of byte arrays of arbitrary
 	  size from memory and store the result in memory or the environment.
+
+config CMD_BLOBLIST
+	bool "bloblist"
+	default y if BLOBLIST
+	help
+	  Show information about the bloblist, a collection of binary blobs
+	  held in memory that persist between SPL and U-Boot. In the case of
+	  x86 devices the bloblist can be used to hold ACPI tables so that they
+	  remain available in memory.
 
 config CMD_CRC32
 	bool "crc32"
@@ -662,7 +622,21 @@ config CMD_MEMORY
 	    base - print or set address offset
 	    loop - initialize loop on address range
 
-config MX_CYCLIC
+config CMD_MEM_SEARCH
+	bool "ms - Memory search"
+	help
+	  Memory-search command
+
+	  This allows searching through a region of memory looking for hex
+	  data (byte, 16-bit word, 32-bit long, also 64-bit on machines that
+	  support it). It is also possible to search for a string. The
+	  command accepts a memory range and a list of values to search for.
+	  The values need to appear in memory in the same order they are given
+	  in the command. At most 10 matches can be returned at a time, but
+	  pressing return will show the next 10 matches. Environment variables
+	  are set for use with scripting (memmatches, memaddr, mempos).
+
+config CMD_MX_CYCLIC
 	bool "Enable cyclic md/mw commands"
 	depends on CMD_MEMORY
 	help
@@ -695,13 +669,35 @@ config SYS_ALT_MEMTEST
 	help
 	  Use a more complete alternative memory test.
 
+if SYS_ALT_MEMTEST
+
+config SYS_ALT_MEMTEST_BITFLIP
+	bool "Bitflip test"
+	default y
+	help
+	  The alternative memory test includes bitflip test since 2020.07.
+	  The bitflip test significantly increases the overall test time.
+	  Bitflip test can optionally be disabled here.
+
 endif
 
-config CMD_MX_CYCLIC
-	bool "mdc, mwc"
+config SYS_MEMTEST_START
+	hex "default start address for mtest"
+	default 0
 	help
-	  mdc - memory display cyclic
-	  mwc - memory write cyclic
+	  This is the default start address for mtest for simple read/write
+	  test. If no arguments are given to mtest, default address is used
+	  as start address.
+
+config SYS_MEMTEST_END
+	hex "default end address for mtest"
+	default 0x1000
+	help
+	  This is the default end address for mtest for simple read/write
+	  test. If no arguments are given to mtest, default address is used
+	  as end address.
+
+endif
 
 config CMD_SHA1SUM
 	bool "sha1sum"
@@ -735,14 +731,23 @@ config CMD_LZMADEC
 	  Support decompressing an LZMA (Lempel-Ziv-Markov chain algorithm)
 	  image from memory.
 
+config CMD_UNLZ4
+	bool "unlz4"
+	default y if CMD_BOOTI
+	select LZ4
+	help
+	  Support decompressing an LZ4 image from memory region.
+
 config CMD_UNZIP
 	bool "unzip"
 	default y if CMD_BOOTI
+	select GZIP
 	help
 	  Uncompress a zip-compressed memory region.
 
 config CMD_ZIP
 	bool "zip"
+	select GZIP_COMPRESSED
 	help
 	  Compress a memory region with zlib deflate method.
 
@@ -759,7 +764,7 @@ config CMD_ARMFLASH
 config CMD_ADC
 	bool "adc - Access Analog to Digital Converters info and data"
 	select ADC
-	select DM_REGULATOR
+	depends on DM_REGULATOR
 	help
 	  Shows ADC device info and permit printing one-shot analog converted
 	  data from a named Analog to Digital Converter.
@@ -840,12 +845,7 @@ config CMD_FASTBOOT
 	  Android devices. Fastboot requires either the network stack
 	  enabled or support for acting as a USB device.
 
-	  See doc/android/fastboot.txt for more information.
-
-config CMD_FDC
-	bool "fdcboot - Boot from floppy device"
-	help
-	  The 'fdtboot' command allows booting an image from a floppy disk.
+	  See doc/android/fastboot.rst for more information.
 
 config CMD_FLASH
 	bool "flinfo, erase, protect"
@@ -1018,25 +1018,69 @@ config CMD_LOADS
 	help
 	  Load an S-Record file over serial line
 
+config CMD_LSBLK
+	depends on BLK
+	bool "lsblk - list block drivers and devices"
+	help
+	  Print list of available block device drivers, and for each, the list
+	  of known block devices.
+
+config CMD_MISC
+	bool "misc"
+	depends on MISC
+	help
+	  Enable the command "misc" for accessing miscellaneous devices with
+	  a MISC uclass driver. The command provides listing all MISC devices
+	  as well as read and write functionalities via their drivers.
+
 config CMD_MMC
 	bool "mmc"
 	help
 	  MMC memory mapped support.
 
+if CMD_MMC
+
+config CMD_BKOPS_ENABLE
+	bool "mmc bkops enable"
+	depends on CMD_MMC
+	default n
+	help
+	  Enable command for setting manual background operations handshake
+	  on a eMMC device. The feature is optionally available on eMMC devices
+	  conforming to standard >= 4.41.
+
 config CMD_MMC_RPMB
 	bool "Enable support for RPMB in the mmc command"
-	depends on CMD_MMC
+	depends on SUPPORT_EMMC_RPMB
 	help
 	  Enable the commands for reading, writing and programming the
 	  key for the Replay Protection Memory Block partition in eMMC.
 
 config CMD_MMC_SWRITE
 	bool "mmc swrite"
-	depends on CMD_MMC && MMC_WRITE
+	depends on MMC_WRITE
 	select IMAGE_SPARSE
 	help
 	  Enable support for the "mmc swrite" command to write Android sparse
 	  images to eMMC.
+
+endif
+
+config CMD_CLONE
+	bool "clone"
+	depends on BLK
+	help
+	  Enable storage cloning over block devices, useful for
+	  initial flashing by external block device without network
+	  or usb support.
+
+config CMD_OPTEE_RPMB
+	bool "Enable read/write support on RPMB via OPTEE"
+	depends on SUPPORT_EMMC_RPMB && OPTEE
+	help
+	  Enable the commands for reading, writing persistent named values
+	  in the Replay Protection Memory Block partition in eMMC by
+	  using Persistent Objects in OPTEE
 
 config CMD_MTD
 	bool "mtd"
@@ -1044,6 +1088,12 @@ config CMD_MTD
 	select MTD_PARTITIONS
 	help
 	  MTD commands support.
+
+config CMD_MUX
+	bool "mux"
+	depends on MULTIPLEXER
+	help
+	 List, select, and deselect mux controllers on the fly.
 
 config CMD_NAND
 	bool "nand"
@@ -1251,6 +1301,13 @@ config CMD_USB_MASS_STORAGE
 	select USB_FUNCTION_MASS_STORAGE
 	help
 	  USB mass storage support
+
+config CMD_PVBLOCK
+	bool "Xen para-virtualized block device"
+	depends on XEN
+	select PVBLOCK
+	help
+	  Xen para-virtualized block device support
 
 config CMD_VIRTIO
 	bool "virtio"
@@ -1502,6 +1559,7 @@ config CMD_CDP
 
 config CMD_SNTP
 	bool "sntp"
+	select PROT_UDP
 	help
 	  Synchronize RTC via network
 
@@ -1570,15 +1628,6 @@ config CMD_BSP
 	  option provides a way to control this. The commands that are enabled
 	  vary depending on the board.
 
-config CMD_BKOPS_ENABLE
-	bool "mmc bkops enable"
-	depends on CMD_MMC
-	default n
-	help
-	  Enable command for setting manual background operations handshake
-	  on a eMMC device. The feature is optionally available on eMMC devices
-	  conforming to standard >= 4.41.
-
 config CMD_BLOCK_CACHE
 	bool "blkcache - control and stats for block cache"
 	depends on BLOCK_CACHE
@@ -1589,6 +1638,17 @@ config CMD_BLOCK_CACHE
 	  This is most useful when fine-tuning the operation of the cache
 	  during development, but also allows the cache to be disabled when
 	  it might hurt performance (e.g. when using the ums command).
+
+config CMD_BUTTON
+	bool "button"
+	depends on BUTTON
+	default y if BUTTON
+	help
+	  Enable the 'button' command which allows to get the status of
+	  buttons supported by the board. The buttonss can be listed with
+	  'button list' and state can be known with 'button <label>'.
+	  Any button drivers can be controlled with this command, e.g.
+	  button_gpio.
 
 config CMD_CACHE
 	bool "icache or dcache"
@@ -1644,6 +1704,12 @@ config CMD_DATE
 	  Enable the 'date' command for getting/setting the time/date in RTC
 	  devices.
 
+config CMD_RTC
+	bool "rtc"
+	depends on DM_RTC
+	help
+	  Enable the 'rtc' command for low-level access to RTC devices.
+
 config CMD_TIME
 	bool "time"
 	help
@@ -1657,8 +1723,14 @@ config CMD_GETTIME
 	  milliseconds. See also the 'bootstage' command which provides more
 	  flexibility for boot timing.
 
-# TODO: rename to CMD_SLEEP
-config CMD_MISC
+config CMD_RNG
+	bool "rng command"
+	depends on DM_RNG
+	select HEXDUMP
+	help
+	  Print bytes from the hardware random number generator.
+
+config CMD_SLEEP
 	bool "sleep"
 	default y
 	help
@@ -1700,6 +1772,77 @@ config CMD_QFW
 	  feature is to allow easy loading of files passed to qemu-system
 	  via -kernel / -initrd
 
+config CMD_PSTORE
+	bool "pstore"
+	help
+	  This provides access to Linux PStore with Rammoops backend. The main
+	  feature is to allow to display or save PStore records.
+
+	  See doc/pstore.rst for more information.
+
+if CMD_PSTORE
+
+config CMD_PSTORE_MEM_ADDR
+	hex "Memory Address"
+	depends on CMD_PSTORE
+	help
+	  Base addr used for PStore ramoops memory, should be identical to
+	  ramoops.mem_address parameter used by kernel
+
+config CMD_PSTORE_MEM_SIZE
+	hex "Memory size"
+	depends on CMD_PSTORE
+	default "0x10000"
+	help
+	  Size of PStore ramoops memory, should be identical to ramoops.mem_size
+	  parameter used by kernel, a power of 2 and larger than the sum of the
+	  record sizes
+
+config CMD_PSTORE_RECORD_SIZE
+	hex "Dump record size"
+	depends on CMD_PSTORE
+	default "0x1000"
+	help
+	  Size of each dump done on oops/panic, should be identical to
+	  ramoops.record_size parameter used by kernel and a power of 2
+	  Must be non-zero
+
+config CMD_PSTORE_CONSOLE_SIZE
+	hex "Kernel console log size"
+	depends on CMD_PSTORE
+	default "0x1000"
+	help
+	  Size of kernel console log, should be identical to
+	  ramoops.console_size parameter used by kernel and a power of 2
+	  Must be non-zero
+
+config CMD_PSTORE_FTRACE_SIZE
+	hex "FTrace log size"
+	depends on CMD_PSTORE
+	default "0x1000"
+	help
+	  Size of ftrace log, should be identical to ramoops.ftrace_size
+	  parameter used by kernel and a power of 2
+
+config CMD_PSTORE_PMSG_SIZE
+	hex "User space message log size"
+	depends on CMD_PSTORE
+	default "0x1000"
+	help
+	  Size of user space message log, should be identical to
+	  ramoops.pmsg_size parameter used by kernel and a power of 2
+
+config CMD_PSTORE_ECC_SIZE
+	int "ECC size"
+	depends on CMD_PSTORE
+	default "0"
+	help
+	if non-zero, the option enables ECC support and specifies ECC buffer
+	size in bytes (1 is a special value, means 16 bytes ECC), should be
+	identical to ramoops.ramoops_ecc parameter used by kernel
+
+endif
+
 source "cmd/mvebu/Kconfig"
 
 config CMD_TERMINAL
@@ -1721,14 +1864,6 @@ config CMD_UUID
 
 	  The two commands are very similar except for the endianness of the
 	  output.
-
-config CMD_FRU
-	bool "FRU information for product"
-	help
-	  This option enables FRU commands to capture and display FRU
-	  information present in the device. The FRU Information is used
-	  to primarily to provide "inventory" information about the boards
-	  that the FRU Information Device is located on.
 
 endmenu
 
@@ -1965,6 +2100,12 @@ config CMD_FAT
 	help
 	  Support for the FAT fs
 
+config CMD_SQUASHFS
+	bool "SquashFS command support"
+	select FS_SQUASHFS
+	help
+	  Enables SquashFS filesystem commands (e.g. load, ls).
+
 config CMD_FS_GENERIC
 	bool "filesystem commands"
 	help
@@ -2067,7 +2208,7 @@ config CMD_BEDBUG
 	help
 	  The bedbug (emBEDded deBUGger) command provides debugging features
 	  for some PowerPC processors. For details please see the
-	  docuemntation in doc/README.beddbug
+	  documentation in doc/README.bedbug.
 
 config CMD_DIAG
 	bool "diag - Board diagnostics"
@@ -2079,7 +2220,7 @@ config CMD_DIAG
 
 config CMD_IRQ
 	bool "irq - Show information about interrupts"
-	depends on !ARM && !MIPS && !SH
+	depends on !ARM && !MIPS && !RISCV && !SH
 	help
 	  This enables two commands:
 
@@ -2098,6 +2239,7 @@ config CMD_KGDB
 config CMD_LOG
 	bool "log - Generation, control and access to logging"
 	select LOG
+	select GETOPT
 	help
 	  This provides access to logging features. It allows the output of
 	  log data to be controlled to a limited extent (setting up the default
@@ -2143,6 +2285,14 @@ config CMD_UBI
 	  to use U-Boot UBI commands.
 	  It is also strongly encouraged to also enable CONFIG_MTD to get full
 	  partition support.
+
+config CMD_UBI_RENAME
+       bool "Enable rename"
+       depends on CMD_UBI
+       default n
+       help
+         Enable a "ubi" command to rename ubi volume:
+	   ubi rename <oldname> <newname>
 
 config CMD_UBIFS
 	tristate "Enable UBIFS - Unsorted block images filesystem commands"

@@ -11,6 +11,7 @@
 #include <asm/arch/ccu.h>
 #include <dt-bindings/clock/sun8i-v3s-ccu.h>
 #include <dt-bindings/reset/sun8i-v3s-ccu.h>
+#include <linux/bitops.h>
 
 static struct ccu_clk_gate v3s_gates[] = {
 	[CLK_BUS_MMC0]		= GATE(0x060, BIT(8)),
@@ -54,6 +55,8 @@ static int v3s_clk_bind(struct udevice *dev)
 
 static const struct udevice_id v3s_clk_ids[] = {
 	{ .compatible = "allwinner,sun8i-v3s-ccu",
+	  .data = (ulong)&v3s_ccu_desc },
+	{ .compatible = "allwinner,sun8i-v3-ccu",
 	  .data = (ulong)&v3s_ccu_desc },
 	{ }
 };

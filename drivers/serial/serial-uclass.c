@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <env_internal.h>
 #include <errno.h>
+#include <malloc.h>
 #include <os.h>
 #include <serial.h>
 #include <stdio_dev.h>
@@ -14,6 +15,7 @@
 #include <dm/lists.h>
 #include <dm/device-internal.h>
 #include <dm/of_access.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -161,15 +163,16 @@ int serial_init(void)
 #if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 	serial_find_console_or_panic();
 	gd->flags |= GD_FLG_SERIAL_READY;
+	serial_setbrg();
 #endif
 
 	return 0;
 }
 
 /* Called after relocation */
-void serial_initialize(void)
+int serial_initialize(void)
 {
-	serial_init();
+	return serial_init();
 }
 
 static void _serial_putc(struct udevice *dev, char ch)
@@ -410,7 +413,7 @@ static int on_baudrate(const char *name, const char *value, enum env_op op,
 
 		if ((flags & H_INTERACTIVE) != 0)
 			while (1) {
-				if (getc() == '\r')
+				if (getchar() == '\r')
 					break;
 			}
 

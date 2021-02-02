@@ -13,14 +13,29 @@
 #ifndef _VIDEO_H_
 #define _VIDEO_H_
 
-#ifdef CONFIG_DM_VIDEO
-
 #include <stdio_dev.h>
 
+struct udevice;
+
+/**
+ * struct video_uc_platdata - uclass platform data for a video device
+ *
+ * This holds information that the uclass needs to know about each device. It
+ * is accessed using dev_get_uclass_platdata(dev). See 'Theory of operation' at
+ * the top of video-uclass.c for details on how this information is set.
+ *
+ * @align: Frame-buffer alignment, indicating the memory boundary the frame
+ *	buffer should start on. If 0, 1MB is assumed
+ * @size: Frame-buffer size, in bytes
+ * @base: Base address of frame buffer, 0 if not yet known
+ * @copy_base: Base address of a hardware copy of the frame buffer. See
+ *	CONFIG_VIDEO_COPY.
+ */
 struct video_uc_platdata {
 	uint align;
 	uint size;
 	ulong base;
+	ulong copy_base;
 };
 
 enum video_polarity {
@@ -61,6 +76,8 @@ enum video_log2_bpp {
  * @font_size:	Font size in pixels (0 to use a default value)
  * @fb:		Frame buffer
  * @fb_size:	Frame buffer size
+ * @copy_fb:	Copy of the frame buffer to keep up to date; see struct
+ *		video_uc_platdata
  * @line_length:	Length of each frame buffer line, in bytes. This can be
  *		set by the driver, but if not, the uclass will set it after
  *		probing
@@ -87,6 +104,7 @@ struct video_priv {
 	 */
 	void *fb;
 	int fb_size;
+	void *copy_fb;
 	int line_length;
 	u32 colour_fg;
 	u32 colour_bg;
@@ -96,8 +114,16 @@ struct video_priv {
 	u8 bg_col_idx;
 };
 
-/* Placeholder - there are no video operations at present */
+/**
+ * struct video_ops - structure for keeping video operations
+ * @video_sync: Synchronize FB with device. Some device like SPI based LCD
+ *		displays needs synchronization when data in an FB is available.
+ *		For these devices implement video_sync hook to call a sync
+ *		function. vid is pointer to video device udevice. Function
+ *		should return 0 on success video_sync and error code otherwise
+ */
 struct video_ops {
+	int (*video_sync)(struct udevice *vid);
 };
 
 #define video_get_ops(dev)        ((struct video_ops *)(dev)->driver->ops)
@@ -120,6 +146,7 @@ struct video_ops {
  */
 int video_reserve(ulong *addrp);
 
+#ifdef CONFIG_DM_VIDEO
 /**
  * video_clear() - Clear a device's frame buffer to background color.
  *
@@ -127,19 +154,22 @@ int video_reserve(ulong *addrp);
  * @return 0
  */
 int video_clear(struct udevice *dev);
+#endif /* CONFIG_DM_VIDEO */
 
 /**
  * video_sync() - Sync a device's frame buffer with its hardware
  *
+ * @vid:	Device to sync
+ * @force:	True to force a sync even if there was one recently (this is
+ *		very expensive on sandbox)
+ *
+ * @return: 0 on success, error code otherwise
+ *
  * Some frame buffers are cached or have a secondary frame buffer. This
  * function syncs these up so that the current contents of the U-Boot frame
  * buffer are displayed to the user.
- *
- * @dev:	Device to sync
- * @force:	True to force a sync even if there was one recently (this is
- *		very expensive on sandbox)
  */
-void video_sync(struct udevice *vid, bool force);
+int video_sync(struct udevice *vid, bool force);
 
 /**
  * video_sync_all() - Sync all devices' frame buffers with there hardware
@@ -200,7 +230,28 @@ void video_set_flush_dcache(struct udevice *dev, bool flush);
  */
 void video_set_default_colors(struct udevice *dev, bool invert);
 
-#endif /* CONFIG_DM_VIDEO */
+#ifdef CONFIG_VIDEO_COPY
+/**
+ * vidconsole_sync_copy() - Sync back to the copy framebuffer
+ *
+ * This ensures that the copy framebuffer has the same data as the framebuffer
+ * for a particular region. It should be called after the framebuffer is updated
+ *
+ * @from and @to can be in either order. The region between them is synced.
+ *
+ * @dev: Vidconsole device being updated
+ * @from: Start/end address within the framebuffer (->fb)
+ * @to: Other address within the frame buffer
+ * @return 0 if OK, -EFAULT if the start address is before the start of the
+ *	frame buffer start
+ */
+int video_sync_copy(struct udevice *dev, void *from, void *to);
+#else
+static inline int video_sync_copy(struct udevice *dev, void *from, void *to)
+{
+	return 0;
+}
+#endif
 
 #ifndef CONFIG_DM_VIDEO
 

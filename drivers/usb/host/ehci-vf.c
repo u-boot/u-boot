@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <usb.h>
 #include <errno.h>
 #include <linux/compiler.h>
@@ -18,6 +19,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/regs-usbphy.h>
+#include <linux/delay.h>
 #include <usb/ehci-ci.h>
 #include <linux/libfdt.h>
 #include <fdtdec.h>
@@ -222,7 +224,7 @@ static int vf_usb_ofdata_to_platdata(struct udevice *dev)
 
 	priv->portnr = dev->seq;
 
-	priv->ehci = (struct usb_ehci *)devfdt_get_addr(dev);
+	priv->ehci = dev_read_addr_ptr(dev);
 	mode = fdt_getprop(dt_blob, node, "dr_mode", NULL);
 	if (mode) {
 		if (0 == strcmp(mode, "host")) {

@@ -25,6 +25,9 @@
 
 #define ARRAY_SIZE(x)		(sizeof(x) / sizeof((x)[0]))
 
+#define __ALIGN_MASK(x, mask)	(((x) + (mask)) & ~(mask))
+#define ALIGN(x, a)		__ALIGN_MASK((x), (typeof(x))(a) - 1)
+
 #define IH_ARCH_DEFAULT		IH_ARCH_INVALID
 
 /* Information about a file that needs to be placed into the FIT */
@@ -76,7 +79,9 @@ struct image_tool_params {
 	bool external_data;	/* Store data outside the FIT */
 	bool quiet;		/* Don't output text in normal operation */
 	unsigned int external_offset;	/* Add padding to external data */
+	int bl_len;		/* Block length in byte for external data */
 	const char *engine_id;	/* Engine to use for signing */
+	bool reset_timestamp;	/* Reset the timestamp on an existing image */
 };
 
 /*
@@ -121,9 +126,9 @@ struct image_type_params {
 					struct image_tool_params *);
 	/*
 	 * This function is used by the command to retrieve a component
-	 * (sub-image) from the image (i.e. dumpimage -i <image> -p <position>
-	 * <sub-image-name>).
-	 * Thus the code to extract a file from an image must be put here.
+	 * (sub-image) from the image (i.e. dumpimage -p <position>
+	 * -o <component-outfile> <image>). Thus the code to extract a file
+	 * from an image must be put here.
 	 *
 	 * Returns 0 if the file was successfully retrieved from the image,
 	 * or a negative value on error.

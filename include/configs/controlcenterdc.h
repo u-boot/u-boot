@@ -13,7 +13,6 @@
 #define CONFIG_CUSTOMER_BOARD_SUPPORT
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-#define CONFIG_BOARD_LATE_INIT
 
 /*
  * TEXT_BASE needs to be below 16MiB, since this area is scrubbed
@@ -54,7 +53,6 @@
 /*
  * Software (bit-bang) MII driver configuration
  */
-#define CONFIG_BITBANGMII		/* bit-bang MII PHY management */
 #define CONFIG_BITBANGMII_MULTI
 
 /* SPL */
@@ -112,9 +110,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_OVERWRITE
-
-#define CONFIG_BAUDRATE 115200
 
 #define CONFIG_HOSTNAME		"ccdc"
 #define CONFIG_ROOTPATH		"/opt/nfsroot"

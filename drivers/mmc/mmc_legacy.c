@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Google, Inc
+ * Copyright 2020 NXP
  * Written by Simon Glass <sjg@chromium.org>
  */
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <mmc.h>
 #include "mmc_private.h"
@@ -22,9 +24,6 @@ struct mmc *find_mmc_device(int dev_num)
 void mmc_do_preinit(void)
 {
 	struct mmc *m = &mmc_static;
-#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
-	mmc_set_preinit(m, 1);
-#endif
 	if (m->preinit)
 		mmc_start_init(m);
 }
@@ -76,9 +75,6 @@ void mmc_do_preinit(void)
 	list_for_each(entry, &mmc_devices) {
 		m = list_entry(entry, struct mmc, link);
 
-#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
-		mmc_set_preinit(m, 1);
-#endif
 		if (m->preinit)
 			mmc_start_init(m);
 	}

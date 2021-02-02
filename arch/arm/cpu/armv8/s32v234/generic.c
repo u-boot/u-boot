@@ -4,6 +4,10 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
+#include <cpu_func.h>
+#include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
@@ -329,7 +333,7 @@ int print_cpuinfo(void)
 }
 #endif
 
-int cpu_eth_init(bd_t * bis)
+int cpu_eth_init(struct bd_info * bis)
 {
 	int rc = -ENODEV;
 

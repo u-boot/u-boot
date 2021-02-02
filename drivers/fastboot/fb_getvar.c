@@ -10,6 +10,7 @@
 #include <fb_mmc.h>
 #include <fb_nand.h>
 #include <fs.h>
+#include <part.h>
 #include <version.h>
 
 static void getvar_version(char *var_parameter, char *response);
@@ -94,7 +95,7 @@ static const struct {
  *
  * @param[in] part_name Info for which partition name to look for
  * @param[in,out] response Pointer to fastboot response buffer
- * @param[out] size If not NULL, will contain partition size (in blocks)
+ * @param[out] size If not NULL, will contain partition size
  * @return Partition number or negative value on error
  */
 static int getvar_get_part_info(const char *part_name, char *response,
@@ -103,12 +104,12 @@ static int getvar_get_part_info(const char *part_name, char *response,
 	int r;
 # if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
 	struct blk_desc *dev_desc;
-	disk_partition_t part_info;
+	struct disk_partition part_info;
 
 	r = fastboot_mmc_get_part_info(part_name, &dev_desc, &part_info,
 				       response);
 	if (r >= 0 && size)
-		*size = part_info.size;
+		*size = part_info.size * part_info.blksz;
 # elif CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND)
 	struct part_info *part_info;
 
@@ -219,7 +220,7 @@ static void getvar_partition_type(char *part_name, char *response)
 {
 	int r;
 	struct blk_desc *dev_desc;
-	disk_partition_t part_info;
+	struct disk_partition part_info;
 
 	r = fastboot_mmc_get_part_info(part_name, &dev_desc, &part_info,
 				       response);

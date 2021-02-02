@@ -9,11 +9,17 @@
 
 #include <common.h>
 #include <env.h>
+#include <fastboot.h>
+#include <fdt_support.h>
+#include <image.h>
 #include <init.h>
+#include <malloc.h>
+#include <net.h>
 #include <palmas.h>
 #include <sata.h>
 #include <serial.h>
 #include <usb.h>
+#include <errno.h>
 #include <asm/omap_common.h>
 #include <asm/omap_sec_common.h>
 #include <asm/emif.h>
@@ -33,9 +39,14 @@
 #include <ti-usb-phy-uboot.h>
 #include <mmc.h>
 #include <dm/uclass.h>
+#include <hang.h>
 
 #include "../common/board_detect.h"
 #include "mux_data.h"
+
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+static int board_bootmode_has_emmc(void);
+#endif
 
 #define board_is_x15()		board_ti_is("BBRDX15_")
 #define board_is_x15_revb1()	(board_ti_is("BBRDX15_") && \
@@ -49,6 +60,11 @@
 #define board_is_am574x_idk()	board_ti_is("AM574IDK")
 #define board_is_am572x_idk()	board_ti_is("AM572IDK")
 #define board_is_am571x_idk()	board_ti_is("AM571IDK")
+#define board_is_bbai()		board_ti_is("BBONE-AI")
+
+#define board_is_ti_idk()	board_is_am574x_idk() || \
+				board_is_am572x_idk() || \
+				board_is_am571x_idk()
 
 #ifdef CONFIG_DRIVER_TI_CPSW
 #include <cpsw.h>
@@ -57,8 +73,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define GPIO_ETH_LCD		GPIO_TO_PIN(2, 22)
-/* GPIO 7_11 */
-#define GPIO_DDR_VTT_EN 203
+#define GPIO_DDR_VTT_EN		GPIO_TO_PIN(7, 11)
 
 /* Touch screen controller to identify the LCD */
 #define OSD_TS_FT_BUS_ADDRESS	0
@@ -98,12 +113,19 @@ static const struct dmm_lisa_map_regs am574x_idk_lisa_regs = {
 	.is_ma_present  = 0x1
 };
 
+static const struct dmm_lisa_map_regs bbai_lisa_regs = {
+	.dmm_lisa_map_3 = 0x80640100,
+	.is_ma_present  = 0x1
+};
+
 void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 {
 	if (board_is_am571x_idk())
 		*dmm_lisa_regs = &am571x_idk_lisa_regs;
 	else if (board_is_am574x_idk())
 		*dmm_lisa_regs = &am574x_idk_lisa_regs;
+	else if (board_is_bbai())
+		*dmm_lisa_regs = &bbai_lisa_regs;
 	else
 		*dmm_lisa_regs = &beagle_x15_lisa_regs;
 }
@@ -507,6 +529,14 @@ void do_board_detect(void)
 				  CONFIG_EEPROM_CHIP_ADDRESS);
 	if (rc)
 		printf("ti_i2c_eeprom_init failed %d\n", rc);
+
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+	rc = board_bootmode_has_emmc();
+	if (!rc)
+		rc = ti_emmc_boardid_get();
+	if (rc)
+		printf("ti_emmc_boardid_get failed %d\n", rc);
+#endif
 }
 
 #else	/* CONFIG_SPL_BUILD */
@@ -522,6 +552,14 @@ void do_board_detect(void)
 	if (rc)
 		printf("ti_i2c_eeprom_init failed %d\n", rc);
 
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+	rc = board_bootmode_has_emmc();
+	if (!rc)
+		rc = ti_emmc_boardid_get();
+	if (rc)
+		printf("ti_emmc_boardid_get failed %d\n", rc);
+#endif
+
 	if (board_is_x15())
 		bname = "BeagleBoard X15";
 	else if (board_is_am572x_evm())
@@ -532,6 +570,8 @@ void do_board_detect(void)
 		bname = "AM572x IDK";
 	else if (board_is_am571x_idk())
 		bname = "AM571x IDK";
+	else if (board_is_bbai())
+		bname = "BeagleBone AI";
 
 	if (bname)
 		snprintf(sysinfo.board_string, SYSINFO_BOARD_NAME_MAX_LEN,
@@ -566,6 +606,8 @@ static void setup_board_eeprom_env(void)
 		name = "am572x_idk";
 	} else if (board_is_am571x_idk()) {
 		name = "am571x_idk";
+	} else if (board_is_bbai()) {
+		name = "am5729_beagleboneai";
 	} else {
 		printf("Unidentified board claims %s in eeprom header\n",
 		       board_ti_get_name());
@@ -629,7 +671,7 @@ void am57x_idk_lcd_detect(void)
 	struct udevice *dev;
 
 	/* Only valid for IDKs */
-	if (board_is_x15() || board_is_am572x_evm())
+	if (!board_is_ti_idk())
 		return;
 
 	/* Only AM571x IDK has gpio control detect.. so check that */
@@ -672,6 +714,18 @@ void am57x_idk_lcd_detect(void)
 	}
 out:
 	env_set("idk_lcd", idk_lcd);
+
+	/*
+	 * On AM571x_IDK, no Display with J51 set to LCD is considered as an
+	 * invalid configuration and we prevent boot to get user attention.
+	 */
+	if (board_is_am571x_idk() && am571x_idk_needs_lcd() &&
+	    !strncmp(idk_lcd, "no", 2)) {
+		printf("%s: Invalid HW configuration: display not detected/supported but J51 is set. Remove J51 to boot without display.\n",
+		       __func__);
+		hang();
+	}
+
 	return;
 }
 
@@ -727,6 +781,9 @@ int board_late_init(void)
 	/* Just probe the potentially supported cdce913 device */
 	uclass_get_device(UCLASS_CLK, 0, &dev);
 
+	if (board_is_bbai())
+		env_set("console", "ttyS0,115200n8");
+
 #if !defined(CONFIG_SPL_BUILD)
 	board_ti_set_ethaddr(2);
 #endif
@@ -744,6 +801,11 @@ void set_muxconf_regs(void)
 {
 	do_set_mux32((*ctrl)->control_padconf_core_base,
 		     early_padconf, ARRAY_SIZE(early_padconf));
+
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+	do_set_mux32((*ctrl)->control_padconf_core_base,
+		     emmc_padconf, ARRAY_SIZE(emmc_padconf));
+#endif
 }
 
 #ifdef CONFIG_IODELAY_RECALIBRATION
@@ -769,6 +831,11 @@ void recalibrate_iodelay(void)
 		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_am571x_idk);
 		iod = iodelay_cfg_array_am571x_idk;
 		iod_sz = ARRAY_SIZE(iodelay_cfg_array_am571x_idk);
+	} else if (board_is_bbai()) {
+		pconf = core_padconf_array_essential_bbai;
+		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_bbai);
+		iod = iodelay_cfg_array_bbai;
+		iod_sz = ARRAY_SIZE(iodelay_cfg_array_bbai);
 	} else {
 		/* Common for X15/GPEVM */
 		pconf = core_padconf_array_essential_x15;
@@ -832,7 +899,7 @@ err:
 #endif
 
 #if defined(CONFIG_MMC)
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	omap_mmc_init(0, 0, 0, -1, -1);
 	omap_mmc_init(1, 0, 0, -1, -1);
@@ -961,7 +1028,7 @@ static void u64_to_mac(u64 addr, u8 mac[6])
 	mac[0] = addr >> 40;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int ret;
 	uint8_t mac_addr[6];
@@ -1067,7 +1134,7 @@ int board_early_init_f(void)
 #endif
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 
@@ -1097,6 +1164,8 @@ int board_fit_config_name_match(const char *name)
 		return 0;
 	} else if (board_is_am571x_idk() && !strcmp(name, "am571x-idk")) {
 		return 0;
+	} else if (board_is_bbai() && !strcmp(name, "am5729-beagleboneai")) {
+		return 0;
 	}
 
 	return -1;
@@ -1104,11 +1173,25 @@ int board_fit_config_name_match(const char *name)
 #endif
 
 #if CONFIG_IS_ENABLED(FASTBOOT) && !CONFIG_IS_ENABLED(ENV_IS_NOWHERE)
-int fastboot_set_reboot_flag(void)
+int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 {
+	if (reason != FASTBOOT_REBOOT_REASON_BOOTLOADER)
+		return -ENOTSUPP;
+
 	printf("Setting reboot to fastboot flag ...\n");
 	env_set("dofastboot", "1");
 	env_save();
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+static int board_bootmode_has_emmc(void)
+{
+	/* Check that boot mode is same as BBAI */
+	if (gd->arch.omap_boot_mode != 2)
+		return -EIO;
+
 	return 0;
 }
 #endif

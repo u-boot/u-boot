@@ -20,6 +20,9 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
+#include <image.h>
+#include <asm/cache.h>
 #include <linux/mtd/mtd.h>
 #include <command.h>
 #include <console.h>
@@ -186,7 +189,7 @@ static void do_nand_status(struct mtd_info *mtd)
 #ifdef CONFIG_ENV_OFFSET_OOB
 unsigned long nand_env_oob_offset;
 
-int do_nand_env_oob(cmd_tbl_t *cmdtp, int argc, char *const argv[])
+int do_nand_env_oob(struct cmd_tbl *cmdtp, int argc, char *const argv[])
 {
 	int ret;
 	uint32_t oob_buf[ENV_OFFSET_SIZE/sizeof(uint32_t)];
@@ -373,7 +376,8 @@ static void adjust_size_for_badblocks(loff_t *size, loff_t offset, int dev)
 	}
 }
 
-static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_nand(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	int i, ret = 0;
 	ulong addr;
@@ -842,7 +846,7 @@ U_BOOT_CMD(
 	"NAND sub-system", nand_help_text
 );
 
-static int nand_load_image(cmd_tbl_t *cmdtp, struct mtd_info *mtd,
+static int nand_load_image(struct cmd_tbl *cmdtp, struct mtd_info *mtd,
 			   ulong offset, ulong addr, char *cmd)
 {
 	int r;
@@ -925,13 +929,13 @@ static int nand_load_image(cmd_tbl_t *cmdtp, struct mtd_info *mtd,
 
 	/* Loading ok, update default load address */
 
-	load_addr = addr;
+	image_load_addr = addr;
 
 	return bootm_maybe_autostart(cmdtp, cmd);
 }
 
-static int do_nandboot(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_nandboot(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	char *boot_device = NULL;
 	int idx;

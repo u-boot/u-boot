@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>

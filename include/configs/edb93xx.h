@@ -83,7 +83,6 @@
 /* Network hardware configuration */
 #define CONFIG_DRIVER_EP93XX_MAC
 #define CONFIG_MII_SUPPRESS_PREAMBLE
-#undef CONFIG_NETCONSOLE
 
 /* SDRAM configuration */
 #if defined(CONFIG_EDB9301) || defined(CONFIG_EDB9302) || \
@@ -168,8 +167,6 @@
 
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)
-
-#define CONFIG_ENV_OVERWRITE		/* Vendor params unprotected */
 
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_USB_OHCI_EP93XX

@@ -8,8 +8,10 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/immap.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

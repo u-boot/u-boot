@@ -9,8 +9,10 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <usb.h>
+#include <linux/delay.h>
 #include "ehci.h"
 #include <asm/arch/hardware.h>
 #include <asm/arch/spr_misc.h>

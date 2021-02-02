@@ -88,7 +88,7 @@ Note: 1 stands for 'on', 0 stands for 'off'
 Setting of hwconfig
 ===================
 If FlexCAN or TDM is needed, please set "fsl_p1010mux:tdm_can=can" or
-"fsl_p1010mux:tdm_can=tdm" explicitly in u-booot prompt as below for example:
+"fsl_p1010mux:tdm_can=tdm" explicitly in u-boot prompt as below for example:
 setenv hwconfig "fsl_p1010mux:tdm_can=tdm;usb1:dr_mode=host,phy_type=utmi"
 By default, don't set fsl_p1010mux:tdm_can, in this case, spi chip selection
 is set to spi-flash instead of to SLIC/TDM/DAC and tdm_can_sel is set to TDM
@@ -98,7 +98,6 @@ instead of to CAN/UART1.
 Build and burn U-Boot to NOR flash
 ==================================
 1. Build u-boot.bin image
-	export ARCH=powerpc
 	export CROSS_COMPILE=/your_path/powerpc-linux-gnu-
 	make P1010RDB_NOR
 

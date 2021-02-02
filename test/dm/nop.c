@@ -13,6 +13,7 @@
 #include <dm/device.h>
 #include <dm/test.h>
 #include <misc.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 static int noptest_bind(struct udevice *parent)
@@ -70,4 +71,4 @@ static int dm_test_nop(struct unit_test_state *uts)
 	return 0;
 }
 
-DM_TEST(dm_test_nop, DM_TESTF_FLAT_TREE | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_nop, UT_TESTF_FLAT_TREE | UT_TESTF_SCAN_FDT);

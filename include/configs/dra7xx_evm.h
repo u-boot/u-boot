@@ -20,7 +20,6 @@
 
 #ifndef CONFIG_QSPI_BOOT
 /* MMC ENV related defines */
-#define CONFIG_SYS_MMC_ENV_DEV		1	/* SLOT2: eMMC(1) */
 #endif
 
 #if (CONFIG_CONS_INDEX == 1)
@@ -48,9 +47,7 @@
 #endif
 
 #ifdef CONFIG_SPL_BUILD
-#undef CONFIG_CMD_BOOTD
 #ifdef CONFIG_SPL_DFU
-#define CONFIG_SPL_LOAD_FIT_ADDRESS 0x80200000
 #define DFUARGS \
 	"dfu_bufsiz=0x10000\0" \
 	DFU_ALT_INFO_RAM
@@ -63,7 +60,6 @@
 #define CONFIG_HSMMC2_8BIT
 
 /* CPSW Ethernet */
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT		10
 
 /*

@@ -27,8 +27,6 @@
 #define CONFIG_MACH_TYPE		MACH_TYPE_SEABOARD
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */
-#define CONFIG_SYS_MMC_ENV_DEV 0
-#define CONFIG_SYS_MMC_ENV_PART 2
 
 /* NAND support */
 #define CONFIG_TEGRA_NAND

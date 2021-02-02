@@ -7,6 +7,10 @@
 #ifndef _ASM_ARCH_CCU_H
 #define _ASM_ARCH_CCU_H
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 /**
  * enum ccu_flags - ccu clock/reset flags
  *

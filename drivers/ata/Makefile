@@ -4,7 +4,6 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
 obj-$(CONFIG_DWC_AHCI) += dwc_ahci.o
-obj-$(CONFIG_FSL_AHCI) += fsl_ahci.o
 obj-$(CONFIG_AHCI) += ahci-uclass.o
 obj-$(CONFIG_AHCI_PCI) += ahci-pci.o
 obj-$(CONFIG_SCSI_AHCI) += ahci.o
@@ -20,3 +19,4 @@ obj-$(CONFIG_SATA_SIL) += sata_sil.o
 obj-$(CONFIG_SANDBOX) += sata_sandbox.o
 obj-$(CONFIG_AHCI_MVEBU) += ahci_mvebu.o
 obj-$(CONFIG_SUNXI_AHCI) += ahci_sunxi.o
+obj-$(CONFIG_MTK_AHCI) += mtk_ahci.o

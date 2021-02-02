@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <spi.h>
 #include <asm/io.h>
 #include <asm/immap.h>

@@ -42,8 +42,6 @@ for USB based DFU (CONFIG_DFU_*) and DFU TFTP update
 The "dfu" command has been extended to support transfer via TFTP - one
 needs to type for example "dfu tftp 0 mmc 0"
 
-This feature does not depend on "fitupd" command enabled.
-
 As of this writing (SHA1:8d77576371381ade83de475bb639949b44941e8c v2015.10-rc2)
 the update.c code is not enabled (CONFIG_UPDATE_TFTP) by any board in the
 contemporary u-boot tree.

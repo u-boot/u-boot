@@ -47,7 +47,7 @@ the board specific file need added:
 ...
 #ifdef CONFIG_GENERIC_ATMEL_MCI
 /* this is a weak define that we are overriding */
-int board_mmc_init(bd_t *bd)
+int board_mmc_init(struct bd_info *bd)
 {
 	/* Enable clock */
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_MCI);

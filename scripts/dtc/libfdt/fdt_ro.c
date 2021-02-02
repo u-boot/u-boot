@@ -53,7 +53,7 @@ const char *fdt_get_string(const void *fdt, int stroffset, int *lenp)
 
 	err = -FDT_ERR_BADOFFSET;
 	absoffset = stroffset + fdt_off_dt_strings(fdt);
-	if (absoffset >= totalsize)
+	if (absoffset >= (unsigned)totalsize)
 		goto fail;
 	len = totalsize - absoffset;
 
@@ -61,17 +61,19 @@ const char *fdt_get_string(const void *fdt, int stroffset, int *lenp)
 		if (stroffset < 0)
 			goto fail;
 		if (!fdt_chk_version() || fdt_version(fdt) >= 17) {
-			if (stroffset >= fdt_size_dt_strings(fdt))
+			if ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
 				goto fail;
 			if ((fdt_size_dt_strings(fdt) - stroffset) < len)
 				len = fdt_size_dt_strings(fdt) - stroffset;
 		}
 	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
-		if ((stroffset >= 0)
-		    || (stroffset < -fdt_size_dt_strings(fdt)))
+		unsigned int sw_stroffset = -stroffset;
+
+		if ((stroffset >= 0) ||
+		    (sw_stroffset > fdt_size_dt_strings(fdt)))
 			goto fail;
-		if ((-stroffset) < len)
-			len = -stroffset;
+		if ((sw_stroffset) < len)
+			len = sw_stroffset;
 	} else {
 		err = -FDT_ERR_INTERNAL;
 		goto fail;
@@ -157,8 +159,8 @@ int fdt_generate_phandle(const void *fdt, uint32_t *phandle)
 
 static const struct fdt_reserve_entry *fdt_mem_rsv(const void *fdt, int n)
 {
-	int offset = n * sizeof(struct fdt_reserve_entry);
-	int absoffset = fdt_off_mem_rsvmap(fdt) + offset;
+	unsigned int offset = n * sizeof(struct fdt_reserve_entry);
+	unsigned int absoffset = fdt_off_mem_rsvmap(fdt) + offset;
 
 	if (fdt_chk_extra()) {
 		if (absoffset < fdt_off_mem_rsvmap(fdt))
@@ -179,8 +181,8 @@ int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
 	if (fdt_chk_extra() && !re)
 		return -FDT_ERR_BADOFFSET;
 
-	*address = fdt64_ld(&re->address);
-	*size = fdt64_ld(&re->size);
+	*address = fdt64_to_cpu(re->address);
+	*size = fdt64_to_cpu(re->size);
 	return 0;
 }
 
@@ -190,7 +192,7 @@ int fdt_num_mem_rsv(const void *fdt)
 	const struct fdt_reserve_entry *re;
 
 	for (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
-		if (fdt64_ld(&re->size) == 0)
+		if (fdt64_to_cpu(re->size) == 0)
 			return i;
 	}
 	return -FDT_ERR_TRUNCATED;
@@ -368,7 +370,7 @@ static const struct fdt_property *fdt_get_property_by_offset_(const void *fdt,
 	prop = fdt_offset_ptr_(fdt, offset);
 
 	if (lenp)
-		*lenp = fdt32_ld(&prop->len);
+		*lenp = fdt32_to_cpu(prop->len);
 
 	return prop;
 }
@@ -406,7 +408,7 @@ static const struct fdt_property *fdt_get_property_namelen_(const void *fdt,
 			offset = -FDT_ERR_INTERNAL;
 			break;
 		}
-		if (fdt_string_eq_(fdt, fdt32_ld(&prop->nameoff),
+		if (fdt_string_eq_(fdt, fdt32_to_cpu(prop->nameoff),
 				   name, namelen)) {
 			if (poffset)
 				*poffset = offset;
@@ -459,7 +461,7 @@ const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
 
 	/* Handle realignment */
 	if (fdt_chk_version() && fdt_version(fdt) < 0x10 &&
-	    (poffset + sizeof(*prop)) % 8 && fdt32_ld(&prop->len) >= 8)
+	    (poffset + sizeof(*prop)) % 8 && fdt32_to_cpu(prop->len) >= 8)
 		return prop->data + 4;
 	return prop->data;
 }
@@ -477,7 +479,7 @@ const void *fdt_getprop_by_offset(const void *fdt, int offset,
 		int namelen;
 
 		if (fdt_chk_extra()) {
-			name = fdt_get_string(fdt, fdt32_ld(&prop->nameoff),
+			name = fdt_get_string(fdt, fdt32_to_cpu(prop->nameoff),
 					      &namelen);
 			if (!name) {
 				if (lenp)
@@ -486,13 +488,13 @@ const void *fdt_getprop_by_offset(const void *fdt, int offset,
 			}
 			*namep = name;
 		} else {
-			*namep = fdt_string(fdt, fdt32_ld(&prop->nameoff));
+			*namep = fdt_string(fdt, fdt32_to_cpu(prop->nameoff));
 		}
 	}
 
 	/* Handle realignment */
 	if (fdt_chk_version() && fdt_version(fdt) < 0x10 &&
-	    (offset + sizeof(*prop)) % 8 && fdt32_ld(&prop->len) >= 8)
+	    (offset + sizeof(*prop)) % 8 && fdt32_to_cpu(prop->len) >= 8)
 		return prop->data + 4;
 	return prop->data;
 }
@@ -517,7 +519,7 @@ uint32_t fdt_get_phandle(const void *fdt, int nodeoffset)
 			return 0;
 	}
 
-	return fdt32_ld(php);
+	return fdt32_to_cpu(*php);
 }
 
 const char *fdt_get_alias_namelen(const void *fdt,
@@ -679,7 +681,7 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 {
 	int offset;
 
-	if ((phandle == 0) || (phandle == -1))
+	if ((phandle == 0) || (phandle == ~0U))
 		return -FDT_ERR_BADPHANDLE;
 
 	FDT_RO_PROBE(fdt);

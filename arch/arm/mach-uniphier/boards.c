@@ -4,9 +4,9 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
 #include <linux/libfdt.h>
 #include <linux/kernel.h>
+#include <asm/global_data.h>
 
 #include "init.h"
 

@@ -15,8 +15,6 @@
 
 static struct socfpga_fpga_manager *fpgamgr_regs =
 	(struct socfpga_fpga_manager *)SOCFPGA_FPGAMGRREGS_ADDRESS;
-static struct socfpga_system_manager *sysmgr_regs =
-	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 
 /* Set CD ratio */
 static void fpgamgr_set_cd_ratio(unsigned long ratio)
@@ -214,7 +212,7 @@ int socfpga_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size)
 	/* Prior programming the FPGA, all bridges need to be shut off */
 
 	/* Disable all signals from hps peripheral controller to fpga */
-	writel(0, &sysmgr_regs->fpgaintfgrp_module);
+	writel(0, socfpga_get_sysmgr_addr() + SYSMGR_GEN5_FPGAINFGRP_MODULE);
 
 	/* Disable all signals from FPGA to HPS SDRAM */
 #define SDR_CTRLGRP_FPGAPORTRST_ADDRESS	0x5080

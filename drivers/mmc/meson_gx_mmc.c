@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <fdtdec.h>
@@ -12,8 +13,17 @@
 #include <mmc.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
-#include <asm/arch/sd_emmc.h>
+#include <linux/delay.h>
 #include <linux/log2.h>
+#include "meson_gx_mmc.h"
+
+bool meson_gx_mmc_is_compatible(struct udevice *dev,
+				enum meson_gx_mmc_compatible family)
+{
+	enum meson_gx_mmc_compatible compat = dev_get_driver_data(dev);
+
+	return compat == family;
+}
 
 static inline void *get_regbase(const struct mmc *mmc)
 {
@@ -40,6 +50,8 @@ static void meson_mmc_config_clock(struct mmc *mmc)
 	if (!mmc->clock)
 		return;
 
+	/* TOFIX This should use the proper clock taken from DT */
+
 	/* 1GHz / CLK_MAX_DIV = 15,9 MHz */
 	if (mmc->clock > 16000000) {
 		clk = SD_EMMC_CLKSRC_DIV2;
@@ -50,8 +62,16 @@ static void meson_mmc_config_clock(struct mmc *mmc)
 	}
 	clk_div = DIV_ROUND_UP(clk, mmc->clock);
 
-	/* 180 phase core clock */
-	meson_mmc_clk |= CLK_CO_PHASE_180;
+	/*
+	 * SM1 SoCs doesn't work fine over 50MHz with CLK_CO_PHASE_180
+	 * If CLK_CO_PHASE_270 is used, it's more stable than other.
+	 * Other SoCs use CLK_CO_PHASE_180 by default.
+	 * It needs to find what is a proper value about each SoCs.
+	 */
+	if (meson_gx_mmc_is_compatible(mmc->dev, MMC_COMPATIBLE_SM1))
+		meson_mmc_clk |= CLK_CO_PHASE_270;
+	else
+		meson_mmc_clk |= CLK_CO_PHASE_180;
 
 	/* 180 phase tx clock */
 	meson_mmc_clk |= CLK_TX_PHASE_000;
@@ -226,7 +246,7 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
 	fdt_addr_t addr;
 
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -241,11 +261,22 @@ static int meson_mmc_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct mmc *mmc = &pdata->mmc;
 	struct mmc_config *cfg = &pdata->cfg;
+	struct clk_bulk clocks;
 	uint32_t val;
+	int ret;
+
 #ifdef CONFIG_PWRSEQ
 	struct udevice *pwr_dev;
-	int ret;
 #endif
+
+	/* Enable the clocks feeding the MMC controller */
+	ret = clk_get_bulk(dev, &clocks);
+	if (ret)
+		return ret;
+
+	ret = clk_enable_bulk(&clocks);
+	if (ret)
+		return ret;
 
 	cfg->voltages = MMC_VDD_33_34 | MMC_VDD_32_33 |
 			MMC_VDD_31_32 | MMC_VDD_165_195;
@@ -295,8 +326,9 @@ int meson_mmc_bind(struct udevice *dev)
 }
 
 static const struct udevice_id meson_mmc_match[] = {
-	{ .compatible = "amlogic,meson-gx-mmc" },
-	{ .compatible = "amlogic,meson-axg-mmc" },
+	{ .compatible = "amlogic,meson-gx-mmc", .data = MMC_COMPATIBLE_GX },
+	{ .compatible = "amlogic,meson-axg-mmc", .data = MMC_COMPATIBLE_GX },
+	{ .compatible = "amlogic,meson-sm1-mmc", .data = MMC_COMPATIBLE_SM1 },
 	{ /* sentinel */ }
 };
 

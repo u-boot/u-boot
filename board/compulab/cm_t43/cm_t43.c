@@ -7,9 +7,11 @@
 #include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>
+#include <net.h>
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/emif.h>
+#include <linux/delay.h>
 #include <power/pmic.h>
 #include <power/tps65218.h>
 #include "board.h"
@@ -147,7 +149,7 @@ static void board_phy_init(void)
 	mdelay(2);
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int rv;
 

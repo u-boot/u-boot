@@ -24,12 +24,15 @@
 #include <common.h>
 #include <command.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <net.h>
 #include <miiphy.h>
 #include <malloc.h>
+#include <asm/cache.h>
 #include <linux/compiler.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include "davinci_emac.h"
 
 unsigned int	emac_dbg = 0;

@@ -8,8 +8,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/pinctrl.h>
 #include <asm/hardware.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/err.h>
 #include <mach/at91_pio.h>
@@ -517,11 +519,13 @@ static const struct udevice_id at91_pinctrl_match[] = {
 	{}
 };
 
-U_BOOT_DRIVER(at91_pinctrl) = {
-	.name = "pinctrl_at91",
+U_BOOT_DRIVER(atmel_sama5d3_pinctrl) = {
+	.name = "atmel_sama5d3_pinctrl",
 	.id = UCLASS_PINCTRL,
 	.of_match = at91_pinctrl_match,
 	.probe = at91_pinctrl_probe,
 	.priv_auto_alloc_size = sizeof(struct at91_pinctrl_priv),
 	.ops = &at91_pinctrl_ops,
 };
+
+U_BOOT_DRIVER_ALIAS(atmel_sama5d3_pinctrl, atmel_at91rm9200_pinctrl)

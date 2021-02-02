@@ -1,0 +1,12 @@
+if TARGET_MX7ULP_COM
+
+config SYS_BOARD
+	default "mx7ulp_com"
+
+config SYS_VENDOR
+	default "ea"
+
+config SYS_CONFIG_NAME
+	default "mx7ulp_com"
+
+endif

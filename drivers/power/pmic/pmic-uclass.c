@@ -8,6 +8,7 @@
 #include <fdtdec.h>
 #include <errno.h>
 #include <dm.h>
+#include <log.h>
 #include <vsprintf.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>

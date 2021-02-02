@@ -16,6 +16,9 @@
 #include <env.h>
 #include <errno.h>
 #include <init.h>
+#include <log.h>
+#include <malloc.h>
+#include <net.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
@@ -213,7 +216,7 @@ static struct cpsw_platform_data cpsw_data = {
 
 #if defined(CONFIG_DRIVER_TI_CPSW) || \
 	(defined(CONFIG_USB_ETHER) && defined(CONFIG_USB_MUSB_GADGET))
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int n = 0;
 #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \

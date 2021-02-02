@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/err.h>
 
@@ -111,7 +112,7 @@ static int r7s72100_pfc_probe(struct udevice *dev)
 	fdt_addr_t addr_base;
 	ofnode node;
 
-	addr_base = devfdt_get_addr(dev);
+	addr_base = dev_read_addr(dev);
 	if (addr_base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

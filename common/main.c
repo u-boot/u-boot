@@ -8,16 +8,14 @@
 
 #include <common.h>
 #include <autoboot.h>
+#include <bootstage.h>
 #include <cli.h>
 #include <command.h>
 #include <console.h>
 #include <env.h>
+#include <init.h>
+#include <net.h>
 #include <version.h>
-
-/*
- * Board-specific Platform code can reimplement show_boot_progress () if needed
- */
-__weak void show_boot_progress(int val) {}
 
 static void run_preboot_environment_command(void)
 {

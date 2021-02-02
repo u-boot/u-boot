@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0
- * Copyright 2016-2018 NXP Semiconductors
+ * Copyright 2016-2019 NXP Semiconductors
  * Copyright 2019 Vladimir Oltean <olteanv@gmail.com>
  */
 
@@ -60,9 +60,9 @@
 #define CONFIG_SYS_FSL_PBL_RCW	\
 		"board/freescale/ls1021atsn/ls102xa_rcw_sd.cfg"
 
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 #define CONFIG_U_BOOT_HDR_SIZE		(16 << 10)
-#endif /* ifdef CONFIG_SECURE_BOOT */
+#endif /* ifdef CONFIG_NXP_ESBC */
 
 #define CONFIG_SPL_MAX_SIZE		0x1a000
 #define CONFIG_SPL_STACK		0x1001d000
@@ -97,17 +97,19 @@
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
 
 /* Serial Port */
-#define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_SERIAL
 #ifndef CONFIG_DM_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #endif
 #define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 
-#define CONFIG_BAUDRATE			115200
-
 /* I2C */
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
+#else
+#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
+#define CONFIG_I2C_DEFAULT_BUS_NUMBER 0
+#endif
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
 #define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
@@ -149,7 +151,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"bootargs=root=/dev/ram0 rw console=ttyS0,115200\0"		\
 	"initrd_high=0xffffffff\0"					\
-	"fdt_high=0xffffffff\0"						\
 	"fdt_addr=0x64f00000\0"						\
 	"kernel_addr=0x61000000\0"					\
 	"kernelheader_addr=0x60800000\0"				\
@@ -211,6 +212,8 @@
 		"bootm $load_addr#$board\0"
 
 /* Miscellaneous configurable options */
+#define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
+
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		\
 		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -233,11 +236,6 @@
 #endif
 
 /* Environment */
-#define CONFIG_ENV_OVERWRITE
-
-#if defined(CONFIG_SD_BOOT)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
 
 #define CONFIG_SYS_BOOTM_LEN		0x8000000 /* 128 MB */
 

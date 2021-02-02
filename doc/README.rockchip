@@ -8,6 +8,10 @@ U-Boot on Rockchip
 
 A wide range of Rockchip SoCs are supported in mainline U-Boot
 
+Warning
+=======
+This document is being moved to doc/board/rockchip, so information on it
+might be incomplete or outdated.
 
 Prerequisites
 =============
@@ -24,74 +28,8 @@ You will need:
    - Suitable ARM cross compiler, e.g.:
         sudo apt-get install gcc-4.7-arm-linux-gnueabi
 
-
 Building
 ========
-
-At present 11 RK3288 boards are supported:
-
-   - EVB RK3288 - use evb-rk3288 configuration
-   - Firefly RK3288 - use firefly-rk3288 configuration
-   - Hisense Chromebook - use chromebook_jerry configuration
-   - Asus C100P Chromebook - use chromebook_minnie configuration
-   - Asus Chromebit - use chromebook_mickey configuration
-   - MiQi RK3288 - use miqi-rk3288 configuration
-   - phyCORE-RK3288 RDK - use phycore-rk3288 configuration
-   - PopMetal RK3288 - use popmetal-rk3288 configuration
-   - Radxa Rock 2 - use rock2 configuration
-   - Tinker RK3288 - use tinker-rk3288 configuration
-   - Vyasa RK3288 - use vyasa-rk3288 configuration
-
-Two RK3036 boards are supported:
-
-   - EVB RK3036 - use evb-rk3036 configuration
-   - Kylin - use kylin_rk3036 configuration
-
-Two RK3308 boards are supported:
-
-   - EVB RK3308 - use evb-rk3308 configuration
-   - ROC-CC-RK3308 - use roc-cc-rk3308 configuration
-
-Two RK3328 board are supported:
-
-   - EVB RK3328 - use evb-rk3328_defconfig
-   - Pine64 Rock64 board - use rock64-rk3328_defconfig
-
-Size RK3399 boards are supported (aarch64):
-
-   - EBV RK3399 - use evb_rk3399 configuration
-   - Firefly RK3399 - use the firefly_rk3399 configuration
-   - Puma - use puma_rk3399 configuration
-   - Ficus - use ficus-rk3399 configuration
-   - Rock960 (Vamrs) - use rock960-rk3399 configuration
-   - Bob - use chromebook_bob configuration
-
-Four RK3368 boards are supported:
-
-   - Sheep - use sheep-rk3368 configuration
-   - Lion - use lion-rk3368 configuration
-   - Geekbox - use geekbox configuration
-   - EVB PX5 - use evb-px5  configuration
-
-One RK3128 board is supported:
-
-   - EVB RK3128 - use evb-rk3128 configuration
-
-One RK3229 board is supported:
-
-   - EVB RK3229 - use evb-rk3229 configuration
-
-Two RV1108 boards are supported:
-
-   - EVB RV1108 - use evb-rv1108 configuration
-   - Elgin R1 - use elgin-rv1108 configuration
-
-One RV3188 baord is supported:
-
-   - Raxda Rock - use rock configuration
-
-
-For example:
 
 1. To build RK3288 board:
 

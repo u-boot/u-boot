@@ -7,6 +7,7 @@
 #include <common.h>
 #include <ide.h>
 #include <init.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/processor.h>
 #include <asm/io.h>
@@ -45,7 +46,9 @@ void ide_set_reset(int idereset)
 	}
 }
 
-int board_eth_init(bd_t *bis)
+#ifndef CONFIG_DM_ETH
+int board_eth_init(struct bd_info *bis)
 {
 	return pci_eth_init(bis);
 }
+#endif

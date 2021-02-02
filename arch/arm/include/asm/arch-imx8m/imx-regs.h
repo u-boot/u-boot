@@ -137,6 +137,40 @@ struct fuse_bank1_regs {
 	u32 rsvd3[3];
 };
 
+struct fuse_bank3_regs {
+	u32 mem_trim0;
+	u32 rsvd0[3];
+	u32 mem_trim1;
+	u32 rsvd1[3];
+	u32 mem_trim2;
+	u32 rsvd2[3];
+	u32 ana0;
+	u32 rsvd3[3];
+};
+
+struct fuse_bank9_regs {
+	u32 mac_addr0;
+	u32 rsvd0[3];
+	u32 mac_addr1;
+	u32 rsvd1[11];
+};
+
+struct fuse_bank38_regs {
+	u32 ana_trim1; /* trim0 is at 0xD70, bank 37*/
+	u32 rsvd0[3];
+	u32 ana_trim2;
+	u32 rsvd1[3];
+	u32 ana_trim3;
+	u32 rsvd2[3];
+	u32 ana_trim4;
+	u32 rsvd3[3];
+};
+
+struct fuse_bank39_regs {
+	u32 ana_trim5;
+	u32 rsvd[15];
+};
+
 #ifdef CONFIG_IMX8MQ
 struct anamix_pll {
 	u32 audio_pll1_cfg0;
@@ -227,13 +261,6 @@ struct anamix_pll {
 };
 #endif
 
-struct fuse_bank9_regs {
-	u32 mac_addr0;
-	u32 rsvd0[3];
-	u32 mac_addr1;
-	u32 rsvd1[11];
-};
-
 /* System Reset Controller (SRC) */
 struct src {
 	u32 scr;
@@ -304,5 +331,163 @@ struct bootrom_sw_info {
 #define ROM_SW_INFO_ADDR is_soc_rev(CHIP_REV_1_0) ? \
 		(struct bootrom_sw_info **)ROM_SW_INFO_ADDR_A0 : \
 		(struct bootrom_sw_info **)ROM_SW_INFO_ADDR_B0
+
+struct gpc_reg {
+	u32 lpcr_bsc;
+	u32 lpcr_ad;
+	u32 lpcr_cpu1;
+	u32 lpcr_cpu2;
+	u32 lpcr_cpu3;
+	u32 slpcr;
+	u32 mst_cpu_mapping;
+	u32 mmdc_cpu_mapping;
+	u32 mlpcr;
+	u32 pgc_ack_sel;
+	u32 pgc_ack_sel_m4;
+	u32 gpc_misc;
+	u32 imr1_core0;
+	u32 imr2_core0;
+	u32 imr3_core0;
+	u32 imr4_core0;
+	u32 imr1_core1;
+	u32 imr2_core1;
+	u32 imr3_core1;
+	u32 imr4_core1;
+	u32 imr1_cpu1;
+	u32 imr2_cpu1;
+	u32 imr3_cpu1;
+	u32 imr4_cpu1;
+	u32 imr1_cpu3;
+	u32 imr2_cpu3;
+	u32 imr3_cpu3;
+	u32 imr4_cpu3;
+	u32 isr1_cpu0;
+	u32 isr2_cpu0;
+	u32 isr3_cpu0;
+	u32 isr4_cpu0;
+	u32 isr1_cpu1;
+	u32 isr2_cpu1;
+	u32 isr3_cpu1;
+	u32 isr4_cpu1;
+	u32 isr1_cpu2;
+	u32 isr2_cpu2;
+	u32 isr3_cpu2;
+	u32 isr4_cpu2;
+	u32 isr1_cpu3;
+	u32 isr2_cpu3;
+	u32 isr3_cpu3;
+	u32 isr4_cpu3;
+	u32 slt0_cfg;
+	u32 slt1_cfg;
+	u32 slt2_cfg;
+	u32 slt3_cfg;
+	u32 slt4_cfg;
+	u32 slt5_cfg;
+	u32 slt6_cfg;
+	u32 slt7_cfg;
+	u32 slt8_cfg;
+	u32 slt9_cfg;
+	u32 slt10_cfg;
+	u32 slt11_cfg;
+	u32 slt12_cfg;
+	u32 slt13_cfg;
+	u32 slt14_cfg;
+	u32 pgc_cpu_0_1_mapping;
+	u32 cpu_pgc_up_trg;
+	u32 mix_pgc_up_trg;
+	u32 pu_pgc_up_trg;
+	u32 cpu_pgc_dn_trg;
+	u32 mix_pgc_dn_trg;
+	u32 pu_pgc_dn_trg;
+	u32 lpcr_bsc2;
+	u32 pgc_cpu_2_3_mapping;
+	u32 lps_cpu0;
+	u32 lps_cpu1;
+	u32 lps_cpu2;
+	u32 lps_cpu3;
+	u32 gpc_gpr;
+	u32 gtor;
+	u32 debug_addr1;
+	u32 debug_addr2;
+	u32 cpu_pgc_up_status1;
+	u32 mix_pgc_up_status0;
+	u32 mix_pgc_up_status1;
+	u32 mix_pgc_up_status2;
+	u32 m4_mix_pgc_up_status0;
+	u32 m4_mix_pgc_up_status1;
+	u32 m4_mix_pgc_up_status2;
+	u32 pu_pgc_up_status0;
+	u32 pu_pgc_up_status1;
+	u32 pu_pgc_up_status2;
+	u32 m4_pu_pgc_up_status0;
+	u32 m4_pu_pgc_up_status1;
+	u32 m4_pu_pgc_up_status2;
+	u32 a53_lp_io_0;
+	u32 a53_lp_io_1;
+	u32 a53_lp_io_2;
+	u32 cpu_pgc_dn_status1;
+	u32 mix_pgc_dn_status0;
+	u32 mix_pgc_dn_status1;
+	u32 mix_pgc_dn_status2;
+	u32 m4_mix_pgc_dn_status0;
+	u32 m4_mix_pgc_dn_status1;
+	u32 m4_mix_pgc_dn_status2;
+	u32 pu_pgc_dn_status0;
+	u32 pu_pgc_dn_status1;
+	u32 pu_pgc_dn_status2;
+	u32 m4_pu_pgc_dn_status0;
+	u32 m4_pu_pgc_dn_status1;
+	u32 m4_pu_pgc_dn_status2;
+	u32 res[3];
+	u32 mix_pdn_flg;
+	u32 pu_pdn_flg;
+	u32 m4_mix_pdn_flg;
+	u32 m4_pu_pdn_flg;
+	u32 imr1_core2;
+	u32 imr2_core2;
+	u32 imr3_core2;
+	u32 imr4_core2;
+	u32 imr1_core3;
+	u32 imr2_core3;
+	u32 imr3_core3;
+	u32 imr4_core3;
+	u32 pgc_ack_sel_pu;
+	u32 pgc_ack_sel_m4_pu;
+	u32 slt15_cfg;
+	u32 slt16_cfg;
+	u32 slt17_cfg;
+	u32 slt18_cfg;
+	u32 slt19_cfg;
+	u32 gpc_pu_pwrhsk;
+	u32 slt0_cfg_pu;
+	u32 slt1_cfg_pu;
+	u32 slt2_cfg_pu;
+	u32 slt3_cfg_pu;
+	u32 slt4_cfg_pu;
+	u32 slt5_cfg_pu;
+	u32 slt6_cfg_pu;
+	u32 slt7_cfg_pu;
+	u32 slt8_cfg_pu;
+	u32 slt9_cfg_pu;
+	u32 slt10_cfg_pu;
+	u32 slt11_cfg_pu;
+	u32 slt12_cfg_pu;
+	u32 slt13_cfg_pu;
+	u32 slt14_cfg_pu;
+	u32 slt15_cfg_pu;
+	u32 slt16_cfg_pu;
+	u32 slt17_cfg_pu;
+	u32 slt18_cfg_pu;
+	u32 slt19_cfg_pu;
+};
+
+struct pgc_reg {
+	u32 pgcr;
+	u32 pgpupscr;
+	u32 pgpdnscr;
+	u32 pgsr;
+	u32 pgauxsw;
+	u32 pgdr;
+};
 #endif
 #endif

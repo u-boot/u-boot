@@ -5,11 +5,13 @@
 
 #include <common.h>
 #include <div64.h>
+#include <log.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/pcc.h>
 #include <asm/arch/sys_proto.h>
+#include <linux/delay.h>
 
 scg_p scg1_regs = (scg_p)SCG1_RBASE;
 

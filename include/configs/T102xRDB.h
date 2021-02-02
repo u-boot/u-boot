@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  */
 
 /*
@@ -10,19 +11,14 @@
 #ifndef __T1024RDB_H
 #define __T1024RDB_H
 
+#include <linux/stringify.h>
+
 /* High Level Configuration Options */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 #define CONFIG_ENABLE_36BIT_PHYS
 
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_ADDR_MAP		1
-#define CONFIG_SYS_NUM_ADDR_MAP	64	/* number of TLB1 entries */
-#endif
-
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
-
-#define CONFIG_ENV_OVERWRITE
 
 /* support deep sleep */
 #ifdef CONFIG_ARCH_T1024
@@ -136,11 +132,6 @@
 #define CONFIG_RESET_VECTOR_ADDRESS 0xfffffffc
 #endif
 
-#if defined(CONFIG_SPIFLASH)
-#elif defined(CONFIG_SDCARD)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
-
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
 unsigned long get_board_ddr_clk(void);
@@ -161,9 +152,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
-
-#define CONFIG_SYS_MEMTEST_START	0x00200000 /* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00400000
 
 /*
  *  Config the L3 Cache as L3 SRAM
@@ -434,15 +422,20 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 /* I2C */
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_FSL		/* Use FSL common I2C driver */
 #define CONFIG_SYS_FSL_I2C_SPEED	50000	/* I2C speed in Hz */
 #define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
 #define CONFIG_SYS_FSL_I2C2_SPEED	50000	/* I2C speed in Hz */
 #define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
 #define CONFIG_SYS_FSL_I2C_OFFSET	0x118000
 #define CONFIG_SYS_FSL_I2C2_OFFSET	0x118100
+#else
+#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
+#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
+#endif
 
+#define CONFIG_SYS_I2C_FSL		/* Use FSL common I2C driver */
 #define I2C_PCA6408_BUS_NUM		1
 #define I2C_PCA6408_ADDR		0x20
 
@@ -610,7 +603,6 @@ unsigned long get_board_ddr_clk(void);
 #endif /* CONFIG_NOBQFMAN */
 
 #ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_PHY_REALTEK
 #if defined(CONFIG_TARGET_T1024RDB)
 #define RGMII_PHY1_ADDR		0x2
 #define RGMII_PHY2_ADDR		0x6

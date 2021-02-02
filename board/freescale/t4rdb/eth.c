@@ -7,6 +7,8 @@
 
 #include <common.h>
 #include <command.h>
+#include <fdt_support.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/mmu.h>
 #include <asm/processor.h>
@@ -34,7 +36,7 @@ void fdt_fixup_board_enet(void *fdt)
 	return;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #if defined(CONFIG_FMAN_ENET)
 	int i, interface;

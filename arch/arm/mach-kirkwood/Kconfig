@@ -1,4 +1,4 @@
-if KIRKWOOD
+if ARCH_KIRKWOOD
 
 choice
 	prompt "Marvell Kirkwood board select"

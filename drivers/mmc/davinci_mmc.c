@@ -16,8 +16,8 @@
 #include <asm/io.h>
 #include <asm/arch/sdmmc_defs.h>
 #include <asm-generic/gpio.h>
+#include <linux/delay.h>
 
-#define DAVINCI_MAX_BLOCKS	(32)
 #define WATCHDOG_COUNT		(100000)
 
 #define get_val(addr)		REG(addr)
@@ -32,12 +32,6 @@ struct davinci_mmc_priv {
 	uint input_clk;		/* Input clock to MMC controller */
 	struct gpio_desc cd_gpio;       /* Card Detect GPIO */
 	struct gpio_desc wp_gpio;       /* Write Protect GPIO */
-};
-
-struct davinci_mmc_plat
-{
-	struct mmc_config cfg;
-	struct mmc mmc;
 };
 #endif
 
@@ -463,7 +457,7 @@ static const struct dm_mmc_ops davinci_mmc_ops = {
 /* Called from board_mmc_init during startup. Can be called multiple times
 * depending on the number of slots available on board and controller
 */
-int davinci_mmc_init(bd_t *bis, struct davinci_mmc *host)
+int davinci_mmc_init(struct bd_info *bis, struct davinci_mmc *host)
 {
 	host->cfg.name = "davinci";
 	host->cfg.ops = &dmmc_ops;
@@ -486,42 +480,15 @@ static int davinci_mmc_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct davinci_mmc_plat *plat = dev_get_platdata(dev);
 	struct davinci_mmc_priv *priv = dev_get_priv(dev);
- 	struct mmc_config *cfg = &plat->cfg;
-#ifdef CONFIG_SPL_BUILD
-	int ret;
-#endif
 
-	cfg->f_min = 200000;
-	cfg->f_max = 25000000;
-	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34,
-	cfg->host_caps = MMC_MODE_4BIT, /* DA850 supports only 4-bit SD/MMC */
-	cfg->b_max = DAVINCI_MAX_BLOCKS;
-	cfg->name = "da830-mmc";
-
-	priv->reg_base = (struct davinci_mmc_regs *)dev_read_addr(dev);
+	priv->reg_base = plat->reg_base;
 	priv->input_clk = clk_get(DAVINCI_MMCSD_CLKID);
-
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	/* These GPIOs are optional */
 	gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio, GPIOD_IS_IN);
 	gpio_request_by_name(dev, "wp-gpios", 0, &priv->wp_gpio, GPIOD_IS_IN);
 #endif
-
 	upriv->mmc = &plat->mmc;
-
-#ifdef CONFIG_SPL_BUILD
-	/*
-	 * FIXME This is a temporary workaround to enable the driver model in
-	 * SPL on omapl138-lcdk. For some reason the bind() callback is not
-	 * being called in SPL for MMC which breaks the mmc boot - the hack
-	 * is to call mmc_bind() from probe(). We also don't have full DT
-	 * support in SPL, hence the hard-coded base register address.
-	 */
-	priv->reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE;
-	ret = mmc_bind(dev, &plat->mmc, &plat->cfg);
-	if (ret)
-		return ret;
-#endif
 
 	return davinci_dm_mmc_init(dev);
 }
@@ -533,21 +500,44 @@ static int davinci_mmc_bind(struct udevice *dev)
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+static int davinci_mmc_ofdata_to_platdata(struct udevice *dev)
+{
+	struct davinci_mmc_plat *plat = dev_get_platdata(dev);
+	struct mmc_config *cfg = &plat->cfg;
+
+	plat->reg_base = (struct davinci_mmc_regs *)dev_read_addr(dev);
+	cfg->f_min = 200000;
+	cfg->f_max = 25000000;
+	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34,
+	cfg->host_caps = MMC_MODE_4BIT, /* DA850 supports only 4-bit SD/MMC */
+	cfg->b_max = DAVINCI_MAX_BLOCKS;
+	cfg->name = "da830-mmc";
+
+	return 0;
+}
+
 static const struct udevice_id davinci_mmc_ids[] = {
 	{ .compatible = "ti,da830-mmc" },
 	{},
 };
-
-U_BOOT_DRIVER(davinci_mmc_drv) = {
+#endif
+U_BOOT_DRIVER(ti_da830_mmc) = {
 	.name = "davinci_mmc",
 	.id		= UCLASS_MMC,
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match	= davinci_mmc_ids,
+	.platdata_auto_alloc_size = sizeof(struct davinci_mmc_plat),
+	.ofdata_to_platdata = davinci_mmc_ofdata_to_platdata,
+#endif
 #if CONFIG_BLK
 	.bind		= davinci_mmc_bind,
 #endif
 	.probe = davinci_mmc_probe,
 	.ops = &davinci_mmc_ops,
-	.platdata_auto_alloc_size = sizeof(struct davinci_mmc_plat),
 	.priv_auto_alloc_size = sizeof(struct davinci_mmc_priv),
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
+	.flags	= DM_FLAG_PRE_RELOC,
+#endif
 };
 #endif

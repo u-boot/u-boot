@@ -5,7 +5,7 @@
 	binman {
 		files {
 			pattern = "files/*.dat";
-			compress = "lz4";
+			files-compress = "lz4";
 		};
 	};
 };

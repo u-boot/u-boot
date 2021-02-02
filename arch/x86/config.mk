@@ -29,11 +29,11 @@ endif
 
 PLATFORM_RELFLAGS += -fdata-sections -ffunction-sections -fvisibility=hidden
 
-PLATFORM_LDFLAGS += -Bsymbolic -Bsymbolic-functions
-PLATFORM_LDFLAGS += -m $(if $(IS_32BIT),elf_i386,elf_x86_64)
+KBUILD_LDFLAGS += -Bsymbolic -Bsymbolic-functions
+KBUILD_LDFLAGS += -m $(if $(IS_32BIT),elf_i386,elf_x86_64)
 
 # This is used in the top-level Makefile which does not include
-# PLATFORM_LDFLAGS
+# KBUILD_LDFLAGS
 LDFLAGS_EFI_PAYLOAD := -Bsymbolic -Bsymbolic-functions -shared --no-undefined -s
 
 OBJCOPYFLAGS_EFI := -j .text -j .sdata -j .data -j .dynamic -j .dynsym \
@@ -71,7 +71,7 @@ LDSCRIPT := $(LDSCRIPT_EFI)
 else
 
 PLATFORM_CPPFLAGS += $(CFLAGS_NON_EFI)
-PLATFORM_LDFLAGS += --emit-relocs
+KBUILD_LDFLAGS += --emit-relocs
 LDFLAGS_FINAL += --gc-sections $(if $(CONFIG_SPL_BUILD),,-pie)
 
 endif

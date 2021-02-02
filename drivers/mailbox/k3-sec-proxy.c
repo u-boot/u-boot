@@ -7,7 +7,10 @@
  */
 
 #include <common.h>
+#include <log.h>
+#include <malloc.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <linux/types.h>
 #include <linux/bitops.h>
 #include <linux/soc/ti/k3-sec-proxy.h>
@@ -209,14 +212,16 @@ static int k3_sec_proxy_send(struct mbox_chan *chan, const void *data)
 
 	ret = k3_sec_proxy_verify_thread(spt, THREAD_IS_TX);
 	if (ret) {
-		dev_err(dev, "%s: Thread%d verification failed. ret = %d\n",
+		dev_err(chan->dev,
+			"%s: Thread%d verification failed. ret = %d\n",
 			__func__, spt->id, ret);
 		return ret;
 	}
 
 	/* Check the message size. */
 	if (msg->len > spm->desc->max_msg_size) {
-		printf("%s: Thread %ld message length %zu > max msg size %d\n",
+		dev_err(chan->dev,
+			"%s: Thread %ld message length %zu > max msg size %d\n",
 		       __func__, chan->id, msg->len, spm->desc->max_msg_size);
 		return -EINVAL;
 	}
@@ -291,7 +296,7 @@ static int k3_sec_proxy_recv(struct mbox_chan *chan, void *data)
 struct mbox_ops k3_sec_proxy_mbox_ops = {
 	.of_xlate = k3_sec_proxy_of_xlate,
 	.request = k3_sec_proxy_request,
-	.free = k3_sec_proxy_free,
+	.rfree = k3_sec_proxy_free,
 	.send = k3_sec_proxy_send,
 	.recv = k3_sec_proxy_recv,
 };

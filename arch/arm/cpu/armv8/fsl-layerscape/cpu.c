@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2017-2019 NXP
+ * Copyright 2017-2020 NXP
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  */
 
@@ -8,8 +8,14 @@
 #include <cpu_func.h>
 #include <env.h>
 #include <fsl_ddr_sdram.h>
+#include <init.h>
+#include <hang.h>
+#include <log.h>
+#include <net.h>
 #include <vsprintf.h>
+#include <asm/cache.h>
 #include <asm/io.h>
+#include <asm/ptrace.h>
 #include <linux/errno.h>
 #include <asm/system.h>
 #include <fm_eth.h>
@@ -73,6 +79,9 @@ static struct cpu_type cpu_type_list[] = {
 	CPU_TYPE_ENTRY(LX2160A, LX2160A, 16),
 	CPU_TYPE_ENTRY(LX2120A, LX2120A, 12),
 	CPU_TYPE_ENTRY(LX2080A, LX2080A, 8),
+	CPU_TYPE_ENTRY(LX2162A, LX2162A, 16),
+	CPU_TYPE_ENTRY(LX2122A, LX2122A, 12),
+	CPU_TYPE_ENTRY(LX2082A, LX2082A, 8),
 };
 
 #define EARLY_PGTABLE_SIZE 0x5000
@@ -397,7 +406,7 @@ void cpu_name(char *name)
 	for (i = 0; i < ARRAY_SIZE(cpu_type_list); i++)
 		if ((cpu_type_list[i].soc_ver & SVR_WO_E) == ver) {
 			strcpy(name, cpu_type_list[i].name);
-#ifdef CONFIG_ARCH_LX2160A
+#if defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LX2162A)
 			if (IS_C_PROCESSOR(svr))
 				strcat(name, "C");
 #endif
@@ -1034,13 +1043,13 @@ int print_cpuinfo(void)
 #endif
 
 #ifdef CONFIG_FSL_ESDHC
-int cpu_mmc_init(bd_t *bis)
+int cpu_mmc_init(struct bd_info *bis)
 {
 	return fsl_esdhc_mmc_init(bis);
 }
 #endif
 
-int cpu_eth_init(bd_t *bis)
+int cpu_eth_init(struct bd_info *bis)
 {
 	int error = 0;
 
@@ -1101,6 +1110,12 @@ static void config_core_prefetch(void)
 	}
 }
 
+#ifdef CONFIG_PCIE_ECAM_GENERIC
+__weak void set_ecam_icids(void)
+{
+}
+#endif
+
 int arch_early_init_r(void)
 {
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009635
@@ -1135,23 +1150,28 @@ int arch_early_init_r(void)
 	 * EC*_PMUX(rgmii) bits in RCW.
 	 * e.g. dpmac 17 and 18 in LX2160A can be configured as SGMII from
 	 * serdes bits and as RGMII via EC1_PMUX/EC2_PMUX bits
-	 * Now if a dpmac is enabled by serdes bits then it takes precedence
-	 * over EC*_PMUX bits. i.e. in LX2160A if we select serdes protocol
-	 * that configures dpmac17 as SGMII and set the EC1_PMUX as RGMII,
-	 * then the dpmac is SGMII and not RGMII.
+	 * Now if a dpmac is enabled as RGMII through ECx_PMUX then it takes
+	 * precedence over SerDes protocol. i.e. in LX2160A if we select serdes
+	 * protocol that configures dpmac17 as SGMII and set the EC1_PMUX as
+	 * RGMII, then the dpmac is RGMII and not SGMII.
 	 *
-	 * Therefore, move the fsl_rgmii_init after fsl_serdes_init. in
-	 * fsl_rgmii_init function of SOC, we will check if the dpmac is enabled
-	 * or not? if it is (fsl_serdes_init has already enabled the dpmac),
-	 * then don't enable it.
+	 * Therefore, even thought fsl_rgmii_init is after fsl_serdes_init
+	 * function of SOC, the dpmac will be enabled as RGMII even if it was
+	 * also enabled before as SGMII. If ECx_PMUX is not configured for
+	 * RGMII, DPMAC will remain configured as SGMII from fsl_serdes_init().
 	 */
 	fsl_rgmii_init();
 #endif
 #ifdef CONFIG_FMAN_ENET
+#ifndef CONFIG_DM_ETH
 	fman_enet_init();
+#endif
 #endif
 #ifdef CONFIG_SYS_DPAA_QBMAN
 	setup_qbman_portals();
+#endif
+#ifdef CONFIG_PCIE_ECAM_GENERIC
+	set_ecam_icids();
 #endif
 	return 0;
 }
@@ -1212,13 +1232,15 @@ __efi_runtime_data u32 __iomem *rstcr = (u32 *)CONFIG_SYS_FSL_RST_ADDR;
 
 void __efi_runtime reset_cpu(ulong addr)
 {
+#if defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LX2162A)
+	/* clear the RST_REQ_MSK and SW_RST_REQ */
+	out_le32(rstcr, 0x0);
+
+	/* initiate the sw reset request */
+	out_le32(rstcr, 0x1);
+#else
 	u32 val;
 
-#ifdef CONFIG_ARCH_LX2160A
-	val = in_le32(rstcr);
-	val |= 0x01;
-	out_le32(rstcr, val);
-#else
 	/* Raise RESET_REQ_B */
 	val = scfg_in32(rstcr);
 	val |= 0x02;
@@ -1368,7 +1390,7 @@ static int tfa_dram_init_banksize(void)
 	if (i > 0)
 		ret = 0;
 
-#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_RESV_RAM) && !defined(CONFIG_SPL_BUILD)
 	/* Assign memory for MC */
 #ifdef CONFIG_SYS_DDR_BLOCK3_BASE
 	if (gd->bd->bi_dram[2].size >=
@@ -1391,7 +1413,7 @@ static int tfa_dram_init_banksize(void)
 				board_reserve_ram_top(gd->bd->bi_dram[0].size);
 		}
 	}
-#endif	/* CONFIG_FSL_MC_ENET */
+#endif	/* CONFIG_RESV_RAM */
 
 	return ret;
 }
@@ -1454,7 +1476,7 @@ int dram_init_banksize(void)
 	}
 #endif	/* CONFIG_SYS_MEM_RESERVE_SECURE */
 
-#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_RESV_RAM) && !defined(CONFIG_SPL_BUILD)
 	/* Assign memory for MC */
 #ifdef CONFIG_SYS_DDR_BLOCK3_BASE
 	if (gd->bd->bi_dram[2].size >=
@@ -1477,7 +1499,7 @@ int dram_init_banksize(void)
 				board_reserve_ram_top(gd->bd->bi_dram[0].size);
 		}
 	}
-#endif	/* CONFIG_FSL_MC_ENET */
+#endif	/* CONFIG_RESV_RAM */
 
 #ifdef CONFIG_SYS_DP_DDR_BASE_PHY
 #ifdef CONFIG_SYS_DDR_BLOCK3_BASE
@@ -1516,9 +1538,8 @@ int dram_init_banksize(void)
 void efi_add_known_memory(void)
 {
 	int i;
-	phys_addr_t ram_start, start;
+	phys_addr_t ram_start;
 	phys_size_t ram_size;
-	u64 pages;
 
 	/* Add RAM */
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
@@ -1536,11 +1557,8 @@ void efi_add_known_memory(void)
 		    gd->arch.resv_ram < ram_start + ram_size)
 			ram_size = gd->arch.resv_ram - ram_start;
 #endif
-		start = (ram_start + EFI_PAGE_MASK) & ~EFI_PAGE_MASK;
-		pages = (ram_size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
-
-		efi_add_memory_map(start, pages, EFI_CONVENTIONAL_MEMORY,
-				   false);
+		efi_add_memory_map(ram_start, ram_size,
+				   EFI_CONVENTIONAL_MEMORY);
 	}
 }
 #endif
@@ -1621,3 +1639,17 @@ __weak int dram_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_ARCH_MISC_INIT
+__weak int serdes_misc_init(void)
+{
+	return 0;
+}
+
+int arch_misc_init(void)
+{
+	serdes_misc_init();
+
+	return 0;
+}
+#endif

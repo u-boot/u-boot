@@ -14,15 +14,12 @@
 
 #include "mx6_common.h"
 
-#define CONFIG_MX6Q
-
 /* Provide the MACH_TYPE value that the vendor kernel requires. */
 #define CONFIG_MACH_TYPE		3769
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(2 * 1024 * 1024)
 
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
 /* I2C Configs */
@@ -46,9 +43,6 @@
 #define CONFIG_MXC_USB_PORT	1
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS	0
-
-#define CONFIG_SYS_MEMTEST_START	0x10000000
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + (500 << 20))
 
 #define CONFIG_HOSTNAME			"titanium"
 #define CONFIG_UBI_PART			ubi
@@ -149,7 +143,6 @@
 #else /* CONFIG_CMD_NAND */
 
 /* Environment in MMC */
-#define CONFIG_SYS_MMC_ENV_DEV		0
 
 #endif /* CONFIG_CMD_NAND */
 

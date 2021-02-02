@@ -6,6 +6,8 @@
 #ifndef _CONFIG_MVEBU_ARMADA_37XX_H
 #define _CONFIG_MVEBU_ARMADA_37XX_H
 
+#include <linux/sizes.h>
+
 /*
  * High Level Configuration Options (easy to change)
  */
@@ -13,7 +15,7 @@
 /* additions for new ARM relocation support */
 #define CONFIG_SYS_SDRAM_BASE	0x00000000
 
-/* auto boot */
+#define CONFIG_SYS_BOOTM_LEN	SZ_64M /* Increase max gunzip size */
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, \
 					  115200, 230400, 460800, 921600 }
@@ -37,9 +39,7 @@
 /*
  * Other required minimal configurations
  */
-#define CONFIG_SYS_LOAD_ADDR	0x00800000	/* default load adr- 8M */
-#define CONFIG_SYS_MEMTEST_START 0x00800000	/* 8M */
-#define CONFIG_SYS_MEMTEST_END	0x00ffffff	/*(_16M -1) */
+#define CONFIG_SYS_LOAD_ADDR	0x06000000	/* default load adr */
 #define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
 #define CONFIG_SYS_MAXARGS	32	/* max number of command args */
 
@@ -55,21 +55,15 @@
 /*
  * SPI Flash configuration
  */
-
 #define CONFIG_MTD_PARTITIONS		/* required for UBI partition support */
-
-/* Environment in SPI NOR flash */
 
 /*
  * Ethernet Driver configuration
  */
-#define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
 #define CONFIG_ARP_TIMEOUT	200
 #define CONFIG_NET_RETRY_COUNT	50
 
 #define CONFIG_USB_MAX_CONTROLLER_COUNT (3 + 3)
-
-/* USB ethernet */
 
 /*
  * SATA/SCSI/AHCI configuration
@@ -93,12 +87,15 @@
 
 #include <config_distro_bootcmd.h>
 
+/* fdt_addr and kernel_addr are needed for existing distribution boot scripts */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-	"scriptaddr=0x4d00000\0"	\
-	"pxefile_addr_r=0x4e00000\0"	\
-	"fdt_addr_r=0x4f00000\0"	\
-	"kernel_addr_r=0x5000000\0"	\
-	"ramdisk_addr_r=0x8000000\0"	\
+	"scriptaddr=0x6d00000\0"	\
+	"pxefile_addr_r=0x6e00000\0"	\
+	"fdt_addr=0x6f00000\0"		\
+	"fdt_addr_r=0x6f00000\0"	\
+	"kernel_addr=0x7000000\0"	\
+	"kernel_addr_r=0x7000000\0"	\
+	"ramdisk_addr_r=0xa000000\0"	\
 	BOOTENV
 
 #endif /* _CONFIG_MVEBU_ARMADA_37XX_H */

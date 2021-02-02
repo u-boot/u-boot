@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
@@ -26,6 +27,7 @@
 #include <fsl_esdhc_imx.h>
 #include <i2c.h>
 #include <input.h>
+#include <linux/delay.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
 #include <linux/fb.h>
@@ -254,7 +256,7 @@ int power_init_board(void)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	struct phy_device *phydev;
 	struct mii_dev *bus;
@@ -444,7 +446,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return ret;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 #ifndef CONFIG_SPL_BUILD
 	s32 status = 0;
@@ -623,6 +625,11 @@ int board_video_skip(void)
 	}
 
 	return 0;
+}
+
+int ipu_displays_init(void)
+{
+	return board_video_skip();
 }
 
 static void setup_display(void)

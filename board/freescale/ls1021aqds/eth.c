@@ -14,6 +14,7 @@
  */
 
 #include <common.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/arch/fsl_serdes.h>
 #include <fsl_mdio.h>
@@ -128,7 +129,7 @@ static int ls1021a_mdio_init(char *realbusname, char *fakebusname)
 	return mdio_register(bus);
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	struct fsl_pq_mdio_info mdio_info;
 	struct tsec_info_struct tsec_info[3];

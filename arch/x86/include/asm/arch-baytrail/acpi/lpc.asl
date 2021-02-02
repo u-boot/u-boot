@@ -136,20 +136,20 @@ Device (LPCB)
 			Store(0, C1EN)
 		}
 
+		Name(BUF0, ResourceTemplate()
+		{
+			IO(Decode16, 0x03f8, 0x03f8, 0x01, 0x08)
+			IRQNoFlags() { 3 }
+		})
+
+		Name(BUF1, ResourceTemplate()
+		{
+			IO(Decode16, 0x03f8, 0x03f8, 0x01, 0x08)
+			IRQNoFlags() { 4 }
+		})
+
 		Method(_CRS, 0, Serialized)
 		{
-			Name(BUF0, ResourceTemplate()
-			{
-				IO(Decode16, 0x03f8, 0x03f8, 0x01, 0x08)
-				IRQNoFlags() { 3 }
-			})
-
-			Name(BUF1, ResourceTemplate()
-			{
-				IO(Decode16, 0x03f8, 0x03f8, 0x01, 0x08)
-				IRQNoFlags() { 4 }
-			})
-
 			If (LLessEqual(SRID, 0x04)) {
 				Return (BUF0)
 			} Else {

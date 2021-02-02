@@ -11,10 +11,12 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <log.h>
 #include <mmc.h>
 #include <part.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/byteorder.h>
 #include <asm/arch/clk.h>
@@ -590,7 +592,7 @@ static int atmel_mci_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	plat->mci = (struct atmel_mci *)devfdt_get_addr_ptr(dev);
+	plat->mci = dev_read_addr_ptr(dev);
 
 	atmel_mci_setup_cfg(dev);
 

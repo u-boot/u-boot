@@ -6,12 +6,15 @@
  * based on arch/powerpc/include/asm/mpc85xx_gpio.h, which is
  *
  * Copyright 2010 eXMeritus, A Boeing Company
+ * Copyright 2020 NXP
  */
 
 #include <common.h>
 #include <dm.h>
 #include <mapmem.h>
 #include <asm/gpio.h>
+#include <asm/io.h>
+#include <dm/of_access.h>
 
 struct ccsr_gpio {
 	u32	gpdir;
@@ -20,6 +23,7 @@ struct ccsr_gpio {
 	u32	gpier;
 	u32	gpimr;
 	u32	gpicr;
+	u32	gpibe;
 };
 
 struct mpc8xxx_gpio_data {
@@ -35,6 +39,7 @@ struct mpc8xxx_gpio_data {
 	 */
 	u32 dat_shadow;
 	ulong type;
+	bool  little_endian;
 };
 
 enum {
@@ -47,75 +52,100 @@ inline u32 gpio_mask(uint gpio)
 	return (1U << (31 - (gpio)));
 }
 
-static inline u32 mpc8xxx_gpio_get_val(struct ccsr_gpio *base, u32 mask)
+static inline u32 mpc8xxx_gpio_get_val(struct udevice *dev, u32 mask)
 {
-	return in_be32(&base->gpdat) & mask;
+	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
+
+	if (data->little_endian)
+		return in_le32(&data->base->gpdat) & mask;
+	else
+		return in_be32(&data->base->gpdat) & mask;
 }
 
-static inline u32 mpc8xxx_gpio_get_dir(struct ccsr_gpio *base, u32 mask)
+static inline u32 mpc8xxx_gpio_get_dir(struct udevice *dev, u32 mask)
 {
-	return in_be32(&base->gpdir) & mask;
+	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
+
+	if (data->little_endian)
+		return in_le32(&data->base->gpdir) & mask;
+	else
+		return in_be32(&data->base->gpdir) & mask;
 }
 
-static inline void mpc8xxx_gpio_set_in(struct ccsr_gpio *base, u32 gpios)
+static inline int mpc8xxx_gpio_open_drain_val(struct udevice *dev, u32 mask)
 {
-	clrbits_be32(&base->gpdat, gpios);
-	/* GPDIR register 0 -> input */
-	clrbits_be32(&base->gpdir, gpios);
+	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
+
+	if (data->little_endian)
+		return in_le32(&data->base->gpodr) & mask;
+	else
+		return in_be32(&data->base->gpodr) & mask;
 }
 
-static inline void mpc8xxx_gpio_set_low(struct ccsr_gpio *base, u32 gpios)
-{
-	clrbits_be32(&base->gpdat, gpios);
-	/* GPDIR register 1 -> output */
-	setbits_be32(&base->gpdir, gpios);
-}
-
-static inline void mpc8xxx_gpio_set_high(struct ccsr_gpio *base, u32 gpios)
-{
-	setbits_be32(&base->gpdat, gpios);
-	/* GPDIR register 1 -> output */
-	setbits_be32(&base->gpdir, gpios);
-}
-
-static inline int mpc8xxx_gpio_open_drain_val(struct ccsr_gpio *base, u32 mask)
-{
-	return in_be32(&base->gpodr) & mask;
-}
-
-static inline void mpc8xxx_gpio_open_drain_on(struct ccsr_gpio *base, u32
+static inline void mpc8xxx_gpio_open_drain_on(struct udevice *dev, u32
 					      gpios)
 {
+	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
 	/* GPODR register 1 -> open drain on */
-	setbits_be32(&base->gpodr, gpios);
+	if (data->little_endian)
+		setbits_le32(&data->base->gpodr, gpios);
+	else
+		setbits_be32(&data->base->gpodr, gpios);
 }
 
-static inline void mpc8xxx_gpio_open_drain_off(struct ccsr_gpio *base,
+static inline void mpc8xxx_gpio_open_drain_off(struct udevice *dev,
 					       u32 gpios)
 {
+	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
 	/* GPODR register 0 -> open drain off (actively driven) */
-	clrbits_be32(&base->gpodr, gpios);
+	if (data->little_endian)
+		clrbits_le32(&data->base->gpodr, gpios);
+	else
+		clrbits_be32(&data->base->gpodr, gpios);
 }
 
 static int mpc8xxx_gpio_direction_input(struct udevice *dev, uint gpio)
 {
 	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
+	u32 mask = gpio_mask(gpio);
 
-	mpc8xxx_gpio_set_in(data->base, gpio_mask(gpio));
+	/* GPDIR register 0 -> input */
+	if (data->little_endian)
+		clrbits_le32(&data->base->gpdir, mask);
+	else
+		clrbits_be32(&data->base->gpdir, mask);
+
 	return 0;
 }
 
 static int mpc8xxx_gpio_set_value(struct udevice *dev, uint gpio, int value)
 {
 	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
+	struct ccsr_gpio *base = data->base;
+	u32 mask = gpio_mask(gpio);
+	u32 gpdir;
 
 	if (value) {
-		data->dat_shadow |= gpio_mask(gpio);
-		mpc8xxx_gpio_set_high(data->base, gpio_mask(gpio));
+		data->dat_shadow |= mask;
 	} else {
-		data->dat_shadow &= ~gpio_mask(gpio);
-		mpc8xxx_gpio_set_low(data->base, gpio_mask(gpio));
+		data->dat_shadow &= ~mask;
 	}
+
+	if (data->little_endian)
+		gpdir = in_le32(&base->gpdir);
+	else
+		gpdir = in_be32(&base->gpdir);
+
+	gpdir |= gpio_mask(gpio);
+
+	if (data->little_endian) {
+		out_le32(&base->gpdat, gpdir & data->dat_shadow);
+		out_le32(&base->gpdir, gpdir);
+	} else {
+		out_be32(&base->gpdat, gpdir & data->dat_shadow);
+		out_be32(&base->gpdir, gpdir);
+	}
+
 	return 0;
 }
 
@@ -135,41 +165,20 @@ static int mpc8xxx_gpio_get_value(struct udevice *dev, uint gpio)
 {
 	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
 
-	if (!!mpc8xxx_gpio_get_dir(data->base, gpio_mask(gpio))) {
+	if (!!mpc8xxx_gpio_get_dir(dev, gpio_mask(gpio))) {
 		/* Output -> use shadowed value */
 		return !!(data->dat_shadow & gpio_mask(gpio));
 	}
 
 	/* Input -> read value from GPDAT register */
-	return !!mpc8xxx_gpio_get_val(data->base, gpio_mask(gpio));
-}
-
-static int mpc8xxx_gpio_get_open_drain(struct udevice *dev, uint gpio)
-{
-	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
-
-	return !!mpc8xxx_gpio_open_drain_val(data->base, gpio_mask(gpio));
-}
-
-static int mpc8xxx_gpio_set_open_drain(struct udevice *dev, uint gpio,
-				       int value)
-{
-	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
-
-	if (value)
-		mpc8xxx_gpio_open_drain_on(data->base, gpio_mask(gpio));
-	else
-		mpc8xxx_gpio_open_drain_off(data->base, gpio_mask(gpio));
-
-	return 0;
+	return !!mpc8xxx_gpio_get_val(dev, gpio_mask(gpio));
 }
 
 static int mpc8xxx_gpio_get_function(struct udevice *dev, uint gpio)
 {
-	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
 	int dir;
 
-	dir = !!mpc8xxx_gpio_get_dir(data->base, gpio_mask(gpio));
+	dir = !!mpc8xxx_gpio_get_dir(dev, gpio_mask(gpio));
 	return dir ? GPIOF_OUTPUT : GPIOF_INPUT;
 }
 
@@ -177,14 +186,33 @@ static int mpc8xxx_gpio_get_function(struct udevice *dev, uint gpio)
 static int mpc8xxx_gpio_ofdata_to_platdata(struct udevice *dev)
 {
 	struct mpc8xxx_gpio_plat *plat = dev_get_platdata(dev);
+	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
 	fdt_addr_t addr;
-	u32 reg[2];
+	u32 i;
+	u32 reg[4];
 
-	dev_read_u32_array(dev, "reg", reg, 2);
+	if (ofnode_read_bool(dev->node, "little-endian"))
+		data->little_endian = true;
+
+	if (data->little_endian)
+		dev_read_u32_array(dev, "reg", reg, 4);
+	else
+		dev_read_u32_array(dev, "reg", reg, 2);
+
+	if (data->little_endian) {
+		for (i = 0; i < 2; i++)
+			reg[i] = be32_to_cpu(reg[i]);
+	}
+
 	addr = dev_translate_address(dev, reg);
 
 	plat->addr = addr;
-	plat->size = reg[1];
+
+	if (data->little_endian)
+		plat->size = reg[3];
+	else
+		plat->size = reg[1];
+
 	plat->ngpios = dev_read_u32_default(dev, "ngpios", 32);
 
 	return 0;
@@ -229,6 +257,13 @@ static int mpc8xxx_gpio_probe(struct udevice *dev)
 	if (!str)
 		return -ENOMEM;
 
+	if (ofnode_device_is_compatible(dev->node, "fsl,qoriq-gpio")) {
+		unsigned long gpibe = data->addr + sizeof(struct ccsr_gpio)
+			- sizeof(u32);
+
+		out_be32((unsigned int *)gpibe, 0xffffffff);
+	}
+
 	uc_priv->bank_name = str;
 	uc_priv->gpio_count = data->gpio_count;
 
@@ -240,8 +275,6 @@ static const struct dm_gpio_ops gpio_mpc8xxx_ops = {
 	.direction_output	= mpc8xxx_gpio_direction_output,
 	.get_value		= mpc8xxx_gpio_get_value,
 	.set_value		= mpc8xxx_gpio_set_value,
-	.get_open_drain		= mpc8xxx_gpio_get_open_drain,
-	.set_open_drain		= mpc8xxx_gpio_set_open_drain,
 	.get_function		= mpc8xxx_gpio_get_function,
 };
 

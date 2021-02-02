@@ -5,11 +5,11 @@
 # Entry-type module for a Flash map, as used by the flashrom SPI flash tool
 #
 
-from entry import Entry
-import fmap_util
-import tools
-from tools import ToHexSize
-import tout
+from binman.entry import Entry
+from binman import fmap_util
+from patman import tools
+from patman.tools import ToHexSize
+from patman import tout
 
 
 class Entry_fmap(Entry):
@@ -32,7 +32,7 @@ class Entry_fmap(Entry):
     the sub-entries are ignored.
     """
     def __init__(self, section, etype, node):
-        Entry.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def _GetFmap(self):
         """Build an FMAP from the entries in the current image

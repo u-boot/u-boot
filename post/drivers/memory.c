@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 
 /* Memory test
  *
@@ -469,7 +470,7 @@ static int memory_post_tests(unsigned long start, unsigned long size)
 __attribute__((weak))
 int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
 {
-	bd_t *bd = gd->bd;
+	struct bd_info *bd = gd->bd;
 
 	*vstart = CONFIG_SYS_SDRAM_BASE;
 	*size = (gd->ram_size >= 256 << 20 ?

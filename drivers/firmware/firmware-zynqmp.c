@@ -7,7 +7,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <zynqmp_firmware.h>
+#include <asm/cache.h>
+#include <asm/ptrace.h>
 
 #if defined(CONFIG_ZYNQMP_IPI)
 #include <mailbox.h>
@@ -162,6 +165,14 @@ int __maybe_unused xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 		 */
 		u32 regs[] = {api_id, arg0, arg1, arg2, arg3};
 
+		if (api_id == PM_FPGA_LOAD) {
+			/* Swap addr_hi/low because of incompatibility */
+			u32 temp = regs[1];
+
+			regs[1] = regs[2];
+			regs[2] = temp;
+		}
+
 		ipi_req(regs, PAYLOAD_ARG_CNT, ret_payload, PAYLOAD_ARG_CNT);
 #else
 		return -EPERM;
@@ -199,6 +210,6 @@ static const struct udevice_id zynqmp_firmware_ids[] = {
 
 U_BOOT_DRIVER(zynqmp_firmware) = {
 	.id = UCLASS_FIRMWARE,
-	.name = "zynqmp-firmware",
+	.name = "zynqmp_firmware",
 	.of_match = zynqmp_firmware_ids,
 };

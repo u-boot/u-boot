@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <fs.h>
 #include <i2c.h>

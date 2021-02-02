@@ -9,8 +9,12 @@
 #include <clk.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
+#include <malloc.h>
 #include <usb.h>
 #include <wait_bit.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
 
 #include <usb/xhci.h>
 #include "xhci-rcar-r8a779x_usb3_v3.h"
@@ -132,7 +136,7 @@ static int xhci_rcar_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rcar_xhci_platdata *plat = dev_get_platdata(dev);
 
-	plat->hcd_base = devfdt_get_addr(dev);
+	plat->hcd_base = dev_read_addr(dev);
 	if (plat->hcd_base == FDT_ADDR_T_NONE) {
 		debug("Can't get the XHCI register base address\n");
 		return -ENXIO;
@@ -142,6 +146,7 @@ static int xhci_rcar_ofdata_to_platdata(struct udevice *dev)
 }
 
 static const struct udevice_id xhci_rcar_ids[] = {
+	{ .compatible = "renesas,rcar-gen3-xhci" },
 	{ .compatible = "renesas,xhci-r8a7795" },
 	{ .compatible = "renesas,xhci-r8a7796" },
 	{ .compatible = "renesas,xhci-r8a77965" },

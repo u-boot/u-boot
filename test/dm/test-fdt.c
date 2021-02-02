@@ -7,15 +7,18 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <dm/test.h>
 #include <dm/root.h>
 #include <dm/device-internal.h>
+#include <dm/devres.h>
 #include <dm/uclass-internal.h>
 #include <dm/util.h>
 #include <dm/lists.h>
 #include <dm/of_access.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -153,6 +156,64 @@ UCLASS_DRIVER(testprobe) = {
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
 
+struct dm_testdevres_pdata {
+	void *ptr;
+};
+
+struct dm_testdevres_priv {
+	void *ptr;
+	void *ptr_ofdata;
+};
+
+static int testdevres_drv_bind(struct udevice *dev)
+{
+	struct dm_testdevres_pdata *pdata = dev_get_platdata(dev);
+
+	pdata->ptr = devm_kmalloc(dev, TEST_DEVRES_SIZE, 0);
+
+	return 0;
+}
+
+static int testdevres_drv_ofdata_to_platdata(struct udevice *dev)
+{
+	struct dm_testdevres_priv *priv = dev_get_priv(dev);
+
+	priv->ptr_ofdata = devm_kmalloc(dev, TEST_DEVRES_SIZE3, 0);
+
+	return 0;
+}
+
+static int testdevres_drv_probe(struct udevice *dev)
+{
+	struct dm_testdevres_priv *priv = dev_get_priv(dev);
+
+	priv->ptr = devm_kmalloc(dev, TEST_DEVRES_SIZE2, 0);
+
+	return 0;
+}
+
+static const struct udevice_id testdevres_ids[] = {
+	{ .compatible = "denx,u-boot-devres-test" },
+	{ }
+};
+
+U_BOOT_DRIVER(testdevres_drv) = {
+	.name	= "testdevres_drv",
+	.of_match	= testdevres_ids,
+	.id	= UCLASS_TEST_DEVRES,
+	.bind	= testdevres_drv_bind,
+	.ofdata_to_platdata	= testdevres_drv_ofdata_to_platdata,
+	.probe	= testdevres_drv_probe,
+	.platdata_auto_alloc_size	= sizeof(struct dm_testdevres_pdata),
+	.priv_auto_alloc_size	= sizeof(struct dm_testdevres_priv),
+};
+
+UCLASS_DRIVER(testdevres) = {
+	.name		= "testdevres",
+	.id		= UCLASS_TEST_DEVRES,
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
+};
+
 int dm_check_devices(struct unit_test_state *uts, int num_devices)
 {
 	struct udevice *dev;
@@ -190,13 +251,13 @@ int dm_check_devices(struct unit_test_state *uts, int num_devices)
 /* Test that FDT-based binding works correctly */
 static int dm_test_fdt(struct unit_test_state *uts)
 {
-	const int num_devices = 8;
+	const int num_devices = 9;
 	struct udevice *dev;
 	struct uclass *uc;
 	int ret;
 	int i;
 
-	ret = dm_scan_fdt(gd->fdt_blob, false);
+	ret = dm_extended_scan_fdt(gd->fdt_blob, false);
 	ut_assert(!ret);
 
 	ret = uclass_get(UCLASS_TEST_FDT, &uc);
@@ -227,7 +288,7 @@ static int dm_test_alias_highest_id(struct unit_test_state *uts)
 	ut_asserteq(5, ret);
 
 	ret = dev_read_alias_highest_id("gpio");
-	ut_asserteq(2, ret);
+	ut_asserteq(3, ret);
 
 	ret = dev_read_alias_highest_id("pci");
 	ut_asserteq(2, ret);
@@ -301,23 +362,35 @@ static int dm_test_fdt_uclass_seq(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 2, &dev));
 	ut_asserteq_str("d-test", dev->name);
 
-	/* d-test actually gets 0 */
-	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 0, &dev));
+	/*
+	 * d-test actually gets 9, because thats the next free one after the
+	 * aliases.
+	 */
+	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 9, &dev));
 	ut_asserteq_str("d-test", dev->name);
 
-	/* initially no one wants seq 1 */
-	ut_asserteq(-ENODEV, uclass_get_device_by_seq(UCLASS_TEST_FDT, 1,
+	/* initially no one wants seq 10 */
+	ut_asserteq(-ENODEV, uclass_get_device_by_seq(UCLASS_TEST_FDT, 10,
 						      &dev));
 	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 4, &dev));
 
 	/* But now that it is probed, we can find it */
-	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 1, &dev));
+	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 10, &dev));
 	ut_asserteq_str("f-test", dev->name);
+
+	/*
+	 * And we should still have holes in our sequence numbers, that is 2
+	 * and 4 should not be used.
+	 */
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 2,
+						       true, &dev));
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 4,
+						       true, &dev));
 
 	return 0;
 }
-DM_TEST(dm_test_fdt_uclass_seq, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_fdt_uclass_seq, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that we can find a device by device tree offset */
 static int dm_test_fdt_offset(struct unit_test_state *uts)
@@ -347,7 +420,7 @@ static int dm_test_fdt_offset(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_fdt_offset,
-	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT | DM_TESTF_FLAT_TREE);
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_FLAT_TREE);
 
 /**
  * Test various error conditions with uclass_first_device() and
@@ -388,7 +461,28 @@ static int dm_test_first_next_device(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_first_next_device, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_first_next_device, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Test iteration through devices in a uclass */
+static int dm_test_uclass_foreach(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+	int count;
+
+	count = 0;
+	uclass_id_foreach_dev(UCLASS_TEST_FDT, dev, uc)
+		count++;
+	ut_asserteq(9, count);
+
+	count = 0;
+	uclass_foreach_dev(dev, uc)
+		count++;
+	ut_asserteq(9, count);
+
+	return 0;
+}
+DM_TEST(dm_test_uclass_foreach, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /**
  * check_devices() - Check return values and pointers
@@ -468,7 +562,7 @@ static int dm_test_first_next_ok_device(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_first_next_ok_device, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_first_next_ok_device, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 static const struct udevice_id fdt_dummy_ids[] = {
 	{ .compatible = "denx,u-boot-fdt-dummy", },
@@ -523,7 +617,25 @@ static int dm_test_fdt_translation(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_fdt_translation, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_fdt_translation, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_fdt_get_addr_ptr_flat(struct unit_test_state *uts)
+{
+	struct udevice *gpio, *dev;
+	void *ptr;
+
+	/* Test for missing reg property */
+	ut_assertok(uclass_first_device_err(UCLASS_GPIO, &gpio));
+	ut_assertnull(devfdt_get_addr_ptr(gpio));
+
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, true, &dev));
+	ptr = devfdt_get_addr_ptr(dev);
+	ut_asserteq_ptr((void *)0x8000, ptr);
+
+	return 0;
+}
+DM_TEST(dm_test_fdt_get_addr_ptr_flat,
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_FLAT_TREE);
 
 static int dm_test_fdt_remap_addr_flat(struct unit_test_state *uts)
 {
@@ -543,7 +655,7 @@ static int dm_test_fdt_remap_addr_flat(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_fdt_remap_addr_flat,
-	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT | DM_TESTF_FLAT_TREE);
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_FLAT_TREE);
 
 static int dm_test_fdt_remap_addr_index_flat(struct unit_test_state *uts)
 {
@@ -565,7 +677,7 @@ static int dm_test_fdt_remap_addr_index_flat(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_fdt_remap_addr_index_flat,
-	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT | DM_TESTF_FLAT_TREE);
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_FLAT_TREE);
 
 static int dm_test_fdt_remap_addr_name_flat(struct unit_test_state *uts)
 {
@@ -587,7 +699,7 @@ static int dm_test_fdt_remap_addr_name_flat(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_fdt_remap_addr_name_flat,
-	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT | DM_TESTF_FLAT_TREE);
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_FLAT_TREE);
 
 static int dm_test_fdt_remap_addr_live(struct unit_test_state *uts)
 {
@@ -607,7 +719,7 @@ static int dm_test_fdt_remap_addr_live(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_fdt_remap_addr_live,
-	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 static int dm_test_fdt_remap_addr_index_live(struct unit_test_state *uts)
 {
@@ -629,7 +741,7 @@ static int dm_test_fdt_remap_addr_index_live(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_fdt_remap_addr_index_live,
-	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 static int dm_test_fdt_remap_addr_name_live(struct unit_test_state *uts)
 {
@@ -651,7 +763,7 @@ static int dm_test_fdt_remap_addr_name_live(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_fdt_remap_addr_name_live,
-	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 static int dm_test_fdt_livetree_writing(struct unit_test_state *uts)
 {
@@ -703,7 +815,7 @@ static int dm_test_fdt_livetree_writing(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_fdt_livetree_writing, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_fdt_livetree_writing, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 static int dm_test_fdt_disable_enable_by_path(struct unit_test_state *uts)
 {
@@ -730,8 +842,8 @@ static int dm_test_fdt_disable_enable_by_path(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_fdt_disable_enable_by_path, DM_TESTF_SCAN_PDATA |
-					    DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_fdt_disable_enable_by_path, UT_TESTF_SCAN_PDATA |
+					    UT_TESTF_SCAN_FDT);
 
 /* Test a few uclass phandle functions */
 static int dm_test_fdt_phandle(struct unit_test_state *uts)
@@ -739,10 +851,12 @@ static int dm_test_fdt_phandle(struct unit_test_state *uts)
 	struct udevice *back, *dev, *dev2;
 
 	ut_assertok(uclass_find_first_device(UCLASS_PANEL_BACKLIGHT, &back));
+	ut_assertnonnull(back);
 	ut_asserteq(-ENOENT, uclass_find_device_by_phandle(UCLASS_REGULATOR,
 							back, "missing", &dev));
 	ut_assertok(uclass_find_device_by_phandle(UCLASS_REGULATOR, back,
 						  "power-supply", &dev));
+	ut_assertnonnull(dev);
 	ut_asserteq(0, device_active(dev));
 	ut_asserteq_str("ldo1", dev->name);
 	ut_assertok(uclass_get_device_by_phandle(UCLASS_REGULATOR, back,
@@ -751,7 +865,7 @@ static int dm_test_fdt_phandle(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_fdt_phandle, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_fdt_phandle, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test device_find_first_child_by_uclass() */
 static int dm_test_first_child(struct unit_test_state *uts)
@@ -778,7 +892,7 @@ static int dm_test_first_child(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_first_child, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_first_child, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test integer functions in dm_read_...() */
 static int dm_test_read_int(struct unit_test_state *uts)
@@ -787,6 +901,7 @@ static int dm_test_read_int(struct unit_test_state *uts)
 	u32 val32;
 	s32 sval;
 	uint val;
+	u64 val64;
 
 	ut_assertok(uclass_first_device_err(UCLASS_TEST_FDT, &dev));
 	ut_asserteq_str("a-test", dev->name);
@@ -811,6 +926,193 @@ static int dm_test_read_int(struct unit_test_state *uts)
 	ut_assertok(dev_read_u32u(dev, "uint-value", &val));
 	ut_asserteq(-1234, val);
 
+	ut_assertok(dev_read_u64(dev, "int64-value", &val64));
+	ut_asserteq_64(0x1111222233334444, val64);
+
+	ut_asserteq_64(-EINVAL, dev_read_u64(dev, "missing", &val64));
+	ut_asserteq_64(6, dev_read_u64_default(dev, "missing", 6));
+
+	ut_asserteq_64(0x1111222233334444,
+		       dev_read_u64_default(dev, "int64-value", 6));
+
 	return 0;
 }
-DM_TEST(dm_test_read_int, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_read_int, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_read_int_index(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	u32 val32;
+
+	ut_assertok(uclass_first_device_err(UCLASS_TEST_FDT, &dev));
+	ut_asserteq_str("a-test", dev->name);
+
+	ut_asserteq(-EINVAL, dev_read_u32_index(dev, "missing", 0, &val32));
+	ut_asserteq(19, dev_read_u32_index_default(dev, "missing", 0, 19));
+
+	ut_assertok(dev_read_u32_index(dev, "int-array", 0, &val32));
+	ut_asserteq(5678, val32);
+	ut_assertok(dev_read_u32_index(dev, "int-array", 1, &val32));
+	ut_asserteq(9123, val32);
+	ut_assertok(dev_read_u32_index(dev, "int-array", 2, &val32));
+	ut_asserteq(4567, val32);
+	ut_asserteq(-EOVERFLOW, dev_read_u32_index(dev, "int-array", 3,
+						   &val32));
+
+	ut_asserteq(5678, dev_read_u32_index_default(dev, "int-array", 0, 2));
+	ut_asserteq(9123, dev_read_u32_index_default(dev, "int-array", 1, 2));
+	ut_asserteq(4567, dev_read_u32_index_default(dev, "int-array", 2, 2));
+	ut_asserteq(2, dev_read_u32_index_default(dev, "int-array", 3, 2));
+
+	return 0;
+}
+DM_TEST(dm_test_read_int_index, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_read_phandle(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct ofnode_phandle_args args;
+	int ret;
+	const char prop[] = "test-gpios";
+	const char cell[] = "#gpio-cells";
+	const char prop2[] = "phandle-value";
+
+	ut_assertok(uclass_first_device_err(UCLASS_TEST_FDT, &dev));
+	ut_asserteq_str("a-test", dev->name);
+
+	/* Test dev_count_phandle_with_args with cell name */
+	ret = dev_count_phandle_with_args(dev, "missing", cell, 0);
+	ut_asserteq(-ENOENT, ret);
+	ret = dev_count_phandle_with_args(dev, prop, "#invalid", 0);
+	ut_asserteq(-EINVAL, ret);
+	ut_asserteq(5, dev_count_phandle_with_args(dev, prop, cell, 0));
+
+	/* Test dev_read_phandle_with_args with cell name */
+	ret = dev_read_phandle_with_args(dev, "missing", cell, 0, 0, &args);
+	ut_asserteq(-ENOENT, ret);
+	ret = dev_read_phandle_with_args(dev, prop, "#invalid", 0, 0, &args);
+	ut_asserteq(-EINVAL, ret);
+	ut_assertok(dev_read_phandle_with_args(dev, prop, cell, 0, 0, &args));
+	ut_asserteq(1, args.args_count);
+	ut_asserteq(1, args.args[0]);
+	ut_assertok(dev_read_phandle_with_args(dev, prop, cell, 0, 1, &args));
+	ut_asserteq(1, args.args_count);
+	ut_asserteq(4, args.args[0]);
+	ut_assertok(dev_read_phandle_with_args(dev, prop, cell, 0, 2, &args));
+	ut_asserteq(5, args.args_count);
+	ut_asserteq(5, args.args[0]);
+	ut_asserteq(1, args.args[4]);
+	ret = dev_read_phandle_with_args(dev, prop, cell, 0, 3, &args);
+	ut_asserteq(-ENOENT, ret);
+	ut_assertok(dev_read_phandle_with_args(dev, prop, cell, 0, 4, &args));
+	ut_asserteq(1, args.args_count);
+	ut_asserteq(12, args.args[0]);
+	ret = dev_read_phandle_with_args(dev, prop, cell, 0, 5, &args);
+	ut_asserteq(-ENOENT, ret);
+
+	/* Test dev_count_phandle_with_args with cell count */
+	ret = dev_count_phandle_with_args(dev, "missing", NULL, 2);
+	ut_asserteq(-ENOENT, ret);
+	ut_asserteq(3, dev_count_phandle_with_args(dev, prop2, NULL, 1));
+
+	/* Test dev_read_phandle_with_args with cell count */
+	ut_assertok(dev_read_phandle_with_args(dev, prop2, NULL, 1, 0, &args));
+	ut_asserteq(1, ofnode_valid(args.node));
+	ut_asserteq(1, args.args_count);
+	ut_asserteq(10, args.args[0]);
+	ret = dev_read_phandle_with_args(dev, prop2, NULL, 1, 1, &args);
+	ut_asserteq(-EINVAL, ret);
+	ut_assertok(dev_read_phandle_with_args(dev, prop2, NULL, 1, 2, &args));
+	ut_asserteq(1, ofnode_valid(args.node));
+	ut_asserteq(1, args.args_count);
+	ut_asserteq(30, args.args[0]);
+	ret = dev_read_phandle_with_args(dev, prop2, NULL, 1, 3, &args);
+	ut_asserteq(-ENOENT, ret);
+
+	return 0;
+}
+DM_TEST(dm_test_read_phandle, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Test iteration through devices by drvdata */
+static int dm_test_uclass_drvdata(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	ut_assertok(uclass_first_device_drvdata(UCLASS_TEST_FDT,
+						DM_TEST_TYPE_FIRST, &dev));
+	ut_asserteq_str("a-test", dev->name);
+
+	ut_assertok(uclass_first_device_drvdata(UCLASS_TEST_FDT,
+						DM_TEST_TYPE_SECOND, &dev));
+	ut_asserteq_str("d-test", dev->name);
+
+	ut_asserteq(-ENODEV, uclass_first_device_drvdata(UCLASS_TEST_FDT,
+							 DM_TEST_TYPE_COUNT,
+							 &dev));
+
+	return 0;
+}
+DM_TEST(dm_test_uclass_drvdata, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Test device_first_child_ofdata_err(), etc. */
+static int dm_test_child_ofdata(struct unit_test_state *uts)
+{
+	struct udevice *bus, *dev;
+	int count;
+
+	ut_assertok(uclass_first_device_err(UCLASS_TEST_BUS, &bus));
+	count = 0;
+	device_foreach_child_ofdata_to_platdata(dev, bus) {
+		ut_assert(dev->flags & DM_FLAG_PLATDATA_VALID);
+		ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
+		count++;
+	}
+	ut_asserteq(3, count);
+
+	return 0;
+}
+DM_TEST(dm_test_child_ofdata, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Test device_first_child_err(), etc. */
+static int dm_test_first_child_probe(struct unit_test_state *uts)
+{
+	struct udevice *bus, *dev;
+	int count;
+
+	ut_assertok(uclass_first_device_err(UCLASS_TEST_BUS, &bus));
+	count = 0;
+	device_foreach_child_probe(dev, bus) {
+		ut_assert(dev->flags & DM_FLAG_PLATDATA_VALID);
+		ut_assert(dev->flags & DM_FLAG_ACTIVATED);
+		count++;
+	}
+	ut_asserteq(3, count);
+
+	return 0;
+}
+DM_TEST(dm_test_first_child_probe, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Test that ofdata is read for parents before children */
+static int dm_test_ofdata_order(struct unit_test_state *uts)
+{
+	struct udevice *bus, *dev;
+
+	ut_assertok(uclass_find_first_device(UCLASS_I2C, &bus));
+	ut_assertnonnull(bus);
+	ut_assert(!(bus->flags & DM_FLAG_PLATDATA_VALID));
+
+	ut_assertok(device_find_first_child(bus, &dev));
+	ut_assertnonnull(dev);
+	ut_assert(!(dev->flags & DM_FLAG_PLATDATA_VALID));
+
+	/* read the child's ofdata which should cause the parent's to be read */
+	ut_assertok(device_ofdata_to_platdata(dev));
+	ut_assert(dev->flags & DM_FLAG_PLATDATA_VALID);
+	ut_assert(bus->flags & DM_FLAG_PLATDATA_VALID);
+
+	ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
+	ut_assert(!(bus->flags & DM_FLAG_ACTIVATED));
+
+	return 0;
+}
+DM_TEST(dm_test_ofdata_order, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

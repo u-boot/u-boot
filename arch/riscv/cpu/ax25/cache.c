@@ -7,12 +7,13 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <asm/cache.h>
 #include <dm/uclass-internal.h>
 #include <cache.h>
 #include <asm/csr.h>
 
 #ifdef CONFIG_RISCV_NDS_CACHE
-#if CONFIG_IS_ENABLED(RISCV_MMODE) || CONFIG_IS_ENABLED(SPL_RISCV_MMODE)
+#if CONFIG_IS_ENABLED(RISCV_MMODE)
 /* mcctlcommand */
 #define CCTL_REG_MCCTLCOMMAND_NUM	0x7cc
 
@@ -47,7 +48,7 @@ void flush_dcache_all(void)
 {
 #if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
 #ifdef CONFIG_RISCV_NDS_CACHE
-#if CONFIG_IS_ENABLED(RISCV_MMODE) || CONFIG_IS_ENABLED(SPL_RISCV_MMODE)
+#if CONFIG_IS_ENABLED(RISCV_MMODE)
 	csr_write(CCTL_REG_MCCTLCOMMAND_NUM, CCTL_L1D_WBINVAL_ALL);
 #endif
 #endif
@@ -68,7 +69,7 @@ void icache_enable(void)
 {
 #if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
 #ifdef CONFIG_RISCV_NDS_CACHE
-#if CONFIG_IS_ENABLED(RISCV_MMODE) || CONFIG_IS_ENABLED(SPL_RISCV_MMODE)
+#if CONFIG_IS_ENABLED(RISCV_MMODE)
 	asm volatile (
 		"csrr t1, mcache_ctl\n\t"
 		"ori t0, t1, 0x1\n\t"
@@ -83,7 +84,7 @@ void icache_disable(void)
 {
 #if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
 #ifdef CONFIG_RISCV_NDS_CACHE
-#if CONFIG_IS_ENABLED(RISCV_MMODE) || CONFIG_IS_ENABLED(SPL_RISCV_MMODE)
+#if CONFIG_IS_ENABLED(RISCV_MMODE)
 	asm volatile (
 		"fence.i\n\t"
 		"csrr t1, mcache_ctl\n\t"
@@ -99,7 +100,7 @@ void dcache_enable(void)
 {
 #if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 #ifdef CONFIG_RISCV_NDS_CACHE
-#if CONFIG_IS_ENABLED(RISCV_MMODE) || CONFIG_IS_ENABLED(SPL_RISCV_MMODE)
+#if CONFIG_IS_ENABLED(RISCV_MMODE)
 	asm volatile (
 		"csrr t1, mcache_ctl\n\t"
 		"ori t0, t1, 0x2\n\t"
@@ -117,7 +118,7 @@ void dcache_disable(void)
 {
 #if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 #ifdef CONFIG_RISCV_NDS_CACHE
-#if CONFIG_IS_ENABLED(RISCV_MMODE) || CONFIG_IS_ENABLED(SPL_RISCV_MMODE)
+#if CONFIG_IS_ENABLED(RISCV_MMODE)
 	csr_write(CCTL_REG_MCCTLCOMMAND_NUM, CCTL_L1D_WBINVAL_ALL);
 	asm volatile (
 		"csrr t1, mcache_ctl\n\t"
@@ -137,7 +138,7 @@ int icache_status(void)
 	int ret = 0;
 
 #ifdef CONFIG_RISCV_NDS_CACHE
-#if CONFIG_IS_ENABLED(RISCV_MMODE) || CONFIG_IS_ENABLED(SPL_RISCV_MMODE)
+#if CONFIG_IS_ENABLED(RISCV_MMODE)
 	asm volatile (
 		"csrr t1, mcache_ctl\n\t"
 		"andi	%0, t1, 0x01\n\t"
@@ -156,7 +157,7 @@ int dcache_status(void)
 	int ret = 0;
 
 #ifdef CONFIG_RISCV_NDS_CACHE
-#if CONFIG_IS_ENABLED(RISCV_MMODE) || CONFIG_IS_ENABLED(SPL_RISCV_MMODE)
+#if CONFIG_IS_ENABLED(RISCV_MMODE)
 	asm volatile (
 		"csrr t1, mcache_ctl\n\t"
 		"andi	%0, t1, 0x02\n\t"

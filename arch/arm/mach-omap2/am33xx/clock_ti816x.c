@@ -27,6 +27,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 #include <asm/emif.h>
 

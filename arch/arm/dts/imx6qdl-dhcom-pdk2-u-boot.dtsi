@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: (GPL-2.0+)
+/*
+ * Copyright (C) 2020 Harald Seiler <hws@denx.de>
+ */
+
+#include "imx6qdl-dhcom-u-boot.dtsi"
+
+/ {
+	fec_vio: regulator-fec {
+		compatible = "regulator-fixed";
+
+		regulator-name = "fec-vio";
+		gpio = <&gpio1 7 GPIO_ACTIVE_LOW>;
+	};
+};
+
+&fec {
+	phy-reset-gpios = <&gpio5 0 GPIO_ACTIVE_LOW>;
+	phy-reset-duration = <1>;
+	phy-reset-post-delay = <10>;
+
+	phy-supply = <&fec_vio>;
+};

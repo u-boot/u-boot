@@ -16,10 +16,15 @@ SD card or internal eMMC memory. If this fails or keyboard is closed then
 the appended kernel image will be booted using some generated and some
 stored ATAGs (see boot order).
 
+For generating combined image of u-boot and kernel there is a simple script
+called u-boot-gen-combined. It is available in following repository:
+
+  https://github.com/pali/u-boot-maemo
+
 There is support for hardware watchdog. Hardware watchdog is started by
 NOLO so u-boot must kick watchdog to prevent reboot device (but not very
 often, max every 2 seconds). There is also support for framebuffer display
-output with ANSI espace codes and the N900 HW keyboard input. USB tty works
+output with ANSI escape codes and the N900 HW keyboard input. USB tty works
 but is disabled because it prevents the current Maemo kernel from booting.
 
 When U-Boot is starting it enable IBE bit in Auxiliary Control Register,
@@ -36,7 +41,7 @@ Boot from SD or eMMC in this order:
 
  * 1.
    * 1.1 find boot.scr on first fat partition
-   * 1.2 find uImage on first fat parition
+   * 1.2 find uImage on first fat partition
    * 1.3 same order for 2. - 4. fat partition
  * 2. same as 1. but for ext2/3 partition
  * 3. same as 1. but for ext4 partition
@@ -62,20 +67,25 @@ Available additional commands/variables:
  * run trymmcscriptboot - Try to load and boot script ${mmcscriptfile}
  * run trymmckernboot - Try to load and boot kernel image ${mmckernfile}
  * run trymmckerninitrdboot - Try to load and boot kernel image ${mmckernfile}
-			      with initrd image ${mmcinitrdfile}
+                              with initrd image ${mmcinitrdfile}
 
 Additional variables for loading files from mmc:
 
  * mmc ${mmcnum} (0 - external, 1 - internal)
  * partition number ${mmcpart} (1 - 4)
- * parition type ${mmctype} (fat, ext2)
+ * parition type ${mmctype} (fat, ext2, ext4)
 
-Additional varuables for booting kernel:
+Additional variables for booting kernel:
 
  * setup_omap_atag - Add OMAP table into atags structure (needs maemo kernel)
  * setup_console_atag - Enable serial console in OMAP table
  * setup_boot_reason_atag - Change boot reason in OMAP table
  * setup_boot_mode_atag - Change boot mode in OMAP table
+
+ Variable setup_omap_atag is automatically set when booting attached kernel.
+ When variable setup_omap_atag is set, variable setup_console_atag is unset
+ and u-boot standard output is set to serial then setup_console_atag is
+ automatically set to 1. So output from Maemo kernel would go to serial port.
 
 USB TTY:
 
@@ -85,20 +95,13 @@ USB TTY:
  #define CONFIG_USB_TTY
 
 
-ONENAND support:
-
- ONENAND support is disabled because not working yet and cause linux kernel to
- crash or no access to mtd. For enabling ONENAND support add this line at begin
- of file include/configs/nokia_rx51.h
-
- #define ONENAND_SUPPORT
-
-
 UBIFS support:
 
  UBIFS support is disabled, because U-Boot image is too big and cannot be
  flashed with attached zImage to RX-51 kernel nand area. For enabling UBIFS
- support first enable ONENAND support and then add this line at begin of file
- include/configs/nokia_rx51.h
+ support add following lines into file configs/nokia_rx51_defconfig
 
- #define UBIFS_SUPPORT
+ CONFIG_CMD_UBI=y
+ CONFIG_CMD_UBIFS=y
+ CONFIG_MTD_UBI_FASTMAP=y
+ CONFIG_MTD_UBI_FASTMAP_AUTOCONVERT=1

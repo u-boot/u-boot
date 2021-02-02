@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <asm/test.h>
 #include <dm/test.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 /* Test that sandbox PCI works correctly */
@@ -19,7 +20,7 @@ static int dm_test_pci_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pci_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that sandbox PCI bus numbering and device works correctly */
 static int dm_test_pci_busdev(struct unit_test_state *uts)
@@ -54,7 +55,7 @@ static int dm_test_pci_busdev(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_busdev, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pci_busdev, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that we can use the swapcase device correctly */
 static int dm_test_pci_swapcase(struct unit_test_state *uts)
@@ -107,7 +108,7 @@ static int dm_test_pci_swapcase(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_swapcase, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pci_swapcase, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that we can dynamically bind the device driver correctly */
 static int dm_test_pci_drvdata(struct unit_test_state *uts)
@@ -129,7 +130,7 @@ static int dm_test_pci_drvdata(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_drvdata, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pci_drvdata, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that devices on PCI bus#2 can be accessed correctly */
 static int dm_test_pci_mixed(struct unit_test_state *uts)
@@ -192,7 +193,7 @@ static int dm_test_pci_mixed(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_mixed, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pci_mixed, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test looking up PCI capability and extended capability */
 static int dm_test_pci_cap(struct unit_test_state *uts)
@@ -244,7 +245,7 @@ static int dm_test_pci_cap(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_cap, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pci_cap, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test looking up BARs in EA capability structure */
 static int dm_test_pci_ea(struct unit_test_state *uts)
@@ -293,7 +294,7 @@ static int dm_test_pci_ea(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_ea, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pci_ea, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test the dev_read_addr_pci() function */
 static int dm_test_pci_addr_flat(struct unit_test_state *uts)
@@ -315,14 +316,14 @@ static int dm_test_pci_addr_flat(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_addr_flat, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT |
-		DM_TESTF_FLAT_TREE);
+DM_TEST(dm_test_pci_addr_flat, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT |
+		UT_TESTF_FLAT_TREE);
 
 /*
  * Test the dev_read_addr_pci() function with livetree. That function is
  * not currently fully implemented, in that it fails to return the BAR address.
  * Once that is implemented this test can be removed and dm_test_pci_addr_flat()
- * can be used for both flattree and livetree by removing the DM_TESTF_FLAT_TREE
+ * can be used for both flattree and livetree by removing the UT_TESTF_FLAT_TREE
  * flag above.
  */
 static int dm_test_pci_addr_live(struct unit_test_state *uts)
@@ -337,5 +338,41 @@ static int dm_test_pci_addr_live(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_pci_addr_live, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT |
-		DM_TESTF_LIVE_TREE);
+DM_TEST(dm_test_pci_addr_live, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT |
+		UT_TESTF_LIVE_TREE);
+
+/* Test device_is_on_pci_bus() */
+static int dm_test_pci_on_bus(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1f, 0), &dev));
+	ut_asserteq(true, device_is_on_pci_bus(dev));
+	ut_asserteq(false, device_is_on_pci_bus(dev_get_parent(dev)));
+	ut_asserteq(true, device_is_on_pci_bus(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_pci_on_bus, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/*
+ * Test support for multiple memory regions enabled via
+ * CONFIG_PCI_REGION_MULTI_ENTRY. When this feature is not enabled,
+ * only the last region of one type is stored. In this test-case,
+ * we have 2 memory regions, the first at 0x3000.0000 and the 2nd
+ * at 0x3100.0000. A correct test results now in BAR1 located at
+ * 0x3000.0000.
+ */
+static int dm_test_pci_region_multi(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	ulong mem_addr;
+
+	/* Test memory BAR1 on bus#1 */
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(1, 0x08, 0), &dev));
+	mem_addr = dm_pci_read_bar32(dev, 1);
+	ut_asserteq(mem_addr, 0x30000000);
+
+	return 0;
+}
+DM_TEST(dm_test_pci_region_multi, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

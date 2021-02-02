@@ -56,6 +56,7 @@
 #include <netdev.h>
 #include <asm/io.h>
 #include <pci.h>
+#include <linux/delay.h>
 
 /* defines */
 #define EEPROM_SIZE 0xb /*12 16-bit chunks, or 24 bytes*/
@@ -229,7 +230,7 @@ static void write_eeprom(struct eth_device *dev, long addr, int location,
 #endif
 static int read_eeprom(struct eth_device *dev, long addr, int location);
 static int mdio_read(struct eth_device *dev, int phy_id, int location);
-static int natsemi_init(struct eth_device *dev, bd_t * bis);
+static int natsemi_init(struct eth_device *dev, struct bd_info * bis);
 static void natsemi_reset(struct eth_device *dev);
 static void natsemi_init_rxfilter(struct eth_device *dev);
 static void natsemi_init_txd(struct eth_device *dev);
@@ -286,7 +287,7 @@ OUTL(struct eth_device *dev, int command, u_long addr)
  */
 
 int
-natsemi_initialize(bd_t * bis)
+natsemi_initialize(struct bd_info * bis)
 {
 	pci_dev_t devno;
 	int card_number = 0;
@@ -555,7 +556,7 @@ mdio_read(struct eth_device *dev, int phy_id, int location)
  */
 
 static int
-natsemi_init(struct eth_device *dev, bd_t * bis)
+natsemi_init(struct eth_device *dev, struct bd_info * bis)
 {
 
 	natsemi_reset(dev);

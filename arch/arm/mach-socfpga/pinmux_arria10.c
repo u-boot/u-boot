@@ -3,6 +3,7 @@
  *  Copyright (C) 2016-2017 Intel Corporation <www.intel.com>
  */
 
+#include <log.h>
 #include <asm/arch/pinmux.h>
 #include <asm/io.h>
 #include <common.h>

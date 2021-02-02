@@ -38,7 +38,6 @@
 #error No card type defined!
 #endif
 
-/* Command line configuration */
 /*
  * CONFIG_RAM defines if u-boot is loaded via BDM (or started from
  * a different bootloader that has already performed RAM setup) or
@@ -57,7 +56,6 @@
 
 /* Timer */
 #define CONFIG_MCFTMR
-#undef CONFIG_MCFPIT
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -171,9 +169,6 @@
 /* End of user parameters to be customized */
 
 /* Defines memory range for test */
-
-#define CONFIG_SYS_MEMTEST_START	0x40020000
-#define CONFIG_SYS_MEMTEST_END		0x41ffffff
 
 /*
  * Low Level Configuration Settings

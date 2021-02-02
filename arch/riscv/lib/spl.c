@@ -5,10 +5,18 @@
  */
 #include <common.h>
 #include <cpu_func.h>
+#include <hang.h>
+#include <init.h>
+#include <log.h>
 #include <spl.h>
 #include <asm/smp.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+__weak int spl_board_init_f(void)
+{
+	return 0;
+}
 
 __weak void board_init_f(ulong dummy)
 {
@@ -21,13 +29,17 @@ __weak void board_init_f(ulong dummy)
 	arch_cpu_init_dm();
 
 	preloader_console_init();
+
+	ret = spl_board_init_f();
+	if (ret)
+		panic("spl_board_init_f() failed: %d\n", ret);
 }
 
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
 	typedef void __noreturn (*image_entry_riscv_t)(ulong hart, void *dtb);
 	void *fdt_blob;
-	int ret;
+	__maybe_unused int ret;
 
 #if CONFIG_IS_ENABLED(LOAD_FIT) || CONFIG_IS_ENABLED(LOAD_FIT_FULL)
 	fdt_blob = spl_image->fdt_addr;
@@ -40,7 +52,7 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	invalidate_icache_all();
 
 	debug("image entry point: 0x%lX\n", spl_image->entry_point);
-#ifdef CONFIG_SMP
+#ifdef CONFIG_SPL_SMP
 	ret = smp_call_function(spl_image->entry_point, (ulong)fdt_blob, 0, 0);
 	if (ret)
 		hang();

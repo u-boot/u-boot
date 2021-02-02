@@ -5,10 +5,14 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <env.h>
 #include <fdtdec.h>
 #include <init.h>
+#include <log.h>
 #include <malloc.h>
 #include <time.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
@@ -239,12 +243,4 @@ int dram_init(void)
 
 void reset_cpu(ulong addr)
 {
-}
-
-int __maybe_unused board_fit_config_name_match(const char *name)
-{
-	/* Just empty function now - can't decide what to choose */
-	debug("%s: %s\n", __func__, name);
-
-	return -1;
 }

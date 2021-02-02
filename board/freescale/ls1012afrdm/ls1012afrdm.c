@@ -4,7 +4,10 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
 #include <i2c.h>
+#include <asm/cache.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
@@ -181,7 +184,7 @@ int board_init(void)
 	return 0;
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	arch_fixup_fdt(blob);
 

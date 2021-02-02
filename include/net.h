@@ -12,11 +12,18 @@
 #ifndef __NET_H__
 #define __NET_H__
 
+#include <linux/types.h>
 #include <asm/cache.h>
 #include <asm/byteorder.h>	/* for nton* / ntoh* stuff */
 #include <env.h>
+#include <log.h>
+#include <time.h>
 #include <linux/if_ether.h>
 #include <rand.h>
+
+struct bd_info;
+struct cmd_tbl;
+struct udevice;
 
 #define DEBUG_LL_STATE 0	/* Link local state machine changes */
 #define DEBUG_DEV_PKT 0		/* Packets or info directed to the device */
@@ -37,6 +44,9 @@
 
 #define PKTALIGN	ARCH_DMA_MINALIGN
 
+/* Number of packets processed together */
+#define ETH_PACKETS_BATCH_RECV	32
+
 /* ARP hardware address length */
 #define ARP_HLEN 6
 /*
@@ -49,6 +59,17 @@
 struct in_addr {
 	__be32 s_addr;
 };
+
+/**
+ * do_tftpb - Run the tftpboot command
+ *
+ * @cmdtp: Command information for tftpboot
+ * @flag: Command flags (CMD_FLAG_...)
+ * @argc: Number of arguments
+ * @argv: List of arguments
+ * @return result (see enum command_ret_t)
+ */
+int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 /**
  * An incoming packet handler.
@@ -173,12 +194,12 @@ struct eth_device {
 	phys_addr_t iobase;
 	int state;
 
-	int (*init)(struct eth_device *, bd_t *);
+	int (*init)(struct eth_device *eth, struct bd_info *bd);
 	int (*send)(struct eth_device *, void *packet, int length);
 	int (*recv)(struct eth_device *);
 	void (*halt)(struct eth_device *);
 	int (*mcast)(struct eth_device *, const u8 *enetaddr, int join);
-	int (*write_hwaddr)(struct eth_device *);
+	int (*write_hwaddr)(struct eth_device *eth);
 	struct eth_device *next;
 	int index;
 	void *priv;
@@ -231,7 +252,7 @@ static __always_inline void eth_halt_state_only(void)
 int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 		     int eth_number);
 
-int usb_eth_initialize(bd_t *bi);
+int usb_eth_initialize(struct bd_info *bi);
 #endif
 
 int eth_initialize(void);		/* Initialize network subsystem */
@@ -345,6 +366,7 @@ struct vlan_ethernet_hdr {
 #define PROT_VLAN	0x8100		/* IEEE 802.1q protocol		*/
 #define PROT_IPV6	0x86dd		/* IPv6 over bluebook		*/
 #define PROT_PPP_SES	0x8864		/* PPPoE session messages	*/
+#define PROT_NCSI	0x88f8		/* NC-SI control packets        */
 
 #define IPPROTO_ICMP	 1	/* Internet Control Message Protocol	*/
 #define IPPROTO_UDP	17	/* User Datagram Protocol		*/
@@ -532,7 +554,7 @@ extern int		net_restart_wrap;	/* Tried all network devices */
 
 enum proto_t {
 	BOOTP, RARP, ARP, TFTPGET, DHCP, PING, DNS, NFS, CDP, NETCONS, SNTP,
-	TFTPSRV, TFTPPUT, LINKLOCAL, FASTBOOT, WOL
+	TFTPSRV, TFTPPUT, LINKLOCAL, FASTBOOT, WOL, UDP
 };
 
 extern char	net_boot_file_name[1024];/* Boot File name */
@@ -574,7 +596,7 @@ extern int net_ntp_time_offset;			/* offset time from UTC */
 #endif
 
 /* Initialize the network adapter */
-void net_init(void);
+int net_init(void);
 int net_loop(enum proto_t);
 
 /* Load failed.	 Start again. */
@@ -878,9 +900,6 @@ int is_serverip_in_cmd(void);
  */
 int net_parse_bootfile(struct in_addr *ipaddr, char *filename, int max_len);
 
-/* get a random source port */
-unsigned int random_port(void);
-
 /**
  * update_tftp - Update firmware over TFTP (via DFU)
  *
@@ -906,4 +925,12 @@ static inline struct in_addr env_get_ip(char *var)
 {
 	return string_to_ip(env_get(var));
 }
+
+/**
+ * reset_phy() - Reset the Ethernet PHY
+ *
+ * This should be implemented by boards if CONFIG_RESET_PHY_R is enabled
+ */
+void reset_phy(void);
+
 #endif /* __NET_H__ */

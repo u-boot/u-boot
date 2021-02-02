@@ -9,12 +9,14 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
 #include <net.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <phy.h>
 #include <miiphy.h>
 #include <wait_bit.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -732,7 +734,7 @@ static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 	int offset = 0;
 	const char *phy_mode;
 
-	pdata->iobase = (phys_addr_t)devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	priv->iobase = (struct axi_regs *)pdata->iobase;
 
 	offset = fdtdec_lookup_phandle(gd->fdt_blob, node,

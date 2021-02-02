@@ -43,6 +43,13 @@ config SYSRESET_CMD_POWEROFF
 
 endif
 
+config POWEROFF_GPIO
+	bool "Enable support for GPIO poweroff driver"
+	select DM_GPIO
+	help
+	  Support for system poweroff using a GPIO pin. This can be used
+	  for systems having a single GPIO to trigger a system poweroff.
+
 config SYSRESET_GPIO
 	bool "Enable support for GPIO reset driver"
 	select DM_GPIO
@@ -56,6 +63,13 @@ config SYSRESET_MICROBLAZE
 	depends on MICROBLAZE
 	help
 	  This is soft reset on Microblaze which does jump to 0x0 address.
+
+config SYSRESET_OCTEON
+	bool "Enable support for Marvell Octeon SoC family"
+	depends on ARCH_OCTEON
+	help
+	  This enables the system reset driver support for Marvell Octeon
+	  SoCs.
 
 config SYSRESET_PSCI
 	bool "Enable support for PSCI System Reset"
@@ -72,12 +86,12 @@ config SYSRESET_SOCFPGA
 	  This enables the system reset driver support for Intel SOCFPGA SoCs
 	  (Cyclone 5, Arria 5 and Arria 10).
 
-config SYSRESET_SOCFPGA_S10
-	bool "Enable support for Intel SOCFPGA Stratix 10"
-	depends on ARCH_SOCFPGA && TARGET_SOCFPGA_STRATIX10
+config SYSRESET_SOCFPGA_SOC64
+	bool "Enable support for Intel SOCFPGA SoC64 family (Stratix10/Agilex)"
+	depends on ARCH_SOCFPGA && (TARGET_SOCFPGA_STRATIX10 || TARGET_SOCFPGA_AGILEX)
 	help
 	  This enables the system reset driver support for Intel SOCFPGA
-	  Stratix SoCs.
+	  SoC64 SoCs.
 
 config SYSRESET_TI_SCI
 	bool "TI System Control Interface (TI SCI) system reset driver"
@@ -100,6 +114,12 @@ config SYSRESET_WATCHDOG
 	select WDT
 	help
 	  Reboot support for generic watchdog reset.
+
+config SYSRESET_RESETCTL
+	bool "Enable support for reset controller reboot driver"
+	select DM_RESET
+	help
+	  Reboot support using generic reset controller.
 
 config SYSRESET_X86
 	bool "Enable support for x86 processor reboot driver"

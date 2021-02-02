@@ -5,6 +5,8 @@
  */
 
 #include <common.h>
+#include <env.h>
+#include <log.h>
 #include <asm/sections.h>
 #include <dm/uclass.h>
 #include <i2c.h>
@@ -12,9 +14,11 @@
 #include <malloc.h>
 #include "board.h"
 #include <dm.h>
-#include <fru.h>
 #include <i2c_eeprom.h>
 #include <net.h>
+#include <generated/dt.h>
+
+#include "fru.h"
 
 #if defined(CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET)
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
@@ -318,27 +322,32 @@ __maybe_unused int xilinx_read_eeprom(void)
 #if defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
 void *board_fdt_blob_setup(void)
 {
-	static void *fdt_blob;
+	void *fdt_blob;
 
-#if !defined(CONFIG_VERSAL_NO_DDR) && !defined(CONFIG_ZYNQMP_NO_DDR)
-	fdt_blob = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
+	if (!IS_ENABLED(CONFIG_SPL_BUILD) &&
+	    !IS_ENABLED(CONFIG_VERSAL_NO_DDR) &&
+	    !IS_ENABLED(CONFIG_ZYNQMP_NO_DDR)) {
+		fdt_blob = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
 
-	if (fdt_magic(fdt_blob) == FDT_MAGIC)
-		return fdt_blob;
+		if (fdt_magic(fdt_blob) == FDT_MAGIC)
+			return fdt_blob;
 
-	debug("DTB is not passed via %p\n", fdt_blob);
-#endif
+		debug("DTB is not passed via %p\n", fdt_blob);
+	}
 
-#ifdef CONFIG_SPL_BUILD
-	/* FDT is at end of BSS unless it is in a different memory region */
-	if (IS_ENABLED(CONFIG_SPL_SEPARATE_BSS))
-		fdt_blob = (ulong *)&_image_binary_end;
-	else
-		fdt_blob = (ulong *)&__bss_end;
-#else
-	/* FDT is at end of image */
-	fdt_blob = (ulong *)&_end;
-#endif
+	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+		/*
+		 * FDT is at end of BSS unless it is in a different memory
+		 * region
+		 */
+		if (IS_ENABLED(CONFIG_SPL_SEPARATE_BSS))
+			fdt_blob = (ulong *)&_image_binary_end;
+		else
+			fdt_blob = (ulong *)&__bss_end;
+	} else {
+		/* FDT is at end of image */
+		fdt_blob = (ulong *)&_end;
+	}
 
 	if (fdt_magic(fdt_blob) == FDT_MAGIC)
 		return fdt_blob;
@@ -349,6 +358,7 @@ void *board_fdt_blob_setup(void)
 }
 #endif
 
+#if defined(CONFIG_BOARD_LATE_INIT)
 static int env_set_by_index(const char *name, int index, char *data)
 {
 	char var[32];
@@ -363,22 +373,22 @@ static int env_set_by_index(const char *name, int index, char *data)
 
 int board_late_init_xilinx(void)
 {
-	bd_t *bd = gd->bd;
+	u32 ret = 0;
 	int i, id, macid = 0;
 	struct xilinx_board_description *desc;
-	u32 ret = 0;
 	phys_size_t bootm_size = gd->ram_size;
+	struct bd_info *bd = gd->bd;
 
-	if (CONFIG_IS_ENABLED(ARCH_ZYNQ))
-		bootm_size = min(bootm_size, (phys_size_t)(SZ_512M + SZ_256M));
-
-	if (bd->bi_dram[0].start) {
+	if (!CONFIG_IS_ENABLED(MICROBLAZE) && bd->bi_dram[0].start) {
 		ulong scriptaddr;
 
 		scriptaddr = env_get_hex("scriptaddr", 0);
 		ret |= env_set_hex("scriptaddr",
 				   bd->bi_dram[0].start + scriptaddr);
 	}
+
+	if (CONFIG_IS_ENABLED(ARCH_ZYNQ) || CONFIG_IS_ENABLED(MICROBLAZE))
+		bootm_size = min(bootm_size, (phys_size_t)(SZ_512M + SZ_256M));
 
 	ret |= env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
 
@@ -419,4 +429,15 @@ int board_late_init_xilinx(void)
 		printf("%s: Saving run time variables FAILED\n", __func__);
 
 	return 0;
+}
+#endif
+
+int __maybe_unused board_fit_config_name_match(const char *name)
+{
+	debug("%s: Check %s, default %s\n", __func__, name, DEVICE_TREE);
+
+	if (!strcmp(name, DEVICE_TREE))
+		return 0;
+
+	return -1;
 }

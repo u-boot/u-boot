@@ -118,17 +118,21 @@
 	  "setenv efi_fdtfile ${soc}-${board}${boardver}.dtb; "           \
 	"fi; "
 #else
+#ifndef BOOTENV_EFI_SET_FDTFILE_FALLBACK
 #define BOOTENV_EFI_SET_FDTFILE_FALLBACK
+#endif
 #endif
 
 
 #define BOOTENV_SHARED_EFI                                                \
-	"boot_efi_binary="                                                \
+	"boot_efi_bootmgr="                                               \
 		"if fdt addr ${fdt_addr_r}; then "                        \
 			"bootefi bootmgr ${fdt_addr_r};"                  \
 		"else "                                                   \
-			"bootefi bootmgr ${fdtcontroladdr};"              \
-		"fi;"                                                     \
+			"bootefi bootmgr;"                                \
+		"fi\0"                                                    \
+	\
+	"boot_efi_binary="                                                \
 		"load ${devtype} ${devnum}:${distro_bootpart} "           \
 			"${kernel_addr_r} efi/boot/"BOOTEFI_NAME"; "      \
 		"if fdt addr ${fdt_addr_r}; then "                        \
@@ -152,6 +156,7 @@
 				"run load_efi_dtb; "                      \
 			"fi;"                                             \
 		"done;"                                                   \
+		"run boot_efi_bootmgr;"                                   \
 		"if test -e ${devtype} ${devnum}:${distro_bootpart} "     \
 					"efi/boot/"BOOTEFI_NAME"; then "  \
 				"echo Found EFI removable media binary "  \
@@ -364,6 +369,7 @@
 #endif
 #define BOOTENV_DEV_DHCP(devtypeu, devtypel, instance) \
 	"bootcmd_dhcp=" \
+		"setenv devtype " #devtypel "; " \
 		BOOTENV_RUN_NET_USB_START \
 		BOOTENV_RUN_PCI_ENUM \
 		"if dhcp ${scriptaddr} ${boot_script_dhcp}; then " \

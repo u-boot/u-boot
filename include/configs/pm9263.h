@@ -190,7 +190,6 @@
 
 #endif
 
-#define CONFIG_JFFS2_CMDLINE		1
 #define CONFIG_JFFS2_NAND		1
 #define CONFIG_JFFS2_DEV		"nand0" /* NAND device jffs2 lives on */
 #define CONFIG_JFFS2_PART_OFFSET	0	/* start of jffs2 partition */
@@ -222,9 +221,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR			0x22000000	/* load address */
 
-#define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
-#define CONFIG_SYS_MEMTEST_END			0x23e00000
-
 #define CONFIG_SYS_USE_FLASH	1
 #undef CONFIG_SYS_USE_DATAFLASH
 #undef CONFIG_SYS_USE_NANDFLASH
@@ -242,9 +238,6 @@
 #define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0xA0000 0x200000; bootm"
 
 #elif defined(CONFIG_SYS_USE_FLASH) /* CFG_USE_FLASH */
-
-#define CONFIG_ENV_OVERWRITE	1
-
 /* JFFS Partition offset set */
 #define CONFIG_SYS_JFFS2_FIRST_BANK	0
 #define CONFIG_SYS_JFFS2_NUM_BANKS	1

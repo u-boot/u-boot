@@ -8,6 +8,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 /*
  * High Level Configuration Options
  */
@@ -101,8 +103,6 @@
 /*
  * Memory test
  */
-#define CONFIG_SYS_MEMTEST_START	0x00001000 /* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x07f00000
 
 /*
  * The reserved memory
@@ -258,10 +258,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /*
- * Command line configuration.
- */
-
-/*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LOAD_ADDR		0x2000000 /* default load address */
@@ -282,8 +278,6 @@
 /*
  * Environment Configuration
  */
-
-#define CONFIG_ENV_OVERWRITE
 
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_HAS_ETH0

@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <pch.h>
 #include <asm/cpu.h>
 #include <asm/gpio.h>
@@ -23,6 +24,7 @@
 #include <asm/arch/serialio.h>
 #include <asm/arch/spi.h>
 #include <dm/uclass-internal.h>
+#include <linux/delay.h>
 
 #define BIOS_CTRL	0xdc
 

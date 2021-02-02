@@ -6,6 +6,7 @@
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  */
 #include <common.h>
+#include <init.h>
 #include <nand.h>
 #include <ns16550.h>
 #include <post.h>

@@ -14,4 +14,19 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 	interrupt-parent = <&mpic>;
+
+	aliases {
+		spi0 = &espi0;
+	};
+};
+
+&espi0 {
+	status = "okay";
+	flash@0 {
+		compatible = "jedec,spi-nor"; /* 16MB */
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0>;
+		spi-max-frequency = <10000000>; /* input clock */
+	};
 };

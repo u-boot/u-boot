@@ -1,6 +1,8 @@
 
 #include <common.h>
+#include <malloc.h>
 #include <memalign.h>
+#include <asm/cache.h>
 #include <linux/compat.h>
 
 struct p_current cur = {

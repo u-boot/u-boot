@@ -3,7 +3,7 @@
  * T2080/T2081 Silicon/SoC Device Tree Source (pre include)
  *
  * Copyright 2013 Freescale Semiconductor Inc.
- * Copyright 2018 NXP
+ * Copyright 2018,2020 NXP
  */
 
 /dts-v1/;
@@ -69,6 +69,16 @@
 			voltage-ranges = <1800 1800 3300 3300>;
 		};
 
+		espi0: spi@110000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "fsl,mpc8536-espi";
+			reg = <0x110000 0x1000>;
+			interrupts = <53 0x2 0 0>;
+			fsl,espi-num-chipselects = <4>;
+			status = "disabled";
+		};
+
 		usb0: usb@210000 {
 			compatible = "fsl-usb2-mph";
 			reg = <0x210000 0x1000>;
@@ -88,21 +98,16 @@
 			phy_type = "utmi";
 		};
 
-		sata0: sata@220000 {
+		sata: sata@220000 {
 			compatible = "fsl,pq-sata-v2";
 			reg = <0x220000 0x1000>;
 			interrupts = <68 0x2 0 0>;
-			sata-number = <0x0>;
-			sata-fpdma = <0x0>;
+			sata-offset = <0x1000>;
+			sata-number = <2>;
+			sata-fpdma = <0>;
 		};
-
-		sata1: sata@221000 {
-			compatible = "fsl,pq-sata-v2";
-			reg = <0x221000 0x1000>;
-			interrupts = <69 0x2 0 0>;
-			sata-number = <0x0>;
-			sata-fpdma = <0x0>;
-		};
+		/include/ "qoriq-i2c-0.dtsi"
+		/include/ "qoriq-i2c-1.dtsi"
 	};
 
 	pcie@ffe240000 {

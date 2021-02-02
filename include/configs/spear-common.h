@@ -88,7 +88,6 @@
 /*
  * Default Environment Varible definitions
  */
-#define CONFIG_ENV_OVERWRITE
 
 /*
  * U-Boot Environment placing definitions.
@@ -147,8 +146,6 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 
-#define CONFIG_SYS_MEMTEST_START		0x00800000
-#define CONFIG_SYS_MEMTEST_END			0x04000000
 #define CONFIG_SYS_MALLOC_LEN			(1024*1024)
 #define CONFIG_SYS_LOAD_ADDR			0x00800000
 

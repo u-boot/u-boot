@@ -26,7 +26,7 @@ Changed files:
 - arch/m68k/cpu/mcf5445x/config.mk	config make
 - arch/m68k/cpu/mcf5445x/start.S		start up assembly code
 
-- doc/README.m54455evb	This readme file
+- board/freescale/m54455evb/README	This readme file
 
 - drivers/net/mcffec.c		ColdFire common FEC driver
 - drivers/serial/mcfuart.c	ColdFire common UART driver
@@ -110,7 +110,6 @@ CONFIG_SYS_ATA_STRIDE		-- define for Interval between registers
 _IO_BASE		-- define for IO base address
 
 CONFIG_MCFTMR		-- define to use DMA timer
-CONFIG_MCFPIT		-- define to use PIT timer
 
 CONFIG_SYS_FSL_I2C	-- define to use FSL common I2C driver
 CONFIG_SYS_I2C_SOFT	-- define for I2C bit-banged

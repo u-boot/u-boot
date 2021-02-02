@@ -24,14 +24,10 @@
 "setenv stdout nc;setenv stdin nc;setenv stderr nc\0"
 
 /* Network defines */
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT		10
 
 /* Network console */
-#define CONFIG_NETCONSOLE		1
 #define CONFIG_BOOTP_MAY_FAIL		/* if we don't have DHCP environment */
-
-#define CONFIG_ENV_OVERWRITE		/* Overwrite ethaddr / serial# */
 
 /* As stated above, the following choices are optional. */
 

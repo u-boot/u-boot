@@ -6,7 +6,7 @@
 #ifndef __MEDIATEK_RESET_H
 #define __MEDIATEK_RESET_H
 
-#include <dm.h>
+struct udevice;
 
 int mediatek_reset_bind(struct udevice *pdev, u32 regofs, u32 num_regs);
 

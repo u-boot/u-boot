@@ -47,11 +47,7 @@
 /*
  * UART (console)
  */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART3_BASE
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 /*
  * Command definition
@@ -78,9 +74,6 @@
 #define CONFIG_SYS_CBSIZE	512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	32	/* max number of command args */
-
-#define CONFIG_SYS_MEMTEST_START	0	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x10000
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 

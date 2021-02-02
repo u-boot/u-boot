@@ -77,4 +77,7 @@ config ZYNQ_M29EW_WB_HACK
 config ZYNQ_SDHCI_MAX_FREQ
 	default 52000000
 
+source "board/xilinx/Kconfig"
+source "board/xilinx/zynq/Kconfig"
+
 endif

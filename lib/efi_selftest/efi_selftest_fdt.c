@@ -42,35 +42,48 @@ static uint32_t f2h(fdt32_t val)
 	return *(uint32_t *)buf;
 }
 
-/*
- * Return the value of a property of the FDT root node.
+/**
+ * get_property() - return value of a property of an FDT node
  *
- * @name	name of the property
+ * A property of the root node or one of its direct children can be
+ * retrieved.
+ *
+ * @property	name of the property
+ * @node	name of the node or NULL for root node
  * @return	value of the property
  */
-static char *get_property(const u16 *property)
+static char *get_property(const u16 *property, const u16 *node)
 {
 	struct fdt_header *header = (struct fdt_header *)fdt;
+	const fdt32_t *end;
 	const fdt32_t *pos;
 	const char *strings;
+	size_t level = 0;
+	const char *nodelabel = NULL;
 
-	if (!header)
+	if (!header) {
+		efi_st_error("Missing device tree\n");
 		return NULL;
+	}
 
 	if (f2h(header->magic) != FDT_MAGIC) {
-		printf("Wrong magic\n");
+		efi_st_error("Wrong device tree magic\n");
 		return NULL;
 	}
 
 	pos = (fdt32_t *)(fdt + f2h(header->off_dt_struct));
+	end = &pos[f2h(header->totalsize) >> 2];
 	strings = fdt + f2h(header->off_dt_strings);
 
-	for (;;) {
+	for (; pos < end;) {
 		switch (f2h(pos[0])) {
 		case FDT_BEGIN_NODE: {
-			char *c = (char *)&pos[1];
+			const char *c = (char *)&pos[1];
 			size_t i;
 
+			if (level == 1)
+				nodelabel = c;
+			++level;
 			for (i = 0; c[i]; ++i)
 				;
 			pos = &pos[2 + (i >> 2)];
@@ -82,7 +95,10 @@ static char *get_property(const u16 *property)
 			efi_status_t ret;
 
 			/* Check if this is the property to be returned */
-			if (!efi_st_strcmp_16_8(property, label)) {
+			if (!efi_st_strcmp_16_8(property, label) &&
+			    ((level == 1 && !node) ||
+			     (level == 2 && node &&
+			      !efi_st_strcmp_16_8(node, nodelabel)))) {
 				char *str;
 				efi_uintn_t len = f2h(prop->len);
 
@@ -96,7 +112,7 @@ static char *get_property(const u16 *property)
 					EFI_LOADER_DATA, len + 1,
 					(void **)&str);
 				if (ret != EFI_SUCCESS) {
-					efi_st_printf("AllocatePool failed\n");
+					efi_st_error("AllocatePool failed\n");
 					return NULL;
 				}
 				boottime->copy_mem(str, &pos[3], len);
@@ -109,12 +125,21 @@ static char *get_property(const u16 *property)
 			break;
 		}
 		case FDT_NOP:
-			pos = &pos[1];
+			++pos;
 			break;
+		case FDT_END_NODE:
+			--level;
+			++pos;
+			break;
+		case FDT_END:
+			return NULL;
 		default:
+			efi_st_error("Invalid device tree token\n");
 			return NULL;
 		}
 	}
+	efi_st_error("Missing FDT_END token\n");
+	return NULL;
 }
 
 /**
@@ -173,7 +198,7 @@ static int execute(void)
 	char *str;
 	efi_status_t ret;
 
-	str = get_property(L"compatible");
+	str = get_property(L"compatible", NULL);
 	if (str) {
 		efi_st_printf("compatible: %s\n", str);
 		ret = boottime->free_pool(str);
@@ -182,15 +207,30 @@ static int execute(void)
 			return EFI_ST_FAILURE;
 		}
 	} else {
-		efi_st_printf("Missing property 'compatible'\n");
+		efi_st_error("Missing property 'compatible'\n");
 		return EFI_ST_FAILURE;
 	}
-	str = get_property(L"serial-number");
+	str = get_property(L"serial-number", NULL);
 	if (str) {
 		efi_st_printf("serial-number: %s\n", str);
 		ret = boottime->free_pool(str);
 		if (ret != EFI_SUCCESS) {
 			efi_st_error("FreePool failed\n");
+			return EFI_ST_FAILURE;
+		}
+	}
+	str = get_property(L"boot-hartid", L"chosen");
+	if (IS_ENABLED(CONFIG_RISCV)) {
+		if (str) {
+			efi_st_printf("boot-hartid: %u\n",
+				      f2h(*(fdt32_t *)str));
+			ret = boottime->free_pool(str);
+			if (ret != EFI_SUCCESS) {
+				efi_st_error("FreePool failed\n");
+				return EFI_ST_FAILURE;
+			}
+		} else {
+			efi_st_error("boot-hartid not found\n");
 			return EFI_ST_FAILURE;
 		}
 	}

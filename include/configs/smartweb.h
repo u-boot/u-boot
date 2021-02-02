@@ -50,7 +50,6 @@
 
 /* setting board specific options */
 #define CONFIG_MACH_TYPE		MACH_TYPE_SMARTWEB
-#define CONFIG_ENV_OVERWRITE    1 /* Overwrite ethaddr / serial# */
 #define CONFIG_SYS_AUTOLOAD "yes"
 #define CONFIG_RESET_TO_RETRY
 
@@ -69,8 +68,6 @@
  * Perform a SDRAM Memtest from the start of SDRAM
  * till the beginning of the U-Boot position in RAM.
  */
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_TEXT_BASE - 0x100000)
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN \
@@ -87,11 +84,9 @@
 
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-#define CONFIG_AT91_GPIO		/* enable the GPIO features */
 #define CONFIG_AT91_GPIO_PULLUP	1	/* keep pullups on peripheral pins */
 
 /* serial console */
-#define CONFIG_ATMEL_USART
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 
@@ -181,9 +176,6 @@
 
 #define CONFIG_SYS_NAND_ENABLE_PIN_SPL	(2*32 + 14)
 #define CONFIG_SYS_USE_NANDFLASH	1
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_NAND_RAW_ONLY
 #define CONFIG_SPL_NAND_SOFTECC
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x20000

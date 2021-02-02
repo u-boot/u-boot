@@ -4,11 +4,10 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
 #include <mmc.h>
 #include <spl.h>
 
-u32 spl_boot_mode(const u32 boot_device)
+u32 spl_mmc_boot_mode(const u32 boot_device)
 {
 	struct mmc *mmc;
 

@@ -8,10 +8,13 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <virtio_types.h>
 #include <virtio.h>
 #include <virtio_ring.h>
+#include <linux/bug.h>
+#include <linux/compat.h>
 
 int virtqueue_add(struct virtqueue *vq, struct virtio_sg *sgs[],
 		  unsigned int out_sgs, unsigned int in_sgs)

@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <errno.h>
+#include <log.h>
+#include <malloc.h>
 #include <asm/io.h>
 #include <mmc.h>
 #include <spi_flash.h>
@@ -196,7 +198,8 @@ unsigned long spl_spi_get_uboot_offs(struct spi_flash *flash)
 #endif
 
 #ifdef CONFIG_SPL_MMC_SUPPORT
-unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc)
+unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
+					   unsigned long raw_sect)
 {
 	int end;
 

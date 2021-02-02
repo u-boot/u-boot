@@ -7,10 +7,12 @@
 
 /*
  * sbc8548 board configuration file
- * Please refer to doc/README.sbc8548 for more info.
+ * Please refer to board/sbc8548/README for more info.
  */
 #ifndef __CONFIG_H
 #define __CONFIG_H
+
+#include <linux/stringify.h>
 
 /*
  * Top level Makefile configuration choices
@@ -49,8 +51,6 @@
 #define CONFIG_SYS_PCI_64BIT    1	/* enable 64-bit PCI resources */
 #endif
 
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
 /*
@@ -73,8 +73,6 @@
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
 #undef	CONFIG_SYS_DRAM_TEST			/* memory test, takes time */
-#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00400000
 
 #define CONFIG_SYS_CCSRBAR		0xe0000000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
@@ -117,8 +115,6 @@
 	#define CONFIG_SYS_SDRAM_SIZE	256		/* DDR is 256MB */
 	#define CONFIG_SYS_DDR_CONTROL	0xc300c000
 #endif
-
-#undef CONFIG_CLOCKS_IN_MHZ
 
 /*
  * FLASH on the Local Bus
@@ -434,8 +430,6 @@
 #endif
 
 #if defined(CONFIG_PCI)
-#undef CONFIG_EEPRO100
-#undef CONFIG_TULIP
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 

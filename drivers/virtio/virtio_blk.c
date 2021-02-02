@@ -7,6 +7,7 @@
 #include <common.h>
 #include <blk.h>
 #include <dm.h>
+#include <part.h>
 #include <virtio_types.h>
 #include <virtio.h>
 #include <virtio_ring.h>
@@ -114,6 +115,7 @@ static int virtio_blk_probe(struct udevice *dev)
 		return ret;
 
 	desc->blksz = 512;
+	desc->log2blksz = 9;
 	virtio_cread(dev, struct virtio_blk_config, capacity, &cap);
 	desc->lba = cap;
 

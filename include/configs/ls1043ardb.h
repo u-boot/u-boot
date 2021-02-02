@@ -35,7 +35,6 @@
 
 #ifdef CONFIG_SD_BOOT
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/ls1043ardb/ls1043ardb_rcw_sd.cfg
-#define CONFIG_CMD_SPL
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x90000000
 #define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0x10000
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x500
@@ -241,27 +240,10 @@
 /*
  * Environment
  */
-#ifndef SPL_NO_ENV
-#define CONFIG_ENV_OVERWRITE
-#endif
-
-#ifdef CONFIG_TFABOOT
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#else
-#if defined(CONFIG_NAND_BOOT)
-#elif defined(CONFIG_SD_BOOT)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
-#endif
 
 /* FMan */
 #ifndef SPL_NO_FMAN
 #define AQR105_IRQ_MASK			0x40000000
-
-#ifdef CONFIG_NET
-#define CONFIG_PHY_VITESSE
-#define CONFIG_PHY_REALTEK
-#endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define RGMII_PHY1_ADDR			0x1
@@ -280,9 +262,6 @@
 
 /* SATA */
 #ifndef SPL_NO_SATA
-#ifndef CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT2
-#endif
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID		2
 #define CONFIG_SYS_SCSI_MAX_LUN			2
 #define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \

@@ -4,6 +4,7 @@
  * Copyright (C) 2016 Grinn
  */
 
+#include <common.h>
 #include <command.h>
 #include <init.h>
 #include <asm/arch/clock.h>
@@ -109,7 +110,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return ret;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	int ret;
 

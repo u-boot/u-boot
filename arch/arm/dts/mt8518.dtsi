@@ -74,6 +74,19 @@
 		};
 	};
 
+	usb0: usb@11100000 {
+		compatible = "mediatek,mt8518-musb";
+		reg = <0x11100000 0x1000>;
+		reg-names = "control";
+		clocks = <&topckgen CLK_TOP_USB20_48M>,
+			 <&topckgen CLK_TOP_USBIF>,
+			 <&topckgen CLK_TOP_USB>;
+		clock-names = "usbpll", "usbmcu", "usb";
+		interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-names = "mc";
+		status = "okay";
+	};
+
 	mmc0: mmc@11120000 {
 		compatible = "mediatek,mt8516-mmc";
 		reg = <0x11120000 0x1000>;

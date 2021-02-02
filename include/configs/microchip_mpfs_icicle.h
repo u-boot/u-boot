@@ -10,7 +10,6 @@
 /*
  * CPU and Board Configuration Options
  */
-#define CONFIG_BOOTP_SEND_HOSTNAME
 
 /*
  * Miscellaneous configurable options
@@ -54,8 +53,6 @@
 /*
  * memtest works on DRAM
  */
-#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_0
-#define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_0 + PHYS_SDRAM_0_SIZE)
 
 /* When we use RAM as ENV */
 

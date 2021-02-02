@@ -34,12 +34,14 @@
 		longbytearray = [09 0a 0b 0c];
 		stringval = "message2";
 		stringarray = "another", "multi-word", "message";
+		acpi-name =  "\\_SB.GPO0";
 	};
 
 	spl-test3 {
 		u-boot,dm-pre-reloc;
 		compatible = "sandbox,spl-test";
 		stringarray = "one";
+		longbytearray = [09 0a 0b 0c 0d 0e 0f 10];
 	};
 
 	spl-test4 {

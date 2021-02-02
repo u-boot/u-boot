@@ -20,6 +20,7 @@
 #include <spi.h>
 #include <spi.h>
 #include <spi-mem.h>
+#include <dm/device_compat.h>
 #endif
 
 #ifndef __UBOOT__

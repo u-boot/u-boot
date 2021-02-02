@@ -2,5 +2,5 @@
 #
 # Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
 
-obj-y	+= galileo.o start.o
+obj-y	+= galileo.o
 obj-$(CONFIG_GENERATE_ACPI_TABLE) += dsdt.o

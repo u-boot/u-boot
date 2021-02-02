@@ -16,8 +16,10 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <i2c.h>
+#include <log.h>
 #include <tpm-v1.h>
 #include <errno.h>
+#include <linux/delay.h>
 #include <linux/types.h>
 #include <asm/unaligned.h>
 

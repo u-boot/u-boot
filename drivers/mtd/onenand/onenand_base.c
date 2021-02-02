@@ -20,7 +20,10 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <watchdog.h>
+#include <dm/devres.h>
+#include <linux/bitops.h>
 #include <linux/compat.h>
 #include <linux/mtd/mtd.h>
 #include "linux/mtd/flashchip.h"
@@ -2654,6 +2657,7 @@ int onenand_probe(struct mtd_info *mtd)
 	else
 		mtd->size = this->chipsize;
 
+	mtd->type = ONENAND_IS_MLC(this) ? MTD_MLCNANDFLASH : MTD_NANDFLASH;
 	mtd->flags = MTD_CAP_NANDFLASH;
 	mtd->_erase = onenand_erase;
 	mtd->_read_oob = onenand_read_oob;

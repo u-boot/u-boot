@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <time.h>
 #include <asm/mipsregs.h>
 
 unsigned long notrace timer_read_counter(void)
@@ -12,7 +13,9 @@ unsigned long notrace timer_read_counter(void)
 	return read_c0_count();
 }
 
-ulong notrace get_tbclk(void)
+#if defined(CONFIG_SYS_MIPS_TIMER_FREQ)
+ulong notrace __weak get_tbclk(void)
 {
 	return CONFIG_SYS_MIPS_TIMER_FREQ;
 }
+#endif

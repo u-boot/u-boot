@@ -13,8 +13,9 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
+#include <init.h>
+#include <net.h>
 #include <ns16550.h>
-#include <netdev.h>
 #include <serial.h>
 #include <asm/io.h>
 #include <asm/arch/mem.h>
@@ -22,18 +23,16 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/gpio.h>
-#include <i2c.h>
 #include <twl4030.h>
 #include <asm/mach-types.h>
-#include <asm/omap_musb.h>
+#include <linux/delay.h>
 #include <linux/mtd/rawnand.h>
-#include <linux/usb/ch9.h>
-#include <linux/usb/gadget.h>
-#include <linux/usb/musb.h>
 #include "evm.h"
 
 #define OMAP3EVM_GPIO_ETH_RST_GEN1 64
 #define OMAP3EVM_GPIO_ETH_RST_GEN2 7
+
+#define CONFIG_SMC911X_BASE 0x2C000000
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -46,7 +45,7 @@ u32 get_omap3_evm_rev(void)
 
 static void omap3_evm_get_revision(void)
 {
-#if defined(CONFIG_CMD_NET)
+#if defined(CONFIG_SMC911X)
 	/*
 	 * Board revision can be ascertained only by identifying
 	 * the Ethernet chipset.
@@ -67,7 +66,7 @@ static void omap3_evm_get_revision(void)
 	default:
 		omap3_evm_version = OMAP3EVM_BOARD_GEN_2;
        }
-#else /* !CONFIG_CMD_NET */
+#else /* !CONFIG_SMC911X */
 #if defined(CONFIG_STATIC_BOARD_REV)
 	/* Look for static defintion of the board revision */
 	omap3_evm_version = CONFIG_STATIC_BOARD_REV;
@@ -75,7 +74,7 @@ static void omap3_evm_get_revision(void)
 	/* Fallback to the default above */
 	omap3_evm_version = OMAP3EVM_BOARD_GEN_2;
 #endif /* CONFIG_STATIC_BOARD_REV */
-#endif /* CONFIG_CMD_NET */
+#endif /* CONFIG_SMC911X */
 }
 
 #if defined(CONFIG_USB_MUSB_GADGET) || defined(CONFIG_USB_MUSB_HOST)
@@ -152,33 +151,6 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 }
 #endif /* CONFIG_SPL_BUILD */
 
-#if defined(CONFIG_USB_MUSB_OMAP2PLUS)
-static struct musb_hdrc_config musb_config = {
-	.multipoint     = 1,
-	.dyn_fifo       = 1,
-	.num_eps        = 16,
-	.ram_bits       = 12,
-};
-
-static struct omap_musb_board_data musb_board_data = {
-	.interface_type	= MUSB_INTERFACE_ULPI,
-};
-
-static struct musb_hdrc_platform_data musb_plat = {
-#if defined(CONFIG_USB_MUSB_HOST)
-	.mode           = MUSB_HOST,
-#elif defined(CONFIG_USB_MUSB_GADGET)
-	.mode		= MUSB_PERIPHERAL,
-#else
-#error "Please define either CONFIG_USB_MUSB_HOST or CONFIG_USB_MUSB_GADGET"
-#endif /* CONFIG_USB_MUSB_{GADGET,HOST} */
-	.config         = &musb_config,
-	.power          = 100,
-	.platform_ops	= &omap2430_ops,
-	.board_data	= &musb_board_data,
-};
-#endif /* CONFIG_USB_MUSB_OMAP2PLUS */
-
 /*
  * Routine: misc_init_r
  * Description: Init ethernet (done here so udelay works)
@@ -187,25 +159,18 @@ int misc_init_r(void)
 {
 	twl4030_power_init();
 
-#ifdef CONFIG_SYS_I2C_OMAP24XX
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
-#endif
-
-#if defined(CONFIG_CMD_NET)
+#if defined(CONFIG_SMC911X)
 	setup_net_chip();
 #endif
 	omap3_evm_get_revision();
 
-#if defined(CONFIG_CMD_NET)
+#if defined(CONFIG_SMC911X)
 	reset_net_chip();
 #endif
 	omap_die_id_display();
 
-#if defined(CONFIG_USB_MUSB_OMAP2PLUS)
-	musb_register(&musb_plat, &musb_board_data, (void *)MUSB_BASE);
-#endif
-
-#if defined(CONFIG_USB_ETHER) && defined(CONFIG_USB_MUSB_GADGET)
+#if defined(CONFIG_USB_ETHER) && defined(CONFIG_USB_MUSB_GADGET) && \
+						!defined(CONFIG_SMC911X)
 	omap_die_id_usbethaddr();
 #endif
 	return 0;
@@ -222,7 +187,7 @@ void set_muxconf_regs(void)
 	MUX_EVM();
 }
 
-#if defined(CONFIG_CMD_NET)
+#if defined(CONFIG_SMC911X)
 /*
  * Routine: setup_net_chip
  * Description: Setting up the configuration GPMC registers specific to the
@@ -280,33 +245,11 @@ static void reset_net_chip(void)
 	udelay(1);
 	gpio_set_value(rst_gpio, 1);
 }
-
-int board_eth_init(bd_t *bis)
-{
-#if defined(CONFIG_SMC911X)
-	env_set("ethaddr", NULL);
-	return smc911x_initialize(0, CONFIG_SMC911X_BASE);
-#else
-	return 0;
-#endif
-}
-#endif /* CONFIG_CMD_NET */
+#endif /* CONFIG_SMC911X */
 
 #if defined(CONFIG_MMC)
-int board_mmc_init(bd_t *bis)
-{
-	return omap_mmc_init(0, 0, 0, -1, -1);
-}
-
 void board_mmc_power_init(void)
 {
 	twl4030_power_mmc_init(0);
 }
 #endif /* CONFIG_MMC */
-
-#if defined(CONFIG_USB_ETHER) && defined(CONFIG_USB_MUSB_GADGET) && !defined(CONFIG_CMD_NET)
-int board_eth_init(bd_t *bis)
-{
-	return usb_eth_initialize(bis);
-}
-#endif /* CONFIG_USB_ETHER */

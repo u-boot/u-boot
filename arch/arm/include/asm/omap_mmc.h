@@ -26,6 +26,9 @@
 #define OMAP_MMC_H_
 
 #include <mmc.h>
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
 
 struct hsmmc {
 #ifndef CONFIG_OMAP34XX

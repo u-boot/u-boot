@@ -1,6 +1,13 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
+ * Defines APIs and structures that allow software to interact with a
+ * TPM2 device
+ *
+ * Copyright (c) 2020 Linaro
  * Copyright (c) 2018 Bootlin
+ *
+ * https://trustedcomputinggroup.org/resource/tss-overview-common-structures-specification/
+ *
  * Author: Miquel Raynal <miquel.raynal@bootlin.com>
  */
 
@@ -10,6 +17,74 @@
 #include <tpm-common.h>
 
 #define TPM2_DIGEST_LEN		32
+
+#define TPM2_MAX_PCRS 32
+#define TPM2_PCR_SELECT_MAX ((TPM2_MAX_PCRS + 7) / 8)
+#define TPM2_MAX_CAP_BUFFER 1024
+#define TPM2_MAX_TPM_PROPERTIES ((TPM2_MAX_CAP_BUFFER - sizeof(u32) /* TPM2_CAP */ - \
+				 sizeof(u32)) / sizeof(struct tpms_tagged_property))
+
+/*
+ *  We deviate from this draft of the specification by increasing the value of
+ *  TPM2_NUM_PCR_BANKS from 3 to 16 to ensure compatibility with TPM2
+ *  implementations that have enabled a larger than typical number of PCR
+ *  banks. This larger value for TPM2_NUM_PCR_BANKS is expected to be included
+ *  in a future revision of the specification.
+ */
+#define TPM2_NUM_PCR_BANKS 16
+
+/* Definition of (UINT32) TPM2_CAP Constants */
+#define TPM2_CAP_PCRS 0x00000005U
+#define TPM2_CAP_TPM_PROPERTIES 0x00000006U
+
+/* Definition of (UINT32) TPM2_PT Constants */
+#define TPM2_PT_GROUP			(u32)(0x00000100)
+#define TPM2_PT_FIXED			(u32)(TPM2_PT_GROUP * 1)
+#define TPM2_PT_MANUFACTURER		(u32)(TPM2_PT_FIXED + 5)
+#define TPM2_PT_PCR_COUNT		(u32)(TPM2_PT_FIXED + 18)
+#define TPM2_PT_MAX_COMMAND_SIZE	(u32)(TPM2_PT_FIXED + 30)
+#define TPM2_PT_MAX_RESPONSE_SIZE	(u32)(TPM2_PT_FIXED + 31)
+
+/* TPMS_TAGGED_PROPERTY Structure */
+struct tpms_tagged_property {
+	u32 property;
+	u32 value;
+} __packed;
+
+/* TPMS_PCR_SELECTION Structure */
+struct tpms_pcr_selection {
+	u16 hash;
+	u8 size_of_select;
+	u8 pcr_select[TPM2_PCR_SELECT_MAX];
+} __packed;
+
+/* TPML_PCR_SELECTION Structure */
+struct tpml_pcr_selection {
+	u32 count;
+	struct tpms_pcr_selection selection[TPM2_NUM_PCR_BANKS];
+} __packed;
+
+/* TPML_TAGGED_TPM_PROPERTY Structure */
+struct tpml_tagged_tpm_property {
+	u32 count;
+	struct tpms_tagged_property tpm_property[TPM2_MAX_TPM_PROPERTIES];
+} __packed;
+
+/* TPMU_CAPABILITIES Union */
+union tpmu_capabilities {
+	/*
+	 * Non exhaustive. Only added the structs needed for our
+	 * current code
+	 */
+	struct tpml_pcr_selection assigned_pcr;
+	struct tpml_tagged_tpm_property tpm_properties;
+} __packed;
+
+/* TPMS_CAPABILITY_DATA Structure */
+struct tpms_capability_data {
+	u32 capability;
+	union tpmu_capabilities data;
+} __packed;
 
 /**
  * TPM2 Structure Tags for command/response buffers.
@@ -70,6 +145,7 @@ enum tpm2_handles {
  * @TPM2_CC_DAM_RESET: TPM2_DictionaryAttackLockReset().
  * @TPM2_CC_DAM_PARAMETERS: TPM2_DictionaryAttackParameters().
  * @TPM2_CC_GET_CAPABILITY: TPM2_GetCapibility().
+ * @TPM2_CC_GET_RANDOM: TPM2_GetRandom().
  * @TPM2_CC_PCR_READ: TPM2_PCR_Read().
  * @TPM2_CC_PCR_EXTEND: TPM2_PCR_Extend().
  * @TPM2_CC_PCR_SETAUTHVAL: TPM2_PCR_SetAuthValue().
@@ -85,6 +161,7 @@ enum tpm2_command_codes {
 	TPM2_CC_DAM_PARAMETERS	= 0x013A,
 	TPM2_CC_NV_READ         = 0x014E,
 	TPM2_CC_GET_CAPABILITY	= 0x017A,
+	TPM2_CC_GET_RANDOM      = 0x017B,
 	TPM2_CC_PCR_READ	= 0x017E,
 	TPM2_CC_PCR_EXTEND	= 0x0182,
 	TPM2_CC_PCR_SETAUTHVAL	= 0x0183,
@@ -121,11 +198,13 @@ enum tpm2_return_codes {
  * TPM2 algorithms.
  */
 enum tpm2_algorithms {
+	TPM2_ALG_SHA1		= 0x04,
 	TPM2_ALG_XOR		= 0x0A,
 	TPM2_ALG_SHA256		= 0x0B,
 	TPM2_ALG_SHA384		= 0x0C,
 	TPM2_ALG_SHA512		= 0x0D,
 	TPM2_ALG_NULL		= 0x10,
+	TPM2_ALG_SM3_256	= 0x12,
 };
 
 /* NV index attributes */
@@ -159,6 +238,37 @@ enum tpm_index_attrs {
 				TPMA_NV_AUTHREAD | TPMA_NV_POLICYREAD,
 	TPMA_NV_MASK_WRITE	= TPMA_NV_PPWRITE | TPMA_NV_OWNERWRITE |
 					TPMA_NV_AUTHWRITE | TPMA_NV_POLICYWRITE,
+};
+
+enum {
+	TPM_ACCESS_VALID		= 1 << 7,
+	TPM_ACCESS_ACTIVE_LOCALITY	= 1 << 5,
+	TPM_ACCESS_REQUEST_PENDING	= 1 << 2,
+	TPM_ACCESS_REQUEST_USE		= 1 << 1,
+	TPM_ACCESS_ESTABLISHMENT	= 1 << 0,
+};
+
+enum {
+	TPM_STS_FAMILY_SHIFT		= 26,
+	TPM_STS_FAMILY_MASK		= 0x3 << TPM_STS_FAMILY_SHIFT,
+	TPM_STS_FAMILY_TPM2		= 1 << TPM_STS_FAMILY_SHIFT,
+	TPM_STS_RESE_TESTABLISMENT_BIT	= 1 << 25,
+	TPM_STS_COMMAND_CANCEL		= 1 << 24,
+	TPM_STS_BURST_COUNT_SHIFT	= 8,
+	TPM_STS_BURST_COUNT_MASK	= 0xffff << TPM_STS_BURST_COUNT_SHIFT,
+	TPM_STS_VALID			= 1 << 7,
+	TPM_STS_COMMAND_READY		= 1 << 6,
+	TPM_STS_GO			= 1 << 5,
+	TPM_STS_DATA_AVAIL		= 1 << 4,
+	TPM_STS_DATA_EXPECT		= 1 << 3,
+	TPM_STS_SELF_TEST_DONE		= 1 << 2,
+	TPM_STS_RESPONSE_RETRY		= 1 << 1,
+};
+
+enum {
+	TPM_CMD_COUNT_OFFSET	= 2,
+	TPM_CMD_ORDINAL_OFFSET	= 6,
+	TPM_MAX_BUF_SIZE	= 1260,
 };
 
 /**
@@ -307,5 +417,16 @@ u32 tpm2_pcr_setauthpolicy(struct udevice *dev, const char *pw,
 u32 tpm2_pcr_setauthvalue(struct udevice *dev, const char *pw,
 			  const ssize_t pw_sz, u32 index, const char *key,
 			  const ssize_t key_sz);
+
+/**
+ * Issue a TPM2_GetRandom command.
+ *
+ * @dev		TPM device
+ * @param data		output buffer for the random bytes
+ * @param count		size of output buffer
+ *
+ * @return return code of the operation
+ */
+u32 tpm2_get_random(struct udevice *dev, void *data, u32 count);
 
 #endif /* __TPM_V2_H */

@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <asm/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/sromc.h>

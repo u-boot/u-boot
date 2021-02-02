@@ -20,8 +20,6 @@
  * Memory test
  * TODO: Migrate!
  */
-#define CONFIG_SYS_MEMTEST_START	0x00001000 /* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x07e00000
 
 /*
  * The reserved memory
@@ -82,7 +80,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1

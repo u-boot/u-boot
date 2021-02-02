@@ -11,9 +11,14 @@ This tool is a Python script which:
 - Runs the patches through checkpatch.pl and its own checks
 - Optionally emails them out to selected people
 
+It also has some Patchwork features:
+- shows review tags from Patchwork so you can update your local patches
+- pulls these down into a new branch on request
+- lists comments received on a series
+
 It is intended to automate patch creation and make it a less
 error-prone process. It is useful for U-Boot and Linux work so far,
-since it uses the checkpatch.pl script.
+since they use the checkpatch.pl script.
 
 It is configured almost entirely by tags it finds in your commits.
 This means that you can work on a number of different branches at
@@ -108,6 +113,7 @@ ignore_errors: True
 process_tags: False
 verbose: True
 smtp_server: /path/to/sendmail
+patchwork_server: https://patchwork.ozlabs.org
 
 <<<
 
@@ -187,6 +193,27 @@ Series-name: name
 	patman does not yet use it, but it is convenient to put the branch
 	name here to help you keep track of multiple upstreaming efforts.
 
+Series-links: [id | version:id]...
+	Set the ID of the series in patchwork. You can set this after you send
+	out the series and look in patchwork for the resulting series. The
+	URL you want is the one for the series itself, not any particular patch.
+	E.g. for http://patchwork.ozlabs.org/project/uboot/list/?series=187331
+	the series ID is 187331. This property can have a list of series IDs,
+	one for each version of the series, e.g.
+
+	   Series-links: 1:187331 2:188434 189372
+
+	Patman always uses the one without a version, since it assumes this is
+	the latest one. When this tag is provided, patman can compare your local
+	branch against patchwork to see what new reviews your series has
+	collected ('patman status').
+
+Series-patchwork-url: url
+	This allows specifying the Patchwork URL for a branch. This overrides
+	both the setting files and the command-line argument. The URL should
+	include the protocol and web site, with no trailing slash, for example
+	'https://patchwork.ozlabs.org/project'
+
 Cover-letter:
 This is the patch set title
 blah blah
@@ -247,14 +274,37 @@ Series-changes: n
 	to update the log there and then, knowing that the script will
 	do the rest.
 
+Commit-changes: n
+- This line will not appear in the cover-letter changelog
+<blank line>
+	This tag is like Series-changes, except changes in this changelog will
+	only appear in the changelog of the commit this tag is in. This is
+	useful when you want to add notes which may not make sense in the cover
+	letter. For example, you can have short changes such as "New" or
+	"Lint".
+
+Cover-changes: n
+- This line will only appear in the cover letter
+<blank line>
+	This tag is like Series-changes, except changes in this changelog will
+	only appear in the cover-letter changelog. This is useful to summarize
+	changes made with Commit-changes, or to add additional context to
+	changes.
+
 Patch-cc: Their Name <email>
 	This copies a single patch to another email address. Note that the
 	Cc: used by git send-email is ignored by patman, but will be
 	interpreted by git send-email if you use it.
 
 Series-process-log: sort, uniq
-	This tells patman to sort and/or uniq the change logs. It is
-	assumed that each change log entry is only a single line long.
+	This tells patman to sort and/or uniq the change logs. Changes may be
+	multiple lines long, as long as each subsequent line of a change begins
+	with a whitespace character. For example,
+
+- This change
+  continues onto the next line
+- But this change is separate
+
 	Use 'sort' to sort the entries, and 'uniq' to include only
 	unique entries. If omitted, no change log processing is done.
 	Separate each tag with a comma.
@@ -312,6 +362,53 @@ Cover-letter-cc: <list of addresses>
 
 These people will get the cover letter even if they are not on the To/Cc
 list for any of the patches.
+
+
+Patchwork Integration
+=====================
+
+Patman has a very basic integration with Patchwork. If you point patman to
+your series on patchwork it can show you what new reviews have appears since
+you sent your series.
+
+To set this up, add a Series-link tag to one of the commits in your series
+(see above).
+
+Then you can type
+
+    patman status
+
+and patman will show you each patch and what review tags have been collected,
+for example:
+
+...
+ 21 x86: mtrr: Update the command to use the new mtrr
+    Reviewed-by: Wolfgang Wallner <wolfgang.wallner@br-automation.com>
+  + Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+ 22 x86: mtrr: Restructure so command execution is in
+    Reviewed-by: Wolfgang Wallner <wolfgang.wallner@br-automation.com>
+  + Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+...
+
+This shows that patch 21 and 22 were sent out with one review but have since
+attracted another review each. If the series needs changes, you can update
+these commits with the new review tag before sending the next version of the
+series.
+
+To automatically pull into these tags into a new branch, use the -d option:
+
+    patman status -d mtrr4
+
+This will create a new 'mtrr4' branch which is the same as your current branch
+but has the new review tags in it. The tags are added in alphabetic order and
+are placed immediately after any existing ack/review/test/fixes tags, or at the
+end. You can check that this worked with:
+
+    patman -b mtrr4 status
+
+which should show that there are no new responses compared to this new branch.
+
+There is also a -C option to list the comments received for each patch.
 
 
 Example Work Flow
@@ -397,17 +494,33 @@ people on the list don't see your secret info.
 Of course patches often attract comments and you need to make some updates.
 Let's say one person sent comments and you get an Acked-by: on one patch.
 Also, the patch on the list that you were waiting for has been merged,
-so you can drop your wip commit. So you resync with upstream:
+so you can drop your wip commit.
+
+Take a look on patchwork and find out the URL of the series. This will be
+something like http://patchwork.ozlabs.org/project/uboot/list/?series=187331
+Add this to a tag in your top commit:
+
+   Series-link: http://patchwork.ozlabs.org/project/uboot/list/?series=187331
+
+You can use then patman to collect the Acked-by tag to the correct commit,
+creating a new 'version 2' branch for us-cmd:
+
+    patman status -d us-cmd2
+    git checkout us-cmd2
+
+You can look at the comments in Patchwork or with:
+
+    patman status -C
+
+Then you can resync with upstream:
 
     git fetch origin		(or whatever upstream is called)
     git rebase origin/master
 
-and use git rebase -i to edit the commits, dropping the wip one. You add
-the ack tag to one commit:
+and use git rebase -i to edit the commits, dropping the wip one.
 
-    Acked-by: Heiko Schocher <hs@denx.de>
-
-update the Series-cc: in the top commit:
+Then update the Series-cc: in the top commit to add the person who reviewed
+the v1 series:
 
     Series-cc: bfin, marex, Heiko Schocher <hs@denx.de>
 
@@ -446,7 +559,9 @@ so to send them:
 
 and it will create and send the version 2 series.
 
-General points:
+
+General points
+==============
 
 1. When you change back to the us-cmd branch days or weeks later all your
 information is still there, safely stored in the commits. You don't need
@@ -474,6 +589,33 @@ print out the command line patman would have used.
 not later when you can't remember which patch you changed. You can always
 go back and change or remove logs from commits.
 
+7. Some mailing lists have size limits and when we add binary contents to
+our patches it's easy to exceed the size limits. Use "--no-binary" to
+generate patches without any binary contents. You are supposed to include
+a link to a git repository in your "Commit-notes", "Series-notes" or
+"Cover-letter" for maintainers to fetch the original commit.
+
+8. Patches will have no changelog entries for revisions where they did not
+change. For clarity, if there are no changes for this patch in the most
+recent revision of the series, a note will be added. For example, a patch
+with the following tags in the commit
+
+    Series-version: 5
+    Series-changes: 2
+    - Some change
+
+    Series-changes: 4
+    - Another change
+
+would have a changelog of
+
+    (no changes since v4)
+
+    Changes in v4:
+    - Another change
+
+    Changes in v2:
+    - Some change
 
 Other thoughts
 ==============
@@ -483,12 +625,10 @@ Most of these are indicated by a TODO in the code.
 
 It would be nice if this could handle the In-reply-to side of things.
 
-The tests are incomplete, as is customary. Use the --test flag to run them,
-and make sure you are in the tools/patman directory first:
+The tests are incomplete, as is customary. Use the 'test' subcommand to run
+them:
 
-    $ cd /path/to/u-boot
-    $ cd tools/patman
-    $ ./patman --test
+    $ tools/patman/patman test
 
 Error handling doesn't always produce friendly error messages - e.g.
 putting an incorrect tag in a commit may provide a confusing message.
@@ -501,3 +641,4 @@ a bad thing.
 Simon Glass <sjg@chromium.org>
 v1, v2, 19-Oct-11
 revised v3 24-Nov-11
+revised v4 Independence Day 2020, with Patchwork integration

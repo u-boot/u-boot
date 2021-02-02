@@ -51,6 +51,7 @@
 #include <command.h>
 #include <config.h>
 #include <malloc.h>
+#include <linux/delay.h>
 #include "smc91111.h"
 #include <net.h>
 
@@ -266,7 +267,7 @@ static inline void smc_wait_mmu_release_complete (struct eth_device *dev)
 
 	/* assume bank 2 selected */
 	while (SMC_inw (dev, MMU_CMD_REG) & MC_BUSY) {
-		udelay (1);	/* Wait until not busy */
+		udelay(1);	/* Wait until not busy */
 		if (++count > 200)
 			break;
 	}
@@ -318,7 +319,7 @@ static void smc_reset (struct eth_device *dev)
 	SMC_SELECT_BANK (dev, 0);
 
 	/* this should pause enough for the chip to be happy */
-	udelay (10);
+	udelay(10);
 
 	/* Disable transmit and receive functionality */
 	SMC_outw (dev, RCR_CLEAR, RCR_REG);
@@ -333,7 +334,7 @@ static void smc_reset (struct eth_device *dev)
 	smc_wait_mmu_release_complete (dev);
 	SMC_outw (dev, MC_RESET, MMU_CMD_REG);
 	while (SMC_inw (dev, MMU_CMD_REG) & MC_BUSY)
-		udelay (1);	/* Wait until not busy */
+		udelay(1);	/* Wait until not busy */
 
 	/* Note:  It doesn't seem that waiting for the MMU busy is needed here,
 	   but this is a place where future chipsets _COULD_ break.  Be wary
@@ -564,7 +565,7 @@ again:
 
 		/* wait for MMU getting ready (low) */
 		while (SMC_inw (dev, MMU_CMD_REG) & MC_BUSY) {
-			udelay (10);
+			udelay(10);
 		}
 
 		PRINTK2 ("MMU ready\n");
@@ -583,7 +584,7 @@ again:
 
 		/* wait for MMU getting ready (low) */
 		while (SMC_inw (dev, MMU_CMD_REG) & MC_BUSY) {
-			udelay (10);
+			udelay(10);
 		}
 
 		PRINTK2 ("MMU ready\n");
@@ -626,7 +627,7 @@ static int smc_write_hwaddr(struct eth_device *dev)
  * Set up everything, reset the card, etc ..
  *
  */
-static int smc_init(struct eth_device *dev, bd_t *bd)
+static int smc_init(struct eth_device *dev, struct bd_info *bd)
 {
 	swap_to(ETHERNET);
 
@@ -957,19 +958,19 @@ static word smc_read_phy_register (struct eth_device *dev, byte phyreg)
 	for (i = 0; i < sizeof bits; ++i) {
 		/* Clock Low - output data */
 		SMC_outw (dev, mii_reg | bits[i], MII_REG);
-		udelay (SMC_PHY_CLOCK_DELAY);
+		udelay(SMC_PHY_CLOCK_DELAY);
 
 
 		/* Clock Hi - input data */
 		SMC_outw (dev, mii_reg | bits[i] | MII_MCLK, MII_REG);
-		udelay (SMC_PHY_CLOCK_DELAY);
+		udelay(SMC_PHY_CLOCK_DELAY);
 		bits[i] |= SMC_inw (dev, MII_REG) & MII_MDI;
 	}
 
 	/* Return to idle state */
 	/* Set clock to low, data to low, and output tristated */
 	SMC_outw (dev, mii_reg, MII_REG);
-	udelay (SMC_PHY_CLOCK_DELAY);
+	udelay(SMC_PHY_CLOCK_DELAY);
 
 	/* Restore original bank select */
 	SMC_SELECT_BANK (dev, oldBank);
@@ -1078,19 +1079,19 @@ static void smc_write_phy_register (struct eth_device *dev, byte phyreg,
 	for (i = 0; i < sizeof bits; ++i) {
 		/* Clock Low - output data */
 		SMC_outw (dev, mii_reg | bits[i], MII_REG);
-		udelay (SMC_PHY_CLOCK_DELAY);
+		udelay(SMC_PHY_CLOCK_DELAY);
 
 
 		/* Clock Hi - input data */
 		SMC_outw (dev, mii_reg | bits[i] | MII_MCLK, MII_REG);
-		udelay (SMC_PHY_CLOCK_DELAY);
+		udelay(SMC_PHY_CLOCK_DELAY);
 		bits[i] |= SMC_inw (dev, MII_REG) & MII_MDI;
 	}
 
 	/* Return to idle state */
 	/* Set clock to low, data to low, and output tristated */
 	SMC_outw (dev, mii_reg, MII_REG);
-	udelay (SMC_PHY_CLOCK_DELAY);
+	udelay(SMC_PHY_CLOCK_DELAY);
 
 	/* Restore original bank select */
 	SMC_SELECT_BANK (dev, oldBank);

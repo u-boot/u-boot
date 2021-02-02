@@ -29,7 +29,6 @@
 #define CONFIG_SYS_NAND_LARGEPAGE
 #define CONFIG_MXC_NAND_HWECC
 
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* I2C Configs */
@@ -45,9 +44,6 @@
 
 /* Eth Configs */
 #define CONFIG_HAS_ETH1
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 /* Command definition */
 
@@ -146,9 +142,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_MEMTEST_START       0x70000000
-#define CONFIG_SYS_MEMTEST_END         0x70010000
-
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /* Physical Memory Map */
@@ -168,7 +161,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* environment organization */
-#define CONFIG_SYS_MMC_ENV_DEV	0
 
 #define MX53ARD_CS1GCR1		(CSEN | DSZ(2))
 #define MX53ARD_CS1RCR1		(RCSN(2) | OEN (1) | RWSC(22))

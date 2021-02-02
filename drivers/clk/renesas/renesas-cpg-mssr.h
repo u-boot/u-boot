@@ -13,6 +13,7 @@
 #ifndef __DRIVERS_CLK_RENESAS_CPG_MSSR__
 #define __DRIVERS_CLK_RENESAS_CPG_MSSR__
 
+#include <linux/bitops.h>
 struct cpg_mssr_info {
 	const struct cpg_core_clk	*core_clk;
 	unsigned int			core_clk_size;

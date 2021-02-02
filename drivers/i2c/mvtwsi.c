@@ -9,6 +9,8 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <log.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
@@ -25,9 +27,9 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 
 #ifndef CONFIG_DM_I2C
-#if defined(CONFIG_ORION5X)
+#if defined(CONFIG_ARCH_ORION5X)
 #include <asm/arch/orion5x.h>
-#elif (defined(CONFIG_KIRKWOOD) || defined(CONFIG_ARCH_MVEBU))
+#elif (defined(CONFIG_ARCH_KIRKWOOD) || defined(CONFIG_ARCH_MVEBU))
 #include <asm/arch/soc.h>
 #elif defined(CONFIG_ARCH_SUNXI)
 #include <asm/arch/i2c.h>
@@ -796,7 +798,7 @@ static int mvtwsi_i2c_ofdata_to_platdata(struct udevice *bus)
 {
 	struct mvtwsi_i2c_dev *dev = dev_get_priv(bus);
 
-	dev->base = devfdt_get_addr_ptr(bus);
+	dev->base = dev_read_addr_ptr(bus);
 
 	if (!dev->base)
 		return -ENOMEM;
@@ -805,8 +807,9 @@ static int mvtwsi_i2c_ofdata_to_platdata(struct udevice *bus)
 				    "cell-index", -1);
 	dev->slaveadd = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
 				       "u-boot,i2c-slave-addr", 0x0);
-	dev->speed = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
-				    "clock-frequency", 100000);
+	dev->speed = dev_read_u32_default(bus, "clock-frequency",
+					  I2C_SPEED_STANDARD_RATE);
+
 	return 0;
 }
 
@@ -817,10 +820,11 @@ static void twsi_disable_i2c_slave(struct mvtwsi_registers *twsi)
 
 static int mvtwsi_i2c_bind(struct udevice *bus)
 {
-	struct mvtwsi_registers *twsi = devfdt_get_addr_ptr(bus);
+	struct mvtwsi_registers *twsi = dev_read_addr_ptr(bus);
 
 	/* Disable the hidden slave in i2c0 of these platforms */
-	if ((IS_ENABLED(CONFIG_ARMADA_38X) || IS_ENABLED(CONFIG_KIRKWOOD))
+	if ((IS_ENABLED(CONFIG_ARMADA_38X) || IS_ENABLED(CONFIG_ARCH_KIRKWOOD)
+				|| IS_ENABLED(CONFIG_ARMADA_8K))
 			&& bus->req_seq == 0)
 		twsi_disable_i2c_slave(twsi);
 

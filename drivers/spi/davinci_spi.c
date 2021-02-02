@@ -9,12 +9,15 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <spi.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <dm.h>
 #include <dm/platform_data/spi_davinci.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 /* SPIGCR0 */
 #define SPIGCR0_SPIENA_MASK	0x1
@@ -52,41 +55,6 @@
 /* SPIDEF */
 #define SPIDEF_CSDEF0_MASK	BIT(0)
 
-#ifndef CONFIG_DM_SPI
-#define SPI0_BUS		0
-#define SPI0_BASE		CONFIG_SYS_SPI_BASE
-/*
- * Define default SPI0_NUM_CS as 1 for existing platforms that uses this
- * driver. Platform can configure number of CS using CONFIG_SYS_SPI0_NUM_CS
- * if more than one CS is supported and by defining CONFIG_SYS_SPI0.
- */
-#ifndef CONFIG_SYS_SPI0
-#define SPI0_NUM_CS		1
-#else
-#define SPI0_NUM_CS		CONFIG_SYS_SPI0_NUM_CS
-#endif
-
-/*
- * define CONFIG_SYS_SPI1 when platform has spi-1 device (bus #1) and
- * CONFIG_SYS_SPI1_NUM_CS defines number of CS on this bus
- */
-#ifdef CONFIG_SYS_SPI1
-#define SPI1_BUS		1
-#define SPI1_NUM_CS		CONFIG_SYS_SPI1_NUM_CS
-#define SPI1_BASE		CONFIG_SYS_SPI1_BASE
-#endif
-
-/*
- * define CONFIG_SYS_SPI2 when platform has spi-2 device (bus #2) and
- * CONFIG_SYS_SPI2_NUM_CS defines number of CS on this bus
- */
-#ifdef CONFIG_SYS_SPI2
-#define SPI2_BUS		2
-#define SPI2_NUM_CS		CONFIG_SYS_SPI2_NUM_CS
-#define SPI2_BASE		CONFIG_SYS_SPI2_BASE
-#endif
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 /* davinci spi register set */
@@ -119,9 +87,6 @@ struct davinci_spi_regs {
 
 /* davinci spi slave */
 struct davinci_spi_slave {
-#ifndef CONFIG_DM_SPI
-	struct spi_slave slave;
-#endif
 	struct davinci_spi_regs *regs;
 	unsigned int freq; /* current SPI bus frequency */
 	unsigned int mode; /* current SPI mode used */
@@ -343,124 +308,6 @@ out:
 	return 0;
 }
 
-#ifndef CONFIG_DM_SPI
-
-static inline struct davinci_spi_slave *to_davinci_spi(struct spi_slave *slave)
-{
-	return container_of(slave, struct davinci_spi_slave, slave);
-}
-
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	int ret = 0;
-
-	switch (bus) {
-	case SPI0_BUS:
-		if (cs < SPI0_NUM_CS)
-			ret = 1;
-		break;
-#ifdef CONFIG_SYS_SPI1
-	case SPI1_BUS:
-		if (cs < SPI1_NUM_CS)
-			ret = 1;
-		break;
-#endif
-#ifdef CONFIG_SYS_SPI2
-	case SPI2_BUS:
-		if (cs < SPI2_NUM_CS)
-			ret = 1;
-		break;
-#endif
-	default:
-		/* Invalid bus number. Do nothing */
-		break;
-	}
-	return ret;
-}
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	/* do nothing */
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	/* do nothing */
-}
-
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-			unsigned int max_hz, unsigned int mode)
-{
-	struct davinci_spi_slave	*ds;
-
-	if (!spi_cs_is_valid(bus, cs))
-		return NULL;
-
-	ds = spi_alloc_slave(struct davinci_spi_slave, bus, cs);
-	if (!ds)
-		return NULL;
-
-	switch (bus) {
-	case SPI0_BUS:
-		ds->regs = (struct davinci_spi_regs *)SPI0_BASE;
-		break;
-#ifdef CONFIG_SYS_SPI1
-	case SPI1_BUS:
-		ds->regs = (struct davinci_spi_regs *)SPI1_BASE;
-		break;
-#endif
-#ifdef CONFIG_SYS_SPI2
-	case SPI2_BUS:
-		ds->regs = (struct davinci_spi_regs *)SPI2_BASE;
-		break;
-#endif
-	default: /* Invalid bus number */
-		return NULL;
-	}
-
-	ds->freq = max_hz;
-	ds->mode = mode;
-
-	return &ds->slave;
-}
-
-void spi_free_slave(struct spi_slave *slave)
-{
-	struct davinci_spi_slave *ds = to_davinci_spi(slave);
-
-	free(ds);
-}
-
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
-	     const void *dout, void *din, unsigned long flags)
-{
-	struct davinci_spi_slave *ds = to_davinci_spi(slave);
-
-	ds->cur_cs = slave->cs;
-
-	return __davinci_spi_xfer(ds, bitlen, dout, din, flags);
-}
-
-int spi_claim_bus(struct spi_slave *slave)
-{
-	struct davinci_spi_slave *ds = to_davinci_spi(slave);
-
-#ifdef CONFIG_SPI_HALF_DUPLEX
-	ds->half_duplex = true;
-#else
-	ds->half_duplex = false;
-#endif
-	return __davinci_spi_claim_bus(ds, ds->slave.cs);
-}
-
-void spi_release_bus(struct spi_slave *slave)
-{
-	struct davinci_spi_slave *ds = to_davinci_spi(slave);
-
-	__davinci_spi_release_bus(ds);
-}
-
-#else
 static int davinci_spi_set_speed(struct udevice *bus, uint max_hz)
 {
 	struct davinci_spi_slave *ds = dev_get_priv(bus);
@@ -549,7 +396,7 @@ static int davinci_ofdata_to_platadata(struct udevice *bus)
 	struct davinci_spi_platdata *plat = bus->platdata;
 	fdt_addr_t addr;
 
-	addr = devfdt_get_addr(bus);
+	addr = dev_read_addr(bus);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -579,4 +426,3 @@ U_BOOT_DRIVER(davinci_spi) = {
 	.ops = &davinci_spi_ops,
 	.priv_auto_alloc_size = sizeof(struct davinci_spi_slave),
 };
-#endif

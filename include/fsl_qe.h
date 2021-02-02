@@ -227,7 +227,8 @@ typedef enum qe_clock {
 
 /* Structure that defines QE firmware binary files.
  *
- * See doc/README.qe_firmware for a description of these fields.
+ * See Documentation/powerpc/qe_firmware.rst in the Linux kernel tree for
+ * a description of these fields.
  */
 struct qe_firmware {
 	struct qe_header {
@@ -295,4 +296,7 @@ int u_qe_firmware_resume(const struct qe_firmware *firmware,
 			 qe_map_t *qe_immrr);
 #endif
 
+#if defined(CONFIG_PINCTRL)
+int par_io_of_config(struct udevice *dev);
+#endif
 #endif /* __QE_H__ */

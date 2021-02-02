@@ -10,6 +10,8 @@
 #include <common.h>
 #include <dm.h>
 #include <clk.h>
+#include <init.h>
+#include <malloc.h>
 #include <dt-bindings/clock/microchip,clock.h>
 #include <mach/pic32.h>
 

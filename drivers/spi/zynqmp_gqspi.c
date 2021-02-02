@@ -7,7 +7,9 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <dm.h>
@@ -18,6 +20,9 @@
 #include <spi_flash.h>
 #include <ubi_uboot.h>
 #include <wait_bit.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/err.h>
 #include <linux/mtd/spi-nor.h>
 #include "../mtd/spi/sf_internal.h"
 #include <zynqmp_firmware.h>
@@ -101,13 +106,10 @@
 #define TAP_DLY_BYPASS_LQSPI_RX_VALUE	0x1
 #define TAP_DLY_BYPASS_LQSPI_RX_SHIFT	2
 #define GQSPI_DATA_DLY_ADJ_OFST		0x000001F8
-#if !defined(CONFIG_ARCH_VERSAL)
-#define IOU_TAPDLY_BYPASS_OFST		0xFF180390
-#else
-#define IOU_TAPDLY_BYPASS_OFST		0xF103003C
-#define GQSPI_FREQ_37_5MHZ		37500000
-#endif
+#define IOU_TAPDLY_BYPASS_OFST !IS_ENABLED(CONFIG_ARCH_VERSAL) ? \
+				0xFF180390 : 0xF103003C
 #define GQSPI_LPBK_DLY_ADJ_LPBK_MASK	0x00000020
+#define GQSPI_FREQ_37_5MHZ		37500000
 #define GQSPI_FREQ_40MHZ		40000000
 #define GQSPI_FREQ_100MHZ		100000000
 #define GQSPI_FREQ_150MHZ		150000000
@@ -207,10 +209,10 @@ static int zynqmp_qspi_ofdata_to_platdata(struct udevice *bus)
 
 	debug("%s\n", __func__);
 
-	plat->regs = (struct zynqmp_qspi_regs *)(devfdt_get_addr(bus) +
+	plat->regs = (struct zynqmp_qspi_regs *)(dev_read_addr(bus) +
 						 GQSPI_REG_OFFSET);
 	plat->dma_regs = (struct zynqmp_qspi_dma_regs *)
-			  (devfdt_get_addr(bus) + GQSPI_DMA_REG_OFFSET);
+			  (dev_read_addr(bus) + GQSPI_DMA_REG_OFFSET);
 
 	is_dual = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus), "is-dual", -1);
 	if (is_dual < 0)
@@ -227,6 +229,7 @@ static int zynqmp_qspi_ofdata_to_platdata(struct udevice *bus)
 	plat->io_mode = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(bus),
 					"has-io-mode");
 
+	plat->io_mode = dev_read_bool(bus, "has-io-mode");
 	return 0;
 }
 
@@ -245,8 +248,7 @@ static void zynqmp_qspi_init_hw(struct zynqmp_qspi_priv *priv)
 
 	config_reg = readl(&regs->confr);
 	config_reg &= ~(GQSPI_CONFIG_MODE_EN_MASK);
-	config_reg |= GQSPI_GFIFO_WP_HOLD |
-		      GQSPI_DFLT_BAUD_RATE_DIV;
+	config_reg |= GQSPI_GFIFO_WP_HOLD | GQSPI_DFLT_BAUD_RATE_DIV;
 	if (priv->io_mode) {
 		config_reg |= GQSPI_GFIFO_STRT_MODE_MASK;
 	} else {
@@ -357,40 +359,41 @@ void zynqmp_qspi_set_tapdelay(struct udevice *bus, u32 baudrateval)
 	debug("%s, req_hz:%d, clk_rate:%d, baudrateval:%d\n",
 	      __func__, reqhz, clk_rate, baudrateval);
 
-#if !defined(CONFIG_ARCH_VERSAL)
-	if (reqhz <= GQSPI_FREQ_40MHZ) {
-		tapdlybypass = (TAP_DLY_BYPASS_LQSPI_RX_VALUE <<
-				TAP_DLY_BYPASS_LQSPI_RX_SHIFT);
-	} else if (reqhz <= GQSPI_FREQ_100MHZ) {
-		tapdlybypass = (TAP_DLY_BYPASS_LQSPI_RX_VALUE <<
-				TAP_DLY_BYPASS_LQSPI_RX_SHIFT);
-		lpbkdlyadj = (GQSPI_LPBK_DLY_ADJ_LPBK_MASK);
-		datadlyadj = ((GQSPI_USE_DATA_DLY << GQSPI_USE_DATA_DLY_SHIFT)
-				| (GQSPI_DATA_DLY_ADJ_VALUE <<
-					GQSPI_DATA_DLY_ADJ_SHIFT));
-	} else if (reqhz <= GQSPI_FREQ_150MHZ) {
-		lpbkdlyadj = ((GQSPI_LPBK_DLY_ADJ_LPBK_MASK) |
-				GQSPI_LPBK_DLY_ADJ_DLY_0);
+	if (!IS_ENABLED(CONFIG_ARCH_VERSAL)) {
+		if (reqhz <= GQSPI_FREQ_40MHZ) {
+			tapdlybypass = TAP_DLY_BYPASS_LQSPI_RX_VALUE <<
+					TAP_DLY_BYPASS_LQSPI_RX_SHIFT;
+		} else if (reqhz <= GQSPI_FREQ_100MHZ) {
+			tapdlybypass = TAP_DLY_BYPASS_LQSPI_RX_VALUE <<
+					TAP_DLY_BYPASS_LQSPI_RX_SHIFT;
+			lpbkdlyadj = GQSPI_LPBK_DLY_ADJ_LPBK_MASK;
+			datadlyadj = (GQSPI_USE_DATA_DLY <<
+				      GQSPI_USE_DATA_DLY_SHIFT) |
+				       (GQSPI_DATA_DLY_ADJ_VALUE <<
+					GQSPI_DATA_DLY_ADJ_SHIFT);
+		} else if (reqhz <= GQSPI_FREQ_150MHZ) {
+			lpbkdlyadj = GQSPI_LPBK_DLY_ADJ_LPBK_MASK |
+				      GQSPI_LPBK_DLY_ADJ_DLY_0;
+		}
+		zynqmp_mmio_write(IOU_TAPDLY_BYPASS_OFST,
+				  IOU_TAPDLY_BYPASS_MASK, tapdlybypass);
+	} else {
+		if (reqhz <= GQSPI_FREQ_37_5MHZ) {
+			tapdlybypass = TAP_DLY_BYPASS_LQSPI_RX_VALUE <<
+					TAP_DLY_BYPASS_LQSPI_RX_SHIFT;
+		} else if (reqhz <= GQSPI_FREQ_100MHZ) {
+			tapdlybypass = TAP_DLY_BYPASS_LQSPI_RX_VALUE <<
+					TAP_DLY_BYPASS_LQSPI_RX_SHIFT;
+			lpbkdlyadj = GQSPI_LPBK_DLY_ADJ_LPBK_MASK;
+			datadlyadj = GQSPI_USE_DATA_DLY <<
+				      GQSPI_USE_DATA_DLY_SHIFT;
+		} else if (reqhz <= GQSPI_FREQ_150MHZ) {
+			lpbkdlyadj = GQSPI_LPBK_DLY_ADJ_LPBK_MASK |
+				      (GQSPI_LPBK_DLY_ADJ_DLY_1 <<
+				       GQSPI_LPBK_DLY_ADJ_DLY_1_SHIFT);
+		}
+		writel(tapdlybypass, IOU_TAPDLY_BYPASS_OFST);
 	}
-
-	zynqmp_mmio_write(IOU_TAPDLY_BYPASS_OFST, IOU_TAPDLY_BYPASS_MASK,
-			  tapdlybypass);
-#else
-	if (reqhz <= GQSPI_FREQ_37_5MHZ) {
-		tapdlybypass = (TAP_DLY_BYPASS_LQSPI_RX_VALUE <<
-				TAP_DLY_BYPASS_LQSPI_RX_SHIFT);
-	} else if (reqhz <= GQSPI_FREQ_100MHZ) {
-		tapdlybypass = (TAP_DLY_BYPASS_LQSPI_RX_VALUE <<
-				TAP_DLY_BYPASS_LQSPI_RX_SHIFT);
-		lpbkdlyadj = (GQSPI_LPBK_DLY_ADJ_LPBK_MASK);
-		datadlyadj = (GQSPI_USE_DATA_DLY << GQSPI_USE_DATA_DLY_SHIFT);
-	} else if (reqhz <= GQSPI_FREQ_150MHZ) {
-		lpbkdlyadj = ((GQSPI_LPBK_DLY_ADJ_LPBK_MASK) |
-			       (GQSPI_LPBK_DLY_ADJ_DLY_1 <<
-				GQSPI_LPBK_DLY_ADJ_DLY_1_SHIFT));
-	}
-	writel(tapdlybypass, IOU_TAPDLY_BYPASS_OFST);
-#endif
 	writel(lpbkdlyadj, &regs->lpbkdly);
 	writel(datadlyadj, &regs->gqspidlyadj);
 }
@@ -469,20 +472,20 @@ static int zynqmp_qspi_probe(struct udevice *bus)
 	}
 	ret = clk_get_by_index(bus, 0, &clk);
 	if (ret < 0) {
-		dev_err(dev, "failed to get clock\n");
+		dev_err(bus, "failed to get clock\n");
 		return ret;
 	}
 
 	clock = clk_get_rate(&clk);
 	if (IS_ERR_VALUE(clock)) {
-		dev_err(dev, "failed to get rate\n");
+		dev_err(bus, "failed to get rate\n");
 		return clock;
 	}
 	debug("%s: CLK %ld\n", __func__, clock);
 
 	ret = clk_enable(&clk);
 	if (ret && ret != -ENOSYS) {
-		dev_err(dev, "failed to enable clock\n");
+		dev_err(bus, "failed to enable clock\n");
 		return ret;
 	}
 	plat->frequency = clock;

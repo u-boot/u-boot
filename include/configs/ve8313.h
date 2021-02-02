@@ -12,20 +12,19 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 /*
  * High Level Configuration Options
  */
 #define CONFIG_E300		1
 
 #define CONFIG_PCI_INDIRECT_BRIDGE 1
-#define CONFIG_FSL_ELBC		1
 
 /*
  * On-board devices
  *
  */
-#define CONFIG_SYS_MEMTEST_START	0x00001000
-#define CONFIG_SYS_MEMTEST_END		0x07000000
 
 /*
  * Device configurations
@@ -204,10 +203,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-
-/*
- * Command line configuration.
- */
 
 /*
  * Miscellaneous configurable options

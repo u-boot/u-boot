@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <init.h>
 #include <ram.h>
 #include <regmap.h>
 #include <syscon.h>
@@ -19,6 +20,7 @@
 #include <asm/arch-rockchip/uart.h>
 #include <asm/arch-rockchip/sdram.h>
 #include <asm/types.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;

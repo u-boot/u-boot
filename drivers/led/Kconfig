@@ -30,10 +30,18 @@ config LED_BCM6358
 
 config LED_BCM6858
 	bool "LED Support for BCM6858"
-	depends on LED && (ARCH_BCM6858 || ARCH_BCM63158)
+	depends on LED && (ARCH_BCM68360 || ARCH_BCM6858 || ARCH_BCM63158)
 	help
 	  This option enables support for LEDs connected to the BCM6858
 	  HW has blinking capabilities and up to 32 LEDs can be controlled.
+
+config LED_CORTINA
+	bool "LED Support for Cortina Access CAxxxx SoCs"
+	depends on LED && (CORTINA_PLATFORM)
+	help
+	  This option enables support for LEDs connected to the Cortina
+	  Access CAxxxx SOCs.
+
 
 config LED_BLINK
 	bool "Support LED blinking"

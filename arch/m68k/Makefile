@@ -30,6 +30,6 @@ ldflags-$(CONFIG_MCF547x_8x)	:= --got=single
 
 ifneq (,$(findstring -linux-,$(shell $(CC) --version)))
 ifneq (,$(findstring GOT,$(shell $(LD) --help)))
-PLATFORM_LDFLAGS += $(ldflags-y)
+KBUILD_LDFLAGS += $(ldflags-y)
 endif
 endif

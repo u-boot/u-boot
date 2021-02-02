@@ -32,8 +32,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
-#define CONFIG_BZIP2
-
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(4 * SZ_1M)
 
@@ -50,21 +48,12 @@
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	3
-#define CONFIG_SYS_MMC_ENV_DEV		2 /* 1 = SDHC3, 2 = SDHC4 (eMMC) */
 
 /* SATA Configs */
 #define CONFIG_LBA48
 
-/* SPI Flash Configs */
-#if defined(CONFIG_SPL_BUILD)
-#undef CONFIG_DM_SPI
-#undef CONFIG_DM_SPI_FLASH
-#endif
-
 /* UART */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART1_BASE
-#define CONFIG_BAUDRATE			115200
 
 /* USB Configs */
 #ifdef CONFIG_CMD_USB
@@ -87,9 +76,11 @@
 #endif
 
 /* Watchdog */
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
+#if defined(CONFIG_SPL_BUILD)
+#undef CONFIG_WDT
+#undef CONFIG_WATCHDOG
+#define CONFIG_HW_WATCHDOG
+#endif
 
 #define CONFIG_LOADADDR			0x12000000
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
@@ -131,9 +122,6 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
-#define CONFIG_SYS_MEMTEST_START	0x10000000
-#define CONFIG_SYS_MEMTEST_END		0x20000000
 
 /* Environment */
 

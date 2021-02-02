@@ -7,6 +7,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <malloc.h>
 #include <phy.h>
 #include <dm.h>
 #include <fdt_support.h>

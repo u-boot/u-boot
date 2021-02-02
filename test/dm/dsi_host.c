@@ -10,6 +10,7 @@
 #include <asm/state.h>
 #include <asm/test.h>
 #include <dm/test.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 static int dm_test_dsi_host_phy_init(void *priv_data)
@@ -55,4 +56,4 @@ static int dm_test_dsi_host(struct unit_test_state *uts)
 	return 0;
 }
 
-DM_TEST(dm_test_dsi_host, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_dsi_host, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

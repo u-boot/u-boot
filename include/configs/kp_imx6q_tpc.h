@@ -27,8 +27,6 @@
 /* FEC ethernet */
 #define CONFIG_ARP_TIMEOUT		200UL
 
-#define CONFIG_SYS_MMC_ENV_DEV		1 /* 0 = SDHC2, 1 = SDHC4 (eMMC) */
-
 /* USB Configs */
 #ifdef CONFIG_CMD_USB
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
@@ -40,9 +38,6 @@
 #endif
 
 /* Watchdog */
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_LOADADDR			0x12000000
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR

@@ -5,21 +5,28 @@
 # Creates binary images from input files controlled by a description
 #
 
-from __future__ import print_function
-
 from collections import OrderedDict
+import glob
 import os
-import sys
-import tools
+import pkg_resources
+import re
 
-import cbfs_util
-import command
-import elf
-import tout
+import sys
+from patman import tools
+
+from binman import cbfs_util
+from binman import elf
+from patman import command
+from patman import tout
 
 # List of images we plan to create
 # Make this global so that it can be referenced from tests
 images = OrderedDict()
+
+# Help text for each type of missing blob, dict:
+#    key: Value of the entry's 'missing-msg' or entry name
+#    value: Text for the help
+missing_blob_help = {}
 
 def _ReadImageDesc(binman_node):
     """Read the image descriptions from the /binman node
@@ -53,6 +60,78 @@ def _FindBinmanNode(dtb):
             return node
     return None
 
+def _ReadMissingBlobHelp():
+    """Read the missing-blob-help file
+
+    This file containins help messages explaining what to do when external blobs
+    are missing.
+
+    Returns:
+        Dict:
+            key: Message tag (str)
+            value: Message text (str)
+    """
+
+    def _FinishTag(tag, msg, result):
+        if tag:
+            result[tag] = msg.rstrip()
+            tag = None
+            msg = ''
+        return tag, msg
+
+    my_data = pkg_resources.resource_string(__name__, 'missing-blob-help')
+    re_tag = re.compile('^([-a-z0-9]+):$')
+    result = {}
+    tag = None
+    msg = ''
+    for line in my_data.decode('utf-8').splitlines():
+        if not line.startswith('#'):
+            m_tag = re_tag.match(line)
+            if m_tag:
+                _, msg = _FinishTag(tag, msg, result)
+                tag = m_tag.group(1)
+            elif tag:
+                msg += line + '\n'
+    _FinishTag(tag, msg, result)
+    return result
+
+def _ShowBlobHelp(path, text):
+    tout.Warning('\n%s:' % path)
+    for line in text.splitlines():
+        tout.Warning('   %s' % line)
+
+def _ShowHelpForMissingBlobs(missing_list):
+    """Show help for each missing blob to help the user take action
+
+    Args:
+        missing_list: List of Entry objects to show help for
+    """
+    global missing_blob_help
+
+    if not missing_blob_help:
+        missing_blob_help = _ReadMissingBlobHelp()
+
+    for entry in missing_list:
+        tags = entry.GetHelpTags()
+
+        # Show the first match help message
+        for tag in tags:
+            if tag in missing_blob_help:
+                _ShowBlobHelp(entry._node.path, missing_blob_help[tag])
+                break
+
+def GetEntryModules(include_testing=True):
+    """Get a set of entry class implementations
+
+    Returns:
+        Set of paths to entry class filenames
+    """
+    glob_list = pkg_resources.resource_listdir(__name__, 'etype')
+    glob_list = [fname for fname in glob_list if fname.endswith('.py')]
+    return set([os.path.splitext(os.path.basename(item))[0]
+                for item in glob_list
+                if include_testing or '_testing' not in item])
+
 def WriteEntryDocs(modules, test_missing=None):
     """Write out documentation for all entries
 
@@ -62,7 +141,7 @@ def WriteEntryDocs(modules, test_missing=None):
             to show as missing even if it is present. Should be set to None in
             normal use.
     """
-    from entry import Entry
+    from binman.entry import Entry
     Entry.WriteDocs(modules, test_missing)
 
 
@@ -112,7 +191,7 @@ def ReadEntry(image_fname, entry_path, decomp=True):
         data extracted from the entry
     """
     global Image
-    from image import Image
+    from binman.image import Image
 
     image = Image.FromFile(image_fname)
     entry = image.FindEntryPath(entry_path)
@@ -333,11 +412,16 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
         dtb_fname: Filename of the device tree file to use (.dts or .dtb)
         selected_images: List of images to output, or None for all
         update_fdt: True to update the FDT wth entry offsets, etc.
+
+    Returns:
+        OrderedDict of images:
+            key: Image name (str)
+            value: Image object
     """
     # Import these here in case libfdt.py is not available, in which case
     # the above help option still works.
-    import fdt
-    import fdt_util
+    from dtoc import fdt
+    from dtoc import fdt_util
     global images
 
     # Get the device tree ready by compiling it and copying the compiled
@@ -378,7 +462,7 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
     for image in images.values():
         image.ExpandEntries()
         if update_fdt:
-            image.AddMissingProperties()
+            image.AddMissingProperties(True)
         image.ProcessFdt(dtb)
 
     for dtb_item in state.GetAllFdts():
@@ -389,7 +473,7 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
 
 
 def ProcessImage(image, update_fdt, write_map, get_contents=True,
-                 allow_resize=True):
+                 allow_resize=True, allow_missing=False):
     """Perform all steps for this image, including checking and # writing it.
 
     This means that errors found with a later image will be reported after
@@ -404,8 +488,13 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
             the contents is already present
         allow_resize: True to allow entries to change size (this does a re-pack
             of the entries), False to raise an exception
+        allow_missing: Allow blob_ext objects to be missing
+
+    Returns:
+        True if one or more external blobs are missing, False if all are present
     """
     if get_contents:
+        image.SetAllowMissing(allow_missing)
         image.GetEntryContents()
     image.GetEntryOffsets()
 
@@ -424,8 +513,6 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     for pack_pass in range(passes):
         try:
             image.PackEntries()
-            image.CheckSize()
-            image.CheckEntries()
         except Exception as e:
             if write_map:
                 fname = image.WriteMap()
@@ -450,6 +537,13 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     image.BuildImage()
     if write_map:
         image.WriteMap()
+    missing_list = []
+    image.CheckMissing(missing_list)
+    if missing_list:
+        tout.Warning("Image '%s' is missing external blobs and is non-functional: %s" %
+                     (image.name, ' '.join([e.name for e in missing_list])))
+        _ShowHelpForMissingBlobs(missing_list)
+    return bool(missing_list)
 
 
 def Binman(args):
@@ -474,8 +568,8 @@ def Binman(args):
         return 0
 
     # Put these here so that we can import this module without libfdt
-    from image import Image
-    import state
+    from binman.image import Image
+    from binman import state
 
     if args.cmd in ['ls', 'extract', 'replace']:
         try:
@@ -524,13 +618,17 @@ def Binman(args):
 
             images = PrepareImagesAndDtbs(dtb_fname, args.image,
                                           args.update_fdt)
+            missing = False
             for image in images.values():
-                ProcessImage(image, args.update_fdt, args.map)
+                missing |= ProcessImage(image, args.update_fdt, args.map,
+                                        allow_missing=args.allow_missing)
 
             # Write the updated FDTs to our output files
             for dtb_item in state.GetAllFdts():
                 tools.WriteFile(dtb_item._fname, dtb_item.GetContents())
 
+            if missing:
+                tout.Warning("\nSome images are invalid")
         finally:
             tools.FinaliseOutputDir()
     finally:

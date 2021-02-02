@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <serial.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 /* status register */
 #define ALTERA_UART_TMT		BIT(5)	/* tx empty */
@@ -86,7 +87,7 @@ static int altera_uart_ofdata_to_platdata(struct udevice *dev)
 {
 	struct altera_uart_platdata *plat = dev_get_platdata(dev);
 
-	plat->regs = map_physmem(devfdt_get_addr(dev),
+	plat->regs = map_physmem(dev_read_addr(dev),
 				 sizeof(struct altera_uart_regs),
 				 MAP_NOCACHE);
 	plat->uartclk = dev_read_u32_default(dev, "clock-frequency", 0);

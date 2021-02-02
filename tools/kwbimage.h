@@ -29,8 +29,6 @@
 #define IBR_HDR_UART_ID			0x69
 #define IBR_DEF_ATTRIB	 		0x00
 
-#define ALIGN_SUP(x, a) (((x) + (a - 1)) & ~(a - 1))
-
 /* Structure of the main header, version 0 (Kirkwood, Dove) */
 struct main_hdr_v0 {
 	uint8_t  blockid;		/* 0x0       */

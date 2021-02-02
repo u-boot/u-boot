@@ -9,6 +9,18 @@
 #define _X86_MP_H_
 
 #include <asm/atomic.h>
+#include <asm/cache.h>
+
+enum {
+	/* Indicates that the function should run on all CPUs */
+	MP_SELECT_ALL	= -1,
+
+	/* Run on boot CPUs */
+	MP_SELECT_BSP	= -2,
+
+	/* Run on non-boot CPUs */
+	MP_SELECT_APS	= -3,
+};
 
 typedef int (*mp_callback_t)(struct udevice *cpu, void *arg);
 
@@ -24,6 +36,14 @@ typedef int (*mp_callback_t)(struct udevice *cpu, void *arg);
  *
  * Note that ap_call() and bsp_call() can be NULL. In the NULL case the
  * callback will just not be called.
+ *
+ * @barrier: Ensures that the BSP and AP don't run the flight record at the same
+ *	time
+ * @cpus_entered: Counts the number of APs that have run this record
+ * @ap_call: Function for the APs to call
+ * @ap_arg: Argument to pass to @ap_call
+ * @bsp_call: Function for the BSP to call
+ * @bsp_arg: Argument to pass to @bsp_call
  */
 struct mp_flight_record {
 	atomic_t barrier;
@@ -51,21 +71,6 @@ struct mp_flight_record {
 	MP_FLIGHT_RECORD(1, ap_func, ap_arg, bsp_func, bsp_arg)
 
 /*
- * The mp_params structure provides the arguments to the mp subsystem
- * for bringing up APs.
- *
- * At present this is overkill for U-Boot, but it may make it easier to add
- * SMM support.
- */
-struct mp_params {
-	int parallel_microcode_load;
-	const void *microcode_pointer;
-	/* Flight plan  for APs and BSP */
-	struct mp_flight_record *flight_plan;
-	int num_records;
-};
-
-/*
  * mp_init() will set up the SIPI vector and bring up the APs according to
  * mp_params. Each flight record will be executed according to the plan. Note
  * that the MP infrastructure uses SMM default area without saving it. It's
@@ -84,12 +89,105 @@ struct mp_params {
  *
  * mp_init() returns < 0 on error, 0 on success.
  */
-int mp_init(struct mp_params *params);
+int mp_init(void);
 
-/* Probes the CPU device */
-int mp_init_cpu(struct udevice *cpu, void *unused);
-
-/* Set up additional CPUs */
+/**
+ * x86_mp_init() - Set up additional CPUs
+ *
+ * @returns < 0 on error, 0 on success.
+ */
 int x86_mp_init(void);
+
+/**
+ * mp_run_func() - Function to call on the AP
+ *
+ * @arg: Argument to pass
+ */
+typedef void (*mp_run_func)(void *arg);
+
+#if CONFIG_IS_ENABLED(SMP) && !CONFIG_IS_ENABLED(X86_64)
+/**
+ * mp_run_on_cpus() - Run a function on one or all CPUs
+ *
+ * This does not return until all CPUs have completed the work
+ *
+ * Running on anything other than the boot CPU is only supported if
+ * CONFIG_SMP_AP_WORK is enabled
+ *
+ * @cpu_select: CPU to run on (its dev->req_seq value), or MP_SELECT_ALL for
+ *	all, or MP_SELECT_BSP for BSP
+ * @func: Function to run
+ * @arg: Argument to pass to the function
+ * @return 0 on success, -ve on error
+ */
+int mp_run_on_cpus(int cpu_select, mp_run_func func, void *arg);
+
+/**
+ * mp_park_aps() - Park the APs ready for the OS
+ *
+ * This halts all CPUs except the main one, ready for the OS to use them
+ *
+ * @return 0 if OK, -ve on error
+ */
+int mp_park_aps(void);
+
+/**
+ * mp_first_cpu() - Get the first CPU to process, from a selection
+ *
+ * This is used to iterate through selected CPUs. Call this function first, then
+ * call mp_next_cpu() repeatedly (with the same @cpu_select) until it returns
+ * -EFBIG.
+ *
+ * @cpu_select: Selected CPUs (either a CPU number or MP_SELECT_...)
+ * @return next CPU number to run on (e.g. 0)
+ */
+int mp_first_cpu(int cpu_select);
+
+/**
+ * mp_next_cpu() - Get the next CPU to process, from a selection
+ *
+ * This is used to iterate through selected CPUs. After first calling
+ * mp_first_cpu() once, call this function repeatedly until it returns -EFBIG.
+ *
+ * The value of @cpu_select must be the same for all calls and must match the
+ * value passed to mp_first_cpu(), otherwise the behaviour is undefined.
+ *
+ * @cpu_select: Selected CPUs (either a CPU number or MP_SELECT_...)
+ * @prev_cpu: Previous value returned by mp_first_cpu()/mp_next_cpu()
+ * @return next CPU number to run on (e.g. 0)
+ */
+int mp_next_cpu(int cpu_select, int prev_cpu);
+#else
+static inline int mp_run_on_cpus(int cpu_select, mp_run_func func, void *arg)
+{
+	/* There is only one CPU, so just call the function here */
+	func(arg);
+
+	return 0;
+}
+
+static inline int mp_park_aps(void)
+{
+	/* No APs to park */
+
+	return 0;
+}
+
+static inline int mp_first_cpu(int cpu_select)
+{
+	/* We cannot run on any APs, nor a selected CPU */
+	return cpu_select == MP_SELECT_APS ? -EFBIG : MP_SELECT_BSP;
+}
+
+static inline int mp_next_cpu(int cpu_select, int prev_cpu)
+{
+	/*
+	 * When MP is not enabled, there is only one CPU and we did it in
+	 * mp_first_cpu()
+	 */
+	return -EFBIG;
+}
+
+#endif
 
 #endif /* _X86_MP_H_ */

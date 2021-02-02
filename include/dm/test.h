@@ -6,9 +6,6 @@
 #ifndef __DM_TEST_H
 #define __DM_TEST_H
 
-#include <dm.h>
-#include <test/test.h>
-
 /**
  * struct dm_test_cdata - configuration data for test instance
  *
@@ -56,6 +53,8 @@ enum {
 enum {
 	DM_TEST_TYPE_FIRST = 0,
 	DM_TEST_TYPE_SECOND,
+
+	DM_TEST_TYPE_COUNT,
 };
 
 /* The number added to the ping total on each probe */
@@ -145,19 +144,22 @@ struct dm_test_state {
 	struct udevice *removed;
 };
 
-/* Test flags for each test */
-enum {
-	DM_TESTF_SCAN_PDATA	= 1 << 0,	/* test needs platform data */
-	DM_TESTF_PROBE_TEST	= 1 << 1,	/* probe test uclass */
-	DM_TESTF_SCAN_FDT	= 1 << 2,	/* scan device tree */
-	DM_TESTF_FLAT_TREE	= 1 << 3,	/* test needs flat DT */
-	DM_TESTF_LIVE_TREE	= 1 << 4,	/* needs live device tree */
-};
-
 /* Declare a new driver model test */
 #define DM_TEST(_name, _flags)	UNIT_TEST(_name, _flags, dm_test)
 
-/* This platform data is needed in tests, so declare it here */
+/*
+ * struct sandbox_sdl_plat - Platform data for the SDL video driver
+ *
+ * This platform data is needed in tests, so declare it here
+ *
+ * @xres: Width of display in pixels
+ * @yres: Height of display in pixels
+ * @bpix: Log2 of bits per pixel (enum video_log2_bpp)
+ * @rot: Console rotation (0=normal orientation, 1=90 degrees clockwise,
+ *	2=upside down, 3=90 degree counterclockwise)
+ * @vidconsole_drv_name: Name of video console driver (set by tests)
+ * @font_size: Console font size to select (set by tests)
+ */
 struct sandbox_sdl_plat {
 	int xres;
 	int yres;

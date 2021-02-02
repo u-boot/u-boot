@@ -6,6 +6,9 @@
  */
 
 #include <common.h>
+#include <flash.h>
+#include <init.h>
+#include <net.h>
 #if defined(CONFIG_FTMAC100) && !defined(CONFIG_DM_ETH)
 #include <netdev.h>
 #endif
@@ -63,7 +66,7 @@ int dram_init_banksize(void)
 }
 
 #if defined(CONFIG_FTMAC100) && !defined(CONFIG_DM_ETH)
-int board_eth_init(bd_t *bd)
+int board_eth_init(struct bd_info *bd)
 {
 	return ftmac100_initialize(bd);
 }

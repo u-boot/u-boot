@@ -28,7 +28,7 @@
 
 		u-boot-align-both {
 			type = "u-boot";
-			align= <64>;
+			align = <64>;
 			align-end = <128>;
 		};
 	};

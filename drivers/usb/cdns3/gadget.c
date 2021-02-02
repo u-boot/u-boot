@@ -57,10 +57,15 @@
  */
 
 #include <dm.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
+#include <linux/err.h>
 #include <linux/usb/gadget.h>
 #include <linux/compat.h>
 #include <linux/iopoll.h>
-#include <asm/dma-mapping.h>
+#include <linux/dma-mapping.h>
 #include <linux/bitmap.h>
 #include <linux/bug.h>
 
@@ -2394,8 +2399,7 @@ static void cdns3_gadget_udc_set_speed(struct usb_gadget *gadget,
 	case USB_SPEED_SUPER:
 		break;
 	default:
-		dev_err(cdns->dev, "invalid speed parameter %d\n",
-			speed);
+		dev_err(priv_dev->dev, "invalid speed parameter %d\n", speed);
 	}
 
 	priv_dev->gadget.speed = speed;
@@ -2576,7 +2580,7 @@ static int cdns3_gadget_start(struct cdns3 *cdns)
 	if (!priv_dev->onchip_buffers)
 		priv_dev->onchip_buffers = 256;
 
-	max_speed = usb_get_maximum_speed(dev_of_offset(cdns->dev));
+	max_speed = usb_get_maximum_speed(dev_ofnode(cdns->dev));
 
 	/* Check the maximum_speed parameter */
 	switch (max_speed) {

@@ -1,10 +1,15 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
- * Author(s): Patrice Chotard, <patrice.chotard@st.com> for STMicroelectronics.
+ * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
 #ifndef __STM32_PWR_H_
+#define __STM32_PWR_H_
+
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
 
 /*
  * Offsets of some PWR registers

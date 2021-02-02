@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <part.h>
 #include <mmc.h>
@@ -426,7 +427,7 @@ static struct mmc_config mvebu_mmc_cfg = {
 	.b_max		= CONFIG_SYS_MMC_MAX_BLK_COUNT,
 };
 
-int mvebu_mmc_init(bd_t *bis)
+int mvebu_mmc_init(struct bd_info *bis)
 {
 	struct mmc *mmc;
 

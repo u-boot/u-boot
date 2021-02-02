@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <errno.h>
 #include <div64.h>
@@ -50,6 +51,7 @@ static int nand_block_op(enum dfu_op op, struct dfu_entity *dfu,
 					 lim, buf);
 	} else {
 		nand_erase_options_t opts;
+		int write_flags = WITH_WR_VERIFY;
 
 		memset(&opts, 0, sizeof(opts));
 		opts.offset = start;
@@ -62,8 +64,12 @@ static int nand_block_op(enum dfu_op op, struct dfu_entity *dfu,
 		if (ret)
 			return ret;
 		/* then write */
+#ifdef CONFIG_DFU_NAND_TRIMFFS
+		if (dfu->data.nand.ubi)
+			write_flags |= WITH_DROP_FFS;
+#endif
 		ret = nand_write_skip_bad(mtd, start, &count, &actual,
-					  lim, buf, WITH_WR_VERIFY);
+					  lim, buf, write_flags);
 	}
 
 	if (ret != 0) {

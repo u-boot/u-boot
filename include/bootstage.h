@@ -199,9 +199,12 @@ enum bootstage_id {
 	BOOTSTAGE_ID_ACCUM_DECOMP,
 	BOOTSTAGE_ID_ACCUM_OF_LIVE,
 	BOOTSTAGE_ID_FPGA_INIT,
-	BOOTSTATE_ID_ACCUM_DM_SPL,
-	BOOTSTATE_ID_ACCUM_DM_F,
-	BOOTSTATE_ID_ACCUM_DM_R,
+	BOOTSTAGE_ID_ACCUM_DM_SPL,
+	BOOTSTAGE_ID_ACCUM_DM_F,
+	BOOTSTAGE_ID_ACCUM_DM_R,
+	BOOTSTAGE_ID_ACCUM_FSP_M,
+	BOOTSTAGE_ID_ACCUM_FSP_S,
+	BOOTSTAGE_ID_ACCUM_MMAP_SPI,
 
 	/* a few spare for the user, from here */
 	BOOTSTAGE_ID_USER,
@@ -335,7 +338,7 @@ int bootstage_stash(void *base, int size);
  * @param base	Base address of memory buffer
  * @param size	Size of memory buffer (-1 if unknown)
  * @return 0 if unstashed ok, -ENOENT if bootstage info not found, -ENOSPC if
- *	there is not space for read the stacked data, or other error if
+ *	there is not space for read the stashed data, or other error if
  *	something else went wrong
  */
 int bootstage_unstash(const void *base, int size);

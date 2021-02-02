@@ -104,9 +104,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1	/* enable memory tag */
 
 #define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
-/*
- * Commands configuration
- */
 
 /*
  * Network
@@ -117,9 +114,7 @@
 #define CONFIG_SKIP_LOCAL_MAC_RANDOMIZATION	/* don't randomize MAC */
 #define CONFIG_PHY_BASE_ADR	0x8
 #define CONFIG_RESET_PHY_R	/* use reset_phy() to init mv8831116 PHY */
-#define CONFIG_NETCONSOLE	/* include NetConsole support   */
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
-#define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
 #endif
 
 /*
@@ -182,8 +177,6 @@
  */
 
 #define CONFIG_SYS_LOAD_ADDR		0x00800000
-#define CONFIG_SYS_MEMTEST_START	0x00400000
-#define CONFIG_SYS_MEMTEST_END		0x007fffff
 #define CONFIG_SYS_RESET_ADDRESS	0xffff0000
 
 /* Enable command line editing */

@@ -7,6 +7,10 @@
 #ifndef _ASM_ARCH_HARDWARE_H
 #define _ASM_ARCH_HARDWARE_H
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 #define ZYNQMP_TCM_BASE_ADDR	0xFFE00000
 #define ZYNQMP_TCM_SIZE		0x40000
 
@@ -130,7 +134,8 @@ struct apu_regs {
 struct csu_regs {
 	u32 reserved0[4];
 	u32 multi_boot;
-	u32 reserved1[12];
+	u32 reserved1[11];
+	u32 idcode;
 	u32 version;
 };
 
@@ -144,8 +149,5 @@ struct pmu_regs {
 };
 
 #define pmu_base ((struct pmu_regs *)ZYNQMP_PMU_BASEADDR)
-
-#define ZYNQMP_CSU_IDCODE_ADDR	0xFFCA0040
-#define ZYNQMP_CSU_VER_ADDR	0xFFCA0044
 
 #endif /* _ASM_ARCH_HARDWARE_H */

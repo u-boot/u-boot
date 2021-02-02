@@ -27,11 +27,16 @@ struct mxs_clkctrl_regs {
 	mxs_reg_32(hw_clkctrl_hbus)		/* 0x60 */
 	mxs_reg_32(hw_clkctrl_xbus)		/* 0x70 */
 	mxs_reg_32(hw_clkctrl_xtal)		/* 0x80 */
-	mxs_reg_32(hw_clkctrl_ssp0)		/* 0x90 */
-	mxs_reg_32(hw_clkctrl_ssp1)		/* 0xa0 */
-	mxs_reg_32(hw_clkctrl_ssp2)		/* 0xb0 */
-	mxs_reg_32(hw_clkctrl_ssp3)		/* 0xc0 */
-	mxs_reg_32(hw_clkctrl_gpmi)		/* 0xd0 */
+	uint32_t	hw_clkctrl_ssp0;	/* 0x90 */
+	uint32_t	reserved_ssp0[3];	/* 0x94-0x9c */
+	uint32_t	hw_clkctrl_ssp1;	/* 0xa0 */
+	uint32_t	reserved_ssp1[3];	/* 0xa4-0xac */
+	uint32_t	hw_clkctrl_ssp2;	/* 0xb0 */
+	uint32_t	reserved_ssp2[3];	/* 0xb4-0xbc */
+	uint32_t	hw_clkctrl_ssp3;	/* 0xc0 */
+	uint32_t	reserved_ssp3[3];	/* 0xc4-0xcc */
+	uint32_t	hw_clkctrl_gpmi;	/* 0xd0 */
+	uint32_t	reserved_gpmi[3];	/* 0xd4-0xdc */
 	mxs_reg_32(hw_clkctrl_spdif)		/* 0xe0 */
 	mxs_reg_32(hw_clkctrl_emi)		/* 0xf0 */
 	mxs_reg_32(hw_clkctrl_saif0)		/* 0x100 */

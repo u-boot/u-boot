@@ -9,21 +9,18 @@
 
 /* Do boardspecific init for all boards */
 
-#define CONFIG_JFFS2_CMDLINE
-
 /* EEprom support 24C08, 24C16, 24C64 */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3  /* 8 Byte write page */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10
 
-#define CONFIG_SYS_MEMTEST_START 0x00100000	/* memtest works on */
-
-#define CONFIG_SYS_MEMTEST_END	0x00f00000	/* 1 ... 15 MB in DRAM	*/
-
 #define CONFIG_SYS_LOAD_ADDR	0x100000	/* default load address */
 
 /* Reserve 4 MB for malloc */
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
+
+/* Increase max size of compressed kernel */
+#define CONFIG_SYS_BOOTM_LEN		0x2000000     /* 32 MB */
 
 /******************************************************************************
  * (PRAM usage)
@@ -57,6 +54,7 @@
 		"protect on " __stringify(BOOTFLASH_START) "  +${filesize}\0"\
 	"set_fdthigh=true\0"						\
 	"checkfdt=true\0"						\
+	"bootm_mapsize=" __stringify(CONFIG_SYS_BOOTM_LEN) "\0"		\
 	""
 
 #endif /* __CONFIG_KEYMILE_POWERPC_H */

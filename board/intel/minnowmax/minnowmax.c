@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
+#include <log.h>
 #include <asm/gpio.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>

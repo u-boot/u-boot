@@ -9,6 +9,8 @@
 #ifndef __AT91_SAMA5_COMMON_H
 #define __AT91_SAMA5_COMMON_H
 
+#include <linux/kconfig.h>
+
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK      32768
 #define CONFIG_SYS_AT91_MAIN_CLOCK      12000000 /* from 12 MHz crystal */
@@ -17,27 +19,12 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
-/* general purpose I/O */
-#ifndef CONFIG_DM_GPIO
-#define CONFIG_AT91_GPIO
-#endif
-
-
 /*
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-/*
- * Command line configuration.
- */
-
 #ifdef CONFIG_SD_BOOT
-
-#ifdef CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
-
 #define CONFIG_BOOTCOMMAND	"if test ! -n ${dtb_name}; then "	\
 				    "setenv dtb_name at91-${board_name}.dtb; " \
 				"fi; "					\

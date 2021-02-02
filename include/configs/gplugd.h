@@ -29,10 +29,6 @@
  */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE - 0x00200000)
 
-/*
- * Commands configuration
- */
-
 /* Network configuration */
 #ifdef CONFIG_CMD_NET
 #define CONFIG_ARMADA100_FEC

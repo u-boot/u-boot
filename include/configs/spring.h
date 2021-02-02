@@ -12,6 +12,4 @@
 
 #define CONFIG_BOARD_COMMON
 
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
-
 #endif	/* __CONFIG_SPRING_H */

@@ -10,7 +10,6 @@
 #ifndef __CONFIG_ZYNQMP_MINI_H
 #define __CONFIG_ZYNQMP_MINI_H
 
-
 #define CONFIG_EXTRA_ENV_SETTINGS
 
 #include <configs/xilinx_zynqmp.h>
@@ -19,9 +18,6 @@
 #undef CONFIG_BOOTCOMMAND
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #undef CONFIG_SYS_MALLOC_LEN
-#undef CONFIG_ZLIB
-#undef CONFIG_GZIP
-#undef CONFIG_CMD_ENV
 #undef CONFIG_SYS_INIT_SP_ADDR
 
 /* BOOTP options */

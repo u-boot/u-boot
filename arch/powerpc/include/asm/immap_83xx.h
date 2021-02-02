@@ -941,8 +941,7 @@ typedef struct immap {
 	u8			res4[0x500];
 	fsl_lbc_t		im_lbc;		/* Local Bus Controller Regs */
 	u8			res5[0x1000];
-	u8			spi[0x100];
-	u8			res6[0xf00];
+	spi8xxx_t		spi;		/* Serial Peripheral Interface */
 	dma83xx_t		dma;		/* DMA */
 	pciconf83xx_t		pci_conf[1];	/* PCI Configuration Registers */
 	u8			res7[0x80];

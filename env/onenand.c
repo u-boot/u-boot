@@ -55,7 +55,7 @@ static int env_onenand_load(void)
 		mtd->writesize = MAX_ONENAND_PAGESIZE;
 #endif /* !ENV_IS_EMBEDDED */
 
-	rc = env_import(buf, 1);
+	rc = env_import(buf, 1, H_EXTERNAL);
 	if (!rc)
 		gd->env_valid = ENV_VALID;
 

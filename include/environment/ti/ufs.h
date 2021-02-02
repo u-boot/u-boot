@@ -26,8 +26,8 @@
 		"fdt resize 0x100000;" \
 		"for overlay in $name_overlays;" \
 		"do;" \
-		"load scsi ${bootpart} ${overlayaddr} ${bootdir}/${overlay} && " \
-		"fdt apply ${overlayaddr};" \
+		"load scsi ${bootpart} ${dtboaddr} ${bootdir}/${overlay} && " \
+		"fdt apply ${dtboaddr};" \
 		"done;\0"
 
 #endif

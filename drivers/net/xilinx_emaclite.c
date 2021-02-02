@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <net.h>
 #include <config.h>
 #include <dm.h>
@@ -16,6 +17,7 @@
 #include <phy.h>
 #include <miiphy.h>
 #include <fdtdec.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/kernel.h>
 #include <asm/io.h>
@@ -597,7 +599,7 @@ static int emaclite_ofdata_to_platdata(struct udevice *dev)
 	struct xemaclite *emaclite = dev_get_priv(dev);
 	int offset = 0;
 
-	pdata->iobase = (phys_addr_t)devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	emaclite->regs = (struct emaclite_regs *)ioremap_nocache(pdata->iobase,
 								 0x10000);
 

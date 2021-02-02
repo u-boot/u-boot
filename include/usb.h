@@ -103,7 +103,7 @@ enum {
  */
 struct usb_device {
 	int	devnum;			/* Device number on USB bus */
-	int	speed;			/* full/low/high */
+	enum usb_device_speed speed;	/* full/low/high */
 	char	mf[32];			/* manufacturer */
 	char	prod[32];		/* product */
 	char	serial[32];		/* serial number */
@@ -269,6 +269,7 @@ int usb_bulk_msg(struct usb_device *dev, unsigned int pipe,
 			void *data, int len, int *actual_length, int timeout);
 int usb_int_msg(struct usb_device *dev, unsigned long pipe,
 		void *buffer, int transfer_len, int interval, bool nonblock);
+int usb_lock_async(struct usb_device *dev, int lock);
 int usb_disable_asynch(int disable);
 int usb_maxpacket(struct usb_device *dev, unsigned long pipe);
 int usb_get_configuration_no(struct usb_device *dev, int cfgno,
@@ -791,6 +792,16 @@ struct dm_usb_ops {
 	 * in a USB transfer. USB class driver needs to be aware of this.
 	 */
 	int (*get_max_xfer_size)(struct udevice *bus, size_t *size);
+
+	/**
+	 * lock_async() - Keep async schedule after a transfer
+	 *
+	 * It may be desired to keep the asynchronous schedule running even
+	 * after a transfer finishes, usually when doing multiple transfers
+	 * back-to-back. This callback allows signalling the USB controller
+	 * driver to do just that.
+	 */
+	int (*lock_async)(struct udevice *udev, int lock);
 };
 
 #define usb_get_ops(dev)	((struct dm_usb_ops *)(dev)->driver->ops)
@@ -909,6 +920,15 @@ struct ehci_ctrl;
  * instead of as a host. It is untested.
  */
 int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp);
+
+/**
+ * usb_remove_ehci_gadget() - Remove a gadget USB device
+ *
+ * TODO(sjg@chromium.org): Tidy this up when USB gadgets can use driver model
+ *
+ * This provides a way to tell a controller to remove a USB device
+ */
+int usb_remove_ehci_gadget(struct ehci_ctrl **ctlrp);
 
 /**
  * usb_stor_reset() - Prepare to scan USB storage devices

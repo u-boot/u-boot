@@ -9,60 +9,44 @@
 #include <i2c.h>
 #include <rtc.h>
 #include <asm/rtc.h>
+#include <dm/acpi.h>
 
 #define REG_COUNT 0x80
 
 static int sandbox_rtc_get(struct udevice *dev, struct rtc_time *time)
 {
-	time->tm_sec = dm_i2c_reg_read(dev, REG_SEC);
-	if (time->tm_sec < 0)
-		return time->tm_sec;
-	time->tm_min = dm_i2c_reg_read(dev, REG_MIN);
-	if (time->tm_min < 0)
-		return time->tm_min;
-	time->tm_hour = dm_i2c_reg_read(dev, REG_HOUR);
-	if (time->tm_hour < 0)
-		return time->tm_hour;
-	time->tm_mday = dm_i2c_reg_read(dev, REG_MDAY);
-	if (time->tm_mday < 0)
-		return time->tm_mday;
-	time->tm_mon = dm_i2c_reg_read(dev, REG_MON);
-	if (time->tm_mon < 0)
-		return time->tm_mon;
-	time->tm_year = dm_i2c_reg_read(dev, REG_YEAR);
-	if (time->tm_year < 0)
-		return time->tm_year;
-	time->tm_year += 1900;
-	time->tm_wday = dm_i2c_reg_read(dev, REG_WDAY);
-	if (time->tm_wday < 0)
-		return time->tm_wday;
+	u8 buf[7];
+	int ret;
+
+	ret = dm_i2c_read(dev, REG_SEC, buf, sizeof(buf));
+	if (ret < 0)
+		return ret;
+
+	time->tm_sec  = buf[REG_SEC - REG_SEC];
+	time->tm_min  = buf[REG_MIN - REG_SEC];
+	time->tm_hour = buf[REG_HOUR - REG_SEC];
+	time->tm_mday = buf[REG_MDAY - REG_SEC];
+	time->tm_mon  = buf[REG_MON - REG_SEC];
+	time->tm_year = buf[REG_YEAR - REG_SEC] + 1900;
+	time->tm_wday = buf[REG_WDAY - REG_SEC];
 
 	return 0;
 }
 
 static int sandbox_rtc_set(struct udevice *dev, const struct rtc_time *time)
 {
+	u8 buf[7];
 	int ret;
 
-	ret = dm_i2c_reg_write(dev, REG_SEC, time->tm_sec);
-	if (ret < 0)
-		return ret;
-	ret = dm_i2c_reg_write(dev, REG_MIN, time->tm_min);
-	if (ret < 0)
-		return ret;
-	ret = dm_i2c_reg_write(dev, REG_HOUR, time->tm_hour);
-	if (ret < 0)
-		return ret;
-	ret = dm_i2c_reg_write(dev, REG_MDAY, time->tm_mday);
-	if (ret < 0)
-		return ret;
-	ret = dm_i2c_reg_write(dev, REG_MON, time->tm_mon);
-	if (ret < 0)
-		return ret;
-	ret = dm_i2c_reg_write(dev, REG_YEAR, time->tm_year - 1900);
-	if (ret < 0)
-		return ret;
-	ret = dm_i2c_reg_write(dev, REG_WDAY, time->tm_wday);
+	buf[REG_SEC - REG_SEC]  = time->tm_sec;
+	buf[REG_MIN - REG_SEC]  = time->tm_min;
+	buf[REG_HOUR - REG_SEC] = time->tm_hour;
+	buf[REG_MDAY - REG_SEC] = time->tm_mday;
+	buf[REG_MON  - REG_SEC] = time->tm_mon;
+	buf[REG_YEAR - REG_SEC] = time->tm_year - 1900;
+	buf[REG_WDAY - REG_SEC] = time->tm_wday;
+
+	ret = dm_i2c_write(dev, REG_SEC, buf, sizeof(buf));
 	if (ret < 0)
 		return ret;
 
@@ -84,6 +68,17 @@ static int sandbox_rtc_write8(struct udevice *dev, unsigned int reg, int val)
 	return dm_i2c_reg_write(dev, reg, val);
 }
 
+#if CONFIG_IS_ENABLED(ACPIGEN)
+static int sandbox_rtc_get_name(const struct udevice *dev, char *out_name)
+{
+	return acpi_copy_name(out_name, "RTCC");
+}
+
+struct acpi_ops sandbox_rtc_acpi_ops = {
+	.get_name	= sandbox_rtc_get_name,
+};
+#endif
+
 static const struct rtc_ops sandbox_rtc_ops = {
 	.get = sandbox_rtc_get,
 	.set = sandbox_rtc_set,
@@ -97,9 +92,10 @@ static const struct udevice_id sandbox_rtc_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(rtc_sandbox) = {
-	.name	= "rtc-sandbox",
+U_BOOT_DRIVER(sandbox_rtc) = {
+	.name	= "sandbox_rtc",
 	.id	= UCLASS_RTC,
 	.of_match = sandbox_rtc_ids,
 	.ops	= &sandbox_rtc_ops,
+	ACPI_OPS_PTR(&sandbox_rtc_acpi_ops)
 };

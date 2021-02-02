@@ -8,7 +8,7 @@ Device (PCI0)
 	Name(_HID, EISAID("PNP0A08"))	/* PCIe */
 	Name(_CID, EISAID("PNP0A03"))	/* PCI */
 
-	Name(_ADR, 0)
+	Name(_UID, 0)
 	Name(_BBN, 0)
 
 	Name(MCRS, ResourceTemplate()

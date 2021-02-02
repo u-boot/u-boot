@@ -1,0 +1,29 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2019 Jagan Teki <jagan@amarulasolutions.com>
+ */
+
+#include <config.h>
+
+/ {
+	binman: binman {
+		multiple-images;
+	};
+};
+
+#ifdef CONFIG_SPL
+&binman {
+	simple-bin {
+		filename = "u-boot-rockchip.bin";
+		pad-byte = <0xff>;
+
+		blob {
+			filename = "idbloader.img";
+		};
+
+		u-boot-img {
+			offset = <CONFIG_SPL_PAD_TO>;
+		};
+	};
+};
+#endif

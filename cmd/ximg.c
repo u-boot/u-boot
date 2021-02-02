@@ -17,12 +17,14 @@
 #include <env.h>
 #include <gzip.h>
 #include <image.h>
+#include <malloc.h>
 #include <mapmem.h>
 #include <watchdog.h>
 #if defined(CONFIG_BZIP2)
 #include <bzlib.h>
 #endif
 #include <asm/byteorder.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 
 #ifndef CONFIG_SYS_XIMG_LEN
@@ -31,9 +33,9 @@
 #endif
 
 static int
-do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+do_imgextract(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	ulong		addr = load_addr;
+	ulong		addr = image_load_addr;
 	ulong		dest = 0;
 	ulong		data, len;
 	int		verify;

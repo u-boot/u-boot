@@ -1,12 +1,16 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2013 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  *
  * Shengzhou Liu <Shengzhou.Liu@freescale.com>
  */
 
 #include <common.h>
 #include <command.h>
+#include <fdt_support.h>
+#include <log.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/mmu.h>
 #include <asm/processor.h>
@@ -26,6 +30,7 @@
 #include "../common/qixis.h"
 #include "../common/fman.h"
 #include "t208xqds_qixis.h"
+#include <linux/libfdt.h>
 
 #define EMI_NONE	0xFFFFFFFF
 #define EMI1_RGMII1	0
@@ -200,6 +205,7 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 	char buf[32] = "serdes-1,";
 	struct fixed_link f_link;
 	int media_type = 0;
+	const char *phyconn;
 	int off;
 
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -412,15 +418,24 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 			}
 
 			if (!media_type) {
-				/* fixed-link is used for XFI fiber cable */
-				f_link.phy_id = port;
-				f_link.duplex = 1;
-				f_link.link_speed = 10000;
-				f_link.pause = 0;
-				f_link.asym_pause = 0;
-				fdt_delprop(fdt, offset, "phy-handle");
-				fdt_setprop(fdt, offset, "fixed-link", &f_link,
-					sizeof(f_link));
+				phyconn = fdt_getprop(fdt, offset,
+						      "phy-connection-type",
+						      NULL);
+				if (is_backplane_mode(phyconn)) {
+					/* Backplane KR mode: skip fixups */
+					printf("Interface %d in backplane KR mode\n",
+					       port);
+				} else {
+					/* fixed-link for XFI fiber cable */
+					f_link.phy_id = port;
+					f_link.duplex = 1;
+					f_link.link_speed = 10000;
+					f_link.pause = 0;
+					f_link.asym_pause = 0;
+					fdt_delprop(fdt, offset, "phy-handle");
+					fdt_setprop(fdt, offset, "fixed-link",
+						    &f_link, sizeof(f_link));
+				}
 			} else {
 				/* set property for copper cable */
 				off = fdt_node_offset_by_compat_reg(fdt,
@@ -510,7 +525,7 @@ static void initialize_lane_to_slot(void)
 	}
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #if defined(CONFIG_FMAN_ENET)
 	int i, idx, lane, slot, interface;
@@ -750,6 +765,9 @@ int board_eth_init(bd_t *bis)
 			}
 			break;
 		case PHY_INTERFACE_MODE_RGMII:
+		case PHY_INTERFACE_MODE_RGMII_TXID:
+		case PHY_INTERFACE_MODE_RGMII_RXID:
+		case PHY_INTERFACE_MODE_RGMII_ID:
 			if (i == FM1_DTSEC3)
 				mdio_mux[i] = EMI1_RGMII1;
 			else if (i == FM1_DTSEC4 || FM1_DTSEC10)

@@ -8,7 +8,6 @@
 /dts-v1/;
 
 /include/ "skeleton.dtsi"
-/include/ "serial.dtsi"
 /include/ "keyboard.dtsi"
 /include/ "pcspkr.dtsi"
 /include/ "reset.dtsi"
@@ -38,6 +37,11 @@
 	pci {
 		compatible = "pci-x86";
 		u-boot,dm-pre-reloc;
+	};
+
+	serial: serial {
+		u-boot,dm-pre-reloc;
+		compatible = "coreboot-serial";
 	};
 
 	coreboot-fb {

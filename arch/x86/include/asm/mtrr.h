@@ -36,8 +36,8 @@
 
 #define MTRR_BASE_TYPE_MASK	0x7
 
-/* Number of MTRRs supported */
-#define MTRR_COUNT		8
+/* Maximum number of MTRRs supported - see also mtrr_get_var_count() */
+#define MTRR_MAX_COUNT		10
 
 #define NUM_FIXED_MTRRS		11
 #define RANGES_PER_FIXED_MTRR	8
@@ -57,7 +57,7 @@
 
 #define MTRR_FIX_TYPE(t)	((t << 24) | (t << 16) | (t << 8) | t)
 
-#if !defined(__ASSEMBLER__)
+#if !defined(__ASSEMBLY__)
 
 /**
  * Information about the previous MTRR state, set up by mtrr_open()
@@ -68,6 +68,26 @@
 struct mtrr_state {
 	uint64_t deftype;
 	bool enable_cache;
+};
+
+/**
+ * struct mtrr - Information about a single MTRR
+ *
+ * @base: Base address and MTRR_BASE_TYPE_MASK
+ * @mask: Mask and MTRR_PHYS_MASK_VALID
+ */
+struct mtrr {
+	u64 base;
+	u64 mask;
+};
+
+/**
+ * struct mtrr_info - Information about all MTRRs
+ *
+ * @mtrr: Information about each mtrr
+ */
+struct mtrr_info {
+	struct mtrr mtrr[MTRR_MAX_COUNT];
 };
 
 /**
@@ -128,6 +148,46 @@ int mtrr_commit(bool do_caches);
  * @return 0 on success, -ENOSPC if there are no more MTRRs
  */
 int mtrr_set_next_var(uint type, uint64_t base, uint64_t size);
+
+/**
+ * mtrr_read_all() - Save all the MTRRs
+ *
+ * This reads all MTRRs from the boot CPU into a struct so they can be loaded
+ * onto other CPUs
+ *
+ * @info: Place to put the MTRR info
+ */
+void mtrr_read_all(struct mtrr_info *info);
+
+/**
+ * mtrr_set_valid() - Set the valid flag for a selected MTRR and CPU(s)
+ *
+ * @cpu_select: Selected CPUs (either a CPU number or MP_SELECT_...)
+ * @reg: MTRR register to write (0-7)
+ * @valid: Valid flag to write
+ * @return 0 on success, -ve on error
+ */
+int mtrr_set_valid(int cpu_select, int reg, bool valid);
+
+/**
+ * mtrr_set() - Set the valid flag for a selected MTRR and CPU(s)
+ *
+ * @cpu_select: Selected CPUs (either a CPU number or MP_SELECT_...)
+ * @reg: MTRR register to write (0-7)
+ * @base: Base address and MTRR_BASE_TYPE_MASK
+ * @mask: Mask and MTRR_PHYS_MASK_VALID
+ * @return 0 on success, -ve on error
+ */
+int mtrr_set(int cpu_select, int reg, u64 base, u64 mask);
+
+/**
+ * mtrr_get_var_count() - Get the number of variable MTRRs
+ *
+ * Some CPUs have more than 8 MTRRs. This function returns the actual number
+ *
+ * @return number of variable MTRRs
+ */
+int mtrr_get_var_count(void);
 
 #endif
 

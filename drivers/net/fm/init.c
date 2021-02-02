@@ -4,17 +4,20 @@
  */
 #include <errno.h>
 #include <common.h>
+#include <net.h>
 #include <asm/io.h>
 #include <fdt_support.h>
 #include <fsl_mdio.h>
 #ifdef CONFIG_FSL_LAYERSCAPE
 #include <asm/arch/fsl_serdes.h>
+#include <linux/libfdt.h>
 #else
 #include <asm/fsl_serdes.h>
 #endif
 
 #include "fm.h"
 
+#ifndef CONFIG_DM_ETH
 struct fm_eth_info fm_info[] = {
 #if (CONFIG_SYS_NUM_FM1_DTSEC >= 1)
 	FM_DTSEC_INFO_INITIALIZER(1, 1),
@@ -84,7 +87,7 @@ struct fm_eth_info fm_info[] = {
 #endif
 };
 
-int fm_standard_init(bd_t *bis)
+int fm_standard_init(struct bd_info *bis)
 {
 	int i;
 	struct ccsr_fman *reg;
@@ -380,3 +383,4 @@ int is_qsgmii_riser_card(struct mii_dev *bus, int phy_base_addr,
 
 	return 0;
 }
+#endif /* CONFIG_DM_ETH */

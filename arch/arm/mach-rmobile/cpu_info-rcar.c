@@ -10,6 +10,7 @@
 #define PRR_MASK		0x7fff
 #define R8A7796_REV_1_0		0x5200
 #define R8A7796_REV_1_1		0x5210
+#define R8A7796_REV_1_3		0x5211
 
 static u32 rmobile_get_prr(void)
 {
@@ -28,8 +29,9 @@ u32 rmobile_get_cpu_type(void)
 u32 rmobile_get_cpu_rev_integer(void)
 {
 	const u32 prr = rmobile_get_prr();
+	const u32 rev = prr & PRR_MASK;
 
-	if ((prr & PRR_MASK) == R8A7796_REV_1_1)
+	if (rev == R8A7796_REV_1_1 || rev == R8A7796_REV_1_3)
 		return 1;
 	else
 		return ((prr & 0x000000F0) >> 4) + 1;
@@ -38,9 +40,12 @@ u32 rmobile_get_cpu_rev_integer(void)
 u32 rmobile_get_cpu_rev_fraction(void)
 {
 	const u32 prr = rmobile_get_prr();
+	const u32 rev = prr & PRR_MASK;
 
-	if ((prr & PRR_MASK) == R8A7796_REV_1_1)
+	if (rev == R8A7796_REV_1_1)
 		return 1;
+	else if (rev == R8A7796_REV_1_3)
+		return 3;
 	else
 		return prr & 0x0000000F;
 }

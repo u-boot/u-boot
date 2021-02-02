@@ -8,13 +8,13 @@
 #include <common.h>
 #include <cpu.h>
 #include <dm.h>
-#include <dm/uclass-internal.h>
-#include <asm/acpi_table.h>
+#include <acpi/acpi_table.h>
 #include <asm/ioapic.h>
 #include <asm/mpspec.h>
 #include <asm/tables.h>
 #include <asm/arch/global_nvs.h>
 #include <asm/arch/iomap.h>
+#include <dm/uclass-internal.h>
 
 void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 		      void *dsdt)
@@ -107,7 +107,7 @@ u32 acpi_fill_csrt(u32 current)
 	return current;
 }
 
-void acpi_create_gnvs(struct acpi_global_nvs *gnvs)
+int acpi_create_gnvs(struct acpi_global_nvs *gnvs)
 {
 	struct udevice *dev;
 	int ret;
@@ -122,4 +122,6 @@ void acpi_create_gnvs(struct acpi_global_nvs *gnvs)
 		if (ret > 0)
 			gnvs->pcnt = ret;
 	}
+
+	return 0;
 }

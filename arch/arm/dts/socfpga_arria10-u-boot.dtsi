@@ -1,0 +1,142 @@
+// SPDX-License-Identifier:     GPL-2.0
+/*
+ * Copyright (C) 2014, 2020, Intel Corporation
+ */
+
+/ {
+	chosen {
+		tick-timer = &timer2;
+		u-boot,dm-pre-reloc;
+	};
+
+	memory@0 {
+		u-boot,dm-pre-reloc;
+	};
+
+	soc {
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&clkmgr {
+	u-boot,dm-pre-reloc;
+
+	clocks {
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&cb_intosc_hs_div2_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&cb_intosc_ls_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&f2s_free_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&gmac0 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.72a", "snps,dwmac";
+	altr,sysmgr-syscon = <&sysmgr 0x44 0>;
+};
+
+&gmac1 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.72a", "snps,dwmac";
+	altr,sysmgr-syscon = <&sysmgr 0x48 0>;
+};
+
+&gmac2 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.72a", "snps,dwmac";
+	altr,sysmgr-syscon = <&sysmgr 0x4C 0>;
+};
+
+&i2c0 {
+	reset-names = "i2c";
+};
+
+&i2c1 {
+	reset-names = "i2c";
+};
+
+&i2c2 {
+	reset-names = "i2c";
+};
+
+&i2c3 {
+	reset-names = "i2c";
+};
+
+&i2c4 {
+	reset-names = "i2c";
+};
+
+&L2 {
+	u-boot,dm-pre-reloc;
+};
+
+&l4_mp_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&l4_sp_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&l4_sys_free_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&main_periph_ref_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&main_pll {
+	u-boot,dm-pre-reloc;
+};
+
+&main_noc_base_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&noc_free_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&osc1 {
+	u-boot,dm-pre-reloc;
+};
+
+&peri_noc_base_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&periph_pll {
+	u-boot,dm-pre-reloc;
+};
+
+&porta {
+	bank-name = "porta";
+};
+
+&portb {
+	bank-name = "portb";
+};
+
+&portc {
+	bank-name = "portc";
+};
+
+&rst {
+	u-boot,dm-pre-reloc;
+};
+
+&sysmgr {
+	u-boot,dm-pre-reloc;
+};
+
+&timer2 {
+	u-boot,dm-pre-reloc;
+};

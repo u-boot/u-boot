@@ -129,8 +129,8 @@ struct mtd_oob_region {
 struct mtd_ooblayout_ops {
 	int (*ecc)(struct mtd_info *mtd, int section,
 		   struct mtd_oob_region *oobecc);
-	int (*free)(struct mtd_info *mtd, int section,
-		    struct mtd_oob_region *oobfree);
+	int (*rfree)(struct mtd_info *mtd, int section,
+		     struct mtd_oob_region *oobfree);
 };
 
 /*

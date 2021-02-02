@@ -12,14 +12,20 @@
 /include/ "rtc.dtsi"
 /include/ "tsc_timer.dtsi"
 
+#include "smbios.dtsi"
+
 / {
 	model = "Intel Edison";
-	compatible = "intel,edison";
+	compatible = "intel,edison", "intel,tangier";
 
 	aliases {
 		serial0 = &serial0;
 		serial1 = &serial1;
 		serial2 = &serial2;
+	};
+
+	binman: binman {
+		multiple-images;
 	};
 
 	chosen {
@@ -99,6 +105,18 @@
 		reg = <0xff009000 0x1000>;
 	};
 
+	usb: usb@f9100000 {
+		compatible = "intel,tangier-dwc3";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		dwc3: dwc3 {
+			reg = <0xf9100000 0x100000>;
+			maximum-speed = "high-speed";
+			dr_mode = "peripheral";
+		};
+	};
+
 	watchdog: wdt@0 {
 		compatible = "intel,tangier-wdt";
 	};
@@ -127,6 +145,36 @@
 			pad-offset = <112>;
 			mode-func = <1>;
 			protected;
+		};
+	};
+};
+
+&binman {
+	u-boot-edison {
+		filename = "u-boot-edison.img";
+
+		/* This is the OSIP */
+		blob {
+			filename = "edison-osip.dat";
+		};
+
+		u-boot {
+			offset = <0x200>;
+		};
+
+		u-boot-env {
+			offset = <0x200200>;
+			filename = "edison-environment.txt";
+			size = <0x10000>;
+			fill-byte = [ff];
+		};
+
+		u-boot-env2 {
+			type = "u-boot-env";
+			offset = <0x500200>;
+			filename = "edison-environment.txt";
+			size = <0x10000>;
+			fill-byte = [ff];
 		};
 	};
 };

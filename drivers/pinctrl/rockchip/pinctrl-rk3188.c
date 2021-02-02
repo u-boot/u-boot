@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/pinctrl.h>
 #include <regmap.h>
 #include <syscon.h>
@@ -119,7 +120,7 @@ static const struct udevice_id rk3188_pinctrl_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(pinctrl_rk3188) = {
+U_BOOT_DRIVER(rockchip_rk3188_pinctrl) = {
 	.name		= "rockchip_rk3188_pinctrl",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= rk3188_pinctrl_ids,

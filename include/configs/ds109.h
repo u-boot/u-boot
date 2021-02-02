@@ -19,15 +19,6 @@
  */
 #define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
 
-/*
- * Commands configuration
- */
-#define CONFIG_CMD_EXT2
-
-/*
- * mv-plug-common.h should be defined after CMD configs since it used them
- * to enable certain macros
- */
 #include "mv-plug-common.h"
 
 /*

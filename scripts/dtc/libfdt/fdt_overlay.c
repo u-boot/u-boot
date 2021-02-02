@@ -241,6 +241,7 @@ static int overlay_update_local_node_references(void *fdto,
 
 		if (fixup_len % sizeof(uint32_t))
 			return -FDT_ERR_BADOVERLAY;
+		fixup_len /= sizeof(uint32_t);
 
 		tree_val = fdt_getprop(fdto, tree_node, name, &tree_len);
 		if (!tree_val) {
@@ -250,7 +251,7 @@ static int overlay_update_local_node_references(void *fdto,
 			return tree_len;
 		}
 
-		for (i = 0; i < (fixup_len / sizeof(uint32_t)); i++) {
+		for (i = 0; i < fixup_len; i++) {
 			fdt32_t adj_val;
 			uint32_t poffset;
 
@@ -757,7 +758,7 @@ static int overlay_symbol_update(void *fdt, void *fdto)
 			   && (memcmp(s, "/__overlay__", len - 1) == 0)) {
 			/* /<fragment-name>/__overlay__ */
 			rel_path = "";
-			rel_path_len = 0;
+			rel_path_len = 1; /* Include NUL character */
 		} else {
 			/* Symbol refers to something that won't end
 			 * up in the target tree */
@@ -794,7 +795,7 @@ static int overlay_symbol_update(void *fdt, void *fdto)
 		}
 
 		ret = fdt_setprop_placeholder(fdt, root_sym, name,
-				len + (len > 1) + rel_path_len + 1, &p);
+				len + (len > 1) + rel_path_len, &p);
 		if (ret < 0)
 			return ret;
 
@@ -820,7 +821,6 @@ static int overlay_symbol_update(void *fdt, void *fdto)
 
 		buf[len] = '/';
 		memcpy(buf + len + 1, rel_path, rel_path_len);
-		buf[len + 1 + rel_path_len] = '\0';
 	}
 
 	return 0;
@@ -878,4 +878,9 @@ err:
 	fdt_set_magic(fdt, ~0);
 
 	return ret;
+}
+
+int fdt_overlay_apply_node(void *fdt, int target, void *fdto, int node)
+{
+	return overlay_apply_node(fdt, target, fdto, node);
 }

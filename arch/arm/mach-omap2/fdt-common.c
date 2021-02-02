@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 
@@ -20,7 +21,7 @@
 #define CONFIG_SECURE_RUNTIME_RESV_SRAM_SZ (0)
 #endif
 
-int ft_hs_disable_rng(void *fdt, bd_t *bd)
+int ft_hs_disable_rng(void *fdt, struct bd_info *bd)
 {
 	const char *path;
 	int offs;
@@ -68,7 +69,7 @@ static int fdt_pack_reg(const void *fdt, void *buf, u64 address, u64 size)
 	return p - (char *)buf;
 }
 
-int ft_hs_fixup_dram(void *fdt, bd_t *bd)
+int ft_hs_fixup_dram(void *fdt, struct bd_info *bd)
 {
 	const char *path, *subpath;
 	int offs, len;
@@ -121,10 +122,10 @@ int ft_hs_fixup_dram(void *fdt, bd_t *bd)
 	return 0;
 }
 #else
-int ft_hs_fixup_dram(void *fdt, bd_t *bd) { return 0; }
+int ft_hs_fixup_dram(void *fdt, struct bd_info *bd) { return 0; }
 #endif
 
-int ft_hs_add_tee(void *fdt, bd_t *bd)
+int ft_hs_add_tee(void *fdt, struct bd_info *bd)
 {
 	const char *path, *subpath;
 	int offs;

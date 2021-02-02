@@ -25,18 +25,18 @@ static int log_console_emit(struct log_device *ldev, struct log_rec *rec)
 	 *    - function is an identifier and ends with ()
 	 *    - message has a space before it unless it is on its own
 	 */
-	if (fmt & (1 << LOGF_LEVEL))
+	if (fmt & BIT(LOGF_LEVEL))
 		printf("%s.", log_get_level_name(rec->level));
-	if (fmt & (1 << LOGF_CAT))
+	if (fmt & BIT(LOGF_CAT))
 		printf("%s,", log_get_cat_name(rec->cat));
-	if (fmt & (1 << LOGF_FILE))
+	if (fmt & BIT(LOGF_FILE))
 		printf("%s:", rec->file);
-	if (fmt & (1 << LOGF_LINE))
+	if (fmt & BIT(LOGF_LINE))
 		printf("%d-", rec->line);
-	if (fmt & (1 << LOGF_FUNC))
+	if (fmt & BIT(LOGF_FUNC))
 		printf("%s()", rec->func);
-	if (fmt & (1 << LOGF_MSG))
-		printf("%s%s", fmt != (1 << LOGF_MSG) ? " " : "", rec->msg);
+	if (fmt & BIT(LOGF_MSG))
+		printf("%s%s", fmt != BIT(LOGF_MSG) ? " " : "", rec->msg);
 
 	return 0;
 }
@@ -44,4 +44,5 @@ static int log_console_emit(struct log_device *ldev, struct log_rec *rec)
 LOG_DRIVER(console) = {
 	.name	= "console",
 	.emit	= log_console_emit,
+	.flags	= LOGDF_ENABLE,
 };

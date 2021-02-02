@@ -7,6 +7,7 @@
 #include <common.h>
 #include <ide.h>
 #include <init.h>
+#include <net.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/pci.h>
@@ -56,7 +57,7 @@ void pci_init_board(void)
 	pci_sh7780_init(&hose);
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	/* return >= 0 if a chip is found, the board's AX88796L is n2k-based */
 	return ne2k_register() + pci_eth_init(bis);

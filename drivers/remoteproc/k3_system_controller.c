@@ -8,9 +8,11 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <remoteproc.h>
 #include <errno.h>
 #include <mailbox.h>
+#include <dm/device_compat.h>
 #include <linux/soc/ti/k3-sec-proxy.h>
 
 #define K3_MSG_R5_TO_M3_M3FW			0x8105
@@ -98,7 +100,7 @@ void k3_sysctrler_load_msg_setup(struct k3_sysctrler_load_msg *fw,
 	fw->buffer_size = size;
 }
 
-static int k3_sysctrler_load_response(u32 *buf)
+static int k3_sysctrler_load_response(struct udevice *dev, u32 *buf)
 {
 	struct k3_sysctrler_load_msg *fw;
 
@@ -127,7 +129,8 @@ static int k3_sysctrler_load_response(u32 *buf)
 	return 0;
 }
 
-static int k3_sysctrler_boot_notification_response(u32 *buf)
+static int k3_sysctrler_boot_notification_response(struct udevice *dev,
+						   u32 *buf)
 {
 	struct k3_sysctrler_boot_notification_msg *boot;
 
@@ -191,7 +194,7 @@ static int k3_sysctrler_load(struct udevice *dev, ulong addr, ulong size)
 	}
 
 	/* Process the response */
-	ret = k3_sysctrler_load_response(msg.buf);
+	ret = k3_sysctrler_load_response(dev, msg.buf);
 	if (ret)
 		return ret;
 
@@ -228,7 +231,7 @@ static int k3_sysctrler_start(struct udevice *dev)
 	}
 
 	/* Process the response */
-	ret = k3_sysctrler_boot_notification_response(msg.buf);
+	ret = k3_sysctrler_boot_notification_response(dev, msg.buf);
 	if (ret)
 		return ret;
 

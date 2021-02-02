@@ -7,9 +7,10 @@
  */
 #include <common.h>
 #include <command.h>
+#include <linux/delay.h>
 
-static int do_conitrace(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_conitrace(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	bool first = true;
 
@@ -18,10 +19,10 @@ static int do_conitrace(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	/* Empty input buffer */
 	while (tstc())
-		getc();
+		getchar();
 
 	for (;;) {
-		int c = getc();
+		int c = getchar();
 
 		if (first && (c == 'x' || c == 'X'))
 			break;

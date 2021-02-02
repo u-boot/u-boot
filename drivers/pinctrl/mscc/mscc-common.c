@@ -14,11 +14,14 @@
 #include <config.h>
 #include <dm.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <dm/root.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include "mscc-common.h"
 

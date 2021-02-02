@@ -7,6 +7,7 @@
 #ifndef __TMIO_COMMON_H__
 #define __TMIO_COMMON_H__
 
+#include <linux/bitops.h>
 #define TMIO_SD_CMD			0x000	/* command */
 #define   TMIO_SD_CMD_NOSTOP		BIT(14)	/* No automatic CMD12 issue */
 #define   TMIO_SD_CMD_MULTI		BIT(13)	/* multiple block transfer */
@@ -147,6 +148,7 @@ struct tmio_sd_priv {
 	u8				adjust_hs400_calibrate;
 	u8				hs400_bad_tap;
 	const u8			*adjust_hs400_calib_table;
+	u32			quirks;
 #endif
 	ulong (*clk_get_rate)(struct tmio_sd_priv *);
 };

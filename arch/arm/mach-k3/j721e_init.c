@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/armv7_mpu.h>
@@ -18,17 +19,50 @@
 #include <dm.h>
 #include <dm/uclass-internal.h>
 #include <dm/pinctrl.h>
+#include <mmc.h>
+#include <remoteproc.h>
 
 #ifdef CONFIG_SPL_BUILD
-static void mmr_unlock(u32 base, u32 partition)
-{
-	/* Translate the base address */
-	phys_addr_t part_base = base + partition * CTRL_MMR0_PARTITION_SIZE;
-
-	/* Unlock the requested partition if locked using two-step sequence */
-	writel(CTRLMMR_LOCK_KICK0_UNLOCK_VAL, part_base + CTRLMMR_LOCK_KICK0);
-	writel(CTRLMMR_LOCK_KICK1_UNLOCK_VAL, part_base + CTRLMMR_LOCK_KICK1);
-}
+#ifdef CONFIG_K3_LOAD_SYSFW
+#ifdef CONFIG_TI_SECURE_DEVICE
+struct fwl_data cbass_hc_cfg0_fwls[] = {
+	{ "PCIE0_CFG", 2560, 8 },
+	{ "PCIE1_CFG", 2561, 8 },
+	{ "USB3SS0_CORE", 2568, 4 },
+	{ "USB3SS1_CORE", 2570, 4 },
+	{ "EMMC8SS0_CFG", 2576, 4 },
+	{ "UFS_HCI0_CFG", 2580, 4 },
+	{ "SERDES0", 2584, 1 },
+	{ "SERDES1", 2585, 1 },
+}, cbass_hc0_fwls[] = {
+	{ "PCIE0_HP", 2528, 24 },
+	{ "PCIE0_LP", 2529, 24 },
+	{ "PCIE1_HP", 2530, 24 },
+	{ "PCIE1_LP", 2531, 24 },
+}, cbass_rc_cfg0_fwls[] = {
+	{ "EMMCSD4SS0_CFG", 2380, 4 },
+}, cbass_rc0_fwls[] = {
+	{ "GPMC0", 2310, 8 },
+}, infra_cbass0_fwls[] = {
+	{ "PLL_MMR0", 8, 26 },
+	{ "CTRL_MMR0", 9, 16 },
+}, mcu_cbass0_fwls[] = {
+	{ "MCU_R5FSS0_CORE0", 1024, 4 },
+	{ "MCU_R5FSS0_CORE0_CFG", 1025, 2 },
+	{ "MCU_R5FSS0_CORE1", 1028, 4 },
+	{ "MCU_FSS0_CFG", 1032, 12 },
+	{ "MCU_FSS0_S1", 1033, 8 },
+	{ "MCU_FSS0_S0", 1036, 8 },
+	{ "MCU_PSROM49152X32", 1048, 1 },
+	{ "MCU_MSRAM128KX64", 1050, 8 },
+	{ "MCU_CTRL_MMR0", 1200, 8 },
+	{ "MCU_PLL_MMR0", 1201, 3 },
+	{ "MCU_CPSW0", 1220, 2 },
+}, wkup_cbass0_fwls[] = {
+	{ "WKUP_CTRL_MMR0", 131, 16 },
+};
+#endif
+#endif
 
 static void ctrl_mmr_unlock(void)
 {
@@ -53,11 +87,38 @@ static void ctrl_mmr_unlock(void)
 	mmr_unlock(CTRL_MMR0_BASE, 1);
 	mmr_unlock(CTRL_MMR0_BASE, 2);
 	mmr_unlock(CTRL_MMR0_BASE, 3);
-	mmr_unlock(CTRL_MMR0_BASE, 4);
 	mmr_unlock(CTRL_MMR0_BASE, 5);
-	mmr_unlock(CTRL_MMR0_BASE, 6);
+	if (soc_is_j721e())
+		mmr_unlock(CTRL_MMR0_BASE, 6);
 	mmr_unlock(CTRL_MMR0_BASE, 7);
 }
+
+#if defined(CONFIG_K3_LOAD_SYSFW)
+void k3_mmc_stop_clock(void)
+{
+	if (spl_boot_device() == BOOT_DEVICE_MMC1) {
+		struct mmc *mmc = find_mmc_device(0);
+
+		if (!mmc)
+			return;
+
+		mmc->saved_clock = mmc->clock;
+		mmc_set_clock(mmc, 0, true);
+	}
+}
+
+void k3_mmc_restart_clock(void)
+{
+	if (spl_boot_device() == BOOT_DEVICE_MMC1) {
+		struct mmc *mmc = find_mmc_device(0);
+
+		if (!mmc)
+			return;
+
+		mmc_set_clock(mmc, mmc->saved_clock, false);
+	}
+}
+#endif
 
 /*
  * This uninitialized global variable would normal end up in the .bss section,
@@ -65,10 +126,13 @@ static void ctrl_mmr_unlock(void)
  * it to the .data section.
  */
 u32 bootindex __attribute__((section(".data")));
+static struct rom_extended_boot_data bootdata __section(.data);
 
-static void store_boot_index_from_rom(void)
+static void store_boot_info_from_rom(void)
 {
 	bootindex = *(u32 *)(CONFIG_SYS_K3_BOOT_PARAM_TABLE_INDEX);
+	memcpy(&bootdata, (uintptr_t *)ROM_ENTENDED_BOOT_DATA_INFO,
+	       sizeof(struct rom_extended_boot_data));
 }
 
 void board_init_f(ulong dummy)
@@ -81,7 +145,7 @@ void board_init_f(ulong dummy)
 	 * Cannot delay this further as there is a chance that
 	 * K3_BOOT_PARAM_TABLE_INDEX can be over written by SPL MALLOC section.
 	 */
-	store_boot_index_from_rom();
+	store_boot_info_from_rom();
 
 	/* Make all control module registers accessible */
 	ctrl_mmr_unlock();
@@ -113,11 +177,33 @@ void board_init_f(ulong dummy)
 	 * callback hook, effectively switching on (or over) the console
 	 * output.
 	 */
-	k3_sysfw_loader(preloader_console_init);
+	k3_sysfw_loader(is_rom_loaded_sysfw(&bootdata),
+			k3_mmc_stop_clock, k3_mmc_restart_clock);
+
+	/* Prepare console output */
+	preloader_console_init();
+
+	/* Disable ROM configured firewalls right after loading sysfw */
+#ifdef CONFIG_TI_SECURE_DEVICE
+	remove_fwl_configs(cbass_hc_cfg0_fwls, ARRAY_SIZE(cbass_hc_cfg0_fwls));
+	remove_fwl_configs(cbass_hc0_fwls, ARRAY_SIZE(cbass_hc0_fwls));
+	remove_fwl_configs(cbass_rc_cfg0_fwls, ARRAY_SIZE(cbass_rc_cfg0_fwls));
+	remove_fwl_configs(cbass_rc0_fwls, ARRAY_SIZE(cbass_rc0_fwls));
+	remove_fwl_configs(infra_cbass0_fwls, ARRAY_SIZE(infra_cbass0_fwls));
+	remove_fwl_configs(mcu_cbass0_fwls, ARRAY_SIZE(mcu_cbass0_fwls));
+	remove_fwl_configs(wkup_cbass0_fwls, ARRAY_SIZE(wkup_cbass0_fwls));
+#endif
 #else
 	/* Prepare console output */
 	preloader_console_init();
 #endif
+
+	/* Output System Firmware version info */
+	k3_sysfw_print_ver();
+
+	/* Perform EEPROM-based board detection */
+	if (IS_ENABLED(CONFIG_TI_I2C_BOARD_DETECT))
+		do_board_detect();
 
 #if defined(CONFIG_CPU_V7R) && defined(CONFIG_K3_AVS0)
 	ret = uclass_get_device_by_driver(UCLASS_MISC, DM_GET_DRIVER(k3_avs),
@@ -131,9 +217,10 @@ void board_init_f(ulong dummy)
 	if (ret)
 		panic("DRAM init failed: %d\n", ret);
 #endif
+	spl_enable_dcache();
 }
 
-u32 spl_boot_mode(const u32 boot_device)
+u32 spl_mmc_boot_mode(const u32 boot_device)
 {
 	switch (boot_device) {
 	case BOOT_DEVICE_MMC1:
@@ -143,6 +230,35 @@ u32 spl_boot_mode(const u32 boot_device)
 	default:
 		return MMCSD_MODE_RAW;
 	}
+}
+
+static u32 __get_backup_bootmedia(u32 main_devstat)
+{
+	u32 bkup_boot = (main_devstat & MAIN_DEVSTAT_BKUP_BOOTMODE_MASK) >>
+			MAIN_DEVSTAT_BKUP_BOOTMODE_SHIFT;
+
+	switch (bkup_boot) {
+	case BACKUP_BOOT_DEVICE_USB:
+		return BOOT_DEVICE_DFU;
+	case BACKUP_BOOT_DEVICE_UART:
+		return BOOT_DEVICE_UART;
+	case BACKUP_BOOT_DEVICE_ETHERNET:
+		return BOOT_DEVICE_ETHERNET;
+	case BACKUP_BOOT_DEVICE_MMC2:
+	{
+		u32 port = (main_devstat & MAIN_DEVSTAT_BKUP_MMC_PORT_MASK) >>
+			    MAIN_DEVSTAT_BKUP_MMC_PORT_SHIFT;
+		if (port == 0x0)
+			return BOOT_DEVICE_MMC1;
+		return BOOT_DEVICE_MMC2;
+	}
+	case BACKUP_BOOT_DEVICE_SPI:
+		return BOOT_DEVICE_SPI;
+	case BACKUP_BOOT_DEVICE_I2C:
+		return BOOT_DEVICE_I2C;
+	}
+
+	return BOOT_DEVICE_RAM;
 }
 
 static u32 __get_primary_bootmedia(u32 main_devstat, u32 wkup_devstat)
@@ -181,8 +297,10 @@ u32 spl_boot_device(void)
 	/* MAIN CTRL MMR can only be read if MCU ONLY is 0 */
 	main_devstat = readl(CTRLMMR_MAIN_DEVSTAT);
 
-	/* ToDo: Add support for backup boot media */
-	return __get_primary_bootmedia(main_devstat, wkup_devstat);
+	if (bootindex == K3_PRIMARY_BOOTMODE)
+		return __get_primary_bootmedia(main_devstat, wkup_devstat);
+	else
+		return __get_backup_bootmedia(main_devstat);
 }
 #endif
 
@@ -238,5 +356,41 @@ void release_resources_for_core_shutdown(void)
 			panic("Failed sending core %u shutdown message (%d)\n",
 			      id, ret);
 	}
+}
+#endif
+
+#ifdef CONFIG_SYS_K3_SPL_ATF
+void start_non_linux_remote_cores(void)
+{
+	int size = 0, ret;
+	u32 loadaddr = 0;
+
+	if (!soc_is_j721e())
+		return;
+
+	size = load_firmware("name_mainr5f0_0fw", "addr_mainr5f0_0load",
+			     &loadaddr);
+	if (size <= 0)
+		goto err_load;
+
+	/* assuming remoteproc 2 is aliased for the needed remotecore */
+	ret = rproc_load(2, loadaddr, size);
+	if (ret) {
+		printf("Firmware failed to start on rproc (%d)\n", ret);
+		goto err_load;
+	}
+
+	ret = rproc_start(2);
+	if (ret) {
+		printf("Firmware init failed on rproc (%d)\n", ret);
+		goto err_load;
+	}
+
+	printf("Remoteproc 2 started successfully\n");
+
+	return;
+
+err_load:
+	rproc_reset(2);
 }
 #endif

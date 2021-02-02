@@ -105,7 +105,7 @@ static int tgec_mdio_reset(struct mii_dev *bus)
 	return 0;
 }
 
-int fm_tgec_mdio_init(bd_t *bis, struct tgec_mdio_info *info)
+int fm_tgec_mdio_init(struct bd_info *bis, struct tgec_mdio_info *info)
 {
 	struct mii_dev *bus = mdio_alloc();
 

@@ -7,6 +7,9 @@
 #define _ASM_ARCH_SDRAM_RK3399_H
 #include <asm/arch-rockchip/sdram_common.h>
 #include <asm/arch-rockchip/sdram_msch.h>
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
 
 struct rk3399_ddr_pctl_regs {
 	u32 denali_ctl[332];

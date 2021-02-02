@@ -7,6 +7,7 @@
 #ifndef __PFE_ETH_H__
 #define __PFE_ETH_H__
 
+#include <linux/bitops.h>
 #include <linux/sizes.h>
 #include <asm/io.h>
 #include <miiphy.h>
@@ -96,7 +97,7 @@ int pfe_remove(struct pfe_ddr_address *pfe_addr);
 struct mii_dev *pfe_mdio_init(struct pfe_mdio_info *mdio_info);
 void pfe_set_mdio(int dev_id, struct mii_dev *bus);
 void pfe_set_phy_address_mode(int dev_id, int phy_id, int phy_mode);
-int gemac_initialize(bd_t *bis, int dev_id, char *devname);
+int gemac_initialize(struct bd_info *bis, int dev_id, char *devname);
 int pfe_init(struct pfe_ddr_address *pfe_addr);
 int pfe_eth_board_init(struct udevice *dev);
 

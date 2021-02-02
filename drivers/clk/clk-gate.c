@@ -12,9 +12,12 @@
 #include <malloc.h>
 #include <clk-uclass.h>
 #include <dm/device.h>
+#include <dm/devres.h>
+#include <linux/bitops.h>
 #include <linux/clk-provider.h>
 #include <clk.h>
 #include "clk.h"
+#include <linux/err.h>
 
 #define UBOOT_DM_CLK_GATE "clk_gate"
 
@@ -43,8 +46,7 @@
  */
 static void clk_gate_endisable(struct clk *clk, int enable)
 {
-	struct clk_gate *gate = to_clk_gate(clk_dev_binded(clk) ?
-			dev_get_clk_ptr(clk->dev) : clk);
+	struct clk_gate *gate = to_clk_gate(clk);
 	int set = gate->flags & CLK_GATE_SET_TO_DISABLE ? 1 : 0;
 	u32 reg;
 
@@ -86,8 +88,7 @@ static int clk_gate_disable(struct clk *clk)
 
 int clk_gate_is_enabled(struct clk *clk)
 {
-	struct clk_gate *gate = to_clk_gate(clk_dev_binded(clk) ?
-			dev_get_clk_ptr(clk->dev) : clk);
+	struct clk_gate *gate = to_clk_gate(clk);
 	u32 reg;
 
 #if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
@@ -141,6 +142,7 @@ struct clk *clk_register_gate(struct device *dev, const char *name,
 #endif
 
 	clk = &gate->clk;
+	clk->flags = flags;
 
 	ret = clk_register(clk, UBOOT_DM_CLK_GATE, name, parent_name);
 	if (ret) {

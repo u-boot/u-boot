@@ -35,13 +35,7 @@
 #endif
 
 /* Link Definitions */
-#ifdef CONFIG_TFABOOT
 #define CONFIG_SYS_FSL_QSPI_BASE	0x20000000
-#else
-#ifdef CONFIG_QSPI_BOOT
-#define CONFIG_SYS_FSL_QSPI_BASE	0x20000000
-#endif
-#endif
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -54,11 +48,7 @@
 /*
  * SMP Definitinos
  */
-#define CPU_RELEASE_ADDR		secondary_boot_func
-
-#ifdef CONFIG_PCI
-#define CONFIG_CMD_PCI
-#endif
+#define CPU_RELEASE_ADDR		secondary_boot_addr
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2048 * 1024)
@@ -74,7 +64,6 @@
 #define CONFIG_SYS_NS16550_REG_SIZE     1
 #define CONFIG_SYS_NS16550_CLK          (get_bus_freq(0) / 2)
 
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #if !defined(SPL_NO_IFC) || defined(CONFIG_TARGET_LS1088AQDS)
@@ -149,8 +138,6 @@ unsigned long long get_qixis_addr(void);
 #if defined(CONFIG_FSL_MC_ENET)
 #define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(128UL * 1024 * 1024)
 #endif
-/* Command line configuration */
-#define CONFIG_CMD_CACHE
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
@@ -175,9 +162,6 @@ unsigned long long get_qixis_addr(void);
 /* #define CONFIG_DISPLAY_CPUINFO */
 
 #ifndef SPL_NO_ENV
-/* Allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\

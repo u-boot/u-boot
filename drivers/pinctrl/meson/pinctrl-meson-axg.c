@@ -298,6 +298,7 @@ static struct meson_pmx_group meson_axg_periphs_groups[] = {
 	GPIO_GROUP(GPIOA_15, EE_OFF),
 	GPIO_GROUP(GPIOA_16, EE_OFF),
 	GPIO_GROUP(GPIOA_17, EE_OFF),
+	GPIO_GROUP(GPIOA_18, EE_OFF),
 	GPIO_GROUP(GPIOA_19, EE_OFF),
 	GPIO_GROUP(GPIOA_20, EE_OFF),
 

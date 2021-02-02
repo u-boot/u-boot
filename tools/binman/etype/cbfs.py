@@ -7,10 +7,10 @@
 
 from collections import OrderedDict
 
-import cbfs_util
-from cbfs_util import CbfsWriter
-from entry import Entry
-import fdt_util
+from binman import cbfs_util
+from binman.cbfs_util import CbfsWriter
+from binman.entry import Entry
+from dtoc import fdt_util
 
 class Entry_cbfs(Entry):
     """Entry containing a Coreboot Filesystem (CBFS)
@@ -165,9 +165,9 @@ class Entry_cbfs(Entry):
     def __init__(self, section, etype, node):
         # Put this here to allow entry-docs and help to work without libfdt
         global state
-        import state
+        from binman import state
 
-        Entry.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self._cbfs_arg = fdt_util.GetString(node, 'cbfs-arch', 'x86')
         self._cbfs_entries = OrderedDict()
         self._ReadSubnodes()
@@ -204,7 +204,7 @@ class Entry_cbfs(Entry):
         return True
 
     def _ReadSubnodes(self):
-        """Read the subnodes to find out what should go in this IFWI"""
+        """Read the subnodes to find out what should go in this CBFS"""
         for node in self._node.subnodes:
             entry = Entry.Create(self, node)
             entry.ReadNode()
@@ -226,7 +226,7 @@ class Entry_cbfs(Entry):
         Args:
             image_pos: Position of this entry in the image
         """
-        Entry.SetImagePos(self, image_pos)
+        super().SetImagePos(image_pos)
 
         # Now update the entries with info from the CBFS entries
         for entry in self._cbfs_entries.values():
@@ -237,10 +237,10 @@ class Entry_cbfs(Entry):
             if entry._cbfs_compress:
                 entry.uncomp_size = cfile.memlen
 
-    def AddMissingProperties(self):
-        Entry.AddMissingProperties(self)
+    def AddMissingProperties(self, have_image_pos):
+        super().AddMissingProperties(have_image_pos)
         for entry in self._cbfs_entries.values():
-            entry.AddMissingProperties()
+            entry.AddMissingProperties(have_image_pos)
             if entry._cbfs_compress:
                 state.AddZeroProp(entry._node, 'uncomp-size')
                 # Store the 'compress' property, since we don't look at
@@ -250,7 +250,7 @@ class Entry_cbfs(Entry):
 
     def SetCalculatedProperties(self):
         """Set the value of device-tree properties calculated by binman"""
-        Entry.SetCalculatedProperties(self)
+        super().SetCalculatedProperties()
         for entry in self._cbfs_entries.values():
             state.SetInt(entry._node, 'offset', entry.offset)
             state.SetInt(entry._node, 'size', entry.size)
@@ -260,7 +260,7 @@ class Entry_cbfs(Entry):
 
     def ListEntries(self, entries, indent):
         """Override this method to list all files in the section"""
-        Entry.ListEntries(self, entries, indent)
+        super().ListEntries(entries, indent)
         for entry in self._cbfs_entries.values():
             entry.ListEntries(entries, indent + 1)
 
@@ -268,12 +268,12 @@ class Entry_cbfs(Entry):
         return self._cbfs_entries
 
     def ReadData(self, decomp=True):
-        data = Entry.ReadData(self, True)
+        data = super().ReadData(True)
         return data
 
     def ReadChildData(self, child, decomp=True):
         if not self.reader:
-            data = Entry.ReadData(self, True)
+            data = super().ReadData(True)
             self.reader = cbfs_util.CbfsReader(data)
         reader = self.reader
         cfile = reader.files.get(child.name)

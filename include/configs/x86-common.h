@@ -18,8 +18,6 @@
 
 #define CONFIG_LMB
 
-#undef CONFIG_ZLIB
-#undef CONFIG_GZIP
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)
 
 /* SATA AHCI storage */
@@ -43,10 +41,6 @@
  */
 #define CONFIG_SYS_NS16550_PORT_MAPPED
 
-/*-----------------------------------------------------------------------
- * Command line configuration.
- */
-
 #ifndef CONFIG_BOOTCOMMAND
 #define CONFIG_BOOTCOMMAND	\
 	"ext2load scsi 0:3 01000000 /boot/vmlinuz; zboot 01000000"
@@ -61,8 +55,6 @@
  */
 #define CONFIG_SYS_CBSIZE			512
 
-#define CONFIG_SYS_MEMTEST_START		0x00100000
-#define CONFIG_SYS_MEMTEST_END			0x01000000
 #define CONFIG_SYS_LOAD_ADDR			0x20000000
 
 /*-----------------------------------------------------------------------
@@ -72,9 +64,6 @@
 #define CONFIG_SYS_STACK_SIZE			(32 * 1024)
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MALLOC_LEN			0x200000
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 /*-----------------------------------------------------------------------
  * Environment configuration

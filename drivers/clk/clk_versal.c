@@ -5,6 +5,10 @@
  */
 
 #include <common.h>
+#include <log.h>
+#include <asm/cache.h>
+#include <asm/ptrace.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/bitfield.h>
 #include <malloc.h>
@@ -13,6 +17,7 @@
 #include <dm.h>
 #include <asm/arch/sys_proto.h>
 #include <zynqmp_firmware.h>
+#include <linux/err.h>
 
 #define MAX_PARENT			100
 #define MAX_NODES			6

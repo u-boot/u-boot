@@ -1,0 +1,86 @@
+// SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
+/*
+ * Copyright (C) 2020 Marek Vasut <marex@denx.de>
+ */
+
+#include "stm32mp15xx-dhcor-u-boot.dtsi"
+
+/ {
+	aliases {
+		mmc0 = &sdmmc1;
+		mmc1 = &sdmmc2;
+		usb0 = &usbotg_hs;
+	};
+
+	config {
+		u-boot,boot-led = "led1";
+		u-boot,error-led = "led4";
+		dh,board-coding-gpios = <&gpiog 13 0>, <&gpiod 9 0>;
+	};
+};
+
+&sdmmc1 {
+	u-boot,dm-spl;
+};
+
+&sdmmc1_b4_pins_a {
+	u-boot,dm-spl;
+	pins1 {
+		u-boot,dm-spl;
+	};
+	pins2 {
+		u-boot,dm-spl;
+	};
+};
+
+&sdmmc1_dir_pins_b {
+	u-boot,dm-spl;
+	pins1 {
+		u-boot,dm-spl;
+	};
+	pins2 {
+		u-boot,dm-spl;
+	};
+};
+
+&sdmmc2 {
+	u-boot,dm-spl;
+};
+
+&sdmmc2_b4_pins_a {
+	u-boot,dm-spl;
+	pins1 {
+		u-boot,dm-spl;
+	};
+	pins2 {
+		u-boot,dm-spl;
+	};
+};
+
+&sdmmc2_d47_pins_b {
+	u-boot,dm-spl;
+	pins {
+		u-boot,dm-spl;
+	};
+};
+
+&uart4 {
+	u-boot,dm-pre-reloc;
+};
+
+&uart4_pins_b {
+	u-boot,dm-pre-reloc;
+	pins1 {
+		u-boot,dm-pre-reloc;
+	};
+	pins2 {
+		u-boot,dm-pre-reloc;
+		/delete-property/ bias-disable;
+		bias-pull-up;
+	};
+};
+
+&usbotg_hs {
+	u-boot,force-b-session-valid;
+	hnp-srp-disable;
+};

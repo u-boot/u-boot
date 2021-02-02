@@ -7,6 +7,8 @@
 #ifndef __FSP_FV___
 #define __FSP_FV___
 
+#include <efi.h>
+
 /* Value of EFI_FV_FILE_ATTRIBUTES */
 #define EFI_FV_FILE_ATTR_ALIGNMENT	0x0000001F
 #define EFI_FV_FILE_ATTR_FIXED		0x00000100

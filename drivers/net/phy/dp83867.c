@@ -4,13 +4,17 @@
  *
  */
 #include <common.h>
+#include <log.h>
 #include <phy.h>
+#include <dm/devres.h>
+#include <linux/bitops.h>
 #include <linux/compat.h>
 #include <malloc.h>
 
 #include <dm.h>
 #include <dt-bindings/net/ti-dp83867.h>
 
+#include "ti_phy_init.h"
 
 /* TI DP83867 */
 #define DP83867_DEVADDR		0x1f
@@ -335,7 +339,9 @@ static int dp83867_config(struct phy_device *phydev)
 
 		phy_write_mmd(phydev, DP83867_DEVADDR,
 			      DP83867_RGMIIDCTL, delay);
-	} else if (phy_interface_is_sgmii(phydev)) {
+	}
+
+	if (phy_interface_is_sgmii(phydev)) {
 		if (dp83867->sgmii_ref_clk_en)
 			phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_SGMIICTL,
 				      DP83867_SGMII_TYPE);
@@ -425,7 +431,7 @@ static struct phy_driver DP83867_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
-int phy_ti_init(void)
+int phy_dp83867_init(void)
 {
 	phy_register(&DP83867_driver);
 	return 0;

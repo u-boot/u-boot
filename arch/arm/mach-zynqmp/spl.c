@@ -6,9 +6,11 @@
  */
 
 #include <common.h>
-#include <debug_uart.h>
+#include <image.h>
 #include <init.h>
+#include <log.h>
 #include <spl.h>
+#include <linux/delay.h>
 
 #include <asm/io.h>
 #include <asm/spl.h>
@@ -20,14 +22,6 @@ void board_init_f(ulong dummy)
 {
 	board_early_init_f();
 	board_early_init_r();
-
-#ifdef CONFIG_DEBUG_UART
-	/* Uart debug for sure */
-	debug_uart_init();
-	puts("Debug uart enabled\n"); /* or printch() */
-#endif
-	/* Delay is required for clocks to be propagated */
-	udelay(1000000);
 }
 
 static void ps_mode_reset(ulong mode)
@@ -123,15 +117,5 @@ u32 spl_boot_device(void)
 int spl_start_uboot(void)
 {
 	return 0;
-}
-#endif
-
-#ifdef CONFIG_SPL_LOAD_FIT
-int board_fit_config_name_match(const char *name)
-{
-	/* Just empty function now - can't decide what to choose */
-	debug("%s: %s\n", __func__, name);
-
-	return -1;
 }
 #endif

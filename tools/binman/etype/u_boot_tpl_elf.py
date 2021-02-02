@@ -5,8 +5,8 @@
 # Entry-type module for U-Boot TPL ELF image
 #
 
-from entry import Entry
-from blob import Entry_blob
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
 class Entry_u_boot_tpl_elf(Entry_blob):
     """U-Boot TPL ELF image
@@ -18,7 +18,7 @@ class Entry_u_boot_tpl_elf(Entry_blob):
     be relocated to any address for execution.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def GetDefaultFilename(self):
         return 'tpl/u-boot-tpl'

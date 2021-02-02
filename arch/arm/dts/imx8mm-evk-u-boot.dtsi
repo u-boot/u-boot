@@ -3,6 +3,14 @@
  * Copyright 2019 NXP
  */
 
+/ {
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+		u-boot,dm-spl;
+	};
+};
+
 &{/soc@0} {
 	u-boot,dm-pre-reloc;
 	u-boot,dm-spl;
@@ -36,6 +44,10 @@
 
 &iomuxc {
 	u-boot,dm-spl;
+};
+
+&reg_usdhc2_vmmc {
+	u-boot,off-on-delay-us = <20000>;
 };
 
 &pinctrl_reg_usdhc2_vmmc {
@@ -88,10 +100,14 @@
 
 &usdhc2 {
 	u-boot,dm-spl;
+	sd-uhs-sdr104;
+	sd-uhs-ddr50;
 };
 
 &usdhc3 {
 	u-boot,dm-spl;
+	mmc-hs400-1_8v;
+	mmc-hs400-enhanced-strobe;
 };
 
 &i2c1 {
@@ -116,4 +132,8 @@
 
 &fec1 {
 	phy-reset-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
+};
+
+&wdog1 {
+	u-boot,dm-spl;
 };

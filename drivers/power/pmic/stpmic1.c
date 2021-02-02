@@ -11,6 +11,7 @@
 #include <sysreset.h>
 #include <time.h>
 #include <dm/device.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <power/pmic.h>
 #include <power/stpmic1.h>

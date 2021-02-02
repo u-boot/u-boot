@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <bootstage.h>
+#include <hang.h>
 #include <os.h>
 
 /**

@@ -18,16 +18,22 @@
  * src/arch/x86/lib/cpu.c
  */
 
+#define LOG_CATEGORY	UCLASS_CPU
+
 #include <common.h>
-#include <acpi_s3.h>
+#include <bootstage.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <init.h>
+#include <irq.h>
+#include <log.h>
 #include <malloc.h>
 #include <syscon.h>
+#include <acpi/acpi_s3.h>
+#include <acpi/acpi_table.h>
 #include <asm/acpi.h>
-#include <asm/acpi_table.h>
 #include <asm/control_regs.h>
 #include <asm/coreboot_tables.h>
 #include <asm/cpu.h>
@@ -46,6 +52,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_TPL_BUILD
 static const char *const x86_vendor_name[] = {
 	[X86_VENDOR_INTEL]     = "Intel",
 	[X86_VENDOR_CYRIX]     = "Cyrix",
@@ -58,13 +65,17 @@ static const char *const x86_vendor_name[] = {
 	[X86_VENDOR_NSC]       = "NSC",
 	[X86_VENDOR_SIS]       = "SiS",
 };
+#endif
 
 int __weak x86_cleanup_before_linux(void)
 {
-#ifdef CONFIG_BOOTSTAGE_STASH
+	int ret;
+
+	ret = mp_park_aps();
+	if (ret)
+		return log_msg_ret("park", ret);
 	bootstage_stash((void *)CONFIG_BOOTSTAGE_STASH_ADDR,
 			CONFIG_BOOTSTAGE_STASH_SIZE);
-#endif
 
 	return 0;
 }
@@ -114,6 +125,7 @@ int icache_status(void)
 	return 1;
 }
 
+#ifndef CONFIG_TPL_BUILD
 const char *cpu_vendor_name(int vendor)
 {
 	const char *name;
@@ -124,6 +136,7 @@ const char *cpu_vendor_name(int vendor)
 
 	return name;
 }
+#endif
 
 char *cpu_get_name(char *name)
 {
@@ -156,10 +169,10 @@ int default_print_cpuinfo(void)
 	       cpu_has_64bit() ? "x86_64" : "x86",
 	       cpu_vendor_name(gd->arch.x86_vendor), gd->arch.x86_device);
 
-#ifdef CONFIG_HAVE_ACPI_RESUME
-	debug("ACPI previous sleep state: %s\n",
-	      acpi_ss_string(gd->arch.prev_sleep_state));
-#endif
+	if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME)) {
+		debug("ACPI previous sleep state: %s\n",
+		      acpi_ss_string(gd->arch.prev_sleep_state));
+	}
 
 	return 0;
 }
@@ -171,8 +184,16 @@ void show_boot_progress(int val)
 
 #if !defined(CONFIG_SYS_COREBOOT) && !defined(CONFIG_EFI_STUB)
 /*
- * Implement a weak default function for boards that optionally
- * need to clean up the system before jumping to the kernel.
+ * Implement a weak default function for boards that need to do some final init
+ * before the system is ready.
+ */
+__weak void board_final_init(void)
+{
+}
+
+/*
+ * Implement a weak default function for boards that need to do some final
+ * processing before booting the OS.
  */
 __weak void board_final_cleanup(void)
 {
@@ -181,30 +202,43 @@ __weak void board_final_cleanup(void)
 int last_stage_init(void)
 {
 	struct acpi_fadt __maybe_unused *fadt;
+	int ret;
 
-	board_final_cleanup();
+	board_final_init();
 
-#ifdef CONFIG_HAVE_ACPI_RESUME
-	fadt = acpi_find_fadt();
+	if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME)) {
+		fadt = acpi_find_fadt();
 
-	if (fadt && gd->arch.prev_sleep_state == ACPI_S3)
-		acpi_resume(fadt);
-#endif
-
-	write_tables();
-
-#ifdef CONFIG_GENERATE_ACPI_TABLE
-	fadt = acpi_find_fadt();
-
-	/* Don't touch ACPI hardware on HW reduced platforms */
-	if (fadt && !(fadt->flags & ACPI_FADT_HW_REDUCED_ACPI)) {
-		/*
-		 * Other than waiting for OSPM to request us to switch to ACPI
-		 * mode, do it by ourselves, since SMI will not be triggered.
-		 */
-		enter_acpi_mode(fadt->pm1a_cnt_blk);
+		if (fadt && gd->arch.prev_sleep_state == ACPI_S3)
+			acpi_resume(fadt);
 	}
-#endif
+
+	ret = write_tables();
+	if (ret) {
+		log_err("Failed to write tables\n");
+		return log_msg_ret("table", ret);
+	}
+
+	if (IS_ENABLED(CONFIG_GENERATE_ACPI_TABLE)) {
+		fadt = acpi_find_fadt();
+
+		/* Don't touch ACPI hardware on HW reduced platforms */
+		if (fadt && !(fadt->flags & ACPI_FADT_HW_REDUCED_ACPI)) {
+			/*
+			 * Other than waiting for OSPM to request us to switch
+			 * to ACPI * mode, do it by ourselves, since SMI will
+			 * not be triggered.
+			 */
+			enter_acpi_mode(fadt->pm1a_cnt_blk);
+		}
+	}
+
+	/*
+	 * TODO(sjg@chromium.org): Move this to bootm_announce_and_cleanup()
+	 * once APL FSP-S at 0x200000 does not overlap with the bzimage at
+	 * 0x100000.
+	 */
+	board_final_cleanup();
 
 	return 0;
 }
@@ -212,19 +246,20 @@ int last_stage_init(void)
 
 static int x86_init_cpus(void)
 {
-#ifdef CONFIG_SMP
-	debug("Init additional CPUs\n");
-	x86_mp_init();
-#else
-	struct udevice *dev;
+	if (IS_ENABLED(CONFIG_SMP)) {
+		debug("Init additional CPUs\n");
+		x86_mp_init();
+	} else {
+		struct udevice *dev;
 
-	/*
-	 * This causes the cpu-x86 driver to be probed.
-	 * We don't check return value here as we want to allow boards
-	 * which have not been converted to use cpu uclass driver to boot.
-	 */
-	uclass_first_device(UCLASS_CPU, &dev);
-#endif
+		/*
+		 * This causes the cpu-x86 driver to be probed.
+		 * We don't check return value here as we want to allow boards
+		 * which have not been converted to use cpu uclass driver to
+		 * boot.
+		 */
+		uclass_first_device(UCLASS_CPU, &dev);
+	}
 
 	return 0;
 }
@@ -234,8 +269,10 @@ int cpu_init_r(void)
 	struct udevice *dev;
 	int ret;
 
-	if (!ll_boot_init())
+	if (!ll_boot_init()) {
+		uclass_first_device(UCLASS_PCI, &dev);
 		return 0;
+	}
 
 	ret = x86_init_cpus();
 	if (ret)
@@ -260,26 +297,61 @@ int cpu_init_r(void)
 #ifndef CONFIG_EFI_STUB
 int reserve_arch(void)
 {
-#ifdef CONFIG_ENABLE_MRC_CACHE
-	mrccache_reserve();
-#endif
+	struct udevice *itss;
+	int ret;
 
-#ifdef CONFIG_SEABIOS
-	high_table_reserve();
-#endif
+	if (IS_ENABLED(CONFIG_ENABLE_MRC_CACHE))
+		mrccache_reserve();
 
-#ifdef CONFIG_HAVE_ACPI_RESUME
-	acpi_s3_reserve();
+	if (IS_ENABLED(CONFIG_SEABIOS))
+		high_table_reserve();
 
-#ifdef CONFIG_HAVE_FSP
-	/*
-	 * Save stack address to CMOS so that at next S3 boot,
-	 * we can use it as the stack address for fsp_contiue()
-	 */
-	fsp_save_s3_stack();
-#endif /* CONFIG_HAVE_FSP */
-#endif /* CONFIG_HAVE_ACPI_RESUME */
+	if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME)) {
+		acpi_s3_reserve();
+
+		if (IS_ENABLED(CONFIG_HAVE_FSP)) {
+			/*
+			 * Save stack address to CMOS so that at next S3 boot,
+			 * we can use it as the stack address for fsp_contiue()
+			 */
+			fsp_save_s3_stack();
+		}
+	}
+	ret = irq_first_device_type(X86_IRQT_ITSS, &itss);
+	if (!ret) {
+		/*
+		 * Snapshot the current GPIO IRQ polarities. FSP-S is about to
+		 * run and will set a default policy that doesn't honour boards'
+		 * requirements
+		 */
+		irq_snapshot_polarities(itss);
+	}
 
 	return 0;
 }
 #endif
+
+long detect_coreboot_table_at(ulong start, ulong size)
+{
+	u32 *ptr, *end;
+
+	size /= 4;
+	for (ptr = (void *)start, end = ptr + size; ptr < end; ptr += 4) {
+		if (*ptr == 0x4f49424c) /* "LBIO" */
+			return (long)ptr;
+	}
+
+	return -ENOENT;
+}
+
+long locate_coreboot_table(void)
+{
+	long addr;
+
+	/* We look for LBIO in the first 4K of RAM and again at 960KB */
+	addr = detect_coreboot_table_at(0x0, 0x1000);
+	if (addr < 0)
+		addr = detect_coreboot_table_at(0xf0000, 0x1000);
+
+	return addr;
+}

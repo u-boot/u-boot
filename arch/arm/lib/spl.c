@@ -9,8 +9,11 @@
 
 #include <common.h>
 #include <config.h>
+#include <init.h>
+#include <log.h>
 #include <spl.h>
 #include <image.h>
+#include <asm/cache.h>
 #include <linux/compiler.h>
 #include <asm/mach-types.h>
 

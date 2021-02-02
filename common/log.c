@@ -13,7 +13,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const char *log_cat_name[LOGC_COUNT - LOGC_NONE] = {
+static const char *const log_cat_name[] = {
 	"none",
 	"arch",
 	"board",
@@ -21,9 +21,18 @@ static const char *log_cat_name[LOGC_COUNT - LOGC_NONE] = {
 	"driver-model",
 	"device-tree",
 	"efi",
+	"alloc",
+	"sandbox",
+	"bloblist",
+	"devres",
+	"acpi",
+	"boot",
 };
 
-static const char *log_level_name[LOGL_COUNT] = {
+_Static_assert(ARRAY_SIZE(log_cat_name) == LOGC_COUNT - LOGC_NONE,
+	       "log_cat_name size");
+
+static const char *const log_level_name[] = {
 	"EMERG",
 	"ALERT",
 	"CRIT",
@@ -36,6 +45,9 @@ static const char *log_level_name[LOGL_COUNT] = {
 	"IO",
 };
 
+_Static_assert(ARRAY_SIZE(log_level_name) == LOGL_COUNT, "log_level_name size");
+
+/* All error responses MUST begin with '<' */
 const char *log_get_cat_name(enum log_category_t cat)
 {
 	const char *name;
@@ -45,7 +57,11 @@ const char *log_get_cat_name(enum log_category_t cat)
 	if (cat >= LOGC_NONE)
 		return log_cat_name[cat - LOGC_NONE];
 
+#if CONFIG_IS_ENABLED(DM)
 	name = uclass_get_name((enum uclass_id)cat);
+#else
+	name = NULL;
+#endif
 
 	return name ? name : "<missing>";
 }
@@ -84,7 +100,7 @@ enum log_level_t log_get_level_by_name(const char *name)
 	return LOGL_NONE;
 }
 
-static struct log_device *log_device_find_by_name(const char *drv_name)
+struct log_device *log_device_find_by_name(const char *drv_name)
 {
 	struct log_device *ldev;
 
@@ -96,15 +112,7 @@ static struct log_device *log_device_find_by_name(const char *drv_name)
 	return NULL;
 }
 
-/**
- * log_has_cat() - check if a log category exists within a list
- *
- * @cat_list: List of categories to check, at most LOGF_MAX_CATEGORIES entries
- *	long, terminated by LC_END if fewer
- * @cat: Category to search for
- * @return true if @cat is in @cat_list, else false
- */
-static bool log_has_cat(enum log_category_t cat_list[], enum log_category_t cat)
+bool log_has_cat(enum log_category_t cat_list[], enum log_category_t cat)
 {
 	int i;
 
@@ -116,16 +124,7 @@ static bool log_has_cat(enum log_category_t cat_list[], enum log_category_t cat)
 	return false;
 }
 
-/**
- * log_has_file() - check if a file is with a list
- *
- * @file_list: List of files to check, separated by comma
- * @file: File to check for. This string is matched against the end of each
- *	file in the list, i.e. ignoring any preceding path. The list is
- *	intended to consist of relative pathnames, e.g. common/main.c,cmd/log.c
- * @return true if @file is in @file_list, else false
- */
-static bool log_has_file(const char *file_list, const char *file)
+bool log_has_file(const char *file_list, const char *file)
 {
 	int file_len = strlen(file);
 	const char *s, *p;
@@ -153,6 +152,9 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
 {
 	struct log_filter *filt;
 
+	if (rec->force_debug)
+		return true;
+
 	/* If there are no filters, filter on the default log level */
 	if (list_empty(&ldev->filter_head)) {
 		if (rec->level > gd->default_log_level)
@@ -161,15 +163,25 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
 	}
 
 	list_for_each_entry(filt, &ldev->filter_head, sibling_node) {
-		if (rec->level > filt->max_level)
+		if (filt->flags & LOGFF_LEVEL_MIN) {
+			if (rec->level < filt->level)
+				continue;
+		} else if (rec->level > filt->level) {
 			continue;
+		}
+
 		if ((filt->flags & LOGFF_HAS_CAT) &&
 		    !log_has_cat(filt->cat_list, rec->cat))
 			continue;
+
 		if (filt->file_list &&
 		    !log_has_file(filt->file_list, rec->file))
 			continue;
-		return true;
+
+		if (filt->flags & LOGFF_DENY)
+			return false;
+		else
+			return true;
 	}
 
 	return false;
@@ -179,20 +191,33 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
  * log_dispatch() - Send a log record to all log devices for processing
  *
  * The log record is sent to each log device in turn, skipping those which have
- * filters which block the record
+ * filters which block the record.
  *
- * @rec: Log record to dispatch
- * @return 0 (meaning success)
+ * All log messages created while processing log record @rec are ignored.
+ *
+ * @rec:	log record to dispatch
+ * Return:	0 msg sent, 1 msg not sent while already dispatching another msg
  */
 static int log_dispatch(struct log_rec *rec)
 {
 	struct log_device *ldev;
 
+	/*
+	 * When a log driver writes messages (e.g. via the network stack) this
+	 * may result in further generated messages. We cannot process them here
+	 * as this might result in infinite recursion.
+	 */
+	if (gd->processing_msg)
+		return 1;
+
+	/* Emit message */
+	gd->processing_msg = true;
 	list_for_each_entry(ldev, &gd->log_head, sibling_node) {
-		if (log_passes_filters(ldev, rec))
+		if ((ldev->flags & LOGDF_ENABLE) &&
+		    log_passes_filters(ldev, rec))
 			ldev->drv->emit(ldev, rec);
 	}
-
+	gd->processing_msg = false;
 	return 0;
 }
 
@@ -203,8 +228,15 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 	struct log_rec rec;
 	va_list args;
 
+	/* Check for message continuation */
+	if (cat == LOGC_CONT)
+		cat = gd->logc_prev;
+	if (level == LOGL_CONT)
+		level = gd->logl_prev;
+
 	rec.cat = cat;
-	rec.level = level;
+	rec.level = level & LOGL_LEVEL_MASK;
+	rec.force_debug = level & LOGL_FORCE_DEBUG;
 	rec.file = file;
 	rec.line = line;
 	rec.func = func;
@@ -217,13 +249,17 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 			gd->log_drop_count++;
 		return -ENOSYS;
 	}
-	log_dispatch(&rec);
+	if (!log_dispatch(&rec)) {
+		gd->logc_prev = cat;
+		gd->logl_prev = level;
+	}
 
 	return 0;
 }
 
-int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
-		   enum log_level_t max_level, const char *file_list)
+int log_add_filter_flags(const char *drv_name, enum log_category_t cat_list[],
+			 enum log_level_t level, const char *file_list,
+			 int flags)
 {
 	struct log_filter *filt;
 	struct log_device *ldev;
@@ -233,10 +269,11 @@ int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
 	ldev = log_device_find_by_name(drv_name);
 	if (!ldev)
 		return -ENOENT;
-	filt = (struct log_filter *)calloc(1, sizeof(*filt));
+	filt = calloc(1, sizeof(*filt));
 	if (!filt)
 		return -ENOMEM;
 
+	filt->flags = flags;
 	if (cat_list) {
 		filt->flags |= LOGFF_HAS_CAT;
 		for (i = 0; ; i++) {
@@ -249,16 +286,20 @@ int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
 				break;
 		}
 	}
-	filt->max_level = max_level;
+	filt->level = level;
 	if (file_list) {
 		filt->file_list = strdup(file_list);
 		if (!filt->file_list) {
-			ret = ENOMEM;
+			ret = -ENOMEM;
 			goto err;
 		}
 	}
 	filt->filter_num = ldev->next_filter_num++;
-	list_add_tail(&filt->sibling_node, &ldev->filter_head);
+	/* Add deny filters to the beginning of the list */
+	if (flags & LOGFF_DENY)
+		list_add(&filt->sibling_node, &ldev->filter_head);
+	else
+		list_add_tail(&filt->sibling_node, &ldev->filter_head);
 
 	return filt->filter_num;
 
@@ -288,6 +329,44 @@ int log_remove_filter(const char *drv_name, int filter_num)
 	return -ENOENT;
 }
 
+/**
+ * log_find_device_by_drv() - Find a device by its driver
+ *
+ * @drv: Log driver
+ * @return Device associated with that driver, or NULL if not found
+ */
+static struct log_device *log_find_device_by_drv(struct log_driver *drv)
+{
+	struct log_device *ldev;
+
+	list_for_each_entry(ldev, &gd->log_head, sibling_node) {
+		if (ldev->drv == drv)
+			return ldev;
+	}
+	/*
+	 * It is quite hard to pass an invalid driver since passing an unknown
+	 * LOG_GET_DRIVER(xxx) would normally produce a compilation error. But
+	 * it is possible to pass NULL, for example, so this
+	 */
+
+	return NULL;
+}
+
+int log_device_set_enable(struct log_driver *drv, bool enable)
+{
+	struct log_device *ldev;
+
+	ldev = log_find_device_by_drv(drv);
+	if (!ldev)
+		return -ENOENT;
+	if (enable)
+		ldev->flags |= LOGDF_ENABLE;
+	else
+		ldev->flags &= ~LOGDF_ENABLE;
+
+	return 0;
+}
+
 int log_init(void)
 {
 	struct log_driver *drv = ll_entry_start(struct log_driver, log_driver);
@@ -310,6 +389,7 @@ int log_init(void)
 		}
 		INIT_LIST_HEAD(&ldev->filter_head);
 		ldev->drv = drv;
+		ldev->flags = drv->flags;
 		list_add_tail(&ldev->sibling_node,
 			      (struct list_head *)&gd->log_head);
 		drv++;
@@ -317,7 +397,9 @@ int log_init(void)
 	gd->flags |= GD_FLG_LOG_READY;
 	if (!gd->default_log_level)
 		gd->default_log_level = CONFIG_LOG_DEFAULT_LEVEL;
-	gd->log_fmt = LOGF_DEFAULT;
+	gd->log_fmt = log_get_default_format();
+	gd->logc_prev = LOGC_NONE;
+	gd->logl_prev = LOGL_INFO;
 
 	return 0;
 }

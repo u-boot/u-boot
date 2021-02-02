@@ -8,10 +8,13 @@
 
 #include <common.h>
 #include <env.h>
+#include <init.h>
 #include <net.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <mach/jz4780.h>
 #include <mach/jz4780_dram.h>
 #include <mach/jz4780_gpio.h>
@@ -192,7 +195,7 @@ int misc_init_r(void)
 }
 
 #ifdef CONFIG_DRIVER_DM9000
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	/* Enable clock */
 	jz4780_clk_ungate_ethernet();
@@ -251,7 +254,7 @@ int checkboard(void)
 #ifdef CONFIG_SPL_BUILD
 
 #if defined(CONFIG_SPL_MMC_SUPPORT)
-int board_mmc_init(bd_t *bd)
+int board_mmc_init(struct bd_info *bd)
 {
 	ci20_mux_mmc();
 	return jz_mmc_init((void __iomem *)MSC0_BASE);

@@ -6,6 +6,10 @@
 #ifndef _MACH_STM32_H_
 #define _MACH_STM32_H_
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 /*
  * Peripheral memory map
  * only address used before device tree parsing
@@ -13,6 +17,7 @@
 #define STM32_RCC_BASE			0x50000000
 #define STM32_PWR_BASE			0x50001000
 #define STM32_DBGMCU_BASE		0x50081000
+#define STM32_FMC2_BASE			0x58002000
 #define STM32_TZC_BASE			0x5C006000
 #define STM32_ETZPC_BASE		0x5C007000
 #define STM32_STGEN_BASE		0x5C008000
@@ -37,7 +42,6 @@
 /* enumerated used to identify the SYSCON driver instance */
 enum {
 	STM32MP_SYSCON_UNKNOWN,
-	STM32MP_SYSCON_PWR,
 	STM32MP_SYSCON_SYSCFG,
 };
 
@@ -80,14 +84,26 @@ enum boot_device {
 
 	BOOT_SERIAL_USB = 0x60,
 	BOOT_SERIAL_USB_OTG = 0x62,
+
+	BOOT_FLASH_SPINAND = 0x70,
+	BOOT_FLASH_SPINAND_1 = 0x71,
 };
 
 /* TAMP registers */
 #define TAMP_BACKUP_REGISTER(x)		(STM32_TAMP_BASE + 0x100 + 4 * x)
 #define TAMP_BACKUP_MAGIC_NUMBER	TAMP_BACKUP_REGISTER(4)
 #define TAMP_BACKUP_BRANCH_ADDRESS	TAMP_BACKUP_REGISTER(5)
+#define TAMP_COPRO_RSC_TBL_ADDRESS	TAMP_BACKUP_REGISTER(17)
+#define TAMP_COPRO_STATE		TAMP_BACKUP_REGISTER(18)
 #define TAMP_BOOT_CONTEXT		TAMP_BACKUP_REGISTER(20)
 #define TAMP_BOOTCOUNT			TAMP_BACKUP_REGISTER(21)
+
+#define TAMP_COPRO_STATE_OFF		0
+#define TAMP_COPRO_STATE_INIT		1
+#define TAMP_COPRO_STATE_CRUN		2
+#define TAMP_COPRO_STATE_CSTOP		3
+#define TAMP_COPRO_STATE_STANDBY	4
+#define TAMP_COPRO_STATE_CRASH		5
 
 #define TAMP_BOOT_MODE_MASK		GENMASK(15, 8)
 #define TAMP_BOOT_MODE_SHIFT		8
@@ -111,8 +127,15 @@ enum forced_boot_mode {
 #define STM32_BSEC_SHADOW(id)		(STM32_BSEC_SHADOW_OFFSET + (id) * 4)
 #define STM32_BSEC_OTP_OFFSET		0x80000000
 #define STM32_BSEC_OTP(id)		(STM32_BSEC_OTP_OFFSET + (id) * 4)
+#define STM32_BSEC_LOCK_OFFSET		0xC0000000
+#define STM32_BSEC_LOCK(id)		(STM32_BSEC_LOCK_OFFSET + (id) * 4)
 
+/* BSEC OTP index */
+#define BSEC_OTP_RPN	1
+#define BSEC_OTP_SERIAL	13
+#define BSEC_OTP_PKG	16
+#define BSEC_OTP_MAC	57
 #define BSEC_OTP_BOARD	59
 
-#endif /* __ASSEMBLY__*/
+#endif /* __ASSEMBLY__ */
 #endif /* _MACH_STM32_H_ */

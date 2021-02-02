@@ -6,6 +6,8 @@
 
 #include <eeprom.h>
 #include <init.h>
+#include <log.h>
+#include <net.h>
 #include <asm/io.h>
 #include <common.h>
 #include <dm.h>
@@ -14,6 +16,7 @@
 #include <i2c.h>
 #include <i2c_eeprom.h>
 #include <netdev.h>
+#include <linux/bitops.h>
 #include "som.h"
 #include <power/regulator.h>
 #include <power/rk8xx_pmic.h>

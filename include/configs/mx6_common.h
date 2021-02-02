@@ -6,6 +6,8 @@
 #ifndef __MX6_COMMON_H
 #define __MX6_COMMON_H
 
+#include <linux/stringify.h>
+
 #if (defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL))
 #define CONFIG_SC_TIMER_CLK 8000000 /* 8Mhz */
 #define COUNTER_FREQUENCY CONFIG_SC_TIMER_CLK
@@ -46,9 +48,6 @@
 #define CONFIG_LOADADDR		0x12000000
 #endif
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE	512

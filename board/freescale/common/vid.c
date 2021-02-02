@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  */
 
 #include <common.h>
@@ -8,6 +9,7 @@
 #include <env.h>
 #include <i2c.h>
 #include <irq_func.h>
+#include <log.h>
 #include <asm/io.h>
 #ifdef CONFIG_FSL_LSCH2
 #include <asm/arch/immap_lsch2.h>
@@ -16,6 +18,7 @@
 #else
 #include <asm/immap_85xx.h>
 #endif
+#include <linux/delay.h>
 #include "vid.h"
 
 int __weak i2c_multiplexer_select_vid_channel(u8 channel)
@@ -377,6 +380,7 @@ static int set_voltage_to_LTC(int i2caddress, int vdd)
 {
 	int ret, vdd_last, vdd_target = vdd;
 	int count = 100, temp = 0;
+	unsigned char value;
 
 	/* Scale up to the LTC resolution is 1/4096V */
 	vdd = (vdd * 4096) / 1000;
@@ -389,16 +393,51 @@ static int set_voltage_to_LTC(int i2caddress, int vdd)
 
 	/* Write the desired voltage code to the regulator */
 #ifndef CONFIG_DM_I2C
+	/* Check write protect state */
+	ret = i2c_read(I2C_VOL_MONITOR_ADDR,
+		       PMBUS_CMD_WRITE_PROTECT, 1,
+		       (void *)&value, sizeof(value));
+	if (ret)
+		goto exit;
+
+	if (value != EN_WRITE_ALL_CMD) {
+		value = EN_WRITE_ALL_CMD;
+		ret = i2c_write(I2C_VOL_MONITOR_ADDR,
+				PMBUS_CMD_WRITE_PROTECT, 1,
+				(void *)&value, sizeof(value));
+		if (ret)
+			goto exit;
+	}
+
 	ret = i2c_write(I2C_VOL_MONITOR_ADDR,
-			PMBUS_CMD_PAGE_PLUS_WRITE, 1, (void *)&buff, 5);
+			PMBUS_CMD_PAGE_PLUS_WRITE, 1,
+			(void *)&buff, sizeof(buff));
 #else
 	struct udevice *dev;
 
 	ret = i2c_get_chip_for_busnum(0, I2C_VOL_MONITOR_ADDR, 1, &dev);
-	if (!ret)
+	if (!ret) {
+		/* Check write protect state */
+		ret = dm_i2c_read(dev,
+				  PMBUS_CMD_WRITE_PROTECT,
+				  (void *)&value, sizeof(value));
+		if (ret)
+			goto exit;
+
+		if (value != EN_WRITE_ALL_CMD) {
+			value = EN_WRITE_ALL_CMD;
+			ret = dm_i2c_write(dev,
+					   PMBUS_CMD_WRITE_PROTECT,
+					   (void *)&value, sizeof(value));
+			if (ret)
+				goto exit;
+		}
+
 		ret = dm_i2c_write(dev, PMBUS_CMD_PAGE_PLUS_WRITE,
-				   (void *)&buff, 5);
+				   (void *)&buff, sizeof(buff));
+	}
 #endif
+exit:
 	if (ret) {
 		printf("VID: I2C failed to write to the volatge regulator\n");
 		return -1;
@@ -446,10 +485,10 @@ int adjust_vdd(ulong vdd_override)
 	u8 vid;
 #endif
 	int vdd_target, vdd_current, vdd_last;
-	int ret, i2caddress;
+	int ret, i2caddress = 0;
 	unsigned long vdd_string_override;
 	char *vdd_string;
-#ifdef CONFIG_ARCH_LX2160A
+#if defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LX2162A)
 	static const u16 vdd[32] = {
 		8250,
 		7875,
@@ -531,10 +570,10 @@ int adjust_vdd(ulong vdd_override)
 		0,      /* reserved */
 		0,      /* reserved */
 		0,      /* reserved */
-		0,      /* reserved */
-		0,      /* reserved */
-		0,      /* reserved */
 		9000,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
 		0,      /* reserved */
 		0,      /* reserved */
 		0,      /* reserved */
@@ -890,7 +929,7 @@ exit:
 
 static int print_vdd(void)
 {
-	int vdd_last, ret, i2caddress;
+	int vdd_last, ret, i2caddress = 0;
 
 	ret = i2c_multiplexer_select_vid_channel(I2C_MUX_CH_VOL_MONITOR);
 	if (ret) {
@@ -925,9 +964,9 @@ exit:
 
 }
 
-static int do_vdd_override(cmd_tbl_t *cmdtp,
+static int do_vdd_override(struct cmd_tbl *cmdtp,
 			   int flag, int argc,
-			   char * const argv[])
+			   char *const argv[])
 {
 	ulong override;
 
@@ -941,9 +980,8 @@ static int do_vdd_override(cmd_tbl_t *cmdtp,
 	return 0;
 }
 
-static int do_vdd_read(cmd_tbl_t *cmdtp,
-			 int flag, int argc,
-			 char * const argv[])
+static int do_vdd_read(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	if (argc < 1)
 		return CMD_RET_USAGE;

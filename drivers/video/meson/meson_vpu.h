@@ -9,13 +9,11 @@
 #ifndef __MESON_VPU_H__
 #define __MESON_VPU_H__
 
-#include <common.h>
-#include <dm.h>
 #include <video.h>
-#include <display.h>
-#include <linux/io.h>
-#include <linux/bitfield.h>
 #include "meson_registers.h"
+
+struct display_timing;
+struct udevice;
 
 enum {
 	/* Maximum size we support */
@@ -38,13 +36,8 @@ struct meson_vpu_priv {
 	void __iomem *dmc_base;
 };
 
-static inline bool meson_vpu_is_compatible(struct meson_vpu_priv *priv,
-					   enum vpu_compatible family)
-{
-	enum vpu_compatible compat = dev_get_driver_data(priv->dev);
-
-	return compat == family;
-}
+bool meson_vpu_is_compatible(struct meson_vpu_priv *priv,
+			     enum vpu_compatible family);
 
 #define hhi_update_bits(offset, mask, value) \
 	writel_bits(mask, value, priv->hhi_base + offset)

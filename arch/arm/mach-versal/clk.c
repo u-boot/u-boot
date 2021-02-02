@@ -5,6 +5,8 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <time.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

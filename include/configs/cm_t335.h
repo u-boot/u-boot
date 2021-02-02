@@ -90,7 +90,6 @@
 /* SPL */
 
 /* Network. */
-#define CONFIG_PHY_ATHEROS
 
 /* NAND support */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE

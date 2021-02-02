@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: GPL-2.0+
+# Copyright (C) 2019-20 Sean Anderson <seanga2@gmail.com>
+
+if TARGET_SIPEED_MAIX
+
+config SYS_BOARD
+	default "maix"
+
+config SYS_VENDOR
+	default "sipeed"
+
+config SYS_CPU
+	default "generic"
+
+config SYS_CONFIG_NAME
+	default "sipeed-maix"
+
+config SYS_TEXT_BASE
+	default 0x80000000
+
+config DEFAULT_DEVICE_TREE
+	default "k210-maix-bit"
+
+config NR_CPUS
+	default 2
+
+config NR_DRAM_BANKS
+	default 3
+
+config BOARD_SPECIFIC_OPTIONS
+	def_bool y
+	select GENERIC_RISCV
+	select RISCV_PRIV_1_9
+	imply SMP
+	imply DM_SERIAL
+	imply SIFIVE_SERIAL
+	imply SIFIVE_CLINT
+	imply POWER_DOMAIN
+	imply SIMPLE_PM_BUS
+	imply CLK_CCF
+	imply CLK_COMPOSITE_CCF
+	imply CLK_K210
+	imply DM_RESET
+	imply RESET_SYSCON
+	imply SYSRESET
+	imply SYSRESET_SYSCON
+	imply PINCTRL
+	imply PINCONF
+	imply PINCTRL_K210
+	imply DM_GPIO
+	imply DWAPB_GPIO
+	imply SIFIVE_GPIO
+	imply CMD_GPIO
+	imply LED
+	imply LED_GPIO
+endif

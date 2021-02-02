@@ -27,18 +27,7 @@
 	status = "okay";
 };
 
-&uart2 {
-	reg-shift = <2>;
-};
-
 &usb_host1 {
 	vbus-supply = <&vcc5v0_host>;
 	status = "okay";
-};
-
-&i2c2 {
-    m24c08@50 {
-        compatible = "at,24c08", "i2c-eeprom";
-        reg = <0x50>;
-    };
 };

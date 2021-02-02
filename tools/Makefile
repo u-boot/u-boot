@@ -5,7 +5,7 @@
 
 # Enable all the config-independent tools
 ifneq ($(HOST_TOOLS_ALL),)
-CONFIG_KIRKWOOD = y
+CONFIG_ARCH_KIRKWOOD = y
 CONFIG_LCD_LOGO = y
 CONFIG_CMD_LOADS = y
 CONFIG_CMD_NET = y
@@ -58,22 +58,20 @@ hostprogs-$(CONFIG_FIT_SIGNATURE) += fit_info fit_check_sign
 hostprogs-$(CONFIG_CMD_BOOTEFI_SELFTEST) += file2include
 
 FIT_OBJS-$(CONFIG_FIT) := fit_common.o fit_image.o image-host.o common/image-fit.o
-FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := common/image-sig.o
+FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := common/image-sig.o common/image-fit-sig.o
+FIT_CIPHER_OBJS-$(CONFIG_FIT_CIPHER) := common/image-cipher.o
 
 # The following files are synced with upstream DTC.
 # Use synced versions from scripts/dtc/libfdt/.
-LIBFDT_SRCS_SYNCED := fdt.c fdt_wip.c fdt_sw.c fdt_rw.c \
-		fdt_strerror.c fdt_empty_tree.c fdt_addresses.c fdt_overlay.c
-# The following files are locally modified for U-Boot (unfotunately).
-# Use U-Boot own versions from lib/libfdt/.
-LIBFDT_SRCS_UNSYNCED := fdt_ro.c fdt_region.c
-
-LIBFDT_OBJS := $(addprefix libfdt/, $(patsubst %.c, %.o, $(LIBFDT_SRCS_SYNCED))) \
-	       $(addprefix lib/libfdt/, $(patsubst %.c, %.o, $(LIBFDT_SRCS_UNSYNCED)))
+LIBFDT_OBJS := $(addprefix libfdt/, fdt.o fdt_ro.o fdt_wip.o fdt_sw.o fdt_rw.o \
+		fdt_strerror.o fdt_empty_tree.o fdt_addresses.o fdt_overlay.o)
 
 RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/rsa/, \
 					rsa-sign.o rsa-verify.o rsa-checksum.o \
 					rsa-mod-exp.o)
+
+AES_OBJS-$(CONFIG_FIT_CIPHER) := $(addprefix lib/aes/, \
+					aes-encrypt.o aes-decrypt.o)
 
 ROCKCHIP_OBS = lib/rc4.o rkcommon.o rkimage.o rksd.o rkspi.o
 
@@ -82,6 +80,8 @@ dumpimage-mkimage-objs := aisimage.o \
 			atmelimage.o \
 			$(FIT_OBJS-y) \
 			$(FIT_SIG_OBJS-y) \
+			$(FIT_CIPHER_OBJS-y) \
+			common/fdt_region.o \
 			common/bootm.o \
 			lib/crc32.o \
 			default_image.o \
@@ -107,6 +107,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			lib/crc16.o \
 			lib/sha1.o \
 			lib/sha256.o \
+			lib/sha512.o \
 			common/hash.o \
 			ublimage.o \
 			zynqimage.o \
@@ -116,7 +117,8 @@ dumpimage-mkimage-objs := aisimage.o \
 			gpimage.o \
 			gpimage-common.o \
 			mtk_image.o \
-			$(RSA_OBJS-y)
+			$(RSA_OBJS-y) \
+			$(AES_OBJS-y)
 
 dumpimage-objs := $(dumpimage-mkimage-objs) dumpimage.o
 mkimage-objs   := $(dumpimage-mkimage-objs) mkimage.o
@@ -137,6 +139,12 @@ HOST_EXTRACFLAGS	+= -DCONFIG_FIT_SIGNATURE
 HOST_EXTRACFLAGS	+= -DCONFIG_FIT_SIGNATURE_MAX_SIZE=$(CONFIG_FIT_SIGNATURE_MAX_SIZE)
 endif
 
+ifdef CONFIG_FIT_CIPHER
+# This affects include/image.h, but including the board config file
+# is tricky, so manually define this options here.
+HOST_EXTRACFLAGS	+= -DCONFIG_FIT_CIPHER
+endif
+
 ifdef CONFIG_SYS_U_BOOT_OFFS
 HOSTCFLAGS_kwbimage.o += -DCONFIG_SYS_U_BOOT_OFFS=$(CONFIG_SYS_U_BOOT_OFFS)
 endif
@@ -149,7 +157,7 @@ endif
 ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_ARMADA_38X)$(CONFIG_ARMADA_39X)$(CONFIG_FIT_SIGNATURE),)
 HOSTCFLAGS_kwbimage.o += \
 	$(shell pkg-config --cflags libssl libcrypto 2> /dev/null || echo "")
-HOSTLOADLIBES_mkimage += \
+HOSTLDLIBS_mkimage += \
 	$(shell pkg-config --libs libssl libcrypto 2> /dev/null || echo "-lssl -lcrypto")
 
 # OS X deprecate openssl in favour of CommonCrypto, supress deprecation
@@ -163,9 +171,9 @@ endif
 
 HOSTCFLAGS_fit_image.o += -DMKIMAGE_DTC=\"$(CONFIG_MKIMAGE_DTC_PATH)\"
 
-HOSTLOADLIBES_dumpimage := $(HOSTLOADLIBES_mkimage)
-HOSTLOADLIBES_fit_info := $(HOSTLOADLIBES_mkimage)
-HOSTLOADLIBES_fit_check_sign := $(HOSTLOADLIBES_mkimage)
+HOSTLDLIBS_dumpimage := $(HOSTLDLIBS_mkimage)
+HOSTLDLIBS_fit_info := $(HOSTLDLIBS_mkimage)
+HOSTLDLIBS_fit_check_sign := $(HOSTLDLIBS_mkimage)
 
 hostprogs-$(CONFIG_EXYNOS5250) += mkexynosspl
 hostprogs-$(CONFIG_EXYNOS5420) += mkexynosspl
@@ -192,14 +200,17 @@ ubsha1-objs := os_support.o ubsha1.o lib/sha1.o
 
 HOSTCFLAGS_ubsha1.o := -pedantic
 
-hostprogs-$(CONFIG_KIRKWOOD) += kwboot
+hostprogs-$(CONFIG_ARCH_KIRKWOOD) += kwboot
 hostprogs-$(CONFIG_ARCH_MVEBU) += kwboot
 hostprogs-y += proftool
 hostprogs-$(CONFIG_STATIC_RELA) += relocate-rela
 hostprogs-$(CONFIG_RISCV) += prelink-riscv
 
+hostprogs-$(CONFIG_ARCH_OCTEON) += update_octeon_header
+update_octeon_header-objs := update_octeon_header.o lib/crc32.o
+
 hostprogs-y += fdtgrep
-fdtgrep-objs += $(LIBFDT_OBJS) fdtgrep.o
+fdtgrep-objs += $(LIBFDT_OBJS) common/fdt_region.o fdtgrep.o
 
 ifneq ($(TOOLS_ONLY),y)
 hostprogs-y += spl_size_limit
@@ -218,6 +229,7 @@ HOSTCFLAGS_crc8.o := -pedantic
 HOSTCFLAGS_md5.o := -pedantic
 HOSTCFLAGS_sha1.o := -pedantic
 HOSTCFLAGS_sha256.o := -pedantic
+HOSTCFLAGS_sha512.o := -pedantic -DCONFIG_SHA512 -DCONFIG_SHA384
 
 quiet_cmd_wrap = WRAP    $@
 cmd_wrap = echo "\#include <../$(patsubst $(obj)/%,%,$@)>" >$@

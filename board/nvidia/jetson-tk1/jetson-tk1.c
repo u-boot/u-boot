@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <power/as3722.h>
 #include <power/pmic.h>
 

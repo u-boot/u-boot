@@ -7,6 +7,8 @@
 #include <common.h>
 #include <axi.h>
 #include <dm.h>
+#include <log.h>
+#include <malloc.h>
 
 /**
  * struct sandbox_store_priv - Private data structure of a AXI store device

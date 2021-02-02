@@ -4,7 +4,12 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
+#include <command.h>
 #include <cpu_func.h>
+#include <init.h>
+#include <net.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
@@ -236,8 +241,8 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 }
 
 /* Dump some core clocks */
-int do_vf610_showclocks(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char * const argv[])
+int do_vf610_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	printf("\n");
 	printf("cpu clock : %8d MHz\n", mxc_get_clock(MXC_ARM_CLK) / 1000000);
@@ -336,7 +341,7 @@ int arch_misc_init(void)
 }
 #endif
 
-int cpu_eth_init(bd_t *bis)
+int cpu_eth_init(struct bd_info *bis)
 {
 	int rc = -ENODEV;
 
@@ -348,7 +353,7 @@ int cpu_eth_init(bd_t *bis)
 }
 
 #ifdef CONFIG_FSL_ESDHC_IMX
-int cpu_mmc_init(bd_t *bis)
+int cpu_mmc_init(struct bd_info *bis)
 {
 	return fsl_esdhc_mmc_init(bis);
 }

@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 
 /* GPIO Pin from kirkwood connected to PROGRAM_B pin of the xilinx FPGA */
@@ -82,6 +83,7 @@ static int boco_set_bits(u8 reg, u8 flags)
 #define FPGA_INIT_B	0x10
 #define FPGA_DONE	0x20
 
+#ifndef CONFIG_KM_FPGA_FORCE_CONFIG
 static int fpga_done(void)
 {
 	int ret = 0;
@@ -100,13 +102,16 @@ static int fpga_done(void)
 
 	return regval & FPGA_DONE ? 1 : 0;
 }
+#endif /* CONFIG_KM_FPGA_FORCE_CONFIG */
 
-int skip;
+static int skip;
 
 int trigger_fpga_config(void)
 {
 	int ret = 0;
 
+	skip = 0;
+#ifndef CONFIG_KM_FPGA_FORCE_CONFIG
 	/* if the FPGA is already configured, we do not want to
 	 * reconfigure it */
 	skip = 0;
@@ -115,6 +120,7 @@ int trigger_fpga_config(void)
 		skip = 1;
 		return 0;
 	}
+#endif /* CONFIG_KM_FPGA_FORCE_CONFIG */
 
 	if (check_boco2()) {
 		/* we have a BOCO2, this has to be triggered here */
@@ -188,29 +194,12 @@ int wait_for_fpga_config(void)
 	return 0;
 }
 
-#if defined(KM_PCIE_RESET_MPP7)
-
-#define KM_PEX_RST_GPIO_PIN	7
+#if defined(CONFIG_KM_FPGA_NO_RESET)
 int fpga_reset(void)
 {
-	if (!check_boco2()) {
-		/* we do not have BOCO2, this is not really used */
-		return 0;
-	}
-
-	printf("PCIe reset through GPIO7: ");
-	/* apply PCIe reset via GPIO */
-	kw_gpio_set_valid(KM_PEX_RST_GPIO_PIN, 1);
-	kw_gpio_direction_output(KM_PEX_RST_GPIO_PIN, 1);
-	kw_gpio_set_value(KM_PEX_RST_GPIO_PIN, 0);
-	udelay(1000*10);
-	kw_gpio_set_value(KM_PEX_RST_GPIO_PIN, 1);
-
-	printf(" done\n");
-
+	/* no dedicated reset pin for FPGA */
 	return 0;
 }
-
 #else
 
 #define PRST1		0x4

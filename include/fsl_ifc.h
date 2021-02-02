@@ -10,6 +10,7 @@
 #ifdef CONFIG_FSL_IFC
 #include <config.h>
 #include <common.h>
+#include <part.h>
 #ifdef CONFIG_ARM
 #include <asm/arch/soc.h>
 #endif
@@ -51,6 +52,8 @@
 /* Machine Select */
 #define CSPR_MSEL			0x00000006
 #define CSPR_MSEL_SHIFT			1
+/* External Transceiver Enable */
+#define CSPR_TE			0x00000010
 /* NOR */
 #define CSPR_MSEL_NOR			0x00000000
 /* NAND */

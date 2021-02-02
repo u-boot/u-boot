@@ -1,13 +1,17 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
- * Author(s): Patrice Chotard, <patrice.chotard@st.com> for STMicroelectronics.
+ * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
 #include <config.h>
+#include <linux/sizes.h>
+
+/* For booting Linux, use the first 16MB of memory */
+#define CONFIG_SYS_BOOTMAPSZ		SZ_16M
 
 #define CONFIG_SYS_FLASH_BASE		0x08000000
 #define CONFIG_SYS_INIT_SP_ADDR		0x24040000
@@ -35,17 +39,10 @@
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 			"kernel_addr_r=0xD0008000\0"		\
 			"fdtfile=stm32h743i-disco.dtb\0"	\
-			"fdt_addr_r=0xD0700000\0"		\
-			"scriptaddr=0xD0800000\0"		\
-			"pxefile_addr_r=0xD0800000\0" \
-			"fdt_high=0xffffffffffffffff\0"		\
-			"initrd_high=0xffffffffffffffff\0"	\
-			"ramdisk_addr_r=0xD0900000\0"		\
+			"fdt_addr_r=0xD0408000\0"		\
+			"scriptaddr=0xD0418000\0"		\
+			"pxefile_addr_r=0xD0428000\0" \
+			"ramdisk_addr_r=0xD0438000\0"		\
 			BOOTENV
-
-/*
- * Command line configuration.
- */
-#define CONFIG_BOARD_LATE_INIT
 
 #endif /* __CONFIG_H */

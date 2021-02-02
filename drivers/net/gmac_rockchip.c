@@ -8,6 +8,8 @@
 #include <common.h>
 #include <dm.h>
 #include <clk.h>
+#include <log.h>
+#include <net.h>
 #include <phy.h>
 #include <syscon.h>
 #include <asm/io.h>
@@ -24,6 +26,7 @@
 #include <asm/arch-rockchip/grf_rv1108.h>
 #include <dm/pinctrl.h>
 #include <dt-bindings/clock/rk3288-cru.h>
+#include <linux/bitops.h>
 #include "designware.h"
 
 DECLARE_GLOBAL_DATA_PTR;

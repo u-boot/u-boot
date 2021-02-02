@@ -17,12 +17,8 @@
 
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
 
-#define CONFIG_IMX_THERMAL
-
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
-
-#define CONFIG_MXC_UART
 
 /* I2C Configs */
 #define CONFIG_SYS_I2C
@@ -47,12 +43,7 @@
 #define CONFIG_ETHPRIME			"FEC"
 #define CONFIG_FEC_MXC_PHYADDR		4
 
-#define CONFIG_PHY_ATHEROS
-
 #define CONFIG_ARP_TIMEOUT     200UL
-
-#define CONFIG_SYS_MEMTEST_START       0x10000000
-#define CONFIG_SYS_MEMTEST_END         0x10010000
 
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
@@ -72,7 +63,6 @@
 /* RiOTboard */
 #define CONFIG_FDTFILE	"imx6dl-riotboard.dtb"
 #define CONFIG_SYS_FSL_USDHC_NUM	3
-#define CONFIG_SYS_MMC_ENV_DEV		2	/* SDHC4 */
 #elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 /* MarSBoard */
 #define CONFIG_FDTFILE	"imx6q-marsboard.dtb"
@@ -80,10 +70,6 @@
 #endif
 
 /* Framebuffer */
-#define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IMX_HDMI

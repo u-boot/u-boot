@@ -13,6 +13,33 @@
 #include "micro-support-card.h"
 #include "soc-info.h"
 
+#define PC0CTRL				0x598000c0
+
+#if defined(CONFIG_ARCH_UNIPHIER_LD4) || defined(CONFIG_ARCH_UNIPHIER_SLD8)
+static void uniphier_ld4_sbc_init(void)
+{
+	u32 tmp;
+
+	/* system bus output enable */
+	tmp = readl(PC0CTRL);
+	tmp &= 0xfffffcff;
+	writel(tmp, PC0CTRL);
+}
+#endif
+
+#if defined(CONFIG_ARCH_UNIPHIER_PXS2) || \
+    defined(CONFIG_ARCH_UNIPHIER_LD6B) || \
+    defined(CONFIG_ARCH_UNIPHIER_LD11) || \
+    defined(CONFIG_ARCH_UNIPHIER_LD20) || \
+    defined(CONFIG_ARCH_UNIPHIER_PXS3)
+static void uniphier_pxs2_sbc_init(void)
+{
+	/* necessary for ROM boot ?? */
+	/* system bus output enable */
+	writel(0x17, PC0CTRL);
+}
+#endif
+
 #ifdef CONFIG_ARCH_UNIPHIER_LD20
 static void uniphier_ld20_misc_init(void)
 {
@@ -40,13 +67,11 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 		.soc_id = UNIPHIER_LD4_ID,
 		.sbc_init = uniphier_ld4_sbc_init,
 		.pll_init = uniphier_ld4_pll_init,
-		.clk_init = uniphier_ld4_clk_init,
 	},
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO4)
 	{
 		.soc_id = UNIPHIER_PRO4_ID,
-		.sbc_init = uniphier_sbc_init_savepin,
 		.pll_init = uniphier_pro4_pll_init,
 		.clk_init = uniphier_pro4_clk_init,
 	},
@@ -56,13 +81,11 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 		.soc_id = UNIPHIER_SLD8_ID,
 		.sbc_init = uniphier_ld4_sbc_init,
 		.pll_init = uniphier_ld4_pll_init,
-		.clk_init = uniphier_ld4_clk_init,
 	},
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO5)
 	{
 		.soc_id = UNIPHIER_PRO5_ID,
-		.sbc_init = uniphier_sbc_init_savepin,
 		.clk_init = uniphier_pro5_clk_init,
 	},
 #endif
@@ -83,7 +106,7 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_LD11)
 	{
 		.soc_id = UNIPHIER_LD11_ID,
-		.sbc_init = uniphier_ld11_sbc_init,
+		.sbc_init = uniphier_pxs2_sbc_init,
 		.pll_init = uniphier_ld11_pll_init,
 		.clk_init = uniphier_ld11_clk_init,
 	},
@@ -91,7 +114,7 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_LD20)
 	{
 		.soc_id = UNIPHIER_LD20_ID,
-		.sbc_init = uniphier_ld11_sbc_init,
+		.sbc_init = uniphier_pxs2_sbc_init,
 		.pll_init = uniphier_ld20_pll_init,
 		.clk_init = uniphier_ld20_clk_init,
 		.misc_init = uniphier_ld20_misc_init,
@@ -120,7 +143,8 @@ int board_init(void)
 		return -EINVAL;
 	}
 
-	initdata->sbc_init();
+	if (initdata->sbc_init)
+		initdata->sbc_init();
 
 	support_card_init();
 
@@ -138,10 +162,6 @@ int board_init(void)
 
 	if (initdata->misc_init)
 		initdata->misc_init();
-
-	led_puts("U3");
-
-	support_card_late_init();
 
 	led_puts("Uboo");
 

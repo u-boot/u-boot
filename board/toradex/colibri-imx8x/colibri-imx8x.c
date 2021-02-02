@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <init.h>
 
 #include <asm/arch/clock.h>
@@ -36,6 +37,29 @@ static iomux_cfg_t uart3_pads[] = {
 static void setup_iomux_uart(void)
 {
 	imx8_iomux_setup_multiple_pads(uart3_pads, ARRAY_SIZE(uart3_pads));
+}
+
+void board_mem_get_layout(u64 *phys_sdram_1_start,
+			  u64 *phys_sdram_1_size,
+			  u64 *phys_sdram_2_start,
+			  u64 *phys_sdram_2_size)
+{
+	u32 is_dualx = 0, val = 0;
+	sc_err_t scierr = sc_misc_otp_fuse_read(-1, 6, &val);
+
+	if (scierr == SC_ERR_NONE) {
+		/* DX has two A35 cores disabled */
+		is_dualx = (val & 0xf) != 0x0;
+	}
+
+	*phys_sdram_1_start = PHYS_SDRAM_1;
+	if (is_dualx)
+		/* Our DX based SKUs only have 1 GB RAM */
+		*phys_sdram_1_size = SZ_1G;
+	else
+		*phys_sdram_1_size = PHYS_SDRAM_1_SIZE;
+	*phys_sdram_2_start = PHYS_SDRAM_2;
+	*phys_sdram_2_size = PHYS_SDRAM_2_SIZE;
 }
 
 int board_early_init_f(void)
@@ -101,11 +125,6 @@ int board_init(void)
 	return 0;
 }
 
-void detail_board_ddr_info(void)
-{
-	puts("\nDDR    ");
-}
-
 /*
  * Board specific reset that is system reset.
  */
@@ -115,7 +134,7 @@ void reset_cpu(ulong addr)
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	return ft_common_board_setup(blob, bd);
 }

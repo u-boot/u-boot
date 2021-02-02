@@ -13,6 +13,7 @@
 #include <edid.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <linux/ctype.h>
 #include <linux/string.h>
 

@@ -6,8 +6,10 @@
 
 #include <common.h>
 #include <command.h>
+#include <init.h>
 #include <malloc.h>
 #include <asm/immap.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -89,7 +91,8 @@ int dram_init(void)
 };
 
 
-int testdram (void) {
+int testdram(void)
+{
 	/* TODO: XXX XXX XXX */
 	printf ("DRAM test not implemented!\n");
 

@@ -12,12 +12,15 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <net.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux-mx28.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <linux/delay.h>
 #include <linux/mii.h>
 #include <miiphy.h>
 #include <netdev.h>
@@ -80,7 +83,7 @@ static int mx28evk_mmc_wp(int id)
 	return gpio_get_value(MX28_PAD_SSP1_SCK__GPIO_2_12);
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	/* Configure WP as input */
 	gpio_direction_input(MX28_PAD_SSP1_SCK__GPIO_2_12);
@@ -94,7 +97,7 @@ int board_mmc_init(bd_t *bis)
 
 #ifdef	CONFIG_CMD_NET
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;

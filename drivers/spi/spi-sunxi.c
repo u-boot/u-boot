@@ -21,11 +21,14 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <log.h>
 #include <spi.h>
 #include <errno.h>
 #include <fdt_support.h>
 #include <reset.h>
 #include <wait_bit.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
 
 #include <asm/bitops.h>
 #include <asm/gpio.h>
@@ -486,19 +489,19 @@ static int sun4i_spi_probe(struct udevice *bus)
 
 	ret = clk_get_by_name(bus, "ahb", &priv->clk_ahb);
 	if (ret) {
-		dev_err(dev, "failed to get ahb clock\n");
+		dev_err(bus, "failed to get ahb clock\n");
 		return ret;
 	}
 
 	ret = clk_get_by_name(bus, "mod", &priv->clk_mod);
 	if (ret) {
-		dev_err(dev, "failed to get mod clock\n");
+		dev_err(bus, "failed to get mod clock\n");
 		return ret;
 	}
 
 	ret = reset_get_by_index(bus, 0, &priv->reset);
 	if (ret && ret != -ENOENT) {
-		dev_err(dev, "failed to get reset\n");
+		dev_err(bus, "failed to get reset\n");
 		return ret;
 	}
 
@@ -516,7 +519,7 @@ static int sun4i_spi_ofdata_to_platdata(struct udevice *bus)
 	struct sun4i_spi_platdata *plat = dev_get_platdata(bus);
 	int node = dev_of_offset(bus);
 
-	plat->base = devfdt_get_addr(bus);
+	plat->base = dev_read_addr(bus);
 	plat->variant = (struct sun4i_spi_variant *)dev_get_driver_data(bus);
 	plat->max_hz = fdtdec_get_int(gd->fdt_blob, node,
 				      "spi-max-frequency",

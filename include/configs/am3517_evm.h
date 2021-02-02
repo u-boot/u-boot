@@ -18,9 +18,6 @@
 
 /* Hardware drivers */
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /*
  * USB configuration
  * Enable CONFIG_USB_MUSB_HOST for Host functionalities MSC, keyboard
@@ -35,10 +32,6 @@
 /* I2C */
 
 /* Ethernet */
-#define CONFIG_DRIVER_TI_EMAC_USE_RMII
-#define CONFIG_BOOTP_DEFAULT
-#define CONFIG_BOOTP_DNS2
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT		10
 
 /* Board NAND Info. */
@@ -153,9 +146,6 @@
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /* memtest works on */
-#define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
-#define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + \
-					0x01F00000) /* 31MB */
 
 /* Physical Memory Map */
 #define CONFIG_SYS_CS0_SIZE		(256 * 1024 * 1024)
@@ -179,11 +169,6 @@
 
 /* Defines for SPL */
 
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
-
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_ECC
 
 #endif /* __CONFIG_H */

@@ -46,9 +46,6 @@
 /* PWM */
 #define CONFIG_PWM			1
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_BOOTCOMMAND	"run ubifsboot"
 
 #define CONFIG_RAMDISK_BOOT	"root=/dev/ram0 rw rootfstype=ext2" \
@@ -62,7 +59,6 @@
 #define CONFIG_UPDATEB	"updateb=onenand erase 0x0 0x40000;" \
 			" onenand write 0x32008000 0x0 0x40000\0"
 
-#define CONFIG_ENV_OVERWRITE
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_UPDATEB \
 	"updatek=" \
@@ -110,8 +106,6 @@
  */
 #define CONFIG_SYS_PBSIZE	384	/* Print Buffer Size */
 /* memtest works on */
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x5e00000)
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE
 
 /* SMDKC100 has 1 banks of DRAM, we use only one in U-Boot */

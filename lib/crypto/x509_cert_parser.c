@@ -6,6 +6,8 @@
  */
 
 #define pr_fmt(fmt) "X.509: "fmt
+#include <log.h>
+#include <dm/devres.h>
 #include <linux/kernel.h>
 #ifndef __UBOOT__
 #include <linux/export.h>
@@ -17,7 +19,11 @@
 #include <linux/string.h>
 #endif
 #include <crypto/public_key.h>
+#ifdef __UBOOT__
+#include <crypto/x509_parser.h>
+#else
 #include "x509_parser.h"
+#endif
 #include "x509.asn1.h"
 #include "x509_akid.asn1.h"
 
@@ -136,12 +142,10 @@ struct x509_certificate *x509_cert_parse(const void *data, size_t datalen)
 	}
 	cert->id = kid;
 
-#ifndef __UBOOT__
 	/* Detect self-signed certificates */
 	ret = x509_check_for_self_signed(cert);
 	if (ret < 0)
 		goto error_decode;
-#endif
 
 	kfree(ctx);
 	return cert;

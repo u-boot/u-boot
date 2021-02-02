@@ -7,6 +7,7 @@
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
+#include <malloc.h>
 #include <asm/clk.h>
 
 struct sandbox_clk_priv {
@@ -107,7 +108,7 @@ static struct clk_ops sandbox_clk_ops = {
 	.enable		= sandbox_clk_enable,
 	.disable	= sandbox_clk_disable,
 	.request	= sandbox_clk_request,
-	.free		= sandbox_clk_free,
+	.rfree		= sandbox_clk_free,
 };
 
 static int sandbox_clk_probe(struct udevice *dev)
@@ -123,8 +124,8 @@ static const struct udevice_id sandbox_clk_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(clk_sandbox) = {
-	.name		= "clk_sandbox",
+U_BOOT_DRIVER(sandbox_clk) = {
+	.name		= "sandbox_clk",
 	.id		= UCLASS_CLK,
 	.of_match	= sandbox_clk_ids,
 	.ops		= &sandbox_clk_ops,

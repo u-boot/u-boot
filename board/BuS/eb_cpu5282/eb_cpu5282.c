@@ -12,6 +12,7 @@
 #include "asm/m5282.h"
 #include <bmp_layout.h>
 #include <env.h>
+#include <init.h>
 #include <status_led.h>
 #include <bus_vcxk.h>
 
@@ -19,7 +20,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_VIDEO
+#if IS_ENABLED(CONFIG_VIDEO_VCXK)
 unsigned long display_width;
 unsigned long display_height;
 #endif
@@ -98,7 +99,7 @@ int dram_init(void)
 }
 
 #if defined(CONFIG_SYS_DRAM_TEST)
-int testdram (void)
+int testdram(void)
 {
 	uint *pstart = (uint *) CONFIG_SYS_MEMTEST_START;
 	uint *pend = (uint *) CONFIG_SYS_MEMTEST_END;
@@ -182,8 +183,7 @@ void __led_set(led_id_t mask, int state)
 		MCFGPTA_GPTPORT &= ~(1 << 3);
 }
 
-#if defined(CONFIG_VIDEO)
-
+#if IS_ENABLED(CONFIG_VIDEO_VCXK)
 int drv_video_init(void)
 {
 	char *s;
@@ -224,8 +224,8 @@ int drv_video_init(void)
 
 /*---------------------------------------------------------------------------*/
 
-#ifdef CONFIG_VIDEO
-int do_brightness(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+#if IS_ENABLED(CONFIG_VIDEO_VCXK)
+int do_brightness(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int rcode = 0;
 	ulong side;

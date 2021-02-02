@@ -4,7 +4,7 @@
  */
 
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
-#include "stm32mp157-u-boot.dtsi"
+#include "stm32mp15-u-boot.dtsi"
 #include "stm32mp15-ddr3-2x4Gb-1066-binG.dtsi"
 
 / {
@@ -17,8 +17,23 @@
 	config {
 		u-boot,boot-led = "heartbeat";
 		u-boot,error-led = "error";
+		u-boot,mmc-env-partition = "ssbl";
 		st,fastboot-gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
 		st,stm32prog-gpios = <&gpioa 14 GPIO_ACTIVE_LOW>;
+	};
+
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
+
+	reserved-memory {
+		optee@fe000000 {
+			reg = <0xfe000000 0x02000000>;
+			no-map;
+		};
 	};
 
 	led {
@@ -27,10 +42,6 @@
 			gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
 			default-state = "off";
 			status = "okay";
-		};
-
-		blue {
-			default-state = "on";
 		};
 	};
 };
@@ -107,7 +118,7 @@
 		CLK_UART6_HSI
 		CLK_UART78_HSI
 		CLK_SPDIF_PLL4P
-		CLK_FDCAN_PLL4Q
+		CLK_FDCAN_PLL4R
 		CLK_SAI1_PLL3Q
 		CLK_SAI2_PLL3Q
 		CLK_SAI3_PLL3Q
@@ -119,15 +130,10 @@
 		CLK_LPTIM45_LSE
 	>;
 
-	/* VCO = 1300.0 MHz => P = 650 (CPU) */
-	pll1: st,pll@0 {
-		cfg = < 2 80 0 0 0 PQR(1,0,0) >;
-		frac = < 0x800 >;
-		u-boot,dm-pre-reloc;
-	};
-
 	/* VCO = 1066.0 MHz => P = 266 (AXI), Q = 533 (GPU), R = 533 (DDR) */
 	pll2: st,pll@1 {
+		compatible = "st,stm32mp1-pll";
+		reg = <1>;
 		cfg = < 2 65 1 0 0 PQR(1,1,1) >;
 		frac = < 0x1400 >;
 		u-boot,dm-pre-reloc;
@@ -135,6 +141,8 @@
 
 	/* VCO = 417.8 MHz => P = 209, Q = 24, R = 11 */
 	pll3: st,pll@2 {
+		compatible = "st,stm32mp1-pll";
+		reg = <2>;
 		cfg = < 1 33 1 16 36 PQR(1,1,1) >;
 		frac = < 0x1a04 >;
 		u-boot,dm-pre-reloc;
@@ -142,6 +150,8 @@
 
 	/* VCO = 594.0 MHz => P = 99, Q = 74, R = 74 */
 	pll4: st,pll@3 {
+		compatible = "st,stm32mp1-pll";
+		reg = <3>;
 		cfg = < 3 98 5 7 7 PQR(1,1,1) >;
 		u-boot,dm-pre-reloc;
 	};
@@ -153,7 +163,10 @@
 
 &sdmmc1_b4_pins_a {
 	u-boot,dm-spl;
-	pins {
+	pins1 {
+		u-boot,dm-spl;
+	};
+	pins2 {
 		u-boot,dm-spl;
 	};
 };

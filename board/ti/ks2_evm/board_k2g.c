@@ -8,6 +8,8 @@
 #include <common.h>
 #include <eeprom.h>
 #include <env.h>
+#include <hang.h>
+#include <image.h>
 #include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/ti-common/keystone_net.h>
@@ -16,6 +18,8 @@
 #include <fdtdec.h>
 #include <i2c.h>
 #include <remoteproc.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include "mux-k2g.h"
 #include "../common/board_detect.h"
 
@@ -219,7 +223,7 @@ s16 divn_val[16] = {
 };
 
 #if defined(CONFIG_MMC)
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	if (psc_enable_module(KS2_LPSC_MMC)) {
 		printf("%s module enabled failed\n", __func__);

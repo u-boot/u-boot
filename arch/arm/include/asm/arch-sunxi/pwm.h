@@ -6,6 +6,10 @@
 #ifndef _SUNXI_PWM_H
 #define _SUNXI_PWM_H
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 #define SUNXI_PWM_CTRL_REG		(SUNXI_PWM_BASE + 0)
 #define SUNXI_PWM_CH0_PERIOD		(SUNXI_PWM_BASE + 4)
 

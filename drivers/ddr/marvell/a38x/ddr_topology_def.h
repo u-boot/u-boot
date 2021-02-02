@@ -124,6 +124,12 @@ struct mv_ddr_topology_map {
 
 	/* electrical parameters */
 	unsigned int electrical_data[MV_DDR_EDATA_LAST];
+
+	/* Clock enable mask */
+	u32 clk_enable;
+
+	/* Clock delay */
+	int ck_delay;
 };
 
 enum mv_ddr_iface_mode {

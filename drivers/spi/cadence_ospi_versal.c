@@ -7,17 +7,29 @@
 
 #include <clk.h>
 #include <common.h>
-#include <cpu_func.h>
 #include <memalign.h>
 #include <wait_bit.h>
 #include <asm/io.h>
-#include "cadence_qspi.h"
-#include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
+#include <asm/cache.h>
+#include <cpu_func.h>
 #include <zynqmp_firmware.h>
+#include "cadence_qspi.h"
 
 #define CMD_4BYTE_READ  0x13
 #define CMD_4BYTE_FAST_READ  0x0C
+
+void cadence_qspi_apb_enable_linear_mode(bool enable)
+{
+	if (enable)
+		/* ahb read mode */
+		xilinx_pm_request(PM_IOCTL, DEV_OSPI, IOCTL_OSPI_MUX_SELECT,
+				  PM_OSPI_MUX_SEL_LINEAR, 0, NULL);
+	else
+		/* DMA mode */
+		xilinx_pm_request(PM_IOCTL, DEV_OSPI, IOCTL_OSPI_MUX_SELECT,
+				  PM_OSPI_MUX_SEL_DMA, 0, NULL);
+}
 
 int cadence_qspi_apb_dma_read(struct cadence_spi_platdata *plat,
 			      unsigned int n_rx, u8 *rxbuf)
@@ -29,6 +41,7 @@ int cadence_qspi_apb_dma_read(struct cadence_spi_platdata *plat,
 	bytes_to_dma = n_rx - rx_rem;
 
 	if (bytes_to_dma) {
+		cadence_qspi_apb_enable_linear_mode(false);
 		reg = readl(plat->regbase + CQSPI_REG_CONFIG);
 		reg |= CQSPI_REG_CONFIG_ENBL_DMA;
 		writel(reg, plat->regbase + CQSPI_REG_CONFIG);

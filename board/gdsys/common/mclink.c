@@ -11,6 +11,7 @@
 #include <errno.h>
 
 #include <gdsys_fpga.h>
+#include <linux/delay.h>
 
 enum {
 	MCINT_SLAVE_LINK_CHANGED_EV = 1 << 7,

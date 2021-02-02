@@ -114,7 +114,7 @@
 			status = "disabled";
 		};
 
-		clkmgr@ffd04000 {
+		clkmgr: clkmgr@ffd04000 {
 				compatible = "altr,clk-mgr";
 				reg = <0xffd04000 0x1000>;
 
@@ -804,7 +804,8 @@
 		};
 
 		spi0: spi@fff00000 {
-			compatible = "snps,dw-apb-ssi";
+			compatible = "altr,socfpga-spi", "snps,dw-apb-ssi-3.20",
+				     "snps,dw-apb-ssi";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0xfff00000 0x1000>;
@@ -816,7 +817,8 @@
 		};
 
 		spi1: spi@fff01000 {
-			compatible = "snps,dw-apb-ssi";
+			compatible = "altr,socfpga-spi", "snps,dw-apb-ssi-3.20",
+				     "snps,dw-apb-ssi";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0xfff01000 0x1000>;

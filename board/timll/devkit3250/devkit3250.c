@@ -6,12 +6,14 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/emc.h>
 #include <asm/arch/wdt.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

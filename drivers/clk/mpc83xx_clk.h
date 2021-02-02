@@ -17,6 +17,7 @@
  * @RAT_2_5_TO_1: Ratio 2.5:1
  * @RAT_3_TO_1:   Ratio 3:1
  */
+#include <linux/bitops.h>
 enum ratio {
 	RAT_UNK,
 	RAT_BYP,

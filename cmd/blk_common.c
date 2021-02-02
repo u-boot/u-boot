@@ -10,8 +10,9 @@
 
 #include <common.h>
 #include <blk.h>
+#include <command.h>
 
-int blk_common_cmd(int argc, char * const argv[], enum if_type if_type,
+int blk_common_cmd(int argc, char *const argv[], enum if_type if_type,
 		   int *cur_devnump)
 {
 	const char *if_name = blk_get_if_type_name(if_type);
@@ -32,7 +33,8 @@ int blk_common_cmd(int argc, char * const argv[], enum if_type if_type,
 			return 0;
 		} else if (strncmp(argv[1], "part", 4) == 0) {
 			if (blk_list_part(if_type))
-				printf("\nno %s devices available\n", if_name);
+				printf("\nno %s partition table available\n",
+				       if_name);
 			return 0;
 		}
 		return CMD_RET_USAGE;

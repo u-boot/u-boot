@@ -9,6 +9,7 @@
 #ifndef _SF_INTERNAL_H_
 #define _SF_INTERNAL_H_
 
+#include <linux/bitops.h>
 #include <linux/types.h>
 #include <linux/compiler.h>
 
@@ -81,12 +82,18 @@ extern const struct flash_info spi_nor_ids[];
 #define JEDEC_MFR(info)	((info)->id[0])
 #define JEDEC_ID(info)		(((info)->id[1]) << 8 | ((info)->id[2]))
 
-/* Get software write-protect value (BP bits) */
-int spi_flash_cmd_get_sw_write_prot(struct spi_flash *flash);
-
-
 #if CONFIG_IS_ENABLED(SPI_FLASH_MTD)
 int spi_flash_mtd_register(struct spi_flash *flash);
 void spi_flash_mtd_unregister(void);
+#else
+static inline int spi_flash_mtd_register(struct spi_flash *flash)
+{
+	return 0;
+}
+
+static inline void spi_flash_mtd_unregister(void)
+{
+}
 #endif
+
 #endif /* _SF_INTERNAL_H_ */

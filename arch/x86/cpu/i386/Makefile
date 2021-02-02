@@ -5,5 +5,7 @@
 
 obj-y += call64.o
 obj-y += cpu.o
+ifndef CONFIG_TPL_BUILD
 obj-y += interrupt.o
+endif
 obj-y += setjmp.o

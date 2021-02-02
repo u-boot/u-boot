@@ -1,18 +1,23 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
+ * Copyright (C) 2020, Sean Anderson <seanga2@gmail.com>
  */
 
+#include <clk.h>
 #include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+#include <linux/bitops.h>
+#include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int riscv_cpu_get_desc(struct udevice *dev, char *buf, int size)
+static int riscv_cpu_get_desc(const struct udevice *dev, char *buf, int size)
 {
 	const char *isa;
 
@@ -25,20 +30,44 @@ static int riscv_cpu_get_desc(struct udevice *dev, char *buf, int size)
 	return 0;
 }
 
-static int riscv_cpu_get_info(struct udevice *dev, struct cpu_info *info)
+static int riscv_cpu_get_info(const struct udevice *dev, struct cpu_info *info)
 {
+	int ret;
+	struct clk clk;
 	const char *mmu;
+	u32 i_cache_size;
+	u32 d_cache_size;
 
-	dev_read_u32(dev, "clock-frequency", (u32 *)&info->cpu_freq);
+	/* First try getting the frequency from the assigned clock */
+	ret = clk_get_by_index((struct udevice *)dev, 0, &clk);
+	if (!ret) {
+		ret = clk_get_rate(&clk);
+		if (!IS_ERR_VALUE(ret))
+			info->cpu_freq = ret;
+		clk_free(&clk);
+	}
+
+	if (!info->cpu_freq)
+		dev_read_u32(dev, "clock-frequency", (u32 *)&info->cpu_freq);
 
 	mmu = dev_read_string(dev, "mmu-type");
-	if (!mmu)
+	if (mmu)
 		info->features |= BIT(CPU_FEAT_MMU);
+
+	/* check if I cache is present */
+	ret = dev_read_u32(dev, "i-cache-size", &i_cache_size);
+	if (ret)
+		/* if not found check if d-cache is present */
+		ret = dev_read_u32(dev, "d-cache-size", &d_cache_size);
+
+	/* if either I or D cache is present set L1 cache feature */
+	if (!ret)
+		info->features |= BIT(CPU_FEAT_L1_CACHE);
 
 	return 0;
 }
 
-static int riscv_cpu_get_count(struct udevice *dev)
+static int riscv_cpu_get_count(const struct udevice *dev)
 {
 	ofnode node;
 	int num = 0;
@@ -100,6 +129,24 @@ static int riscv_cpu_bind(struct udevice *dev)
 	return 0;
 }
 
+static int riscv_cpu_probe(struct udevice *dev)
+{
+	int ret = 0;
+	struct clk clk;
+
+	/* Get a clock if it exists */
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret)
+		return 0;
+
+	ret = clk_enable(&clk);
+	clk_free(&clk);
+	if (ret == -ENOSYS || ret == -ENOTSUPP)
+		return 0;
+	else
+		return ret;
+}
+
 static const struct cpu_ops riscv_cpu_ops = {
 	.get_desc	= riscv_cpu_get_desc,
 	.get_info	= riscv_cpu_get_info,
@@ -116,6 +163,7 @@ U_BOOT_DRIVER(riscv_cpu) = {
 	.id = UCLASS_CPU,
 	.of_match = riscv_cpu_ids,
 	.bind = riscv_cpu_bind,
+	.probe = riscv_cpu_probe,
 	.ops = &riscv_cpu_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };

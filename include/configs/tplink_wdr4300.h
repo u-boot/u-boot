@@ -51,9 +51,5 @@
 /*
  * Diagnostics
  */
-#define CONFIG_SYS_MEMTEST_START	0x80100000
-#define CONFIG_SYS_MEMTEST_END		0x83f00000
-
-#define CONFIG_CMD_MII
 
 #endif  /* __CONFIG_H */

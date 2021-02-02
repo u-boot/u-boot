@@ -9,8 +9,11 @@
 #include <common.h>
 #include <dm.h>
 #include <backlight.h>
+#include <log.h>
+#include <malloc.h>
 #include <pwm.h>
 #include <asm/gpio.h>
+#include <linux/delay.h>
 #include <power/regulator.h>
 
 /**
@@ -30,7 +33,7 @@
  * @cur_level: Current level for the backlight (index or value)
  * @default_level: Default level for the backlight (index or value)
  * @min_level: Minimum level of the backlight (full off)
- * @min_level: Maximum level of the backlight (full on)
+ * @max_level: Maximum level of the backlight (full on)
  * @enabled: true if backlight is enabled
  */
 struct pwm_backlight_priv {
@@ -60,7 +63,7 @@ static int set_pwm(struct pwm_backlight_priv *priv)
 	int ret;
 
 	duty_cycle = priv->period_ns * (priv->cur_level - priv->min_level) /
-		(priv->max_level - priv->min_level + 1);
+		(priv->max_level - priv->min_level);
 	ret = pwm_set_config(priv->pwm, priv->channel, priv->period_ns,
 			     duty_cycle);
 	if (ret)

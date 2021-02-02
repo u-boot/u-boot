@@ -9,9 +9,11 @@
  *
  */
 
+#include <log.h>
 #include <miiphy.h>
 #include <bitfield.h>
 #include <time.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 /* Microsemi PHY ID's */
@@ -154,6 +156,14 @@
 #define EN_PATCH_RAM_TRAP_ADDR(x)	BIT((x) + 7)
 #define INT_MEM_DATA_M			GENMASK(7, 0)
 #define INT_MEM_DATA(x)			(INT_MEM_DATA_M & (x))
+
+/* Extended page GPIO register 13G */
+#define MSCC_CLKOUT_CNTL		13
+#define CLKOUT_ENABLE			BIT(15)
+#define CLKOUT_FREQ_MASK		GENMASK(14, 13)
+#define CLKOUT_FREQ_25M			(0x0 << 13)
+#define CLKOUT_FREQ_50M			(0x1 << 13)
+#define CLKOUT_FREQ_125M		(0x2 << 13)
 
 /* Extended page GPIO register 18G */
 #define MSCC_PHY_PROC_CMD		  18
@@ -1166,6 +1176,9 @@ static int vsc8531_vsc8541_mac_config(struct phy_device *phydev)
 		rx_clk_out = RX_CLK_OUT_NORMAL;
 		break;
 
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_ID:
 	case PHY_INTERFACE_MODE_RGMII:
 		/* Set Reg23.12:11=2 */
 		mac_if = MAC_IF_SELECTION_RGMII;
@@ -1208,13 +1221,84 @@ static int vsc8531_vsc8541_mac_config(struct phy_device *phydev)
 	return 0;
 }
 
+static int vsc8531_vsc8541_clkout_config(struct phy_device *phydev)
+{
+	struct ofnode_phandle_args phandle_args;
+	u32 clkout_rate = 0;
+	u16 reg_val;
+	int retval;
+
+	retval = dev_read_phandle_with_args(phydev->dev, "phy-handle", NULL,
+					    0, 0, &phandle_args);
+	if (!retval)
+		clkout_rate = ofnode_read_u32_default(phandle_args.node,
+						"vsc8531,clk-out-frequency", 0);
+
+	switch (clkout_rate) {
+	case 0:
+		reg_val = 0;
+		break;
+	case 25000000:
+		reg_val = CLKOUT_FREQ_25M | CLKOUT_ENABLE;
+		break;
+	case 50000000:
+		reg_val = CLKOUT_FREQ_50M | CLKOUT_ENABLE;
+		break;
+	case 125000000:
+		reg_val = CLKOUT_FREQ_125M | CLKOUT_ENABLE;
+		break;
+	default:
+		printf("PHY 8530/31 invalid clkout rate %u\n",
+		       clkout_rate);
+		return -EINVAL;
+	}
+
+	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_EXT_PAGE_ACCESS,
+		  MSCC_PHY_PAGE_GPIO);
+	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_CLKOUT_CNTL, reg_val);
+	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_EXT_PAGE_ACCESS,
+		  MSCC_PHY_PAGE_STD);
+
+	return 0;
+}
+
+static int vsc8531_vsc8541_clk_skew_config(struct phy_device *phydev)
+{
+	enum vsc_phy_rgmii_skew rx_clk_skew = VSC_PHY_RGMII_DELAY_200_PS;
+	enum vsc_phy_rgmii_skew tx_clk_skew = VSC_PHY_RGMII_DELAY_200_PS;
+	u16 reg_val;
+
+	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID ||
+	    phydev->interface == PHY_INTERFACE_MODE_RGMII_ID)
+		rx_clk_skew = VSC_PHY_RGMII_DELAY_2000_PS;
+
+	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID ||
+	    phydev->interface == PHY_INTERFACE_MODE_RGMII_ID)
+		tx_clk_skew = VSC_PHY_RGMII_DELAY_2000_PS;
+
+	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_EXT_PAGE_ACCESS,
+		  MSCC_PHY_PAGE_EXT2);
+	reg_val = phy_read(phydev, MDIO_DEVAD_NONE, MSCC_PHY_RGMII_CNTL_REG);
+
+	/* Reg20E2 - Update RGMII RX_Clk Skews. */
+	reg_val = bitfield_replace(reg_val, RGMII_RX_CLK_DELAY_POS,
+				   RGMII_RX_CLK_DELAY_WIDTH, rx_clk_skew);
+	/* Reg20E2 - Update RGMII TX_Clk Skews. */
+	reg_val = bitfield_replace(reg_val, RGMII_TX_CLK_DELAY_POS,
+				   RGMII_TX_CLK_DELAY_WIDTH, tx_clk_skew);
+
+	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_PHY_RGMII_CNTL_REG, reg_val);
+	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_EXT_PAGE_ACCESS,
+		  MSCC_PHY_PAGE_STD);
+
+	return 0;
+}
+
 static int vsc8531_config(struct phy_device *phydev)
 {
 	int  retval = -EINVAL;
 	u16  reg_val;
 	u16  rmii_clk_out;
-	enum vsc_phy_rgmii_skew  rx_clk_skew = VSC_PHY_RGMII_DELAY_1700_PS;
-	enum vsc_phy_rgmii_skew  tx_clk_skew = VSC_PHY_RGMII_DELAY_800_PS;
 	enum vsc_phy_clk_slew    edge_rate = VSC_PHY_CLK_SLEW_RATE_4;
 
 	/* For VSC8530/31 and VSC8540/41 the init scripts are the same */
@@ -1224,6 +1308,9 @@ static int vsc8531_config(struct phy_device *phydev)
 	switch (phydev->interface) {
 	case PHY_INTERFACE_MODE_RMII:
 	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_ID:
 		retval = vsc8531_vsc8541_mac_config(phydev);
 		if (retval != 0)
 			return retval;
@@ -1240,19 +1327,12 @@ static int vsc8531_config(struct phy_device *phydev)
 	/* Default RMII Clk Output to 0=OFF/1=ON  */
 	rmii_clk_out = 0;
 
+	retval = vsc8531_vsc8541_clk_skew_config(phydev);
+	if (retval != 0)
+		return retval;
+
 	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_EXT_PAGE_ACCESS,
 		  MSCC_PHY_PAGE_EXT2);
-	reg_val = phy_read(phydev, MDIO_DEVAD_NONE, MSCC_PHY_RGMII_CNTL_REG);
-
-	/* Reg20E2 - Update RGMII RX_Clk Skews. */
-	reg_val = bitfield_replace(reg_val, RGMII_RX_CLK_DELAY_POS,
-				   RGMII_RX_CLK_DELAY_WIDTH, rx_clk_skew);
-	/* Reg20E2 - Update RGMII TX_Clk Skews. */
-	reg_val = bitfield_replace(reg_val, RGMII_TX_CLK_DELAY_POS,
-				   RGMII_TX_CLK_DELAY_WIDTH, tx_clk_skew);
-
-	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_PHY_RGMII_CNTL_REG, reg_val);
-
 	reg_val = phy_read(phydev, MDIO_DEVAD_NONE, MSCC_PHY_WOL_MAC_CONTROL);
 	/* Reg27E2 - Update Clk Slew Rate. */
 	reg_val = bitfield_replace(reg_val, EDGE_RATE_CNTL_POS,
@@ -1265,6 +1345,11 @@ static int vsc8531_config(struct phy_device *phydev)
 	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_EXT_PAGE_ACCESS,
 		  MSCC_PHY_PAGE_STD);
 
+	/* Configure the clk output */
+	retval = vsc8531_vsc8541_clkout_config(phydev);
+	if (retval != 0)
+		return retval;
+
 	return genphy_config_aneg(phydev);
 }
 
@@ -1273,8 +1358,6 @@ static int vsc8541_config(struct phy_device *phydev)
 	int  retval = -EINVAL;
 	u16  reg_val;
 	u16  rmii_clk_out;
-	enum vsc_phy_rgmii_skew  rx_clk_skew = VSC_PHY_RGMII_DELAY_1700_PS;
-	enum vsc_phy_rgmii_skew  tx_clk_skew = VSC_PHY_RGMII_DELAY_800_PS;
 	enum vsc_phy_clk_slew    edge_rate = VSC_PHY_CLK_SLEW_RATE_4;
 
 	/* For VSC8530/31 and VSC8540/41 the init scripts are the same */
@@ -1302,17 +1385,12 @@ static int vsc8541_config(struct phy_device *phydev)
 	/* Default RMII Clk Output to 0=OFF/1=ON  */
 	rmii_clk_out = 0;
 
+	retval = vsc8531_vsc8541_clk_skew_config(phydev);
+	if (retval != 0)
+		return retval;
+
 	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_EXT_PAGE_ACCESS,
 		  MSCC_PHY_PAGE_EXT2);
-	reg_val = phy_read(phydev, MDIO_DEVAD_NONE, MSCC_PHY_RGMII_CNTL_REG);
-	/* Reg20E2 - Update RGMII RX_Clk Skews. */
-	reg_val = bitfield_replace(reg_val, RGMII_RX_CLK_DELAY_POS,
-				   RGMII_RX_CLK_DELAY_WIDTH, rx_clk_skew);
-	/* Reg20E2 - Update RGMII TX_Clk Skews. */
-	reg_val = bitfield_replace(reg_val, RGMII_TX_CLK_DELAY_POS,
-				   RGMII_TX_CLK_DELAY_WIDTH, tx_clk_skew);
-	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_PHY_RGMII_CNTL_REG, reg_val);
-
 	reg_val = phy_read(phydev, MDIO_DEVAD_NONE, MSCC_PHY_WOL_MAC_CONTROL);
 	/* Reg27E2 - Update Clk Slew Rate. */
 	reg_val = bitfield_replace(reg_val, EDGE_RATE_CNTL_POS,
@@ -1324,6 +1402,11 @@ static int vsc8541_config(struct phy_device *phydev)
 	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_PHY_WOL_MAC_CONTROL, reg_val);
 	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_EXT_PAGE_ACCESS,
 		  MSCC_PHY_PAGE_STD);
+
+	/* Configure the clk output */
+	retval = vsc8531_vsc8541_clkout_config(phydev);
+	if (retval != 0)
+		return retval;
 
 	return genphy_config_aneg(phydev);
 }

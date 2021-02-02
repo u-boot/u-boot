@@ -8,7 +8,9 @@
 
 #include <common.h>
 #include <env.h>
+#include <log.h>
 #include <mapmem.h>
+#include <net.h>
 #include <stdio_dev.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
@@ -609,14 +611,9 @@ int fdt_record_loadable(void *blob, u32 index, const char *name,
 	if (node < 0)
 		return node;
 
-	/*
-	 * We record these as 32bit entities, possibly truncating addresses.
-	 * However, spl_fit.c is not 64bit safe either: i.e. we should not
-	 * have an issue here.
-	 */
-	fdt_setprop_u32(blob, node, "load-addr", load_addr);
+	fdt_setprop_u64(blob, node, "load", load_addr);
 	if (entry_point != -1)
-		fdt_setprop_u32(blob, node, "entry-point", entry_point);
+		fdt_setprop_u64(blob, node, "entry", entry_point);
 	fdt_setprop_u32(blob, node, "size", size);
 	if (type)
 		fdt_setprop_string(blob, node, "type", type);
@@ -814,8 +811,8 @@ static int fdt_del_partitions(void *blob, int parent_offset)
 	return 0;
 }
 
-int fdt_node_set_part_info(void *blob, int parent_offset,
-			   struct mtd_device *dev)
+static int fdt_node_set_part_info(void *blob, int parent_offset,
+				  struct mtd_device *dev)
 {
 	struct list_head *pentry;
 	struct part_info *part;
@@ -949,27 +946,35 @@ void fdt_fixup_mtdparts(void *blob, const struct node_info *node_info,
 	struct mtd_device *dev;
 	int i, idx;
 	int noff;
-
-	if (mtdparts_init() != 0)
-		return;
+	bool inited = false;
 
 	for (i = 0; i < node_info_size; i++) {
 		idx = 0;
-		noff = fdt_node_offset_by_compatible(blob, -1,
-						     node_info[i].compat);
-		while (noff != -FDT_ERR_NOTFOUND) {
+		noff = -1;
+
+		while ((noff = fdt_node_offset_by_compatible(blob, noff,
+						node_info[i].compat)) >= 0) {
+			const char *prop;
+
+			prop = fdt_getprop(blob, noff, "status", NULL);
+			if (prop && !strcmp(prop, "disabled"))
+				continue;
+
 			debug("%s: %s, mtd dev type %d\n",
 				fdt_get_name(blob, noff, 0),
 				node_info[i].compat, node_info[i].type);
+
+			if (!inited) {
+				if (mtdparts_init() != 0)
+					return;
+				inited = true;
+			}
+
 			dev = device_find(node_info[i].type, idx++);
 			if (dev) {
 				if (fdt_node_set_part_info(blob, noff, dev))
 					return; /* return on error */
 			}
-
-			/* Jump to next flash node */
-			noff = fdt_node_offset_by_compatible(blob, noff,
-							     node_info[i].compat);
 		}
 	}
 }

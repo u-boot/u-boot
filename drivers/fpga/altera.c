@@ -13,6 +13,7 @@
 #include <common.h>
 #include <errno.h>
 #include <ACEX1K.h>
+#include <log.h>
 #include <stratixII.h>
 
 /* Define FPGA_DEBUG to 1 to get debug printf's */
@@ -39,11 +40,12 @@ static const struct altera_fpga {
 #if defined(CONFIG_FPGA_STRATIX_V)
 	{ Altera_StratixV, "StratixV", stratixv_load, NULL, NULL },
 #endif
-#if defined(CONFIG_FPGA_STRATIX10)
-	{ Intel_FPGA_Stratix10, "Stratix10", stratix10_load, NULL, NULL },
-#endif
 #if defined(CONFIG_FPGA_SOCFPGA)
 	{ Altera_SoCFPGA, "SoC FPGA", socfpga_load, NULL, NULL },
+#endif
+#if defined(CONFIG_FPGA_INTEL_SDM_MAILBOX)
+	{ Intel_FPGA_SDM_Mailbox, "Intel SDM Mailbox", intel_sdm_mb_load, NULL,
+	  NULL },
 #endif
 };
 

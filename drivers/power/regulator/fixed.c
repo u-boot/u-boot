@@ -5,12 +5,14 @@
  *  Przemyslaw Marczak <p.marczak@samsung.com>
  */
 
-#include "regulator_common.h"
 #include <common.h>
 #include <errno.h>
 #include <dm.h>
+#include <log.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
+
+#include "regulator_common.h"
 
 static int fixed_regulator_ofdata_to_platdata(struct udevice *dev)
 {
@@ -81,8 +83,8 @@ static const struct udevice_id fixed_regulator_ids[] = {
 	{ },
 };
 
-U_BOOT_DRIVER(fixed_regulator) = {
-	.name = "fixed regulator",
+U_BOOT_DRIVER(regulator_fixed) = {
+	.name = "regulator_fixed",
 	.id = UCLASS_REGULATOR,
 	.ops = &fixed_regulator_ops,
 	.of_match = fixed_regulator_ids,

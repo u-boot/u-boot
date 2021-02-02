@@ -33,8 +33,6 @@
 #define CONFIG_ROOTPATH		"/opt/eldk"
 #endif
 
-#define CONFIG_ENV_OVERWRITE		1
-
 #define CONFIG_SYS_AUTOLOAD	"yes"
 
 /* Clock Defines */
@@ -54,9 +52,6 @@
  * memtest works on 8 MB in DRAM after skipping 32MB from
  * start addr of ram disk
  */
-#define CONFIG_SYS_MEMTEST_START	(PHYS_DRAM_1 + (64 * 1024 * 1024))
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START \
-					+ (8 * 1024 * 1024))
 
 #define CONFIG_SYS_LOAD_ADDR		0x81000000 /* Default load address */
 
@@ -71,10 +66,7 @@
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 
 /* NS16550 Configuration */
-#ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#endif
 #define CONFIG_SYS_NS16550_CLK		(48000000)
 #define CONFIG_SYS_NS16550_COM1		0x44e09000
 #define CONFIG_SYS_NS16550_COM4		0x481a6000
@@ -91,12 +83,8 @@
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
 
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_ECC
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
@@ -173,9 +161,6 @@
  * 0x442000 - 0x800000 : Userland
  */
 
-#define CONFIG_BOOTP_DEFAULT
-#define CONFIG_BOOTP_DNS2
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT         10
 
 /* NAND support */

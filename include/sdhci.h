@@ -9,6 +9,8 @@
 #ifndef __SDHCI_HW_H
 #define __SDHCI_HW_H
 
+#include <linux/bitops.h>
+#include <linux/types.h>
 #include <asm/io.h>
 #include <mmc.h>
 #include <asm/gpio.h>
@@ -267,9 +269,9 @@ struct sdhci_ops {
 	void	(*set_clock)(struct sdhci_host *host, u32 div);
 	int (*platform_execute_tuning)(struct mmc *host, u8 opcode);
 	void (*set_delay)(struct sdhci_host *host);
+	int	(*deferred_probe)(struct sdhci_host *host);
 };
 
-#if CONFIG_IS_ENABLED(MMC_SDHCI_ADMA)
 #define ADMA_MAX_LEN	65532
 #ifdef CONFIG_DMA_ADDR_T_64BIT
 #define ADMA_DESC_LEN	16
@@ -300,7 +302,7 @@ struct sdhci_adma_desc {
 	u32 addr_hi;
 #endif
 } __packed;
-#endif
+
 struct sdhci_host {
 	const char *name;
 	void *ioaddr;
@@ -321,6 +323,8 @@ struct sdhci_host {
 	uint	voltages;
 
 	struct mmc_config cfg;
+	void *align_buffer;
+	bool force_align_buffer;
 	dma_addr_t start_addr;
 	int flags;
 #define USE_SDMA	(0x1 << 0)
@@ -330,7 +334,6 @@ struct sdhci_host {
 	dma_addr_t adma_addr;
 #if CONFIG_IS_ENABLED(MMC_SDHCI_ADMA)
 	struct sdhci_adma_desc *adma_desc_table;
-	uint desc_slot;
 #endif
 };
 
@@ -491,5 +494,9 @@ int sdhci_set_clock(struct mmc *mmc, unsigned int clock);
 extern const struct dm_mmc_ops sdhci_ops;
 #else
 #endif
+
+struct sdhci_adma_desc *sdhci_adma_init(void);
+void sdhci_prepare_adma_table(struct sdhci_adma_desc *table,
+			      struct mmc_data *data, dma_addr_t addr);
 
 #endif /* __SDHCI_HW_H */

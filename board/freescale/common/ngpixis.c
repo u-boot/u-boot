@@ -171,7 +171,8 @@ void pixis_sysclk_set(unsigned long sysclk)
 	PIXIS_WRITE(sclk[2], sclk2);
 }
 
-int pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int pixis_reset_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	unsigned int i;
 	unsigned long sysclk;

@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <init.h>
+#include <log.h>
 #include <asm/arch/slimbootloader.h>
 
 DECLARE_GLOBAL_DATA_PTR;

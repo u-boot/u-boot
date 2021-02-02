@@ -5,9 +5,14 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <cpu_func.h>
+#include <debug_uart.h>
 #include <env.h>
+#include <env_internal.h>
 #include <init.h>
+#include <log.h>
+#include <net.h>
 #include <sata.h>
 #include <ahci.h>
 #include <scsi.h>
@@ -17,34 +22,34 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/psu_init_gpl.h>
+#include <asm/cache.h>
 #include <asm/io.h>
+#include <asm/ptrace.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <usb.h>
-#include <uboot_aes.h>
 #include <dwc3-uboot.h>
 #include <zynqmppl.h>
 #include <zynqmp_firmware.h>
 #include <g_dnl.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 #include "../common/board.h"
 
 #include "pm_cfg_obj.h"
 
 #define ZYNQMP_VERSION_SIZE	7
-#define EFUSE_VCU_DIS_MASK     0x100
-#define EFUSE_VCU_DIS_SHIFT    8
-#define EFUSE_GPU_DIS_MASK     0x20
-#define EFUSE_GPU_DIS_SHIFT    5
-#define IDCODE2_PL_INIT_MASK   0x200
-#define IDCODE2_PL_INIT_SHIFT  9
+#define EFUSE_VCU_DIS_MASK	0x100
+#define EFUSE_VCU_DIS_SHIFT	8
+#define EFUSE_GPU_DIS_MASK	0x20
+#define EFUSE_GPU_DIS_SHIFT	5
+#define IDCODE2_PL_INIT_MASK	0x200
+#define IDCODE2_PL_INIT_SHIFT	9
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
-    !defined(CONFIG_SPL_BUILD) || (defined(CONFIG_SPL_FPGA_SUPPORT) && \
-    defined(CONFIG_SPL_BUILD))
-
+#if CONFIG_IS_ENABLED(FPGA) && defined(CONFIG_FPGA_ZYNQMPPL)
 static xilinx_desc zynqmppl = XILINX_ZYNQMP_DESC;
 
 enum {
@@ -185,8 +190,13 @@ static char *zynqmp_get_silicon_idcode_name(void)
 	u32 idcode, idcode2;
 	char name[ZYNQMP_VERSION_SIZE];
 	u32 ret_payload[PAYLOAD_ARG_CNT];
+	int ret;
 
-	xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0, ret_payload);
+	ret = xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0, ret_payload);
+	if (ret) {
+		debug("%s: Getting chipid failed\n", __func__);
+		return "unknown";
+	}
 
 	/*
 	 * Firmware returns:
@@ -199,7 +209,7 @@ static char *zynqmp_get_silicon_idcode_name(void)
 
 	idcode  = ret_payload[1];
 	idcode2 = ret_payload[2] >> ZYNQMP_CSU_VERSION_EMPTY_SHIFT;
-	debug("%s, IDCODE: 0x%0X, IDCODE2: 0x%0X\r\n", __func__, idcode,
+	debug("%s, IDCODE: 0x%0x, IDCODE2: 0x%0x\r\n", __func__, idcode,
 	      idcode2);
 
 	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
@@ -211,8 +221,10 @@ static char *zynqmp_get_silicon_idcode_name(void)
 		return "unknown";
 
 	/* Add device prefix to the name */
-	strncpy(name, "zu", ZYNQMP_VERSION_SIZE);
-	strncat(&name[2], simple_itoa(zynqmp_devices[i].device), 2);
+	ret = snprintf(name, ZYNQMP_VERSION_SIZE, "zu%d",
+		       zynqmp_devices[i].device);
+	if (ret < 0)
+		return "unknown";
 
 	if (zynqmp_devices[i].variants & ZYNQMP_VARIANT_EV) {
 		/* Devices with EV variant might be EG/CG/EV family */
@@ -267,13 +279,24 @@ static char *zynqmp_get_silicon_idcode_name(void)
 
 int board_early_init_f(void)
 {
-	int ret = 0;
-
 #if defined(CONFIG_ZYNQMP_PSU_INIT_ENABLED)
+	int ret;
+
 	ret = psu_init();
+	if (ret)
+		return ret;
+
+	/* Delay is required for clocks to be propagated */
+	udelay(1000000);
 #endif
 
-	return ret;
+#ifdef CONFIG_DEBUG_UART
+	/* Uart debug for sure */
+	debug_uart_init();
+	puts("Debug uart enabled\n"); /* or printch() */
+#endif
+
+	return 0;
 }
 
 static int multi_boot(void)
@@ -282,10 +305,13 @@ static int multi_boot(void)
 
 	multiboot = readl(&csu_base->multi_boot);
 
-	printf("Multiboot:\t%x\n", multiboot);
+	printf("Multiboot:\t%d\n", multiboot);
 
 	return 0;
 }
+
+#define PS_SYSMON_ANALOG_BUS_VAL	0x3210
+#define PS_SYSMON_ANALOG_BUS_REG	0xFFA50914
 
 int board_init(void)
 {
@@ -309,9 +335,10 @@ int board_init(void)
 
 	printf("EL Level:\tEL%d\n", current_el());
 
-#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
-    !defined(CONFIG_SPL_BUILD) || (defined(CONFIG_SPL_FPGA_SUPPORT) && \
-    defined(CONFIG_SPL_BUILD))
+	/* Bug in ROM sets wrong value in this register */
+	writel(PS_SYSMON_ANALOG_BUS_VAL, PS_SYSMON_ANALOG_BUS_REG);
+
+#if CONFIG_IS_ENABLED(FPGA) && defined(CONFIG_FPGA_ZYNQMPPL)
 	zynqmppl.name = zynqmp_get_silicon_idcode_name();
 	printf("Chip ID:\t%s\n", zynqmppl.name);
 	fpga_init();
@@ -350,7 +377,7 @@ int board_early_init_r(void)
 }
 
 unsigned long do_go_exec(ulong (*entry)(int, char * const []), int argc,
-			 char * const argv[])
+			 char *const argv[])
 {
 	int ret = 0;
 
@@ -390,10 +417,8 @@ int dram_init(void)
 #else
 int dram_init_banksize(void)
 {
-#if defined(CONFIG_NR_DRAM_BANKS)
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = get_effective_memsize();
-#endif
 
 	mem_map_fill();
 
@@ -411,6 +436,24 @@ int dram_init(void)
 
 void reset_cpu(ulong addr)
 {
+}
+
+static u8 __maybe_unused zynqmp_get_bootmode(void)
+{
+	u8 bootmode;
+	u32 reg = 0;
+	int ret;
+
+	ret = zynqmp_mmio_read((ulong)&crlapb_base->boot_mode, &reg);
+	if (ret)
+		return -EINVAL;
+
+	if (reg >> BOOT_MODE_ALT_SHIFT)
+		reg >>= BOOT_MODE_ALT_SHIFT;
+
+	bootmode = reg & BOOT_MODES_MASK;
+
+	return bootmode;
 }
 
 #if defined(CONFIG_BOARD_LATE_INIT)
@@ -494,24 +537,6 @@ static int set_fdtfile(void)
 	}
 
 	return 0;
-}
-
-static u8 zynqmp_get_bootmode(void)
-{
-	u8 bootmode;
-	u32 reg = 0;
-	int ret;
-
-	ret = zynqmp_mmio_read((ulong)&crlapb_base->boot_mode, &reg);
-	if (ret)
-		return -EINVAL;
-
-	if (reg >> BOOT_MODE_ALT_SHIFT)
-		reg >>= BOOT_MODE_ALT_SHIFT;
-
-	bootmode = reg & BOOT_MODES_MASK;
-
-	return bootmode;
 }
 
 int board_late_init(void)
@@ -623,6 +648,7 @@ int board_late_init(void)
 	if (bootseq >= 0) {
 		bootseq_len = snprintf(NULL, 0, "%i", bootseq);
 		debug("Bootseq len: %x\n", bootseq_len);
+		env_set_hex("bootseq", bootseq);
 	}
 
 	/*
@@ -657,4 +683,38 @@ int checkboard(void)
 {
 	puts("Board: Xilinx ZynqMP\n");
 	return 0;
+}
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	u32 bootmode = zynqmp_get_bootmode();
+
+	if (prio)
+		return ENVL_UNKNOWN;
+
+	switch (bootmode) {
+	case EMMC_MODE:
+	case SD_MODE:
+	case SD1_LSHFT_MODE:
+	case SD_MODE1:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_FAT))
+			return ENVL_FAT;
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_EXT4))
+			return ENVL_EXT4;
+		return ENVL_UNKNOWN;
+	case NAND_MODE:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_NAND))
+			return ENVL_NAND;
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_UBI))
+			return ENVL_UBI;
+		return ENVL_UNKNOWN;
+	case QSPI_MODE_24BIT:
+	case QSPI_MODE_32BIT:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
+			return ENVL_SPI_FLASH;
+		return ENVL_UNKNOWN;
+	case JTAG_MODE:
+	default:
+		return ENVL_NOWHERE;
+	}
 }

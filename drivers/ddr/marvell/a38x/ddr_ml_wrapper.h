@@ -107,7 +107,7 @@
 #define MV_NO_RESOURCE	(0x13)	/* Resource not available (memory ...)   */
 #define MV_FULL		(0x14)	/* Item is full (Queue or table etc...)  */
 #define MV_EMPTY	(0x15)	/* Item is empty (Queue or table etc...) */
-#define MV_INIT_ERROR	(0x16)	/* Error occured while INIT process      */
+#define MV_INIT_ERROR	(0x16)	/* Error occurred while INIT process     */
 #define MV_HW_ERROR	(0x17)	/* Hardware error                        */
 #define MV_TX_ERROR	(0x18)	/* Transmit operation not succeeded      */
 #define MV_RX_ERROR	(0x19)	/* Recieve operation not succeeded       */

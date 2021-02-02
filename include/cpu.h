@@ -44,10 +44,12 @@ enum {
  *
  * @cpu_freq:	Current CPU frequency in Hz
  * @features:	Flags for supported CPU features
+ * @address_width:	Width of the CPU address space in bits (e.g. 32)
  */
 struct cpu_info {
 	ulong cpu_freq;
 	ulong features;
+	uint address_width;
 };
 
 struct cpu_ops {
@@ -59,7 +61,7 @@ struct cpu_ops {
 	 * @size:	Size of string space
 	 * @return 0 if OK, -ENOSPC if buffer is too small, other -ve on error
 	 */
-	int (*get_desc)(struct udevice *dev, char *buf, int size);
+	int (*get_desc)(const struct udevice *dev, char *buf, int size);
 
 	/**
 	 * get_info() - Get information about a CPU
@@ -68,7 +70,7 @@ struct cpu_ops {
 	 * @info:	Returns CPU info
 	 * @return 0 if OK, -ve on error
 	 */
-	int (*get_info)(struct udevice *dev, struct cpu_info *info);
+	int (*get_info)(const struct udevice *dev, struct cpu_info *info);
 
 	/**
 	 * get_count() - Get number of CPUs
@@ -76,7 +78,7 @@ struct cpu_ops {
 	 * @dev:	Device to check (UCLASS_CPU)
 	 * @return CPU count if OK, -ve on error
 	 */
-	int (*get_count)(struct udevice *dev);
+	int (*get_count)(const struct udevice *dev);
 
 	/**
 	 * get_vendor() - Get vendor name of a CPU
@@ -86,7 +88,16 @@ struct cpu_ops {
 	 * @size:	Size of string space
 	 * @return 0 if OK, -ENOSPC if buffer is too small, other -ve on error
 	 */
-	int (*get_vendor)(struct udevice *dev, char *buf, int size);
+	int (*get_vendor)(const struct udevice *dev, char *buf, int size);
+
+	/**
+	 * is_current() - Check if the CPU that U-Boot is currently running from
+	 *
+	 * @dev:	Device to check (UCLASS_CPU)
+	 * @return 1 if the CPU that U-Boot is currently running from, 0
+	 *         if not.
+	 */
+	int (*is_current)(struct udevice *dev);
 };
 
 #define cpu_get_ops(dev)        ((struct cpu_ops *)(dev)->driver->ops)
@@ -99,7 +110,7 @@ struct cpu_ops {
  *
  * Return: 0 if OK, -ENOSPC if buffer is too small, other -ve on error
  */
-int cpu_get_desc(struct udevice *dev, char *buf, int size);
+int cpu_get_desc(const struct udevice *dev, char *buf, int size);
 
 /**
  * cpu_get_info() - Get information about a CPU
@@ -108,7 +119,7 @@ int cpu_get_desc(struct udevice *dev, char *buf, int size);
  *
  * Return: 0 if OK, -ve on error
  */
-int cpu_get_info(struct udevice *dev, struct cpu_info *info);
+int cpu_get_info(const struct udevice *dev, struct cpu_info *info);
 
 /**
  * cpu_get_count() - Get number of CPUs
@@ -116,7 +127,7 @@ int cpu_get_info(struct udevice *dev, struct cpu_info *info);
  *
  * Return: CPU count if OK, -ve on error
  */
-int cpu_get_count(struct udevice *dev);
+int cpu_get_count(const struct udevice *dev);
 
 /**
  * cpu_get_vendor() - Get vendor name of a CPU
@@ -126,7 +137,7 @@ int cpu_get_count(struct udevice *dev);
  *
  * Return: 0 if OK, -ENOSPC if buffer is too small, other -ve on error
  */
-int cpu_get_vendor(struct udevice *dev, char *buf, int size);
+int cpu_get_vendor(const struct udevice *dev, char *buf, int size);
 
 /**
  * cpu_probe_all() - Probe all available CPUs
@@ -134,5 +145,19 @@ int cpu_get_vendor(struct udevice *dev, char *buf, int size);
  * Return: 0 if OK, -ve on error
  */
 int cpu_probe_all(void);
+
+/**
+ * cpu_is_current() - Check if the CPU that U-Boot is currently running from
+ *
+ * Return: 1 if yes, - 0 if not
+ */
+int cpu_is_current(struct udevice *cpu);
+
+/**
+ * cpu_get_current_dev() - Get CPU udevice for current CPU
+ *
+ * Return: udevice if OK, - NULL on error
+ */
+struct udevice *cpu_get_current_dev(void);
 
 #endif

@@ -9,6 +9,7 @@
 #include <fsl_validate.h>
 #include <fsl_secboot_err.h>
 #include <fsl_sfp.h>
+#include <log.h>
 #include <dm/root.h>
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_FRAMEWORK)

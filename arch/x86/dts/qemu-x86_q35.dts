@@ -24,6 +24,8 @@
 /include/ "rtc.dtsi"
 /include/ "tsc_timer.dtsi"
 
+#include "smbios.dtsi"
+
 / {
 	model = "QEMU x86 (Q35)";
 	compatible = "qemu,x86";

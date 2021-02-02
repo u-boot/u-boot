@@ -212,7 +212,7 @@
 		};
 	};
 
-	usart1_pins_b: usart1@1	{
+	usart1_pins_b: usart1-1	{
 		u-boot,dm-pre-reloc;
 		pins1 {
 			u-boot,dm-pre-reloc;
@@ -229,7 +229,7 @@
 
 &qspi {
 	reg = <0xA0001000 0x1000>, <0x90000000 0x1000000>;
-	qflash0: n25q128a {
+	qflash0: n25q128a@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "jedec,spi-nor";
@@ -238,8 +238,4 @@
 		spi-rx-bus-width = <4>;
 		reg = <0>;
 	};
-};
-
-&timer5 {
-	u-boot,dm-pre-reloc;
 };

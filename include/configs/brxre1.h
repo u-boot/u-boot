@@ -13,8 +13,8 @@
 
 #include <configs/bur_cfg_common.h>
 #include <configs/bur_am335x_common.h>
+#include <linux/stringify.h>
 /* ------------------------------------------------------------------------- */
-#define CONFIG_AM335X_LCD
 #define LCD_BPP				LCD_COLOR32
 
 /* memory */
@@ -64,7 +64,5 @@ BUR_COMMON_ENV \
 #define CONFIG_INITRD_TAG
 
 /* Environment */
-#define CONFIG_SYS_MMC_ENV_DEV		1
-#define CONFIG_SYS_MMC_ENV_PART		2
 
 #endif	/* __CONFIG_BRXRE1_H__ */

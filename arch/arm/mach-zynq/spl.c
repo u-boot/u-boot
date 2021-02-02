@@ -4,8 +4,11 @@
  */
 #include <common.h>
 #include <debug_uart.h>
+#include <hang.h>
+#include <image.h>
+#include <init.h>
+#include <log.h>
 #include <spl.h>
-#include <generated/dt.h>
 
 #include <asm/io.h>
 #include <asm/spl.h>
@@ -30,7 +33,7 @@ void board_init_f(ulong dummy)
 void spl_board_init(void)
 {
 	preloader_console_init();
-#if defined(CONFIG_ARCH_EARLY_INIT_R) && defined(CONFIG_SPL_FPGA_SUPPORT)
+#if defined(CONFIG_ARCH_EARLY_INIT_R) && defined(CONFIG_SPL_FPGA)
 	arch_early_init_r();
 #endif
 	board_init();
@@ -82,16 +85,3 @@ void spl_board_prepare_for_boot(void)
 	ps7_post_config();
 	debug("SPL bye\n");
 }
-
-#ifdef CONFIG_SPL_LOAD_FIT
-int board_fit_config_name_match(const char *name)
-{
-	/* Just empty function now - can't decide what to choose */
-	debug("%s: Check %s, default %s\n", __func__, name, DEVICE_TREE);
-
-	if (!strcmp(name, DEVICE_TREE))
-		return 0;
-
-	return -1;
-}
-#endif

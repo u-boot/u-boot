@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <i2c.h>
+#include <dm/device_compat.h>
 #include <power/regulator.h>
 
 #define TPS62360_REG_SET0	0
@@ -77,7 +78,7 @@ static int tps62360_regulator_get_value(struct udevice *dev)
 	return (u32)regval * TPS62360_VSEL_STEPSIZE + pdata->config->vmin;
 }
 
-static int tps62360_regulator_ofdata_to_platdata(struct udevice *dev)
+static int tps62360_regulator_probe(struct udevice *dev)
 {
 	struct tps62360_regulator_pdata *pdata = dev_get_platdata(dev);
 	u8 vsel0;
@@ -119,5 +120,5 @@ U_BOOT_DRIVER(tps62360_regulator) = {
 	.ops = &tps62360_regulator_ops,
 	.of_match = tps62360_regulator_ids,
 	.platdata_auto_alloc_size = sizeof(struct tps62360_regulator_pdata),
-	.ofdata_to_platdata = tps62360_regulator_ofdata_to_platdata,
+	.probe = tps62360_regulator_probe,
 };

@@ -172,4 +172,12 @@ bool qemu_fwcfg_file_iter_end(struct fw_cfg_file_iter *iter);
 bool qemu_fwcfg_present(void);
 bool qemu_fwcfg_dma_present(void);
 
+/**
+ * qemu_cpu_fixup() - Fix up the CPUs for QEMU
+ *
+ * @return 0 if OK, -ENODEV if no CPUs, -ENOMEM if out of memory, other -ve on
+ *	on other error
+ */
+int qemu_cpu_fixup(void);
+
 #endif

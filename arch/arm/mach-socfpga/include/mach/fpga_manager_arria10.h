@@ -7,6 +7,7 @@
 #include <asm/cache.h>
 #include <altera.h>
 #include <image.h>
+#include <linux/bitops.h>
 
 #ifndef _FPGA_MANAGER_ARRIA10_H_
 #define _FPGA_MANAGER_ARRIA10_H_

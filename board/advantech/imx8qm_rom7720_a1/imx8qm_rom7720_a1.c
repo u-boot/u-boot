@@ -5,7 +5,11 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <env.h>
 #include <errno.h>
+#include <init.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
@@ -105,11 +109,6 @@ int board_init(void)
 	sc_pm_set_resource_power_mode(-1, SC_R_BOARD_R1, SC_PM_PW_MODE_ON);
 
 	return 0;
-}
-
-void detail_board_ddr_info(void)
-{
-	puts("\nDDR    ");
 }
 
 /*

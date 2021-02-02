@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/arch/clock-g12a.h>
 #include <asm/io.h>
 #include <clk-uclass.h>
@@ -14,6 +15,9 @@
 #include <syscon.h>
 #include <div64.h>
 #include <dt-bindings/clock/g12a-clkc.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
+#include <linux/err.h>
 #include <linux/kernel.h>
 #include "clk_meson.h"
 
@@ -111,6 +115,7 @@ static struct meson_gate gates[NUM_CLKS] = {
 	MESON_GATE(CLKID_I2C, HHI_GCLK_MPEG0, 9),
 	MESON_GATE(CLKID_UART0, HHI_GCLK_MPEG0, 13),
 	MESON_GATE(CLKID_SPICC1, HHI_GCLK_MPEG0, 14),
+	MESON_GATE(CLKID_SD_EMMC_A, HHI_GCLK_MPEG0, 4),
 	MESON_GATE(CLKID_SD_EMMC_B, HHI_GCLK_MPEG0, 25),
 	MESON_GATE(CLKID_SD_EMMC_C, HHI_GCLK_MPEG0, 26),
 	MESON_GATE(CLKID_ETH, HHI_GCLK_MPEG1, 3),
@@ -126,6 +131,7 @@ static struct meson_gate gates[NUM_CLKS] = {
 	MESON_GATE(CLKID_FCLK_DIV4, HHI_FIX_PLL_CNTL1, 21),
 	MESON_GATE(CLKID_FCLK_DIV5, HHI_FIX_PLL_CNTL1, 22),
 	MESON_GATE(CLKID_FCLK_DIV7, HHI_FIX_PLL_CNTL1, 23),
+	MESON_GATE(CLKID_SD_EMMC_A_CLK0, HHI_SD_EMMC_CLK_CNTL, 7),
 	MESON_GATE(CLKID_SD_EMMC_B_CLK0, HHI_SD_EMMC_CLK_CNTL, 23),
 	MESON_GATE(CLKID_SD_EMMC_C_CLK0, HHI_NAND_CLK_CNTL, 7),
 	MESON_GATE(CLKID_VPU_0, HHI_VPU_CLK_CNTL, 8),
@@ -803,6 +809,7 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id)
 		break;
 	case CLKID_PCIE_PLL:
 		rate = meson_pcie_pll_get_rate(clk);
+		break;
 	case CLKID_VPU_0:
 		rate = meson_div_get_rate(clk, CLKID_VPU_0_DIV);
 		break;
@@ -975,6 +982,13 @@ static int meson_clk_probe(struct udevice *dev)
 	priv->map = syscon_node_to_regmap(dev_get_parent(dev)->node);
 	if (IS_ERR(priv->map))
 		return PTR_ERR(priv->map);
+
+	/*
+	 * Depending on the boot src, the state of the MMC clock might
+	 * be different. Reset it to make sure we won't get stuck
+	 */
+	regmap_write(priv->map, HHI_NAND_CLK_CNTL, 0);
+	regmap_write(priv->map, HHI_SD_EMMC_CLK_CNTL, 0);
 
 	debug("meson-clk-g12a: probed\n");
 

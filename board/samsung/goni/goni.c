@@ -6,9 +6,12 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <log.h>
 #include <asm/gpio.h>
 #include <asm/arch/mmc.h>
 #include <dm.h>
+#include <linux/delay.h>
 #include <power/pmic.h>
 #include <usb/dwc2_udc.h>
 #include <asm/arch/cpu.h>
@@ -73,7 +76,7 @@ int checkboard(void)
 #endif
 
 #ifdef CONFIG_MMC
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	int i, ret, ret_sd = 0;
 

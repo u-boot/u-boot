@@ -6,6 +6,7 @@
 #include <common.h>
 #include <div64.h>
 #include <dm.h>
+#include <log.h>
 #include <pwm.h>
 #include <regmap.h>
 #include <syscon.h>
@@ -151,7 +152,7 @@ static int sunxi_pwm_ofdata_to_platdata(struct udevice *dev)
 {
 	struct sunxi_pwm_priv *priv = dev_get_priv(dev);
 
-	priv->regs = (struct sunxi_pwm *)devfdt_get_addr(dev);
+	priv->regs = dev_read_addr_ptr(dev);
 
 	return 0;
 }

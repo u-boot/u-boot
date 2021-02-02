@@ -8,6 +8,8 @@
 #include <common.h>
 #include <zynqmp_tap_delay.h>
 #include <asm/arch/sys_proto.h>
+#include <linux/delay.h>
+#include <mmc.h>
 
 #define SD_DLL_CTRL			0xFF180358
 #define SD_ITAP_DLY			0xFF180314
@@ -25,11 +27,8 @@
 #define SD1_ITAPDLYENA_MASK		0x01000000
 #define SD1_ITAPDLYENA			0x01000000
 #define SD0_ITAPDLYSEL_MASK		0x000000FF
-
 #define SD1_ITAPDLYSEL_MASK		0x00FF0000
-
 #define SD0_OTAPDLYSEL_MASK		0x0000003F
-
 #define SD1_OTAPDLYSEL_MASK		0x003F0000
 
 void zynqmp_dll_reset(u8 deviceid)

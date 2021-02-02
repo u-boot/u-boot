@@ -6,6 +6,7 @@
  */
 
 #include <efi_selftest.h>
+#include <net.h>
 #include <vsprintf.h>
 
 struct efi_simple_text_output_protocol *con_out;
@@ -43,25 +44,28 @@ static void mac(void *pointer, u16 **buf)
 }
 
 /*
- * Print a pointer to an u16 string
+ * printx() - print hexadecimal number to an u16 string
  *
- * @pointer: pointer
- * @buf: pointer to buffer address
- * on return position of terminating zero word
+ * @pointer:	pointer
+ * @prec:	minimum number of digits to print
+ * @buf:	pointer to buffer address,
+ *		on return position of terminating zero word
+ * @size:	size of value to be printed in bytes
  */
-static void pointer(void *pointer, u16 **buf)
+static void printx(u64 p, int prec, u16 **buf)
 {
 	int i;
 	u16 c;
-	uintptr_t p = (uintptr_t)pointer;
 	u16 *pos = *buf;
 
-	for (i = 8 * sizeof(p) - 4; i >= 0; i -= 4) {
-		c = (p >> i) & 0x0f;
-		c += '0';
-		if (c > '9')
-			c += 'a' - '9' - 1;
-		*pos++ = c;
+	for (i = 2 * sizeof(p) - 1; i >= 0; --i) {
+		c = (p >> (4 * i)) & 0x0f;
+		if (c || pos != *buf || !i || i < prec) {
+			c += '0';
+			if (c > '9')
+				c += 'a' - '9' - 1;
+			*pos++ = c;
+		}
 	}
 	*pos = 0;
 	*buf = pos;
@@ -211,7 +215,9 @@ void efi_st_printc(int color, const char *fmt, ...)
 					break;
 				default:
 					--c;
-					pointer(va_arg(args, void*), &pos);
+					printx((uintptr_t)va_arg(args, void *),
+					       2 * sizeof(void *), &pos);
+					break;
 				}
 				break;
 			case 's':
@@ -221,6 +227,10 @@ void efi_st_printc(int color, const char *fmt, ...)
 				break;
 			case 'u':
 				uint2dec(va_arg(args, u32), prec, &pos);
+				break;
+			case 'x':
+				printx((u64)va_arg(args, unsigned int),
+				       prec, &pos);
 				break;
 			default:
 				break;

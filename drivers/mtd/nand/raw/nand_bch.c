@@ -8,6 +8,8 @@
  */
 
 #include <common.h>
+#include <log.h>
+#include <dm/devres.h>
 /*#include <asm/io.h>*/
 #include <linux/types.h>
 

@@ -17,10 +17,6 @@
  */
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
-/*
- * Commands configuration
- */
-
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MVTWSI
@@ -87,7 +83,10 @@
 #define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
 #define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
 
+#if defined(CONFIG_MVEBU_SPL_BOOT_DEVICE_SPI)
 /* SPL related SPI defines */
+#define CONFIG_SYS_U_BOOT_OFFS		CONFIG_SYS_SPI_U_BOOT_OFFS
+#endif
 
 /* DS414 bus width is 32bits */
 #define CONFIG_DDR_32BIT

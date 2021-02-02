@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/freeze_controller.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 
 static const struct socfpga_freeze_controller *freeze_controller_base =

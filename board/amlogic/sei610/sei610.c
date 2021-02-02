@@ -6,7 +6,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <env_internal.h>
+#include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/axg.h>
 #include <asm/arch/sm.h>

@@ -220,7 +220,7 @@ u-boot-<your_suffix>.bin: <input_file_1> <input_file_2> checkbinman FORCE
 endif
 
 This assumes that u-boot-<your_suffix>.bin is a target, and is the final file
-that you need to produce. You can make it a target by adding it to ALL-y
+that you need to produce. You can make it a target by adding it to INPUTS-y
 either in the main Makefile or in a config.mk file in your arch subdirectory.
 
 Once binman is executed it will pick up its instructions from a device-tree
@@ -278,9 +278,12 @@ offset:
 
 align:
 	This sets the alignment of the entry. The entry offset is adjusted
-	so that the entry starts on an aligned boundary within the image. For
-	example 'align = <16>' means that the entry will start on a 16-byte
-	boundary. Alignment shold be a power of 2. If 'align' is not
+	so that the entry starts on an aligned boundary within the containing
+	section or image. For example 'align = <16>' means that the entry will
+	start on a 16-byte boundary. This may mean that padding is added before
+	the entry. The padding is part of the containing section but is not
+	included in the entry, meaning that an empty space may be created before
+	the entry starts. Alignment should be a power of 2. If 'align' is not
 	provided, no alignment is performed.
 
 size:
@@ -290,26 +293,40 @@ size:
 
 pad-before:
 	Padding before the contents of the entry. Normally this is 0, meaning
-	that the contents start at the beginning of the entry. This can be
-	offset the entry contents a little. Defaults to 0.
+	that the contents start at the beginning of the entry. This can be used
+	to offset the entry contents a little. While this does not affect the
+	contents of the entry within binman itself (the padding is performed
+	only when its parent section is assembled), the end result will be that
+	the entry starts with the padding bytes, so may grow. Defaults to 0.
 
 pad-after:
 	Padding after the contents of the entry. Normally this is 0, meaning
 	that the entry ends at the last byte of content (unless adjusted by
 	other properties). This allows room to be created in the image for
-	this entry to expand later. Defaults to 0.
+	this entry to expand later. While this does not affect the contents of
+	the entry within binman itself (the padding is performed only when its
+	parent section is assembled), the end result will be that the entry ends
+	with the padding bytes, so may grow. Defaults to 0.
 
 align-size:
 	This sets the alignment of the entry size. For example, to ensure
 	that the size of an entry is a multiple of 64 bytes, set this to 64.
-	If 'align-size' is not provided, no alignment is performed.
+	While this does not affect the contents of the entry within binman
+	itself (the padding is performed only when its parent section is
+	assembled), the end result is that the entry ends with the padding
+	bytes, so may grow. If 'align-size' is not provided, no alignment is
+	performed.
 
 align-end:
-	This sets the alignment of the end of an entry. Some entries require
-	that they end on an alignment boundary, regardless of where they
-	start. This does not move the start of the entry, so the contents of
-	the entry will still start at the beginning. But there may be padding
-	at the end. If 'align-end' is not provided, no alignment is performed.
+	This sets the alignment of the end of an entry with respect to the
+	containing section. Some entries require that they end on an alignment
+	boundary, regardless of where they start. This does not move the start
+	of the entry, so the contents of the entry will still start at the
+	beginning. But there may be padding at the end. While this does not
+	affect the contents of the entry within binman itself (the padding is
+	performed only when its parent section is assembled), the end result
+	is that the entry ends with the padding bytes, so may grow.
+	If 'align-end' is not provided, no alignment is performed.
 
 filename:
 	For 'blob' types this provides the filename containing the binary to
@@ -342,6 +359,12 @@ expand-size:
 compress:
 	Sets the compression algortihm to use (for blobs only). See the entry
 	documentation for details.
+
+missing-msg:
+	Sets the tag of the message to show if this entry is missing. This is
+	used for external blobs. When they are missing it is helpful to show
+	information about what needs to be fixed. See missing-blob-help for the
+	message for each tag.
 
 The attributes supported for images and sections are described below. Several
 are similar to those for entries.
@@ -689,41 +712,38 @@ size of an entry. The 'current' image offset is passed in, and the function
 returns the offset immediately after the entry being packed. The default
 implementation of Pack() is usually sufficient.
 
-6. CheckSize() - checks that the contents of all the entries fits within
-the image size. If the image does not have a defined size, the size is set
-large enough to hold all the entries.
+Note: for sections, this also checks that the entries do not overlap, nor extend
+outside the section. If the section does not have a defined size, the size is
+set large enough to hold all the entries.
 
-7. CheckEntries() - checks that the entries do not overlap, nor extend
-outside the image.
-
-8. SetImagePos() - sets the image position of every entry. This is the absolute
+6. SetImagePos() - sets the image position of every entry. This is the absolute
 position 'image-pos', as opposed to 'offset' which is relative to the containing
 section. This must be done after all offsets are known, which is why it is quite
 late in the ordering.
 
-9. SetCalculatedProperties() - update any calculated properties in the device
+7. SetCalculatedProperties() - update any calculated properties in the device
 tree. This sets the correct 'offset' and 'size' vaues, for example.
 
-10. ProcessEntryContents() - this calls Entry.ProcessContents() on each entry.
+8. ProcessEntryContents() - this calls Entry.ProcessContents() on each entry.
 The default implementatoin does nothing. This can be overriden to adjust the
 contents of an entry in some way. For example, it would be possible to create
 an entry containing a hash of the contents of some other entries. At this
 stage the offset and size of entries should not be adjusted unless absolutely
 necessary, since it requires a repack (going back to PackEntries()).
 
-11. ResetForPack() - if the ProcessEntryContents() step failed, in that an entry
+9. ResetForPack() - if the ProcessEntryContents() step failed, in that an entry
 has changed its size, then there is no alternative but to go back to step 5 and
 try again, repacking the entries with the updated size. ResetForPack() removes
 the fixed offset/size values added by binman, so that the packing can start from
 scratch.
 
-12. WriteSymbols() - write the value of symbols into the U-Boot SPL binary.
+10. WriteSymbols() - write the value of symbols into the U-Boot SPL binary.
 See 'Access to binman entry offsets at run time' below for a description of
 what happens in this stage.
 
-13. BuildImage() - builds the image and writes it to a file
+11. BuildImage() - builds the image and writes it to a file
 
-14. WriteMap() - writes a text file containing a map of the image. This is the
+12. WriteMap() - writes a text file containing a map of the image. This is the
 final step.
 
 
@@ -833,6 +853,14 @@ The entry will then contain the compressed data, using the 'lz4' compression
 algorithm. Currently this is the only one that is supported. The uncompressed
 size is written to the node in an 'uncomp-size' property, if -u is used.
 
+Compression is also supported for sections. In that case the entire section is
+compressed in one block, including all its contents. This means that accessing
+an entry from the section required decompressing the entire section. Also, the
+size of a section indicates the space that it consumes in its parent section
+(and typically the image). With compression, the section may contain more data,
+and the uncomp-size property indicates that, as above. The contents of the
+section is compressed first, before any padding is added. This ensures that the
+padding itself is not compressed, which would be a waste of time.
 
 
 Map files
@@ -884,6 +912,12 @@ the 'tools' module's Run() method. The tools generally must exist on the PATH,
 but the --toolpath option can be used to specify additional search paths to
 use. This option can be specified multiple times to add more than one path.
 
+For some compile tools binman will use the versions specified by commonly-used
+environment variables like CC and HOSTCC for the C compiler, based on whether
+the tool's output will be used for the target or for the host machine. If those
+aren't given, it will also try to derive target-specific versions from the
+CROSS_COMPILE environment variable during a cross-compilation.
+
 
 Code coverage
 -------------
@@ -916,6 +950,24 @@ Debugging tests
 Sometimes when debugging tests it is useful to keep the input and output
 directories so they can be examined later. Use -X or --test-preserve-dirs for
 this.
+
+
+Running tests on non-x86 architectures
+--------------------------------------
+
+Binman's tests have been written under the assumption that they'll be run on a
+x86-like host and there hasn't been an attempt to make them portable yet.
+However, it's possible to run the tests by cross-compiling to x86.
+
+To install an x86 cross-compiler on Debian-type distributions (e.g. Ubuntu):
+
+  $ sudo apt-get install gcc-x86-64-linux-gnu
+
+Then, you can run the tests under cross-compilation:
+
+  $ CROSS_COMPILE=x86_64-linux-gnu- binman test -T
+
+You can also use gcc-i686-linux-gnu similar to the above.
 
 
 Advanced Features / Technical docs

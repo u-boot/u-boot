@@ -7,6 +7,10 @@
 #ifndef __ASM_ARCH_TEGRA_DC_H
 #define __ASM_ARCH_TEGRA_DC_H
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 /* Register definitions for the Tegra display controller */
 
 /* CMD register 0x000 ~ 0x43 */

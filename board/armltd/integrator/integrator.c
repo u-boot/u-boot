@@ -17,9 +17,12 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <env.h>
+#include <init.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <dm/platform_data/serial_pl01x.h>
@@ -171,7 +174,7 @@ extern void dram_query(void);
 }
 
 #ifdef CONFIG_CMD_NET
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int rc = 0;
 #ifdef CONFIG_SMC91111

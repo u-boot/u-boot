@@ -9,6 +9,7 @@
 #include <efi.h>
 #include <errno.h>
 #include <init.h>
+#include <log.h>
 #include <usb.h>
 #include <asm/bootparam.h>
 #include <asm/e820.h>

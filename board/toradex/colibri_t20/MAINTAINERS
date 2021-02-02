@@ -1,5 +1,5 @@
 COLIBRI_T20
-M:	Lucas Stach <dev@lynxeye.de>
+M:	Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
 S:	Maintained
 F:	board/toradex/colibri_t20/
 F:	include/configs/colibri_t20.h

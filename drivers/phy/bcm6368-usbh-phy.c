@@ -11,10 +11,14 @@
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <log.h>
+#include <malloc.h>
 #include <power-domain.h>
 #include <reset.h>
 #include <asm/io.h>
 #include <dm/device.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 /* USBH PLL Control register */
 #define USBH_PLL_REG		0x18

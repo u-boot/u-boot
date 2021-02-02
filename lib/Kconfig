@@ -1,11 +1,34 @@
 menu "Library routines"
 
+config ADDR_MAP
+	bool "Enable support for non-identity virtual-physical mappings"
+	help
+	  Enables helper code for implementing non-identity virtual-physical
+	  memory mappings for 32bit CPUs.
+
+config SYS_NUM_ADDR_MAP
+	int "Size of the address-map table"
+	depends on ADDR_MAP
+	default 16
+	help
+	  Sets the number of entries in the virtual-physical mapping table.
+
 config BCH
 	bool "Enable Software based BCH ECC"
 	help
 	  Enables software based BCH ECC algorithm present in lib/bch.c
 	  This is used by SoC platforms which do not have built-in ELM
 	  hardware engine required for BCH ECC correction.
+
+config BINMAN_FDT
+	bool "Allow access to binman information in the device tree"
+	depends on BINMAN && OF_CONTROL
+	default y
+	help
+	  This enables U-Boot to access information about binman entries,
+	  stored in the device tree in a binman node. Typical uses are to
+	  locate entries in the firmware image. See binman.h for the available
+	  functionality.
 
 config CC_OPTIMIZE_LIBS_FOR_SPEED
 	bool "Optimize libraries for speed"
@@ -56,6 +79,10 @@ config SPL_SPRINTF
 
 config TPL_SPRINTF
 	bool
+
+config SSCANF
+	bool
+	default n
 
 config STRTO
 	bool
@@ -140,7 +167,8 @@ config REGEX
 
 choice
 	prompt "Pseudo-random library support type"
-	depends on NET_RANDOM_ETHADDR || RANDOM_UUID || CMD_UUID
+	depends on NET_RANDOM_ETHADDR || RANDOM_UUID || CMD_UUID || \
+		   RNG_SANDBOX || UT_LIB && AES
 	default LIB_RAND
 	help
 	  Select the library to provide pseudo-random number generator
@@ -151,7 +179,7 @@ config LIB_RAND
 	bool "Pseudo-random library support"
 
 config LIB_HW_RAND
-	bool "HW Engine for random libray support"
+	bool "HW Engine for random library support"
 
 endchoice
 
@@ -334,6 +362,29 @@ config SHA256
 	  The SHA256 algorithm produces a 256-bit (32-byte) hash value
 	  (digest).
 
+config SHA512_ALGO
+	bool "Enable SHA512 algorithm"
+	help
+	  This option enables support of internal SHA512 algorithm.
+
+config SHA512
+	bool "Enable SHA512 support"
+	depends on SHA512_ALGO
+	help
+	  This option enables support of hashing using SHA512 algorithm.
+	  The hash is calculated in software.
+	  The SHA512 algorithm produces a 512-bit (64-byte) hash value
+	  (digest).
+
+config SHA384
+	bool "Enable SHA384 support"
+	depends on SHA512_ALGO
+	help
+	  This option enables support of hashing using SHA384 algorithm.
+	  The hash is calculated in software.
+	  The SHA384 algorithm produces a 384-bit (48-byte) hash value
+	  (digest).
+
 config SHA_HW_ACCEL
 	bool "Enable hashing using hardware"
 	help
@@ -352,7 +403,22 @@ config SHA_PROG_HW_ACCEL
 	  is performed in hardware.
 
 config MD5
-	bool
+	bool "Support MD5 algorithm"
+	help
+	  This option enables MD5 support. MD5 is an algorithm designed
+	  in 1991 that produces a 16-byte digest (or checksum) from its input
+	  data. It has a number of vulnerabilities which preclude its use in
+	  security applications, but it can be useful for providing a quick
+	  checksum of a block of data.
+
+config SPL_MD5
+	bool "Support MD5 algorithm in SPL"
+	help
+	  This option enables MD5 support in SPL. MD5 is an algorithm designed
+	  in 1991 that produces a 16-byte digest (or checksum) from its input
+	  data. It has a number of vulnerabilities which preclude its use in
+	  security applications, but it can be useful for providing a quick
+	  checksum of a block of data.
 
 config CRC32C
 	bool
@@ -398,6 +464,22 @@ config GZIP
 	help
 	  This enables support for GZIP compression algorithm.
 
+config ZLIB_UNCOMPRESS
+	bool "Enables zlib's uncompress() functionality"
+	help
+	  This enables an extra zlib functionality: the uncompress() function,
+	  which decompresses data from a buffer into another, knowing their
+	  sizes. Unlike gunzip(), there is no header parsing.
+
+config GZIP_COMPRESSED
+	bool
+	select ZLIB
+
+config BZIP2
+	bool "Enable bzip2 decompression support"
+	help
+	  This enables support for BZIP2 compression algorithm.
+
 config ZLIB
 	bool
 	default y
@@ -413,10 +495,15 @@ config ZSTD
 config SPL_LZ4
 	bool "Enable LZ4 decompression support in SPL"
 	help
-	  This enables support for tge LZ4 decompression algorithm in SPL. LZ4
+	  This enables support for the LZ4 decompression algorithm in SPL. LZ4
 	  is a lossless data compression algorithm that is focused on
 	  fast compression and decompression speed. It belongs to the LZ77
 	  family of byte-oriented compression schemes.
+
+config SPL_LZMA
+	bool "Enable LZMA decompression support for SPL build"
+	help
+	  This enables support for LZMA compression algorithm for SPL boot.
 
 config SPL_LZO
 	bool "Enable LZO decompression support in SPL"
@@ -454,6 +541,19 @@ config HEXDUMP
 	bool "Enable hexdump"
 	help
 	  This enables functions for printing dumps of binary data.
+
+config SPL_HEXDUMP
+	bool "Enable hexdump in SPL"
+	depends on HEXDUMP
+	default y
+	help
+	  This enables functions for printing dumps of binary data in
+	  SPL.
+
+config GETOPT
+	bool "Enable getopt"
+	help
+	  This enables functions for parsing command-line options.
 
 config OF_LIBFDT
 	bool "Enable the FDT library"
@@ -537,6 +637,15 @@ config FDT_FIXUP_PARTITIONS
 menu "System tables"
 	depends on (!EFI && !SYS_COREBOOT) || (ARM && EFI_LOADER)
 
+config BLOBLIST_TABLES
+	bool "Put tables in a bloblist"
+	depends on X86
+	help
+	  Normally tables are placed at address 0xf0000 and can be up to 64KB
+	  long. With this option, tables are instead placed in the bloblist
+	  with a pointer from 0xf0000. The size can then be larger and the
+	  tables can be placed high in memory.
+
 config GENERATE_SMBIOS_TABLE
 	bool "Generate an SMBIOS (System Management BIOS) table"
 	default y
@@ -549,21 +658,8 @@ config GENERATE_SMBIOS_TABLE
 
 	  Check http://www.dmtf.org/standards/smbios for details.
 
-config SMBIOS_MANUFACTURER
-	string "SMBIOS Manufacturer"
-	depends on GENERATE_SMBIOS_TABLE
-	default SYS_VENDOR
-	help
-	  The board manufacturer to store in SMBIOS structures.
-	  Change this to override the default one (CONFIG_SYS_VENDOR).
-
-config SMBIOS_PRODUCT_NAME
-	string "SMBIOS Product Name"
-	depends on GENERATE_SMBIOS_TABLE
-	default SYS_BOARD
-	help
-	  The product name to store in SMBIOS structures.
-	  Change this to override the default one (CONFIG_SYS_BOARD).
+	  See also SMBIOS_SYSINFO which allows SMBIOS values to be provided in
+	  the devicetree.
 
 endmenu
 
@@ -580,6 +676,11 @@ config OID_REGISTRY
 	help
 	  Enable fast lookup object identifier registry.
 
+config SMBIOS_PARSER
+	bool "SMBIOS parser"
+	help
+	  A simple parser for SMBIOS data.
+
 source lib/efi/Kconfig
 source lib/efi_loader/Kconfig
 source lib/optee/Kconfig
@@ -590,5 +691,11 @@ config TEST_FDTDEC
 
 config LIB_DATE
 	bool
+
+config LIB_ELF
+	bool
+	help
+	  Supoort basic elf loading/validating functions.
+	  This supports fir 32 bit and 64 bit versions.
 
 endmenu

@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <usb.h>
 #include <asm/io.h>
 #include <hwconfig.h>
@@ -131,7 +132,7 @@ static int fsl_fdt_fixup_erratum(int *usb_erratum_off, void *blob,
 	return 0;
 }
 
-void fsl_fdt_fixup_dr_usb(void *blob, bd_t *bd)
+void fsl_fdt_fixup_dr_usb(void *blob, struct bd_info *bd)
 {
 	static const char * const modes[] = { "host", "peripheral", "otg" };
 	static const char * const phys[] = { "ulpi", "utmi", "utmi_dual" };

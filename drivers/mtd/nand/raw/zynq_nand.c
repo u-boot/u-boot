@@ -7,8 +7,10 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <nand.h>
 #include <linux/ioport.h>
@@ -1204,12 +1206,10 @@ static int zynq_nand_probe(struct udevice *dev)
 		nand_chip->options |= NAND_SUBPAGE_READ;
 
 		/* On-Die ECC spare bytes offset 8 is used for ECC codes */
-		if (ondie_ecc_enabled) {
-			nand_chip->ecc.layout = &ondie_nand_oob_64;
-			/* Use the BBT pattern descriptors */
-			nand_chip->bbt_td = &bbt_main_descr;
-			nand_chip->bbt_md = &bbt_mirror_descr;
-		}
+		nand_chip->ecc.layout = &ondie_nand_oob_64;
+		/* Use the BBT pattern descriptors */
+		nand_chip->bbt_td = &bbt_main_descr;
+		nand_chip->bbt_md = &bbt_mirror_descr;
 	} else {
 		/* Hardware ECC generates 3 bytes ECC code for each 512 bytes */
 		nand_chip->ecc.mode = NAND_ECC_HW;
@@ -1280,7 +1280,7 @@ static const struct udevice_id zynq_nand_dt_ids[] = {
 };
 
 U_BOOT_DRIVER(zynq_nand) = {
-	.name = "zynq-nand",
+	.name = "zynq_nand",
 	.id = UCLASS_MTD,
 	.of_match = zynq_nand_dt_ids,
 	.probe = zynq_nand_probe,

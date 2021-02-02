@@ -9,6 +9,8 @@
 #define __CONFIG_H
 
 #include <linux/kconfig.h>
+#include <linux/stringify.h>
+
 /* SPL */
 /* #if defined(CONFIG_SPL_BUILD) */
 /* common IMX6 SPL configuration */
@@ -28,18 +30,11 @@
 #define PHYS_SDRAM_SIZE			(SZ_1G)
 #endif
 
-#define CONFIG_MXC_UART
-
 /* SPI Flash */
 
 #define TQMA6_SPI_FLASH_SECTOR_SIZE	SZ_64K
 
 /* I2C Configs */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_I2C_SPEED		100000
 
@@ -49,11 +44,13 @@
 #define CONFIG_SYS_I2C_EEPROM_PAGE_WRITE_BITS		5 /* 32 Bytes */
 #define CONFIG_SYS_I2C_EEPROM_PAGE_WRITE_DELAY_MS	20
 
+#if !defined(CONFIG_DM_PMIC)
 #define CONFIG_POWER
 #define CONFIG_POWER_I2C
 #define CONFIG_POWER_PFUZE100
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
 #define TQMA6_PFUZE100_I2C_BUS		2
+#endif
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
@@ -76,8 +73,6 @@
 #define TQMA6_UBOOT_OFFSET		SZ_1K
 #define TQMA6_UBOOT_SECTOR_START	0x2
 #define TQMA6_UBOOT_SECTOR_COUNT	0x7fe
-
-#define CONFIG_SYS_MMC_ENV_DEV		0
 
 #define TQMA6_FDT_OFFSET		(2 * SZ_1M)
 #define TQMA6_FDT_SECTOR_START		0x1000

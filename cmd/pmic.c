@@ -4,6 +4,7 @@
  * Przemyslaw Marczak <p.marczak@samsung.com>
  */
 #include <common.h>
+#include <command.h>
 #include <errno.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
@@ -21,7 +22,7 @@ static int failure(int ret)
 	return CMD_RET_FAILURE;
 }
 
-static int do_dev(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_dev(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *name;
 	int ret = -ENODEV;
@@ -46,7 +47,8 @@ static int do_dev(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static int do_list(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_list(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	struct udevice *dev;
 	int ret;
@@ -73,7 +75,8 @@ static int do_list(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static int do_dump(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_dump(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	struct uc_pmic_priv *priv;
 	struct udevice *dev;
@@ -95,7 +98,7 @@ static int do_dump(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	for (reg = 0; reg < pmic_reg_count(dev); reg++) {
 		ret = pmic_reg_read(dev, reg);
-		if (ret < 0) {
+		if (ret < 0 && ret != -ENODATA) {
 			printf("Can't read register: %d\n", reg);
 			return failure(ret);
 		}
@@ -103,14 +106,23 @@ static int do_dump(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (!(reg % 16))
 			printf("\n0x%02x: ", reg);
 
-		printf(fmt, ret);
+		if (ret == -ENODATA) {
+			int i;
+
+			for (i = 0; i < priv->trans_len; i++)
+				puts("--");
+			puts(" ");
+		} else {
+			printf(fmt, ret);
+		}
 	}
 	printf("\n");
 
 	return CMD_RET_SUCCESS;
 }
 
-static int do_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_read(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	struct uc_pmic_priv *priv;
 	struct udevice *dev;
@@ -149,7 +161,8 @@ static int do_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static int do_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_write(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	struct udevice *dev;
 	uint reg, value;
@@ -183,7 +196,7 @@ static int do_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static cmd_tbl_t subcmd[] = {
+static struct cmd_tbl subcmd[] = {
 	U_BOOT_CMD_MKENT(dev, 2, 1, do_dev, "", ""),
 	U_BOOT_CMD_MKENT(list, 1, 1, do_list, "", ""),
 	U_BOOT_CMD_MKENT(dump, 1, 1, do_dump, "", ""),
@@ -191,10 +204,10 @@ static cmd_tbl_t subcmd[] = {
 	U_BOOT_CMD_MKENT(write, 3, 1, do_write, "", ""),
 };
 
-static int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_pmic(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
-	cmd_tbl_t *cmd;
+	struct cmd_tbl *cmd;
 
 	argc--;
 	argv++;

@@ -2,7 +2,7 @@
 
 # Grab our configured image.  The source for this is found at:
 # https://gitlab.denx.de/u-boot/gitlab-ci-runner
-image: trini/u-boot-gitlab-ci-runner:bionic-20191202-10Jan2020
+image: trini/u-boot-gitlab-ci-runner:bionic-20200807-02Sep2020
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -20,52 +20,46 @@ stages:
     - ln -s travis-ci /tmp/uboot-test-hooks/py/`hostname`
     - grub-mkimage --prefix="" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
     - grub-mkimage --prefix="" -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
-    - mkdir ~/grub2-arm
-    - ( cd ~/grub2-arm; wget -O - http://download.opensuse.org/ports/armv7hl/distribution/leap/42.2/repo/oss/suse/armv7hl/grub2-arm-efi-2.02~beta2-87.1.armv7hl.rpm | rpm2cpio | cpio -di )
-    - mkdir ~/grub2-arm64
-    - ( cd ~/grub2-arm64; wget -O - http://download.opensuse.org/ports/aarch64/distribution/leap/42.2/repo/oss/suse/aarch64/grub2-arm64-efi-2.02~beta2-87.1.aarch64.rpm | rpm2cpio | cpio -di )
+    - if [[ "${TEST_PY_BD}" == "qemu-riscv32_spl" ]]; then
+        wget -O - https://github.com/riscv/opensbi/releases/download/v0.8/opensbi-0.8-rv-bin.tar.xz | tar -C /tmp -xJ;
+        export OPENSBI=/tmp/opensbi-0.8-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.bin;
+      fi
+    - if [[ "${TEST_PY_BD}" == "qemu-riscv64_spl" ]]; then
+        wget -O - https://github.com/riscv/opensbi/releases/download/v0.8/opensbi-0.8-rv-bin.tar.xz | tar -C /tmp -xJ;
+        export OPENSBI=/tmp/opensbi-0.8-rv-bin/share/opensbi/lp64/generic/firmware/fw_dynamic.bin;
+      fi
 
   after_script:
-    - rm -rf ~/grub2* /tmp/uboot-test-hooks /tmp/venv
+    - rm -rf /tmp/uboot-test-hooks /tmp/venv
   script:
-    # From buildman, exit code 129 means warnings only.  If we've been asked to
-    # use clang only do one configuration.
-    - if [[ "${BUILDMAN}" != "" ]]; then
-        ret=0;
-        tools/buildman/buildman -o /tmp -P -E ${BUILDMAN} ${OVERRIDE}|| ret=$?;
-        if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-          tools/buildman/buildman -o /tmp -sdeP ${BUILDMAN};
-          exit $ret;
-        fi;
-      fi
-    # "not a_test_which_does_not_exist" is a dummy -k parameter which will
-    # never prevent any test from running. That way, we can always pass
-    # "-k something" even when $TEST_PY_TEST_SPEC doesnt need a custom
-    # value.
+    # If we've been asked to use clang only do one configuration.
+    - export UBOOT_TRAVIS_BUILD_DIR=/tmp/${TEST_PY_BD}
+    - tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e
+        --board ${TEST_PY_BD} ${OVERRIDE}
+    - cp ~/grub_x86.efi $UBOOT_TRAVIS_BUILD_DIR/
+    - cp ~/grub_x64.efi $UBOOT_TRAVIS_BUILD_DIR/
+    - cp /opt/grub/grubriscv64.efi $UBOOT_TRAVIS_BUILD_DIR/grub_riscv64.efi
+    - cp /opt/grub/grubriscv32.efi $UBOOT_TRAVIS_BUILD_DIR/grub_riscv32.efi
+    - cp /opt/grub/grubaa64.efi $UBOOT_TRAVIS_BUILD_DIR/grub_arm64.efi
+    - cp /opt/grub/grubarm.efi $UBOOT_TRAVIS_BUILD_DIR/grub_arm.efi
     - virtualenv -p /usr/bin/python3 /tmp/venv
     - . /tmp/venv/bin/activate
     - pip install -r test/py/requirements.txt
-    - export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/${TEST_PY_BD};
-      export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
+    # "${var:+"-k $var"}" expands to "" if $var is empty, "-k $var" if not
+    - export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
       export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
-      if [[ "${TEST_PY_BD}" != "" ]]; then
-        ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID}
-          -k "${TEST_PY_TEST_SPEC:-not a_test_which_does_not_exist}"
-          --build-dir "$UBOOT_TRAVIS_BUILD_DIR";
-        ret=$?;
-        if [[ $ret -ne 0 ]]; then
-          exit $ret;
-        fi;
-      fi;
+      ./test/py/test.py -ra --bd ${TEST_PY_BD} ${TEST_PY_ID}
+        ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"}
+        --build-dir "$UBOOT_TRAVIS_BUILD_DIR"
 
 build all 32bit ARM platforms:
   tags: [ 'all' ]
   stage: world build
   script:
     - ret=0;
-      ./tools/buildman/buildman -o /tmp -P -E arm -x aarch64 || ret=$?;
-      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-        ./tools/buildman/buildman -o /tmp -sdeP;
+      ./tools/buildman/buildman -o /tmp -P -E -W arm -x aarch64 || ret=$?;
+      if [[ $ret -ne 0 ]]; then
+        ./tools/buildman/buildman -o /tmp -seP;
         exit $ret;
       fi;
 
@@ -73,13 +67,13 @@ build all 64bit ARM platforms:
   tags: [ 'all' ]
   stage: world build
   script:
-    - virtualenv /tmp/venv
+    - virtualenv -p /usr/bin/python3 /tmp/venv
     - . /tmp/venv/bin/activate
     - pip install pyelftools
     - ret=0;
-      ./tools/buildman/buildman -o /tmp -P -E aarch64 || ret=$?;
-      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-        ./tools/buildman/buildman -o /tmp -sdeP;
+      ./tools/buildman/buildman -o /tmp -P -E -W aarch64 || ret=$?;
+      if [[ $ret -ne 0 ]]; then
+        ./tools/buildman/buildman -o /tmp -seP;
         exit $ret;
       fi;
 
@@ -88,9 +82,9 @@ build all PowerPC platforms:
   stage: world build
   script:
     - ret=0;
-      ./tools/buildman/buildman -o /tmp -P -E powerpc || ret=$?;
-      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-        ./tools/buildman/buildman -o /tmp -sdeP;
+      ./tools/buildman/buildman -o /tmp -P -E -W powerpc || ret=$?;
+      if [[ $ret -ne 0 ]]; then
+        ./tools/buildman/buildman -o /tmp -seP;
         exit $ret;
       fi;
 
@@ -99,9 +93,9 @@ build all other platforms:
   stage: world build
   script:
     - ret=0;
-      ./tools/buildman/buildman -o /tmp -P -E -x arm,powerpc || ret=$?;
-      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-        ./tools/buildman/buildman -o /tmp -sdeP;
+      ./tools/buildman/buildman -o /tmp -P -E -W -x arm,powerpc || ret=$?;
+      if [[ $ret -ne 0 ]]; then
+        ./tools/buildman/buildman -o /tmp -seP;
         exit $ret;
       fi;
 
@@ -111,7 +105,7 @@ cppcheck:
   tags: [ 'all' ]
   stage: testsuites
   script:
-    - cppcheck --force --quiet --inline-suppr .
+    - cppcheck -j$(nproc) --force --quiet --inline-suppr .
 
 # search for TODO within source tree
 grep TODO/FIXME/HACK:
@@ -122,6 +116,13 @@ grep TODO/FIXME/HACK:
     - grep -r FIXME .
     # search for HACK within source tree and ignore HACKKIT board
     - grep -r HACK . | grep -v HACKKIT
+
+# build HTML documentation
+htmldocs:
+  tags: [ 'all' ]
+  stage: testsuites
+  script:
+    - make htmldocs
 
 # some statistics about the code base
 sloccount:
@@ -151,47 +152,53 @@ Build envtools:
   script:
     - make tools-only_config envtools -j$(nproc)
 
-Run binman, buildman, dtoc and patman testsuites:
+Run binman, buildman, dtoc, Kconfig and patman testsuites:
   tags: [ 'all' ]
   stage: testsuites
   script:
     - git config --global user.name "GitLab CI Runner";
       git config --global user.email trini@konsulko.com;
       export USER=gitlab;
-      virtualenv /tmp/venv;
+      virtualenv -p /usr/bin/python3 /tmp/venv;
       . /tmp/venv/bin/activate;
-      pip install pyelftools;
-      export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/sandbox_spl;
+      pip install pyelftools pytest pygit2;
+      export UBOOT_TRAVIS_BUILD_DIR=/tmp/sandbox_spl;
       export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
       export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
-      ./tools/buildman/buildman -o /tmp -P sandbox_spl;
+      ./tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w sandbox_spl;
       ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test;
       ./tools/buildman/buildman -t;
       ./tools/dtoc/dtoc -t;
-      ./tools/patman/patman --test
+      ./tools/patman/patman test;
+      make testconfig
+
+Run tests for Nokia RX-51 (aka N900):
+  tags: [ 'all' ]
+  stage: testsuites
+  script:
+    - ./tools/buildman/buildman --fetch-arch arm;
+      export PATH=~/.buildman-toolchains/gcc-9.2.0-nolibc/arm-linux-gnueabi/bin/:$PATH;
+      test/nokia_rx51_test.sh
 
 # Test sandbox with test.py
 sandbox test.py:
   tags: [ 'all' ]
   variables:
     TEST_PY_BD: "sandbox"
-    BUILDMAN: "^sandbox$"
   <<: *buildman_and_testpy_dfn
 
 sandbox with clang test.py:
   tags: [ 'all' ]
   variables:
     TEST_PY_BD: "sandbox"
-    BUILDMAN: "^sandbox$"
-    OVERRIDE: "-O clang-7"
+    OVERRIDE: "-O clang-10"
   <<: *buildman_and_testpy_dfn
 
 sandbox_spl test.py:
   tags: [ 'all' ]
   variables:
     TEST_PY_BD: "sandbox_spl"
-    BUILDMAN: "^sandbox_spl$"
-    TEST_PY_TEST_SPEC: "test_ofplatdata"
+    TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"
   <<: *buildman_and_testpy_dfn
 
 evb-ast2500 test.py:
@@ -199,14 +206,12 @@ evb-ast2500 test.py:
   variables:
     TEST_PY_BD: "evb-ast2500"
     TEST_PY_ID: "--id qemu"
-    BUILDMAN: "^evb-ast2500$"
   <<: *buildman_and_testpy_dfn
 
 sandbox_flattree test.py:
   tags: [ 'all' ]
   variables:
     TEST_PY_BD: "sandbox_flattree"
-    BUILDMAN: "^sandbox_flattree$"
   <<: *buildman_and_testpy_dfn
 
 vexpress_ca15_tc2 test.py:
@@ -214,7 +219,6 @@ vexpress_ca15_tc2 test.py:
   variables:
     TEST_PY_BD: "vexpress_ca15_tc2"
     TEST_PY_ID: "--id qemu"
-    BUILDMAN: "^vexpress_ca15_tc2$"
   <<: *buildman_and_testpy_dfn
 
 vexpress_ca9x4 test.py:
@@ -222,7 +226,6 @@ vexpress_ca9x4 test.py:
   variables:
     TEST_PY_BD: "vexpress_ca9x4"
     TEST_PY_ID: "--id qemu"
-    BUILDMAN: "^vexpress_ca9x4$"
   <<: *buildman_and_testpy_dfn
 
 integratorcp_cm926ejs test.py:
@@ -231,7 +234,6 @@ integratorcp_cm926ejs test.py:
     TEST_PY_BD: "integratorcp_cm926ejs"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
-    BUILDMAN: "^integratorcp_cm926ejs$"
   <<: *buildman_and_testpy_dfn
 
 qemu_arm test.py:
@@ -239,7 +241,6 @@ qemu_arm test.py:
   variables:
     TEST_PY_BD: "qemu_arm"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu_arm$"
   <<: *buildman_and_testpy_dfn
 
 qemu_arm64 test.py:
@@ -247,7 +248,6 @@ qemu_arm64 test.py:
   variables:
     TEST_PY_BD: "qemu_arm64"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu_arm64$"
   <<: *buildman_and_testpy_dfn
 
 qemu_mips test.py:
@@ -255,7 +255,6 @@ qemu_mips test.py:
   variables:
     TEST_PY_BD: "qemu_mips"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu_mips$"
   <<: *buildman_and_testpy_dfn
 
 qemu_mipsel test.py:
@@ -263,7 +262,6 @@ qemu_mipsel test.py:
   variables:
     TEST_PY_BD: "qemu_mipsel"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu_mipsel$"
   <<: *buildman_and_testpy_dfn
 
 qemu_mips64 test.py:
@@ -271,7 +269,6 @@ qemu_mips64 test.py:
   variables:
     TEST_PY_BD: "qemu_mips64"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu_mips64$"
   <<: *buildman_and_testpy_dfn
 
 qemu_mips64el test.py:
@@ -279,7 +276,38 @@ qemu_mips64el test.py:
   variables:
     TEST_PY_BD: "qemu_mips64el"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu_mips64el$"
+  <<: *buildman_and_testpy_dfn
+
+qemu_malta test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "malta"
+    TEST_PY_TEST_SPEC: "not sleep and not efi"
+    TEST_PY_ID: "--id qemu"
+  <<: *buildman_and_testpy_dfn
+
+qemu_maltael test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "maltael"
+    TEST_PY_TEST_SPEC: "not sleep and not efi"
+    TEST_PY_ID: "--id qemu"
+  <<: *buildman_and_testpy_dfn
+
+qemu_malta64 test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "malta64"
+    TEST_PY_TEST_SPEC: "not sleep and not efi"
+    TEST_PY_ID: "--id qemu"
+  <<: *buildman_and_testpy_dfn
+
+qemu_malta64el test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "malta64el"
+    TEST_PY_TEST_SPEC: "not sleep and not efi"
+    TEST_PY_ID: "--id qemu"
   <<: *buildman_and_testpy_dfn
 
 qemu-ppce500 test.py:
@@ -287,7 +315,13 @@ qemu-ppce500 test.py:
   variables:
     TEST_PY_BD: "qemu-ppce500"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu-ppce500$"
+  <<: *buildman_and_testpy_dfn
+
+qemu-riscv32 test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "qemu-riscv32"
+    TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
 qemu-riscv64 test.py:
@@ -295,7 +329,20 @@ qemu-riscv64 test.py:
   variables:
     TEST_PY_BD: "qemu-riscv64"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu-riscv64$"
+  <<: *buildman_and_testpy_dfn
+
+qemu-riscv32_spl test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "qemu-riscv32_spl"
+    TEST_PY_TEST_SPEC: "not sleep"
+  <<: *buildman_and_testpy_dfn
+
+qemu-riscv64_spl test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "qemu-riscv64_spl"
+    TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
 qemu-x86 test.py:
@@ -303,7 +350,6 @@ qemu-x86 test.py:
   variables:
     TEST_PY_BD: "qemu-x86"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu-x86$"
   <<: *buildman_and_testpy_dfn
 
 qemu-x86_64 test.py:
@@ -311,7 +357,34 @@ qemu-x86_64 test.py:
   variables:
     TEST_PY_BD: "qemu-x86_64"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu-x86_64$"
+  <<: *buildman_and_testpy_dfn
+
+r2dplus_i82557c test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "r2dplus"
+    TEST_PY_ID: "--id i82557c_qemu"
+  <<: *buildman_and_testpy_dfn
+
+r2dplus_pcnet test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "r2dplus"
+    TEST_PY_ID: "--id pcnet_qemu"
+  <<: *buildman_and_testpy_dfn
+
+r2dplus_rtl8139 test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "r2dplus"
+    TEST_PY_ID: "--id rtl8139_qemu"
+  <<: *buildman_and_testpy_dfn
+
+r2dplus_tulip test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "r2dplus"
+    TEST_PY_ID: "--id tulip_qemu"
   <<: *buildman_and_testpy_dfn
 
 xilinx_zynq_virt test.py:
@@ -320,7 +393,6 @@ xilinx_zynq_virt test.py:
     TEST_PY_BD: "xilinx_zynq_virt"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
-    BUILDMAN: "^xilinx_zynq_virt$"
   <<: *buildman_and_testpy_dfn
 
 xilinx_versal_virt test.py:
@@ -329,7 +401,6 @@ xilinx_versal_virt test.py:
     TEST_PY_BD: "xilinx_versal_virt"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
-    BUILDMAN: "^xilinx_versal_virt$"
   <<: *buildman_and_testpy_dfn
 
 xtfpga test.py:
@@ -338,5 +409,4 @@ xtfpga test.py:
     TEST_PY_BD: "xtfpga"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
-    BUILDMAN: "^xtfpga$"
   <<: *buildman_and_testpy_dfn

@@ -10,13 +10,15 @@ import sys
 import tempfile
 import urllib.request, urllib.error, urllib.parse
 
-import bsettings
-import command
-import terminal
-import tools
+from buildman import bsettings
+from patman import command
+from patman import terminal
+from patman import tools
 
 (PRIORITY_FULL_PREFIX, PRIORITY_PREFIX_GCC, PRIORITY_PREFIX_GCC_PATH,
     PRIORITY_CALC) = list(range(4))
+
+(VAR_CROSS_COMPILE, VAR_PATH, VAR_ARCH, VAR_MAKE_ARGS) = range(4)
 
 # Simple class to collect links from a page
 class MyHTMLParser(HTMLParser):
@@ -144,6 +146,30 @@ class Toolchain:
             value = value + ' '
 
         return value
+
+    def GetEnvArgs(self, which):
+        """Get an environment variable/args value based on the the toolchain
+
+        Args:
+            which: VAR_... value to get
+
+        Returns:
+            Value of that environment variable or arguments
+        """
+        wrapper = self.GetWrapper()
+        if which == VAR_CROSS_COMPILE:
+            return wrapper + os.path.join(self.path, self.cross)
+        elif which == VAR_PATH:
+            return self.path
+        elif which == VAR_ARCH:
+            return self.arch
+        elif which == VAR_MAKE_ARGS:
+            args = self.MakeArgs()
+            if args:
+                return ' '.join(args)
+            return ''
+        else:
+            raise ValueError('Unknown arg to GetEnvArgs (%d)' % which)
 
     def MakeEnvironment(self, full_path):
         """Returns an environment for using the toolchain.
@@ -435,9 +461,10 @@ class Toolchains:
         self._make_flags['target'] = board.target
         arg_str = self.ResolveReferences(self._make_flags,
                            self._make_flags.get(board.target, ''))
-        args = arg_str.split(' ')
+        args = re.findall("(?:\".*?\"|\S)+", arg_str)
         i = 0
         while i < len(args):
+            args[i] = args[i].replace('"', '')
             if not args[i]:
                 del args[i]
             else:
@@ -460,8 +487,10 @@ class Toolchains:
                 URL containing this toolchain, if avaialble, else None
         """
         arch = command.OutputOneLine('uname', '-m')
+        if arch == 'aarch64':
+            arch = 'arm64'
         base = 'https://www.kernel.org/pub/tools/crosstool/files/bin'
-        versions = ['7.3.0', '6.4.0', '4.9.4']
+        versions = ['9.2.0', '7.3.0', '6.4.0', '4.9.4']
         links = []
         for version in versions:
             url = '%s/%s/%s/' % (base, arch, version)

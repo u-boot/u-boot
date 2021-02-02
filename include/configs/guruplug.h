@@ -17,7 +17,6 @@
 /*
  * Standard filesystems
  */
-#define CONFIG_BZIP2
 
 /*
  * mv-plug-common.h should be defined after CMD configs since it used them

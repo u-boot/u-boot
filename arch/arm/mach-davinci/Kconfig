@@ -135,6 +135,6 @@ source "board/davinci/da8xxevm/Kconfig"
 source "board/lego/ev3/Kconfig"
 
 config SPL_LDSCRIPT
-	default "board/$(BOARDDIR)/u-boot-spl-da850evm.lds"
+	default "board/davinci/da8xxevm/u-boot-spl-da850evm.lds"
 
 endif

@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <asm-offsets.h>
 
 #include <linux/kbuild.h>
 

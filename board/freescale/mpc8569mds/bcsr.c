@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <flash.h>
 #include <asm/io.h>
 
 #include "bcsr.h"

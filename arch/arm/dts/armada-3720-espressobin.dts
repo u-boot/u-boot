@@ -50,8 +50,8 @@
 #include "armada-372x.dtsi"
 
 / {
-	model = "Marvell Armada 3720 Community Board ESPRESSOBin";
-	compatible = "marvell,armada-3720-espressobin", "marvell,armada3720", "marvell,armada3710";
+	model = "Globalscale Marvell ESPRESSOBin Board";
+	compatible = "globalscale,espressobin", "marvell,armada3720", "marvell,armada3710";
 
 	chosen {
 		stdout-path = "serial0:115200n8";
@@ -67,18 +67,29 @@
 		device_type = "memory";
 		reg = <0x00000000 0x00000000 0x00000000 0x20000000>;
 	};
+
+	vcc_sd_reg0: regulator@0 {
+		compatible = "regulator-gpio";
+		regulator-name = "vcc_sd0";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-type = "voltage";
+		states = <1800000 0x1
+			  3300000 0x0>;
+		gpios = <&gpionb 4 GPIO_ACTIVE_HIGH>;
+	};
 };
 
 &comphy {
 	max-lanes = <3>;
 	phy0 {
-		phy-type = <PHY_TYPE_PEX0>;
-		phy-speed = <PHY_SPEED_2_5G>;
+		phy-type = <PHY_TYPE_USB3_HOST0>;
+		phy-speed = <PHY_SPEED_5G>;
 	};
 
 	phy1 {
-		phy-type = <PHY_TYPE_USB3_HOST0>;
-		phy-speed = <PHY_SPEED_5G>;
+		phy-type = <PHY_TYPE_PEX0>;
+		phy-speed = <PHY_SPEED_2_5G>;
 	};
 
 	phy2 {
@@ -108,6 +119,37 @@
 /* CON3 */
 &sata {
 	status = "okay";
+};
+
+&sdhci0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdio_pins>;
+	bus-width = <4>;
+	cd-gpios = <&gpionb 3 GPIO_ACTIVE_LOW>;
+	vqmmc-supply = <&vcc_sd_reg0>;
+	status = "okay";
+};
+
+/* U11 */
+&sdhci1 {
+	non-removable;
+	bus-width = <8>;
+	mmc-ddr-1_8v;
+	mmc-hs400-1_8v;
+	marvell,xenon-emmc;
+	marvell,xenon-tun-count = <9>;
+	marvell,pad-type = "fixed-1-8v";
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc_pins>;
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+	mmccard: mmccard@0 {
+		compatible = "mmc-card";
+		reg = <0>;
+	};
 };
 
 &spi0 {
@@ -145,6 +187,6 @@
 &pcie0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pcie_pins>;
-	reset-gpio = <&gpiosb 3 GPIO_ACTIVE_HIGH>;
+	reset-gpios = <&gpiosb 3 GPIO_ACTIVE_LOW>;
 	status = "okay";
 };

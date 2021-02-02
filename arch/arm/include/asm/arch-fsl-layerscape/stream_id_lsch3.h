@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2015-2018 NXP
+ * Copyright 2015-2020 NXP
  * Copyright 2014 Freescale Semiconductor, Inc.
  *
  */
@@ -42,6 +42,10 @@
  *     -the MC is responsible for allocating and setting up 'isolation context
  *      IDs (ICIDs) based on the allocated stream IDs for all DPAA2 devices.
  *
+ *  - ECAM (integrated PCI)
+ *     - U-Boot applies the value here to HW and does DT fix-up for both
+ *       'iommu-map' and 'msi-map'
+ *
  * On Chasis-3 SoCs stream IDs are programmed in AMQ registers (32-bits) for
  * each of the different bus masters.  The relationship between
  * the AMQ registers and stream IDs is defined in the table below:
@@ -70,11 +74,13 @@
 #define FSL_SDMMC_STREAM_ID		3
 #define FSL_SATA1_STREAM_ID		4
 
-#if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LX2160A)
+#if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LX2160A) || \
+	defined(CONFIG_ARCH_LX2162A)
 #define FSL_SATA2_STREAM_ID		5
 #endif
 
-#if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LX2160A)
+#if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LX2160A) || \
+	defined(CONFIG_ARCH_LX2162A)
 #define FSL_DMA_STREAM_ID		6
 #elif defined(CONFIG_ARCH_LS1088A) || defined(CONFIG_ARCH_LS1028A)
 #define FSL_DMA_STREAM_ID		5
@@ -83,20 +89,22 @@
 /* PCI - programmed in PEXn_LUT */
 #define FSL_PEX_STREAM_ID_START		7
 
-#ifdef CONFIG_ARCH_LX2160A
-#define FSL_PEX_STREAM_ID_NUM		(0x100)
-#endif
-
 #if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LS1028A)
 #define FSL_PEX_STREAM_ID_END		22
 #elif defined(CONFIG_ARCH_LS1088A)
 #define FSL_PEX_STREAM_ID_END		18
+#elif defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LX2162A)
+#define FSL_PEX_STREAM_ID_END          (0x100)
 #endif
 
 
 /* DPAA2 - set in MC DPC and alloced by MC */
 #define FSL_DPAA2_STREAM_ID_START	23
 #define FSL_DPAA2_STREAM_ID_END		63
+
+/* PCI IEPs, this overlaps DPAA2 but these two are exclusive at least for now */
+#define FSL_ECAM_STREAM_ID_START	32
+#define FSL_ECAM_STREAM_ID_END		63
 
 #define FSL_SEC_STREAM_ID		64
 #define FSL_SEC_JR1_STREAM_ID		65

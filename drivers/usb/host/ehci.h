@@ -255,6 +255,7 @@ struct ehci_ctrl {
 	int periodic_schedules;
 	int ntds;
 	bool has_fsl_erratum_a005275;	/* Freescale HS silicon quirk */
+	bool async_locked;
 	struct ehci_ops ops;
 	void *priv;	/* client's private data */
 };
@@ -297,4 +298,5 @@ extern struct dm_usb_ops ehci_usb_ops;
 int ehci_setup_phy(struct udevice *dev, struct phy *phy, int index);
 int ehci_shutdown_phy(struct udevice *dev, struct phy *phy);
 
+#include <linux/bitops.h>
 #endif /* USB_EHCI_H */

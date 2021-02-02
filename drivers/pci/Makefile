@@ -30,15 +30,23 @@ obj-$(CONFIG_SH4_PCI) += pci_sh4.o
 obj-$(CONFIG_SH7751_PCI) +=pci_sh7751.o
 obj-$(CONFIG_SH7780_PCI) +=pci_sh7780.o
 obj-$(CONFIG_PCI_TEGRA) += pci_tegra.o
+obj-$(CONFIG_PCIE_IPROC) += pcie_iproc.o
 obj-$(CONFIG_PCI_AARDVARK) += pci-aardvark.o
 obj-$(CONFIG_PCIE_DW_MVEBU) += pcie_dw_mvebu.o
 obj-$(CONFIG_PCIE_FSL) += pcie_fsl.o pcie_fsl_fixup.o
 obj-$(CONFIG_PCIE_LAYERSCAPE) += pcie_layerscape.o
-obj-$(CONFIG_PCIE_LAYERSCAPE) += pcie_layerscape_fixup.o
+obj-$(CONFIG_PCIE_LAYERSCAPE_RC) += pcie_layerscape_rc.o \
+				pcie_layerscape_fixup.o \
+				pcie_layerscape_fixup_common.o
+obj-$(CONFIG_PCIE_LAYERSCAPE_EP) += pcie_layerscape_ep.o
 obj-$(CONFIG_PCIE_LAYERSCAPE_GEN4) += pcie_layerscape_gen4.o \
-				pcie_layerscape_gen4_fixup.o
+				pcie_layerscape_gen4_fixup.o \
+				pcie_layerscape_fixup_common.o
 obj-$(CONFIG_PCI_XILINX) += pcie_xilinx.o
 obj-$(CONFIG_PCI_PHYTIUM) += pcie_phytium.o
 obj-$(CONFIG_PCIE_INTEL_FPGA) += pcie_intel_fpga.o
 obj-$(CONFIG_PCI_KEYSTONE) += pcie_dw_ti.o
 obj-$(CONFIG_PCIE_MEDIATEK) += pcie_mediatek.o
+obj-$(CONFIG_PCIE_ROCKCHIP) += pcie_rockchip.o
+obj-$(CONFIG_PCI_BRCMSTB) += pcie_brcmstb.o
+obj-$(CONFIG_PCI_OCTEONTX) += pci_octeontx.o

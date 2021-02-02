@@ -8,6 +8,8 @@
 #ifndef _ASM_GENERIC_SECTIONS_H_
 #define _ASM_GENERIC_SECTIONS_H_
 
+#include <linux/types.h>
+
 /* References to section boundaries */
 
 extern char _text[], _stext[], _etext[];
@@ -23,6 +25,8 @@ extern char __initdata_begin[], __initdata_end[];
 extern char __start_rodata[], __end_rodata[];
 extern char __efi_helloworld_begin[];
 extern char __efi_helloworld_end[];
+extern char __efi_var_file_begin[];
+extern char __efi_var_file_end[];
 
 /* Start and end of .ctors section - used for constructor calls. */
 extern char __ctors_start[], __ctors_end[];

@@ -7,6 +7,10 @@
 #ifndef _ASM_ARMV7_MPU_H
 #define _ASM_ARMV7_MPU_H
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 #ifdef CONFIG_CPU_V7M
 #define AP_SHIFT			24
 #define XN_SHIFT			28

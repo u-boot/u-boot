@@ -192,9 +192,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* CPSW Ethernet */
-#define CONFIG_BOOTP_DEFAULT
-#define CONFIG_BOOTP_DNS2
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT		10
 #endif
 

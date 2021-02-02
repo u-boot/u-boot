@@ -11,15 +11,20 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <env.h>
+#include <log.h>
 #include <malloc.h>
 #include <command.h>
+#include <part.h>
 #include <part_efi.h>
 #include <exports.h>
+#include <uuid.h>
 #include <linux/ctype.h>
 #include <div64.h>
 #include <memalign.h>
 #include <linux/compat.h>
+#include <linux/err.h>
 #include <linux/sizes.h>
 #include <stdlib.h>
 
@@ -187,7 +192,8 @@ static void del_gpt_info(void)
 	}
 }
 
-static struct disk_part *allocate_disk_part(disk_partition_t *info, int partnum)
+static struct disk_part *allocate_disk_part(struct disk_partition *info,
+					    int partnum)
 {
 	struct disk_part *newpart;
 	newpart = calloc(1, sizeof(struct disk_part));
@@ -244,7 +250,7 @@ static void print_gpt_info(void)
 		printf("Block size %lu, name %s\n", curr->gpt_part_info.blksz,
 		       curr->gpt_part_info.name);
 		printf("Type %s, bootable %d\n", curr->gpt_part_info.type,
-		       curr->gpt_part_info.bootable);
+		       curr->gpt_part_info.bootable & PART_BOOTABLE);
 #ifdef CONFIG_PARTITION_UUIDS
 		printf("UUID %s\n", curr->gpt_part_info.uuid);
 #endif
@@ -308,7 +314,7 @@ static int get_gpt_info(struct blk_desc *dev_desc)
 {
 	/* start partition numbering at 1, as U-Boot does */
 	int valid_parts = 0, p, ret;
-	disk_partition_t info;
+	struct disk_partition info;
 	struct disk_part *new_disk_part;
 
 	/*
@@ -373,14 +379,14 @@ static int do_get_gpt_info(struct blk_desc *dev_desc)
 static int set_gpt_info(struct blk_desc *dev_desc,
 			const char *str_part,
 			char **str_disk_guid,
-			disk_partition_t **partitions,
+			struct disk_partition **partitions,
 			u8 *parts_count)
 {
 	char *tok, *str, *s;
 	int i;
 	char *val, *p;
 	int p_count;
-	disk_partition_t *parts;
+	struct disk_partition *parts;
 	int errno = 0;
 	uint64_t size_ll, start_ll;
 	lbaint_t offset = 0;
@@ -438,7 +444,7 @@ static int set_gpt_info(struct blk_desc *dev_desc,
 	}
 
 	/* allocate memory for partitions */
-	parts = calloc(sizeof(disk_partition_t), p_count);
+	parts = calloc(sizeof(struct disk_partition), p_count);
 	if (parts == NULL)
 		return -ENOMEM;
 
@@ -534,7 +540,7 @@ static int set_gpt_info(struct blk_desc *dev_desc,
 
 		/* bootable */
 		if (found_key(tok, "bootable"))
-			parts[i].bootable = 1;
+			parts[i].bootable = PART_BOOTABLE;
 	}
 
 	*parts_count = p_count;
@@ -555,7 +561,7 @@ static int gpt_default(struct blk_desc *blk_dev_desc, const char *str_part)
 	int ret;
 	char *str_disk_guid;
 	u8 part_count = 0;
-	disk_partition_t *partitions = NULL;
+	struct disk_partition *partitions = NULL;
 
 	/* fill partitions */
 	ret = set_gpt_info(blk_dev_desc, str_part,
@@ -582,7 +588,7 @@ static int gpt_verify(struct blk_desc *blk_dev_desc, const char *str_part)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1,
 				     blk_dev_desc->blksz);
-	disk_partition_t *partitions = NULL;
+	struct disk_partition *partitions = NULL;
 	gpt_entry *gpt_pte = NULL;
 	char *str_disk_guid;
 	u8 part_count = 0;
@@ -633,29 +639,14 @@ static int do_disk_guid(struct blk_desc *dev_desc, char * const namestr)
 }
 
 #ifdef CONFIG_CMD_GPT_RENAME
-/*
- * There are 3 malloc() calls in set_gpt_info() and there is no info about which
- * failed.
- */
-static void set_gpt_cleanup(char **str_disk_guid,
-			    disk_partition_t **partitions)
-{
-#ifdef CONFIG_RANDOM_UUID
-	if (str_disk_guid)
-		free(str_disk_guid);
-#endif
-	if (partitions)
-		free(partitions);
-}
-
 static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
 			       char *name1, char *name2)
 {
 	struct list_head *pos;
 	struct disk_part *curr;
-	disk_partition_t *new_partitions = NULL;
+	struct disk_partition *new_partitions = NULL;
 	char disk_guid[UUID_STR_LEN + 1];
-	char *partitions_list, *str_disk_guid;
+	char *partitions_list, *str_disk_guid = NULL;
 	u8 part_count = 0;
 	int partlistlen, ret, numparts = 0, partnum, i = 1, ctr1 = 0, ctr2 = 0;
 
@@ -697,14 +688,8 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
 	/* set_gpt_info allocates new_partitions and str_disk_guid */
 	ret = set_gpt_info(dev_desc, partitions_list, &str_disk_guid,
 			   &new_partitions, &part_count);
-	if (ret < 0) {
-		del_gpt_info();
-		free(partitions_list);
-		if (ret == -ENOMEM)
-			set_gpt_cleanup(&str_disk_guid, &new_partitions);
-		else
-			goto out;
-	}
+	if (ret < 0)
+		goto out;
 
 	if (!strcmp(subcomm, "swap")) {
 		if ((strlen(name1) > PART_NAME_LEN) || (strlen(name2) > PART_NAME_LEN)) {
@@ -766,14 +751,8 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
 	 * Even though valid pointers are here passed into set_gpt_info(),
 	 * it mallocs again, and there's no way to tell which failed.
 	 */
-	if (ret < 0) {
-		del_gpt_info();
-		free(partitions_list);
-		if (ret == -ENOMEM)
-			set_gpt_cleanup(&str_disk_guid, &new_partitions);
-		else
-			goto out;
-	}
+	if (ret < 0)
+		goto out;
 
 	debug("Writing new partition table\n");
 	ret = gpt_restore(dev_desc, disk_guid, new_partitions, numparts);
@@ -795,10 +774,12 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
 	}
 	printf("new partition table with %d partitions is:\n", numparts);
 	print_gpt_info();
-	del_gpt_info();
  out:
-	free(new_partitions);
+	del_gpt_info();
+#ifdef CONFIG_RANDOM_UUID
 	free(str_disk_guid);
+#endif
+	free(new_partitions);
 	free(partitions_list);
 	return ret;
 }
@@ -814,7 +795,7 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
  *
  * @return zero on success; otherwise error
  */
-static int do_gpt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_gpt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int ret = CMD_RET_SUCCESS;
 	int dev = 0;

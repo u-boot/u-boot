@@ -40,6 +40,13 @@ static const inline int is_ioc_enabled(void)
 	return IS_ENABLED(CONFIG_ARC_DBG_IOC_ENABLE);
 }
 
+/*
+ * We export SLC control functions to use them in platform configuration code.
+ * They maust not be used in any generic code!
+ */
+void slc_enable(void);
+void slc_disable(void);
+
 #endif /* __ASSEMBLY__ */
 
 #endif /* __ASM_ARC_CACHE_H */

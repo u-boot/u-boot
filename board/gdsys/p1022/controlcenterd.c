@@ -24,7 +24,9 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <image.h>
 #include <init.h>
+#include <net.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
@@ -34,6 +36,7 @@
 #include <fsl_ddr_sdram.h>
 #include <asm/fsl_serdes.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <fsl_mdio.h>
@@ -221,7 +224,7 @@ void hw_watchdog_reset(void)
 }
 
 #ifdef CONFIG_TRAILBLAZER
-int do_bootd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bootd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	return run_command(env_get("bootcmd"), flag);
 }
@@ -305,7 +308,7 @@ int last_stage_init(void)
  *       0, no ethernet devices found
  *      >0, number of ethernet devices initialized
  */
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	struct fsl_pq_mdio_info mdio_info;
 	struct tsec_info_struct tsec_info[2];
@@ -328,7 +331,7 @@ int board_eth_init(bd_t *bis)
 }
 
 #ifdef CONFIG_OF_BOARD_SETUP
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;

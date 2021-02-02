@@ -9,6 +9,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/ehci-rmobile.h>
+#include <linux/delay.h>
 #include "ehci.h"
 
 #if defined(CONFIG_R8A7740)

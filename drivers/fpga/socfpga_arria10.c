@@ -2,6 +2,8 @@
 /*
  * Copyright (C) 2017-2019 Intel Corporation <www.intel.com>
  */
+#include <image.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/fpga_manager.h>
 #include <asm/arch/reset_manager.h>
@@ -11,11 +13,14 @@
 #include <altera.h>
 #include <asm/arch/pinmux.h>
 #include <common.h>
+#include <dm.h>
 #include <dm/ofnode.h>
 #include <errno.h>
 #include <fs_loader.h>
 #include <wait_bit.h>
 #include <watchdog.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 #define CFGWDTH_32	1
 #define MIN_BITSTREAM_SIZECHECK	230
@@ -29,9 +34,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static const struct socfpga_fpga_manager *fpga_manager_base =
 		(void *)SOCFPGA_FPGAMGRREGS_ADDRESS;
-
-static const struct socfpga_system_manager *system_manager_base =
-		(void *)SOCFPGA_SYSMGR_ADDRESS;
 
 static void fpgamgr_set_cd_ratio(unsigned long ratio);
 
@@ -818,7 +820,7 @@ int socfpga_loadfs(fpga_fs_info *fpga_fsinfo, const void *buf, size_t bsize,
 	}
 
 	/* Disable all signals from HPS peripheral controller to FPGA */
-	writel(0, &system_manager_base->fpgaintf_en_global);
+	writel(0, socfpga_get_sysmgr_addr() + SYSMGR_A10_FPGAINTF_EN_GLOBAL);
 
 	/* Disable all axi bridges (hps2fpga, lwhps2fpga & fpga2hps) */
 	socfpga_bridges_reset();
@@ -910,7 +912,7 @@ int socfpga_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size)
 	memset(&rbfinfo, 0, sizeof(rbfinfo));
 
 	/* Disable all signals from hps peripheral controller to fpga */
-	writel(0, &system_manager_base->fpgaintf_en_global);
+	writel(0, socfpga_get_sysmgr_addr() + SYSMGR_A10_FPGAINTF_EN_GLOBAL);
 
 	/* Disable all axi bridge (hps2fpga, lwhps2fpga & fpga2hps) */
 	socfpga_bridges_reset();

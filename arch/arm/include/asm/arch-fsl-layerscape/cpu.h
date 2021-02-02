@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2017-2018 NXP
+ * Copyright 2017-2018, 2020 NXP
  * Copyright 2014-2015, Freescale Semiconductor
  */
 
@@ -53,7 +53,7 @@
 #define CONFIG_SYS_FSL_WRIOP1_SIZE	0x100000000
 #define CONFIG_SYS_FSL_AIOP1_BASE	0x4b00000000
 #define CONFIG_SYS_FSL_AIOP1_SIZE	0x100000000
-#ifndef CONFIG_ARCH_LX2160A
+#if !defined(CONFIG_ARCH_LX2160A) || !defined(CONFIG_ARCH_LX2162)
 #define CONFIG_SYS_FSL_PEBUF_BASE	0x4c00000000
 #else
 #define CONFIG_SYS_FSL_PEBUF_BASE	0x1c00000000

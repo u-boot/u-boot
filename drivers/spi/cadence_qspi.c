@@ -6,18 +6,25 @@
 
 #include <common.h>
 #include <clk.h>
+#include <log.h>
+#include <asm-generic/io.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <malloc.h>
 #include <reset.h>
 #include <spi.h>
+#include <spi-mem.h>
+#include <dm/device_compat.h>
+#include <linux/err.h>
 #include <linux/errno.h>
+#include <linux/sizes.h>
+#include <zynqmp_firmware.h>
 #include "cadence_qspi.h"
 
 #define CQSPI_STIG_READ			0
 #define CQSPI_STIG_WRITE		1
-#define CQSPI_INDIRECT_READ		2
-#define CQSPI_INDIRECT_WRITE		3
+#define CQSPI_READ			2
+#define CQSPI_WRITE			3
 
 static int cadence_spi_write_speed(struct udevice *bus, uint hz)
 {
@@ -35,12 +42,21 @@ static int cadence_spi_write_speed(struct udevice *bus, uint hz)
 	return 0;
 }
 
+static int cadence_spi_read_id(void *reg_base, u8 len, u8 *idcode)
+{
+	struct spi_mem_op op = SPI_MEM_OP(SPI_MEM_OP_CMD(0x9F, 1),
+					  SPI_MEM_OP_NO_ADDR,
+					  SPI_MEM_OP_NO_DUMMY,
+					  SPI_MEM_OP_DATA_IN(len, idcode, 1));
+
+	return cadence_qspi_apb_command_read(reg_base, &op);
+}
+
 /* Calibration sequence to determine the read data capture delay register */
 static int spi_calibration(struct udevice *bus, uint hz)
 {
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
 	void *base = priv->regbase;
-	u8 opcode_rdid = 0x9F;
 	unsigned int idcode = 0, temp = 0;
 	int err = 0, i, range_lo = -1, range_hi = -1;
 
@@ -54,8 +70,7 @@ static int spi_calibration(struct udevice *bus, uint hz)
 	cadence_qspi_apb_controller_enable(base);
 
 	/* read the ID which will be our golden value */
-	err = cadence_qspi_apb_command_read(base, 1, &opcode_rdid,
-		3, (u8 *)&idcode);
+	err = cadence_spi_read_id(base, 3, (u8 *)&idcode);
 	if (err) {
 		puts("SF: Calibration failed (read)\n");
 		return err;
@@ -74,8 +89,7 @@ static int spi_calibration(struct udevice *bus, uint hz)
 		cadence_qspi_apb_controller_enable(base);
 
 		/* issue a RDID to get the ID value */
-		err = cadence_qspi_apb_command_read(base, 1, &opcode_rdid,
-			3, (u8 *)&temp);
+		err = cadence_spi_read_id(base, 3, (u8 *)&temp);
 		if (err) {
 			puts("SF: Calibration failed (read)\n");
 			return err;
@@ -110,7 +124,7 @@ static int spi_calibration(struct udevice *bus, uint hz)
 
 	/* just to ensure we do once only when speed or chip select change */
 	priv->qspi_calibrated_hz = hz;
-	priv->qspi_calibrated_cs = priv->cs;
+	priv->qspi_calibrated_cs = spi_chip_select(bus);
 
 	return 0;
 }
@@ -133,7 +147,7 @@ static int cadence_spi_set_speed(struct udevice *bus, uint hz)
 	 */
 	if (priv->previous_hz != hz ||
 	    priv->qspi_calibrated_hz != hz ||
-	    priv->qspi_calibrated_cs != priv->cs) {
+	    priv->qspi_calibrated_cs != spi_chip_select(bus)) {
 		err = spi_calibration(bus, hz);
 		if (err)
 			return err;
@@ -153,10 +167,8 @@ static int cadence_spi_set_speed(struct udevice *bus, uint hz)
 static int cadence_spi_child_pre_probe(struct udevice *bus)
 {
 	struct spi_slave *slave = dev_get_parent_priv(bus);
-	struct cadence_spi_priv *priv = dev_get_priv(bus->parent);
 
 	slave->bytemode = SPI_4BYTE_MODE;
-	slave->option = priv->is_dual;
 
 	return 0;
 }
@@ -170,11 +182,30 @@ static int cadence_spi_probe(struct udevice *bus)
 {
 	struct cadence_spi_platdata *plat = bus->platdata;
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
+	struct clk clk;
 	int ret;
 
 	priv->regbase = plat->regbase;
 	priv->ahbbase = plat->ahbbase;
-	priv->is_dual = plat->is_dual;
+
+	xilinx_pm_request(PM_REQUEST_NODE, DEV_OSPI, PM_CAPABILITY_ACCESS,
+			  PM_MAX_QOS, PM_REQUEST_ACK_NO, NULL);
+
+	if (plat->ref_clk_hz == 0) {
+		ret = clk_get_by_index(bus, 0, &clk);
+		if (ret) {
+#ifdef CONFIG_CQSPI_REF_CLK
+			plat->ref_clk_hz = CONFIG_CQSPI_REF_CLK;
+#else
+			return ret;
+#endif
+		} else {
+			plat->ref_clk_hz = clk_get_rate(&clk);
+			clk_free(&clk);
+			if (IS_ERR_VALUE(plat->ref_clk_hz))
+				return plat->ref_clk_hz;
+		}
+	}
 
 	ret = reset_get_bulk(bus, &priv->resets);
 	if (ret)
@@ -200,6 +231,7 @@ static int cadence_spi_remove(struct udevice *dev)
 
 static int cadence_spi_set_mode(struct udevice *bus, uint mode)
 {
+	struct cadence_spi_platdata *plat = bus->platdata;
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
 
 	/* Disable QSPI */
@@ -208,113 +240,68 @@ static int cadence_spi_set_mode(struct udevice *bus, uint mode)
 	/* Set SPI mode */
 	cadence_qspi_apb_set_clk_mode(priv->regbase, mode);
 
+	/* Enable Direct Access Controller */
+	if (plat->use_dac_mode)
+		cadence_qspi_apb_dac_mode_enable(priv->regbase);
+
 	/* Enable QSPI */
 	cadence_qspi_apb_controller_enable(priv->regbase);
 
 	return 0;
 }
 
-static int cadence_spi_xfer(struct udevice *dev, unsigned int bitlen,
-			    const void *dout, void *din, unsigned long flags)
+static int cadence_spi_mem_exec_op(struct spi_slave *spi,
+				   const struct spi_mem_op *op)
 {
-	struct udevice *bus = dev->parent;
+	struct udevice *bus = spi->dev->parent;
 	struct cadence_spi_platdata *plat = bus->platdata;
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *dm_plat = dev_get_parent_platdata(dev);
 	void *base = priv->regbase;
-	u8 *cmd_buf = priv->cmd_buf;
-	size_t data_bytes;
 	int err = 0;
-	u32 mode = CQSPI_STIG_WRITE;
-
-	if (flags & SPI_XFER_BEGIN) {
-		/* copy command to local buffer */
-		priv->cmd_len = bitlen / 8;
-		memcpy(cmd_buf, dout, priv->cmd_len);
-	}
-
-	if (flags & SPI_XFER_U_PAGE)
-		priv->cs = CQSPI_CS1;
-	else
-		priv->cs = CQSPI_CS0;
-
-	flags &= ~SPI_XFER_U_PAGE;
-
-	if (flags == (SPI_XFER_BEGIN | SPI_XFER_END)) {
-		/* if start and end bit are set, the data bytes is 0. */
-		data_bytes = 0;
-	} else {
-		data_bytes = bitlen / 8;
-	}
-	debug("%s: len=%zu [bytes]\n", __func__, data_bytes);
+	u32 mode;
 
 	/* Set Chip select */
-	cadence_qspi_apb_chipselect(base, priv->cs, plat->is_decoded_cs);
+	cadence_qspi_apb_chipselect(base, spi_chip_select(spi->dev),
+				    plat->is_decoded_cs);
 
-	if ((flags & SPI_XFER_END) || (flags == 0)) {
-		if (priv->cmd_len == 0) {
-			printf("QSPI: Error, command is empty.\n");
-			return -1;
-		}
+	if (op->data.dir == SPI_MEM_DATA_IN && op->data.buf.in) {
+		if (!op->addr.nbytes)
+			mode = CQSPI_STIG_READ;
+		else
+			mode = CQSPI_READ;
+	} else {
+		if (!op->addr.nbytes || !op->data.buf.out)
+			mode = CQSPI_STIG_WRITE;
+		else
+			mode = CQSPI_WRITE;
+	}
 
-		if (din && data_bytes) {
-			/* read */
-			/* Use STIG if no address. */
-			if (!CQSPI_IS_ADDR(priv->cmd_len))
-				mode = CQSPI_STIG_READ;
+	switch (mode) {
+	case CQSPI_STIG_READ:
+		err = cadence_qspi_apb_command_read(base, op);
+		break;
+	case CQSPI_STIG_WRITE:
+		err = cadence_qspi_apb_command_write(base, op);
+		break;
+	case CQSPI_READ:
+		err = cadence_qspi_apb_read_setup(plat, op);
+		if (!err) {
+			if (plat->is_dma)
+				err = cadence_qspi_apb_dma_read(plat,
+								op->data.nbytes,
+								op->data.buf.in);
 			else
-				mode = CQSPI_INDIRECT_READ;
-		} else if (dout && !(flags & SPI_XFER_BEGIN)) {
-			/* write */
-			if (!CQSPI_IS_ADDR(priv->cmd_len) || plat->stg_pgm)
-				mode = CQSPI_STIG_WRITE;
-			else
-				mode = CQSPI_INDIRECT_WRITE;
+				err = cadence_qspi_apb_read_execute(plat, op);
 		}
-
-		switch (mode) {
-		case CQSPI_STIG_READ:
-			err = cadence_qspi_apb_command_read(
-				base, priv->cmd_len, cmd_buf,
-				data_bytes, din);
-
 		break;
-		case CQSPI_STIG_WRITE:
-			err = cadence_qspi_apb_command_write(dev,
-							     priv->cmd_len,
-							     cmd_buf,
-							     data_bytes, dout);
+	case CQSPI_WRITE:
+		err = cadence_qspi_apb_write_setup(plat, op);
+		if (!err)
+			err = cadence_qspi_apb_write_execute(plat, op);
 		break;
-		case CQSPI_INDIRECT_READ:
-			err = cadence_qspi_apb_indirect_read_setup(plat,
-				priv->cmd_len, dm_plat->mode, cmd_buf);
-			if (!err) {
-				if (plat->is_dma)
-					err = cadence_qspi_apb_dma_read(plat,
-						data_bytes, din);
-				else
-					err = cadence_qspi_apb_indirect_read_execute(plat,
-						data_bytes, din);
-			}
+	default:
+		err = -1;
 		break;
-		case CQSPI_INDIRECT_WRITE:
-			err = cadence_qspi_apb_indirect_write_setup
-				(plat, priv->cmd_len, dm_plat->mode, cmd_buf);
-			if (!err) {
-				err = cadence_qspi_apb_indirect_write_execute
-				(plat, data_bytes, dout);
-			}
-		break;
-		default:
-			err = -1;
-			break;
-		}
-
-		if (flags & SPI_XFER_END) {
-			/* clear command buffer */
-			memset(cmd_buf, 0, sizeof(priv->cmd_buf));
-			priv->cmd_len = 0;
-		}
 	}
 
 	return err;
@@ -324,19 +311,21 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct cadence_spi_platdata *plat = bus->platdata;
 	ofnode subnode;
-	struct clk clk;
-	int ret;
 
 	plat->regbase = (void *)devfdt_get_addr_index(bus, 0);
-	plat->ahbbase = (void *)devfdt_get_addr_index(bus, 1);
+	plat->ahbbase = (void *)devfdt_get_addr_size_index(bus, 1,
+			&plat->ahbsize);
 	plat->is_decoded_cs = dev_read_bool(bus, "cdns,is-decoded-cs");
 	plat->fifo_depth = dev_read_u32_default(bus, "cdns,fifo-depth", 128);
 	plat->fifo_width = dev_read_u32_default(bus, "cdns,fifo-width", 4);
 	plat->trigger_address = dev_read_u32_default(bus,
 						     "cdns,trigger-address",
 						     0);
+	/* Use DAC mode only when MMIO window is at least 8M wide */
+	if (plat->ahbsize >= SZ_8M)
+		plat->use_dac_mode = true;
+
 	plat->is_dma = dev_read_bool(bus, "cdns,is-dma");
-	plat->stg_pgm = dev_read_bool(bus, "cdns,is-stig-pgm");
 
 	/* All other paramters are embedded in the child node */
 	subnode = dev_read_first_subnode(bus);
@@ -349,11 +338,6 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 	plat->max_hz = ofnode_read_u32_default(subnode, "spi-max-frequency",
 					       500000);
 
-	if (dev_read_u32_default(bus, "is-stacked", -1) == 1)
-		plat->is_dual = CQSPI_DUAL_STACKED_FLASH;
-	else
-		plat->is_dual = CQSPI_SINGLE_FLASH;
-
 	/* Read other parameters from DT */
 	plat->page_size = ofnode_read_u32_default(subnode, "page-size", 256);
 	plat->block_size = ofnode_read_u32_default(subnode, "block-size", 16);
@@ -364,20 +348,6 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 	plat->tchsh_ns = ofnode_read_u32_default(subnode, "cdns,tchsh-ns", 20);
 	plat->tslch_ns = ofnode_read_u32_default(subnode, "cdns,tslch-ns", 20);
 
-	ret = clk_get_by_index(bus, 0, &clk);
-	if (ret) {
-#ifdef CONFIG_CQSPI_REF_CLK
-		plat->ref_clk_hz = CONFIG_CQSPI_REF_CLK;
-#else
-		return ret;
-#endif
-	} else {
-		plat->ref_clk_hz = clk_get_rate(&clk);
-		clk_free(&clk);
-		if (IS_ERR_VALUE(plat->ref_clk_hz))
-			return plat->ref_clk_hz;
-	}
-
 	debug("%s: regbase=%p ahbbase=%p max-frequency=%d page-size=%d\n",
 	      __func__, plat->regbase, plat->ahbbase, plat->max_hz,
 	      plat->page_size);
@@ -385,10 +355,14 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 	return 0;
 }
 
+static const struct spi_controller_mem_ops cadence_spi_mem_ops = {
+	.exec_op = cadence_spi_mem_exec_op,
+};
+
 static const struct dm_spi_ops cadence_spi_ops = {
-	.xfer		= cadence_spi_xfer,
 	.set_speed	= cadence_spi_set_speed,
 	.set_mode	= cadence_spi_set_mode,
+	.mem_ops	= &cadence_spi_mem_ops,
 	/*
 	 * cs_info is not needed, since we require all chip selects to be
 	 * in the device tree explicitly
@@ -397,6 +371,7 @@ static const struct dm_spi_ops cadence_spi_ops = {
 
 static const struct udevice_id cadence_spi_ids[] = {
 	{ .compatible = "cdns,qspi-nor" },
+	{ .compatible = "ti,am654-ospi" },
 	{ }
 };
 

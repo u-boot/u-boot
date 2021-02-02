@@ -8,9 +8,6 @@
 #ifndef _MSCC_OCELOT_H_
 #define _MSCC_OCELOT_H_
 
-#include <linux/bitops.h>
-#include <dm.h>
-
 /*
  * Target offset base(s)
  */

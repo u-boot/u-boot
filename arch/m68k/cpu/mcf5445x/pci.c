@@ -11,6 +11,7 @@
 #include <pci.h>
 #include <asm/io.h>
 #include <asm/immap.h>
+#include <linux/delay.h>
 
 #if defined(CONFIG_PCI)
 /* System RAM mapped over PCI */

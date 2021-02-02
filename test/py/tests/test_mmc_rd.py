@@ -56,7 +56,7 @@ env__mmc_dev_configs = (
         'info_mode': ???,
         'info_buswidth': ???.
     },
-}
+)
 
 # Configuration data for test_mmc_rd; defines regions of the MMC (entire
 # devices, or ranges of sectors) which can be read:
@@ -210,7 +210,7 @@ def test_mmc_info(u_boot_console, env__mmc_dev_config):
     assert good_response in response
     good_response = "Bus Speed: %s" % info_speed
     assert good_response in response
-    good_response = "Mode : %s" % info_mode
+    good_response = "Mode: %s" % info_mode
     assert good_response in response
     good_response = "Bus Width: %s" % info_buswidth
     assert good_response in response

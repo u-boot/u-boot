@@ -13,6 +13,8 @@
 /* #define DEBUG */
 
 #include <common.h>
+#include <log.h>
+#include <linux/delay.h>
 #include <linux/types.h>
 #include <linux/errno.h>
 #include <asm/io.h>
@@ -1189,9 +1191,6 @@ int32_t ipu_disp_set_global_alpha(ipu_channel_t channel, unsigned char enable,
 	else
 		bg_chan = 0;
 
-	if (!g_ipu_clk_enabled)
-		clk_enable(g_ipu_clk);
-
 	if (bg_chan) {
 		reg = __raw_readl(DP_COM_CONF());
 		__raw_writel(reg & ~DP_COM_CONF_GWSEL, DP_COM_CONF());
@@ -1214,9 +1213,6 @@ int32_t ipu_disp_set_global_alpha(ipu_channel_t channel, unsigned char enable,
 
 	reg = __raw_readl(IPU_SRM_PRI2) | 0x8;
 	__raw_writel(reg, IPU_SRM_PRI2);
-
-	if (!g_ipu_clk_enabled)
-		clk_disable(g_ipu_clk);
 
 	return 0;
 }
@@ -1243,9 +1239,6 @@ int32_t ipu_disp_set_color_key(ipu_channel_t channel, unsigned char enable,
 		(channel == MEM_BG_ASYNC0 || channel == MEM_FG_ASYNC0) ||
 		(channel == MEM_BG_ASYNC1 || channel == MEM_FG_ASYNC1)))
 		return -EINVAL;
-
-	if (!g_ipu_clk_enabled)
-		clk_enable(g_ipu_clk);
 
 	color_key_4rgb = 1;
 	/* Transform color key from rgb to yuv if CSC is enabled */
@@ -1283,9 +1276,6 @@ int32_t ipu_disp_set_color_key(ipu_channel_t channel, unsigned char enable,
 
 	reg = __raw_readl(IPU_SRM_PRI2) | 0x8;
 	__raw_writel(reg, IPU_SRM_PRI2);
-
-	if (!g_ipu_clk_enabled)
-		clk_disable(g_ipu_clk);
 
 	return 0;
 }

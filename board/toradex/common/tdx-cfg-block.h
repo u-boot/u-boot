@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright (c) 2016 Toradex, Inc.
+ * Copyright (c) 2016-2020 Toradex
  */
 
 #ifndef _TDX_CFG_BLOCK_H
@@ -73,14 +73,39 @@ enum {
 	COLIBRI_IMX8QXP_IT, /* 50 */
 	COLIBRI_IMX8DX_WIFI_BT,
 	COLIBRI_IMX8DX,
+	APALIS_IMX8QXP,
+	APALIS_IMX8DXP,
+	VERDIN_IMX8MMQ_WIFI_BT_IT, /* 55 */
+	VERDIN_IMX8MNQ_WIFI_BT,
+	VERDIN_IMX8MMDL,
+	VERDIN_IMX8MPQ_WIFI_BT_IT,
+	VERDIN_IMX8MMQ_IT,
+	VERDIN_IMX8MMDL_WIFI_BT_IT, /* 60 */
+	VERDIN_IMX8MPQ,
+};
+
+enum {
+	DAHLIA = 155,
+	VERDIN_DEVELOPMENT_BOARD = 156,
+};
+
+enum {
+	VERDIN_DSI_TO_HDMI_ADAPTER = 157,
+	VERDIN_DSI_TO_LVDS_ADAPTER = 159,
 };
 
 extern const char * const toradex_modules[];
+extern const char * const toradex_carrier_boards[];
 extern bool valid_cfgblock;
 extern struct toradex_hw tdx_hw_tag;
+extern struct toradex_hw tdx_car_hw_tag;
 extern struct toradex_eth_addr tdx_eth_addr;
 extern u32 tdx_serial;
+extern u32 tdx_car_serial;
 
 int read_tdx_cfg_block(void);
+int read_tdx_cfg_block_carrier(void);
+
+int try_migrate_tdx_cfg_block_carrier(void);
 
 #endif /* _TDX_CFG_BLOCK_H */

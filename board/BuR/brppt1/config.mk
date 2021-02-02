@@ -25,8 +25,8 @@ cmd_prodzip =					\
 	zip -9 -r $@ misc/* >/dev/null $<
 
 ifeq ($(hw-platform-y),brppt1-spi)
-ALL-y += $(hw-platform-y)_prog.bin
-ALL-y += $(hw-platform-y)_prod.zip
+INPUTS-y += $(hw-platform-y)_prog.bin
+INPUTS-y += $(hw-platform-y)_prod.zip
 endif
 
 $(hw-platform-y)_prog.bin: u-boot-dtb.img spl/u-boot-spl.bin

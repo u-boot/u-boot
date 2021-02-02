@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <ns16550.h>
 #include <asm/io.h>
 #include <nand.h>

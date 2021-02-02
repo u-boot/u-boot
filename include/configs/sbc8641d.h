@@ -42,8 +42,6 @@
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_BAT_RW		1	/* Use common BAT rw code */
 
 #undef CONFIG_SPD_EEPROM		/* Do not use SPD EEPROM for DDR setup*/
@@ -69,8 +67,6 @@
 #endif
 
 #undef	CONFIG_SYS_DRAM_TEST				/* memory test, takes time */
-#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x00400000
 
 /*
  * Base addresses -- Note these are effective addresses where the
@@ -208,8 +204,6 @@
 #define CONFIG_SYS_WRITE_SWAPPED_DATA
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 
-#undef CONFIG_CLOCKS_IN_MHZ
-
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #ifndef CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0x0fd00000	/* Initial RAM address */
@@ -278,8 +272,6 @@
 
 #define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup */
 
-#undef CONFIG_EEPRO100
-#undef CONFIG_TULIP
 
 #if !defined(CONFIG_PCI_PNP)
     #define PCI_ENET0_IOADDR	0xe0000000

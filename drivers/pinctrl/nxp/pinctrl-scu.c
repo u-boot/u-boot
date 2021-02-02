@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2018 NXP
+ * Copyright 2018-2019 NXP
  */
 
 #include <common.h>
@@ -28,6 +28,11 @@ static int imx_pinconf_scu_set(struct imx_pinctrl_soc_info *info, u32 pad,
 	 * Mux should be done in pmx set, but we do not have a good api
 	 * to handle that in scfw, so config it in pad conf func
 	 */
+
+	if (!sc_rm_is_pad_owned(-1, pad)) {
+		debug("Pad[%u] is not owned by curr partition\n", pad);
+		return -EPERM;
+	}
 
 	val |= PADRING_IFMUX_EN_MASK;
 	val |= PADRING_GP_EN_MASK;
@@ -57,7 +62,7 @@ int imx_pinctrl_scu_conf_pins(struct imx_pinctrl_soc_info *info, u32 *pin_data,
 		config_val = pin_data[j++];
 
 		ret = imx_pinconf_scu_set(info, pin_id, mux, config_val);
-		if (ret)
+		if (ret && ret != -EPERM)
 			printf("Set pin %d, mux %d, val %d, error\n", pin_id,
 			       mux, config_val);
 	}

@@ -18,7 +18,7 @@
 int cpu_status(u32 nr);
 int cpu_reset(u32 nr);
 int cpu_disable(u32 nr);
-int cpu_release(u32 nr, int argc, char * const argv[]);
+int cpu_release(u32 nr, int argc, char *const argv[]);
 
 static inline int cpumask_next(int cpu, unsigned int mask)
 {
@@ -83,5 +83,7 @@ enum {
  * @param flags		Flags to control what is done
  */
 int cleanup_before_linux_select(int flags);
+
+void reset_cpu(ulong addr);
 ;
 #endif

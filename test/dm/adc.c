@@ -17,6 +17,7 @@
 #include <power/regulator.h>
 #include <power/sandbox_pmic.h>
 #include <sandbox-adc.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 static int dm_test_adc_bind(struct unit_test_state *uts)
@@ -32,7 +33,7 @@ static int dm_test_adc_bind(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_adc_bind, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_adc_bind, UT_TESTF_SCAN_FDT);
 
 static int dm_test_adc_wrong_channel_selection(struct unit_test_state *uts)
 {
@@ -43,7 +44,7 @@ static int dm_test_adc_wrong_channel_selection(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_adc_wrong_channel_selection, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_adc_wrong_channel_selection, UT_TESTF_SCAN_FDT);
 
 static int dm_test_adc_supply(struct unit_test_state *uts)
 {
@@ -79,7 +80,7 @@ static int dm_test_adc_supply(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_adc_supply, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_adc_supply, UT_TESTF_SCAN_FDT);
 
 struct adc_channel adc_channel_test_data[] = {
 	{ 0, SANDBOX_ADC_CHANNEL0_DATA },
@@ -104,7 +105,7 @@ static int dm_test_adc_single_channel_conversion(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_adc_single_channel_conversion, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_adc_single_channel_conversion, UT_TESTF_SCAN_FDT);
 
 static int dm_test_adc_multi_channel_conversion(struct unit_test_state *uts)
 {
@@ -127,7 +128,7 @@ static int dm_test_adc_multi_channel_conversion(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_adc_multi_channel_conversion, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_adc_multi_channel_conversion, UT_TESTF_SCAN_FDT);
 
 static int dm_test_adc_single_channel_shot(struct unit_test_state *uts)
 {
@@ -143,7 +144,7 @@ static int dm_test_adc_single_channel_shot(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_adc_single_channel_shot, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_adc_single_channel_shot, UT_TESTF_SCAN_FDT);
 
 static int dm_test_adc_multi_channel_shot(struct unit_test_state *uts)
 {
@@ -163,7 +164,7 @@ static int dm_test_adc_multi_channel_shot(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_adc_multi_channel_shot, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_adc_multi_channel_shot, UT_TESTF_SCAN_FDT);
 
 static const int dm_test_adc_uV_data[SANDBOX_ADC_CHANNELS] = {
 	((u64)SANDBOX_ADC_CHANNEL0_DATA * SANDBOX_BUCK2_INITIAL_EXPECTED_UV) /
@@ -194,4 +195,4 @@ static int dm_test_adc_raw_to_uV(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_adc_raw_to_uV, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_adc_raw_to_uV, UT_TESTF_SCAN_FDT);

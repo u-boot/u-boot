@@ -29,16 +29,23 @@
  */
 
 #include <common.h>
-#include <asm/io.h>
 #include <clk-uclass.h>
 #include <clk.h>
 #include <div64.h>
 #include <dm.h>
+#include <dm/device.h>
+#include <dm/device_compat.h>
+#include <dm/uclass.h>
+#include <dt-bindings/clock/sifive-fu540-prci.h>
+#include <dt-bindings/reset/sifive-fu540-prci.h>
 #include <errno.h>
-
+#include <reset-uclass.h>
+#include <asm/io.h>
+#include <asm/arch/reset.h>
+#include <linux/delay.h>
+#include <linux/err.h>
 #include <linux/math64.h>
 #include <linux/clk/analogbits-wrpll-cln28hpc.h>
-#include <dt-bindings/clock/sifive-fu540-prci.h>
 
 /*
  * EXPECTED_CLK_PARENT_COUNT: how many parent clocks this driver expects:
@@ -67,6 +74,11 @@
 #define PRCI_COREPLLCFG0_LOCK_SHIFT	31
 #define PRCI_COREPLLCFG0_LOCK_MASK	(0x1 << PRCI_COREPLLCFG0_LOCK_SHIFT)
 
+/* COREPLLCFG1 */
+#define PRCI_COREPLLCFG1_OFFSET		0x8
+#define PRCI_COREPLLCFG1_CKE_SHIFT	31
+#define PRCI_COREPLLCFG1_CKE_MASK	(0x1 << PRCI_COREPLLCFG1_CKE_SHIFT)
+
 /* DDRPLLCFG0 */
 #define PRCI_DDRPLLCFG0_OFFSET		0xc
 #define PRCI_DDRPLLCFG0_DIVR_SHIFT	0
@@ -86,7 +98,7 @@
 
 /* DDRPLLCFG1 */
 #define PRCI_DDRPLLCFG1_OFFSET		0x10
-#define PRCI_DDRPLLCFG1_CKE_SHIFT	24
+#define PRCI_DDRPLLCFG1_CKE_SHIFT	31
 #define PRCI_DDRPLLCFG1_CKE_MASK	(0x1 << PRCI_DDRPLLCFG1_CKE_SHIFT)
 
 /* GEMGXLPLLCFG0 */
@@ -113,7 +125,7 @@
 
 /* GEMGXLPLLCFG1 */
 #define PRCI_GEMGXLPLLCFG1_OFFSET	0x20
-#define PRCI_GEMGXLPLLCFG1_CKE_SHIFT	24
+#define PRCI_GEMGXLPLLCFG1_CKE_SHIFT	31
 #define PRCI_GEMGXLPLLCFG1_CKE_MASK	(0x1 << PRCI_GEMGXLPLLCFG1_CKE_SHIFT)
 
 /* CORECLKSEL */
@@ -124,27 +136,30 @@
 
 /* DEVICESRESETREG */
 #define PRCI_DEVICESRESETREG_OFFSET	0x28
-#define PRCI_DEVICESRESETREG_DDR_CTRL_RST_N_SHIFT 0
+#define PRCI_DEVICERESETCNT 5
+
 #define PRCI_DEVICESRESETREG_DDR_CTRL_RST_N_MASK \
-			(0x1 << PRCI_DEVICESRESETREG_DDR_CTRL_RST_N_SHIFT)
-#define PRCI_DEVICESRESETREG_DDR_AXI_RST_N_SHIFT 1
+			(0x1 << PRCI_RST_DDR_CTRL_N)
 #define PRCI_DEVICESRESETREG_DDR_AXI_RST_N_MASK \
-			(0x1 << PRCI_DEVICESRESETREG_DDR_AXI_RST_N_SHIFT)
-#define PRCI_DEVICESRESETREG_DDR_AHB_RST_N_SHIFT 2
+			(0x1 << PRCI_RST_DDR_AXI_N)
 #define PRCI_DEVICESRESETREG_DDR_AHB_RST_N_MASK \
-			(0x1 << PRCI_DEVICESRESETREG_DDR_AHB_RST_N_SHIFT)
-#define PRCI_DEVICESRESETREG_DDR_PHY_RST_N_SHIFT 3
+			(0x1 << PRCI_RST_DDR_AHB_N)
 #define PRCI_DEVICESRESETREG_DDR_PHY_RST_N_MASK \
-			(0x1 << PRCI_DEVICESRESETREG_DDR_PHY_RST_N_SHIFT)
-#define PRCI_DEVICESRESETREG_GEMGXL_RST_N_SHIFT 5
+			(0x1 << PRCI_RST_DDR_PHY_N)
 #define PRCI_DEVICESRESETREG_GEMGXL_RST_N_MASK \
-			(0x1 << PRCI_DEVICESRESETREG_GEMGXL_RST_N_SHIFT)
+			(0x1 << PRCI_RST_GEMGXL_N)
 
 /* CLKMUXSTATUSREG */
-#define PRCI_CLKMUXSTATUSREG_OFFSET		0x2c
+#define PRCI_CLKMUXSTATUSREG_OFFSET	0x2c
 #define PRCI_CLKMUXSTATUSREG_TLCLKSEL_STATUS_SHIFT 1
 #define PRCI_CLKMUXSTATUSREG_TLCLKSEL_STATUS_MASK \
 			(0x1 << PRCI_CLKMUXSTATUSREG_TLCLKSEL_STATUS_SHIFT)
+
+/* PROCMONCFG */
+#define PRCI_PROCMONCFG_OFFSET		0xF0
+#define PRCI_PROCMONCFG_CORE_CLOCK_SHIFT	24
+#define PRCI_PROCMONCFG_CORE_CLOCK_MASK \
+			(0x1 << PRCI_PROCMONCFG_CORE_CLOCK_SHIFT)
 
 /*
  * Private structures
@@ -169,6 +184,8 @@ struct __prci_data {
  * @enable_bypass: fn ptr to code to bypass the WRPLL (if applicable; else NULL)
  * @disable_bypass: fn ptr to code to not bypass the WRPLL (or NULL)
  * @cfg0_offs: WRPLL CFG0 register offset (in bytes) from the PRCI base address
+ * @cfg1_offs: WRPLL CFG1 register offset (in bytes) from the PRCI base address
+ * @release_reset: fn ptr to code to release clock reset
  *
  * @enable_bypass and @disable_bypass are used for WRPLL instances
  * that contain a separate external glitchless clock mux downstream
@@ -179,6 +196,8 @@ struct __prci_wrpll_data {
 	void (*enable_bypass)(struct __prci_data *pd);
 	void (*disable_bypass)(struct __prci_data *pd);
 	u8 cfg0_offs;
+	u8 cfg1_offs;
+	void (*release_reset)(struct __prci_data *pd);
 };
 
 struct __prci_clock;
@@ -193,6 +212,7 @@ struct __prci_clock_ops {
 				    unsigned long *parent_rate);
 	unsigned long (*recalc_rate)(struct __prci_clock *pc,
 				     unsigned long parent_rate);
+	int (*enable_clk)(struct __prci_clock *pc, bool enable);
 };
 
 /**
@@ -315,7 +335,7 @@ static u32 __prci_wrpll_pack(const struct wrpll_cfg *c)
 }
 
 /**
- * __prci_wrpll_read_cfg() - read the WRPLL configuration from the PRCI
+ * __prci_wrpll_read_cfg0() - read the WRPLL configuration from the PRCI
  * @pd: PRCI context
  * @pwd: PRCI WRPLL metadata
  *
@@ -326,14 +346,14 @@ static u32 __prci_wrpll_pack(const struct wrpll_cfg *c)
  * Context: Any context.  Caller must prevent the records pointed to by
  *          @pd and @pwd from changing during execution.
  */
-static void __prci_wrpll_read_cfg(struct __prci_data *pd,
-				  struct __prci_wrpll_data *pwd)
+static void __prci_wrpll_read_cfg0(struct __prci_data *pd,
+				   struct __prci_wrpll_data *pwd)
 {
 	__prci_wrpll_unpack(&pwd->c, __prci_readl(pd, pwd->cfg0_offs));
 }
 
 /**
- * __prci_wrpll_write_cfg() - write WRPLL configuration into the PRCI
+ * __prci_wrpll_write_cfg0() - write WRPLL configuration into the PRCI
  * @pd: PRCI context
  * @pwd: PRCI WRPLL metadata
  * @c: WRPLL configuration record to write
@@ -346,13 +366,27 @@ static void __prci_wrpll_read_cfg(struct __prci_data *pd,
  * Context: Any context.  Caller must prevent the records pointed to by
  *          @pd and @pwd from changing during execution.
  */
-static void __prci_wrpll_write_cfg(struct __prci_data *pd,
-				   struct __prci_wrpll_data *pwd,
-				   struct wrpll_cfg *c)
+static void __prci_wrpll_write_cfg0(struct __prci_data *pd,
+				    struct __prci_wrpll_data *pwd,
+				    struct wrpll_cfg *c)
 {
 	__prci_writel(__prci_wrpll_pack(c), pwd->cfg0_offs, pd);
 
 	memcpy(&pwd->c, c, sizeof(*c));
+}
+
+/**
+ * __prci_wrpll_write_cfg1() - write Clock enable/disable configuration
+ * into the PRCI
+ * @pd: PRCI context
+ * @pwd: PRCI WRPLL metadata
+ * @enable: Clock enable or disable value
+ */
+static void __prci_wrpll_write_cfg1(struct __prci_data *pd,
+				    struct __prci_wrpll_data *pwd,
+				    u32 enable)
+{
+	__prci_writel(enable, pwd->cfg1_offs, pd);
 }
 
 /* Core clock mux control */
@@ -436,7 +470,7 @@ static int sifive_fu540_prci_wrpll_set_rate(struct __prci_clock *pc,
 	if (pwd->enable_bypass)
 		pwd->enable_bypass(pd);
 
-	__prci_wrpll_write_cfg(pd, pwd, &pwd->c);
+	__prci_wrpll_write_cfg0(pd, pwd, &pwd->c);
 
 	udelay(wrpll_calc_max_lock_us(&pwd->c));
 
@@ -446,14 +480,33 @@ static int sifive_fu540_prci_wrpll_set_rate(struct __prci_clock *pc,
 	return 0;
 }
 
+static int sifive_fu540_prci_clock_enable(struct __prci_clock *pc, bool enable)
+{
+	struct __prci_wrpll_data *pwd = pc->pwd;
+	struct __prci_data *pd = pc->pd;
+
+	if (enable) {
+		__prci_wrpll_write_cfg1(pd, pwd, PRCI_COREPLLCFG1_CKE_MASK);
+
+		if (pwd->release_reset)
+			pwd->release_reset(pd);
+	} else {
+		u32 r;
+
+		r = __prci_readl(pd, pwd->cfg1_offs);
+		r &= ~PRCI_COREPLLCFG1_CKE_MASK;
+
+		__prci_wrpll_write_cfg1(pd, pwd, r);
+	}
+
+	return 0;
+}
+
 static const struct __prci_clock_ops sifive_fu540_prci_wrpll_clk_ops = {
 	.set_rate = sifive_fu540_prci_wrpll_set_rate,
 	.round_rate = sifive_fu540_prci_wrpll_round_rate,
 	.recalc_rate = sifive_fu540_prci_wrpll_recalc_rate,
-};
-
-static const struct __prci_clock_ops sifive_fu540_prci_wrpll_ro_clk_ops = {
-	.recalc_rate = sifive_fu540_prci_wrpll_recalc_rate,
+	.enable_clk = sifive_fu540_prci_clock_enable,
 };
 
 /* TLCLKSEL clock integration */
@@ -477,22 +530,110 @@ static const struct __prci_clock_ops sifive_fu540_prci_tlclksel_clk_ops = {
 	.recalc_rate = sifive_fu540_prci_tlclksel_recalc_rate,
 };
 
+static int __prci_consumer_reset(const char *rst_name, bool trigger)
+{
+	struct udevice *dev;
+	struct reset_ctl rst_sig;
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_RESET,
+					  DM_GET_DRIVER(sifive_reset),
+					  &dev);
+	if (ret) {
+		dev_err(dev, "Reset driver not found: %d\n", ret);
+		return ret;
+	}
+
+	ret = reset_get_by_name(dev, rst_name, &rst_sig);
+	if (ret) {
+		dev_err(dev, "failed to get %s reset\n", rst_name);
+		return ret;
+	}
+
+	if (reset_valid(&rst_sig)) {
+		if (trigger)
+			ret = reset_deassert(&rst_sig);
+		else
+			ret = reset_assert(&rst_sig);
+		if (ret) {
+			dev_err(dev, "failed to trigger reset id = %ld\n",
+				rst_sig.id);
+			return ret;
+		}
+	}
+
+	return ret;
+}
+
+/**
+ * __prci_ddr_release_reset() - Release DDR reset
+ * @pd: struct __prci_data * for the PRCI containing the DDRCLK mux reg
+ *
+ */
+static void __prci_ddr_release_reset(struct __prci_data *pd)
+{
+	/* Release DDR ctrl reset */
+	__prci_consumer_reset("ddr_ctrl", true);
+
+	/* HACK to get the '1 full controller clock cycle'. */
+	asm volatile ("fence");
+
+	/* Release DDR AXI reset */
+	__prci_consumer_reset("ddr_axi", true);
+
+	/* Release DDR AHB reset */
+	__prci_consumer_reset("ddr_ahb", true);
+
+	/* Release DDR PHY reset */
+	__prci_consumer_reset("ddr_phy", true);
+
+	/* HACK to get the '1 full controller clock cycle'. */
+	asm volatile ("fence");
+
+	/*
+	 * These take like 16 cycles to actually propagate. We can't go sending
+	 * stuff before they come out of reset. So wait.
+	 */
+	for (int i = 0; i < 256; i++)
+		asm volatile ("nop");
+}
+
+/**
+ * __prci_ethernet_release_reset() - Release ethernet reset
+ * @pd: struct __prci_data * for the PRCI containing the Ethernet CLK mux reg
+ *
+ */
+static void __prci_ethernet_release_reset(struct __prci_data *pd)
+{
+	/* Release GEMGXL reset */
+	__prci_consumer_reset("gemgxl_reset", true);
+
+	/* Procmon => core clock */
+	__prci_writel(PRCI_PROCMONCFG_CORE_CLOCK_MASK, PRCI_PROCMONCFG_OFFSET,
+		      pd);
+}
+
 /*
  * PRCI integration data for each WRPLL instance
  */
 
 static struct __prci_wrpll_data __prci_corepll_data = {
 	.cfg0_offs = PRCI_COREPLLCFG0_OFFSET,
+	.cfg1_offs = PRCI_COREPLLCFG1_OFFSET,
 	.enable_bypass = __prci_coreclksel_use_hfclk,
 	.disable_bypass = __prci_coreclksel_use_corepll,
 };
 
 static struct __prci_wrpll_data __prci_ddrpll_data = {
 	.cfg0_offs = PRCI_DDRPLLCFG0_OFFSET,
+	.cfg1_offs = PRCI_DDRPLLCFG1_OFFSET,
+	.release_reset = __prci_ddr_release_reset,
 };
 
 static struct __prci_wrpll_data __prci_gemgxlpll_data = {
 	.cfg0_offs = PRCI_GEMGXLPLLCFG0_OFFSET,
+	.cfg1_offs = PRCI_GEMGXLPLLCFG1_OFFSET,
+	.release_reset = __prci_ethernet_release_reset,
 };
 
 /*
@@ -509,7 +650,7 @@ static struct __prci_clock __prci_init_clocks[] = {
 	[PRCI_CLK_DDRPLL] = {
 		.name = "ddrpll",
 		.parent_name = "hfclk",
-		.ops = &sifive_fu540_prci_wrpll_ro_clk_ops,
+		.ops = &sifive_fu540_prci_wrpll_clk_ops,
 		.pwd = &__prci_ddrpll_data,
 	},
 	[PRCI_CLK_GEMGXLPLL] = {
@@ -579,6 +720,42 @@ static ulong sifive_fu540_prci_set_rate(struct clk *clk, ulong rate)
 	return rate;
 }
 
+static int sifive_fu540_prci_enable(struct clk *clk)
+{
+	struct __prci_clock *pc;
+	int ret = 0;
+
+	if (ARRAY_SIZE(__prci_init_clocks) <= clk->id)
+		return -ENXIO;
+
+	pc = &__prci_init_clocks[clk->id];
+	if (!pc->pd)
+		return -ENXIO;
+
+	if (pc->ops->enable_clk)
+		ret = pc->ops->enable_clk(pc, 1);
+
+	return ret;
+}
+
+static int sifive_fu540_prci_disable(struct clk *clk)
+{
+	struct __prci_clock *pc;
+	int ret = 0;
+
+	if (ARRAY_SIZE(__prci_init_clocks) <= clk->id)
+		return -ENXIO;
+
+	pc = &__prci_init_clocks[clk->id];
+	if (!pc->pd)
+		return -ENXIO;
+
+	if (pc->ops->enable_clk)
+		ret = pc->ops->enable_clk(pc, 0);
+
+	return ret;
+}
+
 static int sifive_fu540_prci_probe(struct udevice *dev)
 {
 	int i, err;
@@ -601,7 +778,7 @@ static int sifive_fu540_prci_probe(struct udevice *dev)
 		pc = &__prci_init_clocks[i];
 		pc->pd = pd;
 		if (pc->pwd)
-			__prci_wrpll_read_cfg(pd, pc->pwd);
+			__prci_wrpll_read_cfg0(pd, pc->pwd);
 	}
 
 	return 0;
@@ -610,7 +787,14 @@ static int sifive_fu540_prci_probe(struct udevice *dev)
 static struct clk_ops sifive_fu540_prci_ops = {
 	.set_rate = sifive_fu540_prci_set_rate,
 	.get_rate = sifive_fu540_prci_get_rate,
+	.enable = sifive_fu540_prci_enable,
+	.disable = sifive_fu540_prci_disable,
 };
+
+static int sifive_fu540_clk_bind(struct udevice *dev)
+{
+	return sifive_reset_bind(dev, PRCI_DEVICERESETCNT);
+}
 
 static const struct udevice_id sifive_fu540_prci_ids[] = {
 	{ .compatible = "sifive,fu540-c000-prci" },
@@ -624,4 +808,5 @@ U_BOOT_DRIVER(sifive_fu540_prci) = {
 	.probe = sifive_fu540_prci_probe,
 	.ops = &sifive_fu540_prci_ops,
 	.priv_auto_alloc_size = sizeof(struct __prci_data),
+	.bind = sifive_fu540_clk_bind,
 };

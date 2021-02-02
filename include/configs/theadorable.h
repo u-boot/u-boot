@@ -18,10 +18,6 @@
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
 /*
- * Commands configuration
- */
-
-/*
  * The debugging version enables USB support via defconfig.
  * This version should also enable all other non-production
  * interfaces / features.
@@ -40,7 +36,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 3
 
 /* Environment in SPI NOR flash */
-#define CONFIG_ENV_OVERWRITE
 
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
@@ -55,10 +50,6 @@
 
 /* Enable LCD and reserve 512KB from top of memory*/
 #define CONFIG_SYS_MEM_TOP_HIDE		0x80000
-
-#define CONFIG_BMP_16BPP
-#define CONFIG_BMP_24BPP
-#define CONFIG_BMP_32BPP
 
 /* FPGA programming support */
 #define CONFIG_FPGA_STRATIX_V

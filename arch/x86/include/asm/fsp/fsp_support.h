@@ -7,11 +7,12 @@
 #ifndef __FSP_SUPPORT_H__
 #define __FSP_SUPPORT_H__
 
+#include <signatures.h>
+
 #include <asm/fsp/fsp_bootmode.h>
 #include <asm/fsp/fsp_fv.h>
 #include <asm/fsp/fsp_hob.h>
 #include <asm/fsp/fsp_infoheader.h>
-#include <asm/fsp/fsp_types.h>
 #include <asm/fsp_arch.h>
 #include <asm/fsp/fsp_azalia.h>
 
@@ -142,13 +143,6 @@ int fsp_init_phase_pci(void);
  * @return 0 if OK, -ve on error
  */
 int fsp_scan_for_ram_size(void);
-
-/**
- * fsp_prepare_mrc_cache() - Find the DRAM training data from the MRC cache
- *
- * @return pointer to data, or NULL if no cache or no data found in the cache
- */
-void *fsp_prepare_mrc_cache(void);
 
 /**
  * fsp_notify() - FSP notification wrapper function

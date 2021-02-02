@@ -14,6 +14,7 @@
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <asm/io.h>
 
 #include <dt-bindings/clock/renesas-cpg-mssr.h>
@@ -282,7 +283,7 @@ int gen2_clk_probe(struct udevice *dev)
 	u32 cpg_mode;
 	int ret;
 
-	priv->base = (struct gen2_base *)devfdt_get_addr(dev);
+	priv->base = dev_read_addr_ptr(dev);
 	if (!priv->base)
 		return -EINVAL;
 
@@ -291,7 +292,8 @@ int gen2_clk_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
-	rst_base = fdtdec_get_addr(gd->fdt_blob, ret, "reg");
+	rst_base = fdtdec_get_addr_size_auto_noparent(gd->fdt_blob, ret, "reg",
+						      0, NULL, false);
 	if (rst_base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

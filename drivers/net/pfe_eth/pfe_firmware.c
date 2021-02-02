@@ -10,15 +10,25 @@
  * files.
  */
 
+#include <dm.h>
+#include <dm/device-internal.h>
+#include <image.h>
+#include <log.h>
+#include <malloc.h>
+#include <linux/bitops.h>
 #include <net/pfe_eth/pfe_eth.h>
 #include <net/pfe_eth/pfe_firmware.h>
+#include <spi_flash.h>
 #ifdef CONFIG_CHAIN_OF_TRUST
 #include <fsl_validate.h>
 #endif
 
 #define PFE_FIRMWARE_FIT_CNF_NAME	"config@1"
 
-static const void *pfe_fit_addr = (void *)CONFIG_SYS_LS_PFE_FW_ADDR;
+static const void *pfe_fit_addr;
+#ifdef CONFIG_CHAIN_OF_TRUST
+static const void *pfe_esbc_hdr_addr;
+#endif
 
 /*
  * PFE elf firmware loader.
@@ -159,6 +169,77 @@ static int pfe_fit_check(void)
 	return ret;
 }
 
+int pfe_spi_flash_init(void)
+{
+	struct spi_flash *pfe_flash;
+	struct udevice *new;
+	int ret = 0;
+	void *addr = malloc(CONFIG_SYS_LS_PFE_FW_LENGTH);
+
+	if (!addr)
+		return -ENOMEM;
+
+	ret = spi_flash_probe_bus_cs(CONFIG_ENV_SPI_BUS,
+				     CONFIG_ENV_SPI_CS,
+				     CONFIG_ENV_SPI_MAX_HZ,
+				     CONFIG_ENV_SPI_MODE,
+				     &new);
+	if (ret) {
+		printf("SF: failed to probe spi\n");
+		free(addr);
+		device_remove(new, DM_REMOVE_NORMAL);
+		return ret;
+	}
+
+
+	pfe_flash = dev_get_uclass_priv(new);
+	if (!pfe_flash) {
+		printf("SF: probe for pfe failed\n");
+		free(addr);
+		device_remove(new, DM_REMOVE_NORMAL);
+		return -ENODEV;
+	}
+
+	ret = spi_flash_read(pfe_flash,
+			     CONFIG_SYS_LS_PFE_FW_ADDR,
+			     CONFIG_SYS_LS_PFE_FW_LENGTH,
+			     addr);
+	if (ret) {
+		printf("SF: read for pfe failed\n");
+		free(addr);
+		spi_flash_free(pfe_flash);
+		return ret;
+	}
+
+#ifdef CONFIG_CHAIN_OF_TRUST
+	void *hdr_addr = malloc(CONFIG_SYS_LS_PFE_ESBC_LENGTH);
+
+	if (!hdr_addr) {
+		free(addr);
+		spi_flash_free(pfe_flash);
+		return -ENOMEM;
+	}
+
+	ret = spi_flash_read(pfe_flash,
+			     CONFIG_SYS_LS_PFE_ESBC_ADDR,
+			     CONFIG_SYS_LS_PFE_ESBC_LENGTH,
+			     hdr_addr);
+	if (ret) {
+		printf("SF: failed to read pfe esbc header\n");
+		free(addr);
+		free(hdr_addr);
+		spi_flash_free(pfe_flash);
+		return ret;
+	}
+
+	pfe_esbc_hdr_addr = hdr_addr;
+#endif
+	pfe_fit_addr = addr;
+	spi_flash_free(pfe_flash);
+
+	return ret;
+}
+
 /*
  * PFE firmware initialization.
  * Loads different firmware files from FIT image.
@@ -183,12 +264,16 @@ int pfe_firmware_init(void)
 	int ret = 0;
 	int fw_count;
 
+	ret = pfe_spi_flash_init();
+	if (ret)
+		goto err;
+
 	ret = pfe_fit_check();
 	if (ret)
 		goto err;
 
 #ifdef CONFIG_CHAIN_OF_TRUST
-	pfe_esbc_hdr = CONFIG_SYS_LS_PFE_ESBC_ADDR;
+	pfe_esbc_hdr = (uintptr_t)pfe_esbc_hdr_addr;
 	pfe_img_addr = (uintptr_t)pfe_fit_addr;
 	if (fsl_check_boot_mode_secure() != 0) {
 		/*

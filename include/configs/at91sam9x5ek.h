@@ -67,9 +67,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x22000000	/* load address */
 
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		0x26e00000
-
 #ifdef CONFIG_NAND_BOOT
 /* bootstrap + u-boot + env + linux in nandflash */
 #define CONFIG_BOOTCOMMAND	"nand read " \
@@ -110,11 +107,7 @@
 #define CONFIG_SYS_MCKR_CSS		0x1302
 
 #ifdef CONFIG_SD_BOOT
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
-#elif CONFIG_NAND_BOOT
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_BASE
 #endif
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x40000
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE

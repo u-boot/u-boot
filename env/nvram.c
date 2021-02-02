@@ -38,7 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
 extern void *nvram_read(void *dest, const long src, size_t count);
 extern void nvram_write(long dest, const void *src, size_t count);
 #else
-env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
+static env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
 #endif
 
 #ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
@@ -64,7 +64,7 @@ static int env_nvram_load(void)
 #else
 	memcpy(buf, (void *)CONFIG_ENV_ADDR, CONFIG_ENV_SIZE);
 #endif
-	return env_import(buf, 1);
+	return env_import(buf, 1, H_EXTERNAL);
 }
 
 static int env_nvram_save(void)

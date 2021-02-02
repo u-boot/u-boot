@@ -4,6 +4,7 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <wdt.h>
 #include <div64.h>
 #include <asm/scu.h>

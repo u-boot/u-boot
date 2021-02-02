@@ -68,6 +68,13 @@ config ROCKCHIP_OTP
 	  addressing and a length or through child-nodes that are generated
 	  based on the e-fuse map retrieved from the DTS.
 
+config SIFIVE_OTP
+	bool "SiFive eMemory OTP driver"
+	depends on MISC
+	help
+	  Enable support for reading and writing the eMemory OTP on the
+	  SiFive SoCs.
+
 config VEXPRESS_CONFIG
 	bool "Enable support for Arm Versatile Express config bus"
 	depends on MISC
@@ -203,6 +210,15 @@ config FSL_SEC_MON
 	  Security Monitor can be transitioned on any security failures,
 	  like software violations or hardware security violations.
 
+config IRQ
+	bool "Intel Interrupt controller"
+	depends on X86 || SANDBOX
+	help
+	  This enables support for Intel interrupt controllers, including ITSS.
+	  Some devices have extra features, such as Apollo Lake. The
+	  device has its own uclass since there are several operations
+	  involved.
+
 config JZ4780_EFUSE
 	bool "Ingenic JZ4780 eFUSE support"
 	depends on ARCH_JZ47XX
@@ -225,6 +241,39 @@ config NUVOTON_NCT6102D
 	  NCT6102D Super I/O driver. This can be used to enable or
 	  disable the legacy UART, the watchdog or other devices
 	  in the Nuvoton Super IO chips on X86 platforms.
+
+config P2SB
+	bool "Intel Primary to Sideband Bridge"
+	depends on X86 || SANDBOX
+	help
+	  This enables support for the Intel Primary to Sideband Bridge,
+	  abbreviated to P2SB. The P2SB is used to access various peripherals
+	  such as eSPI, GPIO, through memory-mapped I/O in a large chunk of PCI
+	  space. The space is segmented into different channels and peripherals
+	  are accessed by device-specific means within those channels. Devices
+	  should be added in the device tree as subnodes of the P2SB. A
+	  Peripheral Channel Register? (PCR) API is provided to access those
+	  devices - see pcr_readl(), etc.
+
+config SPL_P2SB
+	bool "Intel Primary to Sideband Bridge in SPL"
+	depends on SPL && (X86 || SANDBOX)
+	help
+	  The Primary to Sideband Bridge is used to access various peripherals
+	  through memory-mapped I/O in a large chunk of PCI space. The space is
+	  segmented into different channels and peripherals are accessed by
+	  device-specific means within those channels. Devices should be added
+	  in the device tree as subnodes of the p2sb.
+
+config TPL_P2SB
+	bool "Intel Primary to Sideband Bridge in TPL"
+	depends on TPL && (X86 || SANDBOX)
+	help
+	  The Primary to Sideband Bridge is used to access various peripherals
+	  through memory-mapped I/O in a large chunk of PCI space. The space is
+	  segmented into different channels and peripherals are accessed by
+	  device-specific means within those channels. Devices should be added
+	  in the device tree as subnodes of the p2sb.
 
 config PWRSEQ
 	bool "Enable power-sequencing drivers"
@@ -268,7 +317,7 @@ config STM32MP_FUSE
 
 config STM32_RCC
 	bool "Enable RCC driver for the STM32 SoC's family"
-	depends on (STM32 || ARCH_STM32MP) && MISC
+	depends on (ARCH_STM32 || ARCH_STM32MP) && MISC
 	help
 	  Enable the STM32 RCC driver. The RCC block (Reset and Clock Control
 	  block) is responsible of the management of the clock and reset
@@ -326,13 +375,6 @@ config SPL_I2C_EEPROM
 	help
 	  This option is an SPL-variant of the I2C_EEPROM option.
 	  See the help of I2C_EEPROM for details.
-
-config ZYNQ_GEM_I2C_MAC_OFFSET
-	hex "Set the I2C MAC offset"
-	default 0x0
-	depends on DM_I2C
-	help
-	  Set the MAC offset for i2C.
 
 if I2C_EEPROM
 
@@ -420,6 +462,11 @@ config IHS_FPGA
 	  gdsys devices, which supply the majority of the functionality offered
 	  by the devices. This driver supports both CON and CPU variants of the
 	  devices, depending on the device tree entry.
+config ESM_K3
+	bool "Enable K3 ESM driver"
+	depends on ARCH_K3
+	help
+	  Support ESM (Error Signaling Module) on TI K3 SoCs.
 
 config MICROCHIP_FLEXCOM
 	bool "Enable Microchip Flexcom driver"
@@ -438,5 +485,12 @@ config K3_AVS0
 	  domains stored in efuse within the VTM IP. This driver reads the
 	  optimized voltage from the efuse, so that it can be programmed
 	  to the PMIC on board.
+
+config ESM_PMIC
+	bool "Enable PMIC ESM driver"
+	depends on DM_PMIC
+	help
+	  Support ESM (Error Signal Monitor) on PMIC devices. ESM is used
+	  typically to reboot the board in error condition.
 
 endmenu

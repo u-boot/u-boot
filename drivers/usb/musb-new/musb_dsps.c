@@ -15,6 +15,8 @@
  */
 
 #ifndef __UBOOT__
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <linux/init.h>
 #include <linux/io.h>
 #include <linux/err.h>
@@ -30,6 +32,8 @@
 #include <plat/usb.h>
 #else
 #include <common.h>
+#include <dm.h>
+#include <dm/device_compat.h>
 #include <asm/omap_musb.h>
 #include "linux-compat.h"
 #endif
@@ -336,7 +340,7 @@ static irqreturn_t dsps_interrupt(int irq, void *hci)
 	 * Also, DRVVBUS pulses for SRP (but not at 5V) ...
 	 */
 	if ((usbintr & MUSB_INTR_BABBLE) && is_host_enabled(musb))
-		pr_info("CAUTION: musb: Babble Interrupt Occured\n");
+		pr_info("CAUTION: musb: Babble Interrupt Occurred\n");
 
 	if (usbintr & ((1 << wrp->drvvbus) << wrp->usb_shift)) {
 		int drvvbus = dsps_readl(reg_base, wrp->status);

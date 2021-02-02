@@ -10,6 +10,8 @@
  */
 #include <common.h>
 #include <gzip.h>
+#include <image.h>
+#include <log.h>
 #include <spl.h>
 #include <xyzModem.h>
 #include <asm/u-boot.h>
@@ -30,7 +32,7 @@ struct ymodem_fit_info {
 
 static int getcymodem(void) {
 	if (tstc())
-		return (getc());
+		return (getchar());
 	return -1;
 }
 

@@ -3,7 +3,6 @@
  * Copyright (C) 2016-2017 Socionext Inc.
  */
 
-#include <common.h>
 #include <spl.h>
 #include <linux/io.h>
 

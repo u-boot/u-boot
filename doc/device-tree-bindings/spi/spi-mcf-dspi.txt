@@ -13,6 +13,10 @@ Optional properties:
 - ctar-params: CTAR0 to 7 register configuration, as an array
   of 8 integer fields for each register, where each register
   is defined as: <fmsz, pcssck, pasc, pdt, cssck, asc, dt, br>.
+- fsl,spi-cs-sck-delay: a delay in nanoseconds between activating chip
+  select and the start of clock signal, at the start of a transfer.
+- fsl,spi-sck-cs-delay: a delay in nanoseconds between stopping the clock
+  signal and deactivating chip select, at the end of a transfer.
 
 Example:
 

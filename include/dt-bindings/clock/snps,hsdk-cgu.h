@@ -36,7 +36,8 @@
 #define CLK_TUN_TUN		21
 #define CLK_TUN_ROM		22
 #define CLK_TUN_PWM		23
-#define CLK_HDMI_PLL		24
-#define CLK_HDMI		25
+#define CLK_TUN_TIMER		24
+#define CLK_HDMI_PLL		25
+#define CLK_HDMI		26
 
 #endif /* __DT_BINDINGS_CLK_HSDK_CGU_H_ */

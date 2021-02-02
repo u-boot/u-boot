@@ -42,7 +42,7 @@
 /*
  * SMP Definitinos
  */
-#define CPU_RELEASE_ADDR		secondary_boot_func
+#define CPU_RELEASE_ADDR		secondary_boot_addr
 
 #define CONFIG_SYS_FSL_OTHER_DDR_NUM_CTRLS
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
@@ -149,8 +149,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(128UL * 1024 * 1024)
 #endif
 
-/* Command line configuration */
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
 
@@ -160,9 +158,6 @@ unsigned long long get_qixis_addr(void);
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
-
-/* Allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\

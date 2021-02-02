@@ -1,0 +1,37 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * Copyright 2019 Collabora Ltd
+ * Copyright 2019 General Electric Company
+ */
+
+/ {
+	bootcount {
+		compatible = "u-boot,bootcount-i2c-eeprom";
+		i2c-eeprom = <&bootcount>;
+	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+	};
+
+	panel-lvds0 {
+		compatible = "simple-panel";
+	};
+};
+
+&eeprom {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		vpd@0 {
+			reg = <0 800>;
+		};
+
+		bootcount: bootcount {
+			reg = <1022 2>;
+		};
+	};
+};

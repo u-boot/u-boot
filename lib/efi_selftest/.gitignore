@@ -1,4 +1,3 @@
-efi_miniapp_file_image_exit.h
-efi_miniapp_file_image_return.h
+efi_miniapp_*.h
 *.efi
 *.so

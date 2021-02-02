@@ -53,7 +53,7 @@ int sandbox_eth_raw_os_is_local(const char *ifname)
 	}
 	ret = !!(ifr.ifr_flags & IFF_LOOPBACK);
 out:
-	close(fd);
+	os_close(fd);
 	return ret;
 }
 
@@ -74,7 +74,7 @@ static int _raw_packet_start(struct eth_sandbox_raw_priv *priv,
 
 	/* Prepare device struct */
 	priv->local_bind_sd = -1;
-	priv->device = os_malloc(sizeof(struct sockaddr_ll));
+	priv->device = malloc(sizeof(struct sockaddr_ll));
 	if (priv->device == NULL)
 		return -ENOMEM;
 	device = priv->device;
@@ -147,7 +147,7 @@ static int _local_inet_start(struct eth_sandbox_raw_priv *priv)
 	/* Prepare device struct */
 	priv->local_bind_sd = -1;
 	priv->local_bind_udp_port = 0;
-	priv->device = os_malloc(sizeof(struct sockaddr_in));
+	priv->device = malloc(sizeof(struct sockaddr_in));
 	if (priv->device == NULL)
 		return -ENOMEM;
 	device = priv->device;
@@ -220,7 +220,7 @@ int sandbox_eth_raw_os_send(void *packet, int length,
 		struct sockaddr_in addr;
 
 		if (priv->local_bind_sd != -1)
-			close(priv->local_bind_sd);
+			os_close(priv->local_bind_sd);
 
 		/* A normal UDP socket is required to bind */
 		priv->local_bind_sd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -282,13 +282,13 @@ int sandbox_eth_raw_os_recv(void *packet, int *length,
 
 void sandbox_eth_raw_os_stop(struct eth_sandbox_raw_priv *priv)
 {
-	os_free(priv->device);
+	free(priv->device);
 	priv->device = NULL;
-	close(priv->sd);
+	os_close(priv->sd);
 	priv->sd = -1;
 	if (priv->local) {
 		if (priv->local_bind_sd != -1)
-			close(priv->local_bind_sd);
+			os_close(priv->local_bind_sd);
 		priv->local_bind_sd = -1;
 		priv->local_bind_udp_port = 0;
 	}

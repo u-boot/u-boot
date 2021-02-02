@@ -7,12 +7,14 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm-generic/io.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dwc3-uboot.h>
 #include <generic-phy.h>
+#include <linux/delay.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <malloc.h>
@@ -267,9 +269,6 @@ int dwc3_meson_g12a_force_mode(struct udevice *dev, enum usb_dr_mode mode)
 	if (!priv->phys[USB2_OTG_PHY].dev)
 		return -EINVAL;
 
-	if (mode == priv->otg_mode)
-		return 0;
-
 	if (mode == USB_DR_MODE_HOST)
 		debug("%s: switching to Host Mode\n", __func__);
 	else
@@ -393,7 +392,7 @@ static int dwc3_meson_g12a_probe(struct udevice *dev)
 	}
 #endif
 
-	priv->otg_mode = usb_get_dr_mode(dev_of_offset(dev));
+	priv->otg_mode = usb_get_dr_mode(dev->node);
 
 	ret = dwc3_meson_g12a_usb_init(priv);
 	if (ret)
@@ -404,6 +403,15 @@ static int dwc3_meson_g12a_probe(struct udevice *dev)
 			continue;
 
 		ret = generic_phy_init(&priv->phys[i]);
+		if (ret)
+			goto err_phy_init;
+	}
+
+	for (i = 0; i < PHY_COUNT; ++i) {
+		if (!priv->phys[i].dev)
+			continue;
+
+		ret = generic_phy_power_on(&priv->phys[i]);
 		if (ret)
 			goto err_phy_init;
 	}
@@ -429,6 +437,13 @@ static int dwc3_meson_g12a_remove(struct udevice *dev)
 	reset_release_all(&priv->reset, 1);
 
 	clk_release_all(&priv->clk, 1);
+
+	for (i = 0; i < PHY_COUNT; ++i) {
+		if (!priv->phys[i].dev)
+			continue;
+
+		 generic_phy_power_off(&priv->phys[i]);
+	}
 
 	for (i = 0 ; i < PHY_COUNT ; ++i) {
 		if (!priv->phys[i].dev)

@@ -9,6 +9,7 @@
 #include <clk-uclass.h>
 #include <div64.h>
 #include <dm.h>
+#include <linux/err.h>
 
 struct clk_fixed_factor {
 	struct clk parent;

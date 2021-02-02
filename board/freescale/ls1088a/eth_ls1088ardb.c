@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <net.h>
 #include <netdev.h>
 #include <malloc.h>
 #include <fsl_mdio.h>
@@ -17,7 +18,8 @@
 #include <fsl-mc/fsl_mc.h>
 #include <fsl-mc/ldpaa_wriop.h>
 
-int board_eth_init(bd_t *bis)
+#ifndef CONFIG_DM_ETH
+int board_eth_init(struct bd_info *bis)
 {
 #if defined(CONFIG_FSL_MC_ENET)
 	int i, interface;
@@ -94,6 +96,7 @@ int board_eth_init(bd_t *bis)
 
 	return pci_eth_init(bis);
 }
+#endif
 
 #if defined(CONFIG_RESET_PHY_R)
 void reset_phy(void)

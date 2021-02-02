@@ -1,4 +1,4 @@
-if TEGRA
+if ARCH_TEGRA
 
 config SPL_GPIO_SUPPORT
 	default y
@@ -41,7 +41,6 @@ config TEGRA_PMC_SECURE
 
 config TEGRA_COMMON
 	bool "Tegra common options"
-	select BINMAN
 	select BOARD_EARLY_INIT_F
 	select CLK
 	select DM
@@ -58,7 +57,6 @@ config TEGRA_COMMON
 	select MISC
 	select OF_CONTROL
 	select SPI
-	select VIDCONSOLE_AS_LCD if DM_VIDEO
 	imply CMD_DM
 	imply CRC32_VERIFY
 
@@ -70,6 +68,7 @@ config TEGRA_NO_BPMP
 
 config TEGRA_ARMV7_COMMON
 	bool "Tegra 32-bit common options"
+	select BINMAN
 	select CPU_V7A
 	select SPL
 	select SPL_BOARD_INIT if SPL

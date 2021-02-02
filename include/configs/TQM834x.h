@@ -30,8 +30,6 @@
 #undef CONFIG_SPD_EEPROM	/* do not use SPD EEPROM for DDR setup */
 
 #undef CONFIG_SYS_DRAM_TEST		/* memory test, takes time */
-#define CONFIG_SYS_MEMTEST_START	0x00000000	/* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x00100000
 
 /*
  * FLASH on the Local Bus
@@ -169,9 +167,6 @@
 #define CONFIG_SYS_PCI1_IO_PHYS		CONFIG_SYS_PCI1_IO_BASE
 #define CONFIG_SYS_PCI1_IO_SIZE		0x1000000	/* 16M */
 
-#undef CONFIG_EEPRO100
-#define CONFIG_EEPRO100
-#undef CONFIG_TULIP
 
 #if !defined(CONFIG_PCI_PNP)
 	#define PCI_ENET0_IOADDR	CONFIG_SYS_PCI1_IO_BASE

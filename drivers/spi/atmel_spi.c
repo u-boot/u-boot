@@ -9,216 +9,101 @@
 #include <spi.h>
 #include <malloc.h>
 #include <wait_bit.h>
-
 #include <asm/io.h>
-
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
-#ifdef CONFIG_DM_SPI
 #include <asm/arch/at91_spi.h>
-#endif
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 #include <asm/gpio.h>
 #endif
+#include <linux/bitops.h>
 
-#include "atmel_spi.h"
+/*
+ * Register definitions for the Atmel AT32/AT91 SPI Controller
+ */
+/* Register offsets */
+#define ATMEL_SPI_CR			0x0000
+#define ATMEL_SPI_MR			0x0004
+#define ATMEL_SPI_RDR			0x0008
+#define ATMEL_SPI_TDR			0x000c
+#define ATMEL_SPI_SR			0x0010
+#define ATMEL_SPI_IER			0x0014
+#define ATMEL_SPI_IDR			0x0018
+#define ATMEL_SPI_IMR			0x001c
+#define ATMEL_SPI_CSR(x)		(0x0030 + 4 * (x))
+#define ATMEL_SPI_VERSION		0x00fc
 
-#ifndef CONFIG_DM_SPI
+/* Bits in CR */
+#define ATMEL_SPI_CR_SPIEN		BIT(0)
+#define ATMEL_SPI_CR_SPIDIS		BIT(1)
+#define ATMEL_SPI_CR_SWRST		BIT(7)
+#define ATMEL_SPI_CR_LASTXFER		BIT(24)
 
-static int spi_has_wdrbt(struct atmel_spi_slave *slave)
-{
-	unsigned int ver;
+/* Bits in MR */
+#define ATMEL_SPI_MR_MSTR		BIT(0)
+#define ATMEL_SPI_MR_PS			BIT(1)
+#define ATMEL_SPI_MR_PCSDEC		BIT(2)
+#define ATMEL_SPI_MR_FDIV		BIT(3)
+#define ATMEL_SPI_MR_MODFDIS		BIT(4)
+#define ATMEL_SPI_MR_WDRBT		BIT(5)
+#define ATMEL_SPI_MR_LLB		BIT(7)
+#define ATMEL_SPI_MR_PCS(x)		(((x) & 15) << 16)
+#define ATMEL_SPI_MR_DLYBCS(x)		((x) << 24)
 
-	ver = spi_readl(slave, VERSION);
+/* Bits in RDR */
+#define ATMEL_SPI_RDR_RD(x)		(x)
+#define ATMEL_SPI_RDR_PCS(x)		((x) << 16)
 
-	return (ATMEL_SPI_VERSION_REV(ver) >= 0x210);
-}
+/* Bits in TDR */
+#define ATMEL_SPI_TDR_TD(x)		(x)
+#define ATMEL_SPI_TDR_PCS(x)		((x) << 16)
+#define ATMEL_SPI_TDR_LASTXFER		BIT(24)
 
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-			unsigned int max_hz, unsigned int mode)
-{
-	struct atmel_spi_slave	*as;
-	unsigned int		scbr;
-	u32			csrx;
-	void			*regs;
+/* Bits in SR/IER/IDR/IMR */
+#define ATMEL_SPI_SR_RDRF		BIT(0)
+#define ATMEL_SPI_SR_TDRE		BIT(1)
+#define ATMEL_SPI_SR_MODF		BIT(2)
+#define ATMEL_SPI_SR_OVRES		BIT(3)
+#define ATMEL_SPI_SR_ENDRX		BIT(4)
+#define ATMEL_SPI_SR_ENDTX		BIT(5)
+#define ATMEL_SPI_SR_RXBUFF		BIT(6)
+#define ATMEL_SPI_SR_TXBUFE		BIT(7)
+#define ATMEL_SPI_SR_NSSR		BIT(8)
+#define ATMEL_SPI_SR_TXEMPTY		BIT(9)
+#define ATMEL_SPI_SR_SPIENS		BIT(16)
 
-	if (!spi_cs_is_valid(bus, cs))
-		return NULL;
+/* Bits in CSRx */
+#define ATMEL_SPI_CSRx_CPOL		BIT(0)
+#define ATMEL_SPI_CSRx_NCPHA		BIT(1)
+#define ATMEL_SPI_CSRx_CSAAT		BIT(3)
+#define ATMEL_SPI_CSRx_BITS(x)		((x) << 4)
+#define ATMEL_SPI_CSRx_SCBR(x)		((x) << 8)
+#define ATMEL_SPI_CSRx_SCBR_MAX		GENMASK(7, 0)
+#define ATMEL_SPI_CSRx_DLYBS(x)		((x) << 16)
+#define ATMEL_SPI_CSRx_DLYBCT(x)	((x) << 24)
 
-	switch (bus) {
-	case 0:
-		regs = (void *)ATMEL_BASE_SPI0;
-		break;
-#ifdef ATMEL_BASE_SPI1
-	case 1:
-		regs = (void *)ATMEL_BASE_SPI1;
-		break;
-#endif
-#ifdef ATMEL_BASE_SPI2
-	case 2:
-		regs = (void *)ATMEL_BASE_SPI2;
-		break;
-#endif
-#ifdef ATMEL_BASE_SPI3
-	case 3:
-		regs = (void *)ATMEL_BASE_SPI3;
-		break;
-#endif
-	default:
-		return NULL;
-	}
+/* Bits in VERSION */
+#define ATMEL_SPI_VERSION_REV(x)	((x) & 0xfff)
+#define ATMEL_SPI_VERSION_MFN(x)	((x) << 16)
 
-
-	scbr = (get_spi_clk_rate(bus) + max_hz - 1) / max_hz;
-	if (scbr > ATMEL_SPI_CSRx_SCBR_MAX)
-		/* Too low max SCK rate */
-		return NULL;
-	if (scbr < 1)
-		scbr = 1;
-
-	csrx = ATMEL_SPI_CSRx_SCBR(scbr);
-	csrx |= ATMEL_SPI_CSRx_BITS(ATMEL_SPI_BITS_8);
-	if (!(mode & SPI_CPHA))
-		csrx |= ATMEL_SPI_CSRx_NCPHA;
-	if (mode & SPI_CPOL)
-		csrx |= ATMEL_SPI_CSRx_CPOL;
-
-	as = spi_alloc_slave(struct atmel_spi_slave, bus, cs);
-	if (!as)
-		return NULL;
-
-	as->regs = regs;
-	as->mr = ATMEL_SPI_MR_MSTR | ATMEL_SPI_MR_MODFDIS
-			| ATMEL_SPI_MR_PCS(~(1 << cs) & 0xf);
-	if (spi_has_wdrbt(as))
-		as->mr |= ATMEL_SPI_MR_WDRBT;
-
-	spi_writel(as, CSR(cs), csrx);
-
-	return &as->slave;
-}
-
-void spi_free_slave(struct spi_slave *slave)
-{
-	struct atmel_spi_slave *as = to_atmel_spi(slave);
-
-	free(as);
-}
-
-int spi_claim_bus(struct spi_slave *slave)
-{
-	struct atmel_spi_slave *as = to_atmel_spi(slave);
-
-	/* Enable the SPI hardware */
-	spi_writel(as, CR, ATMEL_SPI_CR_SPIEN);
-
-	/*
-	 * Select the slave. This should set SCK to the correct
-	 * initial state, etc.
-	 */
-	spi_writel(as, MR, as->mr);
-
-	return 0;
-}
-
-void spi_release_bus(struct spi_slave *slave)
-{
-	struct atmel_spi_slave *as = to_atmel_spi(slave);
-
-	/* Disable the SPI hardware */
-	spi_writel(as, CR, ATMEL_SPI_CR_SPIDIS);
-}
-
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
-		const void *dout, void *din, unsigned long flags)
-{
-	struct atmel_spi_slave *as = to_atmel_spi(slave);
-	unsigned int	len_tx;
-	unsigned int	len_rx;
-	unsigned int	len;
-	u32		status;
-	const u8	*txp = dout;
-	u8		*rxp = din;
-	u8		value;
-
-	if (bitlen == 0)
-		/* Finish any previously submitted transfers */
-		goto out;
-
-	/*
-	 * TODO: The controller can do non-multiple-of-8 bit
-	 * transfers, but this driver currently doesn't support it.
-	 *
-	 * It's also not clear how such transfers are supposed to be
-	 * represented as a stream of bytes...this is a limitation of
-	 * the current SPI interface.
-	 */
-	if (bitlen % 8) {
-		/* Errors always terminate an ongoing transfer */
-		flags |= SPI_XFER_END;
-		goto out;
-	}
-
-	len = bitlen / 8;
-
-	/*
-	 * The controller can do automatic CS control, but it is
-	 * somewhat quirky, and it doesn't really buy us much anyway
-	 * in the context of U-Boot.
-	 */
-	if (flags & SPI_XFER_BEGIN) {
-		spi_cs_activate(slave);
-		/*
-		 * sometimes the RDR is not empty when we get here,
-		 * in theory that should not happen, but it DOES happen.
-		 * Read it here to be on the safe side.
-		 * That also clears the OVRES flag. Required if the
-		 * following loop exits due to OVRES!
-		 */
-		spi_readl(as, RDR);
-	}
-
-	for (len_tx = 0, len_rx = 0; len_rx < len; ) {
-		status = spi_readl(as, SR);
-
-		if (status & ATMEL_SPI_SR_OVRES)
-			return -1;
-
-		if (len_tx < len && (status & ATMEL_SPI_SR_TDRE)) {
-			if (txp)
-				value = *txp++;
-			else
-				value = 0;
-			spi_writel(as, TDR, value);
-			len_tx++;
-		}
-		if (status & ATMEL_SPI_SR_RDRF) {
-			value = spi_readl(as, RDR);
-			if (rxp)
-				*rxp++ = value;
-			len_rx++;
-		}
-	}
-
-out:
-	if (flags & SPI_XFER_END) {
-		/*
-		 * Wait until the transfer is completely done before
-		 * we deactivate CS.
-		 */
-		do {
-			status = spi_readl(as, SR);
-		} while (!(status & ATMEL_SPI_SR_TXEMPTY));
-
-		spi_cs_deactivate(slave);
-	}
-
-	return 0;
-}
-
-#else
+/* Constants for CSRx:BITS */
+#define ATMEL_SPI_BITS_8		0
+#define ATMEL_SPI_BITS_9		1
+#define ATMEL_SPI_BITS_10		2
+#define ATMEL_SPI_BITS_11		3
+#define ATMEL_SPI_BITS_12		4
+#define ATMEL_SPI_BITS_13		5
+#define ATMEL_SPI_BITS_14		6
+#define ATMEL_SPI_BITS_15		7
+#define ATMEL_SPI_BITS_16		8
 
 #define MAX_CS_COUNT	4
+
+/* Register access macros */
+#define spi_readl(as, reg)					\
+	readl(as->regs + ATMEL_SPI_##reg)
+#define spi_writel(as, reg, value)				\
+	writel(value, as->regs + ATMEL_SPI_##reg)
 
 struct atmel_spi_platdata {
 	struct at91_spi *regs;
@@ -228,7 +113,7 @@ struct atmel_spi_priv {
 	unsigned int freq;		/* Default frequency */
 	unsigned int mode;
 	ulong bus_clk_rate;
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	struct gpio_desc cs_gpios[MAX_CS_COUNT];
 #endif
 };
@@ -285,7 +170,7 @@ static int atmel_spi_release_bus(struct udevice *dev)
 
 static void atmel_spi_cs_activate(struct udevice *dev)
 {
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	struct udevice *bus = dev_get_parent(dev);
 	struct atmel_spi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
@@ -300,7 +185,7 @@ static void atmel_spi_cs_activate(struct udevice *dev)
 
 static void atmel_spi_cs_deactivate(struct udevice *dev)
 {
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	struct udevice *bus = dev_get_parent(dev);
 	struct atmel_spi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
@@ -466,9 +351,9 @@ static int atmel_spi_probe(struct udevice *bus)
 	if (ret)
 		return ret;
 
-	bus_plat->regs = (struct at91_spi *)devfdt_get_addr(bus);
+	bus_plat->regs = dev_read_addr_ptr(bus);
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	struct atmel_spi_priv *priv = dev_get_priv(bus);
 	int i;
 
@@ -507,4 +392,3 @@ U_BOOT_DRIVER(atmel_spi) = {
 	.priv_auto_alloc_size = sizeof(struct atmel_spi_priv),
 	.probe	= atmel_spi_probe,
 };
-#endif

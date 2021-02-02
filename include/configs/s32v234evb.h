@@ -34,11 +34,6 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
-/* Config CACHE */
-#define CONFIG_CMD_CACHE
-
-#define CONFIG_SYS_FULL_VA
-
 /* Enable passing of ATAGs */
 #define CONFIG_CMDLINE_TAG
 
@@ -61,20 +56,14 @@
 #define CONFIG_DEBUG_UART_LINFLEXUART
 #define CONFIG_DEBUG_UART_BASE		LINFLEXUART_BASE
 
-/* Allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 #define CONFIG_SYS_UART_PORT		(1)
 
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC_BASE_ADDR
 #define CONFIG_SYS_FSL_ESDHC_NUM	1
 
-#define CONFIG_CMD_MMC
-/* #define CONFIG_CMD_EXT2 EXT2 Support */
-
 #if 0
 
 /* Ethernet config */
-#define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE            ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE     RMII
@@ -144,23 +133,16 @@
 	"run distro_bootcmd"
 
 #include <config_distro_bootcmd.h>
+#include <linux/stringify.h>
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_PROMPT		"=> "
-
-#define CONFIG_SYS_MEMTEST_START	(DDR_BASE_ADDR)
-#define CONFIG_SYS_MEMTEST_END		(DDR_BASE_ADDR + 0x7C00000)
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ				1000
 
 #ifdef CONFIG_RUN_FROM_IRAM_ONLY
 #define CONFIG_SYS_MALLOC_BASE		(DDR_BASE_ADDR)
-#endif
-
-#if 0
-/* Configure PXE */
-#define CONFIG_BOOTP_PXE_CLIENTARCH	0x100
 #endif
 
 /* Physical memory map */
@@ -178,8 +160,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* environment organization */
-
-#define CONFIG_SYS_MMC_ENV_DEV		0
 
 
 #define CONFIG_BOOTP_BOOTFILESIZE

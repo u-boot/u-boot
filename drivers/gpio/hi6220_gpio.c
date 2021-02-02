@@ -9,6 +9,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <errno.h>
+#include <linux/bitops.h>
 
 static int hi6220_gpio_direction_input(struct udevice *dev, unsigned int gpio)
 {

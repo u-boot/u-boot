@@ -12,6 +12,9 @@ describes the fields added for clock tree initialization which are not present
 in Linux binding for compatible "st,stm32mp1-rcc" defined in st,stm32mp1-rcc.txt
 file.
 
+This parent node may optionally have additional children nodes which define
+specific init values for RCC elements.
+
 The added properties for clock tree initialization are:
 
 Required properties:
@@ -78,13 +81,20 @@ Required properties:
 	>;
 
 Optional Properties:
-- st,pll : A specific PLL configuration, including frequency.
+- children for a PLL configuration with "st,stm32mp1-pll" compatible
 
-  PLL children nodes for PLL1 to PLL4 (see ref manual for details)
-  are listed with associated index 0 to 3 (st,pll@0 to st,pll@3).
-  PLLx is off when the associated node is absent.
+  each PLL children nodes for PLL1 to PLL4 (see ref manual for details)
+  are listed with associated reg 0 to 3.
+  PLLx is off when the associated node is absent or deactivated.
+
+  For PLL1, when the node is absent, the frequency of the OPP node is used
+  to compute the PLL setting (see compatible "operating-points-v2" in
+  opp/opp.txt for details).
 
   Here are the available properties for each PLL node:
+    - compatible: should be "st,stm32mp1-pll"
+
+    - reg: index of the pll instance
 
     - cfg: The parameters for PLL configuration in the following order:
            DIVM DIVN DIVP DIVQ DIVR Output.
@@ -118,18 +128,26 @@ Optional Properties:
 
     Example:
 	st,pll@0 {
+		compatible = "st,stm32mp1-pll";
+		reg = <0>;
 		cfg = < 1 53 0 0 0 1 >;
 		frac = < 0x810 >;
 	};
 	st,pll@1 {
+		compatible = "st,stm32mp1-pll";
+		reg = <1>;
 		cfg = < 1 43 1 0 0 PQR(0,1,1) >;
 		csg = < 10 20 1 >;
 	};
 	st,pll@2 {
+		compatible = "st,stm32mp1-pll";
+		reg = <2>;
 		cfg = < 2 85 3 13 3 0 >;
 		csg = < 10 20 SSCG_MODE_CENTER_SPREAD >;
 		};
 	st,pll@3 {
+		compatible = "st,stm32mp1-pll";
+		reg = <3>;
 		cfg = < 2 78 4 7 9 3 >;
 	};
 
@@ -277,6 +295,8 @@ Example of clock tree initialization
 			u-boot,dm-pre-reloc;
 			compatible = "st,stm32mp1-rcc", "syscon";
 			reg = <0x50000000 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
 			#clock-cells = <1>;
 			#reset-cells = <1>;
 			interrupts = <GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>;
@@ -347,6 +367,8 @@ Example of clock tree initialization
 
 			/* VCO = 1300.0 MHz => P = 650 (CPU) */
 			pll1: st,pll@0 {
+				compatible = "st,stm32mp1-pll";
+				reg = <0>;
 				cfg = < 2 80 0 0 0 PQR(1,0,0) >;
 				frac = < 0x800 >;
 				u-boot,dm-pre-reloc;
@@ -355,6 +377,8 @@ Example of clock tree initialization
 			/* VCO = 1066.0 MHz => P = 266 (AXI), Q = 533 (GPU),
 			                       R = 533 (DDR) */
 			pll2: st,pll@1 {
+				compatible = "st,stm32mp1-pll";
+				reg = <1>;
 				cfg = < 2 65 1 0 0 PQR(1,1,1) >;
 				frac = < 0x1400 >;
 				u-boot,dm-pre-reloc;
@@ -362,6 +386,8 @@ Example of clock tree initialization
 
 			/* VCO = 417.8 MHz => P = 209, Q = 24, R = 11 */
 			pll3: st,pll@2 {
+				compatible = "st,stm32mp1-pll";
+				reg = <2>;
 				cfg = < 1 33 1 16 36 PQR(1,1,1) >;
 				frac = < 0x1a04 >;
 				u-boot,dm-pre-reloc;
@@ -369,6 +395,8 @@ Example of clock tree initialization
 
 			/* VCO = 594.0 MHz => P = 99, Q = 74, R = 74 */
 			pll4: st,pll@3 {
+				compatible = "st,stm32mp1-pll";
+				reg = <3>;
 				cfg = < 3 98 5 7 7 PQR(1,1,1) >;
 				u-boot,dm-pre-reloc;
 			};

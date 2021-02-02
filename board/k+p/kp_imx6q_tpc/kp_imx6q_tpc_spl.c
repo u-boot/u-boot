@@ -6,6 +6,8 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/imx-regs.h>
@@ -14,6 +16,7 @@
 #include <asm/io.h>
 #include <errno.h>
 #include <spl.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

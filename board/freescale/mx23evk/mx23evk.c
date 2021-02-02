@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/gpio.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
@@ -64,7 +65,7 @@ static int mx23evk_mmc_wp(int id)
 	return gpio_get_value(MX23_PAD_PWM4__GPIO_1_30);
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	/* Configure WP as input */
 	gpio_direction_input(MX23_PAD_PWM4__GPIO_1_30);

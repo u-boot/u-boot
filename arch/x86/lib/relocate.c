@@ -15,6 +15,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <relocate.h>
 #include <asm/u-boot-x86.h>
 #include <asm/sections.h>

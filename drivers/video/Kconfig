@@ -14,9 +14,48 @@ config DM_VIDEO
 	  option compiles in the video uclass and routes all LCD/video access
 	  through this.
 
+config BACKLIGHT
+	bool "Enable panel backlight uclass support"
+	depends on DM_VIDEO
+	default y
+	help
+	  This provides backlight uclass driver that enables basic panel
+	  backlight support.
+
+config VIDEO_PCI_DEFAULT_FB_SIZE
+	hex "Default framebuffer size to use if no drivers request it"
+	depends on DM_VIDEO
+	default 0x1000000 if X86 && PCI
+	default 0 if !(X86 && PCI)
+	help
+	  Generally, video drivers request the amount of memory they need for
+	  the frame buffer when they are bound, by setting the size field in
+	  struct video_uc_platdata. That memory is then reserved for use after
+	  relocation. But PCI drivers cannot be bound before relocation unless
+	  they are mentioned in the devicetree.
+
+	  With this value set appropriately, it is possible for PCI video
+	  devices to have a framebuffer allocated by U-Boot.
+
+	  Note: the framebuffer needs to be large enough to store all pixels at
+	  maximum resolution. For example, at 1920 x 1200 with 32 bits per
+	  pixel, 2560 * 1600 * 32 / 8 = 0xfa0000 bytes are needed.
+
+config VIDEO_COPY
+	bool "Enable copying the frame buffer to a hardware copy"
+	depends on DM_VIDEO
+	help
+	  On some machines (e.g. x86), reading from the frame buffer is very
+	  slow because it is uncached. To improve performance, this feature
+	  allows the frame buffer to be kept in cached memory (allocated by
+	  U-Boot) and then copied to the hardware frame-buffer as needed.
+
+	  To use this, your video driver must set @copy_base in
+	  struct video_uc_platdata.
+
 config BACKLIGHT_PWM
 	bool "Generic PWM based Backlight Driver"
-	depends on DM_VIDEO && DM_PWM
+	depends on BACKLIGHT && DM_PWM
 	default y
 	help
 	  If you have a LCD backlight adjustable by PWM, say Y to enable
@@ -27,7 +66,7 @@ config BACKLIGHT_PWM
 
 config BACKLIGHT_GPIO
 	bool "Generic GPIO based Backlight Driver"
-	depends on DM_VIDEO
+	depends on BACKLIGHT
 	help
 	  If you have a LCD backlight adjustable by GPIO, say Y to enable
 	  this driver.
@@ -35,9 +74,18 @@ config BACKLIGHT_GPIO
 	  it understands the standard device tree
 	  (leds/backlight/gpio-backlight.txt)
 
+config CMD_VIDCONSOLE
+	bool "Enable vidconsole commands lcdputs and setcurs"
+	depends on DM_VIDEO
+	default y
+	help
+	  Enabling this will provide 'setcurs' and 'lcdputs' commands which
+	  support cursor positioning and drawing strings on video framebuffer.
+
 config VIDEO_BPP8
 	bool "Support 8-bit-per-pixel displays"
 	depends on DM_VIDEO
+	default y
 	help
 	  Support drawing text and bitmaps onto a 8-bit-per-pixel display.
 	  Enabling this will include code to support this display. Without
@@ -47,6 +95,7 @@ config VIDEO_BPP8
 config VIDEO_BPP16
 	bool "Support 16-bit-per-pixel displays"
 	depends on DM_VIDEO
+	default y
 	help
 	  Support drawing text and bitmaps onto a 16-bit-per-pixel display.
 	  Enabling this will include code to support this display. Without
@@ -56,7 +105,7 @@ config VIDEO_BPP16
 config VIDEO_BPP32
 	bool "Support 32-bit-per-pixel displays"
 	depends on DM_VIDEO
-	default y if X86
+	default y
 	help
 	  Support drawing text and bitmaps onto a 32-bit-per-pixel display.
 	  Enabling this will include code to support this display. Without
@@ -66,6 +115,7 @@ config VIDEO_BPP32
 config VIDEO_ANSI
 	bool "Support ANSI escape sequences in video console"
 	depends on DM_VIDEO
+	default y
 	help
 	  Enable ANSI escape sequence decoding for a more fully functional
 	  console.
@@ -125,7 +175,7 @@ config CONSOLE_TRUETYPE_SIZE
 
 config SYS_WHITE_ON_BLACK
 	bool "Display console as white on a black background"
-	default y if ARCH_AT91 || ARCH_EXYNOS || ARCH_ROCKCHIP || TEGRA || X86 || ARCH_SUNXI
+	default y if ARCH_AT91 || ARCH_EXYNOS || ARCH_ROCKCHIP || ARCH_TEGRA || X86 || ARCH_SUNXI
 	help
 	 Normally the display is black on a white background, Enable this
 	 option to invert this, i.e. white on a black background. This can be
@@ -140,17 +190,44 @@ config NO_FB_CLEAR
 	  loads takes over the screen.  This, for example, can be used to
 	  keep splash image on screen until grub graphical boot menu starts.
 
+config PANEL
+	bool "Enable panel uclass support"
+	depends on DM_VIDEO
+	default y
+	help
+	  This provides panel uclass driver that enables basic panel support.
+
+config SIMPLE_PANEL
+	bool "Enable simple panel support"
+	depends on PANEL
+	default y
+	help
+	  This turns on a simple panel driver that enables a compatible
+	  video panel.
+
 source "drivers/video/fonts/Kconfig"
 
 config VIDCONSOLE_AS_LCD
-	bool "Use 'vidconsole' when 'lcd' is seen in stdout"
+	bool "Use 'vidconsole' when CONFIG_VIDCONSOLE_AS_NAME string is seen in stdout"
 	depends on DM_VIDEO
 	help
-	  This is a work-around for boards which have 'lcd' in their stdout
-	  environment variable, but have moved to use driver model for video.
-	  In this case the console will no-longer work. While it is possible
-	  to update the environment, the breakage may be confusing for users.
-	  This option will be removed around the end of 2016.
+	  This is a work-around for boards which have 'lcd' or 'vga' in their
+	  stdout environment variable, but have moved to use driver model for
+	  video. In this case the console will no-longer work. While it is
+	  possible to update the environment, the breakage may be confusing for
+	  users. This option will be removed around the end of 2020.
+
+config VIDCONSOLE_AS_NAME
+	string "Use 'vidconsole' when string defined here is seen in stdout"
+	depends on VIDCONSOLE_AS_LCD
+	default "lcd" if LCD || TEGRA_COMMON
+	default "vga" if !LCD
+	help
+	  This is a work-around for boards which have 'lcd' or 'vga' in their
+	  stdout environment variable, but have moved to use driver model for
+	  video. In this case the console will no-longer work. While it is
+	  possible to update the environment, the breakage may be confusing for
+	  users. This option will be removed around the end of 2020.
 
 config VIDEO_COREBOOT
 	bool "Enable coreboot framebuffer driver support"
@@ -466,9 +543,13 @@ config NXP_TDA19988
 
 config ATMEL_HLCD
 	bool "Enable ATMEL video support using HLCDC"
-	depends on DM_VIDEO
 	help
 	   HLCDC supports video output to an attached LCD panel.
+
+config AM335X_LCD
+	bool "Enable AM335x video support"
+	help
+	   Supports video output to an attached LCD panel.
 
 config LOGICORE_DP_TX
 	bool "Enable Logicore DP TX driver"
@@ -563,6 +644,23 @@ source "drivers/video/bridge/Kconfig"
 
 source "drivers/video/imx/Kconfig"
 
+config VIDEO_NX
+	bool "Enable video support on Nexell SoC"
+	depends on ARCH_S5P6818 || ARCH_S5P4418
+	help
+	   Nexell SoC supports many video output options including eDP and
+	   HDMI. This option enables this support which can be used on devices
+	   which have an eDP display connected.
+
+config VIDEO_SEPS525
+	bool "Enable video support for Seps525"
+	depends on DM_VIDEO
+	help
+	  Enable support for the Syncoam PM-OLED display driver (RGB 160x128).
+	  Currently driver is supporting only SPI interface.
+
+source "drivers/video/nexell/Kconfig"
+
 config VIDEO
 	bool "Enable legacy video support"
 	depends on !DM_VIDEO
@@ -574,7 +672,7 @@ config VIDEO
 
 config CFB_CONSOLE
 	bool "Enable colour frame buffer console"
-	depends on VIDEO
+	depends on VIDEO || ARCH_OMAP2PLUS
 	default y if VIDEO
 	help
 	  Enables the colour frame buffer driver. This supports colour
@@ -762,5 +860,130 @@ config IHS_VIDEO_OUT
 	  Enable support for the gdsys Integrated Hardware Systems (IHS) video
 	  out On-screen Display (OSD) used on gdsys FPGAs to control dynamic
 	  textual overlays of the display outputs.
+
+config SPLASH_SCREEN
+	bool "Show a splash-screen image"
+	help
+	  If this option is set, the environment is checked for a variable
+	  "splashimage". If found, the usual display of logo, copyright and
+	  system information on the LCD is suppressed and the BMP image at the
+	  address specified in "splashimage" is loaded instead. The console is
+	  redirected to the "nulldev", too. This allows for a "silent" boot
+	  where a splash screen is loaded very quickly after power-on.
+
+	  The splash_screen_prepare() function is a weak function defined in
+	  common/splash.c. It is called as part of the splash screen display
+	  sequence. It gives the board an opportunity to prepare the splash
+	  image data before it is processed and sent to the frame buffer by
+	  U-Boot. Define your own version to use this feature.
+
+config SPLASHIMAGE_GUARD
+	bool "Support unaligned BMP images"
+	depends on SPLASH_SCREEN
+	help
+	  If this option is set, then U-Boot will prevent the environment
+	  variable "splashimage" from being set to a problematic address
+	  (see doc/README.displaying-bmps).
+
+	  This option is useful for targets where, due to alignment
+	  restrictions, an improperly aligned BMP image will cause a data
+	  abort. If you think you will not have problems with unaligned
+	  accesses (for example because your toolchain prevents them)
+	  there is no need to set this option.
+
+config SPLASH_SCREEN_ALIGN
+	bool "Allow positioning the splash image anywhere on the display"
+	depends on SPLASH_SCREEN || CMD_BMP
+	help
+	  If this option is set the splash image can be freely positioned
+	  on the screen. Environment variable "splashpos" specifies the
+	  position as "x,y". If a positive number is given it is used as
+	  number of pixel from left/top. If a negative number is given it
+	  is used as number of pixel from right/bottom. You can also
+	  specify 'm' for centering the image.
+
+	  Example:
+	  setenv splashpos m,m
+	  	=> image at center of screen
+
+	  setenv splashpos 30,20
+	  	=> image at x = 30 and y = 20
+
+	  setenv splashpos -10,m
+	  	=> vertically centered image
+	  	   at x = dspWidth - bmpWidth - 9
+
+config SPLASH_SOURCE
+	bool "Control the source of the splash image"
+	depends on SPLASH_SCREEN
+	help
+	  Use the splash_source.c library. This library provides facilities to
+	  declare board specific splash image locations, routines for loading
+	  splash image from supported locations, and a way of controlling the
+	  selected splash location using the "splashsource" environment
+	  variable.
+
+	  This CONFIG works as follows:
+
+	  - If splashsource is set to a supported location name as defined by
+	    board code, use that splash location.
+	  - If splashsource is undefined, use the first splash location as
+	    default.
+	  - If splashsource is set to an unsupported value, do not load a splash
+	    screen.
+
+	  A splash source location can describe either storage with raw data, a
+	  storage formatted with a file system or a FIT image. In case of a
+	  filesystem, the splash screen data is loaded as a file. The name of
+	  the splash screen file can be controlled with the environment variable
+	  "splashfile".
+
+	  To enable loading the splash image from a FIT image, CONFIG_FIT must
+	  be enabled. The FIT image has to start at the 'offset' field address
+	  in the selected splash location. The name of splash image within the
+	  FIT shall be specified by the environment variable "splashfile".
+
+	  In case the environment variable "splashfile" is not defined the
+	  default name 'splash.bmp' will be used.
+
+config VIDEO_BMP_GZIP
+	bool "Gzip compressed BMP image support"
+	depends on CMD_BMP || SPLASH_SCREEN
+	help
+	  If this option is set, additionally to standard BMP
+	  images, gzipped BMP images can be displayed via the
+	  splashscreen support or the bmp command.
+
+config VIDEO_BMP_RLE8
+	bool "Run length encoded BMP image (RLE8) support"
+	depends on DM_VIDEO || CFB_CONSOLE
+	help
+	  If this option is set, the 8-bit RLE compressed BMP images
+	  is supported.
+
+config BMP_16BPP
+	bool "16-bit-per-pixel BMP image support"
+	depends on DM_VIDEO || LCD
+	help
+	  Support display of bitmaps file with 16-bit-per-pixel
+
+config BMP_24BPP
+	bool "24-bit-per-pixel BMP image support"
+	depends on DM_VIDEO || LCD
+	help
+	  Support display of bitmaps file with 24-bit-per-pixel.
+
+config BMP_32BPP
+	bool "32-bit-per-pixel BMP image support"
+	depends on DM_VIDEO || LCD
+	help
+	  Support display of bitmaps file with 32-bit-per-pixel.
+
+config VIDEO_VCXK
+	bool "Enable VCXK video controller driver support"
+	default n
+	help
+	  This enables VCXK driver which can be used with VC2K, VC4K
+	  and VC8K devices on various boards from BuS Elektronik GmbH.
 
 endmenu

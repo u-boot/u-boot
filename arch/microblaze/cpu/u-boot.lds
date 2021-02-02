@@ -14,7 +14,7 @@ SECTIONS
 	{
 		__text_start = .;
 		arch/microblaze/cpu/start.o (.text)
-		*(.text)
+		*(.text*)
 		__text_end = .;
 	}
 
@@ -28,7 +28,7 @@ SECTIONS
 	.data ALIGN(0x4):
 	{
 		__data_start = .;
-		*(.data)
+		*(.data*)
 		__data_end = .;
 	}
 
@@ -51,7 +51,7 @@ SECTIONS
 		__bss_start = .;
 		*(.sbss)
 		*(.scommon)
-		*(.bss)
+		*(.bss*)
 		*(COMMON)
 		. = ALIGN(4);
 		__bss_end = .;

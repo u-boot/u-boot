@@ -134,3 +134,30 @@ Example
 		phandlepart = <&mmc 1>;
 	};
 };
+
+u-boot,acpi-ssdt-order
+----------------------
+
+This provides the ordering to use when writing device data to the ACPI SSDT
+(Secondary System Descriptor Table). Each cell is a phandle pointer to a device
+node to add. The ACPI information is written in this order.
+
+If the ordering does not include all nodes, an error is generated.
+
+e820-entries
+------------
+
+This provides a way to add entries to the e820 table which tells the OS about
+the memory map. The property contains three sets of 64-bit values:
+
+   address   - Start address of region
+   size      - Size of region
+   flags     - Flags (E820_...)
+
+Example:
+
+chosen {
+	e820-entries = /bits/ 64 <
+		IOMAP_P2SB_BAR IOMAP P2SB_SIZE E820_RESERVED
+		MCH_BASE_ADDRESS     MCH_SIZE  E820_RESERVED>;
+};

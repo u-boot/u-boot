@@ -266,6 +266,13 @@ int env_set_default_vars(int nvars, char *const vars[], int flags);
 int env_load(void);
 
 /**
+ * env_reload() - Re-Load the environment from current storage
+ *
+ * @return 0 if OK, -ve on error
+ */
+int env_reload(void);
+
+/**
  * env_save() - Save the environment to storage
  *
  * @return 0 if OK, -ve on error
@@ -280,6 +287,13 @@ int env_save(void);
 int env_erase(void);
 
 /**
+ * env_select() - Select the environment storage
+ *
+ * @return 0 if OK, -ve on error
+ */
+int env_select(const char *name);
+
+/**
  * env_import() - Import from a binary representation into hash table
  *
  * This imports the environment from a buffer. The format for each variable is
@@ -288,10 +302,11 @@ int env_erase(void);
  * @buf: Buffer containing the environment (struct environemnt_s *)
  * @check: non-zero to check the CRC at the start of the environment, 0 to
  *	ignore it
+ * @flags: Flags controlling matching (H_... - see search.h)
  * @return 0 if imported successfully, -ENOMSG if the CRC was bad, -EIO if
  *	something else went wrong
  */
-int env_import(const char *buf, int check);
+int env_import(const char *buf, int check, int flags);
 
 /**
  * env_export() - Export the environment to a buffer
@@ -304,16 +319,36 @@ int env_import(const char *buf, int check);
 int env_export(struct environment_s *env_out);
 
 /**
+ * env_check_redund() - check the two redundant environments
+ *   and find out, which is the valid one.
+ *
+ * @buf1: First environment (struct environemnt_s *)
+ * @buf1_read_fail: 0 if buf1 is valid, non-zero if invalid
+ * @buf2: Second environment (struct environemnt_s *)
+ * @buf2_read_fail: 0 if buf2 is valid, non-zero if invalid
+ * @return 0 if OK,
+ *	-EIO if no environment is valid,
+ *	-EINVAL if read of second entry is good
+ *	-ENOENT if read of first entry is good
+ *	-ENOMSG if the CRC was bad
+ */
+
+int env_check_redund(const char *buf1, int buf1_read_fail,
+		     const char *buf2, int buf2_read_fail);
+
+/**
  * env_import_redund() - Select and import one of two redundant environments
  *
  * @buf1: First environment (struct environemnt_s *)
  * @buf1_read_fail: 0 if buf1 is valid, non-zero if invalid
  * @buf2: Second environment (struct environemnt_s *)
  * @buf2_read_fail: 0 if buf2 is valid, non-zero if invalid
+ * @flags: Flags controlling matching (H_... - see search.h)
  * @return 0 if OK, -EIO if no environment is valid, -ENOMSG if the CRC was bad
  */
 int env_import_redund(const char *buf1, int buf1_read_fail,
-		      const char *buf2, int buf2_read_fail);
+		      const char *buf2, int buf2_read_fail,
+		      int flags);
 
 /**
  * env_get_default() - Look up a variable from the default environment
@@ -342,5 +377,4 @@ int env_get_char(int index);
  * This is used for those unfortunate archs with crappy toolchains
  */
 void env_reloc(void);
-
 #endif

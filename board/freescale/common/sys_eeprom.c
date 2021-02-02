@@ -10,7 +10,9 @@
 #include <command.h>
 #include <env.h>
 #include <i2c.h>
+#include <init.h>
 #include <linux/ctype.h>
+#include <linux/delay.h>
 #include <u-boot/crc.h>
 
 #ifdef CONFIG_SYS_I2C_EEPROM_CCID
@@ -173,9 +175,11 @@ static int read_eeprom(void)
 	struct udevice *dev;
 #ifdef CONFIG_SYS_EEPROM_BUS_NUM
 	ret = i2c_get_chip_for_busnum(CONFIG_SYS_EEPROM_BUS_NUM,
-				      CONFIG_SYS_I2C_EEPROM_ADDR, 1, &dev);
+				      CONFIG_SYS_I2C_EEPROM_ADDR,
+				      CONFIG_SYS_I2C_EEPROM_ADDR_LEN, &dev);
 #else
-	ret = i2c_get_chip_for_busnum(0, CONFIG_SYS_I2C_EEPROM_ADDR, 1, &dev);
+	ret = i2c_get_chip_for_busnum(0, CONFIG_SYS_I2C_EEPROM_ADDR,
+				      CONFIG_SYS_I2C_EEPROM_ADDR_LEN, &dev);
 #endif
 	if (!ret)
 		ret = dm_i2c_read(dev, 0, (void *)&e, sizeof(e));
@@ -382,7 +386,7 @@ static void set_mac_address(unsigned int index, const char *string)
 	update_crc();
 }
 
-int do_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char cmd;
 
@@ -595,6 +599,7 @@ unsigned int get_cpu_board_revision(void)
 		(void *)&be, sizeof(be));
 #else
 	struct udevice *dev;
+	int ret;
 #ifdef CONFIG_SYS_EEPROM_BUS_NUM
 	ret = i2c_get_chip_for_busnum(CONFIG_SYS_EEPROM_BUS_NUM,
 				      CONFIG_SYS_I2C_EEPROM_ADDR,
@@ -603,7 +608,7 @@ unsigned int get_cpu_board_revision(void)
 #else
 	ret = i2c_get_chip_for_busnum(0, CONFIG_SYS_I2C_EEPROM_ADDR,
 				      CONFIG_SYS_I2C_EEPROM_ADDR_LEN,
-				      &dev)
+				      &dev);
 #endif
 	if (!ret)
 		dm_i2c_read(dev, 0, (void *)&be, sizeof(be));

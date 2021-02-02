@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <linux/sizes.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
@@ -165,7 +166,7 @@ void reset_phy(void)
 }
 #endif
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int rc = 0;
 #ifdef CONFIG_MACB

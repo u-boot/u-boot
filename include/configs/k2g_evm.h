@@ -82,7 +82,6 @@
 #define PHY_ANEG_TIMEOUT	10000 /* PHY needs longer aneg time */
 
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_CADENCE_QSPI
 #define CONFIG_CQSPI_REF_CLK 384000000
 #endif
 

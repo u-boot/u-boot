@@ -8,7 +8,6 @@
 #ifndef _MUX_AM43XX_H_
 #define _MUX_AM43XX_H_
 
-#include <common.h>
 #include <asm/io.h>
 
 #define MUX_CFG(value, offset)	\

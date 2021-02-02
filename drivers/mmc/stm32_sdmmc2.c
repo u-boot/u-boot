@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
- * Author(s): Patrice Chotard, <patrice.chotard@st.com> for STMicroelectronics.
+ * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
 #include <common.h>
@@ -9,6 +9,12 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
+#include <malloc.h>
+#include <asm/bitops.h>
+#include <asm/cache.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <mmc.h>
 #include <reset.h>
@@ -670,27 +676,13 @@ static int stm32_sdmmc2_probe(struct udevice *dev)
 			     GPIOD_IS_IN);
 
 	cfg->f_min = 400000;
-	cfg->f_max = dev_read_u32_default(dev, "max-frequency", 52000000);
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
-	cfg->name = "STM32 SDMMC2";
+	cfg->name = "STM32 SD/MMC";
 
 	cfg->host_caps = 0;
-	if (cfg->f_max > 25000000)
-		cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
-
-	switch (dev_read_u32_default(dev, "bus-width", 1)) {
-	case 8:
-		cfg->host_caps |= MMC_MODE_8BIT;
-		/* fall through */
-	case 4:
-		cfg->host_caps |= MMC_MODE_4BIT;
-		break;
-	case 1:
-		break;
-	default:
-		pr_err("invalid \"bus-width\" property, force to 1\n");
-	}
+	cfg->f_max = 52000000;
+	mmc_of_parse(dev, cfg);
 
 	upriv->mmc = &plat->mmc;
 

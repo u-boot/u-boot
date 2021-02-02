@@ -10,6 +10,10 @@
 #ifndef __OMAP_WDT_H__
 #define __OMAP_WDT_H__
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 /*
  * Watchdog:
  * Using the prescaler, the OMAP watchdog could go for many

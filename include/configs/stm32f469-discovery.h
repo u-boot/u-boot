@@ -1,11 +1,16 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) STMicroelectronics SA 2017
- * Author(s): Patrice CHOTARD, <patrice.chotard@st.com> for STMicroelectronics.
+ * Author(s): Patrice CHOTARD, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
+
+#include <linux/sizes.h>
+
+/* For booting Linux, use the first 12MB of memory */
+#define CONFIG_SYS_BOOTMAPSZ		SZ_8M + SZ_4M
 
 #define CONFIG_SYS_FLASH_BASE		0x08000000
 
@@ -40,16 +45,10 @@
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 			"kernel_addr_r=0x00008000\0"		\
 			"fdtfile=stm32f469-disco.dtb\0"	\
-			"fdt_addr_r=0x00700000\0"		\
-			"scriptaddr=0x00800000\0"		\
-			"pxefile_addr_r=0x00800000\0" \
-			"fdt_high=0xffffffffffffffff\0"		\
-			"initrd_high=0xffffffffffffffff\0"	\
-			"ramdisk_addr_r=0x00900000\0"		\
+			"fdt_addr_r=0x00408000\0"		\
+			"scriptaddr=0x00418000\0"		\
+			"pxefile_addr_r=0x00428000\0" \
+			"ramdisk_addr_r=0x00438000\0"		\
 			BOOTENV
-
-/*
- * Command line configuration.
- */
 
 #endif /* __CONFIG_H */

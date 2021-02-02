@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright 2008-2012 Freescale Semiconductor, Inc.
+ * Copyright 2008-2020 Freescale Semiconductor, Inc.
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <fsl_ddr_sdram.h>
 #include <asm/processor.h>
+#include <linux/delay.h>
 
 #if (CONFIG_CHIP_SELECTS_PER_CTRL > 4)
 #error Invalid setting for CONFIG_CHIP_SELECTS_PER_CTRL
@@ -37,6 +39,15 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_DDR_A003
 	u32 save1, save2;
+#endif
+#if defined(CONFIG_SYS_FSL_ERRATUM_A009942) || \
+	(defined(CONFIG_SYS_FSL_ERRATUM_A008378) && \
+	defined(CONFIG_SYS_FSL_DDRC_GEN4)) || \
+	defined(CONFIG_SYS_FSL_ERRATUM_A008109)
+	u32 val32;
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009942
+	unsigned int ddr_freq;
 #endif
 
 	switch (ctrl_num) {
@@ -335,6 +346,49 @@ step2:
 		out_be32(&ddr->sdram_interval, regs->ddr_sdram_interval);
 
 	}
+#endif
+
+#if defined(CONFIG_SYS_FSL_ERRATUM_A008378) && defined(CONFIG_SYS_FSL_DDRC_GEN4)
+	/* Erratum applies when accumulated ECC is used, or DBI is enabled */
+#define IS_ACC_ECC_EN(v) ((v) & 0x4)
+#define IS_DBI(v) ((((v) >> 12) & 0x3) == 0x2)
+	if (has_erratum_a008378()) {
+		if (IS_ACC_ECC_EN(regs->ddr_sdram_cfg) ||
+		    IS_DBI(regs->ddr_sdram_cfg_3)) {
+			val32 = ddr_in32(&ddr->debug[28]);
+			val32 |= (0x9 << 20);
+			ddr_out32(&ddr->debug[28], val32);
+		}
+		debug("Applied errata CONFIG_SYS_FSL_ERRATUM_A008378\n");
+	}
+#endif
+
+#if defined(CONFIG_SYS_FSL_ERRATUM_A008109)
+	val32 = in_be32(&ddr->sdram_cfg_2) | 0x800; /* DDR_SLOW */
+	out_be32(&ddr->sdram_cfg_2, val32);
+
+	val32 = in_be32(&ddr->debug[18]) | 0x2;
+	out_be32(&ddr->debug[18], val32);
+
+	out_be32(&ddr->debug[28], 0x30000000);
+	debug("Applied errta CONFIG_SYS_FSL_ERRATUM_A008109\n");
+#endif
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009942
+	ddr_freq = get_ddr_freq(ctrl_num) / 1000000;
+	val32 = in_be32(&ddr->debug[28]);
+	val32 &= 0xff0fff00;
+	if (ddr_freq <= 1333)
+		val32 |= 0x0080006a;
+	else if (ddr_freq <= 1600)
+		val32 |= 0x0070006f;
+	else if (ddr_freq <= 1867)
+		val32 |= 0x00700076;
+	else if (ddr_freq <= 2133)
+		val32 |= 0x0060007b;
+
+	out_be32(&ddr->debug[28], val32);
+	debug("Applied errata CONFIG_SYS_FSL_ERRATUM_A009942\n");
 #endif
 	/*
 	 * For 8572 DDR1 erratum - DDR controller may enter illegal state

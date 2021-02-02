@@ -9,9 +9,9 @@
 import glob
 import os
 
-from section import Entry_section
-import fdt_util
-import tools
+from binman.etype.section import Entry_section
+from dtoc import fdt_util
+from patman import tools
 
 
 class Entry_files(Entry_section):
@@ -19,7 +19,7 @@ class Entry_files(Entry_section):
 
     Properties / Entry arguments:
         - pattern: Filename pattern to match the files to include
-        - compress: Compression algorithm to use:
+        - files-compress: Compression algorithm to use:
             none: No compression
             lz4: Use lz4 compression (via 'lz4' command-line utility)
 
@@ -30,13 +30,14 @@ class Entry_files(Entry_section):
     def __init__(self, section, etype, node):
         # Put this here to allow entry-docs and help to work without libfdt
         global state
-        import state
+        from binman import state
 
-        Entry_section.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self._pattern = fdt_util.GetString(self._node, 'pattern')
         if not self._pattern:
             self.Raise("Missing 'pattern' property")
-        self._compress = fdt_util.GetString(self._node, 'compress', 'none')
+        self._files_compress = fdt_util.GetString(self._node, 'files-compress',
+                                                  'none')
         self._require_matches = fdt_util.GetBool(self._node,
                                                 'require-matches')
 
@@ -53,7 +54,7 @@ class Entry_files(Entry_section):
                 subnode = state.AddSubnode(self._node, name)
             state.AddString(subnode, 'type', 'blob')
             state.AddString(subnode, 'filename', fname)
-            state.AddString(subnode, 'compress', self._compress)
+            state.AddString(subnode, 'compress', self._files_compress)
 
         # Read entries again, now that we have some
         self._ReadEntries()

@@ -126,7 +126,7 @@ The following flags will be defined:
 
 The POST layer will export the following interface routines:
 
-  o) int post_run(bd_t *bd, char *name, int flags);
+  o) int post_run(struct bd_info *bd, char *name, int flags);
 
      This routine will run the test (or the group of tests) specified
      by the name and flag arguments. More specifically, if the name
@@ -175,7 +175,7 @@ struct post_test {
     char *cmd;
     char *desc;
     int flags;
-    int (*test)(bd_t *bd, int flags);
+    int (*test)(struct bd_info *bd, int flags);
 };
 
   o) name
@@ -364,7 +364,7 @@ declaration/body:
 ...
 
 ...
-int watchdog_post_test(bd_t *bd, int flags)
+int watchdog_post_test(struct bd_info *bd, int flags)
 {
 	unsigned long start_time;
 

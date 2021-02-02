@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2016-2018 NXP
+ * Copyright 2016-2018, 2020 NXP
  * Copyright 2015, Freescale Semiconductor
  */
 
@@ -9,6 +9,10 @@
 
 #include <linux/kconfig.h>
 #include <fsl_ddrc_version.h>
+
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
 
 #define CONFIG_STANDALONE_LOAD_ADDR	0x80300000
 
@@ -123,6 +127,7 @@
 #define CONFIG_SYS_PAGE_SIZE		0x10000
 
 #define	SRDS_MAX_LANES	4
+#define	SRDS_BITS_PER_LANE	4
 
 /* TZ Protection Controller Definitions */
 #define TZPC_BASE				0x02200000
@@ -174,8 +179,8 @@
 #define SYS_FSL_OCRAM_SPACE_SIZE	0x00200000 /* 2M space */
 #define CONFIG_SYS_FSL_OCRAM_SIZE	0x00020000 /* Real size 128K */
 
-/* LX2160A Soc Support */
-#elif defined(CONFIG_ARCH_LX2160A)
+/* LX2160A/LX2162A Soc Support */
+#elif defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LX2162A)
 #define TZPC_BASE				0x02200000
 #define TZPCDECPROT_0_SET_BASE			(TZPC_BASE + 0x804)
 #if !defined(CONFIG_DM_I2C)
@@ -252,6 +257,7 @@
 #define TZPCDECPROT_2_CLR_BASE			(TZPC_BASE + 0x820)
 
 #define	SRDS_MAX_LANES	4
+#define	SRDS_BITS_PER_LANE	4
 
 #define CONFIG_SYS_FSL_OCRAM_BASE		0x18000000 /* initial RAM */
 #define SYS_FSL_OCRAM_SPACE_SIZE		0x00200000 /* 2M */
@@ -304,7 +310,6 @@
 #define CONFIG_SYS_FSL_ESDHC_BE
 #define CONFIG_SYS_FSL_WDOG_BE
 #define CONFIG_SYS_FSL_DSPI_BE
-#define CONFIG_SYS_FSL_QSPI_BE
 #define CONFIG_SYS_FSL_CCSR_GUR_BE
 #define CONFIG_SYS_FSL_PEX_LUT_BE
 

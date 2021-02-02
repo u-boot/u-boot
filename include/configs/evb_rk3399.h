@@ -6,9 +6,12 @@
 #ifndef __EVB_RK3399_H
 #define __EVB_RK3399_H
 
-#include <configs/rk3399_common.h>
+#define ROCKCHIP_DEVICE_SETTINGS \
+		"stdin=serial,usbkbd\0" \
+		"stdout=serial,vidconsole\0" \
+		"stderr=serial,vidconsole\0"
 
-#define CONFIG_SYS_MMC_ENV_DEV 0
+#include <configs/rk3399_common.h>
 
 #define SDRAM_BANK_SIZE			(2UL << 30)
 

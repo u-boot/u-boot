@@ -14,6 +14,7 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/sys_proto.h>
 #include <env.h>
+#include <fdt_support.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -60,6 +61,7 @@ int dram_init(void)
 
 static const uint16_t tqma6_emmc_dsr = 0x0100;
 
+#ifndef CONFIG_DM_MMC
 /* eMMC on USDHCI3 always present */
 static iomux_v3_cfg_t const tqma6_usdhc3_pads[] = {
 	NEW_PAD_CTRL(MX6_PAD_SD3_CLK__SD3_CLK,		USDHC_PAD_CTRL),
@@ -115,7 +117,7 @@ int board_mmc_getwp(struct mmc *mmc)
 	return ret;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	imx_iomux_v3_setup_multiple_pads(tqma6_usdhc3_pads,
 					 ARRAY_SIZE(tqma6_usdhc3_pads));
@@ -132,7 +134,9 @@ int board_mmc_init(bd_t *bis)
 
 	return 0;
 }
+#endif
 
+#ifndef CONFIG_DM_SPI
 static iomux_v3_cfg_t const tqma6_ecspi1_pads[] = {
 	/* SS1 */
 	NEW_PAD_CTRL(MX6_PAD_EIM_D19__GPIO3_IO19, SPI_PAD_CTRL),
@@ -164,7 +168,9 @@ int board_spi_cs_gpio(unsigned bus, unsigned cs)
 		(cs == CONFIG_SF_DEFAULT_CS)) ? TQMA6_SF_CS_GPIO : -1;
 }
 #endif
+#endif
 
+#ifdef CONFIG_SYS_I2C
 static struct i2c_pads_info tqma6_i2c3_pads = {
 	/* I2C3: on board LM75, M24C64,  */
 	.scl = {
@@ -194,6 +200,7 @@ static void tqma6_setup_i2c(void)
 	if (ret)
 		printf("setup I2C3 failed: %d\n", ret);
 }
+#endif
 
 int board_early_init_f(void)
 {
@@ -205,8 +212,12 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
+#ifndef CONFIG_DM_SPI
 	tqma6_iomuxc_spi();
+#endif
+#ifdef CONFIG_SYS_I2C
 	tqma6_setup_i2c();
+#endif
 
 	tqma6_bb_board_init();
 
@@ -235,6 +246,7 @@ static const char *tqma6_get_boardname(void)
 	};
 }
 
+#ifdef CONFIG_POWER
 /* setup board specific PMIC */
 int power_init_board(void)
 {
@@ -251,6 +263,7 @@ int power_init_board(void)
 
 	return 0;
 }
+#endif
 
 int board_late_init(void)
 {
@@ -273,7 +286,7 @@ int checkboard(void)
  */
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 #define MODELSTRLEN 32u
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	char modelstr[MODELSTRLEN];
 

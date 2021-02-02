@@ -222,4 +222,24 @@ bool str2long(const char *p, ulong *num);
  * @hz: Value to convert
  */
 char *strmhz(char *buf, unsigned long hz);
+
+/**
+ * str_to_upper() - Convert a string to upper case
+ *
+ * This simply uses toupper() on each character of the string.
+ *
+ * @in: String to convert (must be large enough to hold the output string)
+ * @out: Buffer to put converted string
+ * @len: Number of bytes available in @out (SIZE_MAX for all)
+ */
+void str_to_upper(const char *in, char *out, size_t len);
+
+/**
+ * sscanf - Unformat a buffer into a list of arguments
+ * @buf:	input buffer
+ * @fmt:	formatting of buffer
+ * @...:	resulting arguments
+ */
+int sscanf(const char *buf, const char *fmt, ...);
+
 #endif

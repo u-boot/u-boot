@@ -10,9 +10,11 @@
 #include <command.h>
 #include <config.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <net.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/types.h>
 #include <linux/usb/ch9.h>

@@ -8,6 +8,7 @@
 #define MAXFRM_MASK	0x0000ffff
 
 #include <common.h>
+#include <log.h>
 #include <phy.h>
 #include <asm/types.h>
 #include <asm/io.h>
@@ -83,6 +84,8 @@ static void memac_set_interface_mode(struct fsl_enet_mac *mac,
 		if_mode |= IF_MODE_GMII;
 		break;
 	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
 	case PHY_INTERFACE_MODE_RGMII_TXID:
 		if_mode |= (IF_MODE_GMII | IF_MODE_RG);
 		break;
@@ -95,6 +98,7 @@ static void memac_set_interface_mode(struct fsl_enet_mac *mac,
 		if_mode &= ~IF_MODE_MASK;
 		if_mode |= (IF_MODE_GMII);
 		break;
+	case PHY_INTERFACE_MODE_XFI:
 	case PHY_INTERFACE_MODE_XGMII:
 		if_mode &= ~IF_MODE_MASK;
 		if_mode |= IF_MODE_XGMII;
@@ -103,10 +107,12 @@ static void memac_set_interface_mode(struct fsl_enet_mac *mac,
 		break;
 	}
 	/* Enable automatic speed selection for Non-XGMII */
-	if (type != PHY_INTERFACE_MODE_XGMII)
+	if (type != PHY_INTERFACE_MODE_XGMII && type != PHY_INTERFACE_MODE_XFI)
 		if_mode |= IF_MODE_EN_AUTO;
 
 	if (type == PHY_INTERFACE_MODE_RGMII ||
+	    type == PHY_INTERFACE_MODE_RGMII_ID ||
+	    type == PHY_INTERFACE_MODE_RGMII_RXID ||
 	    type == PHY_INTERFACE_MODE_RGMII_TXID) {
 		if_mode &= ~IF_MODE_EN_AUTO;
 		if_mode &= ~IF_MODE_SETSP_MASK;
@@ -133,6 +139,7 @@ static void memac_set_interface_mode(struct fsl_enet_mac *mac,
 void init_memac(struct fsl_enet_mac *mac, void *base,
 		void *phyregs, int max_rx_len)
 {
+	debug("%s: @ %p, mdio @ %p\n", __func__, base, phyregs);
 	mac->base = base;
 	mac->phyregs = phyregs;
 	mac->max_rx_len = max_rx_len;

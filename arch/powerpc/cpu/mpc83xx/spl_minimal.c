@@ -4,7 +4,10 @@
  */
 
 #include <common.h>
+#include <asm-offsets.h>
+#include <clock_legacy.h>
 #include <mpc83xx.h>
+#include <time.h>
 
 #include "lblaw/lblaw.h"
 #include "elbc/elbc.h"

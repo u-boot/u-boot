@@ -100,6 +100,15 @@ config PHY_BROADCOM
 config PHY_CORTINA
 	bool "Cortina Ethernet PHYs support"
 
+config SYS_CORTINA_NO_FW_UPLOAD
+	bool "Cortina firmware loading support"
+	default n
+	depends on PHY_CORTINA
+	help
+		Cortina phy has provision to store phy firmware in attached dedicated
+		EEPROM. And boards designed with such EEPROM does not require firmware
+		upload.
+
 choice
 	prompt "Location of the Cortina firmware"
 	default SYS_CORTINA_FW_IN_NOR
@@ -235,6 +244,15 @@ config RTL8211F_PHY_FORCE_EEE_RXC_ON
 	  Default n, which means that the PHY state is not changed. To work
 	  around the issues, change this setting to y.
 
+config RTL8201F_PHY_S700_RMII_TIMINGS
+	bool "Ethernet PHY RTL8201F: adjust RMII Tx Interface timings"
+	depends on PHY_REALTEK
+	help
+	  This provides an option to configure specific timing requirements (needed
+	  for proper PHY operations) for the PHY module present on ACTION SEMI S700
+	  based cubieboard7. Exact timing requiremnets seems to be SoC specific
+	  (and it's undocumented) that comes from vendor code itself.
+
 config PHY_SMSC
 	bool  "Microchip(SMSC) Ethernet PHYs support"
 
@@ -243,6 +261,21 @@ config PHY_TERANETICS
 
 config PHY_TI
 	bool "Texas Instruments Ethernet PHYs support"
+	---help---
+	  Adds PHY registration support for TI PHYs.
+
+config PHY_TI_DP83867
+	select PHY_TI
+	bool "Texas Instruments Ethernet DP83867 PHY support"
+	---help---
+	  Adds support for the TI DP83867 1Gbit PHY.
+
+config PHY_TI_GENERIC
+	select PHY_TI
+	bool "Texas Instruments Generic Ethernet PHYs support"
+	---help---
+	  Adds support for Generic TI PHYs that don't need special handling but
+	  the PHY name is associated with a PHY ID.
 
 config PHY_VITESSE
 	bool "Vitesse Ethernet PHYs support"
@@ -266,5 +299,9 @@ config PHY_FIXED
 	  There is nothing like autoneogation and so
 	  on, the link is always up with fixed speed and fixed duplex-setting.
 	  More information: doc/device-tree-bindings/net/fixed-link.txt
+
+config PHY_NCSI
+	bool "NC-SI based PHY"
+	depends on DM_ETH
 
 endif #PHYLIB

@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <command.h>
 #include <console.h>
 #include <div64.h>

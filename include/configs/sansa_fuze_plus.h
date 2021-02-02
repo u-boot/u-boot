@@ -13,7 +13,6 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Environment */
-#define CONFIG_ENV_OVERWRITE
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE		"uImage"
@@ -32,8 +31,6 @@
 #ifdef CONFIG_CMD_USB
 #define CONFIG_EHCI_MXS_PORT0
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 1
-
-#define CONFIG_NETCONSOLE
 #endif
 
 /* The rest of the configuration is shared */

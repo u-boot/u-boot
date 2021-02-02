@@ -45,22 +45,13 @@
 #ifndef CONFIG_SPL_BUILD
 #ifdef CONFIG_DM_VIDEO
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_SPLASH_SOURCE
-#define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO
-#define CONFIG_BMP_16BPP
-#define CONFIG_BMP_24BPP
-#define CONFIG_BMP_32BPP
 #define CONFIG_VIDEO_MXS
 #define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
 #endif
 #endif
 
 /* Environment is stored in the eMMC boot partition */
-#define CONFIG_SYS_MMC_ENV_DEV          0
-#define CONFIG_SYS_MMC_ENV_PART         1
 
 #define CONFIG_ENV_VERSION	100
 #define CONFIG_BOARD_NAME	opos6ul

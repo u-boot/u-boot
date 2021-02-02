@@ -9,14 +9,17 @@
 
 #include <asm/io.h>
 #include <asm/mach-imx/regs-common.h>
-#include <common.h>
+#include <asm/mach-imx/module_fuse.h>
+#include <linux/bitops.h>
 #include "../arch-imx/cpu.h"
+
+struct bd_info;
 
 #define soc_rev() (get_cpu_rev() & 0xFF)
 #define is_soc_rev(rev) (soc_rev() == rev)
 
 /* returns MXC_CPU_ value */
-#define cpu_type(rev) (((rev) >> 12) & 0xff)
+#define cpu_type(rev) (((rev) >> 12) & 0x1ff)
 #define soc_type(rev) (((rev) >> 12) & 0xf0)
 /* both macros return/take MXC_CPU_ constants */
 #define get_cpu_type() (cpu_type(get_cpu_rev()))
@@ -37,13 +40,15 @@
 #define is_mx6sl() (is_cpu_type(MXC_CPU_MX6SL))
 #define is_mx6solo() (is_cpu_type(MXC_CPU_MX6SOLO))
 #define is_mx6ul() (is_cpu_type(MXC_CPU_MX6UL))
-#define is_mx6ull() (is_cpu_type(MXC_CPU_MX6ULL))
+#define is_mx6ull() (is_cpu_type(MXC_CPU_MX6ULL) || is_cpu_type(MXC_CPU_MX6ULZ))
 #define is_mx6ulz() (is_cpu_type(MXC_CPU_MX6ULZ))
 #define is_mx6sll() (is_cpu_type(MXC_CPU_MX6SLL))
 
 #define is_mx7ulp() (is_cpu_type(MXC_CPU_MX7ULP))
 
-#define is_imx8mq() (is_cpu_type(MXC_CPU_IMX8MQ))
+#define is_imx8mq() (is_cpu_type(MXC_CPU_IMX8MQ) || is_cpu_type(MXC_CPU_IMX8MD) || is_cpu_type(MXC_CPU_IMX8MQL))
+#define is_imx8md() (is_cpu_type(MXC_CPU_IMX8MD))
+#define is_imx8mql() (is_cpu_type(MXC_CPU_IMX8MQL))
 #define is_imx8qm() (is_cpu_type(MXC_CPU_IMX8QM))
 #define is_imx8mm() (is_cpu_type(MXC_CPU_IMX8MM) || is_cpu_type(MXC_CPU_IMX8MML) ||\
 	is_cpu_type(MXC_CPU_IMX8MMD) || is_cpu_type(MXC_CPU_IMX8MMDL) || \
@@ -53,12 +58,25 @@
 #define is_imx8mmdl() (is_cpu_type(MXC_CPU_IMX8MMDL))
 #define is_imx8mms() (is_cpu_type(MXC_CPU_IMX8MMS))
 #define is_imx8mmsl() (is_cpu_type(MXC_CPU_IMX8MMSL))
-#define is_imx8mn() (is_cpu_type(MXC_CPU_IMX8MN))
+#define is_imx8mn() (is_cpu_type(MXC_CPU_IMX8MN) || is_cpu_type(MXC_CPU_IMX8MND) || \
+	is_cpu_type(MXC_CPU_IMX8MNS) || is_cpu_type(MXC_CPU_IMX8MNL) || \
+	is_cpu_type(MXC_CPU_IMX8MNDL) || is_cpu_type(MXC_CPU_IMX8MNSL))
+#define is_imx8mnd() (is_cpu_type(MXC_CPU_IMX8MND))
+#define is_imx8mns() (is_cpu_type(MXC_CPU_IMX8MNS))
+#define is_imx8mnl() (is_cpu_type(MXC_CPU_IMX8MNL))
+#define is_imx8mndl() (is_cpu_type(MXC_CPU_IMX8MNDL))
+#define is_imx8mnsl() (is_cpu_type(MXC_CPU_IMX8MNSL))
+#define is_imx8mp() (is_cpu_type(MXC_CPU_IMX8MP)  || is_cpu_type(MXC_CPU_IMX8MPD) || \
+	is_cpu_type(MXC_CPU_IMX8MPL) || is_cpu_type(MXC_CPU_IMX8MP6))
+#define is_imx8mpd() (is_cpu_type(MXC_CPU_IMX8MPD))
+#define is_imx8mpl() (is_cpu_type(MXC_CPU_IMX8MPL))
+#define is_imx8mp6() (is_cpu_type(MXC_CPU_IMX8MP6))
 
 #define is_imx8qxp() (is_cpu_type(MXC_CPU_IMX8QXP))
 
 #ifdef CONFIG_MX6
-#define IMX6_SRC_GPR10_BMODE		BIT(28)
+#define IMX6_SRC_GPR10_BMODE			BIT(28)
+#define IMX6_SRC_GPR10_PERSIST_SECONDARY_BOOT	BIT(30)
 
 #define IMX6_BMODE_MASK			GENMASK(7, 0)
 #define	IMX6_BMODE_SHIFT		4
@@ -105,6 +123,18 @@ u32 imx6_src_get_boot_mode(void);
 void gpr_init(void);
 
 #endif /* CONFIG_MX6 */
+
+#ifdef CONFIG_MX7
+#define IMX7_SRC_GPR10_BMODE			BIT(28)
+#define IMX7_SRC_GPR10_PERSIST_SECONDARY_BOOT	BIT(30)
+#endif
+
+/* address translation table */
+struct rproc_att {
+	u32 da; /* device address (From Cortex M4 view) */
+	u32 sa; /* system bus address */
+	u32 size; /* size of reg range */
+};
 
 #ifdef CONFIG_IMX8M
 struct rom_api {
@@ -153,6 +183,11 @@ void init_src(void);
 void init_snvs(void);
 void imx_wdog_disable_powerdown(void);
 
+void board_mem_get_layout(u64 *phys_sdram_1_start,
+			  u64 *phys_sdram_1_size,
+			  u64 *phys_sdram_2_start,
+			  u64 *phys_sdram_2_size);
+
 int arch_auxiliary_core_check_up(u32 core_id);
 
 int board_mmc_get_env_dev(int devno);
@@ -164,7 +199,7 @@ char nxp_board_rev_string(void);
  * Initializes on-chip ethernet controllers.
  * to override, implement board_eth_init()
  */
-int fecmxc_initialize(bd_t *bis);
+int fecmxc_initialize(struct bd_info *bis);
 u32 get_ahb_clk(void);
 u32 get_periph_clk(void);
 
@@ -180,4 +215,6 @@ unsigned long call_imx_sip(unsigned long id, unsigned long reg0,
 unsigned long call_imx_sip_ret2(unsigned long id, unsigned long reg0,
 				unsigned long *reg1, unsigned long reg2,
 				unsigned long reg3);
+
+void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 #endif

@@ -6,6 +6,8 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <generic-phy.h>
 
 static inline struct phy_ops *phy_dev_ops(struct udevice *dev)
@@ -31,20 +33,20 @@ static int generic_phy_xlate_offs_flags(struct phy *phy,
 	return 0;
 }
 
-int generic_phy_get_by_index(struct udevice *dev, int index,
-			     struct phy *phy)
+int generic_phy_get_by_index_nodev(ofnode node, int index, struct phy *phy)
 {
 	struct ofnode_phandle_args args;
 	struct phy_ops *ops;
 	struct udevice *phydev;
 	int i, ret;
 
-	debug("%s(dev=%p, index=%d, phy=%p)\n", __func__, dev, index, phy);
+	debug("%s(node=%s, index=%d, phy=%p)\n",
+	      __func__, ofnode_get_name(node), index, phy);
 
 	assert(phy);
 	phy->dev = NULL;
-	ret = dev_read_phandle_with_args(dev, "phys", "#phy-cells", 0, index,
-					 &args);
+	ret = ofnode_parse_phandle_with_args(node, "phys", "#phy-cells", 0,
+					     index, &args);
 	if (ret) {
 		debug("%s: dev_read_phandle_with_args failed: err=%d\n",
 		      __func__, ret);
@@ -90,6 +92,12 @@ err:
 	return ret;
 }
 
+int generic_phy_get_by_index(struct udevice *dev, int index,
+			     struct phy *phy)
+{
+	return generic_phy_get_by_index_nodev(dev_ofnode(dev), index, phy);
+}
+
 int generic_phy_get_by_name(struct udevice *dev, const char *phy_name,
 			    struct phy *phy)
 {
@@ -109,56 +117,187 @@ int generic_phy_get_by_name(struct udevice *dev, const char *phy_name,
 int generic_phy_init(struct phy *phy)
 {
 	struct phy_ops const *ops;
+	int ret;
 
-	if (!phy)
+	if (!generic_phy_valid(phy))
 		return 0;
 	ops = phy_dev_ops(phy->dev);
+	if (!ops->init)
+		return 0;
+	ret = ops->init(phy);
+	if (ret)
+		dev_err(phy->dev, "PHY: Failed to init %s: %d.\n",
+			phy->dev->name, ret);
 
-	return ops->init ? ops->init(phy) : 0;
+	return ret;
 }
 
 int generic_phy_reset(struct phy *phy)
 {
 	struct phy_ops const *ops;
+	int ret;
 
-	if (!phy)
+	if (!generic_phy_valid(phy))
 		return 0;
 	ops = phy_dev_ops(phy->dev);
+	if (!ops->reset)
+		return 0;
+	ret = ops->reset(phy);
+	if (ret)
+		dev_err(phy->dev, "PHY: Failed to reset %s: %d.\n",
+			phy->dev->name, ret);
 
-	return ops->reset ? ops->reset(phy) : 0;
+	return ret;
 }
 
 int generic_phy_exit(struct phy *phy)
 {
 	struct phy_ops const *ops;
+	int ret;
 
-	if (!phy)
+	if (!generic_phy_valid(phy))
 		return 0;
 	ops = phy_dev_ops(phy->dev);
+	if (!ops->exit)
+		return 0;
+	ret = ops->exit(phy);
+	if (ret)
+		dev_err(phy->dev, "PHY: Failed to exit %s: %d.\n",
+			phy->dev->name, ret);
 
-	return ops->exit ? ops->exit(phy) : 0;
+	return ret;
 }
 
 int generic_phy_power_on(struct phy *phy)
 {
 	struct phy_ops const *ops;
+	int ret;
 
-	if (!phy)
+	if (!generic_phy_valid(phy))
 		return 0;
 	ops = phy_dev_ops(phy->dev);
+	if (!ops->power_on)
+		return 0;
+	ret = ops->power_on(phy);
+	if (ret)
+		dev_err(phy->dev, "PHY: Failed to power on %s: %d.\n",
+			phy->dev->name, ret);
 
-	return ops->power_on ? ops->power_on(phy) : 0;
+	return ret;
 }
 
 int generic_phy_power_off(struct phy *phy)
 {
 	struct phy_ops const *ops;
+	int ret;
 
-	if (!phy)
+	if (!generic_phy_valid(phy))
 		return 0;
 	ops = phy_dev_ops(phy->dev);
+	if (!ops->power_off)
+		return 0;
+	ret = ops->power_off(phy);
+	if (ret)
+		dev_err(phy->dev, "PHY: Failed to power off %s: %d.\n",
+			phy->dev->name, ret);
 
-	return ops->power_off ? ops->power_off(phy) : 0;
+	return ret;
+}
+
+int generic_phy_get_bulk(struct udevice *dev, struct phy_bulk *bulk)
+{
+	int i, ret, count;
+
+	bulk->count = 0;
+
+	/* Return if no phy declared */
+	if (!dev_read_prop(dev, "phys", NULL))
+		return 0;
+
+	count = dev_count_phandle_with_args(dev, "phys", "#phy-cells", 0);
+	if (count < 1)
+		return count;
+
+	bulk->phys = devm_kcalloc(dev, count, sizeof(struct phy), GFP_KERNEL);
+	if (!bulk->phys)
+		return -ENOMEM;
+
+	for (i = 0; i < count; i++) {
+		ret = generic_phy_get_by_index(dev, i, &bulk->phys[i]);
+		if (ret) {
+			pr_err("Failed to get PHY%d for %s\n", i, dev->name);
+			return ret;
+		}
+		bulk->count++;
+	}
+
+	return 0;
+}
+
+int generic_phy_init_bulk(struct phy_bulk *bulk)
+{
+	struct phy *phys = bulk->phys;
+	int i, ret;
+
+	for (i = 0; i < bulk->count; i++) {
+		ret = generic_phy_init(&phys[i]);
+		if (ret) {
+			pr_err("Can't init PHY%d\n", i);
+			goto phys_init_err;
+		}
+	}
+
+	return 0;
+
+phys_init_err:
+	for (; i > 0; i--)
+		generic_phy_exit(&phys[i - 1]);
+
+	return ret;
+}
+
+int generic_phy_exit_bulk(struct phy_bulk *bulk)
+{
+	struct phy *phys = bulk->phys;
+	int i, ret = 0;
+
+	for (i = 0; i < bulk->count; i++)
+		ret |= generic_phy_exit(&phys[i]);
+
+	return ret;
+}
+
+int generic_phy_power_on_bulk(struct phy_bulk *bulk)
+{
+	struct phy *phys = bulk->phys;
+	int i, ret;
+
+	for (i = 0; i < bulk->count; i++) {
+		ret = generic_phy_power_on(&phys[i]);
+		if (ret) {
+			pr_err("Can't power on PHY%d\n", i);
+			goto phys_poweron_err;
+		}
+	}
+
+	return 0;
+
+phys_poweron_err:
+	for (; i > 0; i--)
+		generic_phy_power_off(&phys[i - 1]);
+
+	return ret;
+}
+
+int generic_phy_power_off_bulk(struct phy_bulk *bulk)
+{
+	struct phy *phys = bulk->phys;
+	int i, ret = 0;
+
+	for (i = 0; i < bulk->count; i++)
+		ret |= generic_phy_power_off(&phys[i]);
+
+	return ret;
 }
 
 UCLASS_DRIVER(phy) = {

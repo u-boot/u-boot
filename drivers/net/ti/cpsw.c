@@ -8,12 +8,16 @@
 #include <common.h>
 #include <command.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <net.h>
 #include <miiphy.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
 #include <cpsw.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/compiler.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -244,11 +248,11 @@ static inline void cpsw_ale_set_field(u32 *ale_entry, u32 start, u32 bits,
 }
 
 #define DEFINE_ALE_FIELD(name, start, bits)				\
-static inline int cpsw_ale_get_##name(u32 *ale_entry)			\
+static inline int __maybe_unused cpsw_ale_get_##name(u32 *ale_entry)	\
 {									\
 	return cpsw_ale_get_field(ale_entry, start, bits);		\
 }									\
-static inline void cpsw_ale_set_##name(u32 *ale_entry, u32 value)	\
+static inline void __maybe_unused cpsw_ale_set_##name(u32 *ale_entry, u32 value)	\
 {									\
 	cpsw_ale_set_field(ale_entry, start, bits, value);		\
 }
@@ -852,8 +856,14 @@ static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 		ret = phy_set_supported(phydev, slave->data->max_speed);
 		if (ret)
 			return ret;
+#if CONFIG_IS_ENABLED(DM_ETH)
 		dev_dbg(priv->dev, "Port %u speed forced to %uMbit\n",
 			slave->slave_num + 1, slave->data->max_speed);
+#else
+		log_debug("%s: Port %u speed forced to %uMbit\n",
+			  priv->dev->name, slave->slave_num + 1,
+			  slave->data->max_speed);
+#endif
 	}
 	phydev->advertising = phydev->supported;
 
@@ -925,7 +935,7 @@ int _cpsw_register(struct cpsw_priv *priv)
 }
 
 #ifndef CONFIG_DM_ETH
-static int cpsw_init(struct eth_device *dev, bd_t *bis)
+static int cpsw_init(struct eth_device *dev, struct bd_info *bis)
 {
 	struct cpsw_priv	*priv = dev->priv;
 

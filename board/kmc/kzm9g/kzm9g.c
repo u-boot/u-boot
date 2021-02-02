@@ -5,6 +5,9 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
@@ -353,7 +356,7 @@ int dram_init(void)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int ret = 0;
 #ifdef CONFIG_SMC911X

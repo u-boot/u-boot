@@ -22,6 +22,7 @@
  * System IO Config
  */
 /* 0x14000180 SICR_1 */
+#ifndef CONFIG_SYS_SICRL
 #define CONFIG_SYS_SICRL (0			\
 		| SICR_1_UART1_UART1RTS		\
 		| SICR_1_I2C_CKSTOP		\
@@ -38,6 +39,7 @@
 		| SICR_1_FEC1_FEC1		\
 		| SICR_1_FEC2_FEC2		\
 		)
+#endif
 
 /* 0x00080400 SICR_2 */
 #define CONFIG_SYS_SICRH (0			\

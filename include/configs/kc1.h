@@ -103,8 +103,6 @@
  * Environment
  */
 
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"kernel_addr_r=0x82000000\0" \
 	"loadaddr=0x82000000\0" \
@@ -148,11 +146,5 @@
 	"mmc dev ${boot_mmc_dev}; " \
 	"mmc read ${kernel_addr_r} ${boot_mmc_start} ${boot_mmc_size} && " \
 	"bootm ${kernel_addr_r};"
-
-/*
- * Defaults
- */
-
-#include <config_defaults.h>
 
 #endif

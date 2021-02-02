@@ -13,7 +13,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Initilaise sound subsystem */
-static int do_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_init(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	struct udevice *dev;
 	int ret;
@@ -30,7 +31,8 @@ static int do_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 }
 
 /* play sound from buffer */
-static int do_play(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_play(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	struct udevice *dev;
 	int ret = 0;
@@ -53,15 +55,16 @@ static int do_play(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	return 0;
 }
 
-static cmd_tbl_t cmd_sound_sub[] = {
+static struct cmd_tbl cmd_sound_sub[] = {
 	U_BOOT_CMD_MKENT(init, 0, 1, do_init, "", ""),
 	U_BOOT_CMD_MKENT(play, 2, 1, do_play, "", ""),
 };
 
 /* process sound command */
-static int do_sound(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_sound(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
-	cmd_tbl_t *c;
+	struct cmd_tbl *c;
 
 	if (argc < 1)
 		return CMD_RET_USAGE;

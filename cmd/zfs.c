@@ -32,15 +32,15 @@
 #define DOS_FS_TYPE_OFFSET	0x36
 #define DOS_FS32_TYPE_OFFSET	0x52
 
-static int do_zfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_zfs_load(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	char *filename = NULL;
 	int dev;
 	int part;
 	ulong addr = 0;
-	disk_partition_t info;
+	struct disk_partition info;
 	struct blk_desc *dev_desc;
-	char buf[12];
 	unsigned long count;
 	const char *addr_str;
 	struct zfs_file zfile;
@@ -112,7 +112,7 @@ static int do_zfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	zfs_close(&zfile);
 
 	/* Loading ok, update default load address */
-	load_addr = addr;
+	image_load_addr = addr;
 
 	printf("%llu bytes read\n", zfile.size);
 	env_set_hex("filesize", zfile.size);
@@ -130,13 +130,13 @@ int zfs_print(const char *entry, const struct zfs_dirhook_info *data)
 }
 
 
-
-static int do_zfs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_zfs_ls(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	const char *filename = "/";
 	int part;
 	struct blk_desc *dev_desc;
-	disk_partition_t info;
+	struct disk_partition info;
 	struct device_s vdev;
 
 	if (argc < 2)

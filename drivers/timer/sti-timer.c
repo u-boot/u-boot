@@ -1,24 +1,23 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
- * Author(s): Patrice Chotard, <patrice.chotard@st.com> for STMicroelectronics.
+ * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
 #include <common.h>
 #include <dm.h>
-#include <fdtdec.h>
+#include <clk.h>
 #include <timer.h>
+#include <linux/err.h>
 
 #include <asm/io.h>
 #include <asm/arch-armv7/globaltimer.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct sti_timer_priv {
 	struct globaltimer *global_timer;
 };
 
-static int sti_timer_get_count(struct udevice *dev, u64 *count)
+static u64 sti_timer_get_count(struct udevice *dev)
 {
 	struct sti_timer_priv *priv = dev_get_priv(dev);
 	struct globaltimer *global_timer = priv->global_timer;
@@ -35,22 +34,31 @@ static int sti_timer_get_count(struct udevice *dev, u64 *count)
 			old = high;
 	}
 	timer = high;
-	*count = (u64)((timer << 32) | low);
-
-	return 0;
+	return (u64)((timer << 32) | low);
 }
 
 static int sti_timer_probe(struct udevice *dev)
 {
 	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct sti_timer_priv *priv = dev_get_priv(dev);
-	fdt_addr_t addr;
-
-	uc_priv->clock_rate = CONFIG_SYS_HZ_CLOCK;
+	struct clk clk;
+	int err;
+	ulong ret;
 
 	/* get arm global timer base address */
-	addr = fdtdec_get_addr(gd->fdt_blob, dev_of_offset(dev), "reg");
-	priv->global_timer = (struct globaltimer *)addr;
+	priv->global_timer = (struct globaltimer *)dev_read_addr_ptr(dev);
+	if (!priv->global_timer)
+		return -ENOENT;
+
+	err = clk_get_by_index(dev, 0, &clk);
+	if (!err) {
+		ret = clk_get_rate(&clk);
+		if (IS_ERR_VALUE(ret))
+			return ret;
+		uc_priv->clock_rate = ret;
+	} else {
+		uc_priv->clock_rate = CONFIG_SYS_HZ_CLOCK;
+	}
 
 	/* init timer */
 	writel(0x01, &priv->global_timer->ctl);

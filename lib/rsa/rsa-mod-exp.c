@@ -6,6 +6,7 @@
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <asm/types.h>
 #include <asm/byteorder.h>
 #include <linux/errno.h>
@@ -23,6 +24,14 @@
 
 #define get_unaligned_be32(a) fdt32_to_cpu(*(uint32_t *)a)
 #define put_unaligned_be32(a, b) (*(uint32_t *)(b) = cpu_to_fdt32(a))
+
+static inline uint64_t fdt64_to_cpup(const void *p)
+{
+	fdt64_t w;
+
+	memcpy(&w, p, sizeof(w));
+	return fdt64_to_cpu(w);
+}
 
 /* Default public exponent for backward compatibility */
 #define RSA_DEFAULT_PUBEXP	65537
@@ -262,8 +271,7 @@ int rsa_mod_exp_sw(const uint8_t *sig, uint32_t sig_len,
 	if (!prop->public_exponent)
 		key.exponent = RSA_DEFAULT_PUBEXP;
 	else
-		key.exponent =
-			fdt64_to_cpu(*((uint64_t *)(prop->public_exponent)));
+		key.exponent = fdt64_to_cpup(prop->public_exponent);
 
 	if (!key.len || !prop->modulus || !prop->rr) {
 		debug("%s: Missing RSA key info", __func__);
@@ -313,7 +321,7 @@ int rsa_mod_exp_sw(const uint8_t *sig, uint32_t sig_len,
  *        pow_mod calculation required for zynq is bit different from
  *        pw_mod above here, hence defined zynq specific routine.
  */
-int zynq_pow_mod(u32 *keyptr, u32 *inout)
+int zynq_pow_mod(uint32_t *keyptr, uint32_t *inout)
 {
 	u32 *result, *ptr;
 	uint i;

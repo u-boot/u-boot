@@ -9,7 +9,7 @@ ifdef CONFIG_SYS_BIG_ENDIAN
 32bit-bfd		:= elf32-tradbigmips
 64bit-bfd		:= elf64-tradbigmips
 PLATFORM_CPPFLAGS	+= -EB
-PLATFORM_LDFLAGS	+= -EB
+KBUILD_LDFLAGS		+= -EB
 endif
 
 ifdef CONFIG_SYS_LITTLE_ENDIAN
@@ -18,19 +18,19 @@ ifdef CONFIG_SYS_LITTLE_ENDIAN
 32bit-bfd		:= elf32-tradlittlemips
 64bit-bfd		:= elf64-tradlittlemips
 PLATFORM_CPPFLAGS	+= -EL
-PLATFORM_LDFLAGS	+= -EL
+KBUILD_LDFLAGS		+= -EL
 endif
 
 ifdef CONFIG_32BIT
 PLATFORM_CPPFLAGS	+= -mabi=32
-PLATFORM_LDFLAGS	+= -m $(32bit-emul)
+KBUILD_LDFLAGS		+= -m $(32bit-emul)
 OBJCOPYFLAGS		+= -O $(32bit-bfd)
 CONFIG_STANDALONE_LOAD_ADDR	?= 0x80200000
 endif
 
 ifdef CONFIG_64BIT
 PLATFORM_CPPFLAGS	+= -mabi=64
-PLATFORM_LDFLAGS	+= -m$(64bit-emul)
+KBUILD_LDFLAGS		+= -m$(64bit-emul)
 OBJCOPYFLAGS		+= -O $(64bit-bfd)
 CONFIG_STANDALONE_LOAD_ADDR	?= 0xffffffff80200000
 endif
@@ -62,7 +62,7 @@ endif
 
 PLATFORM_CPPFLAGS		+= -G 0 -mno-abicalls -fno-pic
 PLATFORM_CPPFLAGS		+= -msoft-float
-PLATFORM_LDFLAGS		+= -G 0 -static -n -nostdlib
+KBUILD_LDFLAGS			+= -G 0 -static -n -nostdlib
 PLATFORM_RELFLAGS		+= -ffunction-sections -fdata-sections
 LDFLAGS_FINAL			+= --gc-sections
 OBJCOPYFLAGS			+= -j .text -j .rodata -j .data -j .u_boot_list

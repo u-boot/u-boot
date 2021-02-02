@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <log.h>
 #include <asm/e820.h>
 #include <asm/global_data.h>
 #include <asm/sfi.h>
@@ -192,6 +194,49 @@ unsigned int install_e820_map(unsigned int max_entries,
 			      struct e820_entry *entries)
 {
 	return sfi_setup_e820(max_entries, entries);
+}
+
+/*
+ * This function looks for the highest region of memory lower than 2GB which
+ * has enough space for U-Boot where U-Boot is aligned on a page boundary. It
+ * overrides the default implementation found elsewhere which simply picks the
+ * end of RAM, wherever that may be. The location of the stack, the relocation
+ * address, and how far U-Boot is moved by relocation are set in the global
+ * data structure.
+ */
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	struct sfi_table_simple *sb;
+	struct sfi_mem_entry *mentry;
+	ulong dest_addr = 0;
+	u32 i;
+
+	sb = sfi_search_mmap();
+	if (!sb)
+		panic("No available memory found for relocation");
+
+	sfi_for_each_mentry(i, sb, mentry) {
+		unsigned long long start, end;
+
+		if (mentry->type != SFI_MEM_CONV)
+			continue;
+
+		start = mentry->phys_start;
+		end = start + (mentry->pages << 12);
+
+		/* Filter memory over 2GB. */
+		if (end > 0x7fffffffULL)
+			end = 0x80000000ULL;
+		/* Skip this region if it's too small. */
+		if (end - start < total_size)
+			continue;
+
+		/* Use this address if it's the largest so far. */
+		if (end > dest_addr)
+			dest_addr = end;
+	}
+
+	return dest_addr;
 }
 
 int dram_init_banksize(void)

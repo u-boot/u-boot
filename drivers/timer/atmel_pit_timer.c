@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <timer.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 #define AT91_PIT_VALUE		0xfffff
 #define AT91_PIT_PITEN		BIT(24)		/* Timer Enabled */
@@ -24,15 +25,13 @@ struct atmel_pit_platdata {
 	struct atmel_pit_regs *regs;
 };
 
-static int atmel_pit_get_count(struct udevice *dev, u64 *count)
+static u64 atmel_pit_get_count(struct udevice *dev)
 {
 	struct atmel_pit_platdata *plat = dev_get_platdata(dev);
 	struct atmel_pit_regs *const regs = plat->regs;
 	u32 val = readl(&regs->value_image);
 
-	*count = timer_conv_64(val);
-
-	return 0;
+	return timer_conv_64(val);
 }
 
 static int atmel_pit_probe(struct udevice *dev)
@@ -63,7 +62,7 @@ static int atmel_pit_ofdata_to_platdata(struct udevice *dev)
 {
 	struct atmel_pit_platdata *plat = dev_get_platdata(dev);
 
-	plat->regs = (struct atmel_pit_regs *)devfdt_get_addr_ptr(dev);
+	plat->regs = dev_read_addr_ptr(dev);
 
 	return 0;
 }

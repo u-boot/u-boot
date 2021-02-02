@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <dm.h>
 #include <i2c.h>
+#include <log.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
 #include <power/tps65941.h>
@@ -59,8 +60,8 @@ static int tps65941_bind(struct udevice *dev)
 	if (!children)
 		printf("%s: %s - no child found\n", __func__, dev->name);
 
-	/* Always return success for this device */
-	return 0;
+	/* Probe all the child devices */
+	return dm_scan_fdt_dev(dev);
 }
 
 static struct dm_pmic_ops tps65941_ops = {

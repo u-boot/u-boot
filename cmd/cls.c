@@ -11,7 +11,7 @@
 #include <lcd.h>
 #include <video.h>
 
-static int do_video_clear(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_video_clear(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
 #if defined(CONFIG_DM_VIDEO)

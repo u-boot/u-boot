@@ -3,7 +3,7 @@
  * mkimage -f fit_kernel_dtb.its fit_kernel_dtb.itb
  *
  * Files in linux build dir:
- * - arch/arm/boot/zImage
+ * - arch/arm/boot/Image (gzipped in Image.gz)
  * - arch/arm/boot/dts/stm32mp157c-dk2.dtb
  * - arch/arm/boot/dts/stm32mp157c-ev1.dtb
  *
@@ -23,11 +23,11 @@
 	images {
 		kernel {
 			description = "Linux kernel";
-			data = /incbin/("zImage");
+			data = /incbin/("Image.gz");
 			type = "kernel";
 			arch = "arm";
 			os = "linux";
-			compression = "none";
+			compression = "gzip";
 			load = <0xC0008000>;
 			entry = <0xC0008000>;
 			hash-1 {

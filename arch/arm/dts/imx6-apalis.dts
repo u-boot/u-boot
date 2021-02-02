@@ -22,6 +22,7 @@
 		mmc1 = &usdhc1;
 		mmc2 = &usdhc2;
 		usb0 = &usbotg; /* required for ums */
+		ethernet0 = &fec;
 	};
 
 	chosen {
@@ -195,6 +196,27 @@
 	scl-gpios = <&gpio3 17 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 	sda-gpios = <&gpio3 18 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 	status = "okay";
+};
+
+&fec {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_enet>;
+	phy-mode = "rgmii";
+	phy-handle = <&ethphy>;
+	phy-reset-duration = <10>;
+	phy-reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
+	status = "okay";
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethphy: ethernet-phy@7 {
+			interrupt-parent = <&gpio1>;
+			interrupts = <30 IRQ_TYPE_LEVEL_LOW>;
+			reg = <7>;
+		};
+	};
 };
 
 /* Apalis Serial ATA */

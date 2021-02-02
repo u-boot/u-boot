@@ -60,9 +60,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_MEMTEST_START	0x00002000
-#define CONFIG_SYS_MEMTEST_END		0x00800000
-
 #define	CONFIG_SYS_LOAD_ADDR		0x200000
 
 #define	CONFIG_SYS_HZ			1000
@@ -94,7 +91,6 @@
 /* Environment Configuration */
 
 /* environment is in FLASH */
-#define CONFIG_ENV_OVERWRITE	1
 
 /* Ethernet configuration part */
 #define CONFIG_SYS_DISCOVER_PHY		1

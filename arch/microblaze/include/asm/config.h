@@ -8,10 +8,6 @@
 
 #define CONFIG_LMB
 
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_NEEDS_MANUAL_RELOC
-#endif
-
 #define CONFIG_SYS_BOOT_RAMDISK_HIGH
 
 #endif

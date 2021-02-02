@@ -13,10 +13,6 @@
 /*
  * Board
  */
-/* check if direct NOR boot config is used */
-#ifndef CONFIG_DIRECT_NOR_BOOT
-#define CONFIG_USE_SPIFLASH
-#endif
 
 /*
  * SoC Configuration
@@ -28,7 +24,7 @@
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
 #define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 
-#ifdef CONFIG_DIRECT_NOR_BOOT
+#ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_SYS_DV_NOR_BOOT_CFG	(0x11)
 #endif
 
@@ -42,10 +38,8 @@
 #define CONFIG_SPL_BSS_START_ADDR DAVINCI_DDR_EMIF_DATA_BASE
 #define CONFIG_SPL_BSS_MAX_SIZE 0x1080000
 /* memtest start addr */
-#define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM_1 + 0x2000000)
 
 /* memtest will be run on 16MB */
-#define CONFIG_SYS_MEMTEST_END 	(PHYS_SDRAM_1 + 0x2000000 + 16*1024*1024)
 
 #define CONFIG_SYS_DA850_SYSCFG_SUSPSRC (	\
 	DAVINCI_SYSCFG_SUSPSRC_TIMER0 |		\
@@ -109,10 +103,6 @@
 
 #define CONFIG_SYS_SPI_CLK		clk_get(DAVINCI_SPI1_CLKID)
 
-#ifdef CONFIG_USE_SPIFLASH
-#define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
-#endif
-
 /*
  * I2C Configuration
  */
@@ -154,9 +144,6 @@
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	10
 #define CONFIG_SYS_NAND_OOBSIZE		64
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_NAND_LOAD
 
 #ifndef CONFIG_SPL_BUILD
@@ -168,12 +155,10 @@
  * Network & Ethernet Configuration
  */
 #ifdef CONFIG_DRIVER_TI_EMAC
-#define CONFIG_BOOTP_DNS2
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT	10
 #endif
 
-#ifdef CONFIG_USE_NOR
+#ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_SYS_MAX_FLASH_BANKS	1 /* max number of flash banks */
 #define CONFIG_SYS_FLASH_SECT_SZ	(128 << 10) /* 128KB */
 #define CONFIG_SYS_FLASH_BASE		DAVINCI_ASYNC_EMIF_DATA_CE2_BASE
@@ -226,16 +211,11 @@
 #define CONFIG_CLOCKS
 #endif
 
-#if !defined(CONFIG_MTD_RAW_NAND) && \
-	!defined(CONFIG_USE_NOR) && \
-	!defined(CONFIG_USE_SPIFLASH)
-#endif
-
 /* USB Configs */
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
 
-#ifndef CONFIG_DIRECT_NOR_BOOT
+#ifdef CONFIG_SPL_BUILD
 /* defines for SPL */
 #define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_TEXT_BASE - \
 						CONFIG_SYS_MALLOC_LEN)
@@ -250,12 +230,12 @@
 /* additions for new relocation code, must added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000
 
-#ifdef CONFIG_DIRECT_NOR_BOOT
+#ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_SYS_INIT_SP_ADDR		0x8001ff00
 #else
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - /* Fix this */ \
 					GENERATED_GBL_DATA_SIZE)
-#endif /* CONFIG_DIRECT_NOR_BOOT */
+#endif /* CONFIG_MTD_NOR_FLASH */
 
 #include <asm/arch/hardware.h>
 

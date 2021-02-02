@@ -30,7 +30,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define OMAP_GPIO_DIR_OUT	0
 #define OMAP_GPIO_DIR_IN	1
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 
 #define GPIO_PER_BANK			32
 
@@ -40,11 +40,6 @@ struct gpio_bank {
 };
 
 #endif
-
-static inline int get_gpio_index(int gpio)
-{
-	return gpio & 0x1f;
-}
 
 int gpio_is_valid(int gpio)
 {
@@ -121,7 +116,11 @@ static int _get_gpio_value(const struct gpio_bank *bank, int gpio)
 	return (__raw_readl(reg) & (1 << gpio)) != 0;
 }
 
-#ifndef CONFIG_DM_GPIO
+#if !CONFIG_IS_ENABLED(DM_GPIO)
+static inline int get_gpio_index(int gpio)
+{
+	return gpio & 0x1f;
+}
 
 static inline const struct gpio_bank *get_gpio_bank(int gpio)
 {
@@ -309,7 +308,7 @@ static int omap_gpio_bind(struct udevice *dev)
 	if (plat)
 		return 0;
 
-	base_addr = devfdt_get_addr(dev);
+	base_addr = dev_read_addr(dev);
 	if (base_addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -348,7 +347,7 @@ static int omap_gpio_ofdata_to_platdata(struct udevice *dev)
 	struct omap_gpio_platdata *plat = dev_get_platdata(dev);
 	fdt_addr_t addr;
 
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -377,4 +376,4 @@ U_BOOT_DRIVER(gpio_omap) = {
 #endif
 };
 
-#endif /* CONFIG_DM_GPIO */
+#endif /* !DM_GPIO */

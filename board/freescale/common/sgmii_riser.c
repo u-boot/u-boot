@@ -14,6 +14,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <log.h>
 #include <net.h>
 #include <linux/libfdt.h>
 #include <tsec.h>

@@ -1,0 +1,40 @@
+/dts-v1/;
+
+/ {
+	description = "U-Boot mainline";
+	#address-cells = <1>;
+
+	images {
+		uboot {
+			description = "U-Boot (32-bit)";
+			data = /incbin/("u-boot-nodtb.bin");
+			type = "standalone";
+			os = "U-Boot";
+			arch = "arm";
+			compression = "none";
+			load = <0xc0100000>;
+			entry = <0xc0100000>;
+		};
+
+		fdt-1 {
+			description = ".dtb";
+			data = /incbin/("arch/arm/dts/stm32mp15xx-dhcor-avenger96.dtb");
+			type = "flat_dt";
+			arch = "arm";
+			compression = "none";
+		};
+	};
+
+	configurations {
+		default = "config-1";
+
+		config-1 {
+			/* DT+SoM+board model */
+			description = "arrow,stm32mp15xx-avenger96_somrev0_boardrev1";
+			loadables = "uboot";
+			fdt = "fdt-1";
+		};
+
+		/* Add 586-200..586-400 with fdt-2..fdt-4 here */
+	};
+};

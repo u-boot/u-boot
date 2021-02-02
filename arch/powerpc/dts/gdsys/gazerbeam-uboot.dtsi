@@ -32,7 +32,7 @@
 	};
 
 	board {
-		compatible = "gdsys,board_gazerbeam";
+		compatible = "gdsys,sysinfo-gazerbeam";
 		csb = <&board_soc>;
 		serdes = <&SERDES>;
 		rxaui0 = <&RXAUI0_0>;

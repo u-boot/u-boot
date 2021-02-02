@@ -9,7 +9,10 @@
 
 #define pr_fmt(fmt) "PKEY: "fmt
 #ifdef __UBOOT__
+#include <dm/devres.h>
+#include <linux/bug.h>
 #include <linux/compat.h>
+#include <linux/err.h>
 #else
 #include <linux/module.h>
 #include <linux/export.h>
@@ -22,7 +25,10 @@
 #include <keys/asymmetric-subtype.h>
 #endif
 #include <crypto/public_key.h>
-#ifndef __UBOOT__
+#ifdef __UBOOT__
+#include <image.h>
+#include <u-boot/rsa.h>
+#else
 #include <crypto/akcipher.h>
 #endif
 
@@ -77,6 +83,67 @@ void public_key_signature_free(struct public_key_signature *sig)
 }
 EXPORT_SYMBOL_GPL(public_key_signature_free);
 
+/**
+ * public_key_verify_signature - Verify a signature using a public key.
+ *
+ * @pkey:	Public key
+ * @sig:	Signature
+ *
+ * Verify a signature, @sig, using a RSA public key, @pkey.
+ *
+ * Return:	0 - verified, non-zero error code - otherwise
+ */
+int public_key_verify_signature(const struct public_key *pkey,
+				const struct public_key_signature *sig)
+{
+	struct image_sign_info info;
+	int ret;
+
+	pr_devel("==>%s()\n", __func__);
+
+	if (!pkey || !sig)
+		return -EINVAL;
+
+	if (pkey->key_is_private)
+		return -EINVAL;
+
+	memset(&info, '\0', sizeof(info));
+	info.padding = image_get_padding_algo("pkcs-1.5");
+	/*
+	 * Note: image_get_[checksum|crypto]_algo takes a string
+	 * argument like "<checksum>,<crypto>"
+	 * TODO: support other hash algorithms
+	 */
+	if (strcmp(sig->pkey_algo, "rsa") || (sig->s_size * 8) != 2048) {
+		pr_warn("Encryption is not RSA2048: %s%d\n",
+			sig->pkey_algo, sig->s_size * 8);
+		return -ENOPKG;
+	}
+	if (!strcmp(sig->hash_algo, "sha1")) {
+		info.checksum = image_get_checksum_algo("sha1,rsa2048");
+		info.name = "sha1,rsa2048";
+	} else if (!strcmp(sig->hash_algo, "sha256")) {
+		info.checksum = image_get_checksum_algo("sha256,rsa2048");
+		info.name = "sha256,rsa2048";
+	} else {
+		pr_warn("unknown msg digest algo: %s\n", sig->hash_algo);
+		return -ENOPKG;
+	}
+	info.crypto = image_get_crypto_algo(info.name);
+	if (IS_ERR(info.checksum) || IS_ERR(info.crypto))
+		return -ENOPKG;
+
+	info.key = pkey->key;
+	info.keylen = pkey->keylen;
+
+	if (rsa_verify_with_pkey(&info, sig->digest, sig->s, sig->s_size))
+		ret = -EKEYREJECTED;
+	else
+		ret = 0;
+
+	pr_devel("<==%s() = %d\n", __func__, ret);
+	return ret;
+}
 #else
 /*
  * Destroy a public key algorithm key.

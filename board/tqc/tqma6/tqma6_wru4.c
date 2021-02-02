@@ -10,12 +10,14 @@
  */
 
 #include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/sys_proto.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/boot_mode.h>
@@ -114,7 +116,7 @@ int tqma6_bb_board_mmc_getwp(struct mmc *mmc)
 	return ret;
 }
 
-int tqma6_bb_board_mmc_init(bd_t *bis)
+int tqma6_bb_board_mmc_init(struct bd_info *bis)
 {
 	int ret;
 
@@ -180,7 +182,7 @@ static void setup_iomuxc_enet(void)
 	gpio_set_value(ENET_PHY_RESET_GPIO, 1);
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return cpu_eth_init(bis);
 }
@@ -338,7 +340,7 @@ int board_ehci_power(int port, int on)
  * Device Tree Support
  */
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
-void tqma6_bb_ft_board_setup(void *blob, bd_t *bd)
+void tqma6_bb_ft_board_setup(void *blob, struct bd_info *bd)
 {
 	/* TBD */
 }

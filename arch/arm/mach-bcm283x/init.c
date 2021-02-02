@@ -8,13 +8,19 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <init.h>
 #include <dm/device.h>
 #include <fdt_support.h>
+
+#define BCM2711_RPI4_PCIE_XHCI_MMIO_PHYS	0x600000000UL
+#define BCM2711_RPI4_PCIE_XHCI_MMIO_SIZE	0x800000UL
 
 #ifdef CONFIG_ARM64
 #include <asm/armv8/mmu.h>
 
-static struct mm_region bcm283x_mem_map[] = {
+#define MEM_MAP_MAX_ENTRIES (4)
+
+static struct mm_region bcm283x_mem_map[MEM_MAP_MAX_ENTRIES] = {
 	{
 		.virt = 0x00000000UL,
 		.phys = 0x00000000UL,
@@ -34,17 +40,24 @@ static struct mm_region bcm283x_mem_map[] = {
 	}
 };
 
-static struct mm_region bcm2711_mem_map[] = {
+static struct mm_region bcm2711_mem_map[MEM_MAP_MAX_ENTRIES] = {
 	{
 		.virt = 0x00000000UL,
 		.phys = 0x00000000UL,
-		.size = 0xfe000000UL,
+		.size = 0xfc000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.virt = 0xfe000000UL,
-		.phys = 0xfe000000UL,
-		.size = 0x01800000UL,
+		.virt = 0xfc000000UL,
+		.phys = 0xfc000000UL,
+		.size = 0x03800000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		.virt = BCM2711_RPI4_PCIE_XHCI_MMIO_PHYS,
+		.phys = BCM2711_RPI4_PCIE_XHCI_MMIO_PHYS,
+		.size = BCM2711_RPI4_PCIE_XHCI_MMIO_SIZE,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
@@ -71,7 +84,7 @@ static void _rpi_update_mem_map(struct mm_region *pd)
 {
 	int i;
 
-	for (i = 0; i < 2; i++) {
+	for (i = 0; i < MEM_MAP_MAX_ENTRIES; i++) {
 		mem_map[i].virt = pd[i].virt;
 		mem_map[i].phys = pd[i].phys;
 		mem_map[i].size = pd[i].size;
@@ -133,6 +146,27 @@ int mach_cpu_init(void)
 }
 
 #ifdef CONFIG_ARMV7_LPAE
+#ifdef CONFIG_TARGET_RPI_4_32B
+#define BCM2711_RPI4_PCIE_XHCI_MMIO_VIRT	0xff800000UL
+#include <addr_map.h>
+#include <asm/system.h>
+
+void init_addr_map(void)
+{
+	mmu_set_region_dcache_behaviour_phys(BCM2711_RPI4_PCIE_XHCI_MMIO_VIRT,
+					     BCM2711_RPI4_PCIE_XHCI_MMIO_PHYS,
+					     BCM2711_RPI4_PCIE_XHCI_MMIO_SIZE,
+					     DCACHE_OFF);
+
+	/* identity mapping for 0..BCM2711_RPI4_PCIE_XHCI_MMIO_VIRT */
+	addrmap_set_entry(0, 0, BCM2711_RPI4_PCIE_XHCI_MMIO_VIRT, 0);
+	/* XHCI MMIO on PCIe at BCM2711_RPI4_PCIE_XHCI_MMIO_VIRT */
+	addrmap_set_entry(BCM2711_RPI4_PCIE_XHCI_MMIO_VIRT,
+			  BCM2711_RPI4_PCIE_XHCI_MMIO_PHYS,
+			  BCM2711_RPI4_PCIE_XHCI_MMIO_SIZE, 1);
+}
+#endif
+
 void enable_caches(void)
 {
 	dcache_enable();

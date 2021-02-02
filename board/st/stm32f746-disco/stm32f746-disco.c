@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <init.h>
 #include <lcd.h>
+#include <log.h>
 #include <miiphy.h>
 #include <phy_interface.h>
 #include <ram.h>
@@ -22,6 +23,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/syscfg.h>
 #include <asm/gpio.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

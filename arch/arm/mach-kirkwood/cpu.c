@@ -7,7 +7,11 @@
 
 #include <common.h>
 #include <command.h>
+#include <cpu_func.h>
 #include <env.h>
+#include <init.h>
+#include <log.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/cache.h>
 #include <asm/io.h>
@@ -268,7 +272,7 @@ int arch_misc_init(void)
 #endif /* CONFIG_ARCH_MISC_INIT */
 
 #ifdef CONFIG_MVGBE
-int cpu_eth_init(bd_t *bis)
+int cpu_eth_init(struct bd_info *bis)
 {
 	mvgbe_initialize(bis);
 	return 0;
@@ -276,7 +280,7 @@ int cpu_eth_init(bd_t *bis)
 #endif
 
 #ifdef CONFIG_MVEBU_MMC
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	mvebu_mmc_init(bis);
 	return 0;

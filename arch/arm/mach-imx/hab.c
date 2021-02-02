@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <config.h>
 #include <fuse.h>
 #include <mapmem.h>
@@ -291,8 +292,8 @@ static int get_hab_status(void)
 	return 0;
 }
 
-static int do_hab_status(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char * const argv[])
+static int do_hab_status(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 	if ((argc != 1)) {
 		cmd_usage(cmdtp);
@@ -324,8 +325,8 @@ static ulong get_image_ivt_offset(ulong img_addr)
 	}
 }
 
-static int do_authenticate_image(cmd_tbl_t *cmdtp, int flag, int argc,
-				 char * const argv[])
+static int do_authenticate_image(struct cmd_tbl *cmdtp, int flag, int argc,
+				 char *const argv[])
 {
 	ulong	addr, length, ivt_offset;
 	int	rcode = 0;
@@ -349,8 +350,8 @@ static int do_authenticate_image(cmd_tbl_t *cmdtp, int flag, int argc,
 	return rcode;
 }
 
-static int do_hab_failsafe(cmd_tbl_t *cmdtp, int flag, int argc,
-			   char * const argv[])
+static int do_hab_failsafe(struct cmd_tbl *cmdtp, int flag, int argc,
+			   char *const argv[])
 {
 	hab_rvt_failsafe_t *hab_rvt_failsafe;
 
@@ -365,8 +366,8 @@ static int do_hab_failsafe(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int do_hab_version(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int do_hab_version(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	struct hab_hdr *hdr = (struct hab_hdr *)HAB_RVT_BASE;
 
@@ -380,8 +381,8 @@ static int do_hab_version(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int do_authenticate_image_or_failover(cmd_tbl_t *cmdtp, int flag,
-					     int argc, char * const argv[])
+static int do_authenticate_image_or_failover(struct cmd_tbl *cmdtp, int flag,
+					     int argc, char *const argv[])
 {
 	int ret = CMD_RET_FAILURE;
 

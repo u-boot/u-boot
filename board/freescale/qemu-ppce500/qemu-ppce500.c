@@ -8,7 +8,10 @@
 #include <cpu_func.h>
 #include <env.h>
 #include <init.h>
+#include <log.h>
+#include <net.h>
 #include <pci.h>
+#include <time.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/fsl_pci.h>
@@ -237,13 +240,13 @@ static uint64_t get_linear_ram_size(void)
 	panic("Couldn't determine RAM size");
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return pci_eth_init(bis);
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	FT_FSL_PCI_SETUP;
 
@@ -323,7 +326,7 @@ void get_sys_info(sys_info_t *sys_info)
 	sys_info->freq_processor[0] = freq;
 }
 
-int get_clocks (void)
+int get_clocks(void)
 {
 	sys_info_t sys_info;
 
@@ -337,7 +340,7 @@ int get_clocks (void)
 	return 0;
 }
 
-unsigned long get_tbclk (void)
+unsigned long get_tbclk(void)
 {
 	void *fdt = get_fdt_virt();
 	int cpus_node = fdt_path_offset(fdt, "/cpus");
@@ -350,7 +353,7 @@ unsigned long get_tbclk (void)
  * get_bus_freq
  * return system bus freq in Hz
  *********************************************/
-ulong get_bus_freq (ulong dummy)
+ulong get_bus_freq(ulong dummy)
 {
 	sys_info_t sys_info;
 	get_sys_info(&sys_info);

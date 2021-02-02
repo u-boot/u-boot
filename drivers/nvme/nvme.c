@@ -5,13 +5,17 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
+#include <malloc.h>
 #include <memalign.h>
 #include <pci.h>
 #include <time.h>
 #include <dm/device-internal.h>
+#include <linux/compat.h>
 #include "nvme.h"
 
 #define NVME_Q_DEPTH		2
@@ -461,6 +465,9 @@ int nvme_identify(struct nvme_dev *dev, unsigned nsid,
 	}
 
 	c.identify.cns = cpu_to_le32(cns);
+
+	invalidate_dcache_range(dma_addr,
+				dma_addr + sizeof(struct nvme_id_ctrl));
 
 	ret = nvme_submit_admin_cmd(dev, &c, NULL);
 	if (!ret)

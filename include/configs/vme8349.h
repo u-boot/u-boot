@@ -26,8 +26,6 @@
 #undef CONFIG_MPC83XX_PCI2		/* support for 2nd PCI controller */
 
 #undef CONFIG_SYS_DRAM_TEST			/* memory test, takes time */
-#define CONFIG_SYS_MEMTEST_START	0x00000000	/* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x00100000
 
 /*
  * DDR Setup
@@ -157,8 +155,6 @@
 
 #if defined(CONFIG_PCI)
 
-#undef CONFIG_EEPRO100
-#undef CONFIG_TULIP
 
 #if !defined(CONFIG_PCI_PNP)
 	#define PCI_ENET0_IOADDR	0xFIXME
@@ -210,9 +206,6 @@
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-/*
- * Command line configuration.
- */
 #define CONFIG_SYS_RTC_BUS_NUM  0x01
 #define CONFIG_SYS_I2C_RTC_ADDR	0x32
 
@@ -258,7 +251,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_OVERWRITE
 
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_HAS_ETH0

@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <log.h>
 #include <spl.h>
 #include <asm/omap_common.h>
 #include <asm/arch/omap.h>
@@ -187,17 +188,16 @@ u32 spl_boot_device(void)
 	return gd->arch.omap_boot_device;
 }
 
-u32 spl_boot_mode(const u32 boot_device)
+u32 spl_mmc_boot_mode(const u32 boot_device)
 {
 	return gd->arch.omap_boot_mode;
 }
 
 void spl_board_init(void)
 {
-#ifdef CONFIG_SPL_SERIAL_SUPPORT
 	/* Prepare console output */
 	preloader_console_init();
-#endif
+
 #if defined(CONFIG_SPL_NAND_SUPPORT) || defined(CONFIG_SPL_ONENAND_SUPPORT)
 	gpmc_init();
 #endif

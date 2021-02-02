@@ -82,7 +82,7 @@
 		ranges = <0 0 0 0xffffffff>;
 		u-boot,dm-pre-reloc;
 
-		clkmgr@ffd1000 {
+		clkmgr: clkmgr@ffd10000 {
 			compatible = "altr,clk-mgr";
 			reg = <0xffd10000 0x1000>;
 		};
@@ -268,7 +268,8 @@
 		 };
 
 		spi0: spi@ffda4000 {
-			compatible = "snps,dw-apb-ssi";
+			compatible = "intel,stratix10-spi",
+				     "snps,dw-apb-ssi-4.00a", "snps,dw-apb-ssi";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0xffda4000 0x1000>;
@@ -281,7 +282,8 @@
 		};
 
 		spi1: spi@ffda5000 {
-			compatible = "snps,dw-apb-ssi";
+			compatible = "intel,stratix10-spi",
+				     "snps,dw-apb-ssi-4.00a", "snps,dw-apb-ssi";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0xffda5000 0x1000>;
@@ -386,7 +388,6 @@
 			reg = <0xffd00200 0x100>;
 			interrupts = <0 117 4>;
 			resets = <&rst WATCHDOG0_RESET>;
-			u-boot,dm-pre-reloc;
 			status = "disabled";
 		};
 

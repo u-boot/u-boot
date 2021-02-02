@@ -30,6 +30,7 @@ config PCI_AARDVARK
 	bool "Enable Aardvark PCIe driver"
 	default n
 	depends on DM_PCI
+	depends on DM_GPIO
 	depends on ARMADA_3700
 	help
 	  Say Y here if you want to enable PCIe controller support on
@@ -42,6 +43,35 @@ config PCI_PNP
 	default y
 	help
 	  Enable PCI memory and I/O space resource allocation and assignment.
+
+config PCI_REGION_MULTI_ENTRY
+	bool "Enable Multiple entries of region type MEMORY in ranges for PCI"
+	depends on PCI || DM_PCI
+	default n
+	help
+	  Enable PCI memory regions to be of multiple entry. Multiple entry
+	  here refers to allow more than one count of address ranges for MEMORY
+	  region type. This helps to add support for SoC's like OcteonTX/TX2
+	  where every peripheral is on the PCI bus.
+
+config PCI_SRIOV
+	bool "Enable Single Root I/O Virtualization support for PCI"
+	depends on PCI || DM_PCI
+	default n
+	help
+	  Say Y here if you want to enable PCI Single Root I/O Virtualization
+	  capability support. This helps to enumerate Virtual Function devices
+	  if available on a PCI Physical Function device and probe for
+	  applicable drivers.
+
+config PCI_ARID
+        bool "Enable Alternate Routing-ID support for PCI"
+        depends on PCI || DM_PCI
+        default n
+        help
+          Say Y here if you want to enable Alternate Routing-ID capability
+          support on PCI devices. This helps to skip some devices in BDF
+          scan that are not present.
 
 config PCIE_ECAM_GENERIC
 	bool "Generic ECAM-based PCI host controller support"
@@ -111,7 +141,7 @@ config PCI_SANDBOX
 
 config PCI_TEGRA
 	bool "Tegra PCI support"
-	depends on TEGRA
+	depends on ARCH_TEGRA
 	depends on (TEGRA186 && POWER_DOMAIN) || (!TEGRA186)
 	help
 	  Enable support for the PCIe controller found on some generations of
@@ -119,6 +149,14 @@ config PCI_TEGRA
 	  3 root ports with a total of 6 lanes and Tegra124 has 2 root ports
 	  with a total of 5 lanes. Some boards require this for Ethernet
 	  support to work (e.g. beaver, jetson-tk1).
+
+config PCI_OCTEONTX
+	bool "OcteonTX PCI support"
+	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
+	help
+	  Enable support for the OcteonTX/TX2 SoC family ECAM/PEM controllers.
+	  These controllers provide PCI configuration access to all on-board
+	  peripherals so it should only be disabled for testing purposes
 
 config PCI_XILINX
 	bool "Xilinx AXI Bridge for PCI Express"
@@ -128,12 +166,41 @@ config PCI_XILINX
 	  which can be used on some generations of Xilinx FPGAs.
 
 config PCIE_LAYERSCAPE
-	bool "Layerscape PCIe support"
+	bool
+	default n
+
+config PCIE_LAYERSCAPE_RC
+	bool "Layerscape PCIe Root Complex mode support"
 	depends on DM_PCI
+	select PCIE_LAYERSCAPE
 	help
-	  Support Layerscape PCIe. The Layerscape SoC may have one or several
-	  PCIe controllers. The PCIe may works in RC or EP mode according to
-	  RCW[HOST_AGT_PEX] setting.
+	  Enable Layerscape PCIe Root Complex mode driver support. The Layerscape
+	  SoC may have one or several PCIe controllers. Each controller can be
+	  configured to Root Complex mode by clearing the corresponding bit of
+	  RCW[HOST_AGT_PEX].
+
+config PCI_IOMMU_EXTRA_MAPPINGS
+	bool "Support for specifying extra IOMMU mappings for PCI"
+	depends on PCIE_LAYERSCAPE_RC
+	help
+	  Enable support for specifying extra IOMMU mappings for PCI
+	  controllers through a special env var called "pci_iommu_extra" or
+	  through a device tree property named "pci-iommu-extra" placed in
+	  the node describing the PCI controller.
+	  The intent is to cover SR-IOV scenarios which need mappings for VFs
+	  and PCI hot-plug scenarios. More documentation can be found under:
+	    arch/arm/cpu/armv8/fsl-layerscape/doc/README.pci_iommu_extra
+
+config PCIE_LAYERSCAPE_EP
+	bool "Layerscape PCIe Endpoint mode support"
+	depends on DM_PCI
+	select PCIE_LAYERSCAPE
+	select PCI_ENDPOINT
+	help
+	  Enable Layerscape PCIe Endpoint mode driver support. The Layerscape
+	  SoC may have one or several PCIe controllers. Each controller can be
+	  configured to Endpoint mode by setting the corresponding bit of
+	  RCW[HOST_AGT_PEX].
 
 config PCIE_LAYERSCAPE_GEN4
 	bool "Layerscape Gen4 PCIe support"
@@ -143,12 +210,43 @@ config PCIE_LAYERSCAPE_GEN4
 	  several PCIe controllers. The PCIe controller can work in RC or
 	  EP mode according to RCW[HOST_AGT_PEX] setting.
 
+config FSL_PCIE_COMPAT
+	string "PCIe compatible of Kernel DT"
+	depends on PCIE_LAYERSCAPE_RC || PCIE_LAYERSCAPE_GEN4
+	default "fsl,ls1012a-pcie" if ARCH_LS1012A
+	default "fsl,ls1028a-pcie" if ARCH_LS1028A
+	default "fsl,ls1043a-pcie" if ARCH_LS1043A
+	default "fsl,ls1046a-pcie" if ARCH_LS1046A
+	default "fsl,ls2080a-pcie" if ARCH_LS2080A
+	default "fsl,ls1088a-pcie" if ARCH_LS1088A
+	default "fsl,lx2160a-pcie" if ARCH_LX2160A || ARCH_LX2162A
+	default "fsl,ls1021a-pcie" if ARCH_LS1021A
+	help
+	  This compatible is used to find pci controller node in Kernel DT
+	  to complete fixup.
+
+config FSL_PCIE_EP_COMPAT
+	string "PCIe EP compatible of Kernel DT"
+	depends on PCIE_LAYERSCAPE_RC || PCIE_LAYERSCAPE_GEN4
+	default "fsl,lx2160a-pcie-ep" if ARCH_LX2160A || ARCH_LX2162A
+	default "fsl,ls-pcie-ep"
+	help
+	  This compatible is used to find pci controller ep node in Kernel DT
+	  to complete fixup.
+
 config PCIE_INTEL_FPGA
 	bool "Intel FPGA PCIe support"
 	depends on DM_PCI
 	help
 	  Say Y here if you want to enable PCIe controller support on Intel
 	  FPGA, example Stratix 10.
+
+config PCIE_IPROC
+	bool "Iproc PCIe support"
+	depends on DM_PCI
+	help
+	  Broadcom iProc PCIe controller driver.
+	  Say Y here if you want to enable Broadcom iProc PCIe controller,
 
 config PCI_MVEBU
 	bool "Enable Armada XP/38x PCIe driver"
@@ -173,4 +271,23 @@ config PCIE_MEDIATEK
 	  Say Y here if you want to enable Gen2 PCIe controller,
 	  which could be found on MT7623 SoC family.
 
+config PCIE_ROCKCHIP
+	bool "Enable Rockchip PCIe driver"
+	depends on ARCH_ROCKCHIP
+	select DM_PCI
+	select PHY_ROCKCHIP_PCIE
+	default y if ROCKCHIP_RK3399
+	help
+	  Say Y here if you want to enable PCIe controller support on
+	  Rockchip SoCs.
+
+config PCI_BRCMSTB
+	bool "Broadcom STB PCIe controller"
+	depends on DM_PCI
+	depends on ARCH_BCM283X
+	help
+	  Say Y here if you want to enable support for PCIe controller
+	  on Broadcom set-top-box (STB) SoCs.
+	  This driver currently supports only BCM2711 SoC and RC mode
+	  of the controller.
 endif

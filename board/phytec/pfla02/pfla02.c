@@ -6,6 +6,8 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <init.h>
+#include <log.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
@@ -18,6 +20,7 @@
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/spi.h>
 #include <env.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <mmc.h>
@@ -114,7 +117,7 @@ static iomux_v3_cfg_t const gpios_pads[] = {
 	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
 
-#ifdef CONFIG_CMD_NAND
+#if defined(CONFIG_CMD_NAND) && !defined(CONFIG_SPL_BUILD)
 /* NAND */
 static iomux_v3_cfg_t const nfc_pads[] = {
 	IOMUX_PADS(PAD_NANDF_CLE__NAND_CLE	| MUX_PAD_CTRL(NAND_PAD_CTRL)),
@@ -209,7 +212,7 @@ int board_mmc_getcd(struct mmc *mmc)
 }
 
 #ifndef CONFIG_SPL_BUILD
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	int ret;
 	int i;
@@ -271,7 +274,7 @@ static void setup_gpios(void)
 	SETUP_IOMUX_PADS(gpios_pads);
 }
 
-#ifdef CONFIG_CMD_NAND
+#if defined(CONFIG_CMD_NAND) && !defined(CONFIG_SPL_BUILD)
 static void setup_gpmi_nand(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
@@ -329,7 +332,7 @@ int board_spi_cs_gpio(unsigned bus, unsigned cs)
 	return IMX_GPIO_NR(4, 24);
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	setup_iomux_enet();
 
@@ -358,7 +361,7 @@ int board_init(void)
 
 	setup_gpios();
 
-#ifdef CONFIG_CMD_NAND
+#if defined(CONFIG_CMD_NAND) && !defined(CONFIG_SPL_BUILD)
 	setup_gpmi_nand();
 #endif
 	return 0;
@@ -559,7 +562,7 @@ static void spl_dram_init(struct mx6_ddr_sysinfo *sysinfo,
 	mx6_dram_cfg(sysinfo, &mx6_mmcd_calib, mem_ddr);
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	if (spl_boot_device() == BOOT_DEVICE_SPI)
 		printf("MMC SEtup, Boot SPI");
@@ -654,7 +657,7 @@ void board_init_f(ulong dummy)
 		.refr = 7,	/* 8 refresh commands per refresh cycle */
 	};
 
-#ifdef CONFIG_CMD_NAND
+#if defined(CONFIG_CMD_NAND) && !defined(CONFIG_SPL_BUILD)
 	/* Enable NAND */
 	setup_gpmi_nand();
 #endif

@@ -35,9 +35,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_PHY_VITESSE
-#define CONFIG_PHY_REALTEK
-#define CONFIG_PHYLIB_10G
 #define RGMII_PHY1_ADDR		0x1
 #define RGMII_PHY2_ADDR		0x2
 #define SGMII_CARD_PORT1_PHY_ADDR 0x1C
@@ -379,22 +376,9 @@ unsigned long get_board_ddr_clk(void);
 #define VDD_MV_MIN			819
 #define VDD_MV_MAX			1212
 
-/* QSPI device */
-#if defined(CONFIG_TFABOOT) || \
-	(defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI))
-#ifdef CONFIG_FSL_QSPI
-#define CONFIG_SPI_FLASH_SPANSION
-#define FSL_QSPI_FLASH_SIZE		(1 << 24)
-#define FSL_QSPI_FLASH_NUM		2
-#endif
-#endif
-
 /*
  * Miscellaneous configurable options
  */
-
-#define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		0x9fffffff
 
 #define CONFIG_SYS_HZ			1000
 
@@ -410,16 +394,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Environment
  */
-#define CONFIG_ENV_OVERWRITE
-
-#ifdef CONFIG_TFABOOT
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#else
-#ifdef CONFIG_NAND_BOOT
-#elif defined(CONFIG_SD_BOOT)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
-#endif
 
 #define CONFIG_CMDLINE_TAG
 

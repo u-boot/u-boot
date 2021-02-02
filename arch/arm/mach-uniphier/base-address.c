@@ -3,9 +3,9 @@
 // Copyright (C) 2019 Socionext Inc.
 //   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-#include <common.h>
 #include <dm/of.h>
 #include <fdt_support.h>
+#include <linux/errno.h>
 #include <linux/io.h>
 #include <linux/libfdt.h>
 #include <linux/sizes.h>

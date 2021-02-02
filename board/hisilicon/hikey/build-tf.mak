@@ -1,6 +1,6 @@
 CROSS_COMPILE	:= aarch64-linux-gnu-
 output_dir	:= $(PWD)/../bin
-makejobs	:= $(shell grep '^processor' /proc/cpuinfo | sort -u | wc -l)
+makejobs	:= $(nproc)
 makethreads	:= $(shell dc -e "$(makejobs) 1 + p")
 make_options	:= GCC49_AARCH64_PREFIX=$CROSS_COMPILE \
 		-j$(makethreads) -l$(makejobs)

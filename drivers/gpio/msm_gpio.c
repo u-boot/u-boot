@@ -96,7 +96,7 @@ static int msm_gpio_probe(struct udevice *dev)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
 
-	priv->base = devfdt_get_addr(dev);
+	priv->base = dev_read_addr(dev);
 
 	return priv->base == FDT_ADDR_T_NONE ? -EINVAL : 0;
 }
@@ -118,6 +118,7 @@ static int msm_gpio_ofdata_to_platdata(struct udevice *dev)
 static const struct udevice_id msm_gpio_ids[] = {
 	{ .compatible = "qcom,msm8916-pinctrl" },
 	{ .compatible = "qcom,apq8016-pinctrl" },
+	{ .compatible = "qcom,ipq4019-pinctrl" },
 	{ }
 };
 

@@ -13,6 +13,7 @@
 #include <fs.h>
 #include <fdt_support.h>
 #include <image.h>
+#include <log.h>
 #include <nand.h>
 #include <sata.h>
 #include <spi.h>

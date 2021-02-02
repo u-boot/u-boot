@@ -12,6 +12,7 @@
  * class_csr - block containing all the classifier control and status register.
  * Mapped on CBUS and accessible from all PE's and ARM.
  */
+#include <linux/bitops.h>
 #define CLASS_VERSION			(CLASS_CSR_BASE_ADDR + 0x000)
 #define CLASS_TX_CTRL			(CLASS_CSR_BASE_ADDR + 0x004)
 #define CLASS_INQ_PKTPTR		(CLASS_CSR_BASE_ADDR + 0x010)

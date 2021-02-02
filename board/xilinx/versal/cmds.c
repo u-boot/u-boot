@@ -5,11 +5,14 @@
  */
 
 #include <cpu_func.h>
+#include <command.h>
 #include <common.h>
+#include <log.h>
+#include <memalign.h>
 #include <versalpl.h>
 #include <zynqmp_firmware.h>
 
-static int do_versal_load_pdi(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_versal_load_pdi(struct cmd_tbl *cmdtp, int flag, int argc,
 			      char * const argv[])
 {
 	u32 buf_lo, buf_hi;
@@ -55,7 +58,7 @@ static int do_versal_load_pdi(cmd_tbl_t *cmdtp, int flag, int argc,
 	return ret;
 }
 
-static cmd_tbl_t cmd_versal_sub[] = {
+static struct cmd_tbl cmd_versal_sub[] = {
 	U_BOOT_CMD_MKENT(loadpdi, 4, 1, do_versal_load_pdi, "", ""),
 };
 
@@ -71,10 +74,10 @@ static cmd_tbl_t cmd_versal_sub[] = {
  * Return: return 0 on success, Error value if command fails.
  * CMD_RET_USAGE incase of incorrect/missing parameters.
  */
-static int do_versal(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_versal(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
-	cmd_tbl_t *c;
+	struct cmd_tbl *c;
 	int ret = CMD_RET_USAGE;
 
 	if (argc < 2)

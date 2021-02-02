@@ -112,7 +112,7 @@ static int mv_sdhci_probe(struct udevice *dev)
 	int ret;
 
 	host->name = MVSDH_NAME;
-	host->ioaddr = (void *)devfdt_get_addr(dev);
+	host->ioaddr = dev_read_addr_ptr(dev);
 	host->quirks = SDHCI_QUIRK_32BIT_DMA_ADDR | SDHCI_QUIRK_WAIT_SEND_CMD;
 	host->mmc = &plat->mmc;
 	host->mmc->dev = dev;

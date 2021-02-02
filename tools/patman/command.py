@@ -3,8 +3,8 @@
 #
 
 import os
-import cros_subprocess
-import tools
+
+from patman import cros_subprocess
 
 """Shell command ease-ups for Python."""
 
@@ -34,9 +34,9 @@ class CommandResult:
 
     def ToOutput(self, binary):
         if not binary:
-            self.stdout = tools.ToString(self.stdout)
-            self.stderr = tools.ToString(self.stderr)
-            self.combined = tools.ToString(self.combined)
+            self.stdout = self.stdout.decode('utf-8')
+            self.stderr = self.stderr.decode('utf-8')
+            self.combined = self.combined.decode('utf-8')
         return self
 
 

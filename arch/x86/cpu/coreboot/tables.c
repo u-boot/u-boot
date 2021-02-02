@@ -10,6 +10,8 @@
 #include <net.h>
 #include <asm/arch/sysinfo.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * This needs to be in the .data section so that it's copied over during
  * relocation. By default it's put in the .bss section which is simply filled
@@ -69,6 +71,17 @@ static void cb_parse_vbnv(unsigned char *ptr, struct sysinfo_t *info)
 	info->vbnv_size = vbnv->vbnv_size;
 }
 
+static void cb_parse_cbmem_entry(unsigned char *ptr, struct sysinfo_t *info)
+{
+	struct cb_cbmem_entry *entry = (struct cb_cbmem_entry *)ptr;
+
+	if (entry->id != CBMEM_ID_SMBIOS)
+		return;
+
+	info->smbios_start = entry->address;
+	info->smbios_size = entry->entry_size;
+}
+
 static void cb_parse_gpios(unsigned char *ptr, struct sysinfo_t *info)
 {
 	int i;
@@ -115,20 +128,11 @@ __weak void cb_parse_unhandled(u32 tag, unsigned char *ptr)
 
 static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 {
+	unsigned char *ptr = addr;
 	struct cb_header *header;
-	unsigned char *ptr = (unsigned char *)addr;
 	int i;
 
-	for (i = 0; i < len; i += 16, ptr += 16) {
-		header = (struct cb_header *)ptr;
-		if (!strncmp((const char *)header->signature, "LBIO", 4))
-			break;
-	}
-
-	/* We walked the entire space and didn't find anything. */
-	if (i >= len)
-		return -1;
-
+	header = (struct cb_header *)ptr;
 	if (!header->table_bytes)
 		return 0;
 
@@ -215,6 +219,9 @@ static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 		case CB_TAG_VBNV:
 			cb_parse_vbnv(ptr, info);
 			break;
+		case CB_TAG_CBMEM_ENTRY:
+			cb_parse_cbmem_entry(ptr, info);
+			break;
 		default:
 			cb_parse_unhandled(rec->tag, ptr);
 			break;
@@ -231,10 +238,17 @@ static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 
 int get_coreboot_info(struct sysinfo_t *info)
 {
-	int ret = cb_parse_header((void *)0x00000000, 0x1000, info);
+	long addr;
+	int ret;
 
-	if (ret != 1)
-		ret = cb_parse_header((void *)0x000f0000, 0x1000, info);
+	addr = locate_coreboot_table();
+	if (addr < 0)
+		return addr;
+	ret = cb_parse_header((void *)addr, 0x1000, info);
+	if (!ret)
+		return -ENOENT;
+	gd->arch.coreboot_table = addr;
+	gd->flags |= GD_FLG_SKIP_LL_INIT;
 
-	return (ret == 1) ? 0 : -1;
+	return 0;
 }

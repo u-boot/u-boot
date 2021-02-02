@@ -15,9 +15,6 @@
 #include <configs/ti_am335x_common.h>
 
 /* settings we don;t want on this board */
-#undef CONFIG_CMD_SPI
-
-#define CONFIG_CMD_CACHE
 
 #ifndef CONFIG_SPL_BUILD
 # define CONFIG_TIMESTAMP
@@ -28,23 +25,6 @@
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
-
-/*
- * in case of SD Card or Network boot we want to have a possibility to
- * debrick the shc, therefore do not read environment from eMMC
- */
-#if defined(CONFIG_SHC_SDBOOT) || defined(CONFIG_SHC_NETBOOT)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#else
-#define CONFIG_SYS_MMC_ENV_DEV		1
-#endif
-
-/*
- * Info when using boot partitions: As environment resides within first
- * 128 kB, MLO must start at 128 kB == 0x20000
- * ENV at MMC Boot0 Partition - 0/Undefined=user, 1=boot0, 2=boot1,
- * 4..7=general0..3
- */
 
 #define CONFIG_HSMMC2_8BIT
 
@@ -242,11 +222,7 @@
 #undef CONFIG_TIMER
 #endif
 
-#define CONFIG_BOOTP_DEFAULT
-#define CONFIG_BOOTP_DNS2
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT         10
-#define CONFIG_PHY_SMSC
 
 /* I2C configuration */
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* Main EEPROM */

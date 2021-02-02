@@ -8,7 +8,7 @@
 #ifndef __W1_H
 #define __W1_H
 
-#include <dm.h>
+struct udevice;
 
 #define W1_FAMILY_DS24B33	0x23
 #define W1_FAMILY_DS2431	0x2d

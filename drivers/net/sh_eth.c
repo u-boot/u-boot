@@ -12,10 +12,13 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <env.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
 #include <miiphy.h>
+#include <asm/cache.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 
@@ -574,7 +577,7 @@ static int sh_eth_recv_legacy(struct eth_device *dev)
 	return sh_eth_recv_common(eth);
 }
 
-static int sh_eth_init_legacy(struct eth_device *dev, bd_t *bd)
+static int sh_eth_init_legacy(struct eth_device *dev, struct bd_info *bd)
 {
 	struct sh_eth_dev *eth = dev->priv;
 	int ret;
@@ -608,7 +611,7 @@ void sh_eth_halt_legacy(struct eth_device *dev)
 	sh_eth_stop(eth);
 }
 
-int sh_eth_initialize(bd_t *bd)
+int sh_eth_initialize(struct bd_info *bd)
 {
 	int ret = 0;
 	struct sh_eth_dev *eth = NULL;
@@ -859,6 +862,10 @@ static int sh_ether_probe(struct udevice *udev)
 		goto err_mdio_register;
 #endif
 
+	ret = sh_eth_init_common(eth, pdata->enetaddr);
+	if (ret)
+		goto err_phy_config;
+
 	ret = sh_eth_phy_config(udev);
 	if (ret) {
 		printf(SHETHER_NAME ": phy config timeout\n");
@@ -911,7 +918,7 @@ int sh_ether_ofdata_to_platdata(struct udevice *dev)
 	const fdt32_t *cell;
 	int ret = 0;
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	pdata->phy_interface = -1;
 	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
 			       NULL);

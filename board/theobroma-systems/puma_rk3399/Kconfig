@@ -18,4 +18,19 @@ config ENV_SIZE
 config ENV_OFFSET
 	default 0x3fc000 if ENV_IS_IN_SPI_FLASH
 
+choice
+	prompt "Theobroma Systems RK3399-Q7 DDR Option"
+	default TARGET_PUMA_RK3399_RAM_DDR3_1333
+
+config TARGET_PUMA_RK3399_RAM_DDR3_1333
+	bool "DDR3-1333MHz"
+
+config TARGET_PUMA_RK3399_RAM_DDR3_1600
+	bool "DDR3-1600MHz"
+
+config TARGET_PUMA_RK3399_RAM_DDR3_1866
+	bool "DDR3-1866MHz"
+
+endchoice
+
 endif

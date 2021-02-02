@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <dm/device_compat.h>
 
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>
@@ -151,6 +152,8 @@ enum vf610_nfc_alt_buf {
 
 struct vf610_nfc {
 	struct nand_chip chip;
+	/* NULL without CONFIG_NAND_VF610_NFC_DT */
+	struct udevice *dev;
 	void __iomem *regs;
 	uint buf_offset;
 	int write_sz;
@@ -630,11 +633,10 @@ struct vf610_nfc_config {
 	int flash_bbt;
 };
 
-static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
+static int vf610_nfc_nand_init(struct vf610_nfc *nfc, int devnum)
 {
-	struct mtd_info *mtd;
-	struct nand_chip *chip;
-	struct vf610_nfc *nfc;
+	struct nand_chip *chip = &nfc->chip;
+	struct mtd_info *mtd = nand_to_mtd(chip);
 	int err = 0;
 	struct vf610_nfc_config cfg = {
 		.hardware_ecc = 1,
@@ -646,16 +648,6 @@ static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 		.flash_bbt = 1,
 	};
 
-	nfc = calloc(1, sizeof(*nfc));
-	if (!nfc) {
-		printf(KERN_ERR "%s: Memory exhausted!\n", __func__);
-		return -ENOMEM;
-	}
-
-	chip = &nfc->chip;
-	nfc->regs = addr;
-
-	mtd = nand_to_mtd(chip);
 	nand_set_controller_data(chip, nfc);
 
 	if (cfg.width == 16)
@@ -776,20 +768,23 @@ static const struct udevice_id vf610_nfc_dt_ids[] = {
 static int vf610_nfc_dt_probe(struct udevice *dev)
 {
 	struct resource res;
+	struct vf610_nfc *nfc = dev_get_priv(dev);
 	int ret;
 
 	ret = dev_read_resource(dev, 0, &res);
 	if (ret)
 		return ret;
 
-	return vf610_nfc_nand_init(0, devm_ioremap(dev, res.start,
-						   resource_size(&res)));
+	nfc->regs = devm_ioremap(dev, res.start, resource_size(&res));
+	nfc->dev = dev;
+	return vf610_nfc_nand_init(nfc, 0);
 }
 
 U_BOOT_DRIVER(vf610_nfc_dt) = {
 	.name = "vf610-nfc-dt",
 	.id = UCLASS_MTD,
 	.of_match = vf610_nfc_dt_ids,
+	.priv_auto_alloc_size = sizeof(struct vf610_nfc),
 	.probe = vf610_nfc_dt_probe,
 };
 
@@ -808,7 +803,17 @@ void board_nand_init(void)
 #else
 void board_nand_init(void)
 {
-	int err = vf610_nfc_nand_init(0, (void __iomem *)CONFIG_SYS_NAND_BASE);
+	int err;
+	struct vf610_nfc *nfc;
+
+	nfc = calloc(1, sizeof(*nfc));
+	if (!nfc) {
+		printf("%s: Out of memory\n", __func__);
+		return;
+	}
+
+	nfc->regs = (void __iomem *)CONFIG_SYS_NAND_BASE;
+	err = vf610_nfc_nand_init(nfc, 0);
 	if (err)
 		printf("VF610 NAND init failed (err %d)\n", err);
 }

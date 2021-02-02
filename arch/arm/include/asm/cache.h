@@ -49,4 +49,15 @@ void dram_bank_mmu_setup(int bank);
  */
 #define ARCH_DMA_MINALIGN	CONFIG_SYS_CACHELINE_SIZE
 
+/*
+ * arm_reserve_mmu() - Reserve memory for MMU TLB table
+ *
+ * Default implementation for reserving memory for MMU TLB table. It is used
+ * during generic board init sequence in common/board_f.c. Weakly defined, so
+ * that machines can override it if needed.
+ *
+ * Return: 0 if OK
+ */
+int arm_reserve_mmu(void);
+
 #endif /* _ASM_CACHE_H */

@@ -44,6 +44,9 @@
 #include "imx7s.dtsi"
 
 / {
+	aliases {
+		ethernet1 = &fec2;
+	};
 	cpus {
 		cpu0: cpu@0 {
 			operating-points = <

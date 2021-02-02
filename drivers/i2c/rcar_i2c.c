@@ -17,6 +17,9 @@
 #include <i2c.h>
 #include <asm/io.h>
 #include <wait_bit.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 #define RCAR_I2C_ICSCR			0x00 /* slave ctrl */
 #define RCAR_I2C_ICMCR			0x04 /* master ctrl */
@@ -208,7 +211,7 @@ static int rcar_i2c_xfer(struct udevice *dev, struct i2c_msg *msg, int nmsgs)
 	int ret;
 
 	for (; nmsgs > 0; nmsgs--, msg++) {
-		ret = rcar_i2c_set_addr(dev, msg->addr, 1);
+		ret = rcar_i2c_set_addr(dev, msg->addr, !!(msg->flags & I2C_M_RD));
 		if (ret)
 			return ret;
 
@@ -344,7 +347,7 @@ static int rcar_i2c_probe(struct udevice *dev)
 	writel(0, priv->base + RCAR_I2C_ICMSR);
 	writel(0, priv->base + RCAR_I2C_ICMAR);
 
-	ret = rcar_i2c_set_speed(dev, 100000);
+	ret = rcar_i2c_set_speed(dev, I2C_SPEED_STANDARD_RATE);
 	if (ret)
 		clk_disable(&priv->clk);
 

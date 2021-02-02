@@ -9,7 +9,11 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <linux/delay.h>
 #include "mmc_private.h"
+#include <log.h>
+#include <dm/device_compat.h>
+#include <linux/err.h>
 #include <linux/libfdt.h>
 #include <malloc.h>
 #include <sdhci.h>
@@ -46,20 +50,19 @@ struct arasan_sdhci_priv {
 
 #if defined(CONFIG_ARCH_ZYNQMP) || defined(CONFIG_ARCH_VERSAL)
 /* Default settings for ZynqMP Clock Phases */
-static const u32 zynqmp_iclk_phases[] = {0, 63, 63, 0, 63,  0, 
+static const u32 zynqmp_iclk_phases[] = {0, 63, 63, 0, 63,  0,
 					 0, 183, 54,  0, 0};
-static const u32 zynqmp_oclk_phases[] = {0, 72, 60, 0, 60, 72, 
+static const u32 zynqmp_oclk_phases[] = {0, 72, 60, 0, 60, 72,
 					 135, 48, 72, 135, 0};
 
 /* Default settings for Versal Clock Phases */
-static const u32 versal_iclk_phases[] = {0, 132, 132, 0, 132, 
+static const u32 versal_iclk_phases[] = {0, 132, 132, 0, 132,
 					 0, 0, 162, 90, 0, 0};
 static const u32 versal_oclk_phases[] = {0,  60, 48, 0, 48, 72,
 					 90, 36, 60, 90, 0};
 
 static const u8 mode2timing[] = {
 	[MMC_LEGACY] = MMC_TIMING_LEGACY,
-	[SD_LEGACY] = MMC_TIMING_LEGACY,
 	[MMC_HS] = MMC_TIMING_MMC_HS,
 	[SD_HS] = MMC_TIMING_SD_HS,
 	[MMC_HS_52] = MMC_TIMING_UHS_SDR50,

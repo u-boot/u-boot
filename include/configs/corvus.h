@@ -36,7 +36,6 @@
 
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-#define CONFIG_AT91_GPIO
 #define CONFIG_AT91_GPIO_PULLUP	1	/* keep pullups on peripheral pins */
 
 /* serial console */
@@ -106,9 +105,6 @@
 #define CONFIG_SPL_BSS_START_ADDR	CONFIG_SPL_MAX_SIZE
 #define CONFIG_SPL_BSS_MAX_SIZE		(SZ_2K)
 
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_NAND_RAW_ONLY
 #define CONFIG_SPL_NAND_SOFTECC
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x20000

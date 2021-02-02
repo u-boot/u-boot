@@ -6,6 +6,7 @@
 #include <common.h>
 #include <bmp_layout.h>
 #include <dm.h>
+#include <log.h>
 #include <mapmem.h>
 #include <splash.h>
 #include <video.h>
@@ -191,7 +192,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 	ushort *cmap_base = NULL;
 	int i, j;
-	uchar *fb;
+	uchar *start, *fb;
 	struct bmp_image *bmp = map_sysmem(bmp_image, 0);
 	uchar *bmap;
 	ushort padded_width;
@@ -200,6 +201,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	unsigned colours, bpix, bmp_bpix;
 	struct bmp_color_table_entry *palette;
 	int hdr_size;
+	int ret;
 
 	if (!bmp || !(bmp->header.signature[0] == 'B' &&
 	    bmp->header.signature[1] == 'M')) {
@@ -232,6 +234,8 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	 */
 	if (bpix != bmp_bpix &&
 	    !(bmp_bpix == 8 && bpix == 16) &&
+	    !(bmp_bpix == 8 && bpix == 24) &&
+	    !(bmp_bpix == 8 && bpix == 32) &&
 	    !(bmp_bpix == 24 && bpix == 16) &&
 	    !(bmp_bpix == 24 && bpix == 32)) {
 		printf("Error: %d bit/pixel mode, but BMP has %d bit/pixel\n",
@@ -258,12 +262,16 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 		height = priv->ysize - y;
 
 	bmap = (uchar *)bmp + get_unaligned_le32(&bmp->header.data_offset);
-	fb = (uchar *)(priv->fb +
-		(y + height - 1) * priv->line_length + x * bpix / 8);
+	start = (uchar *)(priv->fb +
+		(y + height) * priv->line_length + x * bpix / 8);
+
+	/* Move back to the final line to be drawn */
+	fb = start - priv->line_length;
 
 	switch (bmp_bpix) {
 	case 1:
 	case 8: {
+		struct bmp_color_table_entry *cte;
 		cmap_base = priv->cmap;
 #ifdef CONFIG_VIDEO_BMP_RLE8
 		u32 compression = get_unaligned_le32(&bmp->header.compression);
@@ -279,21 +287,33 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 			break;
 		}
 #endif
-
-		if (bpix != 16)
+		byte_width = width * (bpix / 8);
+		if (!byte_width)
 			byte_width = width;
-		else
-			byte_width = width * 2;
 
 		for (i = 0; i < height; ++i) {
 			WATCHDOG_RESET();
 			for (j = 0; j < width; j++) {
-				if (bpix != 16) {
+				if (bpix == 8) {
 					fb_put_byte(&fb, &bmap);
-				} else {
+				} else if (bpix == 16) {
 					*(uint16_t *)fb = cmap_base[*bmap];
 					bmap++;
 					fb += sizeof(uint16_t) / sizeof(*fb);
+				} else {
+					/* Only support big endian */
+					cte = &palette[*bmap];
+					bmap++;
+					if (bpix == 24) {
+						*(fb++) = cte->red;
+						*(fb++) = cte->green;
+						*(fb++) = cte->blue;
+					} else {
+						*(fb++) = cte->blue;
+						*(fb++) = cte->green;
+						*(fb++) = cte->red;
+						*(fb++) = 0;
+					}
 				}
 			}
 			bmap += (padded_width - width);
@@ -353,8 +373,11 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 		break;
 	};
 
-	video_sync(dev, false);
+	/* Find the position of the top left of the image in the framebuffer */
+	fb = (uchar *)(priv->fb + y * priv->line_length + x * bpix / 8);
+	ret = video_sync_copy(dev, start, fb);
+	if (ret)
+		return log_ret(ret);
 
-	return 0;
+	return video_sync(dev, false);
 }
-

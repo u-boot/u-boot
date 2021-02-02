@@ -6,6 +6,7 @@
 #ifndef __DRIVERS_PINCTRL_ROCKCHIP_H
 #define __DRIVERS_PINCTRL_ROCKCHIP_H
 
+#include <linux/bitops.h>
 #include <linux/types.h>
 
 /**

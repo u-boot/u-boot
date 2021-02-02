@@ -13,6 +13,7 @@
 
 #include <configs/bur_cfg_common.h>
 #include <configs/bur_am335x_common.h>
+#include <linux/stringify.h>
 /* ------------------------------------------------------------------------- */
 /* memory */
 #define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
@@ -52,9 +53,6 @@
 #endif /* CONFIG_SPL_OS_BOOT */
 
 #ifdef CONFIG_MTD_RAW_NAND
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_ECC
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 #endif /* CONFIG_MTD_RAW_NAND */
@@ -179,18 +177,8 @@ NANDTGTS \
 #define CONFIG_NAND_OMAP_GPMC_WSCFG	1
 #endif /* CONFIG_MTD_RAW_NAND */
 
-#if defined(CONFIG_SPI)
-/* SPI Flash */
-/* Environment */
-#elif defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_SYS_MMC_ENV_DEV		1
-#define CONFIG_SYS_MMC_ENV_PART		2
-
-#elif defined(CONFIG_ENV_IS_IN_NAND)
-/* No NAND env support in SPL */
+#if defined(CONFIG_ENV_IS_IN_NAND)
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_ENV_SIZE
-#else
-#error "no storage for Environment defined!"
 #endif
 
 #endif	/* ! __CONFIG_BRPPT1_H__ */

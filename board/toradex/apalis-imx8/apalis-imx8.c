@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <init.h>
 
 #include <asm/arch/clock.h>
@@ -36,6 +37,29 @@ static void setup_iomux_uart(void)
 	imx8_iomux_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
 }
 
+void board_mem_get_layout(u64 *phys_sdram_1_start,
+			  u64 *phys_sdram_1_size,
+			  u64 *phys_sdram_2_start,
+			  u64 *phys_sdram_2_size)
+{
+	u32 is_quadplus = 0, val = 0;
+	sc_err_t scierr = sc_misc_otp_fuse_read(-1, 6, &val);
+
+	if (scierr == SC_ERR_NONE) {
+		/* QP has one A72 core disabled */
+		is_quadplus = ((val >> 4) & 0x3) != 0x0;
+	}
+
+	*phys_sdram_1_start = PHYS_SDRAM_1;
+	*phys_sdram_1_size = PHYS_SDRAM_1_SIZE;
+	*phys_sdram_2_start = PHYS_SDRAM_2;
+	if (is_quadplus)
+		/* Our QP based SKUs only have 2 GB RAM (PHYS_SDRAM_1_SIZE) */
+		*phys_sdram_2_size = 0x0UL;
+	else
+		*phys_sdram_2_size = PHYS_SDRAM_2_SIZE;
+}
+
 int board_early_init_f(void)
 {
 	sc_pm_clock_rate_t rate = SC_80MHZ;
@@ -51,7 +75,7 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#if IS_ENABLED(CONFIG_DM_GPIO)
+#if CONFIG_IS_ENABLED(DM_GPIO)
 static void board_gpio_init(void)
 {
 	/* TODO */
@@ -89,11 +113,6 @@ int board_init(void)
 	return 0;
 }
 
-void detail_board_ddr_info(void)
-{
-	puts("\nDDR    ");
-}
-
 /*
  * Board specific reset that is system reset.
  */
@@ -103,7 +122,7 @@ void reset_cpu(ulong addr)
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	return ft_common_board_setup(blob, bd);
 }

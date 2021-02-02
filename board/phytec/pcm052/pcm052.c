@@ -17,6 +17,7 @@
 #include <env.h>
 #include <led.h>
 #include <miiphy.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -9,6 +9,7 @@
 #include <cpu_func.h>
 #include <env.h>
 #include <i2c.h>
+#include <init.h>
 #include <net.h>
 #include <linux/mtd/st_smi.h>
 #include <asm/io.h>
@@ -181,7 +182,8 @@ static int write_mac(uchar *mac)
 }
 #endif
 
-int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_chip_config(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	void (*sram_setfreq) (unsigned int, unsigned int);
 	unsigned int frequency;

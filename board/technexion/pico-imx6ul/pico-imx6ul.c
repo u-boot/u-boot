@@ -5,6 +5,8 @@
  * Author: Richard Hu <richard.hu@technexion.com>
  */
 
+#include <init.h>
+#include <net.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/imx-regs.h>
@@ -16,7 +18,7 @@
 #include <asm/io.h>
 #include <common.h>
 #include <miiphy.h>
-#include <netdev.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 #include <usb.h>
 #include <power/pmic.h>
@@ -36,60 +38,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MDIO_PAD_CTRL  (PAD_CTL_PUS_100K_UP | PAD_CTL_PUE |     \
 	PAD_CTL_DSE_48ohm   | PAD_CTL_SRE_FAST | PAD_CTL_ODE)
 
-#define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP | PAD_CTL_PUE |     \
-	PAD_CTL_SPEED_HIGH   |                                   \
-	PAD_CTL_DSE_48ohm   | PAD_CTL_SRE_FAST)
-
-#define ENET_CLK_PAD_CTRL  (PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST)
-
 #define LCD_PAD_CTRL    (PAD_CTL_HYS | PAD_CTL_PUS_100K_UP | PAD_CTL_PUE | \
 	PAD_CTL_PKE | PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm)
-
-#define RMII_PHY_RESET IMX_GPIO_NR(1, 28)
-
-static iomux_v3_cfg_t const fec_pads[] = {
-	MX6_PAD_ENET1_TX_EN__ENET2_MDC		| MUX_PAD_CTRL(MDIO_PAD_CTRL),
-	MX6_PAD_ENET1_TX_DATA1__ENET2_MDIO	| MUX_PAD_CTRL(MDIO_PAD_CTRL),
-	MX6_PAD_ENET2_TX_DATA0__ENET2_TDATA00	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET2_TX_DATA1__ENET2_TDATA01	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET2_TX_CLK__ENET2_REF_CLK2	| MUX_PAD_CTRL(ENET_CLK_PAD_CTRL),
-	MX6_PAD_ENET2_TX_EN__ENET2_TX_EN	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET2_RX_DATA0__ENET2_RDATA00	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET2_RX_DATA1__ENET2_RDATA01	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET2_RX_EN__ENET2_RX_EN	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET2_RX_ER__ENET2_RX_ER	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_UART4_TX_DATA__GPIO1_IO28	| MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-static void setup_iomux_fec(void)
-{
-	imx_iomux_v3_setup_multiple_pads(fec_pads, ARRAY_SIZE(fec_pads));
-}
-
-int board_eth_init(bd_t *bis)
-{
-	setup_iomux_fec();
-
-	gpio_request(RMII_PHY_RESET, "enet_phy_reset");
-	gpio_direction_output(RMII_PHY_RESET, 0);
-	/*
-	 * According to KSZ8081MNX-RNB manual:
-	 * For warm reset, the reset (RST#) pin should be asserted low for a
-	 * minimum of 500μs.  The strap-in pin values are read and updated
-	 * at the de-assertion of reset.
-	 */
-	udelay(500);
-
-	gpio_direction_output(RMII_PHY_RESET, 1);
-	/*
-	 * According to KSZ8081MNX-RNB manual:
-	 * After the de-assertion of reset, wait a minimum of 100μs before
-	 * starting programming on the MIIM (MDC/MDIO) interface.
-	 */
-	udelay(100);
-
-	return fecmxc_initialize(bis);
-}
 
 static int setup_fec(void)
 {

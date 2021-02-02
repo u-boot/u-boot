@@ -10,16 +10,12 @@
 #ifndef __CONFIG_VERSAL_MINI_H
 #define __CONFIG_VERSAL_MINI_H
 
-
 #define CONFIG_EXTRA_ENV_SETTINGS
 
 #include <configs/xilinx_versal.h>
 
 /* Undef unneeded configs */
 #undef CONFIG_EXTRA_ENV_SETTINGS
-#undef CONFIG_ZLIB
-#undef CONFIG_GZIP
-#undef CONFIG_CMD_ENV
 
 /* BOOTP options */
 #undef CONFIG_BOOTP_BOOTFILESIZE

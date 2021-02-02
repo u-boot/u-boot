@@ -9,6 +9,9 @@
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <u-boot/crc.h>
+#ifdef CONFIG_DM_ETH
+#include <dm.h>
+#endif
 
 #include "fm.h"
 #include <fsl_qe.h>		/* For struct qe_firmware */
@@ -360,6 +363,7 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 	if (src == BOOT_SOURCE_IFC_NOR) {
 		addr = (void *)(CONFIG_SYS_FMAN_FW_ADDR +
 				CONFIG_SYS_FSL_IFC_BASE);
+#ifdef CONFIG_CMD_NAND
 	} else if (src == BOOT_SOURCE_IFC_NAND) {
 		size_t fw_length = CONFIG_SYS_QE_FMAN_FW_LENGTH;
 
@@ -372,13 +376,14 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 			printf("NAND read of FMAN firmware at offset 0x%x failed %d\n",
 			       CONFIG_SYS_FMAN_FW_ADDR, rc);
 		}
+#endif
 	} else if (src == BOOT_SOURCE_QSPI_NOR) {
 		struct spi_flash *ucode_flash;
 
 		addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
 		int ret = 0;
 
-#ifdef CONFIG_DM_SPI_FLASH
+#if CONFIG_IS_ENABLED(DM_SPI_FLASH)
 		struct udevice *new;
 
 		/* speed and mode will be read from DT */
@@ -465,7 +470,7 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 	void *addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
 	int ret = 0;
 
-#ifdef CONFIG_DM_SPI_FLASH
+#if CONFIG_IS_ENABLED(DM_SPI_FLASH)
 	struct udevice *new;
 
 	/* speed and mode will be read from DT */
@@ -527,3 +532,80 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 	return fm_init_bmi(index, &reg->fm_bmi_common);
 }
 #endif
+
+#ifdef CONFIG_DM_ETH
+struct fman_priv {
+	struct ccsr_fman *reg;
+	unsigned int fman_id;
+};
+
+static const struct udevice_id fman_ids[] = {
+	{ .compatible = "fsl,fman" },
+	{}
+};
+
+static int fman_probe(struct udevice *dev)
+{
+	struct fman_priv *priv = dev_get_priv(dev);
+
+	priv->reg = (struct ccsr_fman *)(uintptr_t)dev_read_addr(dev);
+
+	if (dev_read_u32(dev, "cell-index", &priv->fman_id)) {
+		printf("FMan node property cell-index missing\n");
+		return -EINVAL;
+	}
+
+	return fm_init_common(priv->fman_id, priv->reg);
+}
+
+static int fman_remove(struct udevice *dev)
+{
+	return 0;
+}
+
+int fman_id(struct udevice *dev)
+{
+	struct fman_priv *priv = dev_get_priv(dev);
+
+	return priv->fman_id;
+}
+
+void *fman_port(struct udevice *dev, int num)
+{
+	struct fman_priv *priv = dev_get_priv(dev);
+
+	return &priv->reg->port[num - 1].fm_bmi;
+}
+
+void *fman_mdio(struct udevice *dev, enum fm_mac_type type, int num)
+{
+	struct fman_priv *priv = dev_get_priv(dev);
+	void *res = NULL;
+
+	switch (type) {
+#ifdef CONFIG_SYS_FMAN_V3
+	case FM_MEMAC:
+		res = &priv->reg->memac[num].fm_memac_mdio;
+		break;
+#else
+	case FM_DTSEC:
+		res = &priv->reg->mac_1g[num].fm_mdio.miimcfg;
+		break;
+	case FM_TGEC:
+		res = &priv->reg->mac_10g[num].fm_10gec_mdio;
+		break;
+#endif
+	}
+	return res;
+}
+
+U_BOOT_DRIVER(fman) = {
+	.name = "fman",
+	.id = UCLASS_SIMPLE_BUS,
+	.of_match = fman_ids,
+	.probe = fman_probe,
+	.remove = fman_remove,
+	.priv_auto_alloc_size = sizeof(struct fman_priv),
+	.flags = DM_FLAG_ALLOC_PRIV_DMA,
+};
+#endif /* CONFIG_DM_ETH */

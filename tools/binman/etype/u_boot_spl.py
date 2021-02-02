@@ -5,10 +5,9 @@
 # Entry-type module for spl/u-boot-spl.bin
 #
 
-import elf
-
-from entry import Entry
-from blob import Entry_blob
+from binman import elf
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
 class Entry_u_boot_spl(Entry_blob):
     """U-Boot SPL binary
@@ -33,7 +32,7 @@ class Entry_u_boot_spl(Entry_blob):
     binman uses that to look up symbols to write into the SPL binary.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self.elf_fname = 'spl/u-boot-spl'
 
     def GetDefaultFilename(self):

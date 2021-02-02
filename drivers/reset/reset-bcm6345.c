@@ -9,8 +9,12 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
+#include <malloc.h>
 #include <reset-uclass.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 #define MAX_RESETS	32
 
@@ -52,7 +56,7 @@ static int bcm6345_reset_request(struct reset_ctl *rst)
 }
 
 struct reset_ops bcm6345_reset_reset_ops = {
-	.free = bcm6345_reset_free,
+	.rfree = bcm6345_reset_free,
 	.request = bcm6345_reset_request,
 	.rst_assert = bcm6345_reset_assert,
 	.rst_deassert = bcm6345_reset_deassert,

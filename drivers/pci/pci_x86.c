@@ -8,8 +8,9 @@
 #include <pci.h>
 #include <asm/pci.h>
 
-static int _pci_x86_read_config(struct udevice *bus, pci_dev_t bdf, uint offset,
-				ulong *valuep, enum pci_size_t size)
+static int _pci_x86_read_config(const struct udevice *bus, pci_dev_t bdf,
+				uint offset, ulong *valuep,
+				enum pci_size_t size)
 {
 	return pci_x86_read_config(bdf, offset, valuep, size);
 }

@@ -6,6 +6,7 @@
 #ifndef _MSCC_SERVALT_DEVCPU_GCB_MIIM_REGS_H_
 #define _MSCC_SERVALT_DEVCPU_GCB_MIIM_REGS_H_
 
+#include <linux/bitops.h>
 #define MIIM_MII_STATUS(gi)  (0xc4 + (gi * 36))
 #define MIIM_MII_CMD(gi)     (0xcc + (gi * 36))
 #define MIIM_MII_DATA(gi)    (0xd0 + (gi * 36))

@@ -6,6 +6,8 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <log.h>
+#include <malloc.h>
 #include <asm/arch/clock.h>
 #include <asm/arch-tegra/clk_rst.h>
 
@@ -80,7 +82,7 @@ static int tegra_car_clk_disable(struct clk *clk)
 
 static struct clk_ops tegra_car_clk_ops = {
 	.request = tegra_car_clk_request,
-	.free = tegra_car_clk_free,
+	.rfree = tegra_car_clk_free,
 	.get_rate = tegra_car_clk_get_rate,
 	.set_rate = tegra_car_clk_set_rate,
 	.enable = tegra_car_clk_enable,

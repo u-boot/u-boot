@@ -7,8 +7,6 @@
 #ifndef __ASM_ARCH_CLOCK_H
 #define __ASM_ARCH_CLOCK_H
 
-#include <common.h>
-
 #ifdef CONFIG_SYS_MX5_HCLK
 #define MXC_HCLK	CONFIG_SYS_MX5_HCLK
 #else

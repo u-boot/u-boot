@@ -14,6 +14,7 @@
 #include <fdt_support.h>
 #include <asm/fsl_i2c.h>
 #include <asm/fsl_mpc83xx_serdes.h>
+#include <linux/delay.h>
 
 static struct pci_region pci_regions[] = {
 	{
@@ -136,7 +137,7 @@ skip_pci:
 	mpc83xx_pcie_init(pex2 ? 1 : 2, pcie_reg);
 }
 
-void ft_pcie_fixup(void *blob, bd_t *bd)
+void ft_pcie_fixup(void *blob, struct bd_info *bd)
 {
 	const char *status = "disabled (PCIE1 is x2)";
 

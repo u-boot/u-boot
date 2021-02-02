@@ -22,24 +22,12 @@
 #define CONFIG_SPL_MAX_FOOTPRINT	CONFIG_SYS_SPI_U_BOOT_OFFS
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot.img"
 
-/* sspi command isn't useful */
-#undef CONFIG_CMD_SPI
-
-/* No useful gpio */
-#undef CONFIG_ZYNQ_GPIO
-#undef CONFIG_CMD_GPIO
-
 /* No falcon support */
 #undef CONFIG_SPL_OS_BOOT
-#undef CONFIG_SPL_FPGA_SUPPORT
 
 /* FPGA commands that we don't use */
 
 /* Extras */
-#undef CONFIG_SYS_MEMTEST_START
-#define CONFIG_SYS_MEMTEST_START	0
-#undef CONFIG_SYS_MEMTEST_END
-#define CONFIG_SYS_MEMTEST_END	0x18000000
 
 /* Faster flash, ours may run at 108 MHz */
 #undef CONFIG_SPI_FLASH_WINBOND

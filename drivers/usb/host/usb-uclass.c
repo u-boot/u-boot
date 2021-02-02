@@ -9,6 +9,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <memalign.h>
 #include <usb.h>
 #include <dm/device-internal.h>
@@ -21,6 +22,17 @@ static bool asynch_allowed;
 struct usb_uclass_priv {
 	int companion_device_count;
 };
+
+int usb_lock_async(struct usb_device *udev, int lock)
+{
+	struct udevice *bus = udev->controller_dev;
+	struct dm_usb_ops *ops = usb_get_ops(bus);
+
+	if (!ops->lock_async)
+		return -ENOSYS;
+
+	return ops->lock_async(bus, lock);
+}
 
 int usb_disable_asynch(int disable)
 {
@@ -399,26 +411,44 @@ int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp)
 	return 0;
 }
 
+int usb_remove_ehci_gadget(struct ehci_ctrl **ctlrp)
+{
+	struct udevice *dev;
+	int ret;
+
+	/* Find the old device and remove it */
+	ret = uclass_find_device_by_seq(UCLASS_USB, 0, true, &dev);
+	if (ret)
+		return ret;
+	ret = device_remove(dev, DM_REMOVE_NORMAL);
+	if (ret)
+		return ret;
+
+	*ctlrp = NULL;
+
+	return 0;
+}
+
 /* returns 0 if no match, 1 if match */
 static int usb_match_device(const struct usb_device_descriptor *desc,
 			    const struct usb_device_id *id)
 {
 	if ((id->match_flags & USB_DEVICE_ID_MATCH_VENDOR) &&
-	    id->idVendor != le16_to_cpu(desc->idVendor))
+	    id->idVendor != desc->idVendor)
 		return 0;
 
 	if ((id->match_flags & USB_DEVICE_ID_MATCH_PRODUCT) &&
-	    id->idProduct != le16_to_cpu(desc->idProduct))
+	    id->idProduct != desc->idProduct)
 		return 0;
 
 	/* No need to test id->bcdDevice_lo != 0, since 0 is never
 	   greater than any unsigned number. */
 	if ((id->match_flags & USB_DEVICE_ID_MATCH_DEV_LO) &&
-	    (id->bcdDevice_lo > le16_to_cpu(desc->bcdDevice)))
+	    (id->bcdDevice_lo > desc->bcdDevice))
 		return 0;
 
 	if ((id->match_flags & USB_DEVICE_ID_MATCH_DEV_HI) &&
-	    (id->bcdDevice_hi < le16_to_cpu(desc->bcdDevice)))
+	    (id->bcdDevice_hi < desc->bcdDevice))
 		return 0;
 
 	if ((id->match_flags & USB_DEVICE_ID_MATCH_DEV_CLASS) &&
@@ -482,6 +512,35 @@ static int usb_match_one_id(struct usb_device_descriptor *desc,
 	return usb_match_one_id_intf(desc, int_desc, id);
 }
 
+static ofnode usb_get_ofnode(struct udevice *hub, int port)
+{
+	ofnode node;
+	u32 reg;
+
+	if (!dev_has_of_node(hub))
+		return ofnode_null();
+
+	/*
+	 * The USB controller and its USB hub are two different udevices,
+	 * but the device tree has only one node for both. Thus we are
+	 * assigning this node to both udevices.
+	 * If port is zero, the controller scans its root hub, thus we
+	 * are using the same ofnode as the controller here.
+	 */
+	if (!port)
+		return dev_ofnode(hub);
+
+	ofnode_for_each_subnode(node, dev_ofnode(hub)) {
+		if (ofnode_read_u32(node, "reg", &reg))
+			continue;
+
+		if (reg == port)
+			return node;
+	}
+
+	return ofnode_null();
+}
+
 /**
  * usb_find_and_bind_driver() - Find and bind the right USB driver
  *
@@ -490,13 +549,14 @@ static int usb_match_one_id(struct usb_device_descriptor *desc,
 static int usb_find_and_bind_driver(struct udevice *parent,
 				    struct usb_device_descriptor *desc,
 				    struct usb_interface_descriptor *iface,
-				    int bus_seq, int devnum,
+				    int bus_seq, int devnum, int port,
 				    struct udevice **devp)
 {
 	struct usb_driver_entry *start, *entry;
 	int n_ents;
 	int ret;
 	char name[30], *str;
+	ofnode node = usb_get_ofnode(parent, port);
 
 	*devp = NULL;
 	debug("%s: Searching for driver\n", __func__);
@@ -521,8 +581,8 @@ static int usb_find_and_bind_driver(struct udevice *parent,
 			 * find another driver. For now this doesn't seem
 			 * necesssary, so just bind the first match.
 			 */
-			ret = device_bind(parent, drv, drv->name, NULL, -1,
-					  &dev);
+			ret = device_bind_ofnode(parent, drv, drv->name, NULL,
+						 node, &dev);
 			if (ret)
 				goto error;
 			debug("%s: Match found: %s\n", __func__, drv->name);
@@ -639,9 +699,10 @@ int usb_scan_device(struct udevice *parent, int port,
 	if (ret) {
 		if (ret != -ENOENT)
 			return ret;
-		ret = usb_find_and_bind_driver(parent, &udev->descriptor, iface,
+		ret = usb_find_and_bind_driver(parent, &udev->descriptor,
+					       iface,
 					       udev->controller_dev->seq,
-					       udev->devnum, &dev);
+					       udev->devnum, port, &dev);
 		if (ret)
 			return ret;
 		created = true;

@@ -46,6 +46,9 @@ config SPL_DM_MMC
 
 if MMC
 
+config MMC_SDHCI_ADMA_HELPERS
+	bool
+
 config MMC_SPI
 	bool "Support for SPI-based MMC controller"
 	depends on DM_MMC && DM_SPI
@@ -66,7 +69,6 @@ config MMC_SPI_CRC_ON
 
 config ARM_PL180_MMCI
 	bool "ARM AMBA Multimedia Card Interface and compatible support"
-	depends on DM_MMC && OF_CONTROL
 	help
 	  This selects the ARM(R) AMBA(R) PrimeCell Multimedia Card
 	  Interface (PL180, PL181 and compatible) support.
@@ -79,7 +81,7 @@ config MMC_QUIRKS
 	help
 	  Some cards and hosts may sometimes behave unexpectedly (quirks).
 	  This option enable workarounds to handle those quirks. Some of them
-	  are enabled by default, other may require additionnal flags or are
+	  are enabled by default, other may require additional flags or are
 	  enabled by the host driver.
 
 config MMC_HW_PARTITIONING
@@ -205,6 +207,17 @@ config MMC_DW
 	  block, this provides host support for SD and MMC interfaces, in both
 	  PIO, internal DMA mode and external DMA mode.
 
+config MMC_DW_CORTINA
+	bool "Cortina specific extensions for Synopsys DW Memory Card Interface"
+	depends on DM_MMC
+	depends on MMC_DW
+	depends on BLK
+	default n
+	help
+	  This selects support for Cortina SoC specific extensions to the
+	  Synopsys DesignWare Memory Card Interface driver. Select this option
+	  for platforms based on Cortina CAxxxx Soc's.
+
 config MMC_DW_EXYNOS
 	bool "Exynos specific extensions for Synopsys DW Memory Card Interface"
 	depends on ARCH_EXYNOS
@@ -253,6 +266,14 @@ config MMC_DW_SNPS
 	  This selects support for Synopsys DesignWare Memory Card Interface driver
 	  extensions used in various Synopsys ARC devboards.
 
+config NEXELL_DWMMC
+	bool "Nexell SD/MMC controller support"
+	depends on ARCH_NEXELL
+	depends on MMC_DW
+	depends on DM_MMC
+	depends on PINCTRL_NEXELL
+	default y
+
 config MMC_MESON_GX
 	bool "Meson GX EMMC controller support"
 	depends on DM_MMC && BLK && ARCH_MESON
@@ -286,6 +307,23 @@ config MMC_PCI
 	help
 	  This selects PCI-based MMC controllers.
 	  If you have an MMC controller on a PCI bus, say Y here.
+
+config MMC_OCTEONTX
+	bool "Marvell OcteonTX Multimedia Card Interface support"
+	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
+	depends on DM_MMC
+	help
+	  This selects the OcteonTX Multimedia card Interface.
+	  If you have an OcteonTX/TX2 board with a Multimedia Card slot,
+	  say Y here.
+
+	  If unsure, say N.
+
+config PXA_MMC_GENERIC
+	bool "Support for MMC controllers on PXA"
+	help
+	  This selects MMC controllers on PXA.
+	  If you are on a PXA architecture, say Y here.
 
 	  If unsure, say N.
 
@@ -347,6 +385,7 @@ config RENESAS_SDHI
 	depends on ARCH_RMOBILE
 	depends on BLK && DM_MMC
 	depends on OF_CONTROL
+	select BOUNCE_BUFFER
 	help
 	  This selects support for the Matsushita SD/MMC Host Controller on
 	  Renesas R-Car SoCs.
@@ -409,6 +448,7 @@ config MMC_SDHCI_SDMA
 config MMC_SDHCI_ADMA
 	bool "Support SDHCI ADMA2"
 	depends on MMC_SDHCI
+	select MMC_SDHCI_ADMA_HELPERS
 	help
 	  This enables support for the ADMA (Advanced DMA) defined
 	  in the SD Host Controller Standard Specification Version 3.00
@@ -416,6 +456,7 @@ config MMC_SDHCI_ADMA
 config SPL_MMC_SDHCI_ADMA
 	bool "Support SDHCI ADMA2 in SPL"
 	depends on MMC_SDHCI
+	select MMC_SDHCI_ADMA_HELPERS
 	help
 	  This enables support for the ADMA (Advanced DMA) defined
 	  in the SD Host Controller Standard Specification Version 3.00 in SPL.
@@ -604,7 +645,7 @@ config MMC_SDHCI_TANGIER
 
 config MMC_SDHCI_TEGRA
 	bool "SDHCI platform support for the Tegra SD/MMC Controller"
-	depends on TEGRA
+	depends on ARCH_TEGRA
 	select BOUNCE_BUFFER
 	default y
 	help
@@ -710,18 +751,32 @@ endif
 
 config FSL_ESDHC
 	bool "Freescale/NXP eSDHC controller support"
-	select FSL_ESDHC_USE_PERIPHERAL_CLK if MMC_HS200_SUPPORT || MMC_UHS_SUPPORT
 	help
 	  This selects support for the eSDHC (Enhanced Secure Digital Host
 	  Controller) found on numerous Freescale/NXP SoCs.
 
-config FSL_ESDHC_USE_PERIPHERAL_CLK
-	bool "enable ESDHC peripheral clock support"
+config FSL_ESDHC_SUPPORT_ADMA2
+	bool "enable ADMA2 support"
 	depends on FSL_ESDHC
+	select MMC_SDHCI_ADMA_HELPERS
 	help
-	  eSDHC supports two reference clocks (platform clock and peripheral clock).
-	  Peripheral clock which could provide higher clock frequency is required to
-	  be used for tuning of SD UHS mode and eMMC HS200/HS400 modes.
+	  This enables support for the ADMA2 transfer mode. If supported by the
+	  eSDHC it will allow 64bit DMA addresses.
+
+config FSL_ESDHC_33V_IO_RELIABILITY_WORKAROUND
+	bool "enable eSDHC workaround for 3.3v IO reliability issue"
+	depends on FSL_ESDHC && DM_MMC
+	default n
+	help
+	  When eSDHC operates at 3.3v, damage can accumulate in an internal
+	  level shifter at a higher than expected rate. The faster the interface
+	  runs, the more damage accumulates. This issue now is found on LX2160A
+	  eSDHC1 for only SD card. The hardware workaround is recommended to use
+	  an on-board level shifter that is 1.8v on SoC side and 3.3v on SD card
+	  side. For boards without hardware workaround, this option could be
+	  enabled, ensuring 1.8v IO voltage and disabling eSDHC if no card.
+	  This option assumes no hotplug, and u-boot has to make all the way to
+	  to linux to use 1.8v UHS-I speed mode if has card.
 
 config FSL_ESDHC_IMX
 	bool "Freescale/NXP i.MX eSDHC controller support"
@@ -731,7 +786,7 @@ config FSL_ESDHC_IMX
 
 config FSL_USDHC
 	bool "Freescale/NXP i.MX uSDHC controller support"
-	depends on MX6 || MX7 ||ARCH_MX7ULP || IMX8 || IMX8M || TARGET_S32V234EVB
+	depends on MX6 || MX7 ||ARCH_MX7ULP || IMX8 || IMX8M || IMXRT || TARGET_S32V234EVB
 	select FSL_ESDHC_IMX
 	help
 	  This enables the Ultra Secured Digital Host Controller enhancements

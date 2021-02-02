@@ -69,7 +69,7 @@ static int print_remoteproc_list(void)
  *
  * Return: 0 if no error, else returns appropriate error value.
  */
-static int do_rproc_init(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_rproc_init(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
 	int id;
@@ -102,7 +102,7 @@ static int do_rproc_init(cmd_tbl_t *cmdtp, int flag, int argc,
  *
  * Return: 0 if no error, else returns appropriate error value.
  */
-static int do_remoteproc_list(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_remoteproc_list(struct cmd_tbl *cmdtp, int flag, int argc,
 			      char *const argv[])
 {
 	if (print_remoteproc_list())
@@ -120,7 +120,7 @@ static int do_remoteproc_list(cmd_tbl_t *cmdtp, int flag, int argc,
  *
  * Return: 0 if no error, else returns appropriate error value.
  */
-static int do_remoteproc_load(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_remoteproc_load(struct cmd_tbl *cmdtp, int flag, int argc,
 			      char *const argv[])
 {
 	ulong addr, size;
@@ -159,7 +159,7 @@ static int do_remoteproc_load(cmd_tbl_t *cmdtp, int flag, int argc,
  *
  * Return: 0 if no error, else returns appropriate error value.
  */
-static int do_remoteproc_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_remoteproc_wrapper(struct cmd_tbl *cmdtp, int flag, int argc,
 				 char *const argv[])
 {
 	int id, ret = CMD_RET_USAGE;
@@ -201,7 +201,7 @@ static int do_remoteproc_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
 	return ret ? CMD_RET_FAILURE : 0;
 }
 
-static cmd_tbl_t cmd_remoteproc_sub[] = {
+static struct cmd_tbl cmd_remoteproc_sub[] = {
 	U_BOOT_CMD_MKENT(init, 1, 1, do_rproc_init,
 			 "Enumerate and initialize the remote processor(s)",
 			 "id - ID of the remote processor\n"
@@ -242,10 +242,10 @@ static cmd_tbl_t cmd_remoteproc_sub[] = {
  *
  * Return: 0 if no error, else returns appropriate error value.
  */
-static int do_remoteproc(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_remoteproc(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
-	cmd_tbl_t *c = NULL;
+	struct cmd_tbl *c = NULL;
 
 	/* Strip off leading 'rproc' command argument */
 	argc--;

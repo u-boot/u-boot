@@ -12,6 +12,9 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
+#include <malloc.h>
+#include <asm/cache.h>
 #include <dm/read.h>
 #include <dma-uclass.h>
 #include <dt-structs.h>
@@ -122,10 +125,10 @@ int dma_free(struct dma *dma)
 
 	debug("%s(dma=%p)\n", __func__, dma);
 
-	if (!ops->free)
+	if (!ops->rfree)
 		return 0;
 
-	return ops->free(dma);
+	return ops->rfree(dma);
 }
 
 int dma_enable(struct dma *dma)
@@ -216,8 +219,8 @@ int dma_get_device(u32 transfer_type, struct udevice **devp)
 	}
 
 	if (!dev) {
-		pr_err("No DMA device found that supports %x type\n",
-		      transfer_type);
+		pr_debug("No DMA device found that supports %x type\n",
+			 transfer_type);
 		return -EPROTONOSUPPORT;
 	}
 

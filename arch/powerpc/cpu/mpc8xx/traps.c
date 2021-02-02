@@ -16,6 +16,7 @@
  */
 
 #include <common.h>
+#include <asm/ptrace.h>
 #include <command.h>
 #include <asm/processor.h>
 
@@ -51,7 +52,7 @@ static void print_backtrace(unsigned long *sp)
 	printf("\n");
 }
 
-static void show_regs(struct pt_regs *regs)
+void show_regs(struct pt_regs *regs)
 {
 	int i;
 

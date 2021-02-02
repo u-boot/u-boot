@@ -15,10 +15,12 @@
 #include <command.h>
 #include <env.h>
 #include <exports.h>
+#include <malloc.h>
 #include <memalign.h>
 #include <mtd.h>
 #include <nand.h>
 #include <onenand_uboot.h>
+#include <dm/devres.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>
 #include <linux/err.h>
@@ -247,6 +249,44 @@ out_err:
 	if (err < 0)
 		err = -err;
 	return err;
+}
+
+static int ubi_rename_vol(char *oldname, char *newname)
+{
+	struct ubi_volume *vol;
+	struct ubi_rename_entry rename;
+	struct ubi_volume_desc desc;
+	struct list_head list;
+
+	vol = ubi_find_volume(oldname);
+	if (!vol) {
+		printf("%s: volume %s doesn't exist\n", __func__, oldname);
+		return ENODEV;
+	}
+
+	if (!ubi_check(newname)) {
+		printf("%s: volume %s already exist\n", __func__, newname);
+		return EINVAL;
+	}
+
+	printf("Rename UBI volume %s to %s\n", oldname, newname);
+
+	if (ubi->ro_mode) {
+		printf("%s: ubi device is in read-only mode\n", __func__);
+		return EROFS;
+	}
+
+	rename.new_name_len = strlen(newname);
+	strcpy(rename.new_name, newname);
+	rename.remove = 0;
+	desc.vol = vol;
+	desc.mode = 0;
+	rename.desc = &desc;
+	INIT_LIST_HEAD(&rename.list);
+	INIT_LIST_HEAD(&list);
+	list_add(&rename.list, &list);
+
+	return ubi_rename_volumes(ubi, &list);
 }
 
 static int ubi_volume_continue_write(char *volume, void *buf, size_t size)
@@ -493,7 +533,7 @@ int ubi_part(char *part_name, const char *vid_header_offset)
 	return 0;
 }
 
-static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_ubi(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int64_t size = 0;
 	ulong addr = 0;
@@ -602,6 +642,9 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return ubi_remove_vol(argv[2]);
 	}
 
+	if (IS_ENABLED(CONFIG_CMD_UBI_RENAME) && !strncmp(argv[1], "rename", 6))
+		return ubi_rename_vol(argv[2], argv[3]);
+
 	if (strncmp(argv[1], "skipcheck", 9) == 0) {
 		/* E.g., change skip_check flag */
 		if (argc == 4) {
@@ -690,6 +733,9 @@ U_BOOT_CMD(
 		" - Read volume to address with size\n"
 	"ubi remove[vol] volume"
 		" - Remove volume\n"
+#if IS_ENABLED(CONFIG_CMD_UBI_RENAME)
+	"ubi rename oldname newname\n"
+#endif
 	"ubi skipcheck volume on/off - Set or clear skip_check flag in volume header\n"
 	"[Legends]\n"
 	" volume: character name\n"

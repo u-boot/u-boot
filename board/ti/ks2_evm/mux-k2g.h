@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #include <asm/io.h>
 #include <asm/arch/mux-k2g.h>
 #include <asm/arch/hardware.h>

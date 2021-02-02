@@ -14,7 +14,7 @@
 #include <asm/macro.h>
 
 /*
- * void relocate_code (addr_moni)
+ * void relocate_code(addr_moni)
  *
  * This function relocates the monitor code.
  * x0 holds the destination address.

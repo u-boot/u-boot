@@ -15,6 +15,46 @@
 		#sound-dai-cells = <1>;
 	};
 
+	buttons {
+		compatible = "gpio-keys";
+
+		btn1 {
+			gpios = <&gpio_a 3 0>;
+			label = "button1";
+		};
+
+		btn2 {
+			gpios = <&gpio_a 4 0>;
+			label = "button2";
+		};
+	};
+
+	clk_fixed: clk-fixed {
+		u-boot,dm-pre-reloc;
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <1234>;
+	};
+
+	clk_sandbox: clk-sbox {
+		u-boot,dm-pre-reloc;
+		compatible = "sandbox,clk";
+		#clock-cells = <1>;
+		assigned-clocks = <&clk_sandbox 3>;
+		assigned-clock-rates = <321>;
+	};
+
+	clk-test {
+		u-boot,dm-pre-reloc;
+		compatible = "sandbox,clk-test";
+		clocks = <&clk_fixed>,
+			 <&clk_sandbox 1>,
+			 <&clk_sandbox 0>,
+			 <&clk_sandbox 3>,
+			 <&clk_sandbox 2>;
+		clock-names = "fixed", "i2c", "spi", "uart2", "uart1";
+	};
+
 	gpio_a: gpios@0 {
 		u-boot,dm-pre-reloc;
 		gpio-controller;
@@ -50,6 +90,7 @@
 			reg = <0x43>;
 			compatible = "sandbox-rtc";
 			sandbox,emul = <&emul0>;
+			u-boot,dm-pre-reloc;
 		};
 		sandbox_pmic: sandbox_pmic {
 			reg = <0x40>;
@@ -83,6 +124,7 @@
 		compatible = "sandbox,lcd-sdl";
 		xres = <1366>;
 		yres = <768>;
+		log2-depth = <5>;
 	};
 
 	leds {
@@ -99,7 +141,18 @@
 		};
 	};
 
-	pci-controller {
+	pci@0 {
+		pci@1e,0 {
+			compatible = "sandbox,pmc";
+			reg = <0xf000 0 0 0 0>;
+			sandbox,emul = <&pmc_emul>;
+			gpe0-dwx-mask = <0xf>;
+			gpe0-dwx-shift-base = <4>;
+			gpe0-dw = <6 7 9>;
+			gpe0-sts = <0x20>;
+			gpe0-en = <0x30>;
+		};
+
 		pci@1f,0 {
 			compatible = "pci-generic";
 			reg = <0xf800 0 0 0 0>;
@@ -109,6 +162,9 @@
 
 	emul {
 		compatible = "sandbox,pci-emul-parent";
+		pmc_emul: emul@1e,0 {
+			compatible = "sandbox,pmc-emul";
+		};
 		swap_case_emul: emul@1f,0 {
 			compatible = "sandbox,swap-case";
 		};

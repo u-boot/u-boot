@@ -14,6 +14,7 @@
 #include <dm.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
+#include <dm/device_compat.h>
 
 #define NUM_TBG	    4
 

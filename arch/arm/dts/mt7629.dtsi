@@ -11,6 +11,7 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/power/mt7629-power.h>
 #include <dt-bindings/reset/mt7629-reset.h>
+#include <dt-bindings/phy/phy.h>
 #include "skeleton.dtsi"
 
 / {
@@ -68,14 +69,12 @@
 		compatible = "mediatek,mt7629-infracfg", "syscon";
 		reg = <0x10000000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	pericfg: syscon@10002000 {
 		compatible = "mediatek,mt7629-pericfg", "syscon";
 		reg = <0x10002000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	timer0: timer@10004000 {
@@ -85,7 +84,6 @@
 		clocks = <&topckgen CLK_TOP_CLKXTAL_D4>,
 			 <&topckgen CLK_TOP_10M_SEL>;
 		clock-names = "mux", "src";
-		u-boot,dm-pre-reloc;
 	};
 
 	scpsys: scpsys@10006000 {
@@ -103,7 +101,6 @@
 		compatible = "mediatek,mt7629-mcucfg", "syscon";
 		reg = <0x10200000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	sysirq: interrupt-controller@10200a80 {
@@ -124,21 +121,18 @@
 			 <&topckgen CLK_TOP_MEM_SEL>,
 			 <&topckgen CLK_TOP_DMPLL>;
 		clock-names = "phy", "phy_mux", "mem", "mem_mux";
-		u-boot,dm-pre-reloc;
 	};
 
 	apmixedsys: clock-controller@10209000 {
 		compatible = "mediatek,mt7629-apmixedsys";
 		reg = <0x10209000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	topckgen: clock-controller@10210000 {
 		compatible = "mediatek,mt7629-topckgen";
 		reg = <0x10210000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	watchdog: watchdog@10212000 {
@@ -186,7 +180,6 @@
 		status = "disabled";
 		assigned-clocks = <&topckgen CLK_TOP_AXI_SEL>;
 		assigned-clock-parents = <&topckgen CLK_TOP_SYSPLL1_D2>;
-		u-boot,dm-pre-reloc;
 	};
 
 	uart1: serial@11003000 {
@@ -228,7 +221,46 @@
 		status = "disabled";
 		#address-cells = <1>;
 		#size-cells = <0>;
-		u-boot,dm-pre-reloc;
+	};
+
+	ssusbsys: ssusbsys@1a000000 {
+		compatible = "mediatek,mt7629-ssusbsys", "syscon";
+		reg = <0x1a000000 0x1000>;
+		#clock-cells = <1>;
+	};
+
+	xhci: usb@1a0c0000 {
+		compatible = "mediatek,mt7629-xhci", "mediatek,mtk-xhci";
+		reg = <0x1a0c0000 0x1000>, <0x1a0c3e00 0x0100>;
+		reg-names = "mac", "ippc";
+		power-domains = <&scpsys MT7629_POWER_DOMAIN_HIF1>;
+		clocks = <&ssusbsys CLK_SSUSB_SYS_EN>,
+			 <&ssusbsys CLK_SSUSB_REF_EN>,
+			 <&ssusbsys CLK_SSUSB_MCU_EN>,
+			 <&ssusbsys CLK_SSUSB_DMA_EN>;
+		clock-names = "sys_ck", "ref_ck", "mcu_ck", "dma_ck";
+		phys = <&u2port0 PHY_TYPE_USB2>, <&u3port0 PHY_TYPE_USB3>;
+		status = "disabled";
+	};
+
+	u3phy: usb-phy@1a0c4000 {
+		compatible = "mediatek,mt7629-tphy", "mediatek,generic-tphy-v2";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0 0x1a0c4000 0x1000>;
+		status = "disabled";
+
+		u2port0: usb-phy@0 {
+			reg = <0x0 0x0700>;
+			#phy-cells = <1>;
+			clocks = <&ssusbsys CLK_SSUSB_U2_PHY_EN>;
+			clock-names = "ref";
+		};
+
+		u3port0: usb-phy@700 {
+			reg = <0x0700 0x0700>;
+			#phy-cells = <1>;
+		};
 	};
 
 	ethsys: syscon@1b000000 {
@@ -290,4 +322,20 @@
 		reg = <0x1b130000 0x1000>;
 		#clock-cells = <1>;
 	};
+
+	pwm: pwm@11006000 {
+		compatible = "mediatek,mt7629-pwm";
+		reg = <0x11006000 0x1000>;
+		#clock-cells = <1>;
+		#pwm-cells = <2>;
+		interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_LOW>;
+		clocks = <&topckgen CLK_TOP_PWM_SEL>,
+			 <&pericfg CLK_PERI_PWM_PD>,
+			 <&pericfg CLK_PERI_PWM1_PD>;
+		clock-names = "top", "main", "pwm1";
+		assigned-clocks = <&topckgen CLK_TOP_PWM_SEL>;
+		assigned-clock-parents = <&topckgen CLK_TOP_UNIVPLL2_D4>;
+		status = "disabled";
+	};
+
 };

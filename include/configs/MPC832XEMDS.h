@@ -85,8 +85,6 @@
  * Memory test
  */
 #undef CONFIG_SYS_DRAM_TEST		/* memory test, takes time */
-#define CONFIG_SYS_MEMTEST_START	0x00000000	/* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x00100000
 
 /*
  * The reserved memory
@@ -198,7 +196,6 @@
 
 #define CONFIG_83XX_PCI_STREAMING
 
-#undef CONFIG_EEPRO100
 #undef CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID	0x1957	/* Freescale */
 
@@ -246,10 +243,6 @@
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-/*
- * Command line configuration.
- */
-
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 
 /*
@@ -269,10 +262,6 @@
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
 #endif
-
-/*
- * Environment Configuration
- */ #define CONFIG_ENV_OVERWRITE
 
 #if defined(CONFIG_UEC_ETH)
 #define CONFIG_HAS_ETH0

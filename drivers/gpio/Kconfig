@@ -14,6 +14,28 @@ config DM_GPIO
 	  particular GPIOs that they provide. The uclass interface
 	  is defined in include/asm-generic/gpio.h.
 
+config SPL_DM_GPIO
+	bool "Enable Driver Model for GPIO drivers in SPL"
+	depends on DM_GPIO && SPL_DM && SPL_GPIO_SUPPORT
+	default y
+	help
+	  Enable driver model for GPIO access in SPL. The standard GPIO
+	  interface (gpio_get_value(), etc.) is then implemented by
+	  the GPIO uclass. Drivers provide methods to query the
+	  particular GPIOs that they provide. The uclass interface
+	  is defined in include/asm-generic/gpio.h.
+
+config TPL_DM_GPIO
+	bool "Enable Driver Model for GPIO drivers in TPL"
+	depends on DM_GPIO && TPL_DM && TPL_GPIO_SUPPORT
+	default y
+	help
+	  Enable driver model for GPIO access in TPL. The standard GPIO
+	  interface (gpio_get_value(), etc.) is then implemented by
+	  the GPIO uclass. Drivers provide methods to query the
+	  particular GPIOs that they provide. The uclass interface
+	  is defined in include/asm-generic/gpio.h.
+
 config GPIO_HOG
 	bool "Enable GPIO hog support"
 	depends on DM_GPIO
@@ -24,6 +46,26 @@ config GPIO_HOG
 	  is a mechanism providing automatic GPIO request and config-
 	  uration as part of the gpio-controller's driver probe function.
 
+config DM_GPIO_LOOKUP_LABEL
+	bool "Enable searching for gpio labelnames"
+	depends on DM_GPIO
+	help
+	  This option enables searching for gpio names in
+	  the defined gpio labels, if the search for the
+	  gpio bank name failed. This makes sense if you use
+	  different gpios on different hardware versions
+	  for the same functionality in board code.
+
+config SPL_DM_GPIO_LOOKUP_LABEL
+	bool "Enable searching for gpio labelnames"
+	depends on DM_GPIO && SPL_DM && SPL_GPIO_SUPPORT
+	help
+	  This option enables searching for gpio names in
+	  the defined gpio labels, if the search for the
+	  gpio bank name failed. This makes sense if you use
+	  different gpios on different hardware versions
+	  for the same functionality in board code.
+
 config ALTERA_PIO
 	bool "Altera PIO driver"
 	depends on DM_GPIO
@@ -33,9 +75,18 @@ config ALTERA_PIO
 
 config BCM6345_GPIO
 	bool "BCM6345 GPIO driver"
-	depends on DM_GPIO && (ARCH_BMIPS || ARCH_BCM6858 || ARCH_BCM63158)
+	depends on DM_GPIO && (ARCH_BMIPS || ARCH_BCM68360 || \
+			       ARCH_BCM6858 || ARCH_BCM63158)
 	help
 	  This driver supports the GPIO banks on BCM6345 SoCs.
+
+config CORTINA_GPIO
+	bool "Cortina-Access GPIO driver"
+	depends on DM_GPIO && CORTINA_PLATFORM
+	help
+	  Enable support for the GPIO controller in Cortina CAxxxx SoCs.
+	  This driver supports all CPU ISA variants supported by Cortina
+	  Access CAxxxx SoCs.
 
 config DWAPB_GPIO
 	bool "DWAPB GPIO driver"
@@ -46,7 +97,6 @@ config DWAPB_GPIO
 
 config AT91_GPIO
 	bool "AT91 PIO GPIO driver"
-	depends on DM_GPIO
 	default n
 	help
 	  Say yes here to select AT91 PIO GPIO driver. AT91 PIO
@@ -82,6 +132,15 @@ config INTEL_BROADWELL_GPIO
 	  driver from the common Intel ICH6 driver. It supports a total of
 	  95 GPIOs which can be configured from the device tree.
 
+config INTEL_GPIO
+	bool "Intel generic GPIO driver"
+	depends on DM_GPIO
+	help
+	  Say yes here to select Intel generic GPIO driver. This controller
+	  supports recent chips (e.g. Apollo Lake). It permits basic GPIO
+	  control including setting pins to input/output. It makes use of its
+	  parent pinctrl driver to actually effect changes.
+
 config INTEL_ICH6_GPIO
 	bool "Intel ICH6 compatible legacy GPIO driver"
 	depends on DM_GPIO
@@ -94,6 +153,17 @@ config IMX_RGPIO2P
 	default n
 	help
 	  This driver supports i.MX7ULP Rapid GPIO2P controller.
+
+config IPROC_GPIO
+	bool "Broadcom iProc GPIO driver(without pinconf)"
+	default n
+	help
+	  The Broadcom iProc based SoCs- Cygnus, NS2, NS3, NSP and Stingray,
+	  use the same GPIO Controller IP hence this driver could be used
+	  for all.
+
+	  The Broadcom iProc based SoCs have multiple GPIO controllers and only
+	  the always-ON GPIO controller (CRMU/AON) is supported by this driver.
 
 config HSDK_CREG_GPIO
 	bool "HSDK CREG GPIO griver"
@@ -276,9 +346,19 @@ config PIC32_GPIO
 	help
 	  Say yes here to support Microchip PIC32 GPIOs.
 
+config OCTEON_GPIO
+	bool "Octeon II/III/TX/TX2 GPIO driver"
+	depends on DM_GPIO && DM_PCI &&	(ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2)
+	default y
+	help
+	  Add support for the Marvell Octeon GPIO driver. This is used with
+	  various Octeon parts such as Octeon II/III and OcteonTX/TX2.
+	  Octeon II/III has 32 GPIOs (count defined via DT) and OcteonTX/TX2
+	  has 64 GPIOs (count defined via internal register).
+
 config STM32_GPIO
 	bool "ST STM32 GPIO driver"
-	depends on DM_GPIO && (STM32 || ARCH_STM32MP)
+	depends on DM_GPIO && (ARCH_STM32 || ARCH_STM32MP)
 	default y
 	help
 	  Device model driver support for STM32 GPIO controller. It should be
@@ -383,11 +463,28 @@ config MPC8XXX_GPIO
 	  value setting, the open-drain feature, which can configure individual
 	  GPIOs to work as open-drain outputs, is supported.
 
+config MPC83XX_SPISEL_BOOT
+	bool "Freescale MPC83XX SPISEL_BOOT driver"
+	depends on DM_GPIO && ARCH_MPC830X
+	help
+	  GPIO driver to set/clear dedicated SPISEL_BOOT output on MPC83XX.
+
+	  This pin is typically used as spi chip select to a spi nor flash.
+
 config MT7621_GPIO
 	bool "MediaTek MT7621 GPIO driver"
 	depends on DM_GPIO && SOC_MT7628
 	default y
 	help
 	  Say yes here to support MediaTek MT7621 compatible GPIOs.
+
+config NX_GPIO
+	bool "Nexell GPIO driver"
+	depends on DM_GPIO
+	help
+	  Support GPIO access on Nexell SoCs. The GPIOs are arranged into
+	  a number of banks (different for each SoC type) each with 32 GPIOs.
+	  The GPIOs for a device are defined in the device tree with one node
+	  for each bank.
 
 endmenu

@@ -3,20 +3,24 @@
  * Copyright (c) 2016 Rockchip Electronics Co., Ltd
  */
 #include <common.h>
+#include <command.h>
 #include <dm.h>
 #include <env.h>
 #include <clk.h>
 #include <init.h>
+#include <malloc.h>
 #include <asm/armv7.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/clock.h>
-#include <asm/arch-rockchip/cru_rk3288.h>
+#include <asm/arch-rockchip/cpu_rk3288.h>
+#include <asm/arch-rockchip/cru.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/grf_rk3288.h>
 #include <asm/arch-rockchip/pmu_rk3288.h>
 #include <asm/arch-rockchip/qos_rk3288.h>
 #include <asm/arch-rockchip/sdram.h>
+#include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -102,43 +106,6 @@ void board_debug_uart_init(void)
 }
 #endif
 
-static void rk3288_detect_reset_reason(void)
-{
-	struct rk3288_cru *cru = rockchip_get_cru();
-	const char *reason;
-
-	if (IS_ERR(cru))
-		return;
-
-	switch (cru->cru_glb_rst_st) {
-	case GLB_POR_RST:
-		reason = "POR";
-		break;
-	case FST_GLB_RST_ST:
-	case SND_GLB_RST_ST:
-		reason = "RST";
-		break;
-	case FST_GLB_TSADC_RST_ST:
-	case SND_GLB_TSADC_RST_ST:
-		reason = "THERMAL";
-		break;
-	case FST_GLB_WDT_RST_ST:
-	case SND_GLB_WDT_RST_ST:
-		reason = "WDOG";
-		break;
-	default:
-		reason = "unknown reset";
-	}
-
-	env_set("reset_reason", reason);
-
-	/*
-	 * Clear cru_glb_rst_st, so we can determine the last reset cause
-	 * for following resets.
-	 */
-	rk_clrreg(&cru->cru_glb_rst_st, GLB_RST_ST_MASK);
-}
-
 __weak int rk3288_board_late_init(void)
 {
 	return 0;
@@ -146,13 +113,40 @@ __weak int rk3288_board_late_init(void)
 
 int rk_board_late_init(void)
 {
-	rk3288_detect_reset_reason();
-
 	return rk3288_board_late_init();
 }
 
-static int do_clock(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int ft_rk3288w_setup(void *blob)
+{
+	const char *path;
+	int offs, ret;
+
+	path = "/clock-controller@ff760000";
+	offs = fdt_path_offset(blob, path);
+	if (offs < 0) {
+		debug("failed to found fdt path %s\n", path);
+		return offs;
+	}
+
+	ret = fdt_setprop_string(blob, offs, "compatible", "rockchip,rk3288w-cru");
+	if (ret) {
+		printf("failed to set rk3288w-cru compatible (ret=%d)\n", ret);
+		return ret;
+	}
+
+	return ret;
+}
+
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	if (soc_is_rk3288w())
+		return ft_rk3288w_setup(blob);
+
+	return 0;
+}
+
+static int do_clock(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	static const struct {
 		char *name;

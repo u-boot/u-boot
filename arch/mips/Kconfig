@@ -98,12 +98,35 @@ config ARCH_MTMIPS
 	select SUPPORTS_CPU_MIPS32_R2
 	select SUPPORTS_LITTLE_ENDIAN
 	select SYSRESET
+	select SUPPORT_SPL
 
 config ARCH_JZ47XX
 	bool "Support Ingenic JZ47xx"
 	select SUPPORT_SPL
 	select OF_CONTROL
 	select DM
+
+config ARCH_OCTEON
+	bool "Support Marvell Octeon CN7xxx platforms"
+	select CPU_CAVIUM_OCTEON
+	select DISPLAY_CPUINFO
+	select DMA_ADDR_T_64BIT
+	select DM
+	select DM_ETH
+	select DM_GPIO
+	select DM_I2C
+	select DM_SERIAL
+	select DM_SPI
+	select MIPS_L2_CACHE
+	select MIPS_MACH_EARLY_INIT
+	select MIPS_TUNE_OCTEON3
+	select ROM_EXCEPTION_VECTORS
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS64_OCTEON
+	select PHYS_64BIT
+	select OF_CONTROL
+	select OF_LIVE
+	imply CMD_DM
 
 config MACH_PIC32
 	bool "Support Microchip PIC32"
@@ -159,6 +182,7 @@ source "arch/mips/mach-bmips/Kconfig"
 source "arch/mips/mach-jz47xx/Kconfig"
 source "arch/mips/mach-pic32/Kconfig"
 source "arch/mips/mach-mtmips/Kconfig"
+source "arch/mips/mach-octeon/Kconfig"
 
 if MIPS
 
@@ -232,6 +256,14 @@ config CPU_MIPS64_R6
 	  Choose this option to build a kernel for release 6 or later of the
 	  MIPS64 architecture.
 
+config CPU_MIPS64_OCTEON
+	bool "Marvell Octeon series of CPUs"
+	depends on SUPPORTS_CPU_MIPS64_OCTEON
+	select 64BIT
+	help
+	 Choose this option for Marvell Octeon CPUs.  These CPUs are between
+	 MIPS64 R5 and R6 with other extensions.
+
 endchoice
 
 menu "General setup"
@@ -269,6 +301,39 @@ config MIPS_CACHE_INDEX_BASE
 	  Normally this is CKSEG0. If the MIPS system needs to move this block
 	  to some SRAM or ScratchPad RAM, adapt this option accordingly.
 
+config MIPS_MACH_EARLY_INIT
+	bool "Enable mach specific very early init code"
+	help
+	  Use this to enable the call to mips_mach_early_init() very early
+	  from start.S. This function can be used e.g. to do some very early
+	  CPU / SoC intitialization or image copying. Its called very early
+	  and at this stage the PC might not match the linking address
+	  (CONFIG_TEXT_BASE) - no absolute jump done until this call.
+
+config MIPS_CACHE_SETUP
+	bool "Allow generic start code to initialize and setup caches"
+	default n if SKIP_LOWLEVEL_INIT
+	default y
+	help
+	  This allows the generic start code to invoke the generic initialization
+	  of the CPU caches. Disabling this can be useful for RAM boot scenarios
+	  (EJTAG, SPL payload) or for machines which don't need cache initialization
+	  or which want to provide their own cache implementation.
+
+	  If unsure, say yes.
+
+config MIPS_CACHE_DISABLE
+	bool "Allow generic start code to initially disable caches"
+	default n if SKIP_LOWLEVEL_INIT
+	default y
+	help
+	  This allows the generic start code to initially disable the CPU caches
+	  and run uncached until the caches are initialized and enabled. Disabling
+	  this can be useful on machines which don't need cache initialization or
+	  which want to provide their own cache implementation.
+
+	  If unsure, say yes.
+
 config MIPS_RELOCATION_TABLE_SIZE
 	hex "Relocation table size"
 	range 0x100 0x10000
@@ -286,6 +351,60 @@ config MIPS_RELOCATION_TABLE_SIZE
 	  The build will fail and a valid size suggested if this is too small.
 
 	  If unsure, leave at the default value.
+
+config RESTORE_EXCEPTION_VECTOR_BASE
+	bool "Restore exception vector base before booting linux kernel"
+	default n
+	help
+	  In U-Boot the exception vector base will be moved to top of memory,
+	  to be used to display register dump when exception occurs.
+	  But some old linux kernel does not honor the base set in CP0_EBASE.
+	  A modified exception vector base will cause kernel crash.
+
+	  This option will restore the exception vector base to its previous
+	  value.
+
+	  If unsure, say N.
+
+config OVERRIDE_EXCEPTION_VECTOR_BASE
+	bool "Override the exception vector base to be restored"
+	depends on RESTORE_EXCEPTION_VECTOR_BASE
+	default n
+	help
+	  Enable this option if you want to use a different exception vector
+	  base rather than the previously saved one.
+
+config NEW_EXCEPTION_VECTOR_BASE
+	hex "New exception vector base"
+	depends on OVERRIDE_EXCEPTION_VECTOR_BASE
+	range 0x80000000 0xbffff000
+	default 0x80000000
+	help
+	  The exception vector base to be restored before booting linux kernel
+
+config INIT_STACK_WITHOUT_MALLOC_F
+	bool "Do not reserve malloc space on initial stack"
+	default n
+	help
+	  Enable this option if you don't want to reserve malloc space on
+	  initial stack. This is useful if the initial stack can't hold large
+	  malloc space. Platform should set the malloc_base later when DRAM is
+	  ready to use.
+
+config SPL_INIT_STACK_WITHOUT_MALLOC_F
+	bool "Do not reserve malloc space on initial stack in SPL"
+	default n
+	help
+	  Enable this option if you don't want to reserve malloc space on
+	  initial stack. This is useful if the initial stack can't hold large
+	  malloc space. Platform should set the malloc_base later when DRAM is
+	  ready to use.
+
+config SPL_LOADER_SUPPORT
+	bool
+	default n
+	help
+	  Enable this option if you want to use SPL loaders without DM enabled.
 
 endmenu
 
@@ -343,6 +462,12 @@ config SUPPORTS_CPU_MIPS64_R2
 config SUPPORTS_CPU_MIPS64_R6
 	bool
 
+config SUPPORTS_CPU_MIPS64_OCTEON
+	bool
+
+config CPU_CAVIUM_OCTEON
+	bool
+
 config CPU_MIPS32
 	bool
 	default y if CPU_MIPS32_R1 || CPU_MIPS32_R2 || CPU_MIPS32_R6
@@ -350,6 +475,7 @@ config CPU_MIPS32
 config CPU_MIPS64
 	bool
 	default y if CPU_MIPS64_R1 || CPU_MIPS64_R2 || CPU_MIPS64_R6
+	default y if CPU_MIPS64_OCTEON
 
 config MIPS_TUNE_4KC
 	bool
@@ -364,6 +490,9 @@ config MIPS_TUNE_34KC
 	bool
 
 config MIPS_TUNE_74KC
+	bool
+
+config MIPS_TUNE_OCTEON3
 	bool
 
 config 32BIT
@@ -388,6 +517,20 @@ config MIPS_INIT_STACK_IN_SRAM
 	  stack frame and the early C environment is set up before
 	  lowlevel_init. Thus lowlevel_init does not need to be implemented
 	  in assembler.
+
+config MIPS_SRAM_INIT
+	bool
+	default n
+	depends on MIPS_INIT_STACK_IN_SRAM
+	help
+	  Select this if the SRAM for initial stack needs to be initialized
+	  before it can be used. If enabled, a function mips_sram_init() will
+	  be called just before setup_stack_gd.
+
+config DMA_ADDR_T_64BIT
+	bool
+	help
+	 Select this to enable 64-bit DMA addressing
 
 config SYS_DCACHE_SIZE
 	int

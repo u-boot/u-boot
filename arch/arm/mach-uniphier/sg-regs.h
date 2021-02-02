@@ -10,6 +10,8 @@
 #ifndef UNIPHIER_SG_REGS_H
 #define UNIPHIER_SG_REGS_H
 
+#include <linux/bitops.h>
+
 #ifndef __ASSEMBLY__
 #include <linux/compiler.h>
 #ifdef CONFIG_ARCH_UNIPHIER_V8_MULTI
@@ -24,6 +26,9 @@ extern void __iomem *sg_base;
 
 /* Revision */
 #define SG_REVISION		0x0000
+#define   SG_REVISION_TYPE_MASK		GENMASK(23, 16)
+#define   SG_REVISION_MODEL_MASK	GENMASK(10, 8)
+#define   SG_REVISION_REV_MASK		GENMASK(4, 0)
 
 /* Memory Configuration */
 #define SG_MEMCONF		0x0400

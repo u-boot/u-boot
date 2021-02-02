@@ -11,7 +11,9 @@
 #include <cpu.h>
 #include <dm.h>
 #include <errno.h>
+#include <init.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 #define REV_CHIPID_SHIFT		16
 #define REV_CHIPID_MASK			(0xffff << REV_CHIPID_SHIFT)
@@ -377,7 +379,7 @@ static const struct bmips_cpu_hw bmips_cpu_bcm6838 = {
 };
 
 /* Generic CPU Ops */
-static int bmips_cpu_get_desc(struct udevice *dev, char *buf, int size)
+static int bmips_cpu_get_desc(const struct udevice *dev, char *buf, int size)
 {
 	struct bmips_cpu_priv *priv = dev_get_priv(dev);
 	const struct bmips_cpu_hw *hw = priv->hw;
@@ -385,7 +387,7 @@ static int bmips_cpu_get_desc(struct udevice *dev, char *buf, int size)
 	return hw->get_cpu_desc(priv, buf, size);
 }
 
-static int bmips_cpu_get_info(struct udevice *dev, struct cpu_info *info)
+static int bmips_cpu_get_info(const struct udevice *dev, struct cpu_info *info)
 {
 	struct bmips_cpu_priv *priv = dev_get_priv(dev);
 	const struct bmips_cpu_hw *hw = priv->hw;
@@ -398,7 +400,7 @@ static int bmips_cpu_get_info(struct udevice *dev, struct cpu_info *info)
 	return 0;
 }
 
-static int bmips_cpu_get_count(struct udevice *dev)
+static int bmips_cpu_get_count(const struct udevice *dev)
 {
 	struct bmips_cpu_priv *priv = dev_get_priv(dev);
 	const struct bmips_cpu_hw *hw = priv->hw;
@@ -406,7 +408,7 @@ static int bmips_cpu_get_count(struct udevice *dev)
 	return hw->get_cpu_count(priv);
 }
 
-static int bmips_cpu_get_vendor(struct udevice *dev, char *buf, int size)
+static int bmips_cpu_get_vendor(const struct udevice *dev, char *buf, int size)
 {
 	snprintf(buf, size, "Broadcom");
 

@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>
 #include <asm/arch/clock.h>

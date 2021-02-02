@@ -14,6 +14,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <pci.h>
 
 void pciauto_region_init(struct pci_region *res)

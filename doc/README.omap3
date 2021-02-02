@@ -41,16 +41,6 @@ make
 make omap3_evm_config
 make
 
-* Pandora:
-
-make omap3_pandora_config
-make
-
-* Zoom MDK:
-
-make omap3_zoom1_config
-make
-
 * Zoom 2:
 
 make omap3_zoom2_config

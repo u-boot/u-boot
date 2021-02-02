@@ -7,6 +7,7 @@
  */
 
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/errno.h>
 #include <linux/io.h>
@@ -69,7 +70,7 @@ static int uniphier_dwc3_probe(struct udevice *dev)
 	int (*init)(void __iomem *regs);
 	int ret;
 
-	base = devfdt_get_addr(dev);
+	base = dev_read_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

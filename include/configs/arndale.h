@@ -14,15 +14,10 @@
 #include "exynos5250-common.h"
 #include <configs/exynos5-common.h>
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* MMC SPL */
 #define CONFIG_EXYNOS_SPL
 
 /* Miscellaneous configurable options */
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
-
 #define CONFIG_IRAM_STACK	0x02050000
 
 #define CONFIG_SYS_INIT_SP_ADDR	CONFIG_IRAM_STACK

@@ -10,6 +10,8 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/efuse.h>
 #include <asm/arch/soc.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/mbus.h>
 
 #if defined(CONFIG_MVEBU_EFUSE_FAKE)

@@ -9,7 +9,7 @@
 #include <command.h>
 #include <ufs.h>
 
-static int do_ufs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_ufs(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int dev, ret;
 

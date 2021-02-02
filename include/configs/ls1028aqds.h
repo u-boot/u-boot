@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  */
 
 #ifndef __LS1028A_QDS_H
@@ -66,13 +66,17 @@
 #define CONFIG_SYS_MONITOR_BASE CONFIG_SYS_TEXT_BASE
 #endif
 
+/* LPUART */
+#ifdef CONFIG_LPUART
+#define CONFIG_LPUART_32B_REG
+#define CFG_LPUART_MUX_MASK	0xf0
+#define CFG_LPUART_EN		0xf0
+#endif
+
 /* SATA */
 #define CONFIG_SCSI_AHCI_PLAT
 
 #define CONFIG_SYS_SATA1			AHCI_BASE_ADDR1
-#ifndef CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT2
-#endif
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID		1
 #define CONFIG_SYS_SCSI_MAX_LUN			1
 #define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
@@ -90,8 +94,6 @@
 	"hwconfig=fsl_ddr:bank_intlv=auto\0" \
 	"ramdisk_addr=0x800000\0" \
 	"ramdisk_size=0x2000000\0" \
-	"fdt_high=0xffffffffffffffff\0" \
-	"initrd_high=0xffffffffffffffff\0" \
 	"fdt_addr=0x00f00000\0" \
 	"kernel_addr=0x01000000\0" \
 	"scriptaddr=0x80000000\0" \
@@ -101,15 +103,16 @@
 	"load_addr=0xa0000000\0" \
 	"kernel_addr_r=0x81000000\0" \
 	"fdt_addr_r=0x90000000\0" \
+	"fdt2_addr_r=0x90010000\0" \
 	"ramdisk_addr_r=0xa0000000\0" \
 	"kernel_start=0x1000000\0" \
-	"kernelheader_start=0x800000\0" \
+	"kernelheader_start=0x600000\0" \
 	"kernel_load=0xa0000000\0" \
 	"kernel_size=0x2800000\0" \
 	"kernelheader_size=0x40000\0" \
 	"kernel_addr_sd=0x8000\0" \
 	"kernel_size_sd=0x14000\0" \
-	"kernelhdr_addr_sd=0x4000\0" \
+	"kernelhdr_addr_sd=0x3000\0" \
 	"kernelhdr_size_sd=0x10\0" \
 	"console=ttyS0,115200\0" \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
@@ -126,13 +129,6 @@
 			"run scan_dev_for_boot; " \
 		  "fi; " \
 		"done\0" \
-	"scan_dev_for_boot=" \
-		"echo Scanning ${devtype} " \
-				"${devnum}:${distro_bootpart}...; " \
-		"for prefix in ${boot_prefixes}; do " \
-			"run scan_dev_for_scripts; " \
-		"done;" \
-		"\0" \
 	"boot_a_script=" \
 		"load ${devtype} ${devnum}:${distro_bootpart} " \
 			"${scriptaddr} ${prefix}${script}; " \
@@ -141,19 +137,35 @@
 			"${scripthdraddr} ${prefix}${boot_script_hdr} " \
 			"&& esbc_validate ${scripthdraddr};" \
 		"source ${scriptaddr}\0" \
-	"sd_bootcmd=echo Trying load from SD ..;" \
-		"mmcinfo; mmc read $load_addr " \
-		"$kernel_addr_sd $kernel_size_sd && " \
+	"xspi_bootcmd=echo Trying load from FlexSPI flash ...;" \
+		"sf probe 0:0 && sf read $load_addr " \
+		"$kernel_start $kernel_size ; env exists secureboot &&" \
+		"sf read $kernelheader_addr_r $kernelheader_start " \
+		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; "\
+		" bootm $load_addr#$board\0" \
+	"xspi_hdploadcmd=echo Trying load HDP firmware from FlexSPI...;" \
+		"sf probe 0:0 && sf read $load_addr 0x940000 0x30000 " \
+		"&& hdp load $load_addr 0x2000\0"			\
+	"sd_bootcmd=echo Trying load from SD ...;" \
+		"mmc dev 0; mmcinfo; mmc read $load_addr "		\
+		"$kernel_addr_sd $kernel_size_sd && "	\
 		"env exists secureboot && mmc read $kernelheader_addr_r " \
-		"$kernelhdr_addr_sd $kernelhdr_size_sd " \
-		" && esbc_validate ${kernelheader_addr_r};" \
-		"bootm $load_addr#$board\0" \
-	"emmc_bootcmd=echo Trying load from EMMC ..;" \
-		"mmcinfo; mmc dev 1; mmc read $load_addr " \
-		"$kernel_addr_sd $kernel_size_sd && " \
-		"env exists secureboot && mmc read $kernelheader_addr_r " \
-		"$kernelhdr_addr_sd $kernelhdr_size_sd " \
+		"$kernelhdr_addr_sd $kernelhdr_size_sd "		\
 		" && esbc_validate ${kernelheader_addr_r};"	\
-		"bootm $load_addr#$board\0"
+		"bootm $load_addr#$board\0"		\
+	"sd_hdploadcmd=echo Trying load HDP firmware from SD..;"        \
+		"mmc dev 0;mmcinfo; mmc read $load_addr 0x4a00 0x200 "	\
+		"&& hdp load $load_addr 0x2000\0"	\
+	"emmc_bootcmd=echo Trying load from EMMC ..;"	\
+		"mmc dev 1; mmcinfo; mmc read $load_addr "		\
+		"$kernel_addr_sd $kernel_size_sd && "	\
+		"env exists secureboot && mmc read $kernelheader_addr_r " \
+		"$kernelhdr_addr_sd $kernelhdr_size_sd "		\
+		" && esbc_validate ${kernelheader_addr_r};"	\
+		"bootm $load_addr#$board\0"			\
+	"emmc_hdploadcmd=echo Trying load HDP firmware from EMMC..;"      \
+		"mmc dev 1;mmcinfo;mmc read $load_addr 0x4a00 0x200 "	\
+		"&& hdp load $load_addr 0x2000\0"
+
 #endif
 #endif /* __LS1028A_QDS_H */

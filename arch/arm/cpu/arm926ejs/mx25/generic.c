@@ -9,7 +9,10 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <div64.h>
+#include <init.h>
+#include <net.h>
 #include <netdev.h>
 #include <vsprintf.h>
 #include <asm/io.h>
@@ -220,7 +223,7 @@ int print_cpuinfo(void)
  * Initializes on-chip ethernet controllers.
  * to override, implement board_eth_init()
  */
-int cpu_eth_init(bd_t *bis)
+int cpu_eth_init(struct bd_info *bis)
 {
 	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
 	ulong val;
@@ -249,7 +252,7 @@ int get_clocks(void)
  * Initializes on-chip MMC controllers.
  * to override, implement board_mmc_init()
  */
-int cpu_mmc_init(bd_t *bis)
+int cpu_mmc_init(struct bd_info *bis)
 {
 	return fsl_esdhc_mmc_init(bis);
 }

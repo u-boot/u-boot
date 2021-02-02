@@ -131,6 +131,10 @@
 				MX53_PAD_GPIO_1__GPIO1_1 0x1e4
 				/* KEY1 GPIO */
 				MX53_PAD_EIM_RW__GPIO2_26 0x1e4
+				/* LED GREEN GPIO */
+				MX53_PAD_EIM_WAIT__GPIO5_0 0x1e4
+				/* LED RED GPIO */
+				MX53_PAD_EIM_D28__GPIO3_28 0x1e4
 			>;
 		};
 

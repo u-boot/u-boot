@@ -6,10 +6,12 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <asm/arch/sys_proto.h>
 #include <memalign.h>
 #include <versalpl.h>
 #include <zynqmp_firmware.h>
+#include <asm/cache.h>
 
 static ulong versal_align_dma_buffer(ulong *buf, u32 len)
 {

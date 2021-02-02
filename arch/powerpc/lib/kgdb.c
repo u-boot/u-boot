@@ -1,6 +1,7 @@
 #include <common.h>
 #include <command.h>
 #include <kgdb.h>
+#include <asm/ptrace.h>
 #include <asm/signal.h>
 #include <asm/processor.h>
 
@@ -252,7 +253,7 @@ kgdb_putregs(struct pt_regs *regs, char *buf, int length)
    the debugger. */
 
 void
-kgdb_breakpoint(int argc, char * const argv[])
+kgdb_breakpoint(int argc, char *const argv[])
 {
 	asm("	.globl breakinst\n\
 	     breakinst: .long 0x7d821008\n\

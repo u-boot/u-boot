@@ -20,8 +20,12 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <init.h>
+#include <log.h>
 #include <malloc.h>
+#include <spl.h>
 #include <asm/control_regs.h>
+#include <asm/coreboot_tables.h>
 #include <asm/cpu.h>
 #include <asm/mp.h>
 #include <asm/msr.h>
@@ -29,6 +33,10 @@
 #include <asm/processor-flags.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define CPUID_FEATURE_PAE	BIT(6)
+#define CPUID_FEATURE_PSE36	BIT(17)
+#define CPUID_FEAURE_HTT	BIT(28)
 
 /*
  * Constructor for a conventional segment GDT (or LDT) entry
@@ -58,6 +66,8 @@ struct cpuinfo_x86 {
 	uint8_t x86_mask;
 };
 
+/* gcc 7.3 does not wwant to drop x86_vendors, so use #ifdef */
+#ifndef CONFIG_TPL_BUILD
 /*
  * List of cpu vendor strings along with their normalized
  * id values.
@@ -78,6 +88,7 @@ static const struct {
 	{ X86_VENDOR_NSC,       "Geode by NSC", },
 	{ X86_VENDOR_SIS,       "SiS SiS SiS ", },
 };
+#endif
 
 static void load_ds(u32 segment)
 {
@@ -131,10 +142,14 @@ void arch_setup_gd(gd_t *new_gd)
 	/* DS: data, read/write, 4 GB, base 0 */
 	gdt_addr[X86_GDT_ENTRY_32BIT_DS] = GDT_ENTRY(0xc093, 0, 0xfffff);
 
-	/* FS: data, read/write, 4 GB, base (Global Data Pointer) */
+	/*
+	 * FS: data, read/write, sizeof (Global Data Pointer),
+	 * base (Global Data Pointer)
+	 */
 	new_gd->arch.gd_addr = new_gd;
-	gdt_addr[X86_GDT_ENTRY_32BIT_FS] = GDT_ENTRY(0xc093,
-		     (ulong)&new_gd->arch.gd_addr, 0xfffff);
+	gdt_addr[X86_GDT_ENTRY_32BIT_FS] = GDT_ENTRY(0x8093,
+					(ulong)&new_gd->arch.gd_addr,
+					sizeof(new_gd->arch.gd_addr) - 1);
 
 	/* 16-bit CS: code, read/execute, 64 kB, base 0 */
 	gdt_addr[X86_GDT_ENTRY_16BIT_CS] = GDT_ENTRY(0x009b, 0, 0x0ffff);
@@ -199,6 +214,7 @@ static inline int test_cyrix_52div(void)
 	return (unsigned char) (test >> 8) == 0x02;
 }
 
+#ifndef CONFIG_TPL_BUILD
 /*
  *	Detect a NexGen CPU running without BIOS hypercode new enough
  *	to have CPUID. (Thanks to Herbert Oppmann)
@@ -219,6 +235,7 @@ static int deep_magic_nexgen_probe(void)
 		: "=a" (ret) : : "cx", "dx");
 	return  ret;
 }
+#endif
 
 static bool has_cpuid(void)
 {
@@ -230,6 +247,7 @@ static bool has_mtrr(void)
 	return cpuid_edx(0x00000001) & (1 << 12) ? true : false;
 }
 
+#ifndef CONFIG_TPL_BUILD
 static int build_vendor_name(char *vendor_name)
 {
 	struct cpuid_result result;
@@ -242,14 +260,40 @@ static int build_vendor_name(char *vendor_name)
 
 	return result.eax;
 }
+#endif
 
 static void identify_cpu(struct cpu_device_id *cpu)
 {
+	cpu->device = 0; /* fix gcc 4.4.4 warning */
+
+	/*
+	 * Do a quick and dirty check to save space - Intel and AMD only and
+	 * just the vendor. This is enough for most TPL code.
+	 */
+	if (spl_phase() == PHASE_TPL) {
+		struct cpuid_result result;
+
+		result = cpuid(0x00000000);
+		switch (result.ecx >> 24) {
+		case 'l': /* GenuineIntel */
+			cpu->vendor = X86_VENDOR_INTEL;
+			break;
+		case 'D': /* AuthenticAMD */
+			cpu->vendor = X86_VENDOR_AMD;
+			break;
+		default:
+			cpu->vendor = X86_VENDOR_ANY;
+			break;
+		}
+		return;
+	}
+
+/* gcc 7.3 does not want to drop x86_vendors, so use #ifdef */
+#ifndef CONFIG_TPL_BUILD
 	char vendor_name[16];
 	int i;
 
 	vendor_name[0] = '\0'; /* Unset */
-	cpu->device = 0; /* fix gcc 4.4.4 warning */
 
 	/* Find the id and vendor_name */
 	if (!has_cpuid()) {
@@ -265,9 +309,8 @@ static void identify_cpu(struct cpu_device_id *cpu)
 		/* Detect NexGen with old hypercode */
 		else if (deep_magic_nexgen_probe())
 			memcpy(vendor_name, "NexGenDriven", 13);
-	}
-	if (has_cpuid()) {
-		int  cpuid_level;
+	} else {
+		int cpuid_level;
 
 		cpuid_level = build_vendor_name(vendor_name);
 		vendor_name[12] = '\0';
@@ -287,6 +330,7 @@ static void identify_cpu(struct cpu_device_id *cpu)
 			break;
 		}
 	}
+#endif
 }
 
 static inline void get_fms(struct cpuinfo_x86 *c, uint32_t tfms)
@@ -324,6 +368,11 @@ static void setup_cpu_features(void)
 	: : "i" (em_rst), "i" (mp_ne_set) : "eax");
 }
 
+void cpu_reinit_fpu(void)
+{
+	asm ("fninit\n");
+}
+
 static void setup_identity(void)
 {
 	/* identify CPU via cpuid and store the decoded info into gd->arch */
@@ -341,6 +390,25 @@ static void setup_identity(void)
 
 		gd->arch.has_mtrr = has_mtrr();
 	}
+}
+
+static uint cpu_cpuid_extended_level(void)
+{
+	return cpuid_eax(0x80000000);
+}
+
+int cpu_phys_address_size(void)
+{
+	if (!has_cpuid())
+		return 32;
+
+	if (cpu_cpuid_extended_level() >= 0x80000008)
+		return cpuid_eax(0x80000008) & 0xff;
+
+	if (cpuid_edx(1) & (CPUID_FEATURE_PAE | CPUID_FEATURE_PSE36))
+		return 36;
+
+	return 32;
 }
 
 /* Don't allow PCI region 3 to use memory in the 2-4GB memory hole */
@@ -411,8 +479,15 @@ int x86_cpu_init_f(void)
 
 int x86_cpu_reinit_f(void)
 {
+	long addr;
+
 	setup_identity();
 	setup_pci_ram_top();
+	addr = locate_coreboot_table();
+	if (addr >= 0) {
+		gd->arch.coreboot_table = addr;
+		gd->flags |= GD_FLG_SKIP_LL_INIT;
+	}
 
 	return 0;
 }
@@ -573,48 +648,21 @@ int cpu_jump_to_64bit_uboot(ulong target)
 
 	func = (func_t)ptr;
 
-	/*
-	 * Copy U-Boot from ROM
-	 * TODO(sjg@chromium.org): Figure out a way to get the text base
-	 * correctly here, and in the device-tree binman definition.
-	 *
-	 * Also consider using FIT so we get the correct image length and
-	 * parameters.
-	 */
-	memcpy((char *)target, (char *)0xfff00000, 0x100000);
-
 	/* Jump to U-Boot */
 	func((ulong)pgtable, 0, (ulong)target);
 
 	return -EFAULT;
 }
 
-#ifdef CONFIG_SMP
-static int enable_smis(struct udevice *cpu, void *unused)
-{
-	return 0;
-}
-
-static struct mp_flight_record mp_steps[] = {
-	MP_FR_BLOCK_APS(mp_init_cpu, NULL, mp_init_cpu, NULL),
-	/* Wait for APs to finish initialization before proceeding */
-	MP_FR_BLOCK_APS(NULL, NULL, enable_smis, NULL),
-};
-
 int x86_mp_init(void)
 {
-	struct mp_params mp_params;
+	int ret;
 
-	mp_params.parallel_microcode_load = 0,
-	mp_params.flight_plan = &mp_steps[0];
-	mp_params.num_records = ARRAY_SIZE(mp_steps);
-	mp_params.microcode_pointer = 0;
-
-	if (mp_init(&mp_params)) {
+	ret = mp_init();
+	if (ret) {
 		printf("Warning: MP init failure\n");
-		return -EIO;
+		return log_ret(ret);
 	}
 
 	return 0;
 }
-#endif

@@ -8,7 +8,11 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <malloc.h>
+#include <asm/cache.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Flush range from all levels of d-cache/unified-cache.
@@ -73,6 +77,15 @@ static unsigned long noncached_start;
 static unsigned long noncached_end;
 static unsigned long noncached_next;
 
+void noncached_set_region(void)
+{
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
+	mmu_set_region_dcache_behaviour(noncached_start,
+					noncached_end - noncached_start,
+					DCACHE_OFF);
+#endif
+}
+
 void noncached_init(void)
 {
 	phys_addr_t start, end;
@@ -89,9 +102,7 @@ void noncached_init(void)
 	noncached_end = end;
 	noncached_next = start;
 
-#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
-	mmu_set_region_dcache_behaviour(noncached_start, size, DCACHE_OFF);
-#endif
+	noncached_set_region();
 }
 
 phys_addr_t noncached_alloc(size_t size, size_t align)
@@ -118,3 +129,34 @@ void invalidate_l2_cache(void)
 	isb();
 }
 #endif
+
+int arch_reserve_mmu(void)
+{
+	return arm_reserve_mmu();
+}
+
+__weak int arm_reserve_mmu(void)
+{
+#if !(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+	/* reserve TLB table */
+	gd->arch.tlb_size = PGTABLE_SIZE;
+	gd->relocaddr -= gd->arch.tlb_size;
+
+	/* round down to next 64 kB limit */
+	gd->relocaddr &= ~(0x10000 - 1);
+
+	gd->arch.tlb_addr = gd->relocaddr;
+	debug("TLB table from %08lx to %08lx\n", gd->arch.tlb_addr,
+	      gd->arch.tlb_addr + gd->arch.tlb_size);
+
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+	/*
+	 * Record allocated tlb_addr in case gd->tlb_addr to be overwritten
+	 * with location within secure ram.
+	 */
+	gd->arch.tlb_allocated = gd->arch.tlb_addr;
+#endif
+#endif
+
+	return 0;
+}

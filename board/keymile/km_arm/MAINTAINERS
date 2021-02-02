@@ -1,5 +1,5 @@
 KM_ARM BOARD
-M:	Valentin Longchamp <valentin.longchamp@ch.abb.com>
+M:	Valentin Longchamp <valentin.longchamp@hitachi-powergrids.com>
 S:	Maintained
 F:	board/keymile/km_arm/
 F:	include/configs/km_kirkwood.h
@@ -8,6 +8,4 @@ F:	configs/km_kirkwood_128m16_defconfig
 F:	configs/km_kirkwood_pci_defconfig
 F:	configs/kmcoge5un_defconfig
 F:	configs/kmnusa_defconfig
-F:	configs/kmsugp1_defconfig
-F:	configs/kmsuv31_defconfig
-F:	configs/mgcoge3un_defconfig
+F:	configs/kmsuse2_defconfig

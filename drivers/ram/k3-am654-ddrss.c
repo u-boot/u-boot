@@ -9,11 +9,12 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <log.h>
 #include <ram.h>
 #include <asm/io.h>
 #include <power-domain.h>
-#include <dm.h>
 #include <asm/arch/sys_proto.h>
+#include <dm/device_compat.h>
 #include <power/regulator.h>
 #include "k3-am654-ddrss.h"
 

@@ -6,6 +6,7 @@
  * Authors: Tadeusz Struk <tadeusz.struk@intel.com>
  */
 #ifndef __UBOOT__
+#include <linux/compat.h>
 #include <linux/kernel.h>
 #include <linux/export.h>
 #endif

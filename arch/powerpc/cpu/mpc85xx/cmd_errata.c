@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <init.h>
 #include <linux/compiler.h>
 #include <fsl_errata.h>
 #include <asm/processor.h>
@@ -128,7 +129,8 @@ static void check_erratum_a007212(void)
 }
 #endif
 
-static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_errata(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 #ifdef CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011
 	extern int enable_cpu_a011_workaround;

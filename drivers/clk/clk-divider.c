@@ -14,10 +14,13 @@
 #include <malloc.h>
 #include <clk-uclass.h>
 #include <dm/device.h>
+#include <dm/devres.h>
 #include <dm/uclass.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
+#include <linux/bug.h>
 #include <linux/clk-provider.h>
+#include <linux/err.h>
 #include <linux/log2.h>
 #include <div64.h>
 #include <clk.h>
@@ -70,8 +73,7 @@ unsigned long divider_recalc_rate(struct clk *hw, unsigned long parent_rate,
 
 static ulong clk_divider_recalc_rate(struct clk *clk)
 {
-	struct clk_divider *divider = to_clk_divider(clk_dev_binded(clk) ?
-			dev_get_clk_ptr(clk->dev) : clk);
+	struct clk_divider *divider = to_clk_divider(clk);
 	unsigned long parent_rate = clk_get_parent_rate(clk);
 	unsigned int val;
 
@@ -150,8 +152,7 @@ int divider_get_val(unsigned long rate, unsigned long parent_rate,
 
 static ulong clk_divider_set_rate(struct clk *clk, unsigned long rate)
 {
-	struct clk_divider *divider = to_clk_divider(clk_dev_binded(clk) ?
-			dev_get_clk_ptr(clk->dev) : clk);
+	struct clk_divider *divider = to_clk_divider(clk);
 	unsigned long parent_rate = clk_get_parent_rate(clk);
 	int value;
 	u32 val;
@@ -211,6 +212,7 @@ static struct clk *_register_divider(struct device *dev, const char *name,
 
 	/* register the clock */
 	clk = &div->clk;
+	clk->flags = flags;
 
 	ret = clk_register(clk, UBOOT_DM_CLK_CCF_DIVIDER, name, parent_name);
 	if (ret) {

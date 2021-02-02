@@ -7,6 +7,8 @@
 #include <common.h>
 #include <i2c.h>
 #include <init.h>
+#include <net.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <pci.h>
@@ -60,7 +62,7 @@ void pci_init_board(void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 	fsl_fdt_fixup_dr_usb(blob, bd);
@@ -69,7 +71,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 }
 #endif
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int rv, num_if = 0;
 

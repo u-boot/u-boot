@@ -5,8 +5,6 @@
 # Class for an image, the output of binman
 #
 
-from __future__ import print_function
-
 from collections import OrderedDict
 import fnmatch
 from operator import attrgetter
@@ -14,14 +12,14 @@ import os
 import re
 import sys
 
-from entry import Entry
-from etype import fdtmap
-from etype import image_header
-from etype import section
-import fdt
-import fdt_util
-import tools
-import tout
+from binman.entry import Entry
+from binman.etype import fdtmap
+from binman.etype import image_header
+from binman.etype import section
+from dtoc import fdt
+from dtoc import fdt_util
+from patman import tools
+from patman import tout
 
 class Image(section.Entry_section):
     """A Image, representing an output from binman
@@ -47,7 +45,7 @@ class Image(section.Entry_section):
             we create a section manually.
     """
     def __init__(self, name, node, copy_to_orig=True, test=False):
-        section.Entry_section.__init__(self, None, 'section', node, test=test)
+        super().__init__(None, 'section', node, test=test)
         self.copy_to_orig = copy_to_orig
         self.name = 'main-section'
         self.image_name = name
@@ -59,7 +57,7 @@ class Image(section.Entry_section):
             self.ReadNode()
 
     def ReadNode(self):
-        section.Entry_section.ReadNode(self)
+        super().ReadNode()
         filename = fdt_util.GetString(self._node, 'filename')
         if filename:
             self._filename = filename
@@ -118,11 +116,11 @@ class Image(section.Entry_section):
 
     def PackEntries(self):
         """Pack all entries into the image"""
-        section.Entry_section.Pack(self, 0)
+        super().Pack(0)
 
     def SetImagePos(self):
         # This first section in the image so it starts at 0
-        section.Entry_section.SetImagePos(self, 0)
+        super().SetImagePos(0)
 
     def ProcessEntryContents(self):
         """Call the ProcessContents() method for each entry
@@ -141,14 +139,14 @@ class Image(section.Entry_section):
 
     def WriteSymbols(self):
         """Write symbol values into binary files for access at run time"""
-        section.Entry_section.WriteSymbols(self, self)
+        super().WriteSymbols(self)
 
     def BuildImage(self):
         """Write the image to a file"""
         fname = tools.GetOutputFilename(self._filename)
         tout.Info("Writing image to '%s'" % fname)
         with open(fname, 'wb') as fd:
-            data = self.GetData()
+            data = self.GetPaddedData()
             fd.write(data)
         tout.Info("Wrote %#x bytes" % len(data))
 
@@ -163,7 +161,7 @@ class Image(section.Entry_section):
         with open(fname, 'w') as fd:
             print('%8s  %8s  %8s  %s' % ('ImagePos', 'Offset', 'Size', 'Name'),
                   file=fd)
-            section.Entry_section.WriteMap(self, fd, 0)
+            super().WriteMap(fd, 0)
         return fname
 
     def BuildEntryList(self):

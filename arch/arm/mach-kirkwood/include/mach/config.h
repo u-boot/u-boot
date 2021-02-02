@@ -58,9 +58,7 @@
  * Ethernet Driver configuration
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_NETCONSOLE	/* include NetConsole support   */
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
-#define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
 #define CONFIG_RESET_PHY_R	/* use reset_phy() to init mv8831116 PHY */
 #endif /* CONFIG_CMD_NET */
 

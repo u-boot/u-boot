@@ -6,12 +6,16 @@
  * Steve Sakoman  <steve@sakoman.com>
  */
 #include <common.h>
+#include <init.h>
+#include <net.h>
 #include <palmas.h>
 #include <asm/arch/omap.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
+#include <serial.h>
 #include <tca642x.h>
 #include <usb.h>
+#include <linux/delay.h>
 #include <linux/usb/gadget.h>
 #include <dwc3-uboot.h>
 #include <dwc3-omap-uboot.h>
@@ -146,39 +150,21 @@ int board_init(void)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+#if defined(CONFIG_SPL_OS_BOOT)
+int spl_start_uboot(void)
+{
+	/* break into full u-boot on 'c' */
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
+	return 0;
+}
+#endif /* CONFIG_SPL_OS_BOOT */
+
+int board_eth_init(struct bd_info *bis)
 {
 	return 0;
 }
-
-#if defined(CONFIG_USB_EHCI_HCD) || defined(CONFIG_USB_XHCI_OMAP)
-static void enable_host_clocks(void)
-{
-	int auxclk;
-	int hs_clk_ctrl_val = (OPTFCLKEN_HSIC60M_P3_CLK |
-				OPTFCLKEN_HSIC480M_P3_CLK |
-				OPTFCLKEN_HSIC60M_P2_CLK |
-				OPTFCLKEN_HSIC480M_P2_CLK |
-				OPTFCLKEN_UTMI_P3_CLK | OPTFCLKEN_UTMI_P2_CLK);
-
-	/* Enable port 2 and 3 clocks*/
-	setbits_le32((*prcm)->cm_l3init_hsusbhost_clkctrl, hs_clk_ctrl_val);
-
-	/* Enable port 2 and 3 usb host ports tll clocks*/
-	setbits_le32((*prcm)->cm_l3init_hsusbtll_clkctrl,
-			(OPTFCLKEN_USB_CH1_CLK_ENABLE | OPTFCLKEN_USB_CH2_CLK_ENABLE));
-#ifdef CONFIG_USB_XHCI_OMAP
-	/* Enable the USB OTG Super speed clocks */
-	setbits_le32((*prcm)->cm_l3init_usb_otg_ss_clkctrl,
-			(OPTFCLKEN_REFCLK960M | OTG_SS_CLKCTRL_MODULEMODE_HW));
-#endif
-
-	auxclk = readl((*prcm)->scrm_auxclk1);
-	/* Request auxilary clock */
-	auxclk |= AUXCLK_ENABLE_MASK;
-	writel(auxclk, (*prcm)->scrm_auxclk1);
-}
-#endif
 
 /**
  * @brief misc_init_r - Configure EVM board specific configurations
@@ -212,50 +198,11 @@ void set_muxconf_regs(void)
 }
 
 #if defined(CONFIG_MMC)
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	omap_mmc_init(0, 0, 0, -1, -1);
 	omap_mmc_init(1, 0, 0, -1, -1);
 	return 0;
-}
-#endif
-
-#ifdef CONFIG_USB_EHCI_HCD
-static struct omap_usbhs_board_data usbhs_bdata = {
-	.port_mode[0] = OMAP_USBHS_PORT_MODE_UNUSED,
-	.port_mode[1] = OMAP_EHCI_PORT_MODE_HSIC,
-	.port_mode[2] = OMAP_EHCI_PORT_MODE_HSIC,
-};
-
-int ehci_hcd_init(int index, enum usb_init_type init,
-		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
-{
-	int ret;
-
-	enable_host_clocks();
-
-	ret = omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
-	if (ret < 0) {
-		puts("Failed to initialize ehci\n");
-		return ret;
-	}
-
-	return 0;
-}
-
-int ehci_hcd_stop(void)
-{
-	return omap_ehci_hcd_stop();
-}
-
-void usb_hub_reset_devices(struct usb_hub_device *hub, int port)
-{
-	/* The LAN9730 needs to be reset after the port power has been set. */
-	if (port == 3) {
-		gpio_direction_output(CONFIG_OMAP_EHCI_PHY3_RESET_GPIO, 0);
-		udelay(10);
-		gpio_direction_output(CONFIG_OMAP_EHCI_PHY3_RESET_GPIO, 1);
-	}
 }
 #endif
 
@@ -272,8 +219,6 @@ int board_usb_init(int index, enum usb_init_type init)
 #ifdef CONFIG_PALMAS_USB_SS_PWR
 	ret = palmas_enable_ss_ldo();
 #endif
-
-	enable_host_clocks();
 
 	return 0;
 }

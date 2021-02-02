@@ -101,7 +101,6 @@
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* UART0 */
 
 /* Ethernet support */
-#define CONFIG_PHY_SMSC
 
 /* NAND support */
 #define CONFIG_SYS_NAND_ONFI_DETECTION	1

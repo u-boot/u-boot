@@ -2,10 +2,9 @@
 #ifndef __UFS_H
 #define __UFS_H
 
-#include <asm/io.h>
-#include <dm.h>
-
 #include "unipro.h"
+
+struct udevice;
 
 #define UFS_CDB_SIZE	16
 #define UPIU_TRANSACTION_UIC_CMD 0x1F

@@ -1,5 +1,11 @@
 menu "Environment"
 
+config ENV_SUPPORT
+	def_bool y
+
+config SAVEENV
+	def_bool y if CMD_SAVEENV
+
 config ENV_OVERWRITE
 	bool "Enable overwriting environment"
 	help
@@ -66,6 +72,7 @@ config ENV_IS_IN_FAT
 config ENV_IS_IN_EXT4
 	bool "Environment is in a EXT4 filesystem"
 	depends on !CHAIN_OF_TRUST
+	select FS_EXT4
 	select EXT4_WRITE
 	help
 	  Define this if you want to use the EXT4 file system for the environment.
@@ -369,6 +376,14 @@ config ENV_SPI_MODE
 	  Value of the SPI work mode for environment.
 	  See include/spi.h for value.
 
+config ENV_SPI_EARLY
+	bool "Access Environment in SPI flashes before relocation"
+	depends on ENV_IS_IN_SPI_FLASH
+	help
+	  Enable this if you want to use Environment in SPI flash
+	  before relocation. Call env_init() and than you can use
+	  env_get_f() for accessing Environment variables.
+
 config ENV_IS_IN_UBI
 	bool "Environment in a UBI volume"
 	depends on !CHAIN_OF_TRUST
@@ -396,19 +411,19 @@ config ENV_IS_IN_UBI
 
 config SYS_REDUNDAND_ENVIRONMENT
 	bool "Enable redundant environment support"
-	depends on ENV_IS_IN_EEPROM || ENV_IS_IN_FLASH || ENV_IS_IN_MMC || \
-		ENV_IS_IN_NAND || ENV_IS_IN_SPI_FLASH || ENV_IS_IN_UBI
 	help
 	  Normally, the environemt is stored in a single location.  By
 	  selecting this option, you can then define where to hold a redundant
 	  copy of the environment data, so that there is a valid backup copy in
 	  case there is a power failure during a "saveenv" operation.
+	  Also this config changes the binary environment structure handling
+	  which is used by env import/export commands which are independent of
+	  storing variables to redundant location on a non volatile device.
 
 config ENV_FAT_INTERFACE
 	string "Name of the block device for the environment"
 	depends on ENV_IS_IN_FAT
-	default "mmc" if ARCH_SUNXI
-	default "mmc" if TI_COMMON_CMD_OPTIONS || ARCH_ZYNQMP || ARCH_AT91
+	default "mmc"
 	help
 	  Define this to a string that is the name of the block device.
 
@@ -416,7 +431,7 @@ config ENV_FAT_DEVICE_AND_PART
 	string "Device and partition for where to store the environemt in FAT"
 	depends on ENV_IS_IN_FAT
 	default "0:1" if TI_COMMON_CMD_OPTIONS
-	default "0:auto" if ARCH_ZYNQMP
+	default "0:auto" if ARCH_ZYNQ || ARCH_ZYNQMP
 	default "0:auto" if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA = -1
 	default "1:auto" if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA != -1
 	default "0" if ARCH_AT91
@@ -434,6 +449,10 @@ config ENV_FAT_DEVICE_AND_PART
 	       - "D:auto": first partition in device D with bootable flag set.
 	                   If none, first valid partition in device D. If no
 	                   partition table then means device D.
+
+	  If ENV_FAT_INTERFACE is set to "mmc" then device 'D' can be omitted,
+	  leaving the string starting with a colon, and the boot device will
+	  be used.
 
 config ENV_FAT_FILE
 	string "Name of the FAT file to use for the environment"
@@ -467,10 +486,14 @@ config ENV_EXT4_DEVICE_AND_PART
 	                   If none, first valid partition in device D. If no
 	                   partition table then means device D.
 
+	  If ENV_EXT4_INTERFACE is set to "mmc" then device 'D' can be omitted,
+	  leaving the string starting with a colon, and the boot device will
+	  be used.
+
 config ENV_EXT4_FILE
 	string "Name of the EXT4 file to use for the environment"
 	depends on ENV_IS_IN_EXT4
-	default "uboot.env"
+	default "/uboot.env"
 	help
 	  It's a string of the EXT4 file name. This file use to store the
 	  environment (explicit path to the file)
@@ -494,7 +517,8 @@ config ENV_OFFSET
 	hex "Environment offset"
 	depends on ENV_IS_IN_EEPROM || ENV_IS_IN_MMC || ENV_IS_IN_NAND || \
 		    ENV_IS_IN_SPI_FLASH
-	default 0x3f8000 if ARCH_ROCKCHIP
+	default 0x3f8000 if ARCH_ROCKCHIP && ENV_IS_IN_MMC
+	default 0x140000 if ARCH_ROCKCHIP && ENV_IS_IN_SPI_FLASH
 	default 0x88000 if ARCH_SUNXI
 	default 0xE0000 if ARCH_ZYNQ
 	default 0x1E00000 if ARCH_ZYNQMP
@@ -518,7 +542,9 @@ config ENV_SIZE
 	hex "Environment Size"
 	default 0x40000 if ENV_IS_IN_SPI_FLASH && ARCH_ZYNQMP
 	default 0x20000 if ARCH_SUNXI || ARCH_ZYNQ || ARCH_OMAP2PLUS || ARCH_AT91
-	default 0x8000 if ARCH_ROCKCHIP || ARCH_ZYNQMP || ARCH_VERSAL
+	default 0x8000 if ARCH_ROCKCHIP && ENV_IS_IN_MMC
+	default 0x2000 if ARCH_ROCKCHIP && ENV_IS_IN_SPI_FLASH
+	default 0x8000 if ARCH_ZYNQMP || ARCH_VERSAL
 	default 0x4000 if ARC
 	default 0x1f000
 	help
@@ -527,6 +553,7 @@ config ENV_SIZE
 config ENV_SECT_SIZE
 	hex "Environment Sector-Size"
 	depends on ENV_IS_IN_FLASH || ENV_IS_IN_SPI_FLASH
+	default 0x2000 if ARCH_ROCKCHIP
 	default 0x40000 if ARCH_ZYNQMP || ARCH_VERSAL
 	default 0x20000 if ARCH_ZYNQ || ARCH_OMAP2PLUS || ARCH_AT91
 	default 0x20000 if MICROBLAZE && ENV_IS_IN_SPI_FLASH
@@ -559,10 +586,29 @@ config ENV_UBI_VID_OFFSET
 	  UBI VID offset for environment. If 0, no custom VID offset is used.
 
 config SYS_RELOC_GD_ENV_ADDR
-	bool "Relocate gd->en_addr"
+	bool "Relocate gd->env_addr"
 	help
 	  Relocate the early env_addr pointer so we know it is not inside
 	  the binary. Some systems need this and for the rest, it doesn't hurt.
+
+config SYS_MMC_ENV_DEV
+	int "mmc device number"
+	depends on ENV_IS_IN_MMC || ENV_IS_IN_FAT || SYS_LS_PPA_FW_IN_MMC || \
+		CMD_MVEBU_BUBT || FMAN_ENET || QE
+	default 0
+	help
+	  MMC device number on the platform where the environment is stored.
+
+config SYS_MMC_ENV_PART
+	int "mmc partition number"
+	depends on ENV_IS_IN_MMC || ENV_IS_IN_FAT
+	default 0
+	help
+	  MMC hardware partition device number on the platform where the
+	  environment is stored.  Note that this is not related to any software
+	  defined partition table but instead if we are in the user area, which is
+	  partition 0 or the first boot partition, which is 1 or some other defined
+	  partition.
 
 config USE_DEFAULT_ENV_FILE
 	bool "Create default environment from file"
@@ -588,6 +634,42 @@ config ENV_VARS_UBOOT_RUNTIME_CONFIG
 	  Enable this in order to add variables describing certain
 	  run-time determined information about the hardware to the
 	  environment.  These will be named board_name, board_rev.
+
+config DELAY_ENVIRONMENT
+	bool "Delay environment loading"
+	depends on !OF_CONTROL
+	help
+	  Enable this to inhibit loading the environment during board
+	  initialization. This can address the security risk of untrusted data
+	  being used during boot. Normally the environment is loaded when the
+	  board is initialised so that it is available to U-Boot. This inhibits
+	  that so that the environment is not available until explicitly loaded
+	  later by U-Boot code. With CONFIG_OF_CONTROL this is instead
+	  controlled by the value of /config/load-environment.
+
+config ENV_APPEND
+	bool "Always append the environment with new data"
+	default n
+	help
+	  If defined, the environment hash table is only ever appended with new
+	  data, but the existing hash table can never be dropped and reloaded
+	  with newly imported data. This may be used in combination with static
+	  flags to e.g. to protect variables which must not be modified.
+
+config ENV_WRITEABLE_LIST
+	bool "Permit write access only to listed variables"
+	default n
+	help
+	  If defined, only environment variables which explicitly set the 'w'
+	  writeable flag can be written and modified at runtime. No variables
+	  can be otherwise created, written or imported into the environment.
+
+config ENV_ACCESS_IGNORE_FORCE
+	bool "Block forced environment operations"
+	default n
+	help
+	  If defined, don't allow the -f switch to env set override variable
+	  access flags.
 
 if SPL_ENV_SUPPORT
 config SPL_ENV_IS_NOWHERE
@@ -703,5 +785,14 @@ config TPL_ENV_IS_IN_FLASH
 	  Similar to ENV_IS_IN_FLASH, used for TPL environment.
 
 endif
+
+config VERSION_VARIABLE
+	bool "Add a 'ver' environment variable with the U-Boot version"
+	help
+	  If this variable is defined, an environment variable
+	  named "ver" is created by U-Boot showing the U-Boot
+	  version as printed by the "version" command.
+	  Any change to this variable will be reverted at the
+	  next reset.
 
 endmenu

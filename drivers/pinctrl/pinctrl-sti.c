@@ -3,7 +3,7 @@
  * Pinctrl driver for STMicroelectronics STi SoCs
  *
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
- * Author(s): Patrice Chotard, <patrice.chotard@st.com> for STMicroelectronics.
+ * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
 #include <common.h>
@@ -14,6 +14,8 @@
 #include <syscon.h>
 #include <asm/io.h>
 #include <dm/pinctrl.h>
+#include <linux/bug.h>
+#include <linux/libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

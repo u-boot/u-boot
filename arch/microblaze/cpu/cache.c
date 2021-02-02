@@ -8,6 +8,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <asm/asm.h>
+#include <asm/cache.h>
 
 int dcache_status(void)
 {

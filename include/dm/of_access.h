@@ -104,6 +104,46 @@ const void *of_get_property(const struct device_node *np, const char *name,
 			    int *lenp);
 
 /**
+ * of_get_first_property()- get to the pointer of the first property
+ *
+ * Get pointer to the first property of the node, it is used to iterate
+ * and read all the property with of_get_next_property_by_prop().
+ *
+ * @np: Pointer to device node
+ * @return pointer to property or NULL if not found
+ */
+const struct property *of_get_first_property(const struct device_node *np);
+
+/**
+ * of_get_next_property() - get to the pointer of the next property
+ *
+ * Get pointer to the next property of the node, it is used to iterate
+ * and read all the property with of_get_property_by_prop().
+ *
+ * @np: Pointer to device node
+ * @property: pointer of the current property
+ * @return pointer to next property or NULL if not found
+ */
+const struct property *of_get_next_property(const struct device_node *np,
+					    const struct property *property);
+
+/**
+ * of_get_property_by_prop() - get a property value of a node property
+ *
+ * Get value for the property identified by node and property pointer.
+ *
+ * @node: node to read
+ * @property: pointer of the property to read
+ * @propname: place to property name on success
+ * @lenp: place to put length on success
+ * @return pointer to property value or NULL if error
+ */
+const void *of_get_property_by_prop(const struct device_node *np,
+				    const struct property *property,
+				    const char **name,
+				    int *lenp);
+
+/**
  * of_device_is_compatible() - Check if the node matches given constraints
  * @device: pointer to node
  * @compat: required compatible string, NULL or "" for any match
@@ -235,6 +275,25 @@ struct device_node *of_find_node_by_phandle(phandle handle);
 int of_read_u32(const struct device_node *np, const char *propname, u32 *outp);
 
 /**
+ * of_read_u32_index() - Find and read a 32-bit value from a multi-value
+ *                       property
+ *
+ * Search for a property in a device node and read a 32-bit value from
+ * it.
+ *
+ * @np:		device node from which the property value is to be read.
+ * @propname:	name of the property to be searched.
+ * @index:	index of the u32 in the list of values
+ * @outp:	pointer to return value, modified only if return value is 0.
+ *
+ * @return 0 on success, -EINVAL if the property does not exist,
+ * -ENODATA if property does not have a value, and -EOVERFLOW if the
+ * property data isn't large enough.
+ */
+int of_read_u32_index(const struct device_node *np, const char *propname,
+		      int index, u32 *outp);
+
+/**
  * of_read_u64() - Find and read a 64-bit integer from a property
  *
  * Search for a property in a device node and read a 64-bit value from
@@ -348,6 +407,7 @@ struct device_node *of_parse_phandle(const struct device_node *np,
  * @np:		pointer to a device tree node containing a list
  * @list_name:	property name that contains a list
  * @cells_name:	property name that specifies phandles' arguments count
+ * @cells_count: Cell count to use if @cells_name is NULL
  * @index:	index of a phandle to parse out
  * @out_args:	optional pointer to output arguments structure (will be filled)
  * @return 0 on success (with @out_args filled out if not NULL), -ENOENT if
@@ -381,7 +441,8 @@ struct device_node *of_parse_phandle(const struct device_node *np,
  */
 int of_parse_phandle_with_args(const struct device_node *np,
 			       const char *list_name, const char *cells_name,
-			       int index, struct of_phandle_args *out_args);
+			       int cells_count, int index,
+			       struct of_phandle_args *out_args);
 
 /**
  * of_count_phandle_with_args() - Count the number of phandle in a list
@@ -389,6 +450,7 @@ int of_parse_phandle_with_args(const struct device_node *np,
  * @np:		pointer to a device tree node containing a list
  * @list_name:	property name that contains a list
  * @cells_name:	property name that specifies phandles' arguments count
+ * @cells_count: Cell count to use if @cells_name is NULL
  * @return number of phandle found, -ENOENT if
  *	@list_name does not exist, -EINVAL if a phandle was not found,
  *	@cells_name could not be found, the arguments were truncated or there
@@ -399,7 +461,8 @@ int of_parse_phandle_with_args(const struct device_node *np,
  *
  */
 int of_count_phandle_with_args(const struct device_node *np,
-			       const char *list_name, const char *cells_name);
+			       const char *list_name, const char *cells_name,
+			       int cells_count);
 
 /**
  * of_alias_scan() - Scan all properties of the 'aliases' node

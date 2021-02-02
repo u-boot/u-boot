@@ -38,7 +38,7 @@ struct mmc_part {
 	int dev_num;
 	struct mmc *mmc;
 	struct blk_desc *mmc_blk;
-	disk_partition_t info;
+	struct disk_partition info;
 };
 
 enum mmc_io_type {
@@ -72,12 +72,12 @@ static inline uint64_t calc_offset(struct mmc_part *part, int64_t offset)
 
 static inline size_t get_sector_buf_size(void)
 {
-	return (size_t)CONFIG_FASTBOOT_BUF_SIZE;
+	return (size_t)CONFIG_AVB_BUF_SIZE;
 }
 
 static inline void *get_sector_buf(void)
 {
-	return map_sysmem(CONFIG_FASTBOOT_BUF_ADDR, CONFIG_FASTBOOT_BUF_SIZE);
+	return map_sysmem(CONFIG_AVB_BUF_ADDR, CONFIG_AVB_BUF_SIZE);
 }
 
 static inline bool is_buf_unaligned(void *buffer)

@@ -4,7 +4,6 @@
  * Copyright (C) 2015-2017 Socionext Inc.
  */
 
-#include <common.h>
 #include <spl.h>
 #include <linux/io.h>
 
@@ -14,13 +13,6 @@
 void uniphier_ld4_early_clk_init(void)
 {
 	u32 tmp;
-
-	/* deassert reset */
-	if (spl_boot_device() != BOOT_DEVICE_NAND) {
-		tmp = readl(sc_base + SC_RSTCTRL);
-		tmp &= ~SC_RSTCTRL_NRST_NAND;
-		writel(tmp, sc_base + SC_RSTCTRL);
-	};
 
 	/* provide clocks */
 	tmp = readl(sc_base + SC_CLKCTRL);

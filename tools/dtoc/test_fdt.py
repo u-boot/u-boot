@@ -4,8 +4,6 @@
 # Written by Simon Glass <sjg@chromium.org>
 #
 
-from __future__ import print_function
-
 from optparse import OptionParser
 import glob
 import os
@@ -16,17 +14,16 @@ import unittest
 
 # Bring in the patman libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
-for dirname in ['../patman', '..']:
-    sys.path.insert(0, os.path.join(our_path, dirname))
+sys.path.insert(1, os.path.join(our_path, '..'))
 
-import command
-import fdt
+from dtoc import fdt
+from dtoc import fdt_util
+from dtoc.fdt_util import fdt32_to_cpu
 from fdt import TYPE_BYTE, TYPE_INT, TYPE_STRING, TYPE_BOOL, BytesToValue
-import fdt_util
-from fdt_util import fdt32_to_cpu
 import libfdt
-import test_util
-import tools
+from patman import command
+from patman import test_util
+from patman import tools
 
 def _GetPropertyValue(dtb, node, prop_name):
     """Low-level function to get the property value based on its offset
@@ -301,6 +298,7 @@ class TestProp(unittest.TestCase):
     def testWiden(self):
         """Test widening of values"""
         node2 = self.dtb.GetNode('/spl-test2')
+        node3 = self.dtb.GetNode('/spl-test3')
         prop = self.node.props['intval']
 
         # No action
@@ -319,11 +317,20 @@ class TestProp(unittest.TestCase):
         # byte array, it should turn into an array.
         prop = self.node.props['longbytearray']
         prop2 = node2.props['longbytearray']
+        prop3 = node3.props['longbytearray']
         self.assertFalse(isinstance(prop2.value, list))
         self.assertEqual(4, len(prop2.value))
+        self.assertEqual(b'\x09\x0a\x0b\x0c', prop2.value)
         prop2.Widen(prop)
         self.assertTrue(isinstance(prop2.value, list))
         self.assertEqual(9, len(prop2.value))
+        self.assertEqual(['\x09', '\x0a', '\x0b', '\x0c', '\0',
+                          '\0', '\0', '\0', '\0'], prop2.value)
+        prop3.Widen(prop)
+        self.assertTrue(isinstance(prop3.value, list))
+        self.assertEqual(9, len(prop3.value))
+        self.assertEqual(['\x09', '\x0a', '\x0b', '\x0c', '\x0d',
+                          '\x0e', '\x0f', '\x10', '\0'], prop3.value)
 
         # Similarly for a string array
         prop = self.node.props['stringval']
@@ -419,6 +426,10 @@ class TestProp(unittest.TestCase):
 
         self.node.SetData('empty', b'123')
         self.assertEqual(b'123', prop.bytes)
+
+        # Trying adding a lot of data at once
+        self.node.AddData('data', tools.GetBytes(65, 20000))
+        self.dtb.Sync(auto_resize=True)
 
     def testFromData(self):
         dtb2 = fdt.Fdt.FromData(self.dtb.GetContents())

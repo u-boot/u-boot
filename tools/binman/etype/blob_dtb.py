@@ -5,8 +5,8 @@
 # Entry-type module for U-Boot device tree files
 #
 
-from entry import Entry
-from blob import Entry_blob
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
 class Entry_blob_dtb(Entry_blob):
     """A blob that holds a device tree
@@ -18,15 +18,15 @@ class Entry_blob_dtb(Entry_blob):
     def __init__(self, section, etype, node):
         # Put this here to allow entry-docs and help to work without libfdt
         global state
-        import state
+        from binman import state
 
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
 
     def ObtainContents(self):
         """Get the device-tree from the list held by the 'state' module"""
         self._filename = self.GetDefaultFilename()
         self._pathname, _ = state.GetFdtContents(self.GetFdtEtype())
-        return Entry_blob.ReadBlobContents(self)
+        return super().ReadBlobContents()
 
     def ProcessContents(self):
         """Re-read the DTB contents so that we get any calculated properties"""
@@ -57,7 +57,7 @@ class Entry_blob_dtb(Entry_blob):
         return {self.GetFdtEtype(): [self, fname]}
 
     def WriteData(self, data, decomp=True):
-        ok = Entry_blob.WriteData(self, data, decomp)
+        ok = super().WriteData(data, decomp)
 
         # Update the state module, since it has the authoritative record of the
         # device trees used. If we don't do this, then state.GetFdtContents()

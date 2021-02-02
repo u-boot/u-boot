@@ -71,8 +71,6 @@
 #define CONFIG_SYS_BOOTPARAMS_LEN	(64  << 10)
 
 /* Memory test is destructive so default must not overlap vectors or U-Boot*/
-#define CONFIG_SYS_MEMTEST_START	MEMADDR(0x01000000)
-#define CONFIG_SYS_MEMTEST_END		MEMADDR(0x02000000)
 
 /* Load address for stand-alone applications.
  * MEMADDR cannot be used here, because the definition needs to be

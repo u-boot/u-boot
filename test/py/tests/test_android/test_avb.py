@@ -8,7 +8,7 @@
 This tests Android Verified Boot 2.0 support in U-boot:
 
 For additional details about how to build proper vbmeta partition
-check doc/android/avb2.txt
+check doc/android/avb2.rst
 
 For configuration verification:
 - Corrupt boot partition and check for failure

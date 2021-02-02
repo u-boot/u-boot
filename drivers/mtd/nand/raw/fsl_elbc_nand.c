@@ -11,6 +11,7 @@
 #include <command.h>
 #include <malloc.h>
 #include <nand.h>
+#include <dm/devres.h>
 
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>

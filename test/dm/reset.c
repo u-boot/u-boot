@@ -5,9 +5,13 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/device-internal.h>
+#include <log.h>
+#include <malloc.h>
 #include <reset.h>
 #include <dm/test.h>
 #include <asm/reset.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 /* This must match the specifier for mbox-names="test" in the DT node */
@@ -36,7 +40,7 @@ static int dm_test_reset_base(struct unit_test_state *uts)
 	return 0;
 }
 
-DM_TEST(dm_test_reset_base, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_reset_base, UT_TESTF_SCAN_FDT);
 
 static int dm_test_reset(struct unit_test_state *uts)
 {
@@ -57,11 +61,38 @@ static int dm_test_reset(struct unit_test_state *uts)
 	ut_assertok(sandbox_reset_test_deassert(dev_test));
 	ut_asserteq(0, sandbox_reset_query(dev_reset, TEST_RESET_ID));
 
+	ut_asserteq(1, sandbox_reset_is_requested(dev_reset, TEST_RESET_ID));
 	ut_assertok(sandbox_reset_test_free(dev_test));
+	ut_asserteq(0, sandbox_reset_is_requested(dev_reset, TEST_RESET_ID));
 
 	return 0;
 }
-DM_TEST(dm_test_reset, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_reset, UT_TESTF_SCAN_FDT);
+
+static int dm_test_reset_devm(struct unit_test_state *uts)
+{
+	struct udevice *dev_reset;
+	struct udevice *dev_test;
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_RESET, "reset-ctl",
+					      &dev_reset));
+	ut_asserteq(0, sandbox_reset_query(dev_reset, TEST_RESET_ID));
+	ut_assertok(uclass_get_device_by_name(UCLASS_MISC, "reset-ctl-test",
+					      &dev_test));
+	ut_assertok(sandbox_reset_test_get_devm(dev_test));
+
+	ut_assertok(sandbox_reset_test_assert(dev_test));
+	ut_asserteq(1, sandbox_reset_query(dev_reset, TEST_RESET_ID));
+	ut_assertok(sandbox_reset_test_deassert(dev_test));
+	ut_asserteq(0, sandbox_reset_query(dev_reset, TEST_RESET_ID));
+
+	ut_asserteq(1, sandbox_reset_is_requested(dev_reset, TEST_RESET_ID));
+	ut_assertok(device_remove(dev_test, DM_REMOVE_NORMAL));
+	ut_asserteq(0, sandbox_reset_is_requested(dev_reset, TEST_RESET_ID));
+
+	return 0;
+}
+DM_TEST(dm_test_reset_devm, UT_TESTF_SCAN_FDT);
 
 static int dm_test_reset_bulk(struct unit_test_state *uts)
 {
@@ -91,4 +122,36 @@ static int dm_test_reset_bulk(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_reset_bulk, DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_reset_bulk, UT_TESTF_SCAN_FDT);
+
+static int dm_test_reset_bulk_devm(struct unit_test_state *uts)
+{
+	struct udevice *dev_reset;
+	struct udevice *dev_test;
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_RESET, "reset-ctl",
+					      &dev_reset));
+	ut_asserteq(0, sandbox_reset_query(dev_reset, TEST_RESET_ID));
+	ut_asserteq(0, sandbox_reset_query(dev_reset, OTHER_RESET_ID));
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_MISC, "reset-ctl-test",
+					      &dev_test));
+	ut_assertok(sandbox_reset_test_get_bulk_devm(dev_test));
+
+	ut_assertok(sandbox_reset_test_assert_bulk(dev_test));
+	ut_asserteq(1, sandbox_reset_query(dev_reset, TEST_RESET_ID));
+	ut_asserteq(1, sandbox_reset_query(dev_reset, OTHER_RESET_ID));
+
+	ut_assertok(sandbox_reset_test_deassert_bulk(dev_test));
+	ut_asserteq(0, sandbox_reset_query(dev_reset, TEST_RESET_ID));
+	ut_asserteq(0, sandbox_reset_query(dev_reset, OTHER_RESET_ID));
+
+	ut_asserteq(1, sandbox_reset_is_requested(dev_reset, OTHER_RESET_ID));
+	ut_asserteq(1, sandbox_reset_is_requested(dev_reset, TEST_RESET_ID));
+	ut_assertok(device_remove(dev_test, DM_REMOVE_NORMAL));
+	ut_asserteq(0, sandbox_reset_is_requested(dev_reset, TEST_RESET_ID));
+	ut_asserteq(0, sandbox_reset_is_requested(dev_reset, OTHER_RESET_ID));
+
+	return 0;
+}
+DM_TEST(dm_test_reset_bulk_devm, UT_TESTF_SCAN_FDT);

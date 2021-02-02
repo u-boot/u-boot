@@ -13,6 +13,7 @@
  */
 
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <sort.h>
 
@@ -109,8 +110,10 @@ int hcreate_r(size_t nel, struct hsearch_data *htab)
 	}
 
 	/* There is still another table active. Return with error. */
-	if (htab->table != NULL)
+	if (htab->table != NULL) {
+		__set_errno(EINVAL);
 		return 0;
+	}
 
 	/* Change nel to the first prime number not smaller as nel. */
 	nel |= 1;		/* make odd */
@@ -123,8 +126,10 @@ int hcreate_r(size_t nel, struct hsearch_data *htab)
 	/* allocate memory and zero out */
 	htab->table = (struct env_entry_node *)calloc(htab->size + 1,
 						sizeof(struct env_entry_node));
-	if (htab->table == NULL)
+	if (htab->table == NULL) {
+		__set_errno(ENOMEM);
 		return 0;
+	}
 
 	/* everything went alright */
 	return 1;
@@ -222,6 +227,17 @@ int hmatch_r(const char *match, int last_idx, struct env_entry **retval,
 	return 0;
 }
 
+static int
+do_callback(const struct env_entry *e, const char *name, const char *value,
+	    enum env_op op, int flags)
+{
+#ifndef CONFIG_SPL_BUILD
+	if (e->callback)
+		return e->callback(name, value, op, flags);
+#endif
+	return 0;
+}
+
 /*
  * Compare an existing entry with the desired key, and overwrite if the action
  * is ENV_ENTER.  This is simply a helper function for hsearch_r().
@@ -247,9 +263,8 @@ static inline int _compare_and_overwrite_entry(struct env_entry item,
 			}
 
 			/* If there is a callback, call it */
-			if (htab->table[idx].entry.callback &&
-			    htab->table[idx].entry.callback(item.key,
-			    item.data, env_op_overwrite, flag)) {
+			if (do_callback(&htab->table[idx].entry, item.key,
+					item.data, env_op_overwrite, flag)) {
 				debug("callback() rejected setting variable "
 					"%s, skipping it!\n", item.key);
 				__set_errno(EINVAL);
@@ -309,8 +324,7 @@ int hsearch_r(struct env_entry item, enum env_action action,
 		 */
 		unsigned hval2;
 
-		if (htab->table[idx].used == USED_DELETED
-		    && !first_deleted)
+		if (htab->table[idx].used == USED_DELETED)
 			first_deleted = idx;
 
 		ret = _compare_and_overwrite_entry(item, action, retval, htab,
@@ -402,9 +416,8 @@ int hsearch_r(struct env_entry item, enum env_action action,
 		}
 
 		/* If there is a callback, call it */
-		if (htab->table[idx].entry.callback &&
-		    htab->table[idx].entry.callback(item.key, item.data,
-		    env_op_create, flag)) {
+		if (do_callback(&htab->table[idx].entry, item.key, item.data,
+				env_op_create, flag)) {
 			debug("callback() rejected setting variable "
 				"%s, skipping it!\n", item.key);
 			_hdelete(item.key, htab, &htab->table[idx].entry, idx);
@@ -441,7 +454,6 @@ static void _hdelete(const char *key, struct hsearch_data *htab,
 	debug("hdelete: DELETING key \"%s\"\n", key);
 	free((void *)ep->key);
 	free(ep->data);
-	ep->callback = NULL;
 	ep->flags = 0;
 	htab->table[idx].used = USED_DELETED;
 
@@ -473,8 +485,8 @@ int hdelete_r(const char *key, struct hsearch_data *htab, int flag)
 	}
 
 	/* If there is a callback, call it */
-	if (htab->table[idx].entry.callback &&
-	    htab->table[idx].entry.callback(key, NULL, env_op_delete, flag)) {
+	if (do_callback(&htab->table[idx].entry, key, NULL,
+			env_op_delete, flag)) {
 		debug("callback() rejected deleting variable "
 			"%s, skipping it!\n", key);
 		__set_errno(EINVAL);
@@ -597,7 +609,7 @@ static int match_entry(struct env_entry *ep, int flag, int argc,
 
 ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 		 char **resp, size_t size,
-		 int argc, char * const argv[])
+		 int argc, char *const argv[])
 {
 	struct env_entry *list[htab->size];
 	char *res, *p;
@@ -813,6 +825,10 @@ int himport_r(struct hsearch_data *htab,
 	if (nvars)
 		memcpy(localvars, vars, sizeof(vars[0]) * nvars);
 
+#if CONFIG_IS_ENABLED(ENV_APPEND)
+	flag |= H_NOCLEAR;
+#endif
+
 	if ((flag & H_NOCLEAR) == 0 && !nvars) {
 		/* Destroy old hash table if one exists */
 		debug("Destroy Hash Table: %p table = %p\n", htab,
@@ -933,9 +949,12 @@ int himport_r(struct hsearch_data *htab,
 		e.data = value;
 
 		hsearch_r(e, ENV_ENTER, &rv, htab, flag);
-		if (rv == NULL)
+#if !CONFIG_IS_ENABLED(ENV_WRITEABLE_LIST)
+		if (rv == NULL) {
 			printf("himport_r: can't insert \"%s=%s\" into hash table\n",
 				name, value);
+		}
+#endif
 
 		debug("INSERT: table %p, filled %d/%d rv %p ==> name=\"%s\" value=\"%s\"\n",
 			htab, htab->filled, htab->size,

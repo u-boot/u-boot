@@ -152,6 +152,13 @@ struct davinci_mmc {
 	struct mmc_config cfg;
 };
 
-int davinci_mmc_init(bd_t *bis, struct davinci_mmc *host);
+#define DAVINCI_MAX_BLOCKS	(32)
+struct davinci_mmc_plat {
+	struct davinci_mmc_regs *reg_base;	/* Register base address */
+	struct mmc_config cfg;
+	struct mmc mmc;
+};
+
+int davinci_mmc_init(struct bd_info *bis, struct davinci_mmc *host);
 
 #endif /* _SDMMC_DEFS_H */

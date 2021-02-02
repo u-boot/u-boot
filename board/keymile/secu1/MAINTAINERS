@@ -1,0 +1,5 @@
+Hitachi Power Grids SECU1 BOARD
+M:	Holger Brunck <holger.brunck@hitachi-powergrids.com>
+S:	Maintained
+F:	include/configs/socfpga_arria5_secu1.h
+F:	configs/socfpga_secu1_defconfig

@@ -83,6 +83,17 @@ int cros_ec_read_id(struct udevice *dev, char *id, int maxlen);
 int cros_ec_scan_keyboard(struct udevice *dev, struct mbkp_keyscan *scan);
 
 /**
+ * Get the next pending MKBP event from the ChromeOS EC device.
+ *
+ * Send a message requesting the next event and return the result.
+ *
+ * @param event		Place to put the event.
+ * @return 0 if ok, <0 on error.
+ */
+int cros_ec_get_next_event(struct udevice *dev,
+			   struct ec_response_get_next_event *event);
+
+/**
  * Read which image is currently running on the CROS-EC device.
  *
  * @param dev		CROS-EC device

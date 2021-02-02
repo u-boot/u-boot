@@ -15,7 +15,7 @@
 #define AVB_BOOTARGS	"avb_bootargs"
 static struct AvbOps *avb_ops;
 
-int do_avb_init(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_avb_init(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	unsigned long mmc_dev;
 
@@ -36,7 +36,8 @@ int do_avb_init(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_read_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_avb_read_part(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	const char *part;
 	s64 offset;
@@ -68,7 +69,7 @@ int do_avb_read_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_read_part_hex(cmd_tbl_t *cmdtp, int flag, int argc,
+int do_avb_read_part_hex(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
 	const char *part;
@@ -114,7 +115,8 @@ int do_avb_read_part_hex(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_write_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_avb_write_part(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	const char *part;
 	s64 offset;
@@ -145,7 +147,8 @@ int do_avb_write_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_read_rb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_avb_read_rb(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	size_t index;
 	u64 rb_idx;
@@ -171,7 +174,8 @@ int do_avb_read_rb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_write_rb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_avb_write_rb(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	size_t index;
 	u64 rb_idx;
@@ -196,8 +200,8 @@ int do_avb_write_rb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_get_uuid(cmd_tbl_t *cmdtp, int flag,
-		    int argc, char * const argv[])
+int do_avb_get_uuid(struct cmd_tbl *cmdtp, int flag,
+		    int argc, char *const argv[])
 {
 	const char *part;
 	char buffer[UUID_STR_LEN + 1];
@@ -224,7 +228,7 @@ int do_avb_get_uuid(cmd_tbl_t *cmdtp, int flag,
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_verify_part(cmd_tbl_t *cmdtp, int flag,
+int do_avb_verify_part(struct cmd_tbl *cmdtp, int flag,
 		       int argc, char *const argv[])
 {
 	const char * const requested_partitions[] = {"boot", NULL};
@@ -312,11 +316,14 @@ int do_avb_verify_part(cmd_tbl_t *cmdtp, int flag,
 		printf("Unknown error occurred\n");
 	}
 
+	if (out_data)
+		avb_slot_verify_data_free(out_data);
+
 	return res;
 }
 
-int do_avb_is_unlocked(cmd_tbl_t *cmdtp, int flag,
-		       int argc, char * const argv[])
+int do_avb_is_unlocked(struct cmd_tbl *cmdtp, int flag,
+		       int argc, char *const argv[])
 {
 	bool unlock;
 
@@ -341,8 +348,8 @@ int do_avb_is_unlocked(cmd_tbl_t *cmdtp, int flag,
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_read_pvalue(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+int do_avb_read_pvalue(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	const char *name;
 	size_t bytes;
@@ -382,8 +389,8 @@ int do_avb_read_pvalue(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_FAILURE;
 }
 
-int do_avb_write_pvalue(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+int do_avb_write_pvalue(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	const char *name;
 	const char *value;
@@ -411,7 +418,7 @@ int do_avb_write_pvalue(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_FAILURE;
 }
 
-static cmd_tbl_t cmd_avb[] = {
+static struct cmd_tbl cmd_avb[] = {
 	U_BOOT_CMD_MKENT(init, 2, 0, do_avb_init, "", ""),
 	U_BOOT_CMD_MKENT(read_rb, 2, 0, do_avb_read_rb, "", ""),
 	U_BOOT_CMD_MKENT(write_rb, 3, 0, do_avb_write_rb, "", ""),
@@ -427,9 +434,9 @@ static cmd_tbl_t cmd_avb[] = {
 #endif
 };
 
-static int do_avb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_avb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	cmd_tbl_t *cp;
+	struct cmd_tbl *cp;
 
 	cp = find_cmd_tbl(argv[1], cmd_avb, ARRAY_SIZE(cmd_avb));
 

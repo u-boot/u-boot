@@ -21,6 +21,7 @@
 #include <dm.h>
 #include <i2c.h>
 #include <rtc.h>
+#include <linux/bitops.h>
 
 /*---------------------------------------------------------------------*/
 /* #undef DEBUG_RTC */

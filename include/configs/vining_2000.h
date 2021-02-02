@@ -26,8 +26,6 @@
 #include <config_distro_bootcmd.h>
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x10000)
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
@@ -64,14 +62,10 @@
 #define CONFIG_FEC_XCV_TYPE             RMII
 #define CONFIG_ETHPRIME                 "FEC"
 
-#define CONFIG_PHY_ATHEROS
-
-#ifdef CONFIG_CMD_USB
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS   0
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
-#endif
 
 #ifdef CONFIG_CMD_PCI
 #define CONFIG_PCI_SCAN_SHOW
@@ -79,14 +73,10 @@
 #define CONFIG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(4, 6)
 #endif
 
-#define CONFIG_IMX_THERMAL
-
 #define CONFIG_IMX6_PWM_PER_CLK 66000000
 
 #ifdef CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV		0 /* USDHC4 eMMC */
 /* 0=user, 1=boot0, 2=boot1, * 4..7=general0..3. */
-#define CONFIG_SYS_MMC_ENV_PART		1 /* boot0 */
 #endif
 
 #ifdef CONFIG_SPL_BUILD

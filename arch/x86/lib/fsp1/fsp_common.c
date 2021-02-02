@@ -4,10 +4,13 @@
  */
 
 #include <common.h>
-#include <acpi_s3.h>
 #include <dm.h>
 #include <errno.h>
+#include <init.h>
+#include <log.h>
+#include <malloc.h>
 #include <rtc.h>
+#include <acpi/acpi_s3.h>
 #include <asm/cmos_layout.h>
 #include <asm/early_cmos.h>
 #include <asm/io.h>
@@ -18,15 +21,37 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static void *fsp_prepare_mrc_cache(void)
+{
+	struct mrc_data_container *cache;
+	struct mrc_region entry;
+	int ret;
+
+	ret = mrccache_get_region(MRC_TYPE_NORMAL, NULL, &entry);
+	if (ret)
+		return NULL;
+
+	cache = mrccache_find_current(&entry);
+	if (!cache)
+		return NULL;
+
+	debug("%s: mrc cache at %p, size %x checksum %04x\n", __func__,
+	      cache->data, cache->data_size, cache->checksum);
+
+	return cache->data;
+}
+
 int arch_fsp_init(void)
 {
 	void *nvs;
 	int stack = CONFIG_FSP_TEMP_RAM_ADDR;
 	int boot_mode = BOOT_FULL_CONFIG;
-#ifdef CONFIG_HAVE_ACPI_RESUME
-	int prev_sleep_state = chipset_prev_sleep_state();
-	gd->arch.prev_sleep_state = prev_sleep_state;
-#endif
+	int prev_sleep_state;
+
+	if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME)) {
+		prev_sleep_state = chipset_prev_sleep_state();
+		gd->arch.prev_sleep_state = prev_sleep_state;
+	}
 
 	if (!gd->arch.hob_list) {
 		if (IS_ENABLED(CONFIG_ENABLE_MRC_CACHE))
@@ -34,8 +59,8 @@ int arch_fsp_init(void)
 		else
 			nvs = NULL;
 
-#ifdef CONFIG_HAVE_ACPI_RESUME
-		if (prev_sleep_state == ACPI_S3) {
+		if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME) &&
+		    prev_sleep_state == ACPI_S3) {
 			if (nvs == NULL) {
 				/* If waking from S3 and no cache then */
 				debug("No MRC cache found in S3 resume path\n");
@@ -56,7 +81,7 @@ int arch_fsp_init(void)
 			stack = cmos_read32(CMOS_FSP_STACK_ADDR);
 			boot_mode = BOOT_ON_S3_RESUME;
 		}
-#endif
+
 		/*
 		 * The first time we enter here, call fsp_init().
 		 * Note the execution does not return to this function,

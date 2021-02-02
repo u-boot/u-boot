@@ -6,10 +6,13 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/scu_ast2500.h>
 #include <dm/lists.h>
-#include <dt-bindings/clock/ast2500-scu.h>
+#include <dt-bindings/clock/aspeed-clock.h>
+#include <linux/delay.h>
+#include <linux/err.h>
 
 /*
  * MAC Clock Delay settings, taken from Aspeed SDK
@@ -119,8 +122,7 @@ static ulong ast2500_clk_get_rate(struct clk *clk)
 	ulong rate;
 
 	switch (clk->id) {
-	case PLL_HPLL:
-	case ARMCLK:
+	case ASPEED_CLK_HPLL:
 		/*
 		 * This ignores dynamic/static slowdown of ARMCLK and may
 		 * be inaccurate.
@@ -128,11 +130,11 @@ static ulong ast2500_clk_get_rate(struct clk *clk)
 		rate = ast2500_get_hpll_rate(clkin,
 					     readl(&priv->scu->h_pll_param));
 		break;
-	case MCLK_DDR:
+	case ASPEED_CLK_MPLL:
 		rate = ast2500_get_mpll_rate(clkin,
 					     readl(&priv->scu->m_pll_param));
 		break;
-	case BCLK_PCLK:
+	case ASPEED_CLK_APB:
 		{
 			ulong apb_div = 4 + 4 * ((readl(&priv->scu->clk_sel1)
 						  & SCU_PCLK_DIV_MASK)
@@ -143,7 +145,7 @@ static ulong ast2500_clk_get_rate(struct clk *clk)
 			rate = rate / apb_div;
 		}
 		break;
-	case BCLK_SDCLK:
+	case ASPEED_CLK_SDIO:
 		{
 			ulong apb_div = 4 + 4 * ((readl(&priv->scu->clk_sel1)
 						  & SCU_SDCLK_DIV_MASK)
@@ -154,19 +156,19 @@ static ulong ast2500_clk_get_rate(struct clk *clk)
 			rate = rate / apb_div;
 		}
 		break;
-	case PCLK_UART1:
+	case ASPEED_CLK_GATE_UART1CLK:
 		rate = ast2500_get_uart_clk_rate(priv->scu, 1);
 		break;
-	case PCLK_UART2:
+	case ASPEED_CLK_GATE_UART2CLK:
 		rate = ast2500_get_uart_clk_rate(priv->scu, 2);
 		break;
-	case PCLK_UART3:
+	case ASPEED_CLK_GATE_UART3CLK:
 		rate = ast2500_get_uart_clk_rate(priv->scu, 3);
 		break;
-	case PCLK_UART4:
+	case ASPEED_CLK_GATE_UART4CLK:
 		rate = ast2500_get_uart_clk_rate(priv->scu, 4);
 		break;
-	case PCLK_UART5:
+	case ASPEED_CLK_GATE_UART5CLK:
 		rate = ast2500_get_uart_clk_rate(priv->scu, 5);
 		break;
 	default:
@@ -428,11 +430,10 @@ static ulong ast2500_clk_set_rate(struct clk *clk, ulong rate)
 
 	ulong new_rate;
 	switch (clk->id) {
-	case PLL_MPLL:
-	case MCLK_DDR:
+	case ASPEED_CLK_MPLL:
 		new_rate = ast2500_configure_ddr(priv->scu, rate);
 		break;
-	case PLL_D2PLL:
+	case ASPEED_CLK_D2PLL:
 		new_rate = ast2500_configure_d2pll(priv->scu, rate);
 		break;
 	default:
@@ -447,7 +448,7 @@ static int ast2500_clk_enable(struct clk *clk)
 	struct ast2500_clk_priv *priv = dev_get_priv(clk->dev);
 
 	switch (clk->id) {
-	case BCLK_SDCLK:
+	case ASPEED_CLK_SDIO:
 		if (readl(&priv->scu->clk_stop_ctrl1) & SCU_CLKSTOP_SDCLK) {
 			ast_scu_unlock(priv->scu);
 
@@ -468,13 +469,13 @@ static int ast2500_clk_enable(struct clk *clk)
 	 * configured based on whether RGMII or RMII mode has been selected
 	 * through hardware strapping.
 	 */
-	case PCLK_MAC1:
+	case ASPEED_CLK_GATE_MAC1CLK:
 		ast2500_configure_mac(priv->scu, 1);
 		break;
-	case PCLK_MAC2:
+	case ASPEED_CLK_GATE_MAC2CLK:
 		ast2500_configure_mac(priv->scu, 2);
 		break;
-	case PLL_D2PLL:
+	case ASPEED_CLK_D2PLL:
 		ast2500_configure_d2pll(priv->scu, D2PLL_DEFAULT_RATE);
 		break;
 	default:
@@ -490,7 +491,7 @@ struct clk_ops ast2500_clk_ops = {
 	.enable = ast2500_clk_enable,
 };
 
-static int ast2500_clk_probe(struct udevice *dev)
+static int ast2500_clk_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ast2500_clk_priv *priv = dev_get_priv(dev);
 
@@ -525,5 +526,5 @@ U_BOOT_DRIVER(aspeed_ast2500_scu) = {
 	.priv_auto_alloc_size = sizeof(struct ast2500_clk_priv),
 	.ops		= &ast2500_clk_ops,
 	.bind		= ast2500_clk_bind,
-	.probe		= ast2500_clk_probe,
+	.ofdata_to_platdata		= ast2500_clk_ofdata_to_platdata,
 };

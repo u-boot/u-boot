@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2018 NXP
+ * Copyright 2018, 2020 NXP
  *
  */
 
 #include <common.h>
 #include <command.h>
+#include <fdt_support.h>
+#include <net.h>
 #include <netdev.h>
 #include <malloc.h>
 #include <fsl_mdio.h>
@@ -17,6 +19,7 @@
 #include <asm/arch/fsl_serdes.h>
 #include <fsl-mc/fsl_mc.h>
 #include <fsl-mc/ldpaa_wriop.h>
+#include "lx2160a.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -37,7 +40,7 @@ static bool get_inphi_phy_id(struct mii_dev *bus, int addr, int devad)
 		return false;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #if defined(CONFIG_FSL_MC_ENET)
 	struct memac_mdio_info mdio_info;

@@ -18,9 +18,6 @@
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
 /* Ethernet on SoC (EMAC) */
-#if defined(CONFIG_CMD_NET)
-#define CONFIG_BOOTP_SEND_HOSTNAME
-#endif
 
 /* Extra Environment */
 #define CONFIG_HOSTNAME			"socfpga_vining_fpga"

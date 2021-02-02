@@ -9,6 +9,9 @@
 #define _CLOCK_DEFS_H_
 
 #include <asm/arch/hardware.h>
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
 
 /* PLL Control Registers */
 struct pllctl_regs {

@@ -9,7 +9,7 @@
 #ifdef CONFIG_CMD_BAT
 #include <twl6030.h>
 
-int do_vbat(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_vbat(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	if (argc == 2) {
 		if (strncmp(argv[1], "startcharge", 12) == 0)

@@ -5,11 +5,13 @@
  * Copyright 2011 Comelit Group SpA,
  *                Luca Ceresoli <luca.ceresoli@comelit.it>
  */
-
 #include <common.h>
 #include <command.h>
 #include <efi_loader.h>
 #include <env.h>
+#include <image.h>
+#include <lmb.h>
+#include <log.h>
 #include <mapmem.h>
 #include <net.h>
 #include <net/tftp.h>
@@ -67,6 +69,7 @@ enum {
 	TFTP_ERR_UNEXPECTED_OPCODE   = 4,
 	TFTP_ERR_UNKNOWN_TRANSFER_ID  = 5,
 	TFTP_ERR_FILE_ALREADY_EXISTS = 6,
+	TFTP_ERR_OPTION_NEGOTIATION = 8,
 };
 
 static struct in_addr tftp_remote_ip;
@@ -94,6 +97,12 @@ static int	tftp_tsize;
 /* The number of hashes we printed */
 static short	tftp_tsize_num_hash;
 #endif
+/* The window size negotiated */
+static ushort	tftp_windowsize;
+/* Next block to send ack to */
+static ushort	tftp_next_ack;
+/* Last nack block we send */
+static ushort	tftp_last_nack;
 #ifdef CONFIG_CMD_TFTPPUT
 /* 1 if writing, else 0 */
 static int	tftp_put_active;
@@ -110,6 +119,7 @@ static int	tftp_put_final_block_sent;
 #define STATE_OACK	5
 #define STATE_RECV_WRQ	6
 #define STATE_SEND_WRQ	7
+#define STATE_INVALID_OPTION	8
 
 /* default TFTP block size */
 #define TFTP_BLOCK_SIZE		512
@@ -132,18 +142,25 @@ static char tftp_filename[MAX_LEN];
  * almost-MTU block sizes.  At least try... fall back to 512 if need be.
  * (but those using CONFIG_IP_DEFRAG may want to set a larger block in cfg file)
  */
-#ifdef CONFIG_TFTP_BLOCKSIZE
-#define TFTP_MTU_BLOCKSIZE CONFIG_TFTP_BLOCKSIZE
+
+/* When windowsize is defined to 1,
+ * tftp behaves the same way as it was
+ * never declared
+ */
+#ifdef CONFIG_TFTP_WINDOWSIZE
+#define TFTP_WINDOWSIZE CONFIG_TFTP_WINDOWSIZE
 #else
-#define TFTP_MTU_BLOCKSIZE 1468
+#define TFTP_WINDOWSIZE 1
 #endif
 
 static unsigned short tftp_block_size = TFTP_BLOCK_SIZE;
-static unsigned short tftp_block_size_option = TFTP_MTU_BLOCKSIZE;
+static unsigned short tftp_block_size_option = CONFIG_TFTP_BLOCKSIZE;
+static unsigned short tftp_window_size_option = TFTP_WINDOWSIZE;
 
 static inline int store_block(int block, uchar *src, unsigned int len)
 {
-	ulong offset = block * tftp_block_size + tftp_block_wrap_offset;
+	ulong offset = block * tftp_block_size + tftp_block_wrap_offset -
+			tftp_block_size;
 	ulong newsize = offset + len;
 	ulong store_addr = tftp_load_addr + offset;
 #ifdef CONFIG_SYS_DIRECT_FLASH_TFTP
@@ -217,12 +234,13 @@ static void new_transfer(void)
 static int load_block(unsigned block, uchar *dst, unsigned len)
 {
 	/* We may want to get the final block from the previous set */
-	ulong offset = ((int)block - 1) * len + tftp_block_wrap_offset;
+	ulong offset = block * tftp_block_size + tftp_block_wrap_offset -
+		       tftp_block_size;
 	ulong tosend = len;
 
 	tosend = min(net_boot_file_size - offset, tosend);
-	(void)memcpy(dst, (void *)(save_addr + offset), tosend);
-	debug("%s: block=%d, offset=%ld, len=%d, tosend=%ld\n", __func__,
+	(void)memcpy(dst, (void *)(image_save_addr + offset), tosend);
+	debug("%s: block=%u, offset=%lu, len=%u, tosend=%lu\n", __func__,
 	      block, offset, len, tosend);
 	return tosend;
 }
@@ -235,9 +253,11 @@ static void tftp_timeout_handler(void);
 
 static void show_block_marker(void)
 {
+	ulong pos;
+
 #ifdef CONFIG_TFTP_TSIZE
 	if (tftp_tsize) {
-		ulong pos = tftp_cur_block * tftp_block_size +
+		pos = tftp_cur_block * tftp_block_size +
 			tftp_block_wrap_offset;
 		if (pos > tftp_tsize)
 			pos = tftp_tsize;
@@ -249,9 +269,11 @@ static void show_block_marker(void)
 	} else
 #endif
 	{
-		if (((tftp_cur_block - 1) % 10) == 0)
+		pos = (tftp_cur_block - 1) +
+			(tftp_block_wrap * TFTP_SEQUENCE_SIZE);
+		if ((pos % 10) == 0)
 			putc('#');
-		else if ((tftp_cur_block % (10 * HASHES_PER_LINE)) == 0)
+		else if (((pos + 1) % (10 * HASHES_PER_LINE)) == 0)
 			puts("\n\t ");
 	}
 }
@@ -284,9 +306,8 @@ static void update_block_number(void)
 		tftp_block_wrap++;
 		tftp_block_wrap_offset += tftp_block_size * TFTP_SEQUENCE_SIZE;
 		timeout_count = 0; /* we've done well, reset the timeout */
-	} else {
-		show_block_marker();
 	}
+	show_block_marker();
 }
 
 /* The TFTP get or put is complete */
@@ -317,6 +338,7 @@ static void tftp_send(void)
 	uchar *xp;
 	int len = 0;
 	ushort *s;
+	bool err_pkt = false;
 
 	/*
 	 *	We will always be sending some sort of packet, so
@@ -352,6 +374,14 @@ static void tftp_send(void)
 		/* try for more effic. blk size */
 		pkt += sprintf((char *)pkt, "blksize%c%d%c",
 				0, tftp_block_size_option, 0);
+
+		/* try for more effic. window size.
+		 * Implemented only for tftp get.
+		 * Don't bother sending if it's 1
+		 */
+		if (tftp_state == STATE_SEND_RRQ && tftp_window_size_option > 1)
+			pkt += sprintf((char *)pkt, "windowsize%c%d%c",
+					0, tftp_window_size_option, 0);
 		len = pkt - xp;
 		break;
 
@@ -387,6 +417,7 @@ static void tftp_send(void)
 		strcpy((char *)pkt, "File too large");
 		pkt += 14 /*strlen("File too large")*/ + 1;
 		len = pkt - xp;
+		err_pkt = true;
 		break;
 
 	case STATE_BAD_MAGIC:
@@ -398,11 +429,28 @@ static void tftp_send(void)
 		strcpy((char *)pkt, "File has bad magic");
 		pkt += 18 /*strlen("File has bad magic")*/ + 1;
 		len = pkt - xp;
+		err_pkt = true;
+		break;
+
+	case STATE_INVALID_OPTION:
+		xp = pkt;
+		s = (ushort *)pkt;
+		*s++ = htons(TFTP_ERROR);
+		*s++ = htons(TFTP_ERR_OPTION_NEGOTIATION);
+		pkt = (uchar *)s;
+		strcpy((char *)pkt, "Option Negotiation Failed");
+		/* strlen("Option Negotiation Failed") + NULL*/
+		pkt += 25 + 1;
+		len = pkt - xp;
+		err_pkt = true;
 		break;
 	}
 
 	net_send_udp_packet(net_server_ethaddr, tftp_remote_ip,
 			    tftp_remote_port, tftp_our_port, len);
+
+	if (err_pkt)
+		net_set_state(NETLOOP_FAIL);
 }
 
 #ifdef CONFIG_CMD_TFTPPUT
@@ -423,6 +471,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	__be16 proto;
 	__be16 *s;
 	int i;
+	u16 timeout_val_rcvd;
 
 	if (dest != tftp_our_port) {
 			return;
@@ -455,6 +504,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 				int block = ntohs(*s);
 				int ack_ok = (tftp_cur_block == block);
 
+				tftp_prev_block = tftp_cur_block;
 				tftp_cur_block = (unsigned short)(block + 1);
 				update_block_number();
 				if (ack_ok)
@@ -479,8 +529,14 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 #endif
 
 	case TFTP_OACK:
-		debug("Got OACK: %s %s\n",
-		      pkt, pkt + strlen((char *)pkt) + 1);
+		debug("Got OACK: ");
+		for (i = 0; i < len; i++) {
+			if (pkt[i] == '\0')
+				debug(" ");
+			else
+				debug("%c", pkt[i]);
+		}
+		debug("\n");
 		tftp_state = STATE_OACK;
 		tftp_remote_port = src;
 		/*
@@ -489,24 +545,51 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		 * something like "len-8" may give a *huge* number
 		 */
 		for (i = 0; i+8 < len; i++) {
-			if (strcmp((char *)pkt + i, "blksize") == 0) {
+			if (strcasecmp((char *)pkt + i, "blksize") == 0) {
 				tftp_block_size = (unsigned short)
 					simple_strtoul((char *)pkt + i + 8,
 						       NULL, 10);
-				debug("Blocksize ack: %s, %d\n",
+				debug("Blocksize oack: %s, %d\n",
 				      (char *)pkt + i + 8, tftp_block_size);
+				if (tftp_block_size > tftp_block_size_option) {
+					printf("Invalid blk size(=%d)\n",
+					       tftp_block_size);
+					tftp_state = STATE_INVALID_OPTION;
+				}
+			}
+			if (strcasecmp((char *)pkt + i, "timeout") == 0) {
+				timeout_val_rcvd = (unsigned short)
+					simple_strtoul((char *)pkt + i + 8,
+						       NULL, 10);
+				debug("Timeout oack: %s, %d\n",
+				      (char *)pkt + i + 8, timeout_val_rcvd);
+				if (timeout_val_rcvd != (timeout_ms / 1000)) {
+					printf("Invalid timeout val(=%d s)\n",
+					       timeout_val_rcvd);
+					tftp_state = STATE_INVALID_OPTION;
+				}
 			}
 #ifdef CONFIG_TFTP_TSIZE
-			if (strcmp((char *)pkt+i, "tsize") == 0) {
+			if (strcasecmp((char *)pkt + i, "tsize") == 0) {
 				tftp_tsize = simple_strtoul((char *)pkt + i + 6,
 							   NULL, 10);
 				debug("size = %s, %d\n",
 				      (char *)pkt + i + 6, tftp_tsize);
 			}
 #endif
+			if (strcasecmp((char *)pkt + i,  "windowsize") == 0) {
+				tftp_windowsize =
+					simple_strtoul((char *)pkt + i + 11,
+						       NULL, 10);
+				debug("windowsize = %s, %d\n",
+				      (char *)pkt + i + 11, tftp_windowsize);
+			}
 		}
+
+		tftp_next_ack = tftp_windowsize;
+
 #ifdef CONFIG_CMD_TFTPPUT
-		if (tftp_put_active) {
+		if (tftp_put_active && tftp_state == STATE_OACK) {
 			/* Get ready to send the first block */
 			tftp_state = STATE_DATA;
 			tftp_cur_block++;
@@ -518,12 +601,31 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		if (len < 2)
 			return;
 		len -= 2;
-		tftp_cur_block = ntohs(*(__be16 *)pkt);
 
-		update_block_number();
+		if (ntohs(*(__be16 *)pkt) != (ushort)(tftp_cur_block + 1)) {
+			debug("Received unexpected block: %d, expected: %d\n",
+			      ntohs(*(__be16 *)pkt),
+			      (ushort)(tftp_cur_block + 1));
+			/*
+			 * If one packet is dropped most likely
+			 * all other buffers in the window
+			 * that will arrive will cause a sending NACK.
+			 * This just overwellms the server, let's just send one.
+			 */
+			if (tftp_last_nack != tftp_cur_block) {
+				tftp_send();
+				tftp_last_nack = tftp_cur_block;
+				tftp_next_ack = (ushort)(tftp_cur_block +
+							 tftp_windowsize);
+			}
+			break;
+		}
+
+		tftp_cur_block++;
+		tftp_cur_block %= TFTP_SEQUENCE_SIZE;
 
 		if (tftp_state == STATE_SEND_RRQ)
-			debug("Server did not acknowledge timeout option!\n");
+			debug("Server did not acknowledge any options!\n");
 
 		if (tftp_state == STATE_SEND_RRQ || tftp_state == STATE_OACK ||
 		    tftp_state == STATE_RECV_WRQ) {
@@ -547,11 +649,12 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			break;
 		}
 
+		update_block_number();
 		tftp_prev_block = tftp_cur_block;
 		timeout_count_max = tftp_timeout_count_max;
 		net_set_timeout_handler(timeout_ms, tftp_timeout_handler);
 
-		if (store_block(tftp_cur_block - 1, pkt + 2, len)) {
+		if (store_block(tftp_cur_block, pkt + 2, len)) {
 			eth_halt();
 			net_set_state(NETLOOP_FAIL);
 			break;
@@ -561,10 +664,15 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		 *	Acknowledge the block just received, which will prompt
 		 *	the remote for the next one.
 		 */
-		tftp_send();
+		if (tftp_cur_block == tftp_next_ack) {
+			tftp_send();
+			tftp_next_ack += tftp_windowsize;
+		}
 
-		if (len < tftp_block_size)
+		if (len < tftp_block_size) {
+			tftp_send();
 			tftp_complete();
+		}
 		break;
 
 	case TFTP_ERROR:
@@ -605,7 +713,7 @@ static void tftp_timeout_handler(void)
 	}
 }
 
-/* Initialize tftp_load_addr and tftp_load_size from load_addr and lmb */
+/* Initialize tftp_load_addr and tftp_load_size from image_load_addr and lmb */
 static int tftp_init_load_addr(void)
 {
 #ifdef CONFIG_LMB
@@ -614,13 +722,13 @@ static int tftp_init_load_addr(void)
 
 	lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
 
-	max_size = lmb_get_free_size(&lmb, load_addr);
+	max_size = lmb_get_free_size(&lmb, image_load_addr);
 	if (!max_size)
 		return -1;
 
 	tftp_load_size = max_size;
 #endif
-	tftp_load_addr = load_addr;
+	tftp_load_addr = image_load_addr;
 	return 0;
 }
 
@@ -637,6 +745,10 @@ void tftp_start(enum proto_t protocol)
 	ep = env_get("tftpblocksize");
 	if (ep != NULL)
 		tftp_block_size_option = simple_strtol(ep, NULL, 10);
+
+	ep = env_get("tftpwindowsize");
+	if (ep != NULL)
+		tftp_window_size_option = simple_strtol(ep, NULL, 10);
 
 	ep = env_get("tftptimeout");
 	if (ep != NULL)
@@ -659,8 +771,8 @@ void tftp_start(enum proto_t protocol)
 	}
 #endif
 
-	debug("TFTP blocksize = %i, timeout = %ld ms\n",
-	      tftp_block_size_option, timeout_ms);
+	debug("TFTP blocksize = %i, TFTP windowsize = %d timeout = %ld ms\n",
+	      tftp_block_size_option, tftp_window_size_option, timeout_ms);
 
 	tftp_remote_ip = net_server_ip;
 	if (!net_parse_bootfile(&tftp_remote_ip, tftp_filename, MAX_LEN)) {
@@ -710,9 +822,9 @@ void tftp_start(enum proto_t protocol)
 #ifdef CONFIG_CMD_TFTPPUT
 	tftp_put_active = (protocol == TFTPPUT);
 	if (tftp_put_active) {
-		printf("Save address: 0x%lx\n", save_addr);
-		printf("Save size:    0x%lx\n", save_size);
-		net_boot_file_size = save_size;
+		printf("Save address: 0x%lx\n", image_save_addr);
+		printf("Save size:    0x%lx\n", image_save_size);
+		net_boot_file_size = image_save_size;
 		puts("Saving: *\b");
 		tftp_state = STATE_SEND_WRQ;
 		new_transfer();
@@ -756,7 +868,8 @@ void tftp_start(enum proto_t protocol)
 		tftp_our_port = simple_strtol(ep, NULL, 10);
 #endif
 	tftp_cur_block = 0;
-
+	tftp_windowsize = 1;
+	tftp_last_nack = 0;
 	/* zero out server ether in case the server ip has changed */
 	memset(net_server_ethaddr, 0, 6);
 	/* Revert tftp_block_size to dflt */

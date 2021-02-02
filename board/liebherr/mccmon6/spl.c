@@ -5,6 +5,8 @@
  *         Richard Hu <hakahu@gmail.com>
  */
 
+#include <image.h>
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
@@ -20,6 +22,7 @@
 #include <asm/arch/sys_proto.h>
 #include <serial.h>
 #include <spl.h>
+#include <linux/delay.h>
 
 #include <asm/arch/mx6-ddr.h>
 /*
@@ -525,7 +528,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return ret;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	int ret;
 	u32 index = 0;

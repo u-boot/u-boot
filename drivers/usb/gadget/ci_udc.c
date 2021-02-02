@@ -14,6 +14,8 @@
 #include <net.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
+#include <asm/cache.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/unaligned.h>
@@ -1050,6 +1052,13 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 	ci_ep_free_request(&controller.ep[0].ep, &controller.ep0_req->req);
 	free(controller.items_mem);
 	free(controller.epts);
+
+#if CONFIG_IS_ENABLED(DM_USB)
+	usb_remove_ehci_gadget(&controller.ctrl);
+#else
+	usb_lowlevel_stop(0);
+	controller.ctrl = NULL;
+#endif
 
 	return 0;
 }

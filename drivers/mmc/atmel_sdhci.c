@@ -69,7 +69,7 @@ static int atmel_sdhci_probe(struct udevice *dev)
 		return ret;
 
 	host->name = dev->name;
-	host->ioaddr = (void *)devfdt_get_addr(dev);
+	host->ioaddr = dev_read_addr_ptr(dev);
 
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD;
 	host->bus_width	= fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
@@ -79,13 +79,20 @@ static int atmel_sdhci_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = clk_set_rate(&clk, ATMEL_SDHC_GCK_RATE);
-	if (ret)
-		return ret;
+	clk_set_rate(&clk, ATMEL_SDHC_GCK_RATE);
 
 	max_clk = clk_get_rate(&clk);
 	if (!max_clk)
 		return -EINVAL;
+
+	ret = clk_enable(&clk);
+	/* return error only if the clock really has a clock enable func */
+	if (ret && ret != -ENOSYS)
+		return ret;
+
+	ret = mmc_of_parse(dev, &plat->cfg);
+	if (ret)
+		return ret;
 
 	host->max_clk = max_clk;
 	host->mmc = &plat->mmc;
@@ -113,6 +120,7 @@ static int atmel_sdhci_bind(struct udevice *dev)
 static const struct udevice_id atmel_sdhci_ids[] = {
 	{ .compatible = "atmel,sama5d2-sdhci" },
 	{ .compatible = "microchip,sam9x60-sdhci" },
+	{ .compatible = "microchip,sama7g5-sdhci" },
 	{ }
 };
 

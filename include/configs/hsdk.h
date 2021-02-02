@@ -114,6 +114,5 @@ setenv core_iccm_3 0x6; setenv core_dccm_3 0x6;\0"
 /*
  * Callback configuration
  */
-#define CONFIG_BOARD_LATE_INIT
 
 #endif /* _CONFIG_HSDK_H_ */

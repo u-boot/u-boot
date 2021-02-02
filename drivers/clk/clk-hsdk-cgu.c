@@ -13,7 +13,14 @@
 #include <clk-uclass.h>
 #include <div64.h>
 #include <dm.h>
+#include <log.h>
+#include <linux/bitops.h>
+#include <linux/bug.h>
+#include <linux/delay.h>
 #include <linux/io.h>
+#include <asm/arcregs.h>
+
+#include <dt-bindings/clock/snps,hsdk-cgu.h>
 
 /*
  * Synopsys ARC HSDK clock tree.
@@ -46,23 +53,28 @@
  *            |        |-->|CGU_TUN_IDIV_ROM|----------->
  *            |        |-->|CGU_TUN_IDIV_PWM|----------->
  *            |
- *            |   ------------
- *            |-->| HDMI PLL |
- *            |   ------------
- *            |        |
- *            |        |-->|CGU_HDMI_IDIV_APB|------>
- *            |
  *            |   -----------
  *            |-->| DDR PLL |
  *                -----------
  *                     |
  *                     |---------------------------->
+ *
+ *   ------------------
+ *   | 27.00 MHz xtal |
+ *   ------------------
+ *            |
+ *            |   ------------
+ *            |-->| HDMI PLL |
+ *                ------------
+ *                     |
+ *                     |-->|CGU_HDMI_IDIV_APB|------>
  */
 
 #define CGU_ARC_IDIV		0x080
 #define CGU_TUN_IDIV_TUN	0x380
 #define CGU_TUN_IDIV_ROM	0x390
 #define CGU_TUN_IDIV_PWM	0x3A0
+#define CGU_TUN_IDIV_TIMER	0x3B0
 #define CGU_HDMI_IDIV_APB	0x480
 #define CGU_SYS_IDIV_APB	0x180
 #define CGU_SYS_IDIV_AXI	0x190
@@ -117,47 +129,45 @@
 #define CREG_CORE_IF_CLK_DIV_2		0x1
 
 #define MIN_PLL_RATE			100000000 /* 100 MHz */
-#define PARENT_RATE			33333333 /* fixed clock - xtal */
-#define CGU_MAX_CLOCKS			26
+#define PARENT_RATE_33			33333333 /* fixed clock - xtal */
+#define PARENT_RATE_27			27000000 /* fixed clock - xtal */
+#define CGU_MAX_CLOCKS			27
 
-#define CGU_SYS_CLOCKS			16
-#define MAX_AXI_CLOCKS			4
+#define MAX_FREQ_VARIATIONS		6
 
-#define CGU_TUN_CLOCKS			3
-#define MAX_TUN_CLOCKS			6
-
-struct hsdk_tun_idiv_cfg {
-	u32 oft;
-	u8  val[MAX_TUN_CLOCKS];
+struct hsdk_idiv_cfg {
+	const u32 oft;
+	const u8  val[MAX_FREQ_VARIATIONS];
 };
 
-struct hsdk_tun_clk_cfg {
-	const u32 clk_rate[MAX_TUN_CLOCKS];
-	const u32 pll_rate[MAX_TUN_CLOCKS];
-	const struct hsdk_tun_idiv_cfg idiv[CGU_TUN_CLOCKS];
+struct hsdk_div_full_cfg {
+	const u32 clk_rate[MAX_FREQ_VARIATIONS];
+	const u32 pll_rate[MAX_FREQ_VARIATIONS];
+	const struct hsdk_idiv_cfg idiv[];
 };
 
-static const struct hsdk_tun_clk_cfg tun_clk_cfg = {
+static const struct hsdk_div_full_cfg hsdk_4xd_tun_clk_cfg = {
 	{ 25000000,  50000000,  75000000,  100000000, 125000000, 150000000 },
-	{ 600000000, 600000000, 600000000, 600000000, 700000000, 600000000 }, {
+	{ 600000000, 600000000, 600000000, 600000000, 750000000, 600000000 }, {
 	{ CGU_TUN_IDIV_TUN,	{ 24,	12,	8,	6,	6,	4 } },
 	{ CGU_TUN_IDIV_ROM,	{ 4,	4,	4,	4,	5,	4 } },
-	{ CGU_TUN_IDIV_PWM,	{ 8,	8,	8,	8,	10,	8 } }
+	{ CGU_TUN_IDIV_PWM,	{ 8,	8,	8,	8,	10,	8 } },
+	{ CGU_TUN_IDIV_TIMER,	{ 12,	12,	12,	12,	15,	12 } },
+	{ /* last one */ }
 	}
 };
 
-struct hsdk_sys_idiv_cfg {
-	u32 oft;
-	u8  val[MAX_AXI_CLOCKS];
+static const struct hsdk_div_full_cfg hsdk_tun_clk_cfg = {
+	{ 25000000,  50000000,  75000000,  100000000, 125000000, 150000000 },
+	{ 600000000, 600000000, 600000000, 600000000, 750000000, 600000000 }, {
+	{ CGU_TUN_IDIV_TUN,	{ 24,	12,	8,	6,	6,	4 } },
+	{ CGU_TUN_IDIV_ROM,	{ 4,	4,	4,	4,	5,	4 } },
+	{ CGU_TUN_IDIV_PWM,	{ 8,	8,	8,	8,	10,	8 } },
+	{ /* last one */ }
+	}
 };
 
-struct hsdk_axi_clk_cfg {
-	const u32 clk_rate[MAX_AXI_CLOCKS];
-	const u32 pll_rate[MAX_AXI_CLOCKS];
-	const struct hsdk_sys_idiv_cfg idiv[CGU_SYS_CLOCKS];
-};
-
-static const struct hsdk_axi_clk_cfg axi_clk_cfg = {
+static const struct hsdk_div_full_cfg axi_clk_cfg = {
 	{ 200000000,	400000000,	600000000,	800000000 },
 	{ 800000000,	800000000,	600000000,	800000000 }, {
 	{ CGU_SYS_IDIV_APB,	 { 4,	4,	3,	4 } },	/* APB */
@@ -175,16 +185,17 @@ static const struct hsdk_axi_clk_cfg axi_clk_cfg = {
 	{ CGU_SYS_IDIV_SPI_REF,	 { 24,	24,	18,	24 } },	/* SPI-REF */
 	{ CGU_SYS_IDIV_I2C_REF,	 { 4,	4,	3,	4 } },	/* I2C-REF */
 	{ CGU_SYS_IDIV_UART_REF, { 24,	24,	18,	24 } },	/* UART-REF */
-	{ CGU_SYS_IDIV_EBI_REF,	 { 16,	16,	12,	16 } }	/* EBI-REF */
+	{ CGU_SYS_IDIV_EBI_REF,	 { 16,	16,	12,	16 } },	/* EBI-REF */
+	{ /* last one */ }
 	}
 };
 
 struct hsdk_pll_cfg {
-	u32 rate;
-	u32 idiv;
-	u32 fbdiv;
-	u32 odiv;
-	u32 band;
+	const u32 rate;
+	const u8  idiv;
+	const u8  fbdiv;
+	const u8  odiv;
+	const u8  band;
 };
 
 static const struct hsdk_pll_cfg asdt_pll_cfg[] = {
@@ -200,6 +211,7 @@ static const struct hsdk_pll_cfg asdt_pll_cfg[] = {
 	{ 500000000,  0, 14, 1, 0 },
 	{ 600000000,  0, 17, 1, 0 },
 	{ 700000000,  0, 20, 1, 0 },
+	{ 750000000,  1, 44, 1, 0 },
 	{ 800000000,  0, 23, 1, 0 },
 	{ 900000000,  1, 26, 0, 0 },
 	{ 1000000000, 1, 29, 0, 0 },
@@ -219,27 +231,35 @@ static const struct hsdk_pll_cfg hdmi_pll_cfg[] = {
 	{}
 };
 
-struct hsdk_cgu_clk {
-	/* CGU block register */
-	void __iomem *cgu_regs;
-	/* CREG block register */
-	void __iomem *creg_regs;
-
+struct hsdk_cgu_domain {
 	/* PLLs registers */
-	void __iomem *regs;
+	void __iomem *pll_regs;
 	/* PLLs special registers */
 	void __iomem *spec_regs;
 	/* PLLs devdata */
-	const struct hsdk_pll_devdata *pll_devdata;
+	const struct hsdk_pll_devdata *pll;
 
 	/* Dividers registers */
 	void __iomem *idiv_regs;
 };
 
+struct hsdk_cgu_clk {
+	const struct cgu_clk_map *map;
+	/* CGU block register */
+	void __iomem *cgu_regs;
+	/* CREG block register */
+	void __iomem *creg_regs;
+
+	/* The domain we are working with */
+	struct hsdk_cgu_domain curr_domain;
+};
+
 struct hsdk_pll_devdata {
-	const struct hsdk_pll_cfg *pll_cfg;
-	int (*update_rate)(struct hsdk_cgu_clk *clk, unsigned long rate,
-			   const struct hsdk_pll_cfg *cfg);
+	const u32 parent_rate;
+	const struct hsdk_pll_cfg *const pll_cfg;
+	const int (*const update_rate)(struct hsdk_cgu_clk *clk,
+				       unsigned long rate,
+				       const struct hsdk_pll_cfg *cfg);
 };
 
 static int hsdk_pll_core_update_rate(struct hsdk_cgu_clk *, unsigned long,
@@ -248,16 +268,19 @@ static int hsdk_pll_comm_update_rate(struct hsdk_cgu_clk *, unsigned long,
 				     const struct hsdk_pll_cfg *);
 
 static const struct hsdk_pll_devdata core_pll_dat = {
+	.parent_rate = PARENT_RATE_33,
 	.pll_cfg = asdt_pll_cfg,
 	.update_rate = hsdk_pll_core_update_rate,
 };
 
 static const struct hsdk_pll_devdata sdt_pll_dat = {
+	.parent_rate = PARENT_RATE_33,
 	.pll_cfg = asdt_pll_cfg,
 	.update_rate = hsdk_pll_comm_update_rate,
 };
 
 static const struct hsdk_pll_devdata hdmi_pll_dat = {
+	.parent_rate = PARENT_RATE_27,
 	.pll_cfg = hdmi_pll_cfg,
 	.update_rate = hsdk_pll_comm_update_rate,
 };
@@ -265,79 +288,110 @@ static const struct hsdk_pll_devdata hdmi_pll_dat = {
 static ulong idiv_set(struct clk *, ulong);
 static ulong cpu_clk_set(struct clk *, ulong);
 static ulong axi_clk_set(struct clk *, ulong);
-static ulong tun_clk_set(struct clk *, ulong);
+static ulong tun_hsdk_set(struct clk *, ulong);
+static ulong tun_h4xd_set(struct clk *, ulong);
 static ulong idiv_get(struct clk *);
 static int idiv_off(struct clk *);
 static ulong pll_set(struct clk *, ulong);
 static ulong pll_get(struct clk *);
 
-struct hsdk_cgu_clock_map {
-	u32 cgu_pll_oft;
-	u32 creg_div_oft;
-	u32 cgu_div_oft;
-	const struct hsdk_pll_devdata *pll_devdata;
-	ulong (*get_rate)(struct clk *clk);
-	ulong (*set_rate)(struct clk *clk, ulong rate);
-	int (*disable)(struct clk *clk);
+struct cgu_clk_map {
+	const u32 cgu_pll_oft;
+	const u32 cgu_div_oft;
+	const struct hsdk_pll_devdata *const pll_devdata;
+	const ulong (*const get_rate)(struct clk *clk);
+	const ulong (*const set_rate)(struct clk *clk, ulong rate);
+	const int (*const disable)(struct clk *clk);
 };
 
-static const struct hsdk_cgu_clock_map clock_map[] = {
-	{ CGU_ARC_PLL, 0, 0, &core_pll_dat, pll_get, pll_set, NULL },
-	{ CGU_ARC_PLL, 0, CGU_ARC_IDIV, &core_pll_dat, idiv_get, cpu_clk_set, idiv_off },
-	{ CGU_DDR_PLL, 0, 0, &sdt_pll_dat, pll_get, pll_set, NULL },
-	{ CGU_SYS_PLL, 0, 0, &sdt_pll_dat, pll_get, pll_set, NULL },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_APB, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_AXI, &sdt_pll_dat, idiv_get, axi_clk_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_ETH, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_USB, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_SDIO, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_HDMI, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_GFX_CORE, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_GFX_DMA, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_GFX_CFG, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_DMAC_CORE, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_DMAC_CFG, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_SDIO_REF, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_SPI_REF, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_I2C_REF, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_UART_REF, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_EBI_REF, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_TUN_PLL, 0, 0, &sdt_pll_dat, pll_get, pll_set, NULL },
-	{ CGU_TUN_PLL, 0, CGU_TUN_IDIV_TUN, &sdt_pll_dat, idiv_get, tun_clk_set, idiv_off },
-	{ CGU_TUN_PLL, 0, CGU_TUN_IDIV_ROM, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_TUN_PLL, 0, CGU_TUN_IDIV_PWM, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_HDMI_PLL, 0, 0, &hdmi_pll_dat, pll_get, pll_set, NULL },
-	{ CGU_HDMI_PLL, 0, CGU_HDMI_IDIV_APB, &hdmi_pll_dat, idiv_get, idiv_set, idiv_off }
+static const struct cgu_clk_map hsdk_clk_map[] = {
+	[CLK_ARC_PLL]        = { CGU_ARC_PLL,  0,                      &core_pll_dat, pll_get,  pll_set,      NULL     },
+	[CLK_ARC]            = { CGU_ARC_PLL,  CGU_ARC_IDIV,           &core_pll_dat, idiv_get, cpu_clk_set,  idiv_off },
+	[CLK_DDR_PLL]        = { CGU_DDR_PLL,  0,                      &sdt_pll_dat,  pll_get,  pll_set,      NULL     },
+	[CLK_SYS_PLL]        = { CGU_SYS_PLL,  0,                      &sdt_pll_dat,  pll_get,  pll_set,      NULL     },
+	[CLK_SYS_APB]        = { CGU_SYS_PLL,  CGU_SYS_IDIV_APB,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_AXI]        = { CGU_SYS_PLL,  CGU_SYS_IDIV_AXI,       &sdt_pll_dat,  idiv_get, axi_clk_set,  idiv_off },
+	[CLK_SYS_ETH]        = { CGU_SYS_PLL,  CGU_SYS_IDIV_ETH,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_USB]        = { CGU_SYS_PLL,  CGU_SYS_IDIV_USB,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_SDIO]       = { CGU_SYS_PLL,  CGU_SYS_IDIV_SDIO,      &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_HDMI]       = { CGU_SYS_PLL,  CGU_SYS_IDIV_HDMI,      &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_GFX_CORE]   = { CGU_SYS_PLL,  CGU_SYS_IDIV_GFX_CORE,  &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_GFX_DMA]    = { CGU_SYS_PLL,  CGU_SYS_IDIV_GFX_DMA,   &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_GFX_CFG]    = { CGU_SYS_PLL,  CGU_SYS_IDIV_GFX_CFG,   &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_DMAC_CORE]  = { CGU_SYS_PLL,  CGU_SYS_IDIV_DMAC_CORE, &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_DMAC_CFG]   = { CGU_SYS_PLL,  CGU_SYS_IDIV_DMAC_CFG,  &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_SDIO_REF]   = { CGU_SYS_PLL,  CGU_SYS_IDIV_SDIO_REF,  &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_SPI_REF]    = { CGU_SYS_PLL,  CGU_SYS_IDIV_SPI_REF,   &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_I2C_REF]    = { CGU_SYS_PLL,  CGU_SYS_IDIV_I2C_REF,   &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_UART_REF]   = { CGU_SYS_PLL,  CGU_SYS_IDIV_UART_REF,  &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_EBI_REF]    = { CGU_SYS_PLL,  CGU_SYS_IDIV_EBI_REF,   &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_TUN_PLL]        = { CGU_TUN_PLL,  0,                      &sdt_pll_dat,  pll_get,  pll_set,      NULL     },
+	[CLK_TUN_TUN]        = { CGU_TUN_PLL,  CGU_TUN_IDIV_TUN,       &sdt_pll_dat,  idiv_get, tun_hsdk_set, idiv_off },
+	[CLK_TUN_ROM]        = { CGU_TUN_PLL,  CGU_TUN_IDIV_ROM,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_TUN_PWM]        = { CGU_TUN_PLL,  CGU_TUN_IDIV_PWM,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_TUN_TIMER]      = { /* missing in HSDK */ },
+	[CLK_HDMI_PLL]       = { CGU_HDMI_PLL, 0,                      &hdmi_pll_dat, pll_get,  pll_set,      NULL     },
+	[CLK_HDMI]           = { CGU_HDMI_PLL, CGU_HDMI_IDIV_APB,      &hdmi_pll_dat, idiv_get, idiv_set,     idiv_off }
+};
+
+static const struct cgu_clk_map hsdk_4xd_clk_map[] = {
+	[CLK_ARC_PLL]        = { CGU_ARC_PLL,  0,                      &core_pll_dat, pll_get,  pll_set,      NULL     },
+	[CLK_ARC]            = { CGU_ARC_PLL,  CGU_ARC_IDIV,           &core_pll_dat, idiv_get, cpu_clk_set,  idiv_off },
+	[CLK_DDR_PLL]        = { CGU_DDR_PLL,  0,                      &sdt_pll_dat,  pll_get,  pll_set,      NULL     },
+	[CLK_SYS_PLL]        = { CGU_SYS_PLL,  0,                      &sdt_pll_dat,  pll_get,  pll_set,      NULL     },
+	[CLK_SYS_APB]        = { CGU_SYS_PLL,  CGU_SYS_IDIV_APB,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_AXI]        = { CGU_SYS_PLL,  CGU_SYS_IDIV_AXI,       &sdt_pll_dat,  idiv_get, axi_clk_set,  idiv_off },
+	[CLK_SYS_ETH]        = { CGU_SYS_PLL,  CGU_SYS_IDIV_ETH,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_USB]        = { CGU_SYS_PLL,  CGU_SYS_IDIV_USB,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_SDIO]       = { CGU_SYS_PLL,  CGU_SYS_IDIV_SDIO,      &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_HDMI]       = { CGU_SYS_PLL,  CGU_SYS_IDIV_HDMI,      &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_GFX_CORE]   = { CGU_SYS_PLL,  CGU_SYS_IDIV_GFX_CORE,  &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_GFX_DMA]    = { /* missing in HSDK-4xD */ },
+	[CLK_SYS_GFX_CFG]    = { /* missing in HSDK-4xD */ },
+	[CLK_SYS_DMAC_CORE]  = { CGU_SYS_PLL,  CGU_SYS_IDIV_DMAC_CORE, &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_DMAC_CFG]   = { CGU_SYS_PLL,  CGU_SYS_IDIV_DMAC_CFG,  &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_SDIO_REF]   = { CGU_SYS_PLL,  CGU_SYS_IDIV_SDIO_REF,  &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_SPI_REF]    = { CGU_SYS_PLL,  CGU_SYS_IDIV_SPI_REF,   &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_I2C_REF]    = { CGU_SYS_PLL,  CGU_SYS_IDIV_I2C_REF,   &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_UART_REF]   = { CGU_SYS_PLL,  CGU_SYS_IDIV_UART_REF,  &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_EBI_REF]    = { CGU_SYS_PLL,  CGU_SYS_IDIV_EBI_REF,   &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_TUN_PLL]        = { CGU_TUN_PLL,  0,                      &sdt_pll_dat,  pll_get,  pll_set,      NULL     },
+	[CLK_TUN_TUN]        = { CGU_TUN_PLL,  CGU_TUN_IDIV_TUN,       &sdt_pll_dat,  idiv_get, tun_h4xd_set, idiv_off },
+	[CLK_TUN_ROM]        = { CGU_TUN_PLL,  CGU_TUN_IDIV_ROM,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_TUN_PWM]        = { CGU_TUN_PLL,  CGU_TUN_IDIV_PWM,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_TUN_TIMER]      = { CGU_TUN_PLL,  CGU_TUN_IDIV_TIMER,     &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_HDMI_PLL]       = { CGU_HDMI_PLL, 0,                      &hdmi_pll_dat, pll_get,  pll_set,      NULL     },
+	[CLK_HDMI]           = { CGU_HDMI_PLL, CGU_HDMI_IDIV_APB,      &hdmi_pll_dat, idiv_get, idiv_set,     idiv_off }
 };
 
 static inline void hsdk_idiv_write(struct hsdk_cgu_clk *clk, u32 val)
 {
-	iowrite32(val, clk->idiv_regs);
+	iowrite32(val, clk->curr_domain.idiv_regs);
 }
 
 static inline u32 hsdk_idiv_read(struct hsdk_cgu_clk *clk)
 {
-	return ioread32(clk->idiv_regs);
+	return ioread32(clk->curr_domain.idiv_regs);
 }
 
 static inline void hsdk_pll_write(struct hsdk_cgu_clk *clk, u32 reg, u32 val)
 {
-	iowrite32(val, clk->regs + reg);
+	iowrite32(val, clk->curr_domain.pll_regs + reg);
 }
 
 static inline u32 hsdk_pll_read(struct hsdk_cgu_clk *clk, u32 reg)
 {
-	return ioread32(clk->regs + reg);
+	return ioread32(clk->curr_domain.pll_regs + reg);
 }
 
 static inline void hsdk_pll_spcwrite(struct hsdk_cgu_clk *clk, u32 reg, u32 val)
 {
-	iowrite32(val, clk->spec_regs + reg);
+	iowrite32(val, clk->curr_domain.spec_regs + reg);
 }
 
 static inline u32 hsdk_pll_spcread(struct hsdk_cgu_clk *clk, u32 reg)
 {
-	return ioread32(clk->spec_regs + reg);
+	return ioread32(clk->curr_domain.spec_regs + reg);
 }
 
 static inline void hsdk_pll_set_cfg(struct hsdk_cgu_clk *clk,
@@ -346,10 +400,10 @@ static inline void hsdk_pll_set_cfg(struct hsdk_cgu_clk *clk,
 	u32 val = 0;
 
 	/* Powerdown and Bypass bits should be cleared */
-	val |= cfg->idiv << CGU_PLL_CTRL_IDIV_SHIFT;
-	val |= cfg->fbdiv << CGU_PLL_CTRL_FBDIV_SHIFT;
-	val |= cfg->odiv << CGU_PLL_CTRL_ODIV_SHIFT;
-	val |= cfg->band << CGU_PLL_CTRL_BAND_SHIFT;
+	val |= (u32)cfg->idiv << CGU_PLL_CTRL_IDIV_SHIFT;
+	val |= (u32)cfg->fbdiv << CGU_PLL_CTRL_FBDIV_SHIFT;
+	val |= (u32)cfg->odiv << CGU_PLL_CTRL_ODIV_SHIFT;
+	val |= (u32)cfg->band << CGU_PLL_CTRL_BAND_SHIFT;
 
 	pr_debug("write configurarion: %#x\n", val);
 
@@ -372,18 +426,19 @@ static ulong pll_get(struct clk *sclk)
 	u64 rate;
 	u32 idiv, fbdiv, odiv;
 	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
+	u32 parent_rate = clk->curr_domain.pll->parent_rate;
 
 	val = hsdk_pll_read(clk, CGU_PLL_CTRL);
 
 	pr_debug("current configurarion: %#x\n", val);
 
+	/* Check if PLL is bypassed */
+	if (val & CGU_PLL_CTRL_BYPASS)
+		return parent_rate;
+
 	/* Check if PLL is disabled */
 	if (val & CGU_PLL_CTRL_PD)
 		return 0;
-
-	/* Check if PLL is bypassed */
-	if (val & CGU_PLL_CTRL_BYPASS)
-		return PARENT_RATE;
 
 	/* input divider = reg.idiv + 1 */
 	idiv = 1 + ((val & CGU_PLL_CTRL_IDIV_MASK) >> CGU_PLL_CTRL_IDIV_SHIFT);
@@ -392,7 +447,7 @@ static ulong pll_get(struct clk *sclk)
 	/* output divider = 2^(reg.odiv) */
 	odiv = 1 << ((val & CGU_PLL_CTRL_ODIV_MASK) >> CGU_PLL_CTRL_ODIV_SHIFT);
 
-	rate = (u64)PARENT_RATE * fbdiv;
+	rate = (u64)parent_rate * fbdiv;
 	do_div(rate, idiv * odiv);
 
 	return rate;
@@ -403,7 +458,7 @@ static unsigned long hsdk_pll_round_rate(struct clk *sclk, unsigned long rate)
 	int i;
 	unsigned long best_rate;
 	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
-	const struct hsdk_pll_cfg *pll_cfg = clk->pll_devdata->pll_cfg;
+	const struct hsdk_pll_cfg *pll_cfg = clk->curr_domain.pll->pll_cfg;
 
 	if (pll_cfg[0].rate == 0)
 		return -EINVAL;
@@ -479,18 +534,17 @@ static ulong pll_set(struct clk *sclk, ulong rate)
 	int i;
 	unsigned long best_rate;
 	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
-	const struct hsdk_pll_cfg *pll_cfg = clk->pll_devdata->pll_cfg;
+	const struct hsdk_pll_devdata *pll = clk->curr_domain.pll;
+	const struct hsdk_pll_cfg *pll_cfg = pll->pll_cfg;
 
 	best_rate = hsdk_pll_round_rate(sclk, rate);
 
-	for (i = 0; pll_cfg[i].rate != 0; i++) {
-		if (pll_cfg[i].rate == best_rate) {
-			return clk->pll_devdata->update_rate(clk, best_rate,
-							     &pll_cfg[i]);
-		}
-	}
+	for (i = 0; pll_cfg[i].rate != 0; i++)
+		if (pll_cfg[i].rate == best_rate)
+			return pll->update_rate(clk, best_rate, &pll_cfg[i]);
 
-	pr_err("invalid rate=%ld Hz, parent_rate=%d Hz\n", best_rate, PARENT_RATE);
+	pr_err("invalid rate=%ld Hz, parent_rate=%d Hz\n", best_rate,
+	       pll->parent_rate);
 
 	return -EINVAL;
 }
@@ -531,8 +585,13 @@ static ulong cpu_clk_set(struct clk *sclk, ulong rate)
 	return ret;
 }
 
-/* Special behavior: wen we set this clock we set both idiv and pll and all pll dividers */
-static ulong axi_clk_set(struct clk *sclk, ulong rate)
+/*
+ * Special behavior:
+ * when we set these clocks we set both PLL and all idiv dividers related to
+ * this PLL domain.
+ */
+static ulong common_div_clk_set(struct clk *sclk, ulong rate,
+				const struct hsdk_div_full_cfg *cfg)
 {
 	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
 	ulong pll_rate;
@@ -541,71 +600,52 @@ static ulong axi_clk_set(struct clk *sclk, ulong rate)
 
 	pll_rate = pll_get(sclk);
 
-	for (i = 0; i < MAX_AXI_CLOCKS; i++) {
-		if (axi_clk_cfg.clk_rate[i] == rate) {
+	for (i = 0; i < MAX_FREQ_VARIATIONS; i++) {
+		/* unused freq variations are filled with 0 */
+		if (!cfg->clk_rate[i])
+			break;
+
+		if (cfg->clk_rate[i] == rate) {
 			freq_idx = i;
 			break;
 		}
 	}
 
 	if (freq_idx < 0) {
-		pr_err("axi clk: invalid rate=%ld Hz\n", rate);
+		pr_err("clk: invalid rate=%ld Hz\n", rate);
 		return -EINVAL;
 	}
 
 	/* configure PLL before dividers */
-	if (axi_clk_cfg.pll_rate[freq_idx] < pll_rate)
-		ret = pll_set(sclk, axi_clk_cfg.pll_rate[freq_idx]);
+	if (cfg->pll_rate[freq_idx] < pll_rate)
+		ret = pll_set(sclk, cfg->pll_rate[freq_idx]);
 
 	/* configure SYS dividers */
-	for (i = 0; i < CGU_SYS_CLOCKS; i++) {
-		clk->idiv_regs = clk->cgu_regs + axi_clk_cfg.idiv[i].oft;
-		hsdk_idiv_write(clk, axi_clk_cfg.idiv[i].val[freq_idx]);
+	for (i = 0; cfg->idiv[i].oft != 0; i++) {
+		clk->curr_domain.idiv_regs = clk->cgu_regs + cfg->idiv[i].oft;
+		hsdk_idiv_write(clk, cfg->idiv[i].val[freq_idx]);
 	}
 
 	/* configure PLL after dividers */
-	if (axi_clk_cfg.pll_rate[freq_idx] >= pll_rate)
-		ret = pll_set(sclk, axi_clk_cfg.pll_rate[freq_idx]);
+	if (cfg->pll_rate[freq_idx] >= pll_rate)
+		ret = pll_set(sclk, cfg->pll_rate[freq_idx]);
 
 	return ret;
 }
 
-static ulong tun_clk_set(struct clk *sclk, ulong rate)
+static ulong axi_clk_set(struct clk *sclk, ulong rate)
 {
-	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
-	ulong pll_rate;
-	int i, freq_idx = -1;
-	ulong ret = 0;
+	return common_div_clk_set(sclk, rate, &axi_clk_cfg);
+}
 
-	pll_rate = pll_get(sclk);
+static ulong tun_hsdk_set(struct clk *sclk, ulong rate)
+{
+	return common_div_clk_set(sclk, rate, &hsdk_tun_clk_cfg);
+}
 
-	for (i = 0; i < MAX_TUN_CLOCKS; i++) {
-		if (tun_clk_cfg.clk_rate[i] == rate) {
-			freq_idx = i;
-			break;
-		}
-	}
-
-	if (freq_idx < 0) {
-		pr_err("tun clk: invalid rate=%ld Hz\n", rate);
-		return -EINVAL;
-	}
-
-	/* configure PLL before dividers */
-	if (tun_clk_cfg.pll_rate[freq_idx] < pll_rate)
-		ret = pll_set(sclk, tun_clk_cfg.pll_rate[freq_idx]);
-
-	/* configure SYS dividers */
-	for (i = 0; i < CGU_TUN_CLOCKS; i++) {
-		clk->idiv_regs = clk->cgu_regs + tun_clk_cfg.idiv[i].oft;
-		hsdk_idiv_write(clk, tun_clk_cfg.idiv[i].val[freq_idx]);
-	}
-
-	/* configure PLL after dividers */
-	if (tun_clk_cfg.pll_rate[freq_idx] >= pll_rate)
-		ret = pll_set(sclk, tun_clk_cfg.pll_rate[freq_idx]);
-
-	return ret;
+static ulong tun_h4xd_set(struct clk *sclk, ulong rate)
+{
+	return common_div_clk_set(sclk, rate, &hsdk_4xd_tun_clk_cfg);
 }
 
 static ulong idiv_set(struct clk *sclk, ulong rate)
@@ -646,37 +686,50 @@ static int hsdk_prepare_clock_tree_branch(struct clk *sclk)
 	if (sclk->id >= CGU_MAX_CLOCKS)
 		return -EINVAL;
 
-	clk->pll_devdata = clock_map[sclk->id].pll_devdata;
-	clk->regs = clk->cgu_regs + clock_map[sclk->id].cgu_pll_oft;
-	clk->spec_regs = clk->creg_regs + clock_map[sclk->id].creg_div_oft;
-	clk->idiv_regs = clk->cgu_regs + clock_map[sclk->id].cgu_div_oft;
+	/* clocks missing in current map have their entry zeroed */
+	if (!clk->map[sclk->id].pll_devdata)
+		return -EINVAL;
+
+	clk->curr_domain.pll = clk->map[sclk->id].pll_devdata;
+	clk->curr_domain.pll_regs = clk->cgu_regs + clk->map[sclk->id].cgu_pll_oft;
+	clk->curr_domain.spec_regs = clk->creg_regs;
+	clk->curr_domain.idiv_regs = clk->cgu_regs + clk->map[sclk->id].cgu_div_oft;
 
 	return 0;
 }
 
 static ulong hsdk_cgu_get_rate(struct clk *sclk)
 {
+	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
+
 	if (hsdk_prepare_clock_tree_branch(sclk))
 		return -EINVAL;
 
-	return clock_map[sclk->id].get_rate(sclk);
+	return clk->map[sclk->id].get_rate(sclk);
 }
 
 static ulong hsdk_cgu_set_rate(struct clk *sclk, ulong rate)
 {
+	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
+
 	if (hsdk_prepare_clock_tree_branch(sclk))
 		return -EINVAL;
 
-	return clock_map[sclk->id].set_rate(sclk, rate);
+	if (clk->map[sclk->id].set_rate)
+		return clk->map[sclk->id].set_rate(sclk, rate);
+
+	return -ENOTSUPP;
 }
 
 static int hsdk_cgu_disable(struct clk *sclk)
 {
+	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
+
 	if (hsdk_prepare_clock_tree_branch(sclk))
 		return -EINVAL;
 
-	if (clock_map[sclk->id].disable)
-		return clock_map[sclk->id].disable(sclk);
+	if (clk->map[sclk->id].disable)
+		return clk->map[sclk->id].disable(sclk);
 
 	return -ENOTSUPP;
 }
@@ -689,16 +742,23 @@ static const struct clk_ops hsdk_cgu_ops = {
 
 static int hsdk_cgu_clk_probe(struct udevice *dev)
 {
-	struct hsdk_cgu_clk *pll_clk = dev_get_priv(dev);
+	struct hsdk_cgu_clk *hsdk_clk = dev_get_priv(dev);
 
-	BUILD_BUG_ON(ARRAY_SIZE(clock_map) != CGU_MAX_CLOCKS);
+	BUILD_BUG_ON(ARRAY_SIZE(hsdk_clk_map) != CGU_MAX_CLOCKS);
+	BUILD_BUG_ON(ARRAY_SIZE(hsdk_4xd_clk_map) != CGU_MAX_CLOCKS);
 
-	pll_clk->cgu_regs = (void __iomem *)devfdt_get_addr_index(dev, 0);
-	if (!pll_clk->cgu_regs)
+	/* Choose which clock map to use in runtime */
+	if ((read_aux_reg(ARC_AUX_IDENTITY) & 0xFF) == 0x52)
+		hsdk_clk->map = hsdk_clk_map;
+	else
+		hsdk_clk->map = hsdk_4xd_clk_map;
+
+	hsdk_clk->cgu_regs = (void __iomem *)devfdt_get_addr_index(dev, 0);
+	if (!hsdk_clk->cgu_regs)
 		return -EINVAL;
 
-	pll_clk->creg_regs = (void __iomem *)devfdt_get_addr_index(dev, 1);
-	if (!pll_clk->creg_regs)
+	hsdk_clk->creg_regs = (void __iomem *)devfdt_get_addr_index(dev, 1);
+	if (!hsdk_clk->creg_regs)
 		return -EINVAL;
 
 	return 0;

@@ -8,7 +8,8 @@
 
 static char *fs_argv[5];
 
-static int do_get_ext2(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr)
+static int do_get_ext2(struct cmd_tbl *cmdtp, const char *file_path,
+		       char *file_addr)
 {
 #ifdef CONFIG_CMD_EXT2
 	fs_argv[0] = "ext2load";
@@ -21,7 +22,8 @@ static int do_get_ext2(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr)
 	return -ENOENT;
 }
 
-static int do_get_fat(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr)
+static int do_get_fat(struct cmd_tbl *cmdtp, const char *file_path,
+		      char *file_addr)
 {
 #ifdef CONFIG_CMD_FAT
 	fs_argv[0] = "fatload";
@@ -34,7 +36,8 @@ static int do_get_fat(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr)
 	return -ENOENT;
 }
 
-static int do_get_any(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr)
+static int do_get_any(struct cmd_tbl *cmdtp, const char *file_path,
+		      char *file_addr)
 {
 #ifdef CONFIG_CMD_FS_GENERIC
 	fs_argv[0] = "load";
@@ -52,7 +55,8 @@ static int do_get_any(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr)
  *
  * Returns 0 on success, 1 on error.
  */
-static int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	unsigned long pxefile_addr_r;
 	struct pxe_menu *cfg;

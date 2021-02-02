@@ -7,6 +7,9 @@
  */
 
 #include <common.h>
+#include <hang.h>
+#include <init.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
@@ -135,7 +138,8 @@ u32 spl_boot_device(void)
 
 	enum boot_device boot_device_spl = get_boot_device();
 
-	if (IS_ENABLED(CONFIG_IMX8MM) || IS_ENABLED(CONFIG_IMX8MN))
+	if (IS_ENABLED(CONFIG_IMX8MM) || IS_ENABLED(CONFIG_IMX8MN) ||
+	    IS_ENABLED(CONFIG_IMX8MP))
 		return spl_board_boot_device(boot_device_spl);
 
 	switch (boot_device_spl) {
@@ -183,11 +187,17 @@ int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 
 	return 0;
 }
+
+#define SDPV_BCD_DEVICE 0x500
+int g_dnl_get_board_bcd_device_number(int gcnum)
+{
+	return SDPV_BCD_DEVICE;
+}
 #endif
 
 #if defined(CONFIG_SPL_MMC_SUPPORT)
 /* called from spl_mmc to see type of boot mode for storage (RAW or FAT) */
-u32 spl_boot_mode(const u32 boot_device)
+u32 spl_mmc_boot_mode(const u32 boot_device)
 {
 #if defined(CONFIG_MX7) || defined(CONFIG_IMX8M) || defined(CONFIG_IMX8)
 	switch (get_boot_device()) {
@@ -195,52 +205,35 @@ u32 spl_boot_mode(const u32 boot_device)
 	case SD1_BOOT:
 	case SD2_BOOT:
 	case SD3_BOOT:
-#if defined(CONFIG_SPL_FAT_SUPPORT)
-		return MMCSD_MODE_FS;
-#else
-		return MMCSD_MODE_RAW;
-#endif
-		break;
+		if (IS_ENABLED(CONFIG_SPL_FS_FAT))
+			return MMCSD_MODE_FS;
+		else
+			return MMCSD_MODE_RAW;
 	case MMC1_BOOT:
 	case MMC2_BOOT:
 	case MMC3_BOOT:
-#if defined(CONFIG_SPL_FAT_SUPPORT)
-		return MMCSD_MODE_FS;
-#elif defined(CONFIG_SUPPORT_EMMC_BOOT)
-		return MMCSD_MODE_EMMCBOOT;
-#else
-		return MMCSD_MODE_RAW;
-#endif
-		break;
+		if (IS_ENABLED(CONFIG_SPL_FS_FAT))
+			return MMCSD_MODE_FS;
+		else if (IS_ENABLED(CONFIG_SUPPORT_EMMC_BOOT))
+			return MMCSD_MODE_EMMCBOOT;
+		else
+			return MMCSD_MODE_RAW;
 	default:
 		puts("spl: ERROR:  unsupported device\n");
 		hang();
 	}
 #else
-/*
- * When CONFIG_SPL_FORCE_MMC_BOOT is defined the 'boot_device' is used
- * unconditionally to decide about device to use for booting.
- * This is crucial for falcon boot mode, when board boots up (i.e. ROM
- * loads SPL) from slow SPI-NOR memory and afterwards the SPL's 'falcon' boot
- * mode is used to load Linux OS from eMMC partition.
- */
-#ifdef CONFIG_SPL_FORCE_MMC_BOOT
 	switch (boot_device) {
-#else
-	switch (spl_boot_device()) {
-#endif
 	/* for MMC return either RAW or FAT mode */
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
 	case BOOT_DEVICE_MMC2_2:
-#if defined(CONFIG_SPL_FS_FAT)
-		return MMCSD_MODE_FS;
-#elif defined(CONFIG_SUPPORT_EMMC_BOOT)
-		return MMCSD_MODE_EMMCBOOT;
-#else
-		return MMCSD_MODE_RAW;
-#endif
-		break;
+		if (IS_ENABLED(CONFIG_SPL_FS_FAT))
+			return MMCSD_MODE_FS;
+		else if (IS_ENABLED(CONFIG_SUPPORT_EMMC_BOOT))
+			return MMCSD_MODE_EMMCBOOT;
+		else
+			return MMCSD_MODE_RAW;
 	default:
 		puts("spl: ERROR:  unsupported device\n");
 		hang();
@@ -306,8 +299,7 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 						CSF_PAD_SIZE, offset)) {
 			image_entry();
 		} else {
-			puts("spl: ERROR:  image authentication fail\n");
-			hang();
+			panic("spl: ERROR:  image authentication fail\n");
 		}
 	}
 }
@@ -333,8 +325,7 @@ void board_spl_fit_post_load(ulong load_addr, size_t length)
 	if (imx_hab_authenticate_image(load_addr,
 				       offset + IVT_SIZE + CSF_PAD_SIZE,
 				       offset)) {
-		puts("spl: ERROR:  image authentication unsuccessful\n");
-		hang();
+		panic("spl: ERROR:  image authentication unsuccessful\n");
 	}
 }
 #endif

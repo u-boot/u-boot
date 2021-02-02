@@ -9,6 +9,8 @@
  */
 
 #ifndef __UBOOT__
+#include <log.h>
+#include <dm/devres.h>
 #include <linux/module.h>
 #include <linux/types.h>
 #include <linux/kernel.h>
@@ -19,6 +21,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <linux/bug.h>
 #include <linux/errno.h>
 #include <linux/compat.h>
 #include <ubi_uboot.h>
@@ -204,7 +207,7 @@ int mtd_parse_partitions(struct mtd_info *parent, const char **_mtdparts,
 {
 	struct mtd_partition partition = {}, *parts;
 	const char *mtdparts = *_mtdparts;
-	int cur_off = 0, cur_sz = 0;
+	uint64_t cur_off = 0, cur_sz = 0;
 	int nparts = 0;
 	int ret, idx;
 	u64 sz;

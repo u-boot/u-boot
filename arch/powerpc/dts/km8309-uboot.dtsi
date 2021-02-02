@@ -1,0 +1,33 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Hitachi Power Grids 8309 U-Boot specific Device Tree Source parts
+ *
+ * Copyright (C) 2020 Heiko Schocher <hs@denx.de>
+ *
+ */
+
+/ {
+	cpus {
+		u-boot,dm-pre-reloc;
+		PowerPC,8309@0 {
+			u-boot,dm-pre-reloc;
+		};
+	};
+
+	chosen {
+		stdout-path = &serial0;
+	};
+};
+
+&qe {
+	compatible = "fsl,qe", "simple-bus";
+};
+
+&soc {
+	u-boot,dm-pre-reloc;
+};
+
+&serial0 {
+	clock-frequency = <132000000>;
+	u-boot,dm-pre-reloc;
+};

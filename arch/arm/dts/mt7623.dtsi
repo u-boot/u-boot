@@ -101,21 +101,18 @@
 		compatible = "mediatek,mt7623-topckgen";
 		reg = <0x10000000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	infracfg: syscon@10001000 {
 		compatible = "mediatek,mt7623-infracfg", "syscon";
 		reg = <0x10001000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	pericfg: syscon@10003000 {
 		compatible = "mediatek,mt7623-pericfg", "syscon";
 		reg = <0x10003000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	pinctrl: pinctrl@10005000 {
@@ -155,7 +152,6 @@
 		interrupts = <GIC_SPI 112 IRQ_TYPE_LEVEL_LOW>;
 		clocks = <&system_clk>;
 		clock-names = "system-clk";
-		u-boot,dm-pre-reloc;
 	};
 
 	sysirq: interrupt-controller@10200100 {
@@ -170,7 +166,6 @@
 		compatible = "mediatek,mt7623-apmixedsys";
 		reg = <0x10209000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	gic: interrupt-controller@10211000 {
@@ -215,7 +210,6 @@
 			 <&pericfg CLK_PERI_UART2>;
 		clock-names = "baud", "bus";
 		status = "disabled";
-		u-boot,dm-pre-reloc;
 	};
 
 	uart3: serial@11005000 {
@@ -358,6 +352,52 @@
 		};
 	};
 
+	usb1: usb@1a1c0000 {
+		compatible = "mediatek,mt7623-xhci", "mediatek,mtk-xhci";
+		reg = <0x1a1c0000 0x1000>, <0x1a1c4700 0x0100>;
+		reg-names = "mac", "ippc";
+		power-domains = <&scpsys MT7623_POWER_DOMAIN_HIF>;
+		clocks = <&hifsys CLK_HIFSYS_USB0PHY>, <&topckgen CLK_TOP_ETHIF_SEL>;
+		clock-names = "sys_ck", "ref_ck";
+		phys = <&u2port0 PHY_TYPE_USB2>, <&u3port0 PHY_TYPE_USB3>;
+		status = "disabled";
+	};
+
+	u3phy1: usb-phy@1a1c4000 {
+		compatible = "mediatek,mt7623-tphy", "mediatek,generic-tphy-v1";
+
+		reg = <0x1a1c4000 0x0700>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+		status = "disabled";
+
+		u2port0: usb-phy@1a1c4800 {
+			reg = <0x1a1c4800 0x0100>;
+			#phy-cells = <1>;
+			clocks = <&topckgen CLK_TOP_USB_PHY48M>;
+			clock-names = "ref";
+		};
+
+		u3port0: usb-phy@1a1c4900 {
+			reg = <0x1a1c4900 0x0700>;
+			#phy-cells = <1>;
+			clocks = <&clk26m>;
+			clock-names = "ref";
+		};
+	};
+
+	usb2: usb@1a240000 {
+		compatible = "mediatek,mt7623-xhci", "mediatek,mtk-xhci";
+		reg = <0x1a240000 0x1000>, <0x1a244700 0x0100>;
+		reg-names = "mac", "ippc";
+		power-domains = <&scpsys MT7623_POWER_DOMAIN_HIF>;
+		clocks = <&hifsys CLK_HIFSYS_USB1PHY>, <&topckgen CLK_TOP_ETHIF_SEL>;
+		clock-names = "sys_ck", "ref_ck";
+		phys = <&u2port1 PHY_TYPE_USB2>, <&u3port1 PHY_TYPE_USB3>;
+		status = "disabled";
+	};
+
 	u3phy2: usb-phy@1a244000 {
 		compatible = "mediatek,generic-tphy-v1";
 		reg = <0x1a244000 0x0700>;
@@ -404,6 +444,23 @@
 			 <&ethsys ETHSYS_MCM_RST>;
 		reset-names = "fe", "mcm";
 		mediatek,ethsys = <&ethsys>;
+		status = "disabled";
+	};
+
+	pwm: pwm@11006000 {
+		compatible = "mediatek,mt7623-pwm";
+		reg = <0x11006000 0x1000>;
+		#clock-cells = <1>;
+		#pwm-cells = <2>;
+		clocks = <&topckgen CLK_TOP_PWM_SEL>,
+			 <&pericfg CLK_PERI_PWM>,
+			 <&pericfg CLK_PERI_PWM1>,
+			 <&pericfg CLK_PERI_PWM2>,
+			 <&pericfg CLK_PERI_PWM3>,
+			 <&pericfg CLK_PERI_PWM4>,
+			 <&pericfg CLK_PERI_PWM5>;
+		clock-names = "top", "main", "pwm1", "pwm2", "pwm3", "pwm4",
+			      "pwm5";
 		status = "disabled";
 	};
 };

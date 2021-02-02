@@ -5,8 +5,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/pinctrl.h>
 #include <regmap.h>
+#include <linux/bitops.h>
 
 #include "pinctrl-rockchip.h"
 
@@ -240,7 +242,7 @@ static const struct udevice_id rk3288_pinctrl_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(pinctrl_rk3288) = {
+U_BOOT_DRIVER(rockchip_rk3288_pinctrl) = {
 	.name		= "rockchip_rk3288_pinctrl",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= rk3288_pinctrl_ids,

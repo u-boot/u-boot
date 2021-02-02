@@ -2,6 +2,12 @@
 #
 # Copyright (C) 2018 Synopsys, Inc. All rights reserved.
 
+ifdef CONFIG_TARGET_AXS103
+  PLATFORM_CPPFLAGS += -mcpu=archs
+else
+  PLATFORM_CPPFLAGS += -mcpu=arc700 -mlock -mswape
+endif
+
 bsp-generate: u-boot u-boot.bin
 ifdef CONFIG_ISA_ARCV2
 	$(Q)python3 $(srctree)/board/$(BOARDDIR)/headerize-axs.py \

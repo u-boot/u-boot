@@ -8,7 +8,9 @@
 #include <common.h>
 #include <dm.h>
 #include <eeprom.h>
+#include <image.h>
 #include <init.h>
+#include <net.h>
 #include <dm/device-internal.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
@@ -28,11 +30,9 @@
 #include <fsl_esdhc_imx.h>
 #include <fuse.h>
 #include <i2c_eeprom.h>
-#include <miiphy.h>
 #include <mmc.h>
-#include <net.h>
-#include <netdev.h>
 #include <usb.h>
+#include <linux/delay.h>
 #include <usb/ehci-ci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -52,24 +52,6 @@ int overwrite_console(void)
 	return 1;
 }
 
-#ifdef CONFIG_FEC_MXC
-static void eth_phy_reset(void)
-{
-	/* Reset PHY */
-	gpio_direction_output(IMX_GPIO_NR(5, 0) , 0);
-	udelay(500);
-	gpio_set_value(IMX_GPIO_NR(5, 0), 1);
-
-	/* Enable VIO */
-	gpio_direction_output(IMX_GPIO_NR(1, 7) , 0);
-
-	/*
-	 * KSZ9021 PHY needs at least 10 mSec after PHY reset
-	 * is released to stabilize
-	 */
-	mdelay(10);
-}
-
 static int setup_fec_clock(void)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
@@ -79,34 +61,6 @@ static int setup_fec_clock(void)
 
 	return enable_fec_anatop_clock(0, ENET_50MHZ);
 }
-
-int board_eth_init(bd_t *bis)
-{
-	uint32_t base = IMX_FEC_BASE;
-	struct mii_dev *bus = NULL;
-	struct phy_device *phydev = NULL;
-
-	gpio_request(IMX_GPIO_NR(5, 0), "PHY-reset");
-	gpio_request(IMX_GPIO_NR(1, 7), "VIO");
-
-	setup_fec_clock();
-
-	eth_phy_reset();
-
-	bus = fec_get_miibus(base, -1);
-	if (!bus)
-		return -EINVAL;
-
-	/* Scan PHY 0 */
-	phydev = phy_find_by_mask(bus, 0xf, PHY_INTERFACE_MODE_RGMII);
-	if (!phydev) {
-		printf("Ethernet PHY not found!\n");
-		return -EINVAL;
-	}
-
-	return fec_probe(bis, -1, base, bus, phydev);
-}
-#endif
 
 #ifdef CONFIG_USB_EHCI_MX6
 static void setup_usb(void)
@@ -188,7 +142,7 @@ int board_init(void)
 	/* Enable eim_slow clocks */
 	setbits_le32(&mxc_ccm->CCGR6, 0x1 << MXC_CCM_CCGR6_EMI_SLOW_OFFSET);
 
-	setup_dhcom_mac_from_fuse();
+	setup_fec_clock();
 
 	return 0;
 }
@@ -232,6 +186,8 @@ int board_late_init(void)
 {
 	u32 hw_code;
 	char buf[16];
+
+	setup_dhcom_mac_from_fuse();
 
 	hw_code = board_get_hwcode();
 

@@ -6,9 +6,11 @@
 
 #include <common.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/pinmux.h>
+#include <linux/bitops.h>
 
 struct hi6220_pinmux0_regs *pmx0 =
 	(struct hi6220_pinmux0_regs *)HI6220_PINMUX0_BASE;

@@ -7,6 +7,8 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <log.h>
+#include <part.h>
 #include <spl.h>
 #include <linux/compiler.h>
 #include <errno.h>
@@ -47,6 +49,16 @@ static ulong h_spl_load_read(struct spl_load_info *load, ulong sector,
 	struct mmc *mmc = load->dev;
 
 	return blk_dread(mmc_get_blk_desc(mmc), sector, count, buf);
+}
+
+static __maybe_unused unsigned long spl_mmc_raw_uboot_offset(int part)
+{
+#if IS_ENABLED(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR)
+	if (part == 0)
+		return CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET;
+#endif
+
+	return 0;
 }
 
 static __maybe_unused
@@ -158,7 +170,7 @@ static int mmc_load_image_raw_partition(struct spl_image_info *spl_image,
 					struct mmc *mmc, int partition,
 					unsigned long sector)
 {
-	disk_partition_t info;
+	struct disk_partition info;
 	int err;
 
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE
@@ -288,7 +300,7 @@ static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image, struct mmc *mmc,
 }
 #endif
 
-u32 __weak spl_boot_mode(const u32 boot_device)
+u32 __weak spl_mmc_boot_mode(const u32 boot_device)
 {
 #if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
 	return MMCSD_MODE_FS;
@@ -300,20 +312,16 @@ u32 __weak spl_boot_mode(const u32 boot_device)
 }
 
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
-__weak
-int spl_boot_partition(const u32 boot_device)
+int __weak spl_mmc_boot_partition(const u32 boot_device)
 {
 	return CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION;
 }
 #endif
 
-unsigned long __weak spl_mmc_get_uboot_raw_sector(struct mmc *mmc)
+unsigned long __weak spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
+						  unsigned long raw_sect)
 {
-#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
-	return CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR;
-#else
-	return 0;
-#endif
+	return raw_sect;
 }
 
 int spl_mmc_load(struct spl_image_info *spl_image,
@@ -325,7 +333,7 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 	static struct mmc *mmc;
 	u32 boot_mode;
 	int err = 0;
-	__maybe_unused int part;
+	__maybe_unused int part = 0;
 
 	/* Perform peripheral init only once */
 	if (!mmc) {
@@ -343,7 +351,7 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 		}
 	}
 
-	boot_mode = spl_boot_mode(bootdev->boot_device);
+	boot_mode = spl_mmc_boot_mode(bootdev->boot_device);
 	err = -EINVAL;
 	switch (boot_mode) {
 	case MMCSD_MODE_EMMCBOOT:
@@ -382,7 +390,7 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 				return err;
 		}
 
-		raw_sect = spl_mmc_get_uboot_raw_sector(mmc);
+		raw_sect = spl_mmc_get_uboot_raw_sector(mmc, raw_sect);
 
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 		err = mmc_load_image_raw_partition(spl_image, mmc, raw_part,
@@ -391,7 +399,8 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 			return err;
 #endif
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
-		err = mmc_load_image_raw_sector(spl_image, mmc, raw_sect);
+		err = mmc_load_image_raw_sector(spl_image, mmc,
+				raw_sect + spl_mmc_raw_uboot_offset(part));
 		if (!err)
 			return err;
 #endif
@@ -423,7 +432,7 @@ int spl_mmc_load_image(struct spl_image_info *spl_image,
 			    NULL,
 #endif
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
-			    spl_boot_partition(bootdev->boot_device),
+			    spl_mmc_boot_partition(bootdev->boot_device),
 #else
 			    0,
 #endif

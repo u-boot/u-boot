@@ -42,7 +42,7 @@
 /*
  * Returns the kernel segment base of a given address
  */
-#define KSEGX(a)		((_ACAST32_ (a)) & 0xe0000000)
+#define KSEGX(a)		((_ACAST32_(a)) & _ACAST32_(0xe0000000))
 
 /*
  * Returns the physical address of a CKSEGx / XKPHYS address
@@ -123,21 +123,7 @@
 #define PHYS_TO_XKSEG_UNCACHED(p)	PHYS_TO_XKPHYS(K_CALG_UNCACHED, (p))
 #define PHYS_TO_XKSEG_CACHED(p)		PHYS_TO_XKPHYS(K_CALG_COH_SHAREABLE, (p))
 #define XKPHYS_TO_PHYS(p)		((p) & TO_PHYS_MASK)
-#define PHYS_TO_XKPHYS(cm, a)		(_CONST64_(0x8000000000000000) | \
-					 (_CONST64_(cm) << 59) | (a))
-
-/*
- * Returns the uncached address of a sdram address
- */
-#ifndef __ASSEMBLY__
-#if defined(CONFIG_TB0229)
-/* We use a 36 bit physical address map here and
-   cannot access physical memory directly from core */
-#define UNCACHED_SDRAM(a) (((unsigned long)(a)) | 0x20000000)
-#else	/* !CONFIG_TB0229 */
-#define UNCACHED_SDRAM(a) CKSEG1ADDR(a)
-#endif	/* CONFIG_TB0229 */
-#endif	/* __ASSEMBLY__ */
+#define PHYS_TO_XKPHYS(cm, a)		(XKPHYS | (_ACAST64_(cm) << 59) | (a))
 
 /*
  * The ultimate limited of the 64-bit MIPS architecture:  2 bits for selecting
@@ -146,17 +132,8 @@
  */
 #define TO_PHYS_MASK	_CONST64_(0x07ffffffffffffff)	/* 2^^59 - 1 */
 
-#ifndef CONFIG_CPU_R8000
-
-/*
- * The R8000 doesn't have the 32-bit compat spaces so we don't define them
- * in order to catch bugs in the source code.
- */
-
 #define COMPAT_K1BASE32		_CONST64_(0xffffffffa0000000)
 #define PHYS_TO_COMPATK1(x)	((x) | COMPAT_K1BASE32) /* 32-bit compat k1 */
-
-#endif
 
 #define KDM_TO_PHYS(x)		(_ACAST64_ (x) & TO_PHYS_MASK)
 #define PHYS_TO_K0(x)		(_ACAST64_ (x) | CAC_BASE)

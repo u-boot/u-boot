@@ -8,10 +8,12 @@
 #include <display.h>
 #include <dm.h>
 #include <edid.h>
+#include <log.h>
 #include <asm/io.h>
 #include <dw_hdmi.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
+#include <linux/bitops.h>
 #include <power/regulator.h>
 #include <clk.h>
 #include <linux/delay.h>
@@ -377,7 +379,9 @@ static int meson_dw_hdmi_probe(struct udevice *dev)
 	struct meson_dw_hdmi *priv = dev_get_priv(dev);
 	struct reset_ctl_bulk resets;
 	struct clk_bulk clocks;
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
 	struct udevice *supply;
+#endif
 	int ret;
 
 	priv->dev = dev;

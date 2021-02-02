@@ -4,7 +4,7 @@
  * Ивайло Димитров <freemangordon@abv.bg>
  *
  * (C) Copyright 2011-2012
- * Pali Rohár <pali.rohar@gmail.com>
+ * Pali Rohár <pali@kernel.org>
  *
  * (C) Copyright 2010
  * Alistair Buxton <a.j.buxton@gmail.com>
@@ -22,7 +22,9 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <env.h>
+#include <init.h>
 #include <watchdog.h>
 #include <malloc.h>
 #include <twl4030.h>
@@ -32,6 +34,7 @@
 #include <asm/setup.h>
 #include <asm/bitops.h>
 #include <asm/mach-types.h>
+#include <asm/omap_i2c.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
@@ -69,18 +72,12 @@ static struct tag_omap omap[] = {
 	OMAP_TAG_GPIO_SWITCH_CONFIG("sleep_ind", 0xa2, 0x2, 0x2, 0x0),
 	OMAP_TAG_GPIO_SWITCH_CONFIG("slide", GPIO_SLIDE, 0x0, 0x0, 0x0),
 	OMAP_TAG_WLAN_CX3110X_CONFIG(0x25, 0xff, 87, 42, -1),
-	OMAP_TAG_PARTITION_CONFIG(PART1_NAME, PART1_SIZE * PART1_MULL,
-			PART1_OFFS, PART1_MASK),
-	OMAP_TAG_PARTITION_CONFIG(PART2_NAME, PART2_SIZE * PART2_MULL,
-			PART2_OFFS, PART2_MASK),
-	OMAP_TAG_PARTITION_CONFIG(PART3_NAME, PART3_SIZE * PART3_MULL,
-			PART3_OFFS, PART3_MASK),
-	OMAP_TAG_PARTITION_CONFIG(PART4_NAME, PART4_SIZE * PART4_MULL,
-			PART4_OFFS, PART4_MASK),
-	OMAP_TAG_PARTITION_CONFIG(PART5_NAME, PART5_SIZE * PART5_MULL,
-			PART5_OFFS, PART5_MASK),
-	OMAP_TAG_PARTITION_CONFIG(PART6_NAME, PART6_SIZE * PART6_MULL,
-			PART6_OFFS, PART6_MASK),
+	OMAP_TAG_PARTITION_CONFIG("bootloader", 128 * 1024, 0x00000000, 0x00000003),
+	OMAP_TAG_PARTITION_CONFIG("config", 384 * 1024, 0x00020000, 0x00000000),
+	OMAP_TAG_PARTITION_CONFIG("log", 256 * 1024, 0x00080000, 0x00000000),
+	OMAP_TAG_PARTITION_CONFIG("kernel", 2 * 1024*1024, 0x000c0000, 0x00000000),
+	OMAP_TAG_PARTITION_CONFIG("initfs", 2 * 1024*1024, 0x002c0000, 0x00000000),
+	OMAP_TAG_PARTITION_CONFIG("rootfs", 257280 * 1024, 0x004c0000, 0x00000000),
 	OMAP_TAG_BOOT_REASON_CONFIG("pwr_key"),
 	OMAP_TAG_VERSION_STR_CONFIG("product", "RX-51"),
 	OMAP_TAG_VERSION_STR_CONFIG("hw-build", "2101"),
@@ -93,6 +90,7 @@ static char *boot_reason_ptr;
 static char *hw_build_ptr;
 static char *nolo_version_ptr;
 static char *boot_mode_ptr;
+static int serial_was_console_enabled;
 
 /*
  * Routine: init_omap_tags
@@ -149,6 +147,13 @@ static void reuse_omap_atags(struct tag_omap *t)
 				strcpy(boot_mode_ptr, version);
 			}
 			break;
+		case OMAP_TAG_UART:
+			if (t->u.uart.enabled_uarts)
+				serial_was_console_enabled = 1;
+			break;
+		case OMAP_TAG_SERIAL_CONSOLE:
+			serial_was_console_enabled = 1;
+			break;
 		default:
 			break;
 		}
@@ -195,8 +200,25 @@ static void reuse_atags(void)
  */
 int board_init(void)
 {
+#if defined(CONFIG_CMD_ONENAND)
+	const u32 gpmc_regs_onenandrx51[GPMC_MAX_REG] = {
+		ONENAND_GPMC_CONFIG1_RX51,
+		ONENAND_GPMC_CONFIG2_RX51,
+		ONENAND_GPMC_CONFIG3_RX51,
+		ONENAND_GPMC_CONFIG4_RX51,
+		ONENAND_GPMC_CONFIG5_RX51,
+		ONENAND_GPMC_CONFIG6_RX51,
+		0
+	};
+#endif
 	/* in SRAM or SDRAM, finish GPMC */
 	gpmc_init();
+#if defined(CONFIG_CMD_ONENAND)
+	enable_gpmc_cs_config(gpmc_regs_onenandrx51, &gpmc_cfg->cs[0],
+			      CONFIG_SYS_ONENAND_BASE, GPMC_SIZE_256M);
+#endif
+	/* Enable the clks & power */
+	per_clocks_enable();
 	/* boot param addr */
 	gd->bd->bi_boot_params = OMAP34XX_SDRC_CS0 + 0x100;
 	return 0;
@@ -239,10 +261,17 @@ void setup_board_tags(struct tag **in_params)
 		return;
 
 	str = env_get("setup_console_atag");
-	if (str && str[0] == '1')
-		setup_console_atag = 1;
-	else
-		setup_console_atag = 0;
+	if (str && str[0]) {
+		if (str[0] == '1')
+			setup_console_atag = 1;
+		else
+			setup_console_atag = 0;
+	} else {
+		if (serial_was_console_enabled)
+			setup_console_atag = 1;
+		else
+			setup_console_atag = 0;
+	}
 
 	setup_boot_reason_atag = env_get("setup_boot_reason_atag");
 	setup_boot_mode_atag = env_get("setup_boot_mode_atag");
@@ -376,14 +405,13 @@ static void omap3_update_aux_cr_secure_rx51(u32 set_bits, u32 clear_bits)
  */
 int misc_init_r(void)
 {
+	struct udevice *dev;
 	char buf[12];
 	u8 state;
 
-	/* reset lp5523 led */
-	i2c_set_bus_num(1);
-	state = 0xff;
-	i2c_write(0x32, 0x3d, 1, &state, 1);
-	i2c_set_bus_num(0);
+	/* disable lp5523 led */
+	if (i2c_get_chip_for_busnum(1, 0x32, 1, &dev) == 0)
+		dm_i2c_reg_write(dev, 0x00, 0x00);
 
 	/* initialize twl4030 power managment */
 	twl4030_power_init();
@@ -616,8 +644,8 @@ int rx51_kp_tstc(struct stdio_dev *sdev)
 			continue;
 
 		/* read the key state */
-		i2c_read(TWL4030_CHIP_KEYPAD,
-			TWL4030_KEYPAD_FULL_CODE_7_0, 1, keys, 8);
+		twl4030_i2c_read(TWL4030_CHIP_KEYPAD,
+				 TWL4030_KEYPAD_FULL_CODE_7_0, keys, 8);
 
 		/* cut out modifier keys from the keystate */
 		mods = keys[4] >> 4;
@@ -662,7 +690,7 @@ int rx51_kp_getc(struct stdio_dev *sdev)
  * Routine: board_mmc_init
  * Description: Initialize mmc devices.
  */
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	omap_mmc_init(0, 0, 0, -1, -1);
 	omap_mmc_init(1, 0, 0, -1, -1);
@@ -674,3 +702,15 @@ void board_mmc_power_init(void)
 	twl4030_power_mmc_init(0);
 	twl4030_power_mmc_init(1);
 }
+
+static const struct omap_i2c_platdata rx51_i2c[] = {
+	{ I2C_BASE1, 100000, OMAP_I2C_REV_V1 },
+	{ I2C_BASE2, 100000, OMAP_I2C_REV_V1 },
+	{ I2C_BASE3, 100000, OMAP_I2C_REV_V1 },
+};
+
+U_BOOT_DEVICES(rx51_i2c) = {
+	{ "i2c_omap", &rx51_i2c[0] },
+	{ "i2c_omap", &rx51_i2c[1] },
+	{ "i2c_omap", &rx51_i2c[2] },
+};

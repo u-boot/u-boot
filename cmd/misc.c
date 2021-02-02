@@ -1,85 +1,134 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * (C) Copyright 2001
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * Copyright (c) 2020 Wind River Systems, Inc.
+ *
+ * Author:
+ *   Bin Meng <bin.meng@windriver.com>
+ *
+ * A command interface to access misc devices with MISC uclass driver APIs.
  */
 
-/*
- * Misc functions
- */
 #include <common.h>
 #include <command.h>
-#include <console.h>
+#include <dm.h>
+#include <errno.h>
+#include <misc.h>
 
-static int do_sleep(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+enum misc_op {
+	MISC_OP_READ,
+	MISC_OP_WRITE
+};
+
+static char *misc_op_str[] = {
+	"read",
+	"write"
+};
+
+static int do_misc_list(struct cmd_tbl *cmdtp, int flag,
+			int argc, char *const argv[])
 {
-	ulong start = get_timer(0);
-	ulong mdelay = 0;
-	ulong delay;
-	char *frpart;
+	struct udevice *dev;
 
-	if (argc != 2)
-		return CMD_RET_USAGE;
+	printf("Device               Index     Driver\n");
+	printf("-------------------------------------\n");
+	for (uclass_first_device(UCLASS_MISC, &dev);
+	     dev;
+	     uclass_next_device(&dev)) {
+		printf("%-20s %5d %10s\n", dev->name, dev->seq,
+		       dev->driver->name);
+	}
 
-	delay = simple_strtoul(argv[1], NULL, 10) * CONFIG_SYS_HZ;
+	return 0;
+}
 
-	frpart = strchr(argv[1], '.');
+static int do_misc_op(struct cmd_tbl *cmdtp, int flag,
+		      int argc, char *const argv[], enum misc_op op)
+{
+	int (*misc_op)(struct udevice *, int, void *, int);
+	struct udevice *dev;
+	int offset;
+	void *buf;
+	int size;
+	int ret;
 
-	if (frpart) {
-		uint mult = CONFIG_SYS_HZ / 10;
-		for (frpart++; *frpart != '\0' && mult > 0; frpart++) {
-			if (*frpart < '0' || *frpart > '9') {
-				mdelay = 0;
-				break;
-			}
-			mdelay += (*frpart - '0') * mult;
-			mult /= 10;
+	ret = uclass_get_device_by_name(UCLASS_MISC, argv[0], &dev);
+	if (ret) {
+		printf("Unable to find device %s\n", argv[0]);
+		return ret;
+	}
+
+	offset = simple_strtoul(argv[1], NULL, 16);
+	buf = (void *)simple_strtoul(argv[2], NULL, 16);
+	size = simple_strtoul(argv[3], NULL, 16);
+
+	if (op == MISC_OP_READ)
+		misc_op = misc_read;
+	else
+		misc_op = misc_write;
+
+	ret = misc_op(dev, offset, buf, size);
+	if (ret < 0) {
+		if (ret == -ENOSYS) {
+			printf("The device does not support %s\n",
+			       misc_op_str[op]);
+			ret = 0;
 		}
+	} else {
+		if (ret == size)
+			ret = 0;
+		else
+			printf("Partially %s %d bytes\n", misc_op_str[op], ret);
 	}
 
-	delay += mdelay;
-
-	while (get_timer(start) < delay) {
-		if (ctrlc())
-			return (-1);
-
-		udelay(100);
-	}
-
-	return 0;
+	return ret;
 }
 
-U_BOOT_CMD(
-	sleep ,    2,    1,     do_sleep,
-	"delay execution for some time",
-	"N\n"
-	"    - delay execution for N seconds (N is _decimal_ and can be\n"
-	"      fractional)"
-);
-
-#ifdef CONFIG_CMD_TIMER
-static int do_timer(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_misc_read(struct cmd_tbl *cmdtp, int flag,
+			int argc, char *const argv[])
 {
-	static ulong start;
+	return do_misc_op(cmdtp, flag, argc, argv, MISC_OP_READ);
+}
 
-	if (argc != 2)
+static int do_misc_write(struct cmd_tbl *cmdtp, int flag,
+			 int argc, char *const argv[])
+{
+	return do_misc_op(cmdtp, flag, argc, argv, MISC_OP_WRITE);
+}
+
+static struct cmd_tbl misc_commands[] = {
+	U_BOOT_CMD_MKENT(list, 0, 1, do_misc_list, "", ""),
+	U_BOOT_CMD_MKENT(read, 4, 1, do_misc_read, "", ""),
+	U_BOOT_CMD_MKENT(write, 4, 1, do_misc_write, "", ""),
+};
+
+static int do_misc(struct cmd_tbl *cmdtp, int flag,
+		   int argc, char *const argv[])
+{
+	struct cmd_tbl *misc_cmd;
+	int ret;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+	misc_cmd = find_cmd_tbl(argv[1], misc_commands,
+				ARRAY_SIZE(misc_commands));
+	argc -= 2;
+	argv += 2;
+	if (!misc_cmd || argc != misc_cmd->maxargs)
 		return CMD_RET_USAGE;
 
-	if (!strcmp(argv[1], "start"))
-		start = get_timer(0);
+	ret = misc_cmd->cmd(misc_cmd, flag, argc, argv);
 
-	if (!strcmp(argv[1], "get")) {
-		ulong msecs = get_timer(start) * 1000 / CONFIG_SYS_HZ;
-		printf("%ld.%03d\n", msecs / 1000, (int)(msecs % 1000));
-	}
-
-	return 0;
+	return cmd_process_error(misc_cmd, ret);
 }
 
 U_BOOT_CMD(
-	timer,    2,    1,     do_timer,
-	"access the system timer",
-	"start - Reset the timer reference.\n"
-	"timer get   - Print the time since 'start'."
+	misc,	6,	1,	do_misc,
+	"Access miscellaneous devices with MISC uclass driver APIs",
+	"list                       - list all miscellaneous devices\n"
+	"misc read  name offset addr len - read `len' bytes starting at\n"
+	"				  `offset' of device `name'\n"
+	"				  to memory at `addr'\n"
+	"misc write name offset addr len - write `len' bytes starting at\n"
+	"				  `offset' of device `name'\n"
+	"				  from memory at `addr'"
 );
-#endif

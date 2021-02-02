@@ -16,6 +16,8 @@
 #ifndef _I2C_H_
 #define _I2C_H_
 
+#include <linker_lists.h>
+
 /*
  * For now there are essentially two parts to this file - driver model
  * here at the top, and the older code below (with CONFIG_SYS_I2C being
@@ -28,6 +30,38 @@ enum dm_i2c_chip_flags {
 	DM_I2C_CHIP_10BIT	= 1 << 0, /* Use 10-bit addressing */
 	DM_I2C_CHIP_RD_ADDRESS	= 1 << 1, /* Send address for each read byte */
 	DM_I2C_CHIP_WR_ADDRESS	= 1 << 2, /* Send address for each write byte */
+};
+
+/** enum i2c_speed_mode - standard I2C speed modes */
+enum i2c_speed_mode {
+	IC_SPEED_MODE_STANDARD,
+	IC_SPEED_MODE_FAST,
+	IC_SPEED_MODE_FAST_PLUS,
+	IC_SPEED_MODE_HIGH,
+	IC_SPEED_MODE_FAST_ULTRA,
+
+	IC_SPEED_MODE_COUNT,
+};
+
+/** enum i2c_speed_rate - standard I2C speeds in Hz */
+enum i2c_speed_rate {
+	I2C_SPEED_STANDARD_RATE		= 100000,
+	I2C_SPEED_FAST_RATE		= 400000,
+	I2C_SPEED_FAST_PLUS_RATE	= 1000000,
+	I2C_SPEED_HIGH_RATE		= 3400000,
+	I2C_SPEED_FAST_ULTRA_RATE	= 5000000,
+};
+
+/** enum i2c_address_mode - available address modes */
+enum i2c_address_mode {
+	I2C_MODE_7_BIT,
+	I2C_MODE_10_BIT
+};
+
+/** enum i2c_device_t - Types of I2C devices, used for compatible strings */
+enum i2c_device_t {
+	I2C_DEVICE_GENERIC,
+	I2C_DEVICE_HID_OVER_I2C,
 };
 
 struct udevice;
@@ -305,6 +339,24 @@ uint i2c_get_chip_addr_offset_mask(struct udevice *dev);
 int i2c_deblock(struct udevice *bus);
 
 /**
+ * i2c_deblock_gpio_loop() - recover a bus from an unknown state by toggling SDA/SCL
+ *
+ * This is the inner logic used for toggling I2C SDA/SCL lines as GPIOs
+ * for deblocking the I2C bus.
+ *
+ * @sda_pin:	SDA GPIO
+ * @scl_pin:	SCL GPIO
+ * @scl_count:	Number of SCL clock cycles generated to deblock SDA
+ * @start_count:Number of I2C start conditions sent after deblocking SDA
+ * @delay:	Delay between SCL clock line changes
+ * @return 0 if OK, -ve on error
+ */
+struct gpio_desc;
+int i2c_deblock_gpio_loop(struct gpio_desc *sda_pin, struct gpio_desc *scl_pin,
+			  unsigned int scl_count, unsigned int start_count,
+			  unsigned int delay);
+
+/**
  * struct dm_i2c_ops - driver operations for I2C uclass
  *
  * Drivers should support these operations unless otherwise noted. These
@@ -511,6 +563,23 @@ int i2c_emul_find(struct udevice *dev, struct udevice **emulp);
  * @return device that @emul is emulating
  */
 struct udevice *i2c_emul_get_device(struct udevice *emul);
+
+/* ACPI operations for generic I2C devices */
+extern struct acpi_ops i2c_acpi_ops;
+
+/**
+ * acpi_i2c_ofdata_to_platdata() - Read properties intended for ACPI
+ *
+ * This reads the generic I2C properties from the device tree, so that these
+ * can be used to create ACPI information for the device.
+ *
+ * See the i2c/generic-acpi.txt binding file for information about the
+ * properties.
+ *
+ * @dev: I2C device to process
+ * @return 0 if OK, -EINVAL if acpi,hid is not present
+ */
+int acpi_i2c_ofdata_to_platdata(struct udevice *dev);
 
 #ifndef CONFIG_DM_I2C
 

@@ -8,6 +8,8 @@
 #ifndef _SMBIOS_H_
 #define _SMBIOS_H_
 
+#include <dm/ofnode.h>
+
 /* SMBIOS spec version implemented */
 #define SMBIOS_MAJOR_VER	3
 #define SMBIOS_MINOR_VER	0
@@ -222,9 +224,10 @@ static inline void fill_smbios_header(void *table, int type,
  *
  * @addr:	start address to write the structure
  * @handle:	the structure's handle, a unique 16-bit number
+ * @node:	node containing the information to write (ofnode_null() if none)
  * @return:	size of the structure
  */
-typedef int (*smbios_write_type)(ulong *addr, int handle);
+typedef int (*smbios_write_type)(ulong *addr, int handle, ofnode node);
 
 /**
  * write_smbios_table() - Write SMBIOS table
@@ -236,5 +239,32 @@ typedef int (*smbios_write_type)(ulong *addr, int handle);
  * @return:	end address of SMBIOS table (and start address for next entry)
  */
 ulong write_smbios_table(ulong addr);
+
+/**
+ * smbios_entry() - Get a valid struct smbios_entry pointer
+ *
+ * @address:   address where smbios tables is located
+ * @size:      size of smbios table
+ * @return:    NULL or a valid pointer to a struct smbios_entry
+ */
+const struct smbios_entry *smbios_entry(u64 address, u32 size);
+
+/**
+ * smbios_header() - Search for SMBIOS header type
+ *
+ * @entry:     pointer to a struct smbios_entry
+ * @type:      SMBIOS type
+ * @return:    NULL or a valid pointer to a struct smbios_header
+ */
+const struct smbios_header *smbios_header(const struct smbios_entry *entry, int type);
+
+/**
+ * smbios_string() - Return string from SMBIOS
+ *
+ * @header:    pointer to struct smbios_header
+ * @index:     string index
+ * @return:    NULL or a valid const char pointer
+ */
+const char *smbios_string(const struct smbios_header *header, int index);
 
 #endif /* _SMBIOS_H_ */

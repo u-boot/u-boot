@@ -53,10 +53,6 @@
 
 /* UART Configuration */
 #define CONFIG_SYS_NS16550_MEM32
-#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_DM_SERIAL)
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	-4
-#endif
 #define CONFIG_SYS_NS16550_COM1		KS2_UART0_BASE
 #define CONFIG_SYS_NS16550_COM2		KS2_UART1_BASE
 
@@ -68,24 +64,8 @@
 
 /* SPI Configuration */
 #define CONFIG_SYS_SPI_CLK		ks_clk_get_rate(KS2_CLK1_6)
-#define CONFIG_SYS_SPI0
-#define CONFIG_SYS_SPI_BASE		KS2_SPI0_BASE
-#define CONFIG_SYS_SPI0_NUM_CS		4
-#define CONFIG_SYS_SPI1
-#define CONFIG_SYS_SPI1_BASE		KS2_SPI1_BASE
-#define CONFIG_SYS_SPI1_NUM_CS		4
-#define CONFIG_SYS_SPI2
-#define CONFIG_SYS_SPI2_BASE		KS2_SPI2_BASE
-#define CONFIG_SYS_SPI2_NUM_CS		4
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_DM_SPI
-#undef CONFIG_DM_SPI_FLASH
-#endif
 
 /* Network Configuration */
-#define CONFIG_BOOTP_DEFAULT
-#define CONFIG_BOOTP_DNS2
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT		32
 #define CONFIG_SYS_SGMII_REFCLK_MHZ	312
 #define CONFIG_SYS_SGMII_LINERATE_MHZ	1250
@@ -213,6 +193,7 @@
 	"tftp_root=/\0"							\
 	"nfs_root=/export\0"						\
 	"mem_lpae=1\0"							\
+	"uinitrd_fixup=1\0"						\
 	"addr_ubi=0x82000000\0"						\
 	"addr_secdb_key=0xc000000\0"					\
 	"name_kern=zImage\0"						\

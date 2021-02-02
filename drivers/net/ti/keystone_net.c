@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <console.h>
+#include <linux/delay.h>
 
 #include <dm.h>
 #include <dm/lists.h>
@@ -21,6 +22,7 @@
 #include <asm/ti-common/keystone_net.h>
 #include <asm/ti-common/keystone_serdes.h>
 #include <asm/arch/psc_defs.h>
+#include <linux/libfdt.h>
 
 #include "cpsw_mdio.h"
 
@@ -785,7 +787,7 @@ static int ks2_eth_ofdata_to_platdata(struct udevice *dev)
 
 	ks2_eth_parse_slave_interface(dev_of_offset(dev), gbe_0, priv, pdata);
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 
 	return 0;
 }

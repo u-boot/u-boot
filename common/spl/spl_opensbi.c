@@ -8,9 +8,12 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <errno.h>
+#include <hang.h>
+#include <image.h>
 #include <spl.h>
 #include <asm/smp.h>
 #include <opensbi.h>
+#include <linux/libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -53,16 +56,14 @@ void spl_invoke_opensbi(struct spl_image_info *spl_image)
 	/* Find U-Boot image in /fit-images */
 	ret = spl_opensbi_find_uboot_node(spl_image->fdt_addr, &uboot_node);
 	if (ret) {
-		pr_err("Can't find U-Boot node, %d", ret);
+		pr_err("Can't find U-Boot node, %d\n", ret);
 		hang();
 	}
 
 	/* Get U-Boot entry point */
-	uboot_entry = fdt_getprop_u32(spl_image->fdt_addr, uboot_node,
-				      "entry-point");
-	if (uboot_entry == FDT_ERROR)
-		uboot_entry = fdt_getprop_u32(spl_image->fdt_addr, uboot_node,
-					      "load-addr");
+	ret = fit_image_get_entry(spl_image->fdt_addr, uboot_node, &uboot_entry);
+	if (ret)
+		ret = fit_image_get_load(spl_image->fdt_addr, uboot_node, &uboot_entry);
 
 	/* Prepare obensbi_info object */
 	opensbi_info.magic = FW_DYNAMIC_INFO_MAGIC_VALUE;
@@ -75,7 +76,7 @@ void spl_invoke_opensbi(struct spl_image_info *spl_image)
 	opensbi_entry = (void (*)(ulong, ulong, ulong))spl_image->entry_point;
 	invalidate_icache_all();
 
-#ifdef CONFIG_SMP
+#ifdef CONFIG_SPL_SMP
 	/*
 	 * Start OpenSBI on all secondary harts and wait for acknowledgment.
 	 *

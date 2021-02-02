@@ -7,10 +7,17 @@ controllers on MediaTek SoCs, such as, USB2.0, USB3.0, PCIe, and SATA.
 Required properties (controller (parent) node):
  - compatible	: should be one of
 		  "mediatek,generic-tphy-v1"
- - clocks	: (deprecated, use port's clocks instead) a list of phandle +
-		  clock-specifier pairs, one for each entry in clock-names
- - clock-names	: (deprecated, use port's one instead) must contain
-		  "u3phya_ref": for reference clock of usb3.0 analog phy.
+		  "mediatek,generic-tphy-v2"
+
+- #address-cells:	the number of cells used to represent physical
+		base addresses.
+- #size-cells:	the number of cells used to represent the size of an address.
+- ranges:	the address mapping relationship to the parent, defined with
+		- empty value: if optional 'reg' is used.
+		- non-empty value: if optional 'reg' is not used. should set
+			the child's base address to 0, the physical address
+			within parent's address space, and the length of
+			the address map.
 
 Required nodes	: a sub-node is required for each port the controller
 		  provides. Address range information including the usual
@@ -27,18 +34,23 @@ Optional properties (controller (parent) node):
 
 Required properties (port (child) node):
 - reg		: address and length of the register set for the port.
-- clocks	: a list of phandle + clock-specifier pairs, one for each
-		  entry in clock-names
-- clock-names	: must contain
-		  "ref": 48M reference clock for HighSpeed analog phy; and 26M
-			reference clock for SuperSpeed analog phy, sometimes is
-			24M, 25M or 27M, depended on platform.
 - #phy-cells	: should be 1 (See second example)
 		  cell after port phandle is phy type from:
 			- PHY_TYPE_USB2
 			- PHY_TYPE_USB3
 			- PHY_TYPE_PCIE
 			- PHY_TYPE_SATA
+
+Optional properties (port (child) node):
+- clocks	: a list of phandle + clock-specifier pairs, one for each
+		  entry in clock-names
+- clock-names	: may contain
+		  "ref": 48M reference clock for HighSpeed (digital) phy; and 26M
+			reference clock for SuperSpeed (digital) phy, sometimes is
+			24M, 25M or 27M, depended on platform.
+		  "da_ref": the reference clock of analog phy, used if the clocks
+			of analog and digital phys are separated, otherwise uses
+			"ref" clock only if needed.
 
 Example:
 
@@ -84,3 +96,49 @@ usb30: usb@11270000 {
 	phy-names = "usb2-0", "usb3-0";
 	...
 };
+
+Layout differences of banks between TPHY V1 and V2
+-------------------------------------------------------------
+IP V1:
+port        offset    bank
+shared      0x0000    SPLLC
+            0x0100    FMREG
+u2 port0    0x0800    U2PHY_COM
+u3 port0    0x0900    U3PHYD
+            0x0a00    U3PHYD_BANK2
+            0x0b00    U3PHYA
+            0x0c00    U3PHYA_DA
+u2 port1    0x1000    U2PHY_COM
+u3 port1    0x1100    U3PHYD
+            0x1200    U3PHYD_BANK2
+            0x1300    U3PHYA
+            0x1400    U3PHYA_DA
+u2 port2    0x1800    U2PHY_COM
+            ...
+
+IP V2:
+port        offset    bank
+u2 port0    0x0000    MISC
+            0x0100    FMREG
+            0x0300    U2PHY_COM
+u3 port0    0x0700    SPLLC
+            0x0800    CHIP
+            0x0900    U3PHYD
+            0x0a00    U3PHYD_BANK2
+            0x0b00    U3PHYA
+            0x0c00    U3PHYA_DA
+u2 port1    0x1000    MISC
+            0x1100    FMREG
+            0x1300    U2PHY_COM
+u3 port1    0x1700    SPLLC
+            0x1800    CHIP
+            0x1900    U3PHYD
+            0x1a00    U3PHYD_BANK2
+            0x1b00    U3PHYA
+            0x1c00    U3PHYA_DA
+u2 port2    0x2000    MISC
+            ...
+
+    SPLLC shared by u3 ports and FMREG shared by u2 ports on
+TPHY V1 are put back into each port; a new bank MISC for
+u2 ports and CHIP for u3 ports are added on TPHY V2.

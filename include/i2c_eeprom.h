@@ -16,8 +16,6 @@ struct i2c_eeprom_ops {
 struct i2c_eeprom {
 	/* The EEPROM's page size in byte */
 	unsigned long pagesize;
-	/* The EEPROM's page width in bits (pagesize = 2^pagewidth) */
-	unsigned pagewidth;
 	/* The EEPROM's capacity in bytes */
 	unsigned long size;
 };

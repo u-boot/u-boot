@@ -14,6 +14,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/i8259.h>
 #include <asm/ibmpc.h>

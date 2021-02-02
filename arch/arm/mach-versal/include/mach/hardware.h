@@ -3,6 +3,10 @@
  * Copyright 2016 - 2018 Xilinx, Inc.
  */
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 #define VERSAL_CRL_APB_BASEADDR	0xFF5E0000
 
 #define CRL_APB_TIMESTAMP_REF_CTRL_CLKACT_BIT	BIT(25)

@@ -297,7 +297,7 @@ int ivm_analyze_eeprom(unsigned char *buf, int len)
 	return 0;
 }
 
-static int ivm_populate_env(unsigned char *buf, int len)
+static int ivm_populate_env(unsigned char *buf, int len, int mac_address_offset)
 {
 	unsigned char	*page2;
 	unsigned char	valbuf[MAC_STR_SZ];
@@ -309,26 +309,43 @@ static int ivm_populate_env(unsigned char *buf, int len)
 
 #ifndef CONFIG_KMTEGR1
 	/* if an offset is defined, add it */
-	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADRESS_OFFSET, true);
+	process_mac(valbuf, page2, mac_address_offset, true);
 	env_set((char *)"ethaddr", (char *)valbuf);
 #else
 /* KMTEGR1 has a special setup. eth0 has no connection to the outside and
  * gets an locally administred MAC address, eth1 is the debug interface and
  * gets the official MAC address from the IVM
  */
-	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADRESS_OFFSET, false);
+	process_mac(valbuf, page2, mac_address_offset, false);
 	env_set((char *)"ethaddr", (char *)valbuf);
-	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADRESS_OFFSET, true);
+	process_mac(valbuf, page2, mac_address_offset, true);
 	env_set((char *)"eth1addr", (char *)valbuf);
 #endif
 
 	return 0;
 }
 
-int ivm_read_eeprom(unsigned char *buf, int len)
+int ivm_read_eeprom(unsigned char *buf, int len, int mac_address_offset)
 {
 	int ret;
+#ifdef CONFIG_DM_I2C
+	struct udevice *eedev = NULL;
 
+	ret = i2c_get_chip_for_busnum(CONFIG_KM_IVM_BUS,
+				      CONFIG_SYS_I2C_EEPROM_ADDR, 1, &eedev);
+	if (ret) {
+		printf("failed to get device for EEPROM at address 0x%02x\n",
+		       CONFIG_SYS_I2C_EEPROM_ADDR);
+		return 1;
+	}
+
+	ret = dm_i2c_read(eedev, 0, buf, len);
+	if (ret != 0) {
+		printf("Error: Unable to read from I2C EEPROM at address %02X:%02X\n",
+		       CONFIG_SYS_I2C_EEPROM_ADDR, 0);
+		return 1;
+	}
+#else
 	i2c_set_bus_num(CONFIG_KM_IVM_BUS);
 	/* add deblocking here */
 	i2c_make_abort();
@@ -338,6 +355,6 @@ int ivm_read_eeprom(unsigned char *buf, int len)
 		printf("Error reading EEprom\n");
 		return -2;
 	}
-
-	return ivm_populate_env(buf, len);
+#endif
+	return ivm_populate_env(buf, len, mac_address_offset);
 }

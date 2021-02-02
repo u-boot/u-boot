@@ -6,7 +6,10 @@
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
  */
 
+#include <common.h>
+#include <image.h>
 #include <init.h>
+#include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>
@@ -22,6 +25,7 @@
 #include <asm/mach-imx/sata.h>
 #include <asm/io.h>
 #include <env.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 #include <common.h>
 #include <miiphy.h>
@@ -361,17 +365,15 @@ int power_init_board(void)
 	struct udevice *dev;
 	int reg, ret;
 
-	puts("PMIC:  ");
-
-	ret = pmic_get("pfuze100", &dev);
+	ret = pmic_get("pfuze100@8", &dev);
 	if (ret < 0) {
-		printf("pmic_get() ret %d\n", ret);
+		debug("pmic_get() ret %d\n", ret);
 		return 0;
 	}
 
 	reg = pmic_reg_read(dev, PFUZE100_DEVICEID);
 	if (reg < 0) {
-		printf("pmic_reg_read() ret %d\n", reg);
+		debug("pmic_reg_read() ret %d\n", reg);
 		return 0;
 	}
 	printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
@@ -406,6 +408,7 @@ static const struct boot_mode board_boot_modes[] = {
 static bool is_revc1(void)
 {
 	SETUP_IOMUX_PADS(rev_detection_pad);
+	gpio_request(REV_DETECTION, "REV_DETECT");
 	gpio_direction_input(REV_DETECTION);
 
 	if (gpio_get_value(REV_DETECTION))
@@ -444,6 +447,14 @@ int board_late_init(void)
 		env_set("board_name", "B1");
 #endif
 	setup_iomux_enet();
+
+	if (is_revd1())
+		puts("Board: Wandboard rev D1\n");
+	else if (is_revc1())
+		puts("Board: Wandboard rev C1\n");
+	else
+		puts("Board: Wandboard rev B1\n");
+
 	return 0;
 }
 
@@ -468,31 +479,17 @@ int board_init(void)
 	return 0;
 }
 
-int checkboard(void)
-{
-	gpio_request(REV_DETECTION, "REV_DETECT");
-
-	if (is_revd1())
-		puts("Board: Wandboard rev D1\n");
-	else if (is_revc1())
-		puts("Board: Wandboard rev C1\n");
-	else
-		puts("Board: Wandboard rev B1\n");
-
-	return 0;
-}
-
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
 	if (is_mx6dq()) {
-		if (!strcmp(name, "imx6q-wandboard-revb1"))
+		if (!strcmp(name, "imx6q-wandboard-revd1"))
 			return 0;
 	} else if (is_mx6dqp()) {
 		if (!strcmp(name, "imx6qp-wandboard-revd1"))
 			return 0;
 	} else if (is_mx6dl() || is_mx6solo()) {
-		if (!strcmp(name, "imx6dl-wandboard-revb1"))
+		if (!strcmp(name, "imx6dl-wandboard-revd1"))
 			return 0;
 	}
 

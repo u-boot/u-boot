@@ -37,7 +37,6 @@
 /*
  * Serial
  */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART2_BASE
 
 /*
@@ -50,14 +49,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-
-/*
- * Command line configuration.
- */
-
-/*
- * Additional command
- */
 
 /*
  * USB
@@ -90,9 +81,6 @@
  */
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE
-
-#define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM + (512*1024))
-#define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM + PHYS_SDRAM_SIZE)
 
 
 /*

@@ -8,6 +8,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>
@@ -1305,7 +1306,7 @@ static const struct udevice_id arasan_nand_dt_ids[] = {
 };
 
 U_BOOT_DRIVER(arasan_nand) = {
-	.name = "arasan-nand",
+	.name = "arasan_nand",
 	.id = UCLASS_MTD,
 	.of_match = arasan_nand_dt_ids,
 	.probe = arasan_probe,

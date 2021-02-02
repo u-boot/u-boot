@@ -1,0 +1,135 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+#include <config.h>
+
+/ {
+	aliases {
+		mmc0 = &esdhc1;
+		mmc1 = &esdhc0;
+		i2c0 = &i2c0;
+		i2c1 = &i2c3;
+		i2c2 = &i2c4;
+		rtc0 = &rtc;
+		ethernet0 = &enetc0;
+		ethernet1 = &enetc1;
+		ethernet2 = &enetc2;
+		ethernet3 = &enetc6;
+	};
+
+	binman {
+		filename = "u-boot.rom";
+		pad-byte = <0xff>;
+
+		u-boot-spl {
+		};
+
+		fit {
+			offset = <CONFIG_SPL_PAD_TO>;
+			description = "FIT image with multiple configurations";
+
+			images {
+				uboot {
+					description = "U-Boot";
+					type = "firmware";
+					os = "u-boot";
+					arch = "arm";
+					compression = "none";
+					load = <CONFIG_SYS_TEXT_BASE>;
+
+					u-boot-nodtb {
+					};
+				};
+
+				fdt-1 {
+					description = "fsl-ls1028a-kontron-sl28";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+
+					blob {
+						filename = "arch/arm/dts/fsl-ls1028a-kontron-sl28.dtb";
+					};
+				};
+
+				fdt-2 {
+					description = "fsl-ls1028a-kontron-sl28-var3";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+
+					blob {
+						filename = "arch/arm/dts/fsl-ls1028a-kontron-sl28-var3.dtb";
+					};
+				};
+
+				fdt-3 {
+					description = "fsl-ls1028a-kontron-sl28-var4";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+
+					blob {
+						filename = "arch/arm/dts/fsl-ls1028a-kontron-sl28-var4.dtb";
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-1";
+
+				conf-1 {
+					description = "fsl-ls1028a-kontron-sl28";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-1";
+				};
+
+				conf-2 {
+					description = "fsl-ls1028a-kontron-sl28-var3";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-2";
+				};
+
+				conf-3 {
+					description = "fsl-ls1028a-kontron-sl28-var4";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-3";
+				};
+			};
+		};
+	};
+};
+
+&i2c0 {
+	rtc: rtc@32 {
+	};
+};
+
+&fspi {
+	u-boot,dm-pre-reloc;
+	flash@0 {
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&dspi2 {
+	u-boot,dm-pre-reloc;
+};
+
+&esdhc0 {
+	u-boot,dm-pre-reloc;
+};
+
+&esdhc1 {
+	u-boot,dm-pre-reloc;
+};
+
+&serial0 {
+	u-boot,dm-pre-reloc;
+};
+
+&sysclk {
+	u-boot,dm-pre-reloc;
+};

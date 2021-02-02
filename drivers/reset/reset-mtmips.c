@@ -8,7 +8,10 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
+#include <malloc.h>
 #include <reset-uclass.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 
 struct mtmips_reset_priv {
@@ -45,7 +48,7 @@ static int mtmips_reset_deassert(struct reset_ctl *reset_ctl)
 
 static const struct reset_ops mtmips_reset_ops = {
 	.request	= mtmips_reset_request,
-	.free		= mtmips_reset_free,
+	.rfree		= mtmips_reset_free,
 	.rst_assert	= mtmips_reset_assert,
 	.rst_deassert	= mtmips_reset_deassert,
 };

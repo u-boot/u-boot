@@ -12,6 +12,9 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "edison"
 
+config SYS_MALLOC_LEN
+	default 0x08000000
+
 config SYS_TEXT_BASE
 	default 0x01101000
 
@@ -28,5 +31,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	select INTEL_TANGIER
 	select BOARD_LATE_INIT
 	select MD5
+	imply BINMAN
 
 endif

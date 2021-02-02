@@ -5,9 +5,11 @@
 
 #include <common.h>
 #include <dm.h>
+#include <part.h>
 #include <usb.h>
 #include <asm/state.h>
 #include <dm/test.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -41,7 +43,7 @@ static int dm_test_blk_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_blk_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_blk_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 static int count_blk_devices(void)
 {
@@ -87,7 +89,7 @@ static int dm_test_blk_usb(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_blk_usb, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_blk_usb, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that we can find block devices without probing them */
 static int dm_test_blk_find(struct unit_test_state *uts)
@@ -108,7 +110,7 @@ static int dm_test_blk_find(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_blk_find, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_blk_find, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that block device numbering works as expected */
 static int dm_test_blk_devnum(struct unit_test_state *uts)
@@ -143,7 +145,7 @@ static int dm_test_blk_devnum(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_blk_devnum, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_blk_devnum, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test that we can get a block from its parent */
 static int dm_test_blk_get_from_parent(struct unit_test_state *uts)
@@ -161,4 +163,4 @@ static int dm_test_blk_get_from_parent(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_blk_get_from_parent, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_blk_get_from_parent, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

@@ -6,7 +6,10 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <image.h>
 #include <init.h>
+#include <log.h>
+#include <net.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
@@ -17,6 +20,7 @@
 #include <asm/io.h>
 #include <asm/fsl_serdes.h>
 #include <miiphy.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <tsec.h>
@@ -172,7 +176,7 @@ int board_early_init_r(void)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_TSEC_ENET
 	struct fsl_pq_mdio_info mdio_info;
@@ -233,7 +237,7 @@ int board_eth_init(bd_t *bis)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;

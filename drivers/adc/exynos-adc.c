@@ -106,7 +106,7 @@ int exynos_adc_ofdata_to_platdata(struct udevice *dev)
 	struct adc_uclass_platdata *uc_pdata = dev_get_uclass_platdata(dev);
 	struct exynos_adc_priv *priv = dev_get_priv(dev);
 
-	priv->regs = (struct exynos_adc_v2 *)devfdt_get_addr(dev);
+	priv->regs = dev_read_addr_ptr(dev);
 	if (priv->regs == (struct exynos_adc_v2 *)FDT_ADDR_T_NONE) {
 		pr_err("Dev: %s - can't get address!", dev->name);
 		return -ENODATA;

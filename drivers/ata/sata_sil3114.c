@@ -8,6 +8,9 @@
  */
 
 #include <common.h>
+#include <blk.h>
+#include <log.h>
+#include <part.h>
 #include <pci.h>
 #include <command.h>
 #include <config.h>
@@ -16,6 +19,7 @@
 #include <ide.h>
 #include <sata.h>
 #include <libata.h>
+#include <linux/delay.h>
 #include "sata_sil3114.h"
 
 /* Convert sectorsize to wordsize */
@@ -61,9 +65,9 @@ static int sata_bus_softreset (int num)
 
 	port[num].ctl_reg = 0x08;	/*Default value of control reg */
 	writeb (port[num].ctl_reg, port[num].ioaddr.ctl_addr);
-	udelay (10);
+	udelay(10);
 	writeb (port[num].ctl_reg | ATA_SRST, port[num].ioaddr.ctl_addr);
-	udelay (10);
+	udelay(10);
 	writeb (port[num].ctl_reg, port[num].ioaddr.ctl_addr);
 
 	/* spec mandates ">= 2ms" before checking status.
@@ -118,7 +122,7 @@ static void sata_identify (int num, int dev)
 	cmd = ATA_CMD_ID_ATA;	/*Device Identify Command */
 	writeb (cmd, port[num].ioaddr.command_addr);
 	readb (port[num].ioaddr.altstatus_addr);
-	udelay (10);
+	udelay(10);
 
 	status = sata_busy_wait (&port[num].ioaddr, ATA_BUSY, 1000, 0);
 	if (status & ATA_ERR) {
@@ -191,7 +195,7 @@ static void set_Feature_cmd (int num, int dev)
 	writeb (ATA_DEVICE_OBS, port[num].ioaddr.device_addr);
 	writeb (ATA_CMD_SET_FEATURES, port[num].ioaddr.command_addr);
 
-	udelay (50);
+	udelay(50);
 	msleep (150);
 
 	status = sata_busy_wait (&port[num].ioaddr, ATA_BUSY, 5000, 0);
@@ -389,7 +393,7 @@ static u8 wait_for_irq (int num, unsigned int max)
 		if (readl (port) & VND_TF_CNST_INTST) {
 			break;
 		}
-		udelay (1000);
+		udelay(1000);
 		max--;
 	} while ((max > 0));
 
@@ -405,7 +409,7 @@ static u8 sata_busy_wait (struct sata_ioports *ioaddr, int bits,
 		if (!((status = sata_chk_status (ioaddr, usealtstatus)) & bits)) {
 			break;
 		}
-		udelay (1000);
+		udelay(1000);
 		max--;
 	} while ((status & bits) && (max > 0));
 
@@ -426,7 +430,7 @@ static void msleep (int count)
 	int i;
 
 	for (i = 0; i < count; i++)
-		udelay (1000);
+		udelay(1000);
 }
 
 /* Read up to 255 sectors
@@ -613,7 +617,7 @@ ulong sata_write (int device, ulong block, lbaint_t blkcnt, const void *buff)
 
 		output_data (&port[num].ioaddr, buffer, ATA_SECTOR_WORDS);
 		readb (port[num].ioaddr.altstatus_addr);
-		udelay (50);
+		udelay(50);
 
 		++n;
 		++blknr;

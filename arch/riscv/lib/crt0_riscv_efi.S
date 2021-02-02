@@ -15,11 +15,13 @@
 #define SAVE_LONG(reg, idx)	sd	reg, (idx*SIZE_LONG)(sp)
 #define LOAD_LONG(reg, idx)	ld	reg, (idx*SIZE_LONG)(sp)
 #define PE_MACHINE	IMAGE_FILE_MACHINE_RISCV64
+#define PE_MAGIC    IMAGE_NT_OPTIONAL_HDR64_MAGIC
 #else
 #define SIZE_LONG	4
 #define SAVE_LONG(reg, idx)	sw	reg, (idx*SIZE_LONG)(sp)
 #define LOAD_LONG(reg, idx)	lw	reg, (idx*SIZE_LONG)(sp)
 #define PE_MACHINE	IMAGE_FILE_MACHINE_RISCV32
+#define PE_MAGIC    IMAGE_NT_OPTIONAL_HDR32_MAGIC
 #endif
 
 
@@ -48,7 +50,7 @@ coff_header:
 		 IMAGE_FILE_LOCAL_SYMS_STRIPPED | \
 		 IMAGE_FILE_DEBUG_STRIPPED)
 optional_header:
-	.short	IMAGE_NT_OPTIONAL_HDR64_MAGIC	/* PE32+ format */
+	.short	PE_MAGIC			/* PE32(+) format */
 	.byte	0x02				/* MajorLinkerVersion */
 	.byte	0x14				/* MinorLinkerVersion */
 	.long	_edata - _start			/* SizeOfCode */
@@ -56,9 +58,16 @@ optional_header:
 	.long	0				/* SizeOfUninitializedData */
 	.long	_start - ImageBase		/* AddressOfEntryPoint */
 	.long	_start - ImageBase		/* BaseOfCode */
+#if __riscv_xlen == 32
+	.long	0				/* BaseOfData */
+#endif
 
 extra_header_fields:
+#if __riscv_xlen == 32
+	.long	0				/* ImageBase */
+#else
 	.quad	0				/* ImageBase */
+#endif
 	.long	0x20				/* SectionAlignment */
 	.long	0x8				/* FileAlignment */
 	.short	0				/* MajorOperatingSystemVersion */
@@ -78,10 +87,17 @@ extra_header_fields:
 	.long	0				/* CheckSum */
 	.short	IMAGE_SUBSYSTEM_EFI_APPLICATION /* Subsystem */
 	.short	0				/* DllCharacteristics */
+#if __riscv_xlen == 32
+	.long	0				/* SizeOfStackReserve */
+	.long	0				/* SizeOfStackCommit */
+	.long	0				/* SizeOfHeapReserve */
+	.long	0				/* SizeOfHeapCommit */
+#else
 	.quad	0				/* SizeOfStackReserve */
 	.quad	0				/* SizeOfStackCommit */
 	.quad	0				/* SizeOfHeapReserve */
 	.quad	0				/* SizeOfHeapCommit */
+#endif
 	.long	0				/* LoaderFlags */
 	.long	0x6				/* NumberOfRvaAndSizes */
 
@@ -91,6 +107,16 @@ extra_header_fields:
 	.quad	0				/* ExceptionTable */
 	.quad	0				/* CertificationTable */
 	.quad	0				/* BaseRelocationTable */
+	.quad	0				/* Debug */
+	.quad	0				/* Architecture */
+	.quad	0				/* Global Ptr */
+	.quad	0				/* TLS Table */
+	.quad	0				/* Load Config Table */
+	.quad	0				/* Bound Import */
+	.quad	0				/* IAT */
+	.quad	0				/* Delay Import Descriptor */
+	.quad	0				/* CLR Runtime Header */
+	.quad	0				/* Reserved */
 
 	/* Section table */
 section_table:

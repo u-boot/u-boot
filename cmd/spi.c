@@ -28,6 +28,7 @@
 static unsigned int	bus;
 static unsigned int	cs;
 static unsigned int	mode;
+static unsigned int	freq;
 static int   		bitlen;
 static uchar 		dout[MAX_SPI_BYTES];
 static uchar 		din[MAX_SPI_BYTES];
@@ -37,7 +38,7 @@ static int do_spi_xfer(int bus, int cs)
 	struct spi_slave *slave;
 	int ret = 0;
 
-#ifdef CONFIG_DM_SPI
+#if CONFIG_IS_ENABLED(DM_SPI)
 	char name[30], *str;
 	struct udevice *dev;
 
@@ -45,12 +46,12 @@ static int do_spi_xfer(int bus, int cs)
 	str = strdup(name);
 	if (!str)
 		return -ENOMEM;
-	ret = spi_get_bus_and_cs(bus, cs, 1000000, mode, "spi_generic_drv",
+	ret = spi_get_bus_and_cs(bus, cs, freq, mode, "spi_generic_drv",
 				 str, &dev, &slave);
 	if (ret)
 		return ret;
 #else
-	slave = spi_setup_slave(bus, cs, 1000000, mode);
+	slave = spi_setup_slave(bus, cs, freq, mode);
 	if (!slave) {
 		printf("Invalid device %d:%d\n", bus, cs);
 		return -EINVAL;
@@ -62,7 +63,7 @@ static int do_spi_xfer(int bus, int cs)
 		goto done;
 	ret = spi_xfer(slave, bitlen, dout, din,
 		       SPI_XFER_BEGIN | SPI_XFER_END);
-#ifndef CONFIG_DM_SPI
+#if !CONFIG_IS_ENABLED(DM_SPI)
 	/* We don't get an error code in this case */
 	if (ret)
 		ret = -EIO;
@@ -78,7 +79,7 @@ static int do_spi_xfer(int bus, int cs)
 	}
 done:
 	spi_release_bus(slave);
-#ifndef CONFIG_DM_SPI
+#if !CONFIG_IS_ENABLED(DM_SPI)
 	spi_free_slave(slave);
 #endif
 
@@ -96,7 +97,7 @@ done:
  * The command prints out the hexadecimal string received via SPI.
  */
 
-int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_spi(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char  *cp = 0;
 	uchar tmp;
@@ -106,6 +107,8 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * We use the last specified parameters, unless new ones are
 	 * entered.
 	 */
+	if (freq == 0)
+		freq = 1000000;
 
 	if ((flag & CMD_FLAG_REPEAT) == 0)
 	{
@@ -119,7 +122,9 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				bus = CONFIG_DEFAULT_SPI_BUS;
 			}
 			if (*cp == '.')
-				mode = simple_strtoul(cp+1, NULL, 10);
+				mode = simple_strtoul(cp+1, &cp, 10);
+			if (*cp == '@')
+				freq = simple_strtoul(cp+1, &cp, 10);
 		}
 		if (argc >= 3)
 			bitlen = simple_strtoul(argv[2], NULL, 10);
@@ -159,10 +164,11 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	sspi,	5,	1,	do_spi,
 	"SPI utility command",
-	"[<bus>:]<cs>[.<mode>] <bit_len> <dout> - Send and receive bits\n"
+	"[<bus>:]<cs>[.<mode>][@<freq>] <bit_len> <dout> - Send and receive bits\n"
 	"<bus>     - Identifies the SPI bus\n"
 	"<cs>      - Identifies the chip select\n"
 	"<mode>    - Identifies the SPI mode to use\n"
+	"<freq>    - Identifies the SPI bus frequency in Hz\n"
 	"<bit_len> - Number of bits to send (base 10)\n"
 	"<dout>    - Hexadecimal string that gets sent"
 );

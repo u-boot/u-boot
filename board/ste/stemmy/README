@@ -1,0 +1,49 @@
+ST-Ericsson U8500 Samsung "stemmy" board
+========================================
+
+The "stemmy" board supports Samsung smartphones released with
+the ST-Ericsson NovaThor U8500 SoC, e.g.
+
+	- Samsung Galaxy S III mini (GT-I8190)	"golden"
+	- Samsung Galaxy S Advance (GT-I9070)	"janice"
+	- Samsung Galaxy Xcover 2 (GT-S7710)	"skomer"
+
+and likely others as well (untested).
+
+At the moment, U-Boot is intended to be chain-loaded from
+the original Samsung bootloader, not replacing it entirely.
+
+Installation
+------------
+
+1. Setup cross compiler, e.g. export CROSS_COMPILE=arm-none-eabi-
+2. make stemmy_defconfig
+3. make
+
+For newer devices (golden and skomer), the U-Boot binary has to be packed into
+an Android boot image. janice boots the raw U-Boot binary from the boot partition.
+
+4. Obtain mkbootimg, e.g. https://android.googlesource.com/platform/system/core/+/refs/tags/android-7.1.2_r37/mkbootimg/mkbootimg
+5. mkbootimg \
+    --kernel=u-boot.bin \
+    --base=0x00000000 \
+    --kernel_offset=0x00100000 \
+    --ramdisk_offset=0x02000000 \
+    --tags_offset=0x00000100 \
+    --output=u-boot.img
+
+6. Enter Samsung download mode (press Power + Home + Volume Down)
+7. Flash U-Boot image to Android boot partition using Heimdall:
+     https://gitlab.com/BenjaminDobell/Heimdall
+
+   heimdall flash --Kernel u-boot.(bin|img)
+
+8. After reboot U-Boot prompt should appear via UART.
+
+UART
+----
+
+UART is available through the micro USB port, similar to the Carkit standard.
+With a ~619kOhm resistor between ID and GND, 1.8V RX/TX is available at D+/D-.
+
+Make sure to connect the UART cable *before* turning on the phone.

@@ -26,8 +26,14 @@
 
 #include <common.h>
 #include <fdtdec.h>
+#include <malloc.h>
 #include <memalign.h>
 #include <nand.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
+#include <linux/err.h>
 
 #include <linux/kernel.h>
 #include <linux/mtd/mtd.h>
@@ -1220,7 +1226,8 @@ static int _sunxi_nand_lookup_timing(const s32 *lut, int lut_size, u32 duration,
 #define sunxi_nand_lookup_timing(l, p, c) \
 			_sunxi_nand_lookup_timing(l, ARRAY_SIZE(l), p, c)
 
-static int sunxi_nand_chip_set_timings(struct sunxi_nand_chip *chip,
+static int sunxi_nand_chip_set_timings(struct sunxi_nfc *nfc,
+				       struct sunxi_nand_chip *chip,
 				       const struct nand_sdr_timings *timings)
 {
 	u32 min_clk_period = 0;
@@ -1343,7 +1350,8 @@ static int sunxi_nand_chip_set_timings(struct sunxi_nand_chip *chip,
 	return 0;
 }
 
-static int sunxi_nand_chip_init_timings(struct sunxi_nand_chip *chip)
+static int sunxi_nand_chip_init_timings(struct sunxi_nfc *nfc,
+					struct sunxi_nand_chip *chip)
 {
 	struct mtd_info *mtd = nand_to_mtd(&chip->nand);
 	const struct nand_sdr_timings *timings;
@@ -1378,7 +1386,7 @@ static int sunxi_nand_chip_init_timings(struct sunxi_nand_chip *chip)
 	if (IS_ERR(timings))
 		return PTR_ERR(timings);
 
-	return sunxi_nand_chip_set_timings(chip, timings);
+	return sunxi_nand_chip_set_timings(nfc, chip, timings);
 }
 
 static int sunxi_nand_hw_common_ecc_ctrl_init(struct mtd_info *mtd,
@@ -1417,7 +1425,7 @@ static int sunxi_nand_hw_common_ecc_ctrl_init(struct mtd_info *mtd,
 	}
 
 	if (i >= ARRAY_SIZE(strengths)) {
-		dev_err(nfc->dev, "unsupported strength\n");
+		dev_err(mtd->dev, "unsupported strength\n");
 		ret = -ENOTSUPP;
 		goto err;
 	}
@@ -1613,7 +1621,7 @@ static int sunxi_nand_chip_init(int node, struct sunxi_nfc *nfc, int devnum)
 
 	nsels /= sizeof(u32);
 	if (!nsels || nsels > 8) {
-		dev_err(dev, "invalid reg property size\n");
+		dev_err(nfc->dev, "invalid reg property size\n");
 		return -EINVAL;
 	}
 
@@ -1621,7 +1629,7 @@ static int sunxi_nand_chip_init(int node, struct sunxi_nfc *nfc, int devnum)
 		       (nsels * sizeof(struct sunxi_nand_chip_sel)),
 		       GFP_KERNEL);
 	if (!chip) {
-		dev_err(dev, "could not allocate chip\n");
+		dev_err(nfc->dev, "could not allocate chip\n");
 		return -ENOMEM;
 	}
 
@@ -1635,14 +1643,14 @@ static int sunxi_nand_chip_init(int node, struct sunxi_nfc *nfc, int devnum)
 
 	ret = fdtdec_get_int_array(gd->fdt_blob, node, "reg", cs, nsels);
 	if (ret) {
-		dev_err(dev, "could not retrieve reg property: %d\n", ret);
+		dev_err(nfc->dev, "could not retrieve reg property: %d\n", ret);
 		return ret;
 	}
 
 	ret = fdtdec_get_int_array(gd->fdt_blob, node, "allwinner,rb", rb,
 				   nsels);
 	if (ret) {
-		dev_err(dev, "could not retrieve reg property: %d\n", ret);
+		dev_err(nfc->dev, "could not retrieve reg property: %d\n", ret);
 		return ret;
 	}
 
@@ -1650,14 +1658,13 @@ static int sunxi_nand_chip_init(int node, struct sunxi_nfc *nfc, int devnum)
 		int tmp = cs[i];
 
 		if (tmp > NFC_MAX_CS) {
-			dev_err(dev,
-				"invalid reg value: %u (max CS = 7)\n",
-				tmp);
+			dev_err(nfc->dev,
+				"invalid reg value: %u (max CS = 7)\n", tmp);
 			return -EINVAL;
 		}
 
 		if (test_and_set_bit(tmp, &nfc->assigned_cs)) {
-			dev_err(dev, "CS %d already assigned\n", tmp);
+			dev_err(nfc->dev, "CS %d already assigned\n", tmp);
 			return -EINVAL;
 		}
 
@@ -1682,15 +1689,15 @@ static int sunxi_nand_chip_init(int node, struct sunxi_nfc *nfc, int devnum)
 	timings = onfi_async_timing_mode_to_sdr_timings(0);
 	if (IS_ERR(timings)) {
 		ret = PTR_ERR(timings);
-		dev_err(dev,
+		dev_err(nfc->dev,
 			"could not retrieve timings for ONFI mode 0: %d\n",
 			ret);
 		return ret;
 	}
 
-	ret = sunxi_nand_chip_set_timings(chip, timings);
+	ret = sunxi_nand_chip_set_timings(nfc, chip, timings);
 	if (ret) {
-		dev_err(dev, "could not configure chip timings: %d\n", ret);
+		dev_err(nfc->dev, "could not configure chip timings: %d\n", ret);
 		return ret;
 	}
 
@@ -1723,27 +1730,27 @@ static int sunxi_nand_chip_init(int node, struct sunxi_nfc *nfc, int devnum)
 
 	nand->options |= NAND_SUBPAGE_READ;
 
-	ret = sunxi_nand_chip_init_timings(chip);
+	ret = sunxi_nand_chip_init_timings(nfc, chip);
 	if (ret) {
-		dev_err(dev, "could not configure chip timings: %d\n", ret);
+		dev_err(nfc->dev, "could not configure chip timings: %d\n", ret);
 		return ret;
 	}
 
 	ret = sunxi_nand_ecc_init(mtd, &nand->ecc);
 	if (ret) {
-		dev_err(dev, "ECC init failed: %d\n", ret);
+		dev_err(nfc->dev, "ECC init failed: %d\n", ret);
 		return ret;
 	}
 
 	ret = nand_scan_tail(mtd);
 	if (ret) {
-		dev_err(dev, "nand_scan_tail failed: %d\n", ret);
+		dev_err(nfc->dev, "nand_scan_tail failed: %d\n", ret);
 		return ret;
 	}
 
 	ret = nand_register(devnum, mtd);
 	if (ret) {
-		dev_err(dev, "failed to register mtd device: %d\n", ret);
+		dev_err(nfc->dev, "failed to register mtd device: %d\n", ret);
 		return ret;
 	}
 
@@ -1763,7 +1770,7 @@ static int sunxi_nand_chips_init(int node, struct sunxi_nfc *nfc)
 		i++;
 
 	if (i > 8) {
-		dev_err(dev, "too many NAND chips: %d (max = 8)\n", i);
+		dev_err(nfc->dev, "too many NAND chips: %d (max = 8)\n", i);
 		return -EINVAL;
 	}
 
@@ -1835,7 +1842,7 @@ void sunxi_nand_init(void)
 
 	ret = sunxi_nand_chips_init(node, nfc);
 	if (ret) {
-		dev_err(dev, "failed to init nand chips\n");
+		dev_err(nfc->dev, "failed to init nand chips\n");
 		goto err;
 	}
 

@@ -8,15 +8,17 @@
  * --------------------------------------------------------
  *
  * NOTE: This driver should be converted to driver model before June 2017.
- * Please see doc/driver-model/i2c-howto.txt for instructions.
+ * Please see doc/driver-model/i2c-howto.rst for instructions.
  */
 
 #include <common.h>
 #include <i2c.h>
 #include <dm.h>
+#include <log.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/i2c_defs.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include "davinci_i2c.h"
 
 #ifdef CONFIG_DM_I2C
@@ -469,7 +471,7 @@ static int davinci_i2c_probe(struct udevice *dev)
 	struct i2c_bus *i2c_bus = dev_get_priv(dev);
 
 	i2c_bus->id = dev->seq;
-	i2c_bus->regs = (struct i2c_regs *)devfdt_get_addr(dev);
+	i2c_bus->regs = dev_read_addr_ptr(dev);
 
 	i2c_bus->speed = 100000;
 	 _davinci_i2c_init(i2c_bus->regs, i2c_bus->speed, 0);

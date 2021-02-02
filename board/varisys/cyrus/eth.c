@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/fsl_serdes.h>
 #include <fm_eth.h>
@@ -52,7 +53,7 @@ static void cyrus_phy_tuning(int phy)
 }
 #endif
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_FMAN_ENET
 	struct fsl_pq_mdio_info dtsec_mdio_info;

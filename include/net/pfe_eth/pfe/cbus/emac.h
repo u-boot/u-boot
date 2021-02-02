@@ -7,6 +7,7 @@
 #ifndef _EMAC_H_
 #define _EMAC_H_
 
+#include <linux/bitops.h>
 #define EMAC_IEVENT_REG		0x004
 #define EMAC_IMASK_REG		0x008
 #define EMAC_R_DES_ACTIVE_REG	0x010

@@ -8,8 +8,8 @@
 
 from collections import OrderedDict
 
-from blob import Entry_blob
-from entry import EntryArg
+from binman.etype.blob import Entry_blob
+from binman.entry import EntryArg
 
 
 class Entry_blob_named_by_arg(Entry_blob):
@@ -17,7 +17,7 @@ class Entry_blob_named_by_arg(Entry_blob):
 
     Properties / Entry arguments:
         - <xxx>-path: Filename containing the contents of this entry (optional,
-            defaults to 0)
+            defaults to None)
 
     where <xxx> is the blob_fname argument to the constructor.
 
@@ -28,7 +28,9 @@ class Entry_blob_named_by_arg(Entry_blob):
 
     See cros_ec_rw for an example of this.
     """
-    def __init__(self, section, etype, node, blob_fname):
-        Entry_blob.__init__(self, section, etype, node)
-        self._filename, = self.GetEntryArgsOrProps(
-            [EntryArg('%s-path' % blob_fname, str)])
+    def __init__(self, section, etype, node, blob_fname, required=False):
+        super().__init__(section, etype, node)
+        filename, = self.GetEntryArgsOrProps(
+            [EntryArg('%s-path' % blob_fname, str)], required=required)
+        if filename:
+            self._filename = filename

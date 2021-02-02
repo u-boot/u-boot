@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <malloc.h>
@@ -13,7 +14,7 @@
 
 #ifdef CONFIG_TI_SECURE_DEVICE
 
-static void ft_hs_fixups(void *fdt, bd_t *bd)
+static void ft_hs_fixups(void *fdt, struct bd_info *bd)
 {
 	/* Check we are running on an HS/EMU device type */
 	if (GP_DEVICE != get_device_type()) {
@@ -28,7 +29,7 @@ static void ft_hs_fixups(void *fdt, bd_t *bd)
 	hang();
 }
 #else
-static void ft_hs_fixups(void *fdt, bd_t *bd) { }
+static void ft_hs_fixups(void *fdt, struct bd_info *bd) { }
 #endif /* #ifdef CONFIG_TI_SECURE_DEVICE */
 
 /*
@@ -36,7 +37,7 @@ static void ft_hs_fixups(void *fdt, bd_t *bd) { }
  * fixups should remain in the board files which is where
  * this function should be called from.
  */
-void ft_cpu_setup(void *fdt, bd_t *bd)
+void ft_cpu_setup(void *fdt, struct bd_info *bd)
 {
 	ft_hs_fixups(fdt, bd);
 }

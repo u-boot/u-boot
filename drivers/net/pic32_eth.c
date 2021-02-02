@@ -7,12 +7,15 @@
 #include <cpu_func.h>
 #include <errno.h>
 #include <dm.h>
+#include <log.h>
+#include <malloc.h>
 #include <net.h>
 #include <miiphy.h>
 #include <console.h>
 #include <time.h>
 #include <wait_bit.h>
 #include <asm/gpio.h>
+#include <linux/delay.h>
 #include <linux/mii.h>
 
 #include "pic32_eth.h"

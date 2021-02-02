@@ -12,6 +12,7 @@
 #include <div64.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <linux/libfdt.h>
 #include <panel.h>
 #include <video.h>
@@ -485,7 +486,7 @@ int exynos_fb_ofdata_to_platdata(struct udevice *dev)
 	const void *blob = gd->fdt_blob;
 	fdt_addr_t addr;
 
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE) {
 		debug("Can't get the FIMD base address\n");
 		return -EINVAL;

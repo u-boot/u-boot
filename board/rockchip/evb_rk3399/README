@@ -54,7 +54,6 @@ Compile U-Boot
 ==============
 
   > cd ../u-boot
-  > export ARCH=arm64
   > export CROSS_COMPILE=aarch64-linux-gnu-
   > make evb-rk3399_defconfig
   for firefly-rk3399, use below instead:

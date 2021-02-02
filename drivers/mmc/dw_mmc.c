@@ -9,11 +9,14 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <mmc.h>
 #include <dwmmc.h>
 #include <wait_bit.h>
+#include <asm/cache.h>
+#include <linux/delay.h>
 #include <power/regulator.h>
 
 #define PAGE_SIZE 4096

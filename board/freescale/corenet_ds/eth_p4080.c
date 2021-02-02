@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <command.h>
+#include <fdt_support.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/mmu.h>
 #include <asm/processor.h>
@@ -20,6 +22,7 @@
 #include <fsl_mdio.h>
 #include <miiphy.h>
 #include <phy.h>
+#include <linux/delay.h>
 
 #include "../common/ngpixis.h"
 #include "../common/fman.h"
@@ -285,7 +288,7 @@ void fdt_fixup_board_enet(void *fdt)
 	}
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_FMAN_ENET
 	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
@@ -364,6 +367,9 @@ int board_eth_init(bd_t *bis)
 			};
 			break;
 		case PHY_INTERFACE_MODE_RGMII:
+		case PHY_INTERFACE_MODE_RGMII_TXID:
+		case PHY_INTERFACE_MODE_RGMII_RXID:
+		case PHY_INTERFACE_MODE_RGMII_ID:
 			fm_info_set_phy_address(i, 0);
 			mdio_mux[i] = EMI1_RGMII;
 			fm_info_set_mdio(i,
@@ -431,6 +437,9 @@ int board_eth_init(bd_t *bis)
 			};
 			break;
 		case PHY_INTERFACE_MODE_RGMII:
+		case PHY_INTERFACE_MODE_RGMII_TXID:
+		case PHY_INTERFACE_MODE_RGMII_RXID:
+		case PHY_INTERFACE_MODE_RGMII_ID:
 			fm_info_set_phy_address(i, 0);
 			mdio_mux[i] = EMI1_RGMII;
 			fm_info_set_mdio(i,

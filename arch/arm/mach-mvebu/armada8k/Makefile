@@ -2,5 +2,4 @@
 #
 # Copyright (C) 2016 Stefan Roese <sr@denx.de>
 
-obj-y = cpu.o
-obj-y += cache_llc.o
+obj-y = cpu.o cache_llc.o dram.o

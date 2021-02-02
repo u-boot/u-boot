@@ -8,19 +8,6 @@
 
 #include <configs/x86-common.h>
 
-/*
- * By default, CONFIG_SYS_NS16550_PORT_MAPPED is enabled for port io serial.
- * To use mmio base serial, enable CONFIG_SYS_NS16550_MEM32 and disable
- * CONFIG_SYS_NS16550_PORT_MAPPED until ns16550 driver supports serial port
- * configuration in run-time.
- *
- * #define CONFIG_SYS_NS16550_MEM32
- * #undef CONFIG_SYS_NS16550_PORT_MAPPED
- */
-#ifdef CONFIG_SYS_NS16550_MEM32
-#undef CONFIG_SYS_NS16550_PORT_MAPPED
-#endif
-
 #define CONFIG_STD_DEVICES_SETTINGS		\
 	"stdin=serial,i8042-kbd,usbkbd\0"	\
 	"stdout=serial\0"			\

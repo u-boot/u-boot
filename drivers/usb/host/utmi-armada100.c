@@ -14,6 +14,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/armada100.h>
 #include <asm/arch/utmi-armada100.h>
+#include <linux/delay.h>
 
 static int utmi_phy_init(void)
 {

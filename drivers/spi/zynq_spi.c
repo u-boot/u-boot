@@ -8,11 +8,15 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/device_compat.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
 #include <time.h>
 #include <clk.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -75,7 +79,7 @@ static int zynq_spi_ofdata_to_platdata(struct udevice *bus)
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
-	plat->regs = (struct zynq_spi_regs *)devfdt_get_addr(bus);
+	plat->regs = dev_read_addr_ptr(bus);
 
 	plat->deactivate_delay_us = fdtdec_get_int(blob, node,
 					"spi-deactivate-delay", 0);
@@ -128,19 +132,19 @@ static int zynq_spi_probe(struct udevice *bus)
 
 	ret = clk_get_by_name(bus, "ref_clk", &clk);
 	if (ret < 0) {
-		dev_err(dev, "failed to get clock\n");
+		dev_err(bus, "failed to get clock\n");
 		return ret;
 	}
 
 	clock = clk_get_rate(&clk);
 	if (IS_ERR_VALUE(clock)) {
-		dev_err(dev, "failed to get rate\n");
+		dev_err(bus, "failed to get rate\n");
 		return clock;
 	}
 
 	ret = clk_enable(&clk);
 	if (ret && ret != -ENOSYS) {
-		dev_err(dev, "failed to enable clock\n");
+		dev_err(bus, "failed to enable clock\n");
 		return ret;
 	}
 

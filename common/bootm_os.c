@@ -6,17 +6,23 @@
 
 #include <common.h>
 #include <bootm.h>
+#include <bootstage.h>
 #include <cpu_func.h>
+#include <efi_loader.h>
 #include <env.h>
 #include <fdt_support.h>
+#include <image.h>
+#include <lmb.h>
+#include <log.h>
 #include <linux/libfdt.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <vxworks.h>
 #include <tee/optee.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int do_bootm_standalone(int flag, int argc, char * const argv[],
+static int do_bootm_standalone(int flag, int argc, char *const argv[],
 			       bootm_headers_t *images)
 {
 	char *s;
@@ -38,7 +44,7 @@ static int do_bootm_standalone(int flag, int argc, char * const argv[],
 /*******************************************************************/
 
 #if defined(CONFIG_BOOTM_NETBSD) || defined(CONFIG_BOOTM_PLAN9)
-static void copy_args(char *dest, int argc, char * const argv[], char delim)
+static void copy_args(char *dest, int argc, char *const argv[], char delim)
 {
 	int i;
 
@@ -52,10 +58,10 @@ static void copy_args(char *dest, int argc, char * const argv[], char delim)
 #endif
 
 #ifdef CONFIG_BOOTM_NETBSD
-static int do_bootm_netbsd(int flag, int argc, char * const argv[],
-			    bootm_headers_t *images)
+static int do_bootm_netbsd(int flag, int argc, char *const argv[],
+			   bootm_headers_t *images)
 {
-	void (*loader)(bd_t *, image_header_t *, char *, char *);
+	void (*loader)(struct bd_info *, image_header_t *, char *, char *);
 	image_header_t *os_hdr, *hdr;
 	ulong kernel_data, kernel_len;
 	char *cmdline;
@@ -103,7 +109,7 @@ static int do_bootm_netbsd(int flag, int argc, char * const argv[],
 			cmdline = "";
 	}
 
-	loader = (void (*)(bd_t *, image_header_t *, char *, char *))images->ep;
+	loader = (void (*)(struct bd_info *, image_header_t *, char *, char *))images->ep;
 
 	printf("## Transferring control to NetBSD stage-2 loader (at address %08lx) ...\n",
 	       (ulong)loader);
@@ -124,8 +130,8 @@ static int do_bootm_netbsd(int flag, int argc, char * const argv[],
 #endif /* CONFIG_BOOTM_NETBSD*/
 
 #ifdef CONFIG_LYNXKDI
-static int do_bootm_lynxkdi(int flag, int argc, char * const argv[],
-			     bootm_headers_t *images)
+static int do_bootm_lynxkdi(int flag, int argc, char *const argv[],
+			    bootm_headers_t *images)
 {
 	image_header_t *hdr = &images->legacy_hdr_os_copy;
 
@@ -146,10 +152,10 @@ static int do_bootm_lynxkdi(int flag, int argc, char * const argv[],
 #endif /* CONFIG_LYNXKDI */
 
 #ifdef CONFIG_BOOTM_RTEMS
-static int do_bootm_rtems(int flag, int argc, char * const argv[],
-			   bootm_headers_t *images)
+static int do_bootm_rtems(int flag, int argc, char *const argv[],
+			  bootm_headers_t *images)
 {
-	void (*entry_point)(bd_t *);
+	void (*entry_point)(struct bd_info *);
 
 	if (flag != BOOTM_STATE_OS_GO)
 		return 0;
@@ -161,7 +167,7 @@ static int do_bootm_rtems(int flag, int argc, char * const argv[],
 	}
 #endif
 
-	entry_point = (void (*)(bd_t *))images->ep;
+	entry_point = (void (*)(struct bd_info *))images->ep;
 
 	printf("## Transferring control to RTEMS (at address %08lx) ...\n",
 	       (ulong)entry_point);
@@ -179,8 +185,8 @@ static int do_bootm_rtems(int flag, int argc, char * const argv[],
 #endif /* CONFIG_BOOTM_RTEMS */
 
 #if defined(CONFIG_BOOTM_OSE)
-static int do_bootm_ose(int flag, int argc, char * const argv[],
-			   bootm_headers_t *images)
+static int do_bootm_ose(int flag, int argc, char *const argv[],
+			bootm_headers_t *images)
 {
 	void (*entry_point)(void);
 
@@ -212,8 +218,8 @@ static int do_bootm_ose(int flag, int argc, char * const argv[],
 #endif /* CONFIG_BOOTM_OSE */
 
 #if defined(CONFIG_BOOTM_PLAN9)
-static int do_bootm_plan9(int flag, int argc, char * const argv[],
-			   bootm_headers_t *images)
+static int do_bootm_plan9(int flag, int argc, char *const argv[],
+			  bootm_headers_t *images)
 {
 	void (*entry_point)(void);
 	char *s;
@@ -319,7 +325,7 @@ static void do_bootvx_fdt(bootm_headers_t *images)
 	puts("## vxWorks terminated\n");
 }
 
-static int do_bootm_vxworks_legacy(int flag, int argc, char * const argv[],
+static int do_bootm_vxworks_legacy(int flag, int argc, char *const argv[],
 				   bootm_headers_t *images)
 {
 	if (flag != BOOTM_STATE_OS_GO)
@@ -337,7 +343,7 @@ static int do_bootm_vxworks_legacy(int flag, int argc, char * const argv[],
 	return 1;
 }
 
-int do_bootm_vxworks(int flag, int argc, char * const argv[],
+int do_bootm_vxworks(int flag, int argc, char *const argv[],
 		     bootm_headers_t *images)
 {
 	char *bootargs;
@@ -374,8 +380,8 @@ int do_bootm_vxworks(int flag, int argc, char * const argv[],
 #endif
 
 #if defined(CONFIG_CMD_ELF)
-static int do_bootm_qnxelf(int flag, int argc, char * const argv[],
-			    bootm_headers_t *images)
+static int do_bootm_qnxelf(int flag, int argc, char *const argv[],
+			   bootm_headers_t *images)
 {
 	char *local_args[2];
 	char str[16];
@@ -412,8 +418,8 @@ static int do_bootm_qnxelf(int flag, int argc, char * const argv[],
 #endif
 
 #ifdef CONFIG_INTEGRITY
-static int do_bootm_integrity(int flag, int argc, char * const argv[],
-			   bootm_headers_t *images)
+static int do_bootm_integrity(int flag, int argc, char *const argv[],
+			      bootm_headers_t *images)
 {
 	void (*entry_point)(void);
 
@@ -445,8 +451,8 @@ static int do_bootm_integrity(int flag, int argc, char * const argv[],
 #endif
 
 #ifdef CONFIG_BOOTM_OPENRTOS
-static int do_bootm_openrtos(int flag, int argc, char * const argv[],
-			   bootm_headers_t *images)
+static int do_bootm_openrtos(int flag, int argc, char *const argv[],
+			     bootm_headers_t *images)
 {
 	void (*entry_point)(void);
 
@@ -471,7 +477,7 @@ static int do_bootm_openrtos(int flag, int argc, char * const argv[],
 #endif
 
 #ifdef CONFIG_BOOTM_OPTEE
-static int do_bootm_tee(int flag, int argc, char * const argv[],
+static int do_bootm_tee(int flag, int argc, char *const argv[],
 			bootm_headers_t *images)
 {
 	int ret;
@@ -489,12 +495,62 @@ static int do_bootm_tee(int flag, int argc, char * const argv[],
 		return ret;
 
 	/* Locate FDT etc */
-	ret = bootm_find_images(flag, argc, argv);
+	ret = bootm_find_images(flag, argc, argv, 0, 0);
 	if (ret)
 		return ret;
 
 	/* From here we can run the regular linux boot path */
 	return do_bootm_linux(flag, argc, argv, images);
+}
+#endif
+
+#ifdef CONFIG_BOOTM_EFI
+static int do_bootm_efi(int flag, int argc, char *const argv[],
+			bootm_headers_t *images)
+{
+	int ret;
+	efi_status_t efi_ret;
+	void *image_buf;
+
+	if (flag != BOOTM_STATE_OS_GO)
+		return 0;
+
+	/* Locate FDT, if provided */
+	ret = bootm_find_images(flag, argc, argv, 0, 0);
+	if (ret)
+		return ret;
+
+	/* Initialize EFI drivers */
+	efi_ret = efi_init_obj_list();
+	if (efi_ret != EFI_SUCCESS) {
+		printf("## Failed to initialize UEFI sub-system: r = %lu\n",
+		       efi_ret & ~EFI_ERROR_MASK);
+		return 1;
+	}
+
+	/* Install device tree */
+	efi_ret = efi_install_fdt(images->ft_len
+				  ? images->ft_addr : EFI_FDT_USE_INTERNAL);
+	if (efi_ret != EFI_SUCCESS) {
+		printf("## Failed to install device tree: r = %lu\n",
+		       efi_ret & ~EFI_ERROR_MASK);
+		return 1;
+	}
+
+	/* Run EFI image */
+	printf("## Transferring control to EFI (at address %08lx) ...\n",
+	       images->ep);
+	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
+
+	/* We expect to return */
+	images->os.type = IH_TYPE_STANDALONE;
+
+	image_buf = map_sysmem(images->ep, images->os.image_len);
+
+	efi_ret = efi_run_image(image_buf, images->os.image_len);
+	if (efi_ret != EFI_SUCCESS)
+		return 1;
+	return 0;
 }
 #endif
 
@@ -534,6 +590,9 @@ static boot_os_fn *boot_os[] = {
 #ifdef CONFIG_BOOTM_OPTEE
 	[IH_OS_TEE] = do_bootm_tee,
 #endif
+#ifdef CONFIG_BOOTM_EFI
+	[IH_OS_EFI] = do_bootm_efi,
+#endif
 };
 
 /* Allow for arch specific config before we boot */
@@ -548,7 +607,7 @@ __weak void board_preboot_os(void)
 	/* please define board specific board_preboot_os() */
 }
 
-int boot_selected_os(int argc, char * const argv[], int state,
+int boot_selected_os(int argc, char *const argv[], int state,
 		     bootm_headers_t *images, boot_os_fn *boot_fn)
 {
 	arch_preboot_os();

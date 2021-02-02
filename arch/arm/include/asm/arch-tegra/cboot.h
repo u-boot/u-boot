@@ -6,7 +6,10 @@
 #ifndef _TEGRA_CBOOT_H_
 #define _TEGRA_CBOOT_H_
 
+#include <net.h>
+
 #ifdef CONFIG_ARM64
+
 extern unsigned long cboot_boot_x0;
 
 void cboot_save_boot_params(unsigned long x0, unsigned long x1,

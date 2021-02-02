@@ -5,6 +5,10 @@
  * Steve Sakoman  <steve@sakoman.com>
  */
 #include <common.h>
+#include <init.h>
+#include <log.h>
+#include <net.h>
+#include <serial.h>
 #include <asm/mach-types.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
@@ -15,12 +19,6 @@
 #include <twl6030.h>
 
 #include "panda_mux_data.h"
-
-#ifdef CONFIG_USB_EHCI_HCD
-#include <usb.h>
-#include <asm/arch/ehci.h>
-#include <asm/ehci-omap.h>
-#endif
 
 #define PANDA_ULPI_PHY_TYPE_GPIO       182
 #define PANDA_BOARD_ID_1_GPIO          101
@@ -52,7 +50,18 @@ int board_init(void)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+#if defined(CONFIG_SPL_OS_BOOT)
+int spl_start_uboot(void)
+{
+	/* break into full u-boot on 'c' */
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
+	return 0;
+}
+#endif /* CONFIG_SPL_OS_BOOT */
+
+int board_eth_init(struct bd_info *bis)
 {
 	return 0;
 }
@@ -289,7 +298,7 @@ void set_muxconf_regs(void)
 }
 
 #if defined(CONFIG_MMC)
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, -1);
 }
@@ -300,38 +309,6 @@ void board_mmc_power_init(void)
 	twl6030_power_mmc_init(0);
 }
 #endif
-#endif
-
-#ifdef CONFIG_USB_EHCI_HCD
-
-static struct omap_usbhs_board_data usbhs_bdata = {
-	.port_mode[0] = OMAP_EHCI_PORT_MODE_PHY,
-	.port_mode[1] = OMAP_USBHS_PORT_MODE_UNUSED,
-	.port_mode[2] = OMAP_USBHS_PORT_MODE_UNUSED,
-};
-
-int ehci_hcd_init(int index, enum usb_init_type init,
-		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
-{
-	int ret;
-	unsigned int utmi_clk;
-
-	/* Now we can enable our port clocks */
-	utmi_clk = readl((void *)CM_L3INIT_HSUSBHOST_CLKCTRL);
-	utmi_clk |= HSUSBHOST_CLKCTRL_CLKSEL_UTMI_P1_MASK;
-	setbits_le32((void *)CM_L3INIT_HSUSBHOST_CLKCTRL, utmi_clk);
-
-	ret = omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
-	if (ret < 0)
-		return ret;
-
-	return 0;
-}
-
-int ehci_hcd_stop(int index)
-{
-	return omap_ehci_hcd_stop();
-}
 #endif
 
 /*

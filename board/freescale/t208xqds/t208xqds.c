@@ -1,13 +1,17 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2009-2013 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  */
 
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <fdt_support.h>
 #include <i2c.h>
+#include <image.h>
 #include <init.h>
+#include <log.h>
 #include <netdev.h>
 #include <linux/compiler.h>
 #include <asm/mmu.h>
@@ -74,11 +78,23 @@ int checkboard(void)
 	return 0;
 }
 
-int select_i2c_ch_pca9547(u8 ch)
+int select_i2c_ch_pca9547(u8 ch, int bus_num)
 {
 	int ret;
 
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev;
+
+	ret = i2c_get_chip_for_busnum(bus_num, I2C_MUX_PCA_ADDR_PRI, 1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       bus_num);
+		return ret;
+	}
+	ret = dm_i2c_write(dev, 0, &ch, 1);
+#else
 	ret = i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &ch, 1);
+#endif
 	if (ret) {
 		puts("PCA: failed to select proper channel\n");
 		return ret;
@@ -89,7 +105,7 @@ int select_i2c_ch_pca9547(u8 ch)
 
 int i2c_multiplexer_select_vid_channel(u8 channel)
 {
-	return select_i2c_ch_pca9547(channel);
+	return select_i2c_ch_pca9547(channel, 0);
 }
 
 int brd_mux_lane_to_slot(void)
@@ -329,6 +345,33 @@ int brd_mux_lane_to_slot(void)
 	return 0;
 }
 
+static void esdhc_adapter_card_ident(void)
+{
+	u8 card_id, value;
+
+	card_id = QIXIS_READ(present) & QIXIS_SDID_MASK;
+
+	switch (card_id) {
+	case QIXIS_ESDHC_ADAPTER_TYPE_EMMC45:
+		value = QIXIS_READ(brdcfg[5]);
+		value |= (QIXIS_DAT4 | QIXIS_DAT5_6_7);
+		QIXIS_WRITE(brdcfg[5], value);
+		break;
+	case QIXIS_ESDHC_ADAPTER_TYPE_SDMMC_LEGACY:
+		value = QIXIS_READ(pwr_ctl[1]);
+		value |= QIXIS_EVDD_BY_SDHC_VS;
+		QIXIS_WRITE(pwr_ctl[1], value);
+		break;
+	case QIXIS_ESDHC_ADAPTER_TYPE_EMMC44:
+		value = QIXIS_READ(brdcfg[5]);
+		value |= (QIXIS_SDCLKIN | QIXIS_SDCLKOUT);
+		QIXIS_WRITE(brdcfg[5], value);
+		break;
+	default:
+		break;
+	}
+}
+
 int board_early_init_r(void)
 {
 	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
@@ -367,8 +410,8 @@ int board_early_init_r(void)
 		printf("Warning: Adjusting core voltage failed.\n");
 
 	brd_mux_lane_to_slot();
-	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
-
+	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, 0);
+	esdhc_adapter_card_ident();
 	return 0;
 }
 
@@ -445,7 +488,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
@@ -465,7 +508,9 @@ int ft_board_setup(void *blob, bd_t *bd)
 	fsl_fdt_fixup_dr_usb(blob, bd);
 
 #ifdef CONFIG_SYS_DPAA_FMAN
+#ifndef CONFIG_DM_ETH
 	fdt_fixup_fman_ethernet(blob);
+#endif
 	fdt_fixup_board_enet(blob);
 #endif
 

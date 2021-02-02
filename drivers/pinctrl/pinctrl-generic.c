@@ -5,10 +5,9 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <linux/compat.h>
 #include <dm/pinctrl.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /**
  * pinctrl_pin_name_to_selector() - return the pin selector for a pin
@@ -228,6 +227,13 @@ static int pinconf_enable_setting(struct udevice *dev, bool is_group,
 }
 #endif
 
+enum pinmux_subnode_type {
+	PST_NONE = 0,
+	PST_PIN,
+	PST_GROUP,
+	PST_PINMUX,
+};
+
 /**
  * pinctrl_generic_set_state_one() - set state for a certain pin/group
  * Apply all pin multiplexing and pin configurations specified by @config
@@ -235,35 +241,38 @@ static int pinconf_enable_setting(struct udevice *dev, bool is_group,
  *
  * @dev: pin controller device
  * @config: pseudo device pointing to config node
- * @is_group: target of operation (true: pin group, false: pin)
- * @selector: pin selector or group selector, depending on @is_group
+ * @subnode_type: target of operation (pin, group, or pin specified by a pinmux
+ * group)
+ * @selector: pin selector or group selector, depending on @subnode_type
  * @return: 0 on success, or negative error code on failure
  */
 static int pinctrl_generic_set_state_one(struct udevice *dev,
 					 struct udevice *config,
-					 bool is_group, unsigned selector)
+					 enum pinmux_subnode_type subnode_type,
+					 unsigned selector)
 {
-	const void *fdt = gd->fdt_blob;
-	int node_offset = dev_of_offset(config);
 	const char *propname;
 	const void *value;
-	int prop_offset, len, func_selector, param, ret;
+	struct ofprop property;
+	int len, func_selector, param, ret;
 	u32 arg, default_val;
 
-	for (prop_offset = fdt_first_property_offset(fdt, node_offset);
-	     prop_offset > 0;
-	     prop_offset = fdt_next_property_offset(fdt, prop_offset)) {
-		value = fdt_getprop_by_offset(fdt, prop_offset,
-					      &propname, &len);
+	assert(subnode_type != PST_NONE);
+
+	dev_for_each_property(property, config) {
+		value = dev_read_prop_by_prop(&property, &propname, &len);
 		if (!value)
 			return -EINVAL;
 
-		if (!strcmp(propname, "function")) {
+		/* pinmux subnodes already have their muxing set */
+		if (subnode_type != PST_PINMUX &&
+		    !strcmp(propname, "function")) {
 			func_selector = pinmux_func_name_to_selector(dev,
 								     value);
 			if (func_selector < 0)
 				return func_selector;
-			ret = pinmux_enable_setting(dev, is_group,
+			ret = pinmux_enable_setting(dev,
+						    subnode_type == PST_GROUP,
 						    selector,
 						    func_selector);
 		} else {
@@ -277,7 +286,8 @@ static int pinctrl_generic_set_state_one(struct udevice *dev,
 			else
 				arg = default_val;
 
-			ret = pinconf_enable_setting(dev, is_group,
+			ret = pinconf_enable_setting(dev,
+						     subnode_type == PST_GROUP,
 						     selector, param, arg);
 		}
 
@@ -286,6 +296,41 @@ static int pinctrl_generic_set_state_one(struct udevice *dev,
 	}
 
 	return 0;
+}
+
+/**
+ * pinctrl_generic_get_subnode_type() - determine whether there is a valid
+ * pins, groups, or pinmux property in the config node
+ *
+ * @dev: pin controller device
+ * @config: pseudo device pointing to config node
+ * @count: number of specifiers contained within the property
+ * @return: the type of the subnode, or PST_NONE
+ */
+static enum pinmux_subnode_type pinctrl_generic_get_subnode_type(struct udevice *dev,
+								 struct udevice *config,
+								 int *count)
+{
+	const struct pinctrl_ops *ops = pinctrl_get_ops(dev);
+
+	*count = dev_read_string_count(config, "pins");
+	if (*count >= 0)
+		return PST_PIN;
+
+	*count = dev_read_string_count(config, "groups");
+	if (*count >= 0)
+		return PST_GROUP;
+
+	if (ops->pinmux_property_set) {
+		*count = dev_read_size(config, "pinmux");
+		if (*count >= 0 && !(*count % sizeof(u32))) {
+			*count /= sizeof(u32);
+			return PST_PINMUX;
+		}
+	}
+
+	*count = 0;
+	return PST_NONE;
 }
 
 /**
@@ -298,40 +343,55 @@ static int pinctrl_generic_set_state_one(struct udevice *dev,
 static int pinctrl_generic_set_state_subnode(struct udevice *dev,
 					     struct udevice *config)
 {
-	const void *fdt = gd->fdt_blob;
-	int node = dev_of_offset(config);
-	const char *subnode_target_type = "pins";
-	bool is_group = false;
+	enum pinmux_subnode_type subnode_type;
 	const char *name;
-	int strings_count, selector, i, ret;
+	int count, selector, i, ret, scratch;
+	const u32 *pinmux_groups = NULL; /* prevent use-uninitialized warning */
 
-	strings_count = fdt_stringlist_count(fdt, node, subnode_target_type);
-	if (strings_count < 0) {
-		subnode_target_type = "groups";
-		is_group = true;
-		strings_count = fdt_stringlist_count(fdt, node,
-						     subnode_target_type);
-		if (strings_count < 0) {
+	subnode_type = pinctrl_generic_get_subnode_type(dev, config, &count);
+
+	debug("%s(%s, %s): count=%d\n", __func__, dev->name, config->name,
+	      count);
+
+	if (subnode_type == PST_PINMUX) {
+		pinmux_groups = dev_read_prop(config, "pinmux", &scratch);
+		if (!pinmux_groups)
+			return -EINVAL;
+	}
+
+	for (i = 0; i < count; i++) {
+		switch (subnode_type) {
+		case PST_PIN:
+			ret = dev_read_string_index(config, "pins", i, &name);
+			if (ret)
+				return ret;
+			selector = pinctrl_pin_name_to_selector(dev, name);
+			break;
+		case PST_GROUP:
+			ret = dev_read_string_index(config, "groups", i, &name);
+			if (ret)
+				return ret;
+			selector = pinctrl_group_name_to_selector(dev, name);
+			break;
+		case PST_PINMUX: {
+			const struct pinctrl_ops *ops = pinctrl_get_ops(dev);
+			u32 pinmux_group = fdt32_to_cpu(pinmux_groups[i]);
+
+			/* Checked for in pinctrl_generic_get_subnode_type */
+			selector = ops->pinmux_property_set(dev, pinmux_group);
+			break;
+		}
+		case PST_NONE:
+		default:
 			/* skip this node; may contain config child nodes */
 			return 0;
 		}
-	}
 
-	for (i = 0; i < strings_count; i++) {
-		name = fdt_stringlist_get(fdt, node, subnode_target_type, i,
-					  NULL);
-		if (!name)
-			return -EINVAL;
-
-		if (is_group)
-			selector = pinctrl_group_name_to_selector(dev, name);
-		else
-			selector = pinctrl_pin_name_to_selector(dev, name);
 		if (selector < 0)
 			return selector;
 
-		ret = pinctrl_generic_set_state_one(dev, config,
-						    is_group, selector);
+		ret = pinctrl_generic_set_state_one(dev, config, subnode_type,
+						    selector);
 		if (ret)
 			return ret;
 	}

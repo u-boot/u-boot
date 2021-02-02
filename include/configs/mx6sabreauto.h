@@ -49,9 +49,6 @@
 #endif
 
 #define CONFIG_SYS_FSL_USDHC_NUM	2
-#if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
 
 /* I2C Configs */
 #define CONFIG_SYS_I2C

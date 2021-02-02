@@ -55,8 +55,8 @@ a single bloblist.
 API
 ---
 
-Bloblist provides a fairly simple API which allows blobs to be created  and
-found. All access is via the blob's tag.
+Bloblist provides a fairly simple API which allows blobs to be created and
+found. All access is via the blob's tag. Blob records are zeroed when added.
 
 
 Finishing the bloblist

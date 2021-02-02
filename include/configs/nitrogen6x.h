@@ -17,9 +17,7 @@
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
 #define CONFIG_USBD_HS
-#define CONFIG_NETCONSOLE
 
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 
 /* I2C Configs */
@@ -58,12 +56,7 @@
 #define CONFIG_MXC_USB_FLAGS	0
 
 /* Framebuffer and LCD */
-#define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE (6 * 1024 * 1024)
-#define CONFIG_BMP_16BPP
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 
@@ -113,6 +106,7 @@
 	DISTRO_BOOT_DEV_DHCP(func)
 
 #include <config_distro_bootcmd.h>
+#include <linux/stringify.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc1\0" \
@@ -130,8 +124,6 @@
 	BOOTENV
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_MEMTEST_START       0x10000000
-#define CONFIG_SYS_MEMTEST_END	       0x10010000
 
 /* Physical Memory Map */
 #define PHYS_SDRAM		       MMDC0_ARB_BASE_ADDR
@@ -146,10 +138,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment organization */
-
-#if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
 
 /*
  * PCI express

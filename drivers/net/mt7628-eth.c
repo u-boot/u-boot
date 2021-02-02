@@ -16,13 +16,17 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <miiphy.h>
 #include <net.h>
 #include <reset.h>
 #include <wait_bit.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <linux/bitfield.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 
 /* Ethernet frame engine register */

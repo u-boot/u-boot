@@ -8,6 +8,7 @@
 #include <common.h>
 #include <charset.h>
 #include <capitalization.h>
+#include <efi_loader.h>
 #include <malloc.h>
 
 static struct capitalization_table capitalization_table[] =
@@ -104,7 +105,7 @@ static u8 read_console(void *data)
 {
 	int ch;
 
-	ch = getc();
+	ch = getchar();
 	if (ch < 0)
 		ch = 0;
 	return ch;
@@ -372,11 +373,16 @@ size_t u16_strlen(const void *in)
 	return ret;
 }
 
-size_t u16_strnlen(const u16 *in, size_t count)
+size_t __efi_runtime u16_strnlen(const u16 *in, size_t count)
 {
 	size_t i;
 	for (i = 0; count-- && in[i]; i++);
 	return i;
+}
+
+size_t u16_strsize(const void *in)
+{
+	return (u16_strlen(in) + 1) * sizeof(u16);
 }
 
 u16 *u16_strcpy(u16 *dest, const u16 *src)

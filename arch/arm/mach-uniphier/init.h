@@ -7,6 +7,7 @@
 #ifndef __MACH_INIT_H
 #define __MACH_INIT_H
 
+#include <linux/bitops.h>
 #include <linux/types.h>
 
 #define UNIPHIER_MAX_NR_DRAM_CH		3
@@ -32,34 +33,6 @@ int uniphier_pro4_init(const struct uniphier_board_data *bd);
 int uniphier_sld8_init(const struct uniphier_board_data *bd);
 int uniphier_pro5_init(const struct uniphier_board_data *bd);
 int uniphier_pxs2_init(const struct uniphier_board_data *bd);
-
-#if defined(CONFIG_MICRO_SUPPORT_CARD)
-void uniphier_sbc_init_admulti(void);
-void uniphier_sbc_init_savepin(void);
-void uniphier_ld4_sbc_init(void);
-void uniphier_pxs2_sbc_init(void);
-void uniphier_ld11_sbc_init(void);
-#else
-static inline void uniphier_sbc_init_admulti(void)
-{
-}
-
-static inline void uniphier_sbc_init_savepin(void)
-{
-}
-
-static inline void uniphier_ld4_sbc_init(void)
-{
-}
-
-static inline void uniphier_pxs2_sbc_init(void)
-{
-}
-
-static inline void uniphier_ld11_sbc_init(void)
-{
-}
-#endif
 
 void uniphier_ld4_bcu_init(const struct uniphier_board_data *bd);
 
@@ -90,7 +63,6 @@ void uniphier_ld11_pll_init(void);
 void uniphier_ld20_pll_init(void);
 void uniphier_pxs3_pll_init(void);
 
-void uniphier_ld4_clk_init(void);
 void uniphier_pro4_clk_init(void);
 void uniphier_pro5_clk_init(void);
 void uniphier_pxs2_clk_init(void);
@@ -101,7 +73,7 @@ void uniphier_pxs3_clk_init(void);
 unsigned int uniphier_boot_device_raw(void);
 int uniphier_have_internal_stm(void);
 int uniphier_boot_from_backend(void);
-int uniphier_pin_init(const char *pinconfig_name);
+
 #ifdef CONFIG_ARM64
 void uniphier_mem_map_init(unsigned long dram_base, unsigned long dram_size);
 #else

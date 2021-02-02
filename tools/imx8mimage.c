@@ -32,8 +32,6 @@ static uint32_t rom_version = ROM_V1;
 
 #define HDMI_FW_SIZE		0x17000 /* Use Last 0x1000 for IVT and CSF */
 #define ALIGN_SIZE		0x1000
-#define ALIGN(x,a)	__ALIGN_MASK((x), (__typeof__(x))(a) - 1, a)
-#define __ALIGN_MASK(x,mask,mask2) (((x) + (mask)) / (mask2) * (mask2))
 
 static uint32_t get_cfg_value(char *token, char *name,  int linenr)
 {
@@ -343,7 +341,6 @@ static int generate_ivt_for_fit(int fd, int fit_offset, uint32_t ep,
 	}
 
 	fit_size = fdt_totalsize(&image_header);
-	fit_size = (fit_size + 3) & ~3;
 
 	fit_size = ALIGN(fit_size, ALIGN_SIZE);
 

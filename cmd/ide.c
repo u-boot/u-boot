@@ -27,7 +27,7 @@
 /* Current I/O Device	*/
 static int curr_device;
 
-int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_ide(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	if (argc == 2) {
 		if (strncmp(argv[1], "res", 3) == 0) {
@@ -40,7 +40,7 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	return blk_common_cmd(argc, argv, IF_TYPE_IDE, &curr_device);
 }
 
-int do_diskboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_diskboot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	return common_diskboot(cmdtp, "ide", argc, argv);
 }

@@ -946,6 +946,10 @@
 #define SNVS_LPCR_DPEN				(0x20)
 #define SNVS_LPCR_SRTC_ENV			(0x1)
 
+#define SRC_BASE_ADDR			CMC1_RBASE
+#define IRAM_BASE_ADDR			OCRAM_0_BASE
+#define IOMUXC_BASE_ADDR		IOMUXC1_RBASE
+
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 
 #include <asm/types.h>

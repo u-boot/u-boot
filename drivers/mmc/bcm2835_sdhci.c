@@ -38,6 +38,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <sdhci.h>
@@ -181,7 +182,7 @@ static int bcm2835_sdhci_probe(struct udevice *dev)
 	int ret;
 	int clock_id = (int)dev_get_driver_data(dev);
 
-	base = devfdt_get_addr(dev);
+	base = dev_read_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -209,7 +210,7 @@ static int bcm2835_sdhci_probe(struct udevice *dev)
 	priv->last_write = 0;
 
 	host->name = dev->name;
-	host->ioaddr = (void *)base;
+	host->ioaddr = (void *)(uintptr_t)base;
 	host->quirks = SDHCI_QUIRK_BROKEN_VOLTAGE | SDHCI_QUIRK_BROKEN_R1B |
 		SDHCI_QUIRK_WAIT_SEND_CMD | SDHCI_QUIRK_NO_HISPD_BIT;
 	host->max_clk = emmc_freq;

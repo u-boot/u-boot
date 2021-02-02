@@ -4,13 +4,18 @@
  * Peter Griffin <peter.griffin@linaro.org>
  */
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
+#include <fdt_support.h>
+#include <init.h>
+#include <log.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include <errno.h>
 #include <malloc.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <usb.h>
+#include <linux/delay.h>
 #include <power/hi6553_pmic.h>
 #include <asm-generic/gpio.h>
 #include <asm/arch/dwmmc.h>
@@ -424,7 +429,7 @@ int power_init_board(void)
 	return 0;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	int ret;
 

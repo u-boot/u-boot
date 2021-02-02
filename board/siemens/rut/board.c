@@ -14,6 +14,8 @@
 #include <env.h>
 #include <errno.h>
 #include <init.h>
+#include <malloc.h>
+#include <net.h>
 #include <spi.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
@@ -32,6 +34,7 @@
 #include <cpsw.h>
 #include <video.h>
 #include <watchdog.h>
+#include <linux/delay.h>
 #include "board.h"
 #include "../common/factoryset.h"
 #include "../../../drivers/video/da8xx-fb.h"
@@ -174,7 +177,7 @@ static struct cpsw_platform_data cpsw_data = {
 
 #if defined(CONFIG_DRIVER_TI_CPSW) || \
 	(defined(CONFIG_USB_ETHER) && defined(CONFIG_USB_MUSB_GADGET))
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 	int n = 0;

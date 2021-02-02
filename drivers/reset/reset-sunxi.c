@@ -7,9 +7,12 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
+#include <malloc.h>
 #include <reset-uclass.h>
 #include <asm/io.h>
 #include <dm/lists.h>
+#include <linux/bitops.h>
 #include <linux/log2.h>
 #include <asm/arch/ccu.h>
 
@@ -81,7 +84,7 @@ static int sunxi_reset_deassert(struct reset_ctl *reset_ctl)
 
 struct reset_ops sunxi_reset_ops = {
 	.request = sunxi_reset_request,
-	.free = sunxi_reset_free,
+	.rfree = sunxi_reset_free,
 	.rst_assert = sunxi_reset_assert,
 	.rst_deassert = sunxi_reset_deassert,
 };

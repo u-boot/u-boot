@@ -7,6 +7,18 @@ config KM_FPGA_CONFIG
 	help
 	  Include capability to change FPGA configuration.
 
+config KM_FPGA_FORCE_CONFIG
+	bool "FPGA reconfiguration"
+	default n
+	help
+	  If yes we force to reconfigure the FPGA always
+
+config KM_FPGA_NO_RESET
+	bool "FPGA skip reset"
+	default n
+	help
+	  If yes we skip triggering a reset of the FPGA
+
 config KM_ENV_IS_IN_SPI_NOR
 	bool "Environment in SPI NOR"
 	default n

@@ -6,13 +6,16 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <dm.h>
 #include <env.h>
+#include <log.h>
 #include <net.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #include <net/pcap.h>
 #include "eth_internal.h"
+#include <eth_phy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -40,8 +43,12 @@ static int eth_errno;
 static struct eth_uclass_priv *eth_get_uclass_priv(void)
 {
 	struct uclass *uc;
+	int ret;
 
-	uclass_get(UCLASS_ETH, &uc);
+	ret = uclass_get(UCLASS_ETH, &uc);
+	if (ret)
+		return NULL;
+
 	assert(uc);
 	return uc->priv;
 }
@@ -68,6 +75,9 @@ struct udevice *eth_get_dev(void)
 	struct eth_uclass_priv *uc_priv;
 
 	uc_priv = eth_get_uclass_priv();
+	if (!uc_priv)
+		return NULL;
+
 	if (!uc_priv->current)
 		eth_errno = uclass_first_device(UCLASS_ETH,
 				    &uc_priv->current);
@@ -102,6 +112,7 @@ struct udevice *eth_get_dev_by_name(const char *devname)
 	struct udevice *it;
 	struct uclass *uc;
 	int len = strlen("eth");
+	int ret;
 
 	/* Must be longer than 3 to be an alias */
 	if (!strncmp(devname, "eth", len) && strlen(devname) > len) {
@@ -109,7 +120,10 @@ struct udevice *eth_get_dev_by_name(const char *devname)
 		seq = simple_strtoul(startp, &endp, 10);
 	}
 
-	uclass_get(UCLASS_ETH, &uc);
+	ret = uclass_get(UCLASS_ETH, &uc);
+	if (ret)
+		return NULL;
+
 	uclass_foreach_dev(it, uc) {
 		/*
 		 * We need the seq to be valid, so try to probe it.
@@ -262,7 +276,7 @@ int eth_init(void)
 	if (!current) {
 		current = eth_get_dev();
 		if (!current) {
-			printf("No ethernet found.\n");
+			log_err("No ethernet found.\n");
 			return -ENODEV;
 		}
 	}
@@ -369,7 +383,7 @@ int eth_rx(void)
 
 	/* Process up to 32 packets at one time */
 	flags = ETH_RECV_CHECK_DEVICE;
-	for (i = 0; i < 32; i++) {
+	for (i = 0; i < ETH_PACKETS_BATCH_RECV; i++) {
 		ret = eth_get_ops(current)->recv(current, flags, &packet);
 		flags = 0;
 		if (ret > 0)
@@ -403,7 +417,7 @@ int eth_initialize(void)
 	 */
 	uclass_first_device_check(UCLASS_ETH, &dev);
 	if (!dev) {
-		printf("No ethernet found.\n");
+		log_err("No ethernet found.\n");
 		bootstage_error(BOOTSTAGE_ID_NET_ETH_START);
 	} else {
 		char *ethprime = env_get("ethprime");
@@ -438,7 +452,7 @@ int eth_initialize(void)
 		} while (dev);
 
 		if (!num_devices)
-			printf("No ethernet found.\n");
+			log_err("No ethernet found.\n");
 		putc('\n');
 	}
 
@@ -452,6 +466,10 @@ static int eth_post_bind(struct udevice *dev)
 		       dev->name);
 		return -EINVAL;
 	}
+
+#ifdef CONFIG_DM_ETH_PHY
+	eth_phy_binds_nodes(dev);
+#endif
 
 	return 0;
 }
@@ -490,7 +508,7 @@ static int eth_post_probe(struct udevice *dev)
 	struct eth_device_priv *priv = dev->uclass_priv;
 	struct eth_pdata *pdata = dev->platdata;
 	unsigned char env_enetaddr[ARP_HLEN];
-	const char *source = "DT";
+	char *source = "DT";
 
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	struct eth_ops *ops = eth_get_ops(dev);
@@ -545,8 +563,6 @@ static int eth_post_probe(struct udevice *dev)
 		memcpy(pdata->enetaddr, env_enetaddr, ARP_HLEN);
 	} else if (is_valid_ethaddr(pdata->enetaddr)) {
 		eth_env_set_enetaddr_by_index("eth", dev->seq, pdata->enetaddr);
-		printf("\nWarning: %s using MAC address from %s\n",
-		       dev->name, source);
 	} else if (is_zero_ethaddr(pdata->enetaddr) ||
 		   !is_valid_ethaddr(pdata->enetaddr)) {
 #ifdef CONFIG_NET_RANDOM_ETHADDR

@@ -386,6 +386,20 @@ that might be used by the target needs to be signed with 'required' keys.
 
 This happens automatically as part of a bootm command when FITs are used.
 
+For Signed Configurations, the default verification behavior can be changed by
+the following optional property in /signature node in U-Boot's control FDT.
+
+- required-mode: Valid values are "any" to allow verified boot to succeed if
+the selected configuration is signed by any of the 'required' keys, and "all"
+to allow verified boot to succeed if the selected configuration is signed by
+all of the 'required' keys.
+
+This property can be added to a binary device tree using fdtput as shown in
+below examples::
+
+	fdtput -t s control.dtb /signature required-mode any
+	fdtput -t s control.dtb /signature required-mode all
+
 
 Enabling FIT Verification
 -------------------------
@@ -481,12 +495,14 @@ openssl. This may require setting up LD_LIBRARY_PATH if engine is not installed
 to openssl's default search paths.
 
 PKCS11 engine support forms "key id" based on "keydir" and with
-"key-name-hint". "key-name-hint" is used as "object" name and "keydir" if
-defined is used to define (prefix for) which PKCS11 source is being used for
-lookup up for the key.
+"key-name-hint". "key-name-hint" is used as "object" name (if not defined in
+keydir). "keydir" (if defined) is used to define (prefix for) which PKCS11 source
+is being used for lookup up for the key.
 
 PKCS11 engine key ids:
    "pkcs11:<keydir>;object=<key-name-hint>;type=<public|private>"
+or, if keydir contains "object="
+   "pkcs11:<keydir>;type=<public|private>"
 or
    "pkcs11:object=<key-name-hint>;type=<public|private>",
 

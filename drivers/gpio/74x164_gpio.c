@@ -15,6 +15,7 @@
 #include <malloc.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <spi.h>
 

@@ -10,6 +10,7 @@
 /* TODO(sjg@chromium.org): Drop fdtdec.h include */
 #include <fdtdec.h>
 #include <dm/of.h>
+#include <log.h>
 
 /* Enable checks to protect against invalid calls */
 #undef OF_CHECKS
@@ -48,7 +49,7 @@ struct resource;
  *	is not a really a pointer to a node: it is an offset value. See above.
  */
 typedef union ofnode_union {
-	const struct device_node *np;	/* will be used for future live tree */
+	const struct device_node *np;
 	long of_offset;
 } ofnode;
 
@@ -59,7 +60,32 @@ struct ofnode_phandle_args {
 };
 
 /**
- * _ofnode_to_np() - convert an ofnode to a live DT node pointer
+ * ofprop - reference to a property of a device tree node
+ *
+ * This struct hold the reference on one property of one node,
+ * using struct ofnode and an offset within the flat device tree or either
+ * a pointer to a struct property in the live device tree.
+ *
+ * Thus we can reference arguments in both the live tree and the flat tree.
+ *
+ * The property reference can also hold a null reference. This corresponds to
+ * a struct property NULL pointer or an offset of -1.
+ *
+ * @node: Pointer to device node
+ * @offset: Pointer into flat device tree, used for flat tree.
+ * @prop: Pointer to property, used for live treee.
+ */
+
+struct ofprop {
+	ofnode node;
+	union {
+		int offset;
+		const struct property *prop;
+	};
+};
+
+/**
+ * ofnode_to_np() - convert an ofnode to a live DT node pointer
  *
  * This cannot be called if the reference contains an offset.
  *
@@ -102,7 +128,7 @@ static inline bool ofnode_valid(ofnode node)
 	if (of_live_active())
 		return node.np != NULL;
 	else
-		return node.of_offset != -1;
+		return node.of_offset >= 0;
 }
 
 /**
@@ -118,7 +144,7 @@ static inline ofnode offset_to_ofnode(int of_offset)
 	if (of_live_active())
 		node.np = NULL;
 	else
-		node.of_offset = of_offset;
+		node.of_offset = of_offset >= 0 ? of_offset : -1;
 
 	return node;
 }
@@ -157,8 +183,8 @@ static inline bool ofnode_is_np(ofnode node)
 	 * live tree is in use.
 	 */
 	assert(!ofnode_valid(node) ||
-	       (of_live_active() ? _ofnode_to_np(node)
-				  : _ofnode_to_np(node)));
+	       (of_live_active() ? ofnode_to_np(node)
+				  : ofnode_to_np(node)));
 #endif
 	return of_live_active() && ofnode_valid(node);
 }
@@ -203,6 +229,18 @@ static inline ofnode ofnode_null(void)
 int ofnode_read_u32(ofnode node, const char *propname, u32 *outp);
 
 /**
+ * ofnode_read_u32_index() - Read a 32-bit integer from a multi-value property
+ *
+ * @ref:	valid node reference to read property from
+ * @propname:	name of the property to read from
+ * @index:	index of the integer to return
+ * @outp:	place to put value (if found)
+ * @return 0 if OK, -ve on error
+ */
+int ofnode_read_u32_index(ofnode node, const char *propname, int index,
+			  u32 *outp);
+
+/**
  * ofnode_read_s32() - Read a 32-bit integer from a property
  *
  * @ref:	valid node reference to read property from
@@ -225,6 +263,19 @@ static inline int ofnode_read_s32(ofnode node, const char *propname,
  * @return property value, or @def if not found
  */
 u32 ofnode_read_u32_default(ofnode ref, const char *propname, u32 def);
+
+/**
+ * ofnode_read_u32_index_default() - Read a 32-bit integer from a multi-value
+ *                                   property
+ *
+ * @ref:	valid node reference to read property from
+ * @propname:	name of the property to read from
+ * @index:	index of the integer to return
+ * @def:	default value to return if the property has no value
+ * @return property value, or @def if not found
+ */
+u32 ofnode_read_u32_index_default(ofnode ref, const char *propname, int index,
+				  u32 def);
 
 /**
  * ofnode_read_s32_default() - Read a 32-bit integer from a property
@@ -505,12 +556,13 @@ int ofnode_parse_phandle_with_args(ofnode node, const char *list_name,
  * @node:	device tree node containing a list
  * @list_name:	property name that contains a list
  * @cells_name:	property name that specifies phandles' arguments count
+ * @cells_count: Cell count to use if @cells_name is NULL
  * @return number of phandle on success, -ENOENT if @list_name does not
  *      exist, -EINVAL if a phandle was not found, @cells_name could not
  *      be found.
  */
 int ofnode_count_phandle_with_args(ofnode node, const char *list_name,
-				   const char *cells_name);
+				   const char *cells_name, int cell_count);
 
 /**
  * ofnode_path() - find a node by full path
@@ -519,6 +571,18 @@ int ofnode_count_phandle_with_args(ofnode node, const char *list_name,
  * @return reference to the node found. Use ofnode_valid() to check if it exists
  */
 ofnode ofnode_path(const char *path);
+
+/**
+ * ofnode_read_chosen_prop() - get the value of a chosen property
+ *
+ * This looks for a property within the /chosen node and returns its value
+ *
+ * @propname: Property name to look for
+ * @sizep: Returns size of property, or FDT_ERR_... error code if function
+ *	returns NULL
+ * @return property value if found, else NULL
+ */
+const void *ofnode_read_chosen_prop(const char *propname, int *sizep);
 
 /**
  * ofnode_read_chosen_string() - get the string value of a chosen property
@@ -532,11 +596,14 @@ ofnode ofnode_path(const char *path);
 const char *ofnode_read_chosen_string(const char *propname);
 
 /**
- * ofnode_get_chosen_node() - get the chosen node
+ * ofnode_get_chosen_node() - get a referenced node from the chosen node
  *
- * @return the chosen node if present, else ofnode_null()
+ * This looks up a named property in the chosen node and uses that as a path to
+ * look up a code.
+ *
+ * @return the referenced node if present, else ofnode_null()
  */
-ofnode ofnode_get_chosen_node(const char *name);
+ofnode ofnode_get_chosen_node(const char *propname);
 
 /**
  * ofnode_read_aliases_prop() - get the value of a aliases property
@@ -577,7 +644,7 @@ int ofnode_decode_display_timing(ofnode node, int index,
 				 struct display_timing *config);
 
 /**
- * ofnode_get_property()- - get a pointer to the value of a node property
+ * ofnode_get_property() - get a pointer to the value of a node property
  *
  * @node: node to read
  * @propname: property to read
@@ -585,6 +652,42 @@ int ofnode_decode_display_timing(ofnode node, int index,
  * @return pointer to property, or NULL if not found
  */
 const void *ofnode_get_property(ofnode node, const char *propname, int *lenp);
+
+/**
+ * ofnode_get_first_property()- get the reference of the first property
+ *
+ * Get reference to the first property of the node, it is used to iterate
+ * and read all the property with ofnode_get_property_by_prop().
+ *
+ * @node: node to read
+ * @prop: place to put argument reference
+ * @return 0 if OK, -ve on error. -FDT_ERR_NOTFOUND if not found
+ */
+int ofnode_get_first_property(ofnode node, struct ofprop *prop);
+
+/**
+ * ofnode_get_next_property() - get the reference of the next property
+ *
+ * Get reference to the next property of the node, it is used to iterate
+ * and read all the property with ofnode_get_property_by_prop().
+ *
+ * @prop: reference of current argument and place to put reference of next one
+ * @return 0 if OK, -ve on error. -FDT_ERR_NOTFOUND if not found
+ */
+int ofnode_get_next_property(struct ofprop *prop);
+
+/**
+ * ofnode_get_property_by_prop() - get a pointer to the value of a property
+ *
+ * Get value for the property identified by the provided reference.
+ *
+ * @prop: reference on property
+ * @propname: If non-NULL, place to property name on success,
+ * @lenp: If non-NULL, place to put length on success
+ * @return 0 if OK, -ve on error. -FDT_ERR_NOTFOUND if not found
+ */
+const void *ofnode_get_property_by_prop(const struct ofprop *prop,
+					const char **propname, int *lenp);
 
 /**
  * ofnode_is_available() - check if a node is marked available
@@ -799,6 +902,14 @@ ofnode ofnode_by_prop_value(ofnode from, const char *propname,
 	for (node = ofnode_first_subnode(parent); \
 	     ofnode_valid(node); \
 	     node = ofnode_next_subnode(node))
+
+/**
+ * ofnode_get_child_count() - get the child count of a ofnode
+ *
+ * @node: valid node to get its child count
+ * @return the number of subnodes
+ */
+int ofnode_get_child_count(ofnode parent);
 
 /**
  * ofnode_translate_address() - Translate a device-tree address

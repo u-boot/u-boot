@@ -7,7 +7,7 @@
 #ifndef __ASM_ARCH_CLOCK_H
 #define __ASM_ARCH_CLOCK_H
 
-#include <common.h>
+#include <linux/types.h>
 
 #ifdef CONFIG_SYS_MX6_HCLK
 #define MXC_HCLK	CONFIG_SYS_MX6_HCLK
@@ -20,6 +20,8 @@
 #else
 #define MXC_CLK32	32768
 #endif
+
+struct cmd_tbl;
 
 enum mxc_clock {
 	MXC_ARM_CLK = 0,
@@ -80,5 +82,6 @@ void enable_thermal_clk(void);
 void mxs_set_lcdclk(u32 base_addr, u32 freq);
 void select_ldb_di_clock_source(enum ldb_di_clock clk);
 void enable_eim_clk(unsigned char enable);
-int do_mx6_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+int do_mx6_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[]);
 #endif /* __ASM_ARCH_CLOCK_H */

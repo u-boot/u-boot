@@ -11,6 +11,7 @@
 #define __FTPCI100_H
 
 /* AHB Control Registers */
+#include <linux/bitops.h>
 struct ftpci100_ahbc {
 	unsigned int iosize;		/* 0x00 - I/O Space Size Signal */
 	unsigned int prot;		/* 0x04 - AHB Protection */

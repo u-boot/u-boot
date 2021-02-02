@@ -6,7 +6,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
+#include <log.h>
 #include <ram.h>
+#include <asm/bitops.h>
 #include <dt-bindings/memory/mpc83xx-sdram.h>
 
 DECLARE_GLOBAL_DATA_PTR;

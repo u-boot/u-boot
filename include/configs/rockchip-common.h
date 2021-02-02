@@ -9,6 +9,9 @@
 
 #define CONFIG_SYS_NS16550_MEM32
 
+/* ((CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR - 64) * 512) */
+#define CONFIG_SPL_PAD_TO		8355840
+
 #ifndef CONFIG_SPL_BUILD
 
 /* First try to boot from SD (index 0), then eMMC (index 1) */
@@ -18,6 +21,12 @@
 		func(MMC, mmc, 1)
 #else
 	#define BOOT_TARGET_MMC(func)
+#endif
+
+#if CONFIG_IS_ENABLED(CMD_NVME)
+	#define BOOT_TARGET_NVME(func) func(NVME, nvme, 0)
+#else
+	#define BOOT_TARGET_NVME(func)
 #endif
 
 #if CONFIG_IS_ENABLED(CMD_USB)
@@ -38,11 +47,27 @@
 	#define BOOT_TARGET_DHCP(func)
 #endif
 
+#if CONFIG_IS_ENABLED(CMD_SF)
+	#define BOOT_TARGET_SF(func)	func(SF, sf, 0)
+#else
+	#define BOOT_TARGET_SF(func)
+#endif
+
+#ifdef CONFIG_ROCKCHIP_RK3399
+#define BOOT_TARGET_DEVICES(func) \
+	BOOT_TARGET_MMC(func) \
+	BOOT_TARGET_NVME(func) \
+	BOOT_TARGET_USB(func) \
+	BOOT_TARGET_PXE(func) \
+	BOOT_TARGET_DHCP(func) \
+	BOOT_TARGET_SF(func)
+#else
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_MMC(func) \
 	BOOT_TARGET_USB(func) \
 	BOOT_TARGET_PXE(func) \
 	BOOT_TARGET_DHCP(func)
+#endif
 
 #ifdef CONFIG_ARM64
 #define ROOT_UUID "B921B045-1DF0-41C3-AF44-4C6F280D3FAE;\0"

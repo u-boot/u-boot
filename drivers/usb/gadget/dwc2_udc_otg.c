@@ -21,8 +21,13 @@
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <log.h>
 #include <malloc.h>
 #include <reset.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
+#include <linux/bug.h>
+#include <linux/delay.h>
 
 #include <linux/errno.h>
 #include <linux/list.h>
@@ -31,6 +36,7 @@
 #include <linux/usb/otg.h>
 #include <linux/usb/gadget.h>
 
+#include <phys2bus.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
 #include <asm/io.h>
@@ -940,8 +946,7 @@ int usb_gadget_handle_interrupts(int index)
 struct dwc2_priv_data {
 	struct clk_bulk		clks;
 	struct reset_ctl_bulk	resets;
-	struct phy *phys;
-	int num_phys;
+	struct phy_bulk phys;
 	struct udevice *usb33d_supply;
 };
 
@@ -950,99 +955,40 @@ int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 	return dwc2_udc_handle_interrupt();
 }
 
-int dwc2_phy_setup(struct udevice *dev, struct phy **array, int *num_phys)
+static int dwc2_phy_setup(struct udevice *dev, struct phy_bulk *phys)
 {
-	int i, ret, count;
-	struct phy *usb_phys;
+	int ret;
 
-	/* Return if no phy declared */
-	if (!dev_read_prop(dev, "phys", NULL))
-		return 0;
+	ret = generic_phy_get_bulk(dev, phys);
+	if (ret)
+		return ret;
 
-	count = dev_count_phandle_with_args(dev, "phys", "#phy-cells");
-	if (count <= 0)
-		return count;
+	ret = generic_phy_init_bulk(phys);
+	if (ret)
+		return ret;
 
-	usb_phys = devm_kcalloc(dev, count, sizeof(struct phy),
-				GFP_KERNEL);
-	if (!usb_phys)
-		return -ENOMEM;
-
-	for (i = 0; i < count; i++) {
-		ret = generic_phy_get_by_index(dev, i, &usb_phys[i]);
-		if (ret && ret != -ENOENT) {
-			dev_err(dev, "Failed to get USB PHY%d for %s\n",
-				i, dev->name);
-			return ret;
-		}
-	}
-
-	for (i = 0; i < count; i++) {
-		ret = generic_phy_init(&usb_phys[i]);
-		if (ret) {
-			dev_err(dev, "Can't init USB PHY%d for %s\n",
-				i, dev->name);
-			goto phys_init_err;
-		}
-	}
-
-	for (i = 0; i < count; i++) {
-		ret = generic_phy_power_on(&usb_phys[i]);
-		if (ret) {
-			dev_err(dev, "Can't power USB PHY%d for %s\n",
-				i, dev->name);
-			goto phys_poweron_err;
-		}
-	}
-
-	*array = usb_phys;
-	*num_phys =  count;
-
-	return 0;
-
-phys_poweron_err:
-	for (i = count - 1; i >= 0; i--)
-		generic_phy_power_off(&usb_phys[i]);
-
-	for (i = 0; i < count; i++)
-		generic_phy_exit(&usb_phys[i]);
-
-	return ret;
-
-phys_init_err:
-	for (; i >= 0; i--)
-		generic_phy_exit(&usb_phys[i]);
+	ret = generic_phy_power_on_bulk(phys);
+	if (ret)
+		generic_phy_exit_bulk(phys);
 
 	return ret;
 }
 
-void dwc2_phy_shutdown(struct udevice *dev, struct phy *usb_phys, int num_phys)
+static void dwc2_phy_shutdown(struct udevice *dev, struct phy_bulk *phys)
 {
-	int i, ret;
-
-	for (i = 0; i < num_phys; i++) {
-		if (!generic_phy_valid(&usb_phys[i]))
-			continue;
-
-		ret = generic_phy_power_off(&usb_phys[i]);
-		ret |= generic_phy_exit(&usb_phys[i]);
-		if (ret) {
-			dev_err(dev, "Can't shutdown USB PHY%d for %s\n",
-				i, dev->name);
-		}
-	}
+	generic_phy_power_off_bulk(phys);
+	generic_phy_exit_bulk(phys);
 }
 
 static int dwc2_udc_otg_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dwc2_plat_otg_data *platdata = dev_get_platdata(dev);
-	int node = dev_of_offset(dev);
 	ulong drvdata;
 	void (*set_params)(struct dwc2_plat_otg_data *data);
 	int ret;
 
-	if (usb_get_dr_mode(node) != USB_DR_MODE_PERIPHERAL &&
-	    usb_get_dr_mode(node) != USB_DR_MODE_OTG) {
+	if (usb_get_dr_mode(dev->node) != USB_DR_MODE_PERIPHERAL &&
+	    usb_get_dr_mode(dev->node) != USB_DR_MODE_OTG) {
 		dev_dbg(dev, "Invalid mode\n");
 		return -ENODEV;
 	}
@@ -1067,6 +1013,9 @@ static int dwc2_udc_otg_ofdata_to_platdata(struct udevice *dev)
 
 	platdata->force_b_session_valid =
 		dev_read_bool(dev, "u-boot,force-b-session-valid");
+
+	platdata->force_vbus_detection =
+		dev_read_bool(dev, "u-boot,force-vbus-detection");
 
 	/* force platdata according compatible */
 	drvdata = dev_get_driver_data(dev);
@@ -1099,7 +1048,7 @@ static int dwc2_udc_otg_reset_init(struct udevice *dev,
 	int ret;
 
 	ret = reset_get_bulk(dev, resets);
-	if (ret == -ENOTSUPP)
+	if (ret == -ENOTSUPP || ret == -ENOENT)
 		return 0;
 
 	if (ret)
@@ -1156,34 +1105,48 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = dwc2_phy_setup(dev, &priv->phys, &priv->num_phys);
+	ret = dwc2_phy_setup(dev, &priv->phys);
 	if (ret)
 		return ret;
 
-	if (CONFIG_IS_ENABLED(DM_REGULATOR) &&
-	    platdata->activate_stm_id_vb_detection &&
-	    !platdata->force_b_session_valid) {
-		ret = device_get_supply_regulator(dev, "usb33d-supply",
-						  &priv->usb33d_supply);
-		if (ret) {
-			dev_err(dev, "can't get voltage level detector supply\n");
-			return ret;
+	if (platdata->activate_stm_id_vb_detection) {
+		if (CONFIG_IS_ENABLED(DM_REGULATOR) &&
+		    (!platdata->force_b_session_valid ||
+		     platdata->force_vbus_detection)) {
+			ret = device_get_supply_regulator(dev, "usb33d-supply",
+							  &priv->usb33d_supply);
+			if (ret) {
+				dev_err(dev, "can't get voltage level detector supply\n");
+				return ret;
+			}
+			ret = regulator_set_enable(priv->usb33d_supply, true);
+			if (ret) {
+				dev_err(dev, "can't enable voltage level detector supply\n");
+				return ret;
+			}
 		}
-		ret = regulator_set_enable(priv->usb33d_supply, true);
-		if (ret) {
-			dev_err(dev, "can't enable voltage level detector supply\n");
-			return ret;
-		}
-		/* Enable vbus sensing */
-		setbits_le32(&usbotg_reg->ggpio,
-			     GGPIO_STM32_OTG_GCCFG_VBDEN |
-			     GGPIO_STM32_OTG_GCCFG_IDEN);
-	}
 
-	if (platdata->force_b_session_valid)
-		/* Override B session bits : value and enable */
-		setbits_le32(&usbotg_reg->gotgctl,
-			     A_VALOEN | A_VALOVAL | B_VALOEN | B_VALOVAL);
+		if (platdata->force_b_session_valid &&
+		    !platdata->force_vbus_detection) {
+			/* Override VBUS detection: enable then value*/
+			setbits_le32(&usbotg_reg->gotgctl, VB_VALOEN);
+			setbits_le32(&usbotg_reg->gotgctl, VB_VALOVAL);
+		} else {
+			/* Enable VBUS sensing */
+			setbits_le32(&usbotg_reg->ggpio,
+				     GGPIO_STM32_OTG_GCCFG_VBDEN);
+		}
+		if (platdata->force_b_session_valid) {
+			/* Override B session bits: enable then value */
+			setbits_le32(&usbotg_reg->gotgctl, A_VALOEN | B_VALOEN);
+			setbits_le32(&usbotg_reg->gotgctl,
+				     A_VALOVAL | B_VALOVAL);
+		} else {
+			/* Enable ID detection */
+			setbits_le32(&usbotg_reg->ggpio,
+				     GGPIO_STM32_OTG_GCCFG_IDEN);
+		}
+	}
 
 	ret = dwc2_udc_probe(platdata);
 	if (ret)
@@ -1206,13 +1169,14 @@ static int dwc2_udc_otg_remove(struct udevice *dev)
 
 	clk_release_bulk(&priv->clks);
 
-	dwc2_phy_shutdown(dev, priv->phys, priv->num_phys);
+	dwc2_phy_shutdown(dev, &priv->phys);
 
 	return dm_scan_fdt_dev(dev);
 }
 
 static const struct udevice_id dwc2_udc_otg_ids[] = {
 	{ .compatible = "snps,dwc2" },
+	{ .compatible = "brcm,bcm2835-usb" },
 	{ .compatible = "st,stm32mp1-hsotg",
 	  .data = (ulong)dwc2_set_stm32mp1_hsotg_params },
 	{},

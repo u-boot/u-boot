@@ -14,6 +14,7 @@
 #include <serial.h>
 #include <asm/io.h>
 #include <asm/types.h>
+#include <linux/bitops.h>
 
 /* UART Registers */
 #define	OWL_UART_CTL			(0x0000)
@@ -120,7 +121,7 @@ static const struct dm_serial_ops owl_serial_ops = {
 };
 
 static const struct udevice_id owl_serial_ids[] = {
-	{ .compatible =	"actions,s900-serial" },
+	{ .compatible = "actions,owl-uart" },
 	{ }
 };
 

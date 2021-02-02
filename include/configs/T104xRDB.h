@@ -1,10 +1,13 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
+
+#include <linux/stringify.h>
 
 /*
  * T104x RDB board configuration file
@@ -27,6 +30,7 @@
 #define CONFIG_SPL_SKIP_RELOCATE
 #define CONFIG_SPL_COMMON_INIT_DDR
 #define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
+#undef CONFIG_DM_I2C
 #endif
 #define RESET_VECTOR_OFFSET		0x27FFC
 #define BOOT_PAGE_OFFSET		0x27000
@@ -152,11 +156,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
-#define CONFIG_ENV_OVERWRITE
-
 #if defined(CONFIG_SPIFLASH)
-#elif defined(CONFIG_SDCARD)
-#define CONFIG_SYS_MMC_ENV_DEV          0
 #elif defined(CONFIG_MTD_RAW_NAND)
 #ifdef CONFIG_NXP_ESBC
 #define CONFIG_RAMBOOT_NAND
@@ -181,12 +181,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #endif
 
 #define CONFIG_ENABLE_36BIT_PHYS
-
-#define CONFIG_ADDR_MAP
-#define CONFIG_SYS_NUM_ADDR_MAP		64	/* number of TLB1 entries */
-
-#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00400000
 
 /*
  *  Config the L3 Cache as L3 SRAM
@@ -459,8 +453,8 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #endif
 
 /* I2C */
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_FSL		/* Use FSL common I2C driver */
 #define CONFIG_SYS_FSL_I2C_SPEED	400000	/* I2C speed in Hz */
 #define CONFIG_SYS_FSL_I2C2_SPEED	400000
 #define CONFIG_SYS_FSL_I2C3_SPEED	400000
@@ -473,7 +467,12 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_SYS_FSL_I2C2_OFFSET	0x118100
 #define CONFIG_SYS_FSL_I2C3_OFFSET	0x119000
 #define CONFIG_SYS_FSL_I2C4_OFFSET	0x119100
+#else
+#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
+#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
+#endif
 
+#define CONFIG_SYS_I2C_FSL		/* Use FSL common I2C driver */
 /* I2C bus multiplexer */
 #define I2C_MUX_PCA_ADDR                0x70
 #define I2C_MUX_CH_DEFAULT      0x8
@@ -484,6 +483,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 /* LDI/DVI Encoder for display */
 #define CONFIG_SYS_I2C_LDI_ADDR		0x38
 #define CONFIG_SYS_I2C_DVI_ADDR		0x75
+#define CONFIG_SYS_I2C_DVI_BUS_NUM	0
 
 /*
  * RTC configuration
@@ -653,11 +653,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 #endif /* CONFIG_NOBQFMAN */
-
-#ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_PHY_VITESSE
-#define CONFIG_PHY_REALTEK
-#endif
 
 #ifdef CONFIG_FMAN_ENET
 #if defined(CONFIG_TARGET_T1040RDB) || defined(CONFIG_TARGET_T1042RDB)

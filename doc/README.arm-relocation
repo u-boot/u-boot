@@ -27,7 +27,7 @@ At board level:
 
 TODO:	move also dram initialization there on boards where it is possible.
 
-	Setup of the the bd_t dram bank info is done in the new function
+	Setup of the bd_info dram bank info is done in the new function
 	dram_init_banksize() called after bd is accessible.
 
 At lib level:
@@ -65,7 +65,7 @@ in f) could be saved.
 
 TODO
 
-- fill in bd_t infos (check)
+- fill in struct bd_info infos (check)
 - adapt all boards
 
 - maybe adapt CONFIG_SYS_TEXT_BASE (this must be checked from board maintainers)

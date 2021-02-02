@@ -20,6 +20,12 @@ config TDX_HAVE_NAND
 config TDX_HAVE_NOR
 	bool
 
+config TDX_HAVE_EEPROM
+	bool
+
+config TDX_HAVE_EEPROM_EXTRA
+	bool
+
 if TDX_CFG_BLOCK
 
 config TDX_CFG_BLOCK_IS_IN_MMC
@@ -35,6 +41,11 @@ config TDX_CFG_BLOCK_IS_IN_NAND
 config TDX_CFG_BLOCK_IS_IN_NOR
 	bool
 	depends on TDX_HAVE_NOR
+	default y
+
+config TDX_CFG_BLOCK_IS_IN_EEPROM
+	bool
+	depends on TDX_HAVE_EEPROM
 	default y
 
 config TDX_CFG_BLOCK_DEV
@@ -65,5 +76,12 @@ config TDX_CFG_BLOCK_2ND_ETHADDR
 	  For each serial number two Ethernet addresses are available for dual
 	  Ethernet carrier boards. This options enables the code to set the
 	  second Ethernet address as environment variable (eth1addr).
+
+config TDX_CFG_BLOCK_EXTRA
+	bool "Support for additional EEPROMs (carrier board, display adapter)"
+	depends on TDX_HAVE_EEPROM_EXTRA
+	help
+	  Enables fetching auxilary config blocks from carrier board/display
+	  adapter EEPROMs.
 
 endif

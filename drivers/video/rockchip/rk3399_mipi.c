@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0+
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2017, Fuzhou Rockchip Electronics Co., Ltd
  * Author: Eric Gao <eric.gao@rock-chips.com>
@@ -8,7 +8,7 @@
 #include <clk.h>
 #include <display.h>
 #include <dm.h>
-#include <fdtdec.h>
+#include <log.h>
 #include <panel.h>
 #include <regmap.h>
 #include "rk_mipi.h"
@@ -16,9 +16,10 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <dm/uclass-internal.h>
+#include <linux/err.h>
 #include <linux/kernel.h>
 #include <asm/arch-rockchip/clock.h>
-#include <asm/arch-rockchip/cru_rk3399.h>
+#include <asm/arch-rockchip/cru.h>
 #include <asm/arch-rockchip/grf_rk3399.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/rockchip_mipi_dsi.h>

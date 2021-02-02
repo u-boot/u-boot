@@ -5,7 +5,10 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
+#include <init.h>
 #include <ioports.h>
+#include <log.h>
 #include <mpc83xx.h>
 #include <asm/mpc8349_pci.h>
 #include <i2c.h>
@@ -13,6 +16,7 @@
 #include <asm/mmu.h>
 #include <pci.h>
 #include <flash.h>
+#include <linux/delay.h>
 #include <mtd/cfi_flash.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -415,7 +419,7 @@ static void set_ddr_config(void) {
 }
 
 #ifdef CONFIG_OF_BOARD_SETUP
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 

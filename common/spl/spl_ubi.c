@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <config.h>
+#include <image.h>
 #include <nand.h>
 #include <onenand_uboot.h>
 #include <ubispl.h>

@@ -8,25 +8,15 @@
 #ifndef __MX6QSABRE_COMMON_CONFIG_H
 #define __MX6QSABRE_COMMON_CONFIG_H
 
-#include "mx6_common.h"
+#include <linux/stringify.h>
 
-#define CONFIG_IMX_THERMAL
+#include "mx6_common.h"
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
 
-#define CONFIG_MXC_UART
-
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
-
-#define CONFIG_FEC_MXC
-#define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#define CONFIG_ETHPRIME			"FEC"
-#define CONFIG_FEC_MXC_PHYADDR		1
-
-#define CONFIG_PHY_ATHEROS
 
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 #define EMMC_ENV \
@@ -162,9 +152,6 @@
 
 #define CONFIG_ARP_TIMEOUT     200UL
 
-#define CONFIG_SYS_MEMTEST_START       0x10000000
-#define CONFIG_SYS_MEMTEST_END         0x10010000
-
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
 
@@ -180,10 +167,6 @@
 /* Environment organization */
 
 /* Framebuffer */
-#define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IMX_HDMI

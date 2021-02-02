@@ -946,9 +946,15 @@ static int flash_read_buf(int dev, int fd, void *buf, size_t count,
 		lseek(fd, blockstart + block_seek, SEEK_SET);
 
 		rc = read(fd, buf + processed, readlen);
-		if (rc != readlen) {
+		if (rc == -1) {
 			fprintf(stderr, "Read error on %s: %s\n",
 				DEVNAME(dev), strerror(errno));
+			return -1;
+		}
+		if (rc != readlen) {
+			fprintf(stderr,
+				"Read error on %s: Attempted to read %zd bytes but got %d\n",
+				DEVNAME(dev), readlen, rc);
 			return -1;
 		}
 #ifdef DEBUG
@@ -989,6 +995,7 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 				   of the data */
 	loff_t blockstart;	/* running start of the current block -
 				   MEMGETBADBLOCK needs 64 bits */
+	int was_locked = 0;	/* flash lock flag */
 	int rc;
 
 	/*
@@ -1074,6 +1081,12 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 	}
 
 	erase.length = erasesize;
+	if (DEVTYPE(dev) != MTD_ABSENT) {
+		was_locked = ioctl(fd, MEMISLOCKED, &erase);
+		/* treat any errors as unlocked flash */
+		if (was_locked < 0)
+			was_locked = 0;
+	}
 
 	/* This only runs once on NOR flash and SPI-dataflash */
 	while (processed < write_total) {
@@ -1093,7 +1106,8 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 
 		if (DEVTYPE(dev) != MTD_ABSENT) {
 			erase.start = blockstart;
-			ioctl(fd, MEMUNLOCK, &erase);
+			if (was_locked)
+				ioctl(fd, MEMUNLOCK, &erase);
 			/* These do not need an explicit erase cycle */
 			if (DEVTYPE(dev) != MTD_DATAFLASH)
 				if (ioctl(fd, MEMERASE, &erase) != 0) {
@@ -1121,8 +1135,10 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 			return -1;
 		}
 
-		if (DEVTYPE(dev) != MTD_ABSENT)
-			ioctl(fd, MEMLOCK, &erase);
+		if (DEVTYPE(dev) != MTD_ABSENT) {
+			if (was_locked)
+				ioctl(fd, MEMLOCK, &erase);
+		}
 
 		processed += erasesize;
 		block_seek = 0;
@@ -1143,7 +1159,9 @@ static int flash_flag_obsolete(int dev, int fd, off_t offset)
 	int rc;
 	struct erase_info_user erase;
 	char tmp = ENV_REDUND_OBSOLETE;
+	int was_locked;	/* flash lock flag */
 
+	was_locked = ioctl(fd, MEMISLOCKED, &erase);
 	erase.start = DEVOFFSET(dev);
 	erase.length = DEVESIZE(dev);
 	/* This relies on the fact, that ENV_REDUND_OBSOLETE == 0 */
@@ -1153,9 +1171,11 @@ static int flash_flag_obsolete(int dev, int fd, off_t offset)
 			DEVNAME(dev));
 		return rc;
 	}
-	ioctl(fd, MEMUNLOCK, &erase);
+	if (was_locked)
+		ioctl(fd, MEMUNLOCK, &erase);
 	rc = write(fd, &tmp, sizeof(tmp));
-	ioctl(fd, MEMLOCK, &erase);
+	if (was_locked)
+		ioctl(fd, MEMLOCK, &erase);
 	if (rc < 0)
 		perror("Could not set obsolete flag");
 
@@ -1647,6 +1667,9 @@ static int check_device_config(int dev)
 			goto err;
 		}
 		DEVTYPE(dev) = mtdinfo.type;
+		if (DEVESIZE(dev) == 0 && ENVSECTORS(dev) == 0 &&
+		    mtdinfo.type == MTD_NORFLASH)
+			DEVESIZE(dev) = mtdinfo.erasesize;
 		if (DEVESIZE(dev) == 0)
 			/* Assume the erase size is the same as the env-size */
 			DEVESIZE(dev) = ENVSIZE(dev);

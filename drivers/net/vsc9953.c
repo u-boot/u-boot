@@ -5,6 +5,9 @@
  *  Driver for the Vitesse VSC9953 L2 Switch
  */
 
+#include <common.h>
+#include <command.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/fsl_serdes.h>
 #include <fm_eth.h>
@@ -14,6 +17,7 @@
 #include <malloc.h>
 #include <vsc9953.h>
 #include <ethsw.h>
+#include <linux/delay.h>
 
 static struct vsc9953_info vsc9953_l2sw = {
 		.port[0] = VSC9953_PORT_INFO_INITIALIZER(0),
@@ -2601,7 +2605,7 @@ static void vsc9953_vcap_init(void)
 		      __LINE__);
 }
 
-void vsc9953_init(bd_t *bis)
+void vsc9953_init(struct bd_info *bis)
 {
 	u32 i;
 	u32 hdx_cfg = 0;

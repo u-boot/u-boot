@@ -4,6 +4,7 @@
  * Przemyslaw Marczak <p.marczak@samsung.com>
  */
 #include <common.h>
+#include <command.h>
 #include <errno.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
@@ -22,7 +23,7 @@ static int failure(int ret)
 	return CMD_RET_FAILURE;
 }
 
-static int do_dev(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_dev(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct dm_regulator_uclass_platdata *uc_pdata;
 	const char *name;
@@ -82,7 +83,8 @@ static int curr_dev_and_platdata(struct udevice **devp,
 	return CMD_RET_SUCCESS;
 }
 
-static int do_list(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_list(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	struct dm_regulator_uclass_platdata *uc_pdata;
 	struct udevice *dev;
@@ -137,7 +139,8 @@ static const char *get_mode_name(struct dm_regulator_mode *mode,
 	return NULL;
 }
 
-static int do_info(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_info(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	struct udevice *dev;
 	struct dm_regulator_uclass_platdata *uc_pdata;
@@ -231,7 +234,8 @@ static void do_status_line(struct udevice *dev)
 	printf("\n");
 }
 
-static int do_status(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_status(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	struct dm_regulator_uclass_platdata *uc_pdata;
 	struct udevice *dev;
@@ -255,7 +259,8 @@ static int do_status(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static int do_value(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_value(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	struct udevice *dev;
 	struct dm_regulator_uclass_platdata *uc_pdata;
@@ -304,7 +309,8 @@ static int do_value(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static int do_current(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_current(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	struct udevice *dev;
 	struct dm_regulator_uclass_platdata *uc_pdata;
@@ -343,7 +349,8 @@ static int do_current(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static int do_mode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mode(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	struct udevice *dev;
 	struct dm_regulator_uclass_platdata *uc_pdata;
@@ -378,7 +385,8 @@ static int do_mode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static int do_enable(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_enable(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	struct udevice *dev;
 	struct dm_regulator_uclass_platdata *uc_pdata;
@@ -397,7 +405,8 @@ static int do_enable(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static int do_disable(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_disable(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	struct udevice *dev;
 	struct dm_regulator_uclass_platdata *uc_pdata;
@@ -416,7 +425,7 @@ static int do_disable(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static cmd_tbl_t subcmd[] = {
+static struct cmd_tbl subcmd[] = {
 	U_BOOT_CMD_MKENT(dev, 2, 1, do_dev, "", ""),
 	U_BOOT_CMD_MKENT(list, 1, 1, do_list, "", ""),
 	U_BOOT_CMD_MKENT(info, 2, 1, do_info, "", ""),
@@ -428,10 +437,10 @@ static cmd_tbl_t subcmd[] = {
 	U_BOOT_CMD_MKENT(disable, 1, 1, do_disable, "", ""),
 };
 
-static int do_regulator(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_regulator(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
-	cmd_tbl_t *cmd;
+	struct cmd_tbl *cmd;
 
 	argc--;
 	argv++;

@@ -5,9 +5,12 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <miiphy.h>
+#include <net.h>
 #include <netdev.h>
 #include <led.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>

@@ -47,6 +47,7 @@
 #define CONFIG_VERY_BIG_RAM
 
 #ifndef __ASSEMBLY__
+#include <linux/stringify.h>
 extern unsigned long get_board_sys_clk(unsigned long dummy);
 extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #endif
@@ -67,8 +68,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /*
  * Diagnostics
  */
-#define CONFIG_SYS_MEMTEST_START	0x10000000
-#define CONFIG_SYS_MEMTEST_END		0x20000000
 #define CONFIG_POST			(CONFIG_SYS_POST_MEMORY | \
 					 CONFIG_SYS_POST_I2C)
 /* The XPedite5370 can host an XMC which has an EEPROM at address 0x50 */

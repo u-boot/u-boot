@@ -13,13 +13,17 @@
  * Ported to SolidRun microSOM by Rabeeh Khoury <rabeeh@solid-run.com>
  */
 
+#include <common.h>
+#include <image.h>
 #include <init.h>
+#include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <env.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
@@ -28,8 +32,6 @@
 #include <mmc.h>
 #include <fsl_esdhc_imx.h>
 #include <malloc.h>
-#include <miiphy.h>
-#include <netdev.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
@@ -47,16 +49,6 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_SPEED_LOW | PAD_CTL_DSE_80ohm |			\
 	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
 
-#define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
-
-#define ENET_PAD_CTRL_PD  (PAD_CTL_PUS_100K_DOWN |		\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
-
-#define ENET_PAD_CTRL_CLK  ((PAD_CTL_PUS_100K_UP & ~PAD_CTL_PKE) | \
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_SRE_FAST)
-
-#define ETH_PHY_RESET	IMX_GPIO_NR(4, 15)
 #define USB_H1_VBUS	IMX_GPIO_NR(1, 0)
 
 enum board_type {
@@ -65,6 +57,8 @@ enum board_type {
 	HUMMINGBOARD2   = 0x02,
 	UNKNOWN         = 0x03,
 };
+
+static struct gpio_desc board_detect_desc[5];
 
 #define MEM_STRIDE 0x4000000
 static u32 get_ram_size_stride_test(u32 *base, u32 maxsize)
@@ -155,191 +149,14 @@ static iomux_v3_cfg_t const som_rev_detect[] = {
 	IOMUX_PADS(PAD_CSI0_DAT18__GPIO6_IO04  | MUX_PAD_CTRL(UART_PAD_CTRL)),
 };
 
-static iomux_v3_cfg_t const usb_pads[] = {
-	IOMUX_PADS(PAD_GPIO_0__GPIO1_IO00 | MUX_PAD_CTRL(NO_PAD_CTRL)),
-};
-
 static void setup_iomux_uart(void)
 {
 	SETUP_IOMUX_PADS(uart1_pads);
 }
 
-static struct fsl_esdhc_cfg usdhc_cfg = {
-	.esdhc_base = USDHC2_BASE_ADDR,
-	.max_bus_width = 4,
-};
-
-static struct fsl_esdhc_cfg emmc_cfg = {
-	.esdhc_base = USDHC3_BASE_ADDR,
-	.max_bus_width = 8,
-};
-
 int board_mmc_get_env_dev(int devno)
 {
-	return devno - 1;
-}
-
-#define USDHC2_CD_GPIO  IMX_GPIO_NR(1, 4)
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	struct fsl_esdhc_cfg *cfg = mmc->priv;
-	int ret = 0;
-
-	switch (cfg->esdhc_base) {
-	case USDHC2_BASE_ADDR:
-		ret = !gpio_get_value(USDHC2_CD_GPIO);
-		break;
-	case USDHC3_BASE_ADDR:
-		ret = (mmc_get_op_cond(mmc) < 0) ? 0 : 1; /* eMMC/uSDHC3 has no CD GPIO */
-		break;
-	}
-
-	return ret;
-}
-
-static int mmc_init_main(bd_t *bis)
-{
-	int ret;
-
-	/*
-	 * Following map is done:
-	 * (U-Boot device node)    (Physical Port)
-	 * mmc0                    Carrier board MicroSD
-	 * mmc1                    SOM eMMC
-	 */
-	SETUP_IOMUX_PADS(usdhc2_pads);
-	usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-	ret = fsl_esdhc_initialize(bis, &usdhc_cfg);
-	if (ret)
-		return ret;
-
-	SETUP_IOMUX_PADS(usdhc3_pads);
-	emmc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-	return fsl_esdhc_initialize(bis, &emmc_cfg);
-}
-
-static int mmc_init_spl(bd_t *bis)
-{
-	struct src *psrc = (struct src *)SRC_BASE_ADDR;
-	unsigned reg = readl(&psrc->sbmr1) >> 11;
-
-	/*
-	 * Upon reading BOOT_CFG register the following map is done:
-	 * Bit 11 and 12 of BOOT_CFG register can determine the current
-	 * mmc port
-	 * 0x1                  SD2
-	 * 0x2                  SD3
-	 */
-	switch (reg & 0x3) {
-	case 0x1:
-		SETUP_IOMUX_PADS(usdhc2_pads);
-		usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-		gd->arch.sdhc_clk = usdhc_cfg.sdhc_clk;
-		return fsl_esdhc_initialize(bis, &usdhc_cfg);
-	case 0x2:
-		SETUP_IOMUX_PADS(usdhc3_pads);
-		emmc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-		gd->arch.sdhc_clk = emmc_cfg.sdhc_clk;
-		return fsl_esdhc_initialize(bis, &emmc_cfg);
-	}
-
-	return -ENODEV;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
-		return mmc_init_spl(bis);
-
-	return mmc_init_main(bis);
-}
-
-static iomux_v3_cfg_t const enet_pads[] = {
-	IOMUX_PADS(PAD_ENET_MDIO__ENET_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_ENET_MDC__ENET_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	/* AR8035 reset */
-	IOMUX_PADS(PAD_KEY_ROW4__GPIO4_IO15 | MUX_PAD_CTRL(ENET_PAD_CTRL_PD)),
-	/* AR8035 interrupt */
-	IOMUX_PADS(PAD_DI0_PIN2__GPIO4_IO18 | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	/* GPIO16 -> AR8035 25MHz */
-	IOMUX_PADS(PAD_GPIO_16__ENET_REF_CLK	  | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TXC__RGMII_TXC	  | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD0__RGMII_TD0 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD1__RGMII_TD1 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD2__RGMII_TD2 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD3__RGMII_TD3 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TX_CTL__RGMII_TX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	/* AR8035 CLK_25M --> ENET_REF_CLK (V22) */
-	IOMUX_PADS(PAD_ENET_REF_CLK__ENET_TX_CLK | MUX_PAD_CTRL(ENET_PAD_CTRL_CLK)),
-	IOMUX_PADS(PAD_RGMII_RXC__RGMII_RXC | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD0__RGMII_RD0 | MUX_PAD_CTRL(ENET_PAD_CTRL_PD)),
-	IOMUX_PADS(PAD_RGMII_RD1__RGMII_RD1 | MUX_PAD_CTRL(ENET_PAD_CTRL_PD)),
-	IOMUX_PADS(PAD_RGMII_RD2__RGMII_RD2 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD3__RGMII_RD3 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RX_CTL__RGMII_RX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL_PD)),
-	IOMUX_PADS(PAD_ENET_RXD0__GPIO1_IO27 | MUX_PAD_CTRL(ENET_PAD_CTRL_PD)),
-	IOMUX_PADS(PAD_ENET_RXD1__GPIO1_IO26 | MUX_PAD_CTRL(ENET_PAD_CTRL_PD)),
-};
-
-static void setup_iomux_enet(void)
-{
-	SETUP_IOMUX_PADS(enet_pads);
-
-	gpio_direction_output(ETH_PHY_RESET, 0);
-	mdelay(10);
-	gpio_set_value(ETH_PHY_RESET, 1);
-	udelay(100);
-}
-
-int board_phy_config(struct phy_device *phydev)
-{
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
-
-	return 0;
-}
-
-/* On Cuboxi Ethernet PHY can be located at addresses 0x0 or 0x4 */
-#define ETH_PHY_MASK	((1 << 0x0) | (1 << 0x4))
-
-int board_eth_init(bd_t *bis)
-{
-	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	struct mii_dev *bus;
-	struct phy_device *phydev;
-
-	int ret = enable_fec_anatop_clock(0, ENET_25MHZ);
-	if (ret)
-		return ret;
-
-	/* set gpr1[ENET_CLK_SEL] */
-	setbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_ENET_CLK_SEL_MASK);
-
-	setup_iomux_enet();
-
-	bus = fec_get_miibus(IMX_FEC_BASE, -1);
-	if (!bus)
-		return -EINVAL;
-
-	phydev = phy_find_by_mask(bus, ETH_PHY_MASK, PHY_INTERFACE_MODE_RGMII);
-	if (!phydev) {
-		ret = -EINVAL;
-		goto free_bus;
-	}
-
-	debug("using phy at address %d\n", phydev->addr);
-	ret = fec_probe(bis, -1, IMX_FEC_BASE, bus, phydev);
-	if (ret)
-		goto free_phydev;
-
-	return 0;
-
-free_phydev:
-	free(phydev);
-free_bus:
-	free(bus);
-	return ret;
+	return devno;
 }
 
 #ifdef CONFIG_VIDEO_IPUV3
@@ -434,20 +251,20 @@ static int setup_display(void)
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
 
-#ifdef CONFIG_USB_EHCI_MX6
-static void setup_usb(void)
+static int setup_fec(void)
 {
-	SETUP_IOMUX_PADS(usb_pads);
-}
+	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	int ret;
 
-int board_ehci_hcd_init(int port)
-{
-	if (port == 1)
-		gpio_direction_output(USB_H1_VBUS, 1);
+	ret = enable_fec_anatop_clock(0, ENET_25MHZ);
+	if (ret)
+		return ret;
+
+	/* set gpr1[ENET_CLK_SEL] */
+	setbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_ENET_CLK_SEL_MASK);
 
 	return 0;
 }
-#endif
 
 int board_early_init_f(void)
 {
@@ -456,10 +273,8 @@ int board_early_init_f(void)
 #ifdef CONFIG_CMD_SATA
 	setup_sata();
 #endif
+	setup_fec();
 
-#ifdef CONFIG_USB_EHCI_MX6
-	setup_usb();
-#endif
 	return 0;
 }
 
@@ -475,6 +290,29 @@ int board_init(void)
 #endif
 
 	return ret;
+}
+
+static int request_detect_gpios(void)
+{
+	int node;
+	int ret;
+
+	node = fdt_node_offset_by_compatible(gd->fdt_blob, 0,
+		"solidrun,hummingboard-detect");
+	if (node < 0)
+		return -ENODEV;
+
+	ret = gpio_request_list_by_name_nodev(offset_to_ofnode(node),
+		"detect-gpios", board_detect_desc,
+		ARRAY_SIZE(board_detect_desc), GPIOD_IS_IN);
+
+	return ret;
+}
+
+static int free_detect_gpios(void)
+{
+	return gpio_free_list_nodev(board_detect_desc,
+		ARRAY_SIZE(board_detect_desc));
 }
 
 static enum board_type board_type(void)
@@ -532,7 +370,7 @@ static bool is_rev_15_som(void)
 static bool has_emmc(void)
 {
 	struct mmc *mmc;
-	mmc = find_mmc_device(1);
+	mmc = find_mmc_device(2);
 	if (!mmc)
 		return 0;
 	return (mmc_get_op_cond(mmc) < 0) ? 0 : 1;
@@ -540,6 +378,8 @@ static bool has_emmc(void)
 
 int checkboard(void)
 {
+	request_detect_gpios();
+
 	switch (board_type()) {
 	case CUBOXI:
 		puts("Board: MX6 Cubox-i");
@@ -561,13 +401,22 @@ int checkboard(void)
 	else
 		puts("\n");
 
+	free_detect_gpios();
 out:
 	return 0;
+}
+
+/* Override the default implementation, DT model is not accurate */
+int show_board_info(void)
+{
+	return checkboard();
 }
 
 int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	request_detect_gpios();
+
 	switch (board_type()) {
 	case CUBOXI:
 		env_set("board_name", "CUBOXI");
@@ -594,9 +443,73 @@ int board_late_init(void)
 	if (has_emmc())
 		env_set("has_emmc", "yes");
 
+	free_detect_gpios();
 #endif
 
 	return 0;
+}
+
+/*
+ * This is not a perfect match. Avoid dependency on the DM GPIO driver needed
+ * for accurate board detection. Hummingboard2 DT is good enough for U-Boot on
+ * all Hummingboard/Cubox-i platforms.
+ */
+int board_fit_config_name_match(const char *name)
+{
+	char tmp_name[36];
+
+	snprintf(tmp_name, sizeof(tmp_name), "%s-hummingboard2-emmc-som-v15",
+			is_mx6dq() ? "imx6q" : "imx6dl");
+
+	return strcmp(name, tmp_name);
+}
+
+void board_boot_order(u32 *spl_boot_list)
+{
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
+	unsigned int reg = readl(&psrc->sbmr1) >> 11;
+	u32 boot_mode = imx6_src_get_boot_mode() & IMX6_BMODE_MASK;
+	unsigned int bmode = readl(&src_base->sbmr2);
+
+	/* If bmode is serial or USB phy is active, return serial */
+	if (((bmode >> 24) & 0x03) == 0x01 || is_usbotg_phy_active()) {
+		spl_boot_list[0] = BOOT_DEVICE_BOARD;
+		return;
+	}
+
+	switch (boot_mode >> IMX6_BMODE_SHIFT) {
+	case IMX6_BMODE_SD:
+	case IMX6_BMODE_ESD:
+	case IMX6_BMODE_MMC:
+	case IMX6_BMODE_EMMC:
+		/*
+		 * Upon reading BOOT_CFG register the following map is done:
+		 * Bit 11 and 12 of BOOT_CFG register can determine the current
+		 * mmc port
+		 * 0x1                  SD2
+		 * 0x2                  SD3
+		 */
+
+		reg &= 0x3; /* Only care about bottom 2 bits */
+		switch (reg) {
+		case 1:
+			SETUP_IOMUX_PADS(usdhc2_pads);
+			spl_boot_list[0] = BOOT_DEVICE_MMC1;
+			break;
+		case 2:
+			SETUP_IOMUX_PADS(usdhc3_pads);
+			spl_boot_list[0] = BOOT_DEVICE_MMC2;
+			break;
+		}
+		break;
+	default:
+		/* By default use USB downloader */
+		spl_boot_list[0] = BOOT_DEVICE_BOARD;
+		break;
+	}
+
+	/* As a last resort, use serial downloader */
+	spl_boot_list[1] = BOOT_DEVICE_BOARD;
 }
 
 #ifdef CONFIG_SPL_BUILD

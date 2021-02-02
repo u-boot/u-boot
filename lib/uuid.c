@@ -4,8 +4,11 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
+#include <rand.h>
 #include <time.h>
+#include <uuid.h>
 #include <linux/ctype.h>
 #include <errno.h>
 #include <common.h>
@@ -121,7 +124,7 @@ int uuid_guid_get_bin(const char *guid_str, unsigned char *guid_bin)
  * @param guid_bin - pointer to string with partition type guid [16B]
  * @param guid_str - pointer to allocated partition type string [7B]
  */
-int uuid_guid_get_str(unsigned char *guid_bin, char *guid_str)
+int uuid_guid_get_str(const unsigned char *guid_bin, char *guid_str)
 {
 	int i;
 
@@ -143,7 +146,8 @@ int uuid_guid_get_str(unsigned char *guid_bin, char *guid_str)
  * @param uuid_bin - pointer to allocated array for big endian output [16B]
  * @str_format     - UUID string format: 0 - UUID; 1 - GUID
  */
-int uuid_str_to_bin(char *uuid_str, unsigned char *uuid_bin, int str_format)
+int uuid_str_to_bin(const char *uuid_str, unsigned char *uuid_bin,
+		    int str_format)
 {
 	uint16_t tmp16;
 	uint32_t tmp32;
@@ -194,7 +198,8 @@ int uuid_str_to_bin(char *uuid_str, unsigned char *uuid_bin, int str_format)
  * @str_format:		bit 0: 0 - UUID; 1 - GUID
  *			bit 1: 0 - lower case; 2 - upper case
  */
-void uuid_bin_to_str(unsigned char *uuid_bin, char *uuid_str, int str_format)
+void uuid_bin_to_str(const unsigned char *uuid_bin, char *uuid_str,
+		     int str_format)
 {
 	const u8 uuid_char_order[UUID_BIN_LEN] = {0, 1, 2, 3, 4, 5, 6, 7, 8,
 						  9, 10, 11, 12, 13, 14, 15};
@@ -282,7 +287,7 @@ void gen_rand_uuid_str(char *uuid_str, int str_format)
 }
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_CMD_UUID)
-int do_uuid(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_uuid(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char uuid[UUID_STR_LEN + 1];
 	int str_format;

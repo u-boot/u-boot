@@ -12,12 +12,10 @@
 
 #ifndef CONFIG_SPL_DM
 #undef CONFIG_DM_SERIAL
-#undef CONFIG_DM_GPIO
 #undef CONFIG_DM_I2C
 #undef CONFIG_DM_SPI
 #endif
 
-#undef CONFIG_DM_WARN
 #undef CONFIG_DM_STDIO
 
 #endif /* CONFIG_SPL_BUILD */

@@ -47,6 +47,7 @@ config SYS_NUM_DDR_CTLRS
 			ARCH_P5020	|| \
 			ARCH_P5040	|| \
 			ARCH_LX2160A	|| \
+			ARCH_LX2162A	|| \
 			ARCH_T4160
 	default 1
 
@@ -149,6 +150,9 @@ endchoice
 endmenu
 
 config SYS_FSL_ERRATUM_A008378
+	bool
+
+config SYS_FSL_ERRATUM_A008109
 	bool
 
 config SYS_FSL_ERRATUM_A008511

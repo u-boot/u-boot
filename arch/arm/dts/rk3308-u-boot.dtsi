@@ -3,6 +3,13 @@
  *(C) Copyright 2019 Rockchip Electronics Co., Ltd
  */
 
+/ {
+	aliases {
+		mmc0 = &emmc;
+		mmc1 = &sdmmc;
+	};
+};
+
 &cru {
 	u-boot,dm-pre-reloc;
 };

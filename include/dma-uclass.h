@@ -58,14 +58,14 @@ struct dma_ops {
 	 */
 	int (*request)(struct dma *dma);
 	/**
-	 * free - Free a previously requested dma.
+	 * rfree - Free a previously requested dma.
 	 *
 	 * This is the implementation of the client dma_free() API.
 	 *
 	 * @dma: The DMA to free.
 	 * @return 0 if OK, or a negative error code.
 	 */
-	int (*free)(struct dma *dma);
+	int (*rfree)(struct dma *dma);
 	/**
 	 * enable() - Enable a DMA Channel.
 	 *

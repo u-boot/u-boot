@@ -1,0 +1,53 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * Copyright (C) 2019 Mauro Condarelli <mc5686@mclink.it>
+ */
+
+#ifndef __VOCORE2_CONFIG_H__
+#define __VOCORE2_CONFIG_H__
+
+/* CPU */
+#define CONFIG_SYS_MIPS_TIMER_FREQ	290000000
+
+/* RAM */
+#define CONFIG_SYS_SDRAM_BASE		0x80000000
+
+#define CONFIG_SYS_LOAD_ADDR	CONFIG_SYS_SDRAM_BASE + 0x100000
+
+#define CONFIG_SYS_INIT_SP_OFFSET	0x400000
+
+/* SPL */
+#if defined(CONFIG_SPL) && !defined(CONFIG_SPL_BUILD)
+#define CONFIG_SKIP_LOWLEVEL_INIT
+#endif
+
+#define CONFIG_SYS_UBOOT_START		CONFIG_SYS_TEXT_BASE
+#define CONFIG_SPL_BSS_START_ADDR	0x80010000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x10000
+#define CONFIG_SPL_MAX_SIZE		0x10000
+#define CONFIG_SPL_PAD_TO		0
+
+/* Dummy value */
+#define CONFIG_SYS_UBOOT_BASE		0
+
+/* Serial SPL */
+#define CONFIG_SYS_NS16550_MEM32
+#define CONFIG_SYS_NS16550_CLK		40000000
+#define CONFIG_SYS_NS16550_REG_SIZE	-4
+#define CONFIG_SYS_NS16550_COM3		0xb0000e00
+#define CONFIG_CONS_INDEX		3
+
+/* RAM */
+
+/* Memory usage */
+#define CONFIG_SYS_MAXARGS		64
+#define CONFIG_SYS_MALLOC_LEN		(16 * 1024 * 1024)
+#define CONFIG_SYS_BOOTPARAMS_LEN	(128 * 1024)
+#define CONFIG_SYS_CBSIZE		512
+
+/* U-Boot */
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
+
+/* Environment settings */
+
+#endif //__VOCORE2_CONFIG_H__

@@ -8,6 +8,20 @@ choice
 	prompt "Mainboard model"
 	optional
 
+config TARGET_CHROMEBOOK_CORAL
+	bool "Chromebook coral"
+	help
+	  This is a range of Intel-based laptops released in 2018. They use an
+	  Intel Apollo Lake SoC. The design supports WiFi, 4GB to 16GB of
+	  LPDDR4 1600MHz SDRAM, PCIe WiFi and Bluetooth, eMMC (typically 32GB),
+	  up two cameras (front-facing 720p and another 5MP option), USB SD
+	  reader, microphone and speakers. It also includes two USB 3 Type A and
+	  two Type C ports. The latter are used as power input and can also
+	  charge external devices as well as a 4K external display. There is a
+	  Chrome OS EC connected on LPC, a Cr50 secure chip from Google and
+	  various display options. OEMs products include Acer Chromebook 11
+	  (e.g. C732, CB11, CP311) and Lenovo Chromebook (100e, 300e, 500e).
+
 config TARGET_CHROMEBOOK_LINK
 	bool "Chromebook link"
 	help
@@ -62,6 +76,7 @@ config TARGET_CHROMEBOOK_SAMUS_TPL
 
 endchoice
 
+source "board/google/chromebook_coral/Kconfig"
 source "board/google/chromebook_link/Kconfig"
 source "board/google/chromebox_panther/Kconfig"
 source "board/google/chromebook_samus/Kconfig"

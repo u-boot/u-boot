@@ -4,7 +4,7 @@
  * Copyright (C) 2015-2016 Socionext Inc.
  */
 
-#include <common.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/io.h>
 

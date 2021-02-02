@@ -6,6 +6,11 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <errno.h>
+#include <fdt_support.h>
+#include <image.h>
+#include <log.h>
+#include <asm/cache.h>
+#include <asm/ptrace.h>
 #include <linux/kernel.h>
 #include <asm/io.h>
 #include <asm/system.h>

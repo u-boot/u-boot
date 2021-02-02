@@ -4,11 +4,13 @@
  */
 
 #include <common.h>
-#include <acpi_s3.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <init.h>
+#include <log.h>
 #include <rtc.h>
+#include <acpi/acpi_s3.h>
 #include <asm/cmos_layout.h>
 #include <asm/early_cmos.h>
 #include <asm/io.h>
@@ -45,7 +47,7 @@ int fsp_init_phase_pci(void)
 	return status ? -EPERM : 0;
 }
 
-void board_final_cleanup(void)
+void board_final_init(void)
 {
 	u32 status;
 
@@ -58,27 +60,22 @@ void board_final_cleanup(void)
 		debug("OK\n");
 }
 
-void *fsp_prepare_mrc_cache(void)
+void board_final_cleanup(void)
 {
-	struct mrc_data_container *cache;
-	struct mrc_region entry;
-	int ret;
+	u32 status;
 
-	ret = mrccache_get_region(NULL, &entry);
-	if (ret)
-		return NULL;
+	/* TODO(sjg@chromium.org): This causes Linux to crash */
+	return;
 
-	cache = mrccache_find_current(&entry);
-	if (!cache)
-		return NULL;
-
-	debug("%s: mrc cache at %p, size %x checksum %04x\n", __func__,
-	      cache->data, cache->data_size, cache->checksum);
-
-	return cache->data;
+	/* call into FspNotify */
+	debug("Calling into FSP (notify phase INIT_PHASE_END_FIRMWARE): ");
+	status = fsp_notify(NULL, INIT_PHASE_END_FIRMWARE);
+	if (status)
+		debug("fail, error code %x\n", status);
+	else
+		debug("OK\n");
 }
 
-#ifdef CONFIG_HAVE_ACPI_RESUME
 int fsp_save_s3_stack(void)
 {
 	struct udevice *dev;
@@ -102,4 +99,3 @@ int fsp_save_s3_stack(void)
 
 	return 0;
 }
-#endif

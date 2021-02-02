@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <asm/arch/grf_rk3308.h>
 #include <asm/arch-rockchip/hardware.h>
+#include <linux/bitops.h>
 
 #if defined(CONFIG_DEBUG_UART)
 #define GRF_BASE	0xff000000

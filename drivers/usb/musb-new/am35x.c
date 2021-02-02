@@ -12,6 +12,8 @@
  */
 
 #ifndef __UBOOT__
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/clk.h>
@@ -24,6 +26,8 @@
 #else
 #include <common.h>
 #include <asm/omap_musb.h>
+#include <linux/bug.h>
+#include <linux/delay.h>
 #include "linux-compat.h"
 #endif
 

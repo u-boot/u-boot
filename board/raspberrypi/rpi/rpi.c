@@ -478,7 +478,7 @@ void *board_fdt_blob_setup(void)
 	return (void *)fw_dtb_pointer;
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	/*
 	 * For now, we simply always add the simplefb DT node. Later, we
@@ -489,7 +489,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 #ifdef CONFIG_EFI_LOADER
 	/* Reserve the spin table */
-	efi_add_memory_map(0, 1, EFI_RESERVED_MEMORY_TYPE, 0);
+	efi_add_memory_map(0, CONFIG_RPI_EFI_NR_SPIN_PAGES << EFI_PAGE_SHIFT,
+			   EFI_RESERVED_MEMORY_TYPE);
 #endif
 
 	return 0;

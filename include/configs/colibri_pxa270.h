@@ -19,7 +19,6 @@
 /*
  * Environment settings
  */
-#define	CONFIG_ENV_OVERWRITE
 #define	CONFIG_SYS_MALLOC_LEN		(128 * 1024)
 #define	CONFIG_BOOTCOMMAND						\
 	"if fatload mmc 0 0xa0000000 uImage; then "			\
@@ -70,8 +69,6 @@
 #define	CONFIG_BOOTP_BOOTFILESIZE
 #endif
 
-#define	CONFIG_SYS_DEVICE_NULLDEV	1
-
 /*
  * Clock Configuration
  */
@@ -85,9 +82,6 @@
 
 #define	CONFIG_SYS_DRAM_BASE		0xa0000000	/* CS0 */
 #define	CONFIG_SYS_DRAM_SIZE		0x04000000	/* 64 MB DRAM */
-
-#define CONFIG_SYS_MEMTEST_START	0xa0400000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0xa0800000	/* 4 ... 8 MB in DRAM */
 
 #define	CONFIG_SYS_LOAD_ADDR		PHYS_SDRAM_1
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1

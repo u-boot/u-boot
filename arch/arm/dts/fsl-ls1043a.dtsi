@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
- * Device Tree Include file for Freescale Layerscape-1043A family SoC.
+ * Device Tree Include file for NXP Layerscape-1043A family SoC.
  *
+ * Copyright 2020 NXP
  * Copyright (C) 2014-2015, Freescale Semiconductor
  *
  * Mingkai Hu <Mingkai.hu@freescale.com>
@@ -31,7 +32,7 @@
 		interrupts = <1 9 0xf08>;
 	};
 
-	soc {
+	soc: soc {
 		compatible = "simple-bus";
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -210,14 +211,12 @@
 			status = "disabled";
 		};
 		qspi: quadspi@1550000 {
-			compatible = "fsl,vf610-qspi";
+			compatible = "fsl,ls1021a-qspi";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0x0 0x1550000 0x0 0x10000>,
-				<0x0 0x40000000 0x0 0x4000000>;
+				<0x0 0x40000000 0x0 0x1000000>;
 			reg-names = "QuadSPI", "QuadSPI-memory";
-			num-cs = <2>;
-			big-endian;
 			status = "disabled";
 		};
 
@@ -242,7 +241,7 @@
 			dr_mode = "host";
 		};
 
-		pcie@3400000 {
+		pcie1: pcie@3400000 {
 			compatible = "fsl,ls-pcie", "snps,dw-pcie";
 			reg = <0x00 0x03400000 0x0 0x10000   /* dbi registers */
 			       0x00 0x03410000 0x0 0x10000   /* lut registers */
@@ -257,7 +256,7 @@
 				  0x82000000 0x0 0x40000000 0x40 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
 		};
 
-		pcie@3500000 {
+		pcie2: pcie@3500000 {
 			compatible = "fsl,ls-pcie", "snps,dw-pcie";
 			reg = <0x00 0x03500000 0x0 0x10000   /* dbi registers */
 			       0x00 0x03510000 0x0 0x10000   /* lut registers */
@@ -273,7 +272,7 @@
 				  0x82000000 0x0 0x40000000 0x48 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
 		};
 
-		pcie@3600000 {
+		pcie3: pcie@3600000 {
 			compatible = "fsl,ls-pcie", "snps,dw-pcie";
 			reg = <0x00 0x03600000 0x0 0x10000   /* dbi registers */
 			       0x00 0x03610000 0x0 0x10000   /* lut registers */

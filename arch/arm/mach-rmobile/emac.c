@@ -7,10 +7,11 @@
  */
 
 #include <common.h>
+#include <net.h>
 #include <linux/errno.h>
 #include <netdev.h>
 
-int cpu_eth_init(bd_t *bis)
+int cpu_eth_init(struct bd_info *bis)
 {
 	int ret = -ENODEV;
 #ifdef CONFIG_SH_ETHER

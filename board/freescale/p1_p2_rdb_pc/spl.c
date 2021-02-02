@@ -4,9 +4,11 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <console.h>
 #include <env.h>
 #include <env_internal.h>
+#include <init.h>
 #include <ns16550.h>
 #include <malloc.h>
 #include <mmc.h>
@@ -67,14 +69,12 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 {
 	/* Pointer is writable since we allocated a register for it */
 	gd = (gd_t *)CONFIG_SPL_GD_ADDR;
-	bd_t *bd;
+	struct bd_info *bd;
 
 	memset(gd, 0, sizeof(gd_t));
-	bd = (bd_t *)(CONFIG_SPL_GD_ADDR + sizeof(gd_t));
-	memset(bd, 0, sizeof(bd_t));
+	bd = (struct bd_info *)(CONFIG_SPL_GD_ADDR + sizeof(gd_t));
+	memset(bd, 0, sizeof(struct bd_info));
 	gd->bd = bd;
-	bd->bi_memstart = CONFIG_SYS_INIT_L2_ADDR;
-	bd->bi_memsize = CONFIG_SYS_L2_SIZE;
 
 	arch_cpu_init();
 	get_clocks();

@@ -11,10 +11,11 @@
 #include <ec_commands.h>
 #include <errno.h>
 #include <hash.h>
-#include <malloc.h>
+#include <log.h>
 #include <os.h>
 #include <u-boot/sha256.h>
 #include <spi.h>
+#include <asm/malloc.h>
 #include <asm/state.h>
 #include <asm/sdl.h>
 #include <linux/input.h>
@@ -115,7 +116,7 @@ static int cros_ec_read_state(const void *blob, int node)
 	prop = fdt_getprop(blob, node, "flash-data", &len);
 	if (prop) {
 		ec->flash_data_len = len;
-		ec->flash_data = os_malloc(len);
+		ec->flash_data = malloc(len);
 		if (!ec->flash_data)
 			return -ENOMEM;
 		memcpy(ec->flash_data, prop, len);
@@ -459,6 +460,14 @@ static int process_cmd(struct ec_state *ec,
 	case EC_CMD_ENTERING_MODE:
 		len = 0;
 		break;
+	case EC_CMD_GET_NEXT_EVENT: {
+		struct ec_response_get_next_event *resp = resp_data;
+
+		resp->event_type = EC_MKBP_EVENT_KEY_MATRIX;
+		cros_ec_keyscan(ec, resp->data.key_matrix);
+		len = sizeof(*resp);
+		break;
+	}
 	default:
 		printf("   ** Unknown EC command %#02x\n", req_hdr->command);
 		return -1;
@@ -545,14 +554,14 @@ int cros_ec_probe(struct udevice *dev)
 	    ec->flash_data_len != ec->ec_config.flash.length) {
 		printf("EC data length is %x, expected %x, discarding data\n",
 		       ec->flash_data_len, ec->ec_config.flash.length);
-		os_free(ec->flash_data);
+		free(ec->flash_data);
 		ec->flash_data = NULL;
 	}
 
 	/* Otherwise allocate the memory */
 	if (!ec->flash_data) {
 		ec->flash_data_len = ec->ec_config.flash.length;
-		ec->flash_data = os_malloc(ec->flash_data_len);
+		ec->flash_data = malloc(ec->flash_data_len);
 		if (!ec->flash_data)
 			return -ENOMEM;
 	}
@@ -571,8 +580,8 @@ static const struct udevice_id cros_ec_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(cros_ec_sandbox) = {
-	.name		= "cros_ec_sandbox",
+U_BOOT_DRIVER(google_cros_ec_sandbox) = {
+	.name		= "google_cros_ec_sandbox",
 	.id		= UCLASS_CROS_EC,
 	.of_match	= cros_ec_ids,
 	.probe		= cros_ec_probe,

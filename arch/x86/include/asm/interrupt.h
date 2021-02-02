@@ -38,6 +38,16 @@ enum x86_exception {
 	EXC_VE
 };
 
+/**
+ * struct idt_ptr - Holds the IDT (Interrupt Descriptor Table)
+ *
+ * @size: Size of IDT in bytes
+ */
+struct idt_ptr {
+	unsigned short size;
+	unsigned long address;
+} __packed;
+
 /* arch/x86/cpu/interrupts.c */
 void set_vector(u8 intnum, void *routine);
 
@@ -60,5 +70,12 @@ extern char exception_stack[];
 void configure_irq_trigger(int int_num, bool is_level_triggered);
 
 void *x86_get_idt(void);
+
+/**
+ * interrupt_read_idt() - Read the IDT
+ *
+ * @ptr: Place to put IDT contents
+ */
+void interrupt_read_idt(struct idt_ptr *ptr);
 
 #endif

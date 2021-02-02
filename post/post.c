@@ -5,7 +5,10 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <env.h>
+#include <log.h>
+#include <malloc.h>
 #include <stdio_dev.h>
 #include <time.h>
 #include <watchdog.h>
@@ -186,7 +189,7 @@ static void post_get_env_flags(int *test_flags)
 		last = 0;
 		name = list;
 		while (!last) {
-			while (*name && *name == ' ')
+			while (*name == ' ')
 				name++;
 			if (*name == 0)
 				break;

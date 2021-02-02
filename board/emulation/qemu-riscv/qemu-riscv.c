@@ -7,6 +7,8 @@
 #include <dm.h>
 #include <env.h>
 #include <fdtdec.h>
+#include <image.h>
+#include <log.h>
 #include <spl.h>
 #include <init.h>
 #include <virtio_types.h>
@@ -48,45 +50,6 @@ int board_late_init(void)
 	}
 
 	env_set_hex("kernel_start", kernel_start);
-
-	return 0;
-}
-
-/*
- * QEMU specifies the location of Linux (supplied with the -kernel argument)
- * in the device tree using the riscv,kernel-start and riscv,kernel-end
- * properties. We currently rely on the SBI implementation of BBL to run
- * Linux and therefore embed Linux as payload in BBL. This causes an issue,
- * because BBL detects the kernel properties in the device tree and ignores
- * the Linux payload as a result. To work around this issue, we clear the
- * kernel properties before booting Linux.
- *
- * This workaround can be removed, once we do not require BBL for its SBI
- * implementation anymore.
- */
-int ft_board_setup(void *blob, bd_t *bd)
-{
-	int chosen_offset, ret;
-
-	chosen_offset = fdt_path_offset(blob, "/chosen");
-	if (chosen_offset < 0)
-		return 0;
-
-#ifdef CONFIG_ARCH_RV64I
-	ret = fdt_setprop_u64(blob, chosen_offset, "riscv,kernel-start", 0);
-#else
-	ret = fdt_setprop_u32(blob, chosen_offset, "riscv,kernel-start", 0);
-#endif
-	if (ret)
-		return ret;
-
-#ifdef CONFIG_ARCH_RV64I
-	ret = fdt_setprop_u64(blob, chosen_offset, "riscv,kernel-end", 0);
-#else
-	ret = fdt_setprop_u32(blob, chosen_offset, "riscv,kernel-end", 0);
-#endif
-	if (ret)
-		return ret;
 
 	return 0;
 }

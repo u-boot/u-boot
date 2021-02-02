@@ -17,7 +17,6 @@
 
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_FSL_VIA
 
@@ -31,9 +30,6 @@ extern unsigned long get_clock_freq(void);
  */
 #define CONFIG_L2_CACHE			    /* toggle L2 cache	*/
 #define CONFIG_BTB			    /* toggle branch predition */
-
-#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00400000
 
 #define CONFIG_SYS_CCSRBAR		0xe0000000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
@@ -57,8 +53,6 @@ extern unsigned long get_clock_freq(void);
 #ifndef CONFIG_SPD_EEPROM
 #error ("CONFIG_SPD_EEPROM is required by MPC85555CDS")
 #endif
-
-#undef CONFIG_CLOCKS_IN_MHZ
 
 /*
  * Local Bus Definitions
@@ -283,8 +277,6 @@ extern unsigned long get_clock_freq(void);
 
 #define CONFIG_MPC85XX_PCI2
 
-#undef CONFIG_EEPRO100
-#undef CONFIG_TULIP
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1057  /* Motorola */

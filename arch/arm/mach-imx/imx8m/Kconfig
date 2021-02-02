@@ -16,6 +16,10 @@ config IMX8MN
 	bool
 	select IMX8M
 
+config IMX8MP
+	bool
+	select IMX8M
+
 config SYS_SOC
 	default "imx8m"
 
@@ -27,6 +31,11 @@ config TARGET_IMX8MQ_EVK
 	bool "imx8mq_evk"
 	select IMX8MQ
 	select IMX8M_LPDDR4
+
+config TARGET_IMX8MQ_PHANBELL
+        bool "imx8mq_phanbell"
+        select IMX8MQ
+        select IMX8M_LPDDR4
 
 config TARGET_IMX8MM_EVK
 	bool "imx8mm LPDDR4 EVK board"
@@ -40,10 +49,44 @@ config TARGET_IMX8MN_EVK
 	select SUPPORT_SPL
 	select IMX8M_DDR4
 
+config TARGET_IMX8MP_EVK
+	bool "imx8mp LPDDR4 EVK board"
+	select IMX8MP
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
+config TARGET_PICO_IMX8MQ
+	bool "Support Technexion Pico iMX8MQ"
+	select IMX8MQ
+	select IMX8M_LPDDR4
+
+config TARGET_VERDIN_IMX8MM
+       bool "Support Toradex Verdin iMX8M Mini module"
+       select IMX8MM
+       select SUPPORT_SPL
+       select IMX8M_LPDDR4
+
+config TARGET_IMX8MM_BEACON
+	bool "imx8mm Beacon Embedded devkit"
+	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
+config TARGET_PHYCORE_IMX8MM
+	bool "PHYTEC PHYCORE i.MX8MM"
+	select IMX8MM
+        select SUPPORT_SPL
+	select IMX8M_LPDDR4
 endchoice
 
 source "board/freescale/imx8mq_evk/Kconfig"
 source "board/freescale/imx8mm_evk/Kconfig"
 source "board/freescale/imx8mn_evk/Kconfig"
+source "board/freescale/imx8mp_evk/Kconfig"
+source "board/google/imx8mq_phanbell/Kconfig"
+source "board/technexion/pico-imx8mq/Kconfig"
+source "board/toradex/verdin-imx8mm/Kconfig"
+source "board/beacon/imx8mm/Kconfig"
+source "board/phytec/phycore_imx8mm/Kconfig"
 
 endif

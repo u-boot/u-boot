@@ -9,6 +9,7 @@
 #define __MX7_COMMON_H
 
 #include <linux/sizes.h>
+#include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 
@@ -29,21 +30,15 @@
 
 #define CONFIG_LOADADDR                 0x80800000
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE		512
 #define CONFIG_SYS_MAXARGS		32
 
 /* UART */
-#define CONFIG_MXC_UART
 
 /* MMC */
 
 #define CONFIG_ARMV7_SECURE_BASE	0x00900000
-
-#define CONFIG_ARMV7_PSCI_1_0
 
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_DRIVERS_MISC_SUPPORT

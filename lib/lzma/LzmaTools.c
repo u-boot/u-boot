@@ -19,6 +19,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <log.h>
 #include <watchdog.h>
 
 #ifdef CONFIG_LZMA

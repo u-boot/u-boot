@@ -20,6 +20,5 @@
 #include <configs/ti_omap4_common.h>
 
 /* ENV related config options */
-#define CONFIG_SYS_MMC_ENV_DEV		1	/* SLOT2: eMMC(1) */
 
 #endif /* __CONFIG_SDP4430_H */

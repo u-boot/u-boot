@@ -32,8 +32,13 @@
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 #include <fdtdec.h>
 #endif
+#include <log.h>
 #include <malloc.h>
 #include <watchdog.h>
+#include <dm/devres.h>
+#include <linux/bitops.h>
+#include <linux/bug.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/compat.h>
 #include <linux/mtd/mtd.h>

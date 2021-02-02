@@ -6,7 +6,7 @@
 #include <common.h>
 #include <fdt_support.h>
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	u64 mem_start[2], mem_size[2];

@@ -40,6 +40,15 @@ config I2S_SAMSUNG
 	  option provides an implementation for sound_init() and
 	  sound_play().
 
+config SOUND_DA7219
+	bool "Dialog Semiconductor audio codec"
+	depends on SOUND
+	help
+	  The DA7219 is an ultra-low-power audio codec with Advanced Accessory
+	  Detection (AAD). This driver only supports generation of ACPI tables.
+	  It does not support sound output or any of the other codec
+	  features.
+
 config SOUND_I8254
 	bool "Intel i8254 timer / beeper"
 	depends on SOUND
@@ -103,6 +112,15 @@ config SOUND_MAX98095
 	  Enable the max98095 audio codec. This is connected via I2S for
 	  audio data and I2C for codec control. At present it only works
 	  with the Samsung I2S driver.
+
+config SOUND_MAX98357A
+	bool "Support Maxim max98357a audio codec"
+	depends on PCI
+	help
+	  Enable the max98357a audio codec. This is connected on PCI for
+	  audio data codec control. This is currently only capable of providing
+	  ACPI information. A full driver (with sound in U-Boot) is currently
+	  not available.
 
 config SOUND_RT5677
 	bool "Support Realtek RT5677 audio codec"

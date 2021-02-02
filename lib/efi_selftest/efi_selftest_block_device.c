@@ -15,6 +15,7 @@
 
 #include <efi_selftest.h>
 #include "efi_selftest_disk_image.h"
+#include <asm/cache.h>
 
 /* Block size of compressed disk image */
 #define COMPRESSED_DISK_IMAGE_BLOCK_SIZE 8
@@ -257,9 +258,9 @@ static int teardown(void)
 				disk_handle, &block_io_protocol_guid,
 				&block_io);
 		if (r != EFI_SUCCESS) {
-			efi_st_todo(
+			efi_st_error(
 				"Failed to uninstall block I/O protocol\n");
-			return EFI_ST_SUCCESS;
+			return EFI_ST_FAILURE;
 		}
 	}
 

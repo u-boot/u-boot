@@ -16,13 +16,20 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <asm/cache.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <dm/lists.h>
 #include <net.h>
 #include <netdev.h>
 #include <config.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
+#include <linux/bug.h>
+#include <linux/delay.h>
+#include <linux/err.h>
 #include <linux/errno.h>
 #include <phy.h>
 #include <miiphy.h>
@@ -30,6 +37,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <linux/compat.h>
+#include <linux/libfdt.h>
 #include <linux/mbus.h>
 #include <asm-generic/gpio.h>
 #include <fdt_support.h>
@@ -580,7 +588,7 @@ enum mv_netc_lanes {
 /* Default number of TXQs in use */
 #define MVPP2_DEFAULT_TXQ		1
 
-/* Dfault number of RXQs in use */
+/* Default number of RXQs in use */
 #define MVPP2_DEFAULT_RXQ		1
 #define CONFIG_MV_ETH_RXQ		8	/* increment by 8 */
 
@@ -959,7 +967,8 @@ struct mvpp2_port {
 	phy_interface_t phy_interface;
 	int phyaddr;
 	struct udevice *mdio_dev;
-#ifdef CONFIG_DM_GPIO
+	struct mii_dev *bus;
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	struct gpio_desc phy_reset_gpio;
 	struct gpio_desc phy_tx_disable_gpio;
 #endif
@@ -1254,6 +1263,7 @@ struct buffer_location {
  * can be enabled at once
  */
 static struct buffer_location buffer_loc;
+static int buffer_loc_init;
 
 /*
  * Page table entries are set to 1MB, or multiples of 1MB
@@ -2558,7 +2568,7 @@ static int mvpp2_bm_pool_create(struct udevice *dev,
 
 	if (!IS_ALIGNED((unsigned long)bm_pool->virt_addr,
 			MVPP2_BM_POOL_PTR_ALIGN)) {
-		dev_err(&pdev->dev, "BM pool %d is not %d bytes aligned\n",
+		dev_err(dev, "BM pool %d is not %d bytes aligned\n",
 			bm_pool->id, MVPP2_BM_POOL_PTR_ALIGN);
 		return -ENOMEM;
 	}
@@ -2649,7 +2659,7 @@ static int mvpp2_bm_pools_init(struct udevice *dev,
 	return 0;
 
 err_unroll_pools:
-	dev_err(&pdev->dev, "failed to create BM pool %d, size %d\n", i, size);
+	dev_err(dev, "failed to create BM pool %d, size %d\n", i, size);
 	for (i = i - 1; i >= 0; i--)
 		mvpp2_bm_pool_destroy(dev, priv, &priv->bm_pools[i]);
 	return err;
@@ -2763,9 +2773,9 @@ static int mvpp2_bm_bufs_add(struct mvpp2_port *port,
 
 	if (buf_num < 0 ||
 	    (buf_num + bm_pool->buf_num > bm_pool->size)) {
-		netdev_err(port->dev,
-			   "cannot allocate %d buffers for pool %d\n",
-			   buf_num, bm_pool->id);
+		dev_err(port->phy_dev->dev,
+			"cannot allocate %d buffers for pool %d\n", buf_num,
+			bm_pool->id);
 		return 0;
 	}
 
@@ -2793,7 +2803,7 @@ mvpp2_bm_pool_use(struct mvpp2_port *port, int pool, enum mvpp2_bm_type type,
 	int num;
 
 	if (new_pool->type != MVPP2_BM_FREE && new_pool->type != type) {
-		netdev_err(port->dev, "mixing pool types is forbidden\n");
+		dev_err(port->phy_dev->dev, "mixing pool types is forbidden\n");
 		return NULL;
 	}
 
@@ -2824,8 +2834,9 @@ mvpp2_bm_pool_use(struct mvpp2_port *port, int pool, enum mvpp2_bm_type type,
 		/* Allocate buffers for this pool */
 		num = mvpp2_bm_bufs_add(port, new_pool, pkts_num);
 		if (num != pkts_num) {
-			dev_err(dev, "pool %d: %d of %d allocated\n",
-				new_pool->id, num, pkts_num);
+			dev_err(port->phy_dev->dev,
+				"pool %d: %d of %d allocated\n", new_pool->id,
+				num, pkts_num);
 			return NULL;
 		}
 	}
@@ -3334,8 +3345,7 @@ static int gop_port_init(struct mvpp2_port *port)
 	int num_of_act_lanes;
 
 	if (mac_num >= MVPP22_GOP_MAC_NUM) {
-		netdev_err(NULL, "%s: illegal port number %d", __func__,
-			   mac_num);
+		log_err("illegal port number %d", mac_num);
 		return -1;
 	}
 
@@ -3389,8 +3399,8 @@ static int gop_port_init(struct mvpp2_port *port)
 		break;
 
 	default:
-		netdev_err(NULL, "%s: Requested port mode (%d) not supported\n",
-			   __func__, port->phy_interface);
+		log_err("Requested port mode (%d) not supported\n",
+			port->phy_interface);
 		return -1;
 	}
 
@@ -3430,8 +3440,8 @@ static void gop_port_enable(struct mvpp2_port *port, int enable)
 
 		break;
 	default:
-		netdev_err(NULL, "%s: Wrong port mode (%d)\n", __func__,
-			   port->phy_interface);
+		log_err("%s: Wrong port mode (%d)\n", __func__,
+			port->phy_interface);
 		return;
 	}
 }
@@ -3801,9 +3811,9 @@ static void mvpp2_egress_disable(struct mvpp2_port *port)
 	delay = 0;
 	do {
 		if (delay >= MVPP2_TX_DISABLE_TIMEOUT_MSEC) {
-			netdev_warn(port->dev,
-				    "Tx stop timed out, status=0x%08x\n",
-				    reg_data);
+			dev_warn(port->phy_dev->dev,
+				 "Tx stop timed out, status=0x%08x\n",
+				 reg_data);
 			break;
 		}
 		mdelay(1);
@@ -4251,9 +4261,9 @@ static void mvpp2_txq_clean(struct mvpp2_port *port, struct mvpp2_tx_queue *txq)
 	delay = 0;
 	do {
 		if (delay >= MVPP2_TX_PENDING_TIMEOUT_MSEC) {
-			netdev_warn(port->dev,
-				    "port %d: cleaning queue %d timed out\n",
-				    port->id, txq->log_id);
+			dev_warn(port->phy_dev->dev,
+				 "port %d: cleaning queue %d timed out\n",
+				 port->id, txq->log_id);
 			break;
 		}
 		mdelay(1);
@@ -4420,16 +4430,19 @@ static void mvpp2_rx_error(struct mvpp2_port *port,
 
 	switch (status & MVPP2_RXD_ERR_CODE_MASK) {
 	case MVPP2_RXD_ERR_CRC:
-		netdev_err(port->dev, "bad rx status %08x (crc error), size=%zu\n",
-			   status, sz);
+		dev_err(port->phy_dev->dev,
+			"bad rx status %08x (crc error), size=%zu\n", status,
+			sz);
 		break;
 	case MVPP2_RXD_ERR_OVERRUN:
-		netdev_err(port->dev, "bad rx status %08x (overrun error), size=%zu\n",
-			   status, sz);
+		dev_err(port->phy_dev->dev,
+			"bad rx status %08x (overrun error), size=%zu\n",
+			status, sz);
 		break;
 	case MVPP2_RXD_ERR_RESOURCE:
-		netdev_err(port->dev, "bad rx status %08x (resource error), size=%zu\n",
-			   status, sz);
+		dev_err(port->phy_dev->dev,
+			"bad rx status %08x (resource error), size=%zu\n",
+			status, sz);
 		break;
 	}
 }
@@ -4497,8 +4510,8 @@ static void mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
 		 */
 		if (phy_dev &&
 		    phy_dev->drv->uid == 0xffffffff) {/* Generic phy */
-			netdev_warn(port->dev,
-				    "Marking phy as invalid, link will not be checked\n");
+			dev_warn(port->phy_dev->dev,
+				 "Marking phy as invalid, link will not be checked\n");
 			/* set phy_addr to invalid value */
 			port->phyaddr = PHY_MAX_ADDR;
 			mvpp2_egress_enable(port);
@@ -4509,7 +4522,7 @@ static void mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
 
 		port->phy_dev = phy_dev;
 		if (!phy_dev) {
-			netdev_err(port->dev, "cannot connect to phy\n");
+			dev_err(port->phy_dev->dev, "cannot connect to phy\n");
 			return;
 		}
 		phy_dev->supported &= PHY_GBIT_FEATURES;
@@ -4540,31 +4553,31 @@ static int mvpp2_open(struct udevice *dev, struct mvpp2_port *port)
 
 	err = mvpp2_prs_mac_da_accept(port->priv, port->id, mac_bcast, true);
 	if (err) {
-		netdev_err(dev, "mvpp2_prs_mac_da_accept BC failed\n");
+		dev_err(dev, "mvpp2_prs_mac_da_accept BC failed\n");
 		return err;
 	}
 	err = mvpp2_prs_mac_da_accept(port->priv, port->id,
 				      port->dev_addr, true);
 	if (err) {
-		netdev_err(dev, "mvpp2_prs_mac_da_accept MC failed\n");
+		dev_err(dev, "mvpp2_prs_mac_da_accept MC failed\n");
 		return err;
 	}
 	err = mvpp2_prs_def_flow(port);
 	if (err) {
-		netdev_err(dev, "mvpp2_prs_def_flow failed\n");
+		dev_err(dev, "mvpp2_prs_def_flow failed\n");
 		return err;
 	}
 
 	/* Allocate the Rx/Tx queues */
 	err = mvpp2_setup_rxqs(port);
 	if (err) {
-		netdev_err(port->dev, "cannot allocate Rx queues\n");
+		dev_err(port->phy_dev->dev, "cannot allocate Rx queues\n");
 		return err;
 	}
 
 	err = mvpp2_setup_txqs(port);
 	if (err) {
-		netdev_err(port->dev, "cannot allocate Tx queues\n");
+		dev_err(port->phy_dev->dev, "cannot allocate Tx queues\n");
 		return err;
 	}
 
@@ -4715,7 +4728,7 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 		int parent;
 		phyaddr = fdtdec_get_int(gd->fdt_blob, phy_node, "reg", 0);
 		if (phyaddr < 0) {
-			dev_err(&pdev->dev, "could not find phy address\n");
+			dev_err(dev, "could not find phy address\n");
 			return -1;
 		}
 		parent = fdt_parent_offset(gd->fdt_blob, phy_node);
@@ -4732,17 +4745,17 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 	if (phy_mode_str)
 		phy_mode = phy_get_interface_by_name(phy_mode_str);
 	if (phy_mode == -1) {
-		dev_err(&pdev->dev, "incorrect phy mode\n");
+		dev_err(dev, "incorrect phy mode\n");
 		return -EINVAL;
 	}
 
 	id = fdtdec_get_int(gd->fdt_blob, port_node, "port-id", -1);
 	if (id == -1) {
-		dev_err(&pdev->dev, "missing port-id value\n");
+		dev_err(dev, "missing port-id value\n");
 		return -EINVAL;
 	}
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	gpio_request_by_name(dev, "phy-reset-gpios", 0,
 			     &port->phy_reset_gpio, GPIOD_IS_OUT);
 	gpio_request_by_name(dev, "marvell,sfp-tx-disable-gpio", 0,
@@ -4769,7 +4782,7 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 	return 0;
 }
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 /* Port GPIO initialization */
 static void mvpp2_gpio_init(struct mvpp2_port *port)
 {
@@ -4797,12 +4810,12 @@ static int mvpp2_port_probe(struct udevice *dev,
 
 	err = mvpp2_port_init(dev, port);
 	if (err < 0) {
-		dev_err(&pdev->dev, "failed to init port %d\n", port->id);
+		dev_err(dev, "failed to init port %d\n", port->id);
 		return err;
 	}
 	mvpp2_port_power_up(port);
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	mvpp2_gpio_init(port);
 #endif
 
@@ -4968,7 +4981,7 @@ static int mvpp2_init(struct udevice *dev, struct mvpp2 *priv)
 	/* Checks for hardware constraints (U-Boot uses only one rxq) */
 	if ((rxq_number > priv->max_port_rxqs) ||
 	    (txq_number > MVPP2_MAX_TXQ)) {
-		dev_err(&pdev->dev, "invalid queue size parameter\n");
+		dev_err(dev, "invalid queue size parameter\n");
 		return -EINVAL;
 	}
 
@@ -5089,7 +5102,7 @@ static int mvpp2_recv(struct udevice *dev, int flags, uchar **packetp)
 
 	err = mvpp2_rx_refill(port, bm_pool, bm, dma_addr);
 	if (err) {
-		netdev_err(port->dev, "failed to refill BM pools\n");
+		dev_err(port->phy_dev->dev, "failed to refill BM pools\n");
 		return 0;
 	}
 
@@ -5238,39 +5251,43 @@ static int mvpp2_base_probe(struct udevice *dev)
 	 * be active. Make this area DMA-safe by disabling the D-cache
 	 */
 
-	/* Align buffer area for descs and rx_buffers to 1MiB */
-	bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);
-	mmu_set_region_dcache_behaviour((unsigned long)bd_space,
-					BD_SPACE, DCACHE_OFF);
+	if (!buffer_loc_init) {
+		/* Align buffer area for descs and rx_buffers to 1MiB */
+		bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);
+		mmu_set_region_dcache_behaviour((unsigned long)bd_space,
+						BD_SPACE, DCACHE_OFF);
 
-	buffer_loc.aggr_tx_descs = (struct mvpp2_tx_desc *)bd_space;
-	size += MVPP2_AGGR_TXQ_SIZE * MVPP2_DESC_ALIGNED_SIZE;
+		buffer_loc.aggr_tx_descs = (struct mvpp2_tx_desc *)bd_space;
+		size += MVPP2_AGGR_TXQ_SIZE * MVPP2_DESC_ALIGNED_SIZE;
 
-	buffer_loc.tx_descs =
-		(struct mvpp2_tx_desc *)((unsigned long)bd_space + size);
-	size += MVPP2_MAX_TXD * MVPP2_DESC_ALIGNED_SIZE;
+		buffer_loc.tx_descs =
+			(struct mvpp2_tx_desc *)((unsigned long)bd_space + size);
+		size += MVPP2_MAX_TXD * MVPP2_DESC_ALIGNED_SIZE;
 
-	buffer_loc.rx_descs =
-		(struct mvpp2_rx_desc *)((unsigned long)bd_space + size);
-	size += MVPP2_MAX_RXD * MVPP2_DESC_ALIGNED_SIZE;
+		buffer_loc.rx_descs =
+			(struct mvpp2_rx_desc *)((unsigned long)bd_space + size);
+		size += MVPP2_MAX_RXD * MVPP2_DESC_ALIGNED_SIZE;
 
-	for (i = 0; i < MVPP2_BM_POOLS_NUM; i++) {
-		buffer_loc.bm_pool[i] =
-			(unsigned long *)((unsigned long)bd_space + size);
-		if (priv->hw_version == MVPP21)
-			size += MVPP2_BM_POOL_SIZE_MAX * 2 * sizeof(u32);
-		else
-			size += MVPP2_BM_POOL_SIZE_MAX * 2 * sizeof(u64);
+		for (i = 0; i < MVPP2_BM_POOLS_NUM; i++) {
+			buffer_loc.bm_pool[i] =
+				(unsigned long *)((unsigned long)bd_space + size);
+			if (priv->hw_version == MVPP21)
+				size += MVPP2_BM_POOL_SIZE_MAX * 2 * sizeof(u32);
+			else
+				size += MVPP2_BM_POOL_SIZE_MAX * 2 * sizeof(u64);
+		}
+
+		for (i = 0; i < MVPP2_BM_LONG_BUF_NUM; i++) {
+			buffer_loc.rx_buffer[i] =
+				(unsigned long *)((unsigned long)bd_space + size);
+			size += RX_BUFFER_SIZE;
+		}
+
+		/* Clear the complete area so that all descriptors are cleared */
+		memset(bd_space, 0, size);
+
+		buffer_loc_init = 1;
 	}
-
-	for (i = 0; i < MVPP2_BM_LONG_BUF_NUM; i++) {
-		buffer_loc.rx_buffer[i] =
-			(unsigned long *)((unsigned long)bd_space + size);
-		size += RX_BUFFER_SIZE;
-	}
-
-	/* Clear the complete area so that all descriptors are cleared */
-	memset(bd_space, 0, size);
 
 	/* Save base addresses for later use */
 	priv->base = (void *)devfdt_get_addr_index(dev, 0);
@@ -5331,7 +5348,7 @@ static int mvpp2_probe(struct udevice *dev)
 		port->gop_id = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					      "gop-port-id", -1);
 		if (port->id == -1) {
-			dev_err(&pdev->dev, "missing gop-port-id value\n");
+			dev_err(dev, "missing gop-port-id value\n");
 			return -EINVAL;
 		}
 
@@ -5350,7 +5367,7 @@ static int mvpp2_probe(struct udevice *dev)
 		/* Initialize network controller */
 		err = mvpp2_init(dev, priv);
 		if (err < 0) {
-			dev_err(&pdev->dev, "failed to initialize controller\n");
+			dev_err(dev, "failed to initialize controller\n");
 			return err;
 		}
 		priv->num_ports = 0;

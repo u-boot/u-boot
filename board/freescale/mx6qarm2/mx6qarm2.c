@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx6-pins.h>
@@ -128,7 +130,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return ret;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	int ret;
 	u32 index = 0;
@@ -195,7 +197,7 @@ int fecmxc_mii_postcall(int phy)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	struct eth_device *dev;
 	int ret = cpu_eth_init(bis);

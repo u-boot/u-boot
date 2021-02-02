@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <i2c.h>
+#include <log.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <reset.h>
@@ -18,6 +19,8 @@
 #endif
 #include <asm/arch/gpio.h>
 #include <asm/arch-tegra/tegra_i2c.h>
+#include <linux/delay.h>
+#include <linux/err.h>
 
 enum i2c_type {
 	TYPE_114,
@@ -499,18 +502,7 @@ static int tegra_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 
 int tegra_i2c_get_dvc_bus(struct udevice **busp)
 {
-	struct udevice *bus;
-
-	for (uclass_first_device(UCLASS_I2C, &bus);
-	     bus;
-	     uclass_next_device(&bus)) {
-		if (dev_get_driver_data(bus) == TYPE_DVC) {
-			*busp = bus;
-			return 0;
-		}
-	}
-
-	return -ENODEV;
+	return uclass_first_device_drvdata(UCLASS_I2C, TYPE_DVC, busp);
 }
 
 static const struct dm_i2c_ops tegra_i2c_ops = {

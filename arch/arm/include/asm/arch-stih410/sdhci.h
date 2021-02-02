@@ -1,11 +1,15 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
- * Author(s): Patrice Chotard, <patrice.chotard@st.com> for STMicroelectronics.
+ * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
 #ifndef __STI_SDHCI_H__
 #define __STI_SDHCI_H__
+
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
 
 #define FLASHSS_MMC_CORE_CONFIG_1			0x400
 #define FLASHSS_MMC_CORECFG_TIMEOUT_CLK_UNIT_MHZ	BIT(24)

@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2011-2012 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  */
 
 /*
@@ -45,16 +46,14 @@
 #define CONFIG_SRIO_PCIE_BOOT_MASTER
 #define CONFIG_SYS_DPAA_RMAN		/* RMan */
 
-#define CONFIG_ENV_OVERWRITE
-
 #if defined(CONFIG_SPIFLASH)
 #elif defined(CONFIG_SDCARD)
 	#define CONFIG_FSL_FIXED_MMC_LOCATION
-	#define CONFIG_SYS_MMC_ENV_DEV          0
 #endif
 
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(unsigned long dummy);
+#include <linux/stringify.h>
 #endif
 #define CONFIG_SYS_CLK_FREQ	get_board_sys_clk(0)
 
@@ -68,14 +67,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_ENABLE_36BIT_PHYS
 
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_ADDR_MAP
-#define CONFIG_SYS_NUM_ADDR_MAP		64	/* number of TLB1 entries */
-#endif
-
 #define CONFIG_POST CONFIG_SYS_POST_MEMORY	/* test POST memory test */
-#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00400000
 
 /*
  *  Config the L3 Cache as L3 SRAM
@@ -267,14 +259,20 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
 
 /* I2C */
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_FSL
 #define CONFIG_SYS_FSL_I2C_SPEED	400000
 #define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
 #define CONFIG_SYS_FSL_I2C_OFFSET	0x118000
 #define CONFIG_SYS_FSL_I2C2_SPEED	400000
 #define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
 #define CONFIG_SYS_FSL_I2C2_OFFSET	0x118100
+#else
+#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
+#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
+#endif
+#define CONFIG_SYS_I2C_FSL
+
 
 /*
  * RapidIO
@@ -418,12 +416,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 
-#ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_PHYLIB_10G
-#define CONFIG_PHY_VITESSE
-#define CONFIG_PHY_TERANETICS
-#endif
-
 #ifdef CONFIG_PCI
 #if !defined(CONFIG_DM_PCI)
 #define CONFIG_FSL_PCI_INIT	/* Use common FSL init code */
@@ -483,10 +475,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
  */
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
-
-/*
- * Command line configuration.
- */
 
 /*
 * USB

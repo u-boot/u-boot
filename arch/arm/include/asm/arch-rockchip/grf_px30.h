@@ -5,8 +5,6 @@
 #ifndef _ASM_ARCH_GRF_px30_H
 #define _ASM_ARCH_GRF_px30_H
 
-#include <common.h>
-
 struct px30_grf {
 	unsigned int gpio1al_iomux;
 	unsigned int gpio1ah_iomux;

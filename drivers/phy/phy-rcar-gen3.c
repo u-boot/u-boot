@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <generic-phy.h>
+#include <malloc.h>
 #include <reset.h>
 #include <syscon.h>
 #include <usb.h>

@@ -12,6 +12,8 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
+#include <net.h>
 #include <ns16550.h>
 #include <serial.h>
 #include <asm/io.h>
@@ -141,7 +143,7 @@ void set_muxconf_regs(void)
 
 
 #if defined(CONFIG_USB_ETHER) && defined(CONFIG_USB_MUSB_GADGET)
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int rv, n = 0;
 

@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: GPL-2.0+
+//
+// Copyright (C) 2020 TQ-Systems GmbH
+
+/dts-v1/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include "imx6q-tqma6a.dtsi"
+#include "imx6qdl-mba6.dtsi"
+#include "imx6qdl-mba6a.dtsi"
+#include "imx6q-mba6.dtsi"
+
+/ {
+	model = "TQ TQMa6Q on MBa6x";
+	compatible = "tq,mba6a", "fsl,imx6q";
+};

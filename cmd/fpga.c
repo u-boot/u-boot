@@ -13,6 +13,8 @@
 #include <fpga.h>
 #include <fs.h>
 #include <gzip.h>
+#include <image.h>
+#include <log.h>
 #include <malloc.h>
 
 static long do_fpga_get_device(char *arg)
@@ -33,7 +35,8 @@ static long do_fpga_get_device(char *arg)
 }
 
 static int do_fpga_check_params(long *dev, long *fpga_data, size_t *data_size,
-				cmd_tbl_t *cmdtp, int argc, char *const argv[])
+				struct cmd_tbl *cmdtp, int argc,
+				char *const argv[])
 {
 	size_t local_data_size;
 	long local_fpga_data;
@@ -65,7 +68,7 @@ static int do_fpga_check_params(long *dev, long *fpga_data, size_t *data_size,
 }
 
 #if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
-int do_fpga_loads(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_fpga_loads(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	size_t data_size = 0;
 	long fpga_data, dev;
@@ -117,7 +120,7 @@ int do_fpga_loads(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 #endif
 
 #if defined(CONFIG_CMD_FPGA_LOADFS)
-static int do_fpga_loadfs(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_fpga_loadfs(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
 	size_t data_size = 0;
@@ -140,16 +143,16 @@ static int do_fpga_loadfs(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 #endif
 
-static int do_fpga_info(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_fpga_info(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	long dev = do_fpga_get_device(argv[0]);
 
 	return fpga_info(dev);
 }
 
-static int do_fpga_dump(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_fpga_dump(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	size_t data_size = 0;
 	long fpga_data, dev;
@@ -163,8 +166,8 @@ static int do_fpga_dump(cmd_tbl_t *cmdtp, int flag, int argc,
 	return fpga_dump(dev, (void *)fpga_data, data_size);
 }
 
-static int do_fpga_load(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_fpga_load(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	size_t data_size = 0;
 	long fpga_data, dev;
@@ -178,8 +181,8 @@ static int do_fpga_load(cmd_tbl_t *cmdtp, int flag, int argc,
 	return fpga_load(dev, (void *)fpga_data, data_size, BIT_FULL);
 }
 
-static int do_fpga_loadb(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char * const argv[])
+static int do_fpga_loadb(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 	size_t data_size = 0;
 	long fpga_data, dev;
@@ -194,8 +197,8 @@ static int do_fpga_loadb(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 
 #if defined(CONFIG_CMD_FPGA_LOADP)
-static int do_fpga_loadp(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char * const argv[])
+static int do_fpga_loadp(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 	size_t data_size = 0;
 	long fpga_data, dev;
@@ -211,8 +214,8 @@ static int do_fpga_loadp(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 
 #if defined(CONFIG_CMD_FPGA_LOADBP)
-static int do_fpga_loadbp(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int do_fpga_loadbp(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	size_t data_size = 0;
 	long fpga_data, dev;
@@ -229,8 +232,8 @@ static int do_fpga_loadbp(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 
 #if defined(CONFIG_CMD_FPGA_LOADMK)
-static int do_fpga_loadmk(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int do_fpga_loadmk(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	size_t data_size = 0;
 	void *fpga_data = NULL;
@@ -362,7 +365,7 @@ static int do_fpga_loadmk(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 #endif
 
-static cmd_tbl_t fpga_commands[] = {
+static struct cmd_tbl fpga_commands[] = {
 	U_BOOT_CMD_MKENT(info, 1, 1, do_fpga_info, "", ""),
 	U_BOOT_CMD_MKENT(dump, 3, 1, do_fpga_dump, "", ""),
 	U_BOOT_CMD_MKENT(load, 3, 1, do_fpga_load, "", ""),
@@ -384,10 +387,10 @@ static cmd_tbl_t fpga_commands[] = {
 #endif
 };
 
-static int do_fpga_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_fpga_wrapper(struct cmd_tbl *cmdtp, int flag, int argc,
 			   char *const argv[])
 {
-	cmd_tbl_t *fpga_cmd;
+	struct cmd_tbl *fpga_cmd;
 	int ret;
 
 	if (argc < 2)

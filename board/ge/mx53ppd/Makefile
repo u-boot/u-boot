@@ -7,4 +7,4 @@
 # Jason Liu <r64343@freescale.com>
 
 obj-y			+= mx53ppd.o
-obj-$(CONFIG_VIDEO)	+= mx53ppd_video.o
+obj-$(CONFIG_DM_VIDEO)	+= mx53ppd_video.o

@@ -4,18 +4,19 @@
 
 from __future__ import print_function
 
+import collections
 import itertools
 import os
 
-import get_maintainer
-import gitutil
-import settings
-import terminal
-import tools
+from patman import get_maintainer
+from patman import gitutil
+from patman import settings
+from patman import terminal
+from patman import tools
 
 # Series-xxx tags that we understand
 valid_series = ['to', 'cc', 'version', 'changes', 'prefix', 'notes', 'name',
-                'cover_cc', 'process_log']
+                'cover_cc', 'process_log', 'links', 'patchwork_url']
 
 class Series(dict):
     """Holds information about a patch series, including all tags.
@@ -58,6 +59,9 @@ class Series(dict):
             line: Source line containing tag (useful for debug/error messages)
             name: Tag name (part after 'Series-')
             value: Tag value (part after 'Series-xxx: ')
+
+        Returns:
+            String warning if something went wrong, else None
         """
         # If we already have it, then add to our list
         name = name.replace('-', '_')
@@ -77,9 +81,10 @@ class Series(dict):
             else:
                 self[name] = value
         else:
-            raise ValueError("In %s: line '%s': Unknown 'Series-%s': valid "
+            return ("In %s: line '%s': Unknown 'Series-%s': valid "
                         "options are %s" % (commit.hash, line, name,
                             ', '.join(valid_series)))
+        return None
 
     def AddCommit(self, commit):
         """Add a commit into our list of commits
@@ -146,38 +151,65 @@ class Series(dict):
             Changes in v4:
             - Jog the dial back closer to the widget
 
-            Changes in v3: None
             Changes in v2:
             - Fix the widget
             - Jog the dial
 
-            etc.
+            If there are no new changes in a patch, a note will be added
+
+            (no changes since v2)
+
+            Changes in v2:
+            - Fix the widget
+            - Jog the dial
         """
+        # Collect changes from the series and this commit
+        changes = collections.defaultdict(list)
+        for version, changelist in self.changes.items():
+            changes[version] += changelist
+        if commit:
+            for version, changelist in commit.changes.items():
+                changes[version] += [[commit, text] for text in changelist]
+
+        versions = sorted(changes, reverse=True)
+        newest_version = 1
+        if 'version' in self:
+            newest_version = max(newest_version, int(self.version))
+        if versions:
+            newest_version = max(newest_version, versions[0])
+
         final = []
         process_it = self.get('process_log', '').split(',')
         process_it = [item.strip() for item in process_it]
         need_blank = False
-        for change in sorted(self.changes, reverse=True):
+        for version in versions:
             out = []
-            for this_commit, text in self.changes[change]:
+            for this_commit, text in changes[version]:
                 if commit and this_commit != commit:
                     continue
                 if 'uniq' not in process_it or text not in out:
                     out.append(text)
-            line = 'Changes in v%d:' % change
-            have_changes = len(out) > 0
             if 'sort' in process_it:
                 out = sorted(out)
+            have_changes = len(out) > 0
+            line = 'Changes in v%d:' % version
             if have_changes:
                 out.insert(0, line)
-            else:
-                out = [line + ' None']
-            if need_blank:
-                out.insert(0, '')
+                if version < newest_version and len(final) == 0:
+                    out.insert(0, '')
+                    out.insert(0, '(no changes since v%d)' % version)
+                    newest_version = 0
+                # Only add a new line if we output something
+                if need_blank:
+                    out.insert(0, '')
+                    need_blank = False
             final += out
-            need_blank = have_changes
-        if self.changes:
+            need_blank = need_blank or have_changes
+
+        if len(final) > 0:
             final.append('')
+        elif newest_version != 1:
+            final = ['(no changes since v1)', '']
         return final
 
     def DoChecks(self):
@@ -216,7 +248,7 @@ class Series(dict):
             add_maintainers: Either:
                 True/False to call the get_maintainers to CC maintainers
                 List of maintainers to include (for testing)
-            limit: Limit the length of the Cc list
+            limit: Limit the length of the Cc list (None if no limit)
         Return:
             Filename of temp file created
         """
@@ -235,7 +267,8 @@ class Series(dict):
             if type(add_maintainers) == type(cc):
                 cc += add_maintainers
             elif add_maintainers:
-                cc += get_maintainer.GetMaintainer(commit.patch)
+                dir_list = [os.path.join(gitutil.GetTopLevel(), 'scripts')]
+                cc += get_maintainer.GetMaintainer(dir_list, commit.patch)
             for x in set(cc) & set(settings.bounces):
                 print(col.Color(col.YELLOW, 'Skipping "%s"' % x))
             cc = set(cc) - set(settings.bounces)
@@ -249,8 +282,10 @@ class Series(dict):
         if cover_fname:
             cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
             cover_cc = [tools.FromUnicode(m) for m in cover_cc]
-            cc_list = '\0'.join([tools.ToUnicode(x)
-                                 for x in sorted(set(cover_cc + all_ccs))])
+            cover_cc = list(set(cover_cc + all_ccs))
+            if limit is not None:
+                cover_cc = cover_cc[:limit]
+            cc_list = '\0'.join([tools.ToUnicode(x) for x in sorted(cover_cc)])
             print(cover_fname, cc_list, file=fd)
 
         fd.close()

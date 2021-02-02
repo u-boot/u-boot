@@ -7,6 +7,9 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <init.h>
+#include <net.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/rcar-mstp.h>
 #include <asm/arch/rmobile.h>
@@ -19,7 +22,9 @@
 #include <dm.h>
 #include <dm/platform_data/serial_sh.h>
 #include <env.h>
+#include <hang.h>
 #include <i2c.h>
+#include <linux/bitops.h>
 #include <linux/errno.h>
 #include <malloc.h>
 #include <miiphy.h>
@@ -312,7 +317,8 @@ int board_init(void)
 }
 
 /* Added for BLANCHE(R-CarV2H board) */
-int board_eth_init(bd_t *bis)
+#ifndef CONFIG_DM_ETH
+int board_eth_init(struct bd_info *bis)
 {
 	int rc = 0;
 
@@ -336,6 +342,7 @@ int board_eth_init(bd_t *bis)
 
 	return rc;
 }
+#endif
 
 int dram_init(void)
 {
@@ -354,4 +361,23 @@ int dram_init_banksize(void)
 
 void reset_cpu(ulong addr)
 {
+	struct udevice *dev;
+	const u8 pmic_bus = 6;
+	const u8 pmic_addr = 0x58;
+	u8 data;
+	int ret;
+
+	ret = i2c_get_chip_for_busnum(pmic_bus, pmic_addr, 1, &dev);
+	if (ret)
+		hang();
+
+	ret = dm_i2c_read(dev, 0x13, &data, 1);
+	if (ret)
+		hang();
+
+	data |= BIT(1);
+
+	ret = dm_i2c_write(dev, 0x13, &data, 1);
+	if (ret)
+		hang();
 }

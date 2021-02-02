@@ -18,7 +18,7 @@
 const char hex_asc[] = "0123456789abcdef";
 const char hex_asc_upper[] = "0123456789ABCDEF";
 
-#ifdef CONFIG_HEXDUMP
+#if CONFIG_IS_ENABLED(HEXDUMP)
 /**
  * hex_dump_to_buffer - convert a blob of data to "hex ASCII" in memory
  * @buf: data blob to dump

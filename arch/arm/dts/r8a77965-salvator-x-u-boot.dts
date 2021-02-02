@@ -8,6 +8,11 @@
 #include "r8a77965-salvator-x.dts"
 #include "r8a77965-u-boot.dtsi"
 
+&rpc {
+	reg = <0 0xee200000 0 0x100>, <0 0x08000000 0 0x04000000>;
+	status = "okay";
+};
+
 &sdhi0 {
 	sd-uhs-sdr12;
 	sd-uhs-sdr25;
@@ -17,6 +22,8 @@
 };
 
 &sdhi2 {
+	mmc-ddr-1_8v;
+	mmc-hs200-1_8v;
 	mmc-hs400-1_8v;
 	max-frequency = <200000000>;
 	status = "okay";

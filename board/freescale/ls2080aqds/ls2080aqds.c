@@ -4,6 +4,7 @@
  */
 #include <common.h>
 #include <env.h>
+#include <init.h>
 #include <malloc.h>
 #include <errno.h>
 #include <netdev.h>
@@ -251,6 +252,10 @@ int board_init(void)
 	ppa_init();
 #endif
 
+#if !defined(CONFIG_SYS_EARLY_PCI_INIT) && defined(CONFIG_DM_ETH)
+	pci_init();
+#endif
+
 	return 0;
 }
 
@@ -289,13 +294,6 @@ void detail_board_ddr_info(void)
 #endif
 }
 
-#if defined(CONFIG_ARCH_MISC_INIT)
-int arch_misc_init(void)
-{
-	return 0;
-}
-#endif
-
 #if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 void fdt_fixup_board_enet(void *fdt)
 {
@@ -326,7 +324,7 @@ void board_quiesce_devices(void)
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	u64 base[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];

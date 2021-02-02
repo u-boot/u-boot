@@ -38,6 +38,14 @@ SECTIONS
 		*(.data*)
 	} >.sram
 
+#ifdef CONFIG_SPL_RECOVER_DATA_SECTION
+	.data_save : {
+		*(.__data_save_start)
+		. = SIZEOF(.data);
+		*(.__data_save_end)
+	} >.sram
+#endif
+
 	.u_boot_list : {
 		. = ALIGN(8);
 		KEEP(*(SORT(.u_boot_list*)));

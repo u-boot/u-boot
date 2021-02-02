@@ -25,6 +25,18 @@ trying to get it to work optimally on a given system.
    :maxdepth: 2
 
    build/index
+   usage/index
+
+Developer-oriented documentation
+--------------------------------
+
+The following manuals are written for *developers* of the U-Boot - those who
+want to contribute to U-Boot.
+
+.. toctree::
+   :maxdepth: 2
+
+   develop/index
 
 Unified Extensible Firmware (UEFI)
 ----------------------------------
@@ -85,6 +97,18 @@ organized in a vendor subdirectory.
    :maxdepth: 2
 
    board/index
+
+Android-specific doc
+--------------------
+
+These books provide information about booting the Android OS from U-Boot,
+manipulating Android images from U-Boot shell and discusses other
+Android-specific features available in U-Boot.
+
+.. toctree::
+   :maxdepth: 2
+
+   android/index
 
 Indices and tables
 ==================

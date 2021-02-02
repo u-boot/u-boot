@@ -23,9 +23,16 @@ config IMX_RDC
 
 config IMX_BOOTAUX
 	bool "Support boot auxiliary core"
-	depends on ARCH_MX7 || ARCH_MX6 || ARCH_VF610
+	depends on ARCH_MX7 || ARCH_MX6 || ARCH_VF610 || ARCH_IMX8M
 	help
 	  bootaux [addr] to boot auxiliary core.
+
+config IMX_MODULE_FUSE
+	bool "i.MX Module Fuse"
+	depends on ARCH_MX6
+	help
+	  i.MX module fuse to runtime disable some driver, including
+	  Linux OS device node.
 
 config USE_IMXIMG_PLUGIN
 	bool "Use imximage plugin code"
@@ -41,10 +48,12 @@ config IMX_HAB
 	imply CMD_DEKBLOB
 	help
 	  This option enables the support for secure boot (HAB).
-	  See doc/README.mxc_hab for more details.
+	  See doc/imx/habv4/* for more details.
 
 config CSF_SIZE
 	hex "Maximum size for Command Sequence File (CSF) binary"
+	depends on IMX_HAB
+	default 0x2000 if ARCH_IMX8M
 	default 0x2060
 	help
 	  Define the maximum size for Command Sequence File (CSF) binary
@@ -53,7 +62,7 @@ config CSF_SIZE
 config CMD_BMODE
 	bool "Support the 'bmode' command"
 	default y
-	depends on ARCH_MX6 || ARCH_MX5
+	depends on ARCH_MX7 || ARCH_MX6 || ARCH_MX5
 	help
 	  This enables the 'bmode' (bootmode) command for forcing
 	  a boot from specific media.
@@ -69,7 +78,7 @@ config CMD_DEKBLOB
 	help
 	  This enables the 'dek_blob' command which is used with the
 	  Freescale secure boot mechanism. This command encapsulates and
-	  creates a blob of data. See also CMD_BLOB and doc/README.mxc_hab for
+	  creates a blob of data. See also CMD_BLOB and doc/imx/habv4/* for
 	  more information.
 
 config CMD_HDMIDETECT
@@ -82,7 +91,7 @@ config CMD_NANDBCB
 	bool "i.MX6 NAND Boot Control Block(BCB) command"
 	depends on MTD_RAW_NAND && CMD_MTDPARTS
 	select BCH if MX6UL || MX6ULL
-	default y if (ARCH_MX6 && NAND_MXS) || (ARCH_MX7 && NAND_MXS)
+	default y if ((ARCH_MX6 || ARCH_MX7 || ARCH_IMX8M) && NAND_MXS)
 	help
 	  Unlike normal 'nand write/erase' commands, this command update
 	  Boot Control Block(BCB) for i.MX6 platform NAND IP's.
@@ -112,7 +121,7 @@ config DDRMC_VF610_CALIBRATION
 
 config SPL_IMX_ROMAPI_LOADADDR
 	hex "Default load address to load image through ROM API"
-	depends on IMX8MN
+	depends on IMX8MN || IMX8MP
 
 config IMX_DCD_ADDR
 	hex "DCD Blocks location on the image"
@@ -123,4 +132,3 @@ config IMX_DCD_ADDR
 	  the ROM code to configure the device at early boot stage, is located.
 	  This information is shared with the user via mkimage -l just so the
 	  image can be signed.
-

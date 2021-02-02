@@ -14,19 +14,6 @@
  */
 #define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */
 
-/*
- * Commands configuration
- */
-
-/*
- * Standard filesystems
- */
-#define CONFIG_BZIP2
-
-/*
- * mv-plug-common.h should be defined after CMD configs since it used them
- * to enable certain macros
- */
 #include "mv-plug-common.h"
 
 /*

@@ -4,11 +4,11 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
 #include <fdt_support.h>
 #include <fdtdec.h>
 #include <jffs2/load_kernel.h>
 #include <mtd_node.h>
+#include <linux/errno.h>
 #include <linux/kernel.h>
 #include <linux/printk.h>
 
@@ -18,7 +18,7 @@
  * The DRAM PHY requires 64 byte scratch area in each DRAM channel
  * for its dynamic PHY training feature.
  */
-static int uniphier_ld20_fdt_mem_rsv(void *fdt, bd_t *bd)
+static int uniphier_ld20_fdt_mem_rsv(void *fdt, struct bd_info *bd)
 {
 	unsigned long rsv_addr;
 	const unsigned long rsv_size = 64;
@@ -46,7 +46,7 @@ static int uniphier_ld20_fdt_mem_rsv(void *fdt, bd_t *bd)
 	return 0;
 }
 
-int ft_board_setup(void *fdt, bd_t *bd)
+int ft_board_setup(void *fdt, struct bd_info *bd)
 {
 	static const struct node_info nodes[] = {
 		{ "socionext,uniphier-denali-nand-v5a", MTD_DEV_TYPE_NAND },

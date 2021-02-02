@@ -3,10 +3,14 @@
  * (C) Copyright 2017 - Beniamino Galvani <b.galvani@gmail.com>
  */
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <dm.h>
 #include <i2c.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
+#include <linux/err.h>
 
 #define I2C_TIMEOUT_MS		100
 

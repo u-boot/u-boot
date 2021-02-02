@@ -87,6 +87,7 @@
 		spi2 = &ecspi2;
 		spi3 = &ecspi3;
 		spi4 = &ecspi4;
+		ethernet0 = &fec1;
 	};
 
 	cpus {
@@ -322,7 +323,7 @@
 			port {
 				tpiu_in_port: endpoint {
 					slave-mode;
-					remote-endpoint = <&replicator_out_port1>;
+					remote-endpoint = <&replicator_out_port0>;
 				};
 			};
 		};

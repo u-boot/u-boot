@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <asm/ptrace.h>
 #include <command.h>
 #include <kgdb.h>
 #include <asm/processor.h>
@@ -22,7 +23,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Returns 0 if exception not found and fixup otherwise.  */
 extern unsigned long search_exception_table(unsigned long);
 
-#define END_OF_MEM	(gd->bd->bi_memstart + gd->bd->bi_memsize)
+#define END_OF_MEM	(gd->ram_base + gd->ram_size)
 
 /*
  * Trap & Exception support

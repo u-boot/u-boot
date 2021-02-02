@@ -172,7 +172,7 @@ the '/images' node should have the following layout:
   - os : OS name, mandatory for types "kernel" and "ramdisk". Valid OS names
     are: "openbsd", "netbsd", "freebsd", "4_4bsd", "linux", "svr4", "esix",
     "solaris", "irix", "sco", "dell", "ncr", "lynxos", "vxworks", "psos", "qnx",
-    "u_boot", "rtems", "unity", "integrity".
+    "u-boot", "rtems", "unity", "integrity".
   - arch : Architecture name, mandatory for types: "standalone", "kernel",
     "firmware", "ramdisk" and "fdt". Valid architecture names are: "alpha",
     "arm", "i386", "ia64", "mips", "mips64", "ppc", "s390", "sh", "sparc",
@@ -303,6 +303,11 @@ mkimage to enable 'data-position'.
 Normal kernel FIT image has data embedded within FIT structure. U-Boot image
 for SPL boot has external data. Existence of 'data-offset' can be used to
 identify which format is used.
+
+For FIT image with external data, it would be better to align each blob of data
+to block(512 byte) for block device, so that we don't need to do the copy when
+read the image data in SPL. Pass '-B 0x200' to mkimage to align the FIT
+structure and data to 512 byte, other values available for other align size.
 
 9) Examples
 -----------

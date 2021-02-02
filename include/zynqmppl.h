@@ -8,6 +8,7 @@
 #define _ZYNQMPPL_H_
 
 #include <xilinx.h>
+#include <linux/bitops.h>
 
 #define ZYNQMP_FPGA_OP_INIT			(1 << 0)
 #define ZYNQMP_FPGA_OP_LOAD			(1 << 1)

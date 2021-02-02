@@ -83,7 +83,8 @@ save_boot_params_ret:
 pie_fixup:
 	adr	x0, _start		/* x0 <- Runtime value of _start */
 	ldr	x1, _TEXT_BASE		/* x1 <- Linked value of _start */
-	sub	x9, x0, x1		/* x9 <- Run-vs-link offset */
+	subs	x9, x0, x1		/* x9 <- Run-vs-link offset */
+	beq	pie_fixup_done
 	adrp    x2, __rel_dyn_start     /* x2 <- Runtime &__rel_dyn_start */
 	add     x2, x2, #:lo12:__rel_dyn_start
 	adrp    x3, __rel_dyn_end       /* x3 <- Runtime &__rel_dyn_end */
@@ -139,6 +140,7 @@ pie_fixup_done:
 	mov	x0, #3 << 20
 	msr	cpacr_el1, x0			/* Enable FP/SIMD */
 0:
+	isb
 
 	/*
 	 * Enable SMPEN bit for coherency.
@@ -151,6 +153,7 @@ pie_fixup_done:
 	mrs     x0, S3_1_c15_c2_1               /* cpuectlr_el1 */
 	orr     x0, x0, #0x40
 	msr     S3_1_c15_c2_1, x0
+	isb
 1:
 #endif
 
@@ -252,6 +255,7 @@ apply_a53_core_errata:
 	/* Enable data cache clean as data cache clean/invalidate */
 	orr	x0, x0, #1 << 44
 	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
+	isb
 #endif
 	b 0b
 
@@ -266,6 +270,7 @@ apply_a57_core_errata:
 	/* Disable write streaming no-allocate threshold */
 	orr	x0, x0, #3 << 27
 	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
+	isb
 #endif
 
 #ifdef CONFIG_ARM_ERRATA_826974
@@ -273,6 +278,7 @@ apply_a57_core_errata:
 	/* Disable speculative load execution ahead of a DMB */
 	orr	x0, x0, #1 << 59
 	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
+	isb
 #endif
 
 #ifdef CONFIG_ARM_ERRATA_833471
@@ -282,6 +288,7 @@ apply_a57_core_errata:
 	    could impact performance. */
 	orr	x0, x0, #1 << 38
 	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
+	isb
 #endif
 
 #ifdef CONFIG_ARM_ERRATA_829520
@@ -292,6 +299,7 @@ apply_a57_core_errata:
 	    could impact performance. */
 	orr	x0, x0, #1 << 4
 	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
+	isb
 #endif
 
 #ifdef CONFIG_ARM_ERRATA_833069
@@ -299,6 +307,7 @@ apply_a57_core_errata:
 	/* Disable Enable Invalidates of BTB bit */
 	and	x0, x0, #0xE
 	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
+	isb
 #endif
 	b 0b
 ENDPROC(apply_core_errata)

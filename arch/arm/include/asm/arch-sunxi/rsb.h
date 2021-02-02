@@ -11,7 +11,6 @@
 #ifndef __SUNXI_RSB_H
 #define __SUNXI_RSB_H
 
-#include <common.h>
 #include <asm/io.h>
 
 struct sunxi_rsb_reg {

@@ -4,11 +4,15 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
+#include <fdt_support.h>
 #include <init.h>
+#include <net.h>
 #include <asm/arch/immap_ls102xa.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/ls102xa_stream_id.h>
+#include <linux/delay.h>
 
 #include <asm/arch/ls102xa_devdis.h>
 #include <asm/arch/ls102xa_soc.h>
@@ -104,7 +108,7 @@ int dram_init(void)
 }
 
 #ifdef CONFIG_TSEC_ENET
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	struct fsl_pq_mdio_info mdio_info;
 	struct tsec_info_struct tsec_info[4];
@@ -211,7 +215,7 @@ int misc_init_r(void)
 }
 #endif
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	ft_cpu_setup(blob, bd);
 

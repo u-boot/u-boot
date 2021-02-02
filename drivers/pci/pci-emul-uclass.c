@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <linux/libfdt.h>
 #include <pci.h>
 #include <dm/lists.h>
@@ -15,7 +16,7 @@ struct sandbox_pci_emul_priv {
 	int dev_count;
 };
 
-int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
+int sandbox_pci_get_emul(const struct udevice *bus, pci_dev_t find_devfn,
 			 struct udevice **containerp, struct udevice **emulp)
 {
 	struct pci_emul_uc_priv *upriv;

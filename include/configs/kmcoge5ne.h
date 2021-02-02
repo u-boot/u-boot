@@ -9,8 +9,6 @@
 #define __CONFIG_H
 
 #define CONFIG_HOSTNAME		"kmcoge5ne"
-#define CONFIG_KM_BOARD_NAME	"kmcoge5ne"
-#define CONFIG_KM_DEF_NETDEV	"netdev=eth1\0"
 #define CONFIG_NAND_ECC_BCH
 #define CONFIG_NAND_KMETER1
 #define CONFIG_SYS_MAX_NAND_DEVICE		1

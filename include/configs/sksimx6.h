@@ -10,11 +10,7 @@
 #include "mx6_common.h"
 #include "imx6_spl.h"
 
-/* Thermal */
-#define CONFIG_IMX_THERMAL
-
 /* Serial */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	       UART1_BASE
 
 /* Size of malloc() pool */
@@ -53,7 +49,6 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	1
 
 /* Environment organization */
-#define CONFIG_SYS_MMC_ENV_DEV		0
 
 /* Default environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \

@@ -16,6 +16,8 @@
 /include/ "rtc.dtsi"
 /include/ "tsc_timer.dtsi"
 
+#include "smbios.dtsi"
+
 / {
 	model = "Intel Bayley Bay";
 	compatible = "intel,bayleybay", "intel,baytrail";

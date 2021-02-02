@@ -3,15 +3,14 @@
  * STiH407 family DWC3 specific Glue layer
  *
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
- * Author(s): Patrice Chotard, <patrice.chotard@st.com> for STMicroelectronics.
+ * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <errno.h>
-#include <fdtdec.h>
-#include <linux/libfdt.h>
 #include <dm/lists.h>
 #include <regmap.h>
 #include <reset-uclass.h>
@@ -109,8 +108,7 @@ static int sti_dwc3_glue_ofdata_to_platdata(struct udevice *dev)
 	int ret;
 	u32 reg[4];
 
-	ret = fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(dev),
-				   "reg", reg, ARRAY_SIZE(reg));
+	ret = ofnode_read_u32_array(dev->node, "reg", reg, ARRAY_SIZE(reg));
 	if (ret) {
 		pr_err("unable to find st,stih407-dwc3 reg property(%d)\n", ret);
 		return ret;
@@ -153,18 +151,15 @@ static int sti_dwc3_glue_ofdata_to_platdata(struct udevice *dev)
 static int sti_dwc3_glue_bind(struct udevice *dev)
 {
 	struct sti_dwc3_glue_platdata *plat = dev_get_platdata(dev);
-	int dwc3_node;
+	ofnode node, dwc3_node;
 
-	/* check if one subnode is present */
-	dwc3_node = fdt_first_subnode(gd->fdt_blob, dev_of_offset(dev));
-	if (dwc3_node <= 0) {
-		pr_err("Can't find subnode for %s\n", dev->name);
-		return -ENODEV;
+	/* Find snps,dwc3 node from subnode */
+	ofnode_for_each_subnode(node, dev->node) {
+		if (ofnode_device_is_compatible(node, "snps,dwc3"))
+			dwc3_node = node;
 	}
 
-	/* check if the subnode compatible string is the dwc3 one*/
-	if (fdt_node_check_compatible(gd->fdt_blob, dwc3_node,
-				      "snps,dwc3") != 0) {
+	if (!ofnode_valid(dwc3_node)) {
 		pr_err("Can't find dwc3 subnode for %s\n", dev->name);
 		return -ENODEV;
 	}
@@ -245,7 +240,7 @@ static const struct udevice_id sti_dwc3_glue_ids[] = {
 
 U_BOOT_DRIVER(dwc3_sti_glue) = {
 	.name = "dwc3_sti_glue",
-	.id = UCLASS_MISC,
+	.id = UCLASS_NOP,
 	.of_match = sti_dwc3_glue_ids,
 	.ofdata_to_platdata = sti_dwc3_glue_ofdata_to_platdata,
 	.probe = sti_dwc3_glue_probe,

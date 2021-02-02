@@ -4,7 +4,10 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <dm.h>
+#include <init.h>
+#include <log.h>
 #include <dm/ofnode.h>
 #include <mapmem.h>
 #include <asm/arch-rockchip/timer.h>
@@ -85,14 +88,13 @@ ulong timer_get_boot_us(void)
 }
 #endif
 
-static int rockchip_timer_get_count(struct udevice *dev, u64 *count)
+static u64 rockchip_timer_get_count(struct udevice *dev)
 {
 	struct rockchip_timer_priv *priv = dev_get_priv(dev);
 	uint64_t cntr = rockchip_timer_get_curr_value(priv->timer);
 
 	/* timers are down-counting */
-	*count = ~0ull - cntr;
-	return 0;
+	return ~0ull - cntr;
 }
 
 static int rockchip_clk_ofdata_to_platdata(struct udevice *dev)

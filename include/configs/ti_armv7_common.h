@@ -37,11 +37,18 @@
  * seen large trees).  We say all of this must be within the first 256MB
  * as that will normally be within the kernel lowmem and thus visible via
  * bootm_size and we only run on platforms with 256MB or more of memory.
+ *
+ * As a temporary storage for DTBO blobs (which should be applied into DTB
+ * blob), we use the location 15.5 MB above the ramdisk. If someone wants to
+ * use ramdisk bigger than 15.5 MB, then DTBO can be loaded and applied to DTB
+ * blob before loading the ramdisk, as DTBO location is only used as a temporary
+ * storage, and can be re-used after 'fdt apply' command is done.
  */
 #define DEFAULT_LINUX_BOOT_ENV \
 	"loadaddr=0x82000000\0" \
 	"kernel_addr_r=0x82000000\0" \
 	"fdtaddr=0x88000000\0" \
+	"dtboaddr=0x89000000\0" \
 	"fdt_addr_r=0x88000000\0" \
 	"rdaddr=0x88080000\0" \
 	"ramdisk_addr_r=0x88080000\0" \
@@ -56,12 +63,11 @@
 	"name_fit=fitImage\0" \
 	"update_to_fit=setenv loadaddr ${addr_fit}; setenv bootfile ${name_fit}\0" \
 	"get_overlaystring=" \
-		"for overlay in $overlay_files;" \
+		"for overlay in $name_overlays;" \
 		"do;" \
 		"setenv overlaystring ${overlaystring}'#'${overlay};" \
 		"done;\0" \
 	"run_fit=bootm ${addr_fit}#${fdtfile}${overlaystring}\0" \
-	"loadfit=run args_mmc; run run_fit;\0" \
 
 /*
  * DDR information.  If the CONFIG_NR_DRAM_BANKS is not defined,
@@ -96,7 +102,6 @@
  * console baudrate of 115200 and use the default baud rate table.
  */
 #define CONFIG_SYS_MALLOC_LEN		SZ_32M
-#define CONFIG_ENV_OVERWRITE		/* Overwrite ethaddr / serial# */
 
 /* As stated above, the following choices are optional. */
 
@@ -156,7 +161,6 @@
 
 
 /* FAT sd card locations. */
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #ifndef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 #endif
@@ -175,9 +179,6 @@
 /* General parts of the framework, required. */
 
 #ifdef CONFIG_MTD_RAW_NAND
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_ECC
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 #endif
 #endif /* !CONFIG_NOR_BOOT */

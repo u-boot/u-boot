@@ -7,18 +7,18 @@
 
 import struct
 
-import command
-import elf
-from entry import Entry
-from blob import Entry_blob
-import fdt_util
-import tools
+from binman import elf
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
+from dtoc import fdt_util
+from patman import tools
+from patman import command
 
 class Entry_u_boot_with_ucode_ptr(Entry_blob):
     """U-Boot with embedded microcode pointer
 
     Properties / Entry arguments:
-        - filename: Filename of u-boot-nodtb.dtb (default 'u-boot-nodtb.dtb')
+        - filename: Filename of u-boot-nodtb.bin (default 'u-boot-nodtb.bin')
         - optional-ucode: boolean property to make microcode optional. If the
             u-boot.bin image does not include microcode, no error will
             be generated.
@@ -29,7 +29,7 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
     complicated. Otherwise it is the same as the u_boot entry.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self.elf_fname = 'u-boot'
         self.target_offset = None
 

@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <asm/system.h>
 #include <asm/cache.h>
 #include <linux/compiler.h>
@@ -24,7 +25,8 @@ __weak void arm_init_domains(void)
 {
 }
 
-void set_section_dcache(int section, enum dcache_option option)
+static void set_section_phys(int section, phys_addr_t phys,
+			     enum dcache_option option)
 {
 #ifdef CONFIG_ARMV7_LPAE
 	u64 *page_table = (u64 *)gd->arch.tlb_addr;
@@ -36,7 +38,7 @@ void set_section_dcache(int section, enum dcache_option option)
 #endif
 
 	/* Add the page offset */
-	value |= ((u32)section << MMU_SECTION_SHIFT);
+	value |= phys;
 
 	/* Add caching bits */
 	value |= option;
@@ -45,13 +47,18 @@ void set_section_dcache(int section, enum dcache_option option)
 	page_table[section] = value;
 }
 
+void set_section_dcache(int section, enum dcache_option option)
+{
+	set_section_phys(section, (u32)section << MMU_SECTION_SHIFT, option);
+}
+
 __weak void mmu_page_table_flush(unsigned long start, unsigned long stop)
 {
 	debug("%s: Warning: not implemented\n", __func__);
 }
 
-void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
-				     enum dcache_option option)
+void mmu_set_region_dcache_behaviour_phys(phys_addr_t start, phys_addr_t phys,
+					size_t size, enum dcache_option option)
 {
 #ifdef CONFIG_ARMV7_LPAE
 	u64 *page_table = (u64 *)gd->arch.tlb_addr;
@@ -61,8 +68,11 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 	unsigned long startpt, stoppt;
 	unsigned long upto, end;
 
-	end = ALIGN(start + size, MMU_SECTION_SIZE) >> MMU_SECTION_SHIFT;
+	/* div by 2 before start + size to avoid phys_addr_t overflow */
+	end = ALIGN((start / 2) + (size / 2), MMU_SECTION_SIZE / 2)
+	      >> (MMU_SECTION_SHIFT - 1);
 	start = start >> MMU_SECTION_SHIFT;
+
 #ifdef CONFIG_ARMV7_LPAE
 	debug("%s: start=%pa, size=%zu, option=%llx\n", __func__, &start, size,
 	      option);
@@ -70,8 +80,8 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 	debug("%s: start=%pa, size=%zu, option=0x%x\n", __func__, &start, size,
 	      option);
 #endif
-	for (upto = start; upto < end; upto++)
-		set_section_dcache(upto, option);
+	for (upto = start; upto < end; upto++, phys += MMU_SECTION_SIZE)
+		set_section_phys(upto, phys, option);
 
 	/*
 	 * Make sure range is cache line aligned
@@ -86,24 +96,27 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 	mmu_page_table_flush(startpt, stoppt);
 }
 
+void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
+				     enum dcache_option option)
+{
+	mmu_set_region_dcache_behaviour_phys(start, start, size, option);
+}
+
 __weak void dram_bank_mmu_setup(int bank)
 {
-	bd_t *bd = gd->bd;
+	struct bd_info *bd = gd->bd;
 	int	i;
+
+	/* bd->bi_dram is available only after relocation */
+	if ((gd->flags & GD_FLG_RELOC) == 0)
+		return;
 
 	debug("%s: bank: %d\n", __func__, bank);
 	for (i = bd->bi_dram[bank].start >> MMU_SECTION_SHIFT;
 	     i < (bd->bi_dram[bank].start >> MMU_SECTION_SHIFT) +
 		 (bd->bi_dram[bank].size >> MMU_SECTION_SHIFT);
-	     i++) {
-#if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
-		set_section_dcache(i, DCACHE_WRITETHROUGH);
-#elif defined(CONFIG_SYS_ARM_CACHE_WRITEALLOC)
-		set_section_dcache(i, DCACHE_WRITEALLOC);
-#else
-		set_section_dcache(i, DCACHE_WRITEBACK);
-#endif
-	}
+	     i++)
+		set_section_dcache(i, DCACHE_DEFAULT_OPTION);
 }
 
 /* to activate the MMU we need to set up virtual memory: use 1M areas */

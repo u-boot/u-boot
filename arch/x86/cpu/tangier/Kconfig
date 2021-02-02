@@ -10,8 +10,11 @@ config INTEL_TANGIER
 	imply MMC_SDHCI
 	imply MMC_SDHCI_SDMA
 	imply MMC_SDHCI_TANGIER
+	imply MISC
 	imply USB
+	imply USB_XHCI_HCD
 	imply USB_DWC3
+	imply USB_DWC3_GENERIC
 
 if INTEL_TANGIER
 
@@ -25,9 +28,5 @@ config SYS_CAR_SIZE
 	help
 	  Space in bytes in eSRAM used as Cache-As-RAM (CAR).
 	  Note this size must not exceed eSRAM's total size.
-
-config SYS_USB_OTG_BASE
-	hex
-	default 0xf9100000
 
 endif

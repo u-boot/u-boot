@@ -4,6 +4,7 @@
  */
 #include <common.h>
 #include <init.h>
+#include <linux/delay.h>
 
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
@@ -56,32 +57,7 @@ static void setup_gpmi_nand(void)
 }
 #endif /* CONFIG_NAND_MXS */
 
-#ifdef CONFIG_VIDEO_MXS
-static iomux_v3_cfg_t const lcd_pads[] = {
-	MX6_PAD_LCD_CLK__LCDIF_CLK		| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_ENABLE__LCDIF_ENABLE	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_HSYNC__LCDIF_HSYNC		| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_CLK__LCDIF_CLK		| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA00__LCDIF_DATA00	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA01__LCDIF_DATA01	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA02__LCDIF_DATA02	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA03__LCDIF_DATA03	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA04__LCDIF_DATA04	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA05__LCDIF_DATA05	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA06__LCDIF_DATA06	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA07__LCDIF_DATA07	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA08__LCDIF_DATA08	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA09__LCDIF_DATA09	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA10__LCDIF_DATA10	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA11__LCDIF_DATA11	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA12__LCDIF_DATA12	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA13__LCDIF_DATA13	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA14__LCDIF_DATA14	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA15__LCDIF_DATA15	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA16__LCDIF_DATA16	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-	MX6_PAD_LCD_DATA17__LCDIF_DATA17	| MUX_PAD_CTRL(LCD_PAD_CTRL),
-};
-
+#ifdef CONFIG_DM_VIDEO
 static iomux_v3_cfg_t const backlight_pads[] = {
 	/* Backlight On */
 	MX6_PAD_JTAG_TMS__GPIO1_IO11		| MUX_PAD_CTRL(NO_PAD_CTRL),
@@ -94,8 +70,6 @@ static iomux_v3_cfg_t const backlight_pads[] = {
 
 static int setup_lcd(void)
 {
-	imx_iomux_v3_setup_multiple_pads(lcd_pads, ARRAY_SIZE(lcd_pads));
-
 	imx_iomux_v3_setup_multiple_pads(backlight_pads, ARRAY_SIZE(backlight_pads));
 
 	/* Set BL_ON */
@@ -152,11 +126,6 @@ int board_init(void)
 #ifdef CONFIG_NAND_MXS
 	setup_gpmi_nand();
 #endif
-
-#ifdef CONFIG_VIDEO_MXS
-	setup_lcd();
-#endif
-
 	return 0;
 }
 
@@ -202,6 +171,10 @@ int board_late_init(void)
 	}
 #endif /* CONFIG_CMD_USB_SDP */
 
+#if defined(CONFIG_DM_VIDEO)
+	setup_lcd();
+#endif
+
 	return 0;
 }
 
@@ -213,7 +186,7 @@ int checkboard(void)
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 #if defined(CONFIG_FDT_FIXUP_PARTITIONS)
 	static struct node_info nodes[] = {

@@ -5,9 +5,12 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <env.h>
 #include <image.h>
 #include <fdt_support.h>
+#include <lmb.h>
+#include <log.h>
 #include <asm/addrspace.h>
 #include <asm/io.h>
 
@@ -48,7 +51,7 @@ void arch_lmb_reserve(struct lmb *lmb)
 static void linux_cmdline_init(void)
 {
 	linux_argc = 1;
-	linux_argv = (char **)UNCACHED_SDRAM(gd->bd->bi_boot_params);
+	linux_argv = (char **)CKSEG1ADDR(gd->bd->bi_boot_params);
 	linux_argv[0] = 0;
 	linux_argp = (char *)(linux_argv + LINUX_MAX_ARGS);
 }
@@ -183,7 +186,7 @@ static void linux_env_legacy(bootm_headers_t *images)
 		      (ulong)(gd->ram_size >> 20));
 	}
 
-	rd_start = UNCACHED_SDRAM(images->initrd_start);
+	rd_start = CKSEG1ADDR(images->initrd_start);
 	rd_size = images->initrd_end - images->initrd_start;
 
 	linux_env_init();
@@ -239,7 +242,7 @@ static int boot_reloc_fdt(bootm_headers_t *images)
 #if CONFIG_IS_ENABLED(MIPS_BOOT_FDT) && CONFIG_IS_ENABLED(OF_LIBFDT)
 int arch_fixup_fdt(void *blob)
 {
-	u64 mem_start = virt_to_phys((void *)gd->bd->bi_memstart);
+	u64 mem_start = virt_to_phys((void *)gd->ram_base);
 	u64 mem_size = gd->ram_size;
 
 	return fdt_fixup_memory_banks(blob, &mem_start, &mem_size, 1);
@@ -294,6 +297,9 @@ static void boot_jump_linux(bootm_headers_t *images)
 	bootstage_report();
 #endif
 
+	if (CONFIG_IS_ENABLED(RESTORE_EXCEPTION_VECTOR_BASE))
+		trap_restore();
+
 	if (images->ft_len)
 		kernel(-2, (ulong)images->ft_addr, 0, 0);
 	else
@@ -301,8 +307,8 @@ static void boot_jump_linux(bootm_headers_t *images)
 			linux_extra);
 }
 
-int do_bootm_linux(int flag, int argc, char * const argv[],
-			bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char *const argv[],
+		   bootm_headers_t *images)
 {
 	/* No need for those on MIPS */
 	if (flag & BOOTM_STATE_OS_BD_T)

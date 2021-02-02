@@ -13,6 +13,7 @@
 #include <dwmmc.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <dm/device_compat.h>
 #include <linux/libfdt.h>
 #include <linux/err.h>
 #include <malloc.h>
@@ -82,7 +83,7 @@ static int snps_dwmmc_ofdata_to_platdata(struct udevice *dev)
 	u32 fifo_depth;
 	int ret;
 
-	host->ioaddr = devfdt_get_addr_ptr(dev);
+	host->ioaddr = dev_read_addr_ptr(dev);
 
 	/*
 	 * If fifo-depth is unset don't set fifoth_val - we will try to

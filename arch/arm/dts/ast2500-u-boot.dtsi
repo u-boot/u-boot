@@ -1,4 +1,5 @@
-#include <dt-bindings/clock/ast2500-scu.h>
+// SPDX-License-Identifier: GPL-2.0
+#include <dt-bindings/clock/aspeed-clock.h>
 #include <dt-bindings/reset/ast2500-reset.h>
 
 #include "ast2500.dtsi"
@@ -15,7 +16,6 @@
 	rst: reset-controller {
 		u-boot,dm-pre-reloc;
 		compatible = "aspeed,ast2500-reset";
-		aspeed,wdt = <&wdt1>;
 		#reset-cells = <1>;
 	};
 
@@ -25,8 +25,8 @@
 		reg = <0x1e6e0000 0x174
 			0x1e6e0200 0x1d4 >;
 		#reset-cells = <1>;
-		clocks = <&scu PLL_MPLL>;
-		resets = <&rst AST_RESET_SDRAM>;
+		clocks = <&scu ASPEED_CLK_MPLL>;
+		resets = <&rst ASPEED_RESET_SDRAM>;
 	};
 
 	ahb {
@@ -39,16 +39,16 @@
 				compatible = "aspeed,ast2500-sdhci";
 				reg = <0x1e740100>;
 				#reset-cells = <1>;
-				clocks = <&scu BCLK_SDCLK>;
-				resets = <&rst AST_RESET_SDIO>;
+				clocks = <&scu ASPEED_CLK_SDIO>;
+				resets = <&rst ASPEED_RESET_SDIO>;
 			};
 
 			sdhci1: sdhci@1e740200 {
 				compatible = "aspeed,ast2500-sdhci";
 				reg = <0x1e740200>;
 				#reset-cells = <1>;
-				clocks = <&scu BCLK_SDCLK>;
-				resets = <&rst AST_RESET_SDIO>;
+				clocks = <&scu ASPEED_CLK_SDIO>;
+				resets = <&rst ASPEED_RESET_SDIO>;
 			};
 		};
 
@@ -56,23 +56,23 @@
 };
 
 &uart1 {
-	clocks = <&scu PCLK_UART1>;
+	clocks = <&scu ASPEED_CLK_GATE_UART1CLK>;
 };
 
 &uart2 {
-	clocks = <&scu PCLK_UART2>;
+	clocks = <&scu ASPEED_CLK_GATE_UART2CLK>;
 };
 
 &uart3 {
-	clocks = <&scu PCLK_UART3>;
+	clocks = <&scu ASPEED_CLK_GATE_UART3CLK>;
 };
 
 &uart4 {
-	clocks = <&scu PCLK_UART4>;
+	clocks = <&scu ASPEED_CLK_GATE_UART4CLK>;
 };
 
 &uart5 {
-	clocks = <&scu PCLK_UART5>;
+	clocks = <&scu ASPEED_CLK_GATE_UART5CLK>;
 };
 
 &timer {
@@ -80,9 +80,9 @@
 };
 
 &mac0 {
-	clocks = <&scu PCLK_MAC1>, <&scu PLL_D2PLL>;
+	clocks = <&scu ASPEED_CLK_GATE_MAC1CLK>, <&scu ASPEED_CLK_D2PLL>;
 };
 
 &mac1 {
-	clocks = <&scu PCLK_MAC2>, <&scu PLL_D2PLL>;
+	clocks = <&scu ASPEED_CLK_GATE_MAC1CLK>, <&scu ASPEED_CLK_D2PLL>;
 };

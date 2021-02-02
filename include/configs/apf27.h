@@ -9,6 +9,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 #define CONFIG_ENV_VERSION	10
 #define CONFIG_BOARD_NAME apf27
 
@@ -38,7 +40,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_DNS2
 
 #define CONFIG_HOSTNAME	"apf27"
 #define CONFIG_ROOTPATH	"/tftpboot/" __stringify(CONFIG_BOARD_NAME) "-root"
@@ -54,8 +55,6 @@
 #define PHYS_SDRAM_2			0xB0000000
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (512<<10))
-#define CONFIG_SYS_MEMTEST_START	0xA0000000	/* memtest test area  */
-#define CONFIG_SYS_MEMTEST_END		0xA0300000	/* 3 MiB RAM test */
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE	\
 		+ PHYS_SDRAM_1_SIZE - 0x0100000)
@@ -65,7 +64,6 @@
  */
 #define	ACFG_MONITOR_OFFSET		0x00000000
 #define	CONFIG_SYS_MONITOR_LEN		0x00100000	/* 1MiB */
-#define	CONFIG_ENV_OVERWRITE
 #define CONFIG_ENV_RANGE		0X00080000	/* 512kB */
 #define	CONFIG_FIRMWARE_OFFSET		0x00200000
 #define	CONFIG_FIRMWARE_SIZE		0x00080000	/* 512kB  */
@@ -145,7 +143,6 @@
 /*
  * Serial Driver
  */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
 /*

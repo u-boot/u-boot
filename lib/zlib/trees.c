@@ -7,27 +7,28 @@
 /*
  *  ALGORITHM
  *
- *      The "deflation" process uses several Huffman trees. The more
- *      common source values are represented by shorter bit sequences.
+ *	The "deflation" process uses several Huffman trees. The more
+ *	common source values are represented by shorter bit sequences.
  *
- *      Each code tree is stored in a compressed form which is itself
- * a Huffman encoding of the lengths of all the code strings (in
- * ascending order by source values).  The actual code strings are
- * reconstructed from the lengths in the inflate process, as described
- * in the deflate specification.
+ *	Each code tree is stored in a compressed form which is itself
+ *	a Huffman encoding of the lengths of all the code strings (in
+ *	ascending order by source values). The actual code strings are
+ *	reconstructed from the lengths in the inflate process, as
+ *	described in the deflate specification.
  *
  *  REFERENCES
  *
- *      Deutsch, L.P.,"'Deflate' Compressed Data Format Specification".
- *      Available in ftp.uu.net:/pub/archiving/zip/doc/deflate-1.1.doc
+ *	Deutsch, P.
+ *	    RFC 1951, DEFLATE Compressed Data Format Specification version 1.3
+ *	    https://tools.ietf.org/html/rfc1951, 1996
  *
- *      Storer, James A.
- *          Data Compression:  Methods and Theory, pp. 49-50.
- *          Computer Science Press, 1988.  ISBN 0-7167-8156-5.
+ *	Storer, James A.
+ *	    Data Compression:  Methods and Theory, pp. 49-50.
+ *	    Computer Science Press, 1988.  ISBN 0-7167-8156-5.
  *
- *      Sedgewick, R.
- *          Algorithms, p290.
- *          Addison-Wesley, 1983. ISBN 0-201-06672-6.
+ *	Sedgewick, R.
+ *	    Algorithms, p290.
+ *	    Addison-Wesley, 1983. ISBN 0-201-06672-6.
  */
 
 /* @(#) $Id$ */

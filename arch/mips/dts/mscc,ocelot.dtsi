@@ -100,7 +100,7 @@
 		spi0: spi-master@101000 {
 			#address-cells = <1>;
 			#size-cells = <0>;
-			compatible = "snps,dw-apb-ssi";
+			compatible = "mscc,ocelot-spi", "snps,dw-apb-ssi";
 			reg = <0x101000 0x40>;
 			num-chipselect = <4>;
 			bus-num = <0>;

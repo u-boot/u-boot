@@ -5,10 +5,9 @@
 # Entry-type module for tpl/u-boot-tpl.bin
 #
 
-import elf
-
-from entry import Entry
-from blob import Entry_blob
+from binman import elf
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
 class Entry_u_boot_tpl(Entry_blob):
     """U-Boot TPL binary
@@ -33,7 +32,7 @@ class Entry_u_boot_tpl(Entry_blob):
     binman uses that to look up symbols to write into the TPL binary.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self.elf_fname = 'tpl/u-boot-tpl'
 
     def GetDefaultFilename(self):

@@ -11,6 +11,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <i2s.h>
+#include <log.h>
 #include <misc.h>
 #include <sound.h>
 #include <asm/arch-rockchip/periph.h>

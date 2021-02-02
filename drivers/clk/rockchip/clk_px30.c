@@ -8,6 +8,8 @@
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
+#include <malloc.h>
 #include <syscon.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_px30.h>
@@ -15,6 +17,8 @@
 #include <asm/io.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/px30-cru.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -16,8 +16,9 @@
 static int console_normal_set_row(struct udevice *dev, uint row, int clr)
 {
 	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
-	void *line;
+	void *line, *end;
 	int pixels = VIDEO_FONT_HEIGHT * vid_priv->xsize;
+	int ret;
 	int i;
 
 	line = vid_priv->fb + row * VIDEO_FONT_HEIGHT * vid_priv->line_length;
@@ -28,6 +29,7 @@ static int console_normal_set_row(struct udevice *dev, uint row, int clr)
 
 			for (i = 0; i < pixels; i++)
 				*dst++ = clr;
+			end = dst;
 			break;
 		}
 	case VIDEO_BPP16:
@@ -36,6 +38,7 @@ static int console_normal_set_row(struct udevice *dev, uint row, int clr)
 
 			for (i = 0; i < pixels; i++)
 				*dst++ = clr;
+			end = dst;
 			break;
 		}
 	case VIDEO_BPP32:
@@ -44,11 +47,15 @@ static int console_normal_set_row(struct udevice *dev, uint row, int clr)
 
 			for (i = 0; i < pixels; i++)
 				*dst++ = clr;
+			end = dst;
 			break;
 		}
 	default:
 		return -ENOSYS;
 	}
+	ret = vidconsole_sync_copy(dev, line, end);
+	if (ret)
+		return ret;
 
 	return 0;
 }
@@ -59,10 +66,15 @@ static int console_normal_move_rows(struct udevice *dev, uint rowdst,
 	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
 	void *dst;
 	void *src;
+	int size;
+	int ret;
 
 	dst = vid_priv->fb + rowdst * VIDEO_FONT_HEIGHT * vid_priv->line_length;
 	src = vid_priv->fb + rowsrc * VIDEO_FONT_HEIGHT * vid_priv->line_length;
-	memmove(dst, src, VIDEO_FONT_HEIGHT * vid_priv->line_length * count);
+	size = VIDEO_FONT_HEIGHT * vid_priv->line_length * count;
+	ret = vidconsole_memmove(dev, dst, src, size);
+	if (ret)
+		return ret;
 
 	return 0;
 }
@@ -74,8 +86,13 @@ static int console_normal_putc_xy(struct udevice *dev, uint x_frac, uint y,
 	struct udevice *vid = dev->parent;
 	struct video_priv *vid_priv = dev_get_uclass_priv(vid);
 	int i, row;
-	void *line = vid_priv->fb + y * vid_priv->line_length +
+	void *start;
+	void *line;
+	int ret;
+
+	start = vid_priv->fb + y * vid_priv->line_length +
 		VID_TO_PIXEL(x_frac) * VNBYTES(vid_priv->bpix);
+	line = start;
 
 	if (x_frac + VID_TO_POS(vc_priv->x_charsize) > vc_priv->xsize_frac)
 		return -EAGAIN;
@@ -126,6 +143,9 @@ static int console_normal_putc_xy(struct udevice *dev, uint x_frac, uint y,
 		}
 		line += vid_priv->line_length;
 	}
+	ret = vidconsole_sync_copy(dev, start, line);
+	if (ret)
+		return ret;
 
 	return VID_TO_POS(VIDEO_FONT_WIDTH);
 }

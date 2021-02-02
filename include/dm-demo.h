@@ -6,8 +6,6 @@
 #ifndef __DM_DEMO_H
 #define __DM_DEMO_H
 
-#include <dm.h>
-
 /**
  * struct dm_demo_pdata - configuration data for demo instance
  *

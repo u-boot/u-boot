@@ -5,10 +5,12 @@
  * Copyright (c) 2018, Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
 
-static int do_exception(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+#include <command.h>
+
+static int do_exception(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
-	cmd_tbl_t *cp;
+	struct cmd_tbl *cp;
 
 	if (argc != 2)
 		return CMD_RET_USAGE;
@@ -25,12 +27,12 @@ static int do_exception(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_USAGE;
 }
 
-static int exception_complete(int argc, char * const argv[], char last_char,
+static int exception_complete(int argc, char *const argv[], char last_char,
 			      int maxv, char *cmdv[])
 {
 	int len = 0;
 	int i = 0;
-	cmd_tbl_t *cmdtp;
+	struct cmd_tbl *cmdtp;
 
 	switch (argc) {
 	case 1:

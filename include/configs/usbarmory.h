@@ -15,13 +15,11 @@
 #include <asm/arch/imx-regs.h>
 
 /* U-Boot environment */
-#define CONFIG_SYS_MMC_ENV_DEV	0
 
 /* U-Boot general configurations */
 #define CONFIG_SYS_CBSIZE	512
 
 /* UART */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* SD/MMC */
@@ -90,9 +88,6 @@
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
-#define CONFIG_SYS_MEMTEST_START	0x70000000
-#define CONFIG_SYS_MEMTEST_END		0x90000000
 
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 

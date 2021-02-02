@@ -8,14 +8,28 @@
 #include <common.h>
 #include <command.h>
 
-static int do_undefined(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_unaligned(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
+{
+	asm volatile (
+		"auipc a1, 0\n"
+		"ori   a1, a1, 3\n"
+		"lw    a2, (0)(a1)\n"
+	);
+	printf("The system supports unaligned access.\n");
+	return CMD_RET_SUCCESS;
+}
+
+static int do_undefined(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	asm volatile (".word 0xffffffff\n");
 	return CMD_RET_FAILURE;
 }
 
-static cmd_tbl_t cmd_sub[] = {
+static struct cmd_tbl cmd_sub[] = {
+	U_BOOT_CMD_MKENT(unaligned, CONFIG_SYS_MAXARGS, 1, do_unaligned,
+			 "", ""),
 	U_BOOT_CMD_MKENT(undefined, CONFIG_SYS_MAXARGS, 1, do_undefined,
 			 "", ""),
 };
@@ -23,7 +37,8 @@ static cmd_tbl_t cmd_sub[] = {
 static char exception_help_text[] =
 	"<ex>\n"
 	"  The following exceptions are available:\n"
-	"  undefined  - undefined instruction\n"
+	"  undefined - illegal instruction\n"
+	"  unaligned - load address misaligned\n"
 	;
 
 #include <exception.h>

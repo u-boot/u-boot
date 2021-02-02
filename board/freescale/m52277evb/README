@@ -22,7 +22,7 @@ Changed files:
 - arch/m68k/cpu/mcf5227x/config.mk	config make
 - arch/m68k/cpu/mcf5227x/start.S		start up assembly code
 
-- doc/README.m52277evb		This readme file
+- board/freescale/m52277evb/README	This readme file
 
 - drivers/serial/mcfuart.c	ColdFire common UART driver
 - drivers/rtc/mcfrtc.c		Realtime clock Driver
@@ -79,7 +79,6 @@ RTC_DEBUG		-- define to show RTC debug message
 CONFIG_CMD_DATE		-- enable to use date feature in U-Boot
 
 CONFIG_MCFTMR		-- define to use DMA timer
-CONFIG_MCFPIT		-- define to use PIT timer
 
 CONFIG_SYS_I2C_FSL	-- define to use FSL common I2C driver
 CONFIG_SYS_I2C_SOFT	-- define for I2C bit-banged

@@ -70,15 +70,12 @@
 /* malloc() len */
 #define CONFIG_SYS_MALLOC_LEN		(0x10000 + 512 * 1024)
 /* memtest start address */
-#define CONFIG_SYS_MEMTEST_START	0xA0000000
-#define CONFIG_SYS_MEMTEST_END		0xA1000000	/* 16MB RAM test */
 #define PHYS_SDRAM_1		0xA0000000	/* DDR Start */
 #define PHYS_SDRAM_1_SIZE	0x08000000	/* DDR size 128MB */
 
 /*
  * Serial Driver info
  */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /*

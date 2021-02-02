@@ -7,14 +7,13 @@
 #ifndef __MX6CUBOXI_CONFIG_H
 #define __MX6CUBOXI_CONFIG_H
 
+#include <linux/stringify.h>
+
 #include "mx6_common.h"
 
 #include "imx6_spl.h"
 
-#define CONFIG_IMX_THERMAL
-
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
-#define CONFIG_MXC_UART
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
@@ -27,34 +26,19 @@
 #define CONFIG_LBA48
 #endif
 
-/* Ethernet Configuration */
-#define CONFIG_FEC_MXC
-#define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#define CONFIG_FEC_MXC_PHYADDR		0
-#define CONFIG_PHY_ATHEROS
-
 /* Framebuffer */
-#define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 
 /* USB */
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS		0
-#define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 
 /* Command definition */
 
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONSOLE_DEV	"ttymxc0"
-#define CONFIG_SYS_MMC_ENV_DEV		0	/* SDHC2 */
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -69,7 +53,6 @@
 	"ramdisk_addr_r=0x13000000\0" \
 	"ramdiskaddr=0x13000000\0" \
 	"initrd_high=0xffffffff\0" \
-	"fdt_high=0xffffffff\0" \
 	"ip_dyn=yes\0" \
 	"console=" CONSOLE_DEV ",115200\0" \
 	"bootm_size=0x10000000\0" \
@@ -108,7 +91,8 @@
 	BOOTENV
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 0) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 2) \
 	func(SATA, sata, 0) \
 	func(USB, usb, 0) \
 	func(PXE, pxe, na) \

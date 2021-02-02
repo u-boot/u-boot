@@ -6,6 +6,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <init.h>
 #include <wdt.h>
 #include <dm/uclass-internal.h>
 

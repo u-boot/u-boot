@@ -13,8 +13,8 @@
 #include <common.h>
 #include <dm.h>
 #include <init.h>
+#include <net.h>
 #include <ns16550.h>
-#include <netdev.h>
 #include <flash.h>
 #include <nand.h>
 #include <i2c.h>
@@ -57,6 +57,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG5	0x00100D15
 #define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG6	0x09030000
 #define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG7	0x00000C50
+
+#define CONFIG_SMC911X_BASE 0x08000000
 
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)
@@ -204,22 +206,6 @@ static void unlock_nand(void)
 	nand_unlock(mtd, 0, mtd->size, 0);
 }
 
-int board_late_init(void)
-{
-#ifdef CONFIG_CMD_NAND_LOCK_UNLOCK
-	unlock_nand();
-#endif
-	return 0;
-}
-#endif
-
-#if defined(CONFIG_MMC)
-void board_mmc_power_init(void)
-{
-	twl4030_power_mmc_init(0);
-}
-#endif
-
 #ifdef CONFIG_SMC911X
 /* GPMC CS1 settings for Logic SOM LV/Torpedo LAN92xx Ethernet chip */
 static const u32 gpmc_lan92xx_config[] = {
@@ -230,12 +216,25 @@ static const u32 gpmc_lan92xx_config[] = {
 	NET_LAN92XX_GPMC_CONFIG5,
 	NET_LAN92XX_GPMC_CONFIG6,
 };
+#endif
 
-int board_eth_init(bd_t *bis)
+int board_late_init(void)
 {
+#ifdef CONFIG_CMD_NAND_LOCK_UNLOCK
+	unlock_nand();
+#endif
+
+#ifdef CONFIG_SMC911X
 	enable_gpmc_cs_config(gpmc_lan92xx_config, &gpmc_cfg->cs[1],
 			CONFIG_SMC911X_BASE, GPMC_SIZE_16M);
+#endif
+	return 0;
+}
+#endif
 
-	return smc911x_initialize(0, CONFIG_SMC911X_BASE);
+#if defined(CONFIG_MMC)
+void board_mmc_power_init(void)
+{
+	twl4030_power_mmc_init(0);
 }
 #endif

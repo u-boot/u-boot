@@ -12,18 +12,12 @@
 
 #include "tegra124-common.h"
 
-#define CONFIG_ARCH_MISC_INIT
-
 /* Board-specific serial config */
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
 #define FDT_MODULE			"apalis-v1.2"
 #define FDT_MODULE_V1_0			"apalis"
-
-/* Environment in eMMC, before config block at the end of 1st "boot sector" */
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_SYS_MMC_ENV_PART		1
 
 /* PCI host support */
 #undef CONFIG_PCI_SCAN_SHOW
@@ -33,6 +27,20 @@
 
 /* General networking support */
 #define CONFIG_TFTP_TSIZE
+
+/*
+ * Custom Distro Boot configuration:
+ * 1. 8bit SD port (MMC1)
+ * 2. 4bit SD port (MMC2)
+ * 3. eMMC (MMC0)
+ */
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 2) \
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
 
 #undef CONFIG_IPADDR
 #define CONFIG_IPADDR		192.168.10.2
@@ -46,23 +54,13 @@
 				"zImage fat 0 1 mmcpart 0; " \
 				"tegra124-apalis-eval.dtb fat 0 1 mmcpart 0"
 
-#define EMMC_BOOTCMD \
-	"set_emmcargs=setenv emmcargs ip=off root=PARTUUID=${uuid} " \
-		"ro rootfstype=ext4 rootwait\0" \
-	"emmcboot=run setup; run emmcfinduuid; run set_emmcargs; " \
-		"setenv bootargs ${defargs} ${emmcargs} " \
-		"${setupargs} ${vidargs}; echo Booting from internal eMMC; " \
-		"run emmcdtbload; " \
-		"load mmc ${emmcdev}:${emmcbootpart} ${kernel_addr_r} " \
-		"${boot_file} && run fdt_fixup && " \
-		"bootz ${kernel_addr_r} - ${dtbparam}\0" \
-	"emmcbootpart=1\0" \
-	"emmcdev=0\0" \
-	"emmcdtbload=setenv dtbparam; load mmc ${emmcdev}:${emmcbootpart} " \
-		"${fdt_addr_r} ${soc}-${fdt_module}-${fdt_board}.dtb && " \
-		"setenv dtbparam ${fdt_addr_r}\0" \
-	"emmcfinduuid=part uuid mmc ${mmcdev}:${emmcrootpart} uuid\0" \
-	"emmcrootpart=2\0"
+#define UBOOT_UPDATE \
+	"uboot_hwpart=1\0" \
+	"uboot_blk=0\0" \
+	"set_blkcnt=setexpr blkcnt ${filesize} + 0x1ff && " \
+		"setexpr blkcnt ${blkcnt} / 0x200\0" \
+	"update_uboot=run set_blkcnt && mmc dev 0 ${uboot_hwpart} && " \
+		"mmc write ${loadaddr} ${uboot_blk} ${blkcnt}\0" \
 
 #define NFS_BOOTCMD \
 	"nfsargs=ip=:::::eth0:on root=/dev/nfs rw\0" \
@@ -74,23 +72,6 @@
 		"${soc}-${fdt_module}-${fdt_board}.dtb " \
 		"&& setenv dtbparam ${fdt_addr_r}\0"
 
-#define SD_BOOTCMD \
-	"set_sdargs=setenv sdargs ip=off root=PARTUUID=${uuid} ro " \
-	"rootfstype=ext4 rootwait\0" \
-	"sdboot=run setup; run sdfinduuid; run set_sdargs; " \
-		"setenv bootargs ${defargs} ${sdargs} ${setupargs} " \
-		"${vidargs}; echo Booting from SD card in 8bit slot...; " \
-		"run sddtbload; load mmc ${sddev}:${sdbootpart} " \
-		"${kernel_addr_r} ${boot_file} && run fdt_fixup && " \
-		"bootz ${kernel_addr_r} - ${dtbparam}\0" \
-	"sdbootpart=1\0" \
-	"sddev=1\0" \
-	"sddtbload=setenv dtbparam; load mmc ${sddev}:${sdbootpart} " \
-		"${fdt_addr_r} ${soc}-${fdt_module}-${fdt_board}.dtb " \
-		"&& setenv dtbparam ${fdt_addr_r}\0" \
-	"sdfinduuid=part uuid mmc ${sddev}:${sdrootpart} uuid\0" \
-	"sdrootpart=2\0"
-
 #define BOARD_EXTRA_ENV_SETTINGS \
 	"boot_file=zImage\0" \
 	"console=ttyS0\0" \
@@ -98,12 +79,11 @@
 		"usb_port_owner_info=2 lane_owner_info=6 emc_max_dvfs=0 " \
 		"user_debug=30 pcie_aspm=off\0" \
 	"dfu_alt_info=" DFU_ALT_EMMC_INFO "\0" \
-	EMMC_BOOTCMD \
 	"fdt_board=eval\0" \
 	"fdt_fixup=;\0" \
 	"fdt_module=" FDT_MODULE "\0" \
 	NFS_BOOTCMD \
-	SD_BOOTCMD \
+	UBOOT_UPDATE \
 	"setethupdate=if env exists ethaddr; then; else setenv ethaddr " \
 		"00:14:2d:00:00:00; fi; pci enum && tftpboot ${loadaddr} " \
 		"flash_eth.img && source ${loadaddr}\0" \
@@ -133,8 +113,6 @@
 /* Increase maximum number of arguments */
 #undef CONFIG_SYS_MAXARGS
 #define CONFIG_SYS_MAXARGS		32
-
-#define CONFIG_CMD_TIME
 
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"

@@ -39,7 +39,7 @@
 
 			/*
 			 * Memory configuration from sdram datasheet IS42S32800G-6BLI
-			 * firsct bank is bank@0
+			 * first bank is bank@0
 			 * second bank is bank@1
 			 */
 			bank1: bank@1 {
@@ -217,4 +217,8 @@
 
 &sdmmc1 {
 	compatible = "st,stm32-sdmmc2", "arm,pl18x", "arm,primecell";
+};
+
+&timer5 {
+	u-boot,dm-pre-reloc;
 };

@@ -23,6 +23,8 @@ extern ulong _datarellocal_start_ofs;
 extern ulong _datarelro_start_ofs;
 extern ulong IRQ_STACK_START_IN;	/* 8 bytes in IRQ stack */
 
+void s_init(void);
+
 /* cpu/.../cpu.c */
 int	cleanup_before_linux(void);
 
@@ -51,6 +53,8 @@ void do_irq(struct pt_regs *pt_regs, unsigned int esr);
 void do_fiq(struct pt_regs *pt_regs);
 void do_irq(struct pt_regs *pt_regswq);
 #endif
+
+void reset_misc(void);
 
 #endif /* __ASSEMBLY__ */
 

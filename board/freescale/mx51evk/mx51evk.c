@@ -9,6 +9,7 @@
 #include <asm/gpio.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux-mx51.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
@@ -284,7 +285,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return ret;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	static const iomux_v3_cfg_t sd1_pads[] = {
 		NEW_PAD_CTRL(MX51_PAD_SD1_CMD__SD1_CMD, PAD_CTL_DSE_MAX |

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/fsl_serdes.h>
 #include <asm/immap_85xx.h>
@@ -15,7 +16,7 @@
 
 #include "../common/fman.h"
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_FMAN_ENET
 	struct memac_mdio_info memac_mdio_info;
@@ -76,6 +77,9 @@ int board_eth_init(bd_t *bis)
 			break;
 #endif
 		case PHY_INTERFACE_MODE_RGMII:
+		case PHY_INTERFACE_MODE_RGMII_TXID:
+		case PHY_INTERFACE_MODE_RGMII_RXID:
+		case PHY_INTERFACE_MODE_RGMII_ID:
 			if (FM1_DTSEC4 == i)
 				phy_addr = CONFIG_SYS_RGMII1_PHY_ADDR;
 			if (FM1_DTSEC5 == i)

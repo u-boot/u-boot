@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2009-2014 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  *
  * This file is derived from arch/powerpc/cpu/mpc85xx/cpu.c and
  * arch/powerpc/cpu/mpc86xx/cpu.c. Basically this file contains
@@ -76,6 +77,14 @@ void ft_fixup_num_cores(void *blob) {
 
 int fdt_fixup_phy_connection(void *blob, int offset, phy_interface_t phyc)
 {
+	const char *conn;
+
+	/* Do NOT apply fixup for backplane modes specified in DT */
+	if (phyc == PHY_INTERFACE_MODE_XGMII) {
+		conn = fdt_getprop(blob, offset, "phy-connection-type", NULL);
+		if (is_backplane_mode(conn))
+			return 0;
+	}
 	return fdt_setprop_string(blob, offset, "phy-connection-type",
 					 phy_string_for_interface(phyc));
 }

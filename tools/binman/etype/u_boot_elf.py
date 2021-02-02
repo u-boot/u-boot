@@ -5,11 +5,11 @@
 # Entry-type module for U-Boot ELF image
 #
 
-from entry import Entry
-from blob import Entry_blob
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
-import fdt_util
-import tools
+from dtoc import fdt_util
+from patman import tools
 
 class Entry_u_boot_elf(Entry_blob):
     """U-Boot ELF image
@@ -21,7 +21,7 @@ class Entry_u_boot_elf(Entry_blob):
     relocated to any address for execution.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        super().__init__(section, etype, node)
         self._strip = fdt_util.GetBool(self._node, 'strip')
 
     def ReadBlobContents(self):
@@ -31,7 +31,7 @@ class Entry_u_boot_elf(Entry_blob):
             tools.WriteFile(out_fname, tools.ReadFile(self._pathname))
             tools.Run('strip', out_fname)
             self._pathname = out_fname
-        Entry_blob.ReadBlobContents(self)
+        super().ReadBlobContents()
         return True
 
     def GetDefaultFilename(self):

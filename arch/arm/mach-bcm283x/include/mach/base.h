@@ -8,4 +8,12 @@
 
 extern unsigned long rpi_bcm283x_base;
 
+#ifdef CONFIG_ARMV7_LPAE
+#ifdef CONFIG_TARGET_RPI_4_32B
+#include <addr_map.h>
+#define phys_to_virt addrmap_phys_to_virt
+#define virt_to_phys addrmap_virt_to_phys
+#endif
+#endif
+
 #endif

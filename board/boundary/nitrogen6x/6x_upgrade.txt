@@ -1,4 +1,4 @@
-setenv stdout serial,vga
+setenv stdout serial,vidconsole
 echo "check U-Boot" ;
 setenv offset 0x400
 if ${fs}load ${dtype} ${disk}:1 12000000 u-boot.imx || ${fs}load ${dtype} ${disk}:1 12000000 u-boot.nopadding ; then

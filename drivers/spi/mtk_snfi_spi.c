@@ -253,7 +253,7 @@ static int mtk_snfi_spi_probe(struct udevice *bus)
 	struct mtk_snfi_priv *priv = dev_get_priv(bus);
 	int ret;
 
-	priv->base = (void __iomem *)devfdt_get_addr(bus);
+	priv->base = dev_read_addr_ptr(bus);
 	if (!priv->base)
 		return -EINVAL;
 

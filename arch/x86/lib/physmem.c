@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <physmem.h>
 #include <asm/cpu.h>
 #include <linux/compiler.h>

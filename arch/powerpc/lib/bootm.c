@@ -8,8 +8,12 @@
 
 
 #include <common.h>
+#include <bootstage.h>
 #include <cpu_func.h>
 #include <env.h>
+#include <init.h>
+#include <lmb.h>
+#include <log.h>
 #include <watchdog.h>
 #include <command.h>
 #include <image.h>
@@ -34,7 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static ulong get_sp (void);
 extern void ft_fixup_num_cores(void *blob);
-static void set_clocks_in_mhz (bd_t *kbd);
+static void set_clocks_in_mhz (struct bd_info *kbd);
 
 #ifndef CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE
 #define CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE	(768*1024*1024)
@@ -42,16 +46,16 @@ static void set_clocks_in_mhz (bd_t *kbd);
 
 static void boot_jump_linux(bootm_headers_t *images)
 {
-	void	(*kernel)(bd_t *, ulong r4, ulong r5, ulong r6,
-			  ulong r7, ulong r8, ulong r9);
+	void	(*kernel)(struct bd_info *, ulong r4, ulong r5, ulong r6,
+			      ulong r7, ulong r8, ulong r9);
 #ifdef CONFIG_OF_LIBFDT
 	char *of_flat_tree = images->ft_addr;
 #endif
 
-	kernel = (void (*)(bd_t *, ulong, ulong, ulong,
+	kernel = (void (*)(struct bd_info *, ulong, ulong, ulong,
 			   ulong, ulong, ulong))images->ep;
-	debug ("## Transferring control to Linux (at address %08lx) ...\n",
-		(ulong)kernel);
+	debug("## Transferring control to Linux (at address %08lx) ...\n",
+	      (ulong)kernel);
 
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
@@ -78,9 +82,9 @@ static void boot_jump_linux(bootm_headers_t *images)
 		 *   r8: 0
 		 *   r9: 0
 		 */
-		debug ("   Booting using OF flat tree...\n");
+		debug("   Booting using OF flat tree...\n");
 		WATCHDOG_RESET ();
-		(*kernel) ((bd_t *)of_flat_tree, 0, 0, EPAPR_MAGIC,
+		(*kernel) ((struct bd_info *)of_flat_tree, 0, 0, EPAPR_MAGIC,
 			   env_get_bootm_mapsize(), 0, 0);
 		/* does not return */
 	} else
@@ -100,9 +104,9 @@ static void boot_jump_linux(bootm_headers_t *images)
 		ulong cmd_end = images->cmdline_end;
 		ulong initrd_start = images->initrd_start;
 		ulong initrd_end = images->initrd_end;
-		bd_t *kbd = images->kbd;
+		struct bd_info *kbd = images->kbd;
 
-		debug ("   Booting using board info...\n");
+		debug("   Booting using board info...\n");
 		WATCHDOG_RESET ();
 		(*kernel) (kbd, initrd_start, initrd_end,
 			   cmd_start, cmd_end, 0, 0);
@@ -146,7 +150,7 @@ void arch_lmb_reserve(struct lmb *lmb)
 	 * pointer.
 	 */
 	sp = get_sp();
-	debug ("## Current stack ends at 0x%08lx\n", sp);
+	debug("## Current stack ends at 0x%08lx\n", sp);
 
 	/* adjust sp by 4K to be safe */
 	sp -= 4096;
@@ -196,7 +200,7 @@ static int boot_bd_t_linux(bootm_headers_t *images)
 {
 	ulong of_size = images->ft_len;
 	struct lmb *lmb = &images->lmb;
-	bd_t **kbd = &images->kbd;
+	struct bd_info **kbd = &images->kbd;
 
 	int ret = 0;
 
@@ -229,8 +233,8 @@ static int boot_body_linux(bootm_headers_t *images)
 	return 0;
 }
 
-noinline
-int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *images)
+noinline int do_bootm_linux(int flag, int argc, char *const argv[],
+			    bootm_headers_t *images)
 {
 	int	ret;
 
@@ -266,7 +270,7 @@ static ulong get_sp (void)
 	return sp;
 }
 
-static void set_clocks_in_mhz (bd_t *kbd)
+static void set_clocks_in_mhz (struct bd_info *kbd)
 {
 	char	*s;
 
@@ -294,8 +298,8 @@ void boot_prep_vxworks(bootm_headers_t *images)
 	if (!images->ft_addr)
 		return;
 
-	base = (u64)gd->bd->bi_memstart;
-	size = (u64)gd->bd->bi_memsize;
+	base = (u64)gd->ram_base;
+	size = (u64)gd->ram_size;
 
 	off = fdt_path_offset(images->ft_addr, "/memory");
 	if (off < 0)

@@ -8,6 +8,8 @@
 #include <common.h>
 #include <dm.h>
 #include <cpu.h>
+#include <init.h>
+#include <log.h>
 #include <asm/cpu.h>
 #include <asm/cpu_x86.h>
 #include <asm/cpu_common.h>
@@ -18,6 +20,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/pch.h>
 #include <asm/arch/rcb.h>
+#include <linux/delay.h>
 
 struct cpu_broadwell_priv {
 	bool ht_disabled;
@@ -623,12 +626,12 @@ void cpu_set_power_limits(int power_limit_1_time)
 	}
 }
 
-static int broadwell_get_info(struct udevice *dev, struct cpu_info *info)
+static int broadwell_get_info(const struct udevice *dev, struct cpu_info *info)
 {
 	return cpu_intel_get_info(info, INTEL_BCLK_MHZ);
 }
 
-static int broadwell_get_count(struct udevice *dev)
+static int broadwell_get_count(const struct udevice *dev)
 {
 	return 4;
 }

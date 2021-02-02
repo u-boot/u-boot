@@ -4,6 +4,7 @@
  * Copyright (C) 2017 Xingyu Chen <xingyu.chen@amlogic.com>
  */
 
+#include <log.h>
 #include <asm/gpio.h>
 #include <common.h>
 #include <dm.h>
@@ -164,7 +165,10 @@ const struct pinctrl_ops meson_axg_pinctrl_ops = {
 static int meson_axg_gpio_request(struct udevice *dev,
 				  unsigned int offset, const char *label)
 {
-	return meson_axg_pmx_update_function(dev->parent, offset, 0);
+	struct meson_pinctrl *priv = dev_get_priv(dev->parent);
+
+	return meson_axg_pmx_update_function(dev->parent,
+					     offset + priv->data->pin_base, 0);
 }
 
 static const struct dm_gpio_ops meson_axg_gpio_ops = {

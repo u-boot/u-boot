@@ -80,8 +80,6 @@ struct cbfs_cachenode {
 	u32 attributes_offset;
 };
 
-extern enum cbfs_result file_cbfs_result;
-
 /**
  * file_cbfs_error() - Return a string describing the most recent error
  * condition.
@@ -100,10 +98,10 @@ enum cbfs_result cbfs_get_result(void);
 /**
  * file_cbfs_init() - Initialize the CBFS driver and load metadata into RAM.
  *
- * @end_of_rom: Points to the end of the ROM the CBFS should be read
- *                      from.
+ * @end_of_rom: Points to the end of the ROM the CBFS should be read from
+ * @return 0 if OK, -ve on error
  */
-void file_cbfs_init(uintptr_t end_of_rom);
+int file_cbfs_init(ulong end_of_rom);
 
 /**
  * file_cbfs_get_header() - Get the header structure for the current CBFS.
@@ -135,7 +133,7 @@ void file_cbfs_get_next(const struct cbfs_cachenode **file);
  */
 const struct cbfs_cachenode *file_cbfs_find(const char *name);
 
-struct cbfs_priv *priv;
+struct cbfs_priv;
 
 /**
  * cbfs_find_file() - Find a file in a given CBFS
@@ -151,11 +149,10 @@ const struct cbfs_cachenode *cbfs_find_file(struct cbfs_priv *cbfs,
  * cbfs_init_mem() - Set up a new CBFS
  *
  * @base: Base address of CBFS
- * @size: Size of CBFS in bytes
  * @cbfsp: Returns a pointer to CBFS on success
  * @return 0 if OK, -ve on error
  */
-int cbfs_init_mem(ulong base, ulong size, struct cbfs_priv **privp);
+int cbfs_init_mem(ulong base, struct cbfs_priv **privp);
 
 
 /***************************************************************************/
@@ -163,17 +160,32 @@ int cbfs_init_mem(ulong base, ulong size, struct cbfs_priv **privp);
 /***************************************************************************/
 
 /**
- * file_cbfs_find_uncached() - Find a file with a particular name in CBFS
- * without using the heap.
+ * file_cbfs_find_uncached() - Find a file in CBFS given the end of the ROM
  *
- * @end_of_rom:		Points to the end of the ROM the CBFS should be read
- *                      from.
- * @name:		The name to search for.
+ * Note that @node should be declared by the caller. This design is to avoid
+ * the need for allocation here.
  *
- * @return A handle to the file, or NULL on error.
+ * @end_of_rom: Points to the end of the ROM the CBFS should be read from
+ * @name: The name to search for
+ * @node: Returns the contents of the node if found (i.e. copied into *node)
+ * @return 0 on success, -ENOENT if not found, -EFAULT on bad header
  */
-const struct cbfs_cachenode *file_cbfs_find_uncached(uintptr_t end_of_rom,
-						     const char *name);
+int file_cbfs_find_uncached(ulong end_of_rom, const char *name,
+			    struct cbfs_cachenode *node);
+
+/**
+ * file_cbfs_find_uncached_base() - Find a file in CBFS given the base address
+ *
+ * Note that @node should be declared by the caller. This design is to avoid
+ * the need for allocation here.
+ *
+ * @base: Points to the base of the CBFS
+ * @name: The name to search for
+ * @node: Returns the contents of the node if found (i.e. copied into *node)
+ * @return 0 on success, -ENOENT if not found, -EFAULT on bad header
+ */
+int file_cbfs_find_uncached_base(ulong base, const char *name,
+				 struct cbfs_cachenode *node);
 
 /**
  * file_cbfs_name() - Get the name of a file in CBFS.

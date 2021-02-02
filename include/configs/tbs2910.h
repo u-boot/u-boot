@@ -16,8 +16,6 @@
 
 #define CONFIG_SYS_HZ			1000
 
-#define CONFIG_IMX_THERMAL
-
 /* Physical Memory Map */
 #define CONFIG_SYS_SDRAM_BASE		MMDC0_ARB_BASE_ADDR
 
@@ -30,22 +28,14 @@
 
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024 * 1024)
 
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END \
-	(CONFIG_SYS_MEMTEST_START + 500 * 1024 * 1024)
-
 #define CONFIG_SYS_BOOTMAPSZ		0x10000000
 
 /* Serial console */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART1_BASE /* select UART1/UART2 */
 
 /* Framebuffer */
-#ifdef CONFIG_VIDEO
-#define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
-#endif
 
 /* PCI */
 #ifdef CONFIG_CMD_PCI
@@ -72,14 +62,10 @@
 #endif /* CONFIG_CMD_USB_MASS_STORAGE */
 #endif /* CONFIG_CMD_USB      */
 
-/* Environment organization */
-#define CONFIG_SYS_MMC_ENV_DEV		2 /* overwritten on SD boot */
-#define CONFIG_SYS_MMC_ENV_PART		1 /* overwritten on SD boot */
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_BOARD_SIZE_LIMIT		392192 /* (CONFIG_ENV_OFFSET - 1024) */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	BOOTENV \
 	"bootargs_mmc1=console=ttymxc0,115200 di0_primary console=tty1\0" \
 	"bootargs_mmc2=video=mxcfb0:dev=hdmi,1920x1080M@60 " \
 			"video=mxcfb1:off video=mxcfb2:off fbmem=28M\0" \
@@ -96,20 +82,28 @@
 			"bootm 0x10800000 0x10d00000\0" \
 	"console=ttymxc0\0" \
 	"fan=gpio set 92\0" \
+	"fdt_addr_r=0x18000000\0" \
+	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
+	"kernel_addr_r=0x12000000\0" \
+	"pxefile_addr_r=0x10100000\0" \
+	"ramdisk_addr_r=0x18080000\0" \
+	"scriptaddr=0x10000000\0" \
 	"set_con_serial=setenv stdout serial; " \
 			"setenv stderr serial\0" \
-	"set_con_hdmi=setenv stdout serial,vga; " \
-			"setenv stderr serial,vga\0" \
-	"stderr=serial,vga\0" \
+	"set_con_hdmi=setenv stdout serial,vidconsole; " \
+			"setenv stderr serial,vidconsole\0" \
+	"stderr=serial,vidconsole\0" \
 	"stdin=serial,usbkbd\0" \
-	"stdout=serial,vga\0"
+	"stdout=serial,vidconsole\0"
 
-#define CONFIG_BOOTCOMMAND \
-	"mmc rescan; " \
-	"if run bootcmd_up1; then " \
-		"run bootcmd_up2; " \
-	"else " \
-		"run bootcmd_mmc; " \
-	"fi"
+/* Enable distro boot */
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 2) \
+	func(SATA, sata, 0) \
+	func(USB, usb, 0)
+
+#include <config_distro_bootcmd.h>
 
 #endif			       /* __TBS2910_CONFIG_H * */

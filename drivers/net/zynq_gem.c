@@ -12,11 +12,13 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
 #include <net.h>
 #include <netdev.h>
 #include <config.h>
 #include <console.h>
 #include <malloc.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <phy.h>
 #include <miiphy.h>
@@ -25,6 +27,9 @@
 #include <asm/system.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/err.h>
 #include <linux/errno.h>
 
 /* Bit/mask specification */
@@ -747,9 +752,9 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 
 	pdata->iobase = (phys_addr_t)dev_read_addr(dev);
 	priv->iobase = (struct zynq_gem_regs *)pdata->iobase;
+	priv->mdiobase = priv->iobase;
 	/* Hardcode for now */
 	priv->phyaddr = -1;
-	priv->mdiobase = priv->iobase;
 
 	if (!dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
 					&phandle_args)) {

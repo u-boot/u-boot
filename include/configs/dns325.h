@@ -24,14 +24,6 @@
 #define CONFIG_KW88F6281		/* SOC Name */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
-/*
- * Commands configuration
- */
-
-/*
- * mv-common.h should be defined after CMD configs since it used them
- * to enable certain macros
- */
 #include "mv-common.h"
 
 /* Remove or override few declarations from mv-common.h */
@@ -41,7 +33,6 @@
  */
 #ifdef CONFIG_CMD_NET
 #define CONFIG_MVGBE_PORTS		{1, 0} /* enable port 0 only */
-#define CONFIG_NETCONSOLE
 #endif
 
 /*

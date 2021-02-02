@@ -19,7 +19,7 @@ config ARMV7_NONSEC
 config ARMV7_BOOT_SEC_DEFAULT
 	bool "Boot in secure mode by default" if EXPERT
 	depends on ARMV7_NONSEC
-	default y if TEGRA
+	default y if ARCH_TEGRA
 	---help---
 	Say Y here to boot in secure mode by default even if non-secure mode
 	is supported. This option is useful to boot kernels which do not
@@ -40,6 +40,24 @@ config ARMV7_PSCI
 	default y
 	help
 	  Say Y here to enable PSCI support.
+
+choice
+	prompt "Supported PSCI version"
+	depends on ARMV7_PSCI
+	default ARMV7_PSCI_0_1 if ARCH_SUNXI
+	default ARMV7_PSCI_1_0
+	help
+	  Select the supported PSCI version.
+
+config ARMV7_PSCI_1_0
+	bool "PSCI V1.0"
+
+config ARMV7_PSCI_0_2
+	bool "PSCI V0.2"
+
+config ARMV7_PSCI_0_1
+	bool "PSCI V0.1"
+endchoice
 
 config ARMV7_PSCI_NR_CPUS
 	int "Maximum supported CPUs for PSCI"

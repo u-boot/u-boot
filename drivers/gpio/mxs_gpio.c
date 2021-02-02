@@ -7,6 +7,9 @@
  */
 
 #include <common.h>
+#include <log.h>
+#include <malloc.h>
+#include <linux/bitops.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch/iomux.h>
@@ -128,18 +131,12 @@ int name_to_gpio(const char *name)
 
 	return (bank << MXS_PAD_BANK_SHIFT) | (pin << MXS_PAD_PIN_SHIFT);
 }
-#else /* CONFIG_DM_GPIO */
+#else /* DM_GPIO */
 #include <dm.h>
 #include <asm/gpio.h>
 #include <dt-structs.h>
 #include <asm/arch/gpio.h>
 #define MXS_MAX_GPIO_PER_BANK		32
-
-#ifdef CONFIG_MX28
-#define dtd_fsl_imx_gpio dtd_fsl_imx28_gpio
-#else /* CONFIG_MX23 */
-#define dtd_fsl_imx_gpio dtd_fsl_imx23_gpio
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 /*
@@ -155,7 +152,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct mxs_gpio_platdata {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_fsl_imx_gpio dtplat;
+	struct dtd_fsl_imx23_gpio dtplat;
 #endif
 	unsigned int bank;
 	int gpio_ranges;
@@ -244,7 +241,7 @@ static int mxs_gpio_probe(struct udevice *dev)
 	char name[16], *str;
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_fsl_imx_gpio *dtplat = &plat->dtplat;
+	struct dtd_fsl_imx23_gpio *dtplat = &plat->dtplat;
 	priv->bank = (unsigned int)dtplat->reg[0];
 	uc_priv->gpio_count = dtplat->gpio_ranges[3];
 #else
@@ -272,7 +269,7 @@ static int mxs_ofdata_to_platdata(struct udevice *dev)
 	int node = dev_of_offset(dev);
 	int ret;
 
-	plat->bank = devfdt_get_addr(dev);
+	plat->bank = dev_read_addr(dev);
 	if (plat->bank == FDT_ADDR_T_NONE) {
 		printf("%s: No 'reg' property defined!\n", __func__);
 		return -EINVAL;
@@ -296,12 +293,8 @@ static const struct udevice_id mxs_gpio_ids[] = {
 };
 #endif
 
-U_BOOT_DRIVER(gpio_mxs) = {
-#ifdef CONFIG_MX28
-	.name = "fsl_imx28_gpio",
-#else /* CONFIG_MX23 */
+U_BOOT_DRIVER(fsl_imx23_gpio) = {
 	.name = "fsl_imx23_gpio",
-#endif
 	.id	= UCLASS_GPIO,
 	.ops	= &gpio_mxs_ops,
 	.probe	= mxs_gpio_probe,
@@ -312,4 +305,6 @@ U_BOOT_DRIVER(gpio_mxs) = {
 	.ofdata_to_platdata = mxs_ofdata_to_platdata,
 #endif
 };
-#endif /* CONFIG_DM_GPIO */
+
+U_BOOT_DRIVER_ALIAS(fsl_imx23_gpio, fsl_imx28_gpio)
+#endif /* DM_GPIO */

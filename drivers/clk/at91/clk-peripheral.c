@@ -1,112 +1,254 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2016 Atmel Corporation
- *               Wenyou.Yang <wenyou.yang@atmel.com>
+ * Peripheral clock support for AT91 architectures.
+ *
+ * Copyright (C) 2020 Microchip Technology Inc. and its subsidiaries
+ *
+ * Author: Claudiu Beznea <claudiu.beznea@microchip.com>
+ *
+ * Based on drivers/clk/at91/clk-peripheral.c from Linux.
  */
-
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <linux/io.h>
-#include <mach/at91_pmc.h>
+#include <linux/clk-provider.h>
+#include <linux/clk/at91_pmc.h>
+
 #include "pmc.h"
+
+#define UBOOT_DM_CLK_AT91_PERIPH		"at91-periph-clk"
+#define UBOOT_DM_CLK_AT91_SAM9X5_PERIPH		"at91-sam9x5-periph-clk"
 
 #define PERIPHERAL_ID_MIN	2
 #define PERIPHERAL_ID_MAX	31
 #define PERIPHERAL_MASK(id)	(1 << ((id) & PERIPHERAL_ID_MAX))
 
-enum periph_clk_type {
-	CLK_PERIPH_AT91RM9200 = 0,
-	CLK_PERIPH_AT91SAM9X5,
+#define PERIPHERAL_MAX_SHIFT	3
+
+struct clk_peripheral {
+	void __iomem *base;
+	struct clk clk;
+	u32 id;
 };
-/**
- * sam9x5_periph_clk_bind() - for the periph clock driver
- * Recursively bind its children as clk devices.
- *
- * @return: 0 on success, or negative error code on failure
- */
-static int sam9x5_periph_clk_bind(struct udevice *dev)
+
+#define to_clk_peripheral(_c) container_of(_c, struct clk_peripheral, clk)
+
+struct clk_sam9x5_peripheral {
+	const struct clk_pcr_layout *layout;
+	void __iomem *base;
+	struct clk clk;
+	struct clk_range range;
+	u32 id;
+	u32 div;
+	bool auto_div;
+};
+
+#define to_clk_sam9x5_peripheral(_c) \
+	container_of(_c, struct clk_sam9x5_peripheral, clk)
+
+static int clk_peripheral_enable(struct clk *clk)
 {
-	return at91_clk_sub_device_bind(dev, "periph-clk");
-}
+	struct clk_peripheral *periph = to_clk_peripheral(clk);
+	int offset = AT91_PMC_PCER;
+	u32 id = periph->id;
 
-static const struct udevice_id sam9x5_periph_clk_match[] = {
-	{
-		.compatible = "atmel,at91rm9200-clk-peripheral",
-		.data = CLK_PERIPH_AT91RM9200,
-	},
-	{
-		.compatible = "atmel,at91sam9x5-clk-peripheral",
-		.data = CLK_PERIPH_AT91SAM9X5,
-	},
-	{}
-};
-
-U_BOOT_DRIVER(sam9x5_periph_clk) = {
-	.name = "sam9x5-periph-clk",
-	.id = UCLASS_MISC,
-	.of_match = sam9x5_periph_clk_match,
-	.bind = sam9x5_periph_clk_bind,
-};
-
-/*---------------------------------------------------------*/
-
-static int periph_clk_enable(struct clk *clk)
-{
-	struct pmc_platdata *plat = dev_get_platdata(clk->dev);
-	struct at91_pmc *pmc = plat->reg_base;
-	enum periph_clk_type clk_type;
-	void *addr;
-
-	if (clk->id < PERIPHERAL_ID_MIN)
-		return -1;
-
-	clk_type = dev_get_driver_data(dev_get_parent(clk->dev));
-	if (clk_type == CLK_PERIPH_AT91RM9200) {
-		addr = &pmc->pcer;
-		if (clk->id > PERIPHERAL_ID_MAX)
-			addr = &pmc->pcer1;
-
-		setbits_le32(addr, PERIPHERAL_MASK(clk->id));
-	} else {
-		writel(clk->id & AT91_PMC_PCR_PID_MASK, &pmc->pcr);
-		setbits_le32(&pmc->pcr,
-			     AT91_PMC_PCR_CMD_WRITE | AT91_PMC_PCR_EN);
-	}
+	if (id < PERIPHERAL_ID_MIN)
+		return 0;
+	if (id > PERIPHERAL_ID_MAX)
+		offset = AT91_PMC_PCER1;
+	pmc_write(periph->base, offset, PERIPHERAL_MASK(id));
 
 	return 0;
 }
 
-static ulong periph_get_rate(struct clk *clk)
+static int clk_peripheral_disable(struct clk *clk)
 {
-	struct udevice *dev;
-	struct clk clk_dev;
-	ulong clk_rate;
-	int ret;
+	struct clk_peripheral *periph = to_clk_peripheral(clk);
+	int offset = AT91_PMC_PCDR;
+	u32 id = periph->id;
 
-	dev = dev_get_parent(clk->dev);
+	if (id < PERIPHERAL_ID_MIN)
+		return -EINVAL;
 
-	ret = clk_get_by_index(dev, 0, &clk_dev);
-	if (ret)
-		return ret;
+	if (id > PERIPHERAL_ID_MAX)
+		offset = AT91_PMC_PCDR1;
+	pmc_write(periph->base, offset, PERIPHERAL_MASK(id));
 
-	clk_rate = clk_get_rate(&clk_dev);
-
-	clk_free(&clk_dev);
-
-	return clk_rate;
+	return 0;
 }
 
-static struct clk_ops periph_clk_ops = {
-	.of_xlate = at91_clk_of_xlate,
-	.enable = periph_clk_enable,
-	.get_rate = periph_get_rate,
+static const struct clk_ops peripheral_ops = {
+	.enable = clk_peripheral_enable,
+	.disable = clk_peripheral_disable,
+	.get_rate = clk_generic_get_rate,
 };
 
-U_BOOT_DRIVER(clk_periph) = {
-	.name	= "periph-clk",
-	.id	= UCLASS_CLK,
-	.platdata_auto_alloc_size = sizeof(struct pmc_platdata),
-	.probe = at91_clk_probe,
-	.ops	= &periph_clk_ops,
+struct clk *
+at91_clk_register_peripheral(void __iomem *base, const char *name,
+			     const char *parent_name, u32 id)
+{
+	struct clk_peripheral *periph;
+	struct clk *clk;
+	int ret;
+
+	if (!base || !name || !parent_name || id > PERIPHERAL_ID_MAX)
+		return ERR_PTR(-EINVAL);
+
+	periph = kzalloc(sizeof(*periph), GFP_KERNEL);
+	if (!periph)
+		return ERR_PTR(-ENOMEM);
+
+	periph->id = id;
+	periph->base = base;
+
+	clk = &periph->clk;
+	clk->flags = CLK_GET_RATE_NOCACHE;
+	ret = clk_register(clk, UBOOT_DM_CLK_AT91_PERIPH, name, parent_name);
+	if (ret) {
+		kfree(periph);
+		clk = ERR_PTR(ret);
+	}
+
+	return clk;
+}
+
+U_BOOT_DRIVER(at91_periph_clk) = {
+	.name = UBOOT_DM_CLK_AT91_PERIPH,
+	.id = UCLASS_CLK,
+	.ops = &peripheral_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+
+static int clk_sam9x5_peripheral_enable(struct clk *clk)
+{
+	struct clk_sam9x5_peripheral *periph = to_clk_sam9x5_peripheral(clk);
+
+	if (periph->id < PERIPHERAL_ID_MIN)
+		return 0;
+
+	pmc_write(periph->base, periph->layout->offset,
+		  (periph->id & periph->layout->pid_mask));
+	pmc_update_bits(periph->base, periph->layout->offset,
+			periph->layout->cmd | AT91_PMC_PCR_EN,
+			periph->layout->cmd | AT91_PMC_PCR_EN);
+
+	return 0;
+}
+
+static int clk_sam9x5_peripheral_disable(struct clk *clk)
+{
+	struct clk_sam9x5_peripheral *periph = to_clk_sam9x5_peripheral(clk);
+
+	if (periph->id < PERIPHERAL_ID_MIN)
+		return -EINVAL;
+
+	pmc_write(periph->base, periph->layout->offset,
+		  (periph->id & periph->layout->pid_mask));
+	pmc_update_bits(periph->base, periph->layout->offset,
+			AT91_PMC_PCR_EN | periph->layout->cmd,
+			periph->layout->cmd);
+
+	return 0;
+}
+
+static ulong clk_sam9x5_peripheral_get_rate(struct clk *clk)
+{
+	struct clk_sam9x5_peripheral *periph = to_clk_sam9x5_peripheral(clk);
+	ulong parent_rate = clk_get_parent_rate(clk);
+	u32 val, shift = ffs(periph->layout->div_mask) - 1;
+
+	if (!parent_rate)
+		return 0;
+
+	pmc_write(periph->base, periph->layout->offset,
+		  (periph->id & periph->layout->pid_mask));
+	pmc_read(periph->base, periph->layout->offset, &val);
+	shift = (val & periph->layout->div_mask) >> shift;
+
+	return parent_rate >> shift;
+}
+
+static ulong clk_sam9x5_peripheral_set_rate(struct clk *clk, ulong rate)
+{
+	struct clk_sam9x5_peripheral *periph = to_clk_sam9x5_peripheral(clk);
+	ulong parent_rate = clk_get_parent_rate(clk);
+	int shift;
+
+	if (!parent_rate)
+		return 0;
+
+	if (periph->id < PERIPHERAL_ID_MIN || !periph->range.max) {
+		if (parent_rate == rate)
+			return rate;
+		else
+			return 0;
+	}
+
+	if (periph->range.max && rate > periph->range.max)
+		return 0;
+
+	for (shift = 0; shift <= PERIPHERAL_MAX_SHIFT; shift++) {
+		if (parent_rate >> shift <= rate)
+			break;
+	}
+	if (shift == PERIPHERAL_MAX_SHIFT + 1)
+		return 0;
+
+	pmc_write(periph->base, periph->layout->offset,
+		  (periph->id & periph->layout->pid_mask));
+	pmc_update_bits(periph->base, periph->layout->offset,
+			periph->layout->div_mask | periph->layout->cmd,
+			(shift << (ffs(periph->layout->div_mask) - 1)) |
+			periph->layout->cmd);
+
+	return parent_rate >> shift;
+}
+
+static const struct clk_ops sam9x5_peripheral_ops = {
+	.enable = clk_sam9x5_peripheral_enable,
+	.disable = clk_sam9x5_peripheral_disable,
+	.get_rate = clk_sam9x5_peripheral_get_rate,
+	.set_rate = clk_sam9x5_peripheral_set_rate,
+};
+
+struct clk *
+at91_clk_register_sam9x5_peripheral(void __iomem *base,
+				    const struct clk_pcr_layout *layout,
+				    const char *name, const char *parent_name,
+				    u32 id, const struct clk_range *range)
+{
+	struct clk_sam9x5_peripheral *periph;
+	struct clk *clk;
+	int ret;
+
+	if (!base || !layout || !name || !parent_name || !range)
+		return ERR_PTR(-EINVAL);
+
+	periph = kzalloc(sizeof(*periph), GFP_KERNEL);
+	if (!periph)
+		return ERR_PTR(-ENOMEM);
+
+	periph->id = id;
+	periph->base = base;
+	periph->layout = layout;
+	periph->range = *range;
+
+	clk = &periph->clk;
+	clk->flags = CLK_GET_RATE_NOCACHE;
+	ret = clk_register(clk, UBOOT_DM_CLK_AT91_SAM9X5_PERIPH, name,
+			   parent_name);
+	if (ret) {
+		kfree(periph);
+		clk = ERR_PTR(ret);
+	}
+
+	return clk;
+}
+
+U_BOOT_DRIVER(at91_sam9x5_periph_clk) = {
+	.name = UBOOT_DM_CLK_AT91_SAM9X5_PERIPH,
+	.id = UCLASS_CLK,
+	.ops = &sam9x5_peripheral_ops,
+	.flags = DM_FLAG_PRE_RELOC,
 };

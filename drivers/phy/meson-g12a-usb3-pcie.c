@@ -10,12 +10,14 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <malloc.h>
 #include <regmap.h>
 #include <errno.h>
 #include <asm/io.h>
 #include <reset.h>
 #include <bitfield.h>
 #include <generic-phy.h>
+#include <linux/delay.h>
 
 #include <linux/bitops.h>
 #include <linux/compat.h>

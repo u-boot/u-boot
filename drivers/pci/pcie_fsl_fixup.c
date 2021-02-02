@@ -35,7 +35,7 @@ static void ft_fsl_pcie_setup(void *blob, struct fsl_pcie *pcie)
 }
 
 /* Fixup Kernel DT for PCIe */
-void pci_of_setup(void *blob, bd_t *bd)
+void pci_of_setup(void *blob, struct bd_info *bd)
 {
 	struct fsl_pcie *pcie;
 
@@ -44,7 +44,7 @@ void pci_of_setup(void *blob, bd_t *bd)
 }
 
 #else
-void pci_of_setup(void *blob, bd_t *bd)
+void pci_of_setup(void *blob, struct bd_info *bd)
 {
 }
 #endif

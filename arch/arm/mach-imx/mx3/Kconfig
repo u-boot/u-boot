@@ -29,6 +29,5 @@ config MX31_CLK32
          Frequency in Hz of the low frequency input clock. Typically
 	 32768 or 32000 Hz.
 
-source "board/freescale/mx31pdk/Kconfig"
 
 endif

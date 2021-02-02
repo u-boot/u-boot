@@ -4,8 +4,8 @@
  *
  */
 
-#ifndef _DT_BINDINGS_VERSAL_CLK_H
-#define _DT_BINDINGS_VERSAL_CLK_H
+#ifndef _DT_BINDINGS_CLK_VERSAL_H
+#define _DT_BINDINGS_CLK_VERSAL_H
 
 #define PMC_PLL					1
 #define APU_PLL					2

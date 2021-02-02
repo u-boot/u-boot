@@ -7,11 +7,16 @@
 #define	_SPL_H_
 
 #include <binman_sym.h>
+#include <linker_lists.h>
 
 /* Platform-specific defines */
 #include <linux/compiler.h>
+#include <asm/global_data.h>
 #include <asm/spl.h>
 #include <handoff.h>
+
+struct blk_desc;
+struct image_header;
 
 /* Value in r0 indicates we booted from U-Boot */
 #define UBOOT_NOT_LOADED_FROM_SPL	0x13578642
@@ -21,6 +26,9 @@
 #define MMCSD_MODE_RAW		1
 #define MMCSD_MODE_FS		2
 #define MMCSD_MODE_EMMCBOOT	3
+
+struct blk_desc;
+struct image_header;
 
 /*
  * u_boot_first_phase() - check if this is the first U-Boot phase
@@ -147,7 +155,7 @@ struct spl_image_info {
 #endif
 };
 
-/*
+/**
  * Information required to load data from a device
  *
  * @dev: Pointer to the device, e.g. struct mmc *
@@ -169,10 +177,29 @@ struct spl_load_info {
  * We need to know the position of U-Boot in memory so we can jump to it. We
  * allow any U-Boot binary to be used (u-boot.bin, u-boot-nodtb.bin,
  * u-boot.img), hence the '_any'. These is no checking here that the correct
- * image is found. For * example if u-boot.img is used we don't check that
+ * image is found. For example if u-boot.img is used we don't check that
  * spl_parse_image_header() can parse a valid header.
+ *
+ * Similarly for SPL, so that TPL can jump to SPL.
  */
 binman_sym_extern(ulong, u_boot_any, image_pos);
+binman_sym_extern(ulong, u_boot_any, size);
+binman_sym_extern(ulong, spl, image_pos);
+binman_sym_extern(ulong, spl, size);
+
+/**
+ * spl_get_image_pos() - get the image position of the next phase
+ *
+ * This returns the image position to use to load the next phase of U-Boot
+ */
+ulong spl_get_image_pos(void);
+
+/**
+ * spl_get_image_size() - get the size of the next phase
+ *
+ * This returns the size to use to load the next phase of U-Boot
+ */
+ulong spl_get_image_size(void);
 
 /**
  * spl_load_simple_fit_skip_processing() - Hook to allow skipping the FIT
@@ -201,6 +228,19 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 #define SPL_FIT_FOUND		2
 
 /**
+ * spl_load_legacy_img() - Loads a legacy image from a device.
+ * @spl_image:	Image description to set up
+ * @load:	Structure containing the information required to load data.
+ * @header:	Pointer to image header (including appended image)
+ *
+ * Reads an legacy image from the device. Loads u-boot image to
+ * specified load address.
+ * Returns 0 on success.
+ */
+int spl_load_legacy_img(struct spl_image_info *spl_image,
+			struct spl_load_info *load, ulong header);
+
+/**
  * spl_load_imx_container() - Loads a imx container image from a device.
  * @spl_image:	Image description to set up
  * @info:	Structure containing the information required to load data.
@@ -215,8 +255,36 @@ int spl_load_imx_container(struct spl_image_info *spl_image,
 /* SPL common functions */
 void preloader_console_init(void);
 u32 spl_boot_device(void);
-u32 spl_boot_mode(const u32 boot_device);
-int spl_boot_partition(const u32 boot_device);
+
+/**
+ * spl_mmc_boot_mode() - Lookup function for the mode of an MMC boot source.
+ * @boot_device:	ID of the device which the MMC driver wants to read
+ *			from.  Common values are e.g. BOOT_DEVICE_MMC1,
+ *			BOOT_DEVICE_MMC2, BOOT_DEVICE_MMC2_2.
+ *
+ * This function should return one of MMCSD_MODE_FS, MMCSD_MODE_EMMCBOOT, or
+ * MMCSD_MODE_RAW for each MMC boot source which is defined for the target.  The
+ * boot_device parameter tells which device the MMC driver is interested in.
+ *
+ * If not overridden, it is weakly defined in common/spl/spl_mmc.c.
+ *
+ * Note:  It is important to use the boot_device parameter instead of e.g.
+ * spl_boot_device() as U-Boot is not always loaded from the same device as SPL.
+ */
+u32 spl_mmc_boot_mode(const u32 boot_device);
+
+/**
+ * spl_mmc_boot_partition() - MMC partition to load U-Boot from.
+ * @boot_device:	ID of the device which the MMC driver wants to load
+ *			U-Boot from.
+ *
+ * This function should return the partition number which the SPL
+ * should load U-Boot from (on the given boot_device) when
+ * CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION is set.
+ *
+ * If not overridden, it is weakly defined in common/spl/spl_mmc.c.
+ */
+int spl_mmc_boot_partition(const u32 boot_device);
 void spl_set_bd(void);
 
 /**
@@ -250,6 +318,7 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 void spl_board_prepare_for_linux(void);
 void spl_board_prepare_for_boot(void);
 int spl_board_ubi_load_image(u32 boot_device);
+int spl_board_boot_device(u32 boot_device);
 
 /**
  * jump_to_image_linux() - Jump to a Linux kernel from SPL
@@ -434,6 +503,20 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 		 int raw_part,
 		 unsigned long raw_sect);
 
+/**
+ * spl_usb_load() - Load an image file from USB mass storage
+ *
+ * @param spl_image	Image data filled in by loading process
+ * @param bootdev	Describes which device to load from
+ * @param raw_part	Fat partition to load from
+ * @param filename	Name of file to load
+ *
+ * @return 0 on success, otherwise error code
+ */
+int spl_usb_load(struct spl_image_info *spl_image,
+		 struct spl_boot_device *bootdev,
+		 int partition, const char *filename);
+
 int spl_ymodem_load_image(struct spl_image_info *spl_image,
 			  struct spl_boot_device *bootdev);
 
@@ -517,4 +600,5 @@ void spl_perform_fixups(struct spl_image_info *spl_image);
  */
 struct image_header *spl_get_load_buffer(ssize_t offset, size_t size);
 
+void spl_save_restore_data(void);
 #endif

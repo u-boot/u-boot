@@ -5,7 +5,9 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <i2c.h>
 #include <power/fan53555.h>

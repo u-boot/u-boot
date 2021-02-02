@@ -24,6 +24,9 @@ enum env_flags_varaccess {
 	env_flags_varaccess_readonly,
 	env_flags_varaccess_writeonce,
 	env_flags_varaccess_changedefault,
+#ifdef CONFIG_ENV_WRITEABLE_LIST
+	env_flags_varaccess_writeable,
+#endif
 	env_flags_varaccess_end
 };
 
@@ -173,6 +176,7 @@ int env_flags_validate(const struct env_entry *item, const char *newval,
 #define ENV_FLAGS_VARACCESS_PREVENT_CREATE		0x00000010
 #define ENV_FLAGS_VARACCESS_PREVENT_OVERWR		0x00000020
 #define ENV_FLAGS_VARACCESS_PREVENT_NONDEF_OVERWR	0x00000040
-#define ENV_FLAGS_VARACCESS_BIN_MASK			0x00000078
+#define ENV_FLAGS_VARACCESS_WRITEABLE			0x00000080
+#define ENV_FLAGS_VARACCESS_BIN_MASK			0x000000f8
 
 #endif /* __ENV_FLAGS_H__ */

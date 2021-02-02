@@ -26,7 +26,7 @@ struct arc_timer_priv {
 		uint timer_id;
 };
 
-static int arc_timer_get_count(struct udevice *dev, u64 *count)
+static u64 arc_timer_get_count(struct udevice *dev)
 {
 	u32 val = 0;
 	struct arc_timer_priv *priv = dev_get_priv(dev);
@@ -39,9 +39,7 @@ static int arc_timer_get_count(struct udevice *dev, u64 *count)
 		val = read_aux_reg(ARC_AUX_TIMER1_CNT);
 		break;
 	}
-	*count = timer_conv_64(val);
-
-	return 0;
+	return timer_conv_64(val);
 }
 
 static int arc_timer_probe(struct udevice *dev)

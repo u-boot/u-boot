@@ -6,6 +6,7 @@
 #include <common.h>
 #include <errno.h>
 #include <image.h>
+#include <log.h>
 #include <linux/libfdt.h>
 #include <spl.h>
 

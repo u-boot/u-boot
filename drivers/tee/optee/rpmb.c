@@ -8,6 +8,7 @@
 #include <log.h>
 #include <tee.h>
 #include <mmc.h>
+#include <dm/device_compat.h>
 
 #include "optee_msg.h"
 #include "optee_private.h"

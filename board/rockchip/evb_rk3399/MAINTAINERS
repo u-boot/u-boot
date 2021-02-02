@@ -42,6 +42,13 @@ S:	Maintained
 F:	configs/nanopi-m4-rk3399_defconfig
 F:	arch/arm/dts/rk3399-nanopi-m4-u-boot.dtsi
 
+NANOPI-M4-2GB
+M:	Jagan Teki <jagan@amarulasolutions.com>
+M:	Deepak Das <deepakdas.linux@gmail.com>
+S:	Maintained
+F:	configs/nanopi-m4-2gb-rk3399_defconfig
+F:	arch/arm/dts/rk3399-nanopi-m4-2gb-u-boot.dtsi
+
 NANOPI-NEO4
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
@@ -55,15 +62,17 @@ F:	configs/orangepi-rk3399_defconfig
 F:	arch/arm/dts/rk3399-u-boot.dtsi
 F:	arch/arm/dts/rk3399-orangepi-u-boot.dtsi
 
-ROC-RK3399-PC
-M:	Levin Du <djw@t-chip.com.cn>
-S:	Maintained
-F:	configs/roc-pc-rk3399_defconfig
-F:	arch/arm/dts/rk3399-roc-pc-u-boot.dtsi
-
 ROCK-PI-4
 M:	Akash Gajjar <akash@openedev.com>
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
 F:	configs/rock-pi-4-rk3399_defconfig
 F:	arch/arm/dts/rk3399-rock-pi-4-u-boot.dtsi
+F:	configs/rock-pi-4c-rk3399_defconfig
+F:	arch/arm/dts/rk3399-rock-pi-4c-u-boot.dtsi
+
+ROCK-PI-N10
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/rock-pi-n10-rk3399pro_defconfig
+F:	arch/arm/dts/rk3399pro-rock-pi-n10-u-boot.dtsi

@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <init.h>
+#include <log.h>
+#include <net.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/immap_86xx.h>
@@ -12,6 +14,7 @@
 #include <fsl_ddr_sdram.h>
 #include <asm/fsl_serdes.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <netdev.h>
@@ -122,7 +125,7 @@ void pci_init_board(void)
 
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	int off;
 	u64 *tmp;
@@ -226,7 +229,7 @@ get_board_sys_clk(ulong dummy)
 	return val;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	/* Initialize TSECs */
 	cpu_eth_init(bis);

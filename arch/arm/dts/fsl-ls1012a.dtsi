@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
+ * Copyright 2020 NXP
  * Copyright 2016 Freescale Semiconductor
  */
 
@@ -107,18 +108,16 @@
 		};
 
 		qspi: quadspi@1550000 {
-			compatible = "fsl,vf610-qspi";
+			compatible = "fsl,ls1021a-qspi";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0x0 0x1550000 0x0 0x10000>,
 				<0x0 0x40000000 0x0 0x4000000>;
 			reg-names = "QuadSPI", "QuadSPI-memory";
-			num-cs = <1>;
-			big-endian;
 			status = "disabled";
 		};
 
-		pcie@3400000 {
+		pcie1: pcie@3400000 {
 			compatible = "fsl,ls-pcie", "snps,dw-pcie";
 			reg = <0x00 0x03400000 0x0 0x80000   /* dbi registers */
 			       0x00 0x03480000 0x0 0x40000   /* lut registers */

@@ -8,6 +8,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 /*
  * High Level Configuration Options
  */
@@ -90,8 +92,6 @@
 /*
  * Memory test
  */
-#define CONFIG_SYS_MEMTEST_START	0x00001000 /* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x07f00000
 
 /*
  * The reserved memory
@@ -293,7 +293,6 @@ void fpga_control_clear(unsigned int bus, int pin);
 /*
  * Software (bit-bang) MII driver configuration
  */
-#define CONFIG_BITBANGMII		/* bit-bang MII PHY management */
 #define CONFIG_BITBANGMII_MULTI
 
 /*
@@ -356,10 +355,6 @@ void fpga_control_clear(unsigned int bus, int pin);
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
 /*
- * Command line configuration.
- */
-
-/*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LOAD_ADDR		0x2000000 /* default load address */
@@ -379,8 +374,6 @@ void fpga_control_clear(unsigned int bus, int pin);
 /*
  * Environment Configuration
  */
-
-#define CONFIG_ENV_OVERWRITE
 
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_HAS_ETH0

@@ -5,9 +5,14 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <env.h>
+#include <image.h>
+#include <init.h>
+#include <log.h>
 #include <serial.h>
 #include <spl.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -283,7 +288,7 @@ static struct fsl_esdhc_cfg usdhc_cfg = {
 	.max_bus_width = 8,
 };
 
-int board_mmc_init(bd_t *bd)
+int board_mmc_init(struct bd_info *bd)
 {
 	displ5_set_iomux_usdhc_spl();
 

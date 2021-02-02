@@ -5,12 +5,13 @@
  */
 
 #include <common.h>
+#include <net.h>
 #include <netdev.h>
 #include <fm_eth.h>
 #include <fsl_mdio.h>
 #include <phy.h>
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int ret = 0;
 #ifdef CONFIG_FMAN_ENET

@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
+/*
+ * Copyright (C) 2019 Marek Vasut <marex@denx.de>
+ */
+
+#include "stm32mp15xx-dhcom.dtsi"
+
+/ {
+	model = "STMicroelectronics STM32MP15xx DHCOM Premium Developer Kit (2)";
+	compatible = "dh,stm32mp15xx-dhcom-pdk2", "st,stm32mp15x";
+
+	aliases {
+		serial0 = &uart4;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+};

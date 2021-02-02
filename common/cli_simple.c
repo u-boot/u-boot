@@ -14,6 +14,7 @@
 #include <command.h>
 #include <console.h>
 #include <env.h>
+#include <log.h>
 #include <linux/ctype.h>
 
 #define DEBUG_PARSER	0	/* set to 1 to debug */

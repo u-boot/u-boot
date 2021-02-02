@@ -49,4 +49,7 @@ config PKCS7_MESSAGE_PARSER
 	  This option provides support for parsing PKCS#7 format messages for
 	  signature data and provides the ability to verify the signature.
 
+config PKCS7_VERIFY
+	bool
+
 endif # ASYMMETRIC_KEY_TYPE

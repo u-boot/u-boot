@@ -1,13 +1,14 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
- * Author(s): Patrice Chotard, <patrice.chotard@st.com> for STMicroelectronics.
+ * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
 #ifndef __DWC3_STI_UBOOT_H_
 #define __DWC3_STI_UBOOT_H_
 
 /* glue registers */
+#include <linux/bitops.h>
 #define CLKRST_CTRL		0x00
 #define AUX_CLK_EN		BIT(0)
 #define SW_PIPEW_RESET_N	BIT(4)

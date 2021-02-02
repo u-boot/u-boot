@@ -15,11 +15,13 @@
  */
 #include <common.h>
 #include <cpu_func.h>
+#include <env.h>
 #include <init.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux-mx25.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -12,10 +12,10 @@
 #include "reiserfs_private.h"
 
 static struct blk_desc *reiserfs_blk_desc;
-static disk_partition_t *part_info;
+static struct disk_partition *part_info;
 
 
-void reiserfs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info)
+void reiserfs_set_blk_dev(struct blk_desc *rbdd, struct disk_partition *info)
 {
 	reiserfs_blk_desc = rbdd;
 	part_info = info;

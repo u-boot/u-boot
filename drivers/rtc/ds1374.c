@@ -58,7 +58,7 @@
 #define RTC_CTL_BIT_RS2			(1<<2) /* Bit 2/2 - Rate Select square wave output */
 #define RTC_CTL_BIT_WDSTR		(1<<3) /* Bit 3 - Watchdog Reset Steering */
 #define RTC_CTL_BIT_BBSQW		(1<<4) /* Bit 4 - Battery-Backed Square-Wave */
-#define RTC_CTL_BIT_WD_ALM		(1<<5) /* Bit 5 - Watchdoc/Alarm Counter Select */
+#define RTC_CTL_BIT_WD_ALM		(1<<5) /* Bit 5 - Watchdog/Alarm Counter Select */
 #define RTC_CTL_BIT_WACE		(1<<6) /* Bit 6 - Watchdog/Alarm Counter Enable WACE*/
 #define RTC_CTL_BIT_EN_OSC		(1<<7) /* Bit 7 - Enable Oscilator */
 

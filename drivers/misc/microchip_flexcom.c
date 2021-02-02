@@ -7,8 +7,10 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <misc.h>
 #include <asm/io.h>
+#include <linux/err.h>
 
 struct microchip_flexcom_regs {
 	u32 cr;
@@ -24,7 +26,7 @@ static int microchip_flexcom_ofdata_to_platdata(struct udevice *dev)
 	struct microchip_flexcom_platdata *plat = dev_get_platdata(dev);
 	int ret;
 
-	plat->regs = map_physmem(devfdt_get_addr(dev),
+	plat->regs = map_physmem(dev_read_addr(dev),
 				 sizeof(struct microchip_flexcom_regs),
 				MAP_NOCACHE);
 

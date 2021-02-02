@@ -15,8 +15,6 @@
 #include <configs/ti_am335x_common.h>
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_SBC_PHYCORE_AM335X
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 
 #ifdef CONFIG_MTD_RAW_NAND
 #define NANDARGS \

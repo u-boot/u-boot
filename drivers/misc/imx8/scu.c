@@ -6,12 +6,14 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <dm/device-internal.h>
 #include <asm/arch/sci/sci.h>
+#include <linux/bitops.h>
 #include <linux/iopoll.h>
 #include <misc.h>
 
@@ -74,7 +76,7 @@ static int mu_hal_receivemsg(struct mu_type *base, u32 reg_index, u32 *msg)
 	assert(reg_index < MU_TR_COUNT);
 
 	/* Wait RX register to be full. */
-	ret = readl_poll_timeout(&base->sr, val, val & mask, 10000);
+	ret = readl_poll_timeout(&base->sr, val, val & mask, 1000000);
 	if (ret < 0) {
 		printf("%s timeout\n", __func__);
 		return -ETIMEDOUT;
@@ -185,7 +187,7 @@ static int imx8_scu_probe(struct udevice *dev)
 
 	debug("%s(dev=%p) (plat=%p)\n", __func__, dev, plat);
 
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
