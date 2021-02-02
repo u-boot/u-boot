@@ -19,6 +19,7 @@
 struct efi_system_partition efi_system_partition;
 
 const efi_guid_t efi_block_io_guid = EFI_BLOCK_IO_PROTOCOL_GUID;
+const efi_guid_t efi_system_partition_guid = PARTITION_SYSTEM_GUID;
 
 /**
  * struct efi_disk_obj - EFI disk object
@@ -362,6 +363,7 @@ static efi_status_t efi_disk_add_dev(
 {
 	struct efi_disk_obj *diskobj;
 	struct efi_object *handle;
+	const efi_guid_t *guid = NULL;
 	efi_status_t ret;
 
 	/* Don't add empty devices */
@@ -400,6 +402,8 @@ static efi_status_t efi_disk_add_dev(
 		efi_free_pool(node);
 		diskobj->offset = part_info->start;
 		diskobj->media.last_block = part_info->size - 1;
+		if (part_info->bootable & PART_EFI_SYSTEM_PARTITION)
+			guid = &efi_system_partition_guid;
 	} else {
 		diskobj->dp = efi_dp_from_part(desc, part);
 		diskobj->offset = 0;
@@ -417,7 +421,8 @@ static efi_status_t efi_disk_add_dev(
 	handle = &diskobj->header;
 	ret = EFI_CALL(efi_install_multiple_protocol_interfaces(
 			&handle, &efi_guid_device_path, diskobj->dp,
-			&efi_block_io_guid, &diskobj->ops, NULL));
+			&efi_block_io_guid, &diskobj->ops,
+			guid, NULL, NULL));
 	if (ret != EFI_SUCCESS)
 		return ret;
 
@@ -467,13 +472,7 @@ static efi_status_t efi_disk_add_dev(
 
 	/* Store first EFI system partition */
 	if (part && !efi_system_partition.if_type) {
-		int r;
-		struct disk_partition info;
-
-		r = part_get_info(desc, part, &info);
-		if (r)
-			return EFI_DEVICE_ERROR;
-		if (info.bootable & PART_EFI_SYSTEM_PARTITION) {
+		if (part_info->bootable & PART_EFI_SYSTEM_PARTITION) {
 			efi_system_partition.if_type = desc->if_type;
 			efi_system_partition.devnum = desc->devnum;
 			efi_system_partition.part = part;
