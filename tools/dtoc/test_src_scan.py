@@ -318,3 +318,48 @@ UCLASS_DRIVER(i2c) = {
             scan._parse_uclass_driver('file.c', buff)
         self.assertIn("file.c: Cannot parse uclass ID in driver 'i2c'",
                       str(exc.exception))
+
+    def test_struct_scan(self):
+        """Test collection of struct info"""
+        buff = '''
+/* some comment */
+struct some_struct1 {
+	struct i2c_msg *msgs;
+	uint nmsgs;
+};
+'''
+        scan = src_scan.Scanner(None, False, None)
+        scan._basedir = os.path.join(OUR_PATH, '..', '..')
+        scan._parse_structs('arch/arm/include/asm/file.h', buff)
+        self.assertIn('some_struct1', scan._structs)
+        struc = scan._structs['some_struct1']
+        self.assertEqual('some_struct1', struc.name)
+        self.assertEqual('asm/file.h', struc.fname)
+
+        buff = '''
+/* another comment */
+struct another_struct {
+	int speed_hz;
+	int max_transaction_bytes;
+};
+'''
+        scan._parse_structs('include/file2.h', buff)
+        self.assertIn('another_struct', scan._structs)
+        struc = scan._structs['another_struct']
+        self.assertEqual('another_struct', struc.name)
+        self.assertEqual('file2.h', struc.fname)
+
+        self.assertEqual(2, len(scan._structs))
+
+        self.assertEqual("Struct(name='another_struct', fname='file2.h')",
+                         str(struc))
+
+    def test_struct_scan_errors(self):
+        """Test scanning a header file with an invalid unicode file"""
+        output = tools.GetOutputFilename('output.h')
+        tools.WriteFile(output, b'struct this is a test \x81 of bad unicode')
+
+        scan = src_scan.Scanner(None, False, None)
+        with test_util.capture_sys_output() as (stdout, _):
+            scan.scan_header(output)
+        self.assertIn('due to unicode error', stdout.getvalue())

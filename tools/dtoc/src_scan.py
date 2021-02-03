@@ -126,6 +126,22 @@ class UclassDriver:
         return hash(self.uclass_id)
 
 
+class Struct:
+    """Holds information about a struct definition
+
+    Attributes:
+        name: Struct name, e.g. 'fred' if the struct is 'struct fred'
+        fname: Filename containing the struct, in a format that C files can
+            include, e.g. 'asm/clk.h'
+    """
+    def __init__(self, name, fname):
+        self.name = name
+        self.fname =fname
+
+    def __repr__(self):
+        return ("Struct(name='%s', fname='%s')" % (self.name, self.fname))
+
+
 class Scanner:
     """Scanning of the U-Boot source tree
 
@@ -151,6 +167,9 @@ class Scanner:
         _uclass: Dict of uclass information
             key: uclass name, e.g. 'UCLASS_I2C'
             value: UClassDriver
+        _structs: Dict of all structs found in U-Boot:
+            key: Name of struct
+            value: Struct object
     """
     def __init__(self, basedir, warning_disabled, drivers_additional):
         """Set up a new Scanner
@@ -167,6 +186,7 @@ class Scanner:
         self._of_match = {}
         self._compat_to_driver = {}
         self._uclass = {}
+        self._structs = {}
 
     def get_normalized_compat_name(self, node):
         """Get a node's normalized compat name
@@ -203,6 +223,41 @@ class Scanner:
                   % (compat_list_c[0]))
 
         return compat_list_c[0], compat_list_c[1:]
+
+    def _parse_structs(self, fname, buff):
+        """Parse a H file to extract struct definitions contained within
+
+        This parses 'struct xx {' definitions to figure out what structs this
+        header defines.
+
+        Args:
+            buff (str): Contents of file
+            fname (str): Filename (to use when printing errors)
+        """
+        structs = {}
+
+        re_struct = re.compile('^struct ([a-z0-9_]+) {$')
+        re_asm = re.compile('../arch/[a-z0-9]+/include/asm/(.*)')
+        prefix = ''
+        for line in buff.splitlines():
+            # Handle line continuation
+            if prefix:
+                line = prefix + line
+                prefix = ''
+            if line.endswith('\\'):
+                prefix = line[:-1]
+                continue
+
+            m_struct = re_struct.match(line)
+            if m_struct:
+                name = m_struct.group(1)
+                include_dir = os.path.join(self._basedir, 'include')
+                rel_fname = os.path.relpath(fname, include_dir)
+                m_asm = re_asm.match(rel_fname)
+                if m_asm:
+                    rel_fname = 'asm/' + m_asm.group(1)
+                structs[name] = Struct(name, rel_fname)
+        self._structs.update(structs)
 
     @classmethod
     def _get_re_for_member(cls, member):
@@ -482,6 +537,29 @@ class Scanner:
                     continue
                 self._driver_aliases[alias[1]] = alias[0]
 
+    def scan_header(self, fname):
+        """Scan a header file to build a list of struct definitions
+
+        It updates the following members:
+            _structs - updated with new Struct records for each struct found
+                in the file
+
+        Args
+            fname: header filename to scan
+        """
+        with open(fname, encoding='utf-8') as inf:
+            try:
+                buff = inf.read()
+            except UnicodeDecodeError:
+                # This seems to happen on older Python versions
+                print("Skipping file '%s' due to unicode error" % fname)
+                return
+
+            # If this file has any U_BOOT_DRIVER() declarations, process it to
+            # obtain driver information
+            if 'struct' in buff:
+                self._parse_structs(fname, buff)
+
     def scan_drivers(self):
         """Scan the driver folders to build a list of driver names and aliases
 
@@ -494,9 +572,11 @@ class Scanner:
             if rel_path.startswith('build') or rel_path.startswith('.git'):
                 continue
             for fname in filenames:
-                if not fname.endswith('.c'):
-                    continue
-                self.scan_driver(dirpath + '/' + fname)
+                pathname = dirpath + '/' + fname
+                if fname.endswith('.c'):
+                    self.scan_driver(pathname)
+                elif fname.endswith('.h'):
+                    self.scan_header(pathname)
 
         for fname in self._drivers_additional:
             if not isinstance(fname, str) or len(fname) == 0:
