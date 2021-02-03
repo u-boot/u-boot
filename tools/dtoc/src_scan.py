@@ -331,7 +331,7 @@ class Scanner:
 
         # Collect the driver name and associated Driver
         driver = None
-        re_driver = re.compile(r'UCLASS_DRIVER\((.*)\)')
+        re_driver = re.compile(r'^UCLASS_DRIVER\((.*)\)')
 
         # Collect the uclass ID, e.g. 'UCLASS_SPI'
         re_id = re.compile(r'\s*\.id\s*=\s*(UCLASS_[A-Z0-9_]+)')
@@ -427,7 +427,7 @@ class Scanner:
 
         # Collect the driver info
         driver = None
-        re_driver = re.compile(r'U_BOOT_DRIVER\((.*)\)')
+        re_driver = re.compile(r'^U_BOOT_DRIVER\((.*)\)')
 
         # Collect the uclass ID, e.g. 'UCLASS_SPI'
         re_id = re.compile(r'\s*\.id\s*=\s*(UCLASS_[A-Z0-9_]+)')
