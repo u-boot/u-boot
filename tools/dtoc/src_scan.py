@@ -68,6 +68,8 @@ class Driver:
             e.g. 'pci_child_plat'
         used (bool): True if the driver is used by the structs being output
         phase (str): Which phase of U-Boot to use this driver
+        headers (list): List of header files needed for this driver (each a str)
+            e.g. ['<asm/cpu.h>']
     """
     def __init__(self, name, fname):
         self.name = name
@@ -80,6 +82,7 @@ class Driver:
         self.child_plat = ''
         self.used = False
         self.phase = ''
+        self.headers = []
 
     def __eq__(self, other):
         return (self.name == other.name and
@@ -434,6 +437,7 @@ class Scanner:
             r'\.of_match\s*=\s*(of_match_ptr\()?([a-z0-9_]+)(\))?,')
 
         re_phase = re.compile('^\s*DM_PHASE\((.*)\).*$')
+        re_hdr = re.compile('^\s*DM_HEADER\((.*)\).*$')
 
         # Matches the struct name for priv, plat
         re_priv = self._get_re_for_member('priv_auto')
@@ -462,6 +466,7 @@ class Scanner:
                 m_cplat = re_child_plat.match(line)
                 m_cpriv = re_child_priv.match(line)
                 m_phase = re_phase.match(line)
+                m_hdr = re_hdr.match(line)
                 if m_priv:
                     driver.priv = m_priv.group(1)
                 elif m_plat:
@@ -476,6 +481,8 @@ class Scanner:
                     compat = m_of_match.group(2)
                 elif m_phase:
                     driver.phase = m_phase.group(1)
+                elif m_hdr:
+                    driver.headers.append(m_hdr.group(1))
                 elif '};' in line:
                     if driver.uclass_id and compat:
                         if compat not in of_match:

@@ -386,6 +386,24 @@ struct driver {
 #define DM_PHASE(_phase)
 
 /**
+ * Declare a macro to declare a header needed for a driver. Often the correct
+ * header can be found automatically, but only for struct declarations. For
+ * enums and #defines used in the driver declaration and declared in a different
+ * header from the structs, this macro must be used.
+ *
+ * This macro produces no code but its information will be parsed by dtoc. The
+ * macro can be used multiple times with different headers, for the same driver.
+ * Put it within the U_BOOT_DRIVER() declaration, e.g.:
+ *
+ * U_BOOT_DRIVER(cpu) = {
+ *	.name = ...
+ *	...
+ *	DM_HEADER(<asm/cpu.h>)
+ * };
+ */
+#define DM_HEADER(_hdr)
+
+/**
  * dev_get_plat() - Get the platform data for a device
  *
  * This checks that dev is not NULL, but no other checks for now
