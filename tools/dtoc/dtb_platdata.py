@@ -786,18 +786,45 @@ class DtbPlatdata():
             uclass.node_refs[-1] = ref
             uclass.node_refs[len(uclass.devs)] = ref
 
-    def output_node(self, node):
+    def output_node_plat(self, node):
         """Output the C code for a node
 
         Args:
             node (fdt.Node): node to output
         """
-        self.buf('/* Node %s index %d */\n' % (node.path, node.idx))
+        driver = node.driver
+        parent_driver = node.parent_driver
+
+        line1 = 'Node %s index %d' % (node.path, node.idx)
+        if driver:
+            self.buf('/*\n')
+            self.buf(' * %s\n' % line1)
+            self.buf(' * driver %s parent %s\n' % (driver.name,
+                parent_driver.name if parent_driver else 'None'))
+            self.buf(' */\n')
+        else:
+            self.buf('/* %s */\n' % line1)
 
         self._output_values(node)
         self._declare_device(node)
 
         self.out(''.join(self.get_buf()))
+
+    def check_instantiate(self, require):
+        """Check if self._instantiate is set to the required value
+
+        If not, this outputs a message into the current file
+
+        Args:
+            require: True to require --instantiate, False to require that it not
+                be enabled
+        """
+        if require != self._instantiate:
+            self.out(
+                '/* This file is not used: --instantiate was %senabled */\n' %
+                ('not ' if require else ''))
+            return False
+        return True
 
     def generate_plat(self):
         """Generate device defintions for the platform data
@@ -809,6 +836,8 @@ class DtbPlatdata():
         See the documentation in doc/driver-model/of-plat.rst for more
         information.
         """
+        if not self.check_instantiate(False):
+            return
         self.out('/* Allow use of U_BOOT_DRVINFO() in this file */\n')
         self.out('#define DT_PLAT_C\n')
         self.out('\n')
@@ -818,7 +847,7 @@ class DtbPlatdata():
         self.out('\n')
 
         for node in self._valid_nodes:
-            self.output_node(node)
+            self.output_node_plat(node)
 
         self.out(''.join(self.get_buf()))
 
