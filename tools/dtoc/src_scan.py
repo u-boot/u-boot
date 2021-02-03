@@ -70,6 +70,10 @@ class Driver:
         phase (str): Which phase of U-Boot to use this driver
         headers (list): List of header files needed for this driver (each a str)
             e.g. ['<asm/cpu.h>']
+        dups (list): Driver objects with the same name as this one, that were
+            found after this one
+        warn_dups (bool): True if the duplicates are not distinguisble using
+            the phase
     """
     def __init__(self, name, fname):
         self.name = name
@@ -83,6 +87,8 @@ class Driver:
         self.used = False
         self.phase = ''
         self.headers = []
+        self.dups = []
+        self.warn_dups = False
 
     def __eq__(self, other):
         return (self.name == other.name and
@@ -531,7 +537,21 @@ class Scanner:
                     self._driver_aliases[m_alias[2]] = m_alias[1]
 
         # Make the updates based on what we found
-        self._drivers.update(drivers)
+        for driver in drivers.values():
+            if driver.name in self._drivers:
+                orig = self._drivers[driver.name]
+                if self._phase:
+                    # If the original driver matches our phase, use it
+                    if orig.phase == self._phase:
+                        orig.dups.append(driver)
+                        continue
+
+                    # Otherwise use the new driver, which is assumed to match
+                else:
+                    # We have no way of distinguishing them
+                    driver.warn_dups = True
+                driver.dups.append(orig)
+            self._drivers[driver.name] = driver
         self._of_match.update(of_match)
 
     def scan_driver(self, fname):
@@ -617,6 +637,8 @@ class Scanner:
         This takes a list of nodes, finds the driver for each one and marks it
         as used.
 
+        If two used drivers have the same name, issue a warning.
+
         Args:
             nodes (list of None): Nodes that are in use
         """
@@ -626,3 +648,7 @@ class Scanner:
             driver = self._drivers.get(struct_name)
             if driver:
                 driver.used = True
+                if driver.dups and driver.warn_dups:
+                    print("Warning: Duplicate driver name '%s' (orig=%s, dups=%s)" %
+                          (driver.name, driver.fname,
+                           ', '.join([drv.fname for drv in driver.dups])))

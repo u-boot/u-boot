@@ -371,3 +371,98 @@ struct another_struct {
         with test_util.capture_sys_output() as (stdout, _):
             scan.scan_header(output)
         self.assertIn('due to unicode error', stdout.getvalue())
+
+    def setup_dup_drivers(self, name, phase=''):
+        """Set up for a duplcate test
+
+        Returns:
+            tuple:
+                Scanner to use
+                Driver record for first driver
+                Text of second driver declaration
+                Node for driver 1
+        """
+        driver1 = '''
+static const struct udevice_id test_ids[] = {
+	{ .compatible = "nvidia,tegra114-i2c", .data = TYPE_114 },
+	{ }
+};
+
+U_BOOT_DRIVER(%s) = {
+	.name	= "testing",
+	.id	= UCLASS_I2C,
+	.of_match = test_ids,
+	%s
+};
+''' % (name, 'DM_PHASE(%s)' % phase if phase else '')
+        driver2 = '''
+static const struct udevice_id test_ids[] = {
+	{ .compatible = "nvidia,tegra114-dvc" },
+	{ }
+};
+
+U_BOOT_DRIVER(%s) = {
+	.name	= "testing",
+	.id	= UCLASS_RAM,
+	.of_match = test_ids,
+};
+''' % name
+        scan = src_scan.Scanner(None, False, None, phase)
+        scan._parse_driver('file1.c', driver1)
+        self.assertIn(name, scan._drivers)
+        drv1 = scan._drivers[name]
+
+        prop = FakeProp()
+        prop.name = 'compatible'
+        prop.value = 'nvidia,tegra114-i2c'
+        node = FakeNode()
+        node.name = 'testing'
+        node.props = {'compatible': prop}
+
+        return scan, drv1, driver2, node
+
+    def test_dup_drivers(self):
+        """Test handling of duplicate drivers"""
+        name = 'nvidia_tegra114_i2c'
+        scan, drv1, driver2, node = self.setup_dup_drivers(name)
+        self.assertEqual('', drv1.phase)
+
+        # The driver should not have a duplicate yet
+        self.assertEqual([], drv1.dups)
+
+        scan._parse_driver('file2.c', driver2)
+
+        # The first driver should now be a duplicate of the second
+        drv2 = scan._drivers[name]
+        self.assertEqual('', drv2.phase)
+        self.assertEqual(1, len(drv2.dups))
+        self.assertEqual([drv1], drv2.dups)
+
+        # There is no way to distinguish them, so we should expect a warning
+        self.assertTrue(drv2.warn_dups)
+
+        # We should see a warning
+        with test_util.capture_sys_output() as (stdout, _):
+            scan.mark_used([node])
+        self.assertEqual(
+            "Warning: Duplicate driver name 'nvidia_tegra114_i2c' (orig=file2.c, dups=file1.c)",
+            stdout.getvalue().strip())
+
+    def test_dup_drivers_phase(self):
+        """Test handling of duplicate drivers but with different phases"""
+        name = 'nvidia_tegra114_i2c'
+        scan, drv1, driver2, node = self.setup_dup_drivers(name, 'spl')
+        scan._parse_driver('file2.c', driver2)
+        self.assertEqual('spl', drv1.phase)
+
+        # The second driver should now be a duplicate of the second
+        self.assertEqual(1, len(drv1.dups))
+        drv2 = drv1.dups[0]
+
+        # The phase is different, so we should not warn of dups
+        self.assertFalse(drv1.warn_dups)
+
+        # We should not see a warning
+        with test_util.capture_sys_output() as (stdout, _):
+            scan.mark_used([node])
+        self.assertEqual('', stdout.getvalue().strip())
