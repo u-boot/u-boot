@@ -207,9 +207,9 @@ class TestDtoc(unittest.TestCase):
         self.assertEqual(C_HEADER.splitlines() + [''], lines)
 
     struct_text = HEADER + '''
-struct dtd_sandbox_i2c_test {
+struct dtd_sandbox_i2c {
 };
-struct dtd_sandbox_pmic_test {
+struct dtd_sandbox_pmic {
 \tbool\t\tlow_power;
 \tfdt64_t\t\treg[2];
 };
@@ -229,22 +229,22 @@ struct dtd_sandbox_spl_test {
 
     platdata_text = C_HEADER + '''
 /* Node /i2c@0 index 0 */
-static struct dtd_sandbox_i2c_test dtv_i2c_at_0 = {
+static struct dtd_sandbox_i2c dtv_i2c_at_0 = {
 };
 U_BOOT_DRVINFO(i2c_at_0) = {
-\t.name\t\t= "sandbox_i2c_test",
+\t.name\t\t= "sandbox_i2c",
 \t.plat\t= &dtv_i2c_at_0,
 \t.plat_size\t= sizeof(dtv_i2c_at_0),
 \t.parent_idx\t= -1,
 };
 
 /* Node /i2c@0/pmic@9 index 1 */
-static struct dtd_sandbox_pmic_test dtv_pmic_at_9 = {
+static struct dtd_sandbox_pmic dtv_pmic_at_9 = {
 \t.low_power\t\t= true,
 \t.reg\t\t\t= {0x9, 0x0},
 };
 U_BOOT_DRVINFO(pmic_at_9) = {
-\t.name\t\t= "sandbox_pmic_test",
+\t.name\t\t= "sandbox_pmic",
 \t.plat\t= &dtv_pmic_at_9,
 \t.plat_size\t= sizeof(dtv_pmic_at_9),
 \t.parent_idx\t= 0,

@@ -45,12 +45,12 @@
 	};
 
 	i2c@0 {
-		compatible = "sandbox,i2c-test";
+		compatible = "sandbox,i2c";
 		u-boot,dm-pre-reloc;
 		#address-cells = <1>;
 		#size-cells = <0>;
 		pmic@9 {
-			compatible = "sandbox,pmic-test";
+			compatible = "sandbox,pmic";
 			u-boot,dm-pre-reloc;
 			reg = <9>;
 			low-power;
