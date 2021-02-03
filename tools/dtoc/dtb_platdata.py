@@ -639,7 +639,7 @@ class DtbPlatdata():
         """
         self.buf('U_BOOT_DRVINFO(%s) = {\n' % node.var_name)
         self.buf('\t.name\t\t= "%s",\n' % node.struct_name)
-        self.buf('\t.plat\t= &%s%s,\n' % (VAL_PREFIX, node.var_name))
+        self.buf('\t.plat\t\t= &%s%s,\n' % (VAL_PREFIX, node.var_name))
         self.buf('\t.plat_size\t= sizeof(%s%s),\n' %
                  (VAL_PREFIX, node.var_name))
         idx = -1
@@ -860,8 +860,22 @@ class DtbPlatdata():
         self.out('#include <dt-structs.h>\n')
         self.out('\n')
 
-        for node in self._valid_nodes:
-            self.output_node_plat(node)
+        if self._valid_nodes:
+            self.out('/*\n')
+            self.out(
+                " * driver_info declarations, ordered by 'struct driver_info' linker_list idx:\n")
+            self.out(' *\n')
+            self.out(' * idx  %-20s %-s\n' % ('driver_info', 'driver'))
+            self.out(' * ---  %-20s %-s\n' % ('-' * 20, '-' * 20))
+            for node in self._valid_nodes:
+                self.out(' * %3d: %-20s %-s\n' %
+                        (node.idx, node.var_name, node.struct_name))
+            self.out(' * ---  %-20s %-s\n' % ('-' * 20, '-' * 20))
+            self.out(' */\n')
+            self.out('\n')
+
+            for node in self._valid_nodes:
+                self.output_node_plat(node)
 
         self.out(''.join(self.get_buf()))
 

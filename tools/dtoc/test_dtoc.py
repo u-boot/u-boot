@@ -293,6 +293,19 @@ struct dtd_sandbox_spl_test {
 '''
     platdata_text = C_HEADER + '''
 /*
+ * driver_info declarations, ordered by 'struct driver_info' linker_list idx:
+ *
+ * idx  driver_info          driver
+ * ---  -------------------- --------------------
+ *   0: i2c_at_0             sandbox_i2c
+ *   1: pmic_at_9            sandbox_pmic
+ *   2: spl_test             sandbox_spl_test
+ *   3: spl_test2            sandbox_spl_test
+ *   4: spl_test3            sandbox_spl_test
+ * ---  -------------------- --------------------
+ */
+
+/*
  * Node /i2c@0 index 0
  * driver sandbox_i2c parent None
  */
@@ -300,7 +313,7 @@ static struct dtd_sandbox_i2c dtv_i2c_at_0 = {
 };
 U_BOOT_DRVINFO(i2c_at_0) = {
 \t.name\t\t= "sandbox_i2c",
-\t.plat\t= &dtv_i2c_at_0,
+\t.plat\t\t= &dtv_i2c_at_0,
 \t.plat_size\t= sizeof(dtv_i2c_at_0),
 \t.parent_idx\t= -1,
 };
@@ -315,7 +328,7 @@ static struct dtd_sandbox_pmic dtv_pmic_at_9 = {
 };
 U_BOOT_DRVINFO(pmic_at_9) = {
 \t.name\t\t= "sandbox_pmic",
-\t.plat\t= &dtv_pmic_at_9,
+\t.plat\t\t= &dtv_pmic_at_9,
 \t.plat_size\t= sizeof(dtv_pmic_at_9),
 \t.parent_idx\t= 0,
 };
@@ -338,7 +351,7 @@ static struct dtd_sandbox_spl_test dtv_spl_test = {
 };
 U_BOOT_DRVINFO(spl_test) = {
 \t.name\t\t= "sandbox_spl_test",
-\t.plat\t= &dtv_spl_test,
+\t.plat\t\t= &dtv_spl_test,
 \t.plat_size\t= sizeof(dtv_spl_test),
 \t.parent_idx\t= -1,
 };
@@ -360,7 +373,7 @@ static struct dtd_sandbox_spl_test dtv_spl_test2 = {
 };
 U_BOOT_DRVINFO(spl_test2) = {
 \t.name\t\t= "sandbox_spl_test",
-\t.plat\t= &dtv_spl_test2,
+\t.plat\t\t= &dtv_spl_test2,
 \t.plat_size\t= sizeof(dtv_spl_test2),
 \t.parent_idx\t= -1,
 };
@@ -376,7 +389,7 @@ static struct dtd_sandbox_spl_test dtv_spl_test3 = {
 };
 U_BOOT_DRVINFO(spl_test3) = {
 \t.name\t\t= "sandbox_spl_test",
-\t.plat\t= &dtv_spl_test3,
+\t.plat\t\t= &dtv_spl_test3,
 \t.plat_size\t= sizeof(dtv_spl_test3),
 \t.parent_idx\t= -1,
 };
@@ -431,6 +444,15 @@ struct dtd_sandbox_gpio {
             data = infile.read()
         self._check_strings(C_HEADER + '''
 /*
+ * driver_info declarations, ordered by 'struct driver_info' linker_list idx:
+ *
+ * idx  driver_info          driver
+ * ---  -------------------- --------------------
+ *   0: gpios_at_0           sandbox_gpio
+ * ---  -------------------- --------------------
+ */
+
+/*
  * Node /gpios@0 index 0
  * driver sandbox_gpio parent None
  */
@@ -441,7 +463,7 @@ static struct dtd_sandbox_gpio dtv_gpios_at_0 = {
 };
 U_BOOT_DRVINFO(gpios_at_0) = {
 \t.name\t\t= "sandbox_gpio",
-\t.plat\t= &dtv_gpios_at_0,
+\t.plat\t\t= &dtv_gpios_at_0,
 \t.plat_size\t= sizeof(dtv_gpios_at_0),
 \t.parent_idx\t= -1,
 };
@@ -470,12 +492,21 @@ struct dtd_invalid {
         with open(output) as infile:
             data = infile.read()
         self._check_strings(C_HEADER + '''
+/*
+ * driver_info declarations, ordered by 'struct driver_info' linker_list idx:
+ *
+ * idx  driver_info          driver
+ * ---  -------------------- --------------------
+ *   0: spl_test             invalid
+ * ---  -------------------- --------------------
+ */
+
 /* Node /spl-test index 0 */
 static struct dtd_invalid dtv_spl_test = {
 };
 U_BOOT_DRVINFO(spl_test) = {
 \t.name\t\t= "invalid",
-\t.plat\t= &dtv_spl_test,
+\t.plat\t\t= &dtv_spl_test,
 \t.plat_size\t= sizeof(dtv_spl_test),
 \t.parent_idx\t= -1,
 };
@@ -502,13 +533,26 @@ struct dtd_target {
         with open(output) as infile:
             data = infile.read()
         self._check_strings(C_HEADER + '''
+/*
+ * driver_info declarations, ordered by 'struct driver_info' linker_list idx:
+ *
+ * idx  driver_info          driver
+ * ---  -------------------- --------------------
+ *   0: phandle2_target      target
+ *   1: phandle3_target      target
+ *   2: phandle_source       source
+ *   3: phandle_source2      source
+ *   4: phandle_target       target
+ * ---  -------------------- --------------------
+ */
+
 /* Node /phandle2-target index 0 */
 static struct dtd_target dtv_phandle2_target = {
 \t.intval\t\t\t= 0x1,
 };
 U_BOOT_DRVINFO(phandle2_target) = {
 \t.name\t\t= "target",
-\t.plat\t= &dtv_phandle2_target,
+\t.plat\t\t= &dtv_phandle2_target,
 \t.plat_size\t= sizeof(dtv_phandle2_target),
 \t.parent_idx\t= -1,
 };
@@ -519,7 +563,7 @@ static struct dtd_target dtv_phandle3_target = {
 };
 U_BOOT_DRVINFO(phandle3_target) = {
 \t.name\t\t= "target",
-\t.plat\t= &dtv_phandle3_target,
+\t.plat\t\t= &dtv_phandle3_target,
 \t.plat_size\t= sizeof(dtv_phandle3_target),
 \t.parent_idx\t= -1,
 };
@@ -534,7 +578,7 @@ static struct dtd_source dtv_phandle_source = {
 };
 U_BOOT_DRVINFO(phandle_source) = {
 \t.name\t\t= "source",
-\t.plat\t= &dtv_phandle_source,
+\t.plat\t\t= &dtv_phandle_source,
 \t.plat_size\t= sizeof(dtv_phandle_source),
 \t.parent_idx\t= -1,
 };
@@ -546,7 +590,7 @@ static struct dtd_source dtv_phandle_source2 = {
 };
 U_BOOT_DRVINFO(phandle_source2) = {
 \t.name\t\t= "source",
-\t.plat\t= &dtv_phandle_source2,
+\t.plat\t\t= &dtv_phandle_source2,
 \t.plat_size\t= sizeof(dtv_phandle_source2),
 \t.parent_idx\t= -1,
 };
@@ -557,7 +601,7 @@ static struct dtd_target dtv_phandle_target = {
 };
 U_BOOT_DRVINFO(phandle_target) = {
 \t.name\t\t= "target",
-\t.plat\t= &dtv_phandle_target,
+\t.plat\t\t= &dtv_phandle_target,
 \t.plat_size\t= sizeof(dtv_phandle_target),
 \t.parent_idx\t= -1,
 };
@@ -588,6 +632,16 @@ struct dtd_target {
         with open(output) as infile:
             data = infile.read()
         self._check_strings(C_HEADER + '''
+/*
+ * driver_info declarations, ordered by 'struct driver_info' linker_list idx:
+ *
+ * idx  driver_info          driver
+ * ---  -------------------- --------------------
+ *   0: phandle_source2      source
+ *   1: phandle_target       target
+ * ---  -------------------- --------------------
+ */
+
 /* Node /phandle-source2 index 0 */
 static struct dtd_source dtv_phandle_source2 = {
 \t.clocks\t\t\t= {
@@ -595,7 +649,7 @@ static struct dtd_source dtv_phandle_source2 = {
 };
 U_BOOT_DRVINFO(phandle_source2) = {
 \t.name\t\t= "source",
-\t.plat\t= &dtv_phandle_source2,
+\t.plat\t\t= &dtv_phandle_source2,
 \t.plat_size\t= sizeof(dtv_phandle_source2),
 \t.parent_idx\t= -1,
 };
@@ -605,7 +659,7 @@ static struct dtd_target dtv_phandle_target = {
 };
 U_BOOT_DRVINFO(phandle_target) = {
 \t.name\t\t= "target",
-\t.plat\t= &dtv_phandle_target,
+\t.plat\t\t= &dtv_phandle_target,
 \t.plat_size\t= sizeof(dtv_phandle_target),
 \t.parent_idx\t= -1,
 };
@@ -622,13 +676,26 @@ U_BOOT_DRVINFO(phandle_target) = {
         with open(output) as infile:
             data = infile.read()
         self._check_strings(C_HEADER + '''
+/*
+ * driver_info declarations, ordered by 'struct driver_info' linker_list idx:
+ *
+ * idx  driver_info          driver
+ * ---  -------------------- --------------------
+ *   0: phandle2_target      target
+ *   1: phandle3_target      target
+ *   2: phandle_source       source
+ *   3: phandle_source2      source
+ *   4: phandle_target       target
+ * ---  -------------------- --------------------
+ */
+
 /* Node /phandle2-target index 0 */
 static struct dtd_target dtv_phandle2_target = {
 \t.intval\t\t\t= 0x1,
 };
 U_BOOT_DRVINFO(phandle2_target) = {
 \t.name\t\t= "target",
-\t.plat\t= &dtv_phandle2_target,
+\t.plat\t\t= &dtv_phandle2_target,
 \t.plat_size\t= sizeof(dtv_phandle2_target),
 \t.parent_idx\t= -1,
 };
@@ -639,7 +706,7 @@ static struct dtd_target dtv_phandle3_target = {
 };
 U_BOOT_DRVINFO(phandle3_target) = {
 \t.name\t\t= "target",
-\t.plat\t= &dtv_phandle3_target,
+\t.plat\t\t= &dtv_phandle3_target,
 \t.plat_size\t= sizeof(dtv_phandle3_target),
 \t.parent_idx\t= -1,
 };
@@ -654,7 +721,7 @@ static struct dtd_source dtv_phandle_source = {
 };
 U_BOOT_DRVINFO(phandle_source) = {
 \t.name\t\t= "source",
-\t.plat\t= &dtv_phandle_source,
+\t.plat\t\t= &dtv_phandle_source,
 \t.plat_size\t= sizeof(dtv_phandle_source),
 \t.parent_idx\t= -1,
 };
@@ -666,7 +733,7 @@ static struct dtd_source dtv_phandle_source2 = {
 };
 U_BOOT_DRVINFO(phandle_source2) = {
 \t.name\t\t= "source",
-\t.plat\t= &dtv_phandle_source2,
+\t.plat\t\t= &dtv_phandle_source2,
 \t.plat_size\t= sizeof(dtv_phandle_source2),
 \t.parent_idx\t= -1,
 };
@@ -677,7 +744,7 @@ static struct dtd_target dtv_phandle_target = {
 };
 U_BOOT_DRVINFO(phandle_target) = {
 \t.name\t\t= "target",
-\t.plat\t= &dtv_phandle_target,
+\t.plat\t\t= &dtv_phandle_target,
 \t.plat_size\t= sizeof(dtv_phandle_target),
 \t.parent_idx\t= -1,
 };
@@ -727,13 +794,24 @@ struct dtd_test3 {
         with open(output) as infile:
             data = infile.read()
         self._check_strings(C_HEADER + '''
+/*
+ * driver_info declarations, ordered by 'struct driver_info' linker_list idx:
+ *
+ * idx  driver_info          driver
+ * ---  -------------------- --------------------
+ *   0: test1                test1
+ *   1: test2                test2
+ *   2: test3                test3
+ * ---  -------------------- --------------------
+ */
+
 /* Node /test1 index 0 */
 static struct dtd_test1 dtv_test1 = {
 \t.reg\t\t\t= {0x1234, 0x5678},
 };
 U_BOOT_DRVINFO(test1) = {
 \t.name\t\t= "test1",
-\t.plat\t= &dtv_test1,
+\t.plat\t\t= &dtv_test1,
 \t.plat_size\t= sizeof(dtv_test1),
 \t.parent_idx\t= -1,
 };
@@ -744,7 +822,7 @@ static struct dtd_test2 dtv_test2 = {
 };
 U_BOOT_DRVINFO(test2) = {
 \t.name\t\t= "test2",
-\t.plat\t= &dtv_test2,
+\t.plat\t\t= &dtv_test2,
 \t.plat_size\t= sizeof(dtv_test2),
 \t.parent_idx\t= -1,
 };
@@ -755,7 +833,7 @@ static struct dtd_test3 dtv_test3 = {
 };
 U_BOOT_DRVINFO(test3) = {
 \t.name\t\t= "test3",
-\t.plat\t= &dtv_test3,
+\t.plat\t\t= &dtv_test3,
 \t.plat_size\t= sizeof(dtv_test3),
 \t.parent_idx\t= -1,
 };
@@ -782,13 +860,23 @@ struct dtd_test2 {
         with open(output) as infile:
             data = infile.read()
         self._check_strings(C_HEADER + '''
+/*
+ * driver_info declarations, ordered by 'struct driver_info' linker_list idx:
+ *
+ * idx  driver_info          driver
+ * ---  -------------------- --------------------
+ *   0: test1                test1
+ *   1: test2                test2
+ * ---  -------------------- --------------------
+ */
+
 /* Node /test1 index 0 */
 static struct dtd_test1 dtv_test1 = {
 \t.reg\t\t\t= {0x1234, 0x5678},
 };
 U_BOOT_DRVINFO(test1) = {
 \t.name\t\t= "test1",
-\t.plat\t= &dtv_test1,
+\t.plat\t\t= &dtv_test1,
 \t.plat_size\t= sizeof(dtv_test1),
 \t.parent_idx\t= -1,
 };
@@ -799,7 +887,7 @@ static struct dtd_test2 dtv_test2 = {
 };
 U_BOOT_DRVINFO(test2) = {
 \t.name\t\t= "test2",
-\t.plat\t= &dtv_test2,
+\t.plat\t\t= &dtv_test2,
 \t.plat_size\t= sizeof(dtv_test2),
 \t.parent_idx\t= -1,
 };
@@ -829,13 +917,24 @@ struct dtd_test3 {
         with open(output) as infile:
             data = infile.read()
         self._check_strings(C_HEADER + '''
+/*
+ * driver_info declarations, ordered by 'struct driver_info' linker_list idx:
+ *
+ * idx  driver_info          driver
+ * ---  -------------------- --------------------
+ *   0: test1                test1
+ *   1: test2                test2
+ *   2: test3                test3
+ * ---  -------------------- --------------------
+ */
+
 /* Node /test1 index 0 */
 static struct dtd_test1 dtv_test1 = {
 \t.reg\t\t\t= {0x123400000000, 0x5678},
 };
 U_BOOT_DRVINFO(test1) = {
 \t.name\t\t= "test1",
-\t.plat\t= &dtv_test1,
+\t.plat\t\t= &dtv_test1,
 \t.plat_size\t= sizeof(dtv_test1),
 \t.parent_idx\t= -1,
 };
@@ -846,7 +945,7 @@ static struct dtd_test2 dtv_test2 = {
 };
 U_BOOT_DRVINFO(test2) = {
 \t.name\t\t= "test2",
-\t.plat\t= &dtv_test2,
+\t.plat\t\t= &dtv_test2,
 \t.plat_size\t= sizeof(dtv_test2),
 \t.parent_idx\t= -1,
 };
@@ -857,7 +956,7 @@ static struct dtd_test3 dtv_test3 = {
 };
 U_BOOT_DRVINFO(test3) = {
 \t.name\t\t= "test3",
-\t.plat\t= &dtv_test3,
+\t.plat\t\t= &dtv_test3,
 \t.plat_size\t= sizeof(dtv_test3),
 \t.parent_idx\t= -1,
 };
@@ -887,13 +986,24 @@ struct dtd_test3 {
         with open(output) as infile:
             data = infile.read()
         self._check_strings(C_HEADER + '''
+/*
+ * driver_info declarations, ordered by 'struct driver_info' linker_list idx:
+ *
+ * idx  driver_info          driver
+ * ---  -------------------- --------------------
+ *   0: test1                test1
+ *   1: test2                test2
+ *   2: test3                test3
+ * ---  -------------------- --------------------
+ */
+
 /* Node /test1 index 0 */
 static struct dtd_test1 dtv_test1 = {
 \t.reg\t\t\t= {0x1234, 0x567800000000},
 };
 U_BOOT_DRVINFO(test1) = {
 \t.name\t\t= "test1",
-\t.plat\t= &dtv_test1,
+\t.plat\t\t= &dtv_test1,
 \t.plat_size\t= sizeof(dtv_test1),
 \t.parent_idx\t= -1,
 };
@@ -904,7 +1014,7 @@ static struct dtd_test2 dtv_test2 = {
 };
 U_BOOT_DRVINFO(test2) = {
 \t.name\t\t= "test2",
-\t.plat\t= &dtv_test2,
+\t.plat\t\t= &dtv_test2,
 \t.plat_size\t= sizeof(dtv_test2),
 \t.parent_idx\t= -1,
 };
@@ -915,7 +1025,7 @@ static struct dtd_test3 dtv_test3 = {
 };
 U_BOOT_DRVINFO(test3) = {
 \t.name\t\t= "test3",
-\t.plat\t= &dtv_test3,
+\t.plat\t\t= &dtv_test3,
 \t.plat_size\t= sizeof(dtv_test3),
 \t.parent_idx\t= -1,
 };
@@ -962,6 +1072,16 @@ struct dtd_sandbox_spl_test {
             data = infile.read()
         self._check_strings(C_HEADER + '''
 /*
+ * driver_info declarations, ordered by 'struct driver_info' linker_list idx:
+ *
+ * idx  driver_info          driver
+ * ---  -------------------- --------------------
+ *   0: spl_test             sandbox_spl_test
+ *   1: spl_test2            sandbox_spl_test
+ * ---  -------------------- --------------------
+ */
+
+/*
  * Node /spl-test index 0
  * driver sandbox_spl_test parent None
  */
@@ -970,7 +1090,7 @@ static struct dtd_sandbox_spl_test dtv_spl_test = {
 };
 U_BOOT_DRVINFO(spl_test) = {
 \t.name\t\t= "sandbox_spl_test",
-\t.plat\t= &dtv_spl_test,
+\t.plat\t\t= &dtv_spl_test,
 \t.plat_size\t= sizeof(dtv_spl_test),
 \t.parent_idx\t= -1,
 };
@@ -984,7 +1104,7 @@ static struct dtd_sandbox_spl_test dtv_spl_test2 = {
 };
 U_BOOT_DRVINFO(spl_test2) = {
 \t.name\t\t= "sandbox_spl_test",
-\t.plat\t= &dtv_spl_test2,
+\t.plat\t\t= &dtv_spl_test2,
 \t.plat_size\t= sizeof(dtv_spl_test2),
 \t.parent_idx\t= -1,
 };
