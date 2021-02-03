@@ -564,6 +564,8 @@ int ns16550_serial_of_to_plat(struct udevice *dev)
 	if (!plat->clock)
 		plat->clock = dev_read_u32_default(dev, "clock-frequency",
 						   CONFIG_SYS_NS16550_CLK);
+	if (!plat->clock)
+		plat->clock = CONFIG_SYS_NS16550_CLK;
 	if (!plat->clock) {
 		debug("ns16550 clock not defined\n");
 		return -EINVAL;
