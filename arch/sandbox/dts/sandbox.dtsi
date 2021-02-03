@@ -101,15 +101,19 @@
 		};
 
 		i2c_emul: emul {
+			u-boot,dm-pre-reloc;
 			reg = <0xff>;
 			compatible = "sandbox,i2c-emul-parent";
 			emul_eeprom: emul-eeprom {
 				compatible = "sandbox,i2c-eeprom";
 				sandbox,filename = "i2c.bin";
 				sandbox,size = <256>;
+				#emul-cells = <0>;
 			};
 			emul0: emul0 {
-				compatible = "sandbox,i2c-rtc";
+				u-boot,dm-pre-reloc;
+				compatible = "sandbox,i2c-rtc-emul";
+				#emul-cells = <0>;
 			};
 		};
 	};
