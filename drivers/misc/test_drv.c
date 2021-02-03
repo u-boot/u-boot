@@ -98,6 +98,7 @@ U_BOOT_DRIVER(denx_u_boot_test_bus) = {
 	.per_child_plat_auto	= sizeof(struct dm_test_parent_plat),
 	.child_pre_probe = testbus_child_pre_probe,
 	.child_post_remove = testbus_child_post_remove,
+	DM_HEADER(<test.h>)
 };
 
 UCLASS_DRIVER(testbus) = {
@@ -106,6 +107,9 @@ UCLASS_DRIVER(testbus) = {
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.child_pre_probe = testbus_child_pre_probe_uclass,
 	.child_post_probe = testbus_child_post_probe_uclass,
+
+	/* This is for dtoc testing only */
+	.per_device_plat_auto   = sizeof(struct dm_test_uclass_priv),
 };
 
 static int testfdt_drv_ping(struct udevice *dev, int pingval, int *pingret)

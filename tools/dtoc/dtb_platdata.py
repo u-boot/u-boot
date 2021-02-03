@@ -671,7 +671,104 @@ class DtbPlatdata():
                  (var_name, extra, struc.strip(), section))
         return '%s_%s' % (var_name, extra)
 
-    def _output_prop(self, node, prop):
+    def alloc_plat(self, info, name, extra, node):
+        result = self.prep_priv(info, name, '_plat')
+        if not result:
+            return None
+        var_name, struc, section = result
+        self.buf('struct %s %s\n\t%s_%s = {\n' %
+                 (struc.strip(), section, var_name, extra))
+        self.buf('\t.dtplat = {\n')
+        for pname in sorted(node.props):
+            self._output_prop(node, node.props[pname], 2)
+        self.buf('\t},\n')
+        self.buf('};\n')
+        return '&%s_%s' % (var_name, extra)
+
+    def _declare_device_inst(self, node, parent_driver):
+        """Add a device instance declaration to the output
+
+        This declares a DM_DEVICE_INST() for the device being processed
+
+        Args:
+            node: Node to output
+        """
+        driver = node.driver
+        uclass = node.uclass
+        self.buf('\n')
+        num_lines = len(self._lines)
+        plat_name = self.alloc_plat(driver.plat, driver.name, node.var_name,
+                                    node)
+        priv_name = self.alloc_priv(driver.priv, driver.name, node.var_name)
+        parent_plat_name = None
+        parent_priv_name = None
+        if parent_driver:
+            # TODO: deal with uclass providing these values
+            parent_plat_name = self.alloc_priv(
+                parent_driver.child_plat, driver.name, node.var_name,
+                '_parent_plat')
+            parent_priv_name = self.alloc_priv(
+                parent_driver.child_priv, driver.name, node.var_name,
+                '_parent_priv')
+        uclass_plat_name = self.alloc_priv(
+            uclass.per_dev_plat, driver.name + '_uc', node.var_name, 'plat')
+        uclass_priv_name = self.alloc_priv(uclass.per_dev_priv,
+                                           driver.name + '_uc', node.var_name)
+        for hdr in driver.headers:
+            self.buf('#include %s\n' % hdr)
+
+        # Add a blank line if we emitted any stuff above, for readability
+        if num_lines != len(self._lines):
+            self.buf('\n')
+
+        self.buf('DM_DEVICE_INST(%s) = {\n' % node.var_name)
+        self.buf('\t.driver\t\t= DM_DRIVER_REF(%s),\n' % node.struct_name)
+        self.buf('\t.name\t\t= "%s",\n' % node.struct_name)
+        if plat_name:
+            self.buf('\t.plat_\t\t= %s,\n' % plat_name)
+        else:
+            self.buf('\t.plat_\t\t= &%s%s,\n' % (VAL_PREFIX, node.var_name))
+        if parent_plat_name:
+            self.buf('\t.parent_plat_\t= %s,\n' % parent_plat_name)
+        if uclass_plat_name:
+            self.buf('\t.uclass_plat_\t= %s,\n' % uclass_plat_name)
+        driver_date = None
+
+        if node != self._fdt.GetRoot():
+            compat_list = node.props['compatible'].value
+            if not isinstance(compat_list, list):
+                compat_list = [compat_list]
+            for compat in compat_list:
+                driver_data = driver.compat.get(compat)
+                if driver_data:
+                    self.buf('\t.driver_data\t= %s,\n' % driver_data)
+                    break
+
+        if node.parent and node.parent.parent:
+            self.buf('\t.parent\t\t= DM_DEVICE_REF(%s),\n' %
+                     node.parent.var_name)
+        if priv_name:
+            self.buf('\t.priv_\t\t= %s,\n' % priv_name)
+        self.buf('\t.uclass\t\t= DM_UCLASS_REF(%s),\n' % uclass.name)
+
+        if uclass_priv_name:
+            self.buf('\t.uclass_priv_ = %s,\n' % uclass_priv_name)
+        if parent_priv_name:
+            self.buf('\t.parent_priv_\t= %s,\n' % parent_priv_name)
+        self.list_node('uclass_node', uclass.node_refs, node.uclass_seq)
+        self.list_head('child_head', 'sibling_node', node.child_devs, node.var_name)
+        if node.parent in self._valid_nodes:
+            self.list_node('sibling_node', node.parent.child_refs,
+                           node.parent_seq)
+        # flags is left as 0
+
+        self.buf('\t.seq_ = %d,\n' % node.seq)
+
+        self.buf('};\n')
+        self.buf('\n')
+        return parent_plat_name
+
+    def _output_prop(self, node, prop, tabs=1):
         """Output a line containing the value of a struct member
 
         Args:
@@ -681,7 +778,7 @@ class DtbPlatdata():
         if prop.name in PROP_IGNORE_LIST or prop.name[0] == '#':
             return
         member_name = conv_name_to_c(prop.name)
-        self.buf('\t%s= ' % tab_to(3, '.' + member_name))
+        self.buf('%s%s= ' % ('\t' * tabs, tab_to(3, '.' + member_name)))
 
         # Special handling for lists
         if isinstance(prop.value, list):
@@ -731,10 +828,13 @@ class DtbPlatdata():
         self.out('#include <dt-structs.h>\n')
         self.out('\n')
         self.buf('/*\n')
-        self.buf(' * uclass declarations\n')
-        self.buf(' *\n')
-        self.buf(' * Sequence numbers:\n')
+        self.buf(
+            " * uclass declarations, ordered by 'struct uclass' linker_list idx:\n")
         uclass_list = self._valid_uclasses
+        for seq, uclass in enumerate(uclass_list):
+            self.buf(' * %3d: %s\n' % (seq, uclass.name))
+        self.buf(' *\n')
+        self.buf(' * Sequence numbers allocated in each uclass:\n')
         for uclass in uclass_list:
             if uclass.alias_num_to_node:
                 self.buf(' * %s: %s\n' % (uclass.name, uclass.uclass_id))
@@ -914,6 +1014,26 @@ class DtbPlatdata():
 
         self.out(''.join(self.get_buf()))
 
+    def output_node_instance(self, node):
+        """Output the C code for a node
+
+        Args:
+            node (fdt.Node): node to output
+        """
+        parent_driver = node.parent_driver
+
+        self.buf('/*\n')
+        self.buf(' * Node %s index %d\n' % (node.path, node.idx))
+        self.buf(' * driver %s parent %s\n' % (node.driver.name,
+                 parent_driver.name if parent_driver else 'None'))
+        self.buf('*/\n')
+
+        if not node.driver.plat:
+            self._output_values(node)
+        self._declare_device_inst(node, parent_driver)
+
+        self.out(''.join(self.get_buf()))
+
     def check_instantiate(self, require):
         """Check if self._instantiate is set to the required value
 
@@ -969,6 +1089,41 @@ class DtbPlatdata():
 
         self.out(''.join(self.get_buf()))
 
+    def generate_device(self):
+        """Generate device instances
+
+        This writes out DM_DEVICE_INST() records for each device in the
+        build.
+
+        See the documentation in doc/driver-model/of-plat.rst for more
+        information.
+        """
+        if not self.check_instantiate(True):
+            return
+        self.out('#include <common.h>\n')
+        self.out('#include <dm.h>\n')
+        self.out('#include <dt-structs.h>\n')
+        self.out('\n')
+
+        if self._valid_nodes:
+            self.out('/*\n')
+            self.out(
+                " * udevice declarations, ordered by 'struct udevice' linker_list position:\n")
+            self.out(' *\n')
+            self.out(' * idx  %-20s %-s\n' % ('udevice', 'driver'))
+            self.out(' * ---  %-20s %-s\n' % ('-' * 20, '-' * 20))
+            for node in self._valid_nodes:
+                self.out(' * %3d: %-20s %-s\n' %
+                        (node.idx, node.var_name, node.struct_name))
+            self.out(' * ---  %-20s %-s\n' % ('-' * 20, '-' * 20))
+            self.out(' */\n')
+            self.out('\n')
+
+            for node in self._valid_nodes:
+                self.output_node_instance(node)
+
+        self.out(''.join(self.get_buf()))
+
 
 # Types of output file we understand
 # key: Command used to generate this file
@@ -984,6 +1139,9 @@ OUTPUT_FILES = {
     'platdata':
         OutputFile(Ftype.SOURCE, 'dt-plat.c', DtbPlatdata.generate_plat,
                    'Declares the U_BOOT_DRIVER() records and platform data'),
+    'device':
+        OutputFile(Ftype.SOURCE, 'dt-device.c', DtbPlatdata.generate_device,
+                   'Declares the DM_DEVICE_INST() records'),
     'uclass':
         OutputFile(Ftype.SOURCE, 'dt-uclass.c', DtbPlatdata.generate_uclasses,
                    'Declares the uclass instances (struct uclass)'),
