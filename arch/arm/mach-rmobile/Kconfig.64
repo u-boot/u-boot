@@ -65,6 +65,11 @@ config TARGET_BEACON_RZG2M
 	select R8A774A1
 	select PINCTRL_PFC_R8A774A1
 
+config TARGET_BEACON_RZG2N
+	bool "Beacon EmbeddedWorks RZ/G2N Dev Kit"
+	select R8A774B1
+	select PINCTRL_PFC_R8A774B1
+
 config TARGET_CONDOR
 	bool "Condor board"
 	imply R8A77980
