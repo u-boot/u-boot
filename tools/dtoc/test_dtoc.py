@@ -72,7 +72,7 @@ def get_dtb_file(dts_fname, capture_stderr=False):
     Returns:
         str: Filename of compiled file in output directory
     """
-    return fdt_util.EnsureCompiled(os.path.join(OUR_PATH, dts_fname),
+    return fdt_util.EnsureCompiled(os.path.join(OUR_PATH, 'test', dts_fname),
                                    capture_stderr=capture_stderr)
 
 

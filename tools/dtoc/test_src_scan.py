@@ -59,7 +59,8 @@ class TestSrcScan(unittest.TestCase):
     def test_additional(self):
         """Test with additional drivers to scan"""
         scan = src_scan.Scanner(
-            None, True, [None, '', 'tools/dtoc/dtoc_test_scan_drivers.cxx'])
+            None, True,
+            [None, '', 'tools/dtoc/test/dtoc_test_scan_drivers.cxx'])
         scan.scan_drivers()
         self.assertIn('sandbox_gpio_alias2', scan._driver_aliases)
         self.assertEqual('sandbox_gpio',
