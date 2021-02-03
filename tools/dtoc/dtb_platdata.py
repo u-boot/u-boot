@@ -153,8 +153,10 @@ class DtbPlatdata():
         _basedir (str): Base directory of source tree
         _valid_uclasses (list of src_scan.Uclass): List of uclasses needed for
             the selected devices (see _valid_node), in alphabetical order
+        _instantiate: Instantiate devices so they don't need to be bound at
+            run-time
     """
-    def __init__(self, scan, dtb_fname, include_disabled):
+    def __init__(self, scan, dtb_fname, include_disabled, instantiate=False):
         self._scan = scan
         self._fdt = None
         self._dtb_fname = dtb_fname
@@ -167,6 +169,7 @@ class DtbPlatdata():
         self._struct_data = collections.OrderedDict()
         self._basedir = None
         self._valid_uclasses = None
+        self._instantiate = instantiate
 
     def setup_output_dirs(self, output_dirs):
         """Set up the output directories
@@ -802,8 +805,8 @@ OUTPUT_FILES = {
 
 
 def run_steps(args, dtb_file, include_disabled, output, output_dirs, phase,
-              warning_disabled=False, drivers_additional=None, basedir=None,
-              scan=None):
+              instantiate, warning_disabled=False, drivers_additional=None,
+              basedir=None, scan=None):
     """Run all the steps of the dtoc tool
 
     Args:
@@ -816,6 +819,8 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs, phase,
             Directory to put H output files
         phase: The phase of U-Boot that we are generating data for, e.g. 'spl'
              or 'tpl'. None if not known
+        instantiate: Instantiate devices so they don't need to be bound at
+            run-time
         warning_disabled (bool): True to avoid showing warnings about missing
             drivers
         drivers_additional (list): List of additional drivers to use during
@@ -843,15 +848,15 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs, phase,
         do_process = True
     else:
         do_process = False
-    plat = DtbPlatdata(scan, dtb_file, include_disabled)
+    plat = DtbPlatdata(scan, dtb_file, include_disabled, instantiate)
     plat.scan_dtb()
-    plat.scan_tree(add_root=False)
+    plat.scan_tree(add_root=instantiate)
     plat.prepare_nodes()
     plat.scan_reg_sizes()
     plat.setup_output_dirs(output_dirs)
     plat.scan_structs()
     plat.scan_phandles()
-    plat.process_nodes(False)
+    plat.process_nodes(instantiate)
     plat.read_aliases()
     plat.assign_seqs()
 

@@ -130,7 +130,7 @@ class TestDtoc(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     @staticmethod
-    def run_test(args, dtb_file, output):
+    def run_test(args, dtb_file, output, instantiate=False):
         """Run a test using dtoc
 
         Args:
@@ -143,8 +143,9 @@ class TestDtoc(unittest.TestCase):
         """
         # Make a copy of the 'scan' object, since it includes uclasses and
         # drivers, which get updated during execution.
-        return dtb_platdata.run_steps(args, dtb_file, False, output, [], None,
-                                      warning_disabled=True, scan=copy_scan())
+        return dtb_platdata.run_steps(
+            args, dtb_file, False, output, [], None, instantiate,
+            warning_disabled=True, scan=copy_scan())
 
     def test_name(self):
         """Test conversion of device tree names to C identifiers"""
@@ -201,7 +202,8 @@ class TestDtoc(unittest.TestCase):
         output = tools.GetOutputFilename('output')
 
         # Run this one without saved_scan to complete test coverage
-        dtb_platdata.run_steps(['struct'], dtb_file, False, output, [], True)
+        dtb_platdata.run_steps(['struct'], dtb_file, False, output, [], None,
+                               False)
         with open(output) as infile:
             lines = infile.read().splitlines()
         self.assertEqual(HEADER.splitlines(), lines)
@@ -369,8 +371,9 @@ U_BOOT_DRVINFO(gpios_at_0) = {
         dtb_file = get_dtb_file('dtoc_test_invalid_driver.dts')
         output = tools.GetOutputFilename('output')
         with test_util.capture_sys_output() as _:
-            dtb_platdata.run_steps(['struct'], dtb_file, False, output, [],
-                                   None, scan=copy_scan())
+            dtb_platdata.run_steps(
+                ['struct'], dtb_file, False, output, [], None, False,
+                scan=copy_scan())
         with open(output) as infile:
             data = infile.read()
         self._check_strings(HEADER + '''
@@ -379,8 +382,9 @@ struct dtd_invalid {
 ''', data)
 
         with test_util.capture_sys_output() as _:
-            dtb_platdata.run_steps(['platdata'], dtb_file, False, output, [],
-                                   None, scan=copy_scan())
+            dtb_platdata.run_steps(
+                ['platdata'], dtb_file, False, output, [], None, False,
+                scan=copy_scan())
         with open(output) as infile:
             data = infile.read()
         self._check_strings(C_HEADER + '''
@@ -530,8 +534,9 @@ U_BOOT_DRVINFO(phandle_target) = {
         """Test that phandle targets are generated when unsing cd-gpios"""
         dtb_file = get_dtb_file('dtoc_test_phandle_cd_gpios.dts')
         output = tools.GetOutputFilename('output')
-        dtb_platdata.run_steps(['platdata'], dtb_file, False, output, [], True,
-                               scan=copy_scan())
+        dtb_platdata.run_steps(
+            ['platdata'], dtb_file, False, output, [], None, False,
+            warning_disabled=True, scan=copy_scan())
         with open(output) as infile:
             data = infile.read()
         self._check_strings(C_HEADER + '''
@@ -925,15 +930,16 @@ U_BOOT_DRVINFO(spl_test2) = {
         dtb_file = get_dtb_file('dtoc_test_simple.dts')
         output = tools.GetOutputFilename('output')
         with self.assertRaises(ValueError) as exc:
-            self.run_test(['invalid-cmd'], dtb_file, output)
+            self.run_test(['invalid-cmd'], dtb_file, output, False)
         self.assertIn("Unknown command 'invalid-cmd': (use: platdata, struct)",
                       str(exc.exception))
 
     def test_output_conflict(self):
         """Test a conflict between and output dirs and output file"""
         with self.assertRaises(ValueError) as exc:
-            dtb_platdata.run_steps(['all'], None, False, 'out', ['cdir'], None,
-                                   warning_disabled=True, scan=copy_scan())
+            dtb_platdata.run_steps(
+                ['all'], None, False, 'out', ['cdir'], None, False,
+                warning_disabled=True, scan=copy_scan())
         self.assertIn("Must specify either output or output_dirs, not both",
                       str(exc.exception))
 
@@ -949,8 +955,9 @@ U_BOOT_DRVINFO(spl_test2) = {
         fnames = glob.glob(outdir + '/*')
         self.assertEqual(2, len(fnames))
 
-        dtb_platdata.run_steps(['all'], dtb_file, False, None, [outdir], None,
-                               warning_disabled=True, scan=copy_scan())
+        dtb_platdata.run_steps(
+            ['all'], dtb_file, False, None, [outdir], None, False,
+            warning_disabled=True, scan=copy_scan())
         fnames = glob.glob(outdir + '/*')
         self.assertEqual(4, len(fnames))
 

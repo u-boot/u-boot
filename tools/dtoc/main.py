@@ -81,6 +81,8 @@ parser.add_option('-C', '--h-output-dir', action='store',
                   help='Select output directory for H files (defaults to --c-output-di)')
 parser.add_option('-d', '--dtb-file', action='store',
                   help='Specify the .dtb input file')
+parser.add_option('-i', '--instantiate', action='store_true', default=False,
+                  help='Instantiate devices to avoid needing device_bind()')
 parser.add_option('--include-disabled', action='store_true',
                   help='Include disabled nodes')
 parser.add_option('-o', '--output', action='store',
@@ -107,4 +109,4 @@ else:
     dtb_platdata.run_steps(args, options.dtb_file, options.include_disabled,
                            options.output,
                            [options.c_output_dir, options.h_output_dir],
-                           phase=options.phase)
+                           options.phase, instantiate=options.instantiate)
