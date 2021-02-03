@@ -86,7 +86,7 @@ static const struct udevice_id testbus_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(testbus_drv) = {
+U_BOOT_DRIVER(denx_u_boot_test_bus) = {
 	.name	= "testbus_drv",
 	.of_match	= testbus_ids,
 	.id	= UCLASS_TEST_BUS,
@@ -160,7 +160,9 @@ static const struct udevice_id testfdt_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(testfdt_drv) = {
+DM_DRIVER_ALIAS(denx_u_boot_fdt_test, google_another_fdt_test)
+
+U_BOOT_DRIVER(denx_u_boot_fdt_test) = {
 	.name	= "testfdt_drv",
 	.of_match	= testfdt_ids,
 	.id	= UCLASS_TEST_FDT,

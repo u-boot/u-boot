@@ -1092,3 +1092,9 @@ U_BOOT_DRVINFO(spl_test2) = {
             plat = self.run_test(['struct'], dtb_file, output)
         self.assertEqual("Could not find uclass for alias 'other1'",
                          stdout.getvalue().strip())
+
+    def test_sequence(self):
+        """Test assignment of sequence numnbers"""
+        dtb_file = get_dtb_file('dtoc_test_inst.dts')
+        output = tools.GetOutputFilename('output')
+        plat = self.run_test(['struct'], dtb_file, output)

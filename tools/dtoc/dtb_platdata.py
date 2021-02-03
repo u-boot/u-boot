@@ -136,8 +136,10 @@ class DtbPlatdata():
             from the U-Boot source code
         _fdt: Fdt object, referencing the device tree
         _dtb_fname: Filename of the input device tree binary file
-        _valid_nodes: A list of Node object with compatible strings. The list
-            is ordered by conv_name_to_c(node.name)
+        _valid_nodes_unsorted: A list of Node object with compatible strings,
+            ordered by devicetree node order
+        _valid_nodes: A list of Node object with compatible strings, ordered by
+            conv_name_to_c(node.name)
         _include_disabled: true to include nodes marked status = "disabled"
         _outfile: The current output file (sys.stdout or a real file)
         _lines: Stashed list of output lines for outputting in the future
@@ -155,6 +157,7 @@ class DtbPlatdata():
         self._fdt = None
         self._dtb_fname = dtb_fname
         self._valid_nodes = None
+        self._valid_nodes_unsorted = None
         self._include_disabled = include_disabled
         self._outfile = None
         self._lines = []
@@ -324,34 +327,38 @@ class DtbPlatdata():
         """
         self._fdt = fdt.FdtScan(self._dtb_fname)
 
-    def scan_node(self, root, valid_nodes):
+    def scan_node(self, node, valid_nodes):
         """Scan a node and subnodes to build a tree of node and phandle info
 
-        This adds each node to self._valid_nodes.
+        This adds each subnode to self._valid_nodes if it is enabled and has a
+        compatible string.
 
         Args:
-            root (Node): Root node for scan
+            node (Node): Node for scan for subnodes
             valid_nodes (list of Node): List of Node objects to add to
         """
-        for node in root.subnodes:
-            if 'compatible' in node.props:
-                status = node.props.get('status')
+        for subnode in node.subnodes:
+            if 'compatible' in subnode.props:
+                status = subnode.props.get('status')
                 if (not self._include_disabled and not status or
                         status.value != 'disabled'):
-                    valid_nodes.append(node)
+                    valid_nodes.append(subnode)
 
             # recurse to handle any subnodes
-            self.scan_node(node, valid_nodes)
+            self.scan_node(subnode, valid_nodes)
 
     def scan_tree(self):
         """Scan the device tree for useful information
 
         This fills in the following properties:
-            _valid_nodes: A list of nodes we wish to consider include in the
-                platform data
+            _valid_nodes_unsorted: A list of nodes we wish to consider include
+                in the platform data (in devicetree node order)
+            _valid_nodes: Sorted version of _valid_nodes_unsorted
         """
+        root = self._fdt.GetRoot()
         valid_nodes = []
-        self.scan_node(self._fdt.GetRoot(), valid_nodes)
+        self.scan_node(root, valid_nodes)
+        self._valid_nodes_unsorted = valid_nodes
         self._valid_nodes = sorted(valid_nodes,
                                    key=lambda x: conv_name_to_c(x.name))
 
@@ -670,6 +677,24 @@ class DtbPlatdata():
             elif result is False:
                 print("Could not find uclass for alias '%s'" % prop.name)
 
+    def assign_seq(self):
+        """Assign a sequence number to each node"""
+        for node in self._valid_nodes_unsorted:
+            if node.driver and node.seq == -1 and node.uclass:
+                uclass = node.uclass
+                num = uclass.alias_path_to_num.get(node.path)
+                if num is not None:
+                    node.seq = num
+                else:
+                    # Dynamically allocate the next available value after all
+                    # existing ones
+                    for seq in range(1000):
+                        if seq not in uclass.alias_num_to_node:
+                            break
+                    node.seq = seq
+                    uclass.alias_path_to_num[node.path] = seq
+                    uclass.alias_num_to_node[seq] = node
+
     def process_nodes(self, need_drivers):
         nodes_to_output = list(self._valid_nodes)
 
@@ -806,9 +831,9 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs, phase,
     plat.setup_output_dirs(output_dirs)
     plat.scan_structs()
     plat.scan_phandles()
-    if do_process:
-        plat.process_nodes(False)
+    plat.process_nodes(False)
     plat.read_aliases()
+    plat.assign_seq()
 
     cmds = args[0].split(',')
     if 'all' in cmds:
