@@ -205,6 +205,7 @@ UCLASS_DRIVER(testfdt) = {
 	.name		= "testfdt",
 	.id		= UCLASS_TEST_FDT,
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
+	.priv_auto	= sizeof(struct dm_test_uc_priv),
 };
 
 static const struct udevice_id testfdtm_ids[] = {

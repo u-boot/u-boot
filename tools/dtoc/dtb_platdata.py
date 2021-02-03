@@ -246,6 +246,7 @@ class DtbPlatdata():
         """
         if self._outfile != sys.stdout:
             self._outfile.close()
+            self._outfile = None
 
     def out(self, line):
         """Output a string to the output file
@@ -649,6 +650,27 @@ class DtbPlatdata():
         self.buf('};\n')
         self.buf('\n')
 
+    def prep_priv(self, struc, name, suffix, section='.priv_data'):
+        if not struc:
+            return None
+        var_name = '_%s%s' % (name, suffix)
+        hdr = self._scan._structs.get(struc)
+        if hdr:
+            self.buf('#include <%s>\n' % hdr.fname)
+        else:
+            print('Warning: Cannot find header file for struct %s' % struc)
+        attr = '__attribute__ ((section ("%s")))' % section
+        return var_name, struc, attr
+
+    def alloc_priv(self, info, name, extra, suffix='_priv'):
+        result = self.prep_priv(info, name, suffix)
+        if not result:
+            return None
+        var_name, struc, section = result
+        self.buf('u8 %s_%s[sizeof(struct %s)]\n\t%s;\n' %
+                 (var_name, extra, struc.strip(), section))
+        return '%s_%s' % (var_name, extra)
+
     def _output_prop(self, node, prop):
         """Output a line containing the value of a struct member
 
@@ -679,6 +701,74 @@ class DtbPlatdata():
         for pname in sorted(node.props):
             self._output_prop(node, node.props[pname])
         self.buf('};\n')
+
+    def list_head(self, head_member, node_member, node_refs, var_name):
+        self.buf('\t.%s\t= {\n' % head_member)
+        if node_refs:
+            last = node_refs[-1].dev_ref
+            first = node_refs[0].dev_ref
+            member = node_member
+        else:
+            last = 'DM_DEVICE_REF(%s)' % var_name
+            first = last
+            member = head_member
+        self.buf('\t\t.prev = &%s->%s,\n' % (last, member))
+        self.buf('\t\t.next = &%s->%s,\n' % (first, member))
+        self.buf('\t},\n')
+
+    def list_node(self, member, node_refs, seq):
+        self.buf('\t.%s\t= {\n' % member)
+        self.buf('\t\t.prev = %s,\n' % node_refs[seq - 1])
+        self.buf('\t\t.next = %s,\n' % node_refs[seq + 1])
+        self.buf('\t},\n')
+
+    def generate_uclasses(self):
+        if not self.check_instantiate(True):
+            return
+        self.out('\n')
+        self.out('#include <common.h>\n')
+        self.out('#include <dm.h>\n')
+        self.out('#include <dt-structs.h>\n')
+        self.out('\n')
+        self.buf('/*\n')
+        self.buf(' * uclass declarations\n')
+        self.buf(' *\n')
+        self.buf(' * Sequence numbers:\n')
+        uclass_list = self._valid_uclasses
+        for uclass in uclass_list:
+            if uclass.alias_num_to_node:
+                self.buf(' * %s: %s\n' % (uclass.name, uclass.uclass_id))
+                for seq, node in uclass.alias_num_to_node.items():
+                    self.buf(' *    %d: %s\n' % (seq, node.path))
+        self.buf(' */\n')
+
+        uclass_node = {}
+        for seq, uclass in enumerate(uclass_list):
+            uclass_node[seq] = ('&DM_UCLASS_REF(%s)->sibling_node' %
+                                uclass.name)
+        uclass_node[-1] = '&uclass_head'
+        uclass_node[len(uclass_list)] = '&uclass_head'
+        self.buf('\n')
+        self.buf('struct list_head %s = {\n' % 'uclass_head')
+        self.buf('\t.prev = %s,\n' % uclass_node[len(uclass_list) -1])
+        self.buf('\t.next = %s,\n' % uclass_node[0])
+        self.buf('};\n')
+        self.buf('\n')
+
+        for seq, uclass in enumerate(uclass_list):
+            uc_drv = self._scan._uclass.get(uclass.uclass_id)
+
+            priv_name = self.alloc_priv(uc_drv.priv, uc_drv.name, '')
+
+            self.buf('DM_UCLASS_INST(%s) = {\n' % uclass.name)
+            if priv_name:
+                self.buf('\t.priv_\t\t= %s,\n' % priv_name)
+            self.buf('\t.uc_drv\t\t= DM_UCLASS_DRIVER_REF(%s),\n' % uclass.name)
+            self.list_node('sibling_node', uclass_node, seq)
+            self.list_head('dev_head', 'uclass_node', uc_drv.devs, None)
+            self.buf('};\n')
+            self.buf('\n')
+        self.out(''.join(self.get_buf()))
 
     def read_aliases(self):
         """Read the aliases and attach the information to self._alias
@@ -894,6 +984,9 @@ OUTPUT_FILES = {
     'platdata':
         OutputFile(Ftype.SOURCE, 'dt-plat.c', DtbPlatdata.generate_plat,
                    'Declares the U_BOOT_DRIVER() records and platform data'),
+    'uclass':
+        OutputFile(Ftype.SOURCE, 'dt-uclass.c', DtbPlatdata.generate_uclasses,
+                   'Declares the uclass instances (struct uclass)'),
     }
 
 
