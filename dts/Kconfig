@@ -355,14 +355,23 @@ config SPL_OF_PLATDATA
 	  compatible string, then adding platform data and U_BOOT_DRVINFO
 	  declarations for each node. See of-plat.txt for more information.
 
+if SPL_OF_PLATDATA
+
 config SPL_OF_PLATDATA_PARENT
 	bool "Support parent information in devices"
-	depends on SPL_OF_PLATDATA
 	default y
 	help
 	  Generally it is useful to be able to access the parent of a device
 	  with of-platdata. To save space this can be disabled, but in that
 	  case dev_get_parent() will always return NULL;
+
+config SPL_OF_PLATDATA_INST
+	bool "Declare devices at build time"
+	help
+	  Declare devices as udevice instances so that they do not need to be
+	  bound when U-Boot starts. This can save time and code space.
+
+endif
 
 config TPL_OF_PLATDATA
 	bool "Generate platform data for use in TPL"
@@ -385,13 +394,23 @@ config TPL_OF_PLATDATA
 	  compatible string, then adding platform data and U_BOOT_DRVINFO
 	  declarations for each node. See of-plat.txt for more information.
 
+if TPL_OF_PLATDATA
+
 config TPL_OF_PLATDATA_PARENT
 	bool "Support parent information in devices"
-	depends on TPL_OF_PLATDATA
 	default y
 	help
 	  Generally it is useful to be able to access the parent of a device
 	  with of-platdata. To save space this can be disabled, but in that
 	  case dev_get_parent() will always return NULL;
+
+config TPL_OF_PLATDATA_INST
+	bool "Declare devices at build time"
+
+	help
+	  Declare devices as udevice instances so that they do not need to be
+	  bound when U-Boot starts. This can save time and code space.
+
+endif
 
 endmenu

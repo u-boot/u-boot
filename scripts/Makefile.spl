@@ -313,6 +313,10 @@ pythonpath = PYTHONPATH=scripts/dtc/pylibfdt
 DTOC_ARGS := $(pythonpath) $(srctree)/tools/dtoc/dtoc \
 	-d $(obj)/$(SPL_BIN).dtb -p $(SPL_NAME)
 
+ifneq ($(CONFIG_$(SPL_TPL_)OF_PLATDATA_INST),)
+DTOC_ARGS += -i
+endif
+
 quiet_cmd_dtoc = DTOC    $@
 cmd_dtoc = $(DTOC_ARGS) -c $(obj)/dts -C include/generated all
 
