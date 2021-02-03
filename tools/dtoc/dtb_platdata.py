@@ -151,6 +151,8 @@ class DtbPlatdata():
                         key (str): Field name
                         value: Prop object with field information
         _basedir (str): Base directory of source tree
+        _valid_uclasses (list of src_scan.Uclass): List of uclasses needed for
+            the selected devices (see _valid_node), in alphabetical order
     """
     def __init__(self, scan, dtb_fname, include_disabled):
         self._scan = scan
@@ -164,6 +166,7 @@ class DtbPlatdata():
         self._dirnames = [None] * len(Ftype)
         self._struct_data = collections.OrderedDict()
         self._basedir = None
+        self._valid_uclasses = None
 
     def setup_output_dirs(self, output_dirs):
         """Set up the output directories
@@ -677,23 +680,12 @@ class DtbPlatdata():
             elif result is False:
                 print("Could not find uclass for alias '%s'" % prop.name)
 
-    def assign_seq(self):
+    def assign_seqs(self):
         """Assign a sequence number to each node"""
         for node in self._valid_nodes_unsorted:
-            if node.driver and node.seq == -1 and node.uclass:
-                uclass = node.uclass
-                num = uclass.alias_path_to_num.get(node.path)
-                if num is not None:
-                    node.seq = num
-                else:
-                    # Dynamically allocate the next available value after all
-                    # existing ones
-                    for seq in range(1000):
-                        if seq not in uclass.alias_num_to_node:
-                            break
-                    node.seq = seq
-                    uclass.alias_path_to_num[node.path] = seq
-                    uclass.alias_num_to_node[seq] = node
+            seq = self._scan.assign_seq(node)
+            if seq is not None:
+                node.seq = seq
 
     def process_nodes(self, need_drivers):
         nodes_to_output = list(self._valid_nodes)
@@ -710,6 +702,16 @@ class DtbPlatdata():
                 raise ValueError("Cannot parse/find driver for '%s'" %
                                  node.struct_name)
             node.driver = driver
+            uclass = self._scan._uclass.get(driver.uclass_id)
+            if not uclass:
+                raise ValueError("Cannot parse/find uclass '%s' for driver '%s'" %
+                                (driver.uclass_id, node.struct_name))
+            node.uclass = uclass
+            node.uclass_seq = len(node.uclass.devs)
+            node.uclass.devs.append(node)
+            uclass.node_refs[node.uclass_seq] = \
+                '&%s->uclass_node' % node.dev_ref
+
             parent_driver = None
             if node.parent in self._valid_nodes:
                 parent_driver = self._scan.get_driver(node.parent.struct_name)
@@ -729,6 +731,18 @@ class DtbPlatdata():
             ref = '&%s->child_head' % node.dev_ref
             node.child_refs[-1] = ref
             node.child_refs[len(node.child_devs)] = ref
+
+        uclass_set = set()
+        for driver in self._scan._drivers.values():
+            if driver.used and driver.uclass:
+                uclass_set.add(driver.uclass)
+        self._valid_uclasses = sorted(list(uclass_set),
+                                      key=lambda uc: uc.uclass_id)
+
+        for seq, uclass in enumerate(uclass_set):
+            ref = '&DM_UCLASS_REF(%s)->dev_head' % uclass.name
+            uclass.node_refs[-1] = ref
+            uclass.node_refs[len(uclass.devs)] = ref
 
     def output_node(self, node):
         """Output the C code for a node
@@ -833,7 +847,7 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs, phase,
     plat.scan_phandles()
     plat.process_nodes(False)
     plat.read_aliases()
-    plat.assign_seq()
+    plat.assign_seqs()
 
     cmds = args[0].split(',')
     if 'all' in cmds:

@@ -141,6 +141,8 @@ class TestDtoc(unittest.TestCase):
         Returns:
             DtbPlatdata object
         """
+        # Make a copy of the 'scan' object, since it includes uclasses and
+        # drivers, which get updated during execution.
         return dtb_platdata.run_steps(args, dtb_file, False, output, [], None,
                                       warning_disabled=True, scan=copy_scan())
 
@@ -1033,6 +1035,16 @@ U_BOOT_DRVINFO(spl_test2) = {
         self.assertIn("Cannot parse/find driver for 'sandbox_pmic",
                       str(exc.exception))
 
+    def test_process_nodes_bad_uclass(self):
+        plat, scan = self.setup_process_test()
+
+        self.assertIn('UCLASS_I2C', scan._uclass)
+        del scan._uclass['UCLASS_I2C']
+        with self.assertRaises(ValueError) as exc:
+            plat.process_nodes(True)
+        self.assertIn("Cannot parse/find uclass 'UCLASS_I2C' for driver 'sandbox_i2c'",
+                      str(exc.exception))
+
     def test_process_nodes_used(self):
         """Test processing nodes to add various info"""
         plat, scan = self.setup_process_test()
@@ -1052,10 +1064,13 @@ U_BOOT_DRVINFO(spl_test2) = {
 
         scan = plat._scan
         testfdt_node = plat._fdt.GetNode('/some-bus/test')
+        test0_node = plat._fdt.GetNode('/some-bus/test0')
         self.assertIn('UCLASS_TEST_FDT', scan._uclass)
         uc = scan._uclass['UCLASS_TEST_FDT']
-        self.assertEqual({1: testfdt_node}, uc.alias_num_to_node)
-        self.assertEqual({'/some-bus/test': 1}, uc.alias_path_to_num)
+        self.assertEqual({1: testfdt_node, 2: test0_node},
+                         uc.alias_num_to_node)
+        self.assertEqual({'/some-bus/test': 1, '/some-bus/test0': 2},
+                         uc.alias_path_to_num)
 
         # Try adding an alias that doesn't exist
         self.assertFalse(scan.add_uclass_alias('fred', 3, None))
@@ -1098,3 +1113,13 @@ U_BOOT_DRVINFO(spl_test2) = {
         dtb_file = get_dtb_file('dtoc_test_inst.dts')
         output = tools.GetOutputFilename('output')
         plat = self.run_test(['struct'], dtb_file, output)
+
+        scan = plat._scan
+        testfdt = plat._fdt.GetNode('/some-bus/test')
+        self.assertEqual(1, testfdt.seq)
+        i2c = plat._fdt.GetNode('/i2c')
+
+        # For now this uclass is not compiled in, so no sequence is assigned
+        self.assertEqual(4, i2c.seq)
+        spl = plat._fdt.GetNode('/spl-test')
+        self.assertEqual(0, spl.seq)

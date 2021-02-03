@@ -466,3 +466,20 @@ U_BOOT_DRIVER(%s) = {
         with test_util.capture_sys_output() as (stdout, _):
             scan.mark_used([node])
         self.assertEqual('', stdout.getvalue().strip())
+
+    def test_sequence(self):
+        """Test assignment of sequence numnbers"""
+        scan = src_scan.Scanner(None, False, None, '')
+        node = FakeNode()
+        uc = src_scan.UclassDriver('UCLASS_I2C')
+        node.uclass = uc
+        node.driver = True
+        node.seq = -1
+        node.path = 'mypath'
+        uc.alias_num_to_node[2] = node
+
+        # This should assign 3 (after the 2 that exists)
+        seq = scan.assign_seq(node)
+        self.assertEqual(3, seq)
+        self.assertEqual({'mypath': 3}, uc.alias_path_to_num)
+        self.assertEqual({2: node, 3: node}, uc.alias_num_to_node)

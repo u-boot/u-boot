@@ -74,6 +74,7 @@ class Driver:
             found after this one
         warn_dups (bool): True if the duplicates are not distinguisble using
             the phase
+        uclass (Uclass): uclass for this driver
     """
     def __init__(self, name, fname):
         self.name = name
@@ -89,6 +90,7 @@ class Driver:
         self.headers = []
         self.dups = []
         self.warn_dups = False
+        self.uclass = None
 
     def __eq__(self, other):
         return (self.name == other.name and
@@ -123,6 +125,10 @@ class UclassDriver:
         alias_path_to_num (dict): Convert a path to an alias number
             key (str): Full path to node (e.g. '/soc/pci')
             seq (int): Alias number, e.g. 2 for "pci2"
+        devs (list): List of devices in this uclass, each a Node
+        node_refs (dict): References in the linked list of devices:
+            key (int): Sequence number (0=first, n-1=last, -1=head, n=tail)
+            value (str): Reference to the device at that position
     """
     def __init__(self, name):
         self.name = name
@@ -134,6 +140,8 @@ class UclassDriver:
         self.per_child_plat = ''
         self.alias_num_to_node = {}
         self.alias_path_to_num = {}
+        self.devs = []
+        self.node_refs = {}
 
     def __eq__(self, other):
         return (self.name == other.name and
@@ -639,6 +647,12 @@ class Scanner:
             else:
                 self.scan_driver(self._basedir + '/' + fname)
 
+        # Get the uclass for each driver
+        # TODO: Can we just get the uclass for the ones we use, e.g. in
+        # mark_used()?
+        for driver in self._drivers.values():
+            driver.uclass = self._uclass.get(driver.uclass_id)
+
     def mark_used(self, nodes):
         """Mark the drivers associated with a list of nodes as 'used'
 
@@ -682,3 +696,34 @@ class Scanner:
                 uclass.alias_path_to_num[node.path] = int(num)
                 return True
         return False
+
+    def assign_seq(self, node):
+        """Figure out the sequence number for a node
+
+        This looks in the node's uclass and assigns a sequence number if needed,
+        based on the aliases and other nodes in that uclass.
+
+        It updates the uclass alias_path_to_num and alias_num_to_node
+
+        Args:
+            node (Node): Node object to look up
+        """
+        if node.driver and node.seq == -1 and node.uclass:
+            uclass = node.uclass
+            num = uclass.alias_path_to_num.get(node.path)
+            if num is not None:
+                return num
+            else:
+                # Dynamically allocate the next available value after all
+                # existing ones
+                if uclass.alias_num_to_node:
+                    start = max(uclass.alias_num_to_node.keys())
+                else:
+                    start = -1
+                for seq in range(start + 1, 1000):
+                    if seq not in uclass.alias_num_to_node:
+                        break
+                uclass.alias_path_to_num[node.path] = seq
+                uclass.alias_num_to_node[seq] = node
+                return seq
+        return None
