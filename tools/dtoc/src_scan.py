@@ -66,6 +66,7 @@ class Driver:
             e.g. 'pci_child_priv'
         child_plat (str): struct name of the per_child_plat_auto member,
             e.g. 'pci_child_plat'
+        used (bool): True if the driver is used by the structs being output
     """
     def __init__(self, name, fname):
         self.name = name
@@ -76,17 +77,19 @@ class Driver:
         self.plat = ''
         self.child_priv = ''
         self.child_plat = ''
+        self.used = False
 
     def __eq__(self, other):
         return (self.name == other.name and
                 self.uclass_id == other.uclass_id and
                 self.compat == other.compat and
                 self.priv == other.priv and
-                self.plat == other.plat)
+                self.plat == other.plat and
+                self.used == other.used)
 
     def __repr__(self):
-        return ("Driver(name='%s', uclass_id='%s', compat=%s, priv=%s)" %
-                (self.name, self.uclass_id, self.compat, self.priv))
+        return ("Driver(name='%s', used=%s, uclass_id='%s', compat=%s, priv=%s)" %
+                (self.name, self.used, self.uclass_id, self.compat, self.priv))
 
 
 class UclassDriver:
@@ -596,3 +599,19 @@ class Scanner:
                 self.scan_driver(fname)
             else:
                 self.scan_driver(self._basedir + '/' + fname)
+
+    def mark_used(self, nodes):
+        """Mark the drivers associated with a list of nodes as 'used'
+
+        This takes a list of nodes, finds the driver for each one and marks it
+        as used.
+
+        Args:
+            nodes (list of None): Nodes that are in use
+        """
+        # Figure out which drivers we actually use
+        for node in nodes:
+            struct_name, _ = self.get_normalized_compat_name(node)
+            driver = self._drivers.get(struct_name)
+            if driver:
+                driver.used = True

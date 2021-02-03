@@ -650,6 +650,9 @@ class DtbPlatdata():
     def process_nodes(self, need_drivers):
         nodes_to_output = list(self._valid_nodes)
 
+        # Figure out which drivers we actually use
+        self._scan.mark_used(nodes_to_output)
+
         for node in nodes_to_output:
             node.dev_ref = 'DM_DEVICE_REF(%s)' % node.var_name
             driver = self._scan.get_driver(node.struct_name)

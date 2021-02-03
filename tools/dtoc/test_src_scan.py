@@ -98,7 +98,7 @@ class TestSrcScan(unittest.TestCase):
         drv3.uclass_id = i2c
         drv3.compat = compat
         self.assertEqual(
-            "Driver(name='fred', uclass_id='I2C_UCLASS', "
+            "Driver(name='fred', used=False, uclass_id='I2C_UCLASS', "
             "compat={'rockchip,rk3288-grf': 'ROCKCHIP_SYSCON_GRF', "
             "'rockchip,rk3288-srf': None}, priv=)", str(drv1))
         self.assertEqual(drv1, drv3)

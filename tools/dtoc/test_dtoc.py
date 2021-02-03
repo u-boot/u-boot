@@ -1029,3 +1029,14 @@ U_BOOT_DRVINFO(spl_test2) = {
             plat.process_nodes(True)
         self.assertIn("Cannot parse/find driver for 'sandbox_pmic",
                       str(exc.exception))
+
+    def test_process_nodes_used(self):
+        """Test processing nodes to add various info"""
+        plat, scan = self.setup_process_test()
+        plat.process_nodes(True)
+
+        pmic = scan._drivers['sandbox_pmic']
+        self.assertTrue(pmic.used)
+
+        gpio = scan._drivers['sandbox_gpio']
+        self.assertFalse(gpio.used)
