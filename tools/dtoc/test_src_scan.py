@@ -233,6 +233,7 @@ U_BOOT_DRIVER(i2c_tegra) = {
         self.assertIn('i2c_tegra', scan._drivers)
         drv = scan._drivers['i2c_tegra']
         self.assertEqual('i2c_tegra', drv.name)
+        self.assertEqual('', drv.phase)
 
     def test_priv(self):
         """Test collection of struct info from drivers"""
@@ -250,6 +251,7 @@ U_BOOT_DRIVER(testing) = {
 	.plat_auto = sizeof(struct some_plat),
 	.per_child_auto	= sizeof(struct some_cpriv),
 	.per_child_plat_auto = sizeof(struct some_cplat),
+	DM_PHASE(tpl)
 };
 '''
         scan = src_scan.Scanner(None, False, None)
@@ -264,6 +266,7 @@ U_BOOT_DRIVER(testing) = {
         self.assertEqual('some_plat', drv.plat)
         self.assertEqual('some_cpriv', drv.child_priv)
         self.assertEqual('some_cplat', drv.child_plat)
+        self.assertEqual('tpl', drv.phase)
         self.assertEqual(1, len(scan._drivers))
 
     def test_uclass_scan(self):

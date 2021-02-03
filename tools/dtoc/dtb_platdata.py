@@ -733,7 +733,7 @@ OUTPUT_FILES = {
     }
 
 
-def run_steps(args, dtb_file, include_disabled, output, output_dirs,
+def run_steps(args, dtb_file, include_disabled, output, output_dirs, phase,
               warning_disabled=False, drivers_additional=None, basedir=None,
               scan=None):
     """Run all the steps of the dtoc tool
@@ -746,6 +746,8 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs,
         output_dirs (tuple of str):
             Directory to put C output files
             Directory to put H output files
+        phase: The phase of U-Boot that we are generating data for, e.g. 'spl'
+             or 'tpl'. None if not known
         warning_disabled (bool): True to avoid showing warnings about missing
             drivers
         drivers_additional (list): List of additional drivers to use during
@@ -764,7 +766,8 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs,
         raise ValueError('Must specify either output or output_dirs, not both')
 
     if not scan:
-        scan = src_scan.Scanner(basedir, warning_disabled, drivers_additional)
+        scan = src_scan.Scanner(basedir, warning_disabled, drivers_additional,
+                                phase)
         scan.scan_drivers()
         do_process = True
     else:

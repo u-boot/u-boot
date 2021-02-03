@@ -370,6 +370,22 @@ struct driver {
 #define DM_DRIVER_ALIAS(__name, __alias)
 
 /**
+ * Declare a macro to indicate which phase of U-Boot this driver is fore.
+ *
+ *
+ * This macro produces no code but its information will be parsed by dtoc. The
+ * macro can be only be used once in a driver. Put it within the U_BOOT_DRIVER()
+ * declaration, e.g.:
+ *
+ * U_BOOT_DRIVER(cpu) = {
+ *	.name = ...
+ *	...
+ *	DM_PHASE(tpl)
+ * };
+ */
+#define DM_PHASE(_phase)
+
+/**
  * dev_get_plat() - Get the platform data for a device
  *
  * This checks that dev is not NULL, but no other checks for now

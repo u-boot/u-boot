@@ -67,6 +67,7 @@ class Driver:
         child_plat (str): struct name of the per_child_plat_auto member,
             e.g. 'pci_child_plat'
         used (bool): True if the driver is used by the structs being output
+        phase (str): Which phase of U-Boot to use this driver
     """
     def __init__(self, name, fname):
         self.name = name
@@ -78,6 +79,7 @@ class Driver:
         self.child_priv = ''
         self.child_plat = ''
         self.used = False
+        self.phase = ''
 
     def __eq__(self, other):
         return (self.name == other.name and
@@ -173,8 +175,10 @@ class Scanner:
         _structs: Dict of all structs found in U-Boot:
             key: Name of struct
             value: Struct object
+        _phase: The phase of U-Boot that we are generating data for, e.g. 'spl'
+             or 'tpl'. None if not known
     """
-    def __init__(self, basedir, warning_disabled, drivers_additional):
+    def __init__(self, basedir, warning_disabled, drivers_additional, phase=''):
         """Set up a new Scanner
         """
         if not basedir:
@@ -190,6 +194,7 @@ class Scanner:
         self._compat_to_driver = {}
         self._uclass = {}
         self._structs = {}
+        self._phase = phase
 
     def get_driver(self, name):
         """Get a driver given its name
@@ -428,6 +433,8 @@ class Scanner:
         re_of_match = re.compile(
             r'\.of_match\s*=\s*(of_match_ptr\()?([a-z0-9_]+)(\))?,')
 
+        re_phase = re.compile('^\s*DM_PHASE\((.*)\).*$')
+
         # Matches the struct name for priv, plat
         re_priv = self._get_re_for_member('priv_auto')
         re_plat = self._get_re_for_member('plat_auto')
@@ -454,6 +461,7 @@ class Scanner:
                 m_plat = re_plat.match(line)
                 m_cplat = re_child_plat.match(line)
                 m_cpriv = re_child_priv.match(line)
+                m_phase = re_phase.match(line)
                 if m_priv:
                     driver.priv = m_priv.group(1)
                 elif m_plat:
@@ -466,6 +474,8 @@ class Scanner:
                     driver.uclass_id = m_id.group(1)
                 elif m_of_match:
                     compat = m_of_match.group(2)
+                elif m_phase:
+                    driver.phase = m_phase.group(1)
                 elif '};' in line:
                     if driver.uclass_id and compat:
                         if compat not in of_match:
