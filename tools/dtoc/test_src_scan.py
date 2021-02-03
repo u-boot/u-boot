@@ -231,3 +231,35 @@ U_BOOT_DRIVER(i2c_tegra) = {
         self.assertIn('i2c_tegra', scan._drivers)
         drv = scan._drivers['i2c_tegra']
         self.assertEqual('i2c_tegra', drv.name)
+
+    def test_priv(self):
+        """Test collection of struct info from drivers"""
+        buff = '''
+static const struct udevice_id test_ids[] = {
+	{ .compatible = "nvidia,tegra114-i2c", .data = TYPE_114 },
+	{ }
+};
+
+U_BOOT_DRIVER(testing) = {
+	.name	= "testing",
+	.id	= UCLASS_I2C,
+	.of_match = test_ids,
+	.priv_auto	= sizeof(struct some_priv),
+	.plat_auto = sizeof(struct some_plat),
+	.per_child_auto	= sizeof(struct some_cpriv),
+	.per_child_plat_auto = sizeof(struct some_cplat),
+};
+'''
+        scan = src_scan.Scanner(None, False, None)
+        scan._parse_driver('file.c', buff)
+        self.assertIn('testing', scan._drivers)
+        drv = scan._drivers['testing']
+        self.assertEqual('testing', drv.name)
+        self.assertEqual('UCLASS_I2C', drv.uclass_id)
+        self.assertEqual(
+            {'nvidia,tegra114-i2c': 'TYPE_114'}, drv.compat)
+        self.assertEqual('some_priv', drv.priv)
+        self.assertEqual('some_plat', drv.plat)
+        self.assertEqual('some_cpriv', drv.child_priv)
+        self.assertEqual('some_cplat', drv.child_plat)
+        self.assertEqual(1, len(scan._drivers))

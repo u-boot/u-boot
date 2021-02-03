@@ -61,6 +61,11 @@ class Driver:
             value: Driver data, e,g, 'ROCKCHIP_SYSCON_GRF', or None
         fname: Filename where the driver was found
         priv (str): struct name of the priv_auto member, e.g. 'serial_priv'
+        plat (str): struct name of the plat_auto member, e.g. 'serial_plat'
+        child_priv (str): struct name of the per_child_auto member,
+            e.g. 'pci_child_priv'
+        child_plat (str): struct name of the per_child_plat_auto member,
+            e.g. 'pci_child_plat'
     """
     def __init__(self, name, fname):
         self.name = name
@@ -68,12 +73,16 @@ class Driver:
         self.uclass_id = None
         self.compat = None
         self.priv = ''
+        self.plat = ''
+        self.child_priv = ''
+        self.child_plat = ''
 
     def __eq__(self, other):
         return (self.name == other.name and
                 self.uclass_id == other.uclass_id and
                 self.compat == other.compat and
-                self.priv == other.priv)
+                self.priv == other.priv and
+                self.plat == other.plat)
 
     def __repr__(self):
         return ("Driver(name='%s', uclass_id='%s', compat=%s, priv=%s)" %
@@ -230,8 +239,11 @@ class Scanner:
         re_of_match = re.compile(
             r'\.of_match\s*=\s*(of_match_ptr\()?([a-z0-9_]+)(\))?,')
 
-        # Matches the struct name for priv
+        # Matches the struct name for priv, plat
         re_priv = self._get_re_for_member('priv_auto')
+        re_plat = self._get_re_for_member('plat_auto')
+        re_child_priv = self._get_re_for_member('per_child_auto')
+        re_child_plat = self._get_re_for_member('per_child_plat_auto')
 
         prefix = ''
         for line in buff.splitlines():
@@ -250,8 +262,17 @@ class Scanner:
                 m_id = re_id.search(line)
                 m_of_match = re_of_match.search(line)
                 m_priv = re_priv.match(line)
+                m_plat = re_plat.match(line)
+                m_cplat = re_child_plat.match(line)
+                m_cpriv = re_child_priv.match(line)
                 if m_priv:
                     driver.priv = m_priv.group(1)
+                elif m_plat:
+                    driver.plat = m_plat.group(1)
+                elif m_cplat:
+                    driver.child_plat = m_cplat.group(1)
+                elif m_cpriv:
+                    driver.child_priv = m_cpriv.group(1)
                 elif m_id:
                     driver.uclass_id = m_id.group(1)
                 elif m_of_match:
