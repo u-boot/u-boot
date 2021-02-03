@@ -354,8 +354,44 @@ class DtbPlatdata():
         self.scan_node(self._fdt.GetRoot(), valid_nodes)
         self._valid_nodes = sorted(valid_nodes,
                                    key=lambda x: conv_name_to_c(x.name))
+
+    def prepare_nodes(self):
+        """Add extra properties to the nodes we are using
+
+        The following properties are added for use by dtoc:
+            idx: Index number of this node (0=first, etc.)
+            struct_name: Name of the struct dtd used by this node
+            var_name: C name for this node
+            child_devs: List of child devices for this node, each a None
+            child_refs: Dict of references for each child:
+                key: Position in child list (-1=head, 0=first, 1=second, ...
+                                             n-1=last, n=head)
+            seq: Sequence number of the device (unique within its uclass), or
+                -1 not not known yet
+            dev_ref: Reference to this device, e.g. 'DM_DEVICE_REF(serial)'
+            driver: Driver record for this node, or None if not known
+            uclass: Uclass record for this node, or None if not known
+            uclass_seq: Position of this device within the uclass list (0=first,
+                n-1=last)
+            parent_seq: Position of this device within it siblings (0=first,
+                n-1=last)
+            parent_driver: Driver record of the node's parent, or None if none.
+                We don't use node.parent.driver since node.parent may not be in
+                the list of valid nodes
+        """
         for idx, node in enumerate(self._valid_nodes):
             node.idx = idx
+            node.struct_name, _ = self._scan.get_normalized_compat_name(node)
+            node.var_name = conv_name_to_c(node.name)
+            node.child_devs = []
+            node.child_refs = {}
+            node.seq = -1
+            node.dev_ref = None
+            node.driver = None
+            node.uclass = None
+            node.uclass_seq = None
+            node.parent_seq = None
+            node.parent_driver = None
 
     @staticmethod
     def get_num_cells(node):
@@ -705,6 +741,7 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs,
     plat = DtbPlatdata(scan, dtb_file, include_disabled)
     plat.scan_dtb()
     plat.scan_tree()
+    plat.prepare_nodes()
     plat.scan_reg_sizes()
     plat.setup_output_dirs(output_dirs)
     plat.scan_structs()
