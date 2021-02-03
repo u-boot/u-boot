@@ -53,6 +53,8 @@ def run_tests(processes, args):
     sys.argv = [sys.argv[0]]
     test_name = args and args[0] or None
 
+    test_dtoc.setup()
+
     test_util.RunTestSuites(
         result, debug=True, verbosity=1, test_preserve_dirs=False,
         processes=processes, test_name=test_name, toolpath=[],

@@ -670,7 +670,8 @@ OUTPUT_FILES = {
 
 
 def run_steps(args, dtb_file, include_disabled, output, output_dirs,
-              warning_disabled=False, drivers_additional=None, basedir=None):
+              warning_disabled=False, drivers_additional=None, basedir=None,
+              scan=None):
     """Run all the steps of the dtoc tool
 
     Args:
@@ -687,6 +688,9 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs,
             scanning
         basedir (str): Base directory of U-Boot source code. Defaults to the
             grandparent of this file's directory
+        scan (src_src.Scanner): Scanner from a previous run. This can help speed
+            up tests. Use None for normal operation
+
     Raises:
         ValueError: if args has no command, or an unknown command
     """
@@ -695,9 +699,10 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs,
     if output and output_dirs and any(output_dirs):
         raise ValueError('Must specify either output or output_dirs, not both')
 
-    scan = src_scan.Scanner(basedir, warning_disabled, drivers_additional)
+    if not scan:
+        scan = src_scan.Scanner(basedir, warning_disabled, drivers_additional)
+        scan.scan_drivers()
     plat = DtbPlatdata(scan, dtb_file, include_disabled)
-    scan.scan_drivers()
     plat.scan_dtb()
     plat.scan_tree()
     plat.scan_reg_sizes()
