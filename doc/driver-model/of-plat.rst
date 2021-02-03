@@ -183,7 +183,8 @@ each 'compatible' string.
 
 In order to make this a bit more flexible DM_DRIVER_ALIAS macro can be
 used to declare an alias for a driver name, typically a 'compatible' string.
-This macro produces no code, but it is by dtoc tool.
+This macro produces no code, but it is by dtoc tool. It must be located in the
+same file as its associated driver, ideally just after it.
 
 The parent_idx is the index of the parent driver_info structure within its
 linker list (instantiated by the U_BOOT_DRVINFO() macro). This is used to support

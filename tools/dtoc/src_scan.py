@@ -387,6 +387,7 @@ class Scanner:
                 in the file
             _of_match - updated with each compatible string found in the file
             _compat_to_driver - Maps compatible string to Driver
+            _driver_aliases - Maps alias names to driver name
 
         Args:
             fname (str): Filename being parsed (used for warnings)
@@ -438,6 +439,7 @@ class Scanner:
 
         re_phase = re.compile('^\s*DM_PHASE\((.*)\).*$')
         re_hdr = re.compile('^\s*DM_HEADER\((.*)\).*$')
+        re_alias = re.compile(r'DM_DRIVER_ALIAS\(\s*(\w+)\s*,\s*(\w+)\s*\)')
 
         # Matches the struct name for priv, plat
         re_priv = self._get_re_for_member('priv_auto')
@@ -522,8 +524,11 @@ class Scanner:
                 driver = Driver(driver_name, fname)
             else:
                 ids_m = re_ids.search(line)
+                m_alias = re_alias.match(line)
                 if ids_m:
                     ids_name = ids_m.group(1)
+                elif m_alias:
+                    self._driver_aliases[m_alias[2]] = m_alias[1]
 
         # Make the updates based on what we found
         self._drivers.update(drivers)
@@ -556,17 +561,6 @@ class Scanner:
                 self._parse_driver(fname, buff)
             if 'UCLASS_DRIVER' in buff:
                 self._parse_uclass_driver(fname, buff)
-
-            # The following re will search for driver aliases declared as
-            # DM_DRIVER_ALIAS(alias, driver_name)
-            driver_aliases = re.findall(
-                r'DM_DRIVER_ALIAS\(\s*(\w+)\s*,\s*(\w+)\s*\)',
-                buff)
-
-            for alias in driver_aliases: # pragma: no cover
-                if len(alias) != 2:
-                    continue
-                self._driver_aliases[alias[1]] = alias[0]
 
     def scan_header(self, fname):
         """Scan a header file to build a list of struct definitions
