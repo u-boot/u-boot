@@ -669,6 +669,12 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			break;
 		}
 
+		if (len < tftp_block_size) {
+			tftp_send();
+			tftp_complete();
+			break;
+		}
+
 		/*
 		 *	Acknowledge the block just received, which will prompt
 		 *	the remote for the next one.
@@ -676,11 +682,6 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		if (tftp_cur_block == tftp_next_ack) {
 			tftp_send();
 			tftp_next_ack += tftp_windowsize;
-		}
-
-		if (len < tftp_block_size) {
-			tftp_send();
-			tftp_complete();
 		}
 		break;
 
