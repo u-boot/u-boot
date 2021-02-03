@@ -199,6 +199,8 @@ static u32 zynqmp_clk_get_register(enum zynqmp_clk id)
 		return CRF_APB_DDR_CTRL;
 	case qspi_ref:
 		return CRL_APB_QSPI_REF_CTRL;
+	case usb3_dual_ref:
+		return CRL_APB_USB3_DUAL_REF_CTRL;
 	case gem0_ref:
 		return CRL_APB_GEM0_REF_CTRL;
 	case gem1_ref:
@@ -207,6 +209,10 @@ static u32 zynqmp_clk_get_register(enum zynqmp_clk id)
 		return CRL_APB_GEM2_REF_CTRL;
 	case gem3_ref:
 		return CRL_APB_GEM3_REF_CTRL;
+	case usb0_bus_ref:
+		return CRL_APB_USB0_BUS_REF_CTRL;
+	case usb1_bus_ref:
+		return CRL_APB_USB1_BUS_REF_CTRL;
 	case uart0_ref:
 		return CRL_APB_UART0_REF_CTRL;
 	case uart1_ref:
@@ -699,9 +705,52 @@ static int zynqmp_clk_probe(struct udevice *dev)
 	return 0;
 }
 
+static int zynqmp_clk_enable(struct clk *clk)
+{
+	enum zynqmp_clk id = clk->id;
+	u32 reg, clk_ctrl, clkact_shift, mask;
+	int ret;
+
+	reg = zynqmp_clk_get_register(id);
+	debug("%s, clk_id:%x, clk_base:0x%x\n", __func__, id, reg);
+
+	switch (id) {
+	case usb0_bus_ref ... usb1:
+		clkact_shift = 25;
+		mask = 0x1;
+		break;
+	case gem0_ref ... gem3_ref:
+		clkact_shift = 25;
+		mask = 0x3;
+		break;
+	case qspi_ref ... can1_ref:
+		clkact_shift = 24;
+		mask = 0x1;
+		break;
+	default:
+		return -ENXIO;
+	}
+
+	ret = zynqmp_mmio_read(reg, &clk_ctrl);
+	if (ret) {
+		printf("%s mio read fail\n", __func__);
+		return -EIO;
+	}
+
+	clk_ctrl |= (mask << clkact_shift);
+	ret = zynqmp_mmio_write(reg, mask << clkact_shift, clk_ctrl);
+	if (ret) {
+		printf("%s mio write fail\n", __func__);
+		return -EIO;
+	}
+
+	return ret;
+}
+
 static struct clk_ops zynqmp_clk_ops = {
 	.set_rate = zynqmp_clk_set_rate,
 	.get_rate = zynqmp_clk_get_rate,
+	.enable = zynqmp_clk_enable,
 };
 
 static const struct udevice_id zynqmp_clk_ids[] = {
