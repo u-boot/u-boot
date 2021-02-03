@@ -89,6 +89,43 @@ class Driver:
                 (self.name, self.uclass_id, self.compat, self.priv))
 
 
+class UclassDriver:
+    """Holds information about a uclass driver
+
+    Attributes:
+        name: Uclass name, e.g. 'i2c' if the driver is for UCLASS_I2C
+        uclass_id: Uclass ID, e.g. 'UCLASS_I2C'
+        priv: struct name of the private data, e.g. 'i2c_priv'
+        per_dev_priv (str): struct name of the priv_auto member, e.g. 'spi_info'
+        per_dev_plat (str): struct name of the plat_auto member, e.g. 'i2c_chip'
+        per_child_priv (str): struct name of the per_child_auto member,
+            e.g. 'pci_child_priv'
+        per_child_plat (str): struct name of the per_child_plat_auto member,
+            e.g. 'pci_child_plat'
+    """
+    def __init__(self, name):
+        self.name = name
+        self.uclass_id = None
+        self.priv = ''
+        self.per_dev_priv = ''
+        self.per_dev_plat = ''
+        self.per_child_priv = ''
+        self.per_child_plat = ''
+
+    def __eq__(self, other):
+        return (self.name == other.name and
+                self.uclass_id == other.uclass_id and
+                self.priv == other.priv)
+
+    def __repr__(self):
+        return ("UclassDriver(name='%s', uclass_id='%s')" %
+                (self.name, self.uclass_id))
+
+    def __hash__(self):
+        # We can use the uclass ID since it is unique among uclasses
+        return hash(self.uclass_id)
+
+
 class Scanner:
     """Scanning of the U-Boot source tree
 
@@ -111,6 +148,9 @@ class Scanner:
                key: Compatible string, e.g. 'rockchip,rk3288-grf'
                value: Driver data, e,g, 'ROCKCHIP_SYSCON_GRF', or None
         _compat_to_driver: Maps compatible strings to Driver
+        _uclass: Dict of uclass information
+            key: uclass name, e.g. 'UCLASS_I2C'
+            value: UClassDriver
     """
     def __init__(self, basedir, warning_disabled, drivers_additional):
         """Set up a new Scanner
@@ -126,6 +166,7 @@ class Scanner:
         self._warning_disabled = warning_disabled
         self._of_match = {}
         self._compat_to_driver = {}
+        self._uclass = {}
 
     def get_normalized_compat_name(self, node):
         """Get a node's normalized compat name
@@ -178,6 +219,85 @@ class Scanner:
             and returns "fred" as group 1
         """
         return re.compile(r'^\s*.%s\s*=\s*sizeof\(struct\s+(.*)\),$' % member)
+
+    def _parse_uclass_driver(self, fname, buff):
+        """Parse a C file to extract uclass driver information contained within
+
+        This parses UCLASS_DRIVER() structs to obtain various pieces of useful
+        information.
+
+        It updates the following member:
+            _uclass: Dict of uclass information
+                key: uclass name, e.g. 'UCLASS_I2C'
+                value: UClassDriver
+
+        Args:
+            fname (str): Filename being parsed (used for warnings)
+            buff (str): Contents of file
+        """
+        uc_drivers = {}
+
+        # Collect the driver name and associated Driver
+        driver = None
+        re_driver = re.compile(r'UCLASS_DRIVER\((.*)\)')
+
+        # Collect the uclass ID, e.g. 'UCLASS_SPI'
+        re_id = re.compile(r'\s*\.id\s*=\s*(UCLASS_[A-Z0-9_]+)')
+
+        # Matches the header/size information for uclass-private data
+        re_priv = self._get_re_for_member('priv_auto')
+
+        # Set up parsing for the auto members
+        re_per_device_priv = self._get_re_for_member('per_device_auto')
+        re_per_device_plat = self._get_re_for_member('per_device_plat_auto')
+        re_per_child_priv = self._get_re_for_member('per_child_auto')
+        re_per_child_plat = self._get_re_for_member('per_child_plat_auto')
+
+        prefix = ''
+        for line in buff.splitlines():
+            # Handle line continuation
+            if prefix:
+                line = prefix + line
+                prefix = ''
+            if line.endswith('\\'):
+                prefix = line[:-1]
+                continue
+
+            driver_match = re_driver.search(line)
+
+            # If we have seen UCLASS_DRIVER()...
+            if driver:
+                m_id = re_id.search(line)
+                m_priv = re_priv.match(line)
+                m_per_dev_priv = re_per_device_priv.match(line)
+                m_per_dev_plat = re_per_device_plat.match(line)
+                m_per_child_priv = re_per_child_priv.match(line)
+                m_per_child_plat = re_per_child_plat.match(line)
+                if m_id:
+                    driver.uclass_id = m_id.group(1)
+                elif m_priv:
+                    driver.priv = m_priv.group(1)
+                elif m_per_dev_priv:
+                    driver.per_dev_priv = m_per_dev_priv.group(1)
+                elif m_per_dev_plat:
+                    driver.per_dev_plat = m_per_dev_plat.group(1)
+                elif m_per_child_priv:
+                    driver.per_child_priv = m_per_child_priv.group(1)
+                elif m_per_child_plat:
+                    driver.per_child_plat = m_per_child_plat.group(1)
+                elif '};' in line:
+                    if not driver.uclass_id:
+                        raise ValueError(
+                            "%s: Cannot parse uclass ID in driver '%s'" %
+                            (fname, driver.name))
+                    uc_drivers[driver.uclass_id] = driver
+                    driver = None
+
+            elif driver_match:
+                driver_name = driver_match.group(1)
+                driver = UclassDriver(driver_name)
+
+        self._uclass.update(uc_drivers)
 
     def _parse_driver(self, fname, buff):
         """Parse a C file to extract driver information contained within
@@ -348,6 +468,8 @@ class Scanner:
             # obtain driver information
             if 'U_BOOT_DRIVER' in buff:
                 self._parse_driver(fname, buff)
+            if 'UCLASS_DRIVER' in buff:
+                self._parse_uclass_driver(fname, buff)
 
             # The following re will search for driver aliases declared as
             # DM_DRIVER_ALIAS(alias, driver_name)

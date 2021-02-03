@@ -7,6 +7,7 @@
 This includes unit tests for scanning of the source code
 """
 
+import copy
 import os
 import shutil
 import tempfile
@@ -263,3 +264,57 @@ U_BOOT_DRIVER(testing) = {
         self.assertEqual('some_cpriv', drv.child_priv)
         self.assertEqual('some_cplat', drv.child_plat)
         self.assertEqual(1, len(scan._drivers))
+
+    def test_uclass_scan(self):
+        """Test collection of uclass-driver info"""
+        buff = '''
+UCLASS_DRIVER(i2c) = {
+	.id		= UCLASS_I2C,
+	.name		= "i2c",
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
+	.priv_auto	= sizeof(struct some_priv),
+	.per_device_auto	= sizeof(struct per_dev_priv),
+	.per_device_plat_auto	= sizeof(struct per_dev_plat),
+	.per_child_auto	= sizeof(struct per_child_priv),
+	.per_child_plat_auto	= sizeof(struct per_child_plat),
+	.child_post_bind = i2c_child_post_bind,
+};
+
+'''
+        scan = src_scan.Scanner(None, False, None)
+        scan._parse_uclass_driver('file.c', buff)
+        self.assertIn('UCLASS_I2C', scan._uclass)
+        drv = scan._uclass['UCLASS_I2C']
+        self.assertEqual('i2c', drv.name)
+        self.assertEqual('UCLASS_I2C', drv.uclass_id)
+        self.assertEqual('some_priv', drv.priv)
+        self.assertEqual('per_dev_priv', drv.per_dev_priv)
+        self.assertEqual('per_dev_plat', drv.per_dev_plat)
+        self.assertEqual('per_child_priv', drv.per_child_priv)
+        self.assertEqual('per_child_plat', drv.per_child_plat)
+        self.assertEqual(1, len(scan._uclass))
+
+        drv2 = copy.deepcopy(drv)
+        self.assertEqual(drv, drv2)
+        drv2.priv = 'other_priv'
+        self.assertNotEqual(drv, drv2)
+
+        # The hashes only depend on the uclass ID, so should be equal
+        self.assertEqual(drv.__hash__(), drv2.__hash__())
+
+        self.assertEqual("UclassDriver(name='i2c', uclass_id='UCLASS_I2C')",
+                         str(drv))
+
+    def test_uclass_scan_errors(self):
+        """Test detection of uclass scanning errors"""
+        buff = '''
+UCLASS_DRIVER(i2c) = {
+	.name		= "i2c",
+};
+
+'''
+        scan = src_scan.Scanner(None, False, None)
+        with self.assertRaises(ValueError) as exc:
+            scan._parse_uclass_driver('file.c', buff)
+        self.assertIn("file.c: Cannot parse uclass ID in driver 'i2c'",
+                      str(exc.exception))
