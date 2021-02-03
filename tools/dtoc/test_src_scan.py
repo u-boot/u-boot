@@ -117,7 +117,9 @@ class TestSrcScan(unittest.TestCase):
 
             fname_list = []
             add_file('fname.c')
+            add_file('.git/ignoreme.c')
             add_file('dir/fname2.c')
+            add_file('build-sandbox/ignoreme2.c')
 
             # Mock out scan_driver and check that it is called with the
             # expected files
@@ -127,7 +129,8 @@ class TestSrcScan(unittest.TestCase):
             self.assertEqual(2, len(mocked.mock_calls))
             self.assertEqual(mock.call(fname_list[0]),
                              mocked.mock_calls[0])
-            self.assertEqual(mock.call(fname_list[1]),
+            # .git file should be ignored
+            self.assertEqual(mock.call(fname_list[2]),
                              mocked.mock_calls[1])
         finally:
             shutil.rmtree(indir)

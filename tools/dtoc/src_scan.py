@@ -345,6 +345,11 @@ class Scanner:
         This procedure will populate self._drivers and self._driver_aliases
         """
         for (dirpath, _, filenames) in os.walk(self._basedir):
+            rel_path = dirpath[len(self._basedir):]
+            if rel_path.startswith('/'):
+                rel_path = rel_path[1:]
+            if rel_path.startswith('build') or rel_path.startswith('.git'):
+                continue
             for fname in filenames:
                 if not fname.endswith('.c'):
                     continue
