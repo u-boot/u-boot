@@ -350,16 +350,22 @@ class DtbPlatdata():
             # recurse to handle any subnodes
             self.scan_node(subnode, valid_nodes)
 
-    def scan_tree(self):
+    def scan_tree(self, add_root):
         """Scan the device tree for useful information
 
         This fills in the following properties:
             _valid_nodes_unsorted: A list of nodes we wish to consider include
                 in the platform data (in devicetree node order)
             _valid_nodes: Sorted version of _valid_nodes_unsorted
+
+        Args:
+            add_root: True to add the root node also (which wouldn't normally
+                be added as it may not have a compatible string)
         """
         root = self._fdt.GetRoot()
         valid_nodes = []
+        if add_root:
+            valid_nodes.append(root)
         self.scan_node(root, valid_nodes)
         self._valid_nodes_unsorted = valid_nodes
         self._valid_nodes = sorted(valid_nodes,
@@ -839,7 +845,7 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs, phase,
         do_process = False
     plat = DtbPlatdata(scan, dtb_file, include_disabled)
     plat.scan_dtb()
-    plat.scan_tree()
+    plat.scan_tree(add_root=False)
     plat.prepare_nodes()
     plat.scan_reg_sizes()
     plat.setup_output_dirs(output_dirs)

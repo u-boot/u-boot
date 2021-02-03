@@ -33,6 +33,8 @@ def conv_name_to_c(name):
     new = new.replace('-', '_')
     new = new.replace(',', '_')
     new = new.replace('.', '_')
+    if new == '/':
+        return 'root'
     return new
 
 def get_compat_name(node):
@@ -250,7 +252,10 @@ class Scanner:
                 In case of no match found, the return will be the same as
                 get_compat_name()
         """
-        compat_list_c = get_compat_name(node)
+        if not node.parent:
+            compat_list_c = ['root_driver']
+        else:
+            compat_list_c = get_compat_name(node)
 
         for compat_c in compat_list_c:
             if not compat_c in self._drivers.keys():
@@ -509,21 +514,23 @@ class Scanner:
                 elif m_hdr:
                     driver.headers.append(m_hdr.group(1))
                 elif '};' in line:
-                    if driver.uclass_id and compat:
-                        if compat not in of_match:
-                            raise ValueError(
-                                "%s: Unknown compatible var '%s' (found: %s)" %
-                                (fname, compat, ','.join(of_match.keys())))
-                        driver.compat = of_match[compat]
+                    is_root = driver.name == 'root_driver'
+                    if driver.uclass_id and (compat or is_root):
+                        if not is_root:
+                            if compat not in of_match:
+                                raise ValueError(
+                                    "%s: Unknown compatible var '%s' (found: %s)" %
+                                    (fname, compat, ','.join(of_match.keys())))
+                            driver.compat = of_match[compat]
 
-                        # This needs to be deterministic, since a driver may
-                        # have multiple compatible strings pointing to it.
-                        # We record the one earliest in the alphabet so it
-                        # will produce the same result on all machines.
-                        for compat_id in of_match[compat]:
-                            old = self._compat_to_driver.get(compat_id)
-                            if not old or driver.name < old.name:
-                                self._compat_to_driver[compat_id] = driver
+                            # This needs to be deterministic, since a driver may
+                            # have multiple compatible strings pointing to it.
+                            # We record the one earliest in the alphabet so it
+                            # will produce the same result on all machines.
+                            for compat_id in of_match[compat]:
+                                old = self._compat_to_driver.get(compat_id)
+                                if not old or driver.name < old.name:
+                                    self._compat_to_driver[compat_id] = driver
                         drivers[driver.name] = driver
                     else:
                         # The driver does not have a uclass or compat string.

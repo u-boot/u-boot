@@ -974,10 +974,10 @@ U_BOOT_DRVINFO(spl_test2) = {
         output = tools.GetOutputFilename('output')
 
         # Take a copy before messing with it
-        scan = copy.deepcopy(saved_scan)
+        scan = copy_scan()
         plat = dtb_platdata.DtbPlatdata(scan, dtb_file, False)
         plat.scan_dtb()
-        plat.scan_tree()
+        plat.scan_tree(False)
         plat.prepare_nodes()
         return plat, scan
 
@@ -1123,3 +1123,22 @@ U_BOOT_DRVINFO(spl_test2) = {
         self.assertEqual(4, i2c.seq)
         spl = plat._fdt.GetNode('/spl-test')
         self.assertEqual(0, spl.seq)
+
+    def test_process_root(self):
+        """Test assignment of sequence numnbers"""
+        dtb_file = get_dtb_file('dtoc_test_simple.dts')
+        output = tools.GetOutputFilename('output')
+
+        # Take a copy before messing with it
+        scan = copy_scan()
+        plat = dtb_platdata.DtbPlatdata(scan, dtb_file, False)
+        plat.scan_dtb()
+        root = plat._fdt.GetRoot()
+
+        plat.scan_tree(False)
+        self.assertNotIn(root, plat._valid_nodes)
+
+        plat.scan_tree(True)
+        self.assertIn(root, plat._valid_nodes)
+        self.assertEqual('root_driver',
+                         scan.get_normalized_compat_name(root)[0])

@@ -161,6 +161,10 @@ class TestSrcScan(unittest.TestCase):
         prop.value = 'rockchip,rk3288-grf'
         node = FakeNode()
         node.props = {'compatible': prop}
+
+        # get_normalized_compat_name() uses this to check for root node
+        node.parent = FakeNode()
+
         scan = src_scan.Scanner(None, False, None)
         with test_util.capture_sys_output() as (stdout, _):
             name, aliases = scan.get_normalized_compat_name(node)
@@ -418,6 +422,9 @@ U_BOOT_DRIVER(%s) = {
         node = FakeNode()
         node.name = 'testing'
         node.props = {'compatible': prop}
+
+        # get_normalized_compat_name() uses this to check for root node
+        node.parent = FakeNode()
 
         return scan, drv1, driver2, node
 
