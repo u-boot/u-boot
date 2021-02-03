@@ -470,7 +470,6 @@ class DtbPlatdata():
         """
         structs = self._struct_data
         for node in self._valid_nodes:
-            node_name, _ = self._scan.get_normalized_compat_name(node)
             fields = {}
 
             # Get a list of all the valid properties in this node.
@@ -478,9 +477,9 @@ class DtbPlatdata():
                 if name not in PROP_IGNORE_LIST and name[0] != '#':
                     fields[name] = copy.deepcopy(prop)
 
-            # If we've seen this node_name before, update the existing struct.
-            if node_name in structs:
-                struct = structs[node_name]
+            # If we've seen this struct_name before, update the existing struct
+            if node.struct_name in structs:
+                struct = structs[node.struct_name]
                 for name, prop in fields.items():
                     oldprop = struct.get(name)
                     if oldprop:
@@ -490,11 +489,10 @@ class DtbPlatdata():
 
             # Otherwise store this as a new struct.
             else:
-                structs[node_name] = fields
+                structs[node.struct_name] = fields
 
         for node in self._valid_nodes:
-            node_name, _ = self._scan.get_normalized_compat_name(node)
-            struct = structs[node_name]
+            struct = structs[node.struct_name]
             for name, prop in node.props.items():
                 if name not in PROP_IGNORE_LIST and name[0] != '#':
                     prop.Widen(struct[name])
@@ -598,23 +596,22 @@ class DtbPlatdata():
                 self.buf(', '.join(vals[i:i + 8]))
         self.buf('}')
 
-    def _declare_device(self, var_name, struct_name, node_parent):
+    def _declare_device(self, node):
         """Add a device declaration to the output
 
         This declares a U_BOOT_DRVINFO() for the device being processed
 
         Args:
-            var_name (str): C name for the node
-            struct_name (str): Name for the dt struct associated with the node
-            node_parent (Node): Parent of the node (or None if none)
+            node: Node to process
         """
-        self.buf('U_BOOT_DRVINFO(%s) = {\n' % var_name)
-        self.buf('\t.name\t\t= "%s",\n' % struct_name)
-        self.buf('\t.plat\t= &%s%s,\n' % (VAL_PREFIX, var_name))
-        self.buf('\t.plat_size\t= sizeof(%s%s),\n' % (VAL_PREFIX, var_name))
+        self.buf('U_BOOT_DRVINFO(%s) = {\n' % node.var_name)
+        self.buf('\t.name\t\t= "%s",\n' % node.struct_name)
+        self.buf('\t.plat\t= &%s%s,\n' % (VAL_PREFIX, node.var_name))
+        self.buf('\t.plat_size\t= sizeof(%s%s),\n' %
+                 (VAL_PREFIX, node.var_name))
         idx = -1
-        if node_parent and node_parent in self._valid_nodes:
-            idx = node_parent.idx
+        if node.parent and node.parent in self._valid_nodes:
+            idx = node.parent.idx
         self.buf('\t.parent_idx\t= %d,\n' % idx)
         self.buf('};\n')
         self.buf('\n')
@@ -638,16 +635,14 @@ class DtbPlatdata():
             self.buf(get_value(prop.type, prop.value))
         self.buf(',\n')
 
-    def _output_values(self, var_name, struct_name, node):
+    def _output_values(self, node):
         """Output the definition of a device's struct values
 
         Args:
-            var_name (str): C name for the node
-            struct_name (str): Name for the dt struct associated with the node
-            node (Node): Node being output
+            node (Node): Node to output
         """
         self.buf('static struct %s%s %s%s = {\n' %
-                 (STRUCT_PREFIX, struct_name, VAL_PREFIX, var_name))
+                 (STRUCT_PREFIX, node.struct_name, VAL_PREFIX, node.var_name))
         for pname in sorted(node.props):
             self._output_prop(node, node.props[pname])
         self.buf('};\n')
@@ -658,12 +653,10 @@ class DtbPlatdata():
         Args:
             node (fdt.Node): node to output
         """
-        struct_name, _ = self._scan.get_normalized_compat_name(node)
-        var_name = conv_name_to_c(node.name)
         self.buf('/* Node %s index %d */\n' % (node.path, node.idx))
 
-        self._output_values(var_name, struct_name, node)
-        self._declare_device(var_name, struct_name, node.parent)
+        self._output_values(node)
+        self._declare_device(node)
 
         self.out(''.join(self.get_buf()))
 
