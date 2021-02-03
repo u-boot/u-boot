@@ -483,7 +483,7 @@ static int ns16550_serial_getinfo(struct udevice *dev,
 	return 0;
 }
 
-static int ns16550_serial_assign_base(struct ns16550_plat *plat, ulong base)
+static int ns16550_serial_assign_base(struct ns16550_plat *plat, fdt_addr_t base)
 {
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
