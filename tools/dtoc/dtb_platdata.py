@@ -689,6 +689,39 @@ class DtbPlatdata():
             elif result is False:
                 print("Could not find uclass for alias '%s'" % prop.name)
 
+    def generate_decl(self):
+        nodes_to_output = list(self._valid_nodes)
+
+        self.buf('#include <dm/device-internal.h>\n')
+        self.buf('#include <dm/uclass-internal.h>\n')
+        self.buf('\n')
+        self.buf(
+            '/* driver declarations - these allow DM_DRIVER_GET() to be used */\n')
+        for node in nodes_to_output:
+            self.buf('DM_DRIVER_DECL(%s);\n' % node.struct_name);
+        self.buf('\n')
+
+        if self._instantiate:
+            self.buf(
+                '/* device declarations - these allow DM_DEVICE_REF() to be used */\n')
+            for node in nodes_to_output:
+                self.buf('DM_DEVICE_DECL(%s);\n' % node.var_name)
+            self.buf('\n')
+
+        uclass_list = self._valid_uclasses
+
+        self.buf(
+            '/* uclass driver declarations - needed for DM_UCLASS_DRIVER_REF() */\n')
+        for uclass in uclass_list:
+            self.buf('DM_UCLASS_DRIVER_DECL(%s);\n' % uclass.name)
+
+        if self._instantiate:
+            self.buf('\n')
+            self.buf('/* uclass declarations - needed for DM_UCLASS_REF() */\n')
+            for uclass in uclass_list:
+                self.buf('DM_UCLASS_DECL(%s);\n' % uclass.name)
+        self.out(''.join(self.get_buf()))
+
     def assign_seqs(self):
         """Assign a sequence number to each node"""
         for node in self._valid_nodes_unsorted:
@@ -794,6 +827,9 @@ class DtbPlatdata():
 # key: Command used to generate this file
 # value: OutputFile for this command
 OUTPUT_FILES = {
+    'decl':
+        OutputFile(Ftype.HEADER, 'dt-decl.h', DtbPlatdata.generate_decl,
+                   'Declares externs for all device/uclass instances'),
     'struct':
         OutputFile(Ftype.HEADER, 'dt-structs-gen.h',
                    DtbPlatdata.generate_structs,
