@@ -52,6 +52,20 @@ TYPE_NAMES = {
 STRUCT_PREFIX = 'dtd_'
 VAL_PREFIX = 'dtv_'
 
+# Properties which are considered to be phandles
+#    key: property name
+#    value: name of associated #cells property in the target node
+#
+# New phandle properties must be added here; otherwise they will come through as
+# simple integers and finding devices by phandle will not work.
+# Any property that ends with one of these (e.g. 'cd-gpios') will be considered
+# a phandle property.
+PHANDLE_PROPS = {
+    'clocks': '#clock-cells',
+    'gpios': '#gpio-cells',
+    'sandbox,emul': '#emul-cells',
+    }
+
 class Ftype(IntEnum):
     SOURCE, HEADER = range(2)
 
@@ -290,7 +304,11 @@ class DtbPlatdata():
             ValueError: if the phandle cannot be parsed or the required property
                 is not present
         """
-        if prop.name in ['clocks', 'cd-gpios']:
+        cells_prop = None
+        for name, cprop in PHANDLE_PROPS.items():
+            if prop.name.endswith(name):
+                cells_prop = cprop
+        if cells_prop:
             if not isinstance(prop.value, list):
                 prop.value = [prop.value]
             val = prop.value
@@ -310,14 +328,10 @@ class DtbPlatdata():
                 if not target:
                     raise ValueError("Cannot parse '%s' in node '%s'" %
                                      (prop.name, node_name))
-                cells = None
-                for prop_name in ['#clock-cells', '#gpio-cells']:
-                    cells = target.props.get(prop_name)
-                    if cells:
-                        break
+                cells = target.props.get(cells_prop)
                 if not cells:
                     raise ValueError("Node '%s' has no cells property" %
-                                     (target.name))
+                                     target.name)
                 num_args = fdt_util.fdt32_to_cpu(cells.value)
                 max_args = max(max_args, num_args)
                 args.append(num_args)
