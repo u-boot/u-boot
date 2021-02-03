@@ -223,7 +223,7 @@ static int sandbox_i2c_rtc_bind(struct udevice *dev)
 }
 
 static const struct udevice_id sandbox_i2c_rtc_ids[] = {
-	{ .compatible = "sandbox,i2c-rtc" },
+	{ .compatible = "sandbox,i2c-rtc-emul" },
 	{ }
 };
 

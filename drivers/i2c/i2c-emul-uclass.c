@@ -85,8 +85,8 @@ static const struct udevice_id i2c_emul_parent_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(i2c_emul_parent_drv) = {
-	.name		= "i2c_emul_parent_drv",
+U_BOOT_DRIVER(sandbox_i2c_emul_parent) = {
+	.name		= "sandbox_i2c_emul_parent",
 	.id		= UCLASS_I2C_EMUL_PARENT,
 	.of_match	= i2c_emul_parent_ids,
 };
