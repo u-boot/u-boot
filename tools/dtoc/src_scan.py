@@ -116,6 +116,13 @@ class UclassDriver:
             e.g. 'pci_child_priv'
         per_child_plat (str): struct name of the per_child_plat_auto member,
             e.g. 'pci_child_plat'
+        alias_num_to_node (dict): Aliases for this uclasses (for sequence
+                numbers)
+            key (int): Alias number, e.g. 2 for "pci2"
+            value (str): Node the alias points to
+        alias_path_to_num (dict): Convert a path to an alias number
+            key (str): Full path to node (e.g. '/soc/pci')
+            seq (int): Alias number, e.g. 2 for "pci2"
     """
     def __init__(self, name):
         self.name = name
@@ -125,6 +132,8 @@ class UclassDriver:
         self.per_dev_plat = ''
         self.per_child_priv = ''
         self.per_child_plat = ''
+        self.alias_num_to_node = {}
+        self.alias_path_to_num = {}
 
     def __eq__(self, other):
         return (self.name == other.name and
@@ -622,7 +631,6 @@ class Scanner:
                     self.scan_driver(pathname)
                 elif fname.endswith('.h'):
                     self.scan_header(pathname)
-
         for fname in self._drivers_additional:
             if not isinstance(fname, str) or len(fname) == 0:
                 continue
@@ -652,3 +660,25 @@ class Scanner:
                     print("Warning: Duplicate driver name '%s' (orig=%s, dups=%s)" %
                           (driver.name, driver.fname,
                            ', '.join([drv.fname for drv in driver.dups])))
+
+    def add_uclass_alias(self, name, num, node):
+        """Add an alias to a uclass
+
+        Args:
+            name: Name of uclass, e.g. 'i2c'
+            num: Alias number, e.g. 2 for alias 'i2c2'
+            node: Node the alias points to, or None if None
+
+        Returns:
+            True if the node was added
+            False if the node was not added (uclass of that name not found)
+            None if the node could not be added because it was None
+        """
+        for uclass in self._uclass.values():
+            if uclass.name == name:
+                if node is None:
+                    return None
+                uclass.alias_num_to_node[int(num)] = node
+                uclass.alias_path_to_num[node.path] = int(num)
+                return True
+        return False

@@ -647,6 +647,29 @@ class DtbPlatdata():
             self._output_prop(node, node.props[pname])
         self.buf('};\n')
 
+    def read_aliases(self):
+        """Read the aliases and attach the information to self._alias
+
+        Raises:
+            ValueError: The alias path is not found
+        """
+        alias_node = self._fdt.GetNode('/aliases')
+        if not alias_node:
+            return
+        re_num = re.compile('(^[a-z0-9-]+[a-z]+)([0-9]+)$')
+        for prop in alias_node.props.values():
+            m_alias = re_num.match(prop.name)
+            if not m_alias:
+                raise ValueError("Cannot decode alias '%s'" % prop.name)
+            name, num = m_alias.groups()
+            node = self._fdt.GetNode(prop.value)
+            result = self._scan.add_uclass_alias(name, num, node)
+            if result is None:
+                raise ValueError("Alias '%s' path '%s' not found" %
+                                 (prop.name, prop.value))
+            elif result is False:
+                print("Could not find uclass for alias '%s'" % prop.name)
+
     def process_nodes(self, need_drivers):
         nodes_to_output = list(self._valid_nodes)
 
@@ -757,6 +780,9 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs, phase,
         scan (src_src.Scanner): Scanner from a previous run. This can help speed
             up tests. Use None for normal operation
 
+    Returns:
+        DtbPlatdata object
+
     Raises:
         ValueError: if args has no command, or an unknown command
     """
@@ -782,6 +808,7 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs, phase,
     plat.scan_phandles()
     if do_process:
         plat.process_nodes(False)
+    plat.read_aliases()
 
     cmds = args[0].split(',')
     if 'all' in cmds:
@@ -796,3 +823,4 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs, phase,
         plat.out_header(outfile)
         outfile.method(plat)
     plat.finish_output()
+    return plat

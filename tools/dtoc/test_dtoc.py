@@ -137,9 +137,12 @@ class TestDtoc(unittest.TestCase):
             args (list of str): List of arguments for dtoc
             dtb_file (str): Filename of .dtb file
             output (str): Filename of output file
+
+        Returns:
+            DtbPlatdata object
         """
-        dtb_platdata.run_steps(args, dtb_file, False, output, [], None,
-                               warning_disabled=True, scan=copy_scan())
+        return dtb_platdata.run_steps(args, dtb_file, False, output, [], None,
+                                      warning_disabled=True, scan=copy_scan())
 
     def test_name(self):
         """Test conversion of device tree names to C identifiers"""
@@ -1040,3 +1043,52 @@ U_BOOT_DRVINFO(spl_test2) = {
 
         gpio = scan._drivers['sandbox_gpio']
         self.assertFalse(gpio.used)
+
+    def test_alias_read(self):
+        """Test obtaining aliases"""
+        dtb_file = get_dtb_file('dtoc_test_inst.dts')
+        output = tools.GetOutputFilename('output')
+        plat = self.run_test(['struct'], dtb_file, output)
+
+        scan = plat._scan
+        testfdt_node = plat._fdt.GetNode('/some-bus/test')
+        self.assertIn('UCLASS_TEST_FDT', scan._uclass)
+        uc = scan._uclass['UCLASS_TEST_FDT']
+        self.assertEqual({1: testfdt_node}, uc.alias_num_to_node)
+        self.assertEqual({'/some-bus/test': 1}, uc.alias_path_to_num)
+
+        # Try adding an alias that doesn't exist
+        self.assertFalse(scan.add_uclass_alias('fred', 3, None))
+
+        # Try adding an alias for a missing node
+        self.assertIsNone(scan.add_uclass_alias('testfdt', 3, None))
+
+    def test_alias_read_bad(self):
+        """Test invalid alias property name"""
+        dtb_file = get_dtb_file('dtoc_test_alias_bad.dts')
+        output = tools.GetOutputFilename('output')
+        with self.assertRaises(ValueError) as exc:
+            plat = self.run_test(['struct'], dtb_file, output)
+        self.assertIn("Cannot decode alias 'i2c4-'", str(exc.exception))
+
+    def test_alias_read_bad_path(self):
+        """Test alias pointing to a non-existent node"""
+        # This line may produce a warning, so capture it:
+        # Warning (alias_paths): /aliases:i2c4: aliases property is not a valid
+        #    node (/does/not/exist)
+        dtb_file = get_dtb_file('dtoc_test_alias_bad_path.dts', True)
+
+        output = tools.GetOutputFilename('output')
+        with self.assertRaises(ValueError) as exc:
+            plat = self.run_test(['struct'], dtb_file, output)
+        self.assertIn("Alias 'i2c4' path '/does/not/exist' not found",
+                      str(exc.exception))
+
+    def test_alias_read_bad_uclass(self):
+        """Test alias for a uclass that doesn't exist"""
+        dtb_file = get_dtb_file('dtoc_test_alias_bad_uc.dts')
+        output = tools.GetOutputFilename('output')
+        with test_util.capture_sys_output() as (stdout, _):
+            plat = self.run_test(['struct'], dtb_file, output)
+        self.assertEqual("Could not find uclass for alias 'other1'",
+                         stdout.getvalue().strip())
