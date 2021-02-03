@@ -647,6 +647,38 @@ class DtbPlatdata():
             self._output_prop(node, node.props[pname])
         self.buf('};\n')
 
+    def process_nodes(self, need_drivers):
+        nodes_to_output = list(self._valid_nodes)
+
+        for node in nodes_to_output:
+            node.dev_ref = 'DM_DEVICE_REF(%s)' % node.var_name
+            driver = self._scan.get_driver(node.struct_name)
+            if not driver:
+                if not need_drivers:
+                    continue
+                raise ValueError("Cannot parse/find driver for '%s'" %
+                                 node.struct_name)
+            node.driver = driver
+            parent_driver = None
+            if node.parent in self._valid_nodes:
+                parent_driver = self._scan.get_driver(node.parent.struct_name)
+                if not parent_driver:
+                    if not need_drivers:
+                        continue
+                    raise ValueError(
+                        "Cannot parse/find parent driver '%s' for '%s'" %
+                        (node.parent.struct_name, node.struct_name))
+                node.parent_seq = len(node.parent.child_devs)
+                node.parent.child_devs.append(node)
+                node.parent.child_refs[node.parent_seq] = \
+                    '&%s->sibling_node' % node.dev_ref
+                node.parent_driver = parent_driver
+
+        for node in nodes_to_output:
+            ref = '&%s->child_head' % node.dev_ref
+            node.child_refs[-1] = ref
+            node.child_refs[len(node.child_devs)] = ref
+
     def output_node(self, node):
         """Output the C code for a node
 
@@ -731,6 +763,9 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs,
     if not scan:
         scan = src_scan.Scanner(basedir, warning_disabled, drivers_additional)
         scan.scan_drivers()
+        do_process = True
+    else:
+        do_process = False
     plat = DtbPlatdata(scan, dtb_file, include_disabled)
     plat.scan_dtb()
     plat.scan_tree()
@@ -739,6 +774,8 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs,
     plat.setup_output_dirs(output_dirs)
     plat.scan_structs()
     plat.scan_phandles()
+    if do_process:
+        plat.process_nodes(False)
 
     cmds = args[0].split(',')
     if 'all' in cmds:

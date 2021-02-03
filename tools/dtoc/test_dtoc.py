@@ -953,3 +953,79 @@ U_BOOT_DRVINFO(spl_test2) = {
         self.assertEqual(
             {'dt-structs-gen.h', 'source.dts', 'dt-plat.c', 'source.dtb'},
             leafs)
+
+    def setup_process_test(self):
+        """Set up a test of process_nodes()
+
+        This uses saved_scan but returns a deep copy of it, so it is safe to
+        modify it in these tests
+
+        Returns:
+            tuple:
+                DtbPlatdata: object to test
+                Scanner: scanner to use
+        """
+        dtb_file = get_dtb_file('dtoc_test_simple.dts')
+        output = tools.GetOutputFilename('output')
+
+        # Take a copy before messing with it
+        scan = copy.deepcopy(saved_scan)
+        plat = dtb_platdata.DtbPlatdata(scan, dtb_file, False)
+        plat.scan_dtb()
+        plat.scan_tree()
+        plat.prepare_nodes()
+        return plat, scan
+
+    def test_process_nodes(self):
+        """Test processing nodes to add various info"""
+        plat, scan = self.setup_process_test()
+        plat.process_nodes(True)
+
+        i2c_node = plat._fdt.GetNode('/i2c@0')
+        pmic_node = plat._fdt.GetNode('/i2c@0/pmic@9')
+        pmic = scan._drivers['sandbox_pmic']
+        i2c = scan._drivers['sandbox_i2c']
+        self.assertEqual('DM_DEVICE_REF(pmic_at_9)', pmic_node.dev_ref)
+        self.assertEqual(pmic, pmic_node.driver)
+        self.assertEqual(i2c_node, pmic_node.parent)
+        self.assertEqual(i2c, pmic_node.parent_driver)
+
+        # The pmic is the only child
+        self.assertEqual(pmic_node.parent_seq, 0)
+        self.assertEqual([pmic_node], i2c_node.child_devs)
+
+        # Start and end of the list should be the child_head
+        ref = '&DM_DEVICE_REF(i2c_at_0)->child_head'
+        self.assertEqual(
+            {-1: ref, 0: '&DM_DEVICE_REF(pmic_at_9)->sibling_node', 1: ref},
+            i2c_node.child_refs)
+
+    def test_process_nodes_bad_parent(self):
+        # Pretend that i2c has a parent (the pmic) and delete that driver
+        plat, scan = self.setup_process_test()
+
+        i2c_node = plat._fdt.GetNode('/i2c@0')
+        pmic_node = plat._fdt.GetNode('/i2c@0/pmic@9')
+        del scan._drivers['sandbox_pmic']
+        i2c_node.parent = pmic_node
+
+        # Process twice, the second time to generate an exception
+        plat.process_nodes(False)
+        with self.assertRaises(ValueError) as exc:
+            plat.process_nodes(True)
+        self.assertIn(
+            "Cannot parse/find parent driver 'sandbox_pmic' for 'sandbox_i2c",
+            str(exc.exception))
+
+    def test_process_nodes_bad_node(self):
+        plat, scan = self.setup_process_test()
+
+        # Now remove the pmic driver
+        del scan._drivers['sandbox_pmic']
+
+        # Process twice, the second time to generate an exception
+        plat.process_nodes(False)
+        with self.assertRaises(ValueError) as exc:
+            plat.process_nodes(True)
+        self.assertIn("Cannot parse/find driver for 'sandbox_pmic",
+                      str(exc.exception))

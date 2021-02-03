@@ -188,6 +188,17 @@ class Scanner:
         self._uclass = {}
         self._structs = {}
 
+    def get_driver(self, name):
+        """Get a driver given its name
+
+        Args:
+            name (str): Driver name
+
+        Returns:
+            Driver: Driver or None if not found
+        """
+        return self._drivers.get(name)
+
     def get_normalized_compat_name(self, node):
         """Get a node's normalized compat name
 
