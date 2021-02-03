@@ -17,6 +17,20 @@ from dtoc import src_scan
 from patman import test_util
 from patman import tools
 
+OUR_PATH = os.path.dirname(os.path.realpath(__file__))
+
+class FakeNode:
+    """Fake Node object for testing"""
+    def __init__(self):
+        self.name = None
+        self.props = {}
+
+class FakeProp:
+    """Fake Prop object for testing"""
+    def __init__(self):
+        self.name = None
+        self.value = None
+
 # This is a test so is allowed to access private things in the module it is
 # testing
 # pylint: disable=W0212
@@ -69,10 +83,22 @@ class TestSrcScan(unittest.TestCase):
 
     def test_driver(self):
         """Test the Driver class"""
-        drv1 = src_scan.Driver('fred')
-        drv2 = src_scan.Driver('mary')
-        drv3 = src_scan.Driver('fred')
-        self.assertEqual("Driver(name='fred')", str(drv1))
+        i2c = 'I2C_UCLASS'
+        compat = {'rockchip,rk3288-grf': 'ROCKCHIP_SYSCON_GRF',
+                  'rockchip,rk3288-srf': None}
+        drv1 = src_scan.Driver('fred', 'fred.c')
+        drv2 = src_scan.Driver('mary', 'mary.c')
+        drv3 = src_scan.Driver('fred', 'fred.c')
+        drv1.uclass_id = i2c
+        drv1.compat = compat
+        drv2.uclass_id = i2c
+        drv2.compat = compat
+        drv3.uclass_id = i2c
+        drv3.compat = compat
+        self.assertEqual(
+            "Driver(name='fred', uclass_id='I2C_UCLASS', "
+            "compat={'rockchip,rk3288-grf': 'ROCKCHIP_SYSCON_GRF', "
+            "'rockchip,rk3288-srf': None}, priv=)", str(drv1))
         self.assertEqual(drv1, drv3)
         self.assertNotEqual(drv1, drv2)
         self.assertNotEqual(drv2, drv3)
@@ -105,3 +131,100 @@ class TestSrcScan(unittest.TestCase):
                              mocked.mock_calls[1])
         finally:
             shutil.rmtree(indir)
+
+    def test_scan(self):
+        """Test scanning of a driver"""
+        fname = os.path.join(OUR_PATH, '..', '..', 'drivers/i2c/tegra_i2c.c')
+        buff = tools.ReadFile(fname, False)
+        scan = src_scan.Scanner(None, False, None)
+        scan._parse_driver(fname, buff)
+        self.assertIn('i2c_tegra', scan._drivers)
+        drv = scan._drivers['i2c_tegra']
+        self.assertEqual('i2c_tegra', drv.name)
+        self.assertEqual('UCLASS_I2C', drv.uclass_id)
+        self.assertEqual(
+            {'nvidia,tegra114-i2c': 'TYPE_114',
+             'nvidia,tegra20-i2c': 'TYPE_STD',
+             'nvidia,tegra20-i2c-dvc': 'TYPE_DVC'}, drv.compat)
+        self.assertEqual('i2c_bus', drv.priv)
+        self.assertEqual(1, len(scan._drivers))
+
+    def test_normalized_name(self):
+        """Test operation of get_normalized_compat_name()"""
+        prop = FakeProp()
+        prop.name = 'compatible'
+        prop.value = 'rockchip,rk3288-grf'
+        node = FakeNode()
+        node.props = {'compatible': prop}
+        scan = src_scan.Scanner(None, False, None)
+        with test_util.capture_sys_output() as (stdout, _):
+            name, aliases = scan.get_normalized_compat_name(node)
+        self.assertEqual('rockchip_rk3288_grf', name)
+        self.assertEqual([], aliases)
+        self.assertEqual(
+            'WARNING: the driver rockchip_rk3288_grf was not found in the driver list',
+            stdout.getvalue().strip())
+
+        i2c = 'I2C_UCLASS'
+        compat = {'rockchip,rk3288-grf': 'ROCKCHIP_SYSCON_GRF',
+                  'rockchip,rk3288-srf': None}
+        drv = src_scan.Driver('fred', 'fred.c')
+        drv.uclass_id = i2c
+        drv.compat = compat
+        scan._drivers['rockchip_rk3288_grf'] = drv
+
+        scan._driver_aliases['rockchip_rk3288_srf'] = 'rockchip_rk3288_grf'
+
+        with test_util.capture_sys_output() as (stdout, _):
+            name, aliases = scan.get_normalized_compat_name(node)
+        self.assertEqual('', stdout.getvalue().strip())
+        self.assertEqual('rockchip_rk3288_grf', name)
+        self.assertEqual([], aliases)
+
+        prop.value = 'rockchip,rk3288-srf'
+        with test_util.capture_sys_output() as (stdout, _):
+            name, aliases = scan.get_normalized_compat_name(node)
+        self.assertEqual('', stdout.getvalue().strip())
+        self.assertEqual('rockchip_rk3288_grf', name)
+        self.assertEqual(['rockchip_rk3288_srf'], aliases)
+
+    def test_scan_errors(self):
+        """Test detection of scanning errors"""
+        buff = '''
+static const struct udevice_id tegra_i2c_ids2[] = {
+	{ .compatible = "nvidia,tegra114-i2c", .data = TYPE_114 },
+	{ }
+};
+
+U_BOOT_DRIVER(i2c_tegra) = {
+	.name	= "i2c_tegra",
+	.id	= UCLASS_I2C,
+	.of_match = tegra_i2c_ids,
+};
+'''
+        scan = src_scan.Scanner(None, False, None)
+        with self.assertRaises(ValueError) as exc:
+            scan._parse_driver('file.c', buff)
+        self.assertIn(
+            "file.c: Unknown compatible var 'tegra_i2c_ids' (found: tegra_i2c_ids2)",
+            str(exc.exception))
+
+    def test_of_match(self):
+        """Test detection of of_match_ptr() member"""
+        buff = '''
+static const struct udevice_id tegra_i2c_ids[] = {
+	{ .compatible = "nvidia,tegra114-i2c", .data = TYPE_114 },
+	{ }
+};
+
+U_BOOT_DRIVER(i2c_tegra) = {
+	.name	= "i2c_tegra",
+	.id	= UCLASS_I2C,
+	.of_match = of_match_ptr(tegra_i2c_ids),
+};
+'''
+        scan = src_scan.Scanner(None, False, None)
+        scan._parse_driver('file.c', buff)
+        self.assertIn('i2c_tegra', scan._drivers)
+        drv = scan._drivers['i2c_tegra']
+        self.assertEqual('i2c_tegra', drv.name)
