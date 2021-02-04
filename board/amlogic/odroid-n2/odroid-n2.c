@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <adc.h>
 #include <env.h>
 #include <init.h>
 #include <net.h>
@@ -19,10 +20,88 @@
 #define EFUSE_MAC_SIZE		12
 #define MAC_ADDR_LEN		6
 
+#define ODROID_HW_VS_ADC_CHANNEL	1
+
+#define MESON_SOC_ID_G12B	0x29
+#define MESON_SOC_ID_SM1	0x2b
+
 int mmc_get_env_dev(void)
 {
 	if (meson_get_boot_device() == BOOT_DEVICE_EMMC)
 		return 1;
+	return 0;
+}
+
+/* Variant detection is based on the ADC RAW values for the channel #1 */
+static struct meson_odroid_boards {
+	unsigned int soc_id;
+	unsigned int adc_min;
+	unsigned int adc_max;
+	char *variant;
+} boards[] = {
+	/* OdroidN2 rev 2018,7,23 */
+	{ MESON_SOC_ID_G12B, 80 * 4,  90 * 4, "n2" },
+	/* OdroidN2 rev 2018,12,6 */
+	{ MESON_SOC_ID_G12B, 160 * 4, 170 * 4, "n2" },
+	/* OdroidN2 rev 2019,1,17 */
+	{ MESON_SOC_ID_G12B, 245 * 4, 255 * 4, "n2" },
+	/* OdroidN2 rev 2019,2,7 */
+	{ MESON_SOC_ID_G12B, 330 * 4, 350 * 4, "n2" },
+	/* OdroidN2plus rev 2019,11,20 */
+	{ MESON_SOC_ID_G12B, 410 * 4, 430 * 4, "n2_plus" },
+	/* OdroidC4 rev 2020,01,29 */
+	{ MESON_SOC_ID_SM1,   80 * 4, 100 * 4, "c4" },
+	/* OdroidHC4 rev 2019,12,10 */
+	{ MESON_SOC_ID_SM1,  300 * 4, 320 * 4, "hc4" },
+	/* OdroidC4 rev 2019,11,29 */
+	{ MESON_SOC_ID_SM1,  335 * 4, 345 * 4, "c4" },
+	/* OdroidHC4 rev 2020,8,7 */
+	{ MESON_SOC_ID_SM1,  590 * 4, 610 * 4, "hc4" },
+};
+
+static void odroid_set_fdtfile(char *soc, char *variant)
+{
+	char s[128];
+
+	snprintf(s, sizeof(s), "amlogic/meson-%s-odroid-%s.dtb", soc, variant);
+	env_set("fdtfile", s);
+}
+
+static int odroid_detect_variant(void)
+{
+	char *variant = "", *soc = "";
+	unsigned int adcval = 0;
+	int ret, i, soc_id = 0;
+
+	if (of_machine_is_compatible("amlogic,sm1")) {
+		soc_id = MESON_SOC_ID_SM1;
+		soc = "sm1";
+	} else if (of_machine_is_compatible("amlogic,g12b")) {
+		soc_id = MESON_SOC_ID_G12B;
+		soc = "g12b";
+	} else {
+		return -1;
+	}
+
+	ret = adc_channel_single_shot("adc@9000", ODROID_HW_VS_ADC_CHANNEL,
+				      &adcval);
+	if (ret)
+		return ret;
+
+	for (i = 0 ; i < ARRAY_SIZE(boards) ; ++i) {
+		if (soc_id == boards[i].soc_id &&
+		    adcval >= boards[i].adc_min &&
+		    adcval < boards[i].adc_max) {
+			variant = boards[i].variant;
+			break;
+		}
+	}
+
+	printf("Board variant: %s\n", variant);
+	env_set("variant", variant);
+
+	odroid_set_fdtfile(soc, variant);
+
 	return 0;
 }
 
@@ -58,5 +137,6 @@ int misc_init_r(void)
 			meson_generate_serial_ethaddr();
 	}
 
+	odroid_detect_variant();
 	return 0;
 }
