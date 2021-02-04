@@ -369,6 +369,26 @@ static int am654_sdhci_deferred_probe(struct sdhci_host *host)
 	return sdhci_probe(dev);
 }
 
+static void am654_sdhci_write_b(struct sdhci_host *host, u8 val, int reg)
+{
+	if (reg == SDHCI_HOST_CONTROL) {
+		switch (host->mmc->selected_mode) {
+		/*
+		 * According to the data manual, HISPD bit
+		 * should not be set in these speed modes.
+		 */
+		case SD_HS:
+		case MMC_HS:
+		case UHS_SDR12:
+		case UHS_SDR25:
+			val &= ~SDHCI_CTRL_HISPD;
+		default:
+			break;
+		}
+	}
+
+	writeb(val, host->ioaddr + reg);
+}
 #ifdef MMC_SUPPORTS_TUNING
 #define ITAP_MAX	32
 static int am654_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
@@ -414,6 +434,7 @@ const struct sdhci_ops am654_sdhci_ops = {
 	.deferred_probe		= am654_sdhci_deferred_probe,
 	.set_ios_post		= &am654_sdhci_set_ios_post,
 	.set_control_reg	= &am654_sdhci_set_control_reg,
+	.write_b		= am654_sdhci_write_b,
 };
 
 const struct am654_driver_data am654_drv_data = {
@@ -455,6 +476,7 @@ const struct sdhci_ops j721e_4bit_sdhci_ops = {
 #endif
 	.deferred_probe		= am654_sdhci_deferred_probe,
 	.set_ios_post		= &j721e_4bit_sdhci_set_ios_post,
+	.write_b		= am654_sdhci_write_b,
 };
 
 const struct am654_driver_data j721e_4bit_drv_data = {
@@ -532,6 +554,7 @@ static int am654_sdhci_probe(struct udevice *dev)
 	host->max_clk = clock;
 	host->mmc = &plat->mmc;
 	host->mmc->dev = dev;
+	host->ops = drv_data->ops;
 	ret = sdhci_setup_cfg(cfg, host, cfg->f_max,
 			      AM654_SDHCI_MIN_FREQ);
 	if (ret)
@@ -540,8 +563,6 @@ static int am654_sdhci_probe(struct udevice *dev)
 	ret = sdhci_am654_get_otap_delay(dev, cfg);
 	if (ret)
 		return ret;
-
-	host->ops = drv_data->ops;
 
 	/* Update ops based on SoC revision */
 	soc = soc_device_match(am654_sdhci_soc_attr);
