@@ -253,6 +253,7 @@
 		ti,otap-del-sel-sdr50 = <0xc>;
 		ti,otap-del-sel-sdr104 = <0x5>;
 		ti,otap-del-sel-ddr50 = <0xc>;
+		ti,clkbuf-sel = <0x7>;
 		dma-coherent;
 	};
 
