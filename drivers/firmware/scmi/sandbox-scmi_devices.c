@@ -50,6 +50,9 @@ static int sandbox_scmi_devices_remove(struct udevice *dev)
 	int ret = 0;
 	size_t n;
 
+	if (!devices)
+		return 0;
+
 	for (n = 0; n < SCMI_TEST_DEVICES_RD_COUNT; n++) {
 		int ret2 = reset_free(devices->reset + n);
 

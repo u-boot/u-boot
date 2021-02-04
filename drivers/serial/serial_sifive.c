@@ -178,7 +178,7 @@ static int sifive_serial_of_to_plat(struct udevice *dev)
 {
 	struct sifive_uart_plat *plat = dev_get_plat(dev);
 
-	plat->regs = (struct uart_sifive *)dev_read_addr(dev);
+	plat->regs = (struct uart_sifive *)(uintptr_t)dev_read_addr(dev);
 	if (IS_ERR(plat->regs))
 		return PTR_ERR(plat->regs);
 

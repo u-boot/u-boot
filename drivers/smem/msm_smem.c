@@ -437,7 +437,7 @@ static int qcom_smem_alloc(unsigned int host, unsigned int item, size_t size)
 	int ret;
 
 	if (!__smem)
-		return -EPROBE_DEFER;
+		return -ENOMEM;
 
 	if (item < SMEM_ITEM_LAST_FIXED) {
 		dev_err(__smem->dev,
@@ -559,7 +559,7 @@ static void *qcom_smem_get(unsigned int host, unsigned int item, size_t *size)
 {
 	struct smem_partition_header *phdr;
 	size_t cacheln;
-	void *ptr = ERR_PTR(-EPROBE_DEFER);
+	void *ptr = ERR_PTR(-ENOMEM);
 
 	if (!__smem)
 		return ptr;
@@ -597,7 +597,7 @@ static int qcom_smem_get_free_space(unsigned int host)
 	unsigned int ret;
 
 	if (!__smem)
-		return -EPROBE_DEFER;
+		return -ENOMEM;
 
 	if (host < SMEM_HOST_COUNT && __smem->partitions[host]) {
 		phdr = __smem->partitions[host];

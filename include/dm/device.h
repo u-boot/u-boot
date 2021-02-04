@@ -71,12 +71,22 @@ struct driver_info;
  * Device is removed without switching off its power domain. This might
  * be required, i. e. for serial console (debug) output when booting OS.
  */
-#define DM_FLAG_REMOVE_WITH_PD_ON	(1 << 13)
+#define DM_FLAG_LEAVE_PD_ON		(1 << 13)
+
+/*
+ * Device is vital to the operation of other devices. It is possible to remove
+ * removed this device after all regular devices are removed. This is useful
+ * e.g. for clock, which need to be active during the device-removal phase.
+ */
+#define DM_FLAG_VITAL			(1 << 14)
 
 /*
  * One or multiple of these flags are passed to device_remove() so that
  * a selective device removal as specified by the remove-stage and the
  * driver flags can be done.
+ *
+ * DO NOT use these flags in your driver's @flags value...
+ *	use the above DM_FLAG_... values instead
  */
 enum {
 	/* Normal remove, remove all devices */
@@ -88,7 +98,8 @@ enum {
 	/* Remove devices which need some final OS preparation steps */
 	DM_REMOVE_OS_PREPARE	= DM_FLAG_OS_PREPARE,
 
-	/* Add more use cases here */
+	/* Remove only devices that are not marked vital */
+	DM_REMOVE_NON_VITAL	= DM_FLAG_VITAL,
 
 	/* Remove devices with any active flag */
 	DM_REMOVE_ACTIVE_ALL	= DM_REMOVE_ACTIVE_DMA | DM_REMOVE_OS_PREPARE,

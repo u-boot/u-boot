@@ -326,7 +326,8 @@ void relocate_code(ulong start_addr_sp, struct global_data *new_gd,
 #endif
 
 /* Print a numeric value (for use in arch_print_bdinfo()) */
-void bdinfo_print_num(const char *name, ulong value);
+void bdinfo_print_num_l(const char *name, ulong value);
+void bdinfo_print_num_ll(const char *name, unsigned long long value);
 
 /* Print a clock speed in MHz */
 void bdinfo_print_mhz(const char *name, unsigned long hz);

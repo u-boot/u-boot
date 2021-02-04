@@ -341,7 +341,7 @@ void os_localtime(struct rtc_time *rt);
 /**
  * os_abort() - raise SIGABRT to exit sandbox (e.g. to debugger)
  */
-void os_abort(void);
+void os_abort(void) __attribute__((noreturn));
 
 /**
  * os_mprotect_allow() - Remove write-protection on a region of memory
