@@ -151,21 +151,6 @@ struct am654_driver_data {
 	u32 flags;
 };
 
-static void am654_sdhci_set_control_reg(struct sdhci_host *host)
-{
-	struct mmc *mmc = (struct mmc *)host->mmc;
-	u32 reg;
-
-	if (IS_SD(host->mmc) &&
-	    mmc->signal_voltage == MMC_SIGNAL_VOLTAGE_180) {
-		reg = sdhci_readw(host, SDHCI_HOST_CONTROL2);
-		reg |= SDHCI_CTRL_VDD_180;
-		sdhci_writew(host, reg, SDHCI_HOST_CONTROL2);
-	}
-
-	sdhci_set_uhs_timing(host);
-}
-
 static int am654_sdhci_setup_dll(struct am654_sdhci_plat *plat,
 				 unsigned int speed)
 {
@@ -433,7 +418,7 @@ const struct sdhci_ops am654_sdhci_ops = {
 #endif
 	.deferred_probe		= am654_sdhci_deferred_probe,
 	.set_ios_post		= &am654_sdhci_set_ios_post,
-	.set_control_reg	= &am654_sdhci_set_control_reg,
+	.set_control_reg	= sdhci_set_control_reg,
 	.write_b		= am654_sdhci_write_b,
 };
 
@@ -476,6 +461,7 @@ const struct sdhci_ops j721e_4bit_sdhci_ops = {
 #endif
 	.deferred_probe		= am654_sdhci_deferred_probe,
 	.set_ios_post		= &j721e_4bit_sdhci_set_ios_post,
+	.set_control_reg	= sdhci_set_control_reg,
 	.write_b		= am654_sdhci_write_b,
 };
 
