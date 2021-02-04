@@ -576,11 +576,18 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 	fdt_fixup_pstore(blob);
 #endif
 	if (IMAGE_OF_BOARD_SETUP) {
-		fdt_ret = ft_board_setup(blob, gd->bd);
-		if (fdt_ret) {
-			printf("ERROR: board-specific fdt fixup failed: %s\n",
-			       fdt_strerror(fdt_ret));
-			goto err;
+		const char *skip_board_fixup;
+
+		skip_board_fixup = env_get("skip_board_fixup");
+		if (skip_board_fixup && ((int)simple_strtol(skip_board_fixup, NULL, 10) == 1)) {
+			printf("skip board fdt fixup\n");
+		} else {
+			fdt_ret = ft_board_setup(blob, gd->bd);
+			if (fdt_ret) {
+				printf("ERROR: board-specific fdt fixup failed: %s\n",
+				       fdt_strerror(fdt_ret));
+				goto err;
+			}
 		}
 	}
 	if (IMAGE_OF_SYSTEM_SETUP) {
