@@ -48,6 +48,8 @@
 #define SEL100_MASK		BIT(SEL100_SHIFT)
 #define FREQSEL_SHIFT		8
 #define FREQSEL_MASK		GENMASK(10, 8)
+#define CLKBUFSEL_SHIFT		0
+#define CLKBUFSEL_MASK		GENMASK(2, 0)
 #define DLL_TRIM_ICP_SHIFT	4
 #define DLL_TRIM_ICP_MASK	GENMASK(7, 4)
 #define DR_TY_SHIFT		20
@@ -92,6 +94,7 @@ struct am654_sdhci_plat {
 	u32 trm_icp;
 	u32 drv_strength;
 	u32 strb_sel;
+	u32 clkbuf_sel;
 	u32 flags;
 #define DLL_PRESENT	BIT(0)
 #define IOMUX_PRESENT	BIT(1)
@@ -295,6 +298,9 @@ static int am654_sdhci_set_ios_post(struct sdhci_host *host)
 		am654_sdhci_setup_delay_chain(plat, mode);
 	}
 
+	regmap_update_bits(plat->base, PHY_CTRL5, CLKBUFSEL_MASK,
+			   plat->clkbuf_sel);
+
 	return 0;
 }
 
@@ -394,6 +400,9 @@ static int j721e_4bit_sdhci_set_ios_post(struct sdhci_host *host)
 	mask = OTAPDLYENA_MASK | OTAPDLYSEL_MASK;
 	val = (1 << OTAPDLYENA_SHIFT) | (otap_del_sel << OTAPDLYSEL_SHIFT);
 	regmap_update_bits(plat->base, PHY_CTRL4, mask, val);
+
+	regmap_update_bits(plat->base, PHY_CTRL5, CLKBUFSEL_MASK,
+			   plat->clkbuf_sel);
 
 	return 0;
 }
@@ -547,6 +556,8 @@ static int am654_sdhci_of_to_plat(struct udevice *dev)
 			return -EINVAL;
 		}
 	}
+
+	dev_read_u32(dev, "ti,clkbuf-sel", &plat->clkbuf_sel);
 
 	ret = mmc_of_parse(dev, cfg);
 	if (ret)
