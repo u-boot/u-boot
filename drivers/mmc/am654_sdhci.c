@@ -9,6 +9,7 @@
 #include <common.h>
 #include <dm.h>
 #include <malloc.h>
+#include <mmc.h>
 #include <power-domain.h>
 #include <regmap.h>
 #include <sdhci.h>
@@ -368,7 +369,48 @@ static int am654_sdhci_deferred_probe(struct sdhci_host *host)
 	return sdhci_probe(dev);
 }
 
+#ifdef MMC_SUPPORTS_TUNING
+#define ITAP_MAX	32
+static int am654_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
+{
+	struct udevice *dev = mmc->dev;
+	struct am654_sdhci_plat *plat = dev_get_plat(dev);
+	int cur_val, prev_val = 1, fail_len = 0, pass_window = 0, pass_len;
+	u32 itap;
+
+	/* Enable ITAPDLY */
+	regmap_update_bits(plat->base, PHY_CTRL4, ITAPDLYENA_MASK,
+			   1 << ITAPDLYENA_SHIFT);
+
+	for (itap = 0; itap < ITAP_MAX; itap++) {
+		am654_sdhci_write_itapdly(plat, itap);
+
+		cur_val = !mmc_send_tuning(mmc, opcode, NULL);
+		if (cur_val && !prev_val)
+			pass_window = itap;
+
+		if (!cur_val)
+			fail_len++;
+
+		prev_val = cur_val;
+	}
+	/*
+	 * Having determined the length of the failing window and start of
+	 * the passing window calculate the length of the passing window and
+	 * set the final value halfway through it considering the range as a
+	 * circular buffer
+	 */
+	pass_len = ITAP_MAX - fail_len;
+	itap = (pass_window + (pass_len >> 1)) % ITAP_MAX;
+	am654_sdhci_write_itapdly(plat, itap);
+
+	return 0;
+}
+#endif
 const struct sdhci_ops am654_sdhci_ops = {
+#ifdef MMC_SUPPORTS_TUNING
+	.platform_execute_tuning = am654_sdhci_execute_tuning,
+#endif
 	.deferred_probe		= am654_sdhci_deferred_probe,
 	.set_ios_post		= &am654_sdhci_set_ios_post,
 	.set_control_reg	= &am654_sdhci_set_control_reg,
@@ -408,6 +450,9 @@ static int j721e_4bit_sdhci_set_ios_post(struct sdhci_host *host)
 }
 
 const struct sdhci_ops j721e_4bit_sdhci_ops = {
+#ifdef MMC_SUPPORTS_TUNING
+	.platform_execute_tuning = am654_sdhci_execute_tuning,
+#endif
 	.deferred_probe		= am654_sdhci_deferred_probe,
 	.set_ios_post		= &j721e_4bit_sdhci_set_ios_post,
 };
