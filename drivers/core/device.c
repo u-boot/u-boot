@@ -92,15 +92,19 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 	if (auto_seq && !(uc->uc_drv->flags & DM_UC_FLAG_NO_AUTO_SEQ))
 		dev->seq_ = uclass_find_next_free_seq(uc);
 
+	/* Check if we need to allocate plat */
 	if (drv->plat_auto) {
 		bool alloc = !plat;
 
+		/*
+		 * For of-platdata, we try use the existing data, but if
+		 * plat_auto is larger, we must allocate a new space
+		 */
 		if (CONFIG_IS_ENABLED(OF_PLATDATA)) {
-			if (of_plat_size) {
+			if (of_plat_size)
 				dev_or_flags(dev, DM_FLAG_OF_PLATDATA);
-				if (of_plat_size < drv->plat_auto)
-					alloc = true;
-			}
+			if (of_plat_size < drv->plat_auto)
+				alloc = true;
 		}
 		if (alloc) {
 			dev_or_flags(dev, DM_FLAG_ALLOC_PDATA);
@@ -109,6 +113,11 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 				ret = -ENOMEM;
 				goto fail_alloc1;
 			}
+
+			/*
+			 * For of-platdata, copy the old plat into the new
+			 * space
+			 */
 			if (CONFIG_IS_ENABLED(OF_PLATDATA) && plat)
 				memcpy(ptr, plat, of_plat_size);
 			dev_set_plat(dev, ptr);
