@@ -1237,11 +1237,37 @@ again:
 		}
 
 		*last_slash_cont = '\0';
-		*basename = last_slash_cont + 1;
+		filename = last_slash_cont + 1;
 	} else {
 		*dirname = "/"; /* root by default */
-		*basename = filename;
 	}
+
+	/*
+	 * The FAT32 File System Specification v1.03 requires leading and
+	 * trailing spaces as well as trailing periods to be ignored.
+	 */
+	for (; *filename == ' '; ++filename)
+		;
+
+	/* Keep special entries '.' and '..' */
+	if (filename[0] == '.' &&
+	    (!filename[1] || (filename[1] == '.' && !filename[2])))
+		goto done;
+
+	/* Remove trailing periods and spaces */
+	for (p = filename + strlen(filename) - 1; p >= filename; --p) {
+		switch (*p) {
+		case ' ':
+		case '.':
+			*p = 0;
+			break;
+		default:
+			goto done;
+		}
+	}
+
+done:
+	*basename = filename;
 
 	return 0;
 }
@@ -1259,8 +1285,10 @@ again:
 static int normalize_longname(char *l_filename, const char *filename)
 {
 	const char *p, illegal[] = "<>:\"/\\|?*";
+	size_t len;
 
-	if (strlen(filename) >= VFAT_MAXLEN_BYTES)
+	len = strlen(filename);
+	if (!len || len >= VFAT_MAXLEN_BYTES || filename[len - 1] == '.')
 		return -1;
 
 	for (p = filename; *p; ++p) {
@@ -1299,9 +1327,8 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 		goto exit;
 	}
 
-	filename = basename;
-	if (normalize_longname(l_filename, filename)) {
-		printf("FAT: illegal filename (%s)\n", filename);
+	if (normalize_longname(l_filename, basename)) {
+		printf("FAT: illegal filename (%s)\n", basename);
 		ret = -EINVAL;
 		goto exit;
 	}
@@ -1349,15 +1376,6 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 		char shortname[SHORT_NAME_SIZE];
 		int ndent;
 
-		if (itr->is_root) {
-			/* root dir cannot have "." or ".." */
-			if (!strcmp(l_filename, ".") ||
-			    !strcmp(l_filename, "..")) {
-				ret = -EINVAL;
-				goto exit;
-			}
-		}
-
 		if (pos) {
 			/* No hole allowed */
 			ret = -EINVAL;
@@ -1365,7 +1383,7 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 		}
 
 		/* Check if long name is needed */
-		ndent = set_name(itr, filename, shortname);
+		ndent = set_name(itr, basename, shortname);
 		if (ndent < 0) {
 			ret = ndent;
 			goto exit;
@@ -1375,7 +1393,7 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 			goto exit;
 		if (ndent > 1) {
 			/* Set long name entries */
-			ret = fill_dir_slot(itr, filename, shortname);
+			ret = fill_dir_slot(itr, basename, shortname);
 			if (ret)
 				goto exit;
 		}
@@ -1611,31 +1629,31 @@ exit:
 	return ret;
 }
 
-int fat_mkdir(const char *new_dirname)
+int fat_mkdir(const char *dirname)
 {
 	dir_entry *retdent;
 	fsdata datablock = { .fatbuf = NULL, };
 	fsdata *mydata = &datablock;
 	fat_itr *itr = NULL;
-	char *dirname_copy, *parent, *dirname;
+	char *dirname_copy, *parent, *basename;
 	char l_dirname[VFAT_MAXLEN_BYTES];
 	int ret = -1;
 	loff_t actwrite;
 	unsigned int bytesperclust;
 	dir_entry *dotdent = NULL;
 
-	dirname_copy = strdup(new_dirname);
+	dirname_copy = strdup(dirname);
 	if (!dirname_copy)
 		goto exit;
 
-	split_filename(dirname_copy, &parent, &dirname);
-	if (!strlen(dirname)) {
+	split_filename(dirname_copy, &parent, &basename);
+	if (!strlen(basename)) {
 		ret = -EINVAL;
 		goto exit;
 	}
 
-	if (normalize_longname(l_dirname, dirname)) {
-		printf("FAT: illegal filename (%s)\n", dirname);
+	if (normalize_longname(l_dirname, basename)) {
+		printf("FAT: illegal filename (%s)\n", basename);
 		ret = -EINVAL;
 		goto exit;
 	}
@@ -1678,7 +1696,7 @@ int fat_mkdir(const char *new_dirname)
 		}
 
 		/* Check if long name is needed */
-		ndent = set_name(itr, dirname, shortname);
+		ndent = set_name(itr, basename, shortname);
 		if (ndent < 0) {
 			ret = ndent;
 			goto exit;
@@ -1688,7 +1706,7 @@ int fat_mkdir(const char *new_dirname)
 			goto exit;
 		if (ndent > 1) {
 			/* Set long name entries */
-			ret = fill_dir_slot(itr, dirname, shortname);
+			ret = fill_dir_slot(itr, basename, shortname);
 			if (ret)
 				goto exit;
 		}

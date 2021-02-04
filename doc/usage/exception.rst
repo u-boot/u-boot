@@ -61,8 +61,3 @@ Examples
     pc = 0x56076dd1a0f9, pc_reloc = 0x540f9
 
     resetting ...
-
-Return value
-------------
-
-The return value $? is always set to 0 (true).

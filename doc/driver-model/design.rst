@@ -725,7 +725,7 @@ The steps are:
 
    2. If plat_auto is non-zero, then the platform data space
    is allocated. This is only useful for device tree operation, since
-   otherwise you would have to specific the platform data in the
+   otherwise you would have to specify the platform data in the
    U_BOOT_DRVINFO() declaration. The space is allocated for the device and
    zeroed. It will be accessible as dev->plat.
 
@@ -861,8 +861,8 @@ remove it. This performs the probe steps in reverse:
    be dynamically allocated, and thus needs to be deallocated during the
    remove() method, either:
 
-      - if the plat_auto is non-zero, the deallocation
-        happens automatically within the driver model core; or
+      - if the plat_auto is non-zero, the deallocation happens automatically
+        within the driver model core in the unbind stage; or
 
       - when plat_auto is 0, both the allocation (in probe()
         or preferably of_to_plat()) and the deallocation in remove()

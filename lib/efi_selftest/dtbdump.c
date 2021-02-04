@@ -9,6 +9,7 @@
 #include <common.h>
 #include <efi_api.h>
 #include <efi_dt_fixup.h>
+#include <part.h>
 
 #define BUFFER_SIZE 64
 #define ESC 0x17
@@ -27,6 +28,7 @@ static efi_handle_t handle;
 static struct efi_system_table *systable;
 static const efi_guid_t efi_dt_fixup_protocol_guid = EFI_DT_FIXUP_PROTOCOL_GUID;
 static const efi_guid_t efi_file_info_guid = EFI_FILE_INFO_GUID;
+static const efi_guid_t efi_system_partition_guid = PARTITION_SYSTEM_GUID;
 
 /**
  * print() - print string
@@ -231,6 +233,52 @@ void do_help(void)
 }
 
 /**
+ * open_file_system() - open simple file system protocol
+ *
+ * file_system:	interface of the simple file system protocol
+ * Return:	status code
+ */
+static efi_status_t
+open_file_system(struct efi_simple_file_system_protocol **file_system)
+{
+	struct efi_loaded_image *loaded_image;
+	efi_status_t ret;
+	efi_handle_t *handle_buffer = NULL;
+	efi_uintn_t count;
+
+	ret = bs->open_protocol(handle, &loaded_image_guid,
+				(void **)&loaded_image, NULL, NULL,
+				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
+	if (ret != EFI_SUCCESS) {
+		error(L"Loaded image protocol not found\r\n");
+		return ret;
+	}
+
+	/* Open the simple file system protocol on the same partition */
+	ret = bs->open_protocol(loaded_image->device_handle,
+				&guid_simple_file_system_protocol,
+				(void **)file_system, NULL, NULL,
+				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
+	if (ret == EFI_SUCCESS)
+		return ret;
+
+	/* Open the simple file system protocol on the UEFI system partition */
+	ret = bs->locate_handle_buffer(BY_PROTOCOL, &efi_system_partition_guid,
+				       NULL, &count, &handle_buffer);
+	if (ret == EFI_SUCCESS && handle_buffer)
+		ret = bs->open_protocol(handle_buffer[0],
+					&guid_simple_file_system_protocol,
+					(void **)file_system, NULL, NULL,
+					EFI_OPEN_PROTOCOL_GET_PROTOCOL);
+	if (ret != EFI_SUCCESS)
+		error(L"Failed to open simple file system protocol\r\n");
+	if (handle)
+		bs->free_pool(handle_buffer);
+
+	return ret;
+}
+
+/**
  * do_load() - load and install device-tree
  *
  * @filename:	file name
@@ -239,7 +287,6 @@ void do_help(void)
 efi_status_t do_load(u16 *filename)
 {
 	struct efi_dt_fixup_protocol *dt_fixup_prot;
-	struct efi_loaded_image *loaded_image;
 	struct efi_simple_file_system_protocol *file_system;
 	struct efi_file_handle *root = NULL, *file = NULL;
 	u64 addr = 0;
@@ -258,22 +305,9 @@ efi_status_t do_load(u16 *filename)
 
 	filename = skip_whitespace(filename);
 
-	ret = bs->open_protocol(handle, &loaded_image_guid,
-				(void **)&loaded_image, NULL, NULL,
-				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
-	if (ret != EFI_SUCCESS) {
-		error(L"Loaded image protocol not found\r\n");
-		return ret;
-	}
-	/* Open the simple file system protocol */
-	ret = bs->open_protocol(loaded_image->device_handle,
-				&guid_simple_file_system_protocol,
-				(void **)&file_system, NULL, NULL,
-				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
-	if (ret != EFI_SUCCESS) {
-		error(L"Failed to open simple file system protocol\r\n");
+	ret = open_file_system(&file_system);
+	if (ret != EFI_SUCCESS)
 		goto out;
-	}
 
 	/* Open volume */
 	ret = file_system->open_volume(file_system, &root);
@@ -389,7 +423,6 @@ out:
  */
 efi_status_t do_save(u16 *filename)
 {
-	struct efi_loaded_image *loaded_image;
 	struct efi_simple_file_system_protocol *file_system;
 	efi_uintn_t dtb_size;
 	struct efi_file_handle *root, *file;
@@ -409,23 +442,9 @@ efi_status_t do_save(u16 *filename)
 
 	filename = skip_whitespace(filename);
 
-	ret = bs->open_protocol(handle, &loaded_image_guid,
-				(void **)&loaded_image, NULL, NULL,
-				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
-	if (ret != EFI_SUCCESS) {
-		error(L"Loaded image protocol not found\r\n");
+	ret = open_file_system(&file_system);
+	if (ret != EFI_SUCCESS)
 		return ret;
-	}
-
-	/* Open the simple file system protocol */
-	ret = bs->open_protocol(loaded_image->device_handle,
-				&guid_simple_file_system_protocol,
-				(void **)&file_system, NULL, NULL,
-				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
-	if (ret != EFI_SUCCESS) {
-		error(L"Failed to open simple file system protocol\r\n");
-		return ret;
-	}
 
 	/* Open volume */
 	ret = file_system->open_volume(file_system, &root);

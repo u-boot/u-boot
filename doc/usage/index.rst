@@ -23,6 +23,7 @@ Shell commands
    exit
    false
    for
+   load
    loady
    mbr
    pstore

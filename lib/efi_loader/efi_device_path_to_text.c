@@ -244,6 +244,21 @@ static char *dp_media(char *s, struct efi_device_path *dp)
 			     cddp->partition_start, cddp->partition_size);
 		break;
 	}
+	case DEVICE_PATH_SUB_TYPE_VENDOR_PATH: {
+		int i, n;
+		struct efi_device_path_vendor *vdp =
+			(struct efi_device_path_vendor *)dp;
+
+		s += sprintf(s, "VenMedia(%pUl", &vdp->guid);
+		n = (int)vdp->dp.length - sizeof(struct efi_device_path_vendor);
+		if (n > 0) {
+			s += sprintf(s, ",");
+			for (i = 0; i < n; ++i)
+				s += sprintf(s, "%02x", vdp->vendor_data[i]);
+		}
+		s += sprintf(s, ")");
+		break;
+	}
 	case DEVICE_PATH_SUB_TYPE_FILE_PATH: {
 		struct efi_device_path_file_path *fp =
 			(struct efi_device_path_file_path *)dp;

@@ -16,6 +16,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <part.h>
 #include <search.h>
 #include <linux/ctype.h>
 
@@ -501,6 +502,10 @@ static const struct {
 	{
 		"Device-Tree Fixup",
 		EFI_DT_FIXUP_PROTOCOL_GUID,
+	},
+	{
+		"System Partition",
+		PARTITION_SYSTEM_GUID
 	},
 	/* Configuration table GUIDs */
 	{
