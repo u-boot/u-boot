@@ -84,7 +84,6 @@ struct am654_sdhci_plat {
 #define IOMUX_PRESENT	(1 << 1)
 #define FREQSEL_2_BIT	(1 << 2)
 #define STRBSEL_4_BIT	(1 << 3)
-	bool dll_on;
 };
 
 struct timing_data {
@@ -141,12 +140,7 @@ static int am654_sdhci_set_ios_post(struct sdhci_host *host)
 	val &= ~SDHCI_CLOCK_CARD_EN;
 	sdhci_writew(host, val, SDHCI_CLOCK_CONTROL);
 
-	/* power off phy */
-	if (plat->dll_on) {
-		regmap_update_bits(plat->base, PHY_CTRL1, ENDLL_MASK, 0);
-
-		plat->dll_on = false;
-	}
+	regmap_update_bits(plat->base, PHY_CTRL1, ENDLL_MASK, 0);
 
 	/* restart clock */
 	sdhci_set_clock(host->mmc, speed);
@@ -212,8 +206,6 @@ static int am654_sdhci_set_ios_post(struct sdhci_host *host)
 					 val & DLLRDY_MASK, 1000, 1000000);
 		if (ret)
 			return ret;
-
-		plat->dll_on = true;
 	}
 
 	return 0;
