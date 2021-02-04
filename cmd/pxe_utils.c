@@ -492,16 +492,16 @@ static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 			env_get("gatewayip"), env_get("netmask"));
 	}
 
-#ifdef CONFIG_CMD_NET
-	if (label->ipappend & 0x2) {
-		int err;
+	if (IS_ENABLED(CONFIG_CMD_NET))	{
+		if (label->ipappend & 0x2) {
+			int err;
 
-		strcpy(mac_str, " BOOTIF=");
-		err = format_mac_pxe(mac_str + 8, sizeof(mac_str) - 8);
-		if (err < 0)
-			mac_str[0] = '\0';
+			strcpy(mac_str, " BOOTIF=");
+			err = format_mac_pxe(mac_str + 8, sizeof(mac_str) - 8);
+			if (err < 0)
+				mac_str[0] = '\0';
+		}
 	}
-#endif
 
 	if ((label->ipappend & 0x3) || label->append) {
 		char bootargs[CONFIG_SYS_CBSIZE] = "";
@@ -649,15 +649,16 @@ static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 	/* Try bootm for legacy and FIT format image */
 	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID)
 		do_bootm(cmdtp, 0, bootm_argc, bootm_argv);
-#ifdef CONFIG_CMD_BOOTI
 	/* Try booting an AArch64 Linux kernel image */
-	else
+	else if (IS_ENABLED(CONFIG_CMD_BOOTI))
 		do_booti(cmdtp, 0, bootm_argc, bootm_argv);
-#elif defined(CONFIG_CMD_BOOTZ)
 	/* Try booting a Image */
-	else
+	else if (IS_ENABLED(CONFIG_CMD_BOOTZ))
 		do_bootz(cmdtp, 0, bootm_argc, bootm_argv);
-#endif
+	/* Try booting an x86_64 Linux kernel image */
+	else if (IS_ENABLED(CONFIG_CMD_ZBOOT))
+		do_zboot_parent(cmdtp, 0, bootm_argc, bootm_argv, NULL);
+
 	unmap_sysmem(buf);
 
 cleanup:
@@ -1424,20 +1425,20 @@ void handle_pxe_menu(struct cmd_tbl *cmdtp, struct pxe_menu *cfg)
 	struct menu *m;
 	int err;
 
-#ifdef CONFIG_CMD_BMP
-	/* display BMP if available */
-	if (cfg->bmp) {
-		if (get_relfile(cmdtp, cfg->bmp, image_load_addr)) {
-			if (CONFIG_IS_ENABLED(CMD_CLS))
-				run_command("cls", 0);
-			bmp_display(image_load_addr,
-				    BMP_ALIGN_CENTER, BMP_ALIGN_CENTER);
-		} else {
-			printf("Skipping background bmp %s for failure\n",
-			       cfg->bmp);
+	if (IS_ENABLED(CONFIG_CMD_BMP)) {
+		/* display BMP if available */
+		if (cfg->bmp) {
+			if (get_relfile(cmdtp, cfg->bmp, image_load_addr)) {
+				if (CONFIG_IS_ENABLED(CMD_CLS))
+					run_command("cls", 0);
+				bmp_display(image_load_addr,
+					    BMP_ALIGN_CENTER, BMP_ALIGN_CENTER);
+			} else {
+				printf("Skipping background bmp %s for failure\n",
+				       cfg->bmp);
+			}
 		}
 	}
-#endif
 
 	m = pxe_menu_to_menu(cfg);
 	if (!m)

@@ -55,8 +55,8 @@ struct cmd_tbl {
 };
 
 #if defined(CONFIG_CMD_RUN)
-extern int do_run(struct cmd_tbl *cmdtp, int flag, int argc,
-		  char *const argv[]);
+int do_run(struct cmd_tbl *cmdtp, int flag, int argc,
+	   char *const argv[]);
 #endif
 
 /* common/command.c */
@@ -69,7 +69,7 @@ int complete_subcmdv(struct cmd_tbl *cmdtp, int count, int argc,
 		     char *const argv[], char last_char, int maxv,
 		     char *cmdv[]);
 
-extern int cmd_usage(const struct cmd_tbl *cmdtp);
+int cmd_usage(const struct cmd_tbl *cmdtp);
 
 /* Dummy ->cmd and ->cmd_rep wrappers. */
 int cmd_always_repeatable(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -85,10 +85,10 @@ static inline bool cmd_is_repeatable(struct cmd_tbl *cmdtp)
 }
 
 #ifdef CONFIG_AUTO_COMPLETE
-extern int var_complete(int argc, char *const argv[], char last_char, int maxv,
-			char *cmdv[]);
-extern int cmd_auto_complete(const char *const prompt, char *buf, int *np,
-			     int *colp);
+int var_complete(int argc, char *const argv[], char last_char, int maxv,
+		 char *cmdv[]);
+int cmd_auto_complete(const char *const prompt, char *buf, int *np,
+		      int *colp);
 #endif
 
 /**
@@ -145,13 +145,13 @@ int cmd_get_data_size(char *arg, int default_size);
 #endif
 
 #ifdef CONFIG_CMD_BOOTD
-extern int do_bootd(struct cmd_tbl *cmdtp, int flag, int argc,
-		    char *const argv[]);
+int do_bootd(struct cmd_tbl *cmdtp, int flag, int argc,
+	     char *const argv[]);
 #endif
 #ifdef CONFIG_CMD_BOOTM
-extern int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc,
-		    char *const argv[]);
-extern int bootm_maybe_autostart(struct cmd_tbl *cmdtp, const char *cmd);
+int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc,
+	     char *const argv[]);
+int bootm_maybe_autostart(struct cmd_tbl *cmdtp, const char *cmd);
 #else
 static inline int bootm_maybe_autostart(struct cmd_tbl *cmdtp, const char *cmd)
 {
@@ -159,28 +159,31 @@ static inline int bootm_maybe_autostart(struct cmd_tbl *cmdtp, const char *cmd)
 }
 #endif
 
-extern int do_bootz(struct cmd_tbl *cmdtp, int flag, int argc,
+int do_bootz(struct cmd_tbl *cmdtp, int flag, int argc,
+	     char *const argv[]);
+
+int do_booti(struct cmd_tbl *cmdtp, int flag, int argc,
+	     char *const argv[]);
+
+int do_zboot_parent(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[], int *repeatable);
+
+int common_diskboot(struct cmd_tbl *cmdtp, const char *intf, int argc,
 		    char *const argv[]);
 
-extern int do_booti(struct cmd_tbl *cmdtp, int flag, int argc,
-		    char *const argv[]);
+int do_reset(struct cmd_tbl *cmdtp, int flag, int argc,
+	     char *const argv[]);
+int do_poweroff(struct cmd_tbl *cmdtp, int flag, int argc,
+		char *const argv[]);
 
-extern int common_diskboot(struct cmd_tbl *cmdtp, const char *intf, int argc,
-			   char *const argv[]);
-
-extern int do_reset(struct cmd_tbl *cmdtp, int flag, int argc,
-		    char *const argv[]);
-extern int do_poweroff(struct cmd_tbl *cmdtp, int flag, int argc,
-		       char *const argv[]);
-
-extern unsigned long do_go_exec(ulong (*entry)(int, char * const []), int argc,
-				char *const argv[]);
+unsigned long do_go_exec(ulong (*entry)(int, char * const []), int argc,
+			 char *const argv[]);
 
 #if defined(CONFIG_CMD_NVEDIT_EFI)
-extern int do_env_print_efi(struct cmd_tbl *cmdtp, int flag, int argc,
-			    char *const argv[]);
-extern int do_env_set_efi(struct cmd_tbl *cmdtp, int flag, int argc,
-			  char *const argv[]);
+int do_env_print_efi(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[]);
+int do_env_set_efi(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[]);
 #endif
 
 /**
