@@ -12,6 +12,7 @@
 #include <power-domain.h>
 #include <regmap.h>
 #include <sdhci.h>
+#include <soc.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/err.h>
@@ -293,6 +294,11 @@ const struct sdhci_ops am654_sdhci_ops = {
 
 const struct am654_driver_data am654_drv_data = {
 	.ops = &am654_sdhci_ops,
+	.flags = DLL_PRESENT | IOMUX_PRESENT | FREQSEL_2_BIT | STRBSEL_4_BIT,
+};
+
+const struct am654_driver_data am654_sr1_drv_data = {
+	.ops = &am654_sdhci_ops,
 	.flags = IOMUX_PRESENT | FREQSEL_2_BIT | DLL_PRESENT | DLL_CALIB |
 		 STRBSEL_4_BIT,
 };
@@ -324,6 +330,11 @@ const struct sdhci_ops j721e_4bit_sdhci_ops = {
 const struct am654_driver_data j721e_4bit_drv_data = {
 	.ops = &j721e_4bit_sdhci_ops,
 	.flags = IOMUX_PRESENT,
+};
+
+const struct soc_attr am654_sdhci_soc_attr[] = {
+	{ .family = "AM65X", .revision = "SR1.0", .data = &am654_sr1_drv_data},
+	{/* sentinel */}
 };
 
 static int sdhci_am654_get_otap_delay(struct udevice *dev,
@@ -365,6 +376,8 @@ static int am654_sdhci_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
+	const struct soc_attr *soc;
+	const struct am654_driver_data *soc_drv_data;
 	struct clk clk;
 	unsigned long clock;
 	int ret;
@@ -394,6 +407,14 @@ static int am654_sdhci_probe(struct udevice *dev)
 		return ret;
 
 	host->ops = drv_data->ops;
+
+	/* Update ops based on SoC revision */
+	soc = soc_device_match(am654_sdhci_soc_attr);
+	if (soc && soc->data) {
+		soc_drv_data = soc->data;
+		host->ops = soc_drv_data->ops;
+	}
+
 	host->mmc->priv = host;
 	upriv->mmc = host->mmc;
 
@@ -458,8 +479,17 @@ static int am654_sdhci_bind(struct udevice *dev)
 	struct am654_driver_data *drv_data =
 			(struct am654_driver_data *)dev_get_driver_data(dev);
 	struct am654_sdhci_plat *plat = dev_get_plat(dev);
+	const struct soc_attr *soc;
+	const struct am654_driver_data *soc_drv_data;
 
 	plat->flags = drv_data->flags;
+
+	/* Update flags based on SoC revision */
+	soc = soc_device_match(am654_sdhci_soc_attr);
+	if (soc && soc->data) {
+		soc_drv_data = soc->data;
+		plat->flags = soc_drv_data->flags;
+	}
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
