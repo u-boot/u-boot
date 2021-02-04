@@ -80,10 +80,10 @@ struct am654_sdhci_plat {
 	u32 drv_strength;
 	u32 strb_sel;
 	u32 flags;
-#define DLL_PRESENT	(1 << 0)
-#define IOMUX_PRESENT	(1 << 1)
-#define FREQSEL_2_BIT	(1 << 2)
-#define STRBSEL_4_BIT	(1 << 3)
+#define DLL_PRESENT	BIT(0)
+#define IOMUX_PRESENT	BIT(1)
+#define FREQSEL_2_BIT	BIT(2)
+#define STRBSEL_4_BIT	BIT(3)
 };
 
 struct timing_data {
