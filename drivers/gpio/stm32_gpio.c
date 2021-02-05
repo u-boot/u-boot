@@ -203,12 +203,13 @@ static int stm32_gpio_set_flags(struct udevice *dev, unsigned int offset,
 		return idx;
 
 	if (flags & GPIOD_IS_OUT) {
-		int value = GPIOD_FLAGS_OUTPUT(flags);
+		bool value = flags & GPIOD_IS_OUT_ACTIVE;
 
 		if (flags & GPIOD_OPEN_DRAIN)
 			stm32_gpio_set_otype(regs, idx, STM32_GPIO_OTYPE_OD);
 		else
 			stm32_gpio_set_otype(regs, idx, STM32_GPIO_OTYPE_PP);
+
 		stm32_gpio_set_moder(regs, idx, STM32_GPIO_MODE_OUT);
 		writel(BSRR_BIT(idx, value), &regs->bsrr);
 

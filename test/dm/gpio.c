@@ -178,15 +178,15 @@ static int dm_test_gpio_opendrain_opensource(struct unit_test_state *uts)
 	ut_asserteq(GPIOD_IS_OUT | GPIOD_OPEN_DRAIN,
 		    sandbox_gpio_get_flags(gpio_c, 0));
 
-	/* Set it as output high, should become an input */
+	/* Set it as output high */
 	ut_assertok(dm_gpio_set_value(&desc_list[0], 1));
-	ut_assertok(gpio_get_status(gpio_c, 0, buf, sizeof(buf)));
-	ut_asserteq_str("c0: input: 0 [x] a-test.test3-gpios0", buf);
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_OPEN_DRAIN | GPIOD_IS_OUT_ACTIVE,
+		    sandbox_gpio_get_flags(gpio_c, 0));
 
-	/* Set it as output low, should become output low */
+	/* Set it as output low */
 	ut_assertok(dm_gpio_set_value(&desc_list[0], 0));
-	ut_assertok(gpio_get_status(gpio_c, 0, buf, sizeof(buf)));
-	ut_asserteq_str("c0: output: 0 [x] a-test.test3-gpios0", buf);
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_OPEN_DRAIN,
+		    sandbox_gpio_get_flags(gpio_c, 0));
 
 	/* GPIO 1 is (GPIO_OUT|GPIO_OPEN_SOURCE) */
 	ut_asserteq(GPIOD_IS_OUT | GPIOD_OPEN_SOURCE,
@@ -197,13 +197,21 @@ static int dm_test_gpio_opendrain_opensource(struct unit_test_state *uts)
 	ut_assertok(gpio_get_status(gpio_c, 1, buf, sizeof(buf)));
 	ut_asserteq_str("c1: output: 1 [x] a-test.test3-gpios1", buf);
 
-	/* Set it as output low, should become an input */
+	/* Set it as output low */
 	ut_assertok(dm_gpio_set_value(&desc_list[1], 0));
-	ut_assertok(gpio_get_status(gpio_c, 1, buf, sizeof(buf)));
-	ut_asserteq_str("c1: input: 1 [x] a-test.test3-gpios1", buf);
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_OPEN_SOURCE,
+		    sandbox_gpio_get_flags(gpio_c, 1));
 
-	/* GPIO 6 is (GPIO_ACTIVE_LOW|GPIO_OUT|GPIO_OPEN_DRAIN) */
-	ut_asserteq(GPIOD_ACTIVE_LOW | GPIOD_IS_OUT | GPIOD_OPEN_DRAIN,
+	ut_assertok(gpio_get_status(gpio_c, 1, buf, sizeof(buf)));
+	ut_asserteq_str("c1: output: 0 [x] a-test.test3-gpios1", buf);
+
+	/*
+	 * GPIO 6 is (GPIO_ACTIVE_LOW|GPIO_OUT|GPIO_OPEN_DRAIN). Looking at it
+	 * directlt from the driver, we get GPIOD_IS_OUT_ACTIVE also, since it
+	 * is active low
+	 */
+	ut_asserteq(GPIOD_ACTIVE_LOW | GPIOD_IS_OUT | GPIOD_OPEN_DRAIN |
+		    GPIOD_IS_OUT_ACTIVE,
 		    sandbox_gpio_get_flags(gpio_c, 6));
 
 	/* Set it as output high, should become output low */
@@ -211,19 +219,21 @@ static int dm_test_gpio_opendrain_opensource(struct unit_test_state *uts)
 	ut_assertok(gpio_get_status(gpio_c, 6, buf, sizeof(buf)));
 	ut_asserteq_str("c6: output: 0 [x] a-test.test3-gpios6", buf);
 
-	/* Set it as output low, should become an input */
+	/* Set it as output low */
 	ut_assertok(dm_gpio_set_value(&desc_list[6], 0));
-	ut_assertok(gpio_get_status(gpio_c, 6, buf, sizeof(buf)));
-	ut_asserteq_str("c6: input: 0 [x] a-test.test3-gpios6", buf);
+	ut_asserteq(GPIOD_ACTIVE_LOW | GPIOD_IS_OUT | GPIOD_OPEN_DRAIN |
+		    GPIOD_IS_OUT_ACTIVE,
+		    sandbox_gpio_get_flags(gpio_c, 6));
 
 	/* GPIO 7 is (GPIO_ACTIVE_LOW|GPIO_OUT|GPIO_OPEN_SOURCE) */
-	ut_asserteq(GPIOD_ACTIVE_LOW | GPIOD_IS_OUT | GPIOD_OPEN_SOURCE,
+	ut_asserteq(GPIOD_ACTIVE_LOW | GPIOD_IS_OUT | GPIOD_OPEN_SOURCE |
+		    GPIOD_IS_OUT_ACTIVE,
 		    sandbox_gpio_get_flags(gpio_c, 7));
 
-	/* Set it as output high, should become an input */
+	/* Set it as output high */
 	ut_assertok(dm_gpio_set_value(&desc_list[7], 1));
-	ut_assertok(gpio_get_status(gpio_c, 7, buf, sizeof(buf)));
-	ut_asserteq_str("c7: input: 0 [x] a-test.test3-gpios7", buf);
+	ut_asserteq(GPIOD_ACTIVE_LOW | GPIOD_IS_OUT | GPIOD_OPEN_SOURCE,
+		    sandbox_gpio_get_flags(gpio_c, 7));
 
 	/* Set it as output low, should become output high */
 	ut_assertok(dm_gpio_set_value(&desc_list[7], 0));
@@ -582,3 +592,91 @@ static int dm_test_gpio_devm(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_gpio_devm, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_clrset_flags(struct unit_test_state *uts)
+{
+	struct gpio_desc desc;
+	struct udevice *dev;
+	ulong flags;
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
+	ut_asserteq_str("a-test", dev->name);
+	ut_assertok(gpio_request_by_name(dev, "test-gpios", 1, &desc, 0));
+
+	ut_assertok(dm_gpio_clrset_flags(&desc, GPIOD_MASK_DIR, GPIOD_IS_OUT));
+	ut_assertok(dm_gpio_get_flags(&desc, &flags));
+	ut_asserteq(GPIOD_IS_OUT, flags);
+	ut_asserteq(GPIOD_IS_OUT, desc.flags);
+	ut_asserteq(0, sandbox_gpio_get_value(desc.dev, desc.offset));
+
+	ut_assertok(dm_gpio_clrset_flags(&desc, 0, GPIOD_IS_OUT_ACTIVE));
+	ut_assertok(dm_gpio_get_flags(&desc, &flags));
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE, flags);
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE, desc.flags);
+	ut_asserteq(1, sandbox_gpio_get_value(desc.dev, desc.offset));
+	ut_asserteq(1, dm_gpio_get_value(&desc));
+
+	ut_assertok(dm_gpio_clrset_flags(&desc, GPIOD_MASK_DIR, GPIOD_IS_IN));
+	ut_assertok(dm_gpio_get_flags(&desc, &flags));
+	ut_asserteq(GPIOD_IS_IN, flags & GPIOD_MASK_DIR);
+	ut_asserteq(GPIOD_IS_IN, desc.flags & GPIOD_MASK_DIR);
+
+	ut_assertok(dm_gpio_clrset_flags(&desc, GPIOD_MASK_PULL,
+					 GPIOD_PULL_UP));
+	ut_assertok(dm_gpio_get_flags(&desc, &flags));
+	ut_asserteq(GPIOD_IS_IN | GPIOD_PULL_UP, flags);
+	ut_asserteq(GPIOD_IS_IN | GPIOD_PULL_UP, desc.flags);
+
+	/* Check we cannot set both PULL_UP and PULL_DOWN */
+	ut_asserteq(-EINVAL, dm_gpio_clrset_flags(&desc, 0, GPIOD_PULL_DOWN));
+
+	return 0;
+}
+DM_TEST(dm_test_clrset_flags, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Check that an active-low GPIO works as expected */
+static int dm_test_clrset_flags_invert(struct unit_test_state *uts)
+{
+	struct gpio_desc desc;
+	struct udevice *dev;
+	ulong flags;
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
+	ut_asserteq_str("a-test", dev->name);
+	ut_assertok(gpio_request_by_name(dev, "test-gpios", 1, &desc,
+					 GPIOD_IS_OUT | GPIOD_ACTIVE_LOW));
+
+	/*
+	 * From this size we see it as 0 (active low), but the sandbox driver
+	 * sees the pin value high
+	 */
+	ut_asserteq(0, dm_gpio_get_value(&desc));
+	ut_asserteq(1, sandbox_gpio_get_value(desc.dev, desc.offset));
+
+	ut_assertok(dm_gpio_set_value(&desc, 1));
+	ut_asserteq(1, dm_gpio_get_value(&desc));
+	ut_asserteq(0, sandbox_gpio_get_value(desc.dev, desc.offset));
+
+	/* Do the same with dm_gpio_clrset_flags() */
+	ut_assertok(dm_gpio_clrset_flags(&desc, GPIOD_IS_OUT_ACTIVE, 0));
+	ut_asserteq(0, dm_gpio_get_value(&desc));
+	ut_asserteq(1, sandbox_gpio_get_value(desc.dev, desc.offset));
+
+	ut_assertok(dm_gpio_clrset_flags(&desc, 0, GPIOD_IS_OUT_ACTIVE));
+	ut_asserteq(1, dm_gpio_get_value(&desc));
+	ut_asserteq(0, sandbox_gpio_get_value(desc.dev, desc.offset));
+
+	ut_assertok(dm_gpio_get_flags(&desc, &flags));
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_ACTIVE_LOW | GPIOD_IS_OUT_ACTIVE,
+		    flags);
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_ACTIVE_LOW | GPIOD_IS_OUT_ACTIVE,
+		    desc.flags);
+
+	ut_assertok(dm_gpio_clrset_flags(&desc, GPIOD_IS_OUT_ACTIVE, 0));
+	ut_assertok(dm_gpio_get_flags(&desc, &flags));
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_ACTIVE_LOW, flags);
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_ACTIVE_LOW, desc.flags);
+
+	return 0;
+}
+DM_TEST(dm_test_clrset_flags_invert, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

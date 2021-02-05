@@ -169,6 +169,8 @@ static int stmfx_gpio_set_flags(struct udevice *dev, unsigned int offset,
 	int ret = -ENOTSUPP;
 
 	if (flags & GPIOD_IS_OUT) {
+		bool value = flags & GPIOD_IS_OUT_ACTIVE;
+
 		if (flags & GPIOD_OPEN_SOURCE)
 			return -ENOTSUPP;
 		if (flags & GPIOD_OPEN_DRAIN)
@@ -177,8 +179,7 @@ static int stmfx_gpio_set_flags(struct udevice *dev, unsigned int offset,
 			ret = stmfx_conf_set_type(dev, offset, 1);
 		if (ret)
 			return ret;
-		ret = stmfx_gpio_direction_output(dev, offset,
-						  GPIOD_FLAGS_OUTPUT(flags));
+		ret = stmfx_gpio_direction_output(dev, offset, value);
 	} else if (flags & GPIOD_IS_IN) {
 		ret = stmfx_gpio_direction_input(dev, offset);
 		if (ret)

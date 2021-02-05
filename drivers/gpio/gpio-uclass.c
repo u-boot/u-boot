@@ -569,6 +569,7 @@ int dm_gpio_get_value(const struct gpio_desc *desc)
 
 int dm_gpio_set_value(const struct gpio_desc *desc, int value)
 {
+	const struct dm_gpio_ops *ops;
 	int ret;
 
 	ret = check_reserved(desc, "set_value");
@@ -578,21 +579,33 @@ int dm_gpio_set_value(const struct gpio_desc *desc, int value)
 	if (desc->flags & GPIOD_ACTIVE_LOW)
 		value = !value;
 
+	/* GPIOD_ are directly managed by driver in set_flags */
+	ops = gpio_get_ops(desc->dev);
+	if (ops->set_flags) {
+		ulong flags = desc->flags;
+
+		if (value)
+			flags |= GPIOD_IS_OUT_ACTIVE;
+		else
+			flags &= ~GPIOD_IS_OUT_ACTIVE;
+		return ops->set_flags(desc->dev, desc->offset, flags);
+	}
+
 	/*
 	 * Emulate open drain by not actively driving the line high or
 	 * Emulate open source by not actively driving the line low
 	 */
 	if ((desc->flags & GPIOD_OPEN_DRAIN && value) ||
 	    (desc->flags & GPIOD_OPEN_SOURCE && !value))
-		return gpio_get_ops(desc->dev)->direction_input(desc->dev,
-								desc->offset);
+		return ops->direction_input(desc->dev, desc->offset);
 	else if (desc->flags & GPIOD_OPEN_DRAIN ||
 		 desc->flags & GPIOD_OPEN_SOURCE)
-		return gpio_get_ops(desc->dev)->direction_output(desc->dev,
-								desc->offset,
-								value);
+		return ops->direction_output(desc->dev, desc->offset, value);
 
-	gpio_get_ops(desc->dev)->set_value(desc->dev, desc->offset, value);
+	ret = ops->set_value(desc->dev, desc->offset, value);
+	if (ret)
+		return ret;
+
 	return 0;
 }
 
@@ -620,6 +633,17 @@ static int check_dir_flags(ulong flags)
 	return 0;
 }
 
+/**
+ * _dm_gpio_set_flags() - Send flags to the driver
+ *
+ * This uses the best available method to send the given flags to the driver.
+ * Note that if flags & GPIOD_ACTIVE_LOW, the driver sees the opposite value
+ * of GPIOD_IS_OUT_ACTIVE.
+ *
+ * @desc:	GPIO description
+ * @flags:	flags value to set
+ * @return 0 if OK, -ve on error
+ */
 static int _dm_gpio_set_flags(struct gpio_desc *desc, ulong flags)
 {
 	struct udevice *dev = desc->dev;
@@ -638,38 +662,52 @@ static int _dm_gpio_set_flags(struct gpio_desc *desc, ulong flags)
 		return ret;
 	}
 
+	/* If active low, invert the output state */
+	if ((flags & (GPIOD_IS_OUT | GPIOD_ACTIVE_LOW)) ==
+		(GPIOD_IS_OUT | GPIOD_ACTIVE_LOW))
+		flags ^= GPIOD_IS_OUT_ACTIVE;
+
 	/* GPIOD_ are directly managed by driver in set_flags */
 	if (ops->set_flags) {
 		ret = ops->set_flags(dev, desc->offset, flags);
 	} else {
 		if (flags & GPIOD_IS_OUT) {
-			ret = ops->direction_output(dev, desc->offset,
-						    GPIOD_FLAGS_OUTPUT(flags));
+			bool value = flags & GPIOD_IS_OUT_ACTIVE;
+
+			ret = ops->direction_output(dev, desc->offset, value);
 		} else if (flags & GPIOD_IS_IN) {
 			ret = ops->direction_input(dev, desc->offset);
 		}
 	}
 
-	/* save the flags also in descriptor */
-	if (!ret)
-		desc->flags = flags;
-
 	return ret;
 }
 
-int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
+int dm_gpio_clrset_flags(struct gpio_desc *desc, ulong clr, ulong set)
 {
+	ulong flags;
 	int ret;
 
 	ret = check_reserved(desc, "set_dir_flags");
 	if (ret)
 		return ret;
 
-	/* combine the requested flags (for IN/OUT) and the descriptor flags */
-	flags |= desc->flags;
-	ret = _dm_gpio_set_flags(desc, flags);
+	flags = (desc->flags & ~clr) | set;
 
-	return ret;
+	ret = _dm_gpio_set_flags(desc, flags);
+	if (ret)
+		return ret;
+
+	/* save the flags also in descriptor */
+	desc->flags = flags;
+
+	return 0;
+}
+
+int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
+{
+	/* combine the requested flags (for IN/OUT) and the descriptor flags */
+	return dm_gpio_clrset_flags(desc, GPIOD_MASK_DIR, flags);
 }
 
 int dm_gpio_set_dir(struct gpio_desc *desc)
@@ -1011,7 +1049,10 @@ static int gpio_request_tail(int ret, const char *nodename,
 		debug("%s: dm_gpio_requestf failed\n", __func__);
 		goto err;
 	}
-	ret = dm_gpio_set_dir_flags(desc, flags);
+
+	/* Keep any direction flags provided by the devicetree */
+	ret = dm_gpio_set_dir_flags(desc,
+				    flags | (desc->flags & GPIOD_MASK_DIR));
 	if (ret) {
 		debug("%s: dm_gpio_set_dir failed\n", __func__);
 		goto err;
