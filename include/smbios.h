@@ -220,16 +220,6 @@ static inline void fill_smbios_header(void *table, int type,
 }
 
 /**
- * Function prototype to write a specific type of SMBIOS structure
- *
- * @addr:	start address to write the structure
- * @handle:	the structure's handle, a unique 16-bit number
- * @node:	node containing the information to write (ofnode_null() if none)
- * @return:	size of the structure
- */
-typedef int (*smbios_write_type)(ulong *addr, int handle, ofnode node);
-
-/**
  * write_smbios_table() - Write SMBIOS table
  *
  * This writes SMBIOS table at a given address.

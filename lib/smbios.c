@@ -18,6 +18,16 @@
 #endif
 
 /**
+ * Function prototype to write a specific type of SMBIOS structure
+ *
+ * @addr:	start address to write the structure
+ * @handle:	the structure's handle, a unique 16-bit number
+ * @node:	node containing the information to write (ofnode_null() if none)
+ * @return:	size of the structure
+ */
+typedef int (*smbios_write_type)(ulong *addr, int handle, ofnode node);
+
+/**
  * struct smbios_write_method - Information about a table-writing function
  *
  * @write: Function to call
