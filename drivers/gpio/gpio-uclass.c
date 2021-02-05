@@ -620,7 +620,7 @@ static int check_dir_flags(ulong flags)
 	return 0;
 }
 
-static int _dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
+static int _dm_gpio_set_flags(struct gpio_desc *desc, ulong flags)
 {
 	struct udevice *dev = desc->dev;
 	struct dm_gpio_ops *ops = gpio_get_ops(dev);
@@ -638,9 +638,9 @@ static int _dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
 		return ret;
 	}
 
-	/* GPIOD_ are directly managed by driver in set_dir_flags*/
-	if (ops->set_dir_flags) {
-		ret = ops->set_dir_flags(dev, desc->offset, flags);
+	/* GPIOD_ are directly managed by driver in set_flags */
+	if (ops->set_flags) {
+		ret = ops->set_flags(dev, desc->offset, flags);
 	} else {
 		if (flags & GPIOD_IS_OUT) {
 			ret = ops->direction_output(dev, desc->offset,
@@ -667,7 +667,7 @@ int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
 
 	/* combine the requested flags (for IN/OUT) and the descriptor flags */
 	flags |= desc->flags;
-	ret = _dm_gpio_set_dir_flags(desc, flags);
+	ret = _dm_gpio_set_flags(desc, flags);
 
 	return ret;
 }
@@ -680,7 +680,7 @@ int dm_gpio_set_dir(struct gpio_desc *desc)
 	if (ret)
 		return ret;
 
-	return _dm_gpio_set_dir_flags(desc, desc->flags);
+	return _dm_gpio_set_flags(desc, desc->flags);
 }
 
 int dm_gpio_get_dir_flags(struct gpio_desc *desc, ulong *flags)
@@ -1308,8 +1308,8 @@ static int gpio_post_bind(struct udevice *dev)
 			ops->get_function += gd->reloc_off;
 		if (ops->xlate)
 			ops->xlate += gd->reloc_off;
-		if (ops->set_dir_flags)
-			ops->set_dir_flags += gd->reloc_off;
+		if (ops->set_flags)
+			ops->set_flags += gd->reloc_off;
 		if (ops->get_dir_flags)
 			ops->get_dir_flags += gd->reloc_off;
 

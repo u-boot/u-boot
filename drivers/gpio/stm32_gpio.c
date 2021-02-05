@@ -191,8 +191,8 @@ static int stm32_gpio_get_function(struct udevice *dev, unsigned int offset)
 	return GPIOF_FUNC;
 }
 
-static int stm32_gpio_set_dir_flags(struct udevice *dev, unsigned int offset,
-				    ulong flags)
+static int stm32_gpio_set_flags(struct udevice *dev, unsigned int offset,
+				ulong flags)
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
 	struct stm32_gpio_regs *regs = priv->regs;
@@ -270,7 +270,7 @@ static const struct dm_gpio_ops gpio_stm32_ops = {
 	.get_value		= stm32_gpio_get_value,
 	.set_value		= stm32_gpio_set_value,
 	.get_function		= stm32_gpio_get_function,
-	.set_dir_flags		= stm32_gpio_set_dir_flags,
+	.set_flags		= stm32_gpio_set_flags,
 	.get_dir_flags		= stm32_gpio_get_dir_flags,
 };
 

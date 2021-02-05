@@ -177,8 +177,8 @@ static int sb_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
 	return 0;
 }
 
-static int sb_gpio_set_dir_flags(struct udevice *dev, unsigned int offset,
-				 ulong flags)
+static int sb_gpio_set_flags(struct udevice *dev, unsigned int offset,
+			     ulong flags)
 {
 	ulong *dir_flags;
 
@@ -272,7 +272,7 @@ static const struct dm_gpio_ops gpio_sandbox_ops = {
 	.set_value		= sb_gpio_set_value,
 	.get_function		= sb_gpio_get_function,
 	.xlate			= sb_gpio_xlate,
-	.set_dir_flags		= sb_gpio_set_dir_flags,
+	.set_flags		= sb_gpio_set_flags,
 	.get_dir_flags		= sb_gpio_get_dir_flags,
 #if CONFIG_IS_ENABLED(ACPIGEN)
 	.get_acpi		= sb_gpio_get_acpi,

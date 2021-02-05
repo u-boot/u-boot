@@ -81,12 +81,12 @@ static int dm_test_gpio(struct unit_test_state *uts)
 	/* Make it an open drain output, and reset it */
 	ut_asserteq(GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE,
 		    sandbox_gpio_get_dir_flags(dev, offset));
-	ut_assertok(ops->set_dir_flags(dev, offset,
-				       GPIOD_IS_OUT | GPIOD_OPEN_DRAIN));
+	ut_assertok(ops->set_flags(dev, offset,
+				   GPIOD_IS_OUT | GPIOD_OPEN_DRAIN));
 	ut_asserteq(GPIOD_IS_OUT | GPIOD_OPEN_DRAIN,
 		    sandbox_gpio_get_dir_flags(dev, offset));
-	ut_assertok(ops->set_dir_flags(dev, offset,
-				       GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE));
+	ut_assertok(ops->set_flags(dev, offset,
+				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE));
 	ut_asserteq(GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE,
 		    sandbox_gpio_get_dir_flags(dev, offset));
 

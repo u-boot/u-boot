@@ -163,8 +163,8 @@ static int stmfx_gpio_direction_output(struct udevice *dev,
 	return stmfx_write_reg(dev, STMFX_REG_GPIO_DIR, offset, 1);
 }
 
-static int stmfx_gpio_set_dir_flags(struct udevice *dev, unsigned int offset,
-				    ulong flags)
+static int stmfx_gpio_set_flags(struct udevice *dev, unsigned int offset,
+				ulong flags)
 {
 	int ret = -ENOTSUPP;
 
@@ -266,7 +266,7 @@ static const struct dm_gpio_ops stmfx_gpio_ops = {
 	.get_function = stmfx_gpio_get_function,
 	.direction_input = stmfx_gpio_direction_input,
 	.direction_output = stmfx_gpio_direction_output,
-	.set_dir_flags = stmfx_gpio_set_dir_flags,
+	.set_flags = stmfx_gpio_set_flags,
 	.get_dir_flags = stmfx_gpio_get_dir_flags,
 };
 

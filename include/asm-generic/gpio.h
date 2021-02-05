@@ -301,20 +301,36 @@ struct dm_gpio_ops {
 		     struct ofnode_phandle_args *args);
 
 	/**
-	 * set_dir_flags() - Set GPIO dir flags
+	 * set_flags() - Adjust GPIO flags
 	 *
 	 * This function should set up the GPIO configuration according to the
-	 * information provide by the direction flags bitfield.
+	 * information provided by @flags.
+	 *
+	 * If any flags cannot be set (e.g. the driver or hardware does not
+	 * support them or this particular GPIO does not have the requested
+	 * feature), the driver should return -EINVAL.
+	 *
+	 * The uclass checks that flags do not obviously conflict (e.g. input
+	 * and output). If the driver finds other conflicts it should return
+	 * -ERECALLCONFLICT
+	 *
+	 * Note that GPIOD_ACTIVE_LOW should be ignored, since the uclass
+	 * adjusts for it automatically. For example, for an output GPIO,
+	 * GPIOD_ACTIVE_LOW causes GPIOD_IS_OUT_ACTIVE to be inverted by the
+	 * uclass, so the driver always sees the value that should be set at the
+	 * pin (1=high, 0=low).
 	 *
 	 * This method is optional.
 	 *
 	 * @dev:	GPIO device
 	 * @offset:	GPIO offset within that device
-	 * @flags:	GPIO configuration to use
-	 * @return 0 if OK, -ve on error
+	 * @flags:	New flags value (GPIOD_...)
+	 *
+	 * @return 0 if OK, -EINVAL if unsupported, -ERECALLCONFLICT if flags
+	 *	conflict in some *	non-obvious way and were not applied,
+	 *	other -ve on error
 	 */
-	int (*set_dir_flags)(struct udevice *dev, unsigned int offset,
-			     ulong flags);
+	int (*set_flags)(struct udevice *dev, unsigned int offset, ulong flags);
 
 	/**
 	 * get_dir_flags() - Get GPIO dir flags
