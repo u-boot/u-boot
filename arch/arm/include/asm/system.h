@@ -475,7 +475,7 @@ enum dcache_option {
 #define TTB_SECT_XN_MASK	(1 << 4)
 #define TTB_SECT_C_MASK		(1 << 3)
 #define TTB_SECT_B_MASK		(1 << 2)
-#define TTB_SECT			(2 << 0)
+#define TTB_SECT		(2 << 0)
 
 /*
  * Short-descriptor format memory region attributes, without TEX remap
