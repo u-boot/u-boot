@@ -257,4 +257,16 @@ const struct smbios_header *smbios_header(const struct smbios_entry *entry, int 
  */
 const char *smbios_string(const struct smbios_header *header, int index);
 
+/**
+ * smbios_update_version() - Update the version string
+ *
+ * This can be called after the SMBIOS tables are written (e.g. after the U-Boot
+ * main loop has started) to update the BIOS version string (SMBIOS table 0).
+ *
+ * @version: New version string to use
+ * @return 0 if OK, -ENOENT if no version string was previously written,
+ *	-ENOSPC if the new string is too large to fit
+ */
+int smbios_update_version(const char *version);
+
 #endif /* _SMBIOS_H_ */

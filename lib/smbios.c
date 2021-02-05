@@ -17,6 +17,12 @@
 #include <dm/uclass-internal.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
+enum {
+	SMBIOS_STR_MAX	= 64,	/* Maximum length allowed for a string */
+};
+
 /**
  * struct smbios_ctx - context for writing SMBIOS tables
  *
@@ -27,12 +33,15 @@
  * @next_ptr:	pointer to the start of the next string to be added. When the
  *		table is nopt empty, this points to the byte after the \0 of the
  *		previous string.
+ * @last_str:	points to the last string that was written to the table, or NULL
+ *		if none
  */
 struct smbios_ctx {
 	ofnode node;
 	struct udevice *dev;
 	char *eos;
 	char *next_ptr;
+	char *last_str;
 };
 
 /**
@@ -78,6 +87,7 @@ static int smbios_add_string(struct smbios_ctx *ctx, const char *str)
 
 	for (;;) {
 		if (!*p) {
+			ctx->last_str = p;
 			strcpy(p, str);
 			p += strlen(str);
 			*p++ = '\0';
@@ -87,8 +97,10 @@ static int smbios_add_string(struct smbios_ctx *ctx, const char *str)
 			return i;
 		}
 
-		if (!strcmp(p, str))
+		if (!strcmp(p, str)) {
+			ctx->last_str = p;
 			return i;
+		}
 
 		p += strlen(p) + 1;
 		i++;
@@ -119,6 +131,35 @@ static void smbios_set_eos(struct smbios_ctx *ctx, char *eos)
 {
 	ctx->eos = eos;
 	ctx->next_ptr = eos;
+	ctx->last_str = NULL;
+}
+
+int smbios_update_version(const char *version)
+{
+	char *ptr = gd->smbios_version;
+	uint old_len, len;
+
+	if (!ptr)
+		return log_ret(-ENOENT);
+
+	/*
+	 * This string is supposed to have at least enough bytes and is
+	 * padded with spaces. Update it, taking care not to move the
+	 * \0 terminator, so that other strings in the string table
+	 * are not disturbed. See smbios_add_string()
+	 */
+	old_len = strnlen(ptr, SMBIOS_STR_MAX);
+	len = strnlen(version, SMBIOS_STR_MAX);
+	if (len > old_len)
+		return log_ret(-ENOSPC);
+
+	log_debug("Replacing SMBIOS type 0 version string '%s'\n", ptr);
+	memcpy(ptr, version, len);
+#ifdef LOG_DEBUG
+	print_buffer((ulong)ptr, ptr, 1, old_len + 1, 0);
+#endif
+
+	return 0;
 }
 
 /**
@@ -146,7 +187,18 @@ static int smbios_write_type0(ulong *current, int handle,
 	fill_smbios_header(t, SMBIOS_BIOS_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
 	t->vendor = smbios_add_string(ctx, "U-Boot");
-	t->bios_ver = smbios_add_string(ctx, PLAIN_VERSION);
+
+	t->bios_ver = smbios_add_prop(ctx, "version");
+	if (!t->bios_ver)
+		t->bios_ver = smbios_add_string(ctx, PLAIN_VERSION);
+	if (t->bios_ver)
+		gd->smbios_version = ctx->last_str;
+	log_debug("smbios_version = %p: '%s'\n", gd->smbios_version,
+		  gd->smbios_version);
+#ifdef LOG_DEBUG
+	print_buffer((ulong)gd->smbios_version, gd->smbios_version,
+		     1, strlen(gd->smbios_version) + 1, 0);
+#endif
 	t->bios_release_date = smbios_add_string(ctx, U_BOOT_DMI_DATE);
 #ifdef CONFIG_ROM_SIZE
 	t->bios_rom_size = (CONFIG_ROM_SIZE / 65536) - 1;
@@ -345,7 +397,7 @@ static int smbios_write_type127(ulong *current, int handle,
 }
 
 static struct smbios_write_method smbios_write_funcs[] = {
-	{ smbios_write_type0, },
+	{ smbios_write_type0, "bios", },
 	{ smbios_write_type1, "system", },
 	{ smbios_write_type2, "baseboard", },
 	{ smbios_write_type3, "chassis", },
