@@ -683,7 +683,7 @@ int dm_gpio_set_dir(struct gpio_desc *desc)
 	return _dm_gpio_set_flags(desc, desc->flags);
 }
 
-int dm_gpio_get_dir_flags(struct gpio_desc *desc, ulong *flagsp)
+int dm_gpio_get_flags(struct gpio_desc *desc, ulong *flagsp)
 {
 	struct udevice *dev = desc->dev;
 	int ret, value;

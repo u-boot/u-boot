@@ -397,22 +397,22 @@ static int dm_test_gpio_get_dir_flags(struct unit_test_state *uts)
 	ut_asserteq(6, gpio_request_list_by_name(dev, "test3-gpios", desc_list,
 						 ARRAY_SIZE(desc_list), 0));
 
-	ut_assertok(dm_gpio_get_dir_flags(&desc_list[0], &flags));
+	ut_assertok(dm_gpio_get_flags(&desc_list[0], &flags));
 	ut_asserteq(GPIOD_IS_OUT | GPIOD_OPEN_DRAIN, flags);
 
-	ut_assertok(dm_gpio_get_dir_flags(&desc_list[1], &flags));
+	ut_assertok(dm_gpio_get_flags(&desc_list[1], &flags));
 	ut_asserteq(GPIOD_IS_OUT | GPIOD_OPEN_SOURCE, flags);
 
-	ut_assertok(dm_gpio_get_dir_flags(&desc_list[2], &flags));
+	ut_assertok(dm_gpio_get_flags(&desc_list[2], &flags));
 	ut_asserteq(GPIOD_IS_OUT, flags);
 
-	ut_assertok(dm_gpio_get_dir_flags(&desc_list[3], &flags));
+	ut_assertok(dm_gpio_get_flags(&desc_list[3], &flags));
 	ut_asserteq(GPIOD_IS_IN | GPIOD_PULL_UP, flags);
 
-	ut_assertok(dm_gpio_get_dir_flags(&desc_list[4], &flags));
+	ut_assertok(dm_gpio_get_flags(&desc_list[4], &flags));
 	ut_asserteq(GPIOD_IS_IN | GPIOD_PULL_DOWN, flags);
 
-	ut_assertok(dm_gpio_get_dir_flags(&desc_list[5], &flags));
+	ut_assertok(dm_gpio_get_flags(&desc_list[5], &flags));
 	ut_asserteq(GPIOD_IS_IN, flags);
 
 	ut_assertok(gpio_free_list(dev, desc_list, 6));
