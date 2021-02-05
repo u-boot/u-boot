@@ -143,8 +143,9 @@ static int smbios_write_type0(ulong *current, int handle, ofnode node)
 #endif
 	t->bios_characteristics_ext2 = BIOS_CHARACTERISTICS_EXT2_TARGET;
 
-	t->bios_major_release = 0xff;
-	t->bios_minor_release = 0xff;
+	/* bios_major_release has only one byte, so drop century */
+	t->bios_major_release = U_BOOT_VERSION_NUM % 100;
+	t->bios_minor_release = U_BOOT_VERSION_NUM_PATCH;
 	t->ec_major_release = 0xff;
 	t->ec_minor_release = 0xff;
 
