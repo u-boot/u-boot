@@ -76,16 +76,22 @@ static int set_gpio_flag(struct udevice *dev, unsigned int offset, ulong flag,
 int sandbox_gpio_get_value(struct udevice *dev, unsigned offset)
 {
 	struct gpio_state *state = get_gpio_state(dev, offset);
+	bool val;
 
 	if (get_gpio_flag(dev, offset, GPIOD_IS_OUT))
 		debug("sandbox_gpio: get_value on output gpio %u\n", offset);
 
-	return state->flags & GPIOD_EXT_HIGH ? true : false;
+	if (state->flags & GPIOD_EXT_DRIVEN)
+		val = state->flags & GPIOD_EXT_HIGH;
+	else
+		val = false;
+
+	return val;
 }
 
 int sandbox_gpio_set_value(struct udevice *dev, unsigned offset, int value)
 {
-	set_gpio_flag(dev, offset, GPIOD_EXT_HIGH, value);
+	set_gpio_flag(dev, offset, GPIOD_EXT_DRIVEN | GPIOD_EXT_HIGH, value);
 
 	return 0;
 }
@@ -142,8 +148,8 @@ static int sb_gpio_direction_output(struct udevice *dev, unsigned offset,
 	ret = sandbox_gpio_set_direction(dev, offset, 1);
 	if (ret)
 		return ret;
-	ret = set_gpio_flag(dev, offset, GPIOD_IS_OUT_ACTIVE | GPIOD_EXT_HIGH,
-			    value);
+	ret = set_gpio_flag(dev, offset, GPIOD_IS_OUT_ACTIVE |
+			    GPIOD_EXT_DRIVEN | GPIOD_EXT_HIGH, value);
 	if (ret)
 		return ret;
 
@@ -171,8 +177,8 @@ static int sb_gpio_set_value(struct udevice *dev, unsigned offset, int value)
 		return -1;
 	}
 
-	ret = set_gpio_flag(dev, offset, GPIOD_IS_OUT_ACTIVE | GPIOD_EXT_HIGH,
-			    value);
+	ret = set_gpio_flag(dev, offset, GPIOD_IS_OUT_ACTIVE |
+			    GPIOD_EXT_DRIVEN | GPIOD_EXT_HIGH, value);
 	if (ret)
 		return ret;
 
@@ -218,10 +224,13 @@ static int sb_gpio_set_flags(struct udevice *dev, unsigned int offset,
 	struct gpio_state *state = get_gpio_state(dev, offset);
 
 	if (flags & GPIOD_IS_OUT) {
+		flags |= GPIOD_EXT_DRIVEN;
 		if (flags & GPIOD_IS_OUT_ACTIVE)
 			flags |= GPIOD_EXT_HIGH;
 		else
 			flags &= ~GPIOD_EXT_HIGH;
+	} else {
+		flags |= state->flags & GPIOD_SANDBOX_MASK;
 	}
 	state->flags = flags;
 

@@ -25,8 +25,9 @@
 
 /* Our own private GPIO flags, which musn't conflict with GPIOD_... */
 #define GPIOD_EXT_HIGH		BIT(31)	/* external source is high (else low) */
+#define GPIOD_EXT_DRIVEN	BIT(30)	/* external source is driven */
 
-#define GPIOD_SANDBOX_MASK	BIT(31)
+#define GPIOD_SANDBOX_MASK	GENMASK(31, 30)
 
 /**
  * Return the simulated value of a GPIO (used only in sandbox test code)
