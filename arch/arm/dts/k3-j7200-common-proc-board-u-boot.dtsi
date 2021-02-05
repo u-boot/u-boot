@@ -11,11 +11,11 @@
 
 	aliases {
 		ethernet0 = &cpsw_port1;
+		i2c0 = &wkup_i2c0;
+		i2c1 = &mcu_i2c0;
+		i2c2 = &mcu_i2c1;
+		i2c3 = &main_i2c0;
 	};
-};
-
-&chipid {
-	u-boot,dm-spl;
 };
 
 &cbass_main {
@@ -34,6 +34,10 @@
 		reg = <0x0 0x40400000 0x0 0x80>;
 		ti,timer-alwon;
 		clock-frequency = <25000000>;
+		u-boot,dm-spl;
+	};
+
+	chipid@43000014 {
 		u-boot,dm-spl;
 	};
 };
@@ -133,10 +137,6 @@
 };
 
 &wkup_gpio_pins_default {
-	u-boot,dm-spl;
-};
-
-&wkup_gpio0 {
 	u-boot,dm-spl;
 };
 

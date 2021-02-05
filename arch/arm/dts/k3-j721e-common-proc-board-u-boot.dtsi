@@ -13,11 +13,30 @@
 
 	aliases {
 		ethernet0 = &cpsw_port1;
+		spi0 = &ospi0;
+		spi1 = &ospi1;
+		remoteproc0 = &mcu_r5fss0_core0;
+		remoteproc1 = &mcu_r5fss0_core1;
+		remoteproc2 = &main_r5fss0_core0;
+		remoteproc3 = &main_r5fss0_core1;
+		remoteproc4 = &main_r5fss1_core0;
+		remoteproc5 = &main_r5fss1_core1;
+		remoteproc6 = &c66_0;
+		remoteproc7 = &c66_1;
+		remoteproc8 = &c71_0;
+		i2c0 = &wkup_i2c0;
+		i2c1 = &mcu_i2c0;
+		i2c2 = &mcu_i2c1;
+		i2c3 = &main_i2c0;
 	};
 };
 
 &cbass_main{
 	u-boot,dm-spl;
+
+	main-navss {
+		u-boot,dm-spl;
+	};
 };
 
 &cbass_mcu_wakeup {
@@ -31,7 +50,7 @@
 		u-boot,dm-spl;
 	};
 
-	mcu_navss {
+	mcu-navss {
 		u-boot,dm-spl;
 
 		ringacc@2b800000 {
@@ -41,6 +60,10 @@
 		dma-controller@285c0000 {
 			u-boot,dm-spl;
 		};
+	};
+
+	chipid@43000014 {
+		u-boot,dm-spl;
 	};
 };
 
@@ -70,29 +93,6 @@
 
 &wkup_pmx0 {
 	u-boot,dm-spl;
-	mcu_cpsw_pins_default: mcu_cpsw_pins_default {
-		pinctrl-single,pins = <
-			J721E_WKUP_IOPAD(0x0058, PIN_OUTPUT, 0) /* (N4) MCU_RGMII1_TX_CTL */
-			J721E_WKUP_IOPAD(0x005c, PIN_INPUT, 0) /* (N5) MCU_RGMII1_RX_CTL */
-			J721E_WKUP_IOPAD(0x0060, PIN_OUTPUT, 0) /* (M2) MCU_RGMII1_TD3 */
-			J721E_WKUP_IOPAD(0x0064, PIN_OUTPUT, 0) /* (M3) MCU_RGMII1_TD2 */
-			J721E_WKUP_IOPAD(0x0068, PIN_OUTPUT, 0) /* (M4) MCU_RGMII1_TD1 */
-			J721E_WKUP_IOPAD(0x006c, PIN_OUTPUT, 0) /* (M5) MCU_RGMII1_TD0 */
-			J721E_WKUP_IOPAD(0x0078, PIN_INPUT, 0) /* (L2) MCU_RGMII1_RD3 */
-			J721E_WKUP_IOPAD(0x007c, PIN_INPUT, 0) /* (L5) MCU_RGMII1_RD2 */
-			J721E_WKUP_IOPAD(0x0080, PIN_INPUT, 0) /* (M6) MCU_RGMII1_RD1 */
-			J721E_WKUP_IOPAD(0x0084, PIN_INPUT, 0) /* (L6) MCU_RGMII1_RD0 */
-			J721E_WKUP_IOPAD(0x0070, PIN_INPUT, 0) /* (N1) MCU_RGMII1_TXC */
-			J721E_WKUP_IOPAD(0x0074, PIN_INPUT, 0) /* (M1) MCU_RGMII1_RXC */
-		>;
-	};
-
-	mcu_mdio_pins_default: mcu_mdio1_pins_default {
-		pinctrl-single,pins = <
-			J721E_WKUP_IOPAD(0x008c, PIN_OUTPUT, 0) /* (L1) MCU_MDIO0_MDC */
-			J721E_WKUP_IOPAD(0x0088, PIN_INPUT, 0) /* (L4) MCU_MDIO0_MDIO */
-		>;
-	};
 };
 
 &main_pmx0 {
@@ -127,24 +127,6 @@
 &usb0 {
 	dr_mode = "peripheral";
 	u-boot,dm-spl;
-};
-
-&mcu_cpsw {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mcu_cpsw_pins_default &mcu_mdio_pins_default>;
-};
-
-&davinci_mdio {
-	phy0: ethernet-phy@0 {
-		reg = <0>;
-		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
-		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
-	};
-};
-
-&cpsw_port1 {
-	phy-mode = "rgmii-rxid";
-	phy-handle = <&phy0>;
 };
 
 &mcu_cpsw {
@@ -209,9 +191,5 @@
 };
 
 &mcu_fss0_ospi1_pins_default {
-	u-boot,dm-spl;
-};
-
-&chipid {
 	u-boot,dm-spl;
 };

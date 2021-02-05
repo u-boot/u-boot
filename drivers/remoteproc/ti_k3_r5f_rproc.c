@@ -678,9 +678,9 @@ static int k3_r5f_of_to_priv(struct k3_r5f_core *core)
 
 	dev_dbg(core->dev, "%s\n", __func__);
 
-	core->atcm_enable = dev_read_u32_default(core->dev, "atcm-enable", 0);
-	core->btcm_enable = dev_read_u32_default(core->dev, "btcm-enable", 1);
-	core->loczrama = dev_read_u32_default(core->dev, "loczrama", 1);
+	core->atcm_enable = dev_read_u32_default(core->dev, "ti,atcm-enable", 0);
+	core->btcm_enable = dev_read_u32_default(core->dev, "ti,btcm-enable", 1);
+	core->loczrama = dev_read_u32_default(core->dev, "ti,loczrama", 1);
 
 	ret = ti_sci_proc_of_to_priv(core->dev, &core->tsp);
 	if (ret)
@@ -875,7 +875,7 @@ static int k3_r5f_cluster_probe(struct udevice *dev)
 
 	dev_dbg(dev, "%s\n", __func__);
 
-	cluster->mode = dev_read_u32_default(dev, "lockstep-mode",
+	cluster->mode = dev_read_u32_default(dev, "ti,cluster-mode",
 					     CLUSTER_MODE_LOCKSTEP);
 
 	if (device_get_child_count(dev) != 2) {
