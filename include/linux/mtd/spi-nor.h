@@ -302,8 +302,8 @@ struct spi_flash {
  * @flash_lock:		[FLASH-SPECIFIC] lock a region of the SPI NOR
  * @flash_unlock:	[FLASH-SPECIFIC] unlock a region of the SPI NOR
  * @flash_is_locked:	[FLASH-SPECIFIC] check if a region of the SPI NOR is
- * @quad_enable:	[FLASH-SPECIFIC] enables SPI NOR quad mode
  *			completely locked
+ * @quad_enable:	[FLASH-SPECIFIC] enables SPI NOR quad mode
  * @priv:		the private data
  */
 struct spi_nor {
