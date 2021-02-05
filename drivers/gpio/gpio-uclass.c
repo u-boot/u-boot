@@ -515,11 +515,8 @@ int gpio_direction_input(unsigned gpio)
 	ret = gpio_to_device(gpio, &desc);
 	if (ret)
 		return ret;
-	ret = check_reserved(&desc, "dir_input");
-	if (ret)
-		return ret;
 
-	return gpio_get_ops(desc.dev)->direction_input(desc.dev, desc.offset);
+	return dm_gpio_clrset_flags(&desc, GPIOD_MASK_DIR, GPIOD_IS_IN);
 }
 
 /**
@@ -534,17 +531,17 @@ int gpio_direction_input(unsigned gpio)
 int gpio_direction_output(unsigned gpio, int value)
 {
 	struct gpio_desc desc;
+	ulong flags;
 	int ret;
 
 	ret = gpio_to_device(gpio, &desc);
 	if (ret)
 		return ret;
-	ret = check_reserved(&desc, "dir_output");
-	if (ret)
-		return ret;
 
-	return gpio_get_ops(desc.dev)->direction_output(desc.dev,
-							desc.offset, value);
+	flags = GPIOD_IS_OUT;
+	if (value)
+		flags |= GPIOD_IS_OUT_ACTIVE;
+	return dm_gpio_clrset_flags(&desc, GPIOD_MASK_DIR, flags);
 }
 
 static int _gpio_get_value(const struct gpio_desc *desc)

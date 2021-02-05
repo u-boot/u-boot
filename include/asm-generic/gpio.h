@@ -260,10 +260,32 @@ int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
 struct dm_gpio_ops {
 	int (*request)(struct udevice *dev, unsigned offset, const char *label);
 	int (*rfree)(struct udevice *dev, unsigned int offset);
+
+	/**
+	 * direction_input() - deprecated
+	 *
+	 * Equivalent to set_flags(...GPIOD_IS_IN)
+	 */
 	int (*direction_input)(struct udevice *dev, unsigned offset);
+
+	/**
+	 * direction_output() - deprecated
+	 *
+	 * Equivalent to set_flags(...GPIOD_IS_OUT) with GPIOD_IS_OUT_ACTIVE
+	 * also set if @value
+	 */
 	int (*direction_output)(struct udevice *dev, unsigned offset,
 				int value);
+
 	int (*get_value)(struct udevice *dev, unsigned offset);
+
+	/**
+	 * set_value() - Sets the GPIO value of an output
+	 *
+	 * If the driver provides an @set_flags() method then that is used
+	 * in preference to this, with GPIOD_IS_OUT_ACTIVE set according to
+	 * @value.
+	 */
 	int (*set_value)(struct udevice *dev, unsigned offset, int value);
 	/**
 	 * get_function() Get the GPIO function
@@ -320,7 +342,9 @@ struct dm_gpio_ops {
 	 * uclass, so the driver always sees the value that should be set at the
 	 * pin (1=high, 0=low).
 	 *
-	 * This method is optional.
+	 * This method is required and should be implemented by new drivers. At
+	 * some point, it will supersede direction_input() and
+	 * direction_output(), which wil be removed.
 	 *
 	 * @dev:	GPIO device
 	 * @offset:	GPIO offset within that device
