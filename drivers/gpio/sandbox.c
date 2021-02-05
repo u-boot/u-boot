@@ -59,12 +59,12 @@ static int get_gpio_flag(struct udevice *dev, unsigned int offset, ulong flag)
 static int set_gpio_flag(struct udevice *dev, unsigned int offset, ulong flag,
 			 int value)
 {
-	ulong *gpio = get_gpio_flags(dev, offset);
+	struct gpio_state *state = get_gpio_state(dev, offset);
 
 	if (value)
-		*gpio |= flag;
+		state->flags |= flag;
 	else
-		*gpio &= ~flag;
+		state->flags &= ~flag;
 
 	return 0;
 }
@@ -75,14 +75,19 @@ static int set_gpio_flag(struct udevice *dev, unsigned int offset, ulong flag,
 
 int sandbox_gpio_get_value(struct udevice *dev, unsigned offset)
 {
+	struct gpio_state *state = get_gpio_state(dev, offset);
+
 	if (get_gpio_flag(dev, offset, GPIOD_IS_OUT))
 		debug("sandbox_gpio: get_value on output gpio %u\n", offset);
-	return get_gpio_flag(dev, offset, GPIOD_IS_OUT_ACTIVE);
+
+	return state->flags & GPIOD_EXT_HIGH ? true : false;
 }
 
 int sandbox_gpio_set_value(struct udevice *dev, unsigned offset, int value)
 {
-	return set_gpio_flag(dev, offset, GPIOD_IS_OUT_ACTIVE, value);
+	set_gpio_flag(dev, offset, GPIOD_IS_OUT_ACTIVE | GPIOD_EXT_HIGH, value);
+
+	return 0;
 }
 
 int sandbox_gpio_get_direction(struct udevice *dev, unsigned offset)
@@ -93,19 +98,29 @@ int sandbox_gpio_get_direction(struct udevice *dev, unsigned offset)
 int sandbox_gpio_set_direction(struct udevice *dev, unsigned offset, int output)
 {
 	set_gpio_flag(dev, offset, GPIOD_IS_OUT, output);
-	set_gpio_flag(dev, offset, GPIOD_IS_IN, !(output));
+	set_gpio_flag(dev, offset, GPIOD_IS_IN, !output);
 
 	return 0;
 }
 
 ulong sandbox_gpio_get_flags(struct udevice *dev, uint offset)
 {
-	return *get_gpio_flags(dev, offset);
+	ulong flags = *get_gpio_flags(dev, offset);
+
+	return flags & ~GPIOD_SANDBOX_MASK;
 }
 
 int sandbox_gpio_set_flags(struct udevice *dev, uint offset, ulong flags)
 {
-	*get_gpio_flags(dev, offset) = flags;
+	struct gpio_state *state = get_gpio_state(dev, offset);
+
+	/*
+	 * We don't need to clear GPIOD_EXT_HIGH here to make the tests pass,
+	 * but this is handled in a future patch.
+	 */
+	if (flags & GPIOD_IS_OUT_ACTIVE)
+		flags |= GPIOD_EXT_HIGH;
+	state->flags = (state->flags & GPIOD_SANDBOX_MASK) | flags;
 
 	return 0;
 }
@@ -189,23 +204,9 @@ static int sb_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
 static int sb_gpio_set_flags(struct udevice *dev, unsigned int offset,
 			     ulong flags)
 {
-	ulong *newf;
-
 	debug("%s: offset:%u, flags = %lx\n", __func__, offset, flags);
 
-	newf = get_gpio_flags(dev, offset);
-
-	/*
-	 * For testing purposes keep the output value when switching to input.
-	 * This allows us to manipulate the input value via the gpio command.
-	 */
-	if (flags & GPIOD_IS_IN)
-		*newf = (flags & ~GPIOD_IS_OUT_ACTIVE) |
-			(*newf & GPIOD_IS_OUT_ACTIVE);
-	else
-		*newf = flags;
-
-	return 0;
+	return sandbox_gpio_set_flags(dev, offset, flags);
 }
 
 static int sb_gpio_get_flags(struct udevice *dev, uint offset, ulong *flagsp)
