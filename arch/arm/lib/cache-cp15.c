@@ -203,9 +203,12 @@ static inline void mmu_setup(void)
 	asm volatile("mcr p15, 0, %0, c2, c0, 0"
 		     : : "r" (gd->arch.tlb_addr) : "memory");
 #endif
-	/* Set the access control to all-supervisor */
+	/*
+	 * initial value of Domain Access Control Register (DACR)
+	 * Set the access control to client (1U) for each of the 16 domains
+	 */
 	asm volatile("mcr p15, 0, %0, c3, c0, 0"
-		     : : "r" (~0));
+		     : : "r" (0x55555555));
 
 	arm_init_domains();
 
