@@ -13,4 +13,20 @@
 #ifndef __ASM_ARCH_LS102XA_GPIO_H_
 #define __ASM_ARCH_LS102XA_GPIO_H_
 
+struct ccsr_gpio {
+	u32	gpdir;
+	u32	gpodr;
+	u32	gpdat;
+	u32	gpier;
+	u32	gpimr;
+	u32	gpicr;
+	u32	gpibe;
+};
+
+struct mpc8xxx_gpio_plat {
+	ulong addr;
+	ulong size;
+	uint ngpios;
+};
+
 #endif
