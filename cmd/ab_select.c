@@ -22,7 +22,8 @@ static int do_ab_select(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* Lookup the "misc" partition from argv[2] and argv[3] */
 	if (part_get_info_by_dev_and_name_or_num(argv[2], argv[3],
-						 &dev_desc, &part_info) < 0) {
+						 &dev_desc, &part_info,
+						 false) < 0) {
 		return CMD_RET_FAILURE;
 	}
 
