@@ -10,6 +10,7 @@
 #include <env.h>
 #include <mapmem.h>
 #include <smbios.h>
+#include <sysinfo.h>
 #include <tables_csum.h>
 #include <version.h>
 #ifdef CONFIG_CPU
@@ -108,14 +109,25 @@ static int smbios_add_string(struct smbios_ctx *ctx, const char *str)
 }
 
 /**
- * smbios_add_prop() - Add a property from the device tree
+ * smbios_add_prop_si() - Add a property from the devicetree or sysinfo
+ *
+ * Sysinfo is used if available, with a fallback to devicetree
  *
  * @ctx:	context for writing the tables
  * @prop:	property to write
  * @return 0 if not found, else SMBIOS string number (1 or more)
  */
-static int smbios_add_prop(struct smbios_ctx *ctx, const char *prop)
+static int smbios_add_prop_si(struct smbios_ctx *ctx, const char *prop,
+			      int sysinfo_id)
 {
+	if (sysinfo_id && ctx->dev) {
+		char val[SMBIOS_STR_MAX];
+		int ret;
+
+		ret = sysinfo_get_str(ctx->dev, sysinfo_id, sizeof(val), val);
+		if (!ret)
+			return smbios_add_string(ctx, val);
+	}
 	if (IS_ENABLED(CONFIG_OF_CONTROL)) {
 		const char *str;
 
@@ -125,6 +137,17 @@ static int smbios_add_prop(struct smbios_ctx *ctx, const char *prop)
 	}
 
 	return 0;
+}
+
+/**
+ * smbios_add_prop() - Add a property from the devicetree
+ *
+ * @prop:	property to write
+ * @return 0 if not found, else SMBIOS string number (1 or more)
+ */
+static int smbios_add_prop(struct smbios_ctx *ctx, const char *prop)
+{
+	return smbios_add_prop_si(ctx, prop, SYSINFO_ID_NONE);
 }
 
 static void smbios_set_eos(struct smbios_ctx *ctx, char *eos)
@@ -240,7 +263,8 @@ static int smbios_write_type1(ulong *current, int handle,
 	smbios_set_eos(ctx, t->eos);
 	t->manufacturer = smbios_add_prop(ctx, "manufacturer");
 	t->product_name = smbios_add_prop(ctx, "product");
-	t->version = smbios_add_prop(ctx, "version");
+	t->version = smbios_add_prop_si(ctx, "version",
+					SYSINFO_ID_SMBIOS_SYSTEM_VERSION);
 	if (serial_str) {
 		t->serial_number = smbios_add_string(ctx, serial_str);
 		strncpy((char *)t->uuid, serial_str, sizeof(t->uuid));
@@ -269,6 +293,8 @@ static int smbios_write_type2(ulong *current, int handle,
 	smbios_set_eos(ctx, t->eos);
 	t->manufacturer = smbios_add_prop(ctx, "manufacturer");
 	t->product_name = smbios_add_prop(ctx, "product");
+	t->version = smbios_add_prop_si(ctx, "version",
+					SYSINFO_ID_SMBIOS_BASEBOARD_VERSION);
 	t->asset_tag_number = smbios_add_prop(ctx, "asset-tag");
 	t->feature_flags = SMBIOS_BOARD_FEATURE_HOSTING;
 	t->board_type = SMBIOS_BOARD_MOTHERBOARD;

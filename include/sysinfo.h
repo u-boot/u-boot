@@ -31,6 +31,17 @@
  * to read the serial number.
  */
 
+/** enum sysinfo_id - Standard IDs defined by U-Boot */
+enum sysinfo_id {
+	SYSINFO_ID_NONE,
+
+	SYSINFO_ID_SMBIOS_SYSTEM_VERSION,
+	SYSINFO_ID_SMBIOS_BASEBOARD_VERSION,
+
+	/* First value available for downstream/board used */
+	SYSINFO_ID_USER = 0x1000,
+};
+
 struct sysinfo_ops {
 	/**
 	 * detect() - Run the hardware info detection procedure for this
