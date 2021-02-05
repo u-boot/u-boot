@@ -24,11 +24,15 @@
  * @dev:	sysinfo device to use (NULL if none)
  * @eos:	end-of-string pointer for the table being processed. This is set
  *		up when we start processing a table
+ * @next_ptr:	pointer to the start of the next string to be added. When the
+ *		table is nopt empty, this points to the byte after the \0 of the
+ *		previous string.
  */
 struct smbios_ctx {
 	ofnode node;
 	struct udevice *dev;
 	char *eos;
+	char *next_ptr;
 };
 
 /**
@@ -77,6 +81,7 @@ static int smbios_add_string(struct smbios_ctx *ctx, const char *str)
 			strcpy(p, str);
 			p += strlen(str);
 			*p++ = '\0';
+			ctx->next_ptr = p;
 			*p++ = '\0';
 
 			return i;
@@ -113,6 +118,7 @@ static int smbios_add_prop(struct smbios_ctx *ctx, const char *prop)
 static void smbios_set_eos(struct smbios_ctx *ctx, char *eos)
 {
 	ctx->eos = eos;
+	ctx->next_ptr = eos;
 }
 
 /**
@@ -120,21 +126,13 @@ static void smbios_set_eos(struct smbios_ctx *ctx, char *eos)
  *
  * This computes the size of the string area including the string terminator.
  *
- * @start:	string area start address
+ * @ctx:	SMBIOS context
  * @return:	string area size
  */
-static int smbios_string_table_len(char *start)
+static int smbios_string_table_len(const struct smbios_ctx *ctx)
 {
-	char *p = start;
-	int i, len = 0;
-
-	while (*p) {
-		i = strlen(p) + 1;
-		p += i;
-		len += i;
-	}
-
-	return len + 1;
+	/* Allow for the final \0 after all strings */
+	return (ctx->next_ptr + 1) - ctx->eos;
 }
 
 static int smbios_write_type0(ulong *current, int handle,
@@ -170,7 +168,7 @@ static int smbios_write_type0(ulong *current, int handle,
 	t->ec_major_release = 0xff;
 	t->ec_minor_release = 0xff;
 
-	len = t->length + smbios_string_table_len(t->eos);
+	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -200,7 +198,7 @@ static int smbios_write_type1(ulong *current, int handle,
 	t->sku_number = smbios_add_prop(ctx, "sku");
 	t->family = smbios_add_prop(ctx, "family");
 
-	len = t->length + smbios_string_table_len(t->eos);
+	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -223,7 +221,7 @@ static int smbios_write_type2(ulong *current, int handle,
 	t->feature_flags = SMBIOS_BOARD_FEATURE_HOSTING;
 	t->board_type = SMBIOS_BOARD_MOTHERBOARD;
 
-	len = t->length + smbios_string_table_len(t->eos);
+	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -247,7 +245,7 @@ static int smbios_write_type3(ulong *current, int handle,
 	t->thermal_state = SMBIOS_STATE_SAFE;
 	t->security_status = SMBIOS_SECURITY_NONE;
 
-	len = t->length + smbios_string_table_len(t->eos);
+	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -306,7 +304,7 @@ static int smbios_write_type4(ulong *current, int handle,
 	t->l3_cache_handle = 0xffff;
 	t->processor_family2 = t->processor_family;
 
-	len = t->length + smbios_string_table_len(t->eos);
+	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
