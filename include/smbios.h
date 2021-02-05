@@ -183,14 +183,14 @@ struct __packed smbios_type32 {
 	u16 handle;
 	u8 reserved[6];
 	u8 boot_status;
-	u8 eos[SMBIOS_STRUCT_EOS_BYTES];
+	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
 struct __packed smbios_type127 {
 	u8 type;
 	u8 length;
 	u16 handle;
-	u8 eos[SMBIOS_STRUCT_EOS_BYTES];
+	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
 struct __packed smbios_header {
