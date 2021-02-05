@@ -258,7 +258,7 @@ SPI Flash
 """""""""
 
 To load an image off of SPI flash, first set up a partition as described in
-:ref:`partitions`. Then, use ``mtd`` to load that partition
+:ref:`k210_partitions`. Then, use ``mtd`` to load that partition
 
 .. code-block:: none
 
@@ -401,7 +401,7 @@ Sipeed MAIX boards typically provide around 16 MiB of SPI NOR flash. U-Boot is
 stored in the first 1 MiB or so of this flash. U-Boot's environment is stored at
 the end of flash.
 
-.. _partitions:
+.. _k210_partitions:
 
 Partitions
 """"""""""
