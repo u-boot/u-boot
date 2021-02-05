@@ -35,9 +35,12 @@ static int dm_test_fastboot_mmc_part(struct unit_test_state *uts)
 		},
 	};
 
-	ut_assertok(blk_get_device_by_str("mmc",
-					  __stringify(CONFIG_FASTBOOT_FLASH_MMC_DEV),
-					  &mmc_dev_desc));
+	/*
+	 * There are a lot of literal 0s I don't want to have to construct from
+	 * MMC_DEV.
+	 */
+	ut_asserteq(0, CONFIG_FASTBOOT_FLASH_MMC_DEV);
+	ut_assertok(blk_get_device_by_str("mmc", "0", &mmc_dev_desc));
 	if (CONFIG_IS_ENABLED(RANDOM_UUID)) {
 		gen_rand_uuid_str(parts[0].uuid, UUID_STR_FORMAT_STD);
 		gen_rand_uuid_str(parts[1].uuid, UUID_STR_FORMAT_STD);
@@ -58,6 +61,34 @@ static int dm_test_fastboot_mmc_part(struct unit_test_state *uts)
 	ut_asserteq(1, fastboot_mmc_get_part_info("test3", &fb_dev_desc,
 						  &part_info, response));
 	ut_assertok(env_set(FB_ALIAS_PREFIX "test3", NULL));
+
+	/* "New" partition labels */
+	ut_asserteq(1, fastboot_mmc_get_part_info("#test1", &fb_dev_desc,
+						  &part_info, response));
+	ut_asserteq(1, fastboot_mmc_get_part_info("0#test1", &fb_dev_desc,
+						  &part_info, response));
+	ut_asserteq(1, fastboot_mmc_get_part_info("0.0#test1", &fb_dev_desc,
+						  &part_info, response));
+	ut_asserteq(1, fastboot_mmc_get_part_info("0:1", &fb_dev_desc,
+						  &part_info, response));
+	ut_asserteq(1, fastboot_mmc_get_part_info("0.0:1", &fb_dev_desc,
+						  &part_info, response));
+	ut_asserteq(1, fastboot_mmc_get_part_info("0", &fb_dev_desc,
+						  &part_info, response));
+	ut_asserteq(1, fastboot_mmc_get_part_info("0.0", &fb_dev_desc,
+						  &part_info, response));
+	ut_asserteq(0, fastboot_mmc_get_part_info("0:0", &fb_dev_desc,
+						  &part_info, response));
+	ut_asserteq(0, fastboot_mmc_get_part_info("0.0:0", &fb_dev_desc,
+						  &part_info, response));
+	ut_asserteq(0, fastboot_mmc_get_part_info("1", &fb_dev_desc,
+						  &part_info, response));
+	ut_asserteq(0, fastboot_mmc_get_part_info("1.0", &fb_dev_desc,
+						  &part_info, response));
+	ut_asserteq(1, fastboot_mmc_get_part_info(":1", &fb_dev_desc,
+						  &part_info, response));
+	ut_asserteq(0, fastboot_mmc_get_part_info(":0", &fb_dev_desc,
+						  &part_info, response));
 
 	return 0;
 }
