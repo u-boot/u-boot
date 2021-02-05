@@ -22,34 +22,44 @@
 
 struct gpio_state {
 	const char *label;	/* label given by requester */
-	ulong dir_flags;	/* dir_flags (GPIOD_...) */
+	ulong flags;		/* flags (GPIOD_...) */
 };
 
-/* Access routines for GPIO dir flags */
-static ulong *get_gpio_dir_flags(struct udevice *dev, unsigned int offset)
+/* Access routines for GPIO info */
+static struct gpio_state *get_gpio_state(struct udevice *dev, uint offset)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct gpio_state *state = dev_get_priv(dev);
 
 	if (offset >= uc_priv->gpio_count) {
-		static ulong invalid_dir_flags;
 		printf("sandbox_gpio: error: invalid gpio %u\n", offset);
-		return &invalid_dir_flags;
+		return NULL;
 	}
 
-	return &state[offset].dir_flags;
+	return &state[offset];
+}
+
+/* Access routines for GPIO flags */
+static ulong *get_gpio_flags(struct udevice *dev, unsigned int offset)
+{
+	struct gpio_state *state = get_gpio_state(dev, offset);
+
+	if (!state)
+		return NULL;
+
+	return &state->flags;
 
 }
 
 static int get_gpio_flag(struct udevice *dev, unsigned int offset, ulong flag)
 {
-	return (*get_gpio_dir_flags(dev, offset) & flag) != 0;
+	return (*get_gpio_flags(dev, offset) & flag) != 0;
 }
 
 static int set_gpio_flag(struct udevice *dev, unsigned int offset, ulong flag,
 			 int value)
 {
-	ulong *gpio = get_gpio_dir_flags(dev, offset);
+	ulong *gpio = get_gpio_flags(dev, offset);
 
 	if (value)
 		*gpio |= flag;
@@ -88,15 +98,14 @@ int sandbox_gpio_set_direction(struct udevice *dev, unsigned offset, int output)
 	return 0;
 }
 
-ulong sandbox_gpio_get_dir_flags(struct udevice *dev, unsigned int offset)
+ulong sandbox_gpio_get_flags(struct udevice *dev, uint offset)
 {
-	return *get_gpio_dir_flags(dev, offset);
+	return *get_gpio_flags(dev, offset);
 }
 
-int sandbox_gpio_set_dir_flags(struct udevice *dev, unsigned int offset,
-			       ulong flags)
+int sandbox_gpio_set_flags(struct udevice *dev, uint offset, ulong flags)
 {
-	*get_gpio_dir_flags(dev, offset) = flags;
+	*get_gpio_flags(dev, offset) = flags;
 
 	return 0;
 }
@@ -180,30 +189,29 @@ static int sb_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
 static int sb_gpio_set_flags(struct udevice *dev, unsigned int offset,
 			     ulong flags)
 {
-	ulong *dir_flags;
+	ulong *newf;
 
-	debug("%s: offset:%u, dir_flags = %lx\n", __func__, offset, flags);
+	debug("%s: offset:%u, flags = %lx\n", __func__, offset, flags);
 
-	dir_flags = get_gpio_dir_flags(dev, offset);
+	newf = get_gpio_flags(dev, offset);
 
 	/*
 	 * For testing purposes keep the output value when switching to input.
 	 * This allows us to manipulate the input value via the gpio command.
 	 */
 	if (flags & GPIOD_IS_IN)
-		*dir_flags = (flags & ~GPIOD_IS_OUT_ACTIVE) |
-			     (*dir_flags & GPIOD_IS_OUT_ACTIVE);
+		*newf = (flags & ~GPIOD_IS_OUT_ACTIVE) |
+			(*newf & GPIOD_IS_OUT_ACTIVE);
 	else
-		*dir_flags = flags;
+		*newf = flags;
 
 	return 0;
 }
 
-static int sb_gpio_get_flags(struct udevice *dev, unsigned int offset,
-			     ulong *flagsp)
+static int sb_gpio_get_flags(struct udevice *dev, uint offset, ulong *flagsp)
 {
 	debug("%s: offset:%u\n", __func__, offset);
-	*flagsp = *get_gpio_dir_flags(dev, offset);
+	*flagsp = *get_gpio_flags(dev, offset);
 
 	return 0;
 }
@@ -456,7 +464,7 @@ static const char *sb_pinctrl_get_pin_name(struct udevice *dev,
 	return pin_name;
 }
 
-static char *get_dir_flags_string(ulong flags)
+static char *get_flags_string(ulong flags)
 {
 	if (flags & GPIOD_OPEN_DRAIN)
 		return "drive-open-drain";
@@ -475,7 +483,7 @@ static int sb_pinctrl_get_pin_muxing(struct udevice *dev,
 {
 	struct udevice *gpio_dev;
 	unsigned int gpio_idx;
-	ulong dir_flags;
+	ulong flags;
 	int function;
 
 	/* look up for the bank which owns the requested pin */
@@ -484,11 +492,11 @@ static int sb_pinctrl_get_pin_muxing(struct udevice *dev,
 		snprintf(buf, size, "Error");
 	} else {
 		function = sb_gpio_get_function(gpio_dev, gpio_idx);
-		dir_flags = *get_gpio_dir_flags(gpio_dev, gpio_idx);
+		flags = *get_gpio_flags(gpio_dev, gpio_idx);
 
 		snprintf(buf, size, "gpio %s %s",
 			 function == GPIOF_OUTPUT ? "output" : "input",
-			 get_dir_flags_string(dir_flags));
+			 get_flags_string(flags));
 	}
 
 	return 0;

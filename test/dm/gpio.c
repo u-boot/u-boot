@@ -80,15 +80,15 @@ static int dm_test_gpio(struct unit_test_state *uts)
 
 	/* Make it an open drain output, and reset it */
 	ut_asserteq(GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE,
-		    sandbox_gpio_get_dir_flags(dev, offset));
+		    sandbox_gpio_get_flags(dev, offset));
 	ut_assertok(ops->set_flags(dev, offset,
 				   GPIOD_IS_OUT | GPIOD_OPEN_DRAIN));
 	ut_asserteq(GPIOD_IS_OUT | GPIOD_OPEN_DRAIN,
-		    sandbox_gpio_get_dir_flags(dev, offset));
+		    sandbox_gpio_get_flags(dev, offset));
 	ut_assertok(ops->set_flags(dev, offset,
 				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE));
 	ut_asserteq(GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE,
-		    sandbox_gpio_get_dir_flags(dev, offset));
+		    sandbox_gpio_get_flags(dev, offset));
 
 	/* Make it an input */
 	ut_assertok(ops->direction_input(dev, offset));
@@ -176,7 +176,7 @@ static int dm_test_gpio_opendrain_opensource(struct unit_test_state *uts)
 
 	/* GPIO 0 is (GPIO_OUT|GPIO_OPEN_DRAIN) */
 	ut_asserteq(GPIOD_IS_OUT | GPIOD_OPEN_DRAIN,
-		    sandbox_gpio_get_dir_flags(gpio_c, 0));
+		    sandbox_gpio_get_flags(gpio_c, 0));
 
 	/* Set it as output high, should become an input */
 	ut_assertok(dm_gpio_set_value(&desc_list[0], 1));
@@ -190,7 +190,7 @@ static int dm_test_gpio_opendrain_opensource(struct unit_test_state *uts)
 
 	/* GPIO 1 is (GPIO_OUT|GPIO_OPEN_SOURCE) */
 	ut_asserteq(GPIOD_IS_OUT | GPIOD_OPEN_SOURCE,
-		    sandbox_gpio_get_dir_flags(gpio_c, 1));
+		    sandbox_gpio_get_flags(gpio_c, 1));
 
 	/* Set it as output high, should become output high */
 	ut_assertok(dm_gpio_set_value(&desc_list[1], 1));
@@ -204,7 +204,7 @@ static int dm_test_gpio_opendrain_opensource(struct unit_test_state *uts)
 
 	/* GPIO 6 is (GPIO_ACTIVE_LOW|GPIO_OUT|GPIO_OPEN_DRAIN) */
 	ut_asserteq(GPIOD_ACTIVE_LOW | GPIOD_IS_OUT | GPIOD_OPEN_DRAIN,
-		    sandbox_gpio_get_dir_flags(gpio_c, 6));
+		    sandbox_gpio_get_flags(gpio_c, 6));
 
 	/* Set it as output high, should become output low */
 	ut_assertok(dm_gpio_set_value(&desc_list[6], 1));
@@ -218,7 +218,7 @@ static int dm_test_gpio_opendrain_opensource(struct unit_test_state *uts)
 
 	/* GPIO 7 is (GPIO_ACTIVE_LOW|GPIO_OUT|GPIO_OPEN_SOURCE) */
 	ut_asserteq(GPIOD_ACTIVE_LOW | GPIOD_IS_OUT | GPIOD_OPEN_SOURCE,
-		    sandbox_gpio_get_dir_flags(gpio_c, 7));
+		    sandbox_gpio_get_flags(gpio_c, 7));
 
 	/* Set it as output high, should become an input */
 	ut_assertok(dm_gpio_set_value(&desc_list[7], 1));
@@ -363,12 +363,12 @@ static int dm_test_gpio_phandles(struct unit_test_state *uts)
 	ut_assertok(gpio_free_list(dev, desc_list, 3));
 
 	ut_asserteq(GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE,
-		    sandbox_gpio_get_dir_flags(gpio_a, 1));
+		    sandbox_gpio_get_flags(gpio_a, 1));
 	ut_asserteq(6, gpio_request_list_by_name(dev, "test2-gpios", desc_list,
 						 ARRAY_SIZE(desc_list), 0));
 
 	/* This was set to output previously but flags resetted to 0 = INPUT */
-	ut_asserteq(0, sandbox_gpio_get_dir_flags(gpio_a, 1));
+	ut_asserteq(0, sandbox_gpio_get_flags(gpio_a, 1));
 	ut_asserteq(GPIOF_INPUT, gpio_get_function(gpio_a, 1, NULL));
 
 	/* Active low should invert the input value */
