@@ -344,8 +344,11 @@ static int do_spi_flash_erase(int argc, char *const argv[])
 	}
 
 	ret = spi_flash_erase(flash, offset, size);
-	printf("SF: %zu bytes @ %#x Erased: %s\n", (size_t)size, (u32)offset,
-	       ret ? "ERROR" : "OK");
+	printf("SF: %zu bytes @ %#x Erased: ", (size_t)size, (u32)offset);
+	if (ret)
+		printf("ERROR %d\n", ret);
+	else
+		printf("OK\n");
 
 	return ret == 0 ? 0 : 1;
 }
