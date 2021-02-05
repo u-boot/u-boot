@@ -199,8 +199,8 @@ static int stmfx_gpio_set_flags(struct udevice *dev, unsigned int offset,
 	return ret;
 }
 
-static int stmfx_gpio_get_dir_flags(struct udevice *dev, unsigned int offset,
-				    ulong *flags)
+static int stmfx_gpio_get_flags(struct udevice *dev, unsigned int offset,
+				ulong *flagsp)
 {
 	ulong dir_flags = 0;
 	int ret;
@@ -233,7 +233,7 @@ static int stmfx_gpio_get_dir_flags(struct udevice *dev, unsigned int offset,
 				dir_flags |= GPIOD_PULL_DOWN;
 		}
 	}
-	*flags = dir_flags;
+	*flagsp = dir_flags;
 
 	return 0;
 }
@@ -267,7 +267,7 @@ static const struct dm_gpio_ops stmfx_gpio_ops = {
 	.direction_input = stmfx_gpio_direction_input,
 	.direction_output = stmfx_gpio_direction_output,
 	.set_flags = stmfx_gpio_set_flags,
-	.get_dir_flags = stmfx_gpio_get_dir_flags,
+	.get_flags = stmfx_gpio_get_flags,
 };
 
 U_BOOT_DRIVER(stmfx_gpio) = {

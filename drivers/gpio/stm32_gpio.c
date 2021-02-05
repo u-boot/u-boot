@@ -223,8 +223,8 @@ static int stm32_gpio_set_flags(struct udevice *dev, unsigned int offset,
 	return 0;
 }
 
-static int stm32_gpio_get_dir_flags(struct udevice *dev, unsigned int offset,
-				    ulong *flags)
+static int stm32_gpio_get_flags(struct udevice *dev, unsigned int offset,
+				ulong *flagsp)
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
 	struct stm32_gpio_regs *regs = priv->regs;
@@ -259,7 +259,7 @@ static int stm32_gpio_get_dir_flags(struct udevice *dev, unsigned int offset,
 	default:
 		break;
 	}
-	*flags = dir_flags;
+	*flagsp = dir_flags;
 
 	return 0;
 }
@@ -271,7 +271,7 @@ static const struct dm_gpio_ops gpio_stm32_ops = {
 	.set_value		= stm32_gpio_set_value,
 	.get_function		= stm32_gpio_get_function,
 	.set_flags		= stm32_gpio_set_flags,
-	.get_dir_flags		= stm32_gpio_get_dir_flags,
+	.get_flags		= stm32_gpio_get_flags,
 };
 
 static int gpio_stm32_probe(struct udevice *dev)

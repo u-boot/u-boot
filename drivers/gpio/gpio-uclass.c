@@ -683,39 +683,39 @@ int dm_gpio_set_dir(struct gpio_desc *desc)
 	return _dm_gpio_set_flags(desc, desc->flags);
 }
 
-int dm_gpio_get_dir_flags(struct gpio_desc *desc, ulong *flags)
+int dm_gpio_get_dir_flags(struct gpio_desc *desc, ulong *flagsp)
 {
 	struct udevice *dev = desc->dev;
 	int ret, value;
 	struct dm_gpio_ops *ops = gpio_get_ops(dev);
-	ulong dir_flags;
+	ulong flags;
 
-	ret = check_reserved(desc, "get_dir_flags");
+	ret = check_reserved(desc, "get_flags");
 	if (ret)
 		return ret;
 
 	/* GPIOD_ are directly provided by driver except GPIOD_ACTIVE_LOW */
-	if (ops->get_dir_flags) {
-		ret = ops->get_dir_flags(dev, desc->offset, &dir_flags);
+	if (ops->get_flags) {
+		ret = ops->get_flags(dev, desc->offset, &flags);
 		if (ret)
 			return ret;
 
 		/* GPIOD_ACTIVE_LOW is saved in desc->flags */
-		value = dir_flags & GPIOD_IS_OUT_ACTIVE ? 1 : 0;
+		value = flags & GPIOD_IS_OUT_ACTIVE ? 1 : 0;
 		if (desc->flags & GPIOD_ACTIVE_LOW)
 			value = !value;
-		dir_flags &= ~(GPIOD_ACTIVE_LOW | GPIOD_IS_OUT_ACTIVE);
-		dir_flags |= (desc->flags & GPIOD_ACTIVE_LOW);
+		flags &= ~(GPIOD_ACTIVE_LOW | GPIOD_IS_OUT_ACTIVE);
+		flags |= (desc->flags & GPIOD_ACTIVE_LOW);
 		if (value)
-			dir_flags |= GPIOD_IS_OUT_ACTIVE;
+			flags |= GPIOD_IS_OUT_ACTIVE;
 	} else {
-		dir_flags = desc->flags;
+		flags = desc->flags;
 		/* only GPIOD_IS_OUT_ACTIVE is provided by uclass */
-		dir_flags &= ~GPIOD_IS_OUT_ACTIVE;
+		flags &= ~GPIOD_IS_OUT_ACTIVE;
 		if ((desc->flags & GPIOD_IS_OUT) && _gpio_get_value(desc))
-			dir_flags |= GPIOD_IS_OUT_ACTIVE;
+			flags |= GPIOD_IS_OUT_ACTIVE;
 	}
-	*flags = dir_flags;
+	*flagsp = flags;
 
 	return 0;
 }
@@ -1310,8 +1310,8 @@ static int gpio_post_bind(struct udevice *dev)
 			ops->xlate += gd->reloc_off;
 		if (ops->set_flags)
 			ops->set_flags += gd->reloc_off;
-		if (ops->get_dir_flags)
-			ops->get_dir_flags += gd->reloc_off;
+		if (ops->get_flags)
+			ops->get_flags += gd->reloc_off;
 
 		reloc_done++;
 	}

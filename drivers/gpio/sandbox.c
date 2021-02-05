@@ -199,11 +199,11 @@ static int sb_gpio_set_flags(struct udevice *dev, unsigned int offset,
 	return 0;
 }
 
-static int sb_gpio_get_dir_flags(struct udevice *dev, unsigned int offset,
-				 ulong *flags)
+static int sb_gpio_get_flags(struct udevice *dev, unsigned int offset,
+			     ulong *flagsp)
 {
 	debug("%s: offset:%u\n", __func__, offset);
-	*flags = *get_gpio_dir_flags(dev, offset);
+	*flagsp = *get_gpio_dir_flags(dev, offset);
 
 	return 0;
 }
@@ -273,7 +273,7 @@ static const struct dm_gpio_ops gpio_sandbox_ops = {
 	.get_function		= sb_gpio_get_function,
 	.xlate			= sb_gpio_xlate,
 	.set_flags		= sb_gpio_set_flags,
-	.get_dir_flags		= sb_gpio_get_dir_flags,
+	.get_flags		= sb_gpio_get_flags,
 #if CONFIG_IS_ENABLED(ACPIGEN)
 	.get_acpi		= sb_gpio_get_acpi,
 #endif

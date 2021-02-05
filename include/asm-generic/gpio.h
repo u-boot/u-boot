@@ -333,19 +333,20 @@ struct dm_gpio_ops {
 	int (*set_flags)(struct udevice *dev, unsigned int offset, ulong flags);
 
 	/**
-	 * get_dir_flags() - Get GPIO dir flags
+	 * get_flags() - Get GPIO flags
 	 *
-	 * This function return the GPIO direction flags used.
+	 * This function return the GPIO flags used. It should read this from
+	 * the hardware directly.
 	 *
 	 * This method is optional.
 	 *
 	 * @dev:	GPIO device
 	 * @offset:	GPIO offset within that device
-	 * @flags:	place to put the used direction flags by GPIO
+	 * @flagsp:	place to put the current flags value
 	 * @return 0 if OK, -ve on error
 	 */
-	int (*get_dir_flags)(struct udevice *dev, unsigned int offset,
-			     ulong *flags);
+	int (*get_flags)(struct udevice *dev, unsigned int offset,
+			 ulong *flagsp);
 
 #if CONFIG_IS_ENABLED(ACPIGEN)
 	/**
