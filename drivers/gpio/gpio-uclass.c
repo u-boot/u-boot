@@ -3,6 +3,8 @@
  * Copyright (c) 2013 Google, Inc
  */
 
+#define LOG_CATEGORY	UCLASS_GPIO
+
 #include <common.h>
 #include <dm.h>
 #include <log.h>
