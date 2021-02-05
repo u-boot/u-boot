@@ -22,10 +22,6 @@ __weak void arm_init_before_mmu(void)
 {
 }
 
-__weak void arm_init_domains(void)
-{
-}
-
 static void set_section_phys(int section, phys_addr_t phys,
 			     enum dcache_option option)
 {
@@ -209,8 +205,6 @@ static inline void mmu_setup(void)
 	 */
 	asm volatile("mcr p15, 0, %0, c3, c0, 0"
 		     : : "r" (0x55555555));
-
-	arm_init_domains();
 
 	/* and enable the mmu */
 	reg = get_cr();	/* get control reg. */
