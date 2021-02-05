@@ -1024,6 +1024,7 @@ err:
 	return ret;
 }
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int _gpio_request_by_name_nodev(ofnode node, const char *list_name,
 				       int index, struct gpio_desc *desc,
 				       int flags, bool add_index)
@@ -1110,6 +1111,7 @@ int gpio_get_list_count(struct udevice *dev, const char *list_name)
 
 	return ret;
 }
+#endif /* OF_PLATDATA */
 
 int dm_gpio_free(struct udevice *dev, struct gpio_desc *desc)
 {
