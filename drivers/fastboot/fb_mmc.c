@@ -51,7 +51,8 @@ static int part_get_info_by_name_or_alias(struct blk_desc *dev_desc,
 }
 
 static int raw_part_get_info_by_name(struct blk_desc *dev_desc,
-		const char *name, struct disk_partition *info, int *mmcpart)
+				     const char *name,
+				     struct disk_partition *info)
 {
 	/* strlen("fastboot_raw_partition_") + PART_NAME_LEN + 1 */
 	char env_desc_name[23 + PART_NAME_LEN + 1];
@@ -85,8 +86,13 @@ static int raw_part_get_info_by_name(struct blk_desc *dev_desc,
 	strncpy((char *)info->name, name, PART_NAME_LEN);
 
 	if (raw_part_desc) {
-		if (strcmp(strsep(&raw_part_desc, " "), "mmcpart") == 0)
-			*mmcpart = simple_strtoul(raw_part_desc, NULL, 0);
+		if (strcmp(strsep(&raw_part_desc, " "), "mmcpart") == 0) {
+			ulong mmcpart = simple_strtoul(raw_part_desc, NULL, 0);
+			int ret = blk_dselect_hwpart(dev_desc, mmcpart);
+
+			if (ret)
+				return ret;
+		}
 	}
 
 	return 0;
@@ -425,7 +431,6 @@ int fastboot_mmc_get_part_info(const char *part_name,
 			       struct disk_partition *part_info, char *response)
 {
 	int r = 0;
-	int mmcpart;
 
 	*dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
 	if (!*dev_desc) {
@@ -437,7 +442,7 @@ int fastboot_mmc_get_part_info(const char *part_name,
 		return -ENOENT;
 	}
 
-	if (raw_part_get_info_by_name(*dev_desc, part_name, part_info, &mmcpart) < 0) {
+	if (raw_part_get_info_by_name(*dev_desc, part_name, part_info) < 0) {
 		r = part_get_info_by_name_or_alias(*dev_desc, part_name, part_info);
 		if (r < 0) {
 			fastboot_fail("partition not found", response);
@@ -461,7 +466,6 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 {
 	struct blk_desc *dev_desc;
 	struct disk_partition info;
-	int mmcpart = 0;
 
 	dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
 	if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
@@ -541,16 +545,12 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 	}
 #endif
 
-	if (raw_part_get_info_by_name(dev_desc, cmd, &info, &mmcpart) == 0) {
-		if (blk_dselect_hwpart(dev_desc, mmcpart)) {
-			pr_err("Failed to select hwpart\n");
-			fastboot_fail("Failed to select hwpart", response);
+	if (raw_part_get_info_by_name(dev_desc, cmd, &info) != 0) {
+		if (part_get_info_by_name_or_alias(dev_desc, cmd, &info) < 0) {
+			pr_err("cannot find partition: '%s'\n", cmd);
+			fastboot_fail("cannot find partition", response);
 			return;
 		}
-	} else if (part_get_info_by_name_or_alias(dev_desc, cmd, &info) < 0) {
-		pr_err("cannot find partition: '%s'\n", cmd);
-		fastboot_fail("cannot find partition", response);
-		return;
 	}
 
 	if (is_sparse_image(download_buffer)) {
@@ -593,7 +593,6 @@ void fastboot_mmc_erase(const char *cmd, char *response)
 	struct disk_partition info;
 	lbaint_t blks, blks_start, blks_size, grp_size;
 	struct mmc *mmc = find_mmc_device(CONFIG_FASTBOOT_FLASH_MMC_DEV);
-	int mmcpart = 0;
 
 	if (mmc == NULL) {
 		pr_err("invalid mmc device\n");
@@ -632,16 +631,12 @@ void fastboot_mmc_erase(const char *cmd, char *response)
 	}
 #endif
 
-	if (raw_part_get_info_by_name(dev_desc, cmd, &info, &mmcpart) == 0) {
-		if (blk_dselect_hwpart(dev_desc, mmcpart)) {
-			pr_err("Failed to select hwpart\n");
-			fastboot_fail("Failed to select hwpart", response);
+	if (raw_part_get_info_by_name(dev_desc, cmd, &info) != 0) {
+		if (part_get_info_by_name_or_alias(dev_desc, cmd, &info) < 0) {
+			pr_err("cannot find partition: '%s'\n", cmd);
+			fastboot_fail("cannot find partition", response);
 			return;
 		}
-	} else if (part_get_info_by_name_or_alias(dev_desc, cmd, &info) < 0) {
-		pr_err("cannot find partition: '%s'\n", cmd);
-		fastboot_fail("cannot find partition", response);
-		return;
 	}
 
 	/* Align blocks to erase group size to avoid erasing other partitions */
