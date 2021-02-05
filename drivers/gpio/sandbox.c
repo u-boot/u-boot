@@ -19,7 +19,6 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/gpio/sandbox-gpio.h>
 
-
 struct gpio_state {
 	const char *label;	/* label given by requester */
 	ulong flags;		/* flags (GPIOD_...) */
@@ -81,10 +80,16 @@ int sandbox_gpio_get_value(struct udevice *dev, unsigned offset)
 	if (get_gpio_flag(dev, offset, GPIOD_IS_OUT))
 		debug("sandbox_gpio: get_value on output gpio %u\n", offset);
 
-	if (state->flags & GPIOD_EXT_DRIVEN)
+	if (state->flags & GPIOD_EXT_DRIVEN) {
 		val = state->flags & GPIOD_EXT_HIGH;
-	else
-		val = false;
+	} else {
+		if (state->flags & GPIOD_EXT_PULL_UP)
+			val = true;
+		else if (state->flags & GPIOD_EXT_PULL_DOWN)
+			val = false;
+		else
+			val = state->flags & GPIOD_PULL_UP;
+	}
 
 	return val;
 }

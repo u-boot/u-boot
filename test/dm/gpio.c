@@ -680,3 +680,101 @@ static int dm_test_clrset_flags_invert(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_clrset_flags_invert, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int set_gpios(struct unit_test_state *uts, struct gpio_desc *desc,
+		     int count, uint value)
+{
+	int i;
+
+	for (i = 0; i < count; i++) {
+		const uint mask = 1 << i;
+
+		ut_assertok(sandbox_gpio_set_value(desc[i].dev, desc[i].offset,
+						   value & mask));
+	}
+
+	return 0;
+}
+
+/* Check that an active-low GPIO works as expected */
+static int dm_test_gpio_get_values_as_int(struct unit_test_state *uts)
+{
+	const int gpio_count = 3;
+	struct gpio_desc desc[gpio_count];
+	struct udevice *dev;
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
+	ut_asserteq_str("a-test", dev->name);
+
+	ut_asserteq(3, gpio_request_list_by_name(dev, "test-gpios", desc,
+						 gpio_count, GPIOD_IS_IN));
+	ut_assertok(set_gpios(uts, desc, gpio_count, 0));
+	ut_asserteq(0, dm_gpio_get_values_as_int(desc, gpio_count));
+
+	ut_assertok(set_gpios(uts, desc, gpio_count, 5));
+	ut_asserteq(5, dm_gpio_get_values_as_int(desc, gpio_count));
+
+	ut_assertok(set_gpios(uts, desc, gpio_count, 7));
+	ut_asserteq(7, dm_gpio_get_values_as_int(desc, gpio_count));
+
+	return 0;
+}
+DM_TEST(dm_test_gpio_get_values_as_int,
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Check that an active-low GPIO works as expected */
+static int dm_test_gpio_get_values_as_int_base3(struct unit_test_state *uts)
+{
+	const int gpio_count = 3;
+	struct gpio_desc desc[gpio_count];
+	struct udevice *dev;
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
+	ut_asserteq_str("a-test", dev->name);
+
+	ut_asserteq(3, gpio_request_list_by_name(dev, "test-gpios", desc,
+						 gpio_count, GPIOD_IS_IN));
+
+	/*
+	 * First test the sandbox GPIO driver works as expected. The external
+	 * pull resistor should be stronger than the internal one.
+	 */
+	sandbox_gpio_set_flags(desc[0].dev, desc[0].offset,
+			       GPIOD_IS_IN | GPIOD_EXT_PULL_UP | GPIOD_PULL_UP);
+	ut_asserteq(1, dm_gpio_get_value(desc));
+
+	sandbox_gpio_set_flags(desc[0].dev, desc[0].offset, GPIOD_IS_IN |
+			       GPIOD_EXT_PULL_DOWN | GPIOD_PULL_UP);
+	ut_asserteq(0, dm_gpio_get_value(desc));
+
+	sandbox_gpio_set_flags(desc[0].dev, desc[0].offset,
+			       GPIOD_IS_IN | GPIOD_PULL_UP);
+	ut_asserteq(1, dm_gpio_get_value(desc));
+
+	sandbox_gpio_set_flags(desc[0].dev, desc[0].offset, GPIOD_PULL_DOWN);
+	ut_asserteq(0, dm_gpio_get_value(desc));
+
+	/*
+	 * Set up pins: pull-up (1), pull-down (0) and floating (2). This should
+	 * result in digits 2 0 1, i.e. 2 * 9 + 1 * 3 = 19
+	 */
+	sandbox_gpio_set_flags(desc[0].dev, desc[0].offset, GPIOD_EXT_PULL_UP);
+	sandbox_gpio_set_flags(desc[1].dev, desc[1].offset,
+			       GPIOD_EXT_PULL_DOWN);
+	sandbox_gpio_set_flags(desc[2].dev, desc[2].offset, 0);
+	ut_asserteq(19, dm_gpio_get_values_as_int_base3(desc, gpio_count));
+
+	/*
+	 * Set up pins: floating (2), pull-up (1) and pull-down (0). This should
+	 * result in digits 0 1 2, i.e. 1 * 3 + 2 = 5
+	 */
+	sandbox_gpio_set_flags(desc[0].dev, desc[0].offset, 0);
+	sandbox_gpio_set_flags(desc[1].dev, desc[1].offset, GPIOD_EXT_PULL_UP);
+	sandbox_gpio_set_flags(desc[2].dev, desc[2].offset,
+			       GPIOD_EXT_PULL_DOWN);
+	ut_asserteq(5, dm_gpio_get_values_as_int_base3(desc, gpio_count));
+
+	return 0;
+}
+DM_TEST(dm_test_gpio_get_values_as_int_base3,
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

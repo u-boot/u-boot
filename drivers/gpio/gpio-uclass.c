@@ -23,6 +23,7 @@
 #include <dm/device_compat.h>
 #include <linux/bug.h>
 #include <linux/ctype.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -723,6 +724,21 @@ int dm_gpio_set_dir(struct gpio_desc *desc)
 	return _dm_gpio_set_flags(desc, desc->flags);
 }
 
+int dm_gpios_clrset_flags(struct gpio_desc *desc, int count, ulong clr,
+			  ulong set)
+{
+	int ret;
+	int i;
+
+	for (i = 0; i < count; i++) {
+		ret = dm_gpio_clrset_flags(&desc[i], clr, set);
+		if (ret)
+			return log_ret(ret);
+	}
+
+	return 0;
+}
+
 int dm_gpio_get_flags(struct gpio_desc *desc, ulong *flagsp)
 {
 	struct udevice *dev = desc->dev;
@@ -985,6 +1001,71 @@ int dm_gpio_get_values_as_int(const struct gpio_desc *desc_list, int count)
 			vector |= bitmask;
 		bitmask <<= 1;
 	}
+
+	return vector;
+}
+
+int dm_gpio_get_values_as_int_base3(struct gpio_desc *desc_list,
+				    int count)
+{
+	static const char tristate[] = "01z";
+	enum {
+		PULLUP,
+		PULLDOWN,
+
+		NUM_OPTIONS,
+	};
+	int vals[NUM_OPTIONS];
+	uint mask;
+	uint vector = 0;
+	int ret, i;
+
+	/*
+	 * Limit to 19 digits which should be plenty. This avoids overflow of a
+	 * 32-bit int
+	 */
+	assert(count < 20);
+
+	for (i = 0; i < NUM_OPTIONS; i++) {
+		uint flags = GPIOD_IS_IN;
+
+		flags |= (i == PULLDOWN) ? GPIOD_PULL_DOWN : GPIOD_PULL_UP;
+		ret = dm_gpios_clrset_flags(desc_list, count, GPIOD_MASK_PULL,
+					    flags);
+		if (ret)
+			return log_msg_ret("pu", ret);
+
+		/* Give the lines time to settle */
+		udelay(10);
+
+		ret = dm_gpio_get_values_as_int(desc_list, count);
+		if (ret < 0)
+			return log_msg_ret("get1", ret);
+		vals[i] = ret;
+	}
+
+	log_debug("values: %x %x, count = %d\n", vals[0], vals[1], count);
+	for (i = count - 1, mask = 1 << i; i >= 0; i--, mask >>= 1) {
+		uint pd = vals[PULLDOWN] & mask ? 1 : 0;
+		uint pu = vals[PULLUP] & mask ? 1 : 0;
+		uint digit;
+
+		/*
+		 * Get value with internal pulldown active. If this is 1 then
+		 * there is a stronger external pullup, which we call 1. If not
+		 * then call it 0.
+		 *
+		 * If the values differ then the pin is floating so we call
+		 * this a 2.
+		 */
+		if (pu == pd)
+			digit = pd;
+		else
+			digit = 2;
+		log_debug("%c ", tristate[digit]);
+		vector = 3 * vector + digit;
+	}
+	log_debug("vector=%d\n", vector);
 
 	return vector;
 }

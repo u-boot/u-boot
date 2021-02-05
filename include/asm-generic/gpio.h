@@ -498,6 +498,31 @@ int gpio_get_values_as_int(const int *gpio_list);
 int dm_gpio_get_values_as_int(const struct gpio_desc *desc_list, int count);
 
 /**
+ * dm_gpio_get_values_as_int_base3() - Create a base-3 int from a list of GPIOs
+ *
+ * This uses pull-ups/pull-downs to figure out whether a GPIO line is externally
+ * pulled down, pulled up or floating. This allows three different strap values
+ * for each pin:
+ *    0 : external pull-down
+ *    1 : external pull-up
+ *    2 : floating
+ *
+ * With this it is possible to obtain more combinations from the same number of
+ * strapping pins, when compared to dm_gpio_get_values_as_int(). The external
+ * pull resistors should be made stronger that the internal SoC pull resistors,
+ * for this to work.
+ *
+ * With 2 pins, 6 combinations are possible, compared with 4
+ * With 3 pins, 27 are possible, compared with 8
+ *
+ * @desc_list: List of GPIOs to collect
+ * @count: Number of GPIOs
+ * @return resulting integer value, or -ve on error
+ */
+int dm_gpio_get_values_as_int_base3(struct gpio_desc *desc_list,
+				    int count);
+
+/**
  * gpio_claim_vector() - claim a number of GPIOs for input
  *
  * @gpio_num_array:	array of gpios to claim, terminated by -1
@@ -724,6 +749,21 @@ int dm_gpio_clrset_flags(struct gpio_desc *desc, ulong clr, ulong set);
  * @return 0 if OK, -ve on error, in which case desc->flags is not updated
  */
 int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags);
+
+/**
+ * dm_gpios_clrset_flags() - Sets flags for a set of GPIOs
+ *
+ * This clears and sets flags individually for each GPIO.
+ *
+ * @desc:	List of GPIOs to update
+ * @count:	Number of GPIOs in the list
+ * @clr:	Flags to clear (GPIOD_...), e.g. GPIOD_MASK_DIR if you are
+ *		changing the direction
+ * @set:	Flags to set (GPIOD_...)
+ * @return 0 if OK, -ve on error
+ */
+int dm_gpios_clrset_flags(struct gpio_desc *desc, int count, ulong clr,
+			  ulong set);
 
 /**
  * dm_gpio_get_flags() - Get flags
