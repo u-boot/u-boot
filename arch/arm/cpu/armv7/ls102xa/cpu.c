@@ -316,6 +316,8 @@ int arch_cpu_init(void)
 	struct ccsr_scfg *scfg = (void *)CONFIG_SYS_FSL_SCFG_ADDR;
 	u32 state;
 
+	icache_enable();
+
 	/*
 	 * The RCPM FSM state may not be reset after power-on.
 	 * So, reset them.
