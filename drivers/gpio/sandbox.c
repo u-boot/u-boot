@@ -114,13 +114,7 @@ int sandbox_gpio_set_flags(struct udevice *dev, uint offset, ulong flags)
 {
 	struct gpio_state *state = get_gpio_state(dev, offset);
 
-	/*
-	 * We don't need to clear GPIOD_EXT_HIGH here to make the tests pass,
-	 * but this is handled in a future patch.
-	 */
-	if (flags & GPIOD_IS_OUT_ACTIVE)
-		flags |= GPIOD_EXT_HIGH;
-	state->flags = (state->flags & GPIOD_SANDBOX_MASK) | flags;
+	state->flags = flags;
 
 	return 0;
 }
@@ -221,14 +215,23 @@ static int sb_gpio_set_flags(struct udevice *dev, unsigned int offset,
 			     ulong flags)
 {
 	debug("%s: offset:%u, flags = %lx\n", __func__, offset, flags);
+	struct gpio_state *state = get_gpio_state(dev, offset);
 
-	return sandbox_gpio_set_flags(dev, offset, flags);
+	if (flags & GPIOD_IS_OUT) {
+		if (flags & GPIOD_IS_OUT_ACTIVE)
+			flags |= GPIOD_EXT_HIGH;
+		else
+			flags &= ~GPIOD_EXT_HIGH;
+	}
+	state->flags = flags;
+
+	return 0;
 }
 
 static int sb_gpio_get_flags(struct udevice *dev, uint offset, ulong *flagsp)
 {
 	debug("%s: offset:%u\n", __func__, offset);
-	*flagsp = *get_gpio_flags(dev, offset);
+	*flagsp = *get_gpio_flags(dev, offset) & ~GPIOD_SANDBOX_MASK;
 
 	return 0;
 }
