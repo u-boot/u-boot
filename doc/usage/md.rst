@@ -39,6 +39,16 @@ length
     number of values to dump. Defaults to 40 (0d64). Note that this is not
     the same as the number of bytes, unless .b is used.
 
+Note that the format of 'md.b' can be emulated from linux with::
+
+    # This works but requires using sed to get the extra spaces
+    # <addr> is the address, <f> is the filename
+    xxd -o <addr> -g1 <f> |sed 's/  /    /' >bad
+
+    # This uses a single tool but the offset always starts at 0
+    # <f> is the filename
+    hexdump -v -e '"%08.8_ax: " 16/1 "%02x " "    "' -e '16/1 "%_p" "\n" ' <f>
+
 
 Example
 -------
