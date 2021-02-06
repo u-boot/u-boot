@@ -123,7 +123,8 @@ void *os_malloc(size_t length);
  *
  * This returns the memory to the OS.
  *
- * @ptr:	Pointer to memory block to free
+ * @ptr:	Pointer to memory block to free. If this is NULL then this
+ *		function does nothing
  */
 void os_free(void *ptr);
 
