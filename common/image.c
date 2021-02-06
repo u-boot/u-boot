@@ -462,13 +462,16 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		else
 			ret = -ENOSPC;
 		break;
-#ifdef CONFIG_GZIP
+#ifndef USE_HOSTCC
+#if CONFIG_IS_ENABLED(GZIP)
 	case IH_COMP_GZIP: {
 		ret = gunzip(load_buf, unc_len, image_buf, &image_len);
 		break;
 	}
 #endif /* CONFIG_GZIP */
-#ifdef CONFIG_BZIP2
+#endif
+#ifndef USE_HOSTCC
+#if CONFIG_IS_ENABLED(BZIP2)
 	case IH_COMP_BZIP2: {
 		uint size = unc_len;
 
@@ -484,7 +487,9 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		break;
 	}
 #endif /* CONFIG_BZIP2 */
-#ifdef CONFIG_LZMA
+#endif
+#ifndef USE_HOSTCC
+#if CONFIG_IS_ENABLED(LZMA)
 	case IH_COMP_LZMA: {
 		SizeT lzma_len = unc_len;
 
@@ -494,7 +499,9 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		break;
 	}
 #endif /* CONFIG_LZMA */
-#ifdef CONFIG_LZO
+#endif
+#ifndef USE_HOSTCC
+#if CONFIG_IS_ENABLED(LZO)
 	case IH_COMP_LZO: {
 		size_t size = unc_len;
 
@@ -503,7 +510,9 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		break;
 	}
 #endif /* CONFIG_LZO */
-#ifdef CONFIG_LZ4
+#endif
+#ifndef USE_HOSTCC
+#if CONFIG_IS_ENABLED(LZ4)
 	case IH_COMP_LZ4: {
 		size_t size = unc_len;
 
@@ -512,7 +521,9 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		break;
 	}
 #endif /* CONFIG_LZ4 */
-#ifdef CONFIG_ZSTD
+#endif
+#ifndef USE_HOSTCC
+#if CONFIG_IS_ENABLED(ZSTD)
 	case IH_COMP_ZSTD: {
 		size_t size = unc_len;
 		ZSTD_DStream *dstream;
@@ -562,6 +573,7 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		break;
 	}
 #endif /* CONFIG_ZSTD */
+#endif
 	default:
 		printf("Unimplemented compression type %d\n", comp);
 		return -ENOSYS;
