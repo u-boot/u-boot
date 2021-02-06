@@ -47,9 +47,11 @@ u32 tpm2_self_test(struct udevice *dev, enum tpm2_yes_no full_test)
 u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
 	       const ssize_t pw_sz)
 {
+	/* Length of the message header, up to start of password */
+	uint offset = 27;
 	u8 command_v2[COMMAND_BUFFER_SIZE] = {
 		tpm_u16(TPM2_ST_SESSIONS),	/* TAG */
-		tpm_u32(27 + pw_sz),		/* Length */
+		tpm_u32(offset + pw_sz),	/* Length */
 		tpm_u32(TPM2_CC_CLEAR),		/* Command code */
 
 		/* HANDLE */
@@ -64,7 +66,6 @@ u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
 		tpm_u16(pw_sz),			/* Size of <hmac/password> */
 		/* STRING(pw)			   <hmac/password> (if any) */
 	};
-	unsigned int offset = 27;
 	int ret;
 
 	/*
@@ -83,9 +84,11 @@ u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
 u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
 		    const u8 *digest, u32 digest_len)
 {
+	/* Length of the message header, up to start of digest */
+	uint offset = 33;
 	u8 command_v2[COMMAND_BUFFER_SIZE] = {
 		tpm_u16(TPM2_ST_SESSIONS),	/* TAG */
-		tpm_u32(33 + digest_len),	/* Length */
+		tpm_u32(offset + digest_len),	/* Length */
 		tpm_u32(TPM2_CC_PCR_EXTEND),	/* Command code */
 
 		/* HANDLE */
@@ -99,11 +102,12 @@ u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
 		0,				/* Attributes: Cont/Excl/Rst */
 		tpm_u16(0),			/* Size of <hmac/password> */
 						/* <hmac/password> (if any) */
+
+		/* hashes */
 		tpm_u32(1),			/* Count (number of hashes) */
 		tpm_u16(algorithm),	/* Algorithm of the hash */
 		/* STRING(digest)		   Digest */
 	};
-	unsigned int offset = 33;
 	int ret;
 
 	/*
@@ -112,7 +116,6 @@ u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
 	 */
 	ret = pack_byte_string(command_v2, sizeof(command_v2), "s",
 			       offset, digest, digest_len);
-	offset += digest_len;
 	if (ret)
 		return TPM_LIB_ERROR;
 
