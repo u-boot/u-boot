@@ -183,14 +183,14 @@ struct __packed smbios_type32 {
 	u16 handle;
 	u8 reserved[6];
 	u8 boot_status;
-	u8 eos[SMBIOS_STRUCT_EOS_BYTES];
+	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
 struct __packed smbios_type127 {
 	u8 type;
 	u8 length;
 	u16 handle;
-	u8 eos[SMBIOS_STRUCT_EOS_BYTES];
+	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
 struct __packed smbios_header {
@@ -218,16 +218,6 @@ static inline void fill_smbios_header(void *table, int type,
 	header->length = length - SMBIOS_STRUCT_EOS_BYTES;
 	header->handle = handle;
 }
-
-/**
- * Function prototype to write a specific type of SMBIOS structure
- *
- * @addr:	start address to write the structure
- * @handle:	the structure's handle, a unique 16-bit number
- * @node:	node containing the information to write (ofnode_null() if none)
- * @return:	size of the structure
- */
-typedef int (*smbios_write_type)(ulong *addr, int handle, ofnode node);
 
 /**
  * write_smbios_table() - Write SMBIOS table
@@ -266,5 +256,17 @@ const struct smbios_header *smbios_header(const struct smbios_entry *entry, int 
  * @return:    NULL or a valid const char pointer
  */
 const char *smbios_string(const struct smbios_header *header, int index);
+
+/**
+ * smbios_update_version() - Update the version string
+ *
+ * This can be called after the SMBIOS tables are written (e.g. after the U-Boot
+ * main loop has started) to update the BIOS version string (SMBIOS table 0).
+ *
+ * @version: New version string to use
+ * @return 0 if OK, -ENOENT if no version string was previously written,
+ *	-ENOSPC if the new string is too large to fit
+ */
+int smbios_update_version(const char *version);
 
 #endif /* _SMBIOS_H_ */

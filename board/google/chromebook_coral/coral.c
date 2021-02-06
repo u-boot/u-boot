@@ -8,6 +8,7 @@
 #include <command.h>
 #include <dm.h>
 #include <log.h>
+#include <sysinfo.h>
 #include <acpi/acpigen.h>
 #include <asm-generic/gpio.h>
 #include <asm/acpi_nhlt.h>
@@ -143,6 +144,9 @@ struct acpi_ops coral_acpi_ops = {
 	.inject_dsdt	= chromeos_acpi_gpio_generate,
 };
 
+struct sysinfo_ops coral_sysinfo_ops = {
+};
+
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct udevice_id coral_ids[] = {
 	{ .compatible = "google,coral" },
@@ -154,5 +158,6 @@ U_BOOT_DRIVER(coral_drv) = {
 	.name		= "coral",
 	.id		= UCLASS_SYSINFO,
 	.of_match	= of_match_ptr(coral_ids),
+	.ops		= &coral_sysinfo_ops,
 	ACPI_OPS_PTR(&coral_acpi_ops)
 };
