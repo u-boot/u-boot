@@ -118,7 +118,7 @@ u32 tpm_nv_read_value(struct udevice *dev, u32 index, void *data, u32 count)
 	if (is_tpm1(dev))
 		return tpm1_nv_read_value(dev, index, data, count);
 	else if (is_tpm2(dev))
-		return -ENOSYS;
+		return tpm2_nv_read_value(dev, index, data, count);
 	else
 		return -ENOSYS;
 }
@@ -129,7 +129,7 @@ u32 tpm_nv_write_value(struct udevice *dev, u32 index, const void *data,
 	if (is_tpm1(dev))
 		return tpm1_nv_write_value(dev, index, data, count);
 	else if (is_tpm2(dev))
-		return -ENOSYS;
+		return tpm2_nv_write_value(dev, index, data, count);
 	else
 		return -ENOSYS;
 }

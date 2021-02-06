@@ -169,6 +169,90 @@ u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
 	return tpm_sendrecv_command(dev, command_v2, NULL, NULL);
 }
 
+u32 tpm2_nv_read_value(struct udevice *dev, u32 index, void *data, u32 count)
+{
+	u8 command_v2[COMMAND_BUFFER_SIZE] = {
+		/* header 10 bytes */
+		tpm_u16(TPM2_ST_SESSIONS),	/* TAG */
+		tpm_u32(10 + 8 + 4 + 9 + 4),	/* Length */
+		tpm_u32(TPM2_CC_NV_READ),	/* Command code */
+
+		/* handles 8 bytes */
+		tpm_u32(TPM2_RH_PLATFORM),	/* Primary platform seed */
+		tpm_u32(HR_NV_INDEX + index),	/* Password authorisation */
+
+		/* AUTH_SESSION */
+		tpm_u32(9),			/* Authorization size */
+		tpm_u32(TPM2_RS_PW),		/* Session handle */
+		tpm_u16(0),			/* Size of <nonce> */
+						/* <nonce> (if any) */
+		0,				/* Attributes: Cont/Excl/Rst */
+		tpm_u16(0),			/* Size of <hmac/password> */
+						/* <hmac/password> (if any) */
+
+		tpm_u16(count),			/* Number of bytes */
+		tpm_u16(0),			/* Offset */
+	};
+	size_t response_len = COMMAND_BUFFER_SIZE;
+	u8 response[COMMAND_BUFFER_SIZE];
+	int ret;
+	u16 tag;
+	u32 size, code;
+
+	ret = tpm_sendrecv_command(dev, command_v2, response, &response_len);
+	if (ret)
+		return log_msg_ret("read", ret);
+	if (unpack_byte_string(response, response_len, "wdds",
+			       0, &tag, 2, &size, 6, &code,
+			       16, data, count))
+		return TPM_LIB_ERROR;
+
+	return 0;
+}
+
+u32 tpm2_nv_write_value(struct udevice *dev, u32 index, const void *data,
+			u32 count)
+{
+	struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
+	uint offset = 10 + 8 + 4 + 9 + 2;
+	uint len = offset + count + 2;
+	/* Use empty password auth if platform hierarchy is disabled */
+	u32 auth = priv->plat_hier_disabled ? HR_NV_INDEX + index :
+		TPM2_RH_PLATFORM;
+	u8 command_v2[COMMAND_BUFFER_SIZE] = {
+		/* header 10 bytes */
+		tpm_u16(TPM2_ST_SESSIONS),	/* TAG */
+		tpm_u32(len),			/* Length */
+		tpm_u32(TPM2_CC_NV_WRITE),	/* Command code */
+
+		/* handles 8 bytes */
+		tpm_u32(auth),			/* Primary platform seed */
+		tpm_u32(HR_NV_INDEX + index),	/* Password authorisation */
+
+		/* AUTH_SESSION */
+		tpm_u32(9),			/* Authorization size */
+		tpm_u32(TPM2_RS_PW),		/* Session handle */
+		tpm_u16(0),			/* Size of <nonce> */
+						/* <nonce> (if any) */
+		0,				/* Attributes: Cont/Excl/Rst */
+		tpm_u16(0),			/* Size of <hmac/password> */
+						/* <hmac/password> (if any) */
+
+		tpm_u16(count),
+	};
+	size_t response_len = COMMAND_BUFFER_SIZE;
+	u8 response[COMMAND_BUFFER_SIZE];
+	int ret;
+
+	ret = pack_byte_string(command_v2, sizeof(command_v2), "sw",
+			       offset, data, count,
+			       offset + count, 0);
+	if (ret)
+		return TPM_LIB_ERROR;
+
+	return tpm_sendrecv_command(dev, command_v2, response, &response_len);
+}
+
 u32 tpm2_pcr_read(struct udevice *dev, u32 idx, unsigned int idx_min_sz,
 		  void *data, unsigned int *updates)
 {

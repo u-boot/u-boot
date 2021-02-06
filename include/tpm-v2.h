@@ -242,6 +242,7 @@ enum tpm2_command_codes {
 	TPM2_CC_HIERCHANGEAUTH	= 0x0129,
 	TPM2_CC_NV_DEFINE_SPACE	= 0x012a,
 	TPM2_CC_PCR_SETAUTHPOL	= 0x012C,
+	TPM2_CC_NV_WRITE	= 0x0137,
 	TPM2_CC_DAM_RESET	= 0x0139,
 	TPM2_CC_DAM_PARAMETERS	= 0x013A,
 	TPM2_CC_NV_READ         = 0x014E,
@@ -356,6 +357,20 @@ enum {
 	TPM_MAX_BUF_SIZE	= 1260,
 };
 
+enum {
+	/* Secure storage for firmware settings */
+	TPM_HT_PCR = 0,
+	TPM_HT_NV_INDEX,
+	TPM_HT_HMAC_SESSION,
+	TPM_HT_POLICY_SESSION,
+
+	HR_SHIFT		= 24,
+	HR_PCR			= TPM_HT_PCR << HR_SHIFT,
+	HR_HMAC_SESSION		= TPM_HT_HMAC_SESSION << HR_SHIFT,
+	HR_POLICY_SESSION	= TPM_HT_POLICY_SESSION << HR_SHIFT,
+	HR_NV_INDEX		= TPM_HT_NV_INDEX << HR_SHIFT,
+};
+
 /**
  * Issue a TPM2_Startup command.
  *
@@ -419,6 +434,29 @@ u32 tpm2_nv_define_space(struct udevice *dev, u32 space_index,
  */
 u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
 		    const u8 *digest, u32 digest_len);
+
+/**
+ * Read data from the secure storage
+ *
+ * @dev		TPM device
+ * @index	Index of data to read
+ * @data	Place to put data
+ * @count	Number of bytes of data
+ * @return code of the operation
+ */
+u32 tpm2_nv_read_value(struct udevice *dev, u32 index, void *data, u32 count);
+
+/**
+ * Write data to the secure storage
+ *
+ * @dev		TPM device
+ * @index	Index of data to write
+ * @data	Data to write
+ * @count	Number of bytes of data
+ * @return code of the operation
+ */
+u32 tpm2_nv_write_value(struct udevice *dev, u32 index, const void *data,
+			u32 count);
 
 /**
  * Issue a TPM2_PCR_Read command.
