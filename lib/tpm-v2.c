@@ -624,3 +624,38 @@ u32 tpm2_write_lock(struct udevice *dev, u32 index)
 
 	return tpm_sendrecv_command(dev, command_v2, NULL, NULL);
 }
+
+u32 tpm2_disable_platform_hierarchy(struct udevice *dev)
+{
+	struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
+	u8 command_v2[COMMAND_BUFFER_SIZE] = {
+		/* header 10 bytes */
+		tpm_u16(TPM2_ST_SESSIONS),	/* TAG */
+		tpm_u32(10 + 4 + 13 + 5),	/* Length */
+		tpm_u32(TPM2_CC_HIER_CONTROL),	/* Command code */
+
+		/* 4 bytes */
+		tpm_u32(TPM2_RH_PLATFORM),	/* Primary platform seed */
+
+		/* session header 9 bytes */
+		tpm_u32(9),			/* Header size */
+		tpm_u32(TPM2_RS_PW),		/* Password authorisation */
+		tpm_u16(0),			/* nonce_size */
+		0,				/* session_attrs */
+		tpm_u16(0),			/* auth_size */
+
+		/* payload 5 bytes */
+		tpm_u32(TPM2_RH_PLATFORM),	/* Hierarchy to disable */
+		0,				/* 0=disable */
+	};
+	int ret;
+
+	ret = tpm_sendrecv_command(dev, command_v2, NULL, NULL);
+	log_info("ret=%s, %x\n", dev->name, ret);
+	if (ret)
+		return ret;
+
+	priv->plat_hier_disabled = true;
+
+	return 0;
+}

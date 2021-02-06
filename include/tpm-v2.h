@@ -237,6 +237,7 @@ enum tpm2_handles {
 enum tpm2_command_codes {
 	TPM2_CC_STARTUP		= 0x0144,
 	TPM2_CC_SELF_TEST	= 0x0143,
+	TPM2_CC_HIER_CONTROL	= 0x0121,
 	TPM2_CC_CLEAR		= 0x0126,
 	TPM2_CC_CLEARCONTROL	= 0x0127,
 	TPM2_CC_HIERCHANGEAUTH	= 0x0129,
@@ -274,6 +275,7 @@ enum tpm2_return_codes {
 	TPM2_RC_COMMAND_CODE	= TPM2_RC_VER1 + 0x0043,
 	TPM2_RC_AUTHSIZE	= TPM2_RC_VER1 + 0x0044,
 	TPM2_RC_AUTH_CONTEXT	= TPM2_RC_VER1 + 0x0045,
+	TPM2_RC_NV_DEFINED	= TPM2_RC_VER1 + 0x004c,
 	TPM2_RC_NEEDS_TEST	= TPM2_RC_VER1 + 0x0053,
 	TPM2_RC_WARN		= 0x0900,
 	TPM2_RC_TESTING		= TPM2_RC_WARN + 0x000A,
@@ -583,5 +585,16 @@ u32 tpm2_get_random(struct udevice *dev, void *data, u32 count);
  * @return code of the operation
  */
 u32 tpm2_write_lock(struct udevice *dev, u32 index);
+
+/**
+ * Disable access to any platform data
+ *
+ * This can be called to close off access to the firmware data in the data,
+ * before calling the kernel.
+ *
+ * @dev		TPM device
+ * @return code of the operation
+ */
+u32 tpm2_disable_platform_hierarchy(struct udevice *dev);
 
 #endif /* __TPM_V2_H */
