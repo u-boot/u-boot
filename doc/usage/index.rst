@@ -28,6 +28,7 @@ Shell commands
    load
    loady
    mbr
+   md
    pstore
    qfw
    sbi
