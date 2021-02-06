@@ -144,7 +144,7 @@ u32 tpm_write_lock(struct udevice *dev, u32 index)
 	if (is_tpm1(dev))
 		return -ENOSYS;
 	else if (is_tpm2(dev))
-		return -ENOSYS;
+		return tpm2_write_lock(dev, index);
 	else
 		return -ENOSYS;
 }

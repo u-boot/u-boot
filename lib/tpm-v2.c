@@ -601,3 +601,26 @@ u32 tpm2_get_random(struct udevice *dev, void *data, u32 count)
 
 	return 0;
 }
+
+u32 tpm2_write_lock(struct udevice *dev, u32 index)
+{
+	u8 command_v2[COMMAND_BUFFER_SIZE] = {
+		/* header 10 bytes */
+		tpm_u16(TPM2_ST_SESSIONS),	/* TAG */
+		tpm_u32(10 + 8 + 13), /* Length */
+		tpm_u32(TPM2_CC_NV_WRITELOCK), /* Command code */
+
+		/* handles 8 bytes */
+		tpm_u32(TPM2_RH_PLATFORM),	/* Primary platform seed */
+		tpm_u32(HR_NV_INDEX + index),	/* Password authorisation */
+
+		/* session header 9 bytes */
+		tpm_u32(9),			/* Header size */
+		tpm_u32(TPM2_RS_PW),		/* Password authorisation */
+		tpm_u16(0),			/* nonce_size */
+		0,				/* session_attrs */
+		tpm_u16(0),			/* auth_size */
+	};
+
+	return tpm_sendrecv_command(dev, command_v2, NULL, NULL);
+}
