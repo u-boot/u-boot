@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <bloblist.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <log.h>
@@ -398,7 +399,11 @@ int state_uninit(void)
 {
 	int err;
 
+	log_info("Writing sandbox state\n");
 	state = &main_state;
+
+	/* Finish the bloblist, so that it is correct before writing memory */
+	bloblist_finish();
 
 	if (state->write_ram_buf) {
 		err = os_write_ram_buf(state->ram_buf_fname);
