@@ -240,6 +240,7 @@ enum tpm2_command_codes {
 	TPM2_CC_CLEAR		= 0x0126,
 	TPM2_CC_CLEARCONTROL	= 0x0127,
 	TPM2_CC_HIERCHANGEAUTH	= 0x0129,
+	TPM2_CC_NV_DEFINE_SPACE	= 0x012a,
 	TPM2_CC_PCR_SETAUTHPOL	= 0x012C,
 	TPM2_CC_DAM_RESET	= 0x0139,
 	TPM2_CC_DAM_PARAMETERS	= 0x013A,
@@ -387,6 +388,23 @@ u32 tpm2_self_test(struct udevice *dev, enum tpm2_yes_no full_test);
  */
 u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
 	       const ssize_t pw_sz);
+
+/**
+ * Issue a TPM_NV_DefineSpace command
+ *
+ * This allows a space to be defined with given attributes and policy
+ *
+ * @dev			TPM device
+ * @space_index		index of the area
+ * @space_size		size of area in bytes
+ * @nv_attributes	TPM_NV_ATTRIBUTES of the area
+ * @nv_policy		policy to use
+ * @nv_policy_size	size of the policy
+ * @return return code of the operation
+ */
+u32 tpm2_nv_define_space(struct udevice *dev, u32 space_index,
+			 size_t space_size, u32 nv_attributes,
+			 const u8 *nv_policy, size_t nv_policy_size);
 
 /**
  * Issue a TPM2_PCR_Extend command.

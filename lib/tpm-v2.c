@@ -81,6 +81,53 @@ u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
 	return tpm_sendrecv_command(dev, command_v2, NULL, NULL);
 }
 
+u32 tpm2_nv_define_space(struct udevice *dev, u32 space_index,
+			 size_t space_size, u32 nv_attributes,
+			 const u8 *nv_policy, size_t nv_policy_size)
+{
+	/*
+	 * Calculate the offset of the nv_policy piece by adding each of the
+	 * chunks below.
+	 */
+	uint offset = 10 + 8 + 13 + 14;
+	u8 command_v2[COMMAND_BUFFER_SIZE] = {
+		/* header 10 bytes */
+		tpm_u16(TPM2_ST_SESSIONS),	/* TAG */
+		tpm_u32(offset + nv_policy_size),/* Length */
+		tpm_u32(TPM2_CC_NV_DEFINE_SPACE),/* Command code */
+
+		/* handles 8 bytes */
+		tpm_u32(TPM2_RH_PLATFORM),	/* Primary platform seed */
+
+		/* session header 13 bytes */
+		tpm_u32(9),			/* Header size */
+		tpm_u32(TPM2_RS_PW),		/* Password authorisation */
+		tpm_u16(0),			/* nonce_size */
+		0,				/* session_attrs */
+		tpm_u16(0),			/* auth_size */
+
+		/* message 14 bytes + policy */
+		tpm_u16(12 + nv_policy_size),	/* size */
+		tpm_u32(space_index),
+		tpm_u16(TPM2_ALG_SHA256),
+		tpm_u32(nv_attributes),
+		tpm_u16(nv_policy_size),
+		/* nv_policy */
+	};
+	int ret;
+
+	/*
+	 * Fill the command structure starting from the first buffer:
+	 *     - the password (if any)
+	 */
+	ret = pack_byte_string(command_v2, sizeof(command_v2), "s",
+			       offset, nv_policy, nv_policy_size);
+	if (ret)
+		return TPM_LIB_ERROR;
+
+	return tpm_sendrecv_command(dev, command_v2, NULL, NULL);
+}
+
 u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
 		    const u8 *digest, u32 digest_len)
 {
