@@ -468,17 +468,6 @@ int misc_init_r(void)
 	return 0;
 }
 
-/*
- * Routine: set_muxconf_regs
- * Description: Setting up the configuration Mux registers specific to the
- *		hardware. Many pins need to be moved from protect to primary
- *		mode.
- */
-void set_muxconf_regs(void)
-{
-	MUX_RX51();
-}
-
 static unsigned long int twl_wd_time; /* last time of watchdog reset */
 static unsigned long int twl_i2c_lock;
 
