@@ -500,8 +500,8 @@ void usbtty_puts(struct stdio_dev *dev, const char *str)
 		n = next_nl_pos (str);
 
 		if (str[n] == '\n') {
-			__usbtty_puts("\r", 1);
-			__usbtty_puts(str, n + 1);
+			__usbtty_puts(str, n);
+			__usbtty_puts("\r\n", 2);
 			str += (n + 1);
 			len -= (n + 1);
 		} else {
