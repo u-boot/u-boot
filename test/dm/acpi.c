@@ -360,24 +360,24 @@ static int dm_test_acpi_cmd_list(struct unit_test_state *uts)
 	run_command("acpi list", 0);
 	addr = (ulong)map_to_sysmem(buf);
 	ut_assert_nextline("ACPI tables start at %lx", addr);
-	ut_assert_nextline("RSDP %08lx %06lx (v02 U-BOOT)", addr,
+	ut_assert_nextline("RSDP %08lx %06zx (v02 U-BOOT)", addr,
 			   sizeof(struct acpi_rsdp));
 	addr = ALIGN(addr + sizeof(struct acpi_rsdp), 16);
-	ut_assert_nextline("RSDT %08lx %06lx (v01 U-BOOT U-BOOTBL %x INTL 0)",
+	ut_assert_nextline("RSDT %08lx %06zx (v01 U-BOOT U-BOOTBL %x INTL 0)",
 			   addr, sizeof(struct acpi_table_header) +
 			   3 * sizeof(u32), U_BOOT_BUILD_DATE);
 	addr = ALIGN(addr + sizeof(struct acpi_rsdt), 16);
-	ut_assert_nextline("XSDT %08lx %06lx (v01 U-BOOT U-BOOTBL %x INTL 0)",
+	ut_assert_nextline("XSDT %08lx %06zx (v01 U-BOOT U-BOOTBL %x INTL 0)",
 			   addr, sizeof(struct acpi_table_header) +
 			   3 * sizeof(u64), U_BOOT_BUILD_DATE);
 	addr = ALIGN(addr + sizeof(struct acpi_xsdt), 64);
-	ut_assert_nextline("DMAR %08lx %06lx (v01 U-BOOT U-BOOTBL %x INTL 0)",
+	ut_assert_nextline("DMAR %08lx %06zx (v01 U-BOOT U-BOOTBL %x INTL 0)",
 			   addr, sizeof(struct acpi_dmar), U_BOOT_BUILD_DATE);
 	addr = ALIGN(addr + sizeof(struct acpi_dmar), 16);
-	ut_assert_nextline("DMAR %08lx %06lx (v01 U-BOOT U-BOOTBL %x INTL 0)",
+	ut_assert_nextline("DMAR %08lx %06zx (v01 U-BOOT U-BOOTBL %x INTL 0)",
 			   addr, sizeof(struct acpi_dmar), U_BOOT_BUILD_DATE);
 	addr = ALIGN(addr + sizeof(struct acpi_dmar), 16);
-	ut_assert_nextline("DMAR %08lx %06lx (v01 U-BOOT U-BOOTBL %x INTL 0)",
+	ut_assert_nextline("DMAR %08lx %06zx (v01 U-BOOT U-BOOTBL %x INTL 0)",
 			   addr, sizeof(struct acpi_dmar), U_BOOT_BUILD_DATE);
 	ut_assert_console_end();
 
