@@ -50,7 +50,7 @@ void musb_start(void)
 # define config_fifo(dir, idx, addr) \
 	do { \
 		writeb(idx, &musbr->dir##fifosz); \
-		writew(fifoaddr >> 3, &musbr->dir##fifoadd); \
+		writew(addr, &musbr->dir##fifoadd); \
 	} while (0)
 #endif
 
@@ -66,14 +66,14 @@ void musb_start(void)
 void musb_configure_ep(const struct musb_epinfo *epinfo, u8 cnt)
 {
 	u16 csr;
-	u16 fifoaddr = 64; /* First 64 bytes of FIFO reserved for EP0 */
+	u16 fifoaddr = 64 >> 3; /* First 64 bytes of FIFO reserved for EP0 */
 	u32 fifosize;
 	u8  idx;
 
 	while (cnt--) {
 		/* prepare fifosize to write to register */
 		fifosize = epinfo->epsize >> 3;
-		idx = ffs(fifosize) - 1;
+		idx = fifosize ? ((ffs(fifosize) - 1) & 0xF) : 0;
 
 		writeb(epinfo->epnum, &musbr->index);
 		if (epinfo->epdir) {
@@ -99,7 +99,7 @@ void musb_configure_ep(const struct musb_epinfo *epinfo, u8 cnt)
 				writew(csr | MUSB_RXCSR_FLUSHFIFO,
 					&musbr->rxcsr);
 		}
-		fifoaddr += epinfo->epsize;
+		fifoaddr += 1 << idx;
 		epinfo++;
 	}
 }
