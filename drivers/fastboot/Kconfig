@@ -104,18 +104,19 @@ config FASTBOOT_FLASH_NAND_TRIMFFS
 	  When flashing NAND enable the DROP_FFS flag to drop trailing all-0xff
 	  pages.
 
-config FASTBOOT_MMC_BOOT1_SUPPORT
-	bool "Enable EMMC_BOOT1 flash/erase"
-	depends on FASTBOOT_FLASH_MMC && EFI_PARTITION && ARCH_MEDIATEK
+config FASTBOOT_MMC_BOOT_SUPPORT
+	bool "Enable EMMC_BOOT flash/erase"
+	depends on FASTBOOT_FLASH_MMC
 	help
 	  The fastboot "flash" and "erase" commands normally does operations
-	  on EMMC userdata. Define this to enable the special commands to
-	  flash/erase EMMC_BOOT1.
-	  The default target name for updating EMMC_BOOT1 is "mmc0boot0".
+	  on eMMC userdata. Define this to enable the special commands to
+	  flash/erase eMMC boot partition.
+	  The default target name for updating eMMC boot partition 1/2 is
+	  CONFIG_FASTBOOT_MMC_BOOT1_NAME/CONFIG_FASTBOOT_MMC_BOOT2_NAME.
 
 config FASTBOOT_MMC_BOOT1_NAME
 	string "Target name for updating EMMC_BOOT1"
-	depends on FASTBOOT_MMC_BOOT1_SUPPORT
+	depends on FASTBOOT_MMC_BOOT_SUPPORT
 	default "mmc0boot0"
 	help
 	  The fastboot "flash" and "erase" commands support operations on
@@ -124,14 +125,37 @@ config FASTBOOT_MMC_BOOT1_NAME
 	  defined here.
 	  The default target name for updating EMMC_BOOT1 is "mmc0boot0".
 
+config FASTBOOT_MMC_BOOT2_NAME
+	string "Target name for updating EMMC_BOOT2"
+	depends on FASTBOOT_MMC_BOOT_SUPPORT
+	default "mmc0boot1"
+	help
+	  The fastboot "flash" and "erase" commands support operations on
+	  EMMC_BOOT2. This occurs when the specified "EMMC_BOOT2 name" on
+	  the "fastboot flash" and "fastboot erase" commands match the value
+	  defined here.
+	  The default target name for updating EMMC_BOOT2 is "mmc0boot1".
+
+config FASTBOOT_MMC_USER_SUPPORT
+	bool "Enable eMMC userdata partition flash/erase"
+	depends on FASTBOOT_FLASH_MMC
+	help
+	  Define this to enable the support "flash" and "erase" command on
+	  eMMC userdata. The "flash" command only update the MBR and GPT
+	  header when CONFIG_EFI_PARTITION is supported.
+	  The "erase" command erase all the userdata.
+	  This occurs when the specified "partition name" on the
+	  fastboot command line matches the value CONFIG_FASTBOOT_MMC_USER_NAME.
+
 config FASTBOOT_MMC_USER_NAME
-	string "Target name for erasing EMMC_USER"
-	depends on FASTBOOT_FLASH_MMC && EFI_PARTITION && ARCH_MEDIATEK
+	string "Target name for updating EMMC_USER"
+	depends on FASTBOOT_MMC_USER_SUPPORT
 	default "mmc0"
 	help
-	  The fastboot "erase" command supports erasing EMMC_USER. This occurs
-	  when the specified "EMMC_USER name" on the "fastboot erase" commands
-	  match the value defined here.
+	  The fastboot "flash" and "erase" command supports EMMC_USER.
+	  This occurs when the specified "EMMC_USER name" on the
+	  "fastboot flash" and the "fastboot erase" commands match the value
+	  defined here.
 	  The default target name for erasing EMMC_USER is "mmc0".
 
 config FASTBOOT_GPT_NAME
@@ -165,17 +189,19 @@ config FASTBOOT_CMD_OEM_FORMAT
 	  relies on the env variable partitions to contain the list of
 	  partitions as required by the gpt command.
 
-config FASTBOOT_USE_BCB_SET_REBOOT_FLAG
-	bool "Use BCB by fastboot to set boot reason"
-	depends on CMD_BCB && !ARCH_MESON && !ARCH_ROCKCHIP && !TARGET_KC1 && \
-	  !TARGET_SNIPER && !TARGET_AM57XX_EVM && !TARGET_DRA7XX_EVM
-	default y
+config FASTBOOT_CMD_OEM_PARTCONF
+	bool "Enable the 'oem partconf' command"
+	depends on FASTBOOT_FLASH_MMC && SUPPORT_EMMC_BOOT
 	help
-	  Fastboot could implement setting of reboot reason in a generic fashion
-	  via BCB commands. BCB commands are able to write reboot reason into
-	  command field of boot control block. In general case it is sufficient
-	  implementation if your platform supports BCB commands and doesn't
-	  require any specific reboot reason handling.
+	  Add support for the "oem partconf" command from a client. This set
+	  the mmc boot-partition for the selecting eMMC device.
+
+config FASTBOOT_CMD_OEM_BOOTBUS
+	bool "Enable the 'oem bootbus' command"
+	depends on FASTBOOT_FLASH_MMC && SUPPORT_EMMC_BOOT
+	help
+	  Add support for the "oem bootbus" command from a client. This set
+	  the mmc boot configuration for the selecting eMMC device.
 
 endif # FASTBOOT
 
