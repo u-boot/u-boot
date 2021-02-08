@@ -175,7 +175,7 @@ static int mvebu_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 
 	/* read data */
 	data = readl(pcie->base + PCIE_CONF_DATA_OFF);
-	debug("(addr,val)=(0x%04x, 0x%08x)\n", offset, data);
+	debug("(addr,size,val)=(0x%04x, %d, 0x%08x)\n", offset, size, data);
 	*valuep = pci_conv_32_to_size(data, offset, size);
 
 	return 0;
@@ -192,7 +192,7 @@ static int mvebu_pcie_write_config(struct udevice *bus, pci_dev_t bdf,
 
 	debug("PCIE CFG write: loc_bus=%d loc_dev=%d (b,d,f)=(%2d,%2d,%2d) ",
 	      local_bus, local_dev, PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
-	debug("(addr,val)=(0x%04x, 0x%08lx)\n", offset, value);
+	debug("(addr,size,val)=(0x%04x, %d, 0x%08lx)\n", offset, size, value);
 
 	/* Don't access the local host controller via this API */
 	if (PCI_BUS(bdf) == local_bus && PCI_DEV(bdf) == local_dev) {
