@@ -41,7 +41,6 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 int set_km_env(void)
 {
-	uchar buf[32];
 	unsigned int pnvramaddr;
 	unsigned int pram;
 	unsigned int varaddr;
@@ -49,10 +48,9 @@ int set_km_env(void)
 	char *p;
 	unsigned long rootfssize = 0;
 
-	pnvramaddr = gd->ram_size - CONFIG_KM_RESERVED_PRAM - CONFIG_KM_PHRAM
-			- CONFIG_KM_PNVRAM;
-	sprintf((char *)buf, "0x%x", pnvramaddr);
-	env_set("pnvramaddr", (char *)buf);
+	pnvramaddr = CONFIG_SYS_SDRAM_BASE + gd->ram_size -
+		CONFIG_KM_RESERVED_PRAM - CONFIG_KM_PHRAM - CONFIG_KM_PNVRAM;
+	env_set_hex("pnvramaddr", pnvramaddr);
 
 	/* try to read rootfssize (ram image) from environment */
 	p = env_get("rootfssize");
@@ -60,16 +58,14 @@ int set_km_env(void)
 		strict_strtoul(p, 16, &rootfssize);
 	pram = (rootfssize + CONFIG_KM_RESERVED_PRAM + CONFIG_KM_PHRAM +
 		CONFIG_KM_PNVRAM) / 0x400;
-	sprintf((char *)buf, "0x%x", pram);
-	env_set("pram", (char *)buf);
+	env_set_ulong("pram", pram);
 
-	varaddr = gd->ram_size - CONFIG_KM_RESERVED_PRAM - CONFIG_KM_PHRAM;
-	sprintf((char *)buf, "0x%x", varaddr);
-	env_set("varaddr", (char *)buf);
+	varaddr = CONFIG_SYS_SDRAM_BASE + gd->ram_size -
+		CONFIG_KM_RESERVED_PRAM - CONFIG_KM_PHRAM;
+	env_set_hex("varaddr", varaddr);
 
 	kernelmem = gd->ram_size - 0x400 * pram;
-	sprintf((char *)buf, "0x%x", kernelmem);
-	env_set("kernelmem", (char *)buf);
+	env_set_hex("kernelmem", kernelmem);
 
 	return 0;
 }
@@ -243,7 +239,6 @@ static int do_checkboardidhwk(struct cmd_tbl *cmdtp, int flag, int argc,
 	p = env_get("hwkey");
 	if (p)
 		rc = strict_strtoul(p, 16, &envhwkey);
-
 	if (rc != 0) {
 		printf("strict_strtoul returns error: %d", rc);
 		return rc;
@@ -305,15 +300,11 @@ static int do_checkboardidhwk(struct cmd_tbl *cmdtp, int flag, int argc,
 				 * set the values in environment variables.
 				 */
 				if (bid == ivmbid && hwkey == ivmhwkey) {
-					char buf[10];
-
 					found = 1;
 					envbid   = bid;
 					envhwkey = hwkey;
-					sprintf(buf, "%lx", bid);
-					env_set("boardid", buf);
-					sprintf(buf, "%lx", hwkey);
-					env_set("hwkey", buf);
+					env_set_hex("boardid", bid);
+					env_set_hex("hwkey", hwkey);
 				}
 			} /* end while( ! found ) */
 		}

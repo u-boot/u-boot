@@ -119,6 +119,13 @@
 
 #endif
 
+/* GPIO */
+#ifdef CONFIG_DM_GPIO
+#ifndef CONFIG_MPC8XXX_GPIO
+#define CONFIG_MPC8XXX_GPIO
+#endif
+#endif
+
 /* IFC */
 #ifndef SPL_NO_IFC
 #if defined(CONFIG_TFABOOT) || \

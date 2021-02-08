@@ -2,9 +2,10 @@
 /*
  * NXP ls1088a SOC common device tree source
  *
- * Copyright 2017, 2020 NXP
+ * Copyright 2017, 2020-2021 NXP
  */
 
+#include <dt-bindings/interrupt-controller/arm-gic.h>
 / {
 	compatible = "fsl,ls1088a";
 	interrupt-parent = <&gic>;
@@ -113,6 +114,50 @@
 		interrupts = <0 28 0x4>; /* Level high type */
 		little-endian;
 		bus-width = <4>;
+	};
+
+	gpio0: gpio@2300000 {
+		compatible = "fsl,ls1088a-gpio", "fsl,qoriq-gpio";
+		reg = <0x0 0x2300000 0x0 0x10000>;
+		interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
+		little-endian;
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpio1: gpio@2310000 {
+		compatible = "fsl,ls1088a-gpio", "fsl,qoriq-gpio";
+		reg = <0x0 0x2310000 0x0 0x10000>;
+		interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
+		little-endian;
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpio2: gpio@2320000 {
+		compatible = "fsl,ls1088a-gpio", "fsl,qoriq-gpio";
+		reg = <0x0 0x2320000 0x0 0x10000>;
+		interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
+		little-endian;
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpio3: gpio@2330000 {
+		compatible = "fsl,ls1088a-gpio", "fsl,qoriq-gpio";
+		reg = <0x0 0x2330000 0x0 0x10000>;
+		interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
+		little-endian;
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
 	};
 
 	ifc: ifc@1530000 {

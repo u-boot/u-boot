@@ -237,12 +237,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 					{0, {{I2C_MUX_PCA9547, 0x70, 1 } } }, \
 					{0, {{I2C_MUX_PCA9547, 0x70, 2 } } }, \
 				}
-#ifndef __ASSEMBLY__
-void set_sda(int state);
-void set_scl(int state);
-int get_sda(void);
-int get_scl(void);
-#endif
 
 #define CONFIG_KM_IVM_BUS		1	/* I2C1 (Mux-Port 1)*/
 

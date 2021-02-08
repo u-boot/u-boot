@@ -136,6 +136,11 @@ int set_km_env(void);
 #define DELAY_ABORT_SEQ		62  /* @200kHz 9 clocks = 44us, 62us is ok */
 #define DELAY_HALF_PERIOD	(500 / (CONFIG_SYS_I2C_SPEED / 1000))
 
+void set_sda(int state);
+void set_scl(int state);
+int get_sda(void);
+int get_scl(void);
+
 int i2c_soft_read_pin(void);
 int i2c_make_abort(void);
 #endif /* __KEYMILE_COMMON_H */

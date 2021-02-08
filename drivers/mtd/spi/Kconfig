@@ -95,6 +95,16 @@ config SPI_FLASH_BAR
 	  Bank/Extended address registers are used to access the flash
 	  which has size > 16MiB in 3-byte addressing.
 
+config SPI_FLASH_UNLOCK_ALL
+	bool "Unlock the entire SPI flash on u-boot startup"
+	default y
+	help
+	 Some flashes tend to power up with the software write protection
+	 bits set. If this option is set, the whole flash will be unlocked.
+
+	 For legacy reasons, this option default to y. But if you intend to
+	 actually use the software protection bits you should say n here.
+
 config SF_DUAL_FLASH
 	bool "SPI DUAL flash memory support"
 	help

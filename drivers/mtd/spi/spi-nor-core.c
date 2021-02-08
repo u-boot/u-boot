@@ -2443,10 +2443,11 @@ static int spi_nor_init(struct spi_nor *nor)
 	 * Atmel, SST, Intel/Numonyx, and others serial NOR tend to power up
 	 * with the software protection bits set
 	 */
-	if (JEDEC_MFR(nor->info) == SNOR_MFR_ATMEL ||
-	    JEDEC_MFR(nor->info) == SNOR_MFR_INTEL ||
-	    JEDEC_MFR(nor->info) == SNOR_MFR_SST ||
-	    nor->info->flags & SPI_NOR_HAS_LOCK) {
+	if (IS_ENABLED(CONFIG_SPI_FLASH_UNLOCK_ALL) &&
+	    (JEDEC_MFR(nor->info) == SNOR_MFR_ATMEL ||
+	     JEDEC_MFR(nor->info) == SNOR_MFR_INTEL ||
+	     JEDEC_MFR(nor->info) == SNOR_MFR_SST ||
+	     nor->info->flags & SPI_NOR_HAS_LOCK)) {
 		write_enable(nor);
 		write_sr(nor, 0);
 		spi_nor_wait_till_ready(nor);

@@ -19,6 +19,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+int board_early_init_f(void)
+{
+	fsl_lsch3_early_init_f();
+	return 0;
+}
+
 int board_init(void)
 {
 	if (CONFIG_IS_ENABLED(FSL_CAAM))

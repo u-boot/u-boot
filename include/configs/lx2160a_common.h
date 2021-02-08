@@ -160,6 +160,13 @@
 #define NXP_FSPI_FLASH_NUM		1
 #endif
 
+/* GPIO */
+#ifdef CONFIG_DM_GPIO
+#ifndef CONFIG_MPC8XXX_GPIO
+#define CONFIG_MPC8XXX_GPIO
+#endif
+#endif
+
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
 unsigned long get_board_ddr_clk(void);

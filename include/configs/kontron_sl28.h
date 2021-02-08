@@ -93,6 +93,7 @@
 	func(MMC, mmc, 1) \
 	func(NVME, nvme, 0) \
 	func(USB, usb, 0) \
+	func(SCSI, scsi, 0) \
 	func(DHCP, dhcp, 0) \
 	func(PXE, pxe, 0)
 #include <config_distro_bootcmd.h>

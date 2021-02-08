@@ -6,7 +6,7 @@
  * based on arch/powerpc/include/asm/mpc85xx_gpio.h, which is
  *
  * Copyright 2010 eXMeritus, A Boeing Company
- * Copyright 2020 NXP
+ * Copyright 2020-2021 NXP
  */
 
 #include <common.h>
@@ -15,16 +15,6 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <dm/of_access.h>
-
-struct ccsr_gpio {
-	u32	gpdir;
-	u32	gpodr;
-	u32	gpdat;
-	u32	gpier;
-	u32	gpimr;
-	u32	gpicr;
-	u32	gpibe;
-};
 
 struct mpc8xxx_gpio_data {
 	/* The bank's register base in memory */
@@ -187,32 +177,11 @@ static int mpc8xxx_gpio_of_to_plat(struct udevice *dev)
 {
 	struct mpc8xxx_gpio_plat *plat = dev_get_plat(dev);
 	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
-	fdt_addr_t addr;
-	u32 i;
-	u32 reg[4];
 
-	if (ofnode_read_bool(dev_ofnode(dev), "little-endian"))
+	if (dev_read_bool(dev, "little-endian"))
 		data->little_endian = true;
 
-	if (data->little_endian)
-		dev_read_u32_array(dev, "reg", reg, 4);
-	else
-		dev_read_u32_array(dev, "reg", reg, 2);
-
-	if (data->little_endian) {
-		for (i = 0; i < 2; i++)
-			reg[i] = be32_to_cpu(reg[i]);
-	}
-
-	addr = dev_translate_address(dev, reg);
-
-	plat->addr = addr;
-
-	if (data->little_endian)
-		plat->size = reg[3];
-	else
-		plat->size = reg[1];
-
+	plat->addr = (ulong)dev_read_addr_size_index(dev, 0, (fdt_size_t *)&plat->size);
 	plat->ngpios = dev_read_u32_default(dev, "ngpios", 32);
 
 	return 0;
@@ -257,11 +226,11 @@ static int mpc8xxx_gpio_probe(struct udevice *dev)
 	if (!str)
 		return -ENOMEM;
 
-	if (ofnode_device_is_compatible(dev_ofnode(dev), "fsl,qoriq-gpio")) {
-		unsigned long gpibe = data->addr + sizeof(struct ccsr_gpio)
-			- sizeof(u32);
-
-		out_be32((unsigned int *)gpibe, 0xffffffff);
+	if (device_is_compatible(dev, "fsl,qoriq-gpio")) {
+		if (data->little_endian)
+			out_le32(&data->base->gpibe, 0xffffffff);
+		else
+			out_be32(&data->base->gpibe, 0xffffffff);
 	}
 
 	uc_priv->bank_name = str;

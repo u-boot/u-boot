@@ -10,8 +10,6 @@
 		i2c1 = &i2c3;
 		i2c2 = &i2c4;
 		rtc0 = &rtc;
-		ethernet0 = &enetc0;
-		ethernet1 = &enetc1;
 		ethernet2 = &enetc2;
 		ethernet3 = &enetc6;
 	};
@@ -52,6 +50,28 @@
 				};
 
 				fdt-2 {
+					description = "fsl-ls1028a-kontron-sl28-var1";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+
+					blob {
+						filename = "arch/arm/dts/fsl-ls1028a-kontron-sl28-var1.dtb";
+					};
+				};
+
+				fdt-3 {
+					description = "fsl-ls1028a-kontron-sl28-var2";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+
+					blob {
+						filename = "arch/arm/dts/fsl-ls1028a-kontron-sl28-var2.dtb";
+					};
+				};
+
+				fdt-4 {
 					description = "fsl-ls1028a-kontron-sl28-var3";
 					type = "flat_dt";
 					arch = "arm";
@@ -62,7 +82,7 @@
 					};
 				};
 
-				fdt-3 {
+				fdt-5 {
 					description = "fsl-ls1028a-kontron-sl28-var4";
 					type = "flat_dt";
 					arch = "arm";
@@ -84,15 +104,29 @@
 				};
 
 				conf-2 {
-					description = "fsl-ls1028a-kontron-sl28-var3";
+					description = "fsl-ls1028a-kontron-sl28-var1";
 					firmware = "uboot";
 					fdt = "fdt-2";
 				};
 
 				conf-3 {
-					description = "fsl-ls1028a-kontron-sl28-var4";
+					description = "fsl-ls1028a-kontron-sl28-var2";
 					firmware = "uboot";
 					fdt = "fdt-3";
+				};
+
+				conf-4 {
+					description = "fsl-ls1028a-kontron-sl28-var3";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-4";
+				};
+
+				conf-5 {
+					description = "fsl-ls1028a-kontron-sl28-var4";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-5";
 				};
 			};
 		};
@@ -133,6 +167,16 @@
 				firmware = "bl31";
 				loadables = "uboot";
 			};
+
+			conf-4 {
+				firmware = "bl31";
+				loadables = "uboot";
+			};
+
+			conf-5 {
+				firmware = "bl31";
+				loadables = "uboot";
+			};
 		};
 	};
 };
@@ -167,6 +211,14 @@
 			};
 
 			conf-3 {
+				loadables = "uboot", "bl32";
+			};
+
+			conf-4 {
+				loadables = "uboot", "bl32";
+			};
+
+			conf-5 {
 				loadables = "uboot", "bl32";
 			};
 		};

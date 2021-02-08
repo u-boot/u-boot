@@ -256,6 +256,10 @@ config TARGET_KMP204X
 	bool "Support kmp204x"
 	select VENDOR_KM
 
+config TARGET_KMCENT2
+	bool "Support kmcent2"
+	select VENDOR_KM
+
 config TARGET_XPEDITE520X
 	bool "Support xpedite520x"
 	select ARCH_MPC8548

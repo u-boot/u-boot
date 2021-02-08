@@ -966,6 +966,19 @@ typedef struct immap {
 } immap_t;
 #endif
 
+struct ccsr_gpio {
+	u32	gpdir;
+	u32	gpodr;
+	u32	gpdat;
+	u32	gpier;
+	u32	gpimr;
+	u32	gpicr;
+	union	{
+			u32	gpibe;
+			u8	res0[0xE8];
+	};
+};
+
 #define CONFIG_SYS_MPC8xxx_DDR_OFFSET	(0x2000)
 #define CONFIG_SYS_FSL_DDR_ADDR \
 			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC8xxx_DDR_OFFSET)

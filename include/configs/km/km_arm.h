@@ -110,10 +110,6 @@
 #include <linux/delay.h>
 #include <linux/stringify.h>
 extern void __set_direction(unsigned pin, int high);
-void set_sda(int state);
-void set_scl(int state);
-int get_sda(void);
-int get_scl(void);
 #define KM_KIRKWOOD_SDA_PIN	8
 #define KM_KIRKWOOD_SCL_PIN	9
 #define KM_KIRKWOOD_SOFT_I2C_GPIOS	0x0300
