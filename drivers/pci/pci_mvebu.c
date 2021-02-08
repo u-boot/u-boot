@@ -151,7 +151,6 @@ static int mvebu_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 	struct mvebu_pcie *pcie = dev_get_plat(bus);
 	int local_bus = PCI_BUS(pcie->dev);
 	int local_dev = PCI_DEV(pcie->dev);
-	u32 reg;
 	u32 data;
 
 	debug("PCIE CFG read:  loc_bus=%d loc_dev=%d (b,d,f)=(%2d,%2d,%2d) ",
@@ -172,8 +171,9 @@ static int mvebu_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 	}
 
 	/* write address */
-	reg = PCIE_CONF_ADDR(bdf, offset);
-	writel(reg, pcie->base + PCIE_CONF_ADDR_OFF);
+	writel(PCIE_CONF_ADDR(bdf, offset), pcie->base + PCIE_CONF_ADDR_OFF);
+
+	/* read data */
 	data = readl(pcie->base + PCIE_CONF_DATA_OFF);
 	debug("(addr,val)=(0x%04x, 0x%08x)\n", offset, data);
 	*valuep = pci_conv_32_to_size(data, offset, size);
@@ -206,7 +206,10 @@ static int mvebu_pcie_write_config(struct udevice *bus, pci_dev_t bdf,
 		return 0;
 	}
 
+	/* write address */
 	writel(PCIE_CONF_ADDR(bdf, offset), pcie->base + PCIE_CONF_ADDR_OFF);
+
+	/* write data */
 	data = pci_conv_size_to_32(0, value, offset, size);
 	writel(data, pcie->base + PCIE_CONF_DATA_OFF);
 
