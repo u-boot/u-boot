@@ -86,7 +86,7 @@
 			};
 
 			configurations {
-				default = "config-1";
+				default = "@config-DEFAULT-SEQ";
 
 				@config-SEQ {
 					description = "NAME";
