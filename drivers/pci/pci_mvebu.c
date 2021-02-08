@@ -273,7 +273,7 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	struct mvebu_pcie *pcie = dev_get_plat(dev);
 	struct udevice *ctlr = pci_get_controller(dev);
 	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
-	static int bus;
+	int bus = dev_seq(dev);
 	u32 reg;
 
 	debug("%s: PCIe %d.%d - up, base %08x\n", __func__,
@@ -335,8 +335,6 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	/* Set BAR0 to internal registers */
 	writel(SOC_REGS_PHY_BASE, pcie->base + PCIE_BAR_LO_OFF(0));
 	writel(0, pcie->base + PCIE_BAR_HI_OFF(0));
-
-	bus++;
 
 	return 0;
 }
