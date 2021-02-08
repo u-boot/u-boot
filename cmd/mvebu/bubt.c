@@ -874,9 +874,9 @@ U_BOOT_CMD(
 	bubt, 4, 0, do_bubt_cmd,
 	"Burn a u-boot image to flash",
 	"[file-name] [destination [source]]\n"
-	"\t-file-name     The image file name to burn. Default = flash-image.bin\n"
-	"\t-destination   Flash to burn to [spi, nand, mmc]. Default = active boot device\n"
-	"\t-source        The source to load image from [tftp, usb, mmc]. Default = tftp\n"
+	"\t-file-name     The image file name to burn. Default = " CONFIG_MVEBU_UBOOT_DFLT_NAME "\n"
+	"\t-destination   Flash to burn to [spi, nand, mmc]. Default = " DEFAULT_BUBT_DST "\n"
+	"\t-source        The source to load image from [tftp, usb, mmc]. Default = " DEFAULT_BUBT_SRC "\n"
 	"Examples:\n"
 	"\tbubt - Burn flash-image.bin from tftp to active boot device\n"
 	"\tbubt flash-image-new.bin nand - Burn flash-image-new.bin from tftp to NAND flash\n"

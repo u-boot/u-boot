@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <env.h>
+#include <env_internal.h>
 #include <i2c.h>
 #include <init.h>
 #include <mmc.h>
@@ -85,12 +86,36 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+	char *ptr = (char *)&default_environment[0];
 	struct udevice *dev;
 	struct mmc *mmc_dev;
 	bool ddr4, emmc;
+	const char *mac;
+	char eth[10];
+	int i;
 
 	if (!of_machine_is_compatible("globalscale,espressobin"))
 		return 0;
+
+	/* Find free buffer in default_environment[] for new variables */
+	while (*ptr != '\0' && *(ptr+1) != '\0') ptr++;
+	ptr += 2;
+
+	/*
+	 * Ensure that 'env default -a' does not erase permanent MAC addresses
+	 * stored in env variables: $ethaddr, $eth1addr, $eth2addr and $eth3addr
+	 */
+
+	mac = env_get("ethaddr");
+	if (mac && strlen(mac) <= 17)
+		ptr += sprintf(ptr, "ethaddr=%s", mac) + 1;
+
+	for (i = 1; i <= 3; i++) {
+		sprintf(eth, "eth%daddr", i);
+		mac = env_get(eth);
+		if (mac && strlen(mac) <= 17)
+			ptr += sprintf(ptr, "%s=%s", eth, mac) + 1;
+	}
 
 	/* If the memory controller has been configured for DDR4, we're running on v7 */
 	ddr4 = ((readl(A3700_CH0_MC_CTRL2_REG) >> A3700_MC_CTRL2_SDRAM_TYPE_OFFS)
@@ -110,14 +135,19 @@ int board_late_init(void)
 	if (env_get("fdtfile"))
 		return 0;
 
+	/* Ensure that 'env default -a' set correct value to $fdtfile */
 	if (ddr4 && emmc)
-		env_set("fdtfile", "marvell/armada-3720-espressobin-v7-emmc.dtb");
+		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin-v7-emmc.dtb");
 	else if (ddr4)
-		env_set("fdtfile", "marvell/armada-3720-espressobin-v7.dtb");
+		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin-v7.dtb");
 	else if (emmc)
-		env_set("fdtfile", "marvell/armada-3720-espressobin-emmc.dtb");
+		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin-emmc.dtb");
 	else
-		env_set("fdtfile", "marvell/armada-3720-espressobin.dtb");
+		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin.dtb");
+
+	/* If $fdtfile was not set explicitly by user then set default value */
+	if (!env_get("fdtfile"))
+		env_set("fdtfile", ptr + sizeof("fdtfile="));
 
 	return 0;
 }
