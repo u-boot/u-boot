@@ -562,7 +562,7 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 		goto err;
 	}
 
-	fdt_ret = optee_copy_fdt_nodes(gd->fdt_blob, blob);
+	fdt_ret = optee_copy_fdt_nodes(blob);
 	if (fdt_ret) {
 		printf("ERROR: transfer of optee nodes to new fdt failed: %s\n",
 		       fdt_strerror(fdt_ret));
