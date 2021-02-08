@@ -289,7 +289,7 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	      mvebu_pcie_get_local_dev_nr(pcie));
 
 	pcie->first_busno = bus;
-	pcie->local_dev = 0;
+	pcie->local_dev = 1;
 
 	mvebu_pcie_set_local_bus_nr(pcie, bus);
 	mvebu_pcie_set_local_dev_nr(pcie, pcie->local_dev);
