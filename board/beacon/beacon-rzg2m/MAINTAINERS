@@ -4,3 +4,5 @@ S:	Maintained
 F:	board/beacon/beacon-rzg2m/
 F:	include/configs/beacon-rzg2m.h
 F:	configs/r8a774a1_beacon_defconfig
+F:	configs/r8a774b1_beacon_defconfig
+F:	configs/r8a774e1_beacon_defconfig

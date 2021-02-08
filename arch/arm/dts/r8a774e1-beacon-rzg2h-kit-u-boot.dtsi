@@ -1,0 +1,44 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright 2020 Compass Electronics Group, LLC
+ */
+
+/ {
+	soc {
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&cpg {
+	u-boot,dm-pre-reloc;
+};
+
+&extal_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&prr {
+	u-boot,dm-pre-reloc;
+};
+
+&extalr_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&sdhi0 {
+	/delete-property/ cd-gpios;
+	sd-uhs-sdr12;
+	sd-uhs-sdr25;
+	sd-uhs-sdr104;
+	max-frequency = <208000000>;
+};
+
+&sdhi2 {
+	status = "disabled";
+};
+
+&sdhi3 {
+	mmc-ddr-1_8v;
+	mmc-hs200-1_8v;
+	mmc-hs400-1_8v;
+};

@@ -60,10 +60,20 @@ choice
 	prompt "Renesas ARM64 SoCs board select"
 	optional
 
+config TARGET_BEACON_RZG2H
+	bool "Beacon EmbeddedWorks RZ/G2H Dev Kit"
+	select R8A774E1
+	select PINCTRL_PFC_R8A774E1
+
 config TARGET_BEACON_RZG2M
 	bool "Beacon EmbeddedWorks RZ/G2M Dev Kit"
 	select R8A774A1
 	select PINCTRL_PFC_R8A774A1
+
+config TARGET_BEACON_RZG2N
+	bool "Beacon EmbeddedWorks RZ/G2N Dev Kit"
+	select R8A774B1
+	select PINCTRL_PFC_R8A774B1
 
 config TARGET_CONDOR
 	bool "Condor board"
