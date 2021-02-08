@@ -134,11 +134,6 @@
 #define CONFIG_BOARD_SIZE_LIMIT		0x7e000
 #endif
 
-#if CONFIG_MMC_SUNXI_SLOT_EXTRA != -1
-/* If we have two devices (most likely eMMC + MMC), favour the eMMC */
-#else
-/* Otherwise, use the only device we have */
-#endif
 #define CONFIG_SYS_MMC_MAX_DEVICE	4
 #endif
 
@@ -199,10 +194,6 @@
 
 
 /* I2C */
-#if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
-    defined CONFIG_SY8106A_POWER
-#endif
-
 #if defined CONFIG_I2C0_ENABLE || defined CONFIG_I2C1_ENABLE || \
     defined CONFIG_I2C2_ENABLE || defined CONFIG_I2C3_ENABLE || \
     defined CONFIG_I2C4_ENABLE || defined CONFIG_R_I2C_ENABLE
@@ -230,12 +221,6 @@ extern int soft_i2c_gpio_scl;
 #else
 #define CONFIG_SYS_SPD_BUS_NUM		0 /* The axp209 i2c bus is bus 0 */
 #define CONFIG_VIDEO_LCD_I2C_BUS	-1 /* NA, but necessary to compile */
-#endif
-
-/* PMU */
-#if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
-    defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER || \
-    defined CONFIG_SY8106A_POWER
 #endif
 
 #ifdef CONFIG_REQUIRE_SERIAL_CONSOLE
