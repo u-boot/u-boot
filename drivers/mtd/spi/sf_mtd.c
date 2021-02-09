@@ -125,6 +125,7 @@ int spi_flash_mtd_register(struct spi_flash *flash)
 
 	sf_mtd_info.size = flash->size;
 	sf_mtd_info.priv = flash;
+	sf_mtd_info.dev = flash->dev;
 
 	/* Only uniform flash devices for now */
 	sf_mtd_info.numeraseregions = 0;
