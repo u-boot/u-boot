@@ -148,7 +148,7 @@ static efi_status_t EFIAPI efi_disk_read_blocks(struct efi_block_io *this,
 	    (uintptr_t)buffer & (this->media->io_align - 1))
 		return EFI_INVALID_PARAMETER;
 	if (lba * this->media->block_size + buffer_size >
-	    this->media->last_block * this->media->block_size)
+	    (this->media->last_block + 1) * this->media->block_size)
 		return EFI_INVALID_PARAMETER;
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
@@ -216,7 +216,7 @@ static efi_status_t EFIAPI efi_disk_write_blocks(struct efi_block_io *this,
 	    (uintptr_t)buffer & (this->media->io_align - 1))
 		return EFI_INVALID_PARAMETER;
 	if (lba * this->media->block_size + buffer_size >
-	    this->media->last_block * this->media->block_size)
+	    (this->media->last_block + 1) * this->media->block_size)
 		return EFI_INVALID_PARAMETER;
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
