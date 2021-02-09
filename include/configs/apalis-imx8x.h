@@ -143,7 +143,6 @@
 #define CONFIG_FEC_MXC_PHYADDR          0x4
 #define CONFIG_ETHPRIME                 "eth0"
 #define CONFIG_FEC_XCV_TYPE		RGMII
-#define FEC_QUIRK_ENET_MAC
 #define PHY_ANEG_TIMEOUT 20000
 
 #endif /* __APALIS_IMX8X_H */
