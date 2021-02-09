@@ -843,7 +843,7 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 		       sec->Misc.VirtualSize);
 		memcpy(efi_reloc + sec->VirtualAddress,
 		       efi + sec->PointerToRawData,
-		       sec->SizeOfRawData);
+		       min(sec->Misc.VirtualSize, sec->SizeOfRawData));
 	}
 
 	/* Run through relocations */
