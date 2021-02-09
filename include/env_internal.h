@@ -211,6 +211,7 @@ struct env_driver {
 #endif
 
 #define ENV_SAVE_PTR(x) (CONFIG_IS_ENABLED(SAVEENV) ? (x) : NULL)
+#define ENV_ERASE_PTR(x) (CONFIG_IS_ENABLED(CMD_ERASEENV) ? (x) : NULL)
 
 extern struct hsearch_data env_htab;
 
