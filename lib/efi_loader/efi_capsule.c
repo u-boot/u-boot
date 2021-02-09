@@ -753,9 +753,7 @@ static efi_status_t efi_capsule_scan_dir(u16 ***files, unsigned int *num)
 		if (!tmp_size)
 			break;
 
-		if (!(dirent->attribute & EFI_FILE_DIRECTORY) &&
-		    u16_strcmp(dirent->file_name, L".") &&
-		    u16_strcmp(dirent->file_name, L".."))
+		if (!(dirent->attribute & EFI_FILE_DIRECTORY))
 			count++;
 	}
 
