@@ -18,7 +18,7 @@ struct udevice *tps65217_dev __attribute__((section(".data"))) = NULL;
  */
 int tps65217_reg_read(uchar src_reg, uchar *src_val)
 {
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	return i2c_read(TPS65217_CHIP_PM, src_reg, 1, src_val, 1);
 #else
 	return dm_i2c_read(tps65217_dev, src_reg,  src_val, 1);
@@ -52,7 +52,7 @@ int tps65217_reg_write(uchar prot_level, uchar dest_reg, uchar dest_val,
 	 * mask
 	 */
 	if (mask != TPS65217_MASK_ALL_BITS) {
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 		ret = i2c_read(TPS65217_CHIP_PM, dest_reg, 1, &read_val, 1);
 #else
 		ret = dm_i2c_read(tps65217_dev, dest_reg, &read_val, 1);
@@ -67,7 +67,7 @@ int tps65217_reg_write(uchar prot_level, uchar dest_reg, uchar dest_val,
 
 	if (prot_level > 0) {
 		xor_reg = dest_reg ^ TPS65217_PASSWORD_UNLOCK;
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 		ret = i2c_write(TPS65217_CHIP_PM, TPS65217_PASSWORD, 1,
 				&xor_reg, 1);
 #else
@@ -77,7 +77,7 @@ int tps65217_reg_write(uchar prot_level, uchar dest_reg, uchar dest_val,
 		if (ret)
 			return ret;
 	}
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_write(TPS65217_CHIP_PM, dest_reg, 1, &dest_val, 1);
 #else
 	ret = dm_i2c_write(tps65217_dev, dest_reg, &dest_val, 1);
@@ -86,7 +86,7 @@ int tps65217_reg_write(uchar prot_level, uchar dest_reg, uchar dest_val,
 		return ret;
 
 	if (prot_level == TPS65217_PROT_LEVEL_2) {
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 		ret = i2c_write(TPS65217_CHIP_PM, TPS65217_PASSWORD, 1,
 				&xor_reg, 1);
 #else
@@ -96,7 +96,7 @@ int tps65217_reg_write(uchar prot_level, uchar dest_reg, uchar dest_val,
 		if (ret)
 			return ret;
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 		ret = i2c_write(TPS65217_CHIP_PM, dest_reg, 1, &dest_val, 1);
 #else
 		ret = dm_i2c_write(tps65217_dev, dest_reg, &dest_val, 1);
@@ -137,7 +137,7 @@ int tps65217_voltage_update(uchar dc_cntrl_reg, uchar volt_sel)
 
 int power_tps65217_init(unsigned char bus)
 {
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev = NULL;
 	int rc;
 

@@ -53,7 +53,7 @@ struct mxc_i2c_bus {
 #if CONFIG_IS_ENABLED(CLK)
 	struct clk per_clk;
 #endif
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	int (*idle_bus_fn)(void *p);
 	void *idle_bus_data;
 #else

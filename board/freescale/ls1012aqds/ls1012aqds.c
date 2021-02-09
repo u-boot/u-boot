@@ -112,7 +112,7 @@ int misc_init_r(void)
 	u8 mux_sdhc_cd = 0x80;
 	int bus_num = 0;
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 	int ret;
 

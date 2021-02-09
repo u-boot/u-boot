@@ -117,7 +117,7 @@ void set_board_info(void)
 #ifdef CONFIG_LCD_MENU
 static int power_key_pressed(u32 reg)
 {
-#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
+#if !CONFIG_IS_ENABLED(DM_I2C) /* TODO(maintainer): Convert to driver model */
 	struct pmic *pmic;
 	u32 status;
 	u32 mask;

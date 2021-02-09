@@ -114,12 +114,12 @@ static void sgmii_configure_repeater(int dpmac)
 		{0x18, NULL}, {0x23, &reg_val[3]},
 		{0x2d, &reg_val[4]}, {4, &reg_val[5]},
 	};
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *udev;
 #endif
 
 	/* Set I2c to Slot 1 */
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_write(0x77, 0, 0, &a, 1);
 #else
 	ret = i2c_get_chip_for_busnum(0, 0x77, 1, &udev);
@@ -173,7 +173,7 @@ static void sgmii_configure_repeater(int dpmac)
 		return;
 	}
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	i2c_get_chip_for_busnum(0, i2c_phy_addr, 1, &udev);
 #endif
 
@@ -184,7 +184,7 @@ static void sgmii_configure_repeater(int dpmac)
 			reg_pair[5].val = &ch_b_eq[i];
 			reg_pair[6].val = &ch_b_ctl2[j];
 			for (k = 0; k < 10; k++) {
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 				ret = i2c_write(i2c_phy_addr,
 						reg_pair[k].addr,
 						1, reg_pair[k].val, 1);
@@ -257,12 +257,12 @@ static void qsgmii_configure_repeater(int dpmac)
 	const char *dev = mdio_names[EMI1_SLOT1];
 	int ret = 0;
 	unsigned short value;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *udev;
 #endif
 
 	/* Set I2c to Slot 1 */
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_write(0x77, 0, 0, &a, 1);
 #else
 	ret = i2c_get_chip_for_busnum(0, 0x77, 1, &udev);
@@ -304,7 +304,7 @@ static void qsgmii_configure_repeater(int dpmac)
 		return;
 	}
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	i2c_get_chip_for_busnum(0, i2c_phy_addr, 1, &udev);
 #endif
 
@@ -316,7 +316,7 @@ static void qsgmii_configure_repeater(int dpmac)
 			reg_pair[6].val = &ch_b_ctl2[j];
 
 			for (k = 0; k < 10; k++) {
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 				ret = i2c_write(i2c_phy_addr,
 						reg_pair[k].addr,
 						1, reg_pair[k].val, 1);

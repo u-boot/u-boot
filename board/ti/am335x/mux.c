@@ -333,7 +333,7 @@ static unsigned short detect_daughter_board_profile(void)
 {
 	unsigned short val;
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	if (i2c_probe(I2C_CPLD_ADDR))
 		return PROFILE_NONE;
 

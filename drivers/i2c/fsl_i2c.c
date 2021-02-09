@@ -40,7 +40,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 static const struct fsl_i2c_base *i2c_base[4] = {
 	(struct fsl_i2c_base *)(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_I2C_OFFSET),
 #ifdef CONFIG_SYS_FSL_I2C2_OFFSET
@@ -203,7 +203,7 @@ static uint set_i2c_bus_speed(const struct fsl_i2c_base *base,
 	return speed;
 }
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 static uint get_i2c_clock(int bus)
 {
 	if (bus)
@@ -497,7 +497,7 @@ static uint __i2c_set_bus_speed(const struct fsl_i2c_base *base,
 	return 0;
 }
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 static void fsl_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 {
 	__i2c_init(i2c_base[adap->hwadapnr], speed, slaveadd,

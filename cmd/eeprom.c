@@ -61,7 +61,7 @@
 #endif
 #endif
 
-#if defined(CONFIG_DM_I2C)
+#if CONFIG_IS_ENABLED(DM_I2C)
 static int eeprom_i2c_bus;
 #endif
 
@@ -73,7 +73,7 @@ __weak int eeprom_write_enable(unsigned dev_addr, int state)
 void eeprom_init(int bus)
 {
 	/* I2C EEPROM */
-#if defined(CONFIG_DM_I2C)
+#if CONFIG_IS_ENABLED(DM_I2C)
 	eeprom_i2c_bus = bus;
 #elif defined(CONFIG_SYS_I2C)
 	if (bus >= 0)
@@ -132,7 +132,7 @@ static int eeprom_rw_block(unsigned offset, uchar *addr, unsigned alen,
 {
 	int ret = 0;
 
-#if defined(CONFIG_DM_I2C)
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 
 	ret = i2c_get_chip_for_busnum(eeprom_i2c_bus, addr[0],

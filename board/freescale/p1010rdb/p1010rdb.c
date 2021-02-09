@@ -141,7 +141,7 @@ int config_board_mux(int ctrl_type)
 	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	u8 tmp;
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 	int ret;
 #if defined(CONFIG_TARGET_P1010RDB_PA)
@@ -377,7 +377,7 @@ int i2c_pca9557_read(int type)
 	u8 val;
 	int bus_num = I2C_PCA9557_BUS_NUM;
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 	int ret;
 
@@ -419,7 +419,7 @@ int checkboard(void)
 	printf("Board: %sRDB-PA, ", cpu->name);
 #elif defined(CONFIG_TARGET_P1010RDB_PB)
 	printf("Board: %sRDB-PB, ", cpu->name);
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 	int ret;
 
@@ -462,7 +462,7 @@ int checkboard(void)
 	case 0xe:
 		puts("SDHC\n");
 		val = 0x60; /* set pca9557 pin input/output */
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 		dm_i2c_write(dev, 3, &val, 1);
 #else
 		i2c_write(I2C_PCA9557_ADDR2, 3, 1, &val, 1);

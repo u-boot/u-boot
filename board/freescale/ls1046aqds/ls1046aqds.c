@@ -279,7 +279,7 @@ u32 get_lpuart_clk(void)
 int select_i2c_ch_pca9547(u8 ch, int bus_num)
 {
 	int ret;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 
 	ret = i2c_get_chip_for_busnum(bus_num, I2C_MUX_PCA_ADDR_PRI,

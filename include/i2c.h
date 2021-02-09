@@ -581,7 +581,7 @@ extern struct acpi_ops i2c_acpi_ops;
  */
 int acpi_i2c_of_to_plat(struct udevice *dev);
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 
 /*
  * WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING

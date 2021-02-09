@@ -129,7 +129,7 @@ int exynos_init(void)
 
 int exynos_power_init(void)
 {
-#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
+#if !CONFIG_IS_ENABLED(DM_I2C) /* TODO(maintainer): Convert to driver model */
 	int chrg;
 	struct power_battery *pb;
 	struct pmic *p_chrg, *p_muic, *p_fg, *p_bat;
@@ -192,7 +192,7 @@ int exynos_power_init(void)
 #ifdef CONFIG_USB_GADGET
 static int s5pc210_phy_control(int on)
 {
-#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
+#if !CONFIG_IS_ENABLED(DM_I2C) /* TODO(maintainer): Convert to driver model */
 	int ret = 0;
 	unsigned int val;
 	struct pmic *p, *p_pmic, *p_muic;
@@ -269,7 +269,7 @@ int board_usb_init(int index, enum usb_init_type init)
 
 int g_dnl_board_usb_cable_connected(void)
 {
-#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
+#if !CONFIG_IS_ENABLED(DM_I2C) /* TODO(maintainer): Convert to driver model */
 	struct pmic *muic = pmic_get("MAX77693_MUIC");
 	if (!muic)
 		return 0;
@@ -288,7 +288,7 @@ int g_dnl_board_usb_cable_connected(void)
 #ifdef CONFIG_LCD
 int mipi_power(void)
 {
-#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
+#if !CONFIG_IS_ENABLED(DM_I2C) /* TODO(maintainer): Convert to driver model */
 	struct pmic *p = pmic_get("MAX77686_PMIC");
 
 	/* LDO8 VMIPI_1.0V_AP */
@@ -302,7 +302,7 @@ int mipi_power(void)
 
 void exynos_lcd_power_on(void)
 {
-#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
+#if !CONFIG_IS_ENABLED(DM_I2C) /* TODO(maintainer): Convert to driver model */
 	struct pmic *p = pmic_get("MAX77686_PMIC");
 
 	/* LCD_2.2V_EN: GPC0[1] */

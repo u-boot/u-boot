@@ -10,7 +10,7 @@
 #include <power/pmic.h>
 #include <power/tps65218.h>
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 int tps65218_reg_read(uchar dest_reg, uchar *dest_val)
 {
 	uchar read_val;
@@ -225,7 +225,7 @@ int tps65218_lock_fseal(void)
 	return 0;
 }
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 int power_tps65218_init(unsigned char bus)
 {
 	static const char name[] = "TPS65218_PMIC";

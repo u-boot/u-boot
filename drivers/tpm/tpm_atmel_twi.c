@@ -81,7 +81,7 @@ static int tpm_atmel_twi_xfer(struct udevice *dev,
 	print_buffer(0, (void *)sendbuf, 1, send_size, 0);
 #endif
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	res = i2c_write(0x29, 0, 0, (uchar *)sendbuf, send_size);
 #else
 	res = dm_i2c_write(dev, 0, sendbuf, send_size);
@@ -92,7 +92,7 @@ static int tpm_atmel_twi_xfer(struct udevice *dev,
 	}
 
 	start = get_timer(0);
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	while ((res = i2c_read(0x29, 0, 0, recvbuf, 10)))
 #else
 	while ((res = dm_i2c_read(dev, 0, recvbuf, 10)))
@@ -116,7 +116,7 @@ static int tpm_atmel_twi_xfer(struct udevice *dev,
 			return -1;
 		} else {
 			*recv_len = hdr_recv_len;
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 			res = i2c_read(0x29, 0, 0, recvbuf, *recv_len);
 #else
 			res = dm_i2c_read(dev, 0, recvbuf, *recv_len);

@@ -104,7 +104,7 @@
 #define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 
 /* I2C */
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 #define CONFIG_SYS_I2C
 #else
 #define CONFIG_I2C_SET_DEFAULT_BUS_NUM
