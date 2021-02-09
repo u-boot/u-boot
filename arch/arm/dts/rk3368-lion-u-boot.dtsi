@@ -3,6 +3,8 @@
  * (C) Copyright 2017 Theobroma Systems Design und Consulting GmbH
  */
 
+#include "rk3368-u-boot.dtsi"
+
 / {
 	config {
 		u-boot,spl-payload-offset = <0x40000>; /* @ 256KB */
