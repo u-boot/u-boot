@@ -29,7 +29,6 @@ static int show_dir(struct btrfs_root *root, struct extent_buffer *eb,
 		[BTRFS_FT_FIFO]		= "FIFO",
 		[BTRFS_FT_SOCK]		= "SOCK",
 		[BTRFS_FT_SYMLINK]	= "SYMLINK",
-		[BTRFS_FT_XATTR]	= "XATTR"
 	};
 	u8 type = btrfs_dir_type(eb, di);
 	char namebuf[BTRFS_NAME_LEN];
@@ -37,6 +36,10 @@ static int show_dir(struct btrfs_root *root, struct extent_buffer *eb,
 	char filetime[32];
 	time_t mtime;
 	int ret = 0;
+
+	/* skip XATTRs in directory listing */
+	if (type == BTRFS_FT_XATTR)
+		return 0;
 
 	btrfs_dir_item_key_to_cpu(eb, di, &key);
 
