@@ -115,6 +115,18 @@ static void mtd_probe_uclass_mtd_devs(void)
 static void mtd_probe_uclass_mtd_devs(void) { }
 #endif
 
+#if IS_ENABLED(CONFIG_DM_SPI_FLASH) && IS_ENABLED(CONFIG_SPI_FLASH_MTD)
+static void mtd_probe_uclass_spi_nor_devs(void)
+{
+	struct udevice *dev;
+
+	uclass_foreach_dev_probe(UCLASS_SPI_FLASH, dev)
+		;
+}
+#else
+static void mtd_probe_uclass_spi_nor_devs(void) { }
+#endif
+
 #if defined(CONFIG_MTD_PARTITIONS)
 
 #define MTDPARTS_MAXLEN         512
@@ -310,6 +322,7 @@ int mtd_probe_devices(void)
 	struct mtd_info *mtd;
 
 	mtd_probe_uclass_mtd_devs();
+	mtd_probe_uclass_spi_nor_devs();
 
 	/*
 	 * Check if mtdparts/mtdids changed, if the MTD dev list was updated
@@ -370,6 +383,7 @@ int mtd_probe_devices(void)
 int mtd_probe_devices(void)
 {
 	mtd_probe_uclass_mtd_devs();
+	mtd_probe_uclass_spi_nor_devs();
 
 	return 0;
 }
