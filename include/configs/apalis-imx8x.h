@@ -25,9 +25,6 @@
 #define CONFIG_NETMASK			255.255.255.0
 #define CONFIG_SERVERIP			192.168.10.1
 
-#define FEC_ENET_ENABLE_TXC_DELAY
-#define FEC_ENET_ENABLE_RXC_DELAY
-
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"kernel_addr_r=0x80280000\0" \
 	"fdt_addr_r=0x83100000\0" \
