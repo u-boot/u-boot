@@ -44,9 +44,6 @@ choice
 	prompt "MX28 board select"
 	optional
 
-config TARGET_APX4DEVKIT
-	bool "Support apx4devkit"
-
 config TARGET_BG0900
 	bool "Support bg0900"
 
@@ -68,7 +65,6 @@ endchoice
 config SYS_SOC
 	default "mxs"
 
-source "board/bluegiga/apx4devkit/Kconfig"
 source "board/freescale/mx28evk/Kconfig"
 source "board/liebherr/xea/Kconfig"
 source "board/ppcag/bg0900/Kconfig"
