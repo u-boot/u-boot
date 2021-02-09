@@ -14,6 +14,17 @@ config DM_I2C
 	  device (bus child) info is kept as parent plat. The interface
 	  is defined in include/i2c.h.
 
+config SPL_DM_I2C
+	bool "Enable Driver Model for I2C drivers in SPL"
+	depends on SPL_DM && DM_I2C
+	default y
+	help
+	  Enable driver model for I2C. The I2C uclass interface: probe, read,
+	  write and speed, is implemented with the bus drivers operations,
+	  which provide methods for bus setting and data transfer. Each chip
+	  device (bus child) info is kept as parent platdata. The interface
+	  is defined in include/i2c.h.
+
 config I2C_CROS_EC_TUNNEL
 	tristate "Chrome OS EC tunnel I2C bus"
 	depends on CROS_EC
@@ -55,6 +66,16 @@ config I2C_DEFAULT_BUS_NUMBER
 config DM_I2C_GPIO
 	bool "Enable Driver Model for software emulated I2C bus driver"
 	depends on DM_I2C && DM_GPIO
+	help
+	  Enable the i2c bus driver emulation by using the GPIOs. The bus GPIO
+	  configuration is given by the device tree. Kernel-style device tree
+	  bindings are supported.
+	  Binding info: doc/device-tree-bindings/i2c/i2c-gpio.txt
+
+config SPL_DM_I2C_GPIO
+	bool "Enable Driver Model for software emulated I2C bus driver in SPL"
+	depends on SPL_DM && DM_I2C_GPIO && SPL_DM_GPIO && SPL_GPIO_SUPPORT
+	default y
 	help
 	  Enable the i2c bus driver emulation by using the GPIOs. The bus GPIO
 	  configuration is given by the device tree. Kernel-style device tree

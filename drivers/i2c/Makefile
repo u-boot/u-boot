@@ -2,9 +2,9 @@
 #
 # (C) Copyright 2000-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-obj-$(CONFIG_DM_I2C) += i2c-uclass.o
+obj-$(CONFIG_$(SPL_)DM_I2C) += i2c-uclass.o
 ifdef CONFIG_ACPIGEN
-obj-$(CONFIG_DM_I2C) += acpi_i2c.o
+obj-$(CONFIG_$(SPL_)DM_I2C) += acpi_i2c.o
 endif
 obj-$(CONFIG_$(SPL_)DM_I2C_GPIO) += i2c-gpio.o
 obj-$(CONFIG_$(SPL_)I2C_CROS_EC_TUNNEL) += cros_ec_tunnel.o
