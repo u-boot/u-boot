@@ -1188,6 +1188,7 @@ config CMD_PCI
 
 config CMD_PINMUX
 	bool "pinmux - show pins muxing"
+	depends on PINCTRL
 	default y if PINCTRL
 	help
 	  Parse all available pin-controllers and show pins muxing. This
