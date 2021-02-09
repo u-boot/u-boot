@@ -343,18 +343,17 @@ static int stmfx_pinctrl_get_pins_count(struct udevice *dev)
 }
 
 /*
- * STMFX pins[15:0] are called "stmfx_gpio[15:0]"
- * and STMFX pins[23:16] are called "stmfx_agpio[7:0]"
+ * STMFX pins[15:0] are called "gpio[15:0]"
+ * and STMFX pins[23:16] are called "agpio[7:0]"
  */
-#define MAX_PIN_NAME_LEN 7
-static char pin_name[MAX_PIN_NAME_LEN];
+static char pin_name[PINNAME_SIZE];
 static const char *stmfx_pinctrl_get_pin_name(struct udevice *dev,
 					      unsigned int selector)
 {
 	if (selector < STMFX_MAX_GPIO)
-		snprintf(pin_name, MAX_PIN_NAME_LEN, "stmfx_gpio%u", selector);
+		snprintf(pin_name, PINNAME_SIZE, "gpio%u", selector);
 	else
-		snprintf(pin_name, MAX_PIN_NAME_LEN, "stmfx_agpio%u", selector - 16);
+		snprintf(pin_name, PINNAME_SIZE, "agpio%u", selector - 16);
 	return pin_name;
 }
 

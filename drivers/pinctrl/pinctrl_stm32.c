@@ -56,7 +56,7 @@ static const char * const pinmux_bias[] = {
 	[STM32_GPIO_PUPD_DOWN] = "pull-down",
 };
 
-static const char * const pinmux_input[] = {
+static const char * const pinmux_otype[] = {
 	[STM32_GPIO_OTYPE_PP] = "push-pull",
 	[STM32_GPIO_OTYPE_OD] = "open-drain",
 };
@@ -216,7 +216,7 @@ static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
 		selector, gpio_idx, mode);
 	priv = dev_get_priv(gpio_dev);
 	pupd = (readl(&priv->regs->pupdr) >> (gpio_idx * 2)) & PUPD_MASK;
-
+	otype = (readl(&priv->regs->otyper) >> gpio_idx) & OTYPE_MSK;
 
 	switch (mode) {
 	case GPIOF_UNKNOWN:
@@ -227,18 +227,16 @@ static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
 		break;
 	case GPIOF_FUNC:
 		af_num = stm32_pinctrl_get_af(gpio_dev, gpio_idx);
-		snprintf(buf, size, "%s %d %s", pinmux_mode[mode], af_num,
-			 pinmux_bias[pupd]);
+		snprintf(buf, size, "%s %d %s %s", pinmux_mode[mode], af_num,
+			 pinmux_otype[otype], pinmux_bias[pupd]);
 		break;
 	case GPIOF_OUTPUT:
-		snprintf(buf, size, "%s %s %s",
-			 pinmux_mode[mode], pinmux_bias[pupd],
-			 label ? label : "");
+		snprintf(buf, size, "%s %s %s %s",
+			 pinmux_mode[mode], pinmux_otype[otype],
+			 pinmux_bias[pupd], label ? label : "");
 		break;
 	case GPIOF_INPUT:
-		otype = (readl(&priv->regs->otyper) >> gpio_idx) & OTYPE_MSK;
-		snprintf(buf, size, "%s %s %s %s",
-			 pinmux_mode[mode], pinmux_input[otype],
+		snprintf(buf, size, "%s %s %s", pinmux_mode[mode],
 			 pinmux_bias[pupd], label ? label : "");
 		break;
 	}
@@ -410,6 +408,9 @@ static int stm32_pinctrl_bind(struct udevice *dev)
 
 	dev_for_each_subnode(node, dev) {
 		dev_dbg(dev, "bind %s\n", ofnode_get_name(node));
+
+		if (!ofnode_is_enabled(node))
+			continue;
 
 		ofnode_get_property(node, "gpio-controller", &ret);
 		if (ret < 0)
