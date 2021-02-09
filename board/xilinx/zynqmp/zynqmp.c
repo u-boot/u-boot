@@ -496,11 +496,7 @@ static int reset_reason(void)
 
 	env_set("reset_reason", reason);
 
-	ret = zynqmp_mmio_write((ulong)&crlapb_base->reset_reason, ~0, ~0);
-	if (ret)
-		return -EINVAL;
-
-	return ret;
+	return 0;
 }
 
 static int set_fdtfile(void)
