@@ -484,7 +484,7 @@ static int zynqmp_qspi_probe(struct udevice *bus)
 	debug("%s: CLK %ld\n", __func__, clock);
 
 	ret = clk_enable(&clk);
-	if (ret && ret != -ENOSYS) {
+	if (ret) {
 		dev_err(bus, "failed to enable clock\n");
 		return ret;
 	}

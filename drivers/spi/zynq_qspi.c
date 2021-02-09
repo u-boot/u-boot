@@ -326,7 +326,7 @@ static int zynq_qspi_probe(struct udevice *bus)
 	}
 
 	ret = clk_enable(&clk);
-	if (ret && ret != -ENOSYS) {
+	if (ret) {
 		dev_err(bus, "failed to enable clock\n");
 		return ret;
 	}
