@@ -28,9 +28,18 @@
 #define INITENV
 #endif
 
+#define	OFFSET_INVALID		(~(u32)0)
+
 #ifdef CONFIG_ENV_OFFSET_REDUND
+#define ENV_OFFSET_REDUND	CONFIG_ENV_OFFSET_REDUND
+
 static ulong env_offset		= CONFIG_ENV_OFFSET;
 static ulong env_new_offset	= CONFIG_ENV_OFFSET_REDUND;
+
+#else
+
+#define ENV_OFFSET_REDUND	OFFSET_INVALID
+
 #endif /* CONFIG_ENV_OFFSET_REDUND */
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -288,6 +297,30 @@ out:
 }
 #endif
 
+static int env_sf_erase(void)
+{
+	int ret;
+	env_t env;
+
+	ret = setup_flash_device();
+	if (ret)
+		return ret;
+
+	memset(&env, 0, sizeof(env_t));
+	ret = spi_flash_write(env_flash, CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE, &env);
+	if (ret)
+		goto done;
+
+	if (ENV_OFFSET_REDUND != OFFSET_INVALID)
+		ret = spi_flash_write(env_flash, ENV_OFFSET_REDUND, CONFIG_ENV_SIZE, &env);
+
+done:
+	spi_flash_free(env_flash);
+	env_flash = NULL;
+
+	return ret;
+}
+
 #if CONFIG_ENV_ADDR != 0x0
 __weak void *env_sf_get_env_addr(void)
 {
@@ -415,5 +448,6 @@ U_BOOT_ENV_LOCATION(sf) = {
 	ENV_NAME("SPIFlash")
 	.load		= env_sf_load,
 	.save		= ENV_SAVE_PTR(env_sf_save),
+	.erase		= ENV_ERASE_PTR(env_sf_erase),
 	.init		= env_sf_init,
 };
