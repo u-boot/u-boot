@@ -477,13 +477,13 @@ static int zynq_gem_init(struct udevice *dev)
 	}
 
 	ret = clk_set_rate(&priv->clk, clk_rate);
-	if (IS_ERR_VALUE(ret) && ret != (unsigned long)-ENOSYS) {
+	if (IS_ERR_VALUE(ret)) {
 		dev_err(dev, "failed to set tx clock rate\n");
 		return ret;
 	}
 
 	ret = clk_enable(&priv->clk);
-	if (ret && ret != -ENOSYS) {
+	if (ret) {
 		dev_err(dev, "failed to enable tx clock\n");
 		return ret;
 	}

@@ -90,9 +90,8 @@ static int xlnx_wwdt_start(struct udevice *dev, u64 timeout, ulong flags)
 	/* Calculate timeout count */
 	count = timeout * clock_f;
 
-	/* clk_enable will return -ENOSYS when it is not implemented */
 	ret = clk_enable(&wdt->clk);
-	if (ret && ret != -ENOSYS) {
+	if (ret) {
 		dev_err(dev, "failed to enable clock\n");
 		return ret;
 	}
