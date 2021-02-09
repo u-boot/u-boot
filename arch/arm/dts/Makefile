@@ -114,7 +114,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3328) += \
 	rk3328-rock-pi-e.dtb
 
 dtb-$(CONFIG_ROCKCHIP_RK3368) += \
-	rk3368-lion.dtb \
+	rk3368-lion-haikou.dtb \
 	rk3368-sheep.dtb \
 	rk3368-geekbox.dtb \
 	rk3368-px5-evb.dtb \
