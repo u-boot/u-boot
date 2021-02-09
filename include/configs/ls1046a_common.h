@@ -16,7 +16,6 @@
 #define SPL_NO_QSPI
 #define SPL_NO_USB
 #define SPL_NO_SATA
-#undef CONFIG_DM_I2C
 #endif
 #if defined(CONFIG_SPL_BUILD) && \
 	(defined(CONFIG_NAND_BOOT) || defined(CONFIG_QSPI_BOOT))
