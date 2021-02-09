@@ -181,6 +181,7 @@ config SPL_FIT_FULL_CHECK
 config SPL_FIT_SIGNATURE
 	bool "Enable signature verification of FIT firmware within SPL"
 	depends on SPL_DM
+	select FIT_SIGNATURE
 	select SPL_FIT
 	select SPL_CRYPTO_SUPPORT
 	select SPL_HASH_SUPPORT
