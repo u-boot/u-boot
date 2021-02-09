@@ -31,6 +31,8 @@
 #define CONFIG_SPL_BSS_MAX_SIZE         0x20000
 #define CONFIG_SPL_STACK                0x00188000
 
+#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
+
 #ifndef CONFIG_SPL_BUILD
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00500000\0" \
