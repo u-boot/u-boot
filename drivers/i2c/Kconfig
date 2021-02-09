@@ -222,7 +222,7 @@ endif
 if SYS_I2C_MXC_I2C1
 config SYS_MXC_I2C1_SPEED
 	int "I2C Channel 1 speed"
-	default 40000000 if TARGET_LS2080A_SIMU || TARGET_LS2080A_EMU
+	default 40000000 if TARGET_LS2080A_EMU
 	default 100000
 	help
 	 MXC I2C Channel 1 speed
@@ -237,7 +237,7 @@ endif
 if SYS_I2C_MXC_I2C2
 config SYS_MXC_I2C2_SPEED
 	int "I2C Channel 2 speed"
-	default 40000000 if TARGET_LS2080A_SIMU || TARGET_LS2080A_EMU
+	default 40000000 if TARGET_LS2080A_EMU
 	default 100000
 	help
 	 MXC I2C Channel 2 speed

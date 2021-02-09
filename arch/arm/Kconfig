@@ -1221,18 +1221,6 @@ config TARGET_LS2080A_EMU
 	  development platform that supports the QorIQ LS2080A
 	  Layerscape Architecture processor.
 
-config TARGET_LS2080A_SIMU
-	bool "Support ls2080a_simu"
-	select ARCH_LS2080A
-	select ARM64
-	select ARMV8_MULTIENTRY
-	select BOARD_LATE_INIT
-	help
-	  Support for Freescale LS2080A_SIMU platform.
-	  The LS2080A Development System (QDS) is a pre silicon
-	  development platform that supports the QorIQ LS2080A
-	  Layerscape Architecture processor.
-
 config TARGET_LS1088AQDS
 	bool "Support ls1088aqds"
 	select ARCH_LS1088A
@@ -1992,7 +1980,6 @@ source "board/cavium/thunderx/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
 source "board/eets/pdu001/Kconfig"
 source "board/emulation/qemu-arm/Kconfig"
-source "board/freescale/ls2080a/Kconfig"
 source "board/freescale/ls2080aqds/Kconfig"
 source "board/freescale/ls2080ardb/Kconfig"
 source "board/freescale/ls1088a/Kconfig"
