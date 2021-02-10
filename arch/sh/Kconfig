@@ -12,10 +12,6 @@ config TARGET_R2DPLUS
 	bool "Renesas R2D-PLUS"
 	select CPU_SH4
 
-config TARGET_SH7763RDP
-	bool "SH7763RDP"
-	select CPU_SH4
-
 endchoice
 
 config SYS_ARCH
@@ -27,6 +23,5 @@ config SYS_CPU
 source "arch/sh/lib/Kconfig"
 
 source "board/renesas/r2dplus/Kconfig"
-source "board/renesas/sh7763rdp/Kconfig"
 
 endmenu
