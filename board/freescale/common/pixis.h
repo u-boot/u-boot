@@ -44,31 +44,6 @@ typedef struct pixis {
 	u8 vtempmax[2];
 	u8 res2[4];
 } __attribute__ ((packed)) pixis_t;
-
-#elif defined(CONFIG_TARGET_MPC8641HPCN)
-typedef struct pixis {
-	u8 id;
-	u8 ver;
-	u8 pver;
-	u8 csr;
-	u8 rst;
-	u8 pwr;
-	u8 aux;
-	u8 spd;
-	u8 res[8];
-	u8 vctl;
-	u8 vstat;
-	u8 vcfgen0;
-	u8 vcfgen1;
-	u8 vcore0;
-	u8 res1;
-	u8 vboot;
-	u8 vspeed[2];
-	u8 vclkh;
-	u8 vclkl;
-	u8 watch;
-	u8 res3[36];
-} __attribute__ ((packed)) pixis_t;
 #else
 #error Need to define pixis_t for this board
 #endif
