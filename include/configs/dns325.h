@@ -36,14 +36,6 @@
 #endif
 
 /*
- * SATA Driver configuration
- */
-#ifdef CONFIG_MVSATA_IDE
-#define CONFIG_SYS_ATA_IDE0_OFFSET      MV_SATA_PORT0_OFFSET
-#define CONFIG_SYS_ATA_IDE1_OFFSET      MV_SATA_PORT1_OFFSET
-#endif
-
-/*
  * Enable GPI0 support
  */
 #define CONFIG_KIRKWOOD_GPIO

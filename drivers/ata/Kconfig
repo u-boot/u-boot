@@ -83,12 +83,6 @@ config FSL_SATA
 	  Enable this driver to support the SATA controller found in
 	  some Freescale PowerPC SoCs.
 
-config MVSATA_IDE
-	bool "Enable Marvell SATA controller driver support via IDE interface"
-	help
-	  Enable this driver to support the SATA controller found in
-	  some Marvell SoCs, running in IDE compatibility mode using PIO.
-
 config SATA_MV
 	bool "Enable Marvell SATA controller driver support"
 	select AHCI
