@@ -730,10 +730,12 @@ static int zynq_gem_probe(struct udevice *dev)
 
 	ret = zynq_phy_init(dev);
 	if (ret)
-		goto err2;
+		goto err3;
 
 	return ret;
 
+err3:
+	mdio_unregister(priv->bus);
 err2:
 	free(priv->rxbuffers);
 err1:
