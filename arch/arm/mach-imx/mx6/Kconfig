@@ -111,12 +111,6 @@ choice
 	prompt "MX6 board select"
 	optional
 
-config TARGET_ADVANTECH_DMS_BA16
-	bool "Advantech dms-ba16"
-	depends on MX6Q
-	select BOARD_LATE_INIT
-	imply CMD_SATA
-
 config TARGET_APALIS_IMX6
 	bool "Toradex Apalis iMX6 board"
 	depends on MX6Q
@@ -695,7 +689,6 @@ config SYS_SOC
 
 source "board/ge/bx50v3/Kconfig"
 source "board/ge/b1x5v2/Kconfig"
-source "board/advantech/dms-ba16/Kconfig"
 source "board/aristainetos/Kconfig"
 source "board/armadeus/opos6uldev/Kconfig"
 source "board/bachmann/ot1200/Kconfig"
