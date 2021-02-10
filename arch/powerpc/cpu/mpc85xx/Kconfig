@@ -52,11 +52,6 @@ config TARGET_MPC8541CDS
 	bool "Support MPC8541CDS"
 	select ARCH_MPC8541
 
-config TARGET_MPC8544DS
-	bool "Support MPC8544DS"
-	select ARCH_MPC8544
-	imply PANIC_HANG
-
 config TARGET_MPC8548CDS
 	bool "Support MPC8548CDS"
 	select ARCH_MPC8548
@@ -1443,7 +1438,6 @@ config SYS_FSL_LBC_CLK_DIV
 
 source "board/freescale/corenet_ds/Kconfig"
 source "board/freescale/mpc8541cds/Kconfig"
-source "board/freescale/mpc8544ds/Kconfig"
 source "board/freescale/mpc8548cds/Kconfig"
 source "board/freescale/mpc8555cds/Kconfig"
 source "board/freescale/mpc8568mds/Kconfig"
