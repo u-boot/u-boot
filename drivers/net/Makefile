@@ -53,7 +53,6 @@ obj-$(CONFIG_MVNETA) += mvneta.o
 obj-$(CONFIG_MVPP2) += mvpp2.o
 obj-$(CONFIG_NATSEMI) += natsemi.o
 obj-$(CONFIG_DRIVER_NE2000) += ne2000.o ne2000_base.o
-obj-$(CONFIG_DRIVER_AX88796L) += ax88796.o ne2000_base.o
 obj-$(CONFIG_NETCONSOLE) += netconsole.o
 obj-$(CONFIG_NS8382X) += ns8382x.o
 obj-$(CONFIG_PCH_GBE) += pch_gbe.o

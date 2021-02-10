@@ -25,10 +25,6 @@ config TARGET_R2DPLUS
 	bool "Renesas R2D-PLUS"
 	select CPU_SH4
 
-config TARGET_R7780MP
-	bool "R7780MP board"
-	select CPU_SH4A
-
 config TARGET_SH7752EVB
 	bool "SH7752EVB"
 	select CPU_SH4A
@@ -56,7 +52,6 @@ config SYS_CPU
 source "arch/sh/lib/Kconfig"
 
 source "board/renesas/r2dplus/Kconfig"
-source "board/renesas/r7780mp/Kconfig"
 source "board/renesas/sh7752evb/Kconfig"
 source "board/renesas/sh7753evb/Kconfig"
 source "board/renesas/sh7757lcr/Kconfig"
