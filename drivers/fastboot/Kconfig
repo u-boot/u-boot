@@ -72,6 +72,15 @@ config FASTBOOT_FLASH
 	  the downloaded image to a non-volatile storage device. Define
 	  this to enable the "fastboot flash" command.
 
+config FASTBOOT_UUU_SUPPORT
+	bool "Enable FASTBOOT i.MX UUU special command"
+	default n
+	help
+	  The fastboot protocol includes "UCmd" and "ACmd" command.
+	  Be aware that you provide full access to any U-Boot command,
+	  including working with memory and may open a huge backdoor,
+	  when enabling this option.
+
 choice
 	prompt "Flash provider for FASTBOOT"
 	depends on FASTBOOT_FLASH

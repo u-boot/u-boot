@@ -19,6 +19,8 @@ The current implementation supports the following standard commands:
 - ``reboot``
 - ``reboot-bootloader``
 - ``set_active`` (only a stub implementation which always succeeds)
+- ``ucmd`` (if enabled)
+- ``acmd`` (if enabled)
 
 The following OEM commands are supported (if enabled):
 
