@@ -470,11 +470,6 @@ config TARGET_OPOS6ULDEV
 	depends on MX6UL
 	select MX6UL_OPOS6UL
 
-config TARGET_OT1200
-	bool "Bachmann OT1200"
-	select SUPPORT_SPL
-	imply CMD_SATA
-
 config TARGET_PICO_IMX6
 	bool "PICO-IMX6"
 	depends on MX6QDL
@@ -691,7 +686,6 @@ source "board/ge/bx50v3/Kconfig"
 source "board/ge/b1x5v2/Kconfig"
 source "board/aristainetos/Kconfig"
 source "board/armadeus/opos6uldev/Kconfig"
-source "board/bachmann/ot1200/Kconfig"
 source "board/barco/platinum/Kconfig"
 source "board/barco/titanium/Kconfig"
 source "board/boundary/nitrogen6x/Kconfig"
