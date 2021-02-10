@@ -59,6 +59,11 @@ config SPL_NOP_PHY
 	  This is useful when a driver uses the PHY framework but no real PHY
 	  hardware exists.
 
+config MIPI_DPHY_HELPERS
+	bool "MIPI D-PHY support helpers"
+	help
+	  Provides a number of helpers a core functions for MIPI D-PHY drivers.
+
 config BCM6318_USBH_PHY
 	bool "BCM6318 USBH PHY support"
 	depends on PHY && ARCH_BMIPS
@@ -190,6 +195,24 @@ config MESON_G12A_USB_PHY
 	help
 	  This is the generic phy driver for the Amlogic Meson G12A
 	  USB2 and USB3 PHYS.
+
+config MESON_AXG_MIPI_DPHY
+	bool "Amlogic Meson AXG MIPI D-PHY"
+	depends on PHY && ARCH_MESON && MESON_AXG
+	select MIPI_DPHY_HELPERS
+	imply REGMAP
+	help
+	  This is the generic phy driver for the Amlogic Meson AXG
+	  MIPI D-PHY.
+
+config MESON_AXG_MIPI_PCIE_ANALOG_PHY
+	bool "Amlogic Meson AXG MIPI PCIe Analog PHY"
+	depends on PHY && ARCH_MESON && MESON_AXG
+	select MIPI_DPHY_HELPERS
+	imply REGMAP
+	help
+	  This is the generic phy driver for the Amlogic Meson AXG
+	  MIPI PCIe Analog PHY.
 
 config MSM8916_USB_PHY
 	bool "Qualcomm MSM8916 USB PHY support"

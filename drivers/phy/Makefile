@@ -5,6 +5,7 @@
 
 obj-$(CONFIG_$(SPL_)PHY) += phy-uclass.o
 obj-$(CONFIG_$(SPL_)NOP_PHY) += nop-phy.o
+obj-$(CONFIG_MIPI_DPHY_HELPERS) += phy-core-mipi-dphy.o
 obj-$(CONFIG_BCM6318_USBH_PHY) += bcm6318-usbh-phy.o
 obj-$(CONFIG_BCM6348_USBH_PHY) += bcm6348-usbh-phy.o
 obj-$(CONFIG_BCM6358_USBH_PHY) += bcm6358-usbh-phy.o
@@ -21,6 +22,8 @@ obj-$(CONFIG_PHY_STM32_USBPHYC) += phy-stm32-usbphyc.o
 obj-$(CONFIG_MESON_GXBB_USB_PHY) += meson-gxbb-usb2.o
 obj-$(CONFIG_MESON_GXL_USB_PHY) += meson-gxl-usb2.o
 obj-$(CONFIG_MESON_G12A_USB_PHY) += meson-g12a-usb2.o meson-g12a-usb3-pcie.o
+obj-$(CONFIG_MESON_AXG_MIPI_DPHY) += meson-axg-mipi-dphy.o
+obj-$(CONFIG_MESON_AXG_MIPI_PCIE_ANALOG_PHY) += meson-axg-mipi-pcie-analog.o
 obj-$(CONFIG_MSM8916_USB_PHY) += msm8916-usbh-phy.o
 obj-$(CONFIG_OMAP_USB2_PHY) += omap-usb2-phy.o
 obj-$(CONFIG_KEYSTONE_USB_PHY) += keystone-usb-phy.o

@@ -204,6 +204,17 @@ int generic_phy_power_off(struct phy *phy)
 	return ret;
 }
 
+int generic_phy_configure(struct phy *phy, void *params)
+{
+	struct phy_ops const *ops;
+
+	if (!generic_phy_valid(phy))
+		return 0;
+	ops = phy_dev_ops(phy->dev);
+
+	return ops->configure ? ops->configure(phy, params) : 0;
+}
+
 int generic_phy_get_bulk(struct udevice *dev, struct phy_bulk *bulk)
 {
 	int i, ret, count;
