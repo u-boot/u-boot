@@ -315,7 +315,7 @@ static u32 *zynq_align_dma_buffer(u32 *buf, u32 len, u32 swap)
 		if (new_buf > buf) {
 			debug("%s: Aligned buffer is after buffer start\n",
 			      __func__);
-			new_buf -= ARCH_DMA_MINALIGN;
+			new_buf = (u32 *)((u32)new_buf - ARCH_DMA_MINALIGN);
 		}
 		printf("%s: Align buffer at %x to %x(swap %d)\n", __func__,
 		       (u32)buf, (u32)new_buf, swap);
