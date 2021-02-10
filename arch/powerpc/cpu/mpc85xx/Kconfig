@@ -68,14 +68,6 @@ config TARGET_MPC8569MDS
 	bool "Support MPC8569MDS"
 	select ARCH_MPC8569
 
-config TARGET_MPC8572DS
-	bool "Support MPC8572DS"
-	select ARCH_MPC8572
-# Use DDR3 controller with DDR2 DIMMs on this board
-	select SYS_FSL_DDRC_GEN3
-	imply SCSI
-	imply PANIC_HANG
-
 config TARGET_P1010RDB_PA
 	bool "Support P1010RDB_PA"
 	select ARCH_P1010
@@ -1442,7 +1434,6 @@ source "board/freescale/mpc8548cds/Kconfig"
 source "board/freescale/mpc8555cds/Kconfig"
 source "board/freescale/mpc8568mds/Kconfig"
 source "board/freescale/mpc8569mds/Kconfig"
-source "board/freescale/mpc8572ds/Kconfig"
 source "board/freescale/p1010rdb/Kconfig"
 source "board/freescale/p1_p2_rdb_pc/Kconfig"
 source "board/freescale/p2041rdb/Kconfig"

@@ -45,35 +45,6 @@ typedef struct pixis {
 	u8 res2[4];
 } __attribute__ ((packed)) pixis_t;
 
-#elif defined(CONFIG_TARGET_MPC8572DS)
-typedef struct pixis {
-	u8 id;
-	u8 ver;
-	u8 pver;
-	u8 csr;
-	u8 rst;
-	u8 pwr1;
-	u8 aux1;
-	u8 spd;
-	u8 aux2;
-	u8 res[7];
-	u8 vctl;
-	u8 vstat;
-	u8 vcfgen0;
-	u8 vcfgen1;
-	u8 vcore0;
-	u8 res1;
-	u8 vboot;
-	u8 vspeed[3];
-	u8 res2[2];
-	u8 sclk[3];
-	u8 dclk[3];
-	u8 res3[2];
-	u8 watch;
-	u8 led;
-	u8 res4[25];
-} __attribute__ ((packed)) pixis_t;
-
 #elif defined(CONFIG_TARGET_MPC8610HPCD)
 typedef struct pixis {
 	u8 id;
