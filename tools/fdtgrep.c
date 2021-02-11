@@ -213,7 +213,7 @@ static void utilfdt_print_data(const char *data, int len)
 	} else {
 		printf(" = [");
 		for (i = 0; i < len; i++)
-			printf("%02x%s", *p++, i < len - 1 ? " " : "");
+			printf("%02x%s", (unsigned char)*p++, i < len - 1 ? " " : "");
 		printf("]");
 	}
 }
