@@ -414,6 +414,8 @@ def mk_env_ext4(state_test_env):
     if os.path.exists(persistent):
         c.log.action('Disk image file ' + persistent + ' already exists')
     else:
+        # Some distributions do not add /sbin to the default PATH, where mkfs.ext4 lives
+        os.environ["PATH"] += os.pathsep + '/sbin'
         try:
             u_boot_utils.run_and_log(c, 'dd if=/dev/zero of=%s bs=1M count=16' % persistent)
             u_boot_utils.run_and_log(c, 'mkfs.ext4 %s' % persistent)
