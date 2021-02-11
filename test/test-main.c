@@ -148,16 +148,16 @@ static bool test_matches(const char *prefix, const char *test_name,
 	if (!strncmp(test_name, select_name, len))
 		return true;
 
-	if (!prefix) {
+	if (prefix) {
+		/* All tests have this prefix */
+		if (!strncmp(test_name, prefix, strlen(prefix)))
+			test_name += strlen(prefix);
+	} else {
 		const char *p = strstr(test_name, "_test_");
 
 		/* convert xxx_test_yyy to yyy, i.e. remove the suite name */
 		if (p)
-			test_name = p + 6;
-	} else {
-		/* All tests have this prefix */
-		if (!strncmp(test_name, prefix, strlen(prefix)))
-			test_name += strlen(prefix);
+			test_name = p + strlen("_test_");
 	}
 
 	if (!strncmp(test_name, select_name, len))
