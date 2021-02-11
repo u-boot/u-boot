@@ -252,15 +252,14 @@ static void console_devices_set(int file, struct stdio_dev *dev)
  */
 static bool console_needs_start_stop(int file, struct stdio_dev *sdev)
 {
-	int i, j;
+	int i;
 
 	for (i = 0; i < ARRAY_SIZE(cd_count); i++) {
 		if (i == file)
 			continue;
 
-		for (j = 0; j < cd_count[i]; j++)
-			if (console_devices[i][j] == sdev)
-				return false;
+		if (iomux_match_device(console_devices[i], cd_count[i], sdev) >= 0)
+			return false;
 	}
 	return true;
 }

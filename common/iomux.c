@@ -22,11 +22,21 @@ void iomux_printdevs(const int console)
 	printf("\n");
 }
 
+int iomux_match_device(struct stdio_dev **set, const int n, struct stdio_dev *sdev)
+{
+	int i;
+
+	for (i = 0; i < n; i++)
+		if (sdev == set[i])
+			return i;
+	return -ENOENT;
+}
+
 /* This tries to preserve the old list if an error occurs. */
 int iomux_doenv(const int console, const char *arg)
 {
 	char *console_args, *temp, **start;
-	int i, j, k, io_flag, cs_idx, repeat;
+	int i, j, io_flag, cs_idx, repeat;
 	struct stdio_dev **cons_set, **old_set;
 	struct stdio_dev *dev;
 
@@ -96,14 +106,8 @@ int iomux_doenv(const int console, const char *arg)
 		/*
 		 * Prevent multiple entries for a device.
 		 */
-		 repeat = 0;
-		 for (k = 0; k < cs_idx; k++) {
-			if (dev == cons_set[k]) {
-				repeat++;
-				break;
-			}
-		 }
-		 if (repeat)
+		 repeat = iomux_match_device(cons_set, cs_idx, dev);
+		 if (repeat >= 0)
 			continue;
 		/*
 		 * Try assigning the specified device.
@@ -129,10 +133,7 @@ int iomux_doenv(const int console, const char *arg)
 
 	/* Stop dropped consoles */
 	for (i = 0; i < repeat; i++) {
-		for (j = 0; j < cs_idx; j++) {
-			if (old_set[i] == cons_set[j])
-				break;
-		}
+		j = iomux_match_device(cons_set, cs_idx, old_set[i]);
 		if (j == cs_idx)
 			console_stop(console, old_set[i]);
 	}

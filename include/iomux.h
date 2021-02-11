@@ -24,6 +24,7 @@ extern struct stdio_dev **console_devices[MAX_FILES];
  */
 extern int cd_count[MAX_FILES];
 
+int iomux_match_device(struct stdio_dev **, const int, struct stdio_dev *);
 int iomux_doenv(const int, const char *);
 void iomux_printdevs(const int);
 
