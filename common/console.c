@@ -236,6 +236,7 @@ int cd_count[MAX_FILES];
 static void __maybe_unused console_devices_set(int file, struct stdio_dev *dev)
 {
 	console_devices[file][0] = dev;
+	cd_count[file] = 1;
 }
 
 /**
