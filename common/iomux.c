@@ -75,15 +75,8 @@ int iomux_doenv(const int console, const char *arg)
 		return 1;
 	}
 
-	switch (console) {
-	case stdin:
-		io_flag = DEV_FLAGS_INPUT;
-		break;
-	case stdout:
-	case stderr:
-		io_flag = DEV_FLAGS_OUTPUT;
-		break;
-	default:
+	io_flag = stdio_file_to_flags(console);
+	if (io_flag < 0) {
 		free(start);
 		free(console_args);
 		free(cons_set);
