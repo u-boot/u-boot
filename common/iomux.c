@@ -139,4 +139,37 @@ int iomux_doenv(const int console, const char *arg)
 	free(old_set);
 	return 0;
 }
+
+int iomux_replace_device(const int console, const char *old, const char *new)
+{
+	struct stdio_dev *dev;
+	char *arg = NULL;	/* Initial empty list */
+	int size = 1;		/* For NUL terminator */
+	int i, ret;
+
+	for_each_console_dev(i, console, dev) {
+		const char *name = strcmp(dev->name, old) ? dev->name : new;
+		char *tmp;
+
+		/* Append name with a ',' (comma) separator */
+		tmp = realloc(arg, size + strlen(name) + 1);
+		if (!tmp) {
+			free(arg);
+			return -ENOMEM;
+		}
+
+		strcat(tmp, ",");
+		strcat(tmp, name);
+
+		arg = tmp;
+		size = strlen(tmp) + 1;
+	}
+
+	ret = iomux_doenv(console, arg);
+	if (ret)
+		ret = -EINVAL;
+
+	free(arg);
+	return ret;
+}
 #endif /* CONSOLE_MUX */
