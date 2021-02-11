@@ -228,6 +228,3 @@
 	resets = <&rcc UART8_R>;
 };
 
-&usbotg_hs {
-	compatible = "st,stm32mp1-hsotg", "snps,dwc2";
-};
