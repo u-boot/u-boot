@@ -28,6 +28,19 @@ static struct stdio_dev devs;
 struct stdio_dev *stdio_devices[] = { NULL, NULL, NULL };
 char *stdio_names[MAX_FILES] = { "stdin", "stdout", "stderr" };
 
+int stdio_file_to_flags(const int file)
+{
+	switch (file) {
+	case stdin:
+		return DEV_FLAGS_INPUT;
+	case stdout:
+	case stderr:
+		return DEV_FLAGS_OUTPUT;
+	default:
+		return -EINVAL;
+	}
+}
+
 #if CONFIG_IS_ENABLED(SYS_DEVICE_NULLDEV)
 static void nulldev_putc(struct stdio_dev *dev, const char c)
 {
