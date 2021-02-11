@@ -708,14 +708,14 @@ static int zynq_gem_probe(struct udevice *dev)
 	ret = clk_get_by_name(dev, "tx_clk", &priv->tx_clk);
 	if (ret < 0) {
 		dev_err(dev, "failed to get tx_clock\n");
-		goto err1;
+		goto err2;
 	}
 
 	if (priv->clk_en_info & RXCLK_EN) {
 		ret = clk_get_by_name(dev, "rx_clk", &priv->rx_clk);
 		if (ret < 0) {
 			dev_err(dev, "failed to get rx_clock\n");
-			goto err1;
+			goto err2;
 		}
 	}
 
@@ -737,9 +737,9 @@ static int zynq_gem_probe(struct udevice *dev)
 err3:
 	mdio_unregister(priv->bus);
 err2:
-	free(priv->rxbuffers);
-err1:
 	free(priv->tx_bd);
+err1:
+	free(priv->rxbuffers);
 	return ret;
 }
 
