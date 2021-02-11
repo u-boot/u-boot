@@ -855,17 +855,9 @@ int console_assign(int file, const char *devname)
 	struct stdio_dev *dev;
 
 	/* Check for valid file */
-	switch (file) {
-	case stdin:
-		flag = DEV_FLAGS_INPUT;
-		break;
-	case stdout:
-	case stderr:
-		flag = DEV_FLAGS_OUTPUT;
-		break;
-	default:
-		return -1;
-	}
+	flag = stdio_file_to_flags(file);
+	if (flag < 0)
+		return flag;
 
 	/* Check for valid device name */
 
