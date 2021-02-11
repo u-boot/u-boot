@@ -83,7 +83,6 @@ int stdio_add_devices(void);
 int stdio_init(void);
 
 void stdio_print_current_devices(void);
-int stdio_deregister(const char *devname, int force);
 
 /**
  * stdio_deregister_dev() - deregister the device "devname".

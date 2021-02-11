@@ -261,17 +261,6 @@ int stdio_deregister_dev(struct stdio_dev *dev, int force)
 	return 0;
 }
 
-int stdio_deregister(const char *devname, int force)
-{
-	struct stdio_dev *dev;
-
-	dev = stdio_get_by_name(devname);
-	if (!dev) /* device not found */
-		return -ENODEV;
-
-	return stdio_deregister_dev(dev, force);
-}
-
 int stdio_init_tables(void)
 {
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
