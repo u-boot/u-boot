@@ -15,10 +15,8 @@ void iomux_printdevs(const int console)
 	int i;
 	struct stdio_dev *dev;
 
-	for (i = 0; i < cd_count[console]; i++) {
-		dev = console_devices[console][i];
+	for_each_console_dev(i, console, dev)
 		printf("%s ", dev->name);
-	}
 	printf("\n");
 }
 

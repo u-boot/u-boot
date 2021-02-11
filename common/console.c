@@ -293,8 +293,7 @@ static int console_tstc(int file)
 	int prev;
 
 	prev = disable_ctrlc(1);
-	for (i = 0; i < cd_count[file]; i++) {
-		dev = console_devices[file][i];
+	for_each_console_dev(i, file, dev) {
 		if (dev->tstc != NULL) {
 			ret = dev->tstc(dev);
 			if (ret > 0) {
@@ -314,8 +313,7 @@ static void console_putc(int file, const char c)
 	int i;
 	struct stdio_dev *dev;
 
-	for (i = 0; i < cd_count[file]; i++) {
-		dev = console_devices[file][i];
+	for_each_console_dev(i, file, dev) {
 		if (dev->putc != NULL)
 			dev->putc(dev, c);
 	}
@@ -334,11 +332,9 @@ static void console_puts_select(int file, bool serial_only, const char *s)
 	int i;
 	struct stdio_dev *dev;
 
-	for (i = 0; i < cd_count[file]; i++) {
-		bool is_serial;
+	for_each_console_dev(i, file, dev) {
+		bool is_serial = console_dev_is_serial(dev);
 
-		dev = console_devices[file][i];
-		is_serial = console_dev_is_serial(dev);
 		if (dev->puts && serial_only == is_serial)
 			dev->puts(dev, s);
 	}
@@ -354,8 +350,7 @@ static void console_puts(int file, const char *s)
 	int i;
 	struct stdio_dev *dev;
 
-	for (i = 0; i < cd_count[file]; i++) {
-		dev = console_devices[file][i];
+	for_each_console_dev(i, file, dev) {
 		if (dev->puts != NULL)
 			dev->puts(dev, s);
 	}
