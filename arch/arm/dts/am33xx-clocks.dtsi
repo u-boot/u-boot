@@ -604,7 +604,7 @@
 
 		l4_wkup_clkctrl: l4-wkup-clkctrl@0 {
 			compatible = "ti,clkctrl";
-			reg = <0x4 0x10>, <0xb4 0x24>;
+			reg = <0x0 0x10>, <0xb4 0x24>;
 			#clock-cells = <2>;
 		};
 

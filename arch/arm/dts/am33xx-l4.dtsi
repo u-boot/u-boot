@@ -148,6 +148,28 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges = <0x0 0x7000 0x1000>;
+
+			gpio0: gpio@0 {
+				compatible = "ti,omap4-gpio";
+				gpio-ranges =	<&am33xx_pinmux  0  82 8>,
+						<&am33xx_pinmux  8  52 4>,
+						<&am33xx_pinmux 12  94 4>,
+						<&am33xx_pinmux 16  71 2>,
+						<&am33xx_pinmux 18 135 1>,
+						<&am33xx_pinmux 19 108 2>,
+						<&am33xx_pinmux 21  73 1>,
+						<&am33xx_pinmux 22   8 2>,
+						<&am33xx_pinmux 26  10 2>,
+						<&am33xx_pinmux 28  74 1>,
+						<&am33xx_pinmux 29  81 1>,
+						<&am33xx_pinmux 30  28 2>;
+				gpio-controller;
+				#gpio-cells = <2>;
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				reg = <0x0 0x1000>;
+				interrupts = <96>;
+			};
 		};
 
 		target-module@9000 {			/* 0x44e09000, ap 16 04.0 */
@@ -1200,6 +1222,20 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges = <0x0 0x4c000 0x1000>;
+
+			gpio1: gpio@0 {
+				compatible = "ti,omap4-gpio";
+				gpio-ranges =   <&am33xx_pinmux  0  0  8>,
+						<&am33xx_pinmux  8 90  4>,
+						<&am33xx_pinmux 12 12 16>,
+						<&am33xx_pinmux 28 30  4>;
+				gpio-controller;
+				#gpio-cells = <2>;
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				reg = <0x0 0x1000>;
+				interrupts = <98>;
+			};
 		};
 
 		target-module@50000 {			/* 0x48050000, ap 34 2c.0 */
@@ -1570,6 +1606,19 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges = <0x0 0xac000 0x1000>;
+
+			gpio2: gpio@0 {
+				compatible = "ti,omap4-gpio";
+				gpio-ranges =	<&am33xx_pinmux  0 34 18>,
+						<&am33xx_pinmux 18 77  4>,
+						<&am33xx_pinmux 22 56 10>;
+				gpio-controller;
+				#gpio-cells = <2>;
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				reg = <0x0 0x1000>;
+				interrupts = <32>;
+			};
 		};
 
 		target-module@ae000 {			/* 0x481ae000, ap 56 3a.0 */
@@ -1593,6 +1642,21 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges = <0x0 0xae000 0x1000>;
+
+			gpio3: gpio@0 {
+				compatible = "ti,omap4-gpio";
+				gpio-ranges =	<&am33xx_pinmux  0  66 5>,
+						<&am33xx_pinmux  5  98 2>,
+						<&am33xx_pinmux  7  75 2>,
+						<&am33xx_pinmux 13 141 1>,
+						<&am33xx_pinmux 14 100 8>;
+				gpio-controller;
+				#gpio-cells = <2>;
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				reg = <0x0 0x1000>;
+				interrupts = <62>;
+			};
 		};
 
 		target-module@b0000 {			/* 0x481b0000, ap 58 50.0 */
