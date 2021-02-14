@@ -8,6 +8,7 @@
 #include <tee.h>
 #include <tee/optee_ta_avb.h>
 #include <tee/optee_ta_rpc_test.h>
+#include <tee/optee_ta_scp03.h>
 
 #include "optee/optee_msg.h"
 #include "optee/optee_private.h"
@@ -68,6 +69,7 @@ void *optee_alloc_and_init_page_list(void *buf, ulong len,
 	return NULL;
 }
 
+#if defined(CONFIG_OPTEE_TA_SCP03) || defined(CONFIG_OPTEE_TA_AVB)
 static u32 get_attr(uint n, uint num_params, struct tee_param *params)
 {
 	if (n >= num_params)
@@ -79,7 +81,7 @@ static u32 get_attr(uint n, uint num_params, struct tee_param *params)
 static u32 check_params(u8 p0, u8 p1, u8 p2, u8 p3, uint num_params,
 			struct tee_param *params)
 {
-	u8 p[] = { p0, p1, p2, p3};
+	u8 p[] = { p0, p1, p2, p3 };
 	uint n;
 
 	for (n = 0; n < ARRAY_SIZE(p); n++)
@@ -97,6 +99,50 @@ bad_params:
 
 	return TEE_ERROR_BAD_PARAMETERS;
 }
+#endif
+
+#ifdef CONFIG_OPTEE_TA_SCP03
+static u32 pta_scp03_open_session(struct udevice *dev, uint num_params,
+				  struct tee_param *params)
+{
+	/*
+	 * We don't expect additional parameters when opening a session to
+	 * this TA.
+	 */
+	return check_params(TEE_PARAM_ATTR_TYPE_NONE, TEE_PARAM_ATTR_TYPE_NONE,
+			    TEE_PARAM_ATTR_TYPE_NONE, TEE_PARAM_ATTR_TYPE_NONE,
+			    num_params, params);
+}
+
+static u32 pta_scp03_invoke_func(struct udevice *dev, u32 func, uint num_params,
+				 struct tee_param *params)
+{
+	u32 res;
+	static bool enabled;
+
+	switch (func) {
+	case PTA_CMD_ENABLE_SCP03:
+		res = check_params(TEE_PARAM_ATTR_TYPE_VALUE_INPUT,
+				   TEE_PARAM_ATTR_TYPE_NONE,
+				   TEE_PARAM_ATTR_TYPE_NONE,
+				   TEE_PARAM_ATTR_TYPE_NONE,
+				   num_params, params);
+		if (res)
+			return res;
+
+		if (!enabled) {
+			enabled = true;
+		} else {
+		}
+
+		if (params[0].u.value.a)
+
+		return TEE_SUCCESS;
+	default:
+		return TEE_ERROR_NOT_SUPPORTED;
+	}
+}
+#endif
 
 #ifdef CONFIG_OPTEE_TA_AVB
 static u32 ta_avb_open_session(struct udevice *dev, uint num_params,
@@ -355,6 +401,12 @@ static const struct ta_entry ta_entries[] = {
 	{ .uuid = TA_RPC_TEST_UUID,
 	  .open_session = ta_rpc_test_open_session,
 	  .invoke_func = ta_rpc_test_invoke_func,
+	},
+#endif
+#ifdef CONFIG_OPTEE_TA_SCP03
+	{ .uuid = PTA_SCP03_UUID,
+	  .open_session = pta_scp03_open_session,
+	  .invoke_func = pta_scp03_invoke_func,
 	},
 #endif
 };

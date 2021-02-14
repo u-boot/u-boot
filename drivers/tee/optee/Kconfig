@@ -31,6 +31,12 @@ config OPTEE_TA_RPC_TEST
 	  permits to test reverse RPC calls to TEE supplicant. Should
 	  be used only in sandbox env.
 
+config OPTEE_TA_SCP03
+	bool "Support SCP03 TA"
+	default y
+	help
+	  Enables support for controlling (enabling, provisioning) the
+	  Secure Channel Protocol 03 operation in the OP-TEE SCP03 TA.
 endmenu
 
 endif
