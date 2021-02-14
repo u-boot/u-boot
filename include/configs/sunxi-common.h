@@ -223,24 +223,6 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_VIDEO_LCD_I2C_BUS	-1 /* NA, but necessary to compile */
 #endif
 
-#ifdef CONFIG_REQUIRE_SERIAL_CONSOLE
-#if CONFIG_CONS_INDEX == 1
-#ifdef CONFIG_MACH_SUN9I
-#define OF_STDOUT_PATH		"/soc/serial@07000000:115200"
-#else
-#define OF_STDOUT_PATH		"/soc@01c00000/serial@01c28000:115200"
-#endif
-#elif CONFIG_CONS_INDEX == 2 && defined(CONFIG_MACH_SUN5I)
-#define OF_STDOUT_PATH		"/soc@01c00000/serial@01c28400:115200"
-#elif CONFIG_CONS_INDEX == 3 && defined(CONFIG_MACH_SUN8I)
-#define OF_STDOUT_PATH		"/soc@01c00000/serial@01c28800:115200"
-#elif CONFIG_CONS_INDEX == 5 && defined(CONFIG_MACH_SUN8I)
-#define OF_STDOUT_PATH		"/soc@01c00000/serial@01f02800:115200"
-#else
-#error Unsupported console port nr. Please fix stdout-path in sunxi-common.h.
-#endif
-#endif /* ifdef CONFIG_REQUIRE_SERIAL_CONSOLE */
-
 #ifdef CONFIG_VIDEO_SUNXI
 /*
  * The amount of RAM to keep free at the top of RAM when relocating u-boot,

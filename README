@@ -575,7 +575,6 @@ The following options need to be configured:
 		 * The bootm command automatically updates the fdt
 
 		OF_TBCLK - The timebase frequency.
-		OF_STDOUT_PATH - The path to the console device
 
 		boards with QUICC Engines require OF_QE to set UCC MAC
 		addresses
