@@ -652,6 +652,7 @@ dtb-$(CONFIG_MX28) += \
 	imx28-xea.dtb
 
 dtb-$(CONFIG_MX53) += imx53-cx9020.dtb \
+	imx53-qsb.dtb \
 	imx53-kp.dtb \
 	imx53-m53menlo.dtb
 
