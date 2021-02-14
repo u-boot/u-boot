@@ -2022,6 +2022,14 @@ config HASH_VERIFY
 	help
 	  Add -v option to verify data against a hash.
 
+config CMD_SCP03
+	bool "scp03 - SCP03 enable and rotate/provision operations"
+	depends on SCP03
+	help
+	  This command provides access to a Trusted Application
+	  running in a TEE to request Secure Channel Protocol 03
+	  (SCP03) enablement and/or rotation of its SCP03 keys.
+
 config CMD_TPM_V1
 	bool
 
