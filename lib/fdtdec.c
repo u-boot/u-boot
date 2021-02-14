@@ -1253,7 +1253,7 @@ __weak void *board_fdt_blob_setup(void)
 	void *fdt_blob = NULL;
 #ifdef CONFIG_SPL_BUILD
 	/* FDT is at end of BSS unless it is in a different memory region */
-	if (CONFIG_IS_ENABLED(SEPARATE_BSS))
+	if (IS_ENABLED(CONFIG_SPL_SEPARATE_BSS))
 		fdt_blob = (ulong *)&_image_binary_end;
 	else
 		fdt_blob = (ulong *)&__bss_end;
