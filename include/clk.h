@@ -389,7 +389,8 @@ int clk_free(struct clk *clk);
  *
  * @clk:	A clock struct that was previously successfully requested by
  *		clk_request/get_by_*().
- * @return clock rate in Hz, or -ve error code.
+ * @return clock rate in Hz on success, 0 for invalid clock, or -ve error code
+ *	   for other errors.
  */
 ulong clk_get_rate(struct clk *clk);
 
