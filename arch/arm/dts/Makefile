@@ -651,6 +651,9 @@ dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 dtb-$(CONFIG_MX28) += \
 	imx28-xea.dtb
 
+dtb-$(CONFIG_MX51) += \
+	imx51-babbage.dtb
+
 dtb-$(CONFIG_MX53) += imx53-cx9020.dtb \
 	imx53-qsb.dtb \
 	imx53-kp.dtb \
