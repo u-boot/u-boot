@@ -6,8 +6,8 @@
  * Author: Fabien Parent <fparent@baylibre.com
  */
 
-#ifndef __PUMPKIN_H
-#define __PUMPKIN_H
+#ifndef __MT8516_H
+#define __MT8516_H
 
 #include <linux/sizes.h>
 

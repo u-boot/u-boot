@@ -76,7 +76,7 @@ source "board/mediatek/mt7622/Kconfig"
 source "board/mediatek/mt7623/Kconfig"
 source "board/mediatek/mt7629/Kconfig"
 source "board/mediatek/mt8512/Kconfig"
+source "board/mediatek/mt8516/Kconfig"
 source "board/mediatek/mt8518/Kconfig"
-source "board/mediatek/pumpkin/Kconfig"
 
 endif

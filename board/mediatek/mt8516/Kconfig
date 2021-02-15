@@ -1,10 +1,10 @@
 if TARGET_MT8516
 
 config SYS_BOARD
-	default "pumpkin"
+	default "mt8516"
 
 config SYS_CONFIG_NAME
-	default "pumpkin"
+	default "mt8516"
 
 config MTK_BROM_HEADER_INFO
 	string
