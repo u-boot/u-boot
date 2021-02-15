@@ -31,23 +31,11 @@
 /* Environment settings */
 #include <config_distro_bootcmd.h>
 
-#define MMCBOOT \
-	"mmcdev=0\0" \
-	"kernel_partition=2\0" \
-	"rootfs_partition=3\0" \
-	"mmc_discover_partition=" \
-		"part start mmc ${mmcdev} ${kernel_partition} kernel_part_addr;" \
-		"part size mmc ${mmcdev} ${kernel_partition} kernel_part_size;\0" \
-	"mmcboot=" \
-		"mmc dev ${mmcdev};" \
-		"run mmc_discover_partition;" \
-		"mmc read ${kerneladdr} ${kernel_part_addr} ${kernel_part_size};" \
-		"setenv bootargs ${bootargs} root=/dev/mmcblk${mmcdev}p${rootfs_partition} rootwait; " \
-		"bootm ${kerneladdr}; \0"
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"kerneladdr=0x4A000000\0" \
-	MMCBOOT \
-	"bootcmd=run mmcboot;\0"
+	"scriptaddr=0x40000000\0" \
+	BOOTENV
 
 #endif
