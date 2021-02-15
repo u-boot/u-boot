@@ -18,7 +18,6 @@ Board-specific doc
    intel/index
    kontron/index
    microchip/index
-   renesas/index
    rockchip/index
    sifive/index
    sipeed/index

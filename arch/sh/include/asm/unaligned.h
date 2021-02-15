@@ -3,11 +3,7 @@
 
 /* Copy from linux-kernel. */
 
-#ifdef CONFIG_CPU_SH4A
-/* SH-4A can handle unaligned loads in a relatively neutered fashion. */
-#include <asm/unaligned-sh4a.h>
-#else
-/* Otherwise, SH can't handle unaligned accesses. */
+/* Other than SH4A, SH can't handle unaligned accesses. */
 #include <linux/compiler.h>
 #if defined(__BIG_ENDIAN__)
 #define get_unaligned   __get_unaligned_be
@@ -20,6 +16,5 @@
 #include <linux/unaligned/le_byteshift.h>
 #include <linux/unaligned/be_byteshift.h>
 #include <linux/unaligned/generic.h>
-#endif
 
 #endif /* _ASM_SH_UNALIGNED_H */

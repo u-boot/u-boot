@@ -621,11 +621,6 @@ config TARGET_FLEA3
 	bool "Support flea3"
 	select CPU_ARM1136
 
-config TARGET_MX35PDK
-	bool "Support mx35pdk"
-	select BOARD_LATE_INIT
-	select CPU_ARM1136
-
 config ARCH_BCM283X
 	bool "Broadcom BCM283X family"
 	select DM
@@ -1223,18 +1218,6 @@ config TARGET_LS2080A_EMU
 	help
 	  Support for Freescale LS2080A_EMU platform.
 	  The LS2080A Development System (EMULATOR) is a pre-silicon
-	  development platform that supports the QorIQ LS2080A
-	  Layerscape Architecture processor.
-
-config TARGET_LS2080A_SIMU
-	bool "Support ls2080a_simu"
-	select ARCH_LS2080A
-	select ARM64
-	select ARMV8_MULTIENTRY
-	select BOARD_LATE_INIT
-	help
-	  Support for Freescale LS2080A_SIMU platform.
-	  The LS2080A Development System (QDS) is a pre silicon
 	  development platform that supports the QorIQ LS2080A
 	  Layerscape Architecture processor.
 
@@ -1997,7 +1980,6 @@ source "board/cavium/thunderx/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
 source "board/eets/pdu001/Kconfig"
 source "board/emulation/qemu-arm/Kconfig"
-source "board/freescale/ls2080a/Kconfig"
 source "board/freescale/ls2080aqds/Kconfig"
 source "board/freescale/ls2080ardb/Kconfig"
 source "board/freescale/ls1088a/Kconfig"
@@ -2015,7 +1997,6 @@ source "board/freescale/ls1012aqds/Kconfig"
 source "board/freescale/ls1012ardb/Kconfig"
 source "board/freescale/ls1012afrdm/Kconfig"
 source "board/freescale/lx2160a/Kconfig"
-source "board/freescale/mx35pdk/Kconfig"
 source "board/freescale/s32v234evb/Kconfig"
 source "board/grinn/chiliboard/Kconfig"
 source "board/hisilicon/hikey/Kconfig"

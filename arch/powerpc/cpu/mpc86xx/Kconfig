@@ -13,17 +13,6 @@ config TARGET_SBC8641D
 	select ARCH_MPC8641
 	select BOARD_EARLY_INIT_F
 
-config TARGET_MPC8610HPCD
-	bool "Support MPC8610HPCD"
-	select ARCH_MPC8610
-	select BOARD_EARLY_INIT_F
-
-config TARGET_MPC8641HPCN
-	bool "Support MPC8641HPCN"
-	select ARCH_MPC8641
-	select FSL_DDR_INTERACTIVE
-	imply SCSI
-
 config TARGET_XPEDITE517X
 	bool "Support xpedite517x"
 	select ARCH_MPC8641
@@ -62,8 +51,6 @@ config SYS_FSL_NUM_LAWS
 		Number of local access windows. This is fixed per SoC.
 		If not sure, do not change.
 
-source "board/freescale/mpc8610hpcd/Kconfig"
-source "board/freescale/mpc8641hpcn/Kconfig"
 source "board/sbc8641d/Kconfig"
 source "board/xes/xpedite517x/Kconfig"
 
