@@ -401,7 +401,7 @@ jobs:
         sun50i:
           BUILDMAN: "sun50i"
         arm_catch_all:
-          BUILDMAN: "arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,rk,toradex,socfpga,k2,k3,zynq"
+          BUILDMAN: "arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,renesas,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,rk,toradex,socfpga,k2,k3,zynq"
         sandbox_x86:
           BUILDMAN: "sandbox x86"
         technexion:
@@ -439,11 +439,11 @@ jobs:
         uniphier:
           BUILDMAN: "uniphier"
         aarch64_catch_all:
-          BUILDMAN: "aarch64 -x bcm,k3,tegra,ls1,ls2,lx216,mvebu,uniphier,sunxi,samsung,socfpga,rk,versal,zynq"
+          BUILDMAN: "aarch64 -x bcm,k3,tegra,ls1,ls2,lx216,mvebu,uniphier,renesas,sunxi,samsung,socfpga,rk,versal,zynq"
         rockchip:
           BUILDMAN: "rk"
-        sh:
-          BUILDMAN: "sh -x arm"
+        renesas:
+          BUILDMAN: "renesas"
         zynq:
           BUILDMAN: "zynq&armv7"
         zynqmp_versal:
