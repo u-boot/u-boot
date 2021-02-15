@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <net.h>
 
 int board_init(void)
 {
@@ -23,6 +24,9 @@ int board_late_init(void)
 			return ret;
 		}
 	}
+
+	if (CONFIG_IS_ENABLED(USB_ETHER))
+		usb_ether_init();
 
 	return 0;
 }
