@@ -12,6 +12,7 @@
 #include <net.h>
 #include <pci.h>
 #include <time.h>
+#include <asm/global_data.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/fsl_pci.h>

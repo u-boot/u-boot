@@ -12,6 +12,7 @@
 #include <spi.h>
 #include <clk.h>
 #include <wait_bit.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>

@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <fsl_ddr.h>
 #include <fdt_support.h>
+#include <asm/global_data.h>
 #include <linux/libfdt.h>
 #include <env_internal.h>
 #include <asm/arch-fsl-layerscape/soc.h>

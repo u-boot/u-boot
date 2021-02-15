@@ -24,6 +24,7 @@
 #include <linux/sizes.h>
 #include <asm/arch/rmobile.h>
 #include <asm/arch/sh_sdhi.h>
+#include <asm/global_data.h>
 #include <clk.h>
 
 #define DRIVER_NAME "sh-sdhi"

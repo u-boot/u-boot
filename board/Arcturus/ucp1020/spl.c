@@ -20,6 +20,7 @@
 #include <i2c.h>
 #include <fsl_esdhc.h>
 #include <spi_flash.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

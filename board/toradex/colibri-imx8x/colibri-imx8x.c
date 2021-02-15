@@ -6,6 +6,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <init.h>
+#include <asm/global_data.h>
 
 #include <asm/arch/clock.h>
 #include <asm/arch/imx8-pins.h>

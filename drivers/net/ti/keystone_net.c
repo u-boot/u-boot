@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <console.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 
 #include <dm.h>

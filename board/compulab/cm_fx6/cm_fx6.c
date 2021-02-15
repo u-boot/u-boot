@@ -27,6 +27,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mxc_hdmi.h>
+#include <asm/global_data.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/sata.h>
 #include <asm/mach-imx/video.h>

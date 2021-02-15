@@ -12,6 +12,8 @@
 #define _NETDEV_H_
 #include <phy_interface.h>
 
+struct udevice;
+
 /*
  * Board and CPU-specific initialization functions
  * board_eth_init() has highest priority.  cpu_eth_init() only

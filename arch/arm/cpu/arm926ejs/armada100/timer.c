@@ -12,6 +12,7 @@
 #include <time.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/armada100.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 
 /*

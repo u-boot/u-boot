@@ -15,6 +15,7 @@
 #include <acpi/acpigen.h>
 #include <asm/cpu.h>
 #include <asm/cpu_common.h>
+#include <asm/global_data.h>
 #include <asm/intel_regs.h>
 #include <asm/lapic.h>
 #include <asm/lpc_common.h>

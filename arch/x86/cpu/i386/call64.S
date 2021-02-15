@@ -6,7 +6,6 @@
  * Parts of this copied from Linux arch/x86/boot/compressed/head_64.S
  */
 
-#include <asm/global_data.h>
 #include <asm/msr-index.h>
 #include <asm/processor-flags.h>
 

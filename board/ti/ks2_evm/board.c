@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <asm/global_data.h>
 #include "board.h"
 #include <env.h>
 #include <hang.h>

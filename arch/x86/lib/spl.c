@@ -17,6 +17,7 @@
 #include <syscon.h>
 #include <asm/cpu.h>
 #include <asm/cpu_common.h>
+#include <asm/global_data.h>
 #include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/pci.h>

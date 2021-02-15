@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <fdtdec.h>
 #include <asm/io.h>
 #include "clk.h"
 

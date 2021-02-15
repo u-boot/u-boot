@@ -11,6 +11,7 @@
 #include <log.h>
 #include <panel.h>
 #include <video.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/utils.h>
 #include "tilcdc.h"

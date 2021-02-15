@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/mach-types.h>

@@ -8,6 +8,7 @@
 #include <fdt_support.h>
 #include <asm/io.h>
 #include <asm/gic-v3.h>
+#include <asm/global_data.h>
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
 #include <asm/arch-bcmns3/bl33_info.h>

@@ -38,6 +38,7 @@
 #include <video.h>
 #include <video_fb.h>
 #include <acpi/acpi_s3.h>
+#include <asm/global_data.h>
 #include <linux/screen_info.h>
 
 DECLARE_GLOBAL_DATA_PTR;

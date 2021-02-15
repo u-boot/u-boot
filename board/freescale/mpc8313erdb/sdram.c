@@ -11,6 +11,7 @@
 #include <init.h>
 #include <mpc83xx.h>
 #include <spd_sdram.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 
 #include <asm/bitops.h>

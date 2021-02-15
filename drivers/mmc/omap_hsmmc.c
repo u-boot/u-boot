@@ -35,6 +35,7 @@
 #include <palmas.h>
 #endif
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
 #ifdef CONFIG_OMAP54XX

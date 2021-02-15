@@ -5,6 +5,7 @@
  * Copyright 2020 NXP
  */
 
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <common.h>
 #include <dm/device.h>

@@ -8,6 +8,7 @@
 #include <env.h>
 #include <env_internal.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/bug.h>
 

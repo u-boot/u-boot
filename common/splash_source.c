@@ -20,6 +20,7 @@
 #include <spi_flash.h>
 #include <splash.h>
 #include <usb.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <timer.h>
 #include <asm/arcregs.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;

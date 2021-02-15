@@ -11,6 +11,7 @@
 #include <part.h>
 
 #include <asm/armv8/mmu.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/xen/system.h>
 

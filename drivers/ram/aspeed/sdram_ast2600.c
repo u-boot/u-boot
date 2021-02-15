@@ -12,6 +12,7 @@
 #include <asm/io.h>
 #include <asm/arch/scu_ast2600.h>
 #include <asm/arch/sdram_ast2600.h>
+#include <asm/global_data.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
 #include <dt-bindings/clock/ast2600-clock.h>

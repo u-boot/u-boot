@@ -8,6 +8,7 @@
 #include <init.h>
 #include <log.h>
 #include <usb.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/dwmmc.h>

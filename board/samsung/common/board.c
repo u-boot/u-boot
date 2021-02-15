@@ -16,6 +16,7 @@
 #include <spi.h>
 #include <tmu.h>
 #include <netdev.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/board.h>

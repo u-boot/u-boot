@@ -9,6 +9,8 @@
 #include <dm.h>
 #include <sdhci.h>
 #include <clk.h>
+#include <linux/errno.h>
+#include <mach/pic32.h>
 
 struct pic32_sdhci_plat {
 	struct mmc_config cfg;

@@ -13,6 +13,7 @@
 #include <watchdog.h>
 #include <serial.h>
 #include <debug_uart.h>
+#include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <linux/delay.h>
 

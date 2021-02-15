@@ -7,6 +7,7 @@
 #include <common.h>
 #include <init.h>
 #include <time.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch-stv0991/hardware.h>
 #include <asm/arch-stv0991/stv0991_cgu.h>

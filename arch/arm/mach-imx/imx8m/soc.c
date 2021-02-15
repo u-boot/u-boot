@@ -10,6 +10,7 @@
 #include <init.h>
 #include <log.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>

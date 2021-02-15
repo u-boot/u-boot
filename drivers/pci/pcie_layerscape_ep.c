@@ -7,6 +7,7 @@
 #include <common.h>
 #include <asm/arch/fsl_serdes.h>
 #include <dm.h>
+#include <asm/global_data.h>
 #include <dm/devres.h>
 #include <errno.h>
 #include <pci_ep.h>

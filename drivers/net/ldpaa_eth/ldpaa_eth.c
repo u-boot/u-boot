@@ -20,6 +20,7 @@
 #include <linux/bug.h>
 #include <linux/compat.h>
 #include <linux/delay.h>
+#include <asm/global_data.h>
 #include "ldpaa_eth.h"
 
 #ifdef CONFIG_PHYLIB

@@ -11,6 +11,7 @@
 #include <log.h>
 #include <rand.h>
 #include <watchdog.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/log2.h>
 #include "stm32mp1_tests.h"

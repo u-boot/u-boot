@@ -17,6 +17,7 @@
 #include <mpc83xx.h>
 #include <spi.h>
 #include <asm/bitops.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>
 

@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <asm-offsets.h>
+#include <asm/global_data.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>

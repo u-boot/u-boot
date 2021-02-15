@@ -12,6 +12,7 @@
 #include <log.h>
 #include <ram.h>
 #include <asm/arch/misc.h>
+#include <asm/global_data.h>
 #include <asm/sections.h>
 #include <dm/uclass.h>
 #include <linux/bitops.h>

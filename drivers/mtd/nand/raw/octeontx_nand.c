@@ -23,6 +23,7 @@
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand_bch.h>
 #include <linux/mtd/nand_ecc.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/types.h>
 #include <asm/dma-mapping.h>

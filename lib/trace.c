@@ -7,6 +7,7 @@
 #include <mapmem.h>
 #include <time.h>
 #include <trace.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/sections.h>
 

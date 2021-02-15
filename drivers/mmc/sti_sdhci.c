@@ -11,6 +11,7 @@
 #include <reset-uclass.h>
 #include <sdhci.h>
 #include <asm/arch/sdhci.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

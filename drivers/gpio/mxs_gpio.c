@@ -9,6 +9,7 @@
 #include <common.h>
 #include <log.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/errno.h>
 #include <asm/io.h>

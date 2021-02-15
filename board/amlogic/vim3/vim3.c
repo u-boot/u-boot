@@ -13,6 +13,7 @@
 #include <asm/arch/boot.h>
 #include <asm/arch/eth.h>
 #include <asm/arch/sm.h>
+#include <asm/global_data.h>
 #include <i2c.h>
 #include "khadas-mcu.h"
 

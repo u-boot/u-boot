@@ -34,6 +34,7 @@
 #include <pch.h>
 #include <pci.h>
 #include <asm/cpu.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/pci.h>

@@ -18,6 +18,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/mfp.h>
 #include <asm/arch/armada100.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <miiphy.h>
 #include <asm/mach-types.h>

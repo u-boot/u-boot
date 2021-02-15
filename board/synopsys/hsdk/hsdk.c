@@ -14,6 +14,7 @@
 #include <irq_func.h>
 #include <log.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/printk.h>

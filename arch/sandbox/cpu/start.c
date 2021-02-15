@@ -14,6 +14,7 @@
 #include <cli.h>
 #include <sort.h>
 #include <asm/getopt.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/malloc.h>
 #include <asm/sections.h>

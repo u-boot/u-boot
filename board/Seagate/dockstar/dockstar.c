@@ -16,6 +16,7 @@
 #include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
 #include <asm/arch/cpu.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/mach-types.h>
 #include "dockstar.h"

@@ -8,6 +8,7 @@
 #include <fdtdec.h>
 #include <log.h>
 #include <video.h>
+#include <asm/global_data.h>
 #include <asm/sdl.h>
 #include <asm/state.h>
 #include <asm/u-boot-sandbox.h>

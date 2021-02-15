@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <log.h>
 #include <time.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/clock.h>

@@ -13,6 +13,7 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/pinmux.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 #include "s3c24x0_i2c.h"
 

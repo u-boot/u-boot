@@ -11,6 +11,7 @@
 #include <acpi/acpi_table.h>
 #include <asm/cpu_common.h>
 #include <asm/cpu_x86.h>
+#include <asm/global_data.h>
 #include <asm/intel_acpi.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>

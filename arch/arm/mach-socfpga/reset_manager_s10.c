@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <hang.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/smc_api.h>

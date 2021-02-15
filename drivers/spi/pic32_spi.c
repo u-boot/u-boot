@@ -10,6 +10,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/compat.h>
 #include <malloc.h>

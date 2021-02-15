@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <part.h>
 #include <usb.h>
+#include <asm/global_data.h>
 #include <asm/state.h>
 #include <dm/test.h>
 #include <test/test.h>

@@ -49,6 +49,7 @@
 #if defined(CONFIG_MP) && defined(CONFIG_PPC)
 #include <asm/mp.h>
 #endif
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/sections.h>
 #include <dm/root.h>

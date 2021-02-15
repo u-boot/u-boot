@@ -9,6 +9,7 @@
 #include <common.h>
 #include <command.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <test/log.h>
 #include <test/ut.h>
 

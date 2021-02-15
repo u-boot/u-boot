@@ -22,6 +22,7 @@
 #include <linux/mii.h>
 #include <wait_bit.h>
 #include <asm/io.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 
 /* Registers */

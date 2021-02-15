@@ -8,6 +8,7 @@
 #include <common.h>
 #include <init.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/arch/mmc.h>
 #include <dm.h>

@@ -9,6 +9,7 @@
 #include <log.h>
 #include <asm/fsp/fsp_support.h>
 #include <asm/e820.h>
+#include <asm/global_data.h>
 #include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/post.h>

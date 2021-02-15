@@ -24,6 +24,7 @@
 #include <cpu_func.h>
 #include <init.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <asm/processor.h>
 #include <asm/mach-types.h>
 #include <asm/io.h>

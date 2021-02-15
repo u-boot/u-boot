@@ -13,6 +13,7 @@
 #include <dwmmc.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <linux/intel-smc.h>
 #include <linux/libfdt.h>

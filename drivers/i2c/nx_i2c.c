@@ -7,6 +7,7 @@
 #include <asm/arch/reset.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/nx_gpio.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 
 #define I2C_WRITE       0

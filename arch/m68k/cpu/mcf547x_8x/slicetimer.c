@@ -7,6 +7,7 @@
 #include <common.h>
 #include <init.h>
 #include <irq_func.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 
 #include <asm/timer.h>

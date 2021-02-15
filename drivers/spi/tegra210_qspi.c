@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <log.h>
 #include <time.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch-tegra/clk_rst.h>

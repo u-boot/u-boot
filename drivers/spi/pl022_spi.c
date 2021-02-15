@@ -14,6 +14,7 @@
 #include <dm.h>
 #include <dm/platform_data/spi_pl022.h>
 #include <linux/io.h>
+#include <asm/global_data.h>
 #include <spi.h>
 
 #define SSP_CR0		0x000

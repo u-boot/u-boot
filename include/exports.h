@@ -2,6 +2,7 @@
 #define __EXPORTS_H__
 
 #include <irq_func.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 
 #ifndef __ASSEMBLY__

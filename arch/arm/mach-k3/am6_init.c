@@ -9,6 +9,7 @@
 #include <common.h>
 #include <fdt_support.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <spl.h>
 #include <asm/arch/hardware.h>

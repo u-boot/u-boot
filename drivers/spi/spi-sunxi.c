@@ -27,6 +27,7 @@
 #include <fdt_support.h>
 #include <reset.h>
 #include <wait_bit.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
 

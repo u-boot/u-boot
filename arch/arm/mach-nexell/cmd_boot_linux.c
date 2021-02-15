@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <image.h>
 #include <fdt_support.h>
+#include <asm/global_data.h>
 
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_CLI_FRAMEWORK)
 

@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <atf_common.h>
 #include <spl.h>

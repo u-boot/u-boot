@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <env_internal.h>
+#include <asm/global_data.h>
 #include <linux/stddef.h>
 #include <u-boot/crc.h>
 

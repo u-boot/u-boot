@@ -11,6 +11,8 @@
 
 #ifndef __ACPI__
 
+#include <pci.h>
+
 struct acpi_facs;
 struct acpi_fadt;
 struct acpi_global_nvs;

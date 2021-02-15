@@ -13,6 +13,7 @@
 #include <usb.h>
 #include <asm/bootparam.h>
 #include <asm/e820.h>
+#include <asm/global_data.h>
 #include <asm/post.h>
 
 DECLARE_GLOBAL_DATA_PTR;

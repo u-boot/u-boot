@@ -16,6 +16,7 @@
 #include <dm/ofnode.h>
 #include <linux/err.h>
 #include <linux/ioport.h>
+#include <asm/global_data.h>
 
 int ofnode_read_u32(ofnode node, const char *propname, u32 *outp)
 {

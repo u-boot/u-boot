@@ -27,6 +27,7 @@
 #include <netdev.h>
 #include <asm/cache.h>
 #include <asm/cpm_8xx.h>
+#include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <asm/io.h>
 

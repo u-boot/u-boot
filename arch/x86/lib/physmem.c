@@ -12,6 +12,7 @@
 #include <log.h>
 #include <physmem.h>
 #include <asm/cpu.h>
+#include <asm/global_data.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;

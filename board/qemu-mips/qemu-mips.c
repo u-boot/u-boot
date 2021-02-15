@@ -8,6 +8,7 @@
 #include <command.h>
 #include <init.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <asm/mipsregs.h>
 #include <asm/io.h>
 #include <netdev.h>

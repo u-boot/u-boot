@@ -8,6 +8,7 @@
 #include <env.h>
 #include <init.h>
 #include <spl.h>
+#include <asm/global_data.h>
 #include <linux/libfdt.h>
 #include <stdio.h>
 #include <linux/printk.h>

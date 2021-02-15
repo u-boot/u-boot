@@ -13,6 +13,7 @@
 #include <video.h>
 #include <acpi/acpi_table.h>
 #include <asm/fsp/fsp_support.h>
+#include <asm/global_data.h>
 #include <asm/intel_opregion.h>
 #include <asm/mtrr.h>
 #include <dm/acpi.h>

@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <clk-uclass.h>
 #include <dm.h>

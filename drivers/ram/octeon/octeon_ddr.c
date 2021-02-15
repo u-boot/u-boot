@@ -10,6 +10,7 @@
 #include <i2c.h>
 #include <ram.h>
 #include <time.h>
+#include <asm/global_data.h>
 
 #include <asm/sections.h>
 #include <linux/io.h>

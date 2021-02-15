@@ -17,6 +17,7 @@
 #include <env.h>
 #include <init.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <linux/ctype.h>
 #include <u-boot/crc.h>
 

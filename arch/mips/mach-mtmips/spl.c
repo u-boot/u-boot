@@ -6,10 +6,10 @@
  */
 
 #include <common.h>
-#include <fdt.h>
 #include <init.h>
 #include <spl.h>
 #include <asm/sections.h>
+#include <linux/libfdt.h>
 #include <linux/sizes.h>
 #include <mach/serial.h>
 

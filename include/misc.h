@@ -6,6 +6,8 @@
 #ifndef _MISC_H_
 #define _MISC_H_
 
+struct udevice;
+
 /**
  * misc_read() - Read the device to buffer, optional.
  * @dev: the device

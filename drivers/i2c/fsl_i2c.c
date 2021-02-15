@@ -11,6 +11,7 @@
 #include <i2c.h>		/* Functional interface */
 #include <log.h>
 #include <time.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/fsl_i2c.h>	/* HW definitions */
 #include <clk.h>

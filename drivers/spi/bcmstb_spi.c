@@ -5,6 +5,7 @@
  * Author: Thomas Fitzsimmons <fitzsim@fitzsim.org>
  */
 
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <command.h>
 #include <config.h>

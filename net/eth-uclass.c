@@ -11,6 +11,7 @@
 #include <env.h>
 #include <log.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #include <net/pcap.h>

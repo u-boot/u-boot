@@ -11,6 +11,7 @@
 #include <asm/arch/eth.h>
 #include <asm/arch/axg.h>
 #include <asm/arch/mem.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/armv8/mmu.h>
 #include <linux/sizes.h>

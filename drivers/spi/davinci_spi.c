@@ -12,6 +12,7 @@
 #include <log.h>
 #include <spi.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <dm.h>

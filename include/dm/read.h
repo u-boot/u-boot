@@ -695,6 +695,7 @@ int dev_decode_display_timing(const struct udevice *dev, int index,
 			      struct display_timing *config);
 
 #else /* CONFIG_DM_DEV_READ_INLINE is enabled */
+#include <asm/global_data.h>
 
 static inline int dev_read_u32(const struct udevice *dev,
 			       const char *propname, u32 *outp)

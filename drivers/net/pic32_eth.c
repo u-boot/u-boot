@@ -14,6 +14,7 @@
 #include <console.h>
 #include <time.h>
 #include <wait_bit.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <linux/delay.h>
 #include <linux/mii.h>

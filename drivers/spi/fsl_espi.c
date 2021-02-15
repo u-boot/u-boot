@@ -15,6 +15,7 @@
 
 #include <malloc.h>
 #include <spi.h>
+#include <asm/global_data.h>
 #include <asm/immap_85xx.h>
 #include <dm.h>
 #include <errno.h>

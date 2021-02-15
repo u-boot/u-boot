@@ -13,6 +13,7 @@
 #include <efi_loader.h>
 #include <hang.h>
 #include <irq_func.h>
+#include <asm/global_data.h>
 #include <asm/ptrace.h>
 #include <asm/system.h>
 #include <asm/encoding.h>

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <asm/global_data.h>
 #include <dm/device.h>
 #include <dm/pinctrl.h>
 

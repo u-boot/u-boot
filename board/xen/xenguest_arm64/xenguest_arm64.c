@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <malloc.h>
 #include <xen.h>
+#include <asm/global_data.h>
 
 #include <asm/io.h>
 #include <asm/armv8/mmu.h>

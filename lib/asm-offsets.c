@@ -13,6 +13,7 @@
 
 #include <common.h>
 #include <asm-offsets.h>
+#include <asm/global_data.h>
 
 #include <linux/kbuild.h>
 

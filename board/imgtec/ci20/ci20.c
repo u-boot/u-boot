@@ -11,6 +11,7 @@
 #include <init.h>
 #include <net.h>
 #include <netdev.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <linux/bitops.h>

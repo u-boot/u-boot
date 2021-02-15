@@ -2,6 +2,7 @@
 
 #include <common.h>
 #include <twl4030.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/omap_mmc.h>
 #include <asm/arch/mux.h>

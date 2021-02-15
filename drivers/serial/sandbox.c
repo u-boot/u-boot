@@ -16,6 +16,7 @@
 #include <os.h>
 #include <serial.h>
 #include <video.h>
+#include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <asm/serial.h>
 #include <asm/state.h>

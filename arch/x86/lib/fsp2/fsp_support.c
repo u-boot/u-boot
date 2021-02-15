@@ -10,6 +10,7 @@
 #include <spi_flash.h>
 #include <asm/fsp/fsp_support.h>
 #include <asm/fsp2/fsp_internal.h>
+#include <asm/global_data.h>
 
 /* The amount of the FSP header to probe to obtain what we need */
 #define PROBE_BUF_SIZE 0x180

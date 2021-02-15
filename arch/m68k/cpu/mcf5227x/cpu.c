@@ -13,6 +13,7 @@
 #include <vsprintf.h>
 #include <watchdog.h>
 #include <command.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 
 #include <asm/immap.h>

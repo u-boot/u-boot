@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <net.h>
 #include <asm/eth.h>
+#include <asm/global_data.h>
 #include <asm/test.h>
 
 DECLARE_GLOBAL_DATA_PTR;

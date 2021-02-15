@@ -7,6 +7,7 @@
 #include <hang.h>
 #include <led.h>
 #include <log.h>
+#include <asm/global_data.h>
 
 #ifdef CONFIG_SPL_BUILD
 DECLARE_GLOBAL_DATA_PTR;

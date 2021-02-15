@@ -7,6 +7,8 @@
 #ifndef __SYSRESET_H
 #define __SYSRESET_H
 
+struct udevice;
+
 enum sysreset_t {
 	SYSRESET_WARM,	/* Reset CPU, keep GPIOs active */
 	SYSRESET_COLD,	/* Reset CPU and GPIOs */

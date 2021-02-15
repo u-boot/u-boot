@@ -10,6 +10,7 @@
 #include <init.h>
 #include <log.h>
 #include <time.h>
+#include <asm/global_data.h>
 #include <linux/types.h>
 #include <common.h>
 #include <env.h>

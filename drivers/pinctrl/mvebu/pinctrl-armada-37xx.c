@@ -20,6 +20,7 @@
 #include <config.h>
 #include <dm.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>

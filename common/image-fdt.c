@@ -17,6 +17,7 @@
 #include <lmb.h>
 #include <log.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <linux/libfdt.h>
 #include <mapmem.h>
 #include <asm/io.h>

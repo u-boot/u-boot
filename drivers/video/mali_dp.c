@@ -13,6 +13,7 @@
 #include <display.h>
 #endif
 #include <fdtdec.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <os.h>
 #include <fdt_support.h>

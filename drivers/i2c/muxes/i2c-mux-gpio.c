@@ -7,6 +7,7 @@
  * Peng Fan <peng.fan@nxp.com>
  */
 
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 #include <common.h>

@@ -9,6 +9,7 @@
 #include <malloc.h>
 #include <serial.h>
 #include <wait_bit.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <mach/pic32.h>
 #include <dt-bindings/clock/microchip,clock.h>

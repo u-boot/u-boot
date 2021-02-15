@@ -21,6 +21,7 @@
 #include <wait_bit.h>
 #include <linux/bitops.h>
 #include <mtd/cfi_flash.h>
+#include <asm/global_data.h>
 
 #define RPC_CMNCR		0x0000	/* R/W */
 #define RPC_CMNCR_MD		BIT(31)

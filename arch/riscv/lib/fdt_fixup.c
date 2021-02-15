@@ -10,6 +10,7 @@
 #include <fdt_support.h>
 #include <log.h>
 #include <mapmem.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

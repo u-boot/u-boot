@@ -8,6 +8,7 @@
 #include <init.h>
 #include <malloc.h>
 #include <errno.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <miiphy.h>
 #include <netdev.h>

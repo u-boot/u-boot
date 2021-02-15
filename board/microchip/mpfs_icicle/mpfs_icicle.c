@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <env.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;

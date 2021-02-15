@@ -9,6 +9,7 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <sysreset.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 

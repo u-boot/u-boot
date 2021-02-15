@@ -18,6 +18,7 @@
 #endif
 #include <spd_sdram.h>
 #include <asm/bitops.h>
+#include <asm/global_data.h>
 #include <asm/mmu.h>
 #if defined(CONFIG_OF_LIBFDT)
 #include <linux/libfdt.h>

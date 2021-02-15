@@ -10,6 +10,7 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <linux/delay.h>
+#include <asm/global_data.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm-generic/gpio.h>
 #include <asm/arch/imx8mp_pins.h>

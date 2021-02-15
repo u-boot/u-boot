@@ -11,6 +11,7 @@
 #include <sysreset.h>
 #include <wait_bit.h>
 #include <linux/delay.h>
+#include <asm/global_data.h>
 
 #include "sysreset_mpc83xx.h"
 

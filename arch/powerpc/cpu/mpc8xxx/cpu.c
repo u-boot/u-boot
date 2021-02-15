@@ -17,6 +17,7 @@
 #include <fm_eth.h>
 #include <netdev.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <vsc9953.h>
 

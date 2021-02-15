@@ -16,6 +16,8 @@
 
 #include <tpm-common.h>
 
+struct udevice;
+
 #define TPM2_DIGEST_LEN		32
 
 #define TPM2_SHA1_DIGEST_SIZE 20

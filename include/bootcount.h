@@ -7,6 +7,7 @@
 #define _BOOTCOUNT_H__
 
 #include <common.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/byteorder.h>
 #include <env.h>

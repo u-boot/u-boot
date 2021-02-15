@@ -7,6 +7,7 @@
 #include <cpu.h>
 #include <dm.h>
 #include <thermal.h>
+#include <asm/global_data.h>
 #include <asm/system.h>
 #include <asm/arch/sci/sci.h>
 #include <asm/arch/sys_proto.h>

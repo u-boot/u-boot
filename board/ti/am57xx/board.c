@@ -20,6 +20,7 @@
 #include <serial.h>
 #include <usb.h>
 #include <errno.h>
+#include <asm/global_data.h>
 #include <asm/omap_common.h>
 #include <asm/omap_sec_common.h>
 #include <asm/emif.h>

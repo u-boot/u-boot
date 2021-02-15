@@ -6,6 +6,7 @@
 #include <dm/test.h>
 #include <test/test.h>
 #include <test/ut.h>
+#include <asm/global_data.h>
 
 /* Test that we can find a device using of-platdata */
 static int dm_test_of_plat_base(struct unit_test_state *uts)

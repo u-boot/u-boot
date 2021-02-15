@@ -14,6 +14,7 @@
 #include <init.h>
 #include <net.h>
 #include <asm/arch/hardware.h>
+#include <asm/global_data.h>
 #include <asm/ti-common/davinci_nand.h>
 #include <asm/io.h>
 #include <ns16550.h>

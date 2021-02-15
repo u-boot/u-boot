@@ -11,6 +11,7 @@
 #include <phy.h>
 #include <dm.h>
 #include <fdt_support.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

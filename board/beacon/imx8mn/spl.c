@@ -10,6 +10,7 @@
 #include <log.h>
 #include <asm/io.h>
 #include <errno.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/ddr.h>
 #include <asm/arch/imx8mn_pins.h>

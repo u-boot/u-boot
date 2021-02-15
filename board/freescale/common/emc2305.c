@@ -7,6 +7,7 @@
 #include <common.h>
 #include <command.h>
 #include <i2c.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 
 #include "emc2305.h"

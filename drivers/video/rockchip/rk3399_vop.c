@@ -12,6 +12,7 @@
 #include <regmap.h>
 #include <video.h>
 #include <asm/arch-rockchip/hardware.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include "rk_vop.h"
 

@@ -13,6 +13,7 @@
 #include <dm/lists.h>
 #include <dm/device-internal.h>
 #include <linux/delay.h>
+#include <asm/global_data.h>
 #include "stm32prog.h"
 
 /* - configuration part -----------------------------*/

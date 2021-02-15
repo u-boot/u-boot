@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <asm/global_data.h>
 #include <dm/pinctrl.h>
 #include <linux/bitops.h>
 #include <linux/io.h>

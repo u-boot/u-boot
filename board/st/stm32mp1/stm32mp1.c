@@ -32,6 +32,7 @@
 #include <syscon.h>
 #include <usb.h>
 #include <watchdog.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/stm32.h>

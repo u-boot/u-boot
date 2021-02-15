@@ -18,6 +18,7 @@
 #include <fdtdec.h>
 #include <hang.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

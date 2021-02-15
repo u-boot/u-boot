@@ -21,6 +21,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mem.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>

@@ -35,6 +35,7 @@
 #include <errno.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <u-boot/crc.h>
 #include <watchdog.h>

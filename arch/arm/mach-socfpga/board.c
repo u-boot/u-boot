@@ -12,6 +12,7 @@
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/misc.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <log.h>
 #include <usb.h>

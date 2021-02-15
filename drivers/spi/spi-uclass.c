@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <spi.h>
 #include <dm/device_compat.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #include <dm/lists.h>

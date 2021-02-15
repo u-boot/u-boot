@@ -17,6 +17,7 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>

@@ -11,6 +11,7 @@
 #include <image.h>
 #include <log.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <linux/bug.h>
 #include <asm/io.h>
 #include <linux/delay.h>

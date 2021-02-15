@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <log.h>
 #include <pwm.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <power/regulator.h>
 

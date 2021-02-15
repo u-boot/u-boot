@@ -7,6 +7,8 @@
 #ifndef _INCLUDE_REGULATOR_H_
 #define _INCLUDE_REGULATOR_H_
 
+struct udevice;
+
 /**
  * U-Boot Voltage/Current Regulator
  * ================================

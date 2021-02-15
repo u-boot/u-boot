@@ -31,6 +31,7 @@
 #include <errno.h>
 #include <ext4fs.h>
 #include <mmc.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

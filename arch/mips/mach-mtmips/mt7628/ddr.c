@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <asm/addrspace.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/sizes.h>

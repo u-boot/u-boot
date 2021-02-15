@@ -21,6 +21,7 @@
 #include <asm/arch/system_manager.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <linux/sizes.h>

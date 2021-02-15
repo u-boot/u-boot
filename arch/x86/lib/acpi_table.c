@@ -22,6 +22,7 @@
 #include <acpi/acpi_table.h>
 #include <asm/acpi/global_nvs.h>
 #include <asm/ioapic.h>
+#include <asm/global_data.h>
 #include <asm/lapic.h>
 #include <asm/mpspec.h>
 #include <asm/tables.h>

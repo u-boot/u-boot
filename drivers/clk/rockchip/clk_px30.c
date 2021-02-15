@@ -14,6 +14,7 @@
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_px30.h>
 #include <asm/arch-rockchip/hardware.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>

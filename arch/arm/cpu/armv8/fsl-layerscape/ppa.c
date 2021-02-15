@@ -8,6 +8,7 @@
 #include <config.h>
 #include <errno.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/system.h>
 #include <asm/types.h>
 #include <asm/arch/soc.h>

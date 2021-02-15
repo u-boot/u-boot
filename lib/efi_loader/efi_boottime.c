@@ -19,6 +19,7 @@
 #include <u-boot/crc.h>
 #include <usb.h>
 #include <watchdog.h>
+#include <asm/global_data.h>
 #include <linux/libfdt_env.h>
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -20,6 +20,8 @@
 #ifndef __EXT_COMMON__
 #define __EXT_COMMON__
 
+#include <compiler.h>
+
 struct cmd_tbl;
 
 #define SECTOR_SIZE		0x200

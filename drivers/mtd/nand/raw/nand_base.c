@@ -4574,6 +4574,7 @@ ident_done:
 EXPORT_SYMBOL(nand_get_flash_type);
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
+#include <asm/global_data.h>
 DECLARE_GLOBAL_DATA_PTR;
 
 static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, int node)

@@ -9,6 +9,7 @@
 #include <debug_uart.h>
 #include <init.h>
 #include <vsprintf.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9261.h>
 #include <asm/arch/at91sam9261_matrix.h>

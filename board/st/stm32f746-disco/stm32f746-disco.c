@@ -17,6 +17,7 @@
 #include <splash.h>
 #include <st_logo_data.h>
 #include <video.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/armv7m.h>
 #include <asm/arch/stm32.h>

@@ -18,6 +18,7 @@
 #include <command.h>
 #include <image.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <u-boot/zlib.h>
 #include <bzlib.h>
 #include <asm/byteorder.h>

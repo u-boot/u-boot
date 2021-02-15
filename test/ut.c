@@ -11,6 +11,7 @@
 #ifdef CONFIG_SANDBOX
 #include <asm/state.h>
 #endif
+#include <asm/global_data.h>
 #include <test/test.h>
 #include <test/ut.h>
 

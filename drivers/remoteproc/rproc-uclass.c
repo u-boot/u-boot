@@ -10,6 +10,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <remoteproc.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/device-internal.h>
 #include <dm.h>

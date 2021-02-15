@@ -12,6 +12,7 @@
 #include <lmb.h>
 #include <log.h>
 #include <asm/addrspace.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;

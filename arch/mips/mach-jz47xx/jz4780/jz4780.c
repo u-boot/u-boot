@@ -12,6 +12,7 @@
 #include <hang.h>
 #include <image.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/sections.h>
 #include <mach/jz4780.h>

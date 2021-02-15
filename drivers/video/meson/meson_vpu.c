@@ -15,6 +15,7 @@
 #include <part.h>
 #include <linux/sizes.h>
 #include <asm/arch/mem.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 

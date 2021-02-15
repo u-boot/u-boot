@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <dm/of_access.h>

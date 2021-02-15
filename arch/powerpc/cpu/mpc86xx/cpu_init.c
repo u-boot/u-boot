@@ -14,6 +14,7 @@
 #include <common.h>
 #include <init.h>
 #include <mpc86xx.h>
+#include <asm/global_data.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>

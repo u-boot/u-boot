@@ -19,6 +19,7 @@
 #include <mapmem.h>
 #include <net.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/sizes.h>
 #if defined(CONFIG_CMD_USB)

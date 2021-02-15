@@ -12,6 +12,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <video.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

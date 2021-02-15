@@ -20,6 +20,7 @@
 #if defined(CONFIG_MPC83XX_GPIO) && !defined(CONFIG_SPL_BUILD)
 #include <asm/gpio.h>
 #endif
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

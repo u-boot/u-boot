@@ -12,6 +12,7 @@
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/board.h>
 #include <asm/arch-tegra/tegra.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <i2c.h>
