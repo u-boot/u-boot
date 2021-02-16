@@ -63,6 +63,15 @@ config FIT_ENABLE_SHA512_SUPPORT
 	  SHA512 checksum is a 512-bit (64-byte) hash value used to check that
 	  the image contents have not been corrupted.
 
+config FIT_FULL_CHECK
+	bool "Do a full check of the FIT before using it"
+	default y
+	help
+	  Enable this do a full check of the FIT to make sure it is valid. This
+	  helps to protect against carefully crafted FITs which take advantage
+	  of bugs or omissions in the code. This includes a bad structure,
+	  multiple root nodes and the like.
+
 config FIT_SIGNATURE
 	bool "Enable signature verification of FIT uImages"
 	depends on DM
@@ -70,6 +79,7 @@ config FIT_SIGNATURE
 	select RSA
 	select RSA_VERIFY
 	select IMAGE_SIGN_INFO
+	select FIT_FULL_CHECK
 	help
 	  This option enables signature verification of FIT uImages,
 	  using a hash signed and verified using RSA. If
@@ -153,6 +163,15 @@ config SPL_FIT_PRINT
 	help
 	  Support printing the content of the fitImage in a verbose manner in SPL.
 
+config SPL_FIT_FULL_CHECK
+	bool "Do a full check of the FIT before using it"
+	help
+	  Enable this do a full check of the FIT to make sure it is valid. This
+	  helps to protect against carefully crafted FITs which take advantage
+	  of bugs or omissions in the code. This includes a bad structure,
+	  multiple root nodes and the like.
+
+
 config SPL_FIT_SIGNATURE
 	bool "Enable signature verification of FIT firmware within SPL"
 	depends on SPL_DM
@@ -162,6 +181,7 @@ config SPL_FIT_SIGNATURE
 	select SPL_RSA
 	select SPL_RSA_VERIFY
 	select SPL_IMAGE_SIGN_INFO
+	select SPL_FIT_FULL_CHECK
 
 config SPL_LOAD_FIT
 	bool "Enable SPL loading U-Boot as a FIT (basic fitImage features)"
