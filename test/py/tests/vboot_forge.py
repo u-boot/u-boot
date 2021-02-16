@@ -376,12 +376,12 @@ def manipulate(root, strblock):
     """
     Maliciously manipulates the structure to create a crafted FIT file
     """
-    # locate /images/kernel@1 (frankly, it just expects it to be the first one)
+    # locate /images/kernel-1 (frankly, it just expects it to be the first one)
     kernel_node = root[0][0]
     # clone it to save time filling all the properties
     fake_kernel = kernel_node.clone()
     # rename the node
-    fake_kernel.name = b'kernel@2'
+    fake_kernel.name = b'kernel-2'
     # get rid of signatures/hashes
     fake_kernel.children = []
     # NOTE: this simply replaces the first prop... either description or data
@@ -391,13 +391,13 @@ def manipulate(root, strblock):
     root[0].children.append(fake_kernel)
 
     # modify the default configuration
-    root[1].props[0].value = b'conf@2\x00'
+    root[1].props[0].value = b'conf-2\x00'
     # clone the first (only?) configuration
     fake_conf = root[1][0].clone()
     # rename and change kernel and fdt properties to select the crafted kernel
-    fake_conf.name = b'conf@2'
-    fake_conf.props[0].value = b'kernel@2\x00'
-    fake_conf.props[1].value = b'fdt@1\x00'
+    fake_conf.name = b'conf-2'
+    fake_conf.props[0].value = b'kernel-2\x00'
+    fake_conf.props[1].value = b'fdt-1\x00'
     # insert the new configuration under /configurations
     root[1].children.append(fake_conf)
 

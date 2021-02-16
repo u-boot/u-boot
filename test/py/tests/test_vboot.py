@@ -24,22 +24,26 @@ For configuration verification:
 Tests run with both SHA1 and SHA256 hashing.
 """
 
+import shutil
 import struct
 import pytest
 import u_boot_utils as util
 import vboot_forge
+import vboot_evil
 
+# Only run the full suite on a few combinations, since it doesn't add any more
+# test coverage.
 TESTDATA = [
-    ['sha1', '', None, False],
-    ['sha1', '', '-E -p 0x10000', False],
-    ['sha1', '-pss', None, False],
-    ['sha1', '-pss', '-E -p 0x10000', False],
-    ['sha256', '', None, False],
-    ['sha256', '', '-E -p 0x10000', False],
-    ['sha256', '-pss', None, False],
-    ['sha256', '-pss', '-E -p 0x10000', False],
-    ['sha256', '-pss', None, True],
-    ['sha256', '-pss', '-E -p 0x10000', True],
+    ['sha1', '', None, False, True],
+    ['sha1', '', '-E -p 0x10000', False, False],
+    ['sha1', '-pss', None, False, False],
+    ['sha1', '-pss', '-E -p 0x10000', False, False],
+    ['sha256', '', None, False, False],
+    ['sha256', '', '-E -p 0x10000', False, False],
+    ['sha256', '-pss', None, False, False],
+    ['sha256', '-pss', '-E -p 0x10000', False, False],
+    ['sha256', '-pss', None, True, False],
+    ['sha256', '-pss', '-E -p 0x10000', True, True],
 ]
 
 @pytest.mark.boardspec('sandbox')
@@ -48,8 +52,10 @@ TESTDATA = [
 @pytest.mark.requiredtool('fdtget')
 @pytest.mark.requiredtool('fdtput')
 @pytest.mark.requiredtool('openssl')
-@pytest.mark.parametrize("sha_algo,padding,sign_options,required", TESTDATA)
-def test_vboot(u_boot_console, sha_algo, padding, sign_options, required):
+@pytest.mark.parametrize("sha_algo,padding,sign_options,required,full_test",
+                         TESTDATA)
+def test_vboot(u_boot_console, sha_algo, padding, sign_options, required,
+               full_test):
     """Test verified boot signing with mkimage and verification with 'bootm'.
 
     This works using sandbox only as it needs to update the device tree used
@@ -71,7 +77,7 @@ def test_vboot(u_boot_console, sha_algo, padding, sign_options, required):
         util.run_and_log(cons, 'dtc %s %s%s -O dtb '
                          '-o %s%s' % (dtc_args, datadir, dts, tmpdir, dtb))
 
-    def run_bootm(sha_algo, test_type, expect_string, boots):
+    def run_bootm(sha_algo, test_type, expect_string, boots, fit=None):
         """Run a 'bootm' command U-Boot.
 
         This always starts a fresh U-Boot instance since the device tree may
@@ -84,11 +90,14 @@ def test_vboot(u_boot_console, sha_algo, padding, sign_options, required):
                     use.
             boots: A boolean that is True if Linux should boot and False if
                     we are expected to not boot
+            fit: FIT filename to load and verify
         """
+        if not fit:
+            fit = '%stest.fit' % tmpdir
         cons.restart_uboot()
         with cons.log.section('Verified boot %s %s' % (sha_algo, test_type)):
             output = cons.run_command_list(
-                ['host load hostfs - 100 %stest.fit' % tmpdir,
+                ['host load hostfs - 100 %s' % fit,
                  'fdt addr 100',
                  'bootm 100'])
         assert expect_string in ''.join(output)
@@ -222,18 +231,43 @@ def test_vboot(u_boot_console, sha_algo, padding, sign_options, required):
 
         util.run_and_log(cons, [fit_check_sign, '-f', fit, '-k', dtb])
 
-        # Make sure that U-Boot checks that the config is in the list of hashed
-        # nodes. If it isn't, a security bypass is possible.
-        with open(fit, 'rb') as fd:
-            root, strblock = vboot_forge.read_fdt(fd)
-        root, strblock = vboot_forge.manipulate(root, strblock)
-        with open(fit, 'w+b') as fd:
-            vboot_forge.write_fdt(root, strblock, fd)
-        util.run_and_log_expect_exception(
-            cons, [fit_check_sign, '-f', fit, '-k', dtb],
-            1, 'Failed to verify required signature')
+        if full_test:
+            # Make sure that U-Boot checks that the config is in the list of
+            # hashed nodes. If it isn't, a security bypass is possible.
+            ffit = '%stest.forged.fit' % tmpdir
+            shutil.copyfile(fit, ffit)
+            with open(ffit, 'rb') as fd:
+                root, strblock = vboot_forge.read_fdt(fd)
+            root, strblock = vboot_forge.manipulate(root, strblock)
+            with open(ffit, 'w+b') as fd:
+                vboot_forge.write_fdt(root, strblock, fd)
+            util.run_and_log_expect_exception(
+                cons, [fit_check_sign, '-f', ffit, '-k', dtb],
+                1, 'Failed to verify required signature')
 
-        run_bootm(sha_algo, 'forged config', 'Bad Data Hash', False)
+            run_bootm(sha_algo, 'forged config', 'Bad Data Hash', False, ffit)
+
+            # Try adding an evil root node. This should be detected.
+            efit = '%stest.evilf.fit' % tmpdir
+            shutil.copyfile(fit, efit)
+            vboot_evil.add_evil_node(fit, efit, evil_kernel, 'fakeroot')
+
+            util.run_and_log_expect_exception(
+                cons, [fit_check_sign, '-f', efit, '-k', dtb],
+                1, 'Failed to verify required signature')
+            run_bootm(sha_algo, 'evil fakeroot', 'Bad FIT kernel image format',
+                      False, efit)
+
+            # Try adding an @ to the kernel node name. This should be detected.
+            efit = '%stest.evilk.fit' % tmpdir
+            shutil.copyfile(fit, efit)
+            vboot_evil.add_evil_node(fit, efit, evil_kernel, 'kernel@')
+
+            msg = 'Signature checking prevents use of unit addresses (@) in nodes'
+            util.run_and_log_expect_exception(
+                cons, [fit_check_sign, '-f', efit, '-k', dtb],
+                1, msg)
+            run_bootm(sha_algo, 'evil kernel@', msg, False, efit)
 
         # Create a new properly signed fit and replace header bytes
         make_fit('sign-configs-%s%s.its' % (sha_algo, padding))
@@ -344,8 +378,13 @@ def test_vboot(u_boot_console, sha_algo, padding, sign_options, required):
     create_rsa_pair('prod')
 
     # Create a number kernel image with zeroes
-    with open('%stest-kernel.bin' % tmpdir, 'w') as fd:
-        fd.write(500 * chr(0))
+    with open('%stest-kernel.bin' % tmpdir, 'wb') as fd:
+        fd.write(500 * b'\0')
+
+    # Create a second kernel image with ones
+    evil_kernel = '%stest-kernel1.bin' % tmpdir
+    with open(evil_kernel, 'wb') as fd:
+        fd.write(500 * b'\x01')
 
     try:
         # We need to use our own device tree file. Remember to restore it
