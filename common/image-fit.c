@@ -1580,6 +1580,22 @@ int fit_check_format(const void *fit, ulong size)
 		return -ENOEXEC;
 	}
 
+	if (CONFIG_IS_ENABLED(FIT_FULL_CHECK)) {
+		/*
+		 * If we are not given the size, make do wtih calculating it.
+		 * This is not as secure, so we should consider a flag to
+		 * control this.
+		 */
+		if (size == IMAGE_SIZE_INVAL)
+			size = fdt_totalsize(fit);
+		ret = fdt_check_full(fit, size);
+
+		if (ret) {
+			log_debug("FIT check error %d\n", ret);
+			return -EINVAL;
+		}
+	}
+
 	/* mandatory / node 'description' property */
 	if (!fdt_getprop(fit, 0, FIT_DESC_PROP, NULL)) {
 		log_debug("Wrong FIT format: no description\n");
