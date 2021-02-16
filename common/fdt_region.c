@@ -43,6 +43,7 @@ int fdt_find_regions(const void *fdt, char * const inc[], int inc_count,
 	int depth = -1;
 	int want = 0;
 	int base = fdt_off_dt_struct(fdt);
+	bool expect_end = false;
 
 	end = path;
 	*end = '\0';
@@ -58,6 +59,10 @@ int fdt_find_regions(const void *fdt, char * const inc[], int inc_count,
 		offset = nextoffset;
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 		stop_at = nextoffset;
+
+		/* If we see two root nodes, something is wrong */
+		if (expect_end && tag != FDT_END)
+			return -FDT_ERR_BADLAYOUT;
 
 		switch (tag) {
 		case FDT_PROP:
@@ -81,6 +86,10 @@ int fdt_find_regions(const void *fdt, char * const inc[], int inc_count,
 			if (depth == FDT_MAX_DEPTH)
 				return -FDT_ERR_BADSTRUCTURE;
 			name = fdt_get_name(fdt, offset, &len);
+
+			/* The root node must have an empty name */
+			if (!depth && *name)
+				return -FDT_ERR_BADLAYOUT;
 			if (end - path + 2 + len >= path_len)
 				return -FDT_ERR_NOSPACE;
 			if (end != path + 1)
@@ -108,6 +117,8 @@ int fdt_find_regions(const void *fdt, char * const inc[], int inc_count,
 			while (end > path && *--end != '/')
 				;
 			*end = '\0';
+			if (depth == -1)
+				expect_end = true;
 			break;
 
 		case FDT_END:
