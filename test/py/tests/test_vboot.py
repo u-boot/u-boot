@@ -255,7 +255,8 @@ def test_vboot(u_boot_console, sha_algo, padding, sign_options, required,
             util.run_and_log_expect_exception(
                 cons, [fit_check_sign, '-f', efit, '-k', dtb],
                 1, 'Failed to verify required signature')
-            run_bootm(sha_algo, 'evil fakeroot', 'Bad Data Hash', False, efit)
+            run_bootm(sha_algo, 'evil fakeroot', 'Bad FIT kernel image format',
+                      False, efit)
 
             # Try adding an @ to the kernel node name. This should be detected.
             efit = '%stest.evilk.fit' % tmpdir
