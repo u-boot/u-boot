@@ -232,8 +232,8 @@ def test_vboot(u_boot_console, sha_algo, padding, sign_options, required,
         util.run_and_log(cons, [fit_check_sign, '-f', fit, '-k', dtb])
 
         if full_test:
-            # Make sure that U-Boot checks that the config is in the list of hashed
-            # nodes. If it isn't, a security bypass is possible.
+            # Make sure that U-Boot checks that the config is in the list of
+            # hashed nodes. If it isn't, a security bypass is possible.
             ffit = '%stest.forged.fit' % tmpdir
             shutil.copyfile(fit, ffit)
             with open(ffit, 'rb') as fd:
@@ -263,10 +263,11 @@ def test_vboot(u_boot_console, sha_algo, padding, sign_options, required,
             shutil.copyfile(fit, efit)
             vboot_evil.add_evil_node(fit, efit, evil_kernel, 'kernel@')
 
+            msg = 'Signature checking prevents use of unit addresses (@) in nodes'
             util.run_and_log_expect_exception(
                 cons, [fit_check_sign, '-f', efit, '-k', dtb],
-                1, 'Node name contains @')
-            run_bootm(sha_algo, 'evil kernel@', 'Bad Data Hash', False, efit)
+                1, msg)
+            run_bootm(sha_algo, 'evil kernel@', msg, False, efit)
 
         # Create a new properly signed fit and replace header bytes
         make_fit('sign-configs-%s%s.its' % (sha_algo, padding))

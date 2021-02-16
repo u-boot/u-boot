@@ -1568,6 +1568,34 @@ int fit_image_check_comp(const void *fit, int noffset, uint8_t comp)
 	return (comp == image_comp);
 }
 
+/**
+ * fdt_check_no_at() - Check for nodes whose names contain '@'
+ *
+ * This checks the parent node and all subnodes recursively
+ *
+ * @fit: FIT to check
+ * @parent: Parent node to check
+ * @return 0 if OK, -EADDRNOTAVAIL is a node has a name containing '@'
+ */
+static int fdt_check_no_at(const void *fit, int parent)
+{
+	const char *name;
+	int node;
+	int ret;
+
+	name = fdt_get_name(fit, parent, NULL);
+	if (!name || strchr(name, '@'))
+		return -EADDRNOTAVAIL;
+
+	fdt_for_each_subnode(node, fit, parent) {
+		ret = fdt_check_no_at(fit, node);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
 int fit_check_format(const void *fit, ulong size)
 {
 	int ret;
@@ -1589,10 +1617,27 @@ int fit_check_format(const void *fit, ulong size)
 		if (size == IMAGE_SIZE_INVAL)
 			size = fdt_totalsize(fit);
 		ret = fdt_check_full(fit, size);
+		if (ret)
+			ret = -EINVAL;
 
+		/*
+		 * U-Boot stopped using unit addressed in 2017. Since libfdt
+		 * can match nodes ignoring any unit address, signature
+		 * verification can see the wrong node if one is inserted with
+		 * the same name as a valid node but with a unit address
+		 * attached. Protect against this by disallowing unit addresses.
+		 */
+		if (!ret && CONFIG_IS_ENABLED(FIT_SIGNATURE)) {
+			ret = fdt_check_no_at(fit, 0);
+
+			if (ret) {
+				log_debug("FIT check error %d\n", ret);
+				return ret;
+			}
+		}
 		if (ret) {
 			log_debug("FIT check error %d\n", ret);
-			return -EINVAL;
+			return ret;
 		}
 	}
 
@@ -1955,10 +2000,13 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	printf("## Loading %s from FIT Image at %08lx ...\n", prop_name, addr);
 
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_FORMAT);
-	if (fit_check_format(fit, IMAGE_SIZE_INVAL)) {
-		printf("Bad FIT %s image format!\n", prop_name);
+	ret = fit_check_format(fit, IMAGE_SIZE_INVAL);
+	if (ret) {
+		printf("Bad FIT %s image format! (err=%d)\n", prop_name, ret);
+		if (CONFIG_IS_ENABLED(FIT_SIGNATURE) && ret == -EADDRNOTAVAIL)
+			printf("Signature checking prevents use of unit addresses (@) in nodes\n");
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_FORMAT);
-		return -ENOEXEC;
+		return ret;
 	}
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_FORMAT_OK);
 	if (fit_uname) {
