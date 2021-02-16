@@ -400,7 +400,7 @@ int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
 			 */
 #if CONFIG_IS_ENABLED(FIT)
 			/* check FDT blob vs FIT blob */
-			if (fit_check_format(buf)) {
+			if (!fit_check_format(buf, IMAGE_SIZE_INVAL)) {
 				ulong load, len;
 
 				fdt_noffset = boot_get_fdt_fit(images,
