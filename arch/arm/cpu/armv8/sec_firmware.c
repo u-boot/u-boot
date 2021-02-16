@@ -316,7 +316,7 @@ __weak bool sec_firmware_is_valid(const void *sec_firmware_img)
 		return false;
 	}
 
-	if (!fit_check_format(sec_firmware_img)) {
+	if (fit_check_format(sec_firmware_img, IMAGE_SIZE_INVAL)) {
 		printf("SEC Firmware: Bad firmware image (bad FIT header)\n");
 		return false;
 	}

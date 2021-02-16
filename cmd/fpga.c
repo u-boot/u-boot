@@ -330,7 +330,7 @@ static int do_fpga_loadmk(struct cmd_tbl *cmdtp, int flag, int argc,
 			return CMD_RET_FAILURE;
 		}
 
-		if (!fit_check_format(fit_hdr)) {
+		if (fit_check_format(fit_hdr, IMAGE_SIZE_INVAL)) {
 			puts("Bad FIT image format\n");
 			return CMD_RET_FAILURE;
 		}

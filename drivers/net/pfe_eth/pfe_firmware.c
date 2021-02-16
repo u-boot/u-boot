@@ -160,7 +160,7 @@ static int pfe_fit_check(void)
 		return ret;
 	}
 
-	if (!fit_check_format(pfe_fit_addr)) {
+	if (fit_check_format(pfe_fit_addr, IMAGE_SIZE_INVAL)) {
 		printf("PFE Firmware: Bad firmware image (bad FIT header)\n");
 		ret = -1;
 		return ret;

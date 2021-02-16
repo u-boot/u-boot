@@ -565,10 +565,10 @@ static int first_loading_rbf_to_buffer(struct udevice *dev,
 	if (ret < 0)
 		return ret;
 
-	ret = fit_check_format(buffer_p);
-	if (!ret) {
+	ret = fit_check_format(buffer_p, IMAGE_SIZE_INVAL);
+	if (ret) {
 		debug("FPGA: No valid FIT image was found.\n");
-		return -EBADF;
+		return ret;
 	}
 
 	confs_noffset = fdt_path_offset(buffer_p, FIT_CONFS_PATH);
