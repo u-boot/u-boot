@@ -265,10 +265,6 @@ static int meson_mmc_probe(struct udevice *dev)
 	uint32_t val;
 	int ret;
 
-#ifdef CONFIG_PWRSEQ
-	struct udevice *pwr_dev;
-#endif
-
 	/* Enable the clocks feeding the MMC controller */
 	ret = clk_get_bulk(dev, &clocks);
 	if (ret)
@@ -292,12 +288,11 @@ static int meson_mmc_probe(struct udevice *dev)
 
 	mmc_set_clock(mmc, cfg->f_min, MMC_CLK_ENABLE);
 
-#ifdef CONFIG_PWRSEQ
+#ifdef CONFIG_MMC_PWRSEQ
 	/* Enable power if needed */
-	ret = uclass_get_device_by_phandle(UCLASS_PWRSEQ, dev, "mmc-pwrseq",
-					   &pwr_dev);
+	ret = mmc_pwrseq_get_power(dev, cfg);
 	if (!ret) {
-		ret = pwrseq_set_power(pwr_dev, true);
+		ret = pwrseq_set_power(cfg->pwr_dev, true);
 		if (ret)
 			return ret;
 	}
@@ -342,37 +337,3 @@ U_BOOT_DRIVER(meson_mmc) = {
 	.of_to_plat = meson_mmc_of_to_plat,
 	.plat_auto	= sizeof(struct meson_mmc_plat),
 };
-
-#ifdef CONFIG_PWRSEQ
-static int meson_mmc_pwrseq_set_power(struct udevice *dev, bool enable)
-{
-	struct gpio_desc reset;
-	int ret;
-
-	ret = gpio_request_by_name(dev, "reset-gpios", 0, &reset, GPIOD_IS_OUT);
-	if (ret)
-		return ret;
-	dm_gpio_set_value(&reset, 1);
-	udelay(1);
-	dm_gpio_set_value(&reset, 0);
-	udelay(200);
-
-	return 0;
-}
-
-static const struct pwrseq_ops meson_mmc_pwrseq_ops = {
-	.set_power	= meson_mmc_pwrseq_set_power,
-};
-
-static const struct udevice_id meson_mmc_pwrseq_ids[] = {
-	{ .compatible = "mmc-pwrseq-emmc" },
-	{ }
-};
-
-U_BOOT_DRIVER(meson_mmc_pwrseq_drv) = {
-	.name		= "mmc_pwrseq_emmc",
-	.id		= UCLASS_PWRSEQ,
-	.of_match	= meson_mmc_pwrseq_ids,
-	.ops		= &meson_mmc_pwrseq_ops,
-};
-#endif
