@@ -617,12 +617,12 @@ int usb_kbd_deregister(int force)
 	if (dev) {
 		usb_kbd_dev = (struct usb_device *)dev->priv;
 		data = usb_kbd_dev->privptr;
-		if (stdio_deregister_dev(dev, force) != 0)
-			return 1;
 #if CONFIG_IS_ENABLED(CONSOLE_MUX)
-		if (iomux_doenv(stdin, env_get("stdin")) != 0)
+		if (iomux_replace_device(stdin, DEVNAME, force ? "nulldev" : ""))
 			return 1;
 #endif
+		if (stdio_deregister_dev(dev, force) != 0)
+			return 1;
 #ifdef CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
 		destroy_int_queue(usb_kbd_dev, data->intq);
 #endif
@@ -660,16 +660,16 @@ static int usb_kbd_remove(struct udevice *dev)
 		goto err;
 	}
 	data = udev->privptr;
-	if (stdio_deregister_dev(sdev, true)) {
-		ret = -EPERM;
-		goto err;
-	}
 #if CONFIG_IS_ENABLED(CONSOLE_MUX)
-	if (iomux_doenv(stdin, env_get("stdin"))) {
+	if (iomux_replace_device(stdin, DEVNAME, "nulldev")) {
 		ret = -ENOLINK;
 		goto err;
 	}
 #endif
+	if (stdio_deregister_dev(sdev, true)) {
+		ret = -EPERM;
+		goto err;
+	}
 #ifdef CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
 	destroy_int_queue(udev, data->intq);
 #endif

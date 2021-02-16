@@ -18,6 +18,8 @@
 #define DEV_FLAGS_OUTPUT 0x00000002	/* Device can be used as output console */
 #define DEV_FLAGS_DM     0x00000004	/* Device priv is a struct udevice * */
 
+int stdio_file_to_flags(const int file);
+
 /* Device information */
 struct stdio_dev {
 	int	flags;			/* Device flags: input/output/system	*/
@@ -83,7 +85,6 @@ int stdio_add_devices(void);
 int stdio_init(void);
 
 void stdio_print_current_devices(void);
-int stdio_deregister(const char *devname, int force);
 
 /**
  * stdio_deregister_dev() - deregister the device "devname".

@@ -499,7 +499,13 @@ struct icmp_hdr {
  * maximum packet size and multiple of 32 bytes =  1536
  */
 #define PKTSIZE			1522
+#ifndef CONFIG_DM_DSA
 #define PKTSIZE_ALIGN		1536
+#else
+/* Maximum DSA tagging overhead (headroom and/or tailroom) */
+#define DSA_MAX_OVR		256
+#define PKTSIZE_ALIGN		(1536 + DSA_MAX_OVR)
+#endif
 
 /*
  * Maximum receive ring size; that is, the number of packets

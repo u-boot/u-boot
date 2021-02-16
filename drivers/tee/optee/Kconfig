@@ -22,6 +22,15 @@ config OPTEE_TA_AVB
 	  The TA can support the "avb" subcommands "read_rb", "write"rb"
 	  and "is_unlocked".
 
+config OPTEE_TA_RPC_TEST
+	bool "Support RPC TEST TA"
+	depends on SANDBOX_TEE
+	default y
+	help
+	  Enables support for RPC test trusted application emulation, which
+	  permits to test reverse RPC calls to TEE supplicant. Should
+	  be used only in sandbox env.
+
 endmenu
 
 endif

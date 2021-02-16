@@ -233,9 +233,10 @@ static struct stdio_dev *tstcdev;
 struct stdio_dev **console_devices[MAX_FILES];
 int cd_count[MAX_FILES];
 
-static void __maybe_unused console_devices_set(int file, struct stdio_dev *dev)
+static void console_devices_set(int file, struct stdio_dev *dev)
 {
 	console_devices[file][0] = dev;
+	cd_count[file] = 1;
 }
 
 /**
@@ -251,15 +252,14 @@ static void __maybe_unused console_devices_set(int file, struct stdio_dev *dev)
  */
 static bool console_needs_start_stop(int file, struct stdio_dev *sdev)
 {
-	int i, j;
+	int i;
 
 	for (i = 0; i < ARRAY_SIZE(cd_count); i++) {
 		if (i == file)
 			continue;
 
-		for (j = 0; j < cd_count[i]; j++)
-			if (console_devices[i][j] == sdev)
-				return false;
+		if (iomux_match_device(console_devices[i], cd_count[i], sdev) >= 0)
+			return false;
 	}
 	return true;
 }
@@ -293,8 +293,7 @@ static int console_tstc(int file)
 	int prev;
 
 	prev = disable_ctrlc(1);
-	for (i = 0; i < cd_count[file]; i++) {
-		dev = console_devices[file][i];
+	for_each_console_dev(i, file, dev) {
 		if (dev->tstc != NULL) {
 			ret = dev->tstc(dev);
 			if (ret > 0) {
@@ -314,8 +313,7 @@ static void console_putc(int file, const char c)
 	int i;
 	struct stdio_dev *dev;
 
-	for (i = 0; i < cd_count[file]; i++) {
-		dev = console_devices[file][i];
+	for_each_console_dev(i, file, dev) {
 		if (dev->putc != NULL)
 			dev->putc(dev, c);
 	}
@@ -334,11 +332,9 @@ static void console_puts_select(int file, bool serial_only, const char *s)
 	int i;
 	struct stdio_dev *dev;
 
-	for (i = 0; i < cd_count[file]; i++) {
-		bool is_serial;
+	for_each_console_dev(i, file, dev) {
+		bool is_serial = console_dev_is_serial(dev);
 
-		dev = console_devices[file][i];
-		is_serial = console_dev_is_serial(dev);
 		if (dev->puts && serial_only == is_serial)
 			dev->puts(dev, s);
 	}
@@ -354,8 +350,7 @@ static void console_puts(int file, const char *s)
 	int i;
 	struct stdio_dev *dev;
 
-	for (i = 0; i < cd_count[file]; i++) {
-		dev = console_devices[file][i];
+	for_each_console_dev(i, file, dev) {
 		if (dev->puts != NULL)
 			dev->puts(dev, s);
 	}
@@ -369,7 +364,7 @@ static inline void console_doenv(int file, struct stdio_dev *dev)
 #endif
 #else
 
-static void __maybe_unused console_devices_set(int file, struct stdio_dev *dev)
+static void console_devices_set(int file, struct stdio_dev *dev)
 {
 }
 
@@ -416,6 +411,12 @@ static inline void console_doenv(int file, struct stdio_dev *dev)
 }
 #endif
 #endif /* CONIFIG_IS_ENABLED(CONSOLE_MUX) */
+
+static void __maybe_unused console_setfile_and_devices(int file, struct stdio_dev *dev)
+{
+	console_setfile(file, dev);
+	console_devices_set(file, dev);
+}
 
 int console_start(int file, struct stdio_dev *sdev)
 {
@@ -855,17 +856,9 @@ int console_assign(int file, const char *devname)
 	struct stdio_dev *dev;
 
 	/* Check for valid file */
-	switch (file) {
-	case stdin:
-		flag = DEV_FLAGS_INPUT;
-		break;
-	case stdout:
-	case stderr:
-		flag = DEV_FLAGS_OUTPUT;
-		break;
-	default:
-		return -1;
-	}
+	flag = stdio_file_to_flags(file);
+	if (flag < 0)
+		return flag;
 
 	/* Check for valid device name */
 
@@ -1079,17 +1072,13 @@ int console_init_r(void)
 
 	/* Initializes output console first */
 	if (outputdev != NULL) {
-		console_setfile(stdout, outputdev);
-		console_setfile(stderr, outputdev);
-		console_devices_set(stdout, outputdev);
-		console_devices_set(stderr, outputdev);
+		console_setfile_and_devices(stdout, outputdev);
+		console_setfile_and_devices(stderr, outputdev);
 	}
 
 	/* Initializes input console */
-	if (inputdev != NULL) {
-		console_setfile(stdin, inputdev);
-		console_devices_set(stdin, inputdev);
-	}
+	if (inputdev != NULL)
+		console_setfile_and_devices(stdin, inputdev);
 
 	if (!IS_ENABLED(CONFIG_SYS_CONSOLE_INFO_QUIET))
 		stdio_print_current_devices();

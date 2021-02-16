@@ -977,6 +977,37 @@ static struct phy_device *phy_connect_gmii2rgmii(struct mii_dev *bus,
 #endif
 
 #ifdef CONFIG_PHY_FIXED
+/**
+ * fixed_phy_create() - create an unconnected fixed-link pseudo-PHY device
+ * @node: OF node for the container of the fixed-link node
+ *
+ * Description: Creates a struct phy_device based on a fixed-link of_node
+ * description. Can be used without phy_connect by drivers which do not expose
+ * a UCLASS_ETH udevice.
+ */
+struct phy_device *fixed_phy_create(ofnode node)
+{
+	phy_interface_t interface = PHY_INTERFACE_MODE_NONE;
+	const char *if_str;
+	ofnode subnode;
+
+	if_str = ofnode_read_string(node, "phy-mode");
+	if (!if_str) {
+		if_str = ofnode_read_string(node, "phy-interface-type");
+	}
+	if (if_str) {
+		interface = phy_get_interface_by_name(if_str);
+	}
+
+	subnode = ofnode_find_subnode(node, "fixed-link");
+	if (!ofnode_valid(subnode)) {
+		return NULL;
+	}
+
+	return phy_device_create(NULL, ofnode_to_offset(subnode), PHY_FIXED_ID,
+				 false, interface);
+}
+
 #ifdef CONFIG_DM_ETH
 static struct phy_device *phy_connect_fixed(struct mii_dev *bus,
 					    struct udevice *dev,
