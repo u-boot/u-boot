@@ -13,6 +13,10 @@ config IMX8MN_FORCE_NOM_SOC
 	bool "Force to use nominal mode for SOC and ARM"
 	default n
 
+config IMX8MN_BEACON_2GB_LPDDR
+	bool "Enable 2GB LPDDR"
+	default n
+
 source "board/freescale/common/Kconfig"
 
 endif
