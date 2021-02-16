@@ -162,6 +162,14 @@ static int fit_image_verify_sig(const void *fit, int image_noffset,
 	fdt_for_each_subnode(noffset, fit, image_noffset) {
 		const char *name = fit_get_name(fit, noffset, NULL);
 
+		/*
+		 * We don't support this since libfdt considers names with the
+		 * name root but different @ suffix to be equal
+		 */
+		if (strchr(name, '@')) {
+			err_msg = "Node name contains @";
+			goto error;
+		}
 		if (!strncmp(name, FIT_SIG_NODENAME,
 			     strlen(FIT_SIG_NODENAME))) {
 			ret = fit_image_check_sig(fit, noffset, data,
@@ -411,15 +419,25 @@ error:
 	return -EPERM;
 }
 
-int fit_config_verify_required_sigs(const void *fit, int conf_noffset,
-				    const void *sig_blob)
+static int fit_config_verify_required_sigs(const void *fit, int conf_noffset,
+					   const void *sig_blob)
 {
+	const char *name = fit_get_name(fit, conf_noffset, NULL);
 	int noffset;
 	int sig_node;
 	int verified = 0;
 	int reqd_sigs = 0;
 	bool reqd_policy_all = true;
 	const char *reqd_mode;
+
+	/*
+	 * We don't support this since libfdt considers names with the
+	 * name root but different @ suffix to be equal
+	 */
+	if (strchr(name, '@')) {
+		printf("Configuration node '%s' contains '@'\n", name);
+		return -EPERM;
+	}
 
 	/* Work out what we need to verify */
 	sig_node = fdt_subnode_offset(sig_blob, 0, FIT_SIG_NODENAME);
