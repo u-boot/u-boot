@@ -97,7 +97,7 @@ static int hash_finish_sha256(struct hash_algo *algo, void *ctx, void
 }
 #endif
 
-#if defined(CONFIG_SHA384)
+#if defined(CONFIG_SHA384) && !defined(CONFIG_SHA_PROG_HW_ACCEL)
 static int hash_init_sha384(struct hash_algo *algo, void **ctxp)
 {
 	sha512_context *ctx = malloc(sizeof(sha512_context));
@@ -125,7 +125,7 @@ static int hash_finish_sha384(struct hash_algo *algo, void *ctx, void
 }
 #endif
 
-#if defined(CONFIG_SHA512)
+#if defined(CONFIG_SHA512) && !defined(CONFIG_SHA_PROG_HW_ACCEL)
 static int hash_init_sha512(struct hash_algo *algo, void **ctxp)
 {
 	sha512_context *ctx = malloc(sizeof(sha512_context));
@@ -260,10 +260,20 @@ static struct hash_algo hash_algo[] = {
 		.name		= "sha384",
 		.digest_size	= SHA384_SUM_LEN,
 		.chunk_size	= CHUNKSZ_SHA384,
+#ifdef CONFIG_SHA_HW_ACCEL
+		.hash_func_ws	= hw_sha384,
+#else
 		.hash_func_ws	= sha384_csum_wd,
+#endif
+#ifdef CONFIG_SHA_PROG_HW_ACCEL
+		.hash_init	= hw_sha_init,
+		.hash_update	= hw_sha_update,
+		.hash_finish	= hw_sha_finish,
+#else
 		.hash_init	= hash_init_sha384,
 		.hash_update	= hash_update_sha384,
 		.hash_finish	= hash_finish_sha384,
+#endif
 	},
 #endif
 #ifdef CONFIG_SHA512
@@ -271,10 +281,20 @@ static struct hash_algo hash_algo[] = {
 		.name		= "sha512",
 		.digest_size	= SHA512_SUM_LEN,
 		.chunk_size	= CHUNKSZ_SHA512,
+#ifdef CONFIG_SHA_HW_ACCEL
+		.hash_func_ws	= hw_sha512,
+#else
 		.hash_func_ws	= sha512_csum_wd,
+#endif
+#ifdef CONFIG_SHA_PROG_HW_ACCEL
+		.hash_init	= hw_sha_init,
+		.hash_update	= hw_sha_update,
+		.hash_finish	= hw_sha_finish,
+#else
 		.hash_init	= hash_init_sha512,
 		.hash_update	= hash_update_sha512,
 		.hash_finish	= hash_finish_sha512,
+#endif
 	},
 #endif
 	{
