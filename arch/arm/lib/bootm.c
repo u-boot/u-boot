@@ -16,7 +16,6 @@
 #include <command.h>
 #include <cpu_func.h>
 #include <dm.h>
-#include <hang.h>
 #include <lmb.h>
 #include <log.h>
 #include <asm/global_data.h>
@@ -249,8 +248,7 @@ static void boot_prep_linux(bootm_headers_t *images)
 #ifdef CONFIG_OF_LIBFDT
 		debug("using: FDT\n");
 		if (image_setup_linux(images)) {
-			printf("FDT creation failed! hanging...");
-			hang();
+			panic("FDT creation failed!");
 		}
 #endif
 	} else if (BOOTM_ENABLE_TAGS) {
@@ -283,8 +281,7 @@ static void boot_prep_linux(bootm_headers_t *images)
 		setup_board_tags(&params);
 		setup_end_tag(gd->bd);
 	} else {
-		printf("FDT and ATAGS support not compiled in - hanging\n");
-		hang();
+		panic("FDT and ATAGS support not compiled in\n");
 	}
 
 	board_prep_linux(images);
