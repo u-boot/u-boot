@@ -259,10 +259,10 @@ kernel_addr_r:
 
 kernel_comp_addr_r:
   Optional. This is only required if user wants to boot Linux from a compressed
-  Image(.gz, .bz2, .lzma, .lzo) using booti command. It represents the location
-  in RAM where the compressed Image will be decompressed temporarily. Once the
-  decompression is complete, decompressed data will be moved kernel_addr_r for
-  booting.
+  Image(.gz, .bz2, .lzma, .lzo) using the booti command. It represents the
+  location in RAM where the compressed Image will be decompressed temporarily.
+  Once the decompression is complete, the decompressed data will be moved to
+  kernel_addr_r for booting.
 
 kernel_comp_size:
   Optional. This is only required if user wants to boot Linux from a compressed
