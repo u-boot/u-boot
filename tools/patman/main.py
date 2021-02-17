@@ -9,6 +9,7 @@
 from argparse import ArgumentParser
 import os
 import re
+import shutil
 import sys
 import traceback
 import unittest
@@ -170,6 +171,8 @@ elif args.cmd == 'send':
 
     elif args.full_help:
         pager = os.getenv('PAGER')
+        if not pager:
+            pager = shutil.which('less')
         if not pager:
             pager = 'more'
         fname = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
