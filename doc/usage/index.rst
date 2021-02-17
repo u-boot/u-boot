@@ -15,6 +15,7 @@ Shell commands
 
    base
    bootefi
+   booti
    bootmenu
    button
    conitrace
