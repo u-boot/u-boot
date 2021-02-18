@@ -124,6 +124,10 @@
 		reg = <0x0>;
 		#address-cells = <0x2>;
 		#size-cells = <0x1>;
+		nand-ecc-mode = "soft";
+		nand-ecc-algo = "bch";
+		nand-rb = <0>;
+		label = "main-storage-0";
 
 		partition@0 {	/* for testing purpose */
 			label = "nand-fsbl-uboot";
@@ -154,6 +158,10 @@
 		reg = <0x1>;
 		#address-cells = <0x2>;
 		#size-cells = <0x1>;
+		nand-ecc-mode = "soft";
+		nand-ecc-algo = "bch";
+		nand-rb = <0>;
+		label = "main-storage-1";
 
 		partition@0 {	/* for testing purpose */
 			label = "nand1-fsbl-uboot";
