@@ -369,11 +369,18 @@ static uint16_t EFIAPI *efi_convert_device_path_to_text(
 
 	if (!device_path)
 		goto out;
-	while (device_path &&
-	       str + MAX_NODE_LEN < buffer + MAX_PATH_LEN) {
-		*str++ = '/';
-		str = efi_convert_single_device_node_to_text(str, device_path);
-		device_path = efi_dp_next(device_path);
+	while (device_path && str + MAX_NODE_LEN < buffer + MAX_PATH_LEN) {
+		if (device_path->type == DEVICE_PATH_TYPE_END) {
+			if (device_path->sub_type !=
+			    DEVICE_PATH_SUB_TYPE_INSTANCE_END)
+				break;
+			*str++ = ',';
+		} else {
+			*str++ = '/';
+			str = efi_convert_single_device_node_to_text(
+							str, device_path);
+		}
+		*(u8 **)&device_path += device_path->length;
 	}
 
 	text = efi_str_to_u16(buffer);
