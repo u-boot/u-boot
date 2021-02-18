@@ -157,6 +157,16 @@ static const struct rpi_model rpi_models_new_scheme[] = {
 		DTB_DIR "bcm2711-rpi-4-b.dtb",
 		true,
 	},
+	[0x13] = {
+		"400",
+		DTB_DIR "bcm2711-rpi-400.dtb",
+		true,
+	},
+	[0x14] = {
+		"Compute Module 4",
+		DTB_DIR "bcm2711-rpi-cm4.dtb",
+		true,
+	},
 };
 
 static const struct rpi_model rpi_models_old_scheme[] = {
@@ -267,6 +277,13 @@ int dram_init(void)
 	}
 
 	gd->ram_size = msg->get_arm_mem.body.resp.mem_size;
+
+	/*
+	 * In some configurations the memory size returned by VideoCore
+	 * is not aligned to the section size, what is mandatory for
+	 * the u-boot's memory setup.
+	 */
+	gd->ram_size &= ~MMU_SECTION_SIZE;
 
 	return 0;
 }

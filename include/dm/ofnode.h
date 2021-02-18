@@ -999,6 +999,22 @@ u64 ofnode_translate_address(ofnode node, const fdt32_t *in_addr);
 u64 ofnode_translate_dma_address(ofnode node, const fdt32_t *in_addr);
 
 /**
+ * ofnode_get_dma_range() - get dma-ranges for a specific DT node
+ *
+ * Get DMA ranges for a specifc node, this is useful to perform bus->cpu and
+ * cpu->bus address translations
+ *
+ * @param blob		Pointer to device tree blob
+ * @param node_offset	Node DT offset
+ * @param cpu		Pointer to variable storing the range's cpu address
+ * @param bus		Pointer to variable storing the range's bus address
+ * @param size		Pointer to variable storing the range's size
+ * @return translated DMA address or OF_BAD_ADDR on error
+ */
+int ofnode_get_dma_range(ofnode node, phys_addr_t *cpu, dma_addr_t *bus,
+			 u64 *size);
+
+/**
  * ofnode_device_is_compatible() - check if the node is compatible with compat
  *
  * This allows to check whether the node is comaptible with the compat.

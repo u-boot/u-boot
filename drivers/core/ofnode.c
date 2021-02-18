@@ -927,6 +927,15 @@ u64 ofnode_translate_dma_address(ofnode node, const fdt32_t *in_addr)
 		return fdt_translate_dma_address(gd->fdt_blob, ofnode_to_offset(node), in_addr);
 }
 
+int ofnode_get_dma_range(ofnode node, phys_addr_t *cpu, dma_addr_t *bus, u64 *size)
+{
+	if (ofnode_is_np(node))
+		return of_get_dma_range(ofnode_to_np(node), cpu, bus, size);
+	else
+		return fdt_get_dma_range(gd->fdt_blob, ofnode_to_offset(node),
+					 cpu, bus, size);
+}
+
 int ofnode_device_is_compatible(ofnode node, const char *compat)
 {
 	if (ofnode_is_np(node))

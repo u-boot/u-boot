@@ -648,6 +648,21 @@ u64 dev_translate_dma_address(const struct udevice *dev,
 			      const fdt32_t *in_addr);
 
 /**
+ * dev_get_dma_range() - Get a device's DMA constraints
+ *
+ * Provide the address bases and size of the linear mapping between the CPU and
+ * a device's BUS address space.
+ *
+ * @dev: device giving the context in which to translate the DMA address
+ * @cpu: base address for CPU's view of memory
+ * @bus: base address for BUS's view of memory
+ * @size: size of the address space
+ * @return 0 if ok, negative on error
+ */
+int dev_get_dma_range(const struct udevice *dev, phys_addr_t *cpu,
+		      dma_addr_t *bus, u64 *size);
+
+/**
  * dev_read_alias_highest_id - Get highest alias id for the given stem
  * @stem:	Alias stem to be examined
  *
@@ -1003,6 +1018,12 @@ static inline u64 dev_translate_dma_address(const struct udevice *dev,
 					    const fdt32_t *in_addr)
 {
 	return ofnode_translate_dma_address(dev_ofnode(dev), in_addr);
+}
+
+static inline int dev_get_dma_range(const struct udevice *dev, phys_addr_t *cpu,
+				    dma_addr_t *bus, u64 *size)
+{
+	return ofnode_get_dma_range(dev_ofnode(dev), cpu, bus, size);
 }
 
 static inline int dev_read_alias_highest_id(const char *stem)

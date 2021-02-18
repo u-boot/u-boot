@@ -318,6 +318,84 @@ u64 of_translate_dma_address(const struct device_node *dev, const __be32 *in_add
 	return __of_translate_address(dev, in_addr, "dma-ranges");
 }
 
+int of_get_dma_range(const struct device_node *dev, phys_addr_t *cpu,
+		     dma_addr_t *bus, u64 *size)
+{
+	bool found_dma_ranges = false;
+	struct device_node *parent;
+	struct of_bus *bus_node;
+	int na, ns, pna, pns;
+	const __be32 *ranges;
+	int ret = 0;
+	int len;
+
+	/* Find the closest dma-ranges property */
+	dev = of_node_get(dev);
+	while (dev) {
+		ranges = of_get_property(dev, "dma-ranges", &len);
+
+		/* Ignore empty ranges, they imply no translation required */
+		if (ranges && len > 0)
+			break;
+
+		/* Once we find 'dma-ranges', then a missing one is an error */
+		if (found_dma_ranges && !ranges) {
+			ret = -EINVAL;
+			goto out;
+		}
+
+		if (ranges)
+			found_dma_ranges = true;
+
+		parent = of_get_parent(dev);
+		of_node_put(dev);
+		dev = parent;
+	}
+
+	if (!dev || !ranges) {
+		debug("no dma-ranges found for node %s\n",
+		      of_node_full_name(dev));
+		ret = -ENOENT;
+		goto out;
+	}
+
+	/* switch to that node */
+	parent = of_get_parent(dev);
+	if (!parent) {
+		printf("Found dma-ranges in root node, shoudln't happen\n");
+		ret = -EINVAL;
+		goto out;
+	}
+
+	/* Get the address sizes both for the bus and its parent */
+	bus_node = of_match_bus((struct device_node*)dev);
+	bus_node->count_cells(dev, &na, &ns);
+	if (!OF_CHECK_COUNTS(na, ns)) {
+		printf("Bad cell count for %s\n", of_node_full_name(dev));
+		return -EINVAL;
+		goto out_parent;
+	}
+
+	bus_node = of_match_bus(parent);
+	bus_node->count_cells(parent, &pna, &pns);
+	if (!OF_CHECK_COUNTS(pna, pns)) {
+		printf("Bad cell count for %s\n", of_node_full_name(parent));
+		return -EINVAL;
+		goto out_parent;
+	}
+
+	*bus = of_read_number(ranges, na);
+	*cpu = of_translate_dma_address(dev, ranges + na);
+	*size = of_read_number(ranges + na + pna, ns);
+
+out_parent:
+	of_node_put(parent);
+out:
+	of_node_put(dev);
+	return ret;
+}
+
+
 static int __of_address_to_resource(const struct device_node *dev,
 		const __be32 *addrp, u64 size, unsigned int flags,
 		const char *name, struct resource *r)

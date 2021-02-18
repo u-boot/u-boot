@@ -1180,3 +1180,33 @@ static int dm_test_all_have_seq(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_all_have_seq, UT_TESTF_SCAN_PDATA);
+
+static int dm_test_dma_offset(struct unit_test_state *uts)
+{
+       struct udevice *dev;
+       ofnode node;
+
+       /* Make sure the bus's dma-ranges aren't taken into account here */
+       node = ofnode_path("/mmio-bus@0");
+       ut_assert(ofnode_valid(node));
+       ut_assertok(uclass_get_device_by_ofnode(UCLASS_TEST_BUS, node, &dev));
+       ut_asserteq_64(0, dev->dma_offset);
+
+       /* Device behind a bus with dma-ranges */
+       node = ofnode_path("/mmio-bus@0/subnode@0");
+       ut_assert(ofnode_valid(node));
+       ut_assertok(uclass_get_device_by_ofnode(UCLASS_TEST_FDT, node, &dev));
+       ut_asserteq_64(-0x10000000ULL, dev->dma_offset);
+
+       /* This one has no dma-ranges */
+       node = ofnode_path("/mmio-bus@1");
+       ut_assert(ofnode_valid(node));
+       ut_assertok(uclass_get_device_by_ofnode(UCLASS_TEST_BUS, node, &dev));
+       node = ofnode_path("/mmio-bus@1/subnode@0");
+       ut_assert(ofnode_valid(node));
+       ut_assertok(uclass_get_device_by_ofnode(UCLASS_TEST_FDT, node, &dev));
+       ut_asserteq_64(0, dev->dma_offset);
+
+       return 0;
+}
+DM_TEST(dm_test_dma_offset, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

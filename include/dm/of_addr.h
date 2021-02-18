@@ -44,6 +44,23 @@ u64 of_translate_address(const struct device_node *no, const __be32 *in_addr);
  */
 u64 of_translate_dma_address(const struct device_node *no, const __be32 *in_addr);
 
+
+/**
+ * of_get_dma_range() - get dma-ranges for a specific DT node
+ *
+ * Get DMA ranges for a specifc node, this is useful to perform bus->cpu and
+ * cpu->bus address translations
+ *
+ * @param blob		Pointer to device tree blob
+ * @param node_offset	Node DT offset
+ * @param cpu		Pointer to variable storing the range's cpu address
+ * @param bus		Pointer to variable storing the range's bus address
+ * @param size		Pointer to variable storing the range's size
+ * @return translated DMA address or OF_BAD_ADDR on error
+ */
+int of_get_dma_range(const struct device_node *dev, phys_addr_t *cpu,
+		     dma_addr_t *bus, u64 *size);
+
 /**
  * of_get_address() - obtain an address from a node
  *
