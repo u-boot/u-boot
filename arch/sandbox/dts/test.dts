@@ -1402,3 +1402,4 @@
 };
 
 #include "sandbox_pmic.dtsi"
+#include "cros-ec-keyboard.dtsi"
