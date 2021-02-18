@@ -33,11 +33,11 @@
 #define RNG_FIFO_COUNT_OFFSET				0x24
 #define RNG_FIFO_COUNT_RNG_FIFO_COUNT_MASK		0x000000FF
 
-struct iproc_rng200_platdata {
+struct iproc_rng200_plat {
 	fdt_addr_t base;
 };
 
-static void iproc_rng200_enable(struct iproc_rng200_platdata *pdata, bool enable)
+static void iproc_rng200_enable(struct iproc_rng200_plat *pdata, bool enable)
 {
 	fdt_addr_t rng_base = pdata->base;
 	u32 val;
@@ -52,7 +52,7 @@ static void iproc_rng200_enable(struct iproc_rng200_platdata *pdata, bool enable
 	writel(val, rng_base + RNG_CTRL_OFFSET);
 }
 
-static void iproc_rng200_restart(struct iproc_rng200_platdata *pdata)
+static void iproc_rng200_restart(struct iproc_rng200_plat *pdata)
 {
 	fdt_addr_t rng_base = pdata->base;
 	u32 val;
@@ -84,7 +84,7 @@ static void iproc_rng200_restart(struct iproc_rng200_platdata *pdata)
 
 static int iproc_rng200_read(struct udevice *dev, void *data, size_t len)
 {
-	struct iproc_rng200_platdata *priv = dev_get_plat(dev);
+	struct iproc_rng200_plat *priv = dev_get_plat(dev);
 	char *buf = (char *)data;
 	u32 num_remaining = len;
 	u32 status;
@@ -136,7 +136,7 @@ static int iproc_rng200_read(struct udevice *dev, void *data, size_t len)
 
 static int iproc_rng200_probe(struct udevice *dev)
 {
-	struct iproc_rng200_platdata *priv = dev_get_plat(dev);
+	struct iproc_rng200_plat *priv = dev_get_plat(dev);
 
 	iproc_rng200_enable(priv, true);
 
@@ -145,16 +145,16 @@ static int iproc_rng200_probe(struct udevice *dev)
 
 static int iproc_rng200_remove(struct udevice *dev)
 {
-	struct iproc_rng200_platdata *priv = dev_get_plat(dev);
+	struct iproc_rng200_plat *priv = dev_get_plat(dev);
 
 	iproc_rng200_enable(priv, false);
 
 	return 0;
 }
 
-static int iproc_rng200_ofdata_to_platdata(struct udevice *dev)
+static int iproc_rng200_of_to_plat(struct udevice *dev)
 {
-	struct iproc_rng200_platdata *pdata = dev_get_plat(dev);
+	struct iproc_rng200_plat *pdata = dev_get_plat(dev);
 
 	pdata->base = dev_read_addr(dev);
 	if (!pdata->base)
@@ -180,6 +180,6 @@ U_BOOT_DRIVER(iproc_rng200_rng) = {
 	.ops = &iproc_rng200_ops,
 	.probe = iproc_rng200_probe,
 	.remove = iproc_rng200_remove,
-	.plat_auto = sizeof(struct iproc_rng200_platdata),
-	.of_to_plat = iproc_rng200_ofdata_to_platdata,
+	.priv_auto = sizeof(struct iproc_rng200_plat),
+	.of_to_plat = iproc_rng200_of_to_plat,
 };
