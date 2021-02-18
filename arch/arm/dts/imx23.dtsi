@@ -105,7 +105,7 @@
 				status = "disabled";
 			};
 
-			pinctrl@80018000 {
+			pinctrl: pinctrl@80018000 {
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "fsl,imx23-pinctrl", "simple-bus";

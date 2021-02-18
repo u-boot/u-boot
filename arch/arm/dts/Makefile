@@ -648,6 +648,9 @@ dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 	vf610-pcm052.dtb \
 	vf610-bk4r1.dtb
 
+dtb-$(CONFIG_MX23) += \
+	imx23-evk.dtb
+
 dtb-$(CONFIG_MX28) += \
 	imx28-xea.dtb
 
