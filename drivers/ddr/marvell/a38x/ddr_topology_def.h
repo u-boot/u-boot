@@ -52,9 +52,6 @@ struct if_params {
 	/* The DDR frequency for each interfaces */
 	enum mv_ddr_freq memory_freq;
 
-    /* ddr twin-die */
-	enum mv_ddr_twin_die twin_die_combined;
-
 	/*
 	 * delay CAS Write Latency
 	 * - 0 for using default value (jedec suggested)
