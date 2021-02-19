@@ -219,7 +219,7 @@ static int ddr3_tip_pad_inv(void)
 						       DDR_PHY_CONTROL,
 						       PHY_CTRL_PHY_REG,
 						       data, data);
-#else /* !CONFIG_ARMADA_38X && !CONFIG_ARMADA_39X && !A70X0 && !A80X0 && !A3900 */
+#else /* !CONFIG_ARMADA_38X && !CONFIG_ARMADA_39X */
 #pragma message "unknown platform to configure ddr clock swap"
 #endif
 		}
