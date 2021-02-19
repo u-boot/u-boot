@@ -142,4 +142,6 @@
 
 &fec {
 	phy-reset-gpios = <&gpio4 2 GPIO_ACTIVE_LOW>;
+	phy-reset-duration = <15>;
+	phy-reset-post-delay = <100>;
 };
