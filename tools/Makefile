@@ -73,6 +73,10 @@ RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/rsa/, \
 AES_OBJS-$(CONFIG_FIT_CIPHER) := $(addprefix lib/aes/, \
 					aes-encrypt.o aes-decrypt.o)
 
+# Cryptographic helpers that depend on openssl/libcrypto
+LIBCRYPTO_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/, \
+					fdt-libcrypto.o)
+
 ROCKCHIP_OBS = lib/rc4.o rkcommon.o rkimage.o rksd.o rkspi.o
 
 # common objs for dumpimage and mkimage
@@ -115,6 +119,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			zynqimage.o \
 			zynqmpimage.o \
 			zynqmpbif.o \
+			$(LIBCRYPTO_OBJS-y) \
 			$(LIBFDT_OBJS) \
 			gpimage.o \
 			gpimage-common.o \
