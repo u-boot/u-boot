@@ -472,6 +472,19 @@ Test Verified Boot Run: signed config with bad hash: OK
 Test passed
 
 
+Software signing: keydir vs keyfile
+-----------------------------------
+
+In the simplest case, signing is done by giving mkimage the 'keyfile'. This is
+the path to a file containing the signing key.
+
+The alternative is to pass the 'keydir' argument. In this case the filename of
+the key is derived from the 'keydir' and the "key-name-hint" property in the
+FIT. In this case the "key-name-hint" property is mandatory, and the key must
+exist in "<keydir>/<key-name-hint>.<ext>" Here the extension "ext" is
+specific to the signing algorithm.
+
+
 Hardware Signing with PKCS#11 or with HSM
 -----------------------------------------
 
