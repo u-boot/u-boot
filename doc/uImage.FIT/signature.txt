@@ -142,7 +142,7 @@ public key in U-Boot's control FDT (using CONFIG_OF_CONTROL).
 Public keys should be stored as sub-nodes in a /signature node. Required
 properties are:
 
-- algo: Algorithm name (e.g. "sha1,rsa2048")
+- algo: Algorithm name (e.g. "sha1,rsa2048" or "sha256,ecdsa256")
 
 Optional properties are:
 
@@ -166,6 +166,11 @@ For RSA the following are mandatory:
 - rsa,exponent: Public exponent (E) as a 64 bit unsigned integer
 - rsa,r-squared: (2^num-bits)^2 as a big-endian multi-word integer
 - rsa,n0-inverse: -1 / modulus[0] mod 2^32
+
+For ECDSA the following are mandatory:
+- ecdsa,curve: Name of ECDSA curve (e.g. "prime256v1")
+- ecdsa,x-point: Public key X coordinate as a big-endian multi-word integer
+- ecdsa,y-point: Public key Y coordinate as a big-endian multi-word integer
 
 These parameters can be added to a binary device tree using parameter -K of the
 mkimage command::
