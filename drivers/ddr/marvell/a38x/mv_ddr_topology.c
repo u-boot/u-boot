@@ -144,6 +144,9 @@ unsigned short mv_ddr_bus_bit_mask_get(void)
 	unsigned int octets_per_if_num = ddr3_tip_dev_attr_get(0, MV_ATTR_OCTET_PER_INTERFACE);
 
 	if (tm->cfg_src == MV_DDR_CFG_SPD) {
+		if (tm->bus_act_mask == BUS_MASK_32BIT)
+			tm->spd_data.byte_fields.byte_13.all_bits = MV_DDR_PRI_BUS_WIDTH_32;
+
 		enum mv_ddr_pri_bus_width pri_bus_width = mv_ddr_spd_pri_bus_width_get(&tm->spd_data);
 		enum mv_ddr_bus_width_ext bus_width_ext = mv_ddr_spd_bus_width_ext_get(&tm->spd_data);
 
@@ -151,7 +154,7 @@ unsigned short mv_ddr_bus_bit_mask_get(void)
 		case MV_DDR_PRI_BUS_WIDTH_16:
 			pri_and_ext_bus_width = BUS_MASK_16BIT;
 			break;
-		case MV_DDR_PRI_BUS_WIDTH_32:
+		case MV_DDR_PRI_BUS_WIDTH_32: /*each bit represents byte, so 0xf-is means 4 bytes-32 bit*/
 			pri_and_ext_bus_width = BUS_MASK_32BIT;
 			break;
 		case MV_DDR_PRI_BUS_WIDTH_64:
