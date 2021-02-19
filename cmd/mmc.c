@@ -1017,13 +1017,13 @@ U_BOOT_CMD(
 	"  Power cycling is required to initialize partitions after set to complete.\n"
 #endif
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
-	"mmc bootbus dev boot_bus_width reset_boot_bus_width boot_mode\n"
+	"mmc bootbus <dev> <boot_bus_width> <reset_boot_bus_width> <boot_mode>\n"
 	" - Set the BOOT_BUS_WIDTH field of the specified device\n"
 	"mmc bootpart-resize <dev> <boot part size MB> <RPMB part size MB>\n"
 	" - Change sizes of boot and RPMB partitions of specified device\n"
-	"mmc partconf dev [boot_ack boot_partition partition_access]\n"
+	"mmc partconf <dev> [boot_ack boot_partition partition_access]\n"
 	" - Show or change the bits of the PARTITION_CONFIG field of the specified device\n"
-	"mmc rst-function dev value\n"
+	"mmc rst-function <dev> <value>\n"
 	" - Change the RST_n_FUNCTION field of the specified device\n"
 	"   WARNING: This is a write-once field and 0 / 1 / 2 are the only valid values.\n"
 #endif
