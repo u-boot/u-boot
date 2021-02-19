@@ -1136,9 +1136,10 @@ int fit_cipher_data(const char *keydir, void *keydest, void *fit,
  *     0, on success
  *     libfdt error code, on failure
  */
-int fit_add_verification_data(const char *keydir, void *keydest, void *fit,
-			      const char *comment, int require_keys,
-			      const char *engine_id, const char *cmdname);
+int fit_add_verification_data(const char *keydir, const char *keyfile,
+			      void *keydest, void *fit, const char *comment,
+			      int require_keys, const char *engine_id,
+			      const char *cmdname);
 
 int fit_image_verify_with_data(const void *fit, int image_noffset,
 			       const void *data, size_t size);
@@ -1256,10 +1257,17 @@ void image_set_host_blob(void *host_blob);
 #endif
 #endif /* IMAGE_ENABLE_FIT */
 
-/* Information passed to the signing routines */
+/*
+ * Information passed to the signing routines
+ *
+ * Either 'keydir',  'keyname', or 'keyfile' can be NULL. However, either
+ * 'keyfile', or both 'keydir' and 'keyname' should have valid values. If
+ * neither are valid, some operations might fail with EINVAL.
+ */
 struct image_sign_info {
 	const char *keydir;		/* Directory conaining keys */
 	const char *keyname;		/* Name of key to use */
+	const char *keyfile;		/* Filename of private or public key */
 	void *fit;			/* Pointer to FIT blob */
 	int node_offset;		/* Offset of signature node */
 	const char *name;		/* Algorithm name */
