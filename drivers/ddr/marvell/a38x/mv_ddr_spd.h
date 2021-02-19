@@ -277,6 +277,7 @@ union mv_ddr_spd_data {
 int mv_ddr_spd_timing_calc(union mv_ddr_spd_data *spd_data, unsigned int timing_data[]);
 enum mv_ddr_dev_width mv_ddr_spd_dev_width_get(union mv_ddr_spd_data *spd_data);
 enum mv_ddr_die_capacity mv_ddr_spd_die_capacity_get(union mv_ddr_spd_data *spd_data);
+void mv_ddr_spd_die_capacity_user_get(union mv_ddr_spd_data *spd_data, enum mv_ddr_die_capacity capacity);
 unsigned char mv_ddr_spd_mem_mirror_get(union mv_ddr_spd_data *spd_data);
 unsigned char mv_ddr_spd_cs_bit_mask_get(union mv_ddr_spd_data *spd_data);
 unsigned char mv_ddr_spd_dev_type_get(union mv_ddr_spd_data *spd_data);
