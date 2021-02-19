@@ -16,6 +16,7 @@
 #else
 #include <string.h>
 #endif /* USE_HOSTCC */
+#include <compiler.h>
 #include <watchdog.h>
 #include <u-boot/sha512.h>
 
