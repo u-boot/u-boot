@@ -210,14 +210,20 @@ static int rsa_get_pub_key(const char *keydir, const char *name,
  * @return 0 if ok, -ve on error (in which case *rsap will be set to NULL)
  */
 static int rsa_pem_get_priv_key(const char *keydir, const char *name,
-				RSA **rsap)
+				const char *keyfile, RSA **rsap)
 {
 	char path[1024];
 	RSA *rsa;
 	FILE *f;
 
 	*rsap = NULL;
-	snprintf(path, sizeof(path), "%s/%s.key", keydir, name);
+	if (keydir && name)
+		snprintf(path, sizeof(path), "%s/%s.key", keydir, name);
+	else if (keyfile)
+		snprintf(path, sizeof(path), "%s", keyfile);
+	else
+		return -EINVAL;
+
 	f = fopen(path, "r");
 	if (!f) {
 		fprintf(stderr, "Couldn't open RSA private key: '%s': %s\n",
@@ -247,6 +253,7 @@ static int rsa_pem_get_priv_key(const char *keydir, const char *name,
  * @return 0 if ok, -ve on error (in which case *rsap will be set to NULL)
  */
 static int rsa_engine_get_priv_key(const char *keydir, const char *name,
+				   const char *keyfile,
 				   ENGINE *engine, RSA **rsap)
 {
 	const char *engine_id;
@@ -260,6 +267,10 @@ static int rsa_engine_get_priv_key(const char *keydir, const char *name,
 	engine_id = ENGINE_get_id(engine);
 
 	if (engine_id && !strcmp(engine_id, "pkcs11")) {
+		if (!keydir && !name) {
+			fprintf(stderr, "Please use 'keydir' with PKCS11\n");
+			return -EINVAL;
+		}
 		if (keydir)
 			if (strstr(keydir, "object="))
 				snprintf(key_id, sizeof(key_id),
@@ -274,14 +285,19 @@ static int rsa_engine_get_priv_key(const char *keydir, const char *name,
 				 "pkcs11:object=%s;type=private",
 				 name);
 	} else if (engine_id) {
-		if (keydir)
+		if (keydir && name)
 			snprintf(key_id, sizeof(key_id),
 				 "%s%s",
 				 keydir, name);
-		else
+		else if (keydir)
 			snprintf(key_id, sizeof(key_id),
 				 "%s",
 				 name);
+		else if (keyfile)
+			snprintf(key_id, sizeof(key_id), "%s", keyfile);
+		else
+			return -EINVAL;
+
 	} else {
 		fprintf(stderr, "Engine not supported\n");
 		return -ENOTSUP;
@@ -319,11 +335,12 @@ err_rsa:
  * @return 0 if ok, -ve on error (in which case *rsap will be set to NULL)
  */
 static int rsa_get_priv_key(const char *keydir, const char *name,
-			    ENGINE *engine, RSA **rsap)
+			    const char *keyfile, ENGINE *engine, RSA **rsap)
 {
 	if (engine)
-		return rsa_engine_get_priv_key(keydir, name, engine, rsap);
-	return rsa_pem_get_priv_key(keydir, name, rsap);
+		return rsa_engine_get_priv_key(keydir, name, keyfile, engine,
+					       rsap);
+	return rsa_pem_get_priv_key(keydir, name, keyfile, rsap);
 }
 
 static int rsa_init(void)
@@ -534,7 +551,8 @@ int rsa_sign(struct image_sign_info *info,
 			goto err_engine;
 	}
 
-	ret = rsa_get_priv_key(info->keydir, info->keyname, e, &rsa);
+	ret = rsa_get_priv_key(info->keydir, info->keyname, info->keyfile,
+			       e, &rsa);
 	if (ret)
 		goto err_priv;
 	ret = rsa_sign_with_key(rsa, info->padding, info->checksum, region,
