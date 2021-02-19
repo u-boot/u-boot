@@ -217,11 +217,6 @@ enum mv_ddr_die_capacity mv_ddr_spd_die_capacity_get(union mv_ddr_spd_data *spd_
 	return ret_val;
 }
 
-void mv_ddr_spd_die_capacity_user_get(union mv_ddr_spd_data *spd_data, enum mv_ddr_die_capacity capacity)
-{
-	spd_data->byte_fields.byte_4.bit_fields.die_capacity = capacity;
-}
-
 unsigned char mv_ddr_spd_mem_mirror_get(union mv_ddr_spd_data *spd_data)
 {
 	unsigned char mem_mirror = spd_data->byte_fields.byte_131.bit_fields.rank_1_mapping;

@@ -74,10 +74,6 @@ int mv_ddr_topology_map_update(void)
 		/* update device width in topology map */
 		iface_params->bus_width = mv_ddr_spd_dev_width_get(&tm->spd_data);
 
-		/* overwrite SPD configuration, with what the user set */
-		if (tm->bus_act_mask == MV_DDR_32BIT_ECC_PUP8_BUS_MASK)
-			mv_ddr_spd_die_capacity_user_get(&tm->spd_data, tm->interface_params[0].memory_size);
-
 		/* update die capacity in topology map */
 		iface_params->memory_size = mv_ddr_spd_die_capacity_get(&tm->spd_data);
 
