@@ -149,7 +149,7 @@ unsigned short mv_ddr_bus_bit_mask_get(void)
 
 	if (tm->cfg_src == MV_DDR_CFG_SPD) {
 		if (tm->bus_act_mask == MV_DDR_32BIT_ECC_PUP8_BUS_MASK)
-			tm->spd_data.byte_fields.byte_13.all_bits = MV_DDR_PRI_BUS_WIDTH_32;
+			tm->spd_data.byte_fields.byte_13.bit_fields.primary_bus_width = MV_DDR_PRI_BUS_WIDTH_32;
 
 		enum mv_ddr_pri_bus_width pri_bus_width = mv_ddr_spd_pri_bus_width_get(&tm->spd_data);
 		enum mv_ddr_bus_width_ext bus_width_ext = mv_ddr_spd_bus_width_ext_get(&tm->spd_data);
