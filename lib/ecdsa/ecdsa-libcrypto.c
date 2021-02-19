@@ -140,8 +140,20 @@ static int read_key(struct signer *ctx, const char *key_name)
 /* Prepare a 'signer' context that's ready to sign and verify. */
 static int prepare_ctx(struct signer *ctx, const struct image_sign_info *info)
 {
-	const char *kname = info->keydir;
 	int key_len_bytes, ret;
+	char kname[1024];
+
+	memset(ctx, 0, sizeof(*ctx));
+
+	if (info->keyfile) {
+		snprintf(kname,  sizeof(kname), "%s", info->keyfile);
+	} else if (info->keydir && info->keyname) {
+		snprintf(kname, sizeof(kname), "%s/%s.pem", info->keydir,
+			 info->keyname);
+	} else {
+		fprintf(stderr, "keyfile, keyname, or key-name-hint missing\n");
+		return -EINVAL;
+	}
 
 	ret = alloc_ctx(ctx, info);
 	if (ret)
