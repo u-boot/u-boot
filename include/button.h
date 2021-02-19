@@ -6,6 +6,8 @@
 #ifndef __BUTTON_H
 #define __BUTTON_H
 
+struct udevice;
+
 /**
  * struct button_uc_plat - Platform data the uclass stores about each device
  *
