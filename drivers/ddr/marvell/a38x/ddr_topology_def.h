@@ -148,7 +148,8 @@ enum mv_ddr_validation {
 	MV_DDR_VAL_DIS,
 	MV_DDR_VAL_RX,
 	MV_DDR_VAL_TX,
-	MV_DDR_VAL_RX_TX
+	MV_DDR_VAL_RX_TX,
+	MV_DDR_MEMORY_CHECK
 };
 
 struct mv_ddr_iface {
