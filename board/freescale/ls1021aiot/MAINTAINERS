@@ -1,5 +1,5 @@
 LS1021AIOT BOARD
-M:	Feng Li <feng.li_2@nxp.com>
+M:	Alison Wang <alison.wang@nxp.com>
 S:	Maintained
 F:	board/freescale/ls1021aiot/
 F:	include/configs/ls1021aiot.h
