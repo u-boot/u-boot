@@ -143,6 +143,7 @@ static struct reg_data odpg_default_value[] = {
 	{0x15a4, 0x0, MASK_ALL_BITS},
 	{0x15a8, 0x0, MASK_ALL_BITS},
 	{0x15ac, 0x0, MASK_ALL_BITS},
+	{0x1600, 0x0, MASK_ALL_BITS},
 	{0x1604, 0x0, MASK_ALL_BITS},
 	{0x1608, 0x0, MASK_ALL_BITS},
 	{0x160c, 0x0, MASK_ALL_BITS},
@@ -1568,6 +1569,8 @@ int ddr3_tip_freq_set(u32 dev_num, enum hws_access_type access_type,
 		/* re-write CL */
 		val = ((cl_mask_table[cl_value] & 0x1) << 2) |
 			((cl_mask_table[cl_value] & 0xe) << 3);
+
+		cs_mask[0] = 0xc;
 
 		CHECK_STATUS(ddr3_tip_write_mrs_cmd(dev_num, cs_mask, MR_CMD0,
 			val, (0x7 << 4) | (0x1 << 2)));
