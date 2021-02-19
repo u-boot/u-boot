@@ -43,6 +43,12 @@
 #include "mmc_private.h"
 #endif
 
+#ifndef ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE
+#ifdef CONFIG_FSL_USDHC
+#define ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE	1
+#endif
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #define SDHCI_IRQ_EN_BITS		(IRQSTATEN_CC | IRQSTATEN_TC | \
