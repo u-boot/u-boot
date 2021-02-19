@@ -52,7 +52,7 @@ class SignableFitImage(object):
             self.__fdt_set(f'{image}/signature', algo='sha256,ecdsa256')
 
     def sign(self, mkimage, key_file):
-        util.run_and_log(self.cons, [mkimage, '-F', self.fit, f'-k{key_file}'])
+        util.run_and_log(self.cons, [mkimage, '-F', self.fit, f'-G{key_file}'])
 
     def check_signatures(self, key):
         for image in self.signable_nodes:
