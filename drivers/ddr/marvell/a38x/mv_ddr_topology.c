@@ -248,7 +248,8 @@ static unsigned int mem_size[] = {
 	ADDR_SIZE_1GB,
 	ADDR_SIZE_2GB,
 	ADDR_SIZE_4GB,
-	ADDR_SIZE_8GB
+	ADDR_SIZE_8GB,
+	ADDR_SIZE_16GB
 	/* TODO: add capacity up to 256GB */
 };
 
