@@ -14,6 +14,11 @@
 #define MV_DDR_MAX_BUS_NUM	9
 #define MV_DDR_MAX_IFACE_NUM	1
 
+enum mv_ddr_twin_die {
+	COMBINED,
+	NOT_COMBINED,
+};
+
 struct bus_params {
 	/* Chip Select (CS) bitmask (bits 0-CS0, bit 1- CS1 ...) */
 	u8 cs_bitmask;
@@ -46,6 +51,9 @@ struct if_params {
 
 	/* The DDR frequency for each interfaces */
 	enum mv_ddr_freq memory_freq;
+
+    /* ddr twin-die */
+	enum mv_ddr_twin_die twin_die_combined;
 
 	/*
 	 * delay CAS Write Latency
@@ -112,6 +120,9 @@ struct mv_ddr_topology_map {
 
 	/* source of ddr configuration data */
 	enum mv_ddr_cfg_src cfg_src;
+
+	/* ddr twin-die */
+	enum mv_ddr_twin_die twin_die_combined;
 
 	/* raw spd data */
 	union mv_ddr_spd_data spd_data;
@@ -193,6 +204,7 @@ struct mv_ddr_iface {
 
 	/* ddr interface topology map */
 	struct mv_ddr_topology_map tm;
+
 };
 
 struct mv_ddr_iface *mv_ddr_iface_get(void);

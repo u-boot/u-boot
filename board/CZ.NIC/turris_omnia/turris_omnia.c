@@ -286,6 +286,7 @@ static struct mv_ddr_topology_map board_topology_map_1g = {
 	    MV_DDR_TIM_2T} },		/* timing */
 	BUS_MASK_32BIT,			/* Busses mask */
 	MV_DDR_CFG_DEFAULT,		/* ddr configuration data source */
+	NOT_COMBINED,			/* ddr twin-die combined */
 	{ {0} },			/* raw spd data */
 	{0}				/* timing parameters */
 };
@@ -308,6 +309,7 @@ static struct mv_ddr_topology_map board_topology_map_2g = {
 	    MV_DDR_TIM_2T} },		/* timing */
 	BUS_MASK_32BIT,			/* Busses mask */
 	MV_DDR_CFG_DEFAULT,		/* ddr configuration data source */
+	NOT_COMBINED,			/* ddr twin-die combined */
 	{ {0} },			/* raw spd data */
 	{0}				/* timing parameters */
 };

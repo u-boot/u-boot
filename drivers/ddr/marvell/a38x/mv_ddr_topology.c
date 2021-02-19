@@ -127,6 +127,11 @@ int mv_ddr_topology_map_update(void)
 		speed_bin_index = iface_params->speed_bin_index;
 		freq = iface_params->memory_freq;
 
+		if (tm->twin_die_combined == COMBINED) {
+			iface_params->bus_width = MV_DDR_DEV_WIDTH_8BIT;
+			iface_params->memory_size -= 1;
+		}
+
 		if (iface_params->cas_l == 0)
 			iface_params->cas_l = mv_ddr_cl_val_get(speed_bin_index, freq);
 
@@ -281,7 +286,6 @@ unsigned long long mv_ddr_mem_sz_per_cs_get(void)
 	mem_sz_per_cs = (unsigned long long)mem_size[iface_params->memory_size] *
 			(unsigned long long)sphys /
 			(unsigned long long)sphys_per_dunit;
-
 	return mem_sz_per_cs;
 }
 
