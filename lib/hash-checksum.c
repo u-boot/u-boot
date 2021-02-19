@@ -13,7 +13,8 @@
 #else
 #include "fdt_host.h"
 #endif
-#include <u-boot/rsa.h>
+#include <hash.h>
+#include <image.h>
 
 int hash_calculate(const char *name,
 		    const struct image_region region[],
