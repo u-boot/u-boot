@@ -243,6 +243,8 @@ extern int soft_i2c_gpio_scl;
  */
 #define BOOTM_SIZE        __stringify(0xa000000)
 #define KERNEL_ADDR_R     __stringify(SDRAM_OFFSET(0080000))
+#define KERNEL_COMP_ADDR_R __stringify(SDRAM_OFFSET(4000000))
+#define KERNEL_COMP_SIZE  __stringify(0xb000000)
 #define FDT_ADDR_R        __stringify(SDRAM_OFFSET(FA00000))
 #define SCRIPT_ADDR_R     __stringify(SDRAM_OFFSET(FC00000))
 #define PXEFILE_ADDR_R    __stringify(SDRAM_OFFSET(FD00000))
@@ -287,6 +289,18 @@ extern int soft_i2c_gpio_scl;
 	"pxefile_addr_r=" PXEFILE_ADDR_R "\0" \
 	"fdtoverlay_addr_r=" FDTOVERLAY_ADDR_R "\0" \
 	"ramdisk_addr_r=" RAMDISK_ADDR_R "\0"
+
+#ifdef CONFIG_ARM64
+
+#define MEM_LAYOUT_ENV_EXTRA_SETTINGS \
+	"kernel_comp_addr_r=" KERNEL_COMP_ADDR_R "\0" \
+	"kernel_comp_size=" KERNEL_COMP_SIZE "\0"
+
+#else
+
+#define MEM_LAYOUT_ENV_EXTRA_SETTINGS ""
+
+#endif
 
 #define DFU_ALT_INFO_RAM \
 	"dfu_alt_info_ram=" \
@@ -438,6 +452,7 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONSOLE_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
+	MEM_LAYOUT_ENV_EXTRA_SETTINGS \
 	DFU_ALT_INFO_RAM \
 	"fdtfile=" FDTFILE "\0" \
 	"console=ttyS0,115200\0" \
