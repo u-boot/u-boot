@@ -127,14 +127,7 @@ int fdt_find_or_add_subnode(void *fdt, int parentoffset, const char *name)
 	return offset;
 }
 
-/* rename to CONFIG_OF_STDOUT_PATH ? */
-#if defined(OF_STDOUT_PATH)
-static int fdt_fixup_stdout(void *fdt, int chosenoff)
-{
-	return fdt_setprop(fdt, chosenoff, "linux,stdout-path",
-			      OF_STDOUT_PATH, strlen(OF_STDOUT_PATH) + 1);
-}
-#elif defined(CONFIG_OF_STDOUT_VIA_ALIAS) && defined(CONFIG_CONS_INDEX)
+#if defined(CONFIG_OF_STDOUT_VIA_ALIAS) && defined(CONFIG_CONS_INDEX)
 static int fdt_fixup_stdout(void *fdt, int chosenoff)
 {
 	int err;

@@ -134,11 +134,6 @@
 #define CONFIG_BOARD_SIZE_LIMIT		0x7e000
 #endif
 
-#if CONFIG_MMC_SUNXI_SLOT_EXTRA != -1
-/* If we have two devices (most likely eMMC + MMC), favour the eMMC */
-#else
-/* Otherwise, use the only device we have */
-#endif
 #define CONFIG_SYS_MMC_MAX_DEVICE	4
 #endif
 
@@ -199,10 +194,6 @@
 
 
 /* I2C */
-#if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
-    defined CONFIG_SY8106A_POWER
-#endif
-
 #if defined CONFIG_I2C0_ENABLE || defined CONFIG_I2C1_ENABLE || \
     defined CONFIG_I2C2_ENABLE || defined CONFIG_I2C3_ENABLE || \
     defined CONFIG_I2C4_ENABLE || defined CONFIG_R_I2C_ENABLE
@@ -231,30 +222,6 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_SYS_SPD_BUS_NUM		0 /* The axp209 i2c bus is bus 0 */
 #define CONFIG_VIDEO_LCD_I2C_BUS	-1 /* NA, but necessary to compile */
 #endif
-
-/* PMU */
-#if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
-    defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER || \
-    defined CONFIG_SY8106A_POWER
-#endif
-
-#ifdef CONFIG_REQUIRE_SERIAL_CONSOLE
-#if CONFIG_CONS_INDEX == 1
-#ifdef CONFIG_MACH_SUN9I
-#define OF_STDOUT_PATH		"/soc/serial@07000000:115200"
-#else
-#define OF_STDOUT_PATH		"/soc@01c00000/serial@01c28000:115200"
-#endif
-#elif CONFIG_CONS_INDEX == 2 && defined(CONFIG_MACH_SUN5I)
-#define OF_STDOUT_PATH		"/soc@01c00000/serial@01c28400:115200"
-#elif CONFIG_CONS_INDEX == 3 && defined(CONFIG_MACH_SUN8I)
-#define OF_STDOUT_PATH		"/soc@01c00000/serial@01c28800:115200"
-#elif CONFIG_CONS_INDEX == 5 && defined(CONFIG_MACH_SUN8I)
-#define OF_STDOUT_PATH		"/soc@01c00000/serial@01f02800:115200"
-#else
-#error Unsupported console port nr. Please fix stdout-path in sunxi-common.h.
-#endif
-#endif /* ifdef CONFIG_REQUIRE_SERIAL_CONSOLE */
 
 #ifdef CONFIG_VIDEO_SUNXI
 /*
