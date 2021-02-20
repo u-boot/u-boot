@@ -28,5 +28,6 @@ Shell commands
    loady
    mbr
    pstore
+   qfw
    sbi
    true
