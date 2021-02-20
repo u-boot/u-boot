@@ -53,7 +53,7 @@ int lpc_common_early_init(struct udevice *dev)
 
 	count = fdtdec_get_int_array_count(gd->fdt_blob, dev_of_offset(dev),
 			"intel,gen-dec", (u32 *)values,
-			sizeof(values) / sizeof(u32));
+			sizeof(values) / (sizeof(u32)));
 	if (count < 0)
 		return -EINVAL;
 
