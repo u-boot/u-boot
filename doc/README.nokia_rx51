@@ -24,8 +24,7 @@ called u-boot-gen-combined. It is available in following repository:
 There is support for hardware watchdog. Hardware watchdog is started by
 NOLO so u-boot must kick watchdog to prevent reboot device (but not very
 often, max every 2 seconds). There is also support for framebuffer display
-output with ANSI escape codes and the N900 HW keyboard input. USB tty works
-but is disabled because it prevents the current Maemo kernel from booting.
+output with ANSI escape codes and the N900 HW keyboard input.
 
 When U-Boot is starting it enable IBE bit in Auxiliary Control Register,
 which is needed for Thumb-2 ISA support. It is workaround for errata 430973.
@@ -48,10 +47,6 @@ Boot from SD or eMMC in this order:
 
 
 Available additional commands/variables:
-
- * run sercon - Use serial port for control
- * run usbcon - Use usbtty for control
- * run vgacon - Use framebuffer and HW keyboard for control (default)
 
  * run sdboot - Boot from external SD card (see boot order)
  * run emmcboot - Boot from internal eMMC memory (see boot order)
@@ -86,14 +81,6 @@ Additional variables for booting kernel:
  When variable setup_omap_atag is set, variable setup_console_atag is unset
  and u-boot standard output is set to serial then setup_console_atag is
  automatically set to 1. So output from Maemo kernel would go to serial port.
-
-USB TTY:
-
- Maemo kernel 2.6.28 will crash if u-boot enable usb tty. So USB TTY is disabled.
- For enabling USB TTY just add this line to file include/configs/nokia_rx51.h
-
- #define CONFIG_USB_TTY
-
 
 UBIFS support:
 
