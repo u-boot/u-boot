@@ -546,7 +546,7 @@ static int ca_do_bch_correction(struct nand_chip *chip,
 	struct nand_drv *info =
 	    (struct nand_drv *)nand_get_controller_data(chip);
 	unsigned int reg_v, err_loc0, err_loc1;
-	int k, max_bitflips;
+	int k, max_bitflips = 0;
 
 	for (k = 0; k < (err_num + 1) / 2; k++) {
 		reg_v = readl(&info->reg->flash_nf_bch_error_loc01 + k);
