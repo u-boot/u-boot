@@ -144,15 +144,6 @@ config TARGET_ARISTAINETOS2CCSLB
 	imply CMD_SATA
 	imply CMD_DM
 
-config TARGET_CGTQMX6EVAL
-	bool "cgtqmx6eval"
-	depends on MX6QDL
-	select BOARD_LATE_INIT
-	select DM
-	select DM_THERMAL
-	select SUPPORT_SPL
-	imply CMD_DM
-
 config TARGET_CM_FX6
 	bool "CM-FX6"
 	depends on MX6QDL
@@ -643,7 +634,6 @@ source "board/armadeus/opos6uldev/Kconfig"
 source "board/boundary/nitrogen6x/Kconfig"
 source "board/bticino/mamoj/Kconfig"
 source "board/compulab/cm_fx6/Kconfig"
-source "board/congatec/cgtqmx6eval/Kconfig"
 source "board/dhelectronics/dh_imx6/Kconfig"
 source "board/embest/mx6boards/Kconfig"
 source "board/engicam/imx6q/Kconfig"
