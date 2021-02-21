@@ -46,9 +46,6 @@ config TARGET_MX28EVK
 	bool "Support mx28evk"
 	select BOARD_EARLY_INIT_F
 
-config TARGET_SC_SPS_1
-	bool "Support sc_sps_1"
-
 config TARGET_TS4600
 	bool "Support TS4600"
 
@@ -63,7 +60,6 @@ config SYS_SOC
 source "board/freescale/mx28evk/Kconfig"
 source "board/liebherr/xea/Kconfig"
 source "board/ppcag/bg0900/Kconfig"
-source "board/schulercontrol/sc_sps_1/Kconfig"
 source "board/technologic/ts4600/Kconfig"
 
 endif
