@@ -134,11 +134,6 @@ config TARGET_PM9G45
 	bool "Ronetix pm9g45 board"
 	select AT91SAM9G45
 
-config TARGET_PICOSAM9G45
-	bool "Mini-box picosam9g45 board"
-	select AT91SAM9M10G45
-	select SUPPORT_SPL
-
 config TARGET_AT91SAM9N12EK
 	bool "Atmel AT91SAM9N12-EK board"
 	select AT91SAM9N12
@@ -338,7 +333,6 @@ source "board/egnite/ethernut5/Kconfig"
 source "board/esd/meesc/Kconfig"
 source "board/gardena/smart-gateway-at91sam/Kconfig"
 source "board/l+g/vinco/Kconfig"
-source "board/mini-box/picosam9g45/Kconfig"
 source "board/ronetix/pm9261/Kconfig"
 source "board/ronetix/pm9263/Kconfig"
 source "board/ronetix/pm9g45/Kconfig"
