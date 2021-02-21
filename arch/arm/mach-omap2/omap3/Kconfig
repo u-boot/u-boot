@@ -165,7 +165,6 @@ source "board/isee/igep00x0/Kconfig"
 source "board/ti/am3517crane/Kconfig"
 source "board/logicpd/omap3som/Kconfig"
 source "board/nokia/rx51/Kconfig"
-source "board/technexion/tao3530/Kconfig"
 source "board/lg/sniper/Kconfig"
 
 endif
