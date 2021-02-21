@@ -195,12 +195,6 @@ jobs:
         evb_ast2500:
           TEST_PY_BD: "evb-ast2500"
           TEST_PY_ID: "--id qemu"
-        vexpress_ca15_tc2:
-          TEST_PY_BD: "vexpress_ca15_tc2"
-          TEST_PY_ID: "--id qemu"
-        vexpress_ca9x4:
-          TEST_PY_BD: "vexpress_ca9x4"
-          TEST_PY_ID: "--id qemu"
         integratorcp_cm926ejs:
           TEST_PY_BD: "integratorcp_cm926ejs"
           TEST_PY_ID: "--id qemu"

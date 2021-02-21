@@ -645,13 +645,6 @@ config ARCH_BCM6858
 	select OF_CONTROL
 	imply CMD_DM
 
-config TARGET_VEXPRESS_CA15_TC2
-	bool "Support vexpress_ca15_tc2"
-	select CPU_V7A
-	select CPU_V7_HAS_NONSEC
-	select CPU_V7_HAS_VIRT
-	select PL011_SERIAL
-
 config ARCH_BCMSTB
 	bool "Broadcom BCM7XXX family"
 	select CPU_V7A
@@ -662,16 +655,6 @@ config ARCH_BCMSTB
 	help
 	  This enables support for Broadcom ARM-based set-top box
 	  chipsets, including the 7445 family of chips.
-
-config TARGET_VEXPRESS_CA5X2
-	bool "Support vexpress_ca5x2"
-	select CPU_V7A
-	select PL011_SERIAL
-
-config TARGET_VEXPRESS_CA9X4
-	bool "Support vexpress_ca9x4"
-	select CPU_V7A
-	select PL011_SERIAL
 
 config TARGET_BCM23550_W1D
 	bool "Support bcm23550_w1d"
@@ -1964,7 +1947,6 @@ source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
 source "board/Marvell/octeontx/Kconfig"
 source "board/Marvell/octeontx2/Kconfig"
-source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
 source "board/cortina/presidio-asic/Kconfig"
 source "board/broadcom/bcm23550_w1d/Kconfig"
