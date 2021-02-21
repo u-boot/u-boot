@@ -623,22 +623,6 @@ config TARGET_WARP
 	depends on MX6SL
 	select BOARD_LATE_INIT
 
-config TARGET_ZC5202
-	bool "zc5202"
-	select BOARD_LATE_INIT
-	select DM
-	select DM_THERMAL
-	select SUPPORT_SPL
-	imply CMD_DM
-
-config TARGET_ZC5601
-	bool "zc5601"
-	select BOARD_LATE_INIT
-	select DM
-	select DM_THERMAL
-	select SUPPORT_SPL
-	imply CMD_DM
-
 config TARGET_BRPPT2
 	bool "brppt2"
 	depends on MX6QDL
@@ -672,7 +656,6 @@ source "board/bticino/mamoj/Kconfig"
 source "board/compulab/cm_fx6/Kconfig"
 source "board/congatec/cgtqmx6eval/Kconfig"
 source "board/dhelectronics/dh_imx6/Kconfig"
-source "board/el/el6x/Kconfig"
 source "board/embest/mx6boards/Kconfig"
 source "board/engicam/imx6q/Kconfig"
 source "board/engicam/imx6ul/Kconfig"
