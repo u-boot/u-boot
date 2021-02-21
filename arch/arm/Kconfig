@@ -346,7 +346,7 @@ config SYS_CACHELINE_SIZE
 choice
 	prompt "Select the ARM data write cache policy"
 	default SYS_ARM_CACHE_WRITETHROUGH if TARGET_BCMCYGNUS || \
-					      TARGET_BCMNSP || CPU_PXA || RZA1
+					      CPU_PXA || RZA1
 	default SYS_ARM_CACHE_WRITEBACK
 
 config SYS_ARM_CACHE_WRITEBACK
@@ -666,10 +666,6 @@ config TARGET_BCMCYGNUS
 	imply FAT_WRITE
 	imply HASH_VERIFY
 	imply NETDEVICES
-
-config TARGET_BCMNSP
-	bool "Support bcmnsp"
-	select CPU_V7A
 
 config TARGET_BCMNS2
 	bool "Support Broadcom Northstar2"
@@ -1935,8 +1931,6 @@ source "board/cortina/presidio-asic/Kconfig"
 source "board/broadcom/bcm963158/Kconfig"
 source "board/broadcom/bcm968360bg/Kconfig"
 source "board/broadcom/bcm968580xref/Kconfig"
-source "board/broadcom/bcmcygnus/Kconfig"
-source "board/broadcom/bcmnsp/Kconfig"
 source "board/broadcom/bcmns3/Kconfig"
 source "board/cavium/thunderx/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
