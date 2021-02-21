@@ -28,11 +28,6 @@ config TARGET_CADDY2
 	bool "Support caddy2"
 	select ARCH_MPC8349
 
-config TARGET_MPC8308RDB
-	bool "Support MPC8308RDB"
-	select ARCH_MPC8308
-	select SYS_FSL_ERRATUM_ESDHC111
-
 config TARGET_MPC8313ERDB_NOR
 	bool "Support MPC8313ERDB_NOR"
 	select ARCH_MPC8313
@@ -325,7 +320,6 @@ config FSL_ELBC
 	bool
 
 source "board/esd/vme8349/Kconfig"
-source "board/freescale/mpc8308rdb/Kconfig"
 source "board/freescale/mpc8313erdb/Kconfig"
 source "board/freescale/mpc8315erdb/Kconfig"
 source "board/freescale/mpc8323erdb/Kconfig"
