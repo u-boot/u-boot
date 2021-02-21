@@ -89,9 +89,6 @@ config TARGET_OMAP3_OVERO
 	select OMAP3_GPIO_6
 	imply CMD_DM
 
-config TARGET_AM3517_CRANE
-	bool "am3517_crane"
-
 config TARGET_OMAP3_PANDORA
 	bool "OMAP3 Pandora"
 	select OMAP3_GPIO_4
@@ -162,7 +159,6 @@ source "board/ti/beagle/Kconfig"
 source "board/timll/devkit8000/Kconfig"
 source "board/ti/evm/Kconfig"
 source "board/isee/igep00x0/Kconfig"
-source "board/ti/am3517crane/Kconfig"
 source "board/logicpd/omap3som/Kconfig"
 source "board/nokia/rx51/Kconfig"
 source "board/lg/sniper/Kconfig"
