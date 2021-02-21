@@ -16,9 +16,6 @@ config TARGET_MX23EVK
 	bool "Support mx23evk"
 	select BOARD_EARLY_INIT_F
 
-config TARGET_SANSA_FUZE_PLUS
-	bool "Support sansa_fuze_plus"
-
 config TARGET_XFI3
 	bool "Support xfi3"
 
@@ -29,7 +26,6 @@ config SYS_SOC
 
 source "board/olimex/mx23_olinuxino/Kconfig"
 source "board/freescale/mx23evk/Kconfig"
-source "board/sandisk/sansa_fuze_plus/Kconfig"
 
 endif
 
