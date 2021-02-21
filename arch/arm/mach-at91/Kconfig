@@ -303,11 +303,6 @@ config TARGET_VINCO
 	select SUPPORT_SPL
 	imply CMD_DM
 
-config TARGET_WB45N
-	bool "Support Laird WB45N"
-	select CPU_ARM926EJS
-	select SUPPORT_SPL
-
 config TARGET_WB50N
 	bool "Support Laird WB50N"
 	select BOARD_EARLY_INIT_F
@@ -358,7 +353,6 @@ source "board/ronetix/pm9g45/Kconfig"
 source "board/siemens/corvus/Kconfig"
 source "board/siemens/taurus/Kconfig"
 source "board/siemens/smartweb/Kconfig"
-source "board/laird/wb45n/Kconfig"
 source "board/laird/wb50n/Kconfig"
 
 config SPL_LDSCRIPT
