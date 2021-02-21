@@ -226,10 +226,6 @@ config TARGET_T4240RDB
 	imply CMD_SATA
 	imply PANIC_HANG
 
-config TARGET_CONTROLCENTERD
-	bool "Support controlcenterd"
-	select ARCH_P1022
-
 config TARGET_KMP204X
 	bool "Support kmp204x"
 	select VENDOR_KM
@@ -1395,7 +1391,6 @@ source "board/freescale/t104xrdb/Kconfig"
 source "board/freescale/t208xqds/Kconfig"
 source "board/freescale/t208xrdb/Kconfig"
 source "board/freescale/t4rdb/Kconfig"
-source "board/gdsys/p1022/Kconfig"
 source "board/keymile/Kconfig"
 source "board/sbc8548/Kconfig"
 source "board/socrates/Kconfig"
