@@ -39,6 +39,8 @@
 		spi0 = &ecspi1;
 		spi1 = &ecspi2;
 		spi2 = &ecspi3;
+		usb0 = &usb_dwc3_0;
+		usb1 = &usb_dwc3_1;
 	};
 
 	ckil: clock-ckil {
