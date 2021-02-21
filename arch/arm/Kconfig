@@ -932,11 +932,6 @@ config ARCH_RMOBILE
 	imply SYS_THUMB_BUILD
 	imply ARCH_MISC_INIT if DISPLAY_CPUINFO
 
-config TARGET_S32V234EVB
-	bool "Support s32v234evb"
-	select ARM64
-	select SYS_FSL_ERRATUM_ESDHC111
-
 config ARCH_SNAPDRAGON
 	bool "Qualcomm Snapdragon SoCs"
 	select ARM64
@@ -1979,7 +1974,6 @@ source "board/freescale/ls1012aqds/Kconfig"
 source "board/freescale/ls1012ardb/Kconfig"
 source "board/freescale/ls1012afrdm/Kconfig"
 source "board/freescale/lx2160a/Kconfig"
-source "board/freescale/s32v234evb/Kconfig"
 source "board/grinn/chiliboard/Kconfig"
 source "board/hisilicon/hikey/Kconfig"
 source "board/hisilicon/hikey960/Kconfig"
