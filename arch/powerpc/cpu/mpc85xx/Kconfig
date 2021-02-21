@@ -254,18 +254,6 @@ config TARGET_UCP1020
 	imply CMD_SATA
 	imply PANIC_HANG
 
-config TARGET_CYRUS_P5020
-	bool "Support Varisys Cyrus P5020"
-	select ARCH_P5020
-	select PHYS_64BIT
-	imply PANIC_HANG
-
-config TARGET_CYRUS_P5040
-	 bool "Support Varisys Cyrus P5040"
-	select ARCH_P5040
-	select PHYS_64BIT
-	imply PANIC_HANG
-
 endchoice
 
 config ARCH_B4420
@@ -727,31 +715,6 @@ config ARCH_P4080
 	imply CMD_REGINFO
 	imply SATA_SIL
 
-config ARCH_P5020
-	bool
-	select E500MC
-	select FSL_LAW
-	select SYS_FSL_DDR_VER_44
-	select SYS_FSL_ERRATUM_A004510
-	select SYS_FSL_ERRATUM_A005275
-	select SYS_FSL_ERRATUM_A006261
-	select SYS_FSL_ERRATUM_DDR_A003
-	select SYS_FSL_ERRATUM_DDR_A003474
-	select SYS_FSL_ERRATUM_ESDHC111
-	select SYS_FSL_ERRATUM_I2C_A004447
-	select SYS_FSL_ERRATUM_SRIO_A004034
-	select SYS_FSL_ERRATUM_USB14
-	select SYS_FSL_HAS_DDR3
-	select SYS_FSL_HAS_SEC
-	select SYS_FSL_QORIQ_CHASSIS1
-	select SYS_FSL_SEC_BE
-	select SYS_FSL_SEC_COMPAT_4
-	select SYS_PPC64
-	select FSL_ELBC
-	imply CMD_SATA
-	imply CMD_REGINFO
-	imply FSL_SATA
-
 config ARCH_P5040
 	bool
 	select E500MC
@@ -1010,7 +973,6 @@ config MAX_CPUS
 		     ARCH_P1024 || \
 		     ARCH_P1025 || \
 		     ARCH_P2020 || \
-		     ARCH_P5020 || \
 		     ARCH_T1023 || \
 		     ARCH_T1024
 	default 1
@@ -1048,7 +1010,6 @@ config SYS_CCSRBAR_DEFAULT
 				ARCH_P2041	|| \
 				ARCH_P3041	|| \
 				ARCH_P4080	|| \
-				ARCH_P5020	|| \
 				ARCH_P5040	|| \
 				ARCH_T1023	|| \
 				ARCH_T1024	|| \
@@ -1168,7 +1129,7 @@ config SYS_FSL_A004447_SVR_REV
 	default 0x00 if ARCH_MPC8548
 	default 0x10 if ARCH_P1010
 	default 0x11 if ARCH_P1023 || ARCH_P2041 || ARCH_BSC9132
-	default 0x20 if ARCH_P3041 || ARCH_P4080 || ARCH_P5020
+	default 0x20 if ARCH_P3041 || ARCH_P4080
 
 config SYS_FSL_ERRATUM_IFC_A002769
 	bool
@@ -1238,7 +1199,6 @@ config SYS_FSL_NUM_LAWS
 			ARCH_P2041	|| \
 			ARCH_P3041	|| \
 			ARCH_P4080	|| \
-			ARCH_P5020	|| \
 			ARCH_P5040	|| \
 			ARCH_T2080	|| \
 			ARCH_T4160	|| \
@@ -1345,7 +1305,6 @@ config SYS_FSL_LBC_CLK_DIV
 	default 2 if	ARCH_P2041	|| \
 			ARCH_P3041	|| \
 			ARCH_P4080	|| \
-			ARCH_P5020	|| \
 			ARCH_P5040
 	default 1
 
@@ -1373,7 +1332,6 @@ source "board/freescale/t4rdb/Kconfig"
 source "board/keymile/Kconfig"
 source "board/sbc8548/Kconfig"
 source "board/socrates/Kconfig"
-source "board/varisys/cyrus/Kconfig"
 source "board/xes/xpedite520x/Kconfig"
 source "board/xes/xpedite537x/Kconfig"
 source "board/xes/xpedite550x/Kconfig"

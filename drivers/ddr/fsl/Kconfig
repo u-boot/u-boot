@@ -44,7 +44,6 @@ config SYS_NUM_DDR_CTLRS
 			ARCH_MPC8572	|| \
 			ARCH_MPC8641	|| \
 			ARCH_P4080	|| \
-			ARCH_P5020	|| \
 			ARCH_P5040	|| \
 			ARCH_LX2160A	|| \
 			ARCH_LX2162A	|| \

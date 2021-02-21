@@ -726,7 +726,6 @@ config SYS_DPAA_QBMAN
 		     ARCH_P4080 || \
 		     ARCH_P3041 || \
 		     ARCH_P5040 || \
-		     ARCH_P5020 || \
 		     ARCH_LS1043A || \
 		     ARCH_LS1046A
 	help
