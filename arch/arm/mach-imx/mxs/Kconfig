@@ -30,7 +30,6 @@ config SYS_SOC
 source "board/olimex/mx23_olinuxino/Kconfig"
 source "board/freescale/mx23evk/Kconfig"
 source "board/sandisk/sansa_fuze_plus/Kconfig"
-source "board/creative/xfi3/Kconfig"
 
 endif
 
