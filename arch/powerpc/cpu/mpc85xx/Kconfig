@@ -564,23 +564,6 @@ config ARCH_P1021
 	imply CMD_REGINFO
 	imply SATA_SIL
 
-config ARCH_P1022
-	bool
-	select FSL_LAW
-	select SYS_FSL_ERRATUM_A004477
-	select SYS_FSL_ERRATUM_A004508
-	select SYS_FSL_ERRATUM_A005125
-	select SYS_FSL_ERRATUM_ELBC_A001
-	select SYS_FSL_ERRATUM_ESDHC111
-	select SYS_FSL_ERRATUM_SATA_A001
-	select FSL_PCIE_RESET
-	select SYS_FSL_HAS_DDR3
-	select SYS_FSL_HAS_SEC
-	select SYS_FSL_SEC_BE
-	select SYS_FSL_SEC_COMPAT_2
-	select SYS_PPC_E500_USE_DEBUG_TLB
-	select FSL_ELBC
-
 config ARCH_P1023
 	bool
 	select FSL_LAW
@@ -1023,7 +1006,6 @@ config MAX_CPUS
 		     ARCH_MPC8572 || \
 		     ARCH_P1020 || \
 		     ARCH_P1021 || \
-		     ARCH_P1022 || \
 		     ARCH_P1023 || \
 		     ARCH_P1024 || \
 		     ARCH_P1025 || \
@@ -1057,7 +1039,6 @@ config SYS_CCSRBAR_DEFAULT
 				ARCH_P1011	|| \
 				ARCH_P1020	|| \
 				ARCH_P1021	|| \
-				ARCH_P1022	|| \
 				ARCH_P1024	|| \
 				ARCH_P1025	|| \
 				ARCH_P2020
@@ -1275,7 +1256,6 @@ config SYS_FSL_NUM_LAWS
 			ARCH_P1011	|| \
 			ARCH_P1020	|| \
 			ARCH_P1021	|| \
-			ARCH_P1022	|| \
 			ARCH_P1023	|| \
 			ARCH_P1024	|| \
 			ARCH_P1025	|| \
@@ -1325,7 +1305,6 @@ config SYS_PPC_E500_DEBUG_TLB
 			ARCH_P1011	|| \
 			ARCH_P1020	|| \
 			ARCH_P1021	|| \
-			ARCH_P1022	|| \
 			ARCH_P1024	|| \
 			ARCH_P1025	|| \
 			ARCH_P2020
