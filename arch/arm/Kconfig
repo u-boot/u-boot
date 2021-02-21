@@ -662,12 +662,6 @@ config TARGET_BCM23550_W1D
 	imply CRC32_VERIFY
 	imply FAT_WRITE
 
-config TARGET_BCM28155_AP
-	bool "Support bcm28155_ap"
-	select CPU_V7A
-	imply CRC32_VERIFY
-	imply FAT_WRITE
-
 config TARGET_BCMCYGNUS
 	bool "Support bcmcygnus"
 	select CPU_V7A
@@ -1945,7 +1939,6 @@ source "board/Marvell/octeontx2/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
 source "board/cortina/presidio-asic/Kconfig"
 source "board/broadcom/bcm23550_w1d/Kconfig"
-source "board/broadcom/bcm28155_ap/Kconfig"
 source "board/broadcom/bcm963158/Kconfig"
 source "board/broadcom/bcm968360bg/Kconfig"
 source "board/broadcom/bcm968580xref/Kconfig"
