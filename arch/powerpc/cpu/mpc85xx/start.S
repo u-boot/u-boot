@@ -344,39 +344,6 @@ l2_disabled:
 	mtspr	DBCR0,r0
 #endif
 
-#ifdef CONFIG_ARCH_MPC8569
-#define CONFIG_SYS_LBC_ADDR (CONFIG_SYS_CCSRBAR_DEFAULT + 0x5000)
-#define CONFIG_SYS_LBCR_ADDR (CONFIG_SYS_LBC_ADDR + 0xd0)
-
-	/* MPC8569 Rev.0 silcon needs to set bit 13 of LBCR to allow elBC to
-	 * use address space which is more than 12bits, and it must be done in
-	 * the 4K boot page. So we set this bit here.
-	 */
-
-	/* create a temp mapping TLB0[0] for LBCR  */
-	create_tlb0_entry 0, \
-		0, BOOKE_PAGESZ_4K, \
-		CONFIG_SYS_LBC_ADDR, MAS2_I|MAS2_G, \
-		CONFIG_SYS_LBC_ADDR, MAS3_SW|MAS3_SR, \
-		0, r6
-
-	/* Set LBCR register */
-	lis     r4,CONFIG_SYS_LBCR_ADDR@h
-	ori     r4,r4,CONFIG_SYS_LBCR_ADDR@l
-
-	lis     r5,CONFIG_SYS_LBC_LBCR@h
-	ori     r5,r5,CONFIG_SYS_LBC_LBCR@l
-	stw     r5,0(r4)
-	isync
-
-	/* invalidate this temp TLB */
-	lis	r4,CONFIG_SYS_LBC_ADDR@h
-	ori	r4,r4,CONFIG_SYS_LBC_ADDR@l
-	tlbivax	0,r4
-	isync
-
-#endif /* CONFIG_ARCH_MPC8569 */
-
 /*
  * Search for the TLB that covers the code we're executing, and shrink it
  * so that it covers only this 4K page.  That will ensure that any other
