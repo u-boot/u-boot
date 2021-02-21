@@ -542,10 +542,6 @@ config TARGET_TBS2910
 	bool "TBS2910 Matrix ARM mini PC"
 	depends on MX6Q
 
-config TARGET_TITANIUM
-	bool "titanium"
-	depends on MX6Q
-
 config TARGET_KP_IMX6Q_TPC
 	bool "K+P KP_IMX6Q_TPC i.MX6 Quad"
 	depends on MX6QDL
@@ -644,7 +640,6 @@ source "board/ge/bx50v3/Kconfig"
 source "board/ge/b1x5v2/Kconfig"
 source "board/aristainetos/Kconfig"
 source "board/armadeus/opos6uldev/Kconfig"
-source "board/barco/titanium/Kconfig"
 source "board/boundary/nitrogen6x/Kconfig"
 source "board/bticino/mamoj/Kconfig"
 source "board/compulab/cm_fx6/Kconfig"
