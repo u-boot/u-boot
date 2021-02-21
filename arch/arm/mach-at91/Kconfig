@@ -303,14 +303,6 @@ config TARGET_VINCO
 	select SUPPORT_SPL
 	imply CMD_DM
 
-config TARGET_WB50N
-	bool "Support Laird WB50N"
-	select BOARD_EARLY_INIT_F
-	select BOARD_LATE_INIT
-	select CPU_V7A
-	select SUPPORT_SPL
-	select ATMEL_SFR
-
 endchoice
 
 config ATMEL_SFR
@@ -353,7 +345,6 @@ source "board/ronetix/pm9g45/Kconfig"
 source "board/siemens/corvus/Kconfig"
 source "board/siemens/taurus/Kconfig"
 source "board/siemens/smartweb/Kconfig"
-source "board/laird/wb50n/Kconfig"
 
 config SPL_LDSCRIPT
 	default "arch/arm/mach-at91/arm926ejs/u-boot-spl.lds" if CPU_ARM926EJS
