@@ -52,25 +52,6 @@ config GDSYS_LEGACY_DRIVERS
 
 endif
 
-if TARGET_STRIDER
-
-config SYS_BOARD
-	default "mpc8308"
-
-config SYS_VENDOR
-	default "gdsys"
-
-config SYS_CONFIG_NAME
-	default "strider"
-
-config GDSYS_LEGACY_OSD_CMDS
-	default y
-
-config GDSYS_LEGACY_DRIVERS
-	default y
-
-endif
-
 if TARGET_GAZERBEAM
 
 config SYS_BOARD
@@ -92,7 +73,7 @@ config GDSYS_LEGACY_OSD_CMDS
 	default y
 endif
 
-if TARGET_HRCON || TARGET_STRIDER || TARGET_GAZERBEAM
+if TARGET_HRCON || TARGET_GAZERBEAM
 
 choice
 	prompt "FPGA flavor selection"

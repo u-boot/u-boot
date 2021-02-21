@@ -137,12 +137,6 @@ config TARGET_HRCON
 	select ARCH_MPC8308
 	select SYS_FSL_ERRATUM_ESDHC111
 
-config TARGET_STRIDER
-	bool "Support strider"
-	select ARCH_MPC8308
-	select SYS_FSL_ERRATUM_ESDHC111
-	imply CMD_PCA953X
-
 config TARGET_GAZERBEAM
 	bool "Support gazerbeam"
 	select ARCH_MPC8308
