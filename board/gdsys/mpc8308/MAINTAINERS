@@ -2,7 +2,5 @@ MPC8308 BOARD
 M:	Dirk Eibach <dirk.eibach@gdsys.cc>
 S:	Maintained
 F:	board/gdsys/mpc8308/
-F:	include/configs/hrcon.h
-F:	configs/hrcon_defconfig
-F:	configs/hrcon_dh_defconfig
+F:	include/configs/gazerbeam.h
 F:	configs/gazerbeam_defconfig

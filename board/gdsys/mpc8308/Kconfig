@@ -1,3 +1,5 @@
+if TARGET_GAZERBEAM
+
 config GDSYS_LEGACY_OSD_CMDS
 	bool
 	help
@@ -33,27 +35,6 @@ config SYS_FPGA1_SIZE
 	help
 	  The base address of the second FPGA's register map.
 
-if TARGET_HRCON
-
-config SYS_BOARD
-	default "mpc8308"
-
-config SYS_VENDOR
-	default "gdsys"
-
-config SYS_CONFIG_NAME
-	default "hrcon"
-
-config GDSYS_LEGACY_OSD_CMDS
-	default y
-
-config GDSYS_LEGACY_DRIVERS
-	default y
-
-endif
-
-if TARGET_GAZERBEAM
-
 config SYS_BOARD
 	default "mpc8308"
 
@@ -71,9 +52,6 @@ config SYS_FPGA1_SIZE
 
 config GDSYS_LEGACY_OSD_CMDS
 	default y
-endif
-
-if TARGET_HRCON || TARGET_GAZERBEAM
 
 choice
 	prompt "FPGA flavor selection"

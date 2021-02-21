@@ -132,10 +132,6 @@ config TARGET_TQM834X
 	bool "Support TQM834x"
 	select ARCH_MPC8349
 
-config TARGET_HRCON
-	bool "Support hrcon"
-	select ARCH_MPC8308
-	select SYS_FSL_ERRATUM_ESDHC111
 
 config TARGET_GAZERBEAM
 	bool "Support gazerbeam"

@@ -6,7 +6,6 @@
 obj-$(CONFIG_SYS_FPGA_COMMON) += fpga.o
 obj-$(CONFIG_CMD_IOLOOP) += cmd_ioloop.o
 obj-$(CONFIG_CONTROLCENTERD) += dp501.o
-obj-$(CONFIG_TARGET_HRCON) += osd.o mclink.o dp501.o phy.o ioep-fpga.o fanctrl.o
 obj-$(CONFIG_TARGET_GAZERBEAM) += osd.o ihs_mdio.o ioep-fpga.o
 
 ifdef CONFIG_OSD
