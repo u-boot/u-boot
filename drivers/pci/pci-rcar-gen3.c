@@ -23,6 +23,7 @@
 #include <pci.h>
 #include <wait_bit.h>
 #include <linux/bitops.h>
+#include <linux/log2.h>
 
 #define PCIECAR			0x000010
 #define PCIECCTLR		0x000018
@@ -151,6 +152,16 @@ static int rcar_pcie_config_access(const struct udevice *udev,
 	struct rcar_gen3_pcie_priv *priv = dev_get_plat(udev);
 	u32 reg = where & ~3;
 
+	/* Root bus */
+	if (PCI_DEV(bdf) == 0) {
+		if (access_type == RCAR_PCI_ACCESS_READ)
+			*data = readl(priv->regs + PCICONF(where / 4));
+		else
+			writel(*data, priv->regs + PCICONF(where / 4));
+
+		return 0;
+	}
+
 	/* Clear errors */
 	clrbits_le32(priv->regs + PCIEERRFR, 0);
 
@@ -187,11 +198,14 @@ static int rcar_gen3_pcie_addr_valid(pci_dev_t d, uint where)
 {
 	u32 slot;
 
+	if (PCI_BUS(d))
+		return -EINVAL;
+
 	if (PCI_FUNC(d))
 		return -EINVAL;
 
 	slot = PCI_DEV(d);
-	if (slot != 1)
+	if (slot > 1)
 		return -EINVAL;
 
 	return 0;
@@ -334,17 +348,19 @@ static int rcar_gen3_pcie_probe(struct udevice *dev)
 		if (hose->regions[i].phys_start == 0)
 			continue;
 
-		mask = (hose->regions[i].size - 1) & ~0xf;
+		mask = (roundup_pow_of_two(hose->regions[i].size) - 1) & ~0xf;
 		mask |= LAR_ENABLE;
-		writel(hose->regions[i].phys_start, priv->regs + PCIEPRAR(0));
-		writel(hose->regions[i].phys_start, priv->regs + PCIELAR(0));
+		writel(rounddown_pow_of_two(hose->regions[i].phys_start),
+			priv->regs + PCIEPRAR(0));
+		writel(rounddown_pow_of_two(hose->regions[i].phys_start),
+			priv->regs + PCIELAR(0));
 		writel(mask, priv->regs + PCIELAMR(0));
 		break;
 	}
 
-	writel(0, priv->regs + PCIEPRAR(4));
-	writel(0, priv->regs + PCIELAR(4));
-	writel(0, priv->regs + PCIELAMR(4));
+	writel(0, priv->regs + PCIEPRAR(1));
+	writel(0, priv->regs + PCIELAR(1));
+	writel(0, priv->regs + PCIELAMR(1));
 
 	ret = rcar_gen3_pcie_hw_init(dev);
 	if (ret)
