@@ -257,6 +257,7 @@ u32 imx_get_uartclk(void);
 int clock_init(void);
 void init_clk_usdhc(u32 index);
 void init_uart_clk(u32 index);
+void init_usb_clk(void);
 void init_wdog_clk(void);
 unsigned int mxc_get_clock(enum mxc_clock clk);
 int clock_enable(enum clk_ccgr_index index, bool enable);
