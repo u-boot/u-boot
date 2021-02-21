@@ -97,10 +97,6 @@ config TARGET_OMAP3_PANDORA
 	select OMAP3_GPIO_4
 	select OMAP3_GPIO_6
 
-config TARGET_TRICORDER
-	bool "Tricorder"
-	select OMAP3_GPIO_2
-
 config TARGET_OMAP3_LOGIC
 	bool "OMAP3 Logic"
 	select BOARD_LATE_INIT
@@ -167,7 +163,6 @@ source "board/timll/devkit8000/Kconfig"
 source "board/ti/evm/Kconfig"
 source "board/isee/igep00x0/Kconfig"
 source "board/ti/am3517crane/Kconfig"
-source "board/corscience/tricorder/Kconfig"
 source "board/logicpd/omap3som/Kconfig"
 source "board/nokia/rx51/Kconfig"
 source "board/technexion/tao3530/Kconfig"
