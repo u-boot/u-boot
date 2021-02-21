@@ -635,7 +635,7 @@ config MCFUART
 
 config MXC_UART
 	bool "IMX serial port support"
-	depends on ARCH_MX25 || ARCH_MX31 || TARGET_APF27 || TARGET_FLEA3 \
+	depends on ARCH_MX25 || ARCH_MX31 || TARGET_FLEA3 \
 		|| MX5 || MX6 || MX7 || IMX8M
 	help
 	  If you have a machine based on a Motorola IMX CPU you

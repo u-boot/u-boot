@@ -561,11 +561,6 @@ config ARCH_MVEBU
 	select SPI
 	imply CMD_DM
 
-config TARGET_APF27
-	bool "Support apf27"
-	select CPU_ARM926EJS
-	select SUPPORT_SPL
-
 config ARCH_ORION5X
 	bool "Marvell Orion"
 	select CPU_ARM926EJS
@@ -1969,7 +1964,6 @@ source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
 source "board/Marvell/octeontx/Kconfig"
 source "board/Marvell/octeontx2/Kconfig"
-source "board/armadeus/apf27/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
 source "board/cortina/presidio-asic/Kconfig"
