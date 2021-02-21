@@ -25,7 +25,7 @@ forward to convert these, at some point there may come a patch to remove them!
 Here is a suggested approach for converting your I2C driver over to driver
 model. Please feel free to update this file with your ideas and suggestions.
 
-- #ifdef out all your own I2C driver code (#ifndef CONFIG_DM_I2C)
+- #ifdef out all your own I2C driver code (#if !CONFIG_IS_ENABLED(DM_I2C))
 - Define CONFIG_DM_I2C for your board, vendor or architecture
 - If the board does not already use driver model, you need CONFIG_DM also
 - Your board should then build, but will not work fully since there will be

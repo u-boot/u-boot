@@ -113,7 +113,7 @@ U_BOOT_DRVINFOS(am33xx_uarts) = {
 #  endif
 };
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 static const struct omap_i2c_plat am33xx_i2c[] = {
 	{ I2C_BASE1, 100000, OMAP_I2C_REV_V2},
 	{ I2C_BASE2, 100000, OMAP_I2C_REV_V2},

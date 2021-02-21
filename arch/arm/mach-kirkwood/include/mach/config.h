@@ -96,7 +96,7 @@
 /*
  * I2C related stuff
  */
-#if defined(CONFIG_CMD_I2C) && !defined(CONFIG_DM_I2C)
+#if defined(CONFIG_CMD_I2C) && !CONFIG_IS_ENABLED(DM_I2C)
 #ifndef CONFIG_SYS_I2C_SOFT
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MVTWSI

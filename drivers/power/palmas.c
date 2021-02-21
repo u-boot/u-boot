@@ -176,7 +176,7 @@ int twl603x_enable_bb_charge(u8 bb_fields)
 	return err;
 }
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 int palmas_i2c_write_u8(u8 chip_no, u8 reg, u8 val)
 {
 	struct udevice *dev;

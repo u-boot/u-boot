@@ -61,7 +61,7 @@
 #endif
 
 /* I2C */
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 #define CONFIG_SYS_I2C
 #endif
 

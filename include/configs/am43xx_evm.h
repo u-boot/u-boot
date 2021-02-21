@@ -26,7 +26,7 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
 
 /* Power */
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 #define CONFIG_POWER
 #define CONFIG_POWER_I2C
 #endif

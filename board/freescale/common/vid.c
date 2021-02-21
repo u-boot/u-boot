@@ -65,14 +65,14 @@ static int find_ir_chip_on_i2c(void)
 	u8 byte;
 	int i;
 	const int ir_i2c_addr[] = {0x38, 0x08, 0x09};
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 #endif
 
 	/* Check all the address */
 	for (i = 0; i < (sizeof(ir_i2c_addr)/sizeof(ir_i2c_addr[0])); i++) {
 		i2caddress = ir_i2c_addr[i];
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 		ret = i2c_read(i2caddress,
 			       IR36021_MFR_ID_OFFSET, 1, (void *)&byte,
 			       sizeof(byte));
@@ -117,12 +117,12 @@ static int read_voltage_from_INA220(int i2caddress)
 	int i, ret, voltage_read = 0;
 	u16 vol_mon;
 	u8 buf[2];
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 #endif
 
 	for (i = 0; i < NUM_READINGS; i++) {
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 		ret = i2c_read(I2C_VOL_MONITOR_ADDR,
 			       I2C_VOL_MONITOR_BUS_V_OFFSET, 1,
 			       (void *)&buf, 2);
@@ -160,12 +160,12 @@ static int read_voltage_from_IR(int i2caddress)
 	int i, ret, voltage_read = 0;
 	u16 vol_mon;
 	u8 buf;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 #endif
 
 	for (i = 0; i < NUM_READINGS; i++) {
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 		ret = i2c_read(i2caddress,
 			       IR36021_LOOP1_VOUT_OFFSET,
 			       1, (void *)&buf, 1);
@@ -213,7 +213,7 @@ static int read_voltage_from_LTC(int i2caddress)
 	int  ret, vcode = 0;
 	u8 chan = PWM_CHANNEL0;
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	/* select the PAGE 0 using PMBus commands PAGE for VDD*/
 	ret = i2c_write(I2C_VOL_MONITOR_ADDR,
 			PMBUS_CMD_PAGE, 1, &chan, 1);
@@ -229,7 +229,7 @@ static int read_voltage_from_LTC(int i2caddress)
 		return ret;
 	}
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	/*read the output voltage using PMBus command READ_VOUT*/
 	ret = i2c_read(I2C_VOL_MONITOR_ADDR,
 		       PMBUS_CMD_READ_VOUT, 1, (void *)&vcode, 2);
@@ -344,7 +344,7 @@ static int set_voltage_to_IR(int i2caddress, int vdd)
 	vid = DIV_ROUND_UP(vdd - 245, 5);
 #endif
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_write(i2caddress, IR36021_LOOP1_MANUAL_ID_OFFSET,
 			1, (void *)&vid, sizeof(vid));
 #else
@@ -392,7 +392,7 @@ static int set_voltage_to_LTC(int i2caddress, int vdd)
 			vdd & 0xFF, (vdd & 0xFF00) >> 8};
 
 	/* Write the desired voltage code to the regulator */
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	/* Check write protect state */
 	ret = i2c_read(I2C_VOL_MONITOR_ADDR,
 		       PMBUS_CMD_WRITE_PROTECT, 1,
@@ -621,7 +621,7 @@ int adjust_vdd(ulong vdd_override)
 	}
 
 	/* check IR chip work on Intel mode*/
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_read(i2caddress,
 		       IR36021_INTEL_MODE_OOFSET,
 		       1, (void *)&buf, 1);
@@ -803,7 +803,7 @@ int adjust_vdd(ulong vdd_override)
 	}
 
 	/* check IR chip work on Intel mode*/
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_read(i2caddress,
 		       IR36021_INTEL_MODE_OOFSET,
 		       1, (void *)&buf, 1);

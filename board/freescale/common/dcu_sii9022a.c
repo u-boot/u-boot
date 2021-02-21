@@ -64,7 +64,7 @@ int dcu_set_dvi_encoder(struct fb_videomode *videomode)
 	u8 temp;
 	u16 temp1, temp2;
 	u32 temp3;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 	int ret;
 

@@ -293,7 +293,7 @@ int board_init(void)
 		}
 	}
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	/*
 	 * Temporary workaround for enabling I2C clocks until proper sunxi DM
 	 * clk, reset and pinctrl drivers land.

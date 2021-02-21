@@ -30,7 +30,6 @@
 #define CONFIG_SPL_SKIP_RELOCATE
 #define CONFIG_SPL_COMMON_INIT_DDR
 #define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
-#undef CONFIG_DM_I2C
 #endif
 #define RESET_VECTOR_OFFSET		0x27FFC
 #define BOOT_PAGE_OFFSET		0x27000
@@ -453,7 +452,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #endif
 
 /* I2C */
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_FSL_I2C_SPEED	400000	/* I2C speed in Hz */
 #define CONFIG_SYS_FSL_I2C2_SPEED	400000

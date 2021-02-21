@@ -24,7 +24,7 @@ void set_fan_speed(u8 data, int chip_addr)
 			       I2C_EMC2305_FAN5};
 
 	for (index = 0; index < NUM_OF_FANS; index++) {
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 		if (i2c_write(chip_addr, Fan[index], 1, &data, 1) != 0) {
 			printf("Error: failed to change fan speed @%x\n",
 			       Fan[index]);
@@ -48,7 +48,7 @@ void emc2305_init(int chip_addr)
 	u8 data;
 
 	data = I2C_EMC2305_CMD;
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	if (i2c_write(chip_addr, I2C_EMC2305_CONF, 1, &data, 1) != 0)
 		printf("Error: failed to configure EMC2305\n");
 #else

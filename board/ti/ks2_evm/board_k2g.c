@@ -259,7 +259,7 @@ int board_fit_config_name_match(const char *name)
 #if defined(CONFIG_DTB_RESELECT)
 static int k2g_alt_board_detect(void)
 {
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	int rc;
 
 	rc = i2c_set_bus_num(1);

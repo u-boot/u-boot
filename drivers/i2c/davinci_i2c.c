@@ -21,7 +21,7 @@
 #include <linux/delay.h>
 #include "davinci_i2c.h"
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 /* Information about i2c controller */
 struct i2c_bus {
 	int			id;
@@ -340,7 +340,7 @@ static int _davinci_i2c_probe_chip(struct i2c_regs *i2c_base, uint8_t chip)
 	return rc;
 }
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 static struct i2c_regs *davinci_get_base(struct i2c_adapter *adap)
 {
 	switch (adap->hwadapnr) {

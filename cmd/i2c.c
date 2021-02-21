@@ -124,13 +124,13 @@ static uchar i2c_no_probes[] = CONFIG_SYS_I2C_NOPROBES;
  * For legacy code, this is not stored, so we need to use a suitable
  * default.
  */
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 #define DEFAULT_ADDR_LEN	(-1)
 #else
 #define DEFAULT_ADDR_LEN	1
 #endif
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 static struct udevice *i2c_cur_bus;
 
 static int cmd_i2c_set_bus_num(unsigned int busnum)
@@ -209,7 +209,7 @@ void i2c_init_board(void)
  *
  * Returns I2C bus speed in Hz.
  */
-#if !defined(CONFIG_SYS_I2C) && !defined(CONFIG_DM_I2C)
+#if !defined(CONFIG_SYS_I2C) && !CONFIG_IS_ENABLED(DM_I2C)
 /*
  * TODO: Implement architecture-specific get/set functions
  * Should go away, if we switched completely to new multibus support
@@ -298,7 +298,7 @@ static int do_i2c_read(struct cmd_tbl *cmdtp, int flag, int argc,
 	int alen;
 	u_char  *memaddr;
 	int ret;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 #endif
 
@@ -329,7 +329,7 @@ static int do_i2c_read(struct cmd_tbl *cmdtp, int flag, int argc,
 	 */
 	memaddr = (u_char *)simple_strtoul(argv[4], NULL, 16);
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_get_cur_bus_chip(chip, &dev);
 	if (!ret && alen != -1)
 		ret = i2c_set_chip_offset_len(dev, alen);
@@ -352,7 +352,7 @@ static int do_i2c_write(struct cmd_tbl *cmdtp, int flag, int argc,
 	int alen;
 	u_char  *memaddr;
 	int ret;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 	struct dm_i2c_chip *i2c_chip;
 #endif
@@ -384,7 +384,7 @@ static int do_i2c_write(struct cmd_tbl *cmdtp, int flag, int argc,
 	 */
 	length = simple_strtoul(argv[4], NULL, 16);
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_get_cur_bus_chip(chip, &dev);
 	if (!ret && alen != -1)
 		ret = i2c_set_chip_offset_len(dev, alen);
@@ -402,7 +402,7 @@ static int do_i2c_write(struct cmd_tbl *cmdtp, int flag, int argc,
 		 * a page boundary. No write delay upon completion, take this
 		 * into account if linking commands.
 		 */
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 		i2c_chip->flags &= ~DM_I2C_CHIP_WR_ADDRESS;
 		ret = dm_i2c_write(dev, devaddr, memaddr, length);
 #else
@@ -416,7 +416,7 @@ static int do_i2c_write(struct cmd_tbl *cmdtp, int flag, int argc,
 		 * write transactions of one byte each
 		 */
 		while (length-- > 0) {
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 			i2c_chip->flags |= DM_I2C_CHIP_WR_ADDRESS;
 			ret = dm_i2c_write(dev, devaddr++, memaddr++, 1);
 #else
@@ -435,7 +435,7 @@ static int do_i2c_write(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 static int do_i2c_flags(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
@@ -520,7 +520,7 @@ static int do_i2c_md(struct cmd_tbl *cmdtp, int flag, int argc,
 	int alen;
 	int	j, nbytes, linebytes;
 	int ret;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 #endif
 
@@ -562,7 +562,7 @@ static int do_i2c_md(struct cmd_tbl *cmdtp, int flag, int argc,
 			length = simple_strtoul(argv[3], NULL, 16);
 	}
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_get_cur_bus_chip(chip, &dev);
 	if (!ret && alen != -1)
 		ret = i2c_set_chip_offset_len(dev, alen);
@@ -583,7 +583,7 @@ static int do_i2c_md(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		linebytes = (nbytes > DISP_LINE_LEN) ? DISP_LINE_LEN : nbytes;
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 		ret = dm_i2c_read(dev, addr, linebuf, linebytes);
 #else
 		ret = i2c_read(chip, addr, alen, linebuf, linebytes);
@@ -641,7 +641,7 @@ static int do_i2c_mw(struct cmd_tbl *cmdtp, int flag, int argc,
 	uchar	byte;
 	int	count;
 	int ret;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 #endif
 
@@ -661,7 +661,7 @@ static int do_i2c_mw(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (alen > 3)
 		return CMD_RET_USAGE;
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_get_cur_bus_chip(chip, &dev);
 	if (!ret && alen != -1)
 		ret = i2c_set_chip_offset_len(dev, alen);
@@ -682,7 +682,7 @@ static int do_i2c_mw(struct cmd_tbl *cmdtp, int flag, int argc,
 		count = 1;
 
 	while (count-- > 0) {
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 		ret = dm_i2c_write(dev, addr++, &byte, 1);
 #else
 		ret = i2c_write(chip, addr++, alen, &byte, 1);
@@ -730,7 +730,7 @@ static int do_i2c_crc(struct cmd_tbl *cmdtp, int flag, int argc,
 	ulong	crc;
 	ulong	err;
 	int ret = 0;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 #endif
 
@@ -750,7 +750,7 @@ static int do_i2c_crc(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (alen > 3)
 		return CMD_RET_USAGE;
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_get_cur_bus_chip(chip, &dev);
 	if (!ret && alen != -1)
 		ret = i2c_set_chip_offset_len(dev, alen);
@@ -770,7 +770,7 @@ static int do_i2c_crc(struct cmd_tbl *cmdtp, int flag, int argc,
 	crc = 0;
 	err = 0;
 	while (count-- > 0) {
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 		ret = dm_i2c_read(dev, addr, &byte, 1);
 #else
 		ret = i2c_read(chip, addr, alen, &byte, 1);
@@ -814,7 +814,7 @@ static int mod_i2c_mem(struct cmd_tbl *cmdtp, int incrflag, int flag, int argc,
 	int	size = 1;
 	int	nbytes;
 	int ret;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 #endif
 
@@ -851,7 +851,7 @@ static int mod_i2c_mem(struct cmd_tbl *cmdtp, int incrflag, int flag, int argc,
 			return CMD_RET_USAGE;
 	}
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_get_cur_bus_chip(chip, &dev);
 	if (!ret && alen != -1)
 		ret = i2c_set_chip_offset_len(dev, alen);
@@ -865,7 +865,7 @@ static int mod_i2c_mem(struct cmd_tbl *cmdtp, int incrflag, int flag, int argc,
 	 */
 	do {
 		printf("%08lx:", addr);
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 		ret = dm_i2c_read(dev, addr, (uchar *)&data, size);
 #else
 		ret = i2c_read(chip, addr, alen, (uchar *)&data, size);
@@ -912,7 +912,7 @@ static int mod_i2c_mem(struct cmd_tbl *cmdtp, int incrflag, int flag, int argc,
 				 * good enough to not time out
 				 */
 				bootretry_reset_cmd_timeout();
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 				ret = dm_i2c_write(dev, addr, (uchar *)&data,
 						   size);
 #else
@@ -964,7 +964,7 @@ static int do_i2c_probe(struct cmd_tbl *cmdtp, int flag, int argc,
 	unsigned int bus = GET_BUS_NUM;
 #endif	/* NOPROBES */
 	int ret;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *bus, *dev;
 
 	if (i2c_get_cur_bus(&bus))
@@ -990,7 +990,7 @@ static int do_i2c_probe(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (skip)
 			continue;
 #endif
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 		ret = dm_i2c_probe(bus, j, 0, &dev);
 #else
 		ret = i2c_probe(j);
@@ -1039,7 +1039,7 @@ static int do_i2c_loop(struct cmd_tbl *cmdtp, int flag, int argc,
 	u_char	bytes[16];
 	int	delay;
 	int ret;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 #endif
 
@@ -1058,7 +1058,7 @@ static int do_i2c_loop(struct cmd_tbl *cmdtp, int flag, int argc,
 	alen = get_alen(argv[2], DEFAULT_ADDR_LEN);
 	if (alen > 3)
 		return CMD_RET_USAGE;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_get_cur_bus_chip(chip, &dev);
 	if (!ret && alen != -1)
 		ret = i2c_set_chip_offset_len(dev, alen);
@@ -1084,7 +1084,7 @@ static int do_i2c_loop(struct cmd_tbl *cmdtp, int flag, int argc,
 	 * Run the loop...
 	 */
 	while (1) {
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 		ret = dm_i2c_read(dev, addr, bytes, length);
 #else
 		ret = i2c_read(chip, addr, alen, bytes, length);
@@ -1165,7 +1165,7 @@ static int do_sdram(struct cmd_tbl *cmdtp, int flag, int argc,
 	u_char	data[128];
 	u_char	cksum;
 	int	j, ret;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 #endif
 
@@ -1221,7 +1221,7 @@ static int do_sdram(struct cmd_tbl *cmdtp, int flag, int argc,
 	 */
 	chip = simple_strtoul (argv[1], NULL, 16);
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_get_cur_bus_chip(chip, &dev);
 	if (!ret)
 		ret = dm_i2c_read(dev, 0, data, sizeof(data));
@@ -1664,7 +1664,7 @@ int do_edid(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	uint chip;
 	struct edid1_info edid;
 	int ret;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 #endif
 
@@ -1674,7 +1674,7 @@ int do_edid(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	chip = simple_strtoul(argv[1], NULL, 16);
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_get_cur_bus_chip(chip, &dev);
 	if (!ret)
 		ret = dm_i2c_read(dev, 0, (uchar *)&edid, sizeof(edid));
@@ -1695,7 +1695,7 @@ int do_edid(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 }
 #endif /* CONFIG_I2C_EDID */
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 static void show_bus(struct udevice *bus)
 {
 	struct udevice *dev;
@@ -1725,13 +1725,13 @@ static void show_bus(struct udevice *bus)
  *
  * Returns zero always.
  */
-#if defined(CONFIG_SYS_I2C) || defined(CONFIG_DM_I2C)
+#if defined(CONFIG_SYS_I2C) || CONFIG_IS_ENABLED(DM_I2C)
 static int do_i2c_show_bus(struct cmd_tbl *cmdtp, int flag, int argc,
 			   char *const argv[])
 {
 	if (argc == 1) {
 		/* show all busses */
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 		struct udevice *bus;
 		struct uclass *uc;
 		int ret;
@@ -1766,7 +1766,7 @@ static int do_i2c_show_bus(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		/* show specific bus */
 		i = simple_strtoul(argv[1], NULL, 10);
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 		struct udevice *bus;
 		int ret;
 
@@ -1812,7 +1812,7 @@ static int do_i2c_show_bus(struct cmd_tbl *cmdtp, int flag, int argc,
  * on error.
  */
 #if defined(CONFIG_SYS_I2C) || defined(CONFIG_I2C_MULTI_BUS) || \
-		defined(CONFIG_DM_I2C)
+		CONFIG_IS_ENABLED(DM_I2C)
 static int do_i2c_bus_num(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
@@ -1821,7 +1821,7 @@ static int do_i2c_bus_num(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (argc == 1) {
 		/* querying current setting */
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 		struct udevice *bus;
 
 		if (!i2c_get_cur_bus(&bus))
@@ -1841,7 +1841,7 @@ static int do_i2c_bus_num(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 #endif
 		printf("Setting bus to %d\n", bus_no);
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 		ret = cmd_i2c_set_bus_num(bus_no);
 #else
 		ret = i2c_set_bus_num(bus_no);
@@ -1869,14 +1869,14 @@ static int do_i2c_bus_speed(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	int speed, ret=0;
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *bus;
 
 	if (i2c_get_cur_bus(&bus))
 		return 1;
 #endif
 	if (argc == 1) {
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 		speed = dm_i2c_get_bus_speed(bus);
 #else
 		speed = i2c_get_bus_speed();
@@ -1886,7 +1886,7 @@ static int do_i2c_bus_speed(struct cmd_tbl *cmdtp, int flag, int argc,
 	} else {
 		speed = simple_strtoul(argv[1], NULL, 10);
 		printf("Setting bus speed to %d Hz\n", speed);
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 		ret = dm_i2c_set_bus_speed(bus, speed);
 #else
 		ret = i2c_set_bus_speed(speed);
@@ -1942,7 +1942,7 @@ static int do_i2c_nm(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_i2c_reset(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
-#if defined(CONFIG_DM_I2C)
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *bus;
 
 	if (i2c_get_cur_bus(&bus))
@@ -1960,12 +1960,12 @@ static int do_i2c_reset(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 static struct cmd_tbl cmd_i2c_sub[] = {
-#if defined(CONFIG_SYS_I2C) || defined(CONFIG_DM_I2C)
+#if defined(CONFIG_SYS_I2C) || CONFIG_IS_ENABLED(DM_I2C)
 	U_BOOT_CMD_MKENT(bus, 1, 1, do_i2c_show_bus, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(crc32, 3, 1, do_i2c_crc, "", ""),
 #if defined(CONFIG_SYS_I2C) || \
-	defined(CONFIG_I2C_MULTI_BUS) || defined(CONFIG_DM_I2C)
+	defined(CONFIG_I2C_MULTI_BUS) || CONFIG_IS_ENABLED(DM_I2C)
 	U_BOOT_CMD_MKENT(dev, 1, 1, do_i2c_bus_num, "", ""),
 #endif  /* CONFIG_I2C_MULTI_BUS */
 #if defined(CONFIG_I2C_EDID)
@@ -1979,7 +1979,7 @@ static struct cmd_tbl cmd_i2c_sub[] = {
 	U_BOOT_CMD_MKENT(probe, 0, 1, do_i2c_probe, "", ""),
 	U_BOOT_CMD_MKENT(read, 5, 1, do_i2c_read, "", ""),
 	U_BOOT_CMD_MKENT(write, 6, 0, do_i2c_write, "", ""),
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	U_BOOT_CMD_MKENT(flags, 2, 1, do_i2c_flags, "", ""),
 	U_BOOT_CMD_MKENT(olen, 2, 1, do_i2c_olen, "", ""),
 #endif
@@ -2036,13 +2036,13 @@ static int do_i2c(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 /***************************************************/
 #ifdef CONFIG_SYS_LONGHELP
 static char i2c_help_text[] =
-#if defined(CONFIG_SYS_I2C) || defined(CONFIG_DM_I2C)
+#if defined(CONFIG_SYS_I2C) || CONFIG_IS_ENABLED(DM_I2C)
 	"bus [muxtype:muxaddr:muxchannel] - show I2C bus info\n"
 	"i2c " /* That's the prefix for the crc32 command below. */
 #endif
 	"crc32 chip address[.0, .1, .2] count - compute CRC32 checksum\n"
 #if defined(CONFIG_SYS_I2C) || \
-	defined(CONFIG_I2C_MULTI_BUS) || defined(CONFIG_DM_I2C)
+	defined(CONFIG_I2C_MULTI_BUS) || CONFIG_IS_ENABLED(DM_I2C)
 	"i2c dev [dev] - show or set current I2C bus\n"
 #endif  /* CONFIG_I2C_MULTI_BUS */
 #if defined(CONFIG_I2C_EDID)
@@ -2057,7 +2057,7 @@ static char i2c_help_text[] =
 	"i2c read chip address[.0, .1, .2] length memaddress - read to memory\n"
 	"i2c write memaddress chip address[.0, .1, .2] length [-s] - write memory\n"
 	"          to I2C; the -s option selects bulk write in a single transaction\n"
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	"i2c flags chip [flags] - set or get chip flags\n"
 	"i2c olen chip [offset_length] - set or get chip offset length\n"
 #endif

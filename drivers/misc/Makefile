@@ -17,7 +17,7 @@ obj-$(CONFIG_SANDBOX) += p2sb_sandbox.o p2sb_emul.o
 obj-$(CONFIG_SANDBOX) += swap_case.o
 endif
 
-ifdef CONFIG_DM_I2C
+ifdef CONFIG_$(SPL_)DM_I2C
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_SANDBOX) += i2c_eeprom_emul.o
 endif

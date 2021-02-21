@@ -77,7 +77,7 @@ static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 void do_board_detect(void)
 {
 	enable_i2c0_pin_mux();
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 #endif
 	if (ti_i2c_eeprom_am_get(CONFIG_EEPROM_BUS_ADDRESS,
@@ -336,7 +336,7 @@ static void scale_vcores_bone(int freq)
 	if (board_is_bone() && !strncmp(board_ti_get_rev(), "00A1", 4))
 		return;
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	if (i2c_probe(TPS65217_CHIP_PM))
 		return;
 #else
@@ -435,7 +435,7 @@ void scale_vcores_generic(int freq)
 	 * 1.10V.  For MPU voltage we need to switch based on
 	 * the frequency we are running at.
 	 */
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	if (i2c_probe(TPS65910_CTRL_I2C_ADDR))
 		return;
 #else
@@ -469,7 +469,7 @@ void gpi2c_init(void)
 
 	if (first_time) {
 		enable_i2c0_pin_mux();
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 		i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED,
 			 CONFIG_SYS_OMAP24_I2C_SLAVE);
 #endif

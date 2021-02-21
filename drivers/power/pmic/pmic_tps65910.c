@@ -12,7 +12,7 @@ struct udevice *tps65910_dev __attribute__((section(".data"))) = NULL;
 
 static inline int tps65910_read_reg(int addr, uchar *buf)
 {
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	return i2c_read(TPS65910_CTRL_I2C_ADDR, addr, 1, buf, 1);
 #else
 	int rc;
@@ -27,7 +27,7 @@ static inline int tps65910_read_reg(int addr, uchar *buf)
 
 static inline int tps65910_write_reg(int addr, uchar *buf)
 {
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	return i2c_write(TPS65910_CTRL_I2C_ADDR, addr, 1, buf, 1);
 #else
 	return dm_i2c_reg_write(tps65910_dev, addr, *buf);
@@ -36,7 +36,7 @@ static inline int tps65910_write_reg(int addr, uchar *buf)
 
 int power_tps65910_init(unsigned char bus)
 {
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev = NULL;
 	int rc;
 

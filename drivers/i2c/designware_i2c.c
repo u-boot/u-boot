@@ -598,7 +598,7 @@ static int __dw_i2c_init(struct i2c_regs *i2c_base, int speed, int slaveaddr)
 	writel(IC_RX_TL, &i2c_base->ic_rx_tl);
 	writel(IC_TX_TL, &i2c_base->ic_tx_tl);
 	writel(IC_STOP_DET, &i2c_base->ic_intr_mask);
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	_dw_i2c_set_bus_speed(NULL, i2c_base, speed, IC_CLK);
 	writel(slaveaddr, &i2c_base->ic_sar);
 #endif
@@ -611,7 +611,7 @@ static int __dw_i2c_init(struct i2c_regs *i2c_base, int speed, int slaveaddr)
 	return 0;
 }
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 /*
  * The legacy I2C functions. These need to get removed once
  * all users of this driver are converted to DM.

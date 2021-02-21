@@ -53,7 +53,7 @@ int diu_set_dvi_encoder(unsigned int pixclock)
 	u8 temp;
 
 	temp = I2C_DVI_TEST_PATTERN_VAL;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 
 	ret = i2c_get_chip_for_busnum(CONFIG_SYS_I2C_DVI_BUS_NUM,

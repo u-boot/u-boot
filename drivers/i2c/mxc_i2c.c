@@ -394,7 +394,7 @@ static struct mxc_i2c_bus mxc_i2c_buses[] = {
 #endif
 };
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 int i2c_idle_bus(struct mxc_i2c_bus *i2c_bus)
 {
 	if (i2c_bus && i2c_bus->idle_bus_fn)
@@ -646,7 +646,7 @@ int __enable_i2c_clk(unsigned char enable, unsigned int i2c_num)
 int enable_i2c_clk(unsigned char enable, unsigned int i2c_num)
 	__attribute__((weak, alias("__enable_i2c_clk")));
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 /*
  * Read data from I2C device
  *
