@@ -656,12 +656,6 @@ config ARCH_BCMSTB
 	  This enables support for Broadcom ARM-based set-top box
 	  chipsets, including the 7445 family of chips.
 
-config TARGET_BCM23550_W1D
-	bool "Support bcm23550_w1d"
-	select CPU_V7A
-	imply CRC32_VERIFY
-	imply FAT_WRITE
-
 config TARGET_BCMCYGNUS
 	bool "Support bcmcygnus"
 	select CPU_V7A
@@ -1938,7 +1932,6 @@ source "board/Marvell/octeontx/Kconfig"
 source "board/Marvell/octeontx2/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
 source "board/cortina/presidio-asic/Kconfig"
-source "board/broadcom/bcm23550_w1d/Kconfig"
 source "board/broadcom/bcm963158/Kconfig"
 source "board/broadcom/bcm968360bg/Kconfig"
 source "board/broadcom/bcm968580xref/Kconfig"
