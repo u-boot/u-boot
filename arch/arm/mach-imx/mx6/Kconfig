@@ -502,12 +502,6 @@ config TARGET_PCM058
 	select OF_CONTROL
 	imply CMD_DM
 
-config TARGET_PFLA02
-	bool "Phytec PFLA02 (PhyFlex) i.MX6 Quad"
-	depends on MX6QDL
-	select BOARD_LATE_INIT
-	select SUPPORT_SPL
-
 config TARGET_PCL063
 	bool "PHYTEC PCL063 (phyCORE-i.MX6UL)"
 	depends on MX6UL
@@ -671,7 +665,6 @@ source "board/freescale/mx6ul_14x14_evk/Kconfig"
 source "board/freescale/mx6ullevk/Kconfig"
 source "board/grinn/liteboard/Kconfig"
 source "board/phytec/pcm058/Kconfig"
-source "board/phytec/pfla02/Kconfig"
 source "board/phytec/pcl063/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/kosagi/novena/Kconfig"
