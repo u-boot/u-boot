@@ -127,7 +127,7 @@ void get_sys_info(sys_info_t *sys_info)
 	 * T2080 rev 1.1 and later also use half mem_pll comparing with rev 1.0
 	 */
 #if defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T4160) || \
-	defined(CONFIG_ARCH_T2080) || defined(CONFIG_ARCH_T2081)
+	defined(CONFIG_ARCH_T2080)
 	svr = get_svr();
 	switch (SVR_SOC_VER(svr)) {
 	case SVR_T4240:
@@ -198,7 +198,7 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 
 #if defined(CONFIG_ARCH_B4860) || defined(CONFIG_ARCH_B4420) || \
-	defined(CONFIG_ARCH_T2080) || defined(CONFIG_ARCH_T2081)
+	defined(CONFIG_ARCH_T2080)
 #define FM1_CLK_SEL	0xe0000000
 #define FM1_CLK_SHIFT	29
 #elif defined(CONFIG_ARCH_T1024) || defined(CONFIG_ARCH_T1023)

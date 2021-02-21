@@ -210,14 +210,6 @@ config TARGET_T2080RDB
 	imply CMD_SATA
 	imply PANIC_HANG
 
-config TARGET_T2081QDS
-	bool "Support T2081QDS"
-	select ARCH_T2081
-	select SUPPORT_SPL
-	select PHYS_64BIT
-	select FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
-	select FSL_DDR_INTERACTIVE
-
 config TARGET_T4160RDB
 	bool "Support T4160RDB"
 	select ARCH_T4160
@@ -928,29 +920,6 @@ config ARCH_T2080
 	imply CMD_REGINFO
 	imply FSL_SATA
 
-config ARCH_T2081
-	bool
-	select E500MC
-	select E6500
-	select FSL_LAW
-	select SYS_FSL_DDR_VER_47
-	select SYS_FSL_ERRATUM_A006379
-	select SYS_FSL_ERRATUM_A006593
-	select SYS_FSL_ERRATUM_A007186
-	select SYS_FSL_ERRATUM_A007212
-	select SYS_FSL_ERRATUM_A009942
-	select SYS_FSL_ERRATUM_ESDHC111
-	select FSL_PCIE_RESET
-	select SYS_FSL_HAS_DDR3
-	select SYS_FSL_HAS_SEC
-	select SYS_FSL_QORIQ_CHASSIS2
-	select SYS_FSL_SEC_BE
-	select SYS_FSL_SEC_COMPAT_4
-	select SYS_PPC64
-	select FSL_IFC
-	imply CMD_NAND
-	imply CMD_REGINFO
-
 config ARCH_T4160
 	bool
 	select E500MC
@@ -1052,8 +1021,7 @@ config MAX_CPUS
 		     ARCH_P5040 || \
 		     ARCH_T1040 || \
 		     ARCH_T1042 || \
-		     ARCH_T2080 || \
-		     ARCH_T2081
+		     ARCH_T2080
 	default 2 if ARCH_B4420 || \
 		     ARCH_BSC9132 || \
 		     ARCH_MPC8572 || \
@@ -1110,7 +1078,6 @@ config SYS_CCSRBAR_DEFAULT
 				ARCH_T1040	|| \
 				ARCH_T1042	|| \
 				ARCH_T2080	|| \
-				ARCH_T2081	|| \
 				ARCH_T4160	|| \
 				ARCH_T4240
 	default 0xe0000000 if ARCH_QEMU_E500
@@ -1297,7 +1264,6 @@ config SYS_FSL_NUM_LAWS
 			ARCH_P5020	|| \
 			ARCH_P5040	|| \
 			ARCH_T2080	|| \
-			ARCH_T2081	|| \
 			ARCH_T4160	|| \
 			ARCH_T4240
 	default 16 if	ARCH_T1023	|| \
