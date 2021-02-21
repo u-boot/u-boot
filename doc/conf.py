@@ -147,9 +147,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'The Linux Kernel'
-copyright = 'The kernel development community'
-author = 'The kernel development community'
+project = 'Das U-Boot'
+copyright = 'The U-Boot development community'
+author = 'The U-Boot development community'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -260,7 +260,7 @@ except ImportError:
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-#html_logo = None
+html_logo = '../tools/logos/u-boot_logo.svg'
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -340,7 +340,7 @@ html_use_smartypants = False
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'TheLinuxKerneldoc'
+htmlhelp_basename = 'TheUBootdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -470,6 +470,8 @@ if major == 1 and minor < 6:
 #  author, documentclass [howto, manual, or own class]).
 # Sorted in alphabetical order
 latex_documents = [
+    ('index', 'u-boot-hacker-manual.tex', 'U-Boot Hacker Manual',
+     'The U-Boot development community', 'manual'),
 ]
 
 # Add all other index files from Documentation/ subdirectories
@@ -483,8 +485,8 @@ for fn in os.listdir('.'):
                 break
         if not has:
             latex_documents.append((doc, fn + '.tex',
-                                    'Linux %s Documentation' % fn.capitalize(),
-                                    'The kernel development community',
+                                    'U-Boot %s Documentation' % fn.capitalize(),
+                                    'The U-Boot development community',
                                     'manual'))
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -513,7 +515,7 @@ for fn in os.listdir('.'):
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'thelinuxkernel', 'The Linux Kernel Documentation',
+    (master_doc, 'dasuboot', 'The U-Boot Documentation',
      [author], 1)
 ]
 
@@ -527,8 +529,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'TheLinuxKernel', 'The Linux Kernel Documentation',
-     author, 'TheLinuxKernel', 'One line description of project.',
+    (master_doc, 'DasUBoot', 'The U-Boot Documentation',
+     author, 'DasUBoot', 'One line description of project.',
      'Miscellaneous'),
 ]
 
@@ -626,7 +628,7 @@ epub_exclude_files = ['search.html']
 # multiple PDF files here actually tries to get the cross-referencing right
 # *between* PDF files.
 pdf_documents = [
-    ('kernel-documentation', u'Kernel', u'Kernel', u'J. Random Bozo'),
+    ('uboot-documentation', u'U-Boot', u'U-Boot', u'J. Random Bozo'),
 ]
 
 # kernel-doc extension configuration for running Sphinx directly (e.g. by Read

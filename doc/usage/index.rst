@@ -15,6 +15,7 @@ Shell commands
 
    base
    bootefi
+   booti
    bootmenu
    button
    conitrace
@@ -27,5 +28,6 @@ Shell commands
    loady
    mbr
    pstore
+   qfw
    sbi
    true
