@@ -539,7 +539,7 @@
 };
 
 &prcm {
-	l4_per_cm: l4_per-cm@0 {
+	per_cm: per-cm@0 {
 		compatible = "ti,omap4-cm";
 		reg = <0x0 0x400>;
 		#address-cells = <1>;
@@ -604,7 +604,7 @@
 
 		l4_wkup_clkctrl: l4-wkup-clkctrl@0 {
 			compatible = "ti,clkctrl";
-			reg = <0x4 0x10>, <0xb4 0x24>;
+			reg = <0x0 0x10>, <0xb4 0x24>;
 			#clock-cells = <2>;
 		};
 
@@ -670,9 +670,9 @@
 		#size-cells = <1>;
 		ranges = <0 0xa00 0x100>;
 
-		l4_cefuse_clkctrl: clk@20 {
+		l4_cefuse_clkctrl: l4-cefuse-clkctrl@0 {
 			compatible = "ti,clkctrl";
-			reg = <0x20 0x4>;
+			reg = <0x0 0x24>;
 			#clock-cells = <2>;
 		};
 	};

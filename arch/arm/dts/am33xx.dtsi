@@ -301,50 +301,6 @@
 			};
 		};
 
-		gpio0: gpio@44e07000 {
-			compatible = "ti,omap4-gpio";
-			ti,hwmods = "gpio1";
-			gpio-controller;
-			#gpio-cells = <2>;
-			interrupt-controller;
-			#interrupt-cells = <2>;
-			reg = <0x44e07000 0x1000>;
-			interrupts = <96>;
-		};
-
-		gpio1: gpio@4804c000 {
-			compatible = "ti,omap4-gpio";
-			ti,hwmods = "gpio2";
-			gpio-controller;
-			#gpio-cells = <2>;
-			interrupt-controller;
-			#interrupt-cells = <2>;
-			reg = <0x4804c000 0x1000>;
-			interrupts = <98>;
-		};
-
-		gpio2: gpio@481ac000 {
-			compatible = "ti,omap4-gpio";
-			ti,hwmods = "gpio3";
-			gpio-controller;
-			#gpio-cells = <2>;
-			interrupt-controller;
-			#interrupt-cells = <2>;
-			reg = <0x481ac000 0x1000>;
-			interrupts = <32>;
-		};
-
-		gpio3: gpio@481ae000 {
-			compatible = "ti,omap4-gpio";
-			ti,hwmods = "gpio4";
-			gpio-controller;
-			#gpio-cells = <2>;
-			interrupt-controller;
-			#interrupt-cells = <2>;
-			reg = <0x481ae000 0x1000>;
-			interrupts = <62>;
-		};
-
 		i2c0: i2c@44e0b000 {
 			compatible = "ti,omap4-i2c";
 			#address-cells = <1>;
