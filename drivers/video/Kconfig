@@ -30,7 +30,7 @@ config VIDEO_PCI_DEFAULT_FB_SIZE
 	help
 	  Generally, video drivers request the amount of memory they need for
 	  the frame buffer when they are bound, by setting the size field in
-	  struct video_uc_platdata. That memory is then reserved for use after
+	  struct video_uc_plat. That memory is then reserved for use after
 	  relocation. But PCI drivers cannot be bound before relocation unless
 	  they are mentioned in the devicetree.
 
@@ -51,7 +51,7 @@ config VIDEO_COPY
 	  U-Boot) and then copied to the hardware frame-buffer as needed.
 
 	  To use this, your video driver must set @copy_base in
-	  struct video_uc_platdata.
+	  struct video_uc_plat.
 
 config BACKLIGHT_PWM
 	bool "Generic PWM based Backlight Driver"
@@ -159,6 +159,16 @@ config CONSOLE_TRUETYPE
 	  needing to provide a bitmap for each font and size that is needed.
 	  With this option you can adjust the text size and use a variety of
 	  fonts. Note that this is noticeably slower than with normal console.
+
+config DM_PANEL_HX8238D
+	bool "Enable Himax HX-8238D LCD driver"
+	depends on DM_VIDEO
+	help
+	  Support for HX-8238D LCD Panel
+	  The  HX8238-D is a single chip controller and driver LSI that
+	  integrates the power circuit.
+	  It can drive a maximum 960x240 dot graphics on a-TFT panel
+	  displays in 16M colors with dithering.
 
 config CONSOLE_TRUETYPE_SIZE
 	int "TrueType font size"
