@@ -269,6 +269,15 @@ int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end)
 	return 0;
 }
 
+/**
+ * board_fdt_chosen_bootargs - boards may override this function to use
+ *                             alternative kernel command line arguments
+ */
+__weak char *board_fdt_chosen_bootargs(void)
+{
+	return env_get("bootargs");
+}
+
 int fdt_chosen(void *fdt)
 {
 	int   nodeoffset;
@@ -286,7 +295,8 @@ int fdt_chosen(void *fdt)
 	if (nodeoffset < 0)
 		return nodeoffset;
 
-	str = env_get("bootargs");
+	str = board_fdt_chosen_bootargs();
+
 	if (str) {
 		err = fdt_setprop(fdt, nodeoffset, "bootargs", str,
 				  strlen(str) + 1);
