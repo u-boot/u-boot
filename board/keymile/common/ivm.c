@@ -306,11 +306,7 @@ static int ivm_populate_env(unsigned char *buf, int len, int mac_address_offset)
 		return 0;
 	page2 = &buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN * 2];
 
-	if (!IS_ENABLED(CONFIG_KMTEGR1)) {
-		/* if an offset is defined, add it */
-		process_mac(valbuf, page2, mac_address_offset, true);
-		env_set((char *)"ethaddr", (char *)valbuf);
-	} else {
+	if (IS_ENABLED(CONFIG_KMTEGR1)) {
 		/* KMTEGR1 has a special setup. eth0 has no connection to the
 		 * outside and gets an locally administred MAC address, eth1 is
 		 * the debug interface and gets the official MAC address from
@@ -320,6 +316,19 @@ static int ivm_populate_env(unsigned char *buf, int len, int mac_address_offset)
 		env_set((char *)"ethaddr", (char *)valbuf);
 		process_mac(valbuf, page2, mac_address_offset, true);
 		env_set((char *)"eth1addr", (char *)valbuf);
+	} else if (IS_ENABLED(CONFIG_ARCH_LS1021A)) {
+		/* LS102xA has 1xRGMII for debug connection and
+		 * 2xSGMII for back-plane mgmt connection
+		 */
+		process_mac(valbuf, page2, 1, true);
+		env_set((char *)"ethaddr", (char *)valbuf);
+		process_mac(valbuf, page2, 2, true);
+		env_set((char *)"eth1addr", (char *)valbuf);
+		process_mac(valbuf, page2, mac_address_offset, true);
+		env_set((char *)"eth2addr", (char *)valbuf);
+	} else {
+		process_mac(valbuf, page2, mac_address_offset, true);
+		env_set((char *)"ethaddr", (char *)valbuf);
 	}
 	if (IS_ENABLED(CONFIG_TARGET_KMCENT2)) {
 		/* 3rd ethernet interface */
