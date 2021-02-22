@@ -32,6 +32,8 @@ static uint32_t rom_version = ROM_V1;
 
 #define HDMI_FW_SIZE		0x17000 /* Use Last 0x1000 for IVT and CSF */
 #define ALIGN_SIZE		0x1000
+#define ALIGN_IMX(x, a)			__ALIGN_MASK_IMX((x), (__typeof__(x))(a) - 1, a)
+#define __ALIGN_MASK_IMX(x, mask, mask2)	(((x) + (mask)) / (mask2) * (mask2))
 
 static uint32_t get_cfg_value(char *token, char *name,  int linenr)
 {
@@ -342,7 +344,7 @@ static int generate_ivt_for_fit(int fd, int fit_offset, uint32_t ep,
 
 	fit_size = fdt_totalsize(&image_header);
 
-	fit_size = ALIGN(fit_size, ALIGN_SIZE);
+	fit_size = ALIGN_IMX(fit_size, ALIGN_SIZE);
 
 	ret = lseek(fd, fit_offset + fit_size, SEEK_SET);
 	if (ret < 0) {
@@ -446,7 +448,7 @@ void build_image(int ofd)
 		 * Aligned to 104KB = 92KB FW image + 0x8000
 		 * (IVT and alignment) + 0x4000 (second IVT + CSF)
 		 */
-		file_off += ALIGN(sbuf.st_size,
+		file_off += ALIGN_IMX(sbuf.st_size,
 				  HDMI_FW_SIZE + 0x2000 + 0x1000);
 	}
 
@@ -479,7 +481,7 @@ void build_image(int ofd)
 	imx_header[IMAGE_IVT_ID].boot_data.start =
 		imx_header[IMAGE_IVT_ID].fhdr.self - ivt_offset;
 	imx_header[IMAGE_IVT_ID].boot_data.size =
-		ALIGN(sbuf.st_size + sizeof(imx_header_v3_t) + ivt_offset,
+		ALIGN_IMX(sbuf.st_size + sizeof(imx_header_v3_t) + ivt_offset,
 		      sector_size);
 
 	image_off = header_image_off + sizeof(imx_header_v3_t);
