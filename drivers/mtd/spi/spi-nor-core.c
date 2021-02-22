@@ -127,6 +127,14 @@ static ssize_t spi_nor_write_data(struct spi_nor *nor, loff_t to, size_t len,
 	op.addr.buswidth = spi_nor_get_protocol_addr_nbits(nor->write_proto);
 	op.data.buswidth = spi_nor_get_protocol_data_nbits(nor->write_proto);
 
+	if (nor->flash_is_locked) {
+		if (nor->flash_is_locked(nor, to, len) > 0) {
+			printf("offset 0x%llx is protected and cannot be written\n",
+			       to);
+			return -EINVAL;
+		}
+	}
+
 	if (nor->program_opcode == SPINOR_OP_AAI_WP && nor->sst_write_second)
 		op.addr.nbytes = 0;
 
@@ -610,6 +618,19 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 
 	addr = instr->addr;
 	len = instr->len;
+
+	if (nor->flash_is_locked) {
+		if (nor->isparallel)
+			nor->spi->flags |= SPI_XFER_STRIPE;
+
+		write_disable(nor);
+
+		if (nor->flash_is_locked(nor, addr, len) > 0) {
+			printf("offset 0x%x is protected and cannot be erased\n",
+			       addr);
+			return -EINVAL;
+		}
+	}
 
 	while (len) {
 		write_enable(nor);
@@ -2982,11 +3003,11 @@ int spi_nor_scan(struct spi_nor *nor)
 #endif
 
 #if defined(CONFIG_SPI_FLASH_STMICRO)
-if (JEDEC_MFR(info) == SNOR_MFR_ST) {
-	nor->flash_lock = micron_flash_lock;
-	nor->flash_unlock = micron_flash_unlock;
-	nor->flash_is_locked = micron_is_locked;
-}
+	if (JEDEC_MFR(info) == SNOR_MFR_ST) {
+		nor->flash_lock = micron_flash_lock;
+		nor->flash_unlock = micron_flash_unlock;
+		nor->flash_is_locked = micron_is_locked;
+	}
 #endif
 
 #ifdef CONFIG_SPI_FLASH_SST
