@@ -18,6 +18,7 @@
 #include <linux/delay.h>
 #include <linux/math64.h>
 #include <linux/bitfield.h>
+#include <power/regulator.h>
 
 #define MESON_SAR_ADC_REG0					0x00
 	#define MESON_SAR_ADC_REG0_PANEL_DETECT			BIT(31)
@@ -656,7 +657,10 @@ static int meson_saradc_stop(struct udevice *dev)
 
 static int meson_saradc_probe(struct udevice *dev)
 {
+	struct adc_uclass_plat *uc_pdata = dev_get_uclass_plat(dev);
 	struct meson_saradc_priv *priv = dev_get_priv(dev);
+	struct udevice *vref;
+	int vref_uv;
 	int ret;
 
 	ret = regmap_init_mem(dev_ofnode(dev), &priv->regmap);
@@ -674,6 +678,23 @@ static int meson_saradc_probe(struct udevice *dev)
 #endif
 
 	priv->active_channel = -1;
+
+	ret = device_get_supply_regulator(dev, "vref-supply", &vref);
+	if (ret) {
+		printf("can't get vref-supply: %d\n", ret);
+		return ret;
+	}
+
+	vref_uv = regulator_get_value(vref);
+	if (vref_uv < 0) {
+		printf("can't get vref-supply value: %d\n", vref_uv);
+		return vref_uv;
+	}
+
+	/* VDD supplied by common vref pin */
+	uc_pdata->vdd_supply = vref;
+	uc_pdata->vdd_microvolts = vref_uv;
+	uc_pdata->vss_microvolts = 0;
 
 	return 0;
 }

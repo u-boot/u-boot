@@ -9,6 +9,14 @@ config BUTTON
 	  can provide access to board-specific buttons. Use of the device tree
 	  for configuration is encouraged.
 
+config BUTTON_ADC
+	bool "Button adc"
+	depends on BUTTON
+	help
+	  Enable support for buttons which are connected to Analog to Digital
+	  Converter device. The ADC driver must use driver model. Buttons are
+	  configured using the device tree.
+
 config BUTTON_GPIO
 	bool "Button gpio"
 	depends on BUTTON
