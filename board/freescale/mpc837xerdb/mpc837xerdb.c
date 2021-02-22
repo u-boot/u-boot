@@ -139,8 +139,8 @@ int checkboard(void)
 
 int board_early_init_f(void)
 {
-#ifdef CONFIG_FSL_SERDES
 	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+#ifdef CONFIG_FSL_SERDES
 	u32 spridr = in_be32(&immr->sysconf.spridr);
 
 	/* we check only part num, and don't look for CPU revisions */
@@ -167,10 +167,16 @@ int board_early_init_f(void)
 		break;
 	}
 #endif /* CONFIG_FSL_SERDES */
+
+#ifdef CONFIG_FSL_ESDHC
+	clrsetbits_be32(&immr->sysconf.sicrl, SICRL_USB_B, SICRL_USB_B_SD);
+	clrsetbits_be32(&immr->sysconf.sicrh, SICRH_SPI, SICRH_SPI_SD);
+#endif
 	return 0;
 }
 
 #ifdef CONFIG_FSL_ESDHC
+#if !(CONFIG_IS_ENABLED(DM_MMC))
 int board_mmc_init(struct bd_info *bd)
 {
 	struct immap __iomem *im = (struct immap __iomem *)CONFIG_SYS_IMMR;
@@ -188,6 +194,7 @@ int board_mmc_init(struct bd_info *bd)
 
 	return fsl_esdhc_mmc_init(bd);
 }
+#endif
 #endif
 
 /*

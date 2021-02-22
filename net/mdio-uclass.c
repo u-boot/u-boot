@@ -139,6 +139,12 @@ static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
 	struct ofnode_phandle_args phandle = {.node = ofnode_null()};
 	int i;
 
+	if (CONFIG_IS_ENABLED(PHY_FIXED) &&
+	    ofnode_valid(dev_read_subnode(ethdev, "fixed-link"))) {
+		phy = phy_connect(NULL, -1, ethdev, interface);
+		goto out;
+	}
+
 	for (i = 0; i < PHY_HANDLE_STR_CNT; i++)
 		if (!dev_read_phandle_with_args(ethdev, phy_handle_str[i], NULL,
 						0, 0, &phandle))
@@ -168,6 +174,7 @@ static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
 
 	phy = dm_mdio_phy_connect(mdiodev, phy_addr, ethdev, interface);
 
+out:
 	if (phy)
 		phy->node = phandle.node;
 

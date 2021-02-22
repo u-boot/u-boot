@@ -172,8 +172,8 @@ static int uec_set_mac_if_mode(struct uec_priv *uec)
 			break;
 		default:
 			return -EINVAL;
-	}
-	break;
+		}
+		break;
 	case SPEED_1000:
 		maccfg2 |= MACCFG2_INTERFACE_MODE_BYTE;
 		switch (enet_if_mode) {
