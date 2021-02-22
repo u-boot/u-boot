@@ -2683,6 +2683,226 @@ static int spi_nor_init(struct spi_nor *nor)
 	return 0;
 }
 
+#if defined(CONFIG_SPI_FLASH_STMICRO)
+static inline uint16_t min_lockable_sectors(struct spi_nor *nor,
+					    uint16_t n_sectors)
+{
+	u16 lock_granularity;
+
+	lock_granularity = 1;
+
+	return lock_granularity;
+}
+
+static inline uint32_t get_protected_area_start(struct spi_nor *nor,
+						u8 lock_bits,
+						bool is_bottom)
+{
+	u16 n_sectors;
+	u32 sector_size;
+	u32 flash_size;
+	int ret;
+
+	sector_size = nor->sector_size >> nor->shift;
+	n_sectors = (nor->size >> nor->shift) / sector_size;
+	flash_size = nor->size >> nor->shift;
+
+	if (!is_bottom)
+		ret = flash_size - ((1 << (lock_bits - 1)) * sector_size *
+				    min_lockable_sectors(nor, n_sectors));
+	else
+		ret = (1 << (lock_bits - 1)) * sector_size *
+		       min_lockable_sectors(nor, n_sectors);
+
+	return ret;
+}
+
+static uint8_t min_protected_area_including_offset(struct spi_nor *nor,
+						   u32 offset,
+						   bool is_bottom)
+{
+	u8 lock_bits, lockbits_limit;
+
+	lockbits_limit = MAX_LOCKBITS;
+
+	for (lock_bits = 1; lock_bits < lockbits_limit; lock_bits++) {
+		if (!is_bottom) {
+			/* top protection */
+			if (offset >= get_protected_area_start(nor,
+							       lock_bits,
+							       is_bottom))
+				break;
+		} else {
+			/* bottom protection */
+			if (offset <= get_protected_area_start(nor,
+							       lock_bits,
+							       is_bottom))
+				break;
+		}
+	}
+	return lock_bits;
+}
+
+static int write_sr_modify_protection(struct spi_nor *nor, u8 status,
+				      u8 lock_bits, bool is_bottom)
+{
+	u8 status_new, bp_mask;
+	int ret;
+
+	status_new = status & ~BP_MASK;
+	bp_mask = (lock_bits << BP_SHIFT) & BP_MASK;
+
+	status_new &= ~SR_BP3;
+	/* Protected area starts from top */
+	status_new &= ~SR_TB;
+
+	/* If bottom area is to be Protected set SR_TB */
+	if (is_bottom)
+		status_new |= SR_TB;
+
+	if (lock_bits > 7)
+		bp_mask |= SR_BP3;
+
+	status_new |= bp_mask;
+
+	write_enable(nor);
+
+	nor->spi->flags |= SPI_XFER_LOWER;
+
+	ret = write_sr(nor, status_new);
+	if (ret)
+		return ret;
+
+	if (nor->isparallel) {
+		nor->spi->flags |= SPI_XFER_UPPER;
+		ret = write_sr(nor, status_new);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+static void micron_get_locked_range(struct spi_nor *nor, u8 sr, loff_t *ofs,
+				    uint64_t *len)
+{
+	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
+	int shift = ffs(mask) - 1;
+	int pow;
+
+	if (!(sr & (mask | SR_BP3))) {
+		/* No protection */
+		*ofs = 0;
+		*len = 0;
+	} else {
+		pow = (sr & mask) >> shift;
+		pow |= sr & SR_BP3 ? BIT(3) : 0;
+
+		if (pow)
+			pow--;
+
+		*len = (nor->sector_size >> nor->shift) << pow;
+		if (*len >= (nor->size >> nor->shift))
+			*len = nor->size >> nor->shift;
+
+		if (!(sr & SR_TB))
+			*ofs = (nor->size >> nor->shift) - *len;
+		else
+			*ofs = 0;
+
+		debug("%s, ofs:0x%lx, len:0x%lx\n", __func__,
+		      (unsigned long)*ofs, (unsigned long)*len);
+	}
+}
+
+static int micron_is_locked_sr(struct spi_nor *nor, loff_t ofs, uint64_t len,
+			       u8 sr)
+{
+	loff_t lock_offs;
+	u64 lock_len;
+
+	ofs >>= nor->shift;
+	len >>= nor->shift;
+
+	debug("%s, ofs:0x%lx, len:0x%lx\n", __func__,
+	      (unsigned long)ofs,
+	      (unsigned long)len);
+
+	micron_get_locked_range(nor, sr, &lock_offs, &lock_len);
+
+	if (!(sr & SR_TB))
+		return (ofs + len <= lock_offs + lock_len) &&
+		       (ofs >= lock_offs);
+	else
+		return (ofs + len <= lock_offs + lock_len);
+}
+
+static int micron_flash_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
+{
+	u8 status_old, status_old_up;
+	u8 lock_bits;
+	loff_t lock_len;
+	bool is_bottom = false; /* Use TOP protection by default */
+
+	if (nor->isparallel)
+		nor->spi->flags |= SPI_XFER_LOWER;
+
+	status_old = read_sr(nor);
+	if (status_old < 0)
+		return status_old;
+
+	if (nor->isparallel) {
+		nor->spi->flags |= SPI_XFER_UPPER;
+		status_old_up = read_sr(nor);
+		if (status_old_up < 0)
+			return status_old_up;
+		if ((status_old & BPTB_MASK) != (status_old_up & BPTB_MASK)) {
+			printf("BP is different in both flashes lo:0x%x, up:0x%x\n",
+			       status_old, status_old_up);
+			return -EINVAL;
+		}
+	}
+
+	if (ofs < nor->size / 2)
+		is_bottom = true;	/* Change it to bottom protection */
+
+	debug("Status in both flashes lo:0x%x, up:0x%x\n",
+	      status_old, status_old_up);
+	ofs >>= nor->shift;
+	len >>= nor->shift;
+
+	if (!is_bottom)
+		lock_len = ofs;
+	else
+		lock_len = ofs + len;
+	lock_bits = min_protected_area_including_offset(nor, lock_len,
+							is_bottom);
+
+	if (lock_bits > ((status_old & (BP_MASK << BP_SHIFT)) >> 2))
+		write_sr_modify_protection(nor, status_old, lock_bits,
+					   is_bottom);
+
+	return 0;
+}
+
+static int micron_flash_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
+{
+	write_sr_modify_protection(nor, 0, 0, 0);
+	return 0;
+}
+
+static int micron_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
+{
+	int status;
+
+	status = read_sr(nor);
+	if (status < 0)
+		return status;
+
+	return micron_is_locked_sr(nor, ofs, len, status);
+}
+#endif /* CONFIG_SPI_FLASH_STMICRO */
+
 int spi_nor_scan(struct spi_nor *nor)
 {
 	struct spi_nor_flash_parameter params;
@@ -2759,6 +2979,14 @@ int spi_nor_scan(struct spi_nor *nor)
 		nor->flash_unlock = stm_unlock;
 		nor->flash_is_locked = stm_is_locked;
 	}
+#endif
+
+#if defined(CONFIG_SPI_FLASH_STMICRO)
+if (JEDEC_MFR(info) == SNOR_MFR_ST) {
+	nor->flash_lock = micron_flash_lock;
+	nor->flash_unlock = micron_flash_unlock;
+	nor->flash_is_locked = micron_is_locked;
+}
 #endif
 
 #ifdef CONFIG_SPI_FLASH_SST

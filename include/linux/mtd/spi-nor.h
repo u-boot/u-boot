@@ -132,8 +132,15 @@
 #define SR_BP0			BIT(2)	/* Block protect 0 */
 #define SR_BP1			BIT(3)	/* Block protect 1 */
 #define SR_BP2			BIT(4)	/* Block protect 2 */
+#define SR_BP3			BIT(6)  /* Block protect 3 */
 #define SR_TB			BIT(5)	/* Top/Bottom protect */
 #define SR_SRWD			BIT(7)	/* SR write protect */
+
+#define BPTB_MASK		0x7C	/* BP & TB bits mask */
+#define BP_MASK			0x1C	/* BP bits mask */
+#define BP_SHIFT		0x2	/* BP shift*/
+#define MAX_LOCKBITS		15
+
 /* Spansion/Cypress specific status bits */
 #define SR_E_ERR		BIT(5)
 #define SR_P_ERR		BIT(6)
