@@ -329,15 +329,6 @@ config ACPIGEN
 	  things like generating device-specific tables and returning the ACPI
 	  name of a device.
 
-config INTEL_ACPIGEN
-	bool "Support ACPI table generation for Intel SoCs"
-	depends on ACPIGEN
-	help
-	  This option adds some functions used for programatic generation of
-	  ACPI tables on Intel SoCs. This provides features for writing CPU
-	  information such as P states and T stages. Also included is a way
-	  to create a GNVS table and set it up.
-
 config BOUNCE_BUFFER
 	bool "Include bounce buffer API"
 	help
