@@ -1293,6 +1293,7 @@ static int jffs2_sum_process_sum_data(struct part_info *part, uint32_t offset,
 							&spi->version);
 						b->ino = sum_get_unaligned32(
 							&spi->inode);
+						b->datacrc = CRC_UNKNOWN;
 					}
 
 					sp += JFFS2_SUMMARY_INODE_SIZE;
@@ -1314,6 +1315,7 @@ static int jffs2_sum_process_sum_data(struct part_info *part, uint32_t offset,
 							&spd->version);
 						b->pino = sum_get_unaligned32(
 							&spd->pino);
+						b->datacrc = CRC_UNKNOWN;
 					}
 
 					sp += JFFS2_SUMMARY_DIRENT_SIZE(
