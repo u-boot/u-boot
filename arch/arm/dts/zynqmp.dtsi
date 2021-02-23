@@ -587,7 +587,7 @@
 			compatible = "arasan,nfc-v3p10";
 			status = "disabled";
 			reg = <0x0 0xff100000 0x0 0x1000>;
-			clock-names = "clk_sys", "clk_flash";
+			clock-names = "controller", "bus";
 			interrupt-parent = <&gic>;
 			interrupts = <0 14 4>;
 			#address-cells = <1>;
