@@ -7,6 +7,8 @@
 #ifndef	__ASM_GBL_DATA_H
 #define __ASM_GBL_DATA_H
 
+#ifndef __ASSEMBLY__
+
 #include <asm/types.h>
 #include <linux/types.h>
 
@@ -124,5 +126,7 @@ static inline void set_gd(volatile gd_t *gd_ptr)
 	__asm__ volatile("ldr r9, %0\n" : : "m"(gd_ptr));
 #endif
 }
+
+#endif /* __ASSEMBLY__ */
 
 #endif /* __ASM_GBL_DATA_H */
