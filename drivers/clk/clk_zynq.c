@@ -445,11 +445,21 @@ static ulong zynq_clk_get_rate(struct clk *clk)
 }
 #endif
 
+static int dummy_enable(struct clk *clk)
+{
+	/*
+	 * Add implementation but by default all clocks are enabled
+	 * after power up which is only one supported case now.
+	 */
+	return 0;
+}
+
 static struct clk_ops zynq_clk_ops = {
 	.get_rate = zynq_clk_get_rate,
 #ifndef CONFIG_SPL_BUILD
 	.set_rate = zynq_clk_set_rate,
 #endif
+	.enable = dummy_enable,
 };
 
 static int zynq_clk_probe(struct udevice *dev)

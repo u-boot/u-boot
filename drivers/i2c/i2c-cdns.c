@@ -15,6 +15,7 @@
 #include <linux/types.h>
 #include <linux/io.h>
 #include <linux/errno.h>
+#include <dm/device_compat.h>
 #include <dm/root.h>
 #include <i2c.h>
 #include <fdtdec.h>
@@ -480,6 +481,12 @@ static int cdns_i2c_of_to_plat(struct udevice *dev)
 		return ret;
 
 	i2c_bus->input_freq = clk_get_rate(&clk);
+
+	ret = clk_enable(&clk);
+	if (ret) {
+		dev_err(dev, "failed to enable clock\n");
+		return ret;
+	}
 
 	return 0;
 }

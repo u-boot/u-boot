@@ -577,7 +577,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	debug("%s: CLK %ld\n", __func__, clock);
 
 	ret = clk_enable(&clk);
-	if (ret && ret != -ENOSYS) {
+	if (ret) {
 		dev_err(dev, "failed to enable clock\n");
 		return ret;
 	}

@@ -25,6 +25,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		printf("Silicon version:\t%d\n", zynq_get_silicon_version());
+
 	return 0;
 }
 
