@@ -4,25 +4,25 @@
  */
 
 /*
- * Device Tree file for Marvell Armada AP806.
+ * Device Tree file for Marvell Armada AP807.
  */
 
-/* AP806 Settings */
-#define AP_NAME				ap806
+/* AP807 Settings */
+#define AP_NAME				ap807
 
 #include "armada-ap80x.dtsi"
 
 / {
-	model = "Marvell Armada AP806";
+	model = "Marvell Armada AP807";
 
 	AP_NAME {
 		config-space {
 			sar-reg {
 				compatible = "marvell,sample-at-reset-common",
-					     "marvell,sample-at-reset-ap806";
+					     "marvell,sample-at-reset-ap807";
 				reg = <0x6F8200 0x8>;
-				sar-driver = "ap806_sar";
-				sar-name = "ap806_sar";
+				sar-driver = "ap807_sar";
+				sar-name = "ap807_sar";
 				status = "okay";
 			};
 
@@ -30,8 +30,8 @@
 				compatible = "marvell,mvebu-thermal",
 					     "marvell,thermal-ext-sensor";
 				reg = <0x6f8084 0x12>;
-				gain = <425>;
-				offset = <153400>;
+				gain = <394>;
+				offset = <128900>;
 				divisor = <1000>;
 				status = "okay";
 			};

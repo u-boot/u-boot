@@ -11,7 +11,8 @@
 #include <dt-bindings/gpio/gpio.h>
 #include "armada-common.dtsi"
 #include "armada-8k.dtsi"
-#include "armada-ap806-quad.dtsi"
+#include "armada-ap806.dtsi"
+#include "armada-ap80x-quad.dtsi"
 
 /* CP110-0 Settings */
 #define CP110_NAME		cp0
