@@ -132,7 +132,7 @@ Sources:
 	Branch: master
 
 4. U-Boot:
-	Tree: https://gitlab.denx.de/u-boot/u-boot
+	Tree: https://source.denx.de/u-boot/u-boot
 	Branch: master
 
 Build procedure:

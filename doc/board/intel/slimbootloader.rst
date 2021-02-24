@@ -170,7 +170,7 @@ Build Instruction to use ELF U-Boot
 
    $ python BuildLoader.py build <qemu or apl> -p "OsLoader.efi:LLDR:Lz4;u-boot:U-BT:Lzma"
 
-.. _U-Boot: https://gitlab.denx.de/
+.. _U-Boot: https://source.denx.de/
 .. _`Slim Bootloader`: https://github.com/slimbootloader/
 .. _`Intel FSP`: https://github.com/IntelFsp/
 .. _`Getting Started`: https://slimbootloader.github.io/getting-started/

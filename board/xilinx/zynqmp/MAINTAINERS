@@ -1,7 +1,7 @@
 XILINX_ZYNQMP BOARDS
 M:	Michal Simek <michal.simek@xilinx.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-microblaze.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/arm/dts/zynqmp-*
 F:	arch/arm/dts/avnet-ultra96*
 F:	board/xilinx/common/
