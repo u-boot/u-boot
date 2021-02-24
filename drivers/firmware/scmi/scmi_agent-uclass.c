@@ -7,11 +7,10 @@
 
 #include <common.h>
 #include <dm.h>
-#include <dm/device_compat.h>
 #include <errno.h>
 #include <scmi_agent-uclass.h>
 #include <scmi_protocols.h>
-
+#include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <linux/compat.h>
 
