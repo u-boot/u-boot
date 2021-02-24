@@ -93,12 +93,6 @@ void mmu_set_region_dcache_behaviour_phys(phys_addr_t start, phys_addr_t phys,
 	mmu_page_table_flush(startpt, stoppt);
 }
 
-void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
-				     enum dcache_option option)
-{
-	mmu_set_region_dcache_behaviour_phys(start, start, size, option);
-}
-
 __weak void dram_bank_mmu_setup(int bank)
 {
 	struct bd_info *bd = gd->bd;
@@ -311,6 +305,12 @@ int dcache_status(void)
 {
 	return 0;					/* always off */
 }
+
+void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
+				     enum dcache_option option)
+{
+}
+
 #else
 void dcache_enable(void)
 {
@@ -325,5 +325,11 @@ void dcache_disable(void)
 int dcache_status(void)
 {
 	return (get_cr() & CR_C) != 0;
+}
+
+void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
+				     enum dcache_option option)
+{
+	mmu_set_region_dcache_behaviour_phys(start, start, size, option);
 }
 #endif
