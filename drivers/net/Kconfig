@@ -790,4 +790,11 @@ config FSL_LS_MDIO
 	  This driver supports the MDIO bus found on the Fman 10G Ethernet MACs and
 	  on the mEMAC (which supports both Clauses 22 and 45).
 
+config MDIO_MUX_MMIOREG
+	bool "MDIO MUX accessed as a MMIO register access"
+	depends on DM_MDIO_MUX
+	help
+	  This driver is used for MDIO muxes driven by writing to a register in
+	  the MMIO physical memory.
+
 endif # NETDEVICES
