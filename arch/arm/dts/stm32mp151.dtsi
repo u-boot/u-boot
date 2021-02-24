@@ -1136,6 +1136,10 @@
 			reg = <0x50000000 0x1000>;
 			#clock-cells = <1>;
 			#reset-cells = <1>;
+
+			clock-names = "hse", "hsi", "csi", "lse", "lsi";
+			clocks = <&clk_hse>, <&clk_hsi>, <&clk_csi>,
+				 <&clk_lse>, <&clk_lsi>;
 		};
 
 		pwr_regulators: pwr@50001000 {
