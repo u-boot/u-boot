@@ -223,8 +223,10 @@ static void early_enable_caches(void)
 	if (CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
 		return;
 
-	gd->arch.tlb_size = PGTABLE_SIZE;
-	gd->arch.tlb_addr = (unsigned long)&early_tlb;
+	if (!(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))) {
+		gd->arch.tlb_size = PGTABLE_SIZE;
+		gd->arch.tlb_addr = (unsigned long)&early_tlb;
+	}
 
 	dcache_enable();
 
