@@ -69,11 +69,6 @@ static int dsa_port_start(struct udevice *pdev)
 	struct dsa_ops *ops = dsa_get_ops(dev);
 	int err;
 
-	if (!master) {
-		dev_err(pdev, "DSA master Ethernet device not found!\n");
-		return -EINVAL;
-	}
-
 	if (ops->port_enable) {
 		struct dsa_port_pdata *port_pdata;
 
@@ -108,13 +103,7 @@ static void dsa_port_stop(struct udevice *pdev)
 		ops->port_disable(dev, priv->cpu_port, NULL);
 	}
 
-	/*
-	 * stop master only if it's active, don't probe it otherwise.
-	 * Under normal usage it would be active because we're using it, but
-	 * during tear-down it may have been removed ahead of us.
-	 */
-	if (master && device_active(master))
-		eth_get_ops(master)->stop(master);
+	eth_get_ops(master)->stop(master);
 }
 
 /*
@@ -132,9 +121,6 @@ static int dsa_port_send(struct udevice *pdev, void *packet, int length)
 	uchar dsa_packet_tmp[PKTSIZE_ALIGN];
 	struct dsa_port_pdata *port_pdata;
 	int err;
-
-	if (!master)
-		return -EINVAL;
 
 	if (length + head + tail > PKTSIZE_ALIGN)
 		return -EINVAL;
@@ -164,9 +150,6 @@ static int dsa_port_recv(struct udevice *pdev, int flags, uchar **packetp)
 	struct dsa_ops *ops = dsa_get_ops(dev);
 	struct dsa_port_pdata *port_pdata;
 	int length, port_index, err;
-
-	if (!master)
-		return -EINVAL;
 
 	length = eth_get_ops(master)->recv(master, flags, packetp);
 	if (length <= 0)
@@ -200,9 +183,6 @@ static int dsa_port_free_pkt(struct udevice *pdev, uchar *packet, int length)
 	struct udevice *dev = dev_get_parent(pdev);
 	struct udevice *master = dsa_get_master(dev);
 	struct dsa_priv *priv;
-
-	if (!master)
-		return -EINVAL;
 
 	priv = dev_get_uclass_priv(dev);
 	if (eth_get_ops(master)->free_pkt) {
@@ -284,6 +264,9 @@ static int dsa_port_probe(struct udevice *pdev)
 	/*
 	 * Probe the master device. We depend on the master device for proper
 	 * operation and we also need it for MAC inheritance below.
+	 *
+	 * TODO: we assume the master device is always there and doesn't get
+	 * removed during runtime.
 	 */
 	ret = device_probe(master);
 	if (ret)
