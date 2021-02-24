@@ -280,16 +280,16 @@ static int dsa_port_probe(struct udevice *pdev)
 	if (!port_pdata->phy)
 		return -ENODEV;
 
+	master = dsa_get_master(dev);
+	if (!master)
+		return -ENODEV;
+
 	/*
 	 * Inherit port's hwaddr from the DSA master, unless the port already
 	 * has a unique MAC address specified in the environment.
 	 */
 	eth_env_get_enetaddr_by_index("eth", dev_seq(pdev), env_enetaddr);
 	if (!is_zero_ethaddr(env_enetaddr))
-		return 0;
-
-	master = dsa_get_master(dev);
-	if (!master)
 		return 0;
 
 	master_pdata = dev_get_plat(master);
