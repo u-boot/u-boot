@@ -797,4 +797,11 @@ config MDIO_MUX_MMIOREG
 	  This driver is used for MDIO muxes driven by writing to a register in
 	  the MMIO physical memory.
 
+config MDIO_MUX_MESON_G12A
+	bool "MDIO MUX for Amlogic Meson G12A SoCs"
+	depends on DM_MDIO_MUX
+	help
+	  This driver is used for the MDIO mux found on the Amlogic G12A & compatible
+	  SoCs.
+
 endif # NETDEVICES
