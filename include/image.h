@@ -1158,7 +1158,7 @@ int fit_image_check_comp(const void *fit, int noffset, uint8_t comp);
  * @fit: pointer to the FIT format image header
  * @return 0 if OK, -ENOEXEC if not an FDT file, -EINVAL if the full FDT check
  *	failed (e.g. due to bad structure), -ENOMSG if the description is
- *	missing, -ENODATA if the timestamp is missing, -ENOENT if the /images
+ *	missing, -EBADMSG if the timestamp is missing, -ENOENT if the /images
  *	path is missing
  */
 int fit_check_format(const void *fit, ulong size);

@@ -1651,7 +1651,7 @@ int fit_check_format(const void *fit, ulong size)
 		/* mandatory / node 'timestamp' property */
 		if (!fdt_getprop(fit, 0, FIT_TIMESTAMP_PROP, NULL)) {
 			log_debug("Wrong FIT format: no timestamp\n");
-			return -ENODATA;
+			return -EBADMSG;
 		}
 	}
 
