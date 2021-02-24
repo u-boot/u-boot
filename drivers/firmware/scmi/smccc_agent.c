@@ -9,6 +9,7 @@
 #include <scmi_agent.h>
 #include <scmi_agent-uclass.h>
 #include <dm/devres.h>
+#include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <linux/arm-smccc.h>
 #include <linux/compat.h>
