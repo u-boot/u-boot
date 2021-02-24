@@ -18,6 +18,7 @@ obj-$(CONFIG_CORTINA_NI_ENET) += cortina_ni.o
 obj-$(CONFIG_CS8900) += cs8900.o
 obj-$(CONFIG_TULIP) += dc2114x.o
 obj-$(CONFIG_ETH_DESIGNWARE) += designware.o
+obj-$(CONFIG_ETH_DESIGNWARE_MESON8B) += dwmac_meson8b.o
 obj-$(CONFIG_ETH_DESIGNWARE_SOCFPGA) += dwmac_socfpga.o
 obj-$(CONFIG_ETH_DESIGNWARE_S700) += dwmac_s700.o
 obj-$(CONFIG_DRIVER_DM9000) += dm9000x.o
