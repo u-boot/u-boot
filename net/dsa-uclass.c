@@ -272,6 +272,7 @@ static int dsa_port_probe(struct udevice *pdev)
 	struct dsa_port_pdata *port_pdata;
 	struct dsa_priv *dsa_priv;
 	struct udevice *master;
+	int ret;
 
 	port_pdata = dev_get_parent_plat(pdev);
 	dsa_priv = dev_get_uclass_priv(dev);
@@ -283,6 +284,14 @@ static int dsa_port_probe(struct udevice *pdev)
 	master = dsa_get_master(dev);
 	if (!master)
 		return -ENODEV;
+
+	/*
+	 * Probe the master device. We depend on the master device for proper
+	 * operation and we also need it for MAC inheritance below.
+	 */
+	ret = device_probe(master);
+	if (ret)
+		return ret;
 
 	/*
 	 * Inherit port's hwaddr from the DSA master, unless the port already
