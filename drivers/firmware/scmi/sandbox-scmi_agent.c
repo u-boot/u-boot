@@ -3,6 +3,8 @@
  * Copyright (C) 2020, Linaro Limited
  */
 
+#define LOG_CATEGORY UCLASS_SCMI_AGENT
+
 #include <common.h>
 #include <dm.h>
 #include <malloc.h>
