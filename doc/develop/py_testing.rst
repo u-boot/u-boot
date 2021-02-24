@@ -301,7 +301,7 @@ saving wear on the flash chip(s).
 Examples
 ''''''''
 
-https://github.com/swarren/uboot-test-hooks contains some working example hook
+https://source.denx.de/u-boot/u-boot-test-hooks contains some working example hook
 scripts, and may be useful as a reference when implementing hook scripts for
 your platform. These scripts are not considered part of U-Boot itself.
 
