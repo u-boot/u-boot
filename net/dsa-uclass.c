@@ -28,8 +28,8 @@ int dsa_set_tagging(struct udevice *dev, ushort headroom, ushort tailroom)
 {
 	struct dsa_priv *priv;
 
-	if (!dev || !dev_get_uclass_priv(dev))
-		return -ENODEV;
+	if (!dev)
+		return -EINVAL;
 
 	if (headroom + tailroom > DSA_MAX_OVR)
 		return -EINVAL;
@@ -47,10 +47,12 @@ int dsa_set_tagging(struct udevice *dev, ushort headroom, ushort tailroom)
 /* returns the DSA master Ethernet device */
 struct udevice *dsa_get_master(struct udevice *dev)
 {
-	struct dsa_priv *priv = dev_get_uclass_priv(dev);
+	struct dsa_priv *priv;
 
-	if (!priv)
+	if (!dev)
 		return NULL;
+
+	priv = dev_get_uclass_priv(dev);
 
 	return priv->master_dev;
 }
@@ -66,9 +68,6 @@ static int dsa_port_start(struct udevice *pdev)
 	struct udevice *master = dsa_get_master(dev);
 	struct dsa_ops *ops = dsa_get_ops(dev);
 	int err;
-
-	if (!priv)
-		return -ENODEV;
 
 	if (!master) {
 		dev_err(pdev, "DSA master Ethernet device not found!\n");
@@ -100,9 +99,6 @@ static void dsa_port_stop(struct udevice *pdev)
 	struct dsa_priv *priv = dev_get_uclass_priv(dev);
 	struct udevice *master = dsa_get_master(dev);
 	struct dsa_ops *ops = dsa_get_ops(dev);
-
-	if (!priv)
-		return;
 
 	if (ops->port_disable) {
 		struct dsa_port_pdata *port_pdata;
@@ -347,7 +343,7 @@ static int dsa_post_bind(struct udevice *dev)
 	ofnode node = dev_ofnode(dev), pnode;
 	int i, err, first_err = 0;
 
-	if (!pdata || !ofnode_valid(node))
+	if (!ofnode_valid(node))
 		return -ENODEV;
 
 	pdata->master_node = ofnode_null();
@@ -458,9 +454,6 @@ static int dsa_pre_probe(struct udevice *dev)
 {
 	struct dsa_pdata *pdata = dev_get_uclass_plat(dev);
 	struct dsa_priv *priv = dev_get_uclass_priv(dev);
-
-	if (!pdata || !priv)
-		return -ENODEV;
 
 	priv->num_ports = pdata->num_ports;
 	priv->cpu_port = pdata->cpu_port;
