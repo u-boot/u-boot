@@ -1,5 +1,5 @@
 QEMU-PPCE500 BOARD
-M:	Alexander Graf <agraf@suse.de>
+M:	Alexander Graf <agraf@csgraf.de>
 S:	Maintained
 F:	board/freescale/qemu-ppce500/
 F:	include/configs/qemu-ppce500.h
