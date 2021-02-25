@@ -187,11 +187,6 @@ static uint64_t get_linear_ram_size(void)
 	panic("Couldn't determine RAM size");
 }
 
-phys_size_t fixed_sdram(void)
-{
-	return get_linear_ram_size();
-}
-
 phys_size_t fsl_ddr_sdram_size(void)
 {
 	return get_linear_ram_size();
