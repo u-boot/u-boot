@@ -168,9 +168,6 @@ int last_stage_init(void)
 	if (prop && (len >= 8))
 		env_set_hex("qemu_kernel_addr", *prop);
 
-	/* Give the user a variable for the host fdt */
-	env_set_hex("fdt_addr_r", (ulong)fdt);
-
 	return 0;
 }
 

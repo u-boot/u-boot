@@ -106,6 +106,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 #define CONFIG_LOADADDR		1000000
 
 #define CONFIG_BOOTCOMMAND		\
-	"test -n \"$qemu_kernel_addr\" && bootm $qemu_kernel_addr - $fdt_addr_r\0"
+	"test -n \"$qemu_kernel_addr\" && bootm $qemu_kernel_addr - $fdtcontroladdr\0"
 
 #endif	/* __QEMU_PPCE500_H */
