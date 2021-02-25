@@ -466,7 +466,6 @@ static void setup_boot_mode(void)
 	unsigned int instance = (boot_mode & TAMP_BOOT_INSTANCE_MASK) - 1;
 	u32 forced_mode = (boot_ctx & TAMP_BOOT_FORCED_MASK);
 	struct udevice *dev;
-	int alias;
 
 	log_debug("%s: boot_ctx=0x%x => boot_mode=%x, instance=%d forced=%x\n",
 		  __func__, boot_ctx, boot_mode, instance, forced_mode);
@@ -474,20 +473,18 @@ static void setup_boot_mode(void)
 	case BOOT_SERIAL_UART:
 		if (instance > ARRAY_SIZE(serial_addr))
 			break;
-		/* serial : search associated alias in devicetree */
+		/* serial : search associated node in devicetree */
 		sprintf(cmd, "serial@%x", serial_addr[instance]);
-		if (uclass_get_device_by_name(UCLASS_SERIAL, cmd, &dev) ||
-		    fdtdec_get_alias_seq(gd->fdt_blob, "serial",
-					 dev_of_offset(dev), &alias)) {
+		if (uclass_get_device_by_name(UCLASS_SERIAL, cmd, &dev)) {
 			/* restore console on error */
 			if (IS_ENABLED(CONFIG_CMD_STM32PROG_SERIAL))
 				gd->flags &= ~(GD_FLG_SILENT |
 					       GD_FLG_DISABLE_CONSOLE);
-			printf("serial%d = %s not found in device tree!\n",
+			printf("uart%d = %s not found in device tree!\n",
 			       instance, cmd);
 			break;
 		}
-		sprintf(cmd, "%d", alias);
+		sprintf(cmd, "%d", dev_seq(dev));
 		env_set("boot_device", "serial");
 		env_set("boot_instance", cmd);
 
