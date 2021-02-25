@@ -242,7 +242,7 @@ struct efi_open_protocol_info_item {
  * @link:		link to the list of protocols of a handle
  * @guid:		GUID of the protocol
  * @protocol_interface:	protocol interface
- * @open_infos		link to the list of open protocol info items
+ * @open_infos:		link to the list of open protocol info items
  */
 struct efi_handler {
 	struct list_head link;
@@ -258,9 +258,13 @@ struct efi_handler {
  * started image.
  */
 enum efi_object_type {
+	/** @EFI_OBJECT_TYPE_UNDEFINED: undefined image type */
 	EFI_OBJECT_TYPE_UNDEFINED = 0,
+	/** @EFI_OBJECT_TYPE_U_BOOT_FIRMWARE: U-Boot firmware */
 	EFI_OBJECT_TYPE_U_BOOT_FIRMWARE,
+	/** @EFI_OBJECT_TYPE_LOADED_IMAGE: loaded image (not started) */
 	EFI_OBJECT_TYPE_LOADED_IMAGE,
+	/** @EFI_OBJECT_TYPE_STARTED_IMAGE: started image */
 	EFI_OBJECT_TYPE_STARTED_IMAGE,
 };
 
@@ -270,6 +274,7 @@ enum efi_object_type {
  * @link:	pointers to put the handle into a linked list
  * @protocols:	linked list with the protocol interfaces installed on this
  *		handle
+ * @type:	image type if the handle relates to an image
  *
  * UEFI offers a flexible and expandable object model. The objects in the UEFI
  * API are devices, drivers, and loaded images. struct efi_object is our storage
@@ -325,7 +330,7 @@ struct efi_loaded_image_obj {
  * @queue_link:		Link to the list of queued events
  * @type:		Type of event, see efi_create_event
  * @notify_tpl:		Task priority level of notifications
- * @nofify_function:	Function to call when the event is triggered
+ * @notify_function:	Function to call when the event is triggered
  * @notify_context:	Data to be passed to the notify function
  * @group:		Event group
  * @trigger_time:	Period of the timer
@@ -368,7 +373,8 @@ struct efi_protocol_notification {
 };
 
 /**
- * efi_register_notify_event - event registered by RegisterProtocolNotify()
+ * struct efi_register_notify_event - event registered by
+ *				      RegisterProtocolNotify()
  *
  * The address of this structure serves as registration value.
  *
@@ -747,7 +753,7 @@ efi_status_t efi_set_load_options(efi_handle_t handle,
 efi_status_t efi_bootmgr_load(efi_handle_t *handle, void **load_options);
 
 /**
- * efi_image_regions - A list of memory regions
+ * struct efi_image_regions - A list of memory regions
  *
  * @max:	Maximum number of regions
  * @num:	Number of regions
@@ -760,13 +766,13 @@ struct efi_image_regions {
 };
 
 /**
- * efi_sig_data - A decoded data of struct efi_signature_data
+ * struct efi_sig_data - A decoded data of struct efi_signature_data
  *
  * This structure represents an internal form of signature in
  * signature database. A listed list may represent a signature list.
  *
  * @next:	Pointer to next entry
- * @onwer:	Signature owner
+ * @owner:	Signature owner
  * @data:	Pointer to signature data
  * @size:	Size of signature data
  */
@@ -778,7 +784,7 @@ struct efi_sig_data {
 };
 
 /**
- * efi_signature_store - A decoded data of signature database
+ * struct efi_signature_store - A decoded data of signature database
  *
  * This structure represents an internal form of signature database.
  *
