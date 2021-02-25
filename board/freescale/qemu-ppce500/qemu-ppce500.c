@@ -24,6 +24,8 @@
 #include <fdtdec.h>
 #include <errno.h>
 #include <malloc.h>
+#include <virtio_types.h>
+#include <virtio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -129,6 +131,12 @@ int misc_init_r(void)
 	ret = pci_map_region(io->phys_start, io->size, &map_addr);
 	if (ret)
 		return ret;
+
+	/*
+	 * Make sure virtio bus is enumerated so that peripherals
+	 * on the virtio bus can be discovered by their drivers.
+	 */
+	virtio_init();
 
 	return 0;
 }
