@@ -74,11 +74,6 @@ uint64_t get_phys_ccsrbar_addr_early(void)
 	return r;
 }
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 int checkboard(void)
 {
 	return 0;
