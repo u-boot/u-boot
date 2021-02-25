@@ -109,41 +109,6 @@ static struct mm_region gx_mem_map[] = {
 
 struct mm_region *mem_map = gx_mem_map;
 
-/* Configure the Ethernet MAC with the requested interface mode
- * with some optional flags.
- */
-void meson_eth_init(phy_interface_t mode, unsigned int flags)
-{
-	switch (mode) {
-	case PHY_INTERFACE_MODE_RGMII:
-	case PHY_INTERFACE_MODE_RGMII_ID:
-	case PHY_INTERFACE_MODE_RGMII_RXID:
-	case PHY_INTERFACE_MODE_RGMII_TXID:
-		/* Set RGMII mode */
-		setbits_le32(GX_ETH_REG_0, GX_ETH_REG_0_PHY_INTF |
-			     GX_ETH_REG_0_TX_PHASE(1) |
-			     GX_ETH_REG_0_TX_RATIO(4) |
-			     GX_ETH_REG_0_PHY_CLK_EN |
-			     GX_ETH_REG_0_CLK_EN);
-
-		break;
-
-	case PHY_INTERFACE_MODE_RMII:
-		/* Set RMII mode */
-		out_le32(GX_ETH_REG_0, GX_ETH_REG_0_INVERT_RMII_CLK |
-					 GX_ETH_REG_0_CLK_EN);
-
-		if (!IS_ENABLED(CONFIG_MESON_GXBB))
-			writel(0x10110181, GX_ETH_REG_2);
-
-		break;
-
-	default:
-		printf("Invalid Ethernet interface mode\n");
-		return;
-	}
-}
-
 #if CONFIG_IS_ENABLED(USB_DWC3_MESON_GXL) && \
 	CONFIG_IS_ENABLED(USB_GADGET_DWC2_OTG)
 static struct dwc2_plat_otg_data meson_gx_dwc2_data;
