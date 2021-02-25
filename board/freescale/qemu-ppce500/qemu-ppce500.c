@@ -254,11 +254,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 }
 #endif
 
-void print_laws(void)
-{
-	/* We don't emulate LAWs yet */
-}
-
 phys_size_t fixed_sdram(void)
 {
 	return get_linear_ram_size();
@@ -300,11 +295,6 @@ void init_tlbs(void)
 	/* Create a map for the TLB */
 	assert(!tlb_map_range((ulong)get_fdt_virt(), get_fdt_phys(),
 			      1024 * 1024, TLB_MAP_RAM));
-}
-
-void init_laws(void)
-{
-	/* We don't emulate LAWs yet */
 }
 
 static uint32_t get_cpu_freq(void)
