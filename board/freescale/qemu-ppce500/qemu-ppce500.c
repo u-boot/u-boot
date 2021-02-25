@@ -364,3 +364,13 @@ u32 cpu_mask(void)
 {
 	return (1 << cpu_numcores()) - 1;
 }
+
+/**
+ * Return the virtual address of FDT that was passed by QEMU
+ *
+ * @return virtual address of FDT received from QEMU in r3 register
+ */
+void *board_fdt_blob_setup(void)
+{
+	return get_fdt_virt();
+}
