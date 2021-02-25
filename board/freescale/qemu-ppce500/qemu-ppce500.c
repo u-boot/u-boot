@@ -85,20 +85,24 @@ int checkboard(void)
 }
 
 static int pci_map_region(void *fdt, int pci_node, int range_id,
-			  phys_size_t *ppaddr, pci_addr_t *pvaddr,
-			  pci_size_t *psize, ulong *pmap_addr)
+			  phys_addr_t *pbaddr, phys_size_t *ppaddr,
+			  pci_addr_t *pvaddr, pci_size_t *psize,
+			  ulong *pmap_addr)
 {
-	uint64_t addr;
+	uint64_t baddr;
+	uint64_t paddr;
 	uint64_t size;
 	ulong map_addr;
 	int r;
 
-	r = fdt_read_range(fdt, pci_node, range_id, NULL, &addr, &size);
+	r = fdt_read_range(fdt, pci_node, range_id, &baddr, &paddr, &size);
 	if (r)
 		return r;
 
+	if (pbaddr)
+		*pbaddr = baddr;
 	if (ppaddr)
-		*ppaddr = addr;
+		*ppaddr = paddr;
 	if (psize)
 		*psize = size;
 
@@ -115,7 +119,7 @@ static int pci_map_region(void *fdt, int pci_node, int range_id,
 		return -1;
 
 	/* Map virtual memory for range */
-	assert(!tlb_map_range(map_addr, addr, size, TLB_MAP_IO));
+	assert(!tlb_map_range(map_addr, paddr, size, TLB_MAP_IO));
 	*pmap_addr = map_addr + size;
 
 	if (pvaddr)
@@ -166,23 +170,18 @@ void pci_init_board(void)
 		pci_info.regs = fdt_translate_address(fdt, pci_node, reg);
 
 		/* Map MMIO range */
-		r = pci_map_region(fdt, pci_node, 0, &pci_info.mem_phys, NULL,
+		r = pci_map_region(fdt, pci_node, 0, &pci_info.mem_bus,
+				   &pci_info.mem_phys, NULL,
 				   &pci_info.mem_size, &map_addr);
 		if (r)
 			break;
 
 		/* Map PIO range */
-		r = pci_map_region(fdt, pci_node, 1, &pci_info.io_phys, NULL,
+		r = pci_map_region(fdt, pci_node, 1, &pci_info.io_bus,
+				   &pci_info.io_phys, NULL,
 				   &pci_info.io_size, &map_addr);
 		if (r)
 			break;
-
-		/*
-		 * The PCI framework finds virtual addresses for the buses
-		 * through our address map, so tell it the physical addresses.
-		 */
-		pci_info.mem_bus = pci_info.mem_phys;
-		pci_info.io_bus = pci_info.io_phys;
 
 		/* Instantiate */
 		pci_info.pci_num = pci_num + 1;
