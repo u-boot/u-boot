@@ -93,18 +93,18 @@ static int mpc85xx_pci_dm_probe(struct udevice *dev)
 
 	pcix = priv->cfg_addr;
 	/* BAR 1: memory */
-	out_be32(&pcix->potar1, (mem->bus_start >> 12) & 0x000fffff);
-	out_be32(&pcix->potear1, 0);
-	out_be32(&pcix->powbar1, (mem->phys_start >> 12) & 0x000fffff);
-	out_be32(&pcix->powbear1, 0);
+	out_be32(&pcix->potar1, mem->bus_start >> 12);
+	out_be32(&pcix->potear1, (u64)mem->bus_start >> 44);
+	out_be32(&pcix->powbar1, mem->phys_start >> 12);
+	out_be32(&pcix->powbear1, (u64)mem->phys_start >> 44);
 	out_be32(&pcix->powar1, (POWAR_EN | POWAR_MEM_READ |
 		 POWAR_MEM_WRITE | (__ilog2(mem->size) - 1)));
 
 	/* BAR 1: IO */
-	out_be32(&pcix->potar2, (io->bus_start >> 12) & 0x000fffff);
-	out_be32(&pcix->potear2, 0);
-	out_be32(&pcix->powbar2, (io->phys_start >> 12) & 0x000fffff);
-	out_be32(&pcix->powbear2, 0);
+	out_be32(&pcix->potar2, io->bus_start >> 12);
+	out_be32(&pcix->potear2, (u64)io->bus_start >> 44);
+	out_be32(&pcix->powbar2, io->phys_start >> 12);
+	out_be32(&pcix->powbear2, (u64)io->phys_start >> 44);
 	out_be32(&pcix->powar2, (POWAR_EN | POWAR_IO_READ |
 		 POWAR_IO_WRITE | (__ilog2(io->size) - 1)));
 
