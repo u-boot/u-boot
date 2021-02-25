@@ -374,3 +374,9 @@ void *board_fdt_blob_setup(void)
 {
 	return get_fdt_virt();
 }
+
+/* See CONFIG_SYS_NS16550_CLK in arch/powerpc/include/asm/config.h */
+int get_serial_clock(void)
+{
+	return get_bus_freq(0);
+}
