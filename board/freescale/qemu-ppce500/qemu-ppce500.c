@@ -31,7 +31,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void *get_fdt_virt(void)
 {
-	return (void *)CONFIG_SYS_TMPVIRT;
+	if (gd->flags & GD_FLG_RELOC)
+		return (void *)gd->fdt_blob;
+	else
+		return (void *)CONFIG_SYS_TMPVIRT;
 }
 
 static uint64_t get_fdt_phys(void)
@@ -137,6 +140,12 @@ int misc_init_r(void)
 	 * on the virtio bus can be discovered by their drivers.
 	 */
 	virtio_init();
+
+	/*
+	 * U-Boot is relocated to RAM already, let's delete the temporary FDT
+	 * virtual-physical mapping that was used in the pre-relocation phase.
+	 */
+	disable_tlb(find_tlb_idx((void *)CONFIG_SYS_TMPVIRT, 1));
 
 	return 0;
 }
