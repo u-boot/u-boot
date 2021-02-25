@@ -65,7 +65,6 @@ obj-$(CONFIG_ARCH_MPC8536) += mpc8536_serdes.o
 obj-$(CONFIG_ARCH_MPC8544) += mpc8544_serdes.o
 obj-$(CONFIG_ARCH_MPC8548) += mpc8548_serdes.o
 obj-$(CONFIG_ARCH_MPC8568) += mpc8568_serdes.o
-obj-$(CONFIG_ARCH_MPC8569) += mpc8569_serdes.o
 obj-$(CONFIG_ARCH_MPC8572) += mpc8572_serdes.o
 obj-$(CONFIG_ARCH_P1010)	+= p1010_serdes.o
 obj-$(CONFIG_ARCH_P1011)	+= p1021_serdes.o

@@ -44,10 +44,6 @@ config TARGET_MX51EVK
 	select BOARD_LATE_INIT
 	select MX51
 
-config TARGET_MX53ARD
-	bool "Support mx53ard"
-	select MX53
-
 config TARGET_MX53CX9020
 	bool "Support CX9020"
 	select BOARD_LATE_INIT
@@ -72,10 +68,6 @@ config TARGET_MX53PPD
 	help
 	  Enable support for the GE Healthcare PPD.
 
-config TARGET_MX53SMD
-	bool "Support mx53smd"
-	select MX53
-
 config TARGET_TS4800
 	bool "Support TS4800"
 	select MX51
@@ -91,10 +83,8 @@ config SYS_SOC
 
 source "board/beckhoff/mx53cx9020/Kconfig"
 source "board/freescale/mx51evk/Kconfig"
-source "board/freescale/mx53ard/Kconfig"
 source "board/freescale/mx53evk/Kconfig"
 source "board/freescale/mx53loco/Kconfig"
-source "board/freescale/mx53smd/Kconfig"
 source "board/ge/mx53ppd/Kconfig"
 source "board/inversepath/usbarmory/Kconfig"
 source "board/k+p/kp_imx53/Kconfig"

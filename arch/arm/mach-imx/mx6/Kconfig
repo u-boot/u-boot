@@ -554,11 +554,6 @@ config TARGET_PCL063_ULL
 config TARGET_SECOMX6
 	bool "secomx6 boards"
 
-config TARGET_SKSIMX6
-	bool "sks-imx6"
-	depends on MX6QDL
-	select SUPPORT_SPL
-
 config TARGET_SOMLABS_VISIONSOM_6ULL
 	bool "visionsom-6ull"
 	depends on MX6ULL
@@ -737,7 +732,6 @@ source "board/liebherr/display5/Kconfig"
 source "board/liebherr/mccmon6/Kconfig"
 source "board/logicpd/imx6/Kconfig"
 source "board/seco/Kconfig"
-source "board/sks-kinkel/sksimx6/Kconfig"
 source "board/solidrun/mx6cuboxi/Kconfig"
 source "board/somlabs/visionsom-6ull/Kconfig"
 source "board/technexion/pico-imx6/Kconfig"
