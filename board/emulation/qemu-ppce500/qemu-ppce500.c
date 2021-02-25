@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2007,2009-2014 Freescale Semiconductor, Inc.
+ * Copyright (C) 2021, Bin Meng <bmeng.cn@gmail.com>
  */
 
 #include <common.h>
