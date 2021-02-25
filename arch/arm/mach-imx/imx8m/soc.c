@@ -105,6 +105,13 @@ static struct mm_region imx8m_mem_map[] = {
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	}, {
+		/* OCRAM_S */
+		.virt = 0x180000UL,
+		.phys = 0x180000UL,
+		.size = 0x8000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_OUTER_SHARE
+	}, {
 		/* TCM */
 		.virt = 0x7C0000UL,
 		.phys = 0x7C0000UL,
