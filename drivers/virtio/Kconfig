@@ -55,6 +55,7 @@ config VIRTIO_NET
 config VIRTIO_BLK
 	bool "virtio block driver"
 	depends on VIRTIO
+	depends on BLK
 	help
 	  This is the virtual block driver for virtio. It can be used with
 	  QEMU based targets.
