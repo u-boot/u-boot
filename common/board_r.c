@@ -626,6 +626,9 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_DM
 	initr_dm,
 #endif
+#ifdef CONFIG_ADDR_MAP
+	initr_addr_map,
+#endif
 #if defined(CONFIG_ARM) || defined(CONFIG_NDS32) || defined(CONFIG_RISCV) || \
 	defined(CONFIG_SANDBOX)
 	board_init,	/* Setup chipselects */
@@ -661,9 +664,6 @@ static init_fnc_t init_sequence_r[] = {
 	initr_manual_reloc_cmdtable,
 #endif
 	arch_initr_trap,
-#ifdef CONFIG_ADDR_MAP
-	initr_addr_map,
-#endif
 #if defined(CONFIG_BOARD_EARLY_INIT_R)
 	board_early_init_r,
 #endif
