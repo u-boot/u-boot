@@ -126,10 +126,6 @@ void meson_eth_init(phy_interface_t mode, unsigned int flags)
 			     GX_ETH_REG_0_PHY_CLK_EN |
 			     GX_ETH_REG_0_CLK_EN);
 
-		/* Reset to external PHY */
-		if(!IS_ENABLED(CONFIG_MESON_GXBB))
-			writel(0x2009087f, GX_ETH_REG_3);
-
 		break;
 
 	case PHY_INTERFACE_MODE_RMII:
@@ -137,14 +133,8 @@ void meson_eth_init(phy_interface_t mode, unsigned int flags)
 		out_le32(GX_ETH_REG_0, GX_ETH_REG_0_INVERT_RMII_CLK |
 					 GX_ETH_REG_0_CLK_EN);
 
-		/* Use GXL RMII Internal PHY (also on GXM) */
-		if (!IS_ENABLED(CONFIG_MESON_GXBB)) {
-			if ((flags & MESON_USE_INTERNAL_RMII_PHY)) {
-				writel(0x10110181, GX_ETH_REG_2);
-				writel(0xe40908ff, GX_ETH_REG_3);
-			} else
-				writel(0x2009087f, GX_ETH_REG_3);
-		}
+		if (!IS_ENABLED(CONFIG_MESON_GXBB))
+			writel(0x10110181, GX_ETH_REG_2);
 
 		break;
 
