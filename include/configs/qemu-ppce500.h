@@ -35,7 +35,7 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 
 /* Virtual address range for PCI region maps */
 #define CONFIG_SYS_PCI_MAP_START	0x80000000
-#define CONFIG_SYS_PCI_MAP_END		0xe8000000
+#define CONFIG_SYS_PCI_MAP_END		0xe0000000
 
 /* Virtual address to a temporary map if we need it (max 128MB) */
 #define CONFIG_SYS_TMPVIRT		0xe8000000
