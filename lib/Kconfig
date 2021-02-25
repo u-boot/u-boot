@@ -6,6 +6,8 @@ config ADDR_MAP
 	  Enables helper code for implementing non-identity virtual-physical
 	  memory mappings for 32bit CPUs.
 
+	  This library only works in the post-relocation phase.
+
 config SYS_NUM_ADDR_MAP
 	int "Size of the address-map table"
 	depends on ADDR_MAP
