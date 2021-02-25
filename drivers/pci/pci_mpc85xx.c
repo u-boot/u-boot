@@ -46,6 +46,7 @@ static int mpc85xx_pci_dm_write_config(struct udevice *dev, pci_dev_t bdf,
 	return 0;
 }
 
+#ifdef CONFIG_FSL_LAW
 static int
 mpc85xx_pci_dm_setup_laws(struct pci_region *io, struct pci_region *mem,
 			  struct pci_region *pre)
@@ -68,6 +69,7 @@ mpc85xx_pci_dm_setup_laws(struct pci_region *io, struct pci_region *mem,
 
 	return 0;
 }
+#endif
 
 static int mpc85xx_pci_dm_probe(struct udevice *dev)
 {
@@ -85,7 +87,9 @@ static int mpc85xx_pci_dm_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
+#ifdef CONFIG_FSL_LAW
 	mpc85xx_pci_dm_setup_laws(io, mem, pre);
+#endif
 
 	pcix = priv->cfg_addr;
 	/* BAR 1: memory */
