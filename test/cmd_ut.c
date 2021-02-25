@@ -93,6 +93,9 @@ static struct cmd_tbl cmd_ut_sub[] = {
 	U_BOOT_CMD_MKENT(bootm, CONFIG_SYS_MAXARGS, 1, do_ut_bootm, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(str, CONFIG_SYS_MAXARGS, 1, do_ut_str, "", ""),
+#ifdef CONFIG_CMD_ADDRMAP
+	U_BOOT_CMD_MKENT(addrmap, CONFIG_SYS_MAXARGS, 1, do_ut_addrmap, "", ""),
+#endif
 };
 
 static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -167,6 +170,9 @@ static char ut_help_text[] =
 #if defined(CONFIG_UT_UNICODE) && \
 	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
 	"ut unicode [test-name] - test Unicode functions\n"
+#endif
+#ifdef CONFIG_CMD_ADDRMAP
+	"ut addrmap - Very basic test of addrmap command\n"
 #endif
 	;
 #endif /* CONFIG_SYS_LONGHELP */
