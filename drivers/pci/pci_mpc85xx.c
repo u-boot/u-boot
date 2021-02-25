@@ -134,9 +134,8 @@ static int mpc85xx_pci_of_to_plat(struct udevice *dev)
 	addr = devfdt_get_addr_index(dev, 0);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
-	priv->cfg_addr = (void __iomem *)addr;
-	addr += 4;
-	priv->cfg_data = (void __iomem *)addr;
+	priv->cfg_addr = (void __iomem *)map_physmem(addr, 0, MAP_NOCACHE);
+	priv->cfg_data = (void __iomem *)((ulong)priv->cfg_addr + 4);
 
 	return 0;
 }
