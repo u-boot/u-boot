@@ -414,11 +414,9 @@ static void mctl_set_cr(uint16_t socid, struct dram_para *para)
 	}
 
 	if (socid == SOCID_R40) {
-		if (para->dual_rank)
-			panic("Dual rank memory not supported\n");
-
 		/* Mux pin to A15 address line for single rank memory. */
-		setbits_le32(&mctl_com->cr_r1, MCTL_CR_R1_MUX_A15);
+		if (!para->dual_rank)
+			setbits_le32(&mctl_com->cr_r1, MCTL_CR_R1_MUX_A15);
 	}
 }
 
@@ -702,6 +700,48 @@ static unsigned long mctl_calc_rank_size(struct rank_para *rank)
 	return (1UL << (rank->row_bits + rank->bank_bits)) * rank->page_size;
 }
 
+/*
+ * Because we cannot do mctl_phy_init(PIR_QSGATE) on R40 now (which leads
+ * to failure), it's needed to detect the rank count of R40 in another way.
+ *
+ * The code here is modelled after time_out_detect() in BSP, which tries to
+ * access the memory and check for error code.
+ *
+ * TODO: auto detect half DQ width here
+ */
+static void mctl_r40_detect_rank_count(struct dram_para *para)
+{
+	ulong rank1_base = (ulong) CONFIG_SYS_SDRAM_BASE +
+			   mctl_calc_rank_size(&para->ranks[0]);
+	struct sunxi_mctl_ctl_reg * const mctl_ctl =
+			(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
+
+	/* Enable read time out */
+	setbits_le32(&mctl_ctl->pgcr[0], 0x1 << 25);
+
+	(void) readl((void *) rank1_base);
+	udelay(10);
+
+	if (readl(&mctl_ctl->pgsr[0]) & (0x1 << 13)) {
+		clrsetbits_le32(&mctl_ctl->dtcr, 0xf << 24, 0x1 << 24);
+		para->dual_rank = 0;
+	}
+
+	/* Reset PHY FIFO to clear it */
+	clrbits_le32(&mctl_ctl->pgcr[0], 0x1 << 26);
+	udelay(100);
+	setbits_le32(&mctl_ctl->pgcr[0], 0x1 << 26);
+
+	/* Clear error status */
+	setbits_le32(&mctl_ctl->pgcr[0], 0x1 << 24);
+
+	/* Clear time out flag */
+	clrbits_le32(&mctl_ctl->pgsr[0], 0x1 << 13);
+
+	/* Disable read time out */
+	clrbits_le32(&mctl_ctl->pgcr[0], 0x1 << 25);
+}
+
 static void mctl_auto_detect_dram_size(uint16_t socid, struct dram_para *para)
 {
 	mctl_auto_detect_dram_size_rank(socid, para, (ulong)CONFIG_SYS_SDRAM_BASE, &para->ranks[0]);
@@ -854,8 +894,6 @@ unsigned long sunxi_dram_init(void)
 	uint16_t socid = SOCID_H3;
 #elif defined(CONFIG_MACH_SUN8I_R40)
 	uint16_t socid = SOCID_R40;
-	/* Currently we cannot support R40 with dual rank memory */
-	para.dual_rank = 0;
 #elif defined(CONFIG_MACH_SUN8I_V3S)
 	uint16_t socid = SOCID_V3S;
 #elif defined(CONFIG_MACH_SUN50I)
@@ -889,6 +927,11 @@ unsigned long sunxi_dram_init(void)
 	/* clear credit value */
 	setbits_le32(&mctl_com->cccr, 1 << 31);
 	udelay(10);
+
+	if (socid == SOCID_R40) {
+		mctl_r40_detect_rank_count(&para);
+		mctl_set_cr(SOCID_R40, &para);
+	}
 
 	mctl_auto_detect_dram_size(socid, &para);
 	mctl_set_cr(socid, &para);
