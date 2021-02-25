@@ -6,6 +6,7 @@
 #include <common.h>
 #include <command.h>
 #include <cpu_func.h>
+#include <dm.h>
 #include <env.h>
 #include <init.h>
 #include <log.h>
@@ -79,27 +80,9 @@ int checkboard(void)
 	return 0;
 }
 
-static int pci_map_region(void *fdt, int pci_node, int range_id,
-			  phys_addr_t *pbaddr, phys_size_t *ppaddr,
-			  pci_addr_t *pvaddr, pci_size_t *psize,
-			  ulong *pmap_addr)
+static int pci_map_region(phys_addr_t paddr, phys_size_t size, ulong *pmap_addr)
 {
-	uint64_t baddr;
-	uint64_t paddr;
-	uint64_t size;
 	ulong map_addr;
-	int r;
-
-	r = fdt_read_range(fdt, pci_node, range_id, &baddr, &paddr, &size);
-	if (r)
-		return r;
-
-	if (pbaddr)
-		*pbaddr = baddr;
-	if (ppaddr)
-		*ppaddr = paddr;
-	if (psize)
-		*psize = size;
 
 	if (!pmap_addr)
 		return 0;
@@ -117,82 +100,37 @@ static int pci_map_region(void *fdt, int pci_node, int range_id,
 	assert(!tlb_map_range(map_addr, paddr, size, TLB_MAP_IO));
 	*pmap_addr = map_addr + size;
 
-	if (pvaddr)
-		*pvaddr = map_addr;
-
 	return 0;
 }
 
-void pci_init_board(void)
+int misc_init_r(void)
 {
-	struct pci_controller *pci_hoses;
-	void *fdt = get_fdt_virt();
-	int pci_node = -1;
-	int pci_num = 0;
-	int pci_count = 0;
+	struct udevice *dev;
+	struct pci_region *io;
+	struct pci_region *mem;
+	struct pci_region *pre;
 	ulong map_addr;
+	int ret;
 
-	puts("\n");
+	/* Ensure PCI is probed */
+	uclass_first_device(UCLASS_PCI, &dev);
+
+	pci_get_regions(dev, &io, &mem, &pre);
 
 	/* Start MMIO and PIO range maps above RAM */
 	map_addr = CONFIG_SYS_PCI_MAP_START;
 
-	/* Count and allocate PCI buses */
-	pci_node = fdt_node_offset_by_prop_value(fdt, pci_node,
-			"device_type", "pci", 4);
-	while (pci_node != -FDT_ERR_NOTFOUND) {
-		pci_node = fdt_node_offset_by_prop_value(fdt, pci_node,
-				"device_type", "pci", 4);
-		pci_count++;
-	}
+	/* Map MMIO range */
+	ret = pci_map_region(mem->phys_start, mem->size, &map_addr);
+	if (ret)
+		return ret;
 
-	if (pci_count) {
-		pci_hoses = malloc(sizeof(struct pci_controller) * pci_count);
-	} else {
-		printf("PCI: disabled\n\n");
-		return;
-	}
+	/* Map PIO range */
+	ret = pci_map_region(io->phys_start, io->size, &map_addr);
+	if (ret)
+		return ret;
 
-	/* Spawn PCI buses based on device tree */
-	pci_node = fdt_node_offset_by_prop_value(fdt, pci_node,
-			"device_type", "pci", 4);
-	while (pci_node != -FDT_ERR_NOTFOUND) {
-		struct fsl_pci_info pci_info = { };
-		const fdt32_t *reg;
-		int r;
-
-		reg = fdt_getprop(fdt, pci_node, "reg", NULL);
-		pci_info.regs = fdt_translate_address(fdt, pci_node, reg);
-
-		/* Map MMIO range */
-		r = pci_map_region(fdt, pci_node, 0, &pci_info.mem_bus,
-				   &pci_info.mem_phys, NULL,
-				   &pci_info.mem_size, &map_addr);
-		if (r)
-			break;
-
-		/* Map PIO range */
-		r = pci_map_region(fdt, pci_node, 1, &pci_info.io_bus,
-				   &pci_info.io_phys, NULL,
-				   &pci_info.io_size, &map_addr);
-		if (r)
-			break;
-
-		/* Instantiate */
-		pci_info.pci_num = pci_num + 1;
-
-		fsl_setup_hose(&pci_hoses[pci_num], pci_info.regs);
-		printf("PCI: base address %lx\n", pci_info.regs);
-
-		fsl_pci_init_port(&pci_info, &pci_hoses[pci_num], pci_num);
-
-		/* Jump to next PCI node */
-		pci_node = fdt_node_offset_by_prop_value(fdt, pci_node,
-				"device_type", "pci", 4);
-		pci_num++;
-	}
-
-	puts("\n");
+	return 0;
 }
 
 int last_stage_init(void)
@@ -235,16 +173,9 @@ static uint64_t get_linear_ram_size(void)
 	panic("Couldn't determine RAM size");
 }
 
-int board_eth_init(struct bd_info *bis)
-{
-	return pci_eth_init(bis);
-}
-
 #if defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
-	FT_FSL_PCI_SETUP;
-
 	return 0;
 }
 #endif

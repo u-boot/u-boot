@@ -13,8 +13,6 @@
 
 #define CONFIG_SYS_RAMBOOT
 
-#define CONFIG_PCI1		1	/* PCI controller 1 */
-#define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
 #define CONFIG_ENABLE_36BIT_PHYS
@@ -72,17 +70,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
-
-/*
- * General PCI
- * Memory space is mapped 1-1, but I/O space must start from 0.
- */
-
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_INDIRECT_BRIDGE
-
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#endif	/* CONFIG_PCI */
 
 #define CONFIG_LBA48
 
