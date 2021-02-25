@@ -126,9 +126,6 @@ void meson_eth_init(phy_interface_t mode, unsigned int flags)
 		printf("Invalid Ethernet interface mode\n");
 		return;
 	}
-
-	/* Enable power gate */
-	clrbits_le32(G12A_MEM_PD_REG_0, G12A_MEM_PD_REG_0_ETH_MASK);
 }
 
 #if CONFIG_IS_ENABLED(USB_DWC3_MESON_G12A) && \
