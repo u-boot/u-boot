@@ -1493,8 +1493,14 @@ u-boot.cnt: u-boot.bin FORCE
 flash.bin: spl/u-boot-spl.bin u-boot.cnt FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 else
+ifeq ($(CONFIG_BINMAN),y)
+flash.bin: spl/u-boot-spl.bin $(INPUTS-y) FORCE
+	$(call if_changed,binman)
+	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
+else
 flash.bin: spl/u-boot-spl.bin u-boot.itb FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
+endif
 endif
 endif
 
