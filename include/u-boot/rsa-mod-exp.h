@@ -9,6 +9,8 @@
 #include <errno.h>
 #include <image.h>
 
+struct udevice;
+
 /**
  * struct key_prop - holder for a public key properties
  *

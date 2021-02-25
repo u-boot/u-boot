@@ -3202,13 +3202,6 @@ rw_mgr_mem_calibrate_writes_center(struct socfpga_sdrseq *seq,
 	/* Centre DM */
 	debug_cond(DLEVEL >= 2, "%s:%d write_center: DM\n", __func__, __LINE__);
 
-	/*
-	 * Set the left and right edge of each bit to an illegal value.
-	 * Use (seq->iocfg->io_out1_delay_max + 1) as an illegal value.
-	 */
-	left_edge[0]  = seq->iocfg->io_out1_delay_max + 1;
-	right_edge[0] = seq->iocfg->io_out1_delay_max + 1;
-
 	/* Search for the/part of the window with DM shift. */
 	search_window(seq, 1, rank_bgn, write_group, &bgn_curr, &end_curr,
 		      &bgn_best, &end_best, &win_best, 0);

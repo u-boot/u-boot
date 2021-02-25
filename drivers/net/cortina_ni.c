@@ -713,7 +713,7 @@ static int cortina_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 							 priv->rx_xram_end_adr);
 
 			memcpy(&packet_status, rx_xram_ptr,
-			       sizeof(rx_xram_ptr));
+			       sizeof(*rx_xram_ptr));
 			if (packet_status.valid == 0) {
 				debug("%s: Invalid Packet !!, ", __func__);
 				debug("next_link=%d\n", next_link);

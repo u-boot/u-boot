@@ -227,7 +227,7 @@ static int virtio_uclass_post_probe(struct udevice *udev)
 	struct udevice *vdev;
 	int ret;
 
-	if (uc_priv->device > VIRTIO_ID_MAX_NUM) {
+	if (uc_priv->device >= VIRTIO_ID_MAX_NUM) {
 		debug("(%s): virtio device ID %d exceeds maximum num\n",
 		      udev->name, uc_priv->device);
 		return 0;

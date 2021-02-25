@@ -2383,6 +2383,12 @@ sub u_boot_line {
 		     "fdt or initrd relocation disabled at boot time\n" . $herecurr);
 	}
 
+	# make sure 'skip_board_fixup' is not
+	if ($rawline =~ /.*skip_board_fixup.*/) {
+		ERROR("SKIP_BOARD_FIXUP",
+		     "Avoid setting skip_board_fixup env variable\n" . $herecurr);
+	}
+
 	# Do not use CONFIG_ prefix in CONFIG_IS_ENABLED() calls
 	if ($line =~ /^\+.*CONFIG_IS_ENABLED\(CONFIG_\w*\).*/) {
 		ERROR("CONFIG_IS_ENABLED_CONFIG",

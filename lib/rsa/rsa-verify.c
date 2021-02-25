@@ -447,8 +447,11 @@ static int rsa_verify_with_keynode(struct image_sign_info *info,
 	}
 
 	algo = fdt_getprop(blob, node, "algo", NULL);
-	if (strcmp(info->name, algo))
+	if (strcmp(info->name, algo)) {
+		debug("%s: Wrong algo: have %s, expected %s", __func__,
+		      info->name, algo);
 		return -EFAULT;
+	}
 
 	prop.num_bits = fdtdec_get_int(blob, node, "rsa,num-bits", 0);
 

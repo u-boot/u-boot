@@ -22,14 +22,13 @@ static int show_dir(struct btrfs_root *root, struct extent_buffer *eb,
 	struct btrfs_inode_item ii;
 	struct btrfs_key key;
 	static const char* dir_item_str[] = {
-		[BTRFS_FT_REG_FILE]	= "FILE",
+		[BTRFS_FT_REG_FILE]	= "   ",
 		[BTRFS_FT_DIR] 		= "DIR",
-		[BTRFS_FT_CHRDEV]	= "CHRDEV",
-		[BTRFS_FT_BLKDEV]	= "BLKDEV",
-		[BTRFS_FT_FIFO]		= "FIFO",
-		[BTRFS_FT_SOCK]		= "SOCK",
-		[BTRFS_FT_SYMLINK]	= "SYMLINK",
-		[BTRFS_FT_XATTR]	= "XATTR"
+		[BTRFS_FT_CHRDEV]	= "CHR",
+		[BTRFS_FT_BLKDEV]	= "BLK",
+		[BTRFS_FT_FIFO]		= "FIF",
+		[BTRFS_FT_SOCK]		= "SCK",
+		[BTRFS_FT_SYMLINK]	= "SYM",
 	};
 	u8 type = btrfs_dir_type(eb, di);
 	char namebuf[BTRFS_NAME_LEN];
@@ -37,6 +36,10 @@ static int show_dir(struct btrfs_root *root, struct extent_buffer *eb,
 	char filetime[32];
 	time_t mtime;
 	int ret = 0;
+
+	/* skip XATTRs in directory listing */
+	if (type == BTRFS_FT_XATTR)
+		return 0;
 
 	btrfs_dir_item_key_to_cpu(eb, di, &key);
 
@@ -90,7 +93,7 @@ static int show_dir(struct btrfs_root *root, struct extent_buffer *eb,
 	if (type < ARRAY_SIZE(dir_item_str) && dir_item_str[type])
 		printf("<%s> ", dir_item_str[type]);
 	else
-		printf("DIR_ITEM.%u", type);
+		printf("?%3u? ", type);
 	if (type == BTRFS_FT_CHRDEV || type == BTRFS_FT_BLKDEV) {
 		ASSERT(key.type == BTRFS_INODE_ITEM_KEY);
 		printf("%4llu,%5llu  ", btrfs_stack_inode_rdev(&ii) >> 20,
