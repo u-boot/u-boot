@@ -173,13 +173,6 @@ static uint64_t get_linear_ram_size(void)
 	panic("Couldn't determine RAM size");
 }
 
-#if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, struct bd_info *bd)
-{
-	return 0;
-}
-#endif
-
 phys_size_t fixed_sdram(void)
 {
 	return get_linear_ram_size();
