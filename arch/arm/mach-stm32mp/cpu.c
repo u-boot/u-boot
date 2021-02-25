@@ -476,11 +476,17 @@ static void setup_boot_mode(void)
 			break;
 		/* serial : search associated alias in devicetree */
 		sprintf(cmd, "serial@%x", serial_addr[instance]);
-		if (uclass_get_device_by_name(UCLASS_SERIAL, cmd, &dev))
+		if (uclass_get_device_by_name(UCLASS_SERIAL, cmd, &dev) ||
+		    fdtdec_get_alias_seq(gd->fdt_blob, "serial",
+					 dev_of_offset(dev), &alias)) {
+			/* restore console on error */
+			if (IS_ENABLED(CONFIG_CMD_STM32PROG_SERIAL))
+				gd->flags &= ~(GD_FLG_SILENT |
+					       GD_FLG_DISABLE_CONSOLE);
+			printf("serial%d = %s not found in device tree!\n",
+			       instance, cmd);
 			break;
-		if (fdtdec_get_alias_seq(gd->fdt_blob, "serial",
-					 dev_of_offset(dev), &alias))
-			break;
+		}
 		sprintf(cmd, "%d", alias);
 		env_set("boot_device", "serial");
 		env_set("boot_instance", cmd);
