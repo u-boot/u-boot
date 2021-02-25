@@ -14,11 +14,11 @@
 
 	aliases {
 		console = &uart0;
-		eth0 = "/eth@10002000";
-		eth2 = &swp_0;
-		eth3 = &eth_3;
-		eth4 = &dsa_eth0;
-		eth5 = &eth_5;
+		ethernet0 = "/eth@10002000";
+		ethernet2 = &swp_0;
+		ethernet3 = &eth_3;
+		ethernet4 = &dsa_eth0;
+		ethernet5 = &eth_5;
 		gpio1 = &gpio_a;
 		gpio2 = &gpio_b;
 		gpio3 = &gpio_c;
