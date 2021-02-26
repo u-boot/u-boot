@@ -1008,11 +1008,14 @@ U_BOOT_CMD(
 	"mmc list - lists available devices\n"
 	"mmc wp - power on write protect boot partitions\n"
 #if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
-	"mmc hwpartition [args...] - does hardware partitioning\n"
+	"mmc hwpartition <USER> <GP> <MODE> - does hardware partitioning\n"
 	"  arguments (sizes in 512-byte blocks):\n"
-	"    [user [enh start cnt] [wrrel {on|off}]] - sets user data area attributes\n"
-	"    [gp1|gp2|gp3|gp4 cnt [enh] [wrrel {on|off}]] - general purpose partition\n"
-	"    [check|set|complete] - mode, complete set partitioning completed\n"
+	"   USER - <user> <enh> <start> <cnt> <wrrel> <{on|off}>\n"
+	"	: sets user data area attributes\n"
+	"   GP - <{gp1|gp2|gp3|gp4}> <cnt> <enh> <wrrel> <{on|off}>\n"
+	"	: general purpose partition\n"
+	"   MODE - <{check|set|complete}>\n"
+	"	: mode, complete set partitioning completed\n"
 	"  WARNING: Partitioning is a write-once setting once it is set to complete.\n"
 	"  Power cycling is required to initialize partitions after set to complete.\n"
 #endif
