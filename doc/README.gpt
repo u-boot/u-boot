@@ -237,6 +237,23 @@ doc/arch/index.rst:
 => gpt swap host 0 name othername
 [ . . . ]
 
+Modifying GPT partition layout from U-Boot:
+===========================================
+
+The entire GPT partition layout can be exported to an environment
+variable and then modified enmasse. Users can change the partition
+numbers, offsets, names and sizes. The resulting variable can used to
+reformat the device. Here is an example of reading the GPT partitions
+into a variable and then modifying them:
+
+U-BOOT> gpt read mmc 0 current_partitions
+U-BOOT> env edit current_partitions
+edit: uuid_disk=[...];name=part1,start=0x4000,size=0x4000,uuid=[...];
+name=part2,start=0xc000,size=0xc000,uuid=[...];[ . . . ]
+
+U-BOOT> gpt write mmc 0 $current_partitions
+U-BOOT> gpt verify mmc 0 $current_partitions
+
 Partition type GUID:
 ====================
 
