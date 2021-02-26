@@ -11,7 +11,6 @@ stages:
   - world build
 
 .buildman_and_testpy_template: &buildman_and_testpy_dfn
-  tags: [ 'all' ]
   stage: test.py
   before_script:
     # Clone uboot-test-hooks
@@ -53,7 +52,6 @@ stages:
         --build-dir "$UBOOT_TRAVIS_BUILD_DIR"
 
 build all 32bit ARM platforms:
-  tags: [ 'all' ]
   stage: world build
   script:
     - ret=0;
@@ -64,7 +62,6 @@ build all 32bit ARM platforms:
       fi;
 
 build all 64bit ARM platforms:
-  tags: [ 'all' ]
   stage: world build
   script:
     - virtualenv -p /usr/bin/python3 /tmp/venv
@@ -78,7 +75,6 @@ build all 64bit ARM platforms:
       fi;
 
 build all PowerPC platforms:
-  tags: [ 'all' ]
   stage: world build
   script:
     - ret=0;
@@ -89,7 +85,6 @@ build all PowerPC platforms:
       fi;
 
 build all other platforms:
-  tags: [ 'all' ]
   stage: world build
   script:
     - ret=0;
@@ -102,14 +97,12 @@ build all other platforms:
 # QA jobs for code analytics
 # static code analysis with cppcheck (we can add --enable=all later)
 cppcheck:
-  tags: [ 'all' ]
   stage: testsuites
   script:
     - cppcheck -j$(nproc) --force --quiet --inline-suppr .
 
 # search for TODO within source tree
 grep TODO/FIXME/HACK:
-  tags: [ 'all' ]
   stage: testsuites
   script:
     - grep -r TODO .
@@ -119,7 +112,6 @@ grep TODO/FIXME/HACK:
 
 # build HTML documentation
 htmldocs:
-  tags: [ 'all' ]
   stage: testsuites
   script:
     - virtualenv -p /usr/bin/python3 /tmp/venvhtml
@@ -129,34 +121,29 @@ htmldocs:
 
 # some statistics about the code base
 sloccount:
-  tags: [ 'all' ]
   stage: testsuites
   script:
     - sloccount .
 
 # ensure all configs have MAINTAINERS entries
 Check for configs without MAINTAINERS entry:
-  tags: [ 'all' ]
   stage: testsuites
   script:
     - if [ `./tools/genboardscfg.py -f 2>&1 | wc -l` -ne 0 ]; then exit 1; fi
 
 # Ensure host tools build
 Build tools-only:
-  tags: [ 'all' ]
   stage: testsuites
   script:
     - make tools-only_config tools-only -j$(nproc)
 
 # Ensure env tools build
 Build envtools:
-  tags: [ 'all' ]
   stage: testsuites
   script:
     - make tools-only_config envtools -j$(nproc)
 
 Run binman, buildman, dtoc, Kconfig and patman testsuites:
-  tags: [ 'all' ]
   stage: testsuites
   script:
     - git config --global user.name "GitLab CI Runner";
@@ -177,7 +164,6 @@ Run binman, buildman, dtoc, Kconfig and patman testsuites:
       make testconfig
 
 Run tests for Nokia RX-51 (aka N900):
-  tags: [ 'all' ]
   stage: testsuites
   script:
     - ./tools/buildman/buildman --fetch-arch arm;
@@ -186,20 +172,17 @@ Run tests for Nokia RX-51 (aka N900):
 
 # Test sandbox with test.py
 sandbox test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "sandbox"
   <<: *buildman_and_testpy_dfn
 
 sandbox with clang test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "sandbox"
     OVERRIDE: "-O clang-10"
   <<: *buildman_and_testpy_dfn
 
 sandbox_spl test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "sandbox_spl"
     TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"
@@ -213,34 +196,29 @@ sandbox_noinst_test.py:
   <<: *buildman_and_testpy_dfn
 
 evb-ast2500 test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "evb-ast2500"
     TEST_PY_ID: "--id qemu"
   <<: *buildman_and_testpy_dfn
 
 sandbox_flattree test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "sandbox_flattree"
   <<: *buildman_and_testpy_dfn
 
 vexpress_ca15_tc2 test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "vexpress_ca15_tc2"
     TEST_PY_ID: "--id qemu"
   <<: *buildman_and_testpy_dfn
 
 vexpress_ca9x4 test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "vexpress_ca9x4"
     TEST_PY_ID: "--id qemu"
   <<: *buildman_and_testpy_dfn
 
 integratorcp_cm926ejs test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "integratorcp_cm926ejs"
     TEST_PY_TEST_SPEC: "not sleep"
@@ -248,49 +226,42 @@ integratorcp_cm926ejs test.py:
   <<: *buildman_and_testpy_dfn
 
 qemu_arm test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "qemu_arm"
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
 qemu_arm64 test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "qemu_arm64"
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
 qemu_mips test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "qemu_mips"
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
 qemu_mipsel test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "qemu_mipsel"
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
 qemu_mips64 test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "qemu_mips64"
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
 qemu_mips64el test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "qemu_mips64el"
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
 qemu_malta test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "malta"
     TEST_PY_TEST_SPEC: "not sleep and not efi"
@@ -298,7 +269,6 @@ qemu_malta test.py:
   <<: *buildman_and_testpy_dfn
 
 qemu_maltael test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "maltael"
     TEST_PY_TEST_SPEC: "not sleep and not efi"
@@ -306,7 +276,6 @@ qemu_maltael test.py:
   <<: *buildman_and_testpy_dfn
 
 qemu_malta64 test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "malta64"
     TEST_PY_TEST_SPEC: "not sleep and not efi"
@@ -314,7 +283,6 @@ qemu_malta64 test.py:
   <<: *buildman_and_testpy_dfn
 
 qemu_malta64el test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "malta64el"
     TEST_PY_TEST_SPEC: "not sleep and not efi"
@@ -322,84 +290,72 @@ qemu_malta64el test.py:
   <<: *buildman_and_testpy_dfn
 
 qemu-ppce500 test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "qemu-ppce500"
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
 qemu-riscv32 test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "qemu-riscv32"
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
 qemu-riscv64 test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "qemu-riscv64"
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
 qemu-riscv32_spl test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "qemu-riscv32_spl"
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
 qemu-riscv64_spl test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "qemu-riscv64_spl"
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
 qemu-x86 test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "qemu-x86"
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
 qemu-x86_64 test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "qemu-x86_64"
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
 r2dplus_i82557c test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "r2dplus"
     TEST_PY_ID: "--id i82557c_qemu"
   <<: *buildman_and_testpy_dfn
 
 r2dplus_pcnet test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "r2dplus"
     TEST_PY_ID: "--id pcnet_qemu"
   <<: *buildman_and_testpy_dfn
 
 r2dplus_rtl8139 test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "r2dplus"
     TEST_PY_ID: "--id rtl8139_qemu"
   <<: *buildman_and_testpy_dfn
 
 r2dplus_tulip test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "r2dplus"
     TEST_PY_ID: "--id tulip_qemu"
   <<: *buildman_and_testpy_dfn
 
 xilinx_zynq_virt test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "xilinx_zynq_virt"
     TEST_PY_TEST_SPEC: "not sleep"
@@ -407,7 +363,6 @@ xilinx_zynq_virt test.py:
   <<: *buildman_and_testpy_dfn
 
 xilinx_versal_virt test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "xilinx_versal_virt"
     TEST_PY_TEST_SPEC: "not sleep"
@@ -415,7 +370,6 @@ xilinx_versal_virt test.py:
   <<: *buildman_and_testpy_dfn
 
 xtfpga test.py:
-  tags: [ 'all' ]
   variables:
     TEST_PY_BD: "xtfpga"
     TEST_PY_TEST_SPEC: "not sleep"
