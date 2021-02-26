@@ -144,7 +144,7 @@ jobs:
           export USER=azure
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
-          pip install pyelftools pytest pygit2
+          pip install -r test/py/requirements.txt
           export UBOOT_TRAVIS_BUILD_DIR=/tmp/sandbox_spl
           export PYTHONPATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt
           export PATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}
