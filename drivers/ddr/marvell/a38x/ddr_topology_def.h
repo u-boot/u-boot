@@ -14,6 +14,11 @@
 #define MV_DDR_MAX_BUS_NUM	9
 #define MV_DDR_MAX_IFACE_NUM	1
 
+enum mv_ddr_twin_die {
+	NOT_COMBINED,
+	COMBINED,
+};
+
 struct bus_params {
 	/* Chip Select (CS) bitmask (bits 0-CS0, bit 1- CS1 ...) */
 	u8 cs_bitmask;
@@ -113,6 +118,9 @@ struct mv_ddr_topology_map {
 	/* source of ddr configuration data */
 	enum mv_ddr_cfg_src cfg_src;
 
+	/* ddr twin-die */
+	enum mv_ddr_twin_die twin_die_combined;
+
 	/* raw spd data */
 	union mv_ddr_spd_data spd_data;
 
@@ -124,6 +132,9 @@ struct mv_ddr_topology_map {
 
 	/* electrical parameters */
 	unsigned int electrical_data[MV_DDR_EDATA_LAST];
+
+	/* ODT configuration */
+	u32 odt_config;
 
 	/* Clock enable mask */
 	u32 clk_enable;
@@ -148,7 +159,13 @@ enum mv_ddr_validation {
 	MV_DDR_VAL_DIS,
 	MV_DDR_VAL_RX,
 	MV_DDR_VAL_TX,
-	MV_DDR_VAL_RX_TX
+	MV_DDR_VAL_RX_TX,
+	MV_DDR_MEMORY_CHECK
+};
+
+enum mv_ddr_sscg {
+	SSCG_EN,
+	SSCG_DIS,
 };
 
 struct mv_ddr_iface {
@@ -179,8 +196,12 @@ struct mv_ddr_iface {
 	/* ddr interface validation mode */
 	enum mv_ddr_validation validation;
 
+	/* ddr interface validation mode */
+	enum mv_ddr_sscg sscg;
+
 	/* ddr interface topology map */
 	struct mv_ddr_topology_map tm;
+
 };
 
 struct mv_ddr_iface *mv_ddr_iface_get(void);

@@ -79,7 +79,8 @@ struct mvebu_pcie {
 	u32 lane;
 	int devfn;
 	u32 lane_mask;
-	pci_dev_t dev;
+	int first_busno;
+	int local_dev;
 	char name[16];
 	unsigned int mem_target;
 	unsigned int mem_attr;
@@ -144,38 +145,47 @@ static inline struct mvebu_pcie *hose_to_pcie(struct pci_controller *hose)
 	return container_of(hose, struct mvebu_pcie, hose);
 }
 
+static int mvebu_pcie_valid_addr(struct mvebu_pcie *pcie, pci_dev_t bdf)
+{
+	/*
+	 * There are two devices visible on local bus:
+	 *   * on slot configured by function mvebu_pcie_set_local_dev_nr()
+	 *     (by default this register is set to 0) there is a
+	 *     "Marvell Memory controller", which isn't useful in root complex
+	 *     mode,
+	 *   * on all other slots the real PCIe card connected to the PCIe slot.
+	 *
+	 * We therefore allow access only to the real PCIe card.
+	 */
+	if (PCI_BUS(bdf) == pcie->first_busno &&
+	    PCI_DEV(bdf) != !pcie->local_dev)
+		return 0;
+
+	return 1;
+}
+
 static int mvebu_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 				  uint offset, ulong *valuep,
 				  enum pci_size_t size)
 {
 	struct mvebu_pcie *pcie = dev_get_plat(bus);
-	int local_bus = PCI_BUS(pcie->dev);
-	int local_dev = PCI_DEV(pcie->dev);
-	u32 reg;
 	u32 data;
 
-	debug("PCIE CFG read:  loc_bus=%d loc_dev=%d (b,d,f)=(%2d,%2d,%2d) ",
-	      local_bus, local_dev, PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
+	debug("PCIE CFG read: (b,d,f)=(%2d,%2d,%2d) ",
+	      PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
 
-	/* Don't access the local host controller via this API */
-	if (PCI_BUS(bdf) == local_bus && PCI_DEV(bdf) == local_dev) {
-		debug("- skipping host controller\n");
-		*valuep = pci_get_ff(size);
-		return 0;
-	}
-
-	/* If local dev is 0, the first other dev can only be 1 */
-	if (PCI_BUS(bdf) == local_bus && local_dev == 0 && PCI_DEV(bdf) != 1) {
+	if (!mvebu_pcie_valid_addr(pcie, bdf)) {
 		debug("- out of range\n");
 		*valuep = pci_get_ff(size);
 		return 0;
 	}
 
 	/* write address */
-	reg = PCIE_CONF_ADDR(bdf, offset);
-	writel(reg, pcie->base + PCIE_CONF_ADDR_OFF);
+	writel(PCIE_CONF_ADDR(bdf, offset), pcie->base + PCIE_CONF_ADDR_OFF);
+
+	/* read data */
 	data = readl(pcie->base + PCIE_CONF_DATA_OFF);
-	debug("(addr,val)=(0x%04x, 0x%08x)\n", offset, data);
+	debug("(addr,size,val)=(0x%04x, %d, 0x%08x)\n", offset, size, data);
 	*valuep = pci_conv_32_to_size(data, offset, size);
 
 	return 0;
@@ -186,27 +196,21 @@ static int mvebu_pcie_write_config(struct udevice *bus, pci_dev_t bdf,
 				   enum pci_size_t size)
 {
 	struct mvebu_pcie *pcie = dev_get_plat(bus);
-	int local_bus = PCI_BUS(pcie->dev);
-	int local_dev = PCI_DEV(pcie->dev);
 	u32 data;
 
-	debug("PCIE CFG write: loc_bus=%d loc_dev=%d (b,d,f)=(%2d,%2d,%2d) ",
-	      local_bus, local_dev, PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
-	debug("(addr,val)=(0x%04x, 0x%08lx)\n", offset, value);
+	debug("PCIE CFG write: (b,d,f)=(%2d,%2d,%2d) ",
+	      PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
+	debug("(addr,size,val)=(0x%04x, %d, 0x%08lx)\n", offset, size, value);
 
-	/* Don't access the local host controller via this API */
-	if (PCI_BUS(bdf) == local_bus && PCI_DEV(bdf) == local_dev) {
-		debug("- skipping host controller\n");
-		return 0;
-	}
-
-	/* If local dev is 0, the first other dev can only be 1 */
-	if (PCI_BUS(bdf) == local_bus && local_dev == 0 && PCI_DEV(bdf) != 1) {
+	if (!mvebu_pcie_valid_addr(pcie, bdf)) {
 		debug("- out of range\n");
 		return 0;
 	}
 
+	/* write address */
 	writel(PCIE_CONF_ADDR(bdf, offset), pcie->base + PCIE_CONF_ADDR_OFF);
+
+	/* write data */
 	data = pci_conv_size_to_32(0, value, offset, size);
 	writel(data, pcie->base + PCIE_CONF_DATA_OFF);
 
@@ -273,7 +277,7 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	struct mvebu_pcie *pcie = dev_get_plat(dev);
 	struct udevice *ctlr = pci_get_controller(dev);
 	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
-	static int bus;
+	int bus = dev_seq(dev);
 	u32 reg;
 
 	debug("%s: PCIe %d.%d - up, base %08x\n", __func__,
@@ -284,9 +288,11 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	      readl(pcie->base), mvebu_pcie_get_local_bus_nr(pcie),
 	      mvebu_pcie_get_local_dev_nr(pcie));
 
+	pcie->first_busno = bus;
+	pcie->local_dev = 1;
+
 	mvebu_pcie_set_local_bus_nr(pcie, bus);
-	mvebu_pcie_set_local_dev_nr(pcie, 0);
-	pcie->dev = PCI_BDF(bus, 0, 0);
+	mvebu_pcie_set_local_dev_nr(pcie, pcie->local_dev);
 
 	pcie->mem.start = (u32)mvebu_pcie_membase;
 	pcie->mem.end = pcie->mem.start + PCIE_MEM_SIZE - 1;
@@ -335,8 +341,6 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	/* Set BAR0 to internal registers */
 	writel(SOC_REGS_PHY_BASE, pcie->base + PCIE_BAR_LO_OFF(0));
 	writel(0, pcie->base + PCIE_BAR_HI_OFF(0));
-
-	bus++;
 
 	return 0;
 }

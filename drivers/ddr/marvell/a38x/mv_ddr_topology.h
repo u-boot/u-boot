@@ -179,7 +179,9 @@ enum mv_ddr_dic_evalue {
 
 /* phy electrical configuration values */
 enum mv_ddr_ohm_evalue {
+	MV_DDR_OHM_20 = 20,/*relevant for Synopsys C/A Drive strength only*/
 	MV_DDR_OHM_30 = 30,
+	MV_DDR_OHM_40 = 40,/*relevant for Synopsys C/A Drive strength only*/
 	MV_DDR_OHM_48 = 48,
 	MV_DDR_OHM_60 = 60,
 	MV_DDR_OHM_80 = 80,

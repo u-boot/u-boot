@@ -864,8 +864,11 @@ int ddr3_tip_load_all_pattern_to_mem(u32 dev_num)
 			      DUAL_DUNIT_CFG_REG, (1 << 3), (1 << 3)));
 	}
 
-	for (pattern = 0; pattern < PATTERN_LAST; pattern++)
+	for (pattern = 0; pattern < PATTERN_LAST; pattern++) {
+		if (pattern == PATTERN_TEST)
+			continue;
 		ddr3_tip_load_pattern_to_mem(dev_num, pattern);
+	}
 
 	return MV_OK;
 }
