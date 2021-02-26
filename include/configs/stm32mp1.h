@@ -102,11 +102,18 @@
 #define BOOT_TARGET_UBIFS(func)
 #endif
 
+#ifdef CONFIG_USB
+#define BOOT_TARGET_USB(func)	func(USB, usb, 0)
+#else
+#define BOOT_TARGET_USB(func)
+#endif
+
 #define BOOT_TARGET_DEVICES(func)	\
 	BOOT_TARGET_MMC1(func)		\
 	BOOT_TARGET_UBIFS(func)		\
 	BOOT_TARGET_MMC0(func)		\
 	BOOT_TARGET_MMC2(func)		\
+	BOOT_TARGET_USB(func)		\
 	BOOT_TARGET_PXE(func)
 
 /*
