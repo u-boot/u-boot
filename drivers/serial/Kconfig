@@ -722,6 +722,13 @@ config ROCKCHIP_SERIAL
 	  This uses the ns16550 driver, converting the platdata from of-platdata
 	  to the ns16550 format.
 
+config S5P_SERIAL
+	bool "Support for Samsung S5P UART"
+	depends on ARCH_EXYNOS || ARCH_S5PC1XX
+	default y
+	help
+	  Select this to enable Samsung S5P UART support.
+
 config SANDBOX_SERIAL
 	bool "Sandbox UART support"
 	depends on SANDBOX

@@ -117,32 +117,33 @@ void set_board_info(void)
 #ifdef CONFIG_LCD_MENU
 static int power_key_pressed(u32 reg)
 {
-#if !CONFIG_IS_ENABLED(DM_I2C) /* TODO(maintainer): Convert to driver model */
-	struct pmic *pmic;
+	struct udevice *dev;
+	int ret;
 	u32 status;
 	u32 mask;
 
-	pmic = pmic_get(KEY_PWR_PMIC_NAME);
-	if (!pmic) {
-		printf("%s: Not found\n", KEY_PWR_PMIC_NAME);
+	if (IS_ENABLED(CONFIG_TARGET_TRATS))
+		ret = pmic_get("max8997-pmic", &dev);
+	else if (IS_ENABLED(CONFIG_TARGET_TRATS2))
+		ret = pmic_get("max77686-pmic", &dev);
+	else if (IS_ENABLED(CONFIG_TARGET_S5PC210_UNIVERSAL))
+		ret = pmic_get("max8998-pmic", &dev);
+	else
 		return 0;
-	}
 
-	if (pmic_probe(pmic))
-		return 0;
+	if (ret)
+		return ret;
 
 	if (reg == KEY_PWR_STATUS_REG)
 		mask = KEY_PWR_STATUS_MASK;
 	else
 		mask = KEY_PWR_INTERRUPT_MASK;
 
-	if (pmic_reg_read(pmic, reg, &status))
-		return 0;
+	status = pmic_reg_read(dev, reg);
+	if (status < 0)
+		return status;
 
 	return !!(status & mask);
-#else
-	return 0;
-#endif
 }
 
 static int key_pressed(int key)
