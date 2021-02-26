@@ -49,6 +49,11 @@ static void oem_partconf(char *, char *);
 static void oem_bootbus(char *, char *);
 #endif
 
+#if CONFIG_IS_ENABLED(FASTBOOT_UUU_SUPPORT)
+static void run_ucmd(char *, char *);
+static void run_acmd(char *, char *);
+#endif
+
 static const struct {
 	const char *command;
 	void (*dispatch)(char *cmd_parameter, char *response);
@@ -115,6 +120,16 @@ static const struct {
 	[FASTBOOT_COMMAND_OEM_BOOTBUS] = {
 		.command = "oem bootbus",
 		.dispatch = oem_bootbus,
+	},
+#endif
+#if CONFIG_IS_ENABLED(FASTBOOT_UUU_SUPPORT)
+	[FASTBOOT_COMMAND_UCMD] = {
+		.command = "UCmd",
+		.dispatch = run_ucmd,
+	},
+	[FASTBOOT_COMMAND_ACMD] = {
+		.command = "ACmd",
+		.dispatch = run_acmd,
 	},
 #endif
 };
@@ -324,6 +339,59 @@ static void erase(char *cmd_parameter, char *response)
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND)
 	fastboot_nand_erase(cmd_parameter, response);
 #endif
+}
+#endif
+
+#if CONFIG_IS_ENABLED(FASTBOOT_UUU_SUPPORT)
+/**
+ * run_ucmd() - Execute the UCmd command
+ *
+ * @cmd_parameter: Pointer to command parameter
+ * @response: Pointer to fastboot response buffer
+ */
+static void run_ucmd(char *cmd_parameter, char *response)
+{
+	if (!cmd_parameter) {
+		pr_err("missing slot suffix\n");
+		fastboot_fail("missing command", response);
+		return;
+	}
+
+	if (run_command(cmd_parameter, 0))
+		fastboot_fail("", response);
+	else
+		fastboot_okay(NULL, response);
+}
+
+static char g_a_cmd_buff[64];
+
+void fastboot_acmd_complete(void)
+{
+	run_command(g_a_cmd_buff, 0);
+}
+
+/**
+ * run_acmd() - Execute the ACmd command
+ *
+ * @cmd_parameter: Pointer to command parameter
+ * @response: Pointer to fastboot response buffer
+ */
+static void run_acmd(char *cmd_parameter, char *response)
+{
+	if (!cmd_parameter) {
+		pr_err("missing slot suffix\n");
+		fastboot_fail("missing command", response);
+		return;
+	}
+
+	if (strlen(cmd_parameter) > sizeof(g_a_cmd_buff)) {
+		pr_err("too long command\n");
+		fastboot_fail("too long command", response);
+		return;
+	}
+
+	strcpy(g_a_cmd_buff, cmd_parameter);
+	fastboot_okay(NULL, response);
 }
 #endif
 

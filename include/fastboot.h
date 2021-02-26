@@ -44,6 +44,10 @@ enum {
 #if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_BOOTBUS)
 	FASTBOOT_COMMAND_OEM_BOOTBUS,
 #endif
+#if CONFIG_IS_ENABLED(FASTBOOT_UUU_SUPPORT)
+	FASTBOOT_COMMAND_ACMD,
+	FASTBOOT_COMMAND_UCMD,
+#endif
 
 	FASTBOOT_COMMAND_COUNT
 };
@@ -169,4 +173,7 @@ void fastboot_data_download(const void *fastboot_data,
  */
 void fastboot_data_complete(char *response);
 
+#if CONFIG_IS_ENABLED(FASTBOOT_UUU_SUPPORT)
+void fastboot_acmd_complete(void);
+#endif
 #endif /* _FASTBOOT_H_ */

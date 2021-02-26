@@ -494,6 +494,18 @@ static void do_bootm_on_complete(struct usb_ep *ep, struct usb_request *req)
 	do_exit_on_complete(ep, req);
 }
 
+#if CONFIG_IS_ENABLED(FASTBOOT_UUU_SUPPORT)
+static void do_acmd_complete(struct usb_ep *ep, struct usb_request *req)
+{
+	/* When usb dequeue complete will be called
+	 *  Need status value before call run_command.
+	 * otherwise, host can't get last message.
+	 */
+	if (req->status == 0)
+		fastboot_acmd_complete();
+}
+#endif
+
 static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmdbuf = req->buf;
@@ -532,6 +544,11 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 		case FASTBOOT_COMMAND_REBOOT_RECOVERY:
 			fastboot_func->in_req->complete = compl_do_reset;
 			break;
+#if CONFIG_IS_ENABLED(FASTBOOT_UUU_SUPPORT)
+		case FASTBOOT_COMMAND_ACMD:
+			fastboot_func->in_req->complete = do_acmd_complete;
+			break;
+#endif
 		}
 	}
 

@@ -355,7 +355,7 @@ int part_get_info(struct blk_desc *dev_desc, int part,
 	}
 #endif /* CONFIG_HAVE_BLOCK_DEVICE */
 
-	return -1;
+	return -ENOENT;
 }
 
 int part_get_info_whole_disk(struct blk_desc *dev_desc,
@@ -417,7 +417,7 @@ int blk_get_device_by_str(const char *ifname, const char *dev_hwpart_str,
 	*dev_desc = get_dev_hwpart(ifname, dev, hwpart);
 	if (!(*dev_desc) || ((*dev_desc)->type == DEV_TYPE_UNKNOWN)) {
 		debug("** Bad device %s %s **\n", ifname, dev_hwpart_str);
-		dev = -ENOENT;
+		dev = -ENODEV;
 		goto cleanup;
 	}
 
@@ -441,7 +441,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 			     struct blk_desc **dev_desc,
 			     struct disk_partition *info, int allow_whole_dev)
 {
-	int ret = -1;
+	int ret;
 	const char *part_str;
 	char *dup_str = NULL;
 	const char *dev_str;
@@ -483,7 +483,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 	if (0 == strcmp(ifname, "ubi")) {
 		if (!ubifs_is_mounted()) {
 			printf("UBIFS not mounted, use ubifsmount to mount volume first!\n");
-			return -1;
+			return -EINVAL;
 		}
 
 		*dev_desc = NULL;
@@ -505,6 +505,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 	/* If still no dev_part_str, it's an error */
 	if (!dev_part_str) {
 		printf("** No device specified **\n");
+		ret = -ENODEV;
 		goto cleanup;
 	}
 
@@ -521,8 +522,10 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 
 	/* Look up the device */
 	dev = blk_get_device_by_str(ifname, dev_str, dev_desc);
-	if (dev < 0)
+	if (dev < 0) {
+		ret = dev;
 		goto cleanup;
+	}
 
 	/* Convert partition ID string to number */
 	if (!part_str || !*part_str) {
@@ -539,6 +542,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 		if (*ep || (part == 0 && !allow_whole_dev)) {
 			printf("** Bad partition specification %s %s **\n",
 			    ifname, dev_part_str);
+			ret = -ENOENT;
 			goto cleanup;
 		}
 	}
@@ -552,6 +556,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 		if (!(*dev_desc)->lba) {
 			printf("** Bad device size - %s %s **\n", ifname,
 			       dev_str);
+			ret = -EINVAL;
 			goto cleanup;
 		}
 
@@ -563,6 +568,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 		if ((part > 0) || (!allow_whole_dev)) {
 			printf("** No partition table - %s %s **\n", ifname,
 			       dev_str);
+			ret = -EPROTONOSUPPORT;
 			goto cleanup;
 		}
 
@@ -631,7 +637,6 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 				*info = tmpinfo;
 		} else {
 			printf("** No valid partitions found **\n");
-			ret = -1;
 			goto cleanup;
 		}
 	}
@@ -639,7 +644,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 		printf("** Invalid partition type \"%.32s\""
 			" (expect \"" BOOT_PART_TYPE "\")\n",
 			info->type);
-		ret  = -1;
+		ret  = -EINVAL;
 		goto cleanup;
 	}
 
@@ -675,7 +680,7 @@ int part_get_info_by_name_type(struct blk_desc *dev_desc, const char *name,
 		}
 	}
 
-	return -1;
+	return -ENOENT;
 }
 
 int part_get_info_by_name(struct blk_desc *dev_desc, const char *name,
@@ -688,12 +693,13 @@ int part_get_info_by_name(struct blk_desc *dev_desc, const char *name,
  * Get partition info from device number and partition name.
  *
  * Parse a device number and partition name string in the form of
- * "device_num#partition_name", for example "0#misc". If the partition
- * is found, sets dev_desc and part_info accordingly with the information
- * of the partition with the given partition_name.
+ * "devicenum.hwpartnum#partition_name", for example "0.1#misc". devicenum and
+ * hwpartnum are both optional, defaulting to 0. If the partition is found,
+ * sets dev_desc and part_info accordingly with the information of the
+ * partition with the given partition_name.
  *
  * @param[in] dev_iface Device interface
- * @param[in] dev_part_str Input string argument, like "0#misc"
+ * @param[in] dev_part_str Input string argument, like "0.1#misc"
  * @param[out] dev_desc Place to store the device description pointer
  * @param[out] part_info Place to store the partition information
  * @return 0 on success, or a negative on error
@@ -703,53 +709,57 @@ static int part_get_info_by_dev_and_name(const char *dev_iface,
 					 struct blk_desc **dev_desc,
 					 struct disk_partition *part_info)
 {
-	char *ep;
-	const char *part_str;
-	int dev_num;
+	char *dup_str = NULL;
+	const char *dev_str, *part_str;
+	int ret;
 
+	/* Separate device and partition name specification */
 	part_str = strchr(dev_part_str, '#');
-	if (!part_str || part_str == dev_part_str)
-		return -EINVAL;
-
-	dev_num = simple_strtoul(dev_part_str, &ep, 16);
-	if (ep != part_str) {
-		/* Not all the first part before the # was parsed. */
-		return -EINVAL;
-	}
-	part_str++;
-
-	*dev_desc = blk_get_dev(dev_iface, dev_num);
-	if (!*dev_desc) {
-		printf("Could not find %s %d\n", dev_iface, dev_num);
+	if (part_str) {
+		dup_str = strdup(dev_part_str);
+		dup_str[part_str - dev_part_str] = 0;
+		dev_str = dup_str;
+		part_str++;
+	} else {
 		return -EINVAL;
 	}
-	if (part_get_info_by_name(*dev_desc, part_str, part_info) < 0) {
+
+	ret = blk_get_device_by_str(dev_iface, dev_str, dev_desc);
+	if (ret)
+		goto cleanup;
+
+	ret = part_get_info_by_name(*dev_desc, part_str, part_info);
+	if (ret < 0)
 		printf("Could not find \"%s\" partition\n", part_str);
-		return -EINVAL;
-	}
-	return 0;
+
+cleanup:
+	free(dup_str);
+	return ret;
 }
 
 int part_get_info_by_dev_and_name_or_num(const char *dev_iface,
 					 const char *dev_part_str,
 					 struct blk_desc **dev_desc,
-					 struct disk_partition *part_info)
+					 struct disk_partition *part_info,
+					 int allow_whole_dev)
 {
+	int ret;
+
 	/* Split the part_name if passed as "$dev_num#part_name". */
-	if (!part_get_info_by_dev_and_name(dev_iface, dev_part_str,
-					   dev_desc, part_info))
-		return 0;
+	ret = part_get_info_by_dev_and_name(dev_iface, dev_part_str,
+					    dev_desc, part_info);
+	if (ret >= 0)
+		return ret;
 	/*
 	 * Couldn't lookup by name, try looking up the partition description
 	 * directly.
 	 */
-	if (blk_get_device_part_str(dev_iface, dev_part_str,
-				    dev_desc, part_info, 1) < 0) {
+	ret = blk_get_device_part_str(dev_iface, dev_part_str,
+				      dev_desc, part_info, allow_whole_dev);
+	if (ret < 0)
 		printf("Couldn't find partition %s %s\n",
 		       dev_iface, dev_part_str);
-		return -EINVAL;
-	}
-	return 0;
+	return ret;
 }
 
 void part_set_generic_name(const struct blk_desc *dev_desc,

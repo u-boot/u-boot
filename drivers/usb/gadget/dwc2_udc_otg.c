@@ -248,9 +248,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 
 	debug_cond(DEBUG_SETUP != 0, "%s: %s\n", __func__, "no name");
 
-	if (!driver
-	    || (driver->speed != USB_SPEED_FULL
-		&& driver->speed != USB_SPEED_HIGH)
+	if (!driver || driver->speed < USB_SPEED_FULL
 	    || !driver->bind || !driver->disconnect || !driver->setup)
 		return -EINVAL;
 	if (!dev)
@@ -320,9 +318,7 @@ static int dwc2_gadget_start(struct usb_gadget *g,
 
 	debug_cond(DEBUG_SETUP != 0, "%s: %s\n", __func__, "no name");
 
-	if (!driver ||
-	    (driver->speed != USB_SPEED_FULL &&
-	     driver->speed != USB_SPEED_HIGH) ||
+	if (!driver || driver->speed < USB_SPEED_FULL ||
 	    !driver->bind || !driver->disconnect || !driver->setup)
 		return -EINVAL;
 
