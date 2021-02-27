@@ -507,6 +507,10 @@ static const struct {
 		"System Partition",
 		PARTITION_SYSTEM_GUID
 	},
+	{
+		"Firmware Management",
+		EFI_FIRMWARE_MANAGEMENT_PROTOCOL_GUID
+	},
 	/* Configuration table GUIDs */
 	{
 		"ACPI table",

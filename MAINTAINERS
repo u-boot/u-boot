@@ -708,6 +708,7 @@ F:	cmd/efidebug.c
 F:	cmd/nvedit_efi.c
 F:	tools/efivar.py
 F:	tools/file2include.c
+F:	tools/mkeficapsule.c
 
 EFI VARIABLES VIA OP-TEE
 M:	Ilias Apalodimas <ilias.apalodimas@linaro.org>

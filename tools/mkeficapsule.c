@@ -263,7 +263,7 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 
 #ifdef DEBUG
 	printf("For output: %s\n", path);
-	printf("\tbin: %s\n\ttype: %pUl\n" bin, guid);
+	printf("\tbin: %s\n\ttype: %pUl\n", bin, guid);
 	printf("\tindex: %ld\n\tinstance: %ld\n", index, instance);
 #endif
 

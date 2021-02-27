@@ -67,7 +67,8 @@ static char *dp_hardware(char *s, struct efi_device_path *dp)
 
 		s += sprintf(s, "VenHw(%pUl", &vdp->guid);
 		n = (int)vdp->dp.length - sizeof(struct efi_device_path_vendor);
-		if (n > 0) {
+		/* Node must fit into MAX_NODE_LEN) */
+		if (n > 0 && n < MAX_NODE_LEN / 2 - 22) {
 			s += sprintf(s, ",");
 			for (i = 0; i < n; ++i)
 				s += sprintf(s, "%02x", vdp->vendor_data[i]);
@@ -251,7 +252,8 @@ static char *dp_media(char *s, struct efi_device_path *dp)
 
 		s += sprintf(s, "VenMedia(%pUl", &vdp->guid);
 		n = (int)vdp->dp.length - sizeof(struct efi_device_path_vendor);
-		if (n > 0) {
+		/* Node must fit into MAX_NODE_LEN) */
+		if (n > 0 && n < MAX_NODE_LEN / 2 - 24) {
 			s += sprintf(s, ",");
 			for (i = 0; i < n; ++i)
 				s += sprintf(s, "%02x", vdp->vendor_data[i]);
