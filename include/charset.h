@@ -286,4 +286,22 @@ uint8_t *utf16_to_utf8(uint8_t *dest, const uint16_t *src, size_t size);
  */
 int utf_to_cp(s32 *c, const u16 *codepage);
 
+/**
+ * utf8_to_cp437_stream() - convert UTF-8 stream to codepage 437
+ *
+ * @c:		next UTF-8 character to convert
+ * @buffer:	buffer, at least 5 characters
+ * Return:	next codepage 437 character or 0
+ */
+int utf8_to_cp437_stream(u8 c, char *buffer);
+
+/**
+ * utf8_to_utf32_stream() - convert UTF-8 stream to UTF-32
+ *
+ * @c:		next UTF-8 character to convert
+ * @buffer:	buffer, at least 5 characters
+ * Return:	next codepage 437 character or 0
+ */
+int utf8_to_utf32_stream(u8 c, char *buffer);
+
 #endif /* __CHARSET_H_ */
