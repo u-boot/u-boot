@@ -32,7 +32,7 @@ static struct capitalization_table capitalization_table[] =
  *
  * @read_u8:	- stream reader
  * @src:	- string buffer passed to stream reader, optional
- * Return:	- Unicode code point
+ * Return:	- Unicode code point, or -1
  */
 static int get_code(u8 (*read_u8)(void *data), void *data)
 {
@@ -78,7 +78,7 @@ static int get_code(u8 (*read_u8)(void *data), void *data)
 	}
 	return ch;
 error:
-	return '?';
+	return -1;
 }
 
 /**
@@ -120,14 +120,21 @@ static u8 read_console(void *data)
 
 int console_read_unicode(s32 *code)
 {
-	if (!tstc()) {
-		/* No input available */
-		return 1;
-	}
+	for (;;) {
+		s32 c;
 
-	/* Read Unicode code */
-	*code = get_code(read_console, NULL);
-	return 0;
+		if (!tstc()) {
+			/* No input available */
+			return 1;
+		}
+
+		/* Read Unicode code */
+		c = get_code(read_console, NULL);
+		if (c > 0) {
+			*code = c;
+			return 0;
+		}
+	}
 }
 
 s32 utf8_get(const char **src)

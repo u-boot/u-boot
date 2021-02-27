@@ -52,6 +52,7 @@ static const char d4[] = {0xf0, 0x90, 0x92, 0x8d, 0xf0, 0x90, 0x92, 0x96,
 static const char j1[] = {0x6a, 0x31, 0xa1, 0x6c, 0x00};
 static const char j2[] = {0x6a, 0x32, 0xc3, 0xc3, 0x6c, 0x00};
 static const char j3[] = {0x6a, 0x33, 0xf0, 0x90, 0xf0, 0x00};
+static const char j4[] = {0xa1, 0x00};
 
 static int unicode_test_u16_strlen(struct unit_test_state *uts)
 {
@@ -164,6 +165,12 @@ static int unicode_test_utf8_get(struct unit_test_state *uts)
 	code = utf8_get((const char **)&s);
 	ut_asserteq(0x0001048d, code);
 	ut_asserteq_ptr(s, d4 + 4);
+
+	/* Check illegal character */
+	s = j4;
+	code = utf8_get((const char **)&s);
+	ut_asserteq(-1, code);
+	ut_asserteq_ptr(j4 + 1, s);
 
 	return 0;
 }
