@@ -595,6 +595,35 @@ static int unicode_test_u16_strsize(struct unit_test_state *uts)
 }
 UNICODE_TEST(unicode_test_u16_strsize);
 
+static int unicode_test_utf_to_cp(struct unit_test_state *uts)
+{
+	int ret;
+	s32 c;
+
+	c = '\n';
+	ret = utf_to_cp(&c, codepage_437);
+	ut_asserteq(0, ret);
+	ut_asserteq('\n', c);
+
+	c = 'a';
+	ret = utf_to_cp(&c, codepage_437);
+	ut_asserteq(0, ret);
+	ut_asserteq('a', c);
+
+	c = 0x03c4; /* Greek small letter tau */
+	ret = utf_to_cp(&c, codepage_437);
+	ut_asserteq(0, ret);
+	ut_asserteq(0xe7, c);
+
+	c = 0x03a4; /* Greek capital letter tau */
+	ret = utf_to_cp(&c, codepage_437);
+	ut_asserteq(-ENOENT, ret);
+	ut_asserteq('?', c);
+
+	return 0;
+}
+UNICODE_TEST(unicode_test_utf_to_cp);
+
 #ifdef CONFIG_EFI_LOADER
 static int unicode_test_efi_create_indexed_name(struct unit_test_state *uts)
 {

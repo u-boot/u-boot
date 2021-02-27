@@ -275,4 +275,15 @@ u16 *u16_strdup(const void *src);
  */
 uint8_t *utf16_to_utf8(uint8_t *dest, const uint16_t *src, size_t size);
 
+/**
+ * utf_to_cp() - translate Unicode code point to 8bit codepage
+ *
+ * Codepoints that do not exist in the codepage are rendered as question mark.
+ *
+ * @c:		pointer to Unicode code point to be translated
+ * @codepage:	Unicode to codepage translation table
+ * Return:	0 on success, -ENOENT if codepoint cannot be translated
+ */
+int utf_to_cp(s32 *c, const u16 *codepage);
+
 #endif /* __CHARSET_H_ */
