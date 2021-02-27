@@ -23,7 +23,7 @@ static const char illegal[] = "+,<=>:;\"/\\|?*[]\x7f";
 static const u16 codepage[] = CP1250;
 #else
 /* Unicode code points for code page 437 characters 0x80 - 0xff */
-static const u16 codepage[] = CP437;
+static const u16 *codepage = codepage_437;
 #endif
 
 /* GUID of the EFI_UNICODE_COLLATION_PROTOCOL2 */

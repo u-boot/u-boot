@@ -8,8 +8,14 @@
 #include <common.h>
 #include <charset.h>
 #include <capitalization.h>
+#include <cp437.h>
 #include <efi_loader.h>
 #include <malloc.h>
+
+/**
+ * codepage_437 - Unicode to codepage 437 translation table
+ */
+const u16 codepage_437[128] = CP437;
 
 static struct capitalization_table capitalization_table[] =
 #ifdef CONFIG_EFI_UNICODE_CAPITALIZATION
