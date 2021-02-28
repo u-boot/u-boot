@@ -311,7 +311,7 @@ static void query_console_size(void)
 	const char *stdout_name = env_get("stdout");
 	int rows = 25, cols = 80;
 
-	if (stdout_name && !strcmp(stdout_name, "vidconsole") &&
+	if (stdout_name && !strncmp(stdout_name, "vidconsole", 10) &&
 	    IS_ENABLED(CONFIG_DM_VIDEO)) {
 		struct stdio_dev *stdout_dev =
 			stdio_get_by_name("vidconsole");
