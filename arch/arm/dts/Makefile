@@ -673,6 +673,20 @@ dtb-y += \
 	imx6dl-cubox-i-emmc-som-v15.dtb \
 	imx6dl-cubox-i-som-v15.dtb \
 	imx6dl-dhcom-pdk2.dtb \
+	imx6dl-gw51xx.dtb \
+	imx6dl-gw52xx.dtb \
+	imx6dl-gw53xx.dtb \
+	imx6dl-gw54xx.dtb \
+	imx6dl-gw551x.dtb \
+	imx6dl-gw552x.dtb \
+	imx6dl-gw553x.dtb \
+	imx6dl-gw560x.dtb \
+	imx6dl-gw5903.dtb \
+	imx6dl-gw5904.dtb \
+	imx6dl-gw5907.dtb \
+	imx6dl-gw5910.dtb \
+	imx6dl-gw5912.dtb \
+	imx6dl-gw5913.dtb \
 	imx6dl-hummingboard2.dtb \
 	imx6dl-hummingboard2-emmc-som-v15.dtb \
 	imx6dl-hummingboard2-som-v15.dtb \
@@ -702,6 +716,20 @@ dtb-y += \
 	imx6q-cubox-i-som-v15.dtb \
 	imx6q-dhcom-pdk2.dtb \
 	imx6q-display5.dtb \
+	imx6q-gw51xx.dtb \
+	imx6q-gw52xx.dtb \
+	imx6q-gw53xx.dtb \
+	imx6q-gw54xx.dtb \
+	imx6q-gw551x.dtb \
+	imx6q-gw552x.dtb \
+	imx6q-gw553x.dtb \
+	imx6q-gw560x.dtb \
+	imx6q-gw5903.dtb \
+	imx6q-gw5904.dtb \
+	imx6q-gw5907.dtb \
+	imx6q-gw5910.dtb \
+	imx6q-gw5912.dtb \
+	imx6q-gw5913.dtb \
 	imx6q-hummingboard2.dtb \
 	imx6q-hummingboard2-emmc-som-v15.dtb \
 	imx6q-hummingboard2-som-v15.dtb \
