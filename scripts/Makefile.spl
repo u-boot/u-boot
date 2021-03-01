@@ -421,10 +421,9 @@ $(obj)/$(SPL_BIN).sym: $(obj)/$(SPL_BIN) FORCE
 # May be overridden by arch/$(ARCH)/config.mk
 quiet_cmd_u-boot-spl ?= LD      $@
       cmd_u-boot-spl ?= (cd $(obj) && $(LD) $(KBUILD_LDFLAGS) $(LDFLAGS_$(@F)) \
-		       $(patsubst $(obj)/%,%,$(u-boot-spl-init)) --start-group \
-		       $(patsubst $(obj)/%,%,$(u-boot-spl-main))  \
-		       $(patsubst $(obj)/%,%,$(u-boot-spl-platdata)) \
-		       --end-group \
+		       $(patsubst $(obj)/%,%,$(u-boot-spl-init)) \
+		       --whole-archive $(patsubst $(obj)/%,%,$(u-boot-spl-main)) --no-whole-archive \
+		       --start-group $(patsubst $(obj)/%,%,$(u-boot-spl-platdata)) --end-group \
 		       $(PLATFORM_LIBS) -Map $(SPL_BIN).map -o $(SPL_BIN))
 
 $(obj)/$(SPL_BIN): $(u-boot-spl-platdata) $(u-boot-spl-init) \
