@@ -33,7 +33,7 @@ config FPGA_CYCLON2
 
 config FPGA_INTEL_SDM_MAILBOX
 	bool "Enable Intel FPGA Full Reconfiguration SDM Mailbox driver"
-	depends on TARGET_SOCFPGA_STRATIX10 || TARGET_SOCFPGA_AGILEX
+	depends on TARGET_SOCFPGA_SOC64
 	select FPGA_ALTERA
 	help
 	  Say Y here to enable the Intel FPGA Full Reconfig SDM Mailbox driver
