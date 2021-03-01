@@ -142,18 +142,14 @@ static void setup_iomux_enet(int gpio)
 }
 
 #ifdef CONFIG_USB_EHCI_MX6
-static iomux_v3_cfg_t const usb_pads[] = {
-	IOMUX_PADS(PAD_GPIO_1__USB_OTG_ID   | DIO_PAD_CFG),
-	IOMUX_PADS(PAD_KEY_COL4__USB_OTG_OC | DIO_PAD_CFG),
-	/* OTG PWR */
-	IOMUX_PADS(PAD_EIM_D22__GPIO3_IO22  | DIO_PAD_CFG),
-};
-
+/* toggle USB_HUB_RST# for boards that have it; it is not defined in dt */
 int board_ehci_hcd_init(int port)
 {
 	int gpio;
 
-	SETUP_IOMUX_PADS(usb_pads);
+	/* USB HUB is always on P1 */
+	if (port == 0)
+		return 0;
 
 	/* Reset USB HUB */
 	switch (board_type) {
@@ -176,16 +172,6 @@ int board_ehci_hcd_init(int port)
 	mdelay(2);
 	gpio_set_value(gpio, 1);
 
-	return 0;
-}
-
-int board_ehci_power(int port, int on)
-{
-	/* enable OTG VBUS */
-	if (!port && board_type < GW_UNKNOWN) {
-		if (gpio_cfg[board_type].otgpwr_en)
-			gpio_set_value(gpio_cfg[board_type].otgpwr_en, on);
-	}
 	return 0;
 }
 #endif /* CONFIG_USB_EHCI_MX6 */
