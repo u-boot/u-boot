@@ -14,6 +14,7 @@
 		led0 = &led0;
 		led1 = &led1;
 		led2 = &led2;
+		mmc0 = &usdhc3;
 		nand = &gpmi;
 		ssi0 = &ssi1;
 		usb0 = &usbh1;

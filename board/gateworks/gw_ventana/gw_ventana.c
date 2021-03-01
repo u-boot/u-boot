@@ -28,7 +28,6 @@
 #include <hwconfig.h>
 #include <i2c.h>
 #include <fdt_support.h>
-#include <fsl_esdhc_imx.h>
 #include <jffs2/load_kernel.h>
 #include <linux/ctype.h>
 #include <miiphy.h>
@@ -649,10 +648,6 @@ int board_init(void)
 #endif
 	setup_ventana_i2c(1);
 	setup_ventana_i2c(2);
-
-#ifdef CONFIG_SATA
-	setup_sata();
-#endif
 
 	setup_iomux_gpio(board_type, &ventana_info);
 
