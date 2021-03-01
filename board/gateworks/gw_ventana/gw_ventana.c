@@ -19,7 +19,6 @@
 #include <asm/gpio.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/sata.h>
-#include <asm/mach-imx/spi.h>
 #include <asm/mach-imx/video.h>
 #include <asm/io.h>
 #include <asm/setup.h>
@@ -41,7 +40,6 @@
 #include <power/pfuze100_pmic.h>
 #include <fdt_support.h>
 #include <jffs2/load_kernel.h>
-#include <spi_flash.h>
 
 #include "gsc.h"
 #include "common.h"
@@ -126,28 +124,6 @@ int board_ehci_hcd_init(int port)
 	return 0;
 }
 #endif /* CONFIG_USB_EHCI_MX6 */
-
-#ifdef CONFIG_MXC_SPI
-iomux_v3_cfg_t const ecspi1_pads[] = {
-	/* SS1 */
-	IOMUX_PADS(PAD_EIM_D19__GPIO3_IO19  | MUX_PAD_CTRL(SPI_PAD_CTRL)),
-	IOMUX_PADS(PAD_EIM_D17__ECSPI1_MISO | MUX_PAD_CTRL(SPI_PAD_CTRL)),
-	IOMUX_PADS(PAD_EIM_D18__ECSPI1_MOSI | MUX_PAD_CTRL(SPI_PAD_CTRL)),
-	IOMUX_PADS(PAD_EIM_D16__ECSPI1_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL)),
-};
-
-int board_spi_cs_gpio(unsigned bus, unsigned cs)
-{
-	return (bus == 0 && cs == 0) ? (IMX_GPIO_NR(3, 19)) : -1;
-}
-
-static void setup_spi(void)
-{
-	gpio_request(IMX_GPIO_NR(3, 19), "spi_cs");
-	gpio_direction_output(IMX_GPIO_NR(3, 19), 1);
-	SETUP_IOMUX_PADS(ecspi1_pads);
-}
-#endif
 
 /* configure eth0 PHY board-specific LED behavior */
 int board_phy_config(struct phy_device *phydev)
@@ -591,9 +567,6 @@ int board_init(void)
 	setup_ventana_i2c(0);
 	board_type = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
 
-#ifdef CONFIG_MXC_SPI
-	setup_spi();
-#endif
 	setup_ventana_i2c(1);
 	setup_ventana_i2c(2);
 
