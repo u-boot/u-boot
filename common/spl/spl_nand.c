@@ -42,11 +42,13 @@ static int spl_nand_load_image(struct spl_image_info *spl_image,
 static ulong spl_nand_fit_read(struct spl_load_info *load, ulong offs,
 			       ulong size, void *dst)
 {
-	ulong sector;
 	int err;
+#ifdef CONFIG_SYS_NAND_BLOCK_SIZE
+	ulong sector;
 
 	sector = *(int *)load->priv;
 	offs = sector + nand_spl_adjust_offset(sector, offs - sector);
+#endif
 	err = nand_spl_load_image(offs, size, dst);
 	if (err)
 		return 0;
