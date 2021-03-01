@@ -105,6 +105,7 @@ config TARGET_HIHOPE_RZG2
 	bool "HiHope RZ/G2 board"
 	imply R8A774A1
 	imply R8A774B1
+	imply R8A774E1
 	imply SYS_MALLOC_F
 	imply MULTI_DTB_FIT
 	imply MULTI_DTB_FIT_USER_DEFINED_AREA

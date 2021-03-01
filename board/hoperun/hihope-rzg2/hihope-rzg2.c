@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * board/hoperun/hihope-rzg2/hihope-rzg2.c
- *     This file is HiHope RZ/G2[MN] board support.
+ *     This file is HiHope RZ/G2[HMN] board support.
  *
  * Copyright (C) 2021 Renesas Electronics Corporation
  */
@@ -102,6 +102,10 @@ int board_fit_config_name_match(const char *name)
 
 	if (is_hoperun_hihope_rzg2_board("hoperun,hihope-rzg2n") &&
 	    !strcmp(name, "r8a774b1-hihope-rzg2n-u-boot"))
+		return 0;
+
+	if (is_hoperun_hihope_rzg2_board("hoperun,hihope-rzg2h") &&
+	    !strcmp(name, "r8a774e1-hihope-rzg2h-u-boot"))
 		return 0;
 
 	return -1;
