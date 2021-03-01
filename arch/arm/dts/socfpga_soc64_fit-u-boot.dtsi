@@ -117,4 +117,26 @@
 	};
 };
 
+#if defined(CONFIG_SOCFPGA_SECURE_VAB_AUTH)
+&uboot_blob {
+	filename = "signed-u-boot-nodtb.bin";
+};
+
+&atf_blob {
+	filename = "signed-bl31.bin";
+};
+
+&uboot_fdt_blob {
+	filename = "signed-u-boot.dtb";
+};
+
+&kernel_blob {
+	filename = "signed-Image";
+};
+
+&kernel_fdt_blob {
+	filename = "signed-linux.dtb";
+};
+#endif
+
 #endif
