@@ -194,7 +194,7 @@ unsigned int cm_get_l4_sys_free_clk_hz(void);
  * 0x8000_0000 ...... End of SDRAM_1 (assume 2GB)
  *
  */
-#define CONFIG_SPL_TARGET		"spl/u-boot-spl.hex"
+#define CONFIG_SPL_TARGET		"spl/u-boot-spl-dtb.hex"
 #define CONFIG_SPL_MAX_SIZE		CONFIG_SYS_INIT_RAM_SIZE
 #define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
 #define CONFIG_SPL_BSS_MAX_SIZE		0x100000	/* 1 MB */

@@ -229,6 +229,8 @@ ifneq ($(CONFIG_TARGET_SOCFPGA_GEN5)$(CONFIG_TARGET_SOCFPGA_ARRIA10),)
 INPUTS-y	+= $(obj)/$(SPL_BIN).sfp
 endif
 
+INPUTS-$(CONFIG_TARGET_SOCFPGA_SOC64) += $(obj)/u-boot-spl-dtb.hex
+
 ifdef CONFIG_ARCH_SUNXI
 INPUTS-y	+= $(obj)/sunxi-spl.bin
 
@@ -388,6 +390,11 @@ $(obj)/$(SPL_BIN).sfp: $(obj)/$(SPL_BIN).bin FORCE
 
 MKIMAGEFLAGS_sunxi-spl.bin = -T sunxi_egon \
 	-n $(CONFIG_DEFAULT_DEVICE_TREE)
+
+OBJCOPYFLAGS_u-boot-spl-dtb.hex := -I binary -O ihex --change-address=$(CONFIG_SPL_TEXT_BASE)
+
+$(obj)/u-boot-spl-dtb.hex: $(obj)/u-boot-spl-dtb.bin FORCE
+	$(call if_changed,objcopy)
 
 $(obj)/sunxi-spl.bin: $(obj)/$(SPL_BIN).bin FORCE
 	$(call if_changed,mkimage)
