@@ -51,6 +51,7 @@ obj-y	+= reset_manager_s10.o
 obj-$(CONFIG_SOCFPGA_SECURE_VAB_AUTH)	+= secure_vab.o
 obj-y	+= system_manager_s10.o
 obj-y	+= timer_s10.o
+obj-$(CONFIG_SOCFPGA_SECURE_VAB_AUTH)	+= vab.o
 obj-y	+= wrap_pinmux_config_s10.o
 obj-y	+= wrap_pll_config_s10.o
 endif
