@@ -3,10 +3,6 @@
 // Copyright (C) 2015 Freescale Semiconductor, Inc.
 
 / {
-	aliases {
-		spi5 = &{/spi4};
-	};
-
 	chosen {
 		stdout-path = &uart1;
 	};
@@ -34,12 +30,68 @@
 		enable-active-high;
 	};
 
+	reg_peri_3v3: regulator-peri-3v3 {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_peri_3v3>;
+		regulator-name = "VPERI_3V3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio5 2 GPIO_ACTIVE_LOW>;
+		/*
+		 * If you want to want to make this dynamic please
+		 * check schematics and test all affected peripherals:
+		 *
+		 * - sensors
+		 * - ethernet phy
+		 * - can
+		 * - bluetooth
+		 * - wm8960 audio codec
+		 * - ov5640 camera
+		 */
+		regulator-always-on;
+	};
+
 	reg_can_3v3: regulator-can-3v3 {
 		compatible = "regulator-fixed";
 		regulator-name = "can-3v3";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		gpios = <&gpio_spi 3 GPIO_ACTIVE_LOW>;
+	};
+
+	sound {
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "mx6ul-wm8960";
+		simple-audio-card,format = "i2s";
+		simple-audio-card,bitclock-master = <&dailink_master>;
+		simple-audio-card,frame-master = <&dailink_master>;
+		simple-audio-card,widgets =
+			"Microphone", "Mic Jack",
+			"Line", "Line In",
+			"Line", "Line Out",
+			"Speaker", "Speaker",
+			"Headphone", "Headphone Jack";
+		simple-audio-card,routing =
+			"Headphone Jack", "HP_L",
+			"Headphone Jack", "HP_R",
+			"Speaker", "SPK_LP",
+			"Speaker", "SPK_LN",
+			"Speaker", "SPK_RP",
+			"Speaker", "SPK_RN",
+			"LINPUT1", "Mic Jack",
+			"LINPUT3", "Mic Jack",
+			"RINPUT1", "Mic Jack",
+			"RINPUT2", "Mic Jack";
+
+		simple-audio-card,cpu {
+			sound-dai = <&sai2>;
+		};
+
+		dailink_master: simple-audio-card,codec {
+			sound-dai = <&codec>;
+			clocks = <&clks IMX6UL_CLK_SAI2>;
+		};
 	};
 
 	spi4 {
@@ -82,7 +134,7 @@
 };
 
 &i2c2 {
-	clock_frequency = <100000>;
+	clock-frequency = <100000>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c2>;
 	status = "okay";
@@ -100,6 +152,7 @@
 	pinctrl-0 = <&pinctrl_enet1>;
 	phy-mode = "rmii";
 	phy-handle = <&ethphy0>;
+	phy-supply = <&reg_peri_3v3>;
 	status = "okay";
 };
 
@@ -108,6 +161,7 @@
 	pinctrl-0 = <&pinctrl_enet2>;
 	phy-mode = "rmii";
 	phy-handle = <&ethphy1>;
+	phy-supply = <&reg_peri_3v3>;
 	status = "okay";
 
 	mdio {
@@ -146,16 +200,15 @@
 
 &i2c1 {
 	clock-frequency = <100000>;
-	pinctrl-names = "default", "gpio";
+	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c1>;
-	pinctrl-1 = <&pinctrl_i2c1_gpio>;
-	scl-gpios = <&gpio1 28 GPIO_ACTIVE_HIGH>;
-	sda-gpios = <&gpio1 29 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 
-	mag3110@e {
+	magnetometer@e {
 		compatible = "fsl,mag3110";
 		reg = <0x0e>;
+		vdd-supply = <&reg_peri_3v3>;
+		vddio-supply = <&reg_peri_3v3>;
 	};
 };
 
@@ -175,6 +228,7 @@
 };
 
 &pwm1 {
+	#pwm-cells = <2>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm1>;
 	status = "okay";
@@ -188,7 +242,7 @@
 	flash0: n25q256a@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "micron,n25q256a";
+		compatible = "micron,n25q256a", "jedec,spi-nor";
 		spi-max-frequency = <29000000>;
 		spi-rx-bus-width = <4>;
 		spi-tx-bus-width = <4>;
@@ -208,6 +262,10 @@
 };
 
 &snvs_poweroff {
+	status = "okay";
+};
+
+&snvs_pwrkey {
 	status = "okay";
 };
 
@@ -235,6 +293,8 @@
 
 &usbotg1 {
 	dr_mode = "otg";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usb_otg1>;
 	status = "okay";
 };
 
@@ -349,13 +409,6 @@
 		>;
 	};
 
-	pinctrl_i2c1_gpio: i2c1grp_gpio {
-		fsl,pins = <
-			MX6UL_PAD_UART4_TX_DATA__GPIO1_IO28 0x1b8b0
-			MX6UL_PAD_UART4_RX_DATA__GPIO1_IO29 0x1b8b0
-		>;
-	};
-
 	pinctrl_i2c2: i2c2grp {
 		fsl,pins = <
 			MX6UL_PAD_UART5_TX_DATA__I2C2_SCL 0x4001b8b0
@@ -425,6 +478,12 @@
 		>;
 	};
 
+	pinctrl_peri_3v3: peri3v3grp {
+		fsl,pins = <
+			MX6UL_PAD_SNVS_TAMPER2__GPIO5_IO02	0x1b0b0
+		>;
+	};
+
 	pinctrl_pwm1: pwm1grp {
 		fsl,pins = <
 			MX6UL_PAD_GPIO1_IO08__PWM1_OUT   0x110b0
@@ -473,6 +532,12 @@
 			MX6UL_PAD_UART2_RX_DATA__UART2_DCE_RX	0x1b0b1
 			MX6UL_PAD_UART3_RX_DATA__UART2_DCE_RTS	0x1b0b1
 			MX6UL_PAD_UART3_TX_DATA__UART2_DCE_CTS	0x1b0b1
+		>;
+	};
+
+	pinctrl_usb_otg1: usbotg1grp {
+		fsl,pins = <
+			MX6UL_PAD_GPIO1_IO00__ANATOP_OTG1_ID	0x17059
 		>;
 	};
 
