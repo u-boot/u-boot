@@ -24,7 +24,6 @@
 #include <asm/io.h>
 #include <asm/setup.h>
 #include <dm.h>
-#include <dm/platform_data/serial_mxc.h>
 #include <env.h>
 #include <hwconfig.h>
 #include <i2c.h>
@@ -628,8 +627,6 @@ void get_board_serial(struct tag_serialnr *serialnr)
 
 int board_early_init_f(void)
 {
-	setup_iomux_uart();
-
 #if defined(CONFIG_VIDEO_IPUV3)
 	setup_display();
 #endif
@@ -1389,12 +1386,3 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
-
-static struct mxc_serial_plat ventana_mxc_serial_plat = {
-	.reg = (struct mxc_uart *)UART2_BASE,
-};
-
-U_BOOT_DRVINFO(ventana_serial) = {
-	.name   = "serial_mxc",
-	.plat = &ventana_mxc_serial_plat,
-};
