@@ -67,5 +67,6 @@ int gsc_i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len);
 int gsc_i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len);
 int gsc_info(int verbose);
 int gsc_boot_wd_disable(void);
+const char *gsc_get_dtb_name(int level, char *buf, int sz);
 #endif
 

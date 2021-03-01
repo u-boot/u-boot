@@ -56,7 +56,6 @@ DECLARE_GLOBAL_DATA_PTR;
  * read it once.
  */
 struct ventana_board_info ventana_info;
-
 static int board_type;
 
 /* ENET */
@@ -675,6 +674,25 @@ int board_init(void)
 	setup_iomux_gpio(board_type, &ventana_info);
 
 	return 0;
+}
+
+int board_fit_config_name_match(const char *name)
+{
+	static char init;
+	const char *dtb;
+	char buf[32];
+	int i = 0;
+
+	do {
+		dtb = gsc_get_dtb_name(i++, buf, sizeof(buf));
+		if (dtb && !strcmp(dtb, name)) {
+			if (!init++)
+				printf("DTB:   %s\n", name);
+			return 0;
+		}
+	} while (dtb);
+
+	return -1;
 }
 
 #if defined(CONFIG_DISPLAY_BOARDINFO_LATE)
