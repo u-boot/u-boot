@@ -790,6 +790,10 @@ dtb-$(CONFIG_ARCH_IMX8) += \
 
 dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-evk.dtb \
+	imx8mm-venice.dtb \
+	imx8mm-venice-gw71xx-0x.dtb \
+	imx8mm-venice-gw72xx-0x.dtb \
+	imx8mm-venice-gw73xx-0x.dtb \
 	imx8mm-verdin.dtb \
 	phycore-imx8mm.dtb \
 	imx8mn-ddr4-evk.dtb \
