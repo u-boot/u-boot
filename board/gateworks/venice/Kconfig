@@ -1,0 +1,12 @@
+if TARGET_IMX8MM_VENICE
+
+config SYS_BOARD
+	default "venice"
+
+config SYS_VENDOR
+	default "gateworks"
+
+config SYS_CONFIG_NAME
+	default "imx8mm_venice"
+
+endif
