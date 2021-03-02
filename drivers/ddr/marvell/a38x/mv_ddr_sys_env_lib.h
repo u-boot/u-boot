@@ -78,20 +78,6 @@ enum suspend_wakeup_status {
  * set '-2'
  * If suspend to RAM is not supported set '-1'
  */
-#ifdef CONFIG_CUSTOMER_BOARD_SUPPORT
-#ifdef CONFIG_ARMADA_38X
-#define MV_BOARD_WAKEUP_GPIO_INFO {		\
-	{A38X_CUSTOMER_BOARD_ID0,	-1 },	\
-	{A38X_CUSTOMER_BOARD_ID0,	-1 },	\
-};
-#else
-#define MV_BOARD_WAKEUP_GPIO_INFO {		\
-	{A39X_CUSTOMER_BOARD_ID0,	-1 },	\
-	{A39X_CUSTOMER_BOARD_ID0,	-1 },	\
-};
-#endif /* CONFIG_ARMADA_38X */
-
-#else
 
 #ifdef CONFIG_ARMADA_38X
 #define MV_BOARD_WAKEUP_GPIO_INFO {	\
@@ -109,7 +95,6 @@ enum suspend_wakeup_status {
 	{A39X_DB_69XX_ID, -1 },		\
 };
 #endif /* CONFIG_ARMADA_38X */
-#endif /* CONFIG_CUSTOMER_BOARD_SUPPORT */
 
 enum suspend_wakeup_status mv_ddr_sys_env_suspend_wakeup_check(void);
 u32 mv_ddr_sys_env_get_cs_ena_from_reg(void);

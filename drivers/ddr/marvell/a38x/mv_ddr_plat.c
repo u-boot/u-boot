@@ -8,7 +8,6 @@
 #include "mv_ddr_training_db.h"
 #include "mv_ddr_regs.h"
 #include "mv_ddr_sys_env_lib.h"
-#include <linux/delay.h>
 
 #define DDR_INTERFACES_NUM		1
 #define DDR_INTERFACE_OCTETS_NUM	5
