@@ -10,7 +10,7 @@
 	#address-cells = <2>;
 
 	images {
-		u-boot-bin@100000 {
+		u-boot-bin {
 			description = "U-Boot binary on SPI Flash";
 			data = /incbin/("BINFILE1");
 			compression = "none";
@@ -21,7 +21,7 @@
 				algo = "sha1";
 			};
 		};
-		u-boot-env@150000 {
+		u-boot-env {
 			description = "U-Boot environment on SPI Flash";
 			data = /incbin/("BINFILE2");
 			compression = "none";
