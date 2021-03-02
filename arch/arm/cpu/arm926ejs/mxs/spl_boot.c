@@ -122,7 +122,7 @@ void mxs_common_spl_init(const uint32_t arg, const uint32_t *resptr,
 {
 	struct mxs_spl_data *data = MXS_SPL_DATA;
 	uint8_t bootmode = mxs_get_bootmode_index();
-	gd = &gdata;
+	set_gd(&gdata);
 
 	mxs_spl_fixup_vectors();
 
