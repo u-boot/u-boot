@@ -489,6 +489,7 @@ int nvme_get_features(struct nvme_dev *dev, unsigned fid, unsigned nsid,
 		      dma_addr_t dma_addr, u32 *result)
 {
 	struct nvme_command c;
+	int ret;
 
 	memset(&c, 0, sizeof(c));
 	c.features.opcode = nvme_admin_get_features;
@@ -496,12 +497,20 @@ int nvme_get_features(struct nvme_dev *dev, unsigned fid, unsigned nsid,
 	c.features.prp1 = cpu_to_le64(dma_addr);
 	c.features.fid = cpu_to_le32(fid);
 
+	ret = nvme_submit_admin_cmd(dev, &c, result);
+
 	/*
-	 * TODO: add cache invalidate operation when the size of
-	 * the DMA buffer is known
+	 * TODO: Add some cache invalidation when a DMA buffer is involved
+	 * in the request, here and before the command gets submitted. The
+	 * buffer size varies by feature, also some features use a different
+	 * field in the command packet to hold the buffer address.
+	 * Section 5.21.1 (Set Features command) in the NVMe specification
+	 * details the buffer requirements for each feature.
+	 *
+	 * At the moment there is no user of this function.
 	 */
 
-	return nvme_submit_admin_cmd(dev, &c, result);
+	return ret;
 }
 
 int nvme_set_features(struct nvme_dev *dev, unsigned fid, unsigned dword11,
@@ -516,8 +525,14 @@ int nvme_set_features(struct nvme_dev *dev, unsigned fid, unsigned dword11,
 	c.features.dword11 = cpu_to_le32(dword11);
 
 	/*
-	 * TODO: add cache flush operation when the size of
-	 * the DMA buffer is known
+	 * TODO: Add a cache clean (aka flush) operation when a DMA buffer is
+	 * involved in the request. The buffer size varies by feature, also
+	 * some features use a different field in the command packet to hold
+	 * the buffer address. Section 5.21.1 (Set Features command) in the
+	 * NVMe specification details the buffer requirements for each
+	 * feature.
+	 * At the moment the only user of this function is not using
+	 * any DMA buffer at all.
 	 */
 
 	return nvme_submit_admin_cmd(dev, &c, result);
