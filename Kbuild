@@ -10,6 +10,8 @@ generic-offsets-file := include/generated/generic-asm-offsets.h
 always  := $(generic-offsets-file)
 targets := lib/asm-offsets.s
 
+CFLAGS_REMOVE_asm-offsets.o := $(LTO_CFLAGS)
+
 $(obj)/$(generic-offsets-file): $(obj)/lib/asm-offsets.s FORCE
 	$(call filechk,offsets,__GENERIC_ASM_OFFSETS_H__)
 

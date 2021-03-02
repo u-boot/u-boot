@@ -448,8 +448,48 @@ quiet_cmd_sym ?= SYM     $@
 $(obj)/$(SPL_BIN).sym: $(obj)/$(SPL_BIN) FORCE
 	$(call if_changed,sym)
 
+# Generate linker list symbols references to force compiler to not optimize
+# them away when compiling with LTO
+ifdef CONFIG_LTO
+u-boot-spl-keep-syms-lto := $(obj)/keep-syms-lto.o
+u-boot-spl-keep-syms-lto_c := \
+	$(patsubst $(obj)/%.o,$(obj)/%.c,$(u-boot-spl-keep-syms-lto))
+
+quiet_cmd_keep_syms_lto = KSL     $@
+      cmd_keep_syms_lto = \
+	NM=$(NM) $(srctree)/scripts/gen_ll_addressable_symbols.sh $^ >$@
+
+quiet_cmd_keep_syms_lto_cc = KSLCC   $@
+      cmd_keep_syms_lto_cc = \
+	$(CC) $(filter-out $(LTO_CFLAGS),$(c_flags)) -c -o $@ $<
+
+$(u-boot-spl-keep-syms-lto_c): $(u-boot-spl-main) $(u-boot-spl-platdata)
+	$(call if_changed,keep_syms_lto)
+$(u-boot-spl-keep-syms-lto): $(u-boot-spl-keep-syms-lto_c)
+	$(call if_changed,keep_syms_lto_cc)
+else
+u-boot-spl-keep-syms-lto :=
+endif
+
 # Rule to link u-boot-spl
 # May be overridden by arch/$(ARCH)/config.mk
+ifdef CONFIG_LTO
+quiet_cmd_u-boot-spl ?= LTO     $@
+      cmd_u-boot-spl ?= \
+	(									\
+		cd $(obj) &&							\
+		$(CC) -nostdlib -nostartfiles $(LTO_FINAL_LDFLAGS) $(c_flags)	\
+		$(KBUILD_LDFLAGS:%=-Wl,%) $(LDFLAGS_$(@F):%=-Wl,%)		\
+		$(patsubst $(obj)/%,%,$(u-boot-spl-init))			\
+		-Wl,--whole-archive						\
+			$(patsubst $(obj)/%,%,$(u-boot-spl-main))		\
+			$(patsubst $(obj)/%,%,$(u-boot-spl-platdata))		\
+			$(patsubst $(obj)/%,%,$(u-boot-spl-keep-syms-lto))	\
+			$(PLATFORM_LIBS)					\
+		-Wl,--no-whole-archive						\
+		-Wl,-Map,$(SPL_BIN).map -o $(SPL_BIN)				\
+	)
+else
 quiet_cmd_u-boot-spl ?= LD      $@
       cmd_u-boot-spl ?= \
 	(								\
@@ -462,9 +502,11 @@ quiet_cmd_u-boot-spl ?= LD      $@
 		--no-whole-archive					\
 		$(PLATFORM_LIBS) -Map $(SPL_BIN).map -o $(SPL_BIN)	\
 	)
+endif
 
 $(obj)/$(SPL_BIN): $(u-boot-spl-platdata) $(u-boot-spl-init) \
-		$(u-boot-spl-main) $(obj)/u-boot-spl.lds FORCE
+		$(u-boot-spl-main) $(u-boot-spl-keep-syms-lto) \
+		$(obj)/u-boot-spl.lds FORCE
 	$(call if_changed,u-boot-spl)
 
 $(sort $(u-boot-spl-init) $(u-boot-spl-main)): $(u-boot-spl-dirs) ;

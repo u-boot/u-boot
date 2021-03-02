@@ -419,6 +419,9 @@ $(obj)/%_efi.so: $(obj)/%.o $(obj)/efi_crt0.o $(obj)/efi_reloc.o $(obj)/efi_free
 
 targets += $(obj)/efi_crt0.o $(obj)/efi_reloc.o $(obj)/efi_freestanding.o
 
+CFLAGS_REMOVE_efi_reloc.o := $(LTO_CFLAGS)
+CFLAGS_REMOVE_efi_freestanding.o := $(LTO_CFLAGS)
+
 # ACPI
 # ---------------------------------------------------------------------------
 #
