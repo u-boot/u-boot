@@ -1732,6 +1732,23 @@ struct efi_load_file_protocol {
 					 void *buffer);
 };
 
+struct efi_system_resource_entry {
+	efi_guid_t fw_class;
+	u32 fw_type;
+	u32 fw_version;
+	u32 lowest_supported_fw_version;
+	u32 capsule_flags;
+	u32 last_attempt_version;
+	u32 last_attempt_status;
+} __packed;
+
+struct efi_system_resource_table {
+	u32 fw_resource_count;
+	u32 fw_resource_count_max;
+	u64 fw_resource_version;
+	struct efi_system_resource_entry entries[];
+} __packed;
+
 /* Boot manager load options */
 #define LOAD_OPTION_ACTIVE		0x00000001
 #define LOAD_OPTION_FORCE_RECONNECT	0x00000002
@@ -1749,6 +1766,10 @@ struct efi_load_file_protocol {
 #define ESRT_FW_TYPE_SYSTEMFIRMWARE	0x00000001
 #define ESRT_FW_TYPE_DEVICEFIRMWARE	0x00000002
 #define ESRT_FW_TYPE_UEFIDRIVER		0x00000003
+
+#define EFI_SYSTEM_RESOURCE_TABLE_GUID\
+	EFI_GUID(0xb122a263, 0x3661, 0x4f68,\
+		0x99, 0x29, 0x78, 0xf8, 0xb0, 0xd6, 0x21, 0x80)
 
 /* Last Attempt Status Values */
 #define LAST_ATTEMPT_STATUS_SUCCESS			0x00000000

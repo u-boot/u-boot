@@ -53,6 +53,7 @@ obj-y += efi_variable.o
 obj-$(CONFIG_EFI_VARIABLES_PRESEED) += efi_var_seed.o
 endif
 obj-y += efi_watchdog.o
+obj-$(CONFIG_EFI_ESRT) += efi_esrt.o
 obj-$(CONFIG_LCD) += efi_gop.o
 obj-$(CONFIG_DM_VIDEO) += efi_gop.o
 obj-$(CONFIG_PARTITIONS) += efi_disk.o

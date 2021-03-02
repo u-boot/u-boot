@@ -519,6 +519,10 @@ static const struct {
 		EFI_ACPI_TABLE_GUID,
 	},
 	{
+		"EFI System Resource Table",
+		EFI_SYSTEM_RESOURCE_TABLE_GUID,
+	},
+	{
 		"device tree",
 		EFI_FDT_GUID,
 	},

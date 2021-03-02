@@ -342,4 +342,11 @@ config EFI_SECURE_BOOT
 	  it is signed with a trusted key. To do that, you need to install,
 	  at least, PK, KEK and db.
 
+config EFI_ESRT
+	bool "Enable the UEFI ESRT generation"
+	depends on EFI_CAPSULE_FIRMWARE_MANAGEMENT
+	default y
+	help
+	  Enabling this option creates the ESRT UEFI system table.
+
 endif
