@@ -404,7 +404,7 @@
 			reg = <0 0xf12a0000 0 0x100>;
 			interrupt-names = "alarm", "sec";
 			interrupts = <0 142 4>, <0 143 4>;
-			calibration = <0x8000>;
+			calibration = <0x7FFF>;
 		};
 
 		sdhci0: sdhci@f1040000 {
