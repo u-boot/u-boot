@@ -177,7 +177,6 @@
 
 /* Networking */
 #define CONFIG_FEC_XCV_TYPE		RGMII
-#define FEC_QUIRK_ENET_MAC
 
 /* Misc configuration */
 #define CONFIG_SYS_CBSIZE	2048

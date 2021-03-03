@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <init.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
@@ -696,11 +697,47 @@ void imx_setup_hdmi(void)
 #endif
 
 #ifdef CONFIG_ARCH_MISC_INIT
+/*
+ * UNIQUE_ID describes a unique ID based on silicon wafer
+ * and die X/Y position
+ *
+ * UNIQUE_ID offset 0x410
+ * 31:0 fuse 0
+ * FSL-wide unique, encoded LOT ID STD II/SJC CHALLENGE/ Unique ID
+ *
+ * UNIQUE_ID offset 0x420
+ * 31:24 fuse 1
+ * The X-coordinate of the die location on the wafer/SJC CHALLENGE/ Unique ID
+ * 23:16 fuse 1
+ * The Y-coordinate of the die location on the wafer/SJC CHALLENGE/ Unique ID
+ * 15:11 fuse 1
+ * The wafer number of the wafer on which the device was fabricated/SJC
+ * CHALLENGE/ Unique ID
+ * 10:0 fuse 1
+ * FSL-wide unique, encoded LOT ID STD II/SJC CHALLENGE/ Unique ID
+ */
+static void setup_serial_number(void)
+{
+	char serial_string[17];
+	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
+	struct fuse_bank *bank = &ocotp->bank[0];
+	struct fuse_bank0_regs *fuse =
+		(struct fuse_bank0_regs *)bank->fuse_regs;
+
+	if (env_get("serial#"))
+		return;
+
+	snprintf(serial_string, sizeof(serial_string), "%08x%08x",
+		 fuse->uid_low, fuse->uid_high);
+	env_set("serial#", serial_string);
+}
+
 int arch_misc_init(void)
 {
 #ifdef CONFIG_FSL_CAAM
 	sec_init();
 #endif
+	setup_serial_number();
 	return 0;
 }
 #endif

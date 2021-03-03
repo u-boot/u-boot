@@ -22,8 +22,6 @@
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 /* Networking */
-#define FEC_QUIRK_ENET_MAC
-
 #define CONFIG_TFTP_TSIZE
 
 #define CONFIG_IPADDR			192.168.10.2

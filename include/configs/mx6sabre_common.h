@@ -73,11 +73,14 @@
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=PARTUUID=${uuid} rootwait rw\0" \
 	"loadbootscript=" \
-		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
+		"load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script} || " \
+		"load mmc ${mmcdev}:${mmcpart} ${loadaddr} boot/${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
-	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
-	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdtfile}\0" \
+	"loadimage=load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image} || " \
+		"load mmc ${mmcdev}:${mmcpart} ${loadaddr} boot/${image}\0" \
+	"loadfdt=load mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdtfile} || " \
+		"load mmc ${mmcdev}:${mmcpart} ${fdt_addr} boot/${fdtfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run finduuid; " \
 		"run mmcargs; " \

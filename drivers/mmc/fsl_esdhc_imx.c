@@ -43,6 +43,12 @@
 #include "mmc_private.h"
 #endif
 
+#ifndef ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE
+#ifdef CONFIG_FSL_USDHC
+#define ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE	1
+#endif
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #define SDHCI_IRQ_EN_BITS		(IRQSTATEN_CC | IRQSTATEN_TC | \
@@ -1706,6 +1712,7 @@ static struct esdhc_soc_data usdhc_imx8qm_data = {
 };
 
 static const struct udevice_id fsl_esdhc_ids[] = {
+	{ .compatible = "fsl,imx51-esdhc", },
 	{ .compatible = "fsl,imx53-esdhc", },
 	{ .compatible = "fsl,imx6ul-usdhc", },
 	{ .compatible = "fsl,imx6sx-usdhc", },

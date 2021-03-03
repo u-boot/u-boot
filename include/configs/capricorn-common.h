@@ -43,7 +43,6 @@
 
 /* ENET Config */
 #define CONFIG_FEC_XCV_TYPE		RMII
-#define FEC_QUIRK_ENET_MAC
 
 /* ENET1 connects to base board and MUX with ESAI */
 #define CONFIG_FEC_ENET_DEV		1
