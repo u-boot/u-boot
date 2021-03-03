@@ -209,7 +209,7 @@ config PANEL
 
 config SIMPLE_PANEL
 	bool "Enable simple panel support"
-	depends on PANEL && BACKLIGHT
+	depends on PANEL && BACKLIGHT && DM_GPIO
 	default y
 	help
 	  This turns on a simple panel driver that enables a compatible
