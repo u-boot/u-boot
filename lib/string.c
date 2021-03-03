@@ -16,6 +16,7 @@
  */
 
 #include <config.h>
+#include <linux/compiler.h>
 #include <linux/types.h>
 #include <linux/string.h>
 #include <linux/ctype.h>
@@ -513,7 +514,7 @@ char *strswab(const char *s)
  *
  * Do not use memset() to access IO space, use memset_io() instead.
  */
-void * memset(void * s,int c,size_t count)
+__used void * memset(void * s,int c,size_t count)
 {
 	unsigned long *sl = (unsigned long *) s;
 	char *s8;
@@ -552,7 +553,7 @@ void * memset(void * s,int c,size_t count)
  * You should not use this function to access IO space, use memcpy_toio()
  * or memcpy_fromio() instead.
  */
-void * memcpy(void *dest, const void *src, size_t count)
+__used void * memcpy(void *dest, const void *src, size_t count)
 {
 	unsigned long *dl = (unsigned long *)dest, *sl = (unsigned long *)src;
 	char *d8, *s8;
@@ -586,7 +587,7 @@ void * memcpy(void *dest, const void *src, size_t count)
  *
  * Unlike memcpy(), memmove() copes with overlapping areas.
  */
-void * memmove(void * dest,const void *src,size_t count)
+__used void * memmove(void * dest,const void *src,size_t count)
 {
 	char *tmp, *s;
 
@@ -622,7 +623,7 @@ void * memmove(void * dest,const void *src,size_t count)
  * @ct: Another area of memory
  * @count: The size of the area.
  */
-int memcmp(const void * cs,const void * ct,size_t count)
+__used int memcmp(const void * cs,const void * ct,size_t count)
 {
 	const unsigned char *su1, *su2;
 	int res = 0;
