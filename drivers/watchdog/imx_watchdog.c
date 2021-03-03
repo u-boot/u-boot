@@ -44,7 +44,7 @@ static void imx_watchdog_expire_now(struct watchdog_regs *wdog, bool ext_reset)
 
 #if !defined(CONFIG_IMX_WATCHDOG) || \
     (defined(CONFIG_IMX_WATCHDOG) && !CONFIG_IS_ENABLED(WDT))
-void __attribute__((weak)) reset_cpu(ulong addr)
+void __attribute__((weak)) reset_cpu(void)
 {
 	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
 

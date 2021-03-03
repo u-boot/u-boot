@@ -9,7 +9,7 @@
 #include <netdev.h>
 #include <asm/io.h>
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 #define CRM_SWRESET	0xff101044
 	writel(0x1, (void *)CRM_SWRESET);

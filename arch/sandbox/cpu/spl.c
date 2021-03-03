@@ -43,10 +43,14 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 		return ret;
 	}
 
-	/* Set up spl_image to boot from jump_to_image_no_args() */
-	spl_image->arg = strdup(fname);
+	/*
+	 * Set up spl_image to boot from jump_to_image_no_args(). Allocate this
+	 * outsdide the RAM buffer (i.e. don't use strdup()).
+	 */
+	spl_image->arg = os_malloc(strlen(fname) + 1);
 	if (!spl_image->arg)
-		return log_msg_ret("Setup exec filename", -ENOMEM);
+		return log_msg_ret("exec", -ENOMEM);
+	strcpy(spl_image->arg, fname);
 
 	return 0;
 }

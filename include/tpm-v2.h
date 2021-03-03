@@ -237,10 +237,14 @@ enum tpm2_handles {
 enum tpm2_command_codes {
 	TPM2_CC_STARTUP		= 0x0144,
 	TPM2_CC_SELF_TEST	= 0x0143,
+	TPM2_CC_HIER_CONTROL	= 0x0121,
 	TPM2_CC_CLEAR		= 0x0126,
 	TPM2_CC_CLEARCONTROL	= 0x0127,
 	TPM2_CC_HIERCHANGEAUTH	= 0x0129,
+	TPM2_CC_NV_DEFINE_SPACE	= 0x012a,
 	TPM2_CC_PCR_SETAUTHPOL	= 0x012C,
+	TPM2_CC_NV_WRITE	= 0x0137,
+	TPM2_CC_NV_WRITELOCK	= 0x0138,
 	TPM2_CC_DAM_RESET	= 0x0139,
 	TPM2_CC_DAM_PARAMETERS	= 0x013A,
 	TPM2_CC_NV_READ         = 0x014E,
@@ -271,6 +275,7 @@ enum tpm2_return_codes {
 	TPM2_RC_COMMAND_CODE	= TPM2_RC_VER1 + 0x0043,
 	TPM2_RC_AUTHSIZE	= TPM2_RC_VER1 + 0x0044,
 	TPM2_RC_AUTH_CONTEXT	= TPM2_RC_VER1 + 0x0045,
+	TPM2_RC_NV_DEFINED	= TPM2_RC_VER1 + 0x004c,
 	TPM2_RC_NEEDS_TEST	= TPM2_RC_VER1 + 0x0053,
 	TPM2_RC_WARN		= 0x0900,
 	TPM2_RC_TESTING		= TPM2_RC_WARN + 0x000A,
@@ -355,6 +360,20 @@ enum {
 	TPM_MAX_BUF_SIZE	= 1260,
 };
 
+enum {
+	/* Secure storage for firmware settings */
+	TPM_HT_PCR = 0,
+	TPM_HT_NV_INDEX,
+	TPM_HT_HMAC_SESSION,
+	TPM_HT_POLICY_SESSION,
+
+	HR_SHIFT		= 24,
+	HR_PCR			= TPM_HT_PCR << HR_SHIFT,
+	HR_HMAC_SESSION		= TPM_HT_HMAC_SESSION << HR_SHIFT,
+	HR_POLICY_SESSION	= TPM_HT_POLICY_SESSION << HR_SHIFT,
+	HR_NV_INDEX		= TPM_HT_NV_INDEX << HR_SHIFT,
+};
+
 /**
  * Issue a TPM2_Startup command.
  *
@@ -389,6 +408,23 @@ u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
 	       const ssize_t pw_sz);
 
 /**
+ * Issue a TPM_NV_DefineSpace command
+ *
+ * This allows a space to be defined with given attributes and policy
+ *
+ * @dev			TPM device
+ * @space_index		index of the area
+ * @space_size		size of area in bytes
+ * @nv_attributes	TPM_NV_ATTRIBUTES of the area
+ * @nv_policy		policy to use
+ * @nv_policy_size	size of the policy
+ * @return return code of the operation
+ */
+u32 tpm2_nv_define_space(struct udevice *dev, u32 space_index,
+			 size_t space_size, u32 nv_attributes,
+			 const u8 *nv_policy, size_t nv_policy_size);
+
+/**
  * Issue a TPM2_PCR_Extend command.
  *
  * @dev		TPM device
@@ -401,6 +437,29 @@ u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
  */
 u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
 		    const u8 *digest, u32 digest_len);
+
+/**
+ * Read data from the secure storage
+ *
+ * @dev		TPM device
+ * @index	Index of data to read
+ * @data	Place to put data
+ * @count	Number of bytes of data
+ * @return code of the operation
+ */
+u32 tpm2_nv_read_value(struct udevice *dev, u32 index, void *data, u32 count);
+
+/**
+ * Write data to the secure storage
+ *
+ * @dev		TPM device
+ * @index	Index of data to write
+ * @data	Data to write
+ * @count	Number of bytes of data
+ * @return code of the operation
+ */
+u32 tpm2_nv_write_value(struct udevice *dev, u32 index, const void *data,
+			u32 count);
 
 /**
  * Issue a TPM2_PCR_Read command.
@@ -515,5 +574,27 @@ u32 tpm2_pcr_setauthvalue(struct udevice *dev, const char *pw,
  * @return return code of the operation
  */
 u32 tpm2_get_random(struct udevice *dev, void *data, u32 count);
+
+/**
+ * Lock data in the TPM
+ *
+ * Once locked the data cannot be written until after a reboot
+ *
+ * @dev		TPM device
+ * @index	Index of data to lock
+ * @return code of the operation
+ */
+u32 tpm2_write_lock(struct udevice *dev, u32 index);
+
+/**
+ * Disable access to any platform data
+ *
+ * This can be called to close off access to the firmware data in the data,
+ * before calling the kernel.
+ *
+ * @dev		TPM device
+ * @return code of the operation
+ */
+u32 tpm2_disable_platform_hierarchy(struct udevice *dev);
 
 #endif /* __TPM_V2_H */

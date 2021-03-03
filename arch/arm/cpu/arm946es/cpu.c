@@ -56,7 +56,7 @@ static void cache_flush (void)
 
 #ifndef CONFIG_ARCH_INTEGRATOR
 
-__attribute__((noreturn)) void reset_cpu(ulong addr __attribute__((unused)))
+__attribute__((noreturn)) void reset_cpu(void)
 {
 	writew(0x0, 0xfffece10);
 	writew(0x8, 0xfffece10);

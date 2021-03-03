@@ -43,7 +43,7 @@ u32 get_board_rev(void)
 	return 0;
 }
 
-void reset_cpu(ulong ignored)
+void reset_cpu(void)
 {
 }
 

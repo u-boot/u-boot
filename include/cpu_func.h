@@ -84,6 +84,6 @@ enum {
  */
 int cleanup_before_linux_select(int flags);
 
-void reset_cpu(ulong addr);
-;
+void reset_cpu(void);
+
 #endif

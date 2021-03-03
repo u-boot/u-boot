@@ -637,7 +637,8 @@ Logging
 
 Binman normally operates silently unless there is an error, in which case it
 just displays the error. The -D/--debug option can be used to create a full
-backtrace when errors occur.
+backtrace when errors occur. You can use BINMAN_DEBUG=1 when building to select
+this.
 
 Internally binman logs some output while it is running. This can be displayed
 by increasing the -v/--verbosity from the default of 1:
@@ -649,6 +650,7 @@ by increasing the -v/--verbosity from the default of 1:
    4: detailed information about each operation
    5: debug (all output)
 
+You can use BINMAN_VERBOSE=5 (for example) when building to select this.
 
 Hashing Entries
 ---------------

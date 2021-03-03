@@ -338,7 +338,7 @@ void board_init_f(ulong dummy)
 }
 #endif
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 #if defined(CONFIG_SUNXI_GEN_SUN4I) || defined(CONFIG_MACH_SUN8I_R40)
 	static const struct sunxi_wdog *wdog =

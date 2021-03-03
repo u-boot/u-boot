@@ -153,7 +153,7 @@ int os_read_file(const char *fname, void **bufp, int *sizep)
 		printf("Cannot seek to start of file '%s'\n", fname);
 		goto err;
 	}
-	*bufp = malloc(size);
+	*bufp = os_malloc(size);
 	if (!*bufp) {
 		printf("Not enough memory to read file '%s'\n", fname);
 		ret = -ENOMEM;
@@ -267,11 +267,18 @@ void os_tty_raw(int fd, bool allow_sigs)
 	signal(SIGINT, os_sigint_handler);
 }
 
+/*
+ * Provide our own malloc so we don't use space in the sandbox ram_buf for
+ * allocations that are internal to sandbox, or need to be done before U-Boot's
+ * malloc() is ready.
+ */
 void *os_malloc(size_t length)
 {
 	int page_size = getpagesize();
 	struct os_mem_hdr *hdr;
 
+	if (!length)
+		return NULL;
 	/*
 	 * Use an address that is hopefully available to us so that pointers
 	 * to this memory are fairly obvious. If we end up with a different
@@ -296,6 +303,47 @@ void os_free(void *ptr)
 		hdr = ptr - page_size;
 		munmap(hdr, hdr->length + page_size);
 	}
+}
+
+/* These macros are from kernel.h but not accessible in this file */
+#define ALIGN(x, a)		__ALIGN_MASK((x), (typeof(x))(a) - 1)
+#define __ALIGN_MASK(x, mask)	(((x) + (mask)) & ~(mask))
+
+/*
+ * Provide our own malloc so we don't use space in the sandbox ram_buf for
+ * allocations that are internal to sandbox, or need to be done before U-Boot's
+ * malloc() is ready.
+ */
+void *os_realloc(void *ptr, size_t length)
+{
+	int page_size = getpagesize();
+	struct os_mem_hdr *hdr;
+	void *new_ptr;
+
+	/* Reallocating a NULL pointer is just an alloc */
+	if (!ptr)
+		return os_malloc(length);
+
+	/* Changing a length to 0 is just a free */
+	if (length) {
+		os_free(ptr);
+		return NULL;
+	}
+
+	/*
+	 * If the new size is the same number of pages as the old, nothing to
+	 * do. There isn't much point in shrinking things
+	 */
+	hdr = ptr - page_size;
+	if (ALIGN(length, page_size) <= ALIGN(hdr->length, page_size))
+		return ptr;
+
+	/* We have to grow it, so allocate something new */
+	new_ptr = os_malloc(length);
+	memcpy(new_ptr, ptr, hdr->length);
+	os_free(ptr);
+
+	return new_ptr;
 }
 
 void os_usleep(unsigned long usec)
@@ -343,8 +391,8 @@ int os_parse_args(struct sandbox_state *state, int argc, char *argv[])
 	state->argv = argv;
 
 	/* dynamically construct the arguments to the system getopt_long */
-	short_opts = malloc(sizeof(*short_opts) * num_options * 2 + 1);
-	long_opts = malloc(sizeof(*long_opts) * (num_options + 1));
+	short_opts = os_malloc(sizeof(*short_opts) * num_options * 2 + 1);
+	long_opts = os_malloc(sizeof(*long_opts) * (num_options + 1));
 	if (!short_opts || !long_opts)
 		return 1;
 
@@ -423,7 +471,7 @@ void os_dirent_free(struct os_dirent_node *node)
 
 	while (node) {
 		next = node->next;
-		free(node);
+		os_free(node);
 		node = next;
 	}
 }
@@ -448,7 +496,7 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 	/* Create a buffer upfront, with typically sufficient size */
 	dirlen = strlen(dirname) + 2;
 	len = dirlen + 256;
-	fname = malloc(len);
+	fname = os_malloc(len);
 	if (!fname) {
 		ret = -ENOMEM;
 		goto done;
@@ -461,7 +509,7 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 			ret = errno;
 			break;
 		}
-		next = malloc(sizeof(*node) + strlen(entry->d_name) + 1);
+		next = os_malloc(sizeof(*node) + strlen(entry->d_name) + 1);
 		if (!next) {
 			os_dirent_free(head);
 			ret = -ENOMEM;
@@ -470,10 +518,10 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 		if (dirlen + strlen(entry->d_name) > len) {
 			len = dirlen + strlen(entry->d_name);
 			old_fname = fname;
-			fname = realloc(fname, len);
+			fname = os_realloc(fname, len);
 			if (!fname) {
-				free(old_fname);
-				free(next);
+				os_free(old_fname);
+				os_free(next);
 				os_dirent_free(head);
 				ret = -ENOMEM;
 				goto done;
@@ -507,7 +555,7 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 
 done:
 	closedir(dir);
-	free(fname);
+	os_free(fname);
 	return ret;
 }
 
@@ -624,7 +672,7 @@ static int add_args(char ***argvp, char *add_args[], int count)
 	for (argc = 0; (*argvp)[argc]; argc++)
 		;
 
-	argv = malloc((argc + count + 1) * sizeof(char *));
+	argv = os_malloc((argc + count + 1) * sizeof(char *));
 	if (!argv) {
 		printf("Out of memory for %d argv\n", count);
 		return -ENOMEM;
@@ -707,7 +755,7 @@ static int os_jump_to_file(const char *fname)
 		os_exit(2);
 
 	err = execv(fname, argv);
-	free(argv);
+	os_free(argv);
 	if (err) {
 		perror("Unable to run image");
 		printf("Image filename '%s'\n", fname);

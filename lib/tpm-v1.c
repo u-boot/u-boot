@@ -32,7 +32,7 @@ static struct session_data oiap_session = {0, };
 
 #endif /* CONFIG_TPM_AUTH_SESSIONS */
 
-u32 tpm_startup(struct udevice *dev, enum tpm_startup_type mode)
+u32 tpm1_startup(struct udevice *dev, enum tpm_startup_type mode)
 {
 	const u8 command[12] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xc, 0x0, 0x0, 0x0, 0x99, 0x0, 0x0,
@@ -48,12 +48,12 @@ u32 tpm_startup(struct udevice *dev, enum tpm_startup_type mode)
 	return tpm_sendrecv_command(dev, buf, NULL, NULL);
 }
 
-u32 tpm_resume(struct udevice *dev)
+u32 tpm1_resume(struct udevice *dev)
 {
-	return tpm_startup(dev, TPM_ST_STATE);
+	return tpm1_startup(dev, TPM_ST_STATE);
 }
 
-u32 tpm_self_test_full(struct udevice *dev)
+u32 tpm1_self_test_full(struct udevice *dev)
 {
 	const u8 command[10] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xa, 0x0, 0x0, 0x0, 0x50,
@@ -61,7 +61,7 @@ u32 tpm_self_test_full(struct udevice *dev)
 	return tpm_sendrecv_command(dev, command, NULL, NULL);
 }
 
-u32 tpm_continue_self_test(struct udevice *dev)
+u32 tpm1_continue_self_test(struct udevice *dev)
 {
 	const u8 command[10] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xa, 0x0, 0x0, 0x0, 0x53,
@@ -69,35 +69,33 @@ u32 tpm_continue_self_test(struct udevice *dev)
 	return tpm_sendrecv_command(dev, command, NULL, NULL);
 }
 
-u32 tpm_clear_and_reenable(struct udevice *dev)
+u32 tpm1_clear_and_reenable(struct udevice *dev)
 {
 	u32 ret;
 
 	log_info("TPM: Clear and re-enable\n");
-	ret = tpm_force_clear(dev);
+	ret = tpm1_force_clear(dev);
 	if (ret != TPM_SUCCESS) {
 		log_err("Can't initiate a force clear\n");
 		return ret;
 	}
 
-	if (tpm_get_version(dev) == TPM_V1) {
-		ret = tpm_physical_enable(dev);
-		if (ret != TPM_SUCCESS) {
-			log_err("TPM: Can't set enabled state\n");
-			return ret;
-		}
+	ret = tpm1_physical_enable(dev);
+	if (ret != TPM_SUCCESS) {
+		log_err("TPM: Can't set enabled state\n");
+		return ret;
+	}
 
-		ret = tpm_physical_set_deactivated(dev, 0);
-		if (ret != TPM_SUCCESS) {
-			log_err("TPM: Can't set deactivated state\n");
-			return ret;
-		}
+	ret = tpm1_physical_set_deactivated(dev, 0);
+	if (ret != TPM_SUCCESS) {
+		log_err("TPM: Can't set deactivated state\n");
+		return ret;
 	}
 
 	return TPM_SUCCESS;
 }
 
-u32 tpm_nv_define_space(struct udevice *dev, u32 index, u32 perm, u32 size)
+u32 tpm1_nv_define_space(struct udevice *dev, u32 index, u32 perm, u32 size)
 {
 	const u8 command[101] = {
 		0x0, 0xc1,		/* TPM_TAG */
@@ -140,12 +138,12 @@ u32 tpm_nv_define_space(struct udevice *dev, u32 index, u32 perm, u32 size)
 	return tpm_sendrecv_command(dev, buf, NULL, NULL);
 }
 
-u32 tpm_nv_set_locked(struct udevice *dev)
+u32 tpm1_nv_set_locked(struct udevice *dev)
 {
-	return tpm_nv_define_space(dev, TPM_NV_INDEX_LOCK, 0, 0);
+	return tpm1_nv_define_space(dev, TPM_NV_INDEX_LOCK, 0, 0);
 }
 
-u32 tpm_nv_read_value(struct udevice *dev, u32 index, void *data, u32 count)
+u32 tpm1_nv_read_value(struct udevice *dev, u32 index, void *data, u32 count)
 {
 	const u8 command[22] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0x16, 0x0, 0x0, 0x0, 0xcf,
@@ -179,8 +177,8 @@ u32 tpm_nv_read_value(struct udevice *dev, u32 index, void *data, u32 count)
 	return 0;
 }
 
-u32 tpm_nv_write_value(struct udevice *dev, u32 index, const void *data,
-		       u32 length)
+u32 tpm1_nv_write_value(struct udevice *dev, u32 index, const void *data,
+			u32 length)
 {
 	const u8 command[256] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xcd,
@@ -210,13 +208,8 @@ u32 tpm_nv_write_value(struct udevice *dev, u32 index, const void *data,
 	return 0;
 }
 
-uint32_t tpm_set_global_lock(struct udevice *dev)
-{
-	return tpm_nv_write_value(dev, TPM_NV_INDEX_0, NULL, 0);
-}
-
-u32 tpm_extend(struct udevice *dev, u32 index, const void *in_digest,
-	       void *out_digest)
+u32 tpm1_extend(struct udevice *dev, u32 index, const void *in_digest,
+		void *out_digest)
 {
 	const u8 command[34] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0x22, 0x0, 0x0, 0x0, 0x14,
@@ -247,7 +240,7 @@ u32 tpm_extend(struct udevice *dev, u32 index, const void *in_digest,
 	return 0;
 }
 
-u32 tpm_pcr_read(struct udevice *dev, u32 index, void *data, size_t count)
+u32 tpm1_pcr_read(struct udevice *dev, u32 index, void *data, size_t count)
 {
 	const u8 command[14] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xe, 0x0, 0x0, 0x0, 0x15,
@@ -275,7 +268,7 @@ u32 tpm_pcr_read(struct udevice *dev, u32 index, void *data, size_t count)
 	return 0;
 }
 
-u32 tpm_tsc_physical_presence(struct udevice *dev, u16 presence)
+u32 tpm1_tsc_physical_presence(struct udevice *dev, u16 presence)
 {
 	const u8 command[12] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xc, 0x40, 0x0, 0x0, 0xa, 0x0, 0x0,
@@ -291,7 +284,7 @@ u32 tpm_tsc_physical_presence(struct udevice *dev, u16 presence)
 	return tpm_sendrecv_command(dev, buf, NULL, NULL);
 }
 
-u32 tpm_finalise_physical_presence(struct udevice *dev)
+u32 tpm1_finalise_physical_presence(struct udevice *dev)
 {
 	const u8 command[12] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xc, 0x40, 0x0, 0x0, 0xa, 0x2, 0xa0,
@@ -300,7 +293,7 @@ u32 tpm_finalise_physical_presence(struct udevice *dev)
 	return tpm_sendrecv_command(dev, command, NULL, NULL);
 }
 
-u32 tpm_read_pubek(struct udevice *dev, void *data, size_t count)
+u32 tpm1_read_pubek(struct udevice *dev, void *data, size_t count)
 {
 	const u8 command[30] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0x1e, 0x0, 0x0, 0x0, 0x7c,
@@ -331,7 +324,7 @@ u32 tpm_read_pubek(struct udevice *dev, void *data, size_t count)
 	return 0;
 }
 
-u32 tpm_force_clear(struct udevice *dev)
+u32 tpm1_force_clear(struct udevice *dev)
 {
 	const u8 command[10] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xa, 0x0, 0x0, 0x0, 0x5d,
@@ -340,7 +333,7 @@ u32 tpm_force_clear(struct udevice *dev)
 	return tpm_sendrecv_command(dev, command, NULL, NULL);
 }
 
-u32 tpm_physical_enable(struct udevice *dev)
+u32 tpm1_physical_enable(struct udevice *dev)
 {
 	const u8 command[10] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xa, 0x0, 0x0, 0x0, 0x6f,
@@ -349,7 +342,7 @@ u32 tpm_physical_enable(struct udevice *dev)
 	return tpm_sendrecv_command(dev, command, NULL, NULL);
 }
 
-u32 tpm_physical_disable(struct udevice *dev)
+u32 tpm1_physical_disable(struct udevice *dev)
 {
 	const u8 command[10] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xa, 0x0, 0x0, 0x0, 0x70,
@@ -358,7 +351,7 @@ u32 tpm_physical_disable(struct udevice *dev)
 	return tpm_sendrecv_command(dev, command, NULL, NULL);
 }
 
-u32 tpm_physical_set_deactivated(struct udevice *dev, u8 state)
+u32 tpm1_physical_set_deactivated(struct udevice *dev, u8 state)
 {
 	const u8 command[11] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xb, 0x0, 0x0, 0x0, 0x72,
@@ -374,8 +367,8 @@ u32 tpm_physical_set_deactivated(struct udevice *dev, u8 state)
 	return tpm_sendrecv_command(dev, buf, NULL, NULL);
 }
 
-u32 tpm_get_capability(struct udevice *dev, u32 cap_area, u32 sub_cap,
-		       void *cap, size_t count)
+u32 tpm1_get_capability(struct udevice *dev, u32 cap_area, u32 sub_cap,
+			void *cap, size_t count)
 {
 	const u8 command[22] = {
 		0x0, 0xc1,		/* TPM_TAG */
@@ -414,8 +407,8 @@ u32 tpm_get_capability(struct udevice *dev, u32 cap_area, u32 sub_cap,
 	return 0;
 }
 
-u32 tpm_get_permanent_flags(struct udevice *dev,
-			    struct tpm_permanent_flags *pflags)
+u32 tpm1_get_permanent_flags(struct udevice *dev,
+			     struct tpm_permanent_flags *pflags)
 {
 	const u8 command[22] = {
 		0x0, 0xc1,		/* TPM_TAG */
@@ -453,7 +446,7 @@ u32 tpm_get_permanent_flags(struct udevice *dev,
 	return 0;
 }
 
-u32 tpm_get_permissions(struct udevice *dev, u32 index, u32 *perm)
+u32 tpm1_get_permissions(struct udevice *dev, u32 index, u32 *perm)
 {
 	const u8 command[22] = {
 		0x0, 0xc1,		/* TPM_TAG */
@@ -482,7 +475,7 @@ u32 tpm_get_permissions(struct udevice *dev, u32 index, u32 *perm)
 }
 
 #ifdef CONFIG_TPM_FLUSH_RESOURCES
-u32 tpm_flush_specific(struct udevice *dev, u32 key_handle, u32 resource_type)
+u32 tpm1_flush_specific(struct udevice *dev, u32 key_handle, u32 resource_type)
 {
 	const u8 command[18] = {
 		0x00, 0xc1,             /* TPM_TAG */
@@ -641,7 +634,7 @@ static u32 verify_response_auth(u32 command_code, const void *response,
 	return TPM_SUCCESS;
 }
 
-u32 tpm_terminate_auth_session(struct udevice *dev, u32 auth_handle)
+u32 tpm1_terminate_auth_session(struct udevice *dev, u32 auth_handle)
 {
 	const u8 command[18] = {
 		0x00, 0xc1,		/* TPM_TAG */
@@ -663,16 +656,16 @@ u32 tpm_terminate_auth_session(struct udevice *dev, u32 auth_handle)
 	return tpm_sendrecv_command(dev, request, NULL, NULL);
 }
 
-u32 tpm_end_oiap(struct udevice *dev)
+u32 tpm1_end_oiap(struct udevice *dev)
 {
 	u32 err = TPM_SUCCESS;
 
 	if (oiap_session.valid)
-		err = tpm_terminate_auth_session(dev, oiap_session.handle);
+		err = tpm1_terminate_auth_session(dev, oiap_session.handle);
 	return err;
 }
 
-u32 tpm_oiap(struct udevice *dev, u32 *auth_handle)
+u32 tpm1_oiap(struct udevice *dev, u32 *auth_handle)
 {
 	const u8 command[10] = {
 		0x00, 0xc1,		/* TPM_TAG */
@@ -686,7 +679,7 @@ u32 tpm_oiap(struct udevice *dev, u32 *auth_handle)
 	u32 err;
 
 	if (oiap_session.valid)
-		tpm_terminate_auth_session(dev, oiap_session.handle);
+		tpm1_terminate_auth_session(dev, oiap_session.handle);
 
 	err = tpm_sendrecv_command(dev, command, response, &response_length);
 	if (err)
@@ -702,9 +695,9 @@ u32 tpm_oiap(struct udevice *dev, u32 *auth_handle)
 	return 0;
 }
 
-u32 tpm_load_key2_oiap(struct udevice *dev, u32 parent_handle, const void *key,
-		       size_t key_length, const void *parent_key_usage_auth,
-		       u32 *key_handle)
+u32 tpm1_load_key2_oiap(struct udevice *dev, u32 parent_handle, const void *key,
+			size_t key_length, const void *parent_key_usage_auth,
+			u32 *key_handle)
 {
 	const u8 command[14] = {
 		0x00, 0xc2,		/* TPM_TAG */
@@ -723,7 +716,7 @@ u32 tpm_load_key2_oiap(struct udevice *dev, u32 parent_handle, const void *key,
 	u32 err;
 
 	if (!oiap_session.valid) {
-		err = tpm_oiap(dev, NULL);
+		err = tpm1_oiap(dev, NULL);
 		if (err)
 			return err;
 	}
@@ -768,9 +761,9 @@ u32 tpm_load_key2_oiap(struct udevice *dev, u32 parent_handle, const void *key,
 	return 0;
 }
 
-u32 tpm_get_pub_key_oiap(struct udevice *dev, u32 key_handle,
-			 const void *usage_auth, void *pubkey,
-			 size_t *pubkey_len)
+u32 tpm1_get_pub_key_oiap(struct udevice *dev, u32 key_handle,
+			  const void *usage_auth, void *pubkey,
+			  size_t *pubkey_len)
 {
 	const u8 command[14] = {
 		0x00, 0xc2,		/* TPM_TAG */
@@ -788,7 +781,7 @@ u32 tpm_get_pub_key_oiap(struct udevice *dev, u32 key_handle,
 	u32 err;
 
 	if (!oiap_session.valid) {
-		err = tpm_oiap(dev, NULL);
+		err = tpm1_oiap(dev, NULL);
 		if (err)
 			return err;
 	}
@@ -834,8 +827,8 @@ u32 tpm_get_pub_key_oiap(struct udevice *dev, u32 key_handle,
 }
 
 #ifdef CONFIG_TPM_LOAD_KEY_BY_SHA1
-u32 tpm_find_key_sha1(struct udevice *dev, const u8 auth[20],
-		      const u8 pubkey_digest[20], u32 *handle)
+u32 tpm1_find_key_sha1(struct udevice *dev, const u8 auth[20],
+		       const u8 pubkey_digest[20], u32 *handle)
 {
 	u16 key_count;
 	u32 key_handles[10];
@@ -876,7 +869,7 @@ u32 tpm_find_key_sha1(struct udevice *dev, const u8 auth[20],
 
 #endif /* CONFIG_TPM_AUTH_SESSIONS */
 
-u32 tpm_get_random(struct udevice *dev, void *data, u32 count)
+u32 tpm1_get_random(struct udevice *dev, void *data, u32 count)
 {
 	const u8 command[14] = {
 		0x0, 0xc1,		/* TPM_TAG */

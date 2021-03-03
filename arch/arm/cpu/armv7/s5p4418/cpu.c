@@ -88,7 +88,7 @@ int print_cpuinfo(void)
 }
 #endif
 
-void reset_cpu(ulong ignored)
+void reset_cpu(void)
 {
 	void *clkpwr_reg = (void *)PHY_BASEADDR_CLKPWR;
 	const u32 sw_rst_enb_bitpos = 3;

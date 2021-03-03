@@ -19,7 +19,7 @@
 #include <asm/arch/soc.h>
 #include <mvebu_mmc.h>
 
-void reset_cpu(unsigned long ignored)
+void reset_cpu(void)
 {
 	struct kwcpu_registers *cpureg =
 	    (struct kwcpu_registers *)KW_CPU_REG_BASE;

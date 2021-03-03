@@ -114,7 +114,7 @@ void os_fd_restore(void);
  * os_malloc() - aquires some memory from the underlying os.
  *
  * @length:	Number of bytes to be allocated
- * Return:	Pointer to length bytes or NULL on error
+ * Return:	Pointer to length bytes or NULL if @length is 0 or on error
  */
 void *os_malloc(size_t length);
 
@@ -123,9 +123,20 @@ void *os_malloc(size_t length);
  *
  * This returns the memory to the OS.
  *
- * @ptr:	Pointer to memory block to free
+ * @ptr:	Pointer to memory block to free. If this is NULL then this
+ *		function does nothing
  */
 void os_free(void *ptr);
+
+/**
+ * os_realloc() - reallocate memory
+ *
+ * This follows the semantics of realloc(), so can perform an os_malloc() or
+ * os_free() depending on @ptr and @length.
+ *
+ * Return:	Pointer to reallocated memory or NULL if @length is 0
+ */
+void *os_realloc(void *ptr, size_t length);
 
 /**
  * os_usleep() - access to the usleep function of the os

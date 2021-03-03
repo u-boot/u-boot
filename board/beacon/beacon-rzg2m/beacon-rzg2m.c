@@ -47,7 +47,7 @@ int dram_init_banksize(void)
 #define RST_CA57RESCNT	(RST_BASE + 0x40)
 #define RST_CODE	0xA5A5000F
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	writel(RST_CODE, RST_CA57RESCNT);
 }
