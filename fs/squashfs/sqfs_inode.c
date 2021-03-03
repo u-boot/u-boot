@@ -6,6 +6,7 @@
  */
 
 #include <asm/unaligned.h>
+#include <compiler.h>
 #include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
