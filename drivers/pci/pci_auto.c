@@ -88,8 +88,9 @@ static void dm_pciauto_setup_device(struct udevice *dev, int bars_num,
 			else
 				bar_res = mem;
 
-			debug("PCI Autoconfig: BAR %d, %s, size=0x%llx, ",
+			debug("PCI Autoconfig: BAR %d, %s%s, size=0x%llx, ",
 			      bar_nr, bar_res == prefetch ? "Prf" : "Mem",
+			      found_mem64 ? "64" : "",
 			      (unsigned long long)bar_size);
 		}
 
