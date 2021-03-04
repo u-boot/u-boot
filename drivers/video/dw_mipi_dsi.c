@@ -721,15 +721,15 @@ static void dw_mipi_dsi_dphy_enable(struct dw_mipi_dsi *dsi)
 	ret = readl_poll_timeout(dsi->base + DSI_PHY_STATUS, val,
 				 val & PHY_LOCK, PHY_STATUS_TIMEOUT_US);
 	if (ret)
-		dev_warn(dsi->dsi_host.dev,
-			 "failed to wait phy lock state\n");
+		dev_dbg(dsi->dsi_host.dev,
+			"failed to wait phy lock state\n");
 
 	ret = readl_poll_timeout(dsi->base + DSI_PHY_STATUS,
 				 val, val & PHY_STOP_STATE_CLK_LANE,
 				 PHY_STATUS_TIMEOUT_US);
 	if (ret)
-		dev_warn(dsi->dsi_host.dev,
-			 "failed to wait phy clk lane stop state\n");
+		dev_dbg(dsi->dsi_host.dev,
+			"failed to wait phy clk lane stop state\n");
 }
 
 static void dw_mipi_dsi_clear_err(struct dw_mipi_dsi *dsi)
