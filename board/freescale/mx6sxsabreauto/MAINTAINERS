@@ -1,5 +1,5 @@
 MX6SXSABREAUTO BOARD
-M:	Fabio Estevam <fabio.estevam@nxp.com>
+M:	Fabio Estevam <festevam@gmail.com>
 S:	Maintained
 F:	board/freescale/mx6sxsabreauto/
 F:	include/configs/mx6sxsabreauto.h
