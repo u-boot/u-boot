@@ -92,15 +92,19 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 	if (auto_seq && !(uc->uc_drv->flags & DM_UC_FLAG_NO_AUTO_SEQ))
 		dev->seq_ = uclass_find_next_free_seq(uc);
 
+	/* Check if we need to allocate plat */
 	if (drv->plat_auto) {
 		bool alloc = !plat;
 
+		/*
+		 * For of-platdata, we try use the existing data, but if
+		 * plat_auto is larger, we must allocate a new space
+		 */
 		if (CONFIG_IS_ENABLED(OF_PLATDATA)) {
-			if (of_plat_size) {
+			if (of_plat_size)
 				dev_or_flags(dev, DM_FLAG_OF_PLATDATA);
-				if (of_plat_size < drv->plat_auto)
-					alloc = true;
-			}
+			if (of_plat_size < drv->plat_auto)
+				alloc = true;
 		}
 		if (alloc) {
 			dev_or_flags(dev, DM_FLAG_ALLOC_PDATA);
@@ -109,6 +113,11 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 				ret = -ENOMEM;
 				goto fail_alloc1;
 			}
+
+			/*
+			 * For of-platdata, copy the old plat into the new
+			 * space
+			 */
 			if (CONFIG_IS_ENABLED(OF_PLATDATA) && plat)
 				memcpy(ptr, plat, of_plat_size);
 			dev_set_plat(dev, ptr);
@@ -128,9 +137,8 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 
 	if (parent) {
 		size = parent->driver->per_child_plat_auto;
-		if (!size) {
+		if (!size)
 			size = parent->uclass->uc_drv->per_child_plat_auto;
-		}
 		if (size) {
 			dev_or_flags(dev, DM_FLAG_ALLOC_PARENT_PDATA);
 			ptr = calloc(1, size);
@@ -200,14 +208,18 @@ fail_uclass_bind:
 		}
 	}
 fail_alloc3:
-	if (dev_get_flags(dev) & DM_FLAG_ALLOC_UCLASS_PDATA) {
-		free(dev_get_uclass_plat(dev));
-		dev_set_uclass_plat(dev, NULL);
+	if (CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)) {
+		if (dev_get_flags(dev) & DM_FLAG_ALLOC_UCLASS_PDATA) {
+			free(dev_get_uclass_plat(dev));
+			dev_set_uclass_plat(dev, NULL);
+		}
 	}
 fail_alloc2:
-	if (dev_get_flags(dev) & DM_FLAG_ALLOC_PDATA) {
-		free(dev_get_plat(dev));
-		dev_set_plat(dev, NULL);
+	if (CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)) {
+		if (dev_get_flags(dev) & DM_FLAG_ALLOC_PDATA) {
+			free(dev_get_plat(dev));
+			dev_set_plat(dev, NULL);
+		}
 	}
 fail_alloc1:
 	devres_release_all(dev);

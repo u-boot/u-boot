@@ -60,7 +60,7 @@ config TPL_OF_CONTROL
 
 config OF_LIVE
 	bool "Enable use of a live tree"
-	depends on OF_CONTROL
+	depends on DM && OF_CONTROL
 	help
 	  Normally U-Boot uses a flat device tree which saves space and
 	  avoids the need to unpack the tree before use. However a flat

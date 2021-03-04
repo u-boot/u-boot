@@ -22,7 +22,7 @@ config BCH
 
 config BINMAN_FDT
 	bool "Allow access to binman information in the device tree"
-	depends on BINMAN && OF_CONTROL
+	depends on BINMAN && DM && OF_CONTROL
 	default y
 	help
 	  This enables U-Boot to access information about binman entries,
