@@ -6073,7 +6073,7 @@ sub process {
 			my $old = substr($rawline, $-[1], $+[1] - $-[1]);
 			my $new = substr($old, 1, -1);
 			if (WARN("PREFER_SECTION",
-				 "__section($new) is preferred over __attribute__((section($old)))\n" . $herecurr) &&
+				 "__section(\"$new\") is preferred over __attribute__((section($old)))\n" . $herecurr) &&
 			    $fix) {
 				$fixed[$fixlinenr] =~ s/\b__attribute__\s*\(\s*\(\s*_*section_*\s*\(\s*\Q$old\E\s*\)\s*\)\s*\)/__section($new)/;
 			}
