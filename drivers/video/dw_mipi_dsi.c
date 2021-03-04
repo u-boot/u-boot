@@ -797,6 +797,7 @@ static int dw_mipi_dsi_init(struct udevice *dev,
 	dsi->phy_ops = phy_ops;
 	dsi->max_data_lanes = max_data_lanes;
 	dsi->device = device;
+	dsi->dsi_host.dev = (struct device *)dev;
 	dsi->dsi_host.ops = &dw_mipi_dsi_host_ops;
 	device->host = &dsi->dsi_host;
 
