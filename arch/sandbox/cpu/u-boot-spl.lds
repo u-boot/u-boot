@@ -21,9 +21,11 @@ SECTIONS
 		__priv_data_end = .;
 	}
 
-	__u_boot_sandbox_option_start = .;
-	_u_boot_sandbox_getopt : { KEEP(*(.u_boot_sandbox_getopt)) }
-	__u_boot_sandbox_option_end = .;
+	_u_boot_sandbox_getopt : {
+		*(.u_boot_sandbox_getopt_start)
+		KEEP(*(.u_boot_sandbox_getopt))
+		*(.u_boot_sandbox_getopt_end)
+	}
 }
 
 INSERT AFTER .data;
