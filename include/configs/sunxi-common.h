@@ -223,23 +223,6 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_VIDEO_LCD_I2C_BUS	-1 /* NA, but necessary to compile */
 #endif
 
-#ifdef CONFIG_VIDEO_SUNXI
-/*
- * The amount of RAM to keep free at the top of RAM when relocating u-boot,
- * to use as framebuffer. This must be a multiple of 4096.
- */
-#define CONFIG_SUNXI_MAX_FB_SIZE (16 << 20)
-
-#define CONFIG_VIDEO_LOGO
-#define CONFIG_VIDEO_STD_TIMINGS
-#define CONFIG_I2C_EDID
-#define VIDEO_LINE_LEN (pGD->plnSizeX)
-
-/* allow both serial and cfb console. */
-/* stop x86 thinking in cfbconsole from trying to init a pc keyboard */
-
-#endif /* CONFIG_VIDEO_SUNXI */
-
 /* Ethernet support */
 
 #ifdef CONFIG_USB_EHCI_HCD
@@ -401,11 +384,7 @@ extern int soft_i2c_gpio_scl;
 	"stdin=serial\0"
 #endif
 
-#ifdef CONFIG_VIDEO
-#define CONSOLE_STDOUT_SETTINGS \
-	"stdout=serial,vga\0" \
-	"stderr=serial,vga\0"
-#elif CONFIG_DM_VIDEO
+#ifdef CONFIG_DM_VIDEO
 #define CONSOLE_STDOUT_SETTINGS \
 	"stdout=serial,vidconsole\0" \
 	"stderr=serial,vidconsole\0"
