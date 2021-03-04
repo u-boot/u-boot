@@ -45,7 +45,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct shc_eeprom __attribute__((section(".data"))) header;
+static struct shc_eeprom __section(".data") header;
 static int shc_eeprom_valid;
 
 /*

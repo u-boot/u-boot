@@ -682,8 +682,8 @@ ssize_t efi_dp_check_length(const struct efi_device_path *dp,
  * Use these to indicate that your code / data should go into the EFI runtime
  * section and thus still be available when the OS is running
  */
-#define __efi_runtime_data __attribute__ ((section (".data.efi_runtime")))
-#define __efi_runtime __attribute__ ((section (".text.efi_runtime")))
+#define __efi_runtime_data __section(".data.efi_runtime")
+#define __efi_runtime __section(".text.efi_runtime")
 
 /* Indicate supported runtime services */
 efi_status_t efi_init_runtime_supported(void);

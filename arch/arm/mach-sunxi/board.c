@@ -39,7 +39,7 @@ struct fel_stash {
 	uint32_t cr;
 };
 
-struct fel_stash fel_stash __attribute__((section(".data")));
+struct fel_stash fel_stash __section(".data");
 
 #ifdef CONFIG_ARM64
 #include <asm/armv8/mmu.h>

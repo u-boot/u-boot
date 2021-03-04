@@ -17,10 +17,10 @@
  * before the bss section is available.
  */
 #ifdef CONFIG_OF_PRIOR_STAGE
-phys_addr_t prior_stage_fdt_address __attribute__((section(".data")));
+phys_addr_t prior_stage_fdt_address __section(".data");
 #endif
 #ifndef CONFIG_XIP
-u32 hart_lottery __attribute__((section(".data"))) = 0;
+u32 hart_lottery __section(".data") = 0;
 
 /*
  * The main hart running U-Boot has acquired available_harts_lock until it has

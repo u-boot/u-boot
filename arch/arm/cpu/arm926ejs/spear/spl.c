@@ -22,7 +22,7 @@
  * The BSS cannot be used for this purpose because it will be zeroed after
  * having stored the pointer, so force the location to the data section.
  */
-u32 bootrom_stash_sp __attribute__((section(".data")));
+u32 bootrom_stash_sp __section(".data");
 
 static void ddr_clock_init(void)
 {

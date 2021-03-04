@@ -41,8 +41,8 @@
 #define __cacheline_aligned __attribute__((__aligned__(L1_CACHE_BYTES)))
 #else
 #define __cacheline_aligned					\
-  __attribute__((__aligned__(L1_CACHE_BYTES),			\
-		 __section__(".data.cacheline_aligned")))
+  __attribute__((__aligned__(L1_CACHE_BYTES)))			\
+  __section(".data.cacheline_aligned")
 #endif
 
 #if defined(__KERNEL__) && !defined(__ASSEMBLY__)

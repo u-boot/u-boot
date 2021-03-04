@@ -41,7 +41,7 @@
 #include <nand.h>
 
 #ifdef CONFIG_SPL_BUILD
-static struct draco_baseboard_id __attribute__((section(".data"))) settings;
+static struct draco_baseboard_id __section(".data") settings;
 
 #if DDR_PLL_FREQ == 303
 #if !defined(CONFIG_TARGET_ETAMIN)

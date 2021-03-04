@@ -22,7 +22,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define BCMSTB_DATA_SECTION __attribute__((section(".data")))
+#define BCMSTB_DATA_SECTION __section(".data")
 
 struct bcmstb_boot_parameters bcmstb_boot_parameters BCMSTB_DATA_SECTION;
 
