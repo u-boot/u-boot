@@ -240,7 +240,7 @@ static int rk_display_init(struct udevice *dev, ulong fbbase, ofnode ep_node)
 	ofnode remote;
 	const char *compat;
 
-	debug("%s(%s, %lu, %s)\n", __func__,
+	debug("%s(%s, 0x%lx, %s)\n", __func__,
 	      dev_read_name(dev), fbbase, ofnode_get_name(ep_node));
 
 	ret = ofnode_read_u32(ep_node, "remote-endpoint", &remote_phandle);
