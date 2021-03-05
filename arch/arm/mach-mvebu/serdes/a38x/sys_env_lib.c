@@ -12,7 +12,6 @@
 #include "seq_exec.h"
 #include "sys_env_lib.h"
 
-#ifdef CONFIG_ARMADA_38X
 enum unit_id sys_env_soc_unit_nums[MAX_UNITS_ID][MAX_DEV_ID_NUM] = {
 /*                     6820    6810     6811     6828     */
 /* PEX_UNIT_ID      */ { 4,     3,       3,       4},
@@ -24,19 +23,6 @@ enum unit_id sys_env_soc_unit_nums[MAX_UNITS_ID][MAX_DEV_ID_NUM] = {
 /* XAUI_UNIT_ID     */ { 0,     0,       0,       0},
 /* RXAUI_UNIT_ID    */ { 0,     0,       0,       0}
 };
-#else  /* if (CONFIG_ARMADA_39X) */
-enum unit_id sys_env_soc_unit_nums[MAX_UNITS_ID][MAX_DEV_ID_NUM] = {
-/*                      6920     6928     */
-/* PEX_UNIT_ID      */ { 4,       4},
-/* ETH_GIG_UNIT_ID  */ { 3,       4},
-/* USB3H_UNIT_ID    */ { 1,       2},
-/* USB3D_UNIT_ID    */ { 0,       1},
-/* SATA_UNIT_ID     */ { 0,       4},
-/* QSGMII_UNIT_ID   */ { 0,       1},
-/* XAUI_UNIT_ID     */ { 1,       1},
-/* RXAUI_UNIT_ID    */ { 1,	  1}
-};
-#endif
 
 u32 g_dev_id = -1;
 
@@ -202,11 +188,7 @@ u16 sys_env_model_get(void)
 		return ctrl_id;
 	default:
 		/* Device ID Default for A38x: 6820 , for A39x: 6920 */
-	#ifdef CONFIG_ARMADA_38X
 		default_ctrl_id =  MV_6820_DEV_ID;
-	#else
-		default_ctrl_id = MV_6920_DEV_ID;
-	#endif
 		printf("%s: Error retrieving device ID (%x), using default ID = %x\n",
 		       __func__, ctrl_id, default_ctrl_id);
 		return default_ctrl_id;
@@ -261,9 +243,6 @@ void mv_rtc_config(void)
 {
 	u32 i, val;
 
-	if (!(IS_ENABLED(CONFIG_ARMADA_38X) || IS_ENABLED(CONFIG_ARMADA_39X)))
-		return;
-
 	/* Activate pipe0 for read/write transaction, and set XBAR client number #1 */
 	val = 0x1 << DFX_PIPE_SELECT_PIPE0_ACTIVE_OFFS |
 	      0x1 << DFX_PIPE_SELECT_XBAR_CLIENT_SEL_OFFS;
@@ -277,9 +256,6 @@ void mv_rtc_config(void)
 void mv_avs_init(void)
 {
 	u32 sar_freq;
-
-	if (!(IS_ENABLED(CONFIG_ARMADA_38X) || IS_ENABLED(CONFIG_ARMADA_39X)))
-		return;
 
 	reg_write(AVS_DEBUG_CNTR_REG, AVS_DEBUG_CNTR_DEFAULT_VALUE);
 	reg_write(AVS_DEBUG_CNTR_REG, AVS_DEBUG_CNTR_DEFAULT_VALUE);
