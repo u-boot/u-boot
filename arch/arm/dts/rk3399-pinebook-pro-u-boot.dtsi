@@ -16,6 +16,10 @@
 	};
 };
 
+&edp {
+	rockchip,panel = <&edp_panel>;
+};
+
 &i2c0 {
 	u-boot,dm-pre-reloc;
 };
