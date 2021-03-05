@@ -297,7 +297,9 @@ check_member(rk3288_edp, pll_reg_5, 0xa00);
 
 /* int_ctl */
 #define SOFT_INT_CTRL				(0x1 << 2)
-#define INT_POL					(0x1 << 0)
+#define INT_POL1				(0x1 << 1)
+#define INT_POL0				(0x1 << 0)
+#define INT_POL					(INT_POL0 | INT_POL1)
 
 /* sys_ctl_1 */
 #define DET_STA					(0x1 << 2)
