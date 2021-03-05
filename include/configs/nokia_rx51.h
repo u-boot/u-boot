@@ -85,9 +85,6 @@
 
 #define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
 
-/* Watchdog support */
-#define CONFIG_HW_WATCHDOG
-
 /*
  * Framebuffer
  */
