@@ -219,7 +219,7 @@ static const char *mtk_get_pin_name(struct udevice *dev,
 {
 	struct mtk_pinctrl_priv *priv = dev_get_priv(dev);
 
-	if (!priv->soc->grps[selector].name)
+	if (!priv->soc->pins[selector].name)
 		return mtk_pinctrl_dummy_name;
 
 	return priv->soc->pins[selector].name;
