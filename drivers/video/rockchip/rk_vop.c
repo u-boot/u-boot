@@ -236,12 +236,11 @@ static int rk_display_init(struct udevice *dev, ulong fbbase, ofnode ep_node)
 	struct clk clk;
 	enum video_log2_bpp l2bpp;
 	ofnode remote;
+	const char *compat;
 
 	debug("%s(%s, %lu, %s)\n", __func__,
 	      dev_read_name(dev), fbbase, ofnode_get_name(ep_node));
 
-	vop_id = ofnode_read_s32_default(ep_node, "reg", -1);
-	debug("vop_id=%d\n", vop_id);
 	ret = ofnode_read_u32(ep_node, "remote-endpoint", &remote_phandle);
 	if (ret)
 		return ret;
@@ -283,6 +282,28 @@ static int rk_display_init(struct udevice *dev, ulong fbbase, ofnode ep_node)
 		if (disp)
 			break;
 	};
+	compat = ofnode_get_property(remote, "compatible", NULL);
+	if (!compat) {
+		debug("%s(%s): Failed to find compatible property\n",
+		      __func__, dev_read_name(dev));
+		return -EINVAL;
+	}
+	if (strstr(compat, "edp")) {
+		vop_id = VOP_MODE_EDP;
+	} else if (strstr(compat, "mipi")) {
+		vop_id = VOP_MODE_MIPI;
+	} else if (strstr(compat, "hdmi")) {
+		vop_id = VOP_MODE_HDMI;
+	} else if (strstr(compat, "cdn-dp")) {
+		vop_id = VOP_MODE_DP;
+	} else if (strstr(compat, "lvds")) {
+		vop_id = VOP_MODE_LVDS;
+	} else {
+		debug("%s(%s): Failed to find vop mode for %s\n",
+		      __func__, dev_read_name(dev), compat);
+		return -EINVAL;
+	}
+	debug("vop_id=%d\n", vop_id);
 
 	disp_uc_plat = dev_get_uclass_plat(disp);
 	debug("Found device '%s', disp_uc_priv=%p\n", disp->name, disp_uc_plat);
