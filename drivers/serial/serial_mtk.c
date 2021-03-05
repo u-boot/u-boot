@@ -73,74 +73,64 @@ struct mtk_serial_regs {
 struct mtk_serial_priv {
 	struct mtk_serial_regs __iomem *regs;
 	u32 clock;
+	bool force_highspeed;
 };
 
 static void _mtk_serial_setbrg(struct mtk_serial_priv *priv, int baud)
 {
-	bool support_clk12m_baud115200;
-	u32 quot, samplecount, realbaud;
+	u32 quot, realbaud, samplecount = 1;
 
-	if ((baud <= 115200) && (priv->clock == 12000000))
-		support_clk12m_baud115200 = true;
-	else
-		support_clk12m_baud115200 = false;
+	/* Special case for low baud clock */
+	if (baud <= 115200 && priv->clock <= 12000000) {
+		writel(3, &priv->regs->highspeed);
+
+		quot = DIV_ROUND_CLOSEST(priv->clock, 256 * baud);
+		if (quot == 0)
+			quot = 1;
+
+		samplecount = DIV_ROUND_CLOSEST(priv->clock, quot * baud);
+
+		realbaud = priv->clock / samplecount / quot;
+		if (realbaud > BAUD_ALLOW_MAX(baud) ||
+		    realbaud < BAUD_ALLOW_MIX(baud)) {
+			pr_info("baud %d can't be handled\n", baud);
+		}
+
+		goto set_baud;
+	}
+
+	if (priv->force_highspeed)
+		goto use_hs3;
 
 	if (baud <= 115200) {
 		writel(0, &priv->regs->highspeed);
 		quot = DIV_ROUND_CLOSEST(priv->clock, 16 * baud);
-
-		if (support_clk12m_baud115200) {
-			writel(3, &priv->regs->highspeed);
-			quot = DIV_ROUND_CLOSEST(priv->clock, 256 * baud);
-			if (quot == 0)
-				quot = 1;
-
-			samplecount = DIV_ROUND_CLOSEST(priv->clock,
-							quot * baud);
-			if (samplecount != 0) {
-				realbaud = priv->clock / samplecount / quot;
-				if ((realbaud > BAUD_ALLOW_MAX(baud)) ||
-				    (realbaud < BAUD_ALLOW_MIX(baud))) {
-					pr_info("baud %d can't be handled\n",
-						baud);
-				}
-			} else {
-				pr_info("samplecount is 0\n");
-			}
-		}
 	} else if (baud <= 576000) {
 		writel(2, &priv->regs->highspeed);
 
 		/* Set to next lower baudrate supported */
 		if ((baud == 500000) || (baud == 576000))
 			baud = 460800;
+
 		quot = DIV_ROUND_UP(priv->clock, 4 * baud);
 	} else {
+use_hs3:
 		writel(3, &priv->regs->highspeed);
+
 		quot = DIV_ROUND_UP(priv->clock, 256 * baud);
+		samplecount = DIV_ROUND_CLOSEST(priv->clock, quot * baud);
 	}
 
+set_baud:
 	/* set divisor */
 	writel(UART_LCR_WLS_8 | UART_LCR_DLAB, &priv->regs->lcr);
 	writel(quot & 0xff, &priv->regs->dll);
 	writel((quot >> 8) & 0xff, &priv->regs->dlm);
 	writel(UART_LCR_WLS_8, &priv->regs->lcr);
 
-	if (baud > 460800) {
-		u32 tmp;
-
-		tmp = DIV_ROUND_CLOSEST(priv->clock, quot * baud);
-		writel(tmp - 1, &priv->regs->sample_count);
-		writel((tmp - 2) >> 1, &priv->regs->sample_point);
-	} else {
-		writel(0, &priv->regs->sample_count);
-		writel(0xff, &priv->regs->sample_point);
-	}
-
-	if (support_clk12m_baud115200) {
-		writel(samplecount - 1, &priv->regs->sample_count);
-		writel((samplecount - 2) >> 1, &priv->regs->sample_point);
-	}
+	/* set highspeed mode sample count & point */
+	writel(samplecount - 1, &priv->regs->sample_count);
+	writel((samplecount - 2) >> 1, &priv->regs->sample_point);
 }
 
 static int _mtk_serial_putc(struct mtk_serial_priv *priv, const char ch)
@@ -247,6 +237,8 @@ static int mtk_serial_of_to_plat(struct udevice *dev)
 		debug("mtk_serial: clock not defined\n");
 		return -EINVAL;
 	}
+
+	priv->force_highspeed = dev_read_bool(dev, "mediatek,force-highspeed");
 
 	return 0;
 }
