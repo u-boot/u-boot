@@ -232,8 +232,9 @@ check_member(rk3288_edp, pll_reg_5, 0xa00);
 #define PD_CH0					(0x1 << 0)
 
 /* pll_reg_1 */
-#define REF_CLK_24M				(0x1 << 1)
-#define REF_CLK_27M				(0x0 << 1)
+#define REF_CLK_24M				(0x1 << 0)
+#define REF_CLK_27M				(0x0 << 0)
+#define REF_CLK_MASK				(0x1 << 0)
 
 /* line_map */
 #define LANE3_MAP_LOGIC_LANE_0			(0x0 << 6)
