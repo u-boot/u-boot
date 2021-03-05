@@ -540,6 +540,8 @@ const struct pinctrl_ops mtk_pinctrl_ops = {
 	.set_state = pinctrl_generic_set_state,
 };
 
+#if CONFIG_IS_ENABLED(DM_GPIO) || \
+    (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO_SUPPORT))
 static int mtk_gpio_get(struct udevice *dev, unsigned int off)
 {
 	int val, err;
@@ -647,12 +649,13 @@ static int mtk_gpiochip_register(struct udevice *parent)
 
 	return 0;
 }
+#endif
 
 int mtk_pinctrl_common_probe(struct udevice *dev,
 			     struct mtk_pinctrl_soc *soc)
 {
 	struct mtk_pinctrl_priv *priv = dev_get_priv(dev);
-	int ret;
+	int ret = 0;
 
 	priv->base = dev_read_addr_ptr(dev);
 	if (!priv->base)
@@ -660,9 +663,10 @@ int mtk_pinctrl_common_probe(struct udevice *dev,
 
 	priv->soc = soc;
 
+#if CONFIG_IS_ENABLED(DM_GPIO) || \
+    (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO_SUPPORT))
 	ret = mtk_gpiochip_register(dev);
-	if (ret)
-		return ret;
+#endif
 
-	return 0;
+	return ret;
 }
