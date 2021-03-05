@@ -8,11 +8,13 @@
 #include <clk.h>
 #include <display.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <edid.h>
 #include <log.h>
 #include <malloc.h>
 #include <panel.h>
 #include <regmap.h>
+#include <reset.h>
 #include <syscon.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -1053,6 +1055,7 @@ static int rk_edp_probe(struct udevice *dev)
 	struct rk_edp_priv *priv = dev_get_priv(dev);
 	struct rk3288_edp *regs = priv->regs;
 	struct rockchip_dp_data *edp_data = (struct rockchip_dp_data *)dev_get_driver_data(dev);
+	struct reset_ctl dp_rst;
 
 	struct clk clk;
 	int ret;
@@ -1062,6 +1065,25 @@ static int rk_edp_probe(struct udevice *dev)
 	if (ret) {
 		debug("%s: Cannot find panel for '%s' (ret=%d)\n", __func__,
 		      dev->name, ret);
+		return ret;
+	}
+
+	ret = reset_get_by_name(dev, "dp", &dp_rst);
+	if (ret) {
+		dev_err(dev, "failed to get dp reset (ret=%d)\n", ret);
+		return ret;
+	}
+
+	ret = reset_assert(&dp_rst);
+	if (ret) {
+		dev_err(dev, "failed to assert dp reset (ret=%d)\n", ret);
+		return ret;
+	}
+	udelay(20);
+
+	ret = reset_deassert(&dp_rst);
+	if (ret) {
+		dev_err(dev, "failed to deassert dp reset (ret=%d)\n", ret);
 		return ret;
 	}
 
