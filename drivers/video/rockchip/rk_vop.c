@@ -8,9 +8,11 @@
 #include <clk.h>
 #include <display.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <edid.h>
 #include <log.h>
 #include <regmap.h>
+#include <reset.h>
 #include <syscon.h>
 #include <video.h>
 #include <asm/global_data.h>
@@ -37,14 +39,16 @@ enum vop_pol {
 	DCLK_INVERT    = 3
 };
 
-static void rkvop_enable(struct rk3288_vop *regs, ulong fbbase,
+static void rkvop_enable(struct udevice *dev, struct rk3288_vop *regs, ulong fbbase,
 			 int fb_bits_per_pixel,
-			 const struct display_timing *edid)
+			 const struct display_timing *edid,
+			 struct reset_ctl *dclk_rst)
 {
 	u32 lb_mode;
 	u32 rgb_mode;
 	u32 hactive = edid->hactive.typ;
 	u32 vactive = edid->vactive.typ;
+	int ret;
 
 	writel(V_ACT_WIDTH(hactive - 1) | V_ACT_HEIGHT(vactive - 1),
 	       &regs->win0_act_info);
@@ -92,6 +96,18 @@ static void rkvop_enable(struct rk3288_vop *regs, ulong fbbase,
 
 	writel(fbbase, &regs->win0_yrgb_mst);
 	writel(0x01, &regs->reg_cfg_done); /* enable reg config */
+
+	ret = reset_assert(dclk_rst);
+	if (ret) {
+		dev_warn(dev, "failed to assert dclk reset (ret=%d)\n", ret);
+		return;
+	}
+	udelay(20);
+
+	ret = reset_deassert(dclk_rst);
+	if (ret)
+		dev_warn(dev, "failed to deassert dclk reset (ret=%d)\n", ret);
+
 }
 
 static void rkvop_set_pin_polarity(struct udevice *dev,
@@ -239,6 +255,7 @@ static int rk_display_init(struct udevice *dev, ulong fbbase, ofnode ep_node)
 	enum video_log2_bpp l2bpp;
 	ofnode remote;
 	const char *compat;
+	struct reset_ctl dclk_rst;
 
 	debug("%s(%s, 0x%lx, %s)\n", __func__,
 	      dev_read_name(dev), fbbase, ofnode_get_name(ep_node));
@@ -355,7 +372,14 @@ static int rk_display_init(struct udevice *dev, ulong fbbase, ofnode ep_node)
 	}
 
 	rkvop_mode_set(dev, &timing, vop_id);
-	rkvop_enable(regs, fbbase, 1 << l2bpp, &timing);
+
+	ret = reset_get_by_name(dev, "dclk", &dclk_rst);
+	if (ret) {
+		dev_err(dev, "failed to get dclk reset (ret=%d)\n", ret);
+		return ret;
+	}
+
+	rkvop_enable(dev, regs, fbbase, 1 << l2bpp, &timing, &dclk_rst);
 
 	ret = display_enable(disp, 1 << l2bpp, &timing);
 	if (ret)
@@ -392,10 +416,30 @@ int rk_vop_probe(struct udevice *dev)
 	struct rk_vop_priv *priv = dev_get_priv(dev);
 	int ret = 0;
 	ofnode port, node;
+	struct reset_ctl ahb_rst;
 
 	/* Before relocation we don't need to do anything */
 	if (!(gd->flags & GD_FLG_RELOC))
 		return 0;
+
+	ret = reset_get_by_name(dev, "ahb", &ahb_rst);
+	if (ret) {
+		dev_err(dev, "failed to get ahb reset (ret=%d)\n", ret);
+		return ret;
+	}
+
+	ret = reset_assert(&ahb_rst);
+	if (ret) {
+		dev_err(dev, "failed to assert ahb reset (ret=%d)\n", ret);
+	return ret;
+	}
+	udelay(20);
+
+	ret = reset_deassert(&ahb_rst);
+	if (ret) {
+		dev_err(dev, "failed to deassert ahb reset (ret=%d)\n", ret);
+		return ret;
+	}
 
 #if defined(CONFIG_EFI_LOADER)
 	debug("Adding to EFI map %d @ %lx\n", plat->size, plat->base);
