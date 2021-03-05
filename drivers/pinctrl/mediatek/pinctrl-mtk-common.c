@@ -232,6 +232,19 @@ static int mtk_get_pins_count(struct udevice *dev)
 	return priv->soc->npins;
 }
 
+static int mtk_get_pin_muxing(struct udevice *dev, unsigned int selector,
+			      char *buf, int size)
+{
+	int val, err;
+
+	err = mtk_hw_get_value(dev, selector, PINCTRL_PIN_REG_MODE, &val);
+	if (err)
+		return err;
+
+	snprintf(buf, size, "Aux Func.%d", val);
+	return 0;
+}
+
 static const char *mtk_get_group_name(struct udevice *dev,
 				      unsigned int selector)
 {
@@ -512,6 +525,7 @@ static int mtk_pinconf_group_set(struct udevice *dev,
 const struct pinctrl_ops mtk_pinctrl_ops = {
 	.get_pins_count = mtk_get_pins_count,
 	.get_pin_name = mtk_get_pin_name,
+	.get_pin_muxing = mtk_get_pin_muxing,
 	.get_groups_count = mtk_get_groups_count,
 	.get_group_name = mtk_get_group_name,
 	.get_functions_count = mtk_get_functions_count,
