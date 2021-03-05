@@ -21,6 +21,8 @@
 #include <asm/arch-rockchip/vop_rk3288.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
+#include <efi.h>
+#include <efi_loader.h>
 #include <linux/bitops.h>
 #include <linux/err.h>
 #include <power/regulator.h>
@@ -394,6 +396,11 @@ int rk_vop_probe(struct udevice *dev)
 	/* Before relocation we don't need to do anything */
 	if (!(gd->flags & GD_FLG_RELOC))
 		return 0;
+
+#if defined(CONFIG_EFI_LOADER)
+	debug("Adding to EFI map %d @ %lx\n", plat->size, plat->base);
+	efi_add_memory_map(plat->base, plat->size, EFI_RESERVED_MEMORY_TYPE);
+#endif
 
 	priv->regs = (struct rk3288_vop *)dev_read_addr(dev);
 
