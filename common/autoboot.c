@@ -63,6 +63,10 @@ static int menukey;
  * or
  *   the config value CONFIG_AUTOBOOT_STOP_STR_CRYPT
  *
+ * In case the config value CONFIG_AUTOBOOT_NEVER_TIMEOUT has been enabled
+ * this function never times out if the user presses the <Enter> key
+ * before starting to enter the password.
+ *
  * @etime: Timeout value ticks (stop when get_ticks() reachs this)
  * @return 0 if autoboot should continue, 1 if it should stop
  */
@@ -72,6 +76,7 @@ static int passwd_abort_crypt(uint64_t etime)
 	char presskey[DELAY_STOP_STR_MAX_LENGTH];
 	u_int presskey_len = 0;
 	int abort = 0;
+	int never_timeout = 0;
 	int err;
 
 	if (IS_ENABLED(CONFIG_AUTOBOOT_STOP_STR_ENABLE) && !crypt_env_str)
@@ -91,6 +96,11 @@ static int passwd_abort_crypt(uint64_t etime)
 
 			if ((presskey[presskey_len] == '\r') ||
 			    (presskey[presskey_len] == '\n')) {
+				if (IS_ENABLED(CONFIG_AUTOBOOT_NEVER_TIMEOUT) &&
+				    !presskey_len) {
+					never_timeout = 1;
+					continue;
+				}
 				presskey[presskey_len] = '\0';
 				err = crypt_compare(crypt_env_str, presskey,
 						    &abort);
@@ -104,7 +114,7 @@ static int passwd_abort_crypt(uint64_t etime)
 				presskey_len++;
 			}
 		}
-	} while (get_ticks() <= etime);
+	} while (never_timeout || get_ticks() <= etime);
 
 	return abort;
 }
