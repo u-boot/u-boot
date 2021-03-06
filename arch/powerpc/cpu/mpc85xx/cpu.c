@@ -395,7 +395,9 @@ int cpu_mmc_init(struct bd_info *bis)
 void print_reginfo(void)
 {
 	print_tlbcam();
+#ifdef CONFIG_FSL_LAW
 	print_laws();
+#endif
 #if defined(CONFIG_FSL_LBC)
 	print_lbc_regs();
 #endif

@@ -33,6 +33,12 @@ config TPL_SYSRESET
 
 if SYSRESET
 
+config SYSRESET_CMD_RESET
+	bool "sysreset implementation of the reset command"
+	default y
+	help
+	  Enable sysreset implementation of the reset command.
+
 if CMD_POWEROFF
 
 config SYSRESET_CMD_POWEROFF

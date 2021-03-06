@@ -23,8 +23,6 @@
 
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
-#define CONFIG_FSL_VIA
-
 #ifndef __ASSEMBLY__
 #include <linux/stringify.h>
 extern unsigned long get_clock_freq(void);

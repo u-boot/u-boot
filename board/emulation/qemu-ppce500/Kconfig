@@ -4,7 +4,7 @@ config SYS_BOARD
 	default "qemu-ppce500"
 
 config SYS_VENDOR
-	default "freescale"
+	default "emulation"
 
 config SYS_CONFIG_NAME
 	default "qemu-ppce500"

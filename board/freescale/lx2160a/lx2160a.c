@@ -649,6 +649,48 @@ int misc_init_r(void)
 }
 #endif
 
+#ifdef CONFIG_VID
+u16 soc_get_fuse_vid(int vid_index)
+{
+	static const u16 vdd[32] = {
+		8250,
+		7875,
+		7750,
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		8000,
+		8125,
+		8250,
+		0,      /* reserved */
+		8500,
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+	};
+
+	return vdd[vid_index];
+};
+#endif
+
 #ifdef CONFIG_FSL_MC_ENET
 extern int fdt_fixup_board_phy(void *fdt);
 
