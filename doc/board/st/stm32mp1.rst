@@ -237,7 +237,8 @@ Build Procedure
   - For Basic boot
 
      - FSBL = spl/u-boot-spl.stm32
-     - SSBL = u-boot.img
+     - SSBL = u-boot.img (without CONFIG_SPL_LOAD_FIT) or
+              u-boot.itb (with CONFIG_SPL_LOAD_FIT=y)
 
 Switch Setting for Boot Mode
 ----------------------------
@@ -347,7 +348,9 @@ c) copy the FSBL (2 times) and SSBL file on the correct partition.
 
     # dd if=u-boot-spl.stm32 of=/dev/mmcblk0p1
     # dd if=u-boot-spl.stm32 of=/dev/mmcblk0p2
-    # dd if=u-boot.img of=/dev/mmcblk0p3
+    # dd if=u-boot.img of=/dev/mmcblk0p3 # Without CONFIG_SPL_LOAD_FIT
+      OR
+      dd if=u-boot.itb of=/dev/mmcblk0p3 # With CONFIG_SPL_LOAD_FIT=y
 
    for trusted boot mode: ::
 
@@ -363,8 +366,9 @@ Prepare eMMC
 You can use U-Boot to copy binary in eMMC.
 
 In the next example, you need to boot from SD card and the images
-(u-boot-spl.stm32, u-boot.img) are presents on SD card (mmc 0)
-in ext4 partition 4 (bootfs).
+(u-boot-spl.stm32, u-boot.img for systems without CONFIG_SPL_LOAD_FIT
+or u-boot.itb for systems with CONFIG_SPL_LOAD_FIT=y) are presents on
+SD card (mmc 0) in ext4 partition 4 (bootfs).
 
 To boot from SD card, select BootPinMode = 1 0 1 and reset.
 
@@ -387,7 +391,9 @@ b) copy SPL on eMMC on firts boot partition
 
 c) copy U-Boot in first GPT partition of eMMC::
 
-    # ext4load mmc 0:4 0xC0000000 u-boo	t.img
+    # ext4load mmc 0:4 0xC0000000 u-boot.img # Without CONFIG_SPL_LOAD_FIT
+      OR
+      ext4load mmc 0:4 0xC0000000 u-boot.itb # With CONFIG_SPL_LOAD_FIT=y
     # mmc dev 1
     # part start mmc 1 1 partstart
     # mmc write ${fileaddr} ${partstart} ${filesize}
