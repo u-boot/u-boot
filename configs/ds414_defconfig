@@ -20,9 +20,8 @@ CONFIG_DEFAULT_DEVICE_TREE="armada-xp-synology-ds414"
 CONFIG_DEBUG_UART=y
 CONFIG_BOOTDELAY=3
 CONFIG_USE_BOOTARGS=y
-CONFIG_BOOTARGS="console=ttyS0,115200"
-CONFIG_USE_PREBOOT=y
-CONFIG_PREBOOT="usb start; sf probe"
+CONFIG_BOOTARGS="console=ttyS0,115200 ip=off initrd=0x8000040,8M root=/dev/md0 rw syno_hw_version=DS414r1 ihd_num=4 netif_num=2 flash_size=8 SataLedSpecial=1 HddHotplug=1"
+# CONFIG_USE_PREBOOT is not set
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_DISPLAY_BOARDINFO_LATE=y
 CONFIG_SPL_I2C_SUPPORT=y

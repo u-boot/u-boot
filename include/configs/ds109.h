@@ -44,7 +44,8 @@
 	"x_bootcmd_kernel=fatload usb 0 0x6400000 uImage\0" \
 	"x_bootargs=console=ttyS0,115200\0"	\
 	"x_bootargs_root=root=/dev/sda2 rootdelay=10\0" \
-	"ipaddr=192.168.1.5\0"
+	"ipaddr=192.168.1.5\0"		\
+	"usb0Mode=host\0"
 
 /*
  * Ethernet Driver configuration
