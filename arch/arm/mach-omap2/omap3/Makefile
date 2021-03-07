@@ -9,6 +9,7 @@ CFLAGS_clock.o += -marm
 obj-y	:= lowlevel_init.o
 
 obj-y	+= board.o
+CFLAGS_REMOVE_board.o := $(LTO_CFLAGS)
 obj-y	+= boot.o
 obj-y	+= clock.o
 obj-y	+= sys_info.o
