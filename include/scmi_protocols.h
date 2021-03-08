@@ -23,6 +23,7 @@ enum scmi_std_protocol {
 	SCMI_PROTOCOL_ID_CLOCK = 0x14,
 	SCMI_PROTOCOL_ID_SENSOR = 0x15,
 	SCMI_PROTOCOL_ID_RESET_DOMAIN = 0x16,
+	SCMI_PROTOCOL_ID_VOLTAGE_DOMAIN = 0x17,
 };
 
 enum scmi_status_code {
@@ -174,6 +175,118 @@ struct scmi_rd_reset_in {
  */
 struct scmi_rd_reset_out {
 	s32 status;
+};
+
+/*
+ * SCMI Voltage Domain Protocol
+ */
+
+enum scmi_voltage_domain_message_id {
+	SCMI_VOLTAGE_DOMAIN_ATTRIBUTES = 0x3,
+	SCMI_VOLTAGE_DOMAIN_CONFIG_SET = 0x5,
+	SCMI_VOLTAGE_DOMAIN_CONFIG_GET = 0x6,
+	SCMI_VOLTAGE_DOMAIN_LEVEL_SET = 0x7,
+	SCMI_VOLTAGE_DOMAIN_LEVEL_GET = 0x8,
+};
+
+#define SCMI_VOLTD_NAME_LEN		16
+
+#define SCMI_VOLTD_CONFIG_MASK		GENMASK(3, 0)
+#define SCMI_VOLTD_CONFIG_OFF		0
+#define SCMI_VOLTD_CONFIG_ON		0x7
+
+/**
+ * struct scmi_voltd_attr_in - Payload for VOLTAGE_DOMAIN_ATTRIBUTES message
+ * @domain_id:	SCMI voltage domain ID
+ */
+struct scmi_voltd_attr_in {
+	u32 domain_id;
+};
+
+/**
+ * struct scmi_voltd_attr_out - Payload for VOLTAGE_DOMAIN_ATTRIBUTES response
+ * @status:	SCMI command status
+ * @attributes:	Retrieved attributes of the voltage domain
+ * @name:	Voltage domain name
+ */
+struct scmi_voltd_attr_out {
+	s32 status;
+	u32 attributes;
+	char name[SCMI_VOLTD_NAME_LEN];
+};
+
+/**
+ * struct scmi_voltd_config_set_in - Message payload for VOLTAGE_CONFIG_SET cmd
+ * @domain_id:	SCMI voltage domain ID
+ * @config:	Configuration data of the voltage domain
+ */
+struct scmi_voltd_config_set_in {
+	u32 domain_id;
+	u32 config;
+};
+
+/**
+ * struct scmi_voltd_config_set_out - Response for VOLTAGE_CONFIG_SET command
+ * @status:	SCMI command status
+ */
+struct scmi_voltd_config_set_out {
+	s32 status;
+};
+
+/**
+ * struct scmi_voltd_config_get_in - Message payload for VOLTAGE_CONFIG_GET cmd
+ * @domain_id:	SCMI voltage domain ID
+ */
+struct scmi_voltd_config_get_in {
+	u32 domain_id;
+};
+
+/**
+ * struct scmi_voltd_config_get_out - Response for VOLTAGE_CONFIG_GET command
+ * @status:	SCMI command status
+ * @config:	Configuration data of the voltage domain
+ */
+struct scmi_voltd_config_get_out {
+	s32 status;
+	u32 config;
+};
+
+/**
+ * struct scmi_voltd_level_set_in - Message payload for VOLTAGE_LEVEL_SET cmd
+ * @domain_id:		SCMI voltage domain ID
+ * @flags:		Parameter flags for configuring target level
+ * @voltage_level:	Target voltage level in microvolts (uV)
+ */
+struct scmi_voltd_level_set_in {
+	u32 domain_id;
+	u32 flags;
+	s32 voltage_level;
+};
+
+/**
+ * struct scmi_voltd_level_set_out - Response for VOLTAGE_LEVEL_SET command
+ * @status:	SCMI	command status
+ */
+struct scmi_voltd_level_set_out {
+	s32 status;
+};
+
+/**
+ * struct scmi_voltd_level_get_in - Message payload for VOLTAGE_LEVEL_GET cmd
+ * @domain_id:		SCMI voltage domain ID
+ */
+struct scmi_voltd_level_get_in {
+	u32 domain_id;
+};
+
+/**
+ * struct scmi_voltd_level_get_out - Response for VOLTAGE_LEVEL_GET command
+ * @status:		SCMI command status
+ * @voltage_level:	Voltage level in microvolts (uV)
+ */
+struct scmi_voltd_level_get_out {
+	s32 status;
+	s32 voltage_level;
 };
 
 #endif /* _SCMI_PROTOCOLS_H */
