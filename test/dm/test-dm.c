@@ -78,8 +78,6 @@ static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 
 	ut_assertok(test_post_run(uts, test));
 
-	state_set_skip_delays(false);
-
 	ut_assertok(dm_test_destroy(uts));
 
 	return 0;

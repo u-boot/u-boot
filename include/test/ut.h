@@ -357,6 +357,17 @@ void ut_silence_console(struct unit_test_state *uts);
 void ut_unsilence_console(struct unit_test_state *uts);
 
 /**
+ * ut_set_skip_delays() - Sets whether delays should be skipped
+ *
+ * Normally functions like mdelay() cause U-Boot to wait for a while. This
+ * allows all such delays to be skipped on sandbox, to speed up tests
+ *
+ * @uts: Test state (in case in future we want to keep state here)
+ * @skip_delays: true to skip delays, false to process them normally
+ */
+void ut_set_skip_delays(struct unit_test_state *uts, bool skip_delays);
+
+/**
  * test_pre_run() - Handle any preparation needed to run a test
  *
  * @uts: Test state
