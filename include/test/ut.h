@@ -356,4 +356,46 @@ void ut_silence_console(struct unit_test_state *uts);
  */
 void ut_unsilence_console(struct unit_test_state *uts);
 
+/**
+ * ut_run_tests() - Run a set of tests
+ *
+ * This runs the tests, handling any preparation and clean-up needed. It prints
+ * the name of each test before running it.
+ *
+ * @uts: Test state to update. The caller should ensure that this is zeroed for
+ *	the first call to this function. On exit, @uts->fail_count is
+ *	incremented by the number of failures (0, one hopes)
+ * @prefix: String prefix for the tests. Any tests that have this prefix will be
+ *	printed without the prefix, so that it is easier to see the unique part
+ *	of the test name. If NULL, no prefix processing is done
+ * @tests: List of tests to run
+ * @count: Number of tests to run
+ * @select_name: Name of a single test to run (from the list provided). If NULL
+ *	then all tests are run
+ * @return 0 if all tests passed, -ENOENT if test @select_name was not found,
+ *	-EBADF if any failed
+ */
+int ut_run_tests(struct unit_test_state *uts, const char *prefix,
+		 struct unit_test *tests, int count, const char *select_name);
+
+/**
+ * ut_run_tests() - Run a set of tests
+ *
+ * This runs the test, handling any preparation and clean-up needed. It prints
+ * the name of each test before running it.
+ *
+ * @category: Category of these tests. This is a string printed at the start to
+ *	announce the the number of tests
+ * @prefix: String prefix for the tests. Any tests that have this prefix will be
+ *	printed without the prefix, so that it is easier to see the unique part
+ *	of the test name. If NULL, no prefix processing is done
+ * @tests: List of tests to run
+ * @count: Number of tests to run
+ * @select_name: Name of a single test to run (from the list provided). If NULL
+ *	then all tests are run
+ * @return 0 if all tests passed, -1 if any failed
+ */
+int ut_run_list(const char *name, const char *prefix, struct unit_test *tests,
+		int count, const char *select_name);
+
 #endif

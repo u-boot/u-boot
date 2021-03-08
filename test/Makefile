@@ -2,6 +2,8 @@
 #
 # (C) Copyright 2012 The Chromium Authors
 
+obj-y += test-main.o
+
 ifneq ($(CONFIG_$(SPL_)BLOBLIST),)
 obj-$(CONFIG_$(SPL_)CMDLINE) += bloblist.o
 obj-$(CONFIG_$(SPL_)CMDLINE) += bootm.o
