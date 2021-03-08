@@ -211,10 +211,9 @@ config FSL_SEC_MON
 	  like software violations or hardware security violations.
 
 config IRQ
-	bool "Intel Interrupt controller"
-	depends on X86 || SANDBOX
+	bool "Interrupt controller"
 	help
-	  This enables support for Intel interrupt controllers, including ITSS.
+	  This enables support for interrupt controllers, including ITSS.
 	  Some devices have extra features, such as Apollo Lake. The
 	  device has its own uclass since there are several operations
 	  involved.
