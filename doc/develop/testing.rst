@@ -8,14 +8,14 @@ tested and what tests you should write when adding a new feature.
 Running tests
 -------------
 
-To run most tests on sandbox, type this:
+To run most tests on sandbox, type this::
 
     make check
 
 in the U-Boot directory. Note that only the pytest suite is run using this
 command.
 
-Some tests take ages to run. To run just the quick ones, type this:
+Some tests take ages to run. To run just the quick ones, type this::
 
     make qcheck
 
@@ -35,9 +35,9 @@ either on sandbox or on real hardware. It relies on the U-Boot console to
 inject test commands and check the result. It is slower to run than C code,
 but provides the ability to unify lots of tests and summarise their results.
 
-You can run the tests on sandbox with:
+You can run the tests on sandbox with::
 
-	./test/py/test.py --bd sandbox --build
+   ./test/py/test.py --bd sandbox --build
 
 This will produce HTML output in build-sandbox/test-log.html
 
@@ -58,10 +58,14 @@ Ad-hoc tests
 
 There are several ad-hoc tests which run outside the pytest environment:
 
-   test/fs	- File system test (shell script)
-   test/image	- FIT and legacy image tests (shell script and Python)
-   test/stdint	- A test that stdint.h can be used in U-Boot (shell script)
-   trace	- Test for the tracing feature (shell script)
+test/fs
+   File system test (shell script)
+test/image
+   FIT and legacy image tests (shell script and Python)
+test/stdint
+   A test that stdint.h can be used in U-Boot (shell script)
+trace
+   Test for the tracing feature (shell script)
 
 TODO: Move these into pytest.
 
