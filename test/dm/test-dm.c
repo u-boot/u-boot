@@ -24,10 +24,10 @@ DECLARE_GLOBAL_DATA_PTR;
 struct unit_test_state global_dm_test_state;
 static struct dm_test_state _global_priv_dm_test_state;
 
-/* Get ready for testing */
-static int dm_test_init(struct unit_test_state *uts, bool of_live)
+int dm_test_init(struct unit_test_state *uts)
 {
 	struct dm_test_state *dms = uts->priv;
+	bool of_live = uts->of_live;
 
 	memset(dms, '\0', sizeof(*dms));
 	gd->dm_root = NULL;
@@ -70,7 +70,7 @@ static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 
 	printf("Test: %s: %s%s\n", test->name, fname,
 	       !of_live ? " (flat tree)" : "");
-	ut_assertok(dm_test_init(uts, of_live));
+	uts->of_live = of_live;
 
 	ut_assertok(test_pre_run(uts, test));
 

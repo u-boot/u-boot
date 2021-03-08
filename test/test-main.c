@@ -30,6 +30,9 @@ static int do_autoprobe(struct unit_test_state *uts)
 
 int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 {
+	if (test->flags & UT_TESTF_DM)
+		ut_assertok(dm_test_init(uts));
+
 	ut_set_skip_delays(uts, false);
 
 	uts->start = mallinfo();

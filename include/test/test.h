@@ -15,6 +15,7 @@
  * @fail_count: Number of tests that failed
  * @start: Store the starting mallinfo when doing leak test
  * @priv: A pointer to some other info some suites want to track
+ * @of_live: true to use livetree if available, false to use flattree
  * @of_root: Record of the livetree root node (used for setting up tests)
  * @expect_str: Temporary string used to hold expected string value
  * @actual_str: Temporary string used to hold actual string value
@@ -24,6 +25,7 @@ struct unit_test_state {
 	struct mallinfo start;
 	void *priv;
 	struct device_node *of_root;
+	bool of_live;
 	char expect_str[256];
 	char actual_str[256];
 };
