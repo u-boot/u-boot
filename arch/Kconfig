@@ -185,6 +185,7 @@ config X86
 	select TIMER
 	select USE_PRIVATE_LIBGCC
 	select X86_TSC_TIMER
+	select IRQ
 	imply HAS_ROM if X86_RESET_VECTOR
 	imply BLK
 	imply CMD_DM
@@ -215,7 +216,6 @@ config X86
 	imply USB_HOST_ETHER
 	imply PCH
 	imply RTC_MC146818
-	imply IRQ
 	imply ACPIGEN if !QEMU
 	imply SYSINFO if GENERATE_SMBIOS_TABLE
 	imply SYSINFO_SMBIOS if GENERATE_SMBIOS_TABLE
