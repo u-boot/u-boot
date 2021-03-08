@@ -43,21 +43,6 @@ static int dm_test_init(struct unit_test_state *uts, bool of_live)
 	return 0;
 }
 
-/* Ensure all the test devices are probed */
-static int do_autoprobe(struct unit_test_state *uts)
-{
-	struct udevice *dev;
-	int ret;
-
-	/* Scanning the uclass is enough to probe all the devices */
-	for (ret = uclass_first_device(UCLASS_TEST, &dev);
-	     dev;
-	     ret = uclass_next_device(&dev))
-		;
-
-	return ret;
-}
-
 static int dm_test_destroy(struct unit_test_state *uts)
 {
 	int id;
@@ -91,8 +76,6 @@ static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 	uts->start = mallinfo();
 	if (test->flags & UT_TESTF_SCAN_PDATA)
 		ut_assertok(dm_scan_plat(false));
-	if (test->flags & UT_TESTF_PROBE_TEST)
-		ut_assertok(do_autoprobe(uts));
 
 	ut_assertok(test_pre_run(uts, test));
 

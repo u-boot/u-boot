@@ -13,11 +13,29 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* Ensure all the test devices are probed */
+static int do_autoprobe(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	int ret;
+
+	/* Scanning the uclass is enough to probe all the devices */
+	for (ret = uclass_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     ret = uclass_next_device(&dev))
+		;
+
+	return ret;
+}
+
 int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 {
 	/* DM tests have already done this */
 	if (!(test->flags & UT_TESTF_DM))
 		uts->start = mallinfo();
+
+	if (test->flags & UT_TESTF_PROBE_TEST)
+		ut_assertok(do_autoprobe(uts));
 
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA) &&
 	    (test->flags & UT_TESTF_SCAN_FDT))
