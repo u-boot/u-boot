@@ -22,15 +22,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct unit_test_state global_dm_test_state;
 
-static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
-		      bool of_live)
-{
-	uts->of_live = of_live;
-	ut_assertok(ut_run_test(uts, test, test->name));
-
-	return 0;
-}
-
 /**
  * dm_test_run_on_flattree() - Check if we should run a test with flat DT
  *
@@ -103,7 +94,8 @@ int dm_test_run(const char *test_name)
 		runs = 0;
 		if (CONFIG_IS_ENABLED(OF_LIVE)) {
 			if (!(test->flags & UT_TESTF_FLAT_TREE)) {
-				ut_assertok(dm_do_test(uts, test, true));
+				uts->of_live = true;
+				ut_assertok(ut_run_test(uts, test, test->name));
 				runs++;
 			}
 		}
@@ -114,7 +106,8 @@ int dm_test_run(const char *test_name)
 		 */
 		if (!(test->flags & UT_TESTF_LIVE_TREE) &&
 		    (!runs || dm_test_run_on_flattree(test))) {
-			ut_assertok(dm_do_test(uts, test, false));
+			uts->of_live = false;
+			ut_assertok(ut_run_test(uts, test, test->name));
 			runs++;
 		}
 		found++;
