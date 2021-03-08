@@ -10,6 +10,7 @@
 #include <asm/state.h>
 #include <dm/root.h>
 #include <dm/test.h>
+#include <dm/uclass-internal.h>
 #include <test/test.h>
 #include <test/ut.h>
 
@@ -40,6 +41,26 @@ static int dm_test_pre_run(struct unit_test_state *uts)
 	gd_set_of_root(of_live ? uts->of_root : NULL);
 	ut_assertok(dm_init(of_live));
 	uts->root = dm_root();
+
+	return 0;
+}
+
+static int dm_test_post_run(struct unit_test_state *uts)
+{
+	int id;
+
+	for (id = 0; id < UCLASS_COUNT; id++) {
+		struct uclass *uc;
+
+		/*
+		 * If the uclass doesn't exist we don't want to create it. So
+		 * check that here before we call uclass_find_device().
+		 */
+		uc = uclass_find(id);
+		if (!uc)
+			continue;
+		ut_assertok(uclass_destroy(uc));
+	}
 
 	return 0;
 }
@@ -94,6 +115,8 @@ int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 int test_post_run(struct unit_test_state *uts, struct unit_test *test)
 {
 	ut_unsilence_console(uts);
+	if (test->flags & UT_TESTF_DM)
+		ut_assertok(dm_test_post_run(uts));
 
 	return 0;
 }

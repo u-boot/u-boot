@@ -22,26 +22,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct unit_test_state global_dm_test_state;
 
-static int dm_test_destroy(struct unit_test_state *uts)
-{
-	int id;
-
-	for (id = 0; id < UCLASS_COUNT; id++) {
-		struct uclass *uc;
-
-		/*
-		 * If the uclass doesn't exist we don't want to create it. So
-		 * check that here before we call uclass_find_device().
-		 */
-		uc = uclass_find(id);
-		if (!uc)
-			continue;
-		ut_assertok(uclass_destroy(uc));
-	}
-
-	return 0;
-}
-
 static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 		      bool of_live)
 {
@@ -56,8 +36,6 @@ static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 	test->func(uts);
 
 	ut_assertok(test_post_run(uts, test));
-
-	ut_assertok(dm_test_destroy(uts));
 
 	return 0;
 }
