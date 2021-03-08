@@ -387,15 +387,6 @@ int test_pre_run(struct unit_test_state *uts, struct unit_test *test);
  */
 int test_post_run(struct unit_test_state *uts, struct unit_test *test);
 
-/**
- * dm_test_init() - Get ready to run a driver model test
- *
- * This clears out the driver model data structures. For sandbox it resets the
- * state structure.
- *
- * @uts: Test state
- */
-int dm_test_init(struct unit_test_state *uts);
 
 /**
  * ut_run_tests() - Run a set of tests

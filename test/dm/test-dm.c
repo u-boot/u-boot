@@ -12,7 +12,6 @@
 #include <malloc.h>
 #include <asm/global_data.h>
 #include <asm/state.h>
-#include <dm/test.h>
 #include <dm/root.h>
 #include <dm/uclass-internal.h>
 #include <test/test.h>
@@ -22,27 +21,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 struct unit_test_state global_dm_test_state;
-
-int dm_test_init(struct unit_test_state *uts)
-{
-	bool of_live = uts->of_live;
-
-	uts->root = NULL;
-	uts->testdev = NULL;
-	uts->force_fail_alloc = false;
-	uts->skip_post_probe = false;
-	gd->dm_root = NULL;
-	if (!CONFIG_IS_ENABLED(OF_PLATDATA))
-		memset(dm_testdrv_op_count, '\0', sizeof(dm_testdrv_op_count));
-	state_reset_for_test(state_get_current());
-
-	/* Determine whether to make the live tree available */
-	gd_set_of_root(of_live ? uts->of_root : NULL);
-	ut_assertok(dm_init(of_live));
-	uts->root = dm_root();
-
-	return 0;
-}
 
 static int dm_test_destroy(struct unit_test_state *uts)
 {
