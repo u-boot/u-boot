@@ -143,7 +143,7 @@ static bool test_matches(const char *prefix, const char *test_name,
 	return false;
 }
 
-/*
+/**
  * ut_list_has_dm_tests() - Check if a list of tests has driver model ones
  *
  * @tests: List of tests to run
@@ -160,6 +160,28 @@ static bool ut_list_has_dm_tests(struct unit_test *tests, int count)
 	}
 
 	return false;
+}
+
+/**
+ * dm_test_restore() Put things back to normal so sandbox works as expected
+ *
+ * @of_root: Value to set for of_root
+ * @return 0 if OK, -ve on error
+ */
+static int dm_test_restore(struct device_node *of_root)
+{
+	int ret;
+
+	gd_set_of_root(of_root);
+	gd->dm_root = NULL;
+	ret = dm_init(CONFIG_IS_ENABLED(OF_LIVE));
+	if (ret)
+		return ret;
+	dm_scan_plat(false);
+	if (!CONFIG_IS_ENABLED(OF_PLATDATA))
+		dm_scan_fdt(false);
+
+	return 0;
 }
 
 /**
@@ -359,10 +381,12 @@ int ut_run_list(const char *category, const char *prefix,
 		struct unit_test *tests, int count, const char *select_name)
 {
 	struct unit_test_state uts = { .fail_count = 0 };
+	bool has_dm_tests = false;
 	int ret;
 
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA) &&
 	    ut_list_has_dm_tests(tests, count)) {
+		has_dm_tests = true;
 		/*
 		 * If we have no device tree, or it only has a root node, then
 		 * these * tests clearly aren't going to work...
@@ -384,6 +408,10 @@ int ut_run_list(const char *category, const char *prefix,
 		printf("Test '%s' not found\n", select_name);
 	else
 		printf("Failures: %d\n", uts.fail_count);
+
+	/* Best efforts only...ignore errors */
+	if (has_dm_tests)
+		dm_test_restore(uts.of_root);
 
 	return ret;
 }

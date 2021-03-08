@@ -24,20 +24,9 @@ int dm_test_run(const char *test_name)
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test, dm_test);
 	const int n_ents = ll_entry_count(struct unit_test, dm_test);
-	struct device_node *of_root;
 	int ret;
 
-	of_root = gd_of_root();
 	ret = ut_run_list("driver model", "dm_test_", tests, n_ents, test_name);
-
-	/* Put everything back to normal so that sandbox works as expected */
-	gd_set_of_root(of_root);
-	gd->dm_root = NULL;
-	if (dm_init(CONFIG_IS_ENABLED(OF_LIVE)))
-		return CMD_RET_FAILURE;
-	dm_scan_plat(false);
-	if (!CONFIG_IS_ENABLED(OF_PLATDATA))
-		dm_scan_fdt(false);
 
 	return ret ? CMD_RET_FAILURE : 0;
 }
