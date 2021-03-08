@@ -8,6 +8,27 @@
 #include <console.h>
 #include <test/test.h>
 
+int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
+{
+	uts->start = mallinfo();
+
+	if (test->flags & UT_TESTF_CONSOLE_REC) {
+		int ret = console_record_reset_enable();
+
+		if (ret) {
+			printf("Skipping: Console recording disabled\n");
+			return -EAGAIN;
+		}
+	}
+
+	return 0;
+}
+
+int test_post_run(struct unit_test_state *uts, struct unit_test *test)
+{
+	return 0;
+}
+
 int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 		 struct unit_test *tests, int count, const char *select_name)
 {
@@ -17,6 +38,7 @@ int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 
 	for (test = tests; test < tests + count; test++) {
 		const char *test_name = test->name;
+		int ret;
 
 		/* Remove the prefix */
 		if (prefix && !strncmp(test_name, prefix, prefix_len))
@@ -27,18 +49,17 @@ int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 		printf("Test: %s\n", test_name);
 		found++;
 
-		if (test->flags & UT_TESTF_CONSOLE_REC) {
-			int ret = console_record_reset_enable();
-
-			if (ret) {
-				printf("Skipping: Console recording disabled\n");
-				continue;
-			}
-		}
-
-		uts->start = mallinfo();
+		ret = test_pre_run(uts, test);
+		if (ret == -EAGAIN)
+			continue;
+		if (ret)
+			return ret;
 
 		test->func(uts);
+
+		ret = test_post_run(uts, test);
+		if (ret)
+			return ret;
 	}
 	if (select_name && !found)
 		return -ENOENT;
