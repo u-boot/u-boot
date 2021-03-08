@@ -143,6 +143,25 @@ static bool test_matches(const char *prefix, const char *test_name,
 	return false;
 }
 
+/*
+ * ut_list_has_dm_tests() - Check if a list of tests has driver model ones
+ *
+ * @tests: List of tests to run
+ * @count: Number of tests to ru
+ * @return true if any of the tests have the UT_TESTF_DM flag
+ */
+static bool ut_list_has_dm_tests(struct unit_test *tests, int count)
+{
+	struct unit_test *test;
+
+	for (test = tests; test < tests + count; test++) {
+		if (test->flags & UT_TESTF_DM)
+			return true;
+	}
+
+	return false;
+}
+
 /**
  * test_pre_run() - Handle any preparation needed to run a test
  *
@@ -341,6 +360,19 @@ int ut_run_list(const char *category, const char *prefix,
 {
 	struct unit_test_state uts = { .fail_count = 0 };
 	int ret;
+
+	if (!CONFIG_IS_ENABLED(OF_PLATDATA) &&
+	    ut_list_has_dm_tests(tests, count)) {
+		/*
+		 * If we have no device tree, or it only has a root node, then
+		 * these * tests clearly aren't going to work...
+		 */
+		if (!gd->fdt_blob || fdt_next_node(gd->fdt_blob, 0, NULL) < 0) {
+			puts("Please run with test device tree:\n"
+			     "    ./u-boot -d arch/sandbox/dts/test.dtb\n");
+			return CMD_RET_FAILURE;
+		}
+	}
 
 	if (!select_name)
 		printf("Running %d %s tests\n", count, category);
