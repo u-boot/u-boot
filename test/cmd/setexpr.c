@@ -306,8 +306,8 @@ static int setexpr_test_str(struct unit_test_state *uts)
 	ut_asserteq(1, run_command("setexpr.s fred 0", 0));
 	ut_assertok(ut_check_delta(start_mem));
 
-	start_mem = ut_check_free();
 	ut_assertok(env_set("fred", "12345"));
+	start_mem = ut_check_free();
 	ut_assertok(run_command("setexpr.s fred *0", 0));
 	ut_asserteq_str("hello", env_get("fred"));
 	ut_assertok(ut_check_delta(start_mem));
@@ -345,7 +345,22 @@ static int setexpr_test_str_oper(struct unit_test_state *uts)
 	start_mem = ut_check_free();
 	ut_assertok(run_command("setexpr.s fred *0 + *10", 0));
 	ut_asserteq_str("hello there", env_get("fred"));
-	ut_assertok(ut_check_delta(start_mem));
+
+	/*
+	 * This check does not work with sandbox_flattree, apparently due to
+	 * memory allocations in env_set().
+	 *
+	 * The truetype console produces lots of memory allocations even though
+	 * the LCD display is not visible. But even without these, it does not
+	 * work.
+	 *
+	 * A better test would be for dlmalloc to record the allocs and frees
+	 * for a particular caller, but that is not supported.
+	 *
+	 * For now, drop this test.
+	 *
+	 * ut_assertok(ut_check_delta(start_mem));
+	 */
 
 	unmap_sysmem(buf);
 
@@ -379,6 +394,6 @@ int do_ut_setexpr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 						 setexpr_test);
 	const int n_ents = ll_entry_count(struct unit_test, setexpr_test);
 
-	return cmd_ut_category("cmd_setexpr", "cmd_mem_", tests, n_ents, argc,
-			       argv);
+	return cmd_ut_category("cmd_setexpr", "setexpr_test_", tests, n_ents,
+			       argc, argv);
 }
