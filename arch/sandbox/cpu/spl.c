@@ -37,7 +37,7 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 	char fname[256];
 	int ret;
 
-	ret = os_find_u_boot(fname, sizeof(fname));
+	ret = os_find_u_boot(fname, sizeof(fname), false);
 	if (ret) {
 		printf("(%s not found, error %d)\n", fname, ret);
 		return ret;

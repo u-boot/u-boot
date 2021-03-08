@@ -777,7 +777,7 @@ int os_jump_to_image(const void *dest, int size)
 	return os_jump_to_file(fname);
 }
 
-int os_find_u_boot(char *fname, int maxlen)
+int os_find_u_boot(char *fname, int maxlen, bool use_img)
 {
 	struct sandbox_state *state = state_get_current();
 	const char *progname = state->argv[0];
@@ -801,8 +801,8 @@ int os_find_u_boot(char *fname, int maxlen)
 			return 0;
 		}
 
-		/* Look for 'u-boot-tpl' in the tpl/ directory */
-		p = strstr(fname, "/tpl/");
+		/* Look for 'u-boot-spl' in the spl/ directory */
+		p = strstr(fname, "/spl/");
 		if (p) {
 			p[1] = 's';
 			fd = os_open(fname, O_RDONLY);
@@ -829,6 +829,8 @@ int os_find_u_boot(char *fname, int maxlen)
 	if (p) {
 		/* Remove the "spl" characters */
 		memmove(p, p + 4, strlen(p + 4) + 1);
+		if (use_img)
+			strcat(p, ".img");
 		fd = os_open(fname, O_RDONLY);
 		if (fd >= 0) {
 			close(fd);

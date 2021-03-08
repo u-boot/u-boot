@@ -324,9 +324,10 @@ int os_jump_to_image(const void *dest, int size);
  *
  * @fname:	place to put full path to U-Boot
  * @maxlen:	maximum size of @fname
+ * @use_img:	select the 'u-boot.img' file instead of the 'u-boot' ELF file
  * Return:	0 if OK, -NOSPC if the filename is too large, -ENOENT if not found
  */
-int os_find_u_boot(char *fname, int maxlen);
+int os_find_u_boot(char *fname, int maxlen, bool use_img);
 
 /**
  * os_spl_to_uboot() - Run U-Boot proper
