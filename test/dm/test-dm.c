@@ -74,8 +74,6 @@ static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 	ut_assertok(dm_test_init(uts, of_live));
 
 	uts->start = mallinfo();
-	if (test->flags & UT_TESTF_SCAN_PDATA)
-		ut_assertok(dm_scan_plat(false));
 
 	ut_assertok(test_pre_run(uts, test));
 

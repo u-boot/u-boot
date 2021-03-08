@@ -34,6 +34,9 @@ int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 	if (!(test->flags & UT_TESTF_DM))
 		uts->start = mallinfo();
 
+	if (test->flags & UT_TESTF_SCAN_PDATA)
+		ut_assertok(dm_scan_plat(false));
+
 	if (test->flags & UT_TESTF_PROBE_TEST)
 		ut_assertok(do_autoprobe(uts));
 
