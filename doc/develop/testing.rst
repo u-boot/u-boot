@@ -15,9 +15,19 @@ To run most tests on sandbox, type this::
 in the U-Boot directory. Note that only the pytest suite is run using this
 command.
 
-Some tests take ages to run. To run just the quick ones, type this::
+Some tests take ages to run and are marked with @pytest.mark.slow. To run just
+the quick ones, type this::
 
     make qcheck
+
+It is also possible to run just the tests for tools (patman, binman, etc.).
+Such tests are included with those tools, i.e. no actual U-Boot unit tests are
+run. Type this::
+
+    make tcheck
+
+All of the above use the test/run script with a paremeter to select which tests
+are run.
 
 
 Sandbox
