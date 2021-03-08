@@ -20,6 +20,7 @@
 #include <dm/device-internal.h>
 #include <dm/test.h>
 #include <linux/kconfig.h>
+#include <power/regulator.h>
 #include <test/ut.h>
 
 static int ut_assert_scmi_state_preprobe(struct unit_test_state *uts)
@@ -47,6 +48,7 @@ static int ut_assert_scmi_state_postprobe(struct unit_test_state *uts,
 		ut_asserteq(3, scmi_devices->clk_count);
 	if (IS_ENABLED(CONFIG_RESET_SCMI))
 		ut_asserteq(1, scmi_devices->reset_count);
+	ut_asserteq(2, scmi_devices->regul_count);
 
 	/* State of the simulated SCMI server exposed */
 	scmi_ctx = sandbox_scmi_service_ctx();
@@ -58,6 +60,8 @@ static int ut_assert_scmi_state_postprobe(struct unit_test_state *uts,
 	ut_assertnonnull(scmi_ctx->agent[0]->clk);
 	ut_asserteq(1, scmi_ctx->agent[0]->reset_count);
 	ut_assertnonnull(scmi_ctx->agent[0]->reset);
+	ut_asserteq(2, scmi_ctx->agent[0]->voltd_count);
+	ut_assertnonnull(scmi_ctx->agent[0]->voltd);
 
 	ut_assertnonnull(scmi_ctx->agent[1]);
 	ut_assertnonnull(scmi_ctx->agent[1]->clk);
@@ -201,3 +205,57 @@ static int dm_test_scmi_resets(struct unit_test_state *uts)
 }
 
 DM_TEST(dm_test_scmi_resets, UT_TESTF_SCAN_FDT);
+
+static int dm_test_scmi_voltage_domains(struct unit_test_state *uts)
+{
+	struct sandbox_scmi_devices *scmi_devices;
+	struct sandbox_scmi_service *scmi_ctx;
+	struct sandbox_scmi_voltd *sandbox_voltd;
+	struct dm_regulator_uclass_plat *uc_pdata;
+	struct udevice *dev;
+	struct udevice *regul_dev;
+
+	ut_assertok(load_sandbox_scmi_test_devices(uts, &dev));
+
+	scmi_devices = sandbox_scmi_devices_ctx(dev);
+	scmi_ctx = sandbox_scmi_service_ctx();
+
+	/* Set/Get an SCMI voltage domain level */
+	sandbox_voltd = &scmi_ctx->agent[0]->voltd[0];
+	regul_dev = scmi_devices->regul[0];
+	ut_assert(regul_dev);
+
+	uc_pdata = dev_get_uclass_plat(regul_dev);
+	ut_assert(uc_pdata);
+
+	ut_assertok(regulator_set_value(regul_dev, uc_pdata->min_uV));
+	ut_asserteq(sandbox_voltd->voltage_uv, uc_pdata->min_uV);
+
+	ut_assert(regulator_get_value(regul_dev) == uc_pdata->min_uV);
+
+	ut_assertok(regulator_set_value(regul_dev, uc_pdata->max_uV));
+	ut_asserteq(sandbox_voltd->voltage_uv, uc_pdata->max_uV);
+
+	ut_assert(regulator_get_value(regul_dev) == uc_pdata->max_uV);
+
+	/* Enable/disable SCMI voltage domains */
+	ut_assertok(regulator_set_enable(scmi_devices->regul[0], false));
+	ut_assertok(regulator_set_enable(scmi_devices->regul[1], false));
+	ut_assert(!scmi_ctx->agent[0]->voltd[0].enabled);
+	ut_assert(!scmi_ctx->agent[0]->voltd[1].enabled);
+
+	ut_assertok(regulator_set_enable(scmi_devices->regul[0], true));
+	ut_assert(scmi_ctx->agent[0]->voltd[0].enabled);
+	ut_assert(!scmi_ctx->agent[0]->voltd[1].enabled);
+
+	ut_assertok(regulator_set_enable(scmi_devices->regul[1], true));
+	ut_assert(scmi_ctx->agent[0]->voltd[0].enabled);
+	ut_assert(scmi_ctx->agent[0]->voltd[1].enabled);
+
+	ut_assertok(regulator_set_enable(scmi_devices->regul[0], false));
+	ut_assert(!scmi_ctx->agent[0]->voltd[0].enabled);
+	ut_assert(scmi_ctx->agent[0]->voltd[1].enabled);
+
+	return release_sandbox_scmi_test_devices(uts, dev);
+}
+DM_TEST(dm_test_scmi_voltage_domains, UT_TESTF_SCAN_FDT);

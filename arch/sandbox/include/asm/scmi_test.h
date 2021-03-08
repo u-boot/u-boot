@@ -32,12 +32,26 @@ struct sandbox_scmi_reset {
 };
 
 /**
+ * struct sandbox_scmi_voltd - Simulated voltage regulator exposed by SCMI
+ * @id:		Identifier of the voltage domain used in the SCMI protocol
+ * @enabled:	Regulator state: true if on, false if off
+ * @voltage_uv:	Regulator current voltage in microvoltd (uV)
+ */
+struct sandbox_scmi_voltd {
+	uint id;
+	bool enabled;
+	int voltage_uv;
+};
+
+/**
  * struct sandbox_scmi_agent - Simulated SCMI service seen by SCMI agent
  * @idx:	Identifier for the SCMI agent, its index
  * @clk:	Simulated clocks
  * @clk_count:	Simulated clocks array size
  * @clk:	Simulated reset domains
  * @clk_count:	Simulated reset domains array size
+ * @voltd:	 Simulated voltage domains (regulators)
+ * @voltd_count: Simulated voltage domains array size
  */
 struct sandbox_scmi_agent {
 	uint idx;
@@ -45,6 +59,8 @@ struct sandbox_scmi_agent {
 	size_t clk_count;
 	struct sandbox_scmi_reset *reset;
 	size_t reset_count;
+	struct sandbox_scmi_voltd *voltd;
+	size_t voltd_count;
 };
 
 /**
@@ -63,12 +79,16 @@ struct sandbox_scmi_service {
  * @clk_count:		Number of clock devices probed
  * @reset:		Array the reset controller devices
  * @reset_count:	Number of reset controller devices probed
+ * @regul:		Array regulator devices
+ * @regul_count:	Number of regulator devices probed
  */
 struct sandbox_scmi_devices {
 	struct clk *clk;
 	size_t clk_count;
 	struct reset_ctl *reset;
 	size_t reset_count;
+	struct udevice **regul;
+	size_t regul_count;
 };
 
 #ifdef CONFIG_SCMI_FIRMWARE

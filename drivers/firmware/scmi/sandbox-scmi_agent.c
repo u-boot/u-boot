@@ -21,14 +21,15 @@
  * SCMI protocols embedded in U-Boot. Currently:
  * - SCMI clock protocol: emulate 2 agents each exposing few clocks
  * - SCMI reset protocol: emulate 1 agents each exposing a reset
+ * - SCMI voltage domain protocol: emulate 1 agent exposing 2 regulators
  *
- * Agent #0 simulates 2 clocks and 1 reset domain.
+ * Agent #0 simulates 2 clocks, 1 reset domain and 1 voltage domain.
  * See IDs in scmi0_clk[]/scmi0_reset[] and "sandbox-scmi-agent@0" in test.dts.
  *
  * Agent #1 simulates 1 clock.
  * See IDs in scmi1_clk[] and "sandbox-scmi-agent@1" in test.dts.
  *
- * All clocks are default disabled and reset levels down.
+ * All clocks and regulators are default disabled and reset controller down.
  *
  * This Driver exports sandbox_scmi_service_ct() for the test sequence to
  * get the state of the simulated services (clock state, rate, ...) and
@@ -45,6 +46,11 @@ static struct sandbox_scmi_clk scmi0_clk[] = {
 
 static struct sandbox_scmi_reset scmi0_reset[] = {
 	{ .id = 3 },
+};
+
+static struct sandbox_scmi_voltd scmi0_voltd[] = {
+	{ .id = 0, .voltage_uv = 3300000 },
+	{ .id = 1, .voltage_uv = 1800000 },
 };
 
 static struct sandbox_scmi_clk scmi1_clk[] = {
@@ -83,6 +89,13 @@ static void debug_print_agent_state(struct udevice *dev, char *str)
 		agent->reset_count,
 		agent->reset_count ? agent->reset[0].asserted : -1,
 		agent->reset_count > 1 ? agent->reset[1].asserted : -1);
+	dev_dbg(dev, " scmi%u_voltd (%zu): %u/%d, %u/%d, ...\n",
+		agent->idx,
+		agent->voltd_count,
+		agent->voltd_count ? agent->voltd[0].enabled : -1,
+		agent->voltd_count ? agent->voltd[0].voltage_uv : -1,
+		agent->voltd_count ? agent->voltd[1].enabled : -1,
+		agent->voltd_count ? agent->voltd[1].voltage_uv : -1);
 };
 
 static struct sandbox_scmi_clk *get_scmi_clk_state(uint agent_id, uint clock_id)
@@ -120,6 +133,20 @@ static struct sandbox_scmi_reset *get_scmi_reset_state(uint agent_id,
 		for (n = 0; n < ARRAY_SIZE(scmi0_reset); n++)
 			if (scmi0_reset[n].id == reset_id)
 				return scmi0_reset + n;
+	}
+
+	return NULL;
+}
+
+static struct sandbox_scmi_voltd *get_scmi_voltd_state(uint agent_id,
+						       uint domain_id)
+{
+	size_t n;
+
+	if (agent_id == 0) {
+		for (n = 0; n < ARRAY_SIZE(scmi0_voltd); n++)
+			if (scmi0_voltd[n].id == domain_id)
+				return scmi0_voltd + n;
 	}
 
 	return NULL;
@@ -292,6 +319,160 @@ static int sandbox_scmi_rd_reset(struct udevice *dev, struct scmi_msg *msg)
 	return 0;
 }
 
+static int sandbox_scmi_voltd_attribs(struct udevice *dev, struct scmi_msg *msg)
+{
+	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
+	struct scmi_voltd_attr_in *in = NULL;
+	struct scmi_voltd_attr_out *out = NULL;
+	struct sandbox_scmi_voltd *voltd_state = NULL;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(*in) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	in = (struct scmi_voltd_attr_in *)msg->in_msg;
+	out = (struct scmi_voltd_attr_out *)msg->out_msg;
+
+	voltd_state = get_scmi_voltd_state(agent->idx, in->domain_id);
+	if (!voltd_state) {
+		dev_err(dev, "Unexpected domain ID %u\n", in->domain_id);
+
+		out->status = SCMI_NOT_FOUND;
+	} else {
+		memset(out, 0, sizeof(*out));
+		snprintf(out->name, sizeof(out->name), "regu%u", in->domain_id);
+
+		out->status = SCMI_SUCCESS;
+	}
+
+	return 0;
+}
+
+static int sandbox_scmi_voltd_config_set(struct udevice *dev,
+					 struct scmi_msg *msg)
+{
+	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
+	struct scmi_voltd_config_set_in *in = NULL;
+	struct scmi_voltd_config_set_out *out = NULL;
+	struct sandbox_scmi_voltd *voltd_state = NULL;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(*in) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	in = (struct scmi_voltd_config_set_in *)msg->in_msg;
+	out = (struct scmi_voltd_config_set_out *)msg->out_msg;
+
+	voltd_state = get_scmi_voltd_state(agent->idx, in->domain_id);
+	if (!voltd_state) {
+		dev_err(dev, "Unexpected domain ID %u\n", in->domain_id);
+
+		out->status = SCMI_NOT_FOUND;
+	} else if (in->config & ~SCMI_VOLTD_CONFIG_MASK) {
+		dev_err(dev, "Invalid config value 0x%x\n", in->config);
+
+		out->status = SCMI_INVALID_PARAMETERS;
+	} else if (in->config != SCMI_VOLTD_CONFIG_ON &&
+		   in->config != SCMI_VOLTD_CONFIG_OFF) {
+		dev_err(dev, "Unexpected custom value 0x%x\n", in->config);
+
+		out->status = SCMI_INVALID_PARAMETERS;
+	} else {
+		voltd_state->enabled = in->config == SCMI_VOLTD_CONFIG_ON;
+		out->status = SCMI_SUCCESS;
+	}
+
+	return 0;
+}
+
+static int sandbox_scmi_voltd_config_get(struct udevice *dev,
+					 struct scmi_msg *msg)
+{
+	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
+	struct scmi_voltd_config_get_in *in = NULL;
+	struct scmi_voltd_config_get_out *out = NULL;
+	struct sandbox_scmi_voltd *voltd_state = NULL;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(*in) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	in = (struct scmi_voltd_config_get_in *)msg->in_msg;
+	out = (struct scmi_voltd_config_get_out *)msg->out_msg;
+
+	voltd_state = get_scmi_voltd_state(agent->idx, in->domain_id);
+	if (!voltd_state) {
+		dev_err(dev, "Unexpected domain ID %u\n", in->domain_id);
+
+		out->status = SCMI_NOT_FOUND;
+	} else {
+		if (voltd_state->enabled)
+			out->config = SCMI_VOLTD_CONFIG_ON;
+		else
+			out->config = SCMI_VOLTD_CONFIG_OFF;
+
+		out->status = SCMI_SUCCESS;
+	}
+
+	return 0;
+}
+
+static int sandbox_scmi_voltd_level_set(struct udevice *dev,
+					 struct scmi_msg *msg)
+{
+	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
+	struct scmi_voltd_level_set_in *in = NULL;
+	struct scmi_voltd_level_set_out *out = NULL;
+	struct sandbox_scmi_voltd *voltd_state = NULL;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(*in) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	in = (struct scmi_voltd_level_set_in *)msg->in_msg;
+	out = (struct scmi_voltd_level_set_out *)msg->out_msg;
+
+	voltd_state = get_scmi_voltd_state(agent->idx, in->domain_id);
+	if (!voltd_state) {
+		dev_err(dev, "Unexpected domain ID %u\n", in->domain_id);
+
+		out->status = SCMI_NOT_FOUND;
+	} else {
+		voltd_state->voltage_uv = in->voltage_level;
+		out->status = SCMI_SUCCESS;
+	}
+
+	return 0;
+}
+
+static int sandbox_scmi_voltd_level_get(struct udevice *dev,
+					struct scmi_msg *msg)
+{
+	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
+	struct scmi_voltd_level_get_in *in = NULL;
+	struct scmi_voltd_level_get_out *out = NULL;
+	struct sandbox_scmi_voltd *voltd_state = NULL;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(*in) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	in = (struct scmi_voltd_level_get_in *)msg->in_msg;
+	out = (struct scmi_voltd_level_get_out *)msg->out_msg;
+
+	voltd_state = get_scmi_voltd_state(agent->idx, in->domain_id);
+	if (!voltd_state) {
+		dev_err(dev, "Unexpected domain ID %u\n", in->domain_id);
+
+		out->status = SCMI_NOT_FOUND;
+	} else {
+		out->voltage_level = voltd_state->voltage_uv;
+		out->status = SCMI_SUCCESS;
+	}
+
+	return 0;
+}
+
 static int sandbox_scmi_test_process_msg(struct udevice *dev,
 					 struct scmi_msg *msg)
 {
@@ -314,6 +495,22 @@ static int sandbox_scmi_test_process_msg(struct udevice *dev,
 			return sandbox_scmi_rd_attribs(dev, msg);
 		case SCMI_RESET_DOMAIN_RESET:
 			return sandbox_scmi_rd_reset(dev, msg);
+		default:
+			break;
+		}
+		break;
+	case SCMI_PROTOCOL_ID_VOLTAGE_DOMAIN:
+		switch (msg->message_id) {
+		case SCMI_VOLTAGE_DOMAIN_ATTRIBUTES:
+			return sandbox_scmi_voltd_attribs(dev, msg);
+		case SCMI_VOLTAGE_DOMAIN_CONFIG_SET:
+			return sandbox_scmi_voltd_config_set(dev, msg);
+		case SCMI_VOLTAGE_DOMAIN_CONFIG_GET:
+			return sandbox_scmi_voltd_config_get(dev, msg);
+		case SCMI_VOLTAGE_DOMAIN_LEVEL_SET:
+			return sandbox_scmi_voltd_level_set(dev, msg);
+		case SCMI_VOLTAGE_DOMAIN_LEVEL_GET:
+			return sandbox_scmi_voltd_level_get(dev, msg);
 		default:
 			break;
 		}
@@ -369,6 +566,8 @@ static int sandbox_scmi_test_probe(struct udevice *dev)
 			.clk_count = ARRAY_SIZE(scmi0_clk),
 			.reset = scmi0_reset,
 			.reset_count = ARRAY_SIZE(scmi0_reset),
+			.voltd = scmi0_voltd,
+			.voltd_count = ARRAY_SIZE(scmi0_voltd),
 		};
 		break;
 	case '1':

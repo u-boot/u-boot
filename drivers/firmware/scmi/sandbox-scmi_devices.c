@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2020, Linaro Limited
+ * Copyright (C) 2020-2021, Linaro Limited
  */
 
 #define LOG_CATEGORY UCLASS_MISC
@@ -8,11 +8,13 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <reset.h>
 #include <asm/io.h>
 #include <asm/scmi_test.h>
 #include <dm/device_compat.h>
+#include <power/regulator.h>
 
 /*
  * Simulate to some extent a SCMI exchange.
@@ -23,16 +25,19 @@
 
 #define SCMI_TEST_DEVICES_CLK_COUNT		3
 #define SCMI_TEST_DEVICES_RD_COUNT		1
+#define SCMI_TEST_DEVICES_VOLTD_COUNT		2
 
 /*
  * struct sandbox_scmi_device_priv - Storage for device handles used by test
  * @clk:		Array of clock instances used by tests
  * @reset_clt:		Array of the reset controller instances used by tests
+ * @regulators:		Array of regulator device references used by the tests
  * @devices:		Resources exposed by sandbox_scmi_devices_ctx()
  */
 struct sandbox_scmi_device_priv {
 	struct clk clk[SCMI_TEST_DEVICES_CLK_COUNT];
 	struct reset_ctl reset_ctl[SCMI_TEST_DEVICES_RD_COUNT];
+	struct udevice *regulators[SCMI_TEST_DEVICES_VOLTD_COUNT];
 	struct sandbox_scmi_devices devices;
 };
 
@@ -76,6 +81,8 @@ static int sandbox_scmi_devices_probe(struct udevice *dev)
 		.clk_count = SCMI_TEST_DEVICES_CLK_COUNT,
 		.reset = priv->reset_ctl,
 		.reset_count = SCMI_TEST_DEVICES_RD_COUNT,
+		.regul = priv->regulators,
+		.regul_count = SCMI_TEST_DEVICES_VOLTD_COUNT,
 	};
 
 	for (n = 0; n < SCMI_TEST_DEVICES_CLK_COUNT; n++) {
@@ -94,8 +101,24 @@ static int sandbox_scmi_devices_probe(struct udevice *dev)
 		}
 	}
 
+	for (n = 0; n < SCMI_TEST_DEVICES_VOLTD_COUNT; n++) {
+		char name[32];
+
+		ret = snprintf(name, sizeof(name), "regul%zu-supply", n);
+		assert(ret >= 0 && ret < sizeof(name));
+
+		ret = device_get_supply_regulator(dev, name,
+						  priv->devices.regul + n);
+		if (ret) {
+			dev_err(dev, "%s: Failed on voltd %zu\n", __func__, n);
+			goto err_regul;
+		}
+	}
+
 	return 0;
 
+err_regul:
+	n = SCMI_TEST_DEVICES_RD_COUNT;
 err_reset:
 	for (; n > 0; n--)
 		reset_free(priv->devices.reset + n - 1);

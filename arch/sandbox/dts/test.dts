@@ -497,6 +497,27 @@
 				reg = <0x16>;
 				#reset-cells = <1>;
 			};
+
+			protocol@17 {
+				reg = <0x17>;
+
+				regulators {
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					regul0_scmi0: reg@0 {
+						reg = <0>;
+						regulator-name = "sandbox-voltd0";
+						regulator-min-microvolt = <1100000>;
+						regulator-max-microvolt = <3300000>;
+					};
+					regul1_scmi0: reg@1 {
+						reg = <0x1>;
+						regulator-name = "sandbox-voltd1";
+						regulator-min-microvolt = <1800000>;
+					};
+				};
+			};
 		};
 
 		sandbox-scmi-agent@1 {
@@ -1264,6 +1285,8 @@
 		compatible = "sandbox,scmi-devices";
 		clocks = <&clk_scmi0 7>, <&clk_scmi0 3>, <&clk_scmi1 1>;
 		resets = <&reset_scmi0 3>;
+		regul0-supply = <&regul0_scmi0>;
+		regul1-supply = <&regul1_scmi0>;
 	};
 
 	pinctrl {
