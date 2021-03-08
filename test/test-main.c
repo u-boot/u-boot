@@ -80,7 +80,16 @@ static int do_autoprobe(struct unit_test_state *uts)
 	return ret;
 }
 
-int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
+/**
+ * test_pre_run() - Handle any preparation needed to run a test
+ *
+ * @uts: Test state
+ * @test: Test to prepare for
+ * @return 0 if OK, -EAGAIN to skip this test since some required feature is not
+ *	available, other -ve on error (meaning that testing cannot likely
+ *	continue)
+ */
+static int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 {
 	if (test->flags & UT_TESTF_DM)
 		ut_assertok(dm_test_pre_run(uts));
@@ -112,7 +121,14 @@ int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 	return 0;
 }
 
-int test_post_run(struct unit_test_state *uts, struct unit_test *test)
+/**
+ * test_post_run() - Handle cleaning up after a test
+ *
+ * @uts: Test state
+ * @test: Test to clean up after
+ * @return 0 if OK, -ve on error (meaning that testing cannot likely continue)
+ */
+static int test_post_run(struct unit_test_state *uts, struct unit_test *test)
 {
 	ut_unsilence_console(uts);
 	if (test->flags & UT_TESTF_DM)
@@ -124,9 +140,13 @@ int test_post_run(struct unit_test_state *uts, struct unit_test *test)
 int ut_run_test(struct unit_test_state *uts, struct unit_test *test,
 		const char *test_name)
 {
+	const char *fname = strrchr(test->file, '/') + 1;
+	const char *note = "";
 	int ret;
 
-	printf("Test: %s\n", test_name);
+	if ((test->flags & UT_TESTF_DM) && !uts->of_live)
+		note = " (flat tree)";
+	printf("Test: %s: %s%s\n", test_name, fname, note);
 
 	ret = test_pre_run(uts, test);
 	if (ret == -EAGAIN)

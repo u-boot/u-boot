@@ -368,26 +368,6 @@ void ut_unsilence_console(struct unit_test_state *uts);
 void ut_set_skip_delays(struct unit_test_state *uts, bool skip_delays);
 
 /**
- * test_pre_run() - Handle any preparation needed to run a test
- *
- * @uts: Test state
- * @test: Test to prepare for
- * @return 0 if OK, -EAGAIN to skip this test since some required feature is not
- *	available, other -ve on error (meaning that testing cannot likely
- *	continue)
- */
-int test_pre_run(struct unit_test_state *uts, struct unit_test *test);
-
-/**
- * test_post_run() - Handle cleaning up after a test
- *
- * @uts: Test state
- * @test: Test to clean up after
- * @return 0 if OK, -ve on error (meaning that testing cannot likely continue)
- */
-int test_post_run(struct unit_test_state *uts, struct unit_test *test);
-
-/**
  * ut_run_test() - Run a single test
  *
  * This runs the test, handling any preparation and clean-up needed. It prints

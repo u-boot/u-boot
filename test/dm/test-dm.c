@@ -25,17 +25,8 @@ struct unit_test_state global_dm_test_state;
 static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 		      bool of_live)
 {
-	const char *fname = strrchr(test->file, '/') + 1;
-
-	printf("Test: %s: %s%s\n", test->name, fname,
-	       !of_live ? " (flat tree)" : "");
 	uts->of_live = of_live;
-
-	ut_assertok(test_pre_run(uts, test));
-
-	test->func(uts);
-
-	ut_assertok(test_post_run(uts, test));
+	ut_assertok(ut_run_test(uts, test, test->name));
 
 	return 0;
 }
