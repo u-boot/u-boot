@@ -17,6 +17,12 @@ of the sandbox U-Boot. The purpose of running U-Boot under Linux is to test
 all the generic code, not specific to any one architecture. The idea is to
 create unit tests which we can run to test this upper level code.
 
+Sandbox allows development of many types of new features in a traditional way,
+rather than needing to test each iteration on real hardware. Many U-Boot
+features were developed on sandbox, including the core driver model, most
+uclasses, verified boot, bloblist, logging and dozens of others. Sandbox has
+enabled many large-scale code refactors as well.
+
 CONFIG_SANDBOX is defined when building a native board.
 
 The board name is 'sandbox' but the vendor name is unset, so there is a
@@ -486,42 +492,10 @@ Testing
 -------
 
 U-Boot sandbox can be used to run various tests, mostly in the test/
-directory. These include:
+directory.
 
-command_ut:
-  Unit tests for command parsing and handling
-compression:
-  Unit tests for U-Boot's compression algorithms, useful for
-  security checking. It supports gzip, bzip2, lzma and lzo.
-driver model:
-  Run this pytest::
-
-   ./test/py/test.py --bd sandbox --build -k ut_dm -v
-
-image:
-  Unit tests for images:
-  test/image/test-imagetools.sh - multi-file images
-  test/image/test-fit.py        - FIT images
-tracing:
-  test/trace/test-trace.sh tests the tracing system (see README.trace)
-verified boot:
-  See test/vboot/vboot_test.sh for this
-
-If you change or enhance any of the above subsystems, you shold write or
-expand a test and include it with your patch series submission. Test
-coverage in U-Boot is limited, as we need to work to improve it.
-
-Note that many of these tests are implemented as commands which you can
-run natively on your board if desired (and enabled).
-
-To run all tests use "make check".
-
-To run a single test in an existing sandbox build, you can use -T to use the
-test device tree, and -c to select the test:
-
-  /tmp/b/sandbox/u-boot -T -c "ut dm pci_busdev"
-
-This runs dm_test_pci_busdev() which is in test/dm/pci.c
+See :doc:`../develop/tests_sandbox` for more information and
+:doc:`../develop/testing` for information about testing generally.
 
 
 Memory Map

@@ -1,7 +1,47 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
-Tests Under the Hood
-====================
+Sandbox tests
+=============
+
+Test Design
+-----------
+
+Most uclasses and many functions of U-Boot have sandbox tests. This allows much
+of the code to be checked in an developer-friendly environment.
+
+Sandbox provides a way to write and run unit tests. The traditional approach to
+unit tests is to build lots of little executables, one for each test or
+category of tests. With sandbox, so far as possible, all the tests share a
+small number of executables (e.g. 'u-boot' for sandbox, 'u-boot-spl' and
+'u-boot' for sandbox_spl) and can be run very quickly. The vast majority of
+tests can run on the 'sandbox' build,
+
+Available tests
+---------------
+
+Some of the available tests are:
+
+  - command_ut: Unit tests for command parsing and handling
+  - compression: Unit tests for U-Boot's compression algorithms, useful for
+      security checking. It supports gzip, bzip2, lzma and lzo.
+  - image: Unit tests for images:
+
+     - test/image/test-imagetools.sh - multi-file images
+     - test/py/tests/test-fit.py     - FIT images
+  - tracing: test/trace/test-trace.sh tests the tracing system (see
+      README.trace)
+  - verified boot: test/py/tests/test_vboot.py
+
+If you change or enhance any U-Boot subsystem, you should write or expand a
+test and include it with your patch series submission. Test coverage in some
+older areas of U-Boot is still somewhat limited and we need to work to improve
+it.
+
+Note that many of these tests are implemented as commands which you can
+run natively on your board if desired (and enabled).
+
+To run all tests, use 'make check'.
+
 
 Running sandbox tests directly
 ------------------------------
