@@ -368,6 +368,20 @@ void ut_unsilence_console(struct unit_test_state *uts);
 void ut_set_skip_delays(struct unit_test_state *uts, bool skip_delays);
 
 /**
+ * test_get_state() - Get the active test state
+ *
+ * @return the currently active test state, or NULL if none
+ */
+struct unit_test_state *test_get_state(void);
+
+/**
+ * test_set_state() - Set the active test state
+ *
+ * @uts: Test state to use as currently active test state, or NULL if none
+ */
+void test_set_state(struct unit_test_state *uts);
+
+/**
  * ut_run_test_live_flat() - Run a test with both live and flat tree
  *
  * This calls ut_run_test() with livetree enabled, which is the standard setup
