@@ -368,10 +368,13 @@ void ut_unsilence_console(struct unit_test_state *uts);
 void ut_set_skip_delays(struct unit_test_state *uts, bool skip_delays);
 
 /**
- * ut_run_test() - Run a single test
+ * ut_run_test_live_flat() - Run a test with both live and flat tree
  *
- * This runs the test, handling any preparation and clean-up needed. It prints
- * the name of each test before running it.
+ * This calls ut_run_test() with livetree enabled, which is the standard setup
+ * for runnig tests. Then, for driver model test, it calls it again with
+ * livetree disabled. This allows checking of flattree being used when OF_LIVE
+ * is enabled, as is the case in U-Boot proper before relocation, as well as in
+ * SPL.
  *
  * @uts: Test state to update. The caller should ensure that this is zeroed for
  *	the first call to this function. On exit, @uts->fail_count is
@@ -381,8 +384,8 @@ void ut_set_skip_delays(struct unit_test_state *uts, bool skip_delays);
  * @return 0 if all tests passed, -EAGAIN if the test should be skipped, -1 if
  *	any failed
  */
-int ut_run_test(struct unit_test_state *uts, struct unit_test *test,
-		const char *name);
+int ut_run_test_live_flat(struct unit_test_state *uts, struct unit_test *test,
+			  const char *name);
 
 /**
  * ut_run_tests() - Run a set of tests
