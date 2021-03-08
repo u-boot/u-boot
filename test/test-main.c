@@ -6,7 +6,10 @@
 
 #include <common.h>
 #include <console.h>
+#include <dm.h>
+#include <dm/root.h>
 #include <test/test.h>
+#include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -15,6 +18,10 @@ int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 	/* DM tests have already done this */
 	if (!(test->flags & UT_TESTF_DM))
 		uts->start = mallinfo();
+
+	if (!CONFIG_IS_ENABLED(OF_PLATDATA) &&
+	    (test->flags & UT_TESTF_SCAN_FDT))
+		ut_assertok(dm_extended_scan(false));
 
 	if (test->flags & UT_TESTF_CONSOLE_REC) {
 		int ret = console_record_reset_enable();
