@@ -79,19 +79,13 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #endif /* CONFIG_CADENCE_QSPI */
 
 /*
- * Boot arguments passed to the boot command. The value of
- * CONFIG_BOOTARGS goes into the environment value "bootargs".
- * Do note the value will override also the chosen node in FDT blob.
+ * Environment variable
  */
 
 #ifdef CONFIG_FIT
 #define CONFIG_BOOTFILE "kernel.itb"
-#define CONFIG_BOOTCOMMAND "run fatscript; run mmcfitload;run linux_qspi_enable;" \
-			   "run mmcfitboot"
 #else
 #define CONFIG_BOOTFILE "Image"
-#define CONFIG_BOOTCOMMAND "run fatscript; run mmcload;run linux_qspi_enable;" \
-			   "run mmcboot"
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -200,7 +194,7 @@ unsigned int cm_get_l4_sys_free_clk_hz(void);
  * 0x8000_0000 ...... End of SDRAM_1 (assume 2GB)
  *
  */
-#define CONFIG_SPL_TARGET		"spl/u-boot-spl.hex"
+#define CONFIG_SPL_TARGET		"spl/u-boot-spl-dtb.hex"
 #define CONFIG_SPL_MAX_SIZE		CONFIG_SYS_INIT_RAM_SIZE
 #define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
 #define CONFIG_SPL_BSS_MAX_SIZE		0x100000	/* 1 MB */
