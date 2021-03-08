@@ -67,6 +67,7 @@ config GIC_V3_ITS
 	bool "ARM GICV3 ITS"
 	select REGMAP
 	select SYSCON
+	select IRQ
 	help
 	  ARM GICV3 Interrupt translation service (ITS).
 	  Basic support for programming locality specific peripheral
