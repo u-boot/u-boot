@@ -14,6 +14,11 @@
 #define MAX_UTF8_PER_UTF16 3
 
 /**
+ * codepage_437 - Unicode to codepage 437 translation table
+ */
+extern const u16 codepage_437[128];
+
+/**
  * console_read_unicode() - read Unicode code point from console
  *
  * @code:	pointer to store Unicode code point
@@ -269,5 +274,34 @@ u16 *u16_strdup(const void *src);
  * Return:	the pointer to the first unwritten byte in 'dest'
  */
 uint8_t *utf16_to_utf8(uint8_t *dest, const uint16_t *src, size_t size);
+
+/**
+ * utf_to_cp() - translate Unicode code point to 8bit codepage
+ *
+ * Codepoints that do not exist in the codepage are rendered as question mark.
+ *
+ * @c:		pointer to Unicode code point to be translated
+ * @codepage:	Unicode to codepage translation table
+ * Return:	0 on success, -ENOENT if codepoint cannot be translated
+ */
+int utf_to_cp(s32 *c, const u16 *codepage);
+
+/**
+ * utf8_to_cp437_stream() - convert UTF-8 stream to codepage 437
+ *
+ * @c:		next UTF-8 character to convert
+ * @buffer:	buffer, at least 5 characters
+ * Return:	next codepage 437 character or 0
+ */
+int utf8_to_cp437_stream(u8 c, char *buffer);
+
+/**
+ * utf8_to_utf32_stream() - convert UTF-8 stream to UTF-32
+ *
+ * @c:		next UTF-8 character to convert
+ * @buffer:	buffer, at least 5 characters
+ * Return:	next codepage 437 character or 0
+ */
+int utf8_to_utf32_stream(u8 c, char *buffer);
 
 #endif /* __CHARSET_H_ */
