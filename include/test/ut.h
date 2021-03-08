@@ -387,6 +387,22 @@ int test_pre_run(struct unit_test_state *uts, struct unit_test *test);
  */
 int test_post_run(struct unit_test_state *uts, struct unit_test *test);
 
+/**
+ * ut_run_test() - Run a single test
+ *
+ * This runs the test, handling any preparation and clean-up needed. It prints
+ * the name of each test before running it.
+ *
+ * @uts: Test state to update. The caller should ensure that this is zeroed for
+ *	the first call to this function. On exit, @uts->fail_count is
+ *	incremented by the number of failures (0, one hopes)
+ * @test: Test to run
+ * @name: Name of test, possibly skipping a prefix that should not be displayed
+ * @return 0 if all tests passed, -EAGAIN if the test should be skipped, -1 if
+ *	any failed
+ */
+int ut_run_test(struct unit_test_state *uts, struct unit_test *test,
+		const char *name);
 
 /**
  * ut_run_tests() - Run a set of tests
