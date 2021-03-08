@@ -491,7 +491,6 @@ int main(int argc, char *argv[])
 	gd->reloc_off = (ulong)gd->arch.text_base;
 
 	/* sandbox test: log functions called before log_init in board_init_f */
-	log_info("sandbox: starting...\n");
 	log_debug("debug: %s\n", __func__);
 
 	/* Do pre- and post-relocation init */

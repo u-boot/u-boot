@@ -45,5 +45,4 @@ def test_log_dropped(u_boot_console):
     cons = u_boot_console
     cons.restart_uboot()
     output = cons.get_spawn_output().replace('\r', '')
-    assert 'sandbox: starting...' in output
     assert (not 'debug: main' in output)
