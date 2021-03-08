@@ -33,3 +33,4 @@ Testing
    coccinelle
    testing
    py_testing
+   tests_sandbox

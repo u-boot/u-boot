@@ -36,6 +36,7 @@ U-Boot can be built as a user-space application (e.g. for Linux). This
 allows test to be executed without needing target hardware. The 'sandbox'
 target provides this feature and it is widely used in tests.
 
+See :doc:`tests_sandbox` for more information.
 
 Pytest Suite
 ------------
@@ -51,7 +52,15 @@ You can run the tests on sandbox with::
 
 This will produce HTML output in build-sandbox/test-log.html
 
+Some tests run with other versions of sandbox. For example sandbox_flattree
+runs the tests with livetree (the hierachical devicetree) disabled. You can
+also select particular tests with -k::
+
+   ./test/py/test.py --bd sandbox_flattree --build -k hello
+
 See test/py/README.md for more information about the pytest suite.
+
+See :doc:`tests_sandbox` for how to run tests directly (not through pytest).
 
 
 tbot
