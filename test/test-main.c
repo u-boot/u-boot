@@ -119,7 +119,8 @@ static bool ut_test_run_on_flattree(struct unit_test *test)
  *
  * @prefix: String prefix for the tests. Any tests that have this prefix will be
  *	printed without the prefix, so that it is easier to see the unique part
- *	of the test name. If NULL, no prefix processing is done
+ *	of the test name. If NULL, any suite name (xxx_test) is considered to be
+ *	a prefix.
  * @test_name: Name of current test
  * @select_name: Name of test to run (or NULL for all)
  * @return true to run this test, false to skip it
@@ -133,9 +134,17 @@ static bool test_matches(const char *prefix, const char *test_name,
 	if (!strcmp(test_name, select_name))
 		return true;
 
-	/* All tests have this prefix */
-	if (prefix && !strncmp(test_name, prefix, strlen(prefix)))
-		test_name += strlen(prefix);
+	if (!prefix) {
+		const char *p = strstr(test_name, "_test_");
+
+		/* convert xxx_test_yyy to yyy, i.e. remove the suite name */
+		if (p)
+			test_name = p + 6;
+	} else {
+		/* All tests have this prefix */
+		if (!strncmp(test_name, prefix, strlen(prefix)))
+			test_name += strlen(prefix);
+	}
 
 	if (!strcmp(test_name, select_name))
 		return true;
