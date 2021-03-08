@@ -30,9 +30,7 @@ static int do_autoprobe(struct unit_test_state *uts)
 
 int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 {
-	/* DM tests have already done this */
-	if (!(test->flags & UT_TESTF_DM))
-		uts->start = mallinfo();
+	uts->start = mallinfo();
 
 	if (test->flags & UT_TESTF_SCAN_PDATA)
 		ut_assertok(dm_scan_plat(false));

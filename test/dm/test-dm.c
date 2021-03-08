@@ -73,8 +73,6 @@ static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 	       !of_live ? " (flat tree)" : "");
 	ut_assertok(dm_test_init(uts, of_live));
 
-	uts->start = mallinfo();
-
 	ut_assertok(test_pre_run(uts, test));
 
 	if (!state->show_test_output)
