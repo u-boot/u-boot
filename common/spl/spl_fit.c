@@ -11,6 +11,7 @@
 #include <image.h>
 #include <log.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <spl.h>
 #include <sysinfo.h>
 #include <asm/cache.h>
@@ -235,11 +236,11 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	size_t length;
 	int len;
 	ulong size;
-	ulong load_addr, load_ptr;
+	ulong load_addr;
+	void *load_ptr;
 	void *src;
 	ulong overhead;
 	int nr_sectors;
-	int align_len = ARCH_DMA_MINALIGN - 1;
 	uint8_t image_comp = -1, type = -1;
 	const void *data;
 	const void *fit = ctx->fit;
@@ -269,11 +270,13 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	}
 
 	if (external_data) {
+		void *src_ptr;
+
 		/* External data */
 		if (fit_image_get_data_size(fit, node, &len))
 			return -ENOENT;
 
-		load_ptr = (load_addr + align_len) & ~align_len;
+		src_ptr = map_sysmem(ALIGN(load_addr, ARCH_DMA_MINALIGN), len);
 		length = len;
 
 		overhead = get_aligned_image_overhead(info, offset);
@@ -281,12 +284,12 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 
 		if (info->read(info,
 			       sector + get_aligned_image_offset(info, offset),
-			       nr_sectors, (void *)load_ptr) != nr_sectors)
+			       nr_sectors, src_ptr) != nr_sectors)
 			return -EIO;
 
-		debug("External data: dst=%lx, offset=%x, size=%lx\n",
-		      load_ptr, offset, (unsigned long)length);
-		src = (void *)load_ptr + overhead;
+		debug("External data: dst=%p, offset=%x, size=%lx\n",
+		      src_ptr, offset, (unsigned long)length);
+		src = src_ptr + overhead;
 	} else {
 		/* Embedded data */
 		if (fit_image_get_data(fit, node, &data, &length)) {
@@ -295,7 +298,7 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 		}
 		debug("Embedded data: dst=%lx, size=%lx\n", load_addr,
 		      (unsigned long)length);
-		src = (void *)data;
+		src = (void *)data;	/* cast away const */
 	}
 
 	if (CONFIG_IS_ENABLED(FIT_SIGNATURE)) {
@@ -309,16 +312,16 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	if (CONFIG_IS_ENABLED(FIT_IMAGE_POST_PROCESS))
 		board_fit_image_post_process(&src, &length);
 
+	load_ptr = map_sysmem(load_addr, length);
 	if (IS_ENABLED(CONFIG_SPL_GZIP) && image_comp == IH_COMP_GZIP) {
 		size = length;
-		if (gunzip((void *)load_addr, CONFIG_SYS_BOOTM_LEN,
-			   src, &size)) {
+		if (gunzip(load_ptr, CONFIG_SYS_BOOTM_LEN, src, &size)) {
 			puts("Uncompressing error\n");
 			return -EIO;
 		}
 		length = size;
 	} else {
-		memcpy((void *)load_addr, src, length);
+		memcpy(load_ptr, src, length);
 	}
 
 	if (image_info) {
@@ -383,7 +386,7 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 	}
 
 	/* Make the load-address of the FDT available for the SPL framework */
-	spl_image->fdt_addr = (void *)image_info.load_addr;
+	spl_image->fdt_addr = map_sysmem(image_info.load_addr, 0);
 	if (CONFIG_IS_ENABLED(FIT_IMAGE_TINY))
 		return 0;
 
