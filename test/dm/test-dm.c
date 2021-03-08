@@ -66,7 +66,6 @@ static int dm_test_destroy(struct unit_test_state *uts)
 static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 		      bool of_live)
 {
-	struct sandbox_state *state = state_get_current();
 	const char *fname = strrchr(test->file, '/') + 1;
 
 	printf("Test: %s: %s%s\n", test->name, fname,
@@ -75,13 +74,10 @@ static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 
 	ut_assertok(test_pre_run(uts, test));
 
-	if (!state->show_test_output)
-		gd->flags |= GD_FLG_SILENT;
 	test->func(uts);
 
 	ut_assertok(test_post_run(uts, test));
 
-	gd->flags &= ~(GD_FLG_SILENT | GD_FLG_RECORD);
 	state_set_skip_delays(false);
 
 	ut_assertok(dm_test_destroy(uts));

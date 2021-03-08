@@ -50,13 +50,14 @@ int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 			return -EAGAIN;
 		}
 	}
+	ut_silence_console(uts);
 
 	return 0;
 }
 
 int test_post_run(struct unit_test_state *uts, struct unit_test *test)
 {
-	gd->flags &= ~GD_FLG_RECORD;
+	ut_unsilence_console(uts);
 
 	return 0;
 }
