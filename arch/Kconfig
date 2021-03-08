@@ -120,6 +120,7 @@ config SANDBOX
 	select SPI
 	select SUPPORT_OF_CONTROL
 	select SYSRESET_CMD_POWEROFF
+	select IRQ
 	imply BITREVERSE
 	select BLOBLIST
 	imply CMD_DM
