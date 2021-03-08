@@ -55,7 +55,7 @@ static int button_adc_of_to_plat(struct udevice *dev)
 	struct button_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct button_adc_priv *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args args;
-	u32 treshold, up_treshold, t;
+	u32 threshold, up_threshold, t;
 	ofnode node;
 	int ret;
 
@@ -73,12 +73,12 @@ static int button_adc_of_to_plat(struct udevice *dev)
 		return ret;
 
 	ret = ofnode_read_u32(dev_ofnode(dev->parent),
-			      "keyup-threshold-microvolt", &up_treshold);
+			      "keyup-threshold-microvolt", &up_threshold);
 	if (ret)
 		return ret;
 
 	ret = ofnode_read_u32(dev_ofnode(dev), "press-threshold-microvolt",
-			      &treshold);
+			      &threshold);
 	if (ret)
 		return ret;
 
@@ -87,13 +87,13 @@ static int button_adc_of_to_plat(struct udevice *dev)
 		if (ret)
 			return ret;
 
-		if (t > treshold)
-			up_treshold = t;
+		if (t > threshold)
+			up_threshold = t;
 	}
 
 	priv->channel = args.args[0];
-	priv->min = treshold;
-	priv->max = up_treshold;
+	priv->min = threshold;
+	priv->max = up_threshold;
 
 	return ret;
 }
