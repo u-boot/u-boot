@@ -22,14 +22,15 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 struct unit_test_state global_dm_test_state;
-static struct dm_test_state _global_priv_dm_test_state;
 
 int dm_test_init(struct unit_test_state *uts)
 {
-	struct dm_test_state *dms = uts->priv;
 	bool of_live = uts->of_live;
 
-	memset(dms, '\0', sizeof(*dms));
+	uts->root = NULL;
+	uts->testdev = NULL;
+	uts->force_fail_alloc = false;
+	uts->skip_post_probe = false;
 	gd->dm_root = NULL;
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA))
 		memset(dm_testdrv_op_count, '\0', sizeof(dm_testdrv_op_count));
@@ -38,7 +39,7 @@ int dm_test_init(struct unit_test_state *uts)
 	/* Determine whether to make the live tree available */
 	gd_set_of_root(of_live ? uts->of_root : NULL);
 	ut_assertok(dm_init(of_live));
-	dms->root = dm_root();
+	uts->root = dm_root();
 
 	return 0;
 }
@@ -124,7 +125,6 @@ int dm_test_run(const char *test_name)
 	struct unit_test *test;
 	int found;
 
-	uts->priv = &_global_priv_dm_test_state;
 	uts->fail_count = 0;
 
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA)) {

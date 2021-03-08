@@ -71,13 +71,12 @@ static int test_post_probe(struct udevice *dev)
 
 	struct dm_test_uclass_perdev_priv *priv = dev_get_uclass_priv(dev);
 	struct uclass *uc = dev->uclass;
-	struct dm_test_state *dms = uts->priv;
 
 	dm_testdrv_op_count[DM_TEST_OP_POST_PROBE]++;
 	ut_assert(priv);
 	ut_assert(device_active(dev));
 	priv->base_add = 0;
-	if (dms->skip_post_probe)
+	if (uts->skip_post_probe)
 		return 0;
 	if (&prev->uclass_node != &uc->dev_head) {
 		struct dm_test_uclass_perdev_priv *prev_uc_priv

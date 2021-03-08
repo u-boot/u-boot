@@ -116,10 +116,8 @@ static int test_manual_bind(struct udevice *dev)
 
 static int test_manual_probe(struct udevice *dev)
 {
-	struct dm_test_state *dms = uts->priv;
-
 	dm_testdrv_op_count[DM_TEST_OP_PROBE]++;
-	if (!dms->force_fail_alloc)
+	if (!uts->force_fail_alloc)
 		dev_set_priv(dev, calloc(1, sizeof(struct dm_test_priv)));
 	if (!dev_get_priv(dev))
 		return -ENOMEM;
