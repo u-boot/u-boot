@@ -24,6 +24,7 @@ struct sandbox_scmi_clk {
 
 /**
  * struct sandbox_scmi_reset - Simulated reset controller exposed by SCMI
+ * @id:		Identifier of the reset controller used in the SCMI protocol
  * @asserted:	Reset control state: true if asserted, false if desasserted
  */
 struct sandbox_scmi_reset {
@@ -48,8 +49,8 @@ struct sandbox_scmi_voltd {
  * @idx:	Identifier for the SCMI agent, its index
  * @clk:	Simulated clocks
  * @clk_count:	Simulated clocks array size
- * @clk:	Simulated reset domains
- * @clk_count:	Simulated reset domains array size
+ * @reset:	Simulated reset domains
+ * @reset_count: Simulated reset domains array size
  * @voltd:	 Simulated voltage domains (regulators)
  * @voltd_count: Simulated voltage domains array size
  */

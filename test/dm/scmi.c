@@ -44,10 +44,8 @@ static int ut_assert_scmi_state_postprobe(struct unit_test_state *uts,
 	scmi_devices = sandbox_scmi_devices_ctx(dev);
 
 	ut_assertnonnull(scmi_devices);
-	if (IS_ENABLED(CONFIG_CLK_SCMI))
-		ut_asserteq(3, scmi_devices->clk_count);
-	if (IS_ENABLED(CONFIG_RESET_SCMI))
-		ut_asserteq(1, scmi_devices->reset_count);
+	ut_asserteq(3, scmi_devices->clk_count);
+	ut_asserteq(1, scmi_devices->reset_count);
 	ut_asserteq(2, scmi_devices->regul_count);
 
 	/* State of the simulated SCMI server exposed */
@@ -110,7 +108,6 @@ static int dm_test_scmi_sandbox_agent(struct unit_test_state *uts)
 
 	return ret;
 }
-
 DM_TEST(dm_test_scmi_sandbox_agent, UT_TESTF_SCAN_FDT);
 
 static int dm_test_scmi_clocks(struct unit_test_state *uts)
@@ -120,9 +117,6 @@ static int dm_test_scmi_clocks(struct unit_test_state *uts)
 	struct udevice *dev = NULL;
 	int ret_dev;
 	int ret;
-
-	if (!IS_ENABLED(CONFIG_CLK_SCMI))
-		return 0;
 
 	ret = load_sandbox_scmi_test_devices(uts, &dev);
 	if (ret)
@@ -172,7 +166,6 @@ static int dm_test_scmi_clocks(struct unit_test_state *uts)
 
 	return release_sandbox_scmi_test_devices(uts, dev);
 }
-
 DM_TEST(dm_test_scmi_clocks, UT_TESTF_SCAN_FDT);
 
 static int dm_test_scmi_resets(struct unit_test_state *uts)
@@ -181,9 +174,6 @@ static int dm_test_scmi_resets(struct unit_test_state *uts)
 	struct sandbox_scmi_service *scmi_ctx;
 	struct udevice *dev = NULL;
 	int ret;
-
-	if (!IS_ENABLED(CONFIG_RESET_SCMI))
-		return 0;
 
 	ret = load_sandbox_scmi_test_devices(uts, &dev);
 	if (ret)
@@ -203,7 +193,6 @@ static int dm_test_scmi_resets(struct unit_test_state *uts)
 
 	return release_sandbox_scmi_test_devices(uts, dev);
 }
-
 DM_TEST(dm_test_scmi_resets, UT_TESTF_SCAN_FDT);
 
 static int dm_test_scmi_voltage_domains(struct unit_test_state *uts)

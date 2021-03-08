@@ -20,7 +20,7 @@
  * processing. It simulates few of the SCMI services for some of the
  * SCMI protocols embedded in U-Boot. Currently:
  * - SCMI clock protocol: emulate 2 agents each exposing few clocks
- * - SCMI reset protocol: emulate 1 agents each exposing a reset
+ * - SCMI reset protocol: emulate 1 agent exposing a reset controller
  * - SCMI voltage domain protocol: emulate 1 agent exposing 2 regulators
  *
  * Agent #0 simulates 2 clocks, 1 reset domain and 1 voltage domain.
@@ -31,7 +31,7 @@
  *
  * All clocks and regulators are default disabled and reset controller down.
  *
- * This Driver exports sandbox_scmi_service_ct() for the test sequence to
+ * This Driver exports sandbox_scmi_service_ctx() for the test sequence to
  * get the state of the simulated services (clock state, rate, ...) and
  * check back-end device state reflects the request send through the
  * various uclass devices, as clocks and reset controllers.
