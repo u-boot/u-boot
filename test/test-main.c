@@ -8,9 +8,13 @@
 #include <console.h>
 #include <test/test.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 {
-	uts->start = mallinfo();
+	/* DM tests have already done this */
+	if (!(test->flags & UT_TESTF_DM))
+		uts->start = mallinfo();
 
 	if (test->flags & UT_TESTF_CONSOLE_REC) {
 		int ret = console_record_reset_enable();
@@ -26,6 +30,8 @@ int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 
 int test_post_run(struct unit_test_state *uts, struct unit_test *test)
 {
+	gd->flags &= ~GD_FLG_RECORD;
+
 	return 0;
 }
 

@@ -144,7 +144,7 @@ struct dm_test_state {
 
 /* Declare a new driver model test */
 #define DM_TEST(_name, _flags) \
-	UNIT_TEST(_name, UT_TESTF_DM | (_flags), dm_test)
+	UNIT_TEST(_name, UT_TESTF_DM | UT_TESTF_CONSOLE_REC | (_flags), dm_test)
 
 /*
  * struct sandbox_sdl_plat - Platform data for the SDL video driver

@@ -97,14 +97,14 @@ static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 	    (test->flags & UT_TESTF_SCAN_FDT))
 		ut_assertok(dm_extended_scan(false));
 
-	/*
-	 * Silence the console and rely on console recording to get
-	 * our output.
-	 */
-	console_record_reset_enable();
+	ut_assertok(test_pre_run(uts, test));
+
 	if (!state->show_test_output)
 		gd->flags |= GD_FLG_SILENT;
 	test->func(uts);
+
+	ut_assertok(test_post_run(uts, test));
+
 	gd->flags &= ~(GD_FLG_SILENT | GD_FLG_RECORD);
 	state_set_skip_delays(false);
 
