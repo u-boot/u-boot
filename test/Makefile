@@ -3,6 +3,7 @@
 # (C) Copyright 2012 The Chromium Authors
 
 obj-y += test-main.o
+obj-$(CONFIG_SANDBOX) += image/
 
 ifneq ($(CONFIG_$(SPL_)BLOBLIST),)
 obj-$(CONFIG_$(SPL_)CMDLINE) += bloblist.o
