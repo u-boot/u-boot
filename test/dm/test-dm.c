@@ -22,8 +22,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dm_test_run(const char *test_name)
 {
-	struct unit_test *tests = ll_entry_start(struct unit_test, dm_test);
-	const int n_ents = ll_entry_count(struct unit_test, dm_test);
+	struct unit_test *tests = UNIT_TEST_SUITE_START(dm_test);
+	const int n_ents = UNIT_TEST_SUITE_COUNT(dm_test);
 	int ret;
 
 	ret = ut_run_list("driver model", "dm_test_", tests, n_ents, test_name);

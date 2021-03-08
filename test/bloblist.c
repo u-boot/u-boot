@@ -387,9 +387,8 @@ BLOBLIST_TEST(bloblist_test_reloc, 0);
 int do_ut_bloblist(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])
 {
-	struct unit_test *tests = ll_entry_start(struct unit_test,
-						 bloblist_test);
-	const int n_ents = ll_entry_count(struct unit_test, bloblist_test);
+	struct unit_test *tests = UNIT_TEST_SUITE_START(bloblist_test);
+	const int n_ents = UNIT_TEST_SUITE_COUNT(bloblist_test);
 
 	return cmd_ut_category("bloblist", "bloblist_test_",
 			       tests, n_ents, argc, argv);

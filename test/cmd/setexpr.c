@@ -390,9 +390,8 @@ SETEXPR_TEST(setexpr_test_str_long, UT_TESTF_CONSOLE_REC);
 
 int do_ut_setexpr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	struct unit_test *tests = ll_entry_start(struct unit_test,
-						 setexpr_test);
-	const int n_ents = ll_entry_count(struct unit_test, setexpr_test);
+	struct unit_test *tests = UNIT_TEST_SUITE_START(setexpr_test);
+	const int n_ents = UNIT_TEST_SUITE_COUNT(setexpr_test);
 
 	return cmd_ut_category("cmd_setexpr", "setexpr_test_", tests, n_ents,
 			       argc, argv);

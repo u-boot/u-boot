@@ -93,6 +93,12 @@ struct unit_test {
 		.func = _name,						\
 	}
 
+/* Get the start of a list of unit tests for a particular category */
+#define UNIT_TEST_SUITE_START(_suite) \
+	ll_entry_start(struct unit_test, _suite)
+#define UNIT_TEST_SUITE_COUNT(_suite) \
+	ll_entry_count(struct unit_test, _suite)
+
 /* Sizes for devres tests */
 enum {
 	TEST_DEVRES_SIZE	= 100,
