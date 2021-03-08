@@ -86,18 +86,18 @@ struct unit_test {
  * @_suite:	name of the test suite concatenated with "_test"
  */
 #define UNIT_TEST(_name, _flags, _suite)				\
-	ll_entry_declare(struct unit_test, _name, _suite) = {		\
+	ll_entry_declare(struct unit_test, _name, ut_ ## _suite) = {	\
 		.file = __FILE__,					\
 		.name = #_name,						\
 		.flags = _flags,					\
 		.func = _name,						\
 	}
 
-/* Get the start of a list of unit tests for a particular category */
+/* Get the start of a list of unit tests for a particular suite */
 #define UNIT_TEST_SUITE_START(_suite) \
-	ll_entry_start(struct unit_test, _suite)
+	ll_entry_start(struct unit_test, ut_ ## _suite)
 #define UNIT_TEST_SUITE_COUNT(_suite) \
-	ll_entry_count(struct unit_test, _suite)
+	ll_entry_count(struct unit_test, ut_ ## _suite)
 
 /* Sizes for devres tests */
 enum {
