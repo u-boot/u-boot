@@ -78,3 +78,85 @@ You can easily use gdb on these tests, without needing --gdbserver::
 
 You can then single-step and look at variables as needed.
 
+
+Running sandbox_spl tests directly
+----------------------------------
+
+SPL is the phase before U-Boot proper. It is present in the sandbox_spl build,
+so you can run SPL like this::
+
+   ./spl/u-boot-spl
+
+SPL tests are special in that they run (only in the SPL phase, of course) if the
+-u flag is given::
+
+   ./spl/u-boot-spl -u
+
+   U-Boot SPL 2021.01-00723-g43c77b51be5-dirty (Jan 24 2021 - 16:38:24 -0700)
+   Running 5 driver model tests
+   Test: dm_test_of_plat_base: of_platdata.c (flat tree)
+   Test: dm_test_of_plat_dev: of_platdata.c (flat tree)
+   Test: dm_test_of_plat_parent: of_platdata.c (flat tree)
+   Test: dm_test_of_plat_phandle: of_platdata.c (flat tree)
+   Test: dm_test_of_plat_props: of_platdata.c (flat tree)
+   Failures: 0
+
+
+   U-Boot 2021.01-00723-g43c77b51be5-dirty (Jan 24 2021 - 16:38:24 -0700)
+
+   DRAM:  128 MiB
+   ...
+
+It is not possible to run SPL tests in U-Boot proper, firstly because they are
+not built into U-Boot proper and secondly because the environment is very
+different, e.g. some SPL tests rely on of-platdata which is only available in
+SPL.
+
+Note that after running, SPL continues to boot into U-Boot proper. You can add
+'-c exit' to make U-Boot quit without doing anything further. It is not
+currently possible to run SPL tests and then stop, since the pytests require
+that U-Boot produces the expected banner.
+
+You can use the -k flag to select which tests run::
+
+   ./spl/u-boot-spl -u -k dm_test_of_plat_parent
+
+Of course you can use gdb with sandbox_spl, just as with sandbox.
+
+
+Running all tests directly
+--------------------------
+
+A fast way to run all sandbox tests is::
+
+   ./u-boot -T -c "ut all"
+
+It typically runs single-thread in 6 seconds on 2021 hardware, with 2s of that
+to the delays in the time test.
+
+This should not be considered a substitute for 'make check', but can be helpful
+for git bisect, etc.
+
+
+What tests are built in?
+------------------------
+
+Whatever sandbox build is used, which tests are present is determined by which
+source files are built. For sandbox_spl, the of_platdata tests are built
+because of the build rule in test/dm/Makefile::
+
+   ifeq ($(CONFIG_SPL_BUILD),y)
+   obj-$(CONFIG_SPL_OF_PLATDATA) += of_platdata.o
+   else
+   ...other tests for non-spl
+   endif
+
+You can get a list of tests in a U-Boot ELF file by looking for the
+linker_list::
+
+   $ nm /tmp/b/sandbox_spl/spl/u-boot-spl |grep 2_dm_test
+   000000000001f200 D _u_boot_list_2_dm_test_2_dm_test_of_plat_base
+   000000000001f220 D _u_boot_list_2_dm_test_2_dm_test_of_plat_dev
+   000000000001f240 D _u_boot_list_2_dm_test_2_dm_test_of_plat_parent
+   000000000001f260 D _u_boot_list_2_dm_test_2_dm_test_of_plat_phandle
+   000000000001f280 D _u_boot_list_2_dm_test_2_dm_test_of_plat_props
