@@ -39,6 +39,8 @@ static int ut_assert_scmi_state_postprobe(struct unit_test_state *uts,
 {
 	struct sandbox_scmi_devices *scmi_devices;
 	struct sandbox_scmi_service *scmi_ctx;
+	struct sandbox_scmi_agent *agent0;
+	struct sandbox_scmi_agent *agent1;
 
 	/* Device references to check context against test sequence */
 	scmi_devices = sandbox_scmi_devices_ctx(dev);
@@ -50,20 +52,22 @@ static int ut_assert_scmi_state_postprobe(struct unit_test_state *uts,
 
 	/* State of the simulated SCMI server exposed */
 	scmi_ctx = sandbox_scmi_service_ctx();
+	agent0 = scmi_ctx->agent[0];
+	agent1 = scmi_ctx->agent[1];
 
 	ut_asserteq(2, scmi_ctx->agent_count);
 
-	ut_assertnonnull(scmi_ctx->agent[0]);
-	ut_asserteq(2, scmi_ctx->agent[0]->clk_count);
-	ut_assertnonnull(scmi_ctx->agent[0]->clk);
-	ut_asserteq(1, scmi_ctx->agent[0]->reset_count);
-	ut_assertnonnull(scmi_ctx->agent[0]->reset);
-	ut_asserteq(2, scmi_ctx->agent[0]->voltd_count);
-	ut_assertnonnull(scmi_ctx->agent[0]->voltd);
+	ut_assertnonnull(agent0);
+	ut_asserteq(2, agent0->clk_count);
+	ut_assertnonnull(agent0->clk);
+	ut_asserteq(1, agent0->reset_count);
+	ut_assertnonnull(agent0->reset);
+	ut_asserteq(2, agent0->voltd_count);
+	ut_assertnonnull(agent0->voltd);
 
-	ut_assertnonnull(scmi_ctx->agent[1]);
-	ut_assertnonnull(scmi_ctx->agent[1]->clk);
-	ut_asserteq(1, scmi_ctx->agent[1]->clk_count);
+	ut_assertnonnull(agent1);
+	ut_assertnonnull(agent1->clk);
+	ut_asserteq(1, agent1->clk_count);
 
 	return 0;
 }
@@ -114,6 +118,8 @@ static int dm_test_scmi_clocks(struct unit_test_state *uts)
 {
 	struct sandbox_scmi_devices *scmi_devices;
 	struct sandbox_scmi_service *scmi_ctx;
+	struct sandbox_scmi_agent *agent0;
+	struct sandbox_scmi_agent *agent1;
 	struct udevice *dev = NULL;
 	int ret_dev;
 	int ret;
@@ -124,6 +130,8 @@ static int dm_test_scmi_clocks(struct unit_test_state *uts)
 
 	scmi_devices = sandbox_scmi_devices_ctx(dev);
 	scmi_ctx = sandbox_scmi_service_ctx();
+	agent0 = scmi_ctx->agent[0];
+	agent1 = scmi_ctx->agent[1];
 
 	/* Test SCMI clocks rate manipulation */
 	ut_asserteq(1000, clk_get_rate(&scmi_devices->clk[0]));
@@ -133,9 +141,9 @@ static int dm_test_scmi_clocks(struct unit_test_state *uts)
 	ret_dev = clk_set_rate(&scmi_devices->clk[1], 1088);
 	ut_assert(!ret_dev || ret_dev == 1088);
 
-	ut_asserteq(1000, scmi_ctx->agent[0]->clk[0].rate);
-	ut_asserteq(1088, scmi_ctx->agent[0]->clk[1].rate);
-	ut_asserteq(44, scmi_ctx->agent[1]->clk[0].rate);
+	ut_asserteq(1000, agent0->clk[0].rate);
+	ut_asserteq(1088, agent0->clk[1].rate);
+	ut_asserteq(44, agent1->clk[0].rate);
 
 	ut_asserteq(1000, clk_get_rate(&scmi_devices->clk[0]));
 	ut_asserteq(1088, clk_get_rate(&scmi_devices->clk[1]));
@@ -146,23 +154,23 @@ static int dm_test_scmi_clocks(struct unit_test_state *uts)
 	ut_assert(!ret_dev || ret_dev == 333);
 
 	/* Test SCMI clocks gating manipulation */
-	ut_assert(!scmi_ctx->agent[0]->clk[0].enabled);
-	ut_assert(!scmi_ctx->agent[0]->clk[1].enabled);
-	ut_assert(!scmi_ctx->agent[1]->clk[0].enabled);
+	ut_assert(!agent0->clk[0].enabled);
+	ut_assert(!agent0->clk[1].enabled);
+	ut_assert(!agent1->clk[0].enabled);
 
 	ut_asserteq(0, clk_enable(&scmi_devices->clk[1]));
 	ut_asserteq(0, clk_enable(&scmi_devices->clk[2]));
 
-	ut_assert(!scmi_ctx->agent[0]->clk[0].enabled);
-	ut_assert(scmi_ctx->agent[0]->clk[1].enabled);
-	ut_assert(scmi_ctx->agent[1]->clk[0].enabled);
+	ut_assert(!agent0->clk[0].enabled);
+	ut_assert(agent0->clk[1].enabled);
+	ut_assert(agent1->clk[0].enabled);
 
 	ut_assertok(clk_disable(&scmi_devices->clk[1]));
 	ut_assertok(clk_disable(&scmi_devices->clk[2]));
 
-	ut_assert(!scmi_ctx->agent[0]->clk[0].enabled);
-	ut_assert(!scmi_ctx->agent[0]->clk[1].enabled);
-	ut_assert(!scmi_ctx->agent[1]->clk[0].enabled);
+	ut_assert(!agent0->clk[0].enabled);
+	ut_assert(!agent0->clk[1].enabled);
+	ut_assert(!agent1->clk[0].enabled);
 
 	return release_sandbox_scmi_test_devices(uts, dev);
 }
@@ -172,6 +180,7 @@ static int dm_test_scmi_resets(struct unit_test_state *uts)
 {
 	struct sandbox_scmi_devices *scmi_devices;
 	struct sandbox_scmi_service *scmi_ctx;
+	struct sandbox_scmi_agent *agent0;
 	struct udevice *dev = NULL;
 	int ret;
 
@@ -181,15 +190,16 @@ static int dm_test_scmi_resets(struct unit_test_state *uts)
 
 	scmi_devices = sandbox_scmi_devices_ctx(dev);
 	scmi_ctx = sandbox_scmi_service_ctx();
+	agent0 = scmi_ctx->agent[0];
 
 	/* Test SCMI resect controller manipulation */
-	ut_assert(!scmi_ctx->agent[0]->reset[0].asserted)
+	ut_assert(!agent0->reset[0].asserted)
 
 	ut_assertok(reset_assert(&scmi_devices->reset[0]));
-	ut_assert(scmi_ctx->agent[0]->reset[0].asserted)
+	ut_assert(agent0->reset[0].asserted)
 
 	ut_assertok(reset_deassert(&scmi_devices->reset[0]));
-	ut_assert(!scmi_ctx->agent[0]->reset[0].asserted);
+	ut_assert(!agent0->reset[0].asserted);
 
 	return release_sandbox_scmi_test_devices(uts, dev);
 }
@@ -199,51 +209,51 @@ static int dm_test_scmi_voltage_domains(struct unit_test_state *uts)
 {
 	struct sandbox_scmi_devices *scmi_devices;
 	struct sandbox_scmi_service *scmi_ctx;
-	struct sandbox_scmi_voltd *sandbox_voltd;
+	struct sandbox_scmi_agent *agent0;
 	struct dm_regulator_uclass_plat *uc_pdata;
 	struct udevice *dev;
-	struct udevice *regul_dev;
+	struct udevice *regul0_dev;
 
 	ut_assertok(load_sandbox_scmi_test_devices(uts, &dev));
 
 	scmi_devices = sandbox_scmi_devices_ctx(dev);
 	scmi_ctx = sandbox_scmi_service_ctx();
+	agent0 = scmi_ctx->agent[0];
 
 	/* Set/Get an SCMI voltage domain level */
-	sandbox_voltd = &scmi_ctx->agent[0]->voltd[0];
-	regul_dev = scmi_devices->regul[0];
-	ut_assert(regul_dev);
+	regul0_dev = scmi_devices->regul[0];
+	ut_assert(regul0_dev);
 
-	uc_pdata = dev_get_uclass_plat(regul_dev);
+	uc_pdata = dev_get_uclass_plat(regul0_dev);
 	ut_assert(uc_pdata);
 
-	ut_assertok(regulator_set_value(regul_dev, uc_pdata->min_uV));
-	ut_asserteq(sandbox_voltd->voltage_uv, uc_pdata->min_uV);
+	ut_assertok(regulator_set_value(regul0_dev, uc_pdata->min_uV));
+	ut_asserteq(agent0->voltd[0].voltage_uv, uc_pdata->min_uV);
 
-	ut_assert(regulator_get_value(regul_dev) == uc_pdata->min_uV);
+	ut_assert(regulator_get_value(regul0_dev) == uc_pdata->min_uV);
 
-	ut_assertok(regulator_set_value(regul_dev, uc_pdata->max_uV));
-	ut_asserteq(sandbox_voltd->voltage_uv, uc_pdata->max_uV);
+	ut_assertok(regulator_set_value(regul0_dev, uc_pdata->max_uV));
+	ut_asserteq(agent0->voltd[0].voltage_uv, uc_pdata->max_uV);
 
-	ut_assert(regulator_get_value(regul_dev) == uc_pdata->max_uV);
+	ut_assert(regulator_get_value(regul0_dev) == uc_pdata->max_uV);
 
 	/* Enable/disable SCMI voltage domains */
 	ut_assertok(regulator_set_enable(scmi_devices->regul[0], false));
 	ut_assertok(regulator_set_enable(scmi_devices->regul[1], false));
-	ut_assert(!scmi_ctx->agent[0]->voltd[0].enabled);
-	ut_assert(!scmi_ctx->agent[0]->voltd[1].enabled);
+	ut_assert(!agent0->voltd[0].enabled);
+	ut_assert(!agent0->voltd[1].enabled);
 
 	ut_assertok(regulator_set_enable(scmi_devices->regul[0], true));
-	ut_assert(scmi_ctx->agent[0]->voltd[0].enabled);
-	ut_assert(!scmi_ctx->agent[0]->voltd[1].enabled);
+	ut_assert(agent0->voltd[0].enabled);
+	ut_assert(!agent0->voltd[1].enabled);
 
 	ut_assertok(regulator_set_enable(scmi_devices->regul[1], true));
-	ut_assert(scmi_ctx->agent[0]->voltd[0].enabled);
-	ut_assert(scmi_ctx->agent[0]->voltd[1].enabled);
+	ut_assert(agent0->voltd[0].enabled);
+	ut_assert(agent0->voltd[1].enabled);
 
 	ut_assertok(regulator_set_enable(scmi_devices->regul[0], false));
-	ut_assert(!scmi_ctx->agent[0]->voltd[0].enabled);
-	ut_assert(scmi_ctx->agent[0]->voltd[1].enabled);
+	ut_assert(!agent0->voltd[0].enabled);
+	ut_assert(agent0->voltd[1].enabled);
 
 	return release_sandbox_scmi_test_devices(uts, dev);
 }
