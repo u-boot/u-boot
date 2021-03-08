@@ -117,6 +117,8 @@ or is covered sparingly. So here are some suggestions:
   is much easier to add onto a test - writing a new large test can seem
   daunting to most contributors.
 
+See doc:`tests_writing` for how to write tests.
+
 
 Future work
 -----------

@@ -200,3 +200,10 @@ linker_list::
    000000000001f240 D _u_boot_list_2_dm_test_2_dm_test_of_plat_parent
    000000000001f260 D _u_boot_list_2_dm_test_2_dm_test_of_plat_phandle
    000000000001f280 D _u_boot_list_2_dm_test_2_dm_test_of_plat_props
+
+
+Writing tests
+-------------
+
+See :doc:`tests_writing` for how to write new tests.
+
