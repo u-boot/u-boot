@@ -146,7 +146,7 @@ static bool test_matches(const char *test_name, const char *find_name)
 	return false;
 }
 
-int dm_test_main(const char *test_name)
+int dm_test_run(const char *test_name)
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test, dm_test);
 	const int n_ents = ll_entry_count(struct unit_test, dm_test);
@@ -226,5 +226,5 @@ int do_ut_dm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (argc > 1)
 		test_name = argv[1];
 
-	return dm_test_main(test_name);
+	return dm_test_run(test_name);
 }

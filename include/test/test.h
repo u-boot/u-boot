@@ -106,7 +106,7 @@ enum {
 struct udevice *testbus_get_clear_removed(void);
 
 /**
- * dm_test_main() - Run driver model tests
+ * dm_test_run() - Run driver model tests
  *
  * Run all the available driver model tests, or a selection
  *
@@ -114,6 +114,6 @@ struct udevice *testbus_get_clear_removed(void);
  *	"fdt_pre_reloc"), or NULL to run all
  * @return 0 if all tests passed, 1 if not
  */
-int dm_test_main(const char *test_name);
+int dm_test_run(const char *test_name);
 
 #endif /* __TEST_TEST_H */
