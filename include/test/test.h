@@ -36,6 +36,8 @@ enum {
 	UT_TESTF_FLAT_TREE	= BIT(3),	/* test needs flat DT */
 	UT_TESTF_LIVE_TREE	= BIT(4),	/* needs live device tree */
 	UT_TESTF_CONSOLE_REC	= BIT(5),	/* needs console recording */
+	/* do extra driver model init and uninit */
+	UT_TESTF_DM		= BIT(6),
 };
 
 /**
