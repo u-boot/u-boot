@@ -9,6 +9,7 @@ config INTEL_APOLLOLAKE
 	select HAVE_FSP
 	select ARCH_MISC_INIT
 	select USE_CAR
+	select INTEL_SOC
 	select INTEL_PMC
 	select TPL_X86_TSC_TIMER_NATIVE
 	select SPL_PCH_SUPPORT

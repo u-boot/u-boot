@@ -107,6 +107,10 @@ struct __packed acpi_global_nvs {
 	u8	unused2[0x1000 - 0x100];	/* Pad out to 4096 bytes */
 #endif
 };
+#ifdef CONFIG_CHROMEOS
 check_member(acpi_global_nvs, chromeos, GNVS_CHROMEOS_ACPI_OFFSET);
+#else
+check_member(acpi_global_nvs, unused2, GNVS_CHROMEOS_ACPI_OFFSET);
+#endif
 
 #endif /* _INTEL_GNVS_H_ */
