@@ -26,6 +26,7 @@
 #include <env.h>
 #include <init.h>
 #include <watchdog.h>
+#include <wdt.h>
 #include <malloc.h>
 #include <twl4030.h>
 #include <i2c.h>
@@ -487,20 +488,20 @@ static unsigned long int twl_wd_time; /* last time of watchdog reset */
 static unsigned long int twl_i2c_lock;
 
 /*
- * Routine: hw_watchdog_reset
+ * Routine: rx51_watchdog_reset
  * Description: Reset timeout of twl4030 watchdog.
  */
-void hw_watchdog_reset(void)
+static int rx51_watchdog_reset(struct udevice *dev)
 {
 	u8 timeout = 0;
 
 	/* do not reset watchdog too often - max every 4s */
 	if (get_timer(twl_wd_time) < 4 * CONFIG_SYS_HZ)
-		return;
+		return 0;
 
 	/* localy lock twl4030 i2c bus */
 	if (test_and_set_bit(0, &twl_i2c_lock))
-		return;
+		return 0;
 
 	/* read actual watchdog timeout */
 	twl4030_i2c_read_u8(TWL4030_CHIP_PM_RECEIVER,
@@ -517,7 +518,31 @@ void hw_watchdog_reset(void)
 
 	/* localy unlock twl4030 i2c bus */
 	test_and_clear_bit(0, &twl_i2c_lock);
+
+	return 0;
 }
+
+static int rx51_watchdog_start(struct udevice *dev, u64 timeout_ms, ulong flags)
+{
+	return 0;
+}
+
+static int rx51_watchdog_probe(struct udevice *dev)
+{
+	return 0;
+}
+
+static const struct wdt_ops rx51_watchdog_ops = {
+	.start = rx51_watchdog_start,
+	.reset = rx51_watchdog_reset,
+};
+
+U_BOOT_DRIVER(rx51_watchdog) = {
+	.name = "rx51_watchdog",
+	.id = UCLASS_WDT,
+	.ops = &rx51_watchdog_ops,
+	.probe = rx51_watchdog_probe,
+};
 
 /*
  * TWL4030 keypad handler for cfb_console
@@ -721,4 +746,8 @@ U_BOOT_DRVINFOS(rx51_i2c) = {
 	{ "i2c_omap", &rx51_i2c[0] },
 	{ "i2c_omap", &rx51_i2c[1] },
 	{ "i2c_omap", &rx51_i2c[2] },
+};
+
+U_BOOT_DRVINFOS(rx51_watchdog) = {
+	{ "rx51_watchdog" },
 };
