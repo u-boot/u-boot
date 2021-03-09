@@ -27,6 +27,7 @@ static ulong reset_period = 1000;
 int initr_watchdog(void)
 {
 	u32 timeout = WATCHDOG_TIMEOUT_SECS;
+	int ret;
 
 	/*
 	 * Init watchdog: This will call the probe function of the
@@ -50,7 +51,12 @@ int initr_watchdog(void)
 						    4 * reset_period) / 4;
 	}
 
-	wdt_start(gd->watchdog_dev, timeout * 1000, 0);
+	ret = wdt_start(gd->watchdog_dev, timeout * 1000, 0);
+	if (ret != 0) {
+		printf("WDT:   Failed to start\n");
+		return 0;
+	}
+
 	printf("WDT:   Started with%s servicing (%ds timeout)\n",
 	       IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out", timeout);
 
