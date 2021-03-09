@@ -339,9 +339,10 @@
 				compatible = "silabs,si570";
 				reg = <0x5d>; /* FIXME addr */
 				temperature-stability = <50>;
-				factory-fout = <156250000>; /* FIXME every chip can be different */
+				factory-fout = <33333333>;
 				clock-frequency = <33333333>;
 				clock-output-names = "REF_CLK"; /* FIXME */
+				silabs,skip-recall;
 			};
 			/* Connection via Samtec U20D */
 			/* Use for storing information about X-PRC card */

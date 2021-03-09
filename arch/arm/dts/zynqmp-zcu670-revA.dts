@@ -500,6 +500,7 @@
 				factory-fout = <33333333>;
 				clock-frequency = <33333333>;
 				clock-output-names = "si570_ps_ref_clk";
+				silabs,skip-recall;
 			};
 		};
 		i2c@2 {
