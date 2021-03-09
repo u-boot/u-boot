@@ -9,6 +9,19 @@ config WATCHDOG
 	  this option if you want to service enabled watchdog by U-Boot. Disable
 	  this option if you want U-Boot to start watchdog but never service it.
 
+config WATCHDOG_AUTOSTART
+	bool "Automatically start watchdog timer"
+	depends on WDT
+	default y
+	help
+	  Automatically start watchdog timer and start servicing it during
+	  init phase. Enabled by default. Disable this option if you want
+	  to compile U-Boot with CONFIG_WDT support but do not want to
+	  activate watchdog, like when CONFIG_WDT option is disabled. You
+	  would be able to start watchdog manually by 'wdt' command. Useful
+	  when you want to have support for 'wdt' command but do not want
+	  to have watchdog enabled by default.
+
 config WATCHDOG_TIMEOUT_MSECS
 	int "Watchdog timeout in msec"
 	default 128000 if ARCH_MX25 || ARCH_MX31 || ARCH_MX5 || ARCH_MX6

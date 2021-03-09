@@ -51,6 +51,11 @@ int initr_watchdog(void)
 						    4 * reset_period) / 4;
 	}
 
+	if (!CONFIG_IS_ENABLED(WATCHDOG_AUTOSTART)) {
+		printf("WDT:   Not starting\n");
+		return 0;
+	}
+
 	ret = wdt_start(gd->watchdog_dev, timeout * 1000, 0);
 	if (ret != 0) {
 		printf("WDT:   Failed to start\n");
