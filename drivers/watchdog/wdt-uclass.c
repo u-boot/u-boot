@@ -51,7 +51,6 @@ int initr_watchdog(void)
 	}
 
 	wdt_start(gd->watchdog_dev, timeout * 1000, 0);
-	gd->flags |= GD_FLG_WDT_READY;
 	printf("WDT:   Started with%s servicing (%ds timeout)\n",
 	       IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out", timeout);
 
@@ -61,21 +60,31 @@ int initr_watchdog(void)
 int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
 	const struct wdt_ops *ops = device_get_ops(dev);
+	int ret;
 
 	if (!ops->start)
 		return -ENOSYS;
 
-	return ops->start(dev, timeout_ms, flags);
+	ret = ops->start(dev, timeout_ms, flags);
+	if (ret == 0)
+		gd->flags |= GD_FLG_WDT_READY;
+
+	return ret;
 }
 
 int wdt_stop(struct udevice *dev)
 {
 	const struct wdt_ops *ops = device_get_ops(dev);
+	int ret;
 
 	if (!ops->stop)
 		return -ENOSYS;
 
-	return ops->stop(dev);
+	ret = ops->stop(dev);
+	if (ret == 0)
+		gd->flags &= ~GD_FLG_WDT_READY;
+
+	return ret;
 }
 
 int wdt_reset(struct udevice *dev)
