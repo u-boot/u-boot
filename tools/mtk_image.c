@@ -243,8 +243,13 @@ static const struct brom_img_type {
 	}
 };
 
+/* Indicates whether we're generating or verifying */
+static bool img_gen;
+static uint32_t img_size;
+
 /* Image type selected by user */
 static enum brlyt_img_type hdr_media;
+static uint32_t hdr_offset;
 static int use_lk_hdr;
 static bool is_arm64_image;
 
@@ -275,6 +280,7 @@ static int mtk_brom_parse_imagename(const char *imagename)
 
 	/* User passed arguments from image name */
 	static const char *media = "";
+	static const char *hdr_offs = "";
 	static const char *nandinfo = "";
 	static const char *lk = "";
 	static const char *arm64_param = "";
@@ -317,6 +323,9 @@ static int mtk_brom_parse_imagename(const char *imagename)
 			if (!strcmp(key, "media"))
 				media = val;
 
+			if (!strcmp(key, "hdroffset"))
+				hdr_offs = val;
+
 			if (!strcmp(key, "nandinfo"))
 				nandinfo = val;
 
@@ -358,6 +367,10 @@ static int mtk_brom_parse_imagename(const char *imagename)
 			break;
 		}
 	}
+
+	/* parse device header offset */
+	if (hdr_offs && hdr_offs[0])
+		hdr_offset = strtoul(hdr_offs, NULL, 0);
 
 	if (arm64_param && arm64_param[0] == '1')
 		is_arm64_image = true;
@@ -422,6 +435,7 @@ static int mtk_image_vrec_header(struct image_tool_params *params,
 static int mtk_image_verify_gen_header(const uint8_t *ptr, int print)
 {
 	union gen_boot_header *gbh = (union gen_boot_header *)ptr;
+	uint32_t gfh_offset, total_size, devh_size;
 	struct brom_layout_header *bh;
 	struct gfh_header *gfh;
 	const char *bootmedia;
@@ -453,7 +467,32 @@ static int mtk_image_verify_gen_header(const uint8_t *ptr, int print)
 	    le32_to_cpu(bh->type) != BRLYT_TYPE_SDMMC))
 		return -1;
 
-	gfh = (struct gfh_header *)(ptr + le32_to_cpu(bh->header_size));
+	devh_size = sizeof(struct gen_device_header);
+
+	if (img_gen) {
+		gfh_offset = devh_size;
+	} else {
+		gfh_offset = le32_to_cpu(bh->header_size);
+
+		if (gfh_offset + sizeof(struct gfh_header) > img_size) {
+			/*
+			 * This may happen if the hdr_offset used to generate
+			 * this image is not zero.
+			 * Since device header size is not fixed, we can't
+			 * cover all possible cases.
+			 * Assuming the image is valid only if the real
+			 * device header size equals to devh_size.
+			 */
+			total_size = le32_to_cpu(bh->total_size);
+
+			if (total_size - gfh_offset > img_size - devh_size)
+				return -1;
+
+			gfh_offset = devh_size;
+		}
+	}
+
+	gfh = (struct gfh_header *)(ptr + gfh_offset);
 
 	if (strcmp(gfh->file_info.name, GFH_FILE_INFO_NAME))
 		return -1;
@@ -548,6 +587,8 @@ static int mtk_image_verify_header(unsigned char *ptr, int image_size,
 	/* nothing to verify for LK image header */
 	if (le32_to_cpu(lk->magic) == LK_PART_MAGIC)
 		return 0;
+
+	img_size = image_size;
 
 	if (!strcmp((char *)ptr, NAND_BOOT_NAME))
 		return mtk_image_verify_nand_header(ptr, 0);
@@ -682,8 +723,8 @@ static void mtk_image_set_gen_header(void *ptr, off_t filesize,
 
 	/* BRLYT header */
 	put_brom_layout_header(&hdr->brlyt, hdr_media);
-	hdr->brlyt.header_size = cpu_to_le32(sizeof(struct gen_device_header));
-	hdr->brlyt.total_size = cpu_to_le32(filesize);
+	hdr->brlyt.header_size = cpu_to_le32(hdr_offset + sizeof(*hdr));
+	hdr->brlyt.total_size = cpu_to_le32(hdr_offset + filesize);
 	hdr->brlyt.header_size_2 = hdr->brlyt.header_size;
 	hdr->brlyt.total_size_2 = hdr->brlyt.total_size;
 
@@ -746,6 +787,9 @@ static void mtk_image_set_header(void *ptr, struct stat *sbuf, int ifd,
 		strncpy(lk->name, lk_name, sizeof(lk->name));
 		return;
 	}
+
+	img_gen = true;
+	img_size = sbuf->st_size;
 
 	if (hdr_media == BRLYT_TYPE_NAND || hdr_media == BRLYT_TYPE_SNAND)
 		mtk_image_set_nand_header(ptr, sbuf->st_size, params->addr);
