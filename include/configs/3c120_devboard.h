@@ -35,11 +35,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /*
- * FDT options
- */
-#define CONFIG_LMB
-
-/*
  * MEMORY ORGANIZATION
  * -Monitor at top of sdram.
  * -The heap is placed below the monitor

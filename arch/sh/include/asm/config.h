@@ -8,8 +8,6 @@
 
 #include <asm/processor.h>
 
-#define CONFIG_LMB
-
 /* Timer */
 #define CONFIG_SYS_TIMER_COUNTS_DOWN
 #define CONFIG_SYS_TIMER_COUNTER	(TMU_BASE + 0xc)	/* TCNT0 */
