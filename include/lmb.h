@@ -12,8 +12,6 @@
  * Copyright (C) 2001 Peter Bergner, IBM Corp.
  */
 
-#define MAX_LMB_REGIONS 8
-
 struct lmb_property {
 	phys_addr_t base;
 	phys_size_t size;
@@ -22,7 +20,7 @@ struct lmb_property {
 struct lmb_region {
 	unsigned long cnt;
 	unsigned long max;
-	struct lmb_property region[MAX_LMB_REGIONS+1];
+	struct lmb_property region[CONFIG_LMB_MAX_REGIONS + 1];
 };
 
 struct lmb {

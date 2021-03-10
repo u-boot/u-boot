@@ -95,8 +95,8 @@ static void lmb_coalesce_regions(struct lmb_region *rgn, unsigned long r1,
 
 void lmb_init(struct lmb *lmb)
 {
-	lmb->memory.max = MAX_LMB_REGIONS;
-	lmb->reserved.max = MAX_LMB_REGIONS;
+	lmb->memory.max = CONFIG_LMB_MAX_REGIONS;
+	lmb->reserved.max = CONFIG_LMB_MAX_REGIONS;
 
 	lmb->memory.cnt = 0;
 	lmb->reserved.cnt = 0;
