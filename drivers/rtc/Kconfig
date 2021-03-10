@@ -102,6 +102,12 @@ config RTC_PCF8563
 	  If you say yes here you get support for the Philips PCF8563 RTC
 	  and compatible chips.
 
+config RTC_RV3028
+	bool "Enable RV3028 driver"
+	depends on DM_RTC
+	help
+	  The MicroCrystal RV3028 is a I2C Real Time Clock (RTC)
+
 config RTC_RV3029
 	bool "Enable RV3029 driver"
 	depends on DM_RTC
