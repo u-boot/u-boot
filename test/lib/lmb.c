@@ -659,3 +659,67 @@ static int lib_test_lmb_get_free_size(struct unit_test_state *uts)
 
 DM_TEST(lib_test_lmb_get_free_size,
 	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int lib_test_lmb_max_regions(struct unit_test_state *uts)
+{
+	const phys_addr_t ram = 0x00000000;
+	const phys_size_t ram_size = 0x8000000;
+	const phys_size_t blk_size = 0x10000;
+	phys_addr_t offset;
+	struct lmb lmb;
+	int ret, i;
+
+	lmb_init(&lmb);
+
+	ut_asserteq(lmb.memory.cnt, 0);
+	ut_asserteq(lmb.memory.max, 8);
+	ut_asserteq(lmb.reserved.cnt, 0);
+	ut_asserteq(lmb.reserved.max, 8);
+
+	/*  Add 8 memory regions */
+	for (i = 0; i < 8; i++) {
+		offset = ram + 2 * i * ram_size;
+		ret = lmb_add(&lmb, offset, ram_size);
+		ut_asserteq(ret, 0);
+	}
+	ut_asserteq(lmb.memory.cnt, 8);
+	ut_asserteq(lmb.reserved.cnt, 0);
+
+	/*  error for the 9th memory regions */
+	offset = ram + 2 * 8 * ram_size;
+	ret = lmb_add(&lmb, offset, ram_size);
+	ut_asserteq(ret, -1);
+
+	ut_asserteq(lmb.memory.cnt, 8);
+	ut_asserteq(lmb.reserved.cnt, 0);
+
+	/*  reserve 8 regions */
+	for (i = 0; i < 8; i++) {
+		offset = ram + 2 * i * blk_size;
+		ret = lmb_reserve(&lmb, offset, blk_size);
+		ut_asserteq(ret, 0);
+	}
+
+	ut_asserteq(lmb.memory.cnt, 8);
+	ut_asserteq(lmb.reserved.cnt, 8);
+
+	/*  error for the 9th reserved blocks */
+	offset = ram + 2 * 8 * blk_size;
+	ret = lmb_reserve(&lmb, offset, blk_size);
+	ut_asserteq(ret, -1);
+
+	ut_asserteq(lmb.memory.cnt, 8);
+	ut_asserteq(lmb.reserved.cnt, 8);
+
+	/*  check each regions */
+	for (i = 0; i < 8; i++)
+		ut_asserteq(lmb.memory.region[i].base, ram + 2 * i * ram_size);
+
+	for (i = 0; i < 8; i++)
+		ut_asserteq(lmb.reserved.region[i].base, ram + 2 * i * blk_size);
+
+	return 0;
+}
+
+DM_TEST(lib_test_lmb_max_regions,
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
