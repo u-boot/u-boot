@@ -369,7 +369,6 @@ static void serdes6g_setup(void __iomem *base, uint32_t addr,
 {
 	u32 ib_if_mode = 0;
 	u32 ib_qrate = 0;
-	u32 ib_cal_ena = 0;
 	u32 ib1_tsdet = 0;
 	u32 ob_lev = 0;
 	u32 ob_ena_cas = 0;
@@ -381,7 +380,6 @@ static void serdes6g_setup(void __iomem *base, uint32_t addr,
 	case PHY_INTERFACE_MODE_SGMII:
 		ib_if_mode = 1;
 		ib_qrate = 1;
-		ib_cal_ena = 1;
 		ib1_tsdet = 3;
 		ob_lev = 48;
 		ob_ena_cas = 2;
@@ -403,6 +401,12 @@ static void serdes6g_setup(void __iomem *base, uint32_t addr,
 
 	if (interface == PHY_INTERFACE_MODE_QSGMII)
 		writel(0xfff, base + HSIO_HW_CFGSTAT_HW_CFG);
+
+	writel(HSIO_ANA_SERDES6G_OB_CFG_RESISTOR_CTRL(1) |
+	       HSIO_ANA_SERDES6G_OB_CFG_SR(7) |
+	       HSIO_ANA_SERDES6G_OB_CFG_SR_H |
+	       HSIO_ANA_SERDES6G_OB_CFG_ENA1V_MODE(ob_ena1v_mode) |
+	       HSIO_ANA_SERDES6G_OB_CFG_POL, base + HSIO_ANA_SERDES6G_OB_CFG);
 
 	writel(HSIO_ANA_SERDES6G_COMMON_CFG_IF_MODE(3),
 	       base + HSIO_ANA_SERDES6G_COMMON_CFG);
@@ -433,6 +437,21 @@ static void serdes6g_setup(void __iomem *base, uint32_t addr,
 	       HSIO_ANA_SERDES6G_IB_CFG1_TSDET(3) |
 	       HSIO_ANA_SERDES6G_IB_CFG1_TJTAG(8),
 	       base + HSIO_ANA_SERDES6G_IB_CFG1);
+
+	writel(HSIO_ANA_SERDES6G_IB_CFG2_UREG(4) |
+	       HSIO_ANA_SERDES6G_IB_CFG2_UMAX(2) |
+	       HSIO_ANA_SERDES6G_IB_CFG2_TCALV(12) |
+	       HSIO_ANA_SERDES6G_IB_CFG2_OCALS(32) |
+	       HSIO_ANA_SERDES6G_IB_CFG2_OINFS(7) |
+	       HSIO_ANA_SERDES6G_IB_CFG2_OINFI(0x1f) |
+	       HSIO_ANA_SERDES6G_IB_CFG2_TINFV(3),
+	       base + HSIO_ANA_SERDES6G_IB_CFG2);
+
+	writel(HSIO_ANA_SERDES6G_IB_CFG3_INI_OFFSET(0x1f) |
+	       HSIO_ANA_SERDES6G_IB_CFG3_INI_LP(1) |
+	       HSIO_ANA_SERDES6G_IB_CFG3_INI_MID(0x1f),
+	       base + HSIO_ANA_SERDES6G_IB_CFG3);
+
 	writel(HSIO_DIG_SERDES6G_MISC_CFG_LANE_RST,
 	       base + HSIO_DIG_SERDES6G_MISC_CFG);
 
@@ -507,7 +526,7 @@ static void serdes6g_setup(void __iomem *base, uint32_t addr,
 	writel(HSIO_ANA_SERDES6G_IB_CFG_REG_ENA |
 	       HSIO_ANA_SERDES6G_IB_CFG_EQZ_ENA |
 	       HSIO_ANA_SERDES6G_IB_CFG_SAM_ENA |
-	       HSIO_ANA_SERDES6G_IB_CFG_CAL_ENA(ib_cal_ena) |
+	       HSIO_ANA_SERDES6G_IB_CFG_CAL_ENA(1) |
 	       HSIO_ANA_SERDES6G_IB_CFG_CONCUR |
 	       HSIO_ANA_SERDES6G_IB_CFG_SIG_DET_ENA |
 	       HSIO_ANA_SERDES6G_IB_CFG_REG_PAT_SEL_OFF(0) |
@@ -532,7 +551,7 @@ static void serdes6g_setup(void __iomem *base, uint32_t addr,
 	writel(HSIO_ANA_SERDES6G_IB_CFG_REG_ENA |
 	       HSIO_ANA_SERDES6G_IB_CFG_EQZ_ENA |
 	       HSIO_ANA_SERDES6G_IB_CFG_SAM_ENA |
-	       HSIO_ANA_SERDES6G_IB_CFG_CAL_ENA(ib_cal_ena) |
+	       HSIO_ANA_SERDES6G_IB_CFG_CAL_ENA(1) |
 	       HSIO_ANA_SERDES6G_IB_CFG_CONCUR |
 	       HSIO_ANA_SERDES6G_IB_CFG_SIG_DET_ENA |
 	       HSIO_ANA_SERDES6G_IB_CFG_REG_PAT_SEL_OFF(0) |
