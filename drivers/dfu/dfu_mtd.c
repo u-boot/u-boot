@@ -150,7 +150,9 @@ static int mtd_block_op(enum dfu_op op, struct dfu_entity *dfu,
 		/* Write done, lock again */
 		debug("Locking the mtd device\n");
 		ret = mtd_lock(mtd, lock_ofs, lock_len);
-		if (ret && ret != -EOPNOTSUPP)
+		if (ret == -EOPNOTSUPP)
+			ret = 0;
+		else if (ret)
 			printf("MTD device lock failed\n");
 	}
 	return ret;
