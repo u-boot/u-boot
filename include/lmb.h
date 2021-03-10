@@ -20,7 +20,7 @@ struct lmb_property {
 struct lmb_region {
 	unsigned long cnt;
 	unsigned long max;
-	struct lmb_property region[CONFIG_LMB_MAX_REGIONS + 1];
+	struct lmb_property region[CONFIG_LMB_MAX_REGIONS];
 };
 
 struct lmb {
