@@ -1594,6 +1594,9 @@ static int spansion_read_cr_quad_enable(struct spi_nor *nor)
 	u8 sr_cr[2];
 	int ret;
 
+	if (nor->isparallel)
+		nor->spi->flags |= SPI_XFER_STRIPE;
+
 	/* Check current Quad Enable bit value. */
 	ret = read_cr(nor);
 	if (ret < 0) {
