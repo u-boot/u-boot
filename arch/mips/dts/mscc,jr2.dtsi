@@ -243,7 +243,9 @@
 			      <0x017d0000 0x10000>,  // QFWD
 			      <0x01020000 0x20000>,  // QS
 			      <0x017e0000 0x10000>,  // QSYS
-			      <0x01b00000 0x80000>;  // REW
+			      <0x01b00000 0x80000>,  // REW
+			      <0x01010000 0x100>,    // GCB
+			      <0x00000000 0x100>;    // ICPU
 			reg-names = "port0", "port1", "port2", "port3", "port4",
 				    "port5", "port6", "port7", "port8", "port9",
 				    "port10", "port11", "port12", "port13",
@@ -257,7 +259,7 @@
 				    "port42", "port43", "port44", "port45",
 				    "port46", "port47", "ana_ac", "ana_cl",
 				    "ana_l2", "asm", "hsio", "lrn", "qfwd",
-				    "qs", "qsys", "rew";
+				    "qs", "qsys", "rew", "gcb", "icpu";
 			status = "okay";
 
 			ethernet-ports {

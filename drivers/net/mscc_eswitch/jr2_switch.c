@@ -235,7 +235,7 @@ static const char * const regs_names[] = {
 	"port36", "port37", "port38", "port39", "port40", "port41", "port42",
 	"port43", "port44", "port45", "port46", "port47",
 	"ana_ac", "ana_cl", "ana_l2", "asm", "hsio", "lrn",
-	"qfwd", "qs", "qsys", "rew",
+	"qfwd", "qs", "qsys", "rew", "gcb", "icpu",
 };
 
 #define REGS_NAMES_COUNT ARRAY_SIZE(regs_names) + 1
@@ -252,6 +252,8 @@ enum jr2_ctrl_regs {
 	QS,
 	QSYS,
 	REW,
+	GCB,
+	ICPU,
 };
 
 #define JR2_MIIM_BUS_COUNT 3
@@ -850,6 +852,7 @@ static int jr2_probe(struct udevice *dev)
 	struct mii_dev *bus;
 	struct ofnode_phandle_args phandle;
 	struct phy_device *phy;
+	u32 val;
 
 	if (!priv)
 		return -EINVAL;
@@ -864,6 +867,17 @@ static int jr2_probe(struct udevice *dev)
 			return -ENOMEM;
 		}
 	}
+
+	val = readl(priv->regs[ICPU] + ICPU_RESET);
+	val |= ICPU_RESET_CORE_RST_PROTECT;
+	writel(val, priv->regs[ICPU] + ICPU_RESET);
+
+	val = readl(priv->regs[GCB] + PERF_SOFT_RST);
+	val |= PERF_SOFT_RST_SOFT_SWC_RST;
+	writel(val, priv->regs[GCB] + PERF_SOFT_RST);
+
+	while (readl(priv->regs[GCB] + PERF_SOFT_RST) & PERF_SOFT_RST_SOFT_SWC_RST)
+		;
 
 	/* Initialize miim buses */
 	memset(&miim, 0x0, sizeof(struct mscc_miim_dev) * JR2_MIIM_BUS_COUNT);
