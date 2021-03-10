@@ -25,7 +25,9 @@ int do_terminal(struct cmd_tbl *cmd, int flag, int argc, char *const argv[])
 	if (!dev)
 		return -1;
 
-	serial_reinit_all();
+	if (IS_ENABLED(CONFIG_SERIAL))
+		serial_reinit_all();
+
 	printf("Entering terminal mode for port %s\n", dev->name);
 	puts("Use '~.' to leave the terminal and get back to u-boot\n");
 
