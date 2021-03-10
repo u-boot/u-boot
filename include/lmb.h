@@ -21,7 +21,6 @@ struct lmb_property {
 
 struct lmb_region {
 	unsigned long cnt;
-	phys_size_t size;
 	struct lmb_property region[MAX_LMB_REGIONS+1];
 };
 
