@@ -33,8 +33,8 @@ int do_terminal(struct cmd_tbl *cmd, int flag, int argc, char *const argv[])
 		int c;
 
 		/* read from console and display on serial port */
-		if (stdio_devices[0]->tstc()) {
-			c = stdio_devices[0]->getc();
+		if (stdio_devices[0]->tstc(stdio_devices[0])) {
+			c = stdio_devices[0]->getc(stdio_devices[0]);
 			if (last_tilde == 1) {
 				if (c == '.') {
 					putc(c);
@@ -43,7 +43,7 @@ int do_terminal(struct cmd_tbl *cmd, int flag, int argc, char *const argv[])
 				} else {
 					last_tilde = 0;
 					/* write the delayed tilde */
-					dev->putc('~');
+					dev->putc(dev, '~');
 					/* fall-through to print current
 					 * character */
 				}
@@ -53,12 +53,12 @@ int do_terminal(struct cmd_tbl *cmd, int flag, int argc, char *const argv[])
 				puts("[u-boot]");
 				putc(c);
 			}
-			dev->putc(c);
+			dev->putc(dev, c);
 		}
 
 		/* read from serial port and display on console */
-		if (dev->tstc()) {
-			c = dev->getc();
+		if (dev->tstc(dev)) {
+			c = dev->getc(dev);
 			putc(c);
 		}
 	}
