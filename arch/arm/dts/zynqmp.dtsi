@@ -246,6 +246,12 @@
 			xlnx_rsa: zynqmp-rsa {
 				compatible = "xlnx,zynqmp-rsa";
 			};
+
+			modepin_gpio: gpio {
+				compatible = "xlnx,zynqmp-gpio-modepin";
+				gpio-controller;
+				#gpio-cells = <2>;
+			};
 		};
 	};
 
@@ -980,6 +986,7 @@
 			reg = <0x0 0xff9d0000 0x0 0x100>;
 			clock-names = "bus_clk", "ref_clk";
 			power-domains = <&zynqmp_firmware PD_USB_0>;
+			reset-gpio = <&modepin_gpio 1 0>;
 			ranges;
 			nvmem-cells = <&soc_revision>;
 			nvmem-cell-names = "soc_revision";
