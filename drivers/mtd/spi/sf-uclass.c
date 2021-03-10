@@ -46,11 +46,6 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 	return dev_get_uclass_priv(dev);
 }
 
-void spi_flash_free(struct spi_flash *flash)
-{
-	device_remove(flash->spi->dev, DM_REMOVE_NORMAL);
-}
-
 int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
 			   unsigned int max_hz, unsigned int spi_mode,
 			   struct udevice **devp)
