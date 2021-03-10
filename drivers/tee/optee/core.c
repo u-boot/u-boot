@@ -624,14 +624,14 @@ static int optee_probe(struct udevice *dev)
 	u32 sec_caps;
 
 	if (!is_optee_api(pdata->invoke_fn)) {
-		debug("%s: OP-TEE api uid mismatch\n", __func__);
+		dev_err(dev, "OP-TEE api uid mismatch\n");
 		return -ENOENT;
 	}
 
 	print_os_revision(dev, pdata->invoke_fn);
 
 	if (!api_revision_is_compatible(pdata->invoke_fn)) {
-		debug("%s: OP-TEE api revision mismatch\n", __func__);
+		dev_err(dev, "OP-TEE api revision mismatch\n");
 		return -ENOENT;
 	}
 
@@ -642,7 +642,7 @@ static int optee_probe(struct udevice *dev)
 	 */
 	if (!exchange_capabilities(pdata->invoke_fn, &sec_caps) ||
 	    !(sec_caps & OPTEE_SMC_SEC_CAP_DYNAMIC_SHM)) {
-		debug("%s: OP-TEE capabilities mismatch\n", __func__);
+		dev_err(dev, "OP-TEE capabilities mismatch\n");
 		return -ENOENT;
 	}
 
