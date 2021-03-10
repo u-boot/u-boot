@@ -1086,7 +1086,7 @@
 		};
 
 		zynqmp_dpdma: dma-controller@fd4c0000 {
-			compatible = "xlnx,dpdma";
+			compatible = "xlnx,zynqmp-dpdma";
 			status = "disabled";
 			reg = <0x0 0xfd4c0000 0x0 0x1000>;
 			interrupts = <0 122 4>;
@@ -1097,24 +1097,6 @@
 			#stream-id-cells = <1>;
 			/* iommus = <&smmu 0xce4>; */
 			#dma-cells = <1>;
-			dma-video0channel {
-				compatible = "xlnx,video0";
-			};
-			dma-video1channel {
-				compatible = "xlnx,video1";
-			};
-			dma-video2channel {
-				compatible = "xlnx,video2";
-			};
-			dma-graphicschannel {
-				compatible = "xlnx,graphics";
-			};
-			dma-audio0channel {
-				compatible = "xlnx,audio0";
-			};
-			dma-audio1channel {
-				compatible = "xlnx,audio1";
-			};
 		};
 
 		zynqmp_dpsub: display@fd4a0000 {
