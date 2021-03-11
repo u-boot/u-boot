@@ -129,6 +129,10 @@ static int designware_wdt_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+	ret = clk_enable(&clk);
+	if (ret)
+		return ret;
+
 	priv->clk_khz = clk_get_rate(&clk) / 1000;
 	if (!priv->clk_khz)
 		return -EINVAL;
