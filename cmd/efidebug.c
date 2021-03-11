@@ -131,6 +131,82 @@ static int do_efi_capsule_show(struct cmd_tbl *cmdtp, int flag,
 	return CMD_RET_SUCCESS;
 }
 
+#ifdef CONFIG_EFI_ESRT
+
+#define EFI_ESRT_FW_TYPE_NUM 4
+char *efi_fw_type_str[EFI_ESRT_FW_TYPE_NUM] = {"unknown", "system FW", "device FW",
+	 "UEFI driver"};
+
+#define EFI_ESRT_UPDATE_STATUS_NUM 9
+char *efi_update_status_str[EFI_ESRT_UPDATE_STATUS_NUM] = {"success", "unsuccessful",
+	"insufficient resources", "incorrect version", "invalid format",
+	"auth error", "power event (AC)", "power event (batt)",
+	"unsatisfied dependencies"};
+
+#define EFI_FW_TYPE_STR_GET(idx) (\
+EFI_ESRT_FW_TYPE_NUM > (idx) ? efi_fw_type_str[(idx)] : "error"\
+)
+
+#define EFI_FW_STATUS_STR_GET(idx) (\
+EFI_ESRT_UPDATE_STATUS_NUM  > (idx) ? efi_update_status_str[(idx)] : "error"\
+)
+
+/**
+ * do_efi_capsule_esrt() - manage UEFI capsules
+ *
+ * @cmdtp:	Command table
+ * @flag:	Command flag
+ * @argc:	Number of arguments
+ * @argv:	Argument array
+ * Return:	CMD_RET_SUCCESS on success,
+ *		CMD_RET_USAGE or CMD_RET_RET_FAILURE on failure
+ *
+ * Implement efidebug "capsule esrt" sub-command.
+ * The prints the current ESRT table.
+ *
+ *     efidebug capsule esrt
+ */
+static int do_efi_capsule_esrt(struct cmd_tbl *cmdtp, int flag,
+			       int argc, char * const argv[])
+{
+	struct efi_system_resource_table *esrt = NULL;
+
+	if (argc != 1)
+		return CMD_RET_USAGE;
+
+	for (int idx = 0; idx < systab.nr_tables; idx++)
+		if (!guidcmp(&efi_esrt_guid, &systab.tables[idx].guid))
+			esrt = (struct efi_system_resource_table *)systab.tables[idx].table;
+
+	if (!esrt) {
+		log_info("ESRT: table not present\n");
+		return CMD_RET_SUCCESS;
+	}
+
+	printf("========================================\n");
+	printf("ESRT: fw_resource_count=%d\n", esrt->fw_resource_count);
+	printf("ESRT: fw_resource_count_max=%d\n", esrt->fw_resource_count_max);
+	printf("ESRT: fw_resource_version=%lld\n", esrt->fw_resource_version);
+
+	for (int idx = 0; idx < esrt->fw_resource_count; idx++) {
+		printf("[entry %d]==============================\n", idx);
+		printf("ESRT: fw_class=%pUL\n", &esrt->entries[idx].fw_class);
+		printf("ESRT: fw_type=%s\n", EFI_FW_TYPE_STR_GET(esrt->entries[idx].fw_type));
+		printf("ESRT: fw_version=%d\n", esrt->entries[idx].fw_version);
+		printf("ESRT: lowest_supported_fw_version=%d\n",
+		       esrt->entries[idx].lowest_supported_fw_version);
+		printf("ESRT: capsule_flags=%d\n",
+		       esrt->entries[idx].capsule_flags);
+		printf("ESRT: last_attempt_version=%d\n",
+		       esrt->entries[idx].last_attempt_version);
+		printf("ESRT: last_attempt_status=%s\n",
+		       EFI_FW_STATUS_STR_GET(esrt->entries[idx].last_attempt_status));
+	}
+	printf("========================================\n");
+
+	return CMD_RET_SUCCESS;
+}
+#endif /*  CONFIG_EFI_ESRT */
 /**
  * do_efi_capsule_res() - show a capsule update result
  *
@@ -223,6 +299,10 @@ static struct cmd_tbl cmd_efidebug_capsule_sub[] = {
 			 "", ""),
 	U_BOOT_CMD_MKENT(show, CONFIG_SYS_MAXARGS, 1, do_efi_capsule_show,
 			 "", ""),
+#ifdef CONFIG_EFI_ESRT
+	U_BOOT_CMD_MKENT(esrt, CONFIG_SYS_MAXARGS, 1, do_efi_capsule_esrt,
+			 "", ""),
+#endif
 	U_BOOT_CMD_MKENT(disk-update, 0, 0, do_efi_capsule_on_disk_update,
 			 "", ""),
 	U_BOOT_CMD_MKENT(result, CONFIG_SYS_MAXARGS, 1, do_efi_capsule_res,
@@ -1703,6 +1783,10 @@ static char efidebug_help_text[] =
 	"  - show capsule information\n"
 	"efidebug capsule result [<capsule result var>]\n"
 	"  - show a capsule update result\n"
+#ifdef CONFIG_EFI_ESRT
+	"efidebug capsule esrt\n"
+	"  - print the ESRT\n"
+#endif
 	"\n"
 #endif
 	"efidebug devices\n"
