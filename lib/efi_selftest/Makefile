@@ -71,6 +71,8 @@ ifeq ($(CONFIG_BLK)$(CONFIG_DOS_PARTITION),yy)
 obj-y += efi_selftest_block_device.o
 endif
 
+obj-$(CONFIG_EFI_ESRT) += efi_selftest_esrt.o
+
 targets += \
 efi_miniapp_file_image_exception.h \
 efi_miniapp_file_image_exit.h \
