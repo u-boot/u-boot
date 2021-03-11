@@ -439,7 +439,6 @@
 				interrupts = <21>;
 				clocks = <&sysclk K210_CLK_WDT0>;
 				resets = <&sysrst K210_RST_WDT0>;
-				status = "disabled";
 			};
 
 			wdt1: watchdog@50410000 {
