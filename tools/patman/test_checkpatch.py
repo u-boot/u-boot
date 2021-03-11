@@ -353,7 +353,7 @@ index 0000000..2234c87
 
         Args:
             pm: PatchMaker object to use
-            msg" Expected message (e.g. 'LIVETREE')
+            msg: Expected message (e.g. 'LIVETREE')
             pmtype: Type of problem ('error', 'warning')
         """
         result = pm.run_checkpatch()
@@ -439,6 +439,18 @@ index 0000000..2234c87
         self.check_struct('per_device_auto', '_priv', 'DEVICE_PRIV_AUTO')
         self.check_struct('per_device_plat_auto', '_plat', 'DEVICE_PLAT_AUTO')
 
+    def check_strl(self, func):
+        """Check one of the checks for strn(cpy|cat)"""
+        pm = PatchMaker()
+        pm.add_line('common/main.c', "strn%s(foo, bar, sizeof(foo));" % func)
+        self.checkSingleMessage(pm, "STRL",
+            "strl%s is preferred over strn%s because it always produces a nul-terminated string\n"
+            % (func, func))
+
+    def testStrl(self):
+        """Check for uses of strn(cat|cpy)"""
+        self.check_strl("cat");
+        self.check_strl("cpy");
 
 if __name__ == "__main__":
     unittest.main()
