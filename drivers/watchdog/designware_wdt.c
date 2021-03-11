@@ -9,7 +9,6 @@
 #include <reset.h>
 #include <wdt.h>
 #include <asm/io.h>
-#include <asm/utils.h>
 #include <linux/bitops.h>
 
 #define DW_WDT_CR	0x00
@@ -35,7 +34,7 @@ static int designware_wdt_settimeout(void __iomem *base, unsigned int clk_khz,
 	signed int i;
 
 	/* calculate the timeout range value */
-	i = log_2_n_round_up(timeout * clk_khz) - 16;
+	i = fls(timeout * clk_khz - 1) - 16;
 	i = clamp(i, 0, 15);
 
 	writel(i | (i << 4), base + DW_WDT_TORR);
