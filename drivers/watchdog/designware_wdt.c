@@ -136,17 +136,17 @@ static int designware_wdt_probe(struct udevice *dev)
 	priv->clk_khz = CONFIG_DW_WDT_CLOCK_KHZ;
 #endif
 
-#if CONFIG_IS_ENABLED(DM_RESET)
-	struct reset_ctl_bulk resets;
+	if (CONFIG_IS_ENABLED(DM_RESET)) {
+		struct reset_ctl_bulk resets;
 
-	ret = reset_get_bulk(dev, &resets);
-	if (ret)
-		return ret;
+		ret = reset_get_bulk(dev, &resets);
+		if (ret)
+			return ret;
 
-	ret = reset_deassert_bulk(&resets);
-	if (ret)
-		return ret;
-#endif
+		ret = reset_deassert_bulk(&resets);
+		if (ret)
+			return ret;
+	}
 
 	/* reset to disable the watchdog */
 	return designware_wdt_stop(dev);
