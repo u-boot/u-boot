@@ -14,6 +14,71 @@
 #include <linux/compiler.h>
 #include <cpu_func.h>
 
+#ifndef CONFIG_IMX8M
+const __weak struct rproc_att hostmap[] = { };
+
+static const struct rproc_att *get_host_mapping(unsigned long auxcore)
+{
+	const struct rproc_att *mmap = hostmap;
+
+	while (mmap && mmap->size) {
+		if (mmap->da <= auxcore &&
+		    mmap->da + mmap->size > auxcore)
+			return mmap;
+		mmap++;
+	}
+
+	return NULL;
+}
+
+/*
+ * A very simple elf loader for the auxilary core, assumes the image
+ * is valid, returns the entry point address.
+ * Translates load addresses in the elf file to the U-Boot address space.
+ */
+static unsigned long load_elf_image_m_core_phdr(unsigned long addr)
+{
+	Elf32_Ehdr *ehdr; /* ELF header structure pointer */
+	Elf32_Phdr *phdr; /* Program header structure pointer */
+	int i;
+
+	ehdr = (Elf32_Ehdr *)addr;
+	phdr = (Elf32_Phdr *)(addr + ehdr->e_phoff);
+
+	/* Load each program header */
+	for (i = 0; i < ehdr->e_phnum; ++i, ++phdr) {
+		const struct rproc_att *mmap = get_host_mapping(phdr->p_paddr);
+		void *dst, *src;
+
+		if (phdr->p_type != PT_LOAD)
+			continue;
+
+		if (!mmap) {
+			printf("Invalid aux core address: %08x",
+			       phdr->p_paddr);
+			return 0;
+		}
+
+		dst = (void *)(phdr->p_paddr - mmap->da) + mmap->sa;
+		src = (void *)addr + phdr->p_offset;
+
+		debug("Loading phdr %i to 0x%p (%i bytes)\n",
+		      i, dst, phdr->p_filesz);
+
+		if (phdr->p_filesz)
+			memcpy(dst, src, phdr->p_filesz);
+		if (phdr->p_filesz != phdr->p_memsz)
+			memset(dst + phdr->p_filesz, 0x00,
+			       phdr->p_memsz - phdr->p_filesz);
+		flush_cache((unsigned long)dst &
+			    ~(CONFIG_SYS_CACHELINE_SIZE - 1),
+			    ALIGN(phdr->p_filesz, CONFIG_SYS_CACHELINE_SIZE));
+	}
+
+	return ehdr->e_entry;
+}
+#endif
+
 int arch_auxiliary_core_up(u32 core_id, ulong addr)
 {
 	ulong stack, pc;
@@ -31,7 +96,7 @@ int arch_auxiliary_core_up(u32 core_id, ulong addr)
 	 */
 	if (valid_elf_image(addr)) {
 		stack = 0x0;
-		pc = load_elf_image_phdr(addr);
+		pc = load_elf_image_m_core_phdr(addr);
 		if (!pc)
 			return CMD_RET_FAILURE;
 
