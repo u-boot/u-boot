@@ -131,6 +131,18 @@
 		compatible = "iio-hwmon";
 		io-channels = <&u35 0>, <&u35 1>, <&u35 2>, <&u35 3>;
 	};
+
+	si5335_0: si5335_0 { /* clk0_usb - u23 */
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <26000000>;
+	};
+
+	si5335_1: si5335_1 { /* clk1_dp - u23 */
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <27000000>;
+	};
 };
 
 &dcc {
@@ -506,8 +518,11 @@
 	};
 };
 
-&serdes {
+&psgtr {
 	status = "okay";
+	/* usb3, dp */
+	clocks = <&si5335_0>, <&si5335_1>;
+	clock-names = "ref1", "ref2";
 };
 
 &spi0 { /* Low Speed connector */
@@ -554,7 +569,7 @@
 	status = "okay";
 	dr_mode = "peripheral";
 	phy-names = "usb3-phy";
-	phys = <&lane2 PHY_TYPE_USB3 0 0 26000000>;
+	phys = <&psgtr 2 PHY_TYPE_USB3 0 0>;
 	maximum-speed = "super-speed";
 };
 
@@ -569,7 +584,7 @@
 	status = "okay";
 	dr_mode = "host";
 	phy-names = "usb3-phy";
-	phys = <&lane3 PHY_TYPE_USB3 1 0 26000000>;
+	phys = <&psgtr 3 PHY_TYPE_USB3 1 0>;
 	maximum-speed = "super-speed";
 };
 
@@ -580,8 +595,8 @@
 &zynqmp_dpsub {
 	status = "okay";
 	phy-names = "dp-phy0", "dp-phy1";
-	phys = <&lane1 PHY_TYPE_DP 0 1 27000000>,
-	       <&lane0 PHY_TYPE_DP 1 1 27000000>;
+	phys = <&psgtr 1 PHY_TYPE_DP 0 1>,
+	       <&psgtr 0 PHY_TYPE_DP 1 1>;
 };
 
 &zynqmp_dp_snd_pcm0 {

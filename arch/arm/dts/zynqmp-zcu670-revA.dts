@@ -129,6 +129,12 @@
 		#clock-cells = <0>;
 		clock-frequency = <48000000>;
 	};
+
+	si5381_6: si5381_6 { /* refclk_usb3 - u43 */
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <26000000>;
+	};
 };
 
 &dcc {
@@ -629,8 +635,11 @@
 	xlnx,mio-bank = <1>;
 };
 
-&serdes {
+&psgtr {
 	status = "okay";
+	/* hspc_dp4, hspc_dp5, usb3, hspc_dp6 */
+	clocks = <&si5381_6>;
+	clock-names = "ref2";
 };
 
 &uart0 {
@@ -647,5 +656,5 @@
 	dr_mode = "host";
 	snps,usb3_lpm_capable;
 	phy-names = "usb3-phy";
-	phys = <&lane2 PHY_TYPE_USB3 0 2 26000000>;
+	phys = <&psgtr 2 PHY_TYPE_USB3 0 2>;
 };

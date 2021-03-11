@@ -74,6 +74,18 @@
 		compatible = "xlnx,fclk";
 		clocks = <&si570_hsdp>;
 	};
+
+	si5332_1: si5332_1 { /* clk0_sgmii - u142 */
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <33333333>; /* FIXME */
+	};
+
+	si5332_2: si5332_2 { /* clk1_usb - u142 */
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <27000000>;
+	};
 };
 
 &sdhci0 { /* emmc MIO 13-23 - with some settings  16GB */
@@ -101,8 +113,11 @@
 	xlnx,mio-bank = <1>;
 };
 
-&serdes {
+&psgtr {
 	status = "okay";
+	/* sgmii, usb3 */
+	clocks = <&si5332_1>, <&si5332_2>;
+	clock-names = "ref0", "ref1";
 };
 
 &gem0 {
@@ -573,7 +588,7 @@
 	snps,dis_u3_susphy_quirk;
 	maximum-speed = "super-speed";
 	phy-names = "usb3-phy";
-	phys = <&lane1 PHY_TYPE_USB3 0 1 26000000>;
+	phys = <&psgtr 1 PHY_TYPE_USB3 0 1>;
 };
 
 &usb1 {

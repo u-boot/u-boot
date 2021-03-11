@@ -55,14 +55,53 @@
 				compatible = "iio-hwmon";
 				io-channels = <&u14 0>, <&u14 1>, <&u14 2>;
 			};
+
+			si5332_0: si5332_0 { /* u17 */
+				compatible = "fixed-clock";
+				#clock-cells = <0>;
+				clock-frequency = <125000000>;
+			};
+
+			si5332_1: si5332_1 { /* u17 */
+				compatible = "fixed-clock";
+				#clock-cells = <0>;
+				clock-frequency = <25000000>;
+			};
+
+			si5332_2: si5332_2 { /* u17 */
+				compatible = "fixed-clock";
+				#clock-cells = <0>;
+				clock-frequency = <48000000>;
+			};
+
+			si5332_3: si5332_3 { /* u17 */
+				compatible = "fixed-clock";
+				#clock-cells = <0>;
+				clock-frequency = <24000000>;
+			};
+
+			si5332_4: si5332_4 { /* u17 */
+				compatible = "fixed-clock";
+				#clock-cells = <0>;
+				clock-frequency = <26000000>;
+			};
+
+			si5332_5: si5332_5 { /* u17 */
+				compatible = "fixed-clock";
+				#clock-cells = <0>;
+				clock-frequency = <27000000>;
+			};
 		};
 	};
 
 /* DP/USB 3.0 and SATA */
 	fragment2 {
-		target = <&serdes>;
+		target = <&psgtr>;
 		__overlay__ {
 			status = "okay";
+			/* pcie, usb3, sata */
+			clocks = <&si5332_5>, <&si5332_4>, <&si5332_0>;
+			clock-names = "ref0", "ref1", "ref2";
 		};
 	};
 
@@ -80,7 +119,7 @@
 			ceva,p1-burst-params = /bits/ 8 <0x13 0x08 0x4A 0x06>;
 			ceva,p1-retry-params = /bits/ 16 <0x96A4 0x3FFC>;
 			phy-names = "sata-phy";
-			phys = <&lane3 PHY_TYPE_SATA 1 2 125000000>;
+			phys = <&psgtr 3 PHY_TYPE_SATA 1 2>;
 		};
 	};
 
@@ -89,7 +128,7 @@
 		__overlay__ {
 			status = "disabled";
 			phy-names = "dp-phy0", "dp-phy1";
-			phys = <&lane1 PHY_TYPE_DP 0 0 27000000>, <&lane0 PHY_TYPE_DP 1 0 27000000>;
+			phys = <&psgtr 1 PHY_TYPE_DP 0 0>, <&psgtr 0 PHY_TYPE_DP 1 0>;
 		};
 	};
 
@@ -120,7 +159,7 @@
 			dr_mode = "host";
 			snps,usb3_lpm_capable;
 			phy-names = "usb3-phy";
-			phys = <&lane2 PHY_TYPE_USB3 0 1 26000000>;
+			phys = <&psgtr 2 PHY_TYPE_USB3 0 1>;
 			maximum-speed = "super-speed";
 		};
 	};
