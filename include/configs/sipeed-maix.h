@@ -18,9 +18,6 @@
 /* Don't relocate into AI ram since it isn't set up yet */
 #define CONFIG_SYS_SDRAM_SIZE (SZ_4M + SZ_2M)
 
-/* For early init */
-#define K210_SYSCTL_BASE 0x50440000
-
 #ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80060000\0" \
