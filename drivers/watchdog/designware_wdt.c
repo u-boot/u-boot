@@ -131,11 +131,13 @@ static int designware_wdt_probe(struct udevice *dev)
 
 	ret = clk_enable(&clk);
 	if (ret)
-		return ret;
+		goto err;
 
 	priv->clk_khz = clk_get_rate(&clk) / 1000;
-	if (!priv->clk_khz)
-		return -EINVAL;
+	if (!priv->clk_khz) {
+		ret = -EINVAL;
+		goto err;
+	}
 #else
 	priv->clk_khz = CONFIG_DW_WDT_CLOCK_KHZ;
 #endif
@@ -145,15 +147,21 @@ static int designware_wdt_probe(struct udevice *dev)
 
 		ret = reset_get_bulk(dev, &resets);
 		if (ret)
-			return ret;
+			goto err;
 
 		ret = reset_deassert_bulk(&resets);
 		if (ret)
-			return ret;
+			goto err;
 	}
 
 	/* reset to disable the watchdog */
 	return designware_wdt_stop(dev);
+
+err:
+#if CONFIG_IS_ENABLED(CLK)
+	clk_free(&clk);
+#endif
+	return ret;
 }
 
 static const struct wdt_ops designware_wdt_ops = {
