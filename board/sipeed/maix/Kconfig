@@ -69,4 +69,6 @@ config BOARD_SPECIFIC_OPTIONS
 	imply EFI_PARTITION
 	imply CMD_PART
 	imply CMD_FS_GENERIC
+	imply WDT
+	imply DESIGNWARE_WATCHDOG
 endif
