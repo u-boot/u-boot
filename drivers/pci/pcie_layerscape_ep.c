@@ -244,7 +244,7 @@ static int ls_pcie_ep_probe(struct udevice *dev)
 	int ret;
 	u32 svr;
 
-	pcie = devm_kmalloc(dev, sizeof(*pcie), GFP_KERNEL);
+	pcie = devm_kzalloc(dev, sizeof(*pcie), GFP_KERNEL);
 	if (!pcie)
 		return -ENOMEM;
 
