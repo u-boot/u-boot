@@ -114,17 +114,21 @@ char * strncpy(char * dest,const char *src,size_t count)
  * NUL-terminated string that fits in the buffer (unless,
  * of course, the buffer size is zero). It does not pad
  * out the result like strncpy() does.
+ *
+ * Return: the number of bytes copied
  */
 size_t strlcpy(char *dest, const char *src, size_t size)
 {
-	size_t ret = strlen(src);
-
 	if (size) {
-		size_t len = (ret >= size) ? size - 1 : ret;
+		size_t srclen = strlen(src);
+		size_t len = (srclen >= size) ? size - 1 : srclen;
+
 		memcpy(dest, src, len);
 		dest[len] = '\0';
+		return len + 1;
 	}
-	return ret;
+
+	return 0;
 }
 #endif
 
