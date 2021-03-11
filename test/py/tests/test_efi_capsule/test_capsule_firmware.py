@@ -229,6 +229,14 @@ class TestEfiCapsuleFirmwareFit(object):
                 output = u_boot_console.run_command(
                     'env print -e -all Capsule0000')
 
+            output = u_boot_console.run_command_list(['efidebug capsule esrt'])
+
+            # ensure that EFI_FIRMWARE_IMAGE_TYPE_UBOOT_FIT_GUID is in the ESRT.
+            assert 'AE13FF2D-9AD4-4E25-9AC8-6D80B3B22147' in ''.join(output)
+
+            # ensure that  EFI_FIRMWARE_IMAGE_TYPE_UBOOT_RAW_GUID is in the ESRT.
+            assert 'E2BB9C06-70E9-4B14-97A3-5A7913176E3F' in ''.join(output)
+
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
                 'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
