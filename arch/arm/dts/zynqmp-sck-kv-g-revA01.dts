@@ -94,7 +94,7 @@
 	};
 
 	fragment9 {
-		target = <&xlnx_dpdma>;
+		target = <&zynqmp_dpdma>;
 		__overlay__ {
 			status = "okay";
 		};

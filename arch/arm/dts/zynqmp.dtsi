@@ -1106,7 +1106,7 @@
 			};
 		};
 
-		xlnx_dpdma: dma@fd4c0000 {
+		zynqmp_dpdma: dma-controller@fd4c0000 {
 			compatible = "xlnx,dpdma";
 			status = "disabled";
 			reg = <0x0 0xfd4c0000 0x0 0x1000>;
@@ -1158,14 +1158,14 @@
 
 			vid_layer: vid-layer {
 				dma-names = "vid0", "vid1", "vid2";
-				dmas = <&xlnx_dpdma 0>,
-				       <&xlnx_dpdma 1>,
-				       <&xlnx_dpdma 2>;
+				dmas = <&zynqmp_dpdma 0>,
+				       <&zynqmp_dpdma 1>,
+				       <&zynqmp_dpdma 2>;
 			};
 
 			gfx_layer: gfx-layer {
 				dma-names = "gfx0";
-				dmas = <&xlnx_dpdma 3>;
+				dmas = <&zynqmp_dpdma 3>;
 			};
 
 			/* dummy node to indicate there's no child i2c device */
@@ -1179,13 +1179,13 @@
 
 			zynqmp_dp_snd_pcm0: zynqmp_dp_snd_pcm0 {
 				compatible = "xlnx,dp-snd-pcm";
-				dmas = <&xlnx_dpdma 4>;
+				dmas = <&zynqmp_dpdma 4>;
 				dma-names = "tx";
 			};
 
 			zynqmp_dp_snd_pcm1: zynqmp_dp_snd_pcm1 {
 				compatible = "xlnx,dp-snd-pcm";
-				dmas = <&xlnx_dpdma 5>;
+				dmas = <&zynqmp_dpdma 5>;
 				dma-names = "tx";
 			};
 

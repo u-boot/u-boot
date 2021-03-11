@@ -304,7 +304,7 @@
 	clocks = <&dp_aclk>, <&zynqmp_clk DP_AUDIO_REF>, <&zynqmp_clk DP_VIDEO_REF>;
 };
 
-&xlnx_dpdma {
+&zynqmp_dpdma {
 	clocks = <&zynqmp_clk DPDMA_REF>;
 };
 
