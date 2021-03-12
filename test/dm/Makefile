@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2013 Google, Inc
 
-obj-$(CONFIG_UT_DM) += test-main.o
+obj-$(CONFIG_UT_DM) += test-dm.o
 
 # Tests for particular subsystems - when enabling driver model for a new
 # subsystem you must add sandbox tests here.

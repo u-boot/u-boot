@@ -9,6 +9,7 @@
 #include <console.h>
 #include <test/suites.h>
 #include <test/test.h>
+#include <test/ut.h>
 
 static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[]);
@@ -17,41 +18,12 @@ int cmd_ut_category(const char *name, const char *prefix,
 		    struct unit_test *tests, int n_ents,
 		    int argc, char *const argv[])
 {
-	struct unit_test_state uts = { .fail_count = 0 };
-	struct unit_test *test;
-	int prefix_len = prefix ? strlen(prefix) : 0;
+	int ret;
 
-	if (argc == 1)
-		printf("Running %d %s tests\n", n_ents, name);
+	ret = ut_run_list(name, prefix, tests, n_ents,
+			  argc > 1 ? argv[1] : NULL);
 
-	for (test = tests; test < tests + n_ents; test++) {
-		const char *test_name = test->name;
-
-		/* Remove the prefix */
-		if (prefix && !strncmp(test_name, prefix, prefix_len))
-			test_name += prefix_len;
-
-		if (argc > 1 && strcmp(argv[1], test_name))
-			continue;
-		printf("Test: %s\n", test->name);
-
-		if (test->flags & UT_TESTF_CONSOLE_REC) {
-			int ret = console_record_reset_enable();
-
-			if (ret) {
-				printf("Skipping: Console recording disabled\n");
-				continue;
-			}
-		}
-
-		uts.start = mallinfo();
-
-		test->func(&uts);
-	}
-
-	printf("Failures: %d\n", uts.fail_count);
-
-	return uts.fail_count ? CMD_RET_FAILURE : 0;
+	return ret ? CMD_RET_FAILURE : 0;
 }
 
 static struct cmd_tbl cmd_ut_sub[] = {

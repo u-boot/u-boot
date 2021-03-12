@@ -8,16 +8,26 @@ tested and what tests you should write when adding a new feature.
 Running tests
 -------------
 
-To run most tests on sandbox, type this:
+To run most tests on sandbox, type this::
 
     make check
 
 in the U-Boot directory. Note that only the pytest suite is run using this
 command.
 
-Some tests take ages to run. To run just the quick ones, type this:
+Some tests take ages to run and are marked with @pytest.mark.slow. To run just
+the quick ones, type this::
 
     make qcheck
+
+It is also possible to run just the tests for tools (patman, binman, etc.).
+Such tests are included with those tools, i.e. no actual U-Boot unit tests are
+run. Type this::
+
+    make tcheck
+
+All of the above use the test/run script with a paremeter to select which tests
+are run.
 
 
 Sandbox
@@ -26,6 +36,7 @@ U-Boot can be built as a user-space application (e.g. for Linux). This
 allows test to be executed without needing target hardware. The 'sandbox'
 target provides this feature and it is widely used in tests.
 
+See :doc:`tests_sandbox` for more information.
 
 Pytest Suite
 ------------
@@ -35,13 +46,26 @@ either on sandbox or on real hardware. It relies on the U-Boot console to
 inject test commands and check the result. It is slower to run than C code,
 but provides the ability to unify lots of tests and summarise their results.
 
-You can run the tests on sandbox with:
+You can run the tests on sandbox with::
 
-	./test/py/test.py --bd sandbox --build
+   ./test/py/test.py --bd sandbox --build
 
 This will produce HTML output in build-sandbox/test-log.html
 
+Some tests run with other versions of sandbox. For example sandbox_flattree
+runs the tests with livetree (the hierachical devicetree) disabled. You can
+also select particular tests with -k::
+
+   ./test/py/test.py --bd sandbox_flattree --build -k hello
+
+There are some special tests that run in SPL. For this you need the sandbox_spl
+build::
+
+   ./test/py/test.py --bd sandbox_spl --build -k test_spl
+
 See test/py/README.md for more information about the pytest suite.
+
+See :doc:`tests_sandbox` for how to run tests directly (not through pytest).
 
 
 tbot
@@ -58,10 +82,14 @@ Ad-hoc tests
 
 There are several ad-hoc tests which run outside the pytest environment:
 
-   test/fs	- File system test (shell script)
-   test/image	- FIT and legacy image tests (shell script and Python)
-   test/stdint	- A test that stdint.h can be used in U-Boot (shell script)
-   trace	- Test for the tracing feature (shell script)
+test/fs
+   File system test (shell script)
+test/image
+   FIT and legacy image tests (shell script and Python)
+test/stdint
+   A test that stdint.h can be used in U-Boot (shell script)
+trace
+   Test for the tracing feature (shell script)
 
 TODO: Move these into pytest.
 
@@ -88,6 +116,8 @@ or is covered sparingly. So here are some suggestions:
   very basic test is useful, and may be picked up and enhanced by others. It
   is much easier to add onto a test - writing a new large test can seem
   daunting to most contributors.
+
+See doc:`tests_writing` for how to write tests.
 
 
 Future work
