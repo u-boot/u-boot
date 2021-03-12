@@ -7,8 +7,6 @@
 #include "mv_ddr_common.h"
 #include "mv_ddr_training_db.h"
 #include "mv_ddr_regs.h"
-#include <log.h>
-#include <linux/delay.h>
 
 #define GET_CS_FROM_MASK(mask)	(cs_mask2_num[mask])
 #define CS_CBE_VALUE(cs_num)	(cs_cbe_reg[cs_num])
@@ -207,7 +205,6 @@ static int ddr3_tip_pad_inv(void)
 		if (tm->interface_params[0].as_bus_params[sphy].
 		    is_ck_swap == 1 && sphy == 0) {
 /* TODO: move this code to per platform one */
-#if defined(CONFIG_ARMADA_38X) || defined(CONFIG_ARMADA_39X)
 			/* clock swap for both cs0 and cs1 */
 			data = (INVERT_PAD << INV_PAD2_OFFS |
 				INVERT_PAD << INV_PAD6_OFFS |
@@ -219,9 +216,6 @@ static int ddr3_tip_pad_inv(void)
 						       DDR_PHY_CONTROL,
 						       PHY_CTRL_PHY_REG,
 						       data, data);
-#else /* !CONFIG_ARMADA_38X && !CONFIG_ARMADA_39X */
-#pragma message "unknown platform to configure ddr clock swap"
-#endif
 		}
 	}
 
@@ -2014,9 +2008,7 @@ int ddr3_tip_adll_regs_bypass(u32 dev_num, u32 reg_val1, u32 reg_val2)
 static int ddr3_tip_ddr3_training_main_flow(u32 dev_num)
 {
 /* TODO: enable this functionality for other platforms */
-#if defined(CONFIG_ARMADA_38X) || defined(CONFIG_ARMADA_39X)
 	struct init_cntr_param init_cntr_prm;
-#endif
 	int ret = MV_OK;
 	int adll_bypass_flag = 0;
 	u32 if_id;
@@ -2050,7 +2042,6 @@ static int ddr3_tip_ddr3_training_main_flow(u32 dev_num)
 	}
 
 /* TODO: enable this functionality for other platforms */
-#if defined(CONFIG_ARMADA_38X) || defined(CONFIG_ARMADA_39X)
 	if (is_adll_calib_before_init != 0) {
 		DEBUG_TRAINING_IP(DEBUG_LEVEL_INFO,
 				  ("with adll calib before init\n"));
@@ -2081,7 +2072,6 @@ static int ddr3_tip_ddr3_training_main_flow(u32 dev_num)
 				return MV_FAIL;
 		}
 	}
-#endif
 
 	ret = adll_calibration(dev_num, ACCESS_TYPE_MULTICAST, 0, freq);
 	if (ret != MV_OK) {
@@ -2905,3 +2895,4 @@ unsigned int mv_ddr_misl_phy_odt_n_get(void)
 
 	return odt_n;
 }
+

@@ -8,7 +8,6 @@
 #include "mv_ddr_training_db.h"
 #include "mv_ddr_regs.h"
 #include "mv_ddr_sys_env_lib.h"
-#include <linux/delay.h>
 
 #define DDR_INTERFACES_NUM		1
 #define DDR_INTERFACE_OCTETS_NUM	5
@@ -560,11 +559,7 @@ static int ddr3_tip_a38x_get_medium_freq(int dev_num, enum mv_ddr_freq *freq)
 
 static int ddr3_tip_a38x_get_device_info(u8 dev_num, struct ddr3_device_info *info_ptr)
 {
-#if defined(CONFIG_ARMADA_39X)
-	info_ptr->device_id = 0x6900;
-#else
 	info_ptr->device_id = 0x6800;
-#endif
 	info_ptr->ck_delay = ck_delay;
 
 	return MV_OK;
@@ -667,11 +662,7 @@ static int mv_ddr_sw_db_init(u32 dev_num, u32 board_id)
 	ddr3_tip_dev_attr_set(dev_num, MV_ATTR_TIP_REV, MV_TIP_REV_4);
 	ddr3_tip_dev_attr_set(dev_num, MV_ATTR_PHY_EDGE, MV_DDR_PHY_EDGE_POSITIVE);
 	ddr3_tip_dev_attr_set(dev_num, MV_ATTR_OCTET_PER_INTERFACE, DDR_INTERFACE_OCTETS_NUM);
-#ifdef CONFIG_ARMADA_39X
-	ddr3_tip_dev_attr_set(dev_num, MV_ATTR_INTERLEAVE_WA, 1);
-#else
 	ddr3_tip_dev_attr_set(dev_num, MV_ATTR_INTERLEAVE_WA, 0);
-#endif
 
 	ca_delay = 0;
 	delay_enable = 1;

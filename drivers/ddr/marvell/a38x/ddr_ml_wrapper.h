@@ -13,9 +13,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 
-#if defined(CONFIG_ARMADA_38X) || defined(CONFIG_ARMADA_39X)
 #define INTER_REGS_BASE	SOC_REGS_PHY_BASE
-#endif
 
 /*
  * MV_DEBUG_INIT need to be defines, otherwise the output of the

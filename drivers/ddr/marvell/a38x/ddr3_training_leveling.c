@@ -7,7 +7,6 @@
 #include "mv_ddr_training_db.h"
 #include "ddr_training_ip_db.h"
 #include "mv_ddr_regs.h"
-#include <linux/delay.h>
 
 #define WL_ITERATION_NUM	10
 
@@ -916,10 +915,8 @@ int ddr3_tip_dynamic_write_leveling(u32 dev_num, int phase_remove)
 			DEBUG_LEVELING(DEBUG_LEVEL_ERROR, ("training done failed\n"));
 		} else { /* check for training pass */
 			reg_data = data_read[0];
-#if defined(CONFIG_ARMADA_38X) /* JIRA #1498 for 16 bit with ECC */
 			if (tm->bus_act_mask == 0xb) /* set to data to 0 to skip the check */
 				reg_data = 0;
-#endif
 			if (reg_data != PASS)
 				DEBUG_LEVELING(DEBUG_LEVEL_INFO, ("training result failed\n"));
 

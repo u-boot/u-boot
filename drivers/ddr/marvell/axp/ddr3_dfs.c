@@ -42,8 +42,8 @@ extern u8 div_ratio[CLK_VCO][CLK_DDR];
 extern void get_target_freq(u32 freq_mode, u32 *ddr_freq, u32 *hclk_ps);
 #else
 extern u16 odt_dynamic[ODT_OPT][MAX_CS];
-extern u8 div_ratio1to1[CLK_CPU][CLK_DDR];
-extern u8 div_ratio2to1[CLK_CPU][CLK_DDR];
+extern u8 div_ratio1to1[CLK_VCO][CLK_DDR];
+extern u8 div_ratio2to1[CLK_VCO][CLK_DDR];
 #endif
 extern u16 odt_static[ODT_OPT][MAX_CS];
 
