@@ -942,15 +942,9 @@ void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev)
 }
 
 #ifdef CONFIG_PHY_XILINX_GMII2RGMII
-#ifdef CONFIG_DM_ETH
 static struct phy_device *phy_connect_gmii2rgmii(struct mii_dev *bus,
 						 struct udevice *dev,
 						 phy_interface_t interface)
-#else
-static struct phy_device *phy_connect_gmii2rgmii(struct mii_dev *bus,
-						 struct eth_device *dev,
-						 phy_interface_t interface)
-#endif
 {
 	struct phy_device *phydev = NULL;
 	ofnode node = dev_ofnode(dev);
