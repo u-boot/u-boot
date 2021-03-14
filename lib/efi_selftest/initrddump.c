@@ -272,7 +272,7 @@ static efi_status_t get_initrd(void **initrd, efi_uintn_t *initrd_size)
 		error(L"Out of memory\r\n");
 		return ret;
 	}
-	*initrd = (void *)buffer;
+	*initrd = (void *)(uintptr_t)buffer;
 	ret = load_file2_prot->load_file(load_file2_prot, dp, false,
 					 initrd_size, *initrd);
 	if (ret != EFI_SUCCESS) {
