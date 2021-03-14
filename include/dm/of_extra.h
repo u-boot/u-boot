@@ -94,4 +94,24 @@ int ofnode_decode_memory_region(ofnode config_node, const char *mem_type,
 				const char *suffix, fdt_addr_t *basep,
 				fdt_size_t *sizep);
 
+/**
+ * ofnode_phy_is_fixed_link() - Detect fixed-link pseudo-PHY device
+ *
+ * This function detects whether the ethernet controller connects to a
+ * fixed-link pseudo-PHY device.
+ *
+ * This function supports the following two DT bindings:
+ * - the new DT binding, where 'fixed-link' is a sub-node of the
+ *   Ethernet device
+ * - the old DT binding, where 'fixed-link' is a property with 5
+ *   cells encoding various information about the fixed PHY
+ *
+ * If both new and old bindings exist, the new one is preferred.
+ *
+ * @param eth_node	ofnode containing the fixed-link subnode/property
+ * @param phy_node	if fixed-link PHY detected, containing the PHY ofnode
+ * @return true if a fixed-link pseudo-PHY device exists, false otherwise
+ */
+bool ofnode_phy_is_fixed_link(ofnode eth_node, ofnode *phy_node);
+
 #endif
