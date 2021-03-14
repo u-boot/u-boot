@@ -61,7 +61,7 @@ void efi_carve_out_dt_rsv(void *fdt)
 	for (i = 0; i < nr_rsv; i++) {
 		if (fdt_get_mem_rsv(fdt, i, &addr, &size) != 0)
 			continue;
-		efi_reserve_memory(addr, size, false);
+		efi_reserve_memory(addr, size, true);
 	}
 
 	/* process reserved-memory */
