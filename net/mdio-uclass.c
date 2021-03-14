@@ -11,6 +11,7 @@
 #include <miiphy.h>
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>
+#include <dm/of_extra.h>
 #include <dm/uclass-internal.h>
 #include <linux/compat.h>
 
@@ -140,7 +141,7 @@ static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
 	int i;
 
 	if (CONFIG_IS_ENABLED(PHY_FIXED) &&
-	    ofnode_valid(dev_read_subnode(ethdev, "fixed-link"))) {
+	    ofnode_phy_is_fixed_link(dev_ofnode(ethdev), NULL)) {
 		phy = phy_connect(NULL, -1, ethdev, interface);
 		goto out;
 	}
