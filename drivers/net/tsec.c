@@ -826,15 +826,39 @@ int tsec_probe(struct udevice *dev)
 	u32 tbiaddr = CONFIG_SYS_TBIPA_VALUE;
 	struct tsec_data *data;
 	const char *phy_mode;
+	ofnode parent, child;
 	fdt_addr_t reg;
-	ofnode parent;
 	int ret;
 
 	data = (struct tsec_data *)dev_get_driver_data(dev);
 
 	pdata->iobase = (phys_addr_t)dev_read_addr(dev);
-	if (pdata->iobase == FDT_ADDR_T_NONE)
-		return -ENOENT;
+	if (pdata->iobase == FDT_ADDR_T_NONE) {
+		ofnode_for_each_subnode(child, dev_ofnode(dev)) {
+			if (strncmp(ofnode_get_name(child), "queue-group",
+				    strlen("queue-group")))
+				continue;
+
+			reg = ofnode_get_addr(child);
+			if (reg == FDT_ADDR_T_NONE) {
+				printf("No 'reg' property of <queue-group>\n");
+				return -ENOENT;
+			}
+			pdata->iobase = reg;
+
+			/*
+			 * if there are multiple queue groups,
+			 * only the first one is used.
+			 */
+			break;
+		}
+
+		if (!ofnode_valid(child)) {
+			printf("No child node for <queue-group>?\n");
+			return -ENOENT;
+		}
+	}
+
 	priv->regs = map_physmem(pdata->iobase, 0, MAP_NOCACHE);
 
 	ret = dev_read_phandle_with_args(dev, "tbi-handle", NULL, 0, 0,
