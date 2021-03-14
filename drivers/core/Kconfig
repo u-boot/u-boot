@@ -235,6 +235,19 @@ config SPL_SIMPLE_BUS
 	  Supports the 'simple-bus' driver, which is used on some systems
 	  in SPL.
 
+config SIMPLE_BUS_CORRECT_RANGE
+	bool "Decode the 'simple-bus' <range> by honoring the #address-cells and #size-cells"
+	depends on SIMPLE_BUS
+	help
+	  Decoding the 'simple-bus' <range> by honoring the #address-cells
+	  and #size-cells of parent/child bus. If unset, #address-cells of
+	  parent bus is assumed to be 1, #address-cells and #size-cells of
+	  child bus is also assumed to be 1, to save some spaces of using
+	  an advanced API to decode the <range>, which benefits SPL image
+	  builds that have size limits.
+
+	  If you are unsure about this, Say N here.
+
 config SIMPLE_PM_BUS
 	bool "Support simple-pm-bus driver"
 	depends on DM && OF_CONTROL && CLK && POWER_DOMAIN
