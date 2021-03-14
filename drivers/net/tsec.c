@@ -833,7 +833,9 @@ int tsec_probe(struct udevice *dev)
 	data = (struct tsec_data *)dev_get_driver_data(dev);
 
 	pdata->iobase = (phys_addr_t)dev_read_addr(dev);
-	priv->regs = dev_remap_addr(dev);
+	if (pdata->iobase == FDT_ADDR_T_NONE)
+		return -ENOENT;
+	priv->regs = map_physmem(pdata->iobase, 0, MAP_NOCACHE);
 
 	ret = dev_read_phandle_with_args(dev, "tbi-handle", NULL, 0, 0,
 					 &phandle_args);
