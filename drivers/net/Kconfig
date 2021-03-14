@@ -78,6 +78,15 @@ config DM_ETH_PHY
 	help
 	  Enable driver model for Ethernet Generic PHY .
 
+config DSA_SANDBOX
+	depends on DM_DSA && SANDBOX
+	default y
+	bool "Sandbox: Mocked DSA driver"
+	help
+	  This driver implements a dummy DSA switch connected to a dummy sandbox
+	  Ethernet device used as DSA master, to test DSA class code, including
+	  exported DSA API and datapath processing of Ethernet traffic.
+
 menuconfig NETDEVICES
 	bool "Network device support"
 	depends on NET

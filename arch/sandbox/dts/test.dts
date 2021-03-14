@@ -15,7 +15,9 @@
 	aliases {
 		console = &uart0;
 		eth0 = "/eth@10002000";
+		eth2 = &swp_0;
 		eth3 = &eth_3;
+		eth4 = &dsa_eth0;
 		eth5 = &eth_5;
 		gpio1 = &gpio_a;
 		gpio2 = &gpio_b;
@@ -476,6 +478,52 @@
 		compatible = "sandbox,eth";
 		reg = <0x10004000 0x1000>;
 		fake-host-hwaddr = [00 00 66 44 22 22];
+	};
+
+	dsa_eth0: dsa-test-eth {
+		compatible = "sandbox,eth";
+		reg = <0x10006000 0x1000>;
+		fake-host-hwaddr = [00 00 66 44 22 66];
+	};
+
+	dsa-test {
+		compatible = "sandbox,dsa";
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			swp_0: port@0 {
+				reg = <0>;
+				label = "lan0";
+				phy-mode = "rgmii-rxid";
+
+				fixed-link {
+					speed = <100>;
+					full-duplex;
+				};
+			};
+
+			swp_1: port@1 {
+				reg = <1>;
+				label = "lan1";
+				phy-mode = "rgmii-txid";
+
+				fixed-link {
+					speed = <100>;
+					full-duplex;
+				};
+			};
+
+			port@2 {
+				reg = <2>;
+				ethernet = <&dsa_eth0>;
+
+				fixed-link {
+					speed = <1000>;
+					full-duplex;
+				};
+			};
+		};
 	};
 
 	firmware {

@@ -162,6 +162,8 @@ config SANDBOX
 	imply CMD_CLONE
 	imply SILENT_CONSOLE
 	imply BOOTARGS_SUBST
+	imply PHY_FIXED
+	imply DM_DSA
 
 config SH
 	bool "SuperH architecture"

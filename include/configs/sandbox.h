@@ -93,7 +93,9 @@
 #endif
 
 #define SANDBOX_ETH_SETTINGS		"ethaddr=00:00:11:22:33:44\0" \
+					"eth2addr=00:00:11:22:33:48\0" \
 					"eth3addr=00:00:11:22:33:45\0" \
+					"eth4addr=00:00:11:22:33:48\0" \
 					"eth5addr=00:00:11:22:33:46\0" \
 					"eth6addr=00:00:11:22:33:47\0" \
 					"ipaddr=1.2.3.4\0"
