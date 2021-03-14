@@ -238,6 +238,7 @@ config SPL_SIMPLE_BUS
 config SIMPLE_BUS_CORRECT_RANGE
 	bool "Decode the 'simple-bus' <range> by honoring the #address-cells and #size-cells"
 	depends on SIMPLE_BUS
+	default y if SANDBOX
 	help
 	  Decoding the 'simple-bus' <range> by honoring the #address-cells
 	  and #size-cells of parent/child bus. If unset, #address-cells of

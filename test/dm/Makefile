@@ -90,6 +90,7 @@ obj-$(CONFIG_DM_MDIO) += mdio.o
 obj-$(CONFIG_DM_MDIO_MUX) += mdio_mux.o
 obj-$(CONFIG_DM_RNG) += rng.o
 obj-$(CONFIG_CLK_K210_SET_RATE) += k210_pll.o
+obj-$(CONFIG_SIMPLE_BUS) += simple-bus.o
 obj-$(CONFIG_SIMPLE_PM_BUS) += simple-pm-bus.o
 obj-$(CONFIG_RESET_SYSCON) += syscon-reset.o
 obj-$(CONFIG_SCMI_FIRMWARE) += scmi.o
