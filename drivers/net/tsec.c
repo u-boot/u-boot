@@ -707,11 +707,7 @@ static int init_phy(struct tsec_private *priv)
 		tsec_configure_serdes(priv);
 
 #if defined(CONFIG_DM_ETH) && defined(CONFIG_DM_MDIO)
-	if (ofnode_valid(ofnode_find_subnode(dev_ofnode(priv->dev),
-					     "fixed-link")))
-		phydev = phy_connect(NULL, 0, priv->dev, priv->interface);
-	else
-		phydev = dm_eth_phy_connect(priv->dev);
+	phydev = dm_eth_phy_connect(priv->dev);
 #else
 	phydev = phy_connect(priv->bus, priv->phyaddr, priv->dev,
 			     priv->interface);
