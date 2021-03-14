@@ -15,7 +15,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int fixedphy_probe(struct phy_device *phydev)
+static int fixedphy_probe(struct phy_device *phydev)
 {
 	/* fixed-link phy must not be reset by core phy code */
 	phydev->flags |= PHY_FLAG_BROKEN_RESET;
@@ -23,7 +23,7 @@ int fixedphy_probe(struct phy_device *phydev)
 	return 0;
 }
 
-int fixedphy_config(struct phy_device *phydev)
+static int fixedphy_config(struct phy_device *phydev)
 {
 	ofnode node = phy_get_ofnode(phydev);
 	struct fixed_link *priv;
@@ -55,7 +55,7 @@ int fixedphy_config(struct phy_device *phydev)
 	return 0;
 }
 
-int fixedphy_startup(struct phy_device *phydev)
+static int fixedphy_startup(struct phy_device *phydev)
 {
 	struct fixed_link *priv = phydev->priv;
 
@@ -68,7 +68,7 @@ int fixedphy_startup(struct phy_device *phydev)
 	return 0;
 }
 
-int fixedphy_shutdown(struct phy_device *phydev)
+static int fixedphy_shutdown(struct phy_device *phydev)
 {
 	return 0;
 }
