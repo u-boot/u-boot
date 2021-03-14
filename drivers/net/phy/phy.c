@@ -988,6 +988,7 @@ static struct phy_device *phy_connect_gmii2rgmii(struct mii_dev *bus,
 struct phy_device *fixed_phy_create(ofnode node)
 {
 	phy_interface_t interface = PHY_INTERFACE_MODE_NONE;
+	struct phy_device *phydev;
 	const char *if_str;
 	ofnode subnode;
 
@@ -1004,8 +1005,11 @@ struct phy_device *fixed_phy_create(ofnode node)
 		return NULL;
 	}
 
-	return phy_device_create(NULL, ofnode_to_offset(subnode), PHY_FIXED_ID,
-				 false, interface);
+	phydev = phy_device_create(NULL, 0, PHY_FIXED_ID, false, interface);
+	if (phydev)
+		phydev->node = subnode;
+
+	return phydev;
 }
 
 #ifdef CONFIG_DM_ETH
@@ -1018,20 +1022,16 @@ static struct phy_device *phy_connect_fixed(struct mii_dev *bus,
 					    phy_interface_t interface)
 #endif
 {
-	struct phy_device *phydev = NULL;
-	int sn;
-	const char *name;
+	ofnode node = dev_ofnode(dev), subnode;
+	struct phy_device *phydev;
 
-	sn = fdt_first_subnode(gd->fdt_blob, dev_of_offset(dev));
-	while (sn > 0) {
-		name = fdt_get_name(gd->fdt_blob, sn, NULL);
-		if (name && strcmp(name, "fixed-link") == 0) {
-			phydev = phy_device_create(bus, sn, PHY_FIXED_ID, false,
-						   interface);
-			break;
-		}
-		sn = fdt_next_subnode(gd->fdt_blob, sn);
-	}
+	subnode = ofnode_find_subnode(node, "fixed-link");
+	if (!ofnode_valid(subnode))
+		return NULL;
+
+	phydev = phy_device_create(bus, 0, PHY_FIXED_ID, false, interface);
+	if (phydev)
+		phydev->node = subnode;
 
 	return phydev;
 }

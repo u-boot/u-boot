@@ -138,11 +138,13 @@ static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
 	struct udevice *mdiodev;
 	struct phy_device *phy;
 	struct ofnode_phandle_args phandle = {.node = ofnode_null()};
+	ofnode phynode;
 	int i;
 
 	if (CONFIG_IS_ENABLED(PHY_FIXED) &&
-	    ofnode_phy_is_fixed_link(dev_ofnode(ethdev), NULL)) {
-		phy = phy_connect(NULL, -1, ethdev, interface);
+	    ofnode_phy_is_fixed_link(dev_ofnode(ethdev), &phynode)) {
+		phy = phy_connect(NULL, 0, ethdev, interface);
+		phandle.node = phynode;
 		goto out;
 	}
 

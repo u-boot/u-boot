@@ -17,13 +17,23 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int fixedphy_probe(struct phy_device *phydev)
 {
+	/* fixed-link phy must not be reset by core phy code */
+	phydev->flags |= PHY_FLAG_BROKEN_RESET;
+
+	return 0;
+}
+
+int fixedphy_config(struct phy_device *phydev)
+{
+	ofnode node = phy_get_ofnode(phydev);
 	struct fixed_link *priv;
-	int ofnode = phydev->addr;
 	u32 val;
 
+	if (!ofnode_valid(node))
+		return -EINVAL;
+
 	/* check for mandatory properties within fixed-link node */
-	val = fdt_getprop_u32_default_node(gd->fdt_blob,
-					   ofnode, 0, "speed", 0);
+	val = ofnode_read_u32_default(node, "speed", 0);
 	if (val != SPEED_10 && val != SPEED_100 && val != SPEED_1000 &&
 	    val != SPEED_2500 && val != SPEED_10000) {
 		printf("ERROR: no/invalid speed given in fixed-link node!");
@@ -38,12 +48,9 @@ int fixedphy_probe(struct phy_device *phydev)
 	phydev->priv = priv;
 
 	priv->link_speed = val;
-	priv->duplex = fdtdec_get_bool(gd->fdt_blob, ofnode, "full-duplex");
-	priv->pause = fdtdec_get_bool(gd->fdt_blob, ofnode, "pause");
-	priv->asym_pause = fdtdec_get_bool(gd->fdt_blob, ofnode, "asym-pause");
-
-	/* fixed-link phy must not be reset by core phy code */
-	phydev->flags |= PHY_FLAG_BROKEN_RESET;
+	priv->duplex = ofnode_read_bool(node, "full-duplex");
+	priv->pause = ofnode_read_bool(node, "pause");
+	priv->asym_pause = ofnode_read_bool(node, "asym-pause");
 
 	return 0;
 }
@@ -72,6 +79,7 @@ static struct phy_driver fixedphy_driver = {
 	.name		= "Fixed PHY",
 	.features	= PHY_GBIT_FEATURES | SUPPORTED_MII,
 	.probe		= fixedphy_probe,
+	.config		= fixedphy_config,
 	.startup	= fixedphy_startup,
 	.shutdown	= fixedphy_shutdown,
 };
