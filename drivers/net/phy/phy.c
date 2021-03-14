@@ -1012,15 +1012,9 @@ struct phy_device *fixed_phy_create(ofnode node)
 	return phydev;
 }
 
-#ifdef CONFIG_DM_ETH
 static struct phy_device *phy_connect_fixed(struct mii_dev *bus,
 					    struct udevice *dev,
 					    phy_interface_t interface)
-#else
-static struct phy_device *phy_connect_fixed(struct mii_dev *bus,
-					    struct eth_device *dev,
-					    phy_interface_t interface)
-#endif
 {
 	ofnode node = dev_ofnode(dev), subnode;
 	struct phy_device *phydev;
