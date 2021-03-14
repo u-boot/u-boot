@@ -18,6 +18,7 @@
 #include <phy.h>
 #include <errno.h>
 #include <asm/global_data.h>
+#include <dm/of_extra.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/err.h>
@@ -1008,15 +1009,14 @@ static struct phy_device *phy_connect_fixed(struct mii_dev *bus,
 					    phy_interface_t interface)
 {
 	ofnode node = dev_ofnode(dev), subnode;
-	struct phy_device *phydev;
+	struct phy_device *phydev = NULL;
 
-	subnode = ofnode_find_subnode(node, "fixed-link");
-	if (!ofnode_valid(subnode))
-		return NULL;
-
-	phydev = phy_device_create(bus, 0, PHY_FIXED_ID, false, interface);
-	if (phydev)
-		phydev->node = subnode;
+	if (ofnode_phy_is_fixed_link(node, &subnode)) {
+		phydev = phy_device_create(bus, 0, PHY_FIXED_ID,
+					   false, interface);
+		if (phydev)
+			phydev->node = subnode;
+	}
 
 	return phydev;
 }
