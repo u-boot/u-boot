@@ -953,23 +953,20 @@ static struct phy_device *phy_connect_gmii2rgmii(struct mii_dev *bus,
 #endif
 {
 	struct phy_device *phydev = NULL;
-	int sn = dev_of_offset(dev);
-	int off;
+	ofnode node = dev_ofnode(dev);
 
-	while (sn > 0) {
-		off = fdt_node_offset_by_compatible(gd->fdt_blob, sn,
-						    "xlnx,gmii-to-rgmii-1.0");
-		if (off > 0) {
-			phydev = phy_device_create(bus, off,
+	while (ofnode_valid(node)) {
+		node = ofnode_by_compatible(node, "xlnx,gmii-to-rgmii-1.0");
+		if (ofnode_valid(node)) {
+			phydev = phy_device_create(bus, 0,
 						   PHY_GMII2RGMII_ID, false,
 						   interface);
+			if (phydev)
+				phydev->node = node;
 			break;
 		}
-		if (off == -FDT_ERR_NOTFOUND)
-			sn = fdt_first_subnode(gd->fdt_blob, sn);
-		else
-			printf("%s: Error finding compat string:%d\n",
-			       __func__, off);
+
+		node = ofnode_first_subnode(node);
 	}
 
 	return phydev;
