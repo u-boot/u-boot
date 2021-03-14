@@ -507,11 +507,7 @@
 				reg = <1>;
 				label = "lan1";
 				phy-mode = "rgmii-txid";
-
-				fixed-link {
-					speed = <100>;
-					full-duplex;
-				};
+				fixed-link = <0 1 100 0 0>;
 			};
 
 			port@2 {
