@@ -9,4 +9,10 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "qemu-ppce500"
 
+config PLATFORM_BUS_MAP_ADDR
+	hex
+	default 0xf0000000
+	help
+	  The QEMU platform bus base mapped address in the virtual memory space.
+
 endif
