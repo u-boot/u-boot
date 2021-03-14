@@ -36,7 +36,7 @@ static int fixedphy_config(struct phy_device *phydev)
 	val = ofnode_read_u32_default(node, "speed", 0);
 	if (val != SPEED_10 && val != SPEED_100 && val != SPEED_1000 &&
 	    val != SPEED_2500 && val != SPEED_10000) {
-		printf("ERROR: no/invalid speed given in fixed-link node!");
+		printf("ERROR: no/invalid speed given in fixed-link node!\n");
 		return -EINVAL;
 	}
 
