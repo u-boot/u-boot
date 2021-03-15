@@ -4,3 +4,4 @@
 #
 
 obj-y += cb_sysinfo.o
+obj-y += cb_support.o
