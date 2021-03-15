@@ -347,6 +347,15 @@ __weak int dm_scan_other(bool pre_reloc_only)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA_INST) && CONFIG_IS_ENABLED(READ_ONLY)
+void *dm_priv_to_rw(void *priv)
+{
+	long offset = priv - (void *)__priv_data_start;
+
+	return gd_dm_priv_base() + offset;
+}
+#endif
+
 /**
  * dm_scan() - Scan tables to bind devices
  *
