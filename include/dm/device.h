@@ -667,18 +667,24 @@ int device_find_global_by_ofnode(ofnode node, struct udevice **devp);
 int device_get_global_by_ofnode(ofnode node, struct udevice **devp);
 
 /**
- * device_get_by_driver_info_idx() - Get a device based on driver_info index
+ * device_get_by_ofplat_idx() - Get a device based on of-platdata index
  *
- * Locates a device by its struct driver_info, by using its index number which
- * is written into the idx field of struct phandle_1_arg, etc.
+ * Locates a device by either its struct driver_info index, or its
+ * struct udevice index. The latter is used with OF_PLATDATA_INST, since we have
+ * a list of build-time instantiated struct udevice records, The former is used
+ * with !OF_PLATDATA_INST since in that case we have a list of
+ * struct driver_info records.
+ *
+ * The index number is written into the idx field of struct phandle_1_arg, etc.
+ * It is the position of this driver_info/udevice in its linker list.
  *
  * The device is probed to activate it ready for use.
  *
- * @idx: Index number of the driver_info structure (0=first)
+ * @idx: Index number of the driver_info/udevice structure (0=first)
  * @devp: Returns pointer to device if found, otherwise this is set to NULL
  * @return 0 if OK, -ve on error
  */
-int device_get_by_driver_info_idx(uint idx, struct udevice **devp);
+int device_get_by_ofplat_idx(uint idx, struct udevice **devp);
 
 /**
  * device_find_first_child() - Find the first child of a device

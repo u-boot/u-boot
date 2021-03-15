@@ -158,12 +158,11 @@ static int dm_test_of_plat_dev(struct unit_test_state *uts)
 		if (found[i]) {
 			/* Make sure we can find it */
 			ut_assertnonnull(drt->dev);
-			ut_assertok(device_get_by_driver_info_idx(i, &dev));
+			ut_assertok(device_get_by_ofplat_idx(i, &dev));
 			ut_asserteq_ptr(dev, drt->dev);
 		} else {
 			ut_assertnull(drt->dev);
-			ut_asserteq(-ENOENT,
-				    device_get_by_driver_info_idx(i, &dev));
+			ut_asserteq(-ENOENT, device_get_by_ofplat_idx(i, &dev));
 		}
 	}
 
@@ -181,22 +180,22 @@ static int dm_test_of_plat_phandle(struct unit_test_state *uts)
 	ut_asserteq_str("sandbox_clk_test", dev->name);
 	plat = dev_get_plat(dev);
 
-	ut_assertok(device_get_by_driver_info_idx(plat->clocks[0].idx, &clk));
+	ut_assertok(device_get_by_ofplat_idx(plat->clocks[0].idx, &clk));
 	ut_asserteq_str("sandbox_fixed_clock", clk->name);
 
-	ut_assertok(device_get_by_driver_info_idx(plat->clocks[1].idx, &clk));
+	ut_assertok(device_get_by_ofplat_idx(plat->clocks[1].idx, &clk));
 	ut_asserteq_str("sandbox_clk", clk->name);
 	ut_asserteq(1, plat->clocks[1].arg[0]);
 
-	ut_assertok(device_get_by_driver_info_idx(plat->clocks[2].idx, &clk));
+	ut_assertok(device_get_by_ofplat_idx(plat->clocks[2].idx, &clk));
 	ut_asserteq_str("sandbox_clk", clk->name);
 	ut_asserteq(0, plat->clocks[2].arg[0]);
 
-	ut_assertok(device_get_by_driver_info_idx(plat->clocks[3].idx, &clk));
+	ut_assertok(device_get_by_ofplat_idx(plat->clocks[3].idx, &clk));
 	ut_asserteq_str("sandbox_clk", clk->name);
 	ut_asserteq(3, plat->clocks[3].arg[0]);
 
-	ut_assertok(device_get_by_driver_info_idx(plat->clocks[4].idx, &clk));
+	ut_assertok(device_get_by_ofplat_idx(plat->clocks[4].idx, &clk));
 	ut_asserteq_str("sandbox_clk", clk->name);
 	ut_asserteq(2, plat->clocks[4].arg[0]);
 

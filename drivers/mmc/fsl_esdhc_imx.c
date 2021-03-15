@@ -1530,8 +1530,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	if (CONFIG_IS_ENABLED(DM_GPIO) && !priv->non_removable) {
 		struct udevice *gpiodev;
 
-		ret = device_get_by_driver_info_idx(dtplat->cd_gpios->idx,
-						    &gpiodev);
+		ret = device_get_by_ofplat_idx(dtplat->cd_gpios->idx, &gpiodev);
 		if (ret)
 			return ret;
 
