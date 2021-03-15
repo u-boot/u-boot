@@ -128,8 +128,8 @@ int binman_select_subnode(const char *name)
 	if (!ofnode_valid(node))
 		return log_msg_ret("node", -ENOENT);
 	binman->image = node;
-	log_debug("binman: Selected image subnode '%s'\n",
-		  ofnode_get_name(binman->image));
+	log_info("binman: Selected image subnode '%s'\n",
+		 ofnode_get_name(binman->image));
 
 	return 0;
 }
