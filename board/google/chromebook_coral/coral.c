@@ -63,6 +63,8 @@ int chromeos_get_gpio(const struct udevice *dev, const char *prop,
 	}
 	info->flags = desc.flags & GPIOD_ACTIVE_LOW ? CROS_GPIO_ACTIVE_LOW :
 		CROS_GPIO_ACTIVE_HIGH;
+	if (!ret)
+		dm_gpio_free(desc.dev, &desc);
 
 	return 0;
 }
