@@ -15,6 +15,7 @@ config R8A774B1
 config R8A774C0
 	bool "Renesas SoC R8A774C0"
 	imply CLK_R8A774C0
+	imply PINCTRL_PFC_R8A774C0
 
 config R8A774E1
 	bool "Renesas SoC R8A774E1"

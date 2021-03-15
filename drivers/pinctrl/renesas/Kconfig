@@ -77,6 +77,16 @@ config PINCTRL_PFC_R8A774B1
           the GPIO definitions and pin control functions for each available
           multiplex function.
 
+config PINCTRL_PFC_R8A774C0
+        bool "Renesas RZ/G2 R8A774C0 pin control driver"
+        depends on PINCTRL_PFC
+        help
+          Support pin multiplexing control on Renesas RZ/G2E R8A774C0 SoCs.
+
+          The driver is controlled by a device tree node which contains both
+          the GPIO definitions and pin control functions for each available
+          multiplex function.
+
 config PINCTRL_PFC_R8A774E1
         bool "Renesas RZ/G2 R8A774E1 pin control driver"
         depends on PINCTRL_PFC
