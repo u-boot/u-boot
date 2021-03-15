@@ -140,8 +140,12 @@ int dm_init(bool of_live)
 		dm_warn("Virtual root driver already exists!\n");
 		return -EINVAL;
 	}
-	gd->uclass_root = &DM_UCLASS_ROOT_S_NON_CONST;
-	INIT_LIST_HEAD(DM_UCLASS_ROOT_NON_CONST);
+	if (CONFIG_IS_ENABLED(OF_PLATDATA_INST)) {
+		gd->uclass_root = &uclass_head;
+	} else {
+		gd->uclass_root = &DM_UCLASS_ROOT_S_NON_CONST;
+		INIT_LIST_HEAD(DM_UCLASS_ROOT_NON_CONST);
+	}
 
 	if (IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC)) {
 		fix_drivers();
