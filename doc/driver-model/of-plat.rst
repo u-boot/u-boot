@@ -11,60 +11,24 @@ Device tree is the standard configuration method in U-Boot. It is used to
 define what devices are in the system and provide configuration information
 to these devices.
 
-The overhead of adding device tree access to U-Boot is fairly modest,
+The overhead of adding devicetree access to U-Boot is fairly modest,
 approximately 3KB on Thumb 2 (plus the size of the DT itself). This means
-that in most cases it is best to use device tree for configuration.
+that in most cases it is best to use devicetree for configuration.
 
 However there are some very constrained environments where U-Boot needs to
 work. These include SPL with severe memory limitations. For example, some
 SoCs require a 16KB SPL image which must include a full MMC stack. In this
-case the overhead of device tree access may be too great.
+case the overhead of devicetree access may be too great.
 
 It is possible to create platform data manually by defining C structures
-for it, and reference that data in a U_BOOT_DRVINFO() declaration. This
-bypasses the use of device tree completely, effectively creating a parallel
+for it, and reference that data in a `U_BOOT_DRVINFO()` declaration. This
+bypasses the use of devicetree completely, effectively creating a parallel
 configuration mechanism. But it is an available option for SPL.
 
-As an alternative, a new 'of-platdata' feature is provided. This converts the
-device tree contents into C code which can be compiled into the SPL binary.
+As an alternative, the 'of-platdata' feature is provided. This converts the
+devicetree contents into C code which can be compiled into the SPL binary.
 This saves the 3KB of code overhead and perhaps a few hundred more bytes due
 to more efficient storage of the data.
-
-Note: Quite a bit of thought has gone into the design of this feature.
-However it still has many rough edges and comments and suggestions are
-strongly encouraged! Quite possibly there is a much better approach.
-
-
-Caveats
--------
-
-There are many problems with this features. It should only be used when
-strictly necessary. Notable problems include:
-
-   - Device tree does not describe data types. But the C code must define a
-     type for each property. These are guessed using heuristics which
-     are wrong in several fairly common cases. For example an 8-byte value
-     is considered to be a 2-item integer array, and is byte-swapped. A
-     boolean value that is not present means 'false', but cannot be
-     included in the structures since there is generally no mention of it
-     in the device tree file.
-
-   - Naming of nodes and properties is automatic. This means that they follow
-     the naming in the device tree, which may result in C identifiers that
-     look a bit strange.
-
-   - It is not possible to find a value given a property name. Code must use
-     the associated C member variable directly in the code. This makes
-     the code less robust in the face of device-tree changes. It also
-     makes it very unlikely that your driver code will be useful for more
-     than one SoC. Even if the code is common, each SoC will end up with
-     a different C struct name, and a likely a different format for the
-     platform data.
-
-   - The platform data is provided to drivers as a C structure. The driver
-     must use the same structure to access the data. Since a driver
-     normally also supports device tree it must use #ifdef to separate
-     out this code, since the structures are only available in SPL.
 
 
 How it works
@@ -77,9 +41,9 @@ SPL/TPL and should be tested with:
 
     #if CONFIG_IS_ENABLED(OF_PLATDATA)
 
-A new tool called 'dtoc' converts a device tree file either into a set of
+A tool called 'dtoc' converts a devicetree file either into a set of
 struct declarations, one for each compatible node, and a set of
-U_BOOT_DRVINFO() declarations along with the actual platform data for each
+`U_BOOT_DRVINFO()` declarations along with the actual platform data for each
 device. As an example, consider this MMC node:
 
 .. code-block:: none
@@ -170,35 +134,35 @@ accessed using:
     struct udevice *dev;
     struct dtd_rockchip_rk3288_dw_mshc *plat = dev_get_plat(dev);
 
-This avoids the code overhead of converting the device tree data to
-platform data in the driver. The of_to_plat() method should
+This avoids the code overhead of converting the devicetree data to
+platform data in the driver. The `of_to_plat()` method should
 therefore do nothing in such a driver.
 
 Note that for the platform data to be matched with a driver, the 'name'
-property of the U_BOOT_DRVINFO() declaration has to match a driver declared
-via U_BOOT_DRIVER(). This effectively means that a U_BOOT_DRIVER() with a
+property of the `U_BOOT_DRVINFO()` declaration has to match a driver declared
+via `U_BOOT_DRIVER()`. This effectively means that a `U_BOOT_DRIVER()` with a
 'name' corresponding to the devicetree 'compatible' string (after converting
 it to a valid name for C) is needed, so a dedicated driver is required for
 each 'compatible' string.
 
-In order to make this a bit more flexible DM_DRIVER_ALIAS macro can be
+In order to make this a bit more flexible, the `DM_DRIVER_ALIAS()` macro can be
 used to declare an alias for a driver name, typically a 'compatible' string.
-This macro produces no code, but it is by dtoc tool. It must be located in the
+This macro produces no code, but is used by dtoc tool. It must be located in the
 same file as its associated driver, ideally just after it.
 
-The parent_idx is the index of the parent driver_info structure within its
-linker list (instantiated by the U_BOOT_DRVINFO() macro). This is used to support
-dev_get_parent().
+The parent_idx is the index of the parent `driver_info` structure within its
+linker list (instantiated by the `U_BOOT_DRVINFO()` macro). This is used to
+support `dev_get_parent()`.
 
-During the build process dtoc parses both U_BOOT_DRIVER and DM_DRIVER_ALIAS
-to build a list of valid driver names and driver aliases. If the 'compatible'
-string used for a device does not not match a valid driver name, it will be
-checked against the list of driver aliases in order to get the right driver
-name to use. If in this step there is no match found a warning is issued to
-avoid run-time failures.
+During the build process dtoc parses both `U_BOOT_DRIVER()` and
+`DM_DRIVER_ALIAS()` to build a list of valid driver names and driver aliases.
+If the 'compatible' string used for a device does not not match a valid driver
+name, it will be checked against the list of driver aliases in order to get the
+right driver name to use. If in this step there is no match found a warning is
+issued to avoid run-time failures.
 
-Where a node has multiple compatible strings, a #define is used to make them
-equivalent, e.g.:
+Where a node has multiple compatible strings, dtoc generates a `#define` to
+make them equivalent, e.g.:
 
 .. code-block:: c
 
@@ -210,26 +174,26 @@ Converting of-platdata to a useful form
 
 Of course it would be possible to use the of-platdata directly in your driver
 whenever configuration information is required. However this means that the
-driver will not be able to support device tree, since the of-platdata
-structure is not available when device tree is used. It would make no sense
-to use this structure if device tree were available, since the structure has
-all the limitations metioned in caveats above.
+driver will not be able to support devicetree, since the of-platdata
+structure is not available when devicetree is used. It would make no sense
+to use this structure if devicetree were available, since the structure has
+all the limitations metioned in caveats below.
 
 Therefore it is recommended that the of-platdata structure should be used
-only in the probe() method of your driver. It cannot be used in the
-of_to_plat() method since this is not called when platform data is
+only in the `probe()` method of your driver. It cannot be used in the
+`of_to_plat()` method since this is not called when platform data is
 already present.
 
 
 How to structure your driver
 ----------------------------
 
-Drivers should always support device tree as an option. The of-platdata
+Drivers should always support devicetree as an option. The of-platdata
 feature is intended as a add-on to existing drivers.
 
-Your driver should convert the plat struct in its probe() method. The
-existing device tree decoding logic should be kept in the
-of_to_plat() method and wrapped with #if.
+Your driver should convert the plat struct in its `probe()` method. The
+existing devicetree decoding logic should be kept in the
+`of_to_plat()` method and wrapped with `#if`.
 
 For example:
 
@@ -244,7 +208,7 @@ For example:
     #endif
             /*
              * Other fields can go here, to be filled in by decoding from
-             * the device tree (or the C structures when of-platdata is used).
+             * the devicetree (or the C structures when of-platdata is used).
              */
             int fifo_depth;
     };
@@ -252,7 +216,7 @@ For example:
     static int mmc_of_to_plat(struct udevice *dev)
     {
     #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-            /* Decode the device tree data */
+            /* Decode the devicetree data */
             struct mmc_plat *plat = dev_get_plat(dev);
             const void *blob = gd->fdt_blob;
             int node = dev_of_offset(dev);
@@ -294,29 +258,29 @@ For example:
 
     DM_DRIVER_ALIAS(mmc_drv, vendor_mmc) /* matches compatible string */
 
-Note that struct mmc_plat is defined in the C file, not in a header. This
+Note that `struct mmc_plat` is defined in the C file, not in a header. This
 is to avoid needing to include dt-structs.h in a header file. The idea is to
 keep the use of each of-platdata struct to the smallest possible code area.
 There is just one driver C file for each struct, that can convert from the
 of-platdata struct to the standard one used by the driver.
 
-In the case where SPL_OF_PLATDATA is enabled, plat_auto is
+In the case where SPL_OF_PLATDATA is enabled, `plat_auto` is
 still used to allocate space for the platform data. This is different from
 the normal behaviour and is triggered by the use of of-platdata (strictly
-speaking it is a non-zero plat_size which triggers this).
+speaking it is a non-zero `plat_size` which triggers this).
 
 The of-platdata struct contents is copied from the C structure data to the
-start of the newly allocated area. In the case where device tree is used,
+start of the newly allocated area. In the case where devicetree is used,
 the platform data is allocated, and starts zeroed. In this case the
-of_to_plat() method should still set up the platform data (and the
+`of_to_plat()` method should still set up the platform data (and the
 of-platdata struct will not be present).
 
-SPL must use either of-platdata or device tree. Drivers cannot use both at
-the same time, but they must support device tree. Supporting of-platdata is
+SPL must use either of-platdata or devicetree. Drivers cannot use both at
+the same time, but they must support devicetree. Supporting of-platdata is
 optional.
 
-The device tree becomes in accessible when CONFIG_SPL_OF_PLATDATA is enabled,
-since the device-tree access code is not compiled in. A corollary is that
+The devicetree becomes inaccessible when CONFIG_SPL_OF_PLATDATA is enabled,
+since the devicetree access code is not compiled in. A corollary is that
 a board can only move to using of-platdata if all the drivers it uses support
 it. There would be little point in having some drivers require the device
 tree data, since then libfdt would still be needed for those drivers and
@@ -326,10 +290,10 @@ Internals
 ---------
 
 The dt-structs.h file includes the generated file
-(include/generated//dt-structs.h) if CONFIG_SPL_OF_PLATDATA is enabled.
+`(include/generated/dt-structs.h`) if CONFIG_SPL_OF_PLATDATA is enabled.
 Otherwise (such as in U-Boot proper) these structs are not available. This
 prevents them being used inadvertently. All usage must be bracketed with
-#if CONFIG_IS_ENABLED(OF_PLATDATA).
+`#if CONFIG_IS_ENABLED(OF_PLATDATA)`.
 
 The dt-plat.c file contains the device declarations and is is built in
 spl/dt-plat.c.
@@ -349,8 +313,9 @@ This is an implementation of an idea by Tom Rini <trini@konsulko.com>.
 
 Future work
 -----------
-- Consider programmatically reading binding files instead of device tree
+- Consider programmatically reading binding files instead of devicetree
   contents
+- Allow IS_ENABLED() to be used in the C code instead of #if
 
 
 .. Simon Glass <sjg@chromium.org>
@@ -358,3 +323,4 @@ Future work
 .. 6/6/16
 .. Updated Independence Day 2016
 .. Updated 1st October 2020
+.. Updated 5th February 2021
