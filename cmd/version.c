@@ -9,7 +9,7 @@
 #include <version.h>
 #include <linux/compiler.h>
 #ifdef CONFIG_SYS_COREBOOT
-#include <asm/arch/sysinfo.h>
+#include <asm/cb_sysinfo.h>
 #endif
 
 const char __weak version_string[] = U_BOOT_VERSION_STRING;

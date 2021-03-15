@@ -7,7 +7,7 @@
 #include <dm.h>
 #include <vbe.h>
 #include <video.h>
-#include <asm/arch/sysinfo.h>
+#include <asm/cb_sysinfo.h>
 
 static int save_vesa_mode(struct cb_framebuffer *fb,
 			  struct vesa_mode_info *vesa)

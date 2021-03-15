@@ -8,7 +8,7 @@
 #include <common.h>
 #include <bootstage.h>
 #include <asm/arch/timestamp.h>
-#include <asm/arch/sysinfo.h>
+#include <asm/cb_sysinfo.h>
 #include <linux/compiler.h>
 
 struct timestamp_entry {
