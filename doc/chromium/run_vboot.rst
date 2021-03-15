@@ -1,42 +1,14 @@
-Chromium OS Support in U-Boot
-=============================
-
-Introduction
-------------
-
-This describes how to use U-Boot with Chromium OS. Several options are
-available:
-
-   - Running U-Boot from the 'altfw' feature, which is available on selected
-        Chromebooks from 2019 onwards (initially Grunt). Press '1' from the
-        developer-mode screen to get into U-Boot. See here for details:
-        https://sites.google.com/a/chromium.org/dev/chromium-os/poking-around-your-chrome-os-device?pli=1
-
-   - Running U-Boot from the disk partition. This involves signing U-Boot and
-        placing it on the disk, for booting as a 'kernel'. See
-        README.chromium-chainload for information on this. This is the only
-        option on non-U-Boot Chromebooks from 2013 to 2018 and is somewhat
-        more involved.
-
-   - Running U-Boot with Chromium OS verified boot. This allows U-Boot to be
-        used instead of either or both of depthcharge (a bootloader which forked
-        from U-Boot in 2013) and coreboot. See below for more information on
-        this.
-
-   - Running U-Boot from coreboot. This allows U-Boot to run on more devices
-        since many of them only support coreboot as the bootloader and have
-        no bare-metal support in U-Boot. For this, use the 'coreboot' target.
-
-   - Running U-Boot and booting into a Chrome OS image, but without verified
-        boot. This can be useful for testing.
+.. SPDX-License-Identifier: GPL-2.0+
+.. Copyright 2020 Google LLC
+.. sectionauthor:: Simon Glass <sjg@chromium.org>
 
 
-U-Boot with Chromium OS verified boot
--------------------------------------
+Running U-Boot with Chromium OS verified boot
+=============================================
 
-To obtain:
+To obtain::
 
-   git clone https://github.com/sglass68/u-boot.git
+   git clone https://github.com/sjg20/u-boot.git
    cd u-boot
    git checkout cros-master
 
@@ -46,28 +18,35 @@ To obtain:
    git checkout 45964294
    #  futility: updater: Correct output version for Snow
 
-To build for sandbox:
+To build for sandbox::
 
    UB=/tmp/b/chromeos_sandbox    # U-Boot build directory
    cd u-boot
    make O=$UB chromeos_sandbox_defconfig
    make O=$UB -j20 -s VBOOT_SOURCE=/path/to/vboot_reference \
-	MAKEFLAGS_VBOOT=DEBUG=1 QUIET=1
+     MAKEFLAGS_VBOOT=DEBUG=1 QUIET=1
 
 Replace sandbox with another supported target.
 
 This produces $UB/image.bin which contains the firmware binaries in a SPI
 flash image.
 
-To run on sandbox:
+To run on sandbox::
 
+   CROS=~/cosarm
+   IMG=$CROS/src/build/images/coral/latest/chromiumos_image.bin
    $UB/tpl/u-boot-tpl -d $UB/u-boot.dtb.out \
-	-L6 -c "host bind 0 $CROS/src/build/images/cheza/latest/chromiumos_image.bin; vboot go auto" \
-	-l -w -s state.dtb -r
+     -L6 -c "host bind 0 $IMG; vboot go auto" \
+     -l -w -s state.dtb -r -n -m $UB/ram
+
+   $UB/tpl/u-boot-tpl -d $UB/u-boot.dtb.out -L6 -l \
+     -c "host bind 0 $IMG; vboot go auto" -w -s $UB/state.dtb -r -n -m $UB/mem
+
 
 To run on other boards:
-   Install image.bin in the SPI flash of your device
-   Boot your system
+
+   - Install image.bin in the SPI flash of your device
+   - Boot your system
 
 
 Sandbox
@@ -83,7 +62,7 @@ a device tree and binding a Chromium OS disk image for use to find kernels
 phases into state.dtb and will automatically ensure that memory is shared
 between all phases. TPL will jump to SPL and then on to U-Boot proper.
 
-It is possible to run with debugging on, e.g.
+It is possible to run with debugging on, e.g.::
 
    gdb --args $UB/tpl/u-boot-tpl -d ....
 
@@ -95,7 +74,7 @@ Samus
 -----
 
 Basic support is available for samus, using the chromeos_samus target. If you
-have an em100, use:
+have an em100, use::
 
    sudo em100 -s -c W25Q128FW -d $UB/image.bin -t -r
 
@@ -119,11 +98,20 @@ New uclasses
 
 Several uclasses are provided in cros/:
 
-	UCLASS_CROS_AUX_FW		Chrome OS auxiliary firmware
-	UCLASS_CROS_FWSTORE		Chrome OS firmware storage
-	UCLASS_CROS_NVDATA		Chrome OS non-volatile data device
-	UCLASS_CROS_VBOOT_EC		Chrome OS vboot EC operations
-	UCLASS_CROS_VBOOT_FLAG		Chrome OS verified boot flag
+UCLASS_CROS_AUX_FW
+   Chrome OS auxiliary firmware
+
+UCLASS_CROS_FWSTORE
+   Chrome OS firmware storage
+
+UCLASS_CROS_NVDATA
+   Chrome OS non-volatile data device
+
+UCLASS_CROS_VBOOT_EC
+   Chrome OS vboot EC operations
+
+UCLASS_CROS_VBOOT_FLAG
+   Chrome OS verified boot flag
 
 The existing UCLASS_CROS_EC is also used.
 
@@ -181,7 +169,7 @@ detect problems that affect the flow or particular vboot features.
 U-Boot without Chromium OS verified boot
 ----------------------------------------
 
-The following script can be used to boot a Chrome OS image on coral:
+The following script can be used to boot a Chrome OS image on coral::
 
    # Read the image header and obtain the address of the kernel
    # The offset 4f0 is defined by verified boot and may change for other
@@ -213,6 +201,4 @@ TO DO
 Get the full ACPI tables working with Coral
 
 
-Simon Glass
-sjg@chromium.org
 7 October 2018

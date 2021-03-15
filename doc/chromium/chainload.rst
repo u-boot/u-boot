@@ -1,3 +1,6 @@
+.. SPDX-License-Identifier: GPL-2.0+
+.. Copyright 2020 Google LLC
+
 Running U-Boot from coreboot on Chromebooks
 ===========================================
 
@@ -15,7 +18,7 @@ replace the ROM unless you have a servo board and cable to restore it with.
 
 
 For all of these the standard U-Boot build instructions apply. For example on
-ARM:
+ARM::
 
    sudo apt install gcc-arm-linux-gnueabi
    mkdir b
@@ -37,13 +40,16 @@ https://www.chromium.org/chromium-os/firmware-porting-guide/using-nv-u-boot-on-t
 Nyan-big
 --------
 
-Compiled based on information here:
-https://lists.denx.de/pipermail/u-boot/2015-March/209530.html
-https://git.collabora.com/cgit/user/tomeu/u-boot.git/commit/?h=nyan-big
-https://lists.denx.de/pipermail/u-boot/2017-May/289491.html
-https://github.com/chromeos-nvidia-androidtv/gnu-linux-on-acer-chromebook-13#copy-data-to-the-sd-card
+Compiled based on information here::
+
+   https://lists.denx.de/pipermail/u-boot/2015-March/209530.html
+   https://git.collabora.com/cgit/user/tomeu/u-boot.git/commit/?h=nyan-big
+   https://lists.denx.de/pipermail/u-boot/2017-May/289491.html
+   https://github.com/chromeos-nvidia-androidtv/gnu-linux-on-acer-chromebook-13#copy-data-to-the-sd-card
 
 1. Build U-Boot
+
+Steps::
 
    mkdir b
    make -j8 O=b/nyan-big CROSS_COMPILE=arm-linux-gnueabi- nyan-big_defconfig all
@@ -61,15 +67,20 @@ kernel, and crashes if it is not present.
 
 3. Build and sign an image
 
-   ./b/nyan-big/tools/mkimage -f doc/chromium/nyan-big.its u-boot-chromium.fit
+Steps::
+
+   ./b/nyan-big/tools/mkimage -f doc/chromium/files/nyan-big.its u-boot-chromium.fit
    echo test >dummy.txt
-   vbutil_kernel --arch arm --keyblock doc/chromium/devkeys/kernel.keyblock \
-	--signprivate doc/chromium/devkeys/kernel_data_key.vbprivk \
-	--version 1 --config dummy.txt --vmlinuz u-boot-chromium.fit \
-	--bootloader dummy.txt --pack u-boot.kpart
+   vbutil_kernel --arch arm \
+     --keyblock doc/chromium/files/devkeys/kernel.keyblock \
+     --signprivate doc/chromium/files/devkeys/kernel_data_key.vbprivk \
+     --version 1 --config dummy.txt --vmlinuz u-boot-chromium.fit \
+     --bootloader dummy.txt --pack u-boot.kpart
 
 
 4. Prepare an SD card
+
+Steps::
 
    DISK=/dev/sdc   # Replace with your actual SD card device
    sudo cgpt create $DISK
@@ -79,6 +90,8 @@ kernel, and crashes if it is not present.
 
 
 5. Write U-Boot to the SD card
+
+Steps::
 
    sudo dd if=u-boot.kpart of=/dev/sdc1; sync
 
@@ -90,7 +103,7 @@ do this, login as root (via Ctrl-Alt-forward_arrow) and type
 'enable_dev_usb_boot'. You only need to do this once.
 
 Reboot the device with the SD card inserted. Press Clrl-U at the developer
-mode screen. It should show something like the following on the display:
+mode screen. It should show something like the following on the display::
 
    U-Boot 2017.07-00637-g242eb42-dirty (May 22 2017 - 06:14:21 -0600)
 
@@ -104,9 +117,9 @@ mode screen. It should show something like the following on the display:
 
 7. Known problems
 
-On the serial console the word MMC is chopped at the start of the line:
+On the serial console the word MMC is chopped at the start of the line::
 
-C:   sdhci@700b0000: 2, sdhci@700b0400: 1, sdhci@700b0600: 0
+   C:   sdhci@700b0000: 2, sdhci@700b0400: 1, sdhci@700b0600: 0
 
 This is likely due to some problem with change-over of the serial driver
 during relocation (or perhaps updating the clock setup in board_init()).
@@ -116,7 +129,7 @@ during relocation (or perhaps updating the clock setup in board_init()).
 
 To check that you copied the u-boot.its file correctly, use these commands.
 You should see that the data at 0x100 in u-boot-chromium.fit is the first few
-bytes of U-Boot:
+bytes of U-Boot::
 
    hd u-boot-chromium.fit |head -20
    ...
@@ -141,34 +154,39 @@ The instruction are similar to those for Nyan with changes as noted below:
 
 Open include/configs/rk3288_common.h
 
-Change:
+Change::
 
-#define CONFIG_SYS_TEXT_BASE		0x00100000
+   #define CONFIG_SYS_TEXT_BASE		0x00100000
 
-to:
+to::
 
-#define CONFIG_SYS_TEXT_BASE		0x02000100
+   #define CONFIG_SYS_TEXT_BASE		0x02000100
 
 
 
 2. Build U-Boot
 
+Steps::
+
    mkdir b
    make -j8 O=b/chromebook_jerry CROSS_COMPILE=arm-linux-gnueabi- \
-	chromebook_jerry_defconfig all
+      chromebook_jerry_defconfig all
 
 
 3. See above
 
 4. Build and sign an image
 
+Steps::
+
    ./b/chromebook_jerry/tools/mkimage -f doc/chromium/chromebook_jerry.its \
-	u-boot-chromium.fit
+      u-boot-chromium.fit
    echo test >dummy.txt
-   vbutil_kernel --arch arm --keyblock doc/chromium/devkeys/kernel.keyblock \
-	--signprivate doc/chromium/devkeys/kernel_data_key.vbprivk \
-	--version 1 --config dummy.txt --vmlinuz u-boot-chromium.fit \
-	--bootloader dummy.txt --pack u-boot.kpart
+   vbutil_kernel --arch arm \
+      --keyblock doc/chromium/files/devkeys/kernel.keyblock \
+      --signprivate doc/chromium/files/devkeys/kernel_data_key.vbprivk \
+      --version 1 --config dummy.txt --vmlinuz u-boot-chromium.fit \
+      --bootloader dummy.txt --pack u-boot.kpart
 
 
 5. See above
@@ -182,7 +200,7 @@ do this, login as root (via Ctrl-Alt-forward_arrow) and type
 'enable_dev_usb_boot'. You only need to do this once.
 
 Reboot the device with the SD card inserted. Press Clrl-U at the developer
-mode screen. It should show something like the following on the display:
+mode screen. It should show something like the following on the display::
 
    U-Boot 2017.05-00649-g72acdbf-dirty (May 29 2017 - 14:57:05 -0600)
 
@@ -203,18 +221,18 @@ None as yet.
 
 
 Other notes
-===========
+-----------
 
 flashrom
---------
+~~~~~~~~
 
-   Used to make a backup of your firmware, or to replace it.
+Used to make a backup of your firmware, or to replace it.
 
-   See: https://www.chromium.org/chromium-os/packages/cros-flashrom
+See: https://www.chromium.org/chromium-os/packages/cros-flashrom
 
 
 coreboot
---------
+~~~~~~~~
 
 Coreboot itself is not designed to actually boot an OS. Instead, a program
 called Depthcharge is used. This originally came out of U-Boot and was then
